@@ -1,0 +1,29 @@
+LIBRARY     KEEPERFX.DLL
+
+EXPORTS
+    @_DK_get_cpu_info@4                  ; RVA=0x0003A5F0
+    _DK_IsRunningMark@0                  ; RVA=0x00052810
+    _DK_IsRunningUnmark@0                ; RVA=0x00052840
+    _DK_LbBullfrogMain@8                 ; RVA=0x00005FC0
+    _DK_LbDataFreeAll@4                  ; RVA=0x000DD1A0
+    _DK_LbDataLoad@4                     ; RVA=0x000DCFC0
+    _DK_LbDataLoadAll                    ; RVA=0x000DD0B0
+    _DK_LbErrorLogSetup@12               ; RVA=0x000DADE0
+    _DK_LbIKeyboardClose@0               ; RVA=0x000E0DE0
+    _DK_LbMemoryFree@4                   ; RVA=0x000DAFC0
+    _DK_LbMemoryReset@0                  ; RVA=0x000DB0C0
+    _DK_LbMouseSuspend@0                 ; RVA=0x000DDEE0
+    _DK_LbScreenLock@0                   ; RVA=0x000DB740
+    _DK_LbScreenReset@0                  ; RVA=0x000DB7B0
+    _DK_LbScreenSetup                    ; RVA=0x000DB4F0
+    _DK_LbScreenSwap@0                   ; RVA=0x000DB830
+    _DK_LbScreenUnlock@0                 ; RVA=0x000DB780
+    _DK_LbSetIcon@4                      ; RVA=0x000DCB60
+    _DK_LbWindowsControl@0               ; RVA=0x000DCF80
+    _DK_SyncLog                          ; RVA=0x000DAEA0
+    _DK_WinMain@16                       ; RVA=0x000DCE80
+    _DK_game_loop@0                      ; RVA=0x00047F00
+    _DK_init_sound@0                     ; RVA=0x00066360
+    _DK_load_configuration@0             ; RVA=0x000C8320
+    _DK_start@12                         ; RVA=0x000F1EC8
+    _DK_LbScreenClear                    ; RVA=0x000DB710
