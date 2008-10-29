@@ -117,4 +117,20 @@ struct IRECT_2D {
     int b;
 };
 
+struct SCRIPT_OPTIONS {
+    int level_spaces;
+};
+
+struct MAPDRAW_OPTIONS {
+    short rescale;
+    char *data_path;
+};
+// Thing categorization helpers
+#define THING_CATEGR_COUNT 0x16
+typedef short (*is_thing_subtype)(const unsigned char *thing);
+typedef short (*is_item_subtype)(const unsigned char stype_idx);
+typedef int (*thing_subtype_arrayindex)(const unsigned char stype_idx);
+typedef unsigned char (*thing_subtype_switch)(const unsigned char stype_idx);
+typedef unsigned char (*thing_subtype_arrayitem)(const int arr_itm);
+
 #endif // KEEPFX_GLOBALS_H
