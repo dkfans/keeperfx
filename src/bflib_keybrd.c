@@ -28,6 +28,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+
 unsigned char lbKeyOn[256];
 unsigned char lbShift;
 unsigned char lbIInkeyFlags;

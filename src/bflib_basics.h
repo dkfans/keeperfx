@@ -88,12 +88,12 @@ struct TbLog {
 
 int LbErrorLog(const char *format, ...);
 int LbSyncLog(const char *format, ...);
-int __fastcall LbErrorLogSetup(char *directory, char *filename, uchar flag);
+int __fastcall LbErrorLogSetup(const char *directory, const char *filename, uchar flag);
 int __fastcall LbErrorLogClose();
 
 int __fastcall LbLogClose(TbLog *log);
-int __fastcall LbLogSetup(TbLog *log, char *filename, int flags);
-int __fastcall LbLogSetPrefix(TbLog *log, char *prefix);
+int __fastcall LbLogSetup(TbLog *log, const char *filename, int flags);
+int __fastcall LbLogSetPrefix(TbLog *log, const char *prefix);
 /******************************************************************************/
 // Return the big-endian longword at p.
 inline unsigned long blong (unsigned char *p)

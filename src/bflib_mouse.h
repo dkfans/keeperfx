@@ -94,8 +94,9 @@ struct DevInput {
         long DeviceType[16];
         unsigned char Init[16];
 };
-
+/*
 extern struct DevInput joy;
+*/
 
 #pragma pack()
 

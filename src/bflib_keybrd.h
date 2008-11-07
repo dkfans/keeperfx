@@ -167,7 +167,7 @@ extern "C" {
 		KC_SLEEP       = 0xDF,    // System Sleep
 		KC_WAKE        = 0xE3,    // System Wake
 	};
-
+/*
 extern unsigned long text_buf_pos;
 extern unsigned char lbKeyOn[];
 extern unsigned char lbShift;
@@ -176,6 +176,7 @@ extern char lbInkeyToAscii[];
 extern char lbInkeyToAsciiShift[];
 
 extern unsigned short flow_control_flags;
+*/
 
 #pragma pack()
 

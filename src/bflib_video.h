@@ -127,7 +127,7 @@ DLLIMPORT struct TbDisplayStruct _DK_lbDisplay;
 
 #pragma pack()
 
-
+/*
 extern unsigned char *palette;
 extern unsigned char *lbVesaData;
 extern bool screen_initialised;
@@ -135,6 +135,7 @@ extern void *back_buffer;
 extern char redraw_screen_flag;
 extern bool lbScreenDirectAccessActive;
 extern unsigned short lbVesaPage;
+*/
 /******************************************************************************/
 bool __fastcall LbVesaGetGran(TbScreenMode mode);
 int __fastcall LbVesaSetPage(short npage);

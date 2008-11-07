@@ -32,43 +32,16 @@ struct TbSprite {
 };
 #pragma options align=reset
 
-struct SpriteInfo {
-        struct TbSprite *Pointer;
-        struct TbSprite *EndPointer;
-        char *PointerData;
-        struct TbSprite *Font0;
-        struct TbSprite *EndFont0;
-        char *Font0Data;
-        struct TbSprite *Font1;
-        struct TbSprite *EndFont1;
-        char *Font1Data;
-        struct TbSprite *Font2;
-        struct TbSprite *EndFont2;
-        char *Font2Data;
-        struct TbSprite *Font3;
-        struct TbSprite *EndFont3;
-        char *Font3Data;
-        struct TbSprite *Font4;
-        struct TbSprite *EndFont4;
-        char *Font4Data;
-        struct TbSprite *Font5;
-        struct TbSprite *EndFont5;
-        char *Font5Data;
-        struct TbSprite *DeskIcons;
-        struct TbSprite *EndDeskIcons;
-        char *DeskIconData;
-};
-
 struct TbSetupSprite {
         struct TbSprite **Start;
         struct TbSprite **End;
         char **Data;
 };
-
+/*
 extern struct TbSetupSprite setup_sprites[];
-extern struct SpriteInfo sprites;
 extern char mouse_pointer_sprite;
 extern char lang_selection;
+*/
 
 #pragma pack()
 

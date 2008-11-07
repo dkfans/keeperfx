@@ -5,11 +5,11 @@
 #define KEEPERFX_PRIVATE_H
 
 /* VERSION DEFINITIONS */
-#define VER_STRING	"0.1.8.15"
+#define VER_STRING	"0.1.9.37"
 #define VER_MAJOR	0
 #define VER_MINOR	1
-#define VER_RELEASE	8
-#define VER_BUILD	15
+#define VER_RELEASE	9
+#define VER_BUILD	37
 #define COMPANY_NAME	"Fan community"
 #define FILE_VERSION	""
 #define FILE_DESCRIPTION	"Dungeon Keeper FX"

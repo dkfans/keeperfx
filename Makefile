@@ -14,7 +14,12 @@ build/bflib_keybrd.o \
 build/bflib_datetm.o \
 build/bflib_memory.o \
 build/bflib_pom.o \
+build/bflib_mouse.o \
+build/bflib_sndlib.o \
+build/bflib_sound.o \
 $(RES)
+
+#build/bflib_drawcls.o \
 
 
 LINKOBJ  = $(OBJ)

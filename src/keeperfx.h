@@ -33,6 +33,12 @@
 
 #define SIZEOF_TDDrawSdk 408
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#pragma pack(1)
+
 // Temporary
 typedef struct SSurface {
        char a;
@@ -43,35 +49,64 @@ enum TbErrorCode {
         Lb_FAIL    = -1,
 };
 
+typedef int TbError;
 
-#pragma pack(1)
+struct Coord3d {
+    union {
+      unsigned short val;
+      struct {
+        unsigned char pos;
+        unsigned char num;
+        } stl;
+    } x;
+    union {
+      unsigned short val;
+      struct {
+        unsigned char pos;
+        unsigned char num;
+        } stl;
+    } y;
+    union {
+      unsigned short val;
+      struct {
+        unsigned char pos;
+        unsigned char num;
+        } stl;
+    } z;
+};
+
+enum TbButtonType {
+        Lb_SLIDER  =  4,
+};
+
 
 //This seems to be array of functions in __thiscall convention
 // they are all methods for class TDDrawBase and its derivants
 // Note: May be incorrectly named - the Beta version was used to get them!
+// The inplementation as class is made in "bflib_drawcls.h"
 typedef struct {
-    void __fastcall (*dt)(void *ths); // +0 TDDrawSdk::TDDrawSdk(void)
-    long __fastcall (*setup_window)(void *ths); // +4 int setup_window(void);
-    long CALLBACK (*WindowProc)(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam); // +8 unsigned int TDDrawSdk::WindowProc(void *,unsigned int,unsigned int,long);
-    void __fastcall (*find_video_modes)(void *ths); // +12 void TDDrawSdk::find_video_modes(void);
-    int (*get_palette)(void *,unsigned long,unsigned long); // +16 int TDDrawSdk::get_palette(void *,unsigned long,unsigned long);
-    int (*set_palette)(void *,unsigned long,unsigned long); // +20 int TDDrawSdk::set_palette(void *,unsigned long,unsigned long);
-    int (*setup_screen)(TbScreenMode); // +24 int TDDrawSdk::setup_screen(TbScreenMode);
-    long __fastcall (*lock_screen)(void *ths); // +28 long TDDrawSdk::lock_screen(void);
-    long __fastcall (*unlock_screen)(void *ths); // +32 long TDDrawSdk::unlock_screen(void);
-    long (*clear_screen)(unsigned long); // +36 long TDDrawSdk::clear_screen(unsigned long);
-    long (*clear_window)(long,long,unsigned long,unsigned long,unsigned long); // +40 long TDDrawSdk::clear_window(long,long,unsigned long,unsigned long,unsigned long);
-    int __fastcall (*swap_screen)(void *ths); //+44 int TDDrawSdk::swap_screen(void);
-    int __fastcall (*reset_screen)(void *ths); // +48 int TDDrawSdk::reset_screen(void);
-    long __fastcall (*restore_surfaces)(void *ths); // +52 long TDDrawSdk::restore_surfaces(void);
-    void __fastcall (*wait_vbi)(void *ths); // +56 void TDDrawSdk::wait_vbi(void);
-    long (*swap_box)(tagPOINT,tagRECT &); // +60 long TDDrawSdk::swap_box(tagPOINT,tagRECT &);
-    long (*create_surface)(TSurface *,unsigned long,unsigned long); // +64 long TDDrawSdk::create_surface(_TSurface *,unsigned long,unsigned long);
-    long (*release_surface)(TSurface *); // +68 long TDDrawSdk::release_surface(_TSurface *);
-    long (*blt_surface)(TSurface *,unsigned long,unsigned long,tagRECT *,unsigned long); // +72 long TDDrawSdk::blt_surface(_TSurface *,unsigned long,unsigned long,tagRECT *,unsigned long);
-    long (*lock_surface)(TSurface *); // +76 long TDDrawSdk::lock_surface(_TSurface *);
-    long (*unlock_surface)(TSurface *); // +80 long TDDrawSdk::unlock_surface(_TSurface *);
-    void (*LoresEmulation)(int); // +84 void TDDrawSdk::LoresEmulation(int);
+    void __fastcall (*dt)(void *ths); // +0 virtual ~TDDrawSdk(void);
+    long __fastcall (*setup_window)(void *ths); // +4 virtual int setup_window(void);
+    long CALLBACK (*WindowProc)(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam); // +8 virtual unsigned int WindowProc(void *,unsigned int,unsigned int,long);
+    void __fastcall (*find_video_modes)(void *ths); // +12 virtual void find_video_modes(void);
+    int (*get_palette)(void *,unsigned long,unsigned long); // +16 virtual int get_palette(void *,unsigned long,unsigned long);
+    int (*set_palette)(void *,unsigned long,unsigned long); // +20 virtual int set_palette(void *,unsigned long,unsigned long);
+    int (*setup_screen)(TbScreenMode); // +24 virtual int setup_screen(TbScreenMode);
+    long __fastcall (*lock_screen)(void *ths); // +28 virtual long lock_screen(void);
+    long __fastcall (*unlock_screen)(void *ths); // +32 virtual long unlock_screen(void);
+    long (*clear_screen)(unsigned long); // +36 virtual long clear_screen(unsigned long);
+    long (*clear_window)(long,long,unsigned long,unsigned long,unsigned long); // +40 virtual long clear_window(long,long,unsigned long,unsigned long,unsigned long);
+    int __fastcall (*swap_screen)(void *ths); //+44 virtual int swap_screen(void);
+    int __fastcall (*reset_screen)(void *ths); // +48 virtual int reset_screen(void);
+    long __fastcall (*restore_surfaces)(void *ths); // +52 virtual long restore_surfaces(void);
+    void __fastcall (*wait_vbi)(void *ths); // +56 virtual void wait_vbi(void);
+    long (*swap_box)(tagPOINT,tagRECT &); // +60 virtual long swap_box(tagPOINT,tagRECT &);
+    long (*create_surface)(TSurface *,unsigned long,unsigned long); // +64 virtual long create_surface(_TSurface *,unsigned long,unsigned long);
+    long (*release_surface)(TSurface *); // +68 virtual long release_surface(_TSurface *);
+    long (*blt_surface)(TSurface *,unsigned long,unsigned long,tagRECT *,unsigned long); // +72 virtual long blt_surface(_TSurface *,unsigned long,unsigned long,tagRECT *,unsigned long);
+    long (*lock_surface)(TSurface *); // +76 virtual long lock_surface(_TSurface *);
+    long (*unlock_surface)(TSurface *); // +80 virtual long unlock_surface(_TSurface *);
+    void (*LoresEmulation)(int); // +84 virtual void LoresEmulation(int);
     void *unkn[4];
        } TDDrawBaseVTable;
 
@@ -100,217 +135,305 @@ typedef struct DDrawSdk {
        char unkn[376];
        } TDDrawSdk;
 
+// Windows-standard structure
+/*struct _GUID {
+     unsigned long Data1;
+     unsigned short Data2;
+     unsigned short Data3;
+     unsigned char Data4[8];
+};*/
 
-/*
-class TDDrawBaseClass {
-    TDDrawBaseClass(void);
-    ~TDDrawBaseClass(void);
-    long CALLBACK WndProc(HWND hWnd, unsigned int message, WPARAM wParam, LPARAM lParam);
-    int set_double_buffering_video(int);
-    int set_wscreen_in_video(int);
-    int IsActive(void);
-    void SetIcon(void);
-    void LoresEmulation(int);
 
-  Name:  W?$Wvf0jos:TDDrawBaseClass$$nx[]pn()v
-  void (*const operator`__vftbl'[])(void)
-    address      = 0002:00011874
-    kind:          (data)
 
-       };
-*/
+struct SoundEmitter {
+    unsigned char flags;
+    unsigned char field_1;
+    unsigned char field_2[2];
+    short pos_x;
+    short pos_y;
+    short pos_z;
+    unsigned char field_A[10];
+    unsigned char field_14;
+    unsigned char field_15;
+};
 
-/*
-  Name:  W?backup$:.0$:?LoresEmulation$n(i)v:TDDrawSdk$n$TbDisplayStruct$$
-    address      = 0002:00282440
-    module index = 227
-    kind:          (static pubdef) (data)
-  Name:  W?w$:.0$:?LoresEmulation$n(i)v:TDDrawSdk$nul
-    address      = 0002:002824B8
-    module index = 227
-    kind:          (static pubdef) (data)
-  Name:  W?h$:.0$:?LoresEmulation$n(i)v:TDDrawSdk$nul
-    address      = 0002:002824BC
-    module index = 227
-    kind:          (static pubdef) (data)
-  Name:  W?set$:.0$:?LoresEmulation$n(i)v:TDDrawSdk$ni
-    address      = 0002:002824C0
-    module index = 227
-    kind:          (static pubdef) (data)
-  Name:  W?$Wvf0dos:TDDrawSdk$$nx[]pn()v
-    address      = 0002:000118E0
-    module index = 227
-    kind:          (data)
-  Name:  W?SendDDMsg$:TDDrawSdk$n(ipnv)v
-    address      = 0001:000DA350
-    module index = 227
-    kind:          (code)
-  Name:  W?$ct:TDDrawSdk$n()_
-    address      = 0001:000DA3FC
-    module index = 227
-    kind:          (code)
-  Name:  W?$dt:TDDrawSdk$n()_
-    address      = 0001:000DA498
-    module index = 227
-    kind:          (code)
-  Name:  W?find_video_modes$:TDDrawSdk$n()v
-    address      = 0001:000DA544
-    module index = 227
-    kind:          (code)
-  Name:  W?setup_direct_draw$:TDDrawSdk$n()i
-    address      = 0001:000DA58C
-    module index = 227
-    kind:          (code)
-  Name:  W?reset_direct_draw$:TDDrawSdk$n()i
-    address      = 0001:000DA688
-    module index = 227
-    kind:          (code)
-  Name:  W?setup_dds_double_video$:TDDrawSdk$n()i
-    address      = 0001:000DA718
-    module index = 227
-    kind:          (code)
-  Name:  W?setup_dds_single_video$:TDDrawSdk$n()i
-    address      = 0001:000DA854
-    module index = 227
-    kind:          (code)
-  Name:  W?setup_dds_system$:TDDrawSdk$n()i
-    address      = 0001:000DA930
-    module index = 227
-    kind:          (code)
-  Name:  W?setup_surfaces$:TDDrawSdk$n(sss)i
-    address      = 0001:000DA9A4
-    module index = 227
-    kind:          (code)
-  Name:  W?release_surfaces$:TDDrawSdk$n()i
-    address      = 0001:000DAA98
-    module index = 227
-    kind:          (code)
-  Name:  W?set_palette$:TDDrawSdk$n(pnvulul)i
-    address      = 0001:000DAAF8
-    module index = 227
-    kind:          (code)
-  Name:  W?get_palette$:TDDrawSdk$n(pnvulul)i
-    address      = 0001:000DAC6C
-    module index = 227
-    kind:          (code)
-  Name:  W?release_palettes$:TDDrawSdk$n()i
-    address      = 0001:000DAD30
-    module index = 227
-    kind:          (code)
-  Name:  W?setup_screen$:TDDrawSdk$n($TbScreenMode$$)i
-    address      = 0001:000DAD74
-    module index = 227
-    kind:          (code)
-  Name:  W?restore_surfaces$:TDDrawSdk$n()l
-    address      = 0001:000DB080
-    module index = 227
-    kind:          (code)
-  Name:  W?wscreen_surface$:TDDrawSdk$n()pn$IDirectDrawSurface$$
-    address      = 0001:000DB0F0
-    module index = 227
-    kind:          (code)
-  Name:  W?lock_screen$:TDDrawSdk$n()l
-    address      = 0001:000DB124
-    module index = 227
-    kind:          (code)
-  Name:  W?unlock_screen$:TDDrawSdk$n()l
-    address      = 0001:000DB1F0
-    module index = 227
-    kind:          (code)
-  Name:  W?clear_screen$:TDDrawSdk$n(ul)l
-    address      = 0001:000DB30C
-    module index = 227
-    kind:          (code)
-  Name:  W?clear_window$:TDDrawSdk$n(llululul)l
-    address      = 0001:000DB3D0
-    module index = 227
-    kind:          (code)
-  Name:  W?swap_box$:TDDrawSdk$n($tagPOINT$$rn$tagRECT$$)l
-    address      = 0001:000DB490
-    module index = 227
-    kind:          (code)
-  Name:  W?LoresEmulation$:TDDrawSdk$n(i)v
-    address      = 0001:000DB514
-    module index = 227
-    kind:          (code)
-  Name:  W?swap_screen$:TDDrawSdk$n()i
-    address      = 0001:000DB698
-    module index = 227
-    kind:          (code)
-  Name:  W?reset_screen$:TDDrawSdk$n()i
-    address      = 0001:000DB864
-    module index = 227
-    kind:          (code)
-  Name:  W?wait_vbi$:TDDrawSdk$n()v
-    address      = 0001:000DB8A8
-    module index = 227
-    kind:          (code)
-  Name:  W?initFail$:TDDrawSdk$n(pna)i
-    address      = 0001:000DB8D4
-    module index = 227
-    kind:          (code)
-  Name:  W?WindowProc$:TDDrawSdk$n(pnvuiuil)ul
-    address      = 0001:000DB8E8
-    module index = 227
-    kind:          (code)
-  Name:  W?sdk_window_thread$:TDDrawSdk$n(ul)ul
-    address      = 0001:000DBB18
-    module index = 227
-    kind:          (code)
-  Name:  W?setup_window$:TDDrawSdk$n()l
-    address      = 0001:000DBB70
-    module index = 227
-    kind:          (code)
-  Name:  W?create_sdk_window$:TDDrawSdk$n()l
-    address      = 0001:000DBBCC
-    module index = 227
-    kind:          (code)
-  Name:  W?remove_sdk_window$:TDDrawSdk$n()l
-    address      = 0001:000DBC58
-    module index = 227
-    kind:          (code)
-  Name:  W?create_surface$:TDDrawSdk$n(pn$_TSurface$$ulul)l
-    address      = 0001:000DBD00
-    module index = 227
-    kind:          (code)
-  Name:  W?release_surface$:TDDrawSdk$n(pn$_TSurface$$)l
-    address      = 0001:000DBDAC
-    module index = 227
-    kind:          (code)
-  Name:  W?blt_surface$:TDDrawSdk$n(pn$_TSurface$$ululpn$tagRECT$$ul)l
-    address      = 0001:000DBDC8
-    module index = 227
-    kind:          (code)
-  Name:  W?lock_surface$:TDDrawSdk$n(pn$_TSurface$$)l
-    address      = 0001:000DBE80
-    module index = 227
-    kind:          (code)
-  Name:  W?unlock_surface$:TDDrawSdk$n(pn$_TSurface$$)l
-    address      = 0001:000DBEC4
-    module index = 227
-    kind:          (code)
-  Name:  W?$Wts0dn$TDDrawSdk$$$nx[]uc
-    address      = 0002:000118CC
-    module index = 227
-    kind:          (data)
-  Name:  W?$Wsi0grect$n$tagRECT$$$:.7$:?swap_screen$n()i:TDDrawSdk$nx$tagRECT$$
-    address      = 0002:00031AA4
-    module index = 227
-    kind:          (static pubdef) (data)
-  Name:  W?$Wsi0grect$n$tagRECT$$$:.j$:?swap_screen$n()i:TDDrawSdk$nx$tagRECT$$
-    address      = 0002:00031AB4
-    module index = 227
-    kind:          (static pubdef) (data)
-  Name:  W?$Wsi0hdrect$n$tagRECT$$$:.j$:?swap_screen$n()i:TDDrawSdk$nx$tagRECT$$
-    address      = 0002:00031AC4
-    module index = 227
-    kind:          (static pubdef) (data)
-  Name:  W?$Wsi0dr$n$tagRECT$$$:.c$:?blt_surface$n(pn$_TSurface$$ululpn$tagRECT$$ul)l:TDDrawSdk$nx$3$
-    address      = 0002:002824D4
-    module index = 227
-    kind:          (static pubdef) (data)
+//I'm not sure about size of this structure
+struct Camera {
+    unsigned char field_0[4];
+    short field_4;
+    unsigned char field_6;
+    unsigned char field_7;
+    short field_8;
+    unsigned char field_A;
+    int field_B;
+    int field_F;
+    int field_13;
+    int field_17;
+    int field_1B;
+    unsigned char field_1F[9];
+    short field_28;
+    short field_2A;
+    short field_2C;
+    short field_2E;
+    short field_30;
+    short field_32;
+    unsigned char field_34;
+    int field_35;
+    int field_39;
+    int field_3D;
+    int field_41;
+    unsigned char field_45[19];
+    short field_58;
+    short field_5A;
+    short field_5C;
+    unsigned char field_5E;
+    unsigned char field_5F[12];
+    int field_6B;
+    unsigned char field_6F[19];
+    short field_82;
+    short field_84;
+    short field_86;
+    unsigned char field_88;
+    unsigned char field_89[12];
+    int field_95;
+    int field_99;
+};
 
-*/
+struct Thing {
+    unsigned char field_0;
+    unsigned char field_1;
+    unsigned char field_2;
+    unsigned char field_3;
+    unsigned char field_4;
+    unsigned char field_5;
+    unsigned char field_6;
+    unsigned char field_7;
+    unsigned char field_8;
+    long field_9;
+    unsigned char field_D;
+    unsigned char field_E;
+    unsigned char field_F;
+    unsigned char field_10;
+    unsigned char field_11;
+    unsigned char field_12;
+    unsigned char field_13;
+    unsigned char field_14;
+    unsigned char field_15;
+    unsigned char field_16;
+    unsigned char field_17;
+    unsigned char field_18;
+    unsigned char field_19;
+    unsigned char field_1A;
+    unsigned char field_1B[4];
+    unsigned char field_1F;
+    unsigned char field_20[24];
+    unsigned char field_38[24];
+    unsigned char field_50[20];
+    short field_64;
+    unsigned char field_66[2];
+    unsigned char field_68[2];
+    unsigned char field_6A;
+};
+
+struct Room {
+    long field_0;
+    short field_4;
+    short field_6;
+    unsigned char field_8;
+    unsigned char field_9;
+    short field_A;
+    unsigned char field_C[6];
+    unsigned char field_12;
+    unsigned char field_13[4];
+    short field_17;
+    unsigned char field_19[30];
+    short field_37;
+    unsigned char field_39[12];
+};
+
+struct Objects {
+    unsigned char field_0;
+    unsigned char field_1;
+    unsigned char field_2;
+    unsigned char field_3;
+    unsigned char field_4;
+    short field_5;
+    short field_7;
+    short field_9;
+    short field_B;
+    short field_D;
+    unsigned char field_F;
+    unsigned char field_10;
+    unsigned char field_11;
+    unsigned char field_12;
+    unsigned char field_13;
+    unsigned char field_14;
+    unsigned char field_15;
+};
+
+struct TrapData {
+      long field_0;
+      long field_4;
+      short field_8;
+      short field_A;
+      short field_C;
+      short field_E;
+};
+
+struct RoomData {
+      unsigned char numfield_0;
+      short numfield_1;
+      long ofsfield_3;
+      long ofsfield_7;
+      long offfield_B;
+      unsigned char field_F;
+      unsigned char field_10;
+      short field_11;
+      short field_13;
+      short field_15;
+};
+
+struct SpellData {
+      long field_0;
+      long field_4;
+      unsigned char field_8;
+      short field_9;
+      short field_B;
+      short field_D;
+      unsigned char field_F[2];
+      short field_11;
+      short field_13;
+      long field_15;
+      unsigned char field_19;
+      unsigned char field_1A;
+};
+
+struct CreatureData {
+      unsigned char field_0;
+      short field_1;
+      short field_3;
+};
+
+struct SlabMap {
+      unsigned char field_0;
+      short field_1;
+      unsigned char field_3;
+      unsigned char field_4;
+      unsigned char field_5;
+};
+
+struct SlabAttr {
+      short field_0;
+      short field_2;
+      short field_4;
+      long field_6;
+      long field_A;
+      unsigned char field_E;
+      unsigned char field_F;
+      unsigned char field_10;
+      unsigned char field_11;
+      unsigned char field_12;
+      unsigned char field_13;
+      unsigned char field_14;
+      unsigned char field_15;
+};
+
+struct CreatureControl {
+char field_0[2];
+      unsigned char field_2;
+char field_3[411];
+char instances[256];
+char field_29E[104];
+char field_306[2];
+};
+
+struct CreatureStats {
+long field_0;
+short field_4;
+char field_6;
+short field_7;
+char field_9;
+char field_A;
+char field_B;
+char field_C;
+char field_D;
+char field_E;
+char field_F;
+char field_10;
+char field_11;
+short field_12;
+char field_14;
+short field_15;
+char field_17;
+char field_18;
+char field_19;
+char field_1A;
+short field_1B;
+short field_1D;
+short field_1F;
+short field_21;
+short field_23;
+char field_25;
+long field_26[10];
+char field_4E;
+short field_4F;
+char field_51;
+char field_52;
+short field_53;
+short field_55[18];
+short field_79;
+char field_7B;
+char field_7C;
+char field_7D;
+short field_7E;
+char field_80[10];
+char field_8A[10];
+char field_94;
+char field_95;
+char field_96;
+char field_97;
+short field_98;
+char field_9A;
+char field_9B;
+char field_9C[6];
+char field_A2;
+char field_A3[3];
+short field_A6;
+short field_A8;
+short field_AA;
+short field_AC;
+short field_AE;
+short field_B0;
+short field_B2;
+short field_B4;
+short field_B6;
+short field_B8;
+short field_BA;
+short field_BC;
+short field_BE[4];
+short field_C6;
+short field_C8;
+char field_CA[2];
+short field_CC;
+char field_CE[2];
+short field_D0;
+char field_D2[5];
+char field_D7;
+char field_D8;
+char field_D9;
+char field_DA;
+char field_DB;
+char field_DC[4];
+short field_E0;
+short field_E2;
+short field_E4;
+};
+
+struct BBlock {
+      char field_0;
+      short field_1;
+      short field_3;
+};
 
 struct GameSettings {
     unsigned char field_0;
@@ -332,28 +455,57 @@ struct GameSettings {
     unsigned char field_37[8];
     unsigned char field_3F[8];
     unsigned char field_47[8];
-    unsigned char field_4F;
+    unsigned char tooltips_on;
     unsigned char field_50;
     unsigned char field_51;
     };
 
+struct Packet {
+    int field_0;
+    unsigned char field_4;
+    unsigned char field_5;
+    short field_6;
+    short field_8;
+    short field_A;
+    short field_C;
+    short field_E;
+    unsigned char field_10;
+    };
+
 struct PlayerInfo {
-    unsigned char field_0[3];
+    unsigned char field_0;
+    unsigned char field_1;
+    unsigned char field_2; //seems to be never used
     unsigned char field_3;
     unsigned char field_4;
     unsigned char field_5;
     unsigned char field_6;
-    unsigned char field_7[34];
+    unsigned char field_7[4];
+    unsigned char field_B;
+    unsigned char field_C[29];
     unsigned char field_29;
     unsigned char field_2A;
     unsigned char field_2B;
     unsigned char field_2C;
-    unsigned char field_2D[1047];
+    unsigned char field_2D[2];
+    short field_2F;
+    long field_31;
+    short field_35;
+    unsigned char field_37;
+    struct Camera *camera;
+    unsigned char field_3C[153];
+    unsigned char field_D5[879];
     short field_444;
     short field_446;
     short field_448;
     short field_44A;
-    unsigned char field_44C[159];
+    short mouse_x;
+    short mouse_y;
+    short field_450;
+    unsigned char field_452;
+    unsigned char field_453;
+    unsigned char field_454[15];
+    char field_463[136];
     long field_4EB;
     };
 
@@ -498,20 +650,20 @@ int numfield_5;
 char numfield_9;
 unsigned char numfield_A;
 char align_B;
-char numfield_C;
+    unsigned char numfield_C;
 char numfield_D;
-char flags_font;
+    unsigned char flags_font;
 char one_player;
-char eastegg01_cntr;
+    char eastegg01_cntr;
 char flags_cd;
-char eastegg02_cntr;
+    char eastegg02_cntr;
 char audiotrack;
 char numfield_14;
 char numfield_15;
 int numfield_16;
 char numfield_1A;
 char numfield_1B;
-struct PlayerInfo players[5];
+    struct PlayerInfo players[5];
 short numfield_18c7;
 char field_18C9;
 short field_18CA;
@@ -543,23 +695,33 @@ int field_10019;
 char field_1001D;
 int field_1001E;
 int field_10022;
-char field_10026[1000000];
-char field_104266[32768];
-char field_10C266[32768];
-char field_114266[32768];
-char field_11C266[32768];
-char field_124266[32768];
-char field_12C266[32768];
-char field_134266[32768];
-char field_13C266[4096];
-char field_13D266[4096];
-char field_13E266[4096];
-char field_13F266[4096];
-char field_140266[4096];
-char field_141266[4096];
-char field_142266[4096];
-char field_143266[631];
-struct Dungeon dungeon[5];
+char field_10026[4096];
+char field_11026[1024];
+char field_11426[1322];
+    struct Thing *things_lookup[2048];
+long fieldCC157_ptr;
+    struct CreatureControl *creature_control_lookup[256];
+struct Thing *things_ptr2;
+void *field18c7_lookup[2048];
+long field_15D58;
+char field_15D5C[41674];
+char field_20026[65536];
+char field_30026[196608];
+char field_60026[24881];
+    struct CreatureControl creature_control_data[256];
+    struct Thing things_data[2048];
+char field_CC157 [64251];
+struct BBlock bblocks[257];
+struct BBlock map[65536];
+char computer_task[14800];
+char computer[18239];
+char field_134266[4096];
+char field_135266[4096];
+char field_136266[128];
+char field_1362E6[51];
+    struct SlabMap slabmap[7225];
+    struct Room rooms[150];
+    struct Dungeon dungeon[5];
 char field_149E05[97];
 int field_149E66;
 int field_149E6A;
@@ -607,7 +769,7 @@ char field_14BA66[128];
 char field_14BAE6[64];
 char field_14BB26[28];
     unsigned long seedchk_random_used;
-int field_14BB46;
+    unsigned long gameturn;
 int field_14BB4A;
 int field_14BB4E;
 short field_14BB52;
@@ -617,9 +779,11 @@ int field_14BB59;
 int field_14BB5D;
     unsigned long time_delta;
 short field_14BB65[592];
-char field_14C005[609];
-char field_14C266[4096];
-char field_14D266[4096];
+char field_14C005[5];
+short field_14C00A;
+    struct Packet packets[5];
+    struct CreatureStats creature_stats[32];
+char field_14DD21[1349];
 char field_14E266[1024];
 char field_14E666[512];
 char field_14E866[256];
@@ -673,7 +837,12 @@ char field_150D56[1024];
 char field_151156[1024];
 char field_151556[128];
 char field_1515D6[256];
-char field_1516D6[256];
+char field_1516D6[29];
+int field_1516F3;
+int field_1516F7;
+char field_1516FB[27];
+char field_151716[64];
+char field_151756[128];
 char field_1517D6[5];
 char boolfield_1517DB;
 char boolfield_1517DC;
@@ -710,6 +879,22 @@ int field_14;
 char *field_18;
 };
 
+struct TbNetworkPlayerInfo {
+char field_0[32];
+char field_20[28];
+};
+
+struct SerialInitData {
+long field_0;
+    long numfield_4;
+    long field_8;
+long field_C;
+    char *str_phone;
+    char *str_dial;
+    char *str_hang;
+    char *str_answr;
+};
+
 struct TbLoadFiles {
         char FName[28];
         unsigned char **Start;
@@ -739,9 +924,11 @@ struct HighScore {
 
 typedef char * (*ModDL_Fname_Func)(struct TbLoadFiles *);
 typedef long (*Gf_OptnBox_Callback)(struct GuiBox *, struct GuiBoxOption *, char, long *);
+typedef void (*Gf_Btn_Callback)(struct GuiButton *gbtn);
+
 
 struct GuiBoxOption {
-       char *label;
+       const char *label;
        unsigned char numfield_4;
        void *ofsfield_5;
        Gf_OptnBox_Callback callback;
@@ -754,163 +941,62 @@ struct GuiBoxOption {
        short field_25;
 };
 
-#pragma pack()
- 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
-//Functions - exported by the DLL
+struct GuiButton {
+       unsigned char field_0;
+       unsigned char field_1;
+       unsigned char field_2;
+       char gmenu_idx;
+       short id_num;
+       unsigned char gbtype;
+       Gf_Btn_Callback click_event;
+       Gf_Btn_Callback rclick_event;
+       Gf_Btn_Callback field_F;
+       Gf_Btn_Callback field_13;
+       Gf_Btn_Callback field_17;
+       char field_1B;
+       unsigned char field_1C;
+       short field_1D;
+       short field_1F;
+       short pos_x;
+       short pos_y;
+       short width;
+       short height;
+       short field_29;
+       short field_2B;
+       unsigned short field_2D;
+       long field_2F;
+       unsigned long *field_33;
+       unsigned short slide_val; // slider value, scaled 0..255
+};
 
-//DLLIMPORT int __stdcall _DK_WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd);
-//DLLIMPORT int __stdcall _DK_LbBullfrogMain(unsigned short argc,char **argv);
-DLLIMPORT int __stdcall _DK_setup_game(void);
-DLLIMPORT int __stdcall _DK_game_loop(void);
-DLLIMPORT int __stdcall _DK_init_sound(void);
-DLLIMPORT int __stdcall _DK_LbErrorLogSetup(char *directory, char *filename, unsigned char flag);
-DLLIMPORT void __fastcall _DK_get_cpu_info(struct CPU_INFO *cpu_info);
-DLLIMPORT int __stdcall _DK_SyncLog(char *Format, ...);
-DLLIMPORT int __stdcall _DK_load_configuration(void);
-DLLIMPORT int __cdecl _DK_LbDataLoadAll(struct TbLoadFiles *load_files);
-DLLIMPORT int __cdecl _DK_LbScreenSetup(TbScreenMode mode, unsigned int width,
-               unsigned int height, unsigned char *palette, int flag1, int flag2);
-DLLIMPORT int __cdecl _DK_LbScreenClear(TbPixel colour);
-//DLLIMPORT int __cdecl _DK_LbScreenSwap();
-DLLIMPORT int __stdcall _DK_LbWindowsControl(void);
-DLLIMPORT int __stdcall _DK_LbScreenLock(void);
-DLLIMPORT int __stdcall _DK_LbScreenUnlock(void);
-DLLIMPORT int __stdcall _DK_LbScreenSwap(void);
-DLLIMPORT int __cdecl _DK_LbPaletteSet(unsigned char *palette);
-DLLIMPORT int __cdecl _DK_LbPaletteGet(unsigned char *palette);
-DLLIMPORT void __cdecl _DK_set_cpu_mode(int mode);
-DLLIMPORT void __cdecl _DK_check_cd_in_drive(void);
-DLLIMPORT void __cdecl _DK_display_loading_screen(void);
-DLLIMPORT int __cdecl _DK_initial_setup(void);
-DLLIMPORT int __cdecl _DK_setup_game_sound_heap(void);
-DLLIMPORT int __cdecl _DK_load_settings(void);
-DLLIMPORT void __cdecl _DK_init_creature_scores(void);
-DLLIMPORT void __cdecl _DK_setup_3d(void);
-DLLIMPORT void __cdecl _DK_setup_stuff(void);
-DLLIMPORT void __cdecl _DK_init_lookups(void);
-DLLIMPORT void __cdecl _DK_set_gamma(char, int);
-DLLIMPORT void __cdecl _DK_update_mouse(void);
-DLLIMPORT void __cdecl _DK_input_eastegg(void);
-DLLIMPORT void __cdecl _DK_update(void);
-DLLIMPORT void __cdecl _DK_wait_at_frontend(void);
-DLLIMPORT void __cdecl _DK_set_player_instance(struct PlayerInfo *playerinf, long, int);
-DLLIMPORT void __cdecl _DK_clear_mapwho(void);
-DLLIMPORT void __cdecl _DK_delete_all_structures(void);
-DLLIMPORT void __cdecl _DK_frontstats_initialise(void);
-DLLIMPORT int __cdecl _DK_LbMouseChangeSpriteAndHotspot(TbSprite *spr, int, int);
-DLLIMPORT int __cdecl _DK_PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *palette);
-DLLIMPORT void __cdecl _DK_initialise_eye_lenses(void);
-DLLIMPORT void __cdecl _DK_reset_eye_lenses(void);
-DLLIMPORT void __cdecl _DK_setup_eye_lens(long);
-DLLIMPORT int __cdecl _DK_LbPaletteFade(unsigned char *pal, long n, TbPaletteFadeFlag flg);
-DLLIMPORT int __cdecl _DK_LbMouseChangeSprite(long);
+struct GuiMenu {
+      char field_0;
+      unsigned char field_1;
+      short numfield_2;
+      void *ptrfield_4;
+      short pos_x;
+      short pos_y;
+      short width;
+      short height;
+      void *ptrfield_10;
+      char unkfield_14[5];
+      void *ptrfield_19;
+      unsigned char flgfield_1D;
+      unsigned char flgfield_1E;
+      char field_1F;
+};
 
-DLLIMPORT void __stdcall _DK_IsRunningMark(void);
-DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
-DLLIMPORT int __stdcall _DK_LbMouseSuspend(void);
-DLLIMPORT int __stdcall _DK_LbScreenReset(void);
-DLLIMPORT int __stdcall _DK_LbDataFreeAll(struct TbLoadFiles *load_files);
-DLLIMPORT int __stdcall _DK_LbMemoryFree(void *buffer);
-DLLIMPORT int __stdcall _DK_LbMemoryReset(void);
-DLLIMPORT int __stdcall _DK_play_smk_(char *fname, int smkflags, int plyflags);
-DLLIMPORT int __fastcall _DK_LbFileClose(TbFileHandle handle);
-DLLIMPORT int __cdecl _DK_LbTextDraw(int posx, int posy, const char *text);
-DLLIMPORT int __cdecl _DK_process_sound_heap(void);
-DLLIMPORT void __cdecl _DK_setup_engine_window(long, long, long, long);
-DLLIMPORT void __cdecl _DK_redraw_display(void);
-DLLIMPORT void __cdecl _DK_cumulative_screen_shot(void);
-DLLIMPORT long __cdecl _DK_anim_record_frame(unsigned char *screenbuf, unsigned char *palette);
-DLLIMPORT int __stdcall _DK_LbIsActive(void);
-DLLIMPORT void __cdecl _DK_input(void);
-DLLIMPORT void __cdecl _DK_load_game_save_catalogue(CatalogueEntry *catalg);
-DLLIMPORT long __cdecl _DK_frontmap_update(void);
-DLLIMPORT void __cdecl _DK_frontstats_initialise(void);
-DLLIMPORT long __cdecl _DK_frontnetmap_update(void);
-DLLIMPORT void __cdecl _DK_frontend_set_state(long);
-DLLIMPORT void __cdecl _DK_frontnet_service_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_session_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_session_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_start_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_modem_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_serial_update(void);
-DLLIMPORT void __cdecl _DK_frontstats_update(void);
-DLLIMPORT void __cdecl _DK_fronttorture_update(void);
-//DLLIMPORT void * __cdecl _DK_frontnet_session_join(GuiButton); (may be incorrect)
-DLLIMPORT  int __cdecl _DK_set_game_key(long key_id, unsigned char key, int shift_state, int ctrl_state);
-DLLIMPORT void __cdecl _DK_frontmap_input(void);
-DLLIMPORT void __cdecl _DK_frontnetmap_input(void);
-DLLIMPORT void __cdecl _DK_fronttorture_input(void);
-DLLIMPORT long __cdecl _DK_GetMouseY(void);
-DLLIMPORT int __cdecl _DK_get_gui_inputs(int);
-DLLIMPORT void __cdecl _DK_frontnet_start_input(void);
-DLLIMPORT void __cdecl _DK_frontend_high_score_table_input(void);
-DLLIMPORT int __cdecl _DK_play_smacker_file(char *fname, int);
-DLLIMPORT int __cdecl _DK_LbTextSetWindow(int, int, int, int);
-DLLIMPORT int __cdecl _DK_draw_text_box(char *text);
-DLLIMPORT void __cdecl _DK_demo(void);
-DLLIMPORT void __cdecl _DK_draw_gui(void);
-DLLIMPORT void __cdecl _DK_frontmap_draw(void);
-DLLIMPORT void __cdecl _DK_frontcredits_draw(void);
-DLLIMPORT void __cdecl _DK_fronttorture_draw(void);
-DLLIMPORT void __cdecl _DK_frontnetmap_draw(void);
-DLLIMPORT int __cdecl _DK_setup_screen_mode(short nmode);
-DLLIMPORT int __cdecl _DK_setup_screen_mode_minimal(short nmode);
-DLLIMPORT void __cdecl _DK_save_settings(void);
-DLLIMPORT void __cdecl _DK_startup_saved_packet_game(void);
-DLLIMPORT void __cdecl _DK_startup_network_game(void);
-DLLIMPORT int __cdecl _DK_frontend_load_data(void);
-DLLIMPORT int __cdecl _DK_setup_network_service(int srvidx);
-DLLIMPORT int __cdecl _DK_load_game(long);
-DLLIMPORT int __cdecl _DK_process_3d_sounds(void);
-DLLIMPORT int __cdecl _DK_LbMouseSetPosition(int, int);
-DLLIMPORT void _DK_frontmap_unload(void);
-DLLIMPORT void _DK_turn_off_menu(char);
-DLLIMPORT void _DK_turn_on_menu(char);
-DLLIMPORT void _DK_init_gui(void);
-DLLIMPORT void _DK_frontnet_serial_reset(void);
-DLLIMPORT void _DK_frontnet_modem_reset(void);
-DLLIMPORT void _DK_fronttorture_unload(void);
-DLLIMPORT void _DK_fronttorture_load(void);
-DLLIMPORT void _DK_frontnetmap_unload(void);
-DLLIMPORT void _DK_frontnetmap_load(void);
-DLLIMPORT int _DK_frontmap_load(void);
-DLLIMPORT void _DK_frontnet_service_setup(void);
-DLLIMPORT void _DK_frontnet_session_setup(void);
-DLLIMPORT void _DK_frontnet_start_setup(void);
-DLLIMPORT void _DK_frontnet_modem_setup(void);
-DLLIMPORT void _DK_frontnet_serial_setup(void);
-DLLIMPORT char *_DK_mdlf_for_cd(struct TbLoadFiles *);
-DLLIMPORT char *_DK_mdlf_default(TbLoadFiles *);
-DLLIMPORT int _DK_LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
-DLLIMPORT void _DK_frontstats_set_timer(void);
+struct ToolTipBox {
+      unsigned char field_0;
+      char text[2048];
+      struct GuiButton *gbutton;
+      void *target;
+      unsigned char field_809;
+      short pos_x;
+      short pos_y;
+};
 
-//Double exported - functions which are imports in DLL
-
-DLLIMPORT int __stdcall _DK_FreeAudio(void);
-DLLIMPORT int __stdcall _DK_SetRedbookVolume(int volume);
-DLLIMPORT int __stdcall _DK_SetSoundMasterVolume(int volume);
-DLLIMPORT int __stdcall _DK_SetMusicMasterVolume(int volume);
-DLLIMPORT int __stdcall _DK_GetSoundInstalled(void);
-int __stdcall _DK_PlayRedbookTrack(int);
-int __stdcall _DK_MonitorStreamedSoundTrack(void);
-int __stdcall _DK_StopRedbookTrack(void);
-DLLIMPORT int __stdcall _DK_GetSoundDriver(void);
-DLLIMPORT int __stdcall _DK_StopAllSamples(void);
-DLLIMPORT int __stdcall _DK_GetFirstSampleInfoStructure(void);
-DLLIMPORT int __stdcall _DK_LoadMusic(int);
-DLLIMPORT int __stdcall _DK_InitAudio(int);
-DLLIMPORT int __stdcall _DK_SetupAudioOptionDefaults(int);
-int __stdcall _DK_StopStreamedSample(void);
-DLLIMPORT int __stdcall _DK_StreamedSampleFinished(void);
-DLLIMPORT int __stdcall _DK_SetStreamedSampleVolume(int);
-DLLIMPORT int __stdcall _DK_GetLastSampleInfoStructure(void);
-DLLIMPORT int __stdcall _DK_GetCurrentSoundMasterVolume(void);
-int __stdcall _DK_StopMusic(void);
-DLLIMPORT int __stdcall _DK_LoadAwe32Soundfont(int);
 
 // Global variables migration between DLL and the program
 
@@ -1000,10 +1086,241 @@ DLLIMPORT extern long _DK_high_score_entry_index;
 DLLIMPORT extern char _DK_high_score_entry[64];
 DLLIMPORT extern unsigned long _DK_time_last_played_demo;
 DLLIMPORT extern char _DK_lbfade_open;
+DLLIMPORT extern struct TbSprite *_DK_winfont;
+DLLIMPORT extern struct GuiButton _DK_active_buttons[86];
+DLLIMPORT extern unsigned short _DK_battle_creature_over;
+DLLIMPORT extern char _DK_gui_room_type_highlighted;
+DLLIMPORT extern char _DK_gui_door_type_highlighted;
+DLLIMPORT extern char _DK_gui_trap_type_highlighted;
+DLLIMPORT extern char _DK_gui_creature_type_highlighted;
+DLLIMPORT extern short _DK_drag_menu_x;
+DLLIMPORT extern short _DK_drag_menu_y;
+DLLIMPORT extern struct GuiMenu _DK_active_menus[8];
+DLLIMPORT extern char _DK_busy_doing_gui;
+DLLIMPORT extern struct GuiButton *_DK_input_button;
+DLLIMPORT extern struct ToolTipBox _DK_tool_tip_box;
+DLLIMPORT extern unsigned short _DK_tool_tip_time;
+DLLIMPORT extern unsigned short _DK_help_tip_time;
+DLLIMPORT extern long _DK_gui_last_left_button_pressed_id;
+DLLIMPORT extern long _DK_gui_last_right_button_pressed_id;
+DLLIMPORT extern long _DK_tooltip_scroll_offset;
+DLLIMPORT extern long _DK_tooltip_scroll_timer;
+DLLIMPORT extern long _DK_map_to_slab[256];
+DLLIMPORT extern struct TrapData _DK_trap_data[11];
+DLLIMPORT extern struct RoomData _DK_room_data[17];
+DLLIMPORT extern struct SpellData _DK_spell_data[];
+DLLIMPORT extern struct SlabAttr _DK_slab_attrs[58];
+DLLIMPORT extern unsigned char _DK_object_to_special[136];
+DLLIMPORT extern unsigned char _DK_object_to_magic[136];
+DLLIMPORT extern unsigned char _DK_workshop_object_class[136];
+DLLIMPORT extern unsigned char _DK_object_to_door_or_trap[136];
+DLLIMPORT extern unsigned char _DK_magic_to_object[24];
+DLLIMPORT extern unsigned char _DK_trap_to_object[8];
+DLLIMPORT extern unsigned char _DK_door_to_object[8];
+DLLIMPORT extern unsigned short _DK_specials_text[10];
+DLLIMPORT extern unsigned short _DK_door_names[8];
+DLLIMPORT extern struct CreatureData _DK_creature_data[32];
+DLLIMPORT extern struct Objects _DK_objects[135];
+DLLIMPORT extern int _DK_eastegg03_cntr;
+DLLIMPORT extern unsigned long _DK_key_modifiers;
+DLLIMPORT extern struct SoundEmitter _DK_emitter[128];
+DLLIMPORT extern long _DK_Non3DEmitter;
+DLLIMPORT extern long _DK_SpeechEmitter;
+DLLIMPORT extern unsigned short _DK_MyScreenWidth;
+DLLIMPORT extern unsigned short _DK_MyScreenHeight;
+DLLIMPORT extern struct GuiMenu _DK_default_menu;
+DLLIMPORT extern long _DK_pointer_x;
+DLLIMPORT extern long _DK_pointer_y;
+DLLIMPORT extern long _DK_block_pointed_at_x;
+DLLIMPORT extern long _DK_block_pointed_at_y;
+DLLIMPORT extern long _DK_pointed_at_frac_x;
+DLLIMPORT extern long _DK_pointed_at_frac_y;
+DLLIMPORT extern long _DK_top_pointed_at_x;
+DLLIMPORT extern long _DK_top_pointed_at_y;
+DLLIMPORT extern long _DK_top_pointed_at_frac_x;
+DLLIMPORT extern long _DK_top_pointed_at_frac_y;
+DLLIMPORT struct ScreenPacket _DK_net_screen_packet;
+DLLIMPORT struct _GUID _DK_net_guid;
+DLLIMPORT struct TbNetworkPlayerInfo _DK_net_player_info;
+DLLIMPORT struct SerialInitData _DK_net_serial_data;
+DLLIMPORT struct SerialInitData _DK_net_modem_data;
 
-#ifdef __cplusplus
-}
-#endif
+#pragma pack()
+
+//Functions - exported by the DLL
+
+DLLIMPORT int __stdcall _DK_WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd);
+DLLIMPORT int __stdcall _DK_LbBullfrogMain(unsigned short argc,char **argv);
+DLLIMPORT int __stdcall _DK_setup_game(void);
+DLLIMPORT int __stdcall _DK_game_loop(void);
+DLLIMPORT int __stdcall _DK_init_sound(void);
+DLLIMPORT int __stdcall _DK_LbErrorLogSetup(char *directory, char *filename, unsigned char flag);
+DLLIMPORT void __fastcall _DK_get_cpu_info(struct CPU_INFO *cpu_info);
+DLLIMPORT int __stdcall _DK_SyncLog(char *Format, ...);
+DLLIMPORT int __cdecl  _DK_load_configuration(void);
+DLLIMPORT int __cdecl _DK_LbDataLoadAll(struct TbLoadFiles *load_files);
+DLLIMPORT int __cdecl _DK_LbScreenSetup(TbScreenMode mode, unsigned int width,
+               unsigned int height, unsigned char *palette, int flag1, int flag2);
+DLLIMPORT int __cdecl _DK_LbScreenClear(TbPixel colour);
+//DLLIMPORT int __cdecl _DK_LbScreenSwap();
+DLLIMPORT int __stdcall _DK_LbWindowsControl(void);
+DLLIMPORT int __stdcall _DK_LbScreenLock(void);
+DLLIMPORT int __stdcall _DK_LbScreenUnlock(void);
+DLLIMPORT int __stdcall _DK_LbScreenSwap(void);
+DLLIMPORT int __cdecl _DK_LbPaletteSet(unsigned char *palette);
+DLLIMPORT int __cdecl _DK_LbPaletteGet(unsigned char *palette);
+DLLIMPORT void __cdecl _DK_set_cpu_mode(int mode);
+DLLIMPORT void __cdecl _DK_check_cd_in_drive(void);
+DLLIMPORT void __cdecl _DK_display_loading_screen(void);
+DLLIMPORT int __cdecl _DK_initial_setup(void);
+DLLIMPORT int __cdecl _DK_setup_game_sound_heap(void);
+DLLIMPORT int __cdecl _DK_load_settings(void);
+DLLIMPORT void __cdecl _DK_init_creature_scores(void);
+DLLIMPORT void __cdecl _DK_setup_3d(void);
+DLLIMPORT void __cdecl _DK_setup_stuff(void);
+DLLIMPORT void __cdecl _DK_init_lookups(void);
+DLLIMPORT void __cdecl _DK_set_gamma(char, int);
+DLLIMPORT void __cdecl _DK_update_mouse(void);
+DLLIMPORT void __cdecl _DK_input_eastegg(void);
+DLLIMPORT void __cdecl _DK_update(void);
+DLLIMPORT void __cdecl _DK_wait_at_frontend(void);
+DLLIMPORT void __cdecl _DK_set_player_instance(struct PlayerInfo *playerinf, long, int);
+DLLIMPORT void __cdecl _DK_clear_mapwho(void);
+DLLIMPORT void __cdecl _DK_delete_all_structures(void);
+DLLIMPORT void __cdecl _DK_frontstats_initialise(void);
+DLLIMPORT int __cdecl _DK_LbMouseChangeSpriteAndHotspot(TbSprite *spr, int, int);
+DLLIMPORT int __cdecl _DK_PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *palette);
+DLLIMPORT void __cdecl _DK_initialise_eye_lenses(void);
+DLLIMPORT void __cdecl _DK_reset_eye_lenses(void);
+DLLIMPORT void __cdecl _DK_setup_eye_lens(long);
+DLLIMPORT int __cdecl _DK_LbPaletteFade(unsigned char *pal, long n, TbPaletteFadeFlag flg);
+DLLIMPORT int __cdecl _DK_LbMouseChangeSprite(long);
+
+DLLIMPORT void __stdcall _DK_IsRunningMark(void);
+DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
+DLLIMPORT int __cdecl _DK_LbMouseSuspend(void);
+DLLIMPORT int __stdcall _DK_LbScreenReset(void);
+DLLIMPORT int __stdcall _DK_LbDataFreeAll(struct TbLoadFiles *load_files);
+DLLIMPORT int __stdcall _DK_LbMemoryFree(void *buffer);
+DLLIMPORT int __stdcall _DK_LbMemoryReset(void);
+DLLIMPORT int __stdcall _DK_play_smk_(char *fname, int smkflags, int plyflags);
+DLLIMPORT int __fastcall _DK_LbFileClose(TbFileHandle handle);
+DLLIMPORT int __cdecl _DK_LbTextDraw(int posx, int posy, const char *text);
+DLLIMPORT int __cdecl _DK_process_sound_heap(void);
+DLLIMPORT void __cdecl _DK_setup_engine_window(long, long, long, long);
+DLLIMPORT void __cdecl _DK_redraw_display(void);
+DLLIMPORT void __cdecl _DK_cumulative_screen_shot(void);
+DLLIMPORT long __cdecl _DK_anim_record_frame(unsigned char *screenbuf, unsigned char *palette);
+DLLIMPORT int __stdcall _DK_LbIsActive(void);
+DLLIMPORT void __cdecl _DK_input(void);
+DLLIMPORT void __cdecl _DK_load_game_save_catalogue(CatalogueEntry *catalg);
+DLLIMPORT long __cdecl _DK_frontmap_update(void);
+DLLIMPORT void __cdecl _DK_frontstats_initialise(void);
+DLLIMPORT long __cdecl _DK_frontnetmap_update(void);
+DLLIMPORT void __cdecl _DK_frontend_set_state(long);
+DLLIMPORT void __cdecl _DK_frontnet_service_update(void);
+DLLIMPORT void __cdecl _DK_frontnet_session_update(void);
+DLLIMPORT void __cdecl _DK_frontnet_start_update(void);
+DLLIMPORT void __cdecl _DK_frontnet_modem_update(void);
+DLLIMPORT void __cdecl _DK_frontnet_serial_update(void);
+DLLIMPORT void __cdecl _DK_frontstats_update(void);
+DLLIMPORT void __cdecl _DK_fronttorture_update(void);
+//DLLIMPORT void * __cdecl _DK_frontnet_session_join(GuiButton); (may be incorrect)
+DLLIMPORT  int __cdecl _DK_set_game_key(long key_id, unsigned char key, int shift_state, int ctrl_state);
+DLLIMPORT void __cdecl _DK_frontmap_input(void);
+DLLIMPORT void __cdecl _DK_frontnetmap_input(void);
+DLLIMPORT void __cdecl _DK_fronttorture_input(void);
+DLLIMPORT long __cdecl _DK_GetMouseY(void);
+DLLIMPORT int __cdecl _DK_get_gui_inputs(int);
+DLLIMPORT void __cdecl _DK_frontnet_start_input(void);
+DLLIMPORT void __cdecl _DK_frontend_high_score_table_input(void);
+DLLIMPORT int __cdecl _DK_play_smacker_file(char *fname, int);
+DLLIMPORT int __cdecl _DK_LbTextSetWindow(int, int, int, int);
+DLLIMPORT int __cdecl _DK_draw_text_box(char *text);
+DLLIMPORT void __cdecl _DK_demo(void);
+DLLIMPORT void __cdecl _DK_draw_gui(void);
+DLLIMPORT void __cdecl _DK_frontmap_draw(void);
+DLLIMPORT void __cdecl _DK_frontcredits_draw(void);
+DLLIMPORT void __cdecl _DK_fronttorture_draw(void);
+DLLIMPORT void __cdecl _DK_frontnetmap_draw(void);
+DLLIMPORT int __cdecl _DK_setup_screen_mode(short nmode);
+DLLIMPORT int __cdecl _DK_setup_screen_mode_minimal(short nmode);
+DLLIMPORT void __cdecl _DK_save_settings(void);
+DLLIMPORT void __cdecl _DK_startup_saved_packet_game(void);
+DLLIMPORT void __cdecl _DK_startup_network_game(void);
+DLLIMPORT int __cdecl _DK_frontend_load_data(void);
+DLLIMPORT int __cdecl _DK_setup_network_service(int srvidx);
+DLLIMPORT int __cdecl _DK_load_game(long);
+DLLIMPORT int __cdecl _DK_process_3d_sounds(void);
+DLLIMPORT int __cdecl _DK_LbMouseSetPosition(int, int);
+DLLIMPORT void _DK_frontmap_unload(void);
+DLLIMPORT void _DK_turn_off_menu(char);
+DLLIMPORT void _DK_turn_on_menu(char);
+DLLIMPORT void _DK_init_gui(void);
+DLLIMPORT void _DK_frontnet_serial_reset(void);
+DLLIMPORT void _DK_frontnet_modem_reset(void);
+DLLIMPORT void _DK_fronttorture_unload(void);
+DLLIMPORT void _DK_fronttorture_load(void);
+DLLIMPORT void _DK_frontnetmap_unload(void);
+DLLIMPORT void _DK_frontnetmap_load(void);
+DLLIMPORT int _DK_frontmap_load(void);
+DLLIMPORT void _DK_frontnet_service_setup(void);
+DLLIMPORT void _DK_frontnet_session_setup(void);
+DLLIMPORT void _DK_frontnet_start_setup(void);
+DLLIMPORT void _DK_frontnet_modem_setup(void);
+DLLIMPORT void _DK_frontnet_serial_setup(void);
+DLLIMPORT char *_DK_mdlf_for_cd(struct TbLoadFiles *);
+DLLIMPORT char *_DK_mdlf_default(TbLoadFiles *);
+DLLIMPORT int _DK_LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
+DLLIMPORT void _DK_frontstats_set_timer(void);
+
+DLLIMPORT void _DK_update_breed_activities(void);
+DLLIMPORT void _DK_maintain_my_battle_list(void);
+DLLIMPORT char _DK_mouse_is_over_small_map(int, int);
+DLLIMPORT void _DK_play_non_3d_sample(long sidx);
+DLLIMPORT char _DK_get_button_area_input(struct GuiButton *, int);
+DLLIMPORT void _DK_gui_area_text(struct GuiButton *gbtn);
+DLLIMPORT void _DK_setup_gui_tooltip(struct GuiButton *gbtn);
+DLLIMPORT void _DK_do_button_click_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
+DLLIMPORT void _DK_do_button_release_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
+DLLIMPORT long _DK_screen_to_map(struct Camera *camera, long scrpos_x, long scrpos_y, struct Coord3d *mappos);
+DLLIMPORT struct Thing *_DK_get_trap_for_position(long x, long y);
+DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
+DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
+DLLIMPORT struct Thing *_DK_get_crate_at_position(long x, long y);
+DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long x, long y);
+DLLIMPORT void _DK_output_message(int, int, int);
+DLLIMPORT int _DK_is_game_key_pressed(long, long *, int);
+DLLIMPORT long _DK_get_inputs(void);
+DLLIMPORT long _DK_S3DAddSampleToEmitterPri(long, long, long, long, long, long, char, long, long);
+DLLIMPORT long _DK_S3DCreateSoundEmitterPri(long, long, long, long, long, long, long, long, long, long);
+DLLIMPORT void _DK_load_packets_for_turn(long gameturn);
+DLLIMPORT TbError _DK_LbNetwork_Stop(void);
+DLLIMPORT void _DK_set_packet_action(struct Packet *pckt,unsigned char,short,short,short,short);
+DLLIMPORT void _DK_get_level_lost_inputs(void);
+DLLIMPORT long _DK_get_global_inputs(void);
+DLLIMPORT long _DK_get_dungeon_control_action_inputs(void);
+DLLIMPORT void _DK_get_dungeon_control_nonaction_inputs(void);
+DLLIMPORT void _DK_get_player_gui_clicks(void);
+DLLIMPORT void _DK_get_packet_control_mouse_clicks(void);
+DLLIMPORT void _DK_get_creature_control_nonaction_inputs(void);
+DLLIMPORT void _DK_get_map_nonaction_inputs(void);
+DLLIMPORT long _DK_toggle_status_menu(long);
+DLLIMPORT void _DK_turn_off_all_window_menus(void);
+DLLIMPORT long _DK_thing_is_special(Thing *thing);
+DLLIMPORT long _DK_get_bookmark_inputs(void);
+DLLIMPORT long _DK_get_small_map_inputs(long x, long y, long);
+DLLIMPORT void _DK_turn_off_menu(char mnu_idx);
+DLLIMPORT void _DK_fake_button_click(long btn_idx);
+DLLIMPORT unsigned char _DK_a_menu_window_is_active(void);
+DLLIMPORT char _DK_menu_is_active(char idx);
+DLLIMPORT int _DK_LbTextStringWidth(char *str);
+DLLIMPORT void _DK_turn_off_roaming_menus(void);
+DLLIMPORT void _DK_turn_off_all_panel_menus(void);
+DLLIMPORT void _DK_initialise_tab_tags_and_menu(long);
+DLLIMPORT void _DK_process_network_error(long);
+DLLIMPORT TbError _DK_LbNetwork_Init(unsigned long,struct _GUID guid, unsigned long, void *, unsigned long, struct TbNetworkPlayerInfo *netplayr, void *);
+
 
 //Functions - reworked
 void LbSetIcon(unsigned short nicon);
@@ -1012,7 +1329,10 @@ void game_loop(void);
 short reset_game(void);
 void error(const char *codefile,const int ecode,const char *message);
 
-//Functions - internal
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif // DK_KEEPERFX_H

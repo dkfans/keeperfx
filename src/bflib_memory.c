@@ -58,7 +58,7 @@ void * __fastcall LbStringCopy(char *dst, const char *src, const ulong dst_bufle
   return dst;
 }
 
-ulong __fastcall LbStringLength(char *str)
+ulong __fastcall LbStringLength(const char *str)
 {
   if (str==NULL) return 0;
   return strlen(str);

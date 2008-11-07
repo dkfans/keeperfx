@@ -82,6 +82,8 @@
 //    these are defined in errno.h
 #define ERR_BASE_RNC      -90
 
+#pragma pack(1)
+
 
 struct IPOINT_2D {
     int x;
@@ -132,5 +134,7 @@ typedef short (*is_item_subtype)(const unsigned char stype_idx);
 typedef int (*thing_subtype_arrayindex)(const unsigned char stype_idx);
 typedef unsigned char (*thing_subtype_switch)(const unsigned char stype_idx);
 typedef unsigned char (*thing_subtype_arrayitem)(const int arr_itm);
+
+#pragma pack()
 
 #endif // KEEPFX_GLOBALS_H

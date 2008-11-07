@@ -61,11 +61,11 @@ int LbSyncLog(const char *format, ...)
     return result;
 }
 
-int __fastcall LbErrorLogSetup(char *directory, char *filename, uchar flag)
+int __fastcall LbErrorLogSetup(const char *directory, const char *filename, uchar flag)
 {
   if ( error_log_initialised )
     return -1;
-  char *fixed_fname;
+  const char *fixed_fname;
   if ( (filename!=NULL)&&(filename[0]!='\0') )
     fixed_fname = filename;
   else
@@ -129,7 +129,7 @@ int LbLog(TbLog *log, const char *fmt_str, va_list arg)
         header = CREATE;
       }
   }
-   char *accmode;
+   const char *accmode;
     if ( (log->Created) || !(log->Flags & 1) )
       accmode = "a";
     else
@@ -144,7 +144,7 @@ int LbLog(TbLog *log, const char *fmt_str, va_list arg)
     {
       if ( need_initial_newline )
         fprintf(file, "\n");
-      char *actn;
+      const char *actn;
       if ( header == CREATE )
         actn = "CREATED";
       else
@@ -164,7 +164,7 @@ int LbLog(TbLog *log, const char *fmt_str, va_list arg)
       {
         TbDate curr_date;
         LbDate(&curr_date);
-        char *sep;
+        const char *sep;
         if ( at_used )
           sep = " ";
         else
@@ -193,7 +193,7 @@ int LbLog(TbLog *log, const char *fmt_str, va_list arg)
   return 1;
 }
 
-int __fastcall LbLogSetPrefix(TbLog *log, char *prefix)
+int __fastcall LbLogSetPrefix(TbLog *log, const char *prefix)
 {
   if ( !log->Initialised )
     return -1;
@@ -207,7 +207,7 @@ int __fastcall LbLogSetPrefix(TbLog *log, char *prefix)
   return 1;
 }
 
-int __fastcall LbLogSetup(TbLog *log, char *filename, int flags)
+int __fastcall LbLogSetup(TbLog *log, const char *filename, int flags)
 {
   log->Initialised = false;
   LbMemorySet(log->Filename, 0, DISKPATH_SIZE);

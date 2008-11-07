@@ -81,7 +81,7 @@ double PhaseOfMoon::Calculate(void)
   return (phase/period)*2.0 - 1.0;
 }
 
-void PhaseOfMoon::pom_error(char *msg)
+void PhaseOfMoon::pom_error(const char *msg)
 {
 //    error("pom.cpp", 54, msg);
 }

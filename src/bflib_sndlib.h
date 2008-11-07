@@ -3,10 +3,10 @@
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
 // Author:  Tomasz Lis
-// Created: 10 Feb 2008
+// Created: 16 Nov 2008
 
 // Purpose:
-//    Header file for bflib_memory.c.
+//    Header file for bflib_sndlib.c.
 
 // Comment:
 //   Just a header file - #defines, typedefs, function prototypes etc.
@@ -17,27 +17,44 @@
 //   the Free Software Foundation; either version 2 of the License, or
 //   (at your option) any later version.
 /******************************************************************************/
-#ifndef BFLIB_MEMORY_H
-#define BFLIB_MEMORY_H
+#ifndef BFLIB_SNDLIB_H
+#define BFLIB_SNDLIB_H
 
 #include "bflib_basics.h"
+
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-typedef char * __fastcall MemAllocFunc(ulong);
+// Exported variables
+
 /******************************************************************************/
-void * __fastcall LbMemorySet(void *dst, uchar c, ulong length);
-void * __fastcall LbMemoryCopy(void *in_dst, const void *in_src, ulong len);
-int __fastcall LbMemorySetup();
-int __fastcall LbMemoryCheck();
-unsigned char * __fastcall LbMemoryAllocLow(ulong size);
-unsigned char * __fastcall LbMemoryAlloc(ulong size);
-int __fastcall LbMemoryFree(void *mem_ptr);
-void * __fastcall LbStringCopy(char *dst, const char *src, const ulong dst_buflen);
-void * __fastcall LbStringConcat(char *dst, const char *src, const ulong dst_buflen);
-ulong __fastcall LbStringLength(const char *str);
+// Exported functions
+
+int __stdcall FreeAudio(void);
+int __stdcall SetRedbookVolume(int volume);
+int __stdcall SetSoundMasterVolume(int volume);
+int __stdcall SetMusicMasterVolume(int volume);
+int __stdcall GetSoundInstalled(void);
+int __stdcall PlayRedbookTrack(int);
+int __stdcall MonitorStreamedSoundTrack(void);
+int __stdcall StopRedbookTrack(void);
+int __stdcall GetSoundDriver(void);
+int __stdcall StopAllSamples(void);
+int __stdcall GetFirstSampleInfoStructure(void);
+int __stdcall LoadMusic(int);
+int __stdcall InitAudio(int);
+int __stdcall SetupAudioOptionDefaults(int);
+int __stdcall StopStreamedSample(void);
+int __stdcall StreamedSampleFinished(void);
+int __stdcall SetStreamedSampleVolume(int);
+int __stdcall GetLastSampleInfoStructure(void);
+int __stdcall GetCurrentSoundMasterVolume(void);
+int __stdcall StopMusic(void);
+int __stdcall LoadAwe32Soundfont(int);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

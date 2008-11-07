@@ -1,303 +1,350 @@
- 0001:0003A50A       FreeAudio@0
+
+ 0001:000001F0       cumulative_screen_shot
+ 0001:000005E0       anim_record_frame
+ 0001:00005320       light_initialise
+ 0001:00008010       frontnet_init_level_descriptions
+ 0001:00008290       setup_network_service
+ 0001:00008370       process_network_error
+ 0001:00008A50       frontnet_draw_services_scroll_tab
+ 0001:00008E00       frontnet_return_to_main_menu
+ 0001:00008E30       frontnet_return_to_session_menu
+ 0001:00009130       frontnet_service_setup
+ 0001:00009250       frontnet_service_update
+ 0001:00009290       frontnet_draw_service_button
+ 0001:00009330       frontnet_service_maintain
+ 0001:00009360       frontnet_service_up_maintain
+ 0001:00009380       frontnet_service_down_maintain
+ 0001:000093B0       frontnet_service_select
+ 0001:00009420       frontnet_service_up
+ 0001:00009430       frontnet_service_down
+ 0001:00009450       frontnet_serial_setup
+ 0001:00009560       frontnet_serial_update
+ 0001:000095F0       frontnet_serial_reset
+ 0001:00009A20       frontnet_net_serial_start_maintain
+ 0001:00009A50       frontnet_net_serial_start
+ 0001:00009B10       frontnet_modem_setup
+ 0001:00009CE0       frontnet_modem_update
+ 0001:00009D70       frontnet_modem_reset
+ 0001:00009ED0       frontnet_session_setup
+ 0001:00009F50       frontnet_session_update
+ 0001:0000A320       frontnet_session_join
+ 0001:0000A440       frontnet_session_create
+ 0001:0000AB70       frontnet_start_setup
+ 0001:0000ABC0       frontnet_start_update
+ 0001:0000B050       frontnet_start_input
+ 0001:0000CB50       get_trap_for_position
+ 0001:0000CDD0       check_cd_in_drive
+ 0001:0000E140       set_player_instance
+ 0001:000106F0       pinstfm_fade_to_map
+ 0001:000107C0       pinstfm_fade_from_map
+ 0001:00010AD0       free_swipe_graphic
+ 0001:00011DA0       creature_cast_spell_at_thing
+ 0001:00015940       process_level_script
+ 0001:0001A920       play_non_3d_sample
+ 0001:0001AEF0       input_eastegg
+ 0001:0001B250       draw_sound_stuff
+ 0001:0001B900       fronttorture_load
+ 0001:0001BC90       fronttorture_unload
+ 0001:0001BD50       fronttorture_draw
+ 0001:0001BE20       fronttorture_input
+ 0001:0001C280       fronttorture_update
+ 0001:0001E050       script_support_setup_player_as_computer_keeper
+ 0001:0001E0B0       process_action_points
+ 0001:0001E510       PaletteSetPlayerPalette
+ 0001:0001E590       redraw_display
+ 0001:0001FF40       draw_map_parchment
+ 0001:00023870       set_gamma
+ 0001:00024920       frontzoom_to_point
+ 0001:00030F10       draw_view
+ 0001:00034510       input
+ 0001:00034720       set_game_key
+ 0001:00034900       is_game_key_pressed
+ 0001:000349C0       get_inputs
+ 0001:00035390       get_map_nonaction_inputs
+ 0001:000354D0       get_dungeon_control_nonaction_inputs
+ 0001:000367D0       get_creature_control_nonaction_inputs
+ 0001:00036B90       get_global_inputs
+ 0001:00037140       get_dungeon_control_action_inputs
+ 0001:00037610       set_player_mode
+ 0001:00037AC0       get_small_map_inputs
+ 0001:000380E0       get_packet_control_mouse_clicks
+ 0001:000389A0       get_player_gui_clicks
+ 0001:00038C00       get_bookmark_inputs
+ 0001:00038D10       get_level_lost_inputs
+ 0001:000394C0       mouse_is_over_small_map
+ 0001:000395F0       @get_cpu_info@4
+ 0001:000396C0       get_best_sound_heap_size
+ 0001:00039740       setup_stuff
+ 0001:00039E30       setup_game@0
  0001:0003A312       SetRedbookVolume@4
  0001:0003A320       SetSoundMasterVolume@4
  0001:0003A32E       SetMusicMasterVolume@4
-
- 0001:000D9DE0       LbErrorLogSetup@12
- 0001:00046F00       game_loop@0
- 0001:00051810       IsRunningMark@0
- 0001:00051840       IsRunningUnmark@0
- 0001:000DCEE0       LbMouseSuspend@0
- 0001:000DFDE0       LbIKeyboardClose@0
- 0001:000DA7B0       LbScreenReset@0
- 0001:000D9FC0       LbMemoryFree@4
- 0001:000DA0C0       LbMemoryReset@0
- 0001:000DC1A0       LbDataFreeAll@4
- 0001:000DBB60       LbSetIcon@4
- 0001:000F0EC8       start@12
- 0001:000DBFC0       LbDataLoad@4
- 0001:000DC0B0       LbDataLoadAll
- 0001:000395F0       @get_cpu_info@4
- 0001:000C7320       load_configuration@0
- 0001:000D9EA0       SyncLog
- 0001:000DA4F0       LbScreenSetup
- 0001:00065360       init_sound@0
- 0001:000DBF80       LbWindowsControl@0
- 0001:000DA740       LbScreenLock@0
- 0001:000DA780       LbScreenUnlock@0
- 0001:000DA830       LbScreenSwap@0
- 0001:000DA710       LbScreenClear
- 0001:000FCF90       play_smk_@12
- 0001:000DA800       LbScreenFindVideoModes
- 0001:000DA8A0       LbPaletteGet
- 0001:000DA8D0       LbPaletteSet
- 0001:0000CDD0       check_cd_in_drive
- 0001:0003AE60       display_loading_screen
- 0001:000C9280       load_game_save_catalogue
- 0001:000DC200       LbPaletteFade
- 0001:0009D250       frontstats_initialise
- 0001:000A3DB0       frontmap_update
- 0001:000A4670       frontnetmap_update
- 0001:000AC920       frontend_set_state
- 0001:00009250       frontnet_service_update
- 0001:00009560       frontnet_serial_update
- 0001:00009CE0       frontnet_modem_update
- 0001:00009F50       frontnet_session_update
- 0001:0000A320       frontnet_session_join
- 0001:0000ABC0       frontnet_start_update
- 0001:000A3730       frontmap_input
- 0001:000A3A80       frontmap_draw
- 0001:000A4470       frontnetmap_input
- 0001:0001BE20       fronttorture_input
- 0001:000DABB0       LbTextSetWindow
- 0001:00094940       draw_gui
- 0001:000AE650       frontcredits_draw
- 0001:000A4F60       frontnetmap_draw
- 0001:0001BD50       fronttorture_draw
+ 0001:0003A360       initial_setup
+ 0001:0003A4D0       reset_game@0
+ 0001:0003A50A       FreeAudio@0
  0001:0003A520       setup_screen_mode
  0001:0003AAC0       setup_screen_mode_minimal
- 0001:000C79F0       save_settings
- 0001:0003D2C0       startup_saved_packet_game
- 0001:0003CDB0       startup_network_game
- 0001:000AEF30       frontend_load_data
- 0001:00008290       setup_network_service
- 0001:000C9460       load_game
- 0001:00050E70       process_3d_sounds
- 0001:000DC920       LbMouseSetPosition
- 0001:000A3620       frontmap_unload
- 0001:000928C0       turn_off_menu
- 0001:00092880       turn_on_menu
- 0001:00094890       init_gui
- 0001:000095F0       frontnet_serial_reset
- 0001:00009D70       frontnet_modem_reset
- 0001:0001B900       fronttorture_load
- 0001:0001BC90       fronttorture_unload
- 0001:000A41F0       frontnetmap_load
- 0001:000A4380       frontnetmap_unload
- 0001:000A32F0       frontmap_load
- 0001:00009130       frontnet_service_setup
- 0001:00009ED0       frontnet_session_setup
- 0001:0000AB70       frontnet_start_setup
- 0001:00009450       frontnet_serial_setup
- 0001:00009B10       frontnet_modem_setup
+ 0001:0003AE60       display_loading_screen
+ 0001:0003B040       setup_game_sound_heap
  0001:0003C390       frontstats_set_timer
- 0001:000DC670       LbSpriteSetupAll
- 0001:000DCA70       LbMouseChangeSprite
- 0001:000AE7F0       mdlf_default
- 0001:000AE800       mdlf_for_cd
- 0001:0009D0B0       update_breed_activities
- 0001:000A15C0       maintain_my_battle_list
- 0001:000394C0       mouse_is_over_small_map
- 0001:0001A920       play_non_3d_sample
- 0001:0009E070       get_button_area_input
- 0001:000953D0       gui_area_text
- 0001:00099D80       setup_gui_tooltip
- 0001:00099980       do_button_click_actions
- 0001:00099AD0       do_button_release_actions
- 0001:000465C0       screen_to_map
- 0001:0000CB50       get_trap_for_position
- 0001:00044D80       get_special_at_position
+ 0001:0003C630       frontstats_update
+ 0001:0003C6F0       frontstats_leave
+ 0001:0003C8B0       setup_heap_memory
+ 0001:0003C9B0       reset_heap_memory
+ 0001:0003CDB0       startup_network_game
+ 0001:0003D2C0       startup_saved_packet_game
+ 0001:0003D4B0       process_packets
+ 0001:0003D970       set_packet_action
+ 0001:0003D990       process_players_global_packet_action
+ 0001:0003E860       process_players_dungeon_control_packet_action
+ 0001:0003ED70       process_players_creature_control_packet_action
+ 0001:0003EEA0       process_players_dungeon_control_packet_control
+ 0001:0003F2B0       process_dungeon_control_packet_clicks
+ 0001:00041AF0       open_new_packet_file_for_save
+ 0001:00041BD0       open_packet_file_for_load
+ 0001:00042040       set_power_hand_graphic
+ 0001:00042340       process_quit_packet
+ 0001:00043F00       process_object_being_picked_up
  0001:00044AB0       get_spellbook_at_position
  0001:00044C00       get_crate_at_position
+ 0001:00044D80       get_special_at_position
  0001:00044ED0       get_nearest_object_at_position
- 0001:000A7F10       output_message
- 0001:00034900       is_game_key_pressed
- 0001:000349C0       get_inputs
- 0001:00050C50       S3DAddSampleToEmitterPri
+ 0001:000463D0       setup_engine_window
+ 0001:000465C0       screen_to_map
+ 0001:00046F00       game_loop@0
+ 0001:00047550       ceiling_set_info
+ 0001:0004A7A0       can_cast_spell_at_xy
+ 0001:00050940       S3DSetNumberOfSounds
  0001:00050970       S3DCreateSoundEmitterPri
- 0001:000E40F0       LbNetwork_Stop
- 0001:0003D970       set_packet_action
- 0001:00038D10       get_level_lost_inputs
- 0001:00036B90       get_global_inputs
- 0001:00037140       get_dungeon_control_action_inputs
- 0001:000380E0       get_packet_control_mouse_clicks
- 0001:000354D0       get_dungeon_control_nonaction_inputs
- 0001:000389A0       get_player_gui_clicks
-
- 0003:000AB430       keeper_runtime_directory
- 0003:00241510       my_player_number
- 0003:000ED310       game
- 0003:0027377C       hInstance
- 0003:00014968       SoundDisabled
- 0003:000280F4       lpDDC
- 0003:00028178       icon_index
- 0003:00014964       strings_data
- 0003:00006C20       game_load_files
- 0003:000A6678       phase_of_moon
- 0003:000AB424       mem_size
- 0003:00011838       legal_load_files
- 0003:000A6554       palette
- 0003:000AB4E4       scratch
- 0003:002735D0       lbDisplay
- 0003:00273BB0       lbKeyOn
- 0003:00241460       datafiles_path
- 0003:000AA568       strings
- 0003:000A6680       settings
- 0003:0001494C       exit_keeper
- 0003:00014948       quit_game
- 0003:000EBEF8       pixel_size
- 0003:00244D48       left_button_held_x
- 0003:00244D4C       left_button_held_y
- 0003:00244D50       left_button_double_clicked_y
- 0003:00244D54       left_button_double_clicked_x
- 0003:00244D58       right_button_double_clicked_y
- 0003:00244D5C       right_button_double_clicked_x
- 0003:00244D60       right_button_clicked
- 0003:00244D64       left_button_clicked
- 0003:00244D68       right_button_released_x
- 0003:00244D6C       right_button_released_y
- 0003:00244D70       right_button_double_clicked
- 0003:00244D74       left_button_released_y
- 0003:00244D78       left_button_released_x
- 0003:00244D7C       left_button_double_clicked
- 0003:00244D80       right_button_released
- 0003:00244D84       right_button_held
- 0003:00244D88       right_button_click_space_count
- 0003:00244D8C       right_button_held_y
- 0003:00244D90       left_button_clicked_y
- 0003:00244D94       left_button_clicked_x
- 0003:00244D98       left_button_click_space_count
- 0003:00244D9C       right_button_held_x
- 0003:00244DA0       left_button_released
- 0003:00244DA4       right_button_clicked_y
- 0003:00244DA8       right_button_clicked_x
- 0003:00244DAC       left_button_held
- 0003:0024781C       old_mouse_over_button
- 0003:00247770       save_game_catalogue
- 0003:00247B40       number_of_saved_games
- 0003:00028350       lbUseSdk
- 0003:00247428       frontend_palette
- 0003:0024740C       load_game_scroll_offset
- 0003:00020670       frontend_menu_state
- 0003:00247B50       time_last_played_demo
- 0001:0003C630       frontstats_update
- 0001:0001C280       fronttorture_update
- 0003:00247B44       continue_game_option_available
- 0003:00020678       frontend_button_info
- 0003:00273BAC       lbInkey
- 0003:002477F8       defining_a_key_id
- 0003:00247B48       defining_a_key
- 0003:0024741C       credits_offset
- 0003:00247C5C       credits_scroll_speed
- 0003:00247F70       credits_end
- 0003:00247B30       frontend_font
- 0003:00247410       last_mouse_x
- 0003:00247418       last_mouse_y
- 0003:00247820       frontstory_text_no
- 0003:00247B28       frontend_background
- 0003:000280E8       lbFontPtr
- 0003:00247F3C       frontstory_font
- 0003:0001496C       FatalError
- 0003:0002FB28       net_service_index_selected
- 0003:000207B8       fade_palette_in
- 0003:002473F8       frontend_mouse_over_button
- 0003:00247C60       high_score_table
- 0003:000207C0       frontstory_load_files
- 0003:0001EB98       netmap_flag_load_files
- 0003:00247F44       fe_high_score_table_from_main_menu
- 0003:00247F38       frontend_sprite
- 0003:00247728       define_key_scroll_offset
- 0003:00028284       modify_data_load_filename_function
- 0003:000207B4       high_score_entry_input_active
- 0003:00247730       high_score_entry
- 0003:00247F40       high_score_entry_index
- 0003:00020870       frontstory_setup_sprites
- 0003:00028338       lbfade_open
- 0003:00246ED0       active_menus
- 0003:00247000       tool_tip_time
- 0003:0001756C       busy_doing_gui
- 0003:00017568       input_button
- 0003:00245300       tool_tip_box
- 0003:00245B10       help_tip_time
- 0003:00017530       tooltip_scroll_offset
- 0003:00017534       tooltip_scroll_timer
- 0003:00017538       gui_last_left_button_pressed_id
- 0003:0001753C       gui_last_right_button_pressed_id
- 0003:00245B20       active_buttons
- 0003:00247014       battle_creature_over
- 0003:0001754C       drag_menu_x
- 0003:00017550       drag_menu_y
- 0003:00017570       gui_room_type_highlighted
- 0003:00017574       gui_door_type_highlighted
- 0003:00017578       gui_trap_type_highlighted
- 0003:0001757C       gui_creature_type_highlighted
- 0003:0000E270       spell_data
- 0003:0000E4A8       room_data
- 0003:0000E630       trap_data
- 0002:00000010       map_to_slab
- 0003:000103C0       slab_attrs
- 0003:0000FC58       object_to_magic
- 0003:0000FCE0       object_to_special
- 0003:0000FD68       magic_to_object
- 0003:0000FD80       trap_to_object
- 0003:0000FD88       door_to_object
- 0003:0000FD90       object_to_door_or_trap
- 0003:0000FE18       workshop_object_class
- 0003:0001E5F0       specials_text
- 0003:0000E6E0       door_names
- 0003:00008438       creature_data
- 0003:0000B1E0       objects
- 0003:000115CC       eastegg03_cntr
- 0003:000EBED0       key_modifiers
- 0003:00010CBC       Non3DEmitter
- 0003:00010CC0       SpeechEmitter
- 0003:00052DC8       emitter
-
- 0001:00089B10       setup_3d
- 0001:00039740       setup_stuff
- 0001:00064A10       init_lookups
- 0001:0003A360       initial_setup
- 0001:0003B040       setup_game_sound_heap
- 0001:000C6D50       load_settings
- 0001:0005F6D0       init_creature_scores
- 0005:00006562       set_cpu_mode
- 0001:00023870       set_gamma
- 0001:00083810       update_mouse
+ 0001:00050C30       S3DEmitterHasFinishedPlaying
+ 0001:00050C50       S3DAddSampleToEmitterPri
+ 0001:00050E70       process_3d_sounds
+ 0001:00051810       IsRunningMark@0
+ 0001:00051840       IsRunningUnmark@0
  0001:00057300       update
- 0001:0001AEF0       input_eastegg
- 0001:000AB570       wait_at_frontend
- 0001:0000E140       set_player_instance
+ 0001:00057CC0       update_things_in_list
+ 0001:00057DA0       update_thing
+ 0001:00058020       update_creature
+ 0001:0005A390       update_thing_sound
+ 0001:0005A650       update_thing_animation
  0001:0005B3E0       delete_all_structures
+ 0001:0005D890       clear_map
  0001:0005EE90       clear_mapwho
- 0001:000DCB10       LbMouseChangeSpriteAndHotspot
- 0001:0001E510       PaletteSetPlayerPalette
+ 0001:0005F6D0       init_creature_scores
+ 0001:00060840       clear_game
+ 0001:000608D0       clear_game_for_save
+ 0001:00064A10       init_lookups
+ 0001:00065040       initialise_extra_slab_info
+ 0001:00065360       init_sound@0
  0001:00065460       initialise_eye_lenses
  0001:000655D0       reset_eye_lenses
  0001:00065630       setup_eye_lens
- 0001:000DA9F0       @LbFileClose@4
- 0001:000DAE70       LbTextDraw
- 0001:000A7850       process_sound_heap
- 0001:000463D0       setup_engine_window
- 0001:0001E590       redraw_display
- 0001:000DA760       LbIsActive@0
- 0001:000001F0       cumulative_screen_shot
- 0001:000005E0       anim_record_frame
- 0001:00034510       input
- 0001:00034720       set_game_key
+ 0001:0006EC30       setup_computer_players2
+ 0001:00072D40       draw_frontview_engine
  0001:00079140       GetMouseY
+ 0001:0007A310       complete_level
+ 0001:0007A380       lose_level
+ 0001:000822D0       activate_dungeon_special
+ 0001:00082A50       transfer_creature
+ 0001:00083810       update_mouse
+ 0001:00083A20       scan_line
+ 0001:00084D40       get_next_word
+ 0001:000851D0       command_if
+ 0001:00085710       command_add_to_party
+ 0001:00085A30       command_add_party_to_level
+ 0001:00085E30       command_add_creature_to_level
+ 0001:000862C0       command_add_value
+ 0001:00086450       command_research
+ 0001:00086880       command_if_action_point
+ 0001:00086AA0       command_add_tunneller_to_level
+ 0001:00086EE0       command_display_objective
+ 0001:000870A0       command_add_tunneller_party_to_level
+ 0001:000875D0       command_if_available
+ 0001:00087A70       command_set_computer_globals
+ 0001:00087B90       command_set_computer_checks
+ 0001:00087D30       command_set_computer_events
+ 0001:00087ED0       command_set_computer_process
+ 0001:00089B10       setup_3d
+ 0001:00092840       menu_is_active
+ 0001:00092880       turn_on_menu
+ 0001:000928C0       turn_off_menu
+ 0001:00092A40       init_load_menu
+ 0001:00092AD0       init_save_menu
+ 0001:00092CE0       maintain_loadsave
+ 0001:00092EC0       maintain_event_button
+ 0001:00093300       maintain_spell
+ 0001:00093520       maintain_door
+ 0001:000938E0       maintain_zoom_to_event
+ 0001:00093930       maintain_turn_on_autopilot
+ 0001:00094040       create_menu
+ 0001:00094890       init_gui
+ 0001:00094940       draw_gui
+ 0001:00094D20       draw_menu_buttons
+ 0001:000953D0       gui_area_text
+ 0001:00095EA0       spell_lost_first_person
+ 0001:000968E0       gui_area_stat_button
+ 0001:00097120       gui_area_anger_button
+ 0001:000972C0       gui_area_event_button
+ 0001:00098930       game_is_busy_doing_gui
+ 0001:000989C0       game_is_busy_doing_gui_string_input
  0001:000989D0       get_gui_inputs
- 0001:0000B050       frontnet_start_input
+ 0001:00099980       do_button_click_actions
+ 0001:00099AD0       do_button_release_actions
+ 0001:00099D80       setup_gui_tooltip
+ 0001:00099F50       draw_tooltip
+ 0001:0009B2D0       gui_choose_room
+ 0001:0009B4C0       gui_choose_special_spell
+ 0001:0009B6F0       gui_set_tend_to
+ 0001:0009B740       gui_set_autopilot
+ 0001:0009BA80       gui_video_gamma_correction
+ 0001:0009BAE0       gui_quit_game
+ 0001:0009BBA0       gui_load_game
+ 0001:0009BC10       gui_save_game
+ 0001:0009BCE0       gui_go_to_map
+ 0001:0009BCF0       gui_turn_on_autopilot
+ 0001:0009BDE0       gui_open_event
+ 0001:0009CB30       gui_set_menu_mode
+ 0001:0009CEE0       menu_tab_maintain
+ 0001:0009D0B0       update_breed_activities
+ 0001:0009D1F0       a_menu_window_is_active
+ 0001:0009D250       frontstats_initialise
+ 0001:0009D5A0       turn_off_all_panel_menus
+ 0001:0009DA40       turn_off_all_window_menus
+ 0001:0009E070       get_button_area_input
+ 0001:0009E3D0       toggle_status_menu
+ 0001:0009FC90       go_on_then_activate_the_event_box
+ 0001:000A1150       gui_set_button_flashing
+ 0001:000A1170       gui_draw_tab
+ 0001:000A1590       gui_load_game_maintain
+ 0001:000A15C0       maintain_my_battle_list
+ 0001:000A1D10       initialise_tab_tags_and_menu
+ 0001:000A32F0       frontmap_load
+ 0001:000A3620       frontmap_unload
+ 0001:000A3730       frontmap_input
+ 0001:000A3A80       frontmap_draw
+ 0001:000A3DB0       frontmap_update
+ 0001:000A41F0       frontnetmap_load
+ 0001:000A4380       frontnetmap_unload
+ 0001:000A4470       frontnetmap_input
+ 0001:000A4670       frontnetmap_update
+ 0001:000A4F60       frontnetmap_draw
+ 0001:000A5300       compressed_window_draw
+ 0001:000A5540       check_mouse_scroll
+ 0001:000A5650       update_velocity
+ 0001:000A5A10       process_dungeons
+ 0001:000A7850       process_sound_heap
+ 0001:000A7F10       output_message
+ 0001:000AB570       wait_at_frontend
+ 0001:000AC400       frontend_main_menu_netservice_maintain
+ 0001:000AC410       frontend_main_menu_highscores_maintain
+ 0001:000AC420       frontend_start_new_game
+ 0001:000AC4B0       frontend_copy_background
+ 0001:000AC540       frontend_draw_large_menu_button
+ 0001:000AC5C0       frontend_draw_load_game_button
+ 0001:000AC670       frontend_load_game_maintain
+ 0001:000AC6A0       frontend_load_game_up_maintain
+ 0001:000AC6C0       frontend_load_game_down_maintain
+ 0001:000AC730       frontend_load_game_up
+ 0001:000AC740       frontend_load_game_down
+ 0001:000AC760       frontend_change_state
+ 0001:000AC780       frontend_load_game
+ 0001:000AC920       frontend_set_state
+ 0001:000AD180       frontend_save_continue_game
+ 0001:000AD210       frontend_continue_game_maintain
+ 0001:000AD230       frontend_load_continue_game
+ 0001:000AD310       frontend_draw_text
+ 0001:000AD530       frontend_draw_button
+ 0001:000AD750       frontend_set_player_number
+ 0001:000AD830       frontend_draw_games_scroll_tab
+ 0001:000ADDF0       frontend_maintain_high_score_ok_button
  0001:000ADE10       frontend_high_score_table_input
- 0001:000AE530       play_smacker_file
- 0001:000AEC30       draw_text_box
+ 0001:000ADF70       frontend_quit_high_score_table
+ 0001:000AE290       frontend_main_menu_load_game_maintain
  0001:000AE3F0       demo
-
+ 0001:000AE530       play_smacker_file
+ 0001:000AE650       frontcredits_draw
+ 0001:000AE7F0       mdlf_default
+ 0001:000AE800       mdlf_for_cd
+ 0001:000AEC30       draw_text_box
+ 0001:000AEF30       frontend_load_data
+ 0001:000C24B0       update_creature_levels
+ 0001:000C2950       toggle_creature_tendencies
+ 0001:000C6D50       load_settings
+ 0001:000C7320       load_configuration
+ 0001:000C7510       load_level_file
+ 0001:000C79F0       save_settings
+ 0001:000C7A50       load_thing_file
+ 0001:000C9280       load_game_save_catalogue
+ 0001:000C92E0       save_game_save_catalogue
+ 0001:000C9460       load_game
+ 0001:000C9C50       load_slab_file
+ 0001:000CA660       move_thing_in_map
+ 0001:000D9DE0       LbErrorLogSetup@12
+ 0001:000D9EA0       SyncLog
  0001:000D9F30       LbMemoryAlloc_
+ 0001:000D9FC0       LbMemoryFree@4
+ 0001:000DA0C0       LbMemoryReset@0
  0001:000DA1E0       LbFileLoadAt_
  0001:000DA270       LbFileSaveAt_
  0001:000DA2C0       LbFileMakeFullPath_
+ 0001:000DA3F0       LbScreenIsModeAvailable
+ 0001:000DA430       LbScreenSetGraphicsWindow
+ 0001:000DA4F0       LbScreenSetup
+ 0001:000DA710       LbScreenClear
+ 0001:000DA740       LbScreenLock@0
+ 0001:000DA760       LbIsActive@0
+ 0001:000DA780       LbScreenUnlock@0
+ 0001:000DA7B0       LbScreenReset@0
+ 0001:000DA800       LbScreenFindVideoModes
+ 0001:000DA830       LbScreenSwap@0
+ 0001:000DA870       LbScreenWaitVbi
+ 0001:000DA8A0       LbPaletteGet
+ 0001:000DA8D0       LbPaletteSet
  0001:000DA920       LbFileExists_
  0001:000DA940       LbFilePosition_
  0001:000DA960       LbFileOpen_
+ 0001:000DA9F0       @LbFileClose@4
  0001:000DAA10       LbFileSeek_
  0001:000DAAB0       LbFileWrite_
+ 0001:000DABB0       LbTextSetWindow
+ 0001:000DAE70       LbTextDraw
+ 0001:000DBB60       LbSetIcon@4
+ 0001:000DBF80       LbWindowsControl@0
+ 0001:000DBFC0       LbDataLoad@4
+ 0001:000DC0B0       LbDataLoadAll
+ 0001:000DC1A0       LbDataFreeAll@4
+ 0001:000DC200       LbPaletteFade
+ 0001:000DC670       LbSpriteSetupAll
+ 0001:000DC920       LbMouseSetPosition
+ 0001:000DC9F0       LbMouseSetWindow
+ 0001:000DCA70       LbMouseChangeSprite
+ 0001:000DCB10       LbMouseChangeSpriteAndHotspot
+ 0001:000DCBC0       LbMouseSetPointerHotspot
+ 0001:000DCC60       LbMouseSetup
+ 0001:000DCEE0       LbMouseSuspend
+ 0001:000DD000       LbMouseIsInstalled
+ 0001:000DD060       LbMouseOnMove
+ 0001:000DD140       LbMouseOnBeginSwap
+ 0001:000DD1D0       LbMouseOnEndSwap
  0001:000DFDD0       LbIsIKeyboardInstalled_
+ 0001:000DFDE0       LbIKeyboardClose@0
  0001:000E0FF0       LbLogSetup_
  0001:000E10C0       LbLogSetPrefix_
  0001:000E12E1       input_value
  0001:000E1324       input_bits
  0001:000E13A7       make_huftable
  0001:000E2D60       StartAddress
+ 0001:000E3900       LbNetwork_EnableNewPlayers
+ 0001:000E3920       LbNetwork_Init
+ 0001:000E3C60       LbNetwork_Startup
+ 0001:000E3DD0       LbNetwork_Shutdown
+ 0001:000E3EC0       LbNetwork_Create
+ 0001:000E3FF0       LbNetwork_Join
+ 0001:000E40F0       LbNetwork_Stop
+ 0001:000E4280       LbNetwork_EnumerateSessions
+ 0001:000E4300       LbNetwork_EnumeratePlayers
+ 0001:000E4350       LbNetwork_Exchange
+ 0001:000E4BB0       LbNetwork_ChangeExchangeBuffer
  0001:000EFB3C       __ftol
  0001:000EFBA0       __cfltcvt_init_3
  0001:000EFBE0       _sprintf
@@ -345,6 +392,7 @@
  0001:000F0B30       _floor
  0001:000F0C50       _gmtime
  0001:000F0DB0       _ceil
+ 0001:000F0EC8       start@12
  0001:000F1080       __amsg_exit
  0001:000F10B0       _calloc
  0001:000F1200       __onexit
@@ -561,6 +609,7 @@
  0001:000FCD30       __mbschr
  0001:000FCDF0       __strdup
  0001:000FCEB0       _strcat
+ 0001:000FCF90       play_smk_@12
  0001:000FD8AA       DirectDrawCreate
  0001:000FD8B0       DirectPlayLobbyCreateA
  0001:000FD8B6       htons
@@ -587,6 +636,70 @@
  0001:000FDD50       __fseek_lk
  0001:000FDDF0       __filbuf
  0001:000FDEF0       __ftell_lk
+ 0002:00000010       map_to_slab
+ 0003:00006C20       game_load_files
+ 0003:00006DD8       mcga_load_files
+ 0003:00006F38       vres256_load_files
+ 0003:000070C8       mcga_load_files_minimal
+ 0003:000070F8       vres256_load_files_minimal
+ 0003:000072E0       setup_sprites
+ 0003:00007340       setup_sprites_minimal
+ 0003:00008438       creature_data
+ 0003:0000B1E0       objects
+ 0003:0000E270       spell_data
+ 0003:0000E4A8       room_data
+ 0003:0000E630       trap_data
+ 0003:0000E6E0       door_names
+ 0003:0000FC58       object_to_magic
+ 0003:0000FCE0       object_to_special
+ 0003:0000FD68       magic_to_object
+ 0003:0000FD80       trap_to_object
+ 0003:0000FD88       door_to_object
+ 0003:0000FD90       object_to_door_or_trap
+ 0003:0000FE18       workshop_object_class
+ 0003:000103C0       slab_attrs
+ 0003:00010CBC       Non3DEmitter
+ 0003:00010CC0       SpeechEmitter
+ 0003:000115CC       eastegg03_cntr
+ 0003:00011618       low_res_pointer_load_files
+ 0003:000116A0       low_res_small_pointer_load_files
+ 0003:00011728       hi_res_pointer_load_files
+ 0003:000117B0       hi_res_small_pointer_load_files
+ 0003:00011838       legal_load_files
+ 0003:00014948       quit_game
+ 0003:0001494C       exit_keeper
+ 0003:00014964       strings_data
+ 0003:00014968       SoundDisabled
+ 0003:0001496C       FatalError
+ 0003:00017530       tooltip_scroll_offset
+ 0003:00017534       tooltip_scroll_timer
+ 0003:00017538       gui_last_left_button_pressed_id
+ 0003:0001753C       gui_last_right_button_pressed_id
+ 0003:0001754C       drag_menu_x
+ 0003:00017550       drag_menu_y
+ 0003:00017568       input_button
+ 0003:0001756C       busy_doing_gui
+ 0003:00017570       gui_room_type_highlighted
+ 0003:00017574       gui_door_type_highlighted
+ 0003:00017578       gui_trap_type_highlighted
+ 0003:0001757C       gui_creature_type_highlighted
+ 0003:0001E5F0       specials_text
+ 0003:0001EB98       netmap_flag_load_files
+ 0003:00020670       frontend_menu_state
+ 0003:00020678       frontend_button_info
+ 0003:000207B4       high_score_entry_input_active
+ 0003:000207B8       fade_palette_in
+ 0003:000207C0       frontstory_load_files
+ 0003:00020870       frontstory_setup_sprites
+ 0003:000280E8       lbFontPtr
+ 0003:000280F4       lpDDC
+ 0003:00028178       icon_index
+ 0003:00028284       modify_data_load_filename_function
+ 0003:00028338       lbfade_open
+ 0003:00028350       lbUseSdk
+ 0003:00028890       localPlayerInfoPtr
+ 0003:00028894       exchangeBuffer
+ 0003:00028898       exchangeSize
  0003:0002C9C0       env_strings
  0003:0002CA10       __wctype
  0003:0002CC14       cbMultiByte
@@ -597,22 +710,122 @@
  0003:0002DCC4       got_envstrings
  0003:0002EF40       W?Mist$n$CMistFade$$
  0003:0002EF68       lpBuffer
+ 0003:0002FB28       net_service_index_selected
+ 0003:00052DC8       emitter
  0003:00053B18       W?MaxNoSounds$nl
  0003:00096570       navlog_file
+ 0003:000A6554       palette
  0003:000A6564       W?eye_lens_memory$npnul
  0003:000A6578       W?global_joined_string$n[]a
+ 0003:000A6678       phase_of_moon
+ 0003:000A6680       settings
+ 0003:000AA568       strings
+ 0003:000AB424       mem_size
+ 0003:000AB430       keeper_runtime_directory
+ 0003:000AB4E4       scratch
+ 0003:000EBED0       key_modifiers
+ 0003:000EBEF8       pixel_size
  0003:000ECF08       W?text$n__a
+ 0003:000ED310       game
  0003:0023EB54       W?eye_lens_spare_screen_memory$npnuc
+ 0003:00241460       datafiles_path
+ 0003:00241510       my_player_number
+ 0003:00244D48       left_button_held_x
+ 0003:00244D4C       left_button_held_y
+ 0003:00244D50       left_button_double_clicked_y
+ 0003:00244D54       left_button_double_clicked_x
+ 0003:00244D58       right_button_double_clicked_y
+ 0003:00244D5C       right_button_double_clicked_x
+ 0003:00244D60       right_button_clicked
+ 0003:00244D64       left_button_clicked
+ 0003:00244D68       right_button_released_x
+ 0003:00244D6C       right_button_released_y
+ 0003:00244D70       right_button_double_clicked
+ 0003:00244D74       left_button_released_y
+ 0003:00244D78       left_button_released_x
+ 0003:00244D7C       left_button_double_clicked
+ 0003:00244D80       right_button_released
+ 0003:00244D84       right_button_held
+ 0003:00244D88       right_button_click_space_count
+ 0003:00244D8C       right_button_held_y
+ 0003:00244D90       left_button_clicked_y
+ 0003:00244D94       left_button_clicked_x
+ 0003:00244D98       left_button_click_space_count
+ 0003:00244D9C       right_button_held_x
+ 0003:00244DA0       left_button_released
+ 0003:00244DA4       right_button_clicked_y
+ 0003:00244DA8       right_button_clicked_x
+ 0003:00244DAC       left_button_held
+ 0003:00245300       tool_tip_box
+ 0003:00245B10       help_tip_time
  0003:00245B14       W?video_gamma_correction$nuc
+ 0003:00245B20       active_buttons
  0003:00246E4C       W?video_cluedo_mode$nuc
+ 0003:00246ED0       active_menus
+ 0003:00247000       tool_tip_time
  0003:00247008       W?video_shadows$nuc
  0003:00247010       W?video_textures$nuc
+ 0003:00247014       battle_creature_over
  0003:00247058       W?video_view_distance_level$nuc
+ 0003:002473F8       frontend_mouse_over_button
+ 0003:0024740C       load_game_scroll_offset
+ 0003:00247410       last_mouse_x
+ 0003:00247418       last_mouse_y
+ 0003:0024741C       credits_offset
+ 0003:00247428       frontend_palette
+ 0003:00246EB0       default_menu
+ 0003:00247728       define_key_scroll_offset
+ 0003:00247730       high_score_entry
+ 0003:00247770       save_game_catalogue
+ 0003:002477F8       defining_a_key_id
+ 0003:0024781C       old_mouse_over_button
+ 0003:00247820       frontstory_text_no
+ 0003:00247B28       frontend_background
+ 0003:00247B30       frontend_font
+ 0003:00247B40       number_of_saved_games
+ 0003:00247B44       continue_game_option_available
+ 0003:00247B48       defining_a_key
+ 0003:00247B50       time_last_played_demo
+ 0003:00247C5C       credits_scroll_speed
+ 0003:00247C60       high_score_table
+ 0003:00247F38       frontend_sprite
+ 0003:00247F3C       frontstory_font
+ 0003:00247F40       high_score_entry_index
+ 0003:00247F44       fe_high_score_table_from_main_menu
+ 0003:00247F70       credits_end
+ 0003:0025C9F4       fade_tables
+ 0003:002609F4       ghost
  0003:00272C80       W?error_log$n$TbLog$$
- 0003:002742C0       W?_winMouseHandler$n$_mouseStateHandler$$
+ 0003:002735D0       lbDisplay
+ 0003:0027377C       hInstance
+ 0003:00273BAC       lbInkey
+ 0003:00273BB0       lbKeyOn
+ 0003:002742C0       winMouseHandler
  0003:00276A18       CriticalSection
  0003:002793E0       Filename
  0003:002794F0       TimeZoneInformation
  0003:0027959C       lpTopLevelExceptionFilter
  0003:002795A0       WideCharStr
  0003:0027A9C0       NumOfElements
+ 0005:00006562       set_cpu_mode
+ 0003:000AB4D4       winfont
+ 0003:0002F9F8       net_modem_data
+ 0003:0002FB08       net_serial_data
+ 0003:0002FB60       net_player_info
+ 0003:00001838       net_guid
+ 0003:0002FB30       net_screen_packet
+ 0003:000AB428       MyScreenWidth
+ 0003:000EBED4       MyScreenHeight
+ 0003:00030D14       top_pointed_at_y
+ 0003:00030D18       top_pointed_at_x
+ 0003:00030D1C       top_pointed_at_frac_x
+ 0003:00030D20       top_pointed_at_frac_y
+ 0003:00031C6C       pointer_y
+ 0003:00031C70       pointer_x
+ 0003:0003F944       block_pointed_at_x
+ 0003:0003F948       block_pointed_at_y
+ 0003:0003F998       pointed_at_frac_x
+ 0003:0003F99C       pointed_at_frac_y
+ 0001:000DAD00       LbTextStringWidth
+ 0001:0009F8E0       turn_off_roaming_menus
+ 0001:00041CD0       load_packets_for_turn
