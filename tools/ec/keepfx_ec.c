@@ -6,7 +6,8 @@
 
 #define MAX_EXPORT_NAMELEN 255
 #define MAX_EXPORTS 0xc00
-#define MAX_FNAMES_SIZE 0x47c8
+//#define MAX_FNAMES_SIZE 0x47c8
+#define MAX_FNAMES_SIZE 0x87C8
  
 #define EXP_SEC_HDROFS 0x00163400
 #define ARR_POS_FUNC   0x00163428
@@ -49,7 +50,7 @@ void export_sort(struct export_entry *exp[],unsigned int exp_size)
    while(!sorted)
    {
      sorted = true;
-     for (i = 0 ; i < exp_size-2 ; i++)
+     for (i = 0 ; i < exp_size-1 ; i++)
        if(strcmp(exp[i]->dstname, exp[i+1]->dstname) > 0)
        {
          sorted = false;     /* We were out of order */
@@ -123,7 +124,7 @@ int main(int argc, char *argv[])
   for (idx=0;idx<MAX_EXPORTS;idx++)
       exports[idx]=NULL;
   // Reading functions
-  FILE *fhndl=fopen("keeperfx.map","rb");
+  FILE *fhndl=fopen("keeper95_gold.map","rb");
   if (fhndl==NULL)
   {
     printf("Can't open .MAP file!\n");
