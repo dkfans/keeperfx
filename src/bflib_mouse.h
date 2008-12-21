@@ -27,6 +27,8 @@ extern "C" {
 
 #pragma pack(1)
 
+struct TbSprite;
+
 struct mouse_buffer {
         bool Valid;
         long Width;
@@ -94,19 +96,18 @@ struct DevInput {
         long DeviceType[16];
         unsigned char Init[16];
 };
-/*
-extern struct DevInput joy;
-*/
 
 #pragma pack()
 
+/*
+extern struct DevInput joy;
+*/
 /******************************************************************************/
 int __fastcall LbMouseSetup(struct TbSprite *MouseSprite, char x_ratio, char y_ratio);
 int __fastcall LbMouseReset();
 int __fastcall LbMouseSetPosition(long x, long y);
 int __fastcall LbMousePlace(void);
 int __fastcall LbMouseRemove(void);
-int __fastcall LbMouseChangeSprite(struct TbSprite *pointer);
 int __fastcall LbMouseSuspend(void);
 
 int __fastcall screen_place(void);
@@ -114,7 +115,6 @@ int __fastcall screen_remove(unsigned long force);
 bool __fastcall adjust_point(long *x, long *y);
 char __fastcall mouse_in_rect(short x1, short x2, short y1, short y2);
 bool mouse_setup_range(void);
-
 /******************************************************************************/
 #ifdef __cplusplus
 }

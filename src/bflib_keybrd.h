@@ -20,11 +20,12 @@
 #ifndef BFLIB_KEYBRD_H
 #define BFLIB_KEYBRD_H
 
+#include "globals.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-
 #pragma pack(1)
 
 	//PC Keyboard scan codes
@@ -167,6 +168,22 @@ extern "C" {
 		KC_SLEEP       = 0xDF,    // System Sleep
 		KC_WAKE        = 0xE3,    // System Wake
 	};
+
+	enum KeyModifiers
+	{
+		KM_NONE        = 0x00,
+		KM_SHIFT       = 0x01,
+		KM_CONTROL     = 0x02,
+		KM_ALT         = 0x04,
+	};
+
+DLLIMPORT extern unsigned char _DK_lbKeyOn[256];
+DLLIMPORT extern unsigned char _DK_lbInkey;
+#define lbKeyOn _DK_lbKeyOn
+#define lbInkey _DK_lbInkey
+
+#pragma pack()
+
 /*
 extern unsigned long text_buf_pos;
 extern unsigned char lbKeyOn[];
@@ -177,15 +194,9 @@ extern char lbInkeyToAsciiShift[];
 
 extern unsigned short flow_control_flags;
 */
-
-#pragma pack()
-
 /******************************************************************************/
-int __fastcall control_process(void);
-int __fastcall LbIKeyboardOpen(void);
-int __fastcall LbIKeyboardClose(void);
-char __fastcall LbKeyboard(void);
-
+short LbIKeyboardOpen(void);
+short LbIKeyboardClose(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

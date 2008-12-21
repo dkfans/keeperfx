@@ -17,9 +17,11 @@ build/bflib_pom.o \
 build/bflib_mouse.o \
 build/bflib_sndlib.o \
 build/bflib_sound.o \
+build/bflib_video.o \
+build/bflib_fmvids.o \
+build/bflib_guibtns.o \
 $(RES)
 
-#build/bflib_drawcls.o \
 
 
 LINKOBJ  = $(OBJ)
@@ -42,7 +44,7 @@ clean: clean-custom
 	${RM} $(OBJ) $(BIN)
 
 $(BIN): $(OBJ) lib/keeperfx.a
-	echo "Final link"
+	@echo "Final link"
 	$(CPP) $(LINKOBJ) -o "build/keeperfx.exe" $(LIBS)
 
 build/%.o: src/%.cpp
@@ -56,3 +58,10 @@ build/keeperfx_private.res: src/keeperfx_private.rc
 
 lib/keeperfx.a: lib/keeperfx.dll lib/keeperfx.def
 	dlltool --dllname lib/keeperfx.dll --def lib/keeperfx.def --output-lib lib/keeperfx.a
+
+lib/keeperfx.dll: lib/keeper95_gold.dll lib/keeper95_gold.map tools/ec/keepfx_ec.exe
+	cp lib/keeper95_gold.dll lib/keeperfx.dll
+	cd lib && ../tools/ec/keepfx_ec.exe
+
+tools/ec/keepfx_ec.exe: tools/ec/keepfx_ec.c
+	make -C tools/ec

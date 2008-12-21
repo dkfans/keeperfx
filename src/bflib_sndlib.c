@@ -35,11 +35,6 @@ extern "C" {
 
 typedef int (WINAPI *FARPROCI)(int);
 
-DLLIMPORT int __stdcall _DK_FreeAudio(void);
-DLLIMPORT int __stdcall _DK_SetRedbookVolume(int volume);
-DLLIMPORT int __stdcall _DK_SetSoundMasterVolume(int volume);
-DLLIMPORT int __stdcall _DK_SetMusicMasterVolume(int volume);
-
 /******************************************************************************/
 // Functions
 
@@ -133,7 +128,7 @@ int __stdcall StopRedbookTrack(void)
     return proc();
 }
 
-int __stdcall GetSoundDriver(void)
+void * __stdcall GetSoundDriver(void)
 {
     HMODULE hModule;
     hModule=GetModuleHandle("WSND7R");
@@ -141,7 +136,7 @@ int __stdcall GetSoundDriver(void)
     proc=GetProcAddress(hModule,"_GetSoundDriver@0");
     if (proc==NULL)
     { LbErrorLog("Can't get address of GetSoundDriver function; skipped.\n"); return 0; }
-    return proc();
+    return (void *)proc();
 }
 
 int __stdcall StopAllSamples(void)

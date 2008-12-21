@@ -41,7 +41,7 @@ int __stdcall GetSoundInstalled(void);
 int __stdcall PlayRedbookTrack(int);
 int __stdcall MonitorStreamedSoundTrack(void);
 int __stdcall StopRedbookTrack(void);
-int __stdcall GetSoundDriver(void);
+void * __stdcall GetSoundDriver(void);
 int __stdcall StopAllSamples(void);
 int __stdcall GetFirstSampleInfoStructure(void);
 int __stdcall LoadMusic(int);

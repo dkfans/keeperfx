@@ -20,8 +20,9 @@
 #ifndef BFLIB_VIDEO_H
 #define BFLIB_VIDEO_H
 
-#include "globals.h"
 #include "bflib_basics.h"
+
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -123,12 +124,20 @@ struct TbDisplayStruct {
         uchar *Palette;
 };
 
-DLLIMPORT struct TbDisplayStruct _DK_lbDisplay;
+DLLIMPORT extern struct TbDisplayStruct _DK_lbDisplay;
+#define lbDisplay _DK_lbDisplay
+DLLIMPORT extern unsigned short _DK_MyScreenWidth;
+#define MyScreenWidth _DK_MyScreenWidth
+DLLIMPORT extern unsigned short _DK_MyScreenHeight;
+#define MyScreenHeight _DK_MyScreenHeight
+DLLIMPORT extern unsigned short _DK_pixel_size;
+#define pixel_size _DK_pixel_size
 
 #pragma pack()
 
 /*
 extern unsigned char *palette;
+extern struct TbDisplayStruct lbDisplay;
 extern unsigned char *lbVesaData;
 extern bool screen_initialised;
 extern void *back_buffer;
@@ -137,17 +146,33 @@ extern bool lbScreenDirectAccessActive;
 extern unsigned short lbVesaPage;
 */
 /******************************************************************************/
+short LbScreenLock(void);
+short LbScreenUnlock(void);
+short LbScreenIsLocked(void);
+short LbScreenSwap(void);
+short LbScreenClear(TbPixel colour);
+short LbWindowsControl(void);
+short LbPaletteFade(unsigned char *pal, long n, TbPaletteFadeFlag flg);
+short LbMouseChangeSprite(long spr_idx);
+void LbScreenWaitVbi(void);
+int LbScreenSetup(TbScreenMode mode, unsigned int width,
+               unsigned int height, unsigned char *palette, int flag1, int flag2);
+int LbPaletteSet(unsigned char *palette);
+int LbPaletteGet(unsigned char *palette);
+void LbSetIcon(unsigned short nicon);
+void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
+
+struct TbScreenModeInfo *LbScreenGetModeInfo(unsigned short mode);
+/*
 bool __fastcall LbVesaGetGran(TbScreenMode mode);
 int __fastcall LbVesaSetPage(short npage);
 
-int __cdecl LbScreenWaitVbi();
 bool __fastcall LbScreenIsModeAvailable(TbScreenMode mode);
 bool __fastcall LbScreenSetDoubleBuffering(bool newstate);
 int __fastcall LbScreenSetup(TbScreenMode mode, unsigned int width,
                unsigned int height, unsigned char *palette);
 bool __fastcall LbScreenClearGraphicsWindow(unsigned char colour);
 bool __fastcall LbScreenClear(unsigned char colour);
-int __fastcall LbScreenSwap();
 int __cdecl LbScreenSwapBoxClear(int source_screen, int SourceX, int SourceY,
   int DestinationX, int DestinationY, unsigned int width, unsigned int height,
   unsigned char colour);
@@ -155,13 +180,10 @@ int __cdecl LbScreenSwapClear(unsigned char colour);
 int __cdecl LbScreenSwapBox(int source_screen, int SourceX, int SourceY,
   int DestinationX, int DestinationY, unsigned int width, unsigned int height);
 bool __fastcall LbScreenReset();
-bool __fastcall LbScreenLock();
-bool __fastcall LbScreenUnlock();
 int __fastcall LbScreenSetGraphicsWindow(int x, int y, uint width, uint height);
-bool LbPaletteSet(unsigned char *palette);
-bool LbPaletteGet(unsigned char *palette);
 
 int __cdecl LbScreenDrawHVLineDirect(int X1, int Y1, int X2, int Y2);
+*/
 /******************************************************************************/
 #ifdef __cplusplus
 }

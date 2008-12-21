@@ -48,12 +48,12 @@ int __fastcall LbMouseSetWindow(int x, int y, int width, int height)
 {
   if ( !lbMouseInstalled )
     return -1;
-  _DK_lbDisplay.MouseWindowX = x;
-  _DK_lbDisplay.MouseWindowY = y;
-  _DK_lbDisplay.MouseWindowWidth = width;
-  _DK_lbDisplay.MouseWindowHeight = height;
-  adjust_point(&_DK_lbDisplay.MMouseX, &_DK_lbDisplay.MMouseY);
-  adjust_point(&_DK_lbDisplay.MouseX, &_DK_lbDisplay.MouseY);
+  lbDisplay.MouseWindowX = x;
+  lbDisplay.MouseWindowY = y;
+  lbDisplay.MouseWindowWidth = width;
+  lbDisplay.MouseWindowHeight = height;
+  adjust_point(&lbDisplay.MMouseX, &lbDisplay.MMouseY);
+  adjust_point(&lbDisplay.MouseX, &lbDisplay.MouseY);
   return 1;
 }
 
@@ -75,10 +75,10 @@ int __fastcall LbMouseChangeMoveRatio(int x, int y)
 int __fastcall LbMousePlace(void)
 {
   redraw_active = 1;
-  if ( _DK_lbDisplay.MouseSprite == NULL )
+  if ( lbDisplay.MouseSprite == NULL )
     return 1;
-  mbuffer.X = minfo.XSpriteOffset + _DK_lbDisplay.MMouseX;
-  mbuffer.Y = minfo.YSpriteOffset + _DK_lbDisplay.MMouseY;
+  mbuffer.X = minfo.XSpriteOffset + lbDisplay.MMouseX;
+  mbuffer.Y = minfo.YSpriteOffset + lbDisplay.MMouseY;
   mbuffer.Valid = mouse_setup_range();
   if ( mbuffer.Valid != true )
     return 1;
@@ -86,10 +86,10 @@ int __fastcall LbMousePlace(void)
   unsigned char *bspr_ptr;
   unsigned char *bscr_ptr;
   buf_ptr = mbuffer.Buffer;
-  bspr_ptr = &minfo.Sprite[mbuffer.XOffset + _DK_lbDisplay.MouseSprite->SWidth*mbuffer.YOffset];
-  mbuffer.Offset = (mbuffer.YOffset+mbuffer.Y)*_DK_lbDisplay.GraphicsScreenWidth
+  bspr_ptr = &minfo.Sprite[mbuffer.XOffset + lbDisplay.MouseSprite->SWidth*mbuffer.YOffset];
+  mbuffer.Offset = (mbuffer.YOffset+mbuffer.Y)*lbDisplay.GraphicsScreenWidth
           + mbuffer.XOffset+mbuffer.X;
-  bscr_ptr = &_DK_lbDisplay.WScreen[mbuffer.Offset];
+  bscr_ptr = &lbDisplay.WScreen[mbuffer.Offset];
   unsigned int c1,c2;
   for (c1=0;c1<mbuffer.Height;c1++)
   {
@@ -108,12 +108,11 @@ int __fastcall LbMousePlace(void)
           scr_ptr++;
           spr_ptr++;
         }
-        bscr_ptr += _DK_lbDisplay.GraphicsScreenWidth;
-        bspr_ptr += _DK_lbDisplay.MouseSprite->SWidth;
+        bscr_ptr += lbDisplay.GraphicsScreenWidth;
+        bspr_ptr += lbDisplay.MouseSprite->SWidth;
   }
   return 1;
 }
-
 
 int __fastcall screen_place(void)
 {
@@ -126,72 +125,10 @@ int __fastcall screen_remove(unsigned long force)
 {
   if ( !lbMouseInstalled )
     return -1;
-  if ( (_DK_lbDisplay.MMouseX==mbuffer.X) && (_DK_lbDisplay.MMouseY==mbuffer.Y) && (!force) )
+  if ( (lbDisplay.MMouseX==mbuffer.X) && (lbDisplay.MMouseY==mbuffer.Y) && (!force) )
     return 1;
   if ( mbuffer.Valid )
   {
-      unsigned char *spr_ptr;
-      unsigned char *bscr_ptr;
-      int c1;
-      unsigned char *scr_ptr;
-      spr_ptr = mbuffer.Buffer;
-/*TODO: make it write on screen buffer, not the physical one
-      if ( _DK_lbDisplay.VesaIsSetUp )
-      {
-          unsigned int vesa_page = mbuffer.Offset >> 16;
-          LbVesaSetPage(vesa_page);
-          bscr_ptr = (mbuffer.Offset&0xffff) + _DK_lbDisplay.PhysicalScreen;
-          int to_copy;
-          int init_copy;
-          for (c1=mbuffer.Height-1;c1>=0;c1--)
-          {
-            scr_ptr = bscr_ptr;
-            to_copy = mbuffer.Width;
-            if ( mbuffer.Width + bscr_ptr >= byte_B0000 )
-            {
-              init_copy = &byte_B0000[-scr_ptr];
-              if ( (signed int)&byte_B0000[-scr_ptr] > 0 )
-              {
-                int c2;
-                for (c2=0;c2<init_copy;c2++)
-                {
-                  *scr_ptr=*spr_ptr;
-                  spr_ptr++;
-                  scr_ptr++;
-                }
-                to_copy -= init_copy;
-              }
-              vesa_page++;
-              LbVesaSetPage(vesa_page);
-              scr_ptr -= byte_10000;
-              bscr_ptr -= byte_10000;
-            }
-            int c2;
-            for (c2=0;c2<to_copy;c2++)
-            {
-              *scr_ptr=*spr_ptr;
-              spr_ptr++;
-              scr_ptr++;
-            }
-            bscr_ptr += _DK_lbDisplay.PhysicalScreenWidth;
-          }
-      } else
-      {
-          bscr_ptr = _DK_lbDisplay.PhysicalScreen + mbuffer.Offset;
-          for (c1=mbuffer.Height-1;c1>=0;c1--)
-          {
-            scr_ptr = bscr_ptr;
-            int c2;
-            for (c2=0;c2<mbuffer.Width;c2++)
-            {
-              *scr_ptr=*spr_ptr;
-              spr_ptr++;
-              scr_ptr++;
-            }
-            bscr_ptr += _DK_lbDisplay.PhysicalScreenWidth;
-          }
-      }
-*/
       mbuffer.Valid = 0;
   }
   return 1;
@@ -199,16 +136,16 @@ int __fastcall screen_remove(unsigned long force)
 
 bool mouse_setup_range(void)
 {
-  if (_DK_lbDisplay.MouseSprite==NULL)
+  if (lbDisplay.MouseSprite==NULL)
     return false;
-  mbuffer.Width = _DK_lbDisplay.MouseSprite->SWidth;
-  mbuffer.Height = _DK_lbDisplay.MouseSprite->SHeight;
+  mbuffer.Width = lbDisplay.MouseSprite->SWidth;
+  mbuffer.Height = lbDisplay.MouseSprite->SHeight;
   mbuffer.XOffset = 0;
   mbuffer.YOffset = 0;
   //Basic range checking
-  if ( (mbuffer.X<=(-mbuffer.Width)) || (mbuffer.X>=_DK_lbDisplay.GraphicsScreenWidth) )
+  if ( (mbuffer.X<=(-mbuffer.Width)) || (mbuffer.X>=lbDisplay.GraphicsScreenWidth) )
     return false;
-  if ( (mbuffer.Y<=(-mbuffer.Height)) || (mbuffer.Y>=_DK_lbDisplay.GraphicsScreenHeight) )
+  if ( (mbuffer.Y<=(-mbuffer.Height)) || (mbuffer.Y>=lbDisplay.GraphicsScreenHeight) )
     return false;
   // Adjusting position
   if ( mbuffer.X < 0 )
@@ -216,15 +153,15 @@ bool mouse_setup_range(void)
       mbuffer.XOffset = -mbuffer.X;
       mbuffer.Width += mbuffer.X;
   }
-  if ( mbuffer.Width + mbuffer.X > _DK_lbDisplay.GraphicsScreenWidth )
-      mbuffer.Width = _DK_lbDisplay.GraphicsScreenWidth - mbuffer.X;
+  if ( mbuffer.Width + mbuffer.X > lbDisplay.GraphicsScreenWidth )
+      mbuffer.Width = lbDisplay.GraphicsScreenWidth - mbuffer.X;
   if ( mbuffer.Y < 0 )
   {
       mbuffer.YOffset = -mbuffer.Y;
       mbuffer.Height += mbuffer.Y;
   }
-  if ( mbuffer.Height + mbuffer.Y > _DK_lbDisplay.GraphicsScreenHeight )
-      mbuffer.Height = _DK_lbDisplay.GraphicsScreenHeight - mbuffer.Y;
+  if ( mbuffer.Height + mbuffer.Y > lbDisplay.GraphicsScreenHeight )
+      mbuffer.Height = lbDisplay.GraphicsScreenHeight - mbuffer.Y;
   return true;
 }
 
@@ -232,28 +169,28 @@ bool mouse_setup_range(void)
 bool __fastcall adjust_point(long *x, long *y)
 {
   bool result = false;
-  if ( *x >= _DK_lbDisplay.MouseWindowX )
+  if ( *x >= lbDisplay.MouseWindowX )
   {
-    if ( _DK_lbDisplay.MouseWindowX + _DK_lbDisplay.MouseWindowWidth <= *x )
+    if ( lbDisplay.MouseWindowX + lbDisplay.MouseWindowWidth <= *x )
     {
-      *x = _DK_lbDisplay.MouseWindowX + _DK_lbDisplay.MouseWindowWidth - 1;
+      *x = lbDisplay.MouseWindowX + lbDisplay.MouseWindowWidth - 1;
       result = true;
     }
   } else
   {
-    *x = _DK_lbDisplay.MouseWindowX;
+    *x = lbDisplay.MouseWindowX;
     result = true;
   }
-  if ( *y >= _DK_lbDisplay.MouseWindowY )
+  if ( *y >= lbDisplay.MouseWindowY )
   {
-    if ( _DK_lbDisplay.MouseWindowY + _DK_lbDisplay.MouseWindowHeight <= *y )
+    if ( lbDisplay.MouseWindowY + lbDisplay.MouseWindowHeight <= *y )
     {
-      *y = _DK_lbDisplay.MouseWindowY + _DK_lbDisplay.MouseWindowHeight - 1;
+      *y = lbDisplay.MouseWindowY + lbDisplay.MouseWindowHeight - 1;
       result = true;
     }
   } else
   {
-    *y = _DK_lbDisplay.MouseWindowY;
+    *y = lbDisplay.MouseWindowY;
     result = true;
   }
   return result;
@@ -262,8 +199,8 @@ bool __fastcall adjust_point(long *x, long *y)
 //Returns if the current mouse position is inside of given rectangle
 char __fastcall mouse_in_rect(short x1, short x2, short y1, short y2)
 {
-  return (x1<=_DK_lbDisplay.MMouseX) && (x2>_DK_lbDisplay.MMouseX) &&
-         (y1<=_DK_lbDisplay.MMouseY) && (y2>_DK_lbDisplay.MMouseY);
+  return (x1<=lbDisplay.MMouseX) && (x2>lbDisplay.MMouseX) &&
+         (y1<=lbDisplay.MMouseY) && (y2>lbDisplay.MMouseY);
 }
 /******************************************************************************/
 #ifdef __cplusplus

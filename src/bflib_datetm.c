@@ -26,6 +26,10 @@
 
 #include "bflib_basics.h"
 
+#if defined(WIN32)
+#include <windows.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -41,7 +45,7 @@ unsigned long LbTimerClock(void)
 }
 
 //Fills structure with current time
-int __fastcall LbTime(TbTime *curr_time)
+int LbTime(TbTime *curr_time)
 {
   time_t dtime;
   time(&dtime);
@@ -49,7 +53,7 @@ int __fastcall LbTime(TbTime *curr_time)
 }
 
 //Fills structure with current date
-int __fastcall LbDate(TbDate *curr_date)
+int LbDate(TbDate *curr_date)
 {
   time_t dtime;
   time(&dtime);
@@ -57,14 +61,14 @@ int __fastcall LbDate(TbDate *curr_date)
 }
 
 //Fills structures with current date and time
-int __fastcall LbDateTime(TbDate *curr_date, TbTime *curr_time)
+int LbDateTime(TbDate *curr_date, TbTime *curr_time)
 {
   time_t dtime;
   time(&dtime);
   return LbDateTimeDecode(&dtime,curr_date,curr_time);
 }
 
-int __fastcall LbDateTimeDecode(const time_t *datetime,TbDate *curr_date, TbTime *curr_time)
+int LbDateTimeDecode(const time_t *datetime,TbDate *curr_date, TbTime *curr_time)
 {
   struct tm *ltime=localtime(datetime);
   if (curr_date!=NULL)
@@ -84,31 +88,49 @@ int __fastcall LbDateTimeDecode(const time_t *datetime,TbDate *curr_date, TbTime
   return 1;
 }
 
+void inline LbDoMultitasking(void)
+{
+#if defined(WIN32)
+    Sleep(5); // This switches to other tasks
+#endif
+}
+
 short __fastcall LbSleepFor(unsigned long delay)
 {
-// DK uses   Sleep(delay);
-  clock_t endclk = CLOCKS_PER_SEC*delay / 1000;
+  register clock_t endclk = CLOCKS_PER_SEC*delay / 1000;
   endclk+=clock();
-  clock_t currclk;
-  do {
-    asm("    hlt\n    hlt\n    hlt\n    hlt\n");
+  register clock_t currclk;
+  currclk=clock();
+  if (currclk+(CLOCKS_PER_SEC>>4)<endclk)
+  {
+    LbDoMultitasking();
+    currclk=clock();
+  }
+  while (currclk<endclk)
+  {
     currclk=clock();
     if (currclk==-1)
       return 0;
-  } while (currclk<endclk);
+  }
   return 1;
 }
 
 short __fastcall LbSleepUntil(unsigned long endtime)
 {
-  clock_t endclk = CLOCKS_PER_SEC*endtime / 1000;
-  clock_t currclk;
-  do {
-    asm("    hlt\n    hlt\n    hlt\n    hlt\n");
+  register clock_t endclk = CLOCKS_PER_SEC*endtime / 1000;
+  register clock_t currclk;
+  currclk=clock();
+  if (currclk+(CLOCKS_PER_SEC>>4)<endclk)
+  {
+    LbDoMultitasking();
+    currclk=clock();
+  }
+  while (currclk<endclk)
+  {
     currclk=clock();
     if (currclk==-1)
       return 0;
-  } while (currclk<endclk);
+  }
   return 1;
 }
 

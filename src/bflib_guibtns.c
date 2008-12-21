@@ -3,13 +3,13 @@
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
 // Author:  Tomasz Lis
-// Created: 12 Feb 2008
+// Created: 25 Nov 2008
 
 // Purpose:
-//    Header file for bflib_datetm.c.
+//    Definition of button, and common routines to handle it.
 
 // Comment:
-//   Just a header file - #defines, typedefs, function prototypes etc.
+//   Sound and music routines to use in games.
 
 //Copying and copyrights:
 //   This program is free software; you can redistribute it and/or modify
@@ -17,30 +17,37 @@
 //   the Free Software Foundation; either version 2 of the License, or
 //   (at your option) any later version.
 /******************************************************************************/
-#ifndef BFLIB_DATETM_H
-#define BFLIB_DATETM_H
+#include "bflib_guibtns.h"
 
-#include <time.h>
+#include <string.h>
+#include <stdio.h>
+
 #include "bflib_basics.h"
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+DLLIMPORT void _DK_do_button_click_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
+DLLIMPORT void _DK_do_button_release_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
 /******************************************************************************/
-extern TbTime global_time;
-extern TbDate global_date;
+// Global variables
 /******************************************************************************/
-//void LbDoMultitasking(void);
-short __fastcall LbSleepFor(unsigned long delay);
-short __fastcall LbSleepUntil(unsigned long endtime);
-unsigned long LbTimerClock(void);
-int LbTime(struct TbTime *curr_time);
-int LbDate(struct TbDate *curr_date);
-int LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time);
-int LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date, struct TbTime *curr_time);
+// Functions
+
+void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
+{
+  _DK_do_button_click_actions(gbtn, s, callback);
+}
+
+void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
+{
+  _DK_do_button_release_actions(gbtn, s, callback);
+}
+
 
 /******************************************************************************/
 #ifdef __cplusplus
 }
-#endif
 #endif

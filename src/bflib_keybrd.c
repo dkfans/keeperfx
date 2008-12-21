@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-
+/*
 unsigned char lbKeyOn[256];
 unsigned char lbShift;
 unsigned char lbIInkeyFlags;
@@ -83,155 +83,18 @@ char lbInkeyToAsciiShift[] = {
   0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,0x2E, 0x0, 0x0, 0x0,
   0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
 };
-
+*/
 /******************************************************************************/
-void KInt(void)
+short LbIKeyboardClose(void)
 {
-  static unsigned char oinkey=0;
-  lbInkey=0;//_GETDS();
-  unsigned int v1;
-  if (oinkey==0xE0)
-  {
-    lbExtendedKeyPress=false;
-    v1 = lbInkey&0x7F;
-    lbKeyOn[v1] = (lbInkey<=0x7F); //lbInkey<=0x7F means the key was pressed, not released
-  } else
-  {
-    lbExtendedKeyPress=true;
-    if ((lbInkey!=0x2a)&&(lbInkey!=0xaa))
-    {
-      v1 = lbInkey|0x80;
-      lbKeyOn[v1] = (lbInkey<=0x7F);
-    } else
-    {
-      lbInkey = 0x80;
-      v1 = 0x80;
-    }
-  }
-  oinkey=lbInkey;
-  lbInkeyFlags=0;
-  if ((lbKeyOn[0x2a]!=0)||(lbKeyOn[0x36]!=0))
-    lbInkeyFlags|=0x10;
-  if ((lbKeyOn[0x1d]!=0)||(lbKeyOn[0x9d]!=0))
-    lbInkeyFlags|=0x20;
-  if ((lbKeyOn[0x38]!=0)||(lbKeyOn[0xb8]!=0))
-    lbInkeyFlags|=0x40;
-  if (lbKeyOn[v1]!=0)
-    lbKeyOn[v1]|=lbInkeyFlags;
-/*
-  ... some direct keyboard control code here
-  changes v1, bot without storing in global variables.
-*/
-}
-
-/*
-inline void __fastcall LbProcessAllEvents()
-{
-  SDL_Event event;
-  while(SDL_PollEvent(&event))
-  {
-    switch(event.type)
-    {
-    case SDL_KEYDOWN:
-    case SDL_KEYUP:
-      LbStoreKeyStoke(&event.key);
-      break;
-    case SDL_MOUSEMOTION:
-      LbProcessMouseMove(&event.motion);
-      break;
-    case SDL_MOUSEBUTTONDOWN:
-    case SDL_MOUSEBUTTONUP:
-      LbProcessMouseClick(&event.button);
-      break;
-    case SDL_QUIT:
-      flow_control_flags|=1;
-      break;
-    }
-  }
-}
-*/
-
-int __fastcall LbIKeyboardOpen(void)
-{
-  memset(lbKeyOn, 0, 256);
-/* Setting interrupt should be replaced by SDL initation
-  void *v1; // edx@1
-  OldInt = dos_getvect(9);
-  word_200510 = v1;
-  dos_setvect(9,v1);
-*/
   return 1;
 }
 
-int __fastcall LbIKeyboardClose(void)
+short LbIKeyboardOpen(void)
 {
-/* Setting interrupt should be replaced by SDL initation
-  void *edx0; // edx@0
-  dos_setvect_(9, edx0);
-*/
   return 1;
 }
 
-char __fastcall LbDosKeyboard()
-{
-  char result;
-  result=0;
-/* Calling interrupt should be replaced by SDL
-  char v1; // [sp+1h] [bp-1Bh]@1
-  char regs; // [sp+0h] [bp-1Ch]@1
-  v1 = 18;
-  result = int386_();
-  lbShift = 0;
-  if ( regs & 3 )
-    lbShift = 1;
-  if ( regs & 4 )
-    lbShift = (unsigned __int8)lbShift | 2;
-  if ( regs & 8 )
-    lbShift = (unsigned __int8)lbShift | 4;
-  lbInkey = 0;
-  __asm { int     16h             ; KEYBOARD - CHECK ENHANCED KEYSTROKE (AT model 339,XT2,XT286,PS) }
-*/
-  return result;
-}
-
-char __fastcall LbKeyboard()
-{
-  char result;
-  LbDosKeyboard();
-  if ( ((unsigned char)lbInkey) >= 128 )
-    result = 0;
-  else
-    result = lbInkeyToAscii[lbInkey];
-  return result;
-}
-/*
-int __fastcall control_process(void)
-{
-  LbProcessAllEvents();
-  if ( lbKeyOn[0x2a] || lbKeyOn[0x36] )
-    lbShift |= 1;
-  else
-    lbShift &= 0x0FEu;
-  if ( lbKeyOn[0x1d] )
-    lbShift |= 0x02;
-  else
-    lbShift &= 0x0FDu;
-  if ( lbKeyOn[0x0b8] || lbKeyOn[0x38] )
-  {
-    lbShift |= 0x04;
-    if ( lbInkey == 45 )
-    {
-      flow_control_flags |= 0x0001;
-      lbInkey = 0;
-    }
-  }
-  else
-  {
-    lbShift &= 0x0FBu;
-  }
-  return 0;
-}
-*/
 /******************************************************************************/
 #ifdef __cplusplus
 }

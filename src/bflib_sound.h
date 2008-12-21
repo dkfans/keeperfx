@@ -26,8 +26,25 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#pragma pack(1)
+
+// Type definitions
+struct SoundEmitter {
+    unsigned char flags;
+    unsigned char field_1;
+    unsigned char field_2[2];
+    short pos_x;
+    short pos_y;
+    short pos_z;
+    unsigned char field_A[10];
+    unsigned char field_14;
+    unsigned char field_15;
+};
+
+/******************************************************************************/
 // Exported variables
 
+#pragma pack()
 /******************************************************************************/
 // Exported functions
 

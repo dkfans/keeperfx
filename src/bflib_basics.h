@@ -33,7 +33,6 @@ extern "C" {
 
 #pragma pack(1)
 
-
 enum TbErrorLogFlag {
         Lb_ERROR_LOG_APPEND = 0,
         Lb_ERROR_LOG_NEW =  1,
@@ -85,7 +84,12 @@ struct TbLog {
 #pragma pack()
 
 /******************************************************************************/
-
+extern const char *log_file_name;
+// High level functions - DK specific
+void error(const char *codefile,const int ecode,const char *message);
+short error_dialog(const char *codefile,const int ecode,const char *message);
+short error_dialog_fatal(const char *codefile,const int ecode,const char *message);
+/******************************************************************************/
 int LbErrorLog(const char *format, ...);
 int LbSyncLog(const char *format, ...);
 int __fastcall LbErrorLogSetup(const char *directory, const char *filename, uchar flag);
