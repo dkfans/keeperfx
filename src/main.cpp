@@ -9,6 +9,7 @@
 #include "bflib_memory.h"
 #include "bflib_keybrd.h"
 #include "bflib_datetm.h"
+#include "bflib_bufrw.h"
 #include "bflib_sprite.h"
 #include "bflib_fileio.h"
 #include "bflib_sndlib.h"
@@ -17,22 +18,21 @@
 #include "bflib_guibtns.h"
 #include "bflib_sound.h"
 
+#include "frontend.h"
+
 #define CMDLN_MAXLEN 259
 char cmndline[CMDLN_MAXLEN+1];
 unsigned short bf_argc;
 char *bf_argv[CMDLN_MAXLEN+1];
 unsigned char palette_buf[768];
+int map_subtiles_x=255;
+int map_subtiles_y=255;
 
 char window_class_name[128]="Bullfrog Shell";
+short default_loc_player=0;
+short screenshot_format=1;
+const char keeper_config_file[]="keeperfx.cfg";
 
-#define key_modifiers _DK_key_modifiers
-#define my_player_number _DK_my_player_number
-#define lbFontPtr _DK_lbFontPtr
-#define winfont _DK_winfont
-#define input_button _DK_input_button
-#define game _DK_game
-#define input_string _DK_input_string
-#define error_box_message _DK_error_box_message
 #define pointer_x _DK_pointer_x
 #define pointer_y _DK_pointer_y
 #define top_pointed_at_x _DK_top_pointed_at_x
@@ -43,19 +43,26 @@ char window_class_name[128]="Bullfrog Shell";
 #define top_pointed_at_frac_y _DK_top_pointed_at_frac_y
 #define pointed_at_frac_x _DK_pointed_at_frac_x
 #define pointed_at_frac_y _DK_pointed_at_frac_y
-#define activity_list _DK_activity_list
-#define load_game_scroll_offset _DK_load_game_scroll_offset
-#define number_of_saved_games _DK_number_of_saved_games
 #define load_game_scroll_offset _DK_load_game_scroll_offset
 #define save_game_catalogue _DK_save_game_catalogue
 #define datafiles_path _DK_datafiles_path
-#define exit_keeper _DK_exit_keeper
-#define quit_game _DK_quit_game
-#define net_service_scroll_offset _DK_net_service_scroll_offset
-#define net_number_of_services _DK_net_number_of_services
-#define frontend_mouse_over_button _DK_frontend_mouse_over_button
-#define frontend_font _DK_frontend_font
-#define net_service _DK_net_service
+#define exchangeBuffer _DK_exchangeBuffer
+#define exchangeSize _DK_exchangeSize
+#define maximumPlayers _DK_maximumPlayers
+#define localPlayerInfoPtr _DK_localPlayerInfoPtr
+#define localDataPtr _DK_localDataPtr
+#define compositeBuffer _DK_compositeBuffer
+#define sequenceNumber _DK_sequenceNumber
+#define timeCount _DK_timeCount
+#define maxTime _DK_maxTime
+#define runningTwoPlayerModel _DK_runningTwoPlayerModel
+#define waitingForPlayerMapResponse _DK_waitingForPlayerMapResponse
+#define compositeBufferSize _DK_compositeBufferSize
+#define basicTimeout _DK_basicTimeout
+#define noOfEnumeratedDPlayServices _DK_noOfEnumeratedDPlayServices
+#define clientDataTable _DK_clientDataTable
+#define receiveCallbacks _DK_receiveCallbacks
+#define TRACE LbNetLog
 
 struct TbLoadFiles legal_load_files[] = {
     {"*PALETTE", &_DK_palette, NULL, PALETTE_SIZE, 0, 0},
@@ -70,866 +77,33 @@ struct TbLoadFiles nocd_load_files[] = {
     {"data/nocd.pal", &nocd_pal, NULL, 0, 0, 0},
     {"", NULL, NULL, 0, 0, 0}, };
 
-long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, char, long *tag)
-{}
+const struct LanguageType lang_type[] = {
+  {"ENG", 1},
+  {"FRE", 2},
+  {"GER", 3},
+  {"ITA", 4},
+  {"SPA", 5},
+  {"SWE", 6},
+  {"POL", 7},
+  {"DUT", 8},
+  {NULL,  0},
+  };
 
-struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
-    {"Null mode",              1, 0, gf_change_player_state, 0, 0, 0,  0, 0, 0, 0},
-    {"Place tunneller mode",   1, 0, gf_change_player_state, 0, 0, 0,  3, 0, 0, 0},
-    {"Place creature mode",    1, 0, gf_change_player_state, 0, 0, 0, 14, 0, 0, 0},
-    {"Place hero mode",        1, 0, gf_change_player_state, 0, 0, 0,  4, 0, 0, 0},
-    {"Destroy walls mode",     1, 0, gf_change_player_state, 0, 0, 0, 25, 0, 0, 0},
-    {"Disease mode",           1, 0, gf_change_player_state, 0, 0, 0, 26, 0, 0, 0},
-    {"Peter mode",	           1, 0, gf_change_player_state, 0, 0, 0, 27, 0, 0, 0},
-    {"",                       2, 0,                   NULL, 0, 0, 0,  0, 0, 0, 0},
-    {"Passenger control mode", 1, 0, gf_change_player_state, 0, 0, 0, 10, 0, 0, 0},
-    {"Direct control mode",    1, 0, gf_change_player_state, 0, 0, 0, 11, 0, 0, 0},
-    {"Order creature mode",    1, 0, gf_change_player_state, 0, 0, 0, 13, 0, 0, 0},
-    {"",                       2, 0,                   NULL, 0,	0, 0,  0, 0, 0, 0},
-    {"!",                      0, 0,                   NULL, 0, 0, 0,  0, 0, 0, 0},
-};
+const struct ConfigCommand scrshot_type[] = {
+  {"HSI", 1},
+  {"BMP", 2},
+  {NULL,  0},
+  };
 
-struct GuiButtonInit main_menu_buttons[] = {
-  { 0, 38, 0, 0, 0, _DK_gui_zoom_in,    NULL,        NULL,               0, 110,   4, 114,   4, 26, 64, _DK_gui_area_new_normal_button,  237, 321,  0,       0,            0, 0, NULL },
-  { 0, 39, 0, 0, 0, _DK_gui_zoom_out,   NULL,        NULL,               0, 110,  70, 114,  70, 26, 64, _DK_gui_area_new_normal_button,  239, 322,  0,       0,            0, 0, NULL },
-  { 0, 37, 0, 0, 0, _DK_gui_go_to_map,  NULL,        NULL,               0,   0,   0,   0,   0, 30, 30, _DK_gui_area_new_normal_button,  304, 323,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_gui_turn_on_autopilot,NULL,  NULL,               0,   0,  70,   0,  70, 16, 68, _DK_gui_area_autopilot_button,   492, 201,  0,       0,            0, 0, _DK_maintain_turn_on_autopilot },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  68,   0,  68,   0, 68, 16, _DK_gui_area_new_normal_button,  499, 722,&options_menu, 0,        0, 0, NULL },
-  { 3,  1, 0, 0, 0, _DK_gui_set_menu_mode,NULL,      NULL,               7,   0, 154,   0, 154, 28, 34, _DK_gui_draw_tab,                  7, 447,  0,(long)&_DK_info_tag, 0, 0, _DK_menu_tab_maintain },
-  { 3,  2, 0, 0, 0, _DK_gui_set_menu_mode,NULL,      NULL,               2,  28, 154,  28, 154, 28, 34, _DK_gui_draw_tab,                  9, 448,  0,(long)&_DK_room_tag, 0, 0, _DK_menu_tab_maintain },
-  { 3,  3, 0, 0, 0, _DK_gui_set_menu_mode,NULL,      NULL,               3,  56, 154,  56, 154, 28, 34, _DK_gui_draw_tab,                 11, 449,  0,(long)&_DK_spell_tag,0, 0, _DK_menu_tab_maintain },
-  { 3,  4, 0, 0, 0, _DK_gui_set_menu_mode,NULL,      NULL,               4,  84, 154,  84, 154, 28, 34, _DK_gui_draw_tab,                 13, 450,  0,(long)&_DK_trap_tag, 0, 0, _DK_menu_tab_maintain },
-  { 3,  5, 0, 0, 0, _DK_gui_set_menu_mode,NULL,      NULL,               5, 112, 154, 112, 154, 28, 34, _DK_gui_draw_tab,                 15, 451,  0,(long)&_DK_creature_tag,0,0,_DK_menu_tab_maintain },
-  { 0, 40, 0, 0, 0, _DK_gui_open_event, _DK_gui_kill_event,NULL,         0, 138, 360, 138, 360, 24, 30, _DK_gui_area_event_button,         0, 201,  0,       0,            0, 0, _DK_maintain_event_button },
-  { 0, 41, 0, 0, 0, _DK_gui_open_event, _DK_gui_kill_event,NULL,         0, 138, 330, 138, 330, 24, 30, _DK_gui_area_event_button,         0, 201,  0,       1,            0, 0, _DK_maintain_event_button },
-  { 0, 42, 0, 0, 0, _DK_gui_open_event, _DK_gui_kill_event,NULL,         0, 138, 300, 138, 300, 24, 30, _DK_gui_area_event_button,         0, 201,  0,       2,            0, 0, _DK_maintain_event_button },
-  { 0, 43, 0, 0, 0, _DK_gui_open_event, _DK_gui_kill_event,NULL,         0, 138, 270, 138, 270, 24, 30, _DK_gui_area_event_button,         0, 201,  0,       3,            0, 0, _DK_maintain_event_button },
-  { 0, 44, 0, 0, 0, _DK_gui_open_event, _DK_gui_kill_event,NULL,         0, 138, 240, 138, 240, 24, 30, _DK_gui_area_event_button,         0, 201,  0,       4,            0, 0, _DK_maintain_event_button },
-  { 0, 45, 0, 0, 0, _DK_gui_open_event, _DK_gui_kill_event,NULL,         0, 138, 210, 138, 210, 24, 30, _DK_gui_area_event_button,         0, 201,  0,       5,            0, 0, _DK_maintain_event_button },
-  { 0, 46, 0, 0, 0, _DK_gui_open_event, _DK_gui_kill_event,NULL,         0, 138, 180, 138, 180, 24, 30, _DK_gui_area_event_button,         0, 201,  0,       6,            0, 0, _DK_maintain_event_button },
-  { 0, 47, 0, 0, 0, _DK_gui_open_event, _DK_gui_kill_event,NULL,         0, 138, 150, 138, 150, 24, 30, _DK_gui_area_event_button,         0, 201,  0,       7,            0, 0, _DK_maintain_event_button },
-  { 0, 48, 0, 0, 0, _DK_gui_open_event, _DK_gui_kill_event,NULL,         0, 138, 120, 138, 120, 24, 30, _DK_gui_area_event_button,         0, 201,  0,       8,            0, 0, _DK_maintain_event_button },
-  { 0, 49, 0, 0, 0, _DK_gui_open_event, _DK_gui_kill_event,NULL,         0, 138,  90, 138,  90, 24, 30, _DK_gui_area_event_button,         0, 201,  0,       9,            0, 0, _DK_maintain_event_button },
-  { 0, 50, 0, 0, 0, _DK_gui_open_event, _DK_gui_kill_event,NULL,         0, 138,  60, 138,  60, 24, 30, _DK_gui_area_event_button,         0, 201,  0,      10,            0, 0, _DK_maintain_event_button },
-  { 0, 51, 0, 0, 0, _DK_gui_open_event, _DK_gui_kill_event,NULL,         0, 138,  30, 138,  30, 24, 30, _DK_gui_area_event_button,         0, 201,  0,      11,            0, 0, _DK_maintain_event_button },
-  { 0, 52, 0, 0, 0, _DK_gui_open_event, _DK_gui_kill_event,NULL,         0, 138,   0, 138,   0, 24, 30, _DK_gui_area_event_button,         0, 201,  0,      12,            0, 0, _DK_maintain_event_button },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  22, 122,  22, 122, 94, 40, NULL,                              0, 441,  0,       0,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
+const struct ConfigCommand conf_commands[] = {
+  {"INSTALL_PATH=",  1},
+  {"INSTALL_TYPE=",  2},
+  {"LANGUAGE=",      3},
+  {"KEYBOARD=",      4},
+  {"SCREENSHOT=",    5},
+  {NULL,             0},
+  };
 
-struct GuiButtonInit room_menu_buttons[] = {
-  { 0,  6, 0, 0, 0, _DK_gui_choose_room,_DK_gui_go_to_next_room,_DK_gui_over_room_button,0, 2,238,  6,242,32,36,_DK_gui_area_room_button, 57, 615,  0,       2,            0, 0, _DK_maintain_room },
-  { 0,  8, 0, 0, 0, _DK_gui_choose_room,_DK_gui_go_to_next_room,_DK_gui_over_room_button,0,34,238, 38,242,32,36,_DK_gui_area_room_button, 79, 625,  0,      14,            0, 0, _DK_maintain_room },
-  { 0,  7, 0, 0, 0, _DK_gui_choose_room,_DK_gui_go_to_next_room,_DK_gui_over_room_button,0,66,238, 70,242,32,36,_DK_gui_area_room_button, 59, 624,  0,      13,            0, 0, _DK_maintain_room },
-  { 0, 10, 0, 0, 0, _DK_gui_choose_room,_DK_gui_go_to_next_room,_DK_gui_over_room_button,0,98,238,102,242,32,36,_DK_gui_area_room_button, 67, 618,  0,       6,            0, 0, _DK_maintain_room },
-  { 0,  9, 0, 0, 0, _DK_gui_choose_room,_DK_gui_go_to_next_room,_DK_gui_over_room_button,0, 2,276,  6,280,32,36,_DK_gui_area_room_button, 61, 616,  0,       3,            0, 0, _DK_maintain_room },
-  { 0, 18, 0, 0, 0, _DK_gui_choose_room,_DK_gui_go_to_next_room,_DK_gui_over_room_button,0,34,276, 38,280,32,36,_DK_gui_area_room_button, 81, 626,  0,      15,            0, 0, _DK_maintain_room },
-  { 0, 19, 0, 0, 0, _DK_gui_choose_room,_DK_gui_go_to_next_room,_DK_gui_over_room_button,0,66,276, 70,280,32,36,_DK_gui_area_room_button, 83, 627,  0,      16,            0, 0, _DK_maintain_room },
-  { 0, 13, 0, 0, 0, _DK_gui_choose_room,_DK_gui_go_to_next_room,_DK_gui_over_room_button,0,98,276,102,280,32,36,_DK_gui_area_room_button, 75, 621,  0,       8,            0, 0, _DK_maintain_room },
-  { 0, 11, 0, 0, 0, _DK_gui_choose_room,_DK_gui_go_to_next_room,_DK_gui_over_room_button,0, 2,314,  6,318,32,36,_DK_gui_area_room_button, 65, 617,  0,       4,            0, 0, _DK_maintain_room },
-  { 0, 17, 0, 0, 0, _DK_gui_choose_room,_DK_gui_go_to_next_room,_DK_gui_over_room_button,0,34,314, 38,318,32,36,_DK_gui_area_room_button, 63, 619,  0,       5,            0, 0, _DK_maintain_room },
-  { 0, 16, 0, 0, 0, _DK_gui_choose_room,_DK_gui_go_to_next_room,_DK_gui_over_room_button,0,66,314, 70,318,32,36,_DK_gui_area_room_button, 69, 623,  0,      12,            0, 0, _DK_maintain_room },
-  { 0, 12, 0, 0, 0, _DK_gui_choose_room,_DK_gui_go_to_next_room,_DK_gui_over_room_button,0,98,314,102,318,32,36,_DK_gui_area_room_button, 73, 628,  0,      10,            0, 0, _DK_maintain_room },
-  { 0, 15, 0, 0, 0, _DK_gui_choose_room,_DK_gui_go_to_next_room,_DK_gui_over_room_button,0, 2,352,  6,356,32,36,_DK_gui_area_room_button, 71, 622,  0,      11,            0, 0, _DK_maintain_room },
-  { 0, 14, 0, 0, 0, _DK_gui_choose_room,_DK_gui_go_to_next_room,_DK_gui_over_room_button,0,34,352, 38,356,32,36,_DK_gui_area_room_button, 77, 629,  0,       9,            0, 0, _DK_maintain_room },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  66, 352,  70, 356,  32, 36, _DK_gui_area_new_null_button,    24, 201,  0,       0,            0, 0, _DK_maintain_room },
-  { 0, 20, 0, 0, 0, _DK_gui_remove_area_for_rooms,NULL,NULL,             0,  98, 352, 102, 356,  32, 36, _DK_gui_area_new_no_anim_button,107, 462,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   8, 210,   8, 194,  46, 44, _DK_gui_area_big_room_button,     0, 201,  0,       0,            0, 0, _DK_maintain_big_room },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit spell_menu_buttons[] = {
-  { 0, 36, 0, 0, 0, _DK_gui_choose_spell,_DK_gui_go_to_next_spell,NULL,  0,   2, 238,   6, 242, 32, 36, _DK_gui_area_spell_button,       114, 647,  0,      18,            0, 0, _DK_maintain_spell },
-  { 0, 21, 0, 0, 0, _DK_gui_choose_spell,_DK_gui_go_to_next_spell,NULL,  0,  34, 238,  38, 242, 32, 36, _DK_gui_area_spell_button,       118, 648,  0,       2,            0, 0, _DK_maintain_spell },
-  { 0, 22, 0, 0, 0, _DK_gui_choose_spell,_DK_gui_go_to_next_spell,NULL,  0,  66, 238,  70, 242, 32, 36, _DK_gui_area_spell_button,       108, 649,  0,       5,            0, 0, _DK_maintain_spell },
-  { 0, 27, 0, 0, 0, _DK_gui_choose_spell,_DK_gui_go_to_next_spell,NULL,  0,  98, 238, 102, 242, 32, 36, _DK_gui_area_spell_button,       122, 654,  0,      11,            0, 0, _DK_maintain_spell },
-  { 0, 35, 0, 0, 0, _DK_gui_choose_spell,_DK_gui_go_to_next_spell,NULL,  0,   2, 276,   6, 280, 32, 36, _DK_gui_area_spell_button,       452, 653,  0,       3,            0, 0, _DK_maintain_spell },
-  { 0, 23, 0, 0, 0, _DK_gui_choose_spell,_DK_gui_go_to_next_spell,NULL,  0,  34, 276,  38, 280, 32, 36, _DK_gui_area_spell_button,       116, 650,  0,       6,            0, 0, _DK_maintain_spell },
-  { 0, 29, 0, 0, 0, _DK_gui_choose_spell,_DK_gui_go_to_next_spell,NULL,  0,  66, 276,  70, 280, 32, 36, _DK_gui_area_spell_button,       128, 656,  0,      13,            0, 0, _DK_maintain_spell },
-  { 0, 34, 0, 0, 0, _DK_gui_choose_special_spell,NULL,NULL,              0,  98, 276, 102, 280, 32, 36, _DK_gui_area_spell_button,       112, 651,  0,       9,            0, 0, _DK_maintain_spell },
-  { 0, 24, 0, 0, 0, _DK_gui_choose_spell,_DK_gui_go_to_next_spell,NULL,  0,   2, 314,   6, 318, 32, 36, _DK_gui_area_spell_button,       120, 652,  0,       7,            0, 0, _DK_maintain_spell },
-  { 0, 26, 0, 0, 0, _DK_gui_choose_spell,_DK_gui_go_to_next_spell,NULL,  0,  34, 314,  38, 318, 32, 36, _DK_gui_area_spell_button,       110, 661,  0,       8,            0, 0, _DK_maintain_spell },
-  { 0, 25, 0, 0, 0, _DK_gui_choose_spell,_DK_gui_go_to_next_spell,NULL,  0,  66, 314,  70, 318, 32, 36, _DK_gui_area_spell_button,       124, 657,  0,      10,            0, 0, _DK_maintain_spell },
-  { 0, 28, 0, 0, 0, _DK_gui_choose_spell,_DK_gui_go_to_next_spell,NULL,  0,  98, 314, 102, 318, 32, 36, _DK_gui_area_spell_button,       126, 655,  0,      12,            0, 0, _DK_maintain_spell },
-  { 0, 30, 0, 0, 0, _DK_gui_choose_spell,_DK_gui_go_to_next_spell,NULL,  0,   2, 352,   6, 356, 32, 36, _DK_gui_area_spell_button,       314, 658,  0,      15,            0, 0, _DK_maintain_spell },
-  { 0, 31, 0, 0, 0, _DK_gui_choose_spell,_DK_gui_go_to_next_spell,NULL,  0,  34, 352,  38, 356, 32, 36, _DK_gui_area_spell_button,       319, 659,  0,      14,            0, 0, _DK_maintain_spell },
-  { 0, 33, 0, 0, 0, _DK_gui_choose_special_spell,NULL,NULL,              0,  66, 352,  70, 356, 32, 36, _DK_gui_area_spell_button,       321, 663,  0,      19,            0, 0, _DK_maintain_spell },
-  { 0, 32, 0, 0, 0, _DK_gui_choose_spell,_DK_gui_go_to_next_spell,NULL,  0,  98, 352, 102, 356, 32, 36, _DK_gui_area_spell_button,       317, 660,  0,      16,            0, 0, _DK_maintain_spell },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   8, 210,   8, 194, 46, 44, _DK_gui_area_big_spell_button,     0, 201,  0,       0,            0, 0, _DK_maintain_big_spell },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit spell_lost_menu_buttons[] = {
-  { 0, 36, 0, 0, 0, _DK_spell_lost_first_person,NULL,NULL,               0,   2, 238,   8, 250, 24, 24, _DK_gui_area_new_null_button,     114,647,  0,      18,            0, 0, _DK_maintain_spell },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  34, 238,  40, 250, 24, 24, _DK_gui_area_new_null_button,      24,201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  66, 238,  72, 250, 24, 24, _DK_gui_area_new_null_button,      24,201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  98, 238, 104, 250, 24, 24, _DK_gui_area_new_null_button,      24,201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   2, 276,   8, 288, 24, 24, _DK_gui_area_new_null_button,      24,201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  34, 276,  40, 288, 24, 24, _DK_gui_area_new_null_button,      24,201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  66, 276,  72, 288, 24, 24, _DK_gui_area_new_null_button,      24,201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  98, 276, 104, 288, 24, 24, _DK_gui_area_new_null_button,      24,201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   2, 314,   8, 326, 24, 24, _DK_gui_area_new_null_button,      24,201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  34, 314,  40, 326, 24, 24, _DK_gui_area_new_null_button,      24,201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  66, 314,  72, 326, 24, 24, _DK_gui_area_new_null_button,      24,201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  98, 314, 104, 326, 24, 24, _DK_gui_area_new_null_button,      24,201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   2, 352,   8, 364, 24, 24, _DK_gui_area_new_null_button,      24,201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  34, 352,  40, 364, 24, 24, _DK_gui_area_new_null_button,      24,201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  66, 352,  72, 364, 24, 24, _DK_gui_area_new_null_button,      24,201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  98, 352, 104, 364, 24, 24, _DK_gui_area_new_null_button,      24,201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   8, 210,   8, 194, 46, 44, _DK_gui_area_big_spell_button,     0, 201,  0,       0,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit trap_menu_buttons[] = {
-  { 0, 54, 0, 0, 0, _DK_gui_choose_trap,_DK_gui_go_to_next_trap,_DK_gui_over_trap_button,0, 2,238, 6,242,32,36,_DK_gui_area_trap_button, 154, 585,  0,       2,            0, 0, _DK_maintain_trap },
-  { 0, 55, 0, 0, 0, _DK_gui_choose_trap,_DK_gui_go_to_next_trap,_DK_gui_over_trap_button,0,34,238,38,242,32,36,_DK_gui_area_trap_button, 156, 586,  0,       3,            0, 0, _DK_maintain_trap },
-  { 0, 56, 0, 0, 0, _DK_gui_choose_trap,_DK_gui_go_to_next_trap,_DK_gui_over_trap_button,0,66,238,70,242,32,36,_DK_gui_area_trap_button, 158, 587,  0,       4,            0, 0, _DK_maintain_trap },
-  { 0, 67, 0, 0, 0, _DK_gui_choose_trap,_DK_gui_go_to_next_trap,_DK_gui_over_trap_button,0,98,238,102,242,32,36,_DK_gui_area_trap_button,162, 589,  0,       6,            0, 0, _DK_maintain_trap },
-  { 0, 53, 0, 0, 0, _DK_gui_choose_trap,_DK_gui_go_to_next_trap,_DK_gui_over_trap_button,0, 2,276, 6,280,32,36,_DK_gui_area_trap_button, 152, 584,  0,       1,            0, 0, _DK_maintain_trap },
-  { 0, 57, 0, 0, 0, _DK_gui_choose_trap,_DK_gui_go_to_next_trap,_DK_gui_over_trap_button,0,34,276,38,280,32,36,_DK_gui_area_trap_button, 160, 588,  0,       5,            0, 0, _DK_maintain_trap },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  66, 276,  70, 280, 32, 36, _DK_gui_area_trap_button,         24, 201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  98, 276, 102, 280, 32, 36, _DK_gui_area_trap_button,         24, 201,  0,       0,            0, 0, NULL },
-  { 0, 58, 0, 0, 0, _DK_gui_choose_trap,_DK_gui_go_to_next_door,_DK_gui_over_door_button,0, 2,314, 6,318,32,36,_DK_gui_area_trap_button, 166, 594,  0,       7,            0, 0, _DK_maintain_door },
-  { 0, 59, 0, 0, 0, _DK_gui_choose_trap,_DK_gui_go_to_next_door,_DK_gui_over_door_button,0,34,314,38,318,32,36,_DK_gui_area_trap_button, 168, 595,  0,       8,            0, 0, _DK_maintain_door },
-  { 0, 60, 0, 0, 0, _DK_gui_choose_trap,_DK_gui_go_to_next_door,_DK_gui_over_door_button,0,66,314,70,318,32,36,_DK_gui_area_trap_button, 170, 596,  0,       9,            0, 0, _DK_maintain_door },
-  { 0, 61, 0, 0, 0, _DK_gui_choose_trap,_DK_gui_go_to_next_door,_DK_gui_over_door_button,0,98,314,102,318,32,36,_DK_gui_area_trap_button,172, 597,  0,      10,            0, 0, _DK_maintain_door },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   2, 352,   6, 356, 32, 36, _DK_gui_area_new_null_button,     24, 201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  34, 352,  38, 356, 32, 36, _DK_gui_area_new_null_button,     24, 201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  66, 352,  70, 356, 32, 36, _DK_gui_area_new_null_button,     24, 201,  0,       0,            0, 0, NULL },
-  { 0, 62, 0, 0, 0, _DK_gui_remove_area_for_traps,NULL,NULL,             0,  98, 352, 102, 356, 32, 36, _DK_gui_area_new_no_anim_button, 107, 463,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   8, 210,   8, 194, 46, 44, _DK_gui_area_big_trap_button,      0, 201,  0,       0,            0, 0, _DK_maintain_big_trap },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit creature_menu_buttons[] = {
-  { 0, 72, 0, 0, 0, _DK_pick_up_next_wanderer,_DK_gui_go_to_next_wanderer,NULL,0,26,192,26,192, 38, 24, _DK_gui_area_new_normal_button,  284, 302,  0,       0,            0, 0, NULL },
-  { 0, 73, 0, 0, 0, _DK_pick_up_next_worker,_DK_gui_go_to_next_worker,NULL,0,62, 192,  62, 192, 38, 24, _DK_gui_area_new_normal_button,  282, 303,  0,       0,            0, 0, NULL },
-  { 0, 74, 0, 0, 0, _DK_pick_up_next_fighter,_DK_gui_go_to_next_fighter,NULL,0,98,192, 98, 192, 38, 24, _DK_gui_area_new_normal_button,  286, 304,  0,       0,            0, 0, NULL },
-  { 1,  0, 0, 0, 0, _DK_gui_scroll_activity_up,_DK_gui_scroll_activity_up,NULL,0,4,192, 4, 192, 22, 24, _DK_gui_area_new_normal_button,  278, 201,  0,       0,            0, 0, _DK_maintain_activity_up },
-  { 1,  0, 0, 0, 0, _DK_gui_scroll_activity_down,_DK_gui_scroll_activity_down,NULL,0,4,364,4,364,22,24, _DK_gui_area_new_normal_button,  280, 201,  0,       0,            0, 0, _DK_maintain_activity_down },
-  { 0,  0, 0, 0, 0, _DK_pick_up_next_creature,_DK_gui_go_to_next_creature,NULL,0,0,196, 0, 218, 22, 22, _DK_gui_area_new_no_anim_button,   0, 733,  0,       0,            0, 0, _DK_maintain_activity_pic },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,0,26,220,26,220,32,20,_DK_gui_area_anger_button,288,734,0,(long)&activity_list[0], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,0,62,220,62,220,32,20,_DK_gui_area_anger_button,288,735,0,(long)&activity_list[1], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,0,98,220,98,220,32,20,_DK_gui_area_anger_button,288,736,0,(long)&activity_list[2], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_next_creature,_DK_gui_go_to_next_creature,NULL,1,0,220, 0, 242, 22, 22, _DK_gui_area_new_no_anim_button,   0, 733,  0,       0,            0, 0, _DK_maintain_activity_pic },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,1,26,244,26,244,32,20,_DK_gui_area_anger_button,288,734,0,(long)&activity_list[4], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,1,62,244,62,244,32,20,_DK_gui_area_anger_button,288,735,0,(long)&activity_list[5], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,1,98,244,98,244,32,20,_DK_gui_area_anger_button,288,736,0,(long)&activity_list[6], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_next_creature,_DK_gui_go_to_next_creature,NULL,2,0,244, 0, 266, 22, 22, _DK_gui_area_new_no_anim_button,   0, 733,  0,       0,            0, 0, _DK_maintain_activity_pic },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,2,26,268,26,268,32,20,_DK_gui_area_anger_button,288,734,0,(long)&activity_list[8], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,2,62,268,62,268,32,20,_DK_gui_area_anger_button,288,735,0,(long)&activity_list[9], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,2,98,268,98,268,32,20,_DK_gui_area_anger_button,288,736,0,(long)&activity_list[10], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_next_creature,_DK_gui_go_to_next_creature,NULL,3,0,268, 0, 290, 22, 22, _DK_gui_area_new_no_anim_button,   0, 733,  0,       0,            0, 0, _DK_maintain_activity_pic },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,3,26,292,26,292,32,20,_DK_gui_area_anger_button,288,734,0,(long)&activity_list[12], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,3,62,292,62,292,32,20,_DK_gui_area_anger_button,288,735,0,(long)&activity_list[13], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,3,98,292,98,292,32,20,_DK_gui_area_anger_button,288,736,0,(long)&activity_list[14], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_next_creature,_DK_gui_go_to_next_creature,NULL,4,0,292, 0, 314, 22, 22, _DK_gui_area_new_no_anim_button,   0, 733,  0,       0,            0, 0, _DK_maintain_activity_pic },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,4,26,316,26,316,32,20,_DK_gui_area_anger_button,288,734,0,(long)&activity_list[16], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,4,62,316,62,316,32,20,_DK_gui_area_anger_button,288,735,0,(long)&activity_list[17], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,4,98,316,98,316,32,20,_DK_gui_area_anger_button,288,736,0,(long)&activity_list[18], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_next_creature,_DK_gui_go_to_next_creature,NULL,5,0,314, 0, 338, 22, 22, _DK_gui_area_new_no_anim_button,   0, 733,  0,       0,            0, 0, _DK_maintain_activity_pic },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,5,26,340,26,340,32,20,_DK_gui_area_anger_button,288,734,0,(long)&activity_list[20], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,5,62,340,62,340,32,20,_DK_gui_area_anger_button,288,735,0,(long)&activity_list[21], 0, 0, _DK_maintain_activity_row },
-  { 0,  0, 0, 0, 0, _DK_pick_up_creature_doing_activity,_DK_gui_go_to_next_creature_activity,NULL,5,98,340,98,340,32,20,_DK_gui_area_anger_button,288,736,0,(long)&activity_list[22], 0, 0, _DK_maintain_activity_row },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit event_menu_buttons[] = {
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit options_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, _DK_gui_area_text,                 1, 716,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0,  12,  36,  12,  36, 46, 64, _DK_gui_area_no_anim_button,      23, 725, &load_menu, 0,          0, 0, _DK_maintain_loadsave },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0,  60,  36,  60,  36, 46, 64, _DK_gui_area_no_anim_button,      22, 726, &save_menu, 0,          0, 0, _DK_maintain_loadsave },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0, 108,  36, 108,  36, 46, 64, _DK_gui_area_no_anim_button,      25, 723, &video_menu,0,          0, 0, NULL },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0, 156,  36, 156,  36, 46, 64, _DK_gui_area_no_anim_button,      24, 724, &sound_menu,0,          0, 0, NULL },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0, 204,  36, 204,  36, 46, 64, _DK_gui_area_new_no_anim_button, 501, 728, &autopilot_menu,0,      0, 0, NULL },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0, 252,  36, 252,  36, 46, 64, _DK_gui_area_no_anim_button,      26, 727, &quit_menu,0,           0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit query_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, _DK_gui_set_query,  NULL,        NULL,               0,  44, 374,  44, 374, 52, 20, _DK_gui_area_new_normal_button,  475, 432,  0,       0,            0, 0, NULL },
-  { 2, 69, 0, 0, 0, _DK_gui_set_tend_to,NULL,        NULL,               1,  36, 190,  36, 190, 32, 26, _DK_gui_area_flash_cycle_button, 350, 307,  0,(long)&game.field_1517FB, 1, 0, _DK_maintain_prison_bar },
-  { 2, 70, 0, 0, 0, _DK_gui_set_tend_to,NULL,        NULL,               2,  74, 190,  74, 190, 32, 26, _DK_gui_area_flash_cycle_button, 346, 306,  0,(long)&game.field_1517FC, 1, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 216,   4, 222,130, 24, _DK_gui_area_payday_button,      341, 454,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   2, 246,   2, 246, 60, 24, _DK_gui_area_research_bar,        61, 452,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  74, 246,  74, 246, 60, 24, _DK_gui_area_workshop_bar,        75, 453,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  74, 274,  74, 274, 60, 24, _DK_gui_area_player_creature_info,323,456,  0,       0,            0, 0, _DK_maintain_room_and_creature_button },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  74, 298,  74, 298, 60, 24, _DK_gui_area_player_creature_info,325,456,  0,       1,            0, 0, _DK_maintain_room_and_creature_button },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  74, 322,  74, 322, 60, 24, _DK_gui_area_player_creature_info,327,456,  0,       2,            0, 0, _DK_maintain_room_and_creature_button },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  74, 346,  74, 346, 60, 24, _DK_gui_area_player_creature_info,329,456,  0,       3,            0, 0, _DK_maintain_room_and_creature_button },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 274,   4, 274, 60, 24, _DK_gui_area_player_room_info,   324, 455,  0,       0,            0, 0, _DK_maintain_room_and_creature_button },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 298,   4, 298, 60, 24, _DK_gui_area_player_room_info,   326, 455,  0,       1,            0, 0, _DK_maintain_room_and_creature_button },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 322,   4, 322, 60, 24, _DK_gui_area_player_room_info,   328, 455,  0,       2,            0, 0, _DK_maintain_room_and_creature_button },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 346,   4, 346, 60, 24, _DK_gui_area_player_room_info,   330, 455,  0,       3,            0, 0, _DK_maintain_room_and_creature_button },
-  { 0,  0, 0, 0, 0, _DK_gui_toggle_ally,NULL,        NULL,               0,  62, 274,  62, 274, 14, 22, _DK_gui_area_ally,                 0, 469,  0,       0,            0, 0, _DK_maintain_ally },
-  { 0,  0, 0, 0, 0, _DK_gui_toggle_ally,NULL,        NULL,               0,  62, 298,  62, 298, 14, 22, _DK_gui_area_ally,                 0, 469,  0,       1,            0, 0, _DK_maintain_ally },
-  { 0,  0, 0, 0, 0, _DK_gui_toggle_ally,NULL,        NULL,               0,  62, 322,  62, 322, 14, 22, _DK_gui_area_ally,                 0, 469,  0,       2,            0, 0, _DK_maintain_ally },
-  { 0,  0, 0, 0, 0, _DK_gui_toggle_ally,NULL,        NULL,               0,  62, 346,  62, 346, 14, 22, _DK_gui_area_ally,                 0, 469,  0,       3,            0, 0, _DK_maintain_ally },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit quit_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,210, 32, _DK_gui_area_text,                 1, 309,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0,  70,  24,  72,  58, 46, 32, _DK_gui_area_normal_button,       46, 311,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 1, _DK_gui_quit_game,  NULL,        NULL,               0, 136,  24, 138,  58, 46, 32, _DK_gui_area_normal_button,       48, 310,  0,       0,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit load_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, _DK_gui_area_text,                 1, 719,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 1, _DK_gui_load_game,  NULL,        NULL,               0, 999,  58, 999,  58,300, 32, _DK_draw_load_button,              1, 201,  0,(long)&input_string[0], 0, 0, _DK_gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, _DK_gui_load_game,  NULL,        NULL,               1, 999,  90, 999,  90,300, 32, _DK_draw_load_button,              1, 201,  0,(long)&input_string[1], 0, 0, _DK_gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, _DK_gui_load_game,  NULL,        NULL,               2, 999, 122, 999, 122,300, 32, _DK_draw_load_button,              1, 201,  0,(long)&input_string[2], 0, 0, _DK_gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, _DK_gui_load_game,  NULL,        NULL,               3, 999, 154, 999, 154,300, 32, _DK_draw_load_button,              1, 201,  0,(long)&input_string[3], 0, 0, _DK_gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, _DK_gui_load_game,  NULL,        NULL,               4, 999, 186, 999, 186,300, 32, _DK_draw_load_button,              1, 201,  0,(long)&input_string[4], 0, 0, _DK_gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, _DK_gui_load_game,  NULL,        NULL,               5, 999, 218, 999, 218,300, 32, _DK_draw_load_button,              1, 201,  0,(long)&input_string[5], 0, 0, _DK_gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, _DK_gui_load_game,  NULL,        NULL,               6, 999, 250, 999, 250,300, 32, _DK_draw_load_button,              1, 201,  0,(long)&input_string[6], 0, 0, _DK_gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, _DK_gui_load_game,  NULL,        NULL,               7, 999, 282, 999, 282,300, 32, _DK_draw_load_button,              1, 201,  0,(long)&input_string[7], 0, 0, _DK_gui_load_game_maintain },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit save_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, _DK_gui_area_text,                 1, 720,  0,       0,            0, 0, NULL },
-  { 5, -2,-1,-1, 1, _DK_gui_save_game,  NULL,        NULL,               0, 999,  58, 999,  58,300, 32, _DK_gui_area_text,                 1, 201,  0,(long)&input_string[0],15, 0, NULL },
-  { 5, -2,-1,-1, 1, _DK_gui_save_game,  NULL,        NULL,               1, 999,  90, 999,  90,300, 32, _DK_gui_area_text,                 1, 201,  0,(long)&input_string[1],15, 0, NULL },
-  { 5, -2,-1,-1, 1, _DK_gui_save_game,  NULL,        NULL,               2, 999, 122, 999, 122,300, 32, _DK_gui_area_text,                 1, 201,  0,(long)&input_string[2],15, 0, NULL },
-  { 5, -2,-1,-1, 1, _DK_gui_save_game,  NULL,        NULL,               3, 999, 154, 999, 154,300, 32, _DK_gui_area_text,                 1, 201,  0,(long)&input_string[3],15, 0, NULL },
-  { 5, -2,-1,-1, 1, _DK_gui_save_game,  NULL,        NULL,               4, 999, 186, 999, 186,300, 32, _DK_gui_area_text,                 1, 201,  0,(long)&input_string[4],15, 0, NULL },
-  { 5, -2,-1,-1, 1, _DK_gui_save_game,  NULL,        NULL,               5, 999, 218, 999, 218,300, 32, _DK_gui_area_text,                 1, 201,  0,(long)&input_string[5],15, 0, NULL },
-  { 5, -2,-1,-1, 1, _DK_gui_save_game,  NULL,        NULL,               6, 999, 250, 999, 250,300, 32, _DK_gui_area_text,                 1, 201,  0,(long)&input_string[6],15, 0, NULL },
-  { 5, -2,-1,-1, 1, _DK_gui_save_game,  NULL,        NULL,               7, 999, 282, 999, 282,300, 32, _DK_gui_area_text,                 1, 201,  0,(long)&input_string[7],15, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit video_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, _DK_gui_area_text,                 1, 717,  0,       0,            0, 0, NULL },
-  { 2,  0, 0, 0, 0, _DK_gui_video_shadows,NULL,      NULL,               0,   8,  38,  10,  38, 46, 64, _DK_gui_area_no_anim_button,      27, 313,  0,(long)&_DK_video_shadows, 4, 0, NULL },
-  { 2,  0, 0, 0, 0, _DK_gui_video_view_distance_level,NULL,NULL,         0,  56,  38,  58,  38, 46, 64, _DK_gui_area_no_anim_button,      36, 316,  0,(long)&_DK_video_view_distance_level, 3, 0, NULL },
-  { 2,  0, 0, 0, 0, _DK_gui_video_rotate_mode,NULL,  NULL,               0, 104,  38, 106,  38, 46, 64, _DK_gui_area_no_anim_button,      32, 314,  0,(long)&_DK_settings.field_3, 1, 0, NULL },
-  { 2,  0, 0, 0, 0, _DK_gui_video_cluedo_mode,NULL,  NULL,               0,  32,  90,  32,  90, 46, 64, _DK_gui_area_no_anim_button,      42, 315,  0,(long)&_DK_video_cluedo_mode,1, 0, _DK_gui_video_cluedo_maintain },
-  { 0,  0, 0, 0, 0, _DK_gui_video_gamma_correction,NULL,NULL,            0,  80,  90,  80,  90, 46, 64, _DK_gui_area_no_anim_button,      44, 317,  0,(long)&_DK_video_gamma_correction, 0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit sound_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, _DK_gui_area_text,                 1, 718,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   8,  28,  10,  28, 46, 64, _DK_gui_area_no_anim_button,      41, 201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   8,  80,  10,  80, 46, 64, _DK_gui_area_no_anim_button,      40, 201,  0,       0,            0, 0, NULL },
-  { 4,  0, 0, 0, 0, _DK_gui_set_sound_volume,NULL,   NULL,               0,  66,  58,  66,  58,190, 32, _DK_gui_area_slider,               0, 340,  0,(long)&_DK_sound_level, 127, 0, NULL },
-  { 4,  0, 0, 0, 0, _DK_gui_set_music_volume,NULL,   NULL,               0,  66, 110,  66, 110,190, 32, _DK_gui_area_slider,               0, 341,  0,(long)&_DK_music_level, 127, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit error_box_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, _DK_gui_area_text,                 1, 670,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,   0, 999,   0,155,155, _DK_gui_area_text,                 0, 201,  0,(long)&error_box_message,0, 0, NULL },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0, 999, 100, 999, 132, 46, 34, _DK_gui_area_normal_button,       48, 201,  0,       0,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit instance_menu_buttons[] = {
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit text_info_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,   4, 999,   4,400, 78, _DK_gui_area_scroll_window,        0, 201,  0,(long)&game.text_info,0,0, NULL },
-  { 1, 63, 0, 0, 0, _DK_gui_go_to_event,NULL,        NULL,               0,   4,   4,   4,   4, 30, 24, _DK_gui_area_new_normal_button,  276, 466,  0,       0,             0,0, _DK_maintain_zoom_to_event },
-  { 0, 64, 0, 0, 1, _DK_gui_close_objective,_DK_gui_close_objective,NULL,0,   4,  56,   4,  56, 30, 24, _DK_gui_area_new_normal_button,  274, 465,  0,       0,             0,0, NULL },
-  { 1, 66, 0, 0, 0, _DK_gui_scroll_text_up,NULL,     NULL,               0, 446,   4, 446,   4, 30, 24, _DK_gui_area_new_normal_button,  486, 201,  0,(long)&game.text_info,0,0, _DK_maintain_scroll_up },
-  { 1, 65, 0, 0, 0, _DK_gui_scroll_text_down,NULL,   NULL,               0, 446,  56, 446,  56, 30, 24, _DK_gui_area_new_normal_button,  272, 201,  0,(long)&game.text_info,0,0, _DK_maintain_scroll_down },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit pause_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999, 999, 999, 999,140,100, _DK_gui_area_text,                 0, 320,  0,       0,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit battle_buttons[] = {
-  { 0,  0, 0, 0, 1, _DK_gui_close_objective,NULL,    NULL,               0,   4,  72,   4,  72, 30, 24, _DK_gui_area_new_normal_button,  274, 465,  0,       0,            0, 0, NULL },
-  { 1,  0, 0, 0, 0, _DK_gui_previous_battle,NULL,    NULL,               0, 446,   4, 446,   4, 30, 24, _DK_gui_area_new_normal_button,  486, 464,  0,       0,            0, 0, NULL },
-  { 1,  0, 0, 0, 0, _DK_gui_next_battle,NULL,        NULL,               0, 446,  72, 446,  72, 30, 24, _DK_gui_area_new_normal_button,  272, 464,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_gui_get_creature_in_battle,_DK_gui_go_to_person_in_battle,_DK_gui_setup_friend_over,0, 42,12, 42,12,160,24,_DK_gui_area_friendly_battlers,0,201,0,0,0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_gui_get_creature_in_battle,_DK_gui_go_to_person_in_battle,_DK_gui_setup_enemy_over, 0,260,12,260,12,160,24,_DK_gui_area_enemy_battlers,   0,201,0,0,0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_gui_get_creature_in_battle,_DK_gui_go_to_person_in_battle,_DK_gui_setup_friend_over,1, 42,42, 42,42,160,24,_DK_gui_area_friendly_battlers,0,201,0,0,0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_gui_get_creature_in_battle,_DK_gui_go_to_person_in_battle,_DK_gui_setup_enemy_over, 1,260,42,260,42,160,24,_DK_gui_area_enemy_battlers,   0,201,0,0,0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_gui_get_creature_in_battle,_DK_gui_go_to_person_in_battle,_DK_gui_setup_friend_over,2, 42,72, 42,72,160,24,_DK_gui_area_friendly_battlers,0,201,0,0,0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_gui_get_creature_in_battle,_DK_gui_go_to_person_in_battle,_DK_gui_setup_enemy_over, 2,260,72,260,72,160,24,_DK_gui_area_enemy_battlers,   0,201,0,0,0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 214,  34, 214,  34, 32, 32, _DK_gui_area_null,               175, 201,  0,       0,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit resurrect_creature_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,200, 32, _DK_gui_area_text,                 1, 428,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_select_resurrect_creature,   NULL,NULL,          0, 999,  62, 999,  62,250, 26, _DK_draw_resurrect_creature,       0, 201,  0,       0,            0, 0, _DK_maintain_resurrect_creature_select },
-  { 0,  0, 0, 0, 0, _DK_select_resurrect_creature,   NULL,NULL,          1, 999,  90, 999,  90,250, 26, _DK_draw_resurrect_creature,       0, 201,  0,       0,            0, 0, _DK_maintain_resurrect_creature_select },
-  { 0,  0, 0, 0, 0, _DK_select_resurrect_creature,   NULL,NULL,          2, 999, 118, 999, 118,250, 26, _DK_draw_resurrect_creature,       0, 201,  0,       0,            0, 0, _DK_maintain_resurrect_creature_select },
-  { 0,  0, 0, 0, 0, _DK_select_resurrect_creature,   NULL,NULL,          3, 999, 146, 999, 146,250, 26, _DK_draw_resurrect_creature,       0, 201,  0,       0,            0, 0, _DK_maintain_resurrect_creature_select },
-  { 0,  0, 0, 0, 0, _DK_select_resurrect_creature,   NULL,NULL,          4, 999, 174, 999, 174,250, 26, _DK_draw_resurrect_creature,       0, 201,  0,       0,            0, 0, _DK_maintain_resurrect_creature_select },
-  { 0,  0, 0, 0, 0, _DK_select_resurrect_creature,   NULL,NULL,          5, 999, 202, 999, 202,250, 26, _DK_draw_resurrect_creature,       0, 201,  0,       0,            0, 0, _DK_maintain_resurrect_creature_select },
-  { 1,  0, 0, 0, 0, _DK_select_resurrect_creature_up,NULL,NULL,          1, 305,  62, 305,  62, 22, 24, _DK_gui_area_new_normal_button,  278, 201,  0,       0,            0, 0, _DK_maintain_resurrect_creature_scroll },
-  { 1,  0, 0, 0, 0, _DK_select_resurrect_creature_down,NULL,NULL,        2, 305, 204, 305, 204, 22, 24, _DK_gui_area_new_normal_button,  280, 201,  0,       0,            0, 0, _DK_maintain_resurrect_creature_scroll },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0, 999, 258, 999, 258,100, 32, _DK_gui_area_text,                 1, 403,  0,       0,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit transfer_creature_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,200, 32, _DK_gui_area_text,                 1, 429,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_select_transfer_creature,NULL,NULL,              0, 999,  62, 999,  62,250, 26, _DK_draw_transfer_creature,        0, 201,  0,       0,            0, 0, _DK_maintain_transfer_creature_select },
-  { 0,  0, 0, 0, 0, _DK_select_transfer_creature,NULL,NULL,              1, 999,  90, 999,  90,250, 26, _DK_draw_transfer_creature,        1, 201,  0,       0,            0, 0, _DK_maintain_transfer_creature_select },
-  { 0,  0, 0, 0, 0, _DK_select_transfer_creature,NULL,NULL,              2, 999, 118, 999, 118,250, 26, _DK_draw_transfer_creature,        2, 201,  0,       0,            0, 0, _DK_maintain_transfer_creature_select },
-  { 0,  0, 0, 0, 0, _DK_select_transfer_creature,NULL,NULL,              3, 999, 146, 999, 146,250, 26, _DK_draw_transfer_creature,        3, 201,  0,       0,            0, 0, _DK_maintain_transfer_creature_select },
-  { 0,  0, 0, 0, 0, _DK_select_transfer_creature,NULL,NULL,              4, 999, 174, 999, 174,250, 26, _DK_draw_transfer_creature,        4, 201,  0,       0,            0, 0, _DK_maintain_transfer_creature_select },
-  { 0,  0, 0, 0, 0, _DK_select_transfer_creature,NULL,NULL,              5, 999, 202, 999, 202,250, 26, _DK_draw_transfer_creature,        5, 201,  0,       0,            0, 0, _DK_maintain_transfer_creature_select },
-  { 1,  0, 0, 0, 0, _DK_select_transfer_creature_up,NULL,NULL,           1, 305,  62, 305,  62, 22, 24, _DK_gui_area_new_normal_button,  278, 201,  0,       0,            0, 0, _DK_maintain_transfer_creature_scroll },
-  { 1,  0, 0, 0, 0, _DK_select_transfer_creature_down,NULL,NULL,         2, 305, 204, 305, 204, 22, 24, _DK_gui_area_new_normal_button,  280, 201,  0,       0,            0, 0, _DK_maintain_transfer_creature_scroll },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0, 999, 258, 999, 258,100, 32, _DK_gui_area_text,                 1, 403,  0,       0,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit hold_audience_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, _DK_gui_area_text,                 1, 634,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0,  38,  24,  40,  58, 46, 32, _DK_gui_area_normal_button,       46, 201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 1, _DK_choose_hold_audience,NULL,   NULL,               0, 116,  24, 118,  58, 46, 32, _DK_gui_area_normal_button,       48, 201,  0,       0,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit armageddon_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, _DK_gui_area_text,                 1, 646,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0,  38,  24,  40,  58, 46, 32, _DK_gui_area_normal_button,       46, 201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 1, _DK_choose_armageddon,NULL,      NULL,               0, 116,  24, 118,  58, 46, 32, _DK_gui_area_normal_button,       48, 201,  0,       0,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit dungeon_special_buttons[] = {
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit frontend_main_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, _DK_frontend_draw_large_menu_button,0,201,  0,       1,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontend_start_new_game,NULL,_DK_frontend_over_button,3,999,104,999,104,371,46, _DK_frontend_draw_large_menu_button,0,201,  0,       2,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontend_load_continue_game,NULL,_DK_frontend_over_button,0,999,154,999,154,371,46,_DK_frontend_draw_large_menu_button,0,201,0,      8,            0, 0, _DK_frontend_continue_game_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_change_state,NULL, _DK_frontend_over_button, 2,999,204,999,204,371,46, _DK_frontend_draw_large_menu_button,0,201,  0,       3,            0, 0, _DK_frontend_main_menu_load_game_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_change_state,NULL, _DK_frontend_over_button, 4,999,254,999,254,371,46, _DK_frontend_draw_large_menu_button,0,201,  0,       4,            0, 0, _DK_frontend_main_menu_netservice_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_change_state,NULL, _DK_frontend_over_button,27,999,304,999,304,371,46, _DK_frontend_draw_large_menu_button,0,201,  0,      97,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontend_change_state,NULL, _DK_frontend_over_button,18,999,354,999,354,371,46, _DK_frontend_draw_large_menu_button,0,201,  0,     104,            0, 0, _DK_frontend_main_menu_highscores_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_change_state,NULL, _DK_frontend_over_button, 9,999,404,999,404,371,46, _DK_frontend_draw_large_menu_button,0,201,  0,       5,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit frontend_load_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, _DK_frontend_draw_large_menu_button,0,201,  0,       7,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  82, 124,  82, 124,220, 26, _DK_frontnet_draw_scroll_box_tab,  0, 201,  0,      28,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  82, 150,  82, 150,450,180, _DK_frontnet_draw_scroll_box,      0, 201,  0,      26,            0, 0, NULL },
-  { 1,  0, 0, 0, 0, _DK_frontend_load_game_up,NULL,_DK_frontend_over_button,0,532,149,532, 149, 26, 14, _DK_frontnet_draw_slider_button,   0, 201,  0,      17,            0, 0, _DK_frontend_load_game_up_maintain },
-  { 1,  0, 0, 0, 0, _DK_frontend_load_game_down,NULL,_DK_frontend_over_button,0,532,317,532,317,26, 14, _DK_frontnet_draw_slider_button,   0, 201,  0,      18,            0, 0, _DK_frontend_load_game_down_maintain },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 536, 163, 536, 163, 10,154, _DK_frontend_draw_games_scroll_tab,0, 201,  0,      40,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 102, 125, 102, 125,220, 26, _DK_frontend_draw_text,            0, 201,  0,      30,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontend_load_game,NULL,_DK_frontend_over_button,0,  95, 157,  95, 157,424, 26, _DK_frontend_draw_load_game_button,0, 201,  0,      45,            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_load_game,NULL,_DK_frontend_over_button,0,  95, 185,  95, 185,424, 26, _DK_frontend_draw_load_game_button,0, 201,  0,      46,            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_load_game,NULL,_DK_frontend_over_button,0,  95, 213,  95, 213,424, 26, _DK_frontend_draw_load_game_button,0, 201,  0,      47,            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_load_game,NULL,_DK_frontend_over_button,0,  95, 241,  95, 241,424, 26, _DK_frontend_draw_load_game_button,0, 201,  0,      48,            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_load_game,NULL,_DK_frontend_over_button,0,  95, 269,  95, 269,424, 26, _DK_frontend_draw_load_game_button,0, 201,  0,      49,            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_load_game,NULL,_DK_frontend_over_button,0,  95, 297,  95, 297,424, 26, _DK_frontend_draw_load_game_button,0, 201,  0,      50,            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_change_state,NULL,_DK_frontend_over_button,1,999,404,999, 404,371, 46, _DK_frontend_draw_large_menu_button,0,201,  0,       6,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit frontend_net_service_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, _DK_frontend_draw_large_menu_button,0,201,  0,      10,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  82, 124,  82, 124,220, 26, _DK_frontnet_draw_scroll_box_tab,  0, 201,  0,      12,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  82, 150,  82, 150,450,180, _DK_frontnet_draw_scroll_box,      0, 201,  0,      26,            0, 0, NULL },
-  { 1,  0, 0, 0, 0, frontnet_service_up,NULL,_DK_frontend_over_button,   0, 532, 149, 532, 149, 26, 14, _DK_frontnet_draw_slider_button,   0, 201,  0,      17,            0, 0, frontnet_service_up_maintain },
-  { 1,  0, 0, 0, 0, frontnet_service_down,NULL,_DK_frontend_over_button, 0, 532, 317, 532, 317, 26, 14, _DK_frontnet_draw_slider_button,   0, 201,  0,      18,            0, 0, frontnet_service_down_maintain },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 536, 163, 536, 163, 10,154, _DK_frontnet_draw_services_scroll_tab,0,201,0,      40,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 102, 125, 102, 125,220, 26, _DK_frontend_draw_text,            0, 201,  0,      33,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, frontnet_service_select,NULL,_DK_frontend_over_button,0, 95, 158,  95, 158,424, 26, frontnet_draw_service_button,      0, 201,  0,      45,            0, 0, frontnet_service_maintain },
-  { 0,  0, 0, 0, 0, frontnet_service_select,NULL,_DK_frontend_over_button,0, 95, 184,  95, 184,424, 26, frontnet_draw_service_button,      0, 201,  0,      46,            0, 0, frontnet_service_maintain },
-  { 0,  0, 0, 0, 0, frontnet_service_select,NULL,_DK_frontend_over_button,0, 95, 210,  95, 210,424, 26, frontnet_draw_service_button,      0, 201,  0,      47,            0, 0, frontnet_service_maintain },
-  { 0,  0, 0, 0, 0, frontnet_service_select,NULL,_DK_frontend_over_button,0, 95, 236,  95, 236,424, 26, frontnet_draw_service_button,      0, 201,  0,      48,            0, 0, frontnet_service_maintain },
-  { 0,  0, 0, 0, 0, frontnet_service_select,NULL,_DK_frontend_over_button,0, 95, 262,  95, 262,424, 26, frontnet_draw_service_button,      0, 201,  0,      49,            0, 0, frontnet_service_maintain },
-  { 0,  0, 0, 0, 0, frontnet_service_select,NULL,_DK_frontend_over_button,0, 95, 288,  95, 288,424, 26, frontnet_draw_service_button,      0, 201,  0,      50,            0, 0, frontnet_service_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_change_state,NULL,_DK_frontend_over_button,1,999,404,999, 404,371, 46, _DK_frontend_draw_large_menu_button,0,201,  0,       6,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit frontend_net_session_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,   NULL,                    0, 999,  30, 999,  30, 371, 46, _DK_frontend_draw_large_menu_button,0,201, 0,      12,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,   NULL,                    0,  82,  79,  82,  79, 165, 29, _DK_frontnet_draw_text_bar,       0, 201,  0,      27,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,   NULL,                    0,  95,  81,  91,  81, 165, 25, _DK_frontend_draw_text,           0, 201,  0,      19,            0, 0, NULL },
-  { 5, -1,-1,-1, 0, _DK_frontnet_session_set_player_name,NULL,_DK_frontend_over_button,19,200,81,95,81,432,25,_DK_frontend_draw_enter_text,0, 201,  0,(long)_DK_tmp_net_player_name, 20, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 112,  82, 112, 220, 26, _DK_frontnet_draw_scroll_box_tab, 0, 201,  0,      28,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 138,  82, 138, 450,180, _DK_frontnet_draw_scroll_box,     0, 201,  0,      25,            0, 0, NULL },
-  { 1,  0, 0, 0, 0, _DK_frontnet_session_up,NULL,_DK_frontend_over_button,  0, 532, 137, 532, 137,  26, 14, _DK_frontnet_draw_slider_button,0,201,  0,      17,            0, 0, _DK_frontnet_session_up_maintain },
-  { 1,  0, 0, 0, 0, _DK_frontnet_session_down,NULL,_DK_frontend_over_button,0, 532, 217, 532, 217,  26, 14, _DK_frontnet_draw_slider_button,0,201,  0,      18,            0, 0, _DK_frontnet_session_down_maintain },
-  { 0,  0, 0, 0, 0, NULL,               NULL,   NULL,                    0, 536, 151, 536, 151,  10, 66, _DK_frontnet_draw_sessions_scroll_tab,0,201,0,     40,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,   NULL,                    0, 102, 113, 102, 113, 220, 26, _DK_frontend_draw_text,           0, 201,  0,      29,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 230,  82, 230, 450, 23, _DK_frontnet_draw_session_selected,0,201,  0,      35,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontnet_session_select,NULL,_DK_frontend_over_button,0,95, 141,  95, 141, 424, 26, _DK_frontnet_draw_session_button,   0,201,       0,           45, 0, 0, _DK_frontnet_session_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontnet_session_select,NULL,_DK_frontend_over_button,0,95, 167,  95, 167, 424, 26, _DK_frontnet_draw_session_button,   0,201,       0,           46, 0, 0, _DK_frontnet_session_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontnet_session_select,NULL,_DK_frontend_over_button,0,95, 193,  95, 193, 424, 26, _DK_frontnet_draw_session_button,   0,201,       0,           47, 0, 0, _DK_frontnet_session_maintain },
-  { 0,  0, 0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 261,  82, 261, 220, 26, _DK_frontnet_draw_scroll_box_tab, 0, 201,  0,      28,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 287,  82, 287, 450, 74, _DK_frontnet_draw_scroll_box,     0, 201,  0,      24,            0, 0, NULL },
-  { 1,  0, 0, 0, 0, _DK_frontnet_players_up,NULL,_DK_frontend_over_button,0, 532, 286, 532, 286,  26, 14, _DK_frontnet_draw_slider_button, 0, 201,  0,      36,            0, 0, _DK_frontnet_players_up_maintain },
-  { 1,  0, 0, 0, 0, _DK_frontnet_players_down,NULL,_DK_frontend_over_button,0,532,344, 532, 344,  26, 14, _DK_frontnet_draw_slider_button, 0, 201,  0,      37,            0, 0, _DK_frontnet_players_down_maintain },
-  { 0,  0, 0, 0, 0, NULL,               NULL,   NULL,                    0, 536, 300, 536, 300,  10, 44, _DK_frontnet_draw_players_scroll_tab,0,201,0,      40,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,   NULL,                    0,  95, 262,  95, 262, 220, 22, _DK_frontend_draw_text,           0, 201,  0,      31,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,   NULL,                    0,  95, 291,  82, 291, 450, 52, _DK_frontnet_draw_net_session_players, 0,201,0,    21,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontnet_session_join,NULL,_DK_frontend_over_button,0,  72, 360,  72, 360, 247, 46, _DK_frontend_draw_small_menu_button,0,201,0,    13,            0, 0, _DK_frontnet_join_game_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontnet_session_create,NULL,_DK_frontend_over_button,0,321,360, 321, 360, 247, 46, _DK_frontend_draw_small_menu_button,0,201,0,    14,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontnet_return_to_main_menu,NULL,_DK_frontend_over_button,0,999,404,999,404,371,46,_DK_frontend_draw_large_menu_button,0,201,0,     6,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit frontend_net_start_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 999,  30, 999,  30, 371, 46, _DK_frontend_draw_large_menu_button,0,201,  0,  12, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  82,  78,  82,  78, 220, 26, _DK_frontnet_draw_scroll_box_tab,  0, 201,  0,  28, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 421,  81, 421,  81, 100, 27, _DK_frontnet_draw_alliance_box_tab,0, 201,  0,  28, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  82, 104,  82, 104, 450, 70, _DK_frontnet_draw_scroll_box,      0, 201,  0,  90, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 102,  79, 102,  79, 220, 26, _DK_frontend_draw_text,            0, 201,  0,  31, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  95, 105,  82, 105, 432,104, _DK_frontnet_draw_net_start_players,0,201,  0,  21, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,0,431,107,431, 116, 432, 88, _DK_frontnet_draw_alliance_grid,   0, 201,  0,  74, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,0,431,108,431, 108,  22, 26, _DK_frontnet_draw_alliance_button, 0, 201,  0,  74, 0, 0, _DK_frontnet_maintain_alliance },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,1,453,108,453, 108,  22, 26, _DK_frontnet_draw_alliance_button, 0, 201,  0,  74, 0, 0, _DK_frontnet_maintain_alliance },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,2,475,108,475, 108,  22, 26, _DK_frontnet_draw_alliance_button, 0, 201,  0,  74, 0, 0, _DK_frontnet_maintain_alliance },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,3,497,108,497, 108,  22, 26, _DK_frontnet_draw_alliance_button, 0, 201,  0,  74, 0, 0, _DK_frontnet_maintain_alliance },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,0,431,134,431, 134,  22, 26, _DK_frontnet_draw_alliance_button, 0, 201,  0,  75, 0, 0, _DK_frontnet_maintain_alliance },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,1,453,134,453, 134,  22, 26, _DK_frontnet_draw_alliance_button, 0, 201,  0,  75, 0, 0, _DK_frontnet_maintain_alliance },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,2,475,134,475, 134,  22, 26, _DK_frontnet_draw_alliance_button, 0, 201,  0,  75, 0, 0, _DK_frontnet_maintain_alliance },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,3,497,134,497, 134,  22, 26, _DK_frontnet_draw_alliance_button, 0, 201,  0,  75, 0, 0, _DK_frontnet_maintain_alliance },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,0,431,160,431, 160,  22, 26, _DK_frontnet_draw_alliance_button, 0, 201,  0,  76, 0, 0, _DK_frontnet_maintain_alliance },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,1,453,160,453, 160,  22, 26, _DK_frontnet_draw_alliance_button, 0, 201,  0,  76, 0, 0, _DK_frontnet_maintain_alliance },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,2,475,160,475, 160,  22, 26, _DK_frontnet_draw_alliance_button, 0, 201,  0,  76, 0, 0, _DK_frontnet_maintain_alliance },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,3,497,160,497, 160,  22, 26, _DK_frontnet_draw_alliance_button, 0, 201,  0,  76, 0, 0, _DK_frontnet_maintain_alliance },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,0,431,186,431, 183,  22, 26, _DK_frontnet_draw_alliance_button, 0, 201,  0,  77, 0, 0, _DK_frontnet_maintain_alliance },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,1,453,186,453, 186,  22, 26, _DK_frontnet_draw_alliance_button, 0, 201,  0,  77, 0, 0, _DK_frontnet_maintain_alliance },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,2,475,186,475, 186,  22, 26, _DK_frontnet_draw_alliance_button, 0, 201,  0,  77, 0, 0, _DK_frontnet_maintain_alliance },
-  { 0,  0, 0, 0, 0, _DK_frontnet_select_alliance,0,_DK_frontend_over_button,3,497,186,497, 186,  22, 26, _DK_frontnet_draw_alliance_button, 0, 201,  0,  77, 0, 0, _DK_frontnet_maintain_alliance },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 284, 217, 284, 217,   0,  0, _DK_frontnet_draw_bottom_scroll_box_tab,0,201,0,28,0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontend_toggle_computer_players,0,_DK_frontend_over_button,0,297,214,297,214,220,26,_DK_frontend_draw_computer_players,0,201,0,103, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  82, 246,  82, 246, 220, 26, _DK_frontnet_draw_scroll_box_tab,  0, 201,  0,  28, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  82, 272,  82, 272, 450,111, _DK_frontnet_draw_scroll_box,      0, 201,  0,  91, 0, 0, NULL },
-  { 1,  0, 0, 0, 0, _DK_frontnet_messages_up,0, _DK_frontend_over_button,0, 532, 271, 532, 271,  26, 14, _DK_frontnet_draw_slider_button,   0, 201,  0,  38, 0, 0, _DK_frontnet_messages_up_maintain },
-  { 1,  0, 0, 0, 0, _DK_frontnet_messages_down,0,_DK_frontend_over_button,0,532, 373, 532, 373,  26, 14, _DK_frontnet_draw_slider_button,   0, 201,  0,  39, 0, 0, _DK_frontnet_messages_down_maintain },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 102, 247, 102, 247, 220, 26, _DK_frontend_draw_text,            0, 201,  0,  34, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 536, 285, 536, 285,  10, 88, _DK_frontnet_draw_messages_scroll_tab,0,201,0,  40, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  82, 386,  82, 386, 459, 23, _DK_frontnet_draw_current_message, 0, 201,  0,  43, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  89, 273,  89, 273, 438,104, _DK_frontnet_draw_messages,        0, 201,  0,  44, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_set_packet_start,0,     _DK_frontend_over_button,0,  49, 412,  49, 412, 247, 46, _DK_frontend_draw_small_menu_button,0,201,  0,  15, 0, 0, _DK_frontnet_start_game_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontnet_return_to_session_menu,0,_DK_frontend_over_button,1,345,412,345,412,247,46,_DK_frontend_draw_small_menu_button,0,201,0, 16, 0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,                0,     NULL,                    0,   0,   0,   0,   0,   0,  0, NULL,                              0,   0,  0,   0, 0, 0, NULL },
-};
-
-struct GuiButtonInit frontend_net_modem_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 999,  30, 999,  30, 371, 46, _DK_frontend_draw_large_menu_button,0,201,  0,  53, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  41, 102,  41, 102, 212, 26, _DK_frontnet_draw_small_scroll_box_tab,0,201,0, 28, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  41, 128,  41, 128, 268, 70, _DK_frontnet_draw_small_scroll_box,0, 201,  0,  24, 0, 0, NULL },
-  { 1,  0, 0, 0, 0, _DK_frontnet_comport_up,0,  _DK_frontend_over_button,0, 275, 128, 275, 128,  26, 14, _DK_frontnet_draw_slider_button,   0, 201,  0,  17, 0, 0, _DK_frontnet_comport_up_maintain },
-  { 1,  0, 0, 0, 0, _DK_frontnet_comport_down,0,_DK_frontend_over_button,0, 275, 186, 275, 186,  26, 14, _DK_frontnet_draw_slider_button,   0, 201,  0,  18, 0, 0, _DK_frontnet_comport_down_maintain },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 279, 142, 279, 142,  22, 44, _DK_frontnet_draw_comport_scroll_tab,0,201, 0,  40, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  61, 103,  61, 103, 172, 25, _DK_frontend_draw_text,            0, 201,  0,  55, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  41, 198,  41, 198, 268, 23, _DK_frontnet_draw_comport_selected,0, 201,  0,  57, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontnet_comport_select,0,_DK_frontend_over_button,0,54, 136,  54, 136, 190, 26, _DK_frontnet_draw_comport_button,  0, 201,  0,  45, 0, 0, _DK_frontnet_comport_select_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontnet_comport_select,0,_DK_frontend_over_button,0,54, 164,  54, 164, 190, 26, _DK_frontnet_draw_comport_button,  0, 201,  0,  46, 0, 0, _DK_frontnet_comport_select_maintain },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 331, 102, 331, 102, 212, 26, _DK_frontnet_draw_small_scroll_box_tab,0,201,0, 28, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 331, 128, 331, 128, 268, 70, _DK_frontnet_draw_small_scroll_box,0, 201,  0,  24, 0, 0, NULL },
-  { 1,  0, 0, 0, 0, _DK_frontnet_speed_up,0,    _DK_frontend_over_button,0, 565, 128, 565, 128,  26, 14, _DK_frontnet_draw_slider_button,   0, 201,  0,  36, 0, 0, _DK_frontnet_speed_up_maintain },
-  { 1,  0, 0, 0, 0, _DK_frontnet_speed_down,0,  _DK_frontend_over_button,0, 565, 186, 565, 186,  26, 14, _DK_frontnet_draw_slider_button,   0, 201,  0,  37, 0, 0, _DK_frontnet_speed_down_maintain },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 569, 142, 569, 142,  22, 44, _DK_frontnet_draw_speed_scroll_tab,0, 201,  0,  40, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 351, 103, 351, 103, 172, 25, _DK_frontend_draw_text,            0, 201,  0,  56, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 331, 198, 331, 198, 450, 23, _DK_frontnet_draw_speed_selected,  0, 201,  0,  58, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontnet_speed_select,0,_DK_frontend_over_button,0, 344, 136, 344, 136, 190, 14, _DK_frontnet_draw_speed_button,    0, 201,  0,  47, 0, 0, _DK_frontnet_speed_select_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontnet_speed_select,0,_DK_frontend_over_button,0, 344, 164, 344, 164, 190, 14, _DK_frontnet_draw_speed_button,    0, 201,  0,  48, 0, 0, _DK_frontnet_speed_select_maintain },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  82, 254,  82, 254, 165, 28, _DK_frontnet_draw_text_cont_bar,   0, 201,  0,  27, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  95, 255,  91, 255, 165, 25, _DK_frontend_draw_text,            0, 201,  0,  71, 0, 0, NULL },
-  { 5, -3,-1,-1, 0, _DK_frontnet_net_set_phone_number,0,_DK_frontend_over_button,71,280,255,95,255,432,25,_DK_frontend_draw_enter_text,     0, 201,  0, (long)_DK_tmp_net_phone_number, 20, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  82, 282,  82, 282, 165, 28, _DK_frontnet_draw_text_cont_bar,   0, 201,  0,  27, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  95, 283,  91, 283, 165, 25, _DK_frontend_draw_text,            0, 201,  0,  66, 0, 0, NULL },
-  { 5, -1,-1,-1, 0, _DK_frontnet_net_set_modem_init,0,_DK_frontend_over_button,66,280,283,95,283,432,25, _DK_frontend_draw_enter_text,      0, 201,  0, (long)_DK_tmp_net_modem_init, -20, -1, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  82, 310,  82, 310, 165, 28, _DK_frontnet_draw_text_cont_bar,   0, 201,  0,  27, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  95, 311,  91, 311, 165, 25, _DK_frontend_draw_text,            0, 201,  0,  67, 0, 0, NULL },
-  { 5, -1,-1,-1, 0, _DK_frontnet_net_set_modem_hangup,0,_DK_frontend_over_button,67,280,311,95,311,432,25,_DK_frontend_draw_enter_text,     0, 201,  0, (long)_DK_tmp_net_modem_hangup, -20, -1, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  82, 338,  82, 338, 165, 28, _DK_frontnet_draw_text_cont_bar,   0, 201,  0,  27, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  95, 339,  91, 339, 165, 25, _DK_frontend_draw_text,            0, 201,  0,  68, 0, 0, NULL },
-  { 5, -1,-1,-1, 0, _DK_frontnet_net_set_modem_dial,0,_DK_frontend_over_button,68,280,339,95,339,432,25, _DK_frontend_draw_enter_text,      0, 201,  0, (long)_DK_tmp_net_modem_dial, -20, -1, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  82, 366,  82, 366, 165, 28, _DK_frontnet_draw_text_cont_bar,   0, 201,  0,  27, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  95, 367,  91, 367, 165, 25, _DK_frontend_draw_text,            0, 201,  0,  69, 0, 0, NULL },
-  { 5, -1,-1,-1, 0, _DK_frontnet_net_set_modem_answer,0,_DK_frontend_over_button,69,280,367,95,367,432,25,_DK_frontend_draw_enter_text,     0, 201,  0, (long)_DK_tmp_net_modem_answer, -20, -1, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontnet_net_modem_start,0,_DK_frontend_over_button,0,49,412,  49, 412, 247, 46, _DK_frontend_draw_small_menu_button,0,201,  0,  72, 0, 0, _DK_frontnet_net_modem_start_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_change_state,0,_DK_frontend_over_button,1, 345, 412, 345, 412, 247, 46, _DK_frontend_draw_small_menu_button,0,201,  0,  16, 0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,                0,     NULL,                    0,   0,   0,   0,   0,   0,  0, NULL,                              0,   0,  0,   0, 0, 0, NULL },
-};
-
-struct GuiButtonInit frontend_net_serial_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 999,  30, 999,  30, 371, 46, _DK_frontend_draw_large_menu_button,0,201,  0,  54, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  41, 178,  41, 178, 212, 26, _DK_frontnet_draw_small_scroll_box_tab,0,201,0, 28, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  41, 204,  41, 204, 268, 70, _DK_frontnet_draw_small_scroll_box,0, 201,  0,  24, 0, 0, NULL },
-  { 1,  0, 0, 0, 0, _DK_frontnet_comport_up,0,  _DK_frontend_over_button,0, 275, 204, 275, 204,  26, 14, _DK_frontnet_draw_slider_button,   0, 201,  0,  17, 0, 0, _DK_frontnet_comport_up_maintain },
-  { 1,  0, 0, 0, 0, _DK_frontnet_comport_down,0,_DK_frontend_over_button,0, 275, 262, 275, 262,  26, 14, _DK_frontnet_draw_slider_button,   0, 201,  0,  18, 0, 0, _DK_frontnet_comport_down_maintain },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 279, 218, 279, 218,  22, 44, _DK_frontnet_draw_comport_scroll_tab,0,201, 0,  40, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  61, 179,  61, 179, 172, 25, _DK_frontend_draw_text,            0, 201,  0,  55, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0,  41, 274,  41, 274, 268, 23, _DK_frontnet_draw_comport_selected,0, 201,  0,  57, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontnet_comport_select,0,_DK_frontend_over_button,0,54, 212,  54, 212, 190, 26, _DK_frontnet_draw_comport_button,  0, 201,  0,  45, 0, 0, _DK_frontnet_comport_select_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontnet_comport_select,0,_DK_frontend_over_button,0,54, 240,  54, 240, 190, 26, _DK_frontnet_draw_comport_button,  0, 201,  0,  46, 0, 0, _DK_frontnet_comport_select_maintain },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 331, 178, 331, 178, 212, 26, _DK_frontnet_draw_small_scroll_box_tab,0,201,0, 28, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 331, 204, 331, 204, 268, 70, _DK_frontnet_draw_small_scroll_box,0, 201,  0,  24, 0, 0, NULL },
-  { 1,  0, 0, 0, 0, _DK_frontnet_speed_up,0,    _DK_frontend_over_button,0, 565, 204, 565, 204,  26, 14, _DK_frontnet_draw_slider_button,   0, 201,  0,  36, 0, 0, _DK_frontnet_speed_up_maintain },
-  { 1,  0, 0, 0, 0, _DK_frontnet_speed_down,0,  _DK_frontend_over_button,0, 565, 262, 565, 262,  26, 14, _DK_frontnet_draw_slider_button,   0, 201,  0,  37, 0, 0, _DK_frontnet_speed_down_maintain },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 569, 218, 569, 218,  22, 44, _DK_frontnet_draw_speed_scroll_tab,0, 201,  0,  40, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 351, 179, 351, 179, 172, 25, _DK_frontend_draw_text,            0, 201,  0,  56, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,                0,     NULL,                    0, 331, 274, 331, 274, 450, 23, _DK_frontnet_draw_speed_selected,  0, 201,  0,  58, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontnet_speed_select,0,_DK_frontend_over_button,0, 344, 212, 344, 212, 190, 26, _DK_frontnet_draw_speed_button,    0, 201,  0,  47, 0, 0, _DK_frontnet_speed_select_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontnet_speed_select,0,_DK_frontend_over_button,0, 344, 240, 344, 240, 190, 26, _DK_frontnet_draw_speed_button,    0, 201,  0,  48, 0, 0, _DK_frontnet_speed_select_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontnet_net_serial_start,0,_DK_frontend_over_button,0,49,412, 49, 412, 247, 46, _DK_frontend_draw_small_menu_button,0,201,  0,  73, 0, 0, _DK_frontnet_net_serial_start_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_change_state,0,_DK_frontend_over_button,1, 345, 412, 345, 412, 247, 46, _DK_frontend_draw_small_menu_button,0,201,  0,  16, 0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,                0,     NULL,                    0,   0,   0,   0,   0,   0,  0, NULL,                              0,   0,  0,   0, 0, 0, NULL },
-};
-
-struct GuiButtonInit frontend_statistics_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, _DK_frontend_draw_large_menu_button,0,201,  0,      84,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  90, 999,  90,450,158, _DK_frontstats_draw_main_stats,    0, 201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999, 260, 999, 260,450,136, _DK_frontstats_draw_scrolling_stats,0,201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontstats_leave,NULL,_DK_frontend_over_button, 18, 999, 404, 999, 404,371, 46, _DK_frontend_draw_large_menu_button,0,201,  0,      83,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit frontend_high_score_score_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,495, 46, _DK_frontend_draw_vlarge_menu_button,0,201, 0,      85,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  97, 999,  97,450,286, _DK_frontend_draw_high_score_table,0, 201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontend_quit_high_score_table,NULL,_DK_frontend_over_button,3,999,404,999,404,371,46,_DK_frontend_draw_large_menu_button,0,201,0,  83,            0, 0, _DK_frontend_maintain_high_score_ok_button },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit creature_query_buttons1[] = {
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0,  44, 374,  44, 374, 52, 20, _DK_gui_area_new_normal_button,  473, 433,&creature_query_menu2,0, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  80, 200,  80, 200, 56, 24, _DK_gui_area_smiley_anger_button,466, 291,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  80, 230,  80, 230, 56, 24, _DK_gui_area_experience_button,  467, 223,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 262,   4, 262,126, 14, NULL,                              0, 222,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 290,   4, 290, 60, 24, _DK_gui_area_instance_button,     45, 201,  0,       0,            0, 0, _DK_maintain_instance },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  72, 290,  72, 290, 60, 24, _DK_gui_area_instance_button,     45, 201,  0,       1,            0, 0, _DK_maintain_instance },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 318,   4, 318, 60, 24, _DK_gui_area_instance_button,     45, 201,  0,       2,            0, 0, _DK_maintain_instance },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  72, 318,  72, 318, 60, 24, _DK_gui_area_instance_button,     45, 201,  0,       3,            0, 0, _DK_maintain_instance },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 346,   4, 346, 60, 24, _DK_gui_area_instance_button,     45, 201,  0,       4,            0, 0, _DK_maintain_instance },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0,  72, 346,  72, 346, 60, 24, _DK_gui_area_instance_button,     45, 201,  0,       5,            0, 0, _DK_maintain_instance },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit creature_query_buttons2[] = {
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0,  44, 374,  44, 374, 52, 20, _DK_gui_area_new_normal_button,  473, 433,&creature_query_menu3,0, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  80, 200,  80, 200, 56, 24, _DK_gui_area_smiley_anger_button,466, 291,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  80, 230,  80, 230, 56, 24, _DK_gui_area_experience_button,  467, 223,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 262,   4, 262,126, 14, NULL,                              0, 222,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 290,   4, 290, 60, 24, _DK_gui_area_instance_button,     45, 201,  0,       4,            0, 0, _DK_maintain_instance },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  72, 290,  72, 290, 60, 24, _DK_gui_area_instance_button,     45, 201,  0,       5,            0, 0, _DK_maintain_instance },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 318,   4, 318, 60, 24, _DK_gui_area_instance_button,     45, 201,  0,       6,            0, 0, _DK_maintain_instance },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  72, 318,  72, 318, 60, 24, _DK_gui_area_instance_button,     45, 201,  0,       7,            0, 0, _DK_maintain_instance },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 346,   4, 346, 60, 24, _DK_gui_area_instance_button,     45, 201,  0,       8,            0, 0, _DK_maintain_instance },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0,  72, 346,  72, 346, 60, 24, _DK_gui_area_instance_button,     45, 201,  0,       9,            0, 0, _DK_maintain_instance },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit creature_query_buttons3[] = {
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0,  44, 374,  44, 374, 52, 20, _DK_gui_area_new_normal_button,  473, 433,&creature_query_menu1,0, 0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 226,   4, 226, 60, 24, _DK_gui_area_stat_button,        331, 292,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  72, 226,  72, 226, 60, 24, _DK_gui_area_stat_button,        332, 293,  0,       1,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 256,   4, 256, 60, 24, _DK_gui_area_stat_button,        333, 295,  0,       2,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  72, 256,  72, 256, 60, 24, _DK_gui_area_stat_button,        334, 294,  0,       3,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 286,   4, 286, 60, 24, _DK_gui_area_stat_button,        335, 296,  0,       4,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  72, 286,  72, 286, 60, 24, _DK_gui_area_stat_button,        336, 297,  0,       5,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 316,   4, 316, 60, 24, _DK_gui_area_stat_button,        337, 298,  0,       6,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  72, 316,  72, 316, 60, 24, _DK_gui_area_stat_button,        338, 299,  0,       7,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 346,   4, 346, 60, 24, _DK_gui_area_stat_button,        339, 300,  0,       8,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  72, 346,  72, 346, 60, 24, _DK_gui_area_stat_button,        340, 301,  0,       9,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit frontend_define_keys_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, _DK_frontend_draw_large_menu_button,0,201,  0,      92,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  82, 117,  82, 117,450,246, _DK_frontnet_draw_scroll_box,      0, 201,  0,      94,            0, 0, NULL },
-  { 1,  0, 0, 0, 0, _DK_frontend_define_key_up,NULL, _DK_frontend_over_button,0,532, 116,532,116,26,14, _DK_frontnet_draw_slider_button,   0, 201,  0,      17,            0, 0, _DK_frontend_define_key_up_maintain },
-  { 1,  0, 0, 0, 0, _DK_frontend_define_key_down,NULL,_DK_frontend_over_button,0,532,350,532,350,26,14, _DK_frontnet_draw_slider_button,   0, 201,  0,      18,            0, 0, _DK_frontend_define_key_down_maintain },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 536, 130, 536, 130, 10,220, _DK_frontend_draw_define_key_scroll_tab,0,201,0,    40,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontend_define_key,NULL, _DK_frontend_over_button,0,95, 130,  95, 130,424, 22, _DK_frontend_draw_define_key,      0, 201,  0,      -1,            0, 0, _DK_frontend_define_key_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_define_key,NULL, _DK_frontend_over_button,0,95, 152,  95, 152,424, 22, _DK_frontend_draw_define_key,      0, 201,  0,      -2,            0, 0, _DK_frontend_define_key_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_define_key,NULL, _DK_frontend_over_button,0,95, 174,  95, 174,424, 22, _DK_frontend_draw_define_key,      0, 201,  0,      -3,            0, 0, _DK_frontend_define_key_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_define_key,NULL, _DK_frontend_over_button,0,95, 196,  95, 196,424, 22, _DK_frontend_draw_define_key,      0, 201,  0,      -4,            0, 0, _DK_frontend_define_key_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_define_key,NULL, _DK_frontend_over_button,0,95, 218,  95, 218,424, 22, _DK_frontend_draw_define_key,      0, 201,  0,      -5,            0, 0, _DK_frontend_define_key_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_define_key,NULL, _DK_frontend_over_button,0,95, 240,  95, 240,424, 22, _DK_frontend_draw_define_key,      0, 201,  0,      -6,            0, 0, _DK_frontend_define_key_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_define_key,NULL, _DK_frontend_over_button,0,95, 262,  95, 262,424, 22, _DK_frontend_draw_define_key,      0, 201,  0,      -7,            0, 0, _DK_frontend_define_key_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_define_key,NULL, _DK_frontend_over_button,0,95, 284,  95, 284,424, 22, _DK_frontend_draw_define_key,      0, 201,  0,      -8,            0, 0, _DK_frontend_define_key_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_define_key,NULL, _DK_frontend_over_button,0,95, 306,  95, 306,424, 22, _DK_frontend_draw_define_key,      0, 201,  0,      -9,            0, 0, _DK_frontend_define_key_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_define_key,NULL, _DK_frontend_over_button,0,95, 328,  95, 328,424, 22, _DK_frontend_draw_define_key,      0, 201,  0,     -10,            0, 0, _DK_frontend_define_key_maintain },
-  { 0,  0, 0, 0, 0, _DK_frontend_change_state,NULL,_DK_frontend_over_button,27,999,404,999,404,371, 46, _DK_frontend_draw_large_menu_button,0,201,  0,      98,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit autopilot_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, _DK_gui_area_text,                1, 845,  0,       0,            0, 0, NULL },
-  { 3,  0, 0, 0, 0, _DK_gui_set_autopilot,NULL,      NULL,               0,  12,  36,  12,  36, 46, 64, _DK_gui_area_new_normal_button, 503, 729,  0,(long)&game.field_1517F7, 0, 0, NULL },
-  { 3,  0, 0, 0, 0, _DK_gui_set_autopilot,NULL,      NULL,               0,  60,  36,  60,  36, 46, 64, _DK_gui_area_new_normal_button, 505, 730,  0,(long)&game.field_1517F8, 0, 0, NULL },
-  { 3,  0, 0, 0, 0, _DK_gui_set_autopilot,NULL,      NULL,               0, 108,  36, 108,  36, 46, 64, _DK_gui_area_new_normal_button, 507, 731,  0,(long)&game.field_1517F9, 0, 0, NULL },
-  { 3,  0, 0, 0, 0, _DK_gui_set_autopilot,NULL,      NULL,               0, 156,  36, 156,  36, 46, 64, _DK_gui_area_new_normal_button, 509, 732,  0,(long)&game.field_1517FA, 0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                             0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiButtonInit frontend_option_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, _DK_frontend_draw_large_menu_button,0,201,  0,      96,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  95, 107,  95, 107,220, 26, _DK_frontnet_draw_scroll_box_tab,  0, 201,  0,      28,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  95, 133,  95, 133,  2, 88, _DK_frontnet_draw_scroll_box,      0, 201,  0,      89,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 115, 108, 115, 108,220, 26, _DK_frontend_draw_text,            0, 201,  0,      99,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 146, 142, 146, 142, 48, 32, _DK_frontend_draw_icon,           90, 201,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 146, 182, 146, 182, 48, 32, _DK_frontend_draw_icon,           89, 201,  0,       0,            0, 0, NULL },
-  { 4, 75, 0, 0, 0, _DK_gui_set_sound_volume,NULL,   NULL,               0, 194, 147, 194, 147,300, 22, _DK_frontend_draw_slider,          0, 201,  0,(long)&_DK_sound_level, 127, 0, NULL },
-  { 4,  0, 0, 0, 0, _DK_gui_set_music_volume,NULL,   NULL,               0, 194, 187, 194, 187,300, 22, _DK_frontend_draw_slider,          0, 201,  0,(long)&_DK_music_level, 127, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  95, 231,  95, 231,220, 26, _DK_frontnet_draw_scroll_box_tab,  0, 201,  0,      28,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  95, 257,  95, 257,  0, 88, _DK_frontnet_draw_scroll_box,      0, 201,  0,      89,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 115, 232, 115, 232,220, 26, _DK_frontend_draw_text,            0, 201,  0,     100,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 102, 271, 102, 271,190, 22, _DK_frontend_draw_text,            0, 201,  0,     101,            0, 0, NULL },
-  { 4,  0, 0, 0, 0, _DK_frontend_set_mouse_sensitivity,NULL,NULL,        0, 304, 271, 304, 271,190, 22, _DK_frontend_draw_small_slider,    0, 201,  0,(long)&_DK_fe_mouse_sensitivity, 7, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontend_invert_mouse,NULL, _DK_frontend_over_button,0,102,303,102,303,380, 22, _DK_frontend_draw_text,            0, 201,  0,     102,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 320, 303,   0,   0,100, 22, _DK_frontend_draw_invert_mouse,    0, 201,  0,     102,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontend_change_state,NULL, _DK_frontend_over_button,26,999,357,999,357,371,46, _DK_frontend_draw_large_menu_button,0,201,  0,      95,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, _DK_frontend_change_state,NULL, _DK_frontend_over_button, 1,999,404,999,404,371,46, _DK_frontend_draw_large_menu_button,0,201,  0,       6,            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
-};
-
-struct GuiMenu main_menu =
- { 1, 0, 1, main_menu_buttons,                  0,   0, 140, 400, NULL,                        0, 0, 0, 0, NULL,                    0, 0, 0 };
-struct GuiMenu room_menu =
- { 2, 0, 1, room_menu_buttons,                  0,   0, 140, 400, NULL,                        0, 0, 0, 0, NULL,                    0, 0, 1 };
-struct GuiMenu spell_menu =
- { 3, 0, 1, spell_menu_buttons,                 0,   0, 140, 400, NULL,                        0, 0, 0, 0, NULL,                    0, 0, 1 };
-struct GuiMenu spell_lost_menu =
- { 38, 0, 1, spell_lost_menu_buttons,           0,   0, 140, 400, NULL,                        0, 0, 0, 0, NULL,                    0, 0, 1 };
-struct GuiMenu trap_menu =
- { 4, 0, 1, trap_menu_buttons,                  0,   0, 140, 400, NULL,                        0, 0, 0, 0, NULL,                    0, 0, 1 };
-struct GuiMenu creature_menu =
- { 5, 0, 1, creature_menu_buttons,              0,   0, 140, 400, gui_activity_background,     0, 0, 0, 0, NULL,                    0, 0, 1 };
-struct GuiMenu event_menu =
- { 6, 0, 1, event_menu_buttons,                 0,   0, 140, 400, NULL,                        0, 0, 0, 0, NULL,                    0, 0, 0 };
-struct GuiMenu options_menu =
- { 8, 0, 1, options_menu_buttons,             999, 999, 308, 120, gui_pretty_background,       0, 0, 0, 0, NULL,                    0, 1, 0 };
-struct GuiMenu instance_menu =
- { 9, 0, 1, instance_menu_buttons,            999, 999, 318, 120, gui_pretty_background,       0, 0, 0, 0, NULL,                    0, 1, 0 };
-struct GuiMenu query_menu =
- { 7, 0, 1, query_menu_buttons,                 0,   0, 140, 400, NULL,                        0, 0, 0, 0, NULL,                    0, 0, 1 };
-struct GuiMenu quit_menu =
- { 10, 0, 1, quit_menu_buttons,               999, 999, 264, 116, gui_pretty_background,       0, 0, 0, 0, NULL,                    0, 1, 0 };
-struct GuiMenu load_menu =
- { 11, 0, 4, load_menu_buttons,               999, 999, 436, 350, gui_pretty_background,       0, 0, 0, 0, init_load_menu,          0, 1, 0 };
-struct GuiMenu save_menu =
- { 12, 0, 4, save_menu_buttons,               999, 999, 436, 350, gui_pretty_background,       0, 0, 0, 0, init_save_menu,          0, 1, 0 };
-struct GuiMenu video_menu =
- { 13, 0, 4, video_menu_buttons,              999, 999, 160, 170, gui_pretty_background,       0, 0, 0, 0, init_video_menu,         0, 1, 0 };
-struct GuiMenu sound_menu =
- { 14, 0, 4, sound_menu_buttons,              999, 999, 280, 170, gui_pretty_background,       0, 0, 0, 0, init_audio_menu,         0, 1, 0 };
-struct GuiMenu error_box =
- { 15, 0, 1, error_box_buttons,               999, 999, 280, 180, gui_pretty_background,       0, 0, 0, 0, NULL,                    0, 1, 0 };
-struct GuiMenu text_info_menu =
- { 16, 0, 4, text_info_buttons,               160, 316, 480,  86, gui_round_glass_background,  0, 0, 0, 0, reset_scroll_window,     0, 0, 0 };
-struct GuiMenu hold_audience_menu =
- { 17, 0, 4, hold_audience_buttons,           999, 999, 200, 116, gui_pretty_background,       0, 0, 0, 0, NULL,                    0, 1, 0 };
-struct GuiMenu dungeon_special_menu =
- { 27, 0, 4, dungeon_special_buttons,         160, 316, 480,  86, gui_round_glass_background,  0, 0, 0, 0, NULL,                    0, 0, 0 };
-struct GuiMenu resurrect_creature_menu =
- { 28, 0, 4, resurrect_creature_buttons,      999, 999, 350, 300, gui_pretty_background,       0, 0, 0, 0, NULL,                    0, 1, 0 };
-struct GuiMenu transfer_creature_menu =
- { 29, 0, 4, transfer_creature_buttons,       999, 999, 350, 300, gui_pretty_background,       0, 0, 0, 0, NULL,                    0, 1, 0 };
-struct GuiMenu armageddon_menu =
- { 30, 0, 4, armageddon_buttons,              999, 999, 200, 116, gui_pretty_background,       0, 0, 0, 0, NULL,                    0, 1, 0 };
-struct GuiMenu frontend_main_menu =
- { 18, 0, 1, frontend_main_menu_buttons,        0,   0, 640, 480, frontend_copy_background,    0, 0, 0, 0, NULL,                    0, 0, 0 };
-struct GuiMenu frontend_load_menu =
- { 19, 0, 1, frontend_load_menu_buttons,        0,   0, 640, 480, frontend_copy_background,    0, 0, 0, 0, NULL,                    0, 0, 0 };
-struct GuiMenu frontend_net_service_menu =
- { 20, 0, 1, frontend_net_service_buttons,      0,   0, 640, 480, frontend_copy_background,    0, 0, 0, 0, NULL,                    0, 0, 0 };
-struct GuiMenu frontend_net_session_menu =
- { 21, 0, 1, frontend_net_session_buttons,      0,   0, 640, 480, frontend_copy_background,    0, 0, 0, 0, NULL,                    0, 0, 0 };
-struct GuiMenu frontend_net_start_menu =
- { 22, 0, 1, frontend_net_start_buttons,        0,   0, 640, 480, frontend_copy_background,    0, 0, 0, 0, NULL,                    0, 0, 0 };
-struct GuiMenu frontend_net_modem_menu =
- { 23, 0, 1, frontend_net_modem_buttons,        0,   0, 640, 480, frontend_copy_background,    0, 0, 0, 0, NULL,                    0, 0, 0 };
-struct GuiMenu frontend_net_serial_menu =
- { 24, 0, 1, frontend_net_serial_buttons,       0,   0, 640, 480, frontend_copy_background,    0, 0, 0, 0, NULL,                    0, 0, 0 };
-struct GuiMenu frontend_statistics_menu =
- { 25, 0, 1, frontend_statistics_buttons,       0,   0, 640, 480, frontend_copy_background,    0, 0, 0, 0, NULL,                    0, 0, 0 };
-struct GuiMenu frontend_high_score_table_menu =
- { 26, 0, 1, frontend_high_score_score_buttons, 0,   0, 640, 480, frontend_copy_background,    0, 0, 0, 0, NULL,                    0, 0, 0 };
-struct GuiMenu creature_query_menu1 =
- { 31, 0, 1, creature_query_buttons1,           0,   0, 140, 400, gui_creature_query_background1,0,0,0, 0, NULL,                    0, 0, 1 };
-struct GuiMenu creature_query_menu2 =
- { 35, 0, 1, creature_query_buttons2,           0,   0, 140, 400, gui_creature_query_background1,0,0,0, 0, NULL,                    0, 0, 1 };
-struct GuiMenu creature_query_menu3 =
- { 32, 0, 1, creature_query_buttons3,           0,   0, 140, 400, gui_creature_query_background2,0,0,0, 0, NULL,                    0, 0, 1 };
-struct GuiMenu battle_menu =
- { 34, 0, 4, battle_buttons,                  160, 300, 480, 102, gui_round_glass_background,  0, 0, 0, 0, NULL,                    0, 0, 0 };
-struct GuiMenu frontend_define_keys_menu =
- { 36, 0, 1, frontend_define_keys_buttons,      0,   0, 640, 480, frontend_copy_background,    0, 0, 0, 0, NULL,                    0, 0, 0 };
-struct GuiMenu autopilot_menu =
- { 37, 0, 4, autopilot_menu_buttons,          999, 999, 224, 120, gui_pretty_background,       0, 0, 0, 0, NULL,                    0, 1, 0 };
-struct GuiMenu frontend_option_menu =
- { 39, 0, 1, frontend_option_buttons,           0,   0, 640, 480, frontend_copy_background,    0, 0, 0, 0, frontend_init_options_menu,0,0,0 };
-
-struct GuiMenu *menu_list[] = {
-    NULL,
-    &main_menu,
-    &room_menu,
-    &spell_menu,
-    &trap_menu,
-    &creature_menu,
-    &event_menu,
-    &query_menu,
-    &options_menu,
-    &instance_menu,
-    &quit_menu,
-    &load_menu,
-    &save_menu,
-    &video_menu,
-    &sound_menu,
-    &error_box,
-    &text_info_menu,
-    &hold_audience_menu,
-    &frontend_main_menu,
-    &frontend_load_menu,
-    &frontend_net_service_menu,
-    &frontend_net_session_menu,
-    &frontend_net_start_menu,
-    &frontend_net_modem_menu,
-    &frontend_net_serial_menu,
-    &frontend_statistics_menu,
-    &frontend_high_score_table_menu,
-    &dungeon_special_menu,
-    &resurrect_creature_menu,
-    &transfer_creature_menu,
-    &armageddon_menu,
-    &creature_query_menu1,
-    &creature_query_menu3,
-    NULL,
-    &battle_menu,
-    &creature_query_menu2,
-    &frontend_define_keys_menu,
-    &autopilot_menu,
-    &spell_lost_menu,
-    &frontend_option_menu,
-};
-
-struct FrontEndButtonData frontend_button_info[] = {
-    {0,   0, 0},
-    {87,  1, 0},
-    {104, 1, 1},
-    {89,  1, 1},
-    {91,  1, 1},
-    {103, 1, 1},
-    {92,  1, 1},
-    {89,  1, 0},
-    {90,  1, 1},
-    {93,  1, 1},
-    {94,  1, 0},
-    {95,  1, 0},
-    {146, 1, 0},
-    {144, 1, 1},
-    {143, 1, 1},
-    {145, 1, 1},
-    {147, 1, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {140, 1, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {150, 1, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {139, 1, 2},
-    {152, 1, 2},
-    {149, 1, 2},
-    {151, 1, 2},
-    {141, 1, 2},
-    {142, 1, 2},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {153, 1, 0},
-    {154, 1, 0},
-    {97,  1, 2},
-    {96,  1, 2},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {99,  1, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {155, 1, 1},
-    {156, 1, 1},
-    {21,  2, 1},
-    {158, 1, 1},
-    {201, 0, 1},
-    {98,  1, 1},
-    {22,  2, 1},
-    {22,  2, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {162, 1, 1},
-    {163, 1, 1},
-    {100, 1, 0},
-    {175, 1, 0},
-    {201, 1, 0},
-    {202, 1, 2},
-    {159, 1, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {201, 0, 1},
-    {212, 1, 0},
-    {201, 0, 1},
-    {201, 0, 1},
-    {212, 1, 1},
-    {204, 2, 0},
-    {204, 2, 1},
-    {72,  3, 1},
-    {206, 2, 1},
-    {82,  3, 1},
-    {81,  3, 1},
-    {75,  3, 1},
-    {77,  3, 1},
-    {175, 1, 1},
-};
-
-int frontend_set_state(long nstate);
-
-void LbDataLoadSetModifyFilenameFunction(ModDL_Fname_Func nmodify_dl_filename_func)
-{
-  _DK_modify_data_load_filename_function=nmodify_dl_filename_func;
-}
 
 /*
  * Sets a masked bit in the flags field to the value.
@@ -957,164 +131,378 @@ void inline set_flag_dword(unsigned long *flags,unsigned long mask,unsigned long
   *flags = (*flags ^ (unsigned long)value) & mask ^ *flags;
 }
 
+short load_configuration(void)
+{
+  static const char *func_name="load_configuration";
+  //return _DK_load_configuration();
+  char fname[255];
+  char *buf;
+  long len,pos;
+  int i,cmd_num;
+  // Preparing config file name and checking the file
+  sprintf(fname, "%s/%s", keeper_runtime_directory,keeper_config_file);
+  strcpy(install_info.inst_path,"");
+  install_info.field_9A = 0;
+  if (!LbFileExists(fname))
+    return false;
+  buf = (char *)LbMemoryAlloc(4096); // configuration file size restriction
+  if (buf == NULL)
+    return false;
+  // Loading file data
+  len = LbFileLoadAt(fname, buf);
+  if (len>0)
+  {
+    pos = 0;
+    while (pos<len)
+    {
+      // Finding command number in this line
+      i = 0;
+      cmd_num = 0;
+      while (conf_commands[i].num > 0)
+      {
+        if (strnicmp(buf+pos, conf_commands[i].name, strlen(conf_commands[i].name)) == 0)
+        {
+          pos += strlen(conf_commands[i].name);
+          cmd_num = conf_commands[i].num;
+          break;
+        }
+        i++;
+      }
+      // Now store the config item in correct place
+      switch (cmd_num)
+      {
+      case 1: // INSTALL_PATH
+          for (i=0;i<149;i++) //sizeof(inst_path)-1
+          {
+              if ((buf[pos]==10)||(buf[pos]==13)||(buf[pos]<7))
+                break;
+              install_info.inst_path[i]=buf[pos];
+              pos++;
+          }
+          while (i>0)
+          {
+            if ((install_info.inst_path[i]!='\\') && (install_info.inst_path[i]!='/') &&
+                (install_info.inst_path[i]>32))
+              break;
+            i--;
+          }
+          install_info.inst_path[i+1]='\0';
+          break;
+      case 2: // INSTALL_TYPE
+          // This command is just skipped...
+          pos += strlen("MAX");
+          break;
+      case 3: // LANGUAGE
+          i = 0;
+          while (lang_type[i].num > 0)
+          {
+            if (strnicmp(buf+pos, lang_type[i].name, strlen(lang_type[i].name)) == 0)
+            {
+              pos += strlen(lang_type[i].name);
+              install_info.field_96 = lang_type[i].num;
+              break;
+            }
+            i++;
+          }
+          break;
+      case 4: // KEYBOARD
+          // Works only in DK Premium
+          break;
+      case 5: // SCREENSHOT
+          i = 0;
+          while (scrshot_type[i].num > 0)
+          {
+            if (strnicmp(buf+pos, scrshot_type[i].name, strlen(scrshot_type[i].name)) == 0)
+            {
+              pos += strlen(scrshot_type[i].name);
+              screenshot_format = scrshot_type[i].num;
+              break;
+            }
+            i++;
+          }
+          break;
+      default:
+          LbSyncLog("Unrecognized command in config file, starting on byte %d.\n",pos);
+      }
+      // Skip to end of the line
+      while (pos<len)
+      {
+        if ((buf[pos]==10) || (buf[pos]==13)) break;
+        pos++;
+      }
+      // Go to start of next line
+      while (pos<len)
+      {
+        if (buf[pos]>32) break;
+        pos++;
+      }
+    }
+  }
+  switch (install_info.field_96)
+  {
+  case 1:
+      LbKeyboardSetLanguage(1);
+      break;
+  case 2:
+      LbKeyboardSetLanguage(2);
+      break;
+  case 3:
+      LbKeyboardSetLanguage(3);
+      break;
+  case 4:
+      LbKeyboardSetLanguage(4);
+      break;
+  case 5:
+      LbKeyboardSetLanguage(5);
+      break;
+  case 6:
+      LbKeyboardSetLanguage(6);
+      break;
+  case 7:
+      LbKeyboardSetLanguage(7);
+      break;
+  case 8:
+      LbKeyboardSetLanguage(8);
+      break;
+  default:
+      break;
+  }
+  //Freeing and exiting
+  LbMemoryFree(buf);
+  return (install_info.field_96>0) && (install_info.inst_path[0]!='\0');
+}
+
+/*TODO: requires clientDataTable and maximumPlayers
+short check_host_id(unsigned long *src_id)
+{
+  short result;
+  struct ClientDataEntry *cent;
+  unsigned int i;
+  result = 0;
+  for (i=0; i<maximumPlayers; i++)
+  {
+    cent = &clientDataTable[i];
+    if ( (cent->field_4) && (cent->field_0 == (*src_id)))
+    {
+      result = 1;
+      (*src_id) = i;
+    }
+  }
+  return result;
+}*/
+
+/*TODO: requires exported variables
+void * __stdcall MultiPlayerCallback(unsigned long src_id, unsigned long seq_length, unsigned long seq_num, void *buf)
+{
+//  if ( dword_538E48 ) - variable from DK Premium
+//    TRACE("GOT A REQUEST MultiPlayerCallback\n");
+  if (hostId == localPlayerId)
+  {
+    if (seq_length != exchangeSize)
+    {
+      TRACE("  WARNING network: UserDataMsgCallback() invalid length: %d\n", seq_length);
+      return NULL;
+    }
+    if (src_id == localPlayerId)
+    {
+      TRACE("  WARNING network: UserDataMsgCallback() host got data from itself\n");
+      return NULL;
+    }
+    if (!check_host_id(&src_id))
+    {
+      TRACE("  WARNING network: UserDataMsgCallback() invalid id: %d\n", src_id);
+      return NULL;
+    }
+    if ((seq_num==sequenceNumber) || (seq_num==15))
+    {
+      TRACE("  WARNING network: UserDataMsgCallback() Unexpected sequence number: Got %d, expected %d\n",seq_num,sequenceNumber);
+      return NULL;
+    }
+    clientDataTable[src_id].field_8 = 1;
+    return (unsigned char *)exchangeBuffer + exchangeSize*src_id;
+  } else
+  if ( exchangeSize*maximumPlayers == seq_length )
+  {
+    if ( hostId != src_id )
+    {
+      TRACE("  WARNING network: UserDataMsgCallback() data is not from host\n");
+      return NULL;
+    }
+    if ( !check_host_id(&src_id) )
+    {
+      TRACE("  WARNING network: UserDataMsgCallback() invalid id: %d\n", src_id);
+      return NULL;
+    }
+    if ( sequenceNumber == 15 )
+    {
+      sequenceNumber = seq_num;
+    } else
+    if ( seq_num != sequenceNumber )
+    {
+      TRACE("  WARNING network: UserDataMsgCallback() Unexpected sequence number: Got %d, expected %d\n",seq_num,sequenceNumber);
+      return NULL;
+    }
+    gotCompositeData = 1;
+    return (unsigned char *)exchangeBuffer;
+  } else
+  {
+    if ( seq_length != exchangeSize )
+    {
+      TRACE("  WARNING network: UserDataMsgCallback() invalid length: %d\n", seq_length);
+      return NULL;
+    }
+    if ( src_id == localPlayerId )
+    {
+      TRACE("  WARNING network: UserDataMsgCallback() client acting as host got data from itself\n");
+      return NULL;
+    }
+    if ( !check_host_id(&src_id) )
+    {
+      TRACE("  WARNING network: UserDataMsgCallback() invalid id: %d\n", src_id);
+      return NULL;
+    }
+    clientDataTable[src_id].field_8 = 1;
+    return (unsigned char *)exchangeBuffer + exchangeSize*src_id;
+  }
+}*/
+
+/*TODO: requires ServiceProvider and HostDataCollection
+void __stdcall MultiPlayerReqExDataMsgCallback(unsigned long src_id, unsigned long seqNum, void *buf)
+{
+//  if ( dword_538E48 ) - variable from DK Premium
+//    TRACE("GOT A REQUEST MultiPlayerReqExDataMsgCallback\n");
+  if (localDataPtr == NULL)
+  {
+    TRACE("  WARNING network: RequestExchangeDataMsgCallback() NULL data pointer\n");
+    return;
+  }
+  if (sequenceNumber == 15)
+  {
+    sequenceNumber = seqNum;
+  } else
+  if (sequenceNumber != seqNum)
+  {
+    TRACE("  WARNING network: RequestExchangeDataMsgCallback() unexpected sequence number, got %d, expected %d\n",seqNum,sequenceNumber);
+    return;
+  }
+  ServiceProvider::EncodeMessageStub(localDataPtr, exchangeSize-4, 0, sequenceNumber);
+  if ( HostDataCollection(src_id, localDataPtr) )
+  {
+    TRACE("  WARNING network: RequestExchangeDataMsgCallback() failure on SP::Send()\n");
+    return;
+  }
+}*/
+
+TbError GenericIPXInit(struct _GUID guid)
+{
+  //TODO
+  return -1;
+}
+
+TbError GenericSerialInit(struct _GUID guid,void *)
+{
+  //TODO
+  return -1;
+}
+
+TbError GenericModemInit(struct _GUID guid,void *)
+{
+  //TODO
+  return -1;
+}
+
+TbError DPlayInit(struct _GUID guid,struct _GUID *cliguid)
+{
+  //TODO
+  return -1;
+}
+
 TbError LbNetwork_Init(unsigned long srvcp,struct _GUID guid, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct SerialInitData *init_data)
 {
   return _DK_LbNetwork_Init(srvcp,guid,maxplayrs,exchng_buf,exchng_size,locplayr,init_data);
-}
-
-void gui_activity_background(struct GuiMenu *gmnu)
-{
-  _DK_gui_activity_background(gmnu);
-}
-
-void gui_pretty_background(struct GuiMenu *gmnu)
-{
-  _DK_gui_pretty_background(gmnu);
-}
-
-void frontend_copy_background(struct GuiMenu *gmnu)
-{
-  _DK_frontend_copy_background(gmnu);
-}
-
-void gui_round_glass_background(struct GuiMenu *gmnu)
-{
-  _DK_gui_round_glass_background(gmnu);
-}
-
-void gui_creature_query_background1(struct GuiMenu *gmnu)
-{
-  _DK_gui_creature_query_background1(gmnu);
-}
-
-void gui_creature_query_background2(struct GuiMenu *gmnu)
-{
-  _DK_gui_creature_query_background2(gmnu);
-}
-
-void reset_scroll_window(struct GuiMenu *gmnu)
-{
-  _DK_reset_scroll_window(gmnu);
-}
-
-void init_load_menu(struct GuiMenu *gmnu)
-{
-  _DK_init_load_menu(gmnu);
-}
-
-void init_save_menu(struct GuiMenu *gmnu)
-{
-  _DK_init_save_menu(gmnu);
-}
-
-void init_video_menu(struct GuiMenu *gmnu)
-{
-  _DK_init_video_menu(gmnu);
-}
-
-void init_audio_menu(struct GuiMenu *gmnu)
-{
-  _DK_init_audio_menu(gmnu);
-}
-
-void frontend_init_options_menu(struct GuiMenu *gmnu)
-{
-  _DK_frontend_init_options_menu(gmnu);
-}
-
-void frontnet_service_up_maintain(struct GuiButton *gbtn)
-{
-  if (net_service_scroll_offset != 0)
-    gbtn->field_0 |= 0x08;
-  else
-    gbtn->field_0 ^= (gbtn->field_0 & 0x08);
-}
-
-void frontnet_service_down_maintain(struct GuiButton *gbtn)
-{
-  if (net_number_of_services-1 > net_service_scroll_offset)
-    gbtn->field_0 |= 0x08;
-  else
-    gbtn->field_0 ^= (gbtn->field_0 & 0x08);
-}
-
-void frontnet_service_up(struct GuiButton *gbtn)
-{
-  if ( net_service_scroll_offset>0 )
-    net_service_scroll_offset--;
-}
-
-void frontnet_service_down(struct GuiButton *gbtn)
-{
-  if ( net_number_of_services-1 > net_service_scroll_offset )
-    net_service_scroll_offset++;
-}
-
-void frontnet_service_maintain(struct GuiButton *gbtn)
-{
-  if (net_service_scroll_offset+(long)gbtn->field_33-45 < net_number_of_services)
-    gbtn->field_0 |= 0x08;
-  else
-    gbtn->field_0 ^= (gbtn->field_0 & 0x08);
-}
-
-void frontnet_draw_service_button(struct GuiButton *gbtn)
-{
-//  _DK_frontnet_draw_service_button(gbtn);
-  int srvidx;
-  // Find and verify selected network service
-  srvidx = (long)(gbtn->field_33) + net_service_scroll_offset - 45;
-  if ( srvidx >= net_number_of_services )
-    return;
-  // Select font to draw
-  int fntidx;
-  fntidx = frontend_button_info[(long)gbtn->field_33].field_2;
-  if (((long)gbtn->field_33 != 0) && (frontend_mouse_over_button == (long)gbtn->field_33))
-      fntidx = 2;
-  lbFontPtr = frontend_font[fntidx];
-  // Set drawing windsow
-  int height = 0;
-  lbDisplay.DrawFlags = 0x20;
-  if ( lbFontPtr!=NULL )
-      height = lbFontPtr[1].SHeight;
-  _DK_LbTextSetWindow(gbtn->field_1D, gbtn->field_1F, gbtn->width, height);
-  //Draw the text
-  _DK_LbTextDraw(0, 0, net_service[srvidx]);
-}
-
-void frontnet_service_select(struct GuiButton *gbtn)
-{
-//  _DK_frontnet_service_select(gbtn);
-  int srvidx;
-  srvidx = (long)(gbtn->field_33) + net_service_scroll_offset - 45;
-  if ( (game.one_player) && (srvidx+1>=_DK_net_number_of_services) )
+  //TODO
+  long dpidx;
+  exchangeBuffer = exchng_buf;
+  exchangeSize = exchng_size;
+  maximumPlayers = maxplayrs;
+  localPlayerInfoPtr = locplayr;
+  localDataPtr = 0;
+  compositeBuffer = 0;
+  sequenceNumber = 0;
+  timeCount = 0;
+  maxTime = 0;
+  runningTwoPlayerModel = 0;
+  waitingForPlayerMapResponse = 0;
+  compositeBufferSize = 0;
+  basicTimeout = 250;
+//  receiveCallbacks_offs24 = NULL; //probably not needed
+//  receiveCallbacks.multi_player = MultiPlayerCallback;
+//  receiveCallbacks.mp_req_exdata_msg = MultiPlayerReqExDataMsgCallback;
+  if (exchng_size > 0)
   {
-    _DK_fe_network_active = 0;
-    frontend_set_state(24);
-  } else
-  if (srvidx <= 0)
-  {
-    frontend_set_state(16);
-  } else
-// Special condition to skip 'modem' connection
-  if (srvidx == 1)
-  {
-    setup_network_service(2);
-  } else
-  {
-    setup_network_service(srvidx);
+    compositeBufferSize = maxplayrs * exchng_size;
+    compositeBuffer = LbMemoryAlloc(compositeBufferSize);
+    if (compositeBuffer == NULL)
+    {
+      TRACE("WARNING network: LbNetwork_Init() failure on compositeBuffer allocation\n");
+      return -1;
+    }
   }
-}
+  int k;
 
-void frontend_load_game_maintain(struct GuiButton *gbtn)
-{
-  long game_index=load_game_scroll_offset+(long)(gbtn->field_33)-45;
-  if (game_index<number_of_saved_games)
-    gbtn->field_0 |= 0x08;
-  else
-    gbtn->field_0 ^= (gbtn->field_0 & 0x08);
-}
+  memset(clientDataTable, 0, sizeof(clientDataTable));
+  for(k=0; k<maximumPlayers; k++)
+    clientDataTable[k].field_4 = 0;
 
+  for (k=0; k<maximumPlayers; k++)
+  {
+      _DK_net_player_info[k].field_20 = 0;
+      strcpy(_DK_net_player_info[k].field_0, "");
+  }
+  switch (srvcp)
+  {
+  case 0:
+      TRACE("Selecting Win95 Serial SP\n");
+      if ( GenericSerialInit(guid, init_data) )
+      {
+        TRACE("WARNING network: LbNetwork_Init() failure on GenericSerialInit()\n");
+        return -1;
+      }
+      break;
+  case 1:
+      TRACE("Selecting Win95 Modem SP\n");
+      if ( GenericModemInit(guid, init_data) )
+      {
+        TRACE("WARNING network: LbNetwork_Init() failure on GenericModemInit()\n");
+        return -1;
+      }
+      break;
+  case 2:
+      TRACE("Selecting Win95 IPX SP\n");
+      if ( GenericIPXInit(guid) )
+      {
+        TRACE("WARNING network: LbNetwork_Init() failure on GenericIPXInit()\n");
+        return -1;
+      }
+      break;
+  case 3:
+  default:
+      dpidx = srvcp-3;
+      TRACE("Selecting a Direct Play SP\n");
+      if ((dpidx<0) || (dpidx >= noOfEnumeratedDPlayServices))
+      {
+          TRACE("WARNING network: LbNetwork_Init() bad DPlay service index\n");
+          return -1;
+      }
+      if ( DPlayInit(guid, &clientGuidTable[dpidx]) )
+      {
+        TRACE("WARNING network: LbNetwork_Init() failure on DPlayInit()\n");
+        return -1;
+      }
+      break;
+  }
+  return 0;
+}
 
 short inline calculate_moon_phase(short add_to_log)
 {
@@ -1238,17 +626,6 @@ void ProperForcedFadePalette(unsigned char *pal, long n, TbPaletteFadeFlag flg)
     }
 }
 
-void inline fade_in(void)
-{
-  ProperFadePalette(_DK_frontend_palette, 8, Lb_PALETTE_FADE_OPEN);
-}
-
-void inline fade_out(void)
-{
-  ProperFadePalette(0, 8, Lb_PALETTE_FADE_CLOSED);
-  LbScreenClear(0);
-}
-
 short thing_is_special(struct Thing *thing)
 {
   return (thing->field_1F==1) && (_DK_object_to_special[thing->field_1A]);
@@ -1330,12 +707,12 @@ short display_lores_loading_screen(void)
   }
   if (dproceed)
   {
-      sprintf(fname, "%s\\%s\\%s",_DK_keeper_runtime_directory, "data", "loading.raw");
+      sprintf(fname, "%s\\%s\\%s",keeper_runtime_directory, "data", "loading.raw");
       dproceed = (LbFileLoadAt(fname,buf) != -1);
   }
   if (dproceed)
   {
-      sprintf(fname, "%s\\%s\\%s",_DK_keeper_runtime_directory,"data","loading.pal");
+      sprintf(fname, "%s\\%s\\%s",keeper_runtime_directory,"data","loading.pal");
       check_cd_in_drive();
       if ( LbFileLoadAt(fname, palette_buf) != 768 )
       {
@@ -1378,12 +755,12 @@ short display_hires_loading_screen(void)
   }
   if (dproceed)
   {
-      sprintf(fname, "%s\\%s\\%s",_DK_keeper_runtime_directory, "fxdata", "loading_640.raw");
+      sprintf(fname, "%s\\%s\\%s",keeper_runtime_directory, "fxdata", "loading_640.raw");
       dproceed = (LbFileLoadAt(fname,buf) != -1);
   }
   if (dproceed)
   {
-      sprintf(fname, "%s\\%s\\%s",_DK_keeper_runtime_directory,"fxdata","loading_640.pal");
+      sprintf(fname, "%s\\%s\\%s",keeper_runtime_directory,"fxdata","loading_640.pal");
       check_cd_in_drive();
       if ( LbFileLoadAt(fname, palette_buf) != 768 )
       {
@@ -1449,7 +826,7 @@ short play_smacker_file(char *filename, int nstate)
 {
   static const char *func_name="play_smacker_file";
   unsigned int movie_flags = 0;
-  if ( _DK_SoundDisabled )
+  if ( SoundDisabled )
     movie_flags |= 0x01;
   short result=1;
 
@@ -1511,14 +888,14 @@ short get_global_inputs()
 {
   if ( game_is_busy_doing_gui_string_input() && (_DK_input_button==NULL) )
     return false;
-  struct PlayerInfo *player=&(game.players[my_player_number]);
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   struct Packet *pckt;
   long keycode;
   if ( (player->field_0 & 0x04) != 0 )
   {
     if ( (key_modifiers==KM_NONE) && (lbKeyOn[KC_RETURN]) )
     {
-      pckt = &game.packets[player->field_B];
+      pckt = &game.packets[player->field_B%PACKETS_COUNT];
       _DK_set_packet_action(pckt, 14, 0, 0, 0, 0);
       lbKeyOn[KC_RETURN] = 0;
       lbInkey = 0;
@@ -1528,7 +905,7 @@ short get_global_inputs()
     int msg_width = pixel_size * _DK_LbTextStringWidth(player->strfield_463);
     if ( (lbInkey == 14) || (msg_width < 450) )
     {
-      pckt = &game.packets[player->field_B];
+      pckt = &game.packets[player->field_B%PACKETS_COUNT];
       _DK_set_packet_action(pckt,121,lbInkey,0,0,0);
       lbKeyOn[lbInkey] = 0;
       lbInkey = 0;
@@ -1540,7 +917,7 @@ short get_global_inputs()
       if ( ((game.numfield_A & 0x01) != 0) && (key_modifiers==KM_NONE) && (lbKeyOn[KC_RETURN]) )
       {
         lbKeyOn[KC_RETURN] = 0;
-        pckt = &game.packets[player->field_B];
+        pckt = &game.packets[player->field_B%PACKETS_COUNT];
         _DK_set_packet_action(pckt, 13, 0, 0, 0, 0);
         return true;
       }
@@ -1551,7 +928,7 @@ short get_global_inputs()
       if ( (key_modifiers==KM_ALT) && (lbKeyOn[idx]) )
       {
         lbKeyOn[idx] = 0;
-        pckt = &game.packets[player->field_B];
+        pckt = &game.packets[player->field_B%PACKETS_COUNT];
         _DK_set_packet_action(pckt, 108, idx-KC_F1, 0, 0, 0);
         return true;
       }
@@ -1561,7 +938,7 @@ short get_global_inputs()
       if ( _DK_is_game_key_pressed(30, &keycode, 0) )
       {
         lbKeyOn[keycode] = 0;
-        pckt = &game.packets[player->field_B];
+        pckt = &game.packets[player->field_B%PACKETS_COUNT];
         _DK_set_packet_action(pckt, 22, 0, 0, 0, 0);
         return true;
       }
@@ -1593,7 +970,7 @@ short get_global_inputs()
       lbKeyOn[KC_SUBTRACT] = 0;
       if ( player->field_450 < 0x800u )
       {
-        pckt = &game.packets[player->field_B];
+        pckt = &game.packets[player->field_B%PACKETS_COUNT];
         _DK_set_packet_action(pckt, 28, 2 * player->field_450, 0, 0, 0);
       }
   }
@@ -1602,14 +979,14 @@ short get_global_inputs()
       lbKeyOn[KC_ADD] = 0;
       if ( player->field_450 > 0x80u )
       {
-        pckt = &game.packets[player->field_B];
+        pckt = &game.packets[player->field_B%PACKETS_COUNT];
         _DK_set_packet_action(pckt, 28, player->field_450 >> 1, 0, 0, 0);
       }
   }
   if ( (key_modifiers==KM_ALT) && (lbKeyOn[KC_R]) )
   {
       lbKeyOn[KC_R] = 0;
-      pckt = &game.packets[player->field_B];
+      pckt = &game.packets[player->field_B%PACKETS_COUNT];
       _DK_set_packet_action(pckt, 21, 0, 0, 0, 0);
       return true;
   }
@@ -1617,7 +994,7 @@ short get_global_inputs()
   {
       if ( player->field_29 )
       {
-        pckt = &game.packets[player->field_B];
+        pckt = &game.packets[player->field_B%PACKETS_COUNT];
         _DK_set_packet_action(pckt, 5, 0, 0, 0, 0);
         lbKeyOn[KC_SPACE] = 0;
         return true;
@@ -1647,7 +1024,7 @@ short get_global_inputs()
   if ( _DK_is_game_key_pressed(29, &keycode, 0) )
   {
       lbKeyOn[keycode] = 0;
-      pckt = &game.packets[player->field_B];
+      pckt = &game.packets[player->field_B%PACKETS_COUNT];
       _DK_set_packet_action(pckt, 111, 0, 0, 0, 0);
   }
   return false;
@@ -1656,7 +1033,7 @@ short get_global_inputs()
 void play_non_3d_sample(long sample_idx)
 {
   static const char *func_name="play_non_3d_sample";
-  if ( _DK_SoundDisabled )
+  if ( SoundDisabled )
     return;
   if ( GetCurrentSoundMasterVolume() <= 0 )
     return;
@@ -1708,8 +1085,8 @@ short setup_network_service(int srvidx)
       LbSyncLog("Initializing %d-players type %d network.\n",maxplayrs,srvidx);
       break;
   }
-  memset(&_DK_net_player_info, 0, sizeof(struct TbNetworkPlayerInfo));
-  if ( LbNetwork_Init(srvidx, _DK_net_guid, maxplayrs, &_DK_net_screen_packet, 0xCu, &_DK_net_player_info, init_data) )
+  memset(&_DK_net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
+  if ( LbNetwork_Init(srvidx, _DK_net_guid, maxplayrs, &_DK_net_screen_packet, 0xCu, &_DK_net_player_info[0], init_data) )
   {
     if (srvidx != 0)
       _DK_process_network_error(-800);
@@ -1722,50 +1099,12 @@ short setup_network_service(int srvidx)
   return 1;
 }
 
-void frontnet_service_update(void)
-{
-  _DK_frontnet_service_update();
-}
-
-void frontnet_session_update(void)
-{
-  _DK_frontnet_session_update();
-}
-
-void frontnet_modem_update(void)
-{
-  _DK_frontnet_modem_update();
-}
-
-void frontnet_serial_update(void)
-{
-  _DK_frontnet_serial_update();
-}
-
-void frontnet_start_update(void)
-{
-  _DK_frontnet_start_update();
-}
-
 /*
- * Displays 'legal' screens, intro and initializes basic game data.
- * If true is returned, then all files needed for startup were loaded,
- * and there should be the loading screen visible.
- * @return Returns true on success, false on error which makes the 
- *   gameplay impossible (usually files loading failure).
- * @note The current screen resolution at end of this function may vary.
+ * Updates CPU and memory status variables.
  */
-short setup_game(void)
+short update_memory_constraits(void)
 {
-  static const char *func_name="setup_game";
-  // CPU and memory status
-  struct CPU_INFO cpu_info;
   struct _MEMORYSTATUS msbuffer;
-  char filename[DISKPATH_SIZE];
-
-  // Do only a very basic setup
-  
-  _DK_get_cpu_info(&cpu_info);
   msbuffer.dwLength = 32;
   GlobalMemoryStatus(&msbuffer);
   if ( msbuffer.dwTotalPhys <= (8*1024*1024) )
@@ -1779,9 +1118,30 @@ short setup_game(void)
   else
       _DK_mem_size = 32;
   LbSyncLog("PhysicalMemory %d\n", _DK_mem_size);
+  return true;
+}
+
+/*
+ * Displays 'legal' screens, intro and initializes basic game data.
+ * If true is returned, then all files needed for startup were loaded,
+ * and there should be the loading screen visible.
+ * @return Returns true on success, false on error which makes the 
+ *   gameplay impossible (usually files loading failure).
+ * @note The current screen resolution at end of this function may vary.
+ */
+short setup_game(void)
+{
+  static const char *func_name="setup_game";
+  // CPU status variable
+  struct CPU_INFO cpu_info;
+  char filename[DISKPATH_SIZE];
+
+  // Do only a very basic setup
+  _DK_get_cpu_info(&cpu_info);
+  update_memory_constraits();
 
   // Configuration file
-  if ( !_DK_load_configuration() )
+  if ( !load_configuration() )
   {
       error(func_name, 1912, "Configuration load error.");
       return 0;
@@ -1920,7 +1280,7 @@ short setup_game(void)
   }
   if ( result && (!game.no_intro) )
   {
-      sprintf(filename, "%s/ldata/%s",_DK_datafiles_path,"intromix.smk");
+      sprintf(filename, "%s/ldata/%s",install_info.inst_path,"intromix.smk");
       result=play_smacker_file(filename, -2);
   }
   if ( !result )
@@ -1940,13 +1300,13 @@ short setup_game(void)
   {
       long filelen;
       filelen = LbFileLengthRnc("data/text.dat");
-      _DK_strings_data = (char *)LbMemoryAlloc(filelen + 256);
-      if ( _DK_strings_data == NULL )
+      strings_data = (char *)LbMemoryAlloc(filelen + 256);
+      if ( strings_data == NULL )
       {
         exit(1);
       }
-      text_end = _DK_strings_data+filelen+255;
-      int loaded_size=LbFileLoadAt("data/text.dat", _DK_strings_data);
+      text_end = strings_data+filelen+255;
+      int loaded_size=LbFileLoadAt("data/text.dat", strings_data);
       if (loaded_size<2*STRINGS_MAX)
       {
           error(func_name, 1501, "Strings data too small");
@@ -1955,11 +1315,11 @@ short setup_game(void)
   }
   if ( result )
   {
-      char **text_arr = _DK_strings;
+      char **text_arr = strings;
       int text_idx;
       char *text_ptr;
       text_idx = STRINGS_MAX;
-      text_ptr = _DK_strings_data;
+      text_ptr = strings_data;
       while (text_idx>=0)
       {
         if (text_ptr>=text_end)
@@ -2107,6 +1467,11 @@ void update_mouse(void)
   lbDisplay.RightButton = 0;
 }
 
+void output_message(long idx, long a, long b)
+{
+  _DK_output_message(idx, a, b);
+}
+
 void input_eastegg(void)
 {
   static const char *func_name="input_eastegg";
@@ -2187,41 +1552,41 @@ void input_eastegg(void)
     {
     case 0:
     case 4:
-      if ( _DK_lbInkey==KC_S )
+      if ( lbInkey==KC_S )
       {
         _DK_eastegg03_cntr++;
-       _DK_lbInkey=0;
+       lbInkey=0;
       }
       break;
     case 1:
     case 3:
-      if ( _DK_lbInkey==KC_K )
+      if ( lbInkey==KC_K )
       {
         _DK_eastegg03_cntr++;
-       _DK_lbInkey=0;
+       lbInkey=0;
       }
       break;
     case 2:
-      if ( _DK_lbInkey==KC_E )
+      if ( lbInkey==KC_E )
       {
         _DK_eastegg03_cntr++;
-       _DK_lbInkey=0;
+       lbInkey=0;
       }
       break;
     case 5:
-      if ( _DK_lbInkey==KC_I )
+      if ( lbInkey==KC_I )
       {
         _DK_eastegg03_cntr++;
-       _DK_lbInkey=0;
+       lbInkey=0;
       }
       break;
     case 6:
-      if ( _DK_lbInkey==KC_S )
+      if ( lbInkey==KC_S )
       {
         _DK_eastegg03_cntr++;
-        _DK_lbInkey=0;
+        lbInkey=0;
         //'Your pants are definitely too tight'
-        _DK_output_message(94, 0, 1);
+        output_message(94, 0, 1);
       }
       break;
     }
@@ -2229,7 +1594,7 @@ void input_eastegg(void)
   {
     _DK_eastegg03_cntr = 0;
   }
-  if (_DK_lbInkey!=0)
+  if (lbInkey!=0)
   {
     _DK_eastegg03_cntr = 0;
   }
@@ -2306,11 +1671,21 @@ inline void do_sound_menu_click(void)
   play_non_3d_sample(61);
 }
 
+long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z)
+{
+  return _DK_S3DSetSoundReceiverPosition(pos_x, pos_y, pos_z);
+}
+
+long S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c)
+{
+  return _DK_S3DSetSoundReceiverOrientation(ori_a, ori_b, ori_c);
+}
+
 short setup_trap_tooltips(struct Coord3d *pos)
 {
     struct Thing *thing=_DK_get_trap_for_position(_DK_map_to_slab[pos->x.stl.num],_DK_map_to_slab[pos->y.stl.num]);
     if (thing==NULL) return false;
-    struct PlayerInfo *player=&(game.players[my_player_number]);
+    struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
     if ((thing->field_18==0) && (player->field_2B != thing->field_6))
       return false;
     if ( thing != _DK_tool_tip_box.target )
@@ -2322,7 +1697,7 @@ short setup_trap_tooltips(struct Coord3d *pos)
     {
       _DK_tool_tip_box.field_0 = 1;
       int stridx=_DK_trap_data[thing->field_1A].field_C;
-      sprintf(_DK_tool_tip_box.text,"%s",_DK_strings[stridx]);
+      sprintf(_DK_tool_tip_box.text,"%s",strings[stridx]);
       _DK_tool_tip_box.pos_x = lbDisplay.MMouseX * pixel_size;
       _DK_tool_tip_box.pos_y = _DK_GetMouseY()+86;
       _DK_tool_tip_box.field_809 = 4;
@@ -2337,7 +1712,7 @@ short setup_object_tooltips(struct Coord3d *pos)
 {
   static char text[2048];
   struct Thing *thing = NULL;
-  struct PlayerInfo *player=&(game.players[my_player_number]);
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   thing = game.things_lookup[player->field_35];
   if ((thing!=NULL)&&(!thing_is_special(thing)))
       thing = NULL;
@@ -2351,7 +1726,7 @@ short setup_object_tooltips(struct Coord3d *pos)
       _DK_tool_tip_box.target = thing;
     }
     int stridx=_DK_specials_text[_DK_object_to_special[thing->field_1A]];
-    sprintf(_DK_tool_tip_box.text,"%s",_DK_strings[stridx]);
+    sprintf(_DK_tool_tip_box.text,"%s",strings[stridx]);
     _DK_tool_tip_box.pos_x = lbDisplay.MMouseX * pixel_size;
     _DK_tool_tip_box.field_0 = 1;
     _DK_tool_tip_box.field_809 = 5;
@@ -2369,7 +1744,7 @@ short setup_object_tooltips(struct Coord3d *pos)
     int stridx = _DK_spell_data[_DK_object_to_magic[thing->field_1A]].field_D;
     if (stridx>0)
     {
-      sprintf(_DK_tool_tip_box.text,"%s",_DK_strings[stridx]);
+      sprintf(_DK_tool_tip_box.text,"%s",strings[stridx]);
       _DK_tool_tip_box.field_0 = 1;
       _DK_tool_tip_box.pos_x = lbDisplay.MMouseX * pixel_size;
       _DK_tool_tip_box.field_809 = 5;
@@ -2392,7 +1767,7 @@ short setup_object_tooltips(struct Coord3d *pos)
       stridx = _DK_trap_data[_DK_object_to_door_or_trap[objidx]].field_C;
     else
       stridx = _DK_door_names[_DK_object_to_door_or_trap[objidx]];
-    sprintf(_DK_tool_tip_box.text,"%s",_DK_strings[stridx]);
+    sprintf(_DK_tool_tip_box.text,"%s",strings[stridx]);
     _DK_tool_tip_box.pos_x = lbDisplay.MMouseX * pixel_size;
     _DK_tool_tip_box.pos_y = _DK_GetMouseY() + 86;
     _DK_tool_tip_box.field_809 = 5;
@@ -2407,12 +1782,12 @@ short setup_object_tooltips(struct Coord3d *pos)
     int crtridx;
     if ( objidx == 49 )
     {
-      sprintf(text,"%s",_DK_strings[545]);
+      sprintf(text,"%s",strings[545]);
     } else
     if (crtridx = _DK_objects[objidx].field_13)
     {
       int stridx=_DK_creature_data[crtridx].field_3;
-      sprintf(text, "%s %s", _DK_strings[stridx], _DK_strings[609]);
+      sprintf(text, "%s %s", strings[stridx], strings[609]);
     } else
     {
       return 0;
@@ -2453,11 +1828,11 @@ short setup_land_tooltips(struct Coord3d *pos)
     _DK_help_tip_time = 0;
     _DK_tool_tip_box.target = (void *)attridx;
   }
-  struct PlayerInfo *player=&(game.players[my_player_number]);
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   if ((_DK_help_tip_time>20) || (player->field_453==12))
   {
     _DK_tool_tip_box.field_0 = 1;
-    sprintf(_DK_tool_tip_box.text, "%s", _DK_strings[stridx]);
+    sprintf(_DK_tool_tip_box.text, "%s", strings[stridx]);
     _DK_tool_tip_box.pos_x = lbDisplay.MMouseX * pixel_size;
     _DK_tool_tip_box.field_809 = 2;
     _DK_tool_tip_box.pos_y = _DK_GetMouseY() + 86;
@@ -2485,7 +1860,7 @@ short setup_room_tooltips(struct Coord3d *pos)
     _DK_help_tip_time = 0;
     _DK_tool_tip_box.target = room;
   }
-  struct PlayerInfo *player=&(game.players[my_player_number]);
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   int widener=0;
   if ( (_DK_help_tip_time>20) || (player->field_453==12) )
   {
@@ -2494,7 +1869,7 @@ short setup_room_tooltips(struct Coord3d *pos)
         if ( (room->field_A<=14) || (room->field_A==16) )
           widener = 0;
       }
-      sprintf(_DK_tool_tip_box.text, "%s", _DK_strings[stridx]);
+      sprintf(_DK_tool_tip_box.text, "%s", strings[stridx]);
       _DK_tool_tip_box.field_0 = 1;
       _DK_tool_tip_box.pos_x = lbDisplay.MMouseX * pixel_size;
       _DK_tool_tip_box.pos_y = _DK_GetMouseY() + 86 + 20*widener;
@@ -2518,7 +1893,7 @@ void toggle_gui_overlay_map(void)
 
 short engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
 {
-  struct PlayerInfo *player=&(game.players[my_player_number]);
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   *map_x = 0;
   *map_y = 0;
   if ( (_DK_pointer_x >= 0) && (_DK_pointer_y >= 0)
@@ -2555,7 +1930,7 @@ short engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, l
 
 short point_to_overhead_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
 {
-  struct PlayerInfo *player=&(game.players[my_player_number]);
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   *map_x = 0;
   *map_y = 0;
   if ((screen_x >= 150) && (screen_x < 490)
@@ -2563,7 +1938,7 @@ short point_to_overhead_map(struct Camera *camera, long screen_x, long screen_y,
   {
     *map_x = 3*256 * (screen_x-150) / 4 + 384;
     *map_y = 3*256 * (screen_y-56) / 4 + 384;
-    return ((*map_x >= 0) && (*map_x < 65536) && (*map_y >= 0) && (*map_y < 65536));
+    return ((*map_x >= 0) && (*map_x < (map_subtiles_x+1)<<8) && (*map_y >= 0) && (*map_y < (map_subtiles_y+1)<<8));
   }
   return false;
 }
@@ -2615,7 +1990,7 @@ short check_cd_in_drive(void)
   const int img_width = 320;
   const int img_height = 200;
   short was_locked = LbScreenIsLocked();
-  sprintf(src_fname, "%s/%s/%s", datafiles_path, "ldata","dkwind00.dat");
+  sprintf(src_fname, "%s/%s/%s", install_info.inst_path, "ldata","dkwind00.dat");
   if ( LbFileExists(src_fname) )
     return true;
   if ( was_locked )
@@ -2697,7 +2072,7 @@ short get_gui_inputs(short gameplay_on)
     _DK_busy_doing_gui = 1;
   int fmmenu_idx = first_monopoly_menu();
 
-  struct PlayerInfo *player=&(game.players[my_player_number]);
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   int gmbtn_idx = -1;
   struct GuiButton *gbtn;
   // Sweep through buttons
@@ -2972,7 +2347,7 @@ short get_gui_inputs(short gameplay_on)
           int bblock_y=mappos.y.stl.num;
           unsigned short bitval;
           // Get the top four bits
-          bitval = (game.map[bblock_x+bblock_y*256].field_3) >> 12;
+          bitval = (game.map[bblock_x+bblock_y*(map_subtiles_x+1)].field_3) >> 12;
           if ((1 << player->field_2B) & (bitval))
           {
             if (player->field_37 != 1)
@@ -3003,12 +2378,12 @@ short get_creature_passenger_action_inputs(void)
 {
   if ( ((game.numfield_C & 0x01)==0) || (game.numfield_C & 0x80) )
       get_gui_inputs(1);
-  struct PlayerInfo *player=&(game.players[my_player_number]);
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   if ( !player->field_2F )
     return false;
   if (_DK_right_button_released)
   {
-    struct Packet *pckt = &game.packets[player->field_B];
+    struct Packet *pckt = &game.packets[player->field_B%PACKETS_COUNT];
     _DK_set_packet_action(pckt, 32, player->field_2F,0,0,0);
     return true;
   }
@@ -3016,7 +2391,7 @@ short get_creature_passenger_action_inputs(void)
   thing = game.things_lookup[player->field_2F];
   if ((player->field_31 != thing->field_9) || ((thing->field_0 & 1)==0) )
   {
-    struct Packet *pckt = &game.packets[player->field_B];
+    struct Packet *pckt = &game.packets[player->field_B%PACKETS_COUNT];
     _DK_set_packet_action(pckt, 32, player->field_2F,0,0,0);
     return true;
   }
@@ -3083,28 +2458,28 @@ void set_menu_visible_off(long menu_id)
 
 void zoom_from_map(void)
 {
-  struct PlayerInfo *player=&(game.players[my_player_number]);
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   if ( (game.numfield_A & 0x01) || (lbDisplay.PhysicalScreenWidth > 320) )
   {
       _DK_toggle_status_menu((game.numfield_C & 0x40) != 0);
-      struct Packet *pckt = &game.packets[player->field_B];
+      struct Packet *pckt = &game.packets[player->field_B%PACKETS_COUNT];
       _DK_set_packet_action(pckt, 120,1,0,0,0);
   } else
   {
-      struct Packet *pckt = &game.packets[player->field_B];
+      struct Packet *pckt = &game.packets[player->field_B%PACKETS_COUNT];
       _DK_set_packet_action(pckt, 80,6,0,0,0);
   }
 }
 
 short get_map_action_inputs()
 {
-  struct PlayerInfo *player=&(game.players[my_player_number]);
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   long keycode;
   long mouse_x = lbDisplay.MMouseX * pixel_size;
   long mouse_y = _DK_GetMouseY();
   int mappos_x = 3 * (mouse_x - 150) / 4 + 1;
   int mappos_y = 3 * (mouse_y - 56) / 4 + 1;
-  if ((mappos_x >= 0) && (mappos_x < 255) && (mappos_y >= 0) && (mappos_y < 255) )
+  if ((mappos_x >= 0) && (mappos_x < map_subtiles_x) && (mappos_y >= 0) && (mappos_y < map_subtiles_y) )
   {
     if ( _DK_left_button_clicked )
     {
@@ -3112,7 +2487,7 @@ short get_map_action_inputs()
     }
     if ( _DK_left_button_released )
     {
-      struct Packet *pckt = &game.packets[player->field_B];
+      struct Packet *pckt = &game.packets[player->field_B%PACKETS_COUNT];
       _DK_set_packet_action(pckt, 81,mappos_x,mappos_y,0,0);
       _DK_left_button_released = 0;
       return true;
@@ -3128,7 +2503,7 @@ short get_map_action_inputs()
     return true;
   } else
   {
-    struct Packet *pckt = &game.packets[player->field_B];
+    struct Packet *pckt = &game.packets[player->field_B%PACKETS_COUNT];
     if ( pckt->field_5 )
       return true;
     if ( lbKeyOn[KC_F8] )
@@ -3200,7 +2575,7 @@ void set_gui_visible(unsigned long visible)
     game.numfield_C |= 0x20;
   else
     game.numfield_C &= 0xDF;
-  struct PlayerInfo *player=&(game.players[my_player_number]);
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   unsigned char is_visbl = ((game.numfield_C & 0x20)!=0);
   if (player->field_452 == 2)
     toggle_first_person_menu(is_visbl);
@@ -3225,11 +2600,42 @@ long creature_instance_is_available(struct Thing *thing, long inum)
   return crctrl->instances[inum];
 }
 
+short toggle_computer_player(int idx)
+{
+  if (game.dungeon[idx].computer_enabled & 0x01)
+    game.dungeon[idx].computer_enabled &= 0xFE;
+  else
+    game.dungeon[idx].computer_enabled |= 0x01;
+  return 1;
+}
+
+unsigned short checksums_different(void)
+{
+  struct PlayerInfo *player;
+  int i;
+  int first = -1;
+  unsigned short chk = 0;
+  for (i=0; i<PLAYERS_COUNT; i++)
+  {
+    player=&(game.players[i]);
+    if (((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0))
+    {
+        if (first == -1)
+        {
+          first = game.packets[player->field_B].field_4;
+        } else
+        if (game.packets[player->field_B].field_4 != first)
+          chk = 1;
+    }
+  }
+  return chk;
+}
+
 short get_creature_control_action_inputs(void)
 {
   if ( ((game.numfield_C & 0x01)==0) || (game.numfield_C & 0x80) )
     get_gui_inputs(1);
-  struct PlayerInfo *player=&(game.players[my_player_number]);
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   long keycode;
   if ( lbKeyOn[KC_NUMPADENTER] )
   {
@@ -3279,7 +2685,7 @@ short get_creature_control_action_inputs(void)
     }
     if (make_packet)
     {
-      struct Packet *pckt = &game.packets[player->field_B];
+      struct Packet *pckt = &game.packets[player->field_B%PACKETS_COUNT];
       _DK_right_button_released = 0;
       _DK_set_packet_action(pckt, 33, player->field_2F,0,0,0);
     }
@@ -3315,7 +2721,7 @@ short get_creature_control_action_inputs(void)
       {
         if ( numkey == num_avail )
         {
-          struct Packet *pckt = &game.packets[player->field_B];
+          struct Packet *pckt = &game.packets[player->field_B%PACKETS_COUNT];
           _DK_set_packet_action(pckt, 39, instnce,0,0,0);
           break;
         }
@@ -3326,33 +2732,28 @@ short get_creature_control_action_inputs(void)
   return false;
 }
 
-void turn_off_menu(short mnu_idx)
-{
-  _DK_turn_off_menu(mnu_idx);
-}
-
 void get_level_lost_inputs(void)
 {
 //  _DK_get_level_lost_inputs();
-  struct PlayerInfo *player=&(game.players[my_player_number]);
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   long keycode;
   if ( player->field_0 & 4 )
   {
     if (is_key_pressed(KC_RETURN,0))
     {
-      struct Packet *pckt=&game.packets[player->field_B];
+      struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
       _DK_set_packet_action(pckt, 14, 0,0,0,0);
-      _DK_lbInkey = 0;
+      lbInkey = 0;
       lbKeyOn[KC_RETURN] = 0;
     } else
     {
       lbFontPtr = _DK_winfont;
-      if ( (_DK_lbInkey == KC_BACK) || (pixel_size*_DK_LbTextStringWidth(player->strfield_463) < 450) )
+      if ( (lbInkey == KC_BACK) || (pixel_size*_DK_LbTextStringWidth(player->strfield_463) < 450) )
       {
-        struct Packet *pckt=&game.packets[player->field_B];
-        _DK_set_packet_action(pckt, 121, _DK_lbInkey,0,0,0);
-        lbKeyOn[_DK_lbInkey] = 0;
-        _DK_lbInkey = 0;
+        struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
+        _DK_set_packet_action(pckt, 121, lbInkey,0,0,0);
+        lbKeyOn[lbInkey] = 0;
+        lbInkey = 0;
       }
     }
     return;
@@ -3361,7 +2762,7 @@ void get_level_lost_inputs(void)
   {
     if (is_key_pressed(KC_RETURN,0))
     {
-      struct Packet *pckt=&game.packets[player->field_B];
+      struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
       _DK_set_packet_action(pckt, 13, 0,0,0,0);
       lbKeyOn[KC_RETURN] = 0;
       return;
@@ -3369,7 +2770,7 @@ void get_level_lost_inputs(void)
   }
   if (is_key_pressed(KC_SPACE,0))
   {
-    struct Packet *pckt=&game.packets[player->field_B];
+    struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
     _DK_set_packet_action(pckt, 5, 0,0,0,0);
     lbKeyOn[KC_SPACE] = 0;
   }
@@ -3384,13 +2785,13 @@ void get_level_lost_inputs(void)
       lbKeyOn[keycode] = 0;
       if (((game.numfield_A & 0x01) == 0) && (lbDisplay.PhysicalScreenWidth <= 320))
       {
-        struct Packet *pckt=&game.packets[player->field_B];
+        struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
         _DK_set_packet_action(pckt, 80, 6,0,0,0);
       }
       else
       {
         _DK_toggle_status_menu((game.numfield_C & 0x40) != 0);
-        struct Packet *pckt=&game.packets[player->field_B];
+        struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
         _DK_set_packet_action(pckt, 120, 1,0,0,0);
       }
     } else
@@ -3400,12 +2801,12 @@ void get_level_lost_inputs(void)
         if ( (game.numfield_A & 0x01) || lbDisplay.PhysicalScreenWidth > 320 )
         {
           _DK_toggle_status_menu((game.numfield_C & 0x40) != 0);
-          struct Packet *pckt=&game.packets[player->field_B];
+          struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
           _DK_set_packet_action(pckt, 120, 1,0,0,0);
         }
         else
         {
-          struct Packet *pckt=&game.packets[player->field_B];
+          struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
           _DK_set_packet_action(pckt, 80, 6,0,0,0);
         }
     } else
@@ -3413,9 +2814,9 @@ void get_level_lost_inputs(void)
     {
         int actn_x = 3*screen_x/4 + 1;
         int actn_y = 3*screen_y/4 + 1;
-        if  ((actn_x >= 0) && (actn_x < 255) && (actn_y >= 0) && (actn_y < 255))
+        if  ((actn_x >= 0) && (actn_x < map_subtiles_x) && (actn_y >= 0) && (actn_y < map_subtiles_y))
         {
-          struct Packet *pckt=&game.packets[player->field_B];
+          struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
           _DK_set_packet_action(pckt, 81, actn_x,actn_y,0,0);
           _DK_left_button_released = 0;
         }
@@ -3438,7 +2839,7 @@ void get_level_lost_inputs(void)
       {
         _DK_turn_off_all_window_menus();
         game.numfield_C = (game.numfield_C ^ (unsigned __int8)(2 * game.numfield_C)) & 0x40 ^ game.numfield_C;
-        struct Packet *pckt=&game.packets[player->field_B];
+        struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
         if ((game.numfield_A & 0x01) || (lbDisplay.PhysicalScreenWidth > 320))
         {
               if (_DK_toggle_status_menu(0))
@@ -3462,7 +2863,7 @@ void get_level_lost_inputs(void)
     else
       _DK_turn_on_menu(8);
   }
-  struct Packet *pckt=&game.packets[player->field_B];
+  struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
   struct Thing *thing;
   short inp_done=false;
   switch (player->field_452)
@@ -3555,10 +2956,10 @@ short get_inputs(void)
     }
     return false;
   }
-  struct PlayerInfo *player=&(game.players[my_player_number]);
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   if ( player->field_0 & 0x80 )
   {
-    struct Packet *pckt = &game.packets[player->field_B];
+    struct Packet *pckt = &game.packets[player->field_B%PACKETS_COUNT];
     pckt->field_A = 127;
     pckt->field_C = 127;
     if ((_DK_input_button==NULL) && (game.numfield_C & 0x01))
@@ -3650,13 +3051,13 @@ short get_inputs(void)
         player->field_1 |= 0x01;
       else
         player->field_1 &= 0xFE;
-      pckt = &game.packets[player->field_B];
+      pckt = &game.packets[player->field_B%PACKETS_COUNT];
       _DK_set_packet_action(pckt, 80, 4,0,0,0);
       return false;
   case 6:
       if (player->field_37 != 7)
       {
-        pckt = &game.packets[player->field_B];
+        pckt = &game.packets[player->field_B%PACKETS_COUNT];
         _DK_set_packet_action(pckt, 80, 1,0,0,0);
       }
       return false;
@@ -3680,13 +3081,12 @@ void input(void)
   _DK_key_modifiers = key_mods;
   if ( _DK_input_button )
   {
-    if ( _DK_lbInkey )
-      lbKeyOn[_DK_lbInkey] = 0;
+    if ( lbInkey )
+      lbKeyOn[lbInkey] = 0;
   }
 
-  struct PlayerInfo *player=&(game.players[my_player_number]);
-  int idx=player->field_B;
-  struct Packet *pckt=&game.packets[idx];
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
   if (_DK_is_game_key_pressed(27, 0, 0) != 0)
     pckt->field_10 |= 0x20;
   else
@@ -3699,6 +3099,830 @@ void input(void)
   get_inputs();
 }
 
+int LbNetwork_Exchange(struct Packet *pckt)
+{
+  return _DK_LbNetwork_Exchange(pckt);
+}
+
+unsigned long get_packet_save_checksum(void)
+{
+  return _DK_get_packet_save_checksum();
+}
+
+void resync_game(void)
+{
+  return _DK_resync_game();
+}
+
+char process_players_global_packet_action(long idx)
+{
+  return _DK_process_players_global_packet_action(idx);
+}
+
+void process_players_dungeon_control_packet_control(long idx)
+{
+  _DK_process_players_dungeon_control_packet_control(idx);
+}
+
+void process_players_dungeon_control_packet_action(long idx)
+{
+  _DK_process_players_dungeon_control_packet_action(idx);
+}
+
+void process_players_creature_control_packet_control(long idx)
+{
+  _DK_process_players_creature_control_packet_control(idx);
+}
+
+void process_players_creature_control_packet_action(long idx)
+{
+  _DK_process_players_creature_control_packet_action(idx);
+}
+
+void save_packets(void)
+{
+  static const char *func_name="save_packets";
+  unsigned char *pckt_buf[sizeof(struct Packet)*PACKETS_COUNT];
+  unsigned long chksum;
+  int i;
+  if (game.packet_checksum)
+    chksum = get_packet_save_checksum();
+  else
+    chksum = 0;
+  LbFileSeek(game.packet_save, 0, 2);
+  // Note: originally only 48 bytes were saved; I guess it was a mistake (now 55 are saved).
+  for (i=0; i<PACKETS_COUNT; i++)
+    memcpy(pckt_buf[sizeof(struct Packet)*i], &game.packets[i], sizeof(struct Packet));
+  LbFileWrite(game.packet_save, &pckt_buf, sizeof(struct Packet)*PACKETS_COUNT);
+  if ( !LbFileFlush(game.packet_save) )
+    error(func_name, 3821, "Unable to flush PacketSave File");
+}
+
+void process_players_message_character(struct PlayerInfo *player)
+{
+  struct Packet *pcktd;
+  struct PlayerInfo *playerd;
+  char chr;
+  int chpos;
+  playerd = &(game.players[player->field_2B%PLAYERS_COUNT]);
+  pcktd = &game.packets[playerd->field_B%PACKETS_COUNT];
+  if (pcktd->field_6 >= 0)
+  {
+    chr = lbInkeyToAscii[pcktd->field_6];
+    chpos = strlen(player->strfield_463) - 1;
+    if (pcktd->field_6 == 14)
+    {
+      if (chpos>0)
+        player->strfield_463[chpos-1] = 0;
+    } else
+    if ((chr & 0x80) == 0)
+    {
+      if ((chr >= 'a') && (chr <= 'z') ||
+          (chr >= 'A') && (chr <= 'Z') ||
+          (chr >= '0') && (chr <= '9') || (chr == ' '))
+      {
+        if (chpos < 62)
+        {
+          player->strfield_463[chpos] = toupper(chr);
+          player->strfield_463[chpos+1] = '\0';
+        }
+      }
+    }
+  }
+}
+
+void process_map_packet_clicks(long idx)
+{
+  _DK_process_map_packet_clicks(idx);
+}
+
+void set_mouse_light(struct PlayerInfo *player)
+{
+  _DK_set_mouse_light(player);
+}
+
+void process_players_map_packet_control(long idx)
+{
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  unsigned short x,y;
+  player=&(game.players[idx%PLAYERS_COUNT]);
+  pckt = &game.packets[player->field_B%PACKETS_COUNT];
+  x = (3*pckt->field_A - 450)/4 - 6;
+  y = (3*pckt->field_C - 168)/4 - 6;
+  process_map_packet_clicks(idx);
+  player->field_90 = (x << 8) + 1920;
+  player->field_92 = (y << 8) + 1920;
+  set_mouse_light(player);
+}
+
+void process_players_creature_passenger_packet_action(long idx)
+{
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  player=&(game.players[idx%PLAYERS_COUNT]);
+  pckt = &game.packets[player->field_B%PACKETS_COUNT];
+  if (pckt->field_5 == 32)
+  {
+    player->field_43E = pckt->field_6;
+    _DK_set_player_instance(player, 8, 0);
+  }
+}
+
+void process_players_packet(long idx)
+{
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  player=&(game.players[idx%PLAYERS_COUNT]);
+  pckt = &game.packets[player->field_B%PACKETS_COUNT];
+  player->field_4 = (pckt->field_10 & 0x20) >> 5;
+  player->field_5 = (pckt->field_10 & 0x40) >> 6;
+  if ( (player->field_0 & 0x04) && (pckt->field_5 == 121))
+  {
+     process_players_message_character(player);
+  } else
+  if ( !process_players_global_packet_action(idx) )
+  {
+      switch (player->field_452)
+      {
+      case 1:
+        process_players_dungeon_control_packet_control(idx);
+        process_players_dungeon_control_packet_action(idx);
+        break;
+      case 2:
+        process_players_creature_control_packet_control(idx);
+        process_players_creature_control_packet_action(idx);
+        break;
+      case 3:
+        process_players_creature_passenger_packet_action(idx);
+        break;
+      case 4:
+        process_players_map_packet_control(idx);
+        break;
+      default:
+        break;
+      }
+  }
+}
+
+void process_packets(void)
+{
+  //_DK_process_packets();return;
+  static const char *func_name="process_packets";
+  int i,j,k;
+  struct Packet *pckt;
+  struct PlayerInfo *player;
+  // Do the network data exchange
+  lbDisplay.DrawColour = colours[15][15][15];
+  // Exchange packets with the network
+  if ( game.flagfield_14EA4A != 2 )
+  {
+    player=&(game.players[my_player_number%PLAYERS_COUNT]);
+    j=0;
+    for (i=0; i<4; i++)
+    {
+      if (net_player_info[i].field_20 != 0)
+        j++;
+    }
+    if ( !game.field_149E81 || game.numfield_149F47 )
+    {
+      pckt = &game.packets[player->field_B%PACKETS_COUNT];
+      if (LbNetwork_Exchange(pckt) != 0)
+      {
+        error(func_name, 426, "LbNetwork_Exchange failed");
+      }
+    }
+    k=0;
+    for (i=0; i<4; i++)
+    {
+      if (net_player_info[i].field_20 != 0)
+        k++;
+    }
+    if (j != k)
+    {
+      for (i=0; i<4; i++)
+      {
+        player=&(game.players[i]);
+        if (net_player_info[player->field_B].field_20 == 0)
+        {
+          player->field_0 |= 0x40u;
+          toggle_computer_player(i);
+        }
+      }
+    }
+  }
+  // Setting checksum problem flags
+  switch (checksums_different())
+  {
+  case 1:
+    game.numfield_A |= 0x02;
+    game.numfield_A &= 0xFB;
+    break;
+  case 2:
+    game.numfield_A |= 0x04;
+    game.numfield_A &= 0xFD;
+    break;
+  case 3:
+    game.numfield_A |= 0x04;
+    game.numfield_A |= 0x02;
+    break;
+  default:
+    game.numfield_A &= 0xFD;
+    game.numfield_A &= 0xFB;
+    break;
+  }
+  // Write packets into file, if requested
+  if ((game.field_149E80) && (game.packet_fopened))
+    save_packets();
+  // Process the packets
+  for (i=0; i<PACKETS_COUNT; i++)
+  {
+    player=&(game.players[i]);
+    if (((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0))
+      process_players_packet(i);
+  }
+  // Clear all packets
+  for (i=0; i<PACKETS_COUNT; i++)
+    memset(&game.packets[i], 0, sizeof(struct Packet));
+  if ((game.numfield_A & 0x02) || (game.numfield_A & 0x04))
+  {
+    // Note: the message is now displayed in keeper_gameplay_loop()
+    //sprintf(text, "OUT OF SYNC (GameTurn %d)", game_seedchk_random_used);
+    resync_game();
+  }
+}
+
+void update_things(void)
+{
+  _DK_update_things();
+}
+
+void process_rooms(void)
+{
+  _DK_process_rooms();
+}
+
+void process_dungeons(void)
+{
+  _DK_process_dungeons();
+}
+
+void process_messages(void)
+{
+  _DK_process_messages();
+}
+
+void find_nearest_rooms_for_ambient_sound(void)
+{
+  _DK_find_nearest_rooms_for_ambient_sound();
+}
+
+void light_render_area(int startx, int starty, int endx, int endy)
+{
+  _DK_light_render_area(startx, starty, endx, endy);
+}
+
+void process_3d_sounds(void)
+{
+  _DK_process_3d_sounds();
+}
+
+void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
+{
+  _DK_PaletteSetPlayerPalette(player, pal);
+}
+
+void process_player_research(int plr_idx)
+{
+  _DK_process_player_research(plr_idx);
+}
+
+long process_player_manufacturing(int plr_idx)
+{
+  return _DK_process_player_manufacturing(plr_idx);
+}
+
+void event_process_events(void)
+{
+  _DK_event_process_events();
+}
+
+void update_all_events(void)
+{
+  _DK_update_all_events();
+}
+
+void process_computer_players2(void)
+{
+  _DK_process_computer_players2();
+}
+
+void process_level_script(void)
+{
+  _DK_process_level_script();
+}
+
+long process_action_points(void)
+{
+  return _DK_process_action_points();
+}
+
+long PaletteFadePlayer(struct PlayerInfo *player)
+{
+  return _DK_PaletteFadePlayer(player);
+}
+
+void message_update(void)
+{
+  _DK_message_update();
+}
+
+void process_player_instance(struct PlayerInfo *player)
+{
+  _DK_process_player_instance(player);
+}
+
+void process_player_instances(void)
+{
+  //_DK_process_player_instances();return;
+  int i;
+  struct PlayerInfo *player;
+  for (i=0; i<PLAYERS_COUNT; i++)
+  {
+    player=&(game.players[i]);
+    if (player->field_0 & 0x01)
+      process_player_instance(player);
+  }
+}
+
+long wander_point_update(struct Wander *wandr)
+{
+  return _DK_wander_point_update(wandr);
+}
+
+void update_player_camera(struct PlayerInfo *player)
+{
+  _DK_update_player_camera(player);
+}
+
+void update_research(void)
+{
+  int i;
+  struct PlayerInfo *player;
+  for (i=0; i<PLAYERS_COUNT; i++)
+  {
+      player=&(game.players[i]);
+      if ((player->field_0 & 0x01) && (player->field_2C == 1))
+          process_player_research(i);
+  }
+}
+
+void update_manufacturing(void)
+{
+  int i;
+  struct PlayerInfo *player;
+  for (i=0; i<PLAYERS_COUNT; i++)
+  {
+      player=&(game.players[i]);
+      if ((player->field_0 & 0x01) && (player->field_2C == 1))
+          process_player_manufacturing(i);
+  }
+}
+
+void update_all_players_cameras(void)
+{
+  int i;
+  struct PlayerInfo *player;
+  for (i=0; i<PLAYERS_COUNT; i++)
+  {
+    player=&(game.players[i]);
+    if ((player->field_0 & 0x01) && ((player->field_0 & 0x40) == 0))
+    {
+          update_player_camera(player);
+    }
+  }
+}
+
+#define LIGHT_MAX_RANGE 30
+void update_light_render_area(void)
+{
+  int subtile_x,subtile_y;
+  int delta_x,delta_y;
+  int startx,endx,starty,endy;
+  struct PlayerInfo *player;
+  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  if (player->field_37 >= 1)
+    if ((player->field_37 <= 2) || (player->field_37 == 5))
+    {
+        game.field_14BB5D = LIGHT_MAX_RANGE;
+        game.field_14BB59 = LIGHT_MAX_RANGE;
+    }
+  delta_x=abs(game.field_14BB59);
+  delta_y=abs(game.field_14BB5D);
+  // Prepare the area constraits
+  subtile_y = (player->camera->pos_y >> 8);
+  subtile_x = (player->camera->pos_x >> 8);
+//LbSyncLog("LghtRng %d,%d CamTil %d,%d\n",game.field_14BB59,game.field_14BB5D,tile_x,tile_y);
+  if (subtile_y > delta_y)
+  {
+    starty = subtile_y - delta_y;
+    if (starty > map_subtiles_y) starty = map_subtiles_y;
+  } else
+    starty = 0;
+  if (subtile_x > delta_x)
+  {
+    startx = subtile_x - delta_x;
+    if (startx > map_subtiles_x) startx = map_subtiles_x;
+  } else
+    startx = 0;
+  endy = subtile_y + delta_y;
+  if (endy < starty) endy = starty;
+  if (endy > map_subtiles_y) endy = map_subtiles_y;
+  endx = subtile_x + delta_x;
+  if (endx < startx) endx = startx;
+  if (endx > map_subtiles_x) endx = map_subtiles_x;
+  // Set the area
+  light_render_area(startx, starty, endx, endy);
+}
+
+void update_flames_nearest_camera(struct Camera *camera)
+{
+  _DK_update_flames_nearest_camera(camera);
+}
+
+void update_footsteps_nearest_camera(struct Camera *camera)
+{
+  _DK_update_footsteps_nearest_camera(camera);
+}
+
+void process_player_states(void)
+{
+  _DK_process_player_states();
+}
+
+void process_players(void)
+{
+  int i;
+  struct PlayerInfo *player;
+  process_player_instances();
+  process_player_states();
+  for (i=0; i<PLAYERS_COUNT; i++)
+  {
+      player=&(game.players[i]);
+      if ((player->field_0 & 0x01) && (player->field_2C == 1))
+      {
+          wander_point_update(&player->wandr1);
+          wander_point_update(&player->wandr2);
+          _DK_update_power_sight_explored(player);
+          if (game.numfield_A & 0x01)
+          {
+            if ((!player->field_4EB) && (player->field_29))
+              player->field_4EB = game.seedchk_random_used+1;
+          }
+          if (player->field_4EB == game.seedchk_random_used)
+          {
+            switch (player->field_29)
+            {
+            case 1:
+              if (i == my_player_number)
+                _DK_set_level_objective(strings[0]);
+              _DK_display_objectives(player->field_2B, 0, 0);
+              break;
+            case 2:
+              if (i == my_player_number)
+                _DK_set_level_objective(strings[335]);
+              _DK_display_objectives(player->field_2B, 0, 0);
+              break;
+            }
+          }
+      }
+  }
+}
+
+short update_animating_texture_maps(void)
+{
+  int i,k;
+  anim_counter = (anim_counter+1) % -8;
+  k = (anim_counter+1) % -8;
+  for (i=0; i<48; i++)
+  {
+        short j = game.field_14A83F[k+8*i];
+        block_ptrs[592-48+i] = block_ptrs[j];
+  }
+  return true;
+}
+
+long prepare_hsi_screenshot(unsigned char *buf)
+{
+  static const char *func_name="prepare_hsi_screenshot";
+  unsigned char palette[768];
+  long pos,i;
+  int w,h;
+  short lock_mem;
+  pos=0;
+  w=MyScreenWidth/pixel_size;
+  h=MyScreenHeight/pixel_size;
+
+  write_int8_buf(buf+pos,'m');pos++;
+  write_int8_buf(buf+pos,'h');pos++;
+  write_int8_buf(buf+pos,'w');pos++;
+  write_int8_buf(buf+pos,'a');pos++;
+  write_int8_buf(buf+pos,'n');pos++;
+  write_int8_buf(buf+pos,'h');pos++;
+  // pos=6
+  write_int16_be_buf(buf+pos, 4);pos+=2;
+  write_int16_be_buf(buf+pos, w);pos+=2;
+  write_int16_be_buf(buf+pos, h);pos+=2;
+  write_int16_be_buf(buf+pos, 256);pos+=2;
+  // pos=14
+  write_int16_be_buf(buf+pos, 256);pos+=2;
+  write_int16_be_buf(buf+pos, 256);pos+=2;
+  write_int16_be_buf(buf+pos, 256);pos+=2;
+  // pos=20
+  for (i=0; i<6; i++)
+  {
+    write_int16_be_buf(buf+pos, 0);pos+=2;
+  }
+  LbPaletteGet(palette);
+  for (i=0; i<768; i+=3)
+  {
+    write_int8_buf(buf+pos,4*palette[i+0]);pos++;
+    write_int8_buf(buf+pos,4*palette[i+1]);pos++;
+    write_int8_buf(buf+pos,4*palette[i+2]);pos++;
+  }
+  lock_mem = LbScreenIsLocked();
+  if (!lock_mem)
+  {
+    if (LbScreenLock()!=1)
+    {
+      error(func_name, 3852,"Can't lock canvas");
+      LbMemoryFree(buf);
+      return 0;
+    }
+  }
+  for (i=0; i<h; i++)
+  {
+    memcpy(buf+pos, lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth*i, w);
+    pos += w;
+  }
+  if (!lock_mem)
+    LbScreenUnlock();
+  return pos;
+}
+
+long prepare_bmp_screenshot(unsigned char *buf)
+{
+  static const char *func_name="prepare_bmp_screenshot";
+  unsigned char palette[768];
+  long pos,i,j;
+  int width,height;
+  short lock_mem;
+  long data_len,pal_len;
+  pos=0;
+  width=MyScreenWidth/pixel_size;
+  height=MyScreenHeight/pixel_size;
+  write_int8_buf(buf+pos,'B');pos++;
+  write_int8_buf(buf+pos,'M');pos++;
+  int padding_size=4-(width&3);
+  data_len = (width+padding_size)*height;
+  pal_len = 256*4;
+  write_int32_le_buf(buf+pos, data_len+pal_len+0x36);pos+=4;
+  write_int32_le_buf(buf+pos, 0);pos+=4;
+  write_int32_le_buf(buf+pos, pal_len+0x36);pos+=4;
+  write_int32_le_buf(buf+pos, 40);pos+=4;
+  write_int32_le_buf(buf+pos, width);pos+=4;
+  write_int32_le_buf(buf+pos, height);pos+=4;
+  write_int16_le_buf(buf+pos, 1);pos+=2;
+  write_int16_le_buf(buf+pos, 8);pos+=2;
+  write_int32_le_buf(buf+pos, 0);pos+=4;
+  write_int32_le_buf(buf+pos, 0);pos+=4;
+  write_int32_le_buf(buf+pos, 0);pos+=4;
+  write_int32_le_buf(buf+pos, 0);pos+=4;
+  write_int32_le_buf(buf+pos, 0);pos+=4;
+  write_int32_le_buf(buf+pos, 0);pos+=4;
+  LbPaletteGet(palette);
+  for (i=0; i<768; i+=3)
+  {
+      unsigned int cval;
+      cval=(unsigned int)4*palette[i+2];
+      if (cval>255) cval=255;
+      write_int8_buf(buf+pos,cval);pos++;
+      cval=(unsigned int)4*palette[i+1];
+      if (cval>255) cval=255;
+      write_int8_buf(buf+pos,cval);pos++;
+      cval=(unsigned int)4*palette[i+0];
+      if (cval>255) cval=255;
+      write_int8_buf(buf+pos,cval);pos++;
+      write_int8_buf(buf+pos,0);pos++;
+  }
+  lock_mem = LbScreenIsLocked();
+  if (!lock_mem)
+  {
+    if (LbScreenLock()!=1)
+    {
+      error(func_name, 3852,"Can't lock canvas");
+      LbMemoryFree(buf);
+      return 0;
+    }
+  }
+  for (i=0; i<height; i++)
+  {
+    memcpy(buf+pos, lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth*(height-i-1), width);
+    pos += width;
+    if ((padding_size&3) > 0)
+      for (j=0; j < padding_size; j++)
+      {
+        write_int8_buf(buf+pos,0);pos++;
+      }
+  }
+  if (!lock_mem)
+    LbScreenUnlock();
+  return pos;
+}
+
+void cumulative_screen_shot(void)
+{
+  static const char *func_name="cumulative_screen_shot";
+  //_DK_cumulative_screen_shot();return;
+  static long frame_number=0;
+  char fname[255];
+  const char *fext;
+  int w,h;
+  switch (screenshot_format)
+  {
+  case 1:
+    fext="raw";
+    break;
+  case 2:
+    fext="bmp";
+    break;
+  default:
+    error(func_name, 3849,"Screenshot format incorrectly set.");
+    return;
+  }
+  long i;
+  unsigned char *buf;
+  long ssize;
+  for (i=frame_number; i<10000; i++)
+  {
+    sprintf(fname, "scrshots/scr%05d.%s", i, fext);
+    if (!LbFileExists(fname)) break;
+  }
+  frame_number = i;
+  if (frame_number >= 10000)
+  {
+    error(func_name, 3850,"No free filename");
+    return;
+  }
+  sprintf(fname, "scrshots/scr%05d.%s", frame_number, fext);
+
+  w=MyScreenWidth/pixel_size;
+  h=MyScreenHeight/pixel_size;
+
+  buf = LbMemoryAlloc((w+3)*h+2048);
+  if (buf == NULL)
+  {
+    error(func_name, 3851,"Can't allocate buffer");
+    return;
+  }
+  switch (screenshot_format)
+  {
+  case 1:
+    ssize=prepare_hsi_screenshot(buf);
+    break;
+  case 2:
+    ssize=prepare_bmp_screenshot(buf);
+    break;
+  default:
+    ssize=0;
+    break;
+  }
+  if (ssize>0)
+    LbFileSaveAt(fname, buf, ssize);
+  LbMemoryFree(buf);
+  frame_number++;
+}
+
+void update_player_sounds(void)
+{
+  int k;
+  struct Camera *camera;
+  if ((game.numfield_C & 0x01) == 0)
+  {
+    camera=game.players[my_player_number%PLAYERS_COUNT].camera;
+    process_messages();
+    if (!SoundDisabled)
+    {
+      if ((game.flags_cd & 0x10) == 0)
+      {
+        if (game.audiotrack > 0)
+          PlayRedbookTrack(game.audiotrack);
+      }
+      S3DSetSoundReceiverPosition(camera->pos_x,camera->pos_y,camera->pos_z);
+      S3DSetSoundReceiverOrientation(camera->orient_a,camera->orient_b,camera->orient_c);
+    }
+    game.seedchk_random_used++;
+  }
+  find_nearest_rooms_for_ambient_sound();
+  process_3d_sounds();
+  k = (game.field_1517E2-game.seedchk_random_used) / 2;
+  if (is_bonus_level(game.numfield_14A83D) )
+  {
+    if ((game.field_1517E2!=game.seedchk_random_used) ||
+        (game.field_1517E2>game.seedchk_random_used) && ((k<=100) && ((k % 10) == 0) ||
+        (k<=300) && ((k % 50)==0) || ((k % 250)==0)) )
+      play_non_3d_sample(89);
+  }
+}
+
+void update(void)
+{
+  //_DK_update();return;
+  struct PlayerInfo *player;
+  int i,k;
+
+  if ((game.numfield_C & 0x01) == 0)
+    update_light_render_area();
+
+  process_packets();
+  if (quit_game)
+  {
+    return;
+  }
+  if (game.flagfield_14EA4A == 1)
+  {
+    game.field_14EA4B = 0;
+    return;
+  }
+
+  if ((game.numfield_C & 0x01) == 0)
+  {
+    player=&(game.players[my_player_number%PLAYERS_COUNT]);
+    if (player->field_3 & 0x08)
+    {
+      PaletteSetPlayerPalette(player, _DK_palette);
+      player->field_3 &= 0xF7u;
+    }
+
+    for (i=0; i<DUNGEONS_COUNT; i++)
+    {
+      memset(game.dungeon[i].field_64, 0, 960);
+      memset(game.dungeon[i].field_424, 0, 12);
+      memset(game.dungeon[i].field_4E4, 0, 12);
+    }
+
+    game.creature_pool_empty = 1;
+    for (i=1; i<32; i++)
+    {
+      if (game.creature_pool[i] > 0)
+      { game.creature_pool_empty = 0; break; }
+    }
+
+    if ((game.seedchk_random_used & 0x01) != 0)
+    {
+      update_animating_texture_maps();
+    }
+    update_things();
+    process_rooms();
+    process_dungeons();
+    update_research();
+    update_manufacturing();
+    event_process_events();
+    update_all_events();
+    process_level_script();
+    if (game.numfield_D & 0x04)
+      process_computer_players2();
+    process_players();
+    process_action_points();
+    player=&(game.players[my_player_number%PLAYERS_COUNT]);
+    if (player->field_37 == 1)
+      update_flames_nearest_camera(player->camera);
+    update_footsteps_nearest_camera(player->camera);
+    PaletteFadePlayer(player);
+    _DK_process_armageddon();
+  }
+
+  message_update();
+  update_all_players_cameras();
+  update_player_sounds();
+
+  // Rare message easter egg
+  if ((game.seedchk_random_used) && ((game.seedchk_random_used % 0x4E20) == 0))
+  {
+      game.field_14BB4A = _lrotr(9377*game.field_14BB4A+9439, 13);
+      if ( !(game.field_14BB4A % 0x7D0u) )
+      {
+        game.field_14BB4E = _lrotr(9377*game.field_14BB4E+9439, 13);
+        if (game.field_14BB4E % 0xAu == 7)
+          k = 94;// 'Your pants are definitely too tight'
+        else
+          k = game.field_14BB4E % 0xAu + 91;
+        output_message(k, 0, 1);
+      }
+  }
+  game.field_14EA4B = 0;
+}
+
 void keeper_gameplay_loop(void)
 {
     static const char *func_name="keeper_gameplay_loop";
@@ -3708,8 +3932,8 @@ void keeper_gameplay_loop(void)
     static unsigned long cntr_time1=0;
     static unsigned long prev_time2=0;
     static unsigned long cntr_time2=0;
-    struct PlayerInfo *player=&(game.players[my_player_number]);
-    _DK_PaletteSetPlayerPalette(player, _DK_palette);
+    struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+    PaletteSetPlayerPalette(player, _DK_palette);
     if ( game.numfield_C & 0x02 )
       _DK_initialise_eye_lenses();
     LbSyncLog("Entering the gameplay loop for level %d\n",(int)game.level_number);
@@ -3771,7 +3995,7 @@ void keeper_gameplay_loop(void)
       update_mouse();
       input_eastegg();
       input();
-      _DK_update();
+      update();
 
       if ( do_draw )
       {
@@ -3802,7 +4026,7 @@ void keeper_gameplay_loop(void)
       if ( game.numfield_A & 0x10 )
       {
         game.numfield_A &= 0xEFu;
-        _DK_cumulative_screen_shot();
+        cumulative_screen_shot();
       }
 
       // Direct information/error messages
@@ -3833,7 +4057,7 @@ void keeper_gameplay_loop(void)
       }
 
       // Music and sound control
-      if ( !_DK_SoundDisabled )
+      if ( !SoundDisabled )
         if ((!game.numfield_149F34) && (!game.numfield_149F38))
         {
             MonitorStreamedSoundTrack();
@@ -3894,26 +4118,14 @@ void initialise_load_game_slots(void)
   }
 }
 
-void load_game_update(void)
-{
-    if ((number_of_saved_games>0) && (load_game_scroll_offset>=0))
-    {
-        if ( load_game_scroll_offset > number_of_saved_games-1 )
-          load_game_scroll_offset = number_of_saved_games-1;
-    } else
-    {
-        load_game_scroll_offset = 0;
-    }
-}
-
 void define_key_input(void)
 {
-    if ( _DK_lbInkey == 1 )
+    if ( lbInkey == 1 )
     {
           _DK_defining_a_key = 0;
-          _DK_lbInkey = 0;
+          lbInkey = 0;
     } else
-    if ( _DK_lbInkey )
+    if ( lbInkey )
     {
             short ctrl_state = 0;
             if ( lbKeyOn[KC_LCONTROL] || (lbKeyOn[KC_RCONTROL]) )
@@ -3921,91 +4133,17 @@ void define_key_input(void)
             short shift_state = 0;
             if ( lbKeyOn[KC_LSHIFT] || (lbKeyOn[KC_RSHIFT]) )
               shift_state = 1;
-            if ( _DK_set_game_key(_DK_defining_a_key_id, _DK_lbInkey, shift_state, ctrl_state) )
+            if ( _DK_set_game_key(_DK_defining_a_key_id, lbInkey, shift_state, ctrl_state) )
               _DK_defining_a_key = 0;
-            _DK_lbInkey = 0;
+            lbInkey = 0;
     }
-}
-
-void frontend_load_high_score_table(void)
-{
-    static const char *hiscores_fname="data\\hiscores.dat";
-    if ( LbFileLoadAt(hiscores_fname, _DK_high_score_table) != sizeof(_DK_high_score_table) )
-    {
-        int i;
-        int npoints = 1000;
-        int nlevel = 10;
-        for (i=0;i<10;i++)
-        {
-            sprintf(_DK_high_score_table[i].name, "Bullfrog");
-            _DK_high_score_table[i].score=npoints;
-            _DK_high_score_table[i].level=nlevel;
-            npoints -= 100;
-            nlevel -= 1;
-        }
-        LbFileSaveAt(hiscores_fname, _DK_high_score_table, sizeof(_DK_high_score_table));
-    }
-}
-
-void add_score_to_high_score_table(void)
-{
-    struct Dungeon *dungeon=&(game.dungeon[my_player_number]);
-    // Determining position of the new entry
-    int idx;
-    long new_score=dungeon->player_score;
-    for (idx=0;idx<10;idx++)
-    {
-        if (_DK_high_score_table[idx].score <= new_score )
-          break;
-    }
-    // If the new score is poor, return
-    if (idx>9) return;
-    // Moving entries down
-    int k;
-    for (k=8;k>=idx;k--)
-    {
-        memcpy(&_DK_high_score_table[k+1],&_DK_high_score_table[k],sizeof(struct HighScore));
-    }
-    // Preparing the new entry
-    _DK_high_score_entry_input_active = idx;
-    _DK_high_score_entry[0] = '\0';
-    _DK_high_score_entry_index = 0;
-    _DK_high_score_table[idx].score = new_score;
-    _DK_high_score_table[idx].level = game.level_number - 1;
-}
-
-void frontend_load_data_from_cd(void)
-{
-    LbDataLoadSetModifyFilenameFunction(_DK_mdlf_for_cd);
-}
-
-void frontstory_load(void)
-{
-    static const char *func_name="frontstory_load";
-    check_cd_in_drive();
-    frontend_load_data_from_cd();
-    if ( _DK_LbDataLoadAll(_DK_frontstory_load_files) )
-    {
-        error(func_name, 2790, "Unable to Load FRONT STORY FILES");
-    } else
-    {
-        LbDataLoadSetModifyFilenameFunction(_DK_mdlf_default);
-        _DK_LbSpriteSetupAll(_DK_frontstory_setup_sprites);
-        LbPaletteSet(_DK_frontend_palette);
-        srand(LbTimerClock());
-        _DK_frontstory_text_no = rand() % 26 + 803;
-    }
-}
-void inline frontstory_unload(void)
-{
-    _DK_LbDataFreeAll(_DK_frontstory_load_files);
 }
 
 short continue_game_available()
 {
       static char buf[255];
       static short continue_needs_checking_file = 1;
-      sprintf(buf, "%s\\%s\\%s",_DK_keeper_runtime_directory,"save","continue.sav");
+      sprintf(buf, "%s\\%s\\%s",keeper_runtime_directory,"save","continue.sav");
       check_cd_in_drive();
       if ( LbFileLength(buf) != sizeof(struct Game) )
           return false;
@@ -4027,338 +4165,10 @@ short continue_game_available()
           return true;
 }
 
-int frontend_set_state(long nstate)
-{
-    static const char *func_name="frontend_set_state";
-    static char text[255];
-    //_DK_frontend_set_state(nstate);return nstate;
-  switch ( _DK_frontend_menu_state )
-  {
-    case 0:
-      _DK_init_gui();
-      sprintf(text, "%s\\%s\\front.pal", _DK_datafiles_path,"ldata");
-      check_cd_in_drive();
-      if ( LbFileLoadAt(text, &_DK_frontend_palette) != 768 )
-        error(func_name, 1323, "Unable to load FRONTEND PALETTE");
-      check_cd_in_drive();
-      frontend_load_high_score_table();
-      _DK_LbMouseSetPosition(lbDisplay.PhysicalScreenWidth>>1, lbDisplay.PhysicalScreenHeight>>1);
-      update_mouse();
-      break;
-    case 1: // main menu state
-      turn_off_menu(18);
-      break;
-    case 2:
-      turn_off_menu(19);
-      break;
-    case 3:
-      _DK_frontmap_unload();
-      _DK_frontend_load_data();
-      break;
-    case 4:
-      turn_off_menu(20);
-      break;
-    case 5: // Network play mode
-      turn_off_menu(21);
-      break;
-    case 6:
-      turn_off_menu(22);
-      break;
-    case 12:
-    case 29:
-      frontstory_unload();
-      break;
-    case 13:
-      if ( !(game.flags_cd & 0x10) )
-        StopRedbookTrack();
-      break;
-    case 15:
-      turn_off_menu(23);
-      _DK_frontnet_modem_reset();
-      break;
-    case 16:
-      turn_off_menu(24);
-      _DK_frontnet_serial_reset();
-      break;
-    case 17:
-      StopStreamedSample();
-      turn_off_menu(25);
-      break;
-    case 18:
-      turn_off_menu(26);
-      break;
-    case 19:
-      _DK_fronttorture_unload();
-      _DK_frontend_load_data();
-      break;
-    case 24:
-      _DK_frontnetmap_unload();
-      _DK_frontend_load_data();
-      break;
-    case 26:
-      turn_off_menu(36);
-      _DK_save_settings();
-      break;
-    case 27:
-      turn_off_menu(39);
-      if ( !(game.flags_cd & 0x10) )
-        StopRedbookTrack();
-      break;
-    case 7:
-    case 8:
-    case 9:
-    case 10:
-    case 11:
-    case 14: //demo state (intro/credits)
-    case 21:
-    case 25:
-      break;
-    default:
-      error(func_name, 1444, "Unhandled FRONTEND previous state");
-      break;
-  }
-  if ( _DK_frontend_menu_state )
-    fade_out();
-  _DK_fade_palette_in = 1;
-  LbSyncLog("Frontend state change from %u into %u\n",_DK_frontend_menu_state,nstate);
-  switch ( nstate )
-  {
-    case 0:
-      _DK_LbMouseChangeSpriteAndHotspot(0, 0, 0);
-      break;
-    case 1:
-      _DK_LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
-      _DK_continue_game_option_available = continue_game_available();
-      _DK_turn_on_menu(18);
-      // change when all references to frontend_set_state() are rewritten
-      //time_last_played_demo = LbTimerClock();
-      _DK_time_last_played_demo=timeGetTime();
-      _DK_last_mouse_x = lbDisplay.MMouseX * pixel_size;
-      _DK_last_mouse_y = _DK_GetMouseY();
-      _DK_fe_high_score_table_from_main_menu = 1;
-      game.numfield_A &= 0xFEu;
-      break;
-    case 2:
-      _DK_turn_on_menu(19);
-      _DK_LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
-      break;
-    case 3:
-      if ( !_DK_frontmap_load() )
-        nstate = 7;
-      break;
-    case 4:
-      _DK_turn_on_menu(20);
-      _DK_frontnet_service_setup();
-      break;
-    case 5:
-      _DK_turn_on_menu(21);
-      _DK_frontnet_session_setup();
-      _DK_LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
-      game.numfield_A &= 0xFEu;
-      break;
-    case 6:
-      _DK_turn_on_menu(22);
-      _DK_frontnet_start_setup();
-      _DK_LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
-      game.numfield_A |= 0x01;
-      break;
-    case 7:
-    case 9:
-    case 10:
-    case 11:
-    case 14:
-    case 21:
-    case 25:
-      _DK_fade_palette_in = 0;
-      break;
-    case 8:
-      if ( game.flags_font & 0x10 )
-        ;//rndseed_nullsub();
-      _DK_fade_palette_in = 0;
-      break;
-    case 12:
-    case 29:
-      frontstory_load();
-      break;
-    case 13:
-      _DK_credits_offset = lbDisplay.PhysicalScreenHeight;
-      _DK_credits_end = 0;
-      _DK_LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
-      lbDisplay.DrawFlags = 256;
-      break;
-    case 15:
-      _DK_turn_on_menu(23);
-      _DK_frontnet_modem_setup();
-      break;
-    case 16:
-      _DK_turn_on_menu(24);
-      _DK_frontnet_serial_setup();
-      break;
-    case 17:
-      _DK_turn_on_menu(25);
-      _DK_LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
-      _DK_frontstats_set_timer(); // note: rewrite this in pack with frontstats_update
-      break;
-    case 18:
-      _DK_turn_on_menu(26);
-      if ( game.dungeon[my_player_number].allow_save_score )
-      {
-        game.dungeon[my_player_number].allow_save_score = false;
-        add_score_to_high_score_table();
-      }
-      _DK_LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
-      _DK_lbInkey = 0;
-      break;
-    case 19:
-      _DK_LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
-      _DK_fronttorture_load();
-      break;
-    case 24:
-      _DK_LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
-      _DK_frontnetmap_load();
-      break;
-    case 26:
-      _DK_defining_a_key = 0;
-      _DK_define_key_scroll_offset = 0;
-      _DK_turn_on_menu(36);
-      break;
-    case 27:
-      _DK_turn_on_menu(39);
-      break;
-    default:
-      error(func_name, 1609, "Unhandled FRONTEND new state");
-      break;
-  }
-  _DK_frontend_menu_state = nstate;
-  return _DK_frontend_menu_state;
-}
-
-
-short end_input(void)
-{
-    if ( lbKeyOn[KC_SPACE] )
-    {
-        lbKeyOn[KC_SPACE] = 0;
-        frontend_set_state(1);
-    } else
-    if ( lbKeyOn[KC_RETURN] )
-    {
-        lbKeyOn[KC_RETURN] = 0;
-        frontend_set_state(1);
-    } else
-    if ( lbKeyOn[KC_ESCAPE] )
-    {
-        lbKeyOn[KC_ESCAPE] = 0;
-        frontend_set_state(1);
-    } else
-    if ( _DK_left_button_clicked )
-    {
-        _DK_left_button_clicked = 0;
-        frontend_set_state(1);
-    } else
-        return false;
-    return true;
-}
-
-void frontcredits_input(void)
-{
-    _DK_credits_scroll_speed = 1;
-    int speed;
-    if ( lbKeyOn[KC_DOWN] )
-    {
-        speed = _DK_frontend_font[1][32].SHeight;
-        _DK_credits_scroll_speed = speed;
-    } else
-    if ((lbKeyOn[KC_UP]) && (_DK_credits_offset<=0))
-    {
-        speed = -_DK_frontend_font[1][32].SHeight;
-        if ( speed <= _DK_credits_offset )
-          speed = _DK_credits_offset;
-        _DK_credits_scroll_speed = speed;
-    }
-}
-
-void frontend_input(void)
-{
-    int mouse_x,mouse_y;
-    switch ( _DK_frontend_menu_state )
-    {
-      case 1:
-        mouse_x = lbDisplay.MMouseX*pixel_size;
-        mouse_y = _DK_GetMouseY();
-        if ((mouse_x != _DK_last_mouse_x) || (mouse_y != _DK_last_mouse_y))
-        {
-          _DK_last_mouse_x = mouse_x;
-          _DK_last_mouse_y = mouse_y;
-          //time_last_played_demo = LbTimerClock();
-          _DK_time_last_played_demo = timeGetTime();
-        }
-        get_gui_inputs(0);
-        break;
-      case 3:
-        _DK_frontmap_input();
-        break;
-      case 6:
-        get_gui_inputs(0);
-        _DK_frontnet_start_input();
-        break;
-      case 12:
-      case 29:
-        if ( lbKeyOn[KC_SPACE] )
-        {
-          lbKeyOn[KC_SPACE] = 0;
-          frontend_set_state(1);
-        } else
-        if ( lbKeyOn[KC_RETURN] )
-        {
-            lbKeyOn[KC_RETURN] = 0;
-            frontend_set_state(1);
-        } else
-        if ( lbKeyOn[KC_ESCAPE] )
-        {
-            lbKeyOn[KC_ESCAPE] = 0;
-            frontend_set_state(1);
-        } else
-        if ( _DK_left_button_clicked )
-        {
-            _DK_left_button_clicked = 0;
-            frontend_set_state(1);
-        }
-        break;
-      case 13:
-        if (!end_input())
-        {
-          if ( _DK_credits_end )
-            frontend_set_state(1);
-        }
-        frontcredits_input();
-        break;
-      case 18:
-        get_gui_inputs(0);
-         _DK_frontend_high_score_table_input();
-        break;
-      case 19:
-        _DK_fronttorture_input();
-        break;
-      case 24:
-        _DK_frontnetmap_input();
-        break;
-      case 26:
-        if ( !_DK_defining_a_key )
-          get_gui_inputs(0);
-        else
-          define_key_input();
-        break;
-      default:
-        get_gui_inputs(0);
-        break;
-    } // end switch
-}
-
 void intro(void)
 {
     char text[255];
-    sprintf(text, "%s/ldata/%s", _DK_datafiles_path, "intromix.smk");
+    sprintf(text, "%s/ldata/%s", install_info.inst_path, "intromix.smk");
     LbSyncLog("Playing video \"%s\"\n",text);
     play_smacker_file(text, 1);
 }
@@ -4366,227 +4176,9 @@ void intro(void)
 void outro(void)
 {
     char text[255];
-    sprintf(text, "%s/ldata/%s", _DK_datafiles_path, "outromix.smk");
+    sprintf(text, "%s/ldata/%s", install_info.inst_path, "outromix.smk");
     LbSyncLog("Playing video \"%s\"\n",text);
     play_smacker_file(text, 17);
-}
-
-void frontend_copy_background(void)
-{
-    unsigned char *wscrn = lbDisplay.WScreen;
-    unsigned char *sscrn = _DK_frontend_background;
-    int qwidth = lbDisplay.PhysicalScreenWidth >> 2;
-    int i;
-    for ( i=0; i<lbDisplay.PhysicalScreenHeight; i++ )
-    {
-        memcpy(wscrn, sscrn, 4*qwidth);
-        memcpy(wscrn+4*qwidth, sscrn+4*qwidth, lbDisplay.PhysicalScreenWidth & 0x03);
-        sscrn += 640;
-        wscrn += lbDisplay.GraphicsScreenWidth;
-    }
-}
-
-int __cdecl frontstory_draw()
-{
-  frontend_copy_background();
-  _DK_LbTextSetWindow(70, 70, 500, 340);
-  lbFontPtr = _DK_frontstory_font;
-  lbDisplay.DrawFlags = 256;
-  _DK_LbTextDraw(0,0,_DK_strings[_DK_frontstory_text_no]);
-}
-
-void draw_defining_a_key_box(void)
-{
-    _DK_draw_text_box(_DK_strings[470]);
-}
-
-struct TbBirthday {
-    unsigned char day;
-    unsigned char month;
-    const char *name;
-    };
-
-const struct TbBirthday team_birthdays[] = {
-    {13,1,"Mark Healey"},
-    {21,3,"Jonty Barnes"},
-    {3,5,"Simon Carter"},
-    {5,5,"Peter Molyneux"},
-    {13,11,"Alex Peters"},
-    {1,12,"Dene Carter"},
-    {25,5,"Tomasz Lis"},
-    {29,11,"Michael Chateauneuf"},
-    {0,0,NULL},
-    };
-
-const char *get_team_birthday()
-{
-  struct TbDate curr_date;
-  LbDate(&curr_date);
-  int i;
-  for (i=0;team_birthdays[i].day!=0;i++)
-  {
-      if ((team_birthdays[i].day==curr_date.Day) &&
-          (team_birthdays[i].month==curr_date.Month))
-      {
-          return team_birthdays[i].name;
-      }
-  }
-  return NULL;
-}
-
-void frontbirthday_draw()
-{
-  frontend_copy_background();
-  _DK_LbTextSetWindow(70, 70, 500, 340);
-  lbFontPtr = _DK_frontstory_font;
-  lbDisplay.DrawFlags = 256;
-  const char *name=get_team_birthday();
-  if ( name != NULL )
-  {
-      unsigned short line_pos = 0;
-      if ( lbFontPtr != NULL )
-          line_pos = lbFontPtr[1].SHeight;
-      _DK_LbTextDraw(0, 170-line_pos, _DK_strings[885]);
-      _DK_LbTextDraw(0, 170, name);
-  } else
-  {
-      frontend_set_state(11);
-  }
-}
-
-short frontend_draw(void)
-{
-    short result=1;
-    switch (_DK_frontend_menu_state)
-    {
-    case 11:
-        intro();
-        return 0;
-    case 14:
-        _DK_demo();
-        return 0;
-    case 21:
-        outro();
-        return 0;
-    }
-
-    if ( LbScreenLock() != 1 )
-        return result;
-
-    switch ( _DK_frontend_menu_state )
-    {
-    case 1:
-    case 2:
-    case 4:
-    case 5:
-    case 15:
-    case 16:
-    case 17:
-    case 18:
-    case 20:
-    case 27:
-        _DK_draw_gui();
-        break;
-    case 3:
-        _DK_frontmap_draw();
-        break;
-    case 6:
-        _DK_draw_gui();
-        break;
-    case 12:
-        frontstory_draw();
-        break;
-    case 13:
-        _DK_frontcredits_draw();
-        break;
-    case 19:
-        _DK_fronttorture_draw();
-        break;
-    case 24:
-        _DK_frontnetmap_draw();
-        break;
-    case 26:
-        _DK_draw_gui();
-        if ( _DK_defining_a_key )
-            draw_defining_a_key_box();
-        break;
-    case 29:
-        frontbirthday_draw();
-        break;
-    default:
-        break;
-    }
-    // In-Menu information, for debugging messages
-    //char text[255];
-    //sprintf(text, "time %7d, mode %d",LbTimerClock(),_DK_frontend_menu_state);
-    //lbDisplay.DrawFlags=0;_DK_LbTextSetWindow(0,0,640,200);lbFontPtr = _DK_frontend_font[0];
-    //_DK_LbTextDraw(200/pixel_size, 8/pixel_size, text);text[0]='\0';
-    LbScreenUnlock();
-    return result;
-}
-
-void frontend_update(short *finish_menu)
-{
-    switch ( _DK_frontend_menu_state )
-    {
-      case 1:
-        frontend_button_info[8].field_2 = (_DK_continue_game_option_available?1:3);
-        //this uses original timing function for compatibility with frontend_set_state()
-        //if ( abs(LbTimerClock()-time_last_played_demo) > 30000 )
-        if ( abs(timeGetTime()-_DK_time_last_played_demo) > 30000 )
-          frontend_set_state(14);
-        break;
-      case 2:
-        load_game_update();
-        break;
-      case 3:
-        *finish_menu = _DK_frontmap_update();
-        break;
-      case 4:
-        frontnet_service_update();
-        break;
-      case 5:
-        frontnet_session_update();
-        break;
-      case 6:
-        frontnet_start_update();
-        break;
-      case 7:
-      case 8:
-      case 10:
-      case 25:
-        *finish_menu = 1;
-        break;
-      case 9:
-        *finish_menu = 1;
-        exit_keeper = 1;
-        break;
-      case 13:
-        if ( !(game.flags_cd & 0x10) )
-          PlayRedbookTrack(7);
-        break;
-      case 15:
-        frontnet_modem_update();
-        break;
-      case 16:
-        frontnet_serial_update();
-        break;
-      case 17:
-        _DK_frontstats_update(); // rewrite with frontstats_set_timer
-        break;
-      case 19:
-        _DK_fronttorture_update();
-        break;
-      case 24:
-        *finish_menu = _DK_frontnetmap_update();
-        break;
-      case 27:
-        if ( !(game.flags_cd & 0x10) )
-          PlayRedbookTrack(3);
-        break;
-      default:
-        break;
-    }
 }
 
 void faststartup_saved_packet_game(void)
@@ -4609,7 +4201,7 @@ void faststartup_saved_packet_game(void)
     _DK_settings.field_B = 1;
     _DK_save_settings();
     _DK_startup_saved_packet_game();
-    game.players[my_player_number].field_6 &= 0xFDu;
+    game.players[my_player_number%PLAYERS_COUNT].field_6 &= 0xFDu;
 }
 
 void faststartup_network_game(void)
@@ -4632,7 +4224,7 @@ void faststartup_network_game(void)
       _DK_settings.field_B = 1;
       _DK_save_settings();
     }
-    my_player_number = 0;
+    my_player_number = default_loc_player;
     game.flagfield_14EA4A = 2;
     game.players[my_player_number].field_2C = 1;
     game.numfield_14A83D = game.numfield_16;
@@ -4647,106 +4239,11 @@ short is_bonus_level(long levidx)
     return false;
 }
 
-int setup_old_network_service()
+int setup_old_network_service(void)
 {
     return setup_network_service(_DK_net_service_index_selected);
 }
 
-int get_startup_menu_state(void)
-{
-  static const char *func_name="get_startup_menu_state";
-  if ( game.flags_cd & 0x40 )
-  {
-    if (game.is_full_moon)
-    {
-        LbSyncLog("%s: Full moon state selected\n",func_name);
-        return 12;
-    } else
-    if ( get_team_birthday() != NULL )
-    {
-        LbSyncLog("%s: Birthday state selected\n",func_name);
-        return 29;
-    } else
-    {
-        LbSyncLog("%s: Standard startup state selected\n",func_name);
-        return 1;
-    }
-  } else
-  {
-    LbSyncLog("%s: Player-based state selected\n",func_name);
-    struct PlayerInfo *player=&(game.players[my_player_number]);
-    if ( !(game.numfield_A & 0x01) )
-    {
-      if ( (player->field_6 & 0x02) || (!player->field_29) )
-      {
-        return 3;
-      } else
-      if ( game.flags_cd & 1 )
-      {
-        game.flags_cd &= 0xFEu;
-        return 1;
-      } else
-      if ( player->field_29 == 1 )
-      {
-          if ( game.level_number <= 20 )
-          {
-            if ( player->field_3 & 0x10 )
-            {
-                player->field_3 &= 0xEF;
-                return 19;
-            } else
-            if ( is_bonus_level(game.numfield_14A83D) )
-            {
-                return 3;
-            } else
-            {
-                return 17;
-            }
-          } else
-          if ( is_bonus_level(game.numfield_14A83D) )
-          {
-              return 3;
-          } else
-          {
-              return 21;
-          }
-      } else
-      if ( player->field_29 == 3 )
-      {
-          return 17;
-      } else
-      if ( (game.numfield_14A83D < 50) || (game.numfield_14A83D > 79) )
-      {
-          return 3;
-      } else
-      {
-          return 1;
-      }
-    } else
-    {
-      if ( !(player->field_3 & 0x10) )
-      {
-        if ( !(player->field_6 & 2) )
-        {
-          return 17;
-        } else
-        if ( setup_old_network_service() )
-        {
-          return 5;
-        } else
-        {
-          return 1;
-        }
-      } else
-      {
-        player->field_3 &= 0xEF;
-        return 19;
-      }
-    }
-  }
-  error(func_name, 978, "Unresolved menu state");
-  return 1;
-}
 void wait_at_frontend(void)
 {
   static const char *func_name="wait_at_frontend";
@@ -4832,7 +4329,7 @@ void wait_at_frontend(void)
       LbScreenSwap();
     }
 
-    if ( !_DK_SoundDisabled )
+    if ( !SoundDisabled )
     {
       _DK_process_3d_sounds();
       _DK_process_sound_heap();
@@ -4881,7 +4378,7 @@ void wait_at_frontend(void)
   switch ( prev_state )
   {
       case 7:
-        my_player_number = 0;
+        my_player_number = default_loc_player;
         game.flagfield_14EA4A = 2;
         game.numfield_A &= 0xFEu;
         game.players[my_player_number].field_2C = 1;
@@ -4932,7 +4429,7 @@ void game_loop(void)
     wait_at_frontend();
     if ( exit_keeper )
       break;
-    struct PlayerInfo *player=&(game.players[my_player_number]);
+    struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
     if ( game.flagfield_14EA4A == 2 )
     {
       if ( game.numfield_15 == -1 )
@@ -4947,8 +4444,8 @@ void game_loop(void)
     unsigned long starttime;
     unsigned long endtime;
     starttime = LbTimerClock();
-    game.dungeon[my_player_number].time1 = timeGetTime();//starttime;
-    game.dungeon[my_player_number].time2 = timeGetTime();//starttime;
+    game.dungeon[my_player_number%DUNGEONS_COUNT].time1 = timeGetTime();//starttime;
+    game.dungeon[my_player_number%DUNGEONS_COUNT].time2 = timeGetTime();//starttime;
     LbScreenClear(0);
     LbScreenSwap();
     keeper_gameplay_loop();
@@ -4970,9 +4467,9 @@ void game_loop(void)
     _DK_reset_eye_lenses();
     if ( game.packet_fopened )
     {
-      _DK_LbFileClose(game.packet_fhandle);
+      _DK_LbFileClose(game.packet_save);
       game.packet_fopened = 0;
-      game.packet_fhandle = 0;
+      game.packet_save = 0;
     }
   } // end while
   // Stop the movie recording if it's on
@@ -4990,8 +4487,8 @@ short reset_game(void)
   LbIKeyboardClose();
   _DK_LbScreenReset();
   _DK_LbDataFreeAll(_DK_game_load_files);
-  _DK_LbMemoryFree(_DK_strings_data);
-  _DK_strings_data = NULL;
+  _DK_LbMemoryFree(strings_data);
+  strings_data = NULL;
   FreeAudio();
   return _DK_LbMemoryReset();
 }
@@ -5002,12 +4499,12 @@ short process_command_line(unsigned short argc, char *argv[])
   char fullpath[CMDLN_MAXLEN+1];
   strncpy(fullpath, argv[0], CMDLN_MAXLEN);
 
-  sprintf( _DK_keeper_runtime_directory, fullpath);
-  char *endpos=strrchr( _DK_keeper_runtime_directory, '\\');
+  sprintf( keeper_runtime_directory, fullpath);
+  char *endpos=strrchr( keeper_runtime_directory, '\\');
   if (endpos!=NULL)
       *endpos='\0';
 
-  _DK_SoundDisabled = 0;
+  SoundDisabled = 0;
   // Note: the working log file is set up in LbBullfrogMain
   _DK_LbErrorLogSetup(0, 0, 1);
 
@@ -5054,12 +4551,17 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if ( (stricmp(parstr, "s") == 0) || (stricmp(parstr, "nosound") == 0) )
       {
-          _DK_SoundDisabled = 1;
+          SoundDisabled = 1;
       } else
       if ( stricmp(parstr, "fps") == 0 )
       {
           narg++;
           game.num_fps = atoi(pr2str);
+      } else
+      if ( stricmp(parstr, "human") == 0 )
+      {
+          narg++;
+          default_loc_player = atoi(pr2str);
       } else
       if ( stricmp(parstr, "usersfont") == 0 )
       {
@@ -5100,7 +4602,7 @@ short process_command_line(unsigned short argc, char *argv[])
   game.level_number = level_num;
   if ( (game.numfield_C & 0x02) == 0 )
     game.level_number = 1;
-  my_player_number = 0;
+  my_player_number = default_loc_player;
   return (bad_param==0);
 }
 

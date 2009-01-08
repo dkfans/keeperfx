@@ -2,20 +2,20 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-// Author:  Tomasz Lis
-// Created: 10 Feb 2008
-
-// Purpose:
-//    Basic definitions and global routines for all library files.
-
-// Comment:
-//   Only simple, basic functions which can be used in every library file.
-
-//Copying and copyrights:
-//   This program is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation; either version 2 of the License, or
-//   (at your option) any later version.
+/** @file bflib_basics.c
+ *     Basic definitions and global routines for all library files.
+ * @par Purpose:
+ *     Integrates all elements of the library with a common toolkit.
+ * @par Comment:
+ *     Only simple, basic functions which can be used in every library file.
+ * @author   Tomasz Lis
+ * @date     10 Feb 2008 - 22 Dec 2008
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
 /******************************************************************************/
 #include "bflib_basics.h"
 #include "globals.h"
@@ -68,6 +68,18 @@ int LbErrorLog(const char *format, ...)
     if (!error_log_initialised)
         return -1;
     LbLogSetPrefix(&error_log, "Error: ");
+    va_list val;
+    va_start(val, format);
+    int result=LbLog(&error_log, format, val);
+    va_end(val);
+    return result;
+}
+
+int LbNetLog(const char *format, ...)
+{
+    if (!error_log_initialised)
+        return -1;
+    LbLogSetPrefix(&error_log, "Net: ");
     va_list val;
     va_start(val, format);
     int result=LbLog(&error_log, format, val);

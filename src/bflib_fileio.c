@@ -2,22 +2,22 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-// Author:  Tomasz Lis
-// Created: 10 Feb 2008
-
-// Purpose:
-//    Buffer library for file i/o and directory manage routines.
-//    These should be used for all file access in the game.
-
-// Comment:
-//   Wraps standard c file handling routines. You could say this has no purpose,
-//   but here it is anyway.
-
-//Copying and copyrights:
-//   This program is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation; either version 2 of the License, or
-//   (at your option) any later version.
+/** @file bflib_fileio.c
+ *     File handling routines wrapper.
+ * @par Purpose:
+ *     Buffer library for file i/o and directory manage routines.
+ *     These should be used for all file access in the game.
+ * @par Comment:
+ *     Wraps standard c file handling routines. You could say this has no purpose,
+ *     but here it is anyway.
+ * @author   Tomasz Lis
+ * @date     10 Feb 2008 - 30 Dec 2008
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
 /******************************************************************************/
 #include "bflib_fileio.h"
 
@@ -57,8 +57,15 @@ extern "C" {
 typedef char *PCHAR,*LPCH,*PCH,*NPSTR,*LPSTR,*PSTR;
 typedef const char *LPCCH,*PCSTR,*LPCSTR;
 typedef unsigned long DWORD;
+typedef int WINBOOL,*PWINBOOL,*LPWINBOOL;
+#define BOOL WINBOOL
+typedef void *PVOID,*LPVOID;
+typedef PVOID HANDLE;
+#define DECLARE_HANDLE(n) typedef HANDLE n
+typedef HANDLE *PHANDLE,*LPHANDLE;
 WINBASEAPI DWORD WINAPI GetShortPathNameA(LPCSTR,LPSTR,DWORD);
 #define GetShortPathName GetShortPathNameA
+WINBASEAPI BOOL WINAPI FlushFileBuffers(HANDLE);
 #endif
 /******************************************************************************/
 //Internal declarations
@@ -279,16 +286,40 @@ int __fastcall LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
   return result;
 }
 
-// Writes data at the operating system level.
-//The number of bytes transmitted is given by len and the data
-// to be transmitted is located at the address specified by buffer.
-//Returns the number of bytes (does not include any extra carriage-return
-// characters transmitted) of data transmitted to the file
+/**
+ * Writes data at the operating system level.
+ * The number of bytes transmitted is given by len and the data
+ * to be transmitted is located at the address specified by buffer.
+ * @return Returns the number of bytes (does not include any extra carriage-return
+ * characters transmitted) of data transmitted to the file.
+*/
 long __fastcall LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long len)
 {
   long result;
   result = write(handle, buffer, len);
   return result;
+}
+
+/**
+ * Flushes the file buffers, writing all data immediatelly.
+ * @return Returns 1 on success, 0 on error.
+*/
+short __fastcall LbFileFlush(TbFileHandle handle)
+{
+#if defined(WIN32)
+  // Crappy Windows has its own
+  return (FlushFileBuffers((HANDLE)handle) != 0);
+#else
+#if defined(DOS)||defined(GO32)
+  // No idea how to do this on old systems
+  return true;
+#else
+  // For normal POSIX systems
+  // (should also work on Win, as its IEEE standard... but it currently isn't)
+  return (ioctl(handle,I_FLUSH,FLUSHRW) != -1);
+#endif
+#endif
+
 }
 
 long __fastcall LbFileLengthHandle(TbFileHandle handle)

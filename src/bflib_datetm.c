@@ -2,20 +2,20 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-// Author:  Tomasz Lis
-// Created: 12 Feb 2008
-
-// Purpose:
-//    Date and time related routines.
-
-// Comment:
-//   Gets system date and time, makes delay, converts date/time formats.
-
-//Copying and copyrights:
-//   This program is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation; either version 2 of the License, or
-//   (at your option) any later version.
+/** @file bflib_datetm.c
+ *     Date and time related routines.
+ * @par Purpose:
+ *     Gets system date and time, makes delay, converts date/time formats.
+ * @par Comment:
+ *     None.
+ * @author   Tomasz Lis
+ * @date     12 Feb 2008 - 30 Dec 2008
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
 /******************************************************************************/
 #include "bflib_datetm.h"
 
@@ -120,7 +120,7 @@ short __fastcall LbSleepUntil(unsigned long endtime)
   register clock_t endclk = CLOCKS_PER_SEC*endtime / 1000;
   register clock_t currclk;
   currclk=clock();
-  if (currclk+(CLOCKS_PER_SEC>>4)<endclk)
+  if (currclk+(CLOCKS_PER_SEC>>3)<endclk)
   {
     LbDoMultitasking();
     currclk=clock();

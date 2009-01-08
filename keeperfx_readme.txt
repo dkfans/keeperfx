@@ -31,6 +31,12 @@ Command line options:
   Brings you directly to level number <num>.
   After the level is finished, quits the game.
   Note that level number must be 1..255.
+-human <num>
+  Changes human player to <num>. This option will
+  work properly only in skirmish mode. Single player
+  levels must be specially designed for this option
+  to work properly with it. Also, the selected player
+  must have heart on the map.
 -q
   Works like '-level 1'.
 -columnconvert
@@ -51,15 +57,23 @@ New in-game commands:
   file may be large.
 
  Make a screenshot
-  Use the Shift+C keys to make screenshot. The image will
-  be written in the 'mhwanh' RAW format. Note that it is
-  not a  no-header RAW format.
+  Use the Shift+C keys to make screenshot. The image may
+  be written in 'mhwanh' HSI/RAW format, or Windows BMP
+  format. Format is chosen in KEEPERFX.CFG, 'SCREENSHOT='
+  option, which may be set to 'HSI' or 'BMP'.
+
+Version: 0.2.1
+  Video compression improved for high resolution
+  Added command line option to change player in skirmish
+  Added function of writing screenshots in BMP format
+  Reworked part of the packets processing system
+  Config file separated from original DK
 
 Version: 0.2.0
   Message will show if a command line option is wrong
   Updated delay function to not use 'hlt' command
   Fixed object tooltips to show when mouse is on something
-  Fixed load slots counting error from v0.1.9
+  Fixed load slots counting error from v0.19
   Rewritten GUI initialization arrays
   Rewritten and fixed movie recording
   Allowed to record movie in high resolution
@@ -67,7 +81,7 @@ Version: 0.2.0
 Version: 0.1.9
   Rewritten GUI events system
   Rewritten some easter eggs
-  Fixed music support problem from v0.1.8
+  Fixed music support problem from v0.18
   Game will try to continue if can't enter low-res mode
   Compiled using new version of GCC
 

@@ -2,20 +2,21 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-// Author:  Tomasz Lis
-// Created: 11 Feb 2008
-
-// Purpose:
-//    Video support library - graphic canvas setup and drawing functions.
-
-// Comment:
-//   None yet.
-
-//Copying and copyrights:
-//   This program is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation; either version 2 of the License, or
-//   (at your option) any later version.
+/** @file bflib_video.c
+ *     Video support library.
+ * @par Purpose:
+ *     Allows displaying on graphics device - graphic canvas setup and drawing
+ *     functions.
+ * @par Comment:
+ *     None yet.
+ * @author   Tomasz Lis
+ * @date     11 Feb 2008 - 30 Dec 2008
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
 /******************************************************************************/
 #include "bflib_video.h"
 

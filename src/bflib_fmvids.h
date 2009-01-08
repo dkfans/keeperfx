@@ -2,20 +2,20 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-// Author:  Tomasz Lis
-// Created: 27 Nov 2008
-
-// Purpose:
-//    Header file for bflib_fmvids.c.
-
-// Comment:
-//   Just a header file - #defines, typedefs, function prototypes etc.
-
-//Copying and copyrights:
-//   This program is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation; either version 2 of the License, or
-//   (at your option) any later version.
+/** @file bflib_fmvids.h
+ *     Header file for bflib_fmvids.c.
+ * @par Purpose:
+ *     Full Motion Videos (Smacker,FLIC) decode & play library.
+ * @par Comment:
+ *     Just a header file - #defines, typedefs, function prototypes etc.
+ * @author   Tomasz Lis
+ * @date     27 Nov 2008 - 30 Dec 2008
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
 /******************************************************************************/
 #ifndef BFLIB_FMVIDS_H
 #define BFLIB_FMVIDS_H

@@ -7,6 +7,7 @@ WINDRES = windres.exe
 RES  = build/keeperfx_private.res
 OBJ  = \
 build/main.o \
+build/frontend.o \
 build/bflib_basics.o \
 build/bflib_dernc.o \
 build/bflib_fileio.o \
@@ -41,7 +42,8 @@ all-before:
 	mkdir -p build
 
 clean: clean-custom
-	${RM} $(OBJ) $(BIN)
+	${RM} $(OBJ) $(BIN) lib/keeperfx.a lib/keeperfx.dll lib/keeperfx.def
+	make -C tools/ec clean
 
 $(BIN): $(OBJ) lib/keeperfx.a
 	@echo "Final link"

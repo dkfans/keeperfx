@@ -2,14 +2,14 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_guibtns.c
- *     GUI Buttons support.
+/** @file bflib_bufrw.c
+ *     Reading/writing values in various bit formats into buffer.
  * @par Purpose:
- *     Definition of button, and common routines to handle it.
+ *     Allows writing little-endian and big-endian values.
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
- * @date     25 Nov 2008 - 30 Dec 2008
+ * @date     04 Jan 2009 - 10 Jan 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,34 +17,14 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "bflib_guibtns.h"
-
-#include <string.h>
-#include <stdio.h>
+#include "bflib_bufrw.h"
 
 #include "bflib_basics.h"
-#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-DLLIMPORT void _DK_do_button_click_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
-DLLIMPORT void _DK_do_button_release_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
 /******************************************************************************/
-// Global variables
-/******************************************************************************/
-// Functions
-
-void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
-{
-  _DK_do_button_click_actions(gbtn, s, callback);
-}
-
-void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
-{
-  _DK_do_button_release_actions(gbtn, s, callback);
-}
 
 
 /******************************************************************************/

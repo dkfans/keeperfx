@@ -2,20 +2,20 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-// Author:  Tomasz Lis
-// Created: 27 Nov 2008
-
-// Purpose:
-//    Full Motion Videos (Smacker) decode & play library.
-
-// Comment:
-//   Sound and music routines to use in games.
-
-//Copying and copyrights:
-//   This program is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation; either version 2 of the License, or
-//   (at your option) any later version.
+/** @file bflib_fmvids.c
+ *     Full Motion Videos (Smacker,FLIC) decode & play library.
+ * @par Purpose:
+ *     Routines to create and decode videos.
+ * @par Comment:
+ *     None.
+ * @author   Tomasz Lis
+ * @date     27 Nov 2008 - 30 Dec 2008
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
 /******************************************************************************/
 #include "bflib_fmvids.h"
 
@@ -528,80 +528,313 @@ long anim_make_FLI_BRUN(unsigned char *screenbuf)
  * Compress data into FLI's SS2 block.
  * @return Returns unpacked size of the block which was compressed.
  */
-long anim_make_FLI_SS2(unsigned char *src, unsigned char *dst)
+long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 {
-  return _DK_anim_make_FLI_SS2(src, dst);
+  //return _DK_anim_make_FLI_SS2(curdat, prvdat);
+  unsigned char *blk_begin;
+  blk_begin=animation.field_C;
+  unsigned char *cbuf;
+  unsigned char *pbuf;
+  unsigned char *cbf;
+  unsigned char *pbf;
+  short h,w;
+  short k,nsame,ndiff;
+  short hend,wend;
+  short wendt;
+  cbuf = curdat;
+  pbuf = prvdat;
+  unsigned short *lines_count;
+  unsigned short *pckt_count;
+  lines_count = (unsigned short *)animation.field_C;
+  animation.field_C += 2;
+  pckt_count = (unsigned short *)animation.field_C;
+
+  wend = 0;
+  for (h=animation.header.height; h>0; h--)
+  {
+    cbf = cbuf;
+    pbf = pbuf;
+    if (wend == 0)
+    {
+        pckt_count = (unsigned short *)animation.field_C;
+        animation.field_C += 2;
+        (*lines_count)++;
+    }
+    for (w=animation.header.width;w>0;)
+    {
+      for ( k=0; w>0; k++)
+      {
+        if ( *(unsigned short *)(pbf+2*k) != *(unsigned short *)(cbf+2*k) )
+          break;
+        w -= 2;
+      }
+      if ( 2*k == animation.header.width )
+      {
+        wend--;
+        cbf += lbDisplay.GraphicsScreenWidth;
+        pbf += lbDisplay.GraphicsScreenWidth;
+        continue;
+      }
+      if ( w > 0 )
+      {
+        if (wend != 0)
+        {
+          (*pckt_count) = wend;
+          pckt_count = (unsigned short *)animation.field_C;
+          animation.field_C += 2;
+        }
+        wendt = 2*k;
+        wend = wendt;
+        while (wend > 255)
+        {
+          *(unsigned char *)animation.field_C = 255;
+          animation.field_C++;
+          *(unsigned char *)animation.field_C = 0;
+          animation.field_C++;
+          wend -= 255;
+          (*pckt_count)++;
+        }
+        cbf += wendt;
+        pbf += wendt;
+        
+        for (nsame=0; nsame<127; nsame++)
+        {
+          if (w <= 2) break;
+          if ((*(unsigned short *)(pbf+2*nsame+0) == *(unsigned short *)(cbf+2*nsame+0)) &&
+              (*(unsigned short *)(pbf+2*nsame+2) == *(unsigned short *)(cbf+2*nsame+2)))
+              break;
+          if ( *(unsigned short *)(cbf+2*nsame+2) != *(unsigned short *)(cbf) )
+            break;
+          w -= 2;
+        }
+        if (nsame > 0)
+        {
+          if (nsame < 127)
+          {
+            nsame++;
+            w -= 2;
+          }
+          *(unsigned char *)animation.field_C = wend;
+          animation.field_C++;
+          *(unsigned char *)animation.field_C = -nsame;
+          animation.field_C++;
+          *(unsigned short *)animation.field_C = *(unsigned short *)cbf;
+          animation.field_C+=2;
+          pbf += 2*nsame;
+          cbf += 2*nsame;
+          wend = 0;
+          (*pckt_count)++;
+        } else
+        {
+          if ( w == 2 )
+          {
+            ndiff = 1;
+            w -= 2;
+          } else
+          {
+            for (ndiff=0; ndiff<127; ndiff++)
+            {
+              if (w <= 0) break;
+              if ( *(unsigned short *)(pbf+2*ndiff) == *(unsigned short *)(cbf+2*ndiff) )
+                break;
+              if ((*(unsigned short *)(cbf+2*(ndiff+1)) == *(unsigned short *)(cbf+2*ndiff)) &&
+                 (*(unsigned short *)(cbf+2*(ndiff+2)) == *(unsigned short *)(cbf+2*ndiff)) )
+                break;
+              w -= 2;
+            }
+          }
+          if (ndiff>0)
+          {
+            *(unsigned char *)animation.field_C = wend;
+            animation.field_C++;
+            *(unsigned char *)animation.field_C = ndiff;
+            animation.field_C++;
+            memcpy(animation.field_C, cbf, 2*ndiff);
+            animation.field_C += 2*ndiff;
+            pbf += 2*ndiff;
+            cbf += 2*ndiff;
+            wend = 0;
+            (*pckt_count)++;
+          }
+        }
+      }
+    }
+      cbuf += lbDisplay.GraphicsScreenWidth;
+      pbuf += lbDisplay.GraphicsScreenWidth;
+  }
+
+  if (animation.header.height+wend == 0)
+  {
+    (*lines_count) = 1;
+    (*pckt_count) = 1;
+    *(unsigned char *)animation.field_C = 0;
+    animation.field_C++;
+    *(unsigned char *)animation.field_C = 0;
+    animation.field_C++;
+  } else
+  if (wend != 0)
+  {
+      animation.field_C -= 2;
+      (*lines_count)--;
+  }
+  // Make the data size even
+  animation.field_C = (unsigned char *)(((unsigned int)animation.field_C + 1) & 0xFFFFFFFE);
+  return animation.field_C - blk_begin;
 }
 
 /**
  * Compress data into FLI's LC block.
  * @return Returns unpacked size of the block which was compressed.
  */
-long anim_make_FLI_LC(unsigned char *src, unsigned char *dst)
+long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 {
-  return _DK_anim_make_FLI_LC(src, dst);
-  //TODO: finish the encoding code
-  unsigned char *blk_begin = animation.field_C;
-  unsigned char *sbuf;
-  unsigned char *dbuf;
-  short w,h,cntr;
-  short blockh;
+  //return _DK_anim_make_FLI_LC(curdat, prvdat);
+  unsigned char *blk_begin;
+  blk_begin=animation.field_C;
+  unsigned char *cbuf;
+  unsigned char *pbuf;
+  unsigned char *cbf;
+  unsigned char *pbf;
+  unsigned char *outptr;
+  short h,w;
+  short hend,wend;
+  short hdim,wendt;
+  short k,nsame,ndiff;
   int blksize;
-  sbuf = src;
-  dbuf = dst;
-  for (h = animation.header.height; h>0; h--)
+
+  cbuf = curdat;
+  pbuf = prvdat;
+  for (hend = animation.header.height; hend>0;  hend--)
   {
-    cntr = 0;
+    wend = 0;
     for (w = animation.header.width; w>0; w--)
     {
-      if (sbuf[cntr] != dbuf[cntr]) break;
-      cntr++;
+      if (cbuf[wend] != pbuf[wend]) break;
+      ++wend;
     }
-    if (cntr != animation.header.width)
+    if ( wend != animation.header.width )
       break;
-    sbuf += lbDisplay.GraphicsScreenWidth;
-    dbuf += lbDisplay.GraphicsScreenWidth;
+    cbuf += lbDisplay.GraphicsScreenWidth;
+    pbuf += lbDisplay.GraphicsScreenWidth;
   }
 
-  if ( h>0 )
+  if (hend != 0)
   {
-    blockh = animation.header.height-h;
-    blksize = animation.header.width*(animation.header.height-1);
-    sbuf = src+blksize;
-    dbuf = dst+blksize;
-    for (h = animation.header.height; h>0; h--)
+    hend = animation.header.height - hend;
+    blksize = animation.header.width * (animation.header.height-1);
+    cbuf = curdat+blksize;
+    pbuf = prvdat+blksize;
+    for (h=animation.header.height; h>0; h--)
     {
-      cntr = 0;
-      for (w = animation.header.width; w>0; )
+      wend = 0;
+      for (w=animation.header.width; w>0; w--)
       {
-        if (sbuf[cntr] != dbuf[cntr]) break;
-        w--;
-        cntr++;
+        if (cbuf[wend] != pbuf[wend]) break;
+        wend++;
       }
-      if (cntr != animation.header.width)
+      if ( wend != animation.header.width )
         break;
-      sbuf -= lbDisplay.GraphicsScreenWidth;
-      dbuf -= lbDisplay.GraphicsScreenWidth;
+      cbuf -= lbDisplay.GraphicsScreenWidth;
+      pbuf -= lbDisplay.GraphicsScreenWidth;
     }
-
-    *(short *)animation.field_C = blockh;
+    hdim = h - hend;
+    blksize = animation.header.width * hend;
+    cbuf = curdat+blksize;
+    pbuf = prvdat+blksize;
+    *(unsigned short *)animation.field_C = hend;
+    animation.field_C += 2;
+    *(unsigned short *)animation.field_C = hdim;
     animation.field_C += 2;
 
-    blockh = h-blockh;
-    blksize = animation.header.width * blockh;
-    sbuf = src+blksize;
-    dbuf = dst+blksize;
-
-    *(short *)animation.field_C = blockh;
-    animation.field_C += 2;
-
-    h = blockh;
-    while (h > 0)
+    for (h = hdim; h>0; h--)
     {
-//TODO
-        h--;
-        sbuf += lbDisplay.GraphicsScreenWidth;
-        dbuf += lbDisplay.GraphicsScreenWidth;
+        cbf = cbuf;
+        pbf = pbuf;
+        outptr = animation.field_C++;
+        for (w=animation.header.width; w>0; )
+        {
+          for ( wend=0; w>0; wend++)
+          {
+            if ( cbf[wend] != pbf[wend]) break;
+            w--;
+          }
+          wendt = wend;
+          if (animation.header.width == wend) continue;
+          if ( w <= 0 ) break;
+          while ( wend > 255 )
+          {
+            *(unsigned char *)animation.field_C = 255;
+            animation.field_C++;
+            *(unsigned char *)animation.field_C = 0;
+            animation.field_C++;
+            wend -= 255;
+            (*(unsigned char *)outptr)++;
+          }
+          cbf += wendt;
+          pbf += wendt;
+          k = 0;
+          nsame = 0;
+          while ( w > 1 )
+          {
+            if ( nsame == -127 ) break;
+            if ((cbf[k+0] == pbf[k+0]) && (cbf[k+1] == pbf[k+1]) && (cbf[k+2] == pbf[k+2]))
+                break;
+            if (cbf[k+1] != cbf[0]) break;
+            w--;
+            k++;
+            nsame--;
+          }
+          if ( nsame )
+          {
+            if ( nsame != -127 )
+            { nsame--; w--; }
+            *(unsigned char *)animation.field_C = wend;
+            animation.field_C++;
+            *(unsigned char *)animation.field_C = nsame;
+            animation.field_C++;
+            *(unsigned char *)animation.field_C = cbf[0];
+            cbf -= nsame;
+            pbf -= nsame;
+            animation.field_C++;
+            (*(unsigned char *)outptr)++;
+          } else
+          {
+            if ( w == 1 )
+            {
+              ndiff = nsame + 1;
+              w--;
+            } else
+            {
+              k = 0;
+              ndiff = 0;
+              while (w != 0)
+              {
+                if ( ndiff == 127 ) break;
+                if ((cbf[k+0] == pbf[k+0]) && (cbf[k+1] == pbf[k+1]) && (cbf[k+2] == pbf[k+2]))
+                    break;
+                if ((cbf[k+1] == cbf[k+0]) && (cbf[k+2] == cbf[k+0]) && (cbf[k+3] == cbf[k+0]))
+                    break;
+                w--;
+                k++;
+                ndiff++;
+              }
+            }
+            if (ndiff != 0)
+            {
+              *(unsigned char *)animation.field_C = wend;
+              animation.field_C++;
+              *(unsigned char *)animation.field_C = ndiff;
+              animation.field_C++;
+              memcpy(animation.field_C, cbf, ndiff);
+              animation.field_C += ndiff;
+              cbf += ndiff;
+              pbf += ndiff;
+              (*(unsigned char *)outptr)++;
+            }
+          }
+        }
+        cbuf += lbDisplay.GraphicsScreenWidth;
+        pbuf += lbDisplay.GraphicsScreenWidth;
     }
   } else
   {
@@ -612,9 +845,9 @@ long anim_make_FLI_LC(unsigned char *src, unsigned char *dst)
     *(char *)animation.field_C = 0;
     animation.field_C++;
   }
-  // Make the block size even
-  animation.field_C = (unsigned char *)(((unsigned int)animation.field_C+1) & 0xFFFFFFFE);
-  return (animation.field_C - blk_begin);
+  // Make the data size even
+  animation.field_C = (unsigned char *)(((unsigned int)animation.field_C + 1) & 0xFFFFFFFE);
+  return animation.field_C - blk_begin;
 }
 
 short anim_stop(void)

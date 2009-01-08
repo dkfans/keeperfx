@@ -2,20 +2,20 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-// Author:  Tomasz Lis
-// Created: 10 Feb 2008
-
-// Purpose:
-//    Header file for bflib_keybrd.c.
-
-// Comment:
-//   Just a header file - #defines, typedefs, function prototypes etc.
-
-//Copying and copyrights:
-//   This program is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation; either version 2 of the License, or
-//   (at your option) any later version.
+/** @file bflib_keybrd.h
+ *     Header file for bflib_keybrd.c.
+ * @par Purpose:
+ *     Keyboard related routines - reading keyboard.
+ * @par Comment:
+ *     Just a header file - #defines, typedefs, function prototypes etc.
+ * @author   Tomasz Lis
+ * @date     10 Feb 2008 - 30 Dec 2008
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
 /******************************************************************************/
 #ifndef BFLIB_KEYBRD_H
 #define BFLIB_KEYBRD_H
@@ -178,9 +178,11 @@ extern "C" {
 	};
 
 DLLIMPORT extern unsigned char _DK_lbKeyOn[256];
-DLLIMPORT extern unsigned char _DK_lbInkey;
 #define lbKeyOn _DK_lbKeyOn
+DLLIMPORT extern unsigned char _DK_lbInkey;
 #define lbInkey _DK_lbInkey
+DLLIMPORT int _DK_lbKeyboardLang;
+#define lbKeyboardLang _DK_lbKeyboardLang;
 
 #pragma pack()
 
@@ -189,14 +191,16 @@ extern unsigned long text_buf_pos;
 extern unsigned char lbKeyOn[];
 extern unsigned char lbShift;
 extern const char AsciiToInkey[];
+*/
 extern char lbInkeyToAscii[];
 extern char lbInkeyToAsciiShift[];
-
+/*
 extern unsigned short flow_control_flags;
 */
 /******************************************************************************/
 short LbIKeyboardOpen(void);
 short LbIKeyboardClose(void);
+void LbKeyboardSetLanguage(int lngnum);
 /******************************************************************************/
 #ifdef __cplusplus
 }

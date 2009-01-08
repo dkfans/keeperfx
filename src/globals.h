@@ -1,21 +1,20 @@
 /******************************************************************************/
-// globals.h - Another Dungeon Keeper Map Editor.
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-// Author:   Jon Skeet
-// Created:  08 sep 1998
-// Modified: Tomasz Lis
-
-// Purpose:
-//   Header file for global definitions.
-
-// Comment:
-//   Defines basic includes and definitions, used in whole program.
-
-//Copying and copyrights:
-//   This program is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation; either version 2 of the License, or
-//   (at your option) any later version.
+/** @file globals.h
+ *     KeeperFX global compile config file.
+ * @par Purpose:
+ *     Header file for global definitions.
+ * @par Comment:
+ *     Defines basic includes and definitions, used in whole program.
+ * @author   Tomasz Lis
+ * @date     08 Aug 2008 - 03 Jan 2009
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
 /******************************************************************************/
 
 #ifndef KEEPFX_GLOBALS_H

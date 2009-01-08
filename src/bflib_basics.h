@@ -2,20 +2,20 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-// Author:  Tomasz Lis
-// Created: 10 Feb 2008
-
-// Purpose:
-//    Header file for bflib_basics.c.
-
-// Comment:
-//   Just a header file - #defines, typedefs, function prototypes etc.
-
-//Copying and copyrights:
-//   This program is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation; either version 2 of the License, or
-//   (at your option) any later version.
+/** @file bflib_basics.h
+ *     Header file for bflib_basics.c.
+ * @par Purpose:
+ *     Integrates all elements of the library with a common toolkit.
+ * @par Comment:
+ *     Just a header file - #defines, typedefs, function prototypes etc.
+ * @author   Tomasz Lis
+ * @date     10 Feb 2008 - 22 Dec 2008
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
 /******************************************************************************/
 #ifndef BFLIB_BASICS_H
 #define BFLIB_BASICS_H
@@ -92,6 +92,7 @@ short error_dialog_fatal(const char *codefile,const int ecode,const char *messag
 /******************************************************************************/
 int LbErrorLog(const char *format, ...);
 int LbSyncLog(const char *format, ...);
+int LbNetLog(const char *format, ...);
 int __fastcall LbErrorLogSetup(const char *directory, const char *filename, uchar flag);
 int __fastcall LbErrorLogClose();
 

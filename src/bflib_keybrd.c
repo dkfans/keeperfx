@@ -2,20 +2,20 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-// Author:  Tomasz Lis
-// Created: 10 Feb 2008
-
-// Purpose:
-//    Keyboard related routines - reading keyboard.
-
-// Comment:
-//   None yet.
-
-//Copying and copyrights:
-//   This program is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation; either version 2 of the License, or
-//   (at your option) any later version.
+/** @file bflib_keybrd.c
+ *     Keyboard related routines - reading keyboard.
+ * @par Purpose:
+ *     Wrapper for keyboard support.
+ * @par Comment:
+ *     None.
+ * @author   Tomasz Lis
+ * @date     10 Feb 2008 - 30 Dec 2008
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
 /******************************************************************************/
 #include "bflib_keybrd.h"
 
@@ -28,6 +28,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+
 /*
 unsigned char lbKeyOn[256];
 unsigned char lbShift;
@@ -38,6 +39,7 @@ unsigned char lbInkeyFlags;
 unsigned short flow_control_flags;
 unsigned long text_buf_pos;
 bool lbExtendedKeyPress=false;
+*/
 
 const char AsciiToInkey[] = {
    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
@@ -83,7 +85,7 @@ char lbInkeyToAsciiShift[] = {
   0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,0x2E, 0x0, 0x0, 0x0,
   0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
 };
-*/
+
 /******************************************************************************/
 short LbIKeyboardClose(void)
 {
@@ -93,6 +95,11 @@ short LbIKeyboardClose(void)
 short LbIKeyboardOpen(void)
 {
   return 1;
+}
+
+void LbKeyboardSetLanguage(int lngnum)
+{
+  _DK_lbKeyboardLang = lngnum;
 }
 
 /******************************************************************************/

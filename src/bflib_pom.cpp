@@ -1,21 +1,22 @@
 /******************************************************************************/
+// Bullfrog Engine Emulation Library - for use to remake classic games.
 // PhaseOfMoon namespace for Dungeon Keeper remake.
 /******************************************************************************/
-// Author:  Tomasz Lis
-// Created: 30 Jul 2008
-
-// Purpose:
-//    Calculates current phase of moon in a way similar to Dungeon Keeper.
-
-// Comment:
-//   The algorithm is little perfected compared to one originally used in DK.
-//   It computes phase of moon until year 2199 with accuracy to 2 hours.
-
-//Copying and copyrights:
-//   This program is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation; either version 2 of the License, or
-//   (at your option) any later version.
+/** @file bflib_pom.cpp
+ *     Moon phase calculator.
+ * @par Purpose:
+ *     Calculates current phase of moon in a way similar to Dungeon Keeper.
+ * @par Comment:
+ *     The algorithm is little perfected compared to one originally used in DK.
+ *     It computes phase of moon until year 2199 with accuracy to 2 hours.
+ * @author   Tomasz Lis
+ * @date     30 Jul 2008 - 30 Dec 2008
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
 /******************************************************************************/
 #include <cmath>
 #include <time.h>

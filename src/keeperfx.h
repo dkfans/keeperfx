@@ -30,6 +30,10 @@
 #define PALETTE_SIZE 768
 #define STRINGS_MAX  941
 
+#define DUNGEONS_COUNT  5
+#define PLAYERS_COUNT   5
+#define PACKETS_COUNT   5
+
 #define SIZEOF_TDDrawSdk 408
 
 #ifdef __cplusplus
@@ -73,7 +77,6 @@ struct Coord3d {
         } stl;
     } z;
 };
-
 
 
 //This seems to be array of functions in __thiscall convention
@@ -141,14 +144,13 @@ typedef struct DDrawSdk {
 
 //I'm not sure about size of this structure
 struct Camera {
-    unsigned char field_0[4];
-    short field_4;
+    unsigned short pos_x;
+    unsigned short pos_y;
+    unsigned short pos_z;
     unsigned char field_6;
-    unsigned char field_7;
-    short field_8;
-    unsigned char field_A;
-    int field_B;
-    int field_F;
+    int orient_a;
+    int orient_b;
+    int orient_c;
     int field_13;
     int field_17;
     int field_1B;
@@ -320,6 +322,10 @@ struct SlabAttr {
       unsigned char field_15;
 };
 
+struct ActnPoint {
+char field_0[10];
+};
+
 struct CreatureControl {
 char field_0[2];
       unsigned char field_2;
@@ -417,6 +423,22 @@ struct BBlock {
       short field_3;
 };
 
+struct LanguageType {
+  const char *name;
+  int num;
+  };
+
+struct ConfigCommand {
+  const char *name;
+  int num;
+  };
+
+struct InstallInfo {
+  char inst_path[150];
+int field_96;
+int field_9A;
+  };
+
 struct GameSettings {
     unsigned char field_0;
     unsigned char video_shadows;
@@ -454,6 +476,10 @@ struct Packet {
     unsigned char field_10;
     };
 
+struct Wander {
+unsigned char field_0[424];
+    };
+
 struct PlayerInfo {
     unsigned char field_0;
     unsigned char field_1;
@@ -475,8 +501,19 @@ struct PlayerInfo {
     short field_35;
     unsigned char field_37;
     struct Camera *camera;
-    unsigned char field_3C[153];
-    unsigned char field_D5[879];
+    unsigned char field_3C[42];
+    unsigned char field_66[42];
+    unsigned short field_90;
+    unsigned short field_92;
+    unsigned char field_94[38];
+    unsigned char field_BA[27];
+    unsigned char field_D5[21];
+    struct Wander wandr1;
+    struct Wander wandr2;
+    short field_43A;
+char field_43C[2];
+    short field_43E;
+    long field_440;
     short field_444;
     short field_446;
     short field_448;
@@ -517,7 +554,7 @@ struct Dungeon {
     int field_4;
     unsigned char field_8;
     unsigned char field_9;
-    unsigned char field_A;
+    unsigned char computer_enabled;
     int field_B;
     short field_F;
     short field_11;
@@ -666,7 +703,7 @@ char numfield_15;
 int numfield_16;
 char numfield_1A;
 char numfield_1B;
-    struct PlayerInfo players[5];
+    struct PlayerInfo players[PLAYERS_COUNT];
 short numfield_18c7;
 char field_18C9;
 short field_18CA;
@@ -724,7 +761,7 @@ char field_136266[128];
 char field_1362E6[51];
     struct SlabMap slabmap[7225];
     struct Room rooms[150];
-    struct Dungeon dungeon[5];
+    struct Dungeon dungeon[DUNGEONS_COUNT];
 char field_149E05[97];
 int field_149E66;
 int field_149E6A;
@@ -737,7 +774,7 @@ char field_149E80;
 char field_149E81;
 char fname_unk1[150];
     char packet_fopened;
-    TbFileHandle packet_fhandle;
+    TbFileHandle packet_save;
 int field_149F1D;
 char field_149F21[5];
 char field_149F26[14];
@@ -764,9 +801,11 @@ char field_14A826[16];
 char field_14A836[7];
 unsigned char numfield_14A83D;
     unsigned char level_number; // change it to long ASAP
-char field_14A83F[39];
-char field_14A866[512];
-char field_14AA66[2048];
+short field_14A83F[384];
+short field_14AB3F;
+char field_14AB41;
+short freethings[287];
+char field_14AD80[1254];
 char field_14B266[2048];
 char field_14BA66[128];
 char field_14BAE6[64];
@@ -784,10 +823,22 @@ int field_14BB5D;
 short field_14BB65[592];
 char field_14C005[5];
 short field_14C00A;
-    struct Packet packets[5];
+    struct Packet packets[PACKETS_COUNT];
     struct CreatureStats creature_stats[32];
 char field_14DD21[1349];
-char field_14E266[1024];
+char field_14E266[248];
+char field_14E35E;
+struct ActnPoint action_points[31];
+char field_14E495;
+char field_14E496;
+char field_14E497;
+int field_14E498;
+short field_14E49C;
+short field_14E49E;
+int field_14E4A0;
+short field_14E4A4;
+int gold_lookup;
+char field_14E4AA[444];
 char field_14E666[512];
 char field_14E866[256];
 char field_14E966[128];
@@ -809,10 +860,9 @@ char field_14FF56[128];
 char field_14FFD6[128];
 char field_150056[256];
 char field_150156[256];
-char field_150256[128];
-char field_1502D6[64];
-char field_150316[27];
-char field_150331;
+char field_150256[91];
+    unsigned long creature_pool[32];
+    char creature_pool_empty;
 long timingvar1;
 int field_150336;
 int field_15033A;
@@ -897,7 +947,7 @@ char *field_18;
 
 struct TbNetworkPlayerInfo {
 char field_0[32];
-char field_20[28];
+long field_20;
 };
 
 struct SerialInitData {
@@ -909,6 +959,26 @@ long field_C;
     char *str_dial;
     char *str_hang;
     char *str_answr;
+};
+
+struct ClientDataEntry {
+long field_0;
+long field_4;
+long field_8;
+long field_C;
+char field_10[28];
+};
+
+struct ReceiveCallbacks {
+       void (*add_msg)(unsigned long, char *, void *);
+       void (*delete_msg)(unsigned long, void *);
+       void (*host_msg)(unsigned long, void *);
+       void *unkn1;
+       void * __stdcall (*multi_player)(unsigned long, unsigned long, unsigned long, void *);
+       void __stdcall (*mp_req_exdata_msg)(unsigned long, unsigned long, void *);
+       void (*req_compos_exchngdat_msg)(unsigned long, unsigned long, void *);
+       void * (*unidirectional_msg)(unsigned long, unsigned long, void *);
+       void (*sys_user_msg)(unsigned long, void *, unsigned long, void *);
 };
 
 struct TbLoadFiles {
@@ -940,21 +1010,30 @@ typedef char * (*ModDL_Fname_Func)(struct TbLoadFiles *);
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 DLLIMPORT extern TDDrawBaseClass *_DK_lpDDC;
 DLLIMPORT extern int _DK_SoundDisabled;
+#define SoundDisabled _DK_SoundDisabled
 DLLIMPORT extern char _DK_keeper_runtime_directory[152];
+#define keeper_runtime_directory _DK_keeper_runtime_directory
 DLLIMPORT extern struct Game _DK_game;
+#define game _DK_game
 DLLIMPORT extern char _DK_my_player_number;
+#define my_player_number _DK_my_player_number
 DLLIMPORT extern unsigned long _DK_mem_size;
 DLLIMPORT extern float _DK_phase_of_moon;
 DLLIMPORT extern struct TbLoadFiles _DK_legal_load_files[];
 DLLIMPORT extern unsigned char *_DK_palette;
 DLLIMPORT extern unsigned char *_DK_scratch;
-DLLIMPORT extern char _DK_datafiles_path[150];
+DLLIMPORT extern struct InstallInfo _DK_install_info;
+#define install_info _DK_install_info
 DLLIMPORT extern char *_DK_strings_data;
+#define strings_data _DK_strings_data
 DLLIMPORT extern struct TbLoadFiles _DK_game_load_files[];
 DLLIMPORT extern char *_DK_strings[STRINGS_MAX+1];
+#define strings _DK_strings
 DLLIMPORT extern struct GameSettings _DK_settings;
 DLLIMPORT extern unsigned char _DK_exit_keeper;
+#define exit_keeper _DK_exit_keeper
 DLLIMPORT extern unsigned char _DK_quit_game;
+#define quit_game _DK_quit_game
 DLLIMPORT extern long _DK_left_button_held_x;
 DLLIMPORT extern long _DK_left_button_held_y;
 DLLIMPORT extern long _DK_left_button_double_clicked_y;
@@ -983,29 +1062,33 @@ DLLIMPORT extern long _DK_right_button_clicked_x;
 DLLIMPORT extern char _DK_left_button_held;
 DLLIMPORT extern struct CatalogueEntry _DK_save_game_catalogue[8];
 DLLIMPORT extern int _DK_number_of_saved_games;
+#define number_of_saved_games _DK_number_of_saved_games
 DLLIMPORT extern int _DK_lbUseSdk;
 DLLIMPORT extern unsigned char _DK_frontend_palette[768];
 DLLIMPORT extern int _DK_load_game_scroll_offset;
+#define load_game_scroll_offset _DK_load_game_scroll_offset
 DLLIMPORT extern int _DK_frontend_menu_state;
 DLLIMPORT extern int _DK_continue_game_option_available;
 DLLIMPORT extern int _DK_defining_a_key;
 DLLIMPORT extern long _DK_defining_a_key_id;
 DLLIMPORT extern long _DK_credits_scroll_speed;
 DLLIMPORT extern long _DK_credits_offset;
-DLLIMPORT extern struct TbSprite *_DK_frontend_font[4];
 DLLIMPORT extern long _DK_last_mouse_x;
 DLLIMPORT extern long _DK_last_mouse_y;
 DLLIMPORT extern int _DK_credits_end;
 DLLIMPORT extern unsigned char *_DK_frontend_background;
 DLLIMPORT extern struct TbSprite *_DK_frontstory_font;
 DLLIMPORT extern struct TbSprite *_DK_lbFontPtr;
+#define lbFontPtr _DK_lbFontPtr
 DLLIMPORT extern struct TbSprite *_DK_winfont;
+#define winfont _DK_winfont
 DLLIMPORT extern long _DK_frontstory_text_no;
 DLLIMPORT extern int _DK_FatalError;
 DLLIMPORT extern int _DK_net_service_index_selected;
 DLLIMPORT extern unsigned char _DK_fade_palette_in;
 DLLIMPORT extern long _DK_old_mouse_over_button;
 DLLIMPORT extern long _DK_frontend_mouse_over_button;
+#define frontend_mouse_over_button _DK_frontend_mouse_over_button
 DLLIMPORT extern struct HighScore _DK_high_score_table[10];
 DLLIMPORT extern struct TbLoadFiles _DK_frontstory_load_files[4];
 DLLIMPORT extern struct TbLoadFiles _DK_netmap_flag_load_files[7];
@@ -1029,8 +1112,6 @@ DLLIMPORT extern short _DK_drag_menu_x;
 DLLIMPORT extern short _DK_drag_menu_y;
 DLLIMPORT extern struct GuiMenu _DK_active_menus[8];
 DLLIMPORT extern char _DK_busy_doing_gui;
-DLLIMPORT extern struct GuiButton *_DK_input_button;
-DLLIMPORT extern struct ToolTipBox _DK_tool_tip_box;
 DLLIMPORT extern unsigned short _DK_tool_tip_time;
 DLLIMPORT extern unsigned short _DK_help_tip_time;
 DLLIMPORT extern long _DK_gui_last_left_button_pressed_id;
@@ -1055,6 +1136,7 @@ DLLIMPORT extern struct CreatureData _DK_creature_data[32];
 DLLIMPORT extern struct Objects _DK_objects[135];
 DLLIMPORT extern int _DK_eastegg03_cntr;
 DLLIMPORT extern unsigned long _DK_key_modifiers;
+#define key_modifiers _DK_key_modifiers
 DLLIMPORT extern struct SoundEmitter _DK_emitter[128];
 DLLIMPORT extern long _DK_Non3DEmitter;
 DLLIMPORT extern long _DK_SpeechEmitter;
@@ -1071,87 +1153,10 @@ DLLIMPORT extern long _DK_top_pointed_at_frac_x;
 DLLIMPORT extern long _DK_top_pointed_at_frac_y;
 DLLIMPORT struct ScreenPacket _DK_net_screen_packet;
 DLLIMPORT struct _GUID _DK_net_guid;
-DLLIMPORT struct TbNetworkPlayerInfo _DK_net_player_info;
+DLLIMPORT struct TbNetworkPlayerInfo _DK_net_player_info[4];
+#define net_player_info _DK_net_player_info
 DLLIMPORT struct SerialInitData _DK_net_serial_data;
 DLLIMPORT struct SerialInitData _DK_net_modem_data;
-DLLIMPORT struct GuiButtonInit _DK_main_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_room_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_spell_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_spell_lost_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_trap_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_creature_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_event_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_options_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_query_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_instance_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_quit_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_load_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_save_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_video_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_sound_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_error_box_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_text_info_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_pause_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_hold_audience_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_armageddon_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_dungeon_special_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_battle_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_resurrect_creature_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_transfer_creature_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_main_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_load_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_service_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_session_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_start_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_modem_buttons[37];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_serial_buttons[22];
-DLLIMPORT struct GuiButtonInit _DK_frontend_statistics_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_high_score_score_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons1[];
-DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons2[];
-DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons3[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_define_keys_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_autopilot_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_option_buttons[];
-DLLIMPORT struct GuiMenu _DK_main_menu;
-DLLIMPORT struct GuiMenu _DK_room_menu;
-DLLIMPORT struct GuiMenu _DK_spell_menu;
-DLLIMPORT struct GuiMenu _DK_spell_lost_menu;
-DLLIMPORT struct GuiMenu _DK_trap_menu;
-DLLIMPORT struct GuiMenu _DK_creature_menu;
-DLLIMPORT struct GuiMenu _DK_event_menu;
-DLLIMPORT struct GuiMenu _DK_options_menu;
-DLLIMPORT struct GuiMenu _DK_instance_menu;
-DLLIMPORT struct GuiMenu _DK_query_menu;
-DLLIMPORT struct GuiMenu _DK_quit_menu;
-DLLIMPORT struct GuiMenu _DK_load_menu;
-DLLIMPORT struct GuiMenu _DK_save_menu;
-DLLIMPORT struct GuiMenu _DK_video_menu;
-DLLIMPORT struct GuiMenu _DK_sound_menu;
-DLLIMPORT struct GuiMenu _DK_error_box;
-DLLIMPORT struct GuiMenu _DK_text_info_menu;
-DLLIMPORT struct GuiMenu _DK_hold_audience_menu;
-DLLIMPORT struct GuiMenu _DK_dungeon_special_menu;
-DLLIMPORT struct GuiMenu _DK_resurrect_creature_menu;
-DLLIMPORT struct GuiMenu _DK_transfer_creature_menu;
-DLLIMPORT struct GuiMenu _DK_armageddon_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_main_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_load_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_net_service_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_net_session_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_net_start_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_net_modem_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_net_serial_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_statistics_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_high_score_table_menu;
-DLLIMPORT struct GuiMenu _DK_creature_query_menu1;
-DLLIMPORT struct GuiMenu _DK_creature_query_menu2;
-DLLIMPORT struct GuiMenu _DK_creature_query_menu3;
-DLLIMPORT struct GuiMenu _DK_battle_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_define_keys_menu;
-DLLIMPORT struct GuiMenu _DK_autopilot_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_option_menu;
-DLLIMPORT struct GuiMenu *_DK_menu_list[40];
 DLLIMPORT char _DK_tmp_net_player_name[24];
 DLLIMPORT char _DK_tmp_net_phone_number[24];
 DLLIMPORT char _DK_tmp_net_modem_init[20];
@@ -1159,24 +1164,48 @@ DLLIMPORT char _DK_tmp_net_modem_dial[20];
 DLLIMPORT char _DK_tmp_net_modem_hangup[20];
 DLLIMPORT char _DK_tmp_net_modem_answer[20];
 DLLIMPORT int _DK_fe_network_active;
-DLLIMPORT long _DK_net_service_scroll_offset;
-DLLIMPORT long _DK_net_number_of_services;
-DLLIMPORT char _DK_info_tag;
-DLLIMPORT char _DK_room_tag;
-DLLIMPORT char _DK_spell_tag;
-DLLIMPORT char _DK_trap_tag;
-DLLIMPORT char _DK_creature_tag;
-DLLIMPORT char _DK_input_string[8][16];
 DLLIMPORT char _DK_video_shadows;
 DLLIMPORT char _DK_video_view_distance_level;
 DLLIMPORT char _DK_video_cluedo_mode;
 DLLIMPORT char _DK_video_gamma_correction;
 DLLIMPORT long _DK_sound_level;
 DLLIMPORT long _DK_music_level;
-DLLIMPORT char _DK_error_box_message[256];
 DLLIMPORT long _DK_fe_mouse_sensitivity;
 DLLIMPORT long _DK_activity_list[24];
+#define activity_list _DK_activity_list
 DLLIMPORT char _DK_net_service[16][64];
+#define net_service _DK_net_service
+DLLIMPORT void *_DK_exchangeBuffer;
+DLLIMPORT long _DK_exchangeSize;
+DLLIMPORT int _DK_maximumPlayers;
+DLLIMPORT struct TbNetworkPlayerInfo *_DK_localPlayerInfoPtr;
+DLLIMPORT void *_DK_localDataPtr;
+DLLIMPORT void *_DK_compositeBuffer;
+DLLIMPORT long _DK_sequenceNumber;
+DLLIMPORT long _DK_timeCount;
+DLLIMPORT long _DK_maxTime;
+DLLIMPORT int _DK_runningTwoPlayerModel;
+DLLIMPORT int _DK_waitingForPlayerMapResponse;
+DLLIMPORT long _DK_compositeBufferSize;
+DLLIMPORT long _DK_basicTimeout;
+DLLIMPORT int _DK_noOfEnumeratedDPlayServices;
+DLLIMPORT struct ClientDataEntry _DK_clientDataTable[32];
+DLLIMPORT struct ReceiveCallbacks _DK_receiveCallbacks;
+DLLIMPORT unsigned long _DK_hostId;
+#define hostId _DK_hostId
+DLLIMPORT unsigned long _DK_localPlayerId;
+#define localPlayerId _DK_localPlayerId
+DLLIMPORT int _DK_gotCompositeData;
+#define gotCompositeData _DK_gotCompositeData
+DLLIMPORT struct _GUID _DK_clientGuidTable[];
+#define clientGuidTable _DK_clientGuidTable
+DLLIMPORT long _DK_anim_counter;
+#define anim_counter _DK_anim_counter
+DLLIMPORT long _DK_block_ptrs[592];
+#define block_ptrs _DK_block_ptrs
+DLLIMPORT unsigned char _DK_colours[16][16][16];
+#define colours _DK_colours
+DLLIMPORT long _DK_frame_number;
 
 
 #pragma pack()
@@ -1213,7 +1242,7 @@ DLLIMPORT void __cdecl _DK_clear_mapwho(void);
 DLLIMPORT void __cdecl _DK_delete_all_structures(void);
 DLLIMPORT void __cdecl _DK_frontstats_initialise(void);
 DLLIMPORT int __cdecl _DK_LbMouseChangeSpriteAndHotspot(TbSprite *spr, int, int);
-DLLIMPORT int __cdecl _DK_PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *palette);
+DLLIMPORT void __cdecl _DK_PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *palette);
 DLLIMPORT void __cdecl _DK_initialise_eye_lenses(void);
 DLLIMPORT void __cdecl _DK_reset_eye_lenses(void);
 DLLIMPORT void __cdecl _DK_setup_eye_lens(long);
@@ -1299,9 +1328,6 @@ DLLIMPORT void _DK_update_breed_activities(void);
 DLLIMPORT void _DK_maintain_my_battle_list(void);
 DLLIMPORT char _DK_mouse_is_over_small_map(int, int);
 DLLIMPORT void _DK_play_non_3d_sample(long sidx);
-DLLIMPORT char _DK_get_button_area_input(struct GuiButton *gbtn, int);
-DLLIMPORT void _DK_gui_area_text(struct GuiButton *gbtn);
-DLLIMPORT void _DK_setup_gui_tooltip(struct GuiButton *gbtn);
 DLLIMPORT long _DK_screen_to_map(struct Camera *camera, long scrpos_x, long scrpos_y, struct Coord3d *mappos);
 DLLIMPORT struct Thing *_DK_get_trap_for_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
@@ -1341,280 +1367,46 @@ DLLIMPORT void _DK_process_network_error(long);
 DLLIMPORT int _DK_play_smk_via_buffer(char *fname, int smkflags, int plyflags);
 DLLIMPORT int _DK_play_smk_direct(char *fname, int smkflags, int plyflags);
 DLLIMPORT TbError _DK_LbNetwork_Init(unsigned long,struct _GUID guid, unsigned long, void *, unsigned long, struct TbNetworkPlayerInfo *netplayr, void *);
-DLLIMPORT void _DK_gui_activity_background(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_gui_pretty_background(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_frontend_copy_background(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_gui_round_glass_background(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_gui_creature_query_background1(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_gui_creature_query_background2(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_reset_scroll_window(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_init_load_menu(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_init_save_menu(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_init_video_menu(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_init_audio_menu(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_frontend_init_options_menu(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_frontend_draw_large_menu_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_scroll_box_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_scroll_box(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_slider_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_services_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_text(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_service_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_large_menu_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_service_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_service_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_service_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_service_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_service_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_service_select(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_change_state(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_over_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_set_player_name(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_text_bar(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_enter_text(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_sessions_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_session_selected(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_select(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_session_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_players_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_players_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_players_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_players_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_players_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_net_session_players(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_join(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_create(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_return_to_main_menu(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_small_menu_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_join_game_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_alliance_box_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_net_start_players(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_select_alliance(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_alliance_grid(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_alliance_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_maintain_alliance(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_messages_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_messages_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_messages_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_messages_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_toggle_computer_players(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_computer_players(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_messages_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_current_message(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_messages(struct GuiButton *gbtn);
-DLLIMPORT void _DK_set_packet_start(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_start_game_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_return_to_session_menu(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_small_scroll_box_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_small_scroll_box(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_comport_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_comport_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_comport_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_comport_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_comport_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_comport_selected(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_comport_select(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_comport_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_comport_select_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_speed_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_speed_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_speed_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_speed_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_speed_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_speed_selected(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_speed_select(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_speed_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_speed_select_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_text_cont_bar(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_set_modem_init(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_set_modem_hangup(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_set_modem_dial(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_set_phone_number(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_modem_start(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_modem_start_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_set_modem_answer(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_serial_start(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_serial_start_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_zoom_in(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_zoom_out(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_map(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_new_normal_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_turn_on_autopilot(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_turn_on_autopilot(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_autopilot_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_set_menu_mode(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_draw_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_menu_tab_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_open_event(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_kill_event(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_event_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_event_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_choose_room(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_room(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_over_room_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_room_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_room(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_new_null_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_new_no_anim_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_big_room(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_remove_area_for_rooms(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_big_room_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_choose_spell(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_spell(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_spell_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_spell(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_choose_special_spell(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_big_spell_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_big_spell(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_choose_trap(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_trap(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_over_trap_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_trap(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_trap_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_door(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_door(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_over_door_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_remove_area_for_traps(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_big_trap_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_big_trap(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_no_anim_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_loadsave(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_normal_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_new_normal_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_set_tend_to(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_flash_cycle_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_prison_bar(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_flash_cycle_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_set_query(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_payday_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_research_bar(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_workshop_bar(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_player_creature_info(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_room_and_creature_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_player_room_info(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_toggle_ally(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_ally(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_quit_game(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_ally(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_save_game(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_video_shadows(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_video_view_distance_level(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_video_rotate_mode(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_video_cluedo_mode(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_video_gamma_correction(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_set_sound_volume(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_set_music_volume(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_video_cluedo_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_slider(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_smiley_anger_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_experience_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_instance_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_instance(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_stat_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_define_key_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_define_key_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_define_key(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_define_key_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_define_key_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_define_key_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_define_key(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_set_autopilot(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_icon(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_slider(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_set_mouse_sensitivity(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_small_slider(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_invert_mouse(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_invert_mouse(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontstats_draw_main_stats(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontstats_draw_scrolling_stats(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontstats_leave(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_vlarge_menu_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_high_score_table(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_quit_high_score_table(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_maintain_high_score_ok_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_load_game(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_load_game_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_draw_load_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_scroll_window(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_event(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_zoom_to_event(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_close_objective(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_scroll_text_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_scroll_text_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_scroll_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_scroll_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_scroll_text_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_choose_hold_audience(struct GuiButton *gbtn);
-DLLIMPORT void _DK_choose_armageddon(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_games_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_load_game_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_start_new_game(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_continue_game(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_continue_game_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_main_menu_load_game_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_main_menu_netservice_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_main_menu_highscores_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_previous_battle(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_next_battle(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_get_creature_in_battle(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_person_in_battle(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_setup_friend_over(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_friendly_battlers(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_setup_enemy_over(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_enemy_battlers(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_null(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_resurrect_creature(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_resurrect_creature_select(struct GuiButton *gbtn);
-DLLIMPORT void _DK_draw_resurrect_creature(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_resurrect_creature_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_resurrect_creature_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_resurrect_creature_scroll(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_transfer_creature(struct GuiButton *gbtn);
-DLLIMPORT void _DK_draw_transfer_creature(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_transfer_creature_select(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_transfer_creature_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_transfer_creature_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_transfer_creature_scroll(struct GuiButton *gbtn);
-
-DLLIMPORT void _DK_spell_lost_first_person(struct GuiButton *gbtn);
-DLLIMPORT void _DK_pick_up_next_wanderer(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_wanderer(struct GuiButton *gbtn);
-DLLIMPORT void _DK_pick_up_next_worker(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_worker(struct GuiButton *gbtn);
-DLLIMPORT void _DK_pick_up_next_fighter(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_fighter(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_scroll_activity_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_scroll_activity_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_scroll_activity_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_scroll_activity_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_activity_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_activity_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_activity_pic(struct GuiButton *gbtn);
-DLLIMPORT void _DK_pick_up_next_creature(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_creature(struct GuiButton *gbtn);
-DLLIMPORT void _DK_pick_up_creature_doing_activity(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_creature_activity(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_anger_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_activity_row(struct GuiButton *gbtn);
-DLLIMPORT void _DK_(struct GuiButton *gbtn);
-DLLIMPORT void _DK_(struct GuiButton *gbtn);
-DLLIMPORT void _DK_(struct GuiButton *gbtn);
-DLLIMPORT void _DK_(struct GuiButton *gbtn);
-
+DLLIMPORT TbError _DK_LbNetwork_Exchange(struct Packet *pckt);
 DLLIMPORT char _DK_game_is_busy_doing_gui_string_input(void);
+DLLIMPORT void _DK_process_packets(void);
+DLLIMPORT void _DK_update_things(void);
+DLLIMPORT void _DK_process_rooms(void);
+DLLIMPORT void _DK_process_dungeons(void);
+DLLIMPORT void _DK_process_messages(void);
+DLLIMPORT void _DK_find_nearest_rooms_for_ambient_sound(void);
+DLLIMPORT long _DK_S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);
+DLLIMPORT long _DK_S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c);
+DLLIMPORT void __cdecl _DK_light_render_area(int startx, int starty, int endx, int endy);
+DLLIMPORT void _DK_process_player_research(int plr_idx);
+DLLIMPORT long _DK_process_player_manufacturing(int plr_idx);
+DLLIMPORT void _DK_event_process_events(void);
+DLLIMPORT void _DK_update_all_events(void);
+DLLIMPORT void _DK_process_level_script(void);
+DLLIMPORT void _DK_process_computer_players2(void);
+DLLIMPORT long _DK_process_action_points(void);
+DLLIMPORT long _DK_PaletteFadePlayer(struct PlayerInfo *player);
+DLLIMPORT void _DK_message_update(void);
+DLLIMPORT void __cdecl _DK_process_player_instance(struct PlayerInfo *player);
+DLLIMPORT void _DK_process_player_instances(void);
+DLLIMPORT long _DK_wander_point_update(struct Wander *wandr);
+DLLIMPORT void __cdecl _DK_update_player_camera(struct PlayerInfo *player);
+DLLIMPORT void _DK_set_level_objective(char *msg_text);
+DLLIMPORT void _DK_display_objectives(long,long,long);
+DLLIMPORT void _DK_update_flames_nearest_camera(struct Camera *camera);
+DLLIMPORT void _DK_update_footsteps_nearest_camera(struct Camera *camera);
+DLLIMPORT void _DK_process_player_states(void);
+DLLIMPORT void _DK_process_armageddon(void);  //not sure about the name!
+DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
+DLLIMPORT unsigned long _DK_get_packet_save_checksum(void);
+DLLIMPORT void _DK_resync_game(void);
+DLLIMPORT char _DK_process_players_global_packet_action(long idx);
+DLLIMPORT void _DK_process_players_dungeon_control_packet_control(long idx);
+DLLIMPORT void _DK_process_players_dungeon_control_packet_action(long idx);
+DLLIMPORT void _DK_process_players_creature_control_packet_control(long idx);
+DLLIMPORT void _DK_process_players_creature_control_packet_action(long idx);
+DLLIMPORT void _DK_process_map_packet_clicks(long idx);
+DLLIMPORT void _DK_set_mouse_light(struct PlayerInfo *player);
 
 #ifdef __cplusplus
 }
@@ -1624,72 +1416,40 @@ DLLIMPORT char _DK_game_is_busy_doing_gui_string_input(void);
 short setup_game(void);
 void game_loop(void);
 short reset_game(void);
+void update(void);
 
-void gui_activity_background(struct GuiMenu *gmnu);
-void gui_pretty_background(struct GuiMenu *gmnu);
-void frontend_copy_background(struct GuiMenu *gmnu);
-void gui_round_glass_background(struct GuiMenu *gmnu);
-void gui_creature_query_background1(struct GuiMenu *gmnu);
-void gui_creature_query_background2(struct GuiMenu *gmnu);
-void reset_scroll_window(struct GuiMenu *gmnu);
-void init_load_menu(struct GuiMenu *gmnu);
-void init_save_menu(struct GuiMenu *gmnu);
-void init_video_menu(struct GuiMenu *gmnu);
-void init_audio_menu(struct GuiMenu *gmnu);
-void frontend_init_options_menu(struct GuiMenu *gmnu);
-void frontend_load_game_maintain(struct GuiButton *gbtn);
-void frontnet_service_select(struct GuiButton *gbtn);
-void frontnet_service_up_maintain(struct GuiButton *gbtn);
-void frontnet_service_down_maintain(struct GuiButton *gbtn);
-void frontnet_service_up(struct GuiButton *gbtn);
-void frontnet_service_down(struct GuiButton *gbtn);
-void frontnet_service_maintain(struct GuiButton *gbtn);
-void frontnet_draw_service_button(struct GuiButton *gbtn);
 short setup_network_service(int srvidx);
 TbError LbNetwork_Init(unsigned long,struct _GUID guid, unsigned long, void *, unsigned long, struct TbNetworkPlayerInfo *netplayr, void *);
 short check_cd_in_drive(void);
+void update_mouse(void);
+void ProperFadePalette(unsigned char *pal, long n, TbPaletteFadeFlag flg);
+short continue_game_available();
+short get_gui_inputs(short gameplay_on);
+void define_key_input(void);
+void intro(void);
+void outro(void);
+short is_bonus_level(long levidx);
+int setup_old_network_service(void);
+short toggle_computer_player(int idx);
+unsigned short checksums_different(void);
+
 
 //Functions - internal
 
-// Variables - no longer imported
-extern struct GuiMenu main_menu;
-extern struct GuiMenu room_menu;
-extern struct GuiMenu spell_menu;
-extern struct GuiMenu spell_lost_menu;
-extern struct GuiMenu trap_menu;
-extern struct GuiMenu creature_menu;
-extern struct GuiMenu event_menu;
-extern struct GuiMenu options_menu;
-extern struct GuiMenu instance_menu;
-extern struct GuiMenu query_menu;
-extern struct GuiMenu quit_menu;
-extern struct GuiMenu load_menu;
-extern struct GuiMenu save_menu;
-extern struct GuiMenu video_menu;
-extern struct GuiMenu sound_menu;
-extern struct GuiMenu error_box;
-extern struct GuiMenu text_info_menu;
-extern struct GuiMenu hold_audience_menu;
-extern struct GuiMenu dungeon_special_menu;
-extern struct GuiMenu resurrect_creature_menu;
-extern struct GuiMenu transfer_creature_menu;
-extern struct GuiMenu armageddon_menu;
-extern struct GuiMenu frontend_main_menu;
-extern struct GuiMenu frontend_load_menu;
-extern struct GuiMenu frontend_net_service_menu;
-extern struct GuiMenu frontend_net_session_menu;
-extern struct GuiMenu frontend_net_start_menu;
-extern struct GuiMenu frontend_net_modem_menu;
-extern struct GuiMenu frontend_net_serial_menu;
-extern struct GuiMenu frontend_statistics_menu;
-extern struct GuiMenu frontend_high_score_table_menu;
-extern struct GuiMenu creature_query_menu1;
-extern struct GuiMenu creature_query_menu2;
-extern struct GuiMenu creature_query_menu3;
-extern struct GuiMenu battle_menu;
-extern struct GuiMenu frontend_define_keys_menu;
-extern struct GuiMenu autopilot_menu;
-extern struct GuiMenu frontend_option_menu;
-extern struct FrontEndButtonData frontend_button_info[];
+//Functions - inline
+
+void inline fade_in(void)
+{
+  ProperFadePalette(_DK_frontend_palette, 8, Lb_PALETTE_FADE_OPEN);
+}
+
+void inline fade_out(void)
+{
+  ProperFadePalette(0, 8, Lb_PALETTE_FADE_CLOSED);
+  LbScreenClear(0);
+}
+
+
+// Variables - no linger imported
 
 #endif // DK_KEEPERFX_H

@@ -10,6 +10,7 @@
  0001:00001350       anim_make_FLI_LC
  0001:000017F0       anim_make_FLI_BRUN
  0001:00005320       light_initialise
+ 0001:00005380       light_render_area
  0001:00008010       frontnet_init_level_descriptions
  0001:00008200       frontnet_draw_slider_button
  0001:00008290       setup_network_service
@@ -110,6 +111,7 @@
  0001:0000CB50       get_trap_for_position
  0001:0000CDD0       check_cd_in_drive
  0001:0000E140       set_player_instance
+ 0001:0000E1B0       process_player_instance
  0001:000106F0       pinstfm_fade_to_map
  0001:000107C0       pinstfm_fade_from_map
  0001:00010AD0       free_swipe_graphic
@@ -123,14 +125,18 @@
  0001:0001BD50       fronttorture_draw
  0001:0001BE20       fronttorture_input
  0001:0001C280       fronttorture_update
+ 0001:0001CD90       process_player_research
  0001:0001E050       script_support_setup_player_as_computer_keeper
  0001:0001E0B0       process_action_points
+ 0001:0001E340       PaletteFadePlayer
  0001:0001E510       PaletteSetPlayerPalette
  0001:0001E590       redraw_display
  0001:0001FF40       draw_map_parchment
  0001:00023870       set_gamma
+ 0001:000245A0       message_update
  0001:00024920       frontzoom_to_point
  0001:00030F10       draw_view
+ 0001:00034130       wander_point_update
  0001:00034510       input
  0001:00034720       set_game_key
  0001:00034900       is_game_key_pressed
@@ -174,14 +180,18 @@
  0001:0003D970       set_packet_action
  0001:0003D990       process_players_global_packet_action
  0001:0003E860       process_players_dungeon_control_packet_action
+ 0001:0003E9A0       process_players_creature_control_packet_control
  0001:0003ED70       process_players_creature_control_packet_action
  0001:0003EEA0       process_players_dungeon_control_packet_control
+ 0001:0003F1C0       set_mouse_light
  0001:0003F2B0       process_dungeon_control_packet_clicks
+ 0001:00041A60       process_map_packet_clicks
  0001:00041AF0       open_new_packet_file_for_save
  0001:00041BD0       open_packet_file_for_load
  0001:00041CD0       load_packets_for_turn
  0001:00042040       set_power_hand_graphic
  0001:00042340       process_quit_packet
+ 0001:00042540       process_pause_packet
  0001:00043F00       process_object_being_picked_up
  0001:00044AB0       get_spellbook_at_position
  0001:00044C00       get_crate_at_position
@@ -192,20 +202,32 @@
  0001:00046F00       game_loop@0
  0001:00047550       ceiling_set_info
  0001:0004A7A0       can_cast_spell_at_xy
+ 0001:00050870       S3DInit
+ 0001:00050910       S3DSetMaximumSoundDistance
  0001:00050940       S3DSetNumberOfSounds
  0001:00050970       S3DCreateSoundEmitterPri
  0001:00050C30       S3DEmitterHasFinishedPlaying
  0001:00050C50       S3DAddSampleToEmitterPri
+ 0001:00050E00       S3DSetSoundReceiverPosition
+ 0001:00050E30       S3DSetSoundReceiverOrientation
  0001:00050E70       process_3d_sounds
  0001:00051810       IsRunningMark@0
  0001:00051840       IsRunningUnmark@0
  0001:00057300       update
+ 0001:00057960       update_things
  0001:00057CC0       update_things_in_list
  0001:00057DA0       update_thing
  0001:00058020       update_creature
+ 0001:00059D30       update_player_camera
+ 0001:0005A1A0       update_footsteps_nearest_camera
  0001:0005A390       update_thing_sound
  0001:0005A650       update_thing_animation
+ 0001:0005AA00       process_player_instances
+ 0001:0005AA30       process_player_states
+ 0001:0005AA90       update_flames_nearest_camera
+ 0001:0005B120       process_armageddon
  0001:0005B3E0       delete_all_structures
+ 0001:0005D4D0       find_nearest_rooms_for_ambient_sound
  0001:0005D890       clear_map
  0001:0005EE90       clear_mapwho
  0001:0005F6D0       init_creature_scores
@@ -217,11 +239,16 @@
  0001:00065460       initialise_eye_lenses
  0001:000655D0       reset_eye_lenses
  0001:00065630       setup_eye_lens
+ 0001:00065E50       event_process_events
+ 0001:00066100       update_all_events
  0001:0006EC30       setup_computer_players2
+ 0001:0006EF80       process_computer_players2
+ 0001:00071090       resync_game
  0001:00072D40       draw_frontview_engine
  0001:00079140       GetMouseY
  0001:0007A310       complete_level
  0001:0007A380       lose_level
+ 0001:0007A530       get_packet_save_checksum
  0001:00081B30       draw_resurrect_creature
  0001:00081D10       select_resurrect_creature_up
  0001:00081D20       select_resurrect_creature_down
@@ -398,7 +425,9 @@
  0001:0009E3D0       toggle_status_menu
  0001:0009EC90       toggle_gui
  0001:0009F250       toggle_gui_overlay_map
+ 0001:0009F270       display_objectives
  0001:0009F360       gui_close_objective
+ 0001:0009F840       set_level_objective
  0001:0009F8E0       turn_off_roaming_menus
  0001:0009FC90       go_on_then_activate_the_event_box
  0001:000A0AA0       choose_hold_audience
@@ -427,6 +456,7 @@
  0001:000A5A10       process_dungeons
  0001:000A7850       process_sound_heap
  0001:000A7F10       output_message
+ 0001:000A80C0       process_messages
  0001:000AB570       wait_at_frontend
  0001:000AC400       frontend_main_menu_netservice_maintain
  0001:000AC410       frontend_main_menu_highscores_maintain
@@ -480,6 +510,8 @@
  0001:000AEC00       frontend_define_key
  0001:000AEC30       draw_text_box
  0001:000AEF30       frontend_load_data
+ 0001:000AFD40       process_player_manufacturing
+ 0001:000B45F0       process_rooms
  0001:000C24B0       update_creature_levels
  0001:000C2950       toggle_creature_tendencies
  0001:000C6D50       load_settings
@@ -884,6 +916,7 @@
  0003:00011728       hi_res_pointer_load_files
  0003:000117B0       hi_res_small_pointer_load_files
  0003:00011838       legal_load_files
+ 0003:00012824       anim_counter
  0003:00014948       quit_game
  0003:0001494C       exit_keeper
  0003:00014964       strings_data
@@ -922,6 +955,7 @@
  0003:000280E8       lbFontPtr
  0003:000280F4       lpDDC
  0003:00028178       icon_index
+ 0003:00028280       lbKeyboardLang
  0003:00028284       modify_data_load_filename_function
  0003:00028338       lbfade_open
  0003:00028350       lbUseSdk
@@ -978,13 +1012,14 @@
  0003:000AB430       keeper_runtime_directory
  0003:000AB4D4       winfont
  0003:000AB4E4       scratch
+ 0003:000EB510       block_ptrs
  0003:000EBED0       key_modifiers
  0003:000EBED4       MyScreenHeight
  0003:000EBEF8       pixel_size
  0003:000ECF08       W?text$n__a
  0003:000ED310       game
  0003:0023EB54       W?eye_lens_spare_screen_memory$npnuc
- 0003:00241460       datafiles_path
+ 0003:00241460       install_info
  0003:00241510       my_player_number
  0003:00244D48       left_button_held_x
  0003:00244D4C       left_button_held_y
@@ -1075,3 +1110,5 @@
  0003:002795A0       WideCharStr
  0003:0027A9C0       NumOfElements
  0005:00006562       set_cpu_mode
+ 0003:000EBF00       colours
+ 0001:000A6DA0       update_power_sight_explored

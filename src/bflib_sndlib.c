@@ -2,21 +2,21 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-// Author:  Tomasz Lis
-// Created: 16 Nov 2008
-
-// Purpose:
-//    Low-level sound and music related routines.
-
-// Comment:
-//   Windows version os Bullfrog Engine uses Miles Sound System, wrapped
-//   with WSND7R.DLL. This library contains definitions of the exported functions.
-
-//Copying and copyrights:
-//   This program is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation; either version 2 of the License, or
-//   (at your option) any later version.
+/** @file bflib_sndlib.c
+ *     Low-level sound and music related routines.
+ * @par Purpose:
+ *     Hardware wrapper to play music and sound in games.
+ * @par Comment:
+ *     Windows version os Bullfrog Engine uses Miles Sound System, wrapped
+ *     with WSND7R.DLL. This library contains definitions of the exported functions.
+ * @author   Tomasz Lis
+ * @date     16 Nov 2008 - 30 Dec 2008
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
 /******************************************************************************/
 #include "bflib_sndlib.h"
 
