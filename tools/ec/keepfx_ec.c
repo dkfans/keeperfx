@@ -65,7 +65,7 @@ int find_dupename(struct export_entry *exp[],unsigned int exp_size)
 {
    int i;
    for (i = 0 ; i < exp_size-1 ; i++)
-       if(stricmp(exp[i]->dstname, exp[i+1]->dstname) == 0)
+       if(strcasecmp(exp[i]->dstname, exp[i+1]->dstname) == 0)
        {
          return i;
        } 
