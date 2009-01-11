@@ -6,7 +6,6 @@
 
 #define MAX_EXPORT_NAMELEN 255
 #define MAX_EXPORTS 0xc00
-//#define MAX_FNAMES_SIZE 0x47c8
 #define MAX_FNAMES_SIZE 0x87C8
  
 #define EXP_SEC_HDROFS 0x00163400
@@ -124,7 +123,7 @@ int main(int argc, char *argv[])
   for (idx=0;idx<MAX_EXPORTS;idx++)
       exports[idx]=NULL;
   // Reading functions
-  FILE *fhndl=fopen("keeper95_gold.map","rb");
+  FILE *fhndl=fopen("lib/keeper95_gold.map","rb");
   if (fhndl==NULL)
   {
     printf("Can't open .MAP file!\n");
@@ -184,7 +183,7 @@ int main(int argc, char *argv[])
     return 8;
   }
   //Saving the entries
-  fhndl=fopen("keeperfx.dll","r+b");
+  fhndl=fopen("bin/keeperfx.dll","r+b");
   if (fhndl==NULL)
   {
     printf("Can't open .DLL file!\n");
@@ -307,7 +306,7 @@ int main(int argc, char *argv[])
   }
   printf("Written %d function name offsets into .DLL.\n",idx);
   fclose(fhndl);
-  fhndl=fopen("keeperfx.def","wb");
+  fhndl=fopen("lib/keeperfx.def","wb");
   if (fhndl==NULL)
   {
     printf("Can't open .DEF file!\n");

@@ -13,69 +13,93 @@ WINDRES  = $(CROSS_COMPILE)windres
 DLLTOOL  = $(CROSS_COMPILE)dlltool
 EXETODLL = tools/ec/keepfx_ec
 RM       = rm -f
+CP       = cp -f
 MKDIR    = mkdir -p
 ECHO     = @echo
 
-BIN      = build/keeperfx$(EXEEXT)
-RES      = build/keeperfx_private.res
+BIN      = bin/keeperfx$(EXEEXT)
+RES      = obj/keeperfx_private.res
 
 OBJ  = \
-build/main.o \
-build/frontend.o \
-build/bflib_basics.o \
-build/bflib_dernc.o \
-build/bflib_fileio.o \
-build/bflib_keybrd.o \
-build/bflib_datetm.o \
-build/bflib_memory.o \
-build/bflib_pom.o \
-build/bflib_mouse.o \
-build/bflib_sndlib.o \
-build/bflib_sound.o \
-build/bflib_video.o \
-build/bflib_fmvids.o \
-build/bflib_guibtns.o \
+obj/main.o \
+obj/frontend.o \
+obj/bflib_basics.o \
+obj/bflib_dernc.o \
+obj/bflib_fileio.o \
+obj/bflib_keybrd.o \
+obj/bflib_datetm.o \
+obj/bflib_memory.o \
+obj/bflib_pom.o \
+obj/bflib_mouse.o \
+obj/bflib_sndlib.o \
+obj/bflib_sound.o \
+obj/bflib_video.o \
+obj/bflib_fmvids.o \
+obj/bflib_guibtns.o \
 $(RES)
 
 LINKOBJ  = $(OBJ)
-LIBS =  -mwindows lib/keeperfx.a -lwinmm -g -O0  -march=i386 
+LIBS =  -mwindows obj/keeperfx.a -lwinmm -g -O0  -march=i386 
 INCS = 
 CXXINCS = 
 CXXFLAGS = $(CXXINCS) -g -O0  -march=i386
 CFLAGS = $(INCS) -g -O0  -march=i386
 
-.PHONY: all all-before all-after standard clean clean-custom
+VER_STRING = 0.2.1.9
+
+.PHONY: all all-before all-after standard heavylog clean clean-build clean-tools clean-package package pkg-before
 
 all: standard
 
 standard: all-before $(BIN) all-after
 
-all-before:
-	mkdir -p build
+heavylog: all-before all-after
 
-clean: clean-custom
-	$(RM) $(OBJ) $(BIN) lib/keeperfx.a lib/keeperfx.dll lib/keeperfx.def
+all-before:
+	$(MKDIR) obj bin
+
+clean: clean-build clean-tools clean-package
+
+clean-build:
+	$(RM) $(OBJ) $(BIN) obj/keeperfx.a bin/keeperfx.dll lib/keeperfx.def
+
+clean-tools:
 	make -C tools/ec clean
 
-$(BIN): $(OBJ) lib/keeperfx.a
+clean-package:
+	-$(RM) pkg/keeperfx*
+
+$(BIN): $(OBJ) obj/keeperfx.a
 	@echo "Final link"
 	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS)
 
-build/%.o: src/%.cpp
+obj/%.o: src/%.cpp
 	$(CPP) -c $(CXXFLAGS) -o"$@" "$<"
 
-build/%.o: src/%.c
+obj/%.o: src/%.c
 	$(CPP) -c $(CFLAGS) -o"$@" "$<"
 
-build/keeperfx_private.res: src/keeperfx_private.rc 
-	$(WINDRES) -i src/keeperfx_private.rc --input-format=rc -o build/keeperfx_private.res -O coff 
+obj/keeperfx_private.res: src/keeperfx_private.rc 
+	$(WINDRES) -i src/keeperfx_private.rc --input-format=rc -o obj/keeperfx_private.res -O coff 
 
-lib/keeperfx.a: lib/keeperfx.dll lib/keeperfx.def
-	$(DLLTOOL) --dllname lib/keeperfx.dll --def lib/keeperfx.def --output-lib lib/keeperfx.a
+obj/keeperfx.a: bin/keeperfx.dll lib/keeperfx.def
+	$(DLLTOOL) --dllname bin/keeperfx.dll --def lib/keeperfx.def --output-lib obj/keeperfx.a
 
-lib/keeperfx.dll lib/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map tools/ec/keepfx_ec
-	cp lib/keeper95_gold.dll lib/keeperfx.dll
-	cd lib && ../tools/ec/keepfx_ec
+bin/keeperfx.dll lib/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map tools/ec/keepfx_ec
+	cp lib/keeper95_gold.dll bin/keeperfx.dll
+	$(EXETODLL)
 
 tools/ec/keepfx_ec: tools/ec/keepfx_ec.c
 	make -C tools/ec
+
+package: pkg-before
+	$(CP) bin/* pkg/
+	$(CP) config/* pkg/
+	$(CP) docs/keeperfx_readme.txt pkg/
+	cd pkg; \
+	7z a "keeperfx-$(subst .,_,$(VER_STRING))-patch.7z" "*" -x!*/.svn -x!.svn -x!.git -x!*.7z
+
+pkg-before:
+	-$(RM) "pkg/keeperfx-$(subst .,_,$(VER_STRING))-patch.7z"
+	$(MKDIR) pkg
+
