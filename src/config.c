@@ -216,8 +216,10 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
   while (commands[i].num > 0)
   {
     cmdname_len = strlen(commands[i].name);
-    if ((*pos)+cmdname_len > buflen)
-      continue;
+    if ((*pos)+cmdname_len > buflen) {
+        i++;
+        continue;
+    }
     // Find a matching command
     if (strnicmp(buf+(*pos), commands[i].name, cmdname_len) == 0)
     {
