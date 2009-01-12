@@ -33,6 +33,8 @@ extern "C" {
 
 #pragma pack(1)
 
+#define TEXT_BUFFER_LENGTH 2048
+
 enum TbErrorLogFlag {
         Lb_ERROR_LOG_APPEND = 0,
         Lb_ERROR_LOG_NEW =  1,
@@ -55,6 +57,7 @@ struct TbDate {
         unsigned short Year;
         unsigned char DayOfWeek;
 };
+typedef long TbClockMSec;
 
 typedef int TbFileHandle;
 struct TbFileFind {
@@ -91,6 +94,7 @@ short error_dialog(const char *codefile,const int ecode,const char *message);
 short error_dialog_fatal(const char *codefile,const int ecode,const char *message);
 /******************************************************************************/
 int LbErrorLog(const char *format, ...);
+int LbWarnLog(const char *format, ...);
 int LbSyncLog(const char *format, ...);
 int LbNetLog(const char *format, ...);
 int __fastcall LbErrorLogSetup(const char *directory, const char *filename, uchar flag);

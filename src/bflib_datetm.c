@@ -27,21 +27,49 @@
 #include "bflib_basics.h"
 
 #if defined(WIN32)
-#include <windows.h>
+//instead of #include <windows.h>
+#include <windef.h>
+#include <winbase.h>
 #endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define LARGE_DELAY_TIME 20
 /******************************************************************************/
 TbTime global_time;
 TbDate global_date;
+TbClockMSec (* LbTimerClock)(void);
 /******************************************************************************/
-//Returns the number of miliseconds elapsed since the program was launched.
-unsigned long LbTimerClock(void)
+/*
+ * Returns the number of miliseconds elapsed since the program was launched.
+ * A version for (CLOCKS_PER_SEC == 1000).
+ */
+TbClockMSec LbTimerClock_1000(void)
 {
   // original DK uses win32 function timeGetTime();
-  return 1000 * clock() / CLOCKS_PER_SEC;
+  return clock();
+}
+
+/*
+ * Returns the number of miliseconds elapsed since the program was launched.
+ * A version for (CLOCKS_PER_SEC == 1024).
+ */
+TbClockMSec LbTimerClock_1024(void)
+{
+  clock_t cclk;
+  cclk = clock();
+  return cclk - (cclk>>6) - (cclk>>7);
+}
+
+/*
+ * Returns the number of miliseconds elapsed since the program was launched.
+ * Version for any CLOCKS_PER_SEC, but unsafe.
+ */
+TbClockMSec LbTimerClock_any(void)
+{
+  return (500 * clock() / CLOCKS_PER_SEC) << 1;
 }
 
 //Fills structure with current time
@@ -91,45 +119,54 @@ int LbDateTimeDecode(const time_t *datetime,TbDate *curr_date, TbTime *curr_time
 void inline LbDoMultitasking(void)
 {
 #if defined(WIN32)
-    Sleep(5); // This switches to other tasks
+    Sleep(LARGE_DELAY_TIME>>1); // This switches to other tasks
 #endif
 }
 
-short __fastcall LbSleepFor(unsigned long delay)
+short __fastcall LbSleepFor(TbClockMSec delay)
 {
-  register clock_t endclk = CLOCKS_PER_SEC*delay / 1000;
-  endclk+=clock();
-  register clock_t currclk;
-  currclk=clock();
-  if (currclk+(CLOCKS_PER_SEC>>4)<endclk)
+  register TbClockMSec currclk;
+  register TbClockMSec endclk;
+  currclk=LbTimerClock();
+  endclk=currclk+delay;
+  while ((currclk+LARGE_DELAY_TIME) < endclk)
   {
     LbDoMultitasking();
-    currclk=clock();
+    currclk=LbTimerClock();
   }
-  while (currclk<endclk)
-  {
-    currclk=clock();
-    if (currclk==-1)
-      return 0;
-  }
+  while (currclk < endclk)
+    currclk=LbTimerClock();
   return 1;
 }
 
-short __fastcall LbSleepUntil(unsigned long endtime)
+short __fastcall LbSleepUntil(TbClockMSec endtime)
 {
-  register clock_t endclk = CLOCKS_PER_SEC*endtime / 1000;
-  register clock_t currclk;
-  currclk=clock();
-  if (currclk+(CLOCKS_PER_SEC>>3)<endclk)
+  register TbClockMSec currclk;
+  currclk=LbTimerClock();
+  while ((currclk+LARGE_DELAY_TIME) < endtime)
   {
     LbDoMultitasking();
-    currclk=clock();
+    currclk=LbTimerClock();
   }
-  while (currclk<endclk)
+  while (currclk < endtime)
+    currclk=LbTimerClock();
+  return 1;
+}
+
+short LbTimerInit(void)
+{
+  switch (CLOCKS_PER_SEC)
   {
-    currclk=clock();
-    if (currclk==-1)
-      return 0;
+  case 1000:
+    LbTimerClock = LbTimerClock_1000;
+    break;
+  case 1024:
+    LbTimerClock = LbTimerClock_1024;
+    break;
+  default:
+    LbTimerClock = LbTimerClock_any;
+    LbWarnLog("Timer uses unsafe clock multiplication!\n");
+    break;
   }
   return 1;
 }

@@ -29,16 +29,16 @@ extern "C" {
 /******************************************************************************/
 extern TbTime global_time;
 extern TbDate global_date;
+extern TbClockMSec (* LbTimerClock)(void);
 /******************************************************************************/
 //void LbDoMultitasking(void);
-short __fastcall LbSleepFor(unsigned long delay);
-short __fastcall LbSleepUntil(unsigned long endtime);
-unsigned long LbTimerClock(void);
+short __fastcall LbSleepFor(TbClockMSec delay);
+short __fastcall LbSleepUntil(TbClockMSec endtime);
 int LbTime(struct TbTime *curr_time);
 int LbDate(struct TbDate *curr_date);
 int LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time);
 int LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date, struct TbTime *curr_time);
-
+short LbTimerInit(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

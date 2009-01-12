@@ -4612,6 +4612,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
   short retval=0;
   LbErrorLogSetup("/", log_file_name, 5);
   strcpy(window_class_name, PROGRAM_NAME);
+  LbTimerInit();
   LbSetIcon(110);
   srand(LbTimerClock());
 
