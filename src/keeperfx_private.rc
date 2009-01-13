@@ -1,7 +1,9 @@
-/* THIS FILE WILL BE OVERWRITTEN BY DEV-C++ */
-/* DO NOT EDIT! */
+/******************************************************************************/
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
+/******************************************************************************/
 
 #include <windows.h> // include for version info constants
+#include "../src/keeperfx_private.h" // version
 
 
 A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "keeperfx.ico"
@@ -10,23 +12,23 @@ A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "keeperfx.ico"
 // TO CHANGE VERSION INFORMATION, EDIT PROJECT OPTIONS...
 //
 1 VERSIONINFO
-FILEVERSION 0,2,1,9
-PRODUCTVERSION 0,2,1,9
+FILEVERSION VER_MAJOR,VER_MINOR,VER_RELEASE,VER_BUILD
+PRODUCTVERSION VER_MAJOR,VER_MINOR,VER_RELEASE,VER_BUILD
 FILETYPE VFT_APP
 {
   BLOCK "StringFileInfo"
 	 {
 		 BLOCK "040904E4"
 		 {
-			 VALUE "CompanyName", "Fan community"
-			 VALUE "FileVersion", ""
-			 VALUE "FileDescription", "Dungeon Keeper FX"
-			 VALUE "InternalName", "keeperfx"
-			 VALUE "LegalCopyright", ""
-			 VALUE "LegalTrademarks", "DK is a trademark of Electoric Arts"
-			 VALUE "OriginalFilename", "keeperfx.exe"
-			 VALUE "ProductName", "Dungeon Keeper Fan eXpansion"
-			 VALUE "ProductVersion", ""
+			 VALUE "CompanyName", COMPANY_NAME
+			 VALUE "FileVersion", FILE_VERSION
+			 VALUE "FileDescription", FILE_DESCRIPTION
+			 VALUE "InternalName", INTERNAL_NAME
+			 VALUE "LegalCopyright", LEGAL_COPYRIGHT
+			 VALUE "LegalTrademarks", LEGAL_TRADEMARKS
+			 VALUE "OriginalFilename", ORIGINAL_FILENAME
+			 VALUE "ProductName", PRODUCT_NAME
+			 VALUE "ProductVersion", PRODUCT_VERSION
 		 }
 	 }
   BLOCK "VarFileInfo"

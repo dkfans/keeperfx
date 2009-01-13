@@ -18,7 +18,7 @@
 <folderInfo id="cdt.managedbuild.toolchain.gnu.mingw.base.253554392.923562546" name="/" resourcePath="">
 <toolChain errorParsers="" id="org.eclipse.cdt.build.core.prefbase.toolchain.851758495" name="No ToolChain" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
 <targetPlatform binaryParser="" id="org.eclipse.cdt.build.core.prefbase.toolchain.851758495.556000015" name=""/>
-<builder buildPath="${workspace_loc:/keeperfx}" command="mingw32-make" errorParsers="org.eclipse.cdt.core.MakeErrorParser" id="org.eclipse.cdt.build.core.settings.default.builder.87923320" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+<builder buildPath="${workspace_loc:/keeperfx-stable}" command="mingw32-make" errorParsers="org.eclipse.cdt.core.MakeErrorParser" id="org.eclipse.cdt.build.core.settings.default.builder.87923320" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
 <tool errorParsers="org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GLDErrorParser" id="org.eclipse.cdt.build.core.settings.holder.libs.1558517679" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
 </toolChain>
 </folderInfo>
@@ -134,7 +134,7 @@
 <folderInfo id="cdt.managedbuild.toolchain.gnu.mingw.base.253554392.177074950." name="/" resourcePath="">
 <toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1660473307" name="No ToolChain" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
 <targetPlatform binaryParser="" id="org.eclipse.cdt.build.core.prefbase.toolchain.1660473307.2137767868" name=""/>
-<builder buildPath="${workspace_loc:/keeperfx}" command="mingw32-make" id="org.eclipse.cdt.build.core.settings.default.builder.80109738" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+<builder buildPath="${workspace_loc:/keeperfx-stable}" command="mingw32-make" id="org.eclipse.cdt.build.core.settings.default.builder.80109738" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
 <tool id="org.eclipse.cdt.build.core.settings.holder.libs.64828589" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
 </toolChain>
 </folderInfo>
@@ -236,6 +236,6 @@
 </cconfiguration>
 </storageModule>
 <storageModule moduleId="cdtBuildSystem" version="4.0.0">
-<project id="keeperfx.null.1370875105" name="keeperfx"/>
+<project id="keeperfx-stable.null.1370875105" name="keeperfx-stable"/>
 </storageModule>
 </cproject>

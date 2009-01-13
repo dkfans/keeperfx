@@ -13,12 +13,14 @@ WINDRES  = $(CROSS_COMPILE)windres
 DLLTOOL  = $(CROSS_COMPILE)dlltool
 EXETODLL = tools/ec/keepfx_ec
 RM       = rm -f
+MV       = mv -f
 CP       = cp -f
 MKDIR    = mkdir -p
 ECHO     = @echo
 
 BIN      = bin/keeperfx$(EXEEXT)
 RES      = obj/keeperfx_private.res
+GENSRC   = obj/ver_defs.h
 
 OBJ  = \
 obj/main.o \
@@ -45,7 +47,9 @@ CXXINCS =
 CXXFLAGS = $(CXXINCS) -g -O0  -march=i386
 CFLAGS = $(INCS) -g -O0  -march=i386
 
-VER_STRING = 0.2.1.9
+# load program version
+include version.mk
+VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(VER_BUILD)
 
 .PHONY: all all-before all-after standard heavylog clean clean-build clean-tools clean-package package pkg-before
 
@@ -61,7 +65,8 @@ all-before:
 clean: clean-build clean-tools clean-package
 
 clean-build:
-	$(RM) $(OBJ) $(BIN) obj/keeperfx.a bin/keeperfx.dll lib/keeperfx.def
+	-$(RM) $(OBJ) $(BIN)
+	-$(RM) obj/keeperfx.a bin/keeperfx.dll lib/keeperfx.def $(GENSRC)
 
 clean-tools:
 	make -C tools/ec clean
@@ -73,14 +78,22 @@ $(BIN): $(OBJ) obj/keeperfx.a
 	@echo "Final link"
 	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS)
 
-obj/%.o: src/%.cpp
+obj/%.o: src/%.cpp $(GENSRC)
 	$(CPP) -c $(CXXFLAGS) -o"$@" "$<"
 
-obj/%.o: src/%.c
+obj/%.o: src/%.c $(GENSRC)
 	$(CPP) -c $(CFLAGS) -o"$@" "$<"
 
-obj/keeperfx_private.res: src/keeperfx_private.rc 
+obj/keeperfx_private.res: src/keeperfx_private.rc $(GENSRC)
 	$(WINDRES) -i src/keeperfx_private.rc --input-format=rc -o obj/keeperfx_private.res -O coff 
+
+obj/ver_defs.h: version.mk Makefile
+	$(ECHO) \#define VER_MAJOR   $(VER_MAJOR) > "$(@D)/tmp"
+	$(ECHO) \#define VER_MINOR   $(VER_MINOR) >> "$(@D)/tmp"
+	$(ECHO) \#define VER_RELEASE $(VER_RELEASE) >> "$(@D)/tmp"
+	$(ECHO) \#define VER_BUILD   $(VER_BUILD) >> "$(@D)/tmp"
+	$(ECHO) \#define VER_STRING  \"$(VER_STRING)\" >> "$(@D)/tmp"
+	$(MV) "$(@D)/tmp" "$@"
 
 obj/keeperfx.a: bin/keeperfx.dll lib/keeperfx.def
 	$(DLLTOOL) --dllname bin/keeperfx.dll --def lib/keeperfx.def --output-lib obj/keeperfx.a
