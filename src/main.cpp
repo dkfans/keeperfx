@@ -4417,7 +4417,7 @@ void wait_at_frontend(void)
 
 void game_loop(void)
 {
-  //_DK_game_loop();
+  //_DK_game_loop(); return;
   unsigned long random_seed;
   unsigned long playtime;
   playtime = 0;
@@ -4501,6 +4501,8 @@ short process_command_line(unsigned short argc, char *argv[])
 
   sprintf( keeper_runtime_directory, fullpath);
   char *endpos=strrchr( keeper_runtime_directory, '\\');
+  if (endpos==NULL)
+      endpos=strrchr( keeper_runtime_directory, '/');
   if (endpos!=NULL)
       *endpos='\0';
 
@@ -4606,6 +4608,24 @@ short process_command_line(unsigned short argc, char *argv[])
   return (bad_param==0);
 }
 
+void close_video_context(void)
+{  
+  if ( _DK_lpDDC != NULL )
+  {
+    TDDrawBaseVTable *vtable=_DK_lpDDC->vtable;
+    //Note: __thiscall is for functions with no arguments same as __fastcall,
+    // so we're using __fastcall and passing the "this" pointer manually
+    vtable->reset_screen(_DK_lpDDC);
+    if ( _DK_lpDDC != NULL )
+    {
+      vtable=_DK_lpDDC->vtable;
+      // Destructor requires a flag passed in AX
+      asm volatile ("  movl $1,%eax\n");
+      vtable->dt(_DK_lpDDC);
+    }
+  }
+}
+
 int LbBullfrogMain(unsigned short argc, char *argv[])
 {
   static const char *func_name="LbBullfrogMain";
@@ -4620,6 +4640,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
   if ( retval < 1 )
   {
       static const char *msg_text="Command line parameters analysis failed.\n";
+      close_video_context();
       error_dialog_fatal(func_name, 1, msg_text);
       LbErrorLogClose();
       return 0;
@@ -4633,6 +4654,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
           MessageBox(NULL, "Finished OK.",
              "Dungeon Keeper Fan eXpansion", MB_OK | MB_ICONINFORMATION);
 */
+  close_video_context();
   if ( !retval )
   {
       static const char *msg_text="Setting up game failed.\n";
@@ -4727,19 +4749,5 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
 //  LbFileSaveAt("!tmp_file", &_DK_game, sizeof(struct Game));
 
-  if ( _DK_lpDDC != NULL )
-  {
-    TDDrawBaseVTable *vtable=_DK_lpDDC->vtable;
-    //Note: __thiscall is for functions with no arguments same as __fastcall,
-    // so we're using __fastcall and passing the "this" pointer manually
-    vtable->reset_screen(_DK_lpDDC);
-    if ( _DK_lpDDC != NULL )
-    {
-      vtable=_DK_lpDDC->vtable;
-      // Destructor requires a flag passed in AX
-      asm volatile ("  movl $1,%eax\n");
-      vtable->dt(_DK_lpDDC);
-    }
-  }
-    return 0;
+  return 0;
 }
