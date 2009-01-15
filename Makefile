@@ -25,6 +25,7 @@ GENSRC   = obj/ver_defs.h
 OBJ  = \
 obj/main.o \
 obj/frontend.o \
+obj/kjm_input.o \
 obj/bflib_basics.o \
 obj/bflib_dernc.o \
 obj/bflib_fileio.o \

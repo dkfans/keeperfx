@@ -26,6 +26,7 @@
 #include "bflib_keybrd.h"
 #include "bflib_sndlib.h"
 #include "keeperfx.h"
+#include "kjm_input.h"
 
 #include <string.h>
 
@@ -1230,8 +1231,8 @@ int frontend_set_state(long nstate)
       // change when all references to frontend_set_state() are rewritten
       //time_last_played_demo = LbTimerClock();
       _DK_time_last_played_demo=timeGetTime();
-      _DK_last_mouse_x = lbDisplay.MMouseX * pixel_size;
-      _DK_last_mouse_y = _DK_GetMouseY();
+      _DK_last_mouse_x = GetMouseX();
+      _DK_last_mouse_y = GetMouseY();
       _DK_fe_high_score_table_from_main_menu = 1;
       game.numfield_A &= 0xFEu;
       break;
@@ -1380,8 +1381,8 @@ void frontend_input(void)
     switch ( _DK_frontend_menu_state )
     {
       case 1:
-        mouse_x = lbDisplay.MMouseX*pixel_size;
-        mouse_y = _DK_GetMouseY();
+        mouse_x = GetMouseX();
+        mouse_y = GetMouseY();
         if ((mouse_x != _DK_last_mouse_x) || (mouse_y != _DK_last_mouse_y))
         {
           _DK_last_mouse_x = mouse_x;

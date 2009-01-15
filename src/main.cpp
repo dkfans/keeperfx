@@ -19,6 +19,7 @@
 #include "bflib_sound.h"
 
 #include "frontend.h"
+#include "kjm_input.h"
 
 #define CMDLN_MAXLEN 259
 char cmndline[CMDLN_MAXLEN+1];
@@ -1125,7 +1126,7 @@ short update_memory_constraits(void)
  * Displays 'legal' screens, intro and initializes basic game data.
  * If true is returned, then all files needed for startup were loaded,
  * and there should be the loading screen visible.
- * @return Returns true on success, false on error which makes the 
+ * @return Returns true on success, false on error which makes the
  *   gameplay impossible (usually files loading failure).
  * @note The current screen resolution at end of this function may vary.
  */
@@ -1384,7 +1385,7 @@ void update_left_button_released(void)
   if ( lbDisplay.LeftButton )
   {
     _DK_left_button_held = 1;
-    _DK_left_button_held_x = lbDisplay.MMouseX * pixel_size;
+    _DK_left_button_held_x = GetMouseX();
     _DK_left_button_held_y = lbDisplay.MMouseY * pixel_size;
   }
   if (_DK_left_button_held)
@@ -1393,7 +1394,7 @@ void update_left_button_released(void)
     {
       _DK_left_button_released = 1;
       _DK_left_button_held = 0;
-      _DK_left_button_released_x = lbDisplay.MMouseX * pixel_size;
+      _DK_left_button_released_x = GetMouseX();
       _DK_left_button_released_y = lbDisplay.MMouseY * pixel_size;
       if ( _DK_left_button_click_space_count < 5 )
       {
@@ -1417,7 +1418,7 @@ void update_right_button_released(void)
   if (lbDisplay.RightButton)
   {
     _DK_right_button_held = 1;
-    _DK_right_button_held_x = lbDisplay.MMouseX * pixel_size;
+    _DK_right_button_held_x = GetMouseX();
     _DK_right_button_held_y = lbDisplay.MMouseY * pixel_size;
   }
   if ( _DK_right_button_held )
@@ -1426,7 +1427,7 @@ void update_right_button_released(void)
     {
       _DK_right_button_released = 1;
       _DK_right_button_held = 0;
-      _DK_right_button_released_x = lbDisplay.MMouseX * pixel_size;
+      _DK_right_button_released_x = GetMouseX();
       _DK_right_button_released_y = lbDisplay.MMouseY * pixel_size;
       if ( _DK_right_button_click_space_count < 5 )
       {
@@ -1649,8 +1650,8 @@ int first_monopoly_menu(void)
  */
 short check_if_mouse_is_over_button(struct GuiButton *gbtn)
 {
-  int mouse_x = lbDisplay.MMouseX*pixel_size;
-  int mouse_y = _DK_GetMouseY();
+  int mouse_x = GetMouseX();
+  int mouse_y = GetMouseY();
   int x = gbtn->pos_x;
   int y = gbtn->pos_y;
   if ( (mouse_x >= x) && (mouse_x < x + gbtn->width)
@@ -1698,8 +1699,8 @@ short setup_trap_tooltips(struct Coord3d *pos)
       _DK_tool_tip_box.field_0 = 1;
       int stridx=_DK_trap_data[thing->field_1A].field_C;
       sprintf(_DK_tool_tip_box.text,"%s",strings[stridx]);
-      _DK_tool_tip_box.pos_x = lbDisplay.MMouseX * pixel_size;
-      _DK_tool_tip_box.pos_y = _DK_GetMouseY()+86;
+      _DK_tool_tip_box.pos_x = GetMouseX();
+      _DK_tool_tip_box.pos_y = GetMouseY()+86;
       _DK_tool_tip_box.field_809 = 4;
     } else
     {
@@ -1727,10 +1728,10 @@ short setup_object_tooltips(struct Coord3d *pos)
     }
     int stridx=_DK_specials_text[_DK_object_to_special[thing->field_1A]];
     sprintf(_DK_tool_tip_box.text,"%s",strings[stridx]);
-    _DK_tool_tip_box.pos_x = lbDisplay.MMouseX * pixel_size;
+    _DK_tool_tip_box.pos_x = GetMouseX();
     _DK_tool_tip_box.field_0 = 1;
     _DK_tool_tip_box.field_809 = 5;
-    _DK_tool_tip_box.pos_y = _DK_GetMouseY() + 86;
+    _DK_tool_tip_box.pos_y = GetMouseY()+86;
     return true;
   }
   thing = _DK_get_spellbook_at_position(pos->x.stl.num, pos->y.stl.num);
@@ -1746,9 +1747,9 @@ short setup_object_tooltips(struct Coord3d *pos)
     {
       sprintf(_DK_tool_tip_box.text,"%s",strings[stridx]);
       _DK_tool_tip_box.field_0 = 1;
-      _DK_tool_tip_box.pos_x = lbDisplay.MMouseX * pixel_size;
+      _DK_tool_tip_box.pos_x = GetMouseX();
       _DK_tool_tip_box.field_809 = 5;
-      _DK_tool_tip_box.pos_y = _DK_GetMouseY() + 86;
+      _DK_tool_tip_box.pos_y = GetMouseY() + 86;
     }
     return 1;
   }
@@ -1768,8 +1769,8 @@ short setup_object_tooltips(struct Coord3d *pos)
     else
       stridx = _DK_door_names[_DK_object_to_door_or_trap[objidx]];
     sprintf(_DK_tool_tip_box.text,"%s",strings[stridx]);
-    _DK_tool_tip_box.pos_x = lbDisplay.MMouseX * pixel_size;
-    _DK_tool_tip_box.pos_y = _DK_GetMouseY() + 86;
+    _DK_tool_tip_box.pos_x = GetMouseX();
+    _DK_tool_tip_box.pos_y = GetMouseY() + 86;
     _DK_tool_tip_box.field_809 = 5;
     return true;
   }
@@ -1802,9 +1803,9 @@ short setup_object_tooltips(struct Coord3d *pos)
     {
       _DK_tool_tip_box.field_0 = 1;
       strcpy(_DK_tool_tip_box.text, text);
-      _DK_tool_tip_box.pos_x = lbDisplay.MMouseX * pixel_size;
+      _DK_tool_tip_box.pos_x = GetMouseX();
       _DK_tool_tip_box.field_809 = 5;
-      _DK_tool_tip_box.pos_y = _DK_GetMouseY() + 86;
+      _DK_tool_tip_box.pos_y = GetMouseY() + 86;
     } else
     {
       _DK_help_tip_time++;
@@ -1833,9 +1834,9 @@ short setup_land_tooltips(struct Coord3d *pos)
   {
     _DK_tool_tip_box.field_0 = 1;
     sprintf(_DK_tool_tip_box.text, "%s", strings[stridx]);
-    _DK_tool_tip_box.pos_x = lbDisplay.MMouseX * pixel_size;
+    _DK_tool_tip_box.pos_x = GetMouseX();
     _DK_tool_tip_box.field_809 = 2;
-    _DK_tool_tip_box.pos_y = _DK_GetMouseY() + 86;
+    _DK_tool_tip_box.pos_y = GetMouseY() + 86;
   } else
   {
     _DK_help_tip_time++;
@@ -1871,8 +1872,8 @@ short setup_room_tooltips(struct Coord3d *pos)
       }
       sprintf(_DK_tool_tip_box.text, "%s", strings[stridx]);
       _DK_tool_tip_box.field_0 = 1;
-      _DK_tool_tip_box.pos_x = lbDisplay.MMouseX * pixel_size;
-      _DK_tool_tip_box.pos_y = _DK_GetMouseY() + 86 + 20*widener;
+      _DK_tool_tip_box.pos_x = GetMouseX();
+      _DK_tool_tip_box.pos_y = GetMouseY() + 86 + 20*widener;
       _DK_tool_tip_box.field_809 = 1;
   } else
   {
@@ -2065,7 +2066,7 @@ short get_gui_inputs(short gameplay_on)
   }
 
   int gidx;
-  gidx = point_is_over_gui_menu(lbDisplay.MMouseX * pixel_size, _DK_GetMouseY());
+  gidx = point_is_over_gui_menu(GetMouseX(), GetMouseY());
   if ( gidx == -1 )
     _DK_busy_doing_gui = 0;
   else
@@ -2115,12 +2116,12 @@ short get_gui_inputs(short gameplay_on)
     }
     if ( gbtn->gbtype == Lb_SLIDER )
     {
-      int mouse_x = lbDisplay.MMouseX*pixel_size;
+      int mouse_x = GetMouseX();
       int btnsize;
       btnsize = gbtn->field_1D + ((gbtn->slide_val)*(gbtn->width-64) >> 8);
       if ((mouse_x>(btnsize+22)) && (mouse_x<=(btnsize+44)))
       {
-        int mouse_y = _DK_GetMouseY();
+        int mouse_y = GetMouseY();
         if ((mouse_y>gbtn->pos_y) && (mouse_y<=(gbtn->pos_y+gbtn->height)))
         {
           if ( _DK_left_button_clicked )
@@ -2172,8 +2173,8 @@ short get_gui_inputs(short gameplay_on)
       {
         _DK_tool_tip_time = 0;
         _DK_tool_tip_box.gbutton = gbtn;
-        _DK_tool_tip_box.pos_x = lbDisplay.MMouseX*pixel_size;
-        _DK_tool_tip_box.pos_y = _DK_GetMouseY()+86;
+        _DK_tool_tip_box.pos_x = GetMouseX();
+        _DK_tool_tip_box.pos_y = GetMouseY()+86;
         _DK_tool_tip_box.field_809 = 0;
       }
     } else
@@ -2190,7 +2191,7 @@ short get_gui_inputs(short gameplay_on)
   if ( over_slider_button != -1 )
   {
     gbtn = &_DK_active_buttons[over_slider_button];
-    int mouse_x = lbDisplay.MMouseX*pixel_size;
+    int mouse_x = GetMouseX();
     gbtn->field_1 = 1;
     int slide_start,slide_end;
     slide_start = gbtn->pos_x+32;
@@ -2338,8 +2339,8 @@ short get_gui_inputs(short gameplay_on)
   }
   if ((gameplay_on) && (_DK_tool_tip_time==0) && (!_DK_busy_doing_gui))
   {
-        int mouse_x = lbDisplay.MMouseX*pixel_size;
-        int mouse_y = _DK_GetMouseY();
+        int mouse_x = GetMouseX();
+        int mouse_y = GetMouseY();
         struct Coord3d mappos;
         if ( screen_to_map(player->camera,mouse_x,mouse_y,&mappos) )
         {
@@ -2475,8 +2476,8 @@ short get_map_action_inputs()
 {
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   long keycode;
-  long mouse_x = lbDisplay.MMouseX * pixel_size;
-  long mouse_y = _DK_GetMouseY();
+  long mouse_x = GetMouseX();
+  long mouse_y = GetMouseY();
   int mappos_x = 3 * (mouse_x - 150) / 4 + 1;
   int mappos_y = 3 * (mouse_y - 56) / 4 + 1;
   if ((mappos_x >= 0) && (mappos_x < map_subtiles_x) && (mappos_y >= 0) && (mappos_y < map_subtiles_y) )
@@ -2778,8 +2779,8 @@ void get_level_lost_inputs(void)
 
   if ( player->field_452 == 4 )
   {
-    int screen_x = lbDisplay.MMouseX * pixel_size - 150;
-    int screen_y = _DK_GetMouseY() - 56;
+    int screen_x = GetMouseX() - 150;
+    int screen_y = GetMouseY() - 56;
     if ( _DK_is_game_key_pressed(31, &keycode, 0) )
     {
       lbKeyOn[keycode] = 0;
@@ -4609,7 +4610,7 @@ short process_command_line(unsigned short argc, char *argv[])
 }
 
 void close_video_context(void)
-{  
+{
   if ( _DK_lpDDC != NULL )
   {
     TDDrawBaseVTable *vtable=_DK_lpDDC->vtable;

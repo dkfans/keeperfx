@@ -1209,7 +1209,7 @@ DLLIMPORT long _DK_frame_number;
 
 
 #pragma pack()
- 
+
 //Functions - exported by the DLL
 
 DLLIMPORT int __stdcall _DK_WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd);
@@ -1281,7 +1281,6 @@ DLLIMPORT  int __cdecl _DK_set_game_key(long key_id, unsigned char key, int shif
 DLLIMPORT void __cdecl _DK_frontmap_input(void);
 DLLIMPORT void __cdecl _DK_frontnetmap_input(void);
 DLLIMPORT void __cdecl _DK_fronttorture_input(void);
-DLLIMPORT long __cdecl _DK_GetMouseY(void);
 DLLIMPORT int __cdecl _DK_get_gui_inputs(int);
 DLLIMPORT void __cdecl _DK_frontnet_start_input(void);
 DLLIMPORT void __cdecl _DK_frontend_high_score_table_input(void);
