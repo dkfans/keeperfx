@@ -17,6 +17,7 @@
 #include "bflib_video.h"
 #include "bflib_guibtns.h"
 #include "bflib_sound.h"
+#include "bflib_mouse.h"
 
 #include "frontend.h"
 #include "kjm_input.h"
@@ -4450,7 +4451,7 @@ void game_loop(void)
     LbScreenClear(0);
     LbScreenSwap();
     keeper_gameplay_loop();
-    _DK_LbMouseChangeSpriteAndHotspot(0, 0, 0);
+    LbMouseChangeSpriteAndHotspot(0, 0, 0);
     LbScreenClear(0);
     LbScreenSwap();
     StopRedbookTrack();

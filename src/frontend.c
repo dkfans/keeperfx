@@ -25,6 +25,7 @@
 #include "bflib_datetm.h"
 #include "bflib_keybrd.h"
 #include "bflib_sndlib.h"
+#include "bflib_mouse.h"
 #include "keeperfx.h"
 #include "kjm_input.h"
 
@@ -1222,10 +1223,10 @@ int frontend_set_state(long nstate)
   switch ( nstate )
   {
     case 0:
-      _DK_LbMouseChangeSpriteAndHotspot(0, 0, 0);
+      LbMouseChangeSpriteAndHotspot(0, 0, 0);
       break;
     case 1:
-      _DK_LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
+      LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
       _DK_continue_game_option_available = continue_game_available();
       _DK_turn_on_menu(18);
       // change when all references to frontend_set_state() are rewritten
@@ -1238,7 +1239,7 @@ int frontend_set_state(long nstate)
       break;
     case 2:
       _DK_turn_on_menu(19);
-      _DK_LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
+      LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
       break;
     case 3:
       if ( !_DK_frontmap_load() )
@@ -1251,13 +1252,13 @@ int frontend_set_state(long nstate)
     case 5:
       _DK_turn_on_menu(21);
       _DK_frontnet_session_setup();
-      _DK_LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
+      LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
       game.numfield_A &= 0xFEu;
       break;
     case 6:
       _DK_turn_on_menu(22);
       _DK_frontnet_start_setup();
-      _DK_LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
+      LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
       game.numfield_A |= 0x01;
       break;
     case 7:
@@ -1294,7 +1295,7 @@ int frontend_set_state(long nstate)
       break;
     case 17:
       _DK_turn_on_menu(25);
-      _DK_LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
+      LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
       _DK_frontstats_set_timer(); // note: rewrite this in pack with frontstats_update
       break;
     case 18:
@@ -1304,15 +1305,15 @@ int frontend_set_state(long nstate)
         game.dungeon[my_player_number].allow_save_score = false;
         add_score_to_high_score_table();
       }
-      _DK_LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
+      LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
       _DK_lbInkey = 0;
       break;
     case 19:
-      _DK_LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
+      LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
       _DK_fronttorture_load();
       break;
     case 24:
-      _DK_LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
+      LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
       _DK_frontnetmap_load();
       break;
     case 26:

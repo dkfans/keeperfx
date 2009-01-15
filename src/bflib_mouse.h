@@ -103,7 +103,10 @@ struct DevInput {
 extern struct DevInput joy;
 */
 /******************************************************************************/
-int __fastcall LbMouseSetup(struct TbSprite *MouseSprite, char x_ratio, char y_ratio);
+int LbMouseChangeSpriteAndHotspot(struct TbSprite *spr, int a, int b);
+int LbMouseSetup(struct TbSprite *MouseSprite);
+int LbMouseSetPointerHotspot(int x, int y);
+
 int __fastcall LbMouseReset();
 int __fastcall LbMouseSetPosition(long x, long y);
 int __fastcall LbMousePlace(void);

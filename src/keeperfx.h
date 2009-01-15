@@ -1241,7 +1241,6 @@ DLLIMPORT void __cdecl _DK_set_player_instance(struct PlayerInfo *playerinf, lon
 DLLIMPORT void __cdecl _DK_clear_mapwho(void);
 DLLIMPORT void __cdecl _DK_delete_all_structures(void);
 DLLIMPORT void __cdecl _DK_frontstats_initialise(void);
-DLLIMPORT int __cdecl _DK_LbMouseChangeSpriteAndHotspot(TbSprite *spr, int, int);
 DLLIMPORT void __cdecl _DK_PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *palette);
 DLLIMPORT void __cdecl _DK_initialise_eye_lenses(void);
 DLLIMPORT void __cdecl _DK_reset_eye_lenses(void);
