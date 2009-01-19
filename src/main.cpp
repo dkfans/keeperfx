@@ -2405,20 +2405,6 @@ short get_creature_passenger_action_inputs(void)
   return false;
 }
 
-long menu_id_to_number(short menu_id)
-{
-  int idx;
-  const short gmax=8;//sizeof(_DK_active_menus)/sizeof(struct GuiMenu);
-  for(idx=0;idx<gmax;idx++)
-  {
-    struct GuiMenu *gmnu;
-    gmnu=&_DK_active_menus[idx];
-    if ((gmnu->field_1 != 0) && (gmnu->field_0 == menu_id))
-      return idx;
-  }
-  return -1;
-}
-
 void toggle_tooltips(void)
 {
   _DK_settings.tooltips_on = !_DK_settings.tooltips_on;

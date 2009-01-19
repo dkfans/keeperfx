@@ -29,6 +29,11 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+#pragma pack(1)
+
+#define ACTIVE_BUTTONS_COUNT 86
+#define ACTIVE_MENUS_COUNT 8
+/******************************************************************************/
 DLLIMPORT struct GuiButtonInit _DK_main_menu_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_room_menu_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_spell_menu_buttons[];
@@ -109,10 +114,15 @@ DLLIMPORT struct GuiMenu _DK_frontend_option_menu;
 DLLIMPORT struct GuiMenu *_DK_menu_list[40];
 
 DLLIMPORT char _DK_info_tag;
+#define info_tag _DK_info_tag
 DLLIMPORT char _DK_room_tag;
+#define room_tag _DK_room_tag
 DLLIMPORT char _DK_spell_tag;
+#define spell_tag _DK_spell_tag
 DLLIMPORT char _DK_trap_tag;
+#define trap_tag _DK_trap_tag
 DLLIMPORT char _DK_creature_tag;
+#define creature_tag _DK_creature_tag
 DLLIMPORT char _DK_input_string[8][16];
 #define input_string _DK_input_string
 DLLIMPORT extern struct GuiButton *_DK_input_button;
@@ -127,9 +137,16 @@ DLLIMPORT long _DK_net_number_of_services;
 #define net_number_of_services _DK_net_number_of_services
 DLLIMPORT extern struct TbSprite *_DK_frontend_font[4];
 #define frontend_font _DK_frontend_font
+DLLIMPORT char _DK_no_of_active_menus;
+#define no_of_active_menus _DK_no_of_active_menus
+DLLIMPORT char _DK_menu_stack[8];
+#define menu_stack _DK_menu_stack
+DLLIMPORT long _DK_frontend_mouse_over_button_start_time;
+#define frontend_mouse_over_button_start_time _DK_frontend_mouse_over_button_start_time
 
+#pragma pack()
 /******************************************************************************/
-// Variables - no linger imported
+// Variables - no longer imported
 extern struct GuiMenu main_menu;
 extern struct GuiMenu room_menu;
 extern struct GuiMenu spell_menu;
@@ -450,6 +467,7 @@ DLLIMPORT void _DK_setup_gui_tooltip(struct GuiButton *gbtn);
 /******************************************************************************/
 // Reworked functions
 
+void gui_area_null(struct GuiButton *gbtn);
 void gui_activity_background(struct GuiMenu *gmnu);
 void gui_pretty_background(struct GuiMenu *gmnu);
 void frontend_copy_background(struct GuiMenu *gmnu);
@@ -470,6 +488,9 @@ void frontnet_service_up(struct GuiButton *gbtn);
 void frontnet_service_down(struct GuiButton *gbtn);
 void frontnet_service_maintain(struct GuiButton *gbtn);
 void frontnet_draw_service_button(struct GuiButton *gbtn);
+long menu_id_to_number(short menu_id);
+char update_menu_fade_level(struct GuiMenu *gmnu);
+void draw_menu_buttons(struct GuiMenu *gmnu);
 
 int frontend_set_state(long nstate);
 int get_startup_menu_state(void);

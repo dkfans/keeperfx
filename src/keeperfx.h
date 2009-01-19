@@ -1103,6 +1103,7 @@ DLLIMPORT extern char _DK_high_score_entry[64];
 DLLIMPORT extern unsigned long _DK_time_last_played_demo;
 DLLIMPORT extern char _DK_lbfade_open;
 DLLIMPORT extern struct GuiButton _DK_active_buttons[86];
+#define active_buttons _DK_active_buttons
 DLLIMPORT extern unsigned short _DK_battle_creature_over;
 DLLIMPORT extern char _DK_gui_room_type_highlighted;
 DLLIMPORT extern char _DK_gui_door_type_highlighted;

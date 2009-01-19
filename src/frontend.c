@@ -26,12 +26,24 @@
 #include "bflib_keybrd.h"
 #include "bflib_sndlib.h"
 #include "bflib_mouse.h"
+#include "bflib_vidraw.h"
 #include "keeperfx.h"
+#include "gui_draw.h"
 #include "kjm_input.h"
 
 #include <string.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /******************************************************************************/
+DLLIMPORT char _DK_update_menu_fade_level(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_gui_area_null(struct GuiButton *gbtn);
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
+
 long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, char, long *tag)
 {}
 
@@ -914,6 +926,19 @@ void frontend_copy_background(struct GuiMenu *gmnu)
   _DK_frontend_copy_background(gmnu);
 }
 
+void gui_area_null(struct GuiButton *gbtn)
+{
+  if (gbtn->field_0 & 0x08)
+  {
+    LbSpriteDraw(gbtn->field_1D/pixel_size, gbtn->field_1F/pixel_size,
+      &button_sprite[gbtn->field_29]);
+  } else
+  {
+    LbSpriteDraw(gbtn->field_1D/pixel_size, gbtn->field_1F/pixel_size,
+      &button_sprite[gbtn->field_29]);
+  }
+}
+
 void gui_round_glass_background(struct GuiMenu *gmnu)
 {
   _DK_gui_round_glass_background(gmnu);
@@ -1482,6 +1507,234 @@ void draw_defining_a_key_box(void)
     _DK_draw_text_box(_DK_strings[470]);
 }
 
+void kill_button(struct GuiButton *gbtn)
+{
+  gbtn->field_0 &= 0xFEu;
+}
+
+void kill_menu(struct GuiMenu *gmnu)
+{
+  struct GuiButton *gbtn;
+  int i;
+  if (gmnu->field_1)
+  {
+    gmnu->field_1 = 0;
+    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    {
+      gbtn = &active_buttons[i];
+      if ((gbtn->field_0 & 0x01) && (gbtn->gmenu_idx == gmnu->field_14))
+        kill_button(gbtn);
+    }
+  }
+}
+
+char update_menu_fade_level(struct GuiMenu *gmnu)
+{
+  return _DK_update_menu_fade_level(gmnu);
+}
+
+void draw_menu_buttons(struct GuiMenu *gmnu)
+{
+  //_DK_draw_menu_buttons(gmnu); return;
+  int i;
+  struct GuiButton *gbtn;
+  Gf_Btn_Callback callback;
+  for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+  {
+    gbtn = &active_buttons[i];
+    callback = gbtn->field_13;
+    if ((callback != NULL) && (gbtn->field_0 & 0x04) && (gbtn->field_0 & 0x01) && (gbtn->gmenu_idx == gmnu->field_14))
+    {
+      if ((gbtn->field_1 == 0) && (gbtn->field_2 == 0) || (gbtn->gbtype == 4) || (callback == gui_area_null))
+        callback(gbtn);
+    }
+  }
+  for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+  {
+    gbtn = &active_buttons[i];
+    callback = gbtn->field_13;
+    if ((callback != NULL) && (gbtn->field_0 & 0x04) && (gbtn->field_0 & 0x01) && (gbtn->gmenu_idx == gmnu->field_14))
+    {
+      if (((gbtn->field_1) || (gbtn->field_2)) && (gbtn->gbtype != 4) && (callback != gui_area_null))
+        callback(gbtn);
+    }
+  }
+}
+
+long menu_id_to_number(short menu_id)
+{
+  int idx;
+  struct GuiMenu *gmnu;
+  const short gmax=8;//sizeof(active_menus)/sizeof(struct GuiMenu);
+  for(idx=0;idx<gmax;idx++)
+  {
+    gmnu=&active_menus[idx];
+    if ((gmnu->field_1 != 0) && (gmnu->field_0 == menu_id))
+      return idx;
+  }
+  return -1;
+}
+
+void remove_from_menu_stack(short mnu_id)
+{
+  unsigned short i;
+  for (i=0; i<no_of_active_menus; i++)
+  {
+    if (menu_stack[i] == mnu_id)
+    {
+      while (i < no_of_active_menus-1)
+      {
+        menu_stack[i] = menu_stack[i+1];
+        i++;
+      }
+      break;
+    }
+  }
+  if (i < no_of_active_menus)
+    no_of_active_menus--;
+}
+
+void update_fade_active_menus(void)
+{
+  struct GuiMenu *gmnu;
+  int k;
+  const short gmax=8;//sizeof(active_menus)/sizeof(struct GuiMenu);
+  for (k=0; k < gmax; k++)
+  {
+    gmnu = &active_menus[k];
+    if (update_menu_fade_level(gmnu) == -1)
+    {
+      kill_menu(gmnu);
+      remove_from_menu_stack(gmnu->field_0);
+    }
+  }
+}
+
+void draw_active_menus_buttons(void)
+{
+  struct GuiMenu *gmnu;
+  int k,i;
+  Gf_Mnu_Callback callback;
+  for (k=0; k < no_of_active_menus; k++)
+  {
+    i = menu_id_to_number(menu_stack[k]);
+    if (i<0) continue;
+    gmnu = &active_menus[i];
+//LbSyncLog("DRAW menu %d, fields %d, %d\n",i,gmnu->field_1,gmnu->flgfield_1D);
+    if ((gmnu->field_1) && (gmnu->flgfield_1D))
+    {
+        if ((gmnu->field_1 != 2) && (gmnu->numfield_2))
+        {
+          if (gmnu->ptrfield_15 != NULL)
+            if (gmnu->ptrfield_15->numfield_2)
+              lbDisplay.DrawFlags |= 0x04;
+        }
+        callback = gmnu->ptrfield_10;
+        if (callback != NULL)
+          callback(gmnu);
+        if (gmnu->field_1 == 2)
+          draw_menu_buttons(gmnu);
+        lbDisplay.DrawFlags &= 0xFFFBu;
+    }
+  }
+}
+
+void draw_menu_highlight(struct GuiMenu *gmnu)
+{
+  struct GuiButton *gbtn;
+  struct GuiMenu *secmnu;
+  int i,j;
+  int x,y;
+  short in_range;
+  if (gmnu->flgfield_1D == 0)
+    return;
+  for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+  {
+    gbtn = &active_buttons[i];
+    if ((!gbtn->field_13) || ((gbtn->field_0 & 0x04) == 0) || ((gbtn->field_0 & 0x01) == 0) || (!game.field_1516F3))
+      continue;
+    in_range = 0;
+    switch (gbtn->id_num)
+    {
+    case 1:
+      if ((game.field_1516F3 >= 68) && (game.field_1516F3 <= 71))
+        in_range = 1;
+      break;
+    case 2:
+      if ((game.field_1516F3 >= 6) && (game.field_1516F3 <= 20))
+        in_range = 1;
+      break;
+    case 3:
+      if ((game.field_1516F3 >= 21) && (game.field_1516F3 <= 36))
+        in_range = 1;
+      break;
+    case 4:
+      if ((game.field_1516F3 >= 53) && (game.field_1516F3 <= 61))
+        in_range = 1;
+      break;
+    default:
+      break;
+    }
+    if (in_range)
+    {
+      for (j=0; j<ACTIVE_MENUS_COUNT; j++)
+      {
+        secmnu = &active_menus[j];
+        if (secmnu->field_1)
+        {
+          if ((gbtn->field_1B & 0xFF) == secmnu->field_0)
+            break;
+        }
+      }
+      if (j != -1)
+        continue;
+    } else
+    {
+      if ((gbtn->id_num == 0) || (gbtn->id_num != game.field_1516F3))
+        continue;
+    }
+    x = ((gbtn->width >> 1) - pixel_size * button_sprite[176].SWidth / 2 + gbtn->pos_x);
+    y = ((gbtn->height >> 1) - pixel_size * button_sprite[176].SHeight / 2 + gbtn->pos_y);
+    j = 176+((game.seedchk_random_used >> 1) & 7);
+    LbSpriteDraw(x/pixel_size, y/pixel_size, &button_sprite[j]);
+  }
+}
+
+void draw_active_menus_highlights(void)
+{
+  struct GuiMenu *gmnu;
+  int k;
+  for (k=0; k<ACTIVE_MENUS_COUNT; k++)
+  {
+    gmnu = &active_menus[k];
+    if ((gmnu->field_1) && (gmnu->field_0 == 1))
+      draw_menu_highlight(gmnu);
+  }
+}
+
+
+void draw_gui(void)
+{
+  //_DK_draw_gui(); return;
+  unsigned int flg_mem;
+  lbFontPtr = winfont;
+  flg_mem = lbDisplay.DrawFlags;
+  _DK_LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+  update_fade_active_menus();
+  draw_active_menus_buttons();
+  if (game.field_1516F3 != 0)
+  {
+    draw_active_menus_highlights();
+    if (game.field_1516F7 != -1)
+    {
+      game.field_1516F7--;
+      if (game.field_1516F7 == 0)
+        game.field_1516F3 = 0;
+    }
+  }
+  lbDisplay.DrawFlags = flg_mem;
+}
+
 struct TbBirthday {
     unsigned char day;
     unsigned char month;
@@ -1567,13 +1820,13 @@ short frontend_draw(void)
     case 18:
     case 20:
     case 27:
-        _DK_draw_gui();
+        draw_gui();
         break;
     case 3:
         _DK_frontmap_draw();
         break;
     case 6:
-        _DK_draw_gui();
+        draw_gui();
         break;
     case 12:
         frontstory_draw();
@@ -1588,7 +1841,7 @@ short frontend_draw(void)
         _DK_frontnetmap_draw();
         break;
     case 26:
-        _DK_draw_gui();
+        draw_gui();
         if ( _DK_defining_a_key )
             draw_defining_a_key_box();
         break;

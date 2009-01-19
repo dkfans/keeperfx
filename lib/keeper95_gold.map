@@ -454,6 +454,7 @@
  0001:000A5540       check_mouse_scroll
  0001:000A5650       update_velocity
  0001:000A5A10       process_dungeons
+ 0001:000A6DA0       update_power_sight_explored
  0001:000A7850       process_sound_heap
  0001:000A7F10       output_message
  0001:000A80C0       process_messages
@@ -1012,10 +1013,12 @@
  0003:000AB430       keeper_runtime_directory
  0003:000AB4D4       winfont
  0003:000AB4E4       scratch
+ 0003:000EB4F4       button_sprite
  0003:000EB510       block_ptrs
  0003:000EBED0       key_modifiers
  0003:000EBED4       MyScreenHeight
  0003:000EBEF8       pixel_size
+ 0003:000EBF00       colours
  0003:000ECF08       W?text$n__a
  0003:000ED310       game
  0003:0023EB54       W?eye_lens_spare_screen_memory$npnuc
@@ -1050,12 +1053,14 @@
  0003:00245118       activity_list
  0003:00245178       gui_error_text
  0003:00245278       input_string
+ 0003:002452F8       menu_stack
  0003:00245300       tool_tip_box
  0003:00245B10       help_tip_time
  0003:00245B14       video_gamma_correction
  0003:00245B20       active_buttons
  0003:00246E4C       video_cluedo_mode
  0003:00246EB0       default_menu
+ 0003:00246EC8       no_of_active_menus
  0003:00246ED0       active_menus
  0003:00247000       tool_tip_time
  0003:00247004       sound_level
@@ -1110,5 +1115,5 @@
  0003:002795A0       WideCharStr
  0003:0027A9C0       NumOfElements
  0005:00006562       set_cpu_mode
- 0003:000EBF00       colours
- 0001:000A6DA0       update_power_sight_explored
+ 0005:00011C10       LbSpriteDraw
+ 0001:00099D10       update_menu_fade_level

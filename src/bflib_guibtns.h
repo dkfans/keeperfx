@@ -21,12 +21,17 @@
 #define BFLIB_GUIBTNS_H
 
 #include "bflib_basics.h"
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 #pragma pack(1)
+
+#define STRINGS_MAX  941
+#define INPUT_FIELD_LEN 40
+
 // Type definitions
 enum TbButtonType {
         Lb_SLIDER  =  4,
@@ -122,7 +127,7 @@ struct GuiMenu {
       short height;
       Gf_Mnu_Callback ptrfield_10;
       char field_14;
-      short unkfield_15;
+      struct GuiMenu *ptrfield_15;
       char field_17;
       char field_18;
       Gf_Mnu_Callback ptrfield_19;
@@ -147,11 +152,21 @@ struct FrontEndButtonData {
         unsigned char field_2;
 };
 
-#pragma pack()
-
 /******************************************************************************/
 // Exported variables
+DLLIMPORT extern struct GuiButton *_DK_input_button;
+#define input_button _DK_input_button
+DLLIMPORT extern struct GuiMenu _DK_active_menus[8];
+#define active_menus _DK_active_menus
+DLLIMPORT char _DK_backup_input_field[INPUT_FIELD_LEN];
+#define backup_input_field _DK_backup_input_field
 
+DLLIMPORT extern char *_DK_strings_data;
+#define strings_data _DK_strings_data
+DLLIMPORT extern char *_DK_strings[STRINGS_MAX+1];
+#define strings _DK_strings
+
+#pragma pack()
 /******************************************************************************/
 // Exported functions
 void do_button_click_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
