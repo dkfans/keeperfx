@@ -29,6 +29,7 @@
 #include "bflib_video.h"
 #include "bflib_memory.h"
 #include "bflib_sprite.h"
+#include "bflib_vidraw.h"
 
 #ifdef __cplusplus
 extern "C" {

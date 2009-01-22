@@ -316,6 +316,7 @@
  0001:00093D20       gui_creature_query_background2
  0001:00093DF0       gui_activity_background
  0001:00094040       create_menu
+ 0001:000946B0       create_button
  0001:00094890       init_gui
  0001:00094940       draw_gui
  0001:00094D20       draw_menu_buttons
@@ -356,6 +357,7 @@
  0001:000989D0       get_gui_inputs
  0001:00099980       do_button_click_actions
  0001:00099AD0       do_button_release_actions
+ 0001:00099D10       update_menu_fade_level
  0001:00099D80       setup_gui_tooltip
  0001:00099F50       draw_tooltip
  0001:0009AFF0       gui_pretty_background
@@ -927,6 +929,8 @@
  0003:00017534       tooltip_scroll_timer
  0003:00017538       gui_last_left_button_pressed_id
  0003:0001753C       gui_last_right_button_pressed_id
+ 0003:00017544       old_menu_mouse_x
+ 0003:00017548       old_menu_mouse_y
  0003:0001754C       drag_menu_x
  0003:00017550       drag_menu_y
  0003:00017554       info_tag
@@ -942,6 +946,7 @@
  0003:0001757C       gui_creature_type_highlighted
  0003:00017590       menu_list
  0003:00017810       error_box_message
+ 0003:0001E4B8       menu_ids
  0003:0001E5F0       specials_text
  0003:0001EB98       netmap_flag_load_files
  0003:0001F214       using_two_banks
@@ -1012,6 +1017,7 @@
  0003:000AB428       MyScreenWidth
  0003:000AB430       keeper_runtime_directory
  0003:000AB4D4       winfont
+ 0003:000AB4D8       units_per_pixel
  0003:000AB4E4       scratch
  0003:000EB4F4       button_sprite
  0003:000EB510       block_ptrs
@@ -1059,6 +1065,7 @@
  0003:00245B14       video_gamma_correction
  0003:00245B20       active_buttons
  0003:00246E4C       video_cluedo_mode
+ 0003:00246E88       backup_input_field
  0003:00246EB0       default_menu
  0003:00246EC8       no_of_active_menus
  0003:00246ED0       active_menus
@@ -1116,4 +1123,3 @@
  0003:0027A9C0       NumOfElements
  0005:00006562       set_cpu_mode
  0005:00011C10       LbSpriteDraw
- 0001:00099D10       update_menu_fade_level

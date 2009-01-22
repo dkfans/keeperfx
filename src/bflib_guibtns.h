@@ -29,13 +29,31 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+struct GuiBox;
+struct GuiBoxOption;
+
 #define STRINGS_MAX  941
 #define INPUT_FIELD_LEN 40
 
 // Type definitions
 enum TbButtonType {
-        Lb_SLIDER  =  4,
+        Lb_RADIOBTN  =  3,
+        Lb_SLIDER    =  4,
 };
+
+enum TbComponentAlign {
+    CA_None        = 0x00,
+    CA_AlignTop    = 0x01,
+    CA_AlignMiddle = 0x02,
+    CA_AlignBottom = 0x04,
+    CA_AlignLeft   = 0x10,
+    CA_AlignCenter = 0x20,
+    CA_AlignRight  = 0x40,
+};
+
+#define CA_TopLeft  CA_AlignTop|CA_AlignLeft
+#define CA_TopCntr  CA_AlignTop|CA_AlignCenter
+#define CA_Center   CA_AlignMiddle|CA_AlignCenter
 
 union GuiVariant {
       long lval;
@@ -44,22 +62,42 @@ union GuiVariant {
 };
 
 
-typedef long (*Gf_OptnBox_Callback)(struct GuiBox *, struct GuiBoxOption *, char, long *);
+typedef long (*Gf_OptnBox_4Callback)(struct GuiBox *, struct GuiBoxOption *, char, long *);
+typedef long (*Gf_OptnBox_3Callback)(struct GuiBox *, struct GuiBoxOption *, long *);
 typedef void (*Gf_Btn_Callback)(struct GuiButton *gbtn);
 typedef void (*Gf_Mnu_Callback)(struct GuiMenu *gmnu);
 
 struct GuiBoxOption {
        const char *label;
        unsigned char numfield_4;
-       void *ofsfield_5;
-       Gf_OptnBox_Callback callback;
+       Gf_OptnBox_3Callback active_cb;
+       Gf_OptnBox_4Callback callback;
        long field_D;
        long field_11;
        long field_15;
        long field_19;
        long field_1D;
        long field_21;
-       short field_25;
+       char field_25;
+       char field_26;
+};
+
+struct GuiBox {
+char field_0;
+    short field_1;
+    long pos_x;
+    long pos_y;
+    long width;
+    long height;
+    struct GuiBoxOption *optn_list;
+    struct GuiBox *next_box;
+    struct GuiBox *prev_box;
+};
+
+struct DraggingBox {
+    struct GuiBox *gbox;
+long field_4;
+long field_8;
 };
 
 struct GuiButtonInit {
@@ -100,10 +138,9 @@ struct GuiButton {
        Gf_Btn_Callback field_F;
        Gf_Btn_Callback field_13;
        Gf_Btn_Callback field_17;
-       char field_1B;
-       unsigned char field_1C;
-       short field_1D;
-       short field_1F;
+       unsigned short field_1B; // hard to say if it's a word or two bytes...
+       short scr_pos_x;
+       short scr_pos_y;
        short pos_x;
        short pos_y;
        short width;
@@ -111,7 +148,7 @@ struct GuiButton {
        short field_29;
        short field_2B;
        unsigned short field_2D;
-       long field_2F;
+       struct GuiMenu *field_2F;
        unsigned long *field_33;
        unsigned short slide_val; // slider value, scaled 0..255
 };
@@ -120,7 +157,7 @@ struct GuiMenu {
       char field_0;
       unsigned char field_1;
       short numfield_2;
-      void *ptrfield_4;
+      struct GuiButtonInit *ptrfield_4;
       short pos_x;
       short pos_y;
       short width;
@@ -152,6 +189,14 @@ struct FrontEndButtonData {
         unsigned char field_2;
 };
 
+struct EventTypeInfo { //sizeof=0x10
+int field_0;
+unsigned short field_4;
+unsigned short field_6;
+int field_8;
+int field_C;
+};
+
 /******************************************************************************/
 // Exported variables
 DLLIMPORT extern struct GuiButton *_DK_input_button;
@@ -170,8 +215,11 @@ DLLIMPORT extern char *_DK_strings[STRINGS_MAX+1];
 /******************************************************************************/
 // Exported functions
 void do_button_click_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
-void do_button_release_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
+void do_sound_menu_click(void);
+void do_sound_button_click(struct GuiButton *gbtn);
+void setup_input_field(struct GuiButton *gbtn);
 
+void play_non_3d_sample(long sample_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

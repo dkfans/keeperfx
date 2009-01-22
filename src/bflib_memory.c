@@ -28,8 +28,87 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#if defined(WIN32)
+
+#ifndef NULL
+#ifdef __cplusplus
+#define NULL 0
+#else
+#define NULL ((void*)0)
+#endif
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef VOID
+#define VOID void
+#endif
+
+#ifndef WINBASEAPI
+#ifdef __W32API_USE_DLLIMPORT__
+#define WINBASEAPI DECLSPEC_IMPORT
+#else
+#define WINBASEAPI
+#endif
+#endif
+
+#define WINAPI __stdcall
+#define WINAPIV __cdecl
+#define APIENTRY __stdcall
+#define CALLBACK __stdcall
+
+typedef unsigned long DWORD;
+typedef char CHAR;
+typedef short SHORT;
+typedef long LONG;
+typedef char CCHAR, *PCCHAR;
+typedef unsigned char UCHAR,*PUCHAR;
+typedef unsigned short USHORT,*PUSHORT;
+typedef unsigned long ULONG,*PULONG;
+typedef char *PSZ;
+
+typedef struct _MEMORYSTATUS {
+	DWORD dwLength;
+	DWORD dwMemoryLoad;
+	DWORD dwTotalPhys;
+	DWORD dwAvailPhys;
+	DWORD dwTotalPageFile;
+	DWORD dwAvailPageFile;
+	DWORD dwTotalVirtual;
+	DWORD dwAvailVirtual;
+} MEMORYSTATUS,*LPMEMORYSTATUS;
+
+WINBASEAPI VOID WINAPI GlobalMemoryStatus(LPMEMORYSTATUS);
+
+#endif
+/******************************************************************************/
 unsigned long lbMemoryAvailable=0;
 /******************************************************************************/
+/*
+ * Updates CPU and memory status variables.
+ */
+short update_memory_constraits(void)
+{
+  LbMemoryCheck();
+  if ( lbMemoryAvailable <= (8*1024*1024) )
+      mem_size = 8;
+  else
+  if ( lbMemoryAvailable <= (16*1024*1024) )
+      mem_size = 16;
+  else
+  if ( lbMemoryAvailable <= (24*1024*1024) )
+      mem_size = 24;
+  else
+      mem_size = 32;
+  LbSyncLog("PhysicalMemory %d\n", mem_size);
+  return true;
+}
+
 void * __fastcall LbMemorySet(void *dst, uchar c, ulong length)
 {
   return memset(dst, c, length);
@@ -97,9 +176,16 @@ int __fastcall LbMemoryFree(void *mem_ptr)
     return 1;
 }
 
-int __fastcall LbMemoryCheck()
+short LbMemoryCheck(void)
 {
+#if defined(WIN32)
+  struct _MEMORYSTATUS msbuffer;
+  msbuffer.dwLength = 32;
+  GlobalMemoryStatus(&msbuffer);
+  lbMemoryAvailable=msbuffer.dwTotalPhys;
+#else
   lbMemoryAvailable=536870912;
+#endif
   return 1;
 }
 

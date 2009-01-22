@@ -48,6 +48,7 @@ extern "C" {
 /******************************************************************************/
 // Global variables
 void *smack_draw_callback=NULL;
+unsigned char smk_palette[768];
 
 DLLIMPORT long _DK_anim_stop(void);
 DLLIMPORT long _DK_anim_record(void);
@@ -186,7 +187,6 @@ short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
   static const char *func_name="play_smk_via_buffer";
   //LbSyncLog("Starting %s.\n",func_name);
   //return _DK_play_smk_via_buffer(fname, smkflags, plyflags);
-  static unsigned char palette[768];
   void *snd_driver=GetSoundDriver();
   if ( snd_driver )
     SmackSoundUseMSS(snd_driver);
@@ -215,7 +215,7 @@ short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
         {
           unsigned char chr;
           chr = smktag->Palette[idx];
-          palette[idx] = chr>>2;
+          smk_palette[idx] = chr>>2;
         }
       }
       SmackDoFrame(smktag);
@@ -227,7 +227,7 @@ short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
         if ( reset_pal )
         {
           LbScreenWaitVbi();
-          LbPaletteSet(palette);
+          LbPaletteSet(smk_palette);
         }
         LbScreenSwap();
       }
@@ -239,8 +239,8 @@ short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
             SmackClose(smktag);
             return 2;
         }
-        if (((plyflags & 0x02)==0) && (_DK_lbKeyOn[KC_ESCAPE] || _DK_lbKeyOn[KC_RETURN]
-            || _DK_lbKeyOn[KC_SPACE] || _DK_lbDisplay.LeftButton) )
+        if (((plyflags & 0x02)==0) && (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_RETURN]
+            || lbKeyOn[KC_SPACE] || _DK_lbDisplay.LeftButton) )
         {
             SmackClose(smktag);
             LbMemoryFree(buf);
@@ -264,7 +264,6 @@ short play_smk_direct(char *fname, int smkflags, int plyflags)
   //LbSyncLog("Starting %s.\n",func_name);
   //return _DK_play_smk_direct(fname, smkflags, plyflags);
 
-  static unsigned char palette[768];
   void *snd_driver=GetSoundDriver();
   if ( snd_driver )
     SmackSoundUseMSS(snd_driver);
@@ -286,7 +285,7 @@ short play_smk_direct(char *fname, int smkflags, int plyflags)
         {
           unsigned char chr;
           chr = smktag->Palette[idx];
-          palette[idx] = chr>>2;
+          smk_palette[idx] = chr>>2;
         }
       }
       if ( LbScreenLock() == 1 )
@@ -305,7 +304,7 @@ short play_smk_direct(char *fname, int smkflags, int plyflags)
         if ( reset_pal )
         {
           LbScreenWaitVbi();
-          LbPaletteSet(palette);
+          LbPaletteSet(smk_palette);
         }
         LbScreenSwap();
       }
@@ -317,8 +316,8 @@ short play_smk_direct(char *fname, int smkflags, int plyflags)
             SmackClose(smktag);
             return 2;
         }
-        if (((plyflags & 0x02)==0) && (_DK_lbKeyOn[KC_ESCAPE] || _DK_lbKeyOn[KC_RETURN]
-            || _DK_lbKeyOn[KC_SPACE] || _DK_lbDisplay.LeftButton) )
+        if (((plyflags & 0x02)==0) && (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_RETURN]
+            || lbKeyOn[KC_SPACE] || _DK_lbDisplay.LeftButton) )
         {
             SmackClose(smktag);
             return 2;
@@ -385,7 +384,7 @@ short play_smk_direct(char *fname, int smkflags, int plyflags)
 short play_smk_(char *fname, int smkflags, int plyflags)
 {
   short result;
-  _DK_lbDisplay.LeftButton = 0;
+  lbDisplay.LeftButton = 0;
   if ( (smack_draw_callback) || (plyflags & 0x8C) )
     result = play_smk_via_buffer(fname, smkflags, plyflags);
   else
@@ -850,6 +849,35 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
   return animation.field_C - blk_begin;
 }
 
+/*
+ * Returns size of the FLI movie frame buffer, for given width
+ * and height of animation. The buffer of returned size is big enough
+ * to store one frame of any kind (any compression).
+ */
+long anim_buffer_size(int width,int height,int bpp)
+{
+  int n;
+  n=(bpp>>3);
+  if (bpp%8) n++;
+  return abs(width)*abs(height)*n + 32767;
+}
+
+/*
+ * Returns size of the FLI movie frame buffer, for given width
+ * and height of animation. The buffer of returned size is big enough
+ * to store one frame of any kind (any compression).
+ */
+short anim_format_matches(int width,int height,int bpp)
+{
+  if (width != animation.header.width)
+    return false;
+  if (height != animation.header.height)
+    return false;
+  if (bpp != animation.header.depth)
+    return false;
+  return true;
+}
+
 short anim_stop(void)
 {
   static const char *func_name="anim_stop";
@@ -869,6 +897,8 @@ short anim_stop(void)
       return false;
   }
   animation.outfhndl = 0;
+  LbMemoryFree(animation.chunkdata);
+  animation.chunkdata=NULL;
   animation.field_0 = 0;
   return true;
 }
@@ -894,7 +924,8 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
         error(func_name, 44568, "Cannot allocate video buffer.");
         return false;
       }
-      animation.chunkdata = LbMemoryAlloc(2 * height*width);
+      long max_chunk_size = anim_buffer_size(width,height,bpp);
+      animation.chunkdata = LbMemoryAlloc(max_chunk_size);
       if (animation.chunkdata==NULL)
       {
         error(func_name, 44569, "Cannot allocate chunk buffer.");
@@ -940,19 +971,21 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
   {
       LbSyncLog("Resuming movie recording, \"%s\".\n",fname);
       animation.field_0 |= flags;
-      animation.chunkdata = LbMemoryAlloc(2 * height*width);
-      if (animation.chunkdata==NULL)
-        return false;
       animation.inpfhndl = LbFileOpen(fname, 2);
       if ( animation.inpfhndl == -1 )
         return false;
-
+      // Reading header
       if (!anim_read_data(&animation.header, sizeof(struct AnimFLIHeader)))
       {
         error(func_name, 44572, "Movie header read error.");
         LbFileClose(animation.inpfhndl);
         return false;
       }
+      // Now we can allocate chunk buffer
+      long max_chunk_size = anim_buffer_size(animation.header.width,animation.header.height,animation.header.depth);
+      animation.chunkdata = LbMemoryAlloc(max_chunk_size);
+      if (animation.chunkdata==NULL)
+        return false;
       if (!anim_read_data(&animation.chunk, sizeof(struct AnimFLIChunk)))
       {
         error(func_name, 44573, "Movie chunk read error.");
@@ -980,14 +1013,15 @@ short anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
 {
   static const char *func_name="anim_make_next_frame";
   //return _DK_anim_make_next_frame(screenbuf, palette);
-  unsigned long bufsize;
+//LbSyncLog("Starting frame.\n");
+  unsigned long max_chunk_size;
   unsigned char *dataptr;
-  long brun_size,lc_size,ss2_size,size;
-  int width = MyScreenWidth/pixel_size;
-  int height = MyScreenHeight/pixel_size;
+  long brun_size,lc_size,ss2_size;
+  int width = animation.header.width;
+  int height = animation.header.height;
   animation.field_C = animation.chunkdata;
-  bufsize = height*width + 32768;
-  memset(animation.chunkdata, 0, bufsize);
+  max_chunk_size = anim_buffer_size(width,height,animation.header.depth);
+  memset(animation.chunkdata, 0, max_chunk_size);
   animation.prefix.ctype = 0xF1FAu;
   animation.prefix.nchunks = 0;
   animation.prefix.csize = 0;
@@ -1034,7 +1068,7 @@ short anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
     // Determining the best compression method
     dataptr = animation.field_C;
     brun_size = anim_make_FLI_BRUN(screenbuf);
-    memset(animation.field_C, 0, size);
+    memset(dataptr, 0, brun_size);
     animation.field_C = dataptr;
     ss2_size = anim_make_FLI_SS2(screenbuf, animation.videobuf);
     memset(dataptr, 0, ss2_size);
@@ -1080,6 +1114,7 @@ short anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
   prefx->csize = animation.field_C - animation.chunkdata;
   if ( !anim_write_data(animation.chunkdata, animation.field_C-animation.chunkdata) )
   {
+//LbSyncLog("Finished frame w/error.\n");
     return false;
   }
   memcpy(animation.videobuf, screenbuf, height*width);
@@ -1087,6 +1122,7 @@ short anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
   animation.header.frames++;
   animation.field_31C++;
   animation.header.dsize += animation.field_C-animation.chunkdata;
+//LbSyncLog("Finished frame ok.\n");
   return true;
 }
 
@@ -1095,10 +1131,7 @@ short anim_record_frame(unsigned char *screenbuf, unsigned char *palette)
   if ((animation.field_0 & 0x01)==0)
     return false;
   struct TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
-  if ( mdinfo->BitsPerPixel != animation.header.depth )
-    return false;
-  if ((MyScreenWidth/pixel_size != animation.header.width) ||
-      (MyScreenHeight/pixel_size != animation.header.height))
+  if (!anim_format_matches(MyScreenWidth/pixel_size,MyScreenHeight/pixel_size,mdinfo->BitsPerPixel))
     return false;
   return anim_make_next_frame(screenbuf, palette);
 }

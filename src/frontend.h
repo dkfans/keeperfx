@@ -20,6 +20,7 @@
 #define FRONTEND_H
 
 #include "globals.h"
+#include "bflib_guibtns.h"
 
 struct GuiMenu;
 struct GuiButton;
@@ -33,6 +34,12 @@ extern "C" {
 
 #define ACTIVE_BUTTONS_COUNT 86
 #define ACTIVE_MENUS_COUNT 8
+#define POS_AUTO -9999
+#define POS_MOUSMID -999
+#define POS_MOUSPRV -998
+#define POS_SCRCTR  -997
+#define POS_SCRBTM  -996
+#define POS_GAMECTR  999
 /******************************************************************************/
 DLLIMPORT struct GuiButtonInit _DK_main_menu_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_room_menu_buttons[];
@@ -143,6 +150,12 @@ DLLIMPORT char _DK_menu_stack[8];
 #define menu_stack _DK_menu_stack
 DLLIMPORT long _DK_frontend_mouse_over_button_start_time;
 #define frontend_mouse_over_button_start_time _DK_frontend_mouse_over_button_start_time
+DLLIMPORT short _DK_old_menu_mouse_x;
+#define old_menu_mouse_x _DK_old_menu_mouse_x
+DLLIMPORT short _DK_old_menu_mouse_y;
+#define old_menu_mouse_y _DK_old_menu_mouse_y
+DLLIMPORT unsigned char _DK_menu_ids[3];
+#define menu_ids _DK_menu_ids
 
 #pragma pack()
 /******************************************************************************/
@@ -491,10 +504,13 @@ void frontnet_draw_service_button(struct GuiButton *gbtn);
 long menu_id_to_number(short menu_id);
 char update_menu_fade_level(struct GuiMenu *gmnu);
 void draw_menu_buttons(struct GuiMenu *gmnu);
+char create_menu(struct GuiMenu *mnu);
+void do_button_release_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
 
 int frontend_set_state(long nstate);
 int get_startup_menu_state(void);
 void frontend_input(void);
+void turn_on_menu(short idx);
 void turn_off_menu(short mnu_idx);
 void frontend_update(short *finish_menu);
 short frontend_draw(void);

@@ -176,6 +176,8 @@ extern "C" {
 		KM_CONTROL     = 0x02,
 		KM_ALT         = 0x04,
 	};
+#define KM_DONTCARE -1
+
 
 DLLIMPORT extern unsigned char _DK_lbKeyOn[256];
 #define lbKeyOn _DK_lbKeyOn

@@ -30,6 +30,7 @@
 #include "keeperfx.h"
 #include "gui_draw.h"
 #include "kjm_input.h"
+#include "vidmode.h"
 
 #include <string.h>
 
@@ -38,7 +39,9 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT char _DK_update_menu_fade_level(struct GuiMenu *gmnu);
+DLLIMPORT char _DK_create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit);
 DLLIMPORT void _DK_gui_area_null(struct GuiButton *gbtn);
+DLLIMPORT char _DK_create_menu(struct GuiMenu *mnu);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -930,11 +933,11 @@ void gui_area_null(struct GuiButton *gbtn)
 {
   if (gbtn->field_0 & 0x08)
   {
-    LbSpriteDraw(gbtn->field_1D/pixel_size, gbtn->field_1F/pixel_size,
+    LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
       &button_sprite[gbtn->field_29]);
   } else
   {
-    LbSpriteDraw(gbtn->field_1D/pixel_size, gbtn->field_1F/pixel_size,
+    LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
       &button_sprite[gbtn->field_29]);
   }
 }
@@ -1039,7 +1042,7 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
   lbDisplay.DrawFlags = 0x20;
   if ( lbFontPtr!=NULL )
       height = lbFontPtr[1].SHeight;
-  _DK_LbTextSetWindow(gbtn->field_1D, gbtn->field_1F, gbtn->width, height);
+  _DK_LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
   //Draw the text
   _DK_LbTextDraw(0, 0, net_service[srvidx]);
 }
@@ -1122,6 +1125,406 @@ void add_score_to_high_score_table(void)
     _DK_high_score_entry_index = 0;
     _DK_high_score_table[idx].score = new_score;
     _DK_high_score_table[idx].level = game.level_number - 1;
+}
+
+void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
+{
+  static const char *func_name="do_button_release_actions";
+  //LbSyncLog("%s: Starting\n", func_name);
+  //_DK_do_button_release_actions(gbtn, s, callback); return;
+  int i;
+  struct GuiMenu *gmnu;
+  switch ( gbtn->gbtype )
+  {
+  case 0:
+  case 1:
+      if ((*s!=0) && (callback!=NULL))
+      {
+        do_sound_button_click(gbtn);
+        callback(gbtn);
+      }
+      *s = 0;
+      break;
+  case 2:
+      i = *(unsigned char *)gbtn->field_33;
+      i++;
+      if (gbtn->field_2D < i)
+        i = 0;
+      *(unsigned char *)gbtn->field_33 = i;
+      if ((*s!=0) && (callback!=NULL))
+      {
+        do_sound_button_click(gbtn);
+        callback(gbtn);
+      }
+      *s = 0;
+      break;
+  case 3:
+      if ( (char *)gbtn - (char *)s == -2 )
+        return;
+      break;
+  case 5:
+      input_button = gbtn;
+      setup_input_field(input_button);
+      break;
+  default:
+      break;
+  }
+
+  if ((char *)gbtn - (char *)s == -1)
+  {
+    gmnu = &active_menus[gbtn->gmenu_idx];
+    if (gbtn->field_2F != NULL)
+      create_menu(gbtn->field_2F);
+    if ((gbtn->field_0 & 0x02) && (gbtn->gbtype != 5))
+    {
+      if (callback == NULL)
+        do_sound_menu_click();
+      gmnu->field_1 = 3;
+    }
+  }
+  //LbSyncLog("%s: Finished\n", func_name);
+}
+
+unsigned long is_toggleable_menu(short mnu_idx)
+{
+  switch (mnu_idx)
+  {
+  case 1:
+  case 2:
+  case 3:
+  case 4:
+  case 5:
+  case 6:
+  case 7:
+      return 1;
+  case 16:
+  case 27:
+  case 31:
+  case 32:
+  case 34:
+  case 35:
+  case 38:
+      return 1;
+  case 8:
+  case 9:
+  case 10:
+  case 11:
+  case 12:
+  case 13:
+  case 14:
+  case 15:
+  case 17:
+  case 18:
+  case 19:
+  case 20:
+  case 21:
+  case 22:
+  case 23:
+  case 24:
+  case 25:
+  case 26:
+  case 28:
+  case 29:
+  case 30:
+  case 33:
+  case 36:
+  case 37:
+      return 0;
+  default:
+      return 1;
+  }
+}
+
+void add_to_menu_stack(unsigned char mnu_idx)
+{
+  static const char *func_name="add_to_menu_stack";
+  short i;
+  if (no_of_active_menus >= ACTIVE_MENUS_COUNT)
+  {
+    error(func_name, 1830, "No more room for menu stack");
+    return;
+  }
+
+  for (i=0; i<no_of_active_menus; i++)
+  {
+    if (menu_stack[i] == mnu_idx)
+    { // If already in stack, move it at end of the stack.
+      while (i < no_of_active_menus-1)
+      {
+        menu_stack[i] = menu_stack[i+1];
+        i++;
+      }
+      menu_stack[no_of_active_menus-1] = mnu_idx;
+      //LbSyncLog("Menu %d moved to end of stack, at position %d.\n",mnu_idx,no_of_active_menus-1);
+      return;
+    }
+  }
+  // If not in stack, add at end
+  menu_stack[no_of_active_menus] = mnu_idx;
+  no_of_active_menus++;
+  //LbSyncLog("Menu %d put on stack, at position %d.\n",mnu_idx,no_of_active_menus-1);
+}
+
+void update_radio_button_data(struct GuiMenu *gmnu)
+{
+  int i;
+  struct GuiButton *gbtn;
+  unsigned char *rbstate;
+  for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+  {
+    gbtn = &active_buttons[i];
+    rbstate = (unsigned char *)gbtn->field_33;
+    if ((rbstate != NULL) && (gbtn->gmenu_idx == gmnu->field_14))
+    {
+      if (gbtn->gbtype == Lb_RADIOBTN)
+      {
+          if (gbtn->field_1)
+            *rbstate = 1;
+          else
+            *rbstate = 0;
+      }
+    }
+  }
+}
+
+void init_slider_bars(struct GuiMenu *gmnu)
+{
+  int i;
+  struct GuiButton *gbtn;
+  long sldpos;
+  for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+  {
+    gbtn = &active_buttons[i];
+    if ((gbtn->field_33) && (gbtn->gmenu_idx == gmnu->field_14))
+    {
+      if (gbtn->gbtype == Lb_SLIDER)
+      {
+          sldpos = *(long *)gbtn->field_33;
+          if (sldpos < 0)
+            sldpos = 0;
+          else
+          if (sldpos > gbtn->field_2D)
+            sldpos = gbtn->field_2D;
+          gbtn->slide_val = (sldpos << 8) / (gbtn->field_2D + 1);
+      }
+    }
+  }
+}
+
+void init_menu_buttons(struct GuiMenu *gmnu)
+{
+  int i;
+  struct GuiButton *gbtn;
+  Gf_Btn_Callback callback;
+  for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+  {
+    gbtn = &active_buttons[i];
+    callback = gbtn->field_17;
+    if ((callback != NULL) && (gbtn->gmenu_idx == gmnu->field_14))
+      callback(gbtn);
+  }
+}
+
+char create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit)
+{
+  struct GuiButton *gbtn;
+
+  char i;
+  i=_DK_create_button(gmnu, gbinit);
+
+  gbtn = &active_buttons[i];
+  //LbSyncLog("Created button %d at (%d,%d) size (%d,%d)\n",i,
+  //    gbtn->pos_x,gbtn->pos_y,gbtn->width,gbtn->height);
+
+  return i;
+}
+
+long compute_menu_position_x(long desired_pos,int menu_width)
+{
+  struct PlayerInfo *player;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  long pos;
+  switch (desired_pos)
+  {
+  case POS_MOUSMID: // Place menu centered over mouse
+      pos = GetMouseX() - (menu_width >> 1);
+      break;
+  case POS_GAMECTR: // Player-based positioning
+      pos = (player->field_448) + (player->field_444 >> 1) - (menu_width >> 1);
+      break;
+  case POS_MOUSPRV: // Place menu centered over previous mouse position
+      pos = old_menu_mouse_x - (menu_width >> 1);
+      break;
+  case POS_SCRCTR:
+      pos = (MyScreenWidth >> 1) - (menu_width >> 1);
+      break;
+  case POS_SCRBTM:
+      pos = MyScreenWidth - menu_width;
+      break;
+  default: // Desired position have direct coordinates
+      pos = (desired_pos*units_per_pixel)>>4;
+      if (pos+menu_width > lbDisplay.PhysicalScreenWidth)
+        pos = lbDisplay.PhysicalScreenWidth-menu_width;
+/* No idea what's this for - disabling
+      if (pos < 140)
+        pos = 140;
+*/
+      break;
+  }
+  // Clipping position X
+  if (desired_pos == POS_GAMECTR)
+  {
+    if (pos+menu_width > MyScreenWidth)
+      pos = MyScreenWidth-menu_width;
+    if (pos < player->field_448)
+      pos = player->field_448;
+  } else
+  {
+    if (pos+menu_width > MyScreenWidth)
+      pos = MyScreenWidth-menu_width;
+    if (pos < 0)
+      pos = 0;
+  }
+  return pos;
+}
+
+long compute_menu_position_y(long desired_pos,int menu_height)
+{
+  struct PlayerInfo *player;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  long pos;
+  switch (desired_pos)
+  {
+  case POS_MOUSMID: // Place menu centered over mouse
+      pos = GetMouseY() - (menu_height >> 1);
+      break;
+  case POS_GAMECTR: // Player-based positioning
+      pos = (player->field_446 >> 1) - ((menu_height+20) >> 1);
+      break;
+  case POS_MOUSPRV: // Place menu centered over previous mouse position
+      pos = old_menu_mouse_y - (menu_height >> 1);
+      break;
+  case POS_SCRCTR:
+      pos = (MyScreenHeight >> 1) - (menu_height >> 1);
+      break;
+  case POS_SCRBTM:
+      pos = MyScreenHeight - menu_height;
+      break;
+  default: // Desired position have direct coordinates
+      pos = (desired_pos*units_per_pixel)>>4;
+      if (pos+menu_height > lbDisplay.PhysicalScreenHeight)
+        pos = lbDisplay.PhysicalScreenHeight-menu_height;
+      break;
+  }
+  // Clipping position Y
+  if (pos+menu_height > MyScreenHeight)
+    pos = MyScreenHeight-menu_height;
+  if (pos < 0)
+    pos = 0;
+  return pos;
+}
+
+long first_available_menu(void)
+{
+  short i;
+  for (i=0; i<ACTIVE_MENUS_COUNT; i++)
+  {
+    if (active_menus[i].field_1 == 0)
+      return i;
+  }
+  return -1;
+}
+
+char create_menu(struct GuiMenu *gmnu)
+{
+  static const char *func_name="create_menu";
+  //return _DK_create_menu(gmnu);
+  int mnu_num;
+  struct GuiMenu *amnu;
+  struct PlayerInfo *player;
+  Gf_Mnu_Callback callback;
+  struct GuiButtonInit *btninit;
+  int i;
+
+  mnu_num = menu_id_to_number(gmnu->field_0);
+  if (mnu_num != -1)
+  {
+    amnu = &active_menus[mnu_num];
+    amnu->field_1 = 1;
+    amnu->numfield_2 = gmnu->numfield_2;
+    amnu->flgfield_1D = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->field_0));
+    return mnu_num;
+  }
+  add_to_menu_stack(gmnu->field_0);
+  mnu_num = first_available_menu();
+  if (mnu_num == -1)
+  {
+      error(func_name, 3066, "Too many menus open");
+      return -1;
+  }
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  amnu = &active_menus[mnu_num];
+  amnu->field_1 = 1;
+  amnu->field_14 = mnu_num;
+  amnu->ptrfield_15 = gmnu;
+  amnu->field_0 = gmnu->field_0;
+  if (amnu->field_0 == 1)
+  {
+    old_menu_mouse_x = GetMouseX();
+    old_menu_mouse_y = GetMouseY();
+  }
+  // Setting position X
+  amnu->pos_x = compute_menu_position_x(gmnu->pos_x,gmnu->width);
+  // Setting position Y
+  amnu->pos_y = compute_menu_position_y(gmnu->pos_y,gmnu->height);
+
+  for (i=0; i<3; i++)
+  {
+    if ((menu_ids[i] == gmnu->field_0) && (MyScreenHeight == 480))
+    {
+      amnu->pos_y += 80;
+      break;
+    }
+  }
+  amnu->numfield_2 = gmnu->numfield_2;
+  if (amnu->numfield_2 < 1)
+    error(func_name, 3019, "Oi! There is a fade time less than 1. Idiot.");
+  amnu->ptrfield_4 = gmnu->ptrfield_4;
+  amnu->width = gmnu->width;
+  amnu->height = gmnu->height;
+  amnu->ptrfield_10 = gmnu->ptrfield_10;
+  amnu->ptrfield_19 = gmnu->ptrfield_19;
+  amnu->flgfield_1E = gmnu->flgfield_1E;
+  amnu->field_1F = gmnu->field_1F;
+  amnu->flgfield_1D = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->field_0));
+  callback = amnu->ptrfield_19;
+  if (callback != NULL)
+    callback(amnu);
+  btninit = gmnu->ptrfield_4;
+  for (i=0; btninit[i].field_0 != -1; i++)
+  {
+    if (create_button(amnu, &btninit[i]) == -1)
+    {
+      error(func_name, 3050, "Cannot Allocate button");
+      return -1;
+    }
+  }
+  update_radio_button_data(amnu);
+  init_slider_bars(amnu);
+  init_menu_buttons(amnu);
+  LbSyncLog("Created menu %d at (%d,%d) size (%d,%d)\n",mnu_num,
+      amnu->pos_x,amnu->pos_y,amnu->width,amnu->height);
+  return mnu_num;
+}
+
+void turn_on_menu(short idx)
+{
+  //_DK_turn_on_menu(idx); return;
+  if ( create_menu(menu_list[idx]) )
+  {
+    if (menu_list[idx]->field_1F)
+      game.field_1517F6 = idx;
+  }
 }
 
 void frontend_load_data_from_cd(void)
@@ -1253,7 +1656,7 @@ int frontend_set_state(long nstate)
     case 1:
       LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
       _DK_continue_game_option_available = continue_game_available();
-      _DK_turn_on_menu(18);
+      turn_on_menu(18);
       // change when all references to frontend_set_state() are rewritten
       //time_last_played_demo = LbTimerClock();
       _DK_time_last_played_demo=timeGetTime();
@@ -1263,7 +1666,7 @@ int frontend_set_state(long nstate)
       game.numfield_A &= 0xFEu;
       break;
     case 2:
-      _DK_turn_on_menu(19);
+      turn_on_menu(19);
       LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
       break;
     case 3:
@@ -1271,17 +1674,17 @@ int frontend_set_state(long nstate)
         nstate = 7;
       break;
     case 4:
-      _DK_turn_on_menu(20);
+      turn_on_menu(20);
       _DK_frontnet_service_setup();
       break;
     case 5:
-      _DK_turn_on_menu(21);
+      turn_on_menu(21);
       _DK_frontnet_session_setup();
       LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
       game.numfield_A &= 0xFEu;
       break;
     case 6:
-      _DK_turn_on_menu(22);
+      turn_on_menu(22);
       _DK_frontnet_start_setup();
       LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
       game.numfield_A |= 0x01;
@@ -1311,20 +1714,20 @@ int frontend_set_state(long nstate)
       lbDisplay.DrawFlags = 256;
       break;
     case 15:
-      _DK_turn_on_menu(23);
+      turn_on_menu(23);
       _DK_frontnet_modem_setup();
       break;
     case 16:
-      _DK_turn_on_menu(24);
+      turn_on_menu(24);
       _DK_frontnet_serial_setup();
       break;
     case 17:
-      _DK_turn_on_menu(25);
+      turn_on_menu(25);
       LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
       _DK_frontstats_set_timer(); // note: rewrite this in pack with frontstats_update
       break;
     case 18:
-      _DK_turn_on_menu(26);
+      turn_on_menu(26);
       if ( game.dungeon[my_player_number].allow_save_score )
       {
         game.dungeon[my_player_number].allow_save_score = false;
@@ -1344,10 +1747,10 @@ int frontend_set_state(long nstate)
     case 26:
       _DK_defining_a_key = 0;
       _DK_define_key_scroll_offset = 0;
-      _DK_turn_on_menu(36);
+      turn_on_menu(36);
       break;
     case 27:
-      _DK_turn_on_menu(39);
+      turn_on_menu(39);
       break;
     default:
       error(func_name, 1609, "Unhandled FRONTEND new state");

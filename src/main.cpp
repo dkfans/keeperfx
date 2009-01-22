@@ -1102,28 +1102,6 @@ short setup_network_service(int srvidx)
 }
 
 /*
- * Updates CPU and memory status variables.
- */
-short update_memory_constraits(void)
-{
-  struct _MEMORYSTATUS msbuffer;
-  msbuffer.dwLength = 32;
-  GlobalMemoryStatus(&msbuffer);
-  if ( msbuffer.dwTotalPhys <= (8*1024*1024) )
-      _DK_mem_size = 8;
-  else
-  if ( msbuffer.dwTotalPhys <= (16*1024*1024) )
-      _DK_mem_size = 16;
-  else
-  if ( msbuffer.dwTotalPhys <= (24*1024*1024) )
-      _DK_mem_size = 24;
-  else
-      _DK_mem_size = 32;
-  LbSyncLog("PhysicalMemory %d\n", _DK_mem_size);
-  return true;
-}
-
-/*
  * Displays 'legal' screens, intro and initializes basic game data.
  * If true is returned, then all files needed for startup were loaded,
  * and there should be the loading screen visible.
@@ -1668,11 +1646,6 @@ inline void reset_scrolling_tooltip(void)
     _DK_tooltip_scroll_timer = 25;
 }
 
-inline void do_sound_menu_click(void)
-{
-  play_non_3d_sample(61);
-}
-
 long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z)
 {
   return _DK_S3DSetSoundReceiverPosition(pos_x, pos_y, pos_z);
@@ -2089,7 +2062,7 @@ short get_gui_inputs(short gameplay_on)
     callback = gbtn->field_17;
     if ( callback != NULL )
       callback(gbtn);
-    if ( ((gbtn->field_1C & 0x40)!=0) || _DK_mouse_is_over_small_map(player->mouse_x,player->mouse_y) )
+    if ( ((gbtn->field_1B & 0x4000u)!=0) || _DK_mouse_is_over_small_map(player->mouse_x,player->mouse_y) )
       continue;
 
     if ( check_if_mouse_is_over_button(gbtn) && (_DK_input_button==NULL)
@@ -2119,7 +2092,7 @@ short get_gui_inputs(short gameplay_on)
     {
       int mouse_x = GetMouseX();
       int btnsize;
-      btnsize = gbtn->field_1D + ((gbtn->slide_val)*(gbtn->width-64) >> 8);
+      btnsize = gbtn->scr_pos_x + ((gbtn->slide_val)*(gbtn->width-64) >> 8);
       if ((mouse_x>(btnsize+22)) && (mouse_x<=(btnsize+44)))
       {
         int mouse_y = GetMouseY();
@@ -2155,7 +2128,7 @@ short get_gui_inputs(short gameplay_on)
   if (gmbtn_idx!=-1)
   {
     gbtn = &_DK_active_buttons[gmbtn_idx];
-    if ((_DK_active_menus[gbtn->gmenu_idx].field_1 == 2) && ((gbtn->field_1C & 0x80)==0))
+    if ((active_menus[gbtn->gmenu_idx].field_1 == 2) && ((gbtn->field_1B & 0x8000u)==0))
     {
       if (_DK_tool_tip_box.gbutton == gbtn)
       {
@@ -2849,7 +2822,7 @@ void get_level_lost_inputs(void)
     if ( _DK_a_menu_window_is_active() )
       _DK_turn_off_all_window_menus();
     else
-      _DK_turn_on_menu(8);
+      turn_on_menu(8);
   }
   struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
   struct Thing *thing;
@@ -2864,7 +2837,7 @@ void get_level_lost_inputs(void)
         {
           _DK_initialise_tab_tags_and_menu(3);
           _DK_turn_off_all_panel_menus();
-          _DK_turn_on_menu(38);
+          turn_on_menu(38);
         }
       }
       inp_done=get_gui_inputs(1);
