@@ -32,6 +32,11 @@ extern char gui_textbuf[TEXT_BUFFER_LENGTH];
 DLLIMPORT extern struct TbSprite *_DK_button_sprite;
 #define button_sprite _DK_button_sprite
 /******************************************************************************/
+void draw_bar64k(long pos_x, long pos_y, long width);
+void draw_lit_bar64k(long pos_x, long pos_y, long width);
+void draw_button_string(struct GuiButton *gbtn, const char *text);
+
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

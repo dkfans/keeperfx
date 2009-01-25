@@ -1030,6 +1030,7 @@ DLLIMPORT extern struct TbLoadFiles _DK_game_load_files[];
 DLLIMPORT extern char *_DK_strings[STRINGS_MAX+1];
 #define strings _DK_strings
 DLLIMPORT extern struct GameSettings _DK_settings;
+#define settings _DK_settings
 DLLIMPORT extern unsigned char _DK_exit_keeper;
 #define exit_keeper _DK_exit_keeper
 DLLIMPORT extern unsigned char _DK_quit_game;
@@ -1159,19 +1160,31 @@ DLLIMPORT struct TbNetworkPlayerInfo _DK_net_player_info[4];
 DLLIMPORT struct SerialInitData _DK_net_serial_data;
 DLLIMPORT struct SerialInitData _DK_net_modem_data;
 DLLIMPORT char _DK_tmp_net_player_name[24];
+#define tmp_net_player_name _DK_tmp_net_player_name
 DLLIMPORT char _DK_tmp_net_phone_number[24];
+#define tmp_net_phone_number _DK_tmp_net_phone_number
 DLLIMPORT char _DK_tmp_net_modem_init[20];
+#define tmp_net_modem_init _DK_tmp_net_modem_init
 DLLIMPORT char _DK_tmp_net_modem_dial[20];
+#define tmp_net_modem_dial _DK_tmp_net_modem_dial
 DLLIMPORT char _DK_tmp_net_modem_hangup[20];
+#define tmp_net_modem_hangup _DK_tmp_net_modem_hangup
 DLLIMPORT char _DK_tmp_net_modem_answer[20];
+#define tmp_net_modem_answer _DK_tmp_net_modem_answer
 DLLIMPORT int _DK_fe_network_active;
 DLLIMPORT char _DK_video_shadows;
+#define video_shadows _DK_video_shadows
 DLLIMPORT char _DK_video_view_distance_level;
+#define video_view_distance_level _DK_video_view_distance_level
 DLLIMPORT char _DK_video_cluedo_mode;
 DLLIMPORT char _DK_video_gamma_correction;
+#define video_gamma_correction _DK_video_gamma_correction
 DLLIMPORT long _DK_sound_level;
+#define sound_level _DK_sound_level
 DLLIMPORT long _DK_music_level;
+#define music_level _DK_music_level
 DLLIMPORT long _DK_fe_mouse_sensitivity;
+#define fe_mouse_sensitivity _DK_fe_mouse_sensitivity
 DLLIMPORT long _DK_activity_list[24];
 #define activity_list _DK_activity_list
 DLLIMPORT char _DK_net_service[16][64];

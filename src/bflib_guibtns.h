@@ -165,8 +165,6 @@ struct GuiMenu {
       Gf_Mnu_Callback ptrfield_10;
       char field_14;
       struct GuiMenu *ptrfield_15;
-      char field_17;
-      char field_18;
       Gf_Mnu_Callback ptrfield_19;
       unsigned char flgfield_1D;
       unsigned char flgfield_1E;
@@ -184,8 +182,7 @@ struct ToolTipBox {
 };
 
 struct FrontEndButtonData {
-        unsigned char field_0;
-        unsigned char field_1;
+        unsigned short capstr_idx;
         unsigned char field_2;
 };
 

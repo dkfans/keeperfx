@@ -1123,3 +1123,4 @@
  0003:0027A9C0       NumOfElements
  0005:00006562       set_cpu_mode
  0005:00011C10       LbSpriteDraw
+ 0001:00098300       draw_button_string

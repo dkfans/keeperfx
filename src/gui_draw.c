@@ -31,7 +31,61 @@ extern "C" {
 /******************************************************************************/
 char gui_textbuf[TEXT_BUFFER_LENGTH];
 /******************************************************************************/
+DLLIMPORT void _DK_draw_button_string(struct GuiButton *gbtn, const char *text);
+/******************************************************************************/
 
+/******************************************************************************/
+
+void draw_bar64k(long pos_x, long pos_y, long width)
+{
+  static const char *func_name="draw_bar64k";
+  long body_end;
+  long x;
+  if (width < 72)
+  {
+    error(func_name, 5317, "Bar is too small");
+    return;
+  }
+  // Button opening sprite
+  LbSpriteDraw(pos_x/pixel_size, pos_y/pixel_size, &button_sprite[1]);
+  // Button body
+  body_end = pos_x + width - 64;
+  for (x = pos_x+32; x<body_end; x+=32)
+  {
+      LbSpriteDraw(x/pixel_size, pos_y/pixel_size, &button_sprite[2]);
+  }
+  LbSpriteDraw(body_end/pixel_size, pos_y/pixel_size, &button_sprite[2]);
+  // Button ending sprite
+  LbSpriteDraw((pos_x + width - 32)/pixel_size, pos_y/pixel_size, &button_sprite[3]);
+}
+
+void draw_lit_bar64k(long pos_x, long pos_y, long width)
+{
+  static const char *func_name="draw_lit_bar64k";
+  long body_end;
+  long x;
+  if (width < 32)
+  {
+    error(func_name, 5340, "Bar is too small");
+    return;
+  }
+  // opening sprite
+  LbSpriteDraw(pos_x/pixel_size, pos_y/pixel_size, &button_sprite[7]);
+  // body
+  body_end = pos_x+width-64;
+  for (x = pos_x+32; x<body_end; x+=32)
+  {
+      LbSpriteDraw(x/pixel_size, pos_y/pixel_size, &button_sprite[8]);
+  }
+  LbSpriteDraw(body_end/pixel_size, pos_y/pixel_size, &button_sprite[8]);
+  // ending sprite
+  LbSpriteDraw((pos_x+width-32)/pixel_size, pos_y/pixel_size, &button_sprite[9]);
+}
+
+void draw_button_string(struct GuiButton *gbtn, const char *text)
+{
+  _DK_draw_button_string(gbtn, text);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
