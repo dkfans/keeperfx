@@ -2,14 +2,14 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_sound.h
- *     Header file for bflib_sound.c.
+/** @file bflib_sprfnt.h
+ *     Header file for bflib_sprfnt.c.
  * @par Purpose:
- *     Sound and music related routines.
+ *     Bitmap sprite fonts support library.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     16 Nov 2008 - 30 Dec 2008
+ * @date     29 Dec 2008 - 11 Jan 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,10 +17,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef BFLIB_SOUND_H
-#define BFLIB_SOUND_H
+#ifndef BFLIB_SPRFNT_H
+#define BFLIB_SPRFNT_H
 
-#include "bflib_basics.h"
 #include "globals.h"
 
 #ifdef __cplusplus
@@ -29,37 +28,24 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-// Type definitions
-struct SoundEmitter {
-    unsigned char flags;
-    unsigned char field_1;
-    unsigned char field_2[2];
-    short pos_x;
-    short pos_y;
-    short pos_z;
-    unsigned char field_A[10];
-    unsigned char field_14;
-    unsigned char field_15;
-};
+struct TbSprite;
+struct TbSetupSprite;
+
 
 /******************************************************************************/
-DLLIMPORT extern int _DK_SoundDisabled;
-#define SoundDisabled _DK_SoundDisabled
-DLLIMPORT extern struct SoundEmitter _DK_emitter[128];
-#define emitter _DK_emitter
-DLLIMPORT extern long _DK_Non3DEmitter;
-#define Non3DEmitter _DK_Non3DEmitter
-DLLIMPORT extern long _DK_SpeechEmitter;
-#define SpeechEmitter _DK_SpeechEmitter
-
-// Exported variables
+DLLIMPORT extern struct TbSprite *_DK_lbFontPtr;
+#define lbFontPtr _DK_lbFontPtr
 
 #pragma pack()
 /******************************************************************************/
-// Exported functions
+int LbTextDraw(int posx, int posy, const char *text);
+int LbTextHeight(const char *text);
 
-void play_non_3d_sample(long sample_idx);
-short sound_emitter_in_use(long emidx);
+/*
+char __fastcall font_height(const unsigned char c);
+unsigned long __fastcall my_string_width(const char *str);
+*/
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

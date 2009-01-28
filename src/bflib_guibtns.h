@@ -216,7 +216,6 @@ void do_sound_menu_click(void);
 void do_sound_button_click(struct GuiButton *gbtn);
 void setup_input_field(struct GuiButton *gbtn);
 
-void play_non_3d_sample(long sample_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -53,7 +53,8 @@ int __stdcall SetStreamedSampleVolume(int);
 int __stdcall GetLastSampleInfoStructure(void);
 int __stdcall GetCurrentSoundMasterVolume(void);
 int __stdcall StopMusic(void);
-int __stdcall LoadAwe32Soundfont(int);
+int __stdcall LoadAwe32Soundfont(const char *fname);
+int __stdcall StartMusic(int i,int v);
 
 /******************************************************************************/
 #ifdef __cplusplus

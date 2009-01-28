@@ -26,6 +26,10 @@ DLLIMPORT extern int _DK_icon_index;
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT int __stdcall _DK_LbScreenReset(void);
+DLLIMPORT int _DK_LbScreenSetGraphicsWindow(int x, int y, uint width, uint height);
+DLLIMPORT int _DK_LbScreenIsModeAvailable(TbScreenMode mode);
+/******************************************************************************/
 struct TbScreenModeInfo lbScreenModeInfo[]={
     {   0,   0, 0,0,   0x0,"MODE_INVALID"},
     { 320, 200, 8,0,   0x0,"MODE_320_200_8"},
@@ -48,13 +52,13 @@ struct TbScreenModeInfo lbScreenModeInfo[]={
     { 800, 600,24,0,0x0105,"MODE_800_600_24"},
     {1024, 768, 8,0,   0x0,"MODE_1024_768_8"},
     {1024, 768,16,0,   0x0,"MODE_1024_768_16"},
-    {1024, 768,24,0,0x0107,"MODE_1024_768_24"},
+    {1024, 768,24,0,0x0107,"MODE_1024_768_24"}, 
     {1280,1024, 8,0,   0x0,"MODE_1280_1024_8"},
     {1280,1024,16,0,   0x0,"MODE_1280_1024_16"},
-    {1280,1024,24,0,   0x0,"MODE_1280_1024_24"},
+    {1280,1024,24,0,   0x0,"MODE_1280_1024_24"}, 
     {1600,1200, 8,0,   0x0,"MODE_1600_1200_8"},
     {1600,1200,16,0,   0x0,"MODE_1600_1200_16"},
-    {1600,1200,24,0,   0x0,"MODE_1600_1200_24"},
+    {1600,1200,24,0,   0x0,"MODE_1600_1200_24"}, 
     {   0,   0, 0,0,   0x0,"MODE_INVALID"},
 };
 
@@ -145,6 +149,33 @@ struct TbScreenModeInfo *LbScreenGetModeInfo(unsigned short mode)
 short LbScreenIsLocked(void)
 {
     return (lbDisplay.WScreen > NULL);
+}
+
+short LbScreenReset(void)
+{
+  return _DK_LbScreenReset();
+}
+
+int LbScreenSetGraphicsWindow(int x, int y, uint width, uint height)
+{
+  return _DK_LbScreenSetGraphicsWindow(x, y, width, height);
+}
+
+short LbScreenIsModeAvailable(TbScreenMode mode)
+{
+  return _DK_LbScreenIsModeAvailable(mode);
+}
+
+TbScreenMode LbRecogniseVideoModeString(char *str)
+{
+  int maxmode=sizeof(lbScreenModeInfo)/sizeof(struct TbScreenModeInfo);
+  int mode;
+  for (mode=0; mode<maxmode; mode++)
+  {
+    if (stricmp(lbScreenModeInfo[mode].Desc,str) == 0)
+      return (TbScreenMode)mode;
+  }
+  return Lb_SCREEN_MODE_INVALID;
 }
 
 void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags)

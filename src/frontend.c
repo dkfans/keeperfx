@@ -8,7 +8,7 @@
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
- * @date     10 Nov 2008 - 22 Dec 2008
+ * @date     10 Nov 2008 - 01 Feb 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,10 +17,14 @@
  */
 /******************************************************************************/
 #include "frontend.h"
+
+#include <string.h>
 #include "bflib_basics.h"
 #include "globals.h"
+
 #include "bflib_guibtns.h"
 #include "bflib_sprite.h"
+#include "bflib_sprfnt.h"
 #include "bflib_dernc.h"
 #include "bflib_datetm.h"
 #include "bflib_keybrd.h"
@@ -28,43 +32,373 @@
 #include "bflib_mouse.h"
 #include "bflib_vidraw.h"
 #include "keeperfx.h"
+#include "scrcapt.h"
 #include "gui_draw.h"
 #include "kjm_input.h"
 #include "vidmode.h"
-
-#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT char _DK_menu_is_active(char idx);
+DLLIMPORT void _DK_get_player_gui_clicks(void);
+DLLIMPORT void _DK_init_gui(void);
+DLLIMPORT void _DK_gui_area_text(struct GuiButton *gbtn);
+DLLIMPORT void _DK_spell_lost_first_person(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_turn_on_autopilot(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_set_autopilot(struct GuiButton *gbtn);
 DLLIMPORT char _DK_update_menu_fade_level(struct GuiMenu *gmnu);
-DLLIMPORT char _DK_create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit);
+DLLIMPORT void _DK_draw_menu_buttons(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_draw_load_button(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_null(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_draw_button(struct GuiButton *gbtn, long a2, char *text, long a4);
 DLLIMPORT char _DK_create_menu(struct GuiMenu *mnu);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
+DLLIMPORT char _DK_create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit);
+DLLIMPORT void _DK_maintain_event_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_menu_tab_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_turn_on_autopilot(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_room(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_big_room(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_spell(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_big_spell(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_zoom_in(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_zoom_out(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_go_to_map(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_new_normal_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_autopilot_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_set_menu_mode(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_draw_tab(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_open_event(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_kill_event(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_event_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_choose_room(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_go_to_next_room(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_over_room_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_room_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_new_null_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_new_no_anim_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_remove_area_for_rooms(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_big_room_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_choose_spell(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_go_to_next_spell(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_spell_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_choose_special_spell(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_big_spell_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_choose_trap(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_go_to_next_trap(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_over_trap_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_trap(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_trap_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_go_to_next_door(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_door(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_over_door_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_remove_area_for_traps(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_big_trap_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_big_trap(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_no_anim_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_loadsave(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_normal_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_new_normal_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_set_tend_to(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_flash_cycle_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_prison_bar(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_flash_cycle_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_set_query(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_payday_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_research_bar(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_workshop_bar(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_player_creature_info(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_room_and_creature_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_player_room_info(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_toggle_ally(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_ally(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_quit_game(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_ally(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_save_game(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_video_shadows(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_video_view_distance_level(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_video_rotate_mode(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_video_cluedo_mode(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_video_gamma_correction(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_set_sound_volume(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_set_music_volume(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_video_cluedo_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_slider(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_smiley_anger_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_experience_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_instance_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_instance(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_stat_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_define_key_up(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_define_key_down(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_define_key(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_define_key_up_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_define_key_down_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_define_key_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_define_key(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_icon(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_slider(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_set_mouse_sensitivity(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_small_slider(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_invert_mouse(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_invert_mouse(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontstats_draw_main_stats(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontstats_draw_scrolling_stats(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontstats_leave(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_vlarge_menu_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_high_score_table(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_quit_high_score_table(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_maintain_high_score_ok_button(struct GuiButton *gbtn);
 
-long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, char, long *tag)
+DLLIMPORT void _DK_pick_up_next_wanderer(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_go_to_next_wanderer(struct GuiButton *gbtn);
+DLLIMPORT void _DK_pick_up_next_worker(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_go_to_next_worker(struct GuiButton *gbtn);
+DLLIMPORT void _DK_pick_up_next_fighter(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_go_to_next_fighter(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_scroll_activity_up(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_scroll_activity_up(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_scroll_activity_down(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_scroll_activity_down(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_activity_up(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_activity_down(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_activity_pic(struct GuiButton *gbtn);
+DLLIMPORT void _DK_pick_up_next_creature(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_go_to_next_creature(struct GuiButton *gbtn);
+DLLIMPORT void _DK_pick_up_creature_doing_activity(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_go_to_next_creature_activity(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_anger_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_activity_row(struct GuiButton *gbtn);
+
+DLLIMPORT void _DK_gui_activity_background(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_gui_pretty_background(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_frontend_copy_background(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_gui_round_glass_background(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_gui_creature_query_background1(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_gui_creature_query_background2(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_reset_scroll_window(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_init_load_menu(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_init_save_menu(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_init_video_menu(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_init_audio_menu(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_frontend_init_options_menu(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_frontend_draw_large_menu_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_scroll_box_tab(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_scroll_box(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_slider_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_services_scroll_tab(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_text(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_service_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_large_menu_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_service_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_service_up_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_service_down_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_service_up(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_service_down(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_service_select(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_change_state(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_over_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_session_set_player_name(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_text_bar(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_enter_text(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_session_up(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_session_up_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_session_down(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_session_down_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_session_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_sessions_scroll_tab(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_session_selected(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_session_select(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_session_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_players_up(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_players_up_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_players_down(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_players_down_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_players_scroll_tab(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_net_session_players(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_session_join(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_session_create(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_return_to_main_menu(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_small_menu_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_join_game_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_alliance_box_tab(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_net_start_players(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_select_alliance(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_alliance_grid(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_alliance_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_maintain_alliance(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_messages_up(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_messages_up_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_messages_down(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_messages_down_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_toggle_computer_players(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_computer_players(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_messages_scroll_tab(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_current_message(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_messages(struct GuiButton *gbtn);
+DLLIMPORT void _DK_set_packet_start(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_start_game_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_return_to_session_menu(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_small_scroll_box_tab(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_small_scroll_box(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_comport_up(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_comport_up_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_comport_down(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_comport_down_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_comport_scroll_tab(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_comport_selected(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_comport_select(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_comport_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_comport_select_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_speed_up(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_speed_up_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_speed_down(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_speed_down_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_speed_scroll_tab(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_speed_selected(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_speed_select(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_speed_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_speed_select_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_text_cont_bar(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_net_set_modem_init(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_net_set_modem_hangup(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_net_set_modem_dial(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_net_set_phone_number(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_net_modem_start(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_net_modem_start_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_net_set_modem_answer(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_net_serial_start(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_net_serial_start_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_load_game(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_load_game_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_scroll_window(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_go_to_event(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_zoom_to_event(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_close_objective(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_scroll_text_up(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_scroll_text_down(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_scroll_up(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_scroll_down(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_scroll_text_down(struct GuiButton *gbtn);
+DLLIMPORT void _DK_choose_hold_audience(struct GuiButton *gbtn);
+DLLIMPORT void _DK_choose_armageddon(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_load_game_up(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_load_game_down(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_load_game_up_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_load_game_down_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_load_game_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_games_scroll_tab(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_load_game(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_load_game_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_start_new_game(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_load_continue_game(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_continue_game_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_main_menu_load_game_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_main_menu_netservice_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_main_menu_highscores_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_previous_battle(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_next_battle(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_get_creature_in_battle(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_go_to_person_in_battle(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_setup_friend_over(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_friendly_battlers(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_setup_enemy_over(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_enemy_battlers(struct GuiButton *gbtn);
+DLLIMPORT void _DK_select_resurrect_creature(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_resurrect_creature_select(struct GuiButton *gbtn);
+DLLIMPORT void _DK_draw_resurrect_creature(struct GuiButton *gbtn);
+DLLIMPORT void _DK_select_resurrect_creature_up(struct GuiButton *gbtn);
+DLLIMPORT void _DK_select_resurrect_creature_down(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_resurrect_creature_scroll(struct GuiButton *gbtn);
+DLLIMPORT void _DK_select_transfer_creature(struct GuiButton *gbtn);
+DLLIMPORT void _DK_draw_transfer_creature(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_transfer_creature_select(struct GuiButton *gbtn);
+DLLIMPORT void _DK_select_transfer_creature_up(struct GuiButton *gbtn);
+DLLIMPORT void _DK_select_transfer_creature_down(struct GuiButton *gbtn);
+DLLIMPORT void _DK_maintain_transfer_creature_scroll(struct GuiButton *gbtn);
+/******************************************************************************/
+
+long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag);
+long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
+{}
+long gf_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
+{}
+long gf_give_all_creatures_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
+{}
+long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
+{}
+long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
+{}
+long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
+{}
+long gfa_can_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag)
+{}
+long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag)
+{}
+long gf_change_player_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
 {}
 
 struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
-    {"Null mode",              1, 0, gf_change_player_state, 0, 0, 0,  0, 0, 0, 0},
-    {"Place tunneller mode",   1, 0, gf_change_player_state, 0, 0, 0,  3, 0, 0, 0},
-    {"Place creature mode",    1, 0, gf_change_player_state, 0, 0, 0, 14, 0, 0, 0},
-    {"Place hero mode",        1, 0, gf_change_player_state, 0, 0, 0,  4, 0, 0, 0},
-    {"Destroy walls mode",     1, 0, gf_change_player_state, 0, 0, 0, 25, 0, 0, 0},
-    {"Disease mode",           1, 0, gf_change_player_state, 0, 0, 0, 26, 0, 0, 0},
-    {"Peter mode",	           1, 0, gf_change_player_state, 0, 0, 0, 27, 0, 0, 0},
-    {"",                       2, 0,                   NULL, 0, 0, 0,  0, 0, 0, 0},
-    {"Passenger control mode", 1, 0, gf_change_player_state, 0, 0, 0, 10, 0, 0, 0},
-    {"Direct control mode",    1, 0, gf_change_player_state, 0, 0, 0, 11, 0, 0, 0},
-    {"Order creature mode",    1, 0, gf_change_player_state, 0, 0, 0, 13, 0, 0, 0},
-    {"",                       2, 0,                   NULL, 0,	0, 0,  0, 0, 0, 0},
-    {"!",                      0, 0,                   NULL, 0, 0, 0,  0, 0, 0, 0},
+  {"Null mode",                1,           NULL,      gf_change_player_state, 0, 0, 0,  0, 0, 0, 0},
+  {"Place tunneller mode",     1,           NULL,      gf_change_player_state, 0, 0, 0,  3, 0, 0, 0},
+  {"Place creature mode",      1,           NULL,      gf_change_player_state, 0, 0, 0, 14, 0, 0, 0},
+  {"Place hero mode",          1,           NULL,      gf_change_player_state, 0, 0, 0,  4, 0, 0, 0},
+  {"Destroy walls mode",       1,           NULL,      gf_change_player_state, 0, 0, 0, 25, 0, 0, 0},
+  {"Disease mode",             1,           NULL,      gf_change_player_state, 0, 0, 0, 26, 0, 0, 0},
+  {"Peter mode",               1,           NULL,      gf_change_player_state, 0, 0, 0, 27, 0, 0, 0},
+  {"",                         2,           NULL,                        NULL, 0, 0, 0,  0, 0, 0, 0},
+  {"Passenger control mode",   1,           NULL,      gf_change_player_state, 0, 0, 0, 10, 0, 0, 0},
+  {"Direct control mode",      1,           NULL,      gf_change_player_state, 0, 0, 0, 11, 0, 0, 0},
+  {"Order creature mode",      1,           NULL,      gf_change_player_state, 0, 0, 0, 13, 0, 0, 0},
+  {"",                         2,           NULL,                        NULL, 0, 0, 0,  0, 0, 0, 0},
+  {"!",                        0,           NULL,                        NULL, 0, 0, 0,  0, 0, 0, 0},
+};
+
+struct GuiBoxOption gui_creature_cheat_option_list[] = {
+ {"Everything is free",        1,           NULL,     gf_make_everything_free, 0, 0, 0,  0, 0, 0, 0},
+ {"Give controlled creature spells",1,gfa_can_give_controlled_creature_spells,gf_give_controlled_creature_spells, 0, 0, 0, 0, 0, 0, 0},
+ {"Give all creatures spells", 1,           NULL,gf_give_all_creatures_spells, 0, 0, 0,  0, 0, 0, 0},
+ {"Explore everywhere",        1,           NULL,       gf_explore_everywhere, 0, 0, 0,  0, 0, 0, 0},
+ {"Research all magic",        1,           NULL,           gf_research_magic, 0, 0, 0,  0, 0, 0, 0},
+ {"Research all rooms",        1,           NULL,           gf_research_rooms, 0, 0, 0,  0, 0, 0, 0},
+ {"!",                         0,           NULL,                        NULL, 0, 0, 0,  0, 0, 0, 0},
+};
+
+struct GuiBoxOption gui_instance_option_list[] = {
+ {"Fireball",1,gfa_controlled_creature_has_instance,gf_change_player_instance, 5, 0, 0,  5, 0, 0, 0},
+ {"Meteor",1, gfa_controlled_creature_has_instance, gf_change_player_instance, 6, 0, 0,  6, 0, 0, 0},
+ {"Freeze",1, gfa_controlled_creature_has_instance, gf_change_player_instance, 7, 0, 0,  7, 0, 0, 0},
+ {"Armour",1, gfa_controlled_creature_has_instance, gf_change_player_instance, 8, 0, 0,  8, 0, 0, 0},
+ {"Lightning",1,gfa_controlled_creature_has_instance,gf_change_player_instance,9, 0, 0,  9, 0, 0, 0},
+ {"Rebound",1,gfa_controlled_creature_has_instance, gf_change_player_instance,10, 0, 0, 10, 0, 0, 0},
+ {"Heal",1,   gfa_controlled_creature_has_instance, gf_change_player_instance,11, 0, 0, 11, 0, 0, 0},
+ {"Poison Cloud",1,gfa_controlled_creature_has_instance,gf_change_player_instance,12,0,0,12,0, 0, 0},
+ {"Invisibility",1,gfa_controlled_creature_has_instance,gf_change_player_instance,13,0,0,13,0, 0, 0},
+ {"Teleport",1,gfa_controlled_creature_has_instance,gf_change_player_instance,14, 0, 0, 14, 0, 0, 0},
+ {"Speed", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,15, 0, 0, 15, 0, 0, 0},
+ {"Slow",  1, gfa_controlled_creature_has_instance, gf_change_player_instance,16, 0, 0, 16, 0, 0, 0},
+ {"Drain", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,17, 0, 0, 17, 0, 0, 0},
+ {"Fear",  1, gfa_controlled_creature_has_instance, gf_change_player_instance,18, 0, 0, 18, 0, 0, 0},
+ {"Missile",1,gfa_controlled_creature_has_instance, gf_change_player_instance,19, 0, 0, 19, 0, 0, 0},
+ {"Homer", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,20, 0, 0, 20, 0, 0, 0},
+ {"Breath",1, gfa_controlled_creature_has_instance, gf_change_player_instance,21, 0, 0, 21, 0, 0, 0},
+ {"Wind",  1, gfa_controlled_creature_has_instance, gf_change_player_instance,22, 0, 0, 22, 0, 0, 0},
+ {"Light", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,23, 0, 0, 23, 0, 0, 0},
+ {"Fly",   1, gfa_controlled_creature_has_instance, gf_change_player_instance,24, 0, 0, 24, 0, 0, 0},
+ {"Sight", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,25, 0, 0, 25, 0, 0, 0},
+ {"Grenade",1,gfa_controlled_creature_has_instance, gf_change_player_instance,26, 0, 0, 26, 0, 0, 0},
+ {"Hail",  1, gfa_controlled_creature_has_instance, gf_change_player_instance,27, 0, 0, 27, 0, 0, 0},
+ {"WOP",   1, gfa_controlled_creature_has_instance, gf_change_player_instance,28, 0, 0, 28, 0, 0, 0},
+ {"Fart",  1, gfa_controlled_creature_has_instance, gf_change_player_instance,29, 0, 0, 29, 0, 0, 0},
+ {"Dig",   1, gfa_controlled_creature_has_instance, gf_change_player_instance,39, 0, 0, 39, 0, 0, 0},
+ {"Arrow", 1, gfa_controlled_creature_has_instance, gf_change_player_instance, 4, 0, 0,  4, 0, 0, 0},
+ {"Group", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,40, 0, 0, 40, 0, 0, 0},
+ {"Disease",1,gfa_controlled_creature_has_instance, gf_change_player_instance,41, 0, 0, 41, 0, 0, 0},
+ {"Chicken",1,gfa_controlled_creature_has_instance, gf_change_player_instance,42, 0, 0, 42, 0, 0, 0},
+ {"!",     0,                          NULL,                             NULL, 0, 0, 0,  0, 0, 0, 0},
 };
 
 struct GuiButtonInit main_menu_buttons[] = {
@@ -910,9 +1244,34 @@ void LbDataLoadSetModifyFilenameFunction(ModDL_Fname_Func nmodify_dl_filename_fu
   _DK_modify_data_load_filename_function=nmodify_dl_filename_func;
 }
 
+char menu_is_active(char idx)
+{
+  return _DK_menu_is_active(idx);
+}
+
 void get_player_gui_clicks(void)
 {
   _DK_get_player_gui_clicks(); return;
+}
+
+void turn_on_event_info_panel_if_necessary(unsigned short evnt_idx)
+{
+  if (game.event[evnt_idx%EVENTS_COUNT].field_B == 2)
+  {
+    if (!menu_is_active(34))
+      turn_on_menu(34);
+  } else
+  {
+    if (!menu_is_active(16))
+      turn_on_menu(16);
+  }
+}
+
+void activate_event_box(long evnt_idx)
+{
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
+  set_packet_action(pckt, 115, evnt_idx, 0,0,0);
 }
 
 void turn_off_menu(short mnu_idx)
@@ -932,7 +1291,8 @@ void gui_pretty_background(struct GuiMenu *gmnu)
 
 void frontend_copy_mnu_background(struct GuiMenu *gmnu)
 {
-  _DK_frontend_copy_background(gmnu);
+  //_DK_frontend_copy_background(gmnu);
+  frontend_copy_background_at(gmnu->pos_x,gmnu->pos_y,gmnu->width,gmnu->height);
 }
 
 void draw_load_button(struct GuiButton *gbtn)
@@ -955,7 +1315,63 @@ void draw_load_button(struct GuiButton *gbtn)
 
 void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, char *text, unsigned int drw_flags)
 {
-  _DK_frontend_draw_button(gbtn, btntype, text, drw_flags); return;
+  //_DK_frontend_draw_button(gbtn, btntype, text, drw_flags); return;
+  static const long large_button_sprite_anims[] =
+      { 2, 5, 8, 11, 14, 11, 8, 5, };
+  unsigned int frontbtninfo_idx;
+  unsigned int spridx;
+  int fntidx;
+  long x,y;
+  int h;
+  frontbtninfo_idx = (unsigned int)gbtn->field_33;
+  if ((gbtn->field_0 & 0x08) == 0)
+  {
+    fntidx = 3;
+    spridx = 14;
+  } else
+  if ((frontbtninfo_idx>0) && (frontend_mouse_over_button == frontbtninfo_idx))
+  {
+    fntidx = 2;
+    spridx = large_button_sprite_anims[((timeGetTime()-frontend_mouse_over_button_start_time)/100) & 7];
+  } else
+  {
+    fntidx = frontend_button_info[frontbtninfo_idx].field_2;
+    spridx = 14;
+  }
+  x = gbtn->scr_pos_x;
+  y = gbtn->scr_pos_y;
+  switch (btntype)
+  {
+   case 1:
+      LbSpriteDraw(x, y, &frontend_sprite[spridx]);
+      x += frontend_sprite[spridx].SWidth;
+      LbSpriteDraw(x, y, &frontend_sprite[spridx+1]);
+      x += frontend_sprite[spridx+1].SWidth;
+      break;
+  case 2:
+      LbSpriteDraw(x, y, &frontend_sprite[spridx]);
+      x += frontend_sprite[spridx].SWidth;
+      LbSpriteDraw(x, y, &frontend_sprite[spridx+1]);
+      x += frontend_sprite[spridx+1].SWidth;
+      LbSpriteDraw(x, y, &frontend_sprite[spridx+1]);
+      x += frontend_sprite[spridx+1].SWidth;
+      break;
+  default:
+      LbSpriteDraw(x, y, &frontend_sprite[spridx]);
+      x += frontend_sprite[spridx].SWidth;
+      break;
+  }
+  LbSpriteDraw(x, y, &frontend_sprite[spridx+2]);
+  if (text != NULL)
+  {
+    lbDisplay.DrawFlags = drw_flags;
+    lbFontPtr = frontend_font[fntidx];
+    h=LbTextHeight(text);
+    x = gbtn->scr_pos_x + ((40) >> 1);
+    y = gbtn->scr_pos_y + ((frontend_sprite[spridx].SHeight-h) >> 1);
+    _DK_LbTextSetWindow(x, y, gbtn->width-40, h);
+    LbTextDraw(0, 0, text);
+  }
 }
 
 void frontend_draw_large_menu_button(struct GuiButton *gbtn)
@@ -1026,7 +1442,48 @@ void init_audio_menu(struct GuiMenu *gmnu)
 
 void maintain_event_button(struct GuiButton *gbtn)
 {
-  _DK_maintain_event_button(gbtn); return;
+  //_DK_maintain_event_button(gbtn); return;
+  struct Dungeon *dungeon;
+  struct Event *evnt;
+  unsigned short evnt_idx;
+
+  dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+  evnt_idx = dungeon->field_13A7[((unsigned int)gbtn->field_33) & 0xFF];
+
+  if ((dungeon->field_1173) && (evnt_idx == dungeon->field_1173))
+  {
+      turn_on_event_info_panel_if_necessary(dungeon->field_1173);
+  }
+
+  if (evnt_idx == 0)
+  {
+    gbtn->field_1B |= 0x4000u;
+    gbtn->field_29 = 0;
+    gbtn->field_0 &= 0xF7;
+    gbtn->field_1 = 0;
+    gbtn->field_2 = 0;
+    gbtn->field_2B = 201;
+    return;
+  }
+  evnt = &game.event[evnt_idx];
+  if ((evnt->field_B == 3) && (new_objective))
+  {
+    activate_event_box(evnt_idx);
+  }
+  gbtn->field_29 = event_button_info[evnt->field_B].field_0;
+  if ((evnt->field_B == 2) && ((evnt->field_2) || (evnt->field_6))
+      && ((game.seedchk_random_used & 0x01) != 0))
+  {
+    gbtn->field_29 += 2;
+  } else
+  if ((evnt->field_B == 21) && (evnt->field_C < 0)
+     && ((game.seedchk_random_used & 0x01) != 0))
+  {
+    gbtn->field_29 += 2;
+  }
+  gbtn->field_2B = event_button_info[evnt->field_B].field_4;
+  gbtn->field_0 |= 0x08u;
+  gbtn->field_1B = 0;
 }
 
 void menu_tab_maintain(struct GuiButton *gbtn)
@@ -1411,7 +1868,24 @@ void gui_area_spell_button(struct GuiButton *gbtn)
 
 void gui_choose_special_spell(struct GuiButton *gbtn)
 {
-  _DK_gui_choose_special_spell(gbtn); return;
+  //_DK_gui_choose_special_spell(gbtn); return;
+  long idx;
+  idx = (long)gbtn->field_33 % SPELL_TYPES_COUNT;
+  game.chosen_spell_type = idx;
+  game.chosen_spell_look = spell_data[idx].field_9;
+  game.chosen_spell_tooltip = gbtn->field_2B;
+  if (game.dungeon[my_player_number].field_AF9 > game.magic_stats[idx].field_0 )
+  {
+    switch (idx)
+    {
+    case 19:
+        turn_on_menu(30);
+        break;
+    case 9:
+        turn_on_menu(17);
+        break;
+    }
+  }
 }
 
 void gui_area_big_spell_button(struct GuiButton *gbtn)
@@ -2209,6 +2683,32 @@ void select_transfer_creature_down(struct GuiButton *gbtn)
   _DK_select_transfer_creature_down(gbtn);
 }
 
+long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
+{
+  // Note: reworked from beta and unchecked
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
+  set_packet_action(pckt, 36, ((short *)tag)[0], ((short *)tag)[2], 0, 0);
+  struct GuiBoxOption *guop;
+  guop=gbox->optn_list;
+  while (guop->label[0] != '!')
+  {
+    guop->field_25 = 0;
+    guop++;
+  }
+  goptn->field_25 = 1;
+  return 1;
+}
+
+/*
+ * Draws parchment view background, used for in-game map screen.
+ */
+void draw_map_parchment(void)
+{
+  //_DK_draw_map_parchment();return;
+  parchment_copy_background_at(0,0,POS_AUTO,POS_AUTO);
+}
+
 void frontnet_service_up_maintain(struct GuiButton *gbtn)
 {
   if (net_service_scroll_offset != 0)
@@ -2261,12 +2761,12 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
   lbFontPtr = frontend_font[fntidx];
   // Set drawing windsow
   int height = 0;
-  lbDisplay.DrawFlags = 0x20;
+  lbDisplay.DrawFlags = 0x0020;
   if ( lbFontPtr!=NULL )
-      height = lbFontPtr[1].SHeight;
+      height = LbTextHeight(net_service[srvidx]);
   _DK_LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
   //Draw the text
-  _DK_LbTextDraw(0, 0, net_service[srvidx]);
+  LbTextDraw(0, 0, net_service[srvidx]);
 }
 
 void frontnet_service_select(struct GuiButton *gbtn)
@@ -2304,22 +2804,25 @@ void frontend_load_game_maintain(struct GuiButton *gbtn)
 
 void frontend_load_high_score_table(void)
 {
-    static const char *hiscores_fname="data\\hiscores.dat";
-    if ( LbFileLoadAt(hiscores_fname, _DK_high_score_table) != sizeof(_DK_high_score_table) )
-    {
-        int i;
-        int npoints = 1000;
-        int nlevel = 10;
-        for (i=0;i<10;i++)
-        {
+  char *fname;
+  fname=prepare_file_path(FGrp_StdData,"hiscores.dat");
+  if ( LbFileLoadAt(fname, _DK_high_score_table) != sizeof(_DK_high_score_table) )
+  {
+     LbSyncLog("High scores table bad; creating new one.\n");
+     // highscore table wrong - generate a new one
+     int i;
+     int npoints = 1000;
+     int nlevel = 10;
+     for (i=0;i<10;i++)
+     {
             sprintf(_DK_high_score_table[i].name, "Bullfrog");
             _DK_high_score_table[i].score=npoints;
             _DK_high_score_table[i].level=nlevel;
             npoints -= 100;
             nlevel -= 1;
-        }
-        LbFileSaveAt(hiscores_fname, _DK_high_score_table, sizeof(_DK_high_score_table));
-    }
+     }
+     LbFileSaveAt(fname, _DK_high_score_table, sizeof(_DK_high_score_table));
+  }
 }
 
 void add_score_to_high_score_table(void)
@@ -2487,6 +2990,17 @@ void add_to_menu_stack(unsigned char mnu_idx)
   //LbSyncLog("Menu %d put on stack, at position %d.\n",mnu_idx,no_of_active_menus-1);
 }
 
+long first_available_menu(void)
+{
+  short i;
+  for (i=0; i<ACTIVE_MENUS_COUNT; i++)
+  {
+    if (active_menus[i].field_1 == 0)
+      return i;
+  }
+  return -1;
+}
+
 void update_radio_button_data(struct GuiMenu *gmnu)
 {
   int i;
@@ -2646,17 +3160,6 @@ long compute_menu_position_y(long desired_pos,int menu_height)
   return pos;
 }
 
-long first_available_menu(void)
-{
-  short i;
-  for (i=0; i<ACTIVE_MENUS_COUNT; i++)
-  {
-    if (active_menus[i].field_1 == 0)
-      return i;
-  }
-  return -1;
-}
-
 char create_menu(struct GuiMenu *gmnu)
 {
   static const char *func_name="create_menu";
@@ -2754,6 +3257,11 @@ void frontend_load_data_from_cd(void)
     LbDataLoadSetModifyFilenameFunction(_DK_mdlf_for_cd);
 }
 
+void frontend_load_data_reset(void)
+{
+  LbDataLoadSetModifyFilenameFunction(_DK_mdlf_default);
+}
+
 void frontstory_load(void)
 {
     static const char *func_name="frontstory_load";
@@ -2776,18 +3284,23 @@ void inline frontstory_unload(void)
     _DK_LbDataFreeAll(_DK_frontstory_load_files);
 }
 
+void init_gui(void)
+{
+  _DK_init_gui();
+}
+
 int frontend_set_state(long nstate)
 {
     static const char *func_name="frontend_set_state";
-    static char text[255];
+    char *fname;
     //_DK_frontend_set_state(nstate);return nstate;
   switch ( _DK_frontend_menu_state )
   {
     case 0:
-      _DK_init_gui();
-      sprintf(text, "%s/%s/front.pal", install_info.inst_path,"ldata");
+      init_gui();
       check_cd_in_drive();
-      if ( LbFileLoadAt(text, &_DK_frontend_palette) != 768 )
+      fname=prepare_file_path(FGrp_LoData,"front.pal");
+      if ( LbFileLoadAt(fname, &_DK_frontend_palette) != 768 )
         error(func_name, 1323, "Unable to load FRONTEND PALETTE");
       check_cd_in_drive();
       frontend_load_high_score_table();
@@ -3101,30 +3614,123 @@ void frontend_input(void)
         get_gui_inputs(0);
         break;
     } // end switch
+    get_screen_capture_inputs();
+}
+
+int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)
+{
+  int w,h,m;
+  w=0;
+  h=0;
+  for (m=0;m<5;m++)
+  {
+    w+=img_w;
+    h+=img_h;
+    if (w > rect_w) break;
+    if (h > rect_h) break;
+  }
+  // The image width can't be larger than video resolution
+  if (m<1)
+  {
+    if (w > lbDisplay.PhysicalScreenWidth)
+      return 0;
+    m=1;
+  }
+  return m;
+}
+
+void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
+{
+  const int img_width = 640;
+  const int img_height = 480;
+  const unsigned char *srcbuf=_DK_frontend_background;
+  struct TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+  int m,i,k;
+  int spx,spy;
+  unsigned char *dst;
+  const unsigned char *src;
+  // Only 8bpp supported for now
+  if (mdinfo->BitsPerPixel != 8)
+    return;
+  if (rect_w == POS_AUTO)
+    rect_w = mdinfo->Width-rect_x;
+  if (rect_h == POS_AUTO)
+    rect_h = mdinfo->Height-rect_y;
+  if (rect_w<0) rect_w=0;
+  if (rect_h<0) rect_h=0;
+  m = get_bitmap_max_scale(img_width, img_height, rect_w, rect_h);
+  if (m < 1)
+  {
+    LbSyncLog("The %dx%d frontend image does not fit in %dx%d window, skipped.\n", img_width, img_height,rect_w,rect_h);
+    return;
+  }
+  // Starting point coords
+  spx = rect_x + ((rect_w-m*img_width)>>1);
+  spy = rect_y + ((rect_h-m*img_height)>>1);
+  // Do the drawing
+  copy_raw8_image_buffer(lbDisplay.WScreen,mdinfo->Width,mdinfo->Height,
+      spx,spy,srcbuf,img_width,img_height,m);
+}
+
+void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
+{
+  int img_width;
+  int img_height;
+  unsigned char *srcbuf;
+  if (lbDisplay.GraphicsScreenWidth < 640)
+  {
+    img_width = 320;
+    img_height = 200;
+    srcbuf = poly_pool;
+  } else
+  {
+    img_width = 640;
+    img_height = 480;
+    srcbuf = hires_parchment;
+  }
+  struct TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+  int m,i,k;
+  int spx,spy;
+  unsigned char *dst;
+  const unsigned char *src;
+  // Only 8bpp supported for now
+  if (mdinfo->BitsPerPixel != 8)
+    return;
+  if (rect_w == POS_AUTO)
+    rect_w = mdinfo->Width-rect_x;
+  if (rect_h == POS_AUTO)
+    rect_h = mdinfo->Height-rect_y;
+  if (rect_w<0) rect_w=0;
+  if (rect_h<0) rect_h=0;
+  // Parchment bitmap can't be scaled
+  m = 1;
+  // Starting point coords
+  spx=0;spy=0; // disabled, for now
+/*
+  spx = rect_x + ((rect_w-m*img_width)>>1);
+  spy = rect_y + ((rect_h-m*img_height)>>1);
+  if (spy<0) spy=0;
+*/
+  // Do the drawing
+  copy_raw8_image_buffer(lbDisplay.WScreen,mdinfo->Width,mdinfo->Height,
+      spx,spy,srcbuf,img_width,img_height,m);
+  // Burning candle flames
+  LbSpriteDraw(spx+(36/pixel_size),(spy+0/pixel_size), &button_sprite[198+(game.seedchk_random_used & 3)]);
+  LbSpriteDraw(spx+(574/pixel_size),(spy+0/pixel_size), &button_sprite[202+(game.seedchk_random_used & 3)]);
 }
 
 void frontend_copy_background(void)
 {
-    unsigned char *wscrn = lbDisplay.WScreen;
-    unsigned char *sscrn = _DK_frontend_background;
-    int qwidth = lbDisplay.PhysicalScreenWidth >> 2;
-    int i;
-    for ( i=0; i<lbDisplay.PhysicalScreenHeight; i++ )
-    {
-        memcpy(wscrn, sscrn, 4*qwidth);
-        memcpy(wscrn+4*qwidth, sscrn+4*qwidth, lbDisplay.PhysicalScreenWidth & 0x03);
-        sscrn += 640;
-        wscrn += lbDisplay.GraphicsScreenWidth;
-    }
+  frontend_copy_background_at(0,0,POS_AUTO,POS_AUTO);
 }
 
-int __cdecl frontstory_draw()
+int frontstory_draw(void)
 {
   frontend_copy_background();
   _DK_LbTextSetWindow(70, 70, 500, 340);
   lbFontPtr = _DK_frontstory_font;
-  lbDisplay.DrawFlags = 256;
-  _DK_LbTextDraw(0,0,_DK_strings[_DK_frontstory_text_no]);
+  lbDisplay.DrawFlags = 0x0100;
+  LbTextDraw(0,0,_DK_strings[_DK_frontstory_text_no]);
 }
 
 void draw_defining_a_key_box(void)
@@ -3337,7 +3943,6 @@ void draw_active_menus_highlights(void)
   }
 }
 
-
 void draw_gui(void)
 {
   //_DK_draw_gui(); return;
@@ -3367,13 +3972,13 @@ struct TbBirthday {
     };
 
 const struct TbBirthday team_birthdays[] = {
-    {13,1,"Mark Healey"},
-    {21,3,"Jonty Barnes"},
-    {3,5,"Simon Carter"},
-    {5,5,"Peter Molyneux"},
+    {13, 1,"Mark Healey"},
+    {21, 3,"Jonty Barnes"},
+    { 3, 5,"Simon Carter"},
+    { 5, 5,"Peter Molyneux"},
     {13,11,"Alex Peters"},
-    {1,12,"Dene Carter"},
-    {25,5,"Tomasz Lis"},
+    { 1,12,"Dene Carter"},
+    {25, 5,"Tomasz Lis"},
     {29,11,"Michael Chateauneuf"},
     {0,0,NULL},
     };
@@ -3406,8 +4011,8 @@ void frontbirthday_draw()
       unsigned short line_pos = 0;
       if ( lbFontPtr != NULL )
           line_pos = lbFontPtr[1].SHeight;
-      _DK_LbTextDraw(0, 170-line_pos, _DK_strings[885]);
-      _DK_LbTextDraw(0, 170, name);
+      LbTextDraw(0, 170-line_pos, _DK_strings[885]);
+      LbTextDraw(0, 170, name);
   } else
   {
       frontend_set_state(11);
@@ -3480,7 +4085,8 @@ short frontend_draw(void)
     //char text[255];
     //sprintf(text, "time %7d, mode %d",LbTimerClock(),_DK_frontend_menu_state);
     //lbDisplay.DrawFlags=0;_DK_LbTextSetWindow(0,0,640,200);lbFontPtr = _DK_frontend_font[0];
-    //_DK_LbTextDraw(200/pixel_size, 8/pixel_size, text);text[0]='\0';
+    //LbTextDraw(200/pixel_size, 8/pixel_size, text);text[0]='\0';
+    perform_any_screen_capturing();
     LbScreenUnlock();
     return result;
 }
@@ -3499,17 +4105,54 @@ void load_game_update(void)
 
 void spell_lost_first_person(struct GuiButton *gbtn)
 {
-  _DK_spell_lost_first_person(gbtn); return;
+  //_DK_spell_lost_first_person(gbtn); return;
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  struct Packet *pckt;
+  pckt=&game.packets[player->field_B%PACKETS_COUNT];
+  set_packet_action(pckt, 110, 0, 0, 0, 0);
 }
 
 void gui_turn_on_autopilot(struct GuiButton *gbtn)
 {
-  _DK_gui_turn_on_autopilot(gbtn); return;
+  //_DK_gui_turn_on_autopilot(gbtn); return;
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  struct Packet *pckt;
+  if (player->field_29 != 2)
+  {
+    pckt=&game.packets[player->field_B%PACKETS_COUNT];
+    set_packet_action(pckt, 107, 0, 0, 0, 0);
+  }
 }
 
 void gui_set_autopilot(struct GuiButton *gbtn)
 {
-  _DK_gui_set_autopilot(gbtn); return;
+  static const char *func_name="gui_set_autopilot";
+  //_DK_gui_set_autopilot(gbtn); return;
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  struct Packet *pckt;
+  int ntype;
+  if (game.field_1517F7)
+  {
+    ntype = 1;
+  } else
+  if (game.field_1517F8)
+  {
+    ntype = 2;
+  } else
+  if (game.field_1517F9)
+  {
+    ntype = 3;
+  } else
+  if (game.field_1517FA)
+  {
+    ntype = 4;
+  } else
+  {
+    error(func_name, 7053, "Illegal Autopilot type, resetting to default");
+    ntype = 1;
+  }
+  pckt=&game.packets[player->field_B%PACKETS_COUNT];
+  set_packet_action(pckt, 109, ntype, 0, 0, 0);
 }
 
 void frontnet_service_update(void)
@@ -3698,4 +4341,6 @@ int get_startup_menu_state(void)
 }
 
 /******************************************************************************/
-
+#ifdef __cplusplus
+}
+#endif

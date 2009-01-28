@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file kjm_input.h
- *     Header file for kjm_input.c.
+/** @file scrcapt.h
+ *     Header file for scrcapt.c.
  * @par Purpose:
- *     Keyboard-Joypad-Mouse input routines.
+ *     Screen capturing functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     20 Jan 2009 - 30 Jan 2009
+ * @date     05 Jan 2009 - 12 Jan 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,41 +16,24 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#ifndef DK_SCRCAPT_H
+#define DK_SCRCAPT_H
 
-#ifndef DK_KJMINPUT_H
-#define DK_KJMINPUT_H
-
-#include "bflib_basics.h"
 #include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-#pragma pack(1)
 
-DLLIMPORT extern unsigned long _DK_key_modifiers;
-#define key_modifiers _DK_key_modifiers
-DLLIMPORT extern int _DK_defining_a_key;
-#define defining_a_key _DK_defining_a_key
-DLLIMPORT extern long _DK_defining_a_key_id;
-#define defining_a_key_id _DK_defining_a_key_id
 /******************************************************************************/
+extern short screenshot_format;
 
-#pragma pack()
 /******************************************************************************/
-long GetMouseX(void);
-long GetMouseY(void);
-short is_mouse_pressed_leftbutton(void);
-short is_mouse_pressed_rightbutton(void);
-short is_mouse_pressed_lrbutton(void);
-void clear_mouse_pressed_lrbutton(void);
+short perform_any_screen_capturing(void);
+short cumulative_screen_shot(void);
 
-short is_key_pressed(long key, long kmodif);
-unsigned short key_to_ascii(long key, long kmodif);
-void clear_key_pressed(long key);
-void update_key_modifiers(void);
-void define_key_input(void);
+short movie_record_start(void);
+short movie_record_stop(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

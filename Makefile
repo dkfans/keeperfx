@@ -25,6 +25,8 @@ GENSRC   = obj/ver_defs.h
 OBJ  = \
 obj/main.o \
 obj/frontend.o \
+obj/vidmode.o \
+obj/scrcapt.o \
 obj/kjm_input.o \
 obj/gui_draw.o \
 obj/bflib_basics.o \
@@ -41,6 +43,8 @@ obj/bflib_video.o \
 obj/bflib_fmvids.o \
 obj/bflib_guibtns.o \
 obj/bflib_vidraw.o \
+obj/bflib_sprfnt.o \
+obj/bflib_sprite.o \
 $(RES)
 
 LINKOBJ  = $(OBJ)

@@ -20,36 +20,41 @@
 #ifndef BFLIB_SPRITE_H
 #define BFLIB_SPRITE_H
 
+#include "globals.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 #pragma pack(1)
+
 struct TbSprite {
         char *Data;
         unsigned char SWidth;
         unsigned char SHeight;
 };
-#pragma options align=reset
 
 struct TbSetupSprite {
         struct TbSprite **Start;
         struct TbSprite **End;
         char **Data;
 };
+
+#pragma pack()
+
 /*
 extern struct TbSetupSprite setup_sprites[];
 extern char mouse_pointer_sprite;
 extern char lang_selection;
 */
 
-#pragma pack()
+/******************************************************************************/
 
 /******************************************************************************/
-int __fastcall LbSpriteSetup(TbSprite *start, const TbSprite *end, const char *data);
-int __fastcall LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
-char __fastcall font_height(const unsigned char c);
-unsigned long __fastcall my_string_width(const char *str);
+int LbDataFreeAll(struct TbLoadFiles load_files[]);
+int LbDataLoadAll(struct TbLoadFiles load_files[]);
+int LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
+short LbSpriteSetup(TbSprite *start, const TbSprite *end, const char *data);
 
 /******************************************************************************/
 #ifdef __cplusplus

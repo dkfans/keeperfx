@@ -34,6 +34,8 @@ extern "C" {
 // Global variables
 
 typedef int (WINAPI *FARPROCI)(int);
+typedef int (WINAPI *FARPROCII)(int,int);
+typedef int (WINAPI *FARPROCS)(const char *);
 
 /******************************************************************************/
 // Functions
@@ -260,7 +262,7 @@ int __stdcall StopMusic(void)
     return proc();
 }
 
-int __stdcall LoadAwe32Soundfont(int font)
+int __stdcall LoadAwe32Soundfont(const char *fname)
 {
     HMODULE hModule;
     hModule=GetModuleHandle("WSND7R");
@@ -268,9 +270,19 @@ int __stdcall LoadAwe32Soundfont(int font)
     proc=GetProcAddress(hModule,"_LoadAwe32Soundfont@4");
     if (proc==NULL)
     { LbErrorLog("Can't get address of LoadAwe32Soundfont function; skipped.\n"); return 0; }
-    return ((FARPROCI)proc)(font);
+    return ((FARPROCS)proc)(fname);
 }
 
+int __stdcall StartMusic(int i,int v)
+{
+    HMODULE hModule;
+    hModule=GetModuleHandle("WSND7R");
+    FARPROC proc;
+    proc=GetProcAddress(hModule,"_StartMusic@8");
+    if (proc==NULL)
+    { LbErrorLog("Can't get address of StartMusic function; skipped.\n"); return 0; }
+    return ((FARPROCII)proc)(i,v);
+}
 
 /******************************************************************************/
 #ifdef __cplusplus

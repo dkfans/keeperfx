@@ -11,7 +11,13 @@
  0001:000017F0       anim_make_FLI_BRUN
  0001:00005320       light_initialise
  0001:00005380       light_render_area
+ 0001:000057B0       light_create_light
+ 0001:00005E90       light_set_light_never_cache
+ 0001:00007370       light_signal_stat_light_update_in_area
+ 0001:00007400       light_stat_light_map_clear_area
+ 0001:00007850       light_remove_light_from_list
  0001:00008010       frontnet_init_level_descriptions
+ 0001:000081D0       frontend_is_player_allied
  0001:00008200       frontnet_draw_slider_button
  0001:00008290       setup_network_service
  0001:00008370       process_network_error
@@ -108,6 +114,7 @@
  0001:0000B530       frontnet_select_alliance
  0001:0000B5A0       frontend_draw_computer_players
  0001:0000B660       frontend_toggle_computer_players
+ 0001:0000B750       enum_players_callback
  0001:0000CB50       get_trap_for_position
  0001:0000CDD0       check_cd_in_drive
  0001:0000E140       set_player_instance
@@ -119,7 +126,7 @@
  0001:00015940       process_level_script
  0001:0001A920       play_non_3d_sample
  0001:0001AEF0       input_eastegg
- 0001:0001B250       draw_sound_stuff
+ 0001:0001B250       draw_eastegg
  0001:0001B900       fronttorture_load
  0001:0001BC90       fronttorture_unload
  0001:0001BD50       fronttorture_draw
@@ -131,8 +138,17 @@
  0001:0001E340       PaletteFadePlayer
  0001:0001E510       PaletteSetPlayerPalette
  0001:0001E590       redraw_display
+ 0001:0001EE90       redraw_isometric_view
+ 0001:0001F4A0       redraw_frontview
+ 0001:0001F7D0       redraw_creature_view
+ 0001:0001FB40       draw_creature_view
  0001:0001FF40       draw_map_parchment
+ 0001:00020140       draw_2d_map
+ 0001:00021C00       process_pointer_graphic
+ 0001:00022FD0       draw_zoom_box
  0001:00023870       set_gamma
+ 0001:000243C0       message_draw
+ 0001:00024520       message_add
  0001:000245A0       message_update
  0001:00024920       frontzoom_to_point
  0001:00030F10       draw_view
@@ -147,6 +163,8 @@
  0001:00036B90       get_global_inputs
  0001:00037140       get_dungeon_control_action_inputs
  0001:00037610       set_player_mode
+ 0001:000377E0       reset_player_mode
+ 0001:00037900       set_player_state
  0001:00037AC0       get_small_map_inputs
  0001:000380E0       get_packet_control_mouse_clicks
  0001:000389A0       get_player_gui_clicks
@@ -156,6 +174,7 @@
  0001:000395F0       @get_cpu_info@4
  0001:000396C0       get_best_sound_heap_size
  0001:00039740       setup_stuff
+ 0001:00039D60       LoadMcgaData
  0001:00039E30       setup_game@0
  0001:0003A312       SetRedbookVolume@4
  0001:0003A320       SetSoundMasterVolume@4
@@ -174,6 +193,8 @@
  0001:0003C6F0       frontstats_leave
  0001:0003C8B0       setup_heap_memory
  0001:0003C9B0       reset_heap_memory
+ 0001:0003C9D0       setup_heap_manager
+ 0001:0003CAF0       reset_heap_manager
  0001:0003CDB0       startup_network_game
  0001:0003D2C0       startup_saved_packet_game
  0001:0003D4B0       process_packets
@@ -199,9 +220,30 @@
  0001:00044ED0       get_nearest_object_at_position
  0001:000463D0       setup_engine_window
  0001:000465C0       screen_to_map
+ 0001:000467E0       set_engine_view
  0001:00046F00       game_loop@0
  0001:00047550       ceiling_set_info
+ 0001:00048020       magic_use_power_hand
+ 0001:00048130       magic_use_power_imp
+ 0001:00048440       magic_use_power_obey
+ 0001:00048550       magic_use_power_slap
+ 0001:000486C0       magic_use_power_sight
+ 0001:000488D0       turn_off_sight_of_evil
+ 0001:00048960       magic_use_power_call_to_arms
+ 0001:00048F40       turn_off_call_to_arms
+ 0001:00049070       magic_use_power_cave_in
+ 0001:00049280       magic_use_power_hold_audience
+ 0001:000494E0       magic_use_power_lightning
+ 0001:00049790       magic_use_power_speed
+ 0001:00049830       magic_use_power_chicken
+ 0001:00049950       magic_use_power_armour
+ 0001:000499F0       magic_use_power_conceal
+ 0001:00049A90       magic_use_power_heal
+ 0001:00049B60       magic_use_power_destroy_walls
+ 0001:00049E60       magic_use_power_disease
+ 0001:00049F90       magic_use_power_armageddon
  0001:0004A7A0       can_cast_spell_at_xy
+ 0001:0004AE00       directly_cast_spell_on_thing
  0001:00050870       S3DInit
  0001:00050910       S3DSetMaximumSoundDistance
  0001:00050940       S3DSetNumberOfSounds
@@ -227,24 +269,35 @@
  0001:0005AA90       update_flames_nearest_camera
  0001:0005B120       process_armageddon
  0001:0005B3E0       delete_all_structures
+ 0001:0005C710       map_fade_in
+ 0001:0005C920       map_fade_out
  0001:0005D4D0       find_nearest_rooms_for_ambient_sound
  0001:0005D890       clear_map
  0001:0005EE90       clear_mapwho
  0001:0005F6D0       init_creature_scores
+ 0001:0005FFB0       init_level
+ 0001:000603A0       post_init_level
+ 0001:000605F0       post_init_players
+ 0001:00060670       init_keeper_map_exploration
  0001:00060840       clear_game
  0001:000608D0       clear_game_for_save
+ 0001:00062AC0       init_player_cameras
  0001:00064A10       init_lookups
  0001:00065040       initialise_extra_slab_info
  0001:00065360       init_sound@0
  0001:00065460       initialise_eye_lenses
  0001:000655D0       reset_eye_lenses
  0001:00065630       setup_eye_lens
+ 0001:00065DC0       event_delete_event
  0001:00065E50       event_process_events
+ 0001:00065F80       event_move_player_towards_event
  0001:00066100       update_all_events
  0001:0006EC30       setup_computer_players2
  0001:0006EF80       process_computer_players2
+ 0001:0006F1A0       set_autopilot_type
  0001:00071090       resync_game
  0001:00072D40       draw_frontview_engine
+ 0001:00078ED0       battle_move_player_towards_battle
  0001:00079140       GetMouseY
  0001:0007A310       complete_level
  0001:0007A380       lose_level
@@ -352,6 +405,7 @@
  0001:00097DB0       gui_area_enemy_battlers
  0001:00097F50       gui_area_experience_button
  0001:00098180       gui_area_ally
+ 0001:00098300       draw_button_string
  0001:00098930       game_is_busy_doing_gui
  0001:000989C0       game_is_busy_doing_gui_string_input
  0001:000989D0       get_gui_inputs
@@ -360,6 +414,8 @@
  0001:00099D10       update_menu_fade_level
  0001:00099D80       setup_gui_tooltip
  0001:00099F50       draw_tooltip
+ 0001:0009A380       draw_slab64k
+ 0001:0009ABD0       draw_ornate_slab64k
  0001:0009AFF0       gui_pretty_background
  0001:0009B150       gui_round_glass_background
  0001:0009B250       gui_scroll_activity_up
@@ -407,6 +463,7 @@
  0001:0009C4F0       gui_get_creature_in_battle
  0001:0009C700       gui_go_to_person_in_battle
  0001:0009C760       gui_kill_event
+ 0001:0009C7C0       turn_off_event_box_if_necessary
  0001:0009CB30       gui_set_menu_mode
  0001:0009CEE0       menu_tab_maintain
  0001:0009CF20       gui_scroll_text_up
@@ -434,6 +491,7 @@
  0001:0009FC90       go_on_then_activate_the_event_box
  0001:000A0AA0       choose_hold_audience
  0001:000A0AE0       choose_armageddon
+ 0001:000A0B20       turn_off_query
  0001:000A0E70       gui_toggle_ally
  0001:000A1150       gui_set_button_flashing
  0001:000A1170       gui_draw_tab
@@ -513,10 +571,13 @@
  0001:000AEC00       frontend_define_key
  0001:000AEC30       draw_text_box
  0001:000AEF30       frontend_load_data
+ 0001:000AF840       pannel_map_update
  0001:000AFD40       process_player_manufacturing
  0001:000B45F0       process_rooms
  0001:000C24B0       update_creature_levels
  0001:000C2950       toggle_creature_tendencies
+ 0001:000C4C00       place_thing_in_power_hand
+ 0001:000C4CD0       dump_held_things_on_map
  0001:000C6D50       load_settings
  0001:000C7320       load_configuration@0
  0001:000C7510       load_level_file
@@ -594,270 +655,6 @@
  0001:000E4300       LbNetwork_EnumeratePlayers
  0001:000E4350       LbNetwork_Exchange
  0001:000E4BB0       LbNetwork_ChangeExchangeBuffer
- 0001:000EFB3C       __ftol
- 0001:000EFBA0       __cfltcvt_init_3
- 0001:000EFBE0       _sprintf
- 0001:000EFC50       _memcpy
- 0001:000EFDA0       _atol
- 0001:000EFE50       _atoi
- 0001:000EFE60       _strrchr
- 0001:000EFE90       _srand
- 0001:000EFEA0       _rand
- 0001:000EFED0       _isalpha
- 0001:000EFF10       _isdigit
- 0001:000EFF40       _isalnum
- 0001:000EFF80       _isprint
- 0001:000EFFD0       _strchr
- 0001:000EFFD6       ___from_strstr_to_strchr
- 0001:000F0090       _clock
- 0001:000F00E0       __cinit
- 0001:000F0110       _exit
- 0001:000F0130       __exit
- 0001:000F0150       _doexit
- 0001:000F0210       __lockexit
- 0001:000F0220       __unlockexit
- 0001:000F0230       __initterm
- 0001:000F0250       _toupper
- 0001:000F02C0       _toupper_0
- 0001:000F03B0       _remove
- 0001:000F03E0       _free
- 0001:000F0450       _malloc
- 0001:000F0470       __nh_malloc
- 0001:000F04C0       __heap_alloc
- 0001:000F0520       _time
- 0001:000F0630       _fputs
- 0001:000F06A0       _fflush
- 0001:000F06E0       __fflush_lk
- 0001:000F0720       __flush
- 0001:000F07A0       _flsall
- 0001:000F0870       __fsopen
- 0001:000F08B0       _fopen
- 0001:000F08D0       __alloca_probe
- 0001:000F0900       _strncpy
- 0001:000F0A00       _fclose
- 0001:000F0A40       __fclose_lk
- 0001:000F0AA0       _fprintf
- 0001:000F0AF0       _strncmp
- 0001:000F0B30       _floor
- 0001:000F0C50       _gmtime
- 0001:000F0DB0       _ceil
- 0001:000F0EC8       start@12
- 0001:000F1080       __amsg_exit
- 0001:000F10B0       _calloc
- 0001:000F1200       __onexit
- 0001:000F1290       _atexit
- 0001:000F12B0       ___onexitinit
- 0001:000F13C0       ___CxxFrameHandler
- 0001:000F15EC       __global_unwind2
- 0001:000F160C       __unwind_handler
- 0001:000F162E       __local_unwind2
- 0001:000F1686       __NLG_Return2
- 0001:000F1696       __abnormal_termination
- 0001:000F16B9       __NLG_Notify1
- 0001:000F16C2       __NLG_Notify
- 0001:000F16D5       __NLG_Dispatch
- 0001:000F16E0       __beginthread
- 0001:000F1770       __threadstart@4
- 0001:000F1830       __endthread
- 0001:000F1880       _wcscpy
- 0001:000F18B0       _wcslen
- 0001:000F18D0       _localtime
- 0001:000F1AA0       _wcscmp
- 0001:000F1AF0       __setdefaultprecision
- 0001:000F1B10       __ms_p5_test_fdiv
- 0001:000F1B60       __ms_p5_mp_test_fdiv
- 0001:000F1B90       __forcdecpt
- 0001:000F1C00       __cropzeros
- 0001:000F1C60       __positive
- 0001:000F1C80       __fassign
- 0001:000F1CD0       __cftoe
- 0001:000F1D50       __cftoe2
- 0001:000F1E40       __cftof
- 0001:000F1EB0       __cftof2
- 0001:000F1F70       __cftog
- 0001:000F2020       __cfltcvt
- 0001:000F2090       __shift
- 0001:000F20C0       __flsbuf
- 0001:000F2210       __output
- 0001:000F2BC0       _write_char
- 0001:000F2C10       _write_multi_char
- 0001:000F2C50       _write_string
- 0001:000F2C90       _get_int_arg
- 0001:000F2CA0       _get_int64_arg
- 0001:000F2CC0       _get_short_arg
- 0001:000F2CD0       __isctype
- 0001:000F2D70       __allmul
- 0001:000F2DB0       __mtinit
- 0001:000F2E10       __initptd
- 0001:000F2E30       __getptd
- 0001:000F2EA0       __freeptd
- 0001:000F2F50       __ftime
- 0001:000F3000       __mtinitlocks
- 0001:000F3030       __lock
- 0001:000F30A0       __unlock
- 0001:000F30C0       __lock_file
- 0001:000F3100       __lock_file2
- 0001:000F3130       __unlock_file
- 0001:000F3170       __unlock_file2
- 0001:000F31B0       ___crtLCMapStringA
- 0001:000F33E0       _strncnt
- 0001:000F3410       __dosmaperr
- 0001:000F3490       __errno
- 0001:000F34A0       ___doserrno
- 0001:000F34B0       __heap_init
- 0001:000F34F0       ___sbh_new_region
- 0001:000F3660       ___sbh_release_region
- 0001:000F36C0       ___sbh_decommit_pages
- 0001:000F37A0       ___sbh_find_block
- 0001:000F3800       ___sbh_free_block
- 0001:000F3850       ___sbh_alloc_block
- 0001:000F3AD0       ___sbh_alloc_block_from_page
- 0001:000F3C50       ___sbh_resize_block
- 0001:000F3D20       __callnewh
- 0001:000F3D60       ___loctotime_t
- 0001:000F3E50       __stbuf
- 0001:000F3EF0       __ftbuf
- 0001:000F3F30       _fwrite
- 0001:000F3F70       __fwrite_lk
- 0001:000F4100       __commit
- 0001:000F41B0       __write
- 0001:000F4230       __write_lk
- 0001:000F4430       ___initstdio
- 0001:000F4500       ___endstdio
- 0001:000F4520       __openfile
- 0001:000F4730       __getstream
- 0001:000F4820       __close
- 0001:000F4890       __close_lk
- 0001:000F4920       __freebuf
- 0001:000F4960       __handle_qnan1
- 0001:000F49B0       __except1
- 0001:000F4A70       __raise_exc
- 0001:000F4DE0       __handle_exc
- 0001:000F50A0       __umatherr
- 0001:000F5150       __set_errno
- 0001:000F5180       __get_fname
- 0001:000F51B0       __errcode
- 0001:000F51F0       __statfp
- 0001:000F5210       __clrfp
- 0001:000F5230       __ctrlfp
- 0001:000F5270       __set_statfp
- 0001:000F52D0       __frnd
- 0001:000F52F0       __set_exp
- 0001:000F5330       __sptype
- 0001:000F53A0       __decomp
- 0001:000F5490       __XcptFilter
- 0001:000F55E0       _xcptlookup
- 0001:000F5610       __ismbblead
- 0001:000F5630       _x_ismbbtype
- 0001:000F5670       __setenvp
- 0001:000F5760       __setargv
- 0001:000F5800       _parse_cmdline
- 0001:000F59D0       ___crtGetEnvironmentStringsA
- 0001:000F5B60       __setmbcp
- 0001:000F5D90       _getSystemCP
- 0001:000F5DE0       _CPtoLCID
- 0001:000F5E40       _setSBCS
- 0001:000F5E70       ___initmbctable
- 0001:000F5E80       __ioinit
- 0001:000F6140       __FF_MSGBANNER
- 0001:000F6180       __NMSG_WRITE
- 0001:000F6380       _realloc
- 0001:000F6550       __msize
- 0001:000F65C0       ___InternalCxxFrameHandler
- 0001:000F7080       ___tzset
- 0001:000F70C0       __tzset_lk
- 0001:000F73A0       __isindst
- 0001:000F7630       _cvtdate
- 0001:000F77C0       __control87
- 0001:000F7800       __controlfp
- 0001:000F7820       __abstract_cw
- 0001:000F78D0       __hw_cw
- 0001:000F7960       __fptrap
- 0001:000F7970       _tolower
- 0001:000F79E0       _tolower_0
- 0001:000F7AD0       __ZeroTail
- 0001:000F7B40       __IncMan
- 0001:000F7BB0       __RoundMan
- 0001:000F7C60       __CopyMan
- 0001:000F7C80       __FillZeroMan
- 0001:000F7C90       __IsZeroMan
- 0001:000F7CB0       __ShrMan
- 0001:000F7D60       __ld12cvt
- 0001:000F7FF0       __fptostr
- 0001:000F8080       __fltout2
- 0001:000F8110       ___dtold
- 0001:000F81D0       __lseek
- 0001:000F8250       __lseek_lk
- 0001:000F82E0       __getbuf
- 0001:000F8330       __isatty
- 0001:000F8360       _wctomb
- 0001:000F83C0       __wctomb_lk
- 0001:000F8460       __aulldiv
- 0001:000F84D0       __aullrem
- 0001:000F8550       ___crtGetStringTypeW
- 0001:000F8710       ___crtGetStringTypeA
- 0001:000F8840       _mktime
- 0001:000F8850       __make_time_t
- 0001:000F8AB0       ___init_time
- 0001:000F8B60       __get_lc_time
- 0001:000F8EE0       __free_lc_time
- 0001:000F9120       _storeTimeFmt
- 0001:000F9220       ___init_numeric
- 0001:000F9440       _fix_grouping
- 0001:000F9490       ___init_monetary
- 0001:000F9580       __get_lc_lconv
- 0001:000F96D0       _fix_grouping_0
- 0001:000F9720       __free_lc_lconv
- 0001:000F9A50       _strcspn
- 0001:000F9A90       _strpbrk
- 0001:000F9AD0       __alloc_osfhnd
- 0001:000F9C10       __set_osfhnd
- 0001:000F9CC0       __free_osfhnd
- 0001:000F9D60       __get_osfhandle
- 0001:000F9DB0       __lock_fhandle
- 0001:000F9E20       __unlock_fhandle
- 0001:000F9E50       __fcloseall
- 0001:000F9EF0       __sopen
- 0001:000FA360       ___crtMessageBoxA
- 0001:000FA4A0       ?terminate@@YAXXZ
- 0001:000FA515       j__abort
- 0001:000FA58D       j_?terminate@@YAXXZ
- 0001:000FA5A0       ?_ValidateRead@@YAHPBXI@Z
- 0001:000FA5C0       ?_ValidateWrite@@YAHPAXI@Z
- 0001:000FA5E0       ?_ValidateExecute@@YAHP6GHXZ@Z
- 0001:000FA600       _wcstombs
- 0001:000FA660       __wcstombs_lk
- 0001:000FA8D0       _wcsncnt
- 0001:000FA910       _getenv
- 0001:000FA9B0       _raise
- 0001:000FAB90       _siglookup
- 0001:000FABD0       ___addl
- 0001:000FAC00       ___add_12
- 0001:000FAC70       ___shl_12
- 0001:000FACB0       ___shr_12
- 0001:000FACF0       ___mtold12
- 0001:000FADE0       ___strgtold12
- 0001:000FB530       _$I10_OUTPUT
- 0001:000FB8D0       ___getlocaleinfo
- 0001:000FBB30       ___crtGetLocaleInfoW
- 0001:000FBC60       ___crtGetLocaleInfoA
- 0001:000FBE70       __chsize_lk
- 0001:000FBFB0       __read
- 0001:000FC030       __read_lk
- 0001:000FC260       _abort
- 0001:000FC280       __mbsnbicoll
- 0001:000FC2C0       ___wtomb_environ
- 0001:000FC350       ___ld12mul
- 0001:000FC600       ___multtenpow12
- 0001:000FC680       __setmode_lk
- 0001:000FC6F0       ___crtCompareStringA
- 0001:000FC9E0       _strncnt_0
- 0001:000FCA10       ___crtsetenv
- 0001:000FCC60       _findenv
- 0001:000FCCC0       _copy_environ
- 0001:000FCD30       __mbschr
- 0001:000FCDF0       __strdup
- 0001:000FCEB0       _strcat
  0001:000FCF90       play_smk_@12
  0001:000FCFD0       play_smk_via_buffer
  0001:000FD1B0       play_smk_direct
@@ -910,10 +707,15 @@
  0003:0000FD88       door_to_object
  0003:0000FD90       object_to_door_or_trap
  0003:0000FE18       workshop_object_class
+ 0003:0000FF20       event_button_info
  0003:000103C0       slab_attrs
  0003:00010CBC       Non3DEmitter
  0003:00010CC0       SpeechEmitter
+ 0003:000113C0       parchment_loaded
+ 0003:000113C4       draw_spell_cost
+ 0003:000115C4       grabbed_small_map
  0003:000115CC       eastegg03_cntr
+ 0003:00011610       MinimalResolutionSetup
  0003:00011618       low_res_pointer_load_files
  0003:000116A0       low_res_small_pointer_load_files
  0003:00011728       hi_res_pointer_load_files
@@ -929,6 +731,7 @@
  0003:00017534       tooltip_scroll_timer
  0003:00017538       gui_last_left_button_pressed_id
  0003:0001753C       gui_last_right_button_pressed_id
+ 0003:00017540       new_objective
  0003:00017544       old_menu_mouse_x
  0003:00017548       old_menu_mouse_y
  0003:0001754C       drag_menu_x
@@ -958,6 +761,8 @@
  0003:000207B8       fade_palette_in
  0003:000207C0       frontstory_load_files
  0003:00020870       frontstory_setup_sprites
+ 0003:000258E8       lbSinTable
+ 0003:000260E8       lbCosTable
  0003:000280E8       lbFontPtr
  0003:000280F4       lpDDC
  0003:00028178       icon_index
@@ -976,7 +781,7 @@
  0003:0002CE60       Locale
  0003:0002CE70       CodePage
  0003:0002DCC4       got_envstrings
- 0003:0002EF40       W?Mist$n$CMistFade$$
+ 0003:0002EF40       Mist
  0003:0002EF60       animation
  0003:0002EF68       lpBuffer
  0003:0002F428       tmp_net_modem_init
@@ -1005,30 +810,38 @@
  0003:0003F998       pointed_at_frac_x
  0003:0003F99C       pointed_at_frac_y
  0003:00052DC8       emitter
- 0003:00053B18       W?MaxNoSounds$nl
+ 0003:00053B18       MaxNoSounds
  0003:00096570       navlog_file
  0003:000A6554       palette
- 0003:000A6564       W?eye_lens_memory$npnul
- 0003:000A6578       W?global_joined_string$n[]a
+ 0003:000A6564       eye_lens_memory
+ 0003:000A6578       global_joined_string
  0003:000A6678       phase_of_moon
  0003:000A6680       settings
+ 0003:000AA560       pointer_data
  0003:000AA568       strings
  0003:000AB424       mem_size
  0003:000AB428       MyScreenWidth
  0003:000AB430       keeper_runtime_directory
+ 0003:000AB4D0       hires_parchment
  0003:000AB4D4       winfont
  0003:000AB4D8       units_per_pixel
  0003:000AB4E4       scratch
+ 0003:000AB4F0       poly_pool
  0003:000EB4F4       button_sprite
  0003:000EB510       block_ptrs
+ 0003:000EBE58       level_name
+ 0003:000EBEB4       pointer_sprites
+ 0003:000EBEBC       pixels_per_block
  0003:000EBED0       key_modifiers
  0003:000EBED4       MyScreenHeight
  0003:000EBEF8       pixel_size
  0003:000EBF00       colours
- 0003:000ECF08       W?text$n__a
+ 0003:000ECF08       text
+ 0003:000ED308       poly_pool_end
  0003:000ED310       game
- 0003:0023EB54       W?eye_lens_spare_screen_memory$npnuc
+ 0003:0023EB54       eye_lens_spare_screen_memory
  0003:00241460       install_info
+ 0003:0024150C       end_pointer_sprites
  0003:00241510       my_player_number
  0003:00244D48       left_button_held_x
  0003:00244D4C       left_button_held_y
@@ -1082,6 +895,7 @@
  0003:002473C0       samples_in_bank
  0003:002473C4       sndheap
  0003:002473F8       frontend_mouse_over_button
+ 0003:00247404       frontend_mouse_over_button_start_time
  0003:0024740C       load_game_scroll_offset
  0003:00247410       last_mouse_x
  0003:00247418       last_mouse_y
@@ -1102,6 +916,7 @@
  0003:00247B50       time_last_played_demo
  0003:00247C5C       credits_scroll_speed
  0003:00247C60       high_score_table
+ 0003:00247F30       fe_computer_players
  0003:00247F38       frontend_sprite
  0003:00247F3C       frontstory_font
  0003:00247F40       high_score_entry_index
@@ -1109,7 +924,7 @@
  0003:00247F70       credits_end
  0003:0025C9F4       fade_tables
  0003:002609F4       ghost
- 0003:00272C80       W?error_log$n$TbLog$$
+ 0003:00272C80       error_log
  0003:002735D0       lbDisplay
  0003:0027377C       hInstance
  0003:00273BAC       lbInkey
@@ -1123,4 +938,3 @@
  0003:0027A9C0       NumOfElements
  0005:00006562       set_cpu_mode
  0005:00011C10       LbSpriteDraw
- 0001:00098300       draw_button_string
