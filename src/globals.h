@@ -67,6 +67,8 @@
 #define min(a,b) ((a)<(b)?(a):(b))
 #endif
 
+// Debug level is scaled 0..10, default=1
+#define BFDEBUG_LEVEL 10
 #define PROGRAM_NAME "Dungeon Keeper FX"
 #define PROGRAM_FULL_NAME "Dungeon Keeper Fan eXpansion"
 

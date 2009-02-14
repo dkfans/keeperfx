@@ -106,9 +106,9 @@ extern struct DevInput joy;
 int LbMouseChangeSpriteAndHotspot(struct TbSprite *spr, int a, int b);
 int LbMouseSetup(struct TbSprite *MouseSprite);
 int LbMouseSetPointerHotspot(int x, int y);
+int LbMouseSetPosition(int x, int y);
 
 int __fastcall LbMouseReset();
-int __fastcall LbMouseSetPosition(long x, long y);
 int __fastcall LbMousePlace(void);
 int __fastcall LbMouseRemove(void);
 int __fastcall LbMouseSuspend(void);

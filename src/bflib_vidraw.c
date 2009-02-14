@@ -36,6 +36,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT int _DK_LbSpriteDraw(long x, long y, struct TbSprite *spr);
+DLLIMPORT int _DK_LbSpriteDrawRemap(long x, long y, struct TbSprite *spr,unsigned char *map);
 /******************************************************************************/
 /*
 bool sprscale_enlarge;
@@ -320,6 +321,11 @@ int LbSpriteDraw(long x, long y, struct TbSprite *spr)
   return _DK_LbSpriteDraw(x, y, spr);
 }
 
+int LbSpriteDrawRemap(long x, long y, struct TbSprite *spr,unsigned char *map)
+{
+  return _DK_LbSpriteDrawRemap(x, y, spr,map);
+}
+
 /*
 //Adds box drawing command to list
 void __fastcall draw_box_purple_list(const long x, const long y, const unsigned long width, const unsigned long height, const TbPixel colour)
@@ -479,7 +485,7 @@ void __fastcall trig(struct EnginePoint *point1,
 //TODO - omg, this one is impossible!
 //This is probably the main function of whole engine!
 //  LbDrawTriangle(point1->X,point1->Y,point2->X,point2->Y,point3->X,point3->Y,127);
-  printf("trig: UNFINISHED!\n");
+  LbSyncLog("trig: UNFINISHED!\n");
 }
 
 unsigned short __fastcall is_it_clockwise(struct EnginePoint *point1,
@@ -625,7 +631,7 @@ inline void LbDrawBufferLine(unsigned char **buf_scr,unsigned char **buf_inp,
     if ( lbDisplay.DrawFlags & 0x0004 )
     {
 #ifdef __DEBUG
-    printf("LbDrawBufferLine: Drawing M4, %d points\n",buf_len);
+    LbSyncLog("LbDrawBufferLine: Drawing M4, %d points\n",buf_len);
 #endif
         for (i=0; i<buf_len; i++ )
         {
@@ -636,7 +642,7 @@ inline void LbDrawBufferLine(unsigned char **buf_scr,unsigned char **buf_inp,
     } else
     {
 #ifdef __DEBUG
-    printf("LbDrawBufferLine: Drawing MX, %d points\n",buf_len);
+    LbSyncLog("LbDrawBufferLine: Drawing MX, %d points\n",buf_len);
 #endif
         for (i=0; i<buf_len; i++ )
         {
@@ -650,7 +656,7 @@ inline void LbDrawBufferLine(unsigned char **buf_scr,unsigned char **buf_inp,
     if ( lbDisplay.DrawFlags & 0x0004 )
     {
 #ifdef __DEBUG
-    printf("LbDrawBufferLine: Drawing S4, %d points\n",buf_len);
+    LbSyncLog("LbDrawBufferLine: Drawing S4, %d points\n",buf_len);
 #endif
         for (i=0; i<buf_len; i++ )
         {
@@ -661,7 +667,7 @@ inline void LbDrawBufferLine(unsigned char **buf_scr,unsigned char **buf_inp,
     } else
     {
 #ifdef __DEBUG
-    printf("LbDrawBufferLine: Drawing SX, %d points\n",buf_len);
+    LbSyncLog("LbDrawBufferLine: Drawing SX, %d points\n",buf_len);
 #endif
         for (i=0; i<buf_len; i++ )
         {
@@ -696,7 +702,7 @@ inline void LbDrawOneColorLine(unsigned char **buf_scr,const TbPixel colour,
     if ( lbDisplay.DrawFlags & 0x0004 )
     {
 #ifdef __DEBUG
-    printf("LbDrawOneColorLine: Drawing M4, %d points\n",buf_len);
+    LbSyncLog("LbDrawOneColorLine: Drawing M4, %d points\n",buf_len);
 #endif
         for (i=0; i<buf_len; i++ )
         {
@@ -706,7 +712,7 @@ inline void LbDrawOneColorLine(unsigned char **buf_scr,const TbPixel colour,
     } else
     {
 #ifdef __DEBUG
-    printf("LbDrawOneColorLine: Drawing MX, %d points\n",buf_len);
+    LbSyncLog("LbDrawOneColorLine: Drawing MX, %d points\n",buf_len);
 #endif
         for (i=0; i<buf_len; i++ )
         {
@@ -719,7 +725,7 @@ inline void LbDrawOneColorLine(unsigned char **buf_scr,const TbPixel colour,
     if ( lbDisplay.DrawFlags & 0x0004 )
     {
 #ifdef __DEBUG
-    printf("LbDrawOneColorLine: Drawing S4, %d points\n",buf_len);
+    LbSyncLog("LbDrawOneColorLine: Drawing S4, %d points\n",buf_len);
 #endif
         for (i=0; i<buf_len; i++ )
         {
@@ -729,7 +735,7 @@ inline void LbDrawOneColorLine(unsigned char **buf_scr,const TbPixel colour,
     } else
     {
 #ifdef __DEBUG
-    printf("LbDrawOneColorLine: Drawing SX, %d points\n",buf_len);
+    LbSyncLog("LbDrawOneColorLine: Drawing SX, %d points\n",buf_len);
 #endif
         for (i=0; i<buf_len; i++ )
         {
@@ -756,14 +762,14 @@ inline void LbDrawOneColorLineSolid(unsigned char **buf_scr,const TbPixel colour
 int __fastcall LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *sprite)
 {
 //TODO - this one is hard
-  printf("LbSpriteDrawUsingScalingData: UNFINISHED!\n");
+  LbSyncLog("LbSpriteDrawUsingScalingData: UNFINISHED!\n");
   return 1;
 } 
  
 int __fastcall LbSpriteDrawScaled(long xpos, long ypos, struct TbSprite *sprite, long dest_width, long dest_height)
 {
 #ifdef __DEBUG
-    printf("LbSpriteDrawScaled: Requested to draw at (%ld,%ld) sprite of size (%ld,%ld).\n",
+    LbSyncLog("LbSpriteDrawScaled: Requested to draw at (%ld,%ld) sprite of size (%ld,%ld).\n",
             xpos,ypos,dest_width,dest_height);
 #endif
   if ( (dest_width <= 0) || (dest_height <= 0) )
@@ -782,12 +788,12 @@ inline int LbSpriteDrawTranspr(char *sp,short sprWd,short sprHt,unsigned char *r
   x1 = sprWd;
   htIndex = sprHt;
 #ifdef __DEBUG
-    printf("LbSpriteDrawTranspr: Drawing %ld lines of %hd points\n",htIndex,sprWd);
+    LbSyncLog("LbSpriteDrawTranspr: Drawing %ld lines of %hd points\n",htIndex,sprWd);
 #endif
   while (1)
   {
 #ifdef __DEBUG
-    printf("LbSpriteDrawTranspr: Line %ld\n",htIndex);
+    LbSyncLog("LbSpriteDrawTranspr: Line %ld\n",htIndex);
 #endif
       if ( left != 0 )
       {
@@ -807,7 +813,7 @@ inline int LbSpriteDrawTranspr(char *sp,short sprWd,short sprHt,unsigned char *r
                 if ( drawOut > sprWd )
                   drawOut = sprWd;
 #ifdef __DEBUG
-    printf("LbSpriteDrawTranspr: Left line, screen buf pos=%ld, len=%d\n",r-lbDisplay.WScreen,(int)drawOut);
+    LbSyncLog("LbSpriteDrawTranspr: Left line, screen buf pos=%ld, len=%d\n",r-lbDisplay.WScreen,(int)drawOut);
 #endif
                 LbDrawBufferLine(&r,&nchr,drawOut,mirror);
                 sp += chr + 1;
@@ -859,7 +865,7 @@ inline int LbSpriteDrawTranspr(char *sp,short sprWd,short sprHt,unsigned char *r
                 schr = x1;
               unsigned char *nchr = (unsigned char *)(sp+1);
 #ifdef __DEBUG
-              printf("LbSpriteDrawTranspr: X1 line, screen buf pos=%ld, len=%d\n",r-lbDisplay.WScreen,(int)schr);
+              LbSyncLog("LbSpriteDrawTranspr: X1 line, screen buf pos=%ld, len=%d\n",r-lbDisplay.WScreen,(int)schr);
 #endif
               LbDrawBufferLine(&r,&nchr,schr,mirror);
               x1 -= schr;
@@ -1115,12 +1121,12 @@ inline int LbSpriteDrawTrOneColor(char *sp,short sprWd,short sprHt,
   x1 = sprWd;
   htIndex = sprHt;
 #ifdef __DEBUG
-    printf("LbSpriteDrawTrOneColor: Drawing %ld lines of %hd points\n",htIndex,sprWd);
+    LbSyncLog("LbSpriteDrawTrOneColor: Drawing %ld lines of %hd points\n",htIndex,sprWd);
 #endif
   while (1)
   {
 #ifdef __DEBUG
-    printf("LbSpriteDrawTrOneColor: Line %ld\n",htIndex);
+    LbSyncLog("LbSpriteDrawTrOneColor: Line %ld\n",htIndex);
 #endif
       if ( left != 0 )
       {
@@ -1139,7 +1145,7 @@ inline int LbSpriteDrawTrOneColor(char *sp,short sprWd,short sprHt,
                 if ( drawOut > sprWd )
                   drawOut = sprWd;
 #ifdef __DEBUG
-    printf("LbSpriteDrawTrOneColor: Left line, screen buf pos=%ld, len=%d\n",r-lbDisplay.WScreen,(int)drawOut);
+    LbSyncLog("LbSpriteDrawTrOneColor: Left line, screen buf pos=%ld, len=%d\n",r-lbDisplay.WScreen,(int)drawOut);
 #endif
                 LbDrawOneColorLine(&r,colour,drawOut,mirror);
                 sp += chr + 1;
@@ -1190,7 +1196,7 @@ inline int LbSpriteDrawTrOneColor(char *sp,short sprWd,short sprHt,
               if ( schr >= x1 )
                 schr = x1;
 #ifdef __DEBUG
-              printf("LbSpriteDrawTrOneColor: X1 line, screen buf pos=%ld, len=%d\n",r-lbDisplay.WScreen,(int)schr);
+              LbSyncLog("LbSpriteDrawTrOneColor: X1 line, screen buf pos=%ld, len=%d\n",r-lbDisplay.WScreen,(int)schr);
 #endif
               LbDrawOneColorLine(&r,colour,schr,mirror);
               x1 -= schr;
@@ -1439,26 +1445,26 @@ inline int LbSpriteDrawFCOneColor(char *sp,short sprWd,short sprHt,
 int __fastcall LbSpriteDraw(long x, long y, TbSprite *spr)
 {
 #ifdef __DEBUG
-    printf("LbSpriteDraw: Requested to draw sprite at (%ld,%ld)\n",x,y);
+    LbSyncLog("LbSpriteDraw: Requested to draw sprite at (%ld,%ld)\n",x,y);
 #endif
   if ( spr == NULL )
   {
 #ifdef __DEBUG
-    printf("LbSpriteDraw: Canelled NULL sprite\n");
+    LbSyncLog("LbSpriteDraw: Canelled NULL sprite\n");
 #endif
     return 1;
   }
   if ( (spr->SWidth<1) || (spr->SHeight<1) )
   {
 #ifdef __DEBUG
-    printf("LbSpriteDraw: Canelled zero size sprite (%d,%d)\n",spr->SWidth,spr->SHeight);
+    LbSyncLog("LbSpriteDraw: Canelled zero size sprite (%d,%d)\n",spr->SWidth,spr->SHeight);
 #endif
     return 1;
   }
   if ( (lbDisplay.GraphicsWindowWidth==0) || (lbDisplay.GraphicsWindowHeight==0) )
   {
 #ifdef __DEBUG
-    printf("LbSpriteDraw: Graphics window has zero size - cancelled\n");
+    LbSyncLog("LbSpriteDraw: Graphics window has zero size - cancelled\n");
 #endif
     return 1;
   }
@@ -1527,7 +1533,7 @@ int __fastcall LbSpriteDraw(long x, long y, TbSprite *spr)
   sprWd = right - left;
   char *sp = spr->Data;
 #ifdef __DEBUG
-    printf("LbSpriteDraw: Sprite coords X=%d...%d Y=%d...%d data=%08x\n",left,right,top,btm,sp);
+    LbSyncLog("LbSpriteDraw: Sprite coords X=%d...%d Y=%d...%d data=%08x\n",left,right,top,btm,sp);
 #endif
   long htIndex;
   if ( top )
@@ -1550,7 +1556,7 @@ int __fastcall LbSpriteDraw(long x, long y, TbSprite *spr)
     }
   }
 #ifdef __DEBUG
-    printf("LbSpriteDraw: Drawing sprite of size (%ld,%ld)\n",sprHt,sprWd);
+    LbSyncLog("LbSpriteDraw: Drawing sprite of size (%ld,%ld)\n",sprHt,sprWd);
 #endif
   unsigned char *nextRow;
   bool mirror;
@@ -1581,7 +1587,7 @@ int __fastcall LbSpriteDraw(long x, long y, TbSprite *spr)
 int __fastcall LbSpriteDrawOneColour(long x, long y, struct TbSprite *spr, TbPixel colour)
 {
 #ifdef __DEBUG
-    printf("LbSpriteDrawOneColour: Requested to draw sprite at (%ld,%ld)\n",x,y);
+    LbSyncLog("LbSpriteDrawOneColour: Requested to draw sprite at (%ld,%ld)\n",x,y);
 #endif
   if ( (spr->SWidth<=0) || (spr->SHeight<=0) )
     return 1;
@@ -1653,7 +1659,7 @@ int __fastcall LbSpriteDrawOneColour(long x, long y, struct TbSprite *spr, TbPix
   sprWd = right - left;
   char *sp = spr->Data;
 #ifdef __DEBUG
-    printf("LbSpriteDrawOneColour: Sprite coords X=%d...%d Y=%d...%d data=%08x\n",left,right,top,btm,sp);
+    LbSyncLog("LbSpriteDrawOneColour: Sprite coords X=%d...%d Y=%d...%d data=%08x\n",left,right,top,btm,sp);
 #endif
   long htIndex;
   if ( top )
@@ -1676,7 +1682,7 @@ int __fastcall LbSpriteDrawOneColour(long x, long y, struct TbSprite *spr, TbPix
     }
   }
 #ifdef __DEBUG
-    printf("LbSpriteDrawOneColour: Drawing sprite of size (%ld,%ld)\n",sprHt,sprWd);
+    LbSyncLog("LbSpriteDrawOneColour: Drawing sprite of size (%ld,%ld)\n",sprHt,sprWd);
 #endif
   unsigned char *nextRow;
   bool mirror;
@@ -1943,7 +1949,7 @@ char __fastcall LbDrawLine(long x1, long y1, long x2, long y2, TbPixel colour)
 void __fastcall LbDrawTriangleFilled(long x1, long y1, long x2, long y2, long x3, long y3, TbPixel colour)
 {
 //TODO
-  printf("LbDrawTriangleFilled: UNFINISHED!\n");
+  LbSyncLog("LbDrawTriangleFilled: UNFINISHED!\n");
   LbDrawTriangle(x1,y1,x2,y2,x3,y3,colour);
 }
 
@@ -2113,13 +2119,13 @@ unsigned short __fastcall my_draw_text(long x, long y, const char *text, const l
   if ( text == NULL )
   {
 #ifdef __DEBUG
-      printf("my_draw_text: Text is null, skipped drawing at (%ld,%ld).\n",
+      LbSyncLog("my_draw_text: Text is null, skipped drawing at (%ld,%ld).\n",
             x,y);
 #endif
     return 0;
   }
 #ifdef __DEBUG
-      printf("my_draw_text: Request for drawing line %d of text at (%ld,%ld).\n",
+      LbSyncLog("my_draw_text: Request for drawing line %d of text at (%ld,%ld).\n",
             startline,x,y);
 #endif
   x += text_window_x1;
@@ -2158,7 +2164,7 @@ unsigned short __fastcall my_draw_text(long x, long y, const char *text, const l
                 if ( lbDisplay.DrawFlags & 0x0100 )
                     x += ((line_width-width_so_far)>>1);
 #ifdef __DEBUG
-      printf("my_draw_text: Drawing case 10 at (%ld,%ld).\n",
+      LbSyncLog("my_draw_text: Drawing case 10 at (%ld,%ld).\n",
             x,y);
 #endif
                 parse_text_line(text,lastlinepos,i,true,&x,&y);
@@ -2255,7 +2261,7 @@ unsigned short __fastcall my_draw_text(long x, long y, const char *text, const l
                   x = ((line_width-width_so_far)>>1) + x;
               }
 #ifdef __DEBUG
-      printf("my_draw_text: Drawing P1 char '%c' at (%ld,%ld).\n",
+      LbSyncLog("my_draw_text: Drawing P1 char '%c' at (%ld,%ld).\n",
             ci,x,y);
 #endif
               parse_text_line(text,lastlinepos,i,true,&x,&y);
@@ -2302,7 +2308,7 @@ unsigned short __fastcall my_draw_text(long x, long y, const char *text, const l
                   x = ((line_width-last_word_width)>>1) + x;
               }
 #ifdef __DEBUG
-      printf("my_draw_text: Drawing P2 char '%c' at (%ld,%ld).\n",
+      LbSyncLog("my_draw_text: Drawing P2 char '%c' at (%ld,%ld).\n",
             ci,x,y);
 #endif
               parse_text_line(text,lastlinepos,i,true,&x,&y);
@@ -2345,7 +2351,7 @@ unsigned short __fastcall my_draw_text(long x, long y, const char *text, const l
             x += ((line_width-width_so_far)>>1);
       }
 #ifdef __DEBUG
-      printf("my_draw_text: Drawing P3 char '%c' at (%ld,%ld).\n",
+      LbSyncLog("my_draw_text: Drawing P3 char '%c' at (%ld,%ld).\n",
             ci,x,y);
 #endif
       parse_text_line(text,lastlinepos,i,true,&x,&y);

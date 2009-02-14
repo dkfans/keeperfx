@@ -35,6 +35,51 @@ DLLIMPORT extern int _DK_defining_a_key;
 #define defining_a_key _DK_defining_a_key
 DLLIMPORT extern long _DK_defining_a_key_id;
 #define defining_a_key_id _DK_defining_a_key_id
+DLLIMPORT extern long _DK_left_button_held_x;
+DLLIMPORT extern long _DK_left_button_held_y;
+DLLIMPORT extern long _DK_left_button_double_clicked_y;
+DLLIMPORT extern long _DK_left_button_double_clicked_x;
+DLLIMPORT extern long _DK_right_button_double_clicked_y;
+DLLIMPORT extern long _DK_right_button_double_clicked_x;
+DLLIMPORT extern char _DK_right_button_clicked;
+DLLIMPORT extern char _DK_left_button_clicked;
+#define left_button_clicked _DK_left_button_clicked
+DLLIMPORT extern long _DK_right_button_released_x;
+#define right_button_released_x _DK_right_button_released_x
+DLLIMPORT extern long _DK_right_button_released_y;
+#define right_button_released_y _DK_right_button_released_y
+DLLIMPORT extern char _DK_right_button_double_clicked;
+#define right_button_double_clicked _DK_right_button_double_clicked
+DLLIMPORT extern long _DK_left_button_released_y;
+#define left_button_released_y _DK_left_button_released_y
+DLLIMPORT extern long _DK_left_button_released_x;
+#define left_button_released_x _DK_left_button_released_x
+DLLIMPORT extern char _DK_left_button_double_clicked;
+#define left_button_double_clicked _DK_left_button_double_clicked
+DLLIMPORT extern char _DK_right_button_released;
+#define right_button_released _DK_right_button_released
+DLLIMPORT extern char _DK_right_button_held;
+#define right_button_held _DK_right_button_held
+DLLIMPORT extern long _DK_right_button_click_space_count;
+#define right_button_click_space_count _DK_right_button_click_space_count
+DLLIMPORT extern long _DK_right_button_held_y;
+#define right_button_held_y _DK_right_button_held_y
+DLLIMPORT extern long _DK_left_button_clicked_y;
+#define left_button_clicked_y _DK_left_button_clicked_y
+DLLIMPORT extern long _DK_left_button_clicked_x;
+#define left_button_clicked_x _DK_left_button_clicked_x
+DLLIMPORT extern long _DK_left_button_click_space_count;
+#define left_button_click_space_count _DK_left_button_click_space_count
+DLLIMPORT extern long _DK_right_button_held_x;
+#define right_button_held_x _DK_right_button_held_x
+DLLIMPORT extern char _DK_left_button_released;
+#define left_button_released _DK_left_button_released
+DLLIMPORT extern long _DK_right_button_clicked_y;
+#define right_button_clicked_y _DK_right_button_clicked_y
+DLLIMPORT extern long _DK_right_button_clicked_x;
+#define right_button_clicked_x _DK_right_button_clicked_x
+DLLIMPORT extern char _DK_left_button_held;
+#define left_button_held _DK_left_button_held
 /******************************************************************************/
 
 #pragma pack()

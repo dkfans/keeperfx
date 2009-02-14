@@ -191,7 +191,7 @@ short cumulative_screen_shot(void)
   frame_number = i;
   if (frame_number >= 10000)
   {
-    error(func_name, 3850,"No free filename");
+    show_onscreen_msg(game.num_fps, "No free filename for screenshot.");
     return 0;
   }
   sprintf(fname, "scrshots/scr%05d.%s", frame_number, fext);
@@ -219,11 +219,14 @@ short cumulative_screen_shot(void)
     break;
   }
   if (ssize>0)
-    LbFileSaveAt(fname, buf, ssize);
+    ssize = LbFileSaveAt(fname, buf, ssize);
   LbMemoryFree(buf);
-  show_onscreen_msg(game.num_fps, "File \"%s\" saved.", fname);
+  if (ssize>0)
+    show_onscreen_msg(game.num_fps, "File \"%s\" saved.", fname);
+  else
+    show_onscreen_msg(game.num_fps, "Cannot save \"%s\".", fname);
   frame_number++;
-  return 1;
+  return (ssize>0);
 }
 
 short movie_record_start(void)

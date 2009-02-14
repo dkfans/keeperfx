@@ -35,6 +35,17 @@ extern "C" {
 /******************************************************************************/
 const char *log_file_name="keeperfx.log";
 
+char *buf_sprintf(const char *format, ...)
+{
+    static char text[TEXT_BUFFER_LENGTH+1];
+    va_list val;
+    va_start(val, format);
+    vsprintf(text, format, val);
+    text[TEXT_BUFFER_LENGTH]='\0';
+    va_end(val);
+    return text;
+}
+
 void error(const char *codefile,const int ecode,const char *message)
 {
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);

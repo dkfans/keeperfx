@@ -47,6 +47,8 @@ Command line options:
   this one or you may be unable to play the game again.
 -lightconvert
   Same thing, but for lights.
+-vidsmooth
+  Smoothes the 3D view using 1-pixel bilinear blur.
 
 Troubleshooting:
 
@@ -115,6 +117,13 @@ New in-game commands:
   option, which may be set to 'HSI' or 'BMP'.
 
 Changelog:
+
+Version: 0.2.3
+  Fixed time counter sound in bonus levels
+  Fixed bad memory read in creatures tab code
+  Created a campaign file which stores level numbers
+  More error-safe config file support
+  More inputs left when lost (screnshot, minimap zoom, etc.)
 
 Version: 0.2.2
   Reworked more of the packets processing system

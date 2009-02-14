@@ -417,18 +417,19 @@ long rnc_crc(void *data, unsigned long len)
 
 long __fastcall LbFileLengthRnc(const char *fname)
 {
+  static const char *func_name="LbFileLengthRnc";
   TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
   if ( handle == -1 )
       return -1;
-#ifdef __DEBUG
-  printf("LbFileLengthRnc: file opened\n");
+#if (BFDEBUG_LEVEL > 19)
+    LbSyncLog("%s: file opened\n",func_name);
 #endif
   unsigned char buffer[RNC_HEADER_LEN+1];
   if ( LbFileRead(handle,buffer,RNC_HEADER_LEN) == -1 )
   {
-#ifdef __DEBUG
-      printf("LbFileLengthRnc: cannot read even %d bytes\n",RNC_HEADER_LEN);
-#endif
+  #if (BFDEBUG_LEVEL > 19)
+      LbSyncLog("%s: cannot read even %d bytes\n",func_name,RNC_HEADER_LEN);
+  #endif
       LbFileClose(handle);
       return -1;
   }
@@ -436,15 +437,15 @@ long __fastcall LbFileLengthRnc(const char *fname)
   if (blong(buffer+0)==RNC_SIGNATURE)
   {
       flength = blong(buffer+4);
-#ifdef __DEBUG
-      printf("LbFileLengthRnc: file size from RNC header: %ld bytes\n",flength);
-#endif
+  #if (BFDEBUG_LEVEL > 19)
+      LbSyncLog("%s: file size from RNC header: %ld bytes\n",func_name,RNC_HEADER_LEN,flength);
+  #endif
   } else
   {
       flength = LbFileLengthHandle(handle);
-#ifdef __DEBUG
-      printf("LbFileLengthRnc: file is not RNC, size: %ld bytes\n",flength);
-#endif
+  #if (BFDEBUG_LEVEL > 19)
+      LbSyncLog("%s: file is not RNC, size: %ld bytes\n",func_name,RNC_HEADER_LEN,flength);
+  #endif
   }
   LbFileClose(handle);
   return flength;

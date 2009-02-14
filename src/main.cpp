@@ -22,27 +22,37 @@
 #include "bflib_mouse.h"
 
 #include "frontend.h"
+#include "front_input.h"
 #include "scrcapt.h"
 #include "vidmode.h"
 #include "kjm_input.h"
+#include "packets.h"
+#include "config.h"
 
 // Max length of the command line
 #define CMDLN_MAXLEN 259
-// Max length of any processed string
-#define MAX_TEXT_LENGTH 4096
 char cmndline[CMDLN_MAXLEN+1];
 unsigned short bf_argc;
 char *bf_argv[CMDLN_MAXLEN+1];
 unsigned char palette_buf[768];
-int map_subtiles_x=255;
-int map_subtiles_y=255;
+
+short is_new_moon = 0;
+
+// Map size variables
+int map_subtiles_x = 255;
+int map_subtiles_y = 255;
+int map_tiles_x = 85;
+int map_tiles_y = 85;
+
+const long VersionMajor = 1;
+const long VersionMinor = 12;
 
 char onscreen_msg_text[255]="";
 int onscreen_msg_turns = 0;
 
 char window_class_name[128]="Bullfrog Shell";
-short default_loc_player=0;
-const char keeper_config_file[]="keeperfx.cfg";
+short default_loc_player = 0;
+short hero_player = 4;
 
 // Boxes used for cheat menu
 struct GuiBox *gui_box=NULL;
@@ -57,6 +67,7 @@ struct DraggingBox dragging_box;
 
 #define TRACE LbNetLog
 
+//DLLIMPORT extern struct TbLoadFiles _DK_legal_load_files[];
 struct TbLoadFiles legal_load_files[] = {
     {"*PALETTE", &_DK_palette, NULL, PALETTE_SIZE, 0, 0},
     {"*SCRATCH", &scratch, NULL, 0x10000, 1, 0},
@@ -70,41 +81,98 @@ struct TbLoadFiles nocd_load_files[] = {
     {"data/nocd.pal", &nocd_pal, NULL, 0, 0, 0},
     {"", NULL, NULL, 0, 0, 0}, };
 
-const struct LanguageType lang_type[] = {
-  {"ENG", 1},
-  {"FRE", 2},
-  {"GER", 3},
-  {"ITA", 4},
-  {"SPA", 5},
-  {"SWE", 6},
-  {"POL", 7},
-  {"DUT", 8},
-  {NULL,  0},
-  };
-
-const struct ConfigCommand scrshot_type[] = {
-  {"HSI", 1},
-  {"BMP", 2},
-  {NULL,  0},
-  };
-
-const struct ConfigCommand conf_commands[] = {
-  {"INSTALL_PATH=",  1},
-  {"INSTALL_TYPE=",  2},
-  {"LANGUAGE=",      3},
-  {"KEYBOARD=",      4},
-  {"SCREENSHOT=",    5},
-  {"FRONTEND_RES=",  6},
-  {"INGAME_RES=",    7},
-  {NULL,             0},
-  };
-
-//static
+//static 
 TbClockMSec last_loop_time=0;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+DLLIMPORT void _DK_load_level_file(long lvnum);
+DLLIMPORT void _DK_delete_all_structures(void);
+DLLIMPORT void _DK_clear_mapwho(void);
+DLLIMPORT void _DK_light_initialise(void);
+DLLIMPORT void _DK_clear_game(void);
+DLLIMPORT void _DK_clear_game_for_save(void);
+DLLIMPORT long _DK_update_cave_in(struct Thing *thing);
+DLLIMPORT void _DK_update_thing_animation(struct Thing *thing);
+DLLIMPORT long _DK_update_thing(struct Thing *thing);
+DLLIMPORT void _DK_update_creatures_not_in_list(void);
+DLLIMPORT long _DK_get_thing_checksum(struct Thing *thing);
+DLLIMPORT long _DK_update_things_in_list(struct StructureList *list);
+DLLIMPORT long _DK_update_thing_sound(struct Thing *thing);
+DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
+DLLIMPORT void _DK_init_messages(void);
+DLLIMPORT void _DK_battle_initialise(void);
+DLLIMPORT void _DK_event_initialise_all(void);
+DLLIMPORT void _DK_add_thing_to_list(struct Thing *thing, struct StructureList *list);
+DLLIMPORT struct Thing *_DK_allocate_free_thing_structure(unsigned char a1);
+DLLIMPORT unsigned char _DK_i_can_allocate_free_thing_structure(unsigned char a1);
+DLLIMPORT void _DK_message_add(char c);
+DLLIMPORT void _DK_toggle_creature_tendencies(struct PlayerInfo *player, char val);
+DLLIMPORT long _DK_event_move_player_towards_event(struct PlayerInfo *player, long var);
+DLLIMPORT void _DK_turn_off_call_to_arms(long a);
+DLLIMPORT long _DK_place_thing_in_power_hand(struct Thing *thing, long var);
+DLLIMPORT short _DK_magic_use_power_obey(unsigned short plridx);
+DLLIMPORT void _DK_set_player_state(struct PlayerInfo *player, unsigned char a1, long a2);
+DLLIMPORT void _DK_event_delete_event(long plridx, long num);
+DLLIMPORT long _DK_set_autopilot_type(long plridx, long aptype);
+DLLIMPORT void _DK_set_player_mode(struct PlayerInfo *player, long val);
+DLLIMPORT short _DK_dump_held_things_on_map(unsigned char a1, long a2, long a3, short a4);
+DLLIMPORT void _DK_turn_off_sight_of_evil(long plridx);
+DLLIMPORT void _DK_go_on_then_activate_the_event_box(long plridx, long val);
+DLLIMPORT void _DK_output_message(int, int, int);
+DLLIMPORT void _DK_directly_cast_spell_on_thing(unsigned char plridx, unsigned char a2, unsigned short a3, long a4);
+DLLIMPORT void _DK_lose_level(struct PlayerInfo *player);
+DLLIMPORT long _DK_magic_use_power_armageddon(unsigned char val);
+DLLIMPORT long _DK_battle_move_player_towards_battle(struct PlayerInfo *player, long var);
+DLLIMPORT void _DK_level_lost_go_first_person(long plridx);
+DLLIMPORT void __cdecl _DK_set_player_instance(struct PlayerInfo *playerinf, long, int);
+DLLIMPORT TbError _DK_LbNetwork_Exchange(struct Packet *pckt);
+DLLIMPORT void _DK_resync_game(void);
+DLLIMPORT void __cdecl _DK_set_gamma(char, int);
+DLLIMPORT void _DK_complete_level(struct PlayerInfo *player);
+DLLIMPORT void _DK_free_swipe_graphic(void);
+DLLIMPORT void _DK_draw_sound_stuff(void);
+DLLIMPORT void _DK_draw_bonus_timer(void);
+DLLIMPORT void _DK_draw_power_hand(void);
+DLLIMPORT void _DK_update_explored_flags_for_power_sight(struct PlayerInfo *player);
+DLLIMPORT void _DK_engine(struct Camera *cam);
+DLLIMPORT void _DK_smooth_screen_area(unsigned char *a1, long a2, long a3, long a4, long a5, long a6);
+DLLIMPORT void _DK_remove_explored_flags_for_power_sight(struct PlayerInfo *player);
+DLLIMPORT void _DK_DrawBigSprite(long x, long y, struct BigSprite *bigspr, struct TbSprite *sprite);
+DLLIMPORT void _DK_draw_gold_total(unsigned char a1, long a2, long a3, long a4);
+DLLIMPORT void _DK_pannel_map_draw(long x, long y, long zoom);
+DLLIMPORT void _DK_draw_overlay_things(long zoom);
+DLLIMPORT void _DK_draw_overlay_compass(long a1, long a2);
+DLLIMPORT unsigned char _DK_find_first_battle_of_mine(unsigned char idx);
+DLLIMPORT void _DK_set_engine_view(struct PlayerInfo *player, long a2);
+DLLIMPORT void _DK_startup_network_game(void);
+DLLIMPORT void _DK_reinit_level_after_load(void);
+DLLIMPORT void _DK_reinit_tagged_blocks_for_player(unsigned char idx);
+DLLIMPORT void _DK_reset_gui_based_on_player_mode(void);
+DLLIMPORT long _DK_load_texture_map_file(long a1, unsigned char a2);
+DLLIMPORT void _DK_init_animating_texture_maps(void);
+DLLIMPORT void _DK_init_lookups(void);
+DLLIMPORT long _DK_init_navigation(void);
+DLLIMPORT long _DK_load_game(long);
+DLLIMPORT void _DK_sound_reinit_after_load(void);
+DLLIMPORT void _DK_restore_computer_player_after_load(void);
+DLLIMPORT struct Thing *_DK_create_effect(struct Coord3d *pos, unsigned short a2, unsigned char a3);
+DLLIMPORT void _DK_delete_thing_structure(struct Thing *thing, long a2);
+DLLIMPORT void _DK_make_safe(struct PlayerInfo *player);
+DLLIMPORT struct Thing *_DK_create_creature(struct Coord3d *pos, unsigned short a1, unsigned short a2);
+DLLIMPORT void _DK_set_creature_level(struct Thing *thing, long nlvl);
+DLLIMPORT void _DK_remove_events_thing_is_attached_to(struct Thing *thing);
+DLLIMPORT unsigned long _DK_steal_hero(struct PlayerInfo *player, struct Coord3d *pos);
+DLLIMPORT void _DK_creature_increase_level(struct Thing *thing);
+DLLIMPORT void _DK_clear_slab_dig(long a1, long a2, char a3);
+DLLIMPORT void _DK_magic_use_power_hold_audience(unsigned char idx);
+DLLIMPORT void _DK_activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player);
+DLLIMPORT void _DK_resurrect_creature(struct Thing *thing, unsigned char a2, unsigned char a3, unsigned char a4);
+DLLIMPORT void _DK_transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char a3);
+DLLIMPORT long _DK_thing_is_special(Thing *thing);
+DLLIMPORT int __cdecl _DK_play_smacker_file(char *fname, int);
+DLLIMPORT void __cdecl _DK_wait_for_cd_to_be_available(void);
 DLLIMPORT void _DK_set_packet_action(struct Packet *pckt,unsigned char,short,short,short,short);
 DLLIMPORT void __cdecl _DK_reset_eye_lenses(void);
 DLLIMPORT void __cdecl _DK_reset_heap_manager(void);
@@ -120,6 +188,13 @@ DLLIMPORT void _DK_reset_player_mode(struct PlayerInfo *player, unsigned char a2
 DLLIMPORT void _DK_init_keeper_map_exploration(struct PlayerInfo *player);
 DLLIMPORT void _DK_init_player_cameras(struct PlayerInfo *player);
 DLLIMPORT void _DK_pannel_map_update(long x, long y, long w, long h);
+DLLIMPORT void _DK_view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
+DLLIMPORT void _DK_view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
+DLLIMPORT void _DK_view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
+DLLIMPORT void _DK_view_zoom_camera_in(struct Camera *cam, long a2, long a3);
+DLLIMPORT void _DK_set_camera_zoom(struct Camera *cam, long val);
+DLLIMPORT void _DK_view_zoom_camera_out(struct Camera *cam, long a2, long a3);
+DLLIMPORT long _DK_get_camera_zoom(struct Camera *camera);
 #ifdef __cplusplus
 }
 #endif
@@ -168,285 +243,44 @@ short show_onscreen_msg(int nturns, const char *fmt_str, ...)
     return result;
 }
 
-char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
-{
-  const char *mdir;
-  const char *sdir;
-  switch (fgroup)
-  {
-  case FGrp_StdData:
-      mdir=keeper_runtime_directory;
-      sdir="data";
-      break;
-  case FGrp_LrgData:
-      mdir=keeper_runtime_directory;
-      sdir="data";
-      break;
-  case FGrp_FxData:
-      mdir=keeper_runtime_directory;
-      sdir="fxdata";
-      break;
-  case FGrp_LoData:
-      mdir=install_info.inst_path;
-      sdir="ldata";
-      break;
-  case FGrp_HiData:
-      mdir=keeper_runtime_directory;
-      sdir="hdata";
-      break;
-  case FGrp_Levels:
-      mdir=keeper_runtime_directory;
-      sdir="levels";
-      break;
-  case FGrp_Save:
-      mdir=keeper_runtime_directory;
-      sdir="save";
-      break;
-  case FGrp_SShots:
-      mdir=keeper_runtime_directory;
-      sdir="scrshots";
-      break;
-  case FGrp_StdSound:
-      mdir=keeper_runtime_directory;
-      sdir="sound";
-      break;
-  case FGrp_LrgSound:
-      mdir=keeper_runtime_directory;
-      sdir="sound";
-      break;
-  case FGrp_Main:
-      mdir=keeper_runtime_directory;
-      sdir=NULL;
-      break;
-  default:
-      mdir="./";
-      sdir=NULL;
-      break;
-  }
-  if (sdir != NULL)
-    sprintf(ffullpath,"%s/%s/%s",mdir,sdir,fname);
-  else
-    sprintf(ffullpath,"%s/%s",mdir,fname);
-  return ffullpath;
-}
-
-char *prepare_file_path(short fgroup,const char *fname)
-{
-  static char ffullpath[2048];
-  return prepare_file_path_buf(ffullpath,fgroup,fname);
-}
-
-char *prepare_file_path_va(short fgroup, const char *fmt_str, va_list arg)
-{
-  static char ffullpath[2048];
-  char fname[255];
-  vsprintf(fname, fmt_str, arg);
-  return prepare_file_path_buf(ffullpath,fgroup,fname);
-}
-
-char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...)
-{
-  char *result;
-  va_list val;
-  va_start(val, fmt_str);
-  result=prepare_file_path_va(fgroup, fmt_str, val);
-  va_end(val);
-  return result;
-}
-
-short load_configuration(void)
-{
-  static const char *func_name="load_configuration";
-  //return _DK_load_configuration();
-  char *fname;
-  char *buf;
-  long len,pos;
-  int cmd_num;
-  // Variables to use when recognizing parameters
-  char word_buf[32];
-  char *bufpt;
-  int i,k;
-  // Preparing config file name and checking the file
-  strcpy(install_info.inst_path,"");
-  install_info.field_9A = 0;
-  fname=prepare_file_path(FGrp_Main,keeper_config_file);
-  if (!LbFileExists(fname))
-    return false;
-  buf = (char *)LbMemoryAlloc(4096); // configuration file size restriction
-  if (buf == NULL)
-    return false;
-  // Loading file data
-  len = LbFileLoadAt(fname, buf);
-  if (len>0)
-  {
-    pos = 0;
-    while (pos<len)
-    {
-      // Finding command number in this line
-      i = 0;
-      cmd_num = 0;
-      while (conf_commands[i].num > 0)
-      {
-        if (strnicmp(buf+pos, conf_commands[i].name, strlen(conf_commands[i].name)) == 0)
-        {
-          pos += strlen(conf_commands[i].name);
-          cmd_num = conf_commands[i].num;
-          break;
-        }
-        i++;
-      }
-      // Now store the config item in correct place
-      switch (cmd_num)
-      {
-      case 1: // INSTALL_PATH
-          for (i=0;i<149;i++) //sizeof(inst_path)-1
-          {
-              if ((buf[pos]==10)||(buf[pos]==13)||(buf[pos]<7))
-                break;
-              install_info.inst_path[i]=buf[pos];
-              pos++;
-          }
-          while (i>0)
-          {
-            if ((install_info.inst_path[i]!='\\') && (install_info.inst_path[i]!='/') &&
-                (install_info.inst_path[i]>32))
-              break;
-            i--;
-          }
-          install_info.inst_path[i+1]='\0';
-          break;
-      case 2: // INSTALL_TYPE
-          // This command is just skipped...
-          pos += strlen("MAX");
-          break;
-      case 3: // LANGUAGE
-          i = 0;
-          while (lang_type[i].num > 0)
-          {
-            if (strnicmp(buf+pos, lang_type[i].name, strlen(lang_type[i].name)) == 0)
-            {
-              pos += strlen(lang_type[i].name);
-              install_info.field_96 = lang_type[i].num;
-              break;
-            }
-            i++;
-          }
-          break;
-      case 4: // KEYBOARD
-          // Works only in DK Premium
-          break;
-      case 5: // SCREENSHOT
-          i = 0;
-          while (scrshot_type[i].num > 0)
-          {
-            if (strnicmp(buf+pos, scrshot_type[i].name, strlen(scrshot_type[i].name)) == 0)
-            {
-              pos += strlen(scrshot_type[i].name);
-              screenshot_format = scrshot_type[i].num;
-              break;
-            }
-            i++;
-          }
-          break;
-      case 6: // FRONTEND_RES
-          for (i=0; i<3; i++)
-          {
-            while ((buf[pos] == ' ') || (buf[pos] == '\t'))
-              pos++;
-            k=0;
-            while (((unsigned char)buf[pos] > 32) && (buf[pos] != '\t') && (k<31))
-            {
-              word_buf[k]=buf[pos];
-              pos++;k++;
-            }
-            word_buf[k]='\0';
-            k=LbRecogniseVideoModeString(word_buf);
-            if (k<=0) continue;
-            switch (i)
-            {
-            case 0:
-                set_failsafe_vidmode(k);
-                break;
-            case 1:
-                set_movies_vidmode(k);
-                break;
-            case 2:
-                set_frontend_vidmode(k);
-                break;
-            }
-          }
-          break;
-      case 7: // INGAME_RES
-          for (i=0; i<7; i++)
-          {
-            while ((buf[pos] == ' ') || (buf[pos] == '\t'))
-              pos++;
-            k=0;
-            while (((unsigned char)buf[pos] > 32) && (buf[pos] != '\t') && (k<31))
-            {
-              word_buf[k]=buf[pos];
-              pos++;k++;
-            }
-            word_buf[k]='\0';
-            k=LbRecogniseVideoModeString(word_buf);
-            if (k<=0) continue;
-            set_game_vidmode(i,k);
-          }
-          break;
-      default:
-          LbSyncLog("Unrecognized command in config file, starting on byte %d.\n",pos);
-      }
-      // Skip to end of the line
-      while (pos<len)
-      {
-        if ((buf[pos]==10) || (buf[pos]==13)) break;
-        pos++;
-      }
-      // Go to start of next line
-      while (pos<len)
-      {
-        if (buf[pos]>32) break;
-        pos++;
-      }
-    }
-  }
-  switch (install_info.field_96)
-  {
-  case 1:
-      LbKeyboardSetLanguage(1);
-      break;
-  case 2:
-      LbKeyboardSetLanguage(2);
-      break;
-  case 3:
-      LbKeyboardSetLanguage(3);
-      break;
-  case 4:
-      LbKeyboardSetLanguage(4);
-      break;
-  case 5:
-      LbKeyboardSetLanguage(5);
-      break;
-  case 6:
-      LbKeyboardSetLanguage(6);
-      break;
-  case 7:
-      LbKeyboardSetLanguage(7);
-      break;
-  case 8:
-      LbKeyboardSetLanguage(8);
-      break;
-  default:
-      break;
-  }
-  //Freeing and exiting
-  LbMemoryFree(buf);
-  return (install_info.field_96>0) && (install_info.inst_path[0]!='\0');
-}
-
 void reset_eye_lenses(void)
 {
   _DK_reset_eye_lenses();
+}
+
+void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3)
+{
+  _DK_view_set_camera_y_inertia(cam, a2, a3);
+}
+
+void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3)
+{
+  _DK_view_set_camera_x_inertia(cam, a2, a3);
+}
+
+void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3)
+{
+  _DK_view_set_camera_rotation_inertia(cam, a2, a3);
+}
+
+void view_zoom_camera_in(struct Camera *cam, long a2, long a3)
+{
+  _DK_view_zoom_camera_in(cam, a2, a3);
+}
+
+void set_camera_zoom(struct Camera *cam, long val)
+{
+  _DK_set_camera_zoom(cam, val);
+}
+
+void view_zoom_camera_out(struct Camera *cam, long a2, long a3)
+{
+  _DK_view_zoom_camera_out(cam, a2, a3);
+}
+
+long get_camera_zoom(struct Camera *camera)
+{
+  return _DK_get_camera_zoom(camera);
 }
 
 int LoadMcgaData(void)
@@ -504,6 +338,13 @@ void light_set_light_never_cache(long idx)
   _DK_light_set_light_never_cache(idx);
 }
 
+unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
+{
+  // Note: I don't know if the zoom may be scaled for current resolution,
+  // as there may be different resolution on another computer if playing MP game.
+  return ((zoom_lvl*units_per_pixel) >> 4)*pixel_size;
+}
+
 void init_player_as_single_keeper(struct PlayerInfo *player)
 {
   unsigned short idx;
@@ -536,11 +377,23 @@ void init_player_cameras(struct PlayerInfo *player)
 
 void init_player_start(struct PlayerInfo *player)
 {
+  static const char *func_name="init_player_start";
   struct Dungeon *dungeon;
   struct Thing *thing;
-  thing = game.things_lookup[game.field_149E1A];
-  while (thing > game.things_lookup[0])
+  int i,k;
+  k = 0;
+  i = game.thing_lists[2].field_4;
+  while (i>0)
   {
+    if (i >= THINGS_COUNT)
+    {
+      error(func_name,4578,"Jump out of things array bounds deteted");
+      break;
+    }
+    thing = game.things_lookup[i];
+    if ((thing == game.things_lookup[0]) || (thing == NULL))
+      break;
+    i = thing->field_67;
     if ((game.objects_config[thing->field_1A].field_6) && (thing->owner == player->field_2B))
     {
       dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
@@ -548,240 +401,23 @@ void init_player_start(struct PlayerInfo *player)
       memcpy(&dungeon->mappos,&thing->mappos,sizeof(struct Coord3d));
       break;
     }
-    thing = game.things_lookup[thing->field_67];
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      error(func_name,4579,"Infinite loop detected when sweeping things list");
+      break;
+    }
   }
 }
 
-/*TODO: requires clientDataTable and maximumPlayers
-short check_host_id(unsigned long *src_id)
+void clear_slab_dig(long a1, long a2, char a3)
 {
-  short result;
-  struct ClientDataEntry *cent;
-  unsigned int i;
-  result = 0;
-  for (i=0; i<maximumPlayers; i++)
-  {
-    cent = &clientDataTable[i];
-    if ( (cent->field_4) && (cent->field_0 == (*src_id)))
-    {
-      result = 1;
-      (*src_id) = i;
-    }
-  }
-  return result;
-}*/
-
-/*TODO: requires exported variables
-void * __stdcall MultiPlayerCallback(unsigned long src_id, unsigned long seq_length, unsigned long seq_num, void *buf)
-{
-//  if ( dword_538E48 ) - variable from DK Premium
-//    TRACE("GOT A REQUEST MultiPlayerCallback\n");
-  if (hostId == localPlayerId)
-  {
-    if (seq_length != exchangeSize)
-    {
-      TRACE("  WARNING network: UserDataMsgCallback() invalid length: %d\n", seq_length);
-      return NULL;
-    }
-    if (src_id == localPlayerId)
-    {
-      TRACE("  WARNING network: UserDataMsgCallback() host got data from itself\n");
-      return NULL;
-    }
-    if (!check_host_id(&src_id))
-    {
-      TRACE("  WARNING network: UserDataMsgCallback() invalid id: %d\n", src_id);
-      return NULL;
-    }
-    if ((seq_num==sequenceNumber) || (seq_num==15))
-    {
-      TRACE("  WARNING network: UserDataMsgCallback() Unexpected sequence number: Got %d, expected %d\n",seq_num,sequenceNumber);
-      return NULL;
-    }
-    clientDataTable[src_id].field_8 = 1;
-    return (unsigned char *)exchangeBuffer + exchangeSize*src_id;
-  } else
-  if ( exchangeSize*maximumPlayers == seq_length )
-  {
-    if ( hostId != src_id )
-    {
-      TRACE("  WARNING network: UserDataMsgCallback() data is not from host\n");
-      return NULL;
-    }
-    if ( !check_host_id(&src_id) )
-    {
-      TRACE("  WARNING network: UserDataMsgCallback() invalid id: %d\n", src_id);
-      return NULL;
-    }
-    if ( sequenceNumber == 15 )
-    {
-      sequenceNumber = seq_num;
-    } else
-    if ( seq_num != sequenceNumber )
-    {
-      TRACE("  WARNING network: UserDataMsgCallback() Unexpected sequence number: Got %d, expected %d\n",seq_num,sequenceNumber);
-      return NULL;
-    }
-    gotCompositeData = 1;
-    return (unsigned char *)exchangeBuffer;
-  } else
-  {
-    if ( seq_length != exchangeSize )
-    {
-      TRACE("  WARNING network: UserDataMsgCallback() invalid length: %d\n", seq_length);
-      return NULL;
-    }
-    if ( src_id == localPlayerId )
-    {
-      TRACE("  WARNING network: UserDataMsgCallback() client acting as host got data from itself\n");
-      return NULL;
-    }
-    if ( !check_host_id(&src_id) )
-    {
-      TRACE("  WARNING network: UserDataMsgCallback() invalid id: %d\n", src_id);
-      return NULL;
-    }
-    clientDataTable[src_id].field_8 = 1;
-    return (unsigned char *)exchangeBuffer + exchangeSize*src_id;
-  }
-}*/
-
-/*TODO: requires ServiceProvider and HostDataCollection
-void __stdcall MultiPlayerReqExDataMsgCallback(unsigned long src_id, unsigned long seqNum, void *buf)
-{
-//  if ( dword_538E48 ) - variable from DK Premium
-//    TRACE("GOT A REQUEST MultiPlayerReqExDataMsgCallback\n");
-  if (localDataPtr == NULL)
-  {
-    TRACE("  WARNING network: RequestExchangeDataMsgCallback() NULL data pointer\n");
-    return;
-  }
-  if (sequenceNumber == 15)
-  {
-    sequenceNumber = seqNum;
-  } else
-  if (sequenceNumber != seqNum)
-  {
-    TRACE("  WARNING network: RequestExchangeDataMsgCallback() unexpected sequence number, got %d, expected %d\n",seqNum,sequenceNumber);
-    return;
-  }
-  ServiceProvider::EncodeMessageStub(localDataPtr, exchangeSize-4, 0, sequenceNumber);
-  if ( HostDataCollection(src_id, localDataPtr) )
-  {
-    TRACE("  WARNING network: RequestExchangeDataMsgCallback() failure on SP::Send()\n");
-    return;
-  }
-}*/
-
-TbError GenericIPXInit(struct _GUID guid)
-{
-  //TODO
-  return -1;
-}
-
-TbError GenericSerialInit(struct _GUID guid,void *)
-{
-  //TODO
-  return -1;
-}
-
-TbError GenericModemInit(struct _GUID guid,void *)
-{
-  //TODO
-  return -1;
-}
-
-TbError DPlayInit(struct _GUID guid,struct _GUID *cliguid)
-{
-  //TODO
-  return -1;
+  _DK_clear_slab_dig(a1, a2, a3);
 }
 
 TbError LbNetwork_Init(unsigned long srvcp,struct _GUID guid, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct SerialInitData *init_data)
 {
   return _DK_LbNetwork_Init(srvcp,guid,maxplayrs,exchng_buf,exchng_size,locplayr,init_data);
-  //TODO
-  long dpidx;
-  exchangeBuffer = exchng_buf;
-  exchangeSize = exchng_size;
-  maximumPlayers = maxplayrs;
-  localPlayerInfoPtr = locplayr;
-  localDataPtr = 0;
-  compositeBuffer = 0;
-  sequenceNumber = 0;
-  timeCount = 0;
-  maxTime = 0;
-  runningTwoPlayerModel = 0;
-  waitingForPlayerMapResponse = 0;
-  compositeBufferSize = 0;
-  basicTimeout = 250;
-//  receiveCallbacks_offs24 = NULL; //probably not needed
-//  receiveCallbacks.multi_player = MultiPlayerCallback;
-//  receiveCallbacks.mp_req_exdata_msg = MultiPlayerReqExDataMsgCallback;
-  if (exchng_size > 0)
-  {
-    compositeBufferSize = maxplayrs * exchng_size;
-    compositeBuffer = LbMemoryAlloc(compositeBufferSize);
-    if (compositeBuffer == NULL)
-    {
-      TRACE("WARNING network: LbNetwork_Init() failure on compositeBuffer allocation\n");
-      return -1;
-    }
-  }
-  int k;
-
-  memset(clientDataTable, 0, sizeof(clientDataTable));
-  for(k=0; k<maximumPlayers; k++)
-    clientDataTable[k].field_4 = 0;
-
-  for (k=0; k<maximumPlayers; k++)
-  {
-      net_player_info[k].field_20 = 0;
-      strcpy(net_player_info[k].field_0, "");
-  }
-  switch (srvcp)
-  {
-  case 0:
-      TRACE("Selecting Win95 Serial SP\n");
-      if ( GenericSerialInit(guid, init_data) )
-      {
-        TRACE("WARNING network: LbNetwork_Init() failure on GenericSerialInit()\n");
-        return -1;
-      }
-      break;
-  case 1:
-      TRACE("Selecting Win95 Modem SP\n");
-      if ( GenericModemInit(guid, init_data) )
-      {
-        TRACE("WARNING network: LbNetwork_Init() failure on GenericModemInit()\n");
-        return -1;
-      }
-      break;
-  case 2:
-      TRACE("Selecting Win95 IPX SP\n");
-      if ( GenericIPXInit(guid) )
-      {
-        TRACE("WARNING network: LbNetwork_Init() failure on GenericIPXInit()\n");
-        return -1;
-      }
-      break;
-  case 3:
-  default:
-      dpidx = srvcp-3;
-      TRACE("Selecting a Direct Play SP\n");
-      if ((dpidx<0) || (dpidx >= noOfEnumeratedDPlayServices))
-      {
-          TRACE("WARNING network: LbNetwork_Init() bad DPlay service index\n");
-          return -1;
-      }
-      if ( DPlayInit(guid, &clientGuidTable[dpidx]) )
-      {
-        TRACE("WARNING network: LbNetwork_Init() failure on DPlayInit()\n");
-        return -1;
-      }
-      break;
-  }
-  return 0;
 }
 
 TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long a2)
@@ -789,21 +425,39 @@ TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long a2)
   return _DK_LbNetwork_ChangeExchangeBuffer(buf, a2);
 }
 
-short inline calculate_moon_phase(short add_to_log)
+void LbNetwork_ChangeExchangeTimeout(unsigned long tmout)
+{
+//  exchangeTimeout = 1000 * tmout;
+}
+
+short inline calculate_moon_phase(short do_calculate,short add_to_log)
 {
   //Moon phase calculation
-  _DK_phase_of_moon=PhaseOfMoon::Calculate();
-  if ((_DK_phase_of_moon > -0.05) && (_DK_phase_of_moon < 0.05))
+  if (do_calculate)
+  {
+    phase_of_moon=PhaseOfMoon::Calculate();
+  }
+  if ((phase_of_moon > -0.05) && (phase_of_moon < 0.05))
   {
     if (add_to_log)
-      LbSyncLog("Full moon %.4f\n", _DK_phase_of_moon);
+      LbSyncLog("Full moon %.4f\n", phase_of_moon);
     game.is_full_moon = 1;
+    is_new_moon = 0;
+  } else
+  if ((phase_of_moon < -0.95) || (phase_of_moon > 0.95))
+  {
+    if (add_to_log)
+      LbSyncLog("New moon %.4f\n", phase_of_moon);
+    game.is_full_moon = 0;
+    is_new_moon = 1;
   } else
   {
     if (add_to_log)
-      LbSyncLog("Moon phase %.4f\n", _DK_phase_of_moon);
+      LbSyncLog("Moon phase %.4f\n", phase_of_moon);
     game.is_full_moon = 0;
+    is_new_moon = 0;
   }
+
   return game.is_full_moon;
 }
 
@@ -827,7 +481,7 @@ short copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int
       dst = dst_buf + (h)*scanline;
       memset(dst,0,scanline);
     }
-    // Clearing bottom of the canvas
+    // Clearing bottom of the canvas 
     // (Note: it must be done before drawing, to make sure we won't overwrite last line)
     for (h=nlines-spy; h<nlines; h++)
     {
@@ -996,32 +650,76 @@ void ProperForcedFadePalette(unsigned char *pal, long n, TbPaletteFadeFlag flg)
     }
 }
 
-int LbTextStringWidth(const char *str)
-{
-  return _DK_LbTextStringWidth(str);
-}
-
-int LbTextStringHeight(const char *str)
-{
-  //return _DK_LbTextStringHeight(str);
-  int i,h,lines;
-  lines=1;
-  if ((lbFontPtr==NULL) || (str==NULL))
-    return 0;
-  for (i=0;i<MAX_TEXT_LENGTH;i++)
-  {
-    if (str[i]=='\0') break;
-    if (str[i]==10) lines++;
-  }
-  h = 0;
-  if (lbFontPtr != NULL)
-    h = lbFontPtr[1].SHeight;
-  return h*lines;
-}
-
 short thing_is_special(struct Thing *thing)
 {
-  return (thing->field_1F==1) && (_DK_object_to_special[thing->field_1A]);
+  if ((thing->field_1F != 1) || (thing->field_1A >= OBJECT_TYPES_COUNT))
+    return false;
+  return (object_to_special[thing->field_1A] > 0);
+}
+
+void update_thing_animation(struct Thing *thing)
+{
+  _DK_update_thing_animation(thing);
+}
+
+long update_thing(struct Thing *thing)
+{
+  return _DK_update_thing(thing);
+}
+
+void update_creatures_not_in_list(void)
+{
+  _DK_update_creatures_not_in_list();
+}
+
+long get_thing_checksum(struct Thing *thing)
+{
+  return _DK_get_thing_checksum(thing);
+}
+
+unsigned long update_things_in_list(struct StructureList *list)
+{
+  static const char *func_name="update_things_in_list";
+  struct Thing *thing;
+  unsigned long k;
+  unsigned long sum;
+  int i;
+  //return _DK_update_things_in_list(list);
+  sum = 0;
+  i = list->field_4;
+  k = 0;
+  while (i>0)
+  {
+    if (i >= THINGS_COUNT)
+    {
+      error(func_name,4578,"Jump out of things array bounds deteted");
+      break;
+    }
+    thing = game.things_lookup[i];
+    if ((thing == game.things_lookup[0]) || (thing == NULL))
+      break;
+    i = thing->field_67;
+    if ((thing->field_0 & 0x40) == 0)
+    {
+        if ((thing->field_0 & 0x10) != 0)
+          update_thing_animation(thing);
+        else
+          update_thing(thing);
+    }
+    sum += get_thing_checksum(thing);
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      error(func_name,4579,"Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  return sum;
+}
+
+long update_thing_sound(struct Thing *thing)
+{
+  return _DK_update_thing_sound(thing);
 }
 
 /*
@@ -1039,8 +737,7 @@ short display_lores_loading_screen(void)
 
   memset(palette_buf, 0, 768);
   LbPaletteSet(palette_buf);
-
-  check_cd_in_drive();
+  wait_for_cd_to_be_available();
   short dproceed=true;
   if (dproceed)
   {
@@ -1058,7 +755,7 @@ short display_lores_loading_screen(void)
   }
   if (dproceed)
   {
-      check_cd_in_drive();
+      wait_for_cd_to_be_available();
       fname=prepare_file_path(FGrp_StdData,"loading.pal");
       if ( LbFileLoadAt(fname, palette_buf) != 768 )
       {
@@ -1088,7 +785,7 @@ short display_hires_loading_screen(void)
   memset(palette_buf, 0, 768);
   LbPaletteSet(palette_buf);
 
-  check_cd_in_drive();
+  wait_for_cd_to_be_available();
   short dproceed=true;
   if (dproceed)
   {
@@ -1106,7 +803,7 @@ short display_hires_loading_screen(void)
   }
   if (dproceed)
   {
-      check_cd_in_drive();
+      wait_for_cd_to_be_available();
       fname=prepare_file_path(FGrp_FxData,"loading_640.pal");
       if ( LbFileLoadAt(fname, palette_buf) != 768 )
       {
@@ -1195,194 +892,8 @@ short play_smacker_file(char *filename, int nstate)
   lbDisplay.RightButton = 0;
   lbDisplay.MiddleButton = 0;
   if (nstate>-2)
-    _DK_LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
+    LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
   return result;
-}
-
-char game_is_busy_doing_gui_string_input(void)
-{
-  return _DK_game_is_busy_doing_gui_string_input();
-}
-
-void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
-{
-  pckt->field_6 = par1;
-  pckt->field_8 = par2;
-  pckt->field_5 = pcktype;
-}
-
-/*
- *  Reacts on a keystoke by sending text message packets.
- */
-short get_players_message_inputs(void)
-{
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  if (is_key_pressed(KC_RETURN,KM_NONE))
-  {
-      pckt = &game.packets[player->field_B%PACKETS_COUNT];
-      set_packet_action(pckt, PckT_PlyrMsgEnd, 0, 0, 0, 0);
-      clear_key_pressed(KC_RETURN);
-      return true;
-  }
-  lbFontPtr = winfont;
-  int msg_width = pixel_size * LbTextStringWidth(player->strfield_463);
-  if ( (is_key_pressed(KC_BACK,KM_DONTCARE)) || (msg_width < 450) )
-  {
-      pckt = &game.packets[player->field_B%PACKETS_COUNT];
-      set_packet_action(pckt,PckT_PlyrMsgChar,lbInkey,key_modifiers,0,0);
-      clear_key_pressed(lbInkey);
-      return true;
-  }
-  return false;
-}
-
-/*
- * Captures the screen to make a gameplay movie or screenshot image.
- * @return Returns 0 if no event was handled, nonzero otherwise.
- */
-short get_screen_capture_inputs(void)
-{
-  short result=false;
-  if (is_key_pressed(KC_M,KM_SHIFT))
-  {
-    if (game.numfield_A & 0x08)
-      movie_record_stop();
-    else
-      movie_record_start();
-    clear_key_pressed(KC_M);
-    result=true;
-  }
-  if (is_key_pressed(KC_C,KM_SHIFT))
-  {
-    game.numfield_A |= 0x10;
-    clear_key_pressed(KC_C);
-    result=true;
-  }
-  return result;
-}
-
-short get_global_inputs(void)
-{
-  if ( game_is_busy_doing_gui_string_input() && (input_button==NULL) )
-    return false;
-  struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  struct Packet *pckt;
-  long keycode;
-  if ((player->field_0 & 0x04) != 0)
-  {
-    get_players_message_inputs();
-    return true;
-  }
-  if ((player->field_452 == 1) && ((game.numfield_A & 0x01) != 0))
-  {
-      if (is_key_pressed(KC_RETURN,KM_NONE))
-      {
-        pckt = &game.packets[player->field_B%PACKETS_COUNT];
-        set_packet_action(pckt, PckT_PlyrMsgBegin, 0, 0, 0, 0);
-        clear_key_pressed(KC_RETURN);
-        return true;
-      }
-  }
-  // Code for debugging purposes
-  if ( is_key_pressed(KC_D,KM_ALT) )
-  {
-    LbSyncLog("REPORT for gameturn %d\n",game.seedchk_random_used);
-    // Timing report
-    LbSyncLog("Now time is %d, last loop time was %d, clock is %d, requested fps is %d\n",LbTimerClock(),last_loop_time,clock(),game.num_fps);
-  }
-
-  int idx;
-  for (idx=KC_F1;idx<=KC_F8;idx++)
-  {
-      if ( is_key_pressed(idx,KM_ALT) )
-      {
-        pckt = &game.packets[player->field_B%PACKETS_COUNT];
-        set_packet_action(pckt, PckT_PlyrFastMsg, idx-KC_F1, 0, 0, 0);
-        clear_key_pressed(idx);
-        return true;
-      }
-  }
-  if ( (player->field_4B0 != 14) && (player->field_4B0 != 15) && (input_button==0) )
-  {
-      if ( _DK_is_game_key_pressed(30, &keycode, 0) )
-      {
-        pckt = &game.packets[player->field_B%PACKETS_COUNT];
-        set_packet_action(pckt, 22, 0, 0, 0, 0);
-        clear_key_pressed(keycode);
-        return true;
-      }
-  }
-  if ((game.numfield_C & 0x01) != 0)
-      return true;
-  if (is_key_pressed(KC_ADD,KM_CONTROL))
-  {
-      game.timingvar1 += 2;
-      if (game.timingvar1 < 0)
-          game.timingvar1 = 0;
-      else
-      if ( game.timingvar1 > 64 )
-          game.timingvar1 = 64;
-      clear_key_pressed(KC_ADD);
-  }
-  if (is_key_pressed(KC_SUBTRACT,KM_CONTROL))
-  {
-      game.timingvar1 -= 2;
-        if (game.timingvar1 < 0)
-        game.timingvar1 = 0;
-      else
-      if ( game.timingvar1 > 64 )
-        game.timingvar1 = 64;
-      clear_key_pressed(KC_SUBTRACT);
-  }
-  if (is_key_pressed(KC_SUBTRACT,KM_NONE))
-  {
-      if ( player->minimap_zoom < 0x0800 )
-      {
-        pckt = &game.packets[player->field_B%PACKETS_COUNT];
-        set_packet_action(pckt, PckT_SetMinimapConf, 2 * player->minimap_zoom, 0, 0, 0);
-      }
-      clear_key_pressed(KC_SUBTRACT);
-      return true;
-  }
-  if (is_key_pressed(KC_ADD,KM_NONE))
-  {
-      if ( player->minimap_zoom > 0x0080 )
-      {
-        pckt = &game.packets[player->field_B%PACKETS_COUNT];
-        set_packet_action(pckt, PckT_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
-      }
-      clear_key_pressed(KC_ADD);
-      return true;
-  }
-  if (is_key_pressed(KC_R,KM_ALT))
-  {
-      pckt = &game.packets[player->field_B%PACKETS_COUNT];
-      set_packet_action(pckt, PckT_SwitchScrnRes, 0, 0, 0, 0);
-      clear_key_pressed(KC_R);
-      return true;
-  }
-  if (is_key_pressed(KC_SPACE,KM_NONE))
-  {
-      if ( player->field_29 )
-      {
-        pckt = &game.packets[player->field_B%PACKETS_COUNT];
-        set_packet_action(pckt, 5, 0, 0, 0, 0);
-        clear_key_pressed(KC_SPACE);
-        return true;
-      }
-  }
-  get_screen_capture_inputs();
-
-  if ( _DK_is_game_key_pressed(29, &keycode, 0) )
-  {
-      pckt = &game.packets[player->field_B%PACKETS_COUNT];
-      set_packet_action(pckt, 111, 0, 0, 0, 0);
-      clear_key_pressed(keycode);
-  }
-  return false;
 }
 
 short setup_network_service(int srvidx)
@@ -1436,7 +947,7 @@ short setup_network_service(int srvidx)
  * Displays 'legal' screens, intro and initializes basic game data.
  * If true is returned, then all files needed for startup were loaded,
  * and there should be the loading screen visible.
- * @return Returns true on success, false on error which makes the
+ * @return Returns true on success, false on error which makes the 
  *   gameplay impossible (usually files loading failure).
  * @note The current screen resolution at end of this function may vary.
  */
@@ -1459,7 +970,7 @@ short setup_game(void)
   }
 
   //Moon phase calculation
-  calculate_moon_phase(true);
+  calculate_moon_phase(true,true);
 
   LbIKeyboardOpen();
 
@@ -1561,7 +1072,7 @@ short setup_game(void)
   }
 
   // View Bullfrog company logo animation when new moon
-  if ((_DK_phase_of_moon < -0.95) || (_DK_phase_of_moon > 0.95))
+  if ( is_new_moon )
   if ( !game.no_intro )
   {
       fname=prepare_file_path(FGrp_FxData,"bullfrog.smk");
@@ -1587,7 +1098,7 @@ short setup_game(void)
   {
       LbScreenClear(0);
       LbScreenSwap();
-      result=check_cd_in_drive();
+      result=wait_for_cd_to_be_available();
   }
   if ( result && (!game.no_intro) )
   {
@@ -1678,13 +1189,13 @@ short setup_game(void)
             if ( ((cpu_info.field_0>>8) & 0x0Fu) >= 0x06 )
               _DK_set_cpu_mode(1);
         }
-        _DK_set_gamma(settings.gamma_correction, 0);
+        set_gamma(settings.gamma_correction, 0);
         SetRedbookVolume(settings.redbook_volume);
         SetSoundMasterVolume(settings.sound_volume);
         SetMusicMasterVolume(settings.sound_volume);
         _DK_setup_3d();
         _DK_setup_stuff();
-        _DK_init_lookups();
+        init_lookups();
         result = 1;
   }
   return result;
@@ -1758,9 +1269,9 @@ void update_right_button_released(void)
 
 void update_left_button_clicked(void)
 {
-  _DK_left_button_clicked = lbDisplay.LeftButton;
-  _DK_left_button_clicked_x = lbDisplay.MouseX * pixel_size;
-  _DK_left_button_clicked_y = lbDisplay.MouseY * pixel_size;
+  left_button_clicked = lbDisplay.LeftButton;
+  left_button_clicked_x = lbDisplay.MouseX * pixel_size;
+  left_button_clicked_y = lbDisplay.MouseY * pixel_size;
 }
 
 void update_right_button_clicked(void)
@@ -1913,13 +1424,64 @@ void input_eastegg(void)
   }
 }
 
-void write_debug_packets(void)
+void init_messages(void)
 {
-  FILE *file;
-  file = fopen("keeperd.pck", "w");
-  fwrite(game.packets, 1, sizeof(struct Packet)*PACKETS_COUNT, file);
-  fflush(file);
-  fclose(file);
+  _DK_init_messages();
+}
+
+void zero_messages(void)
+{
+  int i;
+  game.active_messages_count = 0;
+  for (i=0; i<3; i++)
+  {
+    memset(&game.messages[i], 0, sizeof(struct GuiMessage));
+  }
+}
+
+void battle_initialise(void)
+{
+  _DK_battle_initialise();
+}
+
+void event_initialise_all(void)
+{
+  _DK_event_initialise_all();
+}
+
+void add_thing_to_list(struct Thing *thing, struct StructureList *list)
+{
+  _DK_add_thing_to_list(thing, list);
+}
+
+struct Thing *allocate_free_thing_structure(unsigned char a1)
+{
+  return _DK_allocate_free_thing_structure(a1);
+}
+
+unsigned char i_can_allocate_free_thing_structure(unsigned char a1)
+{
+  return _DK_i_can_allocate_free_thing_structure(a1);
+}
+
+struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short a2, unsigned short owner)
+{
+  static const char *func_name="create_ambient_sound";
+  struct Thing *thing;
+  if ( !i_can_allocate_free_thing_structure(1) )
+  {
+    error(func_name, 3698, "'Told You So' error! Cannot create ambient sound because there are too many fucking things allocated.");
+    return NULL;
+  }
+  thing = allocate_free_thing_structure(1);
+  thing->field_1F = 12;
+  thing->field_1A = a2;
+  thing->field_1D = thing->field_1B;
+  memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
+  thing->owner = owner;
+  thing->field_4F |= 0x01;
+  add_thing_to_list(thing, &game.thing_lists[9]);
+  return thing;
 }
 
 /*
@@ -2026,17 +1588,19 @@ short setup_trap_tooltips(struct Coord3d *pos)
 
 short setup_object_tooltips(struct Coord3d *pos)
 {
-  static char text[2048];
+  char *text;
   struct Thing *thing = NULL;
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   thing = game.things_lookup[player->field_35];
+  if (thing == game.things_lookup[0])
+      thing = NULL;
   if ((thing!=NULL)&&(!thing_is_special(thing)))
       thing = NULL;
   if (thing==NULL)
     thing = _DK_get_special_at_position(pos->x.stl.num, pos->y.stl.num);
   if (thing!=NULL)
   {
-    if ( (void *)thing != _DK_tool_tip_box.target )
+    if ((void *)thing != _DK_tool_tip_box.target)
     {
       _DK_help_tip_time = 0;
       _DK_tool_tip_box.target = thing;
@@ -2098,12 +1662,12 @@ short setup_object_tooltips(struct Coord3d *pos)
     int crtridx;
     if ( objidx == 49 )
     {
-      sprintf(text,"%s",strings[545]);
+      text=buf_sprintf("%s",strings[545]);
     } else
     if (crtridx = _DK_objects[objidx].field_13)
     {
       int stridx=_DK_creature_data[crtridx].field_3;
-      sprintf(text, "%s %s", strings[stridx], strings[609]);
+      text=buf_sprintf("%s %s", strings[stridx], strings[609]);
     } else
     {
       return 0;
@@ -2197,14 +1761,105 @@ short setup_room_tooltips(struct Coord3d *pos)
   return true;
 }
 
-void toggle_gui_overlay_map(void)
+void reveal_whole_map(struct PlayerInfo *player)
 {
-  unsigned char mask;
-  if ((game.numfield_C & 0x20) == 0)
-    mask=0x20;
-  else
-    mask=0;
-  game.numfield_C = (game.numfield_C & 0xDFu) | mask;
+  unsigned short nflag;
+  unsigned int x,y,i;
+
+  nflag = (1 << player->field_2B);
+  for (y=0; y<map_tiles_y; y++)
+    for (x=0; x<map_tiles_x; x++)
+    {
+      clear_slab_dig(x, y, player->field_2B);
+    }
+  for (i=0; i<65536; i++)
+  {
+    x = (game.map[i].field_3 >> 12) | nflag;
+    game.map[i].field_3 |= (x & 0x0F) << 12;
+  }
+  pannel_map_update(0, 0, 256, 256);
+}
+
+void increase_level(struct PlayerInfo *player)
+{
+  static const char *func_name="increase_level";
+  struct Dungeon *dungeon;
+  struct Thing *thing;
+  struct CreatureControl *cctrl;
+  int i;
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+
+  i = dungeon->field_2D;
+  while (i > 0)
+  {
+    if (i >= THINGS_COUNT)
+    {
+      error(func_name,4576,"Jump out of things array bounds deteted");
+      break;
+    }
+    thing = game.things_lookup[i];
+    if ((thing == game.things_lookup[0]) || (thing == NULL))
+      break;
+    creature_increase_level(thing);
+    if (thing->field_64 >= CREATURES_COUNT)
+      break;
+    cctrl = game.creature_control_lookup[thing->field_64];
+    if (cctrl < game.creature_control_data)
+      break;
+    i = cctrl->thing_idx;
+  }
+
+  i = dungeon->field_2F;
+  while (i > 0)
+  {
+    if (i >= THINGS_COUNT)
+    {
+      error(func_name,4575,"Jump out of things array bounds deteted");
+      break;
+    }
+    thing = game.things_lookup[i];
+    if ((thing == game.things_lookup[0]) || (thing == NULL))
+      break;
+    creature_increase_level(thing);
+    if (thing->field_64 >= CREATURES_COUNT)
+      break;
+    cctrl = game.creature_control_lookup[thing->field_64];
+    if (cctrl < game.creature_control_data)
+      break;
+    i = cctrl->thing_idx;
+  }
+}
+
+void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
+{
+  struct Dungeon *dungeon;
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  if (dungeon->field_139F != 0)
+  {
+    if (player == &game.players[my_player_number])
+    {
+      dungeon_special_selected = thing->field_1B;
+      resurrect_creature_scroll_offset = 0;
+      turn_off_menu(27);
+      turn_on_menu(28);
+    }
+  }
+}
+
+void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
+{
+  struct Dungeon *dungeon;
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  if (dungeon->field_919 != 0)
+  {
+    if (player == &game.players[my_player_number])
+    {
+      dungeon_special_selected = thing->field_1B;
+      transfer_creature_scroll_offset = 0;
+      turn_off_menu(27);
+      turn_on_menu(29);
+    }
+  }
 }
 
 short engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
@@ -2242,6 +1897,11 @@ short engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, l
     return true;
   }
   return false;
+}
+
+void restore_computer_player_after_load(void)
+{
+  _DK_restore_computer_player_after_load();
 }
 
 short point_to_overhead_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
@@ -2291,10 +1951,10 @@ short screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct 
   return result;
 }
 
-short check_cd_in_drive(void)
+short wait_for_cd_to_be_available(void)
 {
-    static const char *func_name="check_cd_in_drive";
-//  _DK_check_cd_in_drive(); return;
+    static const char *func_name="wait_for_cd_to_be_available";
+//  _DK_wait_for_cd_to_be_available(); return;
   char *fname;
   const int img_width = 320;
   const int img_height = 200;
@@ -2372,11 +2032,10 @@ short get_gui_inputs(short gameplay_on)
     _DK_maintain_my_battle_list();
   if ( !lbDisplay.MLeftButton )
   {
-    const short gmax=86;//sizeof(active_buttons)/sizeof(struct GuiButton);
     _DK_drag_menu_x = -999;
     _DK_drag_menu_y = -999;
     int idx;
-    for (idx=0;idx<gmax;idx++)
+    for (idx=0;idx<ACTIVE_BUTTONS_COUNT;idx++)
     {
       struct GuiButton *gbtn = &active_buttons[idx];
       if ((gbtn->field_0 & 1) && (gbtn->gbtype == 6))
@@ -2410,7 +2069,7 @@ short get_gui_inputs(short gameplay_on)
     if ( ((gbtn->field_1B & 0x4000u)!=0) || _DK_mouse_is_over_small_map(player->mouse_x,player->mouse_y) )
       continue;
 
-    if ( check_if_mouse_is_over_button(gbtn) && (input_button==NULL)
+    if ( check_if_mouse_is_over_button(gbtn) && (!game_is_busy_doing_gui())
       || (gbtn->gbtype==6) && (gbtn->field_1!=0) )
     {
       if ( (fmmenu_idx==-1) || (gbtn->gmenu_idx==fmmenu_idx) )
@@ -2443,9 +2102,9 @@ short get_gui_inputs(short gameplay_on)
         int mouse_y = GetMouseY();
         if ((mouse_y>gbtn->pos_y) && (mouse_y<=(gbtn->pos_y+gbtn->height)))
         {
-          if ( _DK_left_button_clicked )
+          if ( left_button_clicked )
           {
-            _DK_left_button_clicked = 0;
+            left_button_clicked = 0;
             over_slider_button = gidx;
             do_sound_menu_click();
           }
@@ -2455,7 +2114,7 @@ short get_gui_inputs(short gameplay_on)
   }  // end for
 
   short result = 0;
-  if (input_button!=NULL)
+  if (game_is_busy_doing_gui())
   {
     _DK_busy_doing_gui = 1;
     if (_DK_get_button_area_input(input_button,input_button->id_num) != 0)
@@ -2586,7 +2245,7 @@ short get_gui_inputs(short gameplay_on)
         }
       }
     }
-    if ( _DK_left_button_clicked )
+    if ( left_button_clicked )
     {
       result = 1;
       if (game.field_1516F3 != 0)
@@ -2597,7 +2256,7 @@ short get_gui_inputs(short gameplay_on)
       callback = gbtn->click_event;
       if ((callback!=NULL) || (gbtn->field_0 & 2) || (gbtn->field_2F) || (gbtn->gbtype==3) )
       {
-        _DK_left_button_clicked = 0;
+        left_button_clicked = 0;
         _DK_gui_last_left_button_pressed_id = gbtn->id_num;
         do_button_click_actions(gbtn, &gbtn->field_1, callback);
       }
@@ -2620,7 +2279,7 @@ short get_gui_inputs(short gameplay_on)
     }
   }
 
-  for (gidx=0;gidx<86;gidx++)
+  for (gidx=0;gidx<ACTIVE_BUTTONS_COUNT;gidx++)
   {
     gbtn = &active_buttons[gidx];
     if (gbtn->field_0 & 1)
@@ -2690,35 +2349,6 @@ short get_gui_inputs(short gameplay_on)
   if ( _DK_tool_tip_box.field_0 == 0 )
     reset_scrolling_tooltip();
   return result;
-}
-
-short get_creature_passenger_action_inputs(void)
-{
-  if ( ((game.numfield_C & 0x01)==0) || (game.numfield_C & 0x80) )
-      get_gui_inputs(1);
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  if ( !player->field_2F )
-    return false;
-  if (_DK_right_button_released)
-  {
-    struct Packet *pckt = &game.packets[player->field_B%PACKETS_COUNT];
-    set_packet_action(pckt, 32, player->field_2F,0,0,0);
-    return true;
-  }
-  struct Thing *thing;
-  thing = game.things_lookup[player->field_2F];
-  if ((player->field_31 != thing->field_9) || ((thing->field_0 & 1)==0) )
-  {
-    struct Packet *pckt = &game.packets[player->field_B%PACKETS_COUNT];
-    set_packet_action(pckt, 32, player->field_2F,0,0,0);
-    return true;
-  }
-  if (is_key_pressed(KC_TAB,KM_NONE))
-  {
-    clear_key_pressed(KC_TAB);
-    toggle_gui_overlay_map();
-  }
-  return false;
 }
 
 void save_settings(void)
@@ -2870,42 +2500,6 @@ void toggle_main_cheat_menu(void)
   }
 }
 
-void set_menu_visible_on(long menu_id)
-{
-  const short gmax=86;//sizeof(active_buttons)/sizeof(struct GuiButton);
-  long menu_num;
-  menu_num = menu_id_to_number(menu_id);
-  if ( menu_num == -1 )
-    return;
-  active_menus[menu_num].flgfield_1D = 1;
-  int idx;
-  for (idx=0;idx<gmax;idx++)
-  {
-    struct GuiButton *gbtn = &active_buttons[idx];
-    if (gbtn->field_0 & 1)
-    {
-      Gf_Btn_Callback callback;
-      callback = gbtn->field_17;
-      if ((gbtn->gmenu_idx == menu_num) && (callback != NULL))
-        callback(gbtn);
-    }
-  }
-}
-
-void set_menu_visible_off(long menu_id)
-{
-  long menu_num;
-  menu_num = menu_id_to_number(menu_id);
-  if ( menu_num == -1 )
-    return;
-  active_menus[menu_num].flgfield_1D = 0;
-}
-
-unsigned long toggle_status_menu(short visib)
-{
-  return _DK_toggle_status_menu(visib);
-}
-
 void zoom_from_map(void)
 {
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
@@ -2921,95 +2515,15 @@ void zoom_from_map(void)
   }
 }
 
-short get_map_action_inputs()
-{
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  long keycode;
-  long mouse_x = GetMouseX();
-  long mouse_y = GetMouseY();
-  int mappos_x = 3 * (mouse_x - 150) / 4 + 1;
-  int mappos_y = 3 * (mouse_y - 56) / 4 + 1;
-  if ((mappos_x >= 0) && (mappos_x < map_subtiles_x) && (mappos_y >= 0) && (mappos_y < map_subtiles_y) )
-  {
-    if ( _DK_left_button_clicked )
-    {
-      _DK_left_button_clicked = 0;
-    }
-    if ( _DK_left_button_released )
-    {
-      struct Packet *pckt = &game.packets[player->field_B%PACKETS_COUNT];
-      set_packet_action(pckt, 81,mappos_x,mappos_y,0,0);
-      _DK_left_button_released = 0;
-      return true;
-    }
-  }
-
-  if ( _DK_right_button_clicked )
-    _DK_right_button_clicked = 0;
-  if ( _DK_right_button_released )
-  {
-    _DK_right_button_released = 0;
-    zoom_from_map();
-    return true;
-  } else
-  {
-    struct Packet *pckt = &game.packets[player->field_B%PACKETS_COUNT];
-    if (pckt->field_5)
-      return true;
-    if (is_key_pressed(KC_F8,KM_NONE))
-    {
-      clear_key_pressed(KC_F8);
-      toggle_tooltips();
-    }
-    if (is_key_pressed(KC_NUMPADENTER,KM_NONE))
-    {
-      clear_key_pressed(KC_NUMPADENTER);
-      toggle_main_cheat_menu();
-    }
-    if ( _DK_is_game_key_pressed(31, &keycode, 0) )
-    {
-      lbKeyOn[keycode] = 0;
-      _DK_turn_off_all_window_menus();
-      zoom_from_map();
-      return true;
-    }
-    return false;
-  }
-}
-
-short toggle_first_person_menu(short visible)
-{
-  static char creature_query1_on = 0;
-  static char creature_query2_on = 0;
-  if (visible)
-  {
-    if ( creature_query1_on )
-        set_menu_visible_on(31);
-    else
-    if ( creature_query2_on )
-      set_menu_visible_on(35);
-    return 1;
-  } else
-  {
-    long gmnu_idx;
-    // Menu no 31
-    gmnu_idx=menu_id_to_number(31);
-    if (gmnu_idx != -1)
-      creature_query1_on = active_menus[gmnu_idx].flgfield_1D;
-    set_menu_visible_off(31);
-    // Menu no 35
-    gmnu_idx=menu_id_to_number(35);
-    if (gmnu_idx != -1)
-      creature_query2_on = active_menus[gmnu_idx].flgfield_1D;
-    set_menu_visible_off(31);
-    return 1;
-  }
-}
-
 void setup_engine_window(long x1, long y1, long x2, long y2)
 {
+  static const char *func_name="setup_engine_window";
   long cx1,cy1,cx2,cy2;
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  struct PlayerInfo *player;
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Setting coords %d,%d,%d,%d\n",func_name,x1,y1,x2,y2);
+#endif
+  player=&(game.players[my_player_number%PLAYERS_COUNT]);
   if (game.numfield_C & 0x20)
   {
     if (x1 >= 140)
@@ -3066,35 +2580,161 @@ void setup_engine_window(long x1, long y1, long x2, long y2)
   player->field_446 = cy2;
 }
 
-void set_gui_visible(unsigned long visible)
-{
-  if (visible)
-    game.numfield_C |= 0x20;
-  else
-    game.numfield_C &= 0xDF;
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  unsigned char is_visbl = ((game.numfield_C & 0x20)!=0);
-  if (player->field_452 == 2)
-    toggle_first_person_menu(is_visbl);
-  else
-    toggle_status_menu(is_visbl);
-  if ( (game.numfield_D & 0x20) && (game.numfield_C & 0x20) )
-    setup_engine_window(140, 0, MyScreenWidth, MyScreenHeight);
-  else
-    setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-}
-
-void toggle_gui(void)
-{
-  int visible=((game.numfield_C & 0x20)==0);
-  set_gui_visible(visible);
-}
-
 long creature_instance_is_available(struct Thing *thing, long inum)
 {
   struct CreatureControl *crctrl;
   crctrl = game.creature_control_lookup[thing->field_64];
   return crctrl->instances[inum];
+}
+
+struct Thing *create_creature(struct Coord3d *pos, unsigned short a1, unsigned short a2)
+{
+  return _DK_create_creature(pos, a1, a2);
+}
+
+void creature_increase_level(struct Thing *thing)
+{
+  _DK_creature_increase_level(thing);
+}
+
+void set_creature_level(struct Thing *thing, long nlvl)
+{
+  _DK_set_creature_level(thing, nlvl);
+}
+
+void remove_events_thing_is_attached_to(struct Thing *thing)
+{
+  _DK_remove_events_thing_is_attached_to(thing);
+}
+
+unsigned long steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
+{
+  return _DK_steal_hero(player, pos);
+}
+
+void make_safe(struct PlayerInfo *player)
+{
+  _DK_make_safe(player);
+}
+
+void reset_gui_based_on_player_mode(void)
+{
+  _DK_reset_gui_based_on_player_mode();
+}
+
+void sound_reinit_after_load(void)
+{
+  _DK_sound_reinit_after_load();
+}
+
+void reinit_tagged_blocks_for_player(unsigned char idx)
+{
+  _DK_reinit_tagged_blocks_for_player(idx);
+}
+
+short activate_bonus_level(struct PlayerInfo *player)
+{
+  static const char *func_name="activate_bonus_level";
+  int i;
+  short result;
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  game.flags_font |= 0x02;
+  i = array_index_for_levels_bonus(game.numfield_14A83D);
+  if ((i>=0) && (i<5))
+  {
+    LbSyncLog("Used index %d to store bonus award for level %d\n",i,game.numfield_14A83D);
+    game.bonus_levels[i] = 1;
+    result = true;
+  } else
+  {
+    LbSyncLog("Couldn't find index to store bonus award for level %d\n",game.numfield_14A83D);
+    error(func_name, 517, "No Bonus level assigned to this level");
+    result = false;
+  }
+/*  switch (game.numfield_14A83D)
+  {
+  case 8:
+      game.bonus_levels[0] = 1;
+      break;
+  case 9:
+      game.bonus_levels[1] = 1;
+      break;
+  case 15:
+      game.bonus_levels[2] = 1;
+      break;
+  case 17:
+      game.bonus_levels[3] = 1;
+      break;
+  case 18:
+      game.bonus_levels[4] = 1;
+      break;
+  default:
+      error(func_name, 517, "No Bonus level assigned to this level");
+      break;
+  }*/
+  game.numfield_C &= 0xFFFDu;
+  return result;
+}
+
+void multiply_creatures(struct PlayerInfo *player)
+{
+  static const char *func_name="multiply_creatures";
+  struct Dungeon *dungeon;
+  struct Thing *thing;
+  struct Thing *tncopy;
+  struct CreatureControl *cctrl;
+  int i;
+
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  i = dungeon->field_2D;
+  while (i > 0)
+  {
+    if (i >= THINGS_COUNT)
+    {
+      error(func_name,4573,"Jump out of things array bounds deteted");
+      break;
+    }
+    thing = game.things_lookup[i];
+    if ((thing == game.things_lookup[0]) || (thing == NULL))
+      break;
+    tncopy = create_creature(&thing->mappos, thing->field_1A, player->field_2B);
+    if (tncopy == NULL)
+      break;
+    set_creature_level(tncopy, thing->field_23);
+    tncopy->field_5E = thing->field_5E;
+    if (thing->field_64 >= CREATURES_COUNT)
+      break;
+    cctrl = game.creature_control_lookup[thing->field_64];
+    if (cctrl < game.creature_control_data)
+      break;
+    i = cctrl->thing_idx;
+  }
+
+  i = dungeon->field_2F;
+  while (i >= 0)
+  {
+    if (i >= THINGS_COUNT)
+    {
+      error(func_name,4572,"Jump out of things array bounds deteted");
+      break;
+    }
+    thing = game.things_lookup[i];
+    if ((thing == game.things_lookup[0]) || (thing == NULL))
+      break;
+    tncopy = create_creature(&thing->mappos, thing->field_1A, player->field_2B);
+    if (tncopy == NULL)
+      break;
+    set_creature_level(tncopy, thing->field_23);
+    tncopy->field_5E = thing->field_5E;
+    if (thing->field_64 >= CREATURES_COUNT)
+      break;
+    cctrl = game.creature_control_lookup[thing->field_64];
+    if (cctrl < game.creature_control_data)
+      break;
+    i = cctrl->thing_idx;
+  }
 }
 
 short toggle_computer_player(int idx)
@@ -3106,498 +2746,163 @@ short toggle_computer_player(int idx)
   return 1;
 }
 
-short checksums_different(void)
-{
-  struct PlayerInfo *player;
-  int i;
-  int first = -1;
-  for (i=0; i<PLAYERS_COUNT; i++)
-  {
-    player=&(game.players[i]);
-    if (((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0))
-    {
-        if (first == -1)
-        {
-          first = game.packets[player->field_B].field_4;
-          continue;
-        }
-        if (game.packets[player->field_B].field_4 != first)
-        {
-          return true;
-        }
-    }
-  }
-  return false;
-}
-
-short get_creature_control_action_inputs(void)
-{
-  if ( ((game.numfield_C & 0x01)==0) || (game.numfield_C & 0x80) )
-    get_gui_inputs(1);
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  long keycode;
-  if (is_key_pressed(KC_NUMPADENTER,KM_DONTCARE))
-  {
-      clear_key_pressed(KC_NUMPADENTER);
-      // Toggle cheat menu
-      if ( (gui_box==NULL) || (gui_box_is_not_valid(gui_box)) )
-      {
-        gui_box=gui_create_box(200,20,gui_instance_option_list);
-/*
-        player->unknownbyte  |= 0x08;
-        game.unknownbyte |= 0x08;
-*/
-      } else
-      {
-        gui_delete_box(gui_box);
-        gui_box=NULL;
-/*
-        player->unknownbyte &= 0xF7;
-        game.unknownbyte &= 0xF7;
-*/
-      }
-      return 1;
-  }
-  if (is_key_pressed(KC_F12,KM_DONTCARE))
-  {
-      clear_key_pressed(KC_F12);
-      // Cheat sub-menus
-      if ( (gui_cheat_box==NULL) || (gui_box_is_not_valid(gui_cheat_box)) )
-      {
-        gui_cheat_box=gui_create_box(150,20,gui_creature_cheat_option_list);
-/*
-        player->unknownbyte  |= 0x08;
-*/
-      } else
-      {
-        gui_delete_box(gui_cheat_box);
-        gui_cheat_box=NULL;
-/*
-        player->unknownbyte &= 0xF7;
-*/
-      }
-  }
-
-  if ( player->field_2F )
-  {
-    short make_packet = _DK_right_button_released;
-    if (!make_packet)
-    {
-      struct Thing *thing;
-      thing = game.things_lookup[player->field_2F];
-      if ( (player->field_31 != thing->field_9) || ((thing->field_0 & 1)==0)
-         || (thing->field_7 == 67) )
-        make_packet = true;
-    }
-    if (make_packet)
-    {
-      struct Packet *pckt = &game.packets[player->field_B%PACKETS_COUNT];
-      _DK_right_button_released = 0;
-      set_packet_action(pckt, 33, player->field_2F,0,0,0);
-    }
-  }
-  if ( is_key_pressed(KC_TAB,KM_NONE) )
-  {
-    clear_key_pressed(KC_TAB);
-    toggle_gui();
-  }
-  int numkey;
-  numkey = -1;
-  {
-    for (keycode=KC_1;keycode<=KC_0;keycode++)
-    {
-      if ( is_key_pressed(keycode,KM_NONE) )
-      {
-        clear_key_pressed(keycode);
-        numkey = keycode-2;
-        break;
-      }
-    }
-  }
-  if ( numkey != -1 )
-  {
-    int idx;
-    int num_avail = 0;
-    for (idx=0;idx<10;idx++)
-    {
-      struct Thing *thing;
-      thing = game.things_lookup[player->field_2F];
-      int instnce = game.creature_stats[thing->field_1A].field_80[idx];
-      if ( creature_instance_is_available(thing,instnce) )
-      {
-        if ( numkey == num_avail )
-        {
-          struct Packet *pckt = &game.packets[player->field_B%PACKETS_COUNT];
-          set_packet_action(pckt, 39, instnce,0,0,0);
-          break;
-        }
-        num_avail++;
-      }
-    }
-  }
-  return false;
-}
-
 void set_player_instance(struct PlayerInfo *player, long a2, int a3)
 {
   _DK_set_player_instance(player, a2, a3);
 }
 
-long get_dungeon_control_action_inputs(void)
+short save_version_compatible(long filesize,struct Game *header)
 {
-  return _DK_get_dungeon_control_action_inputs();
+  // Native version
+  if ((filesize == sizeof(struct Game)) &&
+    (header->version_major == VersionMajor) &&
+    (header->version_minor == VersionMinor))
+    return true;
+  // Compatibility list
+  if ((filesize == sizeof(struct Game)) &&
+    (header->version_major == VersionMajor) &&
+    (header->version_minor <= 8) &&
+    (VersionMinor == 10))
+    return true;
+  if ((filesize == sizeof(struct Game)) &&
+    (header->version_major == VersionMajor) &&
+    (header->version_minor <= 10) &&
+    (VersionMinor == 12))
+    return true;
+  return false;
 }
 
-void get_level_lost_inputs(void)
+short load_texture_map_file(long tmapidx, unsigned char a2)
 {
-  static const char *func_name="get_level_lost_inputs";
-  //LbSyncLog("%s: Starting\n", func_name);
-//  _DK_get_level_lost_inputs();
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  long keycode;
-  if ( player->field_0 & 0x04 )
+  static const char *func_name="load_texture_map_file";
+  //return _DK_load_texture_map_file(tmapidx, a2);
+  char *fname;
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  fname = prepare_file_fmtpath(FGrp_StdData,"tmapa%03d.dat",tmapidx);
+  wait_for_cd_to_be_available();
+  if (!LbFileExists(fname))
   {
-    get_players_message_inputs();
-    return;
+    LbWarnLog("Texture file \"%s\" doesn't exits.\n",fname);
+    return 0;
   }
-  if ((game.numfield_A & 0x01) != 0)
+  // The texture file has always over 500kb
+  if (LbFileLoadAt(fname, block_mem) < 65536)
   {
-    if (is_key_pressed(KC_RETURN,KM_NONE))
-    {
-      struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
-      set_packet_action(pckt, 13, 0,0,0,0);
-      clear_key_pressed(KC_RETURN);
-      return;
-    }
+    LbWarnLog("Texture file \"%s\" can't be loaded or is too small.\n",fname);
+    return 0;
   }
-  if (is_key_pressed(KC_SPACE,KM_NONE))
-  {
-    struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
-    set_packet_action(pckt, 5, 0,0,0,0);
-    clear_key_pressed(KC_SPACE);
-  }
-  if ( player->field_452 == 4 )
-  {
-    int screen_x = GetMouseX() - 150;
-    int screen_y = GetMouseY() - 56;
-    if ( _DK_is_game_key_pressed(31, &keycode, 0) )
-    {
-      lbKeyOn[keycode] = 0;
-      if (((game.numfield_A & 0x01) == 0) && (lbDisplay.PhysicalScreenWidth <= 320))
-      {
-        struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
-        set_packet_action(pckt, 80, 6,0,0,0);
-      }
-      else
-      {
-        toggle_status_menu((game.numfield_C & 0x40) != 0);
-        struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
-        set_packet_action(pckt, 120, 1,0,0,0);
-      }
-    } else
-    if ( _DK_right_button_released )
-    {
-        _DK_right_button_released = 0;
-        if ( (game.numfield_A & 0x01) || lbDisplay.PhysicalScreenWidth > 320 )
-        {
-          toggle_status_menu((game.numfield_C & 0x40) != 0);
-          struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
-          set_packet_action(pckt, 120, 1,0,0,0);
-        }
-        else
-        {
-          struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
-          set_packet_action(pckt, 80, 6,0,0,0);
-        }
-    } else
-    if ( _DK_left_button_released )
-    {
-        int actn_x = 3*screen_x/4 + 1;
-        int actn_y = 3*screen_y/4 + 1;
-        if  ((actn_x >= 0) && (actn_x < map_subtiles_x) && (actn_y >= 0) && (actn_y < map_subtiles_y))
-        {
-          struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
-          set_packet_action(pckt, 81, actn_x,actn_y,0,0);
-          _DK_left_button_released = 0;
-        }
-    }
-  } else
-  if ( player->field_452 == 1 )
-  {
-    if (is_key_pressed(KC_TAB,KM_DONTCARE))
-    {
-        if ((player->field_37 == 2) || (player->field_37 == 5))
-        {
-          clear_key_pressed(KC_TAB);
-          toggle_gui();
-        }
-    } else
-    if ( _DK_is_game_key_pressed(31, &keycode, 0) )
-    {
-      lbKeyOn[keycode] = 0;
-      if (player->field_37 != 7)
-      {
-        _DK_turn_off_all_window_menus();
-        game.numfield_C = (game.numfield_C ^ (unsigned __int8)(2 * game.numfield_C)) & 0x40 ^ game.numfield_C;
-        struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
-        if ((game.numfield_A & 0x01) || (lbDisplay.PhysicalScreenWidth > 320))
-        {
-              if (toggle_status_menu(0))
-                game.numfield_C |= 0x40;
-              else
-                game.numfield_C &= 0xBF;
-              set_packet_action(pckt, 119, 4,0,0,0);
-        } else
-        {
-              set_packet_action(pckt, 80, 5,0,0,0);
-        }
-        _DK_turn_off_roaming_menus();
-      }
-    }
-  }
-  if (is_key_pressed(KC_ESCAPE,KM_DONTCARE))
-  {
-    clear_key_pressed(KC_ESCAPE);
-    if ( _DK_a_menu_window_is_active() )
-      _DK_turn_off_all_window_menus();
-    else
-      _DK_turn_on_menu(8);
-  }
-  struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
-  struct Thing *thing;
-  short inp_done=false;
-  switch (player->field_452)
-  {
-    case 1:
-      inp_done=menu_is_active(38);
-      if ( !inp_done )
-      {
-        if ((game.numfield_C & 0x20) != 0)
-        {
-          _DK_initialise_tab_tags_and_menu(3);
-          _DK_turn_off_all_panel_menus();
-          _DK_turn_on_menu(38);
-        }
-      }
-      inp_done=get_gui_inputs(1);
-      if ( !inp_done )
-      {
-        if (player->field_453 == 15)
-        {
-          set_player_instance(player, 10, 0);
-        } else
-        {
-          inp_done=_DK_get_small_map_inputs(player->mouse_x, player->mouse_y, player->minimap_zoom / (3-pixel_size));
-          if ( !inp_done )
-            _DK_get_bookmark_inputs();
-          _DK_get_dungeon_control_nonaction_inputs();
-        }
-      }
-      break;
-    case 2:
-      thing = game.things_lookup[player->field_2F];
-      if (thing->field_1F == 5)
-      {
-        struct CreatureControl *crctrl;
-        crctrl = game.creature_control_lookup[thing->field_64];
-        if ((crctrl->field_2 & 0x02) == 0)
-          set_packet_action(pckt, 33, player->field_2F,0,0,0);
-      } else
-      {
-        set_packet_action(pckt, 33, player->field_2F,0,0,0);
-      }
-      break;
-    case 3:
-      set_packet_action(pckt, 32, player->field_2F,0,0,0);
-      break;
-    case 4:
-      if ( menu_is_active(38) )
-      {
-        if ((game.numfield_C & 0x20) != 0)
-          turn_off_menu(38);
-      }
-      break;
-    default:
-      return;
-  }
+  return 1;
 }
 
-short get_inputs(void)
+void reinit_level_after_load(void)
 {
-  static const char *func_name="get_inputs";
-  //LbSyncLog("%s: Starting\n", func_name);
-  //return _DK_get_inputs();
-  long keycode;
-  if (game.flags_cd & 0x01)
+  static const char *func_name="reinit_level_after_load";
+  //_DK_reinit_level_after_load(); return;
+  struct PlayerInfo *player;
+  int i;
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player->field_7 = 0;
+  init_lookups();
+  init_navigation();
+  parchment_loaded = 0;
+  for (i=0; i<5; i++)
   {
-    _DK_load_packets_for_turn(game.gameturn);
-    game.gameturn++;
-    if (is_key_pressed(KC_SPACE,KM_DONTCARE) ||
-        is_key_pressed(KC_ESCAPE,KM_DONTCARE) ||
-        is_key_pressed(KC_RETURN,KM_DONTCARE) ||
-        (lbKeyOn[KC_LALT] && lbKeyOn[KC_X]) ||
-        left_button_clicked)
-    {
-      clear_key_pressed(KC_SPACE);
-      clear_key_pressed(KC_ESCAPE);
-      clear_key_pressed(KC_RETURN);
-      lbKeyOn[KC_X] = 0;
-      left_button_clicked = 0;
-      quit_game = 1;
-    }
-    //LbSyncLog("%s: Loading packets finished\n", func_name);
-    return false;
+    player = &(game.players[i%PLAYERS_COUNT]);
+    if (player->field_0 & 0x01)
+      set_engine_view(player, player->field_37);
   }
-  if ( game.field_149E81 )
-  {
-    _DK_load_packets_for_turn(game.gameturn);
-    game.gameturn++;
-    if ( lbKeyOn[KC_LALT] && lbKeyOn[KC_X] )
-    {
-      lbKeyOn[KC_X] = 0;
-      if ( game.numfield_A & 0x01 )
-        _DK_LbNetwork_Stop();
-      quit_game = 1;
-      exit_keeper = 1;
-    }
-    //LbSyncLog("%s: Quit packet posted\n", func_name);
-    return false;
-  }
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  if (player->field_0 & 0x80)
-  {
-    struct Packet *pckt = &game.packets[player->field_B%PACKETS_COUNT];
-    pckt->field_A = 127;
-    pckt->field_C = 127;
-    if ((input_button==NULL) && (game.numfield_C & 0x01))
-    {
-      if ( _DK_is_game_key_pressed(30, &keycode, 0) )
-      {
-        lbKeyOn[keycode] = 0;
-        set_packet_action(pckt, 22, 0,0,0,0);
-      }
-    }
-    return false;
-  }
-  if (player->field_29 == 2)
-  {
-    if (player->field_2C != 1)
-    {
-      get_level_lost_inputs();
-      return true;
-    }
-    struct Thing *thing;
-    thing = game.things_lookup[player->field_2F];
-    if ( (thing <= game.things_lookup[0]) || (thing->field_1F != 5) )
-    {
-      get_level_lost_inputs();
-      return true;
-    }
-    struct CreatureControl *crctrl;
-    crctrl = game.creature_control_lookup[thing->field_64];
-    if ((crctrl->field_2 & 2) == 0)
-    {
-      get_level_lost_inputs();
-      return true;
-    }
-  }
-  short inp_handled = false;
-  if ( !(game.numfield_C & 0x01) || (game.numfield_C & 0x80) )
-    inp_handled = get_gui_inputs(1);
-  if ( !inp_handled )
-    inp_handled = get_global_inputs();
-  if (input_button!=NULL)
-    return false;
-  struct Packet *pckt;
-  switch ( player->field_452 )
-  {
-  case 1:
-      if (!inp_handled)
-        inp_handled=get_dungeon_control_action_inputs();
-      _DK_get_dungeon_control_nonaction_inputs();
-      get_player_gui_clicks();
-      _DK_get_packet_control_mouse_clicks();
-      return inp_handled;
-  case 2:
-      if (!inp_handled)
-        inp_handled = get_creature_control_action_inputs();
-      _DK_get_creature_control_nonaction_inputs();
-      get_player_gui_clicks();
-      _DK_get_packet_control_mouse_clicks();
-      return inp_handled;
-  case 3:
-      if ( inp_handled )
-      {
-        get_player_gui_clicks();
-        _DK_get_packet_control_mouse_clicks();
-        return true;
-      } else
-      if ( get_creature_passenger_action_inputs() )
-      {
-        _DK_get_packet_control_mouse_clicks();
-        return true;
-      } else
-      {
-        get_player_gui_clicks();
-        _DK_get_packet_control_mouse_clicks();
-        return false;
-      }
-  case 4:
-      if (!inp_handled)
-        inp_handled = get_map_action_inputs();
-      _DK_get_map_nonaction_inputs();
-      get_player_gui_clicks();
-      _DK_get_packet_control_mouse_clicks();
-      return inp_handled;
-  case 5:
-      if (player->field_37==6)
-        return false;
-      if ( !(game.numfield_A & 0x01) )
-        game.numfield_C &= 0xFE;
-      if ( toggle_status_menu(0) )
-        player->field_1 |= 0x01;
-      else
-        player->field_1 &= 0xFE;
-      pckt = &game.packets[player->field_B%PACKETS_COUNT];
-      set_packet_action(pckt, 80, 4,0,0,0);
-      return false;
-  case 6:
-      if (player->field_37 != 7)
-      {
-        pckt = &game.packets[player->field_B%PACKETS_COUNT];
-        set_packet_action(pckt, 80, 1,0,0,0);
-      }
-      return false;
-  default:
-      //LbSyncLog("%s: Default exit\n", func_name);
-      return false;
-  }
+  start_rooms = &game.rooms[1];
+  end_rooms = &game.rooms[ROOMS_COUNT];
+  load_texture_map_file(game.field_14AB41, 2);
+  init_animating_texture_maps();
+  init_gui();
+  reset_gui_based_on_player_mode();
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  reinit_tagged_blocks_for_player(player->field_2B);
+  restore_computer_player_after_load();
+  sound_reinit_after_load();
 }
 
-void input(void)
+short load_game(long num)
 {
-  static const char *func_name="input";
-  //LbSyncLog("%s: Starting\n", func_name);
-  //_DK_input();return;
-  update_key_modifiers();
-  if ((input_button) && (lbInkey>0))
+  static const char *func_name="load_game";
+  //return _DK_load_game(num);
+  char *fname;
+  TbFileHandle handle;
+  struct PlayerInfo *player;
+  struct Dungeon *dungeon;
+  unsigned char buffer[10];
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  reset_eye_lenses();
+  fname = prepare_file_fmtpath(FGrp_Save,"game%04d.sav",num);
+  wait_for_cd_to_be_available();
+  handle = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
+  if (handle == -1)
   {
-      lbKeyOn[lbInkey] = 0;
+    LbWarnLog("Cannot open saved game file \"%s\".\n",fname);
+    game.save_catalogue[num].used = 0;
+    fname = prepare_file_path(FGrp_Save,"save.cat");
+    LbFileSaveAt(fname, &game.save_catalogue, sizeof(struct CatalogueEntry)*SAVE_SLOTS_COUNT);
+    return 0;
   }
-
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  struct Packet *pckt=&game.packets[player->field_B%PACKETS_COUNT];
-  if (_DK_is_game_key_pressed(27, 0, 0) != 0)
-    pckt->field_10 |= 0x20;
-  else
-    pckt->field_10 &= 0xDFu;
-  if (_DK_is_game_key_pressed(28, 0, 0) != 0)
-    pckt->field_10 |= 0x40;
-  else
-    pckt->field_10 &= 0xBFu;
-
-  get_inputs();
-  //LbSyncLog("%s: Finished\n", func_name);
+  if (LbFileRead(handle, &buffer, 10) != 10)
+  {
+    LbFileClose(handle);
+    game.save_catalogue[num].used = 0;
+    fname = prepare_file_path(FGrp_Save,"save.cat");
+    LbFileSaveAt(fname, &game.save_catalogue, sizeof(struct CatalogueEntry)*SAVE_SLOTS_COUNT);
+    return 0;
+  }
+  LbFileClose(handle);
+  if (!save_version_compatible(LbFileLength(fname),(struct Game *)buffer))
+  {
+    LbWarnLog("Saved game file \"%s\" has incompatible version; restarting level.\n",fname);
+    player = &(game.players[my_player_number%PLAYERS_COUNT]);
+    player->field_7 = 0;
+    my_player_number = default_loc_player;
+    player = &(game.players[my_player_number%PLAYERS_COUNT]);
+    game.flagfield_14EA4A = 2;
+    game.numfield_A &= 0xFEu;
+    player->field_2C = 1;
+    game.numfield_14A83D = buffer[0];
+    game.level_number = buffer[0];
+    startup_network_game();
+    return 1;
+  }
+  if (LbFileLoadAt(fname, &game) != sizeof(struct Game))
+  {
+    LbWarnLog("Couldn't correctly load saved game \"%s\".\n",fname);
+    return 0;
+  }
+  init_lookups();
+  reinit_level_after_load();
+  output_message(102, 0, 1);
+  pannel_map_update(0, 0, 256, 256);
+  calculate_moon_phase(false,false);
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player->field_3 &= 0xF7;
+  player->field_3 &= 0xFB;
+  player->field_4C1 = 0;
+  player->field_4C5 = 0;
+  player->field_7 = 0;
+  PaletteSetPlayerPalette(player, _DK_palette);
+  reinitialise_eye_lens(game.numfield_1B);
+  if (player->field_29 != 0)
+  {
+    frontstats_initialise();
+    dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+    dungeon->player_score = 0;
+    dungeon->allow_save_score = 1;
+  }
+  game.field_1516FF = 0;
+  return 1;
 }
 
 int LbNetwork_Exchange(struct Packet *pckt)
@@ -3605,14 +2910,103 @@ int LbNetwork_Exchange(struct Packet *pckt)
   return _DK_LbNetwork_Exchange(pckt);
 }
 
-unsigned long get_packet_save_checksum(void)
+void light_initialise(void)
 {
-  return _DK_get_packet_save_checksum();
+  _DK_light_initialise();
+}
+
+void delete_all_structures(void)
+{
+  _DK_delete_all_structures();
+}
+
+void clear_mapwho(void)
+{
+  _DK_clear_mapwho();
+}
+
+void clear_columns(void)
+{
+  int i;
+  for (i=0; i < COLUMNS_COUNT; i++)
+  {
+    memset(&game.columns[i], 0, sizeof(struct Column));
+  }
+}
+
+void clear_players(void)
+{
+  int i;
+  for (i=0; i < PLAYERS_COUNT; i++)
+  {
+    memset(&game.players[i], 0, sizeof(struct PlayerInfo));
+  }
+}
+
+void clear_players_for_save(void)
+{
+  struct PlayerInfo *player;
+  unsigned short mem1,mem2,memflg;
+  int i;
+  for (i=0; i < PLAYERS_COUNT; i++)
+  {
+    player=&(game.players[i%PLAYERS_COUNT]);
+    mem1 = player->field_2B;
+    mem2 = player->field_2C;
+    memflg = player->field_0;
+    memset(player, 0, sizeof(struct PlayerInfo));
+    player->field_2B = mem1;
+    player->field_2C = mem2;
+    set_flag_byte(&player->field_0,0x01,((memflg & 0x01) != 0));
+    set_flag_byte(&player->field_0,0x40,((memflg & 0x40) != 0));
+  }
+}
+
+void clear_dungeons(void)
+{
+  int i;
+  for (i=0; i < DUNGEONS_COUNT; i++)
+  {
+    memset(&game.dungeon[i], 0, sizeof(struct Dungeon));
+  }
 }
 
 void clear_game(void)
 {
-  _DK_clear_game();
+  //_DK_clear_game(); return;
+  delete_all_structures();
+  light_initialise();
+  clear_mapwho();
+  game.field_14E938 = 0;
+  game.field_14BB4A = 0;
+  game.numfield_C &= 0xFFFB;
+  clear_columns();
+  clear_players();
+  clear_dungeons();
+}
+
+void clear_game_for_save(void)
+{
+  //_DK_clear_game_for_save(); return;
+  delete_all_structures();
+  light_initialise();
+  clear_mapwho();
+  game.field_14E938 = 0;
+  game.field_14BB4A = 0;
+  game.numfield_C &= 0xFFFB;
+  clear_columns();
+  clear_players_for_save();
+  clear_dungeons();
+}
+
+void init_good_player_as(long plr_idx)
+{
+  struct PlayerInfo *player;
+  game.field_14E496 = plr_idx;
+  player = &(game.players[plr_idx%PLAYERS_COUNT]);
+  player->field_0 |= 0x01;
+  player->field_0 |= 0x40;
+  player->field_2B = game.field_14E496;
 }
 
 void resync_game(void)
@@ -3623,21 +3017,6 @@ void resync_game(void)
 void free_swipe_graphic(void)
 {
   _DK_free_swipe_graphic();
-}
-
-void process_quit_packet(struct PlayerInfo *player, int a2)
-{
-  _DK_process_quit_packet(player,a2);
-}
-
-void frontend_save_continue_game(long lv_num, int a2)
-{
-  _DK_frontend_save_continue_game(lv_num,a2);
-}
-
-void frontstats_initialise(void)
-{
-  _DK_frontstats_initialise();
 }
 
 void message_add(char c)
@@ -3670,11 +3049,6 @@ void light_set_lights_on(char state)
   light_signal_stat_light_update_in_area(0, 0, 255, 255);
 }
 
-void process_pause_packet(long a1, long a2)
-{
-  _DK_process_pause_packet(a1, a2);
-}
-
 void change_engine_window_relative_size(long w_delta, long h_delta)
 {
   struct PlayerInfo *myplyr;
@@ -3702,7 +3076,7 @@ short set_gamma(char corrlvl, short do_set)
   fname=prepare_file_fmtpath(FGrp_StdData,"pal%05d.dat",settings.gamma_correction);
   if (!LbFileExists(fname))
   {
-    LbSyncLog("Palette file \"%s\" doesn't exist.\n", fname);
+    LbWarnLog("Palette file \"%s\" doesn't exist.\n", fname);
     result = 0;
   }
   if (result)
@@ -3802,22 +3176,237 @@ void turn_off_sight_of_evil(long plridx)
   _DK_turn_off_sight_of_evil(plridx);
 }
 
-void turn_off_event_box_if_necessary(long plridx, char val)
+void reset_scroll_window(void)
 {
-  _DK_turn_off_event_box_if_necessary(plridx, val);
+  game.field_1512D9 = 0;
+  game.field_1512DD = 0;
+  game.field_1512DE = 0;
+  game.field_1512E2 = 0;
+}
+
+unsigned char find_first_battle_of_mine(unsigned char idx)
+{
+  return _DK_find_first_battle_of_mine(idx);
 }
 
 void level_lost_go_first_person(long plridx)
 {
   static const char *func_name="level_lost_go_first_person";
-//  LbSyncLog("%s: Starting.\n",func_name);
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_level_lost_go_first_person(plridx);
-//  LbSyncLog("%s: Finished.\n",func_name);
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
-void go_on_then_activate_the_event_box(long plridx, long val)
+void go_on_then_activate_the_event_box(long plridx, long evidx)
 {
-  _DK_go_on_then_activate_the_event_box(plridx, val);
+  static const char *func_name="go_on_then_activate_the_event_box";
+  //_DK_go_on_then_activate_the_event_box(plridx, val);
+  struct Dungeon *dungeon;
+  struct Event *event;
+  struct Thing *thing;
+  char *text;
+  int i;
+  short other_off;
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  dungeon = &(game.dungeon[plridx%DUNGEONS_COUNT]);
+  dungeon->field_1173 = evidx;
+  event = &game.event[evidx];
+  if (plridx == my_player_number)
+  {
+    i = event_button_info[event->field_B].field_6;
+    if (i != 201)
+      strcpy(game.text_info, strings[i%STRINGS_MAX]);
+  }
+  if (event->field_B == 2)
+    dungeon->field_1174 = find_first_battle_of_mine(plridx);
+  if (plridx == my_player_number)
+  {
+    other_off = 0;
+    switch ( event->field_B )
+    {
+    case 1:
+    case 4:
+        other_off = 1;
+        turn_on_menu(16);
+        break;
+    case 2:
+        turn_off_menu(16);
+        turn_on_menu(34);
+        break;
+    case 3:
+        strcpy(game.text_info, game.field_1506D9);
+        for (i=13; i>=0; i--)
+        {
+          // Not sure about the bound being 121
+          if (game.event[dungeon->field_13A7[i] % 121].field_B == 3)
+          {
+            other_off = 1;
+            turn_on_menu(16);
+            new_objective = 0;
+            break;
+          }
+        }
+        break;
+    case 5:
+        other_off = 1;
+        i = room_data[event->field_C].field_13;
+        text=buf_sprintf("%s:\n %s",game.text_info,strings[i%STRINGS_MAX]);
+        strncpy(game.text_info,text,sizeof(game.text_info)-1);
+        turn_on_menu(16);
+        break;
+    case 6:
+        other_off = 1;
+        thing = game.things_lookup[event->field_C%THINGS_COUNT];
+        if ((thing == game.things_lookup[0]) || (thing == NULL))
+          break;
+        i = creature_data[thing->field_1A % CREATURE_TYPES_COUNT].field_3;
+        text = buf_sprintf("%s:\n %s", game.text_info, strings[i%STRINGS_MAX]);
+        strncpy(game.text_info,text,sizeof(game.text_info)-1);
+        turn_on_menu(16);
+        break;
+    case 7:
+        other_off = 1;
+        i = spell_data[event->field_C % (SPELL_TYPES_COUNT+1)].field_D;
+        text = buf_sprintf("%s:\n %s", game.text_info, strings[i%STRINGS_MAX]);
+        strncpy(game.text_info,text,sizeof(game.text_info)-1);
+        turn_on_menu(16);
+        break;
+    case 8:
+        other_off = 1;
+        i = trap_data[event->field_C % TRAP_TYPES_COUNT].field_C;
+        text = buf_sprintf("%s:\n %s", game.text_info, strings[i%STRINGS_MAX]);
+        strncpy(game.text_info,text,sizeof(game.text_info)-1);
+        turn_on_menu(16);
+        break;
+    case 9:
+        other_off = 1;
+        i = door_names[event->field_C % DOOR_TYPES_COUNT];
+        text = buf_sprintf("%s:\n %s", game.text_info, strings[i%STRINGS_MAX]);
+        strncpy(game.text_info,text,sizeof(game.text_info)-1);
+        turn_on_menu(16);
+        break;
+    case 10:
+        other_off = 1;
+        thing = game.things_lookup[event->field_C%THINGS_COUNT];
+        if ((thing == game.things_lookup[0]) || (thing == NULL))
+          break;
+        i = creature_data[thing->field_1A % CREATURE_TYPES_COUNT].field_3;
+        text = buf_sprintf("%s:\n %s", game.text_info, strings[i%STRINGS_MAX]);
+        strncpy(game.text_info,text,sizeof(game.text_info)-1);
+        turn_on_menu(16);
+        break;
+    case 11:
+    case 13:
+        other_off = 1;
+        turn_on_menu(16);
+        break;
+    case 12:
+        other_off = 1;
+        text = buf_sprintf("%s:\n %d", game.text_info, event->field_C);
+        strncpy(game.text_info,text,sizeof(game.text_info)-1);
+        turn_on_menu(16);
+        break;
+    case 14:
+        other_off = 1;
+        thing = game.things_lookup[event->field_C%THINGS_COUNT];
+        if ((thing == game.things_lookup[0]) || (thing == NULL))
+          break;
+        i = spell_data[object_to_magic[thing->field_1A % OBJECT_TYPES_COUNT]].field_D;
+        text = buf_sprintf("%s:\n %s", game.text_info, strings[i%STRINGS_MAX]);
+        strncpy(game.text_info,text,sizeof(game.text_info)-1);
+        turn_on_menu(16);
+        break;
+    case 15:
+        other_off = 1;
+        i = room_data[event->field_C].field_13;
+        text = buf_sprintf("%s:\n %s",game.text_info,strings[i%STRINGS_MAX]);
+        strncpy(game.text_info,text,sizeof(game.text_info)-1);
+        turn_on_menu(16);
+        break;
+    case 16:
+        other_off = 1;
+        thing = game.things_lookup[event->field_C%THINGS_COUNT];
+        if ((thing == game.things_lookup[0]) || (thing == NULL))
+          break;
+        i = creature_data[thing->field_1A % CREATURE_TYPES_COUNT].field_3;
+        text = buf_sprintf("%s:\n %s", game.text_info, strings[i%STRINGS_MAX]);
+        strncpy(game.text_info,text,sizeof(game.text_info)-1);
+        turn_on_menu(16);
+        break;
+    case 17:
+    case 18:
+    case 19:
+    case 20:
+    case 22:
+    case 23:
+        other_off = 1;
+        turn_on_menu(16);
+        break;
+    case 21:
+        i = (long)event->field_C;
+        if (i < 0)
+        {
+          i = -i;
+          event->field_C = i;
+        }
+        strncpy(game.field_150AD9, strings[i%STRINGS_MAX], sizeof(game.field_150AD9)-1);
+        strncpy(game.text_info, game.field_150AD9, sizeof(game.text_info)-1);
+        other_off = 1;
+        turn_on_menu(16);
+        break;
+    case 24:
+        other_off = 1;
+        thing = game.things_lookup[event->field_C%THINGS_COUNT];
+        if ((thing == game.things_lookup[0]) || (thing == NULL))
+          break;
+        i = trap_data[object_to_door_or_trap[thing->field_1A % OBJECT_TYPES_COUNT]].field_C;
+        text = buf_sprintf("%s:\n %s", game.text_info, strings[i%STRINGS_MAX]);
+        strncpy(game.text_info,text,sizeof(game.text_info)-1);
+        turn_on_menu(16);
+        break;
+      case 25:
+        other_off = 1;
+        thing = game.things_lookup[event->field_C%THINGS_COUNT];
+        if ((thing == game.things_lookup[0]) || (thing == NULL))
+          break;
+        i = door_names[object_to_door_or_trap[thing->field_1A % OBJECT_TYPES_COUNT]];
+        text = buf_sprintf("%s:\n %s", game.text_info, strings[i%STRINGS_MAX]);
+        strncpy(game.text_info,text,sizeof(game.text_info)-1);
+        turn_on_menu(16);
+        break;
+      case 26:
+        other_off = 1;
+        thing = game.things_lookup[event->field_C%THINGS_COUNT];
+        if ((thing == game.things_lookup[0]) || (thing == NULL))
+          break;
+        i = specials_text[object_to_special[thing->field_1A % OBJECT_TYPES_COUNT]];
+        text = buf_sprintf("%s:\n %s", game.text_info, strings[i%STRINGS_MAX]);
+        strncpy(game.text_info,text,sizeof(game.text_info)-1);
+        turn_on_menu(16);
+        break;
+    default:
+        text = buf_sprintf("Undefined event type: %d", (int)event->field_B);
+        error(func_name, 9100, text);
+        break;
+    }
+    reset_scroll_window();
+    if (other_off)
+    {
+      turn_off_menu(34);
+      turn_off_menu(27);
+      turn_off_menu(28);
+      turn_off_menu(29);
+    }
+  }
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 void directly_cast_spell_on_thing(long plridx, unsigned char a2, unsigned short a3, long a4)
@@ -3837,7 +3426,21 @@ void lose_level(struct PlayerInfo *player)
 
 void complete_level(struct PlayerInfo *player)
 {
+  static const char *func_name="complete_level";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_complete_level(player);
+}
+
+long init_navigation(void)
+{
+  return _DK_init_navigation();
+}
+
+void init_lookups(void)
+{
+  _DK_init_lookups();
 }
 
 void  toggle_ally_with_player(long plyridx, unsigned int allyidx)
@@ -3846,663 +3449,214 @@ void  toggle_ally_with_player(long plyridx, unsigned int allyidx)
   player->field_2A ^= (1 << allyidx);
 }
 
-void reveal_whole_map(struct PlayerInfo *player)
-{
-  //TODO
-}
-
-char process_players_global_packet_action(long plyridx)
-{
-  //TODO: add commands from beta
-  //return _DK_process_players_global_packet_action(plyridx);
-  struct PlayerInfo *player;
-  struct PlayerInfo *myplyr;
-  struct Packet *pckt;
-  struct Dungeon *dungeon;
-  struct Thing *thing;
-  struct Room *room;
-  int i;
-  player=&(game.players[plyridx%PLAYERS_COUNT]);
-  pckt=&game.packets[player->field_B%PACKETS_COUNT];
-  switch (pckt->field_5)
-  {
-    case 1:
-      myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
-      if (my_player_number == plyridx)
-      {
-        frontstats_initialise();
-        if ((game.numfield_A & 0x01) == 0)
-        {
-          int i,lv_num;
-          i = myplyr->field_29;
-          clear_game();
-          myplyr->field_29 = i;
-          if (myplyr->field_29 == 1)
-            lv_num = game.level_number+1;
-          else
-            lv_num = game.level_number;
-          frontend_save_continue_game(lv_num, 1);
-        }
-        free_swipe_graphic();
-      }
-      player->field_6 |= 0x02;
-      process_quit_packet(player, 0);
-      return 1;
-    case 3:
-      myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
-      if (my_player_number == plyridx)
-      {
-        frontstats_initialise();
-        if ((game.numfield_A & 0x01) == 0)
-        {
-          int i,lv_num;
-          i = myplyr->field_29;
-          clear_game();
-          myplyr->field_29 = i;
-          if (player->field_29 == 1)
-            lv_num = game.level_number+1;
-          else
-            lv_num = game.level_number;
-          frontend_save_continue_game(lv_num, 1);
-        }
-      }
-      player->field_6 |= 0x02;
-      process_quit_packet(player, 1);
-      return 1;
-    case 4:
-      return 1;
-    case 5:
-      if (my_player_number == plyridx)
-      {
-        frontstats_initialise();
-        free_swipe_graphic();
-      }
-      if ((game.numfield_A & 0x01) != 0)
-      {
-        process_quit_packet(player, 0);
-        return 0;
-      }
-      switch (player->field_29)
-      {
-      case 1:
-          complete_level(player);
-          break;
-      case 2:
-          lose_level(player);
-          break;
-      }
-      player->field_0 &= 0xFEu;
-      if (my_player_number == plyridx)
-      {
-        unsigned int k;
-        // Save some of the data from clearing
-        myplyr = &(game.players[my_player_number%PLAYERS_COUNT]);
-        dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
-        i = myplyr->field_29;
-        // The block started at field_1197 ends before field_131F
-        memcpy(scratch, &dungeon->field_1197, 392);
-        k = (myplyr->field_3 & 0x10) >> 4;
-        // clear all data
-        clear_game();
-        // Restore saved data
-        myplyr->field_29 = i;
-        memcpy(&dungeon->field_1197, scratch, 392);
-        myplyr->field_3 ^= (myplyr->field_3 ^ (k << 4)) & 0x10;
-        if ((game.numfield_A & 0x01) == 0)
-          frontend_save_continue_game(game.level_number, 1);
-      }
-      return 0;
-    case PckT_PlyrMsgBegin:
-      player->field_0 |= 0x04;
-      return 0;
-    case PckT_PlyrMsgEnd:
-      player->field_0 &= 0xFBu;
-      if (player->strfield_463[0] != '\0')
-        message_add(player->field_2B);
-      memset(player->strfield_463, 0, 64);
-      return 0;
-    case 20:
-      if (my_player_number == plyridx)
-        light_set_lights_on(game.field_4614D == 0);
-      return 1;
-    case PckT_SwitchScrnRes:
-      if (my_player_number == plyridx)
-        switch_to_next_video_mode();
-      return 1;
-    case 22:
-      process_pause_packet((game.numfield_C & 0x01) == 0, pckt->field_6);
-      return 1;
-    case 24:
-      myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
-      if (myplyr->field_2B == plyridx)
-      {
-        settings.video_cluedo_mode = pckt->field_6;
-        save_settings();
-      }
-      player->field_4DA = pckt->field_6;
-      return 0;
-    case 25:
-      myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
-      if (myplyr->field_2B == player->field_2B)
-      {
-        change_engine_window_relative_size(pckt->field_6, pckt->field_8);
-        centre_engine_window();
-      }
-      return 0;
-    case 26:
-      player->field_90 = pckt->field_6 << 8;
-      player->field_BA = pckt->field_6 << 8;
-      player->field_3C = pckt->field_6 << 8;
-      player->field_92 = pckt->field_8 << 8;
-      player->field_BC = pckt->field_8 << 8;
-      player->field_3E = pckt->field_8 << 8;
-      return 0;
-    case 27:
-      if (myplyr->field_2B == player->field_2B)
-      {
-        set_gamma(pckt->field_6, 1);
-        save_settings();
-      }
-      return 0;
-    case PckT_SetMinimapConf:
-      player->minimap_zoom = pckt->field_6;
-      return 0;
-    case 29:
-      player->field_97 = pckt->field_6;
-      player->field_C1 = pckt->field_6;
-      player->field_43 = pckt->field_6;
-      return 0;
-    case 36:
-      set_player_state(player, pckt->field_6, pckt->field_8);
-      return 0;
-    case 37:
-      set_engine_view(player, pckt->field_6);
-      return 0;
-    case 55:
-      toggle_creature_tendencies(player, pckt->field_6);
-      return 0;
-    case 60:
-//      game.???[my_player_number].cheat_mode = 1;
-      show_onscreen_msg(2*game.num_fps, "Cheat mode activated by player %d", plyridx);
-      return 1;
-    case 61:
-      //TODO: remake from beta
-/*
-      if (word_5E674A != 0)
-        word_5E674A = 0;
-      else
-        word_5E674A = 15;
-*/
-      return 1;
-    case 62:
-      //TODO: remake from beta
-      return 0;
-    case 63:
-      myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
-      reveal_whole_map(myplyr);
-      return 0;
-    case 64:
-      //TODO: remake from beta
-      return 0;
-    case 65:
-      //TODO: remake from beta
-      return 0;
-    case 66:
-      //TODO: remake from beta
-      return 0;
-    case 67:
-      //TODO: remake from beta
-      return 0;
-    case 68:
-      //TODO: remake from beta
-      return 0;
-    case 69:
-      //TODO: remake from beta
-      return 0;
-    case 80:
-      set_player_mode(player, pckt->field_6);
-      return 0;
-    case 81:
-      myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
-      player->field_90 = pckt->field_6 << 8;
-      player->field_BA = pckt->field_6 << 8;
-      player->field_3C = pckt->field_6 << 8;
-      player->field_92 = pckt->field_8 << 8;
-      player->field_BC = pckt->field_8 << 8;
-      player->field_3E = pckt->field_8 << 8;
-      player->field_97 = 0;
-      player->field_C1 = 0;
-      player->field_43 = 0;
-      if ((game.numfield_A & 0x01) || (lbDisplay.PhysicalScreenWidth > 320))
-      {
-        if (my_player_number == plyridx)
-          toggle_status_menu((game.numfield_C & 0x40) >> 6);
-        set_player_mode(player, 1);
-      } else
-      {
-        set_player_mode(player, 6);
-      }
-      return 0;
-    case 82:
-      process_pause_packet(pckt->field_6, pckt->field_8);
-      return 1;
-    case 83:
-      if (player->field_453 == 15)
-        turn_off_query(plyridx);
-      event_move_player_towards_event(player, pckt->field_6);
-      return 0;
-    case 84:
-      if (player->field_453 == 15)
-        turn_off_query(plyridx);
-      room = &game.rooms[pckt->field_6];
-      player->field_E4 = room->field_8 << 8;
-      player->field_E6 = room->field_9 << 8;
-      set_player_instance(player, 16, 0);
-      if (player->field_453 == 2)
-        set_player_state(player, 2, room->field_A);
-      return 0;
-    case 85:
-      if (player->field_453 == 15)
-        turn_off_query(plyridx);
-      thing = game.things_lookup[pckt->field_6];
-      player->field_E4 = thing->mappos.x.val;
-      player->field_E6 = thing->mappos.y.val;
-      set_player_instance(player, 16, 0);
-      if ((player->field_453 == 16) || (player->field_453 == 18))
-        set_player_state(player, 16, thing->field_1A);
-      return 0;
-    case 86:
-      if (player->field_453 == 15)
-        turn_off_query(plyridx);
-      thing = game.things_lookup[pckt->field_6];
-      player->field_E4 = thing->mappos.x.val;
-      player->field_E6 = thing->mappos.y.val;
-      set_player_instance(player, 16, 0);
-      if ((player->field_453 == 16) || (player->field_453 == 18))
-        set_player_state(player, 18, thing->field_1A);
-      return 0;
-    case 87:
-      if (player->field_453 == 15)
-        turn_off_query(plyridx);
-      player->field_E4 = pckt->field_6;
-      player->field_E6 = pckt->field_8;
-      set_player_instance(player, 16, 0);
-      return 0;
-    case 88:
-      game.numfield_D ^= (game.numfield_D ^ (0x04 * ((game.numfield_D & 0x04) == 0))) & 0x04;
-      return 0;
-    case 89:
-      turn_off_call_to_arms(plyridx);
-      return 0;
-    case 90:
-      if (game.dungeon[plyridx].field_63 < 8)
-        place_thing_in_power_hand(game.things_lookup[pckt->field_6], plyridx);
-      return 0;
-    case 91:
-      dump_held_things_on_map(plyridx, pckt->field_6, pckt->field_8, 1);
-      return 0;
-    case 92:
-      if (game.event[pckt->field_6].field_B == 3)
-      {
-        turn_off_event_box_if_necessary(plyridx, pckt->field_6);
-      } else
-      {
-        event_delete_event(plyridx, pckt->field_6);
-      }
-      return 0;
-    case 97:
-      magic_use_power_obey(plyridx);
-      return 0;
-    case 98:
-      magic_use_power_armageddon(plyridx);
-      return 0;
-    case 99:
-      turn_off_query(plyridx);
-      return 0;
-    case 104:
-      if (player->field_453 == 15)
-        turn_off_query(plyridx);
-      battle_move_player_towards_battle(player, pckt->field_6);
-      return 0;
-    case 106:
-      if (player->field_453 == 15)
-        turn_off_query(plyridx);
-      dungeon = &(game.dungeon[plyridx]);
-      switch (pckt->field_6)
-      {
-      case 5:
-          if (dungeon->field_5D8)
-          {
-            struct Thing *thing;
-            thing = game.things_lookup[dungeon->field_5D8];
-            player->field_E4 = thing->mappos.x.val;
-            player->field_E6 = thing->mappos.y.val;
-            set_player_instance(player, 16, 0);
-          }
-          break;
-      case 6:
-          if (dungeon->field_884)
-          {
-            player->field_E4 = ((unsigned long)dungeon->field_881) << 8;
-            player->field_E6 = ((unsigned long)dungeon->field_882) << 8;
-            set_player_instance(player, 16, 0);
-          }
-          break;
-      }
-      if ( spell_data[pckt->field_6].field_0 )
-      {
-        for (i=0; i<21; i++)
-        {
-          if (spell_data[i].field_4 == player->field_453)
-          {
-            set_player_state(player, spell_data[pckt->field_6].field_4, 0);
-            break;
-          }
-        }
-      }
-      return 0;
-    case PckT_PlyrFastMsg:
-      //show_onscreen_msg(game.num_fps, "Message from player %d", plyridx);
-      output_message(pckt->field_6+110, 0, 1);
-      return 0;
-    case 109:
-      set_autopilot_type(plyridx, pckt->field_6);
-      return 0;
-    case 110:
-      level_lost_go_first_person(plyridx);
-      return 0;
-    case 111:
-      if (game.dungeon[plyridx].field_63)
-      {
-        i = game.dungeon[plyridx].field_33;
-        thing=game.things_lookup[i%THINGS_COUNT];
-        dump_held_things_on_map(plyridx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 1);
-      }
-      return 0;
-    case PckT_SpellSOEDis:
-      turn_off_sight_of_evil(plyridx);
-      return 0;
-    case 115:
-      go_on_then_activate_the_event_box(plyridx, pckt->field_6);
-      return 0;
-    case 116:
-      turn_off_event_box_if_necessary(plyridx, game.dungeon[plyridx].field_1173);
-      game.dungeon[plyridx].field_1173 = 0;
-      return 0;
-    case 117:
-      i = player->field_4D2 / 4;
-      if (i > 8) i = 8;
-      directly_cast_spell_on_thing(plyridx, pckt->field_6, pckt->field_8, i);
-      return 0;
-    case PckT_PlyrToggleAlly:
-      toggle_ally_with_player(plyridx, pckt->field_6);
-      return 0;
-    case 119:
-      player->field_4B5 = player->camera->field_6;
-      set_player_mode(player, pckt->field_6);
-      return 0;
-    case 120:
-      set_player_mode(player, pckt->field_6);
-      set_engine_view(player, player->field_4B5);
-      return 0;
-    default:
-      return 0;
-  }
-}
-
-void process_players_dungeon_control_packet_control(long idx)
-{
-  _DK_process_players_dungeon_control_packet_control(idx);
-}
-
-void process_players_dungeon_control_packet_action(long idx)
-{
-  _DK_process_players_dungeon_control_packet_action(idx);
-}
-
-void process_players_creature_control_packet_control(long idx)
-{
-  _DK_process_players_creature_control_packet_control(idx);
-}
-
-void process_players_creature_control_packet_action(long idx)
-{
-  _DK_process_players_creature_control_packet_action(idx);
-}
-
-void save_packets(void)
-{
-  static const char *func_name="save_packets";
-  unsigned char *pckt_buf[sizeof(struct Packet)*PACKETS_COUNT];
-  unsigned long chksum;
-  int i;
-  if (game.packet_checksum)
-    chksum = get_packet_save_checksum();
-  else
-    chksum = 0;
-  LbFileSeek(game.packet_save_fp, 0, 2);
-  // Note: originally only 48 bytes were saved; I guess it was a mistake (now 55 are saved).
-  for (i=0; i<PACKETS_COUNT; i++)
-    memcpy(pckt_buf[sizeof(struct Packet)*i], &game.packets[i], sizeof(struct Packet));
-  LbFileWrite(game.packet_save_fp, &pckt_buf, sizeof(struct Packet)*PACKETS_COUNT);
-  if ( !LbFileFlush(game.packet_save_fp) )
-    error(func_name, 3821, "Unable to flush PacketSave File");
-}
-
-void process_players_message_character(struct PlayerInfo *player)
-{
-  struct Packet *pcktd;
-  struct PlayerInfo *playerd;
-  char chr;
-  int chpos;
-  playerd = &(game.players[player->field_2B%PLAYERS_COUNT]);
-  pcktd = &game.packets[playerd->field_B%PACKETS_COUNT];
-  if (pcktd->field_6 >= 0)
-  {
-    chr = key_to_ascii(pcktd->field_6, pcktd->field_8);
-    chpos = strlen(player->strfield_463);
-    if (pcktd->field_6 == KC_BACK)
-    {
-      if (chpos>0)
-        player->strfield_463[chpos-1] = '\0';
-    } else
-    if ((chr >= 'a') && (chr <= 'z') ||
-        (chr >= 'A') && (chr <= 'Z') ||
-        (chr >= '0') && (chr <= '9') || (chr == ' ')  || (chr == '!') ||
-        (chr == '.'))
-    {
-      if (chpos < 63)
-      {
-        player->strfield_463[chpos] = toupper(chr);
-        player->strfield_463[chpos+1] = '\0';
-      }
-    }
-  }
-}
-
-void process_map_packet_clicks(long idx)
-{
-  _DK_process_map_packet_clicks(idx);
-}
-
 void set_mouse_light(struct PlayerInfo *player)
 {
+  static const char *func_name="set_mouse_light";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_set_mouse_light(player);
 }
 
-void process_players_map_packet_control(long idx)
+/*
+ * Scales camera zoom level on resolution change. If prev_units_per_pixel_size
+ * is zero, then the zoom level will be only clipped, without any scaling.
+ */
+void keep_camera_zoom_level(struct Camera *cam,unsigned long prev_units_per_pixel_size)
 {
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  unsigned short x,y;
-  player=&(game.players[idx%PLAYERS_COUNT]);
-  pckt = &game.packets[player->field_B%PACKETS_COUNT];
-  x = (3*pckt->field_A - 450)/4 - 6;
-  y = (3*pckt->field_C - 168)/4 - 6;
-  process_map_packet_clicks(idx);
-  player->field_90 = (x << 8) + 1920;
-  player->field_92 = (y << 8) + 1920;
-  set_mouse_light(player);
-}
-
-void process_players_creature_passenger_packet_action(long idx)
-{
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  player=&(game.players[idx%PLAYERS_COUNT]);
-  pckt = &game.packets[player->field_B%PACKETS_COUNT];
-  if (pckt->field_5 == 32)
+  long zoom_val;
+  unsigned long zoom_min,zoom_max;
+  zoom_min = scale_camera_zoom_to_screen(CAMERA_ZOOM_MIN);
+  zoom_max = scale_camera_zoom_to_screen(CAMERA_ZOOM_MAX);
+  zoom_val = get_camera_zoom(cam);
+  // Note: I don't know if the zoom may be scaled for current resolution,
+  // as there may be different resolution on another computer if playing MP game.
+  if (prev_units_per_pixel_size > 0)
+    zoom_val = zoom_val*units_per_pixel*pixel_size/prev_units_per_pixel_size;
+  if (zoom_val < zoom_min)
   {
-    player->field_43E = pckt->field_6;
-    set_player_instance(player, 8, 0);
-  }
-}
-
-void process_players_packet(long idx)
-{
-  static const char *func_name="process_players_packet";
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  player=&(game.players[idx%PLAYERS_COUNT]);
-  pckt = &game.packets[player->field_B%PACKETS_COUNT];
-  //LbSyncLog("%s: Processing packet %d of type %d.\n",func_name,idx,(int)pckt->field_5);
-  player->field_4 = (pckt->field_10 & 0x20) >> 5;
-  player->field_5 = (pckt->field_10 & 0x40) >> 6;
-  if ( (player->field_0 & 0x04) && (pckt->field_5 == PckT_PlyrMsgChar))
-  {
-     process_players_message_character(player);
+    zoom_val = zoom_min;
   } else
-  if ( !process_players_global_packet_action(idx) )
+  if (zoom_val > zoom_max)
   {
-      switch (player->field_452)
-      {
-      case 1:
-        process_players_dungeon_control_packet_control(idx);
-        process_players_dungeon_control_packet_action(idx);
-        break;
-      case 2:
-        process_players_creature_control_packet_control(idx);
-        process_players_creature_control_packet_action(idx);
-        break;
-      case 3:
-        process_players_creature_passenger_packet_action(idx);
-        break;
-      case 4:
-        process_players_map_packet_control(idx);
-        break;
-      default:
-        break;
-      }
+    zoom_val = zoom_max;
   }
+  set_camera_zoom(cam, zoom_val);
 }
 
-void process_packets(void)
+/*
+ * Scales local player camera zoom level on resolution change. If prev_units_per_pixel_size
+ * is zero, then the zoom level will be only clipped, without any scaling.
+ */
+void keep_local_camera_zoom_level(unsigned long prev_units_per_pixel_size)
 {
-  static const char *func_name="process_packets";
-  //_DK_process_packets();return;
-
-  int i,j,k;
-  struct Packet *pckt;
   struct PlayerInfo *player;
-  // Do the network data exchange
-  lbDisplay.DrawColour = colours[15][15][15];
-  // Exchange packets with the network
-  if (game.flagfield_14EA4A != 2)
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  keep_camera_zoom_level(player->camera,prev_units_per_pixel_size);
+}
+
+/*
+ * Conducts clipping to zoom level of given camera, based on current screen mode.
+ */
+void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min)
+{
+  static const char *func_name="update_camera_zoom_bounds";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  long zoom_val;
+  zoom_val = get_camera_zoom(cam);
+  if (zoom_val < zoom_min)
   {
-    player=&(game.players[my_player_number%PLAYERS_COUNT]);
-    j=0;
-    for (i=0; i<4; i++)
+    zoom_val = zoom_min;
+  } else
+  if (zoom_val > zoom_max)
+  {
+    zoom_val = zoom_max;
+  }
+  set_camera_zoom(cam, zoom_val);
+}
+
+void magic_use_power_hold_audience(unsigned char idx)
+{
+  _DK_magic_use_power_hold_audience(idx);
+}
+
+void delete_thing_structure(struct Thing *thing, long a2)
+{
+  _DK_delete_thing_structure(thing, a2);
+}
+
+struct Thing *create_effect(struct Coord3d *pos, unsigned short a2, unsigned char a3)
+{
+  return _DK_create_effect(pos, a2, a3);
+}
+
+void create_special_used_effect(struct Coord3d *pos, long a2)
+{
+  create_effect(pos, 67, a2);
+}
+
+void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player)
+{
+  static const char *func_name="activate_dungeon_special";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  //_DK_activate_dungeon_special(thing, player); return;
+  short used;
+  struct Coord3d pos;
+  int spkindidx;
+
+  // Gathering data which we'll need if the special is used and disposed.
+  memcpy(&pos,&thing->mappos,sizeof(struct Coord3d));
+  spkindidx = thing->field_1A - 86;
+  used = 0;
+  if ((thing->field_0 & 0x01) && is_dungeon_special(thing))
+  {
+    switch (thing->field_1A)
     {
-      if (net_player_info[i].field_20 != 0)
-        j++;
-    }
-    if ( !game.field_149E81 || game.numfield_149F47 )
-    {
-      pckt = &game.packets[player->field_B%PACKETS_COUNT];
-      if (LbNetwork_Exchange(pckt) != 0)
-      {
-        error(func_name, 426, "LbNetwork_Exchange failed");
+        case 86:
+          reveal_whole_map(player);
+          remove_events_thing_is_attached_to(thing);
+          used = 1;
+          delete_thing_structure(thing, 0);
+          break;
+        case 87:
+          start_resurrect_creature(player, thing);
+          break;
+        case 88:
+          start_transfer_creature(player, thing);
+          break;
+        case 89:
+          if (steal_hero(player, &thing->mappos))
+          {
+            remove_events_thing_is_attached_to(thing);
+            used = 1;
+            delete_thing_structure(thing, 0);
+          }
+          break;
+        case 90:
+          multiply_creatures(player);
+          remove_events_thing_is_attached_to(thing);
+          used = 1;
+          delete_thing_structure(thing, 0);
+          break;
+        case 91:
+          increase_level(player);
+          remove_events_thing_is_attached_to(thing);
+          used = 1;
+          delete_thing_structure(thing, 0);
+          break;
+        case 92:
+          make_safe(player);
+          remove_events_thing_is_attached_to(thing);
+          used = 1;
+          delete_thing_structure(thing, 0);
+          break;
+        case 93:
+          activate_bonus_level(player);
+          remove_events_thing_is_attached_to(thing);
+          used = 1;
+          delete_thing_structure(thing, 0);
+          break;
+        default:
+          error(func_name, 360, buf_sprintf("Invalid dungeon special (Model %d)", thing->field_1A));
+          break;
       }
-    }
-    k=0;
-    for (i=0; i<4; i++)
-    {
-      if (net_player_info[i].field_20 != 0)
-        k++;
-    }
-    if (j != k)
-    {
-      for (i=0; i<4; i++)
+      if ( used )
       {
-        player=&(game.players[i]);
-        if (net_player_info[player->field_B].field_20 == 0)
-        {
-          player->field_0 |= 0x40;
-          toggle_computer_player(i);
-        }
+        if (player == &game.players[my_player_number])
+          output_message(special_desc[spkindidx].field_8, 0, 1);
+        create_special_used_effect(&pos, player->field_2B);
       }
-    }
-  }
-  // Setting checksum problem flags
-  switch (checksums_different())
-  {
-  case 1:
-    game.numfield_A |= 0x02;
-    game.numfield_A &= 0xFB;
-    break;
-  case 2:
-    game.numfield_A |= 0x04;
-    game.numfield_A &= 0xFD;
-    break;
-  case 3:
-    game.numfield_A |= 0x04;
-    game.numfield_A |= 0x02;
-    break;
-  default:
-    game.numfield_A &= 0xFD;
-    game.numfield_A &= 0xFB;
-    break;
-  }
-  // Write packets into file, if requested
-  if ((game.field_149E80) && (game.packet_fopened))
-    save_packets();
-//Debug code, to find packet errors
-//write_debug_packets();
-  // Process the packets
-  for (i=0; i<PACKETS_COUNT; i++)
-  {
-    player=&(game.players[i]);
-    if (((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0))
-      process_players_packet(i);
-  }
-  // Clear all packets
-  for (i=0; i<PACKETS_COUNT; i++)
-    memset(&game.packets[i], 0, sizeof(struct Packet));
-  if ((game.numfield_A & 0x02) || (game.numfield_A & 0x04))
-  {
-    LbSyncLog("%s: Resyncing.\n",func_name);
-    resync_game();
   }
 }
 
-void update_things(void)
+void resurrect_creature(struct Thing *thing, unsigned char a2, unsigned char a3, unsigned char a4)
 {
-  _DK_update_things();
+  _DK_resurrect_creature(thing, a2, a3, a4);
+}
+
+void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char a3)
+{
+  _DK_transfer_creature(tng1, tng2, a3);
 }
 
 void process_rooms(void)
 {
+  static const char *func_name="process_rooms";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_process_rooms();
+#if (BFDEBUG_LEVEL > 9)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 void process_dungeons(void)
 {
+  static const char *func_name="process_dungeons";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_process_dungeons();
+#if (BFDEBUG_LEVEL > 9)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 void process_messages(void)
 {
+  static const char *func_name="process_messages";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_process_messages();
+#if (BFDEBUG_LEVEL > 9)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 void find_nearest_rooms_for_ambient_sound(void)
@@ -4547,7 +3701,8 @@ void process_computer_players2(void)
 
 void process_level_script(void)
 {
-  _DK_process_level_script();
+  _DK_process_level_script(); return;
+  
 }
 
 long process_action_points(void)
@@ -4572,9 +3727,13 @@ void process_player_instance(struct PlayerInfo *player)
 
 void process_player_instances(void)
 {
+  static const char *func_name="process_player_instances";
   //_DK_process_player_instances();return;
   int i;
   struct PlayerInfo *player;
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   for (i=0; i<PLAYERS_COUNT; i++)
   {
     player=&(game.players[i]);
@@ -4586,6 +3745,9 @@ void process_player_instances(void)
 short LbIsActive(void)
 {
   return _DK_LbIsActive();
+/*  if (lpDDC != NULL)
+    return lpDDC->numfield_1C;
+  return -1;*/
 }
 
 long wander_point_update(struct Wander *wandr)
@@ -4600,8 +3762,12 @@ void update_player_camera(struct PlayerInfo *player)
 
 void update_research(void)
 {
+  static const char *func_name="update_research";
   int i;
   struct PlayerInfo *player;
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   for (i=0; i<PLAYERS_COUNT; i++)
   {
       player=&(game.players[i]);
@@ -4614,8 +3780,12 @@ void update_research(void)
 
 void update_manufacturing(void)
 {
+  static const char *func_name="update_manufacturing";
   int i;
   struct PlayerInfo *player;
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   for (i=0; i<PLAYERS_COUNT; i++)
   {
       player=&(game.players[i]);
@@ -4628,8 +3798,12 @@ void update_manufacturing(void)
 
 void update_all_players_cameras(void)
 {
+  static const char *func_name="update_all_players_cameras";
   int i;
   struct PlayerInfo *player;
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   for (i=0; i<PLAYERS_COUNT; i++)
   {
     player=&(game.players[i]);
@@ -4643,10 +3817,14 @@ void update_all_players_cameras(void)
 #define LIGHT_MAX_RANGE 30
 void update_light_render_area(void)
 {
+  static const char *func_name="update_light_render_area";
   int subtile_x,subtile_y;
   int delta_x,delta_y;
   int startx,endx,starty,endy;
   struct PlayerInfo *player;
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
   if (player->field_37 >= 1)
     if ((player->field_37 <= 2) || (player->field_37 == 5))
@@ -4657,8 +3835,8 @@ void update_light_render_area(void)
   delta_x=abs(game.field_14BB59);
   delta_y=abs(game.field_14BB5D);
   // Prepare the area constraits
-  subtile_y = (player->camera->pos_y >> 8);
-  subtile_x = (player->camera->pos_x >> 8);
+  subtile_y = player->camera->mappos.y.stl.num;
+  subtile_x = player->camera->mappos.x.stl.num;
 //LbSyncLog("LghtRng %d,%d CamTil %d,%d\n",game.field_14BB59,game.field_14BB5D,tile_x,tile_y);
   if (subtile_y > delta_y)
   {
@@ -4694,13 +3872,57 @@ void update_footsteps_nearest_camera(struct Camera *camera)
 
 void process_player_states(void)
 {
+  static const char *func_name="process_player_states";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_process_player_states();
+}
+
+void update_power_sight_explored(struct PlayerInfo *player)
+{
+  _DK_update_power_sight_explored(player);
+}
+
+void update_player_objectives(int plridx)
+{
+  static const char *func_name="update_player_objectives";
+  struct PlayerInfo *player;
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting for player %d\n",func_name,plridx);
+#endif
+  player=&(game.players[plridx]);
+  if (game.numfield_A & 0x01)
+  {
+    if ((!player->field_4EB) && (player->field_29))
+      player->field_4EB = game.seedchk_random_used+1;
+  }
+  if (player->field_4EB == game.seedchk_random_used)
+  {
+    switch (player->field_29)
+    {
+    case 1:
+        if (plridx == my_player_number)
+          _DK_set_level_objective(strings[0]);
+        display_objectives(player->field_2B, 0, 0);
+        break;
+    case 2:
+        if (plridx == my_player_number)
+          _DK_set_level_objective(strings[335]);
+        display_objectives(player->field_2B, 0, 0);
+        break;
+    }
+  }
 }
 
 void process_players(void)
 {
+  static const char *func_name="process_players";
   int i;
   struct PlayerInfo *player;
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   process_player_instances();
   process_player_states();
   for (i=0; i<PLAYERS_COUNT; i++)
@@ -4708,32 +3930,18 @@ void process_players(void)
       player=&(game.players[i]);
       if ((player->field_0 & 0x01) && (player->field_2C == 1))
       {
+  #if (BFDEBUG_LEVEL > 6)
+      LbSyncLog("%s: Doing updates for player %d\n",func_name,i);
+  #endif
           wander_point_update(&player->wandr1);
           wander_point_update(&player->wandr2);
-          _DK_update_power_sight_explored(player);
-          if (game.numfield_A & 0x01)
-          {
-            if ((!player->field_4EB) && (player->field_29))
-              player->field_4EB = game.seedchk_random_used+1;
-          }
-          if (player->field_4EB == game.seedchk_random_used)
-          {
-            switch (player->field_29)
-            {
-            case 1:
-              if (i == my_player_number)
-                _DK_set_level_objective(strings[0]);
-              _DK_display_objectives(player->field_2B, 0, 0);
-              break;
-            case 2:
-              if (i == my_player_number)
-                _DK_set_level_objective(strings[335]);
-              _DK_display_objectives(player->field_2B, 0, 0);
-              break;
-            }
-          }
+          update_power_sight_explored(player);
+          update_player_objectives(i);
       }
   }
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 short update_animating_texture_maps(void)
@@ -4760,6 +3968,133 @@ void draw_slab64k(long pos_x, long pos_y, long width, long height)
   _DK_draw_slab64k(pos_x, pos_y, width, height);
 }
 
+/*
+ * Updates sounds of things from given StructureList.
+ * Returns amount of items in the list.
+ */
+unsigned long update_things_sounds_in_list(struct StructureList *list)
+{
+  static const char *func_name="update_things_sounds_in_list";
+  struct Thing *thing;
+  unsigned long k;
+  int i;
+  i = list->field_4;
+  k = 0;
+  while (i>0)
+  {
+    if (i >= THINGS_COUNT)
+    {
+      error(func_name,4578,"Jump out of things array bounds deteted");
+      break;
+    }
+    thing = game.things_lookup[i];
+    if ((thing == game.things_lookup[0]) || (thing == NULL))
+      break;
+    i = thing->field_67;
+    update_thing_sound(thing);
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      error(func_name,4579,"Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  return k;
+}
+
+long update_cave_in(struct Thing *thing)
+{
+  return _DK_update_cave_in(thing);
+}
+
+/*
+ * Updates cave in things, using proper StructureList.
+ * Returns amount of items in the list.
+ */
+unsigned long update_cave_in_things(void)
+{
+  static const char *func_name="update_cave_in_things";
+  struct Thing *thing;
+  unsigned long k;
+  int i;
+  i = game.thing_lists[10].field_4;
+  k = 0;
+  while (i>0)
+  {
+    if (i >= THINGS_COUNT)
+    {
+      error(func_name,4576,"Jump out of things array bounds deteted");
+      break;
+    }
+    thing = game.things_lookup[i];
+    if ((thing == game.things_lookup[0]) || (thing == NULL))
+      break;
+    i = thing->field_67;
+    update_cave_in(thing);
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      error(func_name,4577,"Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  return k;
+}
+
+unsigned long compute_players_checksum(void)
+{
+  struct PlayerInfo *player;
+  struct Coord3d *mappos;
+  int i;
+  unsigned long sum;
+  sum = 0;
+  for (i=0; i<PLAYERS_COUNT; i++)
+  {
+    player=&(game.players[i%PLAYERS_COUNT]);
+    if (((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0))
+    {
+        mappos = &(player->camera->mappos);
+        sum += player->field_4B1 + player->field_4B0
+                   + mappos->x.val + mappos->z.val + mappos->y.val;
+    }
+  }
+  return sum;
+}
+
+
+void update_things(void)
+{
+  static const char *func_name="update_things";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  //_DK_update_things();
+  unsigned long sum;
+  struct PlayerInfo *player;
+  optimised_lights = 0;
+  total_lights = 0;
+  do_lights = game.field_4614D;
+  sum = 0;
+  sum += update_things_in_list(&game.thing_lists[0]);
+  update_creatures_not_in_list();
+  sum += update_things_in_list(&game.thing_lists[7]);
+  sum += update_things_in_list(&game.thing_lists[1]);
+  sum += update_things_in_list(&game.thing_lists[2]);
+  sum += update_things_in_list(&game.thing_lists[5]);
+  sum += update_things_in_list(&game.thing_lists[3]);
+  sum += update_things_in_list(&game.thing_lists[4]);
+  sum += update_things_in_list(&game.thing_lists[6]);
+  sum += update_things_in_list(&game.thing_lists[8]);
+  update_things_sounds_in_list(&game.thing_lists[9]);
+  update_cave_in_things();
+  sum += compute_players_checksum();
+  sum += game.field_14BB4A;
+  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  game.packets[player->field_B%PACKETS_COUNT].field_4 = sum;
+#if (BFDEBUG_LEVEL > 9)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
+}
 
 void update_player_sounds(void)
 {
@@ -4776,7 +4111,7 @@ void update_player_sounds(void)
         if (game.audiotrack > 0)
           PlayRedbookTrack(game.audiotrack);
       }
-      S3DSetSoundReceiverPosition(camera->pos_x,camera->pos_y,camera->pos_z);
+      S3DSetSoundReceiverPosition(camera->mappos.x.val,camera->mappos.y.val,camera->mappos.z.val);
       S3DSetSoundReceiverOrientation(camera->orient_a,camera->orient_b,camera->orient_c);
     }
     game.seedchk_random_used++;
@@ -4786,8 +4121,8 @@ void update_player_sounds(void)
   k = (game.field_1517E2-game.seedchk_random_used) / 2;
   if (is_bonus_level(game.numfield_14A83D) )
   {
-    if ((game.field_1517E2!=game.seedchk_random_used) ||
-        (game.field_1517E2>game.seedchk_random_used) && ((k<=100) && ((k % 10) == 0) ||
+    if ((game.field_1517E2 == game.seedchk_random_used) ||
+        (game.field_1517E2 > game.seedchk_random_used) && ((k<=100) && ((k % 10) == 0) ||
         (k<=300) && ((k % 50)==0) || ((k % 250)==0)) )
       play_non_3d_sample(89);
   }
@@ -4798,11 +4133,13 @@ void update(void)
   static const char *func_name="update";
   //_DK_update();return;
   struct PlayerInfo *player;
+  struct Dungeon *dungeon;
   int i,k;
-
+#if (BFDEBUG_LEVEL > 4)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   if ((game.numfield_C & 0x01) == 0)
     update_light_render_area();
-
   process_packets();
   if (quit_game)
   {
@@ -4825,18 +4162,14 @@ void update(void)
 
     for (i=0; i<=game.field_14E496; i++)
     {
-      short *v7; // edx@16
-      v7 = (short *)&game.dungeon[i];
-      memset(v7 + 50, 0, 0x3C0u);
-      memset(v7 + 530, 0, 0xC0u);
-      memset(v7 + 626, 0, 0xC0u);
-//      memset(game.dungeon[i].field_64, 0, 960);
-//      memset(game.dungeon[i].field_424, 0, 12);
-//      memset(game.dungeon[i].field_4E4, 0, 12);
+      dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+      memset((char *)dungeon->field_64, 0, 480 * sizeof(short));
+      memset((char *)dungeon->field_424, 0, CREATURE_TYPES_COUNT*3*sizeof(unsigned short));
+      memset((char *)dungeon->field_4E4, 0, CREATURE_TYPES_COUNT*3*sizeof(unsigned short));
     }
 
     game.creature_pool_empty = 1;
-    for (i=1; i<32; i++)
+    for (i=1; i<CREATURE_TYPES_COUNT; i++)
     {
       if (game.creature_pool[i] > 0)
       { game.creature_pool_empty = 0; break; }
@@ -4885,10 +4218,17 @@ void update(void)
       }
   }
   game.field_14EA4B = 0;
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 void draw_tooltip(void)
 {
+  static const char *func_name="draw_tooltip";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_draw_tooltip();
 }
 
@@ -4907,18 +4247,25 @@ void draw_2d_map(void)
   _DK_draw_2d_map();
 }
 
-void draw_eastegg(void)
+/*
+ * Strange name to hide easter eggs ;). Displays easter egg messages on screen.
+ */
+void draw_sound_stuff(void)
 {
-  static char text[255];
+  static const char *func_name="draw_sound_stuff";
+  char *text;
   int i;
-  _DK_LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
   if (eastegg03_cntr > 6)
   {
       unsigned char pos;
       eastegg03_cntr++;
       lbFontPtr = winfont;
-      sprintf(text, "Dene says a big 'Hello' to Goth Buns, Tarts and Barbies");
-      lbDisplay.DrawFlags = 64;
+      text=buf_sprintf("Dene says a big 'Hello' to Goth Buns, Tarts and Barbies");
+      lbDisplay.DrawFlags = 0x40;
       for (i=0; i<30; i+=2)
       {
         pos = game.seedchk_random_used - i;
@@ -4933,7 +4280,7 @@ void draw_eastegg(void)
       if (eastegg03_cntr > 1000)
         eastegg03_cntr = 0;
   }
-  _DK_draw_eastegg();
+  _DK_draw_sound_stuff();
 }
 
 void process_pointer_graphic(void)
@@ -4941,29 +4288,238 @@ void process_pointer_graphic(void)
   _DK_process_pointer_graphic();
 }
 
+void draw_bonus_timer(void)
+{
+  _DK_draw_bonus_timer(); return;
+}
+
 void message_draw(void)
 {
-  _DK_message_draw();
+  static const char *func_name="message_draw";
+  int i,h;
+  long x,y;
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  lbFontPtr = winfont;
+  if (lbFontPtr != NULL)
+    h = lbFontPtr[1].SHeight;
+  else
+    h = 0;
+  x = 148;
+  y = 28;
+  for (i=0; i < game.active_messages_count; i++)
+  {
+      LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
+      lbDisplay.DrawFlags &= 0xFFBFu;
+      LbTextDraw((x+32)/pixel_size, y/pixel_size, game.messages[i].text);
+      LbSpriteDraw(x/pixel_size, y/pixel_size, &gui_panel_sprites[488+game.messages[i].field_40]);
+      y += pixel_size * h;
+  }
+}
+
+void draw_power_hand(void)
+{
+  static const char *func_name="draw_power_hand";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  _DK_draw_power_hand();
 }
 
 void redraw_creature_view(void)
 {
+  static const char *func_name="redraw_creature_view";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_redraw_creature_view();
+}
+
+void smooth_screen_area(unsigned char *scrbuf, long x, long y, long w, long h, long scanln)
+{
+  static const char *func_name="smooth_screen_area";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  long sx,sy,sw,sh,i,k;
+  unsigned char *buf;
+  unsigned char *lnbuf;
+  unsigned int ghpos;
+  sx = x/pixel_size;
+  sy = y/pixel_size;
+  sw = w/pixel_size;
+  sh = h/pixel_size;
+  lnbuf = scrbuf + scanln*sy + sx;
+  for (i = sh-sy-1; i>0; i--)
+  {
+    buf = lnbuf;
+    for (k = sw-sx-1; k>0; k--)
+    {
+        ghpos = (buf[0] << 8) + buf[1];
+        ghpos = (buf[scanln] << 8) + ghost[ghpos];
+        buf[0] = ghpos;
+        buf++;
+    }
+    lnbuf += scanln;
+  }
+}
+
+void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
+{
+  static const char *func_name="make_camera_deviations";
+  long x,y;
+  x = player->camera->mappos.x.val;
+  y = player->camera->mappos.y.val;
+  if (dungeon->field_EA0)
+  {
+    x += seed_check_random(80, &game.field_14BB4E, func_name, 8653) - 40;
+    y += seed_check_random(80, &game.field_14BB4E, func_name, 8654) - 40;
+  }
+  if (dungeon->field_EA4)
+  {
+    x += ( (dungeon->field_EA4 * lbSinTable[player->camera->orient_a] >> 8) >> 8);
+    y += (-(dungeon->field_EA4 * lbCosTable[player->camera->orient_a] >> 8) >> 8);
+  }
+  if ((dungeon->field_EA0) || (dungeon->field_EA4))
+  {
+    // bounding position
+    if (x < 0)
+    {
+      x = 0;
+    } else
+    if (x > 65535)
+    {
+      x = 65535;
+    }
+    if (y < 0)
+    {
+      y = 0;
+    } else
+    if (y > 65535)
+    {
+      y = 65535;
+    }
+    // setting deviated position
+    player->camera->mappos.x.val = x;
+    player->camera->mappos.y.val = y;
+  }
 }
 
 void redraw_isometric_view(void)
 {
-  _DK_redraw_isometric_view();
+  static const char *func_name="redraw_isometric_view";
+  struct PlayerInfo *player;
+  struct Dungeon *dungeon;
+  struct Coord3d pos;
+  int i;
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  //_DK_redraw_isometric_view(); return;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  memcpy(&pos,&player->camera->mappos,sizeof(struct Coord3d));
+  if (player->field_45F != 1)
+    player->field_45F = 1;
+  dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+  // Camera position modifications
+  make_camera_deviations(player,dungeon);
+  update_explored_flags_for_power_sight(player);
+  if (game.flags_font & 0x08)
+  {
+    setup_engine_window(player->field_448, player->field_44A,
+        player->field_444 >> 1, player->field_446 >> 1);
+  }
+  engine((struct Camera *)&player->cam_mappos);
+  if (game.flags_font & 0x08)
+  {
+    setup_engine_window(player->field_448, player->field_44A,
+      player->field_444, player->field_446);
+  }
+  if (smooth_on)
+    smooth_screen_area(lbDisplay.WScreen, 140, 0, MyScreenWidth, MyScreenHeight, lbDisplay.GraphicsScreenWidth);
+  remove_explored_flags_for_power_sight(player);
+  if (game.numfield_C & 0x20)
+  {
+    lbDisplay.DrawColour = colours[15][15][15];
+    lbDisplay.DrawFlags = 0;
+    DrawBigSprite(0, 0, &status_panel, gui_panel_sprites);
+    draw_gold_total(player->field_2B, 60, 134, dungeon->field_AF9);
+    if (pixel_size < 3)
+      i = (player->minimap_zoom) / (3-pixel_size);
+    else
+      i = player->minimap_zoom;
+    pannel_map_draw(player->mouse_x, player->mouse_y, i);
+    draw_overlay_things(i);
+  }
+  draw_gui();
+  if ( game.numfield_C & 0x20)
+    draw_overlay_compass(player->mouse_x, player->mouse_y);
+  message_draw();
+  draw_power_hand();
+  draw_tooltip();
+  memcpy(&player->camera->mappos,&pos,sizeof(struct Coord3d));
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 void redraw_frontview(void)
 {
+  static const char *func_name="redraw_frontview";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_redraw_frontview();
 }
 
 void draw_zoom_box(void)
 {
   _DK_draw_zoom_box();
+}
+
+void update_explored_flags_for_power_sight(struct PlayerInfo *player)
+{
+  _DK_update_explored_flags_for_power_sight(player);
+}
+
+void engine(struct Camera *cam)
+{
+  _DK_engine(cam);
+}
+
+void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
+{
+  _DK_remove_explored_flags_for_power_sight(player);
+}
+
+void DrawBigSprite(long x, long y, struct BigSprite *bigspr, struct TbSprite *sprite)
+{
+  _DK_DrawBigSprite(x, y, bigspr, sprite);
+}
+
+void draw_gold_total(unsigned char a1, long a2, long a3, long a4)
+{
+  _DK_draw_gold_total(a1, a2, a3, a4);
+}
+
+void pannel_map_draw(long x, long y, long zoom)
+{
+  _DK_pannel_map_draw(x, y, zoom);
+}
+
+void draw_overlay_things(long zoom)
+{
+  static const char *func_name="draw_overlay_things";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  _DK_draw_overlay_things(zoom);
+}
+
+void draw_overlay_compass(long a1, long a2)
+{
+  _DK_draw_overlay_compass(a1, a2);
 }
 
 struct GuiBox *gui_get_highest_priority_box(void)
@@ -5000,13 +4556,16 @@ struct GuiBoxOption *gui_get_box_option_point_over(struct GuiBox *gbox, long x, 
 
 void gui_draw_box(struct GuiBox *gbox)
 {
-  //LbSyncLog("Drawing box, first optn \"%s\"\n",gbox->optn_list->label);
+  static const char *func_name="gui_draw_box";
+#if (BFDEBUG_LEVEL > 6)
+  LbSyncLog("%s: Drawing box, first optn \"%s\"\n",func_name,gbox->optn_list->label);
+#endif
   struct GuiBox *gbox_over;
   struct GuiBoxOption *goptn_over;
   struct GuiBoxOption *goptn;
   long lnheight;
   long pos_x,pos_y;
-  _DK_LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+  LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 
   goptn_over = NULL;
   gbox_over = gui_get_box_point_over(GetMouseX(), GetMouseY());
@@ -5092,7 +4651,11 @@ void gui_draw_box(struct GuiBox *gbox)
 
 void gui_draw_all_boxes(void)
 {
+  static const char *func_name="gui_draw_all_boxes";
   struct GuiBox *gbox;
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   lbDisplay.DrawFlags = 0x0040;
   lbFontPtr = font_sprites;
   gbox = gui_get_lowest_priority_box();
@@ -5106,8 +4669,10 @@ void gui_draw_all_boxes(void)
 void draw_map_level_name(void)
 {
   char *lv_name;
+  int x,y,w,h;
+  // Retrieving name
   lv_name = NULL;
-  if (is_campaign_level(game.numfield_14A83D))
+  if (is_original_singleplayer_level(game.numfield_14A83D))
   {
     lv_name = strings[game.numfield_14A83D+201];
   } else
@@ -5119,18 +4684,28 @@ void draw_map_level_name(void)
   {
     lv_name = level_name;
   }
+  // Retrieving position
+  x = 0;
+  y = 0;
+  w = 640;//MyScreenWidth;
+  h = MyScreenHeight;
+  // Drawing
   if (lv_name != NULL)
   {
     lbFontPtr = winfont;
     lbDisplay.DrawFlags = 0;
-    _DK_LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    LbTextDraw((MyScreenWidth-pixel_size*LbTextStringWidth(lv_name))/2 / pixel_size, 32 / pixel_size, lv_name);
+    LbTextSetWindow(x/pixel_size, y/pixel_size, w/pixel_size, h/pixel_size);
+    LbTextDraw((w-pixel_size*LbTextStringWidth(lv_name))/2 / pixel_size, 32 / pixel_size, lv_name);
   }
 }
 
 void redraw_parchment_view(void)
 {
+  static const char *func_name="redraw_parchment_view";
   char *fname;
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   if ( !parchment_loaded )
   {
     if (lbDisplay.PhysicalScreenWidth < 640)
@@ -5155,17 +4730,21 @@ void redraw_parchment_view(void)
 
 void redraw_display(void)
 {
+  static const char *func_name="redraw_display";
   //_DK_redraw_display();return;
-  static char text[255];
+  char *text;
   struct PlayerInfo *player;
   int i;
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
 
   player->field_6 &= 0xFEu;
   if (game.flagfield_14EA4A == 1)
     return;
 
-  if ( grabbed_small_map == 2 )
+  if (grabbed_small_map == 2)
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
   else
     process_pointer_graphic();
@@ -5197,13 +4776,13 @@ void redraw_display(void)
   default:
       break;
   }
-  _DK_LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
+  LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
   lbFontPtr = winfont;
   lbDisplay.DrawFlags &= 0xFFBFu;
-  _DK_LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
+  LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
   if (player->field_0 & 0x04)
   {
-      sprintf(text, ">%s_", player->strfield_463);
+      text=buf_sprintf( ">%s_", player->strfield_463);
       LbTextDraw(148/pixel_size, 8/pixel_size, text);
   }
   if ( draw_spell_cost )
@@ -5211,10 +4790,10 @@ void redraw_display(void)
       long pos_x,pos_y;
       unsigned short drwflags_mem;
       drwflags_mem = lbDisplay.DrawFlags;
-      _DK_LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
+      LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
       lbDisplay.DrawFlags = 0;
       lbFontPtr = winfont;
-      sprintf(text, "%d", draw_spell_cost);
+      text = buf_sprintf("%d", draw_spell_cost);
       pos_y = GetMouseY() - pixel_size*LbTextStringHeight(text)/2 - 2;
       pos_x = GetMouseX() - pixel_size*LbTextStringWidth(text)/2;
       LbTextDraw(pos_x/pixel_size, pos_y/pixel_size, text);
@@ -5222,7 +4801,7 @@ void redraw_display(void)
       draw_spell_cost = 0;
   }
   if ( is_bonus_level(game.numfield_14A83D) )
-    message_draw();
+    draw_bonus_timer();
   if (((game.numfield_C & 0x01) != 0) && ((game.numfield_C & 0x80) == 0))
   {
         lbFontPtr = winfont;
@@ -5244,10 +4823,10 @@ void redraw_display(void)
           i = lbFontPtr[1].SHeight;
         lbDisplay.DrawFlags = 0x0100;
         h = pixel_size*i + pixel_size*i/2;
-        _DK_LbTextSetWindow(pos_x/pixel_size, pos_y/pixel_size, w/pixel_size, h/pixel_size);
+        LbTextSetWindow(pos_x/pixel_size, pos_y/pixel_size, w/pixel_size, h/pixel_size);
         draw_slab64k(pos_x, pos_y, w, h);
         LbTextDraw(0/pixel_size, 0/pixel_size, strings[320]);
-        _DK_LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+        LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   }
   if (game.field_150356 != 0)
   {
@@ -5264,7 +4843,7 @@ void redraw_display(void)
       i = game.seedchk_random_used - game.field_150356 - game.armageddon;
     }
     lbFontPtr = winfont;
-    sprintf(text, " %s %03d", strings[646], i/2);
+    text=buf_sprintf(" %s %03d", strings[646], i/2);
     i = 0;
     if (lbFontPtr != NULL)
       i = lbFontPtr[1].SWidth;
@@ -5276,62 +4855,71 @@ void redraw_display(void)
       i = lbFontPtr[1].SHeight;
     lbDisplay.DrawFlags = 0x0100;
     h = pixel_size*i + pixel_size*i/2;
-    _DK_LbTextSetWindow(pos_x/pixel_size, pos_y/pixel_size, w/pixel_size, h/pixel_size);
+    LbTextSetWindow(pos_x/pixel_size, pos_y/pixel_size, w/pixel_size, h/pixel_size);
     draw_slab64k(pos_x, pos_y, w, h);
     LbTextDraw(0/pixel_size, 0/pixel_size, text);
-    _DK_LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   }
-  draw_eastegg();
+  draw_sound_stuff();
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
+}
+
+void find_frame_rate(void)
+{
+  static TbClockMSec prev_time2=0;
+  static TbClockMSec cntr_time2=0;
+  unsigned long curr_time;
+  curr_time = LbTimerClock();
+  cntr_time2++;
+  if ( curr_time-prev_time2 >= 1000 )
+  {
+    double time_fdelta = 1000.0*((double)(cntr_time2))/(curr_time-prev_time2);
+    prev_time2 = curr_time;
+    game.time_delta = (unsigned long)(time_fdelta*256.0);
+    cntr_time2 = 0;
+  }
+}
+
+void packet_load_find_frame_rate(unsigned long incr)
+{
+  static TbClockMSec start_time=0;
+  static TbClockMSec extra_frames=0;
+  TbClockMSec curr_time;
+  curr_time = LbTimerClock();
+  if ((curr_time-start_time) < 5000)
+  {
+    extra_frames += incr;
+  } else
+  {
+    double time_fdelta = 1000.0*((double)(extra_frames+incr))/(curr_time-start_time);
+    start_time = curr_time;
+    game.time_delta = (unsigned long)(time_fdelta*256.0);
+    extra_frames = 0;
+  }
 }
 
 /*
  * Checks if the game screen needs redrawing.
  */
-short keeper_check_if_shall_draw(void)
+short display_should_be_updated_this_turn(void)
 {
-  static TbClockMSec prev_time1=0;
-  static TbClockMSec cntr_time1=0;
-  static TbClockMSec prev_time2=0;
-  static TbClockMSec cntr_time2=0;
   if ((game.numfield_C & 0x01) != 0)
     return true;
   if ( (game.turns_fastforward==0) && (!game.numfield_149F38) )
   {
-          unsigned long curr_time;
-          curr_time = clock();
-          cntr_time2++;
-          if ( curr_time-prev_time2 >= 1000 )
-          {
-              double time_fdelta = 1000.0*((double)(cntr_time2))/(curr_time-prev_time2);
-              prev_time2 = curr_time;
-              game.time_delta = (unsigned long)(time_fdelta*256.0);
-              cntr_time2 = 0;
-          }
-          if ( (game.timingvar1!=0) && (game.seedchk_random_used % game.timingvar1) )
-          {
-            return false;
-          }
+    find_frame_rate();
+    if ( (game.timingvar1==0) || ((game.seedchk_random_used % game.timingvar1)==0))
+      return true;
   } else
   if ( ((game.seedchk_random_used & 0x3F)==0) ||
        ((game.numfield_149F38) && ((game.seedchk_random_used & 7)==0)) )
   {
-            TbClockMSec curr_time;
-            curr_time = clock();
-            if ((curr_time-prev_time1) < 5000)
-            {
-              cntr_time1 += 64;
-            } else
-            {
-              double time_fdelta = 1000.0*((double)(cntr_time1+64))/(curr_time-prev_time1);
-              prev_time1 = curr_time;
-              game.time_delta = (unsigned long)(time_fdelta*256.0);
-              cntr_time1 = 0;
-            }
-  } else
-  {
-      return false;
+    packet_load_find_frame_rate(64);
+    return true;
   }
-  return true;
+  return false;
 }
 
 /*
@@ -5387,7 +4975,11 @@ short keeper_wait_for_next_turn(void)
  */
 short keeper_screen_redraw(void)
 {
+  static const char *func_name="keeper_screen_redraw";
   struct PlayerInfo *player;
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   LbScreenClear(0);
   if ( LbScreenLock() == 1 )
@@ -5408,8 +5000,11 @@ short keeper_screen_redraw(void)
 short draw_onscreen_direct_messages(void)
 {
   static const char *func_name="draw_onscreen_direct_messages";
-  static char text[255];
+  char *text;
   unsigned int msg_pos;
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   // Display in-game message for debug purposes
   if (onscreen_msg_turns > 0)
   {
@@ -5420,7 +5015,7 @@ short draw_onscreen_direct_messages(void)
   msg_pos = 200;
   if (game.numfield_A & 0x02)
   {
-      sprintf(text, "OUT OF SYNC (GameTurn %7d)", game.seedchk_random_used);
+      text=buf_sprintf("OUT OF SYNC (GameTurn %7d)", game.seedchk_random_used);
       error(func_name, 413, text);
       if ( LbScreenIsLocked() )
         LbTextDraw(300/pixel_size, msg_pos/pixel_size, "OUT OF SYNC");
@@ -5428,7 +5023,7 @@ short draw_onscreen_direct_messages(void)
   }
   if (game.numfield_A & 0x04)
   {
-      sprintf(text, "SEED OUT OF SYNC (GameTurn %7d)", game.seedchk_random_used);
+      text=buf_sprintf("SEED OUT OF SYNC (GameTurn %7d)", game.seedchk_random_used);
       error(func_name, 427, text);
       if ( LbScreenIsLocked() )
         LbTextDraw(300/pixel_size, msg_pos/pixel_size, "SEED OUT OF SYNC");
@@ -5442,11 +5037,16 @@ void keeper_gameplay_loop(void)
     static const char *func_name="keeper_gameplay_loop";
     short do_draw;
     struct PlayerInfo *player;
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
     player = &(game.players[my_player_number%PLAYERS_COUNT]);
     PaletteSetPlayerPalette(player, _DK_palette);
     if (game.numfield_C & 0x02)
-      _DK_initialise_eye_lenses();
+      initialise_eye_lenses();
+#if (BFDEBUG_LEVEL > 0)
     LbSyncLog("Entering the gameplay loop for level %d\n",(int)game.level_number);
+#endif
 
     //the main gameplay loop starts
     while ( (!quit_game)&&(!exit_keeper) )
@@ -5454,11 +5054,11 @@ void keeper_gameplay_loop(void)
       if ( game.flags_font & 0x10 )
       {
         if ( game.seedchk_random_used == 4 )
-          ;//rndseed_nullsub();
+          LbNetwork_ChangeExchangeTimeout(0);
       }
 
       // Check if we should redraw screen in this turn
-      do_draw = keeper_check_if_shall_draw() || (!LbIsActive());
+      do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
 
       update_mouse();
       input_eastegg();
@@ -5510,7 +5110,9 @@ void keeper_gameplay_loop(void)
       if ( game.numfield_149F42 == game.seedchk_random_used )
         exit_keeper = 1;
     } // end while
+#if (BFDEBUG_LEVEL > 0)
     LbSyncLog("Gameplay loop finished after %u turns\n",game.seedchk_random_used);
+#endif
 }
 
 void initialise_load_game_slots(void)
@@ -5527,36 +5129,56 @@ void initialise_load_game_slots(void)
 
 short continue_game_available()
 {
-  char buf[12];
+  static const char *func_name="continue_game_available";
+  unsigned char buf[12];
   char *fname;
   static short continue_needs_checking_file = 1;
-  check_cd_in_drive();
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  wait_for_cd_to_be_available();
   fname=prepare_file_path(FGrp_Save,"continue.sav");
   if (LbFileLength(fname) != sizeof(struct Game))
+  {
+  #if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: No correct .SAV file; there's no continue\n",func_name);
+  #endif
     return false;
+  }
   if ( continue_needs_checking_file )
   {
     TbFileHandle fh=LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
     if ( fh != -1 )
     {
-            LbFileRead(fh, buf, 10);
-            LbFileClose(fh);
-            if (buf[0])
-              game.level_number = (unsigned char)buf[0];
+      LbFileRead(fh, buf, 10);
+      LbFileClose(fh);
+      if (((struct Game *)buf)->continue_level > 0)
+        game.level_number = ((struct Game *)buf)->continue_level;
     }
     continue_needs_checking_file = 0;
   }
-  if (game.level_number > 20)
-    return false;
-  else
+  if (is_singleplayer_level(game.level_number))
+  {
+  #if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Returning that continue is available\n",func_name);
+  #endif
     return true;
+  } else
+  {
+  #if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: The level in .SAV isn't correct continue level\n",func_name);
+  #endif
+    return false;
+  }
 }
 
 void intro(void)
 {
     char *fname;
     fname=prepare_file_path(FGrp_LoData,"intromix.smk");
+#if (BFDEBUG_LEVEL > 0)
     LbSyncLog("Playing intro movie \"%s\"\n",fname);
+#endif
     play_smacker_file(fname, 1);
 }
 
@@ -5564,7 +5186,9 @@ void outro(void)
 {
     char *fname;
     fname=prepare_file_path(FGrp_LoData,"outromix.smk");
+#if (BFDEBUG_LEVEL > 0)
     LbSyncLog("Playing outro movie \"%s\"\n",fname);
+#endif
     play_smacker_file(fname, 17);
 }
 
@@ -5591,9 +5215,153 @@ void open_packet_file_for_load(char *fname)
   _DK_open_packet_file_for_load(fname); return;
 }
 
+void init_dungeons(void)
+{
+  int i,k;
+  struct Dungeon *dungeon;
+  for (i=0; i < DUNGEONS_COUNT; i++)
+  {
+    dungeon = &(game.dungeon[game.field_14E496%DUNGEONS_COUNT]);
+    dungeon->field_B01[i%DUNGEONS_COUNT] = game.field_14E946;
+    dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+    dungeon->field_B01[game.field_14E496%DUNGEONS_COUNT] = game.field_14E946;
+    dungeon->field_918 = 0;
+    dungeon->field_919 = 0;
+    dungeon->field_2D = 0;
+    dungeon->field_2F = 0;
+    dungeon->field_E9F = i;
+    dungeon->field_105C = game.field_14EB8C;
+    dungeon->field_139F = 0;
+    dungeon->field_13A3 = 0;
+    for (k=0; k < DUNGEONS_COUNT; k++)
+    {
+      if (k == i)
+        dungeon->field_B01[k] = game.field_14E94A;
+      else
+        dungeon->field_B01[k] = game.field_14E946;
+    }
+    memset(dungeon->field_1489, 0, 32);
+  }
+}
+
+void load_level_file(long lvnum)
+{
+  _DK_load_level_file(lvnum);
+}
+
+void load_map_file(long lvidx)
+{
+  load_level_file(lvidx);
+}
+
+void clear_messages(void)
+{
+  int i;
+  for (i=0; i<MESSAGE_QUEUE_COUNT; i++)
+  {
+    memset(&message_queue[i], 0, sizeof(struct MessageQueueEntry));
+  }
+}
+
+void init_dungeon_owner(unsigned short owner)
+{
+  static const char *func_name="init_dungeon_owner";
+  struct Dungeon *dungeon;
+  struct Thing *thing;
+  int i,k;
+  k = 0;
+  i = game.thing_lists[2].field_4;
+  while (i>0)
+  {
+    if (i >= THINGS_COUNT)
+    {
+      error(func_name,4578,"Jump out of things array bounds deteted");
+      break;
+    }
+    thing = game.things_lookup[i];
+    if ((thing == game.things_lookup[0]) || (thing == NULL))
+      break;
+    i = thing->field_67;
+    if ((game.objects_config[thing->field_1A].field_6) && (thing->owner == owner))
+    {
+      dungeon = &(game.dungeon[owner%DUNGEONS_COUNT]);
+      dungeon->field_0 = thing->field_1B;
+      break;
+    }
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      error(func_name,4579,"Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+}
+
 void init_level(void)
 {
-  _DK_init_level();
+  static const char *func_name="init_level";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  struct Thing *thing;
+  struct Coord3d pos;
+  unsigned short mem1,mem2;
+  int i,k;
+  //_DK_init_level(); return;
+
+  mem2 = game.field_1517E6;
+  mem1 = game.field_1517E7;
+  memset(&pos,0,sizeof(struct Coord3d));
+  game.field_14BB4A = 1;
+  free_swipe_graphic();
+  game.field_1516FF = -1;
+  game.seedchk_random_used = 0;
+  clear_game();
+  reset_heap_manager();
+  setup_heap_manager();
+  init_good_player_as(hero_player);
+  light_set_lights_on(1);
+  start_rooms = &game.rooms[1];
+  end_rooms = &game.rooms[150];
+  init_dungeons();
+  load_map_file(game.numfield_14A83D);
+  init_navigation();
+  clear_messages();
+  game.field_14BB4E = (unsigned long)LbTimeSec();
+  if (!SoundDisabled)
+  {
+    game.field_14BB54 = (seed_check_random(67, &game.field_14BB4E, func_name, 5712) % 3 + 1);
+    game.field_14BB55 = 0;
+  }
+  light_set_lights_on(1);
+  init_dungeon_owner(game.field_14E496);
+  game.numfield_D |= 0x04;
+  game.field_1517E6 = mem2;
+  game.field_1517E7 = mem1;
+  event_initialise_all();
+  battle_initialise();
+
+  thing = create_ambient_sound(&pos, 1, game.field_14E497);
+  if (thing != NULL)
+    game.field_14E906 = thing->field_1B;
+  else
+    error(func_name, 481, "Could not create ambient sound object");
+  zero_messages();
+  game.field_150356 = 0;
+  game.field_15035A = 0;
+  init_messages();
+  game.field_1517FB = 0;
+  game.field_1517FC = 0;
+  game.field_15033A = 0;
+  game.field_151801 = 0;
+  game.field_151805 = 0;
+  game.field_151809 = 0;
+  game.chosen_spell_type = 0;
+  game.chosen_spell_look = 0;
+  game.chosen_spell_tooltip = 0;
+  game.numfield_151819 = 0;
+  game.numfield_15181D = 0;
+  game.numfield_151821 = 0;
 }
 
 void pannel_map_update(long x, long y, long w, long h)
@@ -5601,10 +5369,35 @@ void pannel_map_update(long x, long y, long w, long h)
   _DK_pannel_map_update(x, y, w, h);
 }
 
-void init_player(struct PlayerInfo *player, int a2)
+void init_player_music(struct PlayerInfo *player)
+{
+  static const char *func_name="init_player_music";
+  game.audiotrack = ((game.numfield_14A83D - 1) % -4) + 3;
+  StopMusic();
+  switch (seed_check_random(3, &game.field_14BB4E, func_name, 363))
+  {
+  case 0:
+      if (LoadAwe32Soundfont("bullfrog"))
+        StartMusic(1, 127);
+      break;
+  case 1:
+      if (LoadAwe32Soundfont("atmos1"))
+        StartMusic(1, 127);
+      break;
+  case 2:
+      if (LoadAwe32Soundfont("atmos2"))
+        StartMusic(1, 127);
+      break;
+  }
+}
+
+void init_player(struct PlayerInfo *player, int no_explore)
 {
   static const char *func_name="init_player";
-  //_DK_init_player(player, a2); return;
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  //_DK_init_player(player, no_explore); return;
   player->mouse_x = 10;
   player->mouse_y = 12;
   player->minimap_zoom = 256;
@@ -5628,7 +5421,7 @@ void init_player(struct PlayerInfo *player, int a2)
     init_player_as_single_keeper(player);
     init_player_start(player);
     reset_player_mode(player, 1);
-    if ( !a2 )
+    if ( !no_explore )
       init_keeper_map_exploration(player);
     break;
   case 5:
@@ -5651,67 +5444,16 @@ void init_player(struct PlayerInfo *player, int a2)
   player->strfield_463[0] = '\0';
   if (player == &game.players[my_player_number])
   {
-    game.audiotrack = ((game.numfield_14A83D - 1) % -4) + 3;
-    StopMusic();
-    switch (seed_check_random(3, &game.field_14BB4E, func_name, 363))
-    {
-    case 0:
-      if (LoadAwe32Soundfont("bullfrog"))
-        StartMusic(1, 127);
-      break;
-    case 1:
-      if (LoadAwe32Soundfont("atmos1"))
-        StartMusic(1, 127);
-      break;
-    case 2:
-      if (LoadAwe32Soundfont("atmos2"))
-        StartMusic(1, 127);
-      break;
-    }
+    init_player_music(player);
   }
   player->field_2A = (1 << player->field_2B);
   player->field_10 = 0;
 }
 
-void post_init_level(void)
+void init_players(void)
 {
-  _DK_post_init_level(); return;
-}
-
-void post_init_players(void)
-{
-  _DK_post_init_players(); return;
-}
-
-void startup_saved_packet_game(void)
-{
-  //_DK_startup_saved_packet_game(); return;
   struct PlayerInfo *player;
   int i;
-  memset(game.packets, 0, sizeof(struct Packet)*PACKETS_COUNT);
-  open_packet_file_for_load(game.packet_fname);
-  game.numfield_14A83D = game.packet_save_head.field_4;
-  lbDisplay.DrawColour = colours[15][15][15];
-  game.gameturn = 0;
-  LbSyncLog("Initialising level %d\n", game.numfield_14A83D);
-  LbSyncLog("Packet Loading Active (File contains %d turns)\n", game.field_149F30);
-  if ( game.packet_checksum )
-    LbSyncLog("Packet Checksum Active\n");
-  LbSyncLog("Fast Forward through %d game turns\n", game.turns_fastforward);
-  if (game.numfield_149F42 != -1)
-    LbSyncLog("Packet Quit at %d\n", game.numfield_149F42);
-  if ( game.field_149E81 )
-  {
-    if (game.numfield_149F3E != game.numfield_149F3A)
-      LbSyncLog("Logging things, game turns %d -> %d\n", game.numfield_149F3A, game.numfield_149F3E);
-  }
-  game.flagfield_14EA4A = 2;
-  if (!(game.packet_save_head.field_C & (1 << game.numfield_149F46))
-    || (game.packet_save_head.field_D & (1 << game.numfield_149F46)) )
-    my_player_number = 0;
-  else
-    my_player_number = game.numfield_149F46;
-  init_level();
   for (i=0;i<PLAYERS_COUNT;i++)
   {
     player=&(game.players[i]);
@@ -5729,6 +5471,55 @@ void startup_saved_packet_game(void)
       }
     }
   }
+}
+
+void post_init_level(void)
+{
+  _DK_post_init_level(); return;
+}
+
+void post_init_players(void)
+{
+  _DK_post_init_players(); return;
+}
+
+void init_animating_texture_maps(void)
+{
+  _DK_init_animating_texture_maps(); return;
+}
+
+void startup_saved_packet_game(void)
+{
+  //_DK_startup_saved_packet_game(); return;
+  struct PlayerInfo *player;
+  int i;
+  clear_packets();
+  open_packet_file_for_load(game.packet_fname);
+  game.numfield_14A83D = game.packet_save_head.field_4;
+  lbDisplay.DrawColour = colours[15][15][15];
+  game.gameturn = 0;
+#if (BFDEBUG_LEVEL > 0)
+  LbSyncLog("Initialising level %d\n", game.numfield_14A83D);
+  LbSyncLog("Packet Loading Active (File contains %d turns)\n", game.field_149F30);
+  if ( game.packet_checksum )
+    LbSyncLog("Packet Checksum Active\n");
+  LbSyncLog("Fast Forward through %d game turns\n", game.turns_fastforward);
+  if (game.numfield_149F42 != -1)
+    LbSyncLog("Packet Quit at %d\n", game.numfield_149F42);
+  if ( game.field_149E81 )
+  {
+    if (game.numfield_149F3E != game.numfield_149F3A)
+      LbSyncLog("Logging things, game turns %d -> %d\n", game.numfield_149F3A, game.numfield_149F3E);
+  }
+#endif
+  game.flagfield_14EA4A = 2;
+  if (!(game.packet_save_head.field_C & (1 << game.numfield_149F46))
+    || (game.packet_save_head.field_D & (1 << game.numfield_149F46)) )
+    my_player_number = 0;
+  else
+    my_player_number = game.numfield_149F46;
+  init_level();
+  init_players();
   if (game.field_14E495 == 1)
     game.flagfield_14EA4A = 2;
   if (game.field_149F30 < game.turns_fastforward)
@@ -5754,19 +5545,222 @@ long script_support_setup_player_as_computer_keeper(unsigned char plyridx, long 
   return _DK_script_support_setup_player_as_computer_keeper(plyridx, a2);
 }
 
-void startup_network_game(void)
+void setup_computer_players(void)
 {
-  static const char *func_name="startup_network_game";
-  LbSyncLog("Starting up network game.\n");
-  //_DK_startup_network_game(); return;
+  static const char *func_name="setup_computer_players";
+  struct PlayerInfo *player;
+  struct Thing *thing;
+  int plr_idx;
   int i,k;
-  short is_set;
-  short checksum_bad;
-  int checksum_mem;
-  unsigned int flgmem;
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  for (plr_idx=0; plr_idx<PLAYERS_COUNT; plr_idx++)
+  {
+      player=&(game.players[plr_idx]);
+      if ((player->field_0 & 0x01) == 0)
+      {
+        k = 0;
+        i = game.thing_lists[2].field_4;
+        while (i>0)
+        {
+          if (i >= THINGS_COUNT)
+          {
+            error(func_name,4578,"Jump out of things array bounds deteted");
+            break;
+          }
+          thing = game.things_lookup[i];
+          if ((thing == game.things_lookup[0]) || (thing == NULL))
+            break;
+          i = thing->field_67;
+          if ((game.objects_config[thing->field_1A].field_6) && (thing->owner == plr_idx))
+          {
+            script_support_setup_player_as_computer_keeper(plr_idx, 0);
+            break;
+          }
+          k++;
+          if (k > THINGS_COUNT)
+          {
+            error(func_name,4579,"Infinite loop detected when sweeping things list");
+            break;
+          }
+        }
+      }
+  }
+}
+
+void setup_alliances(void)
+{
+  int i;
+  struct PlayerInfo *player;
+  for (i=0; i<PLAYERS_COUNT; i++)
+  {
+      player=&(game.players[i]);
+      if ((i != my_player_number) && (player->field_0 & 0x01))
+      {
+          if (frontend_is_player_allied(my_player_number, i))
+          {
+            toggle_ally_with_player(my_player_number, i);
+            toggle_ally_with_player(i, my_player_number);
+          }
+      }
+  }
+}
+
+/*
+ * Exchanges verification packets between all players.
+ * @return Returns true if all players return same checksum.
+ */
+short perform_checksum_verification()
+{
+  static const char *func_name="perform_checksum_verification";
   struct PlayerInfo *player;
   struct Packet *pckt;
   struct Thing *thing;
+  unsigned long checksum_mem;
+  short result;
+  int i;
+  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  result = true;
+  checksum_mem = 0;
+  for (i=1; i<THINGS_COUNT; i++)
+  {
+      thing = game.things_lookup[i];
+      if ((thing == game.things_lookup[0]) || (thing == NULL))
+        continue;
+      if (thing->field_0 & 0x01)
+      {
+        checksum_mem += thing->mappos.z.val + thing->mappos.y.val + thing->mappos.x.val;
+      }
+  }
+  clear_packets();
+  pckt = &game.packets[player->field_B];
+  set_packet_action(pckt, 12, 0, 0, 0, 0);
+  pckt->field_4 = checksum_mem + game.field_14BB4A;
+  if (LbNetwork_Exchange(pckt))
+  {
+    error(func_name, 210, "Network exchange failed on level checksum verification");
+    result = false;
+  }
+  if ( checksums_different() )
+  {
+    error(func_name, 219, "Level checksums different for network players");
+    result = false;
+  }
+  return result;
+}
+
+void post_init_packets(void)
+{
+  if ((game.field_149E81) && (game.numfield_149F47))
+  {
+      open_packet_file_for_load(game.packet_fname);
+      game.gameturn = 0;
+  }
+  clear_packets();
+}
+
+short setup_select_player_number(void)
+{
+  static const char *func_name="setup_select_player_number";
+  struct PlayerInfo *player;
+  short is_set;
+  int i,k;
+  is_set = 0;
+  k = 0;
+#if (BFDEBUG_LEVEL > 6)
+  LbSyncLog("%s: Starting\n",func_name);
+#endif
+  for (i=0; i<NET_PLAYERS_COUNT; i++)
+  {
+      player=&(game.players[i%PLAYERS_COUNT]);
+      if ( net_player_info[i].field_20 )
+      {
+        player->field_B = i;
+        if ((!is_set) && (my_player_number == i))
+        {
+          is_set = 1;
+          my_player_number = k;
+        }
+        k++;
+      }
+  }
+  return is_set;
+}
+
+void setup_exchange_player_number(void)
+{
+  static const char *func_name="setup_exchange_player_number";
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  int i,k;
+#if (BFDEBUG_LEVEL > 6)
+  LbSyncLog("%s: Starting\n",func_name);
+#endif
+  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  clear_packets();
+  pckt = &game.packets[my_player_number];
+  set_packet_action(pckt, 10, player->field_2C, settings.field_3, 0, 0);
+  pckt = &game.packets[my_player_number];
+  if ( LbNetwork_Exchange(pckt) )
+      error(func_name, 156, "LbNetwork_Exchange failed");
+  k = 0;
+  for (i=0; i<NET_PLAYERS_COUNT; i++)
+  {
+      pckt = &game.packets[i];
+      if ((net_player_info[i].field_20) && (pckt->field_5 == 10))
+      {
+          player = &(game.players[k%PLAYERS_COUNT]);
+          player->field_2B = k;
+          player->field_0 |= 0x01;
+          if (pckt->field_8 < 1u)
+            player->field_4B5 = 2;
+          else
+            player->field_4B5 = 5;
+          player->field_2C = pckt->field_6;
+          init_player(player, 0);
+          strncpy(player->field_15,enum_players_callback[i].field_0,sizeof(struct TbNetworkCallbackData));
+          k++;
+      }
+  }
+}
+void init_players_local_game(void)
+{
+  static const char *func_name="init_players_local_game";
+  struct PlayerInfo *player;
+#if (BFDEBUG_LEVEL > 4)
+  LbSyncLog("%s: Starting\n",func_name);
+#endif
+  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  player->field_2B = my_player_number;
+  player->field_0 |= 0x01;
+  if (settings.field_3 < 1u)
+    player->field_4B5 = 2;
+  else
+    player->field_4B5 = 5;
+  init_player(player, 0);
+}
+
+void init_players_network_game(void)
+{
+  static const char *func_name="init_players_network_game";
+  int i,k;
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+#if (BFDEBUG_LEVEL > 4)
+  LbSyncLog("%s: Starting\n",func_name);
+#endif
+  if (LbNetwork_ChangeExchangeBuffer(game.packets, sizeof(struct Packet)))
+      error(func_name, 119, "Unable to reinitialise ExchangeBuffer");
+  setup_select_player_number();
+  setup_exchange_player_number();
+  perform_checksum_verification();
+  setup_alliances();
+}
+
+void setup_count_players(void)
+{
+  int i;
   if (game.flagfield_14EA4A == 2)
   {
     game.field_14E495 = 1;
@@ -5779,140 +5773,35 @@ void startup_network_game(void)
         game.field_14E495++;
     }
   }
+}
+
+void startup_network_game(void)
+{
+  static const char *func_name="startup_network_game";
+#if (BFDEBUG_LEVEL > 0)
+  LbSyncLog("Starting up network game.\n");
+#endif
+  //_DK_startup_network_game(); return;
+  unsigned int flgmem;
+  struct PlayerInfo *player;
+  setup_count_players();
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  i = player->field_2C;
+  flgmem = player->field_2C;
   init_level();
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  player->field_2C = i;
+  player->field_2C = flgmem;
   if (game.flagfield_14EA4A == 2)
   {
-    player->field_2B = my_player_number;
-    player->field_0 |= 0x01;
-    player->field_4B5 = (-(settings.field_3 < 1u) & 0xFD) + 5;
-    init_player(player, 0);
+    init_players_local_game();
   } else
   {
-    if (LbNetwork_ChangeExchangeBuffer(game.packets, 17))
-      error(func_name, 119, "Unable to reinitialise ExchangeBuffer");
-    flgmem = game.players[my_player_number].field_2C;
-    is_set = 0;
-    k = 0;
-    for (i=0; i<NET_PLAYERS_COUNT; i++)
-    {
-      player=&(game.players[i%PLAYERS_COUNT]);
-      if ( net_player_info[i].field_20 )
-      {
-        player->field_B = i;
-        if ((!is_set) && (my_player_number == i))
-        {
-          is_set = 1;
-          my_player_number = k;
-        }
-        k++;
-      }
-    }
-    memset(game.packets, 0, sizeof(struct Packet)*PACKETS_COUNT);
-    pckt = &game.packets[my_player_number];
-    pckt->field_5 = 10;
-    pckt->field_6 = flgmem;
-    pckt->field_8 = settings.field_3;
-    if ( LbNetwork_Exchange(pckt) )
-      error(func_name, 156, "LbNetwork_Exchange failed");
-    k = 0;
-    for (i=0; i<NET_PLAYERS_COUNT; i++)
-    {
-      pckt = &game.packets[i];
-      if ((net_player_info[i].field_20) && (pckt->field_5 == 10))
-      {
-          player = &(game.players[k]);
-          player->field_2B = k;
-          player->field_0 |= 0x01;
-          player->field_4B5 = (-(pckt->field_8 < 1u) & 0xFD) + 5;
-          player->field_2C = pckt->field_6;
-          init_player(player, 0);
-          strncpy(player->field_15,enum_players_callback[i].field_0,sizeof(struct TbNetworkCallbackData));
-          k++;
-      }
-    }
-  checksum_mem = 0;
-  for (i=1; i<THINGS_COUNT; i++)
-  {
-      thing=game.things_lookup[i];
-      if (thing->field_0 & 0x01)
-      {
-        checksum_mem += thing->mappos.z.val + thing->mappos.y.val + thing->mappos.x.val;
-      }
-  }
-    player=&(game.players[my_player_number%PLAYERS_COUNT]);
-    memset(game.packets, 0, sizeof(struct Packet)*PACKETS_COUNT);
-    pckt = &game.packets[player->field_B];
-    pckt->field_4 = checksum_mem + game.field_14BB4A;
-    pckt->field_5 = 12;
-    pckt->field_6 = 0;
-    pckt->field_8 = 0;
-    if (LbNetwork_Exchange(pckt))
-      error(func_name, 210, "LbNetwork_Exchange failed");
-    checksum_bad = 0;
-    checksum_mem = -1;
-    for (i=0; i<PLAYERS_COUNT; i++)
-    {
-      player=&(game.players[i]);
-      if ((player->field_0 & 0x01) && ((player->field_0 & 0x40) == 0))
-      {
-          pckt = &game.packets[player->field_B];
-          if (checksum_mem == -1)
-          {
-            checksum_mem = pckt->field_4;
-          } else
-          if (pckt->field_4 != checksum_mem)
-          {
-            checksum_bad = 1;
-          }
-      }
-    }
-    if ( checksum_bad )
-      error(func_name, 219, "Checksums different");
-    for (i=0; i<PLAYERS_COUNT; i++)
-    {
-      player=&(game.players[i]);
-      if ((i != my_player_number) && (player->field_0 & 0x01))
-      {
-          if (frontend_is_player_allied(my_player_number, i))
-          {
-            toggle_ally_with_player(my_player_number, i);
-            toggle_ally_with_player(i, my_player_number);
-          }
-      }
-    }
+    init_players_network_game();
   }
   if (fe_computer_players)
-  {
-    for (i=0; i<PLAYERS_COUNT; i++)
-    {
-      player=&(game.players[i]);
-      if ((player->field_0 & 0x01) == 0)
-      {
-        thing = game.things_lookup[game.field_149E1A];
-        while (thing > game.things_lookup[0])
-        {
-          if ((game.objects_config[thing->field_1A].field_6) && (thing->owner == i))
-          {
-            script_support_setup_player_as_computer_keeper(i, 0);
-            break;
-          }
-          thing = game.things_lookup[thing->field_67];
-        }
-      }
-    }
-  }
+    setup_computer_players();
   post_init_level();
   post_init_players();
-  if ((game.field_149E81) && (game.numfield_149F47))
-  {
-      open_packet_file_for_load(game.packet_fname);
-      game.gameturn = 0;
-  }
-  memset(game.packets, 0, sizeof(struct Packet)*PACKETS_COUNT);
+  post_init_packets();
 }
 
 void faststartup_network_game(void)
@@ -5926,27 +5815,6 @@ void faststartup_network_game(void)
     game.players[my_player_number].field_6 &= 0xFDu;
 }
 
-short is_bonus_level(long levidx)
-{
-    if ((levidx>=100)&&(levidx<106))
-        return true;
-    return false;
-}
-
-short is_campaign_level(long levidx)
-{
-    if ((levidx>=1)&&(levidx<21))
-        return true;
-    return false;
-}
-
-short is_multiplayer_level(long levidx)
-{
-    if ((levidx>=50)&&(levidx<80))
-        return true;
-    return false;
-}
-
 int setup_old_network_service(void)
 {
     return setup_network_service(_DK_net_service_index_selected);
@@ -5956,13 +5824,22 @@ void wait_at_frontend(void)
 {
   static const char *func_name="wait_at_frontend";
   //_DK_wait_at_frontend(); return;
+#if (BFDEBUG_LEVEL > 0)
   LbSyncLog("Falling into frontend menu.\n");
+#endif
 
   //Moon phase calculation
-  calculate_moon_phase(false);
+  calculate_moon_phase(true,false);
   if ( game.flags_cd & 0x01 )
     game.field_149E81 = 0;
   game.numfield_15 = -1;
+
+  if (!load_default_campaign())
+  {
+    error(func_name, 731, "Unable to load default campaign");
+    exit_keeper = 1;
+    return;
+  }
 
   initialise_load_game_slots();
 
@@ -5986,7 +5863,7 @@ void wait_at_frontend(void)
   }
   LbScreenClear(0);
   LbScreenSwap();
-  if ( !_DK_frontend_load_data() )
+  if ( !frontend_load_data() )
   {
     error(func_name, 738, "Unable to load frontend data");
     exit_keeper = 1;
@@ -6006,7 +5883,9 @@ void wait_at_frontend(void)
     if ( (!LbWindowsControl()) && ((game.numfield_A & 0x01)==0) )
     {
       exit_keeper = 1;
+#if (BFDEBUG_LEVEL > 0)
       LbSyncLog("%s: Windows Control exit condition invoked\n",func_name);
+#endif
       break;
     }
 //LbSyncLog("update_mouse\n");
@@ -6018,7 +5897,9 @@ void wait_at_frontend(void)
     frontend_input();
     if ( exit_keeper )
     {
+#if (BFDEBUG_LEVEL > 0)
       LbSyncLog("%s: Frontend Input exit condition invoked\n",func_name);
+#endif
       break; // end while
     }
 
@@ -6026,7 +5907,9 @@ void wait_at_frontend(void)
     frontend_update(&finish_menu);
     if ( exit_keeper )
     {
+#if (BFDEBUG_LEVEL > 0)
       LbSyncLog("%s: Frontend Update exit condition invoked\n",func_name);
+#endif
       break; // end while
     }
 
@@ -6046,7 +5929,6 @@ void wait_at_frontend(void)
 
     if ( _DK_fade_palette_in )
     {
-//LbSyncLog("fade_in\n");
       fade_in();
       _DK_fade_palette_in = 0;
     } else
@@ -6059,7 +5941,7 @@ void wait_at_frontend(void)
   LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
   LbScreenClear(0);
   LbScreenSwap();
-  short prev_state = _DK_frontend_menu_state;
+  short prev_state = frontend_menu_state;
   frontend_set_state(0);
   if ( exit_keeper )
   {
@@ -6098,7 +5980,7 @@ void wait_at_frontend(void)
         {
           LbScreenClear(0);
           LbScreenSwap();
-          _DK_load_game(game.numfield_15);
+          load_game(game.numfield_15);
           game.numfield_15 = flgmem;
         }
         break;
@@ -6117,7 +5999,9 @@ void game_loop(void)
   unsigned long playtime;
   playtime = 0;
   random_seed = 0;
+#if (BFDEBUG_LEVEL > 0)
   LbSyncLog("Entering gameplay loop.\n");
+#endif
   while ( !exit_keeper )
   {
     update_mouse();
@@ -6149,15 +6033,17 @@ void game_loop(void)
     LbScreenSwap();
     StopRedbookTrack();
     StopMusic();
-    _DK_frontstats_initialise();
-    _DK_delete_all_structures();
-    _DK_clear_mapwho();
+    frontstats_initialise();
+    delete_all_structures();
+    clear_mapwho();
     endtime = LbTimerClock();
     quit_game = 0;
     if ( game.numfield_C & 0x02 )
         exit_keeper=true;
     playtime += endtime-starttime;
+#if (BFDEBUG_LEVEL > 0)
     LbSyncLog("Play time is %d seconds\n",playtime>>10);
+#endif
     random_seed += game.seedchk_random_used;
     reset_eye_lenses();
     if ( game.packet_fopened )
@@ -6168,7 +6054,7 @@ void game_loop(void)
     }
   } // end while
   // Stop the movie recording if it's on
-  if ( game.numfield_A & 0x08 )
+  if (game.numfield_A & 0x08)
     movie_record_stop();
 }
 
@@ -6261,6 +6147,10 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           game.flags_font |= 0x40;
       } else
+      if ( stricmp(parstr, "vidsmooth") == 0 )
+      {
+          smooth_on = 1;
+      } else
       if ( stricmp(parstr,"level") == 0 )
       {
         game.numfield_C |= 0x02;
@@ -6284,24 +6174,26 @@ short process_command_line(unsigned short argc, char *argv[])
           game.flags_font |= 0x20;
       } else
       {
+#if (BFDEBUG_LEVEL > 0)
         LbSyncLog("Warning - Unrecognized command line parameter '%s'.\n",parstr);
+#endif
         bad_param=narg;
       }
       narg++;
   }
 
-  if ( level_num == -1 )
-    level_num = 1;
+  if (level_num == -1)
+    level_num = first_singleplayer_level();
   game.numfield_16 = level_num;
   game.level_number = level_num;
   if ( (game.numfield_C & 0x02) == 0 )
-    game.level_number = 1;
+    game.level_number = first_singleplayer_level();
   my_player_number = default_loc_player;
   return (bad_param==0);
 }
 
 void close_video_context(void)
-{
+{  
   if ( _DK_lpDDC != NULL )
   {
     TDDrawBaseVTable *vtable=_DK_lpDDC->vtable;
@@ -6322,7 +6214,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 {
   static const char *func_name="LbBullfrogMain";
   //return _DK_LbBullfrogMain(argc, argv);
-  short retval=0;
+  short retval;
+  retval=0;
   LbErrorLogSetup("/", log_file_name, 5);
   strcpy(window_class_name, PROGRAM_NAME);
   LbTimerInit();
@@ -6354,7 +6247,9 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
       error_dialog_fatal(func_name, 2, msg_text);
   } else
   {
-      LbSyncLog("%s finished properly.\n",func_name);
+#if (BFDEBUG_LEVEL > 0)
+    LbSyncLog("%s finished properly.\n",func_name);
+#endif
   }
   LbErrorLogClose();
   return 0;
@@ -6413,11 +6308,22 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 {
 //  return _DK_WinMain(hThisInstance,hPrevInstance,lpszArgument,nFunsterStil);
   static const char *func_name="WinMain";
+  char *text;
   _DK_hInstance = hThisInstance;
   _DK_lpDDC = NULL;
 
   get_cmdln_args(bf_argc, bf_argv);
 
+//TODO: delete when won't be needed anymore
+  memcpy(_DK_menu_list,menu_list,sizeof(menu_list));
+#if (BFDEBUG_LEVEL > 1)
+  if (sizeof(struct Game)!=SIZEOF_Game)
+  {
+      text = buf_sprintf("Bad compilation - struct Game has wrong size!\nThe difference is %d bytes.\n",sizeof(struct Game)-SIZEOF_Game);
+      error_dialog(func_name, 1, text);
+      return 0;
+  }
+#endif
 /*  {
   struct PlayerInfo *player=&(game.players[0]);
       static char msg_text[255];
@@ -6425,18 +6331,6 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
       error_dialog(func_name, 1, msg_text);
       return 0;
   }*/
-
-//TODO: delete when won't be needed anymore
-  memcpy(_DK_menu_list,menu_list,sizeof(menu_list));
-
-
-  if (sizeof(struct Game)!=SIZEOF_Game)
-  {
-      static char msg_text[255];
-      sprintf(msg_text,"Bad compilation - struct Game has wrong size!\nThe difference is %d bytes.\n",sizeof(struct Game)-SIZEOF_Game);
-      error_dialog(func_name, 1, msg_text);
-      return 0;
-  }
 
   LbBullfrogMain(bf_argc, bf_argv);
 

@@ -19,16 +19,20 @@
 /******************************************************************************/
 #include "bflib_sprfnt.h"
 
-#include "bflib_sprite.h"
 #include "bflib_basics.h"
 #include "globals.h"
+
+#include "bflib_sprite.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /******************************************************************************/
-DLLIMPORT int __cdecl _DK_LbTextDraw(int posx, int posy, const char *text);
+DLLIMPORT int _DK_LbTextDraw(int posx, int posy, const char *text);
+DLLIMPORT int _DK_LbTextSetWindow(int, int, int, int);
+DLLIMPORT int _DK_LbTextStringWidth(const char *str);
+DLLIMPORT int _DK_LbTextStringHeight(const char *str);
 /******************************************************************************/
 
 int LbTextDraw(int posx, int posy, const char *text)
@@ -41,6 +45,34 @@ int LbTextHeight(const char *text)
   if (lbFontPtr == NULL)
     return 0;
   return lbFontPtr[1].SHeight;
+}
+
+int LbTextSetWindow(int posx, int posy, int width, int height)
+{
+  return _DK_LbTextSetWindow(posx, posy, width, height);
+}
+
+int LbTextStringWidth(const char *str)
+{
+  return _DK_LbTextStringWidth(str);
+}
+
+int LbTextStringHeight(const char *str)
+{
+  //return _DK_LbTextStringHeight(str);
+  int i,h,lines;
+  lines=1;
+  if ((lbFontPtr==NULL) || (str==NULL))
+    return 0;
+  for (i=0;i<MAX_TEXT_LENGTH;i++)
+  {
+    if (str[i]=='\0') break;
+    if (str[i]==10) lines++;
+  }
+  h = 0;
+  if (lbFontPtr != NULL)
+    h = lbFontPtr[1].SHeight;
+  return h*lines;
 }
 
 /*

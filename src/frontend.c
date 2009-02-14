@@ -31,20 +31,62 @@
 #include "bflib_sndlib.h"
 #include "bflib_mouse.h"
 #include "bflib_vidraw.h"
+#include "bflib_fileio.h"
 #include "keeperfx.h"
 #include "scrcapt.h"
 #include "gui_draw.h"
 #include "kjm_input.h"
 #include "vidmode.h"
+#include "front_input.h"
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT void _DK_display_objectives(long,long,long);
+DLLIMPORT long _DK_toggle_status_menu(long);
+DLLIMPORT long _DK_frontmap_update(void);
+DLLIMPORT long _DK_frontnetmap_update(void);
+DLLIMPORT void _DK_frontstats_update(void);
+DLLIMPORT void _DK_fronttorture_update(void);
+DLLIMPORT void _DK_frontmap_draw(void);
+DLLIMPORT void _DK_frontcredits_draw(void);
+DLLIMPORT void _DK_fronttorture_draw(void);
+DLLIMPORT void _DK_frontnetmap_draw(void);
+DLLIMPORT void _DK_frontnet_start_input(void);
+DLLIMPORT void _DK_frontend_high_score_table_input(void);
+DLLIMPORT void _DK_frontmap_input(void);
+DLLIMPORT void _DK_frontnetmap_input(void);
+DLLIMPORT void _DK_fronttorture_input(void);
+DLLIMPORT void _DK_frontstats_set_timer(void);
+DLLIMPORT int _DK_frontend_load_data(void);
+DLLIMPORT void _DK_frontnet_serial_reset(void);
+DLLIMPORT void _DK_frontnet_modem_reset(void);
+DLLIMPORT void _DK_fronttorture_unload(void);
+DLLIMPORT void _DK_fronttorture_load(void);
+DLLIMPORT void _DK_frontnetmap_unload(void);
+DLLIMPORT void _DK_frontnetmap_load(void);
+DLLIMPORT int _DK_frontmap_load(void);
+DLLIMPORT void _DK_frontnet_service_setup(void);
+DLLIMPORT void _DK_frontnet_session_setup(void);
+DLLIMPORT void _DK_frontnet_start_setup(void);
+DLLIMPORT void _DK_frontnet_modem_setup(void);
+DLLIMPORT void _DK_frontnet_serial_setup(void);
+DLLIMPORT void _DK_frontmap_unload(void);
+DLLIMPORT void _DK_turn_off_menu(char);
+DLLIMPORT void _DK_turn_on_menu(int);//char);
+DLLIMPORT void _DK_turn_off_event_box_if_necessary(long plridx, char val);
+DLLIMPORT void _DK_frontstats_initialise(void);
+DLLIMPORT void _DK_frontend_save_continue_game(long lv_num, int a2);
+DLLIMPORT unsigned char _DK_a_menu_window_is_active(void);
+DLLIMPORT unsigned long _DK_turn_off_all_window_menus(void);
+DLLIMPORT char _DK_game_is_busy_doing_gui(void);
 DLLIMPORT char _DK_menu_is_active(char idx);
 DLLIMPORT void _DK_get_player_gui_clicks(void);
 DLLIMPORT void _DK_init_gui(void);
 DLLIMPORT void _DK_gui_area_text(struct GuiButton *gbtn);
+DLLIMPORT void _DK_turn_off_all_panel_menus(void);
 DLLIMPORT void _DK_spell_lost_first_person(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_turn_on_autopilot(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_set_autopilot(struct GuiButton *gbtn);
@@ -637,7 +679,7 @@ struct GuiButtonInit sound_menu_buttons[] = {
 
 struct GuiButtonInit error_box_buttons[] = {
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, 670,  0,       0,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,   0, 999,   0,155,155, gui_area_text,                     0, 201,  0,(long)&error_box_message,0, 0, NULL },
+  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,   0, 999,   0,155,155, gui_area_text,                     0, 201,  0,(long)&gui_error_text,0, 0, NULL },
   { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0, 999, 100, 999, 132, 46, 34, gui_area_normal_button,           48, 201,  0,       0,            0, 0, NULL },
   {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
 };
@@ -1041,11 +1083,12 @@ struct GuiMenu sound_menu =
 struct GuiMenu error_box =
  { 15, 0, 1, error_box_buttons,          POS_GAMECTR,POS_GAMECTR,280, 180, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 struct GuiMenu text_info_menu =
- { 16, 0, 4, text_info_buttons,                        160, 316, 480,  86, gui_round_glass_background,  0, NULL,    reset_scroll_window,     0, 0, 0,};
+// { 16, 0, 4, text_info_buttons,                        160, 316, 480,  86, gui_round_glass_background,  0, NULL,    reset_scroll_window,     0, 0, 0,};
+ { 16, 0, 4, text_info_buttons,                  160, POS_SCRBTM,480,  86, gui_round_glass_background,  0, NULL,    reset_scroll_window,     0, 0, 0,};
 struct GuiMenu hold_audience_menu =
  { 17, 0, 4, hold_audience_buttons,      POS_GAMECTR,POS_GAMECTR,200, 116, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 struct GuiMenu dungeon_special_menu =
- { 27, 0, 4, dungeon_special_buttons,                  160, 316, 480,  86, gui_round_glass_background,  0, NULL,    NULL,                    0, 0, 0,};
+ { 27, 0, 4, dungeon_special_buttons,            160, POS_SCRBTM,480, 86, gui_round_glass_background,  0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu resurrect_creature_menu =
  { 28, 0, 4, resurrect_creature_buttons, POS_GAMECTR,POS_GAMECTR,350, 300, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 struct GuiMenu transfer_creature_menu =
@@ -1077,7 +1120,8 @@ struct GuiMenu creature_query_menu2 =
 struct GuiMenu creature_query_menu3 =
  { 32, 0, 1, creature_query_buttons3,             0,          0, 140, 400, gui_creature_query_background2,0,NULL,   NULL,                    0, 0, 1,};
 struct GuiMenu battle_menu =
- { 34, 0, 4, battle_buttons,                    160,        300, 480, 102, gui_round_glass_background,  0, NULL,    NULL,                    0, 0, 0,};
+// { 34, 0, 4, battle_buttons,                    160,        300, 480, 102, gui_round_glass_background,  0, NULL,    NULL,                    0, 0, 0,};
+ { 34, 0, 4, battle_buttons,                    160, POS_SCRBTM, 480, 102, gui_round_glass_background,  0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_define_keys_menu =
  { 36, 0, 1, frontend_define_keys_buttons,        0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu autopilot_menu =
@@ -1237,21 +1281,173 @@ struct FrontEndButtonData frontend_button_info[] = {
     {431, 1},
 };
 
+const struct DemoItem demo_item[] = {
+    {DIK_SwitchState, (char *)13},
+/*
+    {DIK_LoadPacket, "PACKET1.SAV"},
+    {DIK_LoadPacket, "PACKET2.SAV"},
+*/
+    {DIK_PlaySmkVideo, "INTROMIX.SMK"},
+    {DIK_ListEnd, NULL},
+};
+
 /******************************************************************************/
 
 void LbDataLoadSetModifyFilenameFunction(ModDL_Fname_Func nmodify_dl_filename_func)
 {
-  _DK_modify_data_load_filename_function=nmodify_dl_filename_func;
+  modify_data_load_filename_function=nmodify_dl_filename_func;
 }
 
-char menu_is_active(char idx)
+short menu_is_active(short idx)
 {
-  return _DK_menu_is_active(idx);
+  //return _DK_menu_is_active(idx);
+  return (menu_id_to_number(idx) >= 0);
+}
+
+short a_menu_window_is_active(void)
+{
+  //return _DK_a_menu_window_is_active();
+  if (no_of_active_menus <= 0)
+    return false;
+  int i,k;
+  for (i=0; i<no_of_active_menus; i++)
+  {
+      k = menu_stack[i];
+      if ((k != 1) && (k != 2)
+           && (k != 3) && (k != 4)
+           && (k != 5) && (k != 7) && (k != 6)
+           && (k != 16) && (k != 31)
+           && (k != 35) && (k != 32)
+           && (k != 34) && (k != 38)
+           && (k != 27))
+        return true;
+  }
+  return false;
 }
 
 void get_player_gui_clicks(void)
 {
-  _DK_get_player_gui_clicks(); return;
+  //_DK_get_player_gui_clicks(); return;
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  struct Dungeon *dungeon;
+  struct Thing *thing;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+
+  if ( ((game.numfield_C & 0x01) != 0) && ((game.numfield_C & 0x80) == 0))
+    return;
+
+  switch (player->field_452)
+  {
+  case 3:
+      if (right_button_released)
+      {
+        thing = game.things_lookup[player->field_2F];
+        if (thing->field_1F == 5)
+        {
+          if (a_menu_window_is_active())
+          {
+            game.numfield_D &= 0xF7u;
+            player->field_0 &= 0xF7u;
+            turn_off_all_window_menus();
+          } else
+          {
+            game.numfield_D |= 0x08;
+            player->field_0 |= 0x08;
+            turn_on_menu(7);
+          }
+        }
+      }
+      break;
+  case 2:
+  case 4:
+  case 5:
+  case 6:
+      break;
+  default:
+      if (right_button_released)
+      {
+        dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+
+        if ((player->field_453 != 5) || (dungeon->field_33 == 0))
+        {
+          if ( !turn_off_all_window_menus() )
+          {
+            pckt = &game.packets[player->field_B%PACKETS_COUNT];
+            if (player->field_453 == 12)
+            {
+              turn_off_query_menus();
+              set_packet_action(pckt, 36, 1, 0, 0, 0);
+              right_button_released = 0;
+            } else
+            if ((player->field_453 != 15) && (player->field_453 != 1))
+            {
+              set_packet_action(pckt, 36, 1, 0, 0, 0);
+              right_button_released = 0;
+            }
+          }
+        }
+      } else
+      if (lbKeyOn[KC_ESCAPE])
+      {
+        lbKeyOn[KC_ESCAPE] = 0;
+        if ( a_menu_window_is_active() )
+        {
+          turn_off_all_window_menus();
+        } else
+        {
+          turn_on_menu(8);
+        }
+      }
+      break;
+  }
+
+  if ( game_is_busy_doing_gui() )
+  {
+    pckt = &game.packets[player->field_B%PACKETS_COUNT];
+    set_packet_control(pckt, 0x4000u);
+  }
+}
+
+void create_error_box(unsigned short msg_idx)
+{
+  if ( !game.field_149E81 )
+  {
+    //change the length into  when gui_error_text will not be exported
+    strncpy(gui_error_text, strings[msg_idx],TEXT_BUFFER_LENGTH-1);
+    turn_on_menu(15);
+  }
+}
+
+void demo(void)
+{
+  //_DK_demo(); return;
+  static long index = 0;
+  char *fname;
+  switch (demo_item[index].numfield_0)
+  {
+  case DIK_PlaySmkVideo:
+      fname = prepare_file_path(FGrp_LoData,demo_item[index].fname);
+      play_smacker_file(fname, 1);
+      break;
+  case DIK_LoadPacket:
+      fname = prepare_file_path(FGrp_FxData,demo_item[index].fname);
+      wait_for_cd_to_be_available();
+      if ( LbFileExists(fname) )
+      {
+        strcpy(game.packet_fname, fname);
+        game.field_149E81 = 1;
+        game.turns_fastforward = 0;
+        frontend_set_state(25);
+      }
+      break;
+  case DIK_SwitchState:
+      frontend_set_state((long)demo_item[index].fname);
+      break;
+  }
+  index++;
+  if (demo_item[index].numfield_0 == DIK_ListEnd)
+    index = 0;
 }
 
 void turn_on_event_info_panel_if_necessary(unsigned short evnt_idx)
@@ -1274,9 +1470,83 @@ void activate_event_box(long evnt_idx)
   set_packet_action(pckt, 115, evnt_idx, 0,0,0);
 }
 
+void kill_button(struct GuiButton *gbtn)
+{
+  if (gbtn != NULL)
+    gbtn->field_0 &= 0xFEu;
+}
+
+void kill_button_area_input(void)
+{
+  if (input_button != NULL)
+    strcpy((char *)input_button->field_33, backup_input_field);
+  input_button = NULL;
+}
+
+void kill_menu(struct GuiMenu *gmnu)
+{
+  struct GuiButton *gbtn;
+  int i;
+  if (gmnu->field_1)
+  {
+    gmnu->field_1 = 0;
+    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    {
+      gbtn = &active_buttons[i];
+      if ((gbtn->field_0 & 0x01) && (gbtn->gmenu_idx == gmnu->field_14))
+        kill_button(gbtn);
+    }
+  }
+}
+
+void remove_from_menu_stack(short mnu_id)
+{
+  unsigned short i;
+  for (i=0; i<no_of_active_menus; i++)
+  {
+    if (menu_stack[i] == mnu_id)
+    {
+      while (i < no_of_active_menus-1)
+      {
+        menu_stack[i] = menu_stack[i+1];
+        i++;
+      }
+      break;
+    }
+  }
+  if (i < no_of_active_menus)
+    no_of_active_menus--;
+}
+
 void turn_off_menu(short mnu_idx)
 {
-  _DK_turn_off_menu(mnu_idx);
+//  _DK_turn_off_menu(mnu_idx);
+  struct GuiMenu *gmnu;
+  long menu_num;
+  if ((mnu_idx >= 13) && (mnu_idx <= 14))
+    save_settings();
+  menu_num = menu_id_to_number(mnu_idx);
+  if (menu_num >= 0)
+  {
+    if (game_is_busy_doing_gui())
+    {
+      if (input_button->gmenu_idx == menu_num)
+        kill_button_area_input();
+    }
+    gmnu = &active_menus[menu_num];
+    gmnu->field_1 = 3;
+    if (update_menu_fade_level(gmnu) == -1)
+    {
+      kill_menu(gmnu);
+      remove_from_menu_stack(gmnu->field_0);
+    }
+  }
+}
+
+char game_is_busy_doing_gui(void)
+{
+  //return _DK_game_is_busy_doing_gui();
+  return (input_button != NULL);
 }
 
 void gui_activity_background(struct GuiMenu *gmnu)
@@ -1297,6 +1567,7 @@ void frontend_copy_mnu_background(struct GuiMenu *gmnu)
 
 void draw_load_button(struct GuiButton *gbtn)
 {
+  if (gbtn == NULL) return;
   gbtn->height = 32;
   if ((gbtn->field_1) || (gbtn->field_2))
   {
@@ -1306,7 +1577,7 @@ void draw_load_button(struct GuiButton *gbtn)
   {
     draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
   }
-  if (gbtn->field_33)
+  if (gbtn->field_33 != NULL)
   {
     sprintf(gui_textbuf, "%s", gbtn->field_33);
     draw_button_string(gbtn, gui_textbuf);
@@ -1369,7 +1640,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, char *
     h=LbTextHeight(text);
     x = gbtn->scr_pos_x + ((40) >> 1);
     y = gbtn->scr_pos_y + ((frontend_sprite[spridx].SHeight-h) >> 1);
-    _DK_LbTextSetWindow(x, y, gbtn->width-40, h);
+    LbTextSetWindow(x, y, gbtn->width-40, h);
     LbTextDraw(0, 0, text);
   }
 }
@@ -1736,6 +2007,71 @@ void frontnet_net_serial_start_maintain(struct GuiButton *gbtn)
   _DK_frontnet_net_serial_start_maintain(gbtn);
 }
 
+int frontend_load_data(void)
+{
+  return _DK_frontend_load_data();
+}
+
+void frontnet_serial_reset(void)
+{
+  _DK_frontnet_serial_reset();
+}
+
+void frontnet_modem_reset(void)
+{
+  _DK_frontnet_modem_reset();
+}
+
+void fronttorture_unload(void)
+{
+  _DK_fronttorture_unload();
+}
+
+void fronttorture_load(void)
+{
+  _DK_fronttorture_load();
+}
+
+void frontnetmap_unload(void)
+{
+  _DK_frontnetmap_unload();
+}
+
+void frontnetmap_load(void)
+{
+  _DK_frontnetmap_load();
+}
+
+int frontmap_load(void)
+{
+  return _DK_frontmap_load();
+}
+
+void frontnet_service_setup(void)
+{
+  _DK_frontnet_service_setup();
+}
+
+void frontnet_session_setup(void)
+{
+  _DK_frontnet_session_setup();
+}
+
+void frontnet_start_setup(void)
+{
+  _DK_frontnet_start_setup();
+}
+
+void frontnet_modem_setup(void)
+{
+  _DK_frontnet_modem_setup();
+}
+
+void frontnet_serial_setup(void)
+{
+  _DK_frontnet_serial_setup();
+}
+
 void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn)
 {
   _DK_frontend_maintain_high_score_ok_button(gbtn);
@@ -1778,7 +2114,14 @@ void gui_go_to_map(struct GuiButton *gbtn)
 
 void gui_area_new_normal_button(struct GuiButton *gbtn)
 {
+  static const char *func_name="gui_area_new_normal_button";
+#if (BFDEBUG_LEVEL > 10)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_gui_area_new_normal_button(gbtn);
+#if (BFDEBUG_LEVEL > 12)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 void gui_area_autopilot_button(struct GuiButton *gbtn)
@@ -1788,7 +2131,8 @@ void gui_area_autopilot_button(struct GuiButton *gbtn)
 
 void gui_set_menu_mode(struct GuiButton *gbtn)
 {
-  _DK_gui_set_menu_mode(gbtn);
+  //_DK_gui_set_menu_mode(gbtn); return;
+  set_menu_mode(gbtn->field_1B);
 }
 
 void gui_draw_tab(struct GuiButton *gbtn)
@@ -1796,9 +2140,49 @@ void gui_draw_tab(struct GuiButton *gbtn)
   _DK_gui_draw_tab(gbtn);
 }
 
+void turn_off_event_box_if_necessary(long plridx, char val)
+{
+  _DK_turn_off_event_box_if_necessary(plridx, val);
+}
+
+void frontend_save_continue_game(long lv_num, int a2)
+{
+  static const char *func_name="frontend_save_continue_game";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Continue set to level %d (current is %d)\n",func_name,lv_num,game.level_number);
+#endif
+  _DK_frontend_save_continue_game(lv_num,a2);
+}
+
+void frontstats_initialise(void)
+{
+  _DK_frontstats_initialise();
+}
+
 void gui_open_event(struct GuiButton *gbtn)
 {
-  _DK_gui_open_event(gbtn);
+  static const char *func_name="gui_open_event";
+  //_DK_gui_open_event(gbtn);
+  struct Dungeon *dungeon;
+  dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+  unsigned int idx;
+  unsigned int evnt_idx;
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  idx = (unsigned long)gbtn->field_33;
+  if (idx < 121) //size of the field_13A7 array (I can't be completely sure of it)
+    evnt_idx = dungeon->field_13A7[idx];
+  else
+    evnt_idx = 0;
+  if (evnt_idx == dungeon->field_1173)
+  {
+    gui_close_objective(gbtn);
+  } else
+  if (evnt_idx != 0)
+  {
+    activate_event_box(evnt_idx);
+  }
 }
 
 void gui_kill_event(struct GuiButton *gbtn)
@@ -1838,7 +2222,14 @@ void gui_area_new_null_button(struct GuiButton *gbtn)
 
 void gui_area_new_no_anim_button(struct GuiButton *gbtn)
 {
+  static const char *func_name="gui_area_new_no_anim_button";
+#if (BFDEBUG_LEVEL > 10)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_gui_area_new_no_anim_button(gbtn);
+#if (BFDEBUG_LEVEL > 12)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 void gui_remove_area_for_rooms(struct GuiButton *gbtn)
@@ -2148,6 +2539,16 @@ void frontend_quit_high_score_table(struct GuiButton *gbtn)
   _DK_frontend_quit_high_score_table(gbtn);
 }
 
+void frontnet_start_input(void)
+{
+  _DK_frontnet_start_input();
+}
+
+void frontend_high_score_table_input(void)
+{
+  _DK_frontend_high_score_table_input();
+}
+
 void pick_up_next_wanderer(struct GuiButton *gbtn)
 {
   _DK_pick_up_next_wanderer(gbtn);
@@ -2210,7 +2611,66 @@ void gui_go_to_next_creature_activity(struct GuiButton *gbtn)
 
 void gui_area_anger_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_anger_button(gbtn);
+  static const char *func_name="gui_area_anger_button";
+  struct Dungeon *dungeon;
+  int spridx,actvty_idx,i;
+  long breed_idx,cr_total;
+#if (BFDEBUG_LEVEL > 10)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  //_DK_gui_area_anger_button(gbtn);
+  actvty_idx = (((long)gbtn->field_33 - (long)&activity_list) / sizeof(long));
+  if (gbtn->field_1B != 0)
+    breed_idx = breed_activities[(top_of_breed_list+(actvty_idx>>2))%CREATURE_TYPES_COUNT];
+  else
+    breed_idx = 23;
+  if ((breed_idx > 0) && (breed_idx < CREATURE_TYPES_COUNT) &&(gbtn->field_0 & 0x08))
+  {
+      dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+      spridx = gbtn->field_29;
+      if (gbtn->field_33 != NULL)
+      {
+        cr_total = *(long *)gbtn->field_33;
+        if (cr_total > 0)
+        {
+          i = dungeon->field_4E4[breed_idx][(actvty_idx & 0x03)];
+          if (i > cr_total)
+          {
+  #if (BFDEBUG_LEVEL > 9)
+    LbWarnLog("%s: Creature %d stats inconsistency; total=%d, doing activity%d=%d\n",func_name,breed_idx,cr_total,(actvty_idx & 0x03),i);
+  #endif
+            i = cr_total;
+          }
+          if (i < 0)
+          {
+            i = 0;
+          }
+          spridx += 14 * i / cr_total;
+        }
+      }
+      if ((gbtn->field_1) || (gbtn->field_2))
+      {
+        LbSpriteDrawRemap(gbtn->scr_pos_x / pixel_size, (gbtn->scr_pos_y-2) / pixel_size,
+          &gui_panel_sprites[spridx%PANEL_SPRITES_COUNT], &fade_tables[3072]);
+      } else
+      {
+        LbSpriteDraw(gbtn->scr_pos_x / pixel_size, (gbtn->scr_pos_y-2) / pixel_size,
+          &gui_panel_sprites[spridx%PANEL_SPRITES_COUNT]);
+      }
+      if (gbtn->field_33 != NULL)
+      {
+        sprintf(gui_textbuf, "%ld", cr_total);
+        if ((cr_total > 0) && (dungeon->field_424[breed_idx][(actvty_idx & 0x03)] ))
+        {
+            for (i=0; gui_textbuf[i] != '\0'; i++)
+                gui_textbuf[i] -= 120;
+        }
+        draw_button_string(gbtn, gui_textbuf);
+      }
+  }
+#if (BFDEBUG_LEVEL > 12)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 void gui_area_text(struct GuiButton *gbtn)
@@ -2603,6 +3063,26 @@ void frontend_load_continue_game(struct GuiButton *gbtn)
   _DK_frontend_load_continue_game(gbtn);
 }
 
+void frontmap_draw(void)
+{
+  _DK_frontmap_draw();
+}
+
+void frontcredits_draw(void)
+{
+  _DK_frontcredits_draw();
+}
+
+void fronttorture_draw(void)
+{
+  _DK_fronttorture_draw();
+}
+
+void frontnetmap_draw(void)
+{
+  _DK_frontnetmap_draw();
+}
+
 void gui_previous_battle(struct GuiButton *gbtn)
 {
   _DK_gui_previous_battle(gbtn);
@@ -2681,6 +3161,21 @@ void select_transfer_creature_up(struct GuiButton *gbtn)
 void select_transfer_creature_down(struct GuiButton *gbtn)
 {
   _DK_select_transfer_creature_down(gbtn);
+}
+
+void frontmap_input(void)
+{
+  _DK_frontmap_input();
+}
+
+void frontnetmap_input(void)
+{
+  _DK_frontnetmap_input();
+}
+
+void fronttorture_input(void)
+{
+  _DK_fronttorture_input();
 }
 
 long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
@@ -2764,7 +3259,7 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
   lbDisplay.DrawFlags = 0x0020;
   if ( lbFontPtr!=NULL )
       height = LbTextHeight(net_service[srvidx]);
-  _DK_LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
+  LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
   //Draw the text
   LbTextDraw(0, 0, net_service[srvidx]);
 }
@@ -2774,9 +3269,9 @@ void frontnet_service_select(struct GuiButton *gbtn)
 //  _DK_frontnet_service_select(gbtn);
   int srvidx;
   srvidx = (long)(gbtn->field_33) + net_service_scroll_offset - 45;
-  if ( (game.one_player) && (srvidx+1>=_DK_net_number_of_services) )
+  if ( (game.one_player) && (srvidx+1>=net_number_of_services) )
   {
-    _DK_fe_network_active = 0;
+    fe_network_active = 0;
     frontend_set_state(24);
   } else
   if (srvidx <= 0)
@@ -2806,7 +3301,7 @@ void frontend_load_high_score_table(void)
 {
   char *fname;
   fname=prepare_file_path(FGrp_StdData,"hiscores.dat");
-  if ( LbFileLoadAt(fname, _DK_high_score_table) != sizeof(_DK_high_score_table) )
+  if ( LbFileLoadAt(fname, high_score_table) != sizeof(high_score_table) )
   {
      LbSyncLog("High scores table bad; creating new one.\n");
      // highscore table wrong - generate a new one
@@ -2815,13 +3310,13 @@ void frontend_load_high_score_table(void)
      int nlevel = 10;
      for (i=0;i<10;i++)
      {
-            sprintf(_DK_high_score_table[i].name, "Bullfrog");
-            _DK_high_score_table[i].score=npoints;
-            _DK_high_score_table[i].level=nlevel;
+            sprintf(high_score_table[i].name, "Bullfrog");
+            high_score_table[i].score=npoints;
+            high_score_table[i].level=nlevel;
             npoints -= 100;
             nlevel -= 1;
      }
-     LbFileSaveAt(fname, _DK_high_score_table, sizeof(_DK_high_score_table));
+     LbFileSaveAt(fname, high_score_table, sizeof(high_score_table));
   }
 }
 
@@ -2833,7 +3328,7 @@ void add_score_to_high_score_table(void)
     long new_score=dungeon->player_score;
     for (idx=0;idx<10;idx++)
     {
-        if (_DK_high_score_table[idx].score <= new_score )
+        if (high_score_table[idx].score <= new_score )
           break;
     }
     // If the new score is poor, return
@@ -2842,14 +3337,14 @@ void add_score_to_high_score_table(void)
     int k;
     for (k=8;k>=idx;k--)
     {
-        memcpy(&_DK_high_score_table[k+1],&_DK_high_score_table[k],sizeof(struct HighScore));
+        memcpy(&high_score_table[k+1],&high_score_table[k],sizeof(struct HighScore));
     }
     // Preparing the new entry
-    _DK_high_score_entry_input_active = idx;
-    _DK_high_score_entry[0] = '\0';
-    _DK_high_score_entry_index = 0;
-    _DK_high_score_table[idx].score = new_score;
-    _DK_high_score_table[idx].level = game.level_number - 1;
+    high_score_entry_input_active = idx;
+    high_score_entry[0] = '\0';
+    high_score_entry_index = 0;
+    high_score_table[idx].score = new_score;
+    high_score_table[idx].level = game.level_number - 1;
 }
 
 void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
@@ -3001,6 +3496,244 @@ long first_available_menu(void)
   return -1;
 }
 
+void turn_off_query_menus(void)
+{
+  turn_off_menu(31);
+  turn_off_menu(35);
+  turn_off_menu(32);
+}
+
+void setup_radio_buttons(struct GuiMenu *gmnu)
+{
+  struct GuiButton *gbtn;
+  int i;
+  for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+  {
+    gbtn = &active_buttons[i];
+    if ((gbtn->field_33) && (gmnu->field_14 == gbtn->gmenu_idx))
+    {
+      if (gbtn->gbtype == 3)
+      {
+        if ( *(unsigned char *)gbtn->field_33 )
+          gbtn->field_1 = 1;
+        else
+          gbtn->field_1 = 0;
+      }
+    }
+  }
+}
+
+void turn_off_all_panel_menus(void)
+{
+  //_DK_turn_off_all_panel_menus(); return;
+  int mnu_num;
+  struct GuiMenu *gmnu;
+  mnu_num = menu_id_to_number(1);
+  if (mnu_num >= 0)
+  {
+    gmnu = &active_menus[mnu_num];
+    setup_radio_buttons(gmnu);
+  }
+  if ( menu_is_active(2) )
+  {
+    turn_off_menu(2);
+  }
+  if ( menu_is_active(3) )
+  {
+    turn_off_menu(3);
+  }
+  if ( menu_is_active(4) )
+  {
+    turn_off_menu(4);
+  }
+  if ( menu_is_active(7) )
+  {
+    turn_off_menu(7);
+  }
+  if ( menu_is_active(5) )
+  {
+    turn_off_menu(5);
+  }
+  if ( menu_is_active(31) )
+  {
+    turn_off_menu(31);
+  }
+  if ( menu_is_active(35) )
+  {
+    turn_off_menu(35);
+  }
+  if ( menu_is_active(32) )
+  {
+    turn_off_menu(32);
+  }
+  if ( menu_is_active(38) )
+  {
+    turn_off_menu(38);
+  }
+}
+
+void set_menu_mode(long mnu_idx)
+{
+  if (!menu_is_active(mnu_idx))
+  {
+    turn_off_all_panel_menus();
+    turn_on_menu(mnu_idx);
+  }
+}
+
+short turn_off_all_window_menus(void)
+{
+  short result;
+  result = false;
+  if (menu_is_active(10))
+  {
+    result = true;
+    turn_off_menu(10);
+  }
+  if (menu_is_active(11))
+  {
+    result = true;
+    turn_off_menu(11);
+  }
+  if (menu_is_active(12))
+  {
+    result = true;
+    turn_off_menu(12);
+  }
+  if (menu_is_active(8))
+  {
+    result = true;
+    turn_off_menu(8);
+  }
+  if (menu_is_active(13))
+  {
+    result = true;
+    turn_off_menu(13);
+  }
+  if (menu_is_active(14))
+  {
+    result = true;
+    turn_off_menu(14);
+  }
+  if (menu_is_active(15))
+  {
+    result = true;
+    turn_off_menu(15);
+  }
+  if (menu_is_active(9))
+  {
+    result = true;
+    turn_off_menu(9);
+  }
+  if (menu_is_active(28))
+  {
+    result = true;
+    turn_off_menu(28);
+  }
+  if (menu_is_active(29))
+  {
+    result = true;
+    turn_off_menu(29);
+  }
+  if (menu_is_active(30))
+  {
+    result = true;
+    turn_off_menu(30);
+  }
+  if (menu_is_active(37))
+  {
+    result = true;
+    turn_off_menu(37);
+  }
+  if (menu_is_active(38))
+  {
+    result = true;
+    turn_off_menu(38);
+  }
+  return result;
+}
+
+void turn_on_main_panel_menu(void)
+{
+  if (menu_id_to_number(1) == -1)
+  {
+    turn_on_menu(1);
+  }
+  if (info_tag != 0)
+  {
+    turn_on_menu(7);
+  } else
+  if (room_tag != 0)
+  {
+    turn_on_menu(2);
+  } else
+  if (spell_tag != 0)
+  {
+    turn_on_menu(3);
+  } else
+  if (trap_tag != 0)
+  {
+    turn_on_menu(2);
+  } else
+  if (creature_tag != 0)
+  {
+    turn_on_menu(5);
+  }
+}
+
+short turn_off_all_bottom_menus(void)
+{
+  short result;
+  result = false;
+  if (menu_is_active(16))
+  {
+    result = true;
+    turn_off_menu(16);
+  }
+  if (menu_is_active(34))
+  {
+    result = true;
+    turn_off_menu(34);
+  }
+  if (menu_is_active(27))
+  {
+    result = true;
+    turn_off_menu(27);
+  }
+  return result;
+}
+
+void turn_off_all_menus(void)
+{
+  turn_off_all_panel_menus();
+  turn_off_all_window_menus();
+  turn_off_all_bottom_menus();
+}
+
+/*  This code can't be used to fix menus after screen mode change,
+ because it can't properly support hidden menus.
+void reinit_all_menus(void)
+{
+  unsigned char old_menu_stack[ACTIVE_MENUS_COUNT];
+  unsigned short old_active_menus;
+  old_active_menus = no_of_active_menus;
+  memcpy(old_menu_stack,menu_stack,old_active_menus*sizeof(char));
+  short i;
+  // Disable all menus
+  for (i=old_active_menus-1; i>=0; i--)
+  {
+    //LbSyncLog("OFF %d\n",old_menu_stack[i]);
+    turn_off_menu(old_menu_stack[i]);
+  }
+  // Re-enable them, to update their properties
+  for (i=0; i<old_active_menus; i++)
+  {
+    //LbSyncLog("ON %d\n",old_menu_stack[i]);
+    turn_on_menu(old_menu_stack[i]);
+  }
+}
+*/
+
 void update_radio_button_data(struct GuiMenu *gmnu)
 {
   int i;
@@ -3098,9 +3831,9 @@ long compute_menu_position_x(long desired_pos,int menu_width)
       pos = MyScreenWidth - menu_width;
       break;
   default: // Desired position have direct coordinates
-      pos = (desired_pos*units_per_pixel)>>4;
-      if (pos+menu_width > lbDisplay.PhysicalScreenWidth)
-        pos = lbDisplay.PhysicalScreenWidth-menu_width;
+      pos = ((desired_pos*units_per_pixel)>>4)*pixel_size;
+      if (pos+menu_width > lbDisplay.PhysicalScreenWidth*pixel_size)
+        pos = lbDisplay.PhysicalScreenWidth*pixel_size-menu_width;
 /* No idea what's this for - disabling
       if (pos < 140)
         pos = 140;
@@ -3147,9 +3880,9 @@ long compute_menu_position_y(long desired_pos,int menu_height)
       pos = MyScreenHeight - menu_height;
       break;
   default: // Desired position have direct coordinates
-      pos = (desired_pos*units_per_pixel)>>4;
-      if (pos+menu_height > lbDisplay.PhysicalScreenHeight)
-        pos = lbDisplay.PhysicalScreenHeight-menu_height;
+      pos = ((desired_pos*units_per_pixel)>>4)*pixel_size;
+      if (pos+menu_height > lbDisplay.PhysicalScreenHeight*pixel_size)
+        pos = lbDisplay.PhysicalScreenHeight*pixel_size-menu_height;
       break;
   }
   // Clipping position Y
@@ -3252,6 +3985,98 @@ void turn_on_menu(short idx)
   }
 }
 
+void set_menu_visible_on(long menu_id)
+{
+  long menu_num;
+  menu_num = menu_id_to_number(menu_id);
+  if (menu_num < 0)
+    return;
+  active_menus[menu_num].flgfield_1D = 1;
+  int idx;
+  for (idx=0; idx<ACTIVE_BUTTONS_COUNT; idx++)
+  {
+    struct GuiButton *gbtn = &active_buttons[idx];
+    if (gbtn->field_0 & 1)
+    {
+      Gf_Btn_Callback callback;
+      callback = gbtn->field_17;
+      if ((gbtn->gmenu_idx == menu_num) && (callback != NULL))
+        callback(gbtn);
+    }
+  }
+}
+
+void set_menu_visible_off(long menu_id)
+{
+  long menu_num;
+  menu_num = menu_id_to_number(menu_id);
+  if (menu_num < 0)
+    return;
+  active_menus[menu_num].flgfield_1D = 0;
+}
+
+unsigned long toggle_status_menu(short visib)
+{
+  return _DK_toggle_status_menu(visib);
+}
+
+short toggle_first_person_menu(short visible)
+{
+  static char creature_query1_on = 0;
+  static char creature_query2_on = 0;
+  if (visible)
+  {
+    if ( creature_query1_on )
+        set_menu_visible_on(31);
+    else
+    if ( creature_query2_on )
+      set_menu_visible_on(35);
+    return 1;
+  } else
+  {
+    long menu_num;
+    // Menu no 31
+    menu_num=menu_id_to_number(31);
+    if (menu_num >= 0)
+      creature_query1_on = active_menus[menu_num].flgfield_1D;
+    set_menu_visible_off(31);
+    // Menu no 35
+    menu_num=menu_id_to_number(35);
+    if (menu_num >= 0)
+      creature_query2_on = active_menus[menu_num].flgfield_1D;
+    set_menu_visible_off(31);
+    return 1;
+  }
+}
+
+void set_gui_visible(short visible)
+{
+  static const char *func_name="set_gui_visible";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  if (visible)
+    game.numfield_C |= 0x20;
+  else
+    game.numfield_C &= 0xDF;
+  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  unsigned char is_visbl = ((game.numfield_C & 0x20)!=0);
+  if (player->field_452 == 2)
+    toggle_first_person_menu(is_visbl);
+  else
+    toggle_status_menu(is_visbl);
+  if ( (game.numfield_D & 0x20) && (game.numfield_C & 0x20) )
+    setup_engine_window(140, 0, MyScreenWidth, MyScreenHeight);
+  else
+    setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+}
+
+void toggle_gui(void)
+{
+  short visible=((game.numfield_C & 0x20)==0);
+  set_gui_visible(visible);
+}
+
 void frontend_load_data_from_cd(void)
 {
     LbDataLoadSetModifyFilenameFunction(_DK_mdlf_for_cd);
@@ -3265,23 +4090,33 @@ void frontend_load_data_reset(void)
 void frontstory_load(void)
 {
     static const char *func_name="frontstory_load";
-    check_cd_in_drive();
+    wait_for_cd_to_be_available();
     frontend_load_data_from_cd();
-    if ( _DK_LbDataLoadAll(_DK_frontstory_load_files) )
+    if ( LbDataLoadAll(frontstory_load_files) )
     {
         error(func_name, 2790, "Unable to Load FRONT STORY FILES");
     } else
     {
         LbDataLoadSetModifyFilenameFunction(_DK_mdlf_default);
-        _DK_LbSpriteSetupAll(_DK_frontstory_setup_sprites);
-        LbPaletteSet(_DK_frontend_palette);
+        LbSpriteSetupAll(frontstory_setup_sprites);
+        LbPaletteSet(frontend_palette);
         srand(LbTimerClock());
-        _DK_frontstory_text_no = rand() % 26 + 803;
+        frontstory_text_no = rand() % 26 + 803;
     }
 }
 void inline frontstory_unload(void)
 {
-    _DK_LbDataFreeAll(_DK_frontstory_load_files);
+    LbDataFreeAll(frontstory_load_files);
+}
+
+void frontmap_unload(void)
+{
+  _DK_frontmap_unload();
+}
+
+void frontstats_set_timer(void)
+{
+  _DK_frontstats_set_timer();
 }
 
 void init_gui(void)
@@ -3294,17 +4129,17 @@ int frontend_set_state(long nstate)
     static const char *func_name="frontend_set_state";
     char *fname;
     //_DK_frontend_set_state(nstate);return nstate;
-  switch ( _DK_frontend_menu_state )
+  switch ( frontend_menu_state )
   {
     case 0:
       init_gui();
-      check_cd_in_drive();
+      wait_for_cd_to_be_available();
       fname=prepare_file_path(FGrp_LoData,"front.pal");
-      if ( LbFileLoadAt(fname, &_DK_frontend_palette) != 768 )
+      if ( LbFileLoadAt(fname, &frontend_palette) != 768 )
         error(func_name, 1323, "Unable to load FRONTEND PALETTE");
-      check_cd_in_drive();
+      wait_for_cd_to_be_available();
       frontend_load_high_score_table();
-      _DK_LbMouseSetPosition(lbDisplay.PhysicalScreenWidth>>1, lbDisplay.PhysicalScreenHeight>>1);
+      LbMouseSetPosition(lbDisplay.PhysicalScreenWidth>>1, lbDisplay.PhysicalScreenHeight>>1);
       update_mouse();
       break;
     case 1: // main menu state
@@ -3314,8 +4149,8 @@ int frontend_set_state(long nstate)
       turn_off_menu(19);
       break;
     case 3:
-      _DK_frontmap_unload();
-      _DK_frontend_load_data();
+      frontmap_unload();
+      frontend_load_data();
       break;
     case 4:
       turn_off_menu(20);
@@ -3336,11 +4171,11 @@ int frontend_set_state(long nstate)
       break;
     case 15:
       turn_off_menu(23);
-      _DK_frontnet_modem_reset();
+      frontnet_modem_reset();
       break;
     case 16:
       turn_off_menu(24);
-      _DK_frontnet_serial_reset();
+      frontnet_serial_reset();
       break;
     case 17:
       StopStreamedSample();
@@ -3350,16 +4185,16 @@ int frontend_set_state(long nstate)
       turn_off_menu(26);
       break;
     case 19:
-      _DK_fronttorture_unload();
-      _DK_frontend_load_data();
+      fronttorture_unload();
+      frontend_load_data();
       break;
     case 24:
-      _DK_frontnetmap_unload();
-      _DK_frontend_load_data();
+      frontnetmap_unload();
+      frontend_load_data();
       break;
     case 26:
       turn_off_menu(36);
-      _DK_save_settings();
+      save_settings();
       break;
     case 27:
       turn_off_menu(39);
@@ -3379,49 +4214,49 @@ int frontend_set_state(long nstate)
       error(func_name, 1444, "Unhandled FRONTEND previous state");
       break;
   }
-  if ( _DK_frontend_menu_state )
+  if ( frontend_menu_state )
     fade_out();
-  _DK_fade_palette_in = 1;
-  LbSyncLog("Frontend state change from %u into %u\n",_DK_frontend_menu_state,nstate);
+  fade_palette_in = 1;
+  LbSyncLog("Frontend state change from %u into %u\n",frontend_menu_state,nstate);
   switch ( nstate )
   {
     case 0:
       LbMouseChangeSpriteAndHotspot(0, 0, 0);
       break;
     case 1:
-      LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
-      _DK_continue_game_option_available = continue_game_available();
+      LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
+      continue_game_option_available = continue_game_available();
       turn_on_menu(18);
       // change when all references to frontend_set_state() are rewritten
       //time_last_played_demo = LbTimerClock();
-      _DK_time_last_played_demo=timeGetTime();
-      _DK_last_mouse_x = GetMouseX();
-      _DK_last_mouse_y = GetMouseY();
-      _DK_fe_high_score_table_from_main_menu = 1;
+      time_last_played_demo=timeGetTime();
+      last_mouse_x = GetMouseX();
+      last_mouse_y = GetMouseY();
+      fe_high_score_table_from_main_menu = 1;
       game.numfield_A &= 0xFEu;
       break;
     case 2:
       turn_on_menu(19);
-      LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
+      LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
       break;
     case 3:
-      if ( !_DK_frontmap_load() )
+      if ( !frontmap_load() )
         nstate = 7;
       break;
     case 4:
       turn_on_menu(20);
-      _DK_frontnet_service_setup();
+      frontnet_service_setup();
       break;
     case 5:
       turn_on_menu(21);
-      _DK_frontnet_session_setup();
-      LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
+      frontnet_session_setup();
+      LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
       game.numfield_A &= 0xFEu;
       break;
     case 6:
       turn_on_menu(22);
-      _DK_frontnet_start_setup();
-      LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
+      frontnet_start_setup();
+      LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
       game.numfield_A |= 0x01;
       break;
     case 7:
@@ -3431,35 +4266,35 @@ int frontend_set_state(long nstate)
     case 14:
     case 21:
     case 25:
-      _DK_fade_palette_in = 0;
+      fade_palette_in = 0;
       break;
     case 8:
       if ( game.flags_font & 0x10 )
         ;//rndseed_nullsub();
-      _DK_fade_palette_in = 0;
+      fade_palette_in = 0;
       break;
     case 12:
     case 29:
       frontstory_load();
       break;
     case 13:
-      _DK_credits_offset = lbDisplay.PhysicalScreenHeight;
-      _DK_credits_end = 0;
-      _DK_LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
-      lbDisplay.DrawFlags = 256;
+      credits_offset = lbDisplay.PhysicalScreenHeight;
+      credits_end = 0;
+      LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
+      lbDisplay.DrawFlags = 0x0100;
       break;
     case 15:
       turn_on_menu(23);
-      _DK_frontnet_modem_setup();
+      frontnet_modem_setup();
       break;
     case 16:
       turn_on_menu(24);
-      _DK_frontnet_serial_setup();
+      frontnet_serial_setup();
       break;
     case 17:
       turn_on_menu(25);
-      LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
-      _DK_frontstats_set_timer(); // note: rewrite this in pack with frontstats_update
+      LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
+      frontstats_set_timer(); // note: rewrite this in pack with frontstats_update
       break;
     case 18:
       turn_on_menu(26);
@@ -3468,20 +4303,20 @@ int frontend_set_state(long nstate)
         game.dungeon[my_player_number].allow_save_score = false;
         add_score_to_high_score_table();
       }
-      LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
-      _DK_lbInkey = 0;
+      LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
+      lbInkey = 0;
       break;
     case 19:
-      LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
-      _DK_fronttorture_load();
+      LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
+      fronttorture_load();
       break;
     case 24:
-      LbMouseChangeSpriteAndHotspot(&_DK_frontend_sprite[1], 0, 0);
-      _DK_frontnetmap_load();
+      LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
+      frontnetmap_load();
       break;
     case 26:
-      _DK_defining_a_key = 0;
-      _DK_define_key_scroll_offset = 0;
+      defining_a_key = 0;
+      define_key_scroll_offset = 0;
       turn_on_menu(36);
       break;
     case 27:
@@ -3491,25 +4326,25 @@ int frontend_set_state(long nstate)
       error(func_name, 1609, "Unhandled FRONTEND new state");
       break;
   }
-  _DK_frontend_menu_state = nstate;
-  return _DK_frontend_menu_state;
+  frontend_menu_state = nstate;
+  return frontend_menu_state;
 }
 
 void frontcredits_input(void)
 {
-    _DK_credits_scroll_speed = 1;
+    credits_scroll_speed = 1;
     int speed;
     if ( lbKeyOn[KC_DOWN] )
     {
-        speed = _DK_frontend_font[1][32].SHeight;
-        _DK_credits_scroll_speed = speed;
+        speed = frontend_font[1][32].SHeight;
+        credits_scroll_speed = speed;
     } else
-    if ((lbKeyOn[KC_UP]) && (_DK_credits_offset<=0))
+    if ((lbKeyOn[KC_UP]) && (credits_offset<=0))
     {
-        speed = -_DK_frontend_font[1][32].SHeight;
-        if ( speed <= _DK_credits_offset )
-          speed = _DK_credits_offset;
-        _DK_credits_scroll_speed = speed;
+        speed = -frontend_font[1][32].SHeight;
+        if ( speed <= credits_offset )
+          speed = credits_offset;
+        credits_scroll_speed = speed;
     }
 }
 
@@ -3530,9 +4365,9 @@ short end_input(void)
         lbKeyOn[KC_ESCAPE] = 0;
         frontend_set_state(1);
     } else
-    if ( _DK_left_button_clicked )
+    if ( left_button_clicked )
     {
-        _DK_left_button_clicked = 0;
+        left_button_clicked = 0;
         frontend_set_state(1);
     } else
         return false;
@@ -3542,26 +4377,26 @@ short end_input(void)
 void frontend_input(void)
 {
     int mouse_x,mouse_y;
-    switch ( _DK_frontend_menu_state )
+    switch ( frontend_menu_state )
     {
       case 1:
         mouse_x = GetMouseX();
         mouse_y = GetMouseY();
-        if ((mouse_x != _DK_last_mouse_x) || (mouse_y != _DK_last_mouse_y))
+        if ((mouse_x != last_mouse_x) || (mouse_y != last_mouse_y))
         {
-          _DK_last_mouse_x = mouse_x;
-          _DK_last_mouse_y = mouse_y;
+          last_mouse_x = mouse_x;
+          last_mouse_y = mouse_y;
           //time_last_played_demo = LbTimerClock();
-          _DK_time_last_played_demo = timeGetTime();
+          time_last_played_demo = timeGetTime();
         }
         get_gui_inputs(0);
         break;
       case 3:
-        _DK_frontmap_input();
+        frontmap_input();
         break;
       case 6:
         get_gui_inputs(0);
-        _DK_frontnet_start_input();
+        frontnet_start_input();
         break;
       case 12:
       case 29:
@@ -3580,32 +4415,32 @@ void frontend_input(void)
             lbKeyOn[KC_ESCAPE] = 0;
             frontend_set_state(1);
         } else
-        if ( _DK_left_button_clicked )
+        if ( left_button_clicked )
         {
-            _DK_left_button_clicked = 0;
+            left_button_clicked = 0;
             frontend_set_state(1);
         }
         break;
       case 13:
         if (!end_input())
         {
-          if ( _DK_credits_end )
+          if ( credits_end )
             frontend_set_state(1);
         }
         frontcredits_input();
         break;
       case 18:
         get_gui_inputs(0);
-         _DK_frontend_high_score_table_input();
+         frontend_high_score_table_input();
         break;
       case 19:
-        _DK_fronttorture_input();
+        fronttorture_input();
         break;
       case 24:
-        _DK_frontnetmap_input();
+        frontnetmap_input();
         break;
       case 26:
-        if ( !_DK_defining_a_key )
+        if ( !defining_a_key )
           get_gui_inputs(0);
         else
           define_key_input();
@@ -3643,7 +4478,7 @@ void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
 {
   const int img_width = 640;
   const int img_height = 480;
-  const unsigned char *srcbuf=_DK_frontend_background;
+  const unsigned char *srcbuf=frontend_background;
   struct TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
   int m,i,k;
   int spx,spy;
@@ -3727,36 +4562,15 @@ void frontend_copy_background(void)
 int frontstory_draw(void)
 {
   frontend_copy_background();
-  _DK_LbTextSetWindow(70, 70, 500, 340);
-  lbFontPtr = _DK_frontstory_font;
+  LbTextSetWindow(70, 70, 500, 340);
+  lbFontPtr = frontstory_font;
   lbDisplay.DrawFlags = 0x0100;
-  LbTextDraw(0,0,_DK_strings[_DK_frontstory_text_no]);
+  LbTextDraw(0,0,strings[frontstory_text_no]);
 }
 
 void draw_defining_a_key_box(void)
 {
-    _DK_draw_text_box(_DK_strings[470]);
-}
-
-void kill_button(struct GuiButton *gbtn)
-{
-  gbtn->field_0 &= 0xFEu;
-}
-
-void kill_menu(struct GuiMenu *gmnu)
-{
-  struct GuiButton *gbtn;
-  int i;
-  if (gmnu->field_1)
-  {
-    gmnu->field_1 = 0;
-    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
-    {
-      gbtn = &active_buttons[i];
-      if ((gbtn->field_0 & 0x01) && (gbtn->gmenu_idx == gmnu->field_14))
-        kill_button(gbtn);
-    }
-  }
+    draw_text_box(strings[470]);
 }
 
 char update_menu_fade_level(struct GuiMenu *gmnu)
@@ -3764,12 +4578,26 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
   return _DK_update_menu_fade_level(gmnu);
 }
 
+void toggle_gui_overlay_map(void)
+{
+  unsigned char mask;
+  if ((game.numfield_C & 0x20) == 0)
+    mask=0x20;
+  else
+    mask=0;
+  game.numfield_C = (game.numfield_C & 0xDFu) | mask;
+}
+
 void draw_menu_buttons(struct GuiMenu *gmnu)
 {
-  //_DK_draw_menu_buttons(gmnu); return;
+  static const char *func_name="draw_menu_buttons";
   int i;
   struct GuiButton *gbtn;
   Gf_Btn_Callback callback;
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting phase one\n",func_name);
+#endif
+  //_DK_draw_menu_buttons(gmnu); return;
   for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
   {
     gbtn = &active_buttons[i];
@@ -3780,6 +4608,9 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
         callback(gbtn);
     }
   }
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting phase two\n",func_name);
+#endif
   for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
   {
     gbtn = &active_buttons[i];
@@ -3790,14 +4621,16 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
         callback(gbtn);
     }
   }
+#if (BFDEBUG_LEVEL > 9)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 long menu_id_to_number(short menu_id)
 {
   int idx;
   struct GuiMenu *gmnu;
-  const short gmax=8;//sizeof(active_menus)/sizeof(struct GuiMenu);
-  for(idx=0;idx<gmax;idx++)
+  for(idx=0; idx<ACTIVE_MENUS_COUNT; idx++)
   {
     gmnu=&active_menus[idx];
     if ((gmnu->field_1 != 0) && (gmnu->field_0 == menu_id))
@@ -3806,31 +4639,15 @@ long menu_id_to_number(short menu_id)
   return -1;
 }
 
-void remove_from_menu_stack(short mnu_id)
-{
-  unsigned short i;
-  for (i=0; i<no_of_active_menus; i++)
-  {
-    if (menu_stack[i] == mnu_id)
-    {
-      while (i < no_of_active_menus-1)
-      {
-        menu_stack[i] = menu_stack[i+1];
-        i++;
-      }
-      break;
-    }
-  }
-  if (i < no_of_active_menus)
-    no_of_active_menus--;
-}
-
 void update_fade_active_menus(void)
 {
+  static const char *func_name="update_fade_active_menus";
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   struct GuiMenu *gmnu;
   int k;
-  const short gmax=8;//sizeof(active_menus)/sizeof(struct GuiMenu);
-  for (k=0; k < gmax; k++)
+  for (k=0; k < ACTIVE_MENUS_COUNT; k++)
   {
     gmnu = &active_menus[k];
     if (update_menu_fade_level(gmnu) == -1)
@@ -3839,19 +4656,27 @@ void update_fade_active_menus(void)
       remove_from_menu_stack(gmnu->field_0);
     }
   }
+#if (BFDEBUG_LEVEL > 9)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 void draw_active_menus_buttons(void)
 {
+  static const char *func_name="draw_active_menus_buttons";
   struct GuiMenu *gmnu;
-  int k,i;
+  int k;
+  long menu_num;
   Gf_Mnu_Callback callback;
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting with %d active menus\n",func_name,no_of_active_menus);
+#endif
   for (k=0; k < no_of_active_menus; k++)
   {
-    i = menu_id_to_number(menu_stack[k]);
-    if (i<0) continue;
-    gmnu = &active_menus[i];
-//LbSyncLog("DRAW menu %d, fields %d, %d\n",i,gmnu->field_1,gmnu->flgfield_1D);
+    menu_num = menu_id_to_number(menu_stack[k]);
+    if (menu_num < 0) continue;
+    gmnu = &active_menus[menu_num];
+//LbSyncLog("DRAW menu %d, fields %d, %d\n",menu_num,gmnu->field_1,gmnu->flgfield_1D);
     if ((gmnu->field_1) && (gmnu->flgfield_1D))
     {
         if ((gmnu->field_1 != 2) && (gmnu->numfield_2))
@@ -3868,6 +4693,9 @@ void draw_active_menus_buttons(void)
         lbDisplay.DrawFlags &= 0xFFFBu;
     }
   }
+#if (BFDEBUG_LEVEL > 9)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 void draw_menu_highlight(struct GuiMenu *gmnu)
@@ -3933,8 +4761,12 @@ void draw_menu_highlight(struct GuiMenu *gmnu)
 
 void draw_active_menus_highlights(void)
 {
+  static const char *func_name="draw_active_menus_highlights";
   struct GuiMenu *gmnu;
   int k;
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   for (k=0; k<ACTIVE_MENUS_COUNT; k++)
   {
     gmnu = &active_menus[k];
@@ -3945,11 +4777,15 @@ void draw_active_menus_highlights(void)
 
 void draw_gui(void)
 {
+  static const char *func_name="draw_gui";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   //_DK_draw_gui(); return;
   unsigned int flg_mem;
   lbFontPtr = winfont;
   flg_mem = lbDisplay.DrawFlags;
-  _DK_LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+  LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   update_fade_active_menus();
   draw_active_menus_buttons();
   if (game.field_1516F3 != 0)
@@ -3963,6 +4799,9 @@ void draw_gui(void)
     }
   }
   lbDisplay.DrawFlags = flg_mem;
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 struct TbBirthday {
@@ -4002,8 +4841,8 @@ const char *get_team_birthday()
 void frontbirthday_draw()
 {
   frontend_copy_background();
-  _DK_LbTextSetWindow(70, 70, 500, 340);
-  lbFontPtr = _DK_frontstory_font;
+  LbTextSetWindow(70, 70, 500, 340);
+  lbFontPtr = frontstory_font;
   lbDisplay.DrawFlags = 256;
   const char *name=get_team_birthday();
   if ( name != NULL )
@@ -4011,7 +4850,7 @@ void frontbirthday_draw()
       unsigned short line_pos = 0;
       if ( lbFontPtr != NULL )
           line_pos = lbFontPtr[1].SHeight;
-      LbTextDraw(0, 170-line_pos, _DK_strings[885]);
+      LbTextDraw(0, 170-line_pos, strings[885]);
       LbTextDraw(0, 170, name);
   } else
   {
@@ -4022,13 +4861,13 @@ void frontbirthday_draw()
 short frontend_draw(void)
 {
     short result=1;
-    switch (_DK_frontend_menu_state)
+    switch (frontend_menu_state)
     {
     case 11:
         intro();
         return 0;
     case 14:
-        _DK_demo();
+        demo();
         return 0;
     case 21:
         outro();
@@ -4038,7 +4877,7 @@ short frontend_draw(void)
     if ( LbScreenLock() != 1 )
         return result;
 
-    switch ( _DK_frontend_menu_state )
+    switch ( frontend_menu_state )
     {
     case 1:
     case 2:
@@ -4053,7 +4892,7 @@ short frontend_draw(void)
         draw_gui();
         break;
     case 3:
-        _DK_frontmap_draw();
+        frontmap_draw();
         break;
     case 6:
         draw_gui();
@@ -4062,17 +4901,17 @@ short frontend_draw(void)
         frontstory_draw();
         break;
     case 13:
-        _DK_frontcredits_draw();
+        frontcredits_draw();
         break;
     case 19:
-        _DK_fronttorture_draw();
+        fronttorture_draw();
         break;
     case 24:
-        _DK_frontnetmap_draw();
+        frontnetmap_draw();
         break;
     case 26:
         draw_gui();
-        if ( _DK_defining_a_key )
+        if ( defining_a_key )
             draw_defining_a_key_box();
         break;
     case 29:
@@ -4083,8 +4922,8 @@ short frontend_draw(void)
     }
     // In-Menu information, for debugging messages
     //char text[255];
-    //sprintf(text, "time %7d, mode %d",LbTimerClock(),_DK_frontend_menu_state);
-    //lbDisplay.DrawFlags=0;_DK_LbTextSetWindow(0,0,640,200);lbFontPtr = _DK_frontend_font[0];
+    //sprintf(text, "time %7d, mode %d",LbTimerClock(),frontend_menu_state);
+    //lbDisplay.DrawFlags=0;LbTextSetWindow(0,0,640,200);lbFontPtr = frontend_font[0];
     //LbTextDraw(200/pixel_size, 8/pixel_size, text);text[0]='\0';
     perform_any_screen_capturing();
     LbScreenUnlock();
@@ -4155,6 +4994,11 @@ void gui_set_autopilot(struct GuiButton *gbtn)
   set_packet_action(pckt, 109, ntype, 0, 0, 0);
 }
 
+void display_objectives(long a1,long a2,long a3)
+{
+  _DK_display_objectives(a1,a2,a3);
+}
+
 void frontnet_service_update(void)
 {
   _DK_frontnet_service_update();
@@ -4180,22 +5024,42 @@ void frontnet_start_update(void)
   _DK_frontnet_start_update();
 }
 
+long frontmap_update(void)
+{
+  return _DK_frontmap_update();
+}
+
+long frontnetmap_update(void)
+{
+  return _DK_frontnetmap_update();
+}
+
+void frontstats_update(void)
+{
+  _DK_frontstats_update();
+}
+
+void fronttorture_update(void)
+{
+  _DK_fronttorture_update();
+}
+
 void frontend_update(short *finish_menu)
 {
-    switch ( _DK_frontend_menu_state )
+    switch ( frontend_menu_state )
     {
       case 1:
-        frontend_button_info[8].field_2 = (_DK_continue_game_option_available?1:3);
+        frontend_button_info[8].field_2 = (continue_game_option_available?1:3);
         //this uses original timing function for compatibility with frontend_set_state()
-        //if ( abs(LbTimerClock()-time_last_played_demo) > 30000 )
-        if ( abs(timeGetTime()-_DK_time_last_played_demo) > 30000 )
+        //if ( abs(LbTimerClock()-time_last_played_demo) > MNU_DEMO_IDLE_TIME )
+        if ( abs(timeGetTime()-time_last_played_demo) > MNU_DEMO_IDLE_TIME )
           frontend_set_state(14);
         break;
       case 2:
         load_game_update();
         break;
       case 3:
-        *finish_menu = _DK_frontmap_update();
+        *finish_menu = frontmap_update();
         break;
       case 4:
         frontnet_service_update();
@@ -4227,13 +5091,13 @@ void frontend_update(short *finish_menu)
         frontnet_serial_update();
         break;
       case 17:
-        _DK_frontstats_update(); // rewrite with frontstats_set_timer
+        frontstats_update(); // rewrite with frontstats_set_timer
         break;
       case 19:
-        _DK_fronttorture_update();
+        fronttorture_update();
         break;
       case 24:
-        *finish_menu = _DK_frontnetmap_update();
+        *finish_menu = frontnetmap_update();
         break;
       case 27:
         if ( !(game.flags_cd & 0x10) )

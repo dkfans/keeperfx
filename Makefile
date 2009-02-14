@@ -25,6 +25,9 @@ GENSRC   = obj/ver_defs.h
 OBJ  = \
 obj/main.o \
 obj/frontend.o \
+obj/packets.o \
+obj/config.o \
+obj/front_input.o \
 obj/vidmode.o \
 obj/scrcapt.o \
 obj/kjm_input.o \

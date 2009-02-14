@@ -26,7 +26,9 @@
 #include "bflib_mouse.h"
 #include "bflib_sprite.h"
 #include "bflib_dernc.h"
+#include "bflib_sprfnt.h"
 #include "frontend.h"
+#include "config.h"
 #include "keeperfx.h"
 
 #ifdef __cplusplus
@@ -356,8 +358,8 @@ short setup_screen_mode(unsigned short nmode)
   LbMouseSetup(0);
   LbMouseSetPointerHotspot(0, 0);
   LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-  _DK_LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-  _DK_LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
+  LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+  LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
   lbDisplay.DrawFlags = flg_mem;
   if (setup_heap_memory())
   {
@@ -493,7 +495,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
   LbMouseSetup(0);
   LbMouseSetPointerHotspot(0, 0);
   LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-  _DK_LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+  LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   lbDisplay.DrawFlags = flg_mem;
   return 1;
 }
@@ -528,6 +530,8 @@ TbScreenMode switch_to_next_video_mode(void)
 {
   static const char *func_name="switch_to_next_video_mode";
   TbScreenMode scrmode;
+  unsigned long prev_units_per_pixel_size;
+  prev_units_per_pixel_size = units_per_pixel*pixel_size;
   scrmode = get_next_vidmode(lbDisplay.ScreenMode);
   if ( setup_screen_mode(scrmode) )
   {
@@ -554,6 +558,8 @@ TbScreenMode switch_to_next_video_mode(void)
     setup_engine_window(140, 0, MyScreenWidth, MyScreenHeight);
   else
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+  keep_local_camera_zoom_level(prev_units_per_pixel_size);
+//  reinit_all_menus();
   return scrmode;
 }
 

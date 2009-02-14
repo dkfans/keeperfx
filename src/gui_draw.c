@@ -32,6 +32,7 @@ extern "C" {
 char gui_textbuf[TEXT_BUFFER_LENGTH];
 /******************************************************************************/
 DLLIMPORT void _DK_draw_button_string(struct GuiButton *gbtn, const char *text);
+DLLIMPORT int _DK_draw_text_box(char *text);
 /******************************************************************************/
 
 /******************************************************************************/
@@ -86,6 +87,12 @@ void draw_button_string(struct GuiButton *gbtn, const char *text)
 {
   _DK_draw_button_string(gbtn, text);
 }
+
+int draw_text_box(char *text)
+{
+  return _DK_draw_text_box(text);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

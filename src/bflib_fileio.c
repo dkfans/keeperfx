@@ -196,7 +196,7 @@ TbFileHandle __fastcall LbFileOpen(const char *fname, const unsigned char accmod
   if ( !LbFileExists(fname) )
   {
 #ifdef __DEBUG
-    printf("LbFileOpen: file doesn't exist\n");
+    LbSyncLog("LbFileOpen: file doesn't exist\n");
 #endif
     if ( mode == Lb_FILE_MODE_READ_ONLY )
       return -1;
@@ -208,7 +208,7 @@ TbFileHandle __fastcall LbFileOpen(const char *fname, const unsigned char accmod
   if ( mode == Lb_FILE_MODE_NEW )
   {
 #ifdef __DEBUG
-    printf("LbFileOpen: creating file\n");
+    LbSyncLog("LbFileOpen: creating file\n");
 #endif
     rc = _sopen(fname, _O_WRONLY|_O_CREAT|_O_TRUNC|_O_BINARY, _SH_DENYNO);
     //setmode(rc,_O_TRUNC);
@@ -221,27 +221,27 @@ TbFileHandle __fastcall LbFileOpen(const char *fname, const unsigned char accmod
   case Lb_FILE_MODE_NEW:
     {
 #ifdef __DEBUG
-      printf("LbFileOpen: LBO_CREAT mode\n");
+      LbSyncLog("LbFileOpen: LBO_CREAT mode\n");
 #endif
         rc = _sopen(fname, _O_RDWR|_O_CREAT|_O_BINARY, _SH_DENYNO);
     };break;
   case Lb_FILE_MODE_OLD:
     {
 #ifdef __DEBUG
-        printf("LbFileOpen: LBO_RDWR mode\n");
+        LbSyncLog("LbFileOpen: LBO_RDWR mode\n");
 #endif
         rc = _sopen(fname, _O_RDWR|_O_BINARY, _SH_DENYNO);
     };break;
   case Lb_FILE_MODE_READ_ONLY:
     {
 #ifdef __DEBUG
-        printf("LbFileOpen: LBO_RDONLY mode\n");
+        LbSyncLog("LbFileOpen: LBO_RDONLY mode\n");
 #endif
         rc = _sopen(fname, _O_RDONLY|_O_BINARY, _SH_DENYNO);
     };break;
   }
 #ifdef __DEBUG
-  printf("LbFileOpen: out handle = %ld, errno = %d\n",rc,errno);
+  LbSyncLog("LbFileOpen: out handle = %ld, errno = %d\n",rc,errno);
 #endif
   return rc;
 }

@@ -175,6 +175,7 @@ void __fastcall draw_purple_screen(void);
 int LbDrawBox(long x, long y, unsigned long width, unsigned long height, TbPixel colour);
 void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour);
 int LbSpriteDraw(long x, long y, struct TbSprite *spr);
+int LbSpriteDrawRemap(long x, long y, struct TbSprite *spr,unsigned char *map);
 /*
 int __fastcall LbDrawBoxCoords(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour);
 

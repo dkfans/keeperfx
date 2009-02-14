@@ -35,6 +35,7 @@ extern TbClockMSec (* LbTimerClock)(void);
 short __fastcall LbSleepFor(TbClockMSec delay);
 short __fastcall LbSleepUntil(TbClockMSec endtime);
 int LbTime(struct TbTime *curr_time);
+TbTimeSec LbTimeSec(void);
 int LbDate(struct TbDate *curr_date);
 int LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time);
 int LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date, struct TbTime *curr_time);

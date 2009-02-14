@@ -53,6 +53,8 @@ struct DevInput joy;
 DLLIMPORT int _DK_LbMouseChangeSpriteAndHotspot(struct TbSprite *spr, int a, int b);
 DLLIMPORT int _DK_LbMouseSetup(struct TbSprite *MouseSprite);
 DLLIMPORT int _DK_LbMouseSetPointerHotspot(int x, int y);
+DLLIMPORT int _DK_LbMouseSetPosition(int x, int y);
+DLLIMPORT long _DK_GetMouseY(void);
 /******************************************************************************/
 int LbMouseChangeSpriteAndHotspot(struct TbSprite *spr, int a, int b)
 {
@@ -68,6 +70,12 @@ int LbMouseSetPointerHotspot(int x, int y)
 {
   return _DK_LbMouseSetPointerHotspot(x, y);
 }
+
+int LbMouseSetPosition(int x, int y)
+{
+  return _DK_LbMouseSetPosition(x, y);
+}
+
 
 /*
 int __fastcall LbMouseSetWindow(int x, int y, int width, int height)

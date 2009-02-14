@@ -41,20 +41,6 @@ enum TbButtonType {
         Lb_SLIDER    =  4,
 };
 
-enum TbComponentAlign {
-    CA_None        = 0x00,
-    CA_AlignTop    = 0x01,
-    CA_AlignMiddle = 0x02,
-    CA_AlignBottom = 0x04,
-    CA_AlignLeft   = 0x10,
-    CA_AlignCenter = 0x20,
-    CA_AlignRight  = 0x40,
-};
-
-#define CA_TopLeft  CA_AlignTop|CA_AlignLeft
-#define CA_TopCntr  CA_AlignTop|CA_AlignCenter
-#define CA_Center   CA_AlignMiddle|CA_AlignCenter
-
 union GuiVariant {
       long lval;
       long *lptr;
@@ -138,7 +124,7 @@ struct GuiButton {
        Gf_Btn_Callback field_F;
        Gf_Btn_Callback field_13;
        Gf_Btn_Callback field_17;
-       unsigned short field_1B; // hard to say if it's a word or two bytes...
+       unsigned short field_1B; // definitely a word, not two bytes
        short scr_pos_x;
        short scr_pos_y;
        short pos_x;

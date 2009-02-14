@@ -33,6 +33,9 @@ extern "C" {
 
 #pragma pack(1)
 
+// Max length of any processed string
+#define MAX_TEXT_LENGTH 4096
+// Smaller buffer, also widely used
 #define TEXT_BUFFER_LENGTH 2048
 
 enum TbErrorLogFlag {
@@ -58,6 +61,9 @@ struct TbDate {
         unsigned char DayOfWeek;
 };
 typedef long TbClockMSec;
+typedef time_t TbTimeSec;
+
+typedef unsigned char TbChecksum;
 
 typedef int TbFileHandle;
 struct TbFileFind {
@@ -92,6 +98,7 @@ extern const char *log_file_name;
 void error(const char *codefile,const int ecode,const char *message);
 short error_dialog(const char *codefile,const int ecode,const char *message);
 short error_dialog_fatal(const char *codefile,const int ecode,const char *message);
+char *buf_sprintf(const char *format, ...);
 /******************************************************************************/
 int LbErrorLog(const char *format, ...);
 int LbWarnLog(const char *format, ...);

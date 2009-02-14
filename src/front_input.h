@@ -1,10 +1,10 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file gui_draw.h
- *     Header file for gui_draw.c.
+/** @file front_input.h
+ *     Header file for front_input.c.
  * @par Purpose:
- *     GUI elements drawing functions.
+ *     Front-end user keyboard and mouse input.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
@@ -17,8 +17,8 @@
  */
 /******************************************************************************/
 
-#ifndef DK_GUIDRAW_H
-#define DK_GUIDRAW_H
+#ifndef DK_FRONTINPUT_H
+#define DK_FRONTINPUT_H
 
 #include "bflib_basics.h"
 #include "globals.h"
@@ -27,15 +27,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
-extern char gui_textbuf[TEXT_BUFFER_LENGTH];
+
 /******************************************************************************/
-DLLIMPORT extern struct TbSprite *_DK_button_sprite;
-#define button_sprite _DK_button_sprite
 /******************************************************************************/
-void draw_bar64k(long pos_x, long pos_y, long width);
-void draw_lit_bar64k(long pos_x, long pos_y, long width);
-void draw_button_string(struct GuiButton *gbtn, const char *text);
-int draw_text_box(char *text);
+void input(void);
+short get_inputs(void);
+short get_screen_capture_inputs(void);
 
 /******************************************************************************/
 #ifdef __cplusplus

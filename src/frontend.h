@@ -32,14 +32,38 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+// Limits for GUI arrays
 #define ACTIVE_BUTTONS_COUNT 86
 #define ACTIVE_MENUS_COUNT 8
+// Sprite limits
+#define PANEL_SPRITES_COUNT 514
+// Positioning constants for menus
 #define POS_AUTO -9999
 #define POS_MOUSMID -999
 #define POS_MOUSPRV -998
 #define POS_SCRCTR  -997
 #define POS_SCRBTM  -996
 #define POS_GAMECTR  999
+// After that much miliseconds in main menu, demo is started
+#define MNU_DEMO_IDLE_TIME 30000
+/******************************************************************************/
+enum DemoItem_Kind {
+    DIK_PlaySmkVideo,
+    DIK_LoadPacket,
+    DIK_SwitchState,
+    DIK_ListEnd,
+};
+
+struct DemoItem { //sizeof = 5
+    unsigned char numfield_0;
+    const char *fname;
+};
+
+struct HighScore {
+        long score;
+        char name[64];
+        long level;
+};
 /******************************************************************************/
 DLLIMPORT struct GuiButtonInit _DK_main_menu_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_room_menu_buttons[];
@@ -134,8 +158,8 @@ DLLIMPORT char _DK_input_string[8][16];
 #define input_string _DK_input_string
 DLLIMPORT extern struct ToolTipBox _DK_tool_tip_box;
 #define tool_tip_box _DK_tool_tip_box
-DLLIMPORT char _DK_error_box_message[256];
-#define error_box_message _DK_error_box_message
+DLLIMPORT char _DK_gui_error_text[256];
+#define gui_error_text _DK_gui_error_text
 DLLIMPORT long _DK_net_service_scroll_offset;
 #define net_service_scroll_offset _DK_net_service_scroll_offset
 DLLIMPORT long _DK_net_number_of_services;
@@ -144,8 +168,10 @@ DLLIMPORT extern struct TbSprite *_DK_frontend_font[4];
 #define frontend_font _DK_frontend_font
 DLLIMPORT char _DK_no_of_active_menus;
 #define no_of_active_menus _DK_no_of_active_menus
-DLLIMPORT char _DK_menu_stack[8];
+DLLIMPORT unsigned char _DK_menu_stack[ACTIVE_MENUS_COUNT];
 #define menu_stack _DK_menu_stack
+DLLIMPORT extern struct GuiButton _DK_active_buttons[ACTIVE_BUTTONS_COUNT];
+#define active_buttons _DK_active_buttons
 DLLIMPORT long _DK_frontend_mouse_over_button_start_time;
 #define frontend_mouse_over_button_start_time _DK_frontend_mouse_over_button_start_time
 DLLIMPORT extern struct TbSprite *_DK_frontend_sprite;
@@ -160,6 +186,26 @@ DLLIMPORT struct EventTypeInfo _DK_event_button_info[27];
 #define event_button_info _DK_event_button_info
 DLLIMPORT unsigned char _DK_new_objective;
 #define new_objective _DK_new_objective
+DLLIMPORT char _DK_gui_error_text[256];
+#define gui_error_text _DK_gui_error_text
+DLLIMPORT extern int _DK_frontend_menu_state;
+#define frontend_menu_state _DK_frontend_menu_state
+DLLIMPORT extern long _DK_credits_scroll_speed;
+#define credits_scroll_speed _DK_credits_scroll_speed
+DLLIMPORT extern long _DK_credits_offset;
+#define credits_offset _DK_credits_offset
+DLLIMPORT extern int _DK_load_game_scroll_offset;
+#define load_game_scroll_offset _DK_load_game_scroll_offset
+DLLIMPORT extern unsigned char *_DK_frontend_background;
+#define frontend_background _DK_frontend_background
+DLLIMPORT extern struct HighScore _DK_high_score_table[10];
+#define high_score_table _DK_high_score_table
+DLLIMPORT extern long _DK_high_score_entry_input_active;
+#define high_score_entry_input_active _DK_high_score_entry_input_active
+DLLIMPORT extern long _DK_high_score_entry_index;
+#define high_score_entry_index _DK_high_score_entry_index
+DLLIMPORT extern char _DK_high_score_entry[64];
+#define high_score_entry _DK_high_score_entry
 /******************************************************************************/
 // Variables - no linger imported
 extern struct GuiMenu main_menu;
@@ -401,6 +447,34 @@ void init_load_menu(struct GuiMenu *gmnu);
 void init_save_menu(struct GuiMenu *gmnu);
 void init_video_menu(struct GuiMenu *gmnu);
 void init_audio_menu(struct GuiMenu *gmnu);
+void frontmap_unload(void);
+int frontend_load_data(void);
+void frontnet_serial_reset(void);
+void frontnet_modem_reset(void);
+void fronttorture_unload(void);
+void fronttorture_load(void);
+void frontnetmap_unload(void);
+void frontnetmap_load(void);
+int frontmap_load(void);
+void frontnet_service_setup(void);
+void frontnet_session_setup(void);
+void frontnet_start_setup(void);
+void frontnet_modem_setup(void);
+void frontnet_serial_setup(void);
+void frontstats_set_timer(void);
+void frontnet_start_input(void);
+void frontend_high_score_table_input(void);
+void frontmap_input(void);
+void frontnetmap_input(void);
+void fronttorture_input(void);
+void frontmap_draw(void);
+void frontcredits_draw(void);
+void fronttorture_draw(void);
+void frontnetmap_draw(void);
+long frontmap_update(void);
+long frontnetmap_update(void);
+void frontstats_update(void);
+void fronttorture_update(void);
 void frontend_init_options_menu(struct GuiMenu *gmnu);
 void frontend_draw_large_menu_button(struct GuiButton *gbtn);
 void frontnet_draw_scroll_box_tab(struct GuiButton *gbtn);
@@ -540,6 +614,7 @@ void maintain_transfer_creature_scroll(struct GuiButton *gbtn);
 
 void frontend_load_data_from_cd(void);
 void frontend_load_data_reset(void);
+void frontend_save_continue_game(long lv_num, int a2);
 void draw_map_parchment(void);
 void gui_area_null(struct GuiButton *gbtn);
 void draw_load_button(struct GuiButton *gbtn);
@@ -575,21 +650,40 @@ char create_menu(struct GuiMenu *mnu);
 void do_button_release_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
 void draw_gui(void);
 void init_gui(void);
+void reinit_all_menus(void);
+void kill_button_area_input(void);
+void kill_menu(struct GuiMenu *gmnu);
 
 void spell_lost_first_person(struct GuiButton *gbtn);
 void gui_turn_on_autopilot(struct GuiButton *gbtn);
 void gui_set_autopilot(struct GuiButton *gbtn);
 
 int frontend_set_state(long nstate);
+void frontstats_initialise(void);
 int get_startup_menu_state(void);
 void frontend_input(void);
 void turn_on_menu(short idx);
 void turn_off_menu(short mnu_idx);
+void turn_off_query_menus(void);
+short turn_off_all_window_menus(void);
+short turn_off_all_bottom_menus(void);
+void turn_on_main_panel_menu(void);
+void turn_off_all_panel_menus(void);
+void set_menu_mode(long mnu_idx);
 void frontend_update(short *finish_menu);
 short frontend_draw(void);
-char menu_is_active(char idx);
+short menu_is_active(short idx);
+short a_menu_window_is_active(void);
 void turn_on_event_info_panel_if_necessary(unsigned short evnt_idx);
 void get_player_gui_clicks(void);
+char game_is_busy_doing_gui(void);
+void turn_off_event_box_if_necessary(long plridx, char val);
+void set_gui_visible(short visible);
+void toggle_gui(void);
+unsigned long toggle_status_menu(short visib);
+void toggle_gui_overlay_map(void);
+void display_objectives(long a1,long a2,long a3);
+
 
 /******************************************************************************/
 #ifdef __cplusplus

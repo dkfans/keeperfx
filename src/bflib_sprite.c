@@ -78,7 +78,7 @@ int __fastcall LbSpriteSetupAll(struct TbSetupSprite t_setup[])
     stp_sprite=&t_setup[idx];
   }
 #ifdef __DEBUG
-  printf("LbSpriteSetupAll: initied %d SetupSprite lists\n",idx);
+  LbSyncLog("LbSpriteSetupAll: initied %d SetupSprite lists\n",idx);
 #endif
   return 1;
 }

@@ -80,6 +80,14 @@ int LbTime(TbTime *curr_time)
   return LbDateTimeDecode(&dtime,NULL,curr_time);
 }
 
+//Returns current time in seconds
+TbTimeSec LbTimeSec(void)
+{
+  time_t dtime;
+  time(&dtime);
+  return dtime;
+}
+
 //Fills structure with current date
 int LbDate(TbDate *curr_date)
 {

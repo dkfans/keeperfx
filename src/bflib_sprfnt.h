@@ -40,6 +40,9 @@ DLLIMPORT extern struct TbSprite *_DK_lbFontPtr;
 /******************************************************************************/
 int LbTextDraw(int posx, int posy, const char *text);
 int LbTextHeight(const char *text);
+int LbTextSetWindow(int posx, int posy, int width, int height);
+int LbTextStringWidth(const char *str);
+int LbTextStringHeight(const char *str);
 
 /*
 char __fastcall font_height(const unsigned char c);
