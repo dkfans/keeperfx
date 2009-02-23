@@ -69,6 +69,7 @@ void process_map_packet_clicks(long idx);
 void process_pause_packet(long a1, long a2);
 void process_packets(void);
 void clear_packets(void);
+unsigned long compute_players_checksum(void);
 short checksums_different(void);
 
 /******************************************************************************/

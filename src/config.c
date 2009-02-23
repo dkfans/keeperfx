@@ -211,7 +211,7 @@ short load_configuration(void)
 {
   static const char *func_name="load_configuration";
   //return _DK_load_configuration();
-  char *fname;
+  const char *fname;
   char *buf;
   long len,pos;
   int cmd_num;
@@ -222,7 +222,9 @@ short load_configuration(void)
   // Preparing config file name and checking the file
   strcpy(install_info.inst_path,"");
   install_info.field_9A = 0;
-  fname=prepare_file_path(FGrp_Main,keeper_config_file);
+  // Set default rundime directory and load the config file
+  strcpy(keeper_runtime_directory,".");
+  fname = prepare_file_path(FGrp_Main,keeper_config_file);
   len = LbFileLengthRnc(fname);
   if (len < 2)
   {

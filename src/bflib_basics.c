@@ -29,6 +29,8 @@
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
 
+#include "keeperfx_private.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -122,6 +124,18 @@ int LbSyncLog(const char *format, ...)
     return result;
 }
 
+int LbScriptLog(const char *format, ...)
+{
+    if (!error_log_initialised)
+        return -1;
+    LbLogSetPrefix(&error_log, "Script: ");
+    va_list val;
+    va_start(val, format);
+    int result=LbLog(&error_log, format, val);
+    va_end(val);
+    return result;
+}
+
 int __fastcall LbErrorLogSetup(const char *directory, const char *filename, uchar flag)
 {
   if ( error_log_initialised )
@@ -130,7 +144,7 @@ int __fastcall LbErrorLogSetup(const char *directory, const char *filename, ucha
   if ( (filename!=NULL)&&(filename[0]!='\0') )
     fixed_fname = filename;
   else
-    fixed_fname = "ERROR.LOG";
+    fixed_fname = "error.log";
   char log_filename[DISKPATH_SIZE];
   int result;
   int flags;
@@ -207,9 +221,13 @@ int LbLog(TbLog *log, const char *fmt_str, va_list arg)
         fprintf(file, "\n");
       const char *actn;
       if ( header == CREATE )
+      {
+        fprintf(file, PROGRAM_NAME" ver "VER_STRING" (%s release)\n", (BFDEBUG_LEVEL>1)?"debug":"standard");
         actn = "CREATED";
-      else
+      } else
+      {
         actn = "APPENDED";
+      }
       fprintf(file, "LOG %s", actn);
       bool at_used;
       at_used = 0;

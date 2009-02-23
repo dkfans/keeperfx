@@ -54,6 +54,13 @@ DLLIMPORT extern long _DK_SpeechEmitter;
 
 // Exported variables
 
+long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);
+long S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c);
+long S3DDestroySoundEmitter(long eidx);
+long S3DEmitterHasFinishedPlaying(long eidx);
+long S3DMoveSoundEmitterTo(long eidx, long x, long y, long z);
+
+
 #pragma pack()
 /******************************************************************************/
 // Exported functions

@@ -104,6 +104,7 @@ int LbErrorLog(const char *format, ...);
 int LbWarnLog(const char *format, ...);
 int LbSyncLog(const char *format, ...);
 int LbNetLog(const char *format, ...);
+int LbScriptLog(const char *format, ...);
 int __fastcall LbErrorLogSetup(const char *directory, const char *filename, uchar flag);
 int __fastcall LbErrorLogClose();
 

@@ -36,12 +36,19 @@ DLLIMPORT extern int _DK_defining_a_key;
 DLLIMPORT extern long _DK_defining_a_key_id;
 #define defining_a_key_id _DK_defining_a_key_id
 DLLIMPORT extern long _DK_left_button_held_x;
+#define left_button_held_x _DK_left_button_held_x
 DLLIMPORT extern long _DK_left_button_held_y;
+#define left_button_held_y _DK_left_button_held_y
 DLLIMPORT extern long _DK_left_button_double_clicked_y;
+#define left_button_double_clicked_y _DK_left_button_double_clicked_y
 DLLIMPORT extern long _DK_left_button_double_clicked_x;
+#define left_button_double_clicked_x _DK_left_button_double_clicked_x
 DLLIMPORT extern long _DK_right_button_double_clicked_y;
+#define right_button_double_clicked_y _DK_right_button_double_clicked_y
 DLLIMPORT extern long _DK_right_button_double_clicked_x;
+#define right_button_double_clicked_x _DK_right_button_double_clicked_x
 DLLIMPORT extern char _DK_right_button_clicked;
+#define right_button_clicked _DK_right_button_clicked
 DLLIMPORT extern char _DK_left_button_clicked;
 #define left_button_clicked _DK_left_button_clicked
 DLLIMPORT extern long _DK_right_button_released_x;
@@ -90,6 +97,7 @@ short is_mouse_pressed_leftbutton(void);
 short is_mouse_pressed_rightbutton(void);
 short is_mouse_pressed_lrbutton(void);
 void clear_mouse_pressed_lrbutton(void);
+void update_mouse(void);
 
 short is_key_pressed(long key, long kmodif);
 unsigned short key_to_ascii(long key, long kmodif);

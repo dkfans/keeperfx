@@ -32,10 +32,41 @@ extern "C" {
 DLLIMPORT void _DK_play_non_3d_sample(long sidx);
 DLLIMPORT long _DK_S3DAddSampleToEmitterPri(long, long, long, long, long, long, char, long, long);
 DLLIMPORT long _DK_S3DCreateSoundEmitterPri(long, long, long, long, long, long, long, long, long, long);
+DLLIMPORT long _DK_S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);
+DLLIMPORT long _DK_S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c);
+DLLIMPORT long _DK_S3DDestroySoundEmitter(long eidx);
+DLLIMPORT long _DK_S3DEmitterHasFinishedPlaying(long eidx);
+DLLIMPORT long _DK_S3DMoveSoundEmitterTo(long eidx, long x, long y, long z);
 
 // Global variables
 /******************************************************************************/
 // Functions
+
+long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z)
+{
+  return _DK_S3DSetSoundReceiverPosition(pos_x, pos_y, pos_z);
+}
+
+long S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c)
+{
+  return _DK_S3DSetSoundReceiverOrientation(ori_a, ori_b, ori_c);
+}
+
+long S3DDestroySoundEmitter(long eidx)
+{
+  return _DK_S3DDestroySoundEmitter(eidx);
+}
+
+long S3DEmitterHasFinishedPlaying(long eidx)
+{
+  return _DK_S3DEmitterHasFinishedPlaying(eidx);
+}
+
+long S3DMoveSoundEmitterTo(long eidx, long x, long y, long z)
+{
+  return _DK_S3DMoveSoundEmitterTo(eidx, x, y, z);
+}
+
 short sound_emitter_in_use(long emidx)
 {
   return (emidx!=0) && (_DK_emitter[emidx].flags & 1);

@@ -420,10 +420,10 @@ short get_level_lost_inputs(void)
       break;
     case 2:
       thing = game.things_lookup[player->field_2F];
-      if (thing->field_1F == 5)
+      if (thing->class_id == 5)
       {
         struct CreatureControl *crctrl;
-        crctrl = game.creature_control_lookup[thing->field_64];
+        crctrl = game.creature_control_lookup[thing->field_64%CREATURES_COUNT];
         if ((crctrl->field_2 & 0x02) == 0)
           set_packet_action(pckt, 33, player->field_2F,0,0,0);
       } else
@@ -572,12 +572,14 @@ short get_creature_control_action_inputs(void)
   if ( numkey != -1 )
   {
     int idx;
-    int num_avail = 0;
+    int instnce;
+    int num_avail;
+    num_avail = 0;
     for (idx=0;idx<10;idx++)
     {
       struct Thing *thing;
-      thing = game.things_lookup[player->field_2F];
-      int instnce = game.creature_stats[thing->field_1A].field_80[idx];
+      thing = game.things_lookup[player->field_2F%THINGS_COUNT];
+      instnce = game.creature_stats[thing->model%CREATURE_TYPES_COUNT].field_80[idx];
       if ( creature_instance_is_available(thing,instnce) )
       {
         if ( numkey == num_avail )
@@ -716,15 +718,15 @@ short get_inputs(void)
       return true;
     }
     struct Thing *thing;
-    thing = game.things_lookup[player->field_2F];
-    if ( (thing <= game.things_lookup[0]) || (thing->field_1F != 5) )
+    thing = game.things_lookup[player->field_2F%THINGS_COUNT];
+    if ( (thing <= game.things_lookup[0]) || (thing->class_id != 5) )
     {
       get_level_lost_inputs();
       return true;
     }
     struct CreatureControl *crctrl;
-    crctrl = game.creature_control_lookup[thing->field_64];
-    if ((crctrl->field_2 & 2) == 0)
+    crctrl = game.creature_control_lookup[thing->field_64%CREATURES_COUNT];
+    if ((crctrl->field_2 & 0x02) == 0)
     {
       get_level_lost_inputs();
       return true;

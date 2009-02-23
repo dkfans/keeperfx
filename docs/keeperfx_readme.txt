@@ -56,7 +56,7 @@ Q: Colors are changed in menu or during gameplay,
     but no problem is mentioned in KEEPERFX.LOG.
 A: Select "Run in 256 colors" and "Run in 640x480" in the
     program properties, and change lines in KEEPERFX.CFG
-    in into those written in next answer.
+    into those written in next answer.
 
 Q: Intro doesn't play. LOG file says:
      Error: In source setup_game:
@@ -90,6 +90,10 @@ FRONTEND_RES
 
 INGAME_RES
   Allows you to select up to five in-game resolutions.
+  Valid modes are: MODE_320_200_8, MODE_320_240_8,
+   MODE_512_384_8, MODE_640_400_8, MODE_640_480_8,
+   MODE_800_600_8, MODE_1024_768_8, MODE_1280_1024_8,
+   MODE_1600_1200_8.
   You can switch between those resolutions during the
    gameplay by pressing ALT+R.
   INGAME_RES=<mode1> <mode2> <mode3> ....
@@ -118,12 +122,22 @@ New in-game commands:
 
 Changelog:
 
-Version: 0.2.3
+Version: 0.2.4
+  Rewritten level script analysis
+  Added warning and error messages on script loading
+  Allowed longer messages in script
+  Patched DISPLAY_INFORMATION_WITH_POS
+  Fixed problem with CFG file location
+  Rewritten 'landscape affecting creature'
+  Added comments to CFG file
+
+Version: 0.2.3a
   Fixed time counter sound in bonus levels
   Fixed bad memory read in creatures tab code
   Created a campaign file which stores level numbers
   More error-safe config file support
   More inputs left when lost (screnshot, minimap zoom, etc.)
+  Renamed campaign file to load properly (the 0.2.3a release)
 
 Version: 0.2.2
   Reworked more of the packets processing system

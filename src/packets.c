@@ -72,6 +72,26 @@ void clear_packets(void)
   }
 }
 
+unsigned long compute_players_checksum(void)
+{
+  struct PlayerInfo *player;
+  struct Coord3d *mappos;
+  int i;
+  unsigned long sum;
+  sum = 0;
+  for (i=0; i<PLAYERS_COUNT; i++)
+  {
+    player=&(game.players[i%PLAYERS_COUNT]);
+    if (((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0))
+    {
+        mappos = &(player->camera->mappos);
+        sum += player->field_4B1 + player->field_4B0
+                   + mappos->x.val + mappos->z.val + mappos->y.val;
+    }
+  }
+  return sum;
+}
+
 /*
  * Checks if all active players packets have same checksums.
  * @return Returns false if all checksums are same; true if there's mismatch.
@@ -526,7 +546,7 @@ char process_players_global_packet_action(long plyridx)
       player->field_E6 = thing->mappos.y.val;
       set_player_instance(player, 16, 0);
       if ((player->field_453 == 16) || (player->field_453 == 18))
-        set_player_state(player, 16, thing->field_1A);
+        set_player_state(player, 16, thing->model);
       return 0;
     case 86:
       if (player->field_453 == 15)
@@ -536,7 +556,7 @@ char process_players_global_packet_action(long plyridx)
       player->field_E6 = thing->mappos.y.val;
       set_player_instance(player, 16, 0);
       if ((player->field_453 == 16) || (player->field_453 == 18))
-        set_player_state(player, 18, thing->field_1A);
+        set_player_state(player, 18, thing->model);
       return 0;
     case 87:
       if (player->field_453 == 15)

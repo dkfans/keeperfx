@@ -32,6 +32,8 @@ obj/vidmode.o \
 obj/scrcapt.o \
 obj/kjm_input.o \
 obj/gui_draw.o \
+obj/lvl_script.o \
+obj/thing_list.o \
 obj/bflib_basics.o \
 obj/bflib_dernc.o \
 obj/bflib_fileio.o \

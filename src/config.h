@@ -29,10 +29,14 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT int __stdcall _DK_load_configuration(void);
 /******************************************************************************/
+#pragma pack(1)
+
 DLLIMPORT extern struct InstallInfo _DK_install_info;
 #define install_info _DK_install_info
 DLLIMPORT extern char _DK_keeper_runtime_directory[152];
 #define keeper_runtime_directory _DK_keeper_runtime_directory
+
+#pragma pack()
 /******************************************************************************/
 #define CAMPAIGN_LEVELS_COUNT 50
 

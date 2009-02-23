@@ -1343,7 +1343,7 @@ void get_player_gui_clicks(void)
       if (right_button_released)
       {
         thing = game.things_lookup[player->field_2F];
-        if (thing->field_1F == 5)
+        if (thing->class_id == 5)
         {
           if (a_menu_window_is_active())
           {
@@ -1417,6 +1417,23 @@ void create_error_box(unsigned short msg_idx)
     strncpy(gui_error_text, strings[msg_idx],TEXT_BUFFER_LENGTH-1);
     turn_on_menu(15);
   }
+}
+
+/*
+ * Checks if mouse pointer is currently over a specific button.
+ * @return Returns true it mouse is over the button.
+ */
+short check_if_mouse_is_over_button(struct GuiButton *gbtn)
+{
+  int mouse_x = GetMouseX();
+  int mouse_y = GetMouseY();
+  int x = gbtn->pos_x;
+  int y = gbtn->pos_y;
+  if ( (mouse_x >= x) && (mouse_x < x + gbtn->width)
+    && (mouse_y >= y) && (mouse_y < y + gbtn->height)
+    && (gbtn->field_0 & 0x04) )
+    return true;
+  return false;
 }
 
 void demo(void)
@@ -4594,7 +4611,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
   int i;
   struct GuiButton *gbtn;
   Gf_Btn_Callback callback;
-#if (BFDEBUG_LEVEL > 8)
+#if (BFDEBUG_LEVEL > 18)
     LbSyncLog("%s: Starting phase one\n",func_name);
 #endif
   //_DK_draw_menu_buttons(gmnu); return;
@@ -4608,7 +4625,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
         callback(gbtn);
     }
   }
-#if (BFDEBUG_LEVEL > 8)
+#if (BFDEBUG_LEVEL > 18)
     LbSyncLog("%s: Starting phase two\n",func_name);
 #endif
   for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
@@ -4621,7 +4638,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
         callback(gbtn);
     }
   }
-#if (BFDEBUG_LEVEL > 9)
+#if (BFDEBUG_LEVEL > 19)
     LbSyncLog("%s: Finished\n",func_name);
 #endif
 }

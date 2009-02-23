@@ -30,8 +30,6 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#pragma pack(1)
-
 // Limits for GUI arrays
 #define ACTIVE_BUTTONS_COUNT 86
 #define ACTIVE_MENUS_COUNT 8
@@ -47,6 +45,8 @@ extern "C" {
 // After that much miliseconds in main menu, demo is started
 #define MNU_DEMO_IDLE_TIME 30000
 /******************************************************************************/
+#pragma pack(1)
+
 enum DemoItem_Kind {
     DIK_PlaySmkVideo,
     DIK_LoadPacket,
@@ -64,6 +64,7 @@ struct HighScore {
         char name[64];
         long level;
 };
+
 /******************************************************************************/
 DLLIMPORT struct GuiButtonInit _DK_main_menu_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_room_menu_buttons[];
@@ -262,6 +263,7 @@ DLLIMPORT void _DK_setup_gui_tooltip(struct GuiButton *gbtn);
 /******************************************************************************/
 // Reworked functions
 
+short check_if_mouse_is_over_button(struct GuiButton *gbtn);
 void gui_area_text(struct GuiButton *gbtn);
 void menu_tab_maintain(struct GuiButton *gbtn);
 void maintain_turn_on_autopilot(struct GuiButton *gbtn);

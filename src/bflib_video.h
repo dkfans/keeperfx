@@ -129,6 +129,7 @@ DLLIMPORT extern struct TbDisplayStruct _DK_lbDisplay;
 DLLIMPORT extern unsigned short _DK_MyScreenWidth;
 #define MyScreenWidth _DK_MyScreenWidth
 DLLIMPORT extern unsigned short _DK_MyScreenHeight;
+
 #define MyScreenHeight _DK_MyScreenHeight
 DLLIMPORT extern unsigned short _DK_pixel_size;
 #define pixel_size _DK_pixel_size

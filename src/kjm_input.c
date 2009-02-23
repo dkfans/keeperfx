@@ -31,6 +31,7 @@ extern "C" {
 /******************************************************************************/
 /******************************************************************************/
 DLLIMPORT  int __cdecl _DK_set_game_key(long key_id, unsigned char key, int shift_state, int ctrl_state);
+DLLIMPORT void __cdecl _DK_update_mouse(void);
 /******************************************************************************/
 
 /******************************************************************************/
@@ -39,7 +40,9 @@ DLLIMPORT  int __cdecl _DK_set_game_key(long key_id, unsigned char key, int shif
  */
 long GetMouseX(void)
 {
-  return lbDisplay.MMouseX * pixel_size;
+  long result;
+  result = lbDisplay.MMouseX * pixel_size;
+  return result;
 }
 
 /*
@@ -76,6 +79,96 @@ short is_mouse_pressed_lrbutton(void)
 
 void clear_mouse_pressed_lrbutton(void)
 {
+  lbDisplay.LeftButton = 0;
+  lbDisplay.RightButton = 0;
+}
+
+void update_left_button_released(void)
+{
+  _DK_left_button_released = 0;
+  _DK_left_button_double_clicked = 0;
+  if ( lbDisplay.LeftButton )
+  {
+    _DK_left_button_held = 1;
+    _DK_left_button_held_x = GetMouseX();
+    _DK_left_button_held_y = GetMouseY();
+  }
+  if (_DK_left_button_held)
+  {
+    if (!lbDisplay.MLeftButton)
+    {
+      _DK_left_button_released = 1;
+      _DK_left_button_held = 0;
+      _DK_left_button_released_x = GetMouseX();
+      _DK_left_button_released_y = GetMouseY();
+      if ( _DK_left_button_click_space_count < 5 )
+      {
+        left_button_double_clicked = 1;
+        left_button_double_clicked_x = left_button_released_x;
+        left_button_double_clicked_y = left_button_released_y;
+      }
+      left_button_click_space_count = 0;
+    }
+  } else
+  {
+    if (left_button_click_space_count < LONG_MAX)
+      left_button_click_space_count++;
+  }
+}
+
+void update_right_button_released(void)
+{
+  right_button_released = 0;
+  right_button_double_clicked = 0;
+  if (lbDisplay.RightButton)
+  {
+    right_button_held = 1;
+    right_button_held_x = GetMouseX();
+    right_button_held_y = GetMouseY();
+  }
+  if ( right_button_held )
+  {
+    if ( !lbDisplay.MRightButton )
+    {
+      right_button_released = 1;
+      right_button_held = 0;
+      right_button_released_x = GetMouseX();
+      right_button_released_y = GetMouseY();
+      if (right_button_click_space_count < 5)
+      {
+        right_button_double_clicked = 1;
+        right_button_double_clicked_x = right_button_released_x;
+        right_button_double_clicked_y = right_button_released_y;
+      }
+      right_button_click_space_count = 0;
+    }
+  } else
+  {
+    if (right_button_click_space_count < LONG_MAX)
+      right_button_click_space_count++;
+  }
+}
+
+void update_left_button_clicked(void)
+{
+  left_button_clicked = lbDisplay.LeftButton;
+  left_button_clicked_x = lbDisplay.MouseX * pixel_size;
+  left_button_clicked_y = lbDisplay.MouseY * pixel_size;
+}
+
+void update_right_button_clicked(void)
+{
+  right_button_clicked = lbDisplay.RightButton;
+  right_button_clicked_x = lbDisplay.MouseX * pixel_size;
+  right_button_clicked_y = lbDisplay.MouseY * pixel_size;
+}
+
+void update_mouse(void)
+{
+  update_left_button_released();
+  update_right_button_released();
+  update_left_button_clicked();
+  update_right_button_clicked();
   lbDisplay.LeftButton = 0;
   lbDisplay.RightButton = 0;
 }

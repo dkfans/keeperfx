@@ -12,6 +12,8 @@
  0001:00005320       light_initialise
  0001:00005380       light_render_area
  0001:000057B0       light_create_light
+ 0001:00005A70       light_set_light_position
+ 0001:00005B20       light_is_light_allocated
  0001:00005E90       light_set_light_never_cache
  0001:00007370       light_signal_stat_light_update_in_area
  0001:00007400       light_stat_light_map_clear_area
@@ -117,12 +119,19 @@
  0001:0000B750       enum_players_callback
  0001:0000CB50       get_trap_for_position
  0001:0000CDD0       check_cd_in_drive
+ 0001:0000D570       creature_is_group_leader
+ 0001:0000D620       leader_find_positions_for_followers
+ 0001:0000DFE0       process_creature_instance
  0001:0000E140       set_player_instance
  0001:0000E1B0       process_player_instance
  0001:000106F0       pinstfm_fade_to_map
  0001:000107C0       pinstfm_fade_from_map
  0001:00010AD0       free_swipe_graphic
+ 0001:00010B50       process_thing_spell_effects
+ 0001:00010DF0       apply_spell_effect_to_thing
  0001:00011DA0       creature_cast_spell_at_thing
+ 0001:00011E10       process_spells_affected_by_effect_elements
+ 0001:000122B0       process_keeper_spell_effect
  0001:00015940       process_level_script
  0001:0001A920       play_non_3d_sample
  0001:0001AEF0       input_eastegg
@@ -133,6 +142,7 @@
  0001:0001BD50       fronttorture_draw
  0001:0001BE20       fronttorture_input
  0001:0001C280       fronttorture_update
+ 0001:0001CC50       get_next_research_item
  0001:0001CD90       process_player_research
  0001:0001E050       script_support_setup_player_as_computer_keeper
  0001:0001E0B0       process_action_points
@@ -219,6 +229,7 @@
  0001:00042040       set_power_hand_graphic
  0001:00042340       process_quit_packet
  0001:00042540       process_pause_packet
+ 0001:00043260       process_dungeon_devastation_effects
  0001:00043F00       process_object_being_picked_up
  0001:00044AB0       get_spellbook_at_position
  0001:00044C00       get_crate_at_position
@@ -261,6 +272,8 @@
  0001:00050910       S3DSetMaximumSoundDistance
  0001:00050940       S3DSetNumberOfSounds
  0001:00050970       S3DCreateSoundEmitterPri
+ 0001:00050B10       S3DDestroySoundEmitter
+ 0001:00050BF0       S3DMoveSoundEmitterTo
  0001:00050C30       S3DEmitterHasFinishedPlaying
  0001:00050C50       S3DAddSampleToEmitterPri
  0001:00050E00       S3DSetSoundReceiverPosition
@@ -268,21 +281,31 @@
  0001:00050E70       process_3d_sounds
  0001:00051810       IsRunningMark@0
  0001:00051840       IsRunningUnmark@0
+ 0001:00057260       process_creature_self_spell_casting
  0001:00057300       update
  0001:00057960       update_things
  0001:00057CC0       update_things_in_list
  0001:00057D20       update_creatures_not_in_list
  0001:00057DA0       update_thing
  0001:00058020       update_creature
+ 0001:00058A40       process_disease
+ 0001:00058BE0       process_creature_state
+ 0001:00058F40       update_shot
+ 0001:00059670       update_object
+ 0001:00059780       update_effect_element
+ 0001:00059A70       update_dead_creature
+ 0001:00059CC0       update_trap
  0001:00059D30       update_player_camera
  0001:0005A1A0       update_footsteps_nearest_camera
  0001:0005A390       update_thing_sound
  0001:0005A650       update_thing_animation
+ 0001:0005A730       process_creature_standing_on_corpses_at
  0001:0005AA00       process_player_instances
  0001:0005AA30       process_player_states
  0001:0005AA90       update_flames_nearest_camera
  0001:0005ABC0       update_cave_in
  0001:0005B120       process_armageddon
+ 0001:0005B2A0       update_creature_count
  0001:0005B3E0       delete_all_structures
  0001:0005B490       i_can_allocate_free_thing_structure
  0001:0005B590       allocate_free_thing_structure
@@ -292,6 +315,11 @@
  0001:0005C920       map_fade_out
  0001:0005D4D0       find_nearest_rooms_for_ambient_sound
  0001:0005D890       clear_map
+ 0001:0005DA80       get_top_cube_at_pos
+ 0001:0005DE40       get_thing_height_at
+ 0001:0005E470       get_floor_height_under_thing_at
+ 0001:0005ED80       place_thing_in_mapwho
+ 0001:0005EE00       remove_thing_from_mapwho
  0001:0005EE90       clear_mapwho
  0001:0005F6D0       init_creature_scores
  0001:0005FFB0       init_level
@@ -302,9 +330,13 @@
  0001:000608D0       clear_game_for_save
  0001:00060B10       init_animating_texture_maps
  0001:00062AC0       init_player_cameras
+ 0001:00063480       create_thing
  0001:00063630       create_creature
+ 0001:00064520       create_door
+ 0001:00064880       create_effect_generator
  0001:00064A10       init_lookups
  0001:00064C80       reinit_tagged_blocks_for_player
+ 0001:00064DE0       check_and_auto_fix_stats
  0001:00065040       initialise_extra_slab_info
  0001:00065360       init_sound@0
  0001:00065460       initialise_eye_lenses
@@ -323,6 +355,7 @@
  0001:00071090       resync_game
  0001:00072D40       draw_frontview_engine
  0001:00076FA0       DrawBigSprite
+ 0001:000770F0       process_door
  0001:00078330       battle_initialise
  0001:000788F0       find_first_battle_of_mine
  0001:00078ED0       battle_move_player_towards_battle
@@ -331,6 +364,9 @@
  0001:0007A380       lose_level
  0001:0007A530       get_packet_save_checksum
  0001:0007B7F0       init_navigation
+ 0001:0007E9D0       process_entrance_generation
+ 0001:0007ED90       update_dungeon_scores
+ 0001:0007F050       update_dungeon_generation_speeds
  0001:00081B30       draw_resurrect_creature
  0001:00081D10       select_resurrect_creature_up
  0001:00081D20       select_resurrect_creature_down
@@ -356,6 +392,7 @@
  0001:00085A30       command_add_party_to_level
  0001:00085E30       command_add_creature_to_level
  0001:000862C0       command_add_value
+ 0001:000863E0       get_id
  0001:00086450       command_research
  0001:00086880       command_if_action_point
  0001:00086AA0       command_add_tunneller_to_level
@@ -368,6 +405,9 @@
  0001:00087ED0       command_set_computer_process
  0001:00089B10       setup_3d
  0001:00089B70       create_effect
+ 0001:00089CB0       update_effect
+ 0001:0008AE80       explosion_affecting_area
+ 0001:0008B950       process_effect_generator
  0001:00092840       menu_is_active
  0001:00092880       turn_on_menu
  0001:000928C0       turn_off_menu
@@ -548,10 +588,16 @@
  0001:000A5540       check_mouse_scroll
  0001:000A5650       update_velocity
  0001:000A5A10       process_dungeons
+ 0001:000A5AB0       process_payday
+ 0001:000A5D30       check_players_lost
+ 0001:000A5DD0       check_players_won
+ 0001:000A5EC0       process_dungeon_power_magic
+ 0001:000A60D0       calculate_dungeon_area_scores
  0001:000A67E0       clear_slab_dig
  0001:000A6940       update_explored_flags_for_power_sight
  0001:000A6DA0       update_power_sight_explored
  0001:000A7050       remove_explored_flags_for_power_sight
+ 0001:000A7270       process_things_in_dungeon_hand
  0001:000A7850       process_sound_heap
  0001:000A7F10       output_message
  0001:000A80C0       process_messages
@@ -612,24 +658,41 @@
  0001:000AF110       pannel_map_draw
  0001:000AF840       pannel_map_update
  0001:000AFD40       process_player_manufacturing
+ 0001:000B0050       create_workshop_object_in_workshop_room
+ 0001:000B02B0       get_next_manufacture
  0001:000B2FC0       get_thing_checksum
  0001:000B45F0       process_rooms
+ 0001:000B6D10       find_room_with_spare_room_item_capacity
+ 0001:000B7980       send_creature_to_room
+ 0001:000BCF00       get_room_thing_is_on
+ 0001:000BD240       player_has_room_of_type
+ 0001:000BDA60       set_start_state
+ 0001:000BF280       cleanup_current_thing_state
+ 0001:000C01E0       setup_move_off_lava
+ 0001:000C16A0       set_creature_graphic
+ 0001:000C2000       apply_damage_to_thing_and_display_health
+ 0001:000C2150       get_foot_creature_has_down
  0001:000C2440       creature_increase_level
  0001:000C24B0       update_creature_levels
  0001:000C2700       set_creature_level
+ 0001:000C28E0       init_creature_level
  0001:000C2950       toggle_creature_tendencies
  0001:000C4C00       place_thing_in_power_hand
  0001:000C4CD0       dump_held_things_on_map
+ 0001:000C6150       kill_creature
  0001:000C6D50       load_settings
  0001:000C7320       load_configuration@0
  0001:000C7510       load_level_file
  0001:000C79F0       save_settings
  0001:000C7A50       load_thing_file
+ 0001:000C7DE0       load_stats_files
+ 0001:000C90A0       load_script
  0001:000C9280       load_game_save_catalogue
  0001:000C92E0       save_game_save_catalogue
  0001:000C9460       load_game
  0001:000C9C50       load_slab_file
  0001:000CA660       move_thing_in_map
+ 0001:000CAB80       move_creature
  0001:000D9DE0       LbErrorLogSetup@12
  0001:000D9EA0       SyncLog
  0001:000D9F30       LbMemoryAlloc_
@@ -729,6 +792,7 @@
  0001:000FDDF0       __filbuf
  0001:000FDEF0       __ftell_lk
  0002:00000010       map_to_slab
+ 0002:00000D50       imp_spangle_effects
  0003:00001838       net_guid
  0003:00006C20       game_load_files
  0003:00006DD8       mcga_load_files
@@ -739,11 +803,13 @@
  0003:00007340       setup_sprites_minimal
  0003:00008438       creature_data
  0003:000090B0       status_panel
+ 0003:0000AFE0       creatures
  0003:0000B1E0       objects
  0003:0000E270       spell_data
  0003:0000E4A8       room_data
  0003:0000E630       trap_data
  0003:0000E6E0       door_names
+ 0003:0000F620       trap_stats
  0003:0000FC58       object_to_magic
  0003:0000FCE0       object_to_special
  0003:0000FD68       magic_to_object
@@ -768,10 +834,21 @@
  0003:00012824       anim_counter
  0003:00014948       quit_game
  0003:0001494C       exit_keeper
+ 0003:00014950       script_line_number
+ 0003:00014954       script_current_condition
  0003:00014964       strings_data
  0003:00014968       SoundDisabled
  0003:0001496C       FatalError
  0003:00015630       special_desc
+ 0003:000160C8       room_desc
+ 0003:00016118       creature_desc
+ 0003:000161B8       player_desc
+ 0003:00016280       magic_desc
+ 0003:000162E8       trap_desc
+ 0003:00016328       command_desc
+ 0003:00016598       timer_desc
+ 0003:000165E8       flag_desc
+ 0003:00016618       door_desc
  0003:00017530       tooltip_scroll_offset
  0003:00017534       tooltip_scroll_timer
  0003:00017538       gui_last_left_button_pressed_id
@@ -884,6 +961,7 @@
  0003:000EB4F4       button_sprite
  0003:000EB510       block_ptrs
  0003:000EBE58       level_name
+ 0003:000EBEB0       blue_palette
  0003:000EBEB4       pointer_sprites
  0003:000EBEBC       pixels_per_block
  0003:000EBED0       key_modifiers
@@ -926,6 +1004,9 @@
  0003:00244DA4       right_button_clicked_y
  0003:00244DA8       right_button_clicked_x
  0003:00244DAC       left_button_held
+ 0003:00244DB0       condition_stack
+ 0003:00244E10       condition_stack_pos
+ 0003:00244E14       next_command_reusable
  0003:00245118       activity_list
  0003:00245178       gui_error_text
  0003:00245278       input_string

@@ -85,6 +85,61 @@
 
 #pragma pack(1)
 
+#ifdef __cplusplus
+#pragma pack(1)
+#endif
+
+struct Coord3d {
+    union {
+      unsigned short val;
+      struct {
+        unsigned char pos;
+        unsigned char num;
+        } stl;
+    } x;
+    union {
+      unsigned short val;
+      struct {
+        unsigned char pos;
+        unsigned char num;
+        } stl;
+    } y;
+    union {
+      unsigned short val;
+      struct {
+        unsigned char pos;
+        unsigned char num;
+        } stl;
+    } z;
+};
+
+struct CoordDelta3d {
+    union {
+      short val;
+      struct {
+        unsigned char pos;
+        char num;
+        } stl;
+    } x;
+    union {
+      short val;
+      struct {
+        unsigned char pos;
+        char num;
+        } stl;
+    } y;
+    union {
+      short val;
+      struct {
+        unsigned char pos;
+        char num;
+        } stl;
+    } z;
+};
+
+#ifdef __cplusplus
+#pragma pack()
+#endif
 
 struct IPOINT_2D {
     int x;
