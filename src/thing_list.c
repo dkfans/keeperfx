@@ -34,12 +34,12 @@ DLLIMPORT long _DK_update_things_in_list(struct StructureList *list);
 DLLIMPORT void _DK_update_things(void);
 
 /******************************************************************************/
-unsigned long update_things_in_list(struct StructureList *list)
+TbBigChecksum update_things_in_list(struct StructureList *list)
 {
   static const char *func_name="update_things_in_list";
   struct Thing *thing;
   unsigned long k;
-  unsigned long sum;
+  TbBigChecksum sum;
   int i;
 #if (BFDEBUG_LEVEL > 18)
     LbSyncLog("%s: Starting\n",func_name);
@@ -52,7 +52,7 @@ unsigned long update_things_in_list(struct StructureList *list)
   {
     if (i >= THINGS_COUNT)
     {
-      error(func_name,4578,"Jump out of things array bounds deteted");
+      error(func_name,4578,"Jump out of things array bounds detected");
       break;
     }
     thing = game.things_lookup[i];
@@ -96,7 +96,7 @@ unsigned long update_cave_in_things(void)
   {
     if (i >= THINGS_COUNT)
     {
-      error(func_name,4576,"Jump out of things array bounds deteted");
+      error(func_name,4576,"Jump out of things array bounds detected");
       break;
     }
     thing = game.things_lookup[i];
@@ -130,7 +130,7 @@ unsigned long update_things_sounds_in_list(struct StructureList *list)
   {
     if (i >= THINGS_COUNT)
     {
-      error(func_name,4578,"Jump out of things array bounds deteted");
+      error(func_name,4578,"Jump out of things array bounds detected");
       break;
     }
     thing = game.things_lookup[i];
@@ -164,7 +164,7 @@ void update_things(void)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
   //_DK_update_things(); return;
-  unsigned long sum;
+  TbBigChecksum sum;
   struct PlayerInfo *player;
   optimised_lights = 0;
   total_lights = 0;
@@ -185,7 +185,7 @@ void update_things(void)
   sum += compute_players_checksum();
   sum += game.field_14BB4A;
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  game.packets[player->field_B%PACKETS_COUNT].field_4 = sum;
+  game.packets[player->packet_num%PACKETS_COUNT].chksum = sum;
 #if (BFDEBUG_LEVEL > 9)
     LbSyncLog("%s: Finished\n",func_name);
 #endif
@@ -203,7 +203,7 @@ void init_player_start(struct PlayerInfo *player)
   {
     if (i >= THINGS_COUNT)
     {
-      error(func_name,4578,"Jump out of things array bounds deteted");
+      error(func_name,4578,"Jump out of things array bounds detected");
       break;
     }
     thing = game.things_lookup[i];
@@ -237,7 +237,7 @@ void init_traps(void)
   {
     if (i >= THINGS_COUNT)
     {
-      error(func_name,4578,"Jump out of things array bounds deteted");
+      error(func_name,4578,"Jump out of things array bounds detected");
       break;
     }
     thing = game.things_lookup[i];
@@ -279,7 +279,7 @@ void setup_computer_players(void)
         {
           if (i >= THINGS_COUNT)
           {
-            error(func_name,4578,"Jump out of things array bounds deteted");
+            error(func_name,4578,"Jump out of things array bounds detected");
             break;
           }
           thing = game.things_lookup[i];
@@ -313,7 +313,7 @@ void init_all_creature_states(void)
   {
     if (i >= THINGS_COUNT)
     {
-      error(func_name,4578,"Jump out of things array bounds deteted");
+      error(func_name,4578,"Jump out of things array bounds detected");
       break;
     }
     thing = game.things_lookup[i];

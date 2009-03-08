@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-typedef char * __fastcall MemAllocFunc(ulong);
+typedef unsigned char * __fastcall MemAllocFunc(ulong);
 /******************************************************************************/
 DLLIMPORT extern unsigned long _DK_mem_size;
 #define mem_size _DK_mem_size

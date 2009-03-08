@@ -201,8 +201,10 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
 	    length += 2;
 	    while (length--)
         {
-            if ((((unsigned char *)output-posn)<unpacked)||((output-posn)>outputend)||
-                (((void *)output)<unpacked)||((output)>outputend))
+            if (((output-posn)<(unsigned char *)unpacked)
+             || ((output-posn)>(unsigned char *)outputend)
+             || ((output)<(unsigned char *)unpacked)
+             || ((output)>(unsigned char *)outputend))
             {
                    if (!(flags&RNC_IGNORE_HUF_EXCEEDS_RANGE)) 
                        return RNC_HUF_EXCEEDS_RANGE;
@@ -379,7 +381,7 @@ static unsigned long mirror (unsigned long x, int n) {
 }
 
 unsigned short crctab[256];
-bool crctab_ready=false;
+short crctab_ready=false;
 
 // Calculate a CRC, the RNC way
 long rnc_crc(void *data, unsigned long len)

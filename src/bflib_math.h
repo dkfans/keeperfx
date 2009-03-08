@@ -2,14 +2,14 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_datetm.h
- *     Header file for bflib_datetm.c.
+/** @file bflib_math.h
+ *     Header file for bflib_math.c.
  * @par Purpose:
- *     Gets system date and time, makes delay, converts date/time formats.
+ *     Math routines.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     12 Feb 2008 - 30 Dec 2008
+ * @date     24 Jan 2009 - 08 Mar 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,29 +17,35 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef BFLIB_DATETM_H
-#define BFLIB_DATETM_H
+#ifndef BFLIB_MATH_H
+#define BFLIB_MATH_H
 
-#include <time.h>
 #include "bflib_basics.h"
+
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-extern struct TbTime global_time;
-extern struct TbDate global_date;
-extern TbClockMSec (* LbTimerClock)(void);
+DLLIMPORT int _DK_lbCosTable[2048];
+#define lbCosTable _DK_lbCosTable
+DLLIMPORT int _DK_lbSinTable[2048];
+#define lbSinTable _DK_lbSinTable
 /******************************************************************************/
-//void LbDoMultitasking(void);
-short __fastcall LbSleepFor(TbClockMSec delay);
-short __fastcall LbSleepUntil(TbClockMSec endtime);
-int LbTime(struct TbTime *curr_time);
-TbTimeSec LbTimeSec(void);
-int LbDate(struct TbDate *curr_date);
-int LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time);
-int LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date, struct TbTime *curr_time);
-short LbTimerInit(void);
+
+inline long LbSinL(long x)
+{
+  return lbSinTable[(unsigned long)x & 0x7FF];
+}
+
+inline long LbCosL(long x)
+{
+  return lbCosTable[(unsigned long)x & 0x7FF];
+}
+
+long __fastcall LbSqrL(long x);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

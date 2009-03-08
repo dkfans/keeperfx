@@ -35,6 +35,7 @@ enum TbScriptCommands {
     Cmd_ADD_TO_PARTY                   =  2,
     Cmd_ADD_PARTY_TO_LEVEL             =  3,
     Cmd_ADD_CREATURE_TO_LEVEL          =  4,
+    Cmd_MESSAGE                        =  5, // from beta
     Cmd_IF                             =  6,
     Cmd_IF_ACTION_POINT                = 19,
     Cmd_ENDIF                          =  7,
@@ -81,6 +82,7 @@ enum TbScriptCommands {
     Cmd_QUICK_OBJECTIVE                = 44,
     Cmd_QUICK_INFORMATION              = 45,
     Cmd_SWAP_CREATURE                  = 77,
+    Cmd_PRINT                          = 76, // from beta
 };
 
 #pragma pack(1)
@@ -103,6 +105,8 @@ struct ScriptLine {
 };
 
 #pragma pack()
+/******************************************************************************/
+extern const struct CommandDesc command_desc[];
 /******************************************************************************/
 DLLIMPORT short _DK_script_current_condition;
 #define script_current_condition _DK_script_current_condition
@@ -128,6 +132,8 @@ long script_support_setup_player_as_computer_keeper(unsigned char plyridx, long 
 long scan_line(char *line);
 const struct CommandDesc *get_next_word(char **line, char *params, unsigned char *nparam);
 long get_id(const struct Description *desc, char *itmname);
+const char *script_get_command_name(long cmnd_index);
+
 void command_add_to_party(char *prtname, char *crtr_name, long crtr_level, long carried_gold, char *objectv, long countdown);
 void command_add_party_to_level(char *plrname, char *prtname, char *dst_place, long ncopies);
 void command_add_creature_to_level(char *plrname, char *crtr_name, char *dst_place, long ncopies, long crtr_level, long carried_gold);
@@ -144,6 +150,7 @@ void command_set_computer_globals(char *plrname, long a1, long a2, long a3, long
 void command_set_computer_checks(char *plrname, char *chkname, long a1, long a2, long a3, long a4, long a5);
 void command_set_computer_events(char *plrname, char *evntname, long a1, long a2);
 void command_set_computer_process(char *plrname, char *procname, long a1, long a2, long a3, long a4, long a5);
+void command_message(char *msgtext, unsigned char kind);
 
 short load_script(long lvl_num);
 /******************************************************************************/

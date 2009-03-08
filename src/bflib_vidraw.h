@@ -141,6 +141,7 @@ struct PurpleDrawItem {
         // pos=24d
         unsigned short Flags;
 };
+/******************************************************************************/
 /*
 extern struct PurpleDrawItem *purple_draw_list;
 extern unsigned short purple_draw_index;
@@ -153,6 +154,23 @@ extern unsigned short text_window_x2, text_window_y2;
 extern char my_line_spacing;
 */
 #pragma pack()
+/******************************************************************************/
+DLLIMPORT unsigned char *_DK_poly_screen;
+#define poly_screen _DK_poly_screen
+DLLIMPORT unsigned char *_DK_vec_screen;
+#define vec_screen _DK_vec_screen
+DLLIMPORT unsigned char *_DK_vec_map;
+#define vec_map _DK_vec_map
+DLLIMPORT unsigned long _DK_vec_screen_width;
+#define vec_screen_width _DK_vec_screen_width
+DLLIMPORT unsigned long _DK_vec_window_width;
+#define vec_window_width _DK_vec_window_width
+DLLIMPORT unsigned long _DK_vec_window_height;
+#define vec_window_height _DK_vec_window_height
+DLLIMPORT unsigned char *_DK_dither_map;
+#define dither_map _DK_dither_map
+DLLIMPORT unsigned char *_DK_dither_end;
+#define dither_end _DK_dither_end
 /******************************************************************************/
 //Routines to be moved into bflib_vipurp
 /*
@@ -176,6 +194,8 @@ int LbDrawBox(long x, long y, unsigned long width, unsigned long height, TbPixel
 void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour);
 int LbSpriteDraw(long x, long y, struct TbSprite *spr);
 int LbSpriteDrawRemap(long x, long y, struct TbSprite *spr,unsigned char *map);
+void __fastcall setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
+        unsigned int line_len, unsigned int width, unsigned int height);
 /*
 int __fastcall LbDrawBoxCoords(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour);
 

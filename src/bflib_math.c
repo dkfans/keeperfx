@@ -2,14 +2,14 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_datetm.h
- *     Header file for bflib_datetm.c.
+/** @file bflib_math.c
+ *     Math routines.
  * @par Purpose:
- *     Gets system date and time, makes delay, converts date/time formats.
+ *     Fast math routines, mostly fixed point.
  * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
+ *     None.
  * @author   Tomasz Lis
- * @date     12 Feb 2008 - 30 Dec 2008
+ * @date     24 Jan 2009 - 08 Mar 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,31 +17,41 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef BFLIB_DATETM_H
-#define BFLIB_DATETM_H
+#include "bflib_math.h"
 
-#include <time.h>
 #include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-extern struct TbTime global_time;
-extern struct TbDate global_date;
-extern TbClockMSec (* LbTimerClock)(void);
+unsigned short lbSqrTable[] = 
+  {0x0001, 0x0002, 0x0002, 0x0004, 0x0005, 0x0008, 0x000B, 0x0010,
+   0x0016, 0x0020, 0x002D, 0x0040, 0x005A, 0x0080, 0x00B5, 0x0100,
+   0x016A, 0x0200, 0x02D4, 0x0400, 0x05A8, 0x0800, 0x0B50, 0x1000,
+   0x16A0, 0x2000, 0x2D41, 0x4000, 0x5A82, 0x8000, 0xB504, 0xFFFF,};
 /******************************************************************************/
-//void LbDoMultitasking(void);
-short __fastcall LbSleepFor(TbClockMSec delay);
-short __fastcall LbSleepUntil(TbClockMSec endtime);
-int LbTime(struct TbTime *curr_time);
-TbTimeSec LbTimeSec(void);
-int LbDate(struct TbDate *curr_date);
-int LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time);
-int LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date, struct TbTime *curr_time);
-short LbTimerInit(void);
+/******************************************************************************/
+long __fastcall LbSqrL(long x)
+{
+  long y;
+  if (x <= 0)
+    return 0;
+  // 
+  asm ("bsrl     %1, %%eax;\n"
+       "movl %%eax, %0;\n"
+       :"=r"(y)  // output
+       :"r"(x)   // input
+       :"%eax"   // clobbered register
+       );
+  y = lbSqrTable[y];
+  while ((x/y) < y)
+    y = ((x/y) + y) >> 1;
+  return y;
+}
+
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
-#endif
 #endif

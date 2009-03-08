@@ -35,6 +35,7 @@ extern "C" {
 #define ACTIVE_MENUS_COUNT 8
 // Sprite limits
 #define PANEL_SPRITES_COUNT 514
+#define FRONTEND_FONTS_COUNT 4
 // Positioning constants for menus
 #define POS_AUTO -9999
 #define POS_MOUSMID -999
@@ -52,6 +53,47 @@ enum DemoItem_Kind {
     DIK_LoadPacket,
     DIK_SwitchState,
     DIK_ListEnd,
+};
+
+enum GUI_Menus {
+  GMnu_MAIN               =  1,
+  GMnu_ROOM               =  2,
+  GMnu_SPELL              =  3,
+  GMnu_TRAP               =  4,
+  GMnu_CREATURE           =  5,
+  GMnu_EVENT              =  6,
+  GMnu_QUERY              =  7,
+  GMnu_OPTIONS            =  8,
+  GMnu_INSTANCE           =  9,
+  GMnu_QUIT               = 10,
+  GMnu_LOAD               = 11,
+  GMnu_SAVE               = 12,
+  GMnu_VIDEO              = 13,
+  GMnu_SOUND              = 14,
+  GMnu_ERROR_BOX          = 15,
+  GMnu_TEXT_INFO          = 16,
+  GMnu_HOLD_AUDIENCE      = 17,
+  GMnu_FEMAIN             = 18,
+  GMnu_FELOAD             = 19,
+  GMnu_FENET_SERVICE      = 20,
+  GMnu_FENET_SESSION      = 21,
+  GMnu_FENET_START        = 22,
+  GMnu_FENET_MODEM        = 23,
+  GMnu_FENET_SERIAL       = 24,
+  GMnu_FESTATISTICS       = 25,
+  GMnu_FEHIGH_SCORE_TABLE = 26,
+  GMnu_DUNGEON_SPECIAL    = 27,
+  GMnu_RESURRECT_CREATURE = 28,
+  GMnu_TRANSFER_CREATURE  = 29,
+  GMnu_ARMAGEDDON         = 30,
+  GMnu_CREATURE_QUERY1    = 31,
+  GMnu_CREATURE_QUERY3    = 32,
+  GMnu_BATTLE             = 34,
+  GMnu_CREATURE_QUERY2    = 35,
+  GMnu_FEDEFINE_KEYS      = 36,
+  GMnu_AUTOPILOT          = 37,
+  GMnu_SPELL_LOST         = 38,
+  GMnu_FEOPTION           = 39,
 };
 
 struct DemoItem { //sizeof = 5
@@ -165,18 +207,16 @@ DLLIMPORT long _DK_net_service_scroll_offset;
 #define net_service_scroll_offset _DK_net_service_scroll_offset
 DLLIMPORT long _DK_net_number_of_services;
 #define net_number_of_services _DK_net_number_of_services
-DLLIMPORT extern struct TbSprite *_DK_frontend_font[4];
-#define frontend_font _DK_frontend_font
 DLLIMPORT char _DK_no_of_active_menus;
 #define no_of_active_menus _DK_no_of_active_menus
 DLLIMPORT unsigned char _DK_menu_stack[ACTIVE_MENUS_COUNT];
 #define menu_stack _DK_menu_stack
+DLLIMPORT extern struct GuiMenu _DK_active_menus[ACTIVE_MENUS_COUNT];
+#define active_menus _DK_active_menus
 DLLIMPORT extern struct GuiButton _DK_active_buttons[ACTIVE_BUTTONS_COUNT];
 #define active_buttons _DK_active_buttons
 DLLIMPORT long _DK_frontend_mouse_over_button_start_time;
 #define frontend_mouse_over_button_start_time _DK_frontend_mouse_over_button_start_time
-DLLIMPORT extern struct TbSprite *_DK_frontend_sprite;
-#define frontend_sprite _DK_frontend_sprite
 DLLIMPORT short _DK_old_menu_mouse_x;
 #define old_menu_mouse_x _DK_old_menu_mouse_x
 DLLIMPORT short _DK_old_menu_mouse_y;
@@ -207,6 +247,78 @@ DLLIMPORT extern long _DK_high_score_entry_index;
 #define high_score_entry_index _DK_high_score_entry_index
 DLLIMPORT extern char _DK_high_score_entry[64];
 #define high_score_entry _DK_high_score_entry
+DLLIMPORT unsigned char _DK_video_gamma_correction;
+#define video_gamma_correction _DK_video_gamma_correction
+
+// *** SPRITES ***
+DLLIMPORT struct TbSprite *_DK_pointer_sprites;
+#define pointer_sprites _DK_pointer_sprites
+DLLIMPORT struct TbSprite *_DK_end_pointer_sprites;
+#define end_pointer_sprites _DK_end_pointer_sprites
+DLLIMPORT unsigned long _DK_pointer_data;
+#define pointer_data _DK_pointer_data
+DLLIMPORT struct TbSprite *_DK_font_sprites;
+#define font_sprites _DK_font_sprites
+DLLIMPORT struct TbSprite *_DK_end_font_sprites;
+#define end_font_sprites _DK_end_font_sprites
+DLLIMPORT unsigned long _DK_font_data;
+#define font_data _DK_font_data
+
+DLLIMPORT extern struct TbSprite *_DK_frontend_font[FRONTEND_FONTS_COUNT];
+#define frontend_font _DK_frontend_font
+DLLIMPORT extern struct TbSprite *_DK_frontend_end_font[FRONTEND_FONTS_COUNT];
+#define frontend_end_font _DK_frontend_end_font
+DLLIMPORT extern unsigned long _DK_frontend_font_data[FRONTEND_FONTS_COUNT];
+#define frontend_font_data _DK_frontend_font_data
+DLLIMPORT extern unsigned long _DK_frontend_end_font_data[FRONTEND_FONTS_COUNT];
+#define frontend_end_font_data _DK_frontend_end_font_data
+
+DLLIMPORT extern struct TbSprite *_DK_frontend_sprite;
+#define frontend_sprite _DK_frontend_sprite
+
+DLLIMPORT extern struct TbSprite *_DK_button_sprite;
+#define button_sprite _DK_button_sprite
+DLLIMPORT extern struct TbSprite *_DK_end_button_sprites;
+#define end_button_sprites _DK_end_button_sprites
+DLLIMPORT extern unsigned long _DK_button_sprite_data;
+#define button_sprite_data _DK_button_sprite_data
+DLLIMPORT extern unsigned long _DK_end_button_sprite_data;
+#define end_button_sprite_data _DK_end_button_sprite_data
+
+DLLIMPORT extern struct TbSprite *_DK_frontstory_font;
+#define frontstory_font _DK_frontstory_font
+
+DLLIMPORT extern struct TbSprite *_DK_winfont;
+#define winfont _DK_winfont
+DLLIMPORT extern struct TbSprite *_DK_end_winfonts;
+#define end_winfonts _DK_end_winfonts
+DLLIMPORT unsigned long _DK_winfont_data;
+#define winfont_data _DK_winfont_data
+DLLIMPORT unsigned long _DK_end_winfont_data;
+#define end_winfont_data _DK_end_winfont_data
+
+DLLIMPORT struct TbSprite *_DK_gui_panel_sprites;
+#define gui_panel_sprites _DK_gui_panel_sprites
+DLLIMPORT struct TbSprite *_DK_end_gui_panel_sprites;
+#define end_gui_panel_sprites _DK_end_gui_panel_sprites
+DLLIMPORT extern unsigned long _DK_gui_panel_sprite_data;
+#define gui_panel_sprite_data _DK_gui_panel_sprite_data
+DLLIMPORT extern unsigned long _DK_end_gui_panel_sprite_data;
+#define end_gui_panel_sprite_data _DK_end_gui_panel_sprite_data
+
+DLLIMPORT struct TbSprite *_DK_edit_icon_sprites;
+#define edit_icon_sprites _DK_edit_icon_sprites
+DLLIMPORT struct TbSprite *_DK_end_edit_icon_sprites;
+#define end_edit_icon_sprites _DK_end_edit_icon_sprites
+DLLIMPORT unsigned long _DK_edit_icon_data;
+#define edit_icon_data _DK_edit_icon_data
+
+DLLIMPORT extern struct TbSprite *_DK_port_sprite;
+#define port_sprite _DK_port_sprite
+DLLIMPORT extern struct TbSprite *_DK_end_port_sprites;
+#define end_port_sprites _DK_end_port_sprites
+DLLIMPORT extern unsigned long _DK_port_sprite_data;
+#define port_sprite_data _DK_port_sprite_data
 /******************************************************************************/
 // Variables - no linger imported
 extern struct GuiMenu main_menu;
@@ -259,6 +371,8 @@ extern struct GuiMenu *menu_list[40];
 
 DLLIMPORT char _DK_get_button_area_input(struct GuiButton *gbtn, int);
 DLLIMPORT void _DK_setup_gui_tooltip(struct GuiButton *gbtn);
+
+extern int status_panel_width;
 
 /******************************************************************************/
 // Reworked functions
@@ -616,7 +730,7 @@ void maintain_transfer_creature_scroll(struct GuiButton *gbtn);
 
 void frontend_load_data_from_cd(void);
 void frontend_load_data_reset(void);
-void frontend_save_continue_game(long lv_num, int a2);
+void frontend_save_continue_game(long lv_num, short is_new_lvl);
 void draw_map_parchment(void);
 void gui_area_null(struct GuiButton *gbtn);
 void draw_load_button(struct GuiButton *gbtn);
@@ -682,9 +796,27 @@ char game_is_busy_doing_gui(void);
 void turn_off_event_box_if_necessary(long plridx, char val);
 void set_gui_visible(short visible);
 void toggle_gui(void);
+void fake_button_click(long btn_idx);
 unsigned long toggle_status_menu(short visib);
+short toggle_first_person_menu(short visible);
 void toggle_gui_overlay_map(void);
 void display_objectives(long a1,long a2,long a3);
+short toggle_main_cheat_menu(void);
+short toggle_instance_cheat_menu(void);
+short toggle_creature_cheat_menu(void);
+void initialise_tab_tags(long menu_id);
+void initialise_tab_tags_and_menu(long menu_id);
+void turn_off_roaming_menus(void);
+
+void gui_draw_all_boxes(void);
+short gui_box_is_not_valid(struct GuiBox *gbox);
+struct GuiBox *gui_create_box(long x, long y, struct GuiBoxOption *optn_list);
+void gui_delete_box(struct GuiBox *gbox);
+void gui_draw_box(struct GuiBox *gbox);
+struct GuiBox *gui_get_highest_priority_box(void);
+struct GuiBox *gui_get_lowest_priority_box(void);
+struct GuiBox *gui_get_next_highest_priority_box(struct GuiBox *gbox);
+struct GuiBox *gui_get_next_lowest_priority_box(struct GuiBox *gbox);
 
 
 /******************************************************************************/

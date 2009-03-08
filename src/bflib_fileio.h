@@ -57,7 +57,7 @@ int __fastcall LbDriveChange(const unsigned int drive);
 int __fastcall LbDriveExists(const unsigned int drive);
 int __fastcall LbDirectoryChange(const char *path);
 int __fastcall LbDriveFreeSpace(const unsigned int drive, struct TbDriveInfo *drvinfo);
-bool __fastcall LbFileExists(const char *fname);
+short __fastcall LbFileExists(const char *fname);
 int __fastcall LbFilePosition(TbFileHandle handle);
 TbFileHandle __fastcall LbFileOpen(const char *fname, unsigned char accmode);
 int __fastcall LbFileClose(TbFileHandle handle);
@@ -74,7 +74,7 @@ int __fastcall LbFileDelete(const char *filename);
 short __fastcall LbFileFlush(TbFileHandle handle);
 char *__fastcall LbGetCurrWorkDir(char *dest, const unsigned long maxlen);
 int LbDirectoryCurrent(char *buf, unsigned long buflen);
-int __fastcall LbFileMakeFullPath(const bool append_cur_dir,
+int __fastcall LbFileMakeFullPath(const short append_cur_dir,
   const char *directory, const char *filename, char *buf, const unsigned long len);
 
 /******************************************************************************/

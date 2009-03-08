@@ -75,9 +75,29 @@ const struct ConfigCommand cmpgn_commands[] = {
   {NULL,            0},
   };
 
+unsigned long features_enabled = 0;
 struct GameCampaign campaign;
 
 /******************************************************************************/
+short update_features(unsigned long mem_size)
+{
+  short result;
+  result = false;
+  if (mem_size >= 32)
+  {
+    result = true;
+    features_enabled |= Ft_HiResCreatr;
+  }
+  if (mem_size >= 16)
+  {
+    features_enabled |= Ft_EyeLens;
+    features_enabled |= Ft_HiResVideo;
+    features_enabled |= Ft_BigPointer;
+  }
+  LbSyncLog("Memory-demanding features %s.\n",result?"enabled":"disabled");
+  return result;
+}
+
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct ConfigCommand *commands)
 {
   int i,cmdname_len;
@@ -411,7 +431,7 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       sdir="hdata";
       break;
   case FGrp_Levels:
-      mdir=keeper_runtime_directory;
+      mdir=install_info.inst_path;
       sdir="levels";
       break;
   case FGrp_Save:

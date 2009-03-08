@@ -31,46 +31,58 @@
 #define LEGAL_HEIGHT 480
 #define PALETTE_SIZE 768
 
-#define DUNGEONS_COUNT    5
-#define PLAYERS_COUNT     5
-#define NET_PLAYERS_COUNT 4
-#define PACKETS_COUNT     5
-#define THINGS_COUNT      2048
-#define COLUMNS_COUNT     2048
-#define EVENTS_COUNT      100
-#define ROOMS_COUNT       150
-#define CREATURES_COUNT   256
-#define SAVE_SLOTS_COUNT  8
-#define MESSAGE_QUEUE_COUNT 4
-#define GUI_MESSAGES_COUNT 3
+#define DUNGEONS_COUNT         5
+#define PLAYERS_COUNT          5
+#define PLAYERS_EXT_COUNT      6
+#define NET_PLAYERS_COUNT      4
+#define PACKETS_COUNT          5
+#define THINGS_COUNT        2048
+#define COLUMNS_COUNT       2048
+#define EVENTS_COUNT         100
+#define ROOMS_COUNT          150
+#define CREATURES_COUNT      256
+#define SAVE_SLOTS_COUNT       8
+#define MESSAGE_QUEUE_COUNT    4
+#define GUI_MESSAGES_COUNT     3
 #define CREATURE_PARTYS_COUNT 16
-#define WIN_CONDITIONS_COUNT 4
-#define CREATURE_MAX_LEVEL 10
-#define THING_CLASSES_COUNT  10
+#define WIN_CONDITIONS_COUNT   4
+#define CREATURE_MAX_LEVEL    10
+#define THING_CLASSES_COUNT   10
+#define GAME_KEYS_COUNT       32
+#define GAMMA_LEVELS_COUNT     5
+#define LENSES_COUNT          15
+#define PERS_ROUTINES_COUNT    4
+#define MINMAXS_COUNT         64
+#define LIGHTS_COUNT         400
+#define COLUMN_STACK_HEIGHT    8
+// Amount of instances; it's 17, 18 or 19
+#define PLAYER_INSTANCES_COUNT 19
+#define ZOOM_KEY_ROOMS_COUNT  14
+#define SMALL_MAP_RADIUS      58
 // Static textures
 #define TEXTURE_BLOCKS_STAT_COUNT   544
 // Animated textures
 #define TEXTURE_BLOCKS_ANIM_COUNT   48
 #define TEXTURE_BLOCKS_COUNT TEXTURE_BLOCKS_STAT_COUNT+TEXTURE_BLOCKS_ANIM_COUNT
+// Sprites
+// note - this is temporary value; not correct
+#define GUI_PANEL_SPRITES_COUNT 9000
 // Types of objects
 #define CREATURE_TYPES_COUNT  32
 #define SPELL_TYPES_COUNT     20
 #define TRAP_TYPES_COUNT      11
-#define DOOR_TYPES_COUNT      8
+#define DOOR_TYPES_COUNT       8
 #define ROOM_TYPES_COUNT      17
 #define OBJECT_TYPES_COUNT   136
-#define ACTN_POINTS_COUNT 32
+#define ACTN_POINTS_COUNT     32
+#define SLAB_TYPES_COUNT      58
 // Camera constants; max zoom is when everything is large
 #define CAMERA_ZOOM_MIN 4100
 #define CAMERA_ZOOM_MAX 12000
 
 #define SIZEOF_TDDrawSdk 408
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#pragma pack(1)
+typedef long (*InstncInfo_Func)(struct PlayerInfo *player, long *n);
 
 // Temporary
 typedef struct SSurface {
@@ -78,12 +90,38 @@ typedef struct SSurface {
        } TSurface;
 
 enum TbErrorCode {
-        Lb_OK      =  0,
-        Lb_FAIL    = -1,
+    Lb_OK                   =  0,
+    Lb_FAIL                 = -1,
+};
+
+enum PlayerViewType {
+    PVT_DungeonTop          =  1,
+    PVT_CreatureContrl      =  2,
+    PVT_CreaturePasngr      =  3,
+    PVT_MapScreen           =  4,
+};
+
+enum ModeFlags {
+    MFlg_IsDemoMode         =  0x01,
+    MFlg_EyeLensReady       =  0x02,
+    MFlg_NoMusic            =  0x10,
+};
+
+enum SlabTypes {
+    SlbT_ROCK               =  0,
+    SlbT_GOLD               =  1,
+    SlbT_EARTH              =  2,
+    SlbT_TORCHDIRT          =  3,
+    SlbT_WALLDRAPE          =  4,
+    SlbT_WALLTORCH          =  5,
+    SlbT_WALLWTWINS         =  6,
 };
 
 typedef int TbError;
 
+#ifdef __cplusplus
+#pragma pack(1)
+#endif
 
 //This seems to be array of functions in __thiscall convention
 // they are all methods for class TDDrawBase and its derivants
@@ -232,13 +270,82 @@ unsigned char field_11;
 unsigned char field_12[2];
 };
 
+struct EngineCoord { // sizeof = 28
+  unsigned long field_0;
+  unsigned long field_4;
+  unsigned long field_8;
+  unsigned long field_C;
+  unsigned long x;
+  unsigned long y;
+  unsigned long z;
+};
+
+
+struct M33 { // sizeof = 48
+  unsigned long r0[4];
+  unsigned long r1[4];
+  unsigned long r2[4];
+};
+
+struct EngineCol {
+//TODO!!
+};
+
+struct BasicQ
+{
+//TODO!!
+};
+
+struct XYZ { // sizeof = 12
+  long x;
+  long y;
+  long z;
+};
+
+struct PolyPoint { // sizeof = 8
+  long field_0;
+  long field_4;
+//TODO!!!
+};
+
+struct MinMax { // sizeof = 8
+  long min;
+  long max;
+};
+
+struct MapVolumeBox { // sizeof = 24
+  unsigned char field_0;
+  unsigned char field_1;
+  unsigned char field_2;
+  unsigned long field_3;
+  unsigned long field_7;
+  unsigned long field_B;
+  unsigned long field_F;
+  unsigned long field_13;
+  unsigned char field_17;
+};
+
+struct InitActionPoint { // sizeof = 8
+  struct Coord2d mappos;
+  unsigned short range;
+  unsigned short num;
+};
+
+struct ActionPoint { // sizeof = 0xA
+    unsigned char flags;
+    struct Coord2d mappos;
+    unsigned short range;
+    unsigned short num;
+char field_9;
+};
+
 struct Column { // sizeof=0x18
     short use;
     unsigned char bitfileds;
     unsigned short solidmask;
     unsigned short baseblock;
     unsigned char orient;
-    unsigned short cubes[8];
+    unsigned short cubes[COLUMN_STACK_HEIGHT];
 };
 
 struct SpecialDesc {
@@ -280,9 +387,11 @@ int field_10;
 };
 
 struct Room {
-    long field_0;
+    short field_0;
+    unsigned char field_2;
+    unsigned char owner;
     short field_4;
-    short field_6;
+    unsigned short field_6;
     unsigned char field_8;
     unsigned char field_9;
     short field_A;
@@ -359,7 +468,7 @@ struct CreatureData {
 };
 
 struct SlabMap {
-      unsigned char field_0;
+      unsigned char slab;
       short field_1;
       unsigned char field_3;
       unsigned char field_4;
@@ -389,15 +498,9 @@ unsigned long field_2;
 unsigned long field_6;
 unsigned char field_A;
 unsigned char field_B;
-unsigned long field_C;
+long field_C; // signed
 unsigned long field_10;
 unsigned char field_14;
-};
-
-struct ActnPoint {
-    unsigned char flags;
-char field_1[8];
-char field_9;
 };
 
 struct Creatures { // sizeof = 16
@@ -437,7 +540,8 @@ unsigned char field_C2[6];
     short field_CA;
 unsigned char field_CC[2];
     unsigned long field_CE;
-unsigned char field_D2[204];
+unsigned char field_D2;
+unsigned char field_D3[203];
     char instances[256];
 unsigned char field_29E[18];
     unsigned char field_2B0;
@@ -559,7 +663,17 @@ struct BBlock {
       short field_3;
 };
 
-struct GameSettings {
+struct Map {
+      char field_0;
+      unsigned long field_1;
+};
+
+struct GameKey { // sizeof = 2
+  unsigned char code;
+  unsigned char mods;
+};
+
+struct GameSettings { // sizeof = 0x52 (82)
     unsigned char field_0;
     unsigned char video_shadows;
     unsigned char view_distance;
@@ -571,28 +685,40 @@ struct GameSettings {
     unsigned char field_8;
     unsigned short gamma_correction;
     int field_B;
-    unsigned char field_F[8];
-    unsigned char field_17[8];
-    unsigned char field_1F[8];
-    unsigned char field_27[8];
-    unsigned char field_2F[8];
-    unsigned char field_37[8];
-    unsigned char field_3F[8];
-    unsigned char field_47[8];
+    struct GameKey kbkeys[GAME_KEYS_COUNT];
     unsigned char tooltips_on;
     unsigned char field_50;
     unsigned char field_51;
     };
 
-struct PacketSaveHead { // sizeof=0xF
-unsigned int field_0;
-unsigned int field_4;
-unsigned int field_8;
-    unsigned char field_C;
-unsigned char field_D;
-unsigned char field_E;
-    };
+struct PlayerInstanceInfo { // sizeof = 44
+  unsigned long field_0;
+  unsigned long field_4;
+  InstncInfo_Func start_cb;
+  InstncInfo_Func maintain_cb;
+  InstncInfo_Func end_cb;
+  unsigned char field_14[8];
+  unsigned char field_1C[8];
+  long field_24;
+  unsigned long field_28;
+};
 
+struct InstanceInfo { // sizeof = 42
+  unsigned char field_0;
+  unsigned char field_1[3];
+  unsigned char field_4[4];
+  unsigned char field_8[4];
+  unsigned char field_C[5];
+  unsigned long field_11;
+  unsigned long field_15;
+  unsigned char field_19;
+  unsigned char field_1A;
+  unsigned char field_1B[2];
+  unsigned char field_1D;
+  void *field_1E;
+  unsigned long field_22;
+  unsigned char field_26[4];
+};
 
 struct Wander {
 unsigned char field_0[424];
@@ -613,8 +739,8 @@ struct PlayerInfo {
     unsigned char field_4;
     unsigned char field_5;
     unsigned char field_6;
-    unsigned int field_7;
-    unsigned char field_B;
+    unsigned char *field_7;
+    unsigned char packet_num; // index of packet slot associated with this player
 unsigned char field_C[4];
 unsigned int field_10;
 unsigned char field_14;
@@ -628,12 +754,13 @@ unsigned char field_14;
     long field_31;
     short field_35;
     unsigned char field_37;
-    struct Camera *camera;
+    struct Camera *camera;  // Pointer to the currently active camera
     struct Coord3d cam_mappos;
 //    struct Camera camera2;
     unsigned char field_42;
     long field_43;
     unsigned char field_47[31];
+//    struct Camera camera3;
     unsigned char field_66[42];
     unsigned short field_90;
     unsigned short field_92;
@@ -646,7 +773,6 @@ unsigned char field_14;
     long field_C1;
     unsigned char field_C5[16];
     unsigned char field_D5[4];
-// end of potential Camera struct
     unsigned char field_D9[11];
     unsigned short field_E4;
     unsigned short field_E6;
@@ -657,14 +783,14 @@ char field_E8[2];
 char field_43C[2];
     short field_43E;
     long field_440;
-    short field_444;
-    short field_446;
-    short field_448;
-    short field_44A;
+    short engine_window_width;
+    short engine_window_height;
+    short engine_window_x;
+    short engine_window_y;
     short mouse_x;
     short mouse_y;
     unsigned short minimap_zoom;
-    unsigned char field_452;
+    unsigned char view_type;
     unsigned char field_453;
     unsigned char field_454;
 char field_455;
@@ -678,7 +804,7 @@ char field_462;
     char field_4A5;
     char field_4A6;
     char field_4A7[9];
-    unsigned char field_4B0;
+    unsigned char instance_num;
     unsigned long field_4B1;
     char field_4B5;
     char field_4B6[7];
@@ -699,13 +825,13 @@ char field_462;
 
 #define SIZEOF_Dungeon 0x1508
 struct Dungeon {
-    short field_0;
+    unsigned short field_0;
     struct Coord3d mappos;
     unsigned char field_8;
     unsigned char field_9;
     unsigned char computer_enabled;
     int field_B;
-    short field_F;
+    unsigned short field_F;
     short field_11;
     short field_13;
     int field_15;
@@ -891,7 +1017,7 @@ char numfield_14;
 char numfield_15;
 int numfield_16;
 char numfield_1A;
-char numfield_1B;
+    unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
 struct Column columns[COLUMNS_COUNT];
 struct UnkStruc5 struc_D8C7[512];
@@ -914,16 +1040,12 @@ char field_4614D;
 char field_4614E;
 int field_4614F;
 int field_46153;
-int field_46157[128];
-short field_46357;
-short field_46359[33502];
-char field_56915[38673];
-char field_60026[24881];
+    unsigned short field_46157[256*256];
     struct CreatureControl creature_control_data[CREATURES_COUNT];
     struct Thing things_data[THINGS_COUNT];
 char field_CC157 [64251];
 struct BBlock bblocks[257];
-struct BBlock map[65536];
+    struct Map map[256*256];
 char computer_task[14800];
 char computer[18239];
 char field_134266[4096];
@@ -944,12 +1066,12 @@ char field_149E72[5];
 unsigned int field_149E77;
 unsigned char field_149E7B;
 unsigned int field_149E7C;
-unsigned char field_149E80;
-unsigned char field_149E81;
+    unsigned char packet_save_enable;
+    unsigned char packet_load_enable;
     char packet_fname[150];
     char packet_fopened;
     TbFileHandle packet_save_fp;
-unsigned int field_149F1D;
+unsigned int packet_file_pos;
     struct PacketSaveHead packet_save_head;
 unsigned int field_149F30;
 unsigned int turns_fastforward;
@@ -970,10 +1092,10 @@ unsigned long field_14A814;
 char field_14A818[14];
 char field_14A826[16];
 char field_14A836[7];
-    unsigned char numfield_14A83D;
+    unsigned char level_file_number;
     unsigned char level_number; // change it to long ASAP
 short texture_animation[8*TEXTURE_BLOCKS_ANIM_COUNT];
-short field_14AB3F;
+unsigned short field_14AB3F;
     unsigned char texture_id;
 short freethings[287];
 char field_14AD80[1254];
@@ -982,7 +1104,7 @@ char field_14BA66[128];
 char field_14BAE6[64];
 char field_14BB26[28];
     unsigned long seedchk_random_used;
-    unsigned long gameturn;
+    unsigned long pckt_gameturn;
     unsigned long field_14BB4A;
     unsigned long field_14BB4E;
 short field_14BB52;
@@ -992,13 +1114,14 @@ int field_14BB59;
 int field_14BB5D;
     unsigned long time_delta;
 short field_14BB65[592];
-char field_14C005[5];
+    unsigned char small_map_state;
+char field_14C006[4];
 short field_14C00A;
     struct Packet packets[PACKETS_COUNT];
     struct CreatureStats creature_stats[CREATURE_TYPES_COUNT];
 short field_14DD21[34];
 struct MagicStats magic_stats[SPELL_TYPES_COUNT];
-struct ActnPoint action_points[ACTN_POINTS_COUNT];
+    struct ActionPoint action_points[ACTN_POINTS_COUNT];
 char field_14E495;
     unsigned char field_14E496;
 char field_14E497;
@@ -1095,8 +1218,24 @@ int field_15035A;
 char field_15035E;
 int field_15035F;
 int field_150363;
-char field_150367[15];
-char field_150376[28];
+char field_150367[13];
+  //Sound-related struct begins here:
+    char *field_150374;
+long field_150378;
+    char *field_15037C;
+unsigned short field_150380;
+unsigned short field_150382;
+    unsigned char max_sounds;
+unsigned char field_150385;
+unsigned char field_150386;
+unsigned char field_150387;
+unsigned char field_150388;
+unsigned char field_150389;
+unsigned char field_15038A;
+unsigned char field_15038B;
+unsigned char field_15038C;
+unsigned char field_15038D;
+long field_15038E;
     int num_fps;
 int numfield_150396;
 int numfield_15039A;
@@ -1122,7 +1261,7 @@ char field_151556[128];
 char field_1515D6[256];
 char field_1516D6[29];
 int field_1516F3;
-int field_1516F7;
+int field_1516F7; // signed
 int field_1516FB;
 char field_1516FF;
 int field_151700;
@@ -1208,19 +1347,17 @@ struct ReceiveCallbacks {
        void (*sys_user_msg)(unsigned long, void *, unsigned long, void *);
 };
 
-struct TbLoadFiles {
-        char FName[28];
-        unsigned char **Start;
-        unsigned char **SEnd;
-        unsigned long SLength;
-        unsigned short Flags;
-        unsigned short Spare;
-};
-
-typedef char * (*ModDL_Fname_Func)(struct TbLoadFiles *);
 typedef long (*Thing_Class_Func)(struct Thing *);
+typedef void (*RotPers_Func)(struct EngineCoord *epos, struct M33 *matx);
+typedef void (*Perspect_Func)(struct XYZ *cor, struct PolyPoint *ppt);
 
+#ifdef __cplusplus
+#pragma pack()
+#endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 // Variables inside the main module
 extern TbClockMSec last_loop_time;
 extern int map_subtiles_x;
@@ -1229,7 +1366,129 @@ extern int map_tiles_x;
 extern int map_tiles_y;
 extern struct GuiBox *gui_box;
 extern struct GuiBox *gui_cheat_box;
-extern const struct CommandDesc command_desc[];
+extern struct PlayerInstanceInfo player_instance_info[];
+
+extern Perspect_Func perspective_routines[];
+extern RotPers_Func rotpers_routines[];
+extern int test_variable;
+
+//Functions - exported by the DLL
+
+DLLIMPORT int __stdcall _DK_WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd);
+DLLIMPORT int __stdcall _DK_LbBullfrogMain(unsigned short argc,char **argv);
+DLLIMPORT int __stdcall _DK_game_loop(void);
+DLLIMPORT int __stdcall _DK_LbErrorLogSetup(char *directory, char *filename, unsigned char flag);
+DLLIMPORT void __fastcall _DK_get_cpu_info(struct CPU_INFO *cpu_info);
+DLLIMPORT int __stdcall _DK_SyncLog(char *Format, ...);
+DLLIMPORT void __cdecl _DK_set_cpu_mode(int mode);
+DLLIMPORT void __cdecl _DK_display_loading_screen(void);
+DLLIMPORT int __cdecl _DK_setup_game_sound_heap(void);
+DLLIMPORT int __cdecl _DK_load_settings(void);
+DLLIMPORT void __cdecl _DK_init_creature_scores(void);
+DLLIMPORT void __cdecl _DK_setup_3d(void);
+DLLIMPORT void __cdecl _DK_setup_stuff(void);
+DLLIMPORT void __cdecl _DK_input_eastegg(void);
+DLLIMPORT void __cdecl _DK_update(void);
+DLLIMPORT void __cdecl _DK_wait_at_frontend(void);
+DLLIMPORT void __cdecl _DK_delete_all_structures(void);
+DLLIMPORT void __cdecl _DK_PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *palette);
+DLLIMPORT void __cdecl _DK_initialise_eye_lenses(void);
+DLLIMPORT void __cdecl _DK_setup_eye_lens(long);
+
+DLLIMPORT void __stdcall _DK_IsRunningMark(void);
+DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
+DLLIMPORT int __stdcall _DK_LbMouseSuspend(void);
+DLLIMPORT int __stdcall _DK_LbMemoryFree(void *buffer);
+DLLIMPORT int __stdcall _DK_LbMemoryReset(void);
+DLLIMPORT int __stdcall _DK_play_smk_(char *fname, int smkflags, int plyflags);
+DLLIMPORT int __fastcall _DK_LbFileClose(TbFileHandle handle);
+DLLIMPORT void __cdecl _DK_setup_engine_window(long, long, long, long);
+DLLIMPORT void __cdecl _DK_redraw_display(void);
+DLLIMPORT void __cdecl _DK_cumulative_screen_shot(void);
+DLLIMPORT long __cdecl _DK_anim_record_frame(unsigned char *screenbuf, unsigned char *palette);
+DLLIMPORT void __cdecl _DK_load_game_save_catalogue(CatalogueEntry *catalg);
+DLLIMPORT void __cdecl _DK_frontend_set_state(long);
+DLLIMPORT void __cdecl _DK_frontnet_service_update(void);
+DLLIMPORT void __cdecl _DK_frontnet_session_update(void);
+DLLIMPORT void __cdecl _DK_frontnet_start_update(void);
+DLLIMPORT void __cdecl _DK_frontnet_modem_update(void);
+DLLIMPORT void __cdecl _DK_frontnet_serial_update(void);
+//DLLIMPORT void * __cdecl _DK_frontnet_session_join(GuiButton); (may be incorrect)
+DLLIMPORT int __cdecl _DK_get_gui_inputs(int);
+DLLIMPORT void __cdecl _DK_demo(void);
+DLLIMPORT void __cdecl _DK_draw_gui(void);
+DLLIMPORT void __cdecl _DK_save_settings(void);
+DLLIMPORT int __cdecl _DK_setup_network_service(int srvidx);
+DLLIMPORT int __cdecl _DK_process_3d_sounds(void);
+DLLIMPORT char *_DK_mdlf_for_cd(struct TbLoadFiles *);
+DLLIMPORT char *_DK_mdlf_default(struct TbLoadFiles *);
+DLLIMPORT int _DK_LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
+DLLIMPORT void _DK_update_breed_activities(void);
+DLLIMPORT void _DK_maintain_my_battle_list(void);
+DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
+DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
+DLLIMPORT struct Thing *_DK_get_crate_at_position(long x, long y);
+DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long x, long y);
+DLLIMPORT TbError _DK_LbNetwork_Stop(void);
+DLLIMPORT TbError _DK_LbNetwork_ChangeExchangeBuffer(void *, unsigned long);
+DLLIMPORT void _DK_get_level_lost_inputs(void);
+DLLIMPORT long _DK_get_global_inputs(void);
+DLLIMPORT long _DK_get_dungeon_control_action_inputs(void);
+DLLIMPORT void _DK_get_dungeon_control_nonaction_inputs(void);
+DLLIMPORT void _DK_get_creature_control_nonaction_inputs(void);
+DLLIMPORT void _DK_get_map_nonaction_inputs(void);
+DLLIMPORT long _DK_get_bookmark_inputs(void);
+DLLIMPORT void _DK_turn_off_menu(char mnu_idx);
+DLLIMPORT void _DK_turn_off_all_panel_menus(void);
+DLLIMPORT void _DK_process_network_error(long);
+DLLIMPORT int _DK_play_smk_via_buffer(char *fname, int smkflags, int plyflags);
+DLLIMPORT int _DK_play_smk_direct(char *fname, int smkflags, int plyflags);
+DLLIMPORT TbError _DK_LbNetwork_Init(unsigned long,struct _GUID guid, unsigned long, void *, unsigned long, struct TbNetworkPlayerInfo *netplayr, void *);
+DLLIMPORT void _DK_process_rooms(void);
+DLLIMPORT void _DK_process_dungeons(void);
+DLLIMPORT void _DK_process_messages(void);
+DLLIMPORT void _DK_find_nearest_rooms_for_ambient_sound(void);
+DLLIMPORT void __cdecl _DK_light_render_area(int startx, int starty, int endx, int endy);
+DLLIMPORT void _DK_process_player_research(int plr_idx);
+DLLIMPORT long _DK_process_player_manufacturing(int plr_idx);
+DLLIMPORT void _DK_event_process_events(void);
+DLLIMPORT void _DK_update_all_events(void);
+DLLIMPORT void _DK_process_level_script(void);
+DLLIMPORT void _DK_process_computer_players2(void);
+DLLIMPORT long _DK_process_action_points(void);
+DLLIMPORT long _DK_PaletteFadePlayer(struct PlayerInfo *player);
+DLLIMPORT void _DK_message_update(void);
+DLLIMPORT void __cdecl _DK_process_player_instance(struct PlayerInfo *player);
+DLLIMPORT void _DK_process_player_instances(void);
+DLLIMPORT long _DK_wander_point_update(struct Wander *wandr);
+DLLIMPORT void __cdecl _DK_update_player_camera(struct PlayerInfo *player);
+DLLIMPORT void _DK_set_level_objective(char *msg_text);
+DLLIMPORT void _DK_update_flames_nearest_camera(struct Camera *camera);
+DLLIMPORT void _DK_update_footsteps_nearest_camera(struct Camera *camera);
+DLLIMPORT void _DK_process_player_states(void);
+DLLIMPORT void _DK_process_armageddon(void);  //not sure about the name!
+DLLIMPORT void _DK_set_mouse_light(struct PlayerInfo *player);
+DLLIMPORT void _DK_process_pointer_graphic(void);
+DLLIMPORT void _DK_message_draw(void);
+DLLIMPORT void _DK_draw_slab64k(long pos_x, long pos_y, long width, long height);
+DLLIMPORT void _DK_redraw_creature_view(void);
+DLLIMPORT void _DK_redraw_isometric_view(void);
+DLLIMPORT void _DK_redraw_frontview(void);
+DLLIMPORT void _DK_draw_tooltip(void);
+DLLIMPORT long _DK_map_fade_in(long a);
+DLLIMPORT long _DK_map_fade_out(long a);
+DLLIMPORT void _DK_draw_map_parchment(void);
+DLLIMPORT void _DK_draw_2d_map(void);
+DLLIMPORT void _DK_draw_gui(void);
+DLLIMPORT void _DK_draw_zoom_box(void);
+DLLIMPORT void _DK_light_stat_light_map_clear_area(long x1, long y1, long x2, long y2);
+DLLIMPORT void _DK_light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
+DLLIMPORT void _DK_turn_off_query(char a);
+DLLIMPORT void _DK_post_init_level(void);
+DLLIMPORT void _DK_post_init_players(void);
+DLLIMPORT void _DK_init_level(void);
+DLLIMPORT void _DK_init_player(struct PlayerInfo *player, int a2);
+DLLIMPORT int _DK_frontend_is_player_allied(long plyr1, long plyr2);
 
 // Global variables migration between DLL and the program
 
@@ -1238,13 +1497,15 @@ DLLIMPORT extern TDDrawBaseClass *_DK_lpDDC;
 #define lpDDC _DK_lpDDC
 DLLIMPORT extern struct Game _DK_game;
 #define game _DK_game
-DLLIMPORT extern char _DK_my_player_number;
+DLLIMPORT extern unsigned char _DK_my_player_number;
 #define my_player_number _DK_my_player_number
 DLLIMPORT extern float _DK_phase_of_moon;
 #define phase_of_moon _DK_phase_of_moon
 DLLIMPORT extern unsigned char *_DK_palette;
 DLLIMPORT extern unsigned char *_DK_scratch;
 #define scratch _DK_scratch
+DLLIMPORT extern unsigned char *_DK_blue_palette;
+#define blue_palette _DK_blue_palette
 DLLIMPORT extern struct TbLoadFiles _DK_game_load_files[];
 #define game_load_files _DK_game_load_files
 DLLIMPORT extern struct GameSettings _DK_settings;
@@ -1268,10 +1529,6 @@ DLLIMPORT extern long _DK_last_mouse_y;
 #define last_mouse_y _DK_last_mouse_y
 DLLIMPORT extern int _DK_credits_end;
 #define credits_end _DK_credits_end
-DLLIMPORT extern struct TbSprite *_DK_frontstory_font;
-#define frontstory_font _DK_frontstory_font
-DLLIMPORT extern struct TbSprite *_DK_winfont;
-#define winfont _DK_winfont
 DLLIMPORT extern long _DK_frontstory_text_no;
 #define frontstory_text_no _DK_frontstory_text_no
 DLLIMPORT extern int _DK_FatalError;
@@ -1292,8 +1549,6 @@ DLLIMPORT extern int _DK_fe_high_score_table_from_main_menu;
 #define fe_high_score_table_from_main_menu _DK_fe_high_score_table_from_main_menu
 DLLIMPORT extern long _DK_define_key_scroll_offset;
 #define define_key_scroll_offset _DK_define_key_scroll_offset
-DLLIMPORT extern ModDL_Fname_Func _DK_modify_data_load_filename_function;
-#define modify_data_load_filename_function _DK_modify_data_load_filename_function
 DLLIMPORT extern struct TbSetupSprite _DK_frontstory_setup_sprites[2];
 #define frontstory_setup_sprites _DK_frontstory_setup_sprites
 DLLIMPORT extern unsigned long _DK_time_last_played_demo;
@@ -1336,7 +1591,8 @@ DLLIMPORT extern struct RoomData _DK_room_data[ROOM_TYPES_COUNT];
 #define room_data _DK_room_data
 DLLIMPORT extern struct SpellData _DK_spell_data[SPELL_TYPES_COUNT+1];
 #define spell_data _DK_spell_data
-DLLIMPORT extern struct SlabAttr _DK_slab_attrs[58];
+DLLIMPORT extern struct SlabAttr _DK_slab_attrs[SLAB_TYPES_COUNT];
+#define slab_attrs _DK_slab_attrs
 DLLIMPORT extern unsigned char _DK_object_to_special[OBJECT_TYPES_COUNT];
 #define object_to_special _DK_object_to_special
 DLLIMPORT extern unsigned char _DK_object_to_magic[OBJECT_TYPES_COUNT];
@@ -1384,6 +1640,8 @@ DLLIMPORT struct ScreenPacket _DK_net_screen_packet;
 #define net_screen_packet _DK_net_screen_packet
 DLLIMPORT struct _GUID _DK_net_guid;
 #define net_guid _DK_net_guid
+//DLLIMPORT struct PlayerInstanceInfo _DK_player_instance_info[PLAYER_INSTANCES_COUNT];
+//#define player_instance_info _DK_player_instance_info
 DLLIMPORT struct TbNetworkPlayerInfo _DK_net_player_info[NET_PLAYERS_COUNT];
 #define net_player_info _DK_net_player_info
 DLLIMPORT struct TbNetworkCallbackData _DK_enum_players_callback[NET_PLAYERS_COUNT];
@@ -1411,14 +1669,14 @@ DLLIMPORT char _DK_video_shadows;
 DLLIMPORT char _DK_video_view_distance_level;
 #define video_view_distance_level _DK_video_view_distance_level
 DLLIMPORT char _DK_video_cluedo_mode;
-DLLIMPORT char _DK_video_gamma_correction;
-#define video_gamma_correction _DK_video_gamma_correction
 DLLIMPORT long _DK_sound_level;
 #define sound_level _DK_sound_level
 DLLIMPORT long _DK_music_level;
 #define music_level _DK_music_level
 DLLIMPORT long _DK_fe_mouse_sensitivity;
 #define fe_mouse_sensitivity _DK_fe_mouse_sensitivity
+DLLIMPORT struct InstanceInfo _DK_instance_info[48];
+#define instance_info _DK_instance_info
 DLLIMPORT long _DK_activity_list[24];
 #define activity_list _DK_activity_list
 DLLIMPORT char _DK_net_service[16][64];
@@ -1471,14 +1729,10 @@ DLLIMPORT unsigned char _DK_colours[16][16][16];
 #define colours _DK_colours
 DLLIMPORT long _DK_frame_number;
 #define frame_number _DK_frame_number
-DLLIMPORT char _DK_grabbed_small_map;
+DLLIMPORT unsigned char _DK_grabbed_small_map;
 #define grabbed_small_map _DK_grabbed_small_map
 DLLIMPORT long _DK_draw_spell_cost;
 #define draw_spell_cost _DK_draw_spell_cost
-DLLIMPORT int _DK_lbCosTable[2048];
-#define lbCosTable _DK_lbCosTable
-DLLIMPORT int _DK_lbSinTable[2048];
-#define lbSinTable _DK_lbSinTable
 DLLIMPORT int _DK_parchment_loaded;
 #define parchment_loaded _DK_parchment_loaded
 DLLIMPORT char _DK_level_name[88];
@@ -1509,10 +1763,6 @@ DLLIMPORT unsigned char _DK_smooth_on;
 #define smooth_on _DK_smooth_on
 DLLIMPORT struct BigSprite _DK_status_panel;
 #define status_panel _DK_status_panel
-DLLIMPORT struct TbSprite *_DK_gui_panel_sprites;
-#define gui_panel_sprites _DK_gui_panel_sprites
-DLLIMPORT struct TbSprite *_DK_end_gui_panel_sprites;
-#define end_gui_panel_sprites _DK_end_gui_panel_sprites
 DLLIMPORT unsigned char _DK_ghost[256*16];
 #define ghost _DK_ghost
 DLLIMPORT unsigned char _DK_fade_tables[256*64];
@@ -1521,6 +1771,8 @@ DLLIMPORT unsigned short _DK_breed_activities[CREATURE_TYPES_COUNT];
 #define breed_activities _DK_breed_activities
 DLLIMPORT char _DK_top_of_breed_list;
 #define top_of_breed_list _DK_top_of_breed_list
+DLLIMPORT char _DK_no_of_breeds_owned;
+#define no_of_breeds_owned _DK_no_of_breeds_owned
 DLLIMPORT long _DK_optimised_lights;
 #define optimised_lights _DK_optimised_lights
 DLLIMPORT long _DK_total_lights;
@@ -1529,157 +1781,174 @@ DLLIMPORT unsigned char _DK_do_lights;
 #define do_lights _DK_do_lights
 DLLIMPORT struct MessageQueueEntry _DK_message_queue[MESSAGE_QUEUE_COUNT];
 #define message_queue _DK_message_queue
-
-DLLIMPORT struct TbSprite *_DK_edit_icon_sprites[];
-#define edit_icon_sprites _DK_edit_icon_sprites
 DLLIMPORT struct TrapStats _DK_trap_stats[7]; //not sure - maybe it's 8?
 #define trap_stats _DK_trap_stats
 //DLLIMPORT Thing_Class_Func _DK_class_functions[14];
 //#define class_functions _DK_class_functions
 DLLIMPORT long _DK_imp_spangle_effects[];
 #define imp_spangle_effects _DK_imp_spangle_effects
-DLLIMPORT struct Creatures _DK_creatures[32];
+DLLIMPORT struct Creatures _DK_creatures[CREATURE_TYPES_COUNT];
 #define creatures _DK_creatures
-
-#pragma pack()
-
-//Functions - exported by the DLL
-
-DLLIMPORT int __stdcall _DK_WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd);
-DLLIMPORT int __stdcall _DK_LbBullfrogMain(unsigned short argc,char **argv);
-DLLIMPORT int __stdcall _DK_setup_game(void);
-DLLIMPORT int __stdcall _DK_game_loop(void);
-DLLIMPORT int __stdcall _DK_init_sound(void);
-DLLIMPORT int __stdcall _DK_LbErrorLogSetup(char *directory, char *filename, unsigned char flag);
-DLLIMPORT void __fastcall _DK_get_cpu_info(struct CPU_INFO *cpu_info);
-DLLIMPORT int __stdcall _DK_SyncLog(char *Format, ...);
-DLLIMPORT int __cdecl _DK_LbDataLoadAll(struct TbLoadFiles *load_files);
-DLLIMPORT void __cdecl _DK_set_cpu_mode(int mode);
-DLLIMPORT void __cdecl _DK_display_loading_screen(void);
-DLLIMPORT int __cdecl _DK_initial_setup(void);
-DLLIMPORT int __cdecl _DK_setup_game_sound_heap(void);
-DLLIMPORT int __cdecl _DK_load_settings(void);
-DLLIMPORT void __cdecl _DK_init_creature_scores(void);
-DLLIMPORT void __cdecl _DK_setup_3d(void);
-DLLIMPORT void __cdecl _DK_setup_stuff(void);
-DLLIMPORT void __cdecl _DK_input_eastegg(void);
-DLLIMPORT void __cdecl _DK_update(void);
-DLLIMPORT void __cdecl _DK_wait_at_frontend(void);
-DLLIMPORT void __cdecl _DK_clear_mapwho(void);
-DLLIMPORT void __cdecl _DK_delete_all_structures(void);
-DLLIMPORT void __cdecl _DK_PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *palette);
-DLLIMPORT void __cdecl _DK_initialise_eye_lenses(void);
-DLLIMPORT void __cdecl _DK_setup_eye_lens(long);
-
-DLLIMPORT void __stdcall _DK_IsRunningMark(void);
-DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
-DLLIMPORT int __stdcall _DK_LbMouseSuspend(void);
-DLLIMPORT int __stdcall _DK_LbDataFreeAll(struct TbLoadFiles *load_files);
-DLLIMPORT int __stdcall _DK_LbMemoryFree(void *buffer);
-DLLIMPORT int __stdcall _DK_LbMemoryReset(void);
-DLLIMPORT int __stdcall _DK_play_smk_(char *fname, int smkflags, int plyflags);
-DLLIMPORT int __fastcall _DK_LbFileClose(TbFileHandle handle);
-DLLIMPORT int __cdecl _DK_process_sound_heap(void);
-DLLIMPORT void __cdecl _DK_setup_engine_window(long, long, long, long);
-DLLIMPORT void __cdecl _DK_redraw_display(void);
-DLLIMPORT void __cdecl _DK_cumulative_screen_shot(void);
-DLLIMPORT long __cdecl _DK_anim_record_frame(unsigned char *screenbuf, unsigned char *palette);
-DLLIMPORT int __stdcall _DK_LbIsActive(void);
-DLLIMPORT void __cdecl _DK_load_game_save_catalogue(CatalogueEntry *catalg);
-DLLIMPORT void __cdecl _DK_frontend_set_state(long);
-DLLIMPORT void __cdecl _DK_frontnet_service_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_session_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_start_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_modem_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_serial_update(void);
-//DLLIMPORT void * __cdecl _DK_frontnet_session_join(GuiButton); (may be incorrect)
-DLLIMPORT int __cdecl _DK_get_gui_inputs(int);
-DLLIMPORT void __cdecl _DK_demo(void);
-DLLIMPORT void __cdecl _DK_draw_gui(void);
-DLLIMPORT void __cdecl _DK_save_settings(void);
-DLLIMPORT void __cdecl _DK_startup_saved_packet_game(void);
-DLLIMPORT int __cdecl _DK_setup_network_service(int srvidx);
-DLLIMPORT int __cdecl _DK_process_3d_sounds(void);
-DLLIMPORT char *_DK_mdlf_for_cd(struct TbLoadFiles *);
-DLLIMPORT char *_DK_mdlf_default(TbLoadFiles *);
-DLLIMPORT int _DK_LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
-DLLIMPORT void _DK_update_breed_activities(void);
-DLLIMPORT void _DK_maintain_my_battle_list(void);
-DLLIMPORT char _DK_mouse_is_over_small_map(int, int);
-DLLIMPORT long _DK_screen_to_map(struct Camera *camera, long scrpos_x, long scrpos_y, struct Coord3d *mappos);
-DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
-DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
-DLLIMPORT struct Thing *_DK_get_crate_at_position(long x, long y);
-DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long x, long y);
-DLLIMPORT int _DK_is_game_key_pressed(long, long *, int);
-DLLIMPORT long _DK_get_inputs(void);
-DLLIMPORT void _DK_load_packets_for_turn(long gameturn);
-DLLIMPORT TbError _DK_LbNetwork_Stop(void);
-DLLIMPORT TbError _DK_LbNetwork_ChangeExchangeBuffer(void *, unsigned long);
-DLLIMPORT void _DK_get_level_lost_inputs(void);
-DLLIMPORT long _DK_get_global_inputs(void);
-DLLIMPORT long _DK_get_dungeon_control_action_inputs(void);
-DLLIMPORT void _DK_get_dungeon_control_nonaction_inputs(void);
-DLLIMPORT void _DK_get_packet_control_mouse_clicks(void);
-DLLIMPORT void _DK_get_creature_control_nonaction_inputs(void);
-DLLIMPORT void _DK_get_map_nonaction_inputs(void);
-DLLIMPORT long _DK_get_bookmark_inputs(void);
-DLLIMPORT long _DK_get_small_map_inputs(long x, long y, long);
-DLLIMPORT void _DK_turn_off_menu(char mnu_idx);
-DLLIMPORT void _DK_fake_button_click(long btn_idx);
-DLLIMPORT void _DK_turn_off_roaming_menus(void);
-DLLIMPORT void _DK_turn_off_all_panel_menus(void);
-DLLIMPORT void _DK_initialise_tab_tags_and_menu(long);
-DLLIMPORT void _DK_process_network_error(long);
-DLLIMPORT int _DK_play_smk_via_buffer(char *fname, int smkflags, int plyflags);
-DLLIMPORT int _DK_play_smk_direct(char *fname, int smkflags, int plyflags);
-DLLIMPORT TbError _DK_LbNetwork_Init(unsigned long,struct _GUID guid, unsigned long, void *, unsigned long, struct TbNetworkPlayerInfo *netplayr, void *);
-DLLIMPORT void _DK_process_rooms(void);
-DLLIMPORT void _DK_process_dungeons(void);
-DLLIMPORT void _DK_process_messages(void);
-DLLIMPORT void _DK_find_nearest_rooms_for_ambient_sound(void);
-DLLIMPORT void __cdecl _DK_light_render_area(int startx, int starty, int endx, int endy);
-DLLIMPORT void _DK_process_player_research(int plr_idx);
-DLLIMPORT long _DK_process_player_manufacturing(int plr_idx);
-DLLIMPORT void _DK_event_process_events(void);
-DLLIMPORT void _DK_update_all_events(void);
-DLLIMPORT void _DK_process_level_script(void);
-DLLIMPORT void _DK_process_computer_players2(void);
-DLLIMPORT long _DK_process_action_points(void);
-DLLIMPORT long _DK_PaletteFadePlayer(struct PlayerInfo *player);
-DLLIMPORT void _DK_message_update(void);
-DLLIMPORT void __cdecl _DK_process_player_instance(struct PlayerInfo *player);
-DLLIMPORT void _DK_process_player_instances(void);
-DLLIMPORT long _DK_wander_point_update(struct Wander *wandr);
-DLLIMPORT void __cdecl _DK_update_player_camera(struct PlayerInfo *player);
-DLLIMPORT void _DK_set_level_objective(char *msg_text);
-DLLIMPORT void _DK_update_flames_nearest_camera(struct Camera *camera);
-DLLIMPORT void _DK_update_footsteps_nearest_camera(struct Camera *camera);
-DLLIMPORT void _DK_process_player_states(void);
-DLLIMPORT void _DK_process_armageddon(void);  //not sure about the name!
-DLLIMPORT void _DK_set_mouse_light(struct PlayerInfo *player);
-DLLIMPORT void _DK_process_pointer_graphic(void);
-DLLIMPORT void _DK_message_draw(void);
-DLLIMPORT void _DK_draw_slab64k(long pos_x, long pos_y, long width, long height);
-DLLIMPORT void _DK_redraw_creature_view(void);
-DLLIMPORT void _DK_redraw_isometric_view(void);
-DLLIMPORT void _DK_redraw_frontview(void);
-DLLIMPORT void _DK_draw_tooltip(void);
-DLLIMPORT long _DK_map_fade_in(long a);
-DLLIMPORT long _DK_map_fade_out(long a);
-DLLIMPORT void _DK_draw_map_parchment(void);
-DLLIMPORT void _DK_draw_2d_map(void);
-DLLIMPORT void _DK_draw_gui(void);
-DLLIMPORT void _DK_draw_zoom_box(void);
-DLLIMPORT void _DK_light_stat_light_map_clear_area(long x1, long y1, long x2, long y2);
-DLLIMPORT void _DK_light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
-DLLIMPORT void _DK_turn_off_query(char a);
-DLLIMPORT void _DK_open_packet_file_for_load(char *fname);
-DLLIMPORT void _DK_post_init_level(void);
-DLLIMPORT void _DK_post_init_players(void);
-DLLIMPORT void _DK_init_level(void);
-DLLIMPORT void _DK_init_player(struct PlayerInfo *player, int a2);
-DLLIMPORT int _DK_frontend_is_player_allied(long plyr1, long plyr2);
+DLLIMPORT unsigned char _DK_engine_player_number;
+#define engine_player_number _DK_engine_player_number
+DLLIMPORT unsigned char _DK_player_bit;
+#define player_bit _DK_player_bit
+DLLIMPORT unsigned char _DK_temp_cluedo_mode;
+#define temp_cluedo_mode _DK_temp_cluedo_mode
+DLLIMPORT unsigned char _DK_lens_mode;
+#define lens_mode _DK_lens_mode
+DLLIMPORT long _DK_split1at;
+#define split1at _DK_split1at
+DLLIMPORT long _DK_split2at;
+#define split2at _DK_split2at
+DLLIMPORT long _DK_max_i_can_see;
+#define max_i_can_see _DK_max_i_can_see
+DLLIMPORT long _DK_view_height_over_2;
+#define view_height_over_2 _DK_view_height_over_2
+DLLIMPORT long _DK_view_width_over_2;
+#define view_width_over_2 _DK_view_width_over_2
+DLLIMPORT long _DK_me_distance;
+#define me_distance _DK_me_distance
+DLLIMPORT long _DK_lens;
+#define lens _DK_lens
+DLLIMPORT short _DK_mx;
+#define mx _DK_mx
+DLLIMPORT short _DK_my;
+#define my _DK_my
+DLLIMPORT short _DK_mz;
+#define mz _DK_mz
+DLLIMPORT struct Thing *_DK_thing_being_displayed;
+#define thing_being_displayed _DK_thing_being_displayed
+DLLIMPORT struct Thing *_DK_thing_pointed_at;
+#define thing_pointed_at _DK_thing_pointed_at
+DLLIMPORT struct Map *_DK_me_pointed_at;
+#define me_pointed_at _DK_me_pointed_at
+DLLIMPORT Offset _DK_vert_offset[3];
+#define vert_offset _DK_vert_offset
+DLLIMPORT Offset _DK_hori_offset[3];
+#define hori_offset _DK_hori_offset
+DLLIMPORT Offset _DK_high_offset[3];
+#define high_offset _DK_high_offset
+DLLIMPORT long _DK_x_init_off;
+#define x_init_off _DK_x_init_off
+DLLIMPORT long _DK_y_init_off;
+#define y_init_off _DK_y_init_off
+DLLIMPORT long _DK_floor_pointed_at_x;
+#define floor_pointed_at_x _DK_floor_pointed_at_x
+DLLIMPORT long _DK_floor_pointed_at_y;
+#define floor_pointed_at_y _DK_floor_pointed_at_y
+DLLIMPORT unsigned char *_DK_getpoly;
+#define getpoly _DK_getpoly
+DLLIMPORT long _DK_cells_away;
+#define cells_away _DK_cells_away
+DLLIMPORT long _DK_fade_max;
+#define fade_max _DK_fade_max
+DLLIMPORT long _DK_fade_scaler;
+#define fade_scaler _DK_fade_scaler
+DLLIMPORT long _DK_fade_way_out;
+#define fade_way_out _DK_fade_way_out
+DLLIMPORT int _DK_normal_shade_front;
+#define normal_shade_front _DK_normal_shade_front
+DLLIMPORT int _DK_normal_shade_back;
+#define normal_shade_back _DK_normal_shade_back
+DLLIMPORT long _DK_map_angle;
+#define map_angle _DK_map_angle
+DLLIMPORT long _DK_map_roll;
+#define map_roll _DK_map_roll
+DLLIMPORT long _DK_map_tilt;
+#define map_tilt _DK_map_tilt
+DLLIMPORT long _DK_view_alt;
+#define view_alt _DK_view_alt
+DLLIMPORT long _DK_fade_min;
+#define fade_min _DK_fade_min
+DLLIMPORT long _DK_split_1;
+#define split_1 _DK_split_1
+DLLIMPORT long _DK_split_2;
+#define split_2 _DK_split_2
+DLLIMPORT long _DK_fade_range;
+#define fade_range _DK_fade_range
+DLLIMPORT long _DK_depth_init_off;
+#define depth_init_off _DK_depth_init_off
+DLLIMPORT int _DK_normal_shade_left;
+#define normal_shade_left _DK_normal_shade_left
+DLLIMPORT int _DK_normal_shade_right;
+#define normal_shade_right _DK_normal_shade_right
+DLLIMPORT long _DK_apos;
+#define apos _DK_apos
+DLLIMPORT long _DK_bpos;
+#define bpos _DK_bpos
+//DLLIMPORT RotPers_Func _DK_rotpers_routines[];
+//#define rotpers_routines _DK_rotpers_routines
+//DLLIMPORT Perspect_Func _DK_perspective_routines[];
+//#define perspective_routines _DK_perspective_routines
+DLLIMPORT Perspect_Func _DK_perspective;
+#define perspective _DK_perspective
+DLLIMPORT RotPers_Func _DK_rotpers;
+#define rotpers _DK_rotpers
+DLLIMPORT struct BasicQ *_DK_buckets[];
+#define buckets _DK_buckets
+DLLIMPORT struct M33 _DK_camera_matrix;
+#define camera_matrix _DK_camera_matrix
+DLLIMPORT struct MapVolumeBox _DK_map_volume_box;
+#define map_volume_box _DK_map_volume_box
+DLLIMPORT struct EngineCoord _DK_object_origin;
+#define object_origin _DK_object_origin
+DLLIMPORT struct EngineCol _DK_ecs1[];
+#define ecs1 _DK_ecs1
+DLLIMPORT struct EngineCol _DK_ecs2[];
+#define ecs2 _DK_ecs2
+DLLIMPORT struct EngineCol *_DK_front_ec;
+#define front_ec _DK_front_ec
+DLLIMPORT struct EngineCol *_DK_back_ec;
+#define back_ec _DK_back_ec
+DLLIMPORT struct MinMax _DK_minmaxs[];
+#define minmaxs _DK_minmaxs
+DLLIMPORT unsigned long *_DK_eye_lens_memory;
+#define eye_lens_memory _DK_eye_lens_memory
+DLLIMPORT TbPixel *_DK_eye_lens_spare_screen_memory;
+#define eye_lens_spare_screen_memory _DK_eye_lens_spare_screen_memory
+DLLIMPORT unsigned char *_DK_dog_palette;
+#define dog_palette _DK_dog_palette
+DLLIMPORT unsigned char *_DK_vampire_palette;
+#define vampire_palette _DK_vampire_palette
+DLLIMPORT long _DK_ScrCenterX;
+#define ScrCenterX _DK_ScrCenterX
+DLLIMPORT long _DK_ScrWidth;
+#define ScrWidth _DK_ScrWidth
+DLLIMPORT long _DK_ScrHeight;
+#define ScrHeight _DK_ScrHeight
+DLLIMPORT long _DK_ScrCenterY;
+#define ScrCenterY _DK_ScrCenterY
+DLLIMPORT struct CScan *_DK_ScanBuffer;
+#define ScanBuffer _DK_ScanBuffer
+DLLIMPORT unsigned char _DK_vec_mode;
+#define vec_mode _DK_vec_mode
+DLLIMPORT unsigned char _DK_vec_colour;
+#define vec_colour _DK_vec_colour
+DLLIMPORT long _DK_my_mouse_x;
+#define my_mouse_x _DK_my_mouse_x
+DLLIMPORT long _DK_my_mouse_y;
+#define my_mouse_y _DK_my_mouse_y
+DLLIMPORT unsigned char _DK_gui_slab;
+#define gui_slab _DK_gui_slab
+DLLIMPORT char *_DK_level_names_data;
+#define level_names_data _DK_level_names_data
+DLLIMPORT char *_DK_end_level_names_data;
+#define end_level_names_data _DK_end_level_names_data
+DLLIMPORT unsigned char _DK_frontend_backup_palette;
+#define frontend_backup_palette _DK_frontend_backup_palette
+DLLIMPORT long _DK_dummy_x;
+#define dummy_x _DK_dummy_x
+DLLIMPORT long _DK_dummy_y;
+#define dummy_y _DK_dummy_y
+DLLIMPORT long _DK_dummy;
+#define dummy _DK_dummy
+DLLIMPORT long _DK_clicked_on_small_map;
+#define clicked_on_small_map _DK_clicked_on_small_map
+DLLIMPORT long _DK_old_mx;
+#define old_mx _DK_old_mx
+DLLIMPORT long _DK_old_my;
+#define old_my _DK_old_my
 
 #ifdef __cplusplus
 }
@@ -1695,17 +1964,32 @@ short copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_wi
 short copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int nlines,const int spx,const int spy,const unsigned char *src_buf,const int src_width,const int src_height,const int m);
 
 short setup_network_service(int srvidx);
-DLLIMPORT extern unsigned char *_DK_blue_palette;
-#define blue_palette _DK_blue_palette
 TbError LbNetwork_Init(unsigned long,struct _GUID guid, unsigned long, void *, unsigned long, struct TbNetworkPlayerInfo *netplayr, void *);
 short wait_for_cd_to_be_available(void);
 void ProperFadePalette(unsigned char *pal, long n, TbPaletteFadeFlag flg);
+short LbPaletteStopOpenFade(void);
 short continue_game_available();
 short get_gui_inputs(short gameplay_on);
 void intro(void);
 void outro(void);
-void load_level_file(long lvnum);
-void load_map_file(long lvidx);
+
+struct Room *create_room(unsigned char a1, unsigned char a2, unsigned short a3, unsigned short a4);
+void set_room_efficiency(struct Room *room);
+void set_room_capacity(struct Room *room, long capac);
+void init_top_texture_to_cube_table(void);
+void make_solidmask(struct Column *col);
+long convert_old_column_file(unsigned long lv_num);
+void clear_columns(void);
+void init_columns(void);
+void init_whole_blocks(void);
+long load_column_file(unsigned long lv_num);
+void load_slab_file(void);
+long load_map_data_file(unsigned long lv_num);
+short load_thing_file(unsigned long lv_num);
+long load_action_point_file(unsigned long lv_num);
+short load_texture_map_file(unsigned long tmapidx, unsigned char n);
+short load_level_file(unsigned long lvnum);
+short load_map_file(long lvidx);
 
 void reveal_whole_map(struct PlayerInfo *player);
 void increase_level(struct PlayerInfo *player);
@@ -1724,31 +2008,19 @@ void make_safe(struct PlayerInfo *player);
 short activate_bonus_level(struct PlayerInfo *player);
 void delete_thing_structure(struct Thing *thing, long a2);
 long creature_instance_is_available(struct Thing *thing, long inum);
-short load_texture_map_file(long tmapidx, unsigned char a2);
+long add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount);
 short init_animating_texture_maps(void);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(unsigned char idx);
 void restore_computer_player_after_load(void);
 void sound_reinit_after_load(void);
 void draw_power_hand(void);
+void draw_swipe(void);
 void draw_bonus_timer(void);
+void draw_view(struct Camera *cam, unsigned char a2);
 void zoom_from_map(void);
+void zoom_to_map(void);
 void toggle_tooltips(void);
-void toggle_main_cheat_menu(void);
-
-int setup_old_network_service(void);
-short toggle_computer_player(int idx);
-void save_settings(void);
-void setup_engine_window(long x1, long y1, long x2, long y2);
-short show_onscreen_msg(int nturns, const char *fmt_str, ...);
-int LoadMcgaData(void);
-void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
-void set_engine_view(struct PlayerInfo *player, long val);
-unsigned char find_first_battle_of_mine(unsigned char idx);
-unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl);
-void set_player_instance(struct PlayerInfo *player, long a2, int a3);
-void init_good_player_as(long plr_idx);
-
 void check_players_won(void);
 void check_players_lost(void);
 void process_dungeon_power_magic(void);
@@ -1756,10 +2028,27 @@ void process_dungeon_devastation_effects(void);
 void process_entrance_generation(void);
 void process_things_in_dungeon_hand(void);
 void process_payday(void);
+short bonus_timer_enabled(void);
+void load_parchment_file(void);
+void reload_parchment_file(short hires);
+void process_sound_heap(void);
+
+int setup_old_network_service(void);
+short toggle_computer_player(int idx);
+short save_settings(void);
+void setup_engine_window(long x1, long y1, long x2, long y2);
+void store_engine_window(struct TbGraphicsWindow *ewnd);
+void load_engine_window(struct TbGraphicsWindow *ewnd);
+short show_onscreen_msg(int nturns, const char *fmt_str, ...);
+void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
+void set_engine_view(struct PlayerInfo *player, long val);
+unsigned char find_first_battle_of_mine(unsigned char idx);
+unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl);
+void set_player_instance(struct PlayerInfo *player, long a2, int a3);
+void init_good_player_as(long plr_idx);
 void init_keepers_map_exploration(void);
 void init_dungeons_research(void);
 void clear_creature_pool(void);
-void open_new_packet_file_for_save(void);
 long load_stats_files(void);
 void check_and_auto_fix_stats(void);
 long update_dungeon_scores(void);
@@ -1774,9 +2063,20 @@ short set_start_state(struct Thing *thing);
 void init_creature_state(struct Thing *thing);
 void gui_set_button_flashing(long a1, long a2);
 struct Thing *get_trap_for_position(long x, long y);
-long light_is_light_allocated(long lgt_id);
-void light_set_light_position(long lgt_id, struct Coord3d *pos);
+void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
+void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
+long element_top_face_texture(struct Map *map);
+long thing_is_spellbook(struct Thing *thing);
+int LbSpriteDrawOneColour(long x, long y, struct TbSprite *spr, TbPixel colour);
+long object_is_gold(struct Thing *thing);
+unsigned short find_next_annoyed_creature(unsigned char a1, unsigned short a2);
+unsigned char active_battle_exists(unsigned char a1);
+unsigned char step_battles_forward(unsigned char a1);
+short zoom_to_next_annoyed_creature(void);
+short zoom_to_fight(unsigned char a1);
+void go_to_my_next_room_of_type(unsigned long rkind);
 
+long ceiling_set_info(long a1, long a2, long a3);
 void initialise_eye_lenses(void);
 void setup_eye_lens(long nlens);
 void reinitialise_eye_lens(long nlens);
@@ -1798,9 +2098,11 @@ void clear_slab_dig(long a1, long a2, char a3);
 void light_initialise(void);
 void delete_all_structures(void);
 void clear_mapwho(void);
+void clear_map(void);
 void clear_game(void);
 void clear_game_for_save(void);
 long init_navigation(void);
+void draw_creature_view(struct Thing *thing);
 void update_explored_flags_for_power_sight(struct PlayerInfo *player);
 void engine(struct Camera *cam);
 void smooth_screen_area(unsigned char *a1, long a2, long a3, long a4, long a5, long a6);
@@ -1810,6 +2112,37 @@ void draw_gold_total(unsigned char a1, long a2, long a3, long a4);
 void pannel_map_draw(long x, long y, long zoom);
 void draw_overlay_things(long zoom);
 void draw_overlay_compass(long a1, long a2);
+void draw_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int scanln);
+void flyeye_blitsec(unsigned char *srcbuf, unsigned char *dstbuf, long srcwidth, long dstwidth, long n, long height);
+void display_drawlist(void);
+void frame_wibble_generate(void);
+void find_gamut(void);
+void fiddle_gamut(long a1, long a2);
+void create_map_volume_box(long a1, long a2, long a3);
+void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8);
+void do_a_plane_of_engine_columns_perspective(long a1, long a2, long a3, long a4);
+void do_a_plane_of_engine_columns_cluedo(long a1, long a2, long a3, long a4);
+void do_a_plane_of_engine_columns_isometric(long a1, long a2, long a3, long a4);
+void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx);
+void rotate_base_axis(struct M33 *matx, short a2, unsigned char a3);
+void fill_in_points_perspective(long a1, long a2, struct MinMax *mm);
+void fill_in_points_cluedo(long a1, long a2, struct MinMax *mm);
+void fill_in_points_isometric(long a1, long a2, struct MinMax *mm);
+void init_lens(unsigned long *lens_mem, int width, int height, int scanln, int nlens);
+void flyeye_setup(long width, long height);
+void perspective_standard(struct XYZ *cor, struct PolyPoint *ppt);
+void perspective_fisheye(struct XYZ *cor, struct PolyPoint *ppt);
+void rotpers_parallel(struct EngineCoord *epos, struct M33 *matx);
+void rotpers_standard(struct EngineCoord *epos, struct M33 *matx);
+void rotpers_circular(struct EngineCoord *epos, struct M33 *matx);
+void rotpers_fisheye(struct EngineCoord *epos, struct M33 *matx);
+short screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos);
+void draw_jonty_mapwho(struct JontySpr *jspr);
+void draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);
+void draw_engine_number(struct Number *num);
+void draw_engine_room_flag_top(struct RoomFlag *rflg);
+short mouse_is_over_small_map(long x, long y);
+void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 
 unsigned long seed_check_random(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
 void setup_heap_manager(void);
@@ -1818,6 +2151,8 @@ void reset_heap_manager(void);
 void reset_heap_memory(void);
 long light_create_light(struct InitLight *ilght);
 void light_set_light_never_cache(long idx);
+long light_is_light_allocated(long lgt_id);
+void light_set_light_position(long lgt_id, struct Coord3d *pos);
 void reset_player_mode(struct PlayerInfo *player, unsigned char a2);
 void init_keeper_map_exploration(struct PlayerInfo *player);
 void init_player_cameras(struct PlayerInfo *player);
@@ -1832,6 +2167,7 @@ short set_gamma(char corrlvl, short do_set);
 void resync_game(void);
 void level_lost_go_first_person(long plridx);
 long battle_move_player_towards_battle(struct PlayerInfo *player, long var);
+void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 void  toggle_ally_with_player(long plyridx, unsigned int allyidx);
 void magic_use_power_armageddon(unsigned int plridx);
 void lose_level(struct PlayerInfo *player);
@@ -1849,6 +2185,10 @@ long place_thing_in_power_hand(struct Thing *thing, long var);
 void turn_off_call_to_arms(long a);
 long event_move_player_towards_event(struct PlayerInfo *player, long var);
 void toggle_creature_tendencies(struct PlayerInfo *player, short val);
+long creature_instance_has_reset(struct Thing *thing, long a2);
+long get_human_controlled_creature_target(struct Thing *thing, long a2);
+void set_creature_instance(struct Thing *thing, long a1, long a2, long a3, struct Coord3d *pos);
+void instant_instance_selected(long a1);
 void centre_engine_window(void);
 void change_engine_window_relative_size(long w_delta, long h_delta);
 void light_set_lights_on(char state);
@@ -1862,8 +2202,8 @@ unsigned char i_can_allocate_free_thing_structure(unsigned char a1);
 struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short a2, unsigned short owner);
 void update_thing_animation(struct Thing *thing);
 long update_thing(struct Thing *thing);
-long get_thing_checksum(struct Thing *thing);
-long update_thing_sound(struct Thing *thing);
+TbBigChecksum get_thing_checksum(struct Thing *thing);
+short update_thing_sound(struct Thing *thing);
 long update_cave_in(struct Thing *thing);
 void move_thing_in_map(struct Thing *thing, struct Coord3d *pos);
 void process_creature_instance(struct Thing *thing);
@@ -1883,8 +2223,11 @@ void leader_find_positions_for_followers(struct Thing *thing);
 long update_creature_levels(struct Thing *thing);
 long process_creature_self_spell_casting(struct Thing *thing);
 void process_thing_spell_effects(struct Thing *thing);
+struct ActionPoint *allocate_free_action_point_structure_with_number(long apt_num);
 short kill_creature(struct Thing *thing, struct Thing *tngrp, char a1, unsigned char a2, unsigned char a3, unsigned char a4);
 struct Thing *create_thing(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
+struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
+struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
 long cleanup_current_thing_state(struct Thing *thing);
 unsigned long setup_move_off_lava(struct Thing *thing);
@@ -1895,6 +2238,7 @@ long get_next_manufacture(struct Dungeon *dungeon);
 void remove_thing_from_mapwho(struct Thing *thing);
 void place_thing_in_mapwho(struct Thing *thing);
 long get_thing_height_at(struct Thing *thing, struct Coord3d *pos);
+struct Thing *get_nearest_thing_for_hand_or_slap(unsigned char a1, long a2, long a3);
 
 long update_object(struct Thing *thing);
 long update_shot(struct Thing *thing);
@@ -1908,10 +2252,8 @@ long process_door(struct Thing *thing);
 
 int LbNetwork_Exchange(struct Packet *pckt);
 void startup_network_game(void);
-
-short gui_box_is_not_valid(struct GuiBox *gbox);
-struct GuiBox *gui_create_box(long x, long y, struct GuiBoxOption *optn_list);
-void gui_delete_box(struct GuiBox *gbox);
+void startup_saved_packet_game(void);
+void faststartup_saved_packet_game(void);
 
 //Functions - internal
 
@@ -1928,6 +2270,6 @@ void inline fade_out(void)
   LbScreenClear(0);
 }
 
-// Variables - no longer imported
+// Variables - no linger imported
 
 #endif // DK_KEEPERFX_H

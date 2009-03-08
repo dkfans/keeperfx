@@ -80,6 +80,12 @@ struct TbScreenModeInfo {
           char Desc[23];
 };
 
+struct TbGraphicsWindow {
+    long x;
+    long y;
+    long width;
+    long height;
+};
 
 struct TbDisplayStruct {
         uchar *PhysicalScreen;
@@ -157,16 +163,19 @@ short LbPaletteFade(unsigned char *pal, long n, TbPaletteFadeFlag flg);
 short LbMouseChangeSprite(long spr_idx);
 void LbScreenWaitVbi(void);
 int LbScreenSetup(TbScreenMode mode, unsigned int width,
-               unsigned int height, unsigned char *palette, int flag1, int flag2);
+               unsigned int height, TbPixel *palette, int flag1, int flag2);
 int LbPaletteSet(unsigned char *palette);
 int LbPaletteGet(unsigned char *palette);
 void LbSetIcon(unsigned short nicon);
 short LbScreenReset(void);
+short LbScreenStoreGraphicsWindow(struct TbGraphicsWindow *grwnd);
+short LbScreenLoadGraphicsWindow(struct TbGraphicsWindow *grwnd);
 void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
 struct TbScreenModeInfo *LbScreenGetModeInfo(unsigned short mode);
 TbScreenMode LbRecogniseVideoModeString(char *str);
-int LbScreenSetGraphicsWindow(int x, int y, uint width, uint height);
+short LbScreenSetGraphicsWindow(long x, long y, long width, long height);
 short LbScreenIsModeAvailable(TbScreenMode mode);
+short LbIsActive(void);
 /*
 bool __fastcall LbVesaGetGran(TbScreenMode mode);
 int __fastcall LbVesaSetPage(short npage);

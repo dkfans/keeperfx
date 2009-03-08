@@ -39,6 +39,7 @@ obj/bflib_dernc.o \
 obj/bflib_fileio.o \
 obj/bflib_keybrd.o \
 obj/bflib_datetm.o \
+obj/bflib_math.o \
 obj/bflib_memory.o \
 obj/bflib_pom.o \
 obj/bflib_mouse.o \
@@ -46,6 +47,7 @@ obj/bflib_sndlib.o \
 obj/bflib_sound.o \
 obj/bflib_video.o \
 obj/bflib_fmvids.o \
+obj/bflib_filelst.o \
 obj/bflib_guibtns.o \
 obj/bflib_vidraw.o \
 obj/bflib_sprfnt.o \

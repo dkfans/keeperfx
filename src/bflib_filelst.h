@@ -2,14 +2,14 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_datetm.h
- *     Header file for bflib_datetm.c.
+/** @file bflib_filelst.h
+ *     Header file for bflib_filelst.c.
  * @par Purpose:
- *     Gets system date and time, makes delay, converts date/time formats.
+ *     Reading/freeing of file lists.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     12 Feb 2008 - 30 Dec 2008
+ * @date     02 Mar 2008 - 08 Mar 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,29 +17,39 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef BFLIB_DATETM_H
-#define BFLIB_DATETM_H
+#ifndef BFLIB_FILELST_H
+#define BFLIB_FILELST_H
 
-#include <time.h>
 #include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-extern struct TbTime global_time;
-extern struct TbDate global_date;
-extern TbClockMSec (* LbTimerClock)(void);
+typedef char *ModifyDataLoadFnameFunc(struct TbLoadFiles *);
+
+struct TbLoadFiles {
+        char FName[28];
+        unsigned char **Start;
+        unsigned char **SEnd;
+        unsigned long SLength;
+        unsigned short Flags;
+        unsigned short Spare;
+};
+
+char *defaultModifyDataLoadFilename(struct TbLoadFiles *ldfiles);
+ModifyDataLoadFnameFunc *LbDataLoadSetModifyFilenameFunction(ModifyDataLoadFnameFunc *newfunc);
+
 /******************************************************************************/
-//void LbDoMultitasking(void);
-short __fastcall LbSleepFor(TbClockMSec delay);
-short __fastcall LbSleepUntil(TbClockMSec endtime);
-int LbTime(struct TbTime *curr_time);
-TbTimeSec LbTimeSec(void);
-int LbDate(struct TbDate *curr_date);
-int LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time);
-int LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date, struct TbTime *curr_time);
-short LbTimerInit(void);
+
+short LbDataFree(struct TbLoadFiles *load_file);
+short LbDataFreeAll(struct TbLoadFiles load_files[]);
+
+short LbDataLoad(struct TbLoadFiles *load_file);
+short LbDataLoadAll(struct TbLoadFiles load_files[]);
+
+int LbDataFindNameIndex(struct TbLoadFiles load_files[],char *fname);
+int LbDataFindStartIndex(struct TbLoadFiles load_files[],unsigned char **start);
 /******************************************************************************/
 #ifdef __cplusplus
 }

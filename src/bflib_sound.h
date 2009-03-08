@@ -59,6 +59,9 @@ long S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c);
 long S3DDestroySoundEmitter(long eidx);
 long S3DEmitterHasFinishedPlaying(long eidx);
 long S3DMoveSoundEmitterTo(long eidx, long x, long y, long z);
+long S3DInit(void);
+long S3DSetNumberOfSounds(long nMaxSounds);
+long S3DSetMaximumSoundDistance(long nDistance);
 
 
 #pragma pack()
@@ -67,6 +70,7 @@ long S3DMoveSoundEmitterTo(long eidx, long x, long y, long z);
 
 void play_non_3d_sample(long sample_idx);
 short sound_emitter_in_use(long emidx);
+long get_best_sound_heap_size(long mem_size);
 /******************************************************************************/
 #ifdef __cplusplus
 }

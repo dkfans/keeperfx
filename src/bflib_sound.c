@@ -37,10 +37,34 @@ DLLIMPORT long _DK_S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_
 DLLIMPORT long _DK_S3DDestroySoundEmitter(long eidx);
 DLLIMPORT long _DK_S3DEmitterHasFinishedPlaying(long eidx);
 DLLIMPORT long _DK_S3DMoveSoundEmitterTo(long eidx, long x, long y, long z);
+DLLIMPORT long _DK_get_best_sound_heap_size(long mem_size);
+DLLIMPORT long _DK_S3DInit(void);
+DLLIMPORT long _DK_S3DSetNumberOfSounds(long nMaxSounds);
+DLLIMPORT long _DK_S3DSetMaximumSoundDistance(long nDistance);
 
 // Global variables
 /******************************************************************************/
 // Functions
+
+long get_best_sound_heap_size(long mem_size)
+{
+  return _DK_get_best_sound_heap_size(mem_size);
+}
+
+long S3DInit(void)
+{
+  return _DK_S3DInit();
+}
+
+long S3DSetNumberOfSounds(long nMaxSounds)
+{
+  return _DK_S3DSetNumberOfSounds(nMaxSounds);
+}
+
+long S3DSetMaximumSoundDistance(long nDistance)
+{
+  return _DK_S3DSetMaximumSoundDistance(nDistance);
+}
 
 long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z)
 {

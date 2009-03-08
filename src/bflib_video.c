@@ -76,6 +76,7 @@ DLLIMPORT int __cdecl _DK_LbScreenSetup(TbScreenMode mode, unsigned int width,
 DLLIMPORT int __cdecl _DK_LbPaletteSet(unsigned char *palette);
 DLLIMPORT int __cdecl _DK_LbPaletteGet(unsigned char *palette);
 DLLIMPORT void __cdecl _DK_copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
+DLLIMPORT int __stdcall _DK_LbIsActive(void);
 /******************************************************************************/
 short LbScreenLock(void)
 {
@@ -156,9 +157,86 @@ short LbScreenReset(void)
   return _DK_LbScreenReset();
 }
 
-int LbScreenSetGraphicsWindow(int x, int y, uint width, uint height)
+short LbIsActive(void)
 {
-  return _DK_LbScreenSetGraphicsWindow(x, y, width, height);
+  return _DK_LbIsActive();
+/*  if (lpDDC != NULL)
+    return lpDDC->numfield_1C;
+  return -1;*/
+}
+
+/*
+ * Stores the current graphics window coords into TbGraphicsWindow structure.
+ * Intended to use with LbScreenLoadGraphicsWindow() when changing the window
+ * temporarly.
+ */
+short LbScreenStoreGraphicsWindow(struct TbGraphicsWindow *grwnd)
+{
+  grwnd->x = lbDisplay.GraphicsWindowX;
+  grwnd->y = lbDisplay.GraphicsWindowY;
+  grwnd->width = lbDisplay.GraphicsWindowWidth;
+  grwnd->height = lbDisplay.GraphicsWindowHeight;
+  return true;
+}
+
+/*
+ * Sets the current graphics window coords from those in TbGraphicsWindow structure.
+ * Use it only with TbGraphicsWindow which was filled using function
+ * LbScreenStoreGraphicsWindow(), because the values are not checked for sanity!
+ * To set values from other sources, use LbScreenSetGraphicsWindow() instead.
+ */
+short LbScreenLoadGraphicsWindow(struct TbGraphicsWindow *grwnd)
+{
+  lbDisplay.GraphicsWindowX = grwnd->x;
+  lbDisplay.GraphicsWindowY = grwnd->y;
+  lbDisplay.GraphicsWindowWidth = grwnd->width;
+  lbDisplay.GraphicsWindowHeight = grwnd->height;
+  lbDisplay.GraphicsWindowPtr = lbDisplay.WScreen
+      + lbDisplay.GraphicsScreenWidth*lbDisplay.GraphicsWindowY + lbDisplay.GraphicsWindowX;
+  return true;
+}
+
+short LbScreenSetGraphicsWindow(long x, long y, long width, long height)
+{
+//  return _DK_LbScreenSetGraphicsWindow(x, y, width, height);
+  long x2,y2;
+  long i;
+  x2 = x + width;
+  y2 = y + height;
+  if (x2 < x)
+  {
+    i = (x^x2);
+    x = x^i;
+    x2 = x^i^i;
+  }
+  if (y2 < y)
+  {
+    i = (y^y2);
+    y = y^i;
+    y2 = y^i^i;
+  }
+  if (x < 0)
+    x = 0;
+  if (x2 < 0)
+    x2 = 0;
+  if (y < 0)
+    y = 0;
+  if (y2 < 0)
+    y2 = 0;
+  if (x > lbDisplay.GraphicsScreenWidth)
+    x = lbDisplay.GraphicsScreenWidth;
+  if (x2 > lbDisplay.GraphicsScreenWidth)
+    x2 = lbDisplay.GraphicsScreenWidth;
+  if (y > lbDisplay.GraphicsScreenHeight)
+    y = lbDisplay.GraphicsScreenHeight;
+  if (y2 > lbDisplay.GraphicsScreenHeight)
+    y2 = lbDisplay.GraphicsScreenHeight;
+  lbDisplay.GraphicsWindowX = x;
+  lbDisplay.GraphicsWindowY = y;
+  lbDisplay.GraphicsWindowWidth = x2 - x;
+  lbDisplay.GraphicsWindowHeight = y2 - y;
+  lbDisplay.GraphicsWindowPtr = lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth*y + x;
+  return 1;
 }
 
 short LbScreenIsModeAvailable(TbScreenMode mode)

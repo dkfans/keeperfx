@@ -40,6 +40,8 @@
 #include <process.h>
 #endif
 
+#include "keeperfx_private.h"
+
 #if defined(BUILD_DLL)
 # define DLLIMPORT __declspec (dllexport)
 #else // Not defined BUILD_DLL
@@ -68,9 +70,10 @@
 #endif
 
 // Debug level is scaled 0..10, default=1
-#define BFDEBUG_LEVEL 10
+#define BFDEBUG_LEVEL 0
 #define PROGRAM_NAME "Dungeon Keeper FX"
 #define PROGRAM_FULL_NAME "Dungeon Keeper Fan eXpansion"
+#define DEFAULT_LOG_FILENAME "keeperfx.log"
 
 // Return values for verification functions
 #define VERIF_ERROR   0
@@ -88,6 +91,24 @@
 #ifdef __cplusplus
 #pragma pack(1)
 #endif
+
+struct Coord2d {
+    union {
+      unsigned short val;
+      struct {
+        unsigned char pos;
+        unsigned char num;
+        } stl;
+    } x;
+    union {
+      unsigned short val;
+      struct {
+        unsigned char pos;
+        unsigned char num;
+        } stl;
+    } y;
+};
+
 
 struct Coord3d {
     union {

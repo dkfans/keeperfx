@@ -49,6 +49,20 @@ Command line options:
   Same thing, but for lights.
 -vidsmooth
   Smoothes the 3D view using 1-pixel bilinear blur.
+-packetsave <filename>
+  Writes a packet file (replay file) when playing.
+  After using this option, you must start a new level
+  (or use '-level' parameter). Saved replay will work
+  properly as long as you won't change any of the game
+  files. Even a minor change in map or configuration
+  may make the replay invalid.
+-packetload <filename>
+  Loads a previously created packet file. Starts the
+  level for which packet file was created, and continues
+  the gameplay. You may exit this mode by pressing
+  Alt+X, or take over the control by pressing ALT+T.
+  Note that this option is experimental, and packet files
+  may sometimes not work as intended.
 
 Troubleshooting:
 
@@ -78,8 +92,14 @@ A: There's no fix for this yet.
 Q: Mouse disappears when I try to enter network game.
 A: There's no fix; use stanard DK with IPX fix for multiplayer.
 
-Q: Switching resolution in map view disables all rooms and spells.
-A: As it's quite rare occurence, reason is yet to be found.
+Q: Switching resolution/Taking over control in map view disables
+   all rooms and spells!
+A: Press TAB key twice to bring back working menu.
+
+Q: There are no special eye effects when I posses Beetle, Fly,
+    Dragon, Tentacle etc.!
+A: Lense effect only work if you have over 16MB RAM and in screen
+     resolutions: 320x200, 640x400 and 640x480.
 
 Config file details:
 
@@ -95,7 +115,8 @@ INGAME_RES
    MODE_800_600_8, MODE_1024_768_8, MODE_1280_1024_8,
    MODE_1600_1200_8.
   You can switch between those resolutions during the
-   gameplay by pressing ALT+R.
+   gameplay by pressing ALT+R. Modes over 640x480 are
+   experimental, and not completely stable.
   INGAME_RES=<mode1> <mode2> <mode3> ....
 
 SCREENSHOT
@@ -120,7 +141,23 @@ New in-game commands:
   format. Format is chosen in KEEPERFX.CFG, 'SCREENSHOT='
   option, which may be set to 'HSI' or 'BMP'.
 
+ Make and replay packet file
+  These functions can be only enabled by command line
+  parameters. You can made a packet file which contains
+  the replay with '-packetsave' command, and then play it
+  with '-packetload'. When in the replay, you may always
+  take over control by pressing Alt+T, or exit with Alt+X.
+
 Changelog:
+
+Version: 0.2.5
+  Fixed information button blinking
+  Rewritten part of the rendering engine
+  Fixed mouse cursor shift and scrolling at 640x480
+  Added options to save and load replay (packet file)
+  Alt+X can now be used to quit the game
+  Files created by the game are no longer read-only
+  Rewritten loading of map files
 
 Version: 0.2.4
   Rewritten level script analysis
@@ -137,7 +174,7 @@ Version: 0.2.3a
   Created a campaign file which stores level numbers
   More error-safe config file support
   More inputs left when lost (screnshot, minimap zoom, etc.)
-  Renamed campaign file to load properly (the 0.2.3a release)
+  Renamed campaign file to load properly (the .2.3a release)
 
 Version: 0.2.2
   Reworked more of the packets processing system

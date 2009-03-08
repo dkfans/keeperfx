@@ -9,6 +9,7 @@
  0001:00000F90       anim_make_FLI_SS2
  0001:00001350       anim_make_FLI_LC
  0001:000017F0       anim_make_FLI_BRUN
+ 0001:000019E0       rotate_base_axis
  0001:00005320       light_initialise
  0001:00005380       light_render_area
  0001:000057B0       light_create_light
@@ -121,18 +122,59 @@
  0001:0000CDD0       check_cd_in_drive
  0001:0000D570       creature_is_group_leader
  0001:0000D620       leader_find_positions_for_followers
+ 0001:0000DDC0       set_creature_instance
  0001:0000DFE0       process_creature_instance
+ 0001:0000E0C0       creature_instance_has_reset
  0001:0000E140       set_player_instance
  0001:0000E1B0       process_player_instance
+ 0001:0000EFB0       pinstfs_hand_grab
+ 0001:0000F040       pinstfm_hand_grab
+ 0001:0000F110       pinstfe_hand_grab
+ 0001:0000F2E0       pinstfs_hand_drop
+ 0001:0000F340       pinstfm_hand_drop
+ 0001:0000F3D0       pinstfe_hand_drop
+ 0001:0000F450       pinstfs_hand_whip
+ 0001:0000F490       pinstfe_hand_whip
+ 0001:0000F720       pinstfs_hand_whip_end
+ 0001:0000F760       pinstfe_hand_whip_end
+ 0001:0000F7A0       pinstfs_control_creature
+ 0001:0000F850       pinstfm_control_creature
+ 0001:0000FA80       pinstfe_direct_control_creature
+ 0001:0000FC30       pinstfe_passenger_control_creature
+ 0001:0000FCA0       pinstfs_passenger_leave_creature
+ 0001:0000FDC0       pinstfs_direct_leave_creature
+ 0001:0000FEE0       pinstfm_leave_creature
+ 0001:0000FF30       pinstfe_leave_creature
+ 0001:0000FF90       pinstfs_zoom_to_position
+ 0001:00010050       pinstfm_zoom_to_position
+ 0001:00010100       pinstfe_zoom_to_position
+ 0001:00010120       pinstfs_query_creature
+ 0001:00010170       pinstfs_unquery_creature
+ 0001:000101A0       pinstfs_zoom_to_heart
+ 0001:00010260       pinstfm_zoom_to_heart
+ 0001:000102C0       pinstfe_zoom_to_heart
+ 0001:00010320       pinstfs_zoom_out_of_heart
+ 0001:00010410       pinstfm_zoom_out_of_heart
+ 0001:00010560       pinstfe_zoom_out_of_heart
+ 0001:000105E0       pinstfm_control_creature_fade
+ 0001:000105F0       pinstfe_control_creature_fade
+ 0001:00010660       pinstfs_fade_to_map
  0001:000106F0       pinstfm_fade_to_map
+ 0001:00010700       pinstfe_fade_to_map
+ 0001:00010750       pinstfs_fade_from_map
  0001:000107C0       pinstfm_fade_from_map
+ 0001:000107D0       pinstfe_fade_from_map
  0001:00010AD0       free_swipe_graphic
  0001:00010B50       process_thing_spell_effects
  0001:00010DF0       apply_spell_effect_to_thing
  0001:00011DA0       creature_cast_spell_at_thing
  0001:00011E10       process_spells_affected_by_effect_elements
  0001:000122B0       process_keeper_spell_effect
+ 0001:00014810       initialise_map_collides
+ 0001:00014990       initialise_map_health
  0001:00015940       process_level_script
+ 0001:00017160       setup_rotate_stuff
+ 0001:00017620       draw_jonty_mapwho
  0001:0001A920       play_non_3d_sample
  0001:0001AEF0       input_eastegg
  0001:0001B250       draw_sound_stuff
@@ -160,14 +202,35 @@
  0001:000225B0       draw_power_hand
  0001:00022FD0       draw_zoom_box
  0001:00023870       set_gamma
+ 0001:00023AA0       draw_swipe
  0001:00023DF0       draw_gold_total
  0001:00023ED0       draw_overlay_compass
  0001:000243C0       draw_bonus_timer
  0001:00024520       message_add
  0001:000245A0       message_update
  0001:00024920       frontzoom_to_point
+ 0001:00025B70       create_map_volume_box
+ 0001:00026580       frame_wibble_generate
+ 0001:000266B0       rotpers_parallel
+ 0001:00026830       rotpers_standard
+ 0001:000269C0       rotpers_circular
+ 0001:00026B80       rotpers_fisheye
+ 0001:00026E30       do_a_plane_of_engine_columns_perspective
+ 0001:000292F0       do_a_plane_of_engine_columns_isometric
+ 0001:0002A6D0       do_a_plane_of_engine_columns_cluedo
+ 0001:0002B550       find_gamut
+ 0001:0002BEB0       fiddle_gamut
+ 0001:0002C640       display_drawlist
  0001:00030F10       draw_view
+ 0001:000317E0       fill_in_points_perspective
+ 0001:00031BA0       fill_in_points_isometric
+ 0001:00032200       fill_in_points_cluedo
+ 0001:00032860       rotpers_parallel_3
  0001:00032990       engine
+ 0001:00033590       draw_status_sprites
+ 0001:00033C00       draw_engine_number
+ 0001:00033CF0       draw_engine_room_flagpole
+ 0001:00033E40       draw_engine_room_flag_top
  0001:00034130       wander_point_update
  0001:00034510       input
  0001:00034720       set_game_key
@@ -175,6 +238,9 @@
  0001:000349C0       get_inputs
  0001:00035390       get_map_nonaction_inputs
  0001:000354D0       get_dungeon_control_nonaction_inputs
+ 0001:00035970       get_isometric_view_nonaction_inputs
+ 0001:00035F70       get_front_view_nonaction_inputs
+ 0001:000365B0       get_overhead_view_nonaction_inputs
  0001:000367D0       get_creature_control_nonaction_inputs
  0001:00036B90       get_global_inputs
  0001:00037140       get_dungeon_control_action_inputs
@@ -182,6 +248,7 @@
  0001:000377E0       reset_player_mode
  0001:00037900       set_player_state
  0001:00037AC0       get_small_map_inputs
+ 0001:00037FF0       do_map_rotate_stuff
  0001:000380E0       get_packet_control_mouse_clicks
  0001:000389A0       get_player_gui_clicks
  0001:00038C00       get_bookmark_inputs
@@ -230,7 +297,10 @@
  0001:00042340       process_quit_packet
  0001:00042540       process_pause_packet
  0001:00043260       process_dungeon_devastation_effects
+ 0001:00043BB0       object_is_gold
+ 0001:00043C30       object_is_gold_pile
  0001:00043F00       process_object_being_picked_up
+ 0001:00044A20       thing_is_spellbook
  0001:00044AB0       get_spellbook_at_position
  0001:00044C00       get_crate_at_position
  0001:00044D80       get_special_at_position
@@ -247,6 +317,7 @@
  0001:000467E0       set_engine_view
  0001:00046F00       game_loop@0
  0001:00047550       ceiling_set_info
+ 0001:00047620       ceiling_init
  0001:00048020       magic_use_power_hand
  0001:00048130       magic_use_power_imp
  0001:00048440       magic_use_power_obey
@@ -267,6 +338,7 @@
  0001:00049E60       magic_use_power_disease
  0001:00049F90       magic_use_power_armageddon
  0001:0004A7A0       can_cast_spell_at_xy
+ 0001:0004AB30       can_cast_spell_on_creature
  0001:0004AE00       directly_cast_spell_on_thing
  0001:00050870       S3DInit
  0001:00050910       S3DSetMaximumSoundDistance
@@ -281,6 +353,11 @@
  0001:00050E70       process_3d_sounds
  0001:00051810       IsRunningMark@0
  0001:00051840       IsRunningUnmark@0
+ 0001:00052990       flyeye_setup
+ 0001:00052A20       flyeye_blitsec
+ 0001:00054890       draw_keepsprite_unscaled_in_buffer
+ 0001:00056920       cleanup_seek_the_enemy
+ 0001:00056950       seek_the_enemy
  0001:00057260       process_creature_self_spell_casting
  0001:00057300       update
  0001:00057960       update_things
@@ -298,6 +375,7 @@
  0001:00059D30       update_player_camera
  0001:0005A1A0       update_footsteps_nearest_camera
  0001:0005A390       update_thing_sound
+ 0001:0005A3F0       get_human_controlled_creature_target
  0001:0005A650       update_thing_animation
  0001:0005A730       process_creature_standing_on_corpses_at
  0001:0005AA00       process_player_instances
@@ -309,18 +387,23 @@
  0001:0005B3E0       delete_all_structures
  0001:0005B490       i_can_allocate_free_thing_structure
  0001:0005B590       allocate_free_thing_structure
+ 0001:0005B6F0       allocate_free_action_point_structure_with_number
  0001:0005B740       delete_thing_structure
  0001:0005B970       add_thing_to_list
  0001:0005C710       map_fade_in
  0001:0005C920       map_fade_out
+ 0001:0005D110       init_columns
  0001:0005D4D0       find_nearest_rooms_for_ambient_sound
  0001:0005D890       clear_map
+ 0001:0005D9E0       init_top_texture_to_cube_table
  0001:0005DA80       get_top_cube_at_pos
  0001:0005DE40       get_thing_height_at
  0001:0005E470       get_floor_height_under_thing_at
+ 0001:0005ECF0       element_top_face_texture
  0001:0005ED80       place_thing_in_mapwho
  0001:0005EE00       remove_thing_from_mapwho
  0001:0005EE90       clear_mapwho
+ 0001:0005F490       add_gold_to_hoarde
  0001:0005F6D0       init_creature_scores
  0001:0005FFB0       init_level
  0001:000603A0       post_init_level
@@ -328,6 +411,7 @@
  0001:00060670       init_keeper_map_exploration
  0001:00060840       clear_game
  0001:000608D0       clear_game_for_save
+ 0001:00060A80       init_whole_blocks
  0001:00060B10       init_animating_texture_maps
  0001:00062AC0       init_player_cameras
  0001:00063480       create_thing
@@ -354,8 +438,11 @@
  0001:0006F1A0       set_autopilot_type
  0001:00071090       resync_game
  0001:00072D40       draw_frontview_engine
+ 0001:00076910       draw_texture
  0001:00076FA0       DrawBigSprite
  0001:000770F0       process_door
+ 0001:00078000       init_lens
+ 0001:000782E0       draw_lens
  0001:00078330       battle_initialise
  0001:000788F0       find_first_battle_of_mine
  0001:00078ED0       battle_move_player_towards_battle
@@ -407,6 +494,7 @@
  0001:00089B70       create_effect
  0001:00089CB0       update_effect
  0001:0008AE80       explosion_affecting_area
+ 0001:0008B490       affect_nearby_enemy_creatures_with_wind
  0001:0008B950       process_effect_generator
  0001:00092840       menu_is_active
  0001:00092880       turn_on_menu
@@ -424,6 +512,7 @@
  0001:00092D40       maintain_scroll_up
  0001:00092D70       maintain_activity_up
  0001:00092DB0       maintain_activity_down
+ 0001:00092E00       maintain_my_event_list
  0001:00092EC0       maintain_event_button
  0001:00093160       maintain_room_and_creature_button
  0001:000931B0       maintain_activity_row
@@ -434,6 +523,7 @@
  0001:00093430       maintain_big_trap
  0001:000934D0       maintain_trap
  0001:00093520       maintain_door
+ 0001:00093580       instant_instance_selected
  0001:00093620       maintain_instance
  0001:00093820       maintain_activity_pic
  0001:000938E0       maintain_zoom_to_event
@@ -568,10 +658,13 @@
  0001:000A0E70       gui_toggle_ally
  0001:000A1150       gui_set_button_flashing
  0001:000A1170       gui_draw_tab
+ 0001:000A11F0       fake_button_click
  0001:000A1300       level_lost_go_first_person
  0001:000A14F0       draw_load_button
  0001:000A1590       gui_load_game_maintain
  0001:000A15C0       maintain_my_battle_list
+ 0001:000A1840       active_battle_exists
+ 0001:000A1870       step_battles_forward
  0001:000A18F0       reset_gui_based_on_player_mode
  0001:000A1D10       initialise_tab_tags_and_menu
  0001:000A32F0       frontmap_load
@@ -662,13 +755,19 @@
  0001:000B02B0       get_next_manufacture
  0001:000B2FC0       get_thing_checksum
  0001:000B45F0       process_rooms
+ 0001:000B4EC0       set_room_efficiency
  0001:000B6D10       find_room_with_spare_room_item_capacity
+ 0001:000B7120       create_room
+ 0001:000B7820       set_room_capacity
  0001:000B7980       send_creature_to_room
+ 0001:000BBA70       go_to_my_next_room_of_type
+ 0001:000BCDB0       create_room_flag
  0001:000BCF00       get_room_thing_is_on
  0001:000BD240       player_has_room_of_type
  0001:000BDA60       set_start_state
  0001:000BF280       cleanup_current_thing_state
  0001:000C01E0       setup_move_off_lava
+ 0001:000C1480       leave_creature_as_controller
  0001:000C16A0       set_creature_graphic
  0001:000C2000       apply_damage_to_thing_and_display_health
  0001:000C2150       get_foot_creature_has_down
@@ -677,8 +776,12 @@
  0001:000C2700       set_creature_level
  0001:000C28E0       init_creature_level
  0001:000C2950       toggle_creature_tendencies
+ 0001:000C41E0       find_next_annoyed_creature
+ 0001:000C4460       find_my_next_creature_of_breed_and_job
  0001:000C4C00       place_thing_in_power_hand
  0001:000C4CD0       dump_held_things_on_map
+ 0001:000C5230       get_enemy_dungeon_heart_creature_can_see
+ 0001:000C5750       get_nearest_thing_for_hand_or_slap
  0001:000C6150       kill_creature
  0001:000C6D50       load_settings
  0001:000C7320       load_configuration@0
@@ -690,9 +793,11 @@
  0001:000C9280       load_game_save_catalogue
  0001:000C92E0       save_game_save_catalogue
  0001:000C9460       load_game
+ 0001:000C9A40       convert_old_column_file
  0001:000C9C50       load_slab_file
  0001:000CA660       move_thing_in_map
  0001:000CAB80       move_creature
+ 0001:000CD690       computer_check_enemy_entrances
  0001:000D9DE0       LbErrorLogSetup@12
  0001:000D9EA0       SyncLog
  0001:000D9F30       LbMemoryAlloc_
@@ -741,6 +846,7 @@
  0001:000DD060       LbMouseOnMove
  0001:000DD140       LbMouseOnBeginSwap
  0001:000DD1D0       LbMouseOnEndSwap
+ 0001:000DF200       LbSpriteDrawOneColour
  0001:000DFDD0       LbIsIKeyboardInstalled_
  0001:000DFDE0       LbIKeyboardClose@0
  0001:000DFDF0       LbSpriteDrawRemap
@@ -809,6 +915,8 @@
  0003:0000E4A8       room_data
  0003:0000E630       trap_data
  0003:0000E6E0       door_names
+ 0003:0000E6F0       instance_info
+ 0003:0000F160       player_instance_info
  0003:0000F620       trap_stats
  0003:0000FC58       object_to_magic
  0003:0000FCE0       object_to_special
@@ -823,6 +931,14 @@
  0003:00010CC0       SpeechEmitter
  0003:000113C0       parchment_loaded
  0003:000113C4       draw_spell_cost
+ 0003:000114F8       split1at
+ 0003:000114FC       split2at
+ 0003:00011500       lens
+ 0003:00011504       cells_away
+ 0003:00011508       max_i_can_see
+ 0003:0001150C       lens_mode
+ 0003:00011580       rotpers_routines
+ 0003:00011590       perspective_routines
  0003:000115C4       grabbed_small_map
  0003:000115CC       eastegg03_cntr
  0003:00011610       MinimalResolutionSetup
@@ -872,6 +988,19 @@
  0003:00017590       menu_list
  0003:00017810       error_box_message
  0003:0001E4B8       menu_ids
+ 0003:0001E5B0       room_on
+ 0003:0001E5B4       spell_on
+ 0003:0001E5B8       spell_lost_on
+ 0003:0001E5BC       trap_on
+ 0003:0001E5C0       creat_on
+ 0003:0001E5C4       event_on
+ 0003:0001E5C8       query_on
+ 0003:0001E5CC       creature_query1_on
+ 0003:0001E5D0       creature_query2_on
+ 0003:0001E5D4       creature_query3_on
+ 0003:0001E5D8       objective_on
+ 0003:0001E5DC       battle_on
+ 0003:0001E5E0       special_on
  0003:0001E5F0       specials_text
  0003:0001EB98       netmap_flag_load_files
  0003:0001F214       using_two_banks
@@ -883,6 +1012,14 @@
  0003:000207B8       fade_palette_in
  0003:000207C0       frontstory_load_files
  0003:00020870       frontstory_setup_sprites
+ 0003:00021FE0       poly_screen
+ 0003:00021FE4       vec_screen
+ 0003:00021FE8       vec_map
+ 0003:00021FF0       vec_screen_width
+ 0003:00021FF4       vec_window_width
+ 0003:00021FF8       vec_window_height
+ 0003:00021FFC       dither_map
+ 0003:00022000       dither_end
  0003:000258E8       lbSinTable
  0003:000260E8       lbCosTable
  0003:000280E8       lbFontPtr
@@ -921,60 +1058,138 @@
  0003:00030264       fe_network_active
  0003:00030314       net_number_of_services
  0003:00030318       tmp_net_phone_number
+ 0003:00030B70       thing_pointed_at
+ 0003:00030C80       thing_being_displayed
  0003:00030D00       smooth_on
+ 0003:00030D08       map_angle
+ 0003:00030D0C       floor_pointed_at_y
+ 0003:00030D10       floor_pointed_at_x
  0003:00030D14       top_pointed_at_y
  0003:00030D18       top_pointed_at_x
  0003:00030D1C       top_pointed_at_frac_x
  0003:00030D20       top_pointed_at_frac_y
+ 0003:00030D24       temp_cluedo_mode
+ 0003:00030D28       fade_scaler
+ 0003:00030D30       normal_shade_right
+ 0003:00030D34       player_bit
+ 0003:00030D38       view_alt
+ 0003:00030D3C       fade_way_out
+ 0003:00030D40       view_width_over_2
+ 0003:00031148       camera_matrix
+ 0003:00031178       map_roll
+ 0003:0003117C       normal_shade_back
+ 0003:00031580       fade_max
+ 0003:00031584       rotpers
+ 0003:00031588       map_tilt
+ 0003:0003158C       fade_min
+ 0003:00031590       me_distance
+ 0003:00031594       engine_player_number
+ 0003:00031598       split_1
+ 0003:0003159C       split_2
+ 0003:000315A8       minmaxs
+ 0003:000317A8       normal_shade_left
+ 0003:000317AC       x_init_off
+ 0003:000317B0       high_offset
+ 0003:00031C60       mx
+ 0003:00031C64       my
+ 0003:00031C68       mz
  0003:00031C6C       pointer_y
  0003:00031C70       pointer_x
+ 0003:00031C74       normal_shade_front
+ 0003:00031C78       view_height_over_2
+ 0003:00031C80       me_pointed_at
+ 0003:00031C84       front_ec
+ 0003:00031C98       vert_offset
+ 0003:00031CA8       ecs1
+ 0003:00038AE8       apos
+ 0003:00038AF0       ecs2
+ 0003:0003F940       bpos
  0003:0003F944       block_pointed_at_x
  0003:0003F948       block_pointed_at_y
+ 0003:0003F950       object_origin
+ 0003:0003F96C       fade_range
+ 0003:0003F970       y_init_off
+ 0003:0003F974       depth_init_off
+ 0003:0003F978       perspective
+ 0003:0003F980       map_volume_box
  0003:0003F998       pointed_at_frac_x
  0003:0003F99C       pointed_at_frac_y
+ 0003:000409A0       back_ec
+ 0003:00040DC0       hori_offset
+ 0003:00040DCC       my_mouse_y
+ 0003:00040DD0       my_mouse_x
+ 0003:00040DD4       dummy_x
+ 0003:00040DD8       dummy_y
+ 0003:00040DDC       dummy
+ 0003:00040DE0       old_mx
+ 0003:00040DE4       old_my
  0003:00052DC8       emitter
  0003:00053B18       MaxNoSounds
  0003:00053B80       optimised_lights
  0003:00053B84       do_lights
  0003:00053B88       total_lights
  0003:00096570       navlog_file
+ 0003:000A6550       end_level_names_data
  0003:000A6554       palette
+ 0003:000A655C       port_sprite_data
  0003:000A6560       end_gui_panel_sprites
  0003:000A6564       eye_lens_memory
+ 0003:000A6568       button_sprite_data
+ 0003:000A656C       font_data
+ 0003:000A6570       end_winfonts
  0003:000A6578       global_joined_string
  0003:000A6678       phase_of_moon
  0003:000A6680       settings
  0003:000A6E84       block_mem
+ 0003:000A6E8C       font_sprites
  0003:000A6E90       gui_panel_sprites
+ 0003:000A6E94       end_winfont_data
+ 0003:000A6E98       dog_palette
  0003:000AA560       pointer_data
  0003:000AA568       strings
  0003:000AB420       start_rooms
  0003:000AB424       mem_size
  0003:000AB428       MyScreenWidth
  0003:000AB430       keeper_runtime_directory
+ 0003:000AB4C8       level_names_data
+ 0003:000AB4CC       end_button_sprite_data
  0003:000AB4D0       hires_parchment
  0003:000AB4D4       winfont
  0003:000AB4D8       units_per_pixel
  0003:000AB4E4       scratch
  0003:000AB4E8       end_rooms
  0003:000AB4F0       poly_pool
+ 0003:000EB4F0       gui_slab
  0003:000EB4F4       button_sprite
  0003:000EB510       block_ptrs
+ 0003:000EBE50       edit_icon_sprites
  0003:000EBE58       level_name
+ 0003:000EBEAC       gui_panel_sprite_data
  0003:000EBEB0       blue_palette
  0003:000EBEB4       pointer_sprites
+ 0003:000EBEB8       winfont_data
  0003:000EBEBC       pixels_per_block
+ 0003:000EBEC0       end_font_sprites
+ 0003:000EBEC4       end_button_sprites
+ 0003:000EBEC8       vampire_palette
  0003:000EBED0       key_modifiers
  0003:000EBED4       MyScreenHeight
+ 0003:000EBEEC       edit_icon_data
  0003:000EBEF8       pixel_size
  0003:000EBF00       colours
+ 0003:000ECF00       end_edit_icon_sprites
+ 0003:000ECF04       end_port_sprites
  0003:000ECF08       text
  0003:000ED308       poly_pool_end
  0003:000ED310       game
  0003:0023EB54       eye_lens_spare_screen_memory
+ 0003:00241458       port_sprite
  0003:00241460       install_info
+ 0003:00241500       end_gui_panel_sprite_data
  0003:0024150C       end_pointer_sprites
  0003:00241510       my_player_number
+ 0003:00243A0C       getpoly
+ 0003:00243A10       buckets
  0003:00244D3C       transfer_creature_scroll_offset
  0003:00244D40       resurrect_creature_scroll_offset
  0003:00244D44       dungeon_special_selected
@@ -1014,6 +1229,7 @@
  0003:00245300       tool_tip_box
  0003:00245B10       help_tip_time
  0003:00245B14       video_gamma_correction
+ 0003:00245B18       no_of_breeds_owned
  0003:00245B20       active_buttons
  0003:00246E4C       video_cluedo_mode
  0003:00246E50       top_of_breed_list
@@ -1039,6 +1255,7 @@
  0003:00247404       frontend_mouse_over_button_start_time
  0003:0024740C       load_game_scroll_offset
  0003:00247410       last_mouse_x
+ 0003:00247414       frontend_backup_palette
  0003:00247418       last_mouse_y
  0003:0024741C       credits_offset
  0003:00247420       fe_mouse_sensitivity
@@ -1062,7 +1279,10 @@
  0003:00247F3C       frontstory_font
  0003:00247F40       high_score_entry_index
  0003:00247F44       fe_high_score_table_from_main_menu
+ 0003:00247F48       frontend_end_font_data
+ 0003:00247F60       frontend_end_font
  0003:00247F70       credits_end
+ 0003:00247F78       frontend_font_data
  0003:0025C9F4       fade_tables
  0003:002609F4       ghost
  0003:00272C80       error_log

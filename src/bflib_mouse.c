@@ -54,7 +54,6 @@ DLLIMPORT int _DK_LbMouseChangeSpriteAndHotspot(struct TbSprite *spr, int a, int
 DLLIMPORT int _DK_LbMouseSetup(struct TbSprite *MouseSprite);
 DLLIMPORT int _DK_LbMouseSetPointerHotspot(int x, int y);
 DLLIMPORT int _DK_LbMouseSetPosition(int x, int y);
-DLLIMPORT long _DK_GetMouseY(void);
 /******************************************************************************/
 int LbMouseChangeSpriteAndHotspot(struct TbSprite *spr, int a, int b)
 {

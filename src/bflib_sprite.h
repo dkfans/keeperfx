@@ -37,7 +37,7 @@ struct TbSprite {
 struct TbSetupSprite {
         struct TbSprite **Start;
         struct TbSprite **End;
-        char **Data;
+        unsigned long *Data;
 };
 
 #pragma pack()
@@ -51,8 +51,6 @@ extern char lang_selection;
 /******************************************************************************/
 
 /******************************************************************************/
-int LbDataFreeAll(struct TbLoadFiles load_files[]);
-int LbDataLoadAll(struct TbLoadFiles load_files[]);
 int LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
 short LbSpriteSetup(TbSprite *start, const TbSprite *end, const char *data);
 

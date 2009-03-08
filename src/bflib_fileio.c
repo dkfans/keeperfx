@@ -178,7 +178,7 @@ int __fastcall LbDriveFreeSpace(const unsigned int drive, struct TbDriveInfo *dr
   return result;
 }
 
-bool __fastcall LbFileExists(const char *fname)
+short __fastcall LbFileExists(const char *fname)
 {
   return access(fname,F_OK) == 0;
 }
@@ -223,21 +223,21 @@ TbFileHandle __fastcall LbFileOpen(const char *fname, const unsigned char accmod
 #ifdef __DEBUG
       LbSyncLog("LbFileOpen: LBO_CREAT mode\n");
 #endif
-        rc = _sopen(fname, _O_RDWR|_O_CREAT|_O_BINARY, _SH_DENYNO);
+        rc = _sopen(fname, O_RDWR|O_CREAT|O_BINARY, SH_DENYNO, S_IREAD|S_IWRITE);
     };break;
   case Lb_FILE_MODE_OLD:
     {
 #ifdef __DEBUG
         LbSyncLog("LbFileOpen: LBO_RDWR mode\n");
 #endif
-        rc = _sopen(fname, _O_RDWR|_O_BINARY, _SH_DENYNO);
+        rc = _sopen(fname, O_RDWR|O_BINARY, SH_DENYNO);
     };break;
   case Lb_FILE_MODE_READ_ONLY:
     {
 #ifdef __DEBUG
         LbSyncLog("LbFileOpen: LBO_RDONLY mode\n");
 #endif
-        rc = _sopen(fname, _O_RDONLY|_O_BINARY, _SH_DENYNO);
+        rc = _sopen(fname, O_RDONLY|O_BINARY, SH_DENYNO);
     };break;
   }
 #ifdef __DEBUG
@@ -325,7 +325,7 @@ short __fastcall LbFileFlush(TbFileHandle handle)
 long __fastcall LbFileLengthHandle(TbFileHandle handle)
 {
   long result;
-  result = _filelength(handle);
+  result = filelength(handle);
   return result;
 }
 
@@ -374,7 +374,7 @@ int __fastcall LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,un
   //The new code skips 'attributes' as Win32 prototypes seem not to use them
   ffind->ReservedHandle=_findfirst(filespec,&(ffind->Reserved));
   int result;
-  if ( ffind->ReservedHandle==-1 )
+  if (ffind->ReservedHandle == -1)
   {
     result = -1;
   } else
@@ -455,7 +455,7 @@ int LbDirectoryCurrent(char *buf, unsigned long buflen)
   return -1;
 }
 
-int __fastcall LbFileMakeFullPath(const bool append_cur_dir,
+int __fastcall LbFileMakeFullPath(const short append_cur_dir,
   const char *directory, const char *filename, char *buf, const unsigned long len)
 {
   if (filename==NULL)

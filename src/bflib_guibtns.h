@@ -32,11 +32,12 @@ extern "C" {
 struct GuiBox;
 struct GuiBoxOption;
 
-#define STRINGS_MAX  941
-#define INPUT_FIELD_LEN 40
+#define STRINGS_MAX        941
+#define INPUT_FIELD_LEN     40
 
 // Type definitions
 enum TbButtonType {
+        Lb_CYCLEBTN  =  2,
         Lb_RADIOBTN  =  3,
         Lb_SLIDER    =  4,
 };
@@ -184,8 +185,6 @@ int field_C;
 // Exported variables
 DLLIMPORT extern struct GuiButton *_DK_input_button;
 #define input_button _DK_input_button
-DLLIMPORT extern struct GuiMenu _DK_active_menus[8];
-#define active_menus _DK_active_menus
 DLLIMPORT char _DK_backup_input_field[INPUT_FIELD_LEN];
 #define backup_input_field _DK_backup_input_field
 

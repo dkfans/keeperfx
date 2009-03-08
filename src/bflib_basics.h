@@ -64,8 +64,10 @@ typedef long TbClockMSec;
 typedef time_t TbTimeSec;
 
 typedef unsigned char TbChecksum;
-
+typedef unsigned long TbBigChecksum;
+typedef long Offset;
 typedef int TbFileHandle;
+
 struct TbFileFind {
           char Filename[144];
           char AlternateFilename[14];
@@ -85,9 +87,9 @@ struct TbLog {
         char Filename[DISKPATH_SIZE];
         char Prefix[LOG_PREFIX_LEN];
         ulong Flags;
-        bool Initialised;
-        bool Created;
-        bool Suspended;
+        short Initialised;
+        short Created;
+        short Suspended;
 };
 
 #pragma pack()
@@ -108,51 +110,21 @@ int LbScriptLog(const char *format, ...);
 int __fastcall LbErrorLogSetup(const char *directory, const char *filename, uchar flag);
 int __fastcall LbErrorLogClose();
 
-int __fastcall LbLogClose(TbLog *log);
-int __fastcall LbLogSetup(TbLog *log, const char *filename, int flags);
-int __fastcall LbLogSetPrefix(TbLog *log, const char *prefix);
+int __fastcall LbLogClose(struct TbLog *log);
+int __fastcall LbLogSetup(struct TbLog *log, const char *filename, int flags);
+int __fastcall LbLogSetPrefix(struct TbLog *log, const char *prefix);
 /******************************************************************************/
-// Return the big-endian longword at p.
-inline unsigned long blong (unsigned char *p)
-{
-    unsigned long n;
-    n = p[0];
-    n = (n << 8) + p[1];
-    n = (n << 8) + p[2];
-    n = (n << 8) + p[3];
-    return n;
-}
-
-// Return the little-endian longword at p.
-inline unsigned long llong (unsigned char *p)
-{
-    unsigned long n;
-    n = p[3];
-    n = (n << 8) + p[2];
-    n = (n << 8) + p[1];
-    n = (n << 8) + p[0];
-    return n;
-}
-
-// Return the big-endian word at p.
-inline unsigned long bword (unsigned char *p)
-{
-    unsigned long n;
-    n = p[0];
-    n = (n << 8) + p[1];
-    return n;
-}
-
-// Return the little-endian word at p.
-inline unsigned long lword (unsigned char *p)
-{
-    unsigned long n;
-    n = p[1];
-    n = (n << 8) + p[0];
-    return n;
-}
+unsigned long blong (unsigned char *p);
+unsigned long llong (unsigned char *p);
+unsigned long bword (unsigned char *p);
+unsigned long lword (unsigned char *p);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
+
+#ifdef __cplusplus
+#include "bflib_basinln.h"
+#endif
+
 #endif

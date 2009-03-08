@@ -32,6 +32,7 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT  int __cdecl _DK_set_game_key(long key_id, unsigned char key, int shift_state, int ctrl_state);
 DLLIMPORT void __cdecl _DK_update_mouse(void);
+DLLIMPORT long _DK_GetMouseY(void);
 /******************************************************************************/
 
 /******************************************************************************/

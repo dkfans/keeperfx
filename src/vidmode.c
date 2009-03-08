@@ -27,6 +27,8 @@
 #include "bflib_sprite.h"
 #include "bflib_dernc.h"
 #include "bflib_sprfnt.h"
+#include "bflib_filelst.h"
+
 #include "frontend.h"
 #include "config.h"
 #include "keeperfx.h"
@@ -43,31 +45,22 @@ DLLIMPORT struct TbLoadFiles _DK_hi_res_pointer_load_files[3];
 #define hi_res_pointer_load_files _DK_hi_res_pointer_load_files
 DLLIMPORT struct TbLoadFiles _DK_low_res_pointer_load_files[3];
 #define low_res_pointer_load_files _DK_low_res_pointer_load_files
-DLLIMPORT struct TbLoadFiles _DK_mcga_load_files[8];
-#define mcga_load_files _DK_mcga_load_files
-DLLIMPORT struct TbLoadFiles _DK_mcga_load_files_minimal[1];
-#define mcga_load_files_minimal _DK_mcga_load_files_minimal
-DLLIMPORT struct TbLoadFiles _DK_vres256_load_files[9];
-#define vres256_load_files _DK_vres256_load_files
-DLLIMPORT struct TbLoadFiles _DK_vres256_load_files_minimal[11];
-#define vres256_load_files_minimal _DK_vres256_load_files_minimal
-DLLIMPORT struct TbSetupSprite _DK_setup_sprites_minimal[5];
-#define setup_sprites_minimal _DK_setup_sprites_minimal
-DLLIMPORT struct TbSetupSprite _DK_setup_sprites[8];
-#define setup_sprites _DK_setup_sprites
-DLLIMPORT int _DK_MinimalResolutionSetup;
-#define MinimalResolutionSetup _DK_MinimalResolutionSetup
-DLLIMPORT struct TbSprite *_DK_pointer_sprites;
-#define pointer_sprites _DK_pointer_sprites
-DLLIMPORT struct TbSprite *_DK_end_pointer_sprites;
-#define end_pointer_sprites _DK_end_pointer_sprites
-DLLIMPORT unsigned long _DK_pointer_data;
-#define pointer_data _DK_pointer_data
+//DLLIMPORT struct TbLoadFiles _DK_mcga_load_files[8];
+//#define mcga_load_files _DK_mcga_load_files
+//DLLIMPORT struct TbLoadFiles _DK_mcga_load_files_minimal[1];
+//#define mcga_load_files_minimal _DK_mcga_load_files_minimal
+//DLLIMPORT struct TbLoadFiles _DK_vres256_load_files[9];
+//#define vres256_load_files _DK_vres256_load_files
+//DLLIMPORT struct TbLoadFiles _DK_vres256_load_files_minimal[11];
+//#define vres256_load_files_minimal _DK_vres256_load_files_minimal
+//DLLIMPORT struct TbSetupSprite _DK_setup_sprites_minimal[5];
+//#define setup_sprites_minimal _DK_setup_sprites_minimal
+//DLLIMPORT struct TbSetupSprite _DK_setup_sprites[8];
+//#define setup_sprites _DK_setup_sprites
 
 DLLIMPORT __cdecl int _DK_setup_screen_mode(short nmode);
 DLLIMPORT __cdecl int _DK_setup_screen_mode_minimal(short nmode);
 /******************************************************************************/
-
 TbScreenMode switching_vidmodes[] = {
   Lb_SCREEN_MODE_320_200_8,
   Lb_SCREEN_MODE_640_400_8,
@@ -83,15 +76,146 @@ TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480_8;
 
 //struct IPOINT_2D units_per_pixel;
 /******************************************************************************/
+struct TbSetupSprite setup_sprites_minimal[] = {
+  {&frontend_font[0],     &frontend_end_font[0],  &frontend_font_data[0]},
+  {&frontend_font[1],     &frontend_end_font[1],  &frontend_font_data[1]},
+  {&frontend_font[2],     &frontend_end_font[2],  &frontend_font_data[2]},
+  {&frontend_font[3],     &frontend_end_font[3],  &frontend_font_data[3]},
+  {NULL,                  NULL,                   NULL},
+};
+
+struct TbSetupSprite setup_sprites[] = {
+  {&pointer_sprites,      &end_pointer_sprites,   &pointer_data},
+  {&font_sprites,         &end_font_sprites,      &font_data},
+  {&edit_icon_sprites,    &end_edit_icon_sprites, &edit_icon_data},
+  {&winfont,              &end_winfonts,          &winfont_data},
+  {&button_sprite,        &end_button_sprites,    &button_sprite_data},
+  {&port_sprite,          &end_port_sprites,      &port_sprite_data},
+  {&gui_panel_sprites,    &end_gui_panel_sprites, &gui_panel_sprite_data},
+  {NULL,                  NULL,                   NULL},
+};
+
+struct TbLoadFiles mcga_load_files[] = {
+  {"data\\gui.dat",       (unsigned char **)&button_sprite_data,    (unsigned char **)&end_button_sprite_data,      0, 0, 0},
+  {"data\\gui2-0-0.dat",  (unsigned char **)&gui_panel_sprite_data, (unsigned char **)&end_gui_panel_sprite_data,   0, 0, 0},
+  {"data\\gui.tab",       (unsigned char **)&button_sprite,         (unsigned char **)&end_button_sprites,          0, 0, 0},
+  {"data\\font2-0.dat",   (unsigned char **)&winfont_data,          (unsigned char **)&end_winfont_data,            0, 0, 0},
+  {"data\\font2-0.tab",   (unsigned char **)&winfont,               (unsigned char **)&end_winfonts,                0, 0, 0},
+  {"data\\lofont.dat",    (unsigned char **)&font_data,             NULL,                                           0, 0, 0},
+  {"data\\lofont.tab",    (unsigned char **)&font_sprites,          (unsigned char **)&end_font_sprites,            0, 0, 0},
+  {"data\\slab0-0.dat",   (unsigned char **)&gui_slab,              NULL,                                           0, 0, 0},
+  {"data\\gui2-0-0.tab",  (unsigned char **)&gui_panel_sprites,     (unsigned char **)&end_gui_panel_sprites,       0, 0, 0},
+  {"",                    NULL,                                     NULL,                                           0, 0, 0},
+};
+
+struct TbLoadFiles vres256_load_files[] = {
+  {"data\\guihi.dat",     (unsigned char **)&button_sprite_data,    (unsigned char **)&end_button_sprite_data,      0, 0, 0},
+  {"data\\guihi.tab",     (unsigned char **)&button_sprite,         (unsigned char **)&end_button_sprites,          0, 0, 0},
+  {"data\\font2-1.dat",   (unsigned char **)&winfont_data,          (unsigned char **)&end_winfont_data,            0, 0, 0},
+  {"data\\font2-1.tab",   (unsigned char **)&winfont,               (unsigned char **)&end_winfonts,                0, 0, 0},
+  {"data\\hifont.dat",    (unsigned char **)&font_data,             NULL,                                           0, 0, 0},
+  {"data\\hifont.tab",    (unsigned char **)&font_sprites,          (unsigned char **)&end_font_sprites,            0, 0, 0},
+  {"data\\slab0-1.dat",   (unsigned char **)&gui_slab,              NULL,                                           0, 0, 0},
+  {"data\\gui2-0-1.dat",  (unsigned char **)&gui_panel_sprite_data, (unsigned char **)&end_gui_panel_sprite_data,   0, 0, 0},
+  {"data\\gui2-0-1.tab",  (unsigned char **)&gui_panel_sprites,     (unsigned char **)&end_gui_panel_sprites,       0, 0, 0},
+  {"*B_SCREEN",           (unsigned char **)&hires_parchment,       NULL,                                     640*480, 0, 0},
+  {"",                    NULL,                                     NULL,                                           0, 0, 0},
+};
+
+struct TbLoadFiles mcga_load_files_minimal[] = {
+  {"",                    NULL,                                     NULL,                                          0, 0, 0},
+};
+
+struct TbLoadFiles vres256_load_files_minimal[] = {
+  {"ldata\\frontft1.dat", (unsigned char **)&frontend_font_data[0], (unsigned char **)&frontend_end_font_data[0],  0, 0, 0},
+  {"ldata\\frontft1.tab", (unsigned char **)&frontend_font[0],      (unsigned char **)&frontend_end_font[0],       0, 0, 0},
+  {"ldata\\frontft2.dat", (unsigned char **)&frontend_font_data[1], (unsigned char **)&frontend_end_font_data[1],  0, 0, 0},
+  {"ldata\\frontft2.tab", (unsigned char **)&frontend_font[1],      (unsigned char **)&frontend_end_font[1],       0, 0, 0},
+  {"ldata\\frontft3.dat", (unsigned char **)&frontend_font_data[2], (unsigned char **)&frontend_end_font_data[2],  0, 0, 0},
+  {"ldata\\frontft3.tab", (unsigned char **)&frontend_font[2],      (unsigned char **)&frontend_end_font[2],       0, 0, 0},
+  {"ldata\\frontft4.dat", (unsigned char **)&frontend_font_data[3], (unsigned char **)&frontend_end_font_data[3],  0, 0, 0},
+  {"ldata\\frontft4.tab", (unsigned char **)&frontend_font[3],      (unsigned char **)&frontend_end_font[3],       0, 0, 0},
+  {"levels\\levels.txt",  (unsigned char **)&level_names_data,      (unsigned char **)&end_level_names_data,       0, 0, 0},
+  {"*FE_BACKUP_PAL",      (unsigned char **)&frontend_backup_palette,NULL,                                       768, 0, 0},
+  {"",                    NULL,                                     NULL,                                          0, 0, 0},
+};
+
+/******************************************************************************/
+
+
+/*
+ * Loads VGA 256 graphics files, for high resolution modes.
+ * @return Returns true if all files were loaded, false otherwise.
+ */
+short LoadVRes256Data(long scrbuf_size)
+{
+  int i;
+  // Update size of the parchment buffer, as it is also used as screen buffer
+  if (scrbuf_size < 640*480)
+    scrbuf_size = 640*480;
+  i = LbDataFindStartIndex(vres256_load_files,(unsigned char **)&hires_parchment);
+  if (i>=0)
+  {
+    vres256_load_files[i].SLength = scrbuf_size;
+  }
+  // Load the files
+  if (LbDataLoadAll(vres256_load_files))
+    return 0;
+  return 1;
+}
+
+/*
+ * Loads MCGA graphics files, for low resolution mode.
+ * It is modified version of LbDataLoadAll, optimized for maximum
+ * game speed on very slow machines.
+ * @return Returns true if all files were loaded, false otherwise.
+ */
+short LoadMcgaData(void)
+{
+  //return _DK_LoadMcgaData();
+  struct TbLoadFiles *load_files;
+  void *mem;
+  struct TbLoadFiles *t_lfile;
+  int ferror;
+  int ret_val;
+  int i;
+  load_files = mcga_load_files;
+  LbDataFreeAll(load_files);
+  ferror = 0;
+  i = 0;
+  t_lfile = &load_files[i];
+  // Allocate some low memory, only to be sure that
+  // it will be free when this function ends
+  mem = LbMemoryAllocLow(0x10000u);
+  while (t_lfile->Start != NULL)
+  {
+    // Don't allow loading flags
+    t_lfile->Flags = 0;
+    ret_val = LbDataLoad(t_lfile);
+    if (ret_val == -100)
+    {
+      LbErrorLog("Can't allocate memory for MCGA files element \"%s\".\n", t_lfile->FName);
+      ferror++;
+    } else
+    if ( ret_val == -101 )
+    {
+      LbErrorLog("Can't load MCGA file \"%s\".\n", t_lfile->FName);
+      ferror++;
+    }
+    i++;
+    t_lfile = &load_files[i];
+  }
+  if (mem != NULL)
+    LbMemoryFree(mem);
+  return (ferror == 0);
+}
 
 TbScreenMode get_next_vidmode(unsigned short mode)
 {
   int i;
   int maxmodes=sizeof(switching_vidmodes)/sizeof(TbScreenMode);
-//HACK to make the mode switching work - 13 really enters 10
-//  if (mode==10) mode=13; (disabled - not needed anymore)
   // Do not allow to enter higher modes on low memory systems
-  if (mem_size < 16)
+  if ((features_enabled & Ft_HiResVideo) == 0)
     return failsafe_vidmode;
   for (i=0;i<maxmodes;i++)
   {
@@ -120,7 +244,7 @@ TbScreenMode validate_vidmode(unsigned short mode)
   int i;
   int maxmodes=sizeof(switching_vidmodes)/sizeof(TbScreenMode);
   // Do not allow to enter higher modes on low memory systems
-  if (mem_size < 16)
+  if ((features_enabled & Ft_HiResVideo) == 0)
     return failsafe_vidmode;
   for (i=0;i<maxmodes;i++)
   {
@@ -163,7 +287,7 @@ void load_pointer_file(short hi_res)
 {
   static const char *func_name="load_pointer_file";
   struct TbLoadFiles *ldfiles;
-  if (mem_size < 16)
+  if ((features_enabled & Ft_BigPointer) == 0)
   {
     if (hi_res)
       ldfiles = hi_res_small_pointer_load_files;
@@ -185,7 +309,7 @@ void unload_pointer_file(short hi_res)
 {
   struct TbLoadFiles *ldfiles;
   LbMouseChangeSpriteAndHotspot(0, 0, 0);
-  if (mem_size < 16)
+  if ((features_enabled & Ft_BigPointer) == 0)
   {
     if (hi_res)
       ldfiles = hi_res_small_pointer_load_files;
@@ -296,16 +420,6 @@ short setup_screen_mode(unsigned short nmode)
       }
     }
     load_pointer_file(0);
-    pixel_size = 2;
-    MyScreenWidth = mdinfo->Width * pixel_size;
-    MyScreenHeight = mdinfo->Height * pixel_size;
-    pixels_per_block = 32;
-    units_per_pixel = 8;
-    if (parchment_loaded)
-    {
-      fname=prepare_file_path(FGrp_StdData,"gmap.raw");
-      LbFileLoadAt(fname, poly_pool);
-    }
     break;
   case Lb_SCREEN_MODE_640_400_8:
   case Lb_SCREEN_MODE_640_480_8:
@@ -313,22 +427,13 @@ short setup_screen_mode(unsigned short nmode)
   case Lb_SCREEN_MODE_1024_768_8:
   case Lb_SCREEN_MODE_1200_1024_8:
   case Lb_SCREEN_MODE_1600_1200_8:
-    if (LbDataLoadAll(vres256_load_files))
+    if (!LoadVRes256Data(mdinfo->Width*mdinfo->Height))
     {
       error(func_name, 727, "Unable to load vres256_load_files");
       return 0;
     }
     if ((lbDisplay.ScreenMode != nmode) || (was_minimal_res))
     {
-/*
-    if ((lbDisplay.ScreenMode != nmode) || (MinimalResolutionSetup))
-    {
-      if (LbScreenIsModeAvailable(Lb_SCREEN_MODE_640_400_8))
-      {
-        if (LbScreenSetup(Lb_SCREEN_MODE_640_400_8, mdinfo->Width, 400, _DK_palette, 1, 0) != 1)
-          return 0;
-      } else
-*/
       if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 1, 0) != 1)
       {
         error(func_name, 904, "Unable to setup screen resolution");
@@ -336,16 +441,6 @@ short setup_screen_mode(unsigned short nmode)
       }
     }
     load_pointer_file(1);
-    pixel_size = 1;
-    MyScreenWidth = mdinfo->Width * pixel_size;
-    MyScreenHeight = mdinfo->Height * pixel_size;
-    pixels_per_block = 16;
-    units_per_pixel = mdinfo->Width/40;// originally was 16
-    if (parchment_loaded)
-    {
-      fname=prepare_file_path(FGrp_StdData,"gmaphi.raw");
-      LbFileLoadAt(fname, hires_parchment);
-    }
     break;
   default:
     error(func_name, 779, "Unhandled Screen Mode (Setup)");
@@ -353,12 +448,10 @@ short setup_screen_mode(unsigned short nmode)
   }
   LbScreenClear(0);
   LbScreenSwap();
+  update_screen_mode_data(mdinfo->Width, mdinfo->Height);
+  if (parchment_loaded)
+    reload_parchment_file(mdinfo->Width >= 640);
   reinitialise_eye_lens(lens_mem);
-  LbSpriteSetupAll(setup_sprites);
-  LbMouseSetup(0);
-  LbMouseSetPointerHotspot(0, 0);
-  LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-  LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
   lbDisplay.DrawFlags = flg_mem;
   if (setup_heap_memory())
@@ -368,6 +461,30 @@ short setup_screen_mode(unsigned short nmode)
     return 1;
   }
   return 0;
+}
+
+short update_screen_mode_data(long width, long height)
+{
+  if (width >= 640)
+  {
+    pixel_size = 1;
+  } else
+  {
+    pixel_size = 2;
+  }
+  MyScreenWidth = width * pixel_size;
+  MyScreenHeight = height * pixel_size;
+  pixels_per_block = 16 * pixel_size;
+  units_per_pixel = width/40;// originally was 16 for hires, 8 for lores
+  if (MinimalResolutionSetup)
+    LbSpriteSetupAll(setup_sprites_minimal);
+  else
+    LbSpriteSetupAll(setup_sprites);
+  LbMouseSetup(0);
+  LbMouseSetPointerHotspot(0, 0);
+  LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+  LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+  return true;
 }
 
 short setup_screen_mode_minimal(unsigned short nmode)
@@ -451,11 +568,6 @@ short setup_screen_mode_minimal(unsigned short nmode)
         return 0;
       }
     }
-    pixel_size = 2;
-    MyScreenWidth = mdinfo->Width * pixel_size;
-    MyScreenHeight = mdinfo->Height * pixel_size;
-    pixels_per_block = 32;
-    units_per_pixel = 8;
     break;
   case Lb_SCREEN_MODE_640_400_8:
   case Lb_SCREEN_MODE_640_480_8:
@@ -479,12 +591,6 @@ short setup_screen_mode_minimal(unsigned short nmode)
         return 0;
      }
     }
-    pixel_size = 1;
-    MyScreenWidth = mdinfo->Width * pixel_size;
-    MyScreenHeight = mdinfo->Height * pixel_size;
-    pixels_per_block = 16;
-    units_per_pixel = mdinfo->Width/40;// originally was 16
-    LbSpriteSetupAll(setup_sprites_minimal);
     break;
   default:
     error(func_name, 948, "Unhandled Screen Mode (Setup)");
@@ -492,10 +598,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
   }
   LbScreenClear(0);
   LbScreenSwap();
-  LbMouseSetup(0);
-  LbMouseSetPointerHotspot(0, 0);
-  LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-  LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+  update_screen_mode_data(mdinfo->Width, mdinfo->Height);
   lbDisplay.DrawFlags = flg_mem;
   return 1;
 }

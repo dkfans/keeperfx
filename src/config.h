@@ -56,6 +56,13 @@ enum TbFileGroups {
         FGrp_Campgn,
 };
 
+enum TbFeature {
+    Ft_EyeLens     =  0x0001,
+    Ft_HiResVideo  =  0x0002,
+    Ft_BigPointer  =  0x0004,
+    Ft_HiResCreatr =  0x0008,
+};
+
 struct LanguageType {
   const char *name;
   int num;
@@ -81,8 +88,9 @@ struct GameCampaign {
 };
 
 /******************************************************************************/
-
+extern unsigned long features_enabled;
 /******************************************************************************/
+short update_features(unsigned long mem_size);
 char *prepare_file_path(short fgroup,const char *fname);
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
 short load_configuration(void);

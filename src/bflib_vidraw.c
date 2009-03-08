@@ -326,6 +326,28 @@ int LbSpriteDrawRemap(long x, long y, struct TbSprite *spr,unsigned char *map)
   return _DK_LbSpriteDrawRemap(x, y, spr,map);
 }
 
+void __fastcall setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
+        unsigned int line_len, unsigned int width, unsigned int height)
+{
+  if ( line_len > 0 )
+    vec_screen_width = line_len;
+  if (screenbuf != NULL)
+  {
+    vec_screen = screenbuf;
+    poly_screen = screenbuf - vec_screen_width;
+  }
+  if (nvec_map != NULL)
+  {
+    vec_map = nvec_map;
+    dither_map = nvec_map;
+    dither_end = nvec_map + 16;
+  }
+  if (height > 0)
+    vec_window_height = height;
+  if (width > 0)
+    vec_window_width = width;
+}
+
 /*
 //Adds box drawing command to list
 void __fastcall draw_box_purple_list(const long x, const long y, const unsigned long width, const unsigned long height, const TbPixel colour)
@@ -455,28 +477,6 @@ void __fastcall draw_hotspot_purple_list(long x, long y)
   purple_draw_list[purple_draw_index].Flags = 0; //um... why?? strange...
   purple_draw_list[purple_draw_index].Type=12;
   purple_draw_index++;
-}
-
-void __fastcall setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
-        unsigned int line_len, unsigned int width, unsigned int height)
-{
-  if ( line_len > 0 )
-    vec_screen_width = line_len;
-  if ( screenbuf != NULL )
-  {
-    vec_screen = screenbuf;
-    poly_screen = screenbuf - vec_screen_width;
-  }
-  if ( nvec_map != NULL )
-  {
-    vec_map = nvec_map;
-    dither_map = nvec_map;
-    dither_end = nvec_map + 16;
-  }
-  if ( height > 0 )
-    vec_window_height = height;
-  if ( width > 0 )
-    vec_window_width = width;
 }
 
 void __fastcall trig(struct EnginePoint *point1,

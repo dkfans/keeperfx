@@ -29,13 +29,15 @@
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
 
-#include "keeperfx_private.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-const char *log_file_name="keeperfx.log";
+const char *log_file_name=DEFAULT_LOG_FILENAME;
+
+#ifndef __cplusplus
+#include "bflib_basinln.h"
+#endif
 
 char *buf_sprintf(const char *format, ...)
 {
@@ -70,10 +72,10 @@ short error_dialog_fatal(const char *codefile,const int ecode,const char *messag
 }
 
 /******************************************************************************/
-bool error_log_initialised=false;
-TbLog error_log;
+short error_log_initialised=false;
+struct TbLog error_log;
 /******************************************************************************/
-int LbLog(TbLog *log, const char *fmt_str, va_list arg);
+int LbLog(struct TbLog *log, const char *fmt_str, va_list arg);
 /******************************************************************************/
 
 int LbErrorLog(const char *format, ...)
@@ -169,7 +171,7 @@ int __fastcall LbErrorLogClose()
     return LbLogClose(&error_log);
 }
 
-int LbLog(TbLog *log, const char *fmt_str, va_list arg)
+int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
 {
   enum Header {
         NONE   = 0,
@@ -180,7 +182,7 @@ int LbLog(TbLog *log, const char *fmt_str, va_list arg)
   if ( !log->Initialised )
     return -1;
   FILE *file;
-  bool need_initial_newline;
+  short need_initial_newline;
   char header;
   if ( log->Suspended )
     return 1;
@@ -229,11 +231,11 @@ int LbLog(TbLog *log, const char *fmt_str, va_list arg)
         actn = "APPENDED";
       }
       fprintf(file, "LOG %s", actn);
-      bool at_used;
+      short at_used;
       at_used = 0;
       if ( log->Flags & 0x20 )
       {
-        TbTime curr_time;
+        struct TbTime curr_time;
         LbTime(&curr_time);
         fprintf(file, "  @ %02d:%02d:%02d",
             curr_time.Hour,curr_time.Minute,curr_time.Second);
@@ -241,7 +243,7 @@ int LbLog(TbLog *log, const char *fmt_str, va_list arg)
       }
       if ( log->Flags & 0x10 )
       {
-        TbDate curr_date;
+        struct TbDate curr_date;
         LbDate(&curr_date);
         const char *sep;
         if ( at_used )
@@ -254,13 +256,13 @@ int LbLog(TbLog *log, const char *fmt_str, va_list arg)
     }
     if ( log->Flags & 0x40 )
     {
-        TbDate curr_date;
+        struct TbDate curr_date;
         LbDate(&curr_date);
         fprintf(file,"%02d-%02d-%d ",curr_date.Day,curr_date.Month,curr_date.Year);
     }
     if ( log->Flags & 0x80 )
     {
-        TbTime curr_time;
+        struct TbTime curr_time;
         LbTime(&curr_time);
         fprintf(file, "%02d:%02d:%02d ",
             curr_time.Hour,curr_time.Minute,curr_time.Second);
@@ -272,7 +274,7 @@ int LbLog(TbLog *log, const char *fmt_str, va_list arg)
   return 1;
 }
 
-int __fastcall LbLogSetPrefix(TbLog *log, const char *prefix)
+int __fastcall LbLogSetPrefix(struct TbLog *log, const char *prefix)
 {
   if ( !log->Initialised )
     return -1;
@@ -286,7 +288,7 @@ int __fastcall LbLogSetPrefix(TbLog *log, const char *prefix)
   return 1;
 }
 
-int __fastcall LbLogSetup(TbLog *log, const char *filename, int flags)
+int __fastcall LbLogSetup(struct TbLog *log, const char *filename, int flags)
 {
   log->Initialised = false;
   LbMemorySet(log->Filename, 0, DISKPATH_SIZE);
@@ -302,7 +304,7 @@ int __fastcall LbLogSetup(TbLog *log, const char *filename, int flags)
   return 1;
 }
 
-int __fastcall LbLogClose(TbLog *log)
+int __fastcall LbLogClose(struct TbLog *log)
 {
   if ( !log->Initialised )
     return -1;

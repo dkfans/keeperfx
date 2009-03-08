@@ -31,7 +31,10 @@ enum TbPacketType {
         PckT_None           =  0,
         PckT_PlyrMsgBegin   =  13,
         PckT_PlyrMsgEnd     =  14,
+        PckT_ToggleLights   =  20,
         PckT_SwitchScrnRes  =  21,
+        PckT_TogglePause    =  22,
+        PckT_SetGammaLevel  =  27,
         PckT_SetMinimapConf =  28,
         PckT_PlyrFastMsg    =  108,
         PckT_SpellSOEDis    =  114,
@@ -43,7 +46,7 @@ enum TbPacketType {
 
 struct Packet { // sizeof = 0x11 (17)
     int field_0;
-    TbChecksum field_4;
+    TbChecksum chksum;
     unsigned char field_5;
     unsigned short field_6;
     unsigned short field_8;
@@ -53,6 +56,15 @@ struct Packet { // sizeof = 0x11 (17)
     unsigned char field_10;
     };
 
+struct PacketSaveHead { // sizeof=0xF (15)
+unsigned int field_0;
+    unsigned long level_num;
+unsigned int field_8;
+    unsigned char field_C;
+    unsigned char field_D;
+    TbChecksum chksum;
+    };
+
 #pragma pack()
 
 /******************************************************************************/
@@ -60,6 +72,7 @@ struct Packet { // sizeof = 0x11 (17)
 /******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
 void set_packet_control(struct Packet *pckt, unsigned long val);
+short set_packet_pause_toggle(void);
 void process_dungeon_control_packet_clicks(long idx);
 void process_players_dungeon_control_packet_action(long idx);
 void process_players_creature_control_packet_control(long idx);
@@ -71,7 +84,13 @@ void process_packets(void);
 void clear_packets(void);
 unsigned long compute_players_checksum(void);
 short checksums_different(void);
+void post_init_packets(void);
 
+void open_new_packet_file_for_save(void);
+void load_packets_for_turn(long nturn);
+void open_packet_file_for_load(char *fname);
+short save_packets(void);
+void close_packet_file(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

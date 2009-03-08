@@ -38,8 +38,8 @@ extern "C" {
 
 #define LARGE_DELAY_TIME 20
 /******************************************************************************/
-TbTime global_time;
-TbDate global_date;
+struct TbTime global_time;
+struct TbDate global_date;
 TbClockMSec (* LbTimerClock)(void);
 /******************************************************************************/
 /*
@@ -73,7 +73,7 @@ TbClockMSec LbTimerClock_any(void)
 }
 
 //Fills structure with current time
-int LbTime(TbTime *curr_time)
+int LbTime(struct TbTime *curr_time)
 {
   time_t dtime;
   time(&dtime);
@@ -89,7 +89,7 @@ TbTimeSec LbTimeSec(void)
 }
 
 //Fills structure with current date
-int LbDate(TbDate *curr_date)
+int LbDate(struct TbDate *curr_date)
 {
   time_t dtime;
   time(&dtime);
@@ -97,14 +97,14 @@ int LbDate(TbDate *curr_date)
 }
 
 //Fills structures with current date and time
-int LbDateTime(TbDate *curr_date, TbTime *curr_time)
+int LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time)
 {
   time_t dtime;
   time(&dtime);
   return LbDateTimeDecode(&dtime,curr_date,curr_time);
 }
 
-int LbDateTimeDecode(const time_t *datetime,TbDate *curr_date, TbTime *curr_time)
+int LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date,struct TbTime *curr_time)
 {
   struct tm *ltime=localtime(datetime);
   if (curr_date!=NULL)

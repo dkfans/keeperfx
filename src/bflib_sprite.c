@@ -27,22 +27,10 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-DLLIMPORT int __stdcall _DK_LbDataFreeAll(struct TbLoadFiles load_files[]);
-DLLIMPORT int _DK_LbDataLoadAll(struct TbLoadFiles load_files[]);
 DLLIMPORT int _DK_LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
 DLLIMPORT int _DK_LbSpriteSetup(TbSprite *start, const TbSprite *end, const char *data);
 
 /******************************************************************************/
-int LbDataFreeAll(struct TbLoadFiles load_files[])
-{
-  return _DK_LbDataFreeAll(load_files);
-}
-
-int LbDataLoadAll(struct TbLoadFiles load_files[])
-{
-  return _DK_LbDataLoadAll(load_files);
-}
-
 short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const char *data)
 {
   static const char *func_name="LbSpriteSetup";

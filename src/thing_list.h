@@ -30,16 +30,39 @@ extern "C" {
 
 struct PlayerInfo;
 
+enum ThingClass {
+    TCls_Empty        =  0,
+    TCls_Object       =  1,
+    TCls_Shot         =  2,
+    TCls_EffectElem   =  3,
+    TCls_DeadCreature =  4,
+    TCls_Creature     =  5,
+    TCls_EffectGen    =  7,
+    TCls_Trap         =  8,
+    TCls_Door         =  9,
+//    TCls_AmbientSnd   =  x,
+//    TCls_CaveIn       =  x,
+};
+
 struct StructureList {
      unsigned long field_0;
      unsigned long field_4;
 };
 
+struct InitThing { // sizeof=0x15
+    struct Coord3d mappos;
+    unsigned char oclass;
+    unsigned char model;
+    unsigned char owner;
+    unsigned short range;
+    unsigned short index;
+    unsigned char params[8];
+};
+
 struct Thing {
     unsigned char field_0;
     unsigned char field_1;
-    unsigned char field_2;
-    unsigned char field_3;
+    unsigned short field_2;
     unsigned char field_4;
     unsigned char field_5;
     unsigned char owner;
