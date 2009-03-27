@@ -29,7 +29,7 @@ extern "C" {
 #pragma pack(1)
 
 	//PC Keyboard scan codes
-	enum KeyCode
+	enum KeyCodes
 	{
 		KC_UNASSIGNED  = 0x00,
 		KC_ESCAPE      = 0x01,
@@ -178,6 +178,7 @@ extern "C" {
 	};
 #define KM_DONTCARE -1
 
+typedef unsigned char TbKeyCode;
 
 DLLIMPORT extern unsigned char _DK_lbKeyOn[256];
 #define lbKeyOn _DK_lbKeyOn
@@ -192,13 +193,13 @@ DLLIMPORT int _DK_lbKeyboardLang;
 extern unsigned long text_buf_pos;
 extern unsigned char lbKeyOn[];
 extern unsigned char lbShift;
-extern const char AsciiToInkey[];
-*/
-extern char lbInkeyToAscii[];
-extern char lbInkeyToAsciiShift[];
-/*
+
 extern unsigned short flow_control_flags;
 */
+extern const char AsciiToInkey[];
+extern char lbInkeyToAscii[];
+extern char lbInkeyToAsciiShift[];
+
 /******************************************************************************/
 short LbIKeyboardOpen(void);
 short LbIKeyboardClose(void);

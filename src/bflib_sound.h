@@ -52,8 +52,13 @@ DLLIMPORT extern long _DK_Non3DEmitter;
 DLLIMPORT extern long _DK_SpeechEmitter;
 #define SpeechEmitter _DK_SpeechEmitter
 
+#pragma pack()
+
+/******************************************************************************/
 // Exported variables
 
+/******************************************************************************/
+// Exported functions
 long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);
 long S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c);
 long S3DDestroySoundEmitter(long eidx);
@@ -63,14 +68,10 @@ long S3DInit(void);
 long S3DSetNumberOfSounds(long nMaxSounds);
 long S3DSetMaximumSoundDistance(long nDistance);
 
-
-#pragma pack()
-/******************************************************************************/
-// Exported functions
-
 void play_non_3d_sample(long sample_idx);
 short sound_emitter_in_use(long emidx);
 long get_best_sound_heap_size(long mem_size);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

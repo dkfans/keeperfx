@@ -29,7 +29,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-#define SCREEN_BUFFER_SIZE (640*480+16384)
+#define PALETTE_SIZE 768
+#define PALETTE_COLORS 256
 
 #pragma pack(1)
 
@@ -135,13 +136,21 @@ DLLIMPORT extern struct TbDisplayStruct _DK_lbDisplay;
 DLLIMPORT extern unsigned short _DK_MyScreenWidth;
 #define MyScreenWidth _DK_MyScreenWidth
 DLLIMPORT extern unsigned short _DK_MyScreenHeight;
-
 #define MyScreenHeight _DK_MyScreenHeight
 DLLIMPORT extern unsigned short _DK_pixel_size;
 #define pixel_size _DK_pixel_size
 
-#pragma pack()
+DLLIMPORT unsigned char _DK_fade_started;
+#define fade_started _DK_fade_started
+DLLIMPORT unsigned char _DK_from_pal[PALETTE_SIZE];
+#define from_pal _DK_from_pal
+DLLIMPORT unsigned char _DK_to_pal[PALETTE_SIZE];
+#define to_pal _DK_to_pal
+DLLIMPORT long _DK_fade_count;
+#define fade_count _DK_fade_count
 
+#pragma pack()
+/******************************************************************************/
 /*
 extern unsigned char *palette;
 extern struct TbDisplayStruct lbDisplay;
@@ -159,7 +168,8 @@ short LbScreenIsLocked(void);
 short LbScreenSwap(void);
 short LbScreenClear(TbPixel colour);
 short LbWindowsControl(void);
-short LbPaletteFade(unsigned char *pal, long n, TbPaletteFadeFlag flg);
+long LbPaletteFade(unsigned char *pal, long n, TbPaletteFadeFlag flg);
+short LbPaletteStopOpenFade(void);
 short LbMouseChangeSprite(long spr_idx);
 void LbScreenWaitVbi(void);
 int LbScreenSetup(TbScreenMode mode, unsigned int width,

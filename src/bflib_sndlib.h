@@ -47,6 +47,7 @@ int __stdcall GetFirstSampleInfoStructure(void);
 int __stdcall LoadMusic(int);
 int __stdcall InitAudio(void *);
 int __stdcall SetupAudioOptionDefaults(void *);
+int __stdcall PlayStreamedSample(char *fname, int a2, int a3, int a4);
 int __stdcall StopStreamedSample(void);
 int __stdcall StreamedSampleFinished(void);
 int __stdcall SetStreamedSampleVolume(int);

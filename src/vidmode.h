@@ -29,12 +29,13 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+/******************************************************************************/
 DLLIMPORT unsigned short _DK_pixels_per_block;
 #define pixels_per_block _DK_pixels_per_block
 DLLIMPORT unsigned short _DK_units_per_pixel;
+#define units_per_pixel _DK_units_per_pixel
 DLLIMPORT int _DK_MinimalResolutionSetup;
 #define MinimalResolutionSetup _DK_MinimalResolutionSetup
-#define units_per_pixel _DK_units_per_pixel
 
 #pragma pack()
 /******************************************************************************/
@@ -53,8 +54,10 @@ char *get_vidmode_name(unsigned short mode);
 
 short setup_screen_mode(unsigned short nmode);
 short setup_screen_mode_minimal(unsigned short nmode);
+short setup_screen_mode_zero(unsigned short nmode);
 
 short LoadMcgaData(void);
+short LoadMcgaDataMinimal(void);
 short update_screen_mode_data(long width, long height);
 void load_pointer_file(short hi_res);
 

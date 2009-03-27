@@ -24,15 +24,20 @@ GENSRC   = obj/ver_defs.h
 
 OBJ  = \
 obj/main.o \
+obj/front_simple.o \
+obj/game_saves.o \
 obj/frontend.o \
 obj/packets.o \
 obj/config.o \
 obj/front_input.o \
+obj/player_computer.o \
+obj/player_instances.o \
 obj/vidmode.o \
 obj/scrcapt.o \
 obj/kjm_input.o \
 obj/gui_draw.o \
 obj/lvl_script.o \
+obj/lvl_filesdk1.o \
 obj/thing_list.o \
 obj/bflib_basics.o \
 obj/bflib_dernc.o \

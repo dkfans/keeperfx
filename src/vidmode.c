@@ -29,6 +29,7 @@
 #include "bflib_sprfnt.h"
 #include "bflib_filelst.h"
 
+#include "front_simple.h"
 #include "frontend.h"
 #include "config.h"
 #include "keeperfx.h"
@@ -140,6 +141,7 @@ struct TbLoadFiles vres256_load_files_minimal[] = {
   {"",                    NULL,                                     NULL,                                          0, 0, 0},
 };
 
+short force_video_mode_reset = true;
 /******************************************************************************/
 
 
@@ -208,6 +210,19 @@ short LoadMcgaData(void)
   if (mem != NULL)
     LbMemoryFree(mem);
   return (ferror == 0);
+}
+
+/*
+ * Loads MCGA graphics files, for low resolution mode.
+ * Loads only most importand files, where no GUI is needed.
+ * @return Returns true if all files were loaded, false otherwise.
+ */
+short LoadMcgaDataMinimal(void)
+{
+  // Load the files
+  if (LbDataLoadAll(mcga_load_files_minimal))
+    return 0;
+  return 1;
 }
 
 TbScreenMode get_next_vidmode(unsigned short mode)
@@ -341,11 +356,19 @@ short setup_screen_mode(unsigned short nmode)
   unsigned int flg_mem;
   long lens_mem;
   short was_minimal_res;
-  if ((nmode == lbDisplay.ScreenMode) && (!MinimalResolutionSetup))
-    return 1;
+  if (!force_video_mode_reset)
+  {
+    if ((nmode == lbDisplay.ScreenMode) && (!MinimalResolutionSetup))
+    {
+  #if (BFDEBUG_LEVEL > 6)
+      LbSyncLog("%s: Mode %d already active, no changes.\n",func_name,(int)nmode);
+  #endif
+      return 1;
+    }
+  }
   lens_mem = game.numfield_1B;
   flg_mem = lbDisplay.DrawFlags;
-  was_minimal_res=MinimalResolutionSetup;
+  was_minimal_res = (MinimalResolutionSetup || force_video_mode_reset);
   LbMouseChangeSpriteAndHotspot(0, 0, 0);
   switch (lbDisplay.ScreenMode)
   {
@@ -406,9 +429,13 @@ short setup_screen_mode(unsigned short nmode)
   case Lb_SCREEN_MODE_320_200_8:
   case Lb_SCREEN_MODE_320_240_8:
   case Lb_SCREEN_MODE_512_384_8:
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Entering low-res mode %d, resolution %ldx%ld.\n",func_name,(int)nmode,mdinfo->Width,mdinfo->Height);
+#endif
     if (!LoadMcgaData())
     {
-      error(func_name, 689, "Load Mcga failed");
+      error(func_name, 689, "Loading Mcga files failed");
+      force_video_mode_reset = true;
       return 0;
     }
     if ((lbDisplay.ScreenMode != nmode) || (was_minimal_res))
@@ -416,6 +443,7 @@ short setup_screen_mode(unsigned short nmode)
       if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 2, 0) != 1)
       {
         error(func_name, 904, "Unable to setup screen resolution");
+        force_video_mode_reset = true;
         return 0;
       }
     }
@@ -427,9 +455,13 @@ short setup_screen_mode(unsigned short nmode)
   case Lb_SCREEN_MODE_1024_768_8:
   case Lb_SCREEN_MODE_1200_1024_8:
   case Lb_SCREEN_MODE_1600_1200_8:
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Entering hi-res mode %d, resolution %ldx%ld.\n",func_name,(int)nmode,mdinfo->Width,mdinfo->Height);
+#endif
     if (!LoadVRes256Data(mdinfo->Width*mdinfo->Height))
     {
       error(func_name, 727, "Unable to load vres256_load_files");
+      force_video_mode_reset = true;
       return 0;
     }
     if ((lbDisplay.ScreenMode != nmode) || (was_minimal_res))
@@ -437,6 +469,7 @@ short setup_screen_mode(unsigned short nmode)
       if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 1, 0) != 1)
       {
         error(func_name, 904, "Unable to setup screen resolution");
+        force_video_mode_reset = true;
         return 0;
       }
     }
@@ -444,6 +477,7 @@ short setup_screen_mode(unsigned short nmode)
     break;
   default:
     error(func_name, 779, "Unhandled Screen Mode (Setup)");
+    force_video_mode_reset = true;
     return 0;
   }
   LbScreenClear(0);
@@ -454,13 +488,15 @@ short setup_screen_mode(unsigned short nmode)
   reinitialise_eye_lens(lens_mem);
   LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
   lbDisplay.DrawFlags = flg_mem;
-  if (setup_heap_memory())
+  if (!setup_heap_memory())
   {
-    setup_heap_manager();
-    game.numfield_C &= 0xFFFB;
-    return 1;
+    force_video_mode_reset = true;
+    return 0;
   }
-  return 0;
+  setup_heap_manager();
+  game.numfield_C &= 0xFFFB;
+  force_video_mode_reset = false;
+  return 1;
 }
 
 short update_screen_mode_data(long width, long height)
@@ -494,8 +530,11 @@ short setup_screen_mode_minimal(unsigned short nmode)
   unsigned int flg_mem;
   struct TbScreenModeInfo *mdinfo;
 
-  if ((nmode == lbDisplay.ScreenMode) && (MinimalResolutionSetup))
-    return 1;
+  if (!force_video_mode_reset)
+  {
+    if ((nmode == lbDisplay.ScreenMode) && (MinimalResolutionSetup))
+      return 1;
+  }
   flg_mem = lbDisplay.DrawFlags;
   switch (lbDisplay.ScreenMode)
   {
@@ -504,7 +543,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
   case Lb_SCREEN_MODE_512_384_8:
     if (MinimalResolutionSetup)
     {
-      if (nmode != lbDisplay.ScreenMode)
+      if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
         LbScreenReset();
       LbDataFreeAll(mcga_load_files_minimal);
       MinimalResolutionSetup = 0;
@@ -515,7 +554,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
       reset_heap_memory();
       LbMouseChangeSpriteAndHotspot(0, 0, 0);
       unload_pointer_file(0);
-      if (nmode != lbDisplay.ScreenMode)
+      if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
         LbScreenReset();
       LbDataFreeAll(mcga_load_files);
     }
@@ -530,7 +569,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
     {
       LbMouseChangeSpriteAndHotspot(0, 0, 0);
       unload_pointer_file(1);
-      if (nmode != lbDisplay.ScreenMode)
+      if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
         LbScreenReset();
       LbDataFreeAll(vres256_load_files_minimal);
       MinimalResolutionSetup = 0;
@@ -539,7 +578,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
       reset_eye_lenses();
       reset_heap_manager();
       reset_heap_memory();
-      if (nmode != lbDisplay.ScreenMode)
+      if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
         LbScreenReset();
       LbDataFreeAll(vres256_load_files);
     }
@@ -555,16 +594,17 @@ short setup_screen_mode_minimal(unsigned short nmode)
   case Lb_SCREEN_MODE_320_240_8:
   case Lb_SCREEN_MODE_512_384_8:
     MinimalResolutionSetup = 1;
-    if ( LbDataLoadAll(mcga_load_files_minimal) )
+    if ( !LoadMcgaDataMinimal() )
     {
-      error(func_name, 895, "Unable to load mcga_load_files_minimal");
+      error(func_name, 895, "Unable to load minimal MCGA files");
       return 0;
     }
-    if (nmode != lbDisplay.ScreenMode)
+    if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
     {
       if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 2, 0) != 1)
       {
         error(func_name, 904, "Unable to setup screen resolution");
+        force_video_mode_reset = true;
         return 0;
       }
     }
@@ -580,26 +620,45 @@ short setup_screen_mode_minimal(unsigned short nmode)
     if ( LbDataLoadAll(vres256_load_files_minimal) )
     {
       error(func_name, 924, "Unable to load vres256_load_files_minimal");
+      force_video_mode_reset = true;
       return 0;
     }
     frontend_load_data_reset();
-    if (nmode != lbDisplay.ScreenMode)
+    if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
     {
      if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 1, 0) != 1)
      {
         error(func_name, 904, "Unable to setup screen resolution");
+        force_video_mode_reset = true;
         return 0;
      }
     }
     break;
   default:
     error(func_name, 948, "Unhandled Screen Mode (Setup)");
+    force_video_mode_reset = true;
     return 0;
   }
   LbScreenClear(0);
   LbScreenSwap();
   update_screen_mode_data(mdinfo->Width, mdinfo->Height);
   lbDisplay.DrawFlags = flg_mem;
+  force_video_mode_reset = false;
+  return 1;
+}
+
+short setup_screen_mode_zero(unsigned short nmode)
+{
+  static const char *func_name="setup_screen_mode_zero";
+  struct TbScreenModeInfo *mdinfo;
+  mdinfo = LbScreenGetModeInfo(nmode);
+  memset(_DK_palette, 0, PALETTE_SIZE);
+  if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 2, 0) != 1)
+  {
+        error(func_name, 904, "Unable to setup screen resolution");
+        return 0;
+  }
+  force_video_mode_reset = true;
   return 1;
 }
 

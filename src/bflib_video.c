@@ -20,15 +20,9 @@
 /******************************************************************************/
 #include "bflib_video.h"
 
-DLLIMPORT extern int _DK_icon_index;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-DLLIMPORT int __stdcall _DK_LbScreenReset(void);
-DLLIMPORT int _DK_LbScreenSetGraphicsWindow(int x, int y, uint width, uint height);
-DLLIMPORT int _DK_LbScreenIsModeAvailable(TbScreenMode mode);
 /******************************************************************************/
 struct TbScreenModeInfo lbScreenModeInfo[]={
     {   0,   0, 0,0,   0x0,"MODE_INVALID"},
@@ -52,17 +46,20 @@ struct TbScreenModeInfo lbScreenModeInfo[]={
     { 800, 600,24,0,0x0105,"MODE_800_600_24"},
     {1024, 768, 8,0,   0x0,"MODE_1024_768_8"},
     {1024, 768,16,0,   0x0,"MODE_1024_768_16"},
-    {1024, 768,24,0,0x0107,"MODE_1024_768_24"}, 
+    {1024, 768,24,0,0x0107,"MODE_1024_768_24"},
     {1280,1024, 8,0,   0x0,"MODE_1280_1024_8"},
     {1280,1024,16,0,   0x0,"MODE_1280_1024_16"},
-    {1280,1024,24,0,   0x0,"MODE_1280_1024_24"}, 
+    {1280,1024,24,0,   0x0,"MODE_1280_1024_24"},
     {1600,1200, 8,0,   0x0,"MODE_1600_1200_8"},
     {1600,1200,16,0,   0x0,"MODE_1600_1200_16"},
-    {1600,1200,24,0,   0x0,"MODE_1600_1200_24"}, 
+    {1600,1200,24,0,   0x0,"MODE_1600_1200_24"},
     {   0,   0, 0,0,   0x0,"MODE_INVALID"},
 };
 
 /******************************************************************************/
+DLLIMPORT int __stdcall _DK_LbScreenReset(void);
+DLLIMPORT int _DK_LbScreenSetGraphicsWindow(int x, int y, uint width, uint height);
+DLLIMPORT int _DK_LbScreenIsModeAvailable(TbScreenMode mode);
 DLLIMPORT int __stdcall _DK_LbScreenLock(void);
 DLLIMPORT int __stdcall _DK_LbScreenUnlock(void);
 DLLIMPORT int __stdcall _DK_LbScreenSwap(void);
@@ -77,6 +74,8 @@ DLLIMPORT int __cdecl _DK_LbPaletteSet(unsigned char *palette);
 DLLIMPORT int __cdecl _DK_LbPaletteGet(unsigned char *palette);
 DLLIMPORT void __cdecl _DK_copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
 DLLIMPORT int __stdcall _DK_LbIsActive(void);
+/******************************************************************************/
+DLLIMPORT extern int _DK_icon_index;
 /******************************************************************************/
 short LbScreenLock(void)
 {
@@ -103,9 +102,67 @@ short LbWindowsControl(void)
   return _DK_LbWindowsControl();
 }
 
-short LbPaletteFade(unsigned char *pal, long n, TbPaletteFadeFlag flg)
+void LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long n)
 {
-  return _DK_LbPaletteFade(pal, n, flg);
+  int i;
+  unsigned char palette[PALETTE_SIZE];
+  for (i=0; i < PALETTE_COLORS; i++)
+  {
+    palette[3*i+0] = from_pal[3*i+0] + fade_count * (short)(to_pal[3*i+0] - from_pal[3*i+0]) / n;
+    palette[3*i+1] = from_pal[3*i+1] + fade_count * (short)(to_pal[3*i+1] - from_pal[3*i+1]) / n;
+    palette[3*i+2] = from_pal[3*i+2] + fade_count * (short)(to_pal[3*i+2] - from_pal[3*i+2]) / n;
+  }
+  LbScreenWaitVbi();
+  LbPaletteSet(palette);
+}
+
+short LbPaletteStopOpenFade(void)
+{
+    fade_started = 0;
+    return 1;
+}
+
+long LbPaletteFade(unsigned char *pal, long n, TbPaletteFadeFlag flg)
+{
+  //return _DK_LbPaletteFade(pal, n, flg);
+  if (flg == Lb_PALETTE_FADE_CLOSED)
+  {
+    LbPaletteGet(from_pal);
+    if (pal == NULL)
+    {
+      pal = to_pal;
+      memset(to_pal, 0, PALETTE_SIZE);
+    }
+    fade_count = 0;
+    do
+    {
+      LbPaletteFadeStep(from_pal,pal,n);
+      fade_count++;
+    }
+    while (fade_count <= n);
+    fade_started = 0;
+    return fade_count;
+  }
+  if (fade_started)
+  {
+    fade_count++;
+    if (fade_count == n)
+      fade_started = 0;
+    if (pal == NULL)
+      pal = to_pal;
+  } else
+  {
+    fade_count = 0;
+    fade_started = 1;
+    LbPaletteGet(from_pal);
+    if (pal == NULL)
+    {
+      memset(to_pal, 0, PALETTE_SIZE);
+      pal = to_pal;
+    }
+  }
+  LbPaletteFadeStep(from_pal,pal,n);
+  return fade_count;
 }
 
 short LbMouseChangeSprite(long spr_idx)

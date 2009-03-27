@@ -46,7 +46,7 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
 #endif
   //return _DK_update_things_in_list(list);
   sum = 0;
-  i = list->field_4;
+  i = list->index;
   k = 0;
   while (i>0)
   {
@@ -56,7 +56,7 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
       break;
     }
     thing = game.things_lookup[i];
-    if ((thing == game.things_lookup[0]) || (thing == NULL))
+    if (thing_is_invalid(thing))
       break;
     i = thing->next_of_class;
     if ((thing->field_0 & 0x40) == 0)
@@ -90,7 +90,7 @@ unsigned long update_cave_in_things(void)
   struct Thing *thing;
   unsigned long k;
   int i;
-  i = game.thing_lists[10].field_4;
+  i = game.thing_lists[10].index;
   k = 0;
   while (i>0)
   {
@@ -100,7 +100,7 @@ unsigned long update_cave_in_things(void)
       break;
     }
     thing = game.things_lookup[i];
-    if ((thing == game.things_lookup[0]) || (thing == NULL))
+    if (thing_is_invalid(thing))
       break;
     i = thing->next_of_class;
     update_cave_in(thing);
@@ -124,7 +124,7 @@ unsigned long update_things_sounds_in_list(struct StructureList *list)
   struct Thing *thing;
   unsigned long k;
   int i;
-  i = list->field_4;
+  i = list->index;
   k = 0;
   while (i>0)
   {
@@ -134,7 +134,7 @@ unsigned long update_things_sounds_in_list(struct StructureList *list)
       break;
     }
     thing = game.things_lookup[i];
-    if ((thing == game.things_lookup[0]) || (thing == NULL))
+    if (thing_is_invalid(thing))
       break;
     i = thing->next_of_class;
     update_thing_sound(thing);
@@ -198,7 +198,7 @@ void init_player_start(struct PlayerInfo *player)
   struct Thing *thing;
   int i,k;
   k = 0;
-  i = game.thing_lists[2].field_4;
+  i = game.thing_lists[2].index;
   while (i>0)
   {
     if (i >= THINGS_COUNT)
@@ -207,7 +207,7 @@ void init_player_start(struct PlayerInfo *player)
       break;
     }
     thing = game.things_lookup[i];
-    if ((thing == game.things_lookup[0]) || (thing == NULL))
+    if (thing_is_invalid(thing))
       break;
     i = thing->next_of_class;
     if ((game.objects_config[thing->model].field_6) && (thing->owner == player->field_2B))
@@ -232,7 +232,7 @@ void init_traps(void)
   struct Thing *thing;
   int i,k;
   k = 0;
-  i = game.thing_lists[7].field_4;
+  i = game.thing_lists[7].index;
   while (i>0)
   {
     if (i >= THINGS_COUNT)
@@ -241,12 +241,12 @@ void init_traps(void)
       break;
     }
     thing = game.things_lookup[i];
-    if ((thing == game.things_lookup[0]) || (thing == NULL))
+    if (thing_is_invalid(thing))
       break;
     i = thing->next_of_class;
-    if (thing->field_13 == 0)
+    if (thing->byte_13.l == 0)
     {
-      thing->field_13 = game.traps_config[thing->model].field_8;
+      thing->byte_13.l = game.traps_config[thing->model].field_8;
       thing->field_4F ^= (thing->field_4F ^ (trap_stats[thing->model].field_12 << 4)) & 0x30;
     }
     k++;
@@ -274,7 +274,7 @@ void setup_computer_players(void)
       if ((player->field_0 & 0x01) == 0)
       {
         k = 0;
-        i = game.thing_lists[2].field_4;
+        i = game.thing_lists[2].index;
         while (i>0)
         {
           if (i >= THINGS_COUNT)
@@ -283,7 +283,7 @@ void setup_computer_players(void)
             break;
           }
           thing = game.things_lookup[i];
-          if ((thing == game.things_lookup[0]) || (thing == NULL))
+          if (thing_is_invalid(thing))
             break;
           i = thing->next_of_class;
           if ((game.objects_config[thing->model].field_6) && (thing->owner == plr_idx))
@@ -308,7 +308,7 @@ void init_all_creature_states(void)
   struct Thing *thing;
   int i,k;
   k = 0;
-  i = game.thing_lists[0].field_4;
+  i = game.thing_lists[0].index;
   while (i>0)
   {
     if (i >= THINGS_COUNT)
@@ -317,7 +317,7 @@ void init_all_creature_states(void)
       break;
     }
     thing = game.things_lookup[i];
-    if ((thing == game.things_lookup[0]) || (thing == NULL))
+    if (thing_is_invalid(thing))
       break;
     i = thing->next_of_class;
     init_creature_state(thing);
@@ -329,6 +329,58 @@ void init_all_creature_states(void)
     }
   }
 }
+
+/*
+ * Returns hero gate thing of given gate number.
+ * @return Returns hero gate object, or invalid thing pointer if not found.
+ */
+struct Thing *find_hero_gate_of_number(long num)
+{
+  static const char *func_name="find_hero_gate_of_number";
+  struct Thing *thing;
+  unsigned long k;
+  long i;
+  i = game.thing_lists[2].index;
+  k = 0;
+  while (i>0)
+  {
+    if (i >= THINGS_COUNT)
+    {
+      error(func_name,1953,"Jump out of things array bounds detected");
+      break;
+    }
+    thing = game.things_lookup[i];
+    if (thing_is_invalid(thing))
+      break;
+    i = thing->next_of_class;
+    if ((thing->model == 49) && (thing->byte_13.l == num))
+    {
+      return thing;
+    }
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      error(func_name,7641,"Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  return game.things_lookup[0];
+}
+
+long get_free_hero_gate_number(void)
+{
+  struct Thing *thing;
+  short found;
+  long n;
+  for (n=1; n < 256; n++)
+  {
+    thing = find_hero_gate_of_number(n);
+    if (thing_is_invalid(thing))
+      return n;
+  }
+  return 0;
+}
+
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -37,6 +37,7 @@ typedef int (WINAPI *FARPROCI)(int);
 typedef int (WINAPI *FARPROCII)(int,int);
 typedef int (WINAPI *FARPROCS)(const char *);
 typedef int (WINAPI *FARPROCP)(const void *);
+typedef int (WINAPI *FARPROCSIII)(const char *,int,int,int);
 
 /******************************************************************************/
 // Functions
@@ -195,6 +196,17 @@ int __stdcall SetupAudioOptionDefaults(void *i)
     if (proc==NULL)
     { LbErrorLog("Can't get address of SetupAudioOptionDefaults function; skipped.\n"); return 0; }
     return ((FARPROCP)proc)(i);
+}
+
+int __stdcall PlayStreamedSample(char *fname, int a2, int a3, int a4)
+{
+    HMODULE hModule;
+    hModule=GetModuleHandle("WSND7R");
+    FARPROC proc;
+    proc=GetProcAddress(hModule,"_PlayStreamedSample@16");
+    if (proc==NULL)
+    { LbErrorLog("Can't get address of PlayStreamedSample function; skipped.\n"); return 0; }
+    return ((FARPROCSIII)proc)(fname, a2, a3, a4);
 }
 
 int __stdcall StopStreamedSample(void)

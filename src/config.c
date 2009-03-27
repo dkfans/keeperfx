@@ -27,6 +27,9 @@
 #include "bflib_dernc.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
+#include "bflib_pom.h"
+
+#include "front_simple.h"
 #include "scrcapt.h"
 #include "vidmode.h"
 
@@ -72,12 +75,18 @@ const struct ConfigCommand cmpgn_commands[] = {
   {"MULTI_LEVELS",  3},
   {"BONUS_LEVELS",  4},
   {"EXTRA_LEVELS",  5},
+  {"HIGH_SCORES",   6},
   {NULL,            0},
   };
 
 unsigned long features_enabled = 0;
 struct GameCampaign campaign;
 
+short is_full_moon = 0;
+short is_new_moon = 0;
+
+/******************************************************************************/
+DLLIMPORT int __stdcall _DK_load_configuration(void);
 /******************************************************************************/
 short update_features(unsigned long mem_size)
 {
@@ -98,7 +107,80 @@ short update_features(unsigned long mem_size)
   return result;
 }
 
-int recognize_conf_command(const char *buf,long *pos,long buflen,const struct ConfigCommand *commands)
+short skip_conf_to_next_line(const char *buf,long *pos,long buflen)
+{
+  // Skip to end of the line
+  while ((*pos)<buflen)
+  {
+    if ((buf[*pos]=='\r') || (buf[*pos]=='\n')) break;
+    (*pos)++;
+  }
+  // Go to start of next line
+  while ((*pos)<buflen)
+  {
+    if ((unsigned char)buf[*pos] > 32) break;
+    (*pos)++;
+  }
+  return ((*pos)<buflen);
+}
+
+/*
+ * Searches for start of INI file block with given name.
+ * Starts at position given with pos, and setsd it to position of block data.
+ * @return Returns 1 if the block is found, -1 if buffer exceeded.
+ */
+short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname)
+{
+  int blname_len;
+  char *bblname;
+  blname_len = strlen(blockname);
+  while (*pos+blname_len+2 < buflen)
+  {
+    // Skipping starting spaces
+    while ((buf[*pos] == ' ') || (buf[*pos] == '\t') || (buf[*pos] == '\n') || (buf[*pos] == '\r') || (buf[*pos] == 26) || ((unsigned char)buf[*pos] < 7))
+    {
+      (*pos)++;
+      if ((*pos) >= buflen) break;
+    }
+    // Checking if this line is start of a block
+    if (buf[*pos] != '[')
+    {
+      skip_conf_to_next_line(buf,pos,buflen);
+      continue;
+    }
+    (*pos)++;
+    // Skipping any spaces
+    while ((buf[*pos] == ' ') || (buf[*pos] == '\t'))
+    {
+      (*pos)++;
+      if ((*pos) >= buflen) break;
+    }
+    if (*pos+blname_len+2 >= buflen)
+      break;
+    if (strnicmp(&buf[*pos],blockname,blname_len) != 0)
+    {
+      skip_conf_to_next_line(buf,pos,buflen);
+      continue;
+    }
+    (*pos)+=blname_len;
+    // Skipping any spaces
+    while ((buf[*pos] == ' ') || (buf[*pos] == '\t'))
+    {
+      (*pos)++;
+      if ((*pos) >= buflen) break;
+    }
+    if (buf[*pos] != ']')
+    {
+      skip_conf_to_next_line(buf,pos,buflen);
+      continue;
+    }
+    skip_conf_to_next_line(buf,pos,buflen);
+    return 1;
+  }
+  return -1;
+}
+
+int recognize_conf_command(const char *buf,long *pos,long buflen,const struct ConfigCommand commands[])
 {
   int i,cmdname_len;
   if ((*pos) >= buflen) return -1;
@@ -111,6 +193,9 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Co
   // Checking if this line is a comment
   if (buf[*pos] == ';')
     return 0;
+  // Checking if this line is start of a block
+  if (buf[*pos] == '[')
+    return -3;
   // Finding command number
   i = 0;
   while (commands[i].num > 0)
@@ -193,21 +278,37 @@ int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,lo
   return i;
 }
 
-short skip_conf_to_next_line(const char *buf,long *pos,long buflen)
+/*
+ * Returns parameter num from given ConfigCommand array, or 0 if not found.
+ */
+int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct ConfigCommand commands[])
 {
-  // Skip to end of the line
-  while ((*pos)<buflen)
+  int i;
+  int par_len;
+  if ((*pos) >= buflen) return 0;
+  // Skipping spaces after previous parameter
+  while ((buf[*pos] == ' ') || (buf[*pos] == '\t'))
   {
-    if ((buf[*pos]=='\r') || (buf[*pos]=='\n')) break;
     (*pos)++;
+    if ((*pos) >= buflen) return 0;
   }
-  // Go to start of next line
-  while ((*pos)<buflen)
+  i = 0;
+  while (commands[i].num > 0)
   {
-    if ((unsigned char)buf[*pos] > 32) break;
-    (*pos)++;
+      par_len = strlen(commands[i].name);
+      if (strnicmp(&buf[(*pos)], commands[i].name, par_len) == 0)
+      {
+        if ((buf[(*pos)+par_len] == ' ') || (buf[(*pos)+par_len] == '\t')
+         || (buf[(*pos)+par_len] == '\n') || (buf[(*pos)+par_len] == '\r')
+         || ((unsigned char)buf[(*pos)+par_len] < 7))
+        {
+          (*pos) += par_len+1;
+          return commands[i].num;
+        }
+      }
+      i++;
   }
-  return ((*pos)<buflen);
+  return 0;
 }
 
 short prepare_diskpath(char *buf,long buflen)
@@ -450,6 +551,10 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       mdir=keeper_runtime_directory;
       sdir="sound";
       break;
+  case FGrp_AtlSound:
+      mdir=keeper_runtime_directory;
+      sdir="sound/atlas";
+      break;
   case FGrp_Main:
       mdir=keeper_runtime_directory;
       sdir=NULL;
@@ -494,6 +599,114 @@ char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...)
   return result;
 }
 
+short file_group_needs_cd(short fgroup)
+{
+  switch (fgroup)
+  {
+  case FGrp_LoData:
+  case FGrp_Levels:
+      return true;
+  default:
+      return false;
+  }
+}
+
+/*
+ * Loads data file into allocated buffer.
+ * @return Returns NULL if the file doesn't exist or is smaller than ldsize;
+ * on success, returns a buffer which should be freed after use,
+ * and sets ldsize into its size.
+ */
+unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...)
+{
+  char ffullpath[2048];
+  char fname[255];
+  unsigned char *buf;
+  long fsize;
+  // Prepare file name
+  va_list arg;
+  va_start(arg, fmt_str);
+  vsprintf(fname, fmt_str, arg);
+  prepare_file_path_buf(ffullpath,fgroup,fname);
+  va_end(arg);
+  // Load the file
+  if (file_group_needs_cd(fgroup))
+  {
+    if (!wait_for_cd_to_be_available())
+      return NULL;
+   }
+  fsize = LbFileLengthRnc(ffullpath);
+  if (fsize < *ldsize)
+  {
+    LbWarnLog("File \"%s\" doesn't exist or is too small.\n",fname);
+    return NULL;
+  }
+  buf = LbMemoryAlloc(fsize+16);
+  if (buf == NULL)
+  {
+    LbWarnLog("Can't allocate %ld bytes to load \"%s\".\n",fsize,fname);
+    return NULL;
+  }
+  fsize = LbFileLoadAt(ffullpath,buf);
+  if (fsize < *ldsize)
+  {
+    LbWarnLog("Reading file \"%s\" failed.\n",fname);
+    LbMemoryFree(buf);
+    return NULL;
+  }
+  *ldsize = fsize;
+  return buf;
+}
+
+short calculate_moon_phase(short do_calculate,short add_to_log)
+{
+  //Moon phase calculation
+  if (do_calculate)
+  {
+    phase_of_moon = PhaseOfMoon::Calculate();
+  }
+  if ((phase_of_moon > -0.05) && (phase_of_moon < 0.05))
+  {
+    if (add_to_log)
+      LbSyncLog("Full moon %.4f\n", phase_of_moon);
+    is_full_moon = 1;
+    is_new_moon = 0;
+  } else
+  if ((phase_of_moon < -0.95) || (phase_of_moon > 0.95))
+  {
+    if (add_to_log)
+      LbSyncLog("New moon %.4f\n", phase_of_moon);
+    is_full_moon = 0;
+    is_new_moon = 1;
+  } else
+  {
+    if (add_to_log)
+      LbSyncLog("Moon phase %.4f\n", phase_of_moon);
+    is_full_moon = 0;
+    is_new_moon = 0;
+  }
+  return is_full_moon;
+}
+
+short load_high_score_table(void)
+{
+  char *fname;
+  fname = prepare_file_path(FGrp_StdData,campaign.hiscore_fname);
+  if ( LbFileLoadAt(fname, high_score_table) == sizeof(high_score_table) )
+    return true;
+  return false;
+}
+
+short save_high_score_table(void)
+{
+  char *fname;
+  fname = prepare_file_path(FGrp_StdData,campaign.hiscore_fname);
+  LbFileSaveAt(fname, high_score_table, sizeof(high_score_table));
+  if (LbFileSaveAt(fname, high_score_table, sizeof(high_score_table)) == sizeof(high_score_table))
+    return true;
+  return false;
+}
+
 short clear_campaign(struct GameCampaign *campgn)
 {
   int i;
@@ -521,7 +734,7 @@ short load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn)
   int i,k;
   // Preparing campaign file name and checking the file
   clear_campaign(campgn);
-  fname=prepare_file_path(FGrp_Campgn,cmpgn_fname);
+  fname = prepare_file_path(FGrp_Campgn,cmpgn_fname);
   len = LbFileLengthRnc(fname);
   if (len < 2)
   {
@@ -550,7 +763,7 @@ short load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn)
       switch (cmd_num)
       {
       case 1: // NAME
-          i=get_conf_parameter_whole(buf,&pos,len,campgn->name,LINEMSG_SIZE);
+          i = get_conf_parameter_whole(buf,&pos,len,campgn->name,LINEMSG_SIZE);
           if (i <= 0)
             LbWarnLog("Couldn't read \"%s\" command parameter in config file.\n","NAME");
           break;
@@ -633,6 +846,11 @@ short load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn)
               break;
             }
           }
+          break;
+      case 6: // HIGH_SCORES
+          i = get_conf_parameter_whole(buf,&pos,len,campgn->hiscore_fname,LINEMSG_SIZE);
+          if (i <= 0)
+            LbWarnLog("Couldn't read \"%s\" command parameter in config file.\n","HIGH_SCORES");
           break;
       case 0: // comment
           break;

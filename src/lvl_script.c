@@ -23,6 +23,8 @@
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+
+#include "front_simple.h"
 #include "config.h"
 #include "keeperfx.h"
 
@@ -305,6 +307,9 @@ DLLIMPORT long _DK_scan_line(char *line);
 DLLIMPORT short _DK_load_script(long lvl_num);
 
 /******************************************************************************/
+/*
+ * Reads word from 'line' into 'param'. Sets if 'line_end' was reached.
+ */
 const struct CommandDesc *get_next_word(char **line, char *param, unsigned char *line_end)
 {
   static const char *func_name="get_next_word";
@@ -320,6 +325,8 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
   //return _DK_get_next_word(line, param, line_end);
   cmnd_desc = NULL;
   // Find start of an item to read
+  pos = 0;
+  param[pos] = '\0';
   while (1)
   {
     chr = **line;
@@ -338,8 +345,6 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
     (*line)++;
   }
 
-  pos = 0;
-  param[0] = '\0';
   chr = **line;
   // Text string
   if (isalpha(chr))
@@ -551,23 +556,32 @@ const char *script_get_command_name(long cmnd_index)
   return NULL;
 }
 
-long script_support_setup_player_as_computer_keeper(unsigned char plyridx, long comp_model)
+short script_support_setup_player_as_computer_keeper(unsigned short plyridx, long comp_model)
 {
-  return _DK_script_support_setup_player_as_computer_keeper(plyridx, comp_model);
+  struct PlayerInfo *player;
+  player = &(game.players[plyridx%PLAYERS_COUNT]);
+  //return _DK_script_support_setup_player_as_computer_keeper(plyridx, comp_model);
+  player->field_0 |= 0x01u;
+  player->field_2B = plyridx;
+  player->field_2C = 1;
+  player->field_0 |= 0x40u;
+  init_player_start(player);
+  setup_a_computer_player(plyridx, comp_model);
+  return true;
 }
 
 void command_create_party(char *prtname)
 {
   static const char *func_name="command_create_party";
   char *text;
-  if (game.creature_partys_num >= CREATURE_PARTYS_COUNT)
+  if (game.script.creature_partys_num >= CREATURE_PARTYS_COUNT)
   {
     text = buf_sprintf("(script:%lu) Too many partys in script", script_line_number);
     error(func_name, 1086, text);
     return;
   }
-  strcpy(game.creature_partys[game.creature_partys_num].prtname, prtname);
-  game.creature_partys_num++;
+  strcpy(game.script.creature_partys[game.script.creature_partys_num].prtname, prtname);
+  game.script.creature_partys_num++;
 }
 
 long pop_condition(void)
@@ -671,11 +685,19 @@ long get_id(const struct Description *desc, char *itmname)
   return _DK_get_id(desc, itmname);
 }
 
+void player_command_add_start_money(int plridx, long gold_val)
+{
+  struct Dungeon *dungeon;
+  dungeon = &(game.dungeon[plridx%DUNGEONS_COUNT]);
+  dungeon->field_AFD += gold_val;
+  dungeon->field_AF9 += gold_val;
+}
+
 void command_set_start_money(char *plrname, long gold_val)
 {
   static const char *func_name="command_set_start_money";
-  struct Dungeon *dungeon;
   long plr_id;
+  int plr_start, plr_end;
   char *text;
   int i;
   plr_id = get_id(player_desc, plrname);
@@ -687,18 +709,15 @@ void command_set_start_money(char *plrname, long gold_val)
   }
   if (plr_id == 8)
   {
-    for (i=0; i < DUNGEONS_COUNT; i++)
-    {
-      dungeon = &(game.dungeon[i]);
-      dungeon->field_AFD += gold_val;
-      dungeon->field_AF9 += gold_val;
-    }
+    plr_start = 0;
+    plr_end = PLAYERS_COUNT;
   } else
   {
-      dungeon = &(game.dungeon[plr_id%DUNGEONS_COUNT]);
-      dungeon->field_AFD += gold_val;
-      dungeon->field_AF9 += gold_val;
+    plr_start = plr_id;
+    plr_end = plr_id+1;
   }
+  for (i=plr_start; i < plr_end; i++)
+    player_command_add_start_money(i, gold_val);
 }
 
 void command_room_available(char *plrname, char *roomname, unsigned long a3, unsigned long a4)
@@ -851,13 +870,13 @@ void command_win_game(void)
     error(func_name, 1822, text);
     return;
   }
-  if (game.win_conditions_num >= WIN_CONDITIONS_COUNT)
+  if (game.script.win_conditions_num >= WIN_CONDITIONS_COUNT)
   {
     error(func_name, 1827, "Too many WIN GAME conditions in script");
     return;
   }
-  game.win_conditions[game.win_conditions_num] = script_current_condition;
-  game.win_conditions_num++;
+  game.script.win_conditions[game.script.win_conditions_num] = script_current_condition;
+  game.script.win_conditions_num++;
 }
 
 void command_lose_game(void)
@@ -870,13 +889,13 @@ void command_lose_game(void)
     error(func_name, 1839, text);
     return;
   }
-  if (game.lose_conditions_num >= WIN_CONDITIONS_COUNT)
+  if (game.script.lose_conditions_num >= WIN_CONDITIONS_COUNT)
   {
     error(func_name, 1844, "Too many LOSE GAME conditions in script");
     return;
   }
-  game.lose_conditions[game.lose_conditions_num] = script_current_condition;
-  game.lose_conditions_num++;
+  game.script.lose_conditions[game.script.lose_conditions_num] = script_current_condition;
+  game.script.lose_conditions_num++;
 }
 
 void command_set_flag(char *plrname, char *flgname, long val)
@@ -1037,7 +1056,59 @@ void command_set_computer_globals(char *plrname, long a1, long a2, long a3, long
 
 void command_set_computer_checks(char *plrname, char *chkname, long a1, long a2, long a3, long a4, long a5)
 {
-  _DK_command_set_computer_checks(plrname, chkname, a1, a2, a3, a4, a5);
+  static const char *func_name="command_set_computer_checks";
+  struct ComputerCheck *check;
+  int plr_start, plr_end;
+  long plr_id;
+  char *text;
+  long i,k,n;
+  //_DK_command_set_computer_checks(plrname, chkname, a1, a2, a3, a4, a5);
+
+  plr_id = get_id(player_desc, plrname);
+  if (plr_id == -1)
+  {
+    text = buf_sprintf("(script:%lu) invalid player name, '%s'", script_line_number, plrname);
+    error(func_name, 1373, text);
+    return;
+  }
+  if (plr_id == 8)
+  {
+    plr_start = 0;
+    plr_end = PLAYERS_COUNT;
+  } else
+  {
+    plr_start = plr_id&PLAYERS_COUNT;
+    plr_end = plr_start + 1;
+  }
+  n = 0;
+  for (i=plr_start; i < plr_end; i++)
+  {
+    for (k=0; k < COMPUTER_CHECKS_COUNT; k++)
+    {
+      check = &game.computer[i].checks[k];
+      if ((check->field_4 & 0x02) != 0)
+        break;
+      if (check->name == NULL)
+        break;
+      if (stricmp(chkname, check->name) == 0)
+      {
+        check->field_8 = a1;
+        check->param1 = a2;
+        check->param2 = a3;
+        check->param3 = a4;
+        check->param4 = a5;
+        n++;
+      }
+    }
+  }
+  if (n == 0)
+  {
+    text = buf_sprintf("(script:%d) no computer check found called '%s'", script_line_number, chkname);
+    error(func_name, 2732, text);
+  }
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 void command_set_computer_events(char *plrname, char *evntname, long a1, long a2)
@@ -1220,7 +1291,7 @@ long scan_line(char *line)
     if (line_end)
       break;
     get_next_word(&line, scline->tp[i], &line_end);
-    if (line_end)
+    if (scline->tp[i][0] == '\0')
       break;
     chr = cmd_desc->args[i];
     if ((chr == 'N') || (chr == 'n'))
@@ -1404,6 +1475,14 @@ long scan_line(char *line)
   return 0;
 }
 
+short clear_script(void)
+{
+  memset(&game.script, 0, sizeof(struct LevelScript));
+  script_current_condition = -1;
+  script_line_number = 1;
+  return true;
+}
+
 short load_script(long lvl_num)
 {
   static const char *func_name="load_script";
@@ -1419,7 +1498,7 @@ short load_script(long lvl_num)
   //return _DK_load_script(lvl_num);
 
   gui_set_button_flashing(0, 0);
-  memset(&game.field_14EBA6, 0, 5884);
+  clear_script();
   script_current_condition = -1;
   script_line_number = 1;
   game.field_1517E2 = 0;
@@ -1506,7 +1585,7 @@ short load_script(long lvl_num)
     buf += lnlen;
   }
   LbMemoryFree(script_data);
-  if (game.win_conditions_num == 0)
+  if (game.script.win_conditions_num == 0)
     LbWarnLog("No WIN GAME conditions in script file.\n");
   if (script_current_condition != -1)
     LbWarnLog("Missing ENDIF's in script file.\n");

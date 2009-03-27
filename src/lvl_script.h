@@ -105,6 +105,7 @@ struct ScriptLine {
 };
 
 #pragma pack()
+
 /******************************************************************************/
 extern const struct CommandDesc command_desc[];
 /******************************************************************************/
@@ -128,7 +129,7 @@ DLLIMPORT unsigned short _DK_condition_stack[48];
 //DLLIMPORT struct Description _DK_trap_desc[8];
 //DLLIMPORT struct Description _DK_hero_objective_desc[];
 /******************************************************************************/
-long script_support_setup_player_as_computer_keeper(unsigned char plyridx, long comp_model);
+short script_support_setup_player_as_computer_keeper(unsigned short plyridx, long comp_model);
 long scan_line(char *line);
 const struct CommandDesc *get_next_word(char **line, char *params, unsigned char *nparam);
 long get_id(const struct Description *desc, char *itmname);
@@ -152,6 +153,7 @@ void command_set_computer_events(char *plrname, char *evntname, long a1, long a2
 void command_set_computer_process(char *plrname, char *procname, long a1, long a2, long a3, long a4, long a5);
 void command_message(char *msgtext, unsigned char kind);
 
+short clear_script(void);
 short load_script(long lvl_num);
 /******************************************************************************/
 #ifdef __cplusplus

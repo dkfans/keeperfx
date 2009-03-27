@@ -35,6 +35,10 @@
 #if !defined(stricmp)
 #define stricmp strcasecmp
 #endif
+#if !defined(strnicmp)
+#define strnicmp strncasecmp
+#endif
+
 #elif defined(MSDOS)
 #include <dos.h>
 #include <process.h>
@@ -70,7 +74,7 @@
 #endif
 
 // Debug level is scaled 0..10, default=1
-#define BFDEBUG_LEVEL 0
+#define BFDEBUG_LEVEL 1
 #define PROGRAM_NAME "Dungeon Keeper FX"
 #define PROGRAM_FULL_NAME "Dungeon Keeper Fan eXpansion"
 #define DEFAULT_LOG_FILENAME "keeperfx.log"
@@ -87,10 +91,6 @@
 #define ERR_BASE_RNC      -90
 
 #pragma pack(1)
-
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
 
 struct Coord2d {
     union {
@@ -158,9 +158,7 @@ struct CoordDelta3d {
     } z;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 
 struct IPOINT_2D {
     int x;
@@ -195,7 +193,5 @@ struct IRECT_2D {
     int t;
     int b;
 };
-
-#pragma pack()
 
 #endif // KEEPFX_GLOBALS_H

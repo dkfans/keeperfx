@@ -138,6 +138,18 @@ int LbScriptLog(const char *format, ...)
     return result;
 }
 
+int LbJustLog(const char *format, ...)
+{
+    if (!error_log_initialised)
+        return -1;
+    LbLogSetPrefix(&error_log, "");
+    va_list val;
+    va_start(val, format);
+    int result=LbLog(&error_log, format, val);
+    va_end(val);
+    return result;
+}
+
 int __fastcall LbErrorLogSetup(const char *directory, const char *filename, uchar flag)
 {
   if ( error_log_initialised )

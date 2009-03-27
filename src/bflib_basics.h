@@ -107,6 +107,7 @@ int LbWarnLog(const char *format, ...);
 int LbSyncLog(const char *format, ...);
 int LbNetLog(const char *format, ...);
 int LbScriptLog(const char *format, ...);
+int LbJustLog(const char *format, ...);
 int __fastcall LbErrorLogSetup(const char *directory, const char *filename, uchar flag);
 int __fastcall LbErrorLogClose();
 
@@ -118,6 +119,11 @@ unsigned long blong (unsigned char *p);
 unsigned long llong (unsigned char *p);
 unsigned long bword (unsigned char *p);
 unsigned long lword (unsigned char *p);
+void set_flag_byte(unsigned char *flags,unsigned char mask,short value);
+void set_flag_word(unsigned short *flags,unsigned short mask,short value);
+void set_flag_dword(unsigned long *flags,unsigned long mask,short value);
+void toggle_flag_byte(unsigned char *flags,unsigned char mask);
+void toggle_flag_dword(unsigned long *flags,unsigned long mask);
 /******************************************************************************/
 #ifdef __cplusplus
 }

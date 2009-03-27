@@ -31,8 +31,8 @@ extern "C" {
 
 /******************************************************************************/
 // Limits for GUI arrays
-#define ACTIVE_BUTTONS_COUNT 86
-#define ACTIVE_MENUS_COUNT 8
+#define ACTIVE_BUTTONS_COUNT   86
+#define ACTIVE_MENUS_COUNT      8
 // Sprite limits
 #define PANEL_SPRITES_COUNT 514
 #define FRONTEND_FONTS_COUNT 4
@@ -101,10 +101,10 @@ struct DemoItem { //sizeof = 5
     const char *fname;
 };
 
-struct HighScore {
-        long score;
-        char name[64];
-        long level;
+struct StatsData { // sizeof = 12
+  unsigned long field_0;
+  void *field_4;
+  void *field_8;
 };
 
 /******************************************************************************/
@@ -239,8 +239,6 @@ DLLIMPORT extern int _DK_load_game_scroll_offset;
 #define load_game_scroll_offset _DK_load_game_scroll_offset
 DLLIMPORT extern unsigned char *_DK_frontend_background;
 #define frontend_background _DK_frontend_background
-DLLIMPORT extern struct HighScore _DK_high_score_table[10];
-#define high_score_table _DK_high_score_table
 DLLIMPORT extern long _DK_high_score_entry_input_active;
 #define high_score_entry_input_active _DK_high_score_entry_input_active
 DLLIMPORT extern long _DK_high_score_entry_index;
@@ -319,6 +317,23 @@ DLLIMPORT extern struct TbSprite *_DK_end_port_sprites;
 #define end_port_sprites _DK_end_port_sprites
 DLLIMPORT extern unsigned long _DK_port_sprite_data;
 #define port_sprite_data _DK_port_sprite_data
+
+DLLIMPORT extern struct StatsData _DK_scrolling_stats_data[];
+#define scrolling_stats_data _DK_scrolling_stats_data
+DLLIMPORT extern struct LevelStats _DK_frontstats_data;
+#define frontstats_data _DK_frontstats_data
+DLLIMPORT extern TbClockMSec _DK_frontstats_timer;
+#define frontstats_timer _DK_frontstats_timer
+DLLIMPORT extern unsigned long _DK_playing_bad_descriptive_speech;
+#define playing_bad_descriptive_speech _DK_playing_bad_descriptive_speech
+DLLIMPORT extern unsigned long _DK_playing_good_descriptive_speech;
+#define playing_good_descriptive_speech _DK_playing_good_descriptive_speech
+DLLIMPORT extern long _DK_scrolling_index;
+#define scrolling_index _DK_scrolling_index
+DLLIMPORT extern long _DK_scrolling_offset;
+#define scrolling_offset _DK_scrolling_offset
+
+#pragma pack()
 /******************************************************************************/
 // Variables - no linger imported
 extern struct GuiMenu main_menu;
@@ -366,13 +381,12 @@ extern struct GuiBoxOption gui_instance_option_list[];
 
 extern struct GuiMenu *menu_list[40];
 
-#pragma pack()
+extern int status_panel_width;
+
 /******************************************************************************/
 
 DLLIMPORT char _DK_get_button_area_input(struct GuiButton *gbtn, int);
 DLLIMPORT void _DK_setup_gui_tooltip(struct GuiButton *gbtn);
-
-extern int status_panel_width;
 
 /******************************************************************************/
 // Reworked functions
@@ -727,10 +741,8 @@ void maintain_transfer_creature_select(struct GuiButton *gbtn);
 void select_transfer_creature_up(struct GuiButton *gbtn);
 void select_transfer_creature_down(struct GuiButton *gbtn);
 void maintain_transfer_creature_scroll(struct GuiButton *gbtn);
-
 void frontend_load_data_from_cd(void);
 void frontend_load_data_reset(void);
-void frontend_save_continue_game(long lv_num, short is_new_lvl);
 void draw_map_parchment(void);
 void gui_area_null(struct GuiButton *gbtn);
 void draw_load_button(struct GuiButton *gbtn);
@@ -781,6 +793,7 @@ void frontend_input(void);
 void turn_on_menu(short idx);
 void turn_off_menu(short mnu_idx);
 void turn_off_query_menus(void);
+void turn_off_all_menus(void);
 short turn_off_all_window_menus(void);
 short turn_off_all_bottom_menus(void);
 void turn_on_main_panel_menu(void);

@@ -107,10 +107,11 @@ int LbMouseChangeSpriteAndHotspot(struct TbSprite *spr, int a, int b);
 int LbMouseSetup(struct TbSprite *MouseSprite);
 int LbMouseSetPointerHotspot(int x, int y);
 int LbMouseSetPosition(int x, int y);
-
+/*
 int __fastcall LbMouseReset();
 int __fastcall LbMousePlace(void);
 int __fastcall LbMouseRemove(void);
+int __fastcall LbMouseChangeSprite(struct TbSprite *pointer);
 int __fastcall LbMouseSuspend(void);
 
 int __fastcall screen_place(void);
@@ -118,6 +119,9 @@ int __fastcall screen_remove(unsigned long force);
 bool __fastcall adjust_point(long *x, long *y);
 char __fastcall mouse_in_rect(short x1, short x2, short y1, short y2);
 bool mouse_setup_range(void);
+void __fastcall LbProcessMouseMove(struct SDL_MouseMotionEvent *motion);
+void __fastcall LbProcessMouseClick(struct SDL_MouseButtonEvent *button);
+*/
 /******************************************************************************/
 #ifdef __cplusplus
 }

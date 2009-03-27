@@ -27,10 +27,13 @@
 #include "bflib_vidraw.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+
 #include "kjm_input.h"
+#include "front_simple.h"
 #include "frontend.h"
 #include "vidmode.h"
 #include "config.h"
+#include "player_instances.h"
 #include "keeperfx.h"
 
 #ifdef __cplusplus
@@ -272,13 +275,15 @@ void load_packets_for_turn(long nturn)
       {
         text = buf_sprintf("PacketSave checksum - Out of sync (GameTurn %d)", game.seedchk_random_used);
         error(func_name, 3947, text);
-        show_onscreen_msg(game.num_fps, "Out of sync");
+        if (!is_onscreen_msg_visible())
+          show_onscreen_msg(game.num_fps, "Out of sync");
       } else
       if (pckt->chksum != pckt_chksum)
       {
         text = buf_sprintf("Opps we are really Out Of Sync (GameTurn %d)", game.seedchk_random_used);
         error(func_name, 3955, text);
-        show_onscreen_msg(game.num_fps, "Out of sync");
+        if (!is_onscreen_msg_visible())
+          show_onscreen_msg(game.num_fps, "Out of sync");
       }
   }
 }
@@ -442,24 +447,8 @@ char process_players_global_packet_action(long plyridx)
       myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
       if (my_player_number == plyridx)
       {
-        frontstats_initialise();
-        if ((game.numfield_A & 0x01) == 0)
-        {
-          int i,lv_num;
-          i = myplyr->field_29;
-          clear_game_for_save();
-          myplyr->field_29 = i;
-          if (myplyr->field_29 == 1)
-          {
-            lv_num = next_singleplayer_level(game.level_number);
-            if (lv_num <= 0)
-              lv_num = game.level_number;
-          } else
-          {
-            lv_num = game.level_number;
-          }
-          frontend_save_continue_game(lv_num, true);
-        }
+        turn_off_all_menus();
+        update_continue_game();
         free_swipe_graphic();
       }
       player->field_6 |= 0x02;
@@ -469,24 +458,8 @@ char process_players_global_packet_action(long plyridx)
       myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
       if (my_player_number == plyridx)
       {
-        frontstats_initialise();
-        if ((game.numfield_A & 0x01) == 0)
-        {
-          int i,lv_num;
-          i = myplyr->field_29;
-          clear_game_for_save();
-          myplyr->field_29 = i;
-          if (player->field_29 == 1)
-          {
-            lv_num = next_singleplayer_level(game.level_number);
-            if (lv_num <= 0)
-              lv_num = game.level_number;
-          } else
-          {
-            lv_num = game.level_number;
-          }
-          frontend_save_continue_game(lv_num, true);
-        }
+        turn_off_all_menus();
+        update_continue_game();
       }
       player->field_6 |= 0x02;
       process_quit_packet(player, 1);
@@ -496,7 +469,7 @@ char process_players_global_packet_action(long plyridx)
     case 5:
       if (my_player_number == plyridx)
       {
-        frontstats_initialise();
+        turn_off_all_menus();
         free_swipe_graphic();
       }
       if ((game.numfield_A & 0x01) != 0)
@@ -522,15 +495,15 @@ char process_players_global_packet_action(long plyridx)
         dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
         i = myplyr->field_29;
         // The block started at field_1197 ends before field_131F
-        memcpy(scratch, &dungeon->field_1197, 392);
+        memcpy(scratch, &dungeon->lvstats, sizeof(struct LevelStats));
         k = (myplyr->field_3 & 0x10) >> 4;
         // clear all data
         clear_game_for_save();
         // Restore saved data
         myplyr->field_29 = i;
-        memcpy(&dungeon->field_1197, scratch, 392);
+        memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
         myplyr->field_3 ^= (myplyr->field_3 ^ (k << 4)) & 0x10;
-        if ((game.numfield_A & 0x01) == 0)
+        if (((game.numfield_A & 0x01) == 0) && (!game.packet_load_enable))
           frontend_save_continue_game(game.level_number, true);
       }
       return 0;
@@ -681,7 +654,7 @@ char process_players_global_packet_action(long plyridx)
       player->field_E6 = room->field_9 << 8;
       set_player_instance(player, 16, 0);
       if (player->field_453 == 2)
-        set_player_state(player, 2, room->field_A);
+        set_player_state(player, 2, room->kind);
       return 0;
     case 85:
       if (player->field_453 == 15)
@@ -946,15 +919,15 @@ void process_players_dungeon_control_packet_action(long idx)
       magic_use_power_hold_audience(idx);
       break;
     case 93:
-      activate_dungeon_special(game.things_lookup[pckt->field_6], player);
+      activate_dungeon_special(game.things_lookup[pckt->field_6%THINGS_COUNT], player);
       break;
     case 95:
-      resurrect_creature(game.things_lookup[pckt->field_6],
+      resurrect_creature(game.things_lookup[pckt->field_6%THINGS_COUNT],
         (pckt->field_8) & 0x0F, (pckt->field_8 >> 4) & 0xFF, (pckt->field_8 >> 12) & 0x0F);
       break;
     case 96:
-      transfer_creature(game.things_lookup[pckt->field_6],
-          game.things_lookup[pckt->field_8], idx);
+      transfer_creature(game.things_lookup[pckt->field_6%THINGS_COUNT],
+          game.things_lookup[pckt->field_8%THINGS_COUNT], idx);
       break;
     case 107:
       toggle_computer_player(idx);
@@ -977,7 +950,7 @@ void process_players_creature_control_packet_action(long idx)
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //_DK_process_players_creature_control_packet_action(idx);
+  //_DK_process_players_creature_control_packet_action(idx); return;
   struct CreatureControl *cctrl;
   struct PlayerInfo *player;
   struct Thing *thing;
@@ -999,7 +972,9 @@ void process_players_creature_control_packet_action(long idx)
         thing = game.things_lookup[i];
       if ((thing == NULL) || (thing == game.things_lookup[0]))
         break;
-      cctrl = game.creature_control_lookup[thing->field_64%CREATURES_COUNT];
+      cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
+      if ((cctrl == NULL) || (cctrl == game.persons.cctrl_lookup[0]))
+        break;
       i = pckt->field_6;
       if (!instance_info[i].field_0)
       {

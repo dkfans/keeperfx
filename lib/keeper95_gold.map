@@ -13,12 +13,15 @@
  0001:00005320       light_initialise
  0001:00005380       light_render_area
  0001:000057B0       light_create_light
+ 0001:00005970       light_delete_light
  0001:00005A70       light_set_light_position
  0001:00005B20       light_is_light_allocated
  0001:00005E90       light_set_light_never_cache
+ 0001:00005EF0       light_set_light_minimum_size_to_cache
  0001:00007370       light_signal_stat_light_update_in_area
  0001:00007400       light_stat_light_map_clear_area
  0001:00007850       light_remove_light_from_list
+ 0001:00007980       light_initialise_lighting_tables
  0001:00008010       frontnet_init_level_descriptions
  0001:000081D0       frontend_is_player_allied
  0001:00008200       frontnet_draw_slider_button
@@ -164,6 +167,7 @@
  0001:00010750       pinstfs_fade_from_map
  0001:000107C0       pinstfm_fade_from_map
  0001:000107D0       pinstfe_fade_from_map
+ 0001:000109E0       load_swipe_graphic_for_creature
  0001:00010AD0       free_swipe_graphic
  0001:00010B50       process_thing_spell_effects
  0001:00010DF0       apply_spell_effect_to_thing
@@ -269,6 +273,13 @@
  0001:0003AAC0       setup_screen_mode_minimal
  0001:0003AE60       display_loading_screen
  0001:0003B040       setup_game_sound_heap
+ 0001:0003B5B0       computer_event_battle
+ 0001:0003B770       computer_event_check_imps_in_danger
+ 0001:0003B990       computer_event_battle_test
+ 0001:0003BB20       computer_event_check_fighters
+ 0001:0003BBA0       computer_event_attack_magic_foe
+ 0001:0003BDA0       computer_event_check_rooms_full
+ 0001:0003BE30       computer_event_check_payday
  0001:0003C390       frontstats_set_timer
  0001:0003C3A0       frontstats_draw_main_stats
  0001:0003C4F0       frontstats_draw_scrolling_stats
@@ -340,6 +351,8 @@
  0001:0004A7A0       can_cast_spell_at_xy
  0001:0004AB30       can_cast_spell_on_creature
  0001:0004AE00       directly_cast_spell_on_thing
+ 0001:0004B310       computer_setup_build_room
+ 0001:0004E340       computer_event_find_link
  0001:00050870       S3DInit
  0001:00050910       S3DSetMaximumSoundDistance
  0001:00050940       S3DSetNumberOfSounds
@@ -353,6 +366,7 @@
  0001:00050E70       process_3d_sounds
  0001:00051810       IsRunningMark@0
  0001:00051840       IsRunningUnmark@0
+ 0001:000522A0       check_map_for_gold
  0001:00052990       flyeye_setup
  0001:00052A20       flyeye_blitsec
  0001:00054890       draw_keepsprite_unscaled_in_buffer
@@ -386,12 +400,16 @@
  0001:0005B2A0       update_creature_count
  0001:0005B3E0       delete_all_structures
  0001:0005B490       i_can_allocate_free_thing_structure
+ 0001:0005B560       i_can_allocate_free_room_structure
  0001:0005B590       allocate_free_thing_structure
+ 0001:0005B6A0       allocate_free_room_structure
  0001:0005B6F0       allocate_free_action_point_structure_with_number
  0001:0005B740       delete_thing_structure
  0001:0005B970       add_thing_to_list
  0001:0005C710       map_fade_in
  0001:0005C920       map_fade_out
+ 0001:0005CDB0       find_column
+ 0001:0005CE30       create_column
  0001:0005D110       init_columns
  0001:0005D4D0       find_nearest_rooms_for_ambient_sound
  0001:0005D890       clear_map
@@ -403,6 +421,7 @@
  0001:0005ED80       place_thing_in_mapwho
  0001:0005EE00       remove_thing_from_mapwho
  0001:0005EE90       clear_mapwho
+ 0001:0005EEB0       find_base_thing_on_mapwho
  0001:0005F490       add_gold_to_hoarde
  0001:0005F6D0       init_creature_scores
  0001:0005FFB0       init_level
@@ -435,9 +454,23 @@
  0001:0006EC30       setup_computer_players2
  0001:0006EE60       restore_computer_player_after_load
  0001:0006EF80       process_computer_players2
+ 0001:0006F070       process_computer_player2
  0001:0006F1A0       set_autopilot_type
  0001:00071090       resync_game
  0001:00072D40       draw_frontview_engine
+ 0001:000750B0       computer_check_build_all_rooms
+ 0001:00075120       computer_check_any_room
+ 0001:00075300       computer_setup_any_room_continue
+ 0001:000753F0       computer_check_dig_to_entrance
+ 0001:000755A0       computer_setup_dig_to_entrance
+ 0001:00075960       computer_setup_dig_to_gold
+ 0001:00075BF0       computer_check_sight_of_evil
+ 0001:00075C50       computer_setup_sight_of_evil
+ 0001:00075CB0       computer_process_sight_of_evil
+ 0001:00075EA0       computer_check_attack1
+ 0001:00075FB0       computer_check_safe_attack
+ 0001:00076120       computer_setup_attack1
+ 0001:00076180       computer_completed_attack1
  0001:00076910       draw_texture
  0001:00076FA0       DrawBigSprite
  0001:000770F0       process_door
@@ -447,6 +480,7 @@
  0001:000788F0       find_first_battle_of_mine
  0001:00078ED0       battle_move_player_towards_battle
  0001:00079140       GetMouseY
+ 0001:000791A0       can_drop_thing_here
  0001:0007A310       complete_level
  0001:0007A380       lose_level
  0001:0007A530       get_packet_save_checksum
@@ -760,6 +794,7 @@
  0001:000B7120       create_room
  0001:000B7820       set_room_capacity
  0001:000B7980       send_creature_to_room
+ 0001:000B8AF0       link_adjacent_rooms_of_type
  0001:000BBA70       go_to_my_next_room_of_type
  0001:000BCDB0       create_room_flag
  0001:000BCF00       get_room_thing_is_on
@@ -767,6 +802,9 @@
  0001:000BDA60       set_start_state
  0001:000BF280       cleanup_current_thing_state
  0001:000C01E0       setup_move_off_lava
+ 0001:000C0D90       control_creature_as_passenger
+ 0001:000C0E40       control_creature_as_controller
+ 0001:000C10F0       create_and_control_creature_as_controller
  0001:000C1480       leave_creature_as_controller
  0001:000C16A0       set_creature_graphic
  0001:000C2000       apply_damage_to_thing_and_display_health
@@ -797,7 +835,21 @@
  0001:000C9C50       load_slab_file
  0001:000CA660       move_thing_in_map
  0001:000CAB80       move_creature
+ 0001:000CCD00       computer_checks_hates
+ 0001:000CCF40       computer_check_move_creatures_to_room
+ 0001:000CD010       computer_check_move_creatures_to_best_room
+ 0001:000CD090       computer_check_no_imps
+ 0001:000CD140       computer_check_for_pretty
+ 0001:000CD2A0       computer_check_for_quick_attack
+ 0001:000CD460       computer_check_for_accelerate
+ 0001:000CD620       computer_check_slap_imps
  0001:000CD690       computer_check_enemy_entrances
+ 0001:000CD8B0       computer_check_for_place_door
+ 0001:000CDC80       computer_check_neutral_places
+ 0001:000CDDF0       computer_check_for_place_trap
+ 0001:000CE040       computer_check_for_expand_room
+ 0001:000CE340       computer_check_for_money
+ 0001:000CEB50       thing_in_wall_at
  0001:000D9DE0       LbErrorLogSetup@12
  0001:000D9EA0       SyncLog
  0001:000D9F30       LbMemoryAlloc_
@@ -900,6 +952,32 @@
  0002:00000010       map_to_slab
  0002:00000D50       imp_spangle_effects
  0003:00001838       net_guid
+ 0003:00002190       BuildAllRooms3x3
+ 0003:000021D8       BuildAllRooms4x4
+ 0003:00002220       BuildPrisonRoom
+ 0003:00002268       BuildTortureRoom
+ 0003:000022B0       BuildScavengerRoom
+ 0003:000022F8       BuildTempleRoom
+ 0003:00002340       BuildGraveyardRoom
+ 0003:00002388       BuildBarrackRoom
+ 0003:000023D0       BuildTreasureRoom
+ 0003:00002418       BuildResearchRoom
+ 0003:00002460       BuildHatcheryRoom
+ 0003:000024A8       BuildLairRoom
+ 0003:000024F0       BuildTrainingRoom
+ 0003:00002538       BuildWorkshopRoom
+ 0003:00002580       DigToEntrance
+ 0003:000025C8       DigToGoldForMoney
+ 0003:00002610       BuildTreasureRoom4x4
+ 0003:00002658       BuildLairRoom4x4
+ 0003:000026A0       DigToCloseGoldForMoney
+ 0003:000026E8       DigToGoldGreedy
+ 0003:00002730       DigToGoldGreedy2
+ 0003:00002778       ComputerSightOfEvil
+ 0003:000027C0       ComputerSightOfEvilScare
+ 0003:00002808       ComputerAttack1
+ 0003:00002850       ComputerSafeAttack
+ 0003:00002898       ComputerProcessLists
  0003:00006C20       game_load_files
  0003:00006DD8       mcga_load_files
  0003:00006F38       vres256_load_files
@@ -940,6 +1018,7 @@
  0003:00011580       rotpers_routines
  0003:00011590       perspective_routines
  0003:000115C4       grabbed_small_map
+ 0003:000115C8       clicked_on_small_map
  0003:000115CC       eastegg03_cntr
  0003:00011610       MinimalResolutionSetup
  0003:00011618       low_res_pointer_load_files
@@ -947,7 +1026,11 @@
  0003:00011728       hi_res_pointer_load_files
  0003:000117B0       hi_res_small_pointer_load_files
  0003:00011838       legal_load_files
+ 0003:00011C60       scrolling_index
+ 0003:00011C64       scrolling_offset
+ 0003:00011CB0       scrolling_stats_data
  0003:00012824       anim_counter
+ 0003:00013A60       creature_list
  0003:00014948       quit_game
  0003:0001494C       exit_keeper
  0003:00014950       script_line_number
@@ -1027,7 +1110,7 @@
  0003:00028178       icon_index
  0003:00028280       lbKeyboardLang
  0003:00028284       modify_data_load_filename_function
- 0003:00028338       lbfade_open
+ 0003:00028338       fade_started
  0003:00028350       lbUseSdk
  0003:00028890       localPlayerInfoPtr
  0003:00028894       exchangeBuffer
@@ -1043,6 +1126,7 @@
  0003:0002EF40       Mist
  0003:0002EF60       animation
  0003:0002EF68       lpBuffer
+ 0003:0002F350       light_bitmask
  0003:0002F428       tmp_net_modem_init
  0003:0002F440       tmp_net_modem_answer
  0003:0002F468       net_service_scroll_offset
@@ -1058,6 +1142,7 @@
  0003:00030264       fe_network_active
  0003:00030314       net_number_of_services
  0003:00030318       tmp_net_phone_number
+ 0003:00030348       zoom_to_heart_palette
  0003:00030B70       thing_pointed_at
  0003:00030C80       thing_being_displayed
  0003:00030D00       smooth_on
@@ -1123,6 +1208,7 @@
  0003:00040DDC       dummy
  0003:00040DE0       old_mx
  0003:00040DE4       old_my
+ 0003:00040DE8       frontstats_timer
  0003:00052DC8       emitter
  0003:00053B18       MaxNoSounds
  0003:00053B80       optimised_lights
@@ -1140,11 +1226,14 @@
  0003:000A6578       global_joined_string
  0003:000A6678       phase_of_moon
  0003:000A6680       settings
+ 0003:000A66D8       iso_td
  0003:000A6E84       block_mem
  0003:000A6E8C       font_sprites
  0003:000A6E90       gui_panel_sprites
  0003:000A6E94       end_winfont_data
  0003:000A6E98       dog_palette
+ 0003:000A6EA0       td_iso
+ 0003:000A7E50       spiral_step
  0003:000AA560       pointer_data
  0003:000AA568       strings
  0003:000AB420       start_rooms
@@ -1175,6 +1264,7 @@
  0003:000EBED0       key_modifiers
  0003:000EBED4       MyScreenHeight
  0003:000EBEEC       edit_icon_data
+ 0003:000EBEF0       creature_table
  0003:000EBEF8       pixel_size
  0003:000EBF00       colours
  0003:000ECF00       end_edit_icon_sprites
@@ -1245,6 +1335,8 @@
  0003:00247014       battle_creature_over
  0003:00247018       breed_activities
  0003:00247058       video_view_distance_level
+ 0003:00247074       playing_bad_descriptive_speech
+ 0003:0024708C       playing_good_descriptive_speech
  0003:002473B4       sample_table2
  0003:002473B8       samples_in_bank2
  0003:002473BC       sample_table
@@ -1290,6 +1382,9 @@
  0003:0027377C       hInstance
  0003:00273BAC       lbInkey
  0003:00273BB0       lbKeyOn
+ 0003:00273CB0       from_pal
+ 0003:00273FB0       fade_count
+ 0003:00273FB8       to_pal
  0003:002742C0       winMouseHandler
  0003:00276A18       CriticalSection
  0003:002793E0       Filename
@@ -1299,3 +1394,4 @@
  0003:0027A9C0       NumOfElements
  0005:00006562       set_cpu_mode
  0005:00011C10       LbSpriteDraw
+ 0001:00075900       computer_check_dig_to_gold

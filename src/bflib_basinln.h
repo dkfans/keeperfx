@@ -65,6 +65,80 @@ inline unsigned long lword (unsigned char *p)
     n = (n << 8) + p[0];
     return n;
 }
+
+/*
+ * Toggles a masked bit in the flags field to the value.
+ * This version assumes the flag field is 1 byte long.
+ * @param flags Pointer to the flags byte.
+ * @param mask Bitmask for the flag.
+ */
+void inline toggle_flag_byte(unsigned char *flags,unsigned char mask)
+{
+  if ((*flags & mask) == 0)
+    *flags |= mask;
+  else
+    *flags ^= mask;
+}
+
+/*
+ * Toggles a masked bit in the flags field to the value.
+ * This version assumes the flag field is 4 bytes long.
+ * @param flags Pointer to the flags byte.
+ * @param mask Bitmask for the flag.
+ */
+void inline toggle_flag_dword(unsigned long *flags,unsigned long mask)
+{
+  if ((*flags & mask) == 0)
+    *flags |= mask;
+  else
+    *flags ^= mask;
+}
+
+/*
+ * Sets a masked bit in the flags field to the value.
+ * This version assumes the flag field is 2 bytes long.
+ * @param flags Pointer to the flags byte.
+ * @param mask Bitmask for the flag.
+ * @param value The new logic value.
+ */
+void inline set_flag_word(unsigned short *flags,unsigned short mask,short value)
+{
+  if (value)
+    *flags |= mask;
+  else
+    *flags ^= *flags & mask;
+}
+
+/*
+ * Sets a masked bit in the flags field to the value.
+ * This version assumes the flag field is 1 byte long.
+ * @param flags Pointer to the flags byte.
+ * @param mask Bitmask for the flag.
+ * @param value The new logic value.
+ */
+void inline set_flag_byte(unsigned char *flags,unsigned char mask,short value)
+{
+  if (value)
+    *flags |= mask;
+  else
+    *flags ^= *flags & mask;
+}
+
+/*
+ * Sets a masked bit in the flags field to the value.
+ * This version assumes the flag field is 4 bytes long.
+ * @param flags Pointer to the flags byte.
+ * @param mask Bitmask for the flag.
+ * @param value The new logic value.
+ */
+void inline set_flag_dword(unsigned long *flags,unsigned long mask,short value)
+{
+  if (value)
+    *flags |= mask;
+  else
+    *flags ^= *flags & mask;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -34,13 +34,15 @@
 #include "bflib_fileio.h"
 #include "bflib_memory.h"
 #include "bflib_filelst.h"
-#include "keeperfx.h"
+#include "config.h"
 #include "scrcapt.h"
 #include "gui_draw.h"
 #include "kjm_input.h"
 #include "vidmode.h"
+#include "front_simple.h"
 #include "front_input.h"
-#include "config.h"
+#include "game_saves.h"
+#include "keeperfx.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -700,11 +702,11 @@ struct GuiButtonInit instance_menu_buttons[] = {
 };
 
 struct GuiButtonInit text_info_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,   4, 999,   4,400, 78, gui_area_scroll_window,            0, 201,  0,(long)&game.text_info,0,0, NULL },
+  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,   4, 999,   4,400, 78, gui_area_scroll_window,            0, 201,  0,(long)&game.evntbox_text_shown,0,0, NULL },
   { 1, 63, 0, 0, 0, gui_go_to_event,    NULL,        NULL,               0,   4,   4,   4,   4, 30, 24, gui_area_new_normal_button,      276, 466,  0,       0,             0,0, maintain_zoom_to_event },
   { 0, 64, 0, 0, 1, gui_close_objective,gui_close_objective,NULL,        0,   4,  56,   4,  56, 30, 24, gui_area_new_normal_button,      274, 465,  0,       0,             0,0, NULL },
-  { 1, 66, 0, 0, 0, gui_scroll_text_up, NULL,        NULL,               0, 446,   4, 446,   4, 30, 24, gui_area_new_normal_button,      486, 201,  0,(long)&game.text_info,0,0, maintain_scroll_up },
-  { 1, 65, 0, 0, 0, gui_scroll_text_down,NULL,       NULL,               0, 446,  56, 446,  56, 30, 24, gui_area_new_normal_button,      272, 201,  0,(long)&game.text_info,0,0, maintain_scroll_down },
+  { 1, 66, 0, 0, 0, gui_scroll_text_up, NULL,        NULL,               0, 446,   4, 446,   4, 30, 24, gui_area_new_normal_button,      486, 201,  0,(long)&game.evntbox_text_shown,0,0, maintain_scroll_up },
+  { 1, 65, 0, 0, 0, gui_scroll_text_down,NULL,       NULL,               0, 446,  56, 446,  56, 30, 24, gui_area_new_normal_button,      272, 201,  0,(long)&game.evntbox_text_shown,0,0, maintain_scroll_down },
   {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
 };
 
@@ -785,6 +787,7 @@ struct GuiButtonInit frontend_main_menu_buttons[] = {
   {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
 };
 
+#define frontend_load_menu_items_visible  6
 struct GuiButtonInit frontend_load_menu_buttons[] = {
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       7,            0, 0, NULL },
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  82, 124,  82, 124,220, 26, frontnet_draw_scroll_box_tab,      0, 201,  0,      28,            0, 0, NULL },
@@ -1298,7 +1301,7 @@ const struct DemoItem demo_item[] = {
     {DIK_LoadPacket, "PACKET1.SAV"},
     {DIK_LoadPacket, "PACKET2.SAV"},
 */
-    {DIK_PlaySmkVideo, "INTROMIX.SMK"},
+    {DIK_PlaySmkVideo, "intromix.smk"},
     {DIK_ListEnd, NULL},
 };
 
@@ -1317,6 +1320,11 @@ struct DraggingBox dragging_box;
 int status_panel_width = 140;
 
 /******************************************************************************/
+long stat_return_c_slong(long *ptr)
+{
+  if (ptr == NULL) return 0;
+  return *ptr;
+}
 
 short menu_is_active(short idx)
 {
@@ -1510,7 +1518,7 @@ void activate_event_box(long evnt_idx)
 void kill_button(struct GuiButton *gbtn)
 {
   if (gbtn != NULL)
-    gbtn->field_0 &= 0xFEu;
+    set_flag_byte(&gbtn->field_0, 0x01, false);
 }
 
 void kill_button_area_input(void)
@@ -1769,7 +1777,7 @@ void maintain_event_button(struct GuiButton *gbtn)
   {
     gbtn->field_1B |= 0x4000u;
     gbtn->field_29 = 0;
-    gbtn->field_0 &= 0xF7;
+    set_flag_byte(&gbtn->field_0, 0x08, false);
     gbtn->field_1 = 0;
     gbtn->field_2 = 0;
     gbtn->field_2B = 201;
@@ -1792,7 +1800,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     gbtn->field_29 += 2;
   }
   gbtn->field_2B = event_button_info[evnt->field_B].field_4;
-  gbtn->field_0 |= 0x08u;
+  set_flag_byte(&gbtn->field_0, 0x08, true);
   gbtn->field_1B = 0;
 }
 
@@ -1801,15 +1809,21 @@ void menu_tab_maintain(struct GuiButton *gbtn)
   struct PlayerInfo *player;
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
   //_DK_menu_tab_maintain(gbtn);
-  if (player->field_29 != 2)
-    gbtn->field_0 |= 0x08;
-  else
-    gbtn->field_0 ^= (gbtn->field_0 & 0x08);
+  set_flag_byte(&gbtn->field_0, 0x08, (player->field_29 != 2));
 }
 
 void maintain_turn_on_autopilot(struct GuiButton *gbtn)
 {
-  _DK_maintain_turn_on_autopilot(gbtn);
+  static const char *func_name="maintain_turn_on_autopilot";
+  struct PlayerInfo *player;
+  unsigned long cplr_model;
+  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  //_DK_maintain_turn_on_autopilot(gbtn);
+  cplr_model = game.computer[player->field_2B%PLAYERS_COUNT].model;
+  if ((cplr_model >= 0) && (cplr_model < 10))
+    gbtn->field_2B = computer_types[cplr_model];
+  else
+    error(func_name, 2774, "Illegal computer player");
 }
 
 void maintain_room(struct GuiButton *gbtn)
@@ -1839,7 +1853,22 @@ void maintain_trap(struct GuiButton *gbtn)
 
 void maintain_door(struct GuiButton *gbtn)
 {
-  _DK_maintain_door(gbtn);
+  struct TrapData *trap_dat;
+  struct Dungeon *dungeon;
+  int i;
+  //_DK_maintain_door(gbtn);
+  i = (unsigned int)gbtn->field_33;
+  trap_dat = &trap_data[i%TRAP_TYPES_COUNT];
+  dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+  if (dungeon->field_1023[trap_dat->field_4%TRAP_TYPES_COUNT])
+  {
+    gbtn->field_1B = 0;
+    set_flag_byte(&gbtn->field_0, 0x08, true);
+  } else
+  {
+    gbtn->field_1B |= 0x8000u;
+    set_flag_byte(&gbtn->field_0, 0x08, false);
+  }
 }
 
 void maintain_big_trap(struct GuiButton *gbtn)
@@ -1954,17 +1983,20 @@ void frontend_main_menu_netservice_maintain(struct GuiButton *gbtn)
 
 void frontend_main_menu_highscores_maintain(struct GuiButton *gbtn)
 {
-  _DK_frontend_main_menu_highscores_maintain(gbtn);
+  //_DK_frontend_main_menu_highscores_maintain(gbtn);
+  set_flag_byte(&gbtn->field_0, 0x08, true);
 }
 
 void frontend_load_game_up_maintain(struct GuiButton *gbtn)
 {
-  _DK_frontend_load_game_up_maintain(gbtn);
+  //_DK_frontend_load_game_up_maintain(gbtn);
+  set_flag_byte(&gbtn->field_0, 0x08, (load_game_scroll_offset != 0));
 }
 
 void frontend_load_game_down_maintain(struct GuiButton *gbtn)
 {
-  _DK_frontend_load_game_down_maintain(gbtn);
+  //_DK_frontend_load_game_down_maintain(gbtn);
+  set_flag_byte(&gbtn->field_0, 0x08, (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1));
 }
 
 void frontnet_session_up_maintain(struct GuiButton *gbtn)
@@ -2124,7 +2156,8 @@ void frontnet_serial_setup(void)
 
 void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn)
 {
-  _DK_frontend_maintain_high_score_ok_button(gbtn);
+  //_DK_frontend_maintain_high_score_ok_button(gbtn);
+  set_flag_byte(&gbtn->field_0, 0x08, (high_score_entry_input_active == -1));
 }
 
 void maintain_instance(struct GuiButton *gbtn)
@@ -2203,24 +2236,6 @@ void gui_draw_tab(struct GuiButton *gbtn)
 void turn_off_event_box_if_necessary(long plridx, char val)
 {
   _DK_turn_off_event_box_if_necessary(plridx, val);
-}
-
-void frontend_save_continue_game(long lv_num, short is_new_lvl)
-{
-  static const char *func_name="frontend_save_continue_game";
-  char *fname;
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Continue set to level %d (current is %d)\n",func_name,lv_num,game.level_number);
-#endif
-  //_DK_frontend_save_continue_game(lv_num,a2);
-  if (!is_new_lvl)
-    error(func_name, 1620, "Why are we here when it's not a new level");
-  fname=prepare_file_path(FGrp_Save,"continue.sav");
-  if (is_new_lvl)
-    game.continue_level = lv_num;
-  else
-    game.continue_level = 0;
-  LbFileSaveAt(fname, &game, sizeof(struct Game));
 }
 
 void frontstats_initialise(void)
@@ -3091,7 +3106,17 @@ void frontnet_net_serial_start(struct GuiButton *gbtn)
 
 void gui_load_game(struct GuiButton *gbtn)
 {
-  _DK_gui_load_game(gbtn);
+  static const char *func_name="gui_load_game";
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  //_DK_gui_load_game(gbtn);
+  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  if (!load_game(gbtn->field_1B))
+  {
+    error(func_name, 7266, "Error in load!");
+  }
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  set_packet_action(pckt, 22, 0, 0, 0, 0);
 }
 
 void gui_area_scroll_window(struct GuiButton *gbtn)
@@ -3144,24 +3169,123 @@ void frontend_draw_games_scroll_tab(struct GuiButton *gbtn)
   _DK_frontend_draw_games_scroll_tab(gbtn);
 }
 
+int frontend_load_game_button_to_index(struct GuiButton *gbtn)
+{
+  struct CatalogueEntry *centry;
+  long gbidx;
+  int i,k;
+  gbidx = (unsigned long)gbtn->field_33;
+  k = -1;
+  for (i=gbidx+load_game_scroll_offset-45; i >= 0; i--)
+  {
+    do
+    {
+      k++;
+      if (k >= SAVE_SLOTS_COUNT)
+        return -1;
+      centry = &save_game_catalogue[k];
+    } while (!centry->used);
+  }
+  return k;
+}
+
 void frontend_load_game(struct GuiButton *gbtn)
 {
-  _DK_frontend_load_game(gbtn);
+  int i;
+  //_DK_frontend_load_game(gbtn); return;
+  i = frontend_load_game_button_to_index(gbtn);
+  if (i < 0)
+    return;
+  game.numfield_15 = i;
+  if (is_save_game_loadable(i))
+  {
+    frontend_set_state(10);
+  } else
+  {
+    save_game_catalogue[i].used = 0;
+    save_game_save_catalogue(save_game_catalogue);
+    load_game_save_catalogue(save_game_catalogue);
+    if (count_valid_saved_games() == 0)
+      frontend_set_state(1);
+  }
 }
 
 void frontend_draw_load_game_button(struct GuiButton *gbtn)
 {
-  _DK_frontend_draw_load_game_button(gbtn);
+  //_DK_frontend_draw_load_game_button(gbtn);
+  int nfont;
+  long gbidx;
+  int i,h;
+  gbidx = (unsigned long)gbtn->field_33;
+  nfont = frontend_button_info[gbidx].field_2;
+  if ((gbidx != 0) && (frontend_mouse_over_button == gbidx))
+      nfont = 2;
+  lbDisplay.DrawFlags = 0x20;
+  lbFontPtr = frontend_font[nfont];
+  h = LbTextHeight("Wg");
+  LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, h);
+  i = frontend_load_game_button_to_index(gbtn);
+  if (i < 0)
+    return;
+  LbTextDraw(0, 0, save_game_catalogue[i].textname);
 }
 
 void frontend_start_new_game(struct GuiButton *gbtn)
 {
-  _DK_frontend_start_new_game(gbtn);
+  struct PlayerInfo *player;
+  int i;
+  //_DK_frontend_start_new_game(gbtn);
+  game.level_number = first_singleplayer_level();
+  for (i=0; i < PLAYERS_COUNT; i++)
+  {
+    player = &(game.players[i]);
+    player->field_6 &= 0xFD;
+  }
+  game.transfered_creature_kind = 0;
+  game.transfered_creature_level = 0;
+  calculate_moon_phase(false,false);
+  for (i=0; i < 6; i++)
+    game.bonus_levels[i] = 0;
+  game.bonus_levels[MOON_BONUS_INDEX] = is_full_moon;
+  frontend_set_state(3);
 }
 
 void frontend_load_continue_game(struct GuiButton *gbtn)
 {
-  _DK_frontend_load_continue_game(gbtn);
+  unsigned char buf[12];
+  unsigned char bonus[12];
+  long i;
+  //_DK_frontend_load_continue_game(gbtn);
+  if (!read_continue_game_part(buf,0,10))
+  {
+    continue_game_option_available = 0;
+    return;
+  }
+  i = ((struct Game *)buf)->continue_level;
+  if (i <= 0)
+  {
+    continue_game_option_available = 0;
+    return;
+  }
+  if (!is_singleplayer_level(i))
+  {
+    continue_game_option_available = 0;
+    return;
+  }
+  game.level_number = i;
+  LbMemorySet(bonus,0,12);
+  i = (char *)&game.bonus_levels[0] - (char *)&game.numfield_0;
+  read_continue_game_part(bonus,i,10);
+  game.numfield_0 = ((struct Game *)buf)->numfield_0;
+  game.version_major = ((struct Game *)buf)->version_major;
+  game.version_minor = ((struct Game *)buf)->version_minor;
+  for (i=0; i < 6; i++)
+    game.bonus_levels[i] = bonus[i];
+  game.bonus_levels[MOON_BONUS_INDEX] = is_full_moon;
+  i = (char *)&game.transfered_creature_kind - (char *)&game.bonus_levels[0];
+  game.transfered_creature_kind = bonus[i];
+  game.transfered_creature_level = bonus[i+1];
+  frontend_set_state(3);
 }
 
 void frontmap_draw(void)
@@ -3307,18 +3431,12 @@ void draw_map_parchment(void)
 
 void frontnet_service_up_maintain(struct GuiButton *gbtn)
 {
-  if (net_service_scroll_offset != 0)
-    gbtn->field_0 |= 0x08;
-  else
-    gbtn->field_0 ^= (gbtn->field_0 & 0x08);
+  set_flag_byte(&gbtn->field_0, 0x08, (net_service_scroll_offset != 0));
 }
 
 void frontnet_service_down_maintain(struct GuiButton *gbtn)
 {
-  if (net_number_of_services-1 > net_service_scroll_offset)
-    gbtn->field_0 |= 0x08;
-  else
-    gbtn->field_0 ^= (gbtn->field_0 & 0x08);
+  set_flag_byte(&gbtn->field_0, 0x08, (net_number_of_services-1 > net_service_scroll_offset));
 }
 
 void frontnet_service_up(struct GuiButton *gbtn)
@@ -3335,10 +3453,7 @@ void frontnet_service_down(struct GuiButton *gbtn)
 
 void frontnet_service_maintain(struct GuiButton *gbtn)
 {
-  if (net_service_scroll_offset+(long)gbtn->field_33-45 < net_number_of_services)
-    gbtn->field_0 |= 0x08;
-  else
-    gbtn->field_0 ^= (gbtn->field_0 & 0x08);
+  set_flag_byte(&gbtn->field_0, 0x08, (net_service_scroll_offset+(long)gbtn->field_33-45 < net_number_of_services));
 }
 
 void frontnet_draw_service_button(struct GuiButton *gbtn)
@@ -3392,24 +3507,19 @@ void frontnet_service_select(struct GuiButton *gbtn)
 void frontend_load_game_maintain(struct GuiButton *gbtn)
 {
   long game_index=load_game_scroll_offset+(long)(gbtn->field_33)-45;
-  if (game_index<number_of_saved_games)
-    gbtn->field_0 |= 0x08;
-  else
-    gbtn->field_0 ^= (gbtn->field_0 & 0x08);
+  set_flag_byte(&gbtn->field_0, 0x08, (game_index < number_of_saved_games));
 }
 
 void frontend_load_high_score_table(void)
 {
-  char *fname;
-  fname=prepare_file_path(FGrp_StdData,"hiscores.dat");
-  if ( LbFileLoadAt(fname, high_score_table) != sizeof(high_score_table) )
+  if (!load_high_score_table())
   {
      LbSyncLog("High scores table bad; creating new one.\n");
      // highscore table wrong - generate a new one
      int i;
-     int npoints = 1000;
-     int nlevel = 10;
-     for (i=0;i<10;i++)
+     int npoints = 100*HIGH_SCORES_COUNT;
+     int nlevel = 1*HIGH_SCORES_COUNT;
+     for (i=0;i<HIGH_SCORES_COUNT;i++)
      {
             sprintf(high_score_table[i].name, "Bullfrog");
             high_score_table[i].score=npoints;
@@ -3417,26 +3527,29 @@ void frontend_load_high_score_table(void)
             npoints -= 100;
             nlevel -= 1;
      }
-     LbFileSaveAt(fname, high_score_table, sizeof(high_score_table));
+     save_high_score_table();
   }
 }
 
 void add_score_to_high_score_table(void)
 {
-    struct Dungeon *dungeon=&(game.dungeon[my_player_number]);
+  struct Dungeon *dungeon;
+  struct PlayerInfo *player;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
     // Determining position of the new entry
     int idx;
-    long new_score=dungeon->player_score;
-    for (idx=0;idx<10;idx++)
+    long new_score = dungeon->lvstats.player_score;
+    for (idx=0; idx < HIGH_SCORES_COUNT; idx++)
     {
-        if (high_score_table[idx].score <= new_score )
+        if (high_score_table[idx].score <= new_score)
           break;
     }
     // If the new score is poor, return
-    if (idx>9) return;
+    if (idx>=HIGH_SCORES_COUNT) return;
     // Moving entries down
     int k;
-    for (k=8;k>=idx;k--)
+    for (k=HIGH_SCORES_COUNT-2; k >= idx; k--)
     {
         memcpy(&high_score_table[k+1],&high_score_table[k],sizeof(struct HighScore));
     }
@@ -3445,7 +3558,7 @@ void add_score_to_high_score_table(void)
     high_score_entry[0] = '\0';
     high_score_entry_index = 0;
     high_score_table[idx].score = new_score;
-    high_score_table[idx].level = game.level_number - 1;
+    high_score_table[idx].level = game.level_number-1;
 }
 
 void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
@@ -4275,10 +4388,7 @@ void set_gui_visible(short visible)
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  if (visible)
-    game.numfield_C |= 0x0020u;
-  else
-    game.numfield_C &= 0xFFDFu;
+  set_flag_byte(&game.numfield_C,0x20,visible);
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   unsigned char is_visbl = ((game.numfield_C & 0x20) != 0);
   switch (player->view_type)
@@ -4345,7 +4455,22 @@ void frontmap_unload(void)
 
 void frontstats_set_timer(void)
 {
-  _DK_frontstats_set_timer();
+  //_DK_frontstats_set_timer();
+  frontstats_timer = LbTimerClock() + 3000;
+}
+
+void frontstats_save_high_score(void)
+{
+  struct Dungeon *dungeon;
+  struct PlayerInfo *player;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  if ( dungeon->lvstats.allow_save_score )
+  {
+    dungeon->lvstats.allow_save_score = false;
+    add_score_to_high_score_table();
+  }
+  lbInkey = 0;
 }
 
 void initialise_tab_tags(long menu_id)
@@ -4558,17 +4683,12 @@ int frontend_set_state(long nstate)
     case 17:
       turn_on_menu(25);
       LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
-      frontstats_set_timer(); // note: rewrite this in pack with frontstats_update
+      frontstats_set_timer();
       break;
     case 18:
       turn_on_menu(26);
-      if ( game.dungeon[my_player_number].allow_save_score )
-      {
-        game.dungeon[my_player_number].allow_save_score = false;
-        add_score_to_high_score_table();
-      }
+      frontstats_save_high_score();
       LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
-      lbInkey = 0;
       break;
     case 19:
       LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
@@ -4844,12 +4964,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
 
 void toggle_gui_overlay_map(void)
 {
-  unsigned short mask;
-  if ((game.numfield_C & 0x20) == 0)
-    mask=0x20;
-  else
-    mask=0;
-  game.numfield_C = (game.numfield_C & 0xFFDFu) | mask;
+  toggle_flag_byte(&game.numfield_C,0x20);
 }
 
 void draw_menu_buttons(struct GuiMenu *gmnu)
@@ -5265,6 +5380,22 @@ void display_objectives(long a1,long a2,long a3)
   _DK_display_objectives(a1,a2,a3);
 }
 
+void play_description_speech(short play_good)
+{
+  char *fname;
+  if (play_good)
+  {
+    fname = prepare_file_fmtpath(FGrp_AtlSound,"good%02d.wav",game.level_number);
+    playing_good_descriptive_speech = 1;
+  } else
+  {
+    fname = prepare_file_fmtpath(FGrp_AtlSound,"bad%02d.wav",game.level_number-1);
+    playing_bad_descriptive_speech = 1;
+  }
+  SetStreamedSampleVolume(127);
+  PlayStreamedSample(fname, 1622, 0, 1);
+}
+
 void frontnet_service_update(void)
 {
   _DK_frontnet_service_update();
@@ -5302,7 +5433,27 @@ long frontnetmap_update(void)
 
 void frontstats_update(void)
 {
-  _DK_frontstats_update();
+  //_DK_frontstats_update();
+  int h;
+  scrolling_offset++;
+  lbFontPtr = frontend_font[1];
+  h = LbTextHeight("Wg");
+  if (h+4 < scrolling_offset)
+  {
+    scrolling_offset -= h+4;
+    scrolling_index++;
+    if (!scrolling_stats_data[scrolling_index].field_0)
+      scrolling_index = 0;
+  }
+  if (is_singleplayer_level(game.level_file_number))
+  {
+    if (frontstats_timer != 0)
+      if (LbTimerClock() > frontstats_timer)
+      {
+        play_description_speech(0);
+        frontstats_timer = 0;
+      }
+  }
 }
 
 void fronttorture_update(void)
@@ -5357,7 +5508,7 @@ void frontend_update(short *finish_menu)
         frontnet_serial_update();
         break;
       case 17:
-        frontstats_update(); // rewrite with frontstats_set_timer
+        frontstats_update();
         break;
       case 19:
         fronttorture_update();
@@ -5379,7 +5530,7 @@ int get_startup_menu_state(void)
   static const char *func_name="get_startup_menu_state";
   if (game.flags_cd & 0x40)
   {
-    if (game.is_full_moon)
+    if (is_full_moon)
     {
         LbSyncLog("%s: Full moon state selected\n",func_name);
         return 12;

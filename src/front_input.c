@@ -32,6 +32,7 @@
 #include "kjm_input.h"
 #include "frontend.h"
 #include "scrcapt.h"
+#include "player_instances.h"
 #include "keeperfx.h"
 
 #ifdef __cplusplus
@@ -52,11 +53,17 @@ DLLIMPORT void _DK_get_isometric_view_nonaction_inputs(void);
 DLLIMPORT void _DK_get_overhead_view_nonaction_inputs(void);
 DLLIMPORT void _DK_get_front_view_nonaction_inputs(void);
 DLLIMPORT long _DK_get_small_map_inputs(long x, long y, long zoom);
+DLLIMPORT void _DK_get_level_lost_inputs(void);
+DLLIMPORT long _DK_get_global_inputs(void);
+DLLIMPORT long _DK_get_dungeon_control_action_inputs(void);
+DLLIMPORT void _DK_get_dungeon_control_nonaction_inputs(void);
+DLLIMPORT void _DK_get_creature_control_nonaction_inputs(void);
+DLLIMPORT void _DK_get_map_nonaction_inputs(void);
 DLLIMPORT long _DK_get_bookmark_inputs(void);
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
 short zoom_shortcuts(void);
-long get_bookmark_inputs(void);
+short get_bookmark_inputs(void);
 /******************************************************************************/
 char game_is_busy_doing_gui_string_input(void)
 {
@@ -161,6 +168,14 @@ short get_screen_capture_inputs(void)
   return false;
 }
 
+void clip_frame_skip(void)
+{
+  if (game.frame_skip > 512)
+    game.frame_skip = 512;
+  if (game.frame_skip < 0)
+    game.frame_skip = 0;
+}
+
 /*
  * Handles game speed control inputs.
  * @return Returns true if packet was created, false otherwise.
@@ -169,22 +184,28 @@ short get_speed_control_inputs(void)
 {
   if (is_key_pressed(KC_ADD,KM_CONTROL))
   {
-      game.timingvar1 += 2;
-      if (game.timingvar1 < 0)
-          game.timingvar1 = 0;
+      if (game.frame_skip < 2)
+        game.frame_skip ++;
       else
-      if ( game.timingvar1 > 64 )
-          game.timingvar1 = 64;
+      if (game.frame_skip < 16)
+        game.frame_skip += 2;
+      else
+        game.frame_skip += (game.frame_skip/3);
+      clip_frame_skip();
+      show_onscreen_msg(game.num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
       clear_key_pressed(KC_ADD);
   }
   if (is_key_pressed(KC_SUBTRACT,KM_CONTROL))
   {
-      game.timingvar1 -= 2;
-        if (game.timingvar1 < 0)
-        game.timingvar1 = 0;
+      if (game.frame_skip <= 2)
+        game.frame_skip --;
       else
-      if ( game.timingvar1 > 64 )
-        game.timingvar1 = 64;
+      if (game.frame_skip <= 16)
+        game.frame_skip -= 2;
+      else
+        game.frame_skip -= (game.frame_skip/4);
+      clip_frame_skip();
+      show_onscreen_msg(game.num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
       clear_key_pressed(KC_SUBTRACT);
   }
   return false;
@@ -219,12 +240,86 @@ short get_packet_load_game_control_inputs(void)
 
 long get_small_map_inputs(long x, long y, long zoom)
 {
-  return _DK_get_small_map_inputs(x, y, zoom);
+  static const char *func_name="get_small_map_inputs";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  //return _DK_get_small_map_inputs(x, y, zoom);
+  long curr_mx,curr_my;
+  short result;
+  result = 0;
+  curr_mx = GetMouseX();
+  curr_my = GetMouseY();
+  dummy_x = curr_mx;
+  dummy_y = curr_my;
+  dummy = 1;
+  if (!grabbed_small_map)
+    game.small_map_state = 0;
+  if (((game.numfield_C & 0x20) != 0) && (mouse_is_over_small_map(x,y) || grabbed_small_map))
+  {
+    if (left_button_clicked)
+    {
+      clicked_on_small_map = 1;
+      left_button_clicked = 0;
+    }
+    if ( do_left_map_click(x, y, curr_mx, curr_my, zoom)
+      || do_right_map_click(x, y, curr_mx, curr_my, zoom)
+      || do_left_map_drag(x, y, curr_mx, curr_my, zoom) )
+      result = 1;
+  } else
+  {
+    clicked_on_small_map = 0;
+  }
+  if (grabbed_small_map)
+  {
+    LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
+  }
+  old_mx = curr_mx;
+  old_my = curr_my;
+  if (grabbed_small_map)
+    game.small_map_state = 2;
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
+  return result;
 }
 
-long get_bookmark_inputs(void)
+short get_bookmark_inputs(void)
 {
-  return _DK_get_bookmark_inputs();
+  //return _DK_get_bookmark_inputs();
+  struct Bookmark *bmark;
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  int kcode;
+  int i;
+  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  for (i=0; i < 5; i++)
+  {
+    bmark = &game.bookmark[i];
+    kcode = KC_1+i;
+    // Store bookmark check
+    if (is_key_pressed(kcode, KM_CONTROL))
+    {
+      clear_key_pressed(kcode);
+      bmark->x = player->camera->mappos.x.stl.num;
+      bmark->y = player->camera->mappos.y.stl.num;
+      bmark->flags |= 0x01;
+      show_onscreen_msg(game.num_fps, "Bookmark %d stored",i+1);
+      return true;
+    }
+    // Load bookmark check
+    if (is_key_pressed(kcode, KM_SHIFT))
+    {
+      clear_key_pressed(kcode);
+      if ((bmark->flags & 0x01) != 0)
+      {
+        pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+        set_packet_action(pckt, 26, bmark->x, bmark->y, 0, 0);
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 short zoom_shortcuts(void)
@@ -467,9 +562,9 @@ short get_level_lost_inputs(void)
         if ((game.numfield_A & 0x01) || (lbDisplay.PhysicalScreenWidth > 320))
         {
               if (toggle_status_menu(0))
-                game.numfield_C |= 0x40;
+                set_flag_byte(&game.numfield_C,0x40,true);
               else
-                game.numfield_C &= 0xBF;
+                set_flag_byte(&game.numfield_C,0x40,false);
               set_packet_action(pckt, 119, 4,0,0,0);
         } else
         {
@@ -513,7 +608,7 @@ short get_level_lost_inputs(void)
         {
           inp_done=get_small_map_inputs(player->mouse_x, player->mouse_y, player->minimap_zoom / (3-pixel_size));
           if ( !inp_done )
-            _DK_get_bookmark_inputs();
+            get_bookmark_inputs();
           get_dungeon_control_nonaction_inputs();
         }
       }
@@ -522,9 +617,9 @@ short get_level_lost_inputs(void)
       thing = game.things_lookup[player->field_2F];
       if (thing->class_id == 5)
       {
-        struct CreatureControl *crctrl;
-        crctrl = game.creature_control_lookup[thing->field_64%CREATURES_COUNT];
-        if ((crctrl->field_2 & 0x02) == 0)
+        struct CreatureControl *cctrl;
+        cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
+        if ((cctrl->field_2 & 0x02) == 0)
           set_packet_action(pckt, 33, player->field_2F,0,0,0);
       } else
       {
@@ -638,10 +733,7 @@ long get_dungeon_control_action_inputs(void)
   if (is_key_pressed(KC_F, KM_ALT))
   {
     clear_key_pressed(KC_F);
-    if (game.flags_cd & 0x80)
-      game.flags_cd &= 0xFF7F;
-    else
-      game.flags_cd |= 0x80;
+    toggle_hero_health_flowers();
   }
   get_status_panel_keyboard_action_inputs();
   return 0;
@@ -734,17 +826,17 @@ short get_creature_control_action_inputs(void)
       }
     }
   }
-  if ( numkey != -1 )
+  if (numkey != -1)
   {
     int idx;
     int instnce;
     int num_avail;
     num_avail = 0;
-    for (idx=0;idx<10;idx++)
+    for (idx=0; idx < 10; idx++)
     {
       struct Thing *thing;
       thing = game.things_lookup[player->field_2F%THINGS_COUNT];
-      instnce = game.creature_stats[thing->model%CREATURE_TYPES_COUNT].field_80[idx];
+      instnce = game.creature_stats[thing->model%CREATURE_TYPES_COUNT].instance_spell[idx];
       if ( creature_instance_is_available(thing,instnce) )
       {
         if ( numkey == num_avail )
@@ -928,7 +1020,7 @@ unsigned char get_player_coords_and_context(struct Coord3d *pos, unsigned char *
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if (((1 << player->field_2B) & (map->field_1 >> 28)) == 0)
+  if (((1 << player->field_2B) & (map->data >> 28)) == 0)
   {
     *context = 1;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -1116,9 +1208,9 @@ short get_inputs(void)
       get_level_lost_inputs();
       return true;
     }
-    struct CreatureControl *crctrl;
-    crctrl = game.creature_control_lookup[thing->field_64%CREATURES_COUNT];
-    if ((crctrl->field_2 & 0x02) == 0)
+    struct CreatureControl *cctrl;
+    cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
+    if ((cctrl->field_2 & 0x02) == 0)
     {
       get_level_lost_inputs();
       return true;

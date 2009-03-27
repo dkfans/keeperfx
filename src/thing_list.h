@@ -45,8 +45,8 @@ enum ThingClass {
 };
 
 struct StructureList {
-     unsigned long field_0;
-     unsigned long field_4;
+     unsigned long count;
+     unsigned long index;
 };
 
 struct InitThing { // sizeof=0x15
@@ -70,10 +70,19 @@ struct Thing {
     unsigned char field_8;
     long field_9;
     struct Coord3d mappos;
-    unsigned char field_13;
-    unsigned char field_14;
-    unsigned char field_15;
-    unsigned char field_16;
+    union {
+      long long_13;
+      struct {
+      short w0;
+      short w1;
+      } word_13;
+      struct {
+        unsigned char l;
+        unsigned char h;
+        unsigned char f2;
+        unsigned char f3;
+      } byte_13;
+    };
     union {
       short word_17;
       struct {
@@ -87,7 +96,8 @@ struct Thing {
     unsigned short field_1D;
     unsigned char class_id;
     unsigned char field_20;
-unsigned char field_21[2];
+unsigned char field_21;
+unsigned char field_22;
     unsigned char field_23;
     unsigned char field_24;
 unsigned char field_25;
@@ -109,9 +119,10 @@ unsigned short field_4D;
 unsigned char field_51;
     unsigned short field_52;
     unsigned short field_54;
-unsigned char field_56[2];
+    unsigned short field_56;
 unsigned short field_58;
-unsigned char field_5A[4];
+    unsigned short field_5A;
+    unsigned short field_5C;
     short field_5E; //signed
 unsigned short field_60;
     unsigned short field_62;
@@ -134,6 +145,8 @@ void setup_computer_players(void);
 void init_all_creature_states(void);
 
 void update_things(void);
+
+long get_free_hero_gate_number(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

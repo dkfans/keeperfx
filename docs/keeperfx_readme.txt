@@ -101,6 +101,9 @@ Q: There are no special eye effects when I posses Beetle, Fly,
 A: Lense effect only work if you have over 16MB RAM and in screen
      resolutions: 320x200, 640x400 and 640x480.
 
+Q: I've found a cheat menu, but it doesn't work!
+A: All three cheat menus are still unfinished.
+
 Config file details:
 
 FRONTEND_RES
@@ -148,7 +151,31 @@ New in-game commands:
   with '-packetload'. When in the replay, you may always
   take over control by pressing Alt+T, or exit with Alt+X.
 
+ Release speed mode
+  This mode is also available in original DK, but here it's
+  a bit enhanced. Normally, the engine limits amount of
+  game turns per second. This function allows to stop
+  controlling speed - the game will work at its maximum speed,
+  which highly depends on your computer hardware.
+  To enter released speed mode, press Ctrl+'+' from numpad
+  section of your keyboard. Pressing it more than once will
+  increase frameskip - some of the frames will not be drawn,
+  which will result in even greater increase in speed.
+  To cancel the effect, press Ctrl+'-' as many times as you
+  pressed Ctrl+'+' before.
+
 Changelog:
+
+Version: 0.2.6
+  Rewritten minimap control code, fixed for 640x480
+  Smarter WLB flags regeneration
+  Rewritten part of 'player instances' code
+  Better memory cleaning after a level is finished
+  Bonus levels are preserved in "Continue game".
+  Transferred creature is preserved (for one use only)
+  Fixed disappearing menu content problem
+  Fixed ending statistics when finishing loaded game
+  Computer player config file created
 
 Version: 0.2.5
   Fixed information button blinking
