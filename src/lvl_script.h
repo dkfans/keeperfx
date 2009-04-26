@@ -85,6 +85,7 @@ enum TbScriptCommands {
     Cmd_PRINT                          = 76, // from beta
 };
 
+/******************************************************************************/
 #pragma pack(1)
 
 struct CommandDesc { // sizeof = 14 // originally was 13
@@ -104,10 +105,6 @@ struct ScriptLine {
   char tp[COMMANDDESC_ARGS_COUNT][MAX_TEXT_LENGTH];
 };
 
-#pragma pack()
-
-/******************************************************************************/
-extern const struct CommandDesc command_desc[];
 /******************************************************************************/
 DLLIMPORT short _DK_script_current_condition;
 #define script_current_condition _DK_script_current_condition
@@ -128,6 +125,10 @@ DLLIMPORT unsigned short _DK_condition_stack[48];
 //DLLIMPORT struct Description _DK_door_desc[5];
 //DLLIMPORT struct Description _DK_trap_desc[8];
 //DLLIMPORT struct Description _DK_hero_objective_desc[];
+
+#pragma pack()
+/******************************************************************************/
+extern const struct CommandDesc command_desc[];
 /******************************************************************************/
 short script_support_setup_player_as_computer_keeper(unsigned short plyridx, long comp_model);
 long scan_line(char *line);
@@ -155,6 +156,16 @@ void command_message(char *msgtext, unsigned char kind);
 
 short clear_script(void);
 short load_script(long lvl_num);
+/******************************************************************************/
+void script_process_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4);
+void script_process_win_game(unsigned short plyr_idx);
+void script_process_lose_game(unsigned short plyr_idx);
+struct Thing *script_process_new_tunneller(unsigned char a1, long a2, unsigned char a3, long a4, unsigned char a5, unsigned long a6);
+struct Thing *script_process_new_party(struct Party *party, unsigned char a2, long a3, long a4);
+long process_activation_status(struct Condition *condt);
+unsigned char script_support_action_point_activated_by_players(long apt_idx);
+TbBool process_avialable_status(long plyr_idx, long itype, long ikind, long val);
+void script_process_new_creatures(unsigned char a1, long a2, long a3, long a4, long a5, long a6);
 /******************************************************************************/
 #ifdef __cplusplus
 }

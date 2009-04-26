@@ -27,19 +27,19 @@
 extern "C" {
 #endif
 /******************************************************************************/
-enum TbPacketType {
-        PckT_None           =  0,
-        PckT_PlyrMsgBegin   =  13,
-        PckT_PlyrMsgEnd     =  14,
-        PckT_ToggleLights   =  20,
-        PckT_SwitchScrnRes  =  21,
-        PckT_TogglePause    =  22,
-        PckT_SetGammaLevel  =  27,
-        PckT_SetMinimapConf =  28,
-        PckT_PlyrFastMsg    =  108,
-        PckT_SpellSOEDis    =  114,
-        PckT_PlyrToggleAlly =  118,
-        PckT_PlyrMsgChar    =  121,
+enum TbPacketAction {
+        PckA_None           =  0,
+        PckA_PlyrMsgBegin   =  13,
+        PckA_PlyrMsgEnd     =  14,
+        PckA_ToggleLights   =  20,
+        PckA_SwitchScrnRes  =  21,
+        PckA_TogglePause    =  22,
+        PckA_SetGammaLevel  =  27,
+        PckA_SetMinimapConf =  28,
+        PckA_PlyrFastMsg    =  108,
+        PckA_SpellSOEDis    =  114,
+        PckA_PlyrToggleAlly =  118,
+        PckA_PlyrMsgChar    =  121,
 };
 
 #pragma pack(1)
@@ -47,7 +47,7 @@ enum TbPacketType {
 struct Packet { // sizeof = 0x11 (17)
     int field_0;
     TbChecksum chksum;
-    unsigned char field_5;
+    unsigned char action;
     unsigned short field_6;
     unsigned short field_8;
     short field_A;
@@ -80,6 +80,7 @@ void process_players_creature_passenger_packet_action(long idx);
 void process_players_creature_control_packet_action(long idx);
 void process_map_packet_clicks(long idx);
 void process_pause_packet(long a1, long a2);
+void process_quit_packet(struct PlayerInfo *player, short complete_quit);
 void process_packets(void);
 void clear_packets(void);
 unsigned long compute_players_checksum(void);

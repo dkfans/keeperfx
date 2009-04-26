@@ -59,16 +59,15 @@ struct TbScreenModeInfo lbScreenModeInfo[]={
 /******************************************************************************/
 DLLIMPORT int __stdcall _DK_LbScreenReset(void);
 DLLIMPORT int _DK_LbScreenSetGraphicsWindow(int x, int y, uint width, uint height);
-DLLIMPORT int _DK_LbScreenIsModeAvailable(TbScreenMode mode);
+DLLIMPORT int _DK_LbScreenIsModeAvailable(enum TbScreenMode mode);
 DLLIMPORT int __stdcall _DK_LbScreenLock(void);
 DLLIMPORT int __stdcall _DK_LbScreenUnlock(void);
 DLLIMPORT int __stdcall _DK_LbScreenSwap(void);
 DLLIMPORT int __cdecl _DK_LbScreenClear(TbPixel colour);
 DLLIMPORT int __stdcall _DK_LbWindowsControl(void);
-DLLIMPORT int __cdecl _DK_LbPaletteFade(unsigned char *pal, long n, TbPaletteFadeFlag flg);
-DLLIMPORT int __cdecl _DK_LbMouseChangeSprite(long);
+DLLIMPORT int __cdecl _DK_LbPaletteFade(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
 DLLIMPORT void __cdecl _DK_LbScreenWaitVbi(void);
-DLLIMPORT int __cdecl _DK_LbScreenSetup(TbScreenMode mode, unsigned int width,
+DLLIMPORT int __cdecl _DK_LbScreenSetup(enum TbScreenMode mode, unsigned int width,
                unsigned int height, unsigned char *palette, int flag1, int flag2);
 DLLIMPORT int __cdecl _DK_LbPaletteSet(unsigned char *palette);
 DLLIMPORT int __cdecl _DK_LbPaletteGet(unsigned char *palette);
@@ -122,7 +121,7 @@ short LbPaletteStopOpenFade(void)
     return 1;
 }
 
-long LbPaletteFade(unsigned char *pal, long n, TbPaletteFadeFlag flg)
+long LbPaletteFade(unsigned char *pal, long n, enum TbPaletteFadeFlag flg)
 {
   //return _DK_LbPaletteFade(pal, n, flg);
   if (flg == Lb_PALETTE_FADE_CLOSED)
@@ -165,17 +164,12 @@ long LbPaletteFade(unsigned char *pal, long n, TbPaletteFadeFlag flg)
   return fade_count;
 }
 
-short LbMouseChangeSprite(long spr_idx)
-{
-  return _DK_LbMouseChangeSprite(spr_idx);
-}
-
 void LbScreenWaitVbi(void)
 {
   _DK_LbScreenWaitVbi();
 }
 
-int LbScreenSetup(TbScreenMode mode, unsigned int width,
+int LbScreenSetup(enum TbScreenMode mode, unsigned int width,
                unsigned int height, unsigned char *palette, int flag1, int flag2)
 {
   return _DK_LbScreenSetup(mode,width,height,palette,flag1,flag2);
@@ -199,7 +193,7 @@ void LbSetIcon(unsigned short nicon)
 struct TbScreenModeInfo *LbScreenGetModeInfo(unsigned short mode)
 {
   int maxmode=sizeof(lbScreenModeInfo)/sizeof(struct TbScreenModeInfo);
-  if ((mode>=0)&&(mode<maxmode))
+  if (mode < maxmode)
     return &lbScreenModeInfo[mode];
   return &lbScreenModeInfo[0];
 }
@@ -296,19 +290,19 @@ short LbScreenSetGraphicsWindow(long x, long y, long width, long height)
   return 1;
 }
 
-short LbScreenIsModeAvailable(TbScreenMode mode)
+short LbScreenIsModeAvailable(enum TbScreenMode mode)
 {
   return _DK_LbScreenIsModeAvailable(mode);
 }
 
-TbScreenMode LbRecogniseVideoModeString(char *str)
+enum TbScreenMode LbRecogniseVideoModeString(char *str)
 {
   int maxmode=sizeof(lbScreenModeInfo)/sizeof(struct TbScreenModeInfo);
   int mode;
   for (mode=0; mode<maxmode; mode++)
   {
     if (stricmp(lbScreenModeInfo[mode].Desc,str) == 0)
-      return (TbScreenMode)mode;
+      return (enum TbScreenMode)mode;
   }
   return Lb_SCREEN_MODE_INVALID;
 }

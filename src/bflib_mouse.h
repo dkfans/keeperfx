@@ -24,13 +24,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
-
 #pragma pack(1)
 
 struct TbSprite;
 
 struct mouse_buffer {
-        bool Valid;
+        long Valid;//bool
         long Width;
         long Height;
         unsigned long Offset;
@@ -98,6 +97,8 @@ struct DevInput {
 };
 
 #pragma pack()
+/******************************************************************************/
+
 
 /*
 extern struct DevInput joy;
@@ -107,12 +108,12 @@ int LbMouseChangeSpriteAndHotspot(struct TbSprite *spr, int a, int b);
 int LbMouseSetup(struct TbSprite *MouseSprite);
 int LbMouseSetPointerHotspot(int x, int y);
 int LbMouseSetPosition(int x, int y);
+short LbMouseChangeSprite(struct TbSprite *MouseSprite);
+int LbMouseSuspend(void);
 /*
 int __fastcall LbMouseReset();
 int __fastcall LbMousePlace(void);
 int __fastcall LbMouseRemove(void);
-int __fastcall LbMouseChangeSprite(struct TbSprite *pointer);
-int __fastcall LbMouseSuspend(void);
 
 int __fastcall screen_place(void);
 int __fastcall screen_remove(unsigned long force);

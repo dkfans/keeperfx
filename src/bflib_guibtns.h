@@ -32,7 +32,8 @@ extern "C" {
 struct GuiBox;
 struct GuiBoxOption;
 
-#define STRINGS_MAX        941
+#define STRINGS_MAX       1024
+#define DK_STRINGS_MAX     941
 #define INPUT_FIELD_LEN     40
 
 // Type definitions
@@ -49,7 +50,12 @@ union GuiVariant {
 };
 
 
-typedef long (*Gf_OptnBox_4Callback)(struct GuiBox *, struct GuiBoxOption *, char, long *);
+struct GuiButton;
+struct GuiMenu;
+struct GuiBox;
+struct GuiBoxOption;
+
+typedef long (*Gf_OptnBox_4Callback)(struct GuiBox *, struct GuiBoxOption *, unsigned char, long *);
 typedef long (*Gf_OptnBox_3Callback)(struct GuiBox *, struct GuiBoxOption *, long *);
 typedef void (*Gf_Btn_Callback)(struct GuiButton *gbtn);
 typedef void (*Gf_Mnu_Callback)(struct GuiMenu *gmnu);
@@ -65,7 +71,7 @@ struct GuiBoxOption {
        long field_19;
        long field_1D;
        long field_21;
-       char field_25;
+       char active;
        char field_26;
 };
 
@@ -82,9 +88,9 @@ char field_0;
 };
 
 struct DraggingBox {
-    struct GuiBox *gbox;
-long field_4;
-long field_8;
+  struct GuiBox *gbox;
+  long start_x;
+  long start_y;
 };
 
 struct GuiButtonInit {
@@ -106,8 +112,8 @@ struct GuiButtonInit {
     Gf_Btn_Callback draw_call;
     short field_25;
     short field_27;
-    GuiMenu *field_29;
-    GuiVariant field_2D;
+    struct GuiMenu *field_29;
+    union GuiVariant field_2D;
     char field_31;
     char field_32;
     Gf_Btn_Callback maintain_call;
@@ -174,11 +180,11 @@ struct FrontEndButtonData {
 };
 
 struct EventTypeInfo { //sizeof=0x10
-int field_0;
-unsigned short field_4;
-unsigned short field_6;
-int field_8;
-int field_C;
+    int field_0;
+    unsigned short field_4;
+    unsigned short field_6;
+    int field_8;
+    int field_C;
 };
 
 /******************************************************************************/
@@ -189,11 +195,11 @@ DLLIMPORT char _DK_backup_input_field[INPUT_FIELD_LEN];
 #define backup_input_field _DK_backup_input_field
 
 DLLIMPORT extern char *_DK_strings_data;
-#define strings_data _DK_strings_data
-DLLIMPORT extern char *_DK_strings[STRINGS_MAX+1];
-#define strings _DK_strings
-
+DLLIMPORT extern char *_DK_strings[DK_STRINGS_MAX+1];
 #pragma pack()
+/******************************************************************************/
+extern char *gui_strings[STRINGS_MAX+1];
+extern char *gui_strings_data;
 /******************************************************************************/
 // Exported functions
 void do_button_click_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);

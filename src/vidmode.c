@@ -317,7 +317,7 @@ void load_pointer_file(short hi_res)
   }
   if ( LbDataLoadAll(ldfiles) )
     error(func_name, 1105, "Unable to load pointer files");
-  LbSpriteSetup(pointer_sprites, end_pointer_sprites, (const char *)pointer_data);
+  LbSpriteSetup(pointer_sprites, end_pointer_sprites, (unsigned long)pointer_data);
 }
 
 void unload_pointer_file(short hi_res)

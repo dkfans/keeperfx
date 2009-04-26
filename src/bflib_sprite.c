@@ -28,49 +28,52 @@ extern "C" {
 
 /******************************************************************************/
 DLLIMPORT int _DK_LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
-DLLIMPORT int _DK_LbSpriteSetup(TbSprite *start, const TbSprite *end, const char *data);
+DLLIMPORT int _DK_LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const char *data);
 
 /******************************************************************************/
-short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const char *data)
+short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, unsigned long data)
 {
   static const char *func_name="LbSpriteSetup";
   //return _DK_LbSpriteSetup(start, end, data);
-  TbSprite *sprt=start;
-  while ( sprt < end )
+  struct TbSprite *sprt;
+  int n;
+  n = 0;
+  sprt = start;
+  while (sprt < end)
   {
-    if ( sprt->Data < data )
-      sprt->Data += (unsigned long)data;
+    if ((unsigned long)sprt->Data < data)
+    {
+      sprt->Data += data;
+      n++;
+    }
     sprt++;
   }
 #ifdef __DEBUG
-  LbSyncLog("%s: initied %d sprites\n",func_name,(sprt-start));
+  LbSyncLog("%s: initied %d of %d sprites\n",func_name,n,(sprt-start));
 #endif
   return 1;
 }
 
 int LbSpriteSetupAll(struct TbSetupSprite t_setup[])
 {
-  return _DK_LbSpriteSetupAll(t_setup);
-}
-
-/*
-int __fastcall LbSpriteSetupAll(struct TbSetupSprite t_setup[])
-{
-  int idx=0;
-  TbSetupSprite *stp_sprite;
+  static const char *func_name="LbSpriteSetupAll";
+  //return _DK_LbSpriteSetupAll(t_setup);
+  struct TbSetupSprite *stp_sprite;
+  int idx;
+  idx=0;
   stp_sprite=&t_setup[idx];
-  while ( stp_sprite->Data != NULL )
+  while (stp_sprite->Data != NULL)
   {
-    LbSpriteSetup(*(stp_sprite->Start), *(stp_sprite->End), *(stp_sprite->Data));
+    if ((stp_sprite->Start != NULL) && (stp_sprite->End != NULL))
+      LbSpriteSetup(*(stp_sprite->Start), *(stp_sprite->End), *(stp_sprite->Data));
     idx++;
     stp_sprite=&t_setup[idx];
   }
 #ifdef __DEBUG
-  LbSyncLog("LbSpriteSetupAll: initied %d SetupSprite lists\n",idx);
+  LbSyncLog("%s: Initiated %d SetupSprite lists\n",func_name,idx);
 #endif
   return 1;
 }
-*/
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -204,6 +204,7 @@ extern char lbInkeyToAsciiShift[];
 short LbIKeyboardOpen(void);
 short LbIKeyboardClose(void);
 void LbKeyboardSetLanguage(int lngnum);
+short LbKeyCodeValid(TbKeyCode key);
 /******************************************************************************/
 #ifdef __cplusplus
 }

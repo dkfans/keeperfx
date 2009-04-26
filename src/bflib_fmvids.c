@@ -992,7 +992,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
         LbFileClose(animation.inpfhndl);
         return false;
       }
-      if ( animation.chunk.ctype == FLI_PREFIX )
+      if (animation.chunk.ctype == FLI_PREFIX)
       {
         if (!anim_read_data(animation.chunkdata, animation.chunk.csize-sizeof(struct AnimFLIChunk)))
         {

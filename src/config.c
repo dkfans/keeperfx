@@ -38,7 +38,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 const char keeper_config_file[]="keeperfx.cfg";
-const char keeper_campaign_file[]="keepcmpgn.cfg";
+const char keeper_campaign_file[]="keeporig.cfg";
 
 const struct LanguageType lang_type[] = {
   {"ENG", 1},
@@ -69,21 +69,40 @@ const struct ConfigCommand conf_commands[] = {
   {NULL,            0},
   };
 
-const struct ConfigCommand cmpgn_commands[] = {
-  {"NAME",          1},
-  {"SINGLE_LEVELS", 2},
-  {"MULTI_LEVELS",  3},
-  {"BONUS_LEVELS",  4},
-  {"EXTRA_LEVELS",  5},
-  {"HIGH_SCORES",   6},
-  {NULL,            0},
+const struct ConfigCommand cmpgn_common_commands[] = {
+  {"NAME",            1},
+  {"SINGLE_LEVELS",   2},
+  {"MULTI_LEVELS",    3},
+  {"BONUS_LEVELS",    4},
+  {"EXTRA_LEVELS",    5},
+  {"HIGH_SCORES",     6},
+  {"LAND_VIEW_START", 7},
+  {"LAND_VIEW_END",   8},
+  {"LAND_AMBIENT",    9},
+  {"LOCATION",       10},
+  {NULL,              0},
+  };
+
+const struct ConfigCommand cmpgn_map_commands[] = {
+  {"NAME_TEXT",       1},
+  {"NAME_ID",         2},
+  {"ENSIGN_POS",      3},
+  {"ENSIGN_ZOOM",     4},
+  {"PLAYERS",         5},
+  {"OPTIONS",         6},
+  {"SPEECH",          7},
+  {"LAND_VIEW",       8},
+  {NULL,              0},
   };
 
 unsigned long features_enabled = 0;
 struct GameCampaign campaign;
+char quick_messages[MESSAGE_TEXT_LEN][QUICK_MESSAGES_COUNT];
 
 short is_full_moon = 0;
+short is_near_full_moon = 0;
 short is_new_moon = 0;
+short is_near_new_moon = 0;
 
 /******************************************************************************/
 DLLIMPORT int __stdcall _DK_load_configuration(void);
@@ -102,6 +121,7 @@ short update_features(unsigned long mem_size)
     features_enabled |= Ft_EyeLens;
     features_enabled |= Ft_HiResVideo;
     features_enabled |= Ft_BigPointer;
+    features_enabled |= Ft_AdvAmbSonud;
   }
   LbSyncLog("Memory-demanding features %s.\n",result?"enabled":"disabled");
   return result;
@@ -531,7 +551,7 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       mdir=keeper_runtime_directory;
       sdir="hdata";
       break;
-  case FGrp_Levels:
+  case FGrp_VarLevels:
       mdir=install_info.inst_path;
       sdir="levels";
       break;
@@ -561,7 +581,12 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       break;
   case FGrp_Campgn:
       mdir=keeper_runtime_directory;
+//      sdir="campgns";
       sdir="fxdata";
+      break;
+  case FGrp_CmpgLvls:
+      mdir=install_info.inst_path;
+      sdir=campaign.location;
       break;
   default:
       mdir="./";
@@ -604,11 +629,22 @@ short file_group_needs_cd(short fgroup)
   switch (fgroup)
   {
   case FGrp_LoData:
-  case FGrp_Levels:
+  case FGrp_VarLevels:
       return true;
   default:
       return false;
   }
+}
+
+short get_level_fgroup(LevelNumber lvnum)
+{
+  struct LevelInformation *lvinfo;
+  lvinfo = get_level_info(lvnum);
+  if (lvinfo == NULL)
+    return FGrp_VarLevels;
+  if (lvinfo->location == LvLc_Campaign)
+    return FGrp_CmpgLvls;
+  return FGrp_VarLevels;
 }
 
 /*
@@ -670,29 +706,69 @@ short calculate_moon_phase(short do_calculate,short add_to_log)
     if (add_to_log)
       LbSyncLog("Full moon %.4f\n", phase_of_moon);
     is_full_moon = 1;
+    is_near_full_moon = 0;
     is_new_moon = 0;
+    is_near_new_moon = 0;
+  } else
+  if ((phase_of_moon > -0.1) && (phase_of_moon < 0.1))
+  {
+    if (add_to_log)
+      LbSyncLog("Near Full moon %.4f\n", phase_of_moon);
+    is_full_moon = 0;
+    is_near_full_moon = 1;
+    is_new_moon = 0;
+    is_near_new_moon = 0;
   } else
   if ((phase_of_moon < -0.95) || (phase_of_moon > 0.95))
   {
     if (add_to_log)
       LbSyncLog("New moon %.4f\n", phase_of_moon);
     is_full_moon = 0;
+    is_near_full_moon = 0;
     is_new_moon = 1;
+    is_near_new_moon = 0;
+  } else
+  if ((phase_of_moon < -0.9) || (phase_of_moon > 0.9))
+  {
+    if (add_to_log)
+      LbSyncLog("Near new moon %.4f\n", phase_of_moon);
+    is_full_moon = 0;
+    is_near_full_moon = 0;
+    is_new_moon = 0;
+    is_near_new_moon = 1;
   } else
   {
     if (add_to_log)
       LbSyncLog("Moon phase %.4f\n", phase_of_moon);
     is_full_moon = 0;
+    is_near_full_moon = 0;
     is_new_moon = 0;
+    is_near_new_moon = 0;
   }
+//!CHEAT! always show extra levels
+//  is_full_moon = 1; is_new_moon = 1;
   return is_full_moon;
 }
 
 short load_high_score_table(void)
 {
   char *fname;
-  fname = prepare_file_path(FGrp_StdData,campaign.hiscore_fname);
-  if ( LbFileLoadAt(fname, high_score_table) == sizeof(high_score_table) )
+  long arr_size;
+  fname = prepare_file_path(FGrp_Save,campaign.hiscore_fname);
+  arr_size = campaign.hiscore_count*sizeof(struct HighScore);
+  if (arr_size <= 0)
+  {
+    LbMemoryFree(campaign.hiscore_table);
+    campaign.hiscore_table = NULL;
+    return true;
+  }
+  if (campaign.hiscore_table == NULL)
+    campaign.hiscore_table = (struct HighScore *)LbMemoryAlloc(arr_size);
+  if (LbFileLengthRnc(fname) != arr_size)
+    return false;
+  if (campaign.hiscore_table == NULL)
+    return false;
+  if (LbFileLoadAt(fname, campaign.hiscore_table) == arr_size)
     return true;
   return false;
 }
@@ -700,26 +776,838 @@ short load_high_score_table(void)
 short save_high_score_table(void)
 {
   char *fname;
-  fname = prepare_file_path(FGrp_StdData,campaign.hiscore_fname);
-  LbFileSaveAt(fname, high_score_table, sizeof(high_score_table));
-  if (LbFileSaveAt(fname, high_score_table, sizeof(high_score_table)) == sizeof(high_score_table))
+  long fsize;
+  fname = prepare_file_path(FGrp_Save,campaign.hiscore_fname);
+  fsize = campaign.hiscore_count*sizeof(struct HighScore);
+  if (fsize <= 0)
+    return true;
+  if (campaign.hiscore_table == NULL)
+    return false;
+  // Save the file
+  if (LbFileSaveAt(fname, campaign.hiscore_table, fsize) == fsize)
     return true;
   return false;
 }
 
+/*
+ * Generates new high score table if previous can't be loaded.
+ */
+short create_empty_high_score_table(void)
+{
+  long arr_size;
+  int npoints;
+  int nlevel;
+  int i;
+  npoints = 100*VISIBLE_HIGH_SCORES_COUNT;
+  nlevel = 1*VISIBLE_HIGH_SCORES_COUNT;
+  arr_size = campaign.hiscore_count*sizeof(struct HighScore);
+  if (campaign.hiscore_table == NULL)
+    campaign.hiscore_table = (struct HighScore *)LbMemoryAlloc(arr_size);
+  if (campaign.hiscore_table == NULL)
+    return false;
+  for (i=0; i < VISIBLE_HIGH_SCORES_COUNT; i++)
+  {
+    if (i >= campaign.hiscore_count) break;
+    sprintf(campaign.hiscore_table[i].name, "Bullfrog");
+    campaign.hiscore_table[i].score = npoints;
+    campaign.hiscore_table[i].lvnum = nlevel;
+    npoints -= 100;
+    nlevel -= 1;
+  }
+  while (i < campaign.hiscore_count)
+  {
+    campaign.hiscore_table[i].name[0] = '\0';
+    campaign.hiscore_table[i].score = 0;
+    campaign.hiscore_table[i].lvnum = 0;
+    i++;
+  }
+}
+
+/*
+ * Adds new entry to high score table. Returns its index.
+ */
+int add_high_score_entry(unsigned long score, LevelNumber lvnum, char *name)
+{
+  int idx;
+  // If the table is not initiated - return
+  if (campaign.hiscore_table == NULL)
+  {
+    LbWarnLog("Can't add entry to uninitiated high score table\n");
+    return false;
+  }
+  // Determining position of the new entry
+  for (idx=0; idx < campaign.hiscore_count; idx++)
+  {
+    if (campaign.hiscore_table[idx].score < score)
+      break;
+    if (campaign.hiscore_table[idx].lvnum <= 0)
+      break;
+  }
+  // If the new score is too poor, and there's not enough space for it, return
+  if (idx >= campaign.hiscore_count) return -1;
+  // Moving entries down
+  int k;
+  for (k=campaign.hiscore_count-2; k >= idx; k--)
+  {
+    memcpy(&campaign.hiscore_table[k+1],&campaign.hiscore_table[k],sizeof(struct HighScore));
+  }
+  // Preparing the new entry
+  strncpy(campaign.hiscore_table[idx].name, name, HISCORE_NAME_LENGTH);
+  campaign.hiscore_table[idx].score = score;
+  campaign.hiscore_table[idx].lvnum = lvnum;
+  return idx;
+}
+
+/*
+ * Returns highest score value for given level.
+ */
+unsigned long get_level_highest_score(LevelNumber lvnum)
+{
+  int idx;
+  for (idx=0; idx < campaign.hiscore_count; idx++)
+  {
+    if (campaign.hiscore_table[idx].lvnum == lvnum)
+      return campaign.hiscore_table[idx].score;
+  }
+  return 0;
+}
+
+/*
+ * Frees campaign sub-entries memory without NULLing invalid pointers.
+ * Call 'clear_campaign' to reset values after they're freed.
+ */
+short free_campaign(struct GameCampaign *campgn)
+{
+  LbMemoryFree(campgn->lvinfos);
+  LbMemoryFree(campgn->hiscore_table);
+  LbMemoryFree(campgn->strings_data);
+  return true;
+}
+
+/*
+ * Clears campaign entries without freeing memory.
+ */
 short clear_campaign(struct GameCampaign *campgn)
 {
+  static const char *func_name="clear_campaign";
   int i;
-  memset (campgn->name,0,LINEMSG_SIZE);
+#if (BFDEBUG_LEVEL > 0)
+  LbSyncLog("%s: Starting\n",func_name);
+#endif
+  memset(campgn->name,0,LINEMSG_SIZE);
+  memset(campgn->location,0,DISKPATH_SIZE);
   for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
   {
-    campgn->single_levels[i]=0;
-    campgn->multi_levels[i]=0;
-    campgn->bonus_levels[i]=0;
-    campgn->extra_levels[i]=0;
+    campgn->single_levels[i] = 0;
+    campgn->multi_levels[i] = 0;
+    campgn->bonus_levels[i] = 0;
+    campgn->extra_levels[i] = 0;
   }
-  campgn->single_levels[0]=1;
+  for (i=0; i<FREE_LEVELS_COUNT; i++)
+  {
+    campgn->freeplay_levels[i] = 0;
+  }
+  campgn->single_levels_count = 0;
+  campgn->multi_levels_count = 0;
+  campgn->bonus_levels_count = 0;
+  campgn->extra_levels_count = 0;
+  campgn->freeplay_levels_count = 0;
+  campgn->bonus_levels_index = 0;
+  campgn->extra_levels_index = 0;
+  campgn->lvinfos_count = 0;
+  campgn->lvinfos = NULL;
+  campgn->ambient_good = 0;
+  campgn->ambient_bad = 0;
+  memset(campgn->land_view_start,0,DISKPATH_SIZE);
+  memset(campgn->land_window_start,0,DISKPATH_SIZE);
+  memset(campgn->land_view_end,0,DISKPATH_SIZE);
+  memset(campgn->land_window_end,0,DISKPATH_SIZE);
+  memset(campgn->strings_fname,0,DISKPATH_SIZE);
+  campgn->strings_data = NULL;
+  reset_strings(campgn->strings);
+  memset(campgn->hiscore_fname,0,DISKPATH_SIZE);
+  campgn->hiscore_table = NULL;
+  campgn->hiscore_count = 0;
   return true;
+}
+
+long add_single_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
+{
+  long i;
+  if (lvnum <= 0) return LEVELNUMBER_ERROR;
+  i = campgn->single_levels_count;
+  if (i < CAMPAIGN_LEVELS_COUNT)
+  {
+    campgn->single_levels[i] = lvnum;
+    campgn->single_levels_count++;
+    return i;
+  }
+  return LEVELNUMBER_ERROR;
+}
+
+long add_multi_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
+{
+  long i;
+  if (lvnum <= 0) return LEVELNUMBER_ERROR;
+  i = campgn->multi_levels_count;
+  if (i < CAMPAIGN_LEVELS_COUNT)
+  {
+    campgn->multi_levels[i] = lvnum;
+    campgn->multi_levels_count++;
+    return i;
+  }
+  return LEVELNUMBER_ERROR;
+}
+
+long add_bonus_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
+{
+  long i;
+  if (lvnum < 0) lvnum = 0;
+  // adding bonus level
+  i = campgn->bonus_levels_index;
+  if (i < CAMPAIGN_LEVELS_COUNT)
+  {
+    campgn->bonus_levels[i] = lvnum;
+    campgn->bonus_levels_index++;
+    if (lvnum > 0)
+      campgn->bonus_levels_count++;
+    return i;
+  }
+  return LEVELNUMBER_ERROR;
+}
+
+long add_extra_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
+{
+  long i;
+  if (lvnum < 0) lvnum = 0;
+  // adding extra level
+  i = campgn->extra_levels_index;
+  if (i < CAMPAIGN_LEVELS_COUNT)
+  {
+    campgn->extra_levels[i] = lvnum;
+    campgn->extra_levels_index++;
+    if (lvnum > 0)
+      campgn->extra_levels_count++;
+    return i;
+  }
+  return LEVELNUMBER_ERROR;
+}
+
+long add_freeplay_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
+{
+  long i;
+  if (lvnum <= 0) return LEVELNUMBER_ERROR;
+  // check if already in list
+  i = 0;
+  while (i < campgn->freeplay_levels_count)
+  {
+    if (campgn->freeplay_levels[i] == lvnum)
+      return i;
+    i++;
+  }
+  // add the free level to list
+  if (i < FREE_LEVELS_COUNT)
+  {
+    campgn->freeplay_levels[i] = lvnum;
+    campgn->freeplay_levels_count++;
+    return i;
+  }
+  return LEVELNUMBER_ERROR;
+}
+
+struct LevelInformation *get_campaign_level_info(struct GameCampaign *campgn, LevelNumber lvnum)
+{
+  long i;
+  if (lvnum <= 0)
+    return NULL;
+  if (campgn->lvinfos == NULL)
+    return NULL;
+  for (i=0; i < campgn->lvinfos_count; i++)
+  {
+    if (campgn->lvinfos[i].lvnum == lvnum)
+    {
+      return &campgn->lvinfos[i];
+    }
+  }
+  return NULL;
+}
+
+struct LevelInformation *new_level_info_entry(struct GameCampaign *campgn, LevelNumber lvnum)
+{
+  long i;
+  if (lvnum <= 0)
+    return NULL;
+  if (campgn->lvinfos == NULL)
+    return NULL;
+  // Find empty allocated slot
+  for (i=0; i < campgn->lvinfos_count; i++)
+  {
+    if (campgn->lvinfos[i].lvnum <= 0)
+    {
+      campgn->lvinfos[i].lvnum = lvnum;
+      return &campgn->lvinfos[i];
+    }
+  }
+  // No empty slot - reallocate memory to get more slots
+  if (!grow_level_info_entries(campgn,LEVEL_INFO_GROW_DELTA))
+    return NULL;
+  campgn->lvinfos[i].lvnum = lvnum;
+  return &campgn->lvinfos[i];
+}
+
+struct LevelInformation *get_level_info(LevelNumber lvnum)
+{
+  return get_campaign_level_info(&campaign, lvnum);
+}
+
+struct LevelInformation *get_or_create_level_info(LevelNumber lvnum, unsigned long lvoptions)
+{
+  struct LevelInformation *lvinfo;
+  lvinfo = get_campaign_level_info(&campaign, lvnum);
+  if (lvinfo != NULL)
+  {
+    lvinfo->options |= lvoptions;
+    return lvinfo;
+  }
+  lvinfo = new_level_info_entry(&campaign, lvnum);
+  if (lvinfo != NULL)
+  {
+    lvinfo->options |= lvoptions;
+    return lvinfo;
+  }
+  return NULL;
+}
+
+/*
+ * Returns first level info structure in the array.
+ */
+struct LevelInformation *get_first_level_info(void)
+{
+  if (campaign.lvinfos == NULL)
+    return NULL;
+  return &campaign.lvinfos[0];
+}
+
+/*
+ * Returns last level info structure in the array.
+ */
+struct LevelInformation *get_last_level_info(void)
+{
+  if ((campaign.lvinfos == NULL) || (campaign.lvinfos_count < 1))
+    return NULL;
+  return &campaign.lvinfos[campaign.lvinfos_count-1];
+}
+
+/*
+ * Returns next level info structure in the array.
+ * Note that it's not always corresponding to next campaign level; use
+ * get_level_info() to get information for specific level. This function
+ * is used for sweeping through all level info entries.
+ */
+struct LevelInformation *get_next_level_info(struct LevelInformation *previnfo)
+{
+  int i;
+  if (campaign.lvinfos == NULL)
+    return NULL;
+  if (previnfo == NULL)
+    return NULL;
+  i = previnfo - &campaign.lvinfos[0];
+  i++;
+  if (i >= campaign.lvinfos_count)
+    return NULL;
+  return &campaign.lvinfos[i];
+}
+
+/*
+ * Returns previous level info structure in the array.
+ * Note that it's not always corresponding to previous campaign level; use
+ * get_level_info() to get information for specific level. This function
+ * is used for reverse sweeping through all level info entries.
+ */
+struct LevelInformation *get_prev_level_info(struct LevelInformation *nextinfo)
+{
+  int i;
+  if (campaign.lvinfos == NULL)
+    return NULL;
+  if (nextinfo == NULL)
+    return NULL;
+  i = nextinfo - &campaign.lvinfos[0];
+  i--;
+  if (i < 0)
+    return NULL;
+  return &campaign.lvinfos[i];
+}
+
+void clear_level_info(struct LevelInformation *lvinfo)
+{
+  lvinfo->lvnum = 0;
+  LbMemorySet(lvinfo->name, 0, LINEMSG_SIZE);
+  LbMemorySet(lvinfo->speech_before, 0, DISKPATH_SIZE);
+  LbMemorySet(lvinfo->speech_after, 0, DISKPATH_SIZE);
+  LbMemorySet(lvinfo->land_view, 0, DISKPATH_SIZE);
+  LbMemorySet(lvinfo->land_window, 0, DISKPATH_SIZE);
+  lvinfo->name_id = 0;
+  lvinfo->players = 1;
+  lvinfo->ensign_x = (MAP_SCREEN_WIDTH>>1);
+  lvinfo->ensign_y = (MAP_SCREEN_HEIGHT>>1);
+  lvinfo->ensign_zoom_x = (MAP_SCREEN_WIDTH>>1);
+  lvinfo->ensign_zoom_y = (MAP_SCREEN_HEIGHT>>1);
+  lvinfo->options = LvOp_None;
+  lvinfo->state = LvSt_Hidden;
+  lvinfo->location = LvLc_VarLevels;
+}
+
+short init_level_info_entries(struct GameCampaign *campgn, long num_entries)
+{
+  long i;
+  if (campgn->lvinfos != NULL)
+    LbMemoryFree(campgn->lvinfos);
+  campgn->lvinfos = (struct LevelInformation *)LbMemoryAlloc(num_entries*sizeof(struct LevelInformation));
+  if (campgn->lvinfos == NULL)
+  {
+    LbWarnLog("Can't allocate memory for LevelInformation list.\n");
+    campgn->lvinfos_count = 0;
+    return false;
+  }
+  campgn->lvinfos_count = num_entries;
+  for (i=0; i < num_entries; i++)
+    clear_level_info(&campgn->lvinfos[i]);
+  return true;
+}
+
+short grow_level_info_entries(struct GameCampaign *campgn, long add_entries)
+{
+  long num_entries;
+  long i;
+  i = campgn->lvinfos_count;
+  num_entries = campgn->lvinfos_count+add_entries;
+  campgn->lvinfos = (struct LevelInformation *)LbMemoryGrow(campgn->lvinfos, num_entries*sizeof(struct LevelInformation));
+  if (campgn->lvinfos == NULL)
+  {
+    LbWarnLog("Can't enlarge memory for LevelInformation list.\n");
+    campgn->lvinfos_count = 0;
+    return false;
+  }
+  campgn->lvinfos_count = num_entries;
+  while (i < num_entries)
+  {
+    clear_level_info(&campgn->lvinfos[i]);
+    i++;
+  }
+  return true;
+}
+
+short free_level_info_entries(struct GameCampaign *campgn)
+{
+  if (campgn->lvinfos != NULL)
+    LbMemoryFree(campgn->lvinfos);
+  campgn->lvinfos = NULL;
+  campgn->lvinfos_count = 0;
+  return true;
+}
+
+short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvoptions)
+{
+  struct LevelInformation *lvinfo;
+  lvinfo = get_or_create_level_info(lvnum, lvoptions);
+  if (lvinfo == NULL)
+    return false;
+  strncpy(lvinfo->name,name,LINEMSG_SIZE-1);
+  lvinfo->name[LINEMSG_SIZE-1] = '\0';
+  return true;
+}
+
+short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long len)
+{
+  long pos;
+  int i,k,n;
+  int cmd_num;
+  // Block name and parameter word store variables
+  char block_buf[32];
+  char word_buf[32];
+  // Initialize block data in campaign
+  LbMemoryFree(campgn->hiscore_table);
+  campgn->hiscore_table = NULL;
+  campgn->hiscore_count = VISIBLE_HIGH_SCORES_COUNT;
+  // Find the block
+  sprintf(block_buf,"common");
+  pos = 0;
+  k = find_conf_block(buf,&pos,len,block_buf);
+  if (k < 0)
+  {
+    LbWarnLog("Block [%s] not found in Campaign file.\n",block_buf);
+    return 0;
+  }
+  while (pos<len)
+  {
+      // Finding command number in this line
+      cmd_num = recognize_conf_command(buf,&pos,len,cmpgn_common_commands);
+      // Now store the config item in correct place
+      if (cmd_num == -3) break; // if next block starts
+      n = 0;
+      switch (cmd_num)
+      {
+      case 1: // NAME
+          i = get_conf_parameter_whole(buf,&pos,len,campgn->name,LINEMSG_SIZE);
+          if (i <= 0)
+            LbWarnLog("Couldn't read \"%s\" command parameter in config file.\n","NAME");
+          break;
+      case 2: // SINGLE_LEVELS
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+              add_single_level_to_campaign(campgn,k);
+            else
+              LbWarnLog("Couldn't recognize level in \"%s\" command of campaign file.\n","SINGLE_LEVELS");
+          }
+          if (campaign.single_levels_count <= 0)
+            LbWarnLog("Levels list empty in \"%s\" command of campaign file.\n","SINGLE_LEVELS");
+          break;
+      case 3: // MULTI_LEVELS
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+              add_multi_level_to_campaign(campgn,k);
+            else
+              LbWarnLog("Couldn't recognize level in \"%s\" command of campaign file.\n","MULTI_LEVELS");
+          }
+          if (campaign.multi_levels_count <= 0)
+            LbWarnLog("Levels list empty in \"%s\" command of campaign file.\n","MULTI_LEVELS");
+          break;
+      case 4: // BONUS_LEVELS
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k >= 0) // Some bonus levels may not exist
+              add_bonus_level_to_campaign(campgn,k);
+            else
+              LbWarnLog("Couldn't recognize level in \"%s\" command of campaign file.\n","BONUS_LEVELS");
+          }
+          if (campaign.bonus_levels_count <= 0)
+                LbSyncLog("Levels list empty in \"%s\" command of campaign file.\n","BONUS_LEVELS");
+          break;
+      case 5: // EXTRA_LEVELS
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+              add_extra_level_to_campaign(campgn,k);
+            else
+              LbWarnLog("Couldn't recognize level in \"%s\" command of campaign file.\n","EXTRA_LEVELS");
+          }
+          if (campaign.extra_levels_count <= 0)
+                LbSyncLog("Levels list empty in \"%s\" command of campaign file.\n","BONUS_LEVELS");
+          break;
+      case 6: // HIGH_SCORES
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k >= 0)
+            {
+              campgn->hiscore_count = k;
+              n++;
+            }
+          }
+          if (get_conf_parameter_whole(buf,&pos,len,campgn->hiscore_fname,DISKPATH_SIZE) > 0)
+          {
+            n++;
+          }
+          if (n < 2)
+          {
+            LbWarnLog("Couldn't recognize \"%s\" parameters in [%s] block of Campaign file.\n","HIGH_SCORES",block_buf);
+          }
+          break;
+      case 7: // LAND_VIEW_START
+          if (get_conf_parameter_single(buf,&pos,len,campgn->land_view_start,DISKPATH_SIZE) > 0)
+          {
+            n++;
+          }
+          if (get_conf_parameter_single(buf,&pos,len,campgn->land_window_start,DISKPATH_SIZE) > 0)
+          {
+            n++;
+          }
+          if (n < 2)
+          {
+            LbWarnLog("Couldn't recognize \"%s\" file names in [%s] block of Campaign file.\n","LAND_VIEW_START",block_buf);
+          }
+          break;
+      case 8: // LAND_VIEW_END
+          if (get_conf_parameter_single(buf,&pos,len,campgn->land_view_end,DISKPATH_SIZE) > 0)
+          {
+            n++;
+          }
+          if (get_conf_parameter_single(buf,&pos,len,campgn->land_window_end,DISKPATH_SIZE) > 0)
+          {
+            n++;
+          }
+          if (n < 2)
+          {
+            LbWarnLog("Couldn't recognize \"%s\" file names in [%s] block of Campaign file.\n","LAND_VIEW_END",block_buf);
+          }
+          break;
+      case 9: // LAND_AMBIENT
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              campgn->ambient_good = k;
+              n++;
+            }
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              campgn->ambient_bad = k;
+              n++;
+            }
+          }
+          if (n < 2)
+          {
+            LbWarnLog("Couldn't recognize \"%s\" coordinates in [%s] block of Campaign file.\n","LAND_AMBIENT",block_buf);
+          }
+          break;
+      case 10: // LOCATION
+          i = get_conf_parameter_whole(buf,&pos,len,campgn->location,DISKPATH_SIZE);
+          if (i <= 0)
+            LbWarnLog("Couldn't read \"%s\" command parameter in config file.\n","LOCATION");
+          break;
+      case 0: // comment
+          break;
+      case -1: // end of buffer
+          break;
+      default:
+          LbWarnLog("Unrecognized command (%d) in [%s] block of Campaign file, starting on byte %d.\n",cmd_num,block_buf,pos);
+          break;
+      }
+      skip_conf_to_next_line(buf,&pos,len);
+  }
+  if (campaign.single_levels_count != campaign.bonus_levels_index)
+    LbWarnLog("Amount of SP levels (%d) and bonuses (%d) do not match in [%s] block of Campaign file.\n",
+      campaign.single_levels_count, campaign.bonus_levels_count, block_buf);
+  return 1;
+}
+
+/*
+ * Parses campaign block for specific level number.
+ * Stores data in lvinfo structure.
+ */
+short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, long len)
+{
+  static const char *func_name="parse_campaign_map_block";
+  struct LevelInformation *lvinfo;
+  long pos;
+  int i,k,n;
+  int cmd_num;
+  // Block name and parameter word store variables
+  char block_buf[32];
+  char word_buf[32];
+#if (BFDEBUG_LEVEL > 18)
+  LbSyncLog("%s: Starting for level %ld\n",func_name,lvnum);
+#endif
+  lvinfo = get_or_create_level_info(lvnum, lvoptions);
+  if (lvinfo == NULL)
+  {
+    LbWarnLog("Can't get LevelInformation item to store level %ld data from Campaign file.\n",lvnum);
+    return 0;
+  }
+  lvinfo->location = LvLc_Campaign;
+  sprintf(block_buf,"map%05lu",lvnum);
+  pos = 0;
+  k = find_conf_block(buf,&pos,len,block_buf);
+  if (k < 0)
+  {
+    LbWarnLog("Block [%s] not found in Campaign file.\n",block_buf);
+    return 0;
+  }
+  while (pos<len)
+  {
+      // Finding command number in this line
+      cmd_num = recognize_conf_command(buf,&pos,len,cmpgn_map_commands);
+      // Now store the config item in correct place
+      if (cmd_num == -3) break; // if next block starts
+      n = 0;
+      switch (cmd_num)
+      {
+      case 1: // NAME_TEXT
+          if (get_conf_parameter_whole(buf,&pos,len,lvinfo->name,LINEMSG_SIZE) <= 0)
+          {
+            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Campaign file.\n","NAME",block_buf);
+            break;
+          }
+          break;
+      case 2: // NAME_ID
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              lvinfo->name_id = k;
+              n++;
+            }
+          }
+          if (n < 1)
+          {
+            LbWarnLog("Couldn't recognize \"%s\" number in [%s] block of Campaign file.\n","NAME_ID",block_buf);
+          }
+          break;
+      case 3: // ENSIGN_POS
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              lvinfo->ensign_x = k;
+              n++;
+            }
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              lvinfo->ensign_y = k;
+              n++;
+            }
+          }
+          if (n < 2)
+          {
+            LbWarnLog("Couldn't recognize \"%s\" coordinates in [%s] block of Campaign file.\n","ENSIGN_POS",block_buf);
+          }
+          break;
+      case 4: // ENSIGN_ZOOM
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              lvinfo->ensign_zoom_x = k;
+              n++;
+            }
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              lvinfo->ensign_zoom_y = k;
+              n++;
+            }
+          }
+          if (n < 2)
+          {
+            LbWarnLog("Couldn't recognize \"%s\" coordinates in [%s] block of Campaign file.\n","ENSIGN_ZOOM",block_buf);
+          }
+          break;
+      case 5: // PLAYERS
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              lvinfo->players = k;
+              n++;
+            }
+          }
+          if (n < 1)
+          {
+            LbWarnLog("Couldn't recognize \"%s\" number in [%s] block of Campaign file.\n","PLAYERS",block_buf);
+          }
+          break;
+      case 6: // OPTIONS
+          //TODO!
+          break;
+      case 7: // SPEECH
+          if (get_conf_parameter_single(buf,&pos,len,lvinfo->speech_before,DISKPATH_SIZE) > 0)
+          {
+            n++;
+          }
+          if (get_conf_parameter_single(buf,&pos,len,lvinfo->speech_after,DISKPATH_SIZE) > 0)
+          {
+            n++;
+          }
+          if (n < 2)
+          {
+            LbWarnLog("Couldn't recognize \"%s\" file names in [%s] block of Campaign file.\n","SPEECH",block_buf);
+          }
+          break;
+      case 8: // LAND_VIEW
+          if (get_conf_parameter_single(buf,&pos,len,lvinfo->land_view,DISKPATH_SIZE) > 0)
+          {
+            n++;
+          }
+          if (get_conf_parameter_single(buf,&pos,len,lvinfo->land_window,DISKPATH_SIZE) > 0)
+          {
+            n++;
+          }
+          if (n < 2)
+          {
+            LbWarnLog("Couldn't recognize \"%s\" file names in [%s] block of Campaign file.\n","LAND_VIEW",block_buf);
+          }
+          break;
+      case 0: // comment
+          break;
+      case -1: // end of buffer
+          break;
+      default:
+          LbWarnLog("Unrecognized command (%d) in [%s] block of Campaign file, starting on byte %d.\n",cmd_num,block_buf,pos);
+          break;
+      }
+      skip_conf_to_next_line(buf,&pos,len);
+  }
+  return 1;
+}
+
+short parse_campaign_map_blocks(struct GameCampaign *campgn, char *buf, long len)
+{
+  static const char *func_name="parse_campaign_map_blocks";
+  long lvnum,bn_lvnum;
+  long i;
+#if (BFDEBUG_LEVEL > 8)
+  LbSyncLog("%s: Starting\n",func_name);
+#endif
+  i = campgn->single_levels_count + campgn->multi_levels_count + campgn->bonus_levels_count
+     + campgn->extra_levels_count + campgn->freeplay_levels_count;
+  if (i <= 0)
+  {
+    LbWarnLog("There's zero used levels - no [mapX] blocks to parse.\n");
+    return 0;
+  }
+  // Initialize the lvinfos array
+  if (!init_level_info_entries(campgn,i))
+  if (campgn->lvinfos == NULL)
+  {
+    LbWarnLog("Can't allocate memory for LevelInformation list.\n");
+    return 0;
+  }
+  lvnum = first_singleplayer_level();
+  while (lvnum > 0)
+  {
+    parse_campaign_map_block(lvnum, LvOp_IsSingle, buf, len);
+    bn_lvnum = bonus_level_for_singleplayer_level(lvnum);
+    if (bn_lvnum > 0)
+    {
+      parse_campaign_map_block(bn_lvnum, LvOp_IsBonus, buf, len);
+    }
+    lvnum = next_singleplayer_level(lvnum);
+  }
+  lvnum = first_multiplayer_level();
+  while (lvnum > 0)
+  {
+    parse_campaign_map_block(lvnum, LvOp_IsMulti, buf, len);
+    lvnum = next_multiplayer_level(lvnum);
+  }
+  lvnum = first_extra_level();
+  while (lvnum > 0)
+  {
+    parse_campaign_map_block(lvnum, LvOp_IsExtra, buf, len);
+    lvnum = next_extra_level(lvnum);
+  }
+  return 1;
 }
 
 short load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn)
@@ -729,9 +1617,7 @@ short load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn)
   char *buf;
   long len,pos;
   int cmd_num;
-  // Variables to use when recognizing parameters
-  char word_buf[32];
-  int i,k;
+  short result;
   // Preparing campaign file name and checking the file
   clear_campaign(campgn);
   fname = prepare_file_path(FGrp_Campgn,cmpgn_fname);
@@ -751,137 +1637,193 @@ short load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn)
     return false;
   // Loading file data
   len = LbFileLoadAt(fname, buf);
-  if (len>0)
+  result = (len > 0);
+  if (result)
   {
-    pos = 0;
-    while (pos<len)
-    {
-      // Finding command number in this line
-      i = 0;
-      cmd_num = recognize_conf_command(buf,&pos,len,cmpgn_commands);
-      // Now store the config item in correct place
-      switch (cmd_num)
-      {
-      case 1: // NAME
-          i = get_conf_parameter_whole(buf,&pos,len,campgn->name,LINEMSG_SIZE);
-          if (i <= 0)
-            LbWarnLog("Couldn't read \"%s\" command parameter in config file.\n","NAME");
-          break;
-      case 2: // SINGLE_LEVELS
-          for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
-          {
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if (k > 0)
-                campgn->single_levels[i] = k;
-              else
-                LbWarnLog("Couldn't recognize level in \"%s\" command of campaign file.\n","SINGLE_LEVELS");
-            } else
-            {
-              if (i > 0)
-                campgn->single_levels[i] = 0;
-              else
-                LbWarnLog("Levels list empty in \"%s\" command of campaign file.\n","SINGLE_LEVELS");
-              break;
-            }
-          }
-          break;
-      case 3: // MULTI_LEVELS
-          for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
-          {
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if (k > 0)
-                campgn->multi_levels[i] = k;
-              else
-                LbWarnLog("Couldn't recognize level in \"%s\" command of campaign file.\n","MULTI_LEVELS");
-            } else
-            {
-              if (i > 0)
-                campgn->multi_levels[i] = 0;
-              else
-                LbWarnLog("Levels list empty in \"%s\" command of campaign file.\n","MULTI_LEVELS");
-              break;
-            }
-          }
-          break;
-      case 4: // BONUS_LEVELS
-          for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
-          {
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if (k >= 0) // Some bonus levels may not exist
-                campgn->bonus_levels[i] = k;
-              else
-                LbWarnLog("Couldn't recognize level in \"%s\" command of campaign file.\n","BONUS_LEVELS");
-            } else
-            {
-              if (i > 0)
-                campgn->bonus_levels[i] = 0;
-              else
-                LbWarnLog("Levels list empty in \"%s\" command of campaign file.\n","BONUS_LEVELS");
-              break;
-            }
-          }
-          break;
-      case 5: // EXTRA_LEVELS
-          for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
-          {
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if (k > 0)
-                campgn->extra_levels[i] = k;
-              else
-                LbWarnLog("Couldn't recognize level in \"%s\" command of campaign file.\n","EXTRA_LEVELS");
-            } else
-            {
-              if (i > 0)
-                campgn->extra_levels[i] = 0;
-              else
-                LbWarnLog("Levels list empty in \"%s\" command of campaign file.\n","EXTRA_LEVELS");
-              break;
-            }
-          }
-          break;
-      case 6: // HIGH_SCORES
-          i = get_conf_parameter_whole(buf,&pos,len,campgn->hiscore_fname,LINEMSG_SIZE);
-          if (i <= 0)
-            LbWarnLog("Couldn't read \"%s\" command parameter in config file.\n","HIGH_SCORES");
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          LbWarnLog("Unrecognized command in campaign file \"%s\", starting on byte %d.\n",cmpgn_fname,pos);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-    }
+    result = parse_campaign_common_blocks(campgn, buf, len);
+    if (!result)
+      LbWarnLog("Parsing campaign file \"%s\" common blocks failed.\n",cmpgn_fname);
+  }
+  if (result)
+  {
+    result = parse_campaign_map_blocks(campgn, buf, len);
+    if (!result)
+      LbWarnLog("Parsing campaign file \"%s\" map blocks failed.\n",cmpgn_fname);
   }
   //Freeing and exiting
   LbMemoryFree(buf);
-  return true;
+  strcpy(campgn->strings_fname,"data/dd1text.dat");
+  setup_campaign_strings_data(campgn);
+  return result;
 }
 
 short load_default_campaign(void)
 {
+  static short first_time = 1;
+  if (first_time)
+    first_time = 0;
+  else
+    free_campaign(&campaign);
   return load_campaign(keeper_campaign_file,&campaign);
 }
 
-short is_bonus_level(long levidx)
+short reset_strings(char **strings)
+{
+  int text_idx;
+  char **text_arr;
+  text_arr = strings;
+  text_idx = STRINGS_MAX;
+  while (text_idx >= 0)
+  {
+    *text_arr = lbEmptyString;
+    text_arr++;
+    text_idx--;
+  }
+}
+
+short create_strings_list(char **strings,char *strings_data,char *strings_data_end)
+{
+  int text_idx;
+  char *text_ptr;
+  char **text_arr;
+  text_arr = strings;
+  text_idx = STRINGS_MAX;
+  text_ptr = strings_data;
+  while (text_idx >= 0)
+  {
+    if (text_ptr >= strings_data_end)
+    {
+      break;
+    }
+    *text_arr = text_ptr;
+    text_arr++;
+    char chr_prev;
+    do {
+            chr_prev = *text_ptr;
+            text_ptr++;
+    } while ((chr_prev != '\0') && (text_ptr < strings_data_end));
+    text_idx--;
+  }
+  return (text_idx < STRINGS_MAX);
+}
+
+/*
+ * Loads the language-specific strings data for game interface.
+ */
+short setup_gui_strings_data(void)
+{
+  static const char *func_name="setup_gui_strings_data";
+  char *strings_data_end;
+  char *fname;
+  short result;
+  long filelen;
+#if (BFDEBUG_LEVEL > 18)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  fname = prepare_file_path(FGrp_StdData,"dd1text.dat");
+  filelen = LbFileLengthRnc(fname);
+  if (filelen <= 0)
+  {
+    error(func_name, 1501, "GUI Strings file does not exist or can't be opened");
+    return false;
+  }
+  gui_strings_data = (char *)LbMemoryAlloc(filelen + 256);
+  if (gui_strings_data == NULL)
+  {
+    error(func_name, 1509, "Can't allocate memory for GUI Strings data");
+    return false;
+  }
+  strings_data_end = gui_strings_data+filelen+255;
+  long loaded_size = LbFileLoadAt(fname, gui_strings_data);
+  if (loaded_size < 16)
+  {
+    error(func_name, 1501, "GUI Strings file couldn't be loaded or is too small");
+    return false;
+  }
+  // Resetting all values to empty strings
+  reset_strings(gui_strings);
+  // Analyzing strings data and filling correct values
+  result = create_strings_list(gui_strings, gui_strings_data, strings_data_end);
+  // Updating strings inside the DLL
+  LbMemoryCopy(_DK_strings, gui_strings, DK_STRINGS_MAX*sizeof(char *));
+#if (BFDEBUG_LEVEL > 19)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
+  return result;
+}
+
+short free_gui_strings_data(void)
+{
+  // Resetting all values to empty strings
+  reset_strings(gui_strings);
+  // Freeing memory
+  LbMemoryFree(gui_strings_data);
+  gui_strings_data = NULL;
+  return true;
+}
+
+/*
+ * Loads the language-specific strings data for the current campaign.
+ */
+short setup_campaign_strings_data(struct GameCampaign *campgn)
+{
+  static const char *func_name="setup_campaign_strings_data";
+  char *strings_data_end;
+  char *fname;
+  short result;
+  long filelen;
+#if (BFDEBUG_LEVEL > 18)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  fname = prepare_file_path(FGrp_Main,campgn->strings_fname);
+  filelen = LbFileLengthRnc(fname);
+  if (filelen <= 0)
+  {
+    error(func_name, 1501, "Campaign Strings file does not exist or can't be opened");
+    return false;
+  }
+  campgn->strings_data = (char *)LbMemoryAlloc(filelen + 256);
+  if (campgn->strings_data == NULL)
+  {
+    error(func_name, 1509, "Can't allocate memory for Campaign Strings data");
+    return false;
+  }
+  strings_data_end = campgn->strings_data+filelen+255;
+  long loaded_size = LbFileLoadAt(fname, campgn->strings_data);
+  if (loaded_size < 16)
+  {
+    error(func_name, 1501, "Campaign Strings file couldn't be loaded or is too small");
+    return false;
+  }
+  // Resetting all values to empty strings
+  reset_strings(campgn->strings);
+  // Analyzing strings data and filling correct values
+  result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end);
+#if (BFDEBUG_LEVEL > 19)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
+  return result;
+}
+
+short is_bonus_level(long lvnum)
 {
   int i;
-  if (levidx < 1) return false;
+  if (lvnum < 1) return false;
   for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
   {
-    if (campaign.bonus_levels[i] == levidx)
+    if (campaign.bonus_levels[i] == lvnum)
         return true;
-    if (campaign.extra_levels[i] == levidx)
+  }
+  return false;
+}
+
+short is_extra_level(long lvnum)
+{
+  int i;
+  if (lvnum < 1) return false;
+  for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
+  {
+    if (campaign.extra_levels[i] == lvnum)
         return true;
   }
   return false;
@@ -889,15 +1831,16 @@ short is_bonus_level(long levidx)
 
 /*
  * Returns index for Game->bonus_levels associated with given single player level.
+ * Gives -1 if there's no store place for the level.
  */
-int array_index_for_levels_bonus(long levidx)
+int storage_index_for_bonus_level(long bn_lvnum)
 {
   int i,k;
-  if (levidx < 1) return -1;
+  if (bn_lvnum < 1) return -1;
   k=0;
-  for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
+  for (i=0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
-    if (campaign.single_levels[i] == levidx)
+    if (campaign.bonus_levels[i] == bn_lvnum)
         return k;
     if (campaign.bonus_levels[i] != 0)
         k++;
@@ -905,76 +1848,480 @@ int array_index_for_levels_bonus(long levidx)
   return -1;
 }
 
-long first_singleplayer_level(void)
+/*
+ * Returns index for Campaign->bonus_levels associated with given bonus level.
+ * If the level is not found, returns -1.
+ */
+int array_index_for_bonus_level(long bn_lvnum)
 {
-  return campaign.single_levels[0];
+  int i;
+  if (bn_lvnum < 1) return -1;
+  for (i=0; i < CAMPAIGN_LEVELS_COUNT; i++)
+  {
+    if (campaign.bonus_levels[i] == bn_lvnum)
+        return i;
+  }
+  return -1;
 }
 
 /*
- * Returns the next single player level. Gives -2 if last level was won,
- * -1 on error.
+ * Returns index for Campaign->extra_levels associated with given extra level.
+ * If the level is not found, returns -1.
  */
-long next_singleplayer_level(long levidx)
+int array_index_for_extra_level(long ex_lvnum)
 {
   int i;
-  if (levidx < 1) return -1;
+  if (ex_lvnum < 1) return -1;
+  for (i=0; i < CAMPAIGN_LEVELS_COUNT; i++)
+  {
+    if (campaign.extra_levels[i] == ex_lvnum)
+        return i;
+  }
+  return -1;
+}
+
+/*
+ * Returns index for Campaign->single_levels associated with given singleplayer level.
+ * If the level is not found, returns -1.
+ */
+int array_index_for_singleplayer_level(LevelNumber sp_lvnum)
+{
+  int i;
+  if (sp_lvnum < 1) return -1;
+  for (i=0; i < CAMPAIGN_LEVELS_COUNT; i++)
+  {
+    if (campaign.single_levels[i] == sp_lvnum)
+        return i;
+  }
+  return -1;
+}
+
+/*
+ * Returns index for Campaign->multi_levels associated with given multiplayer level.
+ * If the level is not found, returns -1.
+ */
+int array_index_for_multiplayer_level(LevelNumber mp_lvnum)
+{
+  int i;
+  if (mp_lvnum < 1) return -1;
+  for (i=0; i < CAMPAIGN_LEVELS_COUNT; i++)
+  {
+    if (campaign.multi_levels[i] == mp_lvnum)
+        return i;
+  }
+  return -1;
+}
+
+/*
+ * Returns index for Campaign->freeplay_levels associated with given freeplay level.
+ * If the level is not found, returns -1.
+ */
+int array_index_for_freeplay_level(LevelNumber fp_lvnum)
+{
+  int i;
+  if (fp_lvnum < 1) return -1;
+  for (i=0; i < FREE_LEVELS_COUNT; i++)
+  {
+    if (campaign.freeplay_levels[i] == fp_lvnum)
+        return i;
+  }
+  return -1;
+}
+
+/*
+ * Returns bonus level number for given singleplayer level number.
+ * If no bonus found, returns 0.
+ */
+LevelNumber bonus_level_for_singleplayer_level(LevelNumber sp_lvnum)
+{
+  int i;
+  i = array_index_for_singleplayer_level(sp_lvnum);
+  if (i >= 0)
+    return campaign.bonus_levels[i];
+  return 0;
+}
+
+/*
+ * Returns first single player level number.
+ * On error, returns SINGLEPLAYER_NOTSTARTED.
+ */
+LevelNumber first_singleplayer_level(void)
+{
+  long lvnum = campaign.single_levels[0];
+  if (lvnum > 0)
+    return lvnum;
+  return SINGLEPLAYER_NOTSTARTED;
+}
+
+/*
+ * Returns last single player level number.
+ * On error, returns SINGLEPLAYER_NOTSTARTED.
+ */
+LevelNumber last_singleplayer_level(void)
+{
+  int i;
+  i = campaign.single_levels_count;
+  if ((i > 0) && (i <= CAMPAIGN_LEVELS_COUNT))
+    return campaign.single_levels[i-1];
+  return SINGLEPLAYER_NOTSTARTED;
+}
+
+/*
+ * Returns first multi player level number.
+ * On error, returns SINGLEPLAYER_NOTSTARTED.
+ */
+LevelNumber first_multiplayer_level(void)
+{
+  long lvnum = campaign.multi_levels[0];
+  if (lvnum > 0)
+    return lvnum;
+  return SINGLEPLAYER_NOTSTARTED;
+}
+
+/*
+ * Returns last multi player level number.
+ * On error, returns SINGLEPLAYER_NOTSTARTED.
+ */
+LevelNumber last_multiplayer_level(void)
+{
+  int i;
+  i = campaign.multi_levels_count;
+  if ((i > 0) && (i <= CAMPAIGN_LEVELS_COUNT))
+    return campaign.multi_levels[i-1];
+  return SINGLEPLAYER_NOTSTARTED;
+}
+
+/*
+ * Returns first free play level number.
+ * On error, returns SINGLEPLAYER_NOTSTARTED.
+ */
+LevelNumber first_freeplay_level(void)
+{
+  long lvnum = campaign.freeplay_levels[0];
+  if (lvnum > 0)
+    return lvnum;
+  return SINGLEPLAYER_NOTSTARTED;
+}
+
+/*
+ * Returns last free play level number.
+ * On error, returns SINGLEPLAYER_NOTSTARTED.
+ */
+LevelNumber last_freeplay_level(void)
+{
+  int i;
+  i = campaign.freeplay_levels_count;
+  if ((i > 0) && (i <= FREE_LEVELS_COUNT))
+    return campaign.freeplay_levels[i-1];
+  return SINGLEPLAYER_NOTSTARTED;
+}
+
+/*
+ * Returns first extra level number.
+ * On error, returns SINGLEPLAYER_NOTSTARTED.
+ */
+LevelNumber first_extra_level(void)
+{
+  long lvidx;
+  long lvnum;
+  for (lvidx=0; lvidx < campaign.extra_levels_index; lvidx++)
+  {
+    lvnum = campaign.extra_levels[lvidx];
+    if (lvnum > 0)
+      return lvnum;
+  }
+  return SINGLEPLAYER_NOTSTARTED;
+}
+
+/*
+ * Returns the extra level number. Gives 0 if no such level,
+ * LEVELNUMBER_ERROR on error.
+ */
+LevelNumber get_extra_level(unsigned short elv_kind)
+{
+  int i;
+  LevelNumber lvnum;
+  i = elv_kind;
+  i--;
+  if ((i < 0) || (i >= CAMPAIGN_LEVELS_COUNT))
+    return LEVELNUMBER_ERROR;
+  lvnum = campaign.extra_levels[i];
+  if (lvnum > 0)
+    return lvnum;
+  return 0;
+}
+
+/*
+ * Returns the next single player level. Gives SINGLEPLAYER_FINISHED if
+ * last level was won, LEVELNUMBER_ERROR on error.
+ */
+LevelNumber next_singleplayer_level(LevelNumber sp_lvnum)
+{
+  int i;
+  if (sp_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
+  if (sp_lvnum == SINGLEPLAYER_NOTSTARTED) return first_singleplayer_level();
+  if (sp_lvnum < 1) return LEVELNUMBER_ERROR;
   for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
   {
-    if (campaign.single_levels[i] == levidx)
+    if (campaign.single_levels[i] == sp_lvnum)
     {
       if (i+1 >= CAMPAIGN_LEVELS_COUNT)
-        return -2;
+        return SINGLEPLAYER_FINISHED;
       if (campaign.single_levels[i+1] <= 0)
-        return -2;
+        return SINGLEPLAYER_FINISHED;
       return campaign.single_levels[i+1];
     }
   }
-  return false;
+  return LEVELNUMBER_ERROR;
 }
 
-short is_singleplayer_level(long levidx)
+/*
+ * Returns the previous single player level. Gives SINGLEPLAYER_NOTSTARTED if
+ * first level was given, LEVELNUMBER_ERROR on error.
+ */
+LevelNumber prev_singleplayer_level(LevelNumber sp_lvnum)
+{
+  int i;
+  if (sp_lvnum == SINGLEPLAYER_NOTSTARTED) return SINGLEPLAYER_NOTSTARTED;
+  if (sp_lvnum == SINGLEPLAYER_FINISHED) return last_singleplayer_level();
+  if (sp_lvnum < 1) return LEVELNUMBER_ERROR;
+  for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
+  {
+    if (campaign.single_levels[i] == sp_lvnum)
+    {
+      if (i < 1)
+        return SINGLEPLAYER_NOTSTARTED;
+      if (campaign.single_levels[i-1] <= 0)
+        return SINGLEPLAYER_NOTSTARTED;
+      return campaign.single_levels[i-1];
+    }
+  }
+  return LEVELNUMBER_ERROR;
+}
+
+/*
+ * Returns the next multi player level. Gives SINGLEPLAYER_FINISHED if
+ * last level was given, LEVELNUMBER_ERROR on error.
+ */
+LevelNumber next_multiplayer_level(LevelNumber mp_lvnum)
+{
+  int i;
+  if (mp_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
+  if (mp_lvnum == SINGLEPLAYER_NOTSTARTED) return first_multiplayer_level();
+  if (mp_lvnum < 1) return LEVELNUMBER_ERROR;
+  for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
+  {
+    if (campaign.multi_levels[i] == mp_lvnum)
+    {
+      if (i+1 >= CAMPAIGN_LEVELS_COUNT)
+        return SINGLEPLAYER_FINISHED;
+      if (campaign.multi_levels[i+1] <= 0)
+        return SINGLEPLAYER_FINISHED;
+      return campaign.multi_levels[i+1];
+    }
+  }
+  return LEVELNUMBER_ERROR;
+}
+
+/*
+ * Returns the previous multi player level. Gives SINGLEPLAYER_NOTSTARTED if
+ * first level was given, LEVELNUMBER_ERROR on error.
+ */
+LevelNumber prev_multiplayer_level(LevelNumber mp_lvnum)
+{
+  int i;
+  if (mp_lvnum == SINGLEPLAYER_NOTSTARTED) return SINGLEPLAYER_NOTSTARTED;
+  if (mp_lvnum == SINGLEPLAYER_FINISHED) return last_multiplayer_level();
+  if (mp_lvnum < 1) return LEVELNUMBER_ERROR;
+  for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
+  {
+    if (campaign.multi_levels[i] == mp_lvnum)
+    {
+      if (i < 1)
+        return SINGLEPLAYER_NOTSTARTED;
+      if (campaign.multi_levels[i-1] <= 0)
+        return SINGLEPLAYER_NOTSTARTED;
+      return campaign.multi_levels[i-1];
+    }
+  }
+  return LEVELNUMBER_ERROR;
+}
+
+/*
+ * Returns the next extra level. Gives SINGLEPLAYER_FINISHED if
+ * last level was given, LEVELNUMBER_ERROR on error.
+ */
+LevelNumber next_extra_level(LevelNumber ex_lvnum)
+{
+  int i;
+  if (ex_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
+  if (ex_lvnum == SINGLEPLAYER_NOTSTARTED) return first_extra_level();
+  if (ex_lvnum < 1) return LEVELNUMBER_ERROR;
+  for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
+  {
+    if (campaign.extra_levels[i] == ex_lvnum)
+    {
+      i++;
+      while (i < CAMPAIGN_LEVELS_COUNT)
+      {
+        if (campaign.extra_levels[i] > 0)
+          return campaign.extra_levels[i];
+        i++;
+      }
+      return SINGLEPLAYER_FINISHED;
+    }
+  }
+  return LEVELNUMBER_ERROR;
+}
+
+/*
+ * Returns the next freeplay level. Gives SINGLEPLAYER_FINISHED if
+ * last level was given, LEVELNUMBER_ERROR on error.
+ */
+LevelNumber next_freeplay_level(LevelNumber fp_lvnum)
+{
+  int i;
+  if (fp_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
+  if (fp_lvnum == SINGLEPLAYER_NOTSTARTED) return first_freeplay_level();
+  if (fp_lvnum < 1) return LEVELNUMBER_ERROR;
+  for (i=0; i<FREE_LEVELS_COUNT; i++)
+  {
+    if (campaign.freeplay_levels[i] == fp_lvnum)
+    {
+      if (i+1 >= FREE_LEVELS_COUNT)
+        return SINGLEPLAYER_FINISHED;
+      if (campaign.freeplay_levels[i+1] <= 0)
+        return SINGLEPLAYER_FINISHED;
+      return campaign.freeplay_levels[i+1];
+    }
+  }
+  return LEVELNUMBER_ERROR;
+}
+
+/*
+ * Returns the previous freeplay level. Gives SINGLEPLAYER_NOTSTARTED if
+ * first level was given, LEVELNUMBER_ERROR on error.
+ */
+LevelNumber prev_freeplay_level(LevelNumber fp_lvnum)
+{
+  int i;
+  if (fp_lvnum == SINGLEPLAYER_NOTSTARTED) return SINGLEPLAYER_NOTSTARTED;
+  if (fp_lvnum == SINGLEPLAYER_FINISHED) return last_freeplay_level();
+  if (fp_lvnum < 1) return LEVELNUMBER_ERROR;
+  for (i=0; i<FREE_LEVELS_COUNT; i++)
+  {
+    if (campaign.freeplay_levels[i] == fp_lvnum)
+    {
+      if (i < 1)
+        return SINGLEPLAYER_NOTSTARTED;
+      if (campaign.freeplay_levels[i-1] <= 0)
+        return SINGLEPLAYER_NOTSTARTED;
+      return campaign.freeplay_levels[i-1];
+    }
+  }
+  return LEVELNUMBER_ERROR;
+}
+
+/*
+ * Returns if the level is a single player campaign level,
+ * or special non-existing level at start/end of campaign.
+ */
+short is_singleplayer_like_level(LevelNumber lvnum)
+{
+  if ((lvnum == SINGLEPLAYER_FINISHED) || (lvnum == SINGLEPLAYER_NOTSTARTED))
+    return true;
+  return is_singleplayer_level(lvnum);
+}
+
+/*
+ * Returns if the level is a single player campaign level.
+ */
+short is_singleplayer_level(LevelNumber lvnum)
 {
   static const char *func_name="is_singleplayer_level";
   int i;
-  if (levidx < 1)
+  if (lvnum < 1)
   {
-  #if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Level index %ld is not correct\n",func_name,levidx);
+  #if (BFDEBUG_LEVEL > 17)
+    LbSyncLog("%s: Level index %ld is not correct\n",func_name,lvnum);
   #endif
     return false;
   }
   for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
   {
-    if (campaign.single_levels[i] == levidx)
+    if (campaign.single_levels[i] == lvnum)
     {
-  #if (BFDEBUG_LEVEL > 7)
-      LbSyncLog("%s: Level %ld identified as SP\n",func_name,levidx);
+  #if (BFDEBUG_LEVEL > 17)
+      LbSyncLog("%s: Level %ld identified as SP\n",func_name,lvnum);
   #endif
         return true;
     }
   }
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Level %ld not recognized as SP\n",func_name,levidx);
+#if (BFDEBUG_LEVEL > 17)
+    LbSyncLog("%s: Level %ld not recognized as SP\n",func_name,lvnum);
 #endif
   return false;
 }
 
-short is_original_singleplayer_level(long levidx)
+short is_original_singleplayer_level(LevelNumber lvnum)
 {
-    if ((levidx>=1)&&(levidx<21))
+    if ((lvnum>=1)&&(lvnum<21))
         return true;
     return false;
 }
 
-short is_multiplayer_level(long levidx)
+short is_multiplayer_level(LevelNumber lvnum)
 {
   int i;
-  if (levidx < 1) return false;
+  if (lvnum < 1) return false;
   for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
   {
-    if (campaign.multi_levels[i] == levidx)
+    if (campaign.multi_levels[i] == lvnum)
         return true;
   }
+  // Original MP checking - remove when it's not needed anymore
+  struct NetLevelDesc *lvdesc;
+  if (net_number_of_levels <= 0)
+    return false;
+  for (i=0; i < net_number_of_levels; i++)
+  {
+    lvdesc = &net_level_desc[i];
+    if (lvdesc->field_0 == lvnum)
+      return true;
+  }
+  return false;
+}
+
+/*
+ * Returns if the level is 'campaign' level.
+ * All levels mentioned in campaign file are campaign levels. Campaign and
+ * freeplay levels are exclusive.
+ */
+short is_campaign_level(LevelNumber lvnum)
+{
+  if (is_singleplayer_level(lvnum) || is_bonus_level(lvnum)
+   || is_extra_level(lvnum) || is_multiplayer_level(lvnum))
+    return true;
+  return false;
+}
+
+/*
+ * Returns if the level is 'free play' level, which should be visible
+ * in list of levels.
+ */
+short is_freeplay_level(LevelNumber lvnum)
+{
+  int i;
+  if (lvnum < 1) return false;
+  for (i=0; i<FREE_LEVELS_COUNT; i++)
+  {
+    if (campaign.freeplay_levels[i] == lvnum)
+    {
+//LbSyncLog("%d is freeplay\n",lvnum);
+        return true;
+    }
+  }
+//LbSyncLog("%d is NOT freeplay\n",lvnum);
   return false;
 }
 /******************************************************************************/

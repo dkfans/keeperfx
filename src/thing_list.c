@@ -34,6 +34,40 @@ DLLIMPORT long _DK_update_things_in_list(struct StructureList *list);
 DLLIMPORT void _DK_update_things(void);
 
 /******************************************************************************/
+long creature_near_filter_not_imp(struct Thing *thing, long val)
+{
+  return (thing->model != 23);
+}
+
+long creature_near_filter_is_enemy_of_and_not_imp(struct Thing *thing, long val)
+{
+  return (thing->owner != val) && (thing->model != 23);
+}
+
+long creature_near_filter_is_owned_by(struct Thing *thing, long val)
+{
+  struct SlabMap *slb;
+  unsigned long x,y;
+  int i;
+  if (thing->owner == val)
+  {
+    return 1;
+  }
+  if (thing->field_7 == 14)
+    i = thing->field_8;
+  else
+    i = thing->field_7;
+  if ((i == 41) || (i == 40) || (i == 43) || (i == 42))
+  {
+    x = map_to_slab[thing->mappos.x.stl.num];
+    y = map_to_slab[thing->mappos.y.stl.num];
+    slb = &game.slabmap[y*map_tiles_x + x];
+    if ((slb->field_5 & 0x07) == val);
+      return true;
+  }
+  return false;
+}
+
 TbBigChecksum update_things_in_list(struct StructureList *list)
 {
   static const char *func_name="update_things_in_list";
@@ -367,6 +401,42 @@ struct Thing *find_hero_gate_of_number(long num)
   return game.things_lookup[0];
 }
 
+short knight_in_prison(void)
+{
+  static const char *func_name="knight_in_prison";
+  struct Thing *thing;
+  long i,k,n;
+  i = game.thing_lists[0].index;
+  k = 0;
+  while (i>0)
+  {
+    if (i >= THINGS_COUNT)
+    {
+      error(func_name,4576,"Jump out of things array bounds detected");
+      break;
+    }
+    thing = game.things_lookup[i];
+    if (thing_is_invalid(thing))
+      break;
+    i = thing->next_of_class;
+    if (thing->model == 6)
+    {
+      n = thing->field_7;
+      if (n == 14)
+        n = thing->field_8;
+      if ((n == 41) || (n == 40))
+        return true;
+    }
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      error(func_name,4577,"Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  return false;
+}
+
 long get_free_hero_gate_number(void)
 {
   struct Thing *thing;
@@ -381,7 +451,46 @@ long get_free_hero_gate_number(void)
   return 0;
 }
 
+/*
+ * Returns thing of given array index.
+ * @return Returns thing, or invalid thing pointer if not found.
+ */
+struct Thing *thing_get(long tng_idx)
+{
+  if ((tng_idx > 0) && (tng_idx < THINGS_COUNT))
+    return game.things_lookup[tng_idx];
+  return game.things_lookup[0];
+}
 
+long thing_get_index(const struct Thing *thing)
+{
+  long tng_idx;
+  tng_idx = (thing - game.things_lookup[0]);
+  if ((tng_idx > 0) && (tng_idx < THINGS_COUNT))
+    return tng_idx;
+  return 0;
+}
+
+short thing_is_invalid(const struct Thing *thing)
+{
+  return (thing == game.things_lookup[0]) || (thing == NULL);
+}
+
+short thing_exists_idx(long tng_idx)
+{
+  struct Thing *thing;
+  thing = thing_get(tng_idx);
+  if (thing_is_invalid(thing))
+    return false;
+  return ((thing->field_0 & 0x01) != 0);
+}
+
+short thing_exists(const struct Thing *thing)
+{
+  if (thing_is_invalid(thing))
+    return false;
+  return ((thing->field_0 & 0x01) != 0);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -27,11 +27,10 @@ extern "C" {
 #endif
 /******************************************************************************/
 // Buffer sizes
+// Disk path max length
 #define DISKPATH_SIZE   144
 #define LINEMSG_SIZE    160
 #define READ_BUFSIZE    256
-
-#pragma pack(1)
 
 // Max length of any processed string
 #define MAX_TEXT_LENGTH 4096
@@ -42,6 +41,9 @@ enum TbErrorLogFlag {
         Lb_ERROR_LOG_APPEND = 0,
         Lb_ERROR_LOG_NEW =  1,
 };
+
+/******************************************************************************/
+#pragma pack(1)
 
 typedef unsigned long ulong;
 typedef unsigned int uint;
@@ -67,6 +69,7 @@ typedef unsigned char TbChecksum;
 typedef unsigned long TbBigChecksum;
 typedef long Offset;
 typedef int TbFileHandle;
+typedef unsigned char TbBool;
 
 struct TbFileFind {
           char Filename[144];
@@ -93,7 +96,6 @@ struct TbLog {
 };
 
 #pragma pack()
-
 /******************************************************************************/
 extern const char *log_file_name;
 // High level functions - DK specific
@@ -124,6 +126,8 @@ void set_flag_word(unsigned short *flags,unsigned short mask,short value);
 void set_flag_dword(unsigned long *flags,unsigned long mask,short value);
 void toggle_flag_byte(unsigned char *flags,unsigned char mask);
 void toggle_flag_dword(unsigned long *flags,unsigned long mask);
+long saturate_set_signed(long long val,unsigned short nbits);
+unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits);
 /******************************************************************************/
 #ifdef __cplusplus
 }

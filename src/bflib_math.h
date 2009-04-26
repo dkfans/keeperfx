@@ -34,20 +34,17 @@ DLLIMPORT int _DK_lbSinTable[2048];
 #define lbSinTable _DK_lbSinTable
 /******************************************************************************/
 
-inline long LbSinL(long x)
-{
-  return lbSinTable[(unsigned long)x & 0x7FF];
-}
-
-inline long LbCosL(long x)
-{
-  return lbCosTable[(unsigned long)x & 0x7FF];
-}
-
+long LbSinL(long x);
+long LbCosL(long x);
 long __fastcall LbSqrL(long x);
 
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
+
+#ifdef __cplusplus
+#include "bflib_mathinln.h"
+#endif
+
 #endif

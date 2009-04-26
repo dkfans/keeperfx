@@ -44,8 +44,8 @@ DLLIMPORT void _DK_load_slab_file(void);
 DLLIMPORT long _DK_load_map_data_file(unsigned long lv_num);
 DLLIMPORT void _DK_load_thing_file(unsigned long lv_num);
 DLLIMPORT long _DK_load_action_point_file(unsigned long lv_num);
-DLLIMPORT long _DK_load_texture_map_file(unsigned long lv_num, unsigned char n);
 DLLIMPORT void _DK_load_level_file(long lvnum);
+DLLIMPORT void _DK_initialise_extra_slab_info(unsigned long lv_num);
 /******************************************************************************/
 
 /*
@@ -54,34 +54,180 @@ DLLIMPORT void _DK_load_level_file(long lvnum);
  * on success, returns a buffer which should be freed after use,
  * and sets ldsize into its size.
  */
-unsigned char *load_single_map_file_to_buffer(unsigned long lv_num,const char *fext,long *ldsize)
+unsigned char *load_single_map_file_to_buffer(unsigned long lvnum,const char *fext,long *ldsize)
 {
   unsigned char *buf;
   char *fname;
   long fsize;
-  fname = prepare_file_fmtpath(FGrp_Levels,"map%05lu.%s",lv_num,fext);
+  short fgroup;
+  fgroup = get_level_fgroup(lvnum);
+  fname = prepare_file_fmtpath(fgroup,"map%05lu.%s",lvnum,fext);
   wait_for_cd_to_be_available();
   fsize = LbFileLengthRnc(fname);
   if (fsize < *ldsize)
   {
-    LbWarnLog("Map file \"map%05lu.%s\" doesn't exist or is too small.\n",lv_num,fext);
+    LbWarnLog("Map file \"map%05lu.%s\" doesn't exist or is too small.\n",lvnum,fext);
     return NULL;
   }
   buf = LbMemoryAlloc(fsize+16);
   if (buf == NULL)
   {
-    LbWarnLog("Can't allocate %ld bytes to load \"map%05lu.%s\".\n",fsize,lv_num,fext);
+    LbWarnLog("Can't allocate %ld bytes to load \"map%05lu.%s\".\n",fsize,lvnum,fext);
     return NULL;
   }
   fsize = LbFileLoadAt(fname,buf);
   if (fsize < *ldsize)
   {
-    LbWarnLog("Reading map file \"map%05lu.%s\" failed.\n",lv_num,fext);
+    LbWarnLog("Reading map file \"map%05lu.%s\" failed.\n",lvnum,fext);
     LbMemoryFree(buf);
     return false;
   }
   *ldsize = fsize;
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("Map file \"map%05lu.%s\" loaded.\n",lvnum,fext);
+#endif
   return buf;
+}
+
+/*
+ * Analyses one line of .LIF file buffer. The buffer must be null-terminated.
+ * @return Returns length of the parsed line.
+ */
+long level_lif_entry_parse(char *fname, char *buf)
+{
+  long lvnum;
+  char *cbuf;
+  long i;
+  if (buf[0] == '\0')
+    return 0;
+  i = 0;
+  // Skip spaces and control chars
+  while (buf[i] != '\0')
+  {
+    if (!isspace(buf[i]) && (buf[i] != ',') && (buf[i] != ';') && (buf[i] != ':'))
+      break;
+    i++;
+  }
+  // Get level number
+  lvnum = strtol(&buf[i],&cbuf,0);
+  // If can't read number, return
+  if (cbuf == &buf[i])
+  {
+    LbWarnLog("Can't read level number from '%s'\n", fname);
+    return 0;
+  }
+  // Skip spaces and blank chars
+  while (cbuf[0] != '\0')
+  {
+    if (!isspace(cbuf[0]) && (cbuf[0] != ',') && (cbuf[0] != ';') && (cbuf[0] != ':'))
+      break;
+    cbuf++;
+  }
+  // Find length of level name; make it null-terminated
+  i = 0;
+  while (cbuf[i] != '\0')
+  {
+    if ((cbuf[i] == '\n') || (cbuf[i] == '\r'))
+    {
+      cbuf[i] = '\0';
+      break;
+    }
+    i++;
+  }
+  if (i >= LINEMSG_SIZE)
+  {
+    LbWarnLog("Level name from '%s' truncated from %d to %d characters\n", fname,i,LINEMSG_SIZE);
+    i = LINEMSG_SIZE-1;
+    cbuf[i] = '\0';
+  }
+  if (cbuf[0] == '\0')
+  {
+    LbWarnLog("Can't read level name from '%s'\n", fname);
+    return 0;
+  }
+  // check if the level isn't added as other type of level
+  if (is_campaign_level(lvnum))
+    return (cbuf-buf)+i;
+  // Store level name
+  if (add_freeplay_level_to_campaign(&campaign,lvnum) < 0)
+  {
+    LbWarnLog("Can't add freeplay level from '%s' to campaign\n", fname);
+    return 0;
+  }
+  if (!set_level_info_text_name(lvnum,cbuf,LvOp_IsFree))
+  {
+    LbWarnLog("Can't set name of level from file '%s'\n", fname);
+    return 0;
+  }
+  return (cbuf-buf)+i;
+}
+
+/*
+ * Analyses given .LIF file buffer. The buffer must be null-terminated.
+ */
+short level_lif_file_parse(char *fname, char *buf, long buflen)
+{
+  short result;
+  long i;
+  long pos;
+  if (buf == NULL)
+    return false;
+  result = false;
+  pos = 0;
+  do
+  {
+    i = level_lif_entry_parse(fname, &buf[pos]);
+    if (i > 0)
+    {
+      result = true;
+      pos += i+1;
+      if (pos+1 >= buflen)
+        break;
+    } 
+  } while (i > 0);
+  return result;
+}
+
+short find_and_load_lif_files(void)
+{
+  struct TbFileFind fileinfo;
+  unsigned char *buf;
+  char *fname;
+  short result;
+  int rc;
+  long i;
+  buf = LbMemoryAlloc(MAX_LIF_SIZE);
+  if (buf == NULL)
+  {
+    LbErrorLog("Can't allocate memory for .LIF files parsing.\n");
+    return false;
+  }
+  result = false;
+  fname = prepare_file_path(FGrp_VarLevels,"*.lif");
+  rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
+  while (rc != -1)
+  {
+    fname = prepare_file_path(FGrp_VarLevels,fileinfo.Filename);
+    i = LbFileLength(fname);
+    if ((i < 0) || (i >= MAX_LIF_SIZE))
+    {
+      LbWarnLog("File '%s' too long (Max size %d)\n", fileinfo.Filename, MAX_LIF_SIZE);
+
+    } else
+    if (LbFileLoadAt(fname, buf) != i)
+    {
+      LbWarnLog("Unable to read .LIF file, '%s'\n", fileinfo.Filename);
+    } else
+    {
+      buf[i] = '\0';
+      if (level_lif_file_parse(fileinfo.Filename, (char *)buf, i))
+        result = true;
+    }
+    rc = LbFileFindNext(&fileinfo);
+  }
+  LbFileFindEnd(&fileinfo);
+  LbMemoryFree(buf);
+  return result;
 }
 
 long convert_old_column_file(unsigned long lv_num)
@@ -89,7 +235,7 @@ long convert_old_column_file(unsigned long lv_num)
   _DK_convert_old_column_file(lv_num);
 }
 
-long load_column_file(unsigned long lv_num)
+short load_column_file(unsigned long lv_num)
 {
   //return _DK_load_column_file(lv_num);
   struct Column *col;
@@ -184,6 +330,10 @@ long load_map_data_file(unsigned long lv_num)
 
 short load_thing_file(unsigned long lv_num)
 {
+  static const char *func_name="load_thing_file";
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   //_DK_load_thing_file(lv_num); return true;
   struct InitThing itng;
   unsigned long i;
@@ -223,6 +373,9 @@ short load_thing_file(unsigned long lv_num)
 long load_action_point_file(unsigned long lv_num)
 {
   static const char *func_name="load_action_point_file";
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   //return _DK_load_action_point_file(lv_num);
   struct InitActionPoint iapt;
   unsigned long i;
@@ -266,6 +419,10 @@ long load_action_point_file(unsigned long lv_num)
 
 short load_slabdat_file(struct SlabSet *slbset, long *scount)
 {
+  static const char *func_name="load_slabdat_file";
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   long total;
   unsigned char *buf;
   long fsize;
@@ -456,6 +613,9 @@ short load_slab_datclm_files(void)
   long slbset_tot;
   struct SlabSet *sset;
   long i,k,n;
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   // Load Column Set
   cols_tot = COLUMNS_COUNT;
   cols = (struct Column *)LbMemoryAlloc(cols_tot*sizeof(struct Column));
@@ -502,6 +662,9 @@ short load_slab_tng_file(void)
 {
   char *fname;
   static const char *func_name="load_slab_tng_file";
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   fname = prepare_file_fmtpath(FGrp_StdData,"slabs.tng");
   wait_for_cd_to_be_available();
   if ( LbFileExists(fname) )
@@ -514,7 +677,9 @@ short load_slab_tng_file(void)
 short load_slab_file(void)
 {
   static const char *func_name="load_slab_file";
-  short result = true;
+  short result;
+  //_DK_load_slab_file(); return true;
+  result = true;
   if (!load_slab_datclm_files())
     result = false;
   if (!columns_add_static_entries())
@@ -567,7 +732,11 @@ short load_map_ownership_file(unsigned long lv_num)
     for (x=0; x < (map_subtiles_x+1); x++)
     {
       slbmap = &game.slabmap[map_to_slab[y]*map_tiles_x + map_to_slab[x]];
-      slbmap->field_5 ^= (slbmap->field_5 ^ buf[i]) & 7;
+      if ((x < map_subtiles_x) && (y < map_subtiles_y))
+        slbmap->field_5 ^= (slbmap->field_5 ^ buf[i]) & 7;
+      else
+        // TODO: This should be set to 5, but some errors prevent it (hang on map 9)
+        slbmap->field_5 ^= (slbmap->field_5 ^ 0) & 7;
       i++;
     }
   LbMemoryFree(buf);
@@ -580,7 +749,7 @@ short initialise_map_wlb_auto(void)
   struct SlabMap *slb;
   unsigned long x,y;
   unsigned long n,nbridge;
-  nbridge=0;
+  nbridge = 0;
   for (y=0; y < map_tiles_y; y++)
     for (x=0; x < map_tiles_x; x++)
     {
@@ -614,6 +783,9 @@ short load_map_wlb_file(unsigned long lv_num)
   unsigned long nfixes;
   char *text;
   long fsize;
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   nfixes = 0;
   fsize = map_tiles_y*map_tiles_x;
   buf = load_single_map_file_to_buffer(lv_num,"wlb",&fsize);
@@ -660,6 +832,9 @@ short initialise_extra_slab_info(unsigned long lv_num)
 short load_map_slab_file(unsigned long lv_num)
 {
   static const char *func_name="load_map_slab_file";
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   //return _DK_load_map_slab_file(lv_num);
   struct SlabMap *slbmap;
   unsigned long x,y;
@@ -694,6 +869,10 @@ short load_map_slab_file(unsigned long lv_num)
 
 short load_map_flag_file(unsigned long lv_num)
 {
+  static const char *func_name="load_map_flag_file";
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   struct Map *map;
   unsigned long x,y;
   unsigned char *buf;
@@ -774,13 +953,15 @@ short load_and_setup_map_info(unsigned long lv_num)
   return true;
 }
 
-short load_level_file(unsigned long lvnum)
+short load_level_file(LevelNumber lvnum)
 {
   static const char *func_name="load_level_file";
   char *fname;
+  short fgroup;
   short result;
   //_DK_load_level_file(lvnum); return true;
-  fname = prepare_file_fmtpath(FGrp_Levels,"map%05lu.slb",lvnum);
+  fgroup = get_level_fgroup(lvnum);
+  fname = prepare_file_fmtpath(fgroup,"map%05lu.slb",(unsigned long)lvnum);
   wait_for_cd_to_be_available();
   if (LbFileExists(fname))
   {
@@ -818,9 +999,15 @@ short load_level_file(unsigned long lvnum)
   return result;
 }
 
-short load_map_file(long lvidx)
+short load_map_file(LevelNumber lvnum)
 {
-  return load_level_file(lvidx);
+  short result;
+  result = load_level_file(lvnum);
+  if (result)
+    set_loaded_level_number(lvnum);
+  else
+    set_loaded_level_number(SINGLEPLAYER_NOTSTARTED);
+  return result;
 }
 /******************************************************************************/
 #ifdef __cplusplus

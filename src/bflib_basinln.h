@@ -139,6 +139,36 @@ void inline set_flag_dword(unsigned long *flags,unsigned long mask,short value)
     *flags ^= *flags & mask;
 }
 
+/*
+ * Returns a signed value, which is equal to val if it fits in nbits.
+ * Otherwise, returns max value that can fit in nbits.
+ * @param val the value to be saturated.
+ * @param nbits Max bits size, including sign bit.
+ */
+long inline saturate_set_signed(long long val,unsigned short nbits)
+{
+  long long max = (1 << (nbits-1)) - 1;
+  if (val >= max)
+    return max;
+  if (val <= -max)
+    return -max;
+  return val;
+}
+
+/*
+ * Returns an unsigned value, which is equal to val if it fits in nbits.
+ * Otherwise, returns max value that can fit in nbits.
+ * @param val the value to be saturated.
+ * @param nbits Max bits size, including sign bit.
+ */
+unsigned long inline saturate_set_unsigned(unsigned long long val,unsigned short nbits)
+{
+  unsigned long long max = (1 << (nbits)) - 1;
+  if (val >= max)
+    return max;
+  return val;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

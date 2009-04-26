@@ -30,8 +30,12 @@ obj/frontend.o \
 obj/packets.o \
 obj/config.o \
 obj/front_input.o \
+obj/front_landview.o \
 obj/player_computer.o \
 obj/player_instances.o \
+obj/engine_lenses.o \
+obj/engine_camera.o \
+obj/engine_render.o \
 obj/vidmode.o \
 obj/scrcapt.o \
 obj/kjm_input.o \

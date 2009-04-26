@@ -93,7 +93,7 @@ struct Thing {
     unsigned char field_19;
     unsigned char model;
     unsigned short field_1B;
-    unsigned short field_1D;
+    short field_1D;
     unsigned char class_id;
     unsigned char field_20;
 unsigned char field_21;
@@ -123,7 +123,7 @@ unsigned char field_51;
 unsigned short field_58;
     unsigned short field_5A;
     unsigned short field_5C;
-    short field_5E; //signed
+    short health; //signed
 unsigned short field_60;
     unsigned short field_62;
     short field_64;
@@ -135,6 +135,10 @@ unsigned short field_60;
 
 #pragma pack()
 /******************************************************************************/
+long creature_near_filter_not_imp(struct Thing *thing, long val);
+long creature_near_filter_is_enemy_of_and_not_imp(struct Thing *thing, long val);
+long creature_near_filter_is_owned_by(struct Thing *thing, long val);
+
 unsigned long update_things_sounds_in_list(struct StructureList *list);
 unsigned long update_cave_in_things(void);
 void update_creatures_not_in_list(void);
@@ -143,10 +147,18 @@ void init_traps(void);
 void init_player_start(struct PlayerInfo *player);
 void setup_computer_players(void);
 void init_all_creature_states(void);
+short knight_in_prison(void);
 
 void update_things(void);
 
+struct Thing *find_hero_gate_of_number(long num);
 long get_free_hero_gate_number(void);
+
+struct Thing *thing_get(long tng_idx);
+short thing_exists_idx(long tng_idx);
+short thing_exists(const struct Thing *thing);
+short thing_is_invalid(const struct Thing *thing);
+long thing_get_index(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -305,7 +305,10 @@ DLLIMPORT void _DK_command_add_value(unsigned long var_index, unsigned long val1
 DLLIMPORT struct CommandDesc *_DK_get_next_word(char **line, char *params, unsigned char *line_end);
 DLLIMPORT long _DK_scan_line(char *line);
 DLLIMPORT short _DK_load_script(long lvl_num);
-
+DLLIMPORT void _DK_script_process_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4);
+DLLIMPORT struct Thing *_DK_script_process_new_tunneller(unsigned char a1, long a2, unsigned char a3, long a4, unsigned char a5, unsigned long a6);
+DLLIMPORT struct Thing *_DK_script_process_new_party(struct Party *party, unsigned char a2, long a3, long a4);
+DLLIMPORT void _DK_script_process_new_creatures(unsigned char a1, long a2, long a3, long a4, long a5, long a6);
 /******************************************************************************/
 /*
  * Reads word from 'line' into 'param'. Sets if 'line_end' was reached.
@@ -580,6 +583,10 @@ void command_create_party(char *prtname)
     error(func_name, 1086, text);
     return;
   }
+  if (script_current_condition != -1)
+  {
+    LbWarnLog("(script:%lu) Party '%s' defined inside conditional statement\n",script_line_number,prtname);
+  }
   strcpy(game.script.creature_partys[game.script.creature_partys_num].prtname, prtname);
   game.script.creature_partys_num++;
 }
@@ -590,7 +597,7 @@ long pop_condition(void)
   char *text;
   if (script_current_condition == -1)
   {
-    text = buf_sprintf("(script: %d) unexpected ENDIF", script_line_number);
+    text = buf_sprintf("(script:%lu) unexpected ENDIF", script_line_number);
     error(func_name, 1070, text);
     return -1;
   }
@@ -608,6 +615,10 @@ long pop_condition(void)
 void command_add_to_party(char *prtname, char *crtr_name, long crtr_level, long carried_gold, char *objectv, long countdown)
 {
   _DK_command_add_to_party(prtname, crtr_name, crtr_level, carried_gold, objectv, countdown);
+  if (script_current_condition != -1)
+  {
+    LbWarnLog("(script:%lu) Party '%s' member added inside conditional statement\n",script_line_number,prtname);
+  }
 }
 
 void command_tutorial_flash_button(long btn_id, long duration)
@@ -632,7 +643,32 @@ void command_if(char *plrname, char *varib_name, char *operatr, long value)
 
 void command_add_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4)
 {
-  _DK_command_add_value(var_index, val1, val2, val3, val4);
+  static const char *func_name="command_add_value";
+  struct ScriptValue *value;
+  char *text;
+  //_DK_command_add_value(var_index, val1, val2, val3, val4);
+  if (game.script.values_num >= SCRIPT_VALUES_COUNT)
+  {
+    text = buf_sprintf("(script:%lu) Too many VALUEs in script (limit is %d)", script_line_number,SCRIPT_VALUES_COUNT);
+    error(func_name, 1396, text);
+    return;
+  }
+  if (script_current_condition == -1)
+  {
+    script_process_value(var_index, val1, val2, val3, val4);
+  } else
+  {
+    value = &game.script.values[game.script.values_num];
+    set_flag_byte(&value->field_0, 0x01, next_command_reusable);
+    set_flag_byte(&value->field_0, 0x02, false);
+    value->field_2 = var_index;
+    value->field_3 = val1;
+    value->field_4 = val2;
+    value->field_8 = val3;
+    value->field_C = val4;
+    value->field_1 = script_current_condition;
+    game.script.values_num++;
+  }
 }
 
 void command_display_information(long info_idx, long pos_x, long pos_y)
@@ -718,6 +754,10 @@ void command_set_start_money(char *plrname, long gold_val)
   }
   for (i=plr_start; i < plr_end; i++)
     player_command_add_start_money(i, gold_val);
+  if (script_current_condition != -1)
+  {
+    LbWarnLog("(script:%lu) Start money set inside conditional loop\n",script_line_number);
+  }
 }
 
 void command_room_available(char *plrname, char *roomname, unsigned long a3, unsigned long a4)
@@ -836,6 +876,10 @@ void command_computer_player(char *plrname, long comp_model)
     return;
   }
   script_support_setup_player_as_computer_keeper(plr_id, comp_model);
+  if (script_current_condition != -1)
+  {
+    LbWarnLog("(script:%lu) Computer player setup inside conditional loop\n",script_line_number);
+  }
 }
 
 void command_set_timer(char *plrname, char *timrname)
@@ -991,20 +1035,16 @@ void command_add_creature_to_pool(char *crtr_name, long amount)
 void command_reset_action_point(long apt_num)
 {
   static const char *func_name="command_reset_action_point";
+  long apt_idx;
   char *text;
-  if ((apt_num < 1) || (apt_num > 32))
-  {
-    text = buf_sprintf("(script:%lu) Invalid Action Point, no %d", script_line_number, apt_num);
-    error(func_name, 2341, text);
-    return;
-  }
-  if ((game.action_points[apt_num].flags & 0x01) == 0)
+  apt_idx = action_point_number_to_index(apt_num);
+  if (!action_point_exists_idx(apt_idx))
   {
     text = buf_sprintf("(script:%lu) Nonexisting Action Point, no %d", script_line_number, apt_num);
     error(func_name, 2347, text);
     return;
   }
-  command_add_value(42, 0, apt_num, 0, 0);
+  command_add_value(Cmd_RESET_ACTION_POINT, 0, apt_idx, 0, 0);
 }
 
 void command_set_creature_max_level(char *plrname, char *crtr_name, long crtr_level)
@@ -1037,11 +1077,15 @@ void command_set_creature_max_level(char *plrname, char *crtr_name, long crtr_le
 void command_set_music(long val)
 {
   game.field_1506D5 = val;
+  if (script_current_condition != -1)
+  {
+    LbWarnLog("(script:%lu) Music set inside conditional loop\n",script_line_number);
+  }
 }
 
 void command_set_hate(long a1, long a2, long a3)
 {
-  command_add_value(8, a1, a2, a3, 0);
+  command_add_value(Cmd_SET_HATE, a1, a2, a3, 0);
 }
 
 void command_if_available(char *plrname, char *varib_name, char *operatr, long value)
@@ -1103,8 +1147,13 @@ void command_set_computer_checks(char *plrname, char *chkname, long a1, long a2,
   }
   if (n == 0)
   {
-    text = buf_sprintf("(script:%d) no computer check found called '%s'", script_line_number, chkname);
+    text = buf_sprintf("(script:%lu) no computer check found called '%s'", script_line_number, chkname);
     error(func_name, 2732, text);
+    return;
+  }
+  if (script_current_condition != -1)
+  {
+    LbWarnLog("(script:%lu) Computer check altered inside conditional loop\n",script_line_number);
   }
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Finished\n",func_name);
@@ -1139,7 +1188,7 @@ void command_set_creature_health(char *crtr_name, long val)
     error(func_name, 2330, text);
     return;
   }
-  command_add_value(61, 0, crtr_id, val, 0);
+  command_add_value(Cmd_SET_CREATURE_HEALTH, 0, crtr_id, val, 0);
 }
 
 void command_set_creature_strength(char *crtr_name, long val)
@@ -1160,7 +1209,7 @@ void command_set_creature_strength(char *crtr_name, long val)
     error(func_name, 2330, text);
     return;
   }
-  command_add_value(62, 0, crtr_id, val, 0);
+  command_add_value(Cmd_SET_CREATURE_STRENGTH, 0, crtr_id, val, 0);
 }
 
 void command_set_creature_armour(char *crtr_name, long val)
@@ -1181,7 +1230,7 @@ void command_set_creature_armour(char *crtr_name, long val)
     error(func_name, 2330, text);
     return;
   }
-  command_add_value(63, 0, crtr_id, val, 0);
+  command_add_value(Cmd_SET_CREATURE_ARMOUR, 0, crtr_id, val, 0);
 }
 
 void command_set_creature_fear(char *crtr_name, long val)
@@ -1202,7 +1251,7 @@ void command_set_creature_fear(char *crtr_name, long val)
     error(func_name, 2330, text);
     return;
   }
-  command_add_value(64, 0, crtr_id, val, 0);
+  command_add_value(Cmd_SET_CREATURE_FEAR, 0, crtr_id, val, 0);
 }
 
 void command_ally_players(char *plr1name, char *plr2name)
@@ -1224,7 +1273,79 @@ void command_ally_players(char *plr1name, char *plr2name)
     error(func_name, 1456, text);
     return;
   }
-  command_add_value(72, 0, plr1_id, plr2_id, 0);
+  command_add_value(Cmd_ALLY_PLAYERS, 0, plr1_id, plr2_id, 0);
+}
+
+void command_quick_objective(int idx, char *msgtext, char *where)
+{
+  static const char *func_name="command_quick_objective";
+  struct Thing *thing;
+  long where_id;
+  char *text;
+  if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
+  {
+    text = buf_sprintf("(script:%lu) Invalid QUICK OBJECTIVE number (%d)", script_line_number, idx);
+    error(func_name, 2105, text);
+    return;
+  }
+  if (strlen(msgtext) > MESSAGE_TEXT_LEN)
+  {
+    text = buf_sprintf("(script:%lu) QUICK OBJECTIVE too long; truncating", script_line_number);
+    error(func_name, 2111, text);
+    msgtext[MESSAGE_TEXT_LEN-1] = '\0';
+  }
+  strcpy(quick_messages[idx], msgtext);
+  where_id = get_id(player_desc, where);
+  if (where_id == -1)
+  {
+    where_id = atol(where);
+    if (where_id < 0)
+    {
+      thing = find_hero_gate_of_number(-where_id);
+      if (thing_is_invalid(thing))
+      {
+        text = buf_sprintf("(script:%lu) Nonexisting Hero Door, no %d", script_line_number, -where_id);
+        error(func_name, 2152, text);
+        return;
+      }
+      where_id = -1000-thing_get_index(thing);
+    } else
+    if (where_id > 0)
+    {
+      if (!action_point_exists_number(where_id))
+      {
+        text = buf_sprintf("(script:%lu) Nonexisting Action Point, no %d", script_line_number, where_id);
+        error(func_name, 2347, text);
+        return;
+      }
+      where_id = -where_id;
+    } else
+    {
+      LbWarnLog("(script:%lu) Invalid QUICK OBJECTIVE where_id = '%s'; reset to my_player.\n",where);
+      where_id = my_player_number;
+    }
+  }
+  command_add_value(Cmd_QUICK_OBJECTIVE, 0, idx, where_id, 0);
+}
+
+void command_quick_information(int idx, char *msgtext)
+{
+  static const char *func_name="command_quick_information";
+  char *text;
+  if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
+  {
+    text = buf_sprintf("(script:%lu) Invalid QUICK INFORMATION number (%d)", script_line_number, idx);
+    error(func_name, 2105, text);
+    return;
+  }
+  if (strlen(msgtext) > MESSAGE_TEXT_LEN)
+  {
+    text = buf_sprintf("(script:%lu) QUICK INFORMATION text too long; truncating", script_line_number);
+    error(func_name, 2111, text);
+    msgtext[MESSAGE_TEXT_LEN-1] = '\0';
+  }
+  strcpy(quick_messages[idx], msgtext);
+  command_add_value(Cmd_QUICK_INFORMATION, 0, idx, 0, 0);
 }
 
 void command_message(char *msgtext, unsigned char kind)
@@ -1453,7 +1574,11 @@ long scan_line(char *line)
       command_bonus_level_time(scline->np[0]);
       break;
   case Cmd_QUICK_OBJECTIVE:
+      command_quick_objective(scline->np[0], scline->tp[1], scline->tp[2]);
+      break;
   case Cmd_QUICK_INFORMATION:
+      command_quick_information(scline->np[0], scline->tp[1]);
+      break;
   case Cmd_SWAP_CREATURE:
       LbWarnLog("(script:%lu) Command '%s' is only supported in Deeper Dungeons\n", script_line_number,scline->tcmnd);
       break;
@@ -1483,11 +1608,12 @@ short clear_script(void)
   return true;
 }
 
-short load_script(long lvl_num)
+short load_script(long lvnum)
 {
   static const char *func_name="load_script";
   char *fname;
   char *buf;
+  short fgroup;
   char *buf_end;
   char *script_data;
   int lnlen;
@@ -1495,13 +1621,13 @@ short load_script(long lvl_num)
 #if (BFDEBUG_LEVEL > 7)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //return _DK_load_script(lvl_num);
+  //return _DK_load_script(lvnum);
 
   gui_set_button_flashing(0, 0);
   clear_script();
   script_current_condition = -1;
   script_line_number = 1;
-  game.field_1517E2 = 0;
+  game.bonus_time = 0;
   game.flags_cd |= 0x08;
 
   struct Dungeon *dungeon;
@@ -1510,30 +1636,30 @@ short load_script(long lvl_num)
   {
     for (k=1; k < CREATURE_TYPES_COUNT; k++)
     {
-      game.dungeon[i].field_A4F[k] = 11;
+      game.dungeon[i].creature_max_level[k] = 11;
     }
   }
 
   for (i=0; i < DUNGEONS_COUNT; i++)
   {
     dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
-    for (k=0; k<8; k++)
-    {
-      dungeon->turn_timers[k].state = 0;
-    }
     dungeon->field_1006 = 1;
     dungeon->field_FF2 = 1;
-    dungeon->field_1054 = 0;
-    dungeon->field_1058 = 0;
-    for (k=0; k<8; k++)
+    for (k=0; k<TURN_TIMERS_COUNT; k++)
     {
       memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
+      dungeon->turn_timers[k].state = 0;
     }
+    for (k=0; k<SCRIPT_FLAGS_COUNT; k++)
+    {
+      dungeon->script_flags[k] = 0;
+    }
+    
   }
 
   wait_for_cd_to_be_available();
-
-  fname = prepare_file_fmtpath(FGrp_Levels,"map%05d.txt",lvl_num);
+  fgroup = get_level_fgroup(lvnum);
+  fname = prepare_file_fmtpath(fgroup,"map%05d.txt",lvnum);
   script_len = LbFileLengthRnc(fname);
   if (script_len <= 0)
   {
@@ -1592,7 +1718,246 @@ short load_script(long lvl_num)
   return true;
 }
 
+void script_process_win_game(unsigned short plyr_idx)
+{
+  struct PlayerInfo *player;
+  player = &(game.players[plyr_idx%PLAYERS_COUNT]);
+  set_player_as_won_level(player);
+}
 
+void script_process_lose_game(unsigned short plyr_idx)
+{
+  struct PlayerInfo *player;
+  player = &(game.players[plyr_idx%PLAYERS_COUNT]);
+  set_player_as_lost_level(player);
+}
+
+struct Thing *script_process_new_tunneller(unsigned char a1, long a2, unsigned char a3, long a4, unsigned char a5, unsigned long a6)
+{
+  return _DK_script_process_new_tunneller(a1, a2, a3, a4, a5, a6);
+}
+
+struct Thing *script_process_new_party(struct Party *party, unsigned char a2, long a3, long a4)
+{
+  return _DK_script_process_new_party(party, a2, a3, a4);
+}
+
+void script_process_new_creatures(unsigned char a1, long a2, long a3, long a4, long a5, long a6)
+{
+  _DK_script_process_new_creatures(a1, a2, a3, a4, a5, a6);
+}
+
+unsigned char script_support_action_point_activated_by_players(long apt_idx)
+{
+  return game.action_points[apt_idx].field_9;
+}
+
+long process_activation_status(struct Condition *condt)
+{
+  if (!script_support_action_point_activated_by_players(condt->field_5))
+    return false;
+  if (condt->field_3 == 8)
+    return 1;
+  else
+    return (1 << condt->field_3);
+}
+
+/*
+ * Function name spelling after the one in original game.
+ */
+TbBool process_avialable_status(long plyr_idx, long itype, long ikind, long val)
+{
+  static const char *func_name="process_avialable_status";
+  struct Dungeon *dungeon;
+  long i;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  switch (itype)
+  {
+  case 30:
+      i = dungeon->field_FE0[ikind];
+      break;
+  case 31:
+      i = dungeon->trap_amount[ikind%TRAP_TYPES_COUNT];
+      break;
+  case 32:
+      i = dungeon->door_amount[ikind%DOOR_TYPES_COUNT];
+      break;
+  case 33:
+      i = dungeon->room_buildable[ikind%ROOM_TYPES_COUNT];
+      break;
+  default:
+      LbWarnLog("%s: Unrecognized item type, no %d\n",func_name,itype);
+      return false;
+  }
+  return (i == val);
+}
+
+void script_process_value(unsigned long var_index, unsigned long plr_id, long val2, long val3, long val4)
+{
+  struct CreatureStats *crstat;
+  struct PlayerInfo *player;
+  struct Dungeon *dungeon;
+  int plr_start, plr_end;
+  long i;
+//  _DK_script_process_value(var_index, plr_id, val2, val3, val4);
+  if (plr_id == 8)
+  {
+    plr_start = 0;
+    plr_end = PLAYERS_COUNT;
+  } else
+  {
+    plr_start = plr_id;
+    plr_end = plr_id+1;
+  }
+  switch (var_index)
+  {
+  case Cmd_SET_HATE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon->hates_player[val2%DUNGEONS_COUNT] = val3;
+      }
+      break;
+  case Cmd_SET_GENERATE_SPEED:
+      game.generate_speed = saturate_set_unsigned(val2, 16);
+      break;
+  case Cmd_ROOM_AVAILABLE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon->room_resrchable[val2%ROOM_TYPES_COUNT] = val3;
+        dungeon->room_buildable[val2%ROOM_TYPES_COUNT] = val4;
+      }
+      break;
+  case Cmd_CREATURE_AVAILABLE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon->creature_allowed[val2] = val3;
+        dungeon->creature_enabled[val2] = val4;
+      }
+      break;
+  case Cmd_MAGIC_AVAILABLE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon->field_FF4[val2] = val3;
+        if (val4 != 0)
+          add_spell_to_player(val2, i);
+        else
+          dungeon->field_FE0[val2] = val4;
+      }
+      break;
+  case Cmd_TRAP_AVAILABLE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon->trap_buildable[val2%TRAP_TYPES_COUNT] = val3;
+        dungeon->trap_amount[val2%TRAP_TYPES_COUNT] = val4;
+        if (val4 != 0)
+          dungeon->trap_placeable[val2%TRAP_TYPES_COUNT] = val4;
+      }
+      break;
+  case Cmd_RESEARCH:
+      for (i=plr_start; i < plr_end; i++)
+      {
+        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        if (!dungeon->field_14AD)
+          remove_all_research_from_player(i);
+        add_research_to_player(i, val2, val3, val4);
+      }
+      break;
+  case Cmd_SET_TIMER:
+      for (i=plr_start; i < plr_end; i++)
+      {
+        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon->turn_timers[val2%TURN_TIMERS_COUNT].state = 1;
+        dungeon->turn_timers[val2%TURN_TIMERS_COUNT].count = game.seedchk_random_used;
+      }
+      break;
+  case Cmd_SET_FLAG:
+      for (i=plr_start; i < plr_end; i++)
+      {
+        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon->script_flags[val2%SCRIPT_FLAGS_COUNT] = val3;
+      }
+      break;
+  case Cmd_MAX_CREATURES:
+      for (i=plr_start; i < plr_end; i++)
+      {
+        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon->max_creatures = val2;
+      }
+      break;
+  case Cmd_DOOR_AVAILABLE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon->door_buildable[val2%DOOR_TYPES_COUNT] = val3;
+        dungeon->door_amount[val2%DOOR_TYPES_COUNT] = val4;
+        if (val4 != 0)
+          dungeon->door_placeable[val2%DOOR_TYPES_COUNT] = val4;
+      }
+      break;
+  case Cmd_DISPLAY_OBJECTIVE:
+      process_objective(campaign.strings[val2%STRINGS_MAX], val3, val4/(map_subtiles_x+1), val4%(map_subtiles_x+1));
+      break;
+  case Cmd_DISPLAY_INFORMATION:
+      set_general_information(val2, val3, val4);
+      break;
+  case Cmd_ADD_CREATURE_TO_POOL:
+      add_creature_to_pool(val2, val3, 0);
+      break;
+  case Cmd_RESET_ACTION_POINT:
+      action_point_reset_idx(val2);
+      break;
+  case Cmd_TUTORIAL_FLASH_BUTTON:
+      gui_set_button_flashing(val2, val3);
+      break;
+  case Cmd_SET_CREATURE_MAX_LEVEL:
+      for (i=plr_start; i < plr_end; i++)
+      {
+        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon->creature_max_level[val2%CREATURE_TYPES_COUNT] = val3;
+      }
+      break;
+  case Cmd_SET_CREATURE_HEALTH:
+      crstat = &game.creature_stats[val2%CREATURE_TYPES_COUNT];
+      crstat->health = saturate_set_signed(val3, 16);
+      break;
+  case Cmd_SET_CREATURE_STRENGTH:
+      crstat = &game.creature_stats[val2%CREATURE_TYPES_COUNT];
+      crstat->strength = saturate_set_unsigned(val3, 8);
+      break;
+  case Cmd_SET_CREATURE_ARMOUR:
+      crstat = &game.creature_stats[val2%CREATURE_TYPES_COUNT];
+      crstat->armour = saturate_set_unsigned(val3, 8);
+      break;
+  case Cmd_SET_CREATURE_FEAR:
+      crstat = &game.creature_stats[val2%CREATURE_TYPES_COUNT];
+      crstat->fear = saturate_set_unsigned(val3, 8);
+      break;
+  case Cmd_ALLY_PLAYERS:
+      toggle_ally_with_player(val2, val3);
+      toggle_ally_with_player(val3, val2);
+      break;
+  case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
+      set_flag_byte(&game.flags_cd, 0x08, val2);
+      break;
+  case Cmd_BONUS_LEVEL_TIME:
+      game.bonus_time = val2;
+      break;
+  case Cmd_QUICK_OBJECTIVE:
+      process_objective(quick_messages[val2%QUICK_MESSAGES_COUNT], val3, 0, 0);
+      break;
+  case Cmd_QUICK_INFORMATION:
+      set_quick_information(val2, 0, 0);
+      break;
+  default:
+      LbWarnLog("Unsupported Game VALUE, type %d.\n",var_index);
+      break;
+  }
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -30,7 +30,7 @@ extern "C" {
 /******************************************************************************/
 //DLLIMPORT int __stdcall _DK_LbDataFreeAll(struct TbLoadFiles load_files[]);
 //DLLIMPORT int _DK_LbDataLoadAll(const struct TbLoadFiles load_files[]);
-//DLLIMPORT int __cdecl _DK_LbDataLoadAll(struct TbLoadFiles *load_files);
+//DLLIMPORT int _DK_LbDataLoadAll(struct TbLoadFiles *load_files);
 //DLLIMPORT int __stdcall _DK_LbDataFreeAll(struct TbLoadFiles *load_files);
 DLLIMPORT extern ModifyDataLoadFnameFunc *_DK_modify_data_load_filename_function;
 /******************************************************************************/
@@ -43,12 +43,20 @@ short LbDataFree(struct TbLoadFiles *load_file)
 {
   if (load_file == NULL)
     return 0;
-  unsigned char **data=load_file->Start;
-  if ((*data)!=NULL)
-  {
-     LbMemoryFree(*data);
-     (*data)=NULL;
-  }
+  unsigned char **data;
+  data = load_file->Start;
+  if (data != NULL)
+    if ((*data)!=NULL)
+    {
+       LbMemoryFree(*data);
+       (*data)=NULL;
+    }
+  data = load_file->SEnd;
+  if (data != NULL)
+    if ((*data)!=NULL)
+    {
+       (*data)=NULL;
+    }
   return 1;
 }
 
@@ -74,8 +82,8 @@ short LbDataLoad(struct TbLoadFiles *load_file)
   else
     alloc_func = LbMemoryAlloc;
   LbDataFree(load_file);
-  char *fname=modify_data_load_filename_function(load_file);
-  if (fname[0]=='*')
+  char *fname = modify_data_load_filename_function(load_file);
+  if (fname[0] == '*')
   {
 #ifdef __DEBUG
     LbSyncLog("LbDataLoad: * in fname \"%s\"\n",fname);
@@ -98,19 +106,24 @@ short LbDataLoad(struct TbLoadFiles *load_file)
     if ( LbFileLoadAt(fname, *(load_file->Start)) != load_file->SLength )
     {
       *(load_file->Start) = 0;
-      *(load_file->SEnd) = 0;
+      if (load_file->SEnd != NULL)
+        *(load_file->SEnd) = 0;
       load_file->SLength = 0;
       return -101;
     }
   }
-  if ( load_file->SEnd != NULL )
+  if (load_file->SEnd != NULL)
     *(load_file->SEnd) = *(load_file->Start) + load_file->SLength;
   return 1;
 }
 
+/*
+ * Loads a list of files. Allocates memory and loads new data.
+ * @return Returns amount of entries failed, or 0 on success.
+ */
 short LbDataLoadAll(struct TbLoadFiles load_files[])
 {
-//  return _DK_LbDataLoadAll(load_files);
+  //return _DK_LbDataLoadAll(load_files);
   struct TbLoadFiles *t_lfile;
   int ferror;
   int ret_val;

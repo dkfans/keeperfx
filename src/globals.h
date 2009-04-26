@@ -160,6 +160,8 @@ struct CoordDelta3d {
 
 #pragma pack()
 
+typedef long LevelNumber;
+
 struct IPOINT_2D {
     int x;
     int y;

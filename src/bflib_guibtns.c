@@ -35,6 +35,8 @@ DLLIMPORT void _DK_do_button_click_actions(struct GuiButton *gbtn, unsigned char
 DLLIMPORT void _DK_do_button_release_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
 /******************************************************************************/
 // Global variables
+char *gui_strings_data;
+char *gui_strings[STRINGS_MAX+1];
 /******************************************************************************/
 // Functions
 
@@ -71,7 +73,7 @@ void setup_input_field(struct GuiButton *gbtn)
     strncpy(backup_input_field, (char *)gbtn->field_33, INPUT_FIELD_LEN-1);
     backup_input_field[INPUT_FIELD_LEN-1] = 0;
   }
-  sprintf(text,strings[358]);
+  sprintf(text,gui_strings[358]); // UNUSED
   if ( !strcmp(text, backup_input_field) )
     *(long *)gbtn->field_33 = 0;
 }

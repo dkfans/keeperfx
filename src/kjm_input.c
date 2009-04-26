@@ -179,7 +179,7 @@ void update_mouse(void)
  */
 short is_key_pressed(long key, long kmodif)
 {
-  if ( (kmodif==-1) || (kmodif==key_modifiers) )
+  if ((kmodif == KM_DONTCARE) || (kmodif == key_modifiers))
     return lbKeyOn[key];
   return 0;
 }

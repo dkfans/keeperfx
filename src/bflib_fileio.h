@@ -26,7 +26,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-
 #pragma pack(1)
 
 enum TbFileMode {
@@ -49,7 +48,6 @@ struct TbDriveInfo {
 };
 
 #pragma pack()
-
 /******************************************************************************/
 
 int __fastcall LbDriveCurrent(unsigned int *drive);

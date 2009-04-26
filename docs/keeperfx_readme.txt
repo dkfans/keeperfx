@@ -81,9 +81,9 @@ A: The problem is that your drivers can't support 320x200 mode.
   INGAME_RES=MODE_640_480_8
 
 Q: The game doesn't run. LOG file says:
-     Error: In source setup_game:
-     1501 - Strings data too small
-A: Copy a file TEXT.DAT from CD into DATA folder in
+     Error: In source setup_strings_data:
+     1501 - Strings file couldn't be loaded or is too small
+A: Copy a file DD1TEXT.DAT from CD into DATA folder in
     DK installation directory.
 
 Q: Mouse doesn't work properly.
@@ -118,7 +118,7 @@ INGAME_RES
    MODE_800_600_8, MODE_1024_768_8, MODE_1280_1024_8,
    MODE_1600_1200_8.
   You can switch between those resolutions during the
-   gameplay by pressing ALT+R. Modes over 640x480 are
+   gameplay by pressing Alt+R. Modes over 640x480 are
    experimental, and not completely stable.
   INGAME_RES=<mode1> <mode2> <mode3> ....
 
@@ -146,7 +146,7 @@ New in-game commands:
 
  Make and replay packet file
   These functions can be only enabled by command line
-  parameters. You can made a packet file which contains
+  parameters. You can make a packet file which contains
   the replay with '-packetsave' command, and then play it
   with '-packetload'. When in the replay, you may always
   take over control by pressing Alt+T, or exit with Alt+X.
@@ -166,12 +166,28 @@ New in-game commands:
 
 Changelog:
 
+Version: 0.2.7
+  Rewritten most of the world view screen
+  Allowed map numbers over 255
+  Fixed mistake in function create_room
+  All levels are available when whole campaign is passed
+  Campaign configuration file improved
+  LIF files support adopted from Deeper Dungeons
+  Free level selection screen adopted from Deeper Dungeons
+  New High Scores support code
+  Strings (text.dat) replaced with those from DD (dd1text.dat)
+  Script command QUICK_OBJECTIVE is now supported
+  Compiled under new MinGW environment
+  Some functions of Cheat Mode are now functional
+  Continue file creation code unified and improved
+  Started work on support of QUICK_INFORMATION command
+
 Version: 0.2.6
   Rewritten minimap control code, fixed for 640x480
   Smarter WLB flags regeneration
   Rewritten part of 'player instances' code
   Better memory cleaning after a level is finished
-  Bonus levels are preserved in "Continue game".
+  Bonus levels are preserved in 'Continue game'
   Transferred creature is preserved (for one use only)
   Fixed disappearing menu content problem
   Fixed ending statistics when finishing loaded game

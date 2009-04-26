@@ -87,7 +87,12 @@ WINBASEAPI VOID WINAPI GlobalMemoryStatus(LPMEMORYSTATUS);
 
 #endif
 /******************************************************************************/
+//DLLIMPORT int __stdcall _DK_LbMemoryFree(void *buffer);
+DLLIMPORT int __stdcall _DK_LbMemoryReset(void);
+/******************************************************************************/
 unsigned long lbMemoryAvailable=0;
+short lbMemorySetup=0;
+char lbEmptyString[] = "";
 /******************************************************************************/
 /*
  * Updates CPU and memory status variables.
@@ -153,8 +158,21 @@ ulong __fastcall LbStringLength(const char *str)
 
 int __fastcall LbMemorySetup()
 {
-//Disabled as we no longer need such memory routines
+  if (lbMemorySetup == 0)
+  {
+//    _lbMemAllocation = 0;
+    lbMemorySetup = 1;
+  }
   return 1;
+}
+
+int LbMemoryReset(void)
+{
+  lbMemorySetup = 0;
+  return _DK_LbMemoryReset();
+//  _lbMemAllocation = 0;
+//  CMemory::ReleaseAll();
+//  return 1;
 }
 
 unsigned char * __fastcall LbMemoryAllocLow(ulong size)

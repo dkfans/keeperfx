@@ -146,7 +146,49 @@ long pinstfm_hand_grab(struct PlayerInfo *player, long *n)
 
 long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfe_hand_grab(player, n);
+  //return _DK_pinstfe_hand_grab(player, n);
+  struct Thing *picktng;
+  struct Thing *thing2;
+  struct CreatureControl *cctrl;
+  long i;
+  picktng = game.things_lookup[player->field_43E];
+  thing2 = game.things_lookup[player->field_43A];
+  if (!thing_is_pickable_by_hand(player,picktng))
+  {
+    player->field_440 = 0;
+    player->field_43E = 0;
+    return 0;
+  }
+  set_power_hand_offset(player, picktng);
+  switch (picktng->class_id)
+  {
+  case TCls_Creature:
+      if (!external_set_thing_state(picktng, 38))
+        return 0;
+      cctrl = game.persons.cctrl_lookup[picktng->field_64%CREATURES_COUNT];
+      if (cctrl->field_AD & 0x02)
+        i = convert_td_iso(122);
+      else
+        i = get_creature_anim(picktng, 9);
+      set_thing_draw(picktng, i, 256, -1, -1, 0, 2);
+      break;
+  case TCls_Object:
+      picktng = process_object_being_picked_up(picktng, thing2->owner);
+      if (thing_is_invalid(picktng))
+      {
+        player->field_440 = 0;
+        player->field_43E = 0;
+        return 0;
+      }
+      break;
+  }
+  if (!thing_is_invalid(thing2))
+    set_power_hand_graphic(player->field_2B, 784, 256);
+  dump_thing_in_power_hand(picktng, player->field_2B);
+  player->field_440 = 0;
+  player->field_43E = 0;
+  place_thing_in_limbo(picktng);
+  return 0;
 }
 
 long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
@@ -214,7 +256,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
   }
   if (thing == NULL)
   {
-    set_camera_zoom(player->camera, player->field_4B6);
+    set_camera_zoom(player->acamera, player->field_4B6);
     if (player == &game.players[my_player_number%PLAYERS_COUNT])
       PaletteSetPlayerPalette(player, _DK_palette);
     player->field_0 &= 0xEF;
@@ -237,7 +279,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
       k = crstat->instance_spell[i];
       if (cctrl->instances[k])
       {
-        cctrl->instances[74] = k;
+        cctrl->field_1E8 = k;
         break;
       }
     }
@@ -339,7 +381,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   if ((thing != NULL) && (thing != game.things_lookup[0]))
     leave_creature_as_controller(player, thing);
   set_player_mode(player, 1);
-  cam = player->camera;
+  cam = player->acamera;
   if (cam == NULL) return 0;
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
   thing = game.things_lookup[dungeon->field_0%THINGS_COUNT];
@@ -439,7 +481,6 @@ void set_player_instance(struct PlayerInfo *player, long ninum, short force)
   struct PlayerInstanceInfo *inst_info;
   InstncInfo_Func callback;
   long inum;
-  //_DK_set_player_instance(player, ninum, force);
   inum = player->instance_num;
   if (inum >= PLAYER_INSTANCES_COUNT)
     inum = 0;

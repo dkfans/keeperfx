@@ -42,44 +42,40 @@
 #include "front_simple.h"
 #include "front_input.h"
 #include "game_saves.h"
+#include "engine_render.h"
+#include "front_landview.h"
+#include "lvl_filesdk1.h"
 #include "keeperfx.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT void _DK_setup_gui_tooltip(struct GuiButton *gbtn);
+DLLIMPORT char _DK_get_button_area_input(struct GuiButton *gbtn, int);
 DLLIMPORT void _DK_fake_button_click(long btn_idx);
 DLLIMPORT void _DK_turn_off_roaming_menus(void);
 DLLIMPORT void _DK_display_objectives(long,long,long);
 DLLIMPORT unsigned long _DK_toggle_status_menu(unsigned long);
-DLLIMPORT long _DK_frontmap_update(void);
-DLLIMPORT long _DK_frontnetmap_update(void);
 DLLIMPORT void _DK_frontstats_update(void);
 DLLIMPORT void _DK_fronttorture_update(void);
-DLLIMPORT void _DK_frontmap_draw(void);
 DLLIMPORT void _DK_frontcredits_draw(void);
 DLLIMPORT void _DK_fronttorture_draw(void);
-DLLIMPORT void _DK_frontnetmap_draw(void);
 DLLIMPORT void _DK_frontnet_start_input(void);
 DLLIMPORT void _DK_frontend_high_score_table_input(void);
-DLLIMPORT void _DK_frontmap_input(void);
-DLLIMPORT void _DK_frontnetmap_input(void);
 DLLIMPORT void _DK_fronttorture_input(void);
 DLLIMPORT void _DK_frontstats_set_timer(void);
 DLLIMPORT int _DK_frontend_load_data(void);
+DLLIMPORT void _DK_frontend_set_player_number(long plr_num);
 DLLIMPORT void _DK_frontnet_serial_reset(void);
 DLLIMPORT void _DK_frontnet_modem_reset(void);
 DLLIMPORT void _DK_fronttorture_unload(void);
 DLLIMPORT void _DK_fronttorture_load(void);
-DLLIMPORT void _DK_frontnetmap_unload(void);
-DLLIMPORT void _DK_frontnetmap_load(void);
-DLLIMPORT int _DK_frontmap_load(void);
 DLLIMPORT void _DK_frontnet_service_setup(void);
 DLLIMPORT void _DK_frontnet_session_setup(void);
 DLLIMPORT void _DK_frontnet_start_setup(void);
 DLLIMPORT void _DK_frontnet_modem_setup(void);
 DLLIMPORT void _DK_frontnet_serial_setup(void);
-DLLIMPORT void _DK_frontmap_unload(void);
 DLLIMPORT void _DK_turn_off_menu(char);
 DLLIMPORT void _DK_turn_on_menu(int);//char);
 DLLIMPORT void _DK_initialise_tab_tags_and_menu(long menu_id);
@@ -369,26 +365,16 @@ DLLIMPORT void _DK_select_transfer_creature_up(struct GuiButton *gbtn);
 DLLIMPORT void _DK_select_transfer_creature_down(struct GuiButton *gbtn);
 DLLIMPORT void _DK_maintain_transfer_creature_scroll(struct GuiButton *gbtn);
 /******************************************************************************/
-
-long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag);
-long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
-{}
-long gf_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
-{}
-long gf_give_all_creatures_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
-{}
-long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
-{}
-long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
-{}
-long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
-{}
-long gfa_can_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag)
-{}
-long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag)
-{}
-long gf_change_player_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
-{}
+long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gf_change_player_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gf_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gf_give_all_creatures_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gfa_can_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag);
+long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag);
 
 struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
   {"Null mode",                1,           NULL,      gf_change_player_state, 0, 0, 0,  0, 0, 0, 0},
@@ -455,6 +441,9 @@ struct GuiBoxOption gui_instance_option_list[] = {
 #define BID_SPELL_TAB     3
 #define BID_TRAP_TAB      4
 #define BID_CREATR_TAB    5
+
+int select_level_scroll_offset = 0;
+int number_of_freeplay_levels = 0;
 
 struct GuiButtonInit main_menu_buttons[] = {
   { 0,             38, 0, 0, 0,          gui_zoom_in,           NULL,  NULL,               0, 110,   4, 114,   4, 26, 64, gui_area_new_normal_button,      237, 321,  0,       0,            0, 0, NULL },
@@ -776,6 +765,19 @@ struct GuiButtonInit dungeon_special_buttons[] = {
 };
 
 struct GuiButtonInit frontend_main_menu_buttons[] = {
+  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  26, 999,  26,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       1,            0, 0, NULL },
+  { 0,  0, 0, 0, 0, frontend_start_new_game,NULL,frontend_over_button,   3, 999,  92, 999,  92,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       2,            0, 0, NULL },
+  { 0,  0, 0, 0, 0, frontend_load_continue_game,NULL,frontend_over_button,0,999, 138, 999, 138,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       8,            0, 0, frontend_continue_game_maintain },
+  { 0,  0, 0, 0, 0, frontend_start_single_level,NULL,frontend_over_button,30,999,184, 999, 184,371, 46, frontend_draw_large_menu_button,   0, 201,  0,     106,            0, 0, NULL },
+  { 0,  0, 0, 0, 0, frontend_change_state,NULL, frontend_over_button,    2, 999, 230, 999, 230,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       3,            0, 0, frontend_main_menu_load_game_maintain },
+  { 0,  0, 0, 0, 0, frontend_change_state,NULL, frontend_over_button,    4, 999, 276, 999, 276,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       4,            0, 0, frontend_main_menu_netservice_maintain },
+  { 0,  0, 0, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 322, 999, 322,371, 46, frontend_draw_large_menu_button,   0, 201,  0,      97,            0, 0, NULL },
+  { 0,  0, 0, 0, 0, frontend_change_state,NULL, frontend_over_button,   18, 999, 368, 999, 368,371, 46, frontend_draw_large_menu_button,   0, 201,  0,     104,            0, 0, frontend_main_menu_highscores_maintain },
+  { 0,  0, 0, 0, 0, frontend_change_state,NULL, frontend_over_button,    9, 999, 414, 999, 414,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       5,            0, 0, NULL },
+  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
+};
+/*
+struct GuiButtonInit frontend_main_menu_buttons[] = {
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       1,            0, 0, NULL },
   { 0,  0, 0, 0, 0, frontend_start_new_game,NULL,frontend_over_button,   3, 999, 104, 999, 104,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       2,            0, 0, NULL },
   { 0,  0, 0, 0, 0, frontend_load_continue_game,NULL,frontend_over_button,0,999, 154, 999, 154,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       8,            0, 0, frontend_continue_game_maintain },
@@ -786,7 +788,7 @@ struct GuiButtonInit frontend_main_menu_buttons[] = {
   { 0,  0, 0, 0, 0, frontend_change_state,NULL, frontend_over_button,    9, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       5,            0, 0, NULL },
   {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
 };
-
+*/
 #define frontend_load_menu_items_visible  6
 struct GuiButtonInit frontend_load_menu_buttons[] = {
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       7,            0, 0, NULL },
@@ -1064,6 +1066,35 @@ struct GuiButtonInit frontend_option_buttons[] = {
   {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
 };
 
+#define frontend_select_level_items_visible  7
+struct GuiButtonInit frontend_select_level_buttons[] = {
+  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, 201,  0,     107,            0, 0, NULL},
+  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  82, 128,  82, 128,220, 26, frontnet_draw_scroll_box_tab,      0, 201,  0,      28,            0, 0, NULL},
+  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  82, 154,  82, 154,450,180, frontnet_draw_scroll_box,          0, 201,  0,      26,            0, 0, NULL},
+  { 1,  0, 0, 0, 0, frontend_level_select_up,NULL,frontend_over_button,  0, 532, 153, 532, 153, 26, 14, frontnet_draw_slider_button,       0, 201,  0,      17,            0, 0, frontend_level_select_up_maintain},
+  { 1,  0, 0, 0, 0, frontend_level_select_down,NULL,frontend_over_button,0, 532, 321, 532, 321, 26, 14, frontnet_draw_slider_button,       0, 201,  0,      18,            0, 0, frontend_level_select_down_maintain},
+  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 536, 167, 536, 167, 10,154, frontend_draw_levels_scroll_tab,   0, 201,  0,      40,            0, 0, NULL},
+  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 102, 129, 102, 129,220, 26, frontend_draw_text,                0, 201,  0,      32,            0, 0, NULL},
+  { 0,  0, 0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 167,  95, 169,424, 14, frontend_draw_level_select_button, 0, 201,  0,      45,            0, 0, frontend_level_select_maintain},
+  { 0,  0, 0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 189,  95, 191,424, 14, frontend_draw_level_select_button, 0, 201,  0,      46,            0, 0, frontend_level_select_maintain},
+  { 0,  0, 0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 211,  95, 213,424, 14, frontend_draw_level_select_button, 0, 201,  0,      47,            0, 0, frontend_level_select_maintain},
+  { 0,  0, 0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 233,  95, 235,424, 14, frontend_draw_level_select_button, 0, 201,  0,      48,            0, 0, frontend_level_select_maintain},
+  { 0,  0, 0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 255,  95, 257,424, 14, frontend_draw_level_select_button, 0, 201,  0,      49,            0, 0, frontend_level_select_maintain},
+  { 0,  0, 0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 277,  95, 279,424, 14, frontend_draw_level_select_button, 0, 201,  0,      50,            0, 0, frontend_level_select_maintain},
+  { 0,  0, 0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 299,  95, 301,424, 14, frontend_draw_level_select_button, 0, 201,  0,      51,            0, 0, frontend_level_select_maintain},
+  { 0,  0, 0, 0, 0, frontend_change_state,NULL,frontend_over_button,     1, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       6,            0, 0, NULL},
+  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
+};
+
+struct GuiButtonInit frontend_select_campaign_buttons[] = {
+  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, 201,  0,     107,            0, 0, NULL},
+  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  82, 128,  82, 128,220, 26, frontnet_draw_scroll_box_tab,      0, 201,  0,      28,            0, 0, NULL},
+  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  82, 154,  82, 154,450,180, frontnet_draw_scroll_box,          0, 201,  0,      26,            0, 0, NULL},
+//TODO
+  { 0,  0, 0, 0, 0, frontend_change_state,NULL,frontend_over_button,     1, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       6,            0, 0, NULL},
+  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
+};
+
 struct GuiMenu main_menu =
  { 1, 0, 1, main_menu_buttons,                           0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu room_menu =
@@ -1142,6 +1173,10 @@ struct GuiMenu autopilot_menu =
  { 37, 0, 4, autopilot_menu_buttons,     POS_GAMECTR,POS_GAMECTR,224, 120, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 struct GuiMenu frontend_option_menu =
  { 39, 0, 1, frontend_option_buttons,             0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    frontend_init_options_menu,0,0,0,};
+struct GuiMenu frontend_select_level_menu =
+ { 40, 0, 1, frontend_select_level_buttons,       0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+struct GuiMenu frontend_select_campaign_menu =
+ { 41, 0, 1, frontend_select_campaign_buttons,    0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
 
 // Note: update size in .h file when changing this array.
 struct GuiMenu *menu_list[] = {
@@ -1185,8 +1220,12 @@ struct GuiMenu *menu_list[] = {
     &autopilot_menu,
     &spell_lost_menu,
     &frontend_option_menu,
+    &frontend_select_level_menu,
+    &frontend_select_campaign_menu,
+    NULL,
 };
 
+// If adding entries here, you should also update FRONTEND_BUTTON_INFO_COUNT.
 struct FrontEndButtonData frontend_button_info[] = {
     {0,   0},
     {343, 0},
@@ -1293,6 +1332,40 @@ struct FrontEndButtonData frontend_button_info[] = {
     {843, 1},
     {845, 1},
     {431, 1},
+    {201, 0},
+    {941, 1},
+    {941, 0},
+};
+
+struct EventTypeInfo event_button_info[] = {
+  {260, 201, 201,    1,   1},
+  {260, 698, 672,  300, 250},
+  {262, 699, 673,   -1,   0},
+  {258, 674, 201,   -1,   0},
+  {260, 701, 675,  300,   0},
+  {250, 703, 677, 1200,   0},
+  {256, 706, 680, 1200,   0},
+  {252, 702, 676, 1200,   0},
+  {254, 704, 678, 1200,   0},
+  {254, 705, 679, 1200,   0},
+  {260, 691, 665, 1200,   0},
+  {266, 690, 664, 1200, 500},
+  {266, 692, 666, 1200,   0},
+  {266, 695, 669, 1200,   0},
+  {266, 693, 667, 1200,   0},
+  {266, 694, 668, 1200,   0},
+  {260, 707, 681, 1200,   0},
+  {260, 708, 682, 1200, 500},
+  {260, 709, 683,  300, 200},
+  {260, 710, 684,  300, 250},
+  {260, 711, 685,  300, 500},
+  {268, 696, 201, 1200,   0},
+  {260, 697, 671, 1200,   0},
+  {260, 712, 686,  300, 500},
+  {266, 713, 687,  300,   0},
+  {266, 714, 688,  300,   0},
+  {266, 715, 689,  300,   0},
+  {268, 696, 201, 1200,   0},
 };
 
 const struct DemoItem demo_item[] = {
@@ -1341,13 +1414,7 @@ short a_menu_window_is_active(void)
   for (i=0; i<no_of_active_menus; i++)
   {
       k = menu_stack[i];
-      if ((k != 1) && (k != 2)
-           && (k != 3) && (k != 4)
-           && (k != 5) && (k != 7) && (k != 6)
-           && (k != 16) && (k != 31)
-           && (k != 35) && (k != 32)
-           && (k != 34) && (k != 38)
-           && (k != 27))
+      if (!is_toggleable_menu(k))
         return true;
   }
   return false;
@@ -1370,7 +1437,7 @@ void get_player_gui_clicks(void)
   case 3:
       if (right_button_released)
       {
-        thing = game.things_lookup[player->field_2F];
+        thing = game.things_lookup[player->field_2F%THINGS_COUNT];
         if (thing->class_id == 5)
         {
           if (a_menu_window_is_active())
@@ -1382,7 +1449,7 @@ void get_player_gui_clicks(void)
           {
             game.numfield_D |= 0x08;
             player->field_0 |= 0x08;
-            turn_on_menu(7);
+            turn_on_menu(GMnu_QUERY);
           }
         }
       }
@@ -1424,7 +1491,7 @@ void get_player_gui_clicks(void)
           turn_off_all_window_menus();
         } else
         {
-          turn_on_menu(8);
+          turn_on_menu(GMnu_OPTIONS);
         }
       }
       break;
@@ -1442,8 +1509,8 @@ void create_error_box(unsigned short msg_idx)
   if ( !game.packet_load_enable )
   {
     //change the length into  when gui_error_text will not be exported
-    strncpy(gui_error_text, strings[msg_idx],TEXT_BUFFER_LENGTH-1);
-    turn_on_menu(15);
+    strncpy(gui_error_text, gui_strings[msg_idx],TEXT_BUFFER_LENGTH-1);
+    turn_on_menu(GMnu_ERROR_BOX);
   }
 }
 
@@ -1497,14 +1564,14 @@ void demo(void)
 
 void turn_on_event_info_panel_if_necessary(unsigned short evnt_idx)
 {
-  if (game.event[evnt_idx%EVENTS_COUNT].field_B == 2)
+  if (game.event[evnt_idx%EVENTS_COUNT].kind == 2)
   {
-    if (!menu_is_active(34))
-      turn_on_menu(34);
+    if (!menu_is_active(GMnu_BATTLE))
+      turn_on_menu(GMnu_BATTLE);
   } else
   {
-    if (!menu_is_active(16))
-      turn_on_menu(16);
+    if (!menu_is_active(GMnu_TEXT_INFO))
+      turn_on_menu(GMnu_TEXT_INFO);
   }
 }
 
@@ -1573,7 +1640,7 @@ void turn_off_menu(short mnu_idx)
   menu_num = menu_id_to_number(mnu_idx);
   if (menu_num >= 0)
   {
-    if (game_is_busy_doing_gui())
+    if (game_is_busy_doing_gui_string_input())
     {
       if (input_button->gmenu_idx == menu_num)
         kill_button_area_input();
@@ -1588,10 +1655,33 @@ void turn_off_menu(short mnu_idx)
   }
 }
 
-char game_is_busy_doing_gui(void)
+short game_is_busy_doing_gui(void)
 {
-  //return _DK_game_is_busy_doing_gui();
-  return (input_button != NULL);
+  struct PlayerInfo *player;
+  struct Thing *thing;
+  long spl_idx;
+//return _DK_game_is_busy_doing_gui();
+  if (!busy_doing_gui)
+    return false;
+  if (battle_creature_over <= 0)
+    return true;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  spl_idx = -1;
+  if (player->field_453 < PLAYER_STATES_COUNT)
+    spl_idx = player_state_to_spell[player->field_453];
+  if ((spl_idx >= 0) && (spl_idx <= SPELL_TYPES_COUNT))
+  {
+    if (!spell_data[spl_idx].field_19)
+      return true;
+    thing = game.things_lookup[battle_creature_over%THINGS_COUNT];
+    return  (thing->owner != player->field_2B) && (!spell_data[spl_idx].field_1A);
+  }
+  return false;
+}
+
+char get_button_area_input(struct GuiButton *gbtn, int a2)
+{
+  return _DK_get_button_area_input(gbtn, a2);
 }
 
 void gui_activity_background(struct GuiMenu *gmnu)
@@ -1634,24 +1724,24 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, char *
   //_DK_frontend_draw_button(gbtn, btntype, text, drw_flags); return;
   static const long large_button_sprite_anims[] =
       { 2, 5, 8, 11, 14, 11, 8, 5, };
-  unsigned int frontbtninfo_idx;
+  unsigned int fbinfo_idx;
   unsigned int spridx;
   int fntidx;
   long x,y;
   int h;
-  frontbtninfo_idx = (unsigned int)gbtn->field_33;
+  fbinfo_idx = (unsigned int)gbtn->field_33;
   if ((gbtn->field_0 & 0x08) == 0)
   {
     fntidx = 3;
     spridx = 14;
   } else
-  if ((frontbtninfo_idx>0) && (frontend_mouse_over_button == frontbtninfo_idx))
+  if ((fbinfo_idx>0) && (frontend_mouse_over_button == fbinfo_idx))
   {
     fntidx = 2;
     spridx = large_button_sprite_anims[((timeGetTime()-frontend_mouse_over_button_start_time)/100) & 7];
   } else
   {
-    fntidx = frontend_button_info[frontbtninfo_idx].field_2;
+    fntidx = frontend_button_info[fbinfo_idx%FRONTEND_BUTTON_INFO_COUNT].field_2;
     spridx = 14;
   }
   x = gbtn->scr_pos_x;
@@ -1693,11 +1783,16 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, char *
 void frontend_draw_large_menu_button(struct GuiButton *gbtn)
 {
   //_DK_frontend_draw_large_menu_button(gbtn); return;
+  unsigned long btninfo_idx;
   int idx;
   char *text;
-  idx = frontend_button_info[(unsigned long)gbtn->field_33].capstr_idx;
-  if (idx>0)
-    text = strings[idx];
+  btninfo_idx = (unsigned long)gbtn->field_33;
+  if (btninfo_idx < FRONTEND_BUTTON_INFO_COUNT)
+    idx = frontend_button_info[btninfo_idx].capstr_idx;
+  else
+    idx = -1;
+  if ((idx >= 0) && (idx < STRINGS_MAX))
+    text = gui_strings[idx];
   else
     text = NULL;
   frontend_draw_button(gbtn, 1, text, 0x0100);
@@ -1736,14 +1831,42 @@ void reset_scroll_window(struct GuiMenu *gmnu)
   _DK_reset_scroll_window(gmnu);
 }
 
+void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
+{
+  long slot_idx;
+  char *text;
+  for (slot_idx=0; slot_idx < SAVE_SLOTS_COUNT; slot_idx++)
+  {
+    if (game_catalg[slot_idx].used)
+      text = game_catalg[slot_idx].textname;
+    else
+      text = gui_strings[342]; // UNUSED
+    strncpy(input_string[slot_idx], text, SAVE_TEXTNAME_LEN);
+  }
+}
+
 void init_load_menu(struct GuiMenu *gmnu)
 {
-  _DK_init_load_menu(gmnu);
+  //_DK_init_load_menu(gmnu);
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  set_packet_action(pckt, 82, 1, 1, 0, 0);
+  load_game_save_catalogue();
+  update_loadsave_input_strings(save_game_catalogue);
 }
 
 void init_save_menu(struct GuiMenu *gmnu)
 {
-  _DK_init_save_menu(gmnu);
+  //_DK_init_save_menu(gmnu);
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  set_packet_action(pckt, 82, 1, 1, 0, 0);
+  load_game_save_catalogue();
+  update_loadsave_input_strings(save_game_catalogue);
 }
 
 void init_video_menu(struct GuiMenu *gmnu)
@@ -1760,7 +1883,7 @@ void maintain_event_button(struct GuiButton *gbtn)
 {
   //_DK_maintain_event_button(gbtn); return;
   struct Dungeon *dungeon;
-  struct Event *evnt;
+  struct Event *event;
   unsigned short evnt_idx;
   unsigned long i;
 
@@ -1783,23 +1906,23 @@ void maintain_event_button(struct GuiButton *gbtn)
     gbtn->field_2B = 201;
     return;
   }
-  evnt = &game.event[evnt_idx];
-  if ((evnt->field_B == 3) && (new_objective))
+  event = &game.event[evnt_idx];
+  if ((event->kind == 3) && (new_objective))
   {
     activate_event_box(evnt_idx);
   }
-  gbtn->field_29 = event_button_info[evnt->field_B].field_0;
-  if ((evnt->field_B == 2) && ((evnt->field_2) || (evnt->field_6))
+  gbtn->field_29 = event_button_info[event->kind].field_0;
+  if ((event->kind == 2) && ((event->mappos_x != 0) || (event->mappos_y != 0))
       && ((game.seedchk_random_used & 0x01) != 0))
   {
     gbtn->field_29 += 2;
   } else
-  if ((evnt->field_B == 21) && (evnt->field_C < 0)
+  if ((event->kind == 21) && (event->field_C < 0)
      && ((game.seedchk_random_used & 0x01) != 0))
   {
     gbtn->field_29 += 2;
   }
-  gbtn->field_2B = event_button_info[evnt->field_B].field_4;
+  gbtn->field_2B = event_button_info[event->kind].field_4;
   set_flag_byte(&gbtn->field_0, 0x08, true);
   gbtn->field_1B = 0;
 }
@@ -1809,7 +1932,7 @@ void menu_tab_maintain(struct GuiButton *gbtn)
   struct PlayerInfo *player;
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
   //_DK_menu_tab_maintain(gbtn);
-  set_flag_byte(&gbtn->field_0, 0x08, (player->field_29 != 2));
+  set_flag_byte(&gbtn->field_0, 0x08, (player->victory_state != VicS_LostLevel));
 }
 
 void maintain_turn_on_autopilot(struct GuiButton *gbtn)
@@ -1858,9 +1981,9 @@ void maintain_door(struct GuiButton *gbtn)
   int i;
   //_DK_maintain_door(gbtn);
   i = (unsigned int)gbtn->field_33;
-  trap_dat = &trap_data[i%TRAP_TYPES_COUNT];
+  trap_dat = &trap_data[i%MANUFCTR_TYPES_COUNT];
   dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
-  if (dungeon->field_1023[trap_dat->field_4%TRAP_TYPES_COUNT])
+  if (dungeon->door_placeable[trap_dat->field_4%DOOR_TYPES_COUNT])
   {
     gbtn->field_1B = 0;
     set_flag_byte(&gbtn->field_0, 0x08, true);
@@ -1898,7 +2021,8 @@ void maintain_activity_row(struct GuiButton *gbtn)
 
 void maintain_loadsave(struct GuiButton *gbtn)
 {
-  _DK_maintain_loadsave(gbtn);
+  //_DK_maintain_loadsave(gbtn);
+  set_flag_byte(&gbtn->field_0, 0x08, ((game.numfield_A & 0x01) == 0));
 }
 
 void maintain_prison_bar(struct GuiButton *gbtn)
@@ -1918,7 +2042,13 @@ void maintain_ally(struct GuiButton *gbtn)
 
 void gui_load_game_maintain(struct GuiButton *gbtn)
 {
-  _DK_gui_load_game_maintain(gbtn);
+  //_DK_gui_load_game_maintain(gbtn);
+  long slot_idx;
+  if (gbtn != NULL)
+    slot_idx = gbtn->field_1B;
+  else
+    slot_idx = 0;
+  set_flag_byte(&gbtn->field_0, 0x08, save_game_catalogue[slot_idx].used);
 }
 
 void gui_video_cluedo_maintain(struct GuiButton *gbtn)
@@ -1968,17 +2098,20 @@ void maintain_transfer_creature_scroll(struct GuiButton *gbtn)
 
 void frontend_continue_game_maintain(struct GuiButton *gbtn)
 {
-  _DK_frontend_continue_game_maintain(gbtn);
+  //_DK_frontend_continue_game_maintain(gbtn);
+  set_flag_byte(&gbtn->field_0, 0x08, (continue_game_option_available != 0));
 }
 
 void frontend_main_menu_load_game_maintain(struct GuiButton *gbtn)
 {
-  _DK_frontend_main_menu_load_game_maintain(gbtn);
+  //_DK_frontend_main_menu_load_game_maintain(gbtn);
+  set_flag_byte(&gbtn->field_0, 0x08, (number_of_saved_games > 0));
 }
 
 void frontend_main_menu_netservice_maintain(struct GuiButton *gbtn)
 {
-  _DK_frontend_main_menu_netservice_maintain(gbtn);
+  //_DK_frontend_main_menu_netservice_maintain(gbtn);
+  set_flag_byte(&gbtn->field_0, 0x08, true);
 }
 
 void frontend_main_menu_highscores_maintain(struct GuiButton *gbtn)
@@ -2112,21 +2245,6 @@ void fronttorture_unload(void)
 void fronttorture_load(void)
 {
   _DK_fronttorture_load();
-}
-
-void frontnetmap_unload(void)
-{
-  _DK_frontnetmap_unload();
-}
-
-void frontnetmap_load(void)
-{
-  _DK_frontnetmap_load();
-}
-
-int frontmap_load(void)
-{
-  return _DK_frontmap_load();
 }
 
 void frontnet_service_setup(void)
@@ -2366,22 +2484,38 @@ void gui_choose_special_spell(struct GuiButton *gbtn)
 {
   //_DK_gui_choose_special_spell(gbtn); return;
   long idx;
+  struct Dungeon *dungeon;
+  dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
   idx = (long)gbtn->field_33 % SPELL_TYPES_COUNT;
   game.chosen_spell_type = idx;
   game.chosen_spell_look = spell_data[idx].field_9;
   game.chosen_spell_tooltip = gbtn->field_2B;
-  if (game.dungeon[my_player_number].field_AF9 > game.magic_stats[idx].field_0 )
+  if (dungeon->field_AF9 > game.magic_stats[idx].cost[0])
   {
     switch (idx)
     {
     case 19:
-        turn_on_menu(30);
+        turn_on_menu(GMnu_ARMAGEDDON);
         break;
     case 9:
-        turn_on_menu(17);
+        turn_on_menu(GMnu_HOLD_AUDIENCE);
         break;
     }
   }
+}
+
+void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long first_elem, long last_elem)
+{
+  struct TbSprite *spr;
+  long i,k,n;
+  spr = &frontend_sprite[78];
+  i = last_elem - first_elem;
+  k = gbtn->height - spr->SHeight;
+  if (i <= 1)
+    n = (gbtn->height - spr->SHeight) ^ k;
+  else
+    n = scroll_offset * (k << 8) / (i - 1) >> 8;
+  LbSpriteDraw(gbtn->scr_pos_x, n+gbtn->scr_pos_y, spr);
 }
 
 void gui_area_big_spell_button(struct GuiButton *gbtn)
@@ -2479,6 +2613,11 @@ void gui_area_player_room_info(struct GuiButton *gbtn)
   _DK_gui_area_player_room_info(gbtn);
 }
 
+void setup_gui_tooltip(struct GuiButton *gbtn)
+{
+  _DK_setup_gui_tooltip(gbtn);
+}
+
 void gui_toggle_ally(struct GuiButton *gbtn)
 {
   _DK_gui_toggle_ally(gbtn);
@@ -2486,7 +2625,12 @@ void gui_toggle_ally(struct GuiButton *gbtn)
 
 void gui_quit_game(struct GuiButton *gbtn)
 {
-  _DK_gui_quit_game(gbtn);
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  //_DK_gui_quit_game(gbtn);
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  set_packet_action(pckt, 1, 0, 0, 0, 0);
 }
 
 void gui_area_ally(struct GuiButton *gbtn)
@@ -2496,7 +2640,31 @@ void gui_area_ally(struct GuiButton *gbtn)
 
 void gui_save_game(struct GuiButton *gbtn)
 {
-  _DK_gui_save_game(gbtn);
+  static const char *func_name="gui_save_game";
+  struct CatalogueEntry *catentry;
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  long slot_idx;
+  //_DK_gui_save_game(gbtn);
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  if (stricmp((char *)gbtn->field_33, gui_strings[342]) != 0) // "UNUSED"
+  {
+    slot_idx = gbtn->field_1B%SAVE_SLOTS_COUNT;
+    catentry = &save_game_catalogue[slot_idx];
+    strcpy(catentry->textname, (char *)gbtn->field_33);
+    catentry->used = 1;
+    if (save_game(slot_idx))
+    {
+      output_message(103, 0, 1);
+    } else
+    {
+      error(func_name, 7282, "Error in save!");
+      create_error_box(536);
+    }
+  }
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  set_packet_action(pckt, 22, 0, 0, 0, 0);
+
 }
 
 void gui_video_shadows(struct GuiButton *gbtn)
@@ -2527,7 +2695,7 @@ void gui_video_gamma_correction(struct GuiButton *gbtn)
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
   video_gamma_correction = (video_gamma_correction + 1) % GAMMA_LEVELS_COUNT;
-  set_packet_action(pckt, PckT_SetGammaLevel, video_gamma_correction, 0, 0, 0);
+  set_packet_action(pckt, PckA_SetGammaLevel, video_gamma_correction, 0, 0, 0);
 }
 
 void gui_set_sound_volume(struct GuiButton *gbtn)
@@ -2562,7 +2730,77 @@ void gui_area_instance_button(struct GuiButton *gbtn)
 
 void gui_area_stat_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_stat_button(gbtn);
+  struct CreatureStats *crstat;
+  struct CreatureControl *cctrl;
+  struct Dungeon *dungeon;
+  struct PlayerInfo *player;
+  struct Thing *thing;
+  char *text;
+  long i;
+  //_DK_gui_area_stat_button(gbtn); return;
+  LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, &gui_panel_sprites[459]);
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  thing = game.things_lookup[player->field_2F%THINGS_COUNT];
+  if (thing == NULL)
+    return;
+  if (thing->class_id == 5)
+  {
+    crstat = &game.creature_stats[thing->model%CREATURE_TYPES_COUNT];
+    cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
+    switch ((long)gbtn->field_33)
+    {
+    case 0: // kills
+        i = cctrl->field_C2;
+        text = buf_sprintf("%ld", i);
+        break;
+    case 1: // strength
+        i = compute_creature_max_strength(crstat->strength,cctrl->explevel);
+        text = buf_sprintf("%ld", i);
+        break;
+    case 2: // gold held
+        i = thing->long_13;
+        text = buf_sprintf("%ld", i);
+        break;
+    case 3: // payday wage
+        dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+        if (dungeon->field_1420[thing->model])
+          i = compute_creature_max_pay(crstat->pay,cctrl->explevel)/2;
+        else
+          i = compute_creature_max_pay(crstat->pay,cctrl->explevel);
+        text = buf_sprintf("%ld", i);
+        break;
+    case 4: // armour
+        i = compute_creature_max_armour(crstat->armour,cctrl->explevel);
+        text = buf_sprintf("%ld", i);
+        break;
+    case 5: // defence
+        i = compute_creature_max_defence(crstat->defence,cctrl->explevel);
+        text = buf_sprintf("%ld", i);
+        break;
+    case 6: // time in dungeon
+        i = (game.seedchk_random_used-thing->field_9) / 2000 + cctrl->field_286;
+        if (i >= 99)
+          i = 99;
+        text = buf_sprintf("%ld", i);
+        break;
+    case 7: // dexterity
+        i = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
+        text = buf_sprintf("%ld", i);
+        break;
+    case 8: // luck
+        i = compute_creature_max_luck(crstat->luck,cctrl->explevel);
+        text = buf_sprintf("%ld", i);
+        break;
+    case 9: // blood type
+        i = cctrl->field_287;
+        text = buf_sprintf("%s", blood_types[i%BLOOD_TYPES_COUNT]);
+        break;
+    default:
+        return;
+    }
+    LbSpriteDraw((gbtn->scr_pos_x-6)/pixel_size, (gbtn->scr_pos_y-12)/pixel_size, &gui_panel_sprites[gbtn->field_29]);
+    draw_button_string(gbtn, text);
+  }
 }
 
 void frontend_define_key_up(struct GuiButton *gbtn)
@@ -2630,9 +2868,50 @@ void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
   _DK_frontstats_draw_scrolling_stats(gbtn);
 }
 
+short frontend_should_all_players_quit(void)
+{
+  return (net_service_index_selected <= 1);
+}
+
+/*
+ * Loads next menu state after leaving frontstats.
+ */
 void frontstats_leave(struct GuiButton *gbtn)
 {
-  _DK_frontstats_leave(gbtn);
+  struct PlayerInfo *player;
+  LevelNumber lvnum;
+  //_DK_frontstats_leave(gbtn);
+  if (game.numfield_A & 0x01)
+  {
+    if ( setup_old_network_service() )
+    {
+      frontend_set_state(FeSt_NET_SESSION);
+      fe_high_score_table_from_main_menu = false;
+    } else
+    {
+      frontend_set_state(FeSt_MAIN_MENU);
+    }
+  } else
+  {
+    player = &(game.players[my_player_number%PLAYERS_COUNT]);
+    lvnum = get_loaded_level_number();
+    if (player->victory_state == VicS_WonLevel)
+    {
+      frontend_set_state(FeSt_HIGH_SCORES);
+      fe_high_score_table_from_main_menu = false;
+    } else
+    if (is_singleplayer_level(lvnum) || is_bonus_level(lvnum) || is_extra_level(lvnum))
+    {
+      frontend_set_state(FeSt_LAND_VIEW);
+    } else
+    if (is_freeplay_level(lvnum))
+    {
+      frontend_set_state(FeSt_LEVEL_SELECT);
+    } else
+    {
+      frontend_set_state(FeSt_MAIN_MENU);
+    }
+  }
 }
 
 void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn)
@@ -2640,14 +2919,133 @@ void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn)
   _DK_frontend_draw_vlarge_menu_button(gbtn);
 }
 
+void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width)
+{
+    struct HighScore *hscore;
+    int i;
+    if (idx >= campaign.hiscore_count)
+      return;
+    hscore = &campaign.hiscore_table[idx];
+    lbDisplay.DrawFlags = 0x80;
+    i = pos_x + col1_width;
+    LbTextNumberDraw(i, pos_y, idx+1, Fnt_RightJustify);
+    i += col2_width;
+    LbTextNumberDraw(i, pos_y, hscore->score, Fnt_RightJustify);
+    i += col3_width;
+    LbTextNumberDraw(i, pos_y, hscore->lvnum, Fnt_RightJustify);
+    i += col4_width;
+    if (idx == high_score_entry_input_active)
+    {
+      i += LbTextStringDraw(i, pos_y, high_score_entry, Fnt_LeftJustify);
+      // Blinking cursor
+      if ((LbTimerClock() & 0x0100) != 0)
+      {
+        LbTextStringDraw(i, pos_y, "_", Fnt_LeftJustify);
+      }
+    } else
+    {
+      LbTextStringDraw(i, pos_y, hscore->name, Fnt_LeftJustify);
+    }
+}
+
 void frontend_draw_high_score_table(struct GuiButton *gbtn)
 {
-  _DK_frontend_draw_high_score_table(gbtn);
+  struct TbSprite *spr;
+  struct TbSprite *swpspr;
+  long pos_x,pos_y;
+  long col1_width,col2_width,col3_width,col4_width;
+  long i,k;
+//  _DK_frontend_draw_high_score_table(gbtn); return;
+  // Draw the high scores area - top
+  pos_x = gbtn->scr_pos_x;
+  pos_y = gbtn->scr_pos_y;
+  spr = &frontend_sprite[25];
+  swpspr = spr;
+  for (i=6; i > 0; i--)
+  {
+    LbSpriteDraw(pos_x, pos_y, swpspr);
+    pos_x += swpspr->SWidth;
+    swpspr++;
+  }
+  pos_y += spr->SHeight;
+  // Draw the high scores area - filling
+  k = 12;
+  while (k > 0)
+  {
+    if (k < 3)
+      i = 33;
+    else
+      i = 40;
+    spr = &frontend_sprite[i];
+    pos_x = gbtn->scr_pos_x;
+    swpspr = spr;
+    for (i=6; i > 0; i--)
+    {
+      LbSpriteDraw(pos_x, pos_y, swpspr);
+      pos_x += swpspr->SWidth;
+      swpspr++;
+    }
+    pos_y += spr->SHeight;
+    if (k < 3)
+      k--;
+    else
+      k -= 3;
+  }
+  // Draw the high scores area - bottom
+  pos_x = gbtn->scr_pos_x;
+  spr = &frontend_sprite[47];
+  swpspr = spr;
+  for (i=6; i > 0; i--)
+  {
+    LbSpriteDraw(pos_x, pos_y, swpspr);
+    pos_x += swpspr->SWidth;
+    swpspr++;
+  }
+  lbFontPtr = frontend_font[1];
+  lbDisplay.DrawFlags = 0;
+  spr = &frontend_sprite[33];
+  pos_x = gbtn->scr_pos_x + spr->SWidth;
+  spr = &frontend_sprite[25];
+  pos_y = spr->SHeight + gbtn->scr_pos_y + 3;
+  col1_width = LbTextStringWidth("99");
+  col2_width = LbTextStringWidth(" 99999");
+  col3_width = LbTextStringWidth(" 999");
+  col4_width = LbTextCharWidth('-');
+  for (k=0; k < VISIBLE_HIGH_SCORES_COUNT-1; k++)
+  {
+    draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width);
+    pos_y += LbTextHeight("Wg");
+  }
+  if (high_score_entry_input_active > k)
+    draw_high_score_entry(high_score_entry_input_active, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width);
+  else
+    draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width);
 }
 
 void frontend_quit_high_score_table(struct GuiButton *gbtn)
 {
-  _DK_frontend_quit_high_score_table(gbtn);
+  LevelNumber lvnum;
+  //_DK_frontend_quit_high_score_table(gbtn);
+  lvnum = get_loaded_level_number();
+  if (fe_high_score_table_from_main_menu)
+  {
+    frontend_set_state(FeSt_MAIN_MENU);
+  } else
+  if (is_singleplayer_level(lvnum) || is_bonus_level(lvnum) || is_extra_level(lvnum))
+  {
+    frontend_set_state(FeSt_LAND_VIEW);
+  } else
+  if (is_multiplayer_level(lvnum))
+  {
+    frontend_set_state(FeSt_MAIN_MENU);
+  } else
+  if (is_freeplay_level(lvnum))
+  {
+    frontend_set_state(FeSt_LEVEL_SELECT);
+  } else
+  {
+    frontend_set_state(FeSt_MAIN_MENU);
+  }
 }
 
 void frontnet_start_input(void)
@@ -2655,9 +3053,53 @@ void frontnet_start_input(void)
   _DK_frontnet_start_input();
 }
 
-void frontend_high_score_table_input(void)
+short frontend_high_score_table_input(void)
 {
-  _DK_frontend_high_score_table_input();
+  struct HighScore *hscore;
+  char chr;
+  long i;
+  //_DK_frontend_high_score_table_input();
+  if (high_score_entry_input_active >= campaign.hiscore_count)
+    return false;
+  if (lbInkey == KC_BACK)
+  {
+    if (high_score_entry_index > 0)
+    {
+      i = high_score_entry_index-1;
+      high_score_entry[i] = '\0';
+      high_score_entry_index = i;
+      lbInkey = KC_UNASSIGNED;
+      return true;
+    }
+  }
+  if (lbInkey == KC_RETURN)
+  {
+    hscore = &campaign.hiscore_table[high_score_entry_input_active];
+    strncpy(hscore->name, high_score_entry, HISCORE_NAME_LENGTH);
+    high_score_entry_input_active = -1;
+    save_high_score_table();
+    lbInkey = KC_UNASSIGNED;
+    return true;
+  }
+  if (high_score_entry_index < HISCORE_NAME_LENGTH)
+  {
+    chr = key_to_ascii(lbInkey, key_modifiers);
+    if (chr != 0)
+    {
+      lbFontPtr = frontend_font[1];
+      i = LbTextCharWidth(chr);
+      if ((i > 0) && (i+LbTextStringWidth(high_score_entry) < 308))
+      {
+        high_score_entry[high_score_entry_index] = chr;
+        i = high_score_entry_index+1;
+        high_score_entry[i] = 0;
+        high_score_entry_index = i;
+        lbInkey = KC_UNASSIGNED;
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 void pick_up_next_wanderer(struct GuiButton *gbtn)
@@ -2799,6 +3241,18 @@ void frontend_init_options_menu(struct GuiMenu *gmnu)
   _DK_frontend_init_options_menu(gmnu);
 }
 
+void frontend_set_player_number(long plr_num)
+{
+  struct PlayerInfo *player;
+  //_DK_frontend_set_player_number(plr_num);
+  my_player_number = plr_num;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player->field_2B = plr_num;
+//  setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight); - maybe better?
+  setup_engine_window(0, 0, 640, 480);
+
+}
+
 void frontnet_draw_scroll_box_tab(struct GuiButton *gbtn)
 {
   _DK_frontnet_draw_scroll_box_tab(gbtn);
@@ -2816,7 +3270,8 @@ void frontnet_draw_slider_button(struct GuiButton *gbtn)
 
 void frontnet_draw_services_scroll_tab(struct GuiButton *gbtn)
 {
-  _DK_frontnet_draw_services_scroll_tab(gbtn);
+  //_DK_frontnet_draw_services_scroll_tab(gbtn);
+  frontend_draw_scroll_tab(gbtn, net_service_scroll_offset, 0, net_number_of_services);
 }
 
 void frontend_draw_text(struct GuiButton *gbtn)
@@ -2826,7 +3281,8 @@ void frontend_draw_text(struct GuiButton *gbtn)
 
 void frontend_change_state(struct GuiButton *gbtn)
 {
-  _DK_frontend_change_state(gbtn);
+  //_DK_frontend_change_state(gbtn);
+  frontend_set_state(gbtn->field_1B);
 }
 
 void frontend_over_button(struct GuiButton *gbtn)
@@ -2901,17 +3357,103 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
 
 void frontnet_session_join(struct GuiButton *gbtn)
 {
-  _DK_frontnet_session_join(gbtn);
+  //_DK_frontnet_session_join(gbtn);
+  unsigned long plyr_num;
+  switch (net_service_index_selected)
+  {
+  case 1:
+      modem_dev.field_0 = 0;
+      modem_dev.field_4 = 0;
+      strcpy(modem_dev.field_58, net_config_info.str_join);
+      modem_dev.field_AC = modem_initialise_callback;
+      modem_dev.field_B0 = modem_connect_callback;
+      break;
+  default:
+      if (LbScreenLock() == 1)
+      {
+        draw_text_box(gui_strings[868]); // "Attempting To Join"
+        LbScreenUnlock();
+      }
+      LbScreenSwap();
+      break;
+  }
+  if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num) )
+  {
+    if (net_service_index_selected == 1)
+      process_network_error(modem_dev.field_A8);
+    else
+      process_network_error(-802);
+    return;
+  }
+  frontend_set_player_number(plyr_num);
+  frontend_set_state(6);
 }
 
 void frontnet_session_create(struct GuiButton *gbtn)
 {
-  _DK_frontnet_session_create(gbtn);
+  //_DK_frontnet_session_create(gbtn);
+  int v1; // ebx@1
+  __int32 v2; // edi@1
+  struct TbNetworkSessionNameEntry **v3; // esi@2
+  char *v4; // eax@3
+  struct TbNetworkSessionNameEntry *nsname;
+  unsigned long plyr_num;
+  char *text;
+  char *txpos;
+  long i,idx;
+
+  idx = 0;
+  for (i=0; i < net_number_of_sessions; i++)
+  {
+      nsname = net_session[i];
+      if (nsname == NULL)
+        continue;
+      text = buf_sprintf(nsname->field_8);
+      txpos = strchr(text, '\'');
+      if (txpos != NULL)
+        *txpos = '\0';
+      if (strcmp(text, net_player_name) != 0)
+        idx++;
+  }
+  if (idx > 0)
+    text = buf_sprintf("%s (%d)", net_player_name, idx+1);
+  else
+    text = buf_sprintf("%s", net_player_name);
+  switch (net_service_index_selected)
+  {
+  case 1:
+      modem_dev.field_0 = 0;
+      modem_dev.field_4 = 0;
+      strcpy(modem_dev.field_58, net_config_info.str_join);
+      modem_dev.field_AC = modem_initialise_callback;
+      modem_dev.field_B0 = modem_connect_callback;
+      break;
+  default:
+      break;
+  }
+  if (LbNetwork_Create(text, net_player_name, &plyr_num))
+  {
+    if ( net_service_index_selected == 1 )
+      process_network_error(modem_dev.field_A8);
+    else
+      process_network_error(-801);
+    return;
+  }
+  frontend_set_player_number(plyr_num);
+  fe_computer_players = 0;
+  frontend_set_state(6);
 }
 
 void frontnet_return_to_main_menu(struct GuiButton *gbtn)
 {
-  _DK_frontnet_return_to_main_menu(gbtn);
+  static const char *func_name="frontnet_return_to_main_menu";
+  //_DK_frontnet_return_to_main_menu(gbtn);
+  if ( LbNetwork_Stop() )
+  {
+    error(func_name, 816, "LbNetwork_Stop() failed");
+    return;
+  }
+  frontend_set_state(1);
 }
 
 void frontend_draw_small_menu_button(struct GuiButton *gbtn)
@@ -2991,7 +3533,17 @@ void set_packet_start(struct GuiButton *gbtn)
 
 void frontnet_return_to_session_menu(struct GuiButton *gbtn)
 {
-  _DK_frontnet_return_to_session_menu(gbtn);
+  static const char *func_name="frontnet_return_to_session_menu";
+  //_DK_frontnet_return_to_session_menu(gbtn);
+  if ( LbNetwork_Stop() )
+  {
+    error(func_name, 826, "LbNetwork_Stop() failed");
+    return;
+  }
+  if ( setup_network_service(net_service_index_selected) )
+    frontend_set_state(5);
+  else
+    frontend_set_state(1);
 }
 
 void frontnet_draw_small_scroll_box_tab(struct GuiButton *gbtn)
@@ -3156,17 +3708,25 @@ void choose_armageddon(struct GuiButton *gbtn)
 
 void frontend_load_game_up(struct GuiButton *gbtn)
 {
-  _DK_frontend_load_game_up(gbtn);
+  if (load_game_scroll_offset > 0)
+    load_game_scroll_offset--;
 }
 
 void frontend_load_game_down(struct GuiButton *gbtn)
 {
-  _DK_frontend_load_game_down(gbtn);
+  if (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1)
+    load_game_scroll_offset++;
 }
 
 void frontend_draw_games_scroll_tab(struct GuiButton *gbtn)
 {
-  _DK_frontend_draw_games_scroll_tab(gbtn);
+  //_DK_frontend_draw_games_scroll_tab(gbtn);
+  frontend_draw_scroll_tab(gbtn, load_game_scroll_offset, frontend_load_menu_items_visible-2, number_of_saved_games);
+}
+
+void frontend_draw_levels_scroll_tab(struct GuiButton *gbtn)
+{
+  frontend_draw_scroll_tab(gbtn, select_level_scroll_offset, frontend_select_level_items_visible-2, number_of_freeplay_levels);
 }
 
 int frontend_load_game_button_to_index(struct GuiButton *gbtn)
@@ -3202,10 +3762,8 @@ void frontend_load_game(struct GuiButton *gbtn)
     frontend_set_state(10);
   } else
   {
-    save_game_catalogue[i].used = 0;
-    save_game_save_catalogue(save_game_catalogue);
-    load_game_save_catalogue(save_game_catalogue);
-    if (count_valid_saved_games() == 0)
+    save_catalogue_slot_disable(i);
+    if (!initialise_load_game_slots())
       frontend_set_state(1);
   }
 }
@@ -3217,7 +3775,7 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
   long gbidx;
   int i,h;
   gbidx = (unsigned long)gbtn->field_33;
-  nfont = frontend_button_info[gbidx].field_2;
+  nfont = frontend_button_info[gbidx%FRONTEND_BUTTON_INFO_COUNT].field_2;
   if ((gbidx != 0) && (frontend_mouse_over_button == gbidx))
       nfont = 2;
   lbDisplay.DrawFlags = 0x20;
@@ -3230,67 +3788,104 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
   LbTextDraw(0, 0, save_game_catalogue[i].textname);
 }
 
+void frontend_start_single_level(struct GuiButton *gbtn)
+{
+//  if (check_deeper_cd(0))
+    frontend_change_state(gbtn);
+//  else
+//    LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
+}
+
 void frontend_start_new_game(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
   int i;
   //_DK_frontend_start_new_game(gbtn);
-  game.level_number = first_singleplayer_level();
+  set_continue_level_number(first_singleplayer_level());
   for (i=0; i < PLAYERS_COUNT; i++)
   {
     player = &(game.players[i]);
     player->field_6 &= 0xFD;
   }
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
   game.transfered_creature_kind = 0;
   game.transfered_creature_level = 0;
   calculate_moon_phase(false,false);
-  for (i=0; i < 6; i++)
-    game.bonus_levels[i] = 0;
-  game.bonus_levels[MOON_BONUS_INDEX] = is_full_moon;
+  hide_all_bonus_levels(player);
+  update_extra_levels_visibility();
   frontend_set_state(3);
 }
+
+/*
+ * Writes the continue game file.
+ * If allow_lvnum_grow is true and my_player has won the singleplayer level,
+ * then next level is written into continue file. This should be the case
+ * if complete_level() wasn't called yet.
+ */
+short frontend_save_continue_game(short allow_lvnum_grow)
+{
+  static const char *func_name="frontend_save_continue_game";
+  struct PlayerInfo *player;
+  struct Dungeon *dungeon;
+  unsigned short victory_state;
+  short flg_mem;
+  LevelNumber lvnum;
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+  // Save some of the data from clearing
+  victory_state = player->victory_state;
+  memcpy(scratch, &dungeon->lvstats, sizeof(struct LevelStats));
+  flg_mem = ((player->field_3 & 0x10) != 0);
+  // clear all data
+  clear_game_for_save();
+  // Restore saved data
+  player->victory_state = victory_state;
+  memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
+  set_flag_byte(&player->field_3,0x10,flg_mem);
+  // Only save continue if level was won, and not in packet mode
+  if (((game.numfield_A & 0x01) != 0) || ((game.numfield_C & 0x02) != 0)
+   || (game.packet_load_enable))
+    return false;
+  lvnum = get_continue_level_number();
+  if ((allow_lvnum_grow) && (player->victory_state == VicS_WonLevel))
+  {
+    if (is_singleplayer_like_level(lvnum))
+      lvnum = next_singleplayer_level(lvnum);
+    if (lvnum == LEVELNUMBER_ERROR)
+      lvnum = get_continue_level_number();
+  }
+  return save_continue_game(lvnum);
+}
+
+/*
+short frontend_save_continue_game(long lvnum, short is_new_lvl)
+{
+  static const char *func_name="frontend_save_continue_game";
+  //_DK_frontend_save_continue_game(lvnum,a2);
+  if (is_new_lvl)
+  {
+    save_continue_game(lvnum);
+    return true;
+  } else
+  {
+    error(func_name, 1620, "Why are we here when it's not a new level");
+    save_continue_game(SINGLEPLAYER_NOTSTARTED);
+    return false;
+  }
+}
+*/
 
 void frontend_load_continue_game(struct GuiButton *gbtn)
 {
-  unsigned char buf[12];
-  unsigned char bonus[12];
-  long i;
-  //_DK_frontend_load_continue_game(gbtn);
-  if (!read_continue_game_part(buf,0,10))
+  if (!load_continue_game())
   {
     continue_game_option_available = 0;
     return;
   }
-  i = ((struct Game *)buf)->continue_level;
-  if (i <= 0)
-  {
-    continue_game_option_available = 0;
-    return;
-  }
-  if (!is_singleplayer_level(i))
-  {
-    continue_game_option_available = 0;
-    return;
-  }
-  game.level_number = i;
-  LbMemorySet(bonus,0,12);
-  i = (char *)&game.bonus_levels[0] - (char *)&game.numfield_0;
-  read_continue_game_part(bonus,i,10);
-  game.numfield_0 = ((struct Game *)buf)->numfield_0;
-  game.version_major = ((struct Game *)buf)->version_major;
-  game.version_minor = ((struct Game *)buf)->version_minor;
-  for (i=0; i < 6; i++)
-    game.bonus_levels[i] = bonus[i];
-  game.bonus_levels[MOON_BONUS_INDEX] = is_full_moon;
-  i = (char *)&game.transfered_creature_kind - (char *)&game.bonus_levels[0];
-  game.transfered_creature_kind = bonus[i];
-  game.transfered_creature_level = bonus[i+1];
   frontend_set_state(3);
-}
-
-void frontmap_draw(void)
-{
-  _DK_frontmap_draw();
 }
 
 void frontcredits_draw(void)
@@ -3301,11 +3896,6 @@ void frontcredits_draw(void)
 void fronttorture_draw(void)
 {
   _DK_fronttorture_draw();
-}
-
-void frontnetmap_draw(void)
-{
-  _DK_frontnetmap_draw();
 }
 
 void gui_previous_battle(struct GuiButton *gbtn)
@@ -3388,22 +3978,12 @@ void select_transfer_creature_down(struct GuiButton *gbtn)
   _DK_select_transfer_creature_down(gbtn);
 }
 
-void frontmap_input(void)
-{
-  _DK_frontmap_input();
-}
-
-void frontnetmap_input(void)
-{
-  _DK_frontnetmap_input();
-}
-
 void fronttorture_input(void)
 {
   _DK_fronttorture_input();
 }
 
-long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, char a3, long *tag)
+long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   // Note: reworked from beta and unchecked
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
@@ -3413,15 +3993,124 @@ long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, cha
   guop=gbox->optn_list;
   while (guop->label[0] != '!')
   {
-    guop->field_25 = 0;
+    guop->active = 0;
     guop++;
   }
-  goptn->field_25 = 1;
+  goptn->active = 1;
   return 1;
 }
 
+long gf_change_player_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+{
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  set_packet_action(pckt, 39, *tag, 0, 0, 0);
+  return 1;
+}
+
+long gf_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+{
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+//  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+  if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
+    return 0;
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  set_packet_action(pckt, 62, 0, 0, 0, 0);
+  return 1;
+}
+
+long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+{
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+//  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+  if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
+    return 0;
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  set_packet_action(pckt, 67, 0, 0, 0, 0);
+  return 1;
+}
+
+long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+{
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+//  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+  if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
+    return 0;
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  set_packet_action(pckt, 61, 0, 0, 0, 0);
+  return 1;
+}
+
+long gf_give_all_creatures_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+{
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+//  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+  if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
+    return 0;
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  set_packet_action(pckt, 64, 0, 0, 0, 0);
+  return 1;
+}
+
+long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+{
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+//  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+  if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
+    return 0;
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  set_packet_action(pckt, 63, 0, 0, 0, 0);
+  return 1;
+}
+
+long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+{
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+//  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+  if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
+    return 0;
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  set_packet_action(pckt, 66, 0, 0, 0, 0);
+  return 1;
+}
+
+long gfa_can_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag)
+{
+  struct PlayerInfo *player;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+//  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+  if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
+    return false;
+  return true;
+}
+
+long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag)
+{
+  struct PlayerInfo *player;
+  struct Thing *thing;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
+    return false;
+  thing = game.things_lookup[player->field_2F];
+  return creature_instance_is_available(thing, *tag);
+}
+
 /*
- * Draws parchment view background, used for in-game map screen.
+ * Draws parchment view background, used for in-game level map screen.
  */
 void draw_map_parchment(void)
 {
@@ -3458,16 +4147,17 @@ void frontnet_service_maintain(struct GuiButton *gbtn)
 
 void frontnet_draw_service_button(struct GuiButton *gbtn)
 {
-//  _DK_frontnet_draw_service_button(gbtn);
   int srvidx;
+  long fbinfo_idx;
+  int fntidx;
   // Find and verify selected network service
-  srvidx = (long)(gbtn->field_33) + net_service_scroll_offset - 45;
-  if ( srvidx >= net_number_of_services )
+  fbinfo_idx = (long)(gbtn->field_33);
+  srvidx = fbinfo_idx + net_service_scroll_offset - 45;
+  if (srvidx >= net_number_of_services)
     return;
   // Select font to draw
-  int fntidx;
-  fntidx = frontend_button_info[(long)gbtn->field_33].field_2;
-  if (((long)gbtn->field_33 != 0) && (frontend_mouse_over_button == (long)gbtn->field_33))
+  fntidx = frontend_button_info[fbinfo_idx%FRONTEND_BUTTON_INFO_COUNT].field_2;
+  if ((fbinfo_idx != 0) && (frontend_mouse_over_button == fbinfo_idx))
       fntidx = 2;
   lbFontPtr = frontend_font[fntidx];
   // Set drawing windsow
@@ -3482,7 +4172,6 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
 
 void frontnet_service_select(struct GuiButton *gbtn)
 {
-//  _DK_frontnet_service_select(gbtn);
   int srvidx;
   srvidx = (long)(gbtn->field_33) + net_service_scroll_offset - 45;
   if ( (game.one_player) && (srvidx+1>=net_number_of_services) )
@@ -3515,18 +4204,7 @@ void frontend_load_high_score_table(void)
   if (!load_high_score_table())
   {
      LbSyncLog("High scores table bad; creating new one.\n");
-     // highscore table wrong - generate a new one
-     int i;
-     int npoints = 100*HIGH_SCORES_COUNT;
-     int nlevel = 1*HIGH_SCORES_COUNT;
-     for (i=0;i<HIGH_SCORES_COUNT;i++)
-     {
-            sprintf(high_score_table[i].name, "Bullfrog");
-            high_score_table[i].score=npoints;
-            high_score_table[i].level=nlevel;
-            npoints -= 100;
-            nlevel -= 1;
-     }
+     create_empty_high_score_table();
      save_high_score_table();
   }
 }
@@ -3535,37 +4213,31 @@ void add_score_to_high_score_table(void)
 {
   struct Dungeon *dungeon;
   struct PlayerInfo *player;
+  LevelNumber lvnum;
+  long new_score;
+  int idx;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
-    // Determining position of the new entry
-    int idx;
-    long new_score = dungeon->lvstats.player_score;
-    for (idx=0; idx < HIGH_SCORES_COUNT; idx++)
-    {
-        if (high_score_table[idx].score <= new_score)
-          break;
-    }
-    // If the new score is poor, return
-    if (idx>=HIGH_SCORES_COUNT) return;
-    // Moving entries down
-    int k;
-    for (k=HIGH_SCORES_COUNT-2; k >= idx; k--)
-    {
-        memcpy(&high_score_table[k+1],&high_score_table[k],sizeof(struct HighScore));
-    }
-    // Preparing the new entry
+  idx = add_high_score_entry(dungeon->lvstats.player_score, get_loaded_level_number(), "");
+  if (idx >= 0)
+  {
+    // Preparing input in the new entry
+    // Note that we're not clearing previous name - this way it may be easily kept unchanged
     high_score_entry_input_active = idx;
-    high_score_entry[0] = '\0';
     high_score_entry_index = 0;
-    high_score_table[idx].score = new_score;
-    high_score_table[idx].level = game.level_number-1;
+  } else
+  {
+    high_score_entry_input_active = -1;
+    high_score_entry_index = 0;
+  }
 }
 
 void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
 {
   static const char *func_name="do_button_release_actions";
-  //LbSyncLog("%s: Starting\n", func_name);
-  //_DK_do_button_release_actions(gbtn, s, callback); return;
+ #if (BFDEBUG_LEVEL > 17)
+  LbSyncLog("%s: Starting\n", func_name);
+#endif
   int i;
   struct GuiMenu *gmnu;
   switch ( gbtn->gbtype )
@@ -3616,56 +4288,64 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       gmnu->field_1 = 3;
     }
   }
-  //LbSyncLog("%s: Finished\n", func_name);
+#if (BFDEBUG_LEVEL > 17)
+  LbSyncLog("%s: Finished\n", func_name);
+#endif
 }
 
-unsigned long is_toggleable_menu(short mnu_idx)
+/*
+ * Returns if the menu is toggleable. If it's not, then it is always
+ * visible until it's deleted.
+ */
+short is_toggleable_menu(short mnu_idx)
 {
   switch (mnu_idx)
   {
-  case 1:
-  case 2:
-  case 3:
-  case 4:
-  case 5:
-  case 6:
-  case 7:
-      return 1;
-  case 16:
-  case 27:
-  case 31:
-  case 32:
-  case 34:
-  case 35:
-  case 38:
-      return 1;
-  case 8:
-  case 9:
-  case 10:
-  case 11:
-  case 12:
-  case 13:
-  case 14:
-  case 15:
-  case 17:
-  case 18:
-  case 19:
-  case 20:
-  case 21:
-  case 22:
-  case 23:
-  case 24:
-  case 25:
-  case 26:
-  case 28:
-  case 29:
-  case 30:
+  case GMnu_MAIN:
+  case GMnu_ROOM:
+  case GMnu_SPELL:
+  case GMnu_TRAP:
+  case GMnu_CREATURE:
+  case GMnu_EVENT:
+  case GMnu_QUERY:
+      return true;
+  case GMnu_TEXT_INFO:
+  case GMnu_DUNGEON_SPECIAL:
+  case GMnu_CREATURE_QUERY1:
+  case GMnu_CREATURE_QUERY3:
+  case GMnu_BATTLE:
+  case GMnu_CREATURE_QUERY2:
+  case GMnu_SPELL_LOST:
+      return true;
+  case GMnu_OPTIONS:
+  case GMnu_INSTANCE:
+  case GMnu_QUIT:
+  case GMnu_LOAD:
+  case GMnu_SAVE:
+  case GMnu_VIDEO:
+  case GMnu_SOUND:
+  case GMnu_ERROR_BOX:
+  case GMnu_HOLD_AUDIENCE:
+  case GMnu_FEMAIN:
+  case GMnu_FELOAD:
+  case GMnu_FENET_SERVICE:
+  case GMnu_FENET_SESSION:
+  case GMnu_FENET_START:
+  case GMnu_FENET_MODEM:
+  case GMnu_FENET_SERIAL:
+  case GMnu_FESTATISTICS:
+  case GMnu_FEHIGH_SCORE_TABLE:
+  case GMnu_RESURRECT_CREATURE:
+  case GMnu_TRANSFER_CREATURE:
+  case GMnu_ARMAGEDDON:
   case 33:
-  case 36:
-  case 37:
-      return 0;
+  case GMnu_FEDEFINE_KEYS:
+  case GMnu_AUTOPILOT:
+  case GMnu_FEOPTION:
+  case GMnu_FELEVEL_SELECT:
+      return false;
   default:
-      return 1;
+      return true;
   }
 }
 
@@ -3739,7 +4419,6 @@ void setup_radio_buttons(struct GuiMenu *gmnu)
 
 void turn_off_all_panel_menus(void)
 {
-  //_DK_turn_off_all_panel_menus(); return;
   int mnu_num;
   struct GuiMenu *gmnu;
   mnu_num = menu_id_to_number(1);
@@ -3797,7 +4476,6 @@ void set_menu_mode(long mnu_idx)
 
 short turn_off_all_window_menus(void)
 {
-//return _DK_turn_off_all_window_menus();
   short result;
   result = false;
   if (menu_is_active(10))
@@ -3872,29 +4550,29 @@ short turn_off_all_window_menus(void)
 
 void turn_on_main_panel_menu(void)
 {
-  if (menu_id_to_number(1) == -1)
+  if (menu_id_to_number(GMnu_MAIN) == -1)
   {
-    turn_on_menu(1);
+    turn_on_menu(GMnu_MAIN);
   }
   if (info_tag != 0)
   {
-    turn_on_menu(7);
+    turn_on_menu(GMnu_QUERY);
   } else
   if (room_tag != 0)
   {
-    turn_on_menu(2);
+    turn_on_menu(GMnu_ROOM);
   } else
   if (spell_tag != 0)
   {
-    turn_on_menu(3);
+    turn_on_menu(GMnu_SPELL);
   } else
   if (trap_tag != 0)
   {
-    turn_on_menu(2);
+    turn_on_menu(GMnu_TRAP);
   } else
   if (creature_tag != 0)
   {
-    turn_on_menu(5);
+    turn_on_menu(GMnu_CREATURE);
   }
 }
 
@@ -3953,9 +4631,9 @@ void reinit_all_menus(void)
 
 void update_radio_button_data(struct GuiMenu *gmnu)
 {
-  int i;
   struct GuiButton *gbtn;
   unsigned char *rbstate;
+  int i;
   for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
   {
     gbtn = &active_buttons[i];
@@ -3975,9 +4653,9 @@ void update_radio_button_data(struct GuiMenu *gmnu)
 
 void init_slider_bars(struct GuiMenu *gmnu)
 {
-  int i;
   struct GuiButton *gbtn;
   long sldpos;
+  int i;
   for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
   {
     gbtn = &active_buttons[i];
@@ -3999,9 +4677,9 @@ void init_slider_bars(struct GuiMenu *gmnu)
 
 void init_menu_buttons(struct GuiMenu *gmnu)
 {
-  int i;
   struct GuiButton *gbtn;
   Gf_Btn_Callback callback;
+  int i;
   for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
   {
     gbtn = &active_buttons[i];
@@ -4014,7 +4692,6 @@ void init_menu_buttons(struct GuiMenu *gmnu)
 char create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit)
 {
   struct GuiButton *gbtn;
-
   char i;
   i=_DK_create_button(gmnu, gbinit);
 
@@ -4051,7 +4728,7 @@ long compute_menu_position_x(long desired_pos,int menu_width)
       pos = ((desired_pos*units_per_pixel)>>4)*pixel_size;
       if (pos+menu_width > lbDisplay.PhysicalScreenWidth*pixel_size)
         pos = lbDisplay.PhysicalScreenWidth*pixel_size-menu_width;
-/* No idea what's this for - disabling
+/* Helps not to touch left panel - disabling, as needs additional conditions
       if (pos < 140)
         pos = 140;
 */
@@ -4116,16 +4793,17 @@ long compute_menu_position_y(long desired_pos,int menu_height)
 char create_menu(struct GuiMenu *gmnu)
 {
   static const char *func_name="create_menu";
-  //return _DK_create_menu(gmnu);
   int mnu_num;
   struct GuiMenu *amnu;
   struct PlayerInfo *player;
   Gf_Mnu_Callback callback;
   struct GuiButtonInit *btninit;
   int i;
-
+#if (BFDEBUG_LEVEL > 18)
+    LbSyncLog("%s: Starting menu %d\n",func_name,gmnu->field_0);
+#endif
   mnu_num = menu_id_to_number(gmnu->field_0);
-  if (mnu_num != -1)
+  if (mnu_num >= 0)
   {
     amnu = &active_menus[mnu_num];
     amnu->field_1 = 1;
@@ -4190,15 +4868,14 @@ char create_menu(struct GuiMenu *gmnu)
   update_radio_button_data(amnu);
   init_slider_bars(amnu);
   init_menu_buttons(amnu);
-  LbSyncLog("Created menu %d at (%d,%d) size (%d,%d)\n",mnu_num,
+  LbSyncLog("Created menu at slot %d, pos (%d,%d) size (%d,%d)\n",mnu_num,
       amnu->pos_x,amnu->pos_y,amnu->width,amnu->height);
   return mnu_num;
 }
 
 void turn_on_menu(short idx)
 {
-  //_DK_turn_on_menu(idx); return;
-  if ( create_menu(menu_list[idx]) )
+  if (create_menu(menu_list[idx]))
   {
     if (menu_list[idx]->field_1F)
       game.field_1517F6 = idx;
@@ -4281,8 +4958,11 @@ unsigned long toggle_status_menu(short visible)
   static unsigned char battle_on = 0;
   static unsigned char special_on = 0;
 */
+  long k;
   unsigned long i;
-  i = active_menus[menu_id_to_number(1)].flgfield_1D;
+  k = menu_id_to_number(1);
+  if (k < 0) return 0;
+  i = active_menus[k].flgfield_1D;
   if (visible != i)
   {
     if ( visible )
@@ -4317,31 +4997,57 @@ unsigned long toggle_status_menu(short visible)
     } else
     {
       set_menu_visible_off(GMnu_MAIN);
-      room_on = active_menus[menu_id_to_number(GMnu_ROOM)].flgfield_1D;
+      k = menu_id_to_number(GMnu_ROOM);
+      if (k >= 0)
+        room_on = active_menus[k].flgfield_1D;
       set_menu_visible_off(GMnu_ROOM);
-      spell_on = active_menus[menu_id_to_number(GMnu_SPELL)].flgfield_1D;
+      k = menu_id_to_number(GMnu_SPELL);
+      if (k >= 0)
+        spell_on = active_menus[k].flgfield_1D;
       set_menu_visible_off(GMnu_SPELL);
-      spell_lost_on = active_menus[menu_id_to_number(GMnu_SPELL_LOST)].flgfield_1D;
+      k = menu_id_to_number(GMnu_SPELL_LOST);
+      if (k >= 0)
+        spell_lost_on = active_menus[k].flgfield_1D;
       set_menu_visible_off(GMnu_SPELL_LOST);
-      trap_on = active_menus[menu_id_to_number(4)].flgfield_1D;
+      k = menu_id_to_number(4);
+      if (k >= 0)
+      trap_on = active_menus[k].flgfield_1D;
       set_menu_visible_off(4);
-      creat_on = active_menus[menu_id_to_number(5)].flgfield_1D;
+      k = menu_id_to_number(5);
+      if (k >= 0)
+        creat_on = active_menus[k].flgfield_1D;
       set_menu_visible_off(5);
-      event_on = active_menus[menu_id_to_number(6)].flgfield_1D;
+      k = menu_id_to_number(6);
+      if (k >= 0)
+        event_on = active_menus[k].flgfield_1D;
       set_menu_visible_off(6);
-      query_on = active_menus[menu_id_to_number(7)].flgfield_1D;
+      k = menu_id_to_number(7);
+      if (k >= 0)
+        query_on = active_menus[k].flgfield_1D;
       set_menu_visible_off(7);
-      creature_query1_on = active_menus[menu_id_to_number(31)].flgfield_1D;
+      k = menu_id_to_number(31);
+      if (k >= 0)
+        creature_query1_on = active_menus[k].flgfield_1D;
       set_menu_visible_off(31);
-      creature_query2_on = active_menus[menu_id_to_number(35)].flgfield_1D;
+      k = menu_id_to_number(35);
+      if (k >= 0)
+        creature_query2_on = active_menus[k].flgfield_1D;
       set_menu_visible_off(35);
-      creature_query3_on = active_menus[menu_id_to_number(32)].flgfield_1D;
+      k = menu_id_to_number(32);
+      if (k >= 0)
+        creature_query3_on = active_menus[k].flgfield_1D;
       set_menu_visible_off(32);
-      objective_on = active_menus[menu_id_to_number(16)].flgfield_1D;
+      k = menu_id_to_number(16);
+      if (k >= 0)
+        objective_on = active_menus[k].flgfield_1D;
       set_menu_visible_off(16);
-      battle_on = active_menus[menu_id_to_number(34)].flgfield_1D;
+      k = menu_id_to_number(34);
+      if (k >= 0)
+        battle_on = active_menus[k].flgfield_1D;
       set_menu_visible_off(34);
-      special_on = active_menus[menu_id_to_number(27)].flgfield_1D;
+      k = menu_id_to_number(27);
+      if (k >= 0)
+        special_on = active_menus[k].flgfield_1D;
       set_menu_visible_off(27);
     }
   }
@@ -4369,12 +5075,12 @@ short toggle_first_person_menu(short visible)
   {
     long menu_num;
     // CREATURE_QUERY1
-    menu_num=menu_id_to_number(GMnu_CREATURE_QUERY1);
+    menu_num = menu_id_to_number(GMnu_CREATURE_QUERY1);
     if (menu_num >= 0)
       creature_query1_on = active_menus[menu_num].flgfield_1D;
     set_menu_visible_off(GMnu_CREATURE_QUERY1);
     // CREATURE_QUERY2
-    menu_num=menu_id_to_number(GMnu_CREATURE_QUERY2);
+    menu_num = menu_id_to_number(GMnu_CREATURE_QUERY2);
     if (menu_num >= 0)
       creature_query2_on = active_menus[menu_num].flgfield_1D;
     set_menu_visible_off(GMnu_CREATURE_QUERY2);
@@ -4448,11 +5154,6 @@ void inline frontstory_unload(void)
     LbDataFreeAll(frontstory_load_files);
 }
 
-void frontmap_unload(void)
-{
-  _DK_frontmap_unload();
-}
-
 void frontstats_set_timer(void)
 {
   //_DK_frontstats_set_timer();
@@ -4465,12 +5166,118 @@ void frontstats_save_high_score(void)
   struct PlayerInfo *player;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
-  if ( dungeon->lvstats.allow_save_score )
+  if (dungeon->lvstats.allow_save_score)
   {
     dungeon->lvstats.allow_save_score = false;
     add_score_to_high_score_table();
   }
   lbInkey = 0;
+}
+
+void frontend_level_select_up(struct GuiButton *gbtn)
+{
+  if (select_level_scroll_offset > 0)
+    select_level_scroll_offset--;
+}
+
+void frontend_level_select_down(struct GuiButton *gbtn)
+{
+  if (select_level_scroll_offset < number_of_freeplay_levels-frontend_select_level_items_visible+1)
+    select_level_scroll_offset++;
+}
+
+void frontend_level_select_up_maintain(struct GuiButton *gbtn)
+{
+  if (gbtn != NULL)
+    set_flag_byte(&gbtn->field_0, 0x08, (select_level_scroll_offset != 0));
+}
+
+void frontend_level_select_down_maintain(struct GuiButton *gbtn)
+{
+  if (gbtn != NULL)
+    set_flag_byte(&gbtn->field_0, 0x08, (select_level_scroll_offset < number_of_freeplay_levels-frontend_select_level_items_visible+1));
+}
+
+void frontend_level_select_maintain(struct GuiButton *gbtn)
+{
+  long i;
+  if (gbtn != NULL)
+  {
+    i = (long)gbtn->field_33 - 45;
+    set_flag_byte(&gbtn->field_0, 0x08, (select_level_scroll_offset+i < number_of_freeplay_levels));
+  }
+}
+
+void frontend_draw_level_select_button(struct GuiButton *gbtn)
+{
+  struct LevelInformation *lvinfo;
+  long btn_idx;
+  long lvnum;
+  long i;
+  btn_idx = (long)gbtn->field_33;
+  i = btn_idx + select_level_scroll_offset - 45;
+  lvnum = 0;
+  if ((i >= 0) && (i < campaign.freeplay_levels_count))
+    lvnum = campaign.freeplay_levels[i];
+  lvinfo = get_level_info(lvnum);
+  if (lvinfo == NULL)
+    return;
+  if ((btn_idx > 0) && (frontend_mouse_over_button == btn_idx))
+    i = 2;
+  else
+  if (get_level_highest_score(lvnum))
+    i = 3;
+  else
+    i = 1;
+  lbDisplay.DrawFlags = 0x20;
+  lbFontPtr = frontend_font[i];
+  i = LbTextStringHeight("Wg");
+  LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
+  LbTextDraw(0, 0, lvinfo->name);
+}
+
+void frontend_level_select(struct GuiButton *gbtn)
+{
+  long i;
+  long lvnum;
+  i = (long)gbtn->field_33 + select_level_scroll_offset - 45;
+  lvnum = 0;
+  if (i < campaign.freeplay_levels_count)
+    lvnum = campaign.freeplay_levels[i];
+  if (lvnum > 0)
+  {
+    game.selected_level_number = lvnum;
+    game.flags_font |= 0x80;
+    frontend_set_state(7);
+  }
+}
+
+void frontend_level_list_unload(void)
+{
+  // Nothing needs to be really unloaded; just menu cleanup here
+  number_of_freeplay_levels = 0;
+}
+
+void frontend_level_list_load(void)
+{
+  find_and_load_lif_files();
+  number_of_freeplay_levels = campaign.freeplay_levels_count;
+}
+
+void frontend_level_select_update(void)
+{
+  if (number_of_freeplay_levels <= 0)
+  {
+    select_level_scroll_offset = 0;
+  } else
+  if (select_level_scroll_offset < 0)
+  {
+    select_level_scroll_offset = 0;
+  } else
+  if (select_level_scroll_offset > number_of_freeplay_levels-1)
+  {
+    select_level_scroll_offset = number_of_freeplay_levels - 1;
+  }
 }
 
 void initialise_tab_tags(long menu_id)
@@ -4484,7 +5291,6 @@ void initialise_tab_tags(long menu_id)
 
 void initialise_tab_tags_and_menu(long menu_id)
 {
-//_DK_initialise_tab_tags_and_menu(id);
   long menu_num;
   initialise_tab_tags(menu_id);
   menu_num = menu_id_to_number(menu_id);
@@ -4494,7 +5300,6 @@ void initialise_tab_tags_and_menu(long menu_id)
 
 void init_gui(void)
 {
-  //_DK_init_gui();
   LbMemorySet(breed_activities, 0, CREATURE_TYPES_COUNT*sizeof(unsigned short));
   LbMemorySet(menu_stack, 0, ACTIVE_MENUS_COUNT*sizeof(unsigned char));
   LbMemorySet(active_menus, 0, ACTIVE_MENUS_COUNT*sizeof(struct GuiMenu));
@@ -4517,89 +5322,92 @@ int frontend_set_state(long nstate)
 {
   static const char *func_name="frontend_set_state";
   char *fname;
-  //_DK_frontend_set_state(nstate);return nstate;
-  switch ( frontend_menu_state )
+  switch (frontend_menu_state)
   {
-    case 0:
+  case 0:
       init_gui();
       wait_for_cd_to_be_available();
-      fname=prepare_file_path(FGrp_LoData,"front.pal");
-      if ( LbFileLoadAt(fname, &frontend_palette) != 768 )
+      fname = prepare_file_path(FGrp_LoData,"front.pal");
+      if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
         error(func_name, 1323, "Unable to load FRONTEND PALETTE");
       wait_for_cd_to_be_available();
       frontend_load_high_score_table();
       LbMouseSetPosition(lbDisplay.PhysicalScreenWidth>>1, lbDisplay.PhysicalScreenHeight>>1);
       update_mouse();
       break;
-    case 1: // main menu state
+  case FeSt_MAIN_MENU: // main menu state
       turn_off_menu(18);
       break;
-    case 2:
+  case 2:
       turn_off_menu(19);
       break;
-    case 3:
+  case FeSt_LAND_VIEW:
       frontmap_unload();
       frontend_load_data();
       break;
-    case 4:
+  case 4:
       turn_off_menu(20);
       break;
-    case 5: // Network play mode
-      turn_off_menu(21);
+  case FeSt_NET_SESSION: // Network play mode
+      turn_off_menu(GMnu_FENET_SESSION);
       break;
-    case 6:
-      turn_off_menu(22);
+  case FeSt_NET_START:
+      turn_off_menu(GMnu_FENET_START);
       break;
-    case 12:
-    case 29:
+  case FeSt_STORY_POEM:
+  case FeSt_STORY_BIRTHDAY:
       frontstory_unload();
       break;
-    case 13:
+  case 13:
       if ((game.flags_cd & MFlg_NoMusic) == 0)
         StopRedbookTrack();
       break;
-    case 15:
+  case 15:
       turn_off_menu(23);
       frontnet_modem_reset();
       break;
-    case 16:
+  case 16:
       turn_off_menu(24);
       frontnet_serial_reset();
       break;
-    case 17:
+  case 17:
       StopStreamedSample();
       turn_off_menu(25);
       break;
-    case 18:
+  case 18:
       turn_off_menu(26);
       break;
-    case 19:
+  case FeSt_TORTURE:
       fronttorture_unload();
       frontend_load_data();
       break;
-    case 24:
+  case FeSt_NETLAND_VIEW:
       frontnetmap_unload();
       frontend_load_data();
       break;
-    case 26:
+  case 26:
       turn_off_menu(36);
       save_settings();
       break;
-    case 27:
+  case 27:
       turn_off_menu(39);
       if ((game.flags_cd & MFlg_NoMusic) == 0)
         StopRedbookTrack();
       break;
-    case 7:
-    case 8:
-    case 9:
-    case 10:
-    case 11:
-    case 14: //demo state (intro/credits)
-    case 21:
-    case 25:
+  case FeSt_LEVEL_SELECT:
+      turn_off_menu(40);
+      frontend_level_list_unload();
       break;
-    default:
+  case 7:
+  case 8:
+  case 9:
+  case 10:
+  case FeSt_INTRO:
+  case FeSt_DEMO: //demo state (intro/credits)
+  case FeSt_OUTRO:
+  case 25:
+      break;
+  default:
       error(func_name, 1444, "Unhandled FRONTEND previous state");
       break;
   }
@@ -4612,38 +5420,36 @@ int frontend_set_state(long nstate)
     case 0:
       LbMouseChangeSpriteAndHotspot(0, 0, 0);
       break;
-    case 1:
+    case FeSt_MAIN_MENU:
       LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
       continue_game_option_available = continue_game_available();
-      turn_on_menu(18);
-      // change when all references to frontend_set_state() are rewritten
-      //time_last_played_demo = LbTimerClock();
-      time_last_played_demo=timeGetTime();
+      turn_on_menu(GMnu_FEMAIN);
       last_mouse_x = GetMouseX();
       last_mouse_y = GetMouseY();
-      fe_high_score_table_from_main_menu = 1;
+      time_last_played_demo = LbTimerClock();
+      fe_high_score_table_from_main_menu = true;
       game.numfield_A &= 0xFEu;
       break;
-    case 2:
-      turn_on_menu(19);
+    case FeSt_FELOAD_GAME:
+      turn_on_menu(GMnu_FELOAD);
       LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
       break;
-    case 3:
+    case FeSt_LAND_VIEW:
       if ( !frontmap_load() )
         nstate = 7;
       break;
-    case 4:
-      turn_on_menu(20);
+    case FeSt_NET_SERVICE:
+      turn_on_menu(GMnu_FENET_SERVICE);
       frontnet_service_setup();
       break;
-    case 5:
-      turn_on_menu(21);
+    case FeSt_NET_SESSION:
+      turn_on_menu(GMnu_FENET_SESSION);
       frontnet_session_setup();
       LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
       game.numfield_A &= 0xFEu;
       break;
-    case 6:
-      turn_on_menu(22);
+    case FeSt_NET_START:
+      turn_on_menu(GMnu_FENET_START);
       frontnet_start_setup();
       LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
       game.numfield_A |= 0x01;
@@ -4651,9 +5457,9 @@ int frontend_set_state(long nstate)
     case 7:
     case 9:
     case 10:
-    case 11:
-    case 14:
-    case 21:
+    case FeSt_INTRO:
+    case FeSt_DEMO:
+    case FeSt_OUTRO:
     case 25:
       fade_palette_in = 0;
       break;
@@ -4662,8 +5468,8 @@ int frontend_set_state(long nstate)
         ;//rndseed_nullsub();
       fade_palette_in = 0;
       break;
-    case 12:
-    case 29:
+    case FeSt_STORY_POEM:
+    case FeSt_STORY_BIRTHDAY:
       frontstory_load();
       break;
     case 13:
@@ -4672,39 +5478,45 @@ int frontend_set_state(long nstate)
       LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
       lbDisplay.DrawFlags = 0x0100;
       break;
-    case 15:
-      turn_on_menu(23);
+    case FeSt_NET_MODEM:
+      turn_on_menu(GMnu_FENET_MODEM);
       frontnet_modem_setup();
       break;
-    case 16:
-      turn_on_menu(24);
+    case FeSt_NET_SERIAL:
+      turn_on_menu(GMnu_FENET_SERIAL);
       frontnet_serial_setup();
       break;
-    case 17:
-      turn_on_menu(25);
+    case FeSt_LEVEL_STATS:
+      turn_on_menu(GMnu_FESTATISTICS);
       LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
       frontstats_set_timer();
       break;
     case 18:
-      turn_on_menu(26);
+      turn_on_menu(GMnu_FEHIGH_SCORE_TABLE);
       frontstats_save_high_score();
       LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
       break;
-    case 19:
+    case FeSt_TORTURE:
       LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
       fronttorture_load();
       break;
-    case 24:
+    case FeSt_NETLAND_VIEW:
       LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
       frontnetmap_load();
       break;
-    case 26:
+    case FeSt_FEDEFINE_KEYS:
       defining_a_key = 0;
       define_key_scroll_offset = 0;
-      turn_on_menu(36);
+      turn_on_menu(GMnu_FEDEFINE_KEYS);
       break;
-    case 27:
-      turn_on_menu(39);
+    case FeSt_FEOPTIONS:
+      turn_on_menu(GMnu_FEOPTION);
+      break;
+  case FeSt_LEVEL_SELECT:
+      LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
+      turn_on_menu(GMnu_FELEVEL_SELECT);
+      frontend_level_list_load();
+      LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
       break;
     default:
       error(func_name, 1609, "Unhandled FRONTEND new state");
@@ -4732,80 +5544,84 @@ void frontcredits_input(void)
     }
 }
 
+short frontstory_input(void)
+{
+  return false;
+}
+
 short end_input(void)
 {
-    if ( lbKeyOn[KC_SPACE] )
-    {
-        lbKeyOn[KC_SPACE] = 0;
-        frontend_set_state(1);
-    } else
-    if ( lbKeyOn[KC_RETURN] )
-    {
-        lbKeyOn[KC_RETURN] = 0;
-        frontend_set_state(1);
-    } else
-    if ( lbKeyOn[KC_ESCAPE] )
-    {
-        lbKeyOn[KC_ESCAPE] = 0;
-        frontend_set_state(1);
-    } else
-    if ( left_button_clicked )
-    {
-        left_button_clicked = 0;
-        frontend_set_state(1);
-    } else
-        return false;
+  if (lbKeyOn[KC_SPACE])
+  {
+    lbKeyOn[KC_SPACE] = 0;
+    frontend_set_state(FeSt_MAIN_MENU);
     return true;
+  }
+  if (lbKeyOn[KC_RETURN])
+  {
+    lbKeyOn[KC_RETURN] = 0;
+    frontend_set_state(FeSt_MAIN_MENU);
+    return true;
+  }
+  if (lbKeyOn[KC_ESCAPE])
+  {
+    lbKeyOn[KC_ESCAPE] = 0;
+    frontend_set_state(FeSt_MAIN_MENU);
+    return true;
+  }
+  if (left_button_clicked)
+  {
+    left_button_clicked = 0;
+    frontend_set_state(FeSt_MAIN_MENU);
+    return true;
+  }
+  return false;
+}
+
+short get_frontend_global_inputs(void)
+{
+  if (is_key_pressed(KC_X, KM_ALT))
+  {
+    clear_key_pressed(KC_X);
+    exit_keeper = true;
+  } else
+    return false;
+  return true;
 }
 
 void frontend_input(void)
 {
-    int mouse_x,mouse_y;
-    switch ( frontend_menu_state )
+  static const char *func_name="frontend_input";
+  int mouse_x,mouse_y;
+#if (BFDEBUG_LEVEL > 7)
+  LbSyncLog("%s: Starting\n", func_name);
+#endif
+    switch (frontend_menu_state)
     {
-      case 1:
+      case FeSt_MAIN_MENU:
         mouse_x = GetMouseX();
         mouse_y = GetMouseY();
         if ((mouse_x != last_mouse_x) || (mouse_y != last_mouse_y))
         {
           last_mouse_x = mouse_x;
           last_mouse_y = mouse_y;
-          //time_last_played_demo = LbTimerClock();
-          time_last_played_demo = timeGetTime();
+          time_last_played_demo = LbTimerClock();
         }
         get_gui_inputs(0);
         break;
-      case 3:
+      case FeSt_LAND_VIEW:
         frontmap_input();
         break;
-      case 6:
+      case FeSt_NET_START:
         get_gui_inputs(0);
         frontnet_start_input();
         break;
-      case 12:
-      case 29:
-        if ( lbKeyOn[KC_SPACE] )
-        {
-          lbKeyOn[KC_SPACE] = 0;
-          frontend_set_state(1);
-        } else
-        if ( lbKeyOn[KC_RETURN] )
-        {
-            lbKeyOn[KC_RETURN] = 0;
-            frontend_set_state(1);
-        } else
-        if ( lbKeyOn[KC_ESCAPE] )
-        {
-            lbKeyOn[KC_ESCAPE] = 0;
-            frontend_set_state(1);
-        } else
-        if ( left_button_clicked )
-        {
-            left_button_clicked = 0;
-            frontend_set_state(1);
-        }
+      case FeSt_STORY_POEM:
+      case FeSt_STORY_BIRTHDAY:
+        end_input();
+        frontstory_input();
         break;
-      case 13:
+      case FeSt_CREDITS:
         if (!end_input())
         {
           if ( credits_end )
@@ -4813,17 +5629,17 @@ void frontend_input(void)
         }
         frontcredits_input();
         break;
-      case 18:
+      case FeSt_HIGH_SCORES:
         get_gui_inputs(0);
          frontend_high_score_table_input();
         break;
-      case 19:
+      case FeSt_TORTURE:
         fronttorture_input();
         break;
-      case 24:
+      case FeSt_NETLAND_VIEW:
         frontnetmap_input();
         break;
-      case 26:
+      case FeSt_FEDEFINE_KEYS:
         if ( !defining_a_key )
           get_gui_inputs(0);
         else
@@ -4833,27 +5649,31 @@ void frontend_input(void)
         get_gui_inputs(0);
         break;
     } // end switch
+    get_frontend_global_inputs();
     get_screen_capture_inputs();
+#if (BFDEBUG_LEVEL > 19)
+  LbSyncLog("%s: Finished\n", func_name);
+#endif
 }
 
 int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)
 {
   int w,h,m;
-  w=0;
-  h=0;
-  for (m=0;m<5;m++)
+  w = 0;
+  h = 0;
+  for (m=0; m < 5; m++)
   {
-    w+=img_w;
-    h+=img_h;
+    w += img_w;
+    h += img_h;
     if (w > rect_w) break;
     if (h > rect_h) break;
   }
   // The image width can't be larger than video resolution
-  if (m<1)
+  if (m < 1)
   {
     if (w > lbDisplay.PhysicalScreenWidth)
       return 0;
-    m=1;
+    m = 1;
   }
   return m;
 }
@@ -4949,12 +5769,12 @@ int frontstory_draw(void)
   LbTextSetWindow(70, 70, 500, 340);
   lbFontPtr = frontstory_font;
   lbDisplay.DrawFlags = 0x0100;
-  LbTextDraw(0,0,strings[frontstory_text_no]);
+  LbTextDraw(0, 0, gui_strings[frontstory_text_no%STRINGS_MAX]);
 }
 
 void draw_defining_a_key_box(void)
 {
-    draw_text_box(strings[470]);
+    draw_text_box(gui_strings[470]); // "Press a key"
 }
 
 char update_menu_fade_level(struct GuiMenu *gmnu)
@@ -5009,9 +5829,9 @@ long menu_id_to_number(short menu_id)
 {
   int idx;
   struct GuiMenu *gmnu;
-  for(idx=0; idx<ACTIVE_MENUS_COUNT; idx++)
+  for(idx=0; idx < ACTIVE_MENUS_COUNT; idx++)
   {
-    gmnu=&active_menus[idx];
+    gmnu = &active_menus[idx];
     if ((gmnu->field_1 != 0) && (gmnu->field_0 == menu_id))
       return idx;
   }
@@ -5035,7 +5855,7 @@ void update_fade_active_menus(void)
       remove_from_menu_stack(gmnu->field_0);
     }
   }
-#if (BFDEBUG_LEVEL > 9)
+#if (BFDEBUG_LEVEL > 19)
     LbSyncLog("%s: Finished\n",func_name);
 #endif
 }
@@ -5231,7 +6051,7 @@ void frontbirthday_draw()
       unsigned short line_pos = 0;
       if ( lbFontPtr != NULL )
           line_pos = lbFontPtr[1].SHeight;
-      LbTextDraw(0, 170-line_pos, strings[885]);
+      LbTextDraw(0, 170-line_pos, gui_strings[885]); // "Happy Birthday"
       LbTextDraw(0, 170, name);
   } else
   {
@@ -5244,13 +6064,13 @@ short frontend_draw(void)
     short result=1;
     switch (frontend_menu_state)
     {
-    case 11:
+    case FeSt_INTRO:
         intro();
         return 0;
-    case 14:
+    case FeSt_DEMO:
         demo();
         return 0;
-    case 21:
+    case FeSt_OUTRO:
         outro();
         return 0;
     }
@@ -5260,42 +6080,43 @@ short frontend_draw(void)
 
     switch ( frontend_menu_state )
     {
-    case 1:
+    case FeSt_MAIN_MENU:
     case 2:
     case 4:
     case 5:
-    case 15:
-    case 16:
-    case 17:
+    case FeSt_NET_MODEM:
+    case FeSt_NET_SERIAL:
+    case FeSt_LEVEL_STATS:
     case 18:
     case 20:
-    case 27:
+    case FeSt_FEOPTIONS:
+    case FeSt_LEVEL_SELECT:
         draw_gui();
         break;
-    case 3:
+    case FeSt_LAND_VIEW:
         frontmap_draw();
         break;
     case 6:
         draw_gui();
         break;
-    case 12:
+    case FeSt_STORY_POEM:
         frontstory_draw();
         break;
-    case 13:
+    case FeSt_CREDITS:
         frontcredits_draw();
         break;
-    case 19:
+    case FeSt_TORTURE:
         fronttorture_draw();
         break;
-    case 24:
+    case FeSt_NETLAND_VIEW:
         frontnetmap_draw();
         break;
-    case 26:
+    case FeSt_FEDEFINE_KEYS:
         draw_gui();
         if ( defining_a_key )
             draw_defining_a_key_box();
         break;
-    case 29:
+    case FeSt_STORY_BIRTHDAY:
         frontbirthday_draw();
         break;
     default:
@@ -5325,7 +6146,6 @@ void load_game_update(void)
 
 void spell_lost_first_person(struct GuiButton *gbtn)
 {
-  //_DK_spell_lost_first_person(gbtn); return;
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   struct Packet *pckt;
   pckt=&game.packets[player->packet_num%PACKETS_COUNT];
@@ -5334,10 +6154,10 @@ void spell_lost_first_person(struct GuiButton *gbtn)
 
 void gui_turn_on_autopilot(struct GuiButton *gbtn)
 {
-  //_DK_gui_turn_on_autopilot(gbtn); return;
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  struct PlayerInfo *player;
   struct Packet *pckt;
-  if (player->field_29 != 2)
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  if (player->victory_state != VicS_LostLevel)
   {
     pckt=&game.packets[player->packet_num%PACKETS_COUNT];
     set_packet_action(pckt, 107, 0, 0, 0, 0);
@@ -5347,7 +6167,6 @@ void gui_turn_on_autopilot(struct GuiButton *gbtn)
 void gui_set_autopilot(struct GuiButton *gbtn)
 {
   static const char *func_name="gui_set_autopilot";
-  //_DK_gui_set_autopilot(gbtn); return;
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   struct Packet *pckt;
   int ntype;
@@ -5380,22 +6199,6 @@ void display_objectives(long a1,long a2,long a3)
   _DK_display_objectives(a1,a2,a3);
 }
 
-void play_description_speech(short play_good)
-{
-  char *fname;
-  if (play_good)
-  {
-    fname = prepare_file_fmtpath(FGrp_AtlSound,"good%02d.wav",game.level_number);
-    playing_good_descriptive_speech = 1;
-  } else
-  {
-    fname = prepare_file_fmtpath(FGrp_AtlSound,"bad%02d.wav",game.level_number-1);
-    playing_bad_descriptive_speech = 1;
-  }
-  SetStreamedSampleVolume(127);
-  PlayStreamedSample(fname, 1622, 0, 1);
-}
-
 void frontnet_service_update(void)
 {
   _DK_frontnet_service_update();
@@ -5421,19 +6224,9 @@ void frontnet_start_update(void)
   _DK_frontnet_start_update();
 }
 
-long frontmap_update(void)
-{
-  return _DK_frontmap_update();
-}
-
-long frontnetmap_update(void)
-{
-  return _DK_frontnetmap_update();
-}
-
 void frontstats_update(void)
 {
-  //_DK_frontstats_update();
+  LevelNumber lvnum;
   int h;
   scrolling_offset++;
   lbFontPtr = frontend_font[1];
@@ -5445,15 +6238,13 @@ void frontstats_update(void)
     if (!scrolling_stats_data[scrolling_index].field_0)
       scrolling_index = 0;
   }
-  if (is_singleplayer_level(game.level_file_number))
-  {
-    if (frontstats_timer != 0)
-      if (LbTimerClock() > frontstats_timer)
-      {
-        play_description_speech(0);
-        frontstats_timer = 0;
-      }
-  }
+  lvnum = get_loaded_level_number();
+  if (frontstats_timer != 0)
+    if (LbTimerClock() > frontstats_timer)
+    {
+      play_description_speech(lvnum,0);
+      frontstats_timer = 0;
+    }
 }
 
 void fronttorture_update(void)
@@ -5463,19 +6254,22 @@ void fronttorture_update(void)
 
 void frontend_update(short *finish_menu)
 {
+  static const char *func_name="frontend_update";
+#if (BFDEBUG_LEVEL > 7)
+  LbSyncLog("%s: Starting for menu state %d\n", func_name, (int)frontend_menu_state);
+#endif
     switch ( frontend_menu_state )
     {
       case 1:
         frontend_button_info[8].field_2 = (continue_game_option_available?1:3);
         //this uses original timing function for compatibility with frontend_set_state()
-        //if ( abs(LbTimerClock()-time_last_played_demo) > MNU_DEMO_IDLE_TIME )
-        if ( abs(timeGetTime()-time_last_played_demo) > MNU_DEMO_IDLE_TIME )
-          frontend_set_state(14);
+        if ( abs(LbTimerClock()-time_last_played_demo) > MNU_DEMO_IDLE_TIME )
+          frontend_set_state(FeSt_DEMO);
         break;
-      case 2:
+      case FeSt_FELOAD_GAME:
         load_game_update();
         break;
-      case 3:
+      case FeSt_LAND_VIEW:
         *finish_menu = frontmap_update();
         break;
       case 4:
@@ -5501,44 +6295,56 @@ void frontend_update(short *finish_menu)
         if ((game.flags_cd & MFlg_NoMusic) == 0)
           PlayRedbookTrack(7);
         break;
-      case 15:
+      case FeSt_NET_MODEM:
         frontnet_modem_update();
         break;
-      case 16:
+      case FeSt_NET_SERIAL:
         frontnet_serial_update();
         break;
-      case 17:
+      case FeSt_LEVEL_STATS:
         frontstats_update();
         break;
-      case 19:
+      case FeSt_TORTURE:
         fronttorture_update();
         break;
-      case 24:
+      case FeSt_NETLAND_VIEW:
         *finish_menu = frontnetmap_update();
         break;
-      case 27:
+      case FeSt_FEOPTIONS:
         if ((game.flags_cd & MFlg_NoMusic) == 0)
           PlayRedbookTrack(3);
+        break;
+      case FeSt_LEVEL_SELECT:
+        frontend_level_select_update();
         break;
       default:
         break;
     }
+#if (BFDEBUG_LEVEL > 17)
+  LbSyncLog("%s: Finished\n", func_name);
+#endif
 }
 
+/*
+ * Chooses initial frontend menu state.
+ * Used when game is first run, or player exits from gameplay.
+ */
 int get_startup_menu_state(void)
 {
   static const char *func_name="get_startup_menu_state";
+  struct PlayerInfo *player;
+  LevelNumber lvnum;
   if (game.flags_cd & 0x40)
   {
     if (is_full_moon)
     {
         LbSyncLog("%s: Full moon state selected\n",func_name);
-        return 12;
+        return FeSt_STORY_POEM;
     } else
     if (get_team_birthday() != NULL)
     {
         LbSyncLog("%s: Birthday state selected\n",func_name);
-        return 29;
+        return FeSt_STORY_BIRTHDAY;
     } else
     {
         LbSyncLog("%s: Standard startup state selected\n",func_name);
@@ -5547,68 +6353,89 @@ int get_startup_menu_state(void)
   } else
   {
     LbSyncLog("%s: Player-based state selected\n",func_name);
-    struct PlayerInfo *player=&(game.players[my_player_number]);
+    player = &(game.players[my_player_number]);
+    lvnum = get_loaded_level_number();
     if ((game.numfield_A & 0x01) != 0)
     {
       if ((player->field_3 & 0x10) != 0)
       {
         player->field_3 &= 0xEF;
-        return 19;
+        return FeSt_TORTURE;
       } else
       if ((player->field_6 & 0x02) == 0)
       {
-        return 17;
+        return FeSt_LEVEL_STATS;
       } else
       if ( setup_old_network_service() )
       {
-        return 5;
+        return FeSt_NET_SESSION;
       } else
       {
-        return 1;
+        return FeSt_MAIN_MENU;
       }
     } else
-    if ((player->field_6 & 0x02) || (!player->field_29))
+    if ((player->field_6 & 0x02) || (player->victory_state == VicS_Undecided))
     {
-      return 3;
+      if (is_singleplayer_level(lvnum) || is_bonus_level(lvnum) || is_extra_level(lvnum))
+      {
+        return FeSt_LAND_VIEW;
+      } else
+      if (is_freeplay_level(lvnum)) // note that this will only work if LIFs are loaded
+      {
+        return FeSt_LEVEL_SELECT;
+      } else
+      {
+          return FeSt_MAIN_MENU;
+      }
     } else
     if (game.flags_cd & 0x01)
     {
       game.flags_cd &= 0xFEu;
-      return 1;
+      return FeSt_MAIN_MENU;
     } else
-    if (player->field_29 == 1)
+    if (player->victory_state == VicS_WonLevel)
     {
-          if ( is_bonus_level(game.level_file_number) )
-          {
-              return 3;
-          } else
-          if (!is_singleplayer_level(game.level_number))
-          {
-              return 21;
-          } else
-          if (player->field_3 & 0x10)
-          {
-              player->field_3 &= 0xEF;
-              return 19;
-          } else
-          {
-              return 17;
-          }
+      if (is_singleplayer_level(lvnum))
+      {
+        if ((player->field_3 & 0x10) != 0)
+        {
+           player->field_3 &= 0xEF;
+           return FeSt_TORTURE;
+        } else
+        if (get_continue_level_number() == SINGLEPLAYER_FINISHED)
+        {
+          return FeSt_OUTRO;
+        } else
+        {
+          return FeSt_LEVEL_STATS;
+        }
+      } else
+      if (is_bonus_level(lvnum) || is_extra_level(lvnum))
+      {
+        return FeSt_LAND_VIEW;
+      } else
+      {
+        return FeSt_LEVEL_STATS;
+      }
     } else
-    if (player->field_29 == 3)
+    if (player->victory_state == VicS_State3)
     {
-        return 17;
+        return FeSt_LEVEL_STATS;
     } else
-    if (is_multiplayer_level(game.level_file_number))
+    if (is_singleplayer_level(lvnum) || is_bonus_level(lvnum) || is_extra_level(lvnum))
     {
-        return 1;
+      return FeSt_LAND_VIEW;
+    } else
+    if (is_freeplay_level(lvnum)) // note that this will only work if LIFs are loaded
+    {
+      return FeSt_LEVEL_SELECT;
     } else
     {
-        return 3;
+        return FeSt_MAIN_MENU;
     }
   }
   error(func_name, 978, "Unresolved menu state");
-  return 1;
+  return FeSt_MAIN_MENU;
 }
 
 void gui_draw_all_boxes(void)
@@ -5696,7 +6523,7 @@ long gui_calculate_box_height(struct GuiBox *gbox)
     i++;
     goptn++;
   }
-  return i*(pixel_size*LbTextStringHeight("Wp")+2) + 16;
+  return i*(pixel_size*LbTextStringHeight("Wg")+2) + 16;
 }
 
 void gui_remove_box_from_list(struct GuiBox *gbox)
@@ -5732,12 +6559,49 @@ struct GuiBox *gui_create_box(long x, long y, struct GuiBoxOption *optn_list)
   gbox = gui_allocate_box_structure();
   if (gbox == NULL)
     return NULL;
+  // Setting gui font - will be required to properly calculate box dimensions
+  lbFontPtr = font_sprites;
   gbox->optn_list = optn_list;
-  gbox->pos_x=x;
-  gbox->pos_y=y;
-  gbox->width=gui_calculate_box_width(gbox);
-  gbox->height=gui_calculate_box_height(gbox);
+  gbox->pos_x = x;
+  gbox->pos_y = y;
+  gbox->width = gui_calculate_box_width(gbox);
+  gbox->height = gui_calculate_box_height(gbox);
   return gbox;
+}
+
+short gui_move_box(struct GuiBox *gbox, long x, long y, unsigned short fdflags)
+{
+  short result;
+  switch (fdflags)
+  {
+  case Fnt_LeftJustify:
+      gbox->pos_x = x;
+      gbox->pos_y = y;
+      result = true;
+      break;
+  case Fnt_RightJustify:
+      gbox->pos_x = x - gbox->width;
+      gbox->pos_y = y - gbox->height;
+      result = true;
+      break;
+  case Fnt_CenterPos:
+      gbox->pos_x = x - (gbox->width >> 1);
+      gbox->pos_y = y - (gbox->height >> 1);
+      result = true;
+      break;
+  default:
+      result = false;
+      break;
+  }
+  if (gbox->pos_x+gbox->width > MyScreenWidth)
+    gbox->pos_x = MyScreenWidth-gbox->width;
+  if (gbox->pos_x < 0)
+    gbox->pos_x = 0;
+  if (gbox->pos_y+gbox->height > MyScreenHeight)
+    gbox->pos_y = MyScreenHeight-gbox->height;
+  if (gbox->pos_y < 0)
+    gbox->pos_y = 0;
+  return result;
 }
 
 /*
@@ -5753,6 +6617,7 @@ short toggle_main_cheat_menu(void)
     if ((game.flags_font & 0x20) == 0)
       return false;
     gui_box = gui_create_box(mouse_x,mouse_y,gui_main_cheat_list);
+    gui_move_box(gui_box, mouse_x, mouse_y, Fnt_CenterPos);
   } else
   {
     gui_delete_box(gui_box);
@@ -5772,7 +6637,7 @@ short toggle_instance_cheat_menu(void)
   {
     if ((game.flags_font & 0x20) == 0)
       return false;
-    gui_box=gui_create_box(200,20,gui_instance_option_list);
+    gui_box = gui_create_box(200,20,gui_instance_option_list);
 /*
         player->unknownbyte  |= 0x08;
         game.unknownbyte |= 0x08;
@@ -5850,6 +6715,10 @@ struct GuiBox *gui_get_box_point_over(long x, long y)
   return NULL;
 }
 
+/*
+ * Returns box option under given position.
+ * Requires text font to be set properly before running.
+ */
 struct GuiBoxOption *gui_get_box_option_point_over(struct GuiBox *gbox, long x, long y)
 {
   long sx,sy,lnheight;
@@ -5858,7 +6727,7 @@ struct GuiBoxOption *gui_get_box_option_point_over(struct GuiBox *gbox, long x, 
   sx = gbox->pos_x + 8;
   sy = gbox->pos_y + 8;
   gboptn = gbox->optn_list;
-  lnheight = LbTextStringHeight("Wp")*pixel_size + 2;
+  lnheight = LbTextStringHeight("Wg")*pixel_size + 2;
   while (gboptn->label[0] != '!')
   {
     height = LbTextStringHeight(gboptn->label)*pixel_size;
@@ -5878,6 +6747,37 @@ struct GuiBoxOption *gui_get_box_option_point_over(struct GuiBox *gbox, long x, 
   return NULL;
 }
 
+struct GuiBoxOption *gui_move_active_box_option(struct GuiBox *gbox, int val)
+{
+  int opt_num;
+  int opt_total;
+  struct GuiBoxOption *goptn;
+  if (gbox == NULL)
+    return NULL;
+  opt_num = -1;
+  opt_total = 0;
+  goptn = gbox->optn_list;
+  while (goptn->label[0] != '!')
+  {
+    if (goptn->active)
+    {
+      opt_num = opt_total;
+//      goptn->active = 0;
+    }
+    goptn++;
+    opt_total++;
+  }
+  opt_num += val;
+  if ((opt_num >= 0) && (opt_num < opt_total))
+  {
+    goptn = &gbox->optn_list[opt_num];
+    if (goptn->callback != NULL)
+      goptn->callback(gbox, goptn, 1, &goptn->field_19);
+    return goptn;
+  }
+  return NULL;
+}
+
 void gui_draw_box(struct GuiBox *gbox)
 {
   static const char *func_name="gui_draw_box";
@@ -5888,17 +6788,20 @@ void gui_draw_box(struct GuiBox *gbox)
   struct GuiBoxOption *goptn_over;
   struct GuiBoxOption *goptn;
   long lnheight;
+  long mouse_x,mouse_y;
   long pos_x,pos_y;
   LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-
+  mouse_x = GetMouseX();
+  mouse_y = GetMouseY();
   goptn_over = NULL;
-  gbox_over = gui_get_box_point_over(GetMouseX(), GetMouseY());
+  gbox_over = gui_get_box_point_over(mouse_x, mouse_y);
   if (gbox_over != NULL)
   {
-    goptn_over = gui_get_box_option_point_over(gbox_over, GetMouseX(), GetMouseY());
+    goptn_over = gui_get_box_option_point_over(gbox_over, mouse_x, mouse_y);
   }
 
-  lnheight = pixel_size * LbTextStringHeight("Wp") + 2;
+  lbFontPtr = font_sprites;
+  lnheight = pixel_size * LbTextStringHeight("Wg") + 2;
   pos_y = gbox->pos_y + 8;
   pos_x = gbox->pos_x + 8;
   if (gbox != gui_get_highest_priority_box())
@@ -5959,7 +6862,7 @@ void gui_draw_box(struct GuiBox *gbox)
         lbDisplay.DrawColour = colours[0][0][0];
       else
       if ((gbox == gbox_over) && (goptn == goptn_over) && (gbox != dragging_box.gbox) ||
-           (gbox != NULL) && (goptn->field_25 != 0))
+           (gbox != NULL) && (goptn->active != 0))
         lbDisplay.DrawColour = colours[15][15][15];
       else
         lbDisplay.DrawColour = colours[9][9][9];
@@ -5971,6 +6874,145 @@ void gui_draw_box(struct GuiBox *gbox)
       pos_y += lnheight;
     }
   }
+}
+
+short gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn)
+{
+  short button_num;
+  if (left_button_released || right_button_released)
+  {
+    if (left_button_released)
+    {
+      left_button_released = 0;
+      button_num = 1;
+    } else
+    {
+      right_button_released = 0;
+      button_num = 2;
+    }
+    if (goptn->numfield_4 == 1)
+    {
+      if (goptn->callback != NULL)
+        goptn->callback(gbox, goptn, button_num, &goptn->field_19);
+    }
+    return true;
+  }
+  return false;
+}
+
+/*
+ * Processes GUI Bixes inputs.
+ * @return Returns true if the input event was captured by a GUI Box.
+ */
+short gui_process_inputs(void)
+{
+  long mouse_y,mouse_x;
+  struct GuiBox *gbox;
+  struct GuiBox *hpbox;
+  struct GuiBoxOption *goptn;
+  short result;
+  mouse_x = GetMouseX();
+  mouse_y = GetMouseY();
+  result = false;
+  hpbox = gui_get_highest_priority_box();
+  goptn = NULL;
+  if (dragging_box.gbox != NULL)
+  {
+    if (left_button_held)
+    {
+      if (hpbox != dragging_box.gbox)
+      {
+        gui_remove_box_from_list(dragging_box.gbox);
+        gui_insert_box_at_list_top(dragging_box.gbox);
+      }
+      dragging_box.gbox->pos_x = mouse_x - dragging_box.start_x;
+      dragging_box.gbox->pos_y = mouse_y - dragging_box.start_y;
+    } else
+    {
+      dragging_box.gbox = NULL;
+      left_button_released = 0;
+    }
+    result = true;
+  } else
+  if (left_button_clicked)
+  {
+    lbFontPtr = font_sprites;
+    gbox = gui_get_box_point_over(left_button_clicked_x, left_button_clicked_y);
+    if (gbox != NULL)
+    {
+      goptn = gui_get_box_option_point_over(gbox, left_button_clicked_x, left_button_clicked_y);
+      if (gbox != hpbox)
+      {
+        gui_remove_box_from_list(gbox);
+        gui_insert_box_at_list_top(gbox);
+        left_button_clicked = 0;
+      } else
+      if (goptn == NULL)
+      {
+        dragging_box.gbox = hpbox;
+        dragging_box.start_x = left_button_clicked_x - gbox->pos_x;
+        dragging_box.start_y = left_button_clicked_y - gbox->pos_y;
+        left_button_clicked = 0;
+      }
+      result = true;
+    }
+  } else
+  if (left_button_released)
+  {
+    gbox = gui_get_box_point_over(left_button_clicked_x, left_button_clicked_y);
+    if (gbox != NULL)
+    {
+      lbFontPtr = font_sprites;
+      goptn = gui_get_box_option_point_over(gbox, left_button_clicked_x, left_button_clicked_y);
+      if ((gbox == hpbox) && (goptn != NULL))
+      {
+        gui_process_option_inputs(hpbox, goptn);
+      }
+      result = true;
+    }
+  }
+  if (right_button_released)
+  {
+    gbox = gui_get_box_point_over(left_button_clicked_x, left_button_clicked_y);
+    if (gbox != NULL)
+    {
+      lbFontPtr = font_sprites;
+      goptn = gui_get_box_option_point_over(gbox, left_button_clicked_x, left_button_clicked_y);
+      if ((gbox == hpbox) && (goptn != NULL))
+      {
+        gui_process_option_inputs(hpbox, goptn);
+      }
+      result = true;
+    }
+  }
+  if (hpbox != NULL)
+  {
+    if (is_key_pressed(KC_UP,KM_NONE))
+    {
+      goptn = gui_move_active_box_option(hpbox,-1);
+      clear_key_pressed(KC_UP);
+      result = true;
+    } else
+    if (is_key_pressed(KC_DOWN,KM_NONE))
+    {
+      goptn = gui_move_active_box_option(hpbox,1);
+      clear_key_pressed(KC_DOWN);
+      result = true;
+    }
+    if (is_key_pressed(KC_PGUP,KM_NONE))
+    {
+      goptn = gui_move_active_box_option(hpbox,-2);
+      clear_key_pressed(KC_PGUP);
+      result = true;
+    }
+    if (is_key_pressed(KC_PGDOWN,KM_NONE))
+    {
+      goptn = gui_move_active_box_option(hpbox,2);
+      clear_key_pressed(KC_PGDOWN);
+      result = true;
+    }
+  }
+  return result;
 }
 
 /******************************************************************************/

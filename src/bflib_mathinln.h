@@ -1,14 +1,15 @@
 /******************************************************************************/
-// Free implementation of Bullfrog's Dungeon Keeper strategy game.
+// Bullfrog Engine Emulation Library - for use to remake classic games like
+// Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file front_input.h
- *     Header file for front_input.c.
+/** @file bflib_mathinln.h
+ *     Inline functions for bflib_math module.
  * @par Purpose:
- *     Front-end user keyboard and mouse input.
+ *     Define body of inline functions.
  * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
+ *     Functions defined as Inline, separated for compatibility with both Ansi-C and C++.
  * @author   Tomasz Lis
- * @date     20 Jan 2009 - 30 Jan 2009
+ * @date     24 Jan 2009 - 31 Mar 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,25 +17,23 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
-#ifndef DK_FRONTINPUT_H
-#define DK_FRONTINPUT_H
-
-#include "bflib_basics.h"
-#include "globals.h"
+#ifndef BFLIB_MATHINLN_H
+#define BFLIB_MATHINLN_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 
-/******************************************************************************/
-/******************************************************************************/
-void input(void);
-short get_inputs(void);
-short get_screen_capture_inputs(void);
-int is_game_key_pressed(long key_id, long *val, short ignore_mods);
-short game_is_busy_doing_gui_string_input(void);
+inline long LbSinL(long x)
+{
+  return lbSinTable[(unsigned long)x & 0x7FF];
+}
+
+inline long LbCosL(long x)
+{
+  return lbCosTable[(unsigned long)x & 0x7FF];
+}
 
 /******************************************************************************/
 #ifdef __cplusplus

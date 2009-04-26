@@ -65,7 +65,7 @@ void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned shor
 {
   pckt->field_6 = par1;
   pckt->field_8 = par2;
-  pckt->field_5 = pcktype;
+  pckt->action = pcktype;
 }
 
 void set_packet_control(struct Packet *pckt, unsigned long val)
@@ -90,7 +90,7 @@ short set_packet_pause_toggle(void)
   if (player->packet_num >= PACKETS_COUNT)
     return false;
   pckt = &game.packets[player->packet_num];
-  set_packet_action(pckt, PckT_TogglePause, 0, 0, 0, 0);
+  set_packet_action(pckt, PckA_TogglePause, 0, 0, 0, 0);
   return true;
 }
 
@@ -104,9 +104,9 @@ unsigned long compute_players_checksum(void)
   for (i=0; i<PLAYERS_COUNT; i++)
   {
     player=&(game.players[i%PLAYERS_COUNT]);
-    if (((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0))
+    if (((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0) && (player->acamera != NULL))
     {
-        mappos = &(player->camera->mappos);
+        mappos = &(player->acamera->mappos);
         sum += player->field_4B1 + player->instance_num
                    + mappos->x.val + mappos->z.val + mappos->y.val;
     }
@@ -146,13 +146,507 @@ short checksums_different(void)
   return false;
 }
 
-void process_dungeon_control_packet_clicks(long idx)
+void process_dungeon_control_packet_clicks(long plyr_idx)
 {
   static const char *func_name="process_dungeon_control_packet_clicks";
+  struct PlayerInfo *player;
+  struct Dungeon *dungeon;
+  struct Packet *pckt;
+  struct CreatureControl *cctrl;
+  struct Thing *thing;
+  long stl_x,stl_y;
+  short v172;
+  struct Coord3d pos;
+  long x,y;
+  long i,k;
+  //_DK_process_dungeon_control_packet_clicks(plyr_idx); return;
+  player = &(game.players[plyr_idx%PLAYERS_COUNT]);
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
 #if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
+    LbSyncLog("%s: Starting for state %d\n",func_name,(int)player->field_453);
 #endif
-  _DK_process_dungeon_control_packet_clicks(idx);
+  player->field_4A4 = 1;
+  packet_left_button_double_clicked[plyr_idx] = 0;
+  if ((pckt->field_E & 0x4000) != 0)
+    return;
+
+//TODO: finish rewriting!!!
+// HACK to make not rewritten part work
+  switch (player->field_453)
+  {
+  case 1:
+  case 2:
+  case 16:
+  case 23:
+      _DK_process_dungeon_control_packet_clicks(plyr_idx);
+      return;
+  }
+
+  if ((pckt->field_E & 0x0400) != 0)
+  {
+    switch (player->field_453)
+    {
+    case 6:
+        if (dungeon->field_884)
+          player->field_4D2 = (dungeon->field_883 << 2);
+        else
+          update_spell_overcharge(player, 6);
+        break;
+    case 7:
+        update_spell_overcharge(player, 7);
+        break;
+    case 8:
+        update_spell_overcharge(player, 5);
+        break;
+    case 17:
+        update_spell_overcharge(player, 10);
+        break;
+    case 19:
+        update_spell_overcharge(player, 11);
+        break;
+    case 20:
+        update_spell_overcharge(player, 12);
+        break;
+    case 21:
+        update_spell_overcharge(player, 13);
+        break;
+    case 22:
+        update_spell_overcharge(player, 8);
+        break;
+    default:
+        player->field_4D2++;
+        break;
+    }
+  } else
+  if ((pckt->field_E & 0x1000) == 0)
+  {
+    player->field_4D2 = 0;
+  }
+  if ((pckt->field_E & 0x0800) != 0)
+  {
+    player->field_4D6++;
+  } else
+  if ((pckt->field_E & 0x2000) == 0)
+  {
+    player->field_4D6 = 0;
+  }
+  if ((pckt->field_E & 0x1000) != 0)
+  {
+    if (packet_left_button_click_space_count[plyr_idx] < 5)
+      packet_left_button_double_clicked[plyr_idx] = 1;
+    packet_left_button_click_space_count[plyr_idx] = 0;
+  }
+  i = (unsigned short)pckt->field_E;
+  if (((i >> 8) & 5) == 0)
+  {
+    if (packet_left_button_click_space_count[plyr_idx] < LONG_MAX)
+      packet_left_button_click_space_count[plyr_idx]++;
+  }
+  player->field_35 = 0;
+  x = ((unsigned short)pckt->field_A);
+  y = ((unsigned short)pckt->field_C);
+  stl_x = x/(map_subtiles_x+1);
+  stl_y = y/(map_subtiles_y+1);
+  v172 = false;
+  switch (player->field_453)
+  {
+  case 1:
+//........
+      break;
+  case 2:
+//........
+      break;
+  case 3:
+      if (((pckt->field_E & 0x1000) == 0) || ((pckt->field_E & 0x8000) == 0))
+        break;
+      pos.x.val = x;
+      pos.y.val = y;
+      pos.z.val = 0;
+      thing = create_creature(&pos, 8, plyr_idx);
+      if (thing_is_invalid(thing))
+      {
+        pckt->field_E &= 0xEFFFu;
+        break;
+      }
+      pos.z.val = get_thing_height_at(thing, &pos);
+      if (thing_in_wall_at(thing, &pos))
+      {
+        delete_thing_structure(thing, 0);
+        pckt->field_E &= 0xEFFFu;
+      } else
+      {
+        thing->mappos.x.val = pos.x.val;
+        thing->mappos.y.val = pos.y.val;
+        thing->mappos.z.val = pos.z.val;
+        remove_first_creature(thing);
+        set_first_creature(thing);
+        pckt->field_E &= 0xEFFFu;
+      }
+      break;
+  case 4:
+      if (((pckt->field_E & 0x1000) == 0) || ((pckt->field_E & 0x8000) == 0))
+        break;
+      create_random_hero_creature(x, y, game.field_14E496, CREATURE_MAX_LEVEL);
+      pckt->field_E &= 0xEFFFu;
+      break;
+  case 6:
+      if (((pckt->field_E & 0x1000) != 0) && ((pckt->field_E & 0x8000) != 0))
+      {
+        i = get_spell_overcharge_level(player);
+        magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, i, 0);
+        pckt->field_E &= 0xEFFFu;
+      }
+      break;
+  case 7:
+      if (((pckt->field_E & 0x1000) != 0) && ((pckt->field_E & 0x8000) != 0))
+      {
+        i = get_spell_overcharge_level(player);
+        magic_use_power_cave_in(plyr_idx, stl_x, stl_y, i);
+        pckt->field_E &= 0xEFFFu;
+      }
+      break;
+  case 8:
+      if (((pckt->field_E & 0x1000) != 0) && ((pckt->field_E & 0x8000) != 0))
+      {
+        i = get_spell_overcharge_level(player);
+        magic_use_power_sight(plyr_idx, stl_x, stl_y, i);
+        pckt->field_E &= 0xEFFFu;
+      }
+      break;
+  case 9:
+      v172 = 1;
+      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+      if (thing_is_invalid(thing))
+        player->field_35 = 0;
+      else
+        player->field_35 = thing->field_1B;
+      if (((pckt->field_E & 0x1000) != 0) && ((pckt->field_E & 0x8000) != 0))
+      {
+        magic_use_power_slap(plyr_idx, stl_x, stl_y);
+        pckt->field_E &= 0xEFFFu;
+      }
+      break;
+  case 10:
+      v172 = 1;
+      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+      if (thing_is_invalid(thing))
+        player->field_35 = 0;
+      else
+        player->field_35 = thing->field_1B;
+
+      if ((pckt->field_E & 0x1000) != 0)
+      {
+        if (player->field_35 > 0)
+        {
+          player->field_43E = player->field_35;
+          set_player_instance(player, 6, 0);
+          pckt->field_E &= 0xEFFFu;
+        }
+      }
+      if ((pckt->field_E & 0x2000) != 0)
+      {
+        if (player->instance_num != 6)
+        {
+          set_player_state(player, player->field_456, 0);
+          pckt->field_E &= 0xDFFFu;
+        }
+      }
+      break;
+  case 11:
+      v172 = 1;
+      thing = get_creature_near_for_controlling(plyr_idx, x, y);
+      if (thing_is_invalid(thing))
+        player->field_35 = 0;
+      else
+        player->field_35 = thing->field_1B;
+      if ((pckt->field_E & 0x1000) != 0)
+      {
+        if (player->field_35 > 0)
+        {
+          player->field_43E = player->field_35;
+          set_player_instance(player, 5, 0);
+          pckt->field_E &= 0xEFFFu;
+        }
+      }
+      if ((pckt->field_E & 0x2000) != 0)
+      {
+        if (player->instance_num != 5)
+        {
+          set_player_state(player, player->field_456, 0);
+          pckt->field_E &= 0xDFFFu;
+        }
+      }
+      break;
+  case 12:
+  case 15:
+      v172 = 1;
+      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+      if (thing_is_invalid(thing))
+        player->field_35 = 0;
+      else
+        player->field_35 = thing->field_1B;
+      if ((pckt->field_E & 0x1000) != 0)
+      {
+        if (player->field_35 > 0)
+        {
+          if (player->field_2F != player->field_35)
+          {
+            if (is_my_player(player))
+            {
+              turn_off_all_panel_menus();
+              initialise_tab_tags_and_menu(31);
+              turn_on_menu(31);
+            }
+            player->field_43E = player->field_35;
+            set_player_instance(player, 9, 0);
+          }
+          pckt->field_E &= 0xEFFFu;
+        }
+      }
+      if (player->field_453 == 15)
+      {
+        thing = game.things_lookup[player->field_2F%THINGS_COUNT];
+        if ((pckt->field_E & 0x2000) != 0)
+        {
+          if (is_my_player(player))
+          {
+            turn_off_query_menus();
+            turn_on_main_panel_menu();
+          }
+          set_player_instance(player, 10, 0);
+          pckt->field_E &= 0xDFFFu;
+        } else
+        if (thing->health < 0)
+        {
+          set_player_instance(player, 10, 0);
+          if (is_my_player(player))
+          {
+            turn_off_query_menus();
+            turn_on_main_panel_menu();
+          }
+        }
+      }
+      break;
+  case 13:
+      v172 = 1;
+      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+      if (thing_is_invalid(thing))
+        player->field_35 = 0;
+      else
+        player->field_35 = thing->field_1B;
+      if ((pckt->field_E & 0x1000) != 0)
+      {
+        if ((player->field_2F > 0) && (player->field_2F < THINGS_COUNT))
+        {
+          if ((pckt->field_E & 0x8000) != 0)
+          {
+            thing = game.things_lookup[player->field_2F];
+            setup_person_move_to_position(thing, stl_x, stl_y, 0);
+            thing->field_8 = 122;
+          }
+        } else
+        {
+          thing = get_creature_near(x, y);
+          if (!thing_is_invalid(thing))
+          {
+            player->field_2F = thing->field_1B;
+            initialise_thing_state(thing, 122);
+            cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
+            i = cctrl->field_7A;// & 0xFFF;
+            if (i > 0)
+              make_group_member_leader(thing);
+          }
+        }
+        pckt->field_E &= 0xEFFFu;
+      }
+      if ((pckt->field_E & 0x2000) != 0)
+      {
+        if ((player->field_2F > 0) && (player->field_2F < THINGS_COUNT))
+        {
+          thing = game.things_lookup[player->field_2F];
+          set_start_state(thing);
+          player->field_2F = 0;
+        }
+        pckt->field_E &= 0xDFFFu;
+      }
+      break;
+  case 14:
+      if (((pckt->field_E & 0x1000) == 0) || ((pckt->field_E & 0x8000) == 0))
+        break;
+      create_random_evil_creature(x, y, plyr_idx, CREATURE_MAX_LEVEL);
+      pckt->field_E &= 0xEFFFu;
+      break;
+  case 16:
+//........
+      break;
+  case 17:
+      player->field_35 = 0;
+      if (((pckt->field_E & 0x1000) != 0) && ((pckt->field_E & 0x8000) != 0))
+      {
+        i = get_spell_overcharge_level(player);
+        magic_use_power_lightning(plyr_idx, stl_x, stl_y, i);
+        pckt->field_E &= 0xEFFFu;
+      }
+      break;
+  case 18:
+      if ((pckt->field_E & 0x8000) != 0)
+      {
+        player->field_4A4 = 1;
+        if ((pckt->field_E & 0x0100) != 0)
+        {
+          i = tag_cursor_blocks_place_door(player->field_2B, stl_x, stl_y);
+          k = map_tiles_x * map_to_slab[stl_y] + map_to_slab[stl_x];
+          delete_room_slabbed_objects(k);
+          packet_place_door(stl_x, stl_y, player->field_2B, player->field_4A6, i);
+        }
+        pckt->field_E &= 0xFEFFu;
+      }
+      if ((pckt->field_E & 0x1000) != 0)
+      {
+        if ( player->field_4AF )
+        {
+          player->field_4AF = 0;
+          pckt->field_E &= 0xEFFFu;
+        }
+      }
+      break;
+  case 19:
+      v172 = true;
+      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+      if (thing_is_invalid(thing))
+      {
+        player->field_35 = 0;
+        break;
+      }
+      player->field_35 = thing->field_1B;
+      if ((pckt->field_E & 0x1000) != 0)
+      {
+        i = get_spell_overcharge_level(player);
+        magic_use_power_speed(plyr_idx, thing, stl_x, stl_y, i);
+        pckt->field_E &= 0xEFFFu;
+      }
+      break;
+  case 20:
+      v172 = true;
+      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+      if (thing_is_invalid(thing))
+      {
+        player->field_35 = 0;
+        break;
+      }
+      player->field_35 = thing->field_1B;
+      if ((pckt->field_E & 0x1000) != 0)
+      {
+        i = get_spell_overcharge_level(player);
+        magic_use_power_armour(plyr_idx, thing, stl_x, stl_y, i);
+        pckt->field_E &= 0xEFFFu;
+      }
+      break;
+  case 21:
+      v172 = true;
+      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+      if (thing_is_invalid(thing))
+      {
+        player->field_35 = 0;
+        break;
+      }
+      player->field_35 = thing->field_1B;
+      if ((pckt->field_E & 0x1000) != 0)
+      {
+        i = get_spell_overcharge_level(player);
+        magic_use_power_conceal(plyr_idx, thing, stl_x, stl_y, i);
+        pckt->field_E &= 0xEFFFu;
+      }
+      break;
+  case 22:
+      v172 = true;
+      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+      if (thing_is_invalid(thing))
+      {
+        player->field_35 = 0;
+        break;
+      }
+      player->field_35 = thing->field_1B;
+      if ((pckt->field_E & 0x1000) != 0)
+      {
+        i = get_spell_overcharge_level(player);
+        magic_use_power_heal(plyr_idx, thing, stl_x, stl_y, i);
+        pckt->field_E &= 0xEFFFu;
+      }
+      break;
+  case 23:
+//........
+      break;
+  case 24:
+      if (((pckt->field_E & 0x1000) != 0) && ((pckt->field_E & 0x8000) != 0))
+      {
+        magic_use_power_imp(plyr_idx, stl_x, stl_y);
+        pckt->field_E &= 0xEFFFu;
+      }
+      break;
+  case 25:
+      if (((pckt->field_E & 0x1000) != 0) && ((pckt->field_E & 0x8000) != 0))
+      {
+        i = get_spell_overcharge_level(player);
+        magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, i);
+        pckt->field_E &= 0xEFFFu;
+      }
+      break;
+  case 26:
+      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_enemy_of_and_not_imp, plyr_idx);
+      if (thing_is_invalid(thing))
+      {
+        player->field_35 = 0;
+        break;
+      }
+      player->field_35 = thing->field_1B;
+      if ((pckt->field_E & 0x1000) != 0)
+      {
+        i = get_spell_overcharge_level(player);
+        magic_use_power_disease(plyr_idx, thing, stl_x, stl_y, i);
+        pckt->field_E &= 0xEFFFu;
+      }
+      break;
+  case 27:
+      v172 = true;
+      thing = get_creature_near_with_filter(x, y, creature_near_filter_not_imp, plyr_idx);
+      if (thing_is_invalid(thing))
+      {
+        player->field_35 = 0;
+        break;
+      }
+      player->field_35 = thing->field_1B;
+      if ((pckt->field_E & 0x1000) != 0)
+      {
+        i = get_spell_overcharge_level(player);
+        magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, i);
+        pckt->field_E &= 0xEFFFu;
+      }
+      break;
+  default:
+      break;
+  }
+  // resetting position variables - they may have been changed
+  x = ((unsigned short)pckt->field_A);
+  y = ((unsigned short)pckt->field_C);
+  stl_x = x/(map_subtiles_x+1);
+  stl_y = y/(map_subtiles_y+1);
+  if (!player->field_35)
+  {
+    if ((x != 0) && (y == 0))  // what this condition is supposed to mean!?
+    {
+      thing = get_queryable_object_near(x, y, plyr_idx);
+      if (!thing_is_invalid(thing))
+        player->field_35 = thing->field_1B;
+    }
+  }
+  i = (unsigned short)pckt->field_E;
+  if (((i >> 8) & 0x0C) && (v172))
+  {
+    if ((player->field_455 == 0) || (player->field_455 == 3))
+      stop_creatures_around_hand(plyr_idx, stl_x, stl_y);
+  }
 }
 
 TbBigChecksum get_packet_save_checksum(void)
@@ -168,7 +662,7 @@ void open_new_packet_file_for_save(void)
   //_DK_open_new_packet_file_for_save(); return;
   // Filling the header
   game.packet_save_head.field_0 = 0;
-  game.packet_save_head.level_num = game.level_file_number;
+  game.packet_save_head.level_num = get_loaded_level_number();
   game.packet_save_head.field_8 = 0;
   game.packet_save_head.field_C = 0;
   game.packet_save_head.field_D = 0;
@@ -240,7 +734,7 @@ void load_packets_for_turn(long nturn)
         for (i=0; i<NET_PLAYERS_COUNT; i++)
         {
           pckt = &game.packets[i];
-          if ((pckt->field_5 != 0) || (pckt->field_E != 0))
+          if ((pckt->action != 0) || (pckt->field_E != 0))
           {
             done = true;
             break;
@@ -307,7 +801,7 @@ void process_players_dungeon_control_packet_control(long idx)
 
   player = &(game.players[idx%PLAYERS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  cam = player->camera;
+  cam = player->acamera;
   long inter_val;
   switch (cam->field_6)
   {
@@ -396,7 +890,7 @@ void process_players_message_character(struct PlayerInfo *player)
   int chpos;
   playerd = &(game.players[player->field_2B%PLAYERS_COUNT]);
   pcktd = &game.packets[playerd->packet_num%PACKETS_COUNT];
-  if (pcktd->field_6 >= 0)
+  if (pcktd->field_6 > 0)
   {
     chr = key_to_ascii(pcktd->field_6, pcktd->field_8);
     chpos = strlen(player->strfield_463);
@@ -419,9 +913,93 @@ void process_players_message_character(struct PlayerInfo *player)
   }
 }
 
-void process_quit_packet(struct PlayerInfo *player, int a2)
+void process_quit_packet(struct PlayerInfo *player, short complete_quit)
 {
-  _DK_process_quit_packet(player,a2);
+  //_DK_process_quit_packet(player,a2);
+  struct PlayerInfo *swplyr;
+  struct PlayerInfo *myplyr;
+  short winning_quit;
+  long plyr_count;
+  int i;
+
+  plyr_count = 0;
+  myplyr = &game.players[my_player_number%PLAYERS_COUNT];
+  if ((game.numfield_A & 0x01) != 0)
+  {
+    winning_quit = winning_player_quitting(player, &plyr_count);
+    if (winning_quit)
+    {
+      // Set other players as losers
+      for (i=0; i < PLAYERS_COUNT; i++)
+      {
+        swplyr = &(game.players[i]);
+        if ((swplyr->field_0 & 0x01) != 0)
+        {
+          if (swplyr->field_2C == 1)
+            if (swplyr->victory_state == VicS_Undecided)
+              swplyr->victory_state = VicS_WonLevel;
+        }
+      }
+    }
+
+    if ((player == myplyr) || (frontend_should_all_players_quit()))
+    {
+      if ((!winning_quit) || (plyr_count <= 1))
+        LbNetwork_Stop();
+      else
+        myplyr->field_3 |= 0x10u;
+    } else
+    {
+      if (!winning_quit)
+      {
+        if (player->victory_state != VicS_Undecided)
+        {
+          player->field_0 &= 0xFE;
+        } else
+        {
+          player->field_0 |= 0x40;
+          toggle_computer_player(player->field_2B);
+        }
+        if (player == myplyr)
+        {
+          quit_game = 1;
+          if (complete_quit)
+            exit_keeper = 1;
+        }
+        return;
+      } else
+      if (plyr_count <= 1)
+        LbNetwork_Stop();
+      else
+        myplyr->field_3 |= 0x10u;
+    }
+    quit_game = 1;
+    if (complete_quit)
+      exit_keeper = 1;
+    if (frontend_should_all_players_quit())
+    {
+      for (i=0; i < PLAYERS_COUNT; i++)
+      {
+        swplyr = &(game.players[i]);
+        if ((swplyr->field_0 & 0x01) != 0)
+        {
+          swplyr->field_0 &= 0xFEu;
+          swplyr->field_6 |= 0x02u;
+        }
+      }
+    } else
+    {
+      player->field_0 &= 0xFEu;
+    }
+    return;
+  }
+  player->field_0 &= 0xFEu;
+  if (player == myplyr)
+  {
+    quit_game = 1;
+    if (complete_quit)
+      exit_keeper = 1;
+  }
 }
 
 char process_players_global_packet_action(long plyridx)
@@ -441,14 +1019,14 @@ char process_players_global_packet_action(long plyridx)
 #endif
   player=&(game.players[plyridx%PLAYERS_COUNT]);
   pckt=&game.packets[player->packet_num%PACKETS_COUNT];
-  switch (pckt->field_5)
+  switch (pckt->action)
   {
     case 1:
       myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
       if (my_player_number == plyridx)
       {
         turn_off_all_menus();
-        update_continue_game();
+        frontend_save_continue_game(true);
         free_swipe_graphic();
       }
       player->field_6 |= 0x02;
@@ -459,7 +1037,7 @@ char process_players_global_packet_action(long plyridx)
       if (my_player_number == plyridx)
       {
         turn_off_all_menus();
-        update_continue_game();
+        frontend_save_continue_game(true);
       }
       player->field_6 |= 0x02;
       process_quit_packet(player, 1);
@@ -477,50 +1055,38 @@ char process_players_global_packet_action(long plyridx)
         process_quit_packet(player, 0);
         return 0;
       }
-      switch (player->field_29)
+      switch (player->victory_state)
       {
-      case 1:
+      case VicS_WonLevel:
           complete_level(player);
           break;
-      case 2:
+      case VicS_LostLevel:
           lose_level(player);
+          break;
+      default:
+          resign_level(player);
           break;
       }
       player->field_0 &= 0xFEu;
       if (my_player_number == plyridx)
       {
-        unsigned int k;
-        // Save some of the data from clearing
-        myplyr = &(game.players[my_player_number%PLAYERS_COUNT]);
-        dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
-        i = myplyr->field_29;
-        // The block started at field_1197 ends before field_131F
-        memcpy(scratch, &dungeon->lvstats, sizeof(struct LevelStats));
-        k = (myplyr->field_3 & 0x10) >> 4;
-        // clear all data
-        clear_game_for_save();
-        // Restore saved data
-        myplyr->field_29 = i;
-        memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
-        myplyr->field_3 ^= (myplyr->field_3 ^ (k << 4)) & 0x10;
-        if (((game.numfield_A & 0x01) == 0) && (!game.packet_load_enable))
-          frontend_save_continue_game(game.level_number, true);
+        frontend_save_continue_game(false);
       }
       return 0;
-    case PckT_PlyrMsgBegin:
+    case PckA_PlyrMsgBegin:
       player->field_0 |= 0x04;
       return 0;
-    case PckT_PlyrMsgEnd:
+    case PckA_PlyrMsgEnd:
       player->field_0 &= 0xFBu;
       if (player->strfield_463[0] != '\0')
         message_add(player->field_2B);
       memset(player->strfield_463, 0, 64);
       return 0;
-    case PckT_ToggleLights:
+    case PckA_ToggleLights:
       if (my_player_number == plyridx)
         light_set_lights_on(game.field_4614D == 0);
       return 1;
-    case PckT_SwitchScrnRes:
+    case PckA_SwitchScrnRes:
       if (my_player_number == plyridx)
         switch_to_next_video_mode();
       return 1;
@@ -545,27 +1111,22 @@ char process_players_global_packet_action(long plyridx)
       }
       return 0;
     case 26:
-      player->field_90 = pckt->field_6 << 8;
-      player->field_BA = pckt->field_6 << 8;
-      player->cam_mappos.x.val = pckt->field_6 << 8;
-      player->field_92 = pckt->field_8 << 8;
-      player->field_BC = pckt->field_8 << 8;
-      player->cam_mappos.y.val = pckt->field_8 << 8;
+      set_player_cameras_position(player, pckt->field_6 << 8, pckt->field_8 << 8);
       return 0;
-    case PckT_SetGammaLevel:
+    case PckA_SetGammaLevel:
       if (myplyr->field_2B == player->field_2B)
       {
         set_gamma(pckt->field_6, 1);
         save_settings();
       }
       return 0;
-    case PckT_SetMinimapConf:
+    case PckA_SetMinimapConf:
       player->minimap_zoom = pckt->field_6;
       return 0;
     case 29:
-      player->field_97 = pckt->field_6;
-      player->field_C1 = pckt->field_6;
-      player->field_43 = pckt->field_6;
+      player->cameras[2].orient_a = pckt->field_6;
+      player->cameras[3].orient_a = pckt->field_6;
+      player->cameras[0].orient_a = pckt->field_6;
       return 0;
     case 36:
       set_player_state(player, pckt->field_6, pckt->field_8);
@@ -619,15 +1180,10 @@ char process_players_global_packet_action(long plyridx)
       return 0;
     case 81:
       myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
-      player->field_90 = pckt->field_6 << 8;
-      player->field_BA = pckt->field_6 << 8;
-      player->cam_mappos.x.val = pckt->field_6 << 8;
-      player->field_92 = pckt->field_8 << 8;
-      player->field_BC = pckt->field_8 << 8;
-      player->cam_mappos.y.val = pckt->field_8 << 8;
-      player->field_97 = 0;
-      player->field_C1 = 0;
-      player->field_43 = 0;
+      set_player_cameras_position(player, pckt->field_6 << 8, pckt->field_8 << 8);
+      player->cameras[2].orient_a = 0;
+      player->cameras[3].orient_a = 0;
+      player->cameras[0].orient_a = 0;
       if ((game.numfield_A & 0x01) || (lbDisplay.PhysicalScreenWidth > 320))
       {
         if (my_player_number == plyridx)
@@ -697,7 +1253,7 @@ char process_players_global_packet_action(long plyridx)
       dump_held_things_on_map(plyridx, pckt->field_6, pckt->field_8, 1);
       return 0;
     case 92:
-      if (game.event[pckt->field_6].field_B == 3)
+      if (game.event[pckt->field_6].kind == 3)
       {
         turn_off_event_box_if_necessary(plyridx, pckt->field_6);
       } else
@@ -756,7 +1312,7 @@ char process_players_global_packet_action(long plyridx)
         }
       }
       return 0;
-    case PckT_PlyrFastMsg:
+    case PckA_PlyrFastMsg:
       //show_onscreen_msg(game.num_fps, "Message from player %d", plyridx);
       output_message(pckt->field_6+110, 0, 1);
       return 0;
@@ -774,7 +1330,7 @@ char process_players_global_packet_action(long plyridx)
         dump_held_things_on_map(plyridx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 1);
       }
       return 0;
-    case PckT_SpellSOEDis:
+    case PckA_SpellSOEDis:
       turn_off_sight_of_evil(plyridx);
       return 0;
     case 115:
@@ -789,11 +1345,12 @@ char process_players_global_packet_action(long plyridx)
       if (i > 8) i = 8;
       directly_cast_spell_on_thing(plyridx, pckt->field_6, pckt->field_8, i);
       return 0;
-    case PckT_PlyrToggleAlly:
+    case PckA_PlyrToggleAlly:
       toggle_ally_with_player(plyridx, pckt->field_6);
       return 0;
     case 119:
-      player->field_4B5 = player->camera->field_6;
+      if (player->acamera != NULL)
+        player->field_4B5 = player->acamera->field_6;
       set_player_mode(player, pckt->field_6);
       return 0;
     case 120:
@@ -819,8 +1376,8 @@ void process_players_map_packet_control(long idx)
   x = (3*pckt->field_A - 450)/4 - 6;
   y = (3*pckt->field_C - 168)/4 - 6;
   process_map_packet_clicks(idx);
-  player->field_90 = (x << 8) + 1920;
-  player->field_92 = (y << 8) + 1920;
+  player->cameras[2].mappos.x.val = (x << 8) + 1920;
+  player->cameras[2].mappos.y.val = (y << 8) + 1920;
   set_mouse_light(player);
 #if (BFDEBUG_LEVEL > 8)
     LbSyncLog("%s: Finished\n",func_name);
@@ -847,11 +1404,11 @@ void process_players_packet(long idx)
   player=&(game.players[idx%PLAYERS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
 #if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Processing player %d packet of type %d.\n",func_name,idx,(int)pckt->field_5);
+    LbSyncLog("%s: Processing player %d packet of type %d.\n",func_name,idx,(int)pckt->action);
 #endif
   player->field_4 = (pckt->field_10 & 0x20) >> 5;
   player->field_5 = (pckt->field_10 & 0x40) >> 6;
-  if ( (player->field_0 & 0x04) && (pckt->field_5 == PckT_PlyrMsgChar))
+  if ( (player->field_0 & 0x04) && (pckt->action == PckA_PlyrMsgChar))
   {
      process_players_message_character(player);
   } else
@@ -892,7 +1449,7 @@ void process_players_creature_passenger_packet_action(long idx)
 #endif
   player=&(game.players[idx%PLAYERS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  if (pckt->field_5 == 32)
+  if (pckt->action == 32)
   {
     player->field_43E = pckt->field_6;
     set_player_instance(player, 8, 0);
@@ -913,7 +1470,7 @@ void process_players_dungeon_control_packet_action(long idx)
   struct Packet *pckt;
   player = &(game.players[idx%PLAYERS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  switch (pckt->field_5)
+  switch (pckt->action)
   {
     case 41:
       magic_use_power_hold_audience(idx);
@@ -947,19 +1504,18 @@ void process_players_creature_control_packet_control(long idx)
 void process_players_creature_control_packet_action(long idx)
 {
   static const char *func_name="process_players_creature_control_packet_action";
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  //_DK_process_players_creature_control_packet_action(idx); return;
   struct CreatureControl *cctrl;
   struct PlayerInfo *player;
   struct Thing *thing;
   struct Packet *pckt;
   long i,k;
-
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  //_DK_process_players_creature_control_packet_action(idx); return;
   player = &(game.players[idx%PLAYERS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  switch (pckt->field_5)
+  switch (pckt->action)
   {
   case 33:
       player->field_43E = pckt->field_6;
@@ -970,7 +1526,7 @@ void process_players_creature_control_packet_action(long idx)
       i = player->field_2F;
       if ((i>0) && (i<THINGS_COUNT))
         thing = game.things_lookup[i];
-      if ((thing == NULL) || (thing == game.things_lookup[0]))
+      if (thing_is_invalid(thing))
         break;
       cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
       if ((cctrl == NULL) || (cctrl == game.persons.cctrl_lookup[0]))
@@ -978,7 +1534,7 @@ void process_players_creature_control_packet_action(long idx)
       i = pckt->field_6;
       if (!instance_info[i].field_0)
       {
-        cctrl->instances[74] = i;
+        cctrl->field_1E8 = i;
       } else
       if (cctrl->field_D2 == 0)
       {

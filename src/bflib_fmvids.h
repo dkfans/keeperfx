@@ -113,12 +113,12 @@ struct AnimFLIHeader { // sizeof=0x80
 
 struct AnimFLIChunk { //sizeof=0x6
     long csize;
-    short ctype;
+    unsigned short ctype;
 };
 
 struct AnimFLIPrefix { //sizeof=0x6
     long csize;
-    short ctype;
+    unsigned short ctype;
     short nchunks;
     char reserved[8];
 };

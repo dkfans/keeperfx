@@ -26,6 +26,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#pragma pack(1)
+
 typedef char *ModifyDataLoadFnameFunc(struct TbLoadFiles *);
 
 struct TbLoadFiles {
@@ -37,6 +39,8 @@ struct TbLoadFiles {
         unsigned short Spare;
 };
 
+#pragma pack()
+/******************************************************************************/
 char *defaultModifyDataLoadFilename(struct TbLoadFiles *ldfiles);
 ModifyDataLoadFnameFunc *LbDataLoadSetModifyFilenameFunction(ModifyDataLoadFnameFunc *newfunc);
 

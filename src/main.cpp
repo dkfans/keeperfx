@@ -25,6 +25,7 @@
 #include "front_simple.h"
 #include "frontend.h"
 #include "front_input.h"
+#include "gui_draw.h"
 #include "scrcapt.h"
 #include "vidmode.h"
 #include "kjm_input.h"
@@ -35,6 +36,10 @@
 #include "thing_list.h"
 #include "player_instances.h"
 #include "game_saves.h"
+#include "engine_render.h"
+#include "engine_lenses.h"
+#include "engine_camera.h"
+#include "front_landview.h"
 
 int test_variable;
 
@@ -43,6 +48,27 @@ int test_variable;
 char cmndline[CMDLN_MAXLEN+1];
 unsigned short bf_argc;
 char *bf_argv[CMDLN_MAXLEN+1];
+
+const struct GameSettings default_settings = {
+   0, 4, 3, 0, 1, 0, 127, 90, 1, 0, 1,
+   {
+    {KC_UP, KM_NONE},       {KC_DOWN, KM_NONE},
+    {KC_LEFT, KM_NONE},     {KC_RIGHT, KM_NONE},
+    {KC_LCONTROL, KM_NONE}, {KC_LSHIFT, KM_NONE},
+    {KC_DELETE, KM_NONE},   {KC_PGDOWN, KM_NONE},
+    {KC_HOME, KM_NONE},     {KC_END, KM_NONE},
+    {KC_T, KM_NONE},        {KC_L, KM_NONE},
+    {KC_L, KM_SHIFT},       {KC_P, KM_SHIFT},
+    {KC_T, KM_ALT},         {KC_T, KM_SHIFT},
+    {KC_H, KM_NONE},        {KC_W, KM_NONE},
+    {KC_S, KM_NONE},        {KC_T, KM_CONTROL},
+    {KC_G, KM_NONE},        {KC_B, KM_NONE},
+    {KC_H, KM_SHIFT},       {KC_G, KM_SHIFT},
+    {KC_B, KM_SHIFT},       {KC_F, KM_NONE},
+    {KC_A, KM_NONE},        {KC_LSHIFT, KM_NONE},
+    {KC_NUMPAD0, KM_NONE},  {KC_BACK, KM_NONE},
+    {KC_P, KM_NONE},        {KC_M, KM_NONE},
+   }, 1, 0, 6};
 
 // Map size variables
 int map_subtiles_x = 255;
@@ -58,8 +84,6 @@ unsigned short player_colors_map[] = {0, 1, 2, 3, 4, 5, 0, 0, 0, };
 TbPixel const player_path_colours[] = {131, 90, 163, 181, 20, 4, };
 
 unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
-
-unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
 
 struct KeycodeString eastegg_feckoff_codes = {
     {KC_F,KC_E,KC_C,KC_K,KC_O,KC_F,KC_F,KC_UNASSIGNED}, 7,
@@ -81,20 +105,6 @@ short hero_player = 4;
 unsigned long gold_per_hoarde = 2000;
 struct StartupParameters start_params;
 #define TRACE LbNetLog
-
-Perspect_Func perspective_routines[] = {
-  perspective_standard,
-  perspective_standard,
-  perspective_standard,
-  perspective_fisheye,
-};
-
-RotPers_Func rotpers_routines[] = {
-  rotpers_parallel,
-  rotpers_standard,
-  rotpers_circular,
-  rotpers_fisheye,
-};
 
 Thing_Class_Func class_functions[] = {
   NULL,
@@ -192,12 +202,121 @@ RoomKind look_through_rooms[] = {
     RoK_BARRACKS,  RoK_BRIDGE,   RoK_GUARDPOST, RoK_ENTRANCE,
     RoK_DUNGHEART, RoK_UNKN17,};
 
+const struct Around around[] = {
+  {-1,-1},
+  {-1, 0},
+  {-1, 1},
+  { 0,-1},
+  { 0, 0},
+  { 0, 1},
+  { 1,-1},
+  { 1, 0},
+  { 1, 1},
+  { 0, 0}, // this entry shouldn't be used
+};
+
+const char *blood_types[] = {
+    "ARh+",
+    "O",
+    "MoO+",
+    "BA",
+    "PoE",
+    "BO",
+    "IkI",
+    NULL,
+};
+
+const short door_names[] = {
+    201, 590, 591, 592, 593, 0,
+};
+
+
+
+unsigned short const player_state_to_spell[] = {
+  0, 0, 0,  0,  0,  0, 6, 7, 5, 0, 18, 18, 0, 0, 0, 0,
+  0,10, 0, 11, 12, 13, 8, 0, 2,16, 14, 15, 0, 3, 0, 0,
+};
+
+long instf_creature_fire_shot(struct Thing *thing, long *param);
+
 //static
 TbClockMSec last_loop_time=0;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+DLLIMPORT void _DK_maintain_my_event_list(struct Dungeon *dungeon);
+DLLIMPORT struct Event *_DK_event_create_event(long map_x, long map_y, unsigned char a3, unsigned char dngn_id, long msg_id);
+DLLIMPORT void _DK_process_armageddon(void);
+DLLIMPORT void _DK_update_breed_activities(void);
+DLLIMPORT void _DK_maintain_my_battle_list(void);
+DLLIMPORT void _DK_magic_use_power_chicken(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
+DLLIMPORT void _DK_magic_use_power_disease(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
+DLLIMPORT void _DK_magic_use_power_destroy_walls(unsigned char a1, long a2, long a3, long a4);
+DLLIMPORT short _DK_magic_use_power_imp(unsigned short a1, unsigned short a2, unsigned short a3);
+DLLIMPORT long _DK_remove_workshop_object_from_player(long a1, long a2);
+DLLIMPORT void _DK_magic_use_power_heal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
+DLLIMPORT void _DK_magic_use_power_conceal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
+DLLIMPORT void _DK_magic_use_power_armour(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
+DLLIMPORT void _DK_magic_use_power_speed(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
+DLLIMPORT void _DK_magic_use_power_lightning(unsigned char a1, long a2, long a3, long a4);
+DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_trap(unsigned char a1, long a2, long a3);
+DLLIMPORT long _DK_magic_use_power_sight(unsigned char a1, long a2, long a3, long a4);
+DLLIMPORT void _DK_magic_use_power_cave_in(unsigned char a1, long a2, long a3, long a4);
+DLLIMPORT long _DK_magic_use_power_call_to_arms(unsigned char a1, long a2, long a3, long a4, long a5);
+DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3);
+DLLIMPORT struct Thing *_DK_get_queryable_object_near(unsigned short a1, unsigned short a2, long a3);
+DLLIMPORT long _DK_object_is_gold_pile(struct Thing *thing);
+DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
+DLLIMPORT int _DK_can_thing_be_possessed(struct Thing *thing, long a2);
+DLLIMPORT short _DK_magic_use_power_hand(unsigned short a1, unsigned short a2, unsigned short a3, unsigned short a4);
+DLLIMPORT long _DK_tag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
+DLLIMPORT void _DK_untag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
+DLLIMPORT long _DK_destroy_door(struct Thing *thing);
+DLLIMPORT short _DK_delete_room_slab(long a1, long a2);
+DLLIMPORT void _DK_tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4);
+DLLIMPORT long _DK_packet_place_door(long a1, long a2, long a3, long a4, unsigned char a5);
+DLLIMPORT void _DK_delete_room_slabbed_objects(long a1);
+DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3);
+DLLIMPORT long _DK_remove_workshop_item(long a1, long a2, long a3);
+DLLIMPORT struct Thing *_DK_create_trap(struct Coord3d *pos, unsigned short a1, unsigned short a2);
+DLLIMPORT void _DK_set_first_creature(struct Thing *thing);
+DLLIMPORT void _DK_remove_first_creature(struct Thing *thing);
+DLLIMPORT struct Room *_DK_place_room(unsigned char a1, unsigned char a2, unsigned short a3, unsigned short a4);
+DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
+DLLIMPORT short _DK_magic_use_power_slap(unsigned short a1, unsigned short a2, unsigned short a3);
+DLLIMPORT struct Thing *_DK_get_creature_near(unsigned short pos_x, unsigned short pos_y);
+DLLIMPORT struct Thing *_DK_get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, long a4);
+DLLIMPORT unsigned char _DK_initialise_thing_state(struct Thing *thing, long a2);
+DLLIMPORT short _DK_setup_person_move_to_position(struct Thing *thing, long pos_x, long pos_y, unsigned char a4);
+DLLIMPORT void _DK_tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
+DLLIMPORT struct Thing *_DK_get_creature_near_for_controlling(unsigned char a1, long a2, long a3);
+DLLIMPORT void _DK_tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
+DLLIMPORT void _DK_create_power_hand(unsigned char a1);
+DLLIMPORT long _DK_remove_creature_from_group(struct Thing *thing);
+DLLIMPORT long _DK_add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2);
+DLLIMPORT struct Thing *_DK_create_gold_for_hand_grab(struct Thing *thing, long a2);
+DLLIMPORT long _DK_remove_food_from_food_room_if_possible(struct Thing *thing);
+DLLIMPORT struct Thing *_DK_create_effect_element(struct Coord3d *pos, unsigned short a2, unsigned short a3);
+DLLIMPORT unsigned long _DK_object_is_pickable_by_hand(struct Thing *thing, long a2);
+DLLIMPORT void _DK_set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing);
+DLLIMPORT struct Thing *_DK_process_object_being_picked_up(struct Thing *thing, long a2);
+DLLIMPORT void _DK_set_power_hand_graphic(long a1, long a2, long a3);
+DLLIMPORT long _DK_dump_thing_in_power_hand(struct Thing *thing, long a2);
+DLLIMPORT void _DK_anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, long a3);
+DLLIMPORT void _DK_process_person_moods_and_needs(struct Thing *thing);
+DLLIMPORT long _DK_creature_available_for_combat_this_turn(struct Thing *thing);
+DLLIMPORT long _DK_creature_look_for_combat(struct Thing *thing);
+DLLIMPORT struct Thing *_DK_get_enemy_dungeon_heart_creature_can_see(struct Thing *thing);
+DLLIMPORT long _DK_set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
+DLLIMPORT unsigned char _DK_can_change_from_state_to(struct Thing *thing, long a2, long a3);
+DLLIMPORT struct Thing *_DK_get_door_for_position(long pos_x, long pos_y);
+DLLIMPORT void _DK_set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
+DLLIMPORT long _DK_process_obey_leader(struct Thing *thing);
+DLLIMPORT void _DK_food_eaten_by_creature(struct Thing *crthing, struct Thing *obthing);
+DLLIMPORT void _DK_creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short a1, char a2, unsigned char a3);
+DLLIMPORT unsigned char _DK_external_set_thing_state(struct Thing *thing, long state);
+DLLIMPORT long _DK_is_thing_passenger_controlled(struct Thing *thing);
 DLLIMPORT void __cdecl _DK_setup_3d(void);
 DLLIMPORT void __cdecl _DK_setup_stuff(void);
 DLLIMPORT void __cdecl _DK_init_creature_scores(void);
@@ -258,29 +377,7 @@ DLLIMPORT void _DK_draw_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsig
 DLLIMPORT void _DK_flyeye_blitsec(unsigned char *srcbuf, unsigned char *dstbuf, long srcwidth, long dstwidth, long n, long height);
 DLLIMPORT void _DK_draw_swipe(void);
 DLLIMPORT void _DK_draw_creature_view(struct Thing *thing);
-DLLIMPORT void _DK_perspective_standard(struct XYZ *cor, struct PolyPoint *ppt);
-DLLIMPORT void _DK_perspective_fisheye(struct XYZ *cor, struct PolyPoint *ppt);
-DLLIMPORT void _DK_rotpers_parallel(struct EngineCoord *epos, struct M33 *matx);
-DLLIMPORT void _DK_rotpers_standard(struct EngineCoord *epos, struct M33 *matx);
-DLLIMPORT void _DK_rotpers_circular(struct EngineCoord *epos, struct M33 *matx);
-DLLIMPORT void _DK_rotpers_fisheye(struct EngineCoord *epos, struct M33 *matx);
-DLLIMPORT void _DK_init_lens(unsigned long *lens_mem, int width, int height, int scanln, int nlens);
 DLLIMPORT void _DK_flyeye_setup(long width, long height);
-DLLIMPORT void _DK_rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx);
-DLLIMPORT void _DK_rotate_base_axis(struct M33 *matx, short a2, unsigned char a3);
-DLLIMPORT void _DK_fill_in_points_perspective(long a1, long a2, struct MinMax *mm);
-DLLIMPORT void _DK_fill_in_points_cluedo(long a1, long a2, struct MinMax *mm);
-DLLIMPORT void _DK_fill_in_points_isometric(long a1, long a2, struct MinMax *mm);
-DLLIMPORT void _DK_display_drawlist(void);
-DLLIMPORT void _DK_frame_wibble_generate(void);
-DLLIMPORT void _DK_find_gamut(void);
-DLLIMPORT void _DK_fiddle_gamut(long a1, long a2);
-DLLIMPORT void _DK_create_map_volume_box(long a1, long a2, long a3);
-DLLIMPORT void _DK_setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8);
-DLLIMPORT void _DK_do_a_plane_of_engine_columns_perspective(long a1, long a2, long a3, long a4);
-DLLIMPORT void _DK_do_a_plane_of_engine_columns_cluedo(long a1, long a2, long a3, long a4);
-DLLIMPORT void _DK_do_a_plane_of_engine_columns_isometric(long a1, long a2, long a3, long a4);
-DLLIMPORT void _DK_draw_view(struct Camera *cam, unsigned char a2);
 DLLIMPORT void _DK_draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 DLLIMPORT void _DK_draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
 DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
@@ -313,6 +410,7 @@ DLLIMPORT long _DK_process_creature_state(struct Thing *thing);
 DLLIMPORT long _DK_get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_move_creature(struct Thing *thing);
 DLLIMPORT void _DK_process_spells_affected_by_effect_elements(struct Thing *thing);
+DLLIMPORT long _DK_load_texture_map_file(unsigned long lv_num, unsigned char n);
 DLLIMPORT long _DK_get_top_cube_at_pos(long mpos);
 DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char a2);
 DLLIMPORT long _DK_get_foot_creature_has_down(struct Thing *thing);
@@ -386,6 +484,10 @@ DLLIMPORT long _DK_magic_use_power_armageddon(unsigned char val);
 DLLIMPORT long _DK_battle_move_player_towards_battle(struct PlayerInfo *player, long var);
 DLLIMPORT void _DK_level_lost_go_first_person(long plridx);
 DLLIMPORT TbError _DK_LbNetwork_Exchange(struct Packet *pckt);
+DLLIMPORT TbError _DK_LbNetwork_Stop(void);
+DLLIMPORT TbError _DK_LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, unsigned long *plyr_num);
+DLLIMPORT TbError _DK_LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num);
+DLLIMPORT void _DK_process_network_error(long);
 DLLIMPORT void _DK_resync_game(void);
 DLLIMPORT void __cdecl _DK_set_gamma(char, int);
 DLLIMPORT void _DK_complete_level(struct PlayerInfo *player);
@@ -483,25 +585,6 @@ short show_onscreen_msg(int nturns, const char *fmt_str, ...)
     return result;
 }
 
-void perspective_standard(struct XYZ *cor, struct PolyPoint *ppt)
-{
-  //_DK_perspective_standard(cor, ppt);
-  long i;
-  if (cor->z >= 32)
-  {
-    i = (lens<<16)/(cor->z);
-    ppt->field_0 = view_width_over_2 + (i * cor->x >> 16);
-    ppt->field_4 = view_height_over_2 - (i * cor->y >> 16);
-  } else
-  {
-    ppt->field_0 = view_width_over_2 + cor->x;
-    ppt->field_4 = view_height_over_2 - cor->y;
-  }
-}
-
-void perspective_fisheye(struct XYZ *cor, struct PolyPoint *ppt)
-{ }
-
 unsigned long control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
 {
   return _DK_control_creature_as_controller(player, thing);
@@ -515,26 +598,6 @@ unsigned long control_creature_as_passenger(struct PlayerInfo *player, struct Th
 void load_swipe_graphic_for_creature(struct Thing *thing)
 {
   _DK_load_swipe_graphic_for_creature(thing);
-}
-
-void rotpers_parallel(struct EngineCoord *epos, struct M33 *matx)
-{
-  _DK_rotpers_parallel(epos, matx);
-}
-
-void rotpers_standard(struct EngineCoord *epos, struct M33 *matx)
-{
-  _DK_rotpers_standard(epos, matx);
-}
-
-void rotpers_circular(struct EngineCoord *epos, struct M33 *matx)
-{
-  _DK_rotpers_circular(epos, matx);
-}
-
-void rotpers_fisheye(struct EngineCoord *epos, struct M33 *matx)
-{
-  _DK_rotpers_fisheye(epos, matx);
 }
 
 void reset_eye_lenses(void)
@@ -577,6 +640,8 @@ void view_zoom_camera_in(struct Camera *cam, long a2, long a3)
 
 void set_camera_zoom(struct Camera *cam, long val)
 {
+  if (cam == NULL)
+    return;
   _DK_set_camera_zoom(cam, val);
 }
 
@@ -628,11 +693,6 @@ void initialise_eye_lenses(void)
     return;
   }
   set_flag_byte(&game.flags_cd,MFlg_EyeLensReady,true);
-}
-
-void init_lens(unsigned long *lens_mem, int width, int height, int scanln, int nlens)
-{
-  _DK_init_lens(lens_mem, width, height, scanln, nlens);
 }
 
 void flyeye_setup(long width, long height)
@@ -804,6 +864,32 @@ unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
   return ((zoom_lvl*units_per_pixel) >> 4)*pixel_size;
 }
 
+void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4, unsigned char a5, unsigned char a6, long a7, long a8)
+{
+  struct Coord3d rcpos;
+  long i;
+  if (SoundDisabled)
+    return;
+  if (GetCurrentSoundMasterVolume() <= 0)
+    return;
+  rcpos.x.val = Receiver.pos_x;
+  rcpos.y.val = Receiver.pos_y;
+  rcpos.z.val = Receiver.pos_z;
+  if (get_3d_box_distance(&rcpos, &thing->mappos) < MaxSoundDistance)
+  {
+    i = thing->field_66;
+    if (i > 0)
+    {
+      S3DAddSampleToEmitterPri(i, a2, 0, a3, a8, a4, a5, a6 | 0x01, a7);
+    } else
+    {
+      i = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
+         a2, 0, a3, a8, a4, a6 | 0x01, a7);
+     thing->field_66 = i;
+    }
+  }
+}
+
 long get_room_look_through(RoomKind rkind)
 {
   const long arr_length = sizeof(look_through_rooms)/sizeof(look_through_rooms[0]);
@@ -843,7 +929,16 @@ void init_creature_scores(void)
 
 void setup_3d(void)
 {
-  _DK_setup_3d();
+  static const char *func_name="setup_3d";
+  unsigned long seed;
+  long i,k;
+  //_DK_setup_3d();
+  seed = 0;
+  for (i=0; i < 512; i++)
+  {
+    k = seed_check_random(127, &seed, func_name, 4791);
+    randomisors[i] = k - 63;
+  }
 }
 
 void setup_stuff(void)
@@ -861,6 +956,11 @@ struct Room *get_room_thing_is_on(struct Thing *thing)
   return _DK_get_room_thing_is_on(thing);
 }
 
+short thing_touching_floor(struct Thing *thing)
+{
+  return (thing->field_60 == thing->mappos.z.val);
+}
+
 short set_start_state(struct Thing *thing)
 {
   return _DK_set_start_state(thing);
@@ -869,6 +969,263 @@ short set_start_state(struct Thing *thing)
 struct Thing *get_trap_for_position(long x, long y)
 {
   return _DK_get_trap_for_position(x, y);
+}
+
+void process_person_moods_and_needs(struct Thing *thing)
+{
+  _DK_process_person_moods_and_needs(thing);
+}
+
+long creature_available_for_combat_this_turn(struct Thing *thing)
+{
+  return _DK_creature_available_for_combat_this_turn(thing);
+}
+
+long creature_look_for_combat(struct Thing *thing)
+{
+  return _DK_creature_look_for_combat(thing);
+}
+
+struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing)
+{
+  return _DK_get_enemy_dungeon_heart_creature_can_see(thing);
+}
+
+long set_creature_object_combat(struct Thing *crthing, struct Thing *obthing)
+{
+  return _DK_set_creature_object_combat(crthing, obthing);
+}
+
+unsigned long object_is_pickable_by_hand(struct Thing *thing, long a2)
+{
+  return _DK_object_is_pickable_by_hand(thing, a2);
+}
+
+short thing_is_pickable_by_hand(struct PlayerInfo *player,struct Thing *thing)
+{
+  if (thing_is_invalid(thing))
+    return false;
+  if (((thing->field_0 & 0x01) == 0) || (thing->field_9 != player->field_440))
+    return false;
+  // All creatures can be picked
+  if (thing->class_id == TCls_Creature)
+    return true;
+  // Some objects can be picked
+  if ((thing->class_id == TCls_Object) && object_is_pickable_by_hand(thing, player->field_2B))
+    return true;
+  // Other things are not pickable
+  return false;
+}
+
+void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing)
+{
+  _DK_set_power_hand_offset(player, thing);
+}
+
+struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
+{
+  static const char *func_name="process_object_being_picked_up";
+  struct PlayerInfo *player;
+  struct Thing *picktng;
+  struct Thing *tmptng;
+  struct Coord3d pos;
+  long i;
+  //return _DK_process_object_being_picked_up(thing, plyr_idx);
+  switch (thing->model)
+  {
+    case 3:
+    case 6:
+    case 43:
+      i = thing->long_13;
+      if (i != 0)
+      {
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = thing->mappos.z.val + 128;
+        tmptng = create_effect_element(&pos, 41, thing->owner);
+        if (tmptng != NULL)
+          tmptng->long_13 = i;
+      }
+      picktng = thing;
+      break;
+    case 10:
+      i = seed_check_random(3, &game.rand_14BB4E, func_name, 4534);
+      thing_play_sample(thing, 109+i, 100, 0, 3, 0, 2, 256);
+      i = convert_td_iso(122);
+      set_thing_draw(thing, i, 256, -1, -1, 0, 2);
+      remove_food_from_food_room_if_possible(thing);
+      picktng = thing;
+      break;
+    case 52:
+    case 53:
+    case 54:
+    case 55:
+    case 56:
+      picktng = create_gold_for_hand_grab(thing, plyr_idx);
+      break;
+    case 86:
+    case 87:
+    case 88:
+    case 89:
+    case 90:
+    case 91:
+    case 92:
+    case 93:
+      player = &(game.players[plyr_idx%PLAYERS_COUNT]);
+      activate_dungeon_special(thing, player);
+      picktng = NULL;
+      break;
+    default:
+      error(func_name, 1020, "Picking up invalid object");
+      picktng = NULL;
+      break;
+  }
+  return picktng;
+}
+
+void set_power_hand_graphic(long a1, long a2, long a3)
+{
+  _DK_set_power_hand_graphic(a1, a2, a3);
+}
+
+long dump_thing_in_power_hand(struct Thing *thing, long a2)
+{
+  return _DK_dump_thing_in_power_hand(thing, a2);
+}
+
+void place_thing_in_limbo(struct Thing *thing)
+{
+  remove_thing_from_mapwho(thing);
+  thing->field_4F |= 0x01;
+  thing->field_0 |= 0x10;
+}
+
+struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2)
+{
+  return _DK_create_gold_for_hand_grab(thing, a2);
+}
+
+long remove_food_from_food_room_if_possible(struct Thing *thing)
+{
+  return _DK_remove_food_from_food_room_if_possible(thing);
+}
+
+struct Thing *create_effect_element(struct Coord3d *pos, unsigned short a2, unsigned short a3)
+{
+  return _DK_create_effect_element(pos, a2, a3);
+}
+
+unsigned char can_change_from_state_to(struct Thing *thing, long a2, long a3)
+{
+  return _DK_can_change_from_state_to(thing, a2, a3);
+}
+
+struct Thing *get_door_for_position(long pos_x, long pos_y)
+{
+  return _DK_get_door_for_position(pos_x, pos_y);
+}
+
+void set_creature_door_combat(struct Thing *crthing, struct Thing *obthing)
+{
+  _DK_set_creature_door_combat(crthing, obthing);
+}
+
+void process_armageddon(void)
+{
+  static const char *func_name="process_armageddon";
+  if (game.field_150356 == 0)
+    return;
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  _DK_process_armageddon();
+}
+
+long process_obey_leader(struct Thing *thing)
+{
+  return _DK_process_obey_leader(thing);
+}
+
+void food_eaten_by_creature(struct Thing *crthing, struct Thing *obthing)
+{
+  _DK_food_eaten_by_creature(crthing, obthing);
+}
+
+void anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, long a3)
+{
+  _DK_anger_apply_anger_to_creature(thing, anger, a2, a3);
+}
+
+short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing)
+{
+  static const char *func_name="creature_take_wage_from_gold_pile";
+  struct CreatureStats *crstat;
+  struct CreatureControl *cctrl;
+  long i;
+  crstat = &game.creature_stats[crthing->model%CREATURE_TYPES_COUNT];
+  cctrl = game.persons.cctrl_lookup[crthing->field_64%CREATURES_COUNT];
+  if (obthing->long_13 <= 0)
+  {
+    error(func_name, 1573, "GoldPile had no gold so was deleted.");
+    delete_thing_structure(obthing, 0);
+    return false;
+  }
+  if (crthing->long_13 < crstat->gold_hold)
+  {
+    if (obthing->long_13+crthing->long_13 > crstat->gold_hold)
+    {
+      i = crstat->gold_hold-crthing->long_13;
+      crthing->long_13 += i;
+      obthing->long_13 -= i;
+    } else
+    {
+      crthing->long_13 += obthing->long_13;
+      delete_thing_structure(obthing, 0);
+    }
+  }
+  anger_apply_anger_to_creature(crthing, crstat->annoy_got_wage, 1, 1);
+  return true;
+}
+
+struct Thing *get_group_leader(struct Thing *thing)
+{
+  struct CreatureControl *cctrl;
+  long i;
+  cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
+  i = cctrl->field_7A;// & 0xFFF;
+  if ((i > 0) && (i < THINGS_COUNT))
+    return game.things_lookup[i];
+  return NULL;
+}
+
+short make_group_member_leader(struct Thing *leadtng)
+{
+  struct Thing *prvtng;
+  prvtng = get_group_leader(leadtng);
+  if (thing_is_invalid(prvtng))
+    return false;
+  if (prvtng != leadtng)
+  {
+    remove_creature_from_group(leadtng);
+    add_creature_to_group_as_leader(leadtng, prvtng);
+    return true;
+  }
+  return false;
+}
+
+long find_from_task_list(long plyr_idx, long srch_tsk)
+{
+  struct Dungeon *dungeon;
+  struct MapTask *task;
+  long i;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  for (i=0; i < dungeon->field_AF7; i++)
+  {
+    task = &dungeon->task_list[i%MAPTASKS_COUNT];
+    if (task->field_1 == srch_tsk)
+      return i;
+  }
+  return -1;
 }
 
 void reset_player_mode(struct PlayerInfo *player, unsigned char a2)
@@ -895,6 +1252,38 @@ void init_dungeons_research(void)
     dungeon = (&game.dungeon[i]);
     dungeon->field_F78 = get_next_research_item(dungeon);
   }
+}
+
+short remove_all_research_from_player(long plyr_idx)
+{
+  struct Dungeon *dungeon;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  dungeon->research_num = 0;
+  dungeon->field_14AD = 1;
+  return true;
+}
+
+short add_research_to_player(long plyr_idx, long a2, long a3, long a4)
+{
+  static const char *func_name="add_research_to_player";
+  struct Dungeon *dungeon;
+  struct ResearchVal *resrch;
+  char *text;
+  long i;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  i = dungeon->research_num;
+  if (i >= 34)
+  {
+    text = buf_sprintf("Too much research for player %d", plyr_idx);
+    error(func_name, 635, text);
+    return false;
+  }
+  resrch = &dungeon->research[i];
+  resrch->field_0 = a2;
+  resrch->field_1 = a3;
+  resrch->field_2 = a4;
+  dungeon->research_num++;
+  return true;
 }
 
 void init_creature_state(struct Thing *thing)
@@ -931,9 +1320,53 @@ void clear_slab_dig(long a1, long a2, char a3)
   _DK_clear_slab_dig(a1, a2, a3);
 }
 
+long modem_initialise_callback(void)
+{
+  LbWindowsControl();
+  if (is_key_pressed(KC_ESCAPE, KM_DONTCARE))
+  {
+    clear_key_pressed(KC_ESCAPE);
+    return -7;
+  }
+  if (LbScreenLock() == 1)
+  {
+    draw_text_box(gui_strings[531]); // Initialising Modem
+    LbScreenUnlock();
+  }
+  LbScreenSwap();
+  return 0;
+}
+
+long modem_connect_callback(void)
+{
+  LbWindowsControl();
+  if (is_key_pressed(KC_ESCAPE, KM_DONTCARE))
+  {
+    clear_key_pressed(KC_ESCAPE);
+    return -7;
+  }
+  if (LbScreenLock() == 1)
+  {
+    draw_text_box(gui_strings[532]); // Connecting Modem
+    LbScreenUnlock();
+  }
+  LbScreenSwap();
+  return 0;
+}
+
 TbError LbNetwork_Init(unsigned long srvcp,struct _GUID guid, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct SerialInitData *init_data)
 {
   return _DK_LbNetwork_Init(srvcp,guid,maxplayrs,exchng_buf,exchng_size,locplayr,init_data);
+}
+
+TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, unsigned long *plyr_num)
+{
+  return _DK_LbNetwork_Join(nsname, plyr_name, plyr_num);
+}
+
+TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num)
+{
+  return _DK_LbNetwork_Create(nsname_str, plyr_name, plyr_num);
 }
 
 TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long a2)
@@ -946,7 +1379,12 @@ void LbNetwork_ChangeExchangeTimeout(unsigned long tmout)
 //  exchangeTimeout = 1000 * tmout;
 }
 
-void ProperFadePalette(unsigned char *pal, long n, TbPaletteFadeFlag flg)
+TbError LbNetwork_Stop(void)
+{
+  return _DK_LbNetwork_Stop();
+}
+
+void ProperFadePalette(unsigned char *pal, long n, enum TbPaletteFadeFlag flg)
 {
     if ( lbUseSdk )
     {
@@ -974,7 +1412,7 @@ void ProperFadePalette(unsigned char *pal, long n, TbPaletteFadeFlag flg)
     }
 }
 
-void ProperForcedFadePalette(unsigned char *pal, long n, TbPaletteFadeFlag flg)
+void ProperForcedFadePalette(unsigned char *pal, long n, enum TbPaletteFadeFlag flg)
 {
     if (flg == Lb_PALETTE_FADE_OPEN)
     {
@@ -1036,6 +1474,11 @@ void update_creature_count(struct Thing *thing)
 
 long process_creature_state(struct Thing *thing)
 {
+  static const char *func_name="process_creature_state";
+#if (BFDEBUG_LEVEL > 18)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+//TODO: rework! (causes hang if out of things)
   return _DK_process_creature_state(thing);
 }
 
@@ -1088,6 +1531,21 @@ void process_keeper_spell_effect(struct Thing *thing)
   _DK_process_keeper_spell_effect(thing);
 }
 
+void add_spell_to_player(long spl_idx, long plyr_idx)
+{
+  struct Dungeon *dungeon;
+  long i;
+  if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT))
+    return;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  i = dungeon->field_FE0[spl_idx];
+  if (i < 255)
+  {
+    dungeon->field_FE0[spl_idx] = i+1;
+    dungeon->field_FF4[spl_idx] = 1;
+  }
+}
+
 long creature_is_group_leader(struct Thing *thing)
 {
   return _DK_creature_is_group_leader(thing);
@@ -1098,9 +1556,175 @@ void leader_find_positions_for_followers(struct Thing *thing)
   _DK_leader_find_positions_for_followers(thing);
 }
 
+unsigned char external_set_thing_state(struct Thing *thing, long state)
+{
+  return _DK_external_set_thing_state(thing, state);
+}
+
+long is_thing_passenger_controlled(struct Thing *thing)
+{
+  return _DK_is_thing_passenger_controlled(thing);
+}
+
+long instf_creature_fire_shot(struct Thing *thing, long *param)
+{
+  struct CreatureControl *cctrl;
+  struct Thing *target;
+  int i;
+  cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
+  if (cctrl->field_DA <= 0)
+  {
+    if ((thing->field_0 & 0x20) == 0)
+      i = 4;
+    else
+      i = 1;
+  } else
+  if (thing->field_0 & 0x20)
+  {
+    target = game.things_lookup[cctrl->field_DA%THINGS_COUNT];
+    if (target->class_id == 1)
+      i = 1;
+    else
+      i = 2;
+  } else
+  {
+    target = game.things_lookup[cctrl->field_DA%THINGS_COUNT];
+    if (target->class_id == 1)
+      i = 1;
+    else
+    if (target->owner == thing->owner)
+      i = 2;
+    else
+      i = 4;
+  }
+  if (cctrl->field_DA > 0)
+    target = game.things_lookup[cctrl->field_DA%THINGS_COUNT];
+  else
+    target = NULL;
+  creature_fire_shot(thing, target, *param, 1, i);
+  return 0;
+}
+
+/*
+ * Computes max health of a creature on given level.
+ */
+long compute_creature_max_health(long base_health,unsigned short crlevel)
+{
+  long max_health;
+  if ((base_health <= 0) || (base_health > 100000))
+    base_health = 100000;
+  if (crlevel >= CREATURE_MAX_LEVEL)
+    crlevel = CREATURE_MAX_LEVEL-1;
+  max_health = base_health + (35*base_health*crlevel)/100;
+  return saturate_set_signed(max_health, 16);
+}
+
+/*
+ * Computes amount of gold a creature takes on payday.
+ */
+long compute_creature_max_pay(long base_pay,unsigned short crlevel)
+{
+  long max_pay;
+  if ((base_pay <= 0) || (base_pay > 100000))
+    base_pay = 100000;
+  if (crlevel >= CREATURE_MAX_LEVEL)
+    crlevel = CREATURE_MAX_LEVEL-1;
+  max_pay = base_pay + (35*base_pay*crlevel)/100;
+  return saturate_set_signed(max_pay, 16);
+}
+
+/*
+ * Computes parameter (strength,defence,dexterity) of a creature on given level.
+ */
+long compute_creature_max_parameter(long base_param,unsigned short crlevel)
+{
+  long max_param;
+  if ((base_param <= 0) || (base_param > 10000))
+    base_param = 10000;
+  if (crlevel >= CREATURE_MAX_LEVEL)
+    crlevel = CREATURE_MAX_LEVEL-1;
+  max_param = base_param + (35*base_param*crlevel)/100;
+  return saturate_set_unsigned(max_param, 8);
+}
+
+/*
+ * Computes parameter (luck,armour) of a creature on given level,
+ * where the level doesn't really matters.
+ */
+long compute_creature_max_unaffected(long base_param,unsigned short crlevel)
+{
+  if ((base_param <= 0) || (base_param > 10000))
+    base_param = 10000;
+  return saturate_set_unsigned(base_param, 8);
+}
+
+short update_creature_health_to_max(struct Thing *thing)
+{
+  struct CreatureStats *crstat;
+  struct CreatureControl *cctrl;
+  crstat = &game.creature_stats[thing->model%CREATURE_TYPES_COUNT];
+  cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
+  thing->health = compute_creature_max_health(crstat->health,cctrl->explevel);
+  return true;
+}
+
 long update_creature_levels(struct Thing *thing)
 {
-  return _DK_update_creature_levels(thing);
+  static const char *func_name="update_creature_levels";
+#if (BFDEBUG_LEVEL > 18)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  struct CreatureStats *crstat;
+  struct PlayerInfo *player;
+  struct Dungeon *dungeon;
+  struct CreatureControl *cctrl;
+  struct Thing *newtng;
+  //return _DK_update_creature_levels(thing);
+  cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
+  if ((cctrl->field_AD & 0x40) == 0)
+    return 0;
+  cctrl->field_AD &= 0xBF;
+  if (game.field_14E497 != thing->owner)
+  {
+    dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+    dungeon->field_EA8 -= game.strct_14EA4C[thing->model%CREATURE_TYPES_COUNT].value[cctrl->explevel%CREATURE_MAX_LEVEL];
+  }
+  // If a creature is not on highest level, just update the level
+  if (cctrl->explevel+1 < CREATURE_MAX_LEVEL)
+  {
+    set_creature_level(thing, cctrl->explevel+1);
+    return 1;
+  }
+  // If it is highest level, maybe we should transform the creature?
+  crstat = &game.creature_stats[thing->model%CREATURE_TYPES_COUNT];
+  if (crstat->grow_up == 0)
+    return 0;
+  // Transforming
+  newtng = create_creature(&thing->mappos, crstat->grow_up, thing->owner);
+  if (newtng == NULL)
+  {
+    error(func_name, 1549, "Could not create creature to transform to");
+    return 0;
+  }
+  set_creature_level(newtng, crstat->grow_up_level-1);
+  update_creature_health_to_max(newtng);
+  cctrl = game.persons.cctrl_lookup[newtng->field_64%CREATURES_COUNT];
+  cctrl->field_282 = 50;
+  external_set_thing_state(newtng, 127);
+  player = &(game.players[thing->owner%PLAYERS_COUNT]);
+  // Switch control if this creature is possessed
+  if (is_thing_passenger_controlled(thing))
+  {
+    leave_creature_as_controller(player, thing);
+    control_creature_as_controller(player, newtng);
+  }
+  if (thing->field_1B == player->field_2F)
+  {
+    player->field_2F = newtng->field_1B;
+    player->field_31 = newtng->field_9;
+  }
+  kill_creature(thing, game.things_lookup[0], -1, 1, 0, 1);
+  return -1;
 }
 
 long process_creature_self_spell_casting(struct Thing *thing)
@@ -1414,7 +2038,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
             if ( cleanup_current_thing_state(thing) )
             {
               if ( setup_move_off_lava(thing) )
-                thing->field_8 = -113;
+                thing->field_8 = 143;
               else
                 set_start_state(thing);
             }
@@ -1445,7 +2069,7 @@ long update_creature(struct Thing *thing)
     kill_creature(thing, game.things_lookup[0], -1, 1, 0, 1);
     return 0;
   }
-  if (thing->field_5E < 0)
+  if (thing->health < 0)
   {
     kill_creature(thing, game.things_lookup[0], -1, 0, 0, 0);
     return 0;
@@ -1562,7 +2186,6 @@ long update_creature(struct Thing *thing)
   set_flag_byte(&cctrl->field_AD,0x04,false);
   process_thing_spell_effects(thing);
   return 1;
-
 }
 
 long update_effect(struct Thing *thing)
@@ -1819,17 +2442,17 @@ short play_smacker_file(char *filename, int nstate)
     if ( !setup_screen_mode_minimal(get_frontend_vidmode()) )
     {
       error(func_name, 2358, "Can't re-enter frontend video mode after playing Smacker file");
-      _DK_FatalError = 1;
+      FatalError = 1;
       exit_keeper = 1;
       return 0;
     }
   } else
   {
-    memset(_DK_frontend_palette, 0, PALETTE_SIZE);
+    memset(frontend_palette, 0, PALETTE_SIZE);
   }
   LbScreenClear(0);
   LbScreenSwap();
-  LbPaletteSet(_DK_frontend_palette);
+  LbPaletteSet(frontend_palette);
   if ( nstate >= 0 )
     frontend_set_state(nstate);
   lbDisplay.LeftButton = 0;
@@ -1839,6 +2462,12 @@ short play_smacker_file(char *filename, int nstate)
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
   return result;
 }
+
+void process_network_error(long errcode)
+{
+  _DK_process_network_error(errcode);
+}
+
 
 short setup_network_service(int srvidx)
 {
@@ -1882,7 +2511,7 @@ short setup_network_service(int srvidx)
   }
   net_service_index_selected = srvidx;
   if (game.flags_font & 0x10)
-    ;//rndseed_nullsub();
+    LbNetwork_ChangeExchangeTimeout(10);
   frontend_set_state(5);
   return 1;
 }
@@ -1970,9 +2599,27 @@ short ceiling_set_info(long height_max, long height_min, long step)
   return 1;
 }
 
-int load_settings(void)
+short load_settings(void)
 {
-  return _DK_load_settings();
+  // CPU status variable
+  struct CPU_INFO cpu_info;
+  char *fname;
+  long len;
+  // Do only a very basic setup
+  _DK_get_cpu_info(&cpu_info);
+  fname = prepare_file_path(FGrp_Save,"settings.dat");
+  len = LbFileLengthRnc(fname);
+  if (len == sizeof(struct GameSettings))
+  {
+    if (LbFileLoadAt(fname, &settings) == sizeof(struct GameSettings))
+      return true;
+  }
+  LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
+  settings.field_B = get_next_vidmode(Lb_SCREEN_MODE_INVALID);
+  if ((((cpu_info.field_0>>8) & 0x0Fu) >= 6) && (mem_size >= 16))
+    settings.field_B = get_next_vidmode(settings.field_B);
+  LbFileSaveAt(fname, &settings, sizeof(struct GameSettings));
+  return false;
 }
 
 /*
@@ -1981,7 +2628,6 @@ int load_settings(void)
 short initial_setup(void)
 {
   static const char *func_name="initial_setup";
-  //return _DK_initial_setup();
   // setting this will force video mode change, even if previous one is same
   MinimalResolutionSetup = true;
   if (LbDataLoadAll(game_load_files))
@@ -1999,53 +2645,6 @@ short initial_setup(void)
   update_screen_mode_data(320, 200);
   clear_game();
   lbDisplay.DrawFlags |= 0x4000u;
-  return true;
-}
-
-short setup_strings_data(void)
-{
-  static const char *func_name="setup_strings_data";
-  char *fname;
-  char *text_end;
-  int text_idx;
-  char *text_ptr;
-  char **text_arr;
-  short result;
-  long filelen;
-  fname = prepare_file_path(FGrp_StdData,"text.dat");
-  filelen = LbFileLengthRnc(fname);
-  strings_data = (char *)LbMemoryAlloc(filelen + 256);
-  if (strings_data == NULL)
-  {
-    error(func_name, 1509, "Can't allocate memory for Strings data");
-    return false;
-  }
-  text_end = strings_data+filelen+255;
-  int loaded_size = LbFileLoadAt(fname, strings_data);
-  if (loaded_size < 16)
-  {
-    error(func_name, 1501, "Strings file couldn't be loaded or is too small");
-    return false;
-  }
-  text_arr = strings;
-  text_idx = STRINGS_MAX;
-  text_ptr = strings_data;
-  while (text_idx>=0)
-  {
-        if (text_ptr>=text_end)
-        {
-            result = 0;
-            break;
-        }
-        *text_arr = text_ptr;
-        text_arr++;
-        char chr_prev;
-        do {
-            chr_prev = *text_ptr;
-            text_ptr++;
-        } while ((chr_prev != '\0') && (text_ptr < text_end));
-        text_idx--;
-  }
   return true;
 }
 
@@ -2167,7 +2766,7 @@ short setup_game(void)
 
   if ( result )
   {
-    if ( !setup_strings_data() )
+    if ( !setup_gui_strings_data() )
       result = 0;
   }
 
@@ -2252,7 +2851,6 @@ void input_eastegg(void)
   static const char *func_name="input_eastegg";
   short allow;
   unsigned short state;
-  //_DK_input_eastegg();return;
   // Maintain the FECKOFF cheat
   allow = (lbKeyOn[KC_LSHIFT] != 0);
   state = input_eastegg_keycodes(&game.eastegg01_cntr,allow,&eastegg_feckoff_codes);
@@ -2293,9 +2891,9 @@ void battle_initialise(void)
   _DK_battle_initialise();
 }
 
-void event_initialise_all(void)
+void maintain_my_battle_list(void)
 {
-  _DK_event_initialise_all();
+  _DK_maintain_my_battle_list();
 }
 
 void add_thing_to_list(struct Thing *thing, struct StructureList *list)
@@ -2400,7 +2998,7 @@ short setup_trap_tooltips(struct Coord3d *pos)
     {
       tool_tip_box.field_0 = 1;
       stridx = trap_data[thing->model].field_C;
-      sprintf(tool_tip_box.text, "%s", strings[stridx%STRINGS_MAX]);
+      sprintf(tool_tip_box.text, "%s", gui_strings[stridx%STRINGS_MAX]);
       tool_tip_box.pos_x = GetMouseX();
       tool_tip_box.pos_y = GetMouseY()+86;
       tool_tip_box.field_809 = 4;
@@ -2415,15 +3013,20 @@ short setup_object_tooltips(struct Coord3d *pos)
 {
   char *text;
   struct Thing *thing = NULL;
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  struct PlayerInfo *player;
+  long i;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
   thing = game.things_lookup[player->field_35%THINGS_COUNT];
-  if (thing == game.things_lookup[0])
+  if (thing_is_invalid(thing))
       thing = NULL;
-  if ((thing!=NULL)&&(!thing_is_special(thing)))
+  if (thing != NULL)
+  {
+    if (!thing_is_special(thing))
       thing = NULL;
-  if (thing==NULL)
+  }
+  if (thing == NULL)
     thing = _DK_get_special_at_position(pos->x.stl.num, pos->y.stl.num);
-  if (thing!=NULL)
+  if (thing != NULL)
   {
     if ((void *)thing != tool_tip_box.target)
     {
@@ -2431,10 +3034,10 @@ short setup_object_tooltips(struct Coord3d *pos)
       tool_tip_box.target = thing;
     }
     int stridx = specials_text[object_to_special[thing->model]];
-    sprintf(tool_tip_box.text, "%s", strings[stridx%STRINGS_MAX]);
-    tool_tip_box.pos_x = GetMouseX();
+    sprintf(tool_tip_box.text, "%s", gui_strings[stridx%STRINGS_MAX]);
     tool_tip_box.field_0 = 1;
     tool_tip_box.field_809 = 5;
+    tool_tip_box.pos_x = GetMouseX();
     tool_tip_box.pos_y = GetMouseY() + 86;
     return true;
   }
@@ -2443,16 +3046,20 @@ short setup_object_tooltips(struct Coord3d *pos)
   {
     if ( (void *)thing != tool_tip_box.target )
     {
-      _DK_help_tip_time = 0;
+      help_tip_time = 0;
       tool_tip_box.target = (void *)thing;
     }
-    int stridx = _DK_spell_data[object_to_magic[thing->model]].field_D;
-    if (stridx>0)
+    int stridx;
+    stridx = 0;
+    i = object_to_magic[thing->model];
+    if ((i >= 0) && (i <= SPELL_TYPES_COUNT))
+      stridx = spell_data[i].field_D;
+    if (stridx > 0)
     {
-      sprintf(tool_tip_box.text,"%s",strings[stridx%STRINGS_MAX]);
+      sprintf(tool_tip_box.text,"%s",gui_strings[stridx%STRINGS_MAX]);
       tool_tip_box.field_0 = 1;
-      tool_tip_box.pos_x = GetMouseX();
       tool_tip_box.field_809 = 5;
+      tool_tip_box.pos_x = GetMouseX();
       tool_tip_box.pos_y = GetMouseY() + 86;
     }
     return 1;
@@ -2462,17 +3069,17 @@ short setup_object_tooltips(struct Coord3d *pos)
   {
     if ( (void *)thing != tool_tip_box.target )
     {
-      _DK_help_tip_time = 0;
+      help_tip_time = 0;
       tool_tip_box.target = (void *)thing;
     }
     tool_tip_box.field_0 = 1;
     int objidx = thing->model;
     int stridx;
     if ( _DK_workshop_object_class[objidx] == 8 )
-      stridx = _DK_trap_data[_DK_object_to_door_or_trap[objidx]].field_C;
+      stridx = trap_data[_DK_object_to_door_or_trap[objidx]].field_C;
     else
-      stridx = _DK_door_names[_DK_object_to_door_or_trap[objidx]];
-    sprintf(tool_tip_box.text, "%s", strings[stridx%STRINGS_MAX]);
+      stridx = door_names[_DK_object_to_door_or_trap[objidx]];
+    sprintf(tool_tip_box.text, "%s", gui_strings[stridx%STRINGS_MAX]);
     tool_tip_box.pos_x = GetMouseX();
     tool_tip_box.pos_y = GetMouseY() + 86;
     tool_tip_box.field_809 = 5;
@@ -2485,14 +3092,14 @@ short setup_object_tooltips(struct Coord3d *pos)
   {
     int objidx = thing->model;
     int crtridx;
-    if ( objidx == 49 )
+    if (objidx == 49)
     {
-      text=buf_sprintf("%s", strings[545]);
+      text=buf_sprintf("%s", gui_strings[545]); // Hero Gate tooltip
     } else
     if (crtridx = _DK_objects[objidx].field_13)
     {
       int stridx=creature_data[crtridx].field_3;
-      text=buf_sprintf("%s %s", strings[stridx%STRINGS_MAX], strings[609]);
+      text=buf_sprintf("%s %s", gui_strings[stridx%STRINGS_MAX], gui_strings[609]); // (creature) Lair
     } else
     {
       return 0;
@@ -2500,10 +3107,10 @@ short setup_object_tooltips(struct Coord3d *pos)
 
     if ( (void *)thing != tool_tip_box.target )
     {
-      _DK_help_tip_time = 0;
+      help_tip_time = 0;
       tool_tip_box.target = (void *)thing;
     }
-    if ( (_DK_help_tip_time>20) || (player->field_453==12))
+    if ( (help_tip_time > 20) || (player->field_453 == 12))
     {
       tool_tip_box.field_0 = 1;
       strcpy(tool_tip_box.text, text);
@@ -2512,7 +3119,7 @@ short setup_object_tooltips(struct Coord3d *pos)
       tool_tip_box.pos_y = GetMouseY() + 86;
     } else
     {
-      _DK_help_tip_time++;
+      help_tip_time++;
     }
     return true;
   }
@@ -2530,20 +3137,20 @@ short setup_land_tooltips(struct Coord3d *pos)
     return false;
   if ((void *)attridx != tool_tip_box.target)
   {
-    _DK_help_tip_time = 0;
+    help_tip_time = 0;
     tool_tip_box.target = (void *)attridx;
   }
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  if ((help_tip_time > 20) || (player->field_453==12))
+  if ((help_tip_time > 20) || (player->field_453 == 12))
   {
     tool_tip_box.field_0 = 1;
-    sprintf(tool_tip_box.text, "%s", strings[stridx%STRINGS_MAX]);
-    tool_tip_box.pos_x = GetMouseX();
+    sprintf(tool_tip_box.text, "%s", gui_strings[stridx%STRINGS_MAX]);
     tool_tip_box.field_809 = 2;
+    tool_tip_box.pos_x = GetMouseX();
     tool_tip_box.pos_y = GetMouseY() + 86;
   } else
   {
-    _DK_help_tip_time++;
+    help_tip_time++;
   }
   return true;
 }
@@ -2554,7 +3161,7 @@ short setup_room_tooltips(struct Coord3d *pos)
     return false;
   int slab_idx = map_to_slab[pos->x.stl.num] + map_tiles_x*map_to_slab[pos->y.stl.num];
   struct Room *room;
-  room = &game.rooms[game.slabmap[slab_idx].field_3];
+  room = &game.rooms[game.slabmap[slab_idx].room_index];
   if (room==NULL)
     return false;
   int stridx=_DK_room_data[room->kind].field_13;
@@ -2562,26 +3169,26 @@ short setup_room_tooltips(struct Coord3d *pos)
     return false;
   if ( room != tool_tip_box.target )
   {
-    _DK_help_tip_time = 0;
+    help_tip_time = 0;
     tool_tip_box.target = room;
   }
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   int widener=0;
-  if ( (_DK_help_tip_time>20) || (player->field_453==12) )
+  if ( (help_tip_time > 20) || (player->field_453 == 12) )
   {
       if ( room->kind >= 2 )
       {
         if ( (room->kind<=14) || (room->kind==16) )
           widener = 0;
       }
-      sprintf(tool_tip_box.text, "%s", strings[stridx%STRINGS_MAX]);
+      sprintf(tool_tip_box.text, "%s", gui_strings[stridx%STRINGS_MAX]);
       tool_tip_box.field_0 = 1;
       tool_tip_box.pos_x = GetMouseX();
       tool_tip_box.pos_y = GetMouseY() + 86 + 20*widener;
       tool_tip_box.field_809 = 1;
   } else
   {
-    _DK_help_tip_time++;
+    help_tip_time++;
   }
   return true;
 }
@@ -2671,18 +3278,25 @@ void increase_level(struct PlayerInfo *player)
   }
 }
 
+short is_my_player(struct PlayerInfo *player)
+{
+  struct PlayerInfo *myplyr;
+  myplyr = &game.players[my_player_number%PLAYERS_COUNT];
+  return (player == myplyr);
+}
+
 void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
 {
   struct Dungeon *dungeon;
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
   if (dungeon->field_139F != 0)
   {
-    if (player == &game.players[my_player_number])
+    if (is_my_player(player))
     {
       dungeon_special_selected = thing->field_1B;
       resurrect_creature_scroll_offset = 0;
-      turn_off_menu(27);
-      turn_on_menu(28);
+      turn_off_menu(GMnu_DUNGEON_SPECIAL);
+      turn_on_menu(GMnu_RESURRECT_CREATURE);
     }
   }
 }
@@ -2693,12 +3307,12 @@ void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
   if (dungeon->field_919 != 0)
   {
-    if (player == &game.players[my_player_number])
+    if (is_my_player(player))
     {
       dungeon_special_selected = thing->field_1B;
       transfer_creature_scroll_offset = 0;
-      turn_off_menu(27);
-      turn_on_menu(29);
+      turn_off_menu(GMnu_DUNGEON_SPECIAL);
+      turn_on_menu(GMnu_TRANSFER_CREATURE);
     }
   }
 }
@@ -2767,20 +3381,23 @@ short screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct 
 //return _DK_screen_to_map(camera,screen_x,screen_y,mappos);
   short result;
   long x,y;
-  switch ( camera->field_6 )
+  if (camera != NULL)
   {
-    case 1:
-    case 2:
-    case 5:
-      // 3D view mode
-      result=engine_point_to_map(camera,screen_x,screen_y,&x,&y);
-      break;
-    case 3: //map mode
-      result=point_to_overhead_map(camera,screen_x,screen_y,&x,&y);
-      break;
-    default:
-      result = false;
-      break;
+    switch (camera->field_6)
+    {
+      case 1:
+      case 2:
+      case 5:
+        // 3D view mode
+        result = engine_point_to_map(camera,screen_x,screen_y,&x,&y);
+        break;
+      case 3: //map mode
+        result = point_to_overhead_map(camera,screen_x,screen_y,&x,&y);
+        break;
+      default:
+        result = false;
+        break;
+    }
   }
   if ( result )
   {
@@ -2794,53 +3411,71 @@ short screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct 
   return result;
 }
 
+void update_breed_activities(void)
+{
+  _DK_update_breed_activities();
+}
+
+short setup_scrolling_tooltips(struct Coord3d *mappos)
+{
+  static const char *func_name="setup_scrolling_tooltips";
+  short shown;
+#if (BFDEBUG_LEVEL > 17)
+  LbSyncLog("%s: Starting\n", func_name);
+#endif
+  shown = false;
+  if (!shown)
+    shown = setup_trap_tooltips(mappos);
+  if (!shown)
+    shown = setup_object_tooltips(mappos);
+  if (!shown)
+    shown = setup_land_tooltips(mappos);
+  if (!shown)
+    shown = setup_room_tooltips(mappos);
+  if (!shown)
+  {
+    help_tip_time = 0;
+    tool_tip_box.target = NULL;
+  }
+  return shown;
+}
+
 short input_gameplay_tooltips(short gameplay_on)
 {
   static const char *func_name="input_gameplay_tooltips";
-#if (BFDEBUG_LEVEL > 7)
-  LbSyncLog("%s: Starting\n", func_name);
-#endif
   struct Coord3d mappos;
   unsigned short bitval;
   struct PlayerInfo *player;
   short shown;
+#if (BFDEBUG_LEVEL > 7)
+  LbSyncLog("%s: Starting\n", func_name);
+#endif
   shown = false;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  if ((gameplay_on) && (tool_tip_time==0) && (!busy_doing_gui))
+  if ((gameplay_on) && (tool_tip_time == 0) && (!busy_doing_gui))
   {
-        if (player->camera == NULL)
-          return false;
-        if ( screen_to_map(player->camera,GetMouseX(),GetMouseY(),&mappos) )
-        {
-          int bblock_x=mappos.x.stl.num;
-          int bblock_y=mappos.y.stl.num;
-          // Get the top four bits - player flags
-          bitval = (game.map[bblock_x+bblock_y*(map_subtiles_x+1)].data) >> 28;
-          if ((1 << player->field_2B) & (bitval))
-          {
-            if (player->field_37 != 1)
-            {
-              if (!shown)
-                shown=setup_trap_tooltips(&mappos);
-              if (!shown)
-                shown=setup_object_tooltips(&mappos);
-              if (!shown)
-                shown=setup_land_tooltips(&mappos);
-              if (!shown)
-                shown=setup_room_tooltips(&mappos);
-              if (!shown)
-              {
-                help_tip_time = 0;
-                tool_tip_box.target = NULL;
-              }
-            }
-          }
-        }
+    int bblock_x;
+    int bblock_y;
+    if (player->acamera == NULL)
+      return false;
+    if (screen_to_map(player->acamera,GetMouseX(),GetMouseY(),&mappos))
+    {
+      bblock_x = mappos.x.stl.num;
+      bblock_y = mappos.y.stl.num;
+      // Get the top four bits - player flags
+      bitval = (game.map[bblock_x+bblock_y*(map_subtiles_x+1)].data) >> 28;
+      if ((1 << player->field_2B) & (bitval))
+      {
+        if (player->field_37 != 1)
+          shown = setup_scrolling_tooltips(&mappos);
+      }
+    }
   }
   if (tool_tip_box.field_0 == 0)
     reset_scrolling_tooltip();
   return shown;
 }
+
 short get_gui_inputs(short gameplay_on)
 {
   static const char *func_name="get_gui_inputs";
@@ -2851,15 +3486,14 @@ short get_gui_inputs(short gameplay_on)
 #endif
   //return _DK_get_gui_inputs(gameplay_on);
   doing_tooltip = 0;
-  _DK_update_breed_activities();
+  update_breed_activities();
   battle_creature_over = 0;
   gui_room_type_highlighted = -1;
   gui_door_type_highlighted = -1;
   gui_trap_type_highlighted = -1;
   gui_creature_type_highlighted = -1;
   if ( gameplay_on )
-    _DK_maintain_my_battle_list();
-
+    maintain_my_battle_list();
   if ( !lbDisplay.MLeftButton )
   {
     drag_menu_x = -999;
@@ -2876,9 +3510,9 @@ short get_gui_inputs(short gameplay_on)
   int gidx;
   gidx = point_is_over_gui_menu(GetMouseX(), GetMouseY());
   if ( gidx == -1 )
-    _DK_busy_doing_gui = 0;
+    busy_doing_gui = 0;
   else
-    _DK_busy_doing_gui = 1;
+    busy_doing_gui = 1;
   int fmmenu_idx = first_monopoly_menu();
 
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
@@ -2896,13 +3530,13 @@ short get_gui_inputs(short gameplay_on)
     callback = gbtn->field_17;
     if ( callback != NULL )
       callback(gbtn);
-    if ( ((gbtn->field_1B & 0x4000u)!=0) || mouse_is_over_small_map(player->mouse_x,player->mouse_y) )
+    if (((gbtn->field_1B & 0x4000u)!=0) || mouse_is_over_small_map(player->mouse_x,player->mouse_y))
       continue;
 
-    if ( check_if_mouse_is_over_button(gbtn) && (!game_is_busy_doing_gui())
-      || (gbtn->gbtype==6) && (gbtn->field_1!=0) )
+    if (check_if_mouse_is_over_button(gbtn) && (!game_is_busy_doing_gui_string_input())
+      || (gbtn->gbtype==6) && (gbtn->field_1!=0))
     {
-      if ( (fmmenu_idx==-1) || (gbtn->gmenu_idx==fmmenu_idx) )
+      if ((fmmenu_idx==-1) || (gbtn->gmenu_idx==fmmenu_idx))
       {
         gmbtn_idx = gidx;
         set_flag_byte(&gbtn->field_0,0x10,true);
@@ -2922,7 +3556,7 @@ short get_gui_inputs(short gameplay_on)
     {
       set_flag_byte(&gbtn->field_0,0x10,false);
     }
-    if ( gbtn->gbtype == Lb_SLIDER )
+    if (gbtn->gbtype == Lb_SLIDER)
     {
       int mouse_x;
       int mouse_y;
@@ -2946,10 +3580,10 @@ short get_gui_inputs(short gameplay_on)
   }  // end for
 
   short result = 0;
-  if (game_is_busy_doing_gui())
+  if (game_is_busy_doing_gui_string_input())
   {
     busy_doing_gui = 1;
-    if (_DK_get_button_area_input(input_button,input_button->id_num) != 0)
+    if (get_button_area_input(input_button,input_button->id_num) != 0)
         result = 1;
   }
   if ((over_slider_button!=-1) && (left_button_released))
@@ -2972,7 +3606,7 @@ short get_gui_inputs(short gameplay_on)
         {
           busy_doing_gui = 1;
           if ( gbtn->field_13 != gui_area_text )
-            _DK_setup_gui_tooltip(gbtn);
+            setup_gui_tooltip(gbtn);
         } else
         {
           tool_tip_time++;
@@ -3034,11 +3668,11 @@ short get_gui_inputs(short gameplay_on)
   {
     gbtn = &active_buttons[gmbtn_idx];
     Gf_Btn_Callback callback;
-    if ( lbDisplay.MLeftButton )
+    if (lbDisplay.MLeftButton)
     {
       result = 1;
       callback = gbtn->click_event;
-      if ((callback!=NULL) || (((gbtn->field_0 & 2)!=0) || (gbtn->field_2F!=0) || (gbtn->gbtype==Lb_RADIOBTN)))
+      if ((callback != NULL) || (((gbtn->field_0 & 2)!=0) || (gbtn->field_2F!=0) || (gbtn->gbtype == Lb_RADIOBTN)))
         if ((gbtn->field_0 & 8)!=0)
         {
           switch (gbtn->gbtype)
@@ -3056,7 +3690,7 @@ short get_gui_inputs(short gameplay_on)
           }
         }
     } else
-    if ( lbDisplay.MRightButton )
+    if (lbDisplay.MRightButton)
     {
       result = 1;
       callback = gbtn->rclick_event;
@@ -3086,7 +3720,7 @@ short get_gui_inputs(short gameplay_on)
           game.field_1516F3 = 0;
       }
       callback = gbtn->click_event;
-      if ((callback!=NULL) || (gbtn->field_0 & 2) || (gbtn->field_2F) || (gbtn->gbtype==Lb_RADIOBTN) )
+      if ((callback != NULL) || (gbtn->field_0 & 0x02) || (gbtn->field_2F) || (gbtn->gbtype == Lb_RADIOBTN))
       {
         left_button_clicked = 0;
         gui_last_left_button_pressed_id = gbtn->id_num;
@@ -3102,7 +3736,7 @@ short get_gui_inputs(short gameplay_on)
           game.field_1516F3 = 0;
       }
       callback = gbtn->rclick_event;
-      if ((callback!=NULL))
+      if ((callback != NULL))
       {
         right_button_clicked = 0;
         gui_last_right_button_pressed_id = gbtn->id_num;
@@ -3238,7 +3872,7 @@ void setup_engine_window(long x, long y, long width, long height)
   static const char *func_name="setup_engine_window";
   struct PlayerInfo *player;
 #if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Setting coords %d,%d,%d,%d\n",func_name,x,y,width,height);
+    LbSyncLog("%s: Setting coords (%d,%d) dimensions (%d,%d)\n",func_name,x,y,width,height);
 #endif
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
   if (game.numfield_C & 0x20)
@@ -3289,7 +3923,6 @@ void store_engine_window(struct TbGraphicsWindow *ewnd,int divider)
     ewnd->width = player->engine_window_width/divider;
     ewnd->height = player->engine_window_height/divider;
   }
-
 }
 
 void load_engine_window(struct TbGraphicsWindow *ewnd)
@@ -3326,14 +3959,94 @@ void creature_increase_level(struct Thing *thing)
   _DK_creature_increase_level(thing);
 }
 
+void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short a1, char a2, unsigned char a3)
+{
+  _DK_creature_fire_shot(firing,target, a1, a2, a3);
+}
+
 void set_creature_level(struct Thing *thing, long nlvl)
 {
-  _DK_set_creature_level(thing, nlvl);
+  //_DK_set_creature_level(thing, nlvl); return;
+  struct CreatureStats *crstat;
+  struct CreatureControl *cctrl;
+  struct Dungeon *dungeon;
+  long old_max_health,max_health;
+  int i,k;
+  crstat = &game.creature_stats[thing->model%CREATURE_TYPES_COUNT];
+  cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
+  if ((cctrl == NULL) || (cctrl == game.persons.cctrl_lookup[0]))
+    return;
+  if (nlvl > CREATURE_MAX_LEVEL-1)
+    nlvl = CREATURE_MAX_LEVEL-1;
+  if (nlvl < 0)
+    nlvl = 0;
+  old_max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
+  cctrl->explevel = nlvl;
+  max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
+  cctrl->max_health = max_health;
+  if (cctrl->field_AD & 0x02)
+    thing->field_46 = 300;
+  else
+    thing->field_46 = saturate_set_signed( 300 + (300*cctrl->explevel) / 20, 16);
+  thing->health = saturate_set_signed( (thing->health*max_health)/old_max_health, 16);
+  for (i=0; i < 10; i++)
+  {
+    k = crstat->instance_spell[i];
+    if (k > 0)
+    {
+      if (crstat->instance_level[i] <= cctrl->explevel+1)
+        cctrl->instances[k] = 1;
+    }
+  }
+  if (game.field_14E497 != thing->owner)
+  {
+    dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+    dungeon->field_EA8 += game.strct_14EA4C[thing->model%CREATURE_TYPES_COUNT].value[cctrl->explevel%CREATURE_MAX_LEVEL];
+  }
 }
 
 void remove_events_thing_is_attached_to(struct Thing *thing)
 {
   _DK_remove_events_thing_is_attached_to(thing);
+}
+
+int get_spell_overcharge_level(struct PlayerInfo *player)
+{
+  int i;
+  i = (player->field_4D2 >> 2);
+  if (i >= 8)
+    return 8;
+  return i;
+}
+
+short update_spell_overcharge(struct PlayerInfo *player, int spl_idx)
+{
+  struct Dungeon *dungeon;
+  struct MagicStats *mgstat;
+  int i;
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  mgstat = &(game.magic_stats[spl_idx%SPELL_TYPES_COUNT]);
+  i = (player->field_4D2+1) >> 2;
+  if (i >= 8)
+    i = 8;
+  if (mgstat->cost[i] <= dungeon->field_AF9)
+  {
+    // If we have more money, increase overcharge
+    player->field_4D2++;
+  } else
+  {
+    // If we don't have money, decrease the charge
+    while (mgstat->cost[i] > dungeon->field_AF9)
+    {
+      i--;
+      if (i < 0) break;
+    }
+    if (i >= 0)
+      player->field_4D2 = (i << 2) + 1;
+    else
+      player->field_4D2 = 0;
+  }
+  return (i < 8);
 }
 
 unsigned long steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
@@ -3363,6 +4076,10 @@ void reinit_tagged_blocks_for_player(unsigned char idx)
 
 long load_stats_files(void)
 {
+  // Hack to make our shot function work - remove when it's not needed
+  instance_info[1].func_cb = instf_creature_fire_shot;
+  instance_info[2].func_cb = instf_creature_fire_shot;
+  instance_info[4].func_cb = instf_creature_fire_shot;
   return _DK_load_stats_files();
 }
 
@@ -3481,6 +4198,76 @@ short zoom_to_fight(unsigned char a1)
   return false;
 }
 
+short create_random_evil_creature(long x, long y, unsigned short owner, long max_lv)
+{
+  static const char *func_name="create_random_evil_creature";
+  struct Thing *thing;
+  struct Coord3d pos;
+  long i;
+  i = seed_check_random(17, &game.field_14BB4A, func_name, 24597) + 14;
+  pos.x.val = x;
+  pos.y.val = y;
+  pos.z.val = 0;
+  thing = create_creature(&pos, i, owner);
+  if (thing_is_invalid(thing))
+  {
+    LbErrorLog("Cannot create evil creature type %ld at (%ld,%ld)\n",i,x,y);
+    return false;
+  }
+  pos.z.val = get_thing_height_at(thing, &pos);
+  if (thing_in_wall_at(thing, &pos))
+  {
+    delete_thing_structure(thing, 0);
+    LbErrorLog("Evil creature type %ld at (%ld,%ld) deleted because is in wall\n",i,x,y);
+    return false;
+  }
+  thing->mappos.x.val = pos.x.val;
+  thing->mappos.y.val = pos.y.val;
+  thing->mappos.z.val = pos.z.val;
+  remove_first_creature(thing);
+  set_first_creature(thing);
+  set_start_state(thing);
+  i = seed_check_random(max_lv, &game.field_14BB4A, func_name, 24741);
+  set_creature_level(thing, i);
+  return true;
+}
+
+short create_random_hero_creature(long x, long y, unsigned short owner, long max_lv)
+{
+  static const char *func_name="create_random_hero_creature";
+  struct Thing *thing;
+  struct Coord3d pos;
+  long i;
+  i = seed_check_random(13, &game.field_14BB4A, func_name, 45671) + 1;
+  pos.x.val = x;
+  pos.y.val = y;
+  pos.z.val = 0;
+  thing = create_creature(&pos, i, owner);
+  if (thing_is_invalid(thing))
+  {
+    LbErrorLog("Cannot create hero creature type %ld at (%ld,%ld)\n",i,x,y);
+    return false;
+  }
+  pos.z.val = get_thing_height_at(thing, &pos);
+  if (thing_in_wall_at(thing, &pos))
+  {
+    delete_thing_structure(thing, 0);
+    LbErrorLog("Hero creature type %ld at (%ld,%ld) deleted because is in wall\n",i,x,y);
+    return false;
+  }
+  thing->mappos.x.val = pos.x.val;
+  thing->mappos.y.val = pos.y.val;
+  thing->mappos.z.val = pos.z.val;
+  remove_first_creature(thing);
+  set_first_creature(thing);
+//  set_start_state(thing); - simplified to the following two commands
+  game.field_14E498 = game.seedchk_random_used;
+  game.field_14E49C++;
+  i = seed_check_random(max_lv, &game.field_14BB4A, func_name, 24741);
+  set_creature_level(thing, i);
+  return true;
+}
+
 short zoom_to_next_annoyed_creature(void)
 {
   struct PlayerInfo *player;
@@ -3508,27 +4295,192 @@ void go_to_my_next_room_of_type(unsigned long rkind)
   _DK_go_to_my_next_room_of_type(rkind);
 }
 
+/*
+ * Returns the loaded level number.
+ */
+LevelNumber get_loaded_level_number(void)
+{
+  return game.loaded_level_number;
+}
+
+/*
+ * Sets the loaded level number. Does not make any cleanup or loading.
+ */
+LevelNumber set_loaded_level_number(LevelNumber lvnum)
+{
+  if (lvnum > 0)
+    game.loaded_level_number = lvnum;
+  return game.loaded_level_number;
+}
+
+/*
+ * Returns the continue level number.
+ */
+LevelNumber get_continue_level_number(void)
+{
+  return game.continue_level_number;
+}
+
+/*
+ * Sets the continue level number. The level informs of campaign progress.
+ * Levels which are not part of campaign will be ignored.
+ */
+LevelNumber set_continue_level_number(LevelNumber lvnum)
+{
+  if (is_singleplayer_like_level(lvnum))
+    game.continue_level_number = lvnum;
+  return game.continue_level_number;
+}
+
+/*
+ * Returns the selected level number. Selected level is loaded when staring game.
+ */
+LevelNumber get_selected_level_number(void)
+{
+  return game.selected_level_number;
+}
+
+/*
+ * Sets the selected level number. Selected level is loaded when staring game.
+ */
+LevelNumber set_selected_level_number(LevelNumber lvnum)
+{
+  if (lvnum > 0)
+    game.selected_level_number = lvnum;
+  return game.selected_level_number;
+}
+
+/*
+ * Returns if the given bonus level is visible in land view screen.
+ */
+short is_bonus_level_visible(struct PlayerInfo *player, long bn_lvnum)
+{
+  static const char *func_name="is_bonus_level_visible";
+  int i,n,k;
+  i = storage_index_for_bonus_level(bn_lvnum);
+/* new way - enable when process_dungeon_control_packet_clicks() is rewritten
+  n = i/8;
+  k = (1 << (i%8));
+  if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
+    return false;
+  return ((game.bonuses_found[n] & k) != 0);
+*/
+  if ((i < 0) || (i >= BONUS_LEVEL_STORAGE_COUNT))
+    return false;
+  return (game.bonuses_found[i] != 0);
+}
+
+/*
+ * Makes the bonus level visible on the land map screen.
+ */
+short set_bonus_level_visibility(long bn_lvnum, short visible)
+{
+  static const char *func_name="set_bonus_level_visibility";
+  int i,n,k;
+  i = storage_index_for_bonus_level(bn_lvnum);
+/* new way - enable when process_dungeon_control_packet_clicks() is rewritten
+  n = i/8;
+  k = (1 << (i%8));
+  if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
+    return false;
+  set_flag_byte(&game.bonuses_found[n], k, visible);
+*/
+  if ((i < 0) || (i >= BONUS_LEVEL_STORAGE_COUNT))
+    return false;
+  game.bonuses_found[i] = visible;
+  return true;
+}
+
+/*
+ * Makes a bonus level for specified SP level visible on the land map screen.
+ */
+short set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible)
+{
+  static const char *func_name="set_bonus_level_visibility_for_singleplayer_level";
+  long bn_lvnum;
+  bn_lvnum = bonus_level_for_singleplayer_level(sp_lvnum);
+  if (!set_bonus_level_visibility(bn_lvnum, visible))
+  {
+    if (visible)
+      LbWarnLog("Couldn't store bonus award for level %d\n",sp_lvnum);
+    return false;
+  }
+  if (visible)
+    LbSyncLog("Bonus award for level %d enabled\n",sp_lvnum);
+  return true;
+}
+
+void hide_all_bonus_levels(struct PlayerInfo *player)
+{
+  int i;
+  for(i=0; i < BONUS_LEVEL_STORAGE_COUNT; i++)
+    game.bonuses_found[i] = 0;
+}
+
+/*
+ * Returns if the given extra level is visible in land view screen.
+ */
+unsigned short get_extra_level_kind_visibility(unsigned short elv_kind)
+{
+  static const char *func_name="get_extra_level_kind_visibility";
+  LevelNumber ex_lvnum;
+  ex_lvnum = get_extra_level(elv_kind);
+  if (ex_lvnum <= 0)
+    return LvSt_Hidden;
+  switch (elv_kind)
+  {
+  case ExLv_FullMoon:
+    if (is_full_moon)
+      return LvSt_Visible;
+    if (is_near_full_moon)
+      return LvSt_HalfShow;
+  case ExLv_NewMoon:
+    if (is_new_moon)
+      return LvSt_Visible;
+    if (is_near_new_moon)
+      return LvSt_HalfShow;
+  }
+  return LvSt_Hidden;
+}
+
+/*
+ * Returns if the given extra level is visible in land view screen.
+ */
+short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum)
+{
+  static const char *func_name="is_extra_level_visible";
+  int i,n,k;
+  i = array_index_for_extra_level(ex_lvnum);
+  switch (i+1)
+  {
+  case ExLv_FullMoon:
+    return is_full_moon;
+  case ExLv_NewMoon:
+    return is_new_moon;
+  }
+  return false;
+}
+
+void update_extra_levels_visibility(void)
+{
+}
+
+/*
+ * Makes a bonus level for current SP level visible on the land map screen.
+ */
 short activate_bonus_level(struct PlayerInfo *player)
 {
   static const char *func_name="activate_bonus_level";
-  int i;
   short result;
+  LevelNumber sp_lvnum;
 #if (BFDEBUG_LEVEL > 5)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
   game.flags_font |= 0x02;
-  i = array_index_for_levels_bonus(game.level_file_number);
-  if ((i>=0) && (i<5))
-  {
-    LbSyncLog("Used index %d to store bonus award for level %d\n",i,game.level_file_number);
-    game.bonus_levels[i] = 1;
-    result = true;
-  } else
-  {
-    LbWarnLog("Couldn't find index to store bonus award for level %d\n",game.level_file_number);
-    error(func_name, 517, "No Bonus level assigned to this level");
-    result = false;
-  }
+  sp_lvnum = get_loaded_level_number();
+  result = set_bonus_level_visibility_for_singleplayer_level(player, sp_lvnum, true);
+  if (!result)
+    LbErrorLog("No Bonus level assigned to level %d\n",(int)sp_lvnum);
   set_flag_byte(&game.numfield_C,0x02,false);
   return result;
 }
@@ -3559,7 +4511,7 @@ void multiply_creatures(struct PlayerInfo *player)
     if (tncopy == NULL)
       break;
     set_creature_level(tncopy, thing->field_23);
-    tncopy->field_5E = thing->field_5E;
+    tncopy->health = thing->health;
     if (thing->field_64 >= CREATURES_COUNT)
       break;
     cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
@@ -3590,7 +4542,7 @@ void multiply_creatures(struct PlayerInfo *player)
     if (tncopy == NULL)
       break;
     set_creature_level(tncopy, thing->field_23);
-    tncopy->field_5E = thing->field_5E;
+    tncopy->health = thing->health;
     if (thing->field_64 >= CREATURES_COUNT)
       break;
     cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
@@ -3690,6 +4642,11 @@ void create_shadow_limits(long start, long end)
   }
 }
 
+void clear_light_system(void)
+{
+  memset(game.field_1DD41, 0, 0x28416u);
+}
+
 void clear_shadow_limits(void)
 {
   memset(game.shadow_limits, 0, SHADOW_LIMITS_COUNT);
@@ -3745,6 +4702,67 @@ void light_initialise(void)
   }
 }
 
+struct ActionPoint *action_point_get(long apt_idx)
+{
+  if ((apt_idx < 1) || (apt_idx > ACTN_POINTS_COUNT))
+    return NULL;
+  return &game.action_points[apt_idx];
+}
+
+struct ActionPoint *action_point_get_by_number(long apt_num)
+{
+  struct ActionPoint *apt;
+  long apt_idx;
+  for (apt_idx=0; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
+  {
+    apt = &game.action_points[apt_idx];
+    if (apt->num == apt_num)
+      return apt;
+  }
+  return NULL;
+}
+
+long action_point_number_to_index(long apt_num)
+{
+  struct ActionPoint *apt;
+  long apt_idx;
+  for (apt_idx=0; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
+  {
+    apt = &game.action_points[apt_idx];
+    if (apt->num == apt_num)
+      return apt_idx;
+  }
+  return -1;
+}
+
+short action_point_exists_idx(long apt_idx)
+{
+  struct ActionPoint *apt;
+  apt = action_point_get(apt_idx);
+  if (apt == NULL)
+    return false;
+  return ((apt->flags & 0x01) != 0);
+}
+
+short action_point_exists_number(long apt_num)
+{
+  struct ActionPoint *apt;
+  apt = action_point_get_by_number(apt_num);
+  if (apt == NULL)
+    return false;
+  return ((apt->flags & 0x01) != 0);
+}
+
+short action_point_reset_idx(long apt_idx)
+{
+  struct ActionPoint *apt;
+  apt = action_point_get(apt_idx);
+  if (apt == NULL)
+    return false;
+  apt->field_9 = 0;
+  return ((apt->flags & 0x01) != 0);
+}
+
 /*
  * Sets to defaults some basic parameters which are
  * later copied into Game structure.
@@ -3755,7 +4773,7 @@ short set_default_startup_parameters(void)
   start_params.packet_checksum = 1;
   set_flag_byte(&start_params.flags_font,0x01,false);
   // Set levels to 0, as we may not have the campaign loaded yet
-  start_params.selected_lev_file_num = 0;
+  start_params.selected_level_number = 0;
   start_params.num_fps = 20;
   set_flag_byte(&start_params.flags_cd,MFlg_IsDemoMode,false);
   set_flag_byte(&start_params.flags_cd,0x40,true);
@@ -3775,11 +4793,11 @@ void clear_complete_game(void)
   game.flags_font = start_params.flags_font;
   game.numfield_149F47 = 0;
   // Set levels to 0, as we may not have the campaign loaded yet
-  game.selected_lev_file_num = start_params.selected_lev_file_num;
+  set_continue_level_number(first_singleplayer_level());
   if ((start_params.numfield_C & 0x02) != 0)
-    game.level_number = start_params.selected_lev_file_num;
+    set_selected_level_number(start_params.selected_level_number);
   else
-    game.level_number = first_singleplayer_level();
+    set_selected_level_number(first_singleplayer_level());
   game.num_fps = start_params.num_fps;
   game.flags_cd = start_params.flags_cd;
   game.no_intro = start_params.no_intro;
@@ -4028,20 +5046,6 @@ void clear_events(void)
   }
 }
 
-void unload_map_and_window(void)
-{
-//TODO: finish by enabling disabled clear functions
-//  memset_(&unk_1BABF9, 0, 0x28416u);
-  clear_things_and_persons_data();
-  clear_mapmap();
-//  memset_(game.field_CC157, 0, 0x10000u);
-  clear_computer();
-  clear_slabs();
-  clear_rooms();
-  clear_dungeons();
-  LbMemoryCopy(frontend_palette, frontend_backup_palette, 768);
-}
-
 void init_keepers_map_exploration(void)
 {
   struct PlayerInfo *player;
@@ -4061,6 +5065,7 @@ void clear_players_for_save(void)
 {
   struct PlayerInfo *player;
   unsigned short mem1,mem2,memflg;
+  struct Camera cammem;
   int i;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
@@ -4068,11 +5073,14 @@ void clear_players_for_save(void)
     mem1 = player->field_2B;
     mem2 = player->field_2C;
     memflg = player->field_0;
+    LbMemoryCopy(&cammem,&player->cameras[1],sizeof(struct Camera));
     memset(player, 0, sizeof(struct PlayerInfo));
     player->field_2B = mem1;
     player->field_2C = mem2;
     set_flag_byte(&player->field_0,0x01,((memflg & 0x01) != 0));
     set_flag_byte(&player->field_0,0x40,((memflg & 0x40) != 0));
+    LbMemoryCopy(&player->cameras[1],&cammem,sizeof(struct Camera));
+    player->acamera = &player->cameras[1];
   }
 }
 
@@ -4089,7 +5097,7 @@ void delete_room_structure(struct Room *room)
     {
         dungeon = &(game.dungeon[room->owner%DUNGEONS_COUNT]);
         wptr = &dungeon->field_B[room->kind];
-        if (room->field_1 == *wptr)
+        if (room->index == *wptr)
         {
           *wptr = room->field_6;
           game.rooms[room->field_6].field_4 = 0;
@@ -4182,7 +5190,6 @@ void delete_all_structures(void)
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-//  _DK_delete_all_structures(); return;
   delete_all_thing_structures();
   delete_all_control_structures();
   delete_all_room_structures();
@@ -4379,11 +5386,6 @@ void turn_off_call_to_arms(long a)
   _DK_turn_off_call_to_arms(a);
 }
 
-long event_move_player_towards_event(struct PlayerInfo *player, long var)
-{
-  return _DK_event_move_player_towards_event(player,var);
-}
-
 long battle_move_player_towards_battle(struct PlayerInfo *player, long var)
 {
   return _DK_battle_move_player_towards_battle(player, var);
@@ -4444,6 +5446,125 @@ void level_lost_go_first_person(long plridx)
 #endif
 }
 
+void set_general_information(long msg_id, long x, long y)
+{
+  static const char *func_name="set_general_information";
+  struct PlayerInfo *player;
+  long map_x,map_y;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  map_x = 0;
+  map_y = 0;
+  if ((x != 0) || (y != 0))
+  {
+    map_y = (y << 8) + 128;
+    map_x = (x << 8) + 128;
+  }
+  event_create_event(map_x, map_y, 21, player->field_2B, -msg_id);
+}
+
+void set_quick_information(long msg_id, long x, long y)
+{
+  static const char *func_name="set_quick_information";
+  struct PlayerInfo *player;
+  long map_x,map_y;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  map_x = 0;
+  map_y = 0;
+  if ((x != 0) || (y != 0))
+  {
+    map_y = (y << 8) + 128;
+    map_x = (x << 8) + 128;
+  }
+  event_create_event(map_x, map_y, 27, player->field_2B, -msg_id);
+}
+
+void process_objective(char *msg_text, long target, long x, long y)
+{
+  struct PlayerInfo *player;
+  struct ActionPoint *apt;
+  struct Thing *thing;
+  long pos_x,pos_y;
+  long i;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  if (target == -1)
+  {
+    pos_y = y;
+    pos_x = x;
+  } else
+  if (target >= 0)
+  {
+    pos_y = 0;
+    pos_x = 0;
+  } else
+  if (target < -1000)
+  {
+    i = 1000-target;
+    if ((i > 0) && (i < THINGS_COUNT))
+      thing = game.things_lookup[i];
+    else
+      thing = NULL;
+    if (!thing_is_invalid(thing))
+    {
+      pos_y = thing->mappos.y.stl.num;
+      pos_x = thing->mappos.x.stl.num;
+    } else
+    {
+      pos_y = 0;
+      pos_x = 0;
+    }
+  } else
+  {
+    i = -target;
+    apt = &game.action_points[i%ACTN_POINTS_COUNT];
+    pos_y = apt->mappos.y.stl.num;
+    pos_x = apt->mappos.x.stl.num;
+  }
+  set_level_objective(msg_text);
+  display_objectives(player->field_2B, pos_x, pos_y);
+}
+
+void event_initialise_all(void)
+{
+  _DK_event_initialise_all();
+}
+
+long event_move_player_towards_event(struct PlayerInfo *player, long var)
+{
+  return _DK_event_move_player_towards_event(player,var);
+}
+
+struct Event *event_create_event(long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id)
+{
+  static const char *func_name="event_create_event";
+  struct Dungeon *dungeon;
+  struct Event *event;
+  long i,k;
+//  return _DK_event_create_event(map_x, map_y, evkind, dngn_id, msg_id);
+  if (dngn_id >= game.field_14E497)
+    return NULL;
+  if (evkind >= 28)
+  {
+    error(func_name, 52, "Illegal Event kind to be created");
+    return NULL;
+  }
+  dungeon = &(game.dungeon[dngn_id%DUNGEONS_COUNT]);
+  i = dungeon->field_13B4[evkind%EVENT_KIND_COUNT];
+  if (i != 0)
+  {
+    k = event_button_info[evkind].field_C;
+    if ((k != 0) && (k+i >= game.seedchk_random_used))
+    {
+      return NULL;
+    }
+  }
+  event = event_allocate_free_event_structure();
+  if (event == NULL)
+    return NULL;
+  event_initialise_event(event, map_x, map_y, evkind, dngn_id, msg_id);
+  event_add_to_event_list(event, dungeon);
+  return event;
+}
+
 void go_on_then_activate_the_event_box(long plridx, long evidx)
 {
   static const char *func_name="go_on_then_activate_the_event_box";
@@ -4452,7 +5573,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
   struct Event *event;
   struct Thing *thing;
   char *text;
-  int i;
+  int i,k;
   short other_off;
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
@@ -4462,35 +5583,35 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
   event = &game.event[evidx];
   if (plridx == my_player_number)
   {
-    i = event_button_info[event->field_B].field_6;
+    i = event_button_info[event->kind].field_6;
     if (i != 201)
-      strcpy(game.evntbox_text_shown, strings[i%STRINGS_MAX]);
+      strcpy(game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
   }
-  if (event->field_B == 2)
+  if (event->kind == 2)
     dungeon->field_1174 = find_first_battle_of_mine(plridx);
   if (plridx == my_player_number)
   {
     other_off = 0;
-    switch ( event->field_B )
+    switch (event->kind)
     {
     case 1:
     case 4:
         other_off = 1;
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 2:
-        turn_off_menu(16);
-        turn_on_menu(34);
+        turn_off_menu(GMnu_TEXT_INFO);
+        turn_on_menu(GMnu_BATTLE);
         break;
     case 3:
         strcpy(game.evntbox_text_shown, game.evntbox_text_objective);
-        for (i=13; i>=0; i--)
+        for (i=EVENT_BUTTONS_COUNT; i >= 0; i--)
         {
-          // Not sure about the bound being 121
-          if (game.event[dungeon->field_13A7[i] % 121].field_B == 3)
+          k = dungeon->field_13A7[i];
+          if (game.event[k%EVENTS_COUNT].kind == 3)
           {
             other_off = 1;
-            turn_on_menu(16);
+            turn_on_menu(GMnu_TEXT_INFO);
             new_objective = 0;
             break;
           }
@@ -4499,88 +5620,88 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
     case 5:
         other_off = 1;
         i = room_data[event->field_C].field_13;
-        text=buf_sprintf("%s:\n %s",game.evntbox_text_shown,strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n%s",game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 6:
         other_off = 1;
         thing = game.things_lookup[event->field_C%THINGS_COUNT];
-        if ((thing == game.things_lookup[0]) || (thing == NULL))
+        if (thing_is_invalid(thing))
           break;
         i = creature_data[thing->model % CREATURE_TYPES_COUNT].field_3;
-        text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 7:
         other_off = 1;
         i = spell_data[event->field_C % (SPELL_TYPES_COUNT+1)].field_D;
-        text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 8:
         other_off = 1;
-        i = trap_data[event->field_C % TRAP_TYPES_COUNT].field_C;
-        text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, strings[i%STRINGS_MAX]);
+        i = trap_data[event->field_C % MANUFCTR_TYPES_COUNT].field_C;
+        text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 9:
         other_off = 1;
         i = door_names[event->field_C % DOOR_TYPES_COUNT];
-        text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 10:
         other_off = 1;
         thing = game.things_lookup[event->field_C%THINGS_COUNT];
-        if ((thing == game.things_lookup[0]) || (thing == NULL))
+        if (thing_is_invalid(thing))
           break;
         i = creature_data[thing->model % CREATURE_TYPES_COUNT].field_3;
-        text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 11:
     case 13:
         other_off = 1;
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 12:
         other_off = 1;
         text = buf_sprintf("%s:\n %d", game.evntbox_text_shown, event->field_C);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 14:
         other_off = 1;
         thing = game.things_lookup[event->field_C%THINGS_COUNT];
-        if ((thing == game.things_lookup[0]) || (thing == NULL))
+        if (thing_is_invalid(thing))
           break;
         i = spell_data[object_to_magic[thing->model % OBJECT_TYPES_COUNT]].field_D;
-        text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 15:
         other_off = 1;
         i = room_data[event->field_C].field_13;
-        text = buf_sprintf("%s:\n %s",game.evntbox_text_shown,strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n %s",game.evntbox_text_shown,gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 16:
         other_off = 1;
         thing = game.things_lookup[event->field_C%THINGS_COUNT];
-        if ((thing == game.things_lookup[0]) || (thing == NULL))
+        if (thing_is_invalid(thing))
           break;
         i = creature_data[thing->model % CREATURE_TYPES_COUNT].field_3;
-        text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 17:
     case 18:
@@ -4589,7 +5710,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
     case 22:
     case 23:
         other_off = 1;
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 21:
         i = (long)event->field_C;
@@ -4598,43 +5719,55 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
           i = -i;
           event->field_C = i;
         }
-        strncpy(game.evntbox_text_buffer, strings[i%STRINGS_MAX], MESSAGE_TEXT_LEN-1);
+        strncpy(game.evntbox_text_buffer, campaign.strings[i%STRINGS_MAX], MESSAGE_TEXT_LEN-1);
         strncpy(game.evntbox_text_shown, game.evntbox_text_buffer, MESSAGE_TEXT_LEN-1);
         other_off = 1;
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 24:
         other_off = 1;
         thing = game.things_lookup[event->field_C%THINGS_COUNT];
-        if ((thing == game.things_lookup[0]) || (thing == NULL))
+        if (thing_is_invalid(thing))
           break;
         i = trap_data[object_to_door_or_trap[thing->model % OBJECT_TYPES_COUNT]].field_C;
-        text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
       case 25:
         other_off = 1;
         thing = game.things_lookup[event->field_C%THINGS_COUNT];
-        if ((thing == game.things_lookup[0]) || (thing == NULL))
+        if (thing_is_invalid(thing))
           break;
         i = door_names[object_to_door_or_trap[thing->model % OBJECT_TYPES_COUNT]];
-        text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
       case 26:
         other_off = 1;
         thing = game.things_lookup[event->field_C%THINGS_COUNT];
-        if ((thing == game.things_lookup[0]) || (thing == NULL))
+        if (thing_is_invalid(thing))
           break;
         i = specials_text[object_to_special[thing->model % OBJECT_TYPES_COUNT]];
-        text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(16);
+        turn_on_menu(GMnu_TEXT_INFO);
+        break;
+      case 27:
+        i = (long)event->field_C;
+        if (i < 0)
+        {
+          i = -i;
+          event->field_C = i;
+        }
+        strncpy(game.evntbox_text_buffer, quick_messages[i%QUICK_MESSAGES_COUNT], MESSAGE_TEXT_LEN-1);
+        strncpy(game.evntbox_text_shown, game.evntbox_text_buffer, MESSAGE_TEXT_LEN-1);
+        other_off = 1;
+        turn_on_menu(GMnu_TEXT_INFO);
         break;
     default:
-        text = buf_sprintf("Undefined event type: %d", (int)event->field_B);
+        text = buf_sprintf("Undefined event kind: %d", (int)event->kind);
         error(func_name, 9100, text);
         break;
     }
@@ -4657,23 +5790,191 @@ void directly_cast_spell_on_thing(long plridx, unsigned char a2, unsigned short 
   _DK_directly_cast_spell_on_thing(plridx, a2, a3, a4);
 }
 
-void event_delete_event(long plridx, long num)
+short winning_player_quitting(struct PlayerInfo *player, long *plyr_count)
 {
-  _DK_event_delete_event(plridx, num);
+  struct PlayerInfo *swplyr;
+  int i,k,n;
+  if (player->victory_state == VicS_LostLevel)
+  {
+    return 0;
+  }
+  k = 0;
+  n = 0;
+  for (i=0; i < PLAYERS_COUNT; i++)
+  {
+    swplyr = &(game.players[i]);
+    if (swplyr->field_0 & 0x01)
+    {
+      if (swplyr->field_2C == 1)
+      {
+        k++;
+        if (swplyr->victory_state == VicS_LostLevel)
+          n++;
+      }
+    }
+  }
+  *plyr_count = k;
+  return ((k - n) == 1);
 }
 
-void lose_level(struct PlayerInfo *player)
+short lose_level(struct PlayerInfo *player)
 {
-  _DK_lose_level(player);
+  long lvnum;
+  //_DK_lose_level(player);
+  if (player != &game.players[my_player_number%PLAYERS_COUNT])
+    return false;
+  if (game.numfield_A & 0x01)
+  {
+    LbNetwork_Stop();
+  }
+  quit_game = 1;
+  return true;
 }
 
-void complete_level(struct PlayerInfo *player)
+short resign_level(struct PlayerInfo *player)
+{
+  long lvnum;
+  if (player != &game.players[my_player_number%PLAYERS_COUNT])
+    return false;
+  if (game.numfield_A & 0x01)
+  {
+    LbNetwork_Stop();
+  }
+  quit_game = 1;
+  return true;
+}
+
+short player_has_won(long plyr_idx)
+{
+  struct PlayerInfo *player;
+  if ((plyr_idx < 0) || (plyr_idx > PLAYERS_COUNT))
+    return false;
+  player = &game.players[plyr_idx];
+  return (player->victory_state == VicS_WonLevel);
+}
+
+short player_has_lost(long plyr_idx)
+{
+  struct PlayerInfo *player;
+  if ((plyr_idx < 0) || (plyr_idx > PLAYERS_COUNT))
+    return false;
+  player = &game.players[plyr_idx];
+  return (player->victory_state == VicS_LostLevel);
+}
+
+long compute_player_final_score(struct PlayerInfo *player,long gameplay_score)
+{
+  struct PlayerInfo *myplyr;
+  long i;
+  myplyr = &game.players[my_player_number%PLAYERS_COUNT];
+  if (((game.numfield_A & 0x01) != 0) || !is_singleplayer_level(game.loaded_level_number))
+    i = 2 * gameplay_score;
+  else
+    i = gameplay_score + 10 * gameplay_score * array_index_for_singleplayer_level(game.loaded_level_number) / 100;
+  if (player_has_lost(player->field_2B))
+    i /= 2;
+  return i;
+}
+
+void set_player_as_won_level(struct PlayerInfo *player)
+{
+  struct PlayerInfo *myplyr;
+  struct Dungeon *dungeon;
+  if (player->victory_state != VicS_Undecided)
+    return;
+  myplyr = &game.players[my_player_number%PLAYERS_COUNT];
+  if (myplyr->field_2B == player->field_2B)
+    frontstats_initialise();
+  player->victory_state = VicS_WonLevel;
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  // Computing player score
+  dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->field_AE5[3]);
+  dungeon->lvstats.allow_save_score = 1;
+  if ((game.numfield_A & 0x01) == 0)
+    player->field_4EB = game.seedchk_random_used + 300;
+  if (myplyr == player)
+  {
+    if (knight_in_prison())
+      player->field_3 |= 0x10u;
+    output_message(106, 0, 1);
+  }
+}
+
+void set_player_as_lost_level(struct PlayerInfo *player)
+{
+  struct PlayerInfo *myplyr;
+  struct Dungeon *dungeon;
+  struct Thing *thing;
+  if (player->victory_state != VicS_Undecided)
+    return;
+  myplyr = &game.players[my_player_number%PLAYERS_COUNT];
+  if (myplyr->field_2B == player->field_2B)
+    frontstats_initialise();
+  player->victory_state = VicS_LostLevel;
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  // Computing player score
+  dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->field_AE5[3]);
+  if (myplyr == player)
+  {
+    output_message(105, 0, 1);
+    turn_off_all_menus();
+    game.transfered_creature_kind = 0;
+    game.transfered_creature_level = 0;
+  }
+  // This is probably 16-byte struct, or array
+  dungeon->field_33 = 0;
+  dungeon->field_37 = 0;
+  dungeon->field_3B = 0;
+  dungeon->field_3F = 0;
+  dungeon->field_63 = 0;
+  if (dungeon->field_884 != 0)
+    turn_off_call_to_arms(player->field_2B);
+  if (dungeon->field_5D8 > 0)
+  {
+    thing = game.things_lookup[dungeon->field_5D8%THINGS_COUNT];
+    delete_thing_structure(thing, 0);
+    dungeon->field_5D8 = 0;
+  }
+  if (myplyr == player)
+    gui_set_button_flashing(0, 0);
+  set_player_mode(player, 1);
+  set_player_state(player, 1, 0);
+  if ((game.numfield_A & 0x01) == 0)
+    player->field_4EB = game.seedchk_random_used + 300;
+  if ((game.numfield_A & 0x01) != 0)
+    reveal_whole_map(player);
+  if (dungeon->computer_enabled & 0x01)
+    toggle_computer_player(player->field_2B);
+}
+
+short complete_level(struct PlayerInfo *player)
 {
   static const char *func_name="complete_level";
+  long lvnum;
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  _DK_complete_level(player);
+  //_DK_complete_level(player);
+  if (player != &game.players[my_player_number%PLAYERS_COUNT])
+    return false;
+  if (game.numfield_A & 0x01)
+  {
+    LbNetwork_Stop();
+    quit_game = 1;
+    return true;
+  }
+  lvnum = get_continue_level_number();
+  if (get_loaded_level_number() == lvnum)
+  {
+    lvnum = next_singleplayer_level(get_continue_level_number());
+    if (lvnum != LEVELNUMBER_ERROR)
+      set_continue_level_number(lvnum);
+    else
+      set_continue_level_number(SINGLEPLAYER_NOTSTARTED);
+  }
+  set_selected_level_number(get_continue_level_number());
+  quit_game = 1;
+  return true;
 }
 
 long init_navigation(void)
@@ -4683,7 +5984,6 @@ long init_navigation(void)
 
 void init_lookups(void)
 {
-  //_DK_init_lookups(); return;
   long i;
   for (i=0; i < THINGS_COUNT; i++)
   {
@@ -4691,6 +5991,7 @@ void init_lookups(void)
   }
   game.things_end = &game.things_data[THINGS_COUNT];
 
+  memset(&game.persons, 0, sizeof(struct Persons));
   for (i=0; i < CREATURES_COUNT; i++)
   {
     game.persons.cctrl_lookup[i] = &game.cctrl_data[i];
@@ -4753,8 +6054,8 @@ void keep_local_camera_zoom_level(unsigned long prev_units_per_pixel_size)
 {
   struct PlayerInfo *player;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  if (player->camera != NULL)
-    keep_camera_zoom_level(player->camera,prev_units_per_pixel_size);
+  if (player->acamera != NULL)
+    keep_camera_zoom_level(player->acamera,prev_units_per_pixel_size);
 }
 
 /*
@@ -4868,7 +6169,7 @@ void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player)
       }
       if ( used )
       {
-        if (player == &game.players[my_player_number])
+        if (is_my_player(player))
           output_message(special_desc[spkindidx].field_8, 0, 1);
         create_special_used_effect(&pos, player->field_2B);
       }
@@ -4998,11 +6299,11 @@ void process_dungeons(void)
 void process_messages(void)
 {
   static const char *func_name="process_messages";
-#if (BFDEBUG_LEVEL > 7)
+#if (BFDEBUG_LEVEL > 17)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
   _DK_process_messages();
-#if (BFDEBUG_LEVEL > 9)
+#if (BFDEBUG_LEVEL > 19)
     LbSyncLog("%s: Finished\n",func_name);
 #endif
 }
@@ -5012,7 +6313,9 @@ void process_messages(void)
  */
 short bonus_timer_enabled(void)
 {
-  return is_bonus_level(game.level_file_number);
+  LevelNumber lvnum;
+  lvnum = get_loaded_level_number();
+  return (is_bonus_level(lvnum) || is_extra_level(lvnum));
 }
 
 void find_nearest_rooms_for_ambient_sound(void)
@@ -5067,7 +6370,7 @@ void remove_thing_from_mapwho(struct Thing *thing)
 void place_thing_in_mapwho(struct Thing *thing)
 {
   static const char *func_name="place_thing_in_mapwho";
-#if (BFDEBUG_LEVEL > 8)
+#if (BFDEBUG_LEVEL > 18)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
   _DK_place_thing_in_mapwho(thing);
@@ -5133,32 +6436,30 @@ short process_player_manufacturing(long plr_idx)
   switch (dungeon->field_1189)
   {
   case 8:
-      i = (dungeon->field_118A + 1);
-      if (dungeon->field_1007[i] >= 199)
+      i = dungeon->field_118A%TRAP_TYPES_COUNT;
+      if (dungeon->trap_amount[i] >= 199)
       {
-        error(func_name, 159, "Bad trap choice");
+        error(func_name, 159, "Bad trap choice for manufacturing - limit reached");
         return false;
       }
-      dungeon->field_1007[i]++;
+      dungeon->trap_amount[i]++;
       dungeon->lvstats.manufactured_traps++;
-      i = (dungeon->field_118A + 15);
-      dungeon->field_1007[i] = 1;
+      dungeon->trap_placeable[i] = 1;
       // If that's local player - make a message
       player=&(game.players[my_player_number%PLAYERS_COUNT]);
       if (player->field_2B == plr_idx)
         output_message(45, 0, 1);
       break;
   case 9:
-      i = (dungeon->field_118A + 22);
-      if (dungeon->field_1007[i] >= 199)
+      i = dungeon->field_118A%DOOR_TYPES_COUNT;
+      if (dungeon->door_amount[i] >= 199)
       {
-        error(func_name, 139, "Bad door choice");
+        error(func_name, 139, "Bad door choice for manufacturing - limit reached");
         return 0;
       }
-      dungeon->field_1007[i]++;
+      dungeon->door_amount[i]++;
       dungeon->lvstats.manufactured_doors++;
-      i = (dungeon->field_118A + 32);
-      dungeon->field_1007[i] = 1;
+      dungeon->door_placeable[i] = 1;
       // If that's local player - make a message
       player=&(game.players[my_player_number%PLAYERS_COUNT]);
       if (player->field_2B == plr_idx)
@@ -5176,6 +6477,157 @@ short process_player_manufacturing(long plr_idx)
   return true;
 }
 
+struct Event *event_allocate_free_event_structure(void)
+{
+  struct Event *event;
+  long i;
+  for (i=1; i < EVENTS_COUNT; i++)
+  {
+    event = &game.event[i];
+    if ((event->field_0 & 0x01) == 0)
+    {
+      event->field_0 |= 0x01;
+      event->field_1 = i;
+      return event;
+    }
+  }
+  return NULL;
+}
+
+void event_initialise_event(struct Event *event, long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id)
+{
+  static const char *func_name="event_initialise_event";
+  event->mappos_x = map_x;
+  event->mappos_y = map_y;
+  event->kind = evkind;
+  event->owner = dngn_id;
+  event->birth_turn = event_button_info[evkind].field_8;
+  event->field_C = msg_id;
+  event->field_14 = 1;
+}
+
+void event_delete_event_structure(long ev_idx)
+{
+  LbMemorySet(&game.event[ev_idx], 0, sizeof(struct Event));
+}
+
+void event_delete_event(long plyr_idx, long ev_idx)
+{
+  struct Dungeon *dungeon;
+  struct Event *event;
+  long i,k;
+//  _DK_event_delete_event(plridx, num);
+  event = &game.event[ev_idx];
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  dungeon->field_13B4[event->kind%EVENT_KIND_COUNT] = game.seedchk_random_used;
+  for (i=0; i <= EVENT_BUTTONS_COUNT; i++)
+  {
+    k = dungeon->field_13A7[i];
+    if (k == ev_idx)
+    {
+      turn_off_event_box_if_necessary(plyr_idx, k);
+      dungeon->field_13A7[i] = 0;
+      break;
+    }
+  }
+  event_delete_event_structure(ev_idx);
+}
+
+void event_add_to_event_list(struct Event *event, struct Dungeon *dungeon)
+{
+  static const char *func_name="event_add_to_event_list";
+  long i,k;
+  for (i=EVENT_BUTTONS_COUNT; i > 0; i--)
+  {
+    k = dungeon->field_13A7[i];
+    if (k == 0)
+    {
+      if (dungeon->field_E9F != event->owner)
+      {
+        error(func_name, 74, "Illegal my_event player allocation");
+      }
+      dungeon->field_13A7[i] = event->field_1;
+      break;
+    }
+  }
+  if (i == 0)
+  {
+    kill_oldest_my_event(dungeon);
+    dungeon->field_13A7[EVENT_BUTTONS_COUNT] = event->field_1;
+  }
+}
+
+void maintain_my_event_list(struct Dungeon *dungeon)
+{
+  _DK_maintain_my_event_list(dungeon); return;
+}
+
+void kill_oldest_my_event(struct Dungeon *dungeon)
+{
+  struct Event *event;
+  long old_idx;
+  long old_birth;
+  long i,k;
+  old_idx = -1;
+  old_birth = 2147483647;
+  for (i=12; i > 0; i--)
+  {
+    k = dungeon->field_13A7[i];
+    event = &game.event[k];
+    if ((event->birth_turn >= 0) && (event->birth_turn < old_birth))
+    {
+      old_idx = k;
+      old_birth = event->birth_turn;
+    }
+  }
+  if (old_idx >= 0)
+    event_delete_event(dungeon->field_E9F, old_idx);
+  maintain_my_event_list(dungeon);
+}
+
+void maintain_all_players_event_lists(void)
+{
+  struct PlayerInfo *player;
+  struct Dungeon *dungeon;
+  long i;
+  for (i=0; i < PLAYERS_COUNT; i++)
+  {
+    player = &(game.players[i]);
+    if ((player->field_0 & 0x01) != 0)
+    {
+      dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+      maintain_my_event_list(dungeon);
+    }
+  }
+}
+
+struct Thing *event_is_attached_to_thing(long ev_idx)
+{
+  struct Event *event;
+  long i;
+  event = &game.event[ev_idx];
+  switch (event->kind)
+  {
+  case 3:
+  case 6:
+  case 10:
+  case 14:
+  case 16:
+  case 17:
+  case 24:
+  case 25:
+  case 26:
+      i = event->field_C;
+      break;
+  default:
+      i = 0;
+      break;
+  }
+  if ((i > 0) && (i < THINGS_COUNT))
+    return game.things_lookup[i];
+  return NULL;
+}
+
 void event_process_events(void)
 {
   _DK_event_process_events();
@@ -5183,7 +6635,28 @@ void event_process_events(void)
 
 void update_all_events(void)
 {
-  _DK_update_all_events();
+  struct Thing *thing;
+  struct Event *event;
+  long i;
+//  _DK_update_all_events();
+  for (i=EVENT_BUTTONS_COUNT; i > 0; i--)
+  {
+    thing = event_is_attached_to_thing(i);
+    if (!thing_is_invalid(thing))
+    {
+      event = &game.event[i];
+      if ((thing->class_id == TCls_Creature) && ((thing->field_0 & 0x10) || (thing->field_1 & 0x02)))
+      {
+        event->mappos_x = 0;
+        event->mappos_y = 0;
+      } else
+      {
+        event->mappos_x = thing->mappos.x.val;
+        event->mappos_y = thing->mappos.y.val;
+      }
+    }
+  }
+  maintain_all_players_event_lists();
 }
 
 void process_level_script(void)
@@ -5194,6 +6667,10 @@ void process_level_script(void)
 
 long process_action_points(void)
 {
+  static const char *func_name="process_action_points";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   return _DK_process_action_points();
 }
 
@@ -5204,6 +6681,10 @@ long PaletteFadePlayer(struct PlayerInfo *player)
 
 void message_update(void)
 {
+  static const char *func_name="message_update";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_message_update();
 }
 
@@ -5292,10 +6773,10 @@ void update_light_render_area(void)
   delta_x=abs(game.field_14BB59);
   delta_y=abs(game.field_14BB5D);
   // Prepare the area constraits
-  if (player->camera != NULL)
+  if (player->acamera != NULL)
   {
-    subtile_y = player->camera->mappos.y.stl.num;
-    subtile_x = player->camera->mappos.x.stl.num;
+    subtile_y = player->acamera->mappos.y.stl.num;
+    subtile_x = player->acamera->mappos.x.stl.num;
   } else
   {
     subtile_y = 0;
@@ -5326,11 +6807,19 @@ void update_light_render_area(void)
 
 void update_flames_nearest_camera(struct Camera *camera)
 {
+  if (camera == NULL)
+    return;
   _DK_update_flames_nearest_camera(camera);
 }
 
 void update_footsteps_nearest_camera(struct Camera *camera)
 {
+  static const char *func_name="update_footsteps_nearest_camera";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  if (camera == NULL)
+    return;
   _DK_update_footsteps_nearest_camera(camera);
 }
 
@@ -5352,6 +6841,12 @@ void update_power_sight_explored(struct PlayerInfo *player)
   _DK_update_power_sight_explored(player);
 }
 
+void set_level_objective(char *msg_text)
+{
+  strncpy(game.evntbox_text_objective, msg_text, MESSAGE_TEXT_LEN);
+  new_objective = 1;
+}
+
 void update_player_objectives(int plridx)
 {
   static const char *func_name="update_player_objectives";
@@ -5362,21 +6857,21 @@ void update_player_objectives(int plridx)
   player=&(game.players[plridx]);
   if (game.numfield_A & 0x01)
   {
-    if ((!player->field_4EB) && (player->field_29))
+    if ((!player->field_4EB) && (player->victory_state != VicS_Undecided))
       player->field_4EB = game.seedchk_random_used+1;
   }
   if (player->field_4EB == game.seedchk_random_used)
   {
-    switch (player->field_29)
+    switch (player->victory_state)
     {
-    case 1:
+    case VicS_WonLevel:
         if (plridx == my_player_number)
-          _DK_set_level_objective(strings[0]);
+          set_level_objective(gui_strings[0]); // Success message
         display_objectives(player->field_2B, 0, 0);
         break;
-    case 2:
+    case VicS_LostLevel:
         if (plridx == my_player_number)
-          _DK_set_level_objective(strings[335]);
+          set_level_objective(gui_strings[335]); // Defeated message
         display_objectives(player->field_2B, 0, 0);
         break;
     }
@@ -5407,7 +6902,7 @@ void process_players(void)
           update_player_objectives(i);
       }
   }
-#if (BFDEBUG_LEVEL > 7)
+#if (BFDEBUG_LEVEL > 17)
     LbSyncLog("%s: Finished\n",func_name);
 #endif
 }
@@ -5429,6 +6924,19 @@ short update_animating_texture_maps(void)
         }
   }
   return result;
+}
+
+void add_creature_to_pool(long kind, long amount, unsigned long a3)
+{
+  long prev_amount;
+  prev_amount = game.pool.crtr_kind[kind%CREATURE_TYPES_COUNT];
+  if ((a3 == 0) || (prev_amount != -1))
+  {
+    if ((amount != -1) && (amount != 0) && (prev_amount != -1))
+      game.pool.crtr_kind[kind%CREATURE_TYPES_COUNT] = prev_amount+amount;
+    else
+      game.pool.crtr_kind[kind%CREATURE_TYPES_COUNT] = amount;
+  }
 }
 
 short update_creature_pool_state(void)
@@ -5462,6 +6970,17 @@ void draw_slab64k(long pos_x, long pos_y, long width, long height)
   _DK_draw_slab64k(pos_x, pos_y, width, height);
 }
 
+short update_3d_sound_receiver(struct PlayerInfo *player)
+{
+  struct Camera *camera;
+  if (player->acamera == NULL)
+    return false;
+  camera = player->acamera;
+  S3DSetSoundReceiverPosition(camera->mappos.x.val,camera->mappos.y.val,camera->mappos.z.val);
+  S3DSetSoundReceiverOrientation(camera->orient_a,camera->orient_b,camera->orient_c);
+  return true;
+}
+
 long update_cave_in(struct Thing *thing)
 {
   return _DK_update_cave_in(thing);
@@ -5470,10 +6989,14 @@ long update_cave_in(struct Thing *thing)
 void update_player_sounds(void)
 {
   int k;
-  struct Camera *camera;
+  struct PlayerInfo *player;
+  static const char *func_name="update_player_sounds";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   if ((game.numfield_C & 0x01) == 0)
   {
-    camera=game.players[my_player_number%PLAYERS_COUNT].camera;
+    player = &(game.players[my_player_number%PLAYERS_COUNT]);
     process_messages();
     if (!SoundDisabled)
     {
@@ -5482,21 +7005,23 @@ void update_player_sounds(void)
         if (game.audiotrack > 0)
           PlayRedbookTrack(game.audiotrack);
       }
-      S3DSetSoundReceiverPosition(camera->mappos.x.val,camera->mappos.y.val,camera->mappos.z.val);
-      S3DSetSoundReceiverOrientation(camera->orient_a,camera->orient_b,camera->orient_c);
+      update_3d_sound_receiver(player);
     }
     game.seedchk_random_used++;
   }
   find_nearest_rooms_for_ambient_sound();
   process_3d_sounds();
-  k = (game.field_1517E2-game.seedchk_random_used) / 2;
+  k = (game.bonus_time-game.seedchk_random_used) / 2;
   if (bonus_timer_enabled())
   {
-    if ((game.field_1517E2 == game.seedchk_random_used) ||
-        (game.field_1517E2 > game.seedchk_random_used) && ((k<=100) && ((k % 10) == 0) ||
+    if ((game.bonus_time == game.seedchk_random_used) ||
+        (game.bonus_time > game.seedchk_random_used) && ((k<=100) && ((k % 10) == 0) ||
         (k<=300) && ((k % 50)==0) || ((k % 250)==0)) )
       play_non_3d_sample(89);
   }
+#if (BFDEBUG_LEVEL > 9)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 void update(void)
@@ -5524,7 +7049,7 @@ void update(void)
 
   if ((game.numfield_C & 0x01) == 0)
   {
-    player=&(game.players[my_player_number%PLAYERS_COUNT]);
+    player = &(game.players[my_player_number%PLAYERS_COUNT]);
     if (player->field_3 & 0x08)
     {
       PaletteSetPlayerPalette(player, _DK_palette);
@@ -5546,12 +7071,12 @@ void update(void)
       process_computer_players2();
     process_players();
     process_action_points();
-    player=&(game.players[my_player_number%PLAYERS_COUNT]);
+    player = &(game.players[my_player_number%PLAYERS_COUNT]);
     if (player->field_37 == 1)
-      update_flames_nearest_camera(player->camera);
-    update_footsteps_nearest_camera(player->camera);
+      update_flames_nearest_camera(player->acamera);
+    update_footsteps_nearest_camera(player->acamera);
     PaletteFadePlayer(player);
-    _DK_process_armageddon();
+    process_armageddon();
   }
 
   message_update();
@@ -5632,7 +7157,7 @@ void draw_sound_stuff(void)
       pos=game.seedchk_random_used;
       LbTextDraw((LbCosL(16*pos) / 512 + 120) / pixel_size,
         (LbSinL(32*pos) / 512 + 200) / pixel_size, text);
-      if (eastegg03_cntr > 1000)
+      if (eastegg03_cntr >= 255)
         eastegg03_cntr = 0;
   }
   _DK_draw_sound_stuff();
@@ -5705,12 +7230,12 @@ void draw_creature_view(struct Thing *thing)
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   if (((game.flags_cd & MFlg_EyeLensReady) == 0) || (eye_lens_memory == NULL))
   {
-    engine((struct Camera *)&player->field_66);
+    engine(&player->cameras[1]);
     return;
   }
   if ((game.numfield_1B == 0) || (game.numfield_1B == 13) || (game.numfield_1B >= 14))
   {
-    engine((struct Camera *)&player->field_66);
+    engine(&player->cameras[1]);
     return;
   }
   //TODO: Temporary hack, until CMistFade is not rewritten
@@ -5733,7 +7258,7 @@ void draw_creature_view(struct Thing *thing)
   LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   // Draw on our buffer
   setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-  engine((struct Camera *)&player->field_66);
+  engine(&player->cameras[1]);
   // Restore original graphics settings
   lbDisplay.WScreen = wscr_cp;
   lbDisplay.GraphicsScreenWidth = grscr_w;
@@ -5861,9 +7386,164 @@ short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, lo
   return result;
 }
 
+struct Thing *get_creature_near(unsigned short pos_x, unsigned short pos_y)
+{
+  return _DK_get_creature_near(pos_x, pos_y);
+}
+
+struct Thing *get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, long a4)
+{
+  return _DK_get_creature_near_with_filter(pos_x, pos_y, filter, a4);
+}
+
+void magic_use_power_chicken(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
+{
+  _DK_magic_use_power_chicken(a1, thing, a3, a4, a5);
+}
+
+void magic_use_power_disease(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
+{
+  _DK_magic_use_power_disease(a1, thing, a3, a4, a5);
+}
+
+void magic_use_power_destroy_walls(unsigned char a1, long a2, long a3, long a4)
+{
+  _DK_magic_use_power_destroy_walls(a1, a2, a3, a4);
+}
+
+short magic_use_power_imp(unsigned short a1, unsigned short a2, unsigned short a3)
+{
+  return _DK_magic_use_power_imp(a1, a2, a3);
+}
+
+long remove_workshop_object_from_player(long a1, long a2)
+{
+  return _DK_remove_workshop_object_from_player(a1, a2);
+}
+
+void magic_use_power_heal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
+{
+  _DK_magic_use_power_heal(a1, thing, a3, a4, a5);
+}
+
+void magic_use_power_conceal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
+{
+  _DK_magic_use_power_conceal(a1, thing, a3, a4, a5);
+}
+
+void magic_use_power_armour(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
+{
+  _DK_magic_use_power_armour(a1, thing, a3, a4, a5);
+}
+
+void magic_use_power_speed(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
+{
+  _DK_magic_use_power_speed(a1, thing, a3, a4, a5);
+}
+
+void magic_use_power_lightning(unsigned char a1, long a2, long a3, long a4)
+{
+  _DK_magic_use_power_lightning(a1, a2, a3, a4);
+}
+
+unsigned char tag_cursor_blocks_place_trap(unsigned char a1, long a2, long a3)
+{
+  return _DK_tag_cursor_blocks_place_trap(a1, a2, a3);
+}
+
+long magic_use_power_sight(unsigned char a1, long a2, long a3, long a4)
+{
+  return _DK_magic_use_power_sight(a1, a2, a3, a4);
+}
+
+void magic_use_power_cave_in(unsigned char a1, long a2, long a3, long a4)
+{
+  _DK_magic_use_power_cave_in(a1, a2, a3, a4);
+}
+
+long magic_use_power_call_to_arms(unsigned char a1, long a2, long a3, long a4, long a5)
+{
+  return _DK_magic_use_power_call_to_arms(a1, a2, a3, a4, a5);
+}
+
+void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3)
+{
+  _DK_stop_creatures_around_hand(a1, a2, a3);
+}
+
+struct Thing *get_queryable_object_near(unsigned short a1, unsigned short a2, long a3)
+{
+  return _DK_get_queryable_object_near(a1, a2, a3);
+}
+
+unsigned char initialise_thing_state(struct Thing *thing, long a2)
+{
+  return _DK_initialise_thing_state(thing, a2);
+}
+
+short setup_person_move_to_position(struct Thing *thing, long pos_x, long pos_y, unsigned char a4)
+{
+  return _DK_setup_person_move_to_position(thing, pos_x, pos_y, a4);
+}
+
+void tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4)
+{
+  _DK_tag_cursor_blocks_dig(a1, a2, a3, a4);
+}
+
+struct Thing *get_creature_near_for_controlling(unsigned char a1, long a2, long a3)
+{
+  return _DK_get_creature_near_for_controlling(a1, a2, a3);
+}
+
+void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5)
+{
+  _DK_tag_cursor_blocks_thing_in_hand(a1, a2, a3, a4, a5);
+}
+
+void create_power_hand(unsigned char a1)
+{
+  _DK_create_power_hand(a1);
+}
+
+long remove_creature_from_group(struct Thing *thing)
+{
+  return _DK_remove_creature_from_group(thing);
+}
+
+long add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2)
+{
+  return _DK_add_creature_to_group_as_leader(thing1, thing2);
+}
+
 unsigned long can_drop_thing_here(long x, long y, long a3, unsigned long a4)
 {
   return _DK_can_drop_thing_here(x, y, a3, a4);
+}
+
+/*
+ * Returns if a given player (owner) can dig the specified subtile.
+ */
+short can_dig_here(long x, long y, long owner)
+{
+  struct Map *map;
+  struct SlabMap *slb;
+  long i,k;
+  i = y * (map_subtiles_x+1) + x;
+  map = &game.map[i];
+  i = map_to_slab[y] * map_tiles_x + map_to_slab[x];
+  slb = &game.slabmap[i];
+  if (!((map->data >> 28) & (1 << owner)))
+    return true;
+  if ((slb->slab >= 42) && (slb->slab <= 47))
+  {
+      if ((slb->field_5 & 7) == owner)
+        return false;
+  }
+  i = slab_attrs[slb->slab%SLAB_TYPES_COUNT].field_6;
+  if ((i & 0x29) != 0)
+    return true;
+  return false;
 }
 
 long thing_in_wall_at(struct Thing *thing, struct Coord3d *pos)
@@ -6017,12 +7697,22 @@ void smooth_screen_area(unsigned char *scrbuf, long x, long y, long w, long h, l
   }
 }
 
+void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y)
+{
+  player->cameras[2].mappos.x.val = pos_x;
+  player->cameras[3].mappos.x.val = pos_x;
+  player->cameras[0].mappos.x.val = pos_x;
+  player->cameras[2].mappos.y.val = pos_y;
+  player->cameras[3].mappos.y.val = pos_y;
+  player->cameras[0].mappos.y.val = pos_y;
+}
+
 void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
 {
   static const char *func_name="make_camera_deviations";
   long x,y;
-  x = player->camera->mappos.x.val;
-  y = player->camera->mappos.y.val;
+  x = player->acamera->mappos.x.val;
+  y = player->acamera->mappos.y.val;
   if (dungeon->field_EA0)
   {
     x += seed_check_random(80, &game.rand_14BB4E, func_name, 8653) - 40;
@@ -6030,8 +7720,8 @@ void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
   }
   if (dungeon->field_EA4)
   {
-    x += ( (dungeon->field_EA4 * LbSinL(player->camera->orient_a) >> 8) >> 8);
-    y += (-(dungeon->field_EA4 * LbCosL(player->camera->orient_a) >> 8) >> 8);
+    x += ( (dungeon->field_EA4 * LbSinL(player->acamera->orient_a) >> 8) >> 8);
+    y += (-(dungeon->field_EA4 * LbCosL(player->acamera->orient_a) >> 8) >> 8);
   }
   if ((dungeon->field_EA0) || (dungeon->field_EA4))
   {
@@ -6053,8 +7743,8 @@ void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
       y = 65535;
     }
     // setting deviated position
-    player->camera->mappos.x.val = x;
-    player->camera->mappos.y.val = y;
+    player->acamera->mappos.x.val = x;
+    player->acamera->mappos.y.val = y;
   }
 }
 
@@ -6072,7 +7762,7 @@ void redraw_isometric_view(void)
   //_DK_redraw_isometric_view(); return;
 
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  memcpy(&pos,&player->camera->mappos,sizeof(struct Coord3d));
+  memcpy(&pos,&player->acamera->mappos,sizeof(struct Coord3d));
   if (player->field_45F != 1)
     player->field_45F = 1;
   dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
@@ -6084,7 +7774,7 @@ void redraw_isometric_view(void)
     store_engine_window(&ewnd,1);
     setup_engine_window(ewnd.x, ewnd.y, ewnd.width >> 1, ewnd.height >> 1);
   }
-  engine((struct Camera *)&player->cam_mappos);
+  engine(&player->cameras[0]);
   if (game.flags_font & 0x08)
   {
     load_engine_window(&ewnd);
@@ -6102,9 +7792,10 @@ void redraw_isometric_view(void)
   if ( game.numfield_C & 0x20)
     draw_overlay_compass(player->mouse_x, player->mouse_y);
   message_draw();
+  gui_draw_all_boxes();
   draw_power_hand();
   draw_tooltip();
-  memcpy(&player->camera->mappos,&pos,sizeof(struct Coord3d));
+  memcpy(&player->acamera->mappos,&pos,sizeof(struct Coord3d));
 #if (BFDEBUG_LEVEL > 8)
     LbSyncLog("%s: Finished\n",func_name);
 #endif
@@ -6117,6 +7808,7 @@ void redraw_frontview(void)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
   _DK_redraw_frontview();
+  gui_draw_all_boxes();
 }
 
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7)
@@ -6368,236 +8060,6 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
   _DK_update_explored_flags_for_power_sight(player);
 }
 
-void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx)
-{
-  _DK_rotpers_parallel_3(epos, matx);
-}
-
-void rotate_base_axis(struct M33 *matx, short a2, unsigned char a3)
-{
-  _DK_rotate_base_axis(matx, a2, a3);
-}
-
-void fill_in_points_perspective(long a1, long a2, struct MinMax *mm)
-{
-  _DK_fill_in_points_perspective(a1, a2, mm);
-}
-
-void fill_in_points_cluedo(long a1, long a2, struct MinMax *mm)
-{
-  _DK_fill_in_points_cluedo(a1, a2, mm);
-}
-
-void fill_in_points_isometric(long a1, long a2, struct MinMax *mm)
-{
-  _DK_fill_in_points_isometric(a1, a2, mm);
-}
-
-void display_drawlist(void)
-{
-  static const char *func_name="display_drawlist";
-#if (BFDEBUG_LEVEL > 9)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  _DK_display_drawlist();
-}
-
-void frame_wibble_generate(void)
-{
-  _DK_frame_wibble_generate();
-}
-
-void find_gamut(void)
-{
-  _DK_find_gamut();
-}
-
-void fiddle_gamut(long a1, long a2)
-{
-  _DK_fiddle_gamut(a1, a2);
-}
-
-void create_map_volume_box(long a1, long a2, long a3)
-{
-  _DK_create_map_volume_box(a1, a2, a3);
-}
-
-void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8)
-{
-  _DK_setup_rotate_stuff(a1, a2, a3, a4, a5, a6, a7, a8);
-}
-
-void do_a_plane_of_engine_columns_perspective(long a1, long a2, long a3, long a4)
-{
-  _DK_do_a_plane_of_engine_columns_perspective(a1, a2, a3, a4);
-}
-
-void do_a_plane_of_engine_columns_cluedo(long a1, long a2, long a3, long a4)
-{
-  _DK_do_a_plane_of_engine_columns_cluedo(a1, a2, a3, a4);
-}
-
-void do_a_plane_of_engine_columns_isometric(long a1, long a2, long a3, long a4)
-{
-  _DK_do_a_plane_of_engine_columns_isometric(a1, a2, a3, a4);
-}
-
-long compute_cells_away(void)
-{
-  long xmin,ymin,xmax,ymax;
-  long xcell,ycell;
-  struct PlayerInfo *player;
-  long ncells_a;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
-    if ((vert_offset[1]) || (hori_offset[1]))
-    {
-      xcell = 660/pixel_size - player->engine_window_x/pixel_size - x_init_off;
-      ycell = (8 * high_offset[1] >> 8) - 20/pixel_size - player->engine_window_y/pixel_size - y_init_off;
-      ymax = (((vert_offset[1] * xcell) >> 1) - ((vert_offset[0] * ycell) >> 1))
-         / ((hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1]) >> 11) >> 2;
-      xmax = (((hori_offset[1] * xcell) >> 1) - ((hori_offset[0] * ycell) >> 1))
-         / ((vert_offset[0] * hori_offset[1] - hori_offset[0] * vert_offset[1]) >> 11) >> 2;
-    } else
-    {
-      ymax = 0;
-      xmax = 0;
-    }
-    if ((vert_offset[1]) || (hori_offset[1]))
-    {
-      xcell = 320 / pixel_size - player->engine_window_x/pixel_size - x_init_off;
-      ycell = 200 / pixel_size - ymin - y_init_off;
-      ymin = (((vert_offset[1] * xcell) >> 1) - ((vert_offset[0] * ycell) >> 1))
-          / ((hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1]) >> 11) >> 2;
-      xmin = (((hori_offset[1] * xcell) >> 1) - ((hori_offset[0] * ycell) >> 1))
-         / ((vert_offset[0] * hori_offset[1] - hori_offset[0] * vert_offset[1]) >> 11) >> 2;
-    } else
-    {
-      ymin = 0;
-      xmin = 0;
-    }
-    xcell = abs(ymax - ymin);
-    ycell = abs(xmax - xmin);
-    if (ycell >= xcell)
-      ncells_a = ycell + (xcell >> 1);
-    else
-      ncells_a = xcell + (ycell >> 1);
-    ncells_a += 2;
-    if (ncells_a > max_i_can_see)
-      ncells_a = max_i_can_see;
-    return ncells_a;
-}
-
-void init_coords_and_rotation(struct EngineCoord *origin,struct M33 *matx)
-{
-  origin->x = 0;
-  origin->y = 0;
-  origin->z = 0;
-  matx->r0[0] = 0x4000u;
-  matx->r0[1] = 0;
-  matx->r0[2] = 0;
-  matx->r1[0] = 0;
-  matx->r1[1] = 0x4000u;
-  matx->r1[2] = 0;
-  matx->r2[0] = 0;
-  matx->r2[1] = 0;
-  matx->r2[2] = 0x4000u;
-}
-
-void update_fade_limits(long ncells_a)
-{
-  fade_max = (ncells_a << 8);
-  fade_scaler = (ncells_a << 8);
-  fade_way_out = (ncells_a + 1) << 8;
-  fade_min = 768 * ncells_a / 4;
-  split_1 = (split1at << 8);
-  split_2 = (split2at << 8);
-}
-
-void update_normal_shade(struct M33 *matx)
-{
-  normal_shade_left = matx->r2[0];
-  normal_shade_right = -matx->r2[0];
-  normal_shade_back = -matx->r2[2];
-  normal_shade_front = matx->r2[2];
-  if (normal_shade_front < 0)
-    normal_shade_front = 0;
-  if (normal_shade_back < 0)
-    normal_shade_back = 0;
-  if (normal_shade_left < 0)
-    normal_shade_left = 0;
-  if (normal_shade_right < 0)
-    normal_shade_right = 0;
-}
-
-void update_engine_settings(struct PlayerInfo *player)
-{
-  engine_player_number = player->field_2B;
-  player_bit = (1 << engine_player_number);
-  switch (settings.field_0)
-  {
-  case 0:
-      split1at = 4;
-      split2at = 3;
-      break;
-  case 1:
-      split1at = 3;
-      split2at = 2;
-      break;
-  case 2:
-      split1at = 2;
-      split2at = 1;
-      break;
-  case 3:
-      split1at = 0;
-      split2at = 0;
-      break;
-  }
-  me_pointed_at = NULL;
-  me_distance = 100000000;
-  max_i_can_see = i_can_see_levels[settings.view_distance % 4];
-  if (lens_mode != 0)
-    temp_cluedo_mode = 0;
-  else
-    temp_cluedo_mode = settings.video_cluedo_mode;
-  thing_pointed_at = NULL;
-}
-
-void do_perspective_rotation(long x, long y, long z)
-{
-  struct PlayerInfo *player;
-  struct EngineCoord epos;
-
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
-    epos.x = -x;
-    epos.y = 0;
-    epos.z = y;
-    rotpers_parallel_3(&epos, &camera_matrix);
-    x_init_off = epos.field_0;
-    y_init_off = epos.field_4;
-    depth_init_off = epos.z;
-    epos.x = 65536;
-    epos.y = 0;
-    epos.z = 0;
-    rotpers_parallel_3(&epos, &camera_matrix);
-    hori_offset[0] = epos.field_0 - ((player->engine_window_width/pixel_size) >> 1);
-    hori_offset[1] = epos.field_4 - ((player->engine_window_height/pixel_size) >> 1);
-    hori_offset[2] = epos.z;
-    epos.x = 0;
-    epos.y = 0;
-    epos.z = -65536;
-    rotpers_parallel_3(&epos, &camera_matrix);
-    vert_offset[0] = epos.field_0 - ((player->engine_window_width/pixel_size) >> 1);
-    vert_offset[1] = epos.field_4 - ((player->engine_window_height/pixel_size) >> 1);
-    vert_offset[2] = epos.z;
-    epos.x = 0;
-    epos.y = 65536;
-    epos.z = 0;
-    rotpers_parallel_3(&epos, &camera_matrix);
-    high_offset[0] = epos.field_0 - ((player->engine_window_width/pixel_size) >> 1);
-    high_offset[1] = epos.field_4 - ((player->engine_window_height/pixel_size) >> 1);
-    high_offset[2] = epos.z;
-}
-
 void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 {
   struct Map *map;
@@ -6700,122 +8162,6 @@ void update_blocks_pointed(void)
     }
 }
 
-void draw_view(struct Camera *cam, unsigned char a2)
-{
-  static const char *func_name="draw_view";
-  long nlens;
-  long x,y,z;
-  long xcell,ycell;
-  long i;
-  long aposc,bposc;
-  struct EngineCol *ec;
-  struct MinMax *mm;
-#if (BFDEBUG_LEVEL > 9)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  //_DK_draw_view(cam, a2); retutn;
-  nlens = cam->field_17 / pixel_size;
-  getpoly = poly_pool;
-  memset(buckets, 0, 0xB00u);
-  perspective = perspective_routines[lens_mode%PERS_ROUTINES_COUNT];
-  rotpers = rotpers_routines[lens_mode%PERS_ROUTINES_COUNT];
-  update_fade_limits(cells_away);
-  init_coords_and_rotation(&object_origin,&camera_matrix);
-  rotate_base_axis(&camera_matrix, cam->orient_a, 2);
-  update_normal_shade(&camera_matrix);
-  rotate_base_axis(&camera_matrix, -cam->orient_b, 1);
-  rotate_base_axis(&camera_matrix, -cam->orient_c, 3);
-  map_angle = cam->orient_a;
-  map_roll = cam->orient_c;
-  map_tilt = -cam->orient_b;
-  x = cam->mappos.x.val;
-  y = cam->mappos.y.val;
-  z = cam->mappos.z.val;
-  frame_wibble_generate();
-  view_alt = z;
-  if (lens_mode != 0)
-  {
-    cells_away = max_i_can_see;
-    update_fade_limits(cells_away);
-    fade_range = (fade_max - fade_min) >> 8;
-    setup_rotate_stuff(x, y, z, fade_max, fade_min, lens, map_angle, map_roll);
-  } else
-  {
-    fade_min = 1000000;
-    setup_rotate_stuff(x, y, z, fade_max, fade_min, nlens, map_angle, map_roll);
-    do_perspective_rotation(x, y, z);
-    cells_away = compute_cells_away();
-  }
-  xcell = (x >> 8);
-  aposc = -(unsigned char)x;
-  bposc = (cells_away << 8) + (y & 0xFF);
-  ycell = (y >> 8) - (cells_away+1);
-  find_gamut();
-  fiddle_gamut(xcell, ycell + (cells_away+1));
-  apos = aposc;
-  bpos = bposc;
-  back_ec = &ecs1[0];
-  front_ec = &ecs2[0];
-  mm = &minmaxs[31-cells_away];
-  if (lens_mode != 0)
-  {
-    fill_in_points_perspective(xcell, ycell, mm);
-  } else
-  {
-    if (settings.video_cluedo_mode)
-      fill_in_points_cluedo(xcell, ycell, mm);
-    else
-      fill_in_points_isometric(xcell, ycell, mm);
-  }
-  for (i = 2*cells_away-1; i > 0; i--)
-  {
-      ycell++;
-      bposc -= 256;
-      mm++;
-      ec = front_ec;
-      front_ec = back_ec;
-      back_ec = ec;
-      apos = aposc;
-      bpos = bposc;
-      if (lens_mode != 0)
-      {
-        fill_in_points_perspective(xcell, ycell, mm);
-        if (mm->min < mm->max)
-        {
-          apos = aposc;
-          bpos = bposc;
-          do_a_plane_of_engine_columns_perspective(xcell, ycell, mm->min, mm->max);
-        }
-      } else
-      if ( settings.video_cluedo_mode )
-      {
-        fill_in_points_cluedo(xcell, ycell, mm);
-        if (mm->min < mm->max)
-        {
-          apos = aposc;
-          bpos = bposc;
-          do_a_plane_of_engine_columns_cluedo(xcell, ycell, mm->min, mm->max);
-        }
-      } else
-      {
-        fill_in_points_isometric(xcell, ycell, mm);
-        if (mm->min < mm->max)
-        {
-          apos = aposc;
-          bpos = bposc;
-          do_a_plane_of_engine_columns_isometric(xcell, ycell, mm->min, mm->max);
-        }
-      }
-  }
-  if (map_volume_box.field_0)
-    create_map_volume_box(x, y, z);
-  display_drawlist();
-  map_volume_box.field_0 = 0;
-#if (BFDEBUG_LEVEL > 9)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
-}
-
 void engine(struct Camera *cam)
 {
   static const char *func_name="engine";
@@ -6888,19 +8234,22 @@ void draw_overlay_compass(long a1, long a2)
 
 void draw_map_level_name(void)
 {
+  struct LevelInformation *lvinfo;
+  LevelNumber lvnum;
   char *lv_name;
   int x,y,w,h;
   // Retrieving name
   lv_name = NULL;
-  if (is_original_singleplayer_level(game.level_file_number))
+  lvnum = get_loaded_level_number();
+  lvinfo = get_level_info(lvnum);
+  if (lvinfo != NULL)
   {
-    lv_name = strings[(game.level_file_number+201)%STRINGS_MAX];
+    if ((lvinfo->name_id > 0) && (lvinfo->name_id < STRINGS_MAX))
+      lv_name = campaign.strings[lvinfo->name_id];
+    else
+      lv_name = lvinfo->name;
   } else
-  if ( is_bonus_level(game.level_file_number) )
-  {
-    lv_name = strings[430];
-  } else
-  if (is_multiplayer_level(game.level_file_number))
+  if (is_multiplayer_level(lvnum))
   {
     lv_name = level_name;
   }
@@ -7041,7 +8390,7 @@ void redraw_display(void)
         i = 0;
         if (lbFontPtr != NULL)
           i = lbFontPtr[1].SWidth;
-        w = pixel_size * (LbTextStringWidth(strings[320]) + 2*i);
+        w = pixel_size * (LbTextStringWidth(gui_strings[320]) + 2*i); // "Paused"
         i = player->field_37;
         if ((i == 2) || (i == 5) || (i == 1))
           pos_x = player->engine_window_x + (MyScreenWidth-w-player->engine_window_x)/2;
@@ -7055,7 +8404,7 @@ void redraw_display(void)
         h = pixel_size*i + pixel_size*i/2;
         LbTextSetWindow(pos_x/pixel_size, pos_y/pixel_size, w/pixel_size, h/pixel_size);
         draw_slab64k(pos_x, pos_y, w, h);
-        LbTextDraw(0/pixel_size, 0/pixel_size, strings[320]);
+        LbTextDraw(0/pixel_size, 0/pixel_size, gui_strings[320]); // "Paused"
         LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   }
   if (game.field_150356 != 0)
@@ -7073,7 +8422,7 @@ void redraw_display(void)
       i = game.seedchk_random_used - game.field_150356 - game.armageddon.count_down;
     }
     lbFontPtr = winfont;
-    text=buf_sprintf(" %s %03d", strings[646], i/2);
+    text = buf_sprintf(" %s %03d", gui_strings[646], i/2); // Armageddon message
     i = 0;
     if (lbFontPtr != NULL)
       i = lbFontPtr[1].SWidth;
@@ -7281,7 +8630,7 @@ void keeper_gameplay_loop(void)
     if (game.numfield_C & 0x02)
       initialise_eye_lenses();
 #if (BFDEBUG_LEVEL > 0)
-    LbSyncLog("Entering the gameplay loop for level %d\n",(int)game.level_number);
+    LbSyncLog("Entering the gameplay loop for level %d\n",(int)get_loaded_level_number());
 #endif
 
     //the main gameplay loop starts
@@ -7403,6 +8752,13 @@ unsigned long convert_td_iso(unsigned long n)
   return n;
 }
 
+unsigned long get_creature_anim(struct Thing *thing, unsigned short frame)
+{
+  unsigned long idx;
+  idx = creature_graphics[thing->model%CREATURE_TYPES_COUNT][frame%22];
+  return convert_td_iso(idx);
+}
+
 unsigned char keepersprite_frames(unsigned short n)
 {
   unsigned long i;
@@ -7469,7 +8825,7 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
     error(func_name,3271,"Cannot create object because there are too many things allocated.");
     return NULL;
   }
-  memset(&ilight,0,sizeof(struct InitLight));
+  LbMemorySet(&ilight, 0, sizeof(struct InitLight));
   thing = allocate_free_thing_structure(1);
   thing->class_id = 1;
   thing->model = model;
@@ -7477,14 +8833,14 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
     thing->field_1D = -1;
   else
     thing->field_1D = a4;
-  memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
+  LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
   objconf = &game.objects_config[model];
   obj = &_DK_objects[thing->model%OBJECT_TYPES_COUNT];
   thing->field_56 = obj->field_9;
   thing->field_58 = obj->field_B;
   thing->field_5A = obj->field_9;
   thing->field_5C = obj->field_B;
-  thing->field_5E = objconf->health;
+  thing->health = saturate_set_signed(objconf->health,16);
   thing->field_20 = objconf->field_4;
   thing->field_23 = 204;
   thing->field_24 = 51;
@@ -7512,7 +8868,7 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
   thing->field_7 = obj->field_0;
   if (objconf->light != 0)
   {
-    memcpy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
+    LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
     ilight.field_0 = objconf->light;
     ilight.field_2 = objconf->field_B;
     ilight.field_3 = objconf->field_C[0];
@@ -7588,7 +8944,7 @@ void create_room_flag(struct Room *room)
       error(func_name, 5541, "Cannot create room_flag");
       return;
     }
-    thing->word_13.w0 = room->field_1;
+    thing->word_13.w0 = room->index;
   }
 }
 
@@ -7604,33 +8960,40 @@ unsigned short i_can_allocate_free_room_structure(void)
 
 struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, unsigned char rkind)
 {
+  static const char *func_name="link_adjacent_rooms_of_type";
+  // TODO: rework! may lead to hang on map borders
   return _DK_link_adjacent_rooms_of_type(owner, x, y, rkind);
 }
 
 struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned short x, unsigned short y)
 {
-  //return _DK_create_room(owner, rkind, x, y);
-  struct Room *room;
+  static const char *func_name="create_room";
   struct Dungeon *dungeon;
   struct MapOffset *sstep;
   struct SlabMap *slb;
+  struct Room *room;
   unsigned long tot_x,tot_y;
   unsigned long cx,cy;
   long slb_x,slb_y;
   long i;
-
+  //room = _DK_create_room(owner, rkind, x, y); return room;
   room = link_adjacent_rooms_of_type(owner, x, y, rkind);
   if (room != NULL)
   {
     room->field_3B = 0;
     i = room->field_37;
-    while ((i > 0) && (i < map_tiles_x*map_tiles_y))
+    while (i > 0)
     {
       room->field_3B++;
       slb_x = i % map_tiles_x;
       slb_y = i / map_tiles_x;
+      if (slb_y >= map_tiles_y)
+      {
+        LbErrorLog("Index out of range when sweeping Slabs in %s.\n",func_name);
+        break;
+      }
       slb = &game.slabmap[map_tiles_x*slb_y + slb_x];
-      slb->field_3 = room->field_1;
+      slb->room_index = room->index;
       i = slb->field_1;
     }
   } else
@@ -7645,9 +9008,9 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
       if ((game.field_14E938 > 0) && (game.field_14E938 < ROOMS_COUNT))
       {
         room->field_19 = game.field_14E938;
-        game.rooms[game.field_14E938].field_17 = room->field_1;
+        game.rooms[game.field_14E938].field_17 = room->index;
       }
-      game.field_14E938 = room->field_1;
+      game.field_14E938 = room->index;
       game.field_14E93A++;
     }
     if (owner != game.field_14E497)
@@ -7655,9 +9018,9 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
       dungeon = &(game.dungeon[owner%DUNGEONS_COUNT]);
       i = dungeon->field_B[room->kind%ROOM_TYPES_COUNT];
       room->field_6 = i;
-      game.rooms[i].field_4 = room->field_1;
-      dungeon->field_B[room->kind%ROOM_TYPES_COUNT] = room->field_1;
-      dungeon->field_5C2[room->kind%ROOM_TYPES_COUNT]++;
+      game.rooms[i].field_4 = room->index;
+      dungeon->field_B[room->kind%ROOM_TYPES_COUNT] = room->index;
+      dungeon->room_slabs_count[room->kind%ROOM_TYPES_COUNT]++;
     }
     slb_x = map_to_slab[x%(map_subtiles_x+1)];
     slb_y = map_to_slab[y%(map_subtiles_y+1)];
@@ -7668,13 +9031,18 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
     slb->field_1 = 0;
     room->field_3B = 0;
     i = room->field_37;
-    while ((i > 0) && (i < map_tiles_x*map_tiles_y))
+    while (i > 0)
     {
       room->field_3B++;
       slb_x = i % map_tiles_x;
-      slb_y = (i / map_tiles_x) % map_tiles_y;
+      slb_y = (i / map_tiles_x);
+      if (slb_y >= map_tiles_y)
+      {
+        LbErrorLog("Index out of range when sweeping Slabs in %s.\n",func_name);
+        break;
+      }
       slb = &game.slabmap[map_tiles_x*slb_y + slb_x];
-      slb->field_3 = room->field_1;
+      slb->room_index = room->index;
       i = slb->field_1;
     }
     create_room_flag(room);
@@ -7682,10 +9050,15 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
   tot_x = 0;
   tot_y = 0;
   i = room->field_37;
-  while ((i > 0) && (i < map_tiles_x*map_tiles_y))
+  while (i > 0)
   {
-      slb_x = i % map_tiles_x;
-      slb_y = (i / map_tiles_x) % map_tiles_y;
+      slb_x = (i % map_tiles_x);
+      slb_y = (i / map_tiles_x);
+      if (slb_y >= map_tiles_y)
+      {
+        LbErrorLog("Index out of range when sweeping Slabs in %s.\n",func_name);
+        break;
+      }
       slb = &game.slabmap[map_tiles_x*slb_y + slb_x];
       tot_x += slb_x;
       tot_y += slb_y;
@@ -7701,10 +9074,10 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
     sstep = &spiral_step[i];
     cx = 3 * (tot_x + sstep->field_1) + 1;
     cy = 3 * (tot_y + sstep->field_0) + 1;
-    slb_x = map_to_slab[x%(map_subtiles_x+1)];
-    slb_y = map_to_slab[y%(map_subtiles_y+1)];
+    slb_x = map_to_slab[cx%(map_subtiles_x+1)];
+    slb_y = map_to_slab[cy%(map_subtiles_y+1)];
     slb = &game.slabmap[map_tiles_x*slb_y + slb_x];
-    if (room == &game.rooms[slb->field_3%ROOMS_COUNT])
+    if (&game.rooms[slb->room_index] == room)
     {
       room->field_8 = cx;
       room->field_9 = cy;
@@ -7726,25 +9099,25 @@ void init_dungeons(void)
   for (i=0; i < DUNGEONS_COUNT; i++)
   {
     dungeon = &(game.dungeon[game.field_14E496%DUNGEONS_COUNT]);
-    dungeon->field_B01[i%DUNGEONS_COUNT] = game.fight_max_hate;
+    dungeon->hates_player[i%DUNGEONS_COUNT] = game.fight_max_hate;
     dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
-    dungeon->field_B01[game.field_14E496%DUNGEONS_COUNT] = game.fight_max_hate;
+    dungeon->hates_player[game.field_14E496%DUNGEONS_COUNT] = game.fight_max_hate;
     dungeon->field_918 = 0;
     dungeon->field_919 = 0;
     dungeon->field_2D = 0;
     dungeon->field_2F = 0;
     dungeon->field_E9F = i;
-    dungeon->field_105C = game.default_max_crtrs_gen_entrance;
+    dungeon->max_creatures = game.default_max_crtrs_gen_entrance;
     dungeon->field_139F = 0;
     dungeon->field_13A3 = 0;
     for (k=0; k < DUNGEONS_COUNT; k++)
     {
       if (k == i)
-        dungeon->field_B01[k] = game.fight_max_love;
+        dungeon->hates_player[k] = game.fight_max_love;
       else
-        dungeon->field_B01[k] = game.fight_max_hate;
+        dungeon->hates_player[k] = game.fight_max_hate;
     }
-    memset(dungeon->field_1489, 0, 32);
+    LbMemorySet(dungeon->field_1489, 0, 32);
   }
 }
 
@@ -7756,6 +9129,107 @@ short thing_model_is_gold_hoarde(unsigned short model)
 long add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount)
 {
   return _DK_add_gold_to_hoarde(thing, room, amount);
+}
+
+long object_is_gold_pile(struct Thing *thing)
+{
+  return _DK_object_is_gold_pile(thing);
+}
+
+int can_thing_be_queried(struct Thing *thing, long a2)
+{
+  return _DK_can_thing_be_queried(thing, a2);
+}
+
+int can_thing_be_possessed(struct Thing *thing, long a2)
+{
+  return _DK_can_thing_be_possessed(thing, a2);
+}
+
+short magic_use_power_hand(unsigned short a1, unsigned short a2, unsigned short a3, unsigned short a4)
+{
+  return _DK_magic_use_power_hand(a1, a2, a3, a4);
+}
+
+long tag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3)
+{
+  return _DK_tag_blocks_for_digging_in_rectangle_around(a1, a2, a3);
+}
+
+void untag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3)
+{
+  _DK_untag_blocks_for_digging_in_rectangle_around(a1, a2, a3);
+}
+
+long destroy_door(struct Thing *thing)
+{
+  return _DK_destroy_door(thing);
+}
+
+short destroy_trap(struct Thing *thing)
+{
+  delete_thing_structure(thing, 0);
+  return true;
+}
+
+short delete_room_slab(long a1, long a2)
+{
+  return _DK_delete_room_slab(a1, a2);
+}
+
+void tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4)
+{
+  _DK_tag_cursor_blocks_sell_area(a1, a2, a3, a4);
+}
+
+long packet_place_door(long a1, long a2, long a3, long a4, unsigned char a5)
+{
+  return _DK_packet_place_door(a1, a2, a3, a4, a5);
+}
+
+void delete_room_slabbed_objects(long a1)
+{
+  _DK_delete_room_slabbed_objects(a1);
+}
+
+unsigned char tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3)
+{
+  return _DK_tag_cursor_blocks_place_door(a1, a2, a3);
+}
+
+long remove_workshop_item(long a1, long a2, long a3)
+{
+  return _DK_remove_workshop_item(a1, a2, a3);
+}
+
+struct Thing *create_trap(struct Coord3d *pos, unsigned short a1, unsigned short a2)
+{
+  return _DK_create_trap(pos, a1, a2);
+}
+
+void set_first_creature(struct Thing *thing)
+{
+  _DK_set_first_creature(thing);
+}
+
+void remove_first_creature(struct Thing *thing)
+{
+  _DK_remove_first_creature(thing);
+}
+
+struct Room *place_room(unsigned char a1, unsigned char a2, unsigned short a3, unsigned short a4)
+{
+  return _DK_place_room(a1, a2, a3, a4);
+}
+
+unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4)
+{
+  return _DK_tag_cursor_blocks_place_room(a1, a2, a3, a4);
+}
+
+short magic_use_power_slap(unsigned short plyr_idx, unsigned short stl_x, unsigned short stl_y)
+{
+  return _DK_magic_use_power_slap(plyr_idx, stl_x, stl_y);
 }
 
 /*
@@ -7866,7 +9340,7 @@ void init_whole_blocks(void)
 {
   struct Column col;
   long i;
-  //_DK_init_whole_blocks();
+  //_DK_init_whole_blocks(); return;
   game.field_149E6E = -1;
   memset(&col, 0, sizeof(col));
   // Prepare the local column
@@ -7906,11 +9380,19 @@ struct ActionPoint *actnpoint_create_actnpoint(struct InitActionPoint *iapt)
 
 void initialise_map_collides(void)
 {
+  static const char *func_name="initialise_map_collides";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_initialise_map_collides();
 }
 
 void initialise_map_health(void)
 {
+  static const char *func_name="initialise_map_health";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_initialise_map_health();
 }
 
@@ -7985,6 +9467,9 @@ short initialise_map_rooms(void)
   struct Room *room;
   unsigned long x,y;
   RoomKind rkind;
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   for (y=0; y < map_tiles_y; y++)
     for (x=0; x < map_tiles_x; x++)
     {
@@ -8120,7 +9605,7 @@ void init_level(void)
   end_rooms = &game.rooms[ROOMS_COUNT];
 
   init_dungeons();
-  load_map_file(game.level_file_number);
+  load_map_file(get_selected_level_number());
 
   init_navigation();
   clear_messages();
@@ -8170,7 +9655,9 @@ void pannel_map_update(long x, long y, long w, long h)
 void init_player_music(struct PlayerInfo *player)
 {
   static const char *func_name="init_player_music";
-  game.audiotrack = ((game.level_file_number - 1) % -4) + 3;
+  LevelNumber lvnum;
+  lvnum = get_loaded_level_number();
+  game.audiotrack = ((lvnum - 1) % -4) + 3;
   StopMusic();
   switch (seed_check_random(3, &game.rand_14BB4E, func_name, 363))
   {
@@ -8205,13 +9692,13 @@ void init_player(struct PlayerInfo *player, short no_explore)
   player->field_453 = 1;
   player->field_14 = 2;
   player->field_4C9 = _DK_palette;
-  if (player == &game.players[my_player_number])
+  if (is_my_player(player))
   {
     set_flag_byte(&game.numfield_C,0x40,true);
     set_gui_visible(true);
     init_gui();
-    turn_on_menu(1);
-    turn_on_menu(2);
+    turn_on_menu(GMnu_MAIN);
+    turn_on_menu(GMnu_ROOM);
   }
   switch (game.flagfield_14EA4A)
   {
@@ -8240,7 +9727,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
   init_player_cameras(player);
   pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
   player->strfield_463[0] = '\0';
-  if (player == &game.players[my_player_number])
+  if (is_my_player(player))
   {
     init_player_music(player);
   }
@@ -8283,14 +9770,14 @@ void post_init_level(void)
   {
     for (k=0; k < CREATURE_TYPES_COUNT; k++)
     {
-      game.dungeon[i].field_A4F[k] = 10;
+      game.dungeon[i].creature_max_level[k] = 10;
     }
   }
   clear_creature_pool();
   setup_computer_players2();
   load_stats_files();
   check_and_auto_fix_stats();
-  load_script(game.level_file_number);
+  load_script(get_loaded_level_number());
   init_dungeons_research();
   struct PlayerInfo *player;
   struct Thing *thing;
@@ -8442,7 +9929,7 @@ void setup_exchange_player_number(void)
   for (i=0; i<NET_PLAYERS_COUNT; i++)
   {
       pckt = &game.packets[i];
-      if ((net_player_info[i].field_20) && (pckt->field_5 == 10))
+      if ((net_player_info[i].field_20) && (pckt->action == 10))
       {
           player = &(game.players[k%PLAYERS_COUNT]);
           player->field_2B = k;
@@ -8516,11 +10003,11 @@ void startup_saved_packet_game(void)
   int i;
   clear_packets();
   open_packet_file_for_load(game.packet_fname);
-  game.level_file_number = game.packet_save_head.level_num;
+  set_selected_level_number(game.packet_save_head.level_num);
   lbDisplay.DrawColour = colours[15][15][15];
   game.pckt_gameturn = 0;
 #if (BFDEBUG_LEVEL > 0)
-  LbSyncLog("Initialising level %d\n", game.level_file_number);
+  LbSyncLog("Initialising level %d\n", (int)get_selected_level_number());
   LbSyncLog("Packet Loading Active (File contains %d turns)\n", game.field_149F30);
   if ( game.packet_checksum )
     LbSyncLog("Packet Checksum Active\n");
@@ -8547,6 +10034,7 @@ void startup_saved_packet_game(void)
     game.turns_fastforward = game.field_149F30;
   post_init_level();
   post_init_players();
+  set_selected_level_number(0);
 }
 
 void faststartup_saved_packet_game(void)
@@ -8587,6 +10075,9 @@ void startup_network_game(void)
   post_init_level();
   post_init_players();
   post_init_packets();
+  set_selected_level_number(0);
+//!CHEAT! instant win
+//player->field_29 = 1;
 }
 
 void faststartup_network_game(void)
@@ -8597,8 +10088,6 @@ void faststartup_network_game(void)
   game.flagfield_14EA4A = 2;
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
   player->field_2C = 1;
-  game.level_file_number = game.selected_lev_file_num;
-  game.selected_lev_file_num = 0;
   startup_network_game();
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
   player->field_6 &= 0xFDu;
@@ -8618,7 +10107,7 @@ void wait_at_frontend(void)
 #endif
   // Moon phase calculation
   calculate_moon_phase(true,false);
-  game.bonus_levels[MOON_BONUS_INDEX] = is_full_moon;
+  update_extra_levels_visibility();
   // Returning from Demo Mode
   if (game.flags_cd & MFlg_IsDemoMode)
   {
@@ -8650,7 +10139,7 @@ void wait_at_frontend(void)
 
   if ( !setup_screen_mode_minimal(get_frontend_vidmode()) )
   {
-    _DK_FatalError = 1;
+    FatalError = 1;
     exit_keeper = 1;
     return;
   }
@@ -8662,13 +10151,12 @@ void wait_at_frontend(void)
     exit_keeper = 1;
     return;
   }
-  memset(scratch, 0, 0x300u);
+  memset(scratch, 0, PALETTE_SIZE);
   LbPaletteSet(scratch);
   frontend_set_state(get_startup_menu_state());
 
   short finish_menu = 0;
   set_flag_byte(&game.flags_cd,0x40,false);
-
   // Begin the frontend loop
   long last_loop_time = LbTimerClock();
   do
@@ -8683,10 +10171,10 @@ void wait_at_frontend(void)
     }
 //LbSyncLog("update_mouse\n");
     update_mouse();
+    update_key_modifiers();
     old_mouse_over_button = frontend_mouse_over_button;
     frontend_mouse_over_button = 0;
 
-//LbSyncLog("frontend_input\n");
     frontend_input();
     if ( exit_keeper )
     {
@@ -8713,14 +10201,14 @@ void wait_at_frontend(void)
       LbScreenSwap();
     }
 
-    if ( !SoundDisabled )
+    if (!SoundDisabled)
     {
       process_3d_sounds();
       process_sound_heap();
       MonitorStreamedSoundTrack();
     }
 
-    if ( fade_palette_in )
+    if (fade_palette_in)
     {
       fade_in();
       fade_palette_in = 0;
@@ -8734,9 +10222,10 @@ void wait_at_frontend(void)
   LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
   LbScreenClear(0);
   LbScreenSwap();
-  short prev_state = frontend_menu_state;
+  short prev_state;
+  prev_state = frontend_menu_state;
   frontend_set_state(0);
-  if ( exit_keeper )
+  if (exit_keeper)
   {
     game.players[my_player_number].field_6 &= 0xFDu;
     return;
@@ -8745,20 +10234,16 @@ void wait_at_frontend(void)
 
   display_loading_screen();
   short flgmem;
-  switch ( prev_state )
+  switch (prev_state)
   {
   case 7:
         my_player_number = default_loc_player;
         game.flagfield_14EA4A = 2;
         game.numfield_A &= 0xFFFEu;
         game.players[my_player_number].field_2C = 1;
-        game.level_file_number = game.selected_lev_file_num;
-        game.selected_lev_file_num = 0;
         startup_network_game();
         break;
   case 8:
-        game.level_file_number = game.selected_lev_file_num;
-        game.selected_lev_file_num = 0;
         game.numfield_A |= 0x01;
         game.flagfield_14EA4A = 5;
         game.players[my_player_number].field_2C = 1;
@@ -8805,7 +10290,8 @@ void game_loop(void)
     wait_at_frontend();
     if ( exit_keeper )
       break;
-    struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+    struct PlayerInfo *player;
+    player = &(game.players[my_player_number%PLAYERS_COUNT]);
     if ( game.flagfield_14EA4A == 2 )
     {
       if ( game.numfield_15 == -1 )
@@ -8853,14 +10339,13 @@ void game_loop(void)
 short reset_game(void)
 {
   _DK_IsRunningUnmark();
-  _DK_LbMouseSuspend();
+  LbMouseSuspend();
   LbIKeyboardClose();
   LbScreenReset();
   LbDataFreeAll(game_load_files);
-  LbMemoryFree(strings_data);
-  strings_data = NULL;
+  free_gui_strings_data();
   FreeAudio();
-  return _DK_LbMemoryReset();
+  return LbMemoryReset();
 }
 
 short process_command_line(unsigned short argc, char *argv[])
@@ -8882,10 +10367,11 @@ short process_command_line(unsigned short argc, char *argv[])
 
   set_default_startup_parameters();
 
-  short bad_param = 0;
-  long level_num = -1;
-
+  short bad_param;
+  LevelNumber level_num;
+  bad_param = 0;
   unsigned short narg;
+  level_num = LEVELNUMBER_ERROR;
   narg = 1;
   while ( narg < argc )
   {
@@ -8984,9 +10470,9 @@ short process_command_line(unsigned short argc, char *argv[])
       narg++;
   }
 
-  if (level_num == -1)
+  if (level_num == LEVELNUMBER_ERROR)
     level_num = first_singleplayer_level();
-  start_params.selected_lev_file_num = level_num;
+  start_params.selected_level_number = level_num;
   my_player_number = default_loc_player;
   return (bad_param==0);
 }
@@ -9110,11 +10596,12 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
   get_cmdln_args(bf_argc, bf_argv);
 
 //TODO: delete when won't be needed anymore
-  memcpy(_DK_menu_list,menu_list,sizeof(menu_list));
+  memcpy(_DK_menu_list,menu_list,40*sizeof(struct GuiMenu *));
+  memcpy(_DK_player_instance_info,player_instance_info,17*sizeof(struct PlayerInstanceInfo));
 #if (BFDEBUG_LEVEL > 1)
 /*  {
       struct PlayerInfo *player=&(game.players[0]);
-      text = buf_sprintf("Position of the first Player is %06x, first Camera is %06x bytes.\n",((int)player) - ((int)&_DK_game),((int)&(player->camera)) - ((int)player));
+      text = buf_sprintf("Position of the first Player is %06x, first Camera is %06x bytes.\n",((int)player) - ((int)&_DK_game),((int)&(player->acamera)) - ((int)player));
       error_dialog(func_name, 1, text);
       return 0;
   }

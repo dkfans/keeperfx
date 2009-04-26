@@ -34,41 +34,49 @@ extern "C" {
 /******************************************************************************/
 const char keeper_compplayer_file[]="keepcompp.cfg";
 
+const struct ConfigCommand compp_common_commands[] = {
+  {"COMPUTERASSISTS", 1},
+  {"PROCESSESCOUNT",  2},
+  {"CHECKSCOUNT",     3},
+  {"EVENTSCOUNT",     4},
+  {NULL,              0},
+  };
+
 const struct ConfigCommand compp_process_commands[] = {
-  {"NAME",          1},
-  {"VALUES",        2},
-  {"FUNCTIONS",     3},
-  {"PARAMS",        4},
-  {"MNEMONIC",      5},
-  {NULL,            0},
+  {"NAME",            1},
+  {"VALUES",          2},
+  {"FUNCTIONS",       3},
+  {"PARAMS",          4},
+  {"MNEMONIC",        5},
+  {NULL,              0},
   };
 
 const struct ConfigCommand compp_check_commands[] = {
-  {"NAME",          1},
-  {"VALUES",        2},
-  {"FUNCTIONS",     3},
-  {"PARAMS",        4},
-  {"MNEMONIC",      5},
-  {NULL,            0},
+  {"NAME",            1},
+  {"VALUES",          2},
+  {"FUNCTIONS",       3},
+  {"PARAMS",          4},
+  {"MNEMONIC",        5},
+  {NULL,              0},
   };
 
 const struct ConfigCommand compp_event_commands[] = {
-  {"NAME",          1},
-  {"VALUES",        2},
-  {"FUNCTIONS",     3},
-  {"PROCESS",       4},
-  {"PARAMS",        5},
-  {"MNEMONIC",      6},
-  {NULL,            0},
+  {"NAME",            1},
+  {"VALUES",          2},
+  {"FUNCTIONS",       3},
+  {"PROCESS",         4},
+  {"PARAMS",          5},
+  {"MNEMONIC",        6},
+  {NULL,              0},
   };
 
 const struct ConfigCommand compp_computer_commands[] = {
-  {"NAME",          1},
-  {"VALUES",        2},
-  {"PROCESSES",     3},
-  {"CHECKS",        4},
-  {"EVENTS",        5},
-  {NULL,            0},
+  {"NAME",            1},
+  {"VALUES",          2},
+  {"PROCESSES",       3},
+  {"CHECKS",          4},
+  {"EVENTS",          5},
+  {NULL,              0},
   };
 
 ComputerType computer_assist_types[] = { 6, 7, 8, 9 };
@@ -79,6 +87,11 @@ DLLIMPORT void _DK_process_computer_player2(unsigned long plridx);
 DLLIMPORT void _DK_setup_a_computer_player(unsigned long a1, long a2);
 DLLIMPORT struct ComputerTask *_DK_computer_setup_build_room(struct Computer2 *comp, unsigned short a2, long a3, long a4, long a5);
 DLLIMPORT void _DK_process_computer_players2(void);
+DLLIMPORT long _DK_set_next_process(struct Computer2 *comp);
+DLLIMPORT void _DK_computer_check_events(struct Computer2 *comp);
+DLLIMPORT long _DK_process_checks(struct Computer2 *comp);
+DLLIMPORT long _DK_process_tasks(struct Computer2 *comp);
+DLLIMPORT long _DK_get_computer_money_less_cost(struct Computer2 *comp);
 
 DLLIMPORT long _DK_computer_check_build_all_rooms(struct Computer2 *comp, struct ComputerProcess *process);
 //#define computer_check_build_all_rooms _DK_computer_check_build_all_rooms
@@ -662,8 +675,6 @@ int get_computer_check_config_list_index_prc(struct ComputerCheck *check)
     if (check == NULL)
       continue;
 /*
-    if (((uint)check->name < ((uint)&_DK_BuildAllRooms3x3) - 0x100) || ((uint)check->name > ((uint)&_DK_BuildAllRooms3x3)))
-      continue;
     if (stricmp(cchk->name, check->name) != 0)
       continue;
 */
@@ -833,6 +844,57 @@ short init_computer_process_lists(void)
     computer_type_clear_checks(cpt);
   }
   return true;
+}
+
+short parse_computer_player_common_blocks(char *buf,long len)
+{
+  long pos;
+  int i,k,n;
+  int cmd_num;
+  // Block name and parameter word store variables
+  char block_buf[32];
+  char word_buf[32];
+  // Find the block
+  sprintf(block_buf,"common");
+  pos = 0;
+  k = find_conf_block(buf,&pos,len,block_buf);
+  if (k < 0)
+  {
+    LbWarnLog("Block [%s] not found in Computer Player file.\n",block_buf);
+    return 0;
+  }
+  while (pos<len)
+  {
+      // Finding command number in this line
+      cmd_num = recognize_conf_command(buf,&pos,len,compp_common_commands);
+      // Now store the config item in correct place
+      if (cmd_num == -3) break; // if next block starts
+      n = 0;
+      switch (cmd_num)
+      {
+      case 1: // COMPUTERASSISTS
+//TODO
+          break;
+      case 2: // PROCESSESCOUNT
+//TODO
+          break;
+      case 3: // CHECKSCOUNT
+//TODO
+          break;
+      case 4: // EVENTSCOUNT
+//TODO
+          break;
+      case 0: // comment
+          break;
+      case -1: // end of buffer
+          break;
+      default:
+          LbWarnLog("Unrecognized command in Computer Player file, starting on byte %d.\n",pos);
+          break;
+      }
+      skip_conf_to_next_line(buf,&pos,len);
+  }
+  return 1;
 }
 
 short parse_computer_player_process_blocks(char *buf,long len)
@@ -1022,7 +1084,7 @@ short parse_computer_player_check_blocks(char *buf,long len)
     check = &computer_checks[i];
     computer_check_config_list[i].name[0] = '\0';
     computer_check_config_list[i].check = check;
-    check->name = (char *)&computer_check_names[i];
+    check->name = computer_check_names[i];
     LbMemorySet(computer_check_names[i], 0, LINEMSG_SIZE);
   }
   strcpy(computer_check_names[0],"INCORRECT CHECK");
@@ -1048,7 +1110,7 @@ short parse_computer_player_check_blocks(char *buf,long len)
       switch (cmd_num)
       {
       case 1: // NAME
-          if (get_conf_parameter_whole(buf,&pos,len,(char *)check->name,LINEMSG_SIZE) <= 0)
+          if (get_conf_parameter_whole(buf,&pos,len,check->name,LINEMSG_SIZE) <= 0)
           {
             LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Computer file.\n","NAME",block_buf);
             break;
@@ -1151,7 +1213,7 @@ short parse_computer_player_event_blocks(char *buf,long len)
     event = &computer_events[i];
     computer_event_config_list[i].name[0] = '\0';
     computer_event_config_list[i].event = event;
-    event->name = (char *)&computer_event_names[i];
+    event->name = computer_event_names[i];
     LbMemorySet(computer_event_names[i], 0, LINEMSG_SIZE);
   }
   strcpy(computer_event_names[0],"INCORRECT EVENT");
@@ -1177,7 +1239,7 @@ short parse_computer_player_event_blocks(char *buf,long len)
       switch (cmd_num)
       {
       case 1: // NAME
-          if (get_conf_parameter_whole(buf,&pos,len,(char *)event->name,LINEMSG_SIZE) <= 0)
+          if (get_conf_parameter_whole(buf,&pos,len,event->name,LINEMSG_SIZE) <= 0)
           {
             LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Computer file.\n","NAME",block_buf);
             break;
@@ -1397,7 +1459,11 @@ short parse_computer_player_computer_blocks(char *buf,long len)
       switch (cmd_num)
       {
       case 1: // NAME
-          //For now, let's leave default names.
+          if (get_conf_parameter_whole(buf,&pos,len,cpt->name,LINEMSG_SIZE) <= 0)
+          {
+            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Computer file.\n","NAME",block_buf);
+            break;
+          }
           break;
       case 2: // VALUES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -1533,6 +1599,7 @@ short load_computer_player_config(void)
   len = LbFileLoadAt(fname, buf);
   if (len>0)
   {
+    parse_computer_player_common_blocks(buf,len);
     parse_computer_player_process_blocks(buf,len);
     parse_computer_player_check_blocks(buf,len);
     parse_computer_player_event_blocks(buf,len);
@@ -1570,6 +1637,11 @@ void reset_process(struct Computer2 *comp, struct ComputerProcess *process)
     set_flag_dword(&process->field_44, 0x0020, false);
     process->field_34 = game.seedchk_random_used;
   }
+}
+
+long get_computer_money_less_cost(struct Computer2 *comp)
+{
+  return _DK_get_computer_money_less_cost(comp);
 }
 
 struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, unsigned short rkind, long a3, long a4, long a5)
@@ -1903,9 +1975,86 @@ void setup_a_computer_player(unsigned short plyridx, long comp_model)
   }
 }
 
+long set_next_process(struct Computer2 *comp)
+{
+  return _DK_set_next_process(comp);
+}
+
+void computer_check_events(struct Computer2 *comp)
+{
+  _DK_computer_check_events(comp);
+}
+
+long process_checks(struct Computer2 *comp)
+{
+  return _DK_process_checks(comp);
+}
+
+long process_tasks(struct Computer2 *comp)
+{
+  return _DK_process_tasks(comp);
+}
+
+short process_processes_and_task(struct Computer2 *comp)
+{
+  static const char *func_name="process_processes_and_task";
+  struct ComputerProcess *process;
+  Comp_Process_Func callback;
+  int i;
+  for (i=comp->field_10; i > 0; i--)
+  {
+    if (comp->field_10 <= 0)
+      return false;
+    if ((game.seedchk_random_used % comp->field_18) == 0)
+      process_tasks(comp);
+    switch (comp->field_0)
+    {
+    case 1:
+        comp->field_8--;
+        if (comp->field_8 <= 0)
+        {
+          comp->field_8 = comp->field_4;
+          set_next_process(comp);
+        }
+        break;
+    case 2:
+        set_next_process(comp);
+        break;
+    case 3:
+        if (comp->field_14C4 > 0)
+        {
+          process = &comp->processes[comp->field_14C4];
+          callback = process->func_task;
+          if (callback != NULL)
+            callback(comp,process);
+        } else
+        {
+          error(func_name, 231, "No Process for a computer player");
+          comp->field_0 = 1;
+        }
+        break;
+    }
+  }
+  return true;
+}
+
 void process_computer_player2(unsigned long plridx)
 {
-  _DK_process_computer_player2(plridx);
+  static const char *func_name="process_computer_player2";
+  //_DK_process_computer_player2(plridx);
+  struct Computer2 *comp;
+  comp = &game.computer[plridx%PLAYERS_COUNT];
+  if ((comp->field_14) && (comp->field_2C <= game.seedchk_random_used))
+    comp->field_10 = 1;
+  else
+    comp->field_10 = 0;
+  if (comp->field_10 <= 0)
+    return;
+  computer_check_events(comp);
+  process_checks(comp);
+  process_processes_and_task(comp);
+  if ((comp->field_10 < 0) || (comp->field_10 > 1))
+    error(func_name, 239, "Computer performed more than one task");
 }
 
 void process_computer_players2(void)

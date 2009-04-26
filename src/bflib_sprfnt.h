@@ -31,6 +31,11 @@ extern "C" {
 struct TbSprite;
 struct TbSetupSprite;
 
+enum TbFontDrawFlags {
+  Fnt_LeftJustify   = 0x00,
+  Fnt_RightJustify  = 0x01,
+  Fnt_CenterPos     = 0x02,
+  };
 
 /******************************************************************************/
 DLLIMPORT extern struct TbSprite *_DK_lbFontPtr;
@@ -43,7 +48,11 @@ int LbTextHeight(const char *text);
 int LbTextSetWindow(int posx, int posy, int width, int height);
 int LbTextStringWidth(const char *str);
 int LbTextStringHeight(const char *str);
+int LbTextCharWidth(const char chr);
+int LbTextCharHeight(const char chr);
 
+int LbTextNumberDraw(int pos_x, int pos_y, long number, unsigned short fdflags);
+int LbTextStringDraw(int pos_x, int pos_y, const char *text, unsigned short fdflags);
 /*
 char __fastcall font_height(const unsigned char c);
 unsigned long __fastcall my_string_width(const char *str);

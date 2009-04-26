@@ -30,6 +30,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_play_non_3d_sample(long sidx);
+DLLIMPORT struct SampleInfo *_DK_play_sample_using_heap(unsigned long a1, short a2, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, unsigned char a8);
 DLLIMPORT long _DK_S3DAddSampleToEmitterPri(long, long, long, long, long, long, char, long, long);
 DLLIMPORT long _DK_S3DCreateSoundEmitterPri(long, long, long, long, long, long, long, long, long, long);
 DLLIMPORT long _DK_S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);
@@ -91,6 +92,16 @@ long S3DMoveSoundEmitterTo(long eidx, long x, long y, long z)
   return _DK_S3DMoveSoundEmitterTo(eidx, x, y, z);
 }
 
+long S3DAddSampleToEmitterPri(long emidx, long a2, long a3, long a4, long a5, long a6, char a7, long a8, long a9)
+{
+  return _DK_S3DAddSampleToEmitterPri(emidx, a2, a3, a4, a5, a6, a7, a8, a9);
+}
+
+long S3DCreateSoundEmitterPri(long x, long y, long z, long a4, long a5, long a6, long a7, long a8, long a9, long a10)
+{
+  return _DK_S3DCreateSoundEmitterPri(x, y, z, a4, a5, a6, a7, a8, a9, a10);
+}
+
 short sound_emitter_in_use(long emidx)
 {
   return (emidx!=0) && (_DK_emitter[emidx].flags & 1);
@@ -119,6 +130,10 @@ void play_non_3d_sample(long sample_idx)
   }
 }
 
+struct SampleInfo *play_sample_using_heap(unsigned long a1, short a2, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, unsigned char a8)
+{
+  return _DK_play_sample_using_heap(a1, a2, a3, a4, a5, a6, a7, a8);
+}
 
 /******************************************************************************/
 #ifdef __cplusplus

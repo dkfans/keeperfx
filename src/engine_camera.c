@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file front_input.h
- *     Header file for front_input.c.
+/** @file engine_camera.c
+ *     Camera move, maintain and support functions.
  * @par Purpose:
- *     Front-end user keyboard and mouse input.
+ *     Defines and maintains cameras.
  * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
+ *     None.
  * @author   Tomasz Lis
- * @date     20 Jan 2009 - 30 Jan 2009
+ * @date     20 Mar 2009 - 30 Mar 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,28 +16,44 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "engine_camera.h"
 
-#ifndef DK_FRONTINPUT_H
-#define DK_FRONTINPUT_H
-
-#include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_basics.h"
+#include "bflib_memory.h"
+#include "bflib_video.h"
+#include "bflib_sprite.h"
+#include "bflib_vidraw.h"
+
+#include "engine_lenses.h"
+#include "engine_render.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
+long get_3d_box_distance(struct Coord3d *pos1, struct Coord3d *pos2)
+{
+  long dx;
+  long dy;
+  long dz;
+  dy = abs(pos2->y.val - pos1->y.val);
+  dx = abs(pos2->x.val - pos1->x.val);
+  if (dy <= dx)
+    dy = dx;
+  dz = abs(pos2->z.val - pos1->z.val);
+  if (dy <= dz)
+    dy = dz;
+  return dy;
+}
 
 /******************************************************************************/
+
 /******************************************************************************/
-void input(void);
-short get_inputs(void);
-short get_screen_capture_inputs(void);
-int is_game_key_pressed(long key_id, long *val, short ignore_mods);
-short game_is_busy_doing_gui_string_input(void);
+
+
 
 /******************************************************************************/
 #ifdef __cplusplus
 }
-#endif
 #endif

@@ -47,6 +47,20 @@ int LbTextHeight(const char *text)
   return lbFontPtr[1].SHeight;
 }
 
+int LbTextCharWidth(const char chr)
+{
+  if (lbFontPtr == NULL)
+    return 0;
+  return lbFontPtr[(unsigned char)chr].SWidth;
+}
+
+int LbTextCharHeight(const char chr)
+{
+  if (lbFontPtr == NULL)
+    return 0;
+  return lbFontPtr[(unsigned char)chr].SHeight;
+}
+
 int LbTextSetWindow(int posx, int posy, int width, int height)
 {
   return _DK_LbTextSetWindow(posx, posy, width, height);
@@ -73,6 +87,58 @@ int LbTextStringHeight(const char *str)
   if (lbFontPtr != NULL)
     h = lbFontPtr[1].SHeight;
   return h*lines;
+}
+
+int LbTextNumberDraw(int pos_x, int pos_y, long number, unsigned short fdflags)
+{
+  long base;
+  char text[16];
+  int w,h;
+  if (lbFontPtr == NULL)
+    return 0;
+  sprintf(text,"%ld",number);
+  h = LbTextHeight("Wg");
+  w = LbTextStringWidth(text);
+  switch (fdflags & 0x03)
+  {
+  case Fnt_LeftJustify:
+    LbTextSetWindow(pos_x, pos_y, w, h);
+    break;
+  case Fnt_RightJustify:
+    LbTextSetWindow(pos_x-w, pos_y, w, h);
+    break;
+  case Fnt_CenterPos:
+    LbTextSetWindow(pos_x-(w>>1), pos_y, w, h);
+    break;
+  }
+  LbTextDraw(0, 0, text);
+  return w;
+}
+
+int LbTextStringDraw(int pos_x, int pos_y, const char *text, unsigned short fdflags)
+{
+  long base;
+  int w,h;
+  if (lbFontPtr == NULL)
+    return 0;
+  if (text == NULL)
+    return 0;
+  h = LbTextHeight("Wg");
+  w = LbTextStringWidth(text);
+  switch (fdflags & 0x03)
+  {
+  case Fnt_LeftJustify:
+    LbTextSetWindow(pos_x, pos_y, w, h);
+    break;
+  case Fnt_RightJustify:
+    LbTextSetWindow(pos_x-w, pos_y, w, h);
+    break;
+  case Fnt_CenterPos:
+    LbTextSetWindow(pos_x-(w>>1), pos_y, w, h);
+    break;
+  }
+  LbTextDraw(0, 0, text);
+  return w;
 }
 
 /*

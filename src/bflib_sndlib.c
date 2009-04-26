@@ -38,6 +38,7 @@ typedef int (WINAPI *FARPROCII)(int,int);
 typedef int (WINAPI *FARPROCS)(const char *);
 typedef int (WINAPI *FARPROCP)(const void *);
 typedef int (WINAPI *FARPROCSIII)(const char *,int,int,int);
+typedef int (WINAPI *FARPROCIIII)(int,int,int,int);
 
 /******************************************************************************/
 // Functions
@@ -297,6 +298,16 @@ int __stdcall StartMusic(int i,int v)
     return ((FARPROCII)proc)(i,v);
 }
 
+int __stdcall SetSampleVolume(int a,int b,int c,int d)
+{
+    HMODULE hModule;
+    hModule=GetModuleHandle("WSND7R");
+    FARPROC proc;
+    proc=GetProcAddress(hModule,"_SetSampleVolume@16");
+    if (proc==NULL)
+    { LbErrorLog("Can't get address of SetSampleVolume function; skipped.\n"); return 0; }
+    return ((FARPROCIIII)proc)(a,b,c,d);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

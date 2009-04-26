@@ -141,6 +141,8 @@ struct PurpleDrawItem {
         // pos=24d
         unsigned short Flags;
 };
+
+#pragma pack()
 /******************************************************************************/
 /*
 extern struct PurpleDrawItem *purple_draw_list;
@@ -153,7 +155,6 @@ extern unsigned short text_window_x1, text_window_y1;
 extern unsigned short text_window_x2, text_window_y2;
 extern char my_line_spacing;
 */
-#pragma pack()
 /******************************************************************************/
 DLLIMPORT unsigned char *_DK_poly_screen;
 #define poly_screen _DK_poly_screen

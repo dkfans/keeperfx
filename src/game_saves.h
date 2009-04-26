@@ -28,29 +28,38 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define SAVE_SLOTS_COUNT       8
+#define SAVE_TEXTNAME_LEN     15
+
+/******************************************************************************/
+#pragma pack(1)
 
 struct CatalogueEntry {
     char used;
     char  numfield_1;
-    char textname[15];
+    char textname[SAVE_TEXTNAME_LEN];
 };
 
 /******************************************************************************/
 DLLIMPORT extern struct CatalogueEntry _DK_save_game_catalogue[SAVE_SLOTS_COUNT];
 #define save_game_catalogue _DK_save_game_catalogue
+
+#pragma pack()
 /******************************************************************************/
-short load_game(long num);
-short save_game_save_catalogue(struct CatalogueEntry *game_catalg);
-void load_game_save_catalogue(struct CatalogueEntry *game_catalg);
+short load_game(long slot_idx);
+short save_game(long slot_idx);
 short initialise_load_game_slots(void);
 int count_valid_saved_games(void);
 short save_version_compatible(long filesize,struct Game *header);
-short is_save_game_loadable(long num);
+short is_save_game_loadable(long slot_num);
+/******************************************************************************/
+short save_catalogue_slot_disable(unsigned int slot_idx);
+short save_game_save_catalogue(void);
+short load_game_save_catalogue(void);
 /******************************************************************************/
 short continue_game_available(void);
-void update_continue_game(void);
+short load_continue_game(void);
+short save_continue_game(long lv_num);
 short read_continue_game_part(unsigned char *buf,long pos,long buf_len);
-void frontend_save_continue_game(long lv_num, short is_new_lvl);
 /******************************************************************************/
 #ifdef __cplusplus
 }

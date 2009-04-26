@@ -38,6 +38,12 @@ extern "C" {
 
 #pragma pack(1)
 
+struct Computer2;
+struct ComputerProcess;
+struct ComputerCheck;
+struct ComputerEvent;
+struct Event;
+
 typedef unsigned char ComputerType;
 typedef char ComputerName[LINEMSG_SIZE];
 
@@ -167,18 +173,27 @@ struct Computer2 { // sizeof = 5322
   struct Comp2_UnkStr1 unkarr_A10[5];
   unsigned char field_11C2[446];
   unsigned char field_1380[128];
-  unsigned char field_1400[202];
+  unsigned char field_1400[196];
+  short field_14C4;
+  long field_14C6;
 };
 
 /******************************************************************************/
 DLLIMPORT struct ComputerProcessTypes _DK_ComputerProcessLists[14];
 //#define ComputerProcessLists _DK_ComputerProcessLists
+
 #pragma pack()
 /******************************************************************************/
 extern unsigned short computer_types[];
 /******************************************************************************/
 void shut_down_process(struct Computer2 *comp, struct ComputerProcess *process);
 void reset_process(struct Computer2 *comp, struct ComputerProcess *process);
+/******************************************************************************/
+long set_next_process(struct Computer2 *comp);
+void computer_check_events(struct Computer2 *comp);
+long process_checks(struct Computer2 *comp);
+long process_tasks(struct Computer2 *comp);
+long get_computer_money_less_cost(struct Computer2 *comp);
 /******************************************************************************/
 void setup_a_computer_player(unsigned short plyridx, long comp_model);
 void process_computer_players2(void);
