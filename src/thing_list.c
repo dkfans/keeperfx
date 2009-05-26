@@ -280,7 +280,7 @@ void init_traps(void)
     i = thing->next_of_class;
     if (thing->byte_13.l == 0)
     {
-      thing->byte_13.l = game.traps_config[thing->model].field_8;
+      thing->byte_13.l = game.traps_config[thing->model].shots;
       thing->field_4F ^= (thing->field_4F ^ (trap_stats[thing->model].field_12 << 4)) & 0x30;
     }
     k++;
@@ -401,9 +401,9 @@ struct Thing *find_hero_gate_of_number(long num)
   return game.things_lookup[0];
 }
 
-short knight_in_prison(void)
+long creature_of_model_in_prison(int model)
 {
-  static const char *func_name="knight_in_prison";
+  static const char *func_name="creature_of_model_in_prison";
   struct Thing *thing;
   long i,k,n;
   i = game.thing_lists[0].index;
@@ -419,13 +419,13 @@ short knight_in_prison(void)
     if (thing_is_invalid(thing))
       break;
     i = thing->next_of_class;
-    if (thing->model == 6)
+    if (thing->model == model)
     {
       n = thing->field_7;
       if (n == 14)
         n = thing->field_8;
       if ((n == 41) || (n == 40))
-        return true;
+        return i;
     }
     k++;
     if (k > THINGS_COUNT)
@@ -434,7 +434,12 @@ short knight_in_prison(void)
       break;
     }
   }
-  return false;
+  return 0;
+}
+
+short knight_in_prison(void)
+{
+  return (creature_of_model_in_prison(6) > 0);
 }
 
 long get_free_hero_gate_number(void)
@@ -449,6 +454,83 @@ long get_free_hero_gate_number(void)
       return n;
   }
   return 0;
+}
+
+long count_player_creatures_of_model(long plyr_idx, long model)
+{
+  static const char *func_name="count_player_creatures_of_model";
+  struct Dungeon *dungeon;
+  struct CreatureControl *cctrl;
+  struct Thing *thing;
+  unsigned long k;
+  long i;
+  int count;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  count = 0;
+  i = dungeon->field_2D;
+  k = 0;
+  while (i>0)
+  {
+    if (i >= THINGS_COUNT)
+    {
+      error(func_name,1953,"Jump out of things array bounds detected");
+      break;
+    }
+    thing = game.things_lookup[i];
+    if (thing_is_invalid(thing))
+      break;
+    cctrl = creature_control_get_from_thing(thing);
+    i = cctrl->thing_idx;
+    if (thing->model == model)
+      count++;
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      error(func_name,7641,"Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  return count;
+}
+
+long count_player_creatures_not_counting_to_total(long plyr_idx)
+{
+  static const char *func_name="count_player_creatures_total";
+  struct Dungeon *dungeon;
+  struct CreatureControl *cctrl;
+  struct Thing *thing;
+  unsigned long k;
+  long i,n;
+  int count;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  count = 0;
+  i = dungeon->field_2D;
+  k = 0;
+  while (i>0)
+  {
+    if (i >= THINGS_COUNT)
+    {
+      error(func_name,1953,"Jump out of things array bounds detected");
+      break;
+    }
+    thing = game.things_lookup[i];
+    if (thing_is_invalid(thing))
+      break;
+    cctrl = creature_control_get_from_thing(thing);
+    i = cctrl->thing_idx;
+    n = thing->field_7;
+    if (n == 14)
+      n = thing->field_8;
+    if ((n == 41) || (n == 40))
+      count++;
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      error(func_name,7641,"Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  return count;
 }
 
 /*
@@ -473,7 +555,7 @@ long thing_get_index(const struct Thing *thing)
 
 short thing_is_invalid(const struct Thing *thing)
 {
-  return (thing == game.things_lookup[0]) || (thing == NULL);
+  return (thing <= game.things_lookup[0]) || (thing == NULL);
 }
 
 short thing_exists_idx(long tng_idx)

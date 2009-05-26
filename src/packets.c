@@ -27,6 +27,8 @@
 #include "bflib_vidraw.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "bflib_network.h"
+#include "bflib_sound.h"
 
 #include "kjm_input.h"
 #include "front_simple.h"
@@ -154,10 +156,13 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
   struct Packet *pckt;
   struct CreatureControl *cctrl;
   struct Thing *thing;
-  long stl_x,stl_y;
-  short v172;
+  struct SlabMap *slb;
+  struct Room *room;
+  struct Map *map;
+  MapSubtlCoord stl_x,stl_y;
+  short val172;
   struct Coord3d pos;
-  long x,y;
+  MapCoord x,y;
   long i,k;
   //_DK_process_dungeon_control_packet_clicks(plyr_idx); return;
   player = &(game.players[plyr_idx%PLAYERS_COUNT]);
@@ -176,9 +181,9 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
   switch (player->field_453)
   {
   case 1:
-  case 2:
-  case 16:
-  case 23:
+//  case 2:
+//  case 16:
+//  case 23:
       _DK_process_dungeon_control_packet_clicks(plyr_idx);
       return;
   }
@@ -246,16 +251,71 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
   player->field_35 = 0;
   x = ((unsigned short)pckt->field_A);
   y = ((unsigned short)pckt->field_C);
-  stl_x = x/(map_subtiles_x+1);
-  stl_y = y/(map_subtiles_y+1);
-  v172 = false;
+  stl_x = (x >> 8);
+  stl_y = (y >> 8);
+  val172 = false;
   switch (player->field_453)
   {
   case 1:
 //........
       break;
   case 2:
-//........
+      if ((pckt->field_E & 0x8000) == 0)
+      {
+        if (((pckt->field_E & 0x1000) != 0) && (player->field_4AF != 0))
+        {
+          player->field_4AF = 0;
+          pckt->field_E &= 0xEFFFu;
+        }
+        break;
+      }
+      player->field_4A4 = 1;
+      if (is_my_player(player))
+        gui_room_type_highlighted = player->field_4A3;
+      i = tag_cursor_blocks_place_room(player->field_2B, stl_x, stl_y, player->field_4A4);
+      if ((pckt->field_E & 0x0100) == 0)
+      {
+        if (((pckt->field_E & 0x1000) != 0) && (player->field_4AF != 0))
+        {
+          player->field_4AF = 0;
+          pckt->field_E &= 0xEFFFu;
+        }
+        break;
+      }
+      if (i == 0)
+      {
+        if (is_my_player(player))
+        {
+          play_non_3d_sample(119);
+          pckt->field_E &= 0xFEFFu;
+        }
+        break;
+      }
+      k = game.room_stats[player->field_4A3].cost;
+      if (i_can_allocate_free_room_structure())
+      {
+        if (take_money_from_dungeon(plyr_idx, k, 1) < 0)
+        {
+          if (is_my_player(player))
+            output_message(87, 0, 1);
+          break;
+        }
+      }
+      x = ((player->field_4A4+1) / 2) + 3*map_to_slab[stl_x];
+      y = ((player->field_4A4+1) / 2) + 3*map_to_slab[stl_y];
+      if (place_room(plyr_idx, player->field_4A3, x, y) != NULL)
+      {
+        if (player->field_4A3 == 15)
+          dungeon->lvstats.bridges_built++;
+        dungeon->field_EA4 = 192;
+        if (is_my_player(player))
+          play_non_3d_sample(77);
+        set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
+        thing = create_effect_element(&pos, 41, plyr_idx);
+        if (!thing_is_invalid(thing))
+          thing->long_13 = k;
+      }
+      pckt->field_E &= 0xFEFFu;
       break;
   case 3:
       if (((pckt->field_E & 0x1000) == 0) || ((pckt->field_E & 0x8000) == 0))
@@ -315,7 +375,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       break;
   case 9:
-      v172 = 1;
+      val172 = 1;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
         player->field_35 = 0;
@@ -328,7 +388,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       break;
   case 10:
-      v172 = 1;
+      val172 = 1;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
         player->field_35 = 0;
@@ -354,7 +414,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       break;
   case 11:
-      v172 = 1;
+      val172 = 1;
       thing = get_creature_near_for_controlling(plyr_idx, x, y);
       if (thing_is_invalid(thing))
         player->field_35 = 0;
@@ -380,7 +440,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       break;
   case 12:
   case 15:
-      v172 = 1;
+      val172 = 1;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
         player->field_35 = 0;
@@ -406,7 +466,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       if (player->field_453 == 15)
       {
-        thing = game.things_lookup[player->field_2F%THINGS_COUNT];
+        thing = thing_get(player->field_2F);
         if ((pckt->field_E & 0x2000) != 0)
         {
           if (is_my_player(player))
@@ -429,7 +489,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       break;
   case 13:
-      v172 = 1;
+      val172 = 1;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
         player->field_35 = 0;
@@ -441,7 +501,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if ((pckt->field_E & 0x8000) != 0)
           {
-            thing = game.things_lookup[player->field_2F];
+            thing = thing_get(player->field_2F);
             setup_person_move_to_position(thing, stl_x, stl_y, 0);
             thing->field_8 = 122;
           }
@@ -452,7 +512,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
           {
             player->field_2F = thing->field_1B;
             initialise_thing_state(thing, 122);
-            cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
+            cctrl = creature_control_get_from_thing(thing);
             i = cctrl->field_7A;// & 0xFFF;
             if (i > 0)
               make_group_member_leader(thing);
@@ -464,7 +524,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       {
         if ((player->field_2F > 0) && (player->field_2F < THINGS_COUNT))
         {
-          thing = game.things_lookup[player->field_2F];
+          thing = thing_get(player->field_2F);
           set_start_state(thing);
           player->field_2F = 0;
         }
@@ -478,7 +538,53 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       pckt->field_E &= 0xEFFFu;
       break;
   case 16:
-//........
+      if ((pckt->field_E & 0x8000) == 0)
+      {
+        if (((pckt->field_E & 0x1000) != 0) && (player->field_4AF != 0))
+        {
+          player->field_4AF = 0;
+          pckt->field_E &= 0xEFFFu;
+        }
+        break;
+      }
+      set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
+      player->field_4A4 = 1;
+      i = tag_cursor_blocks_place_trap(player->field_2B, stl_x, stl_y);
+      if ((pckt->field_E & 0x0100) == 0)
+      {
+        if (((pckt->field_E & 0x1000) != 0) && (player->field_4AF != 0))
+        {
+          player->field_4AF = 0;
+          pckt->field_E &= 0xEFFFu;
+        }
+        break;
+      }
+      if (dungeon->trap_amount[player->field_4A5%TRAP_TYPES_COUNT] <= 0)
+      {
+        pckt->field_E &= 0xFEFFu;
+        break;
+      }
+      if (i == 0)
+      {
+        if (is_my_player(player))
+          play_non_3d_sample(119);
+        pckt->field_E &= 0xFEFFu;
+        break;
+      }
+      delete_room_slabbed_objects(map_to_slab[stl_x] + map_tiles_x * map_to_slab[stl_y]);
+      thing = create_trap(&pos, player->field_4A5, plyr_idx);
+      thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
+      thing->byte_17.h = 0;
+      if (remove_workshop_item(plyr_idx, 8, player->field_4A5))
+        dungeon->lvstats.traps_used++;
+      dungeon->field_EA4 = 192;
+      if (is_my_player(player))
+      {
+        play_non_3d_sample(117);
+        pckt->field_E &= 0xFEFFu;
+        break;
+      }
+      pckt->field_E &= 0xFEFFu;
       break;
   case 17:
       player->field_35 = 0;
@@ -512,7 +618,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       break;
   case 19:
-      v172 = true;
+      val172 = true;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
       {
@@ -528,7 +634,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       break;
   case 20:
-      v172 = true;
+      val172 = true;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
       {
@@ -544,7 +650,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       break;
   case 21:
-      v172 = true;
+      val172 = true;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
       {
@@ -560,7 +666,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       break;
   case 22:
-      v172 = true;
+      val172 = true;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
       {
@@ -576,7 +682,105 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       break;
   case 23:
-//........
+      if ((pckt->field_E & 0x8000) == 0)
+      {
+        if (((pckt->field_E & 0x1000) != 0) && (player->field_4AF != 0))
+        {
+          player->field_4AF = 0;
+          pckt->field_E &= 0xEFFFu;
+        }
+        break;
+      }
+      player->field_4A4 = 1;
+      pos.x.val = x;
+      pos.y.val = y;
+      pos.z.val = 128;
+      if (is_my_player(player))
+      {
+        if (!game_is_busy_doing_gui())
+          tag_cursor_blocks_sell_area(player->field_2B, stl_x, stl_y, player->field_4A4);
+      }
+      if ((pckt->field_E & 0x0100) == 0)
+      {
+        if (((pckt->field_E & 0x1000) != 0) && (player->field_4AF != 0))
+        {
+          player->field_4AF = 0;
+          pckt->field_E &= 0xEFFFu;
+        }
+        break;
+      }
+      i = 0;
+      slb = &game.slabmap[map_to_slab[stl_y]*map_tiles_x + map_to_slab[stl_x]];
+      map = &game.map[stl_y*(map_subtiles_x+1) + stl_x];
+      if ((slb->field_5 & 7) == plyr_idx)
+      {
+        if (((map->flags & 0x02) != 0) && (slb->slab != 14) && (slb->slab != 26))
+        {
+          room = room_get(slb->room_index);
+          if (room_is_invalid(room))
+          {
+            error(func_name, 2860, "No room here to delete");
+          } else
+          {
+            i = game.room_stats[room->kind].cost;
+            if (i < 0)
+              i = ((i+1) >> 1);
+            else
+              i = (i >> 1);
+            dungeon = &(game.dungeon[room->owner%DUNGEONS_COUNT]);
+            if (room->owner != game.field_14E497)
+              dungeon->field_AD5++;
+            delete_room_slab(map_to_slab[stl_x], map_to_slab[stl_y], 0);
+            set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
+            dungeon->field_EA4 = 192;
+            if (is_my_player(player))
+              play_non_3d_sample(115);
+          }
+        } else
+        {
+          x = 3*map_to_slab[stl_x];
+          y = 3*map_to_slab[stl_y];
+          thing = get_door_for_position(x, y);
+          if (!thing_is_invalid(thing))
+          {
+            dungeon->field_EA4 = 192;
+            if (is_my_player(player))
+              play_non_3d_sample(115);
+            i = game.doors_config[thing->model].selling_value;
+            destroy_door(thing);
+          } else
+          if (get_trap_for_slab_position(map_to_slab[stl_x], map_to_slab[stl_y]) != NULL)
+          {
+            i = 0;
+            for (k=0; k < AROUND_TILES_COUNT; k++)
+            {
+              thing = get_trap_for_position(x+around[k].delta_x+1, y+around[k].delta_y+1);
+              if (!thing_is_invalid(thing))
+              {
+                if (thing->byte_13.l == 0)
+                  remove_workshop_object_from_player(thing->owner, trap_to_object[thing->model%TRAP_TYPES_COUNT]);
+                i += game.traps_config[thing->model].selling_value;
+                destroy_trap(thing);
+              }
+            }
+            if (is_my_player(player))
+              play_non_3d_sample(115);
+            dungeon->field_EA4 = 192;
+          }
+        }
+      } else
+      {
+        LbWarnLog("%s: Player %d can't sell item on unowned ground.\n",func_name,(int)plyr_idx);
+      }
+      if (i != 0)
+      {
+        thing = create_effect_element(&pos, 41, plyr_idx);
+        if (!thing_is_invalid(thing))
+          thing->long_13 = i;
+        dungeon->field_AFD += i;
+        dungeon->field_AF9 += i;
+      }
+      pckt->field_E &= 0xFEFFu;
       break;
   case 24:
       if (((pckt->field_E & 0x1000) != 0) && ((pckt->field_E & 0x8000) != 0))
@@ -609,7 +813,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       break;
   case 27:
-      v172 = true;
+      val172 = true;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_not_imp, plyr_idx);
       if (thing_is_invalid(thing))
       {
@@ -642,7 +846,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
     }
   }
   i = (unsigned short)pckt->field_E;
-  if (((i >> 8) & 0x0C) && (v172))
+  if (((i >> 8) & 0x0C) && (val172))
   {
     if ((player->field_455 == 0) || (player->field_455 == 3))
       stop_creatures_around_hand(plyr_idx, stl_x, stl_y);
@@ -767,14 +971,14 @@ void load_packets_for_turn(long nturn)
       pckt = &game.packets[player->packet_num%PACKETS_COUNT];
       if (get_packet_save_checksum() != tot_chksum)
       {
-        text = buf_sprintf("PacketSave checksum - Out of sync (GameTurn %d)", game.seedchk_random_used);
+        text = buf_sprintf("PacketSave checksum - Out of sync (GameTurn %d)", game.play_gameturn);
         error(func_name, 3947, text);
         if (!is_onscreen_msg_visible())
           show_onscreen_msg(game.num_fps, "Out of sync");
       } else
       if (pckt->chksum != pckt_chksum)
       {
-        text = buf_sprintf("Opps we are really Out Of Sync (GameTurn %d)", game.seedchk_random_used);
+        text = buf_sprintf("Opps we are really Out Of Sync (GameTurn %d)", game.play_gameturn);
         error(func_name, 3955, text);
         if (!is_onscreen_msg_visible())
           show_onscreen_msg(game.num_fps, "Out of sync");
@@ -1128,7 +1332,7 @@ char process_players_global_packet_action(long plyridx)
       player->cameras[3].orient_a = pckt->field_6;
       player->cameras[0].orient_a = pckt->field_6;
       return 0;
-    case 36:
+    case PckA_SetPlyrState:
       set_player_state(player, pckt->field_6, pckt->field_8);
       return 0;
     case 37:
@@ -1215,7 +1419,7 @@ char process_players_global_packet_action(long plyridx)
     case 85:
       if (player->field_453 == 15)
         turn_off_query(plyridx);
-      thing = game.things_lookup[pckt->field_6];
+      thing = thing_get(pckt->field_6);
       player->field_E4 = thing->mappos.x.val;
       player->field_E6 = thing->mappos.y.val;
       set_player_instance(player, 16, 0);
@@ -1225,7 +1429,7 @@ char process_players_global_packet_action(long plyridx)
     case 86:
       if (player->field_453 == 15)
         turn_off_query(plyridx);
-      thing = game.things_lookup[pckt->field_6];
+      thing = thing_get(pckt->field_6);
       player->field_E4 = thing->mappos.x.val;
       player->field_E6 = thing->mappos.y.val;
       set_player_instance(player, 16, 0);
@@ -1242,12 +1446,12 @@ char process_players_global_packet_action(long plyridx)
     case 88:
       game.numfield_D ^= (game.numfield_D ^ (0x04 * ((game.numfield_D & 0x04) == 0))) & 0x04;
       return 0;
-    case 89:
+    case PckA_SpellCTADis:
       turn_off_call_to_arms(plyridx);
       return 0;
     case 90:
       if (game.dungeon[plyridx].field_63 < 8)
-        place_thing_in_power_hand(game.things_lookup[pckt->field_6], plyridx);
+        place_thing_in_power_hand(thing_get(pckt->field_6), plyridx);
       return 0;
     case 91:
       dump_held_things_on_map(plyridx, pckt->field_6, pckt->field_8, 1);
@@ -1285,7 +1489,7 @@ char process_players_global_packet_action(long plyridx)
           if (dungeon->field_5D8)
           {
             struct Thing *thing;
-            thing = game.things_lookup[dungeon->field_5D8];
+            thing = thing_get(dungeon->field_5D8);
             player->field_E4 = thing->mappos.x.val;
             player->field_E6 = thing->mappos.y.val;
             set_player_instance(player, 16, 0);
@@ -1326,7 +1530,7 @@ char process_players_global_packet_action(long plyridx)
       if (game.dungeon[plyridx].field_63)
       {
         i = game.dungeon[plyridx].field_33;
-        thing=game.things_lookup[i%THINGS_COUNT];
+        thing = thing_get(i);
         dump_held_things_on_map(plyridx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 1);
       }
       return 0;
@@ -1476,15 +1680,14 @@ void process_players_dungeon_control_packet_action(long idx)
       magic_use_power_hold_audience(idx);
       break;
     case 93:
-      activate_dungeon_special(game.things_lookup[pckt->field_6%THINGS_COUNT], player);
+      activate_dungeon_special(thing_get(pckt->field_6), player);
       break;
     case 95:
-      resurrect_creature(game.things_lookup[pckt->field_6%THINGS_COUNT],
+      resurrect_creature(thing_get(pckt->field_6),
         (pckt->field_8) & 0x0F, (pckt->field_8 >> 4) & 0xFF, (pckt->field_8 >> 12) & 0x0F);
       break;
     case 96:
-      transfer_creature(game.things_lookup[pckt->field_6%THINGS_COUNT],
-          game.things_lookup[pckt->field_8%THINGS_COUNT], idx);
+      transfer_creature(thing_get(pckt->field_6), thing_get(pckt->field_8), idx);
       break;
     case 107:
       toggle_computer_player(idx);
@@ -1522,13 +1725,10 @@ void process_players_creature_control_packet_action(long idx)
       set_player_instance(player, 7, 0);
       break;
   case 39:
-      thing = NULL;
-      i = player->field_2F;
-      if ((i>0) && (i<THINGS_COUNT))
-        thing = game.things_lookup[i];
+      thing = thing_get(player->field_2F);
       if (thing_is_invalid(thing))
         break;
-      cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
+      cctrl = creature_control_get_from_thing(thing);
       if ((cctrl == NULL) || (cctrl == game.persons.cctrl_lookup[0]))
         break;
       i = pckt->field_6;

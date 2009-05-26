@@ -255,6 +255,16 @@ int __fastcall LbFileClose(TbFileHandle handle)
     return 1;
 }
 
+/*
+ * Checks if the file position indicator is placed at end of the file.
+ */
+TbBool __fastcall LbFileEof(TbFileHandle handle)
+{
+  if (LbFilePosition(handle) >= LbFileLengthHandle(handle))
+    return 1;
+  return 0;
+}
+
 //Changes position in opened file
 int __fastcall LbFileSeek(TbFileHandle handle, unsigned long offset, unsigned char origin)
 //int a1, int a2, unsigned __int8 a3)

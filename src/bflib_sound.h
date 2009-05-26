@@ -27,6 +27,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#define SOUNDS_MAX_COUNT  16
+/******************************************************************************/
 #pragma pack(1)
 
 // Type definitions
@@ -53,6 +55,19 @@ struct SoundReceiver { // sizeof = 17
   char field_10;
 };
 
+struct S3DSample { // sizeof = 37
+  unsigned long field_0;
+  unsigned long field_4;
+  unsigned short field_8;
+  unsigned char field_A[11];
+  struct SoundEmitter *emit_ptr;
+  unsigned char field_19[4];
+  unsigned char field_1D[2];
+  unsigned char field_1F;
+  unsigned char field_20;
+  unsigned long field_21;
+};
+
 /******************************************************************************/
 // Exported variables
 DLLIMPORT extern int _DK_SoundDisabled;
@@ -68,6 +83,10 @@ DLLIMPORT extern struct SoundReceiver _DK_Receiver;
 #define Receiver _DK_Receiver
 DLLIMPORT extern long _DK_MaxSoundDistance;
 #define MaxSoundDistance _DK_MaxSoundDistance
+DLLIMPORT extern long _DK_MaxNoSounds;
+#define MaxNoSounds _DK_MaxNoSounds
+DLLIMPORT extern struct S3DSample _DK_SampleList[SOUNDS_MAX_COUNT];
+#define SampleList _DK_SampleList
 
 #pragma pack()
 /******************************************************************************/
@@ -85,11 +104,15 @@ long S3DSetNumberOfSounds(long nMaxSounds);
 long S3DSetMaximumSoundDistance(long nDistance);
 long S3DAddSampleToEmitterPri(long emidx, long a2, long a3, long a4, long a5, long a6, char a7, long a8, long a9);
 long S3DCreateSoundEmitterPri(long x, long y, long z, long a4, long a5, long a6, long a7, long a8, long a9, long a10);
+long S3DEmitterIsAllocated(long eidx);
+long S3DEmitterIsPlayingAnySample(long eidx);
 
 void play_non_3d_sample(long sample_idx);
-short sound_emitter_in_use(long emidx);
+short sound_emitter_in_use(long eidx);
 long get_best_sound_heap_size(long mem_size);
 struct SampleInfo *play_sample_using_heap(unsigned long a1, short a2, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, unsigned char a8);
+long speech_sample_playing(void);
+long play_speech_sample(long smpl_idx);
 
 /******************************************************************************/
 #ifdef __cplusplus

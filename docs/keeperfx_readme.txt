@@ -8,10 +8,10 @@ Still, it requires original Dungeon Keeper to work.
 
 Installation:
 
-Copy all the files into your Dungeon Keeper directory.
-Then open "KEEPERFX.CFG" with Notepad, and make the line
-which starts with "INSTALL_PATH=" identical as in original
-"KEEPER.CFG" file.
+Copy all the files into your Dungeon Keeper directory. Then open
+'KEEPERFX.CFG' with Notepad, and make the line which starts with
+'INSTALL_PATH=' identical as in original 'KEEPER.CFG' file.
+Also, set proper language shortcut in the 'LANGUAGE=' line.
 Run "keeperfx.exe" to start the game.
 
 Command line options:
@@ -127,6 +127,15 @@ SCREENSHOT
     You can choose between BMP and HSI bitmap format.
   SCREENSHOT=<type>
 
+LANGUAGE
+  This option is used to select language file, used for
+  displaying texts. Note that changing this option will not
+  completely switch the language - only text messages
+  will be changed. If the language setting doesn't match
+  the one selected during installation, then national
+  letters may be displayed incorrectly. Also, this option
+  doesn't change the speech language.
+  
 New in-game commands:
 
  Record a movie
@@ -164,9 +173,57 @@ New in-game commands:
   To cancel the effect, press Ctrl+'-' as many times as you
   pressed Ctrl+'+' before.
 
+New and modified level script commands:
+ ADD_GOLD_TO_PLAYER
+  Allows to add some off-map gold as a reward to a player.
+  Example: ADD_GOLD_TO_PLAYER(PLAYER0,5000)
+ DISPLAY_OBJECTIVE
+  The 2nd parameter can now have the following values:
+  - 'PLAYERx' - zoom to player's dungeon heart
+  - positive integer - zoom to Action Point of given number
+  - negative integer - zoom to Hero Gate of given number
+  - 'ALL_PLAYERS' - zoom button will be inactive
+ LEVEL_VERSION
+  Lets the game know if the level was designed specially for
+  KeeperFX. To use new script commands, you must start the
+  script with LEVEL_VERSION(1). Without it, the new commands
+  will not work properly.
+ PLAY_MESSAGE
+  Allows to play any SOUND or SPEECH from the game.
+  Example: PLAY_MESSAGE(PLAYER0,SPEECH,107)
+ QUICK_INFORMATION
+  These works same as in Deeper Dungeons, but allows message
+  length up to 1024 characters. There are 50 quick message
+  slots.
+ QUICK_OBJECTIVE
+  Same as in DD, but allows longer messages and more control
+  over zoom button (like in DISPLAY_OBJECTIVE).
+ QUICK_INFORMATION_WITH_POS
+ QUICK_OBJECTIVE_WITH_POS
+  Accepts additional XY coordinates of the zoom place.
+ SET_CREATURE_TENDENCIES
+  Allows to set tendencies: IMPRISON and FLEE, for a player's
+  creatures. Example: SET_CREATURE_TENDENCIES(PLAYER2,FLEE,1)
+  Note that a player must have prison when IMPRISON command
+  is trigered; otherwise it won't make any change.
+
 Changelog:
 
-Version: 0.2.7
+Version: 0.2.8a
+  Rewritten more of script support, warnings added
+  Added new script command, 'PLAY_MESSAGE'
+  Added new script command, 'ADD_GOLD_TO_PLAYER'
+  Added new script command, 'SET_CREATURE_TENDENCIES'
+  Finished work on QUICK_* script commands support
+  Fixed spells visibility in zoom box of map view
+  DISPLAY_INFORMATION now requires two parameters (added zoom location)
+  QUICK_INFORMATION now requires three parameters (added zoom location)
+  When selling multiple traps on same tile, total cost is displayed
+  Text file is now selected based on language setting in 'keeperfx.cfg'
+  Fixed room selling (v0.2.8a)
+  Fixed wage and luck value displayed in creature info panel (v0.2.8a)
+
+Version: 0.2.7a
   Rewritten most of the world view screen
   Allowed map numbers over 255
   Fixed mistake in function create_room
@@ -181,6 +238,7 @@ Version: 0.2.7
   Some functions of Cheat Mode are now functional
   Continue file creation code unified and improved
   Started work on support of QUICK_INFORMATION command
+  Fixed mistake in trap manufacture code (v0.2.7a)
 
 Version: 0.2.6
   Rewritten minimap control code, fixed for 640x480

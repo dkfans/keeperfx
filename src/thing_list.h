@@ -147,6 +147,9 @@ void init_traps(void);
 void init_player_start(struct PlayerInfo *player);
 void setup_computer_players(void);
 void init_all_creature_states(void);
+long creature_of_model_in_prison(int model);
+long count_player_creatures_of_model(long plyr_idx, long model);
+long count_player_creatures_not_counting_to_total(long plyr_idx);
 short knight_in_prison(void);
 
 void update_things(void);

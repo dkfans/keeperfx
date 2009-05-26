@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file lvl_filesdk1.h
- *     Header file for lvl_filesdk1.c.
+/** @file slab_data.c
+ *     Map Slabs support functions.
  * @par Purpose:
- *     Level files reading routines fore standard DK1 levels.
+ *     Definitions and functions to maintain map slabs.
  * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
+ *     None.
  * @author   Tomasz Lis
- * @date     10 Mar 2009 - 20 Mar 2009
+ * @date     25 Apr 2009 - 12 May 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,36 +16,42 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
-#ifndef DK_LVL_FILESDK1_H
-#define DK_LVL_FILESDK1_H
-
-#include "bflib_basics.h"
+#include "slab_data.h"
 #include "globals.h"
+
+#include "player_instances.h"
+#include "keeperfx.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-#define MAX_LIF_SIZE 65535
-#define ANY_MAP_FILE_MAX_SIZE 1048576
-#define DEFAULT_LEVEL_VERSION 0
-/******************************************************************************/
-extern long level_file_version;
-/******************************************************************************/
-unsigned char *load_single_map_file_to_buffer(unsigned long lvnum,const char *fext,long *ldsize);
-short find_and_load_lif_files(void);
-long convert_old_column_file(unsigned long lv_num);
-short load_column_file(unsigned long lv_num);
-short load_slab_file(void);
-long load_map_data_file(unsigned long lv_num);
-short load_thing_file(unsigned long lv_num);
-long load_action_point_file(unsigned long lv_num);
-short load_texture_map_file(unsigned long tmapidx, unsigned char n);
 
-short load_map_file(LevelNumber lvnum);
+/******************************************************************************/
+
+/******************************************************************************/
+void reveal_whole_map(struct PlayerInfo *player)
+{
+  unsigned short nflag;
+  unsigned int x,y,i;
+  unsigned long imax;
+
+  nflag = (1 << player->field_2B);
+  for (y=0; y<map_tiles_y; y++)
+    for (x=0; x<map_tiles_x; x++)
+    {
+      clear_slab_dig(x, y, player->field_2B);
+    }
+  imax = (map_subtiles_x+1)*(map_subtiles_y+1);
+  for (i=0; i<imax; i++)
+  {
+    x = (game.map[i].data >> 28) | nflag;
+    game.map[i].data |= (x & 0x0F) << 28;
+  }
+  pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
-#endif
 #endif

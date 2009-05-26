@@ -34,6 +34,8 @@
 #include "bflib_fileio.h"
 #include "bflib_memory.h"
 #include "bflib_filelst.h"
+#include "bflib_sound.h"
+#include "bflib_network.h"
 #include "config.h"
 #include "scrcapt.h"
 #include "gui_draw.h"
@@ -1437,7 +1439,7 @@ void get_player_gui_clicks(void)
   case 3:
       if (right_button_released)
       {
-        thing = game.things_lookup[player->field_2F%THINGS_COUNT];
+        thing = thing_get(player->field_2F);
         if (thing->class_id == 5)
         {
           if (a_menu_window_is_active())
@@ -1472,12 +1474,12 @@ void get_player_gui_clicks(void)
             if (player->field_453 == 12)
             {
               turn_off_query_menus();
-              set_packet_action(pckt, 36, 1, 0, 0, 0);
+              set_packet_action(pckt, PckA_SetPlyrState, 1, 0, 0, 0);
               right_button_released = 0;
             } else
             if ((player->field_453 != 15) && (player->field_453 != 1))
             {
-              set_packet_action(pckt, 36, 1, 0, 0, 0);
+              set_packet_action(pckt, PckA_SetPlyrState, 1, 0, 0, 0);
               right_button_released = 0;
             }
           }
@@ -1673,7 +1675,7 @@ short game_is_busy_doing_gui(void)
   {
     if (!spell_data[spl_idx].field_19)
       return true;
-    thing = game.things_lookup[battle_creature_over%THINGS_COUNT];
+    thing = thing_get(battle_creature_over);
     return  (thing->owner != player->field_2B) && (!spell_data[spl_idx].field_1A);
   }
   return false;
@@ -1913,12 +1915,12 @@ void maintain_event_button(struct GuiButton *gbtn)
   }
   gbtn->field_29 = event_button_info[event->kind].field_0;
   if ((event->kind == 2) && ((event->mappos_x != 0) || (event->mappos_y != 0))
-      && ((game.seedchk_random_used & 0x01) != 0))
+      && ((game.play_gameturn & 0x01) != 0))
   {
     gbtn->field_29 += 2;
   } else
   if ((event->kind == 21) && (event->field_C < 0)
-     && ((game.seedchk_random_used & 0x01) != 0))
+     && ((game.play_gameturn & 0x01) != 0))
   {
     gbtn->field_29 += 2;
   }
@@ -1961,7 +1963,46 @@ void maintain_big_room(struct GuiButton *gbtn)
 
 void maintain_spell(struct GuiButton *gbtn)
 {
-  _DK_maintain_spell(gbtn);
+  struct PlayerInfo *player;
+  struct Dungeon *dungeon;
+  long i;
+  //_DK_maintain_spell(gbtn);
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  i = (unsigned long)(gbtn->field_33) & 0xff;
+  if (dungeon->magic_level[i] == 0)
+  {
+    gbtn->field_1B |= 0x8000u;
+    gbtn->field_0 &= 0xF7;
+  } else
+  if (i == 19)
+  {
+      if (game.field_150356 != 0)
+      {
+        gbtn->field_1B |= 0x8000u;
+        gbtn->field_0 &= 0xF7;
+      } else
+      {
+        gbtn->field_1B = 0;
+        gbtn->field_0 |= 0x08;
+      }
+  } else
+  if (i == 9)
+  {
+      if (dungeon->field_88C[0])
+      {
+        gbtn->field_1B |= 0x8000u;
+        gbtn->field_0 &= 0xF7;
+      } else
+      {
+        gbtn->field_1B = 0;
+        gbtn->field_0 |= 0x08;
+      }
+  } else
+  {
+    gbtn->field_1B = 0;
+    gbtn->field_0 |= 0x08;
+  }
 }
 
 void maintain_big_spell(struct GuiButton *gbtn)
@@ -2063,7 +2104,20 @@ void fake_button_click(long btn_idx)
 
 void maintain_zoom_to_event(struct GuiButton *gbtn)
 {
-  _DK_maintain_zoom_to_event(gbtn);
+  struct Dungeon *dungeon;
+  struct Event *event;
+  //_DK_maintain_zoom_to_event(gbtn);
+  dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+  if (dungeon->field_1173)
+  {
+    event = &(game.event[dungeon->field_1173]);
+    if ((event->mappos_x != 0) || (event->mappos_y != 0))
+    {
+      gbtn->field_0 |= 0x08;
+      return;
+    }
+  }
+  gbtn->field_0 &= 0xF7u;
 }
 
 void maintain_scroll_up(struct GuiButton *gbtn)
@@ -2420,7 +2474,17 @@ void gui_area_event_button(struct GuiButton *gbtn)
 
 void gui_choose_room(struct GuiButton *gbtn)
 {
-  _DK_gui_choose_room(gbtn);
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  long i;
+  //_DK_gui_choose_room(gbtn);
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  i = (long)gbtn->field_33;
+  set_packet_action(pckt, PckA_SetPlyrState, 2, i, 0, 0);
+  game.field_151801 = i;
+  game.field_151805 = room_info[i].field_0;
+  game.field_151809 = gbtn->field_2B;
 }
 
 void gui_go_to_next_room(struct GuiButton *gbtn)
@@ -2467,7 +2531,34 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
 
 void gui_choose_spell(struct GuiButton *gbtn)
 {
-  _DK_gui_choose_spell(gbtn);
+  static const char *func_name="gui_choose_spell";
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  long i,k;
+//  _DK_gui_choose_spell(gbtn);
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  i = (long)gbtn->field_33;
+  if (spell_data[game.chosen_spell_type].field_0)
+  {
+    pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+    k = spell_data[i].field_4;
+    if ((k == KSp_CallToArms) && (player->field_453 == KSp_CallToArms))
+    {
+      set_packet_action(pckt, PckA_SpellCTADis, 0, 0, 0, 0);
+    } else
+    if ((k == KSp_SightOfEvil) && (player->field_453 == KSp_SightOfEvil))
+    {
+      set_packet_action(pckt, PckA_SpellSOEDis, 0, 0, 0, 0);
+    } else
+    {
+      set_packet_action(pckt, spell_data[i].field_0, k, 0, 0, 0);
+      play_non_3d_sample(spell_data[i].field_11);
+    }
+  } else
+  {
+    error(func_name, 6932, "Stupid spell was chosen");
+  }
+  set_chosen_spell(i,gbtn->field_2B);
 }
 
 void gui_go_to_next_spell(struct GuiButton *gbtn)
@@ -2482,16 +2573,15 @@ void gui_area_spell_button(struct GuiButton *gbtn)
 
 void gui_choose_special_spell(struct GuiButton *gbtn)
 {
-  //_DK_gui_choose_special_spell(gbtn); return;
   long idx;
   struct Dungeon *dungeon;
+  //_DK_gui_choose_special_spell(gbtn); return;
   dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
   idx = (long)gbtn->field_33 % SPELL_TYPES_COUNT;
-  game.chosen_spell_type = idx;
-  game.chosen_spell_look = spell_data[idx].field_9;
-  game.chosen_spell_tooltip = gbtn->field_2B;
+  set_chosen_spell(idx, gbtn->field_2B);
   if (dungeon->field_AF9 > game.magic_stats[idx].cost[0])
   {
+    play_non_3d_sample(spell_data[idx].field_11); // Play the spell speech
     switch (idx)
     {
     case 19:
@@ -2575,7 +2665,12 @@ void gui_area_normal_button(struct GuiButton *gbtn)
 
 void gui_set_tend_to(struct GuiButton *gbtn)
 {
-  _DK_gui_set_tend_to(gbtn);
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  //_DK_gui_set_tend_to(gbtn);
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  set_packet_action(pckt, 55, gbtn->field_1B, 0, 0, 0);
 }
 
 void gui_area_flash_cycle_button(struct GuiButton *gbtn)
@@ -2740,13 +2835,13 @@ void gui_area_stat_button(struct GuiButton *gbtn)
   //_DK_gui_area_stat_button(gbtn); return;
   LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, &gui_panel_sprites[459]);
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  thing = game.things_lookup[player->field_2F%THINGS_COUNT];
+  thing = thing_get(player->field_2F);
   if (thing == NULL)
     return;
   if (thing->class_id == 5)
   {
     crstat = &game.creature_stats[thing->model%CREATURE_TYPES_COUNT];
-    cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
+    cctrl = creature_control_get_from_thing(thing);
     switch ((long)gbtn->field_33)
     {
     case 0: // kills
@@ -2778,7 +2873,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
         text = buf_sprintf("%ld", i);
         break;
     case 6: // time in dungeon
-        i = (game.seedchk_random_used-thing->field_9) / 2000 + cctrl->field_286;
+        i = (game.play_gameturn-thing->field_9) / 2000 + cctrl->field_286;
         if (i >= 99)
           i = 99;
         text = buf_sprintf("%ld", i);
@@ -3391,17 +3486,12 @@ void frontnet_session_join(struct GuiButton *gbtn)
 
 void frontnet_session_create(struct GuiButton *gbtn)
 {
-  //_DK_frontnet_session_create(gbtn);
-  int v1; // ebx@1
-  __int32 v2; // edi@1
-  struct TbNetworkSessionNameEntry **v3; // esi@2
-  char *v4; // eax@3
   struct TbNetworkSessionNameEntry *nsname;
   unsigned long plyr_num;
   char *text;
   char *txpos;
   long i,idx;
-
+  //_DK_frontnet_session_create(gbtn);
   idx = 0;
   for (i=0; i < net_number_of_sessions; i++)
   {
@@ -3988,7 +4078,7 @@ long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, uns
   // Note: reworked from beta and unchecked
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   struct Packet *pckt=&game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 36, ((short *)tag)[0], ((short *)tag)[2], 0, 0);
+  set_packet_action(pckt, PckA_SetPlyrState, ((short *)tag)[0], ((short *)tag)[2], 0, 0);
   struct GuiBoxOption *guop;
   guop=gbox->optn_list;
   while (guop->label[0] != '!')
@@ -4105,7 +4195,7 @@ long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOpti
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
     return false;
-  thing = game.things_lookup[player->field_2F];
+  thing = thing_get(player->field_2F);
   return creature_instance_is_available(thing, *tag);
 }
 
@@ -5754,8 +5844,8 @@ void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
   copy_raw8_image_buffer(lbDisplay.WScreen,mdinfo->Width,mdinfo->Height,
       spx,spy,srcbuf,img_width,img_height,m);
   // Burning candle flames
-  LbSpriteDraw(spx+(36/pixel_size),(spy+0/pixel_size), &button_sprite[198+(game.seedchk_random_used & 3)]);
-  LbSpriteDraw(spx+(574/pixel_size),(spy+0/pixel_size), &button_sprite[202+(game.seedchk_random_used & 3)]);
+  LbSpriteDraw(spx+(36/pixel_size),(spy+0/pixel_size), &button_sprite[198+(game.play_gameturn & 3)]);
+  LbSpriteDraw(spx+(574/pixel_size),(spy+0/pixel_size), &button_sprite[202+(game.play_gameturn & 3)]);
 }
 
 void frontend_copy_background(void)
@@ -5903,7 +5993,7 @@ void spangle_button(struct GuiButton *gbtn)
   unsigned long i;
   x = ((gbtn->width >> 1) - pixel_size * button_sprite[176].SWidth / 2 + gbtn->pos_x);
   y = ((gbtn->height >> 1) - pixel_size * button_sprite[176].SHeight / 2 + gbtn->pos_y);
-  i = 176+((game.seedchk_random_used >> 1) & 7);
+  i = 176+((game.play_gameturn >> 1) & 7);
   LbSpriteDraw(x/pixel_size, y/pixel_size, &button_sprite[i]);
 }
 
@@ -6194,9 +6284,9 @@ void gui_set_autopilot(struct GuiButton *gbtn)
   set_packet_action(pckt, 109, ntype, 0, 0, 0);
 }
 
-void display_objectives(long a1,long a2,long a3)
+void display_objectives(long plyr_idx,long x,long y)
 {
-  _DK_display_objectives(a1,a2,a3);
+  _DK_display_objectives(plyr_idx,x,y);
 }
 
 void frontnet_service_update(void)

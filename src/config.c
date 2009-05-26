@@ -40,7 +40,7 @@ extern "C" {
 const char keeper_config_file[]="keeperfx.cfg";
 const char keeper_campaign_file[]="keeporig.cfg";
 
-const struct LanguageType lang_type[] = {
+const struct ConfigCommand lang_type[] = {
   {"ENG", 1},
   {"FRE", 2},
   {"GER", 3},
@@ -49,6 +49,13 @@ const struct LanguageType lang_type[] = {
   {"SWE", 6},
   {"POL", 7},
   {"DUT", 8},
+  {"HUN", 9},
+  {"AUS", 10},
+  {"DAN", 11},
+  {"NOR", 12},
+  {"CES", 13},
+  {"MAG", 14},
+  {"RUS", 15},
   {NULL,  0},
   };
 
@@ -97,7 +104,7 @@ const struct ConfigCommand cmpgn_map_commands[] = {
 
 unsigned long features_enabled = 0;
 struct GameCampaign campaign;
-char quick_messages[MESSAGE_TEXT_LEN][QUICK_MESSAGES_COUNT];
+char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
 
 short is_full_moon = 0;
 short is_near_full_moon = 0;
@@ -107,7 +114,10 @@ short is_near_new_moon = 0;
 /******************************************************************************/
 DLLIMPORT int __stdcall _DK_load_configuration(void);
 /******************************************************************************/
-short update_features(unsigned long mem_size)
+/*
+ * Updates enabled features flags. Returns true if ALL features are enabled.
+ */
+TbBool update_features(unsigned long mem_size)
 {
   short result;
   result = false;
@@ -331,6 +341,23 @@ int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct 
   return 0;
 }
 
+/*
+ * Returns name of a config parameter with given number, or empty string.
+ */
+const char *get_conf_parameter_text(const struct ConfigCommand commands[],int num)
+{
+  long i;
+  i = 0;
+  while (commands[i].num > 0)
+  {
+      if (commands[i].num == num)
+          return commands[i].name;
+      i++;
+  }
+  return lbEmptyString;
+}
+
+
 short prepare_diskpath(char *buf,long buflen)
 {
   int i;
@@ -394,7 +421,7 @@ short load_configuration(void)
       switch (cmd_num)
       {
       case 1: // INSTALL_PATH
-          i=get_conf_parameter_whole(buf,&pos,len,install_info.inst_path,sizeof(install_info.inst_path));
+          i = get_conf_parameter_whole(buf,&pos,len,install_info.inst_path,sizeof(install_info.inst_path));
           if (i <= 0)
           {
             LbWarnLog("Couldn't read \"%s\" command parameter in config file.\n","INSTALL_PATH");
@@ -406,33 +433,25 @@ short load_configuration(void)
           // This command is just skipped...
           break;
       case 3: // LANGUAGE
-          i = 0;
-          while (lang_type[i].num > 0)
+          i = recognize_conf_parameter(buf,&pos,len,lang_type);
+          if (i <= 0)
           {
-            if (strnicmp(buf+pos, lang_type[i].name, strlen(lang_type[i].name)) == 0)
-            {
-              pos += strlen(lang_type[i].name);
-              install_info.field_96 = lang_type[i].num;
-              break;
-            }
-            i++;
+            LbWarnLog("Couldn't recognize \"%s\" command parameter in config file.\n","LANGUAGE");
+            break;
           }
+          install_info.lang_id = i;
           break;
       case 4: // KEYBOARD
           // Works only in DK Premium
           break;
       case 5: // SCREENSHOT
-          i = 0;
-          while (scrshot_type[i].num > 0)
+          i = recognize_conf_parameter(buf,&pos,len,scrshot_type);
+          if (i <= 0)
           {
-            if (strnicmp(buf+pos, scrshot_type[i].name, strlen(scrshot_type[i].name)) == 0)
-            {
-              pos += strlen(scrshot_type[i].name);
-              screenshot_format = scrshot_type[i].num;
-              break;
-            }
-            i++;
+            LbWarnLog("Couldn't recognize \"%s\" command parameter in config file.\n","SCREENSHOT");
+            break;
           }
+          screenshot_format = i;
           break;
       case 6: // FRONTEND_RES
           for (i=0; i<3; i++)
@@ -491,7 +510,7 @@ short load_configuration(void)
       skip_conf_to_next_line(buf,&pos,len);
     }
   }
-  switch (install_info.field_96)
+  switch (install_info.lang_id)
   {
   case 1:
       LbKeyboardSetLanguage(1);
@@ -522,7 +541,7 @@ short load_configuration(void)
   }
   //Freeing and exiting
   LbMemoryFree(buf);
-  return (install_info.field_96>0) && (install_info.inst_path[0]!='\0');
+  return (install_info.lang_id > 0) && (install_info.inst_path[0] != '\0');
 }
 
 char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
@@ -1392,6 +1411,50 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
   return 1;
 }
 
+short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long len)
+{
+  long pos;
+  int i,k,n;
+  int cmd_num;
+  // Block name and parameter word store variables
+  char block_buf[32];
+  char word_buf[32];
+  // Find the block
+  sprintf(block_buf,"strings");
+  pos = 0;
+  k = find_conf_block(buf,&pos,len,block_buf);
+  if (k < 0)
+  {
+    LbWarnLog("Block [%s] not found in Campaign file.\n",block_buf);
+    return 0;
+  }
+  n = 0;
+  while (pos<len)
+  {
+      // Finding command number in this line
+      cmd_num = recognize_conf_command(buf,&pos,len,lang_type);
+      // Now store the config item in correct place
+      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num <= 0)
+      {
+        if ((cmd_num != 0) && (cmd_num != -1))
+          LbWarnLog("Unrecognized command (%d) in [%s] block of Campaign file, starting on byte %d.\n",cmd_num,block_buf,pos);
+      } else
+      if ((cmd_num == install_info.lang_id) || (n == 0))
+      {
+          i = get_conf_parameter_whole(buf,&pos,len,campgn->strings_fname,LINEMSG_SIZE);
+          if (i <= 0)
+            LbWarnLog("Couldn't read file name in [%s] block parameter of config file.\n",block_buf);
+          else
+            n++;
+      }
+      skip_conf_to_next_line(buf,&pos,len);
+  }
+  if (campgn->strings_fname[0] == '\0')
+    LbWarnLog("Strings file name not set after parsing [%s] block of Campaign file.\n", block_buf);
+  return 1;
+}
+
 /*
  * Parses campaign block for specific level number.
  * Stores data in lvinfo structure.
@@ -1646,13 +1709,18 @@ short load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn)
   }
   if (result)
   {
+    result = parse_campaign_strings_blocks(campgn, buf, len);
+    if (!result)
+      LbWarnLog("Parsing campaign file \"%s\" strings block failed.\n",cmpgn_fname);
+  }
+  if (result)
+  {
     result = parse_campaign_map_blocks(campgn, buf, len);
     if (!result)
       LbWarnLog("Parsing campaign file \"%s\" map blocks failed.\n",cmpgn_fname);
   }
   //Freeing and exiting
   LbMemoryFree(buf);
-  strcpy(campgn->strings_fname,"data/dd1text.dat");
   setup_campaign_strings_data(campgn);
   return result;
 }
@@ -1667,7 +1735,7 @@ short load_default_campaign(void)
   return load_campaign(keeper_campaign_file,&campaign);
 }
 
-short reset_strings(char **strings)
+TbBool reset_strings(char **strings)
 {
   int text_idx;
   char **text_arr;
@@ -1679,9 +1747,10 @@ short reset_strings(char **strings)
     text_arr++;
     text_idx--;
   }
+  return true;
 }
 
-short create_strings_list(char **strings,char *strings_data,char *strings_data_end)
+TbBool create_strings_list(char **strings,char *strings_data,char *strings_data_end)
 {
   int text_idx;
   char *text_ptr;
@@ -1710,17 +1779,19 @@ short create_strings_list(char **strings,char *strings_data,char *strings_data_e
 /*
  * Loads the language-specific strings data for game interface.
  */
-short setup_gui_strings_data(void)
+TbBool setup_gui_strings_data(void)
 {
   static const char *func_name="setup_gui_strings_data";
   char *strings_data_end;
   char *fname;
   short result;
   long filelen;
+  long loaded_size;
 #if (BFDEBUG_LEVEL > 18)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  fname = prepare_file_path(FGrp_StdData,"dd1text.dat");
+
+  fname = prepare_file_fmtpath(FGrp_FxData,"gtext_%s.dat",get_conf_parameter_text(lang_type,install_info.lang_id));
   filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
@@ -1734,7 +1805,7 @@ short setup_gui_strings_data(void)
     return false;
   }
   strings_data_end = gui_strings_data+filelen+255;
-  long loaded_size = LbFileLoadAt(fname, gui_strings_data);
+  loaded_size = LbFileLoadAt(fname, gui_strings_data);
   if (loaded_size < 16)
   {
     error(func_name, 1501, "GUI Strings file couldn't be loaded or is too small");
@@ -1752,7 +1823,7 @@ short setup_gui_strings_data(void)
   return result;
 }
 
-short free_gui_strings_data(void)
+TbBool free_gui_strings_data(void)
 {
   // Resetting all values to empty strings
   reset_strings(gui_strings);
@@ -1765,7 +1836,7 @@ short free_gui_strings_data(void)
 /*
  * Loads the language-specific strings data for the current campaign.
  */
-short setup_campaign_strings_data(struct GameCampaign *campgn)
+TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
 {
   static const char *func_name="setup_campaign_strings_data";
   char *strings_data_end;
@@ -1789,7 +1860,8 @@ short setup_campaign_strings_data(struct GameCampaign *campgn)
     return false;
   }
   strings_data_end = campgn->strings_data+filelen+255;
-  long loaded_size = LbFileLoadAt(fname, campgn->strings_data);
+  long loaded_size;
+  loaded_size = LbFileLoadAt(fname, campgn->strings_data);
   if (loaded_size < 16)
   {
     error(func_name, 1501, "Campaign Strings file couldn't be loaded or is too small");

@@ -36,6 +36,7 @@ extern "C" {
 /******************************************************************************/
 const char slabclm_fname[] = "slabs.clm";
 const char slabdat_fname[] = "slabs.dat";
+long level_file_version = 0;
 /******************************************************************************/
 DLLIMPORT long _DK_convert_old_column_file(unsigned long lv_num);
 DLLIMPORT unsigned char _DK_load_map_slab_file(unsigned long lv_num);
@@ -69,6 +70,11 @@ unsigned char *load_single_map_file_to_buffer(unsigned long lvnum,const char *fe
     LbWarnLog("Map file \"map%05lu.%s\" doesn't exist or is too small.\n",lvnum,fext);
     return NULL;
   }
+  if (fsize > ANY_MAP_FILE_MAX_SIZE)
+  {
+    LbWarnLog("Map file \"map%05lu.%s\" exceeds max size of %d; loading failed.\n",lvnum,fext,ANY_MAP_FILE_MAX_SIZE);
+    return NULL;
+  }
   buf = LbMemoryAlloc(fsize+16);
   if (buf == NULL)
   {
@@ -80,7 +86,7 @@ unsigned char *load_single_map_file_to_buffer(unsigned long lvnum,const char *fe
   {
     LbWarnLog("Reading map file \"map%05lu.%s\" failed.\n",lvnum,fext);
     LbMemoryFree(buf);
-    return false;
+    return NULL;
   }
   *ldsize = fsize;
 #if (BFDEBUG_LEVEL > 7)
@@ -810,9 +816,9 @@ short load_map_wlb_file(unsigned long lv_num)
       i++;
     }
   LbMemoryFree(buf);
-  if (nfixes>0)
+  if (nfixes > 0)
   {
-    text = buf_sprintf("WLB file is muddled - Fixed values for %lu slabs");
+    text = buf_sprintf("WLB file is muddled - Fixed values for %lu tiles",nfixes);
     error(func_name, 4696, text);
   }
   return true;

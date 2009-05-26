@@ -35,12 +35,12 @@ extern "C" {
 #define LEVEL_INFO_GROW_DELTA        32
 #define HISCORE_NAME_LENGTH          64
 
-#define SINGLEPLAYER_FINISHED    -1
-#define SINGLEPLAYER_NOTSTARTED   0
-#define LEVELNUMBER_ERROR        -2
+#define SINGLEPLAYER_FINISHED        -1
+#define SINGLEPLAYER_NOTSTARTED       0
+#define LEVELNUMBER_ERROR            -2
 
-#define MAP_SCREEN_WIDTH    1280
-#define MAP_SCREEN_HEIGHT    960
+#define MAP_SCREEN_WIDTH           1280
+#define MAP_SCREEN_HEIGHT           960
 
 #define MESSAGE_TEXT_LEN           1024
 #define QUICK_MESSAGES_COUNT         50
@@ -102,11 +102,6 @@ enum TbLevelLocation {
 /******************************************************************************/
 #pragma pack(1)
 
-struct LanguageType {
-  const char *name;
-  int num;
-  };
-
 struct ConfigCommand {
   const char *name;
   int num;
@@ -114,7 +109,7 @@ struct ConfigCommand {
 
 struct InstallInfo {
   char inst_path[150];
-int field_96;
+  int lang_id;
 int field_9A;
   };
 
@@ -206,7 +201,7 @@ extern short is_near_full_moon;
 extern short is_new_moon;
 extern short is_near_new_moon;
 extern struct GameCampaign campaign;
-extern char quick_messages[MESSAGE_TEXT_LEN][QUICK_MESSAGES_COUNT];
+extern char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
 /******************************************************************************/
 DLLIMPORT int __stdcall _DK_load_configuration(void);
 /******************************************************************************/
@@ -215,7 +210,7 @@ char *prepare_file_path(short fgroup,const char *fname);
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
 unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...);
 /******************************************************************************/
-short update_features(unsigned long mem_size);
+TbBool update_features(unsigned long mem_size);
 short load_configuration(void);
 short calculate_moon_phase(short do_calculate,short add_to_log);
 short load_high_score_table(void);
@@ -278,10 +273,10 @@ struct LevelInformation *get_prev_level_info(struct LevelInformation *nextinfo);
 short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvoptions);
 short get_level_fgroup(LevelNumber lvnum);
 /******************************************************************************/
-short setup_gui_strings_data(void);
-short free_gui_strings_data(void);
-short reset_strings(char **strings);
-short setup_campaign_strings_data(struct GameCampaign *campgn);
+TbBool setup_gui_strings_data(void);
+TbBool free_gui_strings_data(void);
+TbBool reset_strings(char **strings);
+TbBool setup_campaign_strings_data(struct GameCampaign *campgn);
 /******************************************************************************/
 short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname);
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct ConfigCommand *commands);
@@ -289,6 +284,7 @@ short skip_conf_to_next_line(const char *buf,long *pos,long buflen);
 int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen);
 int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen);
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct ConfigCommand *commands);
+const char *get_conf_parameter_text(const struct ConfigCommand commands[],int num);
 /******************************************************************************/
 #ifdef __cplusplus
 }

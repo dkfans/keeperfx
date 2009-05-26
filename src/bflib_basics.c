@@ -150,25 +150,26 @@ int LbJustLog(const char *format, ...)
     return result;
 }
 
-int __fastcall LbErrorLogSetup(const char *directory, const char *filename, uchar flag)
+int __fastcall LbErrorLogSetup(const char *directory, const char *filename, TbBool flag)
 {
   if ( error_log_initialised )
     return -1;
   const char *fixed_fname;
-  if ( (filename!=NULL)&&(filename[0]!='\0') )
+  if ((filename != NULL) && (filename[0] != '\0'))
     fixed_fname = filename;
   else
     fixed_fname = "error.log";
   char log_filename[DISKPATH_SIZE];
   int result;
-  int flags;
+  ulong flags;
   if ( LbFileMakeFullPath(true,directory,fixed_fname,log_filename,DISKPATH_SIZE) != 1 )
     return -1;
-  flags = (flag==0)+53;
+  flags = (flag==0)+1;
+  flags |= LbLog_TimeInHeader | LbLog_DateInHeader | 0x04;
   if ( LbLogSetup(&error_log, log_filename, flags) == 1 )
   {
-      error_log_initialised = 1;
-      result = 1;
+    error_log_initialised = 1;
+    result = 1;
   } else
   {
     result = -1;
@@ -176,7 +177,7 @@ int __fastcall LbErrorLogSetup(const char *directory, const char *filename, ucha
   return result;
 }
 
-int __fastcall LbErrorLogClose()
+int __fastcall LbErrorLogClose(void)
 {
     if (!error_log_initialised)
         return -1;
@@ -202,13 +203,13 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
   need_initial_newline = false;
   if ( !log->Created )
   {
-      if ( (!(log->Flags & 4)) || LbFileExists(log->Filename) )
+      if ( (!(log->Flags & 0x04)) || LbFileExists(log->Filename) )
       {
-        if ( (log->Flags & 1) && (log->Flags & 4) )
+        if ( (log->Flags & 0x01) && (log->Flags & 0x04) )
         {
           header = CREATE;
         } else
-        if ( (log->Flags & 2) && (log->Flags & 8) )
+        if ( (log->Flags & 0x02) && (log->Flags & 0x08) )
         {
           need_initial_newline = true;
           header = APPEND;
@@ -219,7 +220,7 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
       }
   }
    const char *accmode;
-    if ( (log->Created) || !(log->Flags & 1) )
+    if ( (log->Created) || !(log->Flags & 0x01) )
       accmode = "a";
     else
       accmode = "w";
@@ -245,7 +246,7 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
       fprintf(file, "LOG %s", actn);
       short at_used;
       at_used = 0;
-      if ( log->Flags & 0x20 )
+      if ( log->Flags & LbLog_TimeInHeader )
       {
         struct TbTime curr_time;
         LbTime(&curr_time);
@@ -253,7 +254,7 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
             curr_time.Hour,curr_time.Minute,curr_time.Second);
         at_used = 1;
       }
-      if ( log->Flags & 0x10 )
+      if ( log->Flags & LbLog_DateInHeader )
       {
         struct TbDate curr_date;
         LbDate(&curr_date);
@@ -266,13 +267,13 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
       }
       fprintf(file, "\n\n");
     }
-    if ( log->Flags & 0x40 )
+    if ( log->Flags & LbLog_DateInLines )
     {
         struct TbDate curr_date;
         LbDate(&curr_date);
         fprintf(file,"%02d-%02d-%d ",curr_date.Day,curr_date.Month,curr_date.Year);
     }
-    if ( log->Flags & 0x80 )
+    if ( log->Flags & LbLog_TimeInLines )
     {
         struct TbTime curr_time;
         LbTime(&curr_time);
@@ -300,7 +301,7 @@ int __fastcall LbLogSetPrefix(struct TbLog *log, const char *prefix)
   return 1;
 }
 
-int __fastcall LbLogSetup(struct TbLog *log, const char *filename, int flags)
+int __fastcall LbLogSetup(struct TbLog *log, const char *filename, ulong flags)
 {
   log->Initialised = false;
   LbMemorySet(log->Filename, 0, DISKPATH_SIZE);
@@ -322,7 +323,7 @@ int __fastcall LbLogClose(struct TbLog *log)
     return -1;
   LbMemorySet(log->Filename, 0, DISKPATH_SIZE);
   LbMemorySet(log->Prefix, 0, LOG_PREFIX_LEN);
-  log->Flags=0;
+  log->Flags = 0;
   log->Initialised=false;
   log->Created=false;
   log->Suspended=false;

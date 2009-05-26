@@ -58,6 +58,7 @@ int __fastcall LbDriveFreeSpace(const unsigned int drive, struct TbDriveInfo *dr
 short __fastcall LbFileExists(const char *fname);
 int __fastcall LbFilePosition(TbFileHandle handle);
 TbFileHandle __fastcall LbFileOpen(const char *fname, unsigned char accmode);
+TbBool __fastcall LbFileEof(TbFileHandle handle);
 int __fastcall LbFileClose(TbFileHandle handle);
 int __fastcall LbFileSeek(TbFileHandle handle, unsigned long offset, unsigned char origin);
 int __fastcall LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);

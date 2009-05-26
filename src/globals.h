@@ -161,6 +161,9 @@ struct CoordDelta3d {
 #pragma pack()
 
 typedef long LevelNumber;
+typedef long MapCoord;
+typedef long MapSubtlCoord;
+typedef short MapSlabCoord;
 
 struct IPOINT_2D {
     int x;

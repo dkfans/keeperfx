@@ -21,6 +21,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "creature_control.h"
 #include "front_simple.h"
 #include "frontend.h"
 #include "keeperfx.h"
@@ -151,8 +152,8 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
   struct Thing *thing2;
   struct CreatureControl *cctrl;
   long i;
-  picktng = game.things_lookup[player->field_43E];
-  thing2 = game.things_lookup[player->field_43A];
+  picktng = thing_get(player->field_43E);
+  thing2 = thing_get(player->field_43A);
   if (!thing_is_pickable_by_hand(player,picktng))
   {
     player->field_440 = 0;
@@ -165,7 +166,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
   case TCls_Creature:
       if (!external_set_thing_state(picktng, 38))
         return 0;
-      cctrl = game.persons.cctrl_lookup[picktng->field_64%CREATURES_COUNT];
+      cctrl = creature_control_get_from_thing(picktng);
       if (cctrl->field_AD & 0x02)
         i = convert_td_iso(122);
       else
@@ -243,11 +244,8 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
   struct CreatureStats *crstat;
   struct CreatureControl *cctrl;
   long i,k;
-  thing = NULL;
-  i = player->field_43E;
-  if ((i > 0) && (i < THINGS_COUNT))
-    thing = game.things_lookup[i];
-  if (thing == game.things_lookup[0])
+  thing = thing_get(player->field_43E);
+  if (thing_is_invalid(thing))
     thing = NULL;
   if (thing != NULL)
   {
@@ -257,7 +255,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
   if (thing == NULL)
   {
     set_camera_zoom(player->acamera, player->field_4B6);
-    if (player == &game.players[my_player_number%PLAYERS_COUNT])
+    if (is_my_player(player))
       PaletteSetPlayerPalette(player, _DK_palette);
     player->field_0 &= 0xEF;
     player->field_0 &= 0x7F;
@@ -267,8 +265,8 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
   if (thing->class_id == TCls_Creature)
   {
     load_swipe_graphic_for_creature(thing);
-    cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
-    if (player == &game.players[my_player_number%PLAYERS_COUNT])
+    cctrl = creature_control_get_from_thing(thing);
+    if (is_my_player(player))
     {
       if (cctrl->field_AB & 0x02)
         PaletteSetPlayerPalette(player, blue_palette);
@@ -293,12 +291,8 @@ long pinstfe_passenger_control_creature(struct PlayerInfo *player, long *n)
 {
 //  return _DK_pinstfe_passenger_control_creature(player, n);
   struct Thing *thing;
-  long i;
-  thing = NULL;
-  i = player->field_43E;
-  if ((i >= 0) && (i < THINGS_COUNT))
-    thing = game.things_lookup[i];
-  if ((thing != NULL) && (thing != game.things_lookup[0]))
+  thing = thing_get(player->field_43E);
+  if (!thing_is_invalid(thing))
     control_creature_as_passenger(player, thing);
   set_player_instance(player, 13, false);
   return 0;
@@ -345,12 +339,8 @@ long pinstfm_zoom_to_heart(struct PlayerInfo *player, long *n)
   //return _DK_pinstfm_zoom_to_heart(player, n);
   struct Thing *thing;
   struct Coord3d pos;
-  long i;
-  thing = NULL;
-  i = player->field_2F;
-  if ((i > 0) && (i < THINGS_COUNT))
-    thing = game.things_lookup[i];
-  if ((thing != NULL) && (thing != game.things_lookup[0]))
+  thing = thing_get(player->field_2F);
+  if (!thing_is_invalid(thing))
   {
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val - 112;
@@ -377,15 +367,15 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   struct Thing *thing;
   struct Camera *cam;
   //return _DK_pinstfs_zoom_out_of_heart(player, n);
-  thing = game.things_lookup[player->field_2F%THINGS_COUNT];
-  if ((thing != NULL) && (thing != game.things_lookup[0]))
+  thing = thing_get(player->field_2F);
+  if (!thing_is_invalid(thing))
     leave_creature_as_controller(player, thing);
   set_player_mode(player, 1);
   cam = player->acamera;
   if (cam == NULL) return 0;
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
-  thing = game.things_lookup[dungeon->field_0%THINGS_COUNT];
-  if ((thing == NULL) || (thing == game.things_lookup[0]))
+  thing = thing_get(dungeon->field_0);
+  if (!thing_is_invalid(thing))
   {
     cam->mappos.x.val = (map_subtiles_x << 8)/2;
     cam->mappos.y.val = (map_subtiles_y << 8)/2;

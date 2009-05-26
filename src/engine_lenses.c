@@ -46,6 +46,9 @@ RotPers_Func rotpers_routines[] = {
   rotpers_fisheye,
 };
 
+unsigned int eye_lens_width = 0;
+unsigned int eye_lens_height = 0;
+
 /******************************************************************************/
 DLLIMPORT void _DK_init_lens(unsigned long *lens_mem, int width, int height, int scanln, int nlens);
 DLLIMPORT void _DK_perspective_standard(struct XYZ *cor, struct PolyPoint *ppt);

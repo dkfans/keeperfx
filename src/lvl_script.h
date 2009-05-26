@@ -81,12 +81,70 @@ enum TbScriptCommands {
     Cmd_BONUS_LEVEL_TIME               = 75,
     Cmd_QUICK_OBJECTIVE                = 44,
     Cmd_QUICK_INFORMATION              = 45,
+    Cmd_QUICK_OBJECTIVE_WITH_POS       = 46,
+    Cmd_QUICK_INFORMATION_WITH_POS     = 47,
     Cmd_SWAP_CREATURE                  = 77,
     Cmd_PRINT                          = 76, // from beta
+  // New commands propositions - KeeperFX only
+    Cmd_CHANGE_SLAB_TYPE               = 78,
+    Cmd_CHANGE_SLAB_OWNER              = 79,
+    Cmd_IF_SLAB_TYPE                   = 80,
+    Cmd_IF_SLAB_OWNER                  = 81,
+    Cmd_SET_CREATURE_TENDENCIES        = 84,
+    Cmd_PLAY_MESSAGE                   = 85,
+    Cmd_ADD_GOLD_TO_PLAYER             = 86,
+    Cmd_LEVEL_VERSION                  = 90,
+};
+
+enum ScriptVatiables {
+  SVar_MONEY                     =  1,
+  SVar_GAME_TURN                 =  5,
+  SVar_BREAK_IN                  =  6,
+  SVar_CREATURE_NUM              =  7,
+  SVar_TOTAL_IMPS                =  8,
+  SVar_TOTAL_CREATURES           =  9,
+  SVar_TOTAL_RESEARCH            = 10,
+  SVar_TOTAL_DOORS               = 11,
+  SVar_TOTAL_AREA                = 12,
+  SVar_TOTAL_CREATURES_LEFT      = 13,
+  SVar_CREATURES_ANNOYED         = 14,
+  SVar_BATTLES_LOST              = 15,
+  SVar_BATTLES_WON               = 16,
+  SVar_ROOMS_DESTROYED           = 17,
+  SVar_SPELLS_STOLEN             = 18,
+  SVar_TIMES_BROKEN_INTO         = 19,
+  SVar_GOLD_POTS_STOLEN          = 20,
+  SVar_TIMER                     = 21,
+  SVar_DUNGEON_DESTROYED         = 22,
+  SVar_TOTAL_GOLD_MINED          = 24,
+  SVar_FLAG                      = 25,
+  SVar_ROOM_SLABS                = 26,
+  SVar_DOORS_DESTROYED           = 27,
+  SVar_CREATURES_SCAVENGED_LOST  = 28,
+  SVar_CREATURES_SCAVENGED_GAINED= 29,
+  SVar_AVAILABLE_MAGIC           = 30,
+  SVar_AVAILABLE_TRAP            = 31,
+  SVar_AVAILABLE_DOOR            = 32,
+  SVar_AVAILABLE_ROOM            = 33,
+  SVar_ALL_DUNGEONS_DESTROYED    = 34,
+  SVar_DOOR_NUM                  = 35,
+};
+
+enum MapLocationTypes {
+    MLoc_NONE                          =  0,
+    MLoc_ACTIONPOINT                   =  1,
+    MLoc_HEROGATE                      =  2,
+    MLoc_PLAYERSHEART                  =  3,
+    MLoc_CREATUREKIND                  =  4,
+    MLoc_OBJECTKIND                    =  5,
+    MLoc_ROOMKIND                      =  6,
+    MLoc_THING                         =  7,
 };
 
 /******************************************************************************/
 #pragma pack(1)
+
+typedef unsigned long TbMapLocation;
 
 struct CommandDesc { // sizeof = 14 // originally was 13
   const char *textptr;
@@ -141,7 +199,7 @@ void command_add_party_to_level(char *plrname, char *prtname, char *dst_place, l
 void command_add_creature_to_level(char *plrname, char *crtr_name, char *dst_place, long ncopies, long crtr_level, long carried_gold);
 void command_if(char *plrname, char *varib_name, char *operatr, long value);
 void command_add_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4);
-void command_display_information(long info_idx, long pos_x, long pos_y);
+void command_display_information(long msg_num, char *where, long x, long y);
 void command_research(char *plrname, char *trg_type, char *trg_name, unsigned long val);
 void command_if_action_point(long apt_idx, char *plrname);
 void command_add_tunneller_to_level(char *plrname, char *dst_place, char *objectv, long target, unsigned char crtr_level, unsigned long carried_gold);
@@ -153,19 +211,44 @@ void command_set_computer_checks(char *plrname, char *chkname, long a1, long a2,
 void command_set_computer_events(char *plrname, char *evntname, long a1, long a2);
 void command_set_computer_process(char *plrname, char *procname, long a1, long a2, long a3, long a4, long a5);
 void command_message(char *msgtext, unsigned char kind);
+unsigned short get_map_location_type(TbMapLocation location);
+unsigned long get_map_location_longval(TbMapLocation location);
+unsigned long get_map_location_plyrval(TbMapLocation location);
+unsigned short get_map_location_plyridx(TbMapLocation location);
 
 short clear_script(void);
 short load_script(long lvl_num);
+short preload_script(long lvnum);
 /******************************************************************************/
 void script_process_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4);
 void script_process_win_game(unsigned short plyr_idx);
 void script_process_lose_game(unsigned short plyr_idx);
-struct Thing *script_process_new_tunneller(unsigned char a1, long a2, unsigned char a3, long a4, unsigned char a5, unsigned long a6);
+struct Thing *script_process_new_tunneller(unsigned char plyr_idx, TbMapLocation location, unsigned char heading, long target, unsigned char crtr_level, unsigned long carried_gold);
 struct Thing *script_process_new_party(struct Party *party, unsigned char a2, long a3, long a4);
-long process_activation_status(struct Condition *condt);
-unsigned char script_support_action_point_activated_by_players(long apt_idx);
+void script_process_new_tunneller_party(unsigned char a1, long a2, long a3, unsigned char a4, long a5, unsigned char a6, unsigned long a7);
+long script_support_create_thing_at_hero_door(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5);
+long script_support_create_thing_at_action_point(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5);
+long script_support_create_creature_at_dungeon_heart(unsigned char a1, unsigned char a2, unsigned char a3);
+long script_support_send_tunneller_to_action_point(struct Thing *thing, long a2);
+long script_support_send_tunneller_to_dungeon(struct Thing *thing, unsigned char a2);
+long script_support_send_tunneller_to_dungeon_heart(struct Thing *thing, unsigned char a2);
+long script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing);
+struct Thing *script_create_new_creature(unsigned char plyr_idx, long kind, long location, long carried_gold, long crtr_level);
+long get_highest_experience_level_in_group(struct Thing *thing);
+long add_creature_to_group(struct Thing *crthing, struct Thing *grthing);
+TbBool process_activation_status(struct Condition *condt);
+long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char a3);
+TbBool get_condition_status(unsigned char cndkind, long val1, long val2);
+TbBool condition_inactive(long cond_idx);
+TbBool action_point_activated_by_player(long apt_idx,long plyr_idx);
 TbBool process_avialable_status(long plyr_idx, long itype, long ikind, long val);
+TbBool is_condition_met(long condit_idx);
+void process_conditions(void);
+void process_values(void);
+void process_win_and_lose_conditions(long plyr_idx);
 void script_process_new_creatures(unsigned char a1, long a2, long a3, long a4, long a5, long a6);
+void process_check_new_creature_partys(void);
+void process_check_new_tunneller_partys(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

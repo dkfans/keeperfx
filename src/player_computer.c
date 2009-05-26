@@ -1621,7 +1621,7 @@ void shut_down_process(struct Computer2 *comp, struct ComputerProcess *process)
   {
     set_flag_dword(&process->field_44, 0x0008, true);
     set_flag_dword(&process->field_44, 0x0020, false);
-    process->field_34 = game.seedchk_random_used;
+    process->field_34 = game.play_gameturn;
     callback = process->func_complete;
     if (callback != NULL)
       callback(comp, process);
@@ -1635,7 +1635,7 @@ void reset_process(struct Computer2 *comp, struct ComputerProcess *process)
     process->field_3C = 0;
     process->field_38 = 0;
     set_flag_dword(&process->field_44, 0x0020, false);
-    process->field_34 = game.seedchk_random_used;
+    process->field_34 = game.play_gameturn;
   }
 }
 
@@ -1763,7 +1763,7 @@ long computer_paused_task(struct Computer2 *comp, struct ComputerProcess *proces
 
 long computer_completed_task(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  process->field_34 = game.seedchk_random_used;
+  process->field_34 = game.play_gameturn;
   comp->field_0 = 2;
   return 0;
 }
@@ -2005,7 +2005,7 @@ short process_processes_and_task(struct Computer2 *comp)
   {
     if (comp->field_10 <= 0)
       return false;
-    if ((game.seedchk_random_used % comp->field_18) == 0)
+    if ((game.play_gameturn % comp->field_18) == 0)
       process_tasks(comp);
     switch (comp->field_0)
     {
@@ -2044,7 +2044,7 @@ void process_computer_player2(unsigned long plridx)
   //_DK_process_computer_player2(plridx);
   struct Computer2 *comp;
   comp = &game.computer[plridx%PLAYERS_COUNT];
-  if ((comp->field_14) && (comp->field_2C <= game.seedchk_random_used))
+  if ((comp->field_14) && (comp->field_2C <= game.play_gameturn))
     comp->field_10 = 1;
   else
     comp->field_10 = 0;
@@ -2095,7 +2095,7 @@ void process_computer_players2(void)
           process++;
         }
         if (dig_process != NULL)
-          if (turn_last_checked_for_gold+5000 < game.seedchk_random_used)
+          if (turn_last_checked_for_gold+5000 < game.play_gameturn)
           {
             needs_gold_check = true;
             set_flag_dword(&dig_process->field_44, 0x0004, false);
@@ -2104,7 +2104,7 @@ void process_computer_players2(void)
   }
   if (needs_gold_check)
   {
-    turn_last_checked_for_gold = game.seedchk_random_used;
+    turn_last_checked_for_gold = game.play_gameturn;
     check_map_for_gold();
   }
 }

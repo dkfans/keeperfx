@@ -28,11 +28,13 @@
 #include "bflib_datetm.h"
 #include "bflib_fileio.h"
 #include "bflib_memory.h"
+#include "bflib_network.h"
 
 #include "kjm_input.h"
 #include "frontend.h"
 #include "scrcapt.h"
 #include "player_instances.h"
+#include "gui_tooltips.h"
 #include "keeperfx.h"
 
 #ifdef __cplusplus
@@ -318,7 +320,7 @@ short get_bookmark_inputs(void)
       if ((bmark->flags & 0x01) != 0)
       {
         pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-        set_packet_action(pckt, 26, bmark->x, bmark->y, 0, 0);
+        set_packet_action(pckt, PckA_BookmarkLoad, bmark->x, bmark->y, 0, 0);
         return true;
       }
     }
@@ -426,7 +428,7 @@ short get_global_inputs(void)
   // Code for debugging purposes
   if ( is_key_pressed(KC_D,KM_ALT) )
   {
-    LbSyncLog("REPORT for gameturn %d\n",game.seedchk_random_used);
+    LbSyncLog("REPORT for gameturn %d\n",game.play_gameturn);
     // Timing report
     LbSyncLog("Now time is %d, last loop time was %d, clock is %d, requested fps is %d\n",LbTimerClock(),last_loop_time,clock(),game.num_fps);
     test_variable = !test_variable;
@@ -618,11 +620,11 @@ short get_level_lost_inputs(void)
       }
       break;
     case PVT_CreatureContrl:
-      thing = game.things_lookup[player->field_2F];
+      thing = thing_get(player->field_2F);
       if (thing->class_id == 5)
       {
         struct CreatureControl *cctrl;
-        cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
+        cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->field_2 & 0x02) == 0)
           set_packet_action(pckt, 33, player->field_2F,0,0,0);
       } else
@@ -766,7 +768,7 @@ short get_creature_passenger_action_inputs(void)
     return true;
   }
   struct Thing *thing;
-  thing = game.things_lookup[player->field_2F];
+  thing = thing_get(player->field_2F);
   if ((player->field_31 != thing->field_9) || ((thing->field_0 & 1)==0) )
   {
     struct Packet *pckt = &game.packets[player->packet_num%PACKETS_COUNT];
@@ -813,7 +815,7 @@ short get_creature_control_action_inputs(void)
     if (!make_packet)
     {
       struct Thing *thing;
-      thing = game.things_lookup[player->field_2F];
+      thing = thing_get(player->field_2F);
       if ( (player->field_31 != thing->field_9) || ((thing->field_0 & 1)==0)
          || (thing->field_7 == 67) )
         make_packet = true;
@@ -852,13 +854,14 @@ short get_creature_control_action_inputs(void)
     for (idx=0; idx < 10; idx++)
     {
       struct Thing *thing;
-      thing = game.things_lookup[player->field_2F%THINGS_COUNT];
+      thing = thing_get(player->field_2F);
       instnce = game.creature_stats[thing->model%CREATURE_TYPES_COUNT].instance_spell[idx];
       if ( creature_instance_is_available(thing,instnce) )
       {
         if ( numkey == num_avail )
         {
-          struct Packet *pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+          struct Packet *pckt;
+          pckt = &game.packets[player->packet_num%PACKETS_COUNT];
           set_packet_action(pckt, 39, instnce,0,0,0);
           break;
         }
@@ -1060,7 +1063,7 @@ unsigned char get_player_coords_and_context(struct Coord3d *pos, unsigned char *
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
     thing = get_nearest_thing_for_hand_or_slap(player->field_2B, pos->x.val, pos->y.val);
-    if ((thing != NULL) && (thing != game.things_lookup[0]))
+    if (!thing_is_invalid(thing))
       *context = 3;
     else
       *context = 0;
@@ -1223,19 +1226,14 @@ short get_inputs(void)
       return true;
     }
     struct Thing *thing;
-    if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
-    {
-      get_level_lost_inputs();
-      return true;
-    }
-    thing = game.things_lookup[player->field_2F];
+    thing = thing_get(player->field_2F);
     if ((thing_is_invalid(thing)) || (thing->class_id != TCls_Creature))
     {
       get_level_lost_inputs();
       return true;
     }
     struct CreatureControl *cctrl;
-    cctrl = game.persons.cctrl_lookup[thing->field_64%CREATURES_COUNT];
+    cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->field_2 & 0x02) == 0)
     {
       get_level_lost_inputs();
@@ -1254,7 +1252,7 @@ short get_inputs(void)
   {
   case PVT_DungeonTop:
       if (!inp_handled)
-        inp_handled=get_dungeon_control_action_inputs();
+        inp_handled = get_dungeon_control_action_inputs();
       get_dungeon_control_nonaction_inputs();
       get_player_gui_clicks();
       get_packet_control_mouse_clicks();

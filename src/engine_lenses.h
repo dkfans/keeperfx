@@ -72,6 +72,8 @@ DLLIMPORT RotPers_Func _DK_rotpers;
 /******************************************************************************/
 extern Perspect_Func perspective_routines[];
 extern RotPers_Func rotpers_routines[];
+extern unsigned int eye_lens_width;
+extern unsigned int eye_lens_height;
 /******************************************************************************/
 void init_lens(unsigned long *lens_mem, int width, int height, int scanln, int nlens);
 void perspective_standard(struct XYZ *cor, struct PolyPoint *ppt);

@@ -226,8 +226,6 @@ DLLIMPORT char _DK_creature_tag;
 #define creature_tag _DK_creature_tag
 DLLIMPORT char _DK_input_string[8][16];
 #define input_string _DK_input_string
-DLLIMPORT extern struct ToolTipBox _DK_tool_tip_box;
-#define tool_tip_box _DK_tool_tip_box
 DLLIMPORT char _DK_gui_error_text[256];
 #define gui_error_text _DK_gui_error_text
 DLLIMPORT long _DK_net_service_scroll_offset;

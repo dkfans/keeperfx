@@ -97,8 +97,11 @@
  0001:0000B660       frontend_toggle_computer_players
  0001:0000B750       enum_players_callback
  0001:0000CAF0       get_trap_for_position
+ 0001:0000CB50       get_trap_for_slab_position
+ 0001:0000CFB0       add_creature_to_group
  0001:0000D170       add_creature_to_group_as_leader
  0001:0000D2B0       remove_creature_from_group
+ 0001:0000D500       get_highest_experience_level_in_group
  0001:0000D570       creature_is_group_leader
  0001:0000D620       leader_find_positions_for_followers
  0001:0000DDC0       set_creature_instance
@@ -156,7 +159,15 @@
  0001:0001C280       fronttorture_update
  0001:0001CC50       get_next_research_item
  0001:0001CD90       process_player_research
+ 0001:0001D5E0       script_support_create_thing_at_action_point
+ 0001:0001D900       script_support_create_thing_at_hero_door
+ 0001:0001DC80       script_support_create_creature_at_dungeon_heart
+ 0001:0001DEB0       script_support_send_tunneller_to_dungeon_heart
+ 0001:0001DF10       script_support_send_tunneller_to_dungeon
+ 0001:0001DF90       script_support_send_tunneller_to_appropriate_dungeon
+ 0001:0001E000       script_support_send_tunneller_to_action_point
  0001:0001E0B0       process_action_points
+ 0001:0001E0F0       action_point_get_players_within
  0001:0001E340       PaletteFadePlayer
  0001:0001E510       PaletteSetPlayerPalette
  0001:0001F4A0       redraw_frontview
@@ -171,6 +182,7 @@
  0001:000243C0       draw_bonus_timer
  0001:00024520       message_add
  0001:000245A0       message_update
+ 0001:000246C0       draw_spell_cursor
  0001:00024BC0       tag_cursor_blocks_dig
  0001:00024D50       tag_cursor_blocks_place_room
  0001:00024F50       tag_cursor_blocks_place_trap
@@ -381,6 +393,7 @@
  0001:000770F0       process_door
  0001:00077200       destroy_door
  0001:000777A0       get_door_for_position
+ 0001:00077FA0       find_door_of_type
  0001:00078000       init_lens
  0001:000782E0       draw_lens
  0001:00078330       battle_initialise
@@ -565,6 +578,7 @@
  0001:000A5DD0       check_players_won
  0001:000A5EC0       process_dungeon_power_magic
  0001:000A60D0       calculate_dungeon_area_scores
+ 0001:000A61B0       take_money_from_dungeon
  0001:000A67E0       clear_slab_dig
  0001:000A6940       update_explored_flags_for_power_sight
  0001:000A6DA0       update_power_sight_explored
@@ -744,10 +758,12 @@
  0003:0000F620       trap_stats
  0003:0000FC58       object_to_magic
  0003:0000FCE0       object_to_special
+ 0003:0000FD80       trap_to_object
  0003:0000FD90       object_to_door_or_trap
  0003:0000FE18       workshop_object_class
  0003:000103C0       slab_attrs
  0003:00010CBC       Non3DEmitter
+ 0003:00010CC0       SpeechEmitter
  0003:000113C0       parchment_loaded
  0003:000113C4       draw_spell_cost
  0003:000114F8       split1at
@@ -931,6 +947,8 @@
  0003:00052D80       packet_left_button_click_space_count
  0003:00052DB0       Receiver
  0003:00052DC8       emitter
+ 0003:000538C8       SampleList
+ 0003:00053B18       MaxNoSounds
  0003:00053B80       optimised_lights
  0003:00053B84       do_lights
  0003:00053B88       total_lights
@@ -1064,6 +1082,7 @@
  0003:002470F0       play_desc_speech_time
  0003:00247100       map_flag_data
  0003:00247108       end_map_flag_data
+ 0003:002473C8       message_playing
  0003:002473D0       message_queue
  0003:002473F8       frontend_mouse_over_button
  0003:00247404       frontend_mouse_over_button_start_time

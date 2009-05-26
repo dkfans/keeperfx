@@ -28,18 +28,32 @@ extern "C" {
 /******************************************************************************/
 // Buffer sizes
 // Disk path max length
-#define DISKPATH_SIZE   144
-#define LINEMSG_SIZE    160
-#define READ_BUFSIZE    256
+#define DISKPATH_SIZE    144
+#define LINEMSG_SIZE     160
+#define READ_BUFSIZE     256
+#define LOOPED_FILE_LEN 4096
 
 // Max length of any processed string
 #define MAX_TEXT_LENGTH 4096
 // Smaller buffer, also widely used
 #define TEXT_BUFFER_LENGTH 2048
 
-enum TbErrorLogFlag {
+enum TbErrorLogFlags {
         Lb_ERROR_LOG_APPEND = 0,
         Lb_ERROR_LOG_NEW =  1,
+};
+
+enum TbLogFlags {
+        LbLog_DateInHeader = 0x0010,
+        LbLog_TimeInHeader = 0x0020,
+        LbLog_DateInLines  = 0x0040,
+        LbLog_TimeInLines  = 0x0080,
+        LbLog_LoopedFile   = 0x0100,
+};
+
+enum TbErrorCode {
+    Lb_OK                   =  0,
+    Lb_FAIL                 = -1,
 };
 
 /******************************************************************************/
@@ -110,11 +124,11 @@ int LbSyncLog(const char *format, ...);
 int LbNetLog(const char *format, ...);
 int LbScriptLog(const char *format, ...);
 int LbJustLog(const char *format, ...);
-int __fastcall LbErrorLogSetup(const char *directory, const char *filename, uchar flag);
-int __fastcall LbErrorLogClose();
+int __fastcall LbErrorLogSetup(const char *directory, const char *filename, TbBool flag);
+int __fastcall LbErrorLogClose(void);
 
 int __fastcall LbLogClose(struct TbLog *log);
-int __fastcall LbLogSetup(struct TbLog *log, const char *filename, int flags);
+int __fastcall LbLogSetup(struct TbLog *log, const char *filename, ulong flags);
 int __fastcall LbLogSetPrefix(struct TbLog *log, const char *prefix);
 /******************************************************************************/
 unsigned long blong (unsigned char *p);
@@ -132,6 +146,8 @@ unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits)
 #ifdef __cplusplus
 }
 #endif
+
+typedef int TbError;
 
 #ifdef __cplusplus
 #include "bflib_basinln.h"
