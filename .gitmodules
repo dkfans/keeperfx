@@ -1,0 +1,3 @@
+[submodule "tools/peresec"]
+	path = tools/peresec
+	url = https://github.com/dkfans/peresec.git

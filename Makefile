@@ -11,7 +11,7 @@ CPP   = $(CROSS_COMPILE)g++
 CC    = $(CROSS_COMPILE)gcc
 WINDRES  = $(CROSS_COMPILE)windres
 DLLTOOL  = $(CROSS_COMPILE)dlltool
-EXETODLL = tools/ec/keepfx_ec
+EXETODLL = tools/peresec/peresec
 RM       = rm -f
 MV       = mv -f
 CP       = cp -f
@@ -95,10 +95,10 @@ clean: clean-build clean-tools clean-package
 
 clean-build:
 	-$(RM) $(OBJ) $(BIN)
-	-$(RM) obj/keeperfx.a bin/keeperfx.dll lib/keeperfx.def $(GENSRC)
+	-$(RM) obj/keeperfx.* bin/keeperfx.dll $(GENSRC)
 
 clean-tools:
-	make -C tools/ec clean
+	make -C tools/peresec clean
 
 clean-package:
 	-$(RM) pkg/keeperfx*
@@ -124,15 +124,18 @@ obj/ver_defs.h: version.mk Makefile
 	$(ECHO) \#define VER_STRING  \"$(VER_STRING)\" >> "$(@D)/tmp"
 	$(MV) "$(@D)/tmp" "$@"
 
-obj/keeperfx.a: bin/keeperfx.dll lib/keeperfx.def
-	$(DLLTOOL) --dllname bin/keeperfx.dll --def lib/keeperfx.def --output-lib obj/keeperfx.a
+obj/keeperfx.a: bin/keeperfx.dll obj/keeperfx.def
+	$(DLLTOOL) --dllname bin/keeperfx.dll --def obj/keeperfx.def --output-lib obj/keeperfx.a
 
-bin/keeperfx.dll lib/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map tools/ec/keepfx_ec
-	cp lib/keeper95_gold.dll bin/keeperfx.dll
-	$(EXETODLL)
+bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map tools/peresec/peresec
+	$(CP) lib/keeper95_gold.dll obj/keeperfx.dll
+	$(CP) lib/keeper95_gold.map obj/keeperfx.map
+	cd obj; \
+	../$(EXETODLL) keeperfx "_DK_"
+	$(MV) obj/keeperfx.dll bin/keeperfx.dll
 
-tools/ec/keepfx_ec: tools/ec/keepfx_ec.c
-	make -C tools/ec
+tools/peresec/peresec: tools/peresec/peresec.c
+	make -C tools/peresec
 
 package: pkg-before
 	$(CP) bin/* pkg/
