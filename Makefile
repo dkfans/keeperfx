@@ -19,7 +19,7 @@ MKDIR    = mkdir -p
 ECHO     = @echo
 
 BIN      = bin/keeperfx$(EXEEXT)
-RES      = obj/keeperfx_private.res
+RES      = obj/keeperfx_stdres.res
 GENSRC   = obj/ver_defs.h
 
 OBJ  = \
@@ -113,8 +113,8 @@ obj/%.o: src/%.cpp $(GENSRC)
 obj/%.o: src/%.c $(GENSRC)
 	$(CPP) -c $(CFLAGS) -o"$@" "$<"
 
-obj/keeperfx_private.res: src/keeperfx_private.rc $(GENSRC)
-	$(WINDRES) -i src/keeperfx_private.rc --input-format=rc -o obj/keeperfx_private.res -O coff 
+obj/%.res: res/%.rc $(GENSRC)
+	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff 
 
 obj/ver_defs.h: version.mk Makefile
 	$(ECHO) \#define VER_MAJOR   $(VER_MAJOR) > "$(@D)/tmp"

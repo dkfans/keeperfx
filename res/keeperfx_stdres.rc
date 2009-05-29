@@ -6,7 +6,7 @@
 #include "../src/keeperfx_private.h" // version
 
 
-A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "keeperfx.ico"
+A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "keeperfx_icon.ico"
 
 //
 // TO CHANGE VERSION INFORMATION, EDIT PROJECT OPTIONS...
