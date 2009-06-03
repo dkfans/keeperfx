@@ -200,6 +200,7 @@ extern short is_full_moon;
 extern short is_near_full_moon;
 extern short is_new_moon;
 extern short is_near_new_moon;
+extern const struct ConfigCommand lang_type[];
 extern struct GameCampaign campaign;
 extern char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
 /******************************************************************************/
@@ -213,6 +214,7 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
 TbBool update_features(unsigned long mem_size);
 short load_configuration(void);
 short calculate_moon_phase(short do_calculate,short add_to_log);
+void load_or_create_high_score_table(void);
 short load_high_score_table(void);
 short save_high_score_table(void);
 short create_empty_high_score_table(void);
@@ -280,7 +282,7 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn);
 /******************************************************************************/
 short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname);
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct ConfigCommand *commands);
-short skip_conf_to_next_line(const char *buf,long *pos,long buflen);
+TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen);
 int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen);
 int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen);
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct ConfigCommand *commands);

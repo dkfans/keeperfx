@@ -26,10 +26,45 @@
 extern "C" {
 #endif
 /******************************************************************************/
-
+struct SlabMap bad_slabmap_block;
 /******************************************************************************/
-
 /******************************************************************************/
+struct SlabMap *get_slabmap_block(long slab_x, long slab_y)
+{
+  if ((slab_x < 0) || (slab_x >= map_tiles_x))
+      return &bad_slabmap_block;
+  if ((slab_y < 0) || (slab_y >= map_tiles_y))
+      return &bad_slabmap_block;
+  return &game.slabmap[slab_y*(map_tiles_x) + slab_x];
+}
+
+TbBool slabmap_block_invalid(struct SlabMap *slb)
+{
+  if (slb == NULL)
+    return true;
+  if (slb == &bad_slabmap_block)
+    return true;
+  return (slb < &game.slabmap[0]);
+}
+
+long slabmap_owner(struct SlabMap *slb)
+{
+  return slb->field_5 & 0x07;
+}
+
+void clear_slabs(void)
+{
+  struct SlabMap *slb;
+  unsigned long x,y;
+  for (y=0; y < map_tiles_y; y++)
+    for (x=0; x < map_tiles_x; x++)
+    {
+      slb = &game.slabmap[y*map_tiles_x + x];
+      memset(slb, 0, sizeof(struct SlabMap));
+      slb->slab = SlbT_ROCK;
+    }
+}
+
 void reveal_whole_map(struct PlayerInfo *player)
 {
   unsigned short nflag;
@@ -50,7 +85,6 @@ void reveal_whole_map(struct PlayerInfo *player)
   }
   pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
 }
-
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -38,12 +38,27 @@ enum TbPacketAction {
         PckA_SetGammaLevel  =   27,
         PckA_SetMinimapConf =   28,
         PckA_SetPlyrState   =   36,
+        PckA_CheatRevealMap =   63,
         PckA_SpellCTADis    =   89,
         PckA_PlyrFastMsg    =  108,
         PckA_SpellSOEDis    =  114,
         PckA_PlyrToggleAlly =  118,
         PckA_PlyrMsgChar    =  121,
 };
+
+enum TbPacketControl {
+        PCtr_None           = 0x0000,
+        PCtr_LBtnClick      = 0x0100,
+        PCtr_RBtnClick      = 0x0200,
+        PCtr_LBtnHeld       = 0x0400,
+        PCtr_RBtnHeld       = 0x0800,
+        PCtr_LBtnRelease    = 0x1000,
+        PCtr_RBtnRelease    = 0x2000,
+        PCtr_MapCoordsValid = 0x8000,
+};
+
+#define PCtr_LBtnAnyAction (PCtr_LBtnClick | PCtr_LBtnHeld | PCtr_LBtnRelease)
+#define PCtr_RBtnAnyAction (PCtr_RBtnClick | PCtr_RBtnHeld | PCtr_RBtnRelease)
 
 #pragma pack(1)
 
@@ -74,7 +89,8 @@ unsigned int field_8;
 
 /******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
-void set_packet_control(struct Packet *pckt, unsigned long val);
+void set_packet_control(struct Packet *pckt, unsigned long flag);
+void unset_packet_control(struct Packet *pckt, unsigned long flag);
 short set_packet_pause_toggle(void);
 void process_dungeon_control_packet_clicks(long idx);
 void process_players_dungeon_control_packet_action(long idx);

@@ -331,6 +331,7 @@ void draw_creature_view(struct Thing *thing)
   unsigned char *scrmem;
   //_DK_draw_creature_view(thing); return;
 
+  // If no eye lens required - just draw on the screen, directly
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   if (((game.flags_cd & MFlg_EyeLensReady) == 0) || (eye_lens_memory == NULL))
   {
@@ -342,6 +343,7 @@ void draw_creature_view(struct Thing *thing)
     engine(&player->cameras[1]);
     return;
   }
+
   //TODO: Temporary hack, until CMistFade is not rewritten
   if ((game.numfield_1B >= 4) && (game.numfield_1B <= 12))
   {
@@ -356,6 +358,7 @@ void draw_creature_view(struct Thing *thing)
   LbScreenStoreGraphicsWindow(&grwnd);
   // Prepare new settings
   LbMemorySet(scrmem, 0, eye_lens_width*eye_lens_height*sizeof(TbPixel));
+
   lbDisplay.WScreen = scrmem;
   lbDisplay.GraphicsScreenHeight = eye_lens_height;
   lbDisplay.GraphicsScreenWidth = eye_lens_width;
@@ -441,6 +444,24 @@ void set_first_creature(struct Thing *thing)
 void remove_first_creature(struct Thing *thing)
 {
   _DK_remove_first_creature(thing);
+}
+
+TbBool thing_is_creature(const struct Thing *thing)
+{
+  if (thing_is_invalid(thing))
+    return false;
+  if (thing->class_id != TCls_Creature)
+    return false;
+  return true;
+}
+
+TbBool thing_is_creature_special_worker(const struct Thing *thing)
+{
+  if (thing_is_invalid(thing))
+    return false;
+  if (thing->class_id != TCls_Creature)
+    return false;
+  return (thing->model == 23);
 }
 
 /******************************************************************************/

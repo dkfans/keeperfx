@@ -162,6 +162,8 @@ short thing_exists_idx(long tng_idx);
 short thing_exists(const struct Thing *thing);
 short thing_is_invalid(const struct Thing *thing);
 long thing_get_index(const struct Thing *thing);
+
+int thing_to_special(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

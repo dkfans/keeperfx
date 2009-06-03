@@ -31,7 +31,7 @@ extern "C" {
 #define ACTIVE_BUTTONS_COUNT        86
 #define ACTIVE_MENUS_COUNT           8
 #define MENU_LIST_ITEMS_COUNT       43
-#define FRONTEND_BUTTON_INFO_COUNT 108
+#define FRONTEND_BUTTON_INFO_COUNT 110
 // Sprite limits
 #define PANEL_SPRITES_COUNT 514
 #define FRONTEND_FONTS_COUNT 4
@@ -97,6 +97,7 @@ enum GUI_Menus {
   GMnu_SPELL_LOST         = 38,
   GMnu_FEOPTION           = 39,
   GMnu_FELEVEL_SELECT     = 40,
+  GMnu_FECAMPAIGN_SELECT  = 41,
 };
 
 enum FrontendMenuState {
@@ -593,6 +594,17 @@ void gui_go_to_next_creature_activity(struct GuiButton *gbtn);
 void gui_area_anger_button(struct GuiButton *gbtn);
 void maintain_activity_row(struct GuiButton *gbtn);
 
+// Campaign selection screen
+void frontend_campaign_select_up(struct GuiButton *gbtn);
+void frontend_campaign_select_down(struct GuiButton *gbtn);
+void frontend_campaign_select_up_maintain(struct GuiButton *gbtn);
+void frontend_campaign_select_down_maintain(struct GuiButton *gbtn);
+void frontend_campaign_select_maintain(struct GuiButton *gbtn);
+void frontend_draw_campaign_select_button(struct GuiButton *gbtn);
+void frontend_campaign_select(struct GuiButton *gbtn);
+void frontend_campaign_select_update(void);
+void frontend_draw_campaign_scroll_tab(struct GuiButton *gbtn);
+
 void gui_activity_background(struct GuiMenu *gmnu);
 void gui_pretty_background(struct GuiMenu *gmnu);
 void gui_round_glass_background(struct GuiMenu *gmnu);
@@ -741,7 +753,7 @@ void frontend_load_game_maintain(struct GuiButton *gbtn);
 void frontend_draw_games_scroll_tab(struct GuiButton *gbtn);
 void frontend_load_game(struct GuiButton *gbtn);
 void frontend_draw_load_game_button(struct GuiButton *gbtn);
-void frontend_start_single_level(struct GuiButton *gbtn);
+void frontend_ldcampaign_change_state(struct GuiButton *gbtn);
 void frontend_start_new_game(struct GuiButton *gbtn);
 void frontend_load_continue_game(struct GuiButton *gbtn);
 short frontend_save_continue_game(short allow_lvnum_grow);

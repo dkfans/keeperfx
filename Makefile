@@ -39,6 +39,7 @@ obj/engine_camera.o \
 obj/engine_render.o \
 obj/room_data.o \
 obj/slab_data.o \
+obj/map_data.o \
 obj/vidmode.o \
 obj/scrcapt.o \
 obj/kjm_input.o \
@@ -46,6 +47,7 @@ obj/gui_draw.o \
 obj/gui_tooltips.o \
 obj/lvl_script.o \
 obj/lvl_filesdk1.o \
+obj/thing_doors.o \
 obj/thing_list.o \
 obj/thing_creature.o \
 obj/bflib_basics.o \

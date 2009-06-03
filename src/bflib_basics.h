@@ -101,12 +101,13 @@ struct TbFileFind {
 #define LOG_PREFIX_LEN 32
 
 struct TbLog {
-        char Filename[DISKPATH_SIZE];
-        char Prefix[LOG_PREFIX_LEN];
-        ulong Flags;
-        short Initialised;
-        short Created;
-        short Suspended;
+        char filename[DISKPATH_SIZE];
+        char prefix[LOG_PREFIX_LEN];
+        ulong flags;
+        TbBool Initialised;
+        TbBool Created;
+        TbBool Suspended;
+        long position;
 };
 
 #pragma pack()
@@ -122,14 +123,16 @@ int LbErrorLog(const char *format, ...);
 int LbWarnLog(const char *format, ...);
 int LbSyncLog(const char *format, ...);
 int LbNetLog(const char *format, ...);
-int LbScriptLog(const char *format, ...);
 int LbJustLog(const char *format, ...);
+int LbScriptLog(unsigned long line,const char *format, ...);
+
 int __fastcall LbErrorLogSetup(const char *directory, const char *filename, TbBool flag);
 int __fastcall LbErrorLogClose(void);
 
 int __fastcall LbLogClose(struct TbLog *log);
 int __fastcall LbLogSetup(struct TbLog *log, const char *filename, ulong flags);
 int __fastcall LbLogSetPrefix(struct TbLog *log, const char *prefix);
+int __fastcall LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...);
 /******************************************************************************/
 unsigned long blong (unsigned char *p);
 unsigned long llong (unsigned char *p);

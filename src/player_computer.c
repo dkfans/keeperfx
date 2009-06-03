@@ -39,6 +39,7 @@ const struct ConfigCommand compp_common_commands[] = {
   {"PROCESSESCOUNT",  2},
   {"CHECKSCOUNT",     3},
   {"EVENTSCOUNT",     4},
+  {"COMPUTERSCOUNT",  5},
   {NULL,              0},
   };
 
@@ -634,7 +635,7 @@ Comp_Event_Func computer_event_func_list[] = {
   NULL,
 };
 
-ComputerName ComputerProcessListsNames[COMPUTER_EVENTS_TYPES_COUNT];
+ComputerName ComputerProcessListsNames[COMPUTER_PROCESS_LISTS_COUNT];
 struct ComputerProcessTypes ComputerProcessLists[COMPUTER_PROCESS_LISTS_COUNT];
 /******************************************************************************/
 
@@ -830,13 +831,13 @@ short init_computer_process_lists(void)
 {
   struct ComputerProcessTypes *cpt;
   int i;
-  for (i=0; i<COMPUTER_PROCESSES_COUNT; i++)
+  for (i=0; i<COMPUTER_PROCESS_LISTS_COUNT; i++)
   {
     cpt = &ComputerProcessLists[i];
     LbMemorySet(cpt, 0, sizeof(struct ComputerProcessTypes));
     LbMemorySet(ComputerProcessListsNames[i], 0, LINEMSG_SIZE);
   }
-  for (i=0; i<COMPUTER_PROCESSES_COUNT-1; i++)
+  for (i=0; i<COMPUTER_PROCESS_LISTS_COUNT-1; i++)
   {
     cpt = &ComputerProcessLists[i];
     cpt->name = ComputerProcessListsNames[i];
@@ -882,6 +883,9 @@ short parse_computer_player_common_blocks(char *buf,long len)
 //TODO
           break;
       case 4: // EVENTSCOUNT
+//TODO
+          break;
+      case 5: // COMPUTERSCOUNT
 //TODO
           break;
       case 0: // comment
@@ -2076,7 +2080,7 @@ void process_computer_players2(void)
     dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
     if ((player->field_0 & 0x01) == 0)
       continue;
-    if ((player->field_0 & 0x40) || (dungeon->computer_enabled & 1))
+    if ((player->field_0 & 0x40) || (dungeon->computer_enabled & 0x01))
       if (player->field_2C == 1)
       {
         process_computer_player2(i);

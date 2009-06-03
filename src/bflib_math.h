@@ -28,6 +28,28 @@
 extern "C" {
 #endif
 /******************************************************************************/
+enum MathOperator {
+    MOp_UNDEFINED                      =  0,
+    MOp_EQUAL                          =  1,
+    MOp_NOT_EQUAL                      =  2,
+    MOp_SMALLER                        =  3,
+    MOp_GREATER                        =  4,
+    MOp_SMALLER_EQ                     =  5,
+    MOp_GREATER_EQ                     =  6,
+    MOp_LOGIC_AND                      =  7,
+    MOp_LOGIC_OR                       =  8,
+    MOp_LOGIC_XOR                      =  9,
+    MOp_BITWS_AND                      = 10,
+    MOp_BITWS_OR                       = 11,
+    MOp_BITWS_XOR                      = 12,
+    MOp_SUM                            = 13,
+    MOp_SUBTRACT                       = 14,
+    MOp_MULTIPLY                       = 15,
+    MOp_DIVIDE                         = 16,
+    MOp_MODULO                         = 17,
+}; 
+
+/******************************************************************************/
 DLLIMPORT int _DK_lbCosTable[2048];
 #define lbCosTable _DK_lbCosTable
 DLLIMPORT int _DK_lbSinTable[2048];
@@ -37,6 +59,7 @@ DLLIMPORT int _DK_lbSinTable[2048];
 long LbSinL(long x);
 long LbCosL(long x);
 long __fastcall LbSqrL(long x);
+long LbMathOperation(unsigned char opkind, long val1, long val2);
 
 /******************************************************************************/
 #ifdef __cplusplus

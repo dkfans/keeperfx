@@ -33,6 +33,16 @@ DLLIMPORT void _DK_update_creatures_not_in_list(void);
 DLLIMPORT long _DK_update_things_in_list(struct StructureList *list);
 DLLIMPORT void _DK_update_things(void);
 
+int thing_to_special(const struct Thing *thing)
+{
+  if (thing_is_invalid(thing))
+    return 0;
+  if ((thing->class_id != 1) || (thing->model >= OBJECT_TYPES_COUNT))
+    return 0;
+  return object_to_special[thing->model];
+}
+
+
 /******************************************************************************/
 long creature_near_filter_not_imp(struct Thing *thing, long val)
 {

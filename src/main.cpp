@@ -336,6 +336,10 @@ TbClockMSec last_loop_time=0;
 #ifdef __cplusplus
 extern "C" {
 #endif
+DLLIMPORT long _DK_update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
+DLLIMPORT void _DK_place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
+DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
+DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
 DLLIMPORT void _DK_draw_spell_cursor(unsigned char a1, unsigned short a2, unsigned char stl_x, unsigned char stl_y);
 DLLIMPORT long _DK_take_money_from_dungeon(short a1, long a2, unsigned char a3);
 DLLIMPORT unsigned char _DK_find_door_of_type(unsigned long a1, unsigned char a2);
@@ -697,6 +701,9 @@ void initialise_eye_lenses(void)
 {
   static const char *func_name="initialise_eye_lenses";
   unsigned long screen_size;
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   //_DK_initialise_eye_lenses(); return;
   if ((eye_lens_memory != NULL) || (eye_lens_spare_screen_memory != NULL))
   {
@@ -719,8 +726,8 @@ void initialise_eye_lenses(void)
     return;
   }
 
-  eye_lens_width = lbDisplay.PhysicalScreenWidth;
-  eye_lens_height = lbDisplay.PhysicalScreenHeight;
+  eye_lens_height = lbDisplay.GraphicsScreenHeight;
+  eye_lens_width = lbDisplay.GraphicsScreenWidth;
   screen_size = eye_lens_width * eye_lens_height + 2;
   eye_lens_memory = (unsigned long *)LbMemoryAlloc(screen_size*sizeof(unsigned long));
   eye_lens_spare_screen_memory = (unsigned char *)LbMemoryAlloc(screen_size*sizeof(TbPixel));
@@ -730,6 +737,9 @@ void initialise_eye_lenses(void)
     error(func_name, 141, "Cannot allocate EyeLens Memory");
     return;
   }
+#if (BFDEBUG_LEVEL > 9)
+    LbSyncLog("%s: Buffer dimensions (%d,%d)\n",func_name,eye_lens_width,eye_lens_height);
+#endif
   set_flag_byte(&game.flags_cd,MFlg_EyeLensReady,true);
 }
 
@@ -972,7 +982,6 @@ void setup_3d(void)
   static const char *func_name="setup_3d";
   unsigned long seed;
   long i,k;
-  //_DK_setup_3d();
   seed = 0;
   for (i=0; i < 512; i++)
   {
@@ -1045,7 +1054,6 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
   struct Thing *tmptng;
   struct Coord3d pos;
   long i;
-  //return _DK_process_object_being_picked_up(thing, plyr_idx);
   switch (thing->model)
   {
     case 3:
@@ -1182,10 +1190,29 @@ struct Thing *get_group_leader(struct Thing *thing)
   return NULL;
 }
 
-TbBool all_dungeons_destroyed(struct PlayerInfo *win_player)
+TbBool player_is_friendly_or_defeated(int plyr_idx, int win_plyr_idx)
 {
   struct PlayerInfo *player;
+  struct PlayerInfo *win_player;
   struct Dungeon *dungeon;
+  player = &(game.players[plyr_idx%PLAYERS_COUNT]);
+  win_player = &(game.players[win_plyr_idx%PLAYERS_COUNT]);
+  if ((player->field_0 & 0x01) != 0)
+  {
+      if ((win_plyr_idx == game.field_14E497) || (plyr_idx == game.field_14E497)     || ((win_player->field_2A & (1<<plyr_idx)) == 0)
+       || (game.field_14E497 == plyr_idx)     || (win_plyr_idx == game.field_14E497) || ((player->field_2A & (1<<win_plyr_idx)) == 0))
+      {
+        dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+        if (dungeon->field_0 > 0)
+          return false;
+      }
+  }
+  return true;
+}
+
+TbBool all_dungeons_destroyed(struct PlayerInfo *win_player)
+{
+  static const char *func_name="all_dungeons_destroyed";
   long win_plyr_idx;
   long i,k;
   win_plyr_idx = win_player->field_2B;
@@ -1193,18 +1220,12 @@ TbBool all_dungeons_destroyed(struct PlayerInfo *win_player)
   {
     if (i == win_plyr_idx)
       continue;
-    player = &(game.players[i%PLAYERS_COUNT]);
-    if (player->field_0 & 0x01)
-    {
-      if ((win_plyr_idx == game.field_14E497) || (i == game.field_14E497)            || ((win_player->field_2A & (1<<i)) != 0)
-       || (game.field_14E497 == i)            || (win_plyr_idx == game.field_14E497) || ((player->field_2A & (1 << win_plyr_idx)) != 0))
-      {
-        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
-        if (dungeon->field_0 > 0)
-          return false;
-      }
-    }
+    if (!player_is_friendly_or_defeated(i,win_plyr_idx))
+      return false;
   }
+#if (BFDEBUG_LEVEL > 1)
+    LbSyncLog("%s: Returning true for player %d\n",func_name,win_plyr_idx);
+#endif
   return true;
 }
 
@@ -1425,7 +1446,6 @@ void move_thing_in_map(struct Thing *thing, struct Coord3d *pos)
 #if (BFDEBUG_LEVEL > 18)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //_DK_move_thing_in_map(thing, pos);
   if ((thing->mappos.x.stl.num == pos->x.stl.num) && (thing->mappos.y.stl.num == pos->y.stl.num))
   {
     thing->mappos.x.val = pos->x.val;
@@ -1681,7 +1701,6 @@ long update_creature_levels(struct Thing *thing)
   struct Dungeon *dungeon;
   struct CreatureControl *cctrl;
   struct Thing *newtng;
-  //return _DK_update_creature_levels(thing);
   cctrl = creature_control_get_from_thing(thing);
   if ((cctrl->field_AD & 0x40) == 0)
     return 0;
@@ -1741,9 +1760,7 @@ void process_thing_spell_effects(struct Thing *thing)
 
 short thing_is_special(struct Thing *thing)
 {
-  if ((thing->class_id != 1) || (thing->model >= OBJECT_TYPES_COUNT))
-    return false;
-  return (object_to_special[thing->model] > 0);
+  return (thing_to_special(thing) > 0);
 }
 
 long update_object(struct Thing *thing)
@@ -1958,6 +1975,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
 {
   static const char *func_name="process_landscape_affecting_creature";
   struct CreatureControl *cctrl;
+  struct SlabMap *slb;
   int stl_idx;
   short nfoot;
   int i;
@@ -2006,8 +2024,8 @@ void process_landscape_affecting_creature(struct Thing *thing)
     // Snow footprints
     if (game.texture_id == 2)
     {
-      stl_idx = map_to_slab[thing->mappos.x.stl.num] + map_tiles_x * map_to_slab[thing->mappos.y.stl.num];
-      if (game.slabmap[stl_idx].slab == 10)
+      slb = get_slabmap_block(map_to_slab[thing->mappos.x.stl.num], map_to_slab[thing->mappos.y.stl.num]);
+      if (slb->slab == SlbT_PATH)
       {
         thing->field_25 |= 0x80u;
         nfoot = get_foot_creature_has_down(thing);
@@ -2052,11 +2070,11 @@ long update_creature(struct Thing *thing)
   struct PlayerInfo *player;
   struct CreatureControl *cctrl;
   struct Thing *tngp;
-  int stl_idx;
+  struct Map *map;
   int i;
 
-  stl_idx = (thing->mappos.y.stl.num << 8) + thing->mappos.x.stl.num;
-  if ((thing->field_7 == 67) && (game.map[stl_idx].flags & 0x40))
+  map = get_map_block(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+  if ((thing->field_7 == 67) && (map->flags & 0x40))
   {
     kill_creature(thing, game.things_lookup[0], -1, 1, 0, 1);
     return 0;
@@ -2224,7 +2242,6 @@ void update_thing_animation(struct Thing *thing)
 #if (BFDEBUG_LEVEL > 18)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //_DK_update_thing_animation(thing); return;
   if (thing->class_id == 5)
   {
     cctrl = creature_control_get_from_thing(thing);
@@ -2285,7 +2302,6 @@ long update_thing(struct Thing *thing)
 #if (BFDEBUG_LEVEL > 18)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //return _DK_update_thing(thing);
 
   if ((thing->field_25 & 0x40) == 0)
   {
@@ -2968,73 +2984,299 @@ int first_monopoly_menu(void)
   return -1;
 }
 
+void update_busy_doing_gui_on_menu(void)
+{
+  int gidx;
+  gidx = point_is_over_gui_menu(GetMouseX(), GetMouseY());
+  if (gidx == -1)
+    busy_doing_gui = 0;
+  else
+    busy_doing_gui = 1;
+}
+
+TbBool gui_button_tooltip_update(int gbtn_idx)
+{
+  static TbBool doing_tooltip = false;
+  struct PlayerInfo *player;
+  struct GuiButton *gbtn;
+  if (gbtn_idx < 0)
+  {
+    tool_tip_time = 0;
+    tool_tip_box.gbutton = NULL;
+    return false;
+  }
+  doing_tooltip = false;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  gbtn = &active_buttons[gbtn_idx];
+  if ((active_menus[gbtn->gmenu_idx].field_1 == 2) && ((gbtn->field_1B & 0x8000u)==0))
+  {
+    if (tool_tip_box.gbutton == gbtn)
+    {
+        if ((tool_tip_time > 10) || (player->field_453 == 12))
+        {
+          busy_doing_gui = 1;
+          if ( gbtn->field_13 != gui_area_text )
+            setup_gui_tooltip(gbtn);
+        } else
+        {
+          tool_tip_time++;
+          doing_tooltip = true;
+          busy_doing_gui = 1;
+        }
+    } else
+    {
+        tool_tip_time = 0;
+        tool_tip_box.gbutton = gbtn;
+        tool_tip_box.pos_x = GetMouseX();
+        tool_tip_box.pos_y = GetMouseY()+86;
+        tool_tip_box.field_809 = 0;
+    }
+    return true;
+  }
+  tool_tip_time = 0;
+  tool_tip_box.gbutton = NULL;
+  return false;
+}
+
+TbBool gui_slider_button_inputs(int gbtn_idx)
+{
+  Gf_Btn_Callback callback;
+  int mouse_x;
+  int slide_start,slide_end;
+  struct GuiButton *gbtn;
+  if (gbtn_idx < 0)
+    return false;
+  gbtn = &active_buttons[gbtn_idx];
+  mouse_x = GetMouseX();
+  gbtn->field_1 = 1;
+  slide_start = gbtn->pos_x+32;
+  slide_end = gbtn->pos_x+gbtn->width-32;
+  if (mouse_x < slide_start)
+  {
+    gbtn->slide_val = 0;
+  } else
+  if (mouse_x >= slide_end)
+  {
+    gbtn->slide_val = 255;
+  } else
+  if (gbtn->width > 64)
+  {
+    gbtn->slide_val = ((mouse_x-slide_start) << 8) / (gbtn->width-64);
+  } else
+  {
+    gbtn->slide_val = ((mouse_x-gbtn->pos_x) << 8) / (gbtn->width+1);
+  }
+  *gbtn->field_33 = (gbtn->slide_val) * (gbtn->field_2D+1) >> 8;
+  callback = gbtn->click_event;
+  if (callback != NULL)
+    callback(gbtn);
+  return true;
+}
+
+TbBool gui_button_click_inputs(int gmbtn_idx)
+{
+  TbBool result;
+  struct GuiButton *gbtn;
+  if (gmbtn_idx < 0)
+    return false;
+  result = false;
+  gbtn = &active_buttons[gmbtn_idx];
+  Gf_Btn_Callback callback;
+  if (lbDisplay.MLeftButton)
+  {
+      result = true;
+      callback = gbtn->click_event;
+      if ((callback != NULL) || (((gbtn->field_0 & 2)!=0) ||
+         (gbtn->field_2F != 0) || (gbtn->gbtype == Lb_RADIOBTN)))
+        if ((gbtn->field_0 & 0x08) != 0)
+        {
+          switch (gbtn->gbtype)
+          {
+          case 1:
+            if ( (gbtn->field_1 > 5) && (callback != NULL) )
+              callback(gbtn);
+            else
+              gbtn->field_1++;
+            break;
+          case 6:
+            if (callback != NULL)
+              callback(gbtn);
+            break;
+          }
+        }
+  } else
+  if (lbDisplay.MRightButton)
+  {
+      result = true;
+      callback = gbtn->rclick_event;
+      if ((callback != NULL) && ((gbtn->field_0 & 8)!=0))
+      {
+        switch (gbtn->gbtype)
+        {
+        case 1:
+          if ( (gbtn->field_2>5) && (callback!=NULL) )
+            callback(gbtn);
+          else
+            gbtn->field_2++;
+          break;
+        case 6:
+          if (callback!=NULL)
+            callback(gbtn);
+          break;
+        }
+      }
+  }
+  if ( left_button_clicked )
+  {
+      result = true;
+      if (game.field_1516F3 != 0)
+      {
+        if (gbtn->id_num == game.field_1516F3)
+          game.field_1516F3 = 0;
+      }
+      callback = gbtn->click_event;
+      if ((callback != NULL) || (gbtn->field_0 & 0x02) ||
+         (gbtn->field_2F) || (gbtn->gbtype == Lb_RADIOBTN))
+      {
+        left_button_clicked = 0;
+        gui_last_left_button_pressed_id = gbtn->id_num;
+        do_button_click_actions(gbtn, &gbtn->field_1, callback);
+      }
+  } else
+  if ( right_button_clicked )
+  {
+      result = true;
+      if (game.field_1516F3 != 0)
+      {
+        if (gbtn->id_num == game.field_1516F3)
+          game.field_1516F3 = 0;
+      }
+      callback = gbtn->rclick_event;
+      if ((callback != NULL))
+      {
+        right_button_clicked = 0;
+        gui_last_right_button_pressed_id = gbtn->id_num;
+        do_button_click_actions(gbtn, &gbtn->field_2, callback);
+      }
+  }
+  return result;
+}
+
+void gui_clear_buttons_not_over_mouse(int gmbtn_idx)
+{
+  struct GuiButton *gbtn;
+  int gidx;
+  for (gidx=0;gidx<ACTIVE_BUTTONS_COUNT;gidx++)
+  {
+    gbtn = &active_buttons[gidx];
+    if (gbtn->field_0 & 0x01)
+      if ( ((gmbtn_idx == -1) || (gmbtn_idx != gidx)) &&
+           (gbtn->gbtype != Lb_RADIOBTN) && (gbtn != input_button) )
+      {
+        set_flag_byte(&gbtn->field_0,0x10,false);
+        gbtn->field_1 = 0;
+        gbtn->field_2 = 0;
+      }
+  }
+}
+
+TbBool gui_button_release_inputs(int gmbtn_idx)
+{
+  static const char *func_name="gui_button_release_inputs";
+  struct GuiButton *gbtn;
+#if (BFDEBUG_LEVEL > 7)
+  LbSyncLog("%s: Starting\n", func_name);
+#endif
+  if (gmbtn_idx < 0)
+    return false;
+  Gf_Btn_Callback callback;
+  gbtn = &active_buttons[gmbtn_idx%ACTIVE_BUTTONS_COUNT];
+  if ((gbtn->field_1) && (left_button_released))
+  {
+    callback = gbtn->click_event;
+    if ((callback != NULL) || ((gbtn->field_0 & 0x02) != 0) ||
+        (gbtn->field_2F != 0) || (gbtn->gbtype == Lb_RADIOBTN))
+    {
+      left_button_released = 0;
+      do_button_release_actions(gbtn, &gbtn->field_1, callback);
+    }
+    return true;
+  }
+  if ((gbtn->field_2) && (right_button_released))
+  {
+    callback = gbtn->rclick_event;
+    if (callback != NULL)
+    {
+      right_button_released = 0;
+      do_button_release_actions(gbtn, &gbtn->field_2, callback);
+    }
+    return true;
+  }
+  return false;
+}
+
 short get_gui_inputs(short gameplay_on)
 {
   static const char *func_name="get_gui_inputs";
-  static short doing_tooltip;
   static char over_slider_button=-1;
 #if (BFDEBUG_LEVEL > 7)
   LbSyncLog("%s: Starting\n", func_name);
 #endif
   //return _DK_get_gui_inputs(gameplay_on);
-  doing_tooltip = 0;
   update_breed_activities();
   battle_creature_over = 0;
   gui_room_type_highlighted = -1;
   gui_door_type_highlighted = -1;
   gui_trap_type_highlighted = -1;
   gui_creature_type_highlighted = -1;
-  if ( gameplay_on )
+  if (gameplay_on)
     maintain_my_battle_list();
-  if ( !lbDisplay.MLeftButton )
+  if (!lbDisplay.MLeftButton)
   {
     drag_menu_x = -999;
     drag_menu_y = -999;
     int idx;
-    for (idx=0;idx<ACTIVE_BUTTONS_COUNT;idx++)
+    for (idx=0; idx < ACTIVE_BUTTONS_COUNT; idx++)
     {
       struct GuiButton *gbtn = &active_buttons[idx];
       if ((gbtn->field_0 & 0x01) && (gbtn->gbtype == 6))
           gbtn->field_1 = 0;
     }
   }
+  update_busy_doing_gui_on_menu();
 
+  struct PlayerInfo *player;
+  int fmmenu_idx;
+  int gmbtn_idx;
   int gidx;
-  gidx = point_is_over_gui_menu(GetMouseX(), GetMouseY());
-  if ( gidx == -1 )
-    busy_doing_gui = 0;
-  else
-    busy_doing_gui = 1;
-  int fmmenu_idx = first_monopoly_menu();
-
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  int gmbtn_idx = -1;
+  fmmenu_idx = first_monopoly_menu();
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  gmbtn_idx = -1;
   struct GuiButton *gbtn;
   // Sweep through buttons
   for (gidx=0; gidx<ACTIVE_BUTTONS_COUNT; gidx++)
   {
     gbtn = &active_buttons[gidx];
-    if ((gbtn->field_0 & 1)==0)
+    if ((gbtn->field_0 & 0x01) == 0)
       continue;
     if (!active_menus[gbtn->gmenu_idx].flgfield_1D)
       continue;
     Gf_Btn_Callback callback;
     callback = gbtn->field_17;
-    if ( callback != NULL )
+    if (callback != NULL)
       callback(gbtn);
-    if (((gbtn->field_1B & 0x4000u)!=0) || mouse_is_over_small_map(player->mouse_x,player->mouse_y))
+    if (((gbtn->field_1B & 0x4000u) != 0) || mouse_is_over_small_map(player->mouse_x,player->mouse_y))
       continue;
-
     if (check_if_mouse_is_over_button(gbtn) && (!game_is_busy_doing_gui_string_input())
-      || (gbtn->gbtype==6) && (gbtn->field_1!=0))
+      || (gbtn->gbtype == 6) && (gbtn->field_1 != 0))
     {
-      if ((fmmenu_idx==-1) || (gbtn->gmenu_idx==fmmenu_idx))
+      if ((fmmenu_idx==-1) || (gbtn->gmenu_idx == fmmenu_idx))
       {
         gmbtn_idx = gidx;
         set_flag_byte(&gbtn->field_0,0x10,true);
         busy_doing_gui = 1;
         callback = gbtn->field_F;
-        if ( callback != NULL )
+        if (callback != NULL)
           callback(gbtn);
         if (gbtn->gbtype == 6)
           break;
@@ -3078,7 +3320,7 @@ short get_gui_inputs(short gameplay_on)
     if (get_button_area_input(input_button,input_button->id_num) != 0)
         result = 1;
   }
-  if ((over_slider_button!=-1) && (left_button_released))
+  if ((over_slider_button != -1) && (left_button_released))
   {
       left_button_released = 0;
       if (gmbtn_idx!=-1)
@@ -3087,192 +3329,12 @@ short get_gui_inputs(short gameplay_on)
       do_sound_menu_click();
   }
 
-  if (gmbtn_idx!=-1)
-  {
-    gbtn = &active_buttons[gmbtn_idx];
-    if ((active_menus[gbtn->gmenu_idx].field_1 == 2) && ((gbtn->field_1B & 0x8000u)==0))
-    {
-      if (tool_tip_box.gbutton == gbtn)
-      {
-        if ((tool_tip_time > 10) || (player->field_453 == 12))
-        {
-          busy_doing_gui = 1;
-          if ( gbtn->field_13 != gui_area_text )
-            setup_gui_tooltip(gbtn);
-        } else
-        {
-          tool_tip_time++;
-          doing_tooltip = 1;
-          busy_doing_gui = 1;
-        }
-      } else
-      {
-        tool_tip_time = 0;
-        tool_tip_box.gbutton = gbtn;
-        tool_tip_box.pos_x = GetMouseX();
-        tool_tip_box.pos_y = GetMouseY()+86;
-        tool_tip_box.field_809 = 0;
-      }
-    } else
-    {
-      tool_tip_time = 0;
-      tool_tip_box.gbutton = NULL;
-    }
-  } else
-  {
-    tool_tip_time = 0;
-    tool_tip_box.gbutton = NULL;
-  }
-
-  if ( over_slider_button != -1 )
-  {
-    gbtn = &active_buttons[over_slider_button];
-    int mouse_x = GetMouseX();
-    gbtn->field_1 = 1;
-    int slide_start,slide_end;
-    slide_start = gbtn->pos_x+32;
-    slide_end = gbtn->pos_x+gbtn->width-32;
-    if (mouse_x > slide_start)
-    {
-      if (mouse_x < slide_end)
-      {
-        if ( gbtn->width>64 )
-            gbtn->slide_val = ((mouse_x-slide_start) << 8) / (gbtn->width-64);
-        else
-            gbtn->slide_val = ((mouse_x-gbtn->pos_x) << 8) / (gbtn->width+1);
-      } else
-      {
-        gbtn->slide_val = 255;
-      }
-    } else
-    {
-      gbtn->slide_val = 0;
-    }
-    *gbtn->field_33 = (gbtn->slide_val) * (gbtn->field_2D+1) >> 8;
-    Gf_Btn_Callback callback;
-    callback = gbtn->click_event;
-    if ( callback != NULL )
-      callback(gbtn);
-    return 1;
-  }
-
-  if ( gmbtn_idx != -1 )
-  {
-    gbtn = &active_buttons[gmbtn_idx];
-    Gf_Btn_Callback callback;
-    if (lbDisplay.MLeftButton)
-    {
-      result = 1;
-      callback = gbtn->click_event;
-      if ((callback != NULL) || (((gbtn->field_0 & 2)!=0) || (gbtn->field_2F!=0) || (gbtn->gbtype == Lb_RADIOBTN)))
-        if ((gbtn->field_0 & 8)!=0)
-        {
-          switch (gbtn->gbtype)
-          {
-          case 1:
-            if ( (gbtn->field_1>5) && (callback!=NULL) )
-              callback(gbtn);
-            else
-              gbtn->field_1++;
-            break;
-          case 6:
-            if (callback!=NULL)
-              callback(gbtn);
-            break;
-          }
-        }
-    } else
-    if (lbDisplay.MRightButton)
-    {
-      result = 1;
-      callback = gbtn->rclick_event;
-      if ((callback != NULL) && ((gbtn->field_0 & 8)!=0))
-      {
-        switch (gbtn->gbtype)
-        {
-        case 1:
-          if ( (gbtn->field_2>5) && (callback!=NULL) )
-            callback(gbtn);
-          else
-            gbtn->field_2++;
-          break;
-        case 6:
-          if (callback!=NULL)
-            callback(gbtn);
-          break;
-        }
-      }
-    }
-    if ( left_button_clicked )
-    {
-      result = 1;
-      if (game.field_1516F3 != 0)
-      {
-        if (gbtn->id_num == game.field_1516F3)
-          game.field_1516F3 = 0;
-      }
-      callback = gbtn->click_event;
-      if ((callback != NULL) || (gbtn->field_0 & 0x02) || (gbtn->field_2F) || (gbtn->gbtype == Lb_RADIOBTN))
-      {
-        left_button_clicked = 0;
-        gui_last_left_button_pressed_id = gbtn->id_num;
-        do_button_click_actions(gbtn, &gbtn->field_1, callback);
-      }
-    } else
-    if ( right_button_clicked )
-    {
-      result = 1;
-      if (game.field_1516F3 != 0)
-      {
-        if (gbtn->id_num == game.field_1516F3)
-          game.field_1516F3 = 0;
-      }
-      callback = gbtn->rclick_event;
-      if ((callback != NULL))
-      {
-        right_button_clicked = 0;
-        gui_last_right_button_pressed_id = gbtn->id_num;
-        do_button_click_actions(gbtn, &gbtn->field_2, callback);
-      }
-    }
-  }
-
-  for (gidx=0;gidx<ACTIVE_BUTTONS_COUNT;gidx++)
-  {
-    gbtn = &active_buttons[gidx];
-    if (gbtn->field_0 & 1)
-      if ( ((gmbtn_idx==-1) || (gmbtn_idx!=gidx)) && (gbtn->gbtype!=Lb_RADIOBTN) && (gbtn!=input_button) )
-      {
-        set_flag_byte(&gbtn->field_0,0x10,false);
-        gbtn->field_1 = 0;
-        gbtn->field_2 = 0;
-      }
-  }
-  if ( gmbtn_idx != -1 )
-  {
-    Gf_Btn_Callback callback;
-    gbtn = &active_buttons[gmbtn_idx%ACTIVE_BUTTONS_COUNT];
-    if ((gbtn->field_1) && (left_button_released))
-    {
-      callback = gbtn->click_event;
-      result = 1;
-      if ((callback!=NULL) || (gbtn->field_0 & 0x02) || (gbtn->field_2F!=0) || (gbtn->gbtype==Lb_RADIOBTN))
-      {
-        left_button_released = 0;
-        do_button_release_actions(gbtn, &gbtn->field_1, callback);
-      }
-    } else
-    if ((gbtn->field_2) && (right_button_released))
-    {
-      callback = gbtn->rclick_event;
-      result = 1;
-      if ( callback!=NULL )
-      {
-        right_button_released = 0;
-        do_button_release_actions(gbtn, &gbtn->field_2, callback);
-      }
-    }
-  }
+  gui_button_tooltip_update(gmbtn_idx);
+  if (gui_slider_button_inputs(over_slider_button))
+    return true;
+  result |= gui_button_click_inputs(gmbtn_idx);
+  gui_clear_buttons_not_over_mouse(gmbtn_idx);
+  result |= gui_button_release_inputs(gmbtn_idx);
   input_gameplay_tooltips(gameplay_on);
   return result;
 }
@@ -3296,11 +3358,9 @@ void increase_level(struct PlayerInfo *player)
       break;
     }
     thing = game.things_lookup[i];
-    if ((thing == game.things_lookup[0]) || (thing == NULL))
+    if (thing_is_invalid(thing))
       break;
     creature_increase_level(thing);
-    if (thing->field_64 >= CREATURES_COUNT)
-      break;
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
       break;
@@ -3323,11 +3383,9 @@ void increase_level(struct PlayerInfo *player)
       break;
     }
     thing = game.things_lookup[i];
-    if ((thing == game.things_lookup[0]) || (thing == NULL))
+    if (thing_is_invalid(thing))
       break;
     creature_increase_level(thing);
-    if (thing->field_64 >= CREATURES_COUNT)
-      break;
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
       break;
@@ -4268,11 +4326,10 @@ void clear_stat_light_map(void)
   game.field_4614F = 0;
   for (y=0; y < (map_subtiles_y+1); y++)
   {
-    i = y*(map_subtiles_x+1);
     for (x=0; x < (map_subtiles_x+1); x++)
     {
+      i = get_subtile_number(x,y);
       game.stat_light_map[i] = 0;
-      i++;
     }
   }
 }
@@ -4472,19 +4529,6 @@ void clear_mapwho(void)
     {
       map = &game.map[y*(map_subtiles_x+1) + x];
       map->data &= 0xFFC007FFu;
-    }
-}
-
-void clear_slabs(void)
-{
-  struct SlabMap *slb;
-  unsigned long x,y;
-  for (y=0; y < map_tiles_y; y++)
-    for (x=0; x < map_tiles_x; x++)
-    {
-      slb = &game.slabmap[y*map_tiles_x + x];
-      memset(slb, 0, sizeof(struct SlabMap));
-      slb->slab = SlbT_ROCK;
     }
 }
 
@@ -4997,7 +5041,7 @@ void centre_engine_window(void)
 {
   long x1,y1;
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  if (game.numfield_C & 0x20)
+  if ((game.numfield_C & 0x20) != 0)
     x1 = (MyScreenWidth-player->engine_window_width-status_panel_width) / 2 + status_panel_width;
   else
     x1 = (MyScreenWidth-player->engine_window_width) / 2;
@@ -5127,9 +5171,8 @@ void level_lost_go_first_person(long plridx)
 #endif
 }
 
-void find_map_location_coords(long location, long *x, long *y)
+void find_map_location_coords(long location, long *x, long *y, const char *func_name)
 {
-  static const char *func_name="find_map_location_coords";
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   struct ActionPoint *apt;
@@ -5177,7 +5220,7 @@ void find_map_location_coords(long location, long *x, long *y)
         pos_y = thing->mappos.y.stl.num;
         pos_x = thing->mappos.x.stl.num;
       } else
-        LbWarnLog("%s: Dungeon Heart location for player %d not found\n",func_name,location);
+        LbWarnLog("%s: Dungeon Heart location for player %d not found\n",func_name,i);
       break;
   case MLoc_NONE:
       pos_y = *y;
@@ -5210,7 +5253,7 @@ void set_general_information(long msg_id, long target, long x, long y)
   struct PlayerInfo *player;
   long pos_x,pos_y;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  find_map_location_coords(target, &x, &y);
+  find_map_location_coords(target, &x, &y, func_name);
   pos_x = 0;
   pos_y = 0;
   if ((x != 0) || (y != 0))
@@ -5227,7 +5270,7 @@ void set_quick_information(long msg_id, long target, long x, long y)
   struct PlayerInfo *player;
   long pos_x,pos_y;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  find_map_location_coords(target, &x, &y);
+  find_map_location_coords(target, &x, &y, func_name);
   pos_x = 0;
   pos_y = 0;
   if ((x != 0) || (y != 0))
@@ -5249,7 +5292,7 @@ void process_objective(char *msg_text, long target, long x, long y)
   struct PlayerInfo *player;
   long pos_x,pos_y;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  find_map_location_coords(target, &x, &y);
+  find_map_location_coords(target, &x, &y, func_name);
   pos_y = y;
   pos_x = x;
   set_level_objective(msg_text);
@@ -5308,12 +5351,12 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
   char *text;
   int i,k;
   short other_off;
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
   dungeon = &(game.dungeon[plridx%DUNGEONS_COUNT]);
-  dungeon->field_1173 = evidx;
   event = &game.event[evidx];
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting for event kind %d\n",func_name,event->kind);
+#endif
+  dungeon->field_1173 = evidx;
   if (plridx == my_player_number)
   {
     i = event_button_info[event->kind].field_6;
@@ -5376,7 +5419,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         break;
     case 8:
         other_off = 1;
-        i = trap_data[event->field_C % MANUFCTR_TYPES_COUNT].field_C;
+        i = trap_data[event->field_C % MANUFCTR_TYPES_COUNT].name_stridx;
         text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
@@ -5462,7 +5505,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         thing = thing_get(event->field_C);
         if (thing_is_invalid(thing))
           break;
-        i = trap_data[object_to_door_or_trap[thing->model % OBJECT_TYPES_COUNT]].field_C;
+        i = trap_data[object_to_door_or_trap[thing->model % OBJECT_TYPES_COUNT]].name_stridx;
         text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
@@ -5482,7 +5525,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         thing = thing_get(event->field_C);
         if (thing_is_invalid(thing))
           break;
-        i = specials_text[object_to_special[thing->model % OBJECT_TYPES_COUNT]];
+        i = specials_text[thing_to_special(thing)];
         text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
@@ -5713,6 +5756,16 @@ short complete_level(struct PlayerInfo *player)
 long init_navigation(void)
 {
   return _DK_init_navigation();
+}
+
+long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y)
+{
+  return _DK_update_navigation_triangulation(start_x, start_y, end_x, end_y);
+}
+
+void place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5)
+{
+  _DK_place_animating_slab_type_on_map(a1,a2,a3,a4,a5);
 }
 
 void init_lookups(void)
@@ -6482,6 +6535,9 @@ void process_level_script(void)
   process_win_and_lose_conditions(player->field_2B);
 //  show_onscreen_msg(8, "Flags %d %d %d %d %d %d", game.dungeon[0].script_flags[0],game.dungeon[0].script_flags[1],
 //    game.dungeon[0].script_flags[2],game.dungeon[0].script_flags[3],game.dungeon[0].script_flags[4],game.dungeon[0].script_flags[5]);
+#if (BFDEBUG_LEVEL > 19)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 long PaletteFadePlayer(struct PlayerInfo *player)
@@ -7001,17 +7057,14 @@ void process_pointer_graphic(void)
         else
           LbMouseChangeSpriteAndHotspot(&pointer_sprites[1], 12, 15);
       } else
-      if ( battle_creature_over )
+      if (battle_creature_over > 0)
       {
         i = player_state_to_spell[player->field_453];
-        if (i > 0)
+        if ((i > 0) && (spell_data[i].flag_19))
         {
-          if (spell_data[i].field_19)
-          {
-            thing = thing_get(battle_creature_over);
-            draw_spell_cursor(player->field_453, battle_creature_over,
-                thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-          }
+          thing = thing_get(battle_creature_over);
+          draw_spell_cursor(player->field_453, battle_creature_over,
+              thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         }
       } else
       if ( game_is_busy_doing_gui() )
@@ -7445,20 +7498,20 @@ unsigned long can_drop_thing_here(long x, long y, long a3, unsigned long a4)
 /*
  * Returns if a given player (owner) can dig the specified subtile.
  */
-short can_dig_here(long x, long y, long owner)
+short can_dig_here(long stl_x, long stl_y, long plyr_idx)
 {
   struct Map *map;
   struct SlabMap *slb;
-  long i,k;
-  i = y * (map_subtiles_x+1) + x;
-  map = &game.map[i];
-  i = map_to_slab[y] * map_tiles_x + map_to_slab[x];
-  slb = &game.slabmap[i];
-  if (!((map->data >> 28) & (1 << owner)))
+  long i;
+  slb = get_slabmap_block(map_to_slab[stl_x],map_to_slab[stl_y]);
+  if (slabmap_block_invalid(slb))
+    return false;
+  map = get_map_block(stl_x, stl_y);
+  if ((map->data >> 28) & (1 << plyr_idx) == 0)
     return true;
   if ((slb->slab >= 42) && (slb->slab <= 47))
   {
-      if ((slb->field_5 & 7) == owner)
+      if (slabmap_owner(slb) == plyr_idx)
         return false;
   }
   i = slab_attrs[slb->slab%SLAB_TYPES_COUNT].field_6;
@@ -7570,11 +7623,9 @@ void redraw_creature_view(void)
   if (player->field_45F != 2)
     player->field_45F = 2;
   update_explored_flags_for_power_sight(player);
-  thing = NULL;
-  i = player->field_2F;
-  if ((i>0) && (i<THINGS_COUNT))
-    thing = game.things_lookup[i];
-  draw_creature_view(thing);
+  thing = thing_get(player->field_2F);
+  if (!thing_is_invalid(thing))
+    draw_creature_view(thing);
   if (smooth_on)
   {
     store_engine_window(&ewnd,pixel_size);
@@ -7583,10 +7634,10 @@ void redraw_creature_view(void)
   }
   remove_explored_flags_for_power_sight(player);
   draw_swipe();
-  if (game.numfield_C & 0x20)
+  if ((game.numfield_C & 0x20) != 0)
     draw_whole_status_panel();
   draw_gui();
-  if (game.numfield_C & 0x20)
+  if ((game.numfield_C & 0x20) != 0)
     draw_overlay_compass(player->mouse_x, player->mouse_y);
   message_draw();
   gui_draw_all_boxes();
@@ -7707,10 +7758,10 @@ void redraw_isometric_view(void)
         ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
   }
   remove_explored_flags_for_power_sight(player);
-  if (game.numfield_C & 0x20)
+  if ((game.numfield_C & 0x20) != 0)
     draw_whole_status_panel();
   draw_gui();
-  if ( game.numfield_C & 0x20)
+  if ((game.numfield_C & 0x20) != 0)
     draw_overlay_compass(player->mouse_x, player->mouse_y);
   message_draw();
   gui_draw_all_boxes();
@@ -7750,6 +7801,16 @@ long element_top_face_texture(struct Map *map)
 long thing_is_spellbook(struct Thing *thing)
 {
   return _DK_thing_is_spellbook(thing);
+}
+
+struct Thing *get_spellbook_at_position(long x, long y)
+{
+  return _DK_get_spellbook_at_position(x, y);
+}
+
+struct Thing *get_special_at_position(long x, long y)
+{
+  return _DK_get_special_at_position(x, y);
 }
 
 int LbSpriteDrawOneColour(long x, long y, struct TbSprite *spr, TbPixel colour)
@@ -7990,7 +8051,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 
   if (i > 0)
   {
-    map = &game.map[((map_subtiles_x+1)*y)+x];
+    map = get_map_block(x,y);
     visible = (player_bit & (map->data >> 28) != 0);
     if ((!visible) || ((map->data & 0x7FF) > 0))
     {
@@ -8029,7 +8090,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
     }
   } else
   {
-      map = &game.map[((map_subtiles_x+1)*y)+x];
+      map = get_map_block(x,y);
       floor_pointed_at_x = x;
       floor_pointed_at_y = y;
       block_pointed_at_x = x;
@@ -8054,7 +8115,7 @@ void update_blocks_pointed(void)
     {
       block_pointed_at_x = 0;
       block_pointed_at_y = 0;
-      me_pointed_at = &game.map[0];
+      me_pointed_at = get_map_block(0,0);
     } else
     {
       hori_ptr_y = hori_offset[0] * (pointer_y - y_init_off);
@@ -8095,6 +8156,7 @@ void engine(struct Camera *cam)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
   //_DK_engine(cam); return;
+
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   flg_mem = lbDisplay.DrawFlags;
   update_engine_settings(player);
@@ -8364,6 +8426,7 @@ void redraw_display(void)
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   }
   draw_sound_stuff();
+//show_onscreen_msg(8, "Physical(%d,%d) Graphics(%d,%d) Lens(%d,%d)", (int)lbDisplay.PhysicalScreenWidth, (int)lbDisplay.PhysicalScreenHeight, (int)lbDisplay.GraphicsScreenWidth, (int)lbDisplay.GraphicsScreenHeight, (int)eye_lens_width, (int)eye_lens_height);
 #if (BFDEBUG_LEVEL > 7)
     LbSyncLog("%s: Finished\n",func_name);
 #endif
@@ -8551,12 +8614,11 @@ void keeper_gameplay_loop(void)
 #endif
     player = &(game.players[my_player_number%PLAYERS_COUNT]);
     PaletteSetPlayerPalette(player, _DK_palette);
-    if (game.numfield_C & 0x02)
+    if ((game.numfield_C & 0x02) != 0)
       initialise_eye_lenses();
 #if (BFDEBUG_LEVEL > 0)
     LbSyncLog("Entering the gameplay loop for level %d\n",(int)get_loaded_level_number());
 #endif
-
     //the main gameplay loop starts
     while ((!quit_game) && (!exit_keeper))
     {
@@ -9188,6 +9250,7 @@ long slabs_count_near(long tx,long ty,long rad,unsigned short slbtype)
   long x,y;
   long count;
   count=0;
+  struct SlabMap *slb;
   for (dy=-rad; dy <= rad; dy++)
   {
     y = ty+dy;
@@ -9197,7 +9260,8 @@ long slabs_count_near(long tx,long ty,long rad,unsigned short slbtype)
         x = tx+dx;
         if ((x>=0) && (x<map_tiles_x))
         {
-          if (game.slabmap[y*map_tiles_x+x].slab == slbtype)
+          slb = get_slabmap_block(x, y);
+          if (slb->slab == slbtype)
             count++;
         }
       }
@@ -9218,7 +9282,7 @@ short initialise_map_rooms(void)
   for (y=0; y < map_tiles_y; y++)
     for (x=0; x < map_tiles_x; x++)
     {
-      slb = &game.slabmap[y*map_tiles_x + x];
+      slb = get_slabmap_block(x, y);
       rkind = slab_to_room_type(slb->slab);
       if (rkind > 0)
         room = create_room(slb->field_5 & 7, rkind, 3*x+1, 3*y+1);
@@ -9388,6 +9452,8 @@ void pannel_map_update(long x, long y, long w, long h)
 
 void set_chosen_spell(long sptype, long sptooltip)
 {
+  if ((sptype < 0) || (sptype >= SPELL_TYPES_COUNT))
+    sptype = 0;
   game.chosen_spell_type = sptype;
   game.chosen_spell_look = spell_data[sptype].field_9;
   game.chosen_spell_tooltip = sptooltip;
@@ -9820,6 +9886,7 @@ void startup_network_game(void)
 
 void faststartup_network_game(void)
 {
+  static const char *func_name="faststartup_network_game";
   struct PlayerInfo *player;
   reenter_video_mode();
   my_player_number = default_loc_player;
@@ -10124,20 +10191,20 @@ short process_command_line(unsigned short argc, char *argv[])
       char parstr[CMDLN_MAXLEN+1];
       char pr2str[CMDLN_MAXLEN+1];
       strncpy(parstr, par+1, CMDLN_MAXLEN);
-      if ( narg+1 < argc )
+      if (narg+1 < argc)
         strncpy(pr2str,  argv[narg+1], CMDLN_MAXLEN);
       else
         pr2str[0]='\0';
 
-      if ( stricmp(parstr, "nointro") == 0 )
+      if (stricmp(parstr, "nointro") == 0)
       {
         start_params.no_intro = 1;
       } else
-      if ( stricmp(parstr, "nocd") == 0 )
+      if (stricmp(parstr, "nocd") == 0)
       {
           set_flag_byte(&start_params.flags_cd,MFlg_NoMusic,true);
       } else
-      if ( stricmp(parstr, "1player") == 0 )
+      if (stricmp(parstr, "1player") == 0)
       {
           start_params.one_player = 1;
       } else
@@ -10145,21 +10212,21 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           SoundDisabled = 1;
       } else
-      if ( stricmp(parstr, "fps") == 0 )
+      if (stricmp(parstr, "fps") == 0)
       {
           narg++;
           start_params.num_fps = atoi(pr2str);
       } else
-      if ( stricmp(parstr, "human") == 0 )
+      if (stricmp(parstr, "human") == 0)
       {
           narg++;
           default_loc_player = atoi(pr2str);
       } else
-      if ( stricmp(parstr, "usersfont") == 0 )
+      if (stricmp(parstr, "usersfont") == 0)
       {
           start_params.flags_font |= 0x40;
       } else
-      if ( stricmp(parstr, "vidsmooth") == 0 )
+      if (stricmp(parstr, "vidsmooth") == 0)
       {
           smooth_on = 1;
       } else
@@ -10187,19 +10254,19 @@ short process_command_line(unsigned short argc, char *argv[])
          strncpy(start_params.packet_fname,pr2str,149);
          narg++;
       } else
-      if ( stricmp(parstr,"q") == 0 )
+      if (stricmp(parstr,"q") == 0)
       {
          set_flag_byte(&start_params.numfield_C,0x02,true);
       } else
-      if ( stricmp(parstr,"columnconvert") == 0 )
+      if (stricmp(parstr,"columnconvert") == 0)
       {
          set_flag_byte(&start_params.numfield_C,0x08,true);
       } else
-      if ( stricmp(parstr,"lightconvert") == 0 )
+      if (stricmp(parstr,"lightconvert") == 0)
       {
          set_flag_byte(&start_params.numfield_C,0x10,true);
       } else
-      if ( stricmp(parstr, "alex") == 0 )
+      if (stricmp(parstr,"alex") == 0)
       {
          set_flag_byte(&start_params.flags_font,0x20,true);
       } else

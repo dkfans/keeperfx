@@ -137,7 +137,7 @@ TbBool update_features(unsigned long mem_size)
   return result;
 }
 
-short skip_conf_to_next_line(const char *buf,long *pos,long buflen)
+TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen)
 {
   // Skip to end of the line
   while ((*pos)<buflen)
@@ -358,7 +358,7 @@ const char *get_conf_parameter_text(const struct ConfigCommand commands[],int nu
 }
 
 
-short prepare_diskpath(char *buf,long buflen)
+TbBool prepare_diskpath(char *buf,long buflen)
 {
   int i;
   i = strlen(buf)-1;
@@ -600,8 +600,7 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       break;
   case FGrp_Campgn:
       mdir=keeper_runtime_directory;
-//      sdir="campgns";
-      sdir="fxdata";
+      sdir="campgns";
       break;
   case FGrp_CmpgLvls:
       mdir=install_info.inst_path;
@@ -767,6 +766,16 @@ short calculate_moon_phase(short do_calculate,short add_to_log)
 //!CHEAT! always show extra levels
 //  is_full_moon = 1; is_new_moon = 1;
   return is_full_moon;
+}
+
+void load_or_create_high_score_table(void)
+{
+  if (!load_high_score_table())
+  {
+     LbSyncLog("High scores table bad; creating new one.\n");
+     create_empty_high_score_table();
+     save_high_score_table();
+  }
 }
 
 short load_high_score_table(void)

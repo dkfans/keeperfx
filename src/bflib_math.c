@@ -53,6 +53,49 @@ long __fastcall LbSqrL(long x)
   return y;
 }
 
+long LbMathOperation(unsigned char opkind, long val1, long val2)
+{
+  switch (opkind)
+  {
+    case MOp_EQUAL:
+      return val1 == val2;
+    case MOp_NOT_EQUAL:
+      return val1 != val2;
+    case MOp_SMALLER:
+      return val1 < val2;
+    case MOp_GREATER:
+      return val1 > val2;
+    case MOp_SMALLER_EQ:
+      return val1 <= val2;
+    case MOp_GREATER_EQ:
+      return val1 >= val2;
+    case MOp_LOGIC_AND:
+      return val1 && val2;
+    case MOp_LOGIC_OR:
+      return val1 || val2;
+    case MOp_LOGIC_XOR:
+      return (val1!=0) ^ (val2!=0);
+    case MOp_BITWS_AND:
+      return val1 & val2;
+    case MOp_BITWS_OR:
+      return val1 | val2;
+    case MOp_BITWS_XOR:
+      return val1 ^ val2;
+    case MOp_SUM:
+      return val1 + val2;
+    case MOp_SUBTRACT:
+      return val1 - val2;
+    case MOp_MULTIPLY:
+      return val1 * val2;
+    case MOp_DIVIDE:
+      return val1 / val2;
+    case MOp_MODULO:
+      return val1 % val2;
+    default:
+      return val1;
+  }
+}
+
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -33,6 +33,7 @@
 #include "thing_creature.h"
 #include "creature_control.h"
 #include "slab_data.h"
+#include "map_data.h"
 #include "room_data.h"
 #include "config.h"
 
@@ -107,6 +108,8 @@
 #define CAMERA_ZOOM_MIN     4100
 #define CAMERA_ZOOM_MAX    12000
 #define TD_ISO_POINTS        982
+// Strings length
+#define CAMPAIGN_FNAME_LEN    64
 
 #define SIZEOF_TDDrawSdk 408
 
@@ -451,14 +454,14 @@ struct TrapData {
       long field_4;
       short field_8;
       short field_A;
-      short field_C;
+      unsigned short name_stridx;
       short field_E;
 };
 
 struct SpellData {
       long field_0;
       long field_4;
-      unsigned char field_8;
+      unsigned char flag_8;
       short field_9;
       short field_B;
       short field_D;
@@ -466,8 +469,8 @@ struct SpellData {
       short field_11;
       short field_13;
       Expand_Check_Func field_15;
-      unsigned char field_19;
-      unsigned char field_1A;
+      unsigned char flag_19;
+      unsigned char flag_1A;
 };
 
 struct CreatureData {
@@ -615,11 +618,6 @@ struct LevelStats { // sizeof = 392
   unsigned long hopes_dashed;
   unsigned long allow_save_score;
   unsigned long player_score;
-};
-
-struct Map {
-      unsigned char flags;
-      unsigned long data;
 };
 
 struct CreaturePool { // sizeof = 129
@@ -1077,7 +1075,8 @@ unsigned int numfield_149F3E;
     int numfield_149F42;
 unsigned char numfield_149F46;
 unsigned char numfield_149F47;
-    char save_catalogue_UNUSED[17][8];
+    char campaign_fname[CAMPAIGN_FNAME_LEN];
+    char save_catalogue_UNUSED[72];
     struct Event event[EVENTS_COUNT];
 unsigned long field_14A804;
 unsigned long field_14A808;
@@ -1411,7 +1410,6 @@ DLLIMPORT extern long _DK_gui_last_left_button_pressed_id;
 DLLIMPORT extern long _DK_gui_last_right_button_pressed_id;
 #define gui_last_right_button_pressed_id _DK_gui_last_right_button_pressed_id
 DLLIMPORT extern long _DK_map_to_slab[256];
-#define map_to_slab _DK_map_to_slab
 DLLIMPORT extern struct TrapData _DK_trap_data[MANUFCTR_TYPES_COUNT];
 #define trap_data _DK_trap_data
 DLLIMPORT extern struct RoomData _DK_room_data[ROOM_TYPES_COUNT];
@@ -1739,8 +1737,6 @@ DLLIMPORT int __cdecl _DK_process_3d_sounds(void);
 DLLIMPORT char *_DK_mdlf_for_cd(struct TbLoadFiles *);
 DLLIMPORT char *_DK_mdlf_default(struct TbLoadFiles *);
 DLLIMPORT int _DK_LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
-DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
-DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_crate_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long x, long y);
 DLLIMPORT void _DK_turn_off_menu(char mnu_idx);
@@ -1857,7 +1853,7 @@ void update_extra_levels_visibility(void);
 long object_is_gold_pile(struct Thing *thing);
 int can_thing_be_queried(struct Thing *thing, long a2);
 int can_thing_be_possessed(struct Thing *thing, long a2);
-short magic_use_power_hand(unsigned short plyr_idx, long stl_x, long stl_y);
+short magic_use_power_hand(unsigned short a1, unsigned short a2, unsigned short a3, unsigned short a4);
 void magic_use_power_chicken(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
 void magic_use_power_disease(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
 void magic_use_power_destroy_walls(unsigned char a1, long a2, long a3, long a4);
@@ -1974,6 +1970,8 @@ void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7)
 void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
 long element_top_face_texture(struct Map *map);
 long thing_is_spellbook(struct Thing *thing);
+struct Thing *get_spellbook_at_position(long x, long y);
+struct Thing *get_special_at_position(long x, long y);
 short create_random_evil_creature(long x, long y, unsigned short owner, long max_lv);
 short create_random_hero_creature(long x, long y, unsigned short owner, long max_lv);
 int LbSpriteDrawOneColour(long x, long y, struct TbSprite *spr, TbPixel colour);
@@ -2044,9 +2042,10 @@ void clear_rooms(void);
 void clear_dungeons(void);
 void clear_computer(void);
 void clear_mapmap(void);
-void clear_slabs(void);
 TbBool swap_creature(long ncrt_id, long crtr_id);
 long init_navigation(void);
+long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
+void place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 void update_explored_flags_for_power_sight(struct PlayerInfo *player);
 void engine(struct Camera *cam);
 void smooth_screen_area(unsigned char *a1, long a2, long a3, long a4, long a5, long a6);
@@ -2069,6 +2068,7 @@ short mouse_is_over_small_map(long x, long y);
 void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 void update_breed_activities(void);
 void set_level_objective(char *msg_text);
+void find_map_location_coords(long location, long *x, long *y, const char *func_name);
 
 TbBool set_coords_to_subtile_center(struct Coord3d *pos, long x, long y, long z);
 TbBool set_coords_to_slab_center(struct Coord3d *pos, long slb_x, long slb_y);

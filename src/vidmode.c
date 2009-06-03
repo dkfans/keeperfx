@@ -242,7 +242,7 @@ TbScreenMode get_next_vidmode(unsigned short mode)
   {
     i=0;
   } else
-  if (switching_vidmodes[i]==Lb_SCREEN_MODE_INVALID)
+  if (switching_vidmodes[i] == Lb_SCREEN_MODE_INVALID)
   {
     i=0;
   }
@@ -263,7 +263,7 @@ TbScreenMode validate_vidmode(unsigned short mode)
     return failsafe_vidmode;
   for (i=0;i<maxmodes;i++)
   {
-    if (switching_vidmodes[i]==mode) return switching_vidmodes[i];
+    if (switching_vidmodes[i] == mode) return switching_vidmodes[i];
   }
   return failsafe_vidmode;
 }

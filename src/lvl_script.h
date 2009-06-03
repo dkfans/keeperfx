@@ -97,37 +97,37 @@ enum TbScriptCommands {
 };
 
 enum ScriptVatiables {
-  SVar_MONEY                     =  1,
-  SVar_GAME_TURN                 =  5,
-  SVar_BREAK_IN                  =  6,
-  SVar_CREATURE_NUM              =  7,
-  SVar_TOTAL_IMPS                =  8,
-  SVar_TOTAL_CREATURES           =  9,
-  SVar_TOTAL_RESEARCH            = 10,
-  SVar_TOTAL_DOORS               = 11,
-  SVar_TOTAL_AREA                = 12,
-  SVar_TOTAL_CREATURES_LEFT      = 13,
-  SVar_CREATURES_ANNOYED         = 14,
-  SVar_BATTLES_LOST              = 15,
-  SVar_BATTLES_WON               = 16,
-  SVar_ROOMS_DESTROYED           = 17,
-  SVar_SPELLS_STOLEN             = 18,
-  SVar_TIMES_BROKEN_INTO         = 19,
-  SVar_GOLD_POTS_STOLEN          = 20,
-  SVar_TIMER                     = 21,
-  SVar_DUNGEON_DESTROYED         = 22,
-  SVar_TOTAL_GOLD_MINED          = 24,
-  SVar_FLAG                      = 25,
-  SVar_ROOM_SLABS                = 26,
-  SVar_DOORS_DESTROYED           = 27,
-  SVar_CREATURES_SCAVENGED_LOST  = 28,
-  SVar_CREATURES_SCAVENGED_GAINED= 29,
-  SVar_AVAILABLE_MAGIC           = 30,
-  SVar_AVAILABLE_TRAP            = 31,
-  SVar_AVAILABLE_DOOR            = 32,
-  SVar_AVAILABLE_ROOM            = 33,
-  SVar_ALL_DUNGEONS_DESTROYED    = 34,
-  SVar_DOOR_NUM                  = 35,
+  SVar_MONEY                           =  1,
+  SVar_GAME_TURN                       =  5,
+  SVar_BREAK_IN                        =  6,
+  SVar_CREATURE_NUM                    =  7,
+  SVar_TOTAL_IMPS                      =  8,
+  SVar_TOTAL_CREATURES                 =  9,
+  SVar_TOTAL_RESEARCH                  = 10,
+  SVar_TOTAL_DOORS                     = 11,
+  SVar_TOTAL_AREA                      = 12,
+  SVar_TOTAL_CREATURES_LEFT            = 13,
+  SVar_CREATURES_ANNOYED               = 14,
+  SVar_BATTLES_LOST                    = 15,
+  SVar_BATTLES_WON                     = 16,
+  SVar_ROOMS_DESTROYED                 = 17,
+  SVar_SPELLS_STOLEN                   = 18,
+  SVar_TIMES_BROKEN_INTO               = 19,
+  SVar_GOLD_POTS_STOLEN                = 20,
+  SVar_TIMER                           = 21,
+  SVar_DUNGEON_DESTROYED               = 22,
+  SVar_TOTAL_GOLD_MINED                = 24,
+  SVar_FLAG                            = 25,
+  SVar_ROOM_SLABS                      = 26,
+  SVar_DOORS_DESTROYED                 = 27,
+  SVar_CREATURES_SCAVENGED_LOST        = 28,
+  SVar_CREATURES_SCAVENGED_GAINED      = 29,
+  SVar_AVAILABLE_MAGIC                 = 30,
+  SVar_AVAILABLE_TRAP                  = 31,
+  SVar_AVAILABLE_DOOR                  = 32,
+  SVar_AVAILABLE_ROOM                  = 33,
+  SVar_ALL_DUNGEONS_DESTROYED          = 34,
+  SVar_DOOR_NUM                        = 35,
 };
 
 enum MapLocationTypes {
@@ -238,7 +238,7 @@ long get_highest_experience_level_in_group(struct Thing *thing);
 long add_creature_to_group(struct Thing *crthing, struct Thing *grthing);
 TbBool process_activation_status(struct Condition *condt);
 long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char a3);
-TbBool get_condition_status(unsigned char cndkind, long val1, long val2);
+TbBool get_condition_status(unsigned char opkind, long val1, long val2);
 TbBool condition_inactive(long cond_idx);
 TbBool action_point_activated_by_player(long apt_idx,long plyr_idx);
 TbBool process_avialable_status(long plyr_idx, long itype, long ikind, long val);

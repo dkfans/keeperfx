@@ -19,6 +19,7 @@
 #ifndef DK_THINGCREATR_H
 #define DK_THINGCREATR_H
 
+#include "bflib_basics.h"
 #include "globals.h"
 
 #ifdef __cplusplus
@@ -71,6 +72,9 @@ long add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2)
 void set_first_creature(struct Thing *thing);
 void remove_first_creature(struct Thing *thing);
 
+/******************************************************************************/
+TbBool thing_is_creature(const struct Thing *thing);
+TbBool thing_is_creature_special_worker(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

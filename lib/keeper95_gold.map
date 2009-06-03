@@ -140,6 +140,7 @@
  0001:00010B50       process_thing_spell_effects
  0001:00011E10       process_spells_affected_by_effect_elements
  0001:000122B0       process_keeper_spell_effect
+ 0001:00013BB0       place_animating_slab_type_on_map
  0001:00014810       initialise_map_collides
  0001:00014990       initialise_map_health
  0001:000156E0       delete_room_slabbed_objects
@@ -393,6 +394,7 @@
  0001:000770F0       process_door
  0001:00077200       destroy_door
  0001:000777A0       get_door_for_position
+ 0001:00077D20       lock_door
  0001:00077FA0       find_door_of_type
  0001:00078000       init_lens
  0001:000782E0       draw_lens
@@ -401,6 +403,7 @@
  0001:00078ED0       battle_move_player_towards_battle
  0001:000791A0       can_drop_thing_here
  0001:0007A530       get_packet_save_checksum
+ 0001:0007B6C0       update_navigation_triangulation
  0001:0007B7F0       init_navigation
  0001:0007E9D0       process_entrance_generation
  0001:0007ED90       update_dungeon_scores

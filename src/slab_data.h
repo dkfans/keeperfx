@@ -20,6 +20,7 @@
 #define DK_SLABDATA_H
 
 #include "globals.h"
+#include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -108,6 +109,10 @@ struct SlabObj { // sizeof = 13
 
 #pragma pack()
 /******************************************************************************/
+struct SlabMap *get_slabmap_block(long slab_x, long slab_y);
+TbBool slabmap_block_invalid(struct SlabMap *slb);
+long slabmap_owner(struct SlabMap *slb);
+void clear_slabs(void);
 void reveal_whole_map(struct PlayerInfo *player);
 
 /******************************************************************************/

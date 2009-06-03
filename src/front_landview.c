@@ -758,6 +758,7 @@ int frontmap_load(void)
   played_good_descriptive_speech = 0;
   played_bad_descriptive_speech = 0;
   playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;
+  mouse_over_lvnum = SINGLEPLAYER_NOTSTARTED;
   wait_for_cd_to_be_available();
   frontend_load_data_from_cd();
   lvnum = get_continue_level_number();

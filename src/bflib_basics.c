@@ -126,11 +126,14 @@ int LbSyncLog(const char *format, ...)
     return result;
 }
 
-int LbScriptLog(const char *format, ...)
+/*
+ * Logs script-related message.
+ */
+int LbScriptLog(unsigned long line,const char *format, ...)
 {
     if (!error_log_initialised)
         return -1;
-    LbLogSetPrefix(&error_log, "Script: ");
+    LbLogSetPrefixFmt(&error_log, "Script(line %lu): ",line);
     va_list val;
     va_start(val, format);
     int result=LbLog(&error_log, format, val);
@@ -192,7 +195,7 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
         APPEND = 2,
   };
 //  printf(fmt_str, arg);
-  if ( !log->Initialised )
+  if (!log->Initialised)
     return -1;
   FILE *file;
   short need_initial_newline;
@@ -203,13 +206,13 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
   need_initial_newline = false;
   if ( !log->Created )
   {
-      if ( (!(log->Flags & 0x04)) || LbFileExists(log->Filename) )
+      if (((log->flags & 0x04) == 0) || LbFileExists(log->filename))
       {
-        if ( (log->Flags & 0x01) && (log->Flags & 0x04) )
+        if (((log->flags & 0x01) != 0) && ((log->flags & 0x04) != 0))
         {
           header = CREATE;
         } else
-        if ( (log->Flags & 0x02) && (log->Flags & 0x08) )
+        if (((log->flags & 0x02) != 0) && ((log->flags & 0x08) != 0))
         {
           need_initial_newline = true;
           header = APPEND;
@@ -220,22 +223,22 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
       }
   }
    const char *accmode;
-    if ( (log->Created) || !(log->Flags & 0x01) )
+    if ((log->Created) || ((log->flags & 0x01) == 0))
       accmode = "a";
     else
       accmode = "w";
-    file = fopen(log->Filename, accmode);
-    if ( file==NULL )
+    file = fopen(log->filename, accmode);
+    if (file == NULL)
     {
       return -1;
     }
     log->Created = true;
-    if ( header != NONE )
+    if (header != NONE)
     {
       if ( need_initial_newline )
         fprintf(file, "\n");
       const char *actn;
-      if ( header == CREATE )
+      if (header == CREATE)
       {
         fprintf(file, PROGRAM_NAME" ver "VER_STRING" (%s release)\n", (BFDEBUG_LEVEL>1)?"debug":"standard");
         actn = "CREATED";
@@ -246,7 +249,7 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
       fprintf(file, "LOG %s", actn);
       short at_used;
       at_used = 0;
-      if ( log->Flags & LbLog_TimeInHeader )
+      if ((log->flags & LbLog_TimeInHeader) != 0)
       {
         struct TbTime curr_time;
         LbTime(&curr_time);
@@ -254,7 +257,7 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
             curr_time.Hour,curr_time.Minute,curr_time.Second);
         at_used = 1;
       }
-      if ( log->Flags & LbLog_DateInHeader )
+      if ((log->flags & LbLog_DateInHeader) != 0)
       {
         struct TbDate curr_date;
         LbDate(&curr_date);
@@ -267,36 +270,54 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
       }
       fprintf(file, "\n\n");
     }
-    if ( log->Flags & LbLog_DateInLines )
+    if ((log->flags & LbLog_DateInLines) != 0)
     {
         struct TbDate curr_date;
         LbDate(&curr_date);
         fprintf(file,"%02d-%02d-%d ",curr_date.Day,curr_date.Month,curr_date.Year);
     }
-    if ( log->Flags & LbLog_TimeInLines )
+    if ((log->flags & LbLog_TimeInLines) != 0)
     {
         struct TbTime curr_time;
         LbTime(&curr_time);
         fprintf(file, "%02d:%02d:%02d ",
             curr_time.Hour,curr_time.Minute,curr_time.Second);
     }
-    if ( log->Prefix[0] != '\0' )
-      fprintf(file, log->Prefix);
-    vfprintf(file, fmt_str, arg);
+    if (log->prefix[0] != '\0')
+      fprintf(file, log->prefix);
+  vfprintf(file, fmt_str, arg);
+  log->position = ftell(file);
   fclose(file);
   return 1;
 }
 
 int __fastcall LbLogSetPrefix(struct TbLog *log, const char *prefix)
 {
-  if ( !log->Initialised )
+  if (!log->Initialised)
     return -1;
   if (prefix)
   {
-    LbStringCopy(log->Prefix, prefix, LOG_PREFIX_LEN);
+    LbStringCopy(log->prefix, prefix, LOG_PREFIX_LEN);
   } else
   {
-    LbMemorySet(log->Prefix, 0, LOG_PREFIX_LEN);
+    LbMemorySet(log->prefix, 0, LOG_PREFIX_LEN);
+  }
+  return 1;
+}
+
+int __fastcall LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...)
+{
+  va_list val;
+  if (!log->Initialised)
+    return -1;
+  if (format)
+  {
+    va_start(val, format);
+    vsprintf(log->prefix, format, val);
+    va_end(val);
+  } else
+  {
+    LbMemorySet(log->prefix, 0, LOG_PREFIX_LEN);
   }
   return 1;
 }
@@ -304,16 +325,17 @@ int __fastcall LbLogSetPrefix(struct TbLog *log, const char *prefix)
 int __fastcall LbLogSetup(struct TbLog *log, const char *filename, ulong flags)
 {
   log->Initialised = false;
-  LbMemorySet(log->Filename, 0, DISKPATH_SIZE);
-  LbMemorySet(log->Prefix, 0, LOG_PREFIX_LEN);
+  LbMemorySet(log->filename, 0, DISKPATH_SIZE);
+  LbMemorySet(log->prefix, 0, LOG_PREFIX_LEN);
   log->Initialised=false;
   log->Created=false;
   log->Suspended=false;
   if (LbStringLength(filename)>DISKPATH_SIZE)
     return -1;
-  LbStringCopy(log->Filename, filename, DISKPATH_SIZE);
-  log->Flags = flags;
+  LbStringCopy(log->filename, filename, DISKPATH_SIZE);
+  log->flags = flags;
   log->Initialised = true;
+  log->position = 0;
   return 1;
 }
 
@@ -321,12 +343,13 @@ int __fastcall LbLogClose(struct TbLog *log)
 {
   if ( !log->Initialised )
     return -1;
-  LbMemorySet(log->Filename, 0, DISKPATH_SIZE);
-  LbMemorySet(log->Prefix, 0, LOG_PREFIX_LEN);
-  log->Flags = 0;
-  log->Initialised=false;
-  log->Created=false;
-  log->Suspended=false;
+  LbMemorySet(log->filename, 0, DISKPATH_SIZE);
+  LbMemorySet(log->prefix, 0, LOG_PREFIX_LEN);
+  log->flags = 0;
+  log->Initialised = false;
+  log->Created = false;
+  log->Suspended = false;
+  log->position = 0;
   return 1;
 }
 

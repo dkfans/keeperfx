@@ -115,6 +115,7 @@ short load_game(long slot_num)
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   unsigned char buf[14];
+  char cmpgn_fname[CAMPAIGN_FNAME_LEN];
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
@@ -300,12 +301,14 @@ short continue_game_available(void)
 {
   static const char *func_name="continue_game_available";
   unsigned char buf[14];
+  char cmpgn_fname[CAMPAIGN_FNAME_LEN];
   long lvnum;
-  static short continue_needs_checking_file = 1;
+  long i;
+//  static short continue_needs_checking_file = 1;
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  if (continue_needs_checking_file)
+//  if (continue_needs_checking_file)
   {
     if (!read_continue_game_part(buf,0,14))
     {
@@ -314,7 +317,7 @@ short continue_game_available(void)
     lvnum = ((struct Game *)buf)->continue_level_number;
     if (is_singleplayer_like_level(lvnum))
       set_continue_level_number(lvnum);
-    continue_needs_checking_file = 0;
+//    continue_needs_checking_file = 0;
   }
   lvnum = get_continue_level_number();
   if (is_singleplayer_like_level(lvnum))
@@ -337,11 +340,13 @@ short load_continue_game(void)
   static const char *func_name="load_continue_game";
   unsigned char buf[14];
   unsigned char bonus[12];
+  char cmpgn_fname[CAMPAIGN_FNAME_LEN];
   long lvnum;
   long i;
+
   if (!read_continue_game_part(buf,0,14))
   {
-    LbWarnLog("%s: Can't read continue game file\n",func_name);
+    LbWarnLog("%s: Can't read continue game file head\n",func_name);
     return false;
   }
   lvnum = ((struct Game *)buf)->continue_level_number;

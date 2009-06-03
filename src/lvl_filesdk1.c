@@ -314,7 +314,7 @@ long load_map_data_file(unsigned long lv_num)
   for (y=0; y < (map_subtiles_y+1); y++)
     for (x=0; x < (map_subtiles_x+1); x++)
     {
-      map = &game.map[y*(map_subtiles_x+1) + x];
+      map = get_map_block(x,y);
       n = -lword(&buf[i]);
       map->data = map->data ^ (map->data ^ n) & 0x7FF;
       i += 2;
@@ -324,8 +324,8 @@ long load_map_data_file(unsigned long lv_num)
   for (y=0; y < (map_subtiles_y+1); y++)
     for (x=0; x < (map_subtiles_x+1); x++)
     {
-      map = &game.map[y*(map_subtiles_x+1) + x];
-      wptr = &game.field_46157[y*(map_subtiles_x+1) + x];
+      map = get_map_block(x,y);
+      wptr = &game.field_46157[get_subtile_number(x,y)];
       *wptr = 32;
       map->data &= 0xFFC007FFu;
       map->data &= 0xF0FFFFFFu;
@@ -711,7 +711,7 @@ long load_map_wibble_file(unsigned long lv_num)
   for (y=0; y < (map_subtiles_y+1); y++)
     for (x=0; x < (map_subtiles_x+1); x++)
     {
-      map = &game.map[y*(map_subtiles_x+1) + x];
+      map = get_map_block(x,y);
       k = buf[i];
       k = map->data ^ (k << 22);
       map->data = map->data ^ k & 0xC00000;
@@ -892,7 +892,7 @@ short load_map_flag_file(unsigned long lv_num)
   for (y=0; y < (map_subtiles_y+1); y++)
     for (x=0; x < (map_subtiles_x+1); x++)
     {
-      map = &game.map[y*(map_subtiles_x+1) + x];
+      map = get_map_block(x,y);
       map->flags = buf[i];
       i += 2;
     }

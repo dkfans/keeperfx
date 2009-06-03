@@ -27,6 +27,16 @@
 extern "C" {
 #endif
 /******************************************************************************/
+enum PlayerNames {
+    PLAYER0          =  0,
+    PLAYER1          =  1,
+    PLAYER2          =  2,
+    PLAYER3          =  3,
+    PLAYER_GOOD      =  4,
+    ALL_PLAYERS      =  8,
+};
+
+/******************************************************************************/
 #pragma pack(1)
 
 typedef long (*InstncInfo_Func)(struct PlayerInfo *player, long *n);

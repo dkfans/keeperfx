@@ -24,9 +24,12 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_sound.h"
+#include "bflib_math.h"
+#include "bflib_guibtns.h"
 
 #include "front_simple.h"
 #include "config.h"
+#include "player_instances.h"
 #include "lvl_filesdk1.h"
 #include "keeperfx.h"
 
@@ -220,7 +223,7 @@ const struct Description player_desc[] = {
   {"PLAYER2",          2},
   {"PLAYER3",          3},
   {"PLAYER_GOOD",      4},
-  {"ALL_PLAYERS",      8},
+  {"ALL_PLAYERS",      ALL_PLAYERS},
   {NULL,               0},
 };
 
@@ -256,12 +259,12 @@ const struct Description variable_desc[] = {
 };
 
 const struct Description comparison_desc[] = {
-  {"==",     1},
-  {"!=",     2},
-  {"<",      3},
-  {">",      4},
-  {"<=",     5},
-  {">=",     6},
+  {"==",     MOp_EQUAL},
+  {"!=",     MOp_NOT_EQUAL},
+  {"<",      MOp_SMALLER},
+  {">",      MOp_GREATER},
+  {"<=",     MOp_SMALLER_EQ},
+  {">=",     MOp_GREATER_EQ},
   {NULL,     0},
 };
 
@@ -348,7 +351,7 @@ const struct Description hero_objective_desc[] = {
   {"STEAL_GOLD",           4},
   {"STEAL_SPELLS",         5},
   {"ATTACK_ENEMIES",       2},
-  {"ATTACK_DUNGEON",       3},
+  {"ATTACK_DUNGEON_HEART", 3},
   {"ATTACK_ROOMS",         1},
   {"DEFEND_PARTY",         6},
   {NULL,                   0},
@@ -416,7 +419,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
   char chr;
   int i;
 #if (BFDEBUG_LEVEL > 12)
-  LbSyncLog("%s: Starting\n",func_name);
+  LbScriptLog(script_line_number,"%s: Starting\n",func_name);
 #endif
   cmnd_desc = NULL;
   // Find start of an item to read
@@ -694,7 +697,7 @@ long get_players_range(char *plrname, int *plr_start, int *plr_end, const char *
     *plr_end = 0;
     return -1;
   }
-  if (plr_id == 8)
+  if (plr_id == ALL_PLAYERS)
   {
     *plr_start = 0;
     *plr_end = PLAYERS_COUNT;
@@ -761,7 +764,10 @@ TbBool get_map_location_id(char *locname, TbMapLocation *location, const char *f
   i = get_id(player_desc, locname);
   if (i != -1)
   {
-    *location = ((unsigned long)i << 4) | MLoc_PLAYERSHEART;
+    if (i != ALL_PLAYERS)
+      *location = ((unsigned long)i << 4) | MLoc_PLAYERSHEART;
+    else
+      *location = MLoc_NONE;
     return true;
   }
   // Creature name means location of such creature belonging to player0
@@ -807,7 +813,8 @@ TbBool get_map_location_id(char *locname, TbMapLocation *location, const char *f
   } else
   // Zero is an error; reset to no location
   {
-    LbWarnLog("(script:%lu) Invalid LOCATION = '%s'\n",script_line_number,locname);
+    text = buf_sprintf("(script:%lu) Invalid LOCATION = '%s'", script_line_number, locname);
+    error(func_name, 2467, text);
     *location = MLoc_NONE;
   }
   return true;
@@ -935,7 +942,7 @@ void command_add_to_party(char *prtname, char *crtr_name, long crtr_level, long 
     error(func_name, 1138, text);
     return;
   }
-//LbWarnLog("(script:%lu) Party '%s' member kind %d, level %d\n",script_line_number,prtname,crtr_id,crtr_level);
+//LbSyncLog("(script:%lu) Party '%s' member kind %d, level %d\n",script_line_number,prtname,crtr_id,crtr_level);
   if (script_current_condition != -1)
   {
     LbWarnLog("(script:%lu) Party '%s' member added inside conditional statement\n",script_line_number,prtname);
@@ -1198,7 +1205,7 @@ void command_display_information(long msg_num, char *where, long x, long y)
   }
   if (!get_map_location_id(where, &location, func_name, 1943))
     return;
-  command_add_value(Cmd_DISPLAY_INFORMATION, 8, msg_num, location, y*(map_subtiles_x+1) + x);
+  command_add_value(Cmd_DISPLAY_INFORMATION, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
 }
 
 void command_set_generate_speed(long game_turns)
@@ -1233,9 +1240,22 @@ void command_bonus_level_time(long game_turns)
   command_add_value(Cmd_BONUS_LEVEL_TIME, 0, game_turns, 0, 0);
 }
 
+/*
+ * Returns ID of given item using Descriptions list.
+ * If not found, returns -1.
+ */
 long get_id(const struct Description *desc, char *itmname)
 {
-  return _DK_get_id(desc, itmname);
+  long i;
+  //return _DK_get_id(desc, itmname);
+  if ((desc == NULL) || (itmname == NULL))
+    return -1;
+  for (i=0; desc[i].textptr != NULL; i++)
+  {
+    if (stricmp(desc[i].textptr, itmname) == 0)
+      return desc[i].index;
+  }
+  return -1;
 }
 
 void player_command_add_start_money(int plridx, long gold_val)
@@ -1543,7 +1563,7 @@ void command_display_objective(long msg_num, char *where, long x, long y)
   }
   if (!get_map_location_id(where, &location, func_name, 1963))
     return;
-  command_add_value(Cmd_DISPLAY_OBJECTIVE, 8, msg_num, location, y*(map_subtiles_x+1) + x);
+  command_add_value(Cmd_DISPLAY_OBJECTIVE, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
 }
 
 void command_add_tunneller_to_level(char *plrname, char *locname, char *objectv, long target, unsigned char crtr_level, unsigned long carried_gold)
@@ -2071,7 +2091,7 @@ void command_quick_objective(int idx, char *msgtext, char *where, long x, long y
   strcpy(quick_messages[idx], msgtext);
   if (!get_map_location_id(where, &location, func_name, 1963))
     return;
-  command_add_value(Cmd_QUICK_OBJECTIVE, 8, idx, location, y*(map_subtiles_x+1) + x);
+  command_add_value(Cmd_QUICK_OBJECTIVE, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
 }
 
 void command_quick_information(int idx, char *msgtext, char *where, long x, long y)
@@ -2097,7 +2117,7 @@ void command_quick_information(int idx, char *msgtext, char *where, long x, long
   strcpy(quick_messages[idx], msgtext);
   if (!get_map_location_id(where, &location, func_name, 1963))
     return;
-  command_add_value(Cmd_QUICK_INFORMATION, 8, idx, location, y*(map_subtiles_x+1) + x);
+  command_add_value(Cmd_QUICK_INFORMATION, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
 }
 
 void command_play_message(char *plrname, char *msgtype, int msg_num)
@@ -2610,36 +2630,64 @@ void script_process_lose_game(unsigned short plyr_idx)
 
 long script_support_create_thing_at_hero_door(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5)
 {
+  static const char *func_name="script_support_create_thing_at_hero_door";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   return _DK_script_support_create_thing_at_hero_door(a1, a2, a3, a4, a5);
 }
 
 long script_support_create_thing_at_action_point(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5)
 {
+  static const char *func_name="script_support_create_thing_at_action_point";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   return _DK_script_support_create_thing_at_action_point(a1, a2, a3, a4, a5);
 }
 
 long script_support_create_creature_at_dungeon_heart(unsigned char a1, unsigned char a2, unsigned char a3)
 {
+  static const char *func_name="script_support_create_creature_at_dungeon_heart";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   return _DK_script_support_create_creature_at_dungeon_heart(a1, a2, a3);
 }
 
 long script_support_send_tunneller_to_action_point(struct Thing *thing, long a2)
 {
+  static const char *func_name="script_support_send_tunneller_to_action_point";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   return _DK_script_support_send_tunneller_to_action_point(thing, a2);
 }
 
 long script_support_send_tunneller_to_dungeon(struct Thing *thing, unsigned char a2)
 {
+  static const char *func_name="script_support_send_tunneller_to_dungeon";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   return _DK_script_support_send_tunneller_to_dungeon(thing, a2);
 }
 
 long script_support_send_tunneller_to_dungeon_heart(struct Thing *thing, unsigned char a2)
 {
+  static const char *func_name="script_support_send_tunneller_to_dungeon_heart";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   return _DK_script_support_send_tunneller_to_dungeon_heart(thing, a2);
 }
 
 long script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing)
 {
+  static const char *func_name="script_support_send_tunneller_to_appropriate_dungeon";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   return _DK_script_support_send_tunneller_to_appropriate_dungeon(thing);
 }
 
@@ -2857,10 +2905,14 @@ TbBool action_point_activated_by_player(long apt_idx,long plyr_idx)
 
 long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char validx)
 {
+  static const char *func_name="get_condition_value";
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   struct Thing *thing;
   long i,k;
+#if (BFDEBUG_LEVEL > 10)
+    LbSyncLog("%s: Checking condition %d for player %d\n",func_name,(int)valtype,(int)plyr_idx);
+#endif
   switch (valtype)
   {
   case SVar_MONEY:
@@ -2946,12 +2998,16 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
       return dungeon->field_98B;
   case SVar_AVAILABLE_MAGIC: // IF_AVAILABLE(MAGIC)
+      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
       return dungeon->magic_level[validx%KEEPER_SPELLS_COUNT];
   case SVar_AVAILABLE_TRAP: // IF_AVAILABLE(TRAP)
+      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
       return dungeon->trap_amount[validx%TRAP_TYPES_COUNT];
   case SVar_AVAILABLE_DOOR: // IF_AVAILABLE(DOOR)
+      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
       return dungeon->door_amount[validx%DOOR_TYPES_COUNT];
   case SVar_AVAILABLE_ROOM: // IF_AVAILABLE(ROOM)
+      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
       return dungeon->room_buildable[validx%ROOM_TYPES_COUNT];
   case SVar_ALL_DUNGEONS_DESTROYED:
       player = &(game.players[plyr_idx%PLAYERS_COUNT]);
@@ -2963,25 +3019,9 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
   };
 }
 
-TbBool get_condition_status(unsigned char cndkind, long val1, long val2)
+TbBool get_condition_status(unsigned char opkind, long val1, long val2)
 {
-  switch (cndkind)
-  {
-    case 1:
-      return val1 == val2;
-    case 2:
-      return val1 != val2;
-    case 3:
-      return val1 < val2;
-    case 4:
-      return val1 > val2;
-    case 5:
-      return val1 <= val2;
-    case 6:
-      return val1 >= val2;
-    default:
-      return false;
-  }
+  return LbMathOperation(opkind, val1, val2) != 0;
 }
 
 TbBool is_condition_met(long cond_idx)
@@ -3014,15 +3054,19 @@ TbBool condition_inactive(long cond_idx)
 
 void process_condition(struct Condition *condt)
 {
+  static const char *func_name="process_condition";
   TbBool new_status;
   int plr_start, plr_end;
   long i,k;
+#if (BFDEBUG_LEVEL > 18)
+  LbSyncLog("%s: Starting for type %d, player %d\n",func_name,(int)condt->variabl_type,(int)condt->plyr_idx);
+#endif
   if (condition_inactive(condt->condit_idx))
   {
     set_flag_byte(&condt->status, 0x01, false);
     return;
   }
-  if (condt->plyr_idx == 8)
+  if (condt->plyr_idx == ALL_PLAYERS)
   {
     plr_start = 0;
     plr_end = (game.field_14E496%PLAYERS_COUNT);
@@ -3059,11 +3103,16 @@ void process_condition(struct Condition *condt)
     set_flag_byte(&condt->status, 0x02,  true);
     set_flag_byte(&condt->status, 0x04,  true);
   }
+#if (BFDEBUG_LEVEL > 19)
+  LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 void process_conditions(void)
 {
   long i;
+  if (game.script.conditions_num > CONDITIONS_COUNT)
+    game.script.conditions_num = CONDITIONS_COUNT;
   for (i=0; i < game.script.conditions_num; i++)
   {
     process_condition(&game.script.conditions[i]);
@@ -3197,7 +3246,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   int plr_start, plr_end;
   long i;
 //  _DK_script_process_value(var_index, plr_id, val2, val3, val4);
-  if (plr_id == 8)
+  if (plr_id == ALL_PLAYERS)
   {
     plr_start = 0;
     plr_end = PLAYERS_COUNT;
@@ -3298,11 +3347,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       break;
   case Cmd_DISPLAY_OBJECTIVE:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-        set_general_objective(val2, val3, val4/(map_subtiles_x+1), val4%(map_subtiles_x+1));
+        set_general_objective(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
       break;
   case Cmd_DISPLAY_INFORMATION:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-        set_general_information(val2, val3, val4/(map_subtiles_x+1), val4%(map_subtiles_x+1));
+        set_general_information(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
       break;
   case Cmd_ADD_CREATURE_TO_POOL:
       add_creature_to_pool(val2, val3, 0);
@@ -3348,11 +3397,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       break;
   case Cmd_QUICK_OBJECTIVE:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-        process_objective(quick_messages[val2%QUICK_MESSAGES_COUNT], val3, val4/(map_subtiles_x+1), val4%(map_subtiles_x+1));
+        process_objective(quick_messages[val2%QUICK_MESSAGES_COUNT], val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
       break;
   case Cmd_QUICK_INFORMATION:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-        set_quick_information(val2, val3, val4/(map_subtiles_x+1), val4%(map_subtiles_x+1));
+        set_quick_information(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
       break;
   case Cmd_PLAY_MESSAGE:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
