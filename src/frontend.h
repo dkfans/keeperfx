@@ -122,6 +122,7 @@ enum FrontendMenuState {
   FeSt_FEOPTIONS          = 27,
   FeSt_STORY_BIRTHDAY     = 29,
   FeSt_LEVEL_SELECT       = 30,
+  FeSt_CAMPAIGN_SELECT    = 31,
 };
 
 struct DemoItem { //sizeof = 5

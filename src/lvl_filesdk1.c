@@ -28,6 +28,7 @@
 
 #include "front_simple.h"
 #include "config.h"
+#include "config_campaigns.h"
 #include "keeperfx.h"
 
 #ifdef __cplusplus

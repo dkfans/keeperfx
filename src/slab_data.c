@@ -67,22 +67,8 @@ void clear_slabs(void)
 
 void reveal_whole_map(struct PlayerInfo *player)
 {
-  unsigned short nflag;
-  unsigned int x,y,i;
-  unsigned long imax;
-
-  nflag = (1 << player->field_2B);
-  for (y=0; y<map_tiles_y; y++)
-    for (x=0; x<map_tiles_x; x++)
-    {
-      clear_slab_dig(x, y, player->field_2B);
-    }
-  imax = (map_subtiles_x+1)*(map_subtiles_y+1);
-  for (i=0; i<imax; i++)
-  {
-    x = (game.map[i].data >> 28) | nflag;
-    game.map[i].data |= (x & 0x0F) << 28;
-  }
+  clear_dig_for_map_rect(player->field_2B,0,map_tiles_x,0,map_tiles_y);
+  reveal_map_rect(player->field_2B,1,map_subtiles_x,1,map_subtiles_y);
   pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
 }
 /******************************************************************************/

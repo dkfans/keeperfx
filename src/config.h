@@ -23,17 +23,9 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
-#include "bflib_guibtns.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define CAMPAIGN_LEVELS_COUNT        50
-#define FREE_LEVELS_COUNT         10000
-#define VISIBLE_HIGH_SCORES_COUNT    10
-#define LEVEL_INFO_GROW_DELTA        32
-#define HISCORE_NAME_LENGTH          64
 
 #define SINGLEPLAYER_FINISHED        -1
 #define SINGLEPLAYER_NOTSTARTED       0
@@ -113,64 +105,6 @@ struct InstallInfo {
 int field_9A;
   };
 
-/*
- * Structure for storing campaign configuration.
- */
-struct GameCampaign {
-  char name[LINEMSG_SIZE];
-  char location[DISKPATH_SIZE];
-  LevelNumber single_levels[CAMPAIGN_LEVELS_COUNT];
-  LevelNumber multi_levels[CAMPAIGN_LEVELS_COUNT];
-  LevelNumber bonus_levels[CAMPAIGN_LEVELS_COUNT];
-  LevelNumber extra_levels[CAMPAIGN_LEVELS_COUNT];
-  LevelNumber freeplay_levels[FREE_LEVELS_COUNT];
-  unsigned long single_levels_count;
-  unsigned long multi_levels_count;
-  unsigned long bonus_levels_count;
-  unsigned long extra_levels_count;
-  unsigned long freeplay_levels_count;
-  unsigned long bonus_levels_index;
-  unsigned long extra_levels_index;
-  struct LevelInformation *lvinfos;
-  unsigned long lvinfos_count;
-  unsigned long ambient_good;
-  unsigned long ambient_bad;
-  char land_view_start[DISKPATH_SIZE];
-  char land_window_start[DISKPATH_SIZE];
-  char land_view_end[DISKPATH_SIZE];
-  char land_window_end[DISKPATH_SIZE];
-  char strings_fname[DISKPATH_SIZE];
-  char *strings_data;
-  char *strings[STRINGS_MAX+1];
-  char hiscore_fname[DISKPATH_SIZE];
-  struct HighScore *hiscore_table;
-  unsigned long hiscore_count;
-};
-
-struct HighScore {
-  long score;
-  char name[HISCORE_NAME_LENGTH];
-  LevelNumber lvnum;
-};
-
-struct LevelInformation {
-  LevelNumber lvnum;
-  char speech_before[DISKPATH_SIZE];
-  char speech_after[DISKPATH_SIZE];
-  char land_view[DISKPATH_SIZE];
-  char land_window[DISKPATH_SIZE];
-  char name[LINEMSG_SIZE];
-  long name_id;
-  long players;
-  long ensign_x;
-  long ensign_y;
-  long ensign_zoom_x;
-  long ensign_zoom_y;
-  unsigned long options;
-  unsigned short state;
-  unsigned short location;
-};
-
 struct NetLevelDesc { // sizeof = 14
   unsigned char field_0;
   unsigned char field_1;
@@ -201,7 +135,6 @@ extern short is_near_full_moon;
 extern short is_new_moon;
 extern short is_near_new_moon;
 extern const struct ConfigCommand lang_type[];
-extern struct GameCampaign campaign;
 extern char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
 /******************************************************************************/
 DLLIMPORT int __stdcall _DK_load_configuration(void);
@@ -221,14 +154,6 @@ short create_empty_high_score_table(void);
 int add_high_score_entry(unsigned long score, LevelNumber lvnum, char *name);
 unsigned long get_level_highest_score(LevelNumber lvnum);
 /******************************************************************************/
-short load_default_campaign(void);
-short load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn);
-short free_campaign(struct GameCampaign *campgn);
-long add_single_level_to_campaign(struct GameCampaign *campgn, LevelNumber lvnum);
-long add_multi_level_to_campaign(struct GameCampaign *campgn, LevelNumber lvnum);
-long add_bonus_level_to_campaign(struct GameCampaign *campgn, LevelNumber lvnum);
-long add_extra_level_to_campaign(struct GameCampaign *campgn, LevelNumber lvnum);
-long add_freeplay_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum);
 short is_bonus_level(LevelNumber lvnum);
 short is_extra_level(LevelNumber lvnum);
 short is_singleplayer_level(LevelNumber lvnum);
@@ -259,12 +184,6 @@ LevelNumber prev_freeplay_level(LevelNumber fp_lvnum);
 LevelNumber first_extra_level(void);
 LevelNumber next_extra_level(LevelNumber ex_lvnum);
 LevelNumber get_extra_level(unsigned short elv_kind);
-// Level info support for given campaign
-struct LevelInformation *get_campaign_level_info(struct GameCampaign *campgn, LevelNumber lvnum);
-short init_level_info_entries(struct GameCampaign *campgn, long num_entries);
-short grow_level_info_entries(struct GameCampaign *campgn, long add_entries);
-short free_level_info_entries(struct GameCampaign *campgn);
-struct LevelInformation *new_level_info_entry(struct GameCampaign *campgn, LevelNumber lvnum);
 // Level info support for active campaign
 struct LevelInformation *get_level_info(LevelNumber lvnum);
 struct LevelInformation *get_or_create_level_info(LevelNumber lvnum, unsigned long lvoptions);

@@ -37,6 +37,7 @@
 #include "bflib_sound.h"
 #include "bflib_network.h"
 #include "config.h"
+#include "config_campaigns.h"
 #include "scrcapt.h"
 #include "gui_draw.h"
 #include "kjm_input.h"
@@ -3923,7 +3924,11 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
  */
 void frontend_ldcampaign_change_state(struct GuiButton *gbtn)
 {
-//  if (check_deeper_cd(0))
+  if (!is_campaign_loaded())
+  {
+    if (!change_campaign(""))
+      return;
+  }
   frontend_change_state(gbtn);
 }
 
@@ -3932,7 +3937,11 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
   static const char *func_name="frontend_start_new_campaign";
   struct PlayerInfo *player;
   int i;
-  //_DK_frontend_start_new_game(gbtn);
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  if (!change_campaign(cmpgn_fname))
+    return false;
   set_continue_level_number(first_singleplayer_level());
   for (i=0; i < PLAYERS_COUNT; i++)
   {
@@ -3952,17 +3961,32 @@ void frontend_start_new_game(struct GuiButton *gbtn)
 {
   static const char *func_name="frontend_start_new_game";
   struct PlayerInfo *player;
+  char *cmpgn_fname;
   int i;
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Clicked\n",func_name);
 #endif
   //_DK_frontend_start_new_game(gbtn);
-  if (!frontend_start_new_campaign(NULL))
-  {
+  // Check if we can just start the game without campaign selection screen
+  if (campaigns_list.items_num < 1)
+    cmpgn_fname = "";
+  else
+  if (campaigns_list.items_num == 1)
+    cmpgn_fname = campaigns_list.items[0].fname;
+  else
+    cmpgn_fname = NULL;
+  if (cmpgn_fname != NULL)
+  { // If there's only one campaign, then start it
+    if (!frontend_start_new_campaign(cmpgn_fname))
+    {
       error(func_name, 731, "Unable to start new campaign");
       return;
+    }
+    frontend_set_state(FeSt_LAND_VIEW);
+  } else
+  { // If there's more campaigns, go to selection screen
+    frontend_set_state(FeSt_CAMPAIGN_SELECT);
   }
-  frontend_set_state(FeSt_LAND_VIEW);
 }
 
 /*
@@ -5426,34 +5450,99 @@ void frontend_campaign_select_up(struct GuiButton *gbtn)
 
 void frontend_campaign_select_down(struct GuiButton *gbtn)
 {
+  if (select_level_scroll_offset < campaigns_list.items_num-frontend_select_campaign_items_visible+1)
+    select_level_scroll_offset++;
 }
 
 void frontend_campaign_select_up_maintain(struct GuiButton *gbtn)
 {
+  if (gbtn != NULL)
+    set_flag_byte(&gbtn->field_0, 0x08, (select_level_scroll_offset != 0));
 }
 
 void frontend_campaign_select_down_maintain(struct GuiButton *gbtn)
 {
+  if (gbtn != NULL)
+    set_flag_byte(&gbtn->field_0, 0x08, (select_level_scroll_offset < campaigns_list.items_num-frontend_select_campaign_items_visible+1));
 }
 
 void frontend_campaign_select_maintain(struct GuiButton *gbtn)
 {
+  long btn_idx;
+  long i;
+  if (gbtn == NULL)
+    return;
+  btn_idx = (long)gbtn->field_33;
+  i = select_level_scroll_offset + btn_idx-45;
+  set_flag_byte(&gbtn->field_0, 0x08, (i < campaigns_list.items_num));
 }
 
 void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
 {
+  struct GameCampaign *campgn;
+  long btn_idx;
+  long i;
+  if (gbtn == NULL)
+    return;
+  btn_idx = (long)gbtn->field_33;
+  i = select_level_scroll_offset + btn_idx-45;
+  campgn = NULL;
+  if ((i >= 0) && (i < campaigns_list.items_num))
+    campgn = &campaigns_list.items[i];
+  if (campgn == NULL)
+    return;
+  if ((btn_idx > 0) && (frontend_mouse_over_button == btn_idx))
+    i = 2;
+  else
+/*  if (campaign has been passed)
+    i = 3;
+  else*/
+    i = 1;
+  lbDisplay.DrawFlags = 0x20;
+  lbFontPtr = frontend_font[i];
+  i = LbTextStringHeight("Wg");
+  LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
+  LbTextDraw(0, 0, campgn->name);
 }
 
 void frontend_campaign_select(struct GuiButton *gbtn)
 {
+  static const char *func_name="frontend_campaign_select";
+  long i;
+  struct GameCampaign *campgn;
+  i = (long)gbtn->field_33 + select_level_scroll_offset - 45;
+  campgn = NULL;
+  if ((i >= 0) && (i < campaigns_list.items_num))
+    campgn = &campaigns_list.items[i];
+  if (campgn == NULL)
+    return;
+  if (!frontend_start_new_campaign(campgn->fname))
+  {
+    error(func_name, 731, "Unable to start new campaign");
+    return;
+  }
+  frontend_set_state(FeSt_LAND_VIEW);
 }
 
 void frontend_campaign_select_update(void)
 {
+  if (campaigns_list.items_num <= 0)
+  {
+    select_level_scroll_offset = 0;
+  } else
+  if (select_level_scroll_offset < 0)
+  {
+    select_level_scroll_offset = 0;
+  } else
+  if (select_level_scroll_offset > campaigns_list.items_num-1)
+  {
+    select_level_scroll_offset = campaigns_list.items_num-1;
+  }
 }
 
 void frontend_draw_campaign_scroll_tab(struct GuiButton *gbtn)
 {
+  frontend_draw_scroll_tab(gbtn, select_level_scroll_offset, frontend_select_campaign_items_visible-2, campaigns_list.items_num);
 }
 
 void initialise_tab_tags(long menu_id)
@@ -5572,6 +5661,9 @@ int frontend_set_state(long nstate)
   case FeSt_LEVEL_SELECT:
       turn_off_menu(GMnu_FELEVEL_SELECT);
       frontend_level_list_unload();
+      break;
+  case FeSt_CAMPAIGN_SELECT:
+      turn_off_menu(GMnu_FECAMPAIGN_SELECT);
       break;
   case 7:
   case 8:
@@ -5692,6 +5784,9 @@ int frontend_set_state(long nstate)
       turn_on_menu(GMnu_FELEVEL_SELECT);
       frontend_level_list_load();
       LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
+      break;
+  case FeSt_CAMPAIGN_SELECT:
+      turn_on_menu(GMnu_FECAMPAIGN_SELECT);
       break;
     default:
       error(func_name, 1609, "Unhandled FRONTEND new state");
@@ -6266,6 +6361,7 @@ short frontend_draw(void)
     case 20:
     case FeSt_FEOPTIONS:
     case FeSt_LEVEL_SELECT:
+    case FeSt_CAMPAIGN_SELECT:
         draw_gui();
         break;
     case FeSt_LAND_VIEW:
@@ -6491,6 +6587,9 @@ void frontend_update(short *finish_menu)
         break;
       case FeSt_LEVEL_SELECT:
         frontend_level_select_update();
+        break;
+      case FeSt_CAMPAIGN_SELECT:
+        frontend_campaign_select_update();
         break;
       default:
         break;

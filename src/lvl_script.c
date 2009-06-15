@@ -96,6 +96,8 @@ const struct CommandDesc command_desc[] = {
   {"PLAY_MESSAGE",                 "AAN     ", Cmd_PLAY_MESSAGE},
   {"ADD_GOLD_TO_PLAYER",           "AN      ", Cmd_ADD_GOLD_TO_PLAYER},
   {"SET_CREATURE_TENDENCIES",      "AAN     ", Cmd_SET_CREATURE_TENDENCIES},
+  {"REVEAL_MAP_RECT",              "ANNNN   ", Cmd_REVEAL_MAP_RECT},
+  {"REVEAL_MAP_LOCATION",          "AN      ", Cmd_REVEAL_MAP_LOCATION},
   {"LEVEL_VERSION",                "N       ", Cmd_LEVEL_VERSION},
   {NULL,                           "        ", Cmd_NONE},
 };
@@ -1266,6 +1268,34 @@ void player_command_add_start_money(int plridx, long gold_val)
   dungeon->field_AF9 += gold_val;
 }
 
+void player_reveal_map_area(int plyr_idx, long x, long y, long w, long h)
+{
+  static const char *func_name="player_reveal_map_area";
+#if (BFDEBUG_LEVEL > 0)
+  LbSyncLog("%s: Revealing around (%d,%d)\n",func_name,x,y);
+#endif
+  reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1));
+}
+
+void player_reveal_map_location(int plyr_idx, TbMapLocation target)
+{
+  static const char *func_name="player_reveal_map_location";
+  long x,y,r;
+#if (BFDEBUG_LEVEL > 0)
+  LbSyncLog("%s: Revealing location type %d\n",func_name,target);
+#endif
+  x = 0;
+  y = 0;
+  r = 11;
+  find_map_location_coords(target, &x, &y, func_name);
+  if ((x == 0) && (y == 0))
+  {
+    LbWarnLog("Can't decode location %d\n",func_name,target);
+    return;
+  }
+  reveal_map_area(plyr_idx, x-(r>>1), x+(r>>1)+(r%1), y-(r>>1), y+(r>>1)+(r%1));
+}
+
 void command_set_start_money(char *plrname, long gold_val)
 {
   static const char *func_name="command_set_start_money";
@@ -2163,6 +2193,27 @@ void command_set_creature_tendencies(char *plrname, char *tendency, long value)
   command_add_value(Cmd_SET_CREATURE_TENDENCIES, plr_id, tend_id, value, 0);
 }
 
+void command_reveal_map_rect(char *plrname, long x, long y, long w, long h)
+{
+  static const char *func_name="command_reveal_map_rect";
+  long plr_id;
+  if (!get_player_id(plrname, &plr_id, func_name, 1992))
+    return;
+  command_add_value(Cmd_REVEAL_MAP_RECT, plr_id, x, y, (h<<16)+w);
+}
+
+void command_reveal_map_location(char *plrname, char *locname)
+{
+  static const char *func_name="command_reveal_map_location";
+  long plr_id;
+  TbMapLocation location;
+  if (!get_player_id(plrname, &plr_id, func_name, 1995))
+    return;
+  if (!get_map_location_id(locname, &location, func_name, 1997))
+    return;
+  command_add_value(Cmd_REVEAL_MAP_LOCATION, plr_id, location, 0, 0);
+}
+
 void command_message(char *msgtext, unsigned char kind)
 {
   static const char *func_name="command_message";
@@ -2463,6 +2514,12 @@ long script_scan_line(char *line,TbBool preloaded)
       break;
   case Cmd_SET_CREATURE_TENDENCIES:
       command_set_creature_tendencies(scline->tp[0], scline->tp[1], scline->np[2]);
+      break;
+  case Cmd_REVEAL_MAP_RECT:
+      command_reveal_map_rect(scline->tp[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4]);
+      break;
+  case Cmd_REVEAL_MAP_LOCATION:
+      command_reveal_map_location(scline->tp[0], scline->tp[1]);
       break;
   case Cmd_LEVEL_VERSION:
       level_file_version = scline->np[0];
@@ -3428,6 +3485,18 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       {
         player = &(game.players[i%PLAYERS_COUNT]);
         set_creature_tendencies(player, val2, val3);
+      }
+      break;
+  case Cmd_REVEAL_MAP_RECT:
+      for (i=plr_start; i < plr_end; i++)
+      {
+        player_reveal_map_area(i, val2, val3, (val4)&0xffff, (val4>>16)&0xffff);
+      }
+      break;
+  case Cmd_REVEAL_MAP_LOCATION:
+      for (i=plr_start; i < plr_end; i++)
+      {
+        player_reveal_map_location(i, val2);
       }
       break;
   default:

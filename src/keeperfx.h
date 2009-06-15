@@ -2008,7 +2008,6 @@ long compute_creature_max_unaffected(long base_param,unsigned short crlevel);
 
 
 short ceiling_set_info(long height_max, long height_min, long step);
-long get_ceiling_height(struct Coord3d *pos);
 void initialise_eye_lenses(void);
 void setup_eye_lens(long nlens);
 void reinitialise_eye_lens(long nlens);
@@ -2032,7 +2031,6 @@ void light_delete_light(long idx);
 void light_initialise_lighting_tables(void);
 void light_initialise(void);
 void delete_all_structures(void);
-void clear_mapwho(void);
 void clear_map(void);
 void clear_game(void);
 void clear_game_for_save(void);
@@ -2041,7 +2039,6 @@ void clear_things_and_persons_data(void);
 void clear_rooms(void);
 void clear_dungeons(void);
 void clear_computer(void);
-void clear_mapmap(void);
 TbBool swap_creature(long ncrt_id, long crtr_id);
 long init_navigation(void);
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
@@ -2069,9 +2066,6 @@ void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 void update_breed_activities(void);
 void set_level_objective(char *msg_text);
 void find_map_location_coords(long location, long *x, long *y, const char *func_name);
-
-TbBool set_coords_to_subtile_center(struct Coord3d *pos, long x, long y, long z);
-TbBool set_coords_to_slab_center(struct Coord3d *pos, long slb_x, long slb_y);
 
 unsigned long seed_check_random(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
 void setup_heap_manager(void);

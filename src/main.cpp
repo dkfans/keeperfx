@@ -33,6 +33,7 @@
 #include "kjm_input.h"
 #include "packets.h"
 #include "config.h"
+#include "config_campaigns.h"
 #include "lvl_script.h"
 #include "lvl_filesdk1.h"
 #include "thing_list.h"
@@ -838,25 +839,6 @@ void reinitialise_eye_lens(long nlens)
       game.numfield_1B = 0;
       setup_eye_lens(nlens);
   }
-}
-
-TbBool set_coords_to_subtile_center(struct Coord3d *pos, long x, long y, long z)
-{
-  if (x > map_subtiles_x+1) x = map_subtiles_x+1;
-  if (y > map_subtiles_y+1) y = map_subtiles_y+1;
-  if (z > 16)z = 16;
-  if (x < 0) x = 0;
-  if (y < 0) y = 0;
-  if (z < 0) z = 0;
-  pos->x.val = (x<<8) + 128;
-  pos->y.val = (y<<8) + 128;
-  pos->z.val = (z<<8) + 128;
-  return true;
-}
-
-TbBool set_coords_to_slab_center(struct Coord3d *pos, long slb_x, long slb_y)
-{
-  return set_coords_to_subtile_center(pos, slb_x*3+1,slb_y*3+1, 1);
 }
 
 void draw_jonty_mapwho(struct JontySpr *jspr)
@@ -2605,13 +2587,6 @@ short ceiling_set_info(long height_max, long height_min, long step)
   game.field_14A814 = step;
   game.field_14A810 = (2*game.field_14A80C+1) * (2*game.field_14A80C+1);
   return 1;
-}
-
-long get_ceiling_height(struct Coord3d *pos)
-{
-  long i;
-  i = pos->y.stl.num*(map_subtiles_x+1) + pos->x.stl.num;
-  return ((game.map[i].data & 0xF000000u) >> 24) << 8;
 }
 
 short load_settings(void)
@@ -4517,56 +4492,6 @@ void clear_complete_game(void)
   game.packet_save_enable = start_params.packet_save_enable;
   game.packet_load_enable = start_params.packet_load_enable;
   my_player_number = default_loc_player;
-}
-
-void clear_mapwho(void)
-{
-  //_DK_clear_mapwho();
-  struct Map *map;
-  unsigned long x,y;
-  for (y=0; y < (map_subtiles_y+1); y++)
-    for (x=0; x < (map_subtiles_x+1); x++)
-    {
-      map = &game.map[y*(map_subtiles_x+1) + x];
-      map->data &= 0xFFC007FFu;
-    }
-}
-
-void clear_mapmap_soft(void)
-{
-  struct Map *map;
-  unsigned long x,y;
-  unsigned short *wptr;
-  for (y=0; y < (map_subtiles_y+1); y++)
-    for (x=0; x < (map_subtiles_x+1); x++)
-    {
-      map = &game.map[y*(map_subtiles_x+1) + x];
-      wptr = &game.field_46157[y*(map_subtiles_x+1) + x];
-      map->data &= 0xFF3FFFFFu;
-      map->data &= 0xFFFFF800u;
-      map->data &= 0xFFC007FFu;
-      map->data &= 0x0FFFFFFFu;
-      map->flags = 0;
-      *wptr = 8192;
-    }
-}
-
-void clear_mapmap(void)
-{
-  struct Map *map;
-  unsigned long x,y;
-  unsigned short *wptr;
-  unsigned char *flg;
-  for (y=0; y < (map_subtiles_y+1); y++)
-    for (x=0; x < (map_subtiles_x+1); x++)
-    {
-      map = &game.map[y*(map_subtiles_x+1) + x];
-      wptr = &game.field_46157[y*(map_subtiles_x+1) + x];
-      flg = &game.mapflags[y*(map_subtiles_x+1) + x];
-      memset(map, 0, sizeof(struct Map));
-      *wptr = 8192;
-      *flg = 0;
-    }
 }
 
 void clear_slabsets(void)
@@ -7500,14 +7425,12 @@ unsigned long can_drop_thing_here(long x, long y, long a3, unsigned long a4)
  */
 short can_dig_here(long stl_x, long stl_y, long plyr_idx)
 {
-  struct Map *map;
   struct SlabMap *slb;
   long i;
   slb = get_slabmap_block(map_to_slab[stl_x],map_to_slab[stl_y]);
   if (slabmap_block_invalid(slb))
     return false;
-  map = get_map_block(stl_x, stl_y);
-  if ((map->data >> 28) & (1 << plyr_idx) == 0)
+  if (!subtile_revealed(stl_x, stl_y, plyr_idx))
     return true;
   if ((slb->slab >= 42) && (slb->slab <= 47))
   {
@@ -9407,6 +9330,7 @@ void init_level(void)
 
   init_navigation();
   clear_messages();
+  LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
   // Initialize unsynchnonized random seed (the value may be different
   // on computers in MP, as it shouldn't affect game actions)
   game.rand_14BB4E = (unsigned long)LbTimeSec();
@@ -9891,6 +9815,11 @@ void faststartup_network_game(void)
   reenter_video_mode();
   my_player_number = default_loc_player;
   game.flagfield_14EA4A = 2;
+  if (!is_campaign_loaded())
+  {
+    if (!change_campaign(""))
+      error(func_name, 867, "Unable to load campaign");
+  }
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
   player->field_2C = 1;
   startup_network_game();
@@ -9921,9 +9850,9 @@ void wait_at_frontend(void)
   }
   game.numfield_15 = -1;
   // Make sure campaign is loaded
-  if (!load_default_campaign())
+  if (!load_campaigns_list())
   {
-    error(func_name, 731, "Unable to load default campaign");
+    error(func_name, 727, "No valid campaign files found");
     exit_keeper = 1;
     return;
   }

@@ -26,6 +26,7 @@
 #include "bflib_bufrw.h"
 
 #include "config.h"
+#include "config_campaigns.h"
 #include "front_simple.h"
 #include "frontend.h"
 #include "front_landview.h"
@@ -136,7 +137,15 @@ short load_game(long slot_num)
     save_catalogue_slot_disable(slot_num);
     return 0;
   }
+  LbFileSeek(handle, (char *)&game.campaign_fname[0] - (char *)&game.load_restart_level, Lb_FILE_SEEK_BEGINNING);
+  LbFileRead(handle, cmpgn_fname, CAMPAIGN_FNAME_LEN);
+  cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
   LbFileClose(handle);
+  if (!change_campaign(cmpgn_fname))
+  {
+    error(func_name, 867, "Unable to load campaign associated with saved game");
+    return 0;
+  }
   if (!save_version_compatible(LbFileLength(fname),(struct Game *)buf))
   {
     LbWarnLog("Saved game file \"%s\" has incompatible version; restarting level.\n",fname);
@@ -157,6 +166,7 @@ short load_game(long slot_num)
     LbWarnLog("Couldn't correctly load saved game \"%s\".\n",fname);
     return 0;
   }
+  LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
   init_lookups();
   reinit_level_after_load();
   output_message(102, 0, 1);
@@ -314,7 +324,15 @@ short continue_game_available(void)
     {
       return false;
     }
+    i = (char *)&game.campaign_fname[0] - (char *)&game.load_restart_level;
+    read_continue_game_part((unsigned char *)cmpgn_fname,i,CAMPAIGN_FNAME_LEN);
+    cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
     lvnum = ((struct Game *)buf)->continue_level_number;
+    if (!change_campaign(cmpgn_fname))
+    {
+      error(func_name, 701, "Unable to load campaign");
+      return false;
+    }
     if (is_singleplayer_like_level(lvnum))
       set_continue_level_number(lvnum);
 //    continue_needs_checking_file = 0;
@@ -349,6 +367,14 @@ short load_continue_game(void)
     LbWarnLog("%s: Can't read continue game file head\n",func_name);
     return false;
   }
+  i = (char *)&game.campaign_fname[0] - (char *)&game.load_restart_level;
+  read_continue_game_part((unsigned char *)cmpgn_fname,i,CAMPAIGN_FNAME_LEN);
+  cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
+  if (!change_campaign(cmpgn_fname))
+  {
+    error(func_name, 731, "Unable to load campaign");
+    return false;
+  }
   lvnum = ((struct Game *)buf)->continue_level_number;
   if (!is_singleplayer_like_level(lvnum))
   {
@@ -364,6 +390,7 @@ short load_continue_game(void)
   game.version_minor = ((struct Game *)buf)->version_minor;
   for (i=0; i < BONUS_LEVEL_STORAGE_COUNT; i++)
     game.bonuses_found[i] = bonus[i];
+  LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
   update_extra_levels_visibility();
   i = (char *)&game.transfered_creature_kind - (char *)&game.bonuses_found[0];
   game.transfered_creature_kind = bonus[i];

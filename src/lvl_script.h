@@ -93,6 +93,8 @@ enum TbScriptCommands {
     Cmd_SET_CREATURE_TENDENCIES        = 84,
     Cmd_PLAY_MESSAGE                   = 85,
     Cmd_ADD_GOLD_TO_PLAYER             = 86,
+    Cmd_REVEAL_MAP_RECT                = 87,
+    Cmd_REVEAL_MAP_LOCATION            = 88,
     Cmd_LEVEL_VERSION                  = 90,
 };
 

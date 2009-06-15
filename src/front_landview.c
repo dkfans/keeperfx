@@ -33,6 +33,7 @@
 #include "bflib_vidraw.h"
 
 #include "config.h"
+#include "config_campaigns.h"
 #include "front_simple.h"
 #include "frontend.h"
 #include "kjm_input.h"

@@ -63,6 +63,56 @@ TbBool map_block_invalid(struct Map *map)
   return (map < &game.map[0]);
 }
 
+long get_ceiling_height(struct Coord3d *pos)
+{
+  long i;
+  i = get_subtile_number(pos->x.stl.num,pos->y.stl.num);
+  return ((game.map[i].data & 0xF000000u) >> 24) << 8;
+}
+
+void reveal_map_subtile(long stl_x, long stl_y, long plyr_idx)
+{
+  unsigned short nflag;
+  struct Map *map;
+  unsigned long i;
+  nflag = (1 << plyr_idx);
+  map = get_map_block(stl_x, stl_y);
+  i = (map->data >> 28) | nflag;
+  map->data |= (i & 0x0F) << 28;
+}
+
+TbBool subtile_revealed(long stl_x, long stl_y, long plyr_idx)
+{
+  unsigned short nflag;
+  struct Map *map;
+  nflag = (1 << plyr_idx);
+  map = get_map_block(stl_x, stl_y);
+  if ((map->data >> 28) & nflag)
+    return true;
+  return false;
+}
+
+/******************************************************************************/
+
+TbBool set_coords_to_subtile_center(struct Coord3d *pos, long stl_x, long stl_y, long stl_z)
+{
+  if (stl_x > map_subtiles_x+1) stl_x = map_subtiles_x+1;
+  if (stl_y > map_subtiles_y+1) stl_y = map_subtiles_y+1;
+  if (stl_z > 16) stl_z = 16;
+  if (stl_x < 0)  stl_x = 0;
+  if (stl_y < 0) stl_y = 0;
+  if (stl_z < 0) stl_z = 0;
+  pos->x.val = (stl_x<<8) + 128;
+  pos->y.val = (stl_y<<8) + 128;
+  pos->z.val = (stl_z<<8) + 128;
+  return true;
+}
+
+TbBool set_coords_to_slab_center(struct Coord3d *pos, long slb_x, long slb_y)
+{
+  return set_coords_to_subtile_center(pos, slb_x*3+1,slb_y*3+1, 1);
+}
+
 /*
  * Subtile number - stores both X and Y coords in one number.
  */
@@ -92,6 +142,14 @@ long stl_num_decode_y(unsigned long stl_num)
 }
 
 /*
+ * Returns subtile number for center subtile on given slab.
+ */
+unsigned long get_subtile_number_at_slab_center(long slb_x, long slb_y)
+{
+  return get_subtile_number(slb_x*3+1,slb_y*3+1);
+}
+
+/*
  * Returns subtile coordinate for central subtile on given slab.
  */
 long slab_center_subtile(long stl_v)
@@ -105,6 +163,107 @@ long slab_center_subtile(long stl_v)
 long slab_starting_subtile(long stl_v)
 {
   return map_to_slab[stl_v]*3;
+}
+
+/*
+ * Returns subtile coordinate for ending subtile on given slab.
+ */
+long slab_ending_subtile(long stl_v)
+{
+  return map_to_slab[stl_v]*3+2;
+}
+/******************************************************************************/
+
+void clear_mapwho(void)
+{
+  //_DK_clear_mapwho();
+  struct Map *map;
+  unsigned long x,y;
+  for (y=0; y < (map_subtiles_y+1); y++)
+    for (x=0; x < (map_subtiles_x+1); x++)
+    {
+      map = &game.map[get_subtile_number(x,y)];
+      map->data &= 0xFFC007FFu;
+    }
+}
+
+void clear_mapmap_soft(void)
+{
+  struct Map *map;
+  unsigned long x,y;
+  unsigned short *wptr;
+  for (y=0; y < (map_subtiles_y+1); y++)
+    for (x=0; x < (map_subtiles_x+1); x++)
+    {
+      map = &game.map[get_subtile_number(x,y)];
+      wptr = &game.field_46157[get_subtile_number(x,y)];
+      map->data &= 0xFF3FFFFFu;
+      map->data &= 0xFFFFF800u;
+      map->data &= 0xFFC007FFu;
+      map->data &= 0x0FFFFFFFu;
+      map->flags = 0;
+      *wptr = 8192;
+    }
+}
+
+void clear_mapmap(void)
+{
+  struct Map *map;
+  unsigned long x,y;
+  unsigned short *wptr;
+  unsigned char *flg;
+  for (y=0; y < (map_subtiles_y+1); y++)
+    for (x=0; x < (map_subtiles_x+1); x++)
+    {
+      map = get_map_block(x,y);
+      wptr = &game.field_46157[get_subtile_number(x,y)];
+      flg = &game.mapflags[get_subtile_number(x,y)];
+      memset(map, 0, sizeof(struct Map));
+      *wptr = 8192;
+      *flg = 0;
+    }
+}
+
+/*
+ * Clears digging operations for given player on given map slabs rectangle.
+ */
+void clear_dig_for_map_rect(long plyr_idx,long start_x,long end_x,long start_y,long end_y)
+{
+  long x,y;
+  for (y = start_y; y < end_y; y++)
+    for (x = start_x; x < end_x; x++)
+    {
+      clear_slab_dig(x, y, plyr_idx);
+    }
+}
+
+/*
+ * Reveals map subtiles rectangle for given player.
+ * Low level function - use reveal_map_area() instead.
+ */
+void reveal_map_rect(long plyr_idx,long start_x,long end_x,long start_y,long end_y)
+{
+  long x,y;
+  for (y = start_y; y < end_y; y++)
+    for (x = start_x; x < end_x; x++)
+    {
+      reveal_map_subtile(x, y, plyr_idx);
+    }
+}
+
+/*
+ * Reveals map subtiles rectangle for given player.
+ */
+void reveal_map_area(long plyr_idx,long start_x,long end_x,long start_y,long end_y)
+{
+  start_x = slab_starting_subtile(start_x);
+  start_y = slab_starting_subtile(start_y);
+  end_x = slab_ending_subtile(end_x)+1;
+  end_y = slab_ending_subtile(end_y)+1;
+  clear_dig_for_map_rect(plyr_idx,map_to_slab[start_x],map_to_slab[end_x],
+      map_to_slab[start_y],map_to_slab[end_y]);
+  reveal_map_rect(plyr_idx,start_x,end_x,start_y,end_y);
+  pannel_map_update(start_x,start_y,end_x,end_y);
 }
 /******************************************************************************/
 
