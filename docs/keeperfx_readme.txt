@@ -83,8 +83,8 @@ A: The problem is that your drivers can't support 320x200 mode.
 Q: The game doesn't run. LOG file says:
      Error: In source setup_strings_data:
      1501 - Strings file couldn't be loaded or is too small
-A: Copy a file DD1TEXT.DAT from CD into DATA folder in
-    DK installation directory.
+A: Check if there's a language file in 'FXDATA' folder for the
+     language which you've selected in KEEPERFX.CFG.
 
 Q: Mouse doesn't work properly.
 A: There's no fix for this yet.
@@ -102,7 +102,7 @@ A: Lense effect only work if you have over 16MB RAM and in screen
      resolutions: 320x200, 640x400 and 640x480.
 
 Q: I've found a cheat menu, but it doesn't work!
-A: All three cheat menus are still unfinished.
+A: The three cheat menus are only partially functional.
 
 Config file details:
 
@@ -206,10 +206,28 @@ New and modified level script commands:
   creatures. Example: SET_CREATURE_TENDENCIES(PLAYER2,FLEE,1)
   Note that a player must have prison when IMPRISON command
   is trigered; otherwise it won't make any change.
+ REVEAL_MAP_RECT
+  Reveals rectangular map area for given player. Requires
+  coordinates of area center point, and rectangle dimensions.
+  Numbers are scaled in subtiles (range is 1..254).
+  Example: REVEAL_MAP_RECT(PLAYER0,132,96,13,11)
+ REVEAL_MAP_LOCATION
+  Reveals square area of subtiles around given location.
+  Location meaning is identical to the one in DISPLAY_OBJECTIVE.
+  For example, to reveal Hero Gate no.1:
+  REVEAL_MAP_LOCATION(PLAYER0,-1,11)
 
 Changelog:
 
-Version: 0.2.8a
+Version: 0.2.9
+  Added new script command, 'REVEAL_MAP_RECT'
+  Added new script command, 'REVEAL_MAP_LOCATION'
+  Hand of Evil code has been rewritten
+  Fixed memory leak in computer player module
+  Fixed problem with 'IF_AVAILABLE' command
+  Added support of multiple campaigns (not tested)
+
+Version: 0.2.8b
   Rewritten more of script support, warnings added
   Added new script command, 'PLAY_MESSAGE'
   Added new script command, 'ADD_GOLD_TO_PLAYER'
@@ -222,6 +240,8 @@ Version: 0.2.8a
   Text file is now selected based on language setting in 'keeperfx.cfg'
   Fixed room selling (v0.2.8a)
   Fixed wage and luck value displayed in creature info panel (v0.2.8a)
+  Fixed typing mistake in hero party objectives (v0.2.8b)
+  Fixed ALL_DUNGEONS_DESTROYED implementation error (v0.2.8b)
 
 Version: 0.2.7a
   Rewritten most of the world view screen
