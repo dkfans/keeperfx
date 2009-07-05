@@ -27,10 +27,12 @@
 #include "bflib_dernc.h"
 #include "bflib_filelst.h"
 #include "bflib_sprite.h"
+#include "bflib_sprfnt.h"
 #include "bflib_mouse.h"
 #include "bflib_sndlib.h"
 #include "bflib_sound.h"
 #include "bflib_vidraw.h"
+#include "bflib_network.h"
 
 #include "config.h"
 #include "config_campaigns.h"
@@ -75,6 +77,7 @@ DLLIMPORT long _DK_frontmap_update(void);
 DLLIMPORT void _DK_frontmap_draw(void);
 DLLIMPORT void _DK_frontmap_input(void);
 DLLIMPORT void _DK_frontmap_unload(void);
+DLLIMPORT void _DK_frontnet_init_level_descriptions(void);
 DLLIMPORT int _DK_frontmap_load(void);
 DLLIMPORT long _DK_load_map_and_window(unsigned long lv_num);
 DLLIMPORT void _DK_frontzoom_to_point(long a1, long a2, long a3);
@@ -284,7 +287,7 @@ struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, in
     switch (lvinfo->state)
     {
     case LvSt_Visible:
-        if (lvinfo->lvnum > 5)
+        if ((lvinfo->options & LvOp_Tutorial) == 0)
           i = 10; // full red flag
         else
           i = 2; // 'T' flag - tutorial
@@ -687,7 +690,7 @@ short load_map_and_window(LevelNumber lvnum)
     LbErrorLog("No land View file names for level %d\n",lvnum);
     return false;
   }
-  fname = prepare_file_fmtpath(FGrp_LoData,"%s.raw",land_view);
+  fname = prepare_file_fmtpath(FGrp_LandView,"%s.raw",land_view);
   flen = LbFileLengthRnc(fname);
   if (flen < 1024)
   {
@@ -706,7 +709,7 @@ short load_map_and_window(LevelNumber lvnum)
   }
   map_screen = &game.land_map_start;
   memcpy(frontend_backup_palette, frontend_palette, PALETTE_SIZE);
-  fname = prepare_file_fmtpath(FGrp_LoData,"%s.dat",land_window);
+  fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
   wait_for_cd_to_be_available();
   if (LbFileLoadAt(fname, block_mem) == -1)
   {
@@ -715,7 +718,7 @@ short load_map_and_window(LevelNumber lvnum)
     return false;
   }
   window_y_offset = (long *)block_mem;
-  fname = prepare_file_fmtpath(FGrp_LoData,"%s.pal",land_view);
+  fname = prepare_file_fmtpath(FGrp_LandView,"%s.pal",land_view);
   wait_for_cd_to_be_available();
   if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
   {
@@ -727,6 +730,11 @@ short load_map_and_window(LevelNumber lvnum)
   return true;
 }
 
+void frontnet_init_level_descriptions(void)
+{
+  _DK_frontnet_init_level_descriptions();
+}
+
 void frontnetmap_unload(void)
 {
   static const char *func_name="frontnetmap_unload";
@@ -736,7 +744,57 @@ void frontnetmap_unload(void)
 void frontnetmap_load(void)
 {
   static const char *func_name="frontnetmap_load";
-  _DK_frontnetmap_load();
+  long i,k;
+  //_DK_frontnetmap_load(); return;
+  if (fe_network_active)
+  {
+    if (LbNetwork_EnableNewPlayers(0))
+      error(func_name, 972, "Unable to prohibit new players joining exchange");
+  }
+  wait_for_cd_to_be_available();
+  frontend_load_data_from_cd();
+  game.selected_level_number = 0;
+  if (!load_map_and_window(0))
+  {
+    frontend_load_data_reset();
+    return;
+  }
+  if (LbDataLoadAll(netmap_flag_load_files))
+  {
+    error(func_name, 989, "Unable to load MAP SCREEN sprites");
+    return;
+  }
+  LbSpriteSetupAll(netmap_flag_setup_sprites);
+  frontend_load_data_reset();
+  frontnet_init_level_descriptions();
+  map_info.field_16 = (1280 - lbDisplay.PhysicalScreenWidth) / 2;
+  map_info.field_1A = (960 - lbDisplay.PhysicalScreenHeight) / 2;
+  fe_net_level_selected = -1;
+  net_level_hilighted = -1;
+  LbMouseChangeSprite(0);
+  LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
+  lbFontPtr = map_font;
+  LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
+  map_sound_fade = 256;
+  lbDisplay.DrawFlags = 0;
+  if ((game.flags_cd & 0x10) == 0)
+    SetRedbookVolume(settings.redbook_volume);
+  if (fe_network_active)
+  {
+    struct ScreenPacket *nspck;
+    net_number_of_players = 0;
+    for (i=0; i < 4; i++)
+    {
+      nspck = &net_screen_packet[i];
+      if ((nspck->field_4 & 0x01) != 0)
+        net_number_of_players++;
+    }
+  } else
+  {
+    net_number_of_players = 1;
+  }
+  net_map_slap_frame = 0;
+  net_map_limp_time = 0;
 }
 
 int frontmap_load(void)
@@ -866,8 +924,7 @@ void frontmap_draw(void)
   {
     frontzoom_to_point(map_info.field_A, map_info.field_E, map_info.field_6);
     compressed_window_draw();
-  }
-  else
+  } else
   {
     draw_map_screen();
     draw_map_level_ensigns();
@@ -923,6 +980,35 @@ void frontmap_input(void)
       return;
     }
     check_mouse_scroll();
+    if (is_key_pressed(KC_F11, KM_CONTROL))
+    {
+      if ((game.flags_font & 0x20) != 0)
+      {
+        set_all_ensigns_state(LvSt_Visible);
+        clear_key_pressed(KC_F11);
+        return;
+      }
+    }
+    if (is_key_pressed(KC_F10, KM_CONTROL))
+    {
+      if ((game.flags_font & 0x20) != 0)
+      {
+        move_campaign_to_next_level();
+        update_ensigns_visibility();
+        clear_key_pressed(KC_F10);
+        return;
+      }
+    }
+    if (is_key_pressed(KC_F9, KM_CONTROL))
+    {
+      if ((game.flags_font & 0x20) != 0)
+      {
+        move_campaign_to_prev_level();
+        update_ensigns_visibility();
+        clear_key_pressed(KC_F9);
+        return;
+      }
+    }
     if (left_button_clicked)
     {
       left_button_clicked = 0;

@@ -11,6 +11,7 @@
  0001:00007370       light_signal_stat_light_update_in_area
  0001:00007400       light_stat_light_map_clear_area
  0001:00007980       light_initialise_lighting_tables
+ 0001:00008010       frontnet_init_level_descriptions
  0001:000081D0       frontend_is_player_allied
  0001:00008200       frontnet_draw_slider_button
  0001:00008370       process_network_error
@@ -290,6 +291,7 @@
  0001:00049F90       magic_use_power_armageddon
  0001:0004A1D0       create_gold_for_hand_grab
  0001:0004A2E0       set_power_hand_offset
+ 0001:0004AB30       can_cast_spell_on_creature
  0001:0004AE00       directly_cast_spell_on_thing
  0001:0004B310       computer_setup_build_room
  0001:0004C030       get_computer_money_less_cost
@@ -583,6 +585,7 @@
  0001:000A60D0       calculate_dungeon_area_scores
  0001:000A61B0       take_money_from_dungeon
  0001:000A67E0       clear_slab_dig
+ 0001:000A68B0       power_sight_explored
  0001:000A6940       update_explored_flags_for_power_sight
  0001:000A6DA0       update_power_sight_explored
  0001:000A7050       remove_explored_flags_for_power_sight
@@ -711,7 +714,10 @@
  0001:000DCEE0       LbMouseSuspend@0
  0001:000DF200       LbSpriteDrawOneColour
  0001:000DFDF0       LbSpriteDrawRemap
+ 0001:000E3900       LbNetwork_EnableNewPlayers
  0001:000E3920       LbNetwork_Init
+ 0001:000E3C60       LbNetwork_Startup
+ 0001:000E3DD0       LbNetwork_Shutdown
  0001:000E3EC0       LbNetwork_Create
  0001:000E3FF0       LbNetwork_Join
  0001:000E40F0       LbNetwork_Stop
@@ -748,6 +754,7 @@
  0003:00002808       ComputerAttack1
  0003:00002850       ComputerSafeAttack
  0003:00002898       ComputerProcessLists
+ 0003:000067D8       swipe_load_file
  0003:00006C20       game_load_files
  0003:00008438       creature_data
  0003:000090B0       status_panel
@@ -767,6 +774,7 @@
  0003:000103C0       slab_attrs
  0003:00010CBC       Non3DEmitter
  0003:00010CC0       SpeechEmitter
+ 0003:00010E00       doors
  0003:000113C0       parchment_loaded
  0003:000113C4       draw_spell_cost
  0003:000114F8       split1at
@@ -833,6 +841,8 @@
  0003:0001E5E0       special_on
  0003:0001E5F0       specials_text
  0003:0001EB80       map_flag_setup_sprites
+ 0003:0001EB98       netmap_flag_load_files
+ 0003:0001ECD0       netmap_flag_setup_sprites
  0003:00020670       frontend_menu_state
  0003:000207B4       high_score_entry_input_active
  0003:000207B8       fade_palette_in
@@ -855,13 +865,19 @@
  0003:00028284       modify_data_load_filename_function
  0003:00028338       fade_started
  0003:00028350       lbUseSdk
+ 0003:0002888C       network_initialized
  0003:0002EF60       animation
  0003:0002F350       light_bitmask
+ 0003:0002F3D0       frontend_alliances
  0003:0002F428       tmp_net_modem_init
  0003:0002F440       tmp_net_modem_answer
  0003:0002F454       net_number_of_levels
+ 0003:0002F45C       net_comport_index_active
  0003:0002F468       net_service_scroll_offset
  0003:0002F470       net_level_desc
+ 0003:0002F9E8       net_message_scroll_offset
+ 0003:0002F9EC       net_number_of_messages
+ 0003:0002F9F0       net_speed_index_active
  0003:0002F9F8       net_modem_data
  0003:0002FA18       net_number_of_sessions
  0003:0002FA20       tmp_net_player_name
@@ -871,17 +887,26 @@
  0003:0002FB28       net_service_index_selected
  0003:0002FB30       net_screen_packet
  0003:0002FB60       net_player_info
+ 0003:0002FBF0       net_message
  0003:0002FE00       tmp_net_modem_hangup
  0003:0002FE60       net_service
  0003:00030264       fe_network_active
  0003:0003026C       net_session_index_active
  0003:00030278       net_session
+ 0003:000302FC       players_currently_in_session
  0003:00030300       net_player_name
  0003:00030314       net_number_of_services
  0003:00030318       tmp_net_phone_number
  0003:00030348       zoom_to_heart_palette
  0003:00030B70       thing_pointed_at
  0003:00030C80       thing_being_displayed
+ 0003:00030C88       door_sound_state
+ 0003:00030CD0       torture_sprite_frame
+ 0003:00030CD4       torture_sprite_direction
+ 0003:00030CDC       torture_state
+ 0003:00030CEC       torture_end_sprite
+ 0003:00030CF4       torture_left_button
+ 0003:00030CF8       torture_door_selected
  0003:00030D00       smooth_on
  0003:00030D08       map_angle
  0003:00030D0C       floor_pointed_at_y
@@ -1075,16 +1100,21 @@
  0003:00247068       map_window
  0003:00247070       played_bad_descriptive_speech
  0003:00247074       playing_bad_descriptive_speech
+ 0003:00247078       net_map_limp_time
  0003:00247080       end_map_flag
  0003:00247088       map_flag
  0003:0024708C       playing_good_descriptive_speech
  0003:00247090       map_screen
+ 0003:0024709C       map_font
+ 0003:002470A0       net_map_slap_frame
  0003:002470A4       window_y_offset
  0003:002470B0       map_info
  0003:002470E8       played_good_descriptive_speech
+ 0003:002470EC       net_number_of_players
  0003:002470F0       play_desc_speech_time
  0003:00247100       map_flag_data
  0003:00247108       end_map_flag_data
+ 0003:0024710C       net_level_hilighted
  0003:002473C8       message_playing
  0003:002473D0       message_queue
  0003:002473F8       frontend_mouse_over_button
@@ -1115,6 +1145,7 @@
  0003:00247F40       high_score_entry_index
  0003:00247F44       fe_high_score_table_from_main_menu
  0003:00247F48       frontend_end_font_data
+ 0003:00247F58       fe_net_level_selected
  0003:00247F60       frontend_end_font
  0003:00247F70       credits_end
  0003:00247F78       frontend_font_data

@@ -143,6 +143,12 @@ enum MapLocationTypes {
     MLoc_THING                         =  7,
 };
 
+enum TriggerFlags {
+    TrgF_NONE                          =  0x00,
+    TrgF_REUSABLE                      =  0x01,
+    TrgF_DISABLED                      =  0x02,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -191,7 +197,7 @@ DLLIMPORT unsigned short _DK_condition_stack[48];
 extern const struct CommandDesc command_desc[];
 /******************************************************************************/
 short script_support_setup_player_as_computer_keeper(unsigned short plyridx, long comp_model);
-long scan_line(char *line);
+long script_scan_line(char *line,TbBool preloaded);
 const struct CommandDesc *get_next_word(char **line, char *params, unsigned char *nparam);
 long get_id(const struct Description *desc, char *itmname);
 const char *script_get_command_name(long cmnd_index);

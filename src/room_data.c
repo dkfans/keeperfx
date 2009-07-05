@@ -205,7 +205,7 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
         LbErrorLog("Index out of range when sweeping Slabs in %s.\n",func_name);
         break;
       }
-      slb = &game.slabmap[map_tiles_x*slb_y + slb_x];
+      slb = get_slabmap_block(slb_x,slb_y);
       slb->room_index = room->index;
       i = slb->field_1;
     }
@@ -254,7 +254,7 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
         LbErrorLog("Index out of range when sweeping Slabs in %s.\n",func_name);
         break;
       }
-      slb = &game.slabmap[map_tiles_x*slb_y + slb_x];
+      slb = get_slabmap_block(slb_x,slb_y);
       slb->room_index = room->index;
       i = slb->field_1;
     }
@@ -272,7 +272,7 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
         LbErrorLog("Index out of range when sweeping Slabs in %s.\n",func_name);
         break;
       }
-      slb = &game.slabmap[map_tiles_x*slb_y + slb_x];
+      slb = get_slabmap_block(slb_x,slb_y);
       tot_x += slb_x;
       tot_y += slb_y;
       i = slb->field_1;
@@ -289,7 +289,7 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
     cy = 3 * (tot_y + sstep->field_0) + 1;
     slb_x = map_to_slab[cx%(map_subtiles_x+1)];
     slb_y = map_to_slab[cy%(map_subtiles_y+1)];
-    slb = &game.slabmap[map_tiles_x*slb_y + slb_x];
+    slb = get_slabmap_block(slb_x,slb_y);
     if (&game.rooms[slb->room_index] == room)
     {
       room->field_8 = cx;

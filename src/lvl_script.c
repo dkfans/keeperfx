@@ -97,7 +97,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_GOLD_TO_PLAYER",           "AN      ", Cmd_ADD_GOLD_TO_PLAYER},
   {"SET_CREATURE_TENDENCIES",      "AAN     ", Cmd_SET_CREATURE_TENDENCIES},
   {"REVEAL_MAP_RECT",              "ANNNN   ", Cmd_REVEAL_MAP_RECT},
-  {"REVEAL_MAP_LOCATION",          "AN      ", Cmd_REVEAL_MAP_LOCATION},
+  {"REVEAL_MAP_LOCATION",          "ANN     ", Cmd_REVEAL_MAP_LOCATION},
   {"LEVEL_VERSION",                "N       ", Cmd_LEVEL_VERSION},
   {NULL,                           "        ", Cmd_NONE},
 };
@@ -937,10 +937,10 @@ void command_add_to_party(char *prtname, char *crtr_name, long crtr_level, long 
     error(func_name, 1138, text);
     return;
   }
-  if (party->members_num >= 8)
+  if (party->members_num >= PARTY_MEMBERS_COUNT)
   {
     text = buf_sprintf("(script:%lu) Too many creatures in party '%s' (limit is %d members)",
-        script_line_number, party->members_num, PARTY_MEMBERS_COUNT);
+        script_line_number, prtname, PARTY_MEMBERS_COUNT);
     error(func_name, 1138, text);
     return;
   }
@@ -950,7 +950,7 @@ void command_add_to_party(char *prtname, char *crtr_name, long crtr_level, long 
     LbWarnLog("(script:%lu) Party '%s' member added inside conditional statement\n",script_line_number,prtname);
   }
   member = &(party->members[party->members_num]);
-  set_flag_byte(&(member->flags), 0x02, false);
+  set_flag_byte(&(member->flags), TrgF_DISABLED, false);
   member->crtr_kind = crtr_id;
   member->carried_gold = carried_gold;
   member->crtr_level = crtr_level-1;
@@ -1006,8 +1006,8 @@ void command_add_party_to_level(char *plrname, char *prtname, char *locname, lon
   } else
   {
     pr_trig = &game.script.party_triggers[game.script.party_triggers_num%PARTY_TRIGGERS_COUNT];
-    set_flag_byte(&(pr_trig->flags), 0x01, next_command_reusable);
-    set_flag_byte(&(pr_trig->flags), 0x02, false);
+    set_flag_byte(&(pr_trig->flags), TrgF_REUSABLE, next_command_reusable);
+    set_flag_byte(&(pr_trig->flags), TrgF_DISABLED, false);
     pr_trig->plyr_idx = plr_id;
     pr_trig->creatr_id = -prty_id;
     pr_trig->location = location;
@@ -1061,8 +1061,8 @@ void command_add_creature_to_level(char *plrname, char *crtr_name, char *locname
   } else
   {
     pr_trig = &game.script.party_triggers[game.script.party_triggers_num%PARTY_TRIGGERS_COUNT];
-    set_flag_byte(&(pr_trig->flags), 0x01, next_command_reusable);
-    set_flag_byte(&(pr_trig->flags), 0x02, false);
+    set_flag_byte(&(pr_trig->flags), TrgF_REUSABLE, next_command_reusable);
+    set_flag_byte(&(pr_trig->flags), TrgF_DISABLED, false);
     pr_trig->plyr_idx = plr_id;
     pr_trig->creatr_id = crtr_id;
     pr_trig->crtr_level = crtr_level-1;
@@ -1182,9 +1182,9 @@ void command_add_value(unsigned long var_index, unsigned long val1, long val2, l
   } else
   {
     value = &game.script.values[game.script.values_num];
-    set_flag_byte(&value->flags, 0x01, next_command_reusable);
-    set_flag_byte(&value->flags, 0x02, false);
-    value->field_2 = var_index;
+    set_flag_byte(&value->flags, TrgF_REUSABLE, next_command_reusable);
+    set_flag_byte(&value->flags, TrgF_DISABLED, false);
+    value->valtype = var_index;
     value->field_3 = val1;
     value->field_4 = val2;
     value->field_8 = val3;
@@ -1277,16 +1277,15 @@ void player_reveal_map_area(int plyr_idx, long x, long y, long w, long h)
   reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1));
 }
 
-void player_reveal_map_location(int plyr_idx, TbMapLocation target)
+void player_reveal_map_location(int plyr_idx, TbMapLocation target, long r)
 {
   static const char *func_name="player_reveal_map_location";
-  long x,y,r;
+  long x,y;
 #if (BFDEBUG_LEVEL > 0)
   LbSyncLog("%s: Revealing location type %d\n",func_name,target);
 #endif
   x = 0;
   y = 0;
-  r = 11;
   find_map_location_coords(target, &x, &y, func_name);
   if ((x == 0) && (y == 0))
   {
@@ -1343,7 +1342,7 @@ void command_creature_available(char *plrname, char *crtr_name, unsigned long a3
     error(func_name, 1457, text);
     return;
   }
-  command_add_value(13, plr_id, crtr_id, a3, a4);
+  command_add_value(Cmd_CREATURE_AVAILABLE, plr_id, crtr_id, a3, a4);
 }
 
 void command_magic_available(char *plrname, char *magname, unsigned long can_resrch, unsigned long can_use)
@@ -1360,7 +1359,7 @@ void command_magic_available(char *plrname, char *magname, unsigned long can_res
     error(func_name, 1480, text);
     return;
   }
-  command_add_value(14, plr_id, mag_id, can_resrch, can_use);
+  command_add_value(Cmd_MAGIC_AVAILABLE, plr_id, mag_id, can_resrch, can_use);
 }
 
 void command_trap_available(char *plrname, char *trapname, unsigned long can_build, unsigned long amount)
@@ -1377,7 +1376,7 @@ void command_trap_available(char *plrname, char *trapname, unsigned long can_bui
     error(func_name, 1503, text);
     return;
   }
-  command_add_value(15, plr_id, trap_id, can_build, amount);
+  command_add_value(Cmd_TRAP_AVAILABLE, plr_id, trap_id, can_build, amount);
 }
 
 void command_research(char *plrname, char *trg_type, char *trg_name, unsigned long val)
@@ -1438,7 +1437,7 @@ void command_research(char *plrname, char *trg_type, char *trg_name, unsigned lo
       error(func_name, 1580, text);
       return;
   }
-  command_add_value(16, plr_id, item_type, item_id, val);
+  command_add_value(Cmd_RESEARCH, plr_id, item_type, item_id, val);
 }
 
 void command_if_action_point(long apt_num, char *plrname)
@@ -1495,7 +1494,7 @@ void command_set_timer(char *plrname, char *timrname)
     error(func_name, 1715, text);
     return;
   }
-  command_add_value(18, plr_id, timr_id, 0, 0);
+  command_add_value(Cmd_SET_TIMER, plr_id, timr_id, 0, 0);
 }
 
 void command_win_game(void)
@@ -1550,7 +1549,7 @@ void command_set_flag(char *plrname, char *flgname, long val)
     error(func_name, 1946, text);
     return;
   }
-  command_add_value(25, plr_id, flg_id, val, 0);
+  command_add_value(Cmd_SET_FLAG, plr_id, flg_id, val, 0);
 }
 
 void command_max_creatures(char *plrname, long val)
@@ -1560,7 +1559,7 @@ void command_max_creatures(char *plrname, long val)
   char *text;
   if (!get_player_id(plrname, &plr_id, func_name, 1959))
     return;
-  command_add_value(26, plr_id, val, 0, 0);
+  command_add_value(Cmd_MAX_CREATURES, plr_id, val, 0, 0);
 }
 
 void command_door_available(char *plrname, char *doorname, unsigned long a3, unsigned long a4)
@@ -1577,7 +1576,7 @@ void command_door_available(char *plrname, char *doorname, unsigned long a3, uns
     error(func_name, 1526, text);
     return;
   }
-  command_add_value(30, plr_id, door_id, a3, a4);
+  command_add_value(Cmd_DOOR_AVAILABLE, plr_id, door_id, a3, a4);
 }
 
 void command_display_objective(long msg_num, char *where, long x, long y)
@@ -1635,8 +1634,8 @@ void command_add_tunneller_to_level(char *plrname, char *locname, char *objectv,
   } else
   {
     tn_trig = &game.script.tunneller_triggers[game.script.tunneller_triggers_num%TUNNELLER_TRIGGERS_COUNT];
-    set_flag_byte(&(tn_trig->flags), 0x01, next_command_reusable);
-    set_flag_byte(&(tn_trig->flags), 0x02, false);
+    set_flag_byte(&(tn_trig->flags), TrgF_REUSABLE, next_command_reusable);
+    set_flag_byte(&(tn_trig->flags), TrgF_DISABLED, false);
     tn_trig->plyr_idx = plr_id;
     tn_trig->location = location;
     tn_trig->heading = head_id;
@@ -1705,8 +1704,8 @@ void command_add_tunneller_party_to_level(char *plrname, char *prtname, char *lo
   } else
   {
     tn_trig = &game.script.tunneller_triggers[game.script.tunneller_triggers_num%TUNNELLER_TRIGGERS_COUNT];
-    set_flag_byte(&(tn_trig->flags), 0x01, next_command_reusable);
-    set_flag_byte(&(tn_trig->flags), 0x02, false);
+    set_flag_byte(&(tn_trig->flags), TrgF_REUSABLE, next_command_reusable);
+    set_flag_byte(&(tn_trig->flags), TrgF_DISABLED, false);
     tn_trig->plyr_idx = plr_id;
     tn_trig->location = location;
     tn_trig->heading = head_id;
@@ -1738,7 +1737,7 @@ void command_add_creature_to_pool(char *crtr_name, long amount)
     error(func_name, 2330, text);
     return;
   }
-  command_add_value(41, 0, crtr_id, amount, 0);
+  command_add_value(Cmd_ADD_CREATURE_TO_POOL, 0, crtr_id, amount, 0);
 }
 
 void command_reset_action_point(long apt_num)
@@ -1775,7 +1774,7 @@ void command_set_creature_max_level(char *plrname, char *crtr_name, long crtr_le
     text = buf_sprintf("(script:%lu) Invalid '%s' experience level, %d", script_line_number, crtr_name, crtr_level);
     error(func_name, 2379, text);
   }
-  command_add_value(59, plr_id, crtr_id, crtr_level-1, 0);
+  command_add_value(Cmd_SET_CREATURE_MAX_LEVEL, plr_id, crtr_id, crtr_level-1, 0);
 }
 
 void command_set_music(long val)
@@ -2202,7 +2201,7 @@ void command_reveal_map_rect(char *plrname, long x, long y, long w, long h)
   command_add_value(Cmd_REVEAL_MAP_RECT, plr_id, x, y, (h<<16)+w);
 }
 
-void command_reveal_map_location(char *plrname, char *locname)
+void command_reveal_map_location(char *plrname, char *locname, long range)
 {
   static const char *func_name="command_reveal_map_location";
   long plr_id;
@@ -2211,7 +2210,7 @@ void command_reveal_map_location(char *plrname, char *locname)
     return;
   if (!get_map_location_id(locname, &location, func_name, 1997))
     return;
-  command_add_value(Cmd_REVEAL_MAP_LOCATION, plr_id, location, 0, 0);
+  command_add_value(Cmd_REVEAL_MAP_LOCATION, plr_id, location, range, 0);
 }
 
 void command_message(char *msgtext, unsigned char kind)
@@ -2333,7 +2332,7 @@ long script_scan_line(char *line,TbBool preloaded)
     chr = cmd_desc->args[i];
     if ((chr == 'A') || (chr == 'N'))
     {
-      text = buf_sprintf("(script:%lu) Invalid number of parameters, %s", script_line_number, cmd_desc->textptr);
+      text = buf_sprintf("(script:%lu) Not enough parameters for \"%s\"", script_line_number, cmd_desc->textptr);
       error(func_name, 536, text);
       LbMemoryFree(scline);
       return -1;
@@ -2519,7 +2518,7 @@ long script_scan_line(char *line,TbBool preloaded)
       command_reveal_map_rect(scline->tp[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4]);
       break;
   case Cmd_REVEAL_MAP_LOCATION:
-      command_reveal_map_location(scline->tp[0], scline->tp[1]);
+      command_reveal_map_location(scline->tp[0], scline->tp[1], scline->np[2]);
       break;
   case Cmd_LEVEL_VERSION:
       level_file_version = scline->np[0];
@@ -2954,7 +2953,7 @@ TbBool action_point_activated_by_player(long apt_idx,long plyr_idx)
 {
   unsigned long i;
   i = get_action_point_activated_by_players_mask(apt_idx);
-  if (apt_idx == 8)
+  if (plyr_idx == 8)
     return (i != 0);
   else
     return ((i & (1 << plyr_idx)) != 0);
@@ -3137,9 +3136,8 @@ void process_condition(struct Condition *condt)
     new_status = false;
     for (i=plr_start; i < plr_end; i++)
     {
-//      new_status = process_activation_status(condt);
       new_status = action_point_activated_by_player(condt->variabl_idx,i);
-      if (new_status != false) break;
+      if (new_status) break;
     }
   } else
   {
@@ -3184,7 +3182,7 @@ void process_check_new_creature_partys(void)
   for (i=0; i < game.script.party_triggers_num; i++)
   {
     pr_trig = &game.script.party_triggers[i];
-    if ((pr_trig->flags & 0x02) == 0)
+    if ((pr_trig->flags & TrgF_DISABLED) == 0)
     {
       if (is_condition_met(pr_trig->condit_idx))
       {
@@ -3204,8 +3202,8 @@ void process_check_new_creature_partys(void)
           script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
               pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level);
         }
-        if ((pr_trig->flags & 0x01) == 0)
-          set_flag_byte(&pr_trig->flags, 0x02, true);
+        if ((pr_trig->flags & TrgF_REUSABLE) == 0)
+          set_flag_byte(&pr_trig->flags, TrgF_DISABLED, true);
       }
     }
   }
@@ -3221,7 +3219,7 @@ void process_check_new_tunneller_partys(void)
   for (i=0; i < game.script.tunneller_triggers_num; i++)
   {
     tn_trig = &game.script.tunneller_triggers[i];
-    if ((tn_trig->flags & 0x02) == 0)
+    if ((tn_trig->flags & TrgF_DISABLED) == 0)
     {
       if (is_condition_met(tn_trig->condit_idx))
       {
@@ -3248,8 +3246,8 @@ void process_check_new_tunneller_partys(void)
           script_process_new_tunneller(tn_trig->plyr_idx, tn_trig->location, tn_trig->heading,
                 tn_trig->target, tn_trig->crtr_level, tn_trig->carried_gold);
         }
-        if ((tn_trig->flags & 0x01) == 0)
-          tn_trig->flags |= 0x02;
+        if ((tn_trig->flags & TrgF_REUSABLE) == 0)
+          tn_trig->flags |= TrgF_DISABLED;
       }
     }
   }
@@ -3283,18 +3281,21 @@ void process_values(void)
   for (i=0; i < game.script.values_num; i++)
   {
     value = &game.script.values[i];
-    if ((value->flags & 0x02) == 0)
+    if ((value->flags & TrgF_DISABLED) == 0)
     {
       if (is_condition_met(value->condit_idx))
       {
-        script_process_value(value->field_2, value->field_3, value->field_4, value->field_8, value->field_C);
-        if ((value->flags & 0x01) == 0)
-          set_flag_byte(&value->flags, 0x02, true);
+        script_process_value(value->valtype, value->field_3, value->field_4, value->field_8, value->field_C);
+        if ((value->flags & TrgF_REUSABLE) == 0)
+          set_flag_byte(&value->flags, TrgF_DISABLED, true);
       }
     }
   }
 }
 
+/*
+ * Processes given VALUE immediatelly.
+ */
 void script_process_value(unsigned long var_index, unsigned long plr_id, long val2, long val3, long val4)
 {
   struct CreatureStats *crstat;
@@ -3496,7 +3497,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_REVEAL_MAP_LOCATION:
       for (i=plr_start; i < plr_end; i++)
       {
-        player_reveal_map_location(i, val2);
+        player_reveal_map_location(i, val2, val3);
       }
       break;
   default:

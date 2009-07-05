@@ -110,6 +110,11 @@ TbBool update_features(unsigned long mem_size)
   return result;
 }
 
+TbBool is_feature_on(unsigned long feature)
+{
+  return ((features_enabled & feature) != 0);
+}
+
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen)
 {
   // Skip to end of the line
@@ -351,6 +356,9 @@ TbBool prepare_diskpath(char *buf,long buflen)
 short load_configuration(void)
 {
   static const char *func_name="load_configuration";
+#if (BFDEBUG_LEVEL > 4)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   //return _DK_load_configuration();
   const char *fname;
   char *buf;
@@ -363,7 +371,7 @@ short load_configuration(void)
   // Preparing config file name and checking the file
   strcpy(install_info.inst_path,"");
   install_info.field_9A = 0;
-  // Set default rundime directory and load the config file
+  // Set default runtime directory and load the config file
   strcpy(keeper_runtime_directory,".");
   fname = prepare_file_path(FGrp_Main,keeper_config_file);
   len = LbFileLengthRnc(fname);
@@ -384,6 +392,10 @@ short load_configuration(void)
   len = LbFileLoadAt(fname, buf);
   if (len>0)
   {
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Processing config file, %d bytes\n",func_name, len);
+#endif
+    buf[len] = '\0';
     pos = 0;
     while (pos<len)
     {
@@ -483,6 +495,12 @@ short load_configuration(void)
       skip_conf_to_next_line(buf,&pos,len);
     }
   }
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Config loaded\n",func_name);
+#endif
+  // Freeing
+  LbMemoryFree(buf);
+  // Updating game according to loaded srettings
   switch (install_info.lang_id)
   {
   case 1:
@@ -512,8 +530,7 @@ short load_configuration(void)
   default:
       break;
   }
-  //Freeing and exiting
-  LbMemoryFree(buf);
+  // Returning if the setting are valid
   return (install_info.lang_id > 0) && (install_info.inst_path[0] != '\0');
 }
 
@@ -565,7 +582,7 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       break;
   case FGrp_AtlSound:
       mdir=keeper_runtime_directory;
-      sdir="sound/atlas";
+      sdir=campaign.speech_location;
       break;
   case FGrp_Main:
       mdir=keeper_runtime_directory;
@@ -577,7 +594,11 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       break;
   case FGrp_CmpgLvls:
       mdir=install_info.inst_path;
-      sdir=campaign.location;
+      sdir=campaign.levels_location;
+      break;
+  case FGrp_LandView:
+      mdir=install_info.inst_path;
+      sdir=campaign.land_location;
       break;
   default:
       mdir="./";
@@ -1103,6 +1124,188 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
   reset_strings(campgn->strings);
   // Analyzing strings data and filling correct values
   result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end);
+#if (BFDEBUG_LEVEL > 19)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
+  return result;
+}
+
+TbBool reset_credits(struct CreditsItem *credits)
+{
+  long i;
+  for (i=0; i<CAMPAIGN_CREDITS_COUNT; i++)
+  {
+    LbMemorySet(&credits[i],0,sizeof(struct CreditsItem));
+    credits[i].kind = CIK_None;
+  }
+  return true;
+}
+
+TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
+{
+  long pos;
+  int i,k,n;
+  int cmd_num;
+  long len;
+  // Block name and parameter word store variables
+  char block_buf[32];
+  char word_buf[32];
+  // Find the block
+  sprintf(block_buf,"credits");
+  len = buf_end-buf;
+  pos = 0;
+  k = find_conf_block(buf,&pos,len,block_buf);
+  if (k < 0)
+  {
+    LbWarnLog("Block [%s] not found in Credits file.\n",block_buf);
+    return 0;
+  }
+  n = 0;
+  while (pos<len)
+  {
+    if ((buf[pos] != 0) && (buf[pos] != '[') && (buf[pos] != ';'))
+    {
+      credits[n].kind = CIK_EmptyLine;
+      credits[n].font = 2;
+      switch (buf[pos])
+      {
+      case '*':
+        pos++;
+        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          k = atol(word_buf);
+        else
+          k = 0;
+        if (k > 0)
+        {
+          credits[n].kind = CIK_GStringId;
+          credits[n].font = 1;
+          credits[n].num = k;
+        }
+        break;
+      case '+':
+        pos++;
+        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          k = atoi(word_buf);
+        else
+          k = 0;
+        if (k > 0)
+        {
+          credits[n].kind = CIK_CStringId;
+          credits[n].font = 1;
+          credits[n].num = k;
+        }
+        break;
+      case '&':
+        pos++;
+        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          k = atoi(word_buf);
+        else
+          k = 0;
+        if (k > 0)
+        {
+          credits[n].kind = CIK_CStringId;
+          credits[n].font = 2;
+          credits[n].num = k;
+        }
+        break;
+      case '!':
+        pos++;
+        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          k = atoi(word_buf);
+        else
+          k = 0;
+        if (k > 0)
+        {
+          credits[n].kind = CIK_CStringId;
+          credits[n].font = 0;
+          credits[n].num = k;
+        }
+        break;
+      case '%':
+        pos++;
+        credits[n].kind = CIK_DirectText;
+        credits[n].font = 0;
+        credits[n].str = &buf[pos];
+        break;
+      case '#':
+        pos++;
+        credits[n].kind = CIK_DirectText;
+        credits[n].font = 1;
+        credits[n].str = &buf[pos];
+        break;
+      default:
+        credits[n].kind = CIK_DirectText;
+        credits[n].font = 2;
+        credits[n].str = &buf[pos];
+        break;
+      }
+      n++;
+    }
+    // Finishing the line
+    while (pos < len)
+    {
+      if (buf[pos] < 32) break;
+      pos++;
+    }
+    if (buf[pos] == '\r')
+    {
+      buf[pos] = '\0';
+      pos+=2;
+    } else
+    {
+      buf[pos] = '\0';
+      pos++;
+    }
+  }
+  if (credits[0].kind == CIK_None)
+    LbWarnLog("Credits list empty after parsing [%s] block of Credits file.\n", block_buf);
+  return true;
+}
+
+/*
+ * Loads the credits data for the current campaign.
+ */
+TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
+{
+  static const char *func_name="setup_campaign_credits_data";
+  char *credits_data_end;
+  char *fname;
+  short result;
+  long loaded_size;
+  long filelen;
+#if (BFDEBUG_LEVEL > 18)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  fname = prepare_file_path(FGrp_LandView,campgn->credits_fname);
+  filelen = LbFileLengthRnc(fname);
+  if (filelen <= 0)
+  {
+    error(func_name, 1581, "Campaign Credits file does not exist or can't be opened");
+    return false;
+  }
+  campgn->credits_data = (char *)LbMemoryAlloc(filelen + 256);
+  if (campgn->credits_data == NULL)
+  {
+    error(func_name, 1509, "Can't allocate memory for Campaign Credits data");
+    return false;
+  }
+  credits_data_end = campgn->credits_data+filelen+255;
+  result = true;
+  loaded_size = LbFileLoadAt(fname, campgn->credits_data);
+  if (loaded_size < 4)
+  {
+    error(func_name, 1501, "Campaign Credits file couldn't be loaded or is too small");
+    result = false;
+  }
+  // Resetting all values to unused
+  reset_credits(campgn->credits);
+  // Analyzing credits data and filling correct values
+  if (result)
+  {
+    result = parse_credits_block(campgn->credits, campgn->credits_data, credits_data_end);
+    if (!result)
+      LbWarnLog("Parsing credits file \"%s\" credits block failed.\n",campgn->credits_fname);
+  }
 #if (BFDEBUG_LEVEL > 19)
     LbSyncLog("%s: Finished\n",func_name);
 #endif

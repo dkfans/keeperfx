@@ -426,7 +426,6 @@ long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
 
 long pinstfm_fade_to_map(struct PlayerInfo *player, long *n)
 {
-  //return _DK_pinstfm_fade_to_map(player, n);
   return 0;
 }
 
@@ -442,7 +441,6 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
 
 long pinstfm_fade_from_map(struct PlayerInfo *player, long *n)
 {
-  //return _DK_pinstfm_fade_from_map(player, n);
   return 0;
 }
 

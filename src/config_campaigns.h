@@ -34,20 +34,40 @@ extern "C" {
 #define LEVEL_INFO_GROW_DELTA        32
 #define HISCORE_NAME_LENGTH          64
 #define CAMPAIGNS_LIST_GROW_DELTA     8
+#define CAMPAIGN_CREDITS_COUNT      360
 
 enum CampaignLoadFlags {
     CLd_Standard   =  0x00,
     CLd_ListOnly   =  0x01,
 };
 
+enum CreditsItemKind {
+    CIK_None,
+    CIK_EmptyLine,
+    CIK_DirectText,
+    CIK_GStringId,
+    CIK_CStringId,
+};
+
 /******************************************************************************/
+struct CreditsItem {
+  unsigned short kind;
+  unsigned short font;
+  union {
+    long num;
+    char *str;
+  };
+};
+
 /*
  * Structure for storing campaign configuration.
  */
 struct GameCampaign {
   char name[LINEMSG_SIZE];
   char fname[DISKPATH_SIZE];
-  char location[DISKPATH_SIZE];
+  char levels_location[DISKPATH_SIZE];
+  char speech_location[DISKPATH_SIZE];
+  char land_location[DISKPATH_SIZE];
   LevelNumber single_levels[CAMPAIGN_LEVELS_COUNT];
   LevelNumber multi_levels[CAMPAIGN_LEVELS_COUNT];
   LevelNumber bonus_levels[CAMPAIGN_LEVELS_COUNT];
@@ -62,15 +82,22 @@ struct GameCampaign {
   unsigned long extra_levels_index;
   struct LevelInformation *lvinfos;
   unsigned long lvinfos_count;
+  // Land view
   unsigned long ambient_good;
   unsigned long ambient_bad;
   char land_view_start[DISKPATH_SIZE];
   char land_window_start[DISKPATH_SIZE];
   char land_view_end[DISKPATH_SIZE];
   char land_window_end[DISKPATH_SIZE];
+  // Credits
+  char credits_fname[DISKPATH_SIZE];
+  char *credits_data;
+  struct CreditsItem credits[CAMPAIGN_CREDITS_COUNT];
+  // Campaign strings
   char strings_fname[DISKPATH_SIZE];
   char *strings_data;
   char *strings[STRINGS_MAX+1];
+  // High scores
   char hiscore_fname[DISKPATH_SIZE];
   struct HighScore *hiscore_table;
   unsigned long hiscore_count;

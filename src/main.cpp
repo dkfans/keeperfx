@@ -306,27 +306,27 @@ unsigned short const player_state_to_spell[] = {
 };
 
 struct SpellData spell_data[] = {
-  {36, 11, 0,   0,   0,   0,   0,   0,  0, NULL,                 0, 0},
-  { 0,  0, 0,   0,   0,   0,   0,   0,  0, NULL,                 0, 0},
-  {36, 24, 0,  95, 118, 631, 648, 831,  5, NULL,                 0, 0},
-  {97,  0, 0, 394, 452, 636, 653, 834,  0, NULL,                 0, 0},
-  { 0,  0, 0,   0,   0,   0,   0,   0,  0, NULL,                 0, 0},
-  {36,  8, 1,  85, 108, 632, 649, 828, 12, sight_of_evil_expand_check,0, 0}, // Sight of Evil
-  {36,  6, 1,  93, 116, 633, 650, 826,  0, call_to_arms_expand_check, 1, 1}, // Call To Arms
-  {36,  7, 1,  97, 120, 635, 652, 837, 10, general_expand_check, 0, 0},
-  {36, 22, 0,  87, 110, 644, 661, 829,  8, general_expand_check, 1, 0},
-  {41,  0, 0,  89, 112, 634, 651, 830,  0, general_expand_check, 0, 0}, // Hold Audience
-  {36, 17, 0, 101, 124, 640, 657, 833,  6, general_expand_check, 1, 1},
-  {36, 19, 0,  99, 122, 637, 654, 838, 11, general_expand_check, 1, 0},
-  {36, 20, 0, 103, 126, 638, 655, 825,  9, general_expand_check, 1, 0},
-  {36, 21, 0, 105, 128, 639, 656, 832,  1, general_expand_check, 1, 0},
-  {36, 26, 0, 310, 319, 642, 659, 835,  3, general_expand_check, 1, 1},
-  {36, 27, 0, 306, 314, 641, 658, 827,  2, general_expand_check, 1, 1},
-  {36, 25, 0, 308, 317, 643, 660, 839,  4, general_expand_check, 0, 0},
-  {36, 28, 0, 105, 128, 645, 662,   0,  0, NULL,                 0, 0},
-  {36, 11, 0,  91, 114, 630, 647, 836,  7, NULL,                 1, 0},
-  {98,  0, 0, 312, 321, 646, 663, 824,  0, NULL,                 0, 0}, // Armageddon
-  { 0,  0, 0,   0,   0,   0,   0,   0,  0, NULL,                 0, 0},
+  {36, 11, 0,   0,   0,   0,   0,   0,  0, NULL,                 0, 0},      //[0]
+  { 0,  0, 0,   0,   0,   0,   0,   0,  0, NULL,                 0, 0},      //[1]
+  {36, 24, 0,  95, 118, 631, 648, 831,  5, NULL,                 0, 0},      //[2]
+  {97,  0, 0, 394, 452, 636, 653, 834,  0, NULL,                 0, 0},      //[3]
+  { 0,  0, 0,   0,   0,   0,   0,   0,  0, NULL,                 0, 0},      //[4]
+  {36,  8, 1,  85, 108, 632, 649, 828, 12, sight_of_evil_expand_check,0, 0}, //[5] Sight of Evil
+  {36,  6, 1,  93, 116, 633, 650, 826,  0, call_to_arms_expand_check, 1, 1}, //[6] Call To Arms
+  {36,  7, 1,  97, 120, 635, 652, 837, 10, general_expand_check, 0, 0},      //[7]
+  {36, 22, 0,  87, 110, 644, 661, 829,  8, general_expand_check, 1, 0},      //[8]
+  {41,  0, 0,  89, 112, 634, 651, 830,  0, general_expand_check, 0, 0},      //[9] Hold Audience
+  {36, 17, 0, 101, 124, 640, 657, 833,  6, general_expand_check, 1, 1},      //[10]
+  {36, 19, 0,  99, 122, 637, 654, 838, 11, general_expand_check, 1, 0},      //[11]
+  {36, 20, 0, 103, 126, 638, 655, 825,  9, general_expand_check, 1, 0},      //[12]
+  {36, 21, 0, 105, 128, 639, 656, 832,  1, general_expand_check, 1, 0},      //[13]
+  {36, 26, 0, 310, 319, 642, 659, 835,  3, general_expand_check, 1, 1},      //[14]
+  {36, 27, 0, 306, 314, 641, 658, 827,  2, general_expand_check, 1, 1},      //[15]
+  {36, 25, 0, 308, 317, 643, 660, 839,  4, general_expand_check, 0, 0},      //[16]
+  {36, 28, 0, 105, 128, 645, 662,   0,  0, NULL,                 0, 0},      //[17]
+  {36, 11, 0,  91, 114, 630, 647, 836,  7, NULL,                 1, 0},      //[18] Possession
+  {98,  0, 0, 312, 321, 646, 663, 824,  0, NULL,                 0, 0},      //[19] Armageddon
+  { 0,  0, 0,   0,   0,   0,   0,   0,  0, NULL,                 0, 0},      //[20]
 };
 
 long instf_creature_fire_shot(struct Thing *thing, long *param);
@@ -337,6 +337,9 @@ TbClockMSec last_loop_time=0;
 #ifdef __cplusplus
 extern "C" {
 #endif
+DLLIMPORT long _DK_power_sight_explored(long stl_x, long stl_y, unsigned char plyr_idx);
+DLLIMPORT long _DK_can_cast_spell_on_creature(long a1, struct Thing *thing, long a3);
+DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char a1, unsigned char a2, unsigned char a3, unsigned char a4, long a5);
 DLLIMPORT long _DK_update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
 DLLIMPORT void _DK_place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
@@ -645,7 +648,6 @@ short show_onscreen_msg(int nturns, const char *fmt_str, ...)
 
 void reset_eye_lenses(void)
 {
-  //_DK_reset_eye_lenses(); return;
   if (eye_lens_memory != NULL)
   {
     LbMemoryFree(eye_lens_memory);
@@ -705,7 +707,6 @@ void initialise_eye_lenses(void)
 #if (BFDEBUG_LEVEL > 7)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //_DK_initialise_eye_lenses(); return;
   if ((eye_lens_memory != NULL) || (eye_lens_spare_screen_memory != NULL))
   {
     //error(func_name, 17, "EyeLens Memory already allocated");
@@ -1088,9 +1089,48 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
   return picktng;
 }
 
-void set_power_hand_graphic(long a1, long a2, long a3)
+void set_power_hand_graphic(long plyr_idx, long a2, long a3)
 {
-  _DK_set_power_hand_graphic(a1, a2, a3);
+  struct PlayerInfo *player;
+  struct Thing *thing;
+//  _DK_set_power_hand_graphic(plyr_idx, a2, a3); return;
+  player = &(game.players[plyr_idx%PLAYERS_COUNT]);
+  if (player->field_10 >= game.play_gameturn)
+  {
+    if ((a2 == 786) || (a2 == 787))
+      player->field_10 = 0;
+  }
+  if (player->field_10 < game.play_gameturn)
+  {
+    if (player->field_C != a2)
+    {
+      player->field_C = a2;
+      thing = thing_get(player->field_43A);
+      if ((a2 == 782) || (a2 == 781))
+      {
+        set_thing_draw(thing, a2, a3, 300, 0, 0, 2);
+      } else
+      {
+        set_thing_draw(thing, a2, a3, 300, 1, 0, 2);
+      }
+      thing = get_first_thing_in_power_hand(player);
+      set_power_hand_offset(player,thing);
+    }
+  }
+}
+
+TbBool power_hand_is_empty(struct PlayerInfo *player)
+{
+  struct Dungeon *dungeon;
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  return (dungeon->things_in_hand[0] == 0);
+}
+
+struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player)
+{
+  struct Dungeon *dungeon;
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  return thing_get(dungeon->things_in_hand[0]);
 }
 
 long dump_thing_in_power_hand(struct Thing *thing, long a2)
@@ -1561,16 +1601,16 @@ long instf_creature_fire_shot(struct Thing *thing, long *param)
     else
       i = 1;
   } else
-  if (thing->field_0 & 0x20)
+  if ((thing->field_0 & 0x20) != 0)
   {
-    target = game.things_lookup[cctrl->field_DA%THINGS_COUNT];
+    target = thing_get(cctrl->field_DA);
     if (target->class_id == 1)
       i = 1;
     else
       i = 2;
   } else
   {
-    target = game.things_lookup[cctrl->field_DA%THINGS_COUNT];
+    target = thing_get(cctrl->field_DA);
     if (target->class_id == 1)
       i = 1;
     else
@@ -1580,7 +1620,7 @@ long instf_creature_fire_shot(struct Thing *thing, long *param)
       i = 4;
   }
   if (cctrl->field_DA > 0)
-    target = game.things_lookup[cctrl->field_DA%THINGS_COUNT];
+    target = thing_get(cctrl->field_DA);
   else
     target = NULL;
   creature_fire_shot(thing, target, *param, 1, i);
@@ -1972,7 +2012,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
     return;
   cctrl->field_B9 = 0;
 
-  stl_idx = ((map_subtiles_x+1)*thing->mappos.y.stl.num) + thing->mappos.x.stl.num;
+  stl_idx = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
   if (((game.mapflags[stl_idx] & 0xF) << 8) == thing->mappos.z.val)
   {
     i = get_top_cube_at_pos(stl_idx);
@@ -2161,7 +2201,7 @@ long update_creature(struct Thing *thing)
 
   if (cctrl->field_6E > 0)
   {
-    tngp = game.things_lookup[cctrl->field_6E%THINGS_COUNT];
+    tngp = thing_get(cctrl->field_6E);
     if (tngp->field_1 & 0x01)
       move_thing_in_map(tngp, &thing->mappos);
   }
@@ -2493,7 +2533,7 @@ short setup_network_service(int srvidx)
       break;
   }
   memset(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
-  if ( LbNetwork_Init(srvidx, _DK_net_guid, maxplayrs, &_DK_net_screen_packet, 0xCu, &net_player_info[0], init_data) )
+  if ( LbNetwork_Init(srvidx, _DK_net_guid, maxplayrs, &net_screen_packet, 0xCu, &net_player_info[0], init_data) )
   {
     if (srvidx != 0)
       _DK_process_network_error(-800);
@@ -2508,7 +2548,6 @@ short setup_network_service(int srvidx)
 
 short init_sound(void)
 {
-  //_DK_init_sound(); return 1;
   struct SoundSettings *snd_settng;
   unsigned long i;
   if (SoundDisabled)
@@ -2606,7 +2645,7 @@ short load_settings(void)
   }
   LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
   settings.field_B = get_next_vidmode(Lb_SCREEN_MODE_INVALID);
-  if ((((cpu_info.field_0>>8) & 0x0Fu) >= 6) && (mem_size >= 16))
+  if ((((cpu_info.field_0>>8) & 0x0Fu) >= 6) && (is_feature_on(Ft_HiResVideo)))
     settings.field_B = get_next_vidmode(settings.field_B);
   LbFileSaveAt(fname, &settings, sizeof(struct GameSettings));
   return false;
@@ -2657,6 +2696,9 @@ short setup_game(void)
   _DK_get_cpu_info(&cpu_info);
   update_memory_constraits();
 
+  // Enable features thar require more resources
+  update_features(mem_size);
+
   // Configuration file
   if ( !load_configuration() )
   {
@@ -2691,8 +2733,6 @@ short setup_game(void)
       LbSyncLog("%s - Legal image skipped\n", func_name);
 
   // Now do more setup
-  // Enable features thar require more resources
-  update_features(mem_size);
   // Prepare the Game structure
   clear_complete_game();
   // Moon phase calculation
@@ -2969,50 +3009,6 @@ void update_busy_doing_gui_on_menu(void)
     busy_doing_gui = 1;
 }
 
-TbBool gui_button_tooltip_update(int gbtn_idx)
-{
-  static TbBool doing_tooltip = false;
-  struct PlayerInfo *player;
-  struct GuiButton *gbtn;
-  if (gbtn_idx < 0)
-  {
-    tool_tip_time = 0;
-    tool_tip_box.gbutton = NULL;
-    return false;
-  }
-  doing_tooltip = false;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  gbtn = &active_buttons[gbtn_idx];
-  if ((active_menus[gbtn->gmenu_idx].field_1 == 2) && ((gbtn->field_1B & 0x8000u)==0))
-  {
-    if (tool_tip_box.gbutton == gbtn)
-    {
-        if ((tool_tip_time > 10) || (player->field_453 == 12))
-        {
-          busy_doing_gui = 1;
-          if ( gbtn->field_13 != gui_area_text )
-            setup_gui_tooltip(gbtn);
-        } else
-        {
-          tool_tip_time++;
-          doing_tooltip = true;
-          busy_doing_gui = 1;
-        }
-    } else
-    {
-        tool_tip_time = 0;
-        tool_tip_box.gbutton = gbtn;
-        tool_tip_box.pos_x = GetMouseX();
-        tool_tip_box.pos_y = GetMouseY()+86;
-        tool_tip_box.field_809 = 0;
-    }
-    return true;
-  }
-  tool_tip_time = 0;
-  tool_tip_box.gbutton = NULL;
-  return false;
-}
-
 TbBool gui_slider_button_inputs(int gbtn_idx)
 {
   Gf_Btn_Callback callback;
@@ -3068,7 +3064,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
           switch (gbtn->gbtype)
           {
           case 1:
-            if ( (gbtn->field_1 > 5) && (callback != NULL) )
+            if ((gbtn->field_1 > 5) && (callback != NULL))
               callback(gbtn);
             else
               gbtn->field_1++;
@@ -3327,12 +3323,7 @@ void increase_level(struct PlayerInfo *player)
   i = dungeon->field_2D;
   while (i > 0)
   {
-    if (i >= THINGS_COUNT)
-    {
-      error(func_name,4576,"Jump out of things array bounds detected");
-      break;
-    }
-    thing = game.things_lookup[i];
+    thing = thing_get(i);
     if (thing_is_invalid(thing))
       break;
     creature_increase_level(thing);
@@ -3352,12 +3343,7 @@ void increase_level(struct PlayerInfo *player)
   i = dungeon->field_2F;
   while (i > 0)
   {
-    if (i >= THINGS_COUNT)
-    {
-      error(func_name,4575,"Jump out of things array bounds detected");
-      break;
-    }
-    thing = game.things_lookup[i];
+    thing = thing_get(i);
     if (thing_is_invalid(thing))
       break;
     creature_increase_level(thing);
@@ -3424,9 +3410,9 @@ short engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, l
     && (pointer_y < (player->engine_window_height/pixel_size)) )
   {
     int i;
-    i = player->field_453;
+    i = player->work_state;
     if ( ((i == 1) && (player->field_454)) || (i == 2) ||
-      (i == 18) || (i == 16) || (i == 8) || (i == 23) )
+      (i == 18) || (i == 16) || (i == KSt_SightOfEvil) || (i == 23) )
     {
           *map_x = ( top_pointed_at_x << 8) + top_pointed_at_frac_x;
           *map_y = ( top_pointed_at_y << 8) + top_pointed_at_frac_y;
@@ -3516,7 +3502,6 @@ short save_settings(void)
 {
   static const char *func_name="save_settings";
   char *fname;
-  //_DK_save_settings();
   fname=prepare_file_path(FGrp_Save,"settings.dat");
   LbFileSaveAt(fname, &settings, sizeof(struct GameSettings));
   return true;
@@ -3782,7 +3767,6 @@ void setup_computer_players2(void)
 {
   struct PlayerInfo *player;
   int i;
-  //_DK_setup_computer_players2();
   check_map_for_gold();
   for (i=0; i < COMPUTER_TASKS_COUNT; i++)
   {
@@ -3923,17 +3907,14 @@ short zoom_to_next_annoyed_creature(void)
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
   dungeon->field_1177 = find_next_annoyed_creature(player->field_2B,dungeon->field_1177);
-  if (dungeon->field_1177 > 0)
-    thing = game.things_lookup[dungeon->field_1177%THINGS_COUNT];
-  else
-    thing = NULL;
-  if ((thing != NULL) && (thing != game.things_lookup[0]))
+  thing = thing_get(dungeon->field_1177);
+  if (thing_is_invalid(thing))
   {
-    pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-    set_packet_action(pckt, 87, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
-    return true;
+    return false;
   }
-  return false;
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  set_packet_action(pckt, 87, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
+  return true;
 }
 
 void go_to_my_next_room_of_type(unsigned long rkind)
@@ -4145,13 +4126,8 @@ void multiply_creatures(struct PlayerInfo *player)
   i = dungeon->field_2D;
   while (i > 0)
   {
-    if (i >= THINGS_COUNT)
-    {
-      error(func_name,4573,"Jump out of things array bounds detected");
-      break;
-    }
-    thing = game.things_lookup[i];
-    if ((thing == game.things_lookup[0]) || (thing == NULL))
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
       break;
     tncopy = create_creature(&thing->mappos, thing->model, player->field_2B);
     if (tncopy == NULL)
@@ -4176,13 +4152,8 @@ void multiply_creatures(struct PlayerInfo *player)
   i = dungeon->field_2F;
   while (i > 0)
   {
-    if (i >= THINGS_COUNT)
-    {
-      error(func_name,4572,"Jump out of things array bounds detected");
-      break;
-    }
-    thing = game.things_lookup[i];
-    if ((thing == game.things_lookup[0]) || (thing == NULL))
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
       break;
     tncopy = create_creature(&thing->mappos, thing->model, player->field_2B);
     if (tncopy == NULL)
@@ -4419,9 +4390,9 @@ unsigned long get_action_point_activated_by_players_mask(long apt_idx)
   return apt->activated;
 }
 
-unsigned long action_point_get_players_within(long apt_idx)
+PlayerFlags action_point_get_players_within(long apt_idx)
 {
-  _DK_action_point_get_players_within(apt_idx);
+  return _DK_action_point_get_players_within(apt_idx);
 }
 
 TbBool process_action_points(void)
@@ -4883,7 +4854,12 @@ void free_swipe_graphic(void)
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  _DK_free_swipe_graphic();
+  //_DK_free_swipe_graphic();
+  if (game.field_1516FF != -1)
+  {
+    LbDataFreeAll(swipe_load_file);
+    game.field_1516FF = -1;
+  }
 }
 
 void message_add(char c)
@@ -4913,8 +4889,8 @@ void light_set_lights_on(char state)
     game.field_4614D = 0;
   }
   // Enable lights on all but bounding subtiles
-  light_stat_light_map_clear_area(1, 1, map_subtiles_x-1, map_subtiles_y-1);
-  light_signal_stat_light_update_in_area(1, 1, map_subtiles_x-1, map_subtiles_y-1);
+  light_stat_light_map_clear_area(0, 0, map_subtiles_x, map_subtiles_y);
+  light_signal_stat_light_update_in_area(1, 1, map_subtiles_x, map_subtiles_y);
 }
 
 void change_engine_window_relative_size(long w_delta, long h_delta)
@@ -4927,7 +4903,27 @@ void change_engine_window_relative_size(long w_delta, long h_delta)
 
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
 {
-  _DK_PaletteSetPlayerPalette(player, pal);
+  //_DK_PaletteSetPlayerPalette(player, pal);
+  if (pal == blue_palette)
+  {
+    if ((player->field_3 & 0x04) == 0)
+      return;
+    player->field_3 |= 0x04;
+  } else
+  {
+    player->field_3 &= 0xFB;
+  }
+  if ((player->field_7 == 0) || (pal != player->field_4C9) && (pal == player->field_7))
+  {
+    player->field_4C9 = pal;
+    player->field_4C1 = 0;
+    player->field_4C5 = 0;
+    if (is_my_player(player))
+    {
+      LbScreenWaitVbi();
+      LbPaletteSet(pal);
+    }
+  }
 }
 
 short set_gamma(char corrlvl, short do_set)
@@ -5491,6 +5487,15 @@ void directly_cast_spell_on_thing(long plridx, unsigned char a2, unsigned short 
   _DK_directly_cast_spell_on_thing(plridx, a2, a3, a4);
 }
 
+void clear_things_in_hand(struct PlayerInfo *player)
+{
+  struct Dungeon *dungeon;
+  long i;
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  for (i=0; i < MAX_THINGS_IN_HAND; i++)
+    dungeon->things_in_hand[i] = 0;
+}
+
 short winning_player_quitting(struct PlayerInfo *player, long *plyr_count)
 {
   struct PlayerInfo *swplyr;
@@ -5522,7 +5527,7 @@ short lose_level(struct PlayerInfo *player)
 {
   long lvnum;
   //_DK_lose_level(player);
-  if (player != &game.players[my_player_number%PLAYERS_COUNT])
+  if (!is_my_player(player))
     return false;
   if (game.numfield_A & 0x01)
   {
@@ -5535,7 +5540,7 @@ short lose_level(struct PlayerInfo *player)
 short resign_level(struct PlayerInfo *player)
 {
   long lvnum;
-  if (player != &game.players[my_player_number%PLAYERS_COUNT])
+  if (!is_my_player(player))
     return false;
   if (game.numfield_A & 0x01)
   {
@@ -5623,16 +5628,13 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     game.transfered_creature_level = 0;
   }
   // This is probably 16-byte struct, or array
-  dungeon->field_33 = 0;
-  dungeon->field_37 = 0;
-  dungeon->field_3B = 0;
-  dungeon->field_3F = 0;
+  clear_things_in_hand(player);
   dungeon->field_63 = 0;
   if (dungeon->field_884 != 0)
     turn_off_call_to_arms(player->field_2B);
   if (dungeon->field_5D8 > 0)
   {
-    thing = game.things_lookup[dungeon->field_5D8%THINGS_COUNT];
+    thing = thing_get(dungeon->field_5D8);
     delete_thing_structure(thing, 0);
     dungeon->field_5D8 = 0;
   }
@@ -5646,6 +5648,36 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     reveal_whole_map(player);
   if (dungeon->computer_enabled & 0x01)
     toggle_computer_player(player->field_2B);
+}
+
+TbBool move_campaign_to_next_level(void)
+{
+  long lvnum;
+  lvnum = next_singleplayer_level(get_continue_level_number());
+  if (lvnum != LEVELNUMBER_ERROR)
+  {
+    set_continue_level_number(lvnum);
+    return true;
+  } else
+  {
+    set_continue_level_number(SINGLEPLAYER_NOTSTARTED);
+    return false;
+  }
+}
+
+TbBool move_campaign_to_prev_level(void)
+{
+  long lvnum;
+  lvnum = prev_singleplayer_level(get_continue_level_number());
+  if (lvnum != LEVELNUMBER_ERROR)
+  {
+    set_continue_level_number(lvnum);
+    return true;
+  } else
+  {
+    set_continue_level_number(SINGLEPLAYER_FINISHED);
+    return false;
+  }
 }
 
 short complete_level(struct PlayerInfo *player)
@@ -5667,11 +5699,7 @@ short complete_level(struct PlayerInfo *player)
   lvnum = get_continue_level_number();
   if (get_loaded_level_number() == lvnum)
   {
-    lvnum = next_singleplayer_level(get_continue_level_number());
-    if (lvnum != LEVELNUMBER_ERROR)
-      set_continue_level_number(lvnum);
-    else
-      set_continue_level_number(SINGLEPLAYER_NOTSTARTED);
+    move_campaign_to_next_level();
   }
   set_selected_level_number(get_continue_level_number());
   quit_game = 1;
@@ -6896,11 +6924,19 @@ void update(void)
 
 long map_fade_in(long a)
 {
+  static const char *func_name="map_fade_in";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   return _DK_map_fade_in(a);
 }
 
 long map_fade_out(long a)
 {
+  static const char *func_name="map_fade_out";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   return _DK_map_fade_out(a);
 }
 
@@ -6945,9 +6981,153 @@ void draw_sound_stuff(void)
   _DK_draw_sound_stuff();
 }
 
-void draw_spell_cursor(unsigned char a1, unsigned short a2, unsigned char stl_x, unsigned char stl_y)
+long power_sight_explored(long stl_x, long stl_y, unsigned char plyr_idx)
 {
-  _DK_draw_spell_cursor(a1, a2, stl_x, stl_y);
+  return _DK_power_sight_explored(stl_x, stl_y, plyr_idx);
+}
+
+long can_cast_spell_on_creature(long a1, struct Thing *thing, long a3)
+{
+  return _DK_can_cast_spell_on_creature(a1, thing, a3);
+}
+
+unsigned char can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsigned char stl_x, unsigned char stl_y, long a5)
+{
+  struct PlayerInfo *player;
+  struct Map *mapblk;
+  struct SlabMap *slb;
+  TbBool can_cast;
+  //return _DK_can_cast_spell_at_xy(plyr_idx, spl_id, stl_x, stl_y, a5);
+  mapblk = get_map_block(stl_x, stl_y);
+  slb = get_slabmap_for_subtile(stl_x, stl_y);
+  can_cast = false;
+  switch (spl_id)
+  {
+  default:
+      if ((mapblk->flags & 0x10) == 0)
+      {
+        can_cast = true;
+      }
+      break;
+  case 2:
+      if ((mapblk->flags & 0x10) == 0)
+      {
+        if (slabmap_owner(slb) == plyr_idx)
+        {
+          can_cast = true;
+        }
+      }
+      break;
+  case 5:
+      can_cast = true;
+      break;
+  case 6:
+      if ((mapblk->flags & 0x10) == 0)
+      {
+        if (map_block_revealed(mapblk, plyr_idx) || (a5 == 1))
+        {
+          can_cast = true;
+        }
+      }
+      break;
+  case 7:
+      if ((mapblk->flags & 0x10) == 0)
+      {
+        if (power_sight_explored(stl_x, stl_y, plyr_idx) || map_block_revealed(mapblk, plyr_idx))
+        {
+          can_cast = true;
+        }
+      }
+      break;
+  case 10:
+      if ((mapblk->flags & 0x10) == 0)
+      {
+        if (power_sight_explored(stl_x, stl_y, plyr_idx) || map_block_revealed(mapblk, plyr_idx))
+        {
+          player = &(game.players[plyr_idx%PLAYERS_COUNT]);
+          if (player->field_4E3+20 < game.play_gameturn)
+          {
+            can_cast = true;
+          }
+        }
+      }
+      break;
+  case 14:
+  case 15:
+      if (slabmap_owner(slb) == plyr_idx)
+      {
+        can_cast = true;
+      }
+      break;
+  case 16:
+      if (power_sight_explored(stl_x, stl_y, plyr_idx) || map_block_revealed(mapblk, plyr_idx))
+      {
+        if ((mapblk->flags & 0x10) != 0)
+        {
+          if ((mapblk->flags & 0x43) == 0)
+          {
+            if (slb->slab != 0)
+              can_cast = true;
+          }
+        }
+      }
+      break;
+  }
+  return can_cast;
+}
+
+void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned char stl_x, unsigned char stl_y)
+{
+  static const char *func_name="draw_spell_cursor";
+  struct PlayerInfo *player;
+  struct Thing *thing;
+  Expand_Check_Func chkfunc;
+  TbBool allow_cast;
+  long spl_id;
+  long i;
+  //_DK_draw_spell_cursor(wrkstate, tng_idx, stl_x, stl_y); return;
+  spl_id = -1;
+  if (wrkstate < PLAYER_STATES_COUNT)
+    spl_id = player_state_to_spell[wrkstate];
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting for spell %ld\n",func_name,spl_id);
+#endif
+  if (spl_id <= 0)
+  {
+    set_pointer_graphic(0);
+    return;
+  }
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  thing = thing_get(tng_idx);
+  allow_cast = false;
+  if (!thing_is_invalid(thing) || (thing->owner == player->field_2B) || (spell_data[spl_id].flag_1A != 0))
+  {
+    if (can_cast_spell_at_xy(player->field_2B, spl_id, stl_x, stl_y, 0))
+    {
+      if (!thing_is_invalid(thing) || can_cast_spell_on_creature(player->field_2B, thing, spl_id))
+        allow_cast = true;
+    }
+  }
+  if (!allow_cast)
+  {
+    set_pointer_graphic(15);
+    return;
+  }
+  chkfunc = spell_data[spl_id].field_15;
+  if (chkfunc != NULL)
+  {
+    if (chkfunc())
+    {
+      i = player->field_4D2/4;
+      if (i > 8)
+        i = 8;
+      set_pointer_graphic(16+i);
+      draw_spell_cost = game.magic_stats[spl_id].cost[i];
+      return;
+    }
+  }
+  i = spell_data[spl_id].field_13;
+  set_pointer_graphic_spell(i, game.play_gameturn);
 }
 
 void process_pointer_graphic(void)
@@ -6957,46 +7137,51 @@ void process_pointer_graphic(void)
   struct Dungeon *dungeon;
   struct Thing *thing;
   long i;
-#if (BFDEBUG_LEVEL > 5)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  //_DK_process_pointer_graphic();
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  //_DK_process_pointer_graphic(); return;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
-  if (pointer_sprites == NULL)
-  {
-    LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
-    return;
-  }
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting for view %d, player state %d, instance %d\n",func_name,(int)player->view_type,(int)player->work_state,(int)player->instance_num);
+#endif
   switch (player->view_type)
   {
   case 1:
-      if (player->instance_num == 15)
+      if (player->instance_num == PI_MapFadeFrom)
       {
-        LbMouseChangeSpriteAndHotspot(&pointer_sprites[0], 12, 15);
+        set_pointer_graphic(0);
+      } else
+//!!!!!!!remove if doesn't solve possession bug
+      if ((player->instance_num == PI_DirctCtLeave) || (player->instance_num == PI_PsngrCtLeave))
+      {
+        set_pointer_graphic_none();
       } else
       if (((game.numfield_C & 0x20) != 0) && mouse_is_over_small_map(player->mouse_x, player->mouse_y))
       {
         if (game.small_map_state == 2)
-          LbMouseChangeSpriteAndHotspot(&pointer_sprites[0], 12, 15);
+          set_pointer_graphic(0);
         else
-          LbMouseChangeSpriteAndHotspot(&pointer_sprites[1], 12, 15);
+          set_pointer_graphic(1);
       } else
       if (battle_creature_over > 0)
       {
-        i = player_state_to_spell[player->field_453];
+        i = -1;
+        if (player->work_state < PLAYER_STATES_COUNT)
+          i = player_state_to_spell[player->work_state];
         if ((i > 0) && (spell_data[i].flag_19))
         {
           thing = thing_get(battle_creature_over);
-          draw_spell_cursor(player->field_453, battle_creature_over,
+          draw_spell_cursor(player->work_state, battle_creature_over,
               thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+        } else
+        {
+          set_pointer_graphic_none();
         }
       } else
-      if ( game_is_busy_doing_gui() )
+      if (game_is_busy_doing_gui())
       {
-        LbMouseChangeSpriteAndHotspot(&pointer_sprites[1], 12, 15);
+        set_pointer_graphic(1);
       } else
-      switch (player->field_453)
+      switch (player->work_state)
       {
       case 1:
           if (player->field_455)
@@ -7006,40 +7191,43 @@ void process_pointer_graphic(void)
           switch (i)
           {
           case 1:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[2], 12, 15);
+              set_pointer_graphic(2);
               break;
           case 2:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[39], 12, 15);
+              set_pointer_graphic(39);
               break;
           case 3:
-              thing = thing_get(player->field_35);
-              if ((!thing_is_invalid(thing)) && (player->field_4) && (dungeon->field_33 != player->field_35)
+              thing = thing_get(player->thing_under_hand);
+              if ((!thing_is_invalid(thing)) && (player->field_4) && (dungeon->things_in_hand[0] != player->thing_under_hand)
                   && can_thing_be_possessed(thing, player->field_2B))
               {
-                i = 8;
-                if (mem_size < 16)
-                  i = 1;
-                LbMouseChangeSpriteAndHotspot(&pointer_sprites[7*i+40+(game.play_gameturn%i)], 12, 15);
+                if (is_feature_on(Ft_BigPointer))
+                {
+                  set_pointer_graphic(96+(game.play_gameturn%i));
+                } else
+                {
+                  set_pointer_graphic(47);
+                }
                 player->field_6 |= 0x01;
               } else
-              if ((!thing_is_invalid(thing)) && (player->field_5) && (dungeon->field_33 != player->field_35)
+              if ((!thing_is_invalid(thing)) && (player->field_5) && (dungeon->things_in_hand[0] != player->thing_under_hand)
                   && can_thing_be_queried(thing, player->field_2B))
               {
-                LbMouseChangeSpriteAndHotspot(&pointer_sprites[4], 12, 15);
+                set_pointer_graphic(4);
                 player->field_6 |= 0x01;
               } else
               {
                 if ((player->field_3 & 0x02) != 0)
-                  LbMouseChangeSpriteAndHotspot(&pointer_sprites[2], 12, 15);
+                  set_pointer_graphic(2);
                 else
-                  LbMouseChangeSpriteAndHotspot(&pointer_sprites[0], 12, 15);
+                  set_pointer_graphic(0);
               }
               break;
           default:
               if (player->field_10 <= game.play_gameturn)
-                LbMouseChangeSpriteAndHotspot(&pointer_sprites[1], 12, 15);
+                set_pointer_graphic(1);
               else
-                LbMouseChangeSpriteAndHotspot(pointer_sprites, 12, 15);
+                set_pointer_graphic(0);
               break;
           }
           break;
@@ -7047,52 +7235,52 @@ void process_pointer_graphic(void)
           switch (player->field_4A3)
           {
           case 2:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[25], 12, 38);
+              set_pointer_graphic(25);
               break;
           case 3:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[27], 12, 38);
+              set_pointer_graphic(27);
               break;
           case 4:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[29], 12, 38);
+              set_pointer_graphic(29);
               break;
           case 5:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[28], 12, 38);
+              set_pointer_graphic(28);
               break;
           case 6:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[30], 12, 38);
+              set_pointer_graphic(30);
               break;
           case 8:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[34], 12, 38);
+              set_pointer_graphic(34);
               break;
           case 9:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[35], 12, 38);
+              set_pointer_graphic(35);
               break;
           case 10:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[33], 12, 38);
+              set_pointer_graphic(33);
               break;
           case 11:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[32], 12, 38);
+              set_pointer_graphic(32);
               break;
           case 12:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[31], 12, 38);
+              set_pointer_graphic(31);
               break;
           case 13:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[26], 12, 38);
+              set_pointer_graphic(26);
               break;
           case 14:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[36], 12, 38);
+              set_pointer_graphic(36);
               break;
           case 15:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[37], 12, 38);
+              set_pointer_graphic(37);
               break;
           case 16:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[38], 12, 38);
+              set_pointer_graphic(38);
               break;
           }
           return;
       case 5:
       case 9:
-          LbMouseChangeSpriteAndHotspot(&pointer_sprites[0], 12, 15);
+          set_pointer_graphic(0);
           break;
       case 6:
       case 7:
@@ -7108,32 +7296,32 @@ void process_pointer_graphic(void)
       case 25:
       case 26:
       case 27:
-          draw_spell_cursor(player->field_453, 0, game.pos_14C006.x.stl.num, game.pos_14C006.y.stl.num);
+          draw_spell_cursor(player->work_state, 0, game.pos_14C006.x.stl.num, game.pos_14C006.y.stl.num);
           break;
       case 12:
       case 15:
-          LbMouseChangeSpriteAndHotspot(&pointer_sprites[4], 12, 15);
+          set_pointer_graphic(4);
           break;
       case 16:
           switch (player->field_4A5)
           {
           case 1:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[5], 12, 38);
+              set_pointer_graphic(5);
               break;
           case 2:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[9], 12, 38);
+              set_pointer_graphic(9);
               break;
           case 3:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[7], 12, 38);
+              set_pointer_graphic(7);
               break;
           case 4:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[8], 12, 38);
+              set_pointer_graphic(8);
               break;
           case 5:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[6], 12, 38);
+              set_pointer_graphic(6);
               break;
           case 6:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[10], 12, 38);
+              set_pointer_graphic(10);
               break;
           }
           return;
@@ -7141,40 +7329,45 @@ void process_pointer_graphic(void)
           switch (player->field_4A6)
           {
           case 1:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[11], 12, 38);
+              set_pointer_graphic(11);
               break;
           case 2:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[12], 12, 38);
+              set_pointer_graphic(12);
               break;
           case 3:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[13], 12, 38);
+              set_pointer_graphic(13);
               break;
           case 4:
-              LbMouseChangeSpriteAndHotspot(&pointer_sprites[14], 12, 38);
+              set_pointer_graphic(14);
               break;
           }
           return;
       case 23:
-          LbMouseChangeSpriteAndHotspot(&pointer_sprites[3], 17, 29);
+          set_pointer_graphic(3);
           break;
       default:
-          LbMouseChangeSpriteAndHotspot(&pointer_sprites[1], 12, 15);
+          set_pointer_graphic(1);
           break;
       }
       break;
   case 2:
   case 3:
-      if (game.numfield_D & 0x08)
-        LbMouseChangeSpriteAndHotspot(&pointer_sprites[1], 12, 15);
+      if ((game.numfield_D & 0x08) != 0)
+        set_pointer_graphic(1);
       else
-        LbMouseChangeSpriteAndHotspot(&pointer_sprites[0], 0, 0);
+        set_pointer_graphic(0);
       break;
   case 4:
   case 5:
   case 6:
-      LbMouseChangeSpriteAndHotspot(&pointer_sprites[1], 12, 15);
+      set_pointer_graphic(1);
       break;
+  case 0:
+      set_pointer_graphic_none();
+      return;
   default:
+      LbWarnLog("%s: Unsupported view type\n",func_name);
+      set_pointer_graphic_none();
       return;
   }
 }
@@ -7193,10 +7386,7 @@ void message_draw(void)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
   lbFontPtr = winfont;
-  if (lbFontPtr != NULL)
-    h = lbFontPtr[1].SHeight;
-  else
-    h = 0;
+  h = LbTextHeight("Wg");
   x = 148;
   y = 28;
   for (i=0; i < game.active_messages_count; i++)
@@ -7476,11 +7666,8 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
   game.field_1517FF = y;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
-  thing = NULL;
-  i = dungeon->field_33;
-  if ((i>0) && (i<THINGS_COUNT))
-    thing = game.things_lookup[i];
-  if ((thing != NULL) && (thing != game.things_lookup[0]))
+  thing = get_first_thing_in_power_hand(player);
+  if (!thing_is_invalid(thing))
   {
     if (can_place_thing_here(thing, x, y, player->field_2B))
       game.small_map_state = 1;
@@ -7504,7 +7691,6 @@ short mouse_is_over_small_map(long x, long y)
 {
   long cmx,cmy;
   long px,py;
-  long n;
   cmx = GetMouseX();
   cmy = GetMouseY();
   px = (cmx-(x+SMALL_MAP_RADIUS));
@@ -7762,13 +7948,8 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
   i = ((mapblk->data & 0x3FF800u) >> 11);
   while (i > 0)
   {
-    if (i >= THINGS_COUNT)
-    {
-      error(func_name,4578,"Jump out of things array bounds detected");
-      break;
-    }
-    thing = game.things_lookup[i];
-    if ((thing == game.things_lookup[0]) || (thing == NULL))
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
       break;
     i = thing->field_2;
     if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
@@ -7895,34 +8076,24 @@ void draw_zoom_box(void)
       scrtop_y = 0;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
 
-  i = (map_y << 8) + map_x;
   scr_y = scrtop_y;
   for (map_dy=0; map_dy < map_tiles_y; map_dy++)
   {
-    mapblk = &game.map[i];
     scr_x = scrtop_x;
     for (map_dx=0; map_dx < map_tiles_x; map_dx++)
     {
-      if ((map_x+map_dx >= 0) && (map_x+map_dx < map_subtiles_x)
-       && (map_y+map_dy >= 0) && (map_y+map_dy < map_subtiles_y))
+      mapblk = get_map_block(map_x+map_dx,map_y+map_dy);
+      if (map_block_revealed(mapblk, player->field_2B))
       {
-        if ((mapblk->data >> 28) & (1 << player->field_2B))
-        {
-          k = element_top_face_texture(mapblk);
-          draw_texture(scr_x, scr_y, subtile_size, subtile_size, k, 0, -1);
-        } else
-        {
-          LbDrawBox(scr_x/pixel_size, scr_y/pixel_size, 8/pixel_size, 8/pixel_size, 1);
-        }
+        k = element_top_face_texture(mapblk);
+        draw_texture(scr_x, scr_y, subtile_size, subtile_size, k, 0, -1);
       } else
       {
         LbDrawBox(scr_x/pixel_size, scr_y/pixel_size, 8/pixel_size, 8/pixel_size, 1);
       }
       scr_x += subtile_size;
-      mapblk++;
     }
     scr_y += subtile_size;
-    i += (1 << 8);
   }
   lbDisplay.DrawFlags |= 0x0010;
   LbDrawBox(scrtop_x/pixel_size, scrtop_y/pixel_size,
@@ -7930,27 +8101,20 @@ void draw_zoom_box(void)
   set_flag_word(&lbDisplay.DrawFlags,0x0010,false);
   LbScreenSetGraphicsWindow( (scrtop_x+2)/pixel_size, (scrtop_y+2)/pixel_size,
       (map_tiles_y*subtile_size-4)/pixel_size, (map_tiles_y*subtile_size-4)/pixel_size);
-  i = (map_y << 8) + map_x;
   scr_y = 0;
   for (map_dy=0; map_dy < map_tiles_y; map_dy++)
   {
-    mapblk = &game.map[i];
     scr_x = 0;
     for (map_dx=0; map_dx < map_tiles_x; map_dx++)
     {
-      if ((map_x+map_dx >= 0) && (map_x+map_dx < map_subtiles_x)
-       && (map_y+map_dy >= 0) && (map_y+map_dy < map_subtiles_y))
+      mapblk = get_map_block(map_x+map_dx,map_y+map_dy);
+      if (map_block_revealed(mapblk, player->field_2B))
       {
-        if ((mapblk->data >> 28) & (1 << player->field_2B))
-        {
-          draw_zoom_box_things_on_mapblk(mapblk,subtile_size,scr_x,scr_y);
-        }
+        draw_zoom_box_things_on_mapblk(mapblk,subtile_size,scr_x,scr_y);
       }
       scr_x += subtile_size;
-      mapblk++;
     }
     scr_y += subtile_size;
-    i += (1 << 8);
   }
   LbScreenSetGraphicsWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   LbSpriteDraw((scrtop_x-24)/pixel_size, (scrtop_y-20)/pixel_size, &button_sprite[194]);
@@ -7991,7 +8155,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
           k = game.field_149E77;
         if (game.columns[k].solidmask >= 8)
         {
-          if ((!visible) || !(game.mapflags[(((map_subtiles_x+1)*y)+x)] & 0x80) && !(map->flags & 0x02))
+          if ((!visible) || ((get_map_flags(x,y) & 0x80) == 0) && ((map->flags & 0x02) == 0))
             mask &= 3;
         }
       }
@@ -8227,11 +8391,14 @@ void redraw_display(void)
   set_flag_byte(&player->field_6,0x01,false);
   if (game.flagfield_14EA4A == 1)
     return;
-
   if (game.small_map_state == 2)
-    LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
+    set_pointer_graphic_none();
   else
     process_pointer_graphic();
+#if (BFDEBUG_LEVEL > 8)
+//!!!!!!!remove when possession bug splved
+    LbSyncLog("%s: Redrawing view %d\n",func_name,(int)player->field_37);
+#endif
   switch (player->field_37)
   {
   case 0:
@@ -9270,13 +9437,8 @@ void init_dungeon_owner(unsigned short owner)
   i = game.thing_lists[2].index;
   while (i>0)
   {
-    if (i >= THINGS_COUNT)
-    {
-      error(func_name,4578,"Jump out of things array bounds detected");
-      break;
-    }
-    thing = game.things_lookup[i];
-    if ((thing == game.things_lookup[0]) || (thing == NULL))
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
       break;
     i = thing->next_of_class;
     if ((game.objects_config[thing->model].field_6) && (thing->owner == owner))
@@ -9420,7 +9582,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
   player->field_4D1 = player->field_2B;
   setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
   player->field_456 = 1;
-  player->field_453 = 1;
+  player->work_state = 1;
   player->field_14 = 2;
   player->field_4C9 = _DK_palette;
   if (is_my_player(player))
@@ -9518,8 +9680,7 @@ void post_init_level(void)
   {
     player = &(game.players[my_player_number%PLAYERS_COUNT]);
     dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
-    i = dungeon->field_0;
-    thing = game.things_lookup[i%THINGS_COUNT];
+    thing = thing_get(dungeon->field_0);
     pos = &(thing->mappos);
     thing = create_creature(pos, game.transfered_creature_kind, 5);
     if (thing != NULL)
@@ -9544,11 +9705,6 @@ short init_animating_texture_maps(void)
   //_DK_init_animating_texture_maps(); return;
   anim_counter = 7;
   return update_animating_texture_maps();
-}
-
-short frontend_is_player_allied(long plyr1, long plyr2)
-{
-  return _DK_frontend_is_player_allied(plyr1, plyr2);
 }
 
 void setup_alliances(void)
@@ -9588,9 +9744,9 @@ short perform_checksum_verification()
   for (i=1; i<THINGS_COUNT; i++)
   {
       thing = game.things_lookup[i];
-      if ((thing == game.things_lookup[0]) || (thing == NULL))
+      if (thing_is_invalid(thing))
         continue;
-      if (thing->field_0 & 0x01)
+      if ((thing->field_0 & 0x01) != 0)
       {
         checksum_mem += thing->mappos.z.val + thing->mappos.y.val + thing->mappos.x.val;
       }
@@ -9649,12 +9805,12 @@ void setup_exchange_player_number(void)
 #if (BFDEBUG_LEVEL > 6)
   LbSyncLog("%s: Starting\n",func_name);
 #endif
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
   clear_packets();
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
   pckt = &game.packets[my_player_number];
   set_packet_action(pckt, 10, player->field_2C, settings.field_3, 0, 0);
   pckt = &game.packets[my_player_number];
-  if ( LbNetwork_Exchange(pckt) )
+  if (LbNetwork_Exchange(pckt))
       error(func_name, 156, "LbNetwork_Exchange failed");
   k = 0;
   for (i=0; i<NET_PLAYERS_COUNT; i++)
@@ -9665,17 +9821,18 @@ void setup_exchange_player_number(void)
           player = &(game.players[k%PLAYERS_COUNT]);
           player->field_2B = k;
           player->field_0 |= 0x01;
-          if (pckt->field_8 < 1u)
+          if (pckt->field_8 < 1)
             player->field_4B5 = 2;
           else
             player->field_4B5 = 5;
           player->field_2C = pckt->field_6;
           init_player(player, 0);
-          strncpy(player->field_15,enum_players_callback[i].field_0,sizeof(struct TbNetworkCallbackData));
+          strncpy(player->field_15,enum_players_callback[i].svc_name,sizeof(struct TbNetworkCallbackData));
           k++;
       }
   }
 }
+
 void init_players_local_game(void)
 {
   static const char *func_name="init_players_local_game";
@@ -9683,7 +9840,7 @@ void init_players_local_game(void)
 #if (BFDEBUG_LEVEL > 4)
   LbSyncLog("%s: Starting\n",func_name);
 #endif
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
   player->field_2B = my_player_number;
   player->field_0 |= 0x01;
   if (settings.field_3 < 1u)
@@ -10045,7 +10202,7 @@ void game_loop(void)
     LbScreenClear(0);
     LbScreenSwap();
     keeper_gameplay_loop();
-    LbMouseChangeSpriteAndHotspot(0, 0, 0);
+    set_pointer_graphic_none();
     LbScreenClear(0);
     LbScreenSwap();
     StopRedbookTrack();

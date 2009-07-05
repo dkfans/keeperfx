@@ -738,7 +738,7 @@ short load_map_ownership_file(unsigned long lv_num)
   for (y=0; y < (map_subtiles_y+1); y++)
     for (x=0; x < (map_subtiles_x+1); x++)
     {
-      slbmap = &game.slabmap[map_to_slab[y]*map_tiles_x + map_to_slab[x]];
+      slbmap = get_slabmap_for_subtile(x,y);
       if ((x < map_subtiles_x) && (y < map_subtiles_y))
         slbmap->field_5 ^= (slbmap->field_5 ^ buf[i]) & 7;
       else
@@ -760,7 +760,7 @@ short initialise_map_wlb_auto(void)
   for (y=0; y < map_tiles_y; y++)
     for (x=0; x < map_tiles_x; x++)
     {
-      slb = &game.slabmap[y*map_tiles_x + x];
+      slb = get_slabmap_block(x,y);
       if (slb->slab == SlbT_BRIDGE)
       {
         if (slabs_count_near(x,y,1,SlbT_LAVA) > slabs_count_near(x,y,1,SlbT_WATER))
@@ -802,7 +802,7 @@ short load_map_wlb_file(unsigned long lv_num)
   for (y=0; y < map_tiles_y; y++)
     for (x=0; x < map_tiles_x; x++)
     {
-      slb = &game.slabmap[y*map_tiles_x + x];
+      slb = get_slabmap_block(x,y);
       n = (buf[i] << 3);
       n = slb->field_5 ^ ((slb->field_5 ^ n) & 0x18);
       slb->field_5 = n;
@@ -857,7 +857,7 @@ short load_map_slab_file(unsigned long lv_num)
   for (y=0; y < map_tiles_y; y++)
     for (x=0; x < map_tiles_x; x++)
     {
-      slbmap = &game.slabmap[y*map_tiles_x + x];
+      slbmap = get_slabmap_block(x,y);
       n = lword(&buf[i]);
       if (n > SLAB_TYPES_COUNT)
       {

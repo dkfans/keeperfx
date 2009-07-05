@@ -53,6 +53,7 @@ enum TbFileGroups {
         FGrp_Main,
         FGrp_Campgn,
         FGrp_CmpgLvls,
+        FGrp_LandView,
 };
 
 enum TbFeature {
@@ -77,6 +78,7 @@ enum TbLevelOptions {
     LvOp_IsExtra   =  0x08,
     LvOp_IsFree    =  0x10,
     LvOp_AlwsVisbl =  0x20,
+    LvOp_Tutorial  =  0x40,
 };
 
 enum TbLevelState {
@@ -145,6 +147,7 @@ char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
 unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...);
 /******************************************************************************/
 TbBool update_features(unsigned long mem_size);
+TbBool is_feature_on(unsigned long feature);
 short load_configuration(void);
 short calculate_moon_phase(short do_calculate,short add_to_log);
 void load_or_create_high_score_table(void);
@@ -198,6 +201,8 @@ TbBool setup_gui_strings_data(void);
 TbBool free_gui_strings_data(void);
 TbBool reset_strings(char **strings);
 TbBool setup_campaign_strings_data(struct GameCampaign *campgn);
+TbBool reset_credits(struct CreditsItem *credits);
+TbBool setup_campaign_credits_data(struct GameCampaign *campgn);
 /******************************************************************************/
 short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname);
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct ConfigCommand *commands);

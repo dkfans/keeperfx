@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file gui_tooltips.h
- *     Header file for gui_tooltips.c.
+/** @file front_credits.h
+ *     Header file for front_credits.c.
  * @par Purpose:
- *     Tooltips support functions.
+ *     Credits displaying routines.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     26 Feb 2009 - 14 May 2009
+ * @date     05 Jan 2009 - 12 Jan 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,10 +16,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_GUITLTIPS_H
-#define DK_GUITLTIPS_H
+#ifndef DK_FRONT_CREDITS_H
+#define DK_FRONT_CREDITS_H
 
-#include "bflib_basics.h"
 #include "globals.h"
 
 #ifdef __cplusplus
@@ -29,21 +28,18 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-DLLIMPORT extern long _DK_tooltip_scroll_offset;
-#define tooltip_scroll_offset _DK_tooltip_scroll_offset
-DLLIMPORT extern long _DK_tooltip_scroll_timer;
-#define tooltip_scroll_timer _DK_tooltip_scroll_timer
-DLLIMPORT extern struct ToolTipBox _DK_tool_tip_box;
-#define tool_tip_box _DK_tool_tip_box
+DLLIMPORT extern long _DK_credits_scroll_speed;
+#define credits_scroll_speed _DK_credits_scroll_speed
+DLLIMPORT extern long _DK_credits_offset;
+#define credits_offset _DK_credits_offset
+DLLIMPORT extern int _DK_credits_end;
+#define credits_end _DK_credits_end
 
 #pragma pack()
 /******************************************************************************/
-void toggle_tooltips(void);
-void draw_tooltip(void);
-short input_gameplay_tooltips(TbBool gameplay_on);
-short setup_scrolling_tooltips(struct Coord3d *mappos);
-void setup_gui_tooltip(struct GuiButton *gbtn);
-TbBool gui_button_tooltip_update(int gbtn_idx);
+void frontcredits_draw(void);
+void frontcredits_input(void);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

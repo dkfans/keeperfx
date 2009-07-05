@@ -45,6 +45,9 @@ DLLIMPORT extern struct CatalogueEntry _DK_save_game_catalogue[SAVE_SLOTS_COUNT]
 
 #pragma pack()
 /******************************************************************************/
+extern long const VersionMajor;
+extern long const VersionMinor;
+/******************************************************************************/
 short load_game(long slot_idx);
 short save_game(long slot_idx);
 short initialise_load_game_slots(void);

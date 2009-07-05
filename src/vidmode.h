@@ -20,8 +20,10 @@
 #ifndef DK_VIDMODE_H
 #define DK_VIDMODE_H
 
-#include "bflib_video.h"
+#include "bflib_basics.h"
 #include "globals.h"
+
+#include "bflib_video.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,12 +56,17 @@ char *get_vidmode_name(unsigned short mode);
 
 short setup_screen_mode(unsigned short nmode);
 short setup_screen_mode_minimal(unsigned short nmode);
-short setup_screen_mode_zero(unsigned short nmode);
+TbBool setup_screen_mode_zero(unsigned short nmode);
 
 short LoadMcgaData(void);
 short LoadMcgaDataMinimal(void);
 short update_screen_mode_data(long width, long height);
 void load_pointer_file(short hi_res);
+
+TbBool set_pointer_graphic_none(void);
+TbBool set_pointer_graphic_menu(void);
+TbBool set_pointer_graphic_spell(long group_idx, long frame);
+TbBool set_pointer_graphic(long ptr_idx);
 
 /******************************************************************************/
 #ifdef __cplusplus

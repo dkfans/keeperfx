@@ -26,15 +26,29 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT TbError _DK_LbNetwork_Exchange(struct Packet *pckt);
+DLLIMPORT TbError _DK_LbNetwork_Exchange(void *buf);
+DLLIMPORT TbError _DK_LbNetwork_Startup(void);
+DLLIMPORT TbError _DK_LbNetwork_Shutdown(void);
 DLLIMPORT TbError _DK_LbNetwork_Stop(void);
 DLLIMPORT TbError _DK_LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, unsigned long *plyr_num);
 DLLIMPORT TbError _DK_LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num);
 DLLIMPORT TbError _DK_LbNetwork_ChangeExchangeBuffer(void *, unsigned long);
 DLLIMPORT TbError _DK_LbNetwork_Init(unsigned long,struct _GUID guid, unsigned long, void *, unsigned long, struct TbNetworkPlayerInfo *netplayr, void *);
+DLLIMPORT TbError _DK_LbNetwork_EnableNewPlayers(unsigned long allow);
+DLLIMPORT TbError _DK_LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
 /******************************************************************************/
 
 /******************************************************************************/
+TbError LbNetwork_Startup(void)
+{
+  return _DK_LbNetwork_Startup();
+}
+
+TbError LbNetwork_Shutdown(void)
+{
+  return _DK_LbNetwork_Shutdown();
+}
+
 TbError LbNetwork_Init(unsigned long srvcp,struct _GUID guid, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct SerialInitData *init_data)
 {
   return _DK_LbNetwork_Init(srvcp,guid,maxplayrs,exchng_buf,exchng_size,locplayr,init_data);
@@ -65,9 +79,42 @@ TbError LbNetwork_Stop(void)
   return _DK_LbNetwork_Stop();
 }
 
-int LbNetwork_Exchange(struct Packet *pckt)
+int LbNetwork_Exchange(void *buf)
 {
-  return _DK_LbNetwork_Exchange(pckt);
+  return _DK_LbNetwork_Exchange(buf);
+}
+
+TbError LbNetwork_EnableNewPlayers(unsigned long allow)
+{
+  return _DK_LbNetwork_EnableNewPlayers(allow);
+}
+
+TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
+{
+  TbBool local_init;
+  struct TbNetworkCallbackData netcdat;
+  //return _DK_LbNetwork_EnumerateServices(callback, ptr);
+  local_init = false;
+  if (!network_initialized)
+  {
+    if (LbNetwork_Startup() != 0)
+      local_init = true;
+  }
+  if (network_initialized)
+  {
+    strcpy(netcdat.svc_name, "SERIAL");
+    callback(&netcdat, ptr);
+    strcpy(netcdat.svc_name, "MODEM");
+    callback(&netcdat, ptr);
+    strcpy(netcdat.svc_name, "IPX");
+    callback(&netcdat, ptr);
+    LbNetLog("Enumerate Services called\n");
+  }
+  if (local_init)
+    LbNetwork_Shutdown();
+  return 0;
+
+
 }
 
 /******************************************************************************/

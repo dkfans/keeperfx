@@ -32,9 +32,12 @@ extern "C" {
 #define ACTIVE_MENUS_COUNT           8
 #define MENU_LIST_ITEMS_COUNT       43
 #define FRONTEND_BUTTON_INFO_COUNT 110
+#define NET_MESSAGES_COUNT           8
+#define NET_MESSAGE_LEN             64
 // Sprite limits
 #define PANEL_SPRITES_COUNT 514
 #define FRONTEND_FONTS_COUNT 4
+#define TORTURE_DOORS_COUNT 9
 // Positioning constants for menus
 #define POS_AUTO -9999
 #define POS_MOUSMID -999
@@ -136,6 +139,32 @@ struct StatsData { // sizeof = 12
   void *field_8;
 };
 
+struct DoorSoundState { // sizeof = 8
+  long field_0;
+  long field_4;
+};
+
+struct DoorDesc { // sizeof = 44
+  long field_0;
+  long field_4;
+  long pos_x;
+  long pos_y;
+  long width;
+  long height;
+  long field_18;
+  long field_1C;
+  long field_20;
+  long field_24;
+  long field_28;
+};
+
+struct NetMessage { // sizeof = 0x41
+unsigned char plyr_idx;
+char text[NET_MESSAGE_LEN];
+};
+
+typedef long TortureState;
+
 /******************************************************************************/
 DLLIMPORT struct GuiButtonInit _DK_main_menu_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_room_menu_buttons[];
@@ -234,6 +263,22 @@ DLLIMPORT long _DK_net_service_scroll_offset;
 #define net_service_scroll_offset _DK_net_service_scroll_offset
 DLLIMPORT long _DK_net_number_of_services;
 #define net_number_of_services _DK_net_number_of_services
+DLLIMPORT long _DK_net_comport_index_active;
+#define net_comport_index_active _DK_net_comport_index_active
+DLLIMPORT long _DK_net_speed_index_active;
+#define net_speed_index_active _DK_net_speed_index_active
+DLLIMPORT long _DK_net_number_of_players;
+#define net_number_of_players _DK_net_number_of_players
+DLLIMPORT long _DK_net_map_slap_frame;
+#define net_map_slap_frame _DK_net_map_slap_frame
+DLLIMPORT long _DK_net_level_hilighted;
+#define net_level_hilighted _DK_net_level_hilighted
+DLLIMPORT struct NetMessage _DK_net_message[NET_MESSAGES_COUNT];
+#define net_message _DK_net_message
+DLLIMPORT long _DK_net_number_of_messages;
+#define net_number_of_messages _DK_net_number_of_messages
+DLLIMPORT long _DK_net_message_scroll_offset;
+#define net_message_scroll_offset _DK_net_message_scroll_offset
 DLLIMPORT char _DK_no_of_active_menus;
 #define no_of_active_menus _DK_no_of_active_menus
 DLLIMPORT unsigned char _DK_menu_stack[ACTIVE_MENUS_COUNT];
@@ -257,10 +302,6 @@ DLLIMPORT char _DK_gui_error_text[256];
 #define gui_error_text _DK_gui_error_text
 DLLIMPORT extern int _DK_frontend_menu_state;
 #define frontend_menu_state _DK_frontend_menu_state
-DLLIMPORT extern long _DK_credits_scroll_speed;
-#define credits_scroll_speed _DK_credits_scroll_speed
-DLLIMPORT extern long _DK_credits_offset;
-#define credits_offset _DK_credits_offset
 DLLIMPORT extern int _DK_load_game_scroll_offset;
 #define load_game_scroll_offset _DK_load_game_scroll_offset
 DLLIMPORT extern unsigned char *_DK_frontend_background;
@@ -275,12 +316,6 @@ DLLIMPORT unsigned char _DK_video_gamma_correction;
 #define video_gamma_correction _DK_video_gamma_correction
 
 // *** SPRITES ***
-DLLIMPORT struct TbSprite *_DK_pointer_sprites;
-#define pointer_sprites _DK_pointer_sprites
-DLLIMPORT struct TbSprite *_DK_end_pointer_sprites;
-#define end_pointer_sprites _DK_end_pointer_sprites
-DLLIMPORT unsigned long _DK_pointer_data;
-#define pointer_data _DK_pointer_data
 DLLIMPORT struct TbSprite *_DK_font_sprites;
 #define font_sprites _DK_font_sprites
 DLLIMPORT struct TbSprite *_DK_end_font_sprites;
@@ -362,6 +397,26 @@ DLLIMPORT extern long _DK_packet_left_button_double_clicked[6];
 #define packet_left_button_double_clicked _DK_packet_left_button_double_clicked
 DLLIMPORT extern long _DK_packet_left_button_click_space_count[6];
 #define packet_left_button_click_space_count _DK_packet_left_button_click_space_count
+
+DLLIMPORT extern char _DK_frontend_alliances;
+#define frontend_alliances _DK_frontend_alliances
+
+DLLIMPORT extern long _DK_torture_left_button;
+#define torture_left_button _DK_torture_left_button
+DLLIMPORT extern long _DK_torture_sprite_direction;
+#define torture_sprite_direction _DK_torture_sprite_direction
+DLLIMPORT extern long _DK_torture_end_sprite;
+#define torture_end_sprite _DK_torture_end_sprite
+DLLIMPORT extern long _DK_torture_sprite_frame;
+#define torture_sprite_frame _DK_torture_sprite_frame
+DLLIMPORT extern long _DK_torture_door_selected;
+#define torture_door_selected _DK_torture_door_selected
+DLLIMPORT extern struct DoorSoundState _DK_door_sound_state[TORTURE_DOORS_COUNT];
+#define door_sound_state _DK_door_sound_state
+DLLIMPORT extern struct DoorDesc _DK_doors[TORTURE_DOORS_COUNT];
+#define doors _DK_doors
+DLLIMPORT extern TortureState _DK_torture_state;
+#define torture_state _DK_torture_state
 
 #pragma pack()
 /******************************************************************************/
@@ -483,7 +538,6 @@ void maintain_instance(struct GuiButton *gbtn);
 void frontend_define_key_up_maintain(struct GuiButton *gbtn);
 void frontend_define_key_down_maintain(struct GuiButton *gbtn);
 void frontend_define_key_maintain(struct GuiButton *gbtn);
-void setup_gui_tooltip(struct GuiButton *gbtn);
 void gui_zoom_in(struct GuiButton *gbtn);
 void gui_zoom_out(struct GuiButton *gbtn);
 void gui_go_to_map(struct GuiButton *gbtn);
@@ -618,7 +672,8 @@ void init_video_menu(struct GuiMenu *gmnu);
 void init_audio_menu(struct GuiMenu *gmnu);
 int frontend_load_data(void);
 void frontend_draw_scroll_tab(struct GuiButton *gbtn, long a2, long a3, long a4);
-short frontend_should_all_players_quit(void);
+TbBool frontend_should_all_players_quit(void);
+long frontnet_number_of_players_in_session(void);
 void frontnet_serial_reset(void);
 void frontnet_modem_reset(void);
 void fronttorture_unload(void);
@@ -632,7 +687,6 @@ void frontstats_set_timer(void);
 void frontnet_start_input(void);
 short frontend_high_score_table_input(void);
 void fronttorture_input(void);
-void frontcredits_draw(void);
 void fronttorture_draw(void);
 void frontstats_update(void);
 void fronttorture_update(void);
@@ -811,6 +865,8 @@ void frontnet_service_up(struct GuiButton *gbtn);
 void frontnet_service_down(struct GuiButton *gbtn);
 void frontnet_service_maintain(struct GuiButton *gbtn);
 void frontnet_draw_service_button(struct GuiButton *gbtn);
+TbBool frontend_is_player_allied(long idx1, long idx2);
+void frontend_set_alliance(long idx1, long idx2);
 long menu_id_to_number(short menu_id);
 char update_menu_fade_level(struct GuiMenu *gmnu);
 void draw_menu_buttons(struct GuiMenu *gmnu);
@@ -841,6 +897,8 @@ void turn_off_all_panel_menus(void);
 void set_menu_mode(long mnu_idx);
 void frontend_update(short *finish_menu);
 short frontend_draw(void);
+int frontend_font_char_width(int fnt_idx,char c);
+int frontend_font_string_width(int fnt_idx,char *str);
 short menu_is_active(short idx);
 short a_menu_window_is_active(void);
 void turn_on_event_info_panel_if_necessary(unsigned short evnt_idx);
@@ -849,6 +907,9 @@ short game_is_busy_doing_gui(void);
 void turn_off_event_box_if_necessary(long plridx, char val);
 void set_gui_visible(short visible);
 void toggle_gui(void);
+void add_message(long plyr_idx, char *msg);
+TbBool validate_versions(void);
+void versions_different_error(void);
 void fake_button_click(long btn_idx);
 unsigned long toggle_status_menu(short visib);
 short toggle_first_person_menu(short visible);

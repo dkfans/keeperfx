@@ -110,6 +110,7 @@ struct SlabObj { // sizeof = 13
 #pragma pack()
 /******************************************************************************/
 struct SlabMap *get_slabmap_block(long slab_x, long slab_y);
+struct SlabMap *get_slabmap_for_subtile(long stl_x, long stl_y);
 TbBool slabmap_block_invalid(struct SlabMap *slb);
 long slabmap_owner(struct SlabMap *slb);
 void clear_slabs(void);

@@ -31,6 +31,7 @@ obj/packets.o \
 obj/config.o \
 obj/config_campaigns.o \
 obj/front_input.o \
+obj/front_credits.o \
 obj/front_landview.o \
 obj/player_computer.o \
 obj/player_instances.o \

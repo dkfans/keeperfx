@@ -44,9 +44,11 @@ extern struct Map bad_map_block;
 extern const long map_to_slab[];
 /******************************************************************************/
 struct Map *get_map_block(long stl_x, long stl_y);
+unsigned long get_map_flags(long stl_x, long stl_y);
 TbBool map_block_invalid(struct Map *map);
 void reveal_map_subtile(long stl_x, long stl_y, long plyr_idx);
 TbBool subtile_revealed(long stl_x, long stl_y, long plyr_idx);
+TbBool map_block_revealed(struct Map *map, long plyr_idx);
 long get_ceiling_height(struct Coord3d *pos);
 
 TbBool set_coords_to_subtile_center(struct Coord3d *pos, long x, long y, long z);

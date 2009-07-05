@@ -164,6 +164,7 @@ typedef long LevelNumber;
 typedef long MapCoord;
 typedef long MapSubtlCoord;
 typedef short MapSlabCoord;
+typedef unsigned char PlayerFlags;
 
 struct IPOINT_2D {
     int x;

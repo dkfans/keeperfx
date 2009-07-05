@@ -35,6 +35,7 @@ struct GuiBoxOption;
 #define STRINGS_MAX       1024
 #define DK_STRINGS_MAX     941
 #define INPUT_FIELD_LEN     40
+#define TOOLTIP_MAX_LEN   2048
 
 // Type definitions
 enum TbButtonType {
@@ -139,7 +140,7 @@ struct GuiButton {
        short width;
        short height;
        short field_29;
-       short field_2B;
+       short tooltip_id;
        unsigned short field_2D;
        struct GuiMenu *field_2F;
        unsigned long *field_33;
@@ -166,7 +167,7 @@ struct GuiMenu {
 
 struct ToolTipBox {
       unsigned char field_0;
-      char text[2048];
+      char text[TOOLTIP_MAX_LEN];
       struct GuiButton *gbutton;
       void *target;
       unsigned char field_809;

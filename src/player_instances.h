@@ -23,6 +23,26 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+enum PlayerInstanceNum {
+    PI_Unset        =  0,
+    PI_Grab         =  1,
+    PI_Drop         =  2,
+    PI_Whip         =  3,
+    PI_WhipEnd      =  4,
+    PI_DirctCtrl    =  5,
+    PI_PsngrCtrl    =  6,
+    PI_DirctCtLeave =  7,
+    PI_PsngrCtLeave =  8,
+    PI_QueryCrtr    =  9,
+    PI_UnqueryCrtr  = 10,
+    PI_HeartZoom    = 11,
+    PI_HeartZoomOut = 12,
+    PI_CrCtrlFade   = 13,
+    PI_MapFadeTo    = 14,
+    PI_MapFadeFrom  = 15,
+    PI_ZoomToPos    = 16,
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif

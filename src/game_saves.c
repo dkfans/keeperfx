@@ -41,8 +41,8 @@ DLLIMPORT long _DK_save_game_save_catalogue(struct CatalogueEntry *game_catalg);
 DLLIMPORT void _DK_load_game_save_catalogue(struct CatalogueEntry *game_catalg);
 DLLIMPORT long _DK_load_game(long);
 /******************************************************************************/
-const long VersionMajor = 1;
-const long VersionMinor = 12;
+long const VersionMajor = 1;
+long const VersionMinor = 12;
 
 const char *continue_game_filename="fx1contn.sav";
 const char *saved_game_filename="fx1g%04d.sav";

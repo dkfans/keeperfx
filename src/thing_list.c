@@ -32,17 +32,6 @@ extern "C" {
 DLLIMPORT void _DK_update_creatures_not_in_list(void);
 DLLIMPORT long _DK_update_things_in_list(struct StructureList *list);
 DLLIMPORT void _DK_update_things(void);
-
-int thing_to_special(const struct Thing *thing)
-{
-  if (thing_is_invalid(thing))
-    return 0;
-  if ((thing->class_id != 1) || (thing->model >= OBJECT_TYPES_COUNT))
-    return 0;
-  return object_to_special[thing->model];
-}
-
-
 /******************************************************************************/
 long creature_near_filter_not_imp(struct Thing *thing, long val)
 {
@@ -57,7 +46,6 @@ long creature_near_filter_is_enemy_of_and_not_imp(struct Thing *thing, long val)
 long creature_near_filter_is_owned_by(struct Thing *thing, long val)
 {
   struct SlabMap *slb;
-  unsigned long x,y;
   int i;
   if (thing->owner == val)
   {
@@ -69,9 +57,7 @@ long creature_near_filter_is_owned_by(struct Thing *thing, long val)
     i = thing->field_7;
   if ((i == 41) || (i == 40) || (i == 43) || (i == 42))
   {
-    x = map_to_slab[thing->mappos.x.stl.num];
-    y = map_to_slab[thing->mappos.y.stl.num];
-    slb = &game.slabmap[y*map_tiles_x + x];
+    slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if ((slb->field_5 & 0x07) == val);
       return true;
   }
@@ -582,6 +568,15 @@ short thing_exists(const struct Thing *thing)
   if (thing_is_invalid(thing))
     return false;
   return ((thing->field_0 & 0x01) != 0);
+}
+
+int thing_to_special(const struct Thing *thing)
+{
+  if (thing_is_invalid(thing))
+    return 0;
+  if ((thing->class_id != 1) || (thing->model >= OBJECT_TYPES_COUNT))
+    return 0;
+  return object_to_special[thing->model];
 }
 /******************************************************************************/
 #ifdef __cplusplus

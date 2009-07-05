@@ -608,7 +608,7 @@ short get_level_lost_inputs(void)
       inp_done = get_gui_inputs(GMnu_MAIN);
       if ( !inp_done )
       {
-        if (player->field_453 == 15)
+        if (player->work_state == 15)
         {
           set_player_instance(player, 10, 0);
         } else
@@ -1036,7 +1036,7 @@ unsigned char get_player_coords_and_context(struct Coord3d *pos, unsigned char *
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if (dungeon->field_33)
+  if (dungeon->things_in_hand[0])
   {
     *context = 3;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -1069,10 +1069,10 @@ unsigned char get_player_coords_and_context(struct Coord3d *pos, unsigned char *
     else
       *context = 0;
   }
-  if (pos->x.val > 255*255)
-    pos->x.val = 255*255;
-  if (pos->y.val > 255*255)
-    pos->y.val = 255*255;
+  if (pos->x.val > (map_subtiles_x << 8))
+    pos->x.val = (map_subtiles_x << 8);
+  if (pos->y.val > (map_subtiles_y << 8))
+    pos->y.val = (map_subtiles_y << 8);
   return true;
 }
 
@@ -1088,7 +1088,7 @@ void get_dungeon_control_nonaction_inputs(void)
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
   pckt->field_E &= 0x7FFFu;
-  if (player->field_453 == 1)
+  if (player->work_state == 1)
   {
     if (get_player_coords_and_context(&pos, &context) )
     {
@@ -1186,11 +1186,11 @@ short get_inputs(void)
   //return _DK_get_inputs();
   struct PlayerInfo *player;
   long keycode;
-#if (BFDEBUG_LEVEL > 5)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
   if ((game.flags_cd & MFlg_IsDemoMode) != 0)
   {
+  #if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting for demo mode\n",func_name);
+  #endif
     load_packets_for_turn(game.pckt_gameturn);
     game.pckt_gameturn++;
     get_packet_load_demo_inputs();
@@ -1198,12 +1198,18 @@ short get_inputs(void)
   }
   if (game.packet_load_enable)
   {
+  #if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Loading packet inputs\n",func_name);
+  #endif
     return get_packet_load_game_inputs();
   }
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   if ((player->field_0 & 0x80) != 0)
   {
     struct Packet *pckt;
+  #if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("%s: Starting for creature fade\n",func_name);
+  #endif
     pckt = &game.packets[player->packet_num%PACKETS_COUNT];
     pckt->field_A = 127;
     pckt->field_C = 127;
@@ -1217,6 +1223,9 @@ short get_inputs(void)
     }
     return false;
   }
+#if (BFDEBUG_LEVEL > 5)
+  LbSyncLog("%s: Starting\n",func_name);
+#endif
   if (gui_process_inputs())
   {
     return true;

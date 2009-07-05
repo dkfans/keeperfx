@@ -32,6 +32,7 @@
 
 #include "kjm_input.h"
 #include "front_simple.h"
+#include "front_landview.h"
 #include "frontend.h"
 #include "vidmode.h"
 #include "config.h"
@@ -191,12 +192,14 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
   struct Coord3d pos;
   MapCoord x,y;
   long i,k;
+
   //_DK_process_dungeon_control_packet_clicks(plyr_idx); return;
+
   player = &(game.players[plyr_idx%PLAYERS_COUNT]);
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
 #if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting for state %d\n",func_name,(int)player->field_453);
+    LbSyncLog("%s: Starting for state %d\n",func_name,(int)player->work_state);
 #endif
   player->field_4A4 = 1;
   packet_left_button_double_clicked[plyr_idx] = 0;
@@ -205,33 +208,33 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
 
   if ((pckt->field_E & PCtr_LBtnHeld) != 0)
   {
-    switch (player->field_453)
+    switch (player->work_state)
     {
-    case 6:
+    case KSt_CallToArms:
         if (dungeon->field_884)
           player->field_4D2 = (dungeon->field_883 << 2);
         else
           update_spell_overcharge(player, 6);
         break;
-    case 7:
+    case KSt_CaveIn:
         update_spell_overcharge(player, 7);
         break;
-    case 8:
+    case KSt_SightOfEvil:
         update_spell_overcharge(player, 5);
         break;
-    case 17:
+    case KSt_Lightning:
         update_spell_overcharge(player, 10);
         break;
-    case 19:
+    case KSt_SpeedUp:
         update_spell_overcharge(player, 11);
         break;
-    case 20:
+    case KSt_Armour:
         update_spell_overcharge(player, 12);
         break;
-    case 21:
+    case KSt_Conceal:
         update_spell_overcharge(player, 13);
         break;
-    case 22:
+    case KSt_Heal:
         update_spell_overcharge(player, 8);
         break;
     default:
@@ -252,14 +255,14 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
     player->field_4D6 = 0;
   }
   update_double_click_detection(plyr_idx);
-  player->field_35 = 0;
+  player->thing_under_hand = 0;
   x = ((unsigned short)pckt->field_A);
   y = ((unsigned short)pckt->field_C);
   stl_x = (x >> 8);
   stl_y = (y >> 8);
   val172 = false;
 
-  switch (player->field_453)
+  switch (player->work_state)
   {
   case 1:
       val172 = 1;
@@ -284,9 +287,9 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if (player->field_43A == 0)
             create_power_hand(player->field_2B);
-          player->field_35 = thing->field_1B;
+          player->thing_under_hand = thing->field_1B;
         }
-        thing = thing_get(dungeon->field_33);
+        thing = get_first_thing_in_power_hand(player);
         if (!thing_is_invalid(thing))
         {
           if (player->field_43A == 0)
@@ -307,8 +310,8 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
           if ((player->instance_num != 1) && (player->instance_num != 2) &&
               (player->instance_num != 3) && (player->instance_num != 4))
           {
-            thing = thing_get(dungeon->field_33);
-            if ((player->field_35 != 0) || thing_is_invalid(thing))
+            thing = get_first_thing_in_power_hand(player);
+            if ((player->thing_under_hand != 0) || thing_is_invalid(thing))
             {
               set_power_hand_graphic(plyr_idx, 782, 256);
               if (!thing_is_invalid(thing))
@@ -357,7 +360,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
             }
             break;
           case 3:
-            if (player->field_35 == 0)
+            if (player->thing_under_hand == 0)
             {
               i = get_subtile_number(slab_center_subtile(player->field_4AB),slab_center_subtile(player->field_4AD));
               set_flag_byte(&player->field_0, 0x20, find_from_task_list(plyr_idx,i) != -1);
@@ -436,27 +439,27 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
           player->field_455 = player->field_454;
         if (player->field_4AF != 0)
         {
-          if ((player->field_35 != 0) && (player->field_4 != 0)
-            && (dungeon->field_33 != player->field_35)
-            && can_thing_be_possessed(thing_get(player->field_35), plyr_idx) )
+          if ((player->thing_under_hand != 0) && (player->field_4 != 0)
+            && (dungeon->things_in_hand[0] != player->thing_under_hand)
+            && can_thing_be_possessed(thing_get(player->thing_under_hand), plyr_idx) )
           {
-            player->field_43E = player->field_35;
+            player->field_43E = player->thing_under_hand;
             set_player_state(player, 11, 0);
             set_player_instance(player, 5, 0);
             unset_packet_control(pckt, PCtr_LBtnRelease);
           } else
-          if ((player->field_35 != 0) && (player->field_5 != 0)
-            && (dungeon->field_33 != player->field_35)
-            && can_thing_be_queried(thing_get(player->field_35), plyr_idx) )
+          if ((player->thing_under_hand != 0) && (player->field_5 != 0)
+            && (dungeon->things_in_hand[0] != player->thing_under_hand)
+            && can_thing_be_queried(thing_get(player->thing_under_hand), plyr_idx) )
           {
-            if (player->field_35 != player->field_2F)
+            if (player->thing_under_hand != player->field_2F)
             {
               if (is_my_player(player))
               {
                 turn_off_all_panel_menus();
                 turn_on_menu(31);
               }
-              player->field_43E = player->field_35;
+              player->field_43E = player->thing_under_hand;
               set_player_state(player, 12, 0);
               set_player_instance(player, 9, 0);
             }
@@ -481,7 +484,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
             } else
             if (player->field_454 == 3)
             {
-              if (player->field_35 != 0)
+              if (player->thing_under_hand != 0)
                 magic_use_power_hand(plyr_idx, stl_x, stl_y, 0);
             }
           }
@@ -495,7 +498,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       {
         if (player->field_4AF != 0)
         {
-          if (dungeon->field_33 != 0)
+          if (!power_hand_is_empty(player))
           {
             if (dump_held_things_on_map(player->field_2B, stl_x, stl_y, 1))
             {
@@ -597,13 +600,13 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case 4:
+  case KSt_PutHero:
       if (((pckt->field_E & PCtr_LBtnRelease) == 0) || ((pckt->field_E & PCtr_MapCoordsValid) == 0))
         break;
       create_random_hero_creature(x, y, game.field_14E496, CREATURE_MAX_LEVEL);
       unset_packet_control(pckt, PCtr_LBtnRelease);
       break;
-  case 6:
+  case KSt_CallToArms:
       if (((pckt->field_E & PCtr_LBtnRelease) != 0) && ((pckt->field_E & PCtr_MapCoordsValid) != 0))
       {
         i = get_spell_overcharge_level(player);
@@ -611,7 +614,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case 7:
+  case KSt_CaveIn:
       if (((pckt->field_E & PCtr_LBtnRelease) != 0) && ((pckt->field_E & PCtr_MapCoordsValid) != 0))
       {
         i = get_spell_overcharge_level(player);
@@ -619,7 +622,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case 8:
+  case KSt_SightOfEvil:
       if (((pckt->field_E & PCtr_LBtnRelease) != 0) && ((pckt->field_E & PCtr_MapCoordsValid) != 0))
       {
         i = get_spell_overcharge_level(player);
@@ -627,13 +630,13 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case 9:
+  case KSt_Slap:
       val172 = 1;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
-        player->field_35 = 0;
+        player->thing_under_hand = 0;
       else
-        player->field_35 = thing->field_1B;
+        player->thing_under_hand = thing->field_1B;
       if (((pckt->field_E & PCtr_LBtnRelease) != 0) && ((pckt->field_E & PCtr_MapCoordsValid) != 0))
       {
         magic_use_power_slap(plyr_idx, stl_x, stl_y);
@@ -644,15 +647,15 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       val172 = 1;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
-        player->field_35 = 0;
+        player->thing_under_hand = 0;
       else
-        player->field_35 = thing->field_1B;
+        player->thing_under_hand = thing->field_1B;
 
       if ((pckt->field_E & PCtr_LBtnRelease) != 0)
       {
-        if (player->field_35 > 0)
+        if (player->thing_under_hand > 0)
         {
-          player->field_43E = player->field_35;
+          player->field_43E = player->thing_under_hand;
           set_player_instance(player, 6, 0);
           unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -670,14 +673,14 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       val172 = 1;
       thing = get_creature_near_for_controlling(plyr_idx, x, y);
       if (thing_is_invalid(thing))
-        player->field_35 = 0;
+        player->thing_under_hand = 0;
       else
-        player->field_35 = thing->field_1B;
+        player->thing_under_hand = thing->field_1B;
       if ((pckt->field_E & PCtr_LBtnRelease) != 0)
       {
-        if (player->field_35 > 0)
+        if (player->thing_under_hand > 0)
         {
-          player->field_43E = player->field_35;
+          player->field_43E = player->thing_under_hand;
           set_player_instance(player, 5, 0);
           unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -696,14 +699,14 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       val172 = 1;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
-        player->field_35 = 0;
+        player->thing_under_hand = 0;
       else
-        player->field_35 = thing->field_1B;
+        player->thing_under_hand = thing->field_1B;
       if ((pckt->field_E & PCtr_LBtnRelease) != 0)
       {
-        if (player->field_35 > 0)
+        if (player->thing_under_hand > 0)
         {
-          if (player->field_2F != player->field_35)
+          if (player->field_2F != player->thing_under_hand)
           {
             if (is_my_player(player))
             {
@@ -711,13 +714,13 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
               initialise_tab_tags_and_menu(31);
               turn_on_menu(31);
             }
-            player->field_43E = player->field_35;
+            player->field_43E = player->thing_under_hand;
             set_player_instance(player, 9, 0);
           }
           unset_packet_control(pckt, PCtr_LBtnRelease);
         }
       }
-      if (player->field_453 == 15)
+      if (player->work_state == 15)
       {
         thing = thing_get(player->field_2F);
         if ((pckt->field_E & PCtr_RBtnRelease) != 0)
@@ -745,9 +748,9 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       val172 = 1;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
-        player->field_35 = 0;
+        player->thing_under_hand = 0;
       else
-        player->field_35 = thing->field_1B;
+        player->thing_under_hand = thing->field_1B;
       if ((pckt->field_E & PCtr_LBtnRelease) != 0)
       {
         if ((player->field_2F > 0) && (player->field_2F < THINGS_COUNT))
@@ -784,7 +787,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_RBtnRelease);
       }
       break;
-  case 14:
+  case KSt_PutCreature:
       if (((pckt->field_E & PCtr_LBtnRelease) == 0) || ((pckt->field_E & PCtr_MapCoordsValid) == 0))
         break;
       create_random_evil_creature(x, y, plyr_idx, CREATURE_MAX_LEVEL);
@@ -837,8 +840,8 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       unset_packet_control(pckt, PCtr_LBtnClick);
       break;
-  case 17:
-      player->field_35 = 0;
+  case KSt_Lightning:
+      player->thing_under_hand = 0;
       if (((pckt->field_E & PCtr_LBtnRelease) != 0) && ((pckt->field_E & PCtr_MapCoordsValid) != 0))
       {
         i = get_spell_overcharge_level(player);
@@ -846,13 +849,14 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case 18:
+  case KSt_PlaceDoor:
       if ((pckt->field_E & PCtr_MapCoordsValid) != 0)
       {
         player->field_4A4 = 1;
+        // Make the frame around active slab
+        i = tag_cursor_blocks_place_door(player->field_2B, stl_x, stl_y);
         if ((pckt->field_E & PCtr_LBtnClick) != 0)
         {
-          i = tag_cursor_blocks_place_door(player->field_2B, stl_x, stl_y);
           k = map_tiles_x * map_to_slab[stl_y] + map_to_slab[stl_x];
           delete_room_slabbed_objects(k);
           packet_place_door(stl_x, stl_y, player->field_2B, player->field_4A6, i);
@@ -861,22 +865,22 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       if ((pckt->field_E & PCtr_LBtnRelease) != 0)
       {
-        if ( player->field_4AF )
+        if (player->field_4AF != 0)
         {
           player->field_4AF = 0;
           unset_packet_control(pckt, PCtr_LBtnRelease);
         }
       }
       break;
-  case 19:
+  case KSt_SpeedUp:
       val172 = true;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
       {
-        player->field_35 = 0;
+        player->thing_under_hand = 0;
         break;
       }
-      player->field_35 = thing->field_1B;
+      player->thing_under_hand = thing->field_1B;
       if ((pckt->field_E & PCtr_LBtnRelease) != 0)
       {
         i = get_spell_overcharge_level(player);
@@ -884,15 +888,15 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case 20:
+  case KSt_Armour:
       val172 = true;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
       {
-        player->field_35 = 0;
+        player->thing_under_hand = 0;
         break;
       }
-      player->field_35 = thing->field_1B;
+      player->thing_under_hand = thing->field_1B;
       if ((pckt->field_E & PCtr_LBtnRelease) != 0)
       {
         i = get_spell_overcharge_level(player);
@@ -900,15 +904,15 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case 21:
+  case KSt_Conceal:
       val172 = true;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
       {
-        player->field_35 = 0;
+        player->thing_under_hand = 0;
         break;
       }
-      player->field_35 = thing->field_1B;
+      player->thing_under_hand = thing->field_1B;
       if ((pckt->field_E & PCtr_LBtnRelease) != 0)
       {
         i = get_spell_overcharge_level(player);
@@ -916,15 +920,15 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case 22:
+  case KSt_Heal:
       val172 = true;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
       {
-        player->field_35 = 0;
+        player->thing_under_hand = 0;
         break;
       }
-      player->field_35 = thing->field_1B;
+      player->thing_under_hand = thing->field_1B;
       if ((pckt->field_E & PCtr_LBtnRelease) != 0)
       {
         i = get_spell_overcharge_level(player);
@@ -932,7 +936,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case 23:
+  case KSt_Sell:
       if ((pckt->field_E & PCtr_MapCoordsValid) == 0)
       {
         if (((pckt->field_E & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
@@ -961,7 +965,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         break;
       }
       i = 0;
-      slb = &game.slabmap[map_to_slab[stl_y]*map_tiles_x + map_to_slab[stl_x]];
+      slb = get_slabmap_for_subtile(stl_x, stl_y);
       map = get_map_block(stl_x,stl_y);
       if ((slb->field_5 & 7) == plyr_idx)
       {
@@ -1029,14 +1033,14 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       unset_packet_control(pckt, PCtr_LBtnClick);
       break;
-  case 24:
+  case KSt_CreateImp:
       if (((pckt->field_E & PCtr_LBtnRelease) != 0) && ((pckt->field_E & PCtr_MapCoordsValid) != 0))
       {
         magic_use_power_imp(plyr_idx, stl_x, stl_y);
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case 25:
+  case KSt_DestroyWalls:
       if (((pckt->field_E & PCtr_LBtnRelease) != 0) && ((pckt->field_E & PCtr_MapCoordsValid) != 0))
       {
         i = get_spell_overcharge_level(player);
@@ -1044,14 +1048,14 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case 26:
+  case KSt_Disease:
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_enemy_of_and_not_imp, plyr_idx);
       if (thing_is_invalid(thing))
       {
-        player->field_35 = 0;
+        player->thing_under_hand = 0;
         break;
       }
-      player->field_35 = thing->field_1B;
+      player->thing_under_hand = thing->field_1B;
       if ((pckt->field_E & PCtr_LBtnRelease) != 0)
       {
         i = get_spell_overcharge_level(player);
@@ -1059,15 +1063,15 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case 27:
+  case KSt_TurnChicken:
       val172 = true;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_not_imp, plyr_idx);
       if (thing_is_invalid(thing))
       {
-        player->field_35 = 0;
+        player->thing_under_hand = 0;
         break;
       }
-      player->field_35 = thing->field_1B;
+      player->thing_under_hand = thing->field_1B;
       if ((pckt->field_E & PCtr_LBtnRelease) != 0)
       {
         i = get_spell_overcharge_level(player);
@@ -1083,13 +1087,13 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
   y = ((unsigned short)pckt->field_C);
   stl_x = x/(map_subtiles_x+1);
   stl_y = y/(map_subtiles_y+1);
-  if (!player->field_35)
+  if (player->thing_under_hand == 0)
   {
     if ((x != 0) && (y == 0))  // what this condition is supposed to mean!?
     {
       thing = get_queryable_object_near(x, y, plyr_idx);
       if (!thing_is_invalid(thing))
-        player->field_35 = thing->field_1B;
+        player->thing_under_hand = thing->field_1B;
     }
   }
   if (((pckt->field_E & 0x0C00) != 0) && (val172))
@@ -1648,42 +1652,42 @@ char process_players_global_packet_action(long plyridx)
       process_pause_packet(pckt->field_6, pckt->field_8);
       return 1;
     case 83:
-      if (player->field_453 == 15)
+      if (player->work_state == 15)
         turn_off_query(plyridx);
       event_move_player_towards_event(player, pckt->field_6);
       return 0;
     case 84:
-      if (player->field_453 == 15)
+      if (player->work_state == 15)
         turn_off_query(plyridx);
       room = &game.rooms[pckt->field_6];
       player->field_E4 = room->field_8 << 8;
       player->field_E6 = room->field_9 << 8;
       set_player_instance(player, 16, 0);
-      if (player->field_453 == 2)
+      if (player->work_state == 2)
         set_player_state(player, 2, room->kind);
       return 0;
     case 85:
-      if (player->field_453 == 15)
+      if (player->work_state == 15)
         turn_off_query(plyridx);
       thing = thing_get(pckt->field_6);
       player->field_E4 = thing->mappos.x.val;
       player->field_E6 = thing->mappos.y.val;
       set_player_instance(player, 16, 0);
-      if ((player->field_453 == 16) || (player->field_453 == 18))
+      if ((player->work_state == 16) || (player->work_state == 18))
         set_player_state(player, 16, thing->model);
       return 0;
     case 86:
-      if (player->field_453 == 15)
+      if (player->work_state == 15)
         turn_off_query(plyridx);
       thing = thing_get(pckt->field_6);
       player->field_E4 = thing->mappos.x.val;
       player->field_E6 = thing->mappos.y.val;
       set_player_instance(player, 16, 0);
-      if ((player->field_453 == 16) || (player->field_453 == 18))
+      if ((player->work_state == 16) || (player->work_state == 18))
         set_player_state(player, 18, thing->model);
       return 0;
     case 87:
-      if (player->field_453 == 15)
+      if (player->work_state == 15)
         turn_off_query(plyridx);
       player->field_E4 = pckt->field_6;
       player->field_E6 = pckt->field_8;
@@ -1721,12 +1725,12 @@ char process_players_global_packet_action(long plyridx)
       turn_off_query(plyridx);
       return 0;
     case 104:
-      if (player->field_453 == 15)
+      if (player->work_state == 15)
         turn_off_query(plyridx);
       battle_move_player_towards_battle(player, pckt->field_6);
       return 0;
     case 106:
-      if (player->field_453 == 15)
+      if (player->work_state == 15)
         turn_off_query(plyridx);
       dungeon = &(game.dungeon[plyridx]);
       switch (pckt->field_6)
@@ -1754,7 +1758,7 @@ char process_players_global_packet_action(long plyridx)
       {
         for (i=0; i<21; i++)
         {
-          if (spell_data[i].field_4 == player->field_453)
+          if (spell_data[i].field_4 == player->work_state)
           {
             set_player_state(player, spell_data[pckt->field_6].field_4, 0);
             break;
@@ -1775,8 +1779,7 @@ char process_players_global_packet_action(long plyridx)
     case 111:
       if (game.dungeon[plyridx].field_63)
       {
-        i = game.dungeon[plyridx].field_33;
-        thing = thing_get(i);
+        thing = get_first_thing_in_power_hand(player);
         dump_held_things_on_map(plyridx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 1);
       }
       return 0;
@@ -2101,7 +2104,7 @@ void process_packets(void)
   // Exchange packets with the network
   if (game.flagfield_14EA4A != 2)
   {
-    player=&(game.players[my_player_number%PLAYERS_COUNT]);
+    player = &(game.players[my_player_number%PLAYERS_COUNT]);
     j=0;
     for (i=0; i<4; i++)
     {
@@ -2182,7 +2185,154 @@ void process_packets(void)
 #endif
 }
 
-
+void process_frontend_packets(void)
+{
+  static const char *func_name="process_frontend_packets";
+  struct ScreenPacket *nspckt;
+  struct PlayerInfo *player;
+  long i,k;
+  unsigned short c;
+  for (i=0; i < NET_PLAYERS_COUNT; i++)
+  {
+    net_screen_packet[i].field_4 &= 0xFE;
+  }
+  nspckt = &net_screen_packet[my_player_number];
+  set_flag_byte(&nspckt->field_4, 0x01, true);
+  nspckt->field_5 = frontend_alliances;
+  set_flag_byte(&nspckt->field_4, 0x01, true);
+  nspckt->field_4 ^= (nspckt->field_4 ^ (fe_computer_players << 1) & 0x06);
+  nspckt->field_6 = VersionMajor;
+  nspckt->field_8 = VersionMinor;
+  if (LbNetwork_Exchange(nspckt))
+    error(func_name, 2559, "LbNetwork_Exchange failed");
+  if (frontend_should_all_players_quit())
+  {
+    i = frontnet_number_of_players_in_session();
+    if (players_currently_in_session < i)
+    {
+      players_currently_in_session = i;
+    }
+    if (players_currently_in_session > i)
+    {
+      if (frontend_menu_state == 5)
+      {
+        if (LbNetwork_Stop())
+        {
+          error(func_name, 2584, "LbNetwork_Stop() failed");
+          return;
+        }
+        frontend_set_state(1);
+      } else
+      if (frontend_menu_state == 6)
+      {
+        if (LbNetwork_Stop())
+        {
+          error(func_name, 2593, "LbNetwork_Stop() failed");
+          return;
+        }
+        if (setup_network_service(net_service_index_selected))
+        {
+          frontend_set_state(5);
+        } else
+        {
+          frontend_set_state(1);
+        }
+      }
+    }
+  }
+  for (i=0; i < NET_PLAYERS_COUNT; i++)
+  {
+    nspckt = &net_screen_packet[i];
+    player = &(game.players[i]);
+    if ((nspckt->field_4 & 0x01) != 0)
+    {
+      switch (nspckt->field_4 >> 3)
+      {
+      case 2:
+        add_message(i, (char *)&nspckt->field_A);
+        break;
+      case 3:
+        if (!validate_versions())
+        {
+          versions_different_error();
+          break;
+        }
+        fe_network_active = 1;
+        frontend_set_state(24);
+        break;
+      case 4:
+        frontend_set_alliance(nspckt->field_A, nspckt->field_B);
+        break;
+      case 7:
+        fe_computer_players = nspckt->field_A;
+        break;
+      case 8:
+        k = strlen(player->strfield_463);
+        if (nspckt->field_A == KC_BACK)
+        {
+          if (k > 0)
+          {
+            k--;
+            player->strfield_463[k] = '\0';
+          }
+        } else
+        if (nspckt->field_A == KC_RETURN)
+        {
+          if (k > 0)
+          {
+            add_message(i, player->strfield_463);
+            k = 0;
+            player->strfield_463[k] = '\0';
+          }
+        } else
+        {
+          c = key_to_ascii(nspckt->field_A, nspckt->field_B);
+          if ((c != 0) && (frontend_font_char_width(1,c) > 1) && (k < 62))
+          {
+            player->strfield_463[k] = c;
+            k++;
+            player->strfield_463[k] = '\0';
+          }
+        }
+        if (frontend_font_string_width(1,player->strfield_463) >= 420)
+        {
+          if (k > 0)
+          {
+            k--;
+            player->strfield_463[k] = '\0';
+          }
+        }
+        break;
+      default:
+        break;
+      }
+      if (frontend_alliances == -1)
+      {
+        if (nspckt->field_5 != -1)
+          frontend_alliances = nspckt->field_5;
+      }
+      if (fe_computer_players == 2)
+      {
+        k = ((nspckt->field_4 & 0x06) >> 1);
+        if (k != 2)
+          fe_computer_players = k;
+      }
+      player->field_4E7 = nspckt->field_8 + (nspckt->field_6 << 8);
+    }
+    nspckt->field_4 &= 0x07;
+  }
+  if (frontend_alliances == -1)
+    frontend_alliances = 0;
+  for (i=0; i < NET_PLAYERS_COUNT; i++)
+  {
+    nspckt = &net_screen_packet[i];
+    if ((nspckt->field_4 & 0x01) == 0)
+    {
+      if (frontend_is_player_allied(my_player_number, i))
+        frontend_set_alliance(my_player_number, i);
+    }
+  }
+}
 
 /******************************************************************************/
 #ifdef __cplusplus

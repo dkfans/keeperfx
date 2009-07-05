@@ -44,6 +44,7 @@
 #define PLAYERS_COUNT           5
 #define PLAYERS_EXT_COUNT       6
 #define NET_PLAYERS_COUNT       4
+#define NET_SERVICES_COUNT     16
 #define PACKETS_COUNT           5
 #define THINGS_COUNT         2048
 #define COLUMNS_COUNT        2048
@@ -73,11 +74,13 @@
 #define SCRIPT_FLAGS_COUNT      8
 #define DUNGEON_RESEARCH_COUNT 34
 #define KEEPER_SPELLS_COUNT    18
+#define SPELL_POINTER_GROUPS   14
 #define SLABSET_COUNT        1304
 #define SLABOBJS_COUNT        512
 #define MAPTASKS_COUNT        300
-#define BONUS_LEVEL_STORAGE_COUNT     6
+#define BONUS_LEVEL_STORAGE_COUNT 6
 #define BOOKMARKS_COUNT         5
+#define MAX_THINGS_IN_HAND      8
 // Amount of instances; it's 17, 18 or 19
 #define PLAYER_INSTANCES_COUNT 19
 #define PLAYER_STATES_COUNT    32
@@ -142,10 +145,25 @@ enum ModeFlags {
     MFlg_NoMusic            =  0x10,
 };
 
-enum KeeperSpellTypes {
-    KSp_NONE                =   0,
-    KSp_CallToArms          =   6,
-    KSp_SightOfEvil         =   8,
+enum KeeperStateTypes {
+    KSt_NONE                =   0,
+    KSt_PutHero             =   4,
+    KSt_CallToArms          =   6,
+    KSt_CaveIn              =   7,
+    KSt_SightOfEvil         =   8,
+    KSt_Slap                =   9,
+    KSt_PutCreature         =  14,
+    KSt_Lightning           =  17,
+    KSt_PlaceDoor           =  18,
+    KSt_SpeedUp             =  19,
+    KSt_Armour              =  20,
+    KSt_Conceal             =  21,
+    KSt_Heal                =  22,
+    KSt_Sell                =  23,
+    KSt_CreateImp           =  24,
+    KSt_DestroyWalls        =  25,
+    KSt_Disease             =  26,
+    KSt_TurnChicken         =  27,
 };
 
 #pragma pack(1)
@@ -235,11 +253,6 @@ struct StartupParameters {
     unsigned char packet_load_enable;
     char packet_fname[150];
     unsigned char packet_checksum;
-};
-
-struct NetMessage {
-unsigned char field_0;
-char field_1[64];
 };
 
 struct GuiMessage { // sizeof = 0x45 (69)
@@ -724,7 +737,7 @@ struct PartyTrigger { // sizeof = 13
 struct ScriptValue { // sizeof = 16
   unsigned char flags;
   char condit_idx;
-  unsigned char field_2;
+  unsigned char valtype;
   unsigned char field_3;
   long field_4;
   long field_8;
@@ -769,7 +782,7 @@ struct PlayerInfo {
     unsigned char field_6;
     unsigned char *field_7;
     unsigned char packet_num; // index of packet slot associated with this player
-unsigned char field_C[4];
+    long field_C;
 unsigned int field_10;
 unsigned char field_14;
     char field_15[20]; //size may be shorter
@@ -780,7 +793,7 @@ unsigned char field_14;
     unsigned char field_2D[2];
     short field_2F;
     long field_31;
-    short field_35;
+    short thing_under_hand;
     unsigned char field_37;
     struct Camera *acamera;  // Pointer to the currently active camera
     struct Camera cameras[4];
@@ -801,7 +814,7 @@ char field_43C[2];
     short mouse_y;
     unsigned short minimap_zoom;
     unsigned char view_type;
-    unsigned char field_453;
+    unsigned char work_state;
     unsigned char field_454;
     unsigned char field_455;
     unsigned char field_456;
@@ -849,10 +862,7 @@ struct Dungeon {
     short field_2D;
     short field_2F;
     short field_31;
-    unsigned int field_33;  // originally short, but with 2b padding
-    int field_37;
-    int field_3B;
-    int field_3F;
+    short things_in_hand[MAX_THINGS_IN_HAND];
     short field_43;
     int field_45;
     int field_49;
@@ -1260,9 +1270,9 @@ char *field_18;
 };
 
 struct ConfigInfo { // sizeof = 130
-  unsigned char numfield_0;
+  char numfield_0;
   unsigned char numfield_1[8];
-  unsigned char numfield_9;
+  char numfield_9;
   char str_atz[20];
   char str_atdt[20];
   char str_ath[20];
@@ -1286,26 +1296,6 @@ struct TbNetworkSessionNameEntry {
   unsigned long field_0;
   unsigned long field_4;
   char field_8[8];
-};
-
-struct TbNetworkPlayerInfo {
-char field_0[32];
-long field_20;
-};
-
-struct TbNetworkCallbackData {
-char field_0[20];
-};
-
-struct SerialInitData {
-long field_0;
-    long numfield_4;
-    long field_8;
-long field_C;
-    char *str_phone;
-    char *str_dial;
-    char *str_hang;
-    char *str_answr;
 };
 
 struct ClientDataEntry {
@@ -1341,6 +1331,8 @@ DLLIMPORT extern unsigned char *_DK_blue_palette;
 #define blue_palette _DK_blue_palette
 DLLIMPORT extern struct TbLoadFiles _DK_game_load_files[];
 #define game_load_files _DK_game_load_files
+DLLIMPORT extern struct TbLoadFiles _DK_swipe_load_file[];
+#define swipe_load_file _DK_swipe_load_file
 DLLIMPORT extern struct GameSettings _DK_settings;
 #define settings _DK_settings
 DLLIMPORT extern unsigned char _DK_exit_keeper;
@@ -1359,8 +1351,6 @@ DLLIMPORT extern long _DK_last_mouse_x;
 #define last_mouse_x _DK_last_mouse_x
 DLLIMPORT extern long _DK_last_mouse_y;
 #define last_mouse_y _DK_last_mouse_y
-DLLIMPORT extern int _DK_credits_end;
-#define credits_end _DK_credits_end
 DLLIMPORT extern long _DK_frontstory_text_no;
 #define frontstory_text_no _DK_frontstory_text_no
 DLLIMPORT extern int _DK_FatalError;
@@ -1459,8 +1449,6 @@ DLLIMPORT extern long _DK_top_pointed_at_frac_x;
 #define top_pointed_at_frac_x _DK_top_pointed_at_frac_x
 DLLIMPORT extern long _DK_top_pointed_at_frac_y;
 #define top_pointed_at_frac_y _DK_top_pointed_at_frac_y
-DLLIMPORT struct ScreenPacket _DK_net_screen_packet;
-#define net_screen_packet _DK_net_screen_packet
 DLLIMPORT struct _GUID _DK_net_guid;
 #define net_guid _DK_net_guid
 DLLIMPORT struct TbNetworkPlayerInfo _DK_net_player_info[NET_PLAYERS_COUNT];
@@ -1560,8 +1548,6 @@ DLLIMPORT char _DK_level_name[88];
 #define level_name _DK_level_name
 DLLIMPORT unsigned char *_DK_hires_parchment;
 #define hires_parchment _DK_hires_parchment
-DLLIMPORT struct NetMessage _DK_net_message[8];
-#define net_message _DK_net_message
 DLLIMPORT int _DK_fe_computer_players;
 #define fe_computer_players _DK_fe_computer_players
 DLLIMPORT long _DK_resurrect_creature_scroll_offset;
@@ -1892,6 +1878,8 @@ unsigned long object_is_pickable_by_hand(struct Thing *thing, long a2);
 void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing);
 struct Thing *process_object_being_picked_up(struct Thing *thing, long a2);
 void set_power_hand_graphic(long a1, long a2, long a3);
+TbBool power_hand_is_empty(struct PlayerInfo *player);
+struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player);
 long dump_thing_in_power_hand(struct Thing *thing, long a2);
 unsigned long get_creature_anim(struct Thing *thing, unsigned short frame);
 void place_thing_in_limbo(struct Thing *thing);
@@ -2095,6 +2083,8 @@ long battle_move_player_towards_battle(struct PlayerInfo *player, long var);
 void  toggle_ally_with_player(long plyridx, unsigned int allyidx);
 void magic_use_power_armageddon(unsigned int plridx);
 short winning_player_quitting(struct PlayerInfo *player, long *plyr_count);
+TbBool move_campaign_to_next_level(void);
+TbBool move_campaign_to_prev_level(void);
 short lose_level(struct PlayerInfo *player);
 short resign_level(struct PlayerInfo *player);
 short complete_level(struct PlayerInfo *player);

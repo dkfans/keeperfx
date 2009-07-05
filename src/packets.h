@@ -86,7 +86,6 @@ unsigned int field_8;
 #pragma pack()
 
 /******************************************************************************/
-
 /******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
 void set_packet_control(struct Packet *pckt, unsigned long flag);

@@ -63,6 +63,15 @@ TbBool map_block_invalid(struct Map *map)
   return (map < &game.map[0]);
 }
 
+unsigned long get_map_flags(long stl_x, long stl_y)
+{
+  if ((stl_x < 0) || (stl_x > map_subtiles_x))
+      return 0;
+  if ((stl_y < 0) || (stl_y > map_subtiles_y))
+      return 0;
+  return game.mapflags[get_subtile_number(stl_x,stl_y)];
+}
+
 long get_ceiling_height(struct Coord3d *pos)
 {
   long i;
@@ -87,6 +96,19 @@ TbBool subtile_revealed(long stl_x, long stl_y, long plyr_idx)
   struct Map *map;
   nflag = (1 << plyr_idx);
   map = get_map_block(stl_x, stl_y);
+  if (map_block_invalid(map))
+    return false;
+  if ((map->data >> 28) & nflag)
+    return true;
+  return false;
+}
+
+TbBool map_block_revealed(struct Map *map, long plyr_idx)
+{
+  unsigned short nflag;
+  nflag = (1 << plyr_idx);
+  if (map_block_invalid(map))
+    return false;
   if ((map->data >> 28) & nflag)
     return true;
   return false;

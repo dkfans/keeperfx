@@ -54,6 +54,16 @@ struct MapLevelInfo { // sizeof = 56
   unsigned char field_37;
 };
 
+struct ScreenPacket { // sizeof = 12
+  unsigned char field_0[4];
+  unsigned char field_4;
+  char field_5;
+  short field_6;
+  short field_8;
+  unsigned char field_A;
+  unsigned char field_B;
+};
+
 /******************************************************************************/
 DLLIMPORT extern TbClockMSec _DK_play_desc_speech_time;
 #define play_desc_speech_time _DK_play_desc_speech_time
@@ -71,6 +81,16 @@ DLLIMPORT extern unsigned long _DK_end_map_font_data;
 #define end_map_font_data _DK_end_map_font_data
 DLLIMPORT extern unsigned long _DK_map_hand_data;
 #define map_hand_data _DK_map_hand_data
+DLLIMPORT extern struct TbSetupSprite _DK_netmap_flag_setup_sprites[];
+#define netmap_flag_setup_sprites _DK_netmap_flag_setup_sprites
+DLLIMPORT extern long _DK_fe_net_level_selected;
+#define fe_net_level_selected _DK_fe_net_level_selected
+DLLIMPORT extern long _DK_net_map_limp_time;
+#define net_map_limp_time _DK_net_map_limp_time
+DLLIMPORT extern struct ScreenPacket _DK_net_screen_packet[4];
+#define net_screen_packet _DK_net_screen_packet
+DLLIMPORT extern long _DK_players_currently_in_session;
+#define players_currently_in_session _DK_players_currently_in_session
 DLLIMPORT extern unsigned long _DK_end_map_hand_data;
 #define end_map_hand_data _DK_end_map_hand_data
 DLLIMPORT extern struct TbSprite *_DK_map_flag;
@@ -115,6 +135,7 @@ void frontmap_unload(void);
 long frontmap_update(void);
 void frontzoom_to_point(long a1, long a2, long a3);
 void compressed_window_draw(void);
+void frontnet_init_level_descriptions(void);
 
 short play_current_description_speech(short play_good);
 short play_description_speech(LevelNumber lvnum, short play_good);
