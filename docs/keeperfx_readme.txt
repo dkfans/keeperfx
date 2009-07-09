@@ -219,6 +219,14 @@ New and modified level script commands:
 
 Changelog:
 
+Version: 0.3.0
+  Fixed Hand Of Evil support code
+  Added range to 'REVEAL_MAP_LOCATION'
+  Campaign files improved (file locations, options)
+  Some more unification in accessing array elements
+  Rewritten some network support functions
+  Rewritten credits screen, added credits file
+
 Version: 0.2.9
   Added new script command, 'REVEAL_MAP_RECT'
   Added new script command, 'REVEAL_MAP_LOCATION'
