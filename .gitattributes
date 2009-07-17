@@ -1,1 +1,9 @@
-﻿*.map text
+﻿# Autodetect text files
+* text=auto
+
+# Detection overriding patterns
+*.map text
+*.cfg text
+*.c text
+*.cpp text
+*.h text
