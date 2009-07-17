@@ -197,11 +197,11 @@ int LbSpriteDraw(long x, long y, struct TbSprite *spr);
 int LbSpriteDrawRemap(long x, long y, struct TbSprite *spr,unsigned char *map);
 void __fastcall setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
         unsigned int line_len, unsigned int width, unsigned int height);
+int LbSpriteDrawOneColour(long x, long y, struct TbSprite *spr, TbPixel colour);
 /*
 int __fastcall LbDrawBoxCoords(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour);
 
 int __fastcall LbSpriteDrawScaled(long xpos, long ypos, struct TbSprite *sprite, long dest_width, long dest_height);
-int __fastcall LbSpriteDrawOneColour(long x, long y, struct TbSprite *spr, TbPixel colour);
 char __fastcall LbDrawLine(long x1, long y1, long x2, long y2, TbPixel colour);
 void __fastcall LbDrawTriangle(long x1, long y1, long x2, long y2, long x3, long y3, TbPixel colour);
 */

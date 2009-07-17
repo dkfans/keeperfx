@@ -49,7 +49,22 @@ DLLIMPORT long _DK_S3DSetMaximumSoundDistance(long nDistance);
 
 long get_best_sound_heap_size(long mem_size)
 {
-  return _DK_get_best_sound_heap_size(mem_size);
+  static const char *func_name="get_best_sound_heap_size";
+  //return _DK_get_best_sound_heap_size(mem_size);
+  if (mem_size < 8)
+  {
+    error(func_name, 59, "Unhandled PhysicalMemory");
+    return 0;
+  }
+  if (mem_size <= 8)
+    return 0x100000; // 1MB
+  if (mem_size <= 16)
+    return 0x200000; // 2MB
+  if (mem_size <= 24)
+    return 0x500000; // 5MB
+  if (mem_size <= 32)
+    return 0x800000; // 8MB
+  return 0xC00000; // 12MB
 }
 
 long S3DInit(void)

@@ -37,6 +37,7 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT int _DK_LbSpriteDraw(long x, long y, struct TbSprite *spr);
 DLLIMPORT int _DK_LbSpriteDrawRemap(long x, long y, struct TbSprite *spr,unsigned char *map);
+DLLIMPORT int _DK_LbSpriteDrawOneColour(long x, long y, struct TbSprite *spr, TbPixel colour);
 /******************************************************************************/
 /*
 bool sprscale_enlarge;
@@ -324,6 +325,11 @@ int LbSpriteDraw(long x, long y, struct TbSprite *spr)
 int LbSpriteDrawRemap(long x, long y, struct TbSprite *spr,unsigned char *map)
 {
   return _DK_LbSpriteDrawRemap(x, y, spr,map);
+}
+
+int LbSpriteDrawOneColour(long x, long y, struct TbSprite *spr, TbPixel colour)
+{
+  return _DK_LbSpriteDrawOneColour(x, y, spr, colour);
 }
 
 void __fastcall setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,

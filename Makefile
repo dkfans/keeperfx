@@ -63,6 +63,7 @@ obj/bflib_pom.o \
 obj/bflib_mouse.o \
 obj/bflib_network.o \
 obj/bflib_sndlib.o \
+obj/bflib_semphr.o \
 obj/bflib_sound.o \
 obj/bflib_video.o \
 obj/bflib_fmvids.o \

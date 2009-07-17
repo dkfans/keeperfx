@@ -456,7 +456,6 @@ DLLIMPORT void _DK_draw_texture(long a1, long a2, long a3, long a4, long a5, lon
 DLLIMPORT void _DK_draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
 DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
 DLLIMPORT long _DK_thing_is_spellbook(struct Thing *thing);
-DLLIMPORT int _DK_LbSpriteDrawOneColour(long x, long y, struct TbSprite *spr, TbPixel colour);
 DLLIMPORT long _DK_object_is_gold(struct Thing *thing);
 DLLIMPORT void _DK_check_players_won(void);
 DLLIMPORT void _DK_check_players_lost(void);
@@ -7920,11 +7919,6 @@ struct Thing *get_spellbook_at_position(long x, long y)
 struct Thing *get_special_at_position(long x, long y)
 {
   return _DK_get_special_at_position(x, y);
-}
-
-int LbSpriteDrawOneColour(long x, long y, struct TbSprite *spr, TbPixel colour)
-{
-  return _DK_LbSpriteDrawOneColour(x, y, spr, colour);
 }
 
 long object_is_gold(struct Thing *thing)

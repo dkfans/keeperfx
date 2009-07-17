@@ -1291,13 +1291,6 @@ struct TbModemDev { // sizeof = 180
   Net_Callback_Func field_B0;
 };
 
-// Size of this struct is probably larger
-struct TbNetworkSessionNameEntry {
-  unsigned long field_0;
-  unsigned long field_4;
-  char field_8[8];
-};
-
 struct ClientDataEntry {
 long field_0;
 long field_4;
@@ -1453,8 +1446,8 @@ DLLIMPORT struct _GUID _DK_net_guid;
 #define net_guid _DK_net_guid
 DLLIMPORT struct TbNetworkPlayerInfo _DK_net_player_info[NET_PLAYERS_COUNT];
 #define net_player_info _DK_net_player_info
-DLLIMPORT struct TbNetworkCallbackData _DK_enum_players_callback[NET_PLAYERS_COUNT];
-#define enum_players_callback _DK_enum_players_callback
+DLLIMPORT struct TbNetworkPlayerName _DK_net_player[NET_PLAYERS_COUNT];
+#define net_player _DK_net_player
 DLLIMPORT struct SerialInitData _DK_net_serial_data;
 #define net_serial_data _DK_net_serial_data
 DLLIMPORT struct SerialInitData _DK_net_modem_data;
@@ -1962,7 +1955,6 @@ struct Thing *get_spellbook_at_position(long x, long y);
 struct Thing *get_special_at_position(long x, long y);
 short create_random_evil_creature(long x, long y, unsigned short owner, long max_lv);
 short create_random_hero_creature(long x, long y, unsigned short owner, long max_lv);
-int LbSpriteDrawOneColour(long x, long y, struct TbSprite *spr, TbPixel colour);
 long object_is_gold(struct Thing *thing);
 unsigned char active_battle_exists(unsigned char a1);
 void maintain_my_battle_list(void);

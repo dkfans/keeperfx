@@ -57,19 +57,19 @@ DLLIMPORT int _DK_LbMouseSetPosition(int x, int y);
 DLLIMPORT int _DK_LbMouseChangeSprite(struct TbSprite *MouseSprite);
 DLLIMPORT int __stdcall _DK_LbMouseSuspend(void);
 /******************************************************************************/
-int LbMouseChangeSpriteAndHotspot(struct TbSprite *spr, int a, int b)
+int LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, int hot_x, int hot_y)
 {
-  return _DK_LbMouseChangeSpriteAndHotspot(spr, a, b);
+  return _DK_LbMouseChangeSpriteAndHotspot(mouseSprite, hot_x, hot_y);
 }
 
-int LbMouseSetup(struct TbSprite *MouseSprite)
+int LbMouseSetup(struct TbSprite *mouseSprite)
 {
-  return _DK_LbMouseSetup(MouseSprite);
+  return _DK_LbMouseSetup(mouseSprite);
 }
 
-int LbMouseSetPointerHotspot(int x, int y)
+int LbMouseSetPointerHotspot(int hot_x, int hot_y)
 {
-  return _DK_LbMouseSetPointerHotspot(x, y);
+  return _DK_LbMouseSetPointerHotspot(hot_x, hot_y);
 }
 
 int LbMouseSetPosition(int x, int y)
@@ -77,9 +77,9 @@ int LbMouseSetPosition(int x, int y)
   return _DK_LbMouseSetPosition(x, y);
 }
 
-short LbMouseChangeSprite(struct TbSprite *MouseSprite)
+short LbMouseChangeSprite(struct TbSprite *mouseSprite)
 {
-  return _DK_LbMouseChangeSprite(MouseSprite);
+  return _DK_LbMouseChangeSprite(mouseSprite);
 }
 
 int LbMouseSuspend(void)

@@ -1600,7 +1600,7 @@ TbBool validate_versions(void)
 void versions_different_error(void)
 {
   static const char *func_name="versions_different_error";
-  struct TbNetworkCallbackData *plyr_cb;
+  struct TbNetworkPlayerName *plyr_nam;
   struct ScreenPacket *nspckt;
   char text[MESSAGE_TEXT_LEN];
   char *str;
@@ -1616,11 +1616,11 @@ void versions_different_error(void)
   // Preparing message
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
-    plyr_cb = &enum_players_callback[i];
+    plyr_nam = &net_player[i];
     nspckt = &net_screen_packet[i];
     if ((nspckt->field_4 & 0x01) != 0)
     {
-      str = buf_sprintf("%s(%d.%02d) ", plyr_cb->svc_name, nspckt->field_6, nspckt->field_8);
+      str = buf_sprintf("%s(%d.%02d) ", plyr_nam->name, nspckt->field_6, nspckt->field_8);
       strncat(text, str, MESSAGE_TEXT_LEN-strlen(text));
       text[MESSAGE_TEXT_LEN-1] = '\0';
     }
@@ -2511,7 +2511,7 @@ void fronttorture_load(void)
   _DK_fronttorture_load();
 }
 
-void enum_services_callback(struct TbNetworkCallbackData *netcdat, void *a2)
+void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
   static const char *func_name="enum_services_callback";
   if (net_number_of_services >= NET_SERVICES_COUNT)
@@ -2536,6 +2536,44 @@ void enum_services_callback(struct TbNetworkCallbackData *netcdat, void *a2)
   } else
   {
     error(func_name, 2416, "Unrecognised Network Service");
+  }
+}
+
+void __stdcall enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
+{
+  static const char *func_name="enum_players_callback";
+  if (net_number_of_enum_players >= 4)
+  {
+    error(func_name, 2382, "Too many players in enumeration");
+    return;
+  }
+  strncpy(net_player[net_number_of_enum_players].name, netcdat->field_C, sizeof(struct TbNetworkPlayerName));
+  net_number_of_enum_players++;
+}
+
+void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
+{
+  static const char *func_name="enum_sessions_callback";
+  if (net_number_of_sessions >= 32)
+  {
+    error(func_name, 2370, "Too many sessions in enumeration");
+    return;
+  }
+  if (net_service_index_selected == 0)
+  {
+    net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
+    net_number_of_sessions++;
+  } else
+  if (net_service_index_selected != 1)
+  {
+    net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
+    net_number_of_sessions++;
+  } else
+  if (net_number_of_sessions == 0)
+  {
+    net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
+    strcpy(&netcdat->svc_name[8],gui_strings[875]);
+    net_number_of_sessions++;
   }
 }
 

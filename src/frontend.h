@@ -269,6 +269,8 @@ DLLIMPORT long _DK_net_speed_index_active;
 #define net_speed_index_active _DK_net_speed_index_active
 DLLIMPORT long _DK_net_number_of_players;
 #define net_number_of_players _DK_net_number_of_players
+DLLIMPORT long _DK_net_number_of_enum_players;
+#define net_number_of_enum_players _DK_net_number_of_enum_players
 DLLIMPORT long _DK_net_map_slap_frame;
 #define net_map_slap_frame _DK_net_map_slap_frame
 DLLIMPORT long _DK_net_level_hilighted;

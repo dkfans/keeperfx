@@ -145,7 +145,26 @@ void * __fastcall LbStringConcat(char *dst, const char *src, const ulong dst_buf
 
 void * __fastcall LbStringCopy(char *dst, const char *src, const ulong dst_buflen)
 {
+  if (dst_buflen < 1)
+    return dst;
   strncpy(dst, src, dst_buflen);
+  dst[dst_buflen-1]='\0';
+  return dst;
+}
+
+void * __fastcall LbStringToLowerCopy(char *dst, const char *src, const ulong dst_buflen)
+{
+  int i;
+  char chr;
+  if (dst_buflen < 1)
+    return dst;
+  for (i=0; i < dst_buflen; i++)
+  {
+    chr = tolower(src[i]);
+    dst[i] = chr;
+    if (chr == '\0')
+      break;
+  }
   dst[dst_buflen-1]='\0';
   return dst;
 }

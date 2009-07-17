@@ -36,7 +36,10 @@ DLLIMPORT TbError _DK_LbNetwork_ChangeExchangeBuffer(void *, unsigned long);
 DLLIMPORT TbError _DK_LbNetwork_Init(unsigned long,struct _GUID guid, unsigned long, void *, unsigned long, struct TbNetworkPlayerInfo *netplayr, void *);
 DLLIMPORT TbError _DK_LbNetwork_EnableNewPlayers(unsigned long allow);
 DLLIMPORT TbError _DK_LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
+DLLIMPORT TbError _DK_LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);
+DLLIMPORT TbError _DK_LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 /******************************************************************************/
+
 
 /******************************************************************************/
 TbError LbNetwork_Startup(void)
@@ -79,7 +82,7 @@ TbError LbNetwork_Stop(void)
   return _DK_LbNetwork_Stop();
 }
 
-int LbNetwork_Exchange(void *buf)
+TbError LbNetwork_Exchange(void *buf)
 {
   return _DK_LbNetwork_Exchange(buf);
 }
@@ -113,8 +116,16 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
   if (local_init)
     LbNetwork_Shutdown();
   return 0;
+}
 
+TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2)
+{
+  return _DK_LbNetwork_EnumeratePlayers(sesn, callback, a2);
+}
 
+TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
+{
+  return _DK_LbNetwork_EnumerateSessions(callback, ptr);
 }
 
 /******************************************************************************/

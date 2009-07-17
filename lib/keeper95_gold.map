@@ -721,6 +721,8 @@
  0001:000E3EC0       LbNetwork_Create
  0001:000E3FF0       LbNetwork_Join
  0001:000E40F0       LbNetwork_Stop
+ 0001:000E4280       LbNetwork_EnumerateSessions
+ 0001:000E4300       LbNetwork_EnumeratePlayers
  0001:000E4350       LbNetwork_Exchange
  0001:000E4BB0       LbNetwork_ChangeExchangeBuffer
  0001:000FD5D0       copy_to_screen
@@ -869,7 +871,9 @@
  0003:0002EF60       animation
  0003:0002F350       light_bitmask
  0003:0002F3D0       frontend_alliances
+ 0003:0002F3D8       net_player
  0003:0002F428       tmp_net_modem_init
+ 0003:0002F43C       net_session_index_active_id
  0003:0002F440       tmp_net_modem_answer
  0003:0002F454       net_number_of_levels
  0003:0002F45C       net_comport_index_active
@@ -888,7 +892,9 @@
  0003:0002FB30       net_screen_packet
  0003:0002FB60       net_player_info
  0003:0002FBF0       net_message
+ 0003:0002FDF8       net_player_scroll_offset
  0003:0002FE00       tmp_net_modem_hangup
+ 0003:0002FE14       net_number_of_enum_players
  0003:0002FE60       net_service
  0003:00030264       fe_network_active
  0003:0003026C       net_session_index_active

@@ -36,7 +36,23 @@ long field_20;
 };
 
 struct TbNetworkCallbackData {
-  char svc_name[20];
+  char svc_name[12];
+  char field_C[20];
+  char field_20[32];
+};
+
+struct TbNetworkPlayerName {
+  char name[20];
+};
+
+// Size of this struct is probably larger
+struct TbNetworkSessionNameEntry {
+  long field_0;
+  unsigned long field_4;
+  char field_8[8];
+  char field_10[16];
+  char field_20[8];
+  char field_28;
 };
 
 struct SerialInitData {
@@ -52,7 +68,7 @@ long field_C;
 
 #pragma pack()
 /******************************************************************************/
-typedef void (*TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
+typedef void __stdcall (*TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
 /******************************************************************************/
 DLLIMPORT extern int _DK_network_initialized;
 #define network_initialized _DK_network_initialized
@@ -60,11 +76,13 @@ DLLIMPORT extern int _DK_network_initialized;
 TbError LbNetwork_Init(unsigned long srvcp,struct _GUID guid, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct SerialInitData *init_data);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, unsigned long *playr_num);
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num);
-int LbNetwork_Exchange(void *buf);
+TbError LbNetwork_Exchange(void *buf);
 void LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
 TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long a2);
 TbError LbNetwork_EnableNewPlayers(unsigned long allow);
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
+TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);
+TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 TbError LbNetwork_Stop(void);
 /******************************************************************************/
 #ifdef __cplusplus

@@ -141,6 +141,13 @@ int LbTextStringDraw(int pos_x, int pos_y, const char *text, unsigned short fdfl
   return w;
 }
 
+int LbFontCharWidth(const struct TbSprite *font,const char chr)
+{
+  if (font == NULL)
+    return 0;
+  return font[(unsigned char)chr].SWidth;
+}
+
 /*
 char __fastcall font_height(const unsigned char c)
 {

@@ -53,6 +53,10 @@ int LbTextCharHeight(const char chr);
 
 int LbTextNumberDraw(int pos_x, int pos_y, long number, unsigned short fdflags);
 int LbTextStringDraw(int pos_x, int pos_y, const char *text, unsigned short fdflags);
+
+// Function which require font sprites as parameter
+int LbFontCharWidth(const struct TbSprite *font,const char chr);
+
 /*
 char __fastcall font_height(const unsigned char c);
 unsigned long __fastcall my_string_width(const char *str);

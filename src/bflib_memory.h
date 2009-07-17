@@ -48,6 +48,7 @@ void * __fastcall LbMemoryShrink(void *ptr, unsigned long size);
 void * __fastcall LbStringCopy(char *dst, const char *src, const ulong dst_buflen);
 void * __fastcall LbStringConcat(char *dst, const char *src, const ulong dst_buflen);
 ulong __fastcall LbStringLength(const char *str);
+void * __fastcall LbStringToLowerCopy(char *dst, const char *src, const ulong dst_buflen);
 /******************************************************************************/
 #ifdef __cplusplus
 }
