@@ -143,8 +143,12 @@ tools/peresec/peresec: tools/peresec/peresec.c
 	make -C tools/peresec
 
 package: pkg-before
+	$(MKDIR) pkg/fxdata
+	$(MKDIR) pkg/campgns
 	$(CP) bin/* pkg/
-	$(CP) config/* pkg/
+	$(CP) config/*.cfg pkg/
+	$(CP) config/fxdata/*.cfg pkg/fxdata/
+	$(CP) campgns/*.cfg pkg/campgns/
 	$(CP) docs/keeperfx_readme.txt pkg/
 	cd pkg; \
 	7z a "keeperfx-$(subst .,_,$(VER_STRING))-patch.7z" "*" -x!*/.svn -x!.svn -x!.git -x!*.7z
