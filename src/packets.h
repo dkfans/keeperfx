@@ -71,9 +71,9 @@ struct Packet { // sizeof = 0x11 (17)
     unsigned char action;
     unsigned short field_6;
     unsigned short field_8;
-    short field_A;
-    short field_C;
-    short field_E;
+    short pos_x;
+    short pos_y;
+    unsigned short control_flags;
     unsigned char field_10;
     };
 

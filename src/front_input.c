@@ -1093,7 +1093,7 @@ void get_map_nonaction_inputs(void)
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
   set_players_packet_position(player,GetMouseX(),GetMouseY());
   unset_packet_control(pckt, PCtr_MapCoordsValid);
-  if (screen_to_map(player->acamera, pckt->field_A, pckt->field_C, &pos))
+  if (screen_to_map(player->acamera, pckt->pos_x, pckt->pos_y, &pos))
     set_packet_control(pckt, PCtr_MapCoordsValid);
   if (((game.numfield_C & 0x01) == 0) && (player->field_37 == 3))
   {
