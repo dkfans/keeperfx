@@ -159,7 +159,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {NULL,                           "        ", Cmd_NONE},
 };
 
-const struct Description room_desc[] = {
+const struct NamedCommand room_desc[] = {
   {"ENTRANCE",         1},
   {"TREASURE",         2},
   {"RESEARCH",         3},
@@ -178,7 +178,7 @@ const struct Description room_desc[] = {
   {NULL,               0},
 };
 
-const struct Description creature_desc[] = {
+const struct NamedCommand creature_desc[] = {
   {"WIZARD",           1},
   {"BARBARIAN",        2},
   {"ARCHER",           3},
@@ -213,13 +213,13 @@ const struct Description creature_desc[] = {
   {NULL,               0},
 };
 
-const struct Description newcrtr_desc[] = {
+const struct NamedCommand newcrtr_desc[] = {
   {"NEW_CREATURE_A",   1},
   {"NEW_CREATURE_B",   2},
   {NULL,               0},
 };
 
-const struct Description player_desc[] = {
+const struct NamedCommand player_desc[] = {
   {"PLAYER0",          0},
   {"PLAYER1",          1},
   {"PLAYER2",          2},
@@ -229,7 +229,7 @@ const struct Description player_desc[] = {
   {NULL,               0},
 };
 
-const struct Description variable_desc[] = {
+const struct NamedCommand variable_desc[] = {
   {"MONEY",                       SVar_MONEY},
   {"GAME_TURN",                   SVar_GAME_TURN},
   {"BREAK_IN",                    SVar_BREAK_IN},
@@ -260,7 +260,7 @@ const struct Description variable_desc[] = {
   {NULL,                           0},
 };
 
-const struct Description comparison_desc[] = {
+const struct NamedCommand comparison_desc[] = {
   {"==",     MOp_EQUAL},
   {"!=",     MOp_NOT_EQUAL},
   {"<",      MOp_SMALLER},
@@ -270,7 +270,7 @@ const struct Description comparison_desc[] = {
   {NULL,     0},
 };
 
-const struct Description magic_desc[] = {
+const struct NamedCommand magic_desc[] = {
   {"POWER_HAND",           1},
   {"POWER_IMP",            2},
   {"POWER_OBEY",           3},
@@ -292,7 +292,7 @@ const struct Description magic_desc[] = {
   {NULL,                   0},
 };
 
-const struct Description trap_desc[] = {
+const struct NamedCommand trap_desc[] = {
   {"BOULDER",              1},
   {"ALARM",                2},
   {"POISON_GAS",           3},
@@ -302,14 +302,14 @@ const struct Description trap_desc[] = {
   {NULL,                   0},
 };
 
-const struct Description research_desc[] = {
+const struct NamedCommand research_desc[] = {
   {"MAGIC",                1},
   {"ROOM",                 2},
   {"CREATURE",             3},
   {NULL,                   0},
 };
 
-const struct Description head_for_desc[] = {
+const struct NamedCommand head_for_desc[] = {
   {"ACTION_POINT",         1},
   {"DUNGEON",              2},
   {"DUNGEON_HEART",        3},
@@ -317,7 +317,7 @@ const struct Description head_for_desc[] = {
   {NULL,                   0},
 };
 
-const struct Description timer_desc[] = {
+const struct NamedCommand timer_desc[] = {
   {"TIMER0", 0},
   {"TIMER1", 1},
   {"TIMER2", 2},
@@ -329,7 +329,7 @@ const struct Description timer_desc[] = {
   {NULL,     0},
 };
 
-const struct Description flag_desc[] = {
+const struct NamedCommand flag_desc[] = {
   {"FLAG0",  0},
   {"FLAG1",  1},
   {"FLAG2",  2},
@@ -341,7 +341,7 @@ const struct Description flag_desc[] = {
   {NULL,     0},
 };
 
-const struct Description door_desc[] = {
+const struct NamedCommand door_desc[] = {
   {"WOOD",                 1},
   {"BRACED",               2},
   {"STEEL",                3},
@@ -349,7 +349,7 @@ const struct Description door_desc[] = {
   {NULL,                   0},
 };
 
-const struct Description hero_objective_desc[] = {
+const struct NamedCommand hero_objective_desc[] = {
   {"STEAL_GOLD",           4},
   {"STEAL_SPELLS",         5},
   {"ATTACK_ENEMIES",       2},
@@ -359,13 +359,13 @@ const struct Description hero_objective_desc[] = {
   {NULL,                   0},
 };
 
-const struct Description msgtype_desc[] = {
+const struct NamedCommand msgtype_desc[] = {
   {"SPEECH",           1},
   {"SOUND",            2},
   {NULL,               0},
 };
 
-const struct Description tendency_desc[] = {
+const struct NamedCommand tendency_desc[] = {
   {"IMPRISON",         1},
   {"FLEE",             2},
   {NULL,               0},
@@ -383,7 +383,7 @@ DLLIMPORT long _DK_script_support_setup_player_as_computer_keeper(unsigned char 
 DLLIMPORT void _DK_command_research(char *plrname, char *trg_type, char *trg_name, unsigned long val);
 DLLIMPORT void _DK_command_if_action_point(long apt_idx, char *plrname);
 DLLIMPORT void _DK_command_add_tunneller_to_level(char *plrname, char *dst_place, char *objectv, long target, unsigned char crtr_level, unsigned long carried_gold);
-DLLIMPORT long _DK_get_id(const struct Description *desc, char *itmname);
+DLLIMPORT long _DK_get_id(const struct NamedCommand *desc, char *itmname);
 DLLIMPORT void _DK_command_add_to_party(char *prtname, char *crtr_name, long crtr_level, long carried_gold, char *objectv, long countdown);
 DLLIMPORT void _DK_command_add_party_to_level(char *plrname, char *prtname, char *dst_place, long ncopies);
 DLLIMPORT void _DK_command_add_creature_to_level(char *plrname, char *crtr_name, char *dst_place, long ncopies, long crtr_level, long carried_gold);
@@ -1240,24 +1240,6 @@ void command_bonus_level_time(long game_turns)
     return;
   }
   command_add_value(Cmd_BONUS_LEVEL_TIME, 0, game_turns, 0, 0);
-}
-
-/*
- * Returns ID of given item using Descriptions list.
- * If not found, returns -1.
- */
-long get_id(const struct Description *desc, char *itmname)
-{
-  long i;
-  //return _DK_get_id(desc, itmname);
-  if ((desc == NULL) || (itmname == NULL))
-    return -1;
-  for (i=0; desc[i].textptr != NULL; i++)
-  {
-    if (stricmp(desc[i].textptr, itmname) == 0)
-      return desc[i].index;
-  }
-  return -1;
 }
 
 void player_command_add_start_money(int plridx, long gold_val)

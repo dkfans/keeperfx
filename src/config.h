@@ -96,7 +96,11 @@ enum TbLevelLocation {
 /******************************************************************************/
 #pragma pack(1)
 
-struct ConfigCommand {
+struct CommandWord {
+  char text[COMMAND_WORD_LEN];
+};
+
+struct NamedCommand {
   const char *name;
   int num;
   };
@@ -136,7 +140,7 @@ extern short is_full_moon;
 extern short is_near_full_moon;
 extern short is_new_moon;
 extern short is_near_new_moon;
-extern const struct ConfigCommand lang_type[];
+extern const struct NamedCommand lang_type[];
 extern char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
 /******************************************************************************/
 DLLIMPORT int __stdcall _DK_load_configuration(void);
@@ -205,12 +209,13 @@ TbBool reset_credits(struct CreditsItem *credits);
 TbBool setup_campaign_credits_data(struct GameCampaign *campgn);
 /******************************************************************************/
 short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname);
-int recognize_conf_command(const char *buf,long *pos,long buflen,const struct ConfigCommand *commands);
+int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen);
 int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen);
 int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen);
-int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct ConfigCommand *commands);
-const char *get_conf_parameter_text(const struct ConfigCommand commands[],int num);
+int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
+const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
+long get_id(const struct NamedCommand *desc, char *itmname);
 /******************************************************************************/
 #ifdef __cplusplus
 }

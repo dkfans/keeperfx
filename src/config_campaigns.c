@@ -32,7 +32,7 @@ extern "C" {
 /******************************************************************************/
 const char keeper_campaign_file[]="keeporig.cfg";
 
-const struct ConfigCommand cmpgn_common_commands[] = {
+const struct NamedCommand cmpgn_common_commands[] = {
   {"NAME",            1},
   {"SINGLE_LEVELS",   2},
   {"MULTI_LEVELS",    3},
@@ -48,7 +48,7 @@ const struct ConfigCommand cmpgn_common_commands[] = {
   {NULL,              0},
   };
 
-const struct ConfigCommand cmpgn_map_commands[] = {
+const struct NamedCommand cmpgn_map_commands[] = {
   {"NAME_TEXT",       1},
   {"NAME_ID",         2},
   {"ENSIGN_POS",      3},
@@ -60,7 +60,7 @@ const struct ConfigCommand cmpgn_map_commands[] = {
   {NULL,              0},
   };
 
-const struct ConfigCommand cmpgn_map_cmnds_options[] = {
+const struct NamedCommand cmpgn_map_cmnds_options[] = {
   {"TUTORIAL",        1},
   {NULL,              0},
   };

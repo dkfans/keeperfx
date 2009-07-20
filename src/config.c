@@ -40,7 +40,7 @@ extern "C" {
 /******************************************************************************/
 const char keeper_config_file[]="keeperfx.cfg";
 
-const struct ConfigCommand lang_type[] = {
+const struct NamedCommand lang_type[] = {
   {"ENG", 1},
   {"FRE", 2},
   {"GER", 3},
@@ -56,16 +56,19 @@ const struct ConfigCommand lang_type[] = {
   {"CES", 13},
   {"MAG", 14},
   {"RUS", 15},
+  {"JAP", 16},
+  {"CHI", 17}, // Simplified Chinese
+  {"CHT", 18}, // Traditional Chinese
   {NULL,  0},
   };
 
-const struct ConfigCommand scrshot_type[] = {
+const struct NamedCommand scrshot_type[] = {
   {"HSI", 1},
   {"BMP", 2},
   {NULL,  0},
   };
 
-const struct ConfigCommand conf_commands[] = {
+const struct NamedCommand conf_commands[] = {
   {"INSTALL_PATH",  1},
   {"INSTALL_TYPE",  2},
   {"LANGUAGE",      3},
@@ -188,7 +191,7 @@ short find_conf_block(const char *buf,long *pos,long buflen,const char *blocknam
   return -1;
 }
 
-int recognize_conf_command(const char *buf,long *pos,long buflen,const struct ConfigCommand commands[])
+int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand commands[])
 {
   int i,cmdname_len;
   if ((*pos) >= buflen) return -1;
@@ -287,9 +290,9 @@ int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,lo
 }
 
 /*
- * Returns parameter num from given ConfigCommand array, or 0 if not found.
+ * Returns parameter num from given NamedCommand array, or 0 if not found.
  */
-int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct ConfigCommand commands[])
+int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand commands[])
 {
   int i;
   int par_len;
@@ -322,7 +325,7 @@ int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct 
 /*
  * Returns name of a config parameter with given number, or empty string.
  */
-const char *get_conf_parameter_text(const struct ConfigCommand commands[],int num)
+const char *get_conf_parameter_text(const struct NamedCommand commands[],int num)
 {
   long i;
   i = 0;
@@ -335,6 +338,25 @@ const char *get_conf_parameter_text(const struct ConfigCommand commands[],int nu
   return lbEmptyString;
 }
 
+/*
+ * Returns ID of given item using NamedCommands list.
+ * Similar to recognize_conf_parameter(), but for use only if the buffer stores
+ * one word, ended with "\0".
+ * If not found, returns -1.
+ */
+long get_id(const struct NamedCommand *desc, char *itmname)
+{
+  long i;
+  //return _DK_get_id(desc, itmname);
+  if ((desc == NULL) || (itmname == NULL))
+    return -1;
+  for (i=0; desc[i].name != NULL; i++)
+  {
+    if (stricmp(desc[i].name, itmname) == 0)
+      return desc[i].num;
+  }
+  return -1;
+}
 
 TbBool prepare_diskpath(char *buf,long buflen)
 {
@@ -1040,7 +1062,7 @@ TbBool setup_gui_strings_data(void)
   short result;
   long filelen;
   long loaded_size;
-#if (BFDEBUG_LEVEL > 18)
+#if (BFDEBUG_LEVEL > 8)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
 

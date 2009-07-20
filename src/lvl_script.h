@@ -160,11 +160,6 @@ struct CommandDesc { // sizeof = 14 // originally was 13
   unsigned char index;
 };
 
-struct Description { // sizeof = 5
-  const char *textptr;
-  unsigned char index;
-};
-
 struct ScriptLine {
   long np[COMMANDDESC_ARGS_COUNT];
   char tcmnd[MAX_TEXT_LENGTH];
@@ -182,15 +177,15 @@ DLLIMPORT unsigned short _DK_condition_stack_pos;
 #define condition_stack_pos _DK_condition_stack_pos
 DLLIMPORT unsigned short _DK_condition_stack[48];
 #define condition_stack _DK_condition_stack
-//DLLIMPORT struct Description _DK_player_desc[8];
-//DLLIMPORT struct Description _DK_magic_desc[20];
-//DLLIMPORT struct Description _DK_creature_desc[32];
-//DLLIMPORT struct Description _DK_room_desc[16];
-//DLLIMPORT struct Description _DK_timer_desc[9];
-//DLLIMPORT struct Description _DK_flag_desc[9];
-//DLLIMPORT struct Description _DK_door_desc[5];
-//DLLIMPORT struct Description _DK_trap_desc[8];
-//DLLIMPORT struct Description _DK_hero_objective_desc[];
+//DLLIMPORT struct NamedCommand _DK_player_desc[8];
+//DLLIMPORT struct NamedCommand _DK_magic_desc[20];
+//DLLIMPORT struct NamedCommand _DK_creature_desc[32];
+//DLLIMPORT struct NamedCommand _DK_room_desc[16];
+//DLLIMPORT struct NamedCommand _DK_timer_desc[9];
+//DLLIMPORT struct NamedCommand _DK_flag_desc[9];
+//DLLIMPORT struct NamedCommand _DK_door_desc[5];
+//DLLIMPORT struct NamedCommand _DK_trap_desc[8];
+//DLLIMPORT struct NamedCommand _DK_hero_objective_desc[];
 
 #pragma pack()
 /******************************************************************************/
@@ -199,7 +194,6 @@ extern const struct CommandDesc command_desc[];
 short script_support_setup_player_as_computer_keeper(unsigned short plyridx, long comp_model);
 long script_scan_line(char *line,TbBool preloaded);
 const struct CommandDesc *get_next_word(char **line, char *params, unsigned char *nparam);
-long get_id(const struct Description *desc, char *itmname);
 const char *script_get_command_name(long cmnd_index);
 
 void command_add_to_party(char *prtname, char *crtr_name, long crtr_level, long carried_gold, char *objectv, long countdown);

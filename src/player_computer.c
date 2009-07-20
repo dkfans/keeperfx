@@ -34,7 +34,7 @@ extern "C" {
 /******************************************************************************/
 const char keeper_compplayer_file[]="keepcompp.cfg";
 
-const struct ConfigCommand compp_common_commands[] = {
+const struct NamedCommand compp_common_commands[] = {
   {"COMPUTERASSISTS", 1},
   {"PROCESSESCOUNT",  2},
   {"CHECKSCOUNT",     3},
@@ -43,7 +43,7 @@ const struct ConfigCommand compp_common_commands[] = {
   {NULL,              0},
   };
 
-const struct ConfigCommand compp_process_commands[] = {
+const struct NamedCommand compp_process_commands[] = {
   {"NAME",            1},
   {"VALUES",          2},
   {"FUNCTIONS",       3},
@@ -52,7 +52,7 @@ const struct ConfigCommand compp_process_commands[] = {
   {NULL,              0},
   };
 
-const struct ConfigCommand compp_check_commands[] = {
+const struct NamedCommand compp_check_commands[] = {
   {"NAME",            1},
   {"VALUES",          2},
   {"FUNCTIONS",       3},
@@ -61,7 +61,7 @@ const struct ConfigCommand compp_check_commands[] = {
   {NULL,              0},
   };
 
-const struct ConfigCommand compp_event_commands[] = {
+const struct NamedCommand compp_event_commands[] = {
   {"NAME",            1},
   {"VALUES",          2},
   {"FUNCTIONS",       3},
@@ -71,7 +71,7 @@ const struct ConfigCommand compp_event_commands[] = {
   {NULL,              0},
   };
 
-const struct ConfigCommand compp_computer_commands[] = {
+const struct NamedCommand compp_computer_commands[] = {
   {"NAME",            1},
   {"VALUES",          2},
   {"PROCESSES",       3},
@@ -501,7 +501,7 @@ struct ComputerProcessMnemonic computer_process_config_list[] = {
   {"", &ComputerSafeAttack,},
 };
 
-const struct ConfigCommand computer_process_func_type[] = {
+const struct NamedCommand computer_process_func_type[] = {
   {"check_build_all_rooms",   1,},
   {"setup_any_room_continue", 2,},
   {"check_any_room",          3,},
@@ -554,7 +554,7 @@ ComputerName computer_check_names[COMPUTER_CHECKS_TYPES_COUNT];
 struct ComputerCheck computer_checks[COMPUTER_CHECKS_TYPES_COUNT];
 struct ComputerCheckMnemonic computer_check_config_list[COMPUTER_CHECKS_TYPES_COUNT];
 
-const struct ConfigCommand computer_check_func_type[] = {
+const struct NamedCommand computer_check_func_type[] = {
   {"checks_hates",            1,},
   {"check_move_to_best_room", 2,},
   {"check_move_to_room",      3,},
@@ -597,7 +597,7 @@ ComputerName computer_event_names[COMPUTER_EVENTS_TYPES_COUNT];
 struct ComputerEvent computer_events[COMPUTER_EVENTS_TYPES_COUNT];
 struct ComputerEventMnemonic computer_event_config_list[COMPUTER_EVENTS_TYPES_COUNT];
 
-const struct ConfigCommand computer_event_test_func_type[] = {
+const struct NamedCommand computer_event_test_func_type[] = {
   {"event_battle_test",       1,},
   {"event_check_fighters",    2,},
   {"event_attack_magic_foe",  3,},
@@ -618,7 +618,7 @@ Comp_EvntTest_Func computer_event_test_func_list[] = {
   NULL,
 };
 
-const struct ConfigCommand computer_event_func_type[] = {
+const struct NamedCommand computer_event_func_type[] = {
   {"event_battle",            1,},
   {"event_find_link",         2,},
   {"event_check_payday",      3,},
