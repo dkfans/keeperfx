@@ -54,6 +54,7 @@ enum TbFileGroups {
         FGrp_Campgn,
         FGrp_CmpgLvls,
         FGrp_LandView,
+        FGrp_CrtrData,
 };
 
 enum TbFeature {
@@ -140,6 +141,7 @@ extern short is_full_moon;
 extern short is_near_full_moon;
 extern short is_new_moon;
 extern short is_near_new_moon;
+extern unsigned long text_line_number;
 extern const struct NamedCommand lang_type[];
 extern char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
 /******************************************************************************/

@@ -81,6 +81,8 @@ const struct NamedCommand conf_commands[] = {
 
 unsigned long features_enabled = 0;
 char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
+// Line number, used when loading text files
+unsigned long text_line_number;
 
 short is_full_moon = 0;
 short is_near_full_moon = 0;
@@ -130,6 +132,8 @@ TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen)
   while ((*pos)<buflen)
   {
     if ((unsigned char)buf[*pos] > 32) break;
+    if (buf[*pos]=='\n')
+      text_line_number++;
     (*pos)++;
   }
   return ((*pos)<buflen);
@@ -622,6 +626,10 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       mdir=install_info.inst_path;
       sdir=campaign.land_location;
       break;
+  case FGrp_CrtrData:
+      mdir=keeper_runtime_directory;
+      sdir="creatrs";
+      break;
   default:
       mdir="./";
       sdir=NULL;
@@ -724,6 +732,7 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
     LbMemoryFree(buf);
     return NULL;
   }
+  LbMemorySet(buf+fsize, '\0', 15);
   *ldsize = fsize;
   return buf;
 }

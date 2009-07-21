@@ -270,7 +270,7 @@ const struct NamedCommand comparison_desc[] = {
   {NULL,     0},
 };
 
-const struct NamedCommand magic_desc[] = {
+const struct NamedCommand power_desc[] = {
   {"POWER_HAND",           1},
   {"POWER_IMP",            2},
   {"POWER_OBEY",           3},
@@ -421,7 +421,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
   char chr;
   int i;
 #if (BFDEBUG_LEVEL > 12)
-  LbScriptLog(script_line_number,"%s: Starting\n",func_name);
+  LbScriptLog(text_line_number,"%s: Starting\n",func_name);
 #endif
   cmnd_desc = NULL;
   // Find start of an item to read
@@ -497,7 +497,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
       {
         if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
         {
-          text = buf_sprintf("(script:%lu) Invalid first argument for RANDOM command", script_line_number);
+          text = buf_sprintf("(script:%lu) Invalid first argument for RANDOM command", text_line_number);
           error(func_name, 900, text);
           (*line_end) = true;
           return NULL;
@@ -530,7 +530,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
       {
         if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
         {
-          text = buf_sprintf("(script:%lu) Invalid second argument for RANDOM command", script_line_number);
+          text = buf_sprintf("(script:%lu) Invalid second argument for RANDOM command", text_line_number);
           error(func_name, 901, text);
           (*line_end) = true;
           return NULL;
@@ -572,7 +572,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
       chr = **line;
       if (!isdigit(chr))
       {
-        text = buf_sprintf("(script:%lu) Unexpected '-' not followed by a number", script_line_number);
+        text = buf_sprintf("(script:%lu) Unexpected '-' not followed by a number", text_line_number);
         error(func_name, 904, text);
         return NULL;
       }
@@ -615,7 +615,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
           chr = **line;
           if (chr != '=')
           {
-            text = buf_sprintf("(script:%lu) Expected '=' after '!'", script_line_number);
+            text = buf_sprintf("(script:%lu) Expected '=' after '!'", text_line_number);
             error(func_name, 947, text);
             return NULL;
           }
@@ -637,7 +637,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
           chr = **line;
           if (chr != '=')
           {
-            text = buf_sprintf("(script:%lu) Expected '=' after '='", script_line_number);
+            text = buf_sprintf("(script:%lu) Expected '=' after '='", text_line_number);
             error(func_name, 936, text);
             return 0;
           }
@@ -693,7 +693,7 @@ long get_players_range(char *plrname, int *plr_start, int *plr_end, const char *
   plr_id = get_id(player_desc, plrname);
   if (plr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Invalid player name, '%s'", script_line_number, plrname);
+    text = buf_sprintf("(script:%lu) Invalid player name, '%s'", text_line_number, plrname);
     error(func_name, ln_num, text);
     *plr_start = 0;
     *plr_end = 0;
@@ -711,7 +711,7 @@ long get_players_range(char *plrname, int *plr_start, int *plr_end, const char *
     *plr_end = (*plr_start) + 1;
     return plr_id;
   }
-  text = buf_sprintf("(script:%lu) Player '%s' out of range", script_line_number, plrname);
+  text = buf_sprintf("(script:%lu) Player '%s' out of range", text_line_number, plrname);
   error(func_name, ln_num, text);
   *plr_start = 0;
   *plr_end = 0;
@@ -724,7 +724,7 @@ TbBool get_player_id(char *plrname, long *plr_id, const char *func_name, long ln
   *plr_id = get_id(player_desc, plrname);
   if (*plr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Invalid player name, '%s'", script_line_number, plrname);
+    text = buf_sprintf("(script:%lu) Invalid player name, '%s'", text_line_number, plrname);
     error(func_name, ln_num, text);
     return false;
   }
@@ -793,7 +793,7 @@ TbBool get_map_location_id(char *locname, TbMapLocation *location, const char *f
     thing = find_hero_gate_of_number(-i);
     if (thing_is_invalid(thing))
     {
-      text = buf_sprintf("(script:%lu) Nonexisting Hero Door, no %d", script_line_number, -i);
+      text = buf_sprintf("(script:%lu) Nonexisting Hero Door, no %d", text_line_number, -i);
       error(func_name, 2152, text);
       *location = MLoc_NONE;
       return false;
@@ -805,7 +805,7 @@ TbBool get_map_location_id(char *locname, TbMapLocation *location, const char *f
   {
     if (!action_point_exists_number(i))
     {
-      text = buf_sprintf("(script:%lu) Nonexisting Action Point, no %d", script_line_number, i);
+      text = buf_sprintf("(script:%lu) Nonexisting Action Point, no %d", text_line_number, i);
       error(func_name, 2347, text);
       *location = MLoc_NONE;
       return false;
@@ -815,7 +815,7 @@ TbBool get_map_location_id(char *locname, TbMapLocation *location, const char *f
   } else
   // Zero is an error; reset to no location
   {
-    text = buf_sprintf("(script:%lu) Invalid LOCATION = '%s'", script_line_number, locname);
+    text = buf_sprintf("(script:%lu) Invalid LOCATION = '%s'", text_line_number, locname);
     error(func_name, 2467, text);
     *location = MLoc_NONE;
   }
@@ -842,13 +842,13 @@ void command_create_party(char *prtname)
   char *text;
   if (game.script.creature_partys_num >= CREATURE_PARTYS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many partys in script", script_line_number);
+    text = buf_sprintf("(script:%lu) Too many partys in script", text_line_number);
     error(func_name, 1086, text);
     return;
   }
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Party '%s' defined inside conditional statement\n",script_line_number,prtname);
+    LbWarnLog("(script:%lu) Party '%s' defined inside conditional statement\n",text_line_number,prtname);
   }
   party = (&game.script.creature_partys[game.script.creature_partys_num]);
   strncpy(party->prtname, prtname, sizeof(party->prtname));
@@ -862,7 +862,7 @@ long pop_condition(void)
   char *text;
   if (script_current_condition == -1)
   {
-    text = buf_sprintf("(script:%lu) unexpected ENDIF", script_line_number);
+    text = buf_sprintf("(script:%lu) unexpected ENDIF", text_line_number);
     error(func_name, 1070, text);
     return -1;
   }
@@ -912,42 +912,42 @@ void command_add_to_party(char *prtname, char *crtr_name, long crtr_level, long 
   char *text;
   if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
   {
-    text = buf_sprintf("(script:%lu) Invalid Creature Level parameter; %ld not in range (%d,%d)", script_line_number,crtr_level,1,CREATURE_MAX_LEVEL);
+    text = buf_sprintf("(script:%lu) Invalid Creature Level parameter; %ld not in range (%d,%d)", text_line_number,crtr_level,1,CREATURE_MAX_LEVEL);
     error(func_name, 1100, text);
     return;
   }
   crtr_id = get_id(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", script_line_number, crtr_name);
+    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
     error(func_name, 1117, text);
     return;
   }
   objctv_id = get_id(hero_objective_desc, objectv);
   if (objctv_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown party member objective, '%s'", script_line_number, objectv);
+    text = buf_sprintf("(script:%lu) Unknown party member objective, '%s'", text_line_number, objectv);
     error(func_name, 1123, text);
     return;
   }
   party = get_party_of_name(prtname);
   if (party == NULL)
   {
-    text = buf_sprintf("(script:%lu) Party of requested name, '%s', is not defined", script_line_number,prtname);
+    text = buf_sprintf("(script:%lu) Party of requested name, '%s', is not defined", text_line_number,prtname);
     error(func_name, 1138, text);
     return;
   }
   if (party->members_num >= PARTY_MEMBERS_COUNT)
   {
     text = buf_sprintf("(script:%lu) Too many creatures in party '%s' (limit is %d members)",
-        script_line_number, prtname, PARTY_MEMBERS_COUNT);
+        text_line_number, prtname, PARTY_MEMBERS_COUNT);
     error(func_name, 1138, text);
     return;
   }
-//LbSyncLog("(script:%lu) Party '%s' member kind %d, level %d\n",script_line_number,prtname,crtr_id,crtr_level);
+//LbSyncLog("(script:%lu) Party '%s' member kind %d, level %d\n",text_line_number,prtname,crtr_id,crtr_level);
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Party '%s' member added inside conditional statement\n",script_line_number,prtname);
+    LbWarnLog("(script:%lu) Party '%s' member added inside conditional statement\n",text_line_number,prtname);
   }
   member = &(party->members[party->members_num]);
   set_flag_byte(&(member->flags), TrgF_DISABLED, false);
@@ -975,13 +975,13 @@ void command_add_party_to_level(char *plrname, char *prtname, char *locname, lon
   char *text;
   if (ncopies < 1)
   {
-    text = buf_sprintf("(script:%lu) Invalid NUMBER parameter", script_line_number);
+    text = buf_sprintf("(script:%lu) Invalid NUMBER parameter", text_line_number);
     error(func_name, 1149, text);
     return;
   }
   if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many ADD_CREATURE commands in script", script_line_number);
+    text = buf_sprintf("(script:%lu) Too many ADD_CREATURE commands in script", text_line_number);
     error(func_name, 1155, text);
     return;
   }
@@ -995,7 +995,7 @@ void command_add_party_to_level(char *plrname, char *prtname, char *locname, lon
   prty_id = get_party_index_of_name(prtname);
   if (prty_id < 0)
   {
-    text = buf_sprintf("(script:%lu) Party of requested name, '%s', is not defined", script_line_number,prtname);
+    text = buf_sprintf("(script:%lu) Party of requested name, '%s', is not defined", text_line_number,prtname);
     error(func_name, 1213, text);
     return;
   }
@@ -1026,26 +1026,26 @@ void command_add_creature_to_level(char *plrname, char *crtr_name, char *locname
   char *text;
   if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
   {
-    text = buf_sprintf("(script:%lu) Invalid CREATURE LEVEL parameter", script_line_number);
+    text = buf_sprintf("(script:%lu) Invalid CREATURE LEVEL parameter", text_line_number);
     error(func_name, 1245, text);
     return;
   }
   if ((ncopies <= 0) || (ncopies >= CREATURES_COUNT))
   {
-    sprintf(text, "(script:%lu) Invalid number of creatures to add", script_line_number);
+    sprintf(text, "(script:%lu) Invalid number of creatures to add", text_line_number);
     error(func_name, 1251, text);
     return;
   }
   if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many ADD_CREATURE commands in script", script_line_number);
+    text = buf_sprintf("(script:%lu) Too many ADD_CREATURE commands in script", text_line_number);
     error(func_name, 1266, text);
     return;
   }
   crtr_id = get_id(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", script_line_number, crtr_name);
+    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
     error(func_name, 1277, text);
     return;
   }
@@ -1089,7 +1089,7 @@ void command_add_condition(long plr_id, long opertr_id, long varib_type, long va
   if (condition_stack_pos >= CONDITIONS_COUNT)
   {
     game.script.conditions_num++;
-    LbWarnLog("(script:%lu) Conditions too deep in script\n", script_line_number);
+    LbWarnLog("(script:%lu) Conditions too deep in script\n", text_line_number);
     return;
   }
   if (script_current_condition >= 0)
@@ -1109,7 +1109,7 @@ void command_if(char *plrname, char *varib_name, char *operatr, long value)
   char *text;
   if (game.script.conditions_num >= CONDITIONS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many (over %d) conditions in script", script_line_number, CONDITIONS_COUNT);
+    text = buf_sprintf("(script:%lu) Too many (over %d) conditions in script", text_line_number, CONDITIONS_COUNT);
     error(func_name, 989, text);
     return;
   }
@@ -1149,7 +1149,7 @@ void command_if(char *plrname, char *varib_name, char *operatr, long value)
   }
   if (varib_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown variable name, '%s'", script_line_number, varib_name);
+    text = buf_sprintf("(script:%lu) Unknown variable name, '%s'", text_line_number, varib_name);
     error(func_name, 1434, text);
     return;
   }
@@ -1157,7 +1157,7 @@ void command_if(char *plrname, char *varib_name, char *operatr, long value)
   opertr_id = get_id(comparison_desc, operatr);
   if (opertr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown comparison name, '%s'", script_line_number, operatr);
+    text = buf_sprintf("(script:%lu) Unknown comparison name, '%s'", text_line_number, operatr);
     error(func_name, 1036, text);
     return;
   }
@@ -1172,7 +1172,7 @@ void command_add_value(unsigned long var_index, unsigned long val1, long val2, l
   char *text;
   if (game.script.values_num >= SCRIPT_VALUES_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many VALUEs in script (limit is %d)", script_line_number,SCRIPT_VALUES_COUNT);
+    text = buf_sprintf("(script:%lu) Too many VALUEs in script (limit is %d)", text_line_number,SCRIPT_VALUES_COUNT);
     error(func_name, 1396, text);
     return;
   }
@@ -1201,7 +1201,7 @@ void command_display_information(long msg_num, char *where, long x, long y)
   char *text;
   if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
   {
-    text = buf_sprintf("(script:%lu) Invalid TEXT number", script_line_number);
+    text = buf_sprintf("(script:%lu) Invalid TEXT number", text_line_number);
     error(func_name, 2198, text);
     return;
   }
@@ -1216,7 +1216,7 @@ void command_set_generate_speed(long game_turns)
   char *text;
   if (game_turns <= 0)
   {
-    text = buf_sprintf("(script:%lu) Genaration speed must be positive number", script_line_number);
+    text = buf_sprintf("(script:%lu) Genaration speed must be positive number", text_line_number);
     error(func_name, 2228, text);
     return;
   }
@@ -1235,7 +1235,7 @@ void command_bonus_level_time(long game_turns)
   char *text;
   if (game_turns < 0)
   {
-    text = buf_sprintf("(script:%lu) Bonus time must be nonnegative", script_line_number);
+    text = buf_sprintf("(script:%lu) Bonus time must be nonnegative", text_line_number);
     error(func_name, 2228, text);
     return;
   }
@@ -1287,7 +1287,7 @@ void command_set_start_money(char *plrname, long gold_val)
     return;
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Start money set inside conditional block\n",script_line_number);
+    LbWarnLog("(script:%lu) Start money set inside conditional block\n",text_line_number);
   }
   for (i=plr_start; i < plr_end; i++)
     player_command_add_start_money(i, gold_val);
@@ -1303,7 +1303,7 @@ void command_room_available(char *plrname, char *roomname, unsigned long can_res
   room_id = get_id(room_desc, roomname);
   if (room_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown room name, '%s'", script_line_number, roomname);
+    text = buf_sprintf("(script:%lu) Unknown room name, '%s'", text_line_number, roomname);
     error(func_name, 1434, text);
     return;
   }
@@ -1320,7 +1320,7 @@ void command_creature_available(char *plrname, char *crtr_name, unsigned long a3
   crtr_id = get_id(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", script_line_number, crtr_name);
+    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
     error(func_name, 1457, text);
     return;
   }
@@ -1334,10 +1334,10 @@ void command_magic_available(char *plrname, char *magname, unsigned long can_res
   char *text;
   if (!get_player_id(plrname, &plr_id, func_name, 1479))
     return;
-  mag_id = get_id(magic_desc, magname);
+  mag_id = get_id(power_desc, magname);
   if (mag_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown magic, '%s'", script_line_number, magname);
+    text = buf_sprintf("(script:%lu) Unknown magic, '%s'", text_line_number, magname);
     error(func_name, 1480, text);
     return;
   }
@@ -1354,7 +1354,7 @@ void command_trap_available(char *plrname, char *trapname, unsigned long can_bui
   trap_id = get_id(trap_desc, trapname);
   if (trap_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown trap, '%s'", script_line_number, trapname);
+    text = buf_sprintf("(script:%lu) Unknown trap, '%s'", text_line_number, trapname);
     error(func_name, 1503, text);
     return;
   }
@@ -1378,7 +1378,7 @@ void command_research(char *plrname, char *trg_type, char *trg_name, unsigned lo
     dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
     if (dungeon->research_num >= 34)
     {
-      text = buf_sprintf("(script:%lu) Too many RESEARCH ITEMS, for player %d", script_line_number, i);
+      text = buf_sprintf("(script:%lu) Too many RESEARCH ITEMS, for player %d", text_line_number, i);
       error(func_name, 1562, text);
       return;
     }
@@ -1387,10 +1387,10 @@ void command_research(char *plrname, char *trg_type, char *trg_name, unsigned lo
   switch (item_type)
   {
   case 1:
-      item_id = get_id(magic_desc, trg_name);
+      item_id = get_id(power_desc, trg_name);
       if (item_id == -1)
       {
-        text = buf_sprintf("(script:%lu) Unknown magic, '%s'", script_line_number, trg_name);
+        text = buf_sprintf("(script:%lu) Unknown magic, '%s'", text_line_number, trg_name);
         error(func_name, 1589, text);
         return;
       }
@@ -1399,7 +1399,7 @@ void command_research(char *plrname, char *trg_type, char *trg_name, unsigned lo
       item_id = get_id(room_desc, trg_name);
       if (item_id == -1)
       {
-        text = buf_sprintf("(script:%lu) Unknown room, '%s'", script_line_number, trg_name);
+        text = buf_sprintf("(script:%lu) Unknown room, '%s'", text_line_number, trg_name);
         error(func_name, 1598, text);
         return;
       }
@@ -1408,14 +1408,14 @@ void command_research(char *plrname, char *trg_type, char *trg_name, unsigned lo
       item_id = get_id(creature_desc, trg_name);
       if (item_id == -1)
       {
-        text = buf_sprintf("(script:%lu) Unknown creature, '%s'", script_line_number, trg_name);
+        text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, trg_name);
         error(func_name, 1607, text);
         return;
       }
       break;
   case -1:
   default:
-      text = buf_sprintf("(script:%lu) Unhandled research type, '%s'", script_line_number, trg_type);
+      text = buf_sprintf("(script:%lu) Unhandled research type, '%s'", text_line_number, trg_type);
       error(func_name, 1580, text);
       return;
   }
@@ -1430,7 +1430,7 @@ void command_if_action_point(long apt_num, char *plrname)
   char *text;
   if (game.script.conditions_num >= CONDITIONS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many (over %d) conditions in script", script_line_number, CONDITIONS_COUNT);
+    text = buf_sprintf("(script:%lu) Too many (over %d) conditions in script", text_line_number, CONDITIONS_COUNT);
     error(func_name, 1674, text);
     return;
   }
@@ -1438,7 +1438,7 @@ void command_if_action_point(long apt_num, char *plrname)
   apt_id = action_point_number_to_index(apt_num);
   if (!action_point_exists_idx(apt_id))
   {
-    text = buf_sprintf("(script:%lu) Nonexisting Action Point, no %d", script_line_number, apt_num);
+    text = buf_sprintf("(script:%lu) Nonexisting Action Point, no %d", text_line_number, apt_num);
     error(func_name, 1683, text);
     return;
   }
@@ -1457,7 +1457,7 @@ void command_computer_player(char *plrname, long comp_model)
     return;
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Computer player setup inside conditional block\n",script_line_number);
+    LbWarnLog("(script:%lu) Computer player setup inside conditional block\n",text_line_number);
   }
   script_support_setup_player_as_computer_keeper(plr_id, comp_model);
 }
@@ -1472,7 +1472,7 @@ void command_set_timer(char *plrname, char *timrname)
   timr_id = get_id(timer_desc, timrname);
   if (timr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown timer, '%s'", script_line_number, timrname);
+    text = buf_sprintf("(script:%lu) Unknown timer, '%s'", text_line_number, timrname);
     error(func_name, 1715, text);
     return;
   }
@@ -1485,7 +1485,7 @@ void command_win_game(void)
   char *text;
   if (script_current_condition == -1)
   {
-    text = buf_sprintf("(script:%lu) Command WIN GAME found with no condition", script_line_number);
+    text = buf_sprintf("(script:%lu) Command WIN GAME found with no condition", text_line_number);
     error(func_name, 1822, text);
     return;
   }
@@ -1504,7 +1504,7 @@ void command_lose_game(void)
   char *text;
   if (script_current_condition == -1)
   {
-    text = buf_sprintf("(script:%lu) Command LOSE GAME found with no condition", script_line_number);
+    text = buf_sprintf("(script:%lu) Command LOSE GAME found with no condition", text_line_number);
     error(func_name, 1839, text);
     return;
   }
@@ -1527,7 +1527,7 @@ void command_set_flag(char *plrname, char *flgname, long val)
   flg_id = get_id(flag_desc, flgname);
   if (flg_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown flag, '%s'", script_line_number, flgname);
+    text = buf_sprintf("(script:%lu) Unknown flag, '%s'", text_line_number, flgname);
     error(func_name, 1946, text);
     return;
   }
@@ -1554,7 +1554,7 @@ void command_door_available(char *plrname, char *doorname, unsigned long a3, uns
   door_id = get_id(door_desc, doorname);
   if (door_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown door, '%s'", script_line_number, doorname);
+    text = buf_sprintf("(script:%lu) Unknown door, '%s'", text_line_number, doorname);
     error(func_name, 1526, text);
     return;
   }
@@ -1568,7 +1568,7 @@ void command_display_objective(long msg_num, char *where, long x, long y)
   char *text;
   if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
   {
-    text = buf_sprintf("(script:%lu) Invalid TEXT number", script_line_number);
+    text = buf_sprintf("(script:%lu) Invalid TEXT number", text_line_number);
     error(func_name, 2047, text);
     return;
   }
@@ -1587,13 +1587,13 @@ void command_add_tunneller_to_level(char *plrname, char *locname, char *objectv,
   char *text;
   if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
   {
-    text = buf_sprintf("(script:%lu) Invalid CREATURE LEVEL parameter", script_line_number);
+    text = buf_sprintf("(script:%lu) Invalid CREATURE LEVEL parameter", text_line_number);
     error(func_name, 1212, text);
     return;
   }
   if (game.script.tunneller_triggers_num >= TUNNELLER_TRIGGERS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many ADD_TUNNELLER commands in script", script_line_number);
+    text = buf_sprintf("(script:%lu) Too many ADD_TUNNELLER commands in script", text_line_number);
     error(func_name, 1245, text);
     return;
   }
@@ -1606,7 +1606,7 @@ void command_add_tunneller_to_level(char *plrname, char *locname, char *objectv,
   head_id = get_id(head_for_desc, objectv);
   if (head_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unhandled heading objective, '%s'", script_line_number, objectv);
+    text = buf_sprintf("(script:%lu) Unhandled heading objective, '%s'", text_line_number, objectv);
     error(func_name, 1788, text);
     return;
   }
@@ -1642,13 +1642,13 @@ void command_add_tunneller_party_to_level(char *plrname, char *prtname, char *lo
   char *text;
   if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
   {
-    text = buf_sprintf("(script:%lu) Invalid CREATURE LEVEL parameter", script_line_number);
+    text = buf_sprintf("(script:%lu) Invalid CREATURE LEVEL parameter", text_line_number);
     error(func_name, 2112, text);
     return;
   }
   if (game.script.tunneller_triggers_num >= TUNNELLER_TRIGGERS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many ADD_TUNNELLER commands in script", script_line_number);
+    text = buf_sprintf("(script:%lu) Too many ADD_TUNNELLER commands in script", text_line_number);
     error(func_name, 2145, text);
     return;
   }
@@ -1661,7 +1661,7 @@ void command_add_tunneller_party_to_level(char *plrname, char *prtname, char *lo
   head_id = get_id(head_for_desc, objectv);
   if (head_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unhandled heading objective, '%s'", script_line_number, objectv);
+    text = buf_sprintf("(script:%lu) Unhandled heading objective, '%s'", text_line_number, objectv);
     error(func_name, 2188, text);
     return;
   }
@@ -1669,7 +1669,7 @@ void command_add_tunneller_party_to_level(char *plrname, char *prtname, char *lo
   prty_id = get_party_index_of_name(prtname);
   if (prty_id < 0)
   {
-    text = buf_sprintf("(script:%lu) Party of requested name, '%s', is not defined", script_line_number,prtname);
+    text = buf_sprintf("(script:%lu) Party of requested name, '%s', is not defined", text_line_number,prtname);
     error(func_name, 2193, text);
     return;
   }
@@ -1709,13 +1709,13 @@ void command_add_creature_to_pool(char *crtr_name, long amount)
   crtr_id = get_id(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", script_line_number, crtr_name);
+    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
     error(func_name, 2324, text);
     return;
   }
   if ((amount < 0) || (amount >= CREATURES_COUNT))
   {
-    text = buf_sprintf("(script:%lu) Invalid number of '%s' creatures for pool, %d", script_line_number, crtr_name, amount);
+    text = buf_sprintf("(script:%lu) Invalid number of '%s' creatures for pool, %d", text_line_number, crtr_name, amount);
     error(func_name, 2330, text);
     return;
   }
@@ -1730,7 +1730,7 @@ void command_reset_action_point(long apt_num)
   apt_idx = action_point_number_to_index(apt_num);
   if (!action_point_exists_idx(apt_idx))
   {
-    text = buf_sprintf("(script:%lu) Nonexisting Action Point, no %d", script_line_number, apt_num);
+    text = buf_sprintf("(script:%lu) Nonexisting Action Point, no %d", text_line_number, apt_num);
     error(func_name, 2347, text);
     return;
   }
@@ -1747,13 +1747,13 @@ void command_set_creature_max_level(char *plrname, char *crtr_name, long crtr_le
   crtr_id = get_id(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", script_line_number, crtr_name);
+    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
     error(func_name, 1457, text);
     return;
   }
   if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
   {
-    text = buf_sprintf("(script:%lu) Invalid '%s' experience level, %d", script_line_number, crtr_name, crtr_level);
+    text = buf_sprintf("(script:%lu) Invalid '%s' experience level, %d", text_line_number, crtr_name, crtr_level);
     error(func_name, 2379, text);
   }
   command_add_value(Cmd_SET_CREATURE_MAX_LEVEL, plr_id, crtr_id, crtr_level-1, 0);
@@ -1763,7 +1763,7 @@ void command_set_music(long val)
 {
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Music set inside conditional block\n",script_line_number);
+    LbWarnLog("(script:%lu) Music set inside conditional block\n",text_line_number);
   }
   game.field_1506D5 = val;
 }
@@ -1781,7 +1781,7 @@ void command_if_available(char *plrname, char *varib_name, char *operatr, long v
   char *text;
   if (game.script.conditions_num >= CONDITIONS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many (over %d) conditions in script", script_line_number, CONDITIONS_COUNT);
+    text = buf_sprintf("(script:%lu) Too many (over %d) conditions in script", text_line_number, CONDITIONS_COUNT);
     error(func_name, 2570, text);
     return;
   }
@@ -1807,12 +1807,12 @@ void command_if_available(char *plrname, char *varib_name, char *operatr, long v
   }
   if (varib_id == -1)
   {
-    varib_id = get_id(magic_desc, varib_name);
+    varib_id = get_id(power_desc, varib_name);
     varib_type = SVar_AVAILABLE_MAGIC;
   }
   if (varib_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unrecognized VARIABLE, '%s'", script_line_number, varib_name);
+    text = buf_sprintf("(script:%lu) Unrecognized VARIABLE, '%s'", text_line_number, varib_name);
     error(func_name, 9812, text);
     return;
   }
@@ -1820,7 +1820,7 @@ void command_if_available(char *plrname, char *varib_name, char *operatr, long v
   opertr_id = get_id(comparison_desc, operatr);
   if (opertr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown comparison name, '%s'", script_line_number, operatr);
+    text = buf_sprintf("(script:%lu) Unknown comparison name, '%s'", text_line_number, operatr);
     error(func_name, 2608, text);
     return;
   }
@@ -1839,7 +1839,7 @@ void command_set_computer_globals(char *plrname, long val1, long val2, long val3
     return;
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Computer globals altered inside conditional block\n",script_line_number);
+    LbWarnLog("(script:%lu) Computer globals altered inside conditional block\n",text_line_number);
   }
   for (i=plr_start; i < plr_end; i++)
   {
@@ -1864,7 +1864,7 @@ void command_set_computer_checks(char *plrname, char *chkname, long val1, long v
     return;
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Computer check altered inside conditional block\n",script_line_number);
+    LbWarnLog("(script:%lu) Computer check altered inside conditional block\n",text_line_number);
   }
   n = 0;
   for (i=plr_start; i < plr_end; i++)
@@ -1889,7 +1889,7 @@ void command_set_computer_checks(char *plrname, char *chkname, long val1, long v
   }
   if (n == 0)
   {
-    text = buf_sprintf("(script:%lu) no computer check found called '%s'", script_line_number, chkname);
+    text = buf_sprintf("(script:%lu) no computer check found called '%s'", text_line_number, chkname);
     error(func_name, 2732, text);
     return;
   }
@@ -1909,7 +1909,7 @@ void command_set_computer_events(char *plrname, char *evntname, long val1, long 
     return;
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Computer event altered inside conditional block\n",script_line_number);
+    LbWarnLog("(script:%lu) Computer event altered inside conditional block\n",text_line_number);
   }
   n = 0;
   for (i=plr_start; i < plr_end; i++)
@@ -1929,7 +1929,7 @@ void command_set_computer_events(char *plrname, char *evntname, long val1, long 
   }
   if (n == 0)
   {
-    text = buf_sprintf("(script:%lu) no computer event found called '%s'", script_line_number, evntname);
+    text = buf_sprintf("(script:%lu) no computer event found called '%s'", text_line_number, evntname);
     error(func_name, 2775, text);
     return;
   }
@@ -1949,7 +1949,7 @@ void command_set_computer_process(char *plrname, char *procname, long val1, long
     return;
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Computer process altered inside conditional block\n",script_line_number);
+    LbWarnLog("(script:%lu) Computer process altered inside conditional block\n",text_line_number);
   }
   n = 0;
   for (i=plr_start; i < plr_end; i++)
@@ -1974,7 +1974,7 @@ void command_set_computer_process(char *plrname, char *procname, long val1, long
   }
   if (n == 0)
   {
-    text = buf_sprintf("(script:%lu) no computer process found called '%s'", script_line_number, procname);
+    text = buf_sprintf("(script:%lu) no computer process found called '%s'", text_line_number, procname);
     error(func_name, 2821, text);
     return;
   }
@@ -1991,13 +1991,13 @@ void command_set_creature_health(char *crtr_name, long val)
   crtr_id = get_id(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", script_line_number, crtr_name);
+    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
     error(func_name, 2324, text);
     return;
   }
   if ((val < 0) || (val > 65535))
   {
-    text = buf_sprintf("(script:%lu) Invalid '%s' health value, %d", script_line_number, crtr_name, val);
+    text = buf_sprintf("(script:%lu) Invalid '%s' health value, %d", text_line_number, crtr_name, val);
     error(func_name, 2330, text);
     return;
   }
@@ -2012,13 +2012,13 @@ void command_set_creature_strength(char *crtr_name, long val)
   crtr_id = get_id(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", script_line_number, crtr_name);
+    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
     error(func_name, 2324, text);
     return;
   }
   if ((val < 0) || (val > 255))
   {
-    text = buf_sprintf("(script:%lu) Invalid '%s' strength value, %d", script_line_number, crtr_name, val);
+    text = buf_sprintf("(script:%lu) Invalid '%s' strength value, %d", text_line_number, crtr_name, val);
     error(func_name, 2330, text);
     return;
   }
@@ -2033,13 +2033,13 @@ void command_set_creature_armour(char *crtr_name, long val)
   crtr_id = get_id(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", script_line_number, crtr_name);
+    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
     error(func_name, 2324, text);
     return;
   }
   if ((val < 0) || (val > 255))
   {
-    text = buf_sprintf("(script:%lu) Invalid '%s' armour value, %d", script_line_number, crtr_name, val);
+    text = buf_sprintf("(script:%lu) Invalid '%s' armour value, %d", text_line_number, crtr_name, val);
     error(func_name, 2330, text);
     return;
   }
@@ -2054,13 +2054,13 @@ void command_set_creature_fear(char *crtr_name, long val)
   crtr_id = get_id(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", script_line_number, crtr_name);
+    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
     error(func_name, 2324, text);
     return;
   }
   if ((val < 0) || (val > 255))
   {
-    text = buf_sprintf("(script:%lu) Invalid '%s' fear value, %d", script_line_number, crtr_name, val);
+    text = buf_sprintf("(script:%lu) Invalid '%s' fear value, %d", text_line_number, crtr_name, val);
     error(func_name, 2330, text);
     return;
   }
@@ -2086,18 +2086,18 @@ void command_quick_objective(int idx, char *msgtext, char *where, long x, long y
   char *text;
   if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
   {
-    text = buf_sprintf("(script:%lu) Invalid QUICK OBJECTIVE number (%d)", script_line_number, idx);
+    text = buf_sprintf("(script:%lu) Invalid QUICK OBJECTIVE number (%d)", text_line_number, idx);
     error(func_name, 2105, text);
     return;
   }
   if (strlen(msgtext) > MESSAGE_TEXT_LEN)
   {
-    LbWarnLog("(script:%lu) Objective TEXT too long; truncating to %d characters\n", script_line_number, MESSAGE_TEXT_LEN-1);
+    LbWarnLog("(script:%lu) Objective TEXT too long; truncating to %d characters\n", text_line_number, MESSAGE_TEXT_LEN-1);
     msgtext[MESSAGE_TEXT_LEN-1] = '\0';
   }
   if ((quick_messages[idx][0] != '\0') && (strcmp(quick_messages[idx],msgtext) != 0))
   {
-    LbWarnLog("(script:%lu) Quick Objective no %d overwritten by different text.\n", script_line_number, idx);
+    LbWarnLog("(script:%lu) Quick Objective no %d overwritten by different text.\n", text_line_number, idx);
   }
   strcpy(quick_messages[idx], msgtext);
   if (!get_map_location_id(where, &location, func_name, 1963))
@@ -2112,18 +2112,18 @@ void command_quick_information(int idx, char *msgtext, char *where, long x, long
   char *text;
   if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
   {
-    text = buf_sprintf("(script:%lu) Invalid information ID number (%d)", script_line_number, idx);
+    text = buf_sprintf("(script:%lu) Invalid information ID number (%d)", text_line_number, idx);
     error(func_name, 2105, text);
     return;
   }
   if (strlen(msgtext) > MESSAGE_TEXT_LEN)
   {
-    LbWarnLog("(script:%lu) Information TEXT too long; truncating to %d characters\n", script_line_number, MESSAGE_TEXT_LEN-1);
+    LbWarnLog("(script:%lu) Information TEXT too long; truncating to %d characters\n", text_line_number, MESSAGE_TEXT_LEN-1);
     msgtext[MESSAGE_TEXT_LEN-1] = '\0';
   }
   if ((quick_messages[idx][0] != '\0') && (strcmp(quick_messages[idx],msgtext) != 0))
   {
-    LbWarnLog("(script:%lu) Quick Message no %d overwritten by different text.\n", script_line_number, idx);
+    LbWarnLog("(script:%lu) Quick Message no %d overwritten by different text.\n", text_line_number, idx);
   }
   strcpy(quick_messages[idx], msgtext);
   if (!get_map_location_id(where, &location, func_name, 1963))
@@ -2141,7 +2141,7 @@ void command_play_message(char *plrname, char *msgtype, int msg_num)
   msgtype_id = get_id(msgtype_desc, msgtype);
   if (msgtype_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unrecognized message type, '%s'", script_line_number, msgtype);
+    text = buf_sprintf("(script:%lu) Unrecognized message type, '%s'", text_line_number, msgtype);
     error(func_name, 1973, text);
     return;
   }
@@ -2167,7 +2167,7 @@ void command_set_creature_tendencies(char *plrname, char *tendency, long value)
   tend_id = get_id(tendency_desc, tendency);
   if (tend_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unrecognized tendency type, '%s'", script_line_number, tendency);
+    text = buf_sprintf("(script:%lu) Unrecognized tendency type, '%s'", text_line_number, tendency);
     error(func_name, 2167, text);
     return;
   }
@@ -2203,7 +2203,7 @@ void command_message(char *msgtext, unsigned char kind)
     cmd = script_get_command_name(Cmd_PRINT);
   else
     cmd = script_get_command_name(Cmd_MESSAGE);
-  LbWarnLog("(script:%lu) Command '%s' is only supported in Dungeon Keeper Beta\n", script_line_number,cmd);
+  LbWarnLog("(script:%lu) Command '%s' is only supported in Dungeon Keeper Beta\n", text_line_number,cmd);
 }
 
 void command_swap_creature(char *ncrt_name, char *crtr_name)
@@ -2214,14 +2214,14 @@ void command_swap_creature(char *ncrt_name, char *crtr_name)
   ncrt_id = get_id(newcrtr_desc, ncrt_name);
   if (ncrt_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown new creature, '%s'", script_line_number, ncrt_name);
+    text = buf_sprintf("(script:%lu) Unknown new creature, '%s'", text_line_number, ncrt_name);
     error(func_name, 2457, text);
     return;
   }
   crtr_id = get_id(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", script_line_number, crtr_name);
+    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
     error(func_name, 2457, text);
     return;
   }
@@ -2232,11 +2232,11 @@ void command_swap_creature(char *ncrt_name, char *crtr_name)
   }
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Creature swapping placed inside conditional statement\n",script_line_number);
+    LbWarnLog("(script:%lu) Creature swapping placed inside conditional statement\n",text_line_number);
   }
   if (!swap_creature(ncrt_id, crtr_id))
   {
-    text = buf_sprintf("(script:%lu) Error swapping creatures %s<->%s", script_line_number, ncrt_name, crtr_name);
+    text = buf_sprintf("(script:%lu) Error swapping creatures %s<->%s", text_line_number, ncrt_name, crtr_name);
     error(func_name, 2881, text);
   }
 }
@@ -2251,12 +2251,12 @@ long script_scan_line(char *line,TbBool preloaded)
   char chr;
   int i;
 #if (BFDEBUG_LEVEL > 12)
-  LbSyncLog("%s: Starting for line %d\n",func_name,script_line_number);
+  LbSyncLog("%s: Starting for line %d\n",func_name,text_line_number);
 #endif
   scline = (struct ScriptLine *)LbMemoryAlloc(sizeof(struct ScriptLine));
   if (scline == NULL)
   {
-    text = buf_sprintf("(script:%lu) Can't allocate buffer to recognize line", script_line_number);
+    text = buf_sprintf("(script:%lu) Can't allocate buffer to recognize line", text_line_number);
     error(func_name, 811, text);
     return 0;
   }
@@ -2269,7 +2269,7 @@ long script_scan_line(char *line,TbBool preloaded)
   {
     if ( isalnum(scline->tcmnd[0]) )
     {
-      text = buf_sprintf("(script:%lu) Invalid command, '%s' (lev ver %d)", script_line_number, scline->tcmnd,level_file_version);
+      text = buf_sprintf("(script:%lu) Invalid command, '%s' (lev ver %d)", text_line_number, scline->tcmnd,level_file_version);
       error(func_name, 817, text);
     }
     LbMemoryFree(scline);
@@ -2306,7 +2306,7 @@ long script_scan_line(char *line,TbBool preloaded)
     {
       scline->np[i] = strtol(scline->tp[i],&text,0);
       if (text != &scline->tp[i][strlen(scline->tp[i])])
-        LbWarnLog("(script:%lu) numerical value '%s' interpreted as %ld\n", script_line_number, scline->tp[i], scline->np[i]);
+        LbWarnLog("(script:%lu) numerical value '%s' interpreted as %ld\n", text_line_number, scline->tp[i], scline->np[i]);
     }
   }
   if (i < COMMANDDESC_ARGS_COUNT)
@@ -2314,7 +2314,7 @@ long script_scan_line(char *line,TbBool preloaded)
     chr = cmd_desc->args[i];
     if ((chr == 'A') || (chr == 'N'))
     {
-      text = buf_sprintf("(script:%lu) Not enough parameters for \"%s\"", script_line_number, cmd_desc->textptr);
+      text = buf_sprintf("(script:%lu) Not enough parameters for \"%s\"", text_line_number, cmd_desc->textptr);
       error(func_name, 536, text);
       LbMemoryFree(scline);
       return -1;
@@ -2507,7 +2507,7 @@ long script_scan_line(char *line,TbBool preloaded)
       LbSyncLog("Level files version %d.\n",level_file_version);
       break;
   default:
-      text = buf_sprintf("(script:%lu) Unhandled SCRIPT command '%s'", script_line_number,scline->tcmnd);
+      text = buf_sprintf("(script:%lu) Unhandled SCRIPT command '%s'", text_line_number,scline->tcmnd);
       error(func_name, 809, text);
       break;
   }
@@ -2522,7 +2522,7 @@ short clear_script(void)
 {
   memset(&game.script, 0, sizeof(struct LevelScript));
   script_current_condition = -1;
-  script_line_number = 1;
+  text_line_number = 1;
   return true;
 }
 
@@ -2546,7 +2546,7 @@ short preload_script(long lvnum)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
   script_current_condition = -1;
-  script_line_number = 1;
+  text_line_number = 1;
   level_file_version = DEFAULT_LEVEL_VERSION;
   clear_quick_messages();
   // Load the file
@@ -2575,10 +2575,11 @@ short preload_script(long lvnum)
       if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
         lnlen++;
     }
+    //LbSyncLog("%s: Line %d\n",func_name, text_line_number);
     // Analyze the line
     script_scan_line(buf, true);
     // Set new line start
-    script_line_number++;
+    text_line_number++;
     buf += lnlen;
   }
   LbMemoryFree(script_data);
@@ -2602,7 +2603,7 @@ short load_script(long lvnum)
   gui_set_button_flashing(0, 0);
   clear_script();
   script_current_condition = -1;
-  script_line_number = 1;
+  text_line_number = 1;
   game.bonus_time = 0;
   game.flags_cd |= 0x08;
   reset_creature_max_levels();
@@ -2641,7 +2642,7 @@ short load_script(long lvnum)
     // Analyze the line
     script_scan_line(buf, false);
     // Set new line start
-    script_line_number++;
+    text_line_number++;
     buf += lnlen;
   }
   LbMemoryFree(script_data);
