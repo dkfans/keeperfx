@@ -64,6 +64,7 @@ DLLIMPORT void _DK_get_map_nonaction_inputs(void);
 DLLIMPORT long _DK_get_bookmark_inputs(void);
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
+void get_creature_control_nonaction_inputs(void);
 short zoom_shortcuts(void);
 short get_bookmark_inputs(void);
 /******************************************************************************/
@@ -128,13 +129,11 @@ int is_game_key_pressed(long key_id, long *val, short ignore_mods)
 short get_players_message_inputs(void)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   int msg_width;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   if (is_key_pressed(KC_RETURN,KM_NONE))
   {
-      pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-      set_packet_action(pckt, PckA_PlyrMsgEnd, 0, 0, 0, 0);
+      set_players_packet_action(player, PckA_PlyrMsgEnd, 0, 0, 0, 0);
       clear_key_pressed(KC_RETURN);
       return true;
   }
@@ -142,8 +141,7 @@ short get_players_message_inputs(void)
   msg_width = pixel_size * LbTextStringWidth(player->strfield_463);
   if ( (is_key_pressed(KC_BACK,KM_DONTCARE)) || (msg_width < 450) )
   {
-      pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-      set_packet_action(pckt,PckA_PlyrMsgChar,lbInkey,key_modifiers,0,0);
+      set_players_packet_action(player,PckA_PlyrMsgChar,lbInkey,key_modifiers,0,0);
       clear_key_pressed(lbInkey);
       return true;
   }
@@ -293,7 +291,6 @@ short get_bookmark_inputs(void)
   //return _DK_get_bookmark_inputs();
   struct Bookmark *bmark;
   struct PlayerInfo *player;
-  struct Packet *pckt;
   int kcode;
   int i;
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
@@ -320,8 +317,7 @@ short get_bookmark_inputs(void)
       clear_key_pressed(kcode);
       if ((bmark->flags & 0x01) != 0)
       {
-        pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-        set_packet_action(pckt, PckA_BookmarkLoad, bmark->x, bmark->y, 0, 0);
+        set_players_packet_action(player, PckA_BookmarkLoad, bmark->x, bmark->y, 0, 0);
         return true;
       }
     }
@@ -352,7 +348,6 @@ short zoom_shortcuts(void)
 short get_minimap_control_inputs(void)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   short packet_made;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   packet_made = false;
@@ -360,8 +355,7 @@ short get_minimap_control_inputs(void)
   {
       if ( player->minimap_zoom < 0x0800 )
       {
-        pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-        set_packet_action(pckt, PckA_SetMinimapConf, 2 * player->minimap_zoom, 0, 0, 0);
+        set_players_packet_action(player, PckA_SetMinimapConf, 2 * player->minimap_zoom, 0, 0, 0);
         packet_made = true;
       }
       clear_key_pressed(KC_SUBTRACT);
@@ -371,8 +365,7 @@ short get_minimap_control_inputs(void)
   {
       if ( player->minimap_zoom > 0x0080 )
       {
-        pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-        set_packet_action(pckt, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
+        set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
         packet_made = true;
       }
       clear_key_pressed(KC_ADD);
@@ -389,13 +382,11 @@ short get_screen_control_inputs(void)
 {
   struct PlayerInfo *player;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  struct Packet *pckt;
   short packet_made;
   packet_made = false;
   if (is_key_pressed(KC_R,KM_ALT))
   {
-      pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-      set_packet_action(pckt, PckA_SwitchScrnRes, 0, 0, 0, 0);
+      set_players_packet_action(player, PckA_SwitchScrnRes, 0, 0, 0, 0);
       packet_made = true;
       clear_key_pressed(KC_R);
       if (packet_made) return true;
@@ -405,11 +396,10 @@ short get_screen_control_inputs(void)
 
 short get_global_inputs(void)
 {
+  struct PlayerInfo *player;
   if (game_is_busy_doing_gui_string_input())
     return false;
-  struct PlayerInfo *player;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  struct Packet *pckt;
   long keycode;
   if ((player->field_0 & 0x04) != 0)
   {
@@ -420,8 +410,7 @@ short get_global_inputs(void)
   {
       if (is_key_pressed(KC_RETURN,KM_NONE))
       {
-        pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-        set_packet_action(pckt, PckA_PlyrMsgBegin, 0, 0, 0, 0);
+        set_players_packet_action(player, PckA_PlyrMsgBegin, 0, 0, 0, 0);
         clear_key_pressed(KC_RETURN);
         return true;
       }
@@ -429,9 +418,9 @@ short get_global_inputs(void)
   // Code for debugging purposes
   if ( is_key_pressed(KC_D,KM_ALT) )
   {
-    LbSyncLog("REPORT for gameturn %d\n",game.play_gameturn);
+    LbJustLog("REPORT for gameturn %d\n",game.play_gameturn);
     // Timing report
-    LbSyncLog("Now time is %d, last loop time was %d, clock is %d, requested fps is %d\n",LbTimerClock(),last_loop_time,clock(),game.num_fps);
+    LbJustLog("Now time is %d, last loop time was %d, clock is %d, requested fps is %d\n",LbTimerClock(),last_loop_time,clock(),game.num_fps);
     test_variable = !test_variable;
   }
 
@@ -440,8 +429,7 @@ short get_global_inputs(void)
   {
       if ( is_key_pressed(idx,KM_ALT) )
       {
-        pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-        set_packet_action(pckt, PckA_PlyrFastMsg, idx-KC_F1, 0, 0, 0);
+        set_players_packet_action(player, PckA_PlyrFastMsg, idx-KC_F1, 0, 0, 0);
         clear_key_pressed(idx);
         return true;
       }
@@ -469,16 +457,14 @@ short get_global_inputs(void)
   {
       if (player->victory_state != VicS_Undecided)
       {
-        pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-        set_packet_action(pckt, 5, 0, 0, 0, 0);
+        set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
         clear_key_pressed(KC_SPACE);
         return true;
       }
   }
   if ( is_game_key_pressed(29, &keycode, 0) )
   {
-      pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-      set_packet_action(pckt, 111, 0, 0, 0, 0);
+      set_players_packet_action(player, 111, 0, 0, 0, 0);
       clear_key_pressed(keycode);
   }
   return false;
@@ -488,11 +474,12 @@ short get_level_lost_inputs(void)
 {
   static const char *func_name="get_level_lost_inputs";
 //  _DK_get_level_lost_inputs();
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  struct PlayerInfo *player;
   long keycode;
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
+  player=&(game.players[my_player_number%PLAYERS_COUNT]);
   if (player->field_0 & 0x04)
   {
     get_players_message_inputs();
@@ -502,8 +489,7 @@ short get_level_lost_inputs(void)
   {
     if (is_key_pressed(KC_RETURN,KM_NONE))
     {
-      struct Packet *pckt=&game.packets[player->packet_num%PACKETS_COUNT];
-      set_packet_action(pckt, 13, 0,0,0,0);
+      set_players_packet_action(player, 13, 0,0,0,0);
       clear_key_pressed(KC_RETURN);
       return true;
     }
@@ -518,8 +504,7 @@ short get_level_lost_inputs(void)
       return true;
   if (is_key_pressed(KC_SPACE,KM_NONE))
   {
-    struct Packet *pckt=&game.packets[player->packet_num%PACKETS_COUNT];
-    set_packet_action(pckt, 5, 0,0,0,0);
+    set_players_packet_action(player, PckA_FinishGame, 0,0,0,0);
     clear_key_pressed(KC_SPACE);
   }
   if (player->view_type == 4)
@@ -542,8 +527,7 @@ short get_level_lost_inputs(void)
         int actn_y = 3*screen_y/4 + 1;
         if  ((actn_x >= 0) && (actn_x < map_subtiles_x) && (actn_y >= 0) && (actn_y < map_subtiles_y))
         {
-          struct Packet *pckt=&game.packets[player->packet_num%PACKETS_COUNT];
-          set_packet_action(pckt, 81, actn_x,actn_y,0,0);
+          set_players_packet_action(player, 81, actn_x,actn_y,0,0);
           left_button_released = 0;
         }
     }
@@ -565,17 +549,16 @@ short get_level_lost_inputs(void)
       {
         turn_off_all_window_menus();
         game.numfield_C = (game.numfield_C ^ (unsigned __int8)(2 * game.numfield_C)) & 0x40 ^ game.numfield_C;
-        struct Packet *pckt=&game.packets[player->packet_num%PACKETS_COUNT];
         if ((game.numfield_A & 0x01) || (lbDisplay.PhysicalScreenWidth > 320))
         {
               if (toggle_status_menu(0))
                 set_flag_byte(&game.numfield_C,0x40,true);
               else
                 set_flag_byte(&game.numfield_C,0x40,false);
-              set_packet_action(pckt, 119, 4,0,0,0);
+              set_players_packet_action(player, 119, 4,0,0,0);
         } else
         {
-              set_packet_action(pckt, 80, 5,0,0,0);
+              set_players_packet_action(player, 80, 5,0,0,0);
         }
         turn_off_roaming_menus();
       }
@@ -589,7 +572,6 @@ short get_level_lost_inputs(void)
     else
       turn_on_menu(GMnu_OPTIONS);
   }
-  struct Packet *pckt=&game.packets[player->packet_num%PACKETS_COUNT];
   struct Thing *thing;
   short inp_done=false;
   switch (player->view_type)
@@ -627,14 +609,14 @@ short get_level_lost_inputs(void)
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->field_2 & 0x02) == 0)
-          set_packet_action(pckt, 33, player->field_2F,0,0,0);
+          set_players_packet_action(player, 33, player->field_2F,0,0,0);
       } else
       {
-        set_packet_action(pckt, 33, player->field_2F,0,0,0);
+        set_players_packet_action(player, 33, player->field_2F,0,0,0);
       }
       break;
     case PVT_CreaturePasngr:
-      set_packet_action(pckt, 32, player->field_2F,0,0,0);
+      set_players_packet_action(player, 32, player->field_2F,0,0,0);
       break;
     case PVT_MapScreen:
       if ( menu_is_active(GMnu_SPELL_LOST) )
@@ -682,11 +664,9 @@ long get_dungeon_control_action_inputs(void)
 {
   //return _DK_get_dungeon_control_action_inputs();
   struct PlayerInfo *player;
-  struct Packet *pckt;
   long val;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  if (pckt->action != PckA_None)
+  if (get_players_packet_action(player) != PckA_None)
     return 1;
   if (pixel_size < 3)
       val = (player->minimap_zoom) / (3-pixel_size);
@@ -753,10 +733,8 @@ long get_dungeon_control_action_inputs(void)
 short get_creature_passenger_action_inputs(void)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  if (pckt->action != PckA_None)
+  if (get_players_packet_action(player) != PckA_None)
     return 1;
   if ( ((game.numfield_C & 0x01) == 0) || ((game.numfield_C & 0x80) != 0))
       get_gui_inputs(1);
@@ -764,16 +742,14 @@ short get_creature_passenger_action_inputs(void)
     return false;
   if (right_button_released)
   {
-    struct Packet *pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-    set_packet_action(pckt, 32, player->field_2F,0,0,0);
+    set_players_packet_action(player, PckA_PasngrCtrlExit, player->field_2F,0,0,0);
     return true;
   }
   struct Thing *thing;
   thing = thing_get(player->field_2F);
   if ((player->field_31 != thing->field_9) || ((thing->field_0 & 1)==0) )
   {
-    struct Packet *pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-    set_packet_action(pckt, 32, player->field_2F,0,0,0);
+    set_players_packet_action(player, PckA_PasngrCtrlExit, player->field_2F,0,0,0);
     return true;
   }
   if (is_key_pressed(KC_TAB,KM_NONE))
@@ -788,14 +764,12 @@ short get_creature_control_action_inputs(void)
 {
   static const char *func_name="get_creature_control_action_inputs";
   struct PlayerInfo *player;
-  struct Packet *pckt;
   long keycode;
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  if (pckt->action != PckA_None)
+  if (get_players_packet_action(player) != PckA_None)
     return 1;
   if ( ((game.numfield_C & 0x01)==0) || (game.numfield_C & 0x80) )
     get_gui_inputs(1);
@@ -817,15 +791,14 @@ short get_creature_control_action_inputs(void)
     {
       struct Thing *thing;
       thing = thing_get(player->field_2F);
-      if ( (player->field_31 != thing->field_9) || ((thing->field_0 & 1)==0)
+      if ( (player->field_31 != thing->field_9) || ((thing->field_0 & 0x01) == 0)
          || (thing->field_7 == 67) )
         make_packet = true;
     }
     if (make_packet)
     {
       right_button_released = 0;
-      struct Packet *pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-      set_packet_action(pckt, 33, player->field_2F,0,0,0);
+      set_players_packet_action(player, 33, player->field_2F,0,0,0);
     }
   }
   if ( is_key_pressed(KC_TAB,KM_NONE) )
@@ -861,9 +834,7 @@ short get_creature_control_action_inputs(void)
       {
         if ( numkey == num_avail )
         {
-          struct Packet *pckt;
-          pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-          set_packet_action(pckt, 39, instnce,0,0,0);
+          set_players_packet_action(player, 39, instnce,0,0,0);
           break;
         }
         num_avail++;
@@ -877,7 +848,6 @@ void get_packet_control_mouse_clicks(void)
 {
   static const char *func_name="get_packet_control_mouse_clicks";
   struct PlayerInfo *player;
-  struct Packet *pckt;
 #if (BFDEBUG_LEVEL > 8)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
@@ -887,33 +857,27 @@ void get_packet_control_mouse_clicks(void)
     player=&(game.players[my_player_number%PLAYERS_COUNT]);
     if (left_button_held)
     {
-      pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-      set_packet_control(pckt, PCtr_LBtnHeld);
+      set_players_packet_control(player, PCtr_LBtnHeld);
     }
     if ( right_button_held )
     {
-      pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-      set_packet_control(pckt, PCtr_RBtnHeld);
+      set_players_packet_control(player, PCtr_RBtnHeld);
     }
     if ( left_button_clicked )
     {
-      pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-      set_packet_control(pckt, PCtr_LBtnClick);
+      set_players_packet_control(player, PCtr_LBtnClick);
     }
     if ( right_button_clicked )
     {
-      pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-      set_packet_control(pckt, PCtr_RBtnClick);
+      set_players_packet_control(player, PCtr_RBtnClick);
     }
     if ( left_button_released )
     {
-      pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-      set_packet_control(pckt, PCtr_LBtnRelease);
+      set_players_packet_control(player, PCtr_LBtnRelease);
     }
     if ( right_button_released )
     {
-      pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-      set_packet_control(pckt, PCtr_RBtnRelease);
+      set_players_packet_control(player, PCtr_RBtnRelease);
     }
   }
 }
@@ -937,8 +901,7 @@ short get_map_action_inputs(void)
     if ( left_button_released )
     {
       left_button_released = 0;
-      struct Packet *pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-      set_packet_action(pckt, 81,mappos_x,mappos_y,0,0);
+      set_players_packet_action(player, 81,mappos_x,mappos_y,0,0);
       return true;
     }
   }
@@ -952,9 +915,7 @@ short get_map_action_inputs(void)
     return true;
   } else
   {
-    struct Packet *pckt;
-    pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-    if (pckt->action != PckA_None)
+    if (get_players_packet_action(player) != PckA_None)
       return true;
     if (is_key_pressed(KC_F8,KM_NONE))
     {
@@ -1087,21 +1048,19 @@ void get_dungeon_control_nonaction_inputs(void)
   my_mouse_y = GetMouseY();
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  pckt->field_E &= 0x7FFFu;
+  unset_packet_control(pckt, PCtr_MapCoordsValid);
   if (player->work_state == 1)
   {
     if (get_player_coords_and_context(&pos, &context) )
     {
-      pckt->field_A = pos.x.val;
-      pckt->field_C = pos.y.val;
+      set_players_packet_position(player,pos.x.val,pos.y.val);
       set_packet_control(pckt, PCtr_MapCoordsValid);
       pckt->field_10 ^= (pckt->field_10 ^ (context<<1)) & 0x1E;
     }
   } else
   if (screen_to_map(player->acamera, my_mouse_x, my_mouse_y, &pos))
   {
-      pckt->field_A = pos.x.val;
-      pckt->field_C = pos.y.val;
+      set_players_packet_position(player,pos.x.val,pos.y.val);
       set_packet_control(pckt, PCtr_MapCoordsValid);
       pckt->field_10 &= 0xE1u;
   }
@@ -1132,9 +1091,8 @@ void get_map_nonaction_inputs(void)
   //_DK_get_map_nonaction_inputs();
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  pckt->field_A = GetMouseX();
-  pckt->field_C = GetMouseY();
-  pckt->field_E &= 0x7FFFu;
+  set_players_packet_position(player,GetMouseX(),GetMouseY());
+  unset_packet_control(pckt, PCtr_MapCoordsValid);
   if (screen_to_map(player->acamera, pckt->field_A, pckt->field_C, &pos))
     set_packet_control(pckt, PCtr_MapCoordsValid);
   if (((game.numfield_C & 0x01) == 0) && (player->field_37 == 3))
@@ -1180,6 +1138,12 @@ short get_packet_load_demo_inputs(void)
   }
 }
 
+void get_creature_control_nonaction_inputs(void)
+{
+  static const char *func_name="get_creature_control_nonaction_inputs";
+  _DK_get_creature_control_nonaction_inputs(); return;
+}
+
 short get_inputs(void)
 {
   static const char *func_name="get_inputs";
@@ -1210,9 +1174,7 @@ short get_inputs(void)
   #if (BFDEBUG_LEVEL > 5)
     LbSyncLog("%s: Starting for creature fade\n",func_name);
   #endif
-    pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-    pckt->field_A = 127;
-    pckt->field_C = 127;
+    set_players_packet_position(player,127,127);
     if ((!game_is_busy_doing_gui_string_input()) && (game.numfield_C & 0x01))
     {
       if ( is_game_key_pressed(30, &keycode, 0) )
@@ -1259,7 +1221,6 @@ short get_inputs(void)
     inp_handled = get_global_inputs();
   if (game_is_busy_doing_gui_string_input())
     return false;
-  struct Packet *pckt;
   switch (player->view_type)
   {
   case PVT_DungeonTop:
@@ -1272,7 +1233,7 @@ short get_inputs(void)
   case PVT_CreatureContrl:
       if (!inp_handled)
         inp_handled = get_creature_control_action_inputs();
-      _DK_get_creature_control_nonaction_inputs();
+      get_creature_control_nonaction_inputs();
       get_player_gui_clicks();
       get_packet_control_mouse_clicks();
       return inp_handled;
@@ -1309,15 +1270,13 @@ short get_inputs(void)
           player->field_1 |= 0x01;
         else
           player->field_1 &= 0xFE;
-        pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-        set_packet_action(pckt, 80, 4,0,0,0);
+        set_players_packet_action(player, 80, 4,0,0,0);
       }
       return false;
   case 6:
       if (player->field_37 != 7)
       {
-        pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-        set_packet_action(pckt, 80, 1,0,0,0);
+        set_players_packet_action(player, 80, 1,0,0,0);
       }
       return false;
   default:
@@ -1340,8 +1299,10 @@ void input(void)
   {
     lbKeyOn[lbInkey] = 0;
   }
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  struct Packet *pckt=&game.packets[player->packet_num%PACKETS_COUNT];
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  pckt=&game.packets[player->packet_num%PACKETS_COUNT];
   if (is_game_key_pressed(27, 0, 0) != 0)
     pckt->field_10 |= 0x20;
   else

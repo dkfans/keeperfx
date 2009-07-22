@@ -29,6 +29,7 @@ extern "C" {
 /******************************************************************************/
 enum TbPacketAction {
         PckA_None           =    0,
+        PckA_FinishGame     =    5,
         PckA_PlyrMsgBegin   =   13,
         PckA_PlyrMsgEnd     =   14,
         PckA_ToggleLights   =   20,
@@ -37,6 +38,7 @@ enum TbPacketAction {
         PckA_BookmarkLoad   =   26,
         PckA_SetGammaLevel  =   27,
         PckA_SetMinimapConf =   28,
+        PckA_PasngrCtrlExit =   32,
         PckA_SetPlyrState   =   36,
         PckA_CheatRevealMap =   63,
         PckA_SpellCTADis    =   89,
@@ -59,6 +61,7 @@ enum TbPacketControl {
 
 #define PCtr_LBtnAnyAction (PCtr_LBtnClick | PCtr_LBtnHeld | PCtr_LBtnRelease)
 #define PCtr_RBtnAnyAction (PCtr_RBtnClick | PCtr_RBtnHeld | PCtr_RBtnRelease)
+#define PCtr_HeldAnyButton (PCtr_LBtnHeld | PCtr_RBtnHeld)
 
 #pragma pack(1)
 
@@ -88,8 +91,13 @@ unsigned int field_8;
 /******************************************************************************/
 /******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
+void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
 void set_packet_control(struct Packet *pckt, unsigned long flag);
+void set_players_packet_control(struct PlayerInfo *player, unsigned long flag);
+unsigned char get_players_packet_action(struct PlayerInfo *player);
 void unset_packet_control(struct Packet *pckt, unsigned long flag);
+void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag);
+void set_players_packet_position(struct PlayerInfo *player, long x, long y);
 short set_packet_pause_toggle(void);
 void process_dungeon_control_packet_clicks(long idx);
 void process_players_dungeon_control_packet_action(long idx);

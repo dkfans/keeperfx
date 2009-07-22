@@ -3524,23 +3524,21 @@ void toggle_hero_health_flowers(void)
 void zoom_to_map(void)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   turn_off_all_window_menus();
   if ((game.numfield_C & 0x20) == 0)
     set_flag_byte(&game.numfield_C,0x40,false);
   else
     set_flag_byte(&game.numfield_C,0x40,true);
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
   if ((game.numfield_A & 0x01) || (lbDisplay.PhysicalScreenWidth > 320))
   {
     if (!toggle_status_menu(false))
       set_flag_byte(&game.numfield_C,0x40,false);
-    set_packet_action(pckt, 119, 4, 0, 0, 0);
+    set_players_packet_action(player, 119, 4, 0, 0, 0);
     turn_off_roaming_menus();
   } else
   {
-    set_packet_action(pckt, 80, 5, 0, 0, 0);
+    set_players_packet_action(player, 80, 5, 0, 0, 0);
     turn_off_roaming_menus();
   }
 }
@@ -3553,12 +3551,10 @@ void zoom_from_map(void)
   {
       if ((game.numfield_C & 0x40) != 0)
         toggle_status_menu(true);
-      struct Packet *pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-      set_packet_action(pckt, 120,1,0,0,0);
+      set_players_packet_action(player, 120,1,0,0,0);
   } else
   {
-      struct Packet *pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-      set_packet_action(pckt, 80,6,0,0,0);
+      set_players_packet_action(player, 80,6,0,0,0);
   }
 }
 
@@ -3814,13 +3810,11 @@ short zoom_to_fight(unsigned char a1)
 {
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
-  struct Packet *pckt;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   if (active_battle_exists(a1))
   {
     dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
-    pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-    set_packet_action(pckt, 104, dungeon->field_1174, 0, 0, 0);
+    set_players_packet_action(player, 104, dungeon->field_1174, 0, 0, 0);
     step_battles_forward(a1);
     return true;
   }
@@ -3901,7 +3895,6 @@ short zoom_to_next_annoyed_creature(void)
 {
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
-  struct Packet *pckt;
   struct Thing *thing;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
@@ -3911,8 +3904,7 @@ short zoom_to_next_annoyed_creature(void)
   {
     return false;
   }
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 87, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
+  set_players_packet_action(player, 87, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
   return true;
 }
 
@@ -9803,7 +9795,6 @@ void setup_exchange_player_number(void)
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   pckt = &game.packets[my_player_number];
   set_packet_action(pckt, 10, player->field_2C, settings.field_3, 0, 0);
-  pckt = &game.packets[my_player_number];
   if (LbNetwork_Exchange(pckt))
       error(func_name, 156, "LbNetwork_Exchange failed");
   k = 0;
@@ -9821,7 +9812,7 @@ void setup_exchange_player_number(void)
             player->field_4B5 = 5;
           player->field_2C = pckt->field_6;
           init_player(player, 0);
-          strncpy(player->field_15,enum_players_callback[i].svc_name,sizeof(struct TbNetworkCallbackData));
+          strncpy(player->field_15,net_player[i].name,sizeof(struct TbNetworkPlayerName));
           k++;
       }
   }

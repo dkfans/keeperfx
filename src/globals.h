@@ -74,7 +74,7 @@
 #endif
 
 // Debug level is scaled 0..10, default=1
-#define BFDEBUG_LEVEL 1
+#define BFDEBUG_LEVEL 0
 #define PROGRAM_NAME "Dungeon Keeper FX"
 #define PROGRAM_FULL_NAME "Dungeon Keeper Fan eXpansion"
 #define DEFAULT_LOG_FILENAME "keeperfx.log"
@@ -159,6 +159,13 @@ struct CoordDelta3d {
 };
 
 #pragma pack()
+
+struct ARect {
+  long left;
+  long top;
+  long right;
+  long bottom;
+};
 
 typedef long LevelNumber;
 typedef long MapCoord;

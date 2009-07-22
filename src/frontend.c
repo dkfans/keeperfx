@@ -1473,9 +1473,7 @@ short a_menu_window_is_active(void)
 
 void get_player_gui_clicks(void)
 {
-  //_DK_get_player_gui_clicks(); return;
   struct PlayerInfo *player;
-  struct Packet *pckt;
   struct Dungeon *dungeon;
   struct Thing *thing;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
@@ -1517,16 +1515,15 @@ void get_player_gui_clicks(void)
         {
           if ( !turn_off_all_window_menus() )
           {
-            pckt = &game.packets[player->packet_num%PACKETS_COUNT];
             if (player->work_state == 12)
             {
               turn_off_query_menus();
-              set_packet_action(pckt, PckA_SetPlyrState, 1, 0, 0, 0);
+              set_players_packet_action(player, PckA_SetPlyrState, 1, 0, 0, 0);
               right_button_released = 0;
             } else
             if ((player->work_state != 15) && (player->work_state != 1))
             {
-              set_packet_action(pckt, PckA_SetPlyrState, 1, 0, 0, 0);
+              set_players_packet_action(player, PckA_SetPlyrState, 1, 0, 0, 0);
               right_button_released = 0;
             }
           }
@@ -1548,8 +1545,7 @@ void get_player_gui_clicks(void)
 
   if ( game_is_busy_doing_gui() )
   {
-    pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-    set_packet_control(pckt, 0x4000u);
+    set_players_packet_control(player, 0x4000u);
   }
 }
 
@@ -1640,9 +1636,9 @@ void versions_different_error(void)
   }
   // Checking where to go back
   if (setup_old_network_service())
-    frontend_set_state(5);
+    frontend_set_state(FeSt_NET_SESSION);
   else
-    frontend_set_state(1);
+    frontend_set_state(FeSt_MAIN_MENU);
 }
 
 void create_error_box(unsigned short msg_idx)
@@ -1718,8 +1714,7 @@ void turn_on_event_info_panel_if_necessary(unsigned short evnt_idx)
 void activate_event_box(long evnt_idx)
 {
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  struct Packet *pckt=&game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 115, evnt_idx, 0,0,0);
+  set_players_packet_action(player, 115, evnt_idx, 0,0,0);
 }
 
 void kill_button(struct GuiButton *gbtn)
@@ -2000,10 +1995,8 @@ void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
 void init_load_menu(struct GuiMenu *gmnu)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 82, 1, 1, 0, 0);
+  set_players_packet_action(player, 82, 1, 1, 0, 0);
   load_game_save_catalogue();
   update_loadsave_input_strings(save_game_catalogue);
 }
@@ -2011,10 +2004,8 @@ void init_load_menu(struct GuiMenu *gmnu)
 void init_save_menu(struct GuiMenu *gmnu)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 82, 1, 1, 0, 0);
+  set_players_packet_action(player, 82, 1, 1, 0, 0);
   load_game_save_catalogue();
   update_loadsave_input_strings(save_game_catalogue);
 }
@@ -2225,7 +2216,6 @@ void maintain_ally(struct GuiButton *gbtn)
 
 void gui_load_game_maintain(struct GuiButton *gbtn)
 {
-  //_DK_gui_load_game_maintain(gbtn);
   long slot_idx;
   if (gbtn != NULL)
     slot_idx = gbtn->field_1B;
@@ -2248,7 +2238,6 @@ void maintain_zoom_to_event(struct GuiButton *gbtn)
 {
   struct Dungeon *dungeon;
   struct Event *event;
-  //_DK_maintain_zoom_to_event(gbtn);
   dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
   if (dungeon->field_1173)
   {
@@ -2294,13 +2283,11 @@ void maintain_transfer_creature_scroll(struct GuiButton *gbtn)
 
 void frontend_continue_game_maintain(struct GuiButton *gbtn)
 {
-  //_DK_frontend_continue_game_maintain(gbtn);
   set_flag_byte(&gbtn->field_0, 0x08, (continue_game_option_available != 0));
 }
 
 void frontend_main_menu_load_game_maintain(struct GuiButton *gbtn)
 {
-  //_DK_frontend_main_menu_load_game_maintain(gbtn);
   set_flag_byte(&gbtn->field_0, 0x08, (number_of_saved_games > 0));
 }
 
@@ -2311,19 +2298,16 @@ void frontend_main_menu_netservice_maintain(struct GuiButton *gbtn)
 
 void frontend_main_menu_highscores_maintain(struct GuiButton *gbtn)
 {
-  //_DK_frontend_main_menu_highscores_maintain(gbtn);
   set_flag_byte(&gbtn->field_0, 0x08, true);
 }
 
 void frontend_load_game_up_maintain(struct GuiButton *gbtn)
 {
-  //_DK_frontend_load_game_up_maintain(gbtn);
   set_flag_byte(&gbtn->field_0, 0x08, (load_game_scroll_offset != 0));
 }
 
 void frontend_load_game_down_maintain(struct GuiButton *gbtn)
 {
-  //_DK_frontend_load_game_down_maintain(gbtn);
   set_flag_byte(&gbtn->field_0, 0x08, (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1));
 }
 
@@ -2601,7 +2585,6 @@ void net_load_config_file(void)
 void frontnet_service_setup(void)
 {
   static const char *func_name="frontnet_service_setup";
-  //_DK_frontnet_service_setup(); return;
   net_number_of_services = 0;
   LbMemorySet(net_service, 0, sizeof(net_service));
   // Create list of available services
@@ -2639,7 +2622,6 @@ void frontnet_serial_setup(void)
 
 void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn)
 {
-  //_DK_frontend_maintain_high_score_ok_button(gbtn);
   set_flag_byte(&gbtn->field_0, 0x08, (high_score_entry_input_active == -1));
 }
 
@@ -2675,7 +2657,6 @@ void gui_zoom_out(struct GuiButton *gbtn)
 
 void gui_go_to_map(struct GuiButton *gbtn)
 {
-  //_DK_gui_go_to_map(gbtn);
   zoom_to_map();
 }
 
@@ -2786,13 +2767,11 @@ void gui_area_event_button(struct GuiButton *gbtn)
 void gui_choose_room(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   long i;
   //_DK_gui_choose_room(gbtn);
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
   i = (long)gbtn->field_33;
-  set_packet_action(pckt, PckA_SetPlyrState, 2, i, 0, 0);
+  set_players_packet_action(player, PckA_SetPlyrState, 2, i, 0, 0);
   game.field_151801 = i;
   game.field_151805 = room_info[i].field_0;
   game.field_151809 = gbtn->tooltip_id;
@@ -2855,7 +2834,6 @@ void gui_choose_spell(struct GuiButton *gbtn)
 {
   static const char *func_name="gui_choose_spell";
   struct PlayerInfo *player;
-  struct Packet *pckt;
   long i,k;
 //  _DK_gui_choose_spell(gbtn);
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
@@ -2863,18 +2841,17 @@ void gui_choose_spell(struct GuiButton *gbtn)
   // Disable previous spell
   if (!spell_is_stupid(game.chosen_spell_type))
   {
-    pckt = &game.packets[player->packet_num%PACKETS_COUNT];
     k = spell_data[i].field_4;
     if ((k == KSt_CallToArms) && (player->work_state == KSt_CallToArms))
     {
-      set_packet_action(pckt, PckA_SpellCTADis, 0, 0, 0, 0);
+      set_players_packet_action(player, PckA_SpellCTADis, 0, 0, 0, 0);
     } else
     if ((k == KSt_SightOfEvil) && (player->work_state == KSt_SightOfEvil))
     {
-      set_packet_action(pckt, PckA_SpellSOEDis, 0, 0, 0, 0);
+      set_players_packet_action(player, PckA_SpellSOEDis, 0, 0, 0, 0);
     } else
     {
-      set_packet_action(pckt, spell_data[i].field_0, k, 0, 0, 0);
+      set_players_packet_action(player, spell_data[i].field_0, k, 0, 0, 0);
       play_non_3d_sample(spell_data[i].field_11);
     }
   } else
@@ -2989,11 +2966,9 @@ void gui_area_normal_button(struct GuiButton *gbtn)
 void gui_set_tend_to(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   //_DK_gui_set_tend_to(gbtn);
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 55, gbtn->field_1B, 0, 0, 0);
+  set_players_packet_action(player, 55, gbtn->field_1B, 0, 0, 0);
 }
 
 void gui_area_flash_cycle_button(struct GuiButton *gbtn)
@@ -3039,11 +3014,9 @@ void gui_toggle_ally(struct GuiButton *gbtn)
 void gui_quit_game(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   //_DK_gui_quit_game(gbtn);
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 1, 0, 0, 0, 0);
+  set_players_packet_action(player, 1, 0, 0, 0, 0);
 }
 
 void gui_area_ally(struct GuiButton *gbtn)
@@ -3056,7 +3029,6 @@ void gui_save_game(struct GuiButton *gbtn)
   static const char *func_name="gui_save_game";
   struct CatalogueEntry *catentry;
   struct PlayerInfo *player;
-  struct Packet *pckt;
   long slot_idx;
   //_DK_gui_save_game(gbtn);
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
@@ -3075,8 +3047,7 @@ void gui_save_game(struct GuiButton *gbtn)
       create_error_box(536);
     }
   }
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 22, 0, 0, 0, 0);
+  set_players_packet_action(player, 22, 0, 0, 0, 0);
 
 }
 
@@ -3103,12 +3074,10 @@ void gui_video_cluedo_mode(struct GuiButton *gbtn)
 void gui_video_gamma_correction(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   //_DK_gui_video_gamma_correction(gbtn);
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
   video_gamma_correction = (video_gamma_correction + 1) % GAMMA_LEVELS_COUNT;
-  set_packet_action(pckt, PckA_SetGammaLevel, video_gamma_correction, 0, 0, 0);
+  set_players_packet_action(player, PckA_SetGammaLevel, video_gamma_correction, 0, 0, 0);
 }
 
 void gui_set_sound_volume(struct GuiButton *gbtn)
@@ -4091,15 +4060,13 @@ void gui_load_game(struct GuiButton *gbtn)
 {
   static const char *func_name="gui_load_game";
   struct PlayerInfo *player;
-  struct Packet *pckt;
   //_DK_gui_load_game(gbtn);
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
   if (!load_game(gbtn->field_1B))
   {
     error(func_name, 7266, "Error in load!");
   }
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 22, 0, 0, 0, 0);
+  set_players_packet_action(player, 22, 0, 0, 0, 0);
 }
 
 void gui_area_scroll_window(struct GuiButton *gbtn)
@@ -4195,7 +4162,7 @@ void frontend_load_game(struct GuiButton *gbtn)
   {
     save_catalogue_slot_disable(i);
     if (!initialise_load_game_slots())
-      frontend_set_state(1);
+      frontend_set_state(FeSt_MAIN_MENU);
   }
 }
 
@@ -4587,8 +4554,7 @@ long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, uns
 {
   // Note: reworked from beta and unchecked
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  struct Packet *pckt=&game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, PckA_SetPlyrState, ((short *)tag)[0], ((short *)tag)[2], 0, 0);
+  set_players_packet_action(player, PckA_SetPlyrState, tag[0], tag[1], 0, 0);
   struct GuiBoxOption *guop;
   guop=gbox->optn_list;
   while (guop->label[0] != '!')
@@ -4603,86 +4569,72 @@ long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, uns
 long gf_change_player_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 39, *tag, 0, 0, 0);
+  set_players_packet_action(player, 39, *tag, 0, 0, 0);
   return 1;
 }
 
 long gf_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
   if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
     return 0;
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 62, 0, 0, 0, 0);
+  set_players_packet_action(player, 62, 0, 0, 0, 0);
   return 1;
 }
 
 long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
   if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
     return 0;
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 67, 0, 0, 0, 0);
+  set_players_packet_action(player, 67, 0, 0, 0, 0);
   return 1;
 }
 
 long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
   if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
     return 0;
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 61, 0, 0, 0, 0);
+  set_players_packet_action(player, 61, 0, 0, 0, 0);
   return 1;
 }
 
 long gf_give_all_creatures_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
   if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
     return 0;
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 64, 0, 0, 0, 0);
+  set_players_packet_action(player, 64, 0, 0, 0, 0);
   return 1;
 }
 
 long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, PckA_CheatRevealMap, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_CheatRevealMap, 0, 0, 0, 0);
   return 1;
 }
 
 long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
   if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
     return 0;
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 66, 0, 0, 0, 0);
+  set_players_packet_action(player, 66, 0, 0, 0, 0);
   return 1;
 }
 
@@ -5989,6 +5941,9 @@ int frontend_set_state(long nstate)
 {
   static const char *func_name="frontend_set_state";
   char *fname;
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: State %d will be switched to %d\n",func_name,frontend_menu_state,nstate);
+#endif
   switch (frontend_menu_state)
   {
   case 0:
@@ -6826,20 +6781,16 @@ void load_game_update(void)
 void spell_lost_first_person(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  struct Packet *pckt;
-  pckt=&game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 110, 0, 0, 0, 0);
+  set_players_packet_action(player, 110, 0, 0, 0, 0);
 }
 
 void gui_turn_on_autopilot(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   if (player->victory_state != VicS_LostLevel)
   {
-    pckt=&game.packets[player->packet_num%PACKETS_COUNT];
-    set_packet_action(pckt, 107, 0, 0, 0, 0);
+    set_players_packet_action(player, 107, 0, 0, 0, 0);
   }
 }
 
@@ -6847,7 +6798,6 @@ void gui_set_autopilot(struct GuiButton *gbtn)
 {
   static const char *func_name="gui_set_autopilot";
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  struct Packet *pckt;
   int ntype;
   if (game.field_1517F7)
   {
@@ -6869,8 +6819,7 @@ void gui_set_autopilot(struct GuiButton *gbtn)
     error(func_name, 7053, "Illegal Autopilot type, resetting to default");
     ntype = 1;
   }
-  pckt=&game.packets[player->packet_num%PACKETS_COUNT];
-  set_packet_action(pckt, 109, ntype, 0, 0, 0);
+  set_players_packet_action(player, 109, ntype, 0, 0, 0);
 }
 
 void display_objectives(long plyr_idx,long x,long y)

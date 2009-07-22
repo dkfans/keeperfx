@@ -72,14 +72,52 @@ void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned shor
   pckt->action = pcktype;
 }
 
+void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
+{
+  struct Packet *pckt;
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt->field_6 = par1;
+  pckt->field_8 = par2;
+  pckt->action = pcktype;
+}
+
+unsigned char get_players_packet_action(struct PlayerInfo *player)
+{
+  struct Packet *pckt;
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  return pckt->action;
+}
+
 void set_packet_control(struct Packet *pckt, unsigned long flag)
 {
+  pckt->field_E |= flag;
+}
+
+void set_players_packet_control(struct PlayerInfo *player, unsigned long flag)
+{
+  struct Packet *pckt;
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
   pckt->field_E |= flag;
 }
 
 void unset_packet_control(struct Packet *pckt, unsigned long flag)
 {
   pckt->field_E &= ~flag;
+}
+
+void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
+{
+  struct Packet *pckt;
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt->field_E &= ~flag;
+}
+
+void set_players_packet_position(struct PlayerInfo *player, long x, long y)
+{
+  struct Packet *pckt;
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt->field_A = x;
+  pckt->field_C = y;
 }
 
 void clear_packets(void)

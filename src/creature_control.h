@@ -29,9 +29,7 @@ extern "C" {
 #define CREATURES_COUNT       256
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Creatures { // sizeof = 16
   unsigned short numfield_0;
@@ -176,9 +174,9 @@ short annoy_untrained;
 short field_C4;
 short annoy_queue;
 short annoy_will_not_do_job;
-short job_stress;
+    unsigned short job_stress;
 short annoy_job_stress;
-short jobs_anger;
+    unsigned short jobs_anger;
 short annoy_others_leaving;
     unsigned char slaps_to_kill;
 short lair_enemy;
@@ -200,9 +198,7 @@ struct Persons {
     struct CreatureControl *cctrl_end;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 struct CreatureControl *creature_control_get(long cctrl_idx);
 struct CreatureControl *creature_control_get_from_thing(struct Thing *thing);
