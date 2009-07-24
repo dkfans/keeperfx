@@ -292,7 +292,7 @@ void set_creature_level(struct Thing *thing, long nlvl)
   if (game.field_14E497 != thing->owner)
   {
     dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
-    dungeon->field_EA8 += game.strct_14EA4C[thing->model%CREATURE_TYPES_COUNT].value[cctrl->explevel%CREATURE_MAX_LEVEL];
+    dungeon->field_EA8 += game.creature_scores[thing->model%CREATURE_TYPES_COUNT].value[cctrl->explevel%CREATURE_MAX_LEVEL];
   }
 }
 

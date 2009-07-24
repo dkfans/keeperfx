@@ -68,6 +68,7 @@
 #define MINMAXS_COUNT          64
 #define LIGHTS_COUNT          400
 #define SHADOW_LIMITS_COUNT  2048
+#define SPIRAL_STEPS_COUNT   2500
 #define COLUMN_STACK_HEIGHT     8
 #define GOLD_LOOKUP_COUNT      40
 #define TURN_TIMERS_COUNT       8
@@ -313,9 +314,9 @@ struct Around { // sizeof = 2
 };
 
 struct MapOffset {
-  char field_0;
-  char field_1;
-  unsigned short field_2;
+  char v;
+  char h;
+  unsigned short both;
 };
 
 struct KeeperSprite { // sizeof = 16
@@ -414,7 +415,8 @@ char field_8;
 short light;
 char field_B;
 char field_C[14];
-char field_1A[3];
+char field_1A;
+short field_1B;
 };
 
 struct SpellConfig { // sizeof=0x8
@@ -440,6 +442,11 @@ struct SMessage {
       long start_idx;
       long count;
       long end_time;
+};
+
+struct KeyToStringInit { // sizeof = 5
+  unsigned char chr;
+  long str_idx;
 };
 
 struct Objects {
@@ -1159,10 +1166,16 @@ unsigned short field_14E93A;
     unsigned short graveyard_convert_time;
     unsigned short tile_strength;
     unsigned short gold_tile_strength;
-unsigned char field_14E958[14];
-char field_14E966[128];
-char field_14E9E6[64];
-unsigned char field_14EA26[28];
+unsigned char field_14E958[208];
+unsigned short field_14EA28;
+unsigned short field_14EA2A;
+unsigned short field_14EA2C;
+unsigned short field_14EA2E;
+unsigned long field_14EA30;
+unsigned short field_14EA34;
+unsigned short field_14EA36;
+unsigned short field_14EA38;
+unsigned char field_14EA3A[8];
     unsigned char min_distance_for_teleport;
     unsigned char recovery_frequency;
 unsigned short field_14EA44;
@@ -1170,7 +1183,7 @@ unsigned short field_14EA46;
     unsigned short food_generation_speed;
 char flagfield_14EA4A;
 char field_14EA4B;
-    struct PerExpLevelValues strct_14EA4C[CREATURE_TYPES_COUNT];
+    struct PerExpLevelValues creature_scores[CREATURE_TYPES_COUNT];
     unsigned long default_max_crtrs_gen_entrance;
     unsigned long default_imp_dig_damage;
     unsigned long default_imp_dig_own_damage;
@@ -1625,7 +1638,7 @@ DLLIMPORT long _DK_old_my;
 #define old_my _DK_old_my
 DLLIMPORT unsigned char _DK_zoom_to_heart_palette[768];
 #define zoom_to_heart_palette _DK_zoom_to_heart_palette
-DLLIMPORT struct MapOffset _DK_spiral_step[2500];
+DLLIMPORT struct MapOffset _DK_spiral_step[SPIRAL_STEPS_COUNT];
 #define spiral_step _DK_spiral_step
 DLLIMPORT short _DK_td_iso[TD_ISO_POINTS];
 #define td_iso _DK_td_iso
@@ -2106,6 +2119,8 @@ long set_autopilot_type(unsigned int plridx, long aptype);
 void event_delete_event(long plridx, long num);
 void set_player_state(struct PlayerInfo *player, short a1, long a2);
 short magic_use_power_obey(unsigned short plridx);
+DLLIMPORT long _DK_key_to_string[256];
+#define key_to_string _DK_key_to_string
 long place_thing_in_power_hand(struct Thing *thing, long var);
 void turn_off_call_to_arms(long a);
 long event_move_player_towards_event(struct PlayerInfo *player, long var);

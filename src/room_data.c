@@ -285,8 +285,8 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
   for (i=0; i < 256; i++)
   {
     sstep = &spiral_step[i];
-    cx = 3 * (tot_x + sstep->field_1) + 1;
-    cy = 3 * (tot_y + sstep->field_0) + 1;
+    cx = 3 * (tot_x + sstep->h) + 1;
+    cy = 3 * (tot_y + sstep->v) + 1;
     slb_x = map_to_slab[cx%(map_subtiles_x+1)];
     slb_y = map_to_slab[cy%(map_subtiles_y+1)];
     slb = get_slabmap_block(slb_x,slb_y);

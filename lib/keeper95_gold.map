@@ -192,6 +192,7 @@
  0001:00025280       tag_cursor_blocks_sell_area
  0001:00025420       tag_cursor_blocks_thing_in_hand
  0001:00025B70       create_map_volume_box
+ 0001:00026320       engine_init
  0001:00026580       frame_wibble_generate
  0001:000266B0       rotpers_parallel
  0001:00026830       rotpers_standard
@@ -357,6 +358,7 @@
  0001:000605F0       post_init_players
  0001:00060670       init_keeper_map_exploration
  0001:00062AC0       init_player_cameras
+ 0001:00062BB0       init_colours
  0001:00063480       create_thing
  0001:00063630       create_creature
  0001:00063FD0       create_effect_element
@@ -669,6 +671,8 @@
  0001:000C6150       kill_creature
  0001:000C6670       can_thing_be_possessed
  0001:000C67C0       can_thing_be_queried
+ 0001:000C6E80       load_cube_file
+ 0001:000C7190       load_anim_file
  0001:000C7DE0       load_stats_files
  0001:000C9A40       convert_old_column_file
  0001:000CA6D0       setup_person_move_to_position
@@ -904,8 +908,10 @@
  0003:00030314       net_number_of_services
  0003:00030318       tmp_net_phone_number
  0003:00030348       zoom_to_heart_palette
+ 0003:00030648       key_to_string
  0003:00030B70       thing_pointed_at
  0003:00030C80       thing_being_displayed
+ 0003:00030C84       EngineSpriteDrawUsingAlpha
  0003:00030C88       door_sound_state
  0003:00030CD0       torture_sprite_frame
  0003:00030CD4       torture_sprite_direction
@@ -1040,6 +1046,7 @@
  0003:000EBF00       colours
  0003:000ECF00       end_edit_icon_sprites
  0003:000ECF04       end_port_sprites
+ 0003:000ED308       poly_pool_end
  0003:000ED310       game
  0003:0023EB54       eye_lens_spare_screen_memory
  0003:00241458       port_sprite

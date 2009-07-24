@@ -77,6 +77,8 @@ DLLIMPORT unsigned char *_DK_getpoly;
 #define getpoly _DK_getpoly
 DLLIMPORT unsigned char _DK_poly_pool[0x40000];
 #define poly_pool _DK_poly_pool
+DLLIMPORT unsigned char *_DK_poly_pool_end;
+#define poly_pool_end _DK_poly_pool_end
 DLLIMPORT struct BasicQ *_DK_buckets[];
 #define buckets _DK_buckets
 DLLIMPORT Offset _DK_vert_offset[3];
