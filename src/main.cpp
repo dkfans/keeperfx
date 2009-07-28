@@ -34,6 +34,12 @@
 #include "packets.h"
 #include "config.h"
 #include "config_campaigns.h"
+#include "config_terrain.h"
+#include "config_rules.h"
+#include "config_lenses.h"
+#include "config_magic.h"
+#include "config_creature.h"
+#include "config_crtrmodel.h"
 #include "lvl_script.h"
 #include "lvl_filesdk1.h"
 #include "thing_list.h"
@@ -915,12 +921,16 @@ void setup_eye_lens(long nlens)
 
 void reinitialise_eye_lens(long nlens)
 {
+  static const char *func_name="reinitialise_eye_lens";
   initialise_eye_lenses();
   if ((game.flags_cd & MFlg_EyeLensReady) && (nlens>0))
   {
       game.numfield_1B = 0;
       setup_eye_lens(nlens);
   }
+#if (BFDEBUG_LEVEL > 18)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 void draw_jonty_mapwho(struct JontySpr *jspr)
@@ -987,7 +997,8 @@ unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
 {
   // Note: I don't know if the zoom may be scaled for current resolution,
   // as there may be different resolution on another computer if playing MP game.
-  return ((zoom_lvl*units_per_pixel) >> 4)*pixel_size;
+//  return ((zoom_lvl*units_per_pixel) >> 4)*pixel_size;
+  return ((((zoom_lvl*units_per_pixel) >> 4)*(int)sqrt(pixel_size*units_per_pixel)) >> 2)*pixel_size;
 }
 
 void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4, unsigned char a5, unsigned char a6, long a7, long a8)
@@ -1169,7 +1180,6 @@ void set_power_hand_graphic(long plyr_idx, long a2, long a3)
 {
   struct PlayerInfo *player;
   struct Thing *thing;
-//  _DK_set_power_hand_graphic(plyr_idx, a2, a3); return;
   player = &(game.players[plyr_idx%PLAYERS_COUNT]);
   if (player->field_10 >= game.play_gameturn)
   {
@@ -1383,36 +1393,96 @@ void init_dungeons_research(void)
   }
 }
 
-short remove_all_research_from_player(long plyr_idx)
+TbBool remove_all_research_from_player(long plyr_idx)
 {
   struct Dungeon *dungeon;
   dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
   dungeon->research_num = 0;
-  dungeon->field_14AD = 1;
+  dungeon->research_override = 1;
   return true;
 }
 
-short add_research_to_player(long plyr_idx, long a2, long a3, long a4)
+TbBool research_overriden_for_player(long plyr_idx)
+{
+  struct Dungeon *dungeon;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  return (dungeon->research_override != 0);
+}
+
+TbBool clear_research_for_all_players(void)
+{
+  struct Dungeon *dungeon;
+  int plyr_idx;
+  for (plyr_idx=0; plyr_idx < DUNGEONS_COUNT; plyr_idx++)
+  {
+    dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+    dungeon->research_num = 0;
+    dungeon->research_override = 0;
+  }
+  return true;
+}
+
+TbBool add_research_to_player(long plyr_idx, long rtyp, long rkind, long amount)
 {
   static const char *func_name="add_research_to_player";
   struct Dungeon *dungeon;
   struct ResearchVal *resrch;
-  char *text;
   long i;
   dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
   i = dungeon->research_num;
-  if (i >= 34)
+  if (i >= DUNGEON_RESEARCH_COUNT)
   {
-    text = buf_sprintf("Too much research for player %d", plyr_idx);
-    error(func_name, 635, text);
+    LbErrorLog("%s: Too much research (%d items) for player %d\n", i, plyr_idx);
     return false;
   }
   resrch = &dungeon->research[i];
-  resrch->field_0 = a2;
-  resrch->field_1 = a3;
-  resrch->field_2 = a4;
+  resrch->rtyp = rtyp;
+  resrch->rkind = rkind;
+  resrch->req_amount = amount;
   dungeon->research_num++;
   return true;
+}
+
+TbBool add_research_to_all_players(long rtyp, long rkind, long amount)
+{
+  static const char *func_name="add_research_to_all_players";
+  TbBool result;
+  long i;
+  result = true;
+#if (BFDEBUG_LEVEL > 17)
+  LbSyncLog("%s: Adding type %d, kind %d, amount %d\n", func_name, rtyp, rkind, amount);
+#endif
+  for (i=0; i < PLAYERS_COUNT; i++)
+  {
+    result &= add_research_to_player(i, rtyp, rkind, amount);
+  }
+  return result;
+}
+
+TbBool update_players_research_amount(long plyr_idx, long rtyp, long rkind, long amount)
+{
+  static const char *func_name="update_players_research_amount";
+  struct Dungeon *dungeon;
+  struct ResearchVal *resrch;
+  long i;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  for (i = 0; i < dungeon->research_num; i++)
+  {
+    resrch = &dungeon->research[i];
+    if ((resrch->rtyp == rtyp) && (resrch->rkind = rkind))
+    {
+      resrch->req_amount = amount;
+    }
+    return true;
+  }
+  return false;
+}
+
+TbBool update_or_add_players_research_amount(long plyr_idx, long rtyp, long rkind, long amount)
+{
+  if (update_players_research_amount(plyr_idx, rtyp, rkind, amount))
+    return true;
+  return add_research_to_player(plyr_idx, rtyp, rkind, amount);
 }
 
 void init_spiral_steps(void)
@@ -2680,10 +2750,8 @@ void process_network_error(long errcode)
   _DK_process_network_error(errcode);
 }
 
-
 short setup_network_service(int srvidx)
 {
-//  return _DK_setup_network_service(srvidx);
   struct SerialInitData *init_data;
   long maxplayrs;
 
@@ -4022,7 +4090,7 @@ void init_keeper(void)
   game.numfield_D |= 0x20 | 0x40;
   init_censorship();
  }
- 
+
 short ceiling_set_info(long height_max, long height_min, long step)
 {
   static const char *func_name="ceiling_set_info";
@@ -4064,6 +4132,10 @@ short ceiling_set_info(long height_max, long height_min, long step)
 
 short load_settings(void)
 {
+  static const char *func_name="load_settings";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   // CPU status variable
   struct CPU_INFO cpu_info;
   char *fname;
@@ -4164,7 +4236,7 @@ short setup_game(void)
       result = show_actv_bitmap_screen(3000);
       free_actv_bitmap_screen();
   } else
-      LbSyncLog("%s - Legal image skipped\n", func_name);
+      LbSyncLog("%s: Legal image skipped\n", func_name);
 
   // Now do more setup
   // Prepare the Game structure
@@ -4182,7 +4254,7 @@ short setup_game(void)
       result = show_actv_bitmap_screen(4000);
       free_actv_bitmap_screen();
   } else
-      LbSyncLog("%s - startup_fx image skipped\n", func_name);
+      LbSyncLog("%s: startup_fx image skipped\n", func_name);
   draw_clear_screen();
 
   // View Bullfrog company logo animation when new moon
@@ -5061,9 +5133,9 @@ void load_engine_window(struct TbGraphicsWindow *ewnd)
   player->engine_window_height = ewnd->height;
 }
 
-struct Thing *get_nearest_thing_for_hand_or_slap(unsigned char a1, long a2, long a3)
+struct Thing *get_nearest_thing_for_hand_or_slap(unsigned char plyr_idx, long x, long y)
 {
-  return _DK_get_nearest_thing_for_hand_or_slap(a1, a2, a3);
+  return _DK_get_nearest_thing_for_hand_or_slap(plyr_idx, x, y);
 }
 
 long creature_instance_is_available(struct Thing *thing, long inum)
@@ -5094,8 +5166,8 @@ int get_spell_overcharge_level(struct PlayerInfo *player)
 {
   int i;
   i = (player->field_4D2 >> 2);
-  if (i >= 8)
-    return 8;
+  if (i >= MAGIC_OVERCHARGE_LEVELS)
+    return MAGIC_OVERCHARGE_LEVELS-1;
   return i;
 }
 
@@ -5107,8 +5179,8 @@ short update_spell_overcharge(struct PlayerInfo *player, int spl_idx)
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
   mgstat = &(game.magic_stats[spl_idx%SPELL_TYPES_COUNT]);
   i = (player->field_4D2+1) >> 2;
-  if (i >= 8)
-    i = 8;
+  if (i >= MAGIC_OVERCHARGE_LEVELS)
+    i = MAGIC_OVERCHARGE_LEVELS-1;
   if (mgstat->cost[i] <= dungeon->field_AF9)
   {
     // If we have more money, increase overcharge
@@ -5126,7 +5198,7 @@ short update_spell_overcharge(struct PlayerInfo *player, int spl_idx)
     else
       player->field_4D2 = 0;
   }
-  return (i < 8);
+  return (i < (MAGIC_OVERCHARGE_LEVELS-1));
 }
 
 long take_money_from_dungeon(short a1, long a2, unsigned char a3)
@@ -5159,14 +5231,40 @@ void reinit_tagged_blocks_for_player(unsigned char idx)
   _DK_reinit_tagged_blocks_for_player(idx);
 }
 
-long load_stats_files(void)
+TbBool load_stats_files(void)
 {
+  static const char *func_name="load_stats_files";
+  int i;
+  TbBool result;
   // Hack to make our shot function work - remove when it's not needed
   instance_info[1].func_cb = instf_creature_fire_shot;
   instance_info[2].func_cb = instf_creature_fire_shot;
   instance_info[4].func_cb = instf_creature_fire_shot;
-  return _DK_load_stats_files();
+  result = true;
+  clear_research_for_all_players();
+  if (!load_terrain_config(keeper_terrain_file,0))
+    result = false;
+  if (!load_lenses_config(keeper_lenses_file,0))
+    result = false;
+  if (!load_magic_config(keeper_magic_file,0))
+    result = false;
+  if (!load_creaturetypes_config(keeper_creaturetp_file,0))
+    result = false;
+  // note that rules file requires definitions of magic and creature types
+  if (!load_rules_config(keeper_rules_file,0))
+    result = false;
+  for (i=0; i < crtr_conf.kind_count; i++)
+  {
+    if (!load_creaturemodel_config(i+1,0))
+      result = false;
+  }
+  game.field_149E7B = game.tile_strength;
+//LbFileSaveAt("!stat11", &game, sizeof(struct Game));
+//LbFileSaveAt("!stat12", &shot_stats, sizeof(shot_stats));
+//LbFileSaveAt("!stat13", &instance_info, sizeof(instance_info));
+  return result;
 }
+
 
 void check_and_auto_fix_stats(void)
 {
@@ -6001,7 +6099,11 @@ void clear_action_points(void)
 
 void clear_computer(void)
 {
+  static const char *func_name="clear_computer";
   long i;
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   for (i=0; i < COMPUTER_TASKS_COUNT; i++)
   {
     memset(&game.computer_task[i], 0, sizeof(struct ComputerTask));
@@ -6039,6 +6141,10 @@ void clear_rooms(void)
 
 void clear_dungeons(void)
 {
+  static const char *func_name="clear_dungeons";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   int i;
   for (i=0; i < DUNGEONS_COUNT; i++)
   {
@@ -6179,6 +6285,10 @@ void delete_all_structures(void)
 
 void clear_game_for_summary(void)
 {
+  static const char *func_name="clear_game_for_summary";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   delete_all_structures();
   clear_shadow_limits();
   clear_stat_light_map();
@@ -8154,7 +8264,11 @@ void process_players(void)
 
 short update_animating_texture_maps(void)
 {
+  static const char *func_name="update_animating_texture_maps";
   int i;
+#if (BFDEBUG_LEVEL > 18)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   anim_counter = (anim_counter+1) % 8;
   short result=true;
   for (i=0; i<TEXTURE_BLOCKS_ANIM_COUNT; i++)
@@ -8575,11 +8689,6 @@ void process_pointer_graphic(void)
       if (player->instance_num == PI_MapFadeFrom)
       {
         set_pointer_graphic(0);
-      } else
-//!!!!!!!remove if doesn't solve possession bug
-      if ((player->instance_num == PI_DirctCtLeave) || (player->instance_num == PI_PsngrCtLeave))
-      {
-        set_pointer_graphic_none();
       } else
       if (((game.numfield_C & 0x20) != 0) && mouse_is_over_small_map(player->mouse_x, player->mouse_y))
       {
@@ -9456,7 +9565,6 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
   }
 }
 
-
 /*
  * Draws a box near mouse with more detailed top view of map.
  * Requires screen to be locked before.
@@ -9817,7 +9925,7 @@ void redraw_display(void)
   else
     process_pointer_graphic();
 #if (BFDEBUG_LEVEL > 8)
-//!!!!!!!remove when possession bug splved
+//!!!!!!!remove when possession bug solved
     LbSyncLog("%s: Redrawing view %d\n",func_name,(int)player->field_37);
 #endif
   switch (player->field_37)
@@ -11123,6 +11231,11 @@ void post_init_players(void)
 
 short init_animating_texture_maps(void)
 {
+  static const char *func_name="init_animating_texture_maps";
+  int i;
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   //_DK_init_animating_texture_maps(); return;
   anim_counter = 7;
   return update_animating_texture_maps();

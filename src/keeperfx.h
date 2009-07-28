@@ -36,6 +36,7 @@
 #include "map_data.h"
 #include "room_data.h"
 #include "config.h"
+#include "config_magic.h"
 
 #define LEGAL_WIDTH  640
 #define LEGAL_HEIGHT 480
@@ -269,9 +270,9 @@ struct MessageQueueEntry { // sizeof = 9
 };
 
 struct ResearchVal { // sizeof = 6
-  unsigned char field_0;
-  unsigned char field_1;
-  long field_2;
+  unsigned char rtyp;
+  unsigned char rkind;
+  long req_amount;
 };
 
 struct PartyMember { // sizeof = 13
@@ -419,11 +420,6 @@ char field_1A;
 short field_1B;
 };
 
-struct SpellConfig { // sizeof=0x8
-int field_0;
-int field_4;
-};
-
 struct Armageddon { // sizeof = 14
   unsigned long count_down;
   unsigned long duration;
@@ -518,12 +514,6 @@ struct PerExpLevelValues { // sizeof = 10
 struct RoomStats {
   short cost;
   unsigned short health;
-};
-
-struct MagicStats {  // sizeof=0x4C
-long cost[9];
-long time;
-long power[9];
 };
 
 struct TrapStats {  // sizeof=54
@@ -989,7 +979,7 @@ unsigned short field_1420[32];
 unsigned char field_1460[41];
 unsigned char field_1489[32];
 int field_14A9;
-unsigned char field_14AD;
+unsigned char research_override; // could be easily changed into flags..
 int field_14AE;
 unsigned char field_14B2[2];
 int field_14B4;
@@ -1031,7 +1021,7 @@ struct ObjectConfig objects_config[239];
 char field_117DA[14];
 struct ManfctrConfig traps_config[TRAP_TYPES_COUNT];
 struct ManfctrConfig doors_config[DOOR_TYPES_COUNT];
-struct SpellConfig spells_config[15];
+    struct SpellConfig spells_config[30];
     struct Thing *things_lookup[THINGS_COUNT];
     struct Thing *things_end;
     struct Persons persons;
@@ -1203,7 +1193,7 @@ char field_14EA4B;
 unsigned long field_15033A;
     unsigned long power_hand_gold_grab_amount;
     unsigned char no_intro;
-    unsigned long game_hero_door_wait_time;
+    unsigned long hero_door_wait_time;
     unsigned long dungeon_heart_heal_time;
     long dungeon_heart_heal_health;
     unsigned long dungeon_heart_health;
@@ -1940,13 +1930,18 @@ void set_player_as_lost_level(struct PlayerInfo *player);
 void init_good_player_as(long plr_idx);
 void init_keepers_map_exploration(void);
 void init_dungeons_research(void);
-short add_research_to_player(long plyr_idx, long a2, long a3, long a4);
-short remove_all_research_from_player(long plyr_idx);
+TbBool add_research_to_player(long plyr_idx, long rtyp, long rkind, long amount);
+TbBool add_research_to_all_players(long rtyp, long rkind, long amount);
+TbBool remove_all_research_from_player(long plyr_idx);
+TbBool clear_research_for_all_players(void);
+TbBool research_overriden_for_player(long plyr_idx);
+TbBool update_players_research_amount(long plyr_idx, long rtyp, long rkind, long amount);
+TbBool update_or_add_players_research_amount(long plyr_idx, long rtyp, long rkind, long amount);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
 void add_creature_to_pool(long kind, long amount, unsigned long a3);
-long load_stats_files(void);
+TbBool load_stats_files(void);
 void check_and_auto_fix_stats(void);
 long update_dungeon_scores(void);
 long update_dungeon_generation_speeds(void);

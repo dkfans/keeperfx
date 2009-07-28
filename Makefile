@@ -30,6 +30,12 @@ obj/frontend.o \
 obj/packets.o \
 obj/config.o \
 obj/config_campaigns.o \
+obj/config_creature.o \
+obj/config_crtrmodel.o \
+obj/config_lenses.o \
+obj/config_magic.o \
+obj/config_rules.o \
+obj/config_terrain.o \
 obj/front_input.o \
 obj/front_credits.o \
 obj/front_landview.o \

@@ -76,8 +76,8 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
 #endif
   //return _DK_update_things_in_list(list);
   sum = 0;
-  i = list->index;
   k = 0;
+  i = list->index;
   while (i>0)
   {
     if (i >= THINGS_COUNT)
@@ -120,8 +120,8 @@ unsigned long update_cave_in_things(void)
   struct Thing *thing;
   unsigned long k;
   int i;
-  i = game.thing_lists[10].index;
   k = 0;
+  i = game.thing_lists[10].index;
   while (i>0)
   {
     if (i >= THINGS_COUNT)
@@ -154,8 +154,8 @@ unsigned long update_things_sounds_in_list(struct StructureList *list)
   struct Thing *thing;
   unsigned long k;
   int i;
-  i = list->index;
   k = 0;
+  i = list->index;
   while (i>0)
   {
     if (i >= THINGS_COUNT)
@@ -500,8 +500,8 @@ long count_player_creatures_not_counting_to_total(long plyr_idx)
   int count;
   dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
   count = 0;
-  i = dungeon->field_2D;
   k = 0;
+  i = dungeon->field_2D;
   while (i>0)
   {
     if (i >= THINGS_COUNT)

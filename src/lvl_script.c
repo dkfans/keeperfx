@@ -29,6 +29,11 @@
 
 #include "front_simple.h"
 #include "config.h"
+#include "config_terrain.h"
+#include "config_rules.h"
+#include "config_lenses.h"
+#include "config_magic.h"
+#include "config_creature.h"
 #include "player_instances.h"
 #include "lvl_filesdk1.h"
 #include "keeperfx.h"
@@ -55,6 +60,7 @@ const struct CommandDesc command_desc[] = {
   {"MAGIC_AVAILABLE",              "AANN    ", Cmd_MAGIC_AVAILABLE},
   {"TRAP_AVAILABLE",               "AANN    ", Cmd_TRAP_AVAILABLE},
   {"RESEARCH",                     "AAAN    ", Cmd_RESEARCH},
+  {"RESEARCH_ORDER",               "AAAN    ", Cmd_RESEARCH_ORDER},
   {"COMPUTER_PLAYER",              "AN      ", Cmd_COMPUTER_PLAYER},
   {"SET_TIMER",                    "AA      ", Cmd_SET_TIMER},
   {"ADD_TUNNELLER_TO_LEVEL",       "AAANNN  ", Cmd_ADD_TUNNELLER_TO_LEVEL},
@@ -118,7 +124,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"CREATURE_AVAILABLE",           "AANN    ", Cmd_CREATURE_AVAILABLE},
   {"MAGIC_AVAILABLE",              "AANN    ", Cmd_MAGIC_AVAILABLE},
   {"TRAP_AVAILABLE",               "AANN    ", Cmd_TRAP_AVAILABLE},
-  {"RESEARCH",                     "AAAN    ", Cmd_RESEARCH},
+  {"RESEARCH",                     "AAAN    ", Cmd_RESEARCH_ORDER},
   {"COMPUTER_PLAYER",              "AN      ", Cmd_COMPUTER_PLAYER},
   {"SET_TIMER",                    "AA      ", Cmd_SET_TIMER},
   {"ADD_TUNNELLER_TO_LEVEL",       "AAANNN  ", Cmd_ADD_TUNNELLER_TO_LEVEL},
@@ -157,60 +163,6 @@ const struct CommandDesc dk1_command_desc[] = {
   {"MESSAGE",                      "A       ", Cmd_MESSAGE},
   {"LEVEL_VERSION",                "N       ", Cmd_LEVEL_VERSION},
   {NULL,                           "        ", Cmd_NONE},
-};
-
-const struct NamedCommand room_desc[] = {
-  {"ENTRANCE",         1},
-  {"TREASURE",         2},
-  {"RESEARCH",         3},
-  {"PRISON",           4},
-  {"TORTURE",          5},
-  {"TRAINING",         6},
-  {"WORKSHOP",         8},
-  {"SCAVENGER",        9},
-  {"TEMPLE",          10},
-  {"GRAVEYARD",       11},
-  {"BARRACKS",        12},
-  {"GARDEN",          13},
-  {"LAIR",            14},
-  {"BRIDGE",          15},
-  {"GUARD_POST",      16},
-  {NULL,               0},
-};
-
-const struct NamedCommand creature_desc[] = {
-  {"WIZARD",           1},
-  {"BARBARIAN",        2},
-  {"ARCHER",           3},
-  {"MONK",             4},
-  {"DWARFA",           5},
-  {"KNIGHT",           6},
-  {"AVATAR",           7},
-  {"TUNNELLER",        8},
-  {"WITCH",            9},
-  {"GIANT",           10},
-  {"FAIRY",           11},
-  {"THIEF",           12},
-  {"SAMURAI",         13},
-  {"HORNY",           14},
-  {"SKELETON",        15},
-  {"TROLL",           16},
-  {"DRAGON",          17},
-  {"DEMONSPAWN",      18},
-  {"FLY",             19},
-  {"DARK_MISTRESS",   20},
-  {"SORCEROR",        21},
-  {"BILE_DEMON",      22},
-  {"IMP",             23},
-  {"BUG",             24},
-  {"VAMPIRE",         25},
-  {"SPIDER",          26},
-  {"HELL_HOUND",      27},
-  {"GHOST",           28},
-  {"TENTACLE",        29},
-  {"ORC",             30},
-  {"FLOATING_SPIRIT", 31},
-  {NULL,               0},
 };
 
 const struct NamedCommand newcrtr_desc[] = {
@@ -270,45 +222,6 @@ const struct NamedCommand comparison_desc[] = {
   {NULL,     0},
 };
 
-const struct NamedCommand power_desc[] = {
-  {"POWER_HAND",           1},
-  {"POWER_IMP",            2},
-  {"POWER_OBEY",           3},
-  {"POWER_SLAP",           4},
-  {"POWER_SIGHT",          5},
-  {"POWER_CALL_TO_ARMS",   6},
-  {"POWER_CAVE_IN",        7},
-  {"POWER_HEAL_CREATURE",  8},
-  {"POWER_HOLD_AUDIENCE",  9},
-  {"POWER_LIGHTNING",     10},
-  {"POWER_SPEED",         11},
-  {"POWER_PROTECT",       12},
-  {"POWER_CONCEAL",       13},
-  {"POWER_DISEASE",       14},
-  {"POWER_CHICKEN",       15},
-  {"POWER_DESTROY_WALLS", 16},
-  {"POWER_POSSESS",       18},
-  {"POWER_ARMAGEDDON",    19},
-  {NULL,                   0},
-};
-
-const struct NamedCommand trap_desc[] = {
-  {"BOULDER",              1},
-  {"ALARM",                2},
-  {"POISON_GAS",           3},
-  {"LIGHTNING",            4},
-  {"WORD_OF_POWER",        5},
-  {"LAVA",                 6},
-  {NULL,                   0},
-};
-
-const struct NamedCommand research_desc[] = {
-  {"MAGIC",                1},
-  {"ROOM",                 2},
-  {"CREATURE",             3},
-  {NULL,                   0},
-};
-
 const struct NamedCommand head_for_desc[] = {
   {"ACTION_POINT",         1},
   {"DUNGEON",              2},
@@ -339,14 +252,6 @@ const struct NamedCommand flag_desc[] = {
   {"FLAG6",  6},
   {"FLAG7",  7},
   {NULL,     0},
-};
-
-const struct NamedCommand door_desc[] = {
-  {"WOOD",                 1},
-  {"BRACED",               2},
-  {"STEEL",                3},
-  {"MAGIC",                4},
-  {NULL,                   0},
 };
 
 const struct NamedCommand hero_objective_desc[] = {
@@ -1361,9 +1266,36 @@ void command_trap_available(char *plrname, char *trapname, unsigned long can_bui
   command_add_value(Cmd_TRAP_AVAILABLE, plr_id, trap_id, can_build, amount);
 }
 
+/*
+ * Updates amount of RESEARCH points needed for the item to be researched.
+ * Will not reorder the RESEARCH items.
+ */
 void command_research(char *plrname, char *trg_type, char *trg_name, unsigned long val)
 {
   static const char *func_name="command_research";
+  struct Dungeon *dungeon;
+  long plr_id;
+  int plr_start, plr_end;
+  long item_type,item_id;
+  char *text;
+  long i;
+  plr_id = get_players_range(plrname, &plr_start, &plr_end, func_name, 1823);
+  if (plr_id < 0)
+    return;
+  item_type = get_id(research_desc, trg_type);
+  item_id = get_research_id(item_type, trg_name, func_name);
+  if (item_id < 0)
+    return;
+  command_add_value(Cmd_RESEARCH, plr_id, item_type, item_id, val);
+}
+
+/*
+ * Updates amount of RESEARCH points needed for the item to be researched.
+ * Reorders the RESEARCH items - needs all items to be re-added.
+ */
+void command_research_order(char *plrname, char *trg_type, char *trg_name, unsigned long val)
+{
+  static const char *func_name="command_research_order";
   struct Dungeon *dungeon;
   long plr_id;
   int plr_start, plr_end;
@@ -1384,42 +1316,10 @@ void command_research(char *plrname, char *trg_type, char *trg_name, unsigned lo
     }
   }
   item_type = get_id(research_desc, trg_type);
-  switch (item_type)
-  {
-  case 1:
-      item_id = get_id(power_desc, trg_name);
-      if (item_id == -1)
-      {
-        text = buf_sprintf("(script:%lu) Unknown magic, '%s'", text_line_number, trg_name);
-        error(func_name, 1589, text);
-        return;
-      }
-      break;
-  case 2:
-      item_id = get_id(room_desc, trg_name);
-      if (item_id == -1)
-      {
-        text = buf_sprintf("(script:%lu) Unknown room, '%s'", text_line_number, trg_name);
-        error(func_name, 1598, text);
-        return;
-      }
-      break;
-  case 3:
-      item_id = get_id(creature_desc, trg_name);
-      if (item_id == -1)
-      {
-        text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, trg_name);
-        error(func_name, 1607, text);
-        return;
-      }
-      break;
-  case -1:
-  default:
-      text = buf_sprintf("(script:%lu) Unhandled research type, '%s'", text_line_number, trg_type);
-      error(func_name, 1580, text);
-      return;
-  }
-  command_add_value(Cmd_RESEARCH, plr_id, item_type, item_id, val);
+  item_id = get_research_id(item_type, trg_name, func_name);
+  if (item_id < 0)
+    return;
+  command_add_value(Cmd_RESEARCH_ORDER, plr_id, item_type, item_id, val);
 }
 
 void command_if_action_point(long apt_num, char *plrname)
@@ -2363,6 +2263,9 @@ long script_scan_line(char *line,TbBool preloaded)
       break;
   case Cmd_RESEARCH:
       command_research(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
+      break;
+  case Cmd_RESEARCH_ORDER:
+      command_research_order(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
       break;
   case Cmd_COMPUTER_PLAYER:
       command_computer_player(scline->tp[0], scline->np[1]);
@@ -3348,8 +3251,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_RESEARCH:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
-        if (!dungeon->field_14AD)
+        update_or_add_players_research_amount(i, val2, val3, val4);
+      }
+      break;
+  case Cmd_RESEARCH_ORDER:
+      for (i=plr_start; i < plr_end; i++)
+      {
+        if (!research_overriden_for_player(i))
           remove_all_research_from_player(i);
         add_research_to_player(i, val2, val3, val4);
       }

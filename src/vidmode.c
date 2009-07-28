@@ -31,6 +31,7 @@
 
 #include "front_simple.h"
 #include "frontend.h"
+#include "gui_draw.h"
 #include "config.h"
 #include "keeperfx.h"
 
@@ -48,9 +49,9 @@ extern "C" {
 //DLLIMPORT struct TbLoadFiles _DK_vres256_load_files_minimal[11];
 //DLLIMPORT struct TbSetupSprite _DK_setup_sprites_minimal[5];
 //DLLIMPORT struct TbSetupSprite _DK_setup_sprites[8];
-DLLIMPORT struct TbSprite *_DK_pointer_sprites;
-DLLIMPORT struct TbSprite *_DK_end_pointer_sprites;
-DLLIMPORT unsigned long _DK_pointer_data;
+//DLLIMPORT struct TbSprite *_DK_pointer_sprites;
+//DLLIMPORT struct TbSprite *_DK_end_pointer_sprites;
+//DLLIMPORT unsigned long _DK_pointer_data;
 
 
 DLLIMPORT __cdecl int _DK_setup_screen_mode(short nmode);
@@ -693,7 +694,7 @@ short update_screen_mode_data(long width, long height)
     LbSpriteSetupAll(setup_sprites_minimal);
   else
     LbSpriteSetupAll(setup_sprites);
-  LbMouseSetup(0);
+  LbMouseSetup(NULL);
   LbMouseSetPointerHotspot(0, 0);
   LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);

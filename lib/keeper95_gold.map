@@ -763,9 +763,11 @@
  0003:000067D8       swipe_load_file
  0003:00006C20       game_load_files
  0003:00008438       creature_data
+ 0003:000084D8       shot_stats
  0003:000090B0       status_panel
  0003:0000AFE0       creatures
  0003:0000B1E0       objects
+ 0003:0000D6F8       door_stats
  0003:0000E270       spell_data
  0003:0000E4A8       room_data
  0003:0000E630       trap_data

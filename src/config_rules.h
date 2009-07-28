@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file thing_doors.h
- *     Header file for thing_doors.c.
+/** @file config_rules.h
+ *     Header file for config_rules.c.
  * @par Purpose:
- *     XXXX functions.
+ *     Various game configuration options support.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     25 Mar 2009 - 12 Aug 2009
+ * @date     25 May 2009 - 31 Jul 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,33 +16,25 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_TNGDOORS_H
-#define DK_TNGDOORS_H
+#ifndef DK_CFGRULES_H
+#define DK_CFGRULES_H
 
 #include "globals.h"
+#include "bflib_basics.h"
+
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+/******************************************************************************/
 
 /******************************************************************************/
-#pragma pack(1)
-
-struct DoorStats { // sizeof = 8
-  unsigned short field_0;
-  long health;
-  unsigned short field_6;
-};
-
+extern const char keeper_rules_file[];
+extern const struct NamedCommand research_desc[];
 /******************************************************************************/
-DLLIMPORT extern struct DoorStats _DK_door_stats[5][2];
-#define door_stats _DK_door_stats
-
-#pragma pack()
-/******************************************************************************/
-void lock_door(struct Thing *thing);
-void unlock_door(struct Thing *thing);
-
+long get_research_id(long item_type, char *trg_name, const char *func_name);
+TbBool load_rules_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/
 #ifdef __cplusplus
 }

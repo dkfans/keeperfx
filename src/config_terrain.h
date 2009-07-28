@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file thing_doors.h
- *     Header file for thing_doors.c.
+/** @file config_terrain.h
+ *     Header file for config_terrain.c.
  * @par Purpose:
- *     XXXX functions.
+ *     Slabs, rooms, traps and doors configuration loading functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     25 Mar 2009 - 12 Aug 2009
+ * @date     25 May 2009 - 26 Jul 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,33 +16,39 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_TNGDOORS_H
-#define DK_TNGDOORS_H
+#ifndef DK_CFGTERRAIN_H
+#define DK_CFGTERRAIN_H
 
 #include "globals.h"
+#include "bflib_basics.h"
+
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /******************************************************************************/
-#pragma pack(1)
 
-struct DoorStats { // sizeof = 8
-  unsigned short field_0;
-  long health;
-  unsigned short field_6;
+#define TERRAIN_ITEMS_MAX 256
+
+struct SlabsConfig {
+    long slab_types_count;
+    struct CommandWord slab_names[TERRAIN_ITEMS_MAX];
+    long room_types_count;
+    struct CommandWord room_names[TERRAIN_ITEMS_MAX];
+    long trap_types_count;
+    struct CommandWord trap_names[TERRAIN_ITEMS_MAX];
+    long door_types_count;
+    struct CommandWord door_names[TERRAIN_ITEMS_MAX];
 };
-
 /******************************************************************************/
-DLLIMPORT extern struct DoorStats _DK_door_stats[5][2];
-#define door_stats _DK_door_stats
-
-#pragma pack()
+extern const char keeper_terrain_file[];
+extern struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
+extern struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
+extern struct NamedCommand trap_desc[TERRAIN_ITEMS_MAX];
+extern struct NamedCommand door_desc[TERRAIN_ITEMS_MAX];
 /******************************************************************************/
-void lock_door(struct Thing *thing);
-void unlock_door(struct Thing *thing);
-
+TbBool load_terrain_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/
 #ifdef __cplusplus
 }

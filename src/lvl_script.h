@@ -96,6 +96,7 @@ enum TbScriptCommands {
     Cmd_REVEAL_MAP_RECT                = 87,
     Cmd_REVEAL_MAP_LOCATION            = 88,
     Cmd_LEVEL_VERSION                  = 90,
+    Cmd_RESEARCH_ORDER                 = 91,
 };
 
 enum ScriptVatiables {
