@@ -1687,7 +1687,7 @@ DLLIMPORT int __stdcall _DK_LbErrorLogSetup(char *directory, char *filename, uns
 DLLIMPORT void __fastcall _DK_get_cpu_info(struct CPU_INFO *cpu_info);
 DLLIMPORT int __stdcall _DK_SyncLog(char *Format, ...);
 DLLIMPORT void __cdecl _DK_set_cpu_mode(int mode);
-DLLIMPORT int __cdecl _DK_setup_game_sound_heap(void);
+DLLIMPORT int __cdecl _DK_setup_heaps(void);
 DLLIMPORT void __cdecl _DK_input_eastegg(void);
 DLLIMPORT void __cdecl _DK_update(void);
 DLLIMPORT void __cdecl _DK_wait_at_frontend(void);
@@ -2057,7 +2057,7 @@ void find_map_location_coords(long location, long *x, long *y, const char *func_
 
 unsigned long seed_check_random(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
 void setup_heap_manager(void);
-int setup_heap_memory(void);
+TbBool setup_heap_memory(void);
 void reset_heap_manager(void);
 void reset_heap_memory(void);
 short load_settings(void);
@@ -2114,6 +2114,14 @@ long set_autopilot_type(unsigned int plridx, long aptype);
 void event_delete_event(long plridx, long num);
 void set_player_state(struct PlayerInfo *player, short a1, long a2);
 short magic_use_power_obey(unsigned short plridx);
+DLLIMPORT long _DK_sound_heap_size;
+#define sound_heap_size _DK_sound_heap_size
+DLLIMPORT unsigned char *_DK_sound_heap_memory;
+#define sound_heap_memory _DK_sound_heap_memory
+DLLIMPORT long _DK_heap_size;
+#define heap_size _DK_heap_size
+DLLIMPORT unsigned char *_DK_heap;
+#define heap _DK_heap
 DLLIMPORT long _DK_key_to_string[256];
 #define key_to_string _DK_key_to_string
 long place_thing_in_power_hand(struct Thing *thing, long var);

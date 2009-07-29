@@ -182,6 +182,9 @@ struct KeycodeString eastegg_skeksis_codes = {
 char onscreen_msg_text[255]="";
 int onscreen_msg_turns = 0;
 
+const char *sound_fname = "sound.dat";
+const char *speech_fname = "speech.dat";
+
 char sound_dir[64] = "SOUND";
 char window_class_name[128]="Bullfrog Shell";
 short default_loc_player = 0;
@@ -953,24 +956,91 @@ void draw_engine_room_flag_top(struct RoomFlag *rflg)
   _DK_draw_engine_room_flag_top(rflg);
 }
 
+long get_smaller_memory_amount(long amount)
+{
+  if (amount > 64)
+    return 64;
+  if (amount > 48)
+    return 48;
+  if (amount > 32)
+    return 32;
+  if (amount > 24)
+    return 24;
+  if (amount > 16)
+    return 16;
+  if (amount >  8)
+    return  8;
+  return 6;
+}
+
 void setup_heap_manager(void)
 {
+  static const char *func_name="setup_heap_manager";
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_setup_heap_manager();
 }
 
-int setup_heap_memory(void)
+/*
+ * Allocates graphics heap.
+ */
+TbBool setup_heap_memory(void)
 {
-  return _DK_setup_heap_memory();
+  static const char *func_name="setup_heap_memory";
+  long i;
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  if (heap != NULL)
+  {
+    LbSyncLog("%s: Freeing old Graphics heap\n",func_name);
+    LbMemoryFree(heap);
+    heap = NULL;
+  }
+  i = mem_size;
+  heap_size = get_best_sound_heap_size(i);
+  while ( 1 )
+  {
+    heap = LbMemoryAlloc(heap_size);
+    if (heap != NULL)
+      break;
+    i = get_smaller_memory_amount(i);
+    if (i > 8)
+    {
+      heap_size = get_best_sound_heap_size(i);
+    } else
+    {
+      if (heap_size < 524288)
+      {
+        error(func_name, 80, "Unable to allocate Graphic Heap");
+        heap_size = 0;
+        return false;
+      }
+      heap_size -= 16384;
+    }
+  }
+  LbSyncLog("GraphicsHeap Size %d\n", heap_size);
+  return true;
 }
 
 void reset_heap_manager(void)
 {
+  static const char *func_name="reset_heap_manager";
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_reset_heap_manager();
 }
 
 void reset_heap_memory(void)
 {
-  _DK_reset_heap_memory();
+  static const char *func_name="reset_heap_memory";
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  LbMemoryFree(heap);
+  heap = NULL;
 }
 
 long light_create_light(struct InitLight *ilght)
@@ -2880,9 +2950,184 @@ short init_sound(void)
   return true;
 }
 
-short setup_game_sound_heap(void)
+long init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *snd_fname, char *spc_fname, long a5)
 {
-  return _DK_setup_game_sound_heap();
+  static const char *func_name="init_sound_heap_two_banks";
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  return _DK_init_sound_heap_two_banks(heap_mem, heap_size, snd_fname, spc_fname, a5);
+}
+
+void close_sound_heap(void)
+{
+  _DK_close_sound_heap();
+/*
+  if (sound_file != -1)
+  {
+    LbFileClose(sound_file);
+    sound_file = -1;
+  }
+  if (sound_file2 != -1)
+  {
+    LbFileClose(sound_file2);
+    sound_file2 = -1;
+  }
+  using_two_banks = 0;
+*/
+}
+
+TbBool setup_heaps(void)
+{
+  static const char *func_name="setup_heaps";
+  TbBool low_memory;
+  char snd_fname[2048];
+  char *spc_fname;
+  long i,k;
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  //_DK_setup_heaps();LbSyncLog("GraphicsHeap Size %d\n", heap_size);LbSyncLog("SoundHeap Size %d\n", sound_heap_size);return 1;
+  low_memory = false;
+  if (!SoundDisabled)
+  {
+    StopAllSamples();
+    close_sound_heap();
+    if (sound_heap_memory != NULL)
+    {
+      LbMemoryFree(sound_heap_memory);
+      sound_heap_memory = NULL;
+    }
+  }
+  if (heap != NULL)
+  {
+    error(func_name, 1255, "Graphics heap already allocated");
+    LbMemoryFree(heap);
+    heap = NULL;
+  }
+  // Allocate sound heap
+  if (!SoundDisabled)
+  {
+    i = mem_size;
+    while (sound_heap_memory == NULL)
+    {
+      sound_heap_size = get_best_sound_heap_size(i);
+      i = get_smaller_memory_amount(i);
+      sound_heap_memory = LbMemoryAlloc(sound_heap_size);
+      if ((i <= 8) && (sound_heap_memory == NULL))
+      {
+        low_memory = true;
+        break;
+      }
+    }
+  }
+  // Allocate graphics heap
+  i = mem_size;
+  while (heap == NULL)
+  {
+    heap_size = get_best_sound_heap_size(i);
+    i = get_smaller_memory_amount(i);
+    heap = LbMemoryAlloc(heap_size);
+    if ((i <= 8) && (heap == NULL))
+    {
+      low_memory = true;
+      break;
+    }
+  }
+  LbSyncLog("GraphicsHeap Size %d\n", heap_size);
+
+  if (low_memory)
+  {
+    i = heap_size;
+    k = sound_heap_size;
+    while (heap != NULL)
+    {
+      if ((!SoundDisabled) && (sound_heap_memory == NULL))
+      {
+        break;
+      }
+      if (!SoundDisabled)
+      {
+        if (k < i)
+        {
+          i -= 16384;
+        } else
+        if (k == i)
+        {
+          i -= 16384;
+          k -= 16384;
+        } else
+        {
+          k -= 16384;
+        }
+        heap_size = i;
+        sound_heap_size = k;
+        if (k < 524288)
+        {
+          error(func_name, 1319, "Unable to allocate heaps (small_mem)");
+          return false;
+        }
+      } else
+      {
+        i -= 16384;
+        heap_size = i;
+        sound_heap_size = k;
+      }
+      if (i < 524288)
+      {
+        if (sound_heap_memory != NULL)
+        {
+          LbMemoryFree(sound_heap_memory);
+          sound_heap_memory = NULL;
+        }
+        error(func_name, 1334, "Unable to allocate heaps (small_mem)");
+        return false;
+        }
+      }
+      if (sound_heap_memory != NULL)
+      {
+        LbMemoryFree(sound_heap_memory);
+        i = heap_size;
+        k = sound_heap_size;
+        sound_heap_memory = NULL;
+      }
+      heap_size = i;
+      sound_heap_size = k;
+      if (heap != NULL)
+      {
+        LbMemoryFree(heap);
+        heap = NULL;
+      }
+      if (!SoundDisabled)
+      {
+        sound_heap_memory = LbMemoryAlloc(k);
+      }
+      heap = LbMemoryAlloc(i);
+  }
+  if (!SoundDisabled)
+  {
+    LbSyncLog("SoundHeap Size %d\n", sound_heap_size);
+    // Prepare sound sample bank file names
+    prepare_file_path_buf(snd_fname,FGrp_LrgSound,sound_fname);
+    // language-specific speech file
+    spc_fname = prepare_file_fmtpath(FGrp_LrgSound,"speech_%s.dat",get_conf_parameter_text(lang_type,install_info.lang_id));
+    // default speech file
+    if (!LbFileExists(spc_fname))
+      spc_fname = prepare_file_path(FGrp_LrgSound,speech_fname);
+    // speech file for english
+    if (!LbFileExists(spc_fname))
+      spc_fname = prepare_file_fmtpath(FGrp_LrgSound,"speech_%s.dat",get_conf_parameter_text(lang_type,1));
+    // Initialize sample banks
+    if (!init_sound_heap_two_banks(sound_heap_memory, sound_heap_size, snd_fname, spc_fname, 1622))
+    {
+      LbMemoryFree(sound_heap_memory);
+      sound_heap_memory = NULL;
+      SoundDisabled = true;
+      error(func_name, 1379, "Unable to initialise sound heap");
+      return false;
+    }
+  }
+  return true;
 }
 
 void engine_init(void)
@@ -4316,11 +4561,8 @@ short setup_game(void)
 
   if ( result )
   {
-      if ( !setup_game_sound_heap() )
-      {
-        error(func_name, 1503, "Sound heap setup failed");
-        result = 0;
-      }
+    if ( !setup_heaps() )
+      result = 0;
   }
 
   if ( result )

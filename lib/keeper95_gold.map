@@ -592,6 +592,8 @@
  0001:000A6DA0       update_power_sight_explored
  0001:000A7050       remove_explored_flags_for_power_sight
  0001:000A7270       process_things_in_dungeon_hand
+ 0001:000A7530       init_sound_heap_two_banks
+ 0001:000A7800       close_sound_heap
  0001:000A7850       process_sound_heap
  0001:000A7A20       play_sample_using_heap
  0001:000A7F10       output_message
@@ -809,6 +811,7 @@
  0003:0001494C       exit_keeper
  0003:00014950       script_line_number
  0003:00014954       script_current_condition
+ 0003:00014960       sound_heap_memory
  0003:00014968       SoundDisabled
  0003:0001496C       FatalError
  0003:00015630       special_desc
@@ -1006,6 +1009,7 @@
  0003:000A6680       settings
  0003:000A66D8       iso_td
  0003:000A6E84       block_mem
+ 0003:000A6E88       heap_size
  0003:000A6E8C       font_sprites
  0003:000A6E90       gui_panel_sprites
  0003:000A6E94       end_winfont_data
@@ -1050,10 +1054,12 @@
  0003:000ECF04       end_port_sprites
  0003:000ED308       poly_pool_end
  0003:000ED310       game
+ 0003:0023EB38       sound_heap_size
  0003:0023EB54       eye_lens_spare_screen_memory
  0003:00241458       port_sprite
  0003:00241460       install_info
  0003:00241500       end_gui_panel_sprite_data
+ 0003:00241508       heap
  0003:0024150C       end_pointer_sprites
  0003:00241510       my_player_number
  0003:00243A0C       getpoly
