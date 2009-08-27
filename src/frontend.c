@@ -55,6 +55,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT void __cdecl _DK_frontnet_service_update(void);
+DLLIMPORT void __cdecl _DK_frontnet_session_update(void);
+DLLIMPORT void __cdecl _DK_frontnet_start_update(void);
+DLLIMPORT void __cdecl _DK_frontnet_modem_update(void);
+DLLIMPORT void __cdecl _DK_frontnet_serial_update(void);
+//DLLIMPORT void * __cdecl _DK_frontnet_session_join(GuiButton); (may be incorrect)
 DLLIMPORT void _DK_add_message(long plyr_idx, char *msg);
 DLLIMPORT unsigned long _DK_validate_versions(void);
 DLLIMPORT void _DK_versions_different_error(void);
@@ -2679,22 +2685,18 @@ void gui_area_autopilot_button(struct GuiButton *gbtn)
 
 void gui_set_menu_mode(struct GuiButton *gbtn)
 {
-  //_DK_gui_set_menu_mode(gbtn); return;
   set_menu_mode(gbtn->field_1B);
 }
 
 void gui_draw_tab(struct GuiButton *gbtn)
 {
   static const char *func_name="gui_draw_tab";
-  unsigned long spridx;
-  //_DK_gui_draw_tab(gbtn);
   if (gbtn->gbtype == Lb_CYCLEBTN)
     error(func_name, 10020, "Cycle button cannot use this draw function!");
   if ((gbtn->field_1) || (gbtn->field_2))
-    spridx = gbtn->field_29;
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
   else
-    spridx = gbtn->field_29+1;
-  LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, &gui_panel_sprites[spridx%GUI_PANEL_SPRITES_COUNT]);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29+1);
 }
 
 void turn_off_event_box_if_necessary(long plridx, char val)
@@ -2710,7 +2712,6 @@ void frontstats_initialise(void)
 void gui_open_event(struct GuiButton *gbtn)
 {
   static const char *func_name="gui_open_event";
-  //_DK_gui_open_event(gbtn);
   struct Dungeon *dungeon;
   dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
   unsigned int idx;
@@ -2741,26 +2742,22 @@ void gui_kill_event(struct GuiButton *gbtn)
 void gui_area_event_button(struct GuiButton *gbtn)
 {
   struct Dungeon *dungeon;
-  unsigned long spridx;
   unsigned long i;
-  //_DK_gui_area_event_button(gbtn); return;
-  if (gbtn->field_0 & 0x08)
+  if ((gbtn->field_0 & 0x08) != 0)
   {
     dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
     i = (unsigned long)gbtn->field_33;
     if ((gbtn->field_1) || (gbtn->field_2))
     {
-      spridx = gbtn->field_29;
+      draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
     } else
     if (dungeon->field_13A7[i&0xFF] == dungeon->field_1173)
     {
-      spridx = gbtn->field_29;
+      draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
     } else
     {
-      spridx = gbtn->field_29 + 1;
+      draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29+1);
     }
-    LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
-        &gui_panel_sprites[spridx%GUI_PANEL_SPRITES_COUNT]);
   }
 }
 
@@ -3120,7 +3117,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
   char *text;
   long i;
   //_DK_gui_area_stat_button(gbtn); return;
-  LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, &gui_panel_sprites[459]);
+  draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 459);
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   thing = thing_get(player->field_2F);
   if (thing == NULL)
@@ -3180,7 +3177,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
     default:
         return;
     }
-    LbSpriteDraw((gbtn->scr_pos_x-6)/pixel_size, (gbtn->scr_pos_y-12)/pixel_size, &gui_panel_sprites[gbtn->field_29]);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x-6, gbtn->scr_pos_y-12, gbtn->field_29);
     draw_button_string(gbtn, text);
   }
 }
@@ -3585,12 +3582,10 @@ void gui_area_anger_button(struct GuiButton *gbtn)
       }
       if ((gbtn->field_1) || (gbtn->field_2))
       {
-        LbSpriteDrawRemap(gbtn->scr_pos_x / pixel_size, (gbtn->scr_pos_y-2) / pixel_size,
-          &gui_panel_sprites[spridx%PANEL_SPRITES_COUNT], &fade_tables[3072]);
+        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y-2, spridx, 3072);
       } else
       {
-        LbSpriteDraw(gbtn->scr_pos_x / pixel_size, (gbtn->scr_pos_y-2) / pixel_size,
-          &gui_panel_sprites[spridx%PANEL_SPRITES_COUNT]);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y-2, spridx);
       }
       if (gbtn->field_33 != NULL)
       {
@@ -6834,7 +6829,83 @@ void frontnet_service_update(void)
 
 void frontnet_session_update(void)
 {
-  _DK_frontnet_session_update();
+  static const char *func_name="frontnet_session_update";
+//  _DK_frontnet_session_update();
+  static long last_enum_players = 0;
+  static long last_enum_sessions = 0;
+  long i;
+
+  if (timeGetTime() >= last_enum_sessions)
+  {
+    net_number_of_sessions = 0;
+    memset(net_session, 0, sizeof(net_session));
+    if ( LbNetwork_EnumerateSessions(enum_sessions_callback, 0) )
+      error(func_name, 1417, "LbNetwork_EnumerateSessions() failed");
+    last_enum_sessions = timeGetTime();
+
+    if (net_number_of_sessions == 0)
+    {
+      net_session_index_active = -1;
+      net_session_index_active_id = -1;
+    } else
+    if (net_session_index_active != -1)
+    {
+        if ((net_session_index_active >= net_number_of_sessions)
+          || (net_session[net_session_index_active]->field_0 != net_session_index_active_id))
+        {
+          net_session_index_active = -1;
+          for (i=0; i < net_number_of_sessions; i++)
+          {
+            if ( net_session[i]->field_0 == net_session_index_active_id)
+            {
+              net_session_index_active = i;
+              break;
+            }
+          }
+        }
+        if (net_session_index_active == -1)
+          net_session_index_active_id = -1;
+    }
+  }
+
+  if ((net_number_of_sessions == 0) || (net_session_scroll_offset < 0))
+  {
+    net_session_scroll_offset = 0;
+  } else
+  if (net_session_scroll_offset > net_number_of_sessions-1)
+  {
+    net_session_scroll_offset = net_number_of_sessions-1;
+  }
+
+  if (net_session_index_active == -1)
+  {
+    net_number_of_enum_players = 0;
+  } else
+  if (timeGetTime() >= last_enum_players)
+  {
+    net_number_of_enum_players = 0;
+    memset(net_player, 0, sizeof(net_player));
+    if ( LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0) )
+    {
+      net_session_index_active = -1;
+      net_session_index_active_id = -1;
+      return;
+    }
+    last_enum_players = timeGetTime();
+  }
+
+  if (net_number_of_enum_players == 0)
+  {
+    net_player_scroll_offset = 0;
+  } else
+  if (net_player_scroll_offset < 0)
+  {
+    net_player_scroll_offset = 0;
+  } else
+  if (net_player_scroll_offset > net_number_of_enum_players-1)
+  {
+    net_player_scroll_offset = net_number_of_enum_players-1;
+  }
 }
 
 void frontnet_modem_update(void)
@@ -6847,9 +6918,58 @@ void frontnet_serial_update(void)
   _DK_frontnet_serial_update();
 }
 
+void frontnet_rewite_net_messages(void)
+{
+  struct NetMessage lmsg[NET_MESSAGES_COUNT];
+  struct NetMessage *nmsg;
+  long i,k;
+  k = 0;
+  i = net_number_of_messages;
+  for (i=0; i < NET_MESSAGES_COUNT; i++)
+    LbMemorySet(&lmsg[i], '\0', sizeof(struct NetMessage));
+  for (i=0; i < net_number_of_messages; i++)
+  {
+    nmsg = &net_message[i];
+    if (net_player_info[nmsg->plyr_idx].field_20)
+    {
+      memcpy(&lmsg[k], nmsg, sizeof(struct NetMessage));
+      k++;
+    }
+  }
+  net_number_of_messages = k;
+  for (i=0; i < NET_MESSAGES_COUNT; i++)
+    memcpy(&net_message[i], &lmsg[i], sizeof(struct NetMessage));
+}
+
 void frontnet_start_update(void)
 {
-  _DK_frontnet_start_update();
+  static const char *func_name="frontnet_start_update";
+  static TbClockMSec player_last_time = 0;
+#if (BFDEBUG_LEVEL > 18)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  if (LbTimerClock() >= player_last_time+200)
+  {
+    net_number_of_enum_players = 0;
+    LbMemorySet(net_player, 0, sizeof(net_player));
+    if ( LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0) )
+    {
+      error(func_name, 1882, "LbNetwork_EnumeratePlayers() failed");
+      return;
+    }
+    player_last_time = LbTimerClock();
+  }
+  if ((net_number_of_messages <= 0) || (net_message_scroll_offset < 0))
+  {
+    net_message_scroll_offset = 0;
+  } else
+  if (net_message_scroll_offset > net_number_of_messages-1)
+  {
+    net_message_scroll_offset = net_number_of_messages-1;
+  }
+  process_frontend_packets();
+  frontnet_rewite_net_messages();
+  return;
 }
 
 void frontstats_update(void)

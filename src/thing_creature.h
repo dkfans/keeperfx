@@ -31,10 +31,32 @@ struct Thing;
 #define CREATURE_TYPES_COUNT  32
 
 /******************************************************************************/
+#pragma pack(1)
+
 typedef long (*Thing_Class_Func)(struct Thing *);
 typedef long (*Creature_Instf_Func)(struct Thing *, long *);
 typedef long (*Thing_Filter)(struct Thing *, long);
+
+struct InstanceInfo { // sizeof = 42
+unsigned char field_0;
+  long time;
+  long fp_time;
+  long action_time;
+  long fp_action_time;
+  long reset_time;
+  long fp_reset_time;
+unsigned char field_19;
+unsigned char field_1A;
+  short force_visibility;
+unsigned char field_1D;
+    Creature_Instf_Func func_cb;
+  long field_22;
+unsigned char field_26[4];
+};
+
+#pragma pack()
 /******************************************************************************/
+extern struct CreaturePickedUpOffset creature_picked_up_offset[];
 extern unsigned short creature_graphics[][22];
 extern int creature_swap_idx[CREATURE_TYPES_COUNT];
 /******************************************************************************/

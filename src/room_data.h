@@ -26,6 +26,7 @@
 extern "C" {
 #endif
 
+#define ROOM_TYPES_COUNT      17
 /******************************************************************************/
 enum RoomKinds {
     RoK_NONE                =   0,
@@ -94,10 +95,17 @@ struct RoomData {
       short field_15;
 };
 
+/******************************************************************************/
+DLLIMPORT extern struct RoomData _DK_room_data[ROOM_TYPES_COUNT];
+#define room_data _DK_room_data
+
 #pragma pack()
 /******************************************************************************/
 struct Room *room_get(long room_idx);
+struct Room *subtile_room_get(long stl_x, long stl_y);
 TbBool room_is_invalid(const struct Room *room);
+struct RoomData *room_data_get_for_kind(long room_kind);
+struct RoomData *room_data_get_for_room(const struct Room *room);
 
 long get_room_look_through(RoomKind rkind);
 void set_room_efficiency(struct Room *room);

@@ -45,6 +45,29 @@ const long map_to_slab[] = {
   84, 84, 84, 85, 85, 85, 86, 86, 86, 87, 87, 87, 88, 88, 88, 89, 89, 89,
 };
 /******************************************************************************/
+/*
+ * Returns if the subtile coords are in range of subtiles which have slab entry.
+ */
+TbBool subtile_has_slab(long stl_x, long stl_y)
+{
+  if ((stl_x >= 0) && (stl_x < 3*map_tiles_x))
+    if ((stl_y >= 0) && (stl_y < 3*map_tiles_y))
+      return true;
+  return false;
+}
+
+/*
+ * Returns if the subtile coords are in range map subtiles.
+ */
+TbBool subtile_coords_invalid(long stl_x, long stl_y)
+{
+  if ((stl_x < 0) || (stl_x > map_subtiles_x))
+      return true;
+  if ((stl_y < 0) || (stl_y > map_subtiles_y))
+      return true;
+  return false;
+}
+
 struct Map *get_map_block(long stl_x, long stl_y)
 {
   if ((stl_x < 0) || (stl_x > map_subtiles_x))

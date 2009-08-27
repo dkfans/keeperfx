@@ -4334,7 +4334,7 @@ void init_keeper(void)
   game.numfield_C |= 0x40;
   game.numfield_D |= 0x20 | 0x40;
   init_censorship();
- }
+}
 
 short ceiling_set_info(long height_max, long height_min, long step)
 {
@@ -6197,6 +6197,7 @@ short set_default_startup_parameters(void)
   // Set levels to 0, as we may not have the campaign loaded yet
   start_params.selected_level_number = 0;
   start_params.num_fps = 20;
+  start_params.one_player = 1;
   set_flag_byte(&start_params.flags_cd,MFlg_IsDemoMode,false);
   set_flag_byte(&start_params.flags_cd,0x40,true);
 }
@@ -9171,7 +9172,7 @@ void message_draw(void)
       LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
       set_flag_word(&lbDisplay.DrawFlags,0x0040,false);
       LbTextDraw((x+32)/pixel_size, y/pixel_size, game.messages[i].text);
-      LbSpriteDraw(x/pixel_size, y/pixel_size, &gui_panel_sprites[488+game.messages[i].field_40]);
+      draw_gui_panel_sprite_left(x, y, 488+game.messages[i].field_40);
       y += pixel_size * h;
   }
 }
@@ -9186,13 +9187,159 @@ void flyeye_blitsec(unsigned char *srcbuf, unsigned char *dstbuf, long srcwidth,
   _DK_flyeye_blitsec(srcbuf, dstbuf, srcwidth, dstwidth, n, height);
 }
 
+void draw_mini_things_in_hand(long x, long y)
+{
+  _DK_draw_mini_things_in_hand(x, y);
+}
+
+void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6)
+{
+  _DK_process_keeper_sprite(x, y, a3, a4, a5, a6);
+}
+
 void draw_power_hand(void)
 {
   static const char *func_name="draw_power_hand";
 #if (BFDEBUG_LEVEL > 7)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  _DK_draw_power_hand();
+  struct PlayerInfo *player;
+  struct Dungeon *dungeon;
+  struct CreatureControl *cctrl;
+  struct Thing *thing;
+  struct Thing *picktng;
+  struct Room *room;
+  struct RoomData *rdata;
+  long x,y;
+  long i;
+  //_DK_draw_power_hand(); return;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  if ((player->field_6 & 0x01) != 0)
+    return;
+  if (game.small_map_state == 2)
+    return;
+  lbDisplay.DrawFlags = 0x00;
+  if (player->view_type != 1)
+    return;
+  if (((game.numfield_C & 0x20) != 0) && (game.small_map_state != 2)
+    && mouse_is_over_small_map(player->mouse_x, player->mouse_y) )
+  {
+    x = game.field_1517FD;
+    y = game.field_1517FF;
+    room = subtile_room_get(x,y);
+    if ((!room_is_invalid(room)) && (subtile_revealed(x, y, player->field_2B)))
+    {
+      rdata = room_data_get_for_room(room);
+      draw_gui_panel_sprite_centered(GetMouseX()+24, GetMouseY()+32, rdata->numfield_1);
+    }
+    if ((!power_hand_is_empty(player)) && (game.small_map_state == 1))
+    {
+      draw_mini_things_in_hand(GetMouseX()+10, GetMouseY()+10);
+    }
+    return;
+  }
+  if (game_is_busy_doing_gui())
+  {
+    draw_mini_things_in_hand(GetMouseX()+10, GetMouseY()+10);
+    return;
+  }
+  thing = thing_get(player->field_43A);
+  if (thing_is_invalid(thing))
+    return;
+  if (player->field_10 > game.play_gameturn)
+  {
+    process_keeper_sprite((GetMouseX()+60) / pixel_size, (GetMouseY()+40)/pixel_size,
+      thing->field_44, 0, thing->field_48, 64 / pixel_size);
+    draw_mini_things_in_hand(GetMouseX()+60, GetMouseY());
+    return;
+  }
+  if ((player->field_3 & 0x02) != 0)
+  {
+    draw_mini_things_in_hand(GetMouseX()+18, GetMouseY());
+    return;
+  }
+  if (player->work_state != 5)
+  {
+    if ( (player->work_state != 1)
+      || (player->field_455 != 3) && ((player->work_state != 1) || (player->field_455) || (player->field_454 != 3)) )
+    {
+      if ((player->instance_num != 1) && (player->instance_num != 2))
+      {
+        if (player->work_state == 9)
+        {
+          process_keeper_sprite((GetMouseX()+70) / pixel_size, (GetMouseY()+46) / pixel_size,
+              thing->field_44, 0, thing->field_48, 64 / pixel_size);
+        } else
+        if (player->work_state == 1)
+        {
+          if ((player->field_455 == 2) || (player->field_454 == 2))
+          {
+            draw_mini_things_in_hand(GetMouseX()+18, GetMouseY());
+          }
+        }
+        return;
+      }
+    }
+  }
+  picktng = get_first_thing_in_power_hand(player);
+  if ((!thing_is_invalid(picktng)) && ((picktng->field_4F & 0x01) == 0))
+  {
+    switch (picktng->class_id)
+    {
+    case 5:
+        cctrl = creature_control_get_from_thing(picktng);
+        if ((cctrl->field_AD & 0x02) == 0)
+        {
+          x = GetMouseX() + creature_picked_up_offset[picktng->model].delta_x;
+          y = GetMouseY() + creature_picked_up_offset[picktng->model].delta_y;
+          if (creatures[picktng->model].field_7 )
+            EngineSpriteDrawUsingAlpha = 1;
+          process_keeper_sprite(x / pixel_size, y / pixel_size,
+              picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
+          EngineSpriteDrawUsingAlpha = 0;
+        } else
+        {
+          x = GetMouseX()+11;
+          y = GetMouseY()+56;
+          process_keeper_sprite(x / pixel_size, y / pixel_size,
+              picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
+        }
+        break;
+    case 1:
+        if (picktng->model == 10)
+        {
+          x = GetMouseX()+11;
+          y = GetMouseY()+56;
+          process_keeper_sprite(x / pixel_size, y / pixel_size,
+              picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
+          break;
+        } else
+        if ((picktng->class_id == 1) && object_is_gold_pile(picktng))
+          break;
+    default:
+        x = GetMouseX();
+        y = GetMouseY();
+        process_keeper_sprite(x / pixel_size, y / pixel_size,
+              picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
+        break;
+    }
+  }
+  if (player->field_C == 784)
+  {
+    x = GetMouseX()+58;
+    y = GetMouseY()+6;
+    process_keeper_sprite(x / pixel_size, y / pixel_size,
+        thing->field_44, 0, thing->field_48, 64 / pixel_size);
+    draw_mini_things_in_hand(GetMouseX()+60, GetMouseY());
+  } else
+  {
+    x = GetMouseX()+60;
+    y = GetMouseY()+40;
+    process_keeper_sprite(x / pixel_size, y / pixel_size,
+        thing->field_44, 0, thing->field_48, 64 / pixel_size);
+    draw_mini_things_in_hand(GetMouseX()+60, GetMouseY());
+  }
 }
 
 void draw_swipe(void)
@@ -9212,7 +9359,6 @@ short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, lon
     LbSyncLog("%s: Starting\n",func_name);
 #endif
   struct PlayerInfo *player;
-  struct Packet *pckt;
   long x,y;
   if (!clicked_on_small_map)
   {
@@ -9233,10 +9379,9 @@ short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, lon
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   game.field_1517FD = curr_x;
   game.field_1517FF = curr_y;
-  if ((curr_x >= 0) && (curr_x < 255) && (curr_y >= 0) && (curr_y < 255))
+  if (subtile_has_slab(curr_x, curr_y))
   {
-    pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-    set_packet_action(pckt, 26, curr_x, curr_y, 0, 0);
+    set_players_packet_action(player, 26, curr_x, curr_y, 0, 0);
   }
   return 1;
 }
@@ -9247,7 +9392,6 @@ short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, lo
 #if (BFDEBUG_LEVEL > 17)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  struct Packet *pckt;
   struct PlayerInfo *player;
   short result;
   result = 0;
@@ -9263,11 +9407,10 @@ short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, lo
         do_map_rotate_stuff(curr_x-begin_x-58, curr_y-begin_y-58, &curr_x, &curr_y, zoom);
         game.field_1517FD = curr_x;
         game.field_1517FF = curr_y;
-        if ((curr_x >= 0) && (curr_x < 255) && (curr_y >= 0) && (curr_y < 255))
+        if (subtile_has_slab(curr_x, curr_y))
         {
           result = 1;
-          pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-          set_packet_action(pckt, 26, curr_x, curr_y, 0, 0);
+          set_players_packet_action(player, 26, curr_x, curr_y, 0, 0);
         }
       }
     grabbed_small_map = 0;
@@ -9435,7 +9578,6 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
 #endif
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
-  struct Packet *pckt;
   struct Thing *thing;
   int i;
   do_map_rotate_stuff(curr_mx-start_x-58, curr_my-start_y-58, &x, &y, zoom);
@@ -9454,10 +9596,9 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
   if (right_button_released)
   {
     right_button_released = 0;
-    if ((x >= 0) && (x < 255) && (y >= 0) && (y < 255))
+    if (subtile_has_slab(x, y))
     {
-      pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-      set_packet_action(pckt, 91, x, y, 0, 0);
+      set_players_packet_action(player, 91, x, y, 0, 0);
       return 1;
     }
   }
@@ -9708,15 +9849,14 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
 {
   static const char *func_name="draw_zoom_box_things_on_mapblk";
   struct PlayerInfo *player;
-  struct TbSprite *spr;
   struct Thing *thing;
   int spos_x,spos_y;
-  int tpos_x,tpos_y;
   TbPixel color;
   long spridx;
   unsigned long k;
   long i;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  k = 0;
   i = ((mapblk->data & 0x3FF800u) >> 11);
   while (i > 0)
   {
@@ -9732,18 +9872,13 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
       {
       case TCls_Creature:
         spridx = creature_graphics[thing->model][20];
-        if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
-          break;
-        spr = &gui_panel_sprites[spridx];
-        tpos_y = scr_y - pixel_size * spr->SHeight / 2;
-        tpos_x = scr_x - pixel_size * spr->SWidth / 2;
-        if (game.play_gameturn & 0x04)
+        if ((game.play_gameturn & 0x04) != 0)
         {
           color = get_player_path_colour(thing->owner);
-          LbSpriteDrawOneColour((tpos_x+spos_x)/pixel_size, (tpos_y+spos_y)/pixel_size, spr, color);
+          draw_gui_panel_sprite_occentered(scr_x+spos_x, scr_y+spos_y, spridx, color);
         } else
         {
-          LbSpriteDraw((tpos_x+spos_x)/pixel_size, (tpos_y+spos_y)/pixel_size, spr);
+          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
         }
         draw_status_sprites((spos_x+scr_x)/pixel_size - 10, (spos_y+scr_y-20)/pixel_size, thing, 4096);
         break;
@@ -9751,47 +9886,28 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
         if ((!thing->byte_17.h) && (player->field_2B != thing->owner))
           break;
         spridx = trap_data[thing->model].field_A;
-        if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
-          break;
-        spr = &gui_panel_sprites[spridx];
-        tpos_y = scr_y - pixel_size * spr->SHeight / 2;
-        tpos_x = scr_x - pixel_size * spr->SWidth / 2;
-        LbSpriteDraw((tpos_x+spos_x)/pixel_size, (tpos_y+spos_y)/pixel_size, spr);
+        draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
         break;
       case TCls_Object:
         if (thing->model == 5)
         {
           spridx = 512;
-          spr = &gui_panel_sprites[spridx];
-          tpos_y = scr_y - pixel_size * spr->SHeight / 2;
-          tpos_x = scr_x - pixel_size * spr->SWidth / 2;
-          LbSpriteDraw((tpos_x+spos_x)/pixel_size, (tpos_y+spos_y)/pixel_size, spr);
+          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
         } else
         if (object_is_gold(thing))
         {
           spridx = 511;
-          spr = &gui_panel_sprites[spridx];
-          tpos_y = scr_y - pixel_size * spr->SHeight / 2;
-          tpos_x = scr_x - pixel_size * spr->SWidth / 2;
-          LbSpriteDraw((tpos_x+spos_x)/pixel_size, (tpos_y+spos_y)/pixel_size, spr);
+          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
         } else
         if ( thing_is_special(thing) )
         {
           spridx = 164;
-          spr = &gui_panel_sprites[spridx];
-          tpos_y = scr_y - pixel_size * spr->SHeight / 2;
-          tpos_x = scr_x - pixel_size * spr->SWidth / 2;
-          LbSpriteDraw((tpos_x+spos_x)/pixel_size, (tpos_y+spos_y)/pixel_size, spr);
+          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
         } else
         if ( thing_is_spellbook(thing) )
         {
           spridx = spell_data[object_to_magic[thing->model]].field_B;
-          if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
-            break;
-          spr = &gui_panel_sprites[spridx];
-          tpos_y = scr_y - pixel_size * spr->SHeight / 2;
-          tpos_x = scr_x - pixel_size * spr->SWidth / 2;
-          LbSpriteDraw((tpos_x+spos_x)/pixel_size, (tpos_y+spos_y)/pixel_size, spr);
+          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
         }
         break;
       default:

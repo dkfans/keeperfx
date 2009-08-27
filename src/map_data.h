@@ -51,6 +51,8 @@ TbBool subtile_revealed(long stl_x, long stl_y, long plyr_idx);
 TbBool map_block_revealed(struct Map *map, long plyr_idx);
 long get_ceiling_height(struct Coord3d *pos);
 
+TbBool subtile_has_slab(long stl_x, long stl_y);
+TbBool subtile_coords_invalid(long stl_x, long stl_y);
 TbBool set_coords_to_subtile_center(struct Coord3d *pos, long x, long y, long z);
 TbBool set_coords_to_subtile_start(struct Coord3d *pos, long x, long y, long z);
 TbBool set_coords_to_subtile_end(struct Coord3d *pos, long x, long y, long z);

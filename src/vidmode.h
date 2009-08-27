@@ -36,6 +36,11 @@ DLLIMPORT unsigned short _DK_pixels_per_block;
 #define pixels_per_block _DK_pixels_per_block
 DLLIMPORT unsigned short _DK_units_per_pixel;
 #define units_per_pixel _DK_units_per_pixel
+
+DLLIMPORT unsigned char _DK_ghost[256*16];
+#define ghost _DK_ghost
+DLLIMPORT unsigned char _DK_fade_tables[256*64];
+#define fade_tables _DK_fade_tables
 DLLIMPORT int _DK_MinimalResolutionSetup;
 #define MinimalResolutionSetup _DK_MinimalResolutionSetup
 

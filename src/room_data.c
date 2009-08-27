@@ -70,9 +70,32 @@ struct Room *room_get(long room_idx)
   return &game.rooms[room_idx];
 }
 
+struct Room *subtile_room_get(long stl_x, long stl_y)
+{
+  struct SlabMap *slb;
+  slb = get_slabmap_for_subtile(stl_x,stl_y);
+  if (slabmap_block_invalid(slb))
+    return &game.rooms[0];
+  return room_get(slb->room_index);
+}
+
 TbBool room_is_invalid(const struct Room *room)
 {
   return (room <= &game.rooms[0]) || (room == NULL);
+}
+
+struct RoomData *room_data_get_for_kind(long room_kind)
+{
+  if ((room_kind < 1) || (room_kind > ROOM_TYPES_COUNT))
+    return &room_data[0];
+  return &room_data[room_kind];
+}
+
+struct RoomData *room_data_get_for_room(const struct Room *room)
+{
+  if ((room->kind < 1) || (room->kind > ROOM_TYPES_COUNT))
+    return &room_data[0];
+  return &room_data[room->kind];
 }
 
 long get_room_look_through(RoomKind rkind)

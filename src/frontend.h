@@ -159,8 +159,8 @@ struct DoorDesc { // sizeof = 44
 };
 
 struct NetMessage { // sizeof = 0x41
-unsigned char plyr_idx;
-char text[NET_MESSAGE_LEN];
+  unsigned char plyr_idx;
+  char text[NET_MESSAGE_LEN];
 };
 
 typedef long TortureState;
@@ -281,6 +281,12 @@ DLLIMPORT long _DK_net_number_of_messages;
 #define net_number_of_messages _DK_net_number_of_messages
 DLLIMPORT long _DK_net_message_scroll_offset;
 #define net_message_scroll_offset _DK_net_message_scroll_offset
+DLLIMPORT long _DK_net_session_index_active_id;
+#define net_session_index_active_id _DK_net_session_index_active_id
+DLLIMPORT long _DK_net_session_scroll_offset;
+#define net_session_scroll_offset _DK_net_session_scroll_offset
+DLLIMPORT long _DK_net_player_scroll_offset;
+#define net_player_scroll_offset _DK_net_player_scroll_offset
 DLLIMPORT char _DK_no_of_active_menus;
 #define no_of_active_menus _DK_no_of_active_menus
 DLLIMPORT unsigned char _DK_menu_stack[ACTIVE_MENUS_COUNT];
@@ -357,15 +363,6 @@ DLLIMPORT unsigned long _DK_winfont_data;
 #define winfont_data _DK_winfont_data
 DLLIMPORT unsigned long _DK_end_winfont_data;
 #define end_winfont_data _DK_end_winfont_data
-
-DLLIMPORT struct TbSprite *_DK_gui_panel_sprites;
-#define gui_panel_sprites _DK_gui_panel_sprites
-DLLIMPORT struct TbSprite *_DK_end_gui_panel_sprites;
-#define end_gui_panel_sprites _DK_end_gui_panel_sprites
-DLLIMPORT extern unsigned long _DK_gui_panel_sprite_data;
-#define gui_panel_sprite_data _DK_gui_panel_sprite_data
-DLLIMPORT extern unsigned long _DK_end_gui_panel_sprite_data;
-#define end_gui_panel_sprite_data _DK_end_gui_panel_sprite_data
 
 DLLIMPORT struct TbSprite *_DK_edit_icon_sprites;
 #define edit_icon_sprites _DK_edit_icon_sprites

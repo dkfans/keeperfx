@@ -97,14 +97,12 @@
 #define TEXTURE_BLOCKS_COUNT TEXTURE_BLOCKS_STAT_COUNT+TEXTURE_BLOCKS_ANIM_COUNT
 // Sprites
 // note - this is temporary value; not correct
-#define GUI_PANEL_SPRITES_COUNT      9000
 #define CREATURE_FRAMELIST_LENGTH     982
 // Types of objects
 #define SPELL_TYPES_COUNT     20
 #define MANUFCTR_TYPES_COUNT  11
 #define TRAP_TYPES_COUNT       7
 #define DOOR_TYPES_COUNT       5
-#define ROOM_TYPES_COUNT      17
 #define OBJECT_TYPES_COUNT   136
 #define ACTN_POINTS_COUNT     32
 #define SLAB_TYPES_COUNT      58
@@ -635,6 +633,14 @@ struct CreaturePool { // sizeof = 129
   unsigned char is_empty;
 };
 
+struct CreaturePickedUpOffset // sizeof = 8
+{
+  short delta_x;
+  short delta_y;
+  short field_4;
+  short field_6;
+};
+
 struct Bookmark { // sizeof = 3
   unsigned char x;
   unsigned char y;
@@ -680,23 +686,6 @@ struct SoundSettings {
   unsigned char sound_system;
   unsigned char field_18;
   unsigned char redbook_enable;
-};
-
-struct InstanceInfo { // sizeof = 42
-unsigned char field_0;
-unsigned long time;
-unsigned long fp_time;
-unsigned long action_time;
-unsigned long fp_action_time;
-unsigned long reset_time;
-unsigned long fp_reset_time;
-unsigned char field_19;
-unsigned char field_1A;
-unsigned short force_visibility;
-unsigned char field_1D;
-    Creature_Instf_Func func_cb;
-unsigned long field_22;
-unsigned char field_26[4];
 };
 
 struct Wander {
@@ -1398,8 +1387,6 @@ DLLIMPORT extern long _DK_gui_last_right_button_pressed_id;
 DLLIMPORT extern long _DK_map_to_slab[256];
 DLLIMPORT extern struct TrapData _DK_trap_data[MANUFCTR_TYPES_COUNT];
 #define trap_data _DK_trap_data
-DLLIMPORT extern struct RoomData _DK_room_data[ROOM_TYPES_COUNT];
-#define room_data _DK_room_data
 DLLIMPORT extern struct SpellData _DK_spell_data[SPELL_TYPES_COUNT+1];
 DLLIMPORT extern struct SlabAttr _DK_slab_attrs[SLAB_TYPES_COUNT];
 #define slab_attrs _DK_slab_attrs
@@ -1480,8 +1467,6 @@ DLLIMPORT long _DK_music_level;
 #define music_level _DK_music_level
 DLLIMPORT long _DK_fe_mouse_sensitivity;
 #define fe_mouse_sensitivity _DK_fe_mouse_sensitivity
-DLLIMPORT struct InstanceInfo _DK_instance_info[48];
-#define instance_info _DK_instance_info
 DLLIMPORT long _DK_activity_list[24];
 #define activity_list _DK_activity_list
 DLLIMPORT char _DK_net_service[16][64];
@@ -1564,10 +1549,6 @@ DLLIMPORT unsigned char _DK_smooth_on;
 #define smooth_on _DK_smooth_on
 DLLIMPORT struct BigSprite _DK_status_panel;
 #define status_panel _DK_status_panel
-DLLIMPORT unsigned char _DK_ghost[256*16];
-#define ghost _DK_ghost
-DLLIMPORT unsigned char _DK_fade_tables[256*64];
-#define fade_tables _DK_fade_tables
 DLLIMPORT unsigned short _DK_breed_activities[CREATURE_TYPES_COUNT];
 #define breed_activities _DK_breed_activities
 DLLIMPORT char _DK_top_of_breed_list;
@@ -1705,12 +1686,6 @@ DLLIMPORT void __cdecl _DK_redraw_display(void);
 DLLIMPORT void __cdecl _DK_cumulative_screen_shot(void);
 DLLIMPORT long __cdecl _DK_anim_record_frame(unsigned char *screenbuf, unsigned char *palette);
 DLLIMPORT void __cdecl _DK_frontend_set_state(long);
-DLLIMPORT void __cdecl _DK_frontnet_service_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_session_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_start_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_modem_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_serial_update(void);
-//DLLIMPORT void * __cdecl _DK_frontnet_session_join(GuiButton); (may be incorrect)
 DLLIMPORT void __cdecl _DK_demo(void);
 DLLIMPORT void __cdecl _DK_draw_gui(void);
 DLLIMPORT void __cdecl _DK_save_settings(void);
@@ -1892,6 +1867,8 @@ void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(unsigned char idx);
 void restore_computer_player_after_load(void);
 void sound_reinit_after_load(void);
+void draw_mini_things_in_hand(long x, long y);
+void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6);
 void draw_power_hand(void);
 void draw_swipe(void);
 void draw_bonus_timer(void);
@@ -2114,6 +2091,8 @@ long set_autopilot_type(unsigned int plridx, long aptype);
 void event_delete_event(long plridx, long num);
 void set_player_state(struct PlayerInfo *player, short a1, long a2);
 short magic_use_power_obey(unsigned short plridx);
+DLLIMPORT unsigned char _DK_EngineSpriteDrawUsingAlpha;
+#define EngineSpriteDrawUsingAlpha _DK_EngineSpriteDrawUsingAlpha
 DLLIMPORT long _DK_sound_heap_size;
 #define sound_heap_size _DK_sound_heap_size
 DLLIMPORT unsigned char *_DK_sound_heap_memory;

@@ -178,6 +178,7 @@
  0001:00020D40       draw_overlay_things
  0001:00021C00       process_pointer_graphic
  0001:000225B0       draw_power_hand
+ 0001:00022D70       draw_mini_things_in_hand
  0001:00023AA0       draw_swipe
  0001:00023DF0       draw_gold_total
  0001:00023ED0       draw_overlay_compass
@@ -313,6 +314,7 @@
  0001:000522A0       check_map_for_gold
  0001:00052990       flyeye_setup
  0001:00052A20       flyeye_blitsec
+ 0001:00053E70       process_keeper_sprite
  0001:00054890       draw_keepsprite_unscaled_in_buffer
  0001:00057260       process_creature_self_spell_casting
  0001:00057D20       update_creatures_not_in_list
@@ -891,6 +893,7 @@
  0003:0002F9E8       net_message_scroll_offset
  0003:0002F9EC       net_number_of_messages
  0003:0002F9F0       net_speed_index_active
+ 0003:0002F9F4       net_session_scroll_offset
  0003:0002F9F8       net_modem_data
  0003:0002FA18       net_number_of_sessions
  0003:0002FA20       tmp_net_player_name
@@ -1122,6 +1125,7 @@
  0003:00247070       played_bad_descriptive_speech
  0003:00247074       playing_bad_descriptive_speech
  0003:00247078       net_map_limp_time
+ 0003:0024707C       map_hand
  0003:00247080       end_map_flag
  0003:00247088       map_flag
  0003:0024708C       playing_good_descriptive_speech

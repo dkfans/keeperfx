@@ -36,6 +36,7 @@
 #include "frontend.h"
 #include "vidmode.h"
 #include "config.h"
+#include "config_creature.h"
 #include "player_instances.h"
 #include "thing_doors.h"
 #include "keeperfx.h"
