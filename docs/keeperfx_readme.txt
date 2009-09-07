@@ -6,13 +6,16 @@ KeeperFX is a executable mod for Dungeon Keeper.
 It is written by fans and not supported by original developer.
 Still, it requires original Dungeon Keeper to work.
 
-Installation:
+Installation over original DK:
 
-Copy all the files into your Dungeon Keeper directory. Then open
-'KEEPERFX.CFG' with Notepad, and make the line which starts with
-'INSTALL_PATH=' identical as in original 'KEEPER.CFG' file.
-Also, set proper language shortcut in the 'LANGUAGE=' line.
-Run "keeperfx.exe" to start the game.
+Copy all the files into your Dungeon Keeper directory.
+If you've installed DK from CD, then you will also have to copy
+all the data files from CD into this directory. Then open
+'KEEPERFX.CFG' with Notepad, and set proper language shortcut
+in the 'LANGUAGE=' line. Run "keeperfx.exe" to start the game.
+
+Note that automatic builds of KeeperFX do not contain all of
+neccessary files, you need to use a released version first.
 
 Command line options:
 
@@ -218,6 +221,14 @@ New and modified level script commands:
   REVEAL_MAP_LOCATION(PLAYER0,-1,11)
 
 Changelog:
+
+Version: 0.3.1
+  Fixed disappearing creatures in zoom box
+  Updated zoom level for various resolutions
+  Rewritten even more of Hand Of Evil support
+  Rewritten heap support for sound and speech samples
+  Replaced CREATURE.TXT with multiple .CFG files.
+  Rewritten network GUI functions
 
 Version: 0.3.0
   Fixed Hand Of Evil support code
