@@ -38,6 +38,7 @@
 #include "bflib_network.h"
 #include "config.h"
 #include "config_campaigns.h"
+#include "config_creature.h"
 #include "scrcapt.h"
 #include "gui_draw.h"
 #include "kjm_input.h"
@@ -3124,7 +3125,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
     return;
   if (thing->class_id == 5)
   {
-    crstat = &game.creature_stats[thing->model%CREATURE_TYPES_COUNT];
+    crstat = creature_stats_get_from_thing(thing);
     cctrl = creature_control_get_from_thing(thing);
     switch ((long)gbtn->field_33)
     {

@@ -169,7 +169,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len)
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Initialize block data
-  crstat = &game.creature_stats[crtr_model%CREATURE_TYPES_COUNT];
+  crstat = creature_stats_get(crtr_model);
   crstat->health = 1;
   crstat->heal_requirement = 1;
   crstat->heal_threshold = 1;
@@ -614,7 +614,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len)
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Initialize block data
-  crstat = &game.creature_stats[crtr_model%CREATURE_TYPES_COUNT];
+  crstat = creature_stats_get(crtr_model);
   for (n=0; n < 3; n++)
   {
     crstat->entrance_rooms[n] = 0;
@@ -734,7 +734,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len)
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Initialize block data
-  crstat = &game.creature_stats[crtr_model%CREATURE_TYPES_COUNT];
+  crstat = creature_stats_get(crtr_model);
   crstat->annoy_eat_food = 0;
   crstat->annoy_will_not_do_job = 0;
   crstat->annoy_in_hand = 0;
@@ -1117,7 +1117,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len)
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Initialize block data
-  crstat = &game.creature_stats[crtr_model%CREATURE_TYPES_COUNT];
+  crstat = creature_stats_get(crtr_model);
   crstat->hearing = 0;
   crstat->eye_height = 0;
   crstat->field_of_view = 0;
@@ -1233,7 +1233,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len)
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Initialize block data
-  crstat = &game.creature_stats[crtr_model%CREATURE_TYPES_COUNT];
+  crstat = creature_stats_get(crtr_model);
   crstat->walking_anim_speed = 1;
   crstat->visual_range = 1;
   // Find the block
@@ -1304,7 +1304,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len)
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Initialize block data
-  crstat = &game.creature_stats[crtr_model%CREATURE_TYPES_COUNT];
+  crstat = creature_stats_get(crtr_model);
   for (n=0; n < 10; n++)
   {
     crstat->instance_spell[n] = 0;
@@ -1488,7 +1488,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len)
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Initialize block data
-  crstat = &game.creature_stats[crtr_model%CREATURE_TYPES_COUNT];
+  crstat = creature_stats_get(crtr_model);
   crstat->job_primary = 0;
   crstat->job_secondary = 0;
   crstat->jobs_not_do = 0;
@@ -1717,7 +1717,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *conf_fnstr,uns
   result = (len > 0);
   {
     struct CreatureStats *crstat;
-    crstat = &game.creature_stats[crtr_model%CREATURE_TYPES_COUNT];
+    crstat = creature_stats_get(crtr_model);
     LbMemorySet(crstat, '\0', sizeof(struct CreatureStats));
   }
   if (result)

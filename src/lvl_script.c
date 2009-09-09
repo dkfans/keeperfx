@@ -3319,19 +3319,19 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       }
       break;
   case Cmd_SET_CREATURE_HEALTH:
-      crstat = &game.creature_stats[val2%CREATURE_TYPES_COUNT];
+      crstat = creature_stats_get(val2);
       crstat->health = saturate_set_signed(val3, 16);
       break;
   case Cmd_SET_CREATURE_STRENGTH:
-      crstat = &game.creature_stats[val2%CREATURE_TYPES_COUNT];
+      crstat = creature_stats_get(val2);
       crstat->strength = saturate_set_unsigned(val3, 8);
       break;
   case Cmd_SET_CREATURE_ARMOUR:
-      crstat = &game.creature_stats[val2%CREATURE_TYPES_COUNT];
+      crstat = creature_stats_get(val2);
       crstat->armour = saturate_set_unsigned(val3, 8);
       break;
   case Cmd_SET_CREATURE_FEAR:
-      crstat = &game.creature_stats[val2%CREATURE_TYPES_COUNT];
+      crstat = creature_stats_get(val2);
       crstat->fear = saturate_set_unsigned(val3, 8);
       break;
   case Cmd_ALLY_PLAYERS:

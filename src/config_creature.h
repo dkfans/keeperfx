@@ -61,6 +61,10 @@ extern const struct NamedCommand attackpref_desc[];
 extern struct NamedCommand instance_desc[];
 extern struct CreatureConfig crtr_conf;
 /******************************************************************************/
+struct CreatureStats *creature_stats_get(long crstat_idx);
+struct CreatureStats *creature_stats_get_from_thing(struct Thing *thing);
+TbBool creature_stats_invalid(struct CreatureStats *crstat);
+/******************************************************************************/
 TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/
 #ifdef __cplusplus

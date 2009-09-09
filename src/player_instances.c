@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 
 #include "creature_control.h"
+#include "config_creature.h"
 #include "front_simple.h"
 #include "frontend.h"
 #include "keeperfx.h"
@@ -271,7 +272,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
       if (cctrl->field_AB & 0x02)
         PaletteSetPlayerPalette(player, blue_palette);
     }
-    crstat = &game.creature_stats[thing->model%CREATURE_TYPES_COUNT];
+    crstat = creature_stats_get_from_thing(thing);
     for (i=0; i < 10; i++)
     {
       k = crstat->instance_spell[i];

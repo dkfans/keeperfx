@@ -101,6 +101,34 @@ struct CreatureConfig crtr_conf;
 struct NamedCommand creature_desc[CREATURE_TYPES_MAX];
 struct NamedCommand instance_desc[INSTANCE_TYPES_MAX];
 /******************************************************************************/
+/*
+ * Returns CreatureStats of given creature model.
+ */
+struct CreatureStats *creature_stats_get(long crstat_idx)
+{
+  if ((crstat_idx < 1) || (crstat_idx > CREATURE_TYPES_COUNT))
+    return &game.creature_stats[0];
+  return &game.creature_stats[crstat_idx];
+}
+
+/*
+ * Returns CreatureStats assigned to given thing.
+ * Thing must be a creature.
+ */
+struct CreatureStats *creature_stats_get_from_thing(struct Thing *thing)
+{
+  if ((thing->model < 1) || (thing->model > CREATURE_TYPES_COUNT))
+    return &game.creature_stats[0];
+  return &game.creature_stats[thing->model];
+}
+
+/*
+ * Returns if given CreatureStats pointer is incorrect.
+ */
+TbBool creature_stats_invalid(struct CreatureStats *crstat)
+{
+  return (crstat <= &game.creature_stats[0]) || (crstat == NULL);
+}
 
 TbBool parse_creaturetypes_common_blocks(char *buf,long len)
 {

@@ -20,6 +20,7 @@
 #include "globals.h"
 
 #include "keeperfx.h"
+#include "config_creature.h"
 
 #ifdef __cplusplus
 extern "C" {

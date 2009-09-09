@@ -34,6 +34,7 @@
 #include "frontend.h"
 #include "scrcapt.h"
 #include "player_instances.h"
+#include "config_creature.h"
 #include "gui_tooltips.h"
 #include "keeperfx.h"
 
@@ -827,9 +828,11 @@ short get_creature_control_action_inputs(void)
     num_avail = 0;
     for (idx=0; idx < 10; idx++)
     {
+      struct CreatureStats *crstat;
       struct Thing *thing;
       thing = thing_get(player->field_2F);
-      instnce = game.creature_stats[thing->model%CREATURE_TYPES_COUNT].instance_spell[idx];
+      crstat = creature_stats_get_from_thing(thing);
+      instnce = crstat->instance_spell[idx];
       if ( creature_instance_is_available(thing,instnce) )
       {
         if ( numkey == num_avail )

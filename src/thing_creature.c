@@ -20,6 +20,7 @@
 #include "globals.h"
 
 #include "bflib_memory.h"
+#include "config_creature.h"
 #include "engine_lenses.h"
 #include "keeperfx.h"
 
@@ -225,7 +226,7 @@ short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obth
   struct CreatureStats *crstat;
   struct CreatureControl *cctrl;
   long i;
-  crstat = &game.creature_stats[crthing->model%CREATURE_TYPES_COUNT];
+  crstat = creature_stats_get_from_thing(crthing);
   cctrl = creature_control_get_from_thing(crthing);
   if (obthing->long_13 <= 0)
   {

@@ -1619,7 +1619,7 @@ void init_creature_scores(void)
   max_score = 0;
   for (i=0; i < CREATURE_TYPES_COUNT; i++)
   {
-    crstat = &game.creature_stats[i];
+    crstat = creature_stats_get(i);
     score = compute_creature_max_health(crstat->health,CREATURE_MAX_LEVEL-1)
         + compute_creature_max_defence(crstat->defence,CREATURE_MAX_LEVEL-1)
         + compute_creature_max_dexterity(crstat->dexterity,CREATURE_MAX_LEVEL-1)
@@ -1642,7 +1642,7 @@ void init_creature_scores(void)
   }
   for (i=0; i < CREATURE_TYPES_COUNT; i++)
   {
-    crstat = &game.creature_stats[i];
+    crstat = creature_stats_get(i);
     for (k=0; k < CREATURE_MAX_LEVEL; k++)
     {
       score = compute_creature_max_health(crstat->health,k)
@@ -2028,7 +2028,7 @@ short update_creature_health_to_max(struct Thing *thing)
 {
   struct CreatureStats *crstat;
   struct CreatureControl *cctrl;
-  crstat = &game.creature_stats[thing->model%CREATURE_TYPES_COUNT];
+  crstat = creature_stats_get_from_thing(thing);
   cctrl = creature_control_get_from_thing(thing);
   thing->health = compute_creature_max_health(crstat->health,cctrl->explevel);
   return true;
@@ -2061,7 +2061,7 @@ long update_creature_levels(struct Thing *thing)
     return 1;
   }
   // If it is highest level, maybe we should transform the creature?
-  crstat = &game.creature_stats[thing->model%CREATURE_TYPES_COUNT];
+  crstat = creature_stats_get_from_thing(thing);
   if (crstat->grow_up == 0)
     return 0;
   // Transforming
@@ -2318,6 +2318,7 @@ void place_bloody_footprint(struct Thing *thing)
 void process_landscape_affecting_creature(struct Thing *thing)
 {
   static const char *func_name="process_landscape_affecting_creature";
+  struct CreatureStats *crstat;
   struct CreatureControl *cctrl;
   struct SlabMap *slb;
   int stl_idx;
@@ -2340,7 +2341,8 @@ void process_landscape_affecting_creature(struct Thing *thing)
     i = get_top_cube_at_pos(stl_idx);
     if ((i & 0xFFFFFFFE) == 40)
     {
-      apply_damage_to_thing_and_display_health(thing, game.creature_stats[thing->model].hurt_by_lava, -1);
+      crstat = creature_stats_get_from_thing(thing);
+      apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, -1);
       thing->field_25 |= 0x02;
     } else
     if (i == 39)
@@ -2380,7 +2382,8 @@ void process_landscape_affecting_creature(struct Thing *thing)
   }
   if (((thing->field_0 & 0x20) == 0) && ((thing->field_25 & 0x02) != 0))
   {
-    if (game.creature_stats[thing->model%CREATURE_TYPES_COUNT].hurt_by_lava)
+    crstat = creature_stats_get_from_thing(thing);
+    if (crstat->hurt_by_lava)
     {
         if (thing->field_7 == 14)
           i = thing->field_8;
