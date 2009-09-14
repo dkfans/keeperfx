@@ -28,7 +28,59 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#define CLIENT_TABLE_LEN 32
+/******************************************************************************/
 #pragma pack(1)
+
+typedef long (*Net_Callback_Func)(void);
+
+enum TbNetworkService {
+    NS_Serial,
+    NS_Modem,
+    NS_IPX,
+    NS_TCP_IP,
+};
+
+
+struct ClientDataEntry {
+  unsigned long field_0;
+  unsigned long field_4;
+  unsigned long field_8;
+  char field_C[32];
+};
+
+struct ConfigInfo { // sizeof = 130
+  char numfield_0;
+  unsigned char numfield_1[8];
+  char numfield_9;
+  char str_atz[20];
+  char str_atdt[20];
+  char str_ath[20];
+  char str_ats[20];
+  char str_join[20];
+  char str_u2[20];
+};
+
+struct TbModemDev { // sizeof = 180
+  unsigned long field_0;
+  unsigned long field_4;
+  char field_8[80];
+  char field_58[80];
+  unsigned long field_A8;
+  Net_Callback_Func field_AC;
+  Net_Callback_Func field_B0;
+};
+
+struct ModemResponse {
+  unsigned char field_0[8];
+  unsigned char field_8[8];
+  unsigned char field_10[8];
+  unsigned char field_18[8];
+  unsigned char field_20[8];
+  unsigned char field_28[8];
+  unsigned char field_30[8];
+  unsigned char field_38[8];
+};
 
 struct TbNetworkPlayerInfo {
 char field_0[32];
@@ -45,14 +97,38 @@ struct TbNetworkPlayerName {
   char name[20];
 };
 
-// Size of this struct is probably larger
-struct TbNetworkSessionNameEntry {
-  long field_0;
+struct TbNetworkPlayerNameEntry {
+  unsigned char field_0;
+  unsigned long field_1;
+  unsigned long field_5;
+  unsigned long field_9;
+  char field_D[19];
+  unsigned char field_20[20];
+  unsigned char field_34[4];
+};
+
+//TODO: find out what this struct really is, and how long is it
+struct SystemUserMsg {
+  unsigned char field_0;
+  char field_1[8];
+};
+
+struct UnidirectionalDataMessage {
+  unsigned long field_0;
   unsigned long field_4;
-  char field_8[8];
-  char field_10[16];
-  char field_20[8];
-  char field_28;
+  unsigned long field_8;
+  unsigned long field_C;
+  unsigned long field_10;
+  unsigned char field_14[492];
+  unsigned char field_200[12];
+};
+
+struct UnidirectionalRTSMessage {
+  unsigned long field_0;
+  unsigned long field_4;
+  unsigned long field_8;
+  unsigned long field_C;
+  unsigned long field_10;
 };
 
 struct SerialInitData {
@@ -68,18 +144,16 @@ long field_C;
 
 #pragma pack()
 /******************************************************************************/
-typedef void __stdcall (*TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
-/******************************************************************************/
 DLLIMPORT extern int _DK_network_initialized;
 #define network_initialized _DK_network_initialized
 /******************************************************************************/
 TbError LbNetwork_Init(unsigned long srvcp,struct _GUID guid, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct SerialInitData *init_data);
-TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, unsigned long *playr_num);
-TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num);
+TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, unsigned long *playr_num, void *optns);
+TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
 TbError LbNetwork_Exchange(void *buf);
 void LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
 TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long a2);
-TbError LbNetwork_EnableNewPlayers(unsigned long allow);
+TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);

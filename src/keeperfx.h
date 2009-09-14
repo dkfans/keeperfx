@@ -1261,48 +1261,6 @@ int field_14;
 char *field_18;
 };
 
-struct ConfigInfo { // sizeof = 130
-  char numfield_0;
-  unsigned char numfield_1[8];
-  char numfield_9;
-  char str_atz[20];
-  char str_atdt[20];
-  char str_ath[20];
-  char str_ats[20];
-  char str_join[20];
-  char str_u2[20];
-};
-
-struct TbModemDev { // sizeof = 180
-  unsigned long field_0;
-  unsigned long field_4;
-  char field_8[80];
-  char field_58[80];
-  unsigned long field_A8;
-  Net_Callback_Func field_AC;
-  Net_Callback_Func field_B0;
-};
-
-struct ClientDataEntry {
-long field_0;
-long field_4;
-long field_8;
-long field_C;
-char field_10[28];
-};
-
-struct ReceiveCallbacks {
-       void (*add_msg)(unsigned long, char *, void *);
-       void (*delete_msg)(unsigned long, void *);
-       void (*host_msg)(unsigned long, void *);
-       void *unkn1;
-       void * __stdcall (*multi_player)(unsigned long, unsigned long, unsigned long, void *);
-       void __stdcall (*mp_req_exdata_msg)(unsigned long, unsigned long, void *);
-       void (*req_compos_exchngdat_msg)(unsigned long, unsigned long, void *);
-       void * (*unidirectional_msg)(unsigned long, unsigned long, void *);
-       void (*sys_user_msg)(unsigned long, void *, unsigned long, void *);
-};
-
 // Global variables migration between DLL and the program
 
 DLLIMPORT extern HINSTANCE _DK_hInstance;

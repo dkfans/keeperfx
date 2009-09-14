@@ -36,6 +36,7 @@
 #include "bflib_filelst.h"
 #include "bflib_sound.h"
 #include "bflib_network.h"
+#include "bflib_netsp.h"
 #include "config.h"
 #include "config_campaigns.h"
 #include "config_creature.h"
@@ -3756,18 +3757,23 @@ void frontnet_session_join(struct GuiButton *gbtn)
 {
   //_DK_frontnet_session_join(gbtn);
   unsigned long plyr_num;
-  if ((net_service_index_selected != 0) && (net_service_index_selected == 1))
+  void *conn_options;
+  switch (net_service_index_selected)
   {
+  case 1:
     modem_dev.field_0 = 0;
     modem_dev.field_4 = 0;
     strcpy(modem_dev.field_58, net_config_info.str_join);
     modem_dev.field_AC = modem_initialise_callback;
     modem_dev.field_B0 = modem_connect_callback;
-  } else
-  {
+    conn_options = &modem_dev;
+    break;
+  default:
     display_attempting_to_join_message();
+    conn_options = NULL;
+    break;
   }
-  if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num) )
+  if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, conn_options) )
   {
     if (net_service_index_selected == 1)
       process_network_error(modem_dev.field_A8);
@@ -3783,6 +3789,7 @@ void frontnet_session_create(struct GuiButton *gbtn)
 {
   struct TbNetworkSessionNameEntry *nsname;
   unsigned long plyr_num;
+  void *conn_options;
   char *text;
   char *txpos;
   long i,idx;
@@ -3793,7 +3800,7 @@ void frontnet_session_create(struct GuiButton *gbtn)
       nsname = net_session[i];
       if (nsname == NULL)
         continue;
-      text = buf_sprintf(nsname->field_8);
+      text = buf_sprintf("%s",nsname->text);
       txpos = strchr(text, '\'');
       if (txpos != NULL)
         *txpos = '\0';
@@ -3812,13 +3819,15 @@ void frontnet_session_create(struct GuiButton *gbtn)
       strcpy(modem_dev.field_58, net_config_info.str_join);
       modem_dev.field_AC = modem_initialise_callback;
       modem_dev.field_B0 = modem_connect_callback;
+      conn_options = &modem_dev;
       break;
   default:
+      conn_options = NULL;
       break;
   }
-  if (LbNetwork_Create(text, net_player_name, &plyr_num))
+  if (LbNetwork_Create(text, net_player_name, &plyr_num, conn_options))
   {
-    if ( net_service_index_selected == 1 )
+    if (net_service_index_selected == 1)
       process_network_error(modem_dev.field_A8);
     else
       process_network_error(-801);

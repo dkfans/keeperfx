@@ -44,6 +44,7 @@ public:
 /******************************************************************************/
 
 class LbSemaLock {
+public:
     LbSemaLock(class LbSemaphore *sem, int a2);
     virtual ~LbSemaLock(void);
     int Lock(TbBool wait_forever);

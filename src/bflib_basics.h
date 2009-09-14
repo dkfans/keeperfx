@@ -151,6 +151,7 @@ unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits)
 }
 #endif
 
+struct TbNetworkCallbackData;
 typedef int TbError;
 
 #ifdef __cplusplus
@@ -158,3 +159,5 @@ typedef int TbError;
 #endif
 
 #endif
+typedef void __stdcall (*TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
+/******************************************************************************/
