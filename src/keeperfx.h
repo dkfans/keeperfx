@@ -1251,16 +1251,6 @@ int numfield_15181D;
 int numfield_151821;
 };
 
-struct CPU_INFO {
-int field_0;
-int field_4;
-int field_8;
-int field_C;
-int field_10;
-int field_14;
-char *field_18;
-};
-
 // Global variables migration between DLL and the program
 
 DLLIMPORT extern HINSTANCE _DK_hInstance;
@@ -1623,7 +1613,6 @@ DLLIMPORT int __stdcall _DK_WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 DLLIMPORT int __stdcall _DK_LbBullfrogMain(unsigned short argc,char **argv);
 DLLIMPORT int __stdcall _DK_game_loop(void);
 DLLIMPORT int __stdcall _DK_LbErrorLogSetup(char *directory, char *filename, unsigned char flag);
-DLLIMPORT void __fastcall _DK_get_cpu_info(struct CPU_INFO *cpu_info);
 DLLIMPORT int __stdcall _DK_SyncLog(char *Format, ...);
 DLLIMPORT void __cdecl _DK_set_cpu_mode(int mode);
 DLLIMPORT int __cdecl _DK_setup_heaps(void);

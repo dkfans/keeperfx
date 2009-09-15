@@ -52,6 +52,17 @@ DLLIMPORT void _DK_setup_rotate_stuff(long a1, long a2, long a3, long a4, long a
 unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
 
 /******************************************************************************/
+void gpoly_enable_pentium_pro(TbBool state)
+{
+#if (BFDEBUG_LEVEL > 4)
+  LbSyncLog("Pentium Pro polygon rendering %s\n",state?"on":"off");
+#endif
+  if (state)
+    gpoly_pro_enable_mode_ofs = (1<<6);
+  else
+    gpoly_pro_enable_mode_ofs = 0;
+}
+
 long compute_cells_away(void)
 {
   long xmin,ymin,xmax,ymax;

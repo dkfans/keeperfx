@@ -65,6 +65,7 @@ obj/bflib_keybrd.o \
 obj/bflib_datetm.o \
 obj/bflib_math.o \
 obj/bflib_memory.o \
+obj/bflib_cpu.o \
 obj/bflib_pom.o \
 obj/bflib_mouse.o \
 obj/bflib_network.o \

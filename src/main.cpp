@@ -15,6 +15,7 @@
 #include "bflib_dernc.h"
 #include "bflib_sndlib.h"
 #include "bflib_fmvids.h"
+#include "bflib_cpu.h"
 #include "bflib_video.h"
 #include "bflib_vidraw.h"
 #include "bflib_guibtns.h"
@@ -4389,7 +4390,7 @@ short load_settings(void)
   char *fname;
   long len;
   // Do only a very basic setup
-  _DK_get_cpu_info(&cpu_info);
+  cpu_detect(&cpu_info);
   fname = prepare_file_path(FGrp_Save,"settings.dat");
   len = LbFileLengthRnc(fname);
   if (len == sizeof(struct GameSettings))
@@ -4399,7 +4400,7 @@ short load_settings(void)
   }
   LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
   settings.field_B = get_next_vidmode(Lb_SCREEN_MODE_INVALID);
-  if ((((cpu_info.field_0>>8) & 0x0Fu) >= 6) && (is_feature_on(Ft_HiResVideo)))
+  if ((((cpu_info.feature_intl>>8) & 0x0Fu) >= 6) && (is_feature_on(Ft_HiResVideo)))
     settings.field_B = get_next_vidmode(settings.field_B);
   LbFileSaveAt(fname, &settings, sizeof(struct GameSettings));
   return false;
@@ -4445,9 +4446,9 @@ short setup_game(void)
   // CPU status variable
   struct CPU_INFO cpu_info;
   char *fname;
-  //return _DK_setup_game();
   // Do only a very basic setup
-  _DK_get_cpu_info(&cpu_info);
+  cpu_detect(&cpu_info);
+  LbSyncLog("CPU %s features %08x %08x\n",cpu_info.vendor,cpu_info.feature_intl,cpu_info.feature_edx);
   update_memory_constraits();
 
   // Enable features thar require more resources
@@ -4571,10 +4572,10 @@ short setup_game(void)
   if ( result )
   {
       init_keeper();
-      if ( cpu_info.field_0 )
+      if (cpu_info.feature_intl != 0)
       {
-          if ( ((cpu_info.field_0>>8) & 0x0Fu) >= 0x06 )
-            _DK_set_cpu_mode(1);
+          if ( ((cpu_info.feature_intl>>8) & 0x0Fu) >= 0x06 )
+            gpoly_enable_pentium_pro(true);
       }
       set_gamma(settings.gamma_correction, 0);
       SetRedbookVolume(settings.redbook_volume);

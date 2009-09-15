@@ -167,6 +167,8 @@ DLLIMPORT unsigned char _DK_engine_player_number;
 #define engine_player_number _DK_engine_player_number
 DLLIMPORT unsigned char _DK_player_bit;
 #define player_bit _DK_player_bit
+DLLIMPORT long _DK_gpoly_pro_enable_mode_ofs;
+#define gpoly_pro_enable_mode_ofs _DK_gpoly_pro_enable_mode_ofs
 
 #pragma pack()
 /******************************************************************************/
@@ -185,6 +187,7 @@ void frame_wibble_generate(void);
 void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8);
 
 void update_engine_settings(struct PlayerInfo *player);
+void gpoly_enable_pentium_pro(TbBool state);
 void display_drawlist(void);
 void draw_view(struct Camera *cam, unsigned char a2);
 /******************************************************************************/
