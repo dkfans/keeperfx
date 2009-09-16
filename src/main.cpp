@@ -4327,7 +4327,7 @@ void init_keeper(void)
   if (game.generate_speed <= 0)
     game.generate_speed = game.default_generate_speed;
   poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
-  lbDisplay.GlassMap = ghost;
+  lbDisplay.GlassMap = pixmap.ghost;
   game.field_1517F8 = 1;
   lbDisplay.DrawColour = colours[15][15][15];
   game.field_1517F7 = 0;
@@ -9692,7 +9692,7 @@ void smooth_screen_area(unsigned char *scrbuf, long x, long y, long w, long h, l
     for (k = w-x-1; k>0; k--)
     {
         ghpos = (buf[0] << 8) + buf[1];
-        ghpos = (buf[scanln] << 8) + ghost[ghpos];
+        ghpos = (buf[scanln] << 8) + pixmap.ghost[ghpos];
         buf[0] = ghpos;
         buf++;
     }

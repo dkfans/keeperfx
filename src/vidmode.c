@@ -135,7 +135,7 @@ struct TbLoadFiles vres256_load_files_minimal[] = {
   {"ldata/frontft3.tab", (unsigned char **)&frontend_font[2],      (unsigned char **)&frontend_end_font[2],       0, 0, 0},
   {"ldata/frontft4.dat", (unsigned char **)&frontend_font_data[3], (unsigned char **)&frontend_end_font_data[3],  0, 0, 0},
   {"ldata/frontft4.tab", (unsigned char **)&frontend_font[3],      (unsigned char **)&frontend_end_font[3],       0, 0, 0},
-  {"levels/levels.txt",  (unsigned char **)&level_names_data,      (unsigned char **)&end_level_names_data,       0, 0, 0},
+//  {"levels/levels.txt",  (unsigned char **)&level_names_data,      (unsigned char **)&end_level_names_data,       0, 0, 0},
   {"*FE_BACKUP_PAL",      (unsigned char **)&frontend_backup_palette,NULL,                                       768, 0, 0},
   {"",                    NULL,                                     NULL,                                          0, 0, 0},
 };
@@ -351,8 +351,10 @@ TbBool set_pointer_graphic_none(void)
 
 TbBool set_pointer_graphic_menu(void)
 {
+  static const char *func_name="set_pointer_graphic_menu";
   if (frontend_sprite == NULL)
   {
+    LbWarnLog("%s: Frontend sprites not loaded, setting pointer to none\n",func_name);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
@@ -370,11 +372,13 @@ TbBool set_pointer_graphic_spell(long group_idx, long frame)
 #endif
   if (pointer_sprites == NULL)
   {
+    LbWarnLog("%s: Pointer sprites not loaded, setting to none\n",func_name);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
   if ((group_idx < 0) || (group_idx >= SPELL_POINTER_GROUPS))
   {
+    LbWarnLog("%s: Group index out of range, setting pointer to none\n",func_name);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
@@ -394,9 +398,13 @@ TbBool set_pointer_graphic_spell(long group_idx, long frame)
     LbSyncLog("%s: Activating pointer %d\n",func_name,40+i);
 #endif
   if ((spr >= pointer_sprites) && (spr < end_pointer_sprites))
+  {
     LbMouseChangeSpriteAndHotspot(spr, x/2, y/2);
-  else
+  } else
+  {
+    LbWarnLog("%s: Sprite %ld exceeds buffer, setting pointer to none\n",func_name,i);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
+  }
   return true;
 }
 
@@ -410,6 +418,7 @@ TbBool set_pointer_graphic(long ptr_idx)
 #endif
   if (pointer_sprites == NULL)
   {
+    LbWarnLog("%s: Pointer sprites not loaded, setting to none\n",func_name);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
@@ -492,9 +501,13 @@ TbBool set_pointer_graphic(long ptr_idx)
     return false;
   }
   if ((spr >= pointer_sprites) && (spr < end_pointer_sprites))
+  {
     LbMouseChangeSpriteAndHotspot(spr, x, y);
-  else
+  } else
+  {
+    LbWarnLog("%s: Sprite %ld exceeds buffer, setting pointer to none\n",func_name,ptr_idx);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
+  }
   return true;
 }
 

@@ -714,6 +714,7 @@
  0001:000DAD00       LbTextStringWidth
  0001:000DAE70       LbTextDraw
  0001:000DBF80       LbWindowsControl@0
+ 0001:000DC3B0       LbPaletteFindColour
  0001:000DC920       LbMouseSetPosition
  0001:000DCA70       LbMouseChangeSprite
  0001:000DCB10       LbMouseChangeSpriteAndHotspot
@@ -1174,7 +1175,7 @@
  0003:00247F60       frontend_end_font
  0003:00247F70       credits_end
  0003:00247F78       frontend_font_data
- 0003:0025C9F4       fade_tables
+ 0003:0025C9F4       pixmap
  0003:002609F4       ghost
  0003:002735D0       lbDisplay
  0003:0027377C       hInstance

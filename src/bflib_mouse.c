@@ -30,13 +30,15 @@
 #include "bflib_memory.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
+#include "bflib_semphr.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 /*
-bool lbMouseInstalled=false;
+int volatile lbMouseInstalled=false;
+
 struct mouse_buffer mbuffer;
 struct mouse_info minfo;
 char ptr[4096];
@@ -57,8 +59,23 @@ DLLIMPORT int _DK_LbMouseSetPosition(int x, int y);
 DLLIMPORT int _DK_LbMouseChangeSprite(struct TbSprite *MouseSprite);
 DLLIMPORT int __stdcall _DK_LbMouseSuspend(void);
 /******************************************************************************/
+/*
+ * Adjusts point coordinates; returns true if the coordinates have changed.
+ */
+TbBool adjust_point(long *x, long *y)
+{
+  return false;
+}
+
 int LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, int hot_x, int hot_y)
 {
+  static const char *func_name="LbMouseChangeSpriteAndHotspot";
+#if (BFDEBUG_LEVEL > 8)
+  if (mouseSprite == NULL)
+    LbSyncLog("%s: Setting to %s\n",func_name,"NONE");
+  else
+    LbSyncLog("%s: Setting to %dx%d, data at %p\n",func_name,(int)mouseSprite->SWidth,(int)mouseSprite->SHeight,mouseSprite);
+#endif
   return _DK_LbMouseChangeSpriteAndHotspot(mouseSprite, hot_x, hot_y);
 }
 
@@ -79,6 +96,13 @@ int LbMouseSetPosition(int x, int y)
 
 short LbMouseChangeSprite(struct TbSprite *mouseSprite)
 {
+  static const char *func_name="LbMouseChangeSprite";
+#if (BFDEBUG_LEVEL > 8)
+  if (mouseSprite == NULL)
+    LbSyncLog("%s: Setting to %s\n",func_name,"NONE");
+  else
+    LbSyncLog("%s: Setting to %dx%d, data at %p\n",func_name,(int)mouseSprite->SWidth,(int)mouseSprite->SHeight,mouseSprite);
+#endif
   return _DK_LbMouseChangeSprite(mouseSprite);
 }
 
@@ -86,10 +110,14 @@ int LbMouseSuspend(void)
 {
   return _DK_LbMouseSuspend();
 }
-/*
-int __fastcall LbMouseSetWindow(int x, int y, int width, int height)
+
+/*READY - enable when all winMouseHandler uses are rewritten
+int LbMouseSetWindow(int x, int y, int width, int height)
 {
   if ( !lbMouseInstalled )
+    return -1;
+  LbSemaLock semlock(winMouseHandler.semaphore,0);
+  if (!semlock.Lock(true))
     return -1;
   lbDisplay.MouseWindowX = x;
   lbDisplay.MouseWindowY = y;
@@ -99,7 +127,9 @@ int __fastcall LbMouseSetWindow(int x, int y, int width, int height)
   adjust_point(&lbDisplay.MouseX, &lbDisplay.MouseY);
   return 1;
 }
+*/
 
+/*
 int __fastcall LbMouseChangeMoveRatio(int x, int y)
 {
   if ( !lbMouseInstalled )

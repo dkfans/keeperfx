@@ -185,6 +185,7 @@ enum TbScreenMode LbRecogniseVideoModeString(char *str);
 short LbScreenSetGraphicsWindow(long x, long y, long width, long height);
 short LbScreenIsModeAvailable(enum TbScreenMode mode);
 short LbIsActive(void);
+TbPixel LbPaletteFindColour(unsigned char *pal, unsigned char r, unsigned char g, unsigned char b);
 /*
 bool __fastcall LbVesaGetGran(TbScreenMode mode);
 int __fastcall LbVesaSetPage(short npage);

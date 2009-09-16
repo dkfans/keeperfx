@@ -32,19 +32,33 @@ extern "C" {
 #pragma pack(1)
 
 /******************************************************************************/
+struct TbColorTables {
+  unsigned char fade_tables[64*256];
+  unsigned char ghost[256*256];
+  unsigned char flat_colours_tl[2*256];
+  unsigned char flat_colours_tr[2*256];
+  unsigned char flat_colours_br[2*256];
+  unsigned char flat_colours_bl[2*256];
+  unsigned char robs_bollocks[256];
+};
+/******************************************************************************/
 DLLIMPORT unsigned short _DK_pixels_per_block;
 #define pixels_per_block _DK_pixels_per_block
 DLLIMPORT unsigned short _DK_units_per_pixel;
 #define units_per_pixel _DK_units_per_pixel
 
-DLLIMPORT unsigned char _DK_ghost[256*16];
-#define ghost _DK_ghost
-DLLIMPORT unsigned char _DK_fade_tables[256*64];
-#define fade_tables _DK_fade_tables
+//DLLIMPORT unsigned char _DK_ghost[256*16];
+//#define ghost _DK_ghost
+//DLLIMPORT unsigned char _DK_fade_tables[256*64];
+//#define fade_tables _DK_fade_tables
+DLLIMPORT struct TbColorTables _DK_pixmap;
+#define pixmap _DK_pixmap
 DLLIMPORT int _DK_MinimalResolutionSetup;
 #define MinimalResolutionSetup _DK_MinimalResolutionSetup
 
 #pragma pack()
+/******************************************************************************/
+extern struct TbSprite *pointer_sprites;
 /******************************************************************************/
 TbScreenMode switch_to_next_video_mode(void);
 void set_game_vidmode(unsigned short i,unsigned short nmode);

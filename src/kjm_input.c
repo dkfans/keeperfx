@@ -86,23 +86,23 @@ void clear_mouse_pressed_lrbutton(void)
 
 void update_left_button_released(void)
 {
-  _DK_left_button_released = 0;
-  _DK_left_button_double_clicked = 0;
+  left_button_released = 0;
+  left_button_double_clicked = 0;
   if ( lbDisplay.LeftButton )
   {
-    _DK_left_button_held = 1;
-    _DK_left_button_held_x = GetMouseX();
-    _DK_left_button_held_y = GetMouseY();
+    left_button_held = 1;
+    left_button_held_x = GetMouseX();
+    left_button_held_y = GetMouseY();
   }
-  if (_DK_left_button_held)
+  if (left_button_held)
   {
     if (!lbDisplay.MLeftButton)
     {
-      _DK_left_button_released = 1;
-      _DK_left_button_held = 0;
-      _DK_left_button_released_x = GetMouseX();
-      _DK_left_button_released_y = GetMouseY();
-      if ( _DK_left_button_click_space_count < 5 )
+      left_button_released = 1;
+      left_button_held = 0;
+      left_button_released_x = GetMouseX();
+      left_button_released_y = GetMouseY();
+      if ( left_button_click_space_count < 5 )
       {
         left_button_double_clicked = 1;
         left_button_double_clicked_x = left_button_released_x;
@@ -224,11 +224,11 @@ void update_key_modifiers(void)
 
 void define_key_input(void)
 {
-  short shift_state;
-  short ctrl_state;
+  TbBool shift_state;
+  TbBool ctrl_state;
   if (lbInkey == 1)
   {
-    _DK_defining_a_key = 0;
+    defining_a_key = 0;
     lbInkey = 0;
   } else
   if (lbInkey != 0)
@@ -239,8 +239,8 @@ void define_key_input(void)
     shift_state = 0;
     if ( lbKeyOn[KC_LSHIFT] || (lbKeyOn[KC_RSHIFT]) )
       shift_state = 1;
-    if ( _DK_set_game_key(_DK_defining_a_key_id, lbInkey, shift_state, ctrl_state) )
-      _DK_defining_a_key = 0;
+    if ( _DK_set_game_key(defining_a_key_id, lbInkey, shift_state, ctrl_state) )
+      defining_a_key = 0;
     lbInkey = 0;
   }
 }

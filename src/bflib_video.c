@@ -57,6 +57,7 @@ struct TbScreenModeInfo lbScreenModeInfo[]={
 };
 
 /******************************************************************************/
+DLLIMPORT int _DK_LbPaletteFindColour(unsigned char *pal, unsigned char r, unsigned char g, unsigned char b);
 DLLIMPORT int __stdcall _DK_LbScreenReset(void);
 DLLIMPORT int _DK_LbScreenSetGraphicsWindow(int x, int y, uint width, uint height);
 DLLIMPORT int _DK_LbScreenIsModeAvailable(enum TbScreenMode mode);
@@ -305,6 +306,11 @@ enum TbScreenMode LbRecogniseVideoModeString(char *str)
       return (enum TbScreenMode)mode;
   }
   return Lb_SCREEN_MODE_INVALID;
+}
+
+TbPixel LbPaletteFindColour(unsigned char *pal, unsigned char r, unsigned char g, unsigned char b)
+{
+  return _DK_LbPaletteFindColour(pal, r, g, b);
 }
 
 void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags)
