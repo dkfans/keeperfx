@@ -39,6 +39,7 @@ typedef int (WINAPI *FARPROCS)(const char *);
 typedef int (WINAPI *FARPROCP)(const void *);
 typedef int (WINAPI *FARPROCSIII)(const char *,int,int,int);
 typedef int (WINAPI *FARPROCIIII)(int,int,int,int);
+typedef struct SampleInfo * (WINAPI *FARPROC_PLAY1)(int,int,int,int,int,unsigned char,unsigned char, struct HeapMgrHandle *, int);
 
 /******************************************************************************/
 // Functions
@@ -307,6 +308,17 @@ int __stdcall SetSampleVolume(int a,int b,int c,int d)
     if (proc==NULL)
     { LbErrorLog("Can't get address of SetSampleVolume function; skipped.\n"); return 0; }
     return ((FARPROCIIII)proc)(a,b,c,d);
+}
+
+struct SampleInfo * __stdcall PlaySampleFromAddress(int a1, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, struct HeapMgrHandle *hmhandle, int a9)
+{
+    HMODULE hModule;
+    hModule=GetModuleHandle("WSND7R");
+    FARPROC proc;
+    proc=GetProcAddress(hModule,"_PlaySampleFromAddress@36");
+    if (proc==NULL)
+    { LbErrorLog("Can't get address of PlaySampleFromAddress function; skipped.\n"); return 0; }
+    return ((FARPROC_PLAY1)proc)(a1, smpl_idx, a3, a4, a5, a6, a7, hmhandle, a9);
 }
 /******************************************************************************/
 #ifdef __cplusplus

@@ -28,6 +28,25 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#pragma pack(1)
+
+// Data structures
+
+struct HeapMgrHeader;
+struct HeapMgrHandle;
+
+
+struct SampleInfo { // sizeof = 28
+  unsigned char field_0[8];
+  unsigned char field_8;
+  unsigned char field_9[11];
+  unsigned char field_14[3];
+  unsigned char field_17;
+  unsigned long field_18;
+};
+
+#pragma pack()
+/******************************************************************************/
 // Exported variables
 
 /******************************************************************************/
@@ -57,7 +76,7 @@ int __stdcall StopMusic(void);
 int __stdcall LoadAwe32Soundfont(const char *fname);
 int __stdcall StartMusic(int i,int v);
 int __stdcall SetSampleVolume(int a,int b,int c,int d);
-
+struct SampleInfo * __stdcall PlaySampleFromAddress(int a1, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, struct HeapMgrHandle *hmhandle, int a9);
 /******************************************************************************/
 #ifdef __cplusplus
 }

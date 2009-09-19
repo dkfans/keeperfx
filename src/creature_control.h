@@ -198,12 +198,34 @@ struct Persons {
     struct CreatureControl *cctrl_end;
 };
 
+struct CreatureSound {
+    long index;
+    long count;
+};
+
+struct CreatureSounds {
+    struct CreatureSound snd01;
+    struct CreatureSound snd02;
+    struct CreatureSound snd03;
+    struct CreatureSound snd04;
+    struct CreatureSound snd05;
+    struct CreatureSound snd06;
+    struct CreatureSound snd07;
+    struct CreatureSound snd08;
+    struct CreatureSound snd09;
+    struct CreatureSound snd10;
+    struct CreatureSound snd11;
+};
+
 #pragma pack()
+/******************************************************************************/
+extern struct CreatureSounds creature_sounds[];
 /******************************************************************************/
 struct CreatureControl *creature_control_get(long cctrl_idx);
 struct CreatureControl *creature_control_get_from_thing(struct Thing *thing);
 TbBool creature_control_invalid(struct CreatureControl *cctrl);
 
+void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4);
 /******************************************************************************/
 #ifdef __cplusplus
 }

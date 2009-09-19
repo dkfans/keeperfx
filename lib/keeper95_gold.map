@@ -1,6 +1,9 @@
  0001:00000E70       anim_make_FLI_COLOUR256
  0001:000019E0       rotate_base_axis
  0001:00001DD0       process_tasks
+ 0001:00004CD0       heapmgr_add_item
+ 0001:00004E10       heapmgr_free_oldest
+ 0001:00004E60       heapmgr_make_newest
  0001:00005380       light_render_area
  0001:000057B0       light_create_light
  0001:00005970       light_delete_light
@@ -309,6 +312,7 @@
  0001:00050E00       S3DSetSoundReceiverPosition
  0001:00050E30       S3DSetSoundReceiverOrientation
  0001:00050E70       process_3d_sounds
+ 0001:00051280       start_emitter_playing
  0001:00051810       IsRunningMark@0
  0001:00051840       IsRunningUnmark@0
  0001:000522A0       check_map_for_gold
@@ -597,7 +601,9 @@
  0001:000A7530       init_sound_heap_two_banks
  0001:000A7800       close_sound_heap
  0001:000A7850       process_sound_heap
+ 0001:000A7950       stop_sample_using_heap
  0001:000A7A20       play_sample_using_heap
+ 0001:000A7D00       parse_sound_file
  0001:000A7F10       output_message
  0001:000A80C0       process_messages
  0001:000A82E0       init_messages
@@ -857,6 +863,9 @@
  0003:0001EB80       map_flag_setup_sprites
  0003:0001EB98       netmap_flag_load_files
  0003:0001ECD0       netmap_flag_setup_sprites
+ 0003:0001F214       using_two_banks
+ 0003:0001F218       sound_file
+ 0003:0001F21C       sound_file2
  0003:00020670       frontend_menu_state
  0003:000207B4       high_score_entry_input_active
  0003:000207B8       fade_palette_in
@@ -1141,6 +1150,11 @@
  0003:00247100       map_flag_data
  0003:00247108       end_map_flag_data
  0003:0024710C       net_level_hilighted
+ 0003:002473B4       sample_table2
+ 0003:002473B8       samples_in_bank2
+ 0003:002473BC       sample_table
+ 0003:002473C0       samples_in_bank
+ 0003:002473C4       sndheap
  0003:002473C8       message_playing
  0003:002473D0       message_queue
  0003:002473F8       frontend_mouse_over_button

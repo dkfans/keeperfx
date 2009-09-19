@@ -28,14 +28,18 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define SOUNDS_MAX_COUNT  16
+#define SOUND_EMITTERS_MAX 128
 /******************************************************************************/
 #pragma pack(1)
+
+struct HeapMgrHeader;
+struct HeapMgrHandle;
 
 // Type definitions
 struct SoundEmitter {
     unsigned char flags;
     unsigned char field_1;
-    unsigned char field_2[2];
+    short field_2;
     short pos_x;
     short pos_y;
     short pos_z;
@@ -59,13 +63,21 @@ struct S3DSample { // sizeof = 37
   unsigned long field_0;
   unsigned long field_4;
   unsigned short field_8;
-  unsigned char field_A[11];
+  unsigned char field_A;
+  unsigned char field_B[10];
   struct SoundEmitter *emit_ptr;
   unsigned char field_19[4];
   unsigned char field_1D[2];
   unsigned char field_1F;
   unsigned char field_20;
   unsigned long field_21;
+};
+
+struct SampleTable { // sizeof = 16
+  unsigned long field_0;
+  unsigned long field_4;
+  unsigned long field_8;
+  struct HeapMgrHandle *hmhandle;
 };
 
 /******************************************************************************/
@@ -90,6 +102,22 @@ DLLIMPORT extern struct S3DSample _DK_SampleList[SOUNDS_MAX_COUNT];
 
 #pragma pack()
 /******************************************************************************/
+DLLIMPORT TbFileHandle _DK_sound_file;
+#define sound_file _DK_sound_file
+DLLIMPORT TbFileHandle _DK_sound_file2;
+#define sound_file2 _DK_sound_file2
+DLLIMPORT unsigned char _DK_using_two_banks;
+#define using_two_banks _DK_using_two_banks
+DLLIMPORT long _DK_samples_in_bank;
+#define samples_in_bank _DK_samples_in_bank
+DLLIMPORT struct SampleTable *_DK_sample_table;
+#define sample_table _DK_sample_table
+DLLIMPORT long _DK_samples_in_bank2;
+#define samples_in_bank2 _DK_samples_in_bank2
+DLLIMPORT struct SampleTable *_DK_sample_table2;
+#define sample_table2 _DK_sample_table2
+DLLIMPORT struct HeapMgrHeader *_DK_sndheap;
+#define sndheap _DK_sndheap
 // Exported variables
 
 /******************************************************************************/
@@ -102,17 +130,23 @@ long S3DMoveSoundEmitterTo(long eidx, long x, long y, long z);
 long S3DInit(void);
 long S3DSetNumberOfSounds(long nMaxSounds);
 long S3DSetMaximumSoundDistance(long nDistance);
-long S3DAddSampleToEmitterPri(long emidx, long a2, long a3, long a4, long a5, long a6, char a7, long a8, long a9);
+TbBool S3DAddSampleToEmitterPri(long emidx, long a2, long a3, long a4, long a5, long a6, char a7, long a8, long a9);
 long S3DCreateSoundEmitterPri(long x, long y, long z, long a4, long a5, long a6, long a7, long a8, long a9, long a10);
 long S3DEmitterIsAllocated(long eidx);
 long S3DEmitterIsPlayingAnySample(long eidx);
+TbBool S3DEmitterIsPlayingSample(long emitr, long smpl_idx, long a2);
+TbBool S3DDestroySoundEmitterAndSamples(long eidx);
 
 void play_non_3d_sample(long sample_idx);
+void play_non_3d_sample_no_overlap(long smpl_idx);
 short sound_emitter_in_use(long eidx);
 long get_best_sound_heap_size(long mem_size);
 struct SampleInfo *play_sample_using_heap(unsigned long a1, short a2, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, unsigned char a8);
+void stop_sample_using_heap(unsigned long a1, short a2, unsigned char a3);
 long speech_sample_playing(void);
 long play_speech_sample(long smpl_idx);
+void close_sound_heap(void);
+long stop_emitter_samples(struct SoundEmitter *emit);
 
 /******************************************************************************/
 #ifdef __cplusplus

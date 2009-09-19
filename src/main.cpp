@@ -6,6 +6,7 @@
 
 #include "bflib_math.h"
 #include "bflib_memory.h"
+#include "bflib_heapmgr.h"
 #include "bflib_keybrd.h"
 #include "bflib_datetm.h"
 #include "bflib_bufrw.h"
@@ -421,11 +422,11 @@ TbClockMSec last_loop_time=0;
 #ifdef __cplusplus
 extern "C" {
 #endif
+DLLIMPORT long _DK_parse_sound_file(long a1, unsigned char *a2, long *a3, long a4, long a5);
 DLLIMPORT void _DK_engine_init(void);
 DLLIMPORT long _DK_load_anim_file(void);
 DLLIMPORT long _DK_load_cube_file(void);
 DLLIMPORT void _DK_init_colours(void);
-DLLIMPORT void _DK_close_sound_heap(void);
 DLLIMPORT long _DK_init_sound_heap_two_banks(unsigned char *a1, long a2, char *a3, char *a4, long a5);
 DLLIMPORT void _DK_draw_mini_things_in_hand(long x, long y);
 DLLIMPORT void _DK_process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6);
@@ -2909,6 +2910,85 @@ void init_key_to_strings(void)
   }
 }
 
+long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, long buf_len, long a5)
+{
+  struct SoundBankHead bhead;
+  struct SoundBankEntry bentries[9];
+  struct SoundBankSample bsample;
+
+  unsigned char rbuf[8];
+  struct UnkSndSampleStr *smpl;
+  struct SoundBankEntry *bentry;
+  long fsize;
+  long i,k;
+
+  // TODO: use rewritten version when sound routines are rewritten
+  return _DK_parse_sound_file(fileh, buf, nsamples, buf_len, a5);
+
+  switch ( a5 )
+  {
+  case 1610:
+      k = 5;
+      break;
+  case 822:
+      k = 6;
+      break;
+  case 811:
+      k = 7;
+      break;
+  case 800:
+      k = 8;
+      break;
+  case 1611:
+      k = 4;
+      break;
+  case 1620:
+      k = 3;
+      break;
+  case 1622:
+      k = 2;
+      break;
+  case 1640:
+      k = 1;
+      break;
+  case 1644:
+      k = 0;
+      break;
+  default:
+      return 0;
+  }
+  LbFileSeek(fileh, 0, Lb_FILE_SEEK_END);
+  fsize = LbFilePosition(fileh);
+  LbFileSeek(fileh, fsize-4, Lb_FILE_SEEK_BEGINNING);
+  LbFileRead(fileh, &rbuf, 4);
+  i = read_int32_le_buf(rbuf);
+  LbFileSeek(fileh, i, Lb_FILE_SEEK_BEGINNING);
+  LbFileRead(fileh, &bhead, 18);
+  LbFileRead(fileh, bentries, sizeof(bentries));
+  bentry = &bentries[k];
+  if (bentry->field_0 == 0)
+      return 0;
+  if (bentry->field_8 == 0)
+      return 0;
+  i = bentry->field_8 >> 5;
+  *nsamples = i;
+  if (16 * *nsamples >= buf_len)
+    return 0;
+
+  LbFileSeek(fileh, bentry->field_0, Lb_FILE_SEEK_BEGINNING);
+  smpl = (struct UnkSndSampleStr *)buf;
+  k = bentry->field_4;
+  for (i=0; i < *nsamples; i++)
+  {
+    LbFileRead(fileh, &bsample, sizeof(bsample));
+    smpl->field_0 = k + bsample.field_12;
+    smpl->field_4 = bsample.field_1A;
+    smpl->field_8 = bsample.field_1E;
+    smpl->field_C = 0;
+  }
+  return 32 * *nsamples;
+}
+
 short init_sound(void)
 {
   static const char *func_name="init_sound";
@@ -2936,7 +3016,7 @@ short init_sound(void)
   snd_settng->no_load_music = 0;
   snd_settng->no_load_sounds = 1;
   snd_settng->field_16 = 1;
-  if ((game.flags_font & 0x40) == 0)
+  if ((game.flags_font & FFlg_UsrSndFont) == 0)
     snd_settng->field_16 = 0;
   snd_settng->field_18 = 1;
   snd_settng->redbook_enable = 1;
@@ -2954,31 +3034,82 @@ short init_sound(void)
   return true;
 }
 
-long init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *snd_fname, char *spc_fname, long a5)
+TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *snd_fname, char *spc_fname, long a5)
 {
   static const char *func_name="init_sound_heap_two_banks";
+  long i;
+  long buf_len;
+  unsigned char *buf;
 #if (BFDEBUG_LEVEL > 8)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  return _DK_init_sound_heap_two_banks(heap_mem, heap_size, snd_fname, spc_fname, a5);
-}
+  // TODO: use rewritten version when sound routines are rewritten
+  i = _DK_init_sound_heap_two_banks(heap_mem, heap_size, snd_fname, spc_fname, a5);
+  LbSyncLog("%s: Samples in banks: %d,%d\n",func_name,samples_in_bank,samples_in_bank2); return i;
 
-void close_sound_heap(void)
-{
-  _DK_close_sound_heap();
-/*
+  LbMemorySet(heap_mem, 0, heap_size);
   if (sound_file != -1)
+    close_sound_heap();
+  samples_in_bank = 0;
+  samples_in_bank2 = 0;
+  sound_file = LbFileOpen(snd_fname,Lb_FILE_MODE_READ_ONLY);
+  if (sound_file == -1)
   {
-    LbFileClose(sound_file);
-    sound_file = -1;
+    LbErrorLog("Couldn't open primary sound bank file \"%s\"\n",snd_fname);
+    return false;
+  }
+  buf = heap_mem;
+  buf_len = heap_size;
+  i = parse_sound_file(sound_file, buf, &samples_in_bank, buf_len, a5);
+  if (i == 0)
+  {
+    LbErrorLog("Couldn't parse sound bank file \"%s\"\n",snd_fname);
+    close_sound_heap();
+    return false;
+  }
+  sample_table = (struct SampleTable *)buf;
+  buf_len -= i;
+  buf += i;
+  if (buf_len <= 0)
+  {
+    LbErrorLog("Sound bank buffer too short\n");
+    close_sound_heap();
+    return false;
   }
   if (sound_file2 != -1)
+    close_sound_heap();
+  sound_file2 = LbFileOpen(spc_fname,Lb_FILE_MODE_READ_ONLY);
+  if (sound_file2 == -1)
   {
-    LbFileClose(sound_file2);
-    sound_file2 = -1;
+    LbErrorLog("Couldn't open secondary sound bank file \"%s\"\n",spc_fname);
+    return false;
   }
-  using_two_banks = 0;
-*/
+  i = parse_sound_file(sound_file2, buf, &samples_in_bank2, buf_len, a5);
+  if (i == 0)
+  {
+    LbErrorLog("Couldn't parse sound bank file \"%s\"\n",spc_fname);
+    close_sound_heap();
+    return false;
+  }
+  sample_table2 = (struct SampleTable *)buf;
+  buf_len -= i;
+  buf += i;
+  if (buf_len <= 0)
+  {
+    LbErrorLog("Sound bank buffer too short\n");
+    close_sound_heap();
+    return false;
+  }
+  LbSyncLog("%s: Got sound buffer of %d bytes, samples in banks: %d,%d\n",func_name,buf_len,samples_in_bank,samples_in_bank2);
+  sndheap = heapmgr_init(buf, buf_len, samples_in_bank2 + samples_in_bank);
+  if (sndheap == NULL)
+  {
+    LbErrorLog("Sound heap manager init error\n");
+    close_sound_heap();
+    return false;
+  }
+  using_two_banks = 1;
+  return true;
 }
 
 TbBool setup_heaps(void)
@@ -2991,7 +3122,6 @@ TbBool setup_heaps(void)
 #if (BFDEBUG_LEVEL > 8)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //_DK_setup_heaps();LbSyncLog("GraphicsHeap Size %d\n", heap_size);LbSyncLog("SoundHeap Size %d\n", sound_heap_size);return 1;
   low_memory = false;
   if (!SoundDisabled)
   {
@@ -3042,8 +3172,9 @@ TbBool setup_heaps(void)
 
   if (low_memory)
   {
-    i = heap_size;
-    k = sound_heap_size;
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("Low memory mode entered on heap allocation.\n");
+#endif
     while (heap != NULL)
     {
       if ((!SoundDisabled) && (sound_heap_memory == NULL))
@@ -3052,32 +3183,28 @@ TbBool setup_heaps(void)
       }
       if (!SoundDisabled)
       {
-        if (k < i)
+        if (sound_heap_size < heap_size)
         {
-          i -= 16384;
+          heap_size -= 16384;
         } else
-        if (k == i)
+        if (sound_heap_size == heap_size)
         {
-          i -= 16384;
-          k -= 16384;
+          heap_size -= 16384;
+          sound_heap_size -= 16384;
         } else
         {
-          k -= 16384;
+          sound_heap_size -= 16384;
         }
-        heap_size = i;
-        sound_heap_size = k;
-        if (k < 524288)
+        if (sound_heap_size < 524288)
         {
           error(func_name, 1319, "Unable to allocate heaps (small_mem)");
           return false;
         }
       } else
       {
-        i -= 16384;
-        heap_size = i;
-        sound_heap_size = k;
+        heap_size -= 16384;
       }
-      if (i < 524288)
+      if (heap_size < 524288)
       {
         if (sound_heap_memory != NULL)
         {
@@ -3091,12 +3218,8 @@ TbBool setup_heaps(void)
       if (sound_heap_memory != NULL)
       {
         LbMemoryFree(sound_heap_memory);
-        i = heap_size;
-        k = sound_heap_size;
         sound_heap_memory = NULL;
       }
-      heap_size = i;
-      sound_heap_size = k;
       if (heap != NULL)
       {
         LbMemoryFree(heap);
@@ -3104,9 +3227,9 @@ TbBool setup_heaps(void)
       }
       if (!SoundDisabled)
       {
-        sound_heap_memory = LbMemoryAlloc(k);
+        sound_heap_memory = LbMemoryAlloc(sound_heap_size);
       }
-      heap = LbMemoryAlloc(i);
+      heap = LbMemoryAlloc(heap_size);
   }
   if (!SoundDisabled)
   {
@@ -3114,21 +3237,20 @@ TbBool setup_heaps(void)
     // Prepare sound sample bank file names
     prepare_file_path_buf(snd_fname,FGrp_LrgSound,sound_fname);
     // language-specific speech file
-    spc_fname = prepare_file_fmtpath(FGrp_LrgSound,"speech_%s.dat",get_conf_parameter_text(lang_type,install_info.lang_id));
+    spc_fname = prepare_file_fmtpath(FGrp_LrgSound,"speech_%s.dat",get_language_lwrstr(install_info.lang_id));
     // default speech file
     if (!LbFileExists(spc_fname))
       spc_fname = prepare_file_path(FGrp_LrgSound,speech_fname);
     // speech file for english
     if (!LbFileExists(spc_fname))
-      spc_fname = prepare_file_fmtpath(FGrp_LrgSound,"speech_%s.dat",get_conf_parameter_text(lang_type,1));
+      spc_fname = prepare_file_fmtpath(FGrp_LrgSound,"speech_%s.dat",get_language_lwrstr(1));
     // Initialize sample banks
     if (!init_sound_heap_two_banks(sound_heap_memory, sound_heap_size, snd_fname, spc_fname, 1622))
     {
       LbMemoryFree(sound_heap_memory);
       sound_heap_memory = NULL;
       SoundDisabled = true;
-      error(func_name, 1379, "Unable to initialise sound heap");
-      return false;
+      error(func_name, 1379, "Unable to initialise sound heap. Sound disabled.");
     }
   }
   return true;
@@ -12205,7 +12327,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (stricmp(parstr, "usersfont") == 0)
       {
-          start_params.flags_font |= 0x40;
+          set_flag_byte(&start_params.flags_font,FFlg_UsrSndFont,true);
       } else
       if (stricmp(parstr, "vidsmooth") == 0)
       {
@@ -12249,7 +12371,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (stricmp(parstr,"alex") == 0)
       {
-         set_flag_byte(&start_params.flags_font,0x20,true);
+         set_flag_byte(&start_params.flags_font,FFlg_AlexCheat,true);
       } else
       {
 #if (BFDEBUG_LEVEL > 0)

@@ -343,6 +343,28 @@ const char *get_conf_parameter_text(const struct NamedCommand commands[],int num
 }
 
 /*
+ * Returns current language string.
+ */
+const char *get_current_language_str(void)
+{
+  return get_conf_parameter_text(lang_type,install_info.lang_id);
+}
+
+/*
+ * Returns copy of the requested language string in lower case.
+ */
+char *get_language_lwrstr(int lang_id)
+{
+  static char lang_str[4];
+  const char *src;
+  src = get_conf_parameter_text(lang_type,lang_id);
+  strncpy(lang_str, src, 4);
+  lang_str[3] = '\0';
+  strlwr(lang_str);
+  return lang_str;
+}
+
+/*
  * Returns ID of given item using NamedCommands list.
  * Similar to recognize_conf_parameter(), but for use only if the buffer stores
  * one word, ended with "\0".

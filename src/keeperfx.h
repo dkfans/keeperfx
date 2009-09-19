@@ -142,7 +142,23 @@ enum PlayerVictoryState {
 enum ModeFlags {
     MFlg_IsDemoMode         =  0x01,
     MFlg_EyeLensReady       =  0x02,
+    MFlg_unk04              =  0x04,
+    MFlg_unk08              =  0x08,
     MFlg_NoMusic            =  0x10,
+    MFlg_unk20              =  0x20,
+    MFlg_unk40              =  0x40,
+    MFlg_unk80              =  0x80,
+};
+
+enum FFlags {
+    FFlg_unk01              =  0x01,
+    FFlg_unk02              =  0x02,
+    FFlg_unk04              =  0x04,
+    FFlg_unk08              =  0x08,
+    FFlg_unk10              =  0x10,
+    FFlg_AlexCheat          =  0x20,
+    FFlg_UsrSndFont         =  0x40,
+    FFlg_unk80              =  0x80,
 };
 
 enum KeeperStateTypes {
@@ -686,6 +702,34 @@ struct SoundSettings {
   unsigned char sound_system;
   unsigned char field_18;
   unsigned char redbook_enable;
+};
+
+struct SoundBankHead { // sizeof = 18
+  unsigned char field_0[14];
+  unsigned long field_E;
+};
+
+struct SoundBankSample { // sizeof = 32
+  unsigned char field_0[18];
+  unsigned long field_12;
+  unsigned long field_16;
+  unsigned long field_1A;
+  unsigned char field_1E;
+  unsigned char field_1F;
+};
+
+struct SoundBankEntry { // sizeof = 16
+  unsigned long field_0;
+  unsigned long field_4;
+  unsigned long field_8;
+  unsigned long field_C;
+};
+
+struct UnkSndSampleStr { // sizeof = 16
+  unsigned long field_0;
+  unsigned long field_4;
+  unsigned long field_8;
+  unsigned long field_C;
 };
 
 struct Wander {

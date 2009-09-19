@@ -20,6 +20,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_sound.h"
 #include "packets.h"
 #include "lvl_script.h"
 #include "keeperfx.h"
@@ -579,6 +580,23 @@ int thing_to_special(const struct Thing *thing)
   return object_to_special[thing->model];
 }
 /******************************************************************************/
+void stop_all_things_playing_samples(void)
+{
+  struct Thing *thing;
+  long i;
+  for (i=0; i < THINGS_COUNT; i++)
+  {
+    thing = thing_get(i);
+    if ((thing->field_0 & 0x01) != 0)
+    {
+      if (thing->field_66)
+      {
+        S3DDestroySoundEmitterAndSamples(thing->field_66);
+        thing->field_66 = 0;
+      }
+    }
+  }
+}
 #ifdef __cplusplus
 }
 #endif

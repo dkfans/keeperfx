@@ -68,6 +68,7 @@ obj/bflib_memory.o \
 obj/bflib_cpu.o \
 obj/bflib_pom.o \
 obj/bflib_mouse.o \
+obj/bflib_heapmgr.o \
 obj/bflib_network.o \
 obj/bflib_sndlib.o \
 obj/bflib_netsp.o \

@@ -202,6 +202,8 @@ struct LevelInformation *get_next_level_info(struct LevelInformation *previnfo);
 struct LevelInformation *get_prev_level_info(struct LevelInformation *nextinfo);
 short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvoptions);
 short get_level_fgroup(LevelNumber lvnum);
+const char *get_current_language_str(void);
+char *get_language_lwrstr(int lang_id);
 /******************************************************************************/
 TbBool setup_gui_strings_data(void);
 TbBool free_gui_strings_data(void);

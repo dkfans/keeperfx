@@ -23,12 +23,18 @@
 #include <stdio.h>
 
 #include "bflib_basics.h"
+#include "bflib_memory.h"
+#include "bflib_heapmgr.h"
 #include "bflib_sndlib.h"
+#include "bflib_fileio.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT void _DK_stop_sample_using_heap(unsigned long a1, short a2, unsigned char a3);
+DLLIMPORT long _DK_start_emitter_playing(struct SoundEmitter *emit, long a2, long a3, long a4, long a5, long a6, long a7, long a8, long a9);
+DLLIMPORT void _DK_close_sound_heap(void);
 DLLIMPORT void _DK_play_non_3d_sample(long sidx);
 DLLIMPORT struct SampleInfo *_DK_play_sample_using_heap(unsigned long a1, short a2, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, unsigned char a8);
 DLLIMPORT long _DK_S3DAddSampleToEmitterPri(long, long, long, long, long, long, char, long, long);
@@ -44,6 +50,12 @@ DLLIMPORT long _DK_S3DSetNumberOfSounds(long nMaxSounds);
 DLLIMPORT long _DK_S3DSetMaximumSoundDistance(long nDistance);
 
 // Global variables
+long NoSoundEmitters = SOUND_EMITTERS_MAX;
+/******************************************************************************/
+// Internal routines
+long allocate_free_sound_emitter(void);
+void delete_sound_emitter(long idx);
+long start_emitter_playing(struct SoundEmitter *emit, long a2, long a3, long a4, long a5, long a6, long a7, long a8, long a9);
 /******************************************************************************/
 // Functions
 
@@ -82,6 +94,19 @@ long S3DSetNumberOfSounds(long nMaxSounds)
   return true;
 }
 
+TbBool S3DEmitterIsPlayingSample(long emitr, long smpl_idx, long a2)
+{
+  struct S3DSample *smpl3d;
+  long i;
+  for (i=0; i < MaxNoSounds; i++)
+  {
+    smpl3d = &SampleList[i];
+    if ((smpl3d->field_1F != 0) && (smpl3d->emit_ptr == &emitter[emitr]) && (smpl3d->field_8 == smpl_idx) && (smpl3d->field_A == a2))
+      return true;
+  }
+  return false;
+}
+
 long S3DSetMaximumSoundDistance(long nDistance)
 {
   return _DK_S3DSetMaximumSoundDistance(nDistance);
@@ -112,14 +137,40 @@ long S3DMoveSoundEmitterTo(long eidx, long x, long y, long z)
   return _DK_S3DMoveSoundEmitterTo(eidx, x, y, z);
 }
 
-long S3DAddSampleToEmitterPri(long emidx, long a2, long a3, long a4, long a5, long a6, char a7, long a8, long a9)
+TbBool S3DAddSampleToEmitterPri(long eidx, long a2, long a3, long a4, long a5, long a6, char a7, long a8, long a9)
 {
-  return _DK_S3DAddSampleToEmitterPri(emidx, a2, a3, a4, a5, a6, a7, a8, a9);
+  struct SoundEmitter *emit;
+  //return _DK_S3DAddSampleToEmitterPri(emidx, a2, a3, a4, a5, a6, a7, a8, a9);
+  emit = &emitter[eidx];
+  return start_emitter_playing(emit, a2, a3, a4, a5, a6, a7, a8, a9) != 0;
 }
 
 long S3DCreateSoundEmitterPri(long x, long y, long z, long a4, long a5, long a6, long a7, long a8, long a9, long a10)
 {
-  return _DK_S3DCreateSoundEmitterPri(x, y, z, a4, a5, a6, a7, a8, a9, a10);
+  struct SoundEmitter *emit;
+  long eidx;
+  //return _DK_S3DCreateSoundEmitterPri(x, y, z, a4, a5, a6, a7, a8, a9, a10);
+  eidx = allocate_free_sound_emitter();
+  if (eidx <= 0)
+    return 0;
+  emit = &emitter[eidx];
+  emit->field_14 = 100;
+  emit->field_15 = 100;
+  emit->pos_x = x;
+  emit->pos_z = z;
+  emit->field_1 = a9;
+  emit->pos_y = y;
+  if (start_emitter_playing(emit, a4, a5, a6, a7, a8, 3, a9, a10))
+    return eidx;
+  delete_sound_emitter(eidx);
+  return 0;
+}
+
+TbBool S3DDestroySoundEmitterAndSamples(long eidx)
+{
+  stop_emitter_samples(&emitter[eidx]);
+  delete_sound_emitter(eidx);
+  return true;
 }
 
 long S3DEmitterIsAllocated(long eidx)
@@ -147,6 +198,24 @@ short sound_emitter_in_use(long eidx)
   return S3DEmitterIsAllocated(eidx);
 }
 
+void close_sound_heap(void)
+{
+  // TODO: use rewritten version when sound routines are rewritten
+  _DK_close_sound_heap(); return;
+
+  if (sound_file != -1)
+  {
+    LbFileClose(sound_file);
+    sound_file = -1;
+  }
+  if (sound_file2 != -1)
+  {
+    LbFileClose(sound_file2);
+    sound_file2 = -1;
+  }
+  using_two_banks = 0;
+}
+
 void play_non_3d_sample(long sample_idx)
 {
   static const char *func_name="play_non_3d_sample";
@@ -154,24 +223,208 @@ void play_non_3d_sample(long sample_idx)
     return;
   if (GetCurrentSoundMasterVolume() <= 0)
     return;
-  if (Non3DEmitter!=0)
-    if ( sound_emitter_in_use(Non3DEmitter) == 0 )
+  if (Non3DEmitter != 0)
+    if (!sound_emitter_in_use(Non3DEmitter))
     {
       error(func_name, 263, "Non 3d Emitter has been deleted!");
       Non3DEmitter = 0;
     }
-  if (Non3DEmitter!=0)
+  if (Non3DEmitter == 0)
   {
-    _DK_S3DAddSampleToEmitterPri(Non3DEmitter, sample_idx, 0, 100, 256, 0, 3, 8, 2147483646);
+    Non3DEmitter = S3DCreateSoundEmitterPri(0, 0, 0, sample_idx, 0, 100, 256, 0, 8, 2147483646);
   } else
   {
-    Non3DEmitter = _DK_S3DCreateSoundEmitterPri(0, 0, 0, sample_idx, 0, 100, 256, 0, 8, 2147483646);
+    S3DAddSampleToEmitterPri(Non3DEmitter, sample_idx, 0, 100, 256, 0, 3, 8, 2147483646);
   }
 }
 
-struct SampleInfo *play_sample_using_heap(unsigned long a1, short a2, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, unsigned char a8)
+void play_non_3d_sample_no_overlap(long smpl_idx)
 {
-  return _DK_play_sample_using_heap(a1, a2, a3, a4, a5, a6, a7, a8);
+  static const char *func_name="play_non_3d_sample_no_overlap";
+  if (SoundDisabled)
+    return;
+  if (GetCurrentSoundMasterVolume() <= 0)
+    return;
+  if (Non3DEmitter != 0)
+  {
+    if (!sound_emitter_in_use(Non3DEmitter))
+    {
+      error(func_name, 263, "Non 3d Emitter has been deleted!");
+      Non3DEmitter = 0;
+    }
+  }
+  if (Non3DEmitter == 0)
+  {
+    Non3DEmitter = S3DCreateSoundEmitterPri(0, 0, 0, smpl_idx, 0, 100, 256, 0, 8, 0x7FFFFFFE);
+  } else
+  if (!S3DEmitterIsPlayingSample(Non3DEmitter, smpl_idx, 0))
+  {
+    S3DAddSampleToEmitterPri(Non3DEmitter, smpl_idx, 0, 100, 256, 0, 3, 8, 0x7FFFFFFE);
+  }
+}
+
+/*
+ * Initializes and returns sound emitter structure.
+ * Returns its index; if no free emitter is found, returns 0.
+ */
+long allocate_free_sound_emitter(void)
+{
+  static const char *func_name="allocate_free_sound_emitter";
+  struct SoundEmitter *emit;
+  long i;
+  for (i=1; i < NoSoundEmitters; i++)
+  {
+    emit = &emitter[i];
+    if ((emit->flags & 0x01) == 0)
+    {
+      emit->flags = 0x01;
+      emit->field_2 = i;
+      return i;
+    }
+  }
+  return 0;
+}
+
+/*
+ * Clears sound emitter structure and marks it as unused.
+ */
+void delete_sound_emitter(long idx)
+{
+  static const char *func_name="delete_sound_emitter";
+  struct SoundEmitter *emit;
+  emit = &emitter[idx];
+  if ((emit <= &emitter[0]) || (emit > &emitter[SOUND_EMITTERS_MAX-1]))
+  {
+    LbWarnLog("%s: Tried to delete outranged emitter\n",func_name);
+  }
+  if ((emit->flags & 0x01) != 0)
+  {
+    LbMemorySet(emit, 0, sizeof(struct SoundEmitter));
+  }
+}
+
+long stop_emitter_samples(struct SoundEmitter *emit)
+{
+  struct S3DSample *smpl3d;
+  long i;
+  for (i=0; i < MaxNoSounds; i++)
+  {
+    smpl3d = &SampleList[i];
+    if ((smpl3d->field_1F != 0) && (smpl3d->emit_ptr == emit))
+    {
+      stop_sample_using_heap(emit->field_2 + 4000, smpl3d->field_8, smpl3d->field_A);
+      smpl3d->field_1F = 0;
+    }
+  }
+}
+
+struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, long file_pos, unsigned char bank_id)
+{
+  static const char *func_name="find_handle_for_new_sample";
+  struct SampleTable *smp_table;
+  struct HeapMgrHandle *hmhandle;
+  long i;
+  if ((!using_two_banks) && (bank_id > 0))
+  {
+    error(func_name, 400, "Trying to use two sound banks when only one has been set up");
+    return NULL;
+  }
+  hmhandle = heapmgr_add_item(sndheap, smpl_len);
+  if (hmhandle == NULL)
+  {
+    while (sndheap->field_10)
+    {
+      hmhandle = heapmgr_add_item(sndheap, smpl_len);
+      if (hmhandle != NULL)
+        break;
+      i = heapmgr_free_oldest(sndheap);
+      if (i < 0)
+        break;
+      if (i < samples_in_bank)
+      {
+        smp_table = &sample_table[i];
+      } else
+      {
+        smp_table = &sample_table2[i-samples_in_bank];
+      }
+      smp_table->hmhandle = hmhandle;
+    }
+  }
+  if (hmhandle == NULL)
+    return NULL;
+  if (bank_id > 0)
+  {
+    hmhandle->field_A = samples_in_bank + smpl_idx;
+    LbFileSeek(sound_file2, file_pos, Lb_FILE_SEEK_BEGINNING);
+    LbFileRead(sound_file2, hmhandle->field_0, smpl_len);
+  } else
+  {
+    hmhandle->field_A = smpl_idx;
+    LbFileSeek(sound_file, file_pos, Lb_FILE_SEEK_BEGINNING);
+    LbFileRead(sound_file, hmhandle->field_0, smpl_len);
+  }
+  return hmhandle;
+}
+
+struct SampleInfo *play_sample_using_heap(unsigned long a1, short smpl_idx, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, unsigned char bank_id)
+{
+  static const char *func_name="play_sample_using_heap";
+  struct SampleInfo *sample;
+  struct SampleTable *smp_table;
+  struct HeapMgrHandle *hmhandle;
+  if ((!using_two_banks) && (bank_id > 0))
+  {
+    error(func_name, 302, "Trying to use two sound banks when only one has been set up");
+    return NULL;
+  }
+  // TODO: use rewritten version when sound routines are rewritten
+  return _DK_play_sample_using_heap(a1, smpl_idx, a3, a4, a5, a6, a7, bank_id);
+
+  if (bank_id > 0)
+  {
+    if (sound_file2 == -1)
+      return 0;
+    if ((smpl_idx <= 0) || (smpl_idx >= samples_in_bank2))
+    {
+      LbErrorLog("Sample %d exceeds bank %d bounds\n",smpl_idx,2);
+      return NULL;
+    }
+    smp_table = &sample_table2[smpl_idx];
+  } else
+  {
+    if (sound_file == -1)
+      return 0;
+    if ((smpl_idx <= 0) || (smpl_idx >= samples_in_bank))
+    {
+      LbErrorLog("Sample %d exceeds bank %d bounds\n",smpl_idx,1);
+      return NULL;
+    }
+    smp_table = &sample_table[smpl_idx];
+  }
+  if (smp_table->hmhandle == NULL)
+    smp_table->hmhandle = find_handle_for_new_sample(smp_table->field_4, smpl_idx, smp_table->field_0, bank_id);
+  if (smp_table->hmhandle == NULL)
+  {
+    LbErrorLog("Can't find handle to play sample %d\n",smpl_idx);
+    return NULL;
+  }
+  heapmgr_make_newest(sndheap, smp_table->hmhandle);
+  sample = PlaySampleFromAddress(a1, smpl_idx, a3, a4, a5, a6, a7, smp_table->hmhandle, smp_table->field_8);
+  if (sample == NULL)
+  {
+    LbErrorLog("Can't start playing sample %d\n",smpl_idx);
+    return NULL;
+  }
+  sample->field_17 |= 0x01;
+  if (bank_id != 0)
+    sample->field_17 |= 0x04;
+  smp_table->hmhandle->field_8 |= 0x06;
+  return sample;
+}
+
+void stop_sample_using_heap(unsigned long a1, short a2, unsigned char a3)
+{
+  _DK_stop_sample_using_heap(a1, a2, a3);
 }
 
 long speech_sample_playing(void)
@@ -236,6 +489,11 @@ long play_speech_sample(long smpl_idx)
     return false;
   }
   return true;
+}
+
+long start_emitter_playing(struct SoundEmitter *emit, long a2, long a3, long a4, long a5, long a6, long a7, long a8, long a9)
+{
+  return _DK_start_emitter_playing(emit, a2, a3, a4, a5, a6, a7, a8, a9);
 }
 
 /******************************************************************************/
