@@ -102,6 +102,11 @@ long get_ceiling_height(struct Coord3d *pos)
   return ((game.map[i].data & 0xF000000u) >> 24) << 8;
 }
 
+long thing_index_on_map_block(struct Map *map)
+{
+  return ((map->data >> 11) & 0x7FF);
+}
+
 void reveal_map_subtile(long stl_x, long stl_y, long plyr_idx)
 {
   unsigned short nflag;

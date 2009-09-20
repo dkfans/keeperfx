@@ -29,10 +29,41 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+struct BasicQ { // sizeof = 28
+  struct BasicQ *next;
+  unsigned char field_4;
+  unsigned char field_5[3];
+  unsigned long field_8;
+  unsigned long field_C;
+  unsigned long field_10;
+  unsigned long field_14;
+  unsigned char field_18;
+  unsigned char field_19[3];
+};
+
+struct BasicUnk1 { // sizeof = 20
+  struct BasicQ *next;
+  unsigned char field_4;
+  unsigned char field_5[3];
+  unsigned long x;
+  unsigned long y;
+  unsigned long lvl;
+};
+
+struct BasicUnk2 { // sizeof = 16
+  struct BasicQ *next;
+  unsigned char field_4;
+  unsigned char field_5;
+  unsigned short lvl;
+  unsigned long x;
+  unsigned long y;
+};
+
 struct EngineCoord { // sizeof = 28
   unsigned long field_0;
   unsigned long field_4;
-  unsigned long field_8;
+  unsigned short field_8;
+  unsigned short field_A;
   unsigned long field_C;
   long x;
   long y;
@@ -48,12 +79,24 @@ struct M33 { // sizeof = 48
 struct EngineCol {
 //TODO!!
 };
-
-struct BasicQ
+/*
+struct BasicQ // sizeof = 46
 {
-//TODO!
+  struct UnkPoly1C *first_poly;
+  unsigned char field_4;
+  unsigned char field_5;
+  unsigned long field_6;
+  unsigned long field_A;
+  unsigned long field_E;
+  unsigned long field_12;
+  unsigned long field_16;
+  unsigned long field_1A;
+  unsigned long field_1E;
+  unsigned long field_22;
+  unsigned long field_26;
+  unsigned long field_2A;
 };
-
+*/
 struct PolyPoint { // sizeof = 8
   long field_0;
   long field_4;
@@ -62,7 +105,7 @@ struct PolyPoint { // sizeof = 8
 
 struct MapVolumeBox { // sizeof = 24
   unsigned char field_0;
-  unsigned char field_1;
+  unsigned char color;
   unsigned char field_2;
   unsigned long field_3;
   unsigned long field_7;
@@ -79,7 +122,7 @@ DLLIMPORT unsigned char _DK_poly_pool[0x40000];
 #define poly_pool _DK_poly_pool
 DLLIMPORT unsigned char *_DK_poly_pool_end;
 #define poly_pool_end _DK_poly_pool_end
-DLLIMPORT struct BasicQ *_DK_buckets[];
+DLLIMPORT struct BasicQ *_DK_buckets[704];
 #define buckets _DK_buckets
 DLLIMPORT Offset _DK_vert_offset[3];
 #define vert_offset _DK_vert_offset
@@ -153,8 +196,8 @@ DLLIMPORT int _DK_normal_shade_front;
 #define normal_shade_front _DK_normal_shade_front
 DLLIMPORT int _DK_normal_shade_back;
 #define normal_shade_back _DK_normal_shade_back
-DLLIMPORT unsigned char _DK_temp_cluedo_mode;
-#define temp_cluedo_mode _DK_temp_cluedo_mode
+//DLLIMPORT unsigned char _DK_temp_cluedo_mode;
+//#define temp_cluedo_mode _DK_temp_cluedo_mode
 DLLIMPORT long _DK_me_distance;
 #define me_distance _DK_me_distance
 DLLIMPORT short _DK_mx;
@@ -169,6 +212,18 @@ DLLIMPORT unsigned char _DK_player_bit;
 #define player_bit _DK_player_bit
 DLLIMPORT long _DK_gpoly_pro_enable_mode_ofs;
 #define gpoly_pro_enable_mode_ofs _DK_gpoly_pro_enable_mode_ofs
+DLLIMPORT long _DK_UseFastBlockDraw;
+#define UseFastBlockDraw _DK_UseFastBlockDraw
+DLLIMPORT unsigned char *_DK_gtblock_screen_addr;
+#define gtblock_screen_addr _DK_gtblock_screen_addr
+DLLIMPORT long _DK_gtblock_clip_width;
+#define gtblock_clip_width _DK_gtblock_clip_width
+DLLIMPORT long _DK_gtblock_clip_height;
+#define gtblock_clip_height _DK_gtblock_clip_height
+DLLIMPORT long _DK_gtblock_screen_width;
+#define gtblock_screen_width _DK_gtblock_screen_width
+/******************************************************************************/
+extern unsigned char temp_cluedo_mode;
 
 #pragma pack()
 /******************************************************************************/
@@ -187,9 +242,10 @@ void frame_wibble_generate(void);
 void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8);
 
 void update_engine_settings(struct PlayerInfo *player);
-void gpoly_enable_pentium_pro(TbBool state);
 void display_drawlist(void);
 void draw_view(struct Camera *cam, unsigned char a2);
+void draw_frontview_engine(struct Camera *cam);
+void gpoly_enable_pentium_pro(TbBool state);
 /******************************************************************************/
 #ifdef __cplusplus
 }

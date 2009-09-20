@@ -1882,7 +1882,7 @@ int setup_old_network_service(void);
 short toggle_computer_player(int idx);
 short save_settings(void);
 void setup_engine_window(long x1, long y1, long x2, long y2);
-void store_engine_window(struct TbGraphicsWindow *ewnd);
+void store_engine_window(struct TbGraphicsWindow *ewnd,int divider);
 void load_engine_window(struct TbGraphicsWindow *ewnd);
 short show_onscreen_msg(int nturns, const char *fmt_str, ...);
 short is_onscreen_msg_visible(void);

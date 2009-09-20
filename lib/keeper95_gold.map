@@ -382,6 +382,9 @@
  0001:0006F1A0       set_autopilot_type
  0001:00070CA0       process_person_moods_and_needs
  0001:00071090       resync_game
+ 0001:00072980       display_fast_drawlist
+ 0001:000741E0       draw_element
+ 0001:00074C80       convert_world_coord_to_front_view_screen_coord
  0001:00074ED0       set_next_process
  0001:000750B0       computer_check_build_all_rooms
  0001:00075120       computer_check_any_room
@@ -823,6 +826,7 @@
  0003:00014960       sound_heap_memory
  0003:00014968       SoundDisabled
  0003:0001496C       FatalError
+ 0003:000150F4       UseFastBlockDraw
  0003:00015630       special_desc
  0003:00017530       tooltip_scroll_offset
  0003:00017534       tooltip_scroll_timer
