@@ -151,10 +151,10 @@ struct DoorDesc { // sizeof = 44
   long pos_y;
   long width;
   long height;
-  long field_18;
-  long field_1C;
-  long field_20;
-  long field_24;
+  struct TbSprite *sprites;
+  struct TbSprite *sprites_end;
+  unsigned long data;
+  unsigned char *data_end;
   long field_28;
 };
 
@@ -416,6 +416,18 @@ DLLIMPORT extern struct DoorDesc _DK_doors[TORTURE_DOORS_COUNT];
 #define doors _DK_doors
 DLLIMPORT extern TortureState _DK_torture_state;
 #define torture_state _DK_torture_state
+DLLIMPORT extern unsigned char *_DK_torture_background;
+#define torture_background _DK_torture_background
+DLLIMPORT extern unsigned char *_DK_torture_palette;
+#define torture_palette _DK_torture_palette
+DLLIMPORT extern struct TbSprite *_DK_fronttor_sprites;
+#define fronttor_sprites _DK_fronttor_sprites
+DLLIMPORT extern struct TbSprite *_DK_fronttor_end_sprites;
+#define fronttor_end_sprites _DK_fronttor_end_sprites
+DLLIMPORT extern unsigned long _DK_fronttor_data;
+#define fronttor_data _DK_fronttor_data
+DLLIMPORT extern unsigned long _DK_fronttor_end_data;
+#define fronttor_end_data _DK_fronttor_end_data
 
 #pragma pack()
 /******************************************************************************/
@@ -684,9 +696,9 @@ void frontnet_modem_setup(void);
 void frontnet_serial_setup(void);
 void frontstats_set_timer(void);
 void frontnet_start_input(void);
-short frontend_high_score_table_input(void);
+TbBool frontend_high_score_table_input(void);
 void fronttorture_input(void);
-void fronttorture_draw(void);
+TbBool fronttorture_draw(void);
 void frontstats_update(void);
 void fronttorture_update(void);
 void frontend_init_options_menu(struct GuiMenu *gmnu);
@@ -808,6 +820,7 @@ void frontend_draw_games_scroll_tab(struct GuiButton *gbtn);
 void frontend_load_game(struct GuiButton *gbtn);
 void frontend_draw_load_game_button(struct GuiButton *gbtn);
 void frontend_ldcampaign_change_state(struct GuiButton *gbtn);
+void frontend_netservice_change_state(struct GuiButton *gbtn);
 void frontend_start_new_game(struct GuiButton *gbtn);
 void frontend_load_continue_game(struct GuiButton *gbtn);
 short frontend_save_continue_game(short allow_lvnum_grow);
@@ -911,12 +924,14 @@ TbBool validate_versions(void);
 void versions_different_error(void);
 void fake_button_click(long btn_idx);
 unsigned long toggle_status_menu(short visib);
-short toggle_first_person_menu(short visible);
+TbBool toggle_first_person_menu(TbBool visible);
 void toggle_gui_overlay_map(void);
 void display_objectives(long a1,long a2,long a3);
 short toggle_main_cheat_menu(void);
 short toggle_instance_cheat_menu(void);
-short toggle_creature_cheat_menu(void);
+TbBool open_creature_cheat_menu(void);
+TbBool close_creature_cheat_menu(void);
+TbBool toggle_creature_cheat_menu(void);
 void initialise_tab_tags(long menu_id);
 void initialise_tab_tags_and_menu(long menu_id);
 void turn_off_roaming_menus(void);

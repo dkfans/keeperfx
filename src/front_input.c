@@ -689,6 +689,12 @@ long get_dungeon_control_action_inputs(void)
     if (toggle_main_cheat_menu())
       clear_key_pressed(KC_NUMPADENTER);
   }
+  if (is_key_pressed(KC_F12,KM_DONTCARE))
+  {
+      // Note that we're using "close", not "toggle". Menu can't be opened here.
+      if (close_creature_cheat_menu())
+        clear_key_pressed(KC_F12);
+  }
   if (is_key_pressed(KC_TAB, KM_DONTCARE))
   {
     if ((player->field_37 == 2) || (player->field_37 == 5))
@@ -1144,7 +1150,76 @@ short get_packet_load_demo_inputs(void)
 void get_creature_control_nonaction_inputs(void)
 {
   static const char *func_name="get_creature_control_nonaction_inputs";
-  _DK_get_creature_control_nonaction_inputs(); return;
+//  _DK_get_creature_control_nonaction_inputs(); return;
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  struct Thing *thing;
+  long x,y,i,k;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+
+  x = GetMouseX();
+  y = GetMouseY();
+  thing = thing_get(player->field_2F);
+  pckt->pos_x = 127;
+  pckt->pos_y = 127;
+//  if (lbDisplay.ScreenMode == 13)
+//    ms_y += 40;
+  if ((player->field_0 & 0x08) != 0)
+    return;
+  while (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
+    LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, y/pixel_size);
+  // Set pos_x and pos_y
+  if (settings.field_50)
+    pckt->pos_y = 255 * (MyScreenHeight - y) / MyScreenHeight;
+  else
+    pckt->pos_y = 255 * y / MyScreenHeight;
+  pckt->pos_x = 255 * x / MyScreenWidth;
+  // Update the position based on current settings
+  i = settings.field_51+1;
+  x = pckt->pos_x - 127;
+  y = pckt->pos_y - 127;
+  if (i < 6)
+  {
+    k = 5 - settings.field_51;
+    pckt->pos_x = x/k + 127;
+    pckt->pos_y = y/k + 127;
+  } else
+  if (i > 6)
+  {
+    k = settings.field_51 - 5;
+    pckt->pos_x = k*x + 127;
+    pckt->pos_y = k*y + 127;
+  }
+  // Bound posx and pos_y
+  if (pckt->pos_x > 255)
+    pckt->pos_x = 255;
+  if (pckt->pos_y > 255)
+    pckt->pos_y = 255;
+  // Now do user actions
+  if (thing_is_invalid(thing))
+    return;
+  if (thing->class_id == TCls_Creature)
+  {
+      if ( left_button_clicked )
+      {
+        left_button_clicked = 0;
+        left_button_released = 0;
+      }
+      if ( right_button_clicked )
+      {
+        right_button_clicked = 0;
+        right_button_released = 0;
+      }
+      if ( is_game_key_pressed(2, 0, 1) )
+        set_packet_control(pckt, 16);
+      if ( is_game_key_pressed(3, 0, 1) )
+        set_packet_control(pckt, 32);
+      if ( is_game_key_pressed(0, 0, 1) )
+        set_packet_control(pckt, 4);
+      if ( is_game_key_pressed(1, 0, 1) )
+        set_packet_control(pckt, 8);
+  }
 }
 
 short get_inputs(void)

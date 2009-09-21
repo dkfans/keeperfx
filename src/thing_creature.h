@@ -54,6 +54,12 @@ unsigned char field_1D;
 unsigned char field_26[4];
 };
 
+struct CreatureStorage {
+  unsigned char model;
+  unsigned char explevel;
+};
+
+
 #pragma pack()
 /******************************************************************************/
 extern struct CreaturePickedUpOffset creature_picked_up_offset[];

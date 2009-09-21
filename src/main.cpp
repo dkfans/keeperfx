@@ -1383,7 +1383,7 @@ TbBool player_is_friendly_or_defeated(int plyr_idx, int win_plyr_idx)
        || (game.field_14E497 == plyr_idx)     || (win_plyr_idx == game.field_14E497) || ((player->field_2A & (1<<win_plyr_idx)) == 0))
       {
         dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
-        if (dungeon->field_0 > 0)
+        if (dungeon->dnheart_idx > 0)
           return false;
       }
   }
@@ -7038,7 +7038,7 @@ void find_map_location_coords(long location, long *x, long *y, const char *func_
       {
         player = &(game.players[i]);
         dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
-        thing = thing_get(dungeon->field_0);
+        thing = thing_get(dungeon->dnheart_idx);
       } else
         thing = NULL;
       if (!thing_is_invalid(thing))
@@ -7529,8 +7529,8 @@ void set_player_as_lost_level(struct PlayerInfo *player)
   {
     output_message(105, 0, 1);
     turn_off_all_menus();
-    game.transfered_creature_kind = 0;
-    game.transfered_creature_level = 0;
+    game.transfered_creature.model = 0;
+    game.transfered_creature.explevel = 0;
   }
   // This is probably 16-byte struct, or array
   clear_things_in_hand(player);
@@ -11457,7 +11457,7 @@ void init_dungeon_owner(unsigned short owner)
     if ((game.objects_config[thing->model].field_6) && (thing->owner == owner))
     {
       dungeon = &(game.dungeon[owner%DUNGEONS_COUNT]);
-      dungeon->field_0 = thing->field_1B;
+      dungeon->dnheart_idx = thing->field_1B;
       break;
     }
     k++;
@@ -11477,12 +11477,11 @@ void init_level(void)
 #endif
   struct Thing *thing;
   struct Coord3d pos;
-  unsigned short mem1,mem2;
+  struct CreatureStorage transfer_mem;
   int i,k;
   //_DK_init_level(); return;
 
-  mem2 = game.transfered_creature_kind;
-  mem1 = game.transfered_creature_level;
+  LbMemoryCopy(&transfer_mem,&game.transfered_creature,sizeof(struct CreatureStorage));
   memset(&pos,0,sizeof(struct Coord3d));
   game.field_14BB4A = 1;
   free_swipe_graphic();
@@ -11517,8 +11516,7 @@ void init_level(void)
   light_set_lights_on(1);
   init_dungeon_owner(game.field_14E496);
   game.numfield_D |= 0x04;
-  game.transfered_creature_kind = mem2;
-  game.transfered_creature_level = mem1;
+  LbMemoryCopy(&game.transfered_creature,&transfer_mem,sizeof(struct CreatureStorage));
   event_initialise_all();
   battle_initialise();
   thing = create_ambient_sound(&pos, 1, game.field_14E497);
@@ -11689,23 +11687,26 @@ void post_init_level(void)
   struct Thing *thing;
   struct Dungeon *dungeon;
   struct Coord3d *pos;
-  if (game.transfered_creature_kind > 0)
+  if (game.transfered_creature.model > 0)
   {
     player = &(game.players[my_player_number%PLAYERS_COUNT]);
     dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
-    thing = thing_get(dungeon->field_0);
+    thing = thing_get(dungeon->dnheart_idx);
     pos = &(thing->mappos);
-    thing = create_creature(pos, game.transfered_creature_kind, 5);
+    thing = create_creature(pos, game.transfered_creature.model, 5);
     if (thing != NULL)
-      init_creature_level(thing, game.transfered_creature_level);
-    game.transfered_creature_kind = 0;
-    game.transfered_creature_level = 0;
+      init_creature_level(thing, game.transfered_creature.explevel);
+    game.transfered_creature.model = 0;
+    game.transfered_creature.explevel = 0;
   }
   update_dungeon_scores();
   update_dungeon_generation_speeds();
   init_traps();
   init_all_creature_states();
   init_keepers_map_exploration();
+#if (BFDEBUG_LEVEL > 9)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 void post_init_players(void)

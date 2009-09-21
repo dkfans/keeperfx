@@ -2921,7 +2921,7 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
         return 0;
   case SVar_DUNGEON_DESTROYED:
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
-      return (dungeon->field_0 < 1);
+      return (dungeon->dnheart_idx < 1);
   case SVar_TOTAL_GOLD_MINED:
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
       return dungeon->lvstats.gold_mined;

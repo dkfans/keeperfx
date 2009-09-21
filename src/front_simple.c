@@ -31,6 +31,7 @@
 #include "config.h"
 #include "kjm_input.h"
 #include "scrcapt.h"
+#include "gui_draw.h"
 
 #include "keeperfx.h"
 
@@ -79,8 +80,7 @@ struct TbLoadFiles nocd_load_files[] = {
 */
 /******************************************************************************/
 /*
- * Copies the given RAW image at center of screen buffer and swaps video
- * buffers to make the image visible.
+ * Copies the given RAW image at center of screen buffer.
  * @return Returns true on success.
  */
 short copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int nlines,const int spx,const int spy,const unsigned char *src_buf,const int src_width,const int src_height,const int m)
@@ -388,7 +388,7 @@ short display_loading_screen(void)
   return done;
 }
 
-short wait_for_cd_to_be_available(void)
+TbBool wait_for_cd_to_be_available(void)
 {
   static const char *func_name="wait_for_cd_to_be_available";
   char ffullpath[2048];
@@ -447,6 +447,85 @@ short wait_for_cd_to_be_available(void)
   if ( was_locked )
     LbScreenLock();
   return (!exit_keeper);
+}
+
+TbBool display_centered_message(long showTime, char *text)
+{
+  static const char *func_name="display_centered_message";
+  TbBool finish;
+  TbClockMSec tmEnd;
+  long tmDelta;
+  TbBool was_locked;
+  tmEnd = LbTimerClock()+showTime;
+  tmDelta = showTime/10;
+  if (tmDelta < 10) tmDelta = 10;
+  if (tmDelta > 250) tmDelta = 100;
+  was_locked = LbScreenIsLocked();
+  if ( was_locked )
+    LbScreenUnlock();
+
+  unsigned int i;
+  finish = false;
+  while ( !finish )
+  {
+      // Redraw screen
+      if (LbScreenLock() == 1)
+      {
+        draw_text_box(text);
+        LbScreenUnlock();
+      }
+      LbScreenSwap();
+      // Check if the window is active
+      while (!LbIsActive())
+      {
+        if (!LbWindowsControl())
+        {
+          finish = true;
+          break;
+        }
+        if (exit_keeper)
+        {
+          finish = true;
+          break;
+        }
+      }
+      // Process inputs
+      update_mouse();
+      update_key_modifiers();
+      if (is_key_pressed(KC_Q,KM_DONTCARE) || is_key_pressed(KC_X,KM_DONTCARE))
+      {
+        error(func_name, 77, "User requested quit, giving up");
+        clear_key_pressed(KC_Q);
+        clear_key_pressed(KC_X);
+        exit_keeper = 1;
+        finish = true;
+        break;
+      }
+      if (is_key_pressed(KC_ESCAPE,KM_DONTCARE) || is_key_pressed(KC_RETURN,KM_DONTCARE) || is_key_pressed(KC_SPACE,KM_DONTCARE))
+      {
+        clear_key_pressed(KC_ESCAPE);
+        clear_key_pressed(KC_RETURN);
+        clear_key_pressed(KC_SPACE);
+        finish = true;
+        break;
+      }
+      if (left_button_clicked || right_button_clicked)
+      {
+        left_button_clicked = 0;
+        right_button_clicked = 0;
+        finish = true;
+        break;
+      }
+      // Make delay and check if we should end
+      LbSleepFor(tmDelta);
+      if (LbTimerClock() > tmEnd)
+      {
+        finish = true;
+      }
+  }
+  if ( was_locked )
+    LbScreenLock();
+  return true;
 }
 
 /******************************************************************************/

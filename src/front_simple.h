@@ -77,8 +77,8 @@ short show_actv_bitmap_screen(TbClockMSec tmdelay);
 /******************************************************************************/
 
 short display_loading_screen(void);
-short wait_for_cd_to_be_available(void);
-
+TbBool wait_for_cd_to_be_available(void);
+TbBool display_centered_message(long showTime, char *text);
 /******************************************************************************/
 #ifdef __cplusplus
 }

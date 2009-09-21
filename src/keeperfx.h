@@ -883,7 +883,7 @@ char field_462;
 
 #define SIZEOF_Dungeon 0x1508
 struct Dungeon {
-    unsigned short field_0;
+    unsigned short dnheart_idx;
     struct Coord3d mappos;
     unsigned char creature_tendencies;
     unsigned char field_9;
@@ -1272,8 +1272,7 @@ char field_1516FF;
     unsigned char active_messages_count;
     unsigned char bonuses_found[BONUS_LEVEL_STORAGE_COUNT];
     long bonus_time;
-    unsigned char transfered_creature_kind;
-    unsigned char transfered_creature_level;
+    struct CreatureStorage transfered_creature;
     struct Armageddon armageddon;
 char field_1517F6;
 char field_1517F7;

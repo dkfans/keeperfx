@@ -392,9 +392,9 @@ short load_continue_game(void)
     game.bonuses_found[i] = bonus[i];
   LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
   update_extra_levels_visibility();
-  i = (char *)&game.transfered_creature_kind - (char *)&game.bonuses_found[0];
-  game.transfered_creature_kind = bonus[i];
-  game.transfered_creature_level = bonus[i+1];
+  i = (char *)&game.transfered_creature - (char *)&game.bonuses_found[0];
+  game.transfered_creature.model = bonus[i];
+  game.transfered_creature.explevel = bonus[i+1];
   return true;
 }
 

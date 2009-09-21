@@ -387,6 +387,7 @@ long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, un
 long gf_give_all_creatures_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gf_all_researchable(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 long gfa_can_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag);
 long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag);
 
@@ -411,6 +412,7 @@ struct GuiBoxOption gui_creature_cheat_option_list[] = {
  {"Give controlled creature spells",1,gfa_can_give_controlled_creature_spells,gf_give_controlled_creature_spells, 0, 0, 0, 0, 0, 0, 0},
  {"Give all creatures spells", 1,           NULL,gf_give_all_creatures_spells, 0, 0, 0,  0, 0, 0, 0},
  {"Explore everywhere",        1,           NULL,       gf_explore_everywhere, 0, 0, 0,  0, 0, 0, 0},
+ {"All rooms and magic researchable",1,     NULL,         gf_all_researchable, 0, 0, 0,  0, 0, 0, 0},
  {"Research all magic",        1,           NULL,           gf_research_magic, 0, 0, 0,  0, 0, 0, 0},
  {"Research all rooms",        1,           NULL,           gf_research_rooms, 0, 0, 0,  0, 0, 0, 0},
  {"!",                         0,           NULL,                        NULL, 0, 0, 0,  0, 0, 0, 0},
@@ -782,11 +784,11 @@ struct GuiButtonInit frontend_main_menu_buttons[] = {
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  26, 999,  26,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       1,            0, 0, NULL },
   { 0,  0, 0, 0, 0, frontend_start_new_game,NULL,frontend_over_button,   3, 999,  92, 999,  92,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       2,            0, 0, NULL },
   { 0,  0, 0, 0, 0, frontend_load_continue_game,NULL,frontend_over_button,0,999, 138, 999, 138,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       8,            0, 0, frontend_continue_game_maintain },
-  { 0,  0, 0, 0, 0, frontend_ldcampaign_change_state,NULL,frontend_over_button,30,999,184, 999, 184,371, 46, frontend_draw_large_menu_button,   0, 201,  0,     106,            0, 0, NULL },
+  { 0,  0, 0, 0, 0, frontend_ldcampaign_change_state,NULL,frontend_over_button,30,999,184, 999, 184,371, 46, frontend_draw_large_menu_button,0,201, 0,     106,            0, 0, NULL },
   { 0,  0, 0, 0, 0, frontend_change_state,NULL, frontend_over_button,    2, 999, 230, 999, 230,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       3,            0, 0, frontend_main_menu_load_game_maintain },
-  { 0,  0, 0, 0, 0, frontend_ldcampaign_change_state,NULL, frontend_over_button,    4, 999, 276, 999, 276,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       4,            0, 0, frontend_main_menu_netservice_maintain },
+  { 0,  0, 0, 0, 0, frontend_netservice_change_state,NULL, frontend_over_button,  4, 999, 276, 999, 276,371, 46, frontend_draw_large_menu_button,0,201,0,    4,            0, 0, frontend_main_menu_netservice_maintain },
   { 0,  0, 0, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 322, 999, 322,371, 46, frontend_draw_large_menu_button,   0, 201,  0,      97,            0, 0, NULL },
-  { 0,  0, 0, 0, 0, frontend_ldcampaign_change_state,NULL, frontend_over_button,   18, 999, 368, 999, 368,371, 46, frontend_draw_large_menu_button,   0, 201,  0,     104,            0, 0, frontend_main_menu_highscores_maintain },
+  { 0,  0, 0, 0, 0, frontend_ldcampaign_change_state,NULL, frontend_over_button,   18, 999, 368, 999, 368,371, 46, frontend_draw_large_menu_button,0,201,0,104,            0, 0, frontend_main_menu_highscores_maintain },
   { 0,  0, 0, 0, 0, frontend_change_state,NULL, frontend_over_button,    9, 999, 414, 999, 414,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       5,            0, 0, NULL },
   {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
 };
@@ -1394,6 +1396,39 @@ struct EventTypeInfo event_button_info[] = {
   {266, 715, 689,  300,   0},
   {268, 696, 201, 1200,   0},
 };
+/*
+struct DoorDesc doors[] = {
+  {102,  13, 102,  20,  97, 155, 0, 0, 0, 0, 200},
+  {253,   0, 257,   0, 103, 118, 0, 0, 0, 0, 201},
+  {399,   0, 413,   0, 114, 144, 0, 0, 0, 0, 202},
+  {511,  65, 546,  85,  94, 160, 0, 0, 0, 0, 203},
+  {149, 211, 153, 232,  55,  84, 0, 0, 0, 0, 204},
+  {258, 176, 262, 178,  60,  84, 0, 0, 0, 0, 205},
+  {364, 183, 375, 191,  70,  95, 0, 0, 0, 0, 206},
+  {466, 257, 473, 261,  67,  94, 0, 0, 0, 0, 207},
+  {254, 368, 260, 391, 128,  80, 0, 0, 0, 0, 208},
+};
+*/
+
+struct TbLoadFiles torture_load_files[] = {
+  {"ldata/fronttor.tab", (unsigned char **)&fronttor_sprites, (unsigned char **)&fronttor_end_sprites, 0, 0, 0},
+  {"ldata/fronttor.dat", (unsigned char **)&fronttor_data,    (unsigned char **)&fronttor_end_data,    0, 0, 0},
+  {"",                    NULL,                                NULL,                                   0, 0, 0},
+};
+
+struct TbSetupSprite setup_torture_sprites[] = {
+  {&doors[0].sprites, &doors[0].sprites_end, &doors[0].data},
+  {&doors[1].sprites, &doors[1].sprites_end, &doors[1].data},
+  {&doors[2].sprites, &doors[2].sprites_end, &doors[2].data},
+  {&doors[3].sprites, &doors[3].sprites_end, &doors[3].data},
+  {&doors[4].sprites, &doors[4].sprites_end, &doors[4].data},
+  {&doors[5].sprites, &doors[5].sprites_end, &doors[5].data},
+  {&doors[6].sprites, &doors[6].sprites_end, &doors[6].data},
+  {&doors[7].sprites, &doors[7].sprites_end, &doors[7].data},
+  {&doors[8].sprites, &doors[8].sprites_end, &doors[8].data},
+  {&fronttor_sprites, &fronttor_end_sprites, &fronttor_data},
+  {NULL,              NULL,                  NULL,}
+};
 
 const struct DemoItem demo_item[] = {
     {DIK_SwitchState, (char *)13},
@@ -1460,13 +1495,11 @@ long stat_return_c_slong(long *ptr)
 
 short menu_is_active(short idx)
 {
-  //return _DK_menu_is_active(idx);
   return (menu_id_to_number(idx) >= 0);
 }
 
 short a_menu_window_is_active(void)
 {
-  //return _DK_a_menu_window_is_active();
   if (no_of_active_menus <= 0)
     return false;
   int i,k;
@@ -2495,12 +2528,106 @@ long torture_door_over_point(long x,long y)
 
 void fronttorture_unload(void)
 {
-  _DK_fronttorture_unload();
+  //_DK_fronttorture_unload();
+  LbDataFreeAll(torture_load_files);
+  memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
+  StopAllSamples();
+  // Clearing the space used for torture graphics
+  clear_light_system();
+  clear_computer();
+  clear_things_and_persons_data();
+  clear_mapmap();
+  clear_slabs();
+  clear_rooms();
+  clear_dungeons();
 }
 
 void fronttorture_load(void)
 {
-  _DK_fronttorture_load();
+  static const char *func_name="fronttorture_load";
+  struct PlayerInfo *player;
+  char *fname;
+  unsigned char *ptr;
+  long i,k;
+  //_DK_fronttorture_load();
+  wait_for_cd_to_be_available();
+  frontend_load_data_from_cd();
+  memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
+  ptr = block_mem;
+  // Load RAW/PAL background
+  fname = prepare_file_path(FGrp_LoData,"torture.raw");
+  torture_background = ptr;
+  i = LbFileLoadAt(fname, ptr);
+  ptr += i;
+  fname = prepare_file_path(FGrp_LoData,"torture.pal");
+  torture_palette = ptr;
+  i = LbFileLoadAt(fname, ptr);
+  ptr += i;
+
+  // Load DAT/TAB sprites for doors
+  k = 0;
+  {
+    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
+    i = LbFileLoadAt(fname, ptr);
+    doors[k].data = (unsigned long)ptr;
+    ptr += i;
+    doors[k].data_end = ptr;
+
+    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
+    i = LbFileLoadAt(fname, ptr);
+    doors[k].sprites = (struct TbSprite *)ptr;
+    ptr += i;
+    doors[k].sprites_end =(struct TbSprite *) ptr;
+  }
+  ptr = &game.land_map_start;
+  for (k=1; k < 8; k++)
+  {
+    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
+    i = LbFileLoadAt(fname, ptr);
+    doors[k].data = (unsigned long)ptr;
+    ptr += i;
+    doors[k].data_end = ptr;
+    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
+    i = LbFileLoadAt(fname, ptr);
+    doors[k].sprites = (struct TbSprite *)ptr;
+    ptr += i;
+    doors[k].sprites_end = (struct TbSprite *)ptr;
+  }
+  ptr = poly_pool;
+  k = 8;
+  {
+    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
+    i = LbFileLoadAt(fname, ptr);
+    doors[k].data = (unsigned long)ptr;
+    ptr += i;
+    doors[k].data_end = ptr;
+    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
+    i = LbFileLoadAt(fname, ptr);
+    doors[k].sprites = (struct TbSprite *)ptr;
+    ptr += i;
+    doors[k].sprites_end = (struct TbSprite *)ptr;
+  }
+
+  if ( LbDataLoadAll(torture_load_files) )
+    error(func_name, 252, "Unable to load torture load files");
+  LbSpriteSetupAll(setup_torture_sprites);
+  frontend_load_data_reset();
+  memcpy(&frontend_palette, torture_palette, PALETTE_SIZE);
+  torture_state = 0;
+  torture_door_selected = -1;
+  torture_end_sprite = -1;
+  torture_sprite_direction = 0;
+  memset(door_sound_state, 0, 0x48u);
+
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  if (player->victory_state == VicS_WonLevel)
+  {
+    LbMouseChangeSpriteAndHotspot(&fronttor_sprites[1], 0, 0);
+  } else
+  {
+    LbMouseChangeSpriteAndHotspot(0, 0, 0);
+  }
+  torture_left_button = 0;
 }
 
 void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, void *a2)
@@ -2834,7 +2961,7 @@ void gui_choose_spell(struct GuiButton *gbtn)
   static const char *func_name="gui_choose_spell";
   struct PlayerInfo *player;
   long i,k;
-//  _DK_gui_choose_spell(gbtn);
+//  _DK_gui_choose_spell(gbtn); return;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   i = (long)gbtn->field_33;
   // Disable previous spell
@@ -2878,7 +3005,7 @@ void gui_choose_special_spell(struct GuiButton *gbtn)
   dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
   idx = (long)gbtn->field_33 % SPELL_TYPES_COUNT;
   set_chosen_spell(idx, gbtn->tooltip_id);
-  if (dungeon->field_AF9 > game.magic_stats[idx].cost[0])
+  if (dungeon->field_AF9 >= game.magic_stats[idx].cost[0])
   {
     play_non_3d_sample(spell_data[idx].field_11); // Play the spell speech
     switch (idx)
@@ -3429,7 +3556,7 @@ void frontnet_start_input(void)
   _DK_frontnet_start_input();
 }
 
-short frontend_high_score_table_input(void)
+TbBool frontend_high_score_table_input(void)
 {
   struct HighScore *hscore;
   char chr;
@@ -4205,6 +4332,31 @@ void frontend_ldcampaign_change_state(struct GuiButton *gbtn)
   frontend_change_state(gbtn);
 }
 
+/*
+ * Changes state based on a parameter inside GuiButton.
+ * But first, loads the default campaign if no campaign is loaded,
+ * or the loaded one has no MP maps.
+ */
+void frontend_netservice_change_state(struct GuiButton *gbtn)
+{
+  TbBool set_cmpg;
+  set_cmpg = false;
+  if (!is_campaign_loaded())
+  {
+    set_cmpg = true;
+  } else
+  if (campaign.multi_levels_count < 1)
+  {
+    set_cmpg = true;
+  }
+  if (set_cmpg)
+  {
+    if (!change_campaign(""))
+      return;
+  }
+  frontend_change_state(gbtn);
+}
+
 TbBool frontend_start_new_campaign(const char *cmpgn_fname)
 {
   static const char *func_name="frontend_start_new_campaign";
@@ -4222,8 +4374,8 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
     player->field_6 &= 0xFD;
   }
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  game.transfered_creature_kind = 0;
-  game.transfered_creature_level = 0;
+  game.transfered_creature.model = 0;
+  game.transfered_creature.explevel = 0;
   calculate_moon_phase(false,false);
   hide_all_bonus_levels(player);
   update_extra_levels_visibility();
@@ -4306,24 +4458,6 @@ short frontend_save_continue_game(short allow_lvnum_grow)
   return save_continue_game(lvnum);
 }
 
-/*
-short frontend_save_continue_game(long lvnum, short is_new_lvl)
-{
-  static const char *func_name="frontend_save_continue_game";
-  //_DK_frontend_save_continue_game(lvnum,a2);
-  if (is_new_lvl)
-  {
-    save_continue_game(lvnum);
-    return true;
-  } else
-  {
-    error(func_name, 1620, "Why are we here when it's not a new level");
-    save_continue_game(SINGLEPLAYER_NOTSTARTED);
-    return false;
-  }
-}
-*/
-
 void frontend_load_continue_game(struct GuiButton *gbtn)
 {
   if (!load_continue_game())
@@ -4334,9 +4468,46 @@ void frontend_load_continue_game(struct GuiButton *gbtn)
   frontend_set_state(FeSt_LAND_VIEW);
 }
 
-void fronttorture_draw(void)
+TbBool fronttorture_draw(void)
 {
-  _DK_fronttorture_draw();
+  //_DK_fronttorture_draw();
+  struct TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+  struct TbSprite *spr;
+  const int img_width = 640;
+  const int img_height = 480;
+  int w,h,m,i,k;
+  int spx,spy;
+  unsigned char *dst;
+  const unsigned char *src;
+  // Only 8bpp supported for now
+  if (mdinfo->BitsPerPixel != 8)
+    return false;
+  w=0;
+  h=0;
+  m=1;
+  {
+    w+=img_width;
+    h+=img_height;
+  }
+  // Starting point coords
+  //TODO: temporarely set to top left corner because input function is not rewritten
+  spx = 0;//(mdinfo->Width-m*img_width)>>1;
+  spy = 0;//(mdinfo->Height-m*img_height)>>1;
+  copy_raw8_image_buffer(lbDisplay.WScreen,mdinfo->Width,mdinfo->Height,
+      spx,spy,torture_background,img_width,img_height,m);
+
+  for (i=0; i < torture_doors_available; i++)
+  {
+    if (i == torture_door_selected)
+    {
+      spr = &doors[i].sprites[torture_sprite_frame];
+    } else
+    {
+      spr = &doors[i].sprites[1];
+    }
+    LbSpriteDraw(spx+doors[i].field_0, spy+doors[i].field_4, spr);
+  }
+  return true;
 }
 
 void gui_previous_battle(struct GuiButton *gbtn)
@@ -4586,7 +4757,7 @@ long gf_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
   if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
     return 0;
-  set_players_packet_action(player, 62, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_CheatCrtSpells, 0, 0, 0, 0);
   return 1;
 }
 
@@ -4595,9 +4766,16 @@ long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
   struct PlayerInfo *player;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
-    return 0;
-  set_players_packet_action(player, 67, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_CheatAllRooms, 0, 0, 0, 0);
+  return 1;
+}
+
+long gf_all_researchable(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+{
+  struct PlayerInfo *player;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+//  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+  set_players_packet_action(player, PckA_CheatAllResrchbl, 0, 0, 0, 0);
   return 1;
 }
 
@@ -4606,9 +4784,7 @@ long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, un
   struct PlayerInfo *player;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
-    return 0;
-  set_players_packet_action(player, 61, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_CheatAllFree, 0, 0, 0, 0);
   return 1;
 }
 
@@ -4617,9 +4793,7 @@ long gf_give_all_creatures_spells(struct GuiBox *gbox, struct GuiBoxOption *gopt
   struct PlayerInfo *player;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
-    return 0;
-  set_players_packet_action(player, 64, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_CheatCrAllSpls, 0, 0, 0, 0);
   return 1;
 }
 
@@ -4637,9 +4811,7 @@ long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
   struct PlayerInfo *player;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
-    return 0;
-  set_players_packet_action(player, 66, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_CheatAllMagic, 0, 0, 0, 0);
   return 1;
 }
 
@@ -5463,7 +5635,6 @@ DLLIMPORT unsigned char _DK_special_on;
 
 unsigned long toggle_status_menu(short visible)
 {
-  //return _DK_toggle_status_menu(visib);
 /*
   static unsigned char room_on = 0;
   static unsigned char spell_on = 0;
@@ -5496,25 +5667,25 @@ unsigned long toggle_status_menu(short visible)
       if ( spell_lost_on )
         set_menu_visible_on(GMnu_SPELL_LOST);
       if ( trap_on )
-        set_menu_visible_on(4);
+        set_menu_visible_on(GMnu_TRAP);
       if ( event_on )
-        set_menu_visible_on(6);
+        set_menu_visible_on(GMnu_EVENT);
       if ( query_on )
-        set_menu_visible_on(7);
+        set_menu_visible_on(GMnu_QUERY);
       if ( creat_on )
-        set_menu_visible_on(5);
+        set_menu_visible_on(GMnu_CREATURE);
       if ( creature_query1_on )
-        set_menu_visible_on(31);
+        set_menu_visible_on(GMnu_CREATURE_QUERY1);
       if ( creature_query2_on )
-        set_menu_visible_on(35);
+        set_menu_visible_on(GMnu_CREATURE_QUERY2);
       if ( creature_query3_on )
-        set_menu_visible_on(32);
+        set_menu_visible_on(GMnu_CREATURE_QUERY3);
       if ( battle_on )
-        set_menu_visible_on(34);
+        set_menu_visible_on(GMnu_BATTLE);
       if ( objective_on )
-        set_menu_visible_on(16);
+        set_menu_visible_on(GMnu_TEXT_INFO);
       if ( special_on )
-        set_menu_visible_on(27);
+        set_menu_visible_on(GMnu_DUNGEON_SPECIAL);
     } else
     {
       set_menu_visible_off(GMnu_MAIN);
@@ -5530,82 +5701,81 @@ unsigned long toggle_status_menu(short visible)
       if (k >= 0)
         spell_lost_on = active_menus[k].flgfield_1D;
       set_menu_visible_off(GMnu_SPELL_LOST);
-      k = menu_id_to_number(4);
+      k = menu_id_to_number(GMnu_TRAP);
       if (k >= 0)
       trap_on = active_menus[k].flgfield_1D;
-      set_menu_visible_off(4);
-      k = menu_id_to_number(5);
+      set_menu_visible_off(GMnu_TRAP);
+      k = menu_id_to_number(GMnu_CREATURE);
       if (k >= 0)
         creat_on = active_menus[k].flgfield_1D;
-      set_menu_visible_off(5);
-      k = menu_id_to_number(6);
+      set_menu_visible_off(GMnu_CREATURE);
+      k = menu_id_to_number(GMnu_EVENT);
       if (k >= 0)
         event_on = active_menus[k].flgfield_1D;
-      set_menu_visible_off(6);
-      k = menu_id_to_number(7);
+      set_menu_visible_off(GMnu_EVENT);
+      k = menu_id_to_number(GMnu_QUERY);
       if (k >= 0)
         query_on = active_menus[k].flgfield_1D;
-      set_menu_visible_off(7);
-      k = menu_id_to_number(31);
+      set_menu_visible_off(GMnu_QUERY);
+      k = menu_id_to_number(GMnu_CREATURE_QUERY1);
       if (k >= 0)
         creature_query1_on = active_menus[k].flgfield_1D;
-      set_menu_visible_off(31);
-      k = menu_id_to_number(35);
+      set_menu_visible_off(GMnu_CREATURE_QUERY1);
+      k = menu_id_to_number(GMnu_CREATURE_QUERY2);
       if (k >= 0)
         creature_query2_on = active_menus[k].flgfield_1D;
-      set_menu_visible_off(35);
-      k = menu_id_to_number(32);
+      set_menu_visible_off(GMnu_CREATURE_QUERY2);
+      k = menu_id_to_number(GMnu_CREATURE_QUERY3);
       if (k >= 0)
         creature_query3_on = active_menus[k].flgfield_1D;
-      set_menu_visible_off(32);
-      k = menu_id_to_number(16);
+      set_menu_visible_off(GMnu_CREATURE_QUERY3);
+      k = menu_id_to_number(GMnu_TEXT_INFO);
       if (k >= 0)
         objective_on = active_menus[k].flgfield_1D;
-      set_menu_visible_off(16);
-      k = menu_id_to_number(34);
+      set_menu_visible_off(GMnu_TEXT_INFO);
+      k = menu_id_to_number(GMnu_BATTLE);
       if (k >= 0)
         battle_on = active_menus[k].flgfield_1D;
-      set_menu_visible_off(34);
-      k = menu_id_to_number(27);
+      set_menu_visible_off(GMnu_BATTLE);
+      k = menu_id_to_number(GMnu_DUNGEON_SPECIAL);
       if (k >= 0)
         special_on = active_menus[k].flgfield_1D;
-      set_menu_visible_off(27);
+      set_menu_visible_off(GMnu_DUNGEON_SPECIAL);
     }
   }
   return i;
 }
 
-short toggle_first_person_menu(short visible)
+TbBool toggle_first_person_menu(TbBool visible)
 {
-  static short creature_query1_on = 0;
-  static short creature_query2_on = 0;
+  static unsigned char creature_query_on = 0;
   if (visible)
   {
-    if ( creature_query1_on )
-        set_menu_visible_on(31);
+    if (creature_query_on & 0x01)
+        set_menu_visible_on(GMnu_CREATURE_QUERY1);
     else
-    if ( creature_query2_on )
-      set_menu_visible_on(35);
+    if ( creature_query_on & 0x02)
+      set_menu_visible_on(GMnu_CREATURE_QUERY2);
     else
     {
       LbWarnLog("No active query for first person menu; assuming query 1.\n");
       set_menu_visible_on(GMnu_CREATURE_QUERY1);
     }
-    return 1;
+    return true;
   } else
   {
     long menu_num;
     // CREATURE_QUERY1
     menu_num = menu_id_to_number(GMnu_CREATURE_QUERY1);
     if (menu_num >= 0)
-      creature_query1_on = active_menus[menu_num].flgfield_1D;
+      set_flag_byte(&creature_query_on, 0x01, active_menus[menu_num].flgfield_1D);
     set_menu_visible_off(GMnu_CREATURE_QUERY1);
     // CREATURE_QUERY2
     menu_num = menu_id_to_number(GMnu_CREATURE_QUERY2);
     if (menu_num >= 0)
-      creature_query2_on = active_menus[menu_num].flgfield_1D;
+      set_flag_byte(&creature_query_on, 0x02, active_menus[menu_num].flgfield_1D);
     set_menu_visible_off(GMnu_CREATURE_QUERY2);
-    return 1;
+    return true;
   }
 }
 
@@ -5768,7 +5938,7 @@ void frontend_level_select(struct GuiButton *gbtn)
   if (lvnum > 0)
   {
     game.selected_level_number = lvnum;
-    game.flags_font |= 0x80;
+    game.flags_font |= FFlg_unk80;
     frontend_set_state(7);
   }
 }
@@ -6093,7 +6263,7 @@ int frontend_set_state(long nstate)
       fade_palette_in = 0;
       break;
     case 8:
-      if ((game.flags_font & 0x10) != 0)
+      if ((game.flags_font & FFlg_unk10) != 0)
         LbNetwork_ChangeExchangeTimeout(30);
       fade_palette_in = 0;
       break;
@@ -6184,7 +6354,7 @@ TbBool frontmainmnu_input(void)
   }
   if (lbKeyOn[KC_T] && lbKeyOn[KC_LSHIFT])
   {
-    if ((game.flags_font & 0x20) != 0)
+    if ((game.flags_font & FFlg_AlexCheat) != 0)
     {
       lbKeyOn[KC_T] = 0;
       set_player_as_won_level(&game.players[my_player_number]);
@@ -7375,7 +7545,7 @@ short toggle_main_cheat_menu(void)
   long mouse_y = GetMouseY();
   if ((gui_box==NULL) || (gui_box_is_not_valid(gui_box)))
   {
-    if ((game.flags_font & 0x20) == 0)
+    if ((game.flags_font & FFlg_AlexCheat) == 0)
       return false;
     gui_box = gui_create_box(mouse_x,mouse_y,gui_main_cheat_list);
     gui_move_box(gui_box, mouse_x, mouse_y, Fnt_CenterPos);
@@ -7396,7 +7566,7 @@ short toggle_instance_cheat_menu(void)
   // Toggle cheat menu
   if ((gui_box==NULL) || (gui_box_is_not_valid(gui_box)))
   {
-    if ((game.flags_font & 0x20) == 0)
+    if ((game.flags_font & FFlg_AlexCheat) == 0)
       return false;
     gui_box = gui_create_box(200,20,gui_instance_option_list);
 /*
@@ -7416,29 +7586,46 @@ short toggle_instance_cheat_menu(void)
 }
 
 /*
+ * Opens cheat menu. It should not allow cheats in Network mode.
+ * Returns true if the menu was toggled, false if cheat is not allowed.
+ */
+TbBool open_creature_cheat_menu(void)
+{
+  if ((game.flags_font & FFlg_AlexCheat) == 0)
+    return false;
+  if (!gui_box_is_not_valid(gui_cheat_box))
+    return false;
+  gui_cheat_box = gui_create_box(150,20,gui_creature_cheat_option_list);
+  return (!gui_box_is_not_valid(gui_cheat_box));
+}
+
+/*
+ * Closes cheat menu.
+ * Returns true if the menu was closed.
+ */
+TbBool close_creature_cheat_menu(void)
+{
+  if (gui_box_is_not_valid(gui_cheat_box))
+    return false;
+  gui_delete_box(gui_cheat_box);
+  gui_cheat_box = NULL;
+  return true;
+}
+
+/*
  * Toggles cheat menu. It should not allow cheats in Network mode.
  * Returns true if the menu was toggled, false if cheat is not allowed.
  */
-short toggle_creature_cheat_menu(void)
+TbBool toggle_creature_cheat_menu(void)
 {
   // Cheat sub-menus
-  if ((gui_cheat_box==NULL) || (gui_box_is_not_valid(gui_cheat_box)))
+  if (gui_box_is_not_valid(gui_cheat_box))
   {
-    if ((game.flags_font & 0x20) == 0)
-      return false;
-    gui_cheat_box = gui_create_box(150,20,gui_creature_cheat_option_list);
-/*
-        player->unknownbyte  |= 0x08;
-*/
+    return open_creature_cheat_menu();
   } else
   {
-    gui_delete_box(gui_cheat_box);
-    gui_cheat_box = NULL;
-/*
-        player->unknownbyte &= 0xF7;
-*/
+    return close_creature_cheat_menu();
   }
-  return true;
 }
 
 

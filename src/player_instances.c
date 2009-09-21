@@ -375,8 +375,8 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   cam = player->acamera;
   if (cam == NULL) return 0;
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
-  thing = thing_get(dungeon->field_0);
-  if (!thing_is_invalid(thing))
+  thing = thing_get(dungeon->dnheart_idx);
+  if (thing_is_invalid(thing))
   {
     cam->mappos.x.val = (map_subtiles_x << 8)/2;
     cam->mappos.y.val = (map_subtiles_y << 8)/2;

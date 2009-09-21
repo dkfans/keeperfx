@@ -60,7 +60,7 @@ struct ScreenPacket { // sizeof = 12
   char field_5;
   short field_6;
   short field_8;
-  unsigned char field_A;
+  char field_A;
   unsigned char field_B;
 };
 
@@ -124,7 +124,7 @@ DLLIMPORT extern struct TbSetupSprite _DK_map_flag_setup_sprites[];
 /******************************************************************************/
 /******************************************************************************/
 void frontnetmap_unload(void);
-void frontnetmap_load(void);
+TbBool frontnetmap_load(void);
 void frontnetmap_input(void);
 void frontnetmap_draw(void);
 long frontnetmap_update(void);
