@@ -136,6 +136,9 @@ struct CampaignsList {
 /******************************************************************************/
 extern struct GameCampaign campaign;
 extern struct CampaignsList campaigns_list;
+extern const struct NamedCommand cmpgn_map_commands[];
+extern const struct NamedCommand cmpgn_map_cmnds_options[];
+extern const struct NamedCommand cmpgn_map_cmnds_kind[];
 /******************************************************************************/
 TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigned short flags);
 TbBool free_campaign(struct GameCampaign *campgn);

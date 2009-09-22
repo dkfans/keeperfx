@@ -1757,7 +1757,8 @@ void clear_columns(void);
 void init_columns(void);
 void init_whole_blocks(void);
 
-short is_my_player(struct PlayerInfo *player);
+TbBool is_my_player(struct PlayerInfo *player);
+TbBool is_my_player_number(long plyr_idx);
 void increase_level(struct PlayerInfo *player);
 void multiply_creatures(struct PlayerInfo *player);
 struct Thing *create_creature(struct Coord3d *pos, unsigned short a1, unsigned short a2);

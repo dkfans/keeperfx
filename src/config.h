@@ -113,11 +113,11 @@ int field_9A;
   };
 
 struct NetLevelDesc { // sizeof = 14
-  unsigned char field_0;
+  unsigned char lvnum;
   unsigned char field_1;
   unsigned long field_2;
   unsigned long field_6;
-  unsigned long field_A;
+  char *text;
 };
 
 /******************************************************************************/
@@ -220,6 +220,7 @@ int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,lon
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
 long get_id(const struct NamedCommand *desc, char *itmname);
+long get_rid(const struct NamedCommand *desc, char *itmname);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -533,6 +533,74 @@ TbBool load_magic_config(const char *conf_fname,unsigned short flags)
   return result;
 }
 
+/*
+ * Zeroes all the costs for all spells.
+ */
+TbBool make_all_powers_free(void)
+{
+  struct MagicStats *magstat;
+  long i,n;
+  for (i=0; i < magic_conf.power_types_count; i++)
+  {
+    magstat = &game.magic_stats[i];
+    for (n=0; n < MAGIC_OVERCHARGE_LEVELS; n++)
+      magstat->cost[n] = 0;
+  }
+  return true;
+}
+
+/*
+ * Makes all keeper spells to be available to research.
+ */
+TbBool make_all_powers_researchable(long plyr_idx)
+{
+  static const char *func_name="make_all_powers_researchable";
+  struct Dungeon *dungeon;
+  long i;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  for (i=0; i < KEEPER_SPELLS_COUNT; i++)
+  {
+    dungeon->magic_resrchable[i] = 1;
+  }
+  return true;
+}
+
+/*
+ * Sets power availability state.
+ */
+TbBool set_power_available(long plyr_idx, long spl_idx, long resrch, long avail)
+{
+  struct Dungeon *dungeon;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  dungeon->magic_resrchable[spl_idx] = resrch;
+  if (avail != 0)
+    add_spell_to_player(spl_idx, plyr_idx);
+  else
+    dungeon->magic_level[spl_idx] = avail;
+  return true;
+}
+
+/*
+ * Makes all the powers, which are researchable, to be instantly available.
+ */
+TbBool make_available_all_researchable_powers(long plyr_idx)
+{
+  static const char *func_name="make_available_all_researchable_powers";
+  struct Dungeon *dungeon;
+  long i;
+#if (BFDEBUG_LEVEL > 0)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  for (i=0; i < KEEPER_SPELLS_COUNT; i++)
+  {
+    if (dungeon->magic_resrchable[i])
+    {
+      add_spell_to_player(i, plyr_idx);
+    }
+  }
+  return true;
+}
 
 /******************************************************************************/
 #ifdef __cplusplus

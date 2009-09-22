@@ -386,6 +386,31 @@ long get_id(const struct NamedCommand *desc, char *itmname)
   return -1;
 }
 
+/*
+ * Returns ID of given item using NamedCommands list, or any item if the string is 'RANDOM'.
+ * Similar to recognize_conf_parameter(), but for use only if the buffer stores
+ * one word, ended with "\0".
+ * If not found, returns -1.
+ */
+long get_rid(const struct NamedCommand *desc, char *itmname)
+{
+  long i;
+  //return _DK_get_id(desc, itmname);
+  if ((desc == NULL) || (itmname == NULL))
+    return -1;
+  for (i=0; desc[i].name != NULL; i++)
+  {
+    if (stricmp(desc[i].name, itmname) == 0)
+      return desc[i].num;
+  }
+  if (stricmp("RANDOM", itmname) == 0)
+  {
+      i = (rand() % i);
+      return desc[i].num;
+  }
+  return -1;
+}
+
 TbBool prepare_diskpath(char *buf,long buflen)
 {
   int i;
@@ -1596,7 +1621,7 @@ LevelNumber first_extra_level(void)
 }
 
 /*
- * Returns the extra level number. Gives 0 if no such level,
+ * Returns the extra level number. Gives SINGLEPLAYER_NOTSTARTED if no such level,
  * LEVELNUMBER_ERROR on error.
  */
 LevelNumber get_extra_level(unsigned short elv_kind)
@@ -1608,9 +1633,14 @@ LevelNumber get_extra_level(unsigned short elv_kind)
   if ((i < 0) || (i >= CAMPAIGN_LEVELS_COUNT))
     return LEVELNUMBER_ERROR;
   lvnum = campaign.extra_levels[i];
+#if (BFDEBUG_LEVEL > 5)
+    LbSyncLog("Extra level kind %d has number %ld\n",(int)elv_kind,lvnum);
+#endif
   if (lvnum > 0)
+  {
     return lvnum;
-  return 0;
+  }
+  return SINGLEPLAYER_NOTSTARTED;
 }
 
 /*
@@ -1848,7 +1878,7 @@ short is_multiplayer_level(LevelNumber lvnum)
   for (i=0; i < net_number_of_levels; i++)
   {
     lvdesc = &net_level_desc[i];
-    if (lvdesc->field_0 == lvnum)
+    if (lvdesc->lvnum == lvnum)
       return true;
   }
   return false;

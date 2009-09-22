@@ -326,7 +326,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if (player->field_43A == 0)
             create_power_hand(player->field_2B);
-          player->thing_under_hand = thing->field_1B;
+          player->thing_under_hand = thing->index;
         }
         thing = get_first_thing_in_power_hand(player);
         if (!thing_is_invalid(thing))
@@ -675,7 +675,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       if (thing_is_invalid(thing))
         player->thing_under_hand = 0;
       else
-        player->thing_under_hand = thing->field_1B;
+        player->thing_under_hand = thing->index;
       if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
       {
         magic_use_power_slap(plyr_idx, stl_x, stl_y);
@@ -688,7 +688,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       if (thing_is_invalid(thing))
         player->thing_under_hand = 0;
       else
-        player->thing_under_hand = thing->field_1B;
+        player->thing_under_hand = thing->index;
 
       if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
       {
@@ -714,7 +714,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       if (thing_is_invalid(thing))
         player->thing_under_hand = 0;
       else
-        player->thing_under_hand = thing->field_1B;
+        player->thing_under_hand = thing->index;
       if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
       {
         if (player->thing_under_hand > 0)
@@ -740,7 +740,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       if (thing_is_invalid(thing))
         player->thing_under_hand = 0;
       else
-        player->thing_under_hand = thing->field_1B;
+        player->thing_under_hand = thing->index;
       if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
       {
         if (player->thing_under_hand > 0)
@@ -789,7 +789,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       if (thing_is_invalid(thing))
         player->thing_under_hand = 0;
       else
-        player->thing_under_hand = thing->field_1B;
+        player->thing_under_hand = thing->index;
       if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
       {
         if ((player->field_2F > 0) && (player->field_2F < THINGS_COUNT))
@@ -805,7 +805,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
           thing = get_creature_near(x, y);
           if (!thing_is_invalid(thing))
           {
-            player->field_2F = thing->field_1B;
+            player->field_2F = thing->index;
             initialise_thing_state(thing, 122);
             cctrl = creature_control_get_from_thing(thing);
             i = cctrl->field_7A;// & 0xFFF;
@@ -919,7 +919,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = 0;
         break;
       }
-      player->thing_under_hand = thing->field_1B;
+      player->thing_under_hand = thing->index;
       if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
       {
         i = get_spell_overcharge_level(player);
@@ -935,7 +935,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = 0;
         break;
       }
-      player->thing_under_hand = thing->field_1B;
+      player->thing_under_hand = thing->index;
       if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
       {
         i = get_spell_overcharge_level(player);
@@ -951,7 +951,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = 0;
         break;
       }
-      player->thing_under_hand = thing->field_1B;
+      player->thing_under_hand = thing->index;
       if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
       {
         i = get_spell_overcharge_level(player);
@@ -967,7 +967,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = 0;
         break;
       }
-      player->thing_under_hand = thing->field_1B;
+      player->thing_under_hand = thing->index;
       if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
       {
         i = get_spell_overcharge_level(player);
@@ -1094,7 +1094,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = 0;
         break;
       }
-      player->thing_under_hand = thing->field_1B;
+      player->thing_under_hand = thing->index;
       if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
       {
         i = get_spell_overcharge_level(player);
@@ -1110,7 +1110,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = 0;
         break;
       }
-      player->thing_under_hand = thing->field_1B;
+      player->thing_under_hand = thing->index;
       if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
       {
         i = get_spell_overcharge_level(player);
@@ -1132,7 +1132,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
     {
       thing = get_queryable_object_near(x, y, plyr_idx);
       if (!thing_is_invalid(thing))
-        player->thing_under_hand = thing->field_1B;
+        player->thing_under_hand = thing->index;
     }
   }
   if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) && (val172))

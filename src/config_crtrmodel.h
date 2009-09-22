@@ -34,6 +34,7 @@ struct CreatureModelConfig {
 /******************************************************************************/
 /******************************************************************************/
 TbBool load_creaturemodel_config(long crtr_model,unsigned short flags);
+TbBool make_all_creatures_free(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

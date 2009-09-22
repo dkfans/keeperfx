@@ -57,11 +57,24 @@ const struct NamedCommand cmpgn_map_commands[] = {
   {"OPTIONS",         6},
   {"SPEECH",          7},
   {"LAND_VIEW",       8},
+  {"KIND",            9}, // for LOF files only
+  {"AUTHOR",         10},
+  {"DESCRIPTION",    11},
+  {"DATE",           12},
   {NULL,              0},
   };
 
 const struct NamedCommand cmpgn_map_cmnds_options[] = {
-  {"TUTORIAL",        1},
+  {"TUTORIAL",        LvOp_Tutorial},
+  {NULL,              0},
+  };
+
+const struct NamedCommand cmpgn_map_cmnds_kind[] = {
+  {"SINGLE",          LvOp_IsSingle},
+  {"MULTI",           LvOp_IsMulti},
+  {"BONUS",           LvOp_IsBonus},
+  {"EXTRA",           LvOp_IsExtra},
+  {"FREE",            LvOp_IsFree},
   {NULL,              0},
   };
 
@@ -732,8 +745,8 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
           {
             switch (k)
             {
-            case 1: //TUTORIAL
-              lvinfo->options |= LvOp_Tutorial;
+            case LvOp_Tutorial:
+              lvinfo->options |= k;
               break;
             }
             n++;
@@ -766,6 +779,11 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
           {
             LbWarnLog("Couldn't recognize \"%s\" file names in [%s] block of Campaign file.\n","LAND_VIEW",block_buf);
           }
+          break;
+      case 10: // AUTHOR
+      case 11: // DESCRIPTION
+      case 12: // DATE
+          // As for now, ignore these
           break;
       case 0: // comment
           break;

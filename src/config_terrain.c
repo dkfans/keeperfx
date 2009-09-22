@@ -753,6 +753,79 @@ TbBool load_terrain_config(const char *conf_fname,unsigned short flags)
   return result;
 }
 
+/*
+ * Zeroes all the costs for all rooms.
+ */
+TbBool make_all_rooms_free(void)
+{
+  struct RoomStats *rstat;
+  long i;
+  for (i=0; i < slab_conf.room_types_count; i++)
+  {
+    rstat = &game.room_stats[i];
+    rstat->cost = 0;
+  }
+  return true;
+}
+
+/*
+ * Makes all rooms to be available to research for the player.
+ */
+TbBool make_all_rooms_researchable(long plyr_idx)
+{
+  static const char *func_name="make_all_rooms_researchable";
+  struct Dungeon *dungeon;
+  long i;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  for (i=0; i < slab_conf.room_types_count; i++)
+  {
+    dungeon->room_resrchable[i] = 1;
+  }
+  return true;
+}
+
+/*
+ * Sets room availability state.
+ */
+TbBool set_room_available(long plyr_idx, long room_idx, long resrch, long avail)
+{
+  static const char *func_name="set_room_available";
+  struct Dungeon *dungeon;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  if ((room_idx < 0) || (room_idx >= ROOM_TYPES_COUNT))
+  {
+    LbErrorLog("%s: Can't add incorrect room %ld to player %ld\n",func_name,room_idx, plyr_idx);
+    return false;
+  }
+  dungeon->room_resrchable[room_idx] = resrch;
+  if (resrch != 0)
+    dungeon->room_buildable[room_idx] = avail;
+  else
+    dungeon->room_buildable[room_idx] = 0;
+  return true;
+}
+
+/*
+ * Makes all the rooms, which are researchable, to be instantly available.
+ */
+TbBool make_available_all_researchable_rooms(long plyr_idx)
+{
+  static const char *func_name="make_available_all_researchable_rooms";
+  struct Dungeon *dungeon;
+  long i;
+#if (BFDEBUG_LEVEL > 0)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  for (i=0; i < ROOM_TYPES_COUNT; i++)
+  {
+    if (dungeon->room_resrchable[i])
+    {
+      dungeon->room_buildable[i] = 1;
+    }
+  }
+  return true;
+}
 
 /******************************************************************************/
 #ifdef __cplusplus

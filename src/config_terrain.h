@@ -49,6 +49,10 @@ extern struct NamedCommand trap_desc[TERRAIN_ITEMS_MAX];
 extern struct NamedCommand door_desc[TERRAIN_ITEMS_MAX];
 /******************************************************************************/
 TbBool load_terrain_config(const char *conf_fname,unsigned short flags);
+TbBool make_all_rooms_free(void);
+TbBool set_room_available(long plyr_idx, long room_idx, long resrch, long avail);
+TbBool make_available_all_researchable_rooms(long plyr_idx);
+TbBool make_all_rooms_researchable(long plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

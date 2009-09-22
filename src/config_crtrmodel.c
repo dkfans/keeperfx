@@ -1778,6 +1778,23 @@ TbBool load_creaturemodel_config(long crtr_model,unsigned short flags)
   }
   return load_creaturemodel_config_file(crtr_model,conf_fnstr,flags);
 }
+
+/*
+ * Zeroes all the maintenance costs for all creatures.
+ */
+TbBool make_all_creatures_free(void)
+{
+  struct CreatureStats *crstat;
+  long i;
+  for (i=0; i < crtr_conf.kind_count; i++)
+  {
+    crstat = creature_stats_get(i);
+    crstat->training_cost = 0;
+    crstat->scavenger_cost = 0;
+    crstat->pay = 0;
+  }
+  return true;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

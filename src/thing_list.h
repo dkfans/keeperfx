@@ -92,7 +92,7 @@ struct Thing {
     };
     unsigned char field_19;
     unsigned char model;
-    unsigned short field_1B;
+    unsigned short index;
     short field_1D;
     unsigned char class_id;
     unsigned char field_20;

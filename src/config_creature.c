@@ -480,7 +480,31 @@ TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags)
   return result;
 }
 
-
+long calculate_correct_creature_maxspeed(struct Thing *thing)
+{
+  struct CreatureStats *crstat;
+  struct CreatureControl *cctrl;
+  struct Dungeon *dungeon;
+  long speed;
+  cctrl = creature_control_get_from_thing(thing);
+  crstat = creature_stats_get_from_thing(thing);
+  speed = crstat->base_speed;
+  if (cctrl->field_21)
+    speed *= 2;
+  if ((cctrl->field_AC & 0x02) != 0)
+    speed *= 2;
+  if ((cctrl->field_AC & 0x01) != 0)
+    speed /= 2;
+  if (game.field_14E497 != thing->owner)
+  {
+    dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+    if (dungeon->field_1420[thing->model])
+      speed = 5 * speed / 4;
+    if (dungeon->field_888)
+      speed = 5 * speed / 4;
+  }
+  return speed;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

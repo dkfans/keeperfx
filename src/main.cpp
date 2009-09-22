@@ -2085,9 +2085,9 @@ long update_creature_levels(struct Thing *thing)
     leave_creature_as_controller(player, thing);
     control_creature_as_controller(player, newtng);
   }
-  if (thing->field_1B == player->field_2F)
+  if (thing->index == player->field_2F)
   {
-    player->field_2F = newtng->field_1B;
+    player->field_2F = newtng->index;
     player->field_31 = newtng->field_9;
   }
   kill_creature(thing, game.things_lookup[0], -1, 1, 0, 1);
@@ -4823,7 +4823,7 @@ struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short model, un
   thing = allocate_free_thing_structure(1);
   thing->class_id = 12;
   thing->model = model;
-  thing->field_1D = thing->field_1B;
+  thing->field_1D = thing->index;
   memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
   thing->owner = owner;
   thing->field_4F |= 0x01;
@@ -5234,11 +5234,18 @@ void increase_level(struct PlayerInfo *player)
   }
 }
 
-short is_my_player(struct PlayerInfo *player)
+TbBool is_my_player(struct PlayerInfo *player)
 {
   struct PlayerInfo *myplyr;
   myplyr = &game.players[my_player_number%PLAYERS_COUNT];
   return (player == myplyr);
+}
+
+TbBool is_my_player_number(long plyr_idx)
+{
+  struct PlayerInfo *myplyr;
+  myplyr = &game.players[my_player_number%PLAYERS_COUNT];
+  return (plyr_idx == myplyr->field_2B);
 }
 
 void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
@@ -5249,7 +5256,7 @@ void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
   {
     if (is_my_player(player))
     {
-      dungeon_special_selected = thing->field_1B;
+      dungeon_special_selected = thing->index;
       resurrect_creature_scroll_offset = 0;
       turn_off_menu(GMnu_DUNGEON_SPECIAL);
       turn_on_menu(GMnu_RESURRECT_CREATURE);
@@ -5265,7 +5272,7 @@ void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
   {
     if (is_my_player(player))
     {
-      dungeon_special_selected = thing->field_1B;
+      dungeon_special_selected = thing->index;
       transfer_creature_scroll_offset = 0;
       turn_off_menu(GMnu_DUNGEON_SPECIAL);
       turn_on_menu(GMnu_TRANSFER_CREATURE);
@@ -11457,7 +11464,7 @@ void init_dungeon_owner(unsigned short owner)
     if ((game.objects_config[thing->model].field_6) && (thing->owner == owner))
     {
       dungeon = &(game.dungeon[owner%DUNGEONS_COUNT]);
-      dungeon->dnheart_idx = thing->field_1B;
+      dungeon->dnheart_idx = thing->index;
       break;
     }
     k++;
@@ -11521,7 +11528,7 @@ void init_level(void)
   battle_initialise();
   thing = create_ambient_sound(&pos, 1, game.field_14E497);
   if (thing != NULL)
-    game.field_14E906 = thing->field_1B;
+    game.field_14E906 = thing->index;
   else
     error(func_name, 481, "Could not create ambient sound object");
   zero_messages();

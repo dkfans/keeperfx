@@ -67,6 +67,8 @@ TbBool creature_stats_invalid(struct CreatureStats *crstat);
 /******************************************************************************/
 TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/
+long calculate_correct_creature_maxspeed(struct Thing *thing);
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

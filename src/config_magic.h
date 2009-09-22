@@ -131,6 +131,10 @@ extern struct NamedCommand shot_desc[];
 extern struct NamedCommand power_desc[];
 /******************************************************************************/
 TbBool load_magic_config(const char *conf_fname,unsigned short flags);
+TbBool make_all_powers_free(void);
+TbBool make_all_powers_researchable(long plyr_idx);
+TbBool set_power_available(long plyr_idx, long spl_idx, long resrch, long avail);
+TbBool make_available_all_researchable_powers(long plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

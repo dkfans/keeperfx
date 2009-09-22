@@ -75,6 +75,114 @@ struct CreatureControl *creature_control_get(long cctrl_idx)
   return game.persons.cctrl_lookup[cctrl_idx];
 }
 
+struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long kind, struct Coord3d *pos)
+{
+  static const char *func_name="create_and_control_creature_as_controller";
+  struct CreatureStats *crstat;
+  struct CreatureControl *cctrl;
+  struct Dungeon *dungeon;
+  struct Thing *thing;
+  struct Camera *cam;
+  struct InitLight ilght;
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  //return _DK_create_and_control_creature_as_controller(player, a2, pos);
+  thing = create_creature(pos, kind, player->field_2B);
+  if (thing_is_invalid(thing))
+    return NULL;
+  dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+  dungeon->field_919--;
+  dungeon->field_91A[thing->model]--;
+  if (is_my_player(player))
+  {
+    toggle_status_menu(0);
+    turn_off_roaming_menus();
+  }
+  cam = player->acamera;
+  player->field_2F = thing->index;
+  player->field_31 = thing->field_9;
+  player->field_4B5 = cam->field_6;
+  thing->field_0 |= 0x20;
+  thing->field_4F |= 0x01;
+  cctrl = creature_control_get_from_thing(thing);
+  cctrl->field_2 |= 0x02;
+  cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+  set_player_mode(player, 2);
+  set_start_state(thing);
+  // Preparing light object
+  ilght.mappos.x.val = thing->mappos.x.val;
+  ilght.mappos.y.val = thing->mappos.y.val;
+  ilght.mappos.z.val = thing->mappos.z.val;
+  ilght.field_2 = 36;
+  ilght.field_3 = 1;
+  ilght.field_11 = 1;
+  ilght.field_0 = 2560;
+  thing->field_62 = light_create_light(&ilght);
+  if (thing->field_62 != 0)
+  {
+    light_set_light_never_cache(thing->field_62);
+  } else
+  {
+    error(func_name, 642, "Cannot allocate light to new hero");
+  }
+  if (is_my_player_number(thing->owner))
+  {
+    if (thing->class_id == TCls_Creature)
+    {
+      crstat = creature_stats_get_from_thing(thing);
+      setup_eye_lens(crstat->eye_effect);
+    }
+  }
+  return thing;
+}
+
+TbBool disband_creatures_group(struct Thing *thing)
+{
+  static const char *func_name="disband_creatures_group";
+  struct CreatureControl *cctrl;
+  struct Thing *ntng;
+  struct Thing *ctng;
+  long i,k;
+  cctrl = creature_control_get_from_thing(thing);
+  if ((cctrl->field_7A & 0xFFF) == 0)
+    return true;
+  ctng = thing;
+  k = 0;
+  while (cctrl->field_76 > 0)
+  {
+    ctng = thing_get(cctrl->field_76);
+    cctrl = creature_control_get_from_thing(ctng);
+    k++;
+    if (k > CREATURES_COUNT)
+    {
+      error(func_name,4435,"Infinite loop detected when sweeping creatures group");
+      break;
+    }
+  }
+  k = 0;
+  while (ctng != NULL)
+  {
+    cctrl = creature_control_get_from_thing(ctng);
+    ntng = thing_get(cctrl->field_78);
+    if (!thing_is_invalid(ntng))
+    {
+      remove_creature_from_group(ctng);
+      ctng = ntng;
+    } else
+    {
+      ctng = NULL;
+    }
+    k++;
+    if (k > CREATURES_COUNT)
+    {
+      error(func_name,4453,"Infinite loop detected when sweeping creatures group");
+      return false;
+    }
+  }
+  return true;
+}
+
 /*
  * Returns CreatureControl assigned to given thing.
  * Thing must be a creature.
