@@ -45,6 +45,7 @@ obj/creature_control.o \
 obj/engine_lenses.o \
 obj/engine_camera.o \
 obj/engine_render.o \
+obj/lens_mist.o \
 obj/room_data.o \
 obj/slab_data.o \
 obj/map_data.o \

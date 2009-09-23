@@ -20,6 +20,7 @@
 #include "globals.h"
 
 #include "bflib_memory.h"
+#include "lens_mist.h"
 #include "config_creature.h"
 #include "engine_lenses.h"
 #include "keeperfx.h"
@@ -380,7 +381,7 @@ void draw_creature_view(struct Thing *thing)
     return;
   }
 
-  //TODO: Temporary hack, until CMistFade is not rewritten
+  //TODO: Temporary hack, until rewritten CMistFade is not completely used
   if ((game.numfield_1B >= 4) && (game.numfield_1B <= 12))
   {
     _DK_draw_creature_view(thing);
@@ -428,18 +429,10 @@ void draw_creature_view(struct Thing *thing)
   case 9:
   case 10:
   case 11:
-/*
-      Mist->mist(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, scrmem,
-          MyScreenWidth/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-      Mist->animate();
-*/
-      break;
   case 12:
-/*
       Mist->mist(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, scrmem,
           MyScreenWidth/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
       Mist->animate();
-*/
       break;
   default:
       error(func_name, 768, "Invalid lens mode");

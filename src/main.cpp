@@ -55,6 +55,7 @@
 #include "slab_data.h"
 #include "room_data.h"
 #include "creature_control.h"
+#include "lens_mist.h"
 
 int test_variable;
 
@@ -850,8 +851,14 @@ void setup_eye_lens(long nlens)
   char *fname;
 
   if ((game.flags_cd & MFlg_EyeLensReady) == 0)
+  {
+    LbWarnLog("%s: Can't setup lens - not initialized\n",func_name);
     return;
-  //TODO: Temporary hack, until CMistFade is not rewritten
+  }
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting for lens %ld\n",func_name,nlens);
+#endif
+  //TODO: Temporary hack, until rewritten CMistFade is not completely used
   if ((nlens >= 4) && (nlens <= 12))
   {
     _DK_setup_eye_lens(nlens);
@@ -894,18 +901,14 @@ void setup_eye_lens(long nlens)
   case 11:
       fname = prepare_file_fmtpath(FGrp_StdData,"frac%02d.dat",nlens-4);
       LbFileLoadAt(fname, eye_lens_memory);
-/*
-      Mist->setup(eye_lens_memory, fade_tables, ghost);
+      Mist->setup((unsigned char *)eye_lens_memory, &pixmap.fade_tables[0], &pixmap.ghost[0]);
       Mist->animset(0, 1024);
-*/
       break;
   case 12:
       fname = prepare_file_fmtpath(FGrp_StdData,"frac%02d.dat",nlens-4);
       LbFileLoadAt(fname, eye_lens_memory);
-/*
-      Mist->setup(eye_lens_memory, &fade_tables[1024], ghost);
+      Mist->setup((unsigned char *)eye_lens_memory, &pixmap.fade_tables[1024], &pixmap.ghost[0]);
       Mist->animset(0, 1024);
-*/
       break;
   case 13:
       player->field_4C9 = dog_palette;
