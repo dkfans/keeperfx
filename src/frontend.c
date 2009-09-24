@@ -5952,6 +5952,7 @@ void frontend_level_list_unload(void)
 void frontend_level_list_load(void)
 {
   find_and_load_lif_files();
+  find_and_load_lof_files();
   number_of_freeplay_levels = campaign.freeplay_levels_count;
 }
 

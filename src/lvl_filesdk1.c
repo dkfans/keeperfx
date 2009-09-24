@@ -96,6 +96,18 @@ unsigned char *load_single_map_file_to_buffer(unsigned long lvnum,const char *fe
   return buf;
 }
 
+long get_level_number_from_file_name(char *fname)
+{
+  long lvnum;
+  if (strnicmp(fname,"map",3) != 0)
+    return SINGLEPLAYER_NOTSTARTED;
+  // Get level number
+  lvnum = strtol(&fname[3],NULL,10);
+  if (lvnum <= 0)
+    return SINGLEPLAYER_NOTSTARTED;
+  return lvnum;
+}
+
 /*
  * Analyses one line of .LIF file buffer. The buffer must be null-terminated.
  * @return Returns length of the parsed line.
@@ -195,7 +207,10 @@ short level_lif_file_parse(char *fname, char *buf, long buflen)
   return result;
 }
 
-short find_and_load_lif_files(void)
+/*
+ * Searches levels folder for LIF files and adds them to campaign levels list.
+ */
+TbBool find_and_load_lif_files(void)
 {
   struct TbFileFind fileinfo;
   unsigned char *buf;
@@ -228,6 +243,272 @@ short find_and_load_lif_files(void)
     {
       buf[i] = '\0';
       if (level_lif_file_parse(fileinfo.Filename, (char *)buf, i))
+        result = true;
+    }
+    rc = LbFileFindNext(&fileinfo);
+  }
+  LbFileFindEnd(&fileinfo);
+  LbMemoryFree(buf);
+  return result;
+}
+
+/*
+ * Analyses given .LOF file buffer. The buffer must be null-terminated.
+ */
+TbBool level_lof_file_parse(char *fname, char *buf, long len)
+{
+  static const char *func_name="level_lof_file_parse";
+  struct LevelInformation *lvinfo;
+  long pos;
+  char word_buf[32];
+  long lvnum;
+  int cmd_num;
+  int i,k,n;
+#if (BFDEBUG_LEVEL > 8)
+  LbSyncLog("%s: Starting for '%s'\n",func_name,fname);
+#endif
+  if (buf == NULL)
+    return false;
+  lvnum = get_level_number_from_file_name(fname);
+  if (lvnum < 1)
+  {
+    LbWarnLog("%s: Incorrect .LOF file name '%s', skipped\n",func_name,fname);
+    return false;
+  }
+  lvinfo = get_or_create_level_info(lvnum, LvOp_None);
+  if (lvinfo == NULL)
+  {
+    LbWarnLog("Can't get LevelInformation item to store level %ld data from LOF file.\n",lvnum);
+    return 0;
+  }
+  lvinfo->location = LvLc_Custom;
+  pos = 0;
+  while (pos<len)
+  {
+      // Finding command number in this line
+      cmd_num = recognize_conf_command(buf,&pos,len,cmpgn_map_commands);
+      // Now store the config item in correct place
+      if (cmd_num == -3) break; // if next block starts
+      n = 0;
+      switch (cmd_num)
+      {
+      case 1: // NAME_TEXT
+          if (get_conf_parameter_whole(buf,&pos,len,lvinfo->name,LINEMSG_SIZE) <= 0)
+          {
+            LbWarnLog("Couldn't read \"%s\" parameter in LOF file '%s'.\n","NAME",fname);
+            break;
+          }
+          break;
+      case 2: // NAME_ID
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              lvinfo->name_id = k;
+              n++;
+            }
+          }
+          if (n < 1)
+          {
+            LbWarnLog("Couldn't recognize \"%s\" number in LOF file '%s'.\n","NAME_ID",fname);
+          }
+          break;
+      case 3: // ENSIGN_POS
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              lvinfo->ensign_x = k;
+              n++;
+            }
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              lvinfo->ensign_y = k;
+              n++;
+            }
+          }
+          if (n < 2)
+          {
+            LbWarnLog("Couldn't recognize \"%s\" coordinates in LOF file '%s'.\n","ENSIGN_POS",fname);
+          }
+          break;
+      case 4: // ENSIGN_ZOOM
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              lvinfo->ensign_zoom_x = k;
+              n++;
+            }
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              lvinfo->ensign_zoom_y = k;
+              n++;
+            }
+          }
+          if (n < 2)
+          {
+            LbWarnLog("Couldn't recognize \"%s\" coordinates in LOF file '%s'.\n","ENSIGN_ZOOM",fname);
+          }
+          break;
+      case 5: // PLAYERS
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              lvinfo->players = k;
+              n++;
+            }
+          }
+          if (n < 1)
+          {
+            LbWarnLog("Couldn't recognize \"%s\" number in LOF file '%s'.\n","PLAYERS",fname);
+          }
+          break;
+      case 6: // OPTIONS
+          while ((k = recognize_conf_parameter(buf,&pos,len,cmpgn_map_cmnds_options)) > 0)
+          {
+            switch (k)
+            {
+            case LvOp_Tutorial:
+              lvinfo->options |= k;
+              break;
+            }
+            n++;
+          }
+          break;
+      case 7: // SPEECH
+          if (get_conf_parameter_single(buf,&pos,len,lvinfo->speech_before,DISKPATH_SIZE) > 0)
+          {
+            n++;
+          }
+          if (get_conf_parameter_single(buf,&pos,len,lvinfo->speech_after,DISKPATH_SIZE) > 0)
+          {
+            n++;
+          }
+          if (n < 2)
+          {
+            LbWarnLog("Couldn't recognize \"%s\" file names in LOF file '%s'.\n","SPEECH",fname);
+          }
+          break;
+      case 8: // LAND_VIEW
+          if (get_conf_parameter_single(buf,&pos,len,lvinfo->land_view,DISKPATH_SIZE) > 0)
+          {
+            n++;
+          }
+          if (get_conf_parameter_single(buf,&pos,len,lvinfo->land_window,DISKPATH_SIZE) > 0)
+          {
+            n++;
+          }
+          if (n < 2)
+          {
+            LbWarnLog("Couldn't recognize \"%s\" file names in LOF file '%s'.\n","LAND_VIEW",fname);
+          }
+          break;
+      case 9: // KIND
+          while ((k = recognize_conf_parameter(buf,&pos,len,cmpgn_map_cmnds_kind)) > 0)
+          {
+            switch (k)
+            {
+            case LvOp_IsSingle:
+              if ((lvinfo->options & LvOp_IsSingle) == 0)
+                add_single_level_to_campaign(&campaign,lvinfo->lvnum);
+              lvinfo->options |= LvOp_IsSingle;
+              break;
+            case LvOp_IsMulti:
+              if ((lvinfo->options & LvOp_IsMulti) == 0)
+                add_multi_level_to_campaign(&campaign,lvinfo->lvnum);
+              lvinfo->options |= LvOp_IsMulti;
+              break;
+            case LvOp_IsBonus:
+              if ((lvinfo->options & LvOp_IsBonus) == 0)
+                add_bonus_level_to_campaign(&campaign,lvinfo->lvnum);
+              lvinfo->options |= LvOp_IsBonus;
+              break;
+            case LvOp_IsExtra:
+              if ((lvinfo->options & LvOp_IsExtra) == 0)
+                add_extra_level_to_campaign(&campaign,lvinfo->lvnum);
+              lvinfo->options |= LvOp_IsExtra;
+              break;
+            case LvOp_IsFree:
+              if ((lvinfo->options & LvOp_IsFree) == 0)
+                add_freeplay_level_to_campaign(&campaign,lvinfo->lvnum);
+              lvinfo->options |= LvOp_IsFree;
+              break;
+            }
+            n++;
+          }
+          break;
+      case 10: // AUTHOR
+      case 11: // DESCRIPTION
+      case 12: // DATE
+          // As for now, ignore these
+          break;
+      case 0: // comment
+          break;
+      case -1: // end of buffer
+          break;
+      default:
+          LbWarnLog("Unrecognized command (%d) in LOF file '%s', starting on byte %d.\n",cmd_num,fname,pos);
+          break;
+      }
+      skip_conf_to_next_line(buf,&pos,len);
+  }
+  return true;
+}
+
+/*
+ * Searches levels folder for LOF files and adds them to campaign levels list.
+ */
+TbBool find_and_load_lof_files(void)
+{
+  static const char *func_name="find_and_load_lof_files";
+  struct TbFileFind fileinfo;
+  unsigned char *buf;
+  char *fname;
+  short result;
+  int rc;
+  long i;
+#if (BFDEBUG_LEVEL > 16)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  buf = LbMemoryAlloc(MAX_LIF_SIZE);
+  if (buf == NULL)
+  {
+    LbErrorLog("Can't allocate memory for .LOF files parsing.\n");
+    return false;
+  }
+  result = false;
+  fname = prepare_file_path(FGrp_VarLevels,"*.lof");
+  rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
+  while (rc != -1)
+  {
+    fname = prepare_file_path(FGrp_VarLevels,fileinfo.Filename);
+    i = LbFileLength(fname);
+    if ((i < 0) || (i >= MAX_LIF_SIZE))
+    {
+      LbWarnLog("File '%s' too long (Max size %d)\n", fileinfo.Filename, MAX_LIF_SIZE);
+
+    } else
+    if (LbFileLoadAt(fname, buf) != i)
+    {
+      LbWarnLog("Unable to read .LOF file, '%s'\n", fileinfo.Filename);
+    } else
+    {
+      buf[i] = '\0';
+      if (level_lof_file_parse(fileinfo.Filename, (char *)buf, i))
         result = true;
     }
     rc = LbFileFindNext(&fileinfo);

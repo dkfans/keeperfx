@@ -883,7 +883,9 @@ TbBool load_map_and_window(LevelNumber lvnum)
 
 void frontnet_init_level_descriptions(void)
 {
-  _DK_frontnet_init_level_descriptions();
+  static const char *func_name="frontnet_init_level_descriptions";
+  find_and_load_lif_files();
+  find_and_load_lof_files();
 }
 
 void frontnetmap_unload(void)

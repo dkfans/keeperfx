@@ -34,7 +34,8 @@ extern "C" {
 extern long level_file_version;
 /******************************************************************************/
 unsigned char *load_single_map_file_to_buffer(unsigned long lvnum,const char *fext,long *ldsize);
-short find_and_load_lif_files(void);
+TbBool find_and_load_lif_files(void);
+TbBool find_and_load_lof_files(void);
 long convert_old_column_file(unsigned long lv_num);
 short load_column_file(unsigned long lv_num);
 short load_slab_file(void);
