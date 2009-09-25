@@ -29,6 +29,7 @@ extern "C" {
 struct Thing;
 
 #define CREATURE_TYPES_COUNT  32
+#define DEAD_CREATURES_MAX_COUNT 64
 
 /******************************************************************************/
 #pragma pack(1)
@@ -59,7 +60,6 @@ struct CreatureStorage {
   unsigned char explevel;
 };
 
-
 #pragma pack()
 /******************************************************************************/
 extern struct CreaturePickedUpOffset creature_picked_up_offset[];
@@ -80,6 +80,7 @@ short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obth
 struct Thing *get_creature_near(unsigned short pos_x, unsigned short pos_y);
 struct Thing *get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, long a4);
 void anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, long a3);
+void apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev);
 long move_creature(struct Thing *thing);
 short kill_creature(struct Thing *thing, struct Thing *tngrp, char a1, unsigned char a2, unsigned char a3, unsigned char a4);
 void process_creature_instance(struct Thing *thing);
@@ -87,6 +88,8 @@ void update_creature_count(struct Thing *thing);
 long process_creature_state(struct Thing *thing);
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
 void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short a1, char a2, unsigned char a3);
+void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
+void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, long a5);
 void set_creature_level(struct Thing *thing, long nlvl);
 void init_creature_level(struct Thing *thing, long nlev);
 long creature_instance_has_reset(struct Thing *thing, long a2);

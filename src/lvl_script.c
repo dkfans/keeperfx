@@ -105,6 +105,7 @@ const struct CommandDesc command_desc[] = {
   {"REVEAL_MAP_RECT",              "ANNNN   ", Cmd_REVEAL_MAP_RECT},
   {"REVEAL_MAP_LOCATION",          "ANN     ", Cmd_REVEAL_MAP_LOCATION},
   {"LEVEL_VERSION",                "N       ", Cmd_LEVEL_VERSION},
+  {"KILL_CREATURE",                "AAAN    ", Cmd_KILL_CREATURE},
   {NULL,                           "        ", Cmd_NONE},
 };
 
@@ -288,7 +289,6 @@ DLLIMPORT long _DK_script_support_setup_player_as_computer_keeper(unsigned char 
 DLLIMPORT void _DK_command_research(char *plrname, char *trg_type, char *trg_name, unsigned long val);
 DLLIMPORT void _DK_command_if_action_point(long apt_idx, char *plrname);
 DLLIMPORT void _DK_command_add_tunneller_to_level(char *plrname, char *dst_place, char *objectv, long target, unsigned char crtr_level, unsigned long carried_gold);
-DLLIMPORT long _DK_get_id(const struct NamedCommand *desc, char *itmname);
 DLLIMPORT void _DK_command_add_to_party(char *prtname, char *crtr_name, long crtr_level, long carried_gold, char *objectv, long countdown);
 DLLIMPORT void _DK_command_add_party_to_level(char *plrname, char *prtname, char *dst_place, long ncopies);
 DLLIMPORT void _DK_command_add_creature_to_level(char *plrname, char *crtr_name, char *dst_place, long ncopies, long crtr_level, long carried_gold);
@@ -595,7 +595,7 @@ long get_players_range(char *plrname, int *plr_start, int *plr_end, const char *
 {
   long plr_id;
   char *text;
-  plr_id = get_id(player_desc, plrname);
+  plr_id = get_rid(player_desc, plrname);
   if (plr_id == -1)
   {
     text = buf_sprintf("(script:%lu) Invalid player name, '%s'", text_line_number, plrname);
@@ -626,7 +626,7 @@ long get_players_range(char *plrname, int *plr_start, int *plr_end, const char *
 TbBool get_player_id(char *plrname, long *plr_id, const char *func_name, long ln_num)
 {
   char *text;
-  *plr_id = get_id(player_desc, plrname);
+  *plr_id = get_rid(player_desc, plrname);
   if (*plr_id == -1)
   {
     text = buf_sprintf("(script:%lu) Invalid player name, '%s'", text_line_number, plrname);
@@ -668,7 +668,7 @@ TbBool get_map_location_id(char *locname, TbMapLocation *location, const char *f
     return true;
   }
   // Player name means the location of player's Dungeon Heart
-  i = get_id(player_desc, locname);
+  i = get_rid(player_desc, locname);
   if (i != -1)
   {
     if (i != ALL_PLAYERS)
@@ -678,14 +678,14 @@ TbBool get_map_location_id(char *locname, TbMapLocation *location, const char *f
     return true;
   }
   // Creature name means location of such creature belonging to player0
-  i = get_id(creature_desc, locname);
+  i = get_rid(creature_desc, locname);
   if (i != -1)
   {
     *location = ((unsigned long)i << 12) | MLoc_CREATUREKIND;
     return true;
   }
   // Room name means location of such room belonging to player0
-  i = get_id(room_desc, locname);
+  i = get_rid(room_desc, locname);
   if (i != -1)
   {
     *location = ((unsigned long)i << 12) | MLoc_ROOMKIND;
@@ -821,14 +821,14 @@ void command_add_to_party(char *prtname, char *crtr_name, long crtr_level, long 
     error(func_name, 1100, text);
     return;
   }
-  crtr_id = get_id(creature_desc, crtr_name);
+  crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
     error(func_name, 1117, text);
     return;
   }
-  objctv_id = get_id(hero_objective_desc, objectv);
+  objctv_id = get_rid(hero_objective_desc, objectv);
   if (objctv_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown party member objective, '%s'", text_line_number, objectv);
@@ -947,7 +947,7 @@ void command_add_creature_to_level(char *plrname, char *crtr_name, char *locname
     error(func_name, 1266, text);
     return;
   }
-  crtr_id = get_id(creature_desc, crtr_name);
+  crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
@@ -1205,7 +1205,7 @@ void command_room_available(char *plrname, char *roomname, unsigned long can_res
   char *text;
   if (!get_player_id(plrname, &plr_id, func_name, 1434))
     return;
-  room_id = get_id(room_desc, roomname);
+  room_id = get_rid(room_desc, roomname);
   if (room_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown room name, '%s'", text_line_number, roomname);
@@ -1222,7 +1222,7 @@ void command_creature_available(char *plrname, char *crtr_name, unsigned long a3
   char *text;
   if (!get_player_id(plrname, &plr_id, func_name, 1456))
     return;
-  crtr_id = get_id(creature_desc, crtr_name);
+  crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
@@ -1239,7 +1239,7 @@ void command_magic_available(char *plrname, char *magname, unsigned long can_res
   char *text;
   if (!get_player_id(plrname, &plr_id, func_name, 1479))
     return;
-  mag_id = get_id(power_desc, magname);
+  mag_id = get_rid(power_desc, magname);
   if (mag_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown magic, '%s'", text_line_number, magname);
@@ -1256,7 +1256,7 @@ void command_trap_available(char *plrname, char *trapname, unsigned long can_bui
   char *text;
   if (!get_player_id(plrname, &plr_id, func_name, 1502))
     return;
-  trap_id = get_id(trap_desc, trapname);
+  trap_id = get_rid(trap_desc, trapname);
   if (trap_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown trap, '%s'", text_line_number, trapname);
@@ -1282,7 +1282,7 @@ void command_research(char *plrname, char *trg_type, char *trg_name, unsigned lo
   plr_id = get_players_range(plrname, &plr_start, &plr_end, func_name, 1823);
   if (plr_id < 0)
     return;
-  item_type = get_id(research_desc, trg_type);
+  item_type = get_rid(research_desc, trg_type);
   item_id = get_research_id(item_type, trg_name, func_name);
   if (item_id < 0)
     return;
@@ -1315,7 +1315,7 @@ void command_research_order(char *plrname, char *trg_type, char *trg_name, unsig
       return;
     }
   }
-  item_type = get_id(research_desc, trg_type);
+  item_type = get_rid(research_desc, trg_type);
   item_id = get_research_id(item_type, trg_name, func_name);
   if (item_id < 0)
     return;
@@ -1369,7 +1369,7 @@ void command_set_timer(char *plrname, char *timrname)
   char *text;
   if (!get_player_id(plrname, &plr_id, func_name, 1709))
     return;
-  timr_id = get_id(timer_desc, timrname);
+  timr_id = get_rid(timer_desc, timrname);
   if (timr_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown timer, '%s'", text_line_number, timrname);
@@ -1424,7 +1424,7 @@ void command_set_flag(char *plrname, char *flgname, long val)
   char *text;
   if (!get_player_id(plrname, &plr_id, func_name, 1940))
     return;
-  flg_id = get_id(flag_desc, flgname);
+  flg_id = get_rid(flag_desc, flgname);
   if (flg_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown flag, '%s'", text_line_number, flgname);
@@ -1451,7 +1451,7 @@ void command_door_available(char *plrname, char *doorname, unsigned long a3, uns
   char *text;
   if (!get_player_id(plrname, &plr_id, func_name, 1940))
     return;
-  door_id = get_id(door_desc, doorname);
+  door_id = get_rid(door_desc, doorname);
   if (door_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown door, '%s'", text_line_number, doorname);
@@ -1503,7 +1503,7 @@ void command_add_tunneller_to_level(char *plrname, char *locname, char *objectv,
   // Recognize place where party is created
   if (!get_map_location_id(locname, &location, func_name, 1777))
     return;
-  head_id = get_id(head_for_desc, objectv);
+  head_id = get_rid(head_for_desc, objectv);
   if (head_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unhandled heading objective, '%s'", text_line_number, objectv);
@@ -1558,7 +1558,7 @@ void command_add_tunneller_party_to_level(char *plrname, char *prtname, char *lo
   // Recognize place where party is created
   if (!get_map_location_id(locname, &location, func_name, 2177))
     return;
-  head_id = get_id(head_for_desc, objectv);
+  head_id = get_rid(head_for_desc, objectv);
   if (head_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unhandled heading objective, '%s'", text_line_number, objectv);
@@ -1606,7 +1606,7 @@ void command_add_creature_to_pool(char *crtr_name, long amount)
   static const char *func_name="command_add_creature_to_pool";
   long crtr_id;
   char *text;
-  crtr_id = get_id(creature_desc, crtr_name);
+  crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
@@ -1644,7 +1644,7 @@ void command_set_creature_max_level(char *plrname, char *crtr_name, long crtr_le
   char *text;
   if (!get_player_id(plrname, &plr_id, func_name, 1456))
     return;
-  crtr_id = get_id(creature_desc, crtr_name);
+  crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
@@ -1888,7 +1888,7 @@ void command_set_creature_health(char *crtr_name, long val)
   static const char *func_name="command_set_creature_health";
   long crtr_id;
   char *text;
-  crtr_id = get_id(creature_desc, crtr_name);
+  crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
@@ -1909,7 +1909,7 @@ void command_set_creature_strength(char *crtr_name, long val)
   static const char *func_name="command_set_creature_strength";
   long crtr_id;
   char *text;
-  crtr_id = get_id(creature_desc, crtr_name);
+  crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
@@ -1930,7 +1930,7 @@ void command_set_creature_armour(char *crtr_name, long val)
   static const char *func_name="command_set_creature_armour";
   long crtr_id;
   char *text;
-  crtr_id = get_id(creature_desc, crtr_name);
+  crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
@@ -1951,7 +1951,7 @@ void command_set_creature_fear(char *crtr_name, long val)
   static const char *func_name="command_set_creature_fear";
   long crtr_id;
   char *text;
-  crtr_id = get_id(creature_desc, crtr_name);
+  crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
@@ -2064,7 +2064,7 @@ void command_set_creature_tendencies(char *plrname, char *tendency, long value)
   char *text;
   if (!get_player_id(plrname, &plr_id, func_name, 1231))
     return;
-  tend_id = get_id(tendency_desc, tendency);
+  tend_id = get_rid(tendency_desc, tendency);
   if (tend_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unrecognized tendency type, '%s'", text_line_number, tendency);
@@ -2111,14 +2111,14 @@ void command_swap_creature(char *ncrt_name, char *crtr_name)
   static const char *func_name="command_swap_creature";
   long ncrt_id,crtr_id;
   char *text;
-  ncrt_id = get_id(newcrtr_desc, ncrt_name);
+  ncrt_id = get_rid(newcrtr_desc, ncrt_name);
   if (ncrt_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown new creature, '%s'", text_line_number, ncrt_name);
     error(func_name, 2457, text);
     return;
   }
-  crtr_id = get_id(creature_desc, crtr_name);
+  crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
     text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
@@ -2136,9 +2136,35 @@ void command_swap_creature(char *ncrt_name, char *crtr_name)
   }
   if (!swap_creature(ncrt_id, crtr_id))
   {
-    text = buf_sprintf("(script:%lu) Error swapping creatures %s<->%s", text_line_number, ncrt_name, crtr_name);
+    text = buf_sprintf("(script:%lu) Error swapping creatures '%s'<->'%s'", text_line_number, ncrt_name, crtr_name);
     error(func_name, 2881, text);
   }
+}
+
+void command_kill_creature(char *plrname, char *crtr_name, char *criteria, int count)
+{
+  static const char *func_name="command_kill_creature";
+  long plr_id,crtr_id;
+  char *text;
+#if (BFDEBUG_LEVEL > 11)
+  LbSyncLog("%s: Starting\n",func_name);
+#endif
+  if (!get_player_id(plrname, &plr_id, func_name, 1995))
+    return;
+  if (count <= 0)
+  {
+    text = buf_sprintf("(script:%lu) Bad creatures count, %d", text_line_number, count);
+    error(func_name, 2597, text);
+    return;
+  }
+  crtr_id = get_rid(creature_desc, crtr_name);
+  if (crtr_id == -1)
+  {
+    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
+    error(func_name, 2471, text);
+    return;
+  }
+  //TODO: finish!
 }
 
 long script_scan_line(char *line,TbBool preloaded)
@@ -2404,6 +2430,9 @@ long script_scan_line(char *line,TbBool preloaded)
       break;
   case Cmd_REVEAL_MAP_LOCATION:
       command_reveal_map_location(scline->tp[0], scline->tp[1], scline->np[2]);
+      break;
+  case Cmd_KILL_CREATURE:
+      command_kill_creature(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
       break;
   case Cmd_LEVEL_VERSION:
       level_file_version = scline->np[0];
@@ -2885,34 +2914,34 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
       return dungeon->field_117D / 256;
   case SVar_TOTAL_DOORS:
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
-      return dungeon->field_93B;
+      return dungeon->total_doors;
   case SVar_TOTAL_AREA:
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
-      return dungeon->field_93D;
+      return dungeon->total_area;
   case SVar_TOTAL_CREATURES_LEFT:
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
-      return dungeon->field_93F;
+      return dungeon->total_creatures_left;
   case SVar_CREATURES_ANNOYED:
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
-      return dungeon->field_ACF;
+      return dungeon->creatures_annoyed;
   case SVar_BATTLES_LOST:
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
-      return dungeon->field_AD1;
+      return dungeon->battles_lost;
   case SVar_BATTLES_WON:
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
-      return dungeon->field_AD3;
+      return dungeon->battles_won;
   case SVar_ROOMS_DESTROYED:
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
-      return dungeon->field_AD5;
+      return dungeon->rooms_destroyed;
   case SVar_SPELLS_STOLEN:
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
-      return dungeon->field_AD7;
+      return dungeon->spells_stolen;
   case SVar_TIMES_BROKEN_INTO:
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
-      return dungeon->field_AD9;
+      return dungeon->times_broken_into;
   case SVar_GOLD_POTS_STOLEN:
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
-      return dungeon->field_ADB;
+      return dungeon->gold_pots_stolen;
   case SVar_TIMER:
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
       if (dungeon->turn_timers[validx].state)
@@ -3214,9 +3243,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_ROOM_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
-        dungeon->room_resrchable[val2%ROOM_TYPES_COUNT] = val3;
-        dungeon->room_buildable[val2%ROOM_TYPES_COUNT] = val4;
+        set_room_available(i, val2, val3, val4);
       }
       break;
   case Cmd_CREATURE_AVAILABLE:
@@ -3230,12 +3257,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_MAGIC_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
-        dungeon->magic_resrchable[val2] = val3;
-        if (val4 != 0)
-          add_spell_to_player(val2, i);
-        else
-          dungeon->magic_level[val2] = val4;
+        set_power_available(i,val2,val3,val4);
       }
       break;
   case Cmd_TRAP_AVAILABLE:

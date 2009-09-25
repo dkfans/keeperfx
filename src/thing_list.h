@@ -140,6 +140,7 @@ long creature_near_filter_is_enemy_of_and_not_imp(struct Thing *thing, long val)
 long creature_near_filter_is_owned_by(struct Thing *thing, long val);
 
 unsigned long update_things_sounds_in_list(struct StructureList *list);
+void stop_all_things_playing_samples(void);
 unsigned long update_cave_in_things(void);
 void update_creatures_not_in_list(void);
 unsigned long update_things_in_list(struct StructureList *list);

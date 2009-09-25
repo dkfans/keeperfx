@@ -75,7 +75,7 @@
 #define TURN_TIMERS_COUNT       8
 #define SCRIPT_FLAGS_COUNT      8
 #define DUNGEON_RESEARCH_COUNT 34
-#define KEEPER_SPELLS_COUNT    18
+#define KEEPER_SPELLS_COUNT    20
 #define SPELL_POINTER_GROUPS   14
 #define SLABSET_COUNT        1304
 #define SLABOBJS_COUNT        512
@@ -249,7 +249,6 @@ typedef struct DDrawSdk {
      unsigned char Data4[8];
 };*/
 
-typedef long (*Net_Callback_Func)(void);
 typedef unsigned char (*Expand_Check_Func)(void);
 
 struct KeycodeString {
@@ -407,11 +406,19 @@ struct UnkStruc7 { // sizeof = 17
 
 struct Light { // sizeof = 46
   unsigned char field_0;
-  unsigned char field_1[6];
+  unsigned char field_1;
+  unsigned char field_2[3];
+  unsigned char field_5;
+  unsigned char field_6;
   unsigned short field_7;
   unsigned char field_9[5];
   unsigned short field_E;
-  unsigned char field_10[28];
+  unsigned char field_10[22];
+  unsigned short field_26;
+  unsigned char field_28;
+  unsigned char field_29;
+  unsigned char field_2A;
+  unsigned char field_2B;
   unsigned short field_2C;
 };
 
@@ -507,6 +514,18 @@ struct CreatureData {
       unsigned char field_0;
       short field_1;
       short field_3;
+};
+
+struct SpellInfo { // sizeof = 17
+  unsigned char field_0;
+  unsigned char field_1;
+  unsigned char field_2;
+  unsigned char field_3;
+  unsigned char field_4[2];
+  unsigned short field_6;
+  long field_8;
+  long field_C;
+  unsigned char field_10;
 };
 
 struct Event { // sizeof=0x15
@@ -875,7 +894,8 @@ char field_462;
     long field_4D2;
     long field_4D6;
     char field_4DA;
-    char field_4DB[8];
+    long field_4DB;
+    long field_4DF;
     long field_4E3;
     long field_4E7;
     long field_4EB;
@@ -927,9 +947,9 @@ struct Dungeon {
     unsigned char field_919;
     unsigned char field_91A[32];
     unsigned char field_93A;
-    short field_93B;
-    short field_93D;
-    short field_93F;
+    unsigned short total_doors;
+    unsigned short total_area;
+    unsigned short total_creatures_left;
     int field_941;
     int field_945;
     short field_949;
@@ -938,13 +958,13 @@ struct Dungeon {
     short field_98D;
     short field_98F[96];
     int creature_max_level[CREATURE_TYPES_COUNT];
-    short field_ACF;
-    short field_AD1;
-    short field_AD3;
-    short field_AD5;
-    short field_AD7;
-    short field_AD9;
-    short field_ADB;
+    unsigned short creatures_annoyed;
+    unsigned short battles_lost;
+    unsigned short battles_won;
+    unsigned short rooms_destroyed;
+    unsigned short spells_stolen;
+    unsigned short times_broken_into;
+    unsigned short gold_pots_stolen;
     int field_ADD;
     int field_AE1;
     int field_AE5[4];
@@ -969,11 +989,7 @@ unsigned char field_F7D;
     unsigned char creature_enabled[CREATURE_TYPES_COUNT]; // 'Enabled' creature can come from portal
     unsigned char creature_allowed[CREATURE_TYPES_COUNT]; // 'Allowed' creature is conditionally enabled
     unsigned char magic_level[KEEPER_SPELLS_COUNT];
-unsigned char field_FF2;
-unsigned char field_FF3;
     unsigned char magic_resrchable[KEEPER_SPELLS_COUNT];
-unsigned char field_1006;
-unsigned char field_1007;
     unsigned char trap_amount[TRAP_TYPES_COUNT];
     unsigned char trap_buildable[TRAP_TYPES_COUNT];
     unsigned char trap_placeable[TRAP_TYPES_COUNT];
@@ -1000,12 +1016,9 @@ long field_118B;
 long field_118F;
 long field_1193;
     struct LevelStats lvstats;
-unsigned char field_131F[3];
-unsigned char field_1322[36];
-unsigned char field_1346[60];
-unsigned char field_1382[29];
-int field_139F;
-int field_13A3;
+    struct CreatureStorage dead_creatures[DEAD_CREATURES_MAX_COUNT];
+    long dead_creatures_count;
+    long dead_creature_idx;
     unsigned char field_13A7[EVENT_BUTTONS_COUNT+1];
     long field_13B4[EVENT_KIND_COUNT]; // warning: missing 4 bytes!
 unsigned short field_1420[32];
@@ -1401,8 +1414,8 @@ DLLIMPORT extern unsigned short _DK_door_names[DOOR_TYPES_COUNT];
 DLLIMPORT extern struct CreatureData _DK_creature_data[CREATURE_TYPES_COUNT];
 #define creature_data _DK_creature_data
 DLLIMPORT extern struct Objects _DK_objects[135];
-DLLIMPORT extern unsigned char _DK_eastegg03_cntr;
-#define eastegg03_cntr _DK_eastegg03_cntr
+DLLIMPORT extern unsigned char _DK_eastegg_skeksis_cntr;
+#define eastegg_skeksis_cntr _DK_eastegg_skeksis_cntr
 DLLIMPORT extern long _DK_pointer_x;
 #define pointer_x _DK_pointer_x
 DLLIMPORT extern long _DK_pointer_y;
@@ -1462,49 +1475,13 @@ DLLIMPORT long _DK_activity_list[24];
 #define activity_list _DK_activity_list
 DLLIMPORT char _DK_net_service[16][64];
 #define net_service _DK_net_service
-DLLIMPORT void *_DK_exchangeBuffer;
-#define exchangeBuffer _DK_exchangeBuffer
-DLLIMPORT long _DK_exchangeSize;
-#define exchangeSize _DK_exchangeSize
-DLLIMPORT int _DK_maximumPlayers;
-#define maximumPlayers _DK_maximumPlayers
-DLLIMPORT struct TbNetworkPlayerInfo *_DK_localPlayerInfoPtr;
-#define localPlayerInfoPtr _DK_localPlayerInfoPtr
-DLLIMPORT void *_DK_localDataPtr;
-#define localDataPtr _DK_localDataPtr
-DLLIMPORT void *_DK_compositeBuffer;
-#define compositeBuffer _DK_compositeBuffer
-DLLIMPORT long _DK_sequenceNumber;
-#define sequenceNumber _DK_sequenceNumber
-DLLIMPORT long _DK_timeCount;
-#define timeCount _DK_timeCount
-DLLIMPORT long _DK_maxTime;
-#define maxTime _DK_maxTime
-DLLIMPORT int _DK_runningTwoPlayerModel;
-#define runningTwoPlayerModel _DK_runningTwoPlayerModel
-DLLIMPORT int _DK_waitingForPlayerMapResponse;
-#define waitingForPlayerMapResponse _DK_waitingForPlayerMapResponse
-DLLIMPORT long _DK_compositeBufferSize;
-#define compositeBufferSize _DK_compositeBufferSize
-DLLIMPORT long _DK_basicTimeout;
-#define basicTimeout _DK_basicTimeout
 DLLIMPORT int _DK_noOfEnumeratedDPlayServices;
 #define noOfEnumeratedDPlayServices _DK_noOfEnumeratedDPlayServices
-DLLIMPORT struct ClientDataEntry _DK_clientDataTable[32];
-#define clientDataTable _DK_clientDataTable
-DLLIMPORT struct ReceiveCallbacks _DK_receiveCallbacks;
-#define receiveCallbacks _DK_receiveCallbacks
-DLLIMPORT unsigned long _DK_hostId;
-#define hostId _DK_hostId
-DLLIMPORT unsigned long _DK_localPlayerId;
-#define localPlayerId _DK_localPlayerId
-DLLIMPORT int _DK_gotCompositeData;
-#define gotCompositeData _DK_gotCompositeData
 DLLIMPORT struct _GUID _DK_clientGuidTable[];
 #define clientGuidTable _DK_clientGuidTable
 DLLIMPORT long _DK_anim_counter;
 #define anim_counter _DK_anim_counter
-DLLIMPORT long _DK_block_ptrs[592];
+DLLIMPORT unsigned char *_DK_block_ptrs[592];
 #define block_ptrs _DK_block_ptrs
 DLLIMPORT unsigned char _DK_colours[16][16][16];
 #define colours _DK_colours
@@ -1630,6 +1607,20 @@ DLLIMPORT long _DK_randomisors[512];
 #define randomisors _DK_randomisors
 DLLIMPORT unsigned long _DK_message_playing;
 #define message_playing _DK_message_playing
+DLLIMPORT extern struct SpellInfo _DK_spell_info[];
+#define spell_info _DK_spell_info
+DLLIMPORT unsigned char _DK_EngineSpriteDrawUsingAlpha;
+#define EngineSpriteDrawUsingAlpha _DK_EngineSpriteDrawUsingAlpha
+DLLIMPORT long _DK_sound_heap_size;
+#define sound_heap_size _DK_sound_heap_size
+DLLIMPORT unsigned char *_DK_sound_heap_memory;
+#define sound_heap_memory _DK_sound_heap_memory
+DLLIMPORT long _DK_heap_size;
+#define heap_size _DK_heap_size
+DLLIMPORT unsigned char *_DK_heap;
+#define heap _DK_heap
+DLLIMPORT long _DK_key_to_string[256];
+#define key_to_string _DK_key_to_string
 
 #pragma pack()
 
@@ -1764,7 +1755,10 @@ void multiply_creatures(struct PlayerInfo *player);
 struct Thing *create_creature(struct Coord3d *pos, unsigned short a1, unsigned short a2);
 struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
 short thing_is_special(struct Thing *thing);
+TbBool slap_object(struct Thing *thing);
+TbBool object_is_slappable(struct Thing *thing, long plyr_idx);
 unsigned char external_set_thing_state(struct Thing *thing, long state);
+void external_activate_trap_shot_at_angle(struct Thing *thing, long a2);
 long is_thing_passenger_controlled(struct Thing *thing);
 #define is_dungeon_special thing_is_special
 void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player);
@@ -1932,6 +1926,12 @@ struct Thing *get_special_at_position(long x, long y);
 short create_random_evil_creature(long x, long y, unsigned short owner, long max_lv);
 short create_random_hero_creature(long x, long y, unsigned short owner, long max_lv);
 long object_is_gold(struct Thing *thing);
+void destroy_food(struct Thing *thing);
+TbBool trap_is_active(struct Thing *thing);
+TbBool trap_is_slappable(struct Thing *thing, long plyr_idx);
+TbBool thing_slappable(struct Thing *thing, long plyr_idx);
+void slap_creature(struct PlayerInfo *player, struct Thing *thing);
+void apply_damage_to_thing(struct Thing *thing, long a2, char a3);
 unsigned char active_battle_exists(unsigned char a1);
 void maintain_my_battle_list(void);
 unsigned char step_battles_forward(unsigned char a1);
@@ -1966,6 +1966,7 @@ long compute_creature_max_unaffected(long base_param,unsigned short crlevel);
 short ceiling_set_info(long height_max, long height_min, long step);
 void initialise_eye_lenses(void);
 void setup_eye_lens(long nlens);
+void reset_creature_eye_lens(struct Thing *thing);
 void reinitialise_eye_lens(long nlens);
 void reset_eye_lenses(void);
 void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
@@ -1986,6 +1987,8 @@ void clear_light_system(void);
 void light_delete_light(long idx);
 void light_initialise_lighting_tables(void);
 void light_initialise(void);
+void light_turn_light_off(long num);
+void light_turn_light_on(long num);
 void delete_all_structures(void);
 void clear_map(void);
 void clear_game(void);
@@ -2082,18 +2085,6 @@ long set_autopilot_type(unsigned int plridx, long aptype);
 void event_delete_event(long plridx, long num);
 void set_player_state(struct PlayerInfo *player, short a1, long a2);
 short magic_use_power_obey(unsigned short plridx);
-DLLIMPORT unsigned char _DK_EngineSpriteDrawUsingAlpha;
-#define EngineSpriteDrawUsingAlpha _DK_EngineSpriteDrawUsingAlpha
-DLLIMPORT long _DK_sound_heap_size;
-#define sound_heap_size _DK_sound_heap_size
-DLLIMPORT unsigned char *_DK_sound_heap_memory;
-#define sound_heap_memory _DK_sound_heap_memory
-DLLIMPORT long _DK_heap_size;
-#define heap_size _DK_heap_size
-DLLIMPORT unsigned char *_DK_heap;
-#define heap _DK_heap
-DLLIMPORT long _DK_key_to_string[256];
-#define key_to_string _DK_key_to_string
 long place_thing_in_power_hand(struct Thing *thing, long var);
 void turn_off_call_to_arms(long a);
 long event_move_player_towards_event(struct PlayerInfo *player, long var);
@@ -2141,6 +2132,7 @@ void process_keeper_spell_effect(struct Thing *thing);
 long creature_is_group_leader(struct Thing *thing);
 void leader_find_positions_for_followers(struct Thing *thing);
 long update_creature_levels(struct Thing *thing);
+void explosion_affecting_area(struct Thing *thing, struct Coord3d *pos, long a3, long a4, unsigned char a5);
 long process_creature_self_spell_casting(struct Thing *thing);
 void process_thing_spell_effects(struct Thing *thing);
 struct ActionPoint *allocate_free_action_point_structure_with_number(long apt_num);

@@ -68,7 +68,8 @@ struct Room {
     unsigned char field_8;
     unsigned char field_9;
     unsigned short kind;
-    unsigned char field_C[6];
+    unsigned char field_C[4];
+    short field_10;
     unsigned char field_12;
     unsigned char field_13[4];
     short field_17;

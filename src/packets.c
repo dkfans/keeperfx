@@ -37,6 +37,8 @@
 #include "vidmode.h"
 #include "config.h"
 #include "config_creature.h"
+#include "config_crtrmodel.h"
+#include "config_terrain.h"
 #include "player_instances.h"
 #include "thing_doors.h"
 #include "keeperfx.h"
@@ -231,8 +233,6 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
   struct Coord3d pos;
   MapCoord x,y;
   long i,k;
-
-  //_DK_process_dungeon_control_packet_clicks(plyr_idx); return;
 
   player = &(game.players[plyr_idx%PLAYERS_COUNT]);
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
@@ -1019,7 +1019,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
             i = ((long)game.room_stats[room->kind].cost) * 50 / 100;
             dungeon = &(game.dungeon[room->owner%DUNGEONS_COUNT]);
             if (room->owner != game.field_14E497)
-              dungeon->field_AD5++;
+              dungeon->rooms_destroyed++;
             delete_room_slab(map_to_slab[stl_x], map_to_slab[stl_y], 0);
             set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
             dungeon->field_EA4 = 192;
@@ -1152,7 +1152,6 @@ void open_new_packet_file_for_save(void)
   static const char *func_name="open_new_packet_file_for_save";
   struct PlayerInfo *player;
   int i;
-  //_DK_open_new_packet_file_for_save(); return;
   // Filling the header
   game.packet_save_head.field_0 = 0;
   game.packet_save_head.level_num = get_loaded_level_number();
@@ -1286,7 +1285,6 @@ void process_players_dungeon_control_packet_control(long idx)
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //_DK_process_players_dungeon_control_packet_control(idx); return;
   struct PlayerInfo *player;
   struct Packet *pckt;
   struct Camera *cam;
@@ -1408,7 +1406,6 @@ void process_players_message_character(struct PlayerInfo *player)
 
 void process_quit_packet(struct PlayerInfo *player, short complete_quit)
 {
-  //_DK_process_quit_packet(player,a2);
   struct PlayerInfo *swplyr;
   struct PlayerInfo *myplyr;
   short winning_quit;
@@ -1499,7 +1496,6 @@ char process_players_global_packet_action(long plyridx)
 {
   static const char *func_name="process_players_global_packet_action";
   //TODO: add commands from beta
-  //return _DK_process_players_global_packet_action(plyridx);
   struct PlayerInfo *player;
   struct PlayerInfo *myplyr;
   struct Packet *pckt;
@@ -1630,11 +1626,14 @@ char process_players_global_packet_action(long plyridx)
     case 55:
       toggle_creature_tendencies(player, pckt->field_6);
       return 0;
-    case 60:
+    case PckA_CheatEnter:
 //      game.???[my_player_number].cheat_mode = 1;
       show_onscreen_msg(2*game.num_fps, "Cheat mode activated by player %d", plyridx);
       return 1;
-    case 61:
+    case PckA_CheatAllFree:
+      make_all_creatures_free();
+      make_all_rooms_free();
+      make_all_powers_free();
       //TODO: remake from beta
 /*
       if (word_5E674A != 0)
@@ -1643,30 +1642,34 @@ char process_players_global_packet_action(long plyridx)
         word_5E674A = 15;
 */
       return 1;
-    case 62:
+    case PckA_CheatCrtSpells:
       //TODO: remake from beta
       return 0;
     case PckA_CheatRevealMap:
       myplyr = &(game.players[my_player_number%PLAYERS_COUNT]);
       reveal_whole_map(myplyr);
       return 0;
-    case 64:
+    case PckA_CheatCrAllSpls:
       //TODO: remake from beta
       return 0;
     case 65:
       //TODO: remake from beta
       return 0;
-    case 66:
-      //TODO: remake from beta
+    case PckA_CheatAllMagic:
+      make_available_all_researchable_powers(my_player_number);
       return 0;
-    case 67:
-      //TODO: remake from beta
+    case PckA_CheatAllRooms:
+      make_available_all_researchable_rooms(my_player_number);
       return 0;
     case 68:
       //TODO: remake from beta
       return 0;
     case 69:
       //TODO: remake from beta
+      return 0;
+    case PckA_CheatAllResrchbl:
+      make_all_powers_researchable(my_player_number);
+      make_all_rooms_researchable(my_player_number);
       return 0;
     case 80:
       set_player_mode(player, pckt->field_6);
@@ -1957,7 +1960,6 @@ void process_players_dungeon_control_packet_action(long idx)
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //_DK_process_players_dungeon_control_packet_action(idx); return;
   struct PlayerInfo *player;
   struct Packet *pckt;
   player = &(game.players[idx%PLAYERS_COUNT]);
@@ -2003,7 +2005,6 @@ void process_players_creature_control_packet_action(long idx)
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //_DK_process_players_creature_control_packet_action(idx); return;
   player = &(game.players[idx%PLAYERS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
   switch (pckt->action)
@@ -2017,7 +2018,7 @@ void process_players_creature_control_packet_action(long idx)
       if (thing_is_invalid(thing))
         break;
       cctrl = creature_control_get_from_thing(thing);
-      if ((cctrl == NULL) || (cctrl == game.persons.cctrl_lookup[0]))
+      if (creature_control_invalid(cctrl))
         break;
       i = pckt->field_6;
       if (!instance_info[i].field_0)
@@ -2042,7 +2043,6 @@ void process_players_creature_control_packet_action(long idx)
 void open_packet_file_for_load(char *fname)
 {
   static const char *func_name="open_packet_file_for_load";
-  //_DK_open_packet_file_for_load(fname); return;
   strcpy(game.packet_fname, fname);
   game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_READ_ONLY);
   if (game.packet_save_fp == -1)
@@ -2130,7 +2130,6 @@ void write_debug_packets(void)
 void process_packets(void)
 {
   static const char *func_name="process_packets";
-  //_DK_process_packets();return;
 
   int i,j,k;
   struct Packet *pckt;

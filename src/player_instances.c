@@ -20,6 +20,8 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_math.h"
+#include "bflib_sound.h"
 
 #include "creature_control.h"
 #include "config_creature.h"
@@ -134,16 +136,47 @@ DLLIMPORT long _DK_pinstfe_zoom_to_position(struct PlayerInfo *player, long *n);
 DLLIMPORT void __cdecl _DK_process_player_instance(struct PlayerInfo *player);
 DLLIMPORT void _DK_process_player_instances(void);
 DLLIMPORT void __cdecl _DK_set_player_instance(struct PlayerInfo *playerinf, long, int);
+DLLIMPORT void _DK_leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 
 /******************************************************************************/
 long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfs_hand_grab(player, n);
+  struct Thing *thing;
+  struct Dungeon *dungeon;
+  //return _DK_pinstfs_hand_grab(player, n);
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  thing = thing_get(player->field_43A);
+  if (dungeon->field_63)
+  {
+    dungeon->field_43 = 60;
+    dungeon->field_53 = 40;
+  }
+  if (!thing_is_invalid(thing))
+    set_power_hand_graphic(player->field_2B, 783, 256);
+  return 0;
+
 }
 
 long pinstfm_hand_grab(struct PlayerInfo *player, long *n)
 {
   return _DK_pinstfm_hand_grab(player, n);
+  struct Thing *thing;
+  struct Dungeon *dungeon;
+  //return _DK_pinstfs_hand_grab(player, n);
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  thing = thing_get(player->field_43E);
+  if (thing->class_id == 5)
+  {
+    dungeon->field_43 += (creature_picked_up_offset[thing->model].field_4 - 60) / 4;
+    dungeon->field_53 += (creature_picked_up_offset[thing->model].field_6 - 40) / 4;
+    return 0;
+  }
+  else
+  {
+    dungeon->field_43 = 60;
+    dungeon->field_53 = 40;
+    return 0;
+  }
 }
 
 long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
@@ -195,42 +228,176 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
 
 long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfs_hand_drop(player, n);
+  struct Thing *thing;
+  struct Dungeon *dungeon;
+  //return _DK_pinstfs_hand_drop(player, n);
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  thing = thing_get(player->field_43A);
+  player->field_43E = dungeon->things_in_hand[0];
+  if (!thing_is_invalid(thing))
+    set_power_hand_graphic(player->field_2B, 783, -256);
+  return 0;
+
 }
 
 long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfe_hand_drop(player, n);
+  struct Thing *thing;
+  struct Dungeon *dungeon;
+  //return _DK_pinstfe_hand_drop(player, n);
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  thing = thing_get(player->field_43A);
+  dungeon->field_43 = 60;
+  dungeon->field_53 = 40;
+  if (!thing_is_invalid(thing))
+    set_power_hand_graphic(player->field_2B, 782, 256);
+  player->field_43E = 0;
+  return 0;
+
 }
 
 long pinstfs_hand_whip(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfs_hand_whip(player, n);
+  struct Thing *thing;
+  //return _DK_pinstfs_hand_whip(player, n);
+  thing = thing_get(player->field_43A);
+  if (!thing_is_invalid(thing))
+    set_power_hand_graphic(player->field_2B, 786, 256);
+  return 0;
 }
 
 long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfe_hand_whip(player, n);
+  struct CreatureControl *cctrl;
+  struct CreatureStats *crstat;
+  struct Thing *efftng;
+  struct Thing *thing;
+  TbBool uncensored;
+  struct Camera *cam;
+  struct Coord3d pos;
+  //return _DK_pinstfe_hand_whip(player, n);
+
+  thing = thing_get(player->field_43E);
+  if (((thing->field_0 & 0x01) == 0) || (thing->field_9 != player->field_440) || (!thing_slappable(thing, player->field_2B)))
+  {
+    player->field_440 = 0;
+    player->field_43E = 0;
+    return 0;
+  }
+  switch (thing->class_id)
+  {
+  case TCls_Creature:
+      cctrl = creature_control_get_from_thing(thing);
+      if ((cctrl->field_AB & 0x02) != 0)
+      {
+        kill_creature(thing, 0, thing->owner, 0, 0, 0);
+      } else
+      {
+          slap_creature(player, thing);
+          pos.x.val = thing->mappos.x.val;
+          pos.y.val = thing->mappos.y.val;
+          pos.z.val = thing->mappos.z.val + (thing->field_58 >> 1);
+          crstat = creature_stats_get_from_thing(thing);
+          if (install_info.lang_id == 3)
+          {
+            uncensored = crstat->bleeds && ((thing->model < 1) || (thing->model > 13));
+          } else
+          {
+            uncensored = crstat->bleeds;
+          }
+          if ( uncensored )
+            create_effect(&pos, 6, thing->owner);
+          thing_play_sample(thing, 75, 100, 0, 3, 0, 3, 256);
+          cam = player->acamera;
+          if (cam != NULL)
+          {
+            thing->pos_2C.x.val += lbSinTable[cam->orient_a] << 6 >> 16;
+            thing->pos_2C.y.val += -(lbCosTable[cam->orient_a] << 6 >> 8) >> 8;
+          }
+      }
+      break;
+  case 2:
+      if (thing->model == 15)
+      {
+        thing->field_52 = player->acamera->orient_a;
+        thing->health -= game.boulder_reduce_health_slap;
+      } else
+      if (thing->model == 20)
+      {
+        thing->field_52 = player->acamera->orient_a;
+      }
+      break;
+  case 8:
+      if (thing->model == 1)
+        external_activate_trap_shot_at_angle(thing, player->acamera->orient_a);
+      break;
+  case TCls_Object:
+      if (object_is_slappable(thing, player->field_2B))
+      {
+        efftng = create_effect(&thing->mappos, 49, thing->owner);
+        if (!thing_is_invalid(efftng))
+          thing_play_sample(efftng, 75, 100, 0, 3, 0, 3, 256);
+        slap_object(thing);
+      }
+      break;
+  }
+  set_player_instance(player, 4, 0);
+  return 0;
 }
 
 long pinstfm_hand_drop(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfm_hand_drop(player, n);
+  struct Dungeon *dungeon;
+  long i;
+  //return _DK_pinstfm_hand_drop(player, n);
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  i = player->field_4B1+1;
+  if (i < 1) i = 1;
+  dungeon->field_43 += (60 - dungeon->field_43) / i;
+  dungeon->field_53 += (40 - dungeon->field_53) / i;
+  return 0;
 }
 
 long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfs_hand_whip_end(player, n);
+  struct Thing *thing;
+  //return _DK_pinstfs_hand_whip_end(player, n);
+  thing = thing_get(player->field_43A);
+  if (!thing_is_invalid(thing))
+    set_power_hand_graphic(player->field_2B, 787, 256);
+  return 0;
 }
 
 long pinstfe_hand_whip_end(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfe_hand_whip_end(player, n);
+  struct Thing *thing;
+  //return _DK_pinstfe_hand_whip_end(player, n);
+  thing = thing_get(player->field_43A);
+  if (!thing_is_invalid(thing))
+    set_power_hand_graphic(player->field_2B, 785, 256);
+  return 0;
 }
 
 long pinstfs_control_creature(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfs_control_creature(player, n);
+  struct Camera *cam; // ST00_4@3
+  //return _DK_pinstfs_control_creature(player, n);
+  player->field_0 |= 0x80;
+  if (is_my_player(player))
+  {
+    player->field_4C5 = 1;
+    turn_off_all_window_menus();
+    turn_off_menu(31);
+    turn_off_menu(35);
+    game.field_15038E = 0;
+    game.flags_font |= FFlg_unk04;
+  }
+  cam = player->acamera;
+  player->field_0 |= 0x10;
+  player->field_4B6 = get_camera_zoom(cam);
+  if (is_my_player(player))
+    play_non_3d_sample(39);
+  return 0;
 }
 
 long pinstfm_control_creature(struct PlayerInfo *player, long *n)
@@ -302,37 +469,144 @@ long pinstfe_passenger_control_creature(struct PlayerInfo *player, long *n)
 
 long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfs_direct_leave_creature(player, n);
+  struct Thing *thing;
+  InstncInfo_Func callback;
+  //return _DK_pinstfs_direct_leave_creature(player, n);
+  if (player->field_43E == 0)
+  {
+    player->instance_num = 0;
+    player->field_4B1 = player_instance_info[0].field_0;
+    callback = player_instance_info[0].start_cb;
+    if (callback != NULL)
+      callback(player, player_instance_info[0].field_14);
+    return 0;
+  }
+  player->field_0 |= 0x80;
+  thing = thing_get(player->field_43E);
+  reset_creature_eye_lens(thing);
+  if (is_my_player(player))
+  {
+      PaletteSetPlayerPalette(player, _DK_palette);
+      player->field_4C5 = 11;
+      turn_off_all_window_menus();
+      turn_off_menu(31);
+      turn_off_menu(35);
+      turn_off_menu(32);
+      turn_on_main_panel_menu();
+      set_flag_byte(&game.numfield_C, 0x40, (game.numfield_C & 0x20) != 0);
+  }
+  thing = thing_get(player->field_43E);
+  leave_creature_as_controller(player, thing);
+  player->field_0 |= 0x10;
+  player->field_43E = 0;
+  light_turn_light_on(player->field_460);
+  play_non_3d_sample(177);
+  return 0;
 }
 
 long pinstfm_leave_creature(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfm_leave_creature(player, n);
+  //return _DK_pinstfm_leave_creature(player, n);
+  if (player->field_37 != 5)
+  {
+    view_zoom_camera_out(player->acamera, 30000, 6000);
+    if (get_camera_zoom(player->acamera) < player->field_4B6)
+      set_camera_zoom(player->acamera, player->field_4B6);
+  }
+  return 0;
 }
 
 long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfs_passenger_leave_creature(player, n);
+  struct Thing *thing;
+  InstncInfo_Func callback;
+  //return _DK_pinstfs_passenger_leave_creature(player, n);
+  if (player->field_43E == 0)
+  {
+    player->instance_num = 0;
+    player->field_4B1 = player_instance_info[0].field_0;
+    callback = player_instance_info[0].start_cb;
+    if (callback != NULL)
+      callback(player, player_instance_info[0].field_14);
+    return 0;
+  }
+  player->field_0 |= 0x80;
+  thing = thing_get(player->field_43E);
+  reset_creature_eye_lens(thing);
+  if (is_my_player(player))
+  {
+    PaletteSetPlayerPalette(player, _DK_palette);
+    player->field_4C5 = 11;
+    turn_off_all_window_menus();
+    turn_off_menu(31);
+    turn_off_menu(35);
+    turn_off_menu(32);
+    turn_on_main_panel_menu();
+    set_flag_byte(&game.numfield_C, 0x40, (game.numfield_C & 0x20) != 0);
+  }
+  leave_creature_as_passenger(player, thing);
+  player->field_0 |= 0x10;
+  player->field_43E = 0;
+  light_turn_light_on(player->field_460);
+  play_non_3d_sample(177);
+  return 0;
 }
 
 long pinstfe_leave_creature(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfe_leave_creature(player, n);
+  //return _DK_pinstfe_leave_creature(player, n);
+  set_camera_zoom(player->acamera, player->field_4B6);
+  if (is_my_player(player))
+    PaletteSetPlayerPalette(player, _DK_palette);
+  player->field_0 &= 0xEF;
+  player->field_0 &= 0x7F;
+  return 0;
 }
 
 long pinstfs_query_creature(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfs_query_creature(player, n);
+  struct Thing *thing;
+  //return _DK_pinstfs_query_creature(player, n);
+  thing = thing_get(player->field_43E);
+  player->field_4B6 = get_camera_zoom(player->acamera);
+  set_selected_creature(player, thing);
+  set_player_state(player, 15, 0);
+  return 0;
 }
 
 long pinstfs_unquery_creature(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfs_unquery_creature(player, n);
+  //return _DK_pinstfs_unquery_creature(player, n);
+  set_player_state(player, 1, 0);
+  player->field_31 = 0;
+  player->field_2F = 0;
+  return 0;
 }
 
 long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfs_zoom_to_heart(player, n);
+  struct CreatureControl *cctrl;
+  struct Dungeon *dungeon;
+  struct Thing *thing;
+  struct Coord3d mappos;
+  //return _DK_pinstfs_zoom_to_heart(player, n);
+  memset(zoom_to_heart_palette, 0x3F, sizeof(zoom_to_heart_palette));
+  light_turn_light_off(player->field_460);
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  thing = thing_get(dungeon->dnheart_idx);
+  mappos.x.val = thing->mappos.x.val;
+  mappos.y.val = thing->mappos.y.val + 1792;
+  mappos.z.val = thing->mappos.z.val + 256;
+  thing = create_and_control_creature_as_controller(player, 31, &mappos);
+  if (!thing_is_invalid(thing))
+  {
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_0 |= 0x0200;
+    player->field_0 |= 0x10;
+    player->field_0 |= 0x80;
+    game.numfield_D |= 0x08;
+  }
+  return 0;
 }
 
 long pinstfm_zoom_to_heart(struct PlayerInfo *player, long *n)
@@ -422,7 +696,21 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, long *n)
 
 long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfs_fade_to_map(player, n);
+  struct Camera *cam;
+  //return _DK_pinstfs_fade_to_map(player, n);
+  cam = player->acamera;
+  player->field_4BD = 0;
+  player->field_0 |= 0x80;
+  player->field_4B5 = cam->field_6;
+  if (is_my_player(player))
+  {
+    set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
+    settings.tooltips_on = 0;
+    set_flag_byte(&player->field_1, 0x01, toggle_status_menu(0));
+  }
+  set_engine_view(player, 6);
+  return 0;
+
 }
 
 long pinstfm_fade_to_map(struct PlayerInfo *player, long *n)
@@ -432,12 +720,28 @@ long pinstfm_fade_to_map(struct PlayerInfo *player, long *n)
 
 long pinstfe_fade_to_map(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfe_fade_to_map(player, n);
+  //return _DK_pinstfe_fade_to_map(player, n);
+  set_player_mode(player, 4);
+  if (is_my_player(player))
+    settings.tooltips_on = ((player->field_1 & 0x02) != 0);
+  player->field_0 &= 0x7Fu;
+  return 0;
 }
 
 long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfs_fade_from_map(player, n);
+  //return _DK_pinstfs_fade_from_map(player, n);
+  player->field_0 |= 0x80u;
+  if (is_my_player(player))
+  {
+    set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
+    settings.tooltips_on = 0;
+    game.numfield_C &= 0xFFBF;
+  }
+  player->field_4BD = 32;
+  set_player_mode(player, 1);
+  set_engine_view(player, 7);
+  return 0;
 }
 
 long pinstfm_fade_from_map(struct PlayerInfo *player, long *n)
@@ -457,12 +761,31 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
 
 long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfm_zoom_to_position(player, n);
+  struct Camera *cam;
+  long x,y;
+  //return _DK_pinstfm_zoom_to_position(player, n);
+  cam = player->acamera;
+  if (abs(cam->mappos.x.val - player->field_E4) >= abs(player->field_4DB))
+    x = player->field_4DB + cam->mappos.x.val;
+  else
+    x = player->field_E4;
+  if (abs(cam->mappos.y.val - player->field_E6) >= abs(player->field_4DF))
+    y = player->field_4DF + cam->mappos.y.val;
+  else
+    y = player->field_E6;
+  if ((player->field_E4 == x) && (player->field_E6 == y))
+      player->field_4B1 = 0;
+  cam->mappos.x.val = x;
+  cam->mappos.y.val = y;
+  return 0;
 }
 
 long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfe_zoom_to_position(player, n);
+  //return _DK_pinstfe_zoom_to_position(player, n);
+  player->field_0 &= 0x7F;
+  player->field_0 &= 0xEF;
+  return 0;
 }
 
 void set_player_instance(struct PlayerInfo *player, long ninum, short force)
@@ -531,6 +854,109 @@ void process_player_instances(void)
 #endif
 }
 
+void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
+{
+  static const char *func_name="leave_creature_as_controller";
+  struct CreatureControl *cctrl;
+  struct CreatureStats *crstat;
+  long i,k;
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  //_DK_leave_creature_as_controller(player, thing);
+  if ((thing->owner != player->field_2B) || (thing->index != player->field_2F))
+  {
+    set_player_instance(player, 0, 1);
+    player->field_2F = 0;
+    player->field_31 = 0;
+    set_player_mode(player, 1);
+    player->field_0 &= 0xF7;
+    set_engine_view(player, player->field_4B5);
+    player->cameras[0].mappos.x.val = 0;
+    player->cameras[0].mappos.y.val = 0;
+    player->cameras[3].mappos.x.val = 0;
+    player->cameras[3].mappos.y.val = 0;
+    return;
+  }
+  player->field_2F = 0;
+  player->field_31 = 0;
+  set_player_mode(player, 1);
+  thing->field_0 &= 0xDF;
+  thing->field_4F &= 0xFE;
+  player->field_0 &= 0xF7;
+  set_engine_view(player, player->field_4B5);
+  i = player->acamera->orient_a;
+  crstat = creature_stats_get_from_thing(thing);
+  k = thing->mappos.z.val + crstat->eye_height;
+  player->cameras[0].mappos.x.val = thing->mappos.x.val + ((LbSinL(i) * k) >> 16);
+  player->cameras[0].mappos.y.val = thing->mappos.y.val - ((LbCosL(i) * k) >> 16);
+  player->cameras[3].mappos.x.val = thing->mappos.x.val + ((LbSinL(i) * k) >> 16);
+  player->cameras[3].mappos.y.val = thing->mappos.y.val - ((LbCosL(i) * k) >> 16);
+  if (thing->class_id == TCls_Creature)
+  {
+    set_start_state(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+    if ((cctrl->field_2 & 0x02) != 0)
+      delete_thing_structure(thing, 0);
+    else
+      disband_creatures_group(thing);
+  }
+  if (thing->field_62 != 0)
+  {
+    light_delete_light(thing->field_62);
+    thing->field_62 = 0;
+  }
+}
+
+void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
+{
+  static const char *func_name="leave_creature_as_passenger";
+  struct CreatureStats *crstat;
+  long i,k;
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  if ((thing->owner != player->field_2B) || (thing->index != player->field_2F))
+  {
+    set_player_instance(player, 0, 1);
+    player->field_2F = 0;
+    player->field_31 = 0;
+    set_player_mode(player, 1);
+    player->field_0 &= 0xF7;
+    set_engine_view(player, player->field_4B5);
+    player->cameras[0].mappos.x.val = 0;
+    player->cameras[0].mappos.y.val = 0;
+    player->cameras[3].mappos.x.val = 0;
+    player->cameras[3].mappos.y.val = 0;
+    return;
+  }
+  set_player_mode(player, 1);
+  thing->field_4F &= 0xFE;
+  player->field_0 &= 0xF7;
+  set_engine_view(player, player->field_4B5);
+  i = player->acamera->orient_a;
+  crstat = creature_stats_get_from_thing(thing);
+  k = thing->mappos.z.val + crstat->eye_height;
+  player->cameras[0].mappos.x.val = thing->mappos.x.val + ((LbSinL(i) * k) >> 16);
+  player->cameras[0].mappos.y.val = thing->mappos.y.val - ((LbCosL(i) * k) >> 16);
+  player->cameras[3].mappos.x.val = thing->mappos.x.val + ((LbSinL(i) * k) >> 16);
+  player->cameras[3].mappos.y.val = thing->mappos.y.val - ((LbCosL(i) * k) >> 16);
+  player->field_2F = 0;
+  player->field_31 = 0;
+}
+
+TbBool set_selected_creature(struct PlayerInfo *player, struct Thing *thing)
+{
+  static const char *func_name="set_selected_creature";
+  if (thing->class_id == TCls_Creature)
+  {
+    player->field_2F = thing->index;
+    return true;
+  }
+  error(func_name, 1410, "Cannot select thing for information");
+  return false;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

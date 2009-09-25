@@ -75,6 +75,25 @@ struct CreatureControl *creature_control_get(long cctrl_idx)
   return game.persons.cctrl_lookup[cctrl_idx];
 }
 
+/*
+ * Returns CreatureControl assigned to given thing.
+ * Thing must be a creature.
+ */
+struct CreatureControl *creature_control_get_from_thing(struct Thing *thing)
+{
+  if ((thing->field_64 < 1) || (thing->field_64 > CREATURES_COUNT))
+    return game.persons.cctrl_lookup[0];
+  return game.persons.cctrl_lookup[thing->field_64];
+}
+
+/*
+ * Returns if given CreatureControl pointer is incorrect.
+ */
+TbBool creature_control_invalid(struct CreatureControl *cctrl)
+{
+  return (cctrl <= game.persons.cctrl_lookup[0]) || (cctrl == NULL);
+}
+
 struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long kind, struct Coord3d *pos)
 {
   static const char *func_name="create_and_control_creature_as_controller";
@@ -181,25 +200,6 @@ TbBool disband_creatures_group(struct Thing *thing)
     }
   }
   return true;
-}
-
-/*
- * Returns CreatureControl assigned to given thing.
- * Thing must be a creature.
- */
-struct CreatureControl *creature_control_get_from_thing(struct Thing *thing)
-{
-  if ((thing->field_64 < 1) || (thing->field_64 > CREATURES_COUNT))
-    return game.persons.cctrl_lookup[0];
-  return game.persons.cctrl_lookup[thing->field_64];
-}
-
-/*
- * Returns if given CreatureControl pointer is incorrect.
- */
-TbBool creature_control_invalid(struct CreatureControl *cctrl)
-{
-  return (cctrl <= game.persons.cctrl_lookup[0]) || (cctrl == NULL);
 }
 
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)

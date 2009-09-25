@@ -416,6 +416,7 @@ struct SpellData spell_data[] = {
 };
 
 long instf_creature_fire_shot(struct Thing *thing, long *param);
+long instf_creature_cast_spell(struct Thing *thing, long *param);
 
 //static
 TbClockMSec last_loop_time=0;
@@ -423,7 +424,13 @@ TbClockMSec last_loop_time=0;
 #ifdef __cplusplus
 extern "C" {
 #endif
+DLLIMPORT void _DK_init_alpha_table(void);
+DLLIMPORT void _DK_external_activate_trap_shot_at_angle(struct Thing *thing, long a2);
+DLLIMPORT void _DK_apply_damage_to_thing(struct Thing *thing, long a2, char a3);
 DLLIMPORT long _DK_parse_sound_file(long a1, unsigned char *a2, long *a3, long a4, long a5);
+DLLIMPORT void _DK_light_remove_light_from_list(struct Light *lgt, struct StructureList *list);
+DLLIMPORT void _DK_light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
+DLLIMPORT void _DK_explosion_affecting_area(struct Thing *thing, struct Coord3d *pos, long a3, long a4, unsigned char a5);
 DLLIMPORT void _DK_engine_init(void);
 DLLIMPORT long _DK_load_anim_file(void);
 DLLIMPORT long _DK_load_cube_file(void);
@@ -756,6 +763,14 @@ void reset_eye_lenses(void)
   game.numfield_1B = 0;
 }
 
+void reset_creature_eye_lens(struct Thing *thing)
+{
+  if (game.players[my_player_number].field_2B == thing->owner)
+  {
+    setup_eye_lens(0);
+  }
+}
+
 void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3)
 {
   _DK_view_set_camera_y_inertia(cam, a2, a3);
@@ -1048,6 +1063,21 @@ void reset_heap_memory(void)
   heap = NULL;
 }
 
+TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list)
+{
+  static const char *func_name="light_add_light_to_list";
+  if ((lgt->field_1 & 0x01) != 0)
+  {
+    error(func_name, 2725, "Light is already in list");
+    return false;
+  }
+  list->count++;
+  lgt->field_1 |= 0x01;
+  lgt->field_26 = list->index;
+  list->index = lgt->field_E;
+  return true;
+}
+
 long light_create_light(struct InitLight *ilght)
 {
   return _DK_light_create_light(ilght);
@@ -1066,6 +1096,93 @@ long light_is_light_allocated(long lgt_id)
 void light_set_light_position(long lgt_id, struct Coord3d *pos)
 {
   _DK_light_set_light_position(lgt_id, pos);
+}
+
+void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
+{
+  _DK_light_remove_light_from_list(lgt, list);
+}
+
+void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2)
+{
+  _DK_light_signal_stat_light_update_in_area(x1, y1, x2, y2);
+}
+
+void light_turn_light_off(long idx)
+{
+  static const char *func_name="light_turn_light_off";
+  struct Light *lgt;
+  long x1,y1,x2,y2;
+
+  if (idx == 0)
+  {
+    error(func_name, 934, "Attempt to turn off light 0");
+    return;
+  }
+  lgt = &game.lights[idx];
+  if ((lgt->field_0 & 0x01) == 0)
+  {
+    error(func_name, 929, "Attempt to turn off unallocated light structure");
+    return;
+  }
+  if ((lgt->field_0 & 0x02) == 0)
+    return;
+  lgt->field_0 &= 0xFD;
+  if ((lgt->field_0 & 0x04) != 0)
+  {
+    light_remove_light_from_list(lgt, &game.thing_lists[12]);
+    return;
+  }
+  // Area bounds
+  y2 = lgt->field_2B + lgt->field_5;
+  if (y2 >= map_subtiles_y)
+    y2 = map_subtiles_y;
+  x2 = lgt->field_29 + lgt->field_5;
+  if (x2 >= map_subtiles_x)
+    x2 = map_subtiles_x;
+  y1 = lgt->field_2B - lgt->field_5;
+  if (y1 <= 0)
+    y1 = 0;
+  x1 = lgt->field_29 - lgt->field_5;
+  if (x1 <= 0)
+    x1 = 0;
+  if ((x2 <= x1) || (y2 <= y1))
+    return;
+  light_signal_stat_light_update_in_area(x1, y1, x2, y2);
+  light_remove_light_from_list(lgt, &game.thing_lists[11]);
+  stat_light_needs_updating = 1;
+}
+
+void light_turn_light_on(long idx)
+{
+  static const char *func_name="light_turn_light_on";
+  struct Light *lgt;
+  long x1,y1,x2,y2;
+
+  if (idx == 0)
+  {
+    error(func_name, 892, "Attempt to turn on light 0");
+    return;
+  }
+  lgt = &game.lights[idx];
+  if ((lgt->field_0 & 0x01) == 0)
+  {
+    error(func_name, 887, "Attempt to turn on unallocated light structure");
+    return;
+  }
+  if ((lgt->field_0 & 0x02) != 0)
+    return;
+  lgt->field_0 |= 0x02;
+  if ((lgt->field_0 & 0x04) == 0)
+  {
+    light_add_light_to_list(lgt, &game.thing_lists[11]);
+    stat_light_needs_updating = 1;
+    lgt->field_0 |= 0x08;
+  } else
+  {
+    light_add_light_to_list(lgt, &game.thing_lists[12]);
+    lgt->field_0 |= 0x08;
+  }
 }
 
 unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
@@ -1127,6 +1244,9 @@ void setup_3d(void)
   static const char *func_name="setup_3d";
   unsigned long seed;
   long i,k;
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   seed = 0;
   for (i=0; i < 512; i++)
   {
@@ -1135,9 +1255,103 @@ void setup_3d(void)
   }
 }
 
+void setup_block_mem(void)
+{
+  unsigned char **dst;
+  unsigned char *src;
+  unsigned long i,k,n;
+  dst = block_ptrs;
+  n = 0;
+  for (i=0; i < 68; i++)
+  {
+    src = block_mem + n;
+    for (k=0; k < 8; k++)
+    {
+      *dst = src;
+      src += 32;
+      dst++;
+    }
+    n += 8192;
+  }
+}
+
+void compute_fade_tables(struct TbColorTables *coltbl,unsigned char *spal,unsigned char *dpal)
+{
+  static const char *func_name="compute_fade_tables";
+  unsigned char *dst;
+  unsigned long i,k,n;
+  unsigned char r,g,b;
+  unsigned char rr,rg,rb;
+  LbSyncLog("Computing fade tables\n");
+  // Intense fade to/from black - slower fade near black
+  dst = coltbl->fade_tables;
+  for (i=0; i < 32; i++)
+  {
+    for (k=0; k < 256; k++)
+    {
+      r = spal[3*k+0];
+      g = spal[3*k+1];
+      b = spal[3*k+2];
+      *dst = LbPaletteFindColour(dpal, i * r >> 5, i * g >> 5, i * b >> 5);
+      dst++;
+    }
+  }
+  // Intense fade to/from black - faster fade part
+  for (i=32; i < 192; i+=3)
+  {
+    for (k=0; k < 256; k++)
+    {
+      r = spal[3*k+0];
+      g = spal[3*k+1];
+      b = spal[3*k+2];
+      *dst = LbPaletteFindColour(dpal, i * r >> 5, i * g >> 5, i * b >> 5);
+      dst++;
+    }
+  }
+  // Other fadings - between all the colors
+  dst = coltbl->ghost;
+  for (i=0; i < 256; i++)
+  {
+    // Reference colors
+    rr = spal[3*i+0];
+    rg = spal[3*i+1];
+    rb = spal[3*i+2];
+    // Creating fades
+    for (k=0; k < 256; k++)
+    {
+      r = dpal[3*k+0];
+      g = dpal[3*k+1];
+      b = dpal[3*k+2];
+      *dst = LbPaletteFindColour(dpal, (rr+2*r) / 3, (rg+2*g) / 3, (rb+2*b) / 3);
+      dst++;
+    }
+  }
+}
+
+void init_alpha_table(void)
+{
+  _DK_init_alpha_table();
+}
+
 void setup_stuff(void)
 {
-  _DK_setup_stuff();
+  char *fname;
+  long i;
+  fname = prepare_file_path(FGrp_StdData,"tables.dat");
+  setup_block_mem();
+  if (LbFileLoadAt(fname, &pixmap) != sizeof(struct TbColorTables))
+  {
+    compute_fade_tables(&pixmap,_DK_palette,_DK_palette);
+    LbFileSaveAt(fname, &pixmap, sizeof(struct TbColorTables));
+  }
+  lbDisplay.FadeTable = pixmap.fade_tables;
+  // Update black color
+  for (i=0; i < 8192; i++)
+  {
+    if (pixmap.fade_tables[i] == 0)
+      pixmap.fade_tables[i] = 144;
+  }
+  init_alpha_table();
 }
 
 short send_creature_to_room(struct Thing *thing, struct Room *room)
@@ -1153,6 +1367,199 @@ struct Room *get_room_thing_is_on(struct Thing *thing)
 short thing_touching_floor(struct Thing *thing)
 {
   return (thing->field_60 == thing->mappos.z.val);
+}
+
+void destroy_food(struct Thing *thing)
+{
+  static const char *func_name="destroy_food";
+  struct Room *room;
+  struct Dungeon *dungeon;
+  struct Thing *efftng;
+  struct Coord3d pos;
+  long plyr_idx,i;
+  plyr_idx = thing->owner;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  if (game.field_14E497 != plyr_idx)
+    dungeon->lvstats.chickens_wasted++;
+  efftng = create_effect(&thing->mappos, 49, plyr_idx);
+  if (!thing_is_invalid(efftng))
+  {
+    i = seed_check_random(3, &game.rand_14BB4E, func_name, 3455);
+    thing_play_sample(efftng, 112+i, 100, 0, 3, 0, 2, 256);
+  }
+  pos.x.val = thing->mappos.x.val;
+  pos.y.val = thing->mappos.y.val;
+  pos.z.val = thing->mappos.z.val + 256;
+  create_effect(&thing->mappos, 51, plyr_idx);
+  create_effect(&pos, 7, plyr_idx);
+  if (thing->owner != game.field_14E497)
+  {
+    if (thing->word_13.w0 == -1)
+    {
+      room = get_room_thing_is_on(thing);
+      if (room != NULL)
+      {
+        if ((room->kind == 13) && (room->owner == thing->owner))
+        {
+            if (room->field_10 > 0)
+              room->field_10--;
+            thing->word_13.w0 = game.food_life_out_of_hatchery;
+        }
+      }
+    }
+  }
+  delete_thing_structure(thing, 0);
+}
+
+TbBool slap_object(struct Thing *thing)
+{
+  if (thing->model == 10)
+  {
+    destroy_food(thing);
+    return true;
+  }
+  return false;
+}
+
+TbBool object_is_slappable(struct Thing *thing, long plyr_idx)
+{
+  if (thing->owner == plyr_idx)
+  {
+    return (thing->model == 10);
+  }
+  return false;
+}
+
+TbBool trap_is_active(struct Thing *thing)
+{
+  return ((thing->byte_13.l > 0) && (*(unsigned long *)&thing->byte_13.h <= game.play_gameturn));
+}
+
+TbBool trap_is_slappable(struct Thing *thing, long plyr_idx)
+{
+  if (thing->owner == plyr_idx)
+  {
+    return (thing->model == 1) && trap_is_active(thing);
+  }
+  return false;
+}
+
+TbBool shot_is_slappable(struct Thing *thing, long plyr_idx)
+{
+  if (thing->owner == plyr_idx)
+  {
+    return (thing->model == 15) || (thing->model == 20);
+  }
+  return false;
+}
+
+TbBool creature_is_slappable(struct Thing *thing, long plyr_idx)
+{
+  struct CreatureControl *cctrl;
+  struct Room *room;
+  long i;
+  if (thing->owner != plyr_idx)
+  {
+    if (thing->field_7 == 14)
+      i = thing->field_8;
+    else
+      i = thing->field_7;
+    if ((i == 41) || (i == 40) || (i == 43) || (i == 42))
+    {
+      cctrl = creature_control_get_from_thing(thing);
+      room = room_get(cctrl->field_7E);
+      return (room->owner == plyr_idx);
+    }
+    return false;
+  }
+  if (thing->field_7 == 14)
+    i = thing->field_8;
+  else
+    i = thing->field_7;
+  if ((i == 88) || (i == 92) || (i == 95))
+    return 0;
+  if (thing->field_7 == 14)
+    i = thing->field_8;
+  else
+    i = thing->field_7;
+  if ((i == 41) || (i == 40) || (i == 43) || (i == 42))
+  {
+    cctrl = creature_control_get_from_thing(thing);
+    room = room_get(cctrl->field_7E);
+    return (room->owner == plyr_idx);
+  }
+  return true;
+}
+
+TbBool thing_slappable(struct Thing *thing, long plyr_idx)
+{
+  switch (thing->class_id)
+  {
+  case TCls_Object:
+      return object_is_slappable(thing, plyr_idx);
+  case TCls_Shot:
+      return shot_is_slappable(thing, plyr_idx);
+  case TCls_Creature:
+      return creature_is_slappable(thing, plyr_idx);
+  case TCls_Trap:
+      return trap_is_slappable(thing, plyr_idx);
+  default:
+      return false;
+  }
+}
+
+void apply_damage_to_thing(struct Thing *thing, long a2, char a3)
+{
+  _DK_apply_damage_to_thing(thing, a2, a3);
+}
+
+void clear_creature_instance(struct Thing *thing)
+{
+  struct CreatureControl *cctrl;
+  cctrl = creature_control_get_from_thing(thing);
+  cctrl->field_D2 = 0;
+  cctrl->field_D4 = 0;
+}
+
+void slap_creature(struct PlayerInfo *player, struct Thing *thing)
+{
+  struct CreatureStats *crstat;
+  struct CreatureControl *cctrl;
+  long i;
+  crstat = creature_stats_get_from_thing(thing);
+  cctrl = creature_control_get_from_thing(thing);
+
+  anger_apply_anger_to_creature(thing, crstat->annoy_slapped, 4, 1);
+  if (crstat->slaps_to_kill > 0)
+  {
+    i = (crstat->health + (35*crstat->health*cctrl->explevel)/100) / crstat->slaps_to_kill;
+    if (i > 0)
+    {
+      apply_damage_to_thing(thing, i, player->field_2B);
+      thing->word_17 = 8;
+    }
+  }
+  i = cctrl->field_21;
+  cctrl->field_21 = game.magic_stats[4].time;
+  if (i == 0)
+    cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+  if (thing->field_7 != 66)
+  {
+    clear_creature_instance(thing);
+    cctrl->field_27D = thing->field_7;
+    cctrl->field_27E = thing->field_8;
+    if (thing->field_7 == 26)
+      anger_apply_anger_to_creature(thing, crstat->annoy_woken_up, 4, 1);
+    external_set_thing_state(thing, 66);
+  }
+  cctrl->field_B1 = 6;
+  cctrl->field_27F = 18;
+  play_creature_sound(thing, 1, 3, 0);
+}
+
+void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
+{
+  _DK_external_activate_trap_shot_at_angle(thing, a2);
 }
 
 short set_start_state(struct Thing *thing)
@@ -1857,17 +2264,23 @@ void process_keeper_spell_effect(struct Thing *thing)
 
 void add_spell_to_player(long spl_idx, long plyr_idx)
 {
+  static const char *func_name="add_spell_to_player";
   struct Dungeon *dungeon;
   long i;
   if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT))
+  {
+    LbErrorLog("%s: Can't add incorrect spell %ld to player %ld\n",func_name,spl_idx, plyr_idx);
     return;
+  }
   dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
   i = dungeon->magic_level[spl_idx];
-  if (i < 255)
+  if (i >= 255)
   {
-    dungeon->magic_level[spl_idx] = i+1;
-    dungeon->magic_resrchable[spl_idx] = 1;
+    LbErrorLog("%s: Spell %ld has bad magic_level for player %ld\n",func_name,spl_idx, plyr_idx);
+    return;
   }
+  dungeon->magic_level[spl_idx] = i+1;
+  dungeon->magic_resrchable[spl_idx] = 1;
 }
 
 unsigned char sight_of_evil_expand_check(void)
@@ -1951,6 +2364,24 @@ long instf_creature_fire_shot(struct Thing *thing, long *param)
   else
     target = NULL;
   creature_fire_shot(thing, target, *param, 1, i);
+  return 0;
+}
+
+long instf_creature_cast_spell(struct Thing *thing, long *param)
+{
+  struct CreatureControl *cctrl;
+  struct Thing *trthing;
+  cctrl = creature_control_get_from_thing(thing);
+  if ( spell_info[*param].field_0 )
+  {
+    trthing = thing_get(cctrl->field_DA);
+    if (!thing_is_invalid(trthing))
+    {
+      creature_cast_spell_at_thing(thing, trthing, *param, 1);
+      return 0;
+    }
+  }
+  creature_cast_spell(thing, *param, 1, cctrl->target_x, cctrl->target_y);
   return 0;
 }
 
@@ -2137,6 +2568,11 @@ long update_effect_element(struct Thing *thing)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
   return _DK_update_effect_element(thing);
+}
+
+void explosion_affecting_area(struct Thing *thing, struct Coord3d *pos, long a3, long a4, unsigned char a5)
+{
+  _DK_explosion_affecting_area(thing, pos, a3, a4, a5);
 }
 
 long update_dead_creature(struct Thing *thing)
@@ -2744,7 +3180,6 @@ TbBigChecksum get_thing_checksum(struct Thing *thing)
 
 short update_thing_sound(struct Thing *thing)
 {
-  //return _DK_update_thing_sound(thing);
   if (thing->field_66)
   {
     if ( S3DEmitterHasFinishedPlaying(thing->field_66) )
@@ -2779,7 +3214,7 @@ short play_smacker_file(char *filename, int nstate)
   {
     if ( setup_screen_mode_minimal(get_movies_vidmode()) )
     {
-      LbMouseChangeSprite(0);
+      LbMouseChangeSprite(NULL);
       LbScreenClear(0);
       LbScreenSwap();
     } else
@@ -2825,7 +3260,44 @@ short play_smacker_file(char *filename, int nstate)
 
 void process_network_error(long errcode)
 {
-  _DK_process_network_error(errcode);
+  static const char *func_name="process_network_error";
+  char *text;
+  TbBool finish;
+  TbClockMSec tmEnd;
+  switch (errcode)
+  {
+  case 4:
+      text = gui_strings[535];
+      break;
+  case 5:
+      text = gui_strings[536];
+      break;
+  case 6:
+      text = gui_strings[537];
+      break;
+  case 7:
+      text = gui_strings[538];
+      break;
+  case -1:
+      text = gui_strings[539];
+      break;
+  case -2:
+      text = gui_strings[540];
+      break;
+  case -800:
+      text = gui_strings[541];
+      break;
+  case -801:
+      text = gui_strings[542];
+      break;
+  case -802:
+      text = gui_strings[543];
+      break;
+  default:
+      LbErrorLog("%s: Unknown modem error code %d",func_name,errcode);
+      return;
+  }
+  display_centered_message(3000, text);
 }
 
 short setup_network_service(int srvidx)
@@ -2838,25 +3310,25 @@ short setup_network_service(int srvidx)
   case 0:
       maxplayrs = 2;
       init_data = &_DK_net_serial_data;
-      game.flags_font |= 0x10;
+      set_flag_byte(&game.flags_font,FFlg_unk10,true);
       LbSyncLog("Initializing %d-players serial network.\n",maxplayrs);
       break;
   case 1:
       maxplayrs = 2;
       init_data = &_DK_net_modem_data;
-      game.flags_font |= 0x10;
+      set_flag_byte(&game.flags_font,FFlg_unk10,true);
       LbSyncLog("Initializing %d-players modem network.\n",maxplayrs);
       break;
   case 2:
       maxplayrs = 4;
       init_data = NULL;
-      set_flag_byte(&game.flags_font,0x10,false);
+      set_flag_byte(&game.flags_font,FFlg_unk10,false);
       LbSyncLog("Initializing %d-players IPX network.\n",maxplayrs);
       break;
   default:
       maxplayrs = 4;
       init_data = NULL;
-      set_flag_byte(&game.flags_font,0x10,false);
+      set_flag_byte(&game.flags_font,FFlg_unk10,false);
       LbSyncLog("Initializing %d-players type %d network.\n",maxplayrs,srvidx);
       break;
   }
@@ -2864,11 +3336,11 @@ short setup_network_service(int srvidx)
   if ( LbNetwork_Init(srvidx, _DK_net_guid, maxplayrs, &net_screen_packet, 0xCu, &net_player_info[0], init_data) )
   {
     if (srvidx != 0)
-      _DK_process_network_error(-800);
+      process_network_error(-800);
     return 0;
   }
   net_service_index_selected = srvidx;
-  if (game.flags_font & 0x10)
+  if ((game.flags_font & FFlg_unk10) != 0)
     LbNetwork_ChangeExchangeTimeout(10);
   frontend_set_state(5);
   return 1;
@@ -2885,16 +3357,28 @@ void init_censorship(void)
 
 long load_anim_file(void)
 {
+  static const char *func_name="load_anim_file";
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   return _DK_load_anim_file();
 }
 
 long load_cube_file(void)
 {
+  static const char *func_name="load_cube_file";
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   return _DK_load_cube_file();
 }
 
 void init_colours(void)
 {
+  static const char *func_name="init_colours";
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_init_colours();
 }
 
@@ -4429,7 +4913,10 @@ void init_objects(void)
 
 void init_keeper(void)
 {
-  //_DK_init_keeper();
+  static const char *func_name="init_keeper";
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   engine_init();
   init_iso_3d_conversion_tables();
   init_objects();
@@ -4461,8 +4948,11 @@ void init_keeper(void)
   game.field_1517FB = 0;
   game.field_1517FC = 0;
   game.numfield_C |= 0x40;
-  game.numfield_D |= 0x20 | 0x40;
+  game.numfield_D |= (0x20 | 0x40);
   init_censorship();
+#if (BFDEBUG_LEVEL > 9)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 short ceiling_set_info(long height_max, long height_min, long step)
@@ -4471,7 +4961,6 @@ short ceiling_set_info(long height_max, long height_min, long step)
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //return _DK_ceiling_set_info(height_max, height_min, step);
   long dist;
   if (step <= 0)
   {
@@ -4760,7 +5249,7 @@ void input_eastegg(void)
   if ((state == 2) || (state == 3))
     play_non_3d_sample(60);
   // Maintain the JLW cheat
-  if (game.flags_font & 0x20)
+  if ((game.flags_font & FFlg_AlexCheat) != 0)
   {
     allow = (lbKeyOn[KC_LSHIFT]) && (lbKeyOn[KC_RSHIFT]);
     state = input_eastegg_keycodes(&game.eastegg02_cntr,allow,&eastegg_jlw_codes);
@@ -4769,7 +5258,7 @@ void input_eastegg(void)
   }
   // Maintain the SKEKSIS cheat
   allow = (lbKeyOn[KC_LSHIFT] != 0);
-  state = input_eastegg_keycodes(&eastegg03_cntr,allow,&eastegg_skeksis_codes);
+  state = input_eastegg_keycodes(&eastegg_skeksis_cntr,allow,&eastegg_skeksis_codes);
   if (state == 3)
     output_message(94, 0, 1); //'Your pants are definitely too tight'
 }
@@ -5070,7 +5559,6 @@ short get_gui_inputs(short gameplay_on)
 #if (BFDEBUG_LEVEL > 7)
   LbSyncLog("%s: Starting\n", func_name);
 #endif
-  //return _DK_get_gui_inputs(gameplay_on);
   update_breed_activities();
   battle_creature_over = 0;
   gui_room_type_highlighted = -1;
@@ -5255,7 +5743,7 @@ void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
 {
   struct Dungeon *dungeon;
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
-  if (dungeon->field_139F != 0)
+  if (dungeon->dead_creatures_count != 0)
   {
     if (is_my_player(player))
     {
@@ -5344,7 +5832,6 @@ short point_to_overhead_map(struct Camera *camera, long screen_x, long screen_y,
 
 short screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos)
 {
-//return _DK_screen_to_map(camera,screen_x,screen_y,mappos);
   short result;
   long x,y;
   if (camera != NULL)
@@ -5618,6 +6105,34 @@ TbBool load_stats_files(void)
   instance_info[1].func_cb = instf_creature_fire_shot;
   instance_info[2].func_cb = instf_creature_fire_shot;
   instance_info[4].func_cb = instf_creature_fire_shot;
+  instance_info[5].func_cb = instf_creature_cast_spell;
+  instance_info[6].func_cb = instf_creature_cast_spell;
+  instance_info[7].func_cb = instf_creature_cast_spell;
+  instance_info[8].func_cb = instf_creature_cast_spell;
+  instance_info[9].func_cb = instf_creature_cast_spell;
+  instance_info[10].func_cb = instf_creature_cast_spell;
+  instance_info[11].func_cb = instf_creature_cast_spell;
+  instance_info[12].func_cb = instf_creature_cast_spell;
+  instance_info[13].func_cb = instf_creature_cast_spell;
+  instance_info[14].func_cb = instf_creature_cast_spell;
+  instance_info[15].func_cb = instf_creature_cast_spell;
+  instance_info[16].func_cb = instf_creature_cast_spell;
+  instance_info[17].func_cb = instf_creature_cast_spell;
+  instance_info[18].func_cb = instf_creature_cast_spell;
+  instance_info[19].func_cb = instf_creature_cast_spell;
+  instance_info[20].func_cb = instf_creature_cast_spell;
+  instance_info[21].func_cb = instf_creature_cast_spell;
+  instance_info[22].func_cb = instf_creature_cast_spell;
+  instance_info[23].func_cb = instf_creature_cast_spell;
+  instance_info[24].func_cb = instf_creature_cast_spell;
+  instance_info[25].func_cb = instf_creature_cast_spell;
+  instance_info[26].func_cb = instf_creature_cast_spell;
+  instance_info[27].func_cb = instf_creature_cast_spell;
+  instance_info[28].func_cb = instf_creature_cast_spell;
+  instance_info[40].func_cb = instf_creature_cast_spell;
+  instance_info[41].func_cb = instf_creature_cast_spell;
+  instance_info[42].func_cb = instf_creature_cast_spell;
+  instance_info[43].func_cb = instf_creature_cast_spell;
   result = true;
   clear_research_for_all_players();
   if (!load_terrain_config(keeper_terrain_file,0))
@@ -5640,13 +6155,23 @@ TbBool load_stats_files(void)
 //LbFileSaveAt("!stat11", &game, sizeof(struct Game));
 //LbFileSaveAt("!stat12", &shot_stats, sizeof(shot_stats));
 //LbFileSaveAt("!stat13", &instance_info, sizeof(instance_info));
+#if (BFDEBUG_LEVEL > 3)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
   return result;
 }
 
 
 void check_and_auto_fix_stats(void)
 {
+  static const char *func_name="check_and_auto_fix_stats";
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_check_and_auto_fix_stats();
+#if (BFDEBUG_LEVEL > 9)
+    LbSyncLog("%s: Finished\n",func_name);
+#endif
 }
 
 long update_dungeon_scores(void)
@@ -5963,11 +6488,13 @@ unsigned short get_extra_level_kind_visibility(unsigned short elv_kind)
       return LvSt_Visible;
     if (is_near_full_moon)
       return LvSt_HalfShow;
+    break;
   case ExLv_NewMoon:
     if (is_new_moon)
       return LvSt_Visible;
     if (is_near_new_moon)
       return LvSt_HalfShow;
+    break;
   }
   return LvSt_Hidden;
 }
@@ -6005,7 +6532,7 @@ short activate_bonus_level(struct PlayerInfo *player)
 #if (BFDEBUG_LEVEL > 5)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  game.flags_font |= 0x02;
+  set_flag_byte(&game.flags_font,FFlg_unk02,true);
   sp_lvnum = get_loaded_level_number();
   result = set_bonus_level_visibility_for_singleplayer_level(player, sp_lvnum, true);
   if (!result)
@@ -6062,8 +6589,6 @@ void multiply_creatures(struct PlayerInfo *player)
       break;
     set_creature_level(tncopy, thing->field_23);
     tncopy->health = thing->health;
-    if (thing->field_64 >= CREATURES_COUNT)
-      break;
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
       break;
@@ -6090,7 +6615,6 @@ short toggle_computer_player(int idx)
 short load_texture_map_file(unsigned long tmapidx, unsigned char n)
 {
   static const char *func_name="load_texture_map_file";
-  //return _DK_load_texture_map_file(tmapidx, n);
   char *fname;
 #if (BFDEBUG_LEVEL > 7)
     LbSyncLog("%s: Starting\n",func_name);
@@ -6115,7 +6639,6 @@ short load_texture_map_file(unsigned long tmapidx, unsigned char n)
 void reinit_level_after_load(void)
 {
   static const char *func_name="reinit_level_after_load";
-  //_DK_reinit_level_after_load(); return;
   struct PlayerInfo *player;
   int i;
 #if (BFDEBUG_LEVEL > 6)
@@ -6197,7 +6720,6 @@ void light_initialise(void)
 {
   struct Light *lgt;
   int i;
-  //_DK_light_initialise();
   for (i=0; i < LIGHTS_COUNT; i++)
   {
     lgt = &game.lights[i];
@@ -6303,7 +6825,6 @@ TbBool process_action_points(void)
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //return _DK_process_action_points();
   struct ActionPoint *apt;
   long i;
   for (i=1; i < ACTN_POINTS_COUNT; i++)
@@ -6329,7 +6850,7 @@ short set_default_startup_parameters(void)
 {
   memset(&start_params, 0, sizeof(struct StartupParameters));
   start_params.packet_checksum = 1;
-  set_flag_byte(&start_params.flags_font,0x01,false);
+  set_flag_byte(&start_params.flags_font,FFlg_unk01,false);
   // Set levels to 0, as we may not have the campaign loaded yet
   start_params.selected_level_number = 0;
   start_params.num_fps = 20;
@@ -6390,7 +6911,6 @@ void clear_slabsets(void)
 
 void clear_map(void)
 {
-  //_DK_clear_map();
   clear_mapmap();
   clear_slabs();
   clear_columns();
@@ -6687,7 +7207,6 @@ void clear_game(void)
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //_DK_clear_game(); return;
   clear_game_for_summary();
   game.audiotrack = 0;
   clear_map();
@@ -6701,7 +7220,6 @@ void clear_game(void)
 
 void clear_game_for_save(void)
 {
-  //_DK_clear_game_for_save(); return;
   delete_all_structures();
   light_initialise();
   clear_mapwho();
@@ -6734,8 +7252,8 @@ void reset_script_timers_and_flags(void)
   for (i=0; i < DUNGEONS_COUNT; i++)
   {
     dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
-    dungeon->field_1006 = 1;
-    dungeon->field_FF2 = 1;
+    dungeon->magic_resrchable[18] = 1;
+    dungeon->magic_level[18] = 1;
     for (k=0; k<TURN_TIMERS_COUNT; k++)
     {
       memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
@@ -6769,7 +7287,6 @@ void free_swipe_graphic(void)
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //_DK_free_swipe_graphic();
   if (game.field_1516FF != -1)
   {
     LbDataFreeAll(swipe_load_file);
@@ -6785,11 +7302,6 @@ void message_add(char c)
 void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
 {
   _DK_light_stat_light_map_clear_area(x1, y1, x2, y2);
-}
-
-void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2)
-{
-  _DK_light_signal_stat_light_update_in_area(x1, y1, x2, y2);
 }
 
 void light_set_lights_on(char state)
@@ -6818,7 +7330,6 @@ void change_engine_window_relative_size(long w_delta, long h_delta)
 
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
 {
-  //_DK_PaletteSetPlayerPalette(player, pal);
   if (pal == blue_palette)
   {
     if ((player->field_3 & 0x04) == 0)
@@ -6893,7 +7404,6 @@ void set_engine_view(struct PlayerInfo *player, long val)
 TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type)
 {
   struct Dungeon *dungeon;
-  //_DK_toggle_creature_tendencies(player, val);
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
   switch (tend_type)
   {
@@ -6932,9 +7442,55 @@ void set_player_state(struct PlayerInfo *player, short a1, long a2)
   _DK_set_player_state(player, a1, a2);
 }
 
-void set_player_mode(struct PlayerInfo *player, long val)
+void set_player_mode(struct PlayerInfo *player, long nview)
 {
-  _DK_set_player_mode(player, val);
+  long i;
+  if (player->view_type == nview)
+    return;
+  player->view_type = nview;
+  player->field_0 &= 0xF7;
+  if (is_my_player(player))
+  {
+    game.numfield_D &= 0xF7;
+    game.numfield_D |= 0x01;
+    if (is_my_player(player))
+      stop_all_things_playing_samples();
+  }
+  switch (player->view_type)
+  {
+  case 1:
+      i = 2;
+      if (player->field_4B5 == 5)
+      {
+        set_engine_view(player, 2);
+        i = 5;
+      }
+      set_engine_view(player, i);
+      if (is_my_player(player))
+        toggle_status_menu((game.numfield_C & 0x40) != 0);
+      if ((game.numfield_C & 0x20) != 0)
+        setup_engine_window(140, 0, MyScreenWidth, MyScreenHeight);
+      else
+        setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+      break;
+  case 2:
+  case 3:
+      set_engine_view(player, 1);
+      if (is_my_player(player))
+        game.numfield_D &= 0xFE;
+      setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+      break;
+  case 4:
+      player->field_456 = player->work_state;
+      set_engine_view(player, 3);
+      break;
+  case 5:
+      set_player_instance(player, 14, 0);
+      break;
+  case 6:
+      set_player_instance(player, 15, 0);
+      break;
+  }
 }
 
 void turn_off_query(short a)
@@ -6964,6 +7520,10 @@ short dump_held_things_on_map(unsigned int plyridx, long a2, long a3, short a4)
 
 void magic_use_power_armageddon(unsigned int plridx)
 {
+  static const char *func_name="magic_use_power_armageddon";
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_magic_use_power_armageddon(plridx);
 }
 
@@ -6995,13 +7555,28 @@ unsigned char find_first_battle_of_mine(unsigned char idx)
   return _DK_find_first_battle_of_mine(idx);
 }
 
-void level_lost_go_first_person(long plridx)
+void level_lost_go_first_person(long plyr_idx)
 {
   static const char *func_name="level_lost_go_first_person";
+  struct CreatureControl *cctrl;
+  struct PlayerInfo *player;
+  struct Dungeon *dungeon;
+  struct Thing *thing;
 #if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
+    LbSyncLog("%s: Starting for player %ld\n",func_name,plyr_idx);
 #endif
-  _DK_level_lost_go_first_person(plridx);
+  //_DK_level_lost_go_first_person(plridx);
+  player = &(game.players[plyr_idx%PLAYERS_COUNT]);
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  player->field_4B6 = get_camera_zoom(player->acamera);
+  thing = create_and_control_creature_as_controller(player, 31, &dungeon->mappos);
+  if (thing_is_invalid(thing))
+  {
+    error(func_name, 10115, "Unable to create floating spirit");
+    return;
+  }
+  cctrl = creature_control_get_from_thing(thing);
+  cctrl->field_0 |= 0x0200;
 #if (BFDEBUG_LEVEL > 8)
     LbSyncLog("%s: Finished\n",func_name);
 #endif
@@ -7180,7 +7755,6 @@ struct Event *event_create_event(long map_x, long map_y, unsigned char evkind, u
 void go_on_then_activate_the_event_box(long plridx, long evidx)
 {
   static const char *func_name="go_on_then_activate_the_event_box";
-  //_DK_go_on_then_activate_the_event_box(plridx, val); return;
   struct Dungeon *dungeon;
   struct Event *event;
   struct Thing *thing;
@@ -7441,7 +8015,6 @@ short winning_player_quitting(struct PlayerInfo *player, long *plyr_count)
 short lose_level(struct PlayerInfo *player)
 {
   long lvnum;
-  //_DK_lose_level(player);
   if (!is_my_player(player))
     return false;
   if (game.numfield_A & 0x01)
@@ -7602,7 +8175,6 @@ short complete_level(struct PlayerInfo *player)
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //_DK_complete_level(player);
   if (player != &game.players[my_player_number%PLAYERS_COUNT])
     return false;
   if (game.numfield_A & 0x01)
@@ -7638,7 +8210,11 @@ void place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsign
 
 void init_lookups(void)
 {
+  static const char *func_name="init_lookups";
   long i;
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   for (i=0; i < THINGS_COUNT; i++)
   {
     game.things_lookup[i] = &game.things_data[i];
@@ -7749,9 +8325,9 @@ struct Thing *create_effect(struct Coord3d *pos, unsigned short a2, unsigned cha
   return _DK_create_effect(pos, a2, a3);
 }
 
-void create_special_used_effect(struct Coord3d *pos, long a2)
+void create_special_used_effect(struct Coord3d *pos, long plyr_idx)
 {
-  create_effect(pos, 67, a2);
+  create_effect(pos, 67, plyr_idx);
 }
 
 void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player)
@@ -7760,7 +8336,6 @@ void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player)
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //_DK_activate_dungeon_special(thing, player); return;
   short used;
   struct Coord3d pos;
   int spkindidx;
@@ -7835,9 +8410,84 @@ void resurrect_creature(struct Thing *thing, unsigned char a2, unsigned char a3,
   _DK_resurrect_creature(thing, a2, a3, a4);
 }
 
-void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char a3)
+void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char plyr_idx)
 {
-  _DK_transfer_creature(tng1, tng2, a3);
+  static const char *func_name="transfer_creature";
+#if (BFDEBUG_LEVEL > 7)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
+  struct Dungeon *dungeon;
+  struct PlayerInfo *player;
+  struct CreatureControl *cctrl;
+  struct Thing *thing;
+  long i,k;
+  dungeon = (&game.dungeon[i]);
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+
+  // Check if 'things' are correct
+
+  if ((tng1->field_0 & 0x01) == 0)
+    return;
+  if ((tng1->class_id != 1) || (tng1->model != 88))
+    return;
+
+  if ((tng2->field_0 & 0x01) == 0)
+    return;
+  if ((tng2->class_id != 5) || (tng2->owner != plyr_idx))
+    return;
+
+  cctrl = creature_control_get_from_thing(tng2);
+
+  if (player->field_2B == plyr_idx)
+  {
+    game.transfered_creature.model = tng2->model;
+    game.transfered_creature.explevel = cctrl->explevel;
+  }
+  // Remove the creature from power hand
+  for (i = 0; i < dungeon->field_63; i++)
+  {
+    if (dungeon->things_in_hand[i] == tng2->index)
+    {
+      for ( ; i < dungeon->field_63-1; i++)
+      {
+        dungeon->things_in_hand[i] = dungeon->things_in_hand[i+1];
+      }
+      dungeon->field_63--;
+      dungeon->things_in_hand[dungeon->field_63] = 0;
+    }
+  }
+  kill_creature(tng2, 0, 0, 1, 0, 0);
+  create_special_used_effect(&tng1->mappos, plyr_idx);
+  remove_events_thing_is_attached_to(tng1);
+  if ((tng1->field_1 & 0x01) || (tng1->field_0 & 0x80))
+  {
+    k = 0;
+    i = dungeon->field_2F;
+    while (i > 0)
+    {
+      thing = thing_get(i);
+      if (thing_is_invalid(thing))
+        break;
+      cctrl = creature_control_get_from_thing(thing);
+      if (creature_control_invalid(cctrl))
+        break;
+      if (cctrl->field_6E == tng1->index)
+      {
+        set_start_state(thing);
+        break;
+      }
+      i = cctrl->thing_idx;
+      k++;
+      if (k > CREATURES_COUNT)
+      {
+        error(func_name,4129,"Infinite loop detected when sweeping creatures list");
+        break;
+      }
+    }
+  }
+  delete_thing_structure(tng1, 0);
+  if (player->field_2B == plyr_idx)
+    output_message(80, 0, 1);
 }
 
 void process_rooms(void)
@@ -7936,7 +8586,6 @@ void process_dungeons(void)
 #if (BFDEBUG_LEVEL > 7)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //_DK_process_dungeons();
   check_players_won();
   check_players_lost();
   process_dungeon_power_magic();
@@ -8391,7 +9040,6 @@ void process_level_script(void)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
   struct PlayerInfo *player;
-  //_DK_process_level_script(); return;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   if (((game.numfield_A & 0x01) == 0) && (player->victory_state != VicS_Undecided))
     return;
@@ -8770,7 +9418,6 @@ void update(void)
 #if (BFDEBUG_LEVEL > 4)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  //_DK_update();return;
 
   if ((game.numfield_C & 0x01) == 0)
     update_light_render_area();
@@ -8871,15 +9518,17 @@ void draw_sound_stuff(void)
 {
   static const char *func_name="draw_sound_stuff";
   char *text;
-  int i;
+  static long px[2]={0,0},py[2]={0,0};
+  static long vx[2]={0,0},vy[2]={0,0};
+  long i,k;
 #if (BFDEBUG_LEVEL > 5)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
   LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-  if (eastegg03_cntr > 6)
+  if (eastegg_skeksis_cntr >= eastegg_skeksis_codes.length)
   {
       unsigned char pos;
-      eastegg03_cntr++;
+      eastegg_skeksis_cntr++;
       lbFontPtr = winfont;
       text=buf_sprintf("Dene says a big 'Hello' to Goth Buns, Tarts and Barbies");
       lbDisplay.DrawFlags = 0x40;
@@ -8894,10 +9543,86 @@ void draw_sound_stuff(void)
       pos=game.play_gameturn;
       LbTextDraw((LbCosL(16*pos) / 512 + 120) / pixel_size,
         (LbSinL(32*pos) / 512 + 200) / pixel_size, text);
-      if (eastegg03_cntr >= 255)
-        eastegg03_cntr = 0;
+      if (eastegg_skeksis_cntr >= 255)
+        eastegg_skeksis_cntr = 0;
   }
-  _DK_draw_sound_stuff();
+  //_DK_draw_sound_stuff();
+
+  if (game.eastegg01_cntr >= eastegg_feckoff_codes.length)
+  {
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+    lbDisplay.DrawFlags &= 0xFFBFu;
+    lbFontPtr = winfont;
+    i = 0;
+    text = buf_sprintf("Simon says Hi to everyone he knows...");
+    px[i] += vx[i];
+    if (px[i] < 0)
+    {
+      px[i] = 0;
+      vx[i] = -vx[i];
+    }
+    py[i] += vy[i];
+    if (py[i] < 0)
+    {
+      py[i] = 0;
+      vy[i] = -vy[i];
+    }
+    k = pixel_size*LbTextStringWidth(text);
+    if (px[i]+k  >= MyScreenWidth)
+    {
+      vx[i] = -vx[i];
+      px[i] = MyScreenWidth-k-1;
+    }
+    k = pixel_size*LbTextStringHeight(text);
+    if (py[i]+k >= MyScreenHeight)
+    {
+      vy[i] = -vy[i];
+      py[i] = MyScreenHeight-k-1;
+    }
+    if (LbScreenIsLocked())
+    {
+      LbTextDraw(px[i]/pixel_size, py[i]/pixel_size, text);
+    }
+    play_non_3d_sample_no_overlap(90);
+  }
+  if ((game.flags_font & FFlg_AlexCheat) == 0)
+    return;
+
+  if (game.eastegg02_cntr >= eastegg_jlw_codes.length)
+  {
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+    lbDisplay.DrawFlags &= 0xFFBFu;
+    lbFontPtr = winfont;
+    i = 1;
+    text = buf_sprintf("Alex, hopefully lying on a beach with Jo, says Hi");
+    px[i] += vx[i];
+    if (px[i] < 0)
+    {
+      px[i] = 0;
+      vx[i] = -vx[i];
+    }
+    py[i] += vy[i];
+    if (py[i] < 0)
+    {
+      py[i] = 0;
+      vy[i] = -vy[i];
+    }
+    k = pixel_size * LbTextStringWidth(text);
+    if (px[i]+k >= MyScreenWidth)
+    {
+      vx[i] = -vx[i];
+      px[i] = MyScreenWidth-k-1;
+    }
+    k = pixel_size * LbTextStringHeight(text);
+    if (py[i]+k >= MyScreenHeight)
+    {
+      vy[i] = -vy[i];
+      py[i] = MyScreenHeight-k-1;
+    }
+    if (LbScreenIsLocked())
+      LbTextDraw(px[i]/pixel_size, py[i]/pixel_size, text);
+    play_non_3d_sample_no_overlap(90);
+  }
 }
 
 long power_sight_explored(long stl_x, long stl_y, unsigned char plyr_idx)
@@ -8910,13 +9635,12 @@ long can_cast_spell_on_creature(long a1, struct Thing *thing, long a3)
   return _DK_can_cast_spell_on_creature(a1, thing, a3);
 }
 
-unsigned char can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsigned char stl_x, unsigned char stl_y, long a5)
+TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsigned char stl_x, unsigned char stl_y, long a5)
 {
   struct PlayerInfo *player;
   struct Map *mapblk;
   struct SlabMap *slb;
   TbBool can_cast;
-  //return _DK_can_cast_spell_at_xy(plyr_idx, spl_id, stl_x, stl_y, a5);
   mapblk = get_map_block(stl_x, stl_y);
   slb = get_slabmap_for_subtile(stl_x, stl_y);
   can_cast = false;
@@ -9064,6 +9788,7 @@ void process_pointer_graphic(void)
 #endif
   switch (player->view_type)
   {
+
   case 1:
       if (player->instance_num == PI_MapFadeFrom)
       {
@@ -9088,7 +9813,7 @@ void process_pointer_graphic(void)
               thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         } else
         {
-          set_pointer_graphic_none();
+          set_pointer_graphic(1);
         }
       } else
       if (game_is_busy_doing_gui())
@@ -9756,7 +10481,7 @@ void draw_whole_status_panel(void)
 {
   struct Dungeon *dungeon;
   struct PlayerInfo *player;
-  long i;
+  long mmzoom;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
   lbDisplay.DrawColour = colours[15][15][15];
@@ -9764,11 +10489,11 @@ void draw_whole_status_panel(void)
   DrawBigSprite(0, 0, &status_panel, gui_panel_sprites);
   draw_gold_total(player->field_2B, 60, 134, dungeon->field_AF9);
   if (pixel_size < 3)
-      i = (player->minimap_zoom) / (3-pixel_size);
+      mmzoom = (player->minimap_zoom) / (3-pixel_size);
   else
-      i = player->minimap_zoom;
-  pannel_map_draw(player->mouse_x, player->mouse_y, i);
-  draw_overlay_things(i);
+      mmzoom = player->minimap_zoom;
+  pannel_map_draw(player->mouse_x, player->mouse_y, mmzoom);
+  draw_overlay_things(mmzoom);
 }
 
 void redraw_creature_view(void)
@@ -9904,13 +10629,13 @@ void redraw_isometric_view(void)
   // Camera position modifications
   make_camera_deviations(player,dungeon);
   update_explored_flags_for_power_sight(player);
-  if (game.flags_font & 0x08)
+  if ((game.flags_font & FFlg_unk08) != 0)
   {
     store_engine_window(&ewnd,1);
     setup_engine_window(ewnd.x, ewnd.y, ewnd.width >> 1, ewnd.height >> 1);
   }
   engine(&player->cameras[0]);
-  if (game.flags_font & 0x08)
+  if ((game.flags_font & FFlg_unk08) != 0)
   {
     load_engine_window(&ewnd);
   }
@@ -9942,7 +10667,33 @@ void redraw_frontview(void)
 #if (BFDEBUG_LEVEL > 6)
     LbSyncLog("%s: Starting\n",func_name);
 #endif
-  _DK_redraw_frontview();
+  //_DK_redraw_frontview();
+  struct PlayerInfo *player;
+  long w,h;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  update_explored_flags_for_power_sight(player);
+  if ((game.flags_font & FFlg_unk08) != 0)
+  {
+    w = player->engine_window_width;
+    h = player->engine_window_height;
+    setup_engine_window(player->engine_window_x, player->engine_window_y, w, h >> 1);
+  } else
+  {
+    w = 0;
+    h = 0;
+  }
+  draw_frontview_engine(&player->cameras[3]);
+  if ((game.flags_font & FFlg_unk08) != 0)
+    setup_engine_window(player->engine_window_x, player->engine_window_y, w, h);
+  remove_explored_flags_for_power_sight(player);
+  if ((game.numfield_C & 0x20) != 0)
+    draw_whole_status_panel();
+  draw_gui();
+  if ((game.numfield_C & 0x20) != 0)
+    draw_overlay_compass(player->mouse_x, player->mouse_y);
+  message_draw();
+  draw_power_hand();
+  draw_tooltip();
   gui_draw_all_boxes();
 }
 
@@ -10149,6 +10900,10 @@ void draw_zoom_box(void)
 
 void update_explored_flags_for_power_sight(struct PlayerInfo *player)
 {
+  static const char *func_name="update_explored_flags_for_power_sight";
+#if (BFDEBUG_LEVEL > 9)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   _DK_update_explored_flags_for_power_sight(player);
 }
 
@@ -10735,7 +11490,7 @@ void keeper_gameplay_loop(void)
     //the main gameplay loop starts
     while ((!quit_game) && (!exit_keeper))
     {
-      if ((game.flags_font & 0x10) != 0)
+      if ((game.flags_font & FFlg_unk10) != 0)
       {
         if (game.play_gameturn == 4)
           LbNetwork_ChangeExchangeTimeout(0);
@@ -11034,8 +11789,8 @@ void init_dungeons(void)
     dungeon->field_2F = 0;
     dungeon->field_E9F = i;
     dungeon->max_creatures = game.default_max_crtrs_gen_entrance;
-    dungeon->field_139F = 0;
-    dungeon->field_13A3 = 0;
+    dungeon->dead_creatures_count = 0;
+    dungeon->dead_creature_idx = 0;
     for (k=0; k < DUNGEONS_COUNT; k++)
     {
       if (k == i)
@@ -11559,8 +12314,12 @@ void pannel_map_update(long x, long y, long w, long h)
 
 void set_chosen_spell(long sptype, long sptooltip)
 {
+  static const char *func_name="set_chosen_spell";
   if ((sptype < 0) || (sptype >= SPELL_TYPES_COUNT))
     sptype = 0;
+#if (BFDEBUG_LEVEL > 6)
+    LbSyncLog("%s: Setting to %ld\n",func_name,sptype);
+#endif
   game.chosen_spell_type = sptype;
   game.chosen_spell_look = spell_data[sptype].field_9;
   game.chosen_spell_tooltip = sptooltip;
@@ -11674,6 +12433,10 @@ void init_players(void)
 
 void post_init_level(void)
 {
+  static const char *func_name="post_init_level";
+#if (BFDEBUG_LEVEL > 8)
+    LbSyncLog("%s: Starting\n",func_name);
+#endif
   //_DK_post_init_level(); return;
   if (game.packet_save_enable)
     open_new_packet_file_for_save();
@@ -12020,7 +12783,6 @@ int setup_old_network_service(void)
 void wait_at_frontend(void)
 {
   static const char *func_name="wait_at_frontend";
-  //_DK_wait_at_frontend(); return;
 #if (BFDEBUG_LEVEL > 0)
   LbSyncLog("Falling into frontend menu.\n");
 #endif

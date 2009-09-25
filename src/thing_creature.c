@@ -20,9 +20,9 @@
 #include "globals.h"
 
 #include "bflib_memory.h"
-#include "lens_mist.h"
-#include "config_creature.h"
 #include "engine_lenses.h"
+#include "config_creature.h"
+#include "lens_mist.h"
 #include "keeperfx.h"
 
 #ifdef __cplusplus
@@ -134,6 +134,9 @@ struct CreaturePickedUpOffset creature_picked_up_offset[] = {
 int creature_swap_idx[CREATURE_TYPES_COUNT];
 
 /******************************************************************************/
+DLLIMPORT void _DK_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev);
+DLLIMPORT void _DK_creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
+DLLIMPORT void _DK_creature_cast_spell(struct Thing *caster, long a2, long a3, long a4, long a5);
 DLLIMPORT void _DK_set_first_creature(struct Thing *thing);
 DLLIMPORT void _DK_remove_first_creature(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_get_creature_near(unsigned short pos_x, unsigned short pos_y);
@@ -153,7 +156,6 @@ DLLIMPORT unsigned long _DK_control_creature_as_controller(struct PlayerInfo *pl
 DLLIMPORT unsigned long _DK_control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 DLLIMPORT void _DK_load_swipe_graphic_for_creature(struct Thing *thing);
 DLLIMPORT unsigned short _DK_find_next_annoyed_creature(unsigned char a1, unsigned short a2);
-DLLIMPORT void _DK_leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 DLLIMPORT long _DK_creature_instance_has_reset(struct Thing *thing, long a2);
 DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *thing, long a2);
 DLLIMPORT void _DK_set_creature_instance(struct Thing *thing, long a1, long a2, long a3, struct Coord3d *pos);
@@ -179,11 +181,6 @@ unsigned long control_creature_as_passenger(struct PlayerInfo *player, struct Th
 void load_swipe_graphic_for_creature(struct Thing *thing)
 {
   _DK_load_swipe_graphic_for_creature(thing);
-}
-
-void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
-{
-  _DK_leave_creature_as_controller(player, thing);
 }
 
 long creature_available_for_combat_this_turn(struct Thing *thing)
@@ -221,6 +218,11 @@ void anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, lon
   _DK_anger_apply_anger_to_creature(thing, anger, a2, a3);
 }
 
+void apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev)
+{
+  _DK_apply_spell_effect_to_thing(thing, spell_idx, spell_lev);
+}
+
 short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing)
 {
   static const char *func_name="creature_take_wage_from_gold_pile";
@@ -252,6 +254,89 @@ short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obth
   return true;
 }
 
+void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long spl_idx, long a4)
+{
+  static const char *func_name="creature_cast_spell_at_thing";
+  long i;
+  if ((caster->field_0 & 0x20) != 0)
+  {
+    if (target->class_id == 1)
+      i = 1;
+    else
+      i = 2;
+  } else
+  {
+    if (target->class_id == 1)
+      i = 3;
+    else
+    if (target->owner == caster->owner)
+      i = 2;
+    else
+      i = 4;
+  }
+  if ((spl_idx < 0) || (spl_idx >= 30))
+  {
+    LbErrorLog("%s: Thing owned by player %d tried to cast invalid spell %ld\n",func_name,(int)caster->owner,spl_idx);
+    return;
+  }
+  creature_fire_shot(caster, target, spell_info[spl_idx].field_1, a4, i);
+}
+
+void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x, long trg_y)
+{
+  static const char *func_name="creature_cast_spell";
+  struct SpellInfo *spinfo;
+  struct CreatureControl *cctrl;
+  struct Thing *efthing;
+  long i;
+  //_DK_creature_cast_spell(caster, spl_idx, a3, trg_x, trg_y);
+  spinfo = &spell_info[spl_idx];
+  cctrl = creature_control_get_from_thing(caster);
+  if (creature_control_invalid(cctrl))
+  {
+    LbErrorLog("%s: Invalid thing tried to cast spell %ld\n",func_name,spl_idx);
+    return;
+  }
+  if (spl_idx == 10)
+  {
+    cctrl->field_B7 = trg_x;
+    cctrl->field_B8 = trg_y;
+  }
+  if (spinfo->field_1)
+  {
+    if ((caster->field_0 & 0x20) != 0)
+      i = 1;
+    else
+      i = 4;
+    creature_fire_shot(caster, 0, spinfo->field_1, a3, i);
+  } else
+  if (spinfo->field_2)
+  {
+    i = (long)spinfo->field_6;
+    if (i > 0)
+      thing_play_sample(caster, i, 100, 0, 3, 0, 4, 256);
+    i = cctrl->explevel;
+    if (i > 8) // Note: originally it was <=, but I think it's an error
+      i = 8;
+    apply_spell_effect_to_thing(caster, spl_idx, i);
+  }
+
+  if (spinfo->field_3)
+  {
+    efthing = create_effect(&caster->mappos, spinfo->field_3, caster->owner);
+    if (!thing_is_invalid(efthing))
+    {
+      if (spinfo->field_3 == 14)
+        efthing->byte_13.f3 = 3;
+    }
+  }
+
+  if (spinfo->field_8)
+  {
+    explosion_affecting_area(caster, &caster->mappos, spinfo->field_8, spinfo->field_C, spinfo->field_10);
+  }
+}
+
 void process_creature_instance(struct Thing *thing)
 {
   _DK_process_creature_instance(thing);
@@ -270,6 +355,80 @@ long process_creature_state(struct Thing *thing)
 #endif
 //TODO: rework! (causes hang if out of things)
   return _DK_process_creature_state(thing);
+}
+
+TbBool update_dead_creatures_list(struct Dungeon *dungeon, struct Thing *thing)
+{
+  struct CreatureStorage *cstore;
+  struct CreatureControl *cctrl;
+  long i;
+  cctrl = creature_control_get_from_thing(thing);
+  i = dungeon->dead_creatures_count-1;
+  while (i >= 0)
+  {
+    cstore = &dungeon->dead_creatures[i];
+    if ((cstore->model == thing->model) && (cstore->explevel == cctrl->explevel))
+    {
+      // This creature is already in list
+      return false;
+    }
+    i--;
+  }
+  if (dungeon->dead_creatures_count < DEAD_CREATURES_MAX_COUNT)
+  {
+    i = dungeon->dead_creatures_count;
+    dungeon->dead_creatures_count++;
+  } else
+  {
+    i = dungeon->dead_creature_idx;
+    dungeon->dead_creature_idx++;
+    if (dungeon->dead_creature_idx >= DEAD_CREATURES_MAX_COUNT)
+      dungeon->dead_creature_idx = 0;
+  }
+  cstore = &dungeon->dead_creatures[i];
+  cstore->model = thing->model;
+  cstore->explevel = cctrl->explevel;
+  return true;
+}
+
+/*
+ * Increases proper kills counter for given player's dungeon.
+ */
+TbBool inc_player_kills_counter(long killer_idx, struct Thing *victim)
+{
+  struct Dungeon *killer_dungeon;
+  killer_dungeon = &(game.dungeon[killer_idx%DUNGEONS_COUNT]);
+  if (victim->owner == killer_idx)
+    killer_dungeon->lvstats.friendly_kills++;
+  else
+    killer_dungeon->battles_won++;
+  return true;
+}
+
+/*
+ * Increases kills counters when victim is being killed by killer.
+ * Note that killer may be invalid - in this case def_plyr_idx identifies the killer.
+ */
+TbBool update_kills_counters(struct Thing *victim, struct Thing *killer, char def_plyr_idx, unsigned char a5)
+{
+  struct CreatureControl *cctrl;
+  cctrl = creature_control_get_from_thing(victim);
+  if (a5)
+  {
+    if (!thing_is_invalid(killer))
+    {
+      return inc_player_kills_counter(killer->owner, victim);
+    }
+    if ((def_plyr_idx != -1) && (game.field_14E497 != def_plyr_idx))
+    {
+      return inc_player_kills_counter(def_plyr_idx, victim);
+    }
+  }
+  if ((cctrl->field_1D2 != -1) && (game.field_14E497 != cctrl->field_1D2))
+  {
+    return inc_player_kills_counter(cctrl->field_1D2, victim);
+  }
+  return false;
 }
 
 long move_creature(struct Thing *thing)
@@ -300,7 +459,7 @@ void set_creature_level(struct Thing *thing, long nlvl)
   struct Dungeon *dungeon;
   long old_max_health,max_health;
   int i,k;
-  crstat = &game.creature_stats[thing->model%CREATURE_TYPES_COUNT];
+  crstat = creature_stats_get_from_thing(thing);
   cctrl = creature_control_get_from_thing(thing);
   if (creature_control_invalid(cctrl))
     return;

@@ -86,6 +86,9 @@ void set_player_instance(struct PlayerInfo *player, long ninum, short force);
 void process_player_instance(struct PlayerInfo *player);
 void process_player_instances(void);
 
+void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
+void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
+TbBool set_selected_creature(struct PlayerInfo *player, struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
