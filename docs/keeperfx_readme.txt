@@ -10,9 +10,10 @@ Installation over original DK:
 
 Copy all the files into your Dungeon Keeper directory.
 If you've installed DK from CD, then you will also have to copy
-all the data files from CD into this directory. Then open
-'KEEPERFX.CFG' with Notepad, and set proper language shortcut
-in the 'LANGUAGE=' line. Run "keeperfx.exe" to start the game.
+folders DATA, LDATA and LEVELS from CD into this directory.
+Then open 'KEEPERFX.CFG' with Notepad, and set proper language
+shortcut in the 'LANGUAGE=' line.
+Run "keeperfx.exe" to start the game.
 
 Note that automatic builds of KeeperFX do not contain all of
 neccessary files, you need to use a released version first.
@@ -92,7 +93,7 @@ A: Check if there's a language file in 'FXDATA' folder for the
 Q: Mouse doesn't work properly.
 A: There's no fix for this yet.
 
-Q: Mouse disappears when I try to enter network game.
+Q: I get a message 'Cannot initialize' when I try to enter network game.
 A: There's no fix; use stanard DK with IPX fix for multiplayer.
 
 Q: Switching resolution/Taking over control in map view disables
@@ -219,8 +220,45 @@ New and modified level script commands:
   Location meaning is identical to the one in DISPLAY_OBJECTIVE.
   For example, to reveal Hero Gate no.1:
   REVEAL_MAP_LOCATION(PLAYER0,-1,11)
+ RESEARCH
+  Changes amount of research points needed to discover an item
+  in library. It doesn't affect research order, only amount
+  of points. If the item never was in research list, it's added
+  at end. Example: RESEARCH(PLAYER1,MAGIC,POWER_CHICKEN,10000)
+ RESEARCH_ORDER
+  When this command is first called, the research list for
+  specified players is cleared. Using it you may create
+  a research list from beginning. Note that if you won't place
+  an item on the list, it will not be possible to research it.
+  So if you're using this command, you must add all items
+  available on the level to the research list. Example:
+   RESEARCH_ORDER(ALL_PLAYERS,ROOM,SCAVENGER,50000)
+   [...] - more RESEARCH_ORDER commands should follow.
+ RANDOM
+  It's not a command, but may be used instead of most parameters.
+  If used instead of a number, then should look like:
+   RANDOM(min,max)
+  but may also be used instead of any other value. Examples:
+    MAX_CREATURES(PLAYER0,RANDOM(12,19))
+    ADD_CREATURE_TO_POOL(RANDOM,20)
+  Note that when used instead of player name, RANDOM may return
+  ALL_PLAYERS. Also, the command shouldn't be used in multiplayer
+  maps, as it will lead to synchronization problems.
+  Value represented by RANDOM is selected at start of a map,
+  and never changes during the gameplay.
 
 Changelog:
+
+Version: 0.3.2
+  Added CPU identification
+  Rewritten part of spell casting code
+  Rewritten some of 'Transfer creature' code
+  Rewritten some possession-related code
+  RANDOM can now be used instead of most values in script
+  Remade part of 'player instances' code
+  More cheat options, like 'Everything is free', now works
+  Created .LOF Level Overview Files, levels.txt no longer used
+  Started replacing network support
 
 Version: 0.3.1
   Fixed disappearing creatures in zoom box
