@@ -138,7 +138,6 @@ TbError LbNetwork_Shutdown(void)
 
 TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct SerialInitData *init_data)
 {
-  static const char *func_name="LbNetwork_Init";
   struct TbNetworkPlayerInfo *lpinfo;
   TbError res;
   long i;
@@ -168,7 +167,7 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
   }
   if ((compositeBufferSize <= 0) || (compositeBuffer == NULL))
   {
-    LbWarnLog("%s: failure on buffer allocation\n",func_name);
+    WARNLOG("Failure on buffer allocation");
     //_wint_thread_data = thread_data_mem;
     return Lb_FAIL;
   }
@@ -178,40 +177,40 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
   switch (srvcIndex)
   {
   case 0:
-      LbNetLog("Selecting Serial SP\n");
+      NETMSG("Selecting Serial SP");
       if (GenericSerialInit(guid,init_data) == Lb_OK)
       {
         res = Lb_OK;
       } else
       {
-        LbWarnLog("%s: failure on Serial Initialization\n",func_name);
+        WARNLOG("Failure on Serial Initialization");
         res = Lb_FAIL;
       }
       break;
   case 1:
-      LbNetLog("Selecting Modem SP\n");
+      NETMSG("Selecting Modem SP");
       if (GenericModemInit(guid,init_data) == Lb_OK)
       {
         res = Lb_OK;
       } else
       {
-        LbWarnLog("%s: failure on Modem Initialization\n",func_name);
+        WARNLOG("Failure on Modem Initialization");
         res = Lb_FAIL;
       }
       break;
   case 2:
-      LbNetLog("Selecting IPX SP\n");
+      NETMSG("Selecting IPX SP");
       if (GenericIPXInit(guid) == Lb_OK)
       {
         res = Lb_OK;
       } else
       {
-        LbWarnLog("%s: failure on IPX Initialization\n",func_name);
+        WARNLOG("Failure on IPX Initialization");
         res = Lb_FAIL;
       }
       break;
   default:
-      LbWarnLog("The serviceIndex value of %d is out of range\n", srvcIndex);
+      WARNLOG("The serviceIndex value of %d is out of range", srvcIndex);
       res = Lb_FAIL;
       break;
   }
@@ -221,7 +220,6 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
 
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, unsigned long *plyr_num, void *optns)
 {
-  static const char *func_name="LbNetwork_Join";
   TbError ret;
   TbClockMSec tmStart;
   //return _DK_LbNetwork_Join(nsname, plyr_name, plyr_num);
@@ -229,7 +227,7 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
   tmStart = LbTimerClock();
   if (spPtr == NULL)
   {
-    LbErrorLog("%s: ServiceProvider ptr is NULL\n",func_name);
+    ERRORLOG("ServiceProvider ptr is NULL");
     return Lb_FAIL;
   }
   if (runningTwoPlayerModel)
@@ -242,7 +240,7 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
   sequenceNumber = 15;
   if (spPtr->Start(nsname, plyr_name, optns))
   {
-    LbWarnLog("%s: failure on Join\n",func_name);
+    WARNLOG("Failure on Join");
     return Lb_FAIL;
   }
   if (!runningTwoPlayerModel)
@@ -267,14 +265,14 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
   ret = GetCurrentPlayers();
   if (ret != Lb_OK)
   {
-    LbWarnLog("%s: cannot get current players\n",func_name);
+    WARNLOG("Cannot get current players");
     return ret;
   }
   *plyr_num = localPlayerIndex;
   ret = GetPlayerInfo();
   if (ret != Lb_OK)
   {
-    LbWarnLog("%s: cannot get player info\n",func_name);
+    WARNLOG("Cannot get player info");
     return ret;
   }
   return Lb_OK;
@@ -282,11 +280,10 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns)
 {
-  static const char *func_name="LbNetwork_Create";
   //return _DK_LbNetwork_Create(nsname_str, plyr_name, plyr_num);
   if (spPtr == NULL)
   {
-    LbErrorLog("%s: ServiceProvider ptr is NULL\n",func_name);
+    ERRORLOG("ServiceProvider ptr is NULL");
     return Lb_FAIL;
   }
   if ( runningTwoPlayerModel )
@@ -298,17 +295,17 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
   }
   if (spPtr->Start(nsname_str, plyr_name, maximumPlayers, optns) != Lb_OK)
   {
-    LbWarnLog("%s: failure on SP::Start()\n",func_name);
+    WARNLOG("Failure on SP::Start()");
     return Lb_FAIL;
   }
   if (GetCurrentPlayers() != Lb_OK)
   {
-    LbWarnLog("%s: cannot get current players\n",func_name);
+    WARNLOG("Cannot get current players");
     return Lb_FAIL;
   }
   if (GetPlayerInfo() != Lb_OK)
   {
-    LbWarnLog("%s: cannot get player info\n",func_name);
+    WARNLOG("Cannot get player info");
     return Lb_FAIL;
   }
   LbNetwork_EnableNewPlayers(true);
@@ -317,7 +314,6 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
 
 TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long buf_size)
 {
-  static const char *func_name="LbNetwork_ChangeExchangeBuffer";
   void *cbuf;
   long comps_size;
   //return _DK_LbNetwork_ChangeExchangeBuffer(buf, buf_size);
@@ -329,7 +325,7 @@ TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long buf_size)
     cbuf = LbMemoryAlloc(comps_size);
     if (cbuf == NULL)
     {
-      LbWarnLog("%s: failure on buffer allocation\n",func_name);
+      WARNLOG("Failure on buffer allocation");
       compositeBuffer = NULL;
       return Lb_FAIL;
     }
@@ -342,7 +338,7 @@ TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long buf_size)
   cbuf = LbMemoryAlloc(comps_size);
   if (cbuf == NULL)
   {
-    LbWarnLog("%s: failure on buffer reallocation\n",func_name);
+    WARNLOG("Failure on buffer reallocation");
     return Lb_FAIL;
   }
   LbMemoryCopy(cbuf, compositeBuffer, compositeBufferSize);
@@ -359,15 +355,14 @@ void LbNetwork_ChangeExchangeTimeout(unsigned long tmout)
 
 TbError LbNetwork_Stop(void)
 {
-  static const char *func_name="LbNetwork_Stop";
   //return _DK_LbNetwork_Stop();
   if (spPtr == NULL)
   {
-    LbErrorLog("%s: ServiceProvider ptr is NULL\n",func_name);
+    ERRORLOG("ServiceProvider ptr is NULL");
     return Lb_FAIL;
   }
   if (spPtr->Release())
-    LbWarnLog("%s: failure on Release\n",func_name);
+    WARNLOG("Failure on Release");
   if (spPtr != NULL)
     delete spPtr;
   spPtr = NULL;
@@ -399,17 +394,16 @@ TbError LbNetwork_Stop(void)
 
 TbError LbNetwork_Exchange(void *buf)
 {
-  static const char *func_name="LbNetwork_Exchange";
-  LbNetLog("%s: Starting\n",func_name);
+  NETLOG("Starting");
   //return _DK_LbNetwork_Exchange(buf);
   if (LbNetwork_StartExchange(buf) != Lb_OK)
   {
-    LbWarnLog("%s failure when Starting Exchange\n",func_name);
+    WARNLOG("Failure when Starting Exchange");
     return Lb_FAIL;
   }
   if (LbNetwork_CompleteExchange(buf) != Lb_OK)
   {
-    LbWarnLog("%s: failure when Completing Exchange\n",func_name);
+    WARNLOG("Failure when Completing Exchange");
     return Lb_FAIL;
   }
   return Lb_OK;
@@ -417,27 +411,25 @@ TbError LbNetwork_Exchange(void *buf)
 
 TbError LbNetwork_EnableNewPlayers(TbBool allow)
 {
-  static const char *func_name="LbNetwork_EnableNewPlayers";
   //return _DK_LbNetwork_EnableNewPlayers(allow);
   if (spPtr == NULL)
   {
-    LbErrorLog("%s: ServiceProvider ptr is NULL\n",func_name);
+    ERRORLOG("ServiceProvider ptr is NULL");
     return Lb_FAIL;
   }
   if (allow)
   {
-    LbNetLog("New players ARE allowed to join\n");
+    NETMSG("New players ARE allowed to join");
     return spPtr->EnableNewPlayers(true);
   } else
   {
-    LbNetLog("New players are NOT allowed to join\n");
+    NETMSG("New players are NOT allowed to join");
     return spPtr->EnableNewPlayers(false);
   }
 }
 
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
 {
-  static const char *func_name="LbNetwork_EnumerateServices";
 //  TbBool local_init;
   struct TbNetworkCallbackData netcdat;
   //return _DK_LbNetwork_EnumerateServices(callback, ptr);
@@ -456,7 +448,7 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
     callback(&netcdat, ptr);
     strcpy(netcdat.svc_name, "IPX");
     callback(&netcdat, ptr);
-    LbNetLog("Enumerate Services called\n");
+    NETMSG("Enumerate Services called");
   }
   if (local_init)
     LbNetwork_Shutdown();
@@ -468,7 +460,7 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
   callback(&netcdat, ptr);
   strcpy(netcdat.svc_name, "IPX");
   callback(&netcdat, ptr);
-  LbNetLog("Enumerate Services called\n");
+  NETMSG("Enumerate Services called");
   return Lb_OK;
 }
 
@@ -478,18 +470,17 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
  */
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *buf)
 {
-  static const char *func_name="LbNetwork_EnumeratePlayers";
   char ret;
   //return _DK_LbNetwork_EnumeratePlayers(sesn, callback, a2);
   if (spPtr == NULL)
   {
-    LbErrorLog("%s: ServiceProvider ptr is NULL\n",func_name);
+    ERRORLOG("ServiceProvider ptr is NULL");
     return Lb_FAIL;
   }
   ret = spPtr->Enumerate(sesn, callback, buf);
   if (ret != Lb_OK)
   {
-    LbWarnLog("%s: failure on Enumerate\n",func_name);
+    WARNLOG("Failure on Enumerate");
     return ret;
   }
   return Lb_OK;
@@ -497,18 +488,17 @@ TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNet
 
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
 {
-  static const char *func_name="LbNetwork_EnumerateSessions";
   char ret;
   //return _DK_LbNetwork_EnumerateSessions(callback, ptr);
   if (spPtr == NULL)
   {
-    LbErrorLog("%s: ServiceProvider ptr is NULL\n",func_name);
+    ERRORLOG("ServiceProvider ptr is NULL");
     return Lb_FAIL;
   }
   ret = spPtr->Enumerate(callback, ptr);
   if (ret != Lb_OK)
   {
-    LbWarnLog("%s: failure on Enumerate\n",func_name);
+    WARNLOG("Failure on Enumerate");
     return ret;
   }
   return Lb_OK;
@@ -516,10 +506,9 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
 
 TbError LbNetwork_StartExchange(void *buf)
 {
-  static const char *func_name="LbNetwork_StartExchange";
   if (spPtr == NULL)
   {
-    LbErrorLog("%s: ServiceProvider ptr is NULL\n",func_name);
+    ERRORLOG("ServiceProvider ptr is NULL");
     return Lb_FAIL;
   }
   if (runningTwoPlayerModel)
@@ -530,10 +519,9 @@ TbError LbNetwork_StartExchange(void *buf)
 
 TbError LbNetwork_CompleteExchange(void *buf)
 {
-  static const char *func_name="LbNetwork_CompleteExchange";
   if (spPtr == NULL)
   {
-    LbErrorLog("%s: ServiceProvider ptr is NULL\n",func_name);
+    ERRORLOG("ServiceProvider ptr is NULL");
     return Lb_FAIL;
   }
   if ( runningTwoPlayerModel )
@@ -544,7 +532,6 @@ TbError LbNetwork_CompleteExchange(void *buf)
 
 TbError ClearClientData(void)
 {
-  static const char *func_name="ClearClientData";
   long i;
   LbMemorySet(clientDataTable, 0, 32*sizeof(struct ClientDataEntry));
   for (i=0; i < maximumPlayers; i++)
@@ -555,22 +542,21 @@ TbError ClearClientData(void)
 
 TbError GetCurrentPlayers(void)
 {
-  static const char *func_name="GetCurrentPlayers";
   if (spPtr == NULL)
   {
-    LbErrorLog("%s: ServiceProvider ptr is NULL\n",func_name);
+    ERRORLOG("ServiceProvider ptr is NULL");
     return Lb_FAIL;
   }
-  LbNetLog("%s: Starting\n",func_name);
+  NETLOG("Starting");
   localPlayerIndex = maximumPlayers;
   if (spPtr->Enumerate(0, GetCurrentPlayersCallback, 0))
   {
-    LbWarnLog("%s: failure on SP::Enumerate()\n",func_name);
+    WARNLOG("Failure on SP::Enumerate()");
     return Lb_FAIL;
   }
   if (localPlayerIndex >= maximumPlayers)
   {
-    LbWarnLog("%s: localPlayerIndex not updated, max players %d\n",func_name,maximumPlayers);
+    WARNLOG("localPlayerIndex not updated, max players %d",maximumPlayers);
     return Lb_FAIL;
   }
   return Lb_OK;
@@ -583,11 +569,10 @@ void __stdcall GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, 
 
 TbError GetPlayerInfo(void)
 {
-  static const char *func_name="GetPlayerInfo";
   struct ClientDataEntry  *clidat;
   struct TbNetworkPlayerInfo *lpinfo;
   long i;
-  LbNetLog("%s: Starting\n",func_name);
+  NETLOG("Starting");
   for (i=0; i < maximumPlayers; i++)
   {
     clidat = &clientDataTable[i];
@@ -658,7 +643,6 @@ TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
 
 TbError GenericSerialInit(struct _GUID guid, void *init_data)
 {
-  static const char *func_name="GenericSerialInit";
   struct SerialInitData *sp_init;
   if (spPtr != NULL)
   {
@@ -684,12 +668,12 @@ TbError GenericSerialInit(struct _GUID guid, void *init_data)
   spPtr = NULL;//new SerialSP(...);
   if (spPtr == NULL)
   {
-    LbWarnLog("%s: failure on SP construction\n",func_name);
+    WARNLOG("Failure on SP construction");
     return Lb_FAIL;
   }
   if (spPtr->Init(guid, 0, &receiveCallbacks, 0) != Lb_OK)
   {
-    LbWarnLog("%s: failure on SP::Init()\n",func_name);
+    WARNLOG("Failure on SP::Init()");
     return Lb_FAIL;
   }
   return Lb_OK;
@@ -697,7 +681,6 @@ TbError GenericSerialInit(struct _GUID guid, void *init_data)
 
 TbError GenericModemInit(struct _GUID guid, void *init_data)
 {
-  static const char *func_name="GenericSerialInit";
   struct SerialInitData *sp_init;
   if (spPtr != NULL)
   {
@@ -723,12 +706,12 @@ TbError GenericModemInit(struct _GUID guid, void *init_data)
   spPtr = NULL;//new ModemSP(...);
   if (spPtr == NULL)
   {
-    LbWarnLog("%s: failure on SP construction\n",func_name);
+    WARNLOG("Failure on SP construction");
     return Lb_FAIL;
   }
   if (spPtr->Init(guid, 0, &receiveCallbacks, 0) != Lb_OK)
   {
-    LbWarnLog("%s: failure on SP::Init()\n",func_name);
+    WARNLOG("Failure on SP::Init()");
     return Lb_FAIL;
   }
   return Lb_OK;
@@ -736,7 +719,6 @@ TbError GenericModemInit(struct _GUID guid, void *init_data)
 
 TbError GenericIPXInit(struct _GUID guid)
 {
-  static const char *func_name="GenericIPXInit";
   if (spPtr != NULL)
   {
     spPtr->Release();
@@ -746,12 +728,12 @@ TbError GenericIPXInit(struct _GUID guid)
   spPtr = new IPXServiceProvider();
   if (spPtr == NULL)
   {
-    LbWarnLog("%s: failure on SP construction\n",func_name);
+    WARNLOG("Failure on SP construction");
     return Lb_FAIL;
   }
   if (spPtr->Init(guid, 0, &receiveCallbacks, 0) != Lb_OK)
   {
-    LbWarnLog("%s: failure on SP::Init()\n",func_name);
+    WARNLOG("Failure on SP::Init()");
     return Lb_FAIL;
   }
   return Lb_OK;
@@ -761,13 +743,13 @@ TbError SendRequestCompositeExchangeDataMsg(const char *func_name)
 {
   if (spPtr->GetRequestCompositeExchangeDataMsgSize() > sizeof(requestCompositeExchangeDataBuffer))
   {
-    LbWarnLog("%s: requestCompositeExchangeDataBuffer is too small\n",func_name);
+    WARNMSG("%s: requestCompositeExchangeDataBuffer is too small",func_name);
     return Lb_FAIL;
   }
   spPtr->EncodeRequestCompositeExchangeDataMsg(requestCompositeExchangeDataBuffer,localPlayerId,sequenceNumber);
   if (spPtr->Send(hostId, requestCompositeExchangeDataBuffer) != 0)
   {
-    LbWarnLog("%s: failure on SP::Send()\n",func_name);
+    WARNMSG("%s: Failure on SP::Send()",func_name);
     return Lb_FAIL;
   }
   return Lb_OK;
@@ -778,7 +760,7 @@ TbError SendRequestToAllExchangeDataMsg(unsigned long src_id,unsigned long seq, 
   long i;
   if (spPtr->GetRequestCompositeExchangeDataMsgSize() > sizeof(requestExchangeDataBuffer))
   {
-    LbWarnLog("%s: requestCompositeExchangeDataBuffer is too small\n",func_name);
+    WARNMSG("%s: requestCompositeExchangeDataBuffer is too small",func_name);
     return Lb_FAIL;
   }
   spPtr->EncodeRequestExchangeDataMsg(requestExchangeDataBuffer, src_id, seq);
@@ -787,7 +769,7 @@ TbError SendRequestToAllExchangeDataMsg(unsigned long src_id,unsigned long seq, 
     if ((clientDataTable[i].field_4) && (!clientDataTable[i].field_8))
     {
       if (spPtr->Send(clientDataTable[i].field_0,requestExchangeDataBuffer))
-        LbWarnLog("%s: failure on SP::Send()\n",func_name);
+        WARNMSG("%s: Failure on SP::Send()",func_name);
     }
   }
   return Lb_OK;
@@ -797,13 +779,13 @@ TbError SendRequestExchangeDataMsg(unsigned long dst_id,unsigned long src_id,uns
 {
   if (spPtr->GetRequestCompositeExchangeDataMsgSize() > sizeof(requestExchangeDataBuffer))
   {
-    LbWarnLog("%s: requestCompositeExchangeDataBuffer is too small\n",func_name);
+    WARNMSG("%s: requestCompositeExchangeDataBuffer is too small",func_name);
     return Lb_FAIL;
   }
   spPtr->EncodeRequestExchangeDataMsg(requestExchangeDataBuffer, src_id, seq);
   if (spPtr->Send(dst_id,requestExchangeDataBuffer))
   {
-    LbWarnLog("%s: failure on SP::Send()\n",func_name);
+    WARNMSG("%s: Failure on SP::Send()",func_name);
     return Lb_FAIL;
   }
   return Lb_OK;
@@ -813,22 +795,21 @@ TbError SendDeletePlayerMsg(unsigned long dst_id,unsigned long del_id,const char
 {
   if (spPtr->GetRequestCompositeExchangeDataMsgSize() > sizeof(deletePlayerBuffer))
   {
-    LbWarnLog("%s: deletePlayerBuffer is too small\n",func_name);
+    WARNMSG("%s: deletePlayerBuffer is too small",func_name);
     return Lb_FAIL;
   }
   spPtr->EncodeDeletePlayerMsg(deletePlayerBuffer, del_id);
   if (spPtr->Send(dst_id, deletePlayerBuffer) != Lb_OK)
   {
-    LbWarnLog("%s failure on SP::Send()\n",func_name);
+    WARNLOG("Failure on SP::Send()");
     return Lb_FAIL;
   }
-  LbNetLog("%s: Sent delete player message\n",func_name);
+  NETMSG("%s: Sent delete player message",func_name);
   return Lb_OK;
 }
 
 TbError HostDataCollection(void)
 {
-  static const char *func_name="HostDataCollection";
   TbError ret;
   TbClockMSec tmPassed;
   int exchngNeeded;
@@ -872,11 +853,11 @@ TbError HostDataCollection(void)
     tmPassed = LbTimerClock()-startTime;
     if (tmPassed > actualTimeout)
     {
-      LbNetLog("Timed out waiting for client\n");
+      NETMSG("Timed out waiting for client");
       nRetries++;
       if (nRetries <= 10)
       {
-        SendRequestToAllExchangeDataMsg(hostId, sequenceNumber, func_name);
+        SendRequestToAllExchangeDataMsg(hostId, sequenceNumber, __func__);
       } else
       {
         if (spPtr->GetRequestCompositeExchangeDataMsgSize() <= sizeof(deletePlayerBuffer))
@@ -891,14 +872,14 @@ TbError HostDataCollection(void)
                 if ((clientDataTable[k].field_4) && (clientDataTable[k].field_0 != clientDataTable[i].field_0))
                 {
                   if ( spPtr->Send(clientDataTable[i].field_0,deletePlayerBuffer) )
-                    LbWarnLog("%s: failure on SP::Send()\n",func_name);
+                    WARNLOG("failure on SP::Send()");
                 }
               }
             }
           }
         } else
         {
-          LbWarnLog("%s: deletePlayerBuffer is too small\n",func_name);
+          WARNLOG("deletePlayerBuffer is too small");
         }
       }
       startTime = LbTimerClock();
@@ -912,7 +893,6 @@ TbError HostDataCollection(void)
 
 TbError HostDataBroadcast(void)
 {
-  static const char *func_name="HostDataBroadcast";
   TbError ret;
   long i;
   ret = Lb_OK;
@@ -924,7 +904,7 @@ TbError HostDataBroadcast(void)
     {
       if ( spPtr->Send(clientDataTable[i].field_0, exchangeBuffer) )
       {
-        LbWarnLog("%s: failure on SP::Send()\n",func_name);
+        WARNLOG("Failure on SP::Send()");
           ret = Lb_FAIL;
       }
     }
@@ -938,12 +918,12 @@ TbError SendSequenceNumber(void *buf, const char *func_name)
   {
     if (HostDataCollection() != Lb_OK)
     {
-      LbWarnLog("%s: failure on HostDataCollection()\n",func_name);
+      WARNMSG("%s: Failure on HostDataCollection()",func_name);
       return Lb_FAIL;
     }
     if (HostDataBroadcast() != Lb_OK)
     {
-      LbWarnLog("%s: failure on HostDataBroadcast()\n",func_name);
+      WARNMSG("%s: Failure on HostDataBroadcast()",func_name);
       return Lb_FAIL;
     }
   } else
@@ -951,7 +931,7 @@ TbError SendSequenceNumber(void *buf, const char *func_name)
     spPtr->EncodeMessageStub(buf, exchangeSize-4, 0, sequenceNumber);
     if (spPtr->Send(hostId, buf) != Lb_OK)
     {
-      LbWarnLog("%s: failure on SP::Send()\n",func_name);
+      WARNMSG("%s: Failure on SP::Send()",func_name);
       return Lb_FAIL;
     }
   }
@@ -960,7 +940,6 @@ TbError SendSequenceNumber(void *buf, const char *func_name)
 
 TbError StartTwoPlayerExchange(void *buf)
 {
-  static const char *func_name="StartTwoPlayerExchange";
   if (!clientDataTable[remotePlayerIndex].field_4)
     spPtr->Receive(2);
   gotCompositeData = 0;
@@ -975,7 +954,7 @@ TbError StartTwoPlayerExchange(void *buf)
     spPtr->EncodeMessageStub(buf, exchangeSize-4, 0, sequenceNumber);
     if (spPtr->Send(remotePlayerId, buf) != Lb_OK)
     {
-      LbWarnLog("%s: failure on SP::Send()\n",func_name);
+      WARNLOG("Failure on SP::Send()");
       return Lb_FAIL;
     }
     startTime = LbTimerClock();
@@ -991,7 +970,6 @@ TbError StartTwoPlayerExchange(void *buf)
 
 TbError StartMultiPlayerExchange(void *buf)
 {
-  static const char *func_name="StartMultiPlayerExchange";
   struct ClientDataEntry  *clidat;
   long i;
   localDataPtr = buf;
@@ -1011,7 +989,7 @@ TbError StartMultiPlayerExchange(void *buf)
   spPtr->EncodeMessageStub(buf, exchangeSize-4, 0, exchangeSize-4);
   if (spPtr->Send(hostId, buf) != Lb_OK)
   {
-    LbWarnLog("%s: failure on SP::Send()\n",func_name);
+    WARNLOG("Failure on SP::Send()");
     return Lb_FAIL;
   }
   return Lb_OK;
@@ -1019,7 +997,6 @@ TbError StartMultiPlayerExchange(void *buf)
 
 TbError CompleteTwoPlayerExchange(void *buf)
 {
-  static const char *func_name="CompleteTwoPlayerExchange";
   TbError ret;
   TbBool keepExchng;
   TbClockMSec tmPassed;
@@ -1061,16 +1038,16 @@ TbError CompleteTwoPlayerExchange(void *buf)
         tmPassed = -tmPassed;
       if (tmPassed > actualTimeout)
       {
-        LbNetLog("Timed out (%d) waiting for seq %d - %d ms\n", tmPassed, sequenceNumber, actualTimeout);
+        NETMSG("Timed out (%d) waiting for seq %d - %d ms", tmPassed, sequenceNumber, actualTimeout);
         nRetries++;
         if (nRetries <= 10)
         {
-          LbNetLog("Requesting %d resend of packet (%d)\n", nRetries, sequenceNumber);
-          SendRequestExchangeDataMsg(remotePlayerId, localPlayerId, sequenceNumber, func_name);
+          NETMSG("Requesting %d resend of packet (%d)", nRetries, sequenceNumber);
+          SendRequestExchangeDataMsg(remotePlayerId, localPlayerId, sequenceNumber, __func__);
         } else
         {
-          LbNetLog("Tried to resend %d times, aborting\n", nRetries);
-          SendDeletePlayerMsg(localPlayerId, remotePlayerId, func_name);
+          NETMSG("Tried to resend %d times, aborting", nRetries);
+          SendDeletePlayerMsg(localPlayerId, remotePlayerId, __func__);
           return Lb_FAIL;
         }
         startTime = LbTimerClock();
@@ -1104,7 +1081,6 @@ TbError CompleteTwoPlayerExchange(void *buf)
 
 TbError CompleteMultiPlayerExchange(void *buf)
 {
-  static const char *func_name="CompleteMultiPlayerExchange";
   TbError ret;
   TbBool hostChange;
   TbBool keepExchng;
@@ -1126,7 +1102,7 @@ TbError CompleteMultiPlayerExchange(void *buf)
         hostChange = true;
       if (hostChange)
       {
-        ret = SendSequenceNumber(buf,func_name);
+        ret = SendSequenceNumber(buf,__func__);
         if (hostId == localPlayerId)
         {
           keepExchng = 0;
@@ -1158,14 +1134,14 @@ TbError CompleteMultiPlayerExchange(void *buf)
       // Now the time out code
       if (tmPassed <= actualTimeout)
         continue;
-      LbNetLog("Timed out waiting for host\n");
+      NETMSG("Timed out waiting for host");
       nRetries++;
       if (nRetries <= 10)
       {
-        SendRequestCompositeExchangeDataMsg(func_name);
+        SendRequestCompositeExchangeDataMsg(__func__);
       } else
       {
-        SendDeletePlayerMsg(localPlayerId, hostId, func_name);
+        SendDeletePlayerMsg(localPlayerId, hostId, __func__);
       }
       startTime = LbTimerClock();
       actualTimeout = (nRetries+1) * basicTimeout;
@@ -1188,10 +1164,9 @@ TbError CompleteMultiPlayerExchange(void *buf)
 
 TbError SendSystemUserMessage(unsigned long plr_id, int te, void *ibuf, unsigned long ibuf_len)
 {
-  static const char *func_name="SendSystemUserMessage";
   if (ibuf_len+5 > sizeof(systemUserBuffer))
   {
-    LbWarnLog("%s: systemUserBuffer is too small\n", func_name);
+    WARNLOG("systemUserBuffer is too small");
     return Lb_FAIL;
   }
   spPtr->EncodeMessageStub(systemUserBuffer, ibuf_len+1, 4, 0);
@@ -1205,7 +1180,6 @@ TbError SendSystemUserMessage(unsigned long plr_id, int te, void *ibuf, unsigned
 
 void PlayerMapMsgHandler(unsigned long plr_id, void *msg, unsigned long msg_len)
 {
-  static const char *func_name="PlayerMapMsgHandler";
   unsigned long len;
   len = sizeof(struct ClientDataEntry)*maximumPlayers;
   if (msg_len == 0)
@@ -1215,12 +1189,12 @@ void PlayerMapMsgHandler(unsigned long plr_id, void *msg, unsigned long msg_len)
   }
   if (!waitingForPlayerMapResponse)
   {
-    LbWarnLog("%s: received unexpected SU_PLAYER_MAP_MSG\n",func_name);
+    WARNLOG("Received unexpected SU_PLAYER_MAP_MSG");
     return;
   }
   if (msg_len != len)
   {
-    LbWarnLog("%s: invalid length %d\n",func_name,msg_len);
+    WARNLOG("Invalid length, %d",msg_len);
     return;
   }
   LbMemoryCopy(clientDataTable, msg, len);
@@ -1229,21 +1203,20 @@ void PlayerMapMsgHandler(unsigned long plr_id, void *msg, unsigned long msg_len)
 
 void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned long seq, void *a4)
 {
-  static const char *func_name="MultiPlayerCallback";
   TbBool found_id;
   long i;
   if (inside_sr)
-    LbNetLog("%s: Got a request\n",func_name);
+    NETLOG("Got a request");
   if (localPlayerId == hostId)
   {
     if (xch_size != exchangeSize)
     {
-      LbWarnLog("%s: invalid length: %d\n",func_name,xch_size);
+      WARNLOG("Invalid length, %d",xch_size);
       return NULL;
     }
     if (plr_id == localPlayerId)
     {
-      LbWarnLog("%s: host got data from itself\n",func_name);
+      WARNLOG("host got data from itself");
       return NULL;
     }
     found_id = false;
@@ -1257,12 +1230,12 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
     }
     if (!found_id)
     {
-      LbWarnLog("%s: invalid id: %d\n",func_name,plr_id);
+      WARNLOG("Invalid id: %d",plr_id);
       return NULL;
     }
     if ((seq != sequenceNumber) && (seq != 15))
     {
-      LbWarnLog("%s: Unexpected sequence number: Got %d, expected %d\n",func_name,seq,sequenceNumber);
+      WARNLOG("Unexpected sequence number: Got %d, expected %d",seq,sequenceNumber);
       return NULL;
     }
     clientDataTable[plr_id].field_8 = 1;
@@ -1272,12 +1245,12 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
   {
     if (xch_size != exchangeSize)
     {
-      LbWarnLog("%s: invalid length: %d\n",func_name,xch_size);
+      WARNLOG("Invalid length: %d",xch_size);
       return NULL;
     }
     if (plr_id == localPlayerId)
     {
-      LbWarnLog("%s: client acting as host got data from itself\n",func_name);
+      WARNLOG("Client acting as host got data from itself");
       return NULL;
     }
     found_id = false;
@@ -1291,7 +1264,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
     }
     if (!found_id)
     {
-      LbWarnLog("%s: invalid id: %d\n",func_name,plr_id);
+      WARNLOG("Invalid id: %d",plr_id);
       return NULL;
     }
     clientDataTable[plr_id].field_8 = 1;
@@ -1299,7 +1272,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
   }
   if (hostId != plr_id)
   {
-    LbWarnLog("%s: data is not from host\n",func_name);
+    WARNLOG("Data is not from host");
     return NULL;
   }
   found_id = false;
@@ -1313,7 +1286,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
   }
   if (!found_id)
   {
-    LbWarnLog("%s: invalid id: %d\n",func_name,plr_id);
+    WARNLOG("Invalid id: %d",plr_id);
     return 0;
   }
   if (sequenceNumber == 15)
@@ -1322,7 +1295,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
   } else
   if (sequenceNumber != seq)
   {
-    LbWarnLog("%s: Unexpected sequence number: Got %d, expected %d\n", seq, sequenceNumber);
+    WARNLOG("Unexpected sequence number: Got %d, expected %d", seq, sequenceNumber);
     return NULL;
   }
   gotCompositeData = true;
@@ -1331,25 +1304,24 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
 
 void MultiPlayerReqExDataMsgCallback(unsigned long plr_id, unsigned long seq, void *a3)
 {
-  static const char *func_name="MultiPlayerReqExDataMsgCallback";
   if (inside_sr)
-    LbNetLog("%s: Got a request\n",func_name);
+    NETLOG("Got a request");
   if (localDataPtr == NULL)
   {
-    LbWarnLog("%s: NULL data pointer\n",func_name);
+    WARNLOG("NULL data pointer");
     return;
   }
   if (sequenceNumber == 15)
     sequenceNumber = seq;
   if (seq != sequenceNumber)
   {
-    LbWarnLog("%s: unexpected sequence number, got %d, expected %d\n",func_name,seq,sequenceNumber);
+    WARNLOG("Unexpected sequence number, got %d, expected %d",seq,sequenceNumber);
     return;
   }
   spPtr->EncodeMessageStub(localDataPtr, exchangeSize-4, 0, sequenceNumber);
   if (spPtr->Send(plr_id, localDataPtr) != Lb_OK)
   {
-    LbWarnLog("%s: failure on SP::Send()\n",func_name);
+    WARNLOG("Failure on SP::Send()");
   }
 }
 
@@ -1365,7 +1337,6 @@ void AddMsgCallback(unsigned long a1, char *nmstr, void *a3)
 
 void DeleteMsgCallback(unsigned long plr_id, void *a2)
 {
-  static const char *func_name="DeleteMsgCallback";
   long i;
   for (i=0; i < maximumPlayers; i++)
   {
@@ -1377,7 +1348,7 @@ void DeleteMsgCallback(unsigned long plr_id, void *a2)
         localPlayerInfoPtr[i].field_20 = 0;
       } else
       {
-        LbWarnLog("%s: NULL localPlayerInfoPtr\n",func_name);
+        WARNLOG("NULL localPlayerInfoPtr");
       }
     }
   }
@@ -1390,27 +1361,25 @@ void HostMsgCallback(unsigned long plr_id, void *a2)
 
 void RequestCompositeExchangeDataMsgCallback(unsigned long plr_id, unsigned long seq, void *a3)
 {
-  static const char *func_name="RequestCompositeExchangeDataMsgCallback";
   if (inside_sr)
-    LbNetLog("%s: Got sequence %d, expected %d\n",func_name,seq,sequenceNumber);
+    NETLOG("Got sequence %d, expected %d",seq,sequenceNumber);
   if ((seq != sequenceNumber) && (seq != ((sequenceNumber - 1) & 0xF)))
   {
-    LbWarnLog("%s: unexpected sequence number, got %d, expected %d\n",func_name,seq,sequenceNumber);
+    WARNLOG("Unexpected sequence number, got %d, expected %d",seq,sequenceNumber);
     return;
   }
   if (spPtr->Send(plr_id, compositeBuffer) != Lb_OK)
   {
-    LbWarnLog("%s: failure on SP::Send()\n",func_name);
+    WARNLOG("Failure on SP::Send()");
     return;
   }
 }
 
 void *UnidirectionalMsgCallback(unsigned long a1, unsigned long msg_len, void *a3)
 {
-  static const char *func_name="UnidirectionalMsgCallback";
   if (msg_len > 524)
   {
-    LbWarnLog("%s: invalid length, %d vs %d\n", msg_len, 524);
+    WARNLOG("Invalid length, %d vs %d", msg_len, 524);
     return NULL;
   }
   unidirectionalMsgReceived = 1;
@@ -1419,14 +1388,13 @@ void *UnidirectionalMsgCallback(unsigned long a1, unsigned long msg_len, void *a
 
 void SystemUserMsgCallback(unsigned long plr_id, void *msgbuf, unsigned long msglen, void *a4)
 {
-  static const char *func_name="SystemUserMsgCallback";
   struct SystemUserMsg *msg;
   msg = (struct SystemUserMsg *)msgbuf;
   if ((msgbuf = NULL) || (msglen <= 0))
     return;
   if (msg->field_0)
   {
-    LbWarnLog("%s: illegal sysMsgType %d\n",func_name,msg->field_0);
+    WARNLOG("Illegal sysMsgType %d",msg->field_0);
   }
   PlayerMapMsgHandler(plr_id, msg->field_1, msglen-1);
 }

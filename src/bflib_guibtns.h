@@ -197,6 +197,7 @@ DLLIMPORT char _DK_backup_input_field[INPUT_FIELD_LEN];
 
 DLLIMPORT extern char *_DK_strings_data;
 DLLIMPORT extern char *_DK_strings[DK_STRINGS_MAX+1];
+
 #pragma pack()
 /******************************************************************************/
 extern char *gui_strings[STRINGS_MAX+1];

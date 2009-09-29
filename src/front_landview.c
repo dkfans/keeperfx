@@ -96,14 +96,11 @@ DLLIMPORT void _DK_update_velocity(void);
 /******************************************************************************/
 void draw_map_screen(void)
 {
-  static const char *func_name="draw_map_screen";
   unsigned char *dstbuf;
   unsigned char *srcbuf;
   long i;
   long w;
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(18,"Starting");
   dstbuf = lbDisplay.WScreen;
   w = lbDisplay.PhysicalScreenWidth;
   if (map_info.scrshift_x+w > MAP_SCREEN_WIDTH)
@@ -156,7 +153,6 @@ short is_ensign_in_screen_rect(struct LevelInformation *lvinfo)
  */
 void set_all_ensigns_state(unsigned short nstate)
 {
-  static const char *func_name="set_all_ensigns_state";
   struct LevelInformation *lvinfo;
   lvinfo = get_first_level_info();
   while (lvinfo != NULL)
@@ -168,15 +164,12 @@ void set_all_ensigns_state(unsigned short nstate)
 
 void update_ensigns_visibility(void)
 {
-  static const char *func_name="update_ensigns_visibility";
   struct LevelInformation *lvinfo;
   struct PlayerInfo *player;
   long lvnum,bn_lvnum;
   short show_all_sp;
   int i,k;
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(18,"Starting");
   set_all_ensigns_state(LvSt_Hidden);
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   show_all_sp = false;
@@ -223,15 +216,12 @@ void update_ensigns_visibility(void)
 
 void update_net_ensigns_visibility(void)
 {
-  static const char *func_name="update_net_ensigns_visibility";
   struct LevelInformation *lvinfo;
   struct PlayerInfo *player;
   long lvnum,bn_lvnum;
   short show_all_sp;
   int i,k;
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(18,"Starting");
   set_all_ensigns_state(LvSt_Hidden);
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   lvnum = first_multiplayer_level();
@@ -246,14 +236,11 @@ void update_net_ensigns_visibility(void)
 
 int compute_sound_good_to_bad_factor(void)
 {
-  static const char *func_name="compute_sound_good_to_bad_factor";
   struct LevelInformation *lvinfo;
   unsigned int onscr_bad,onscr_good;
   LevelNumber sp_lvnum,continue_lvnum;
   short lv_beaten;
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(18,"Starting");
   onscr_bad = 0;
   onscr_good = 0;
   continue_lvnum = get_continue_level_number();
@@ -280,7 +267,6 @@ int compute_sound_good_to_bad_factor(void)
 
 void update_frontmap_ambient_sound(void)
 {
-  static const char *func_name="update_frontmap_ambient_sound";
   long lvidx;
   long i;
   if (map_sound_fade)
@@ -289,9 +275,7 @@ void update_frontmap_ambient_sound(void)
     if ((features_enabled & Ft_AdvAmbSonud) != 0)
     {
       i = compute_sound_good_to_bad_factor();
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Volume factor is %ld\n",func_name,i);
-#endif
+      SYNCDBG(18,"Volume factor is %ld",i);
       SetSampleVolume(0, campaign.ambient_good, map_sound_fade*(i)/256, 0);
       SetSampleVolume(0, campaign.ambient_bad, map_sound_fade*(127-i)/256, 0);
     } else
@@ -320,7 +304,6 @@ void update_frontmap_ambient_sound(void)
 
 struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, int anim_frame)
 {
-  static const char *func_name="get_ensign_sprite_for_level";
   struct TbSprite *spr;
   int i;
   if (lvinfo == NULL)
@@ -400,7 +383,7 @@ struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, in
     spr = get_map_flag(34);
   }
   if (spr == &dummy_sprite)
-    LbErrorLog("Can't get Land view Ensign sprite\n");
+    ERRORLOG("Can't get Land view Ensign sprite");
   return spr;
 }
 
@@ -410,14 +393,11 @@ struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, in
  */
 void draw_map_level_ensigns(void)
 {
-  static const char *func_name="draw_map_level_ensigns";
   struct LevelInformation *lvinfo;
   struct TbSprite *spr;
   long x,y;
   int k;
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(18,"Starting");
   k = LbTimerClock()/200;
   lvinfo = get_last_level_info();
   while (lvinfo != NULL)
@@ -597,12 +577,11 @@ short play_description_speech(LevelNumber lvnum, short play_good)
 
 TbBool set_pointer_graphic_spland(long frame)
 {
-  static const char *func_name="set_pointer_graphic_spland";
   long i,x,y;
   struct TbSprite *spr;
   spr = get_map_flag(1);
   if (spr == &dummy_sprite)
-    LbErrorLog("Can't get Land view Mouse sprite\n");
+    ERRORLOG("Can't get Land view Mouse sprite");
   LbMouseChangeSprite(spr);
   return (spr != &dummy_sprite);
 }
@@ -805,7 +784,6 @@ void unload_map_and_window(void)
 
 TbBool load_map_and_window(LevelNumber lvnum)
 {
-  static const char *func_name="load_map_and_window";
   struct LevelInformation *lvinfo;
   char *land_view;
   char *land_window;
@@ -838,24 +816,24 @@ TbBool load_map_and_window(LevelNumber lvnum)
   }
   if ((land_view == NULL) || (land_window == NULL))
   {
-    LbErrorLog("No land View file names for level %d\n",lvnum);
+    ERRORLOG("No land View file names for level %d",lvnum);
     return false;
   }
   fname = prepare_file_fmtpath(FGrp_LandView,"%s.raw",land_view);
   flen = LbFileLengthRnc(fname);
   if (flen < 1024)
   {
-    error(func_name, 1923, "Land Map file doesn't exist or is too small");
+    ERRORLOG("Land Map file doesn't exist or is too small");
     return false;
   }
   if (flen > 1228997)
   {
-    error(func_name, 1916, "Not enough memory in game structure for land Map");
+    ERRORLOG("Not enough memory in game structure for land Map");
     return false;
   }
   if (LbFileLoadAt(fname, &game.land_map_start) != flen)
   {
-    error(func_name, 1970, "Unable to load land Map background");
+    ERRORLOG("Unable to load land Map background");
     return false;
   }
   map_screen = &game.land_map_start;
@@ -864,7 +842,7 @@ TbBool load_map_and_window(LevelNumber lvnum)
   wait_for_cd_to_be_available();
   if (LbFileLoadAt(fname, block_mem) == -1)
   {
-    error(func_name, 2007, "Unable to load Land Map Window");
+    ERRORLOG("Unable to load Land Map Window");
     unload_map_and_window();
     return false;
   }
@@ -873,7 +851,7 @@ TbBool load_map_and_window(LevelNumber lvnum)
   wait_for_cd_to_be_available();
   if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
   {
-    error(func_name, 2020, "Unable to load Land Map screen palette");
+    ERRORLOG("Unable to load Land Map screen palette");
     unload_map_and_window();
     return 0;
   }
@@ -883,14 +861,12 @@ TbBool load_map_and_window(LevelNumber lvnum)
 
 void frontnet_init_level_descriptions(void)
 {
-  static const char *func_name="frontnet_init_level_descriptions";
   find_and_load_lif_files();
   find_and_load_lof_files();
 }
 
 void frontnetmap_unload(void)
 {
-  static const char *func_name="frontnetmap_unload";
   clear_light_system();
   clear_mapmap();
   clear_things_and_persons_data();
@@ -911,12 +887,11 @@ void frontnetmap_unload(void)
 
 TbBool frontnetmap_load(void)
 {
-  static const char *func_name="frontnetmap_load";
   long i,k;
   if (fe_network_active)
   {
     if (LbNetwork_EnableNewPlayers(0))
-      error(func_name, 972, "Unable to prohibit new players joining exchange");
+      ERRORLOG("Unable to prohibit new players joining exchange");
   }
   wait_for_cd_to_be_available();
   frontend_load_data_from_cd();
@@ -928,7 +903,7 @@ TbBool frontnetmap_load(void)
   }
   if (LbDataLoadAll(netmap_flag_load_files))
   {
-    error(func_name, 989, "Unable to load MAP SCREEN sprites");
+    ERRORLOG("Unable to load MAP SCREEN sprites");
     return false;
   }
   LbSpriteSetupAll(netmap_flag_setup_sprites);
@@ -968,15 +943,12 @@ TbBool frontnetmap_load(void)
 
 TbBool frontmap_load(void)
 {
-  static const char *func_name="frontmap_load";
   struct PlayerInfo *player;
   struct LevelInformation *lvinfo;
   struct TbSprite *spr;
   LevelNumber lvnum;
   long lvidx;
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(18,"Starting");
 //  return _DK_frontmap_load();
   memset(scratch, 0, PALETTE_SIZE);
   LbPaletteSet(scratch);
@@ -997,7 +969,7 @@ TbBool frontmap_load(void)
   }
   if (LbDataLoadAll(map_flag_load_files))
   {
-    error(func_name, 373, "Unable to load Land View Screen sprites");
+    ERRORLOG("Unable to load Land View Screen sprites");
     frontend_load_data_reset();
     return false;
   }
@@ -1113,10 +1085,7 @@ void process_zoom_palette(void)
 
 TbBool update_zoom(void)
 {
-  static const char *func_name="update_zoom";
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(8,"Starting");
   if (map_info.fade_step == 4)
   {
     process_map_zoom_in();
@@ -1203,11 +1172,7 @@ TbBool test_hand_slap_collides(long plyr_idx)
 
 void frontmap_draw(void)
 {
-  static const char *func_name="frontmap_draw";
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  //_DK_frontmap_draw(); return;
+  SYNCDBG(8,"Starting");
   if (map_info.field_1)
   {
     frontzoom_to_point(map_info.field_A, map_info.field_E, map_info.fade_pos);
@@ -1224,7 +1189,6 @@ void frontmap_draw(void)
 void check_mouse_scroll(void)
 {
   long mx,my;
-  //_DK_check_mouse_scroll();
   mx = GetMouseX();
   if (mx < 8)
   {
@@ -1263,8 +1227,6 @@ void check_mouse_scroll(void)
 
 void update_velocity(void)
 {
-  static const char *func_name="update_velocity";
-  //_DK_update_velocity();
   if (map_info.field_26 != 0)
   {
     map_info.scrshift_x += map_info.field_26 / 4;
@@ -1390,11 +1352,7 @@ void draw_map_level_descriptions(void)
 
 void frontnetmap_draw(void)
 {
-  static const char *func_name="frontnetmap_draw";
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  //_DK_frontnetmap_draw(); return;
+  SYNCDBG(8,"Starting");
   if (map_info.field_1)
   {
     frontzoom_to_point(map_info.field_A, map_info.field_E, map_info.fade_pos);
@@ -1411,13 +1369,9 @@ void frontnetmap_draw(void)
 
 void frontmap_input(void)
 {
-  static const char *func_name="frontmap_input";
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(8,"Starting");
   short zoom_done;
   long mouse_x,mouse_y;
-  //_DK_frontmap_input(); return;
   if (map_info.field_0)
   {
     if (!map_info.field_1)
@@ -1552,11 +1506,7 @@ void frontnetmap_input(void)
 
 void frontmap_unload(void)
 {
-  static const char *func_name="frontmap_unload";
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  //_DK_frontmap_unload(); return;
+  SYNCDBG(8,"Starting");
   set_pointer_graphic_none();
   unload_map_and_window();
   LbDataFreeAll(map_flag_load_files);
@@ -1571,11 +1521,7 @@ void frontmap_unload(void)
 
 long frontmap_update(void)
 {
-  static const char *func_name="frontmap_update";
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  //return _DK_frontmap_update();
+  SYNCDBG(8,"Starting");
   if ((mouse_over_lvnum > 0) && (playing_speech_lvnum != mouse_over_lvnum))
   {
     play_desc_speech_time = 0;
@@ -1620,15 +1566,12 @@ long frontmap_update(void)
   }
   if ((game.flags_cd & 0x10) == 0)
     PlayRedbookTrack(2);
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(8,"Finished");
   return 0;
 }
 
 long frontnetmap_update(void)
 {
-  static const char *func_name="frontnetmap_update";
   struct ScreenPacket *nspck;
   struct LevelInformation *lvinfo;
   struct TbSprite *spr;
@@ -1636,9 +1579,7 @@ long frontnetmap_update(void)
   long tmp1,tmp2;
   long lvnum;
   TbBool is_selected;
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(8,"Starting");
 //  return _DK_frontnetmap_update();
   if (map_sound_fade > 0)
   {
@@ -1703,7 +1644,7 @@ long frontnetmap_update(void)
     if (fe_network_active)
     {
       if ( LbNetwork_Exchange(nspck) )
-        error(func_name, 1261, "LbNetwork_Exchange failed");
+        ERRORLOG("LbNetwork_Exchange failed");
     }
     memset(scratch, 0, PALETTE_SIZE);
     is_selected = false;
@@ -1720,8 +1661,8 @@ long frontnetmap_update(void)
           if (fe_network_active)
           {
             if ( LbNetwork_EnableNewPlayers(1) )
-              error(func_name, 1276, "Unable to enable new players joining exchange");
-            frontend_set_state(6);
+              ERRORLOG("Unable to enable new players joining exchange");
+            frontend_set_state(FeSt_NET_START);
           } else
           {
             frontend_set_state(1);
@@ -1762,9 +1703,7 @@ long frontnetmap_update(void)
   {
     if (update_zoom())
     {
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Zoom end\n",func_name);
-#endif
+      SYNCDBG(8,"Zoom end");
       return 1;
     }
   }
@@ -1792,9 +1731,7 @@ long frontnetmap_update(void)
 
   if ((game.flags_cd & 0x10) == 0)
     PlayRedbookTrack(2);
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Normal end\n",func_name);
-#endif
+  SYNCDBG(8,"Normal end");
   return 0;
 }
 

@@ -141,6 +141,21 @@ int LbScriptLog(unsigned long line,const char *format, ...)
     return result;
 }
 
+/*
+ * Logs config file related message.
+ */
+int LbConfigLog(unsigned long line,const char *format, ...)
+{
+    if (!error_log_initialised)
+        return -1;
+    LbLogSetPrefixFmt(&error_log, "Config(line %lu): ",line);
+    va_list val;
+    va_start(val, format);
+    int result=LbLog(&error_log, format, val);
+    va_end(val);
+    return result;
+}
+
 int LbJustLog(const char *format, ...)
 {
     if (!error_log_initialised)
@@ -266,7 +281,7 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
           sep = " ";
         else
           sep = "  @ ";
-        fprintf(file," %s%d-%02d-%d",sep,curr_date.Day,curr_date.Month,curr_date.Year);
+        fprintf(file," %s%02d-%02d-%d",sep,curr_date.Day,curr_date.Month,curr_date.Year);
       }
       fprintf(file, "\n\n");
     }

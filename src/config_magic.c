@@ -89,7 +89,7 @@ TbBool parse_magic_common_blocks(char *buf,long len)
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    LbWarnLog("Block [%s] not found in Magic config file.\n",block_buf);
+    WARNMSG("Block [%s] not found in Magic config file.",block_buf);
     return false;
   }
   while (pos<len)
@@ -113,7 +113,7 @@ TbBool parse_magic_common_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Magic file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Magic file.",
                 get_conf_parameter_text(magic_common_commands,cmd_num),block_buf);
           }
           break;
@@ -129,7 +129,7 @@ TbBool parse_magic_common_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Magic file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Magic file.",
                 get_conf_parameter_text(magic_common_commands,cmd_num),block_buf);
           }
           break;
@@ -145,7 +145,7 @@ TbBool parse_magic_common_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Magic file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Magic file.",
                 get_conf_parameter_text(magic_common_commands,cmd_num),block_buf);
           }
           break;
@@ -154,8 +154,8 @@ TbBool parse_magic_common_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Magic file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Magic file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -196,7 +196,7 @@ TbBool parse_magic_spell_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      LbWarnLog("Block [%s] not found in Magic config file.\n",block_buf);
+      WARNMSG("Block [%s] not found in Magic config file.",block_buf);
       continue;
     }
     splconf = &game.spells_config[i];
@@ -212,7 +212,7 @@ TbBool parse_magic_spell_blocks(char *buf,long len)
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,magic_conf.spell_names[i].text,COMMAND_WORD_LEN) <= 0)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Magic config file.\n",
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Magic config file.",
             get_conf_parameter_text(magic_spell_commands,cmd_num),block_buf);
             break;
           }
@@ -227,7 +227,7 @@ TbBool parse_magic_spell_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Magic config file.\n",
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Magic config file.",
             get_conf_parameter_text(magic_spell_commands,cmd_num),block_buf);
           }
           break;
@@ -236,8 +236,8 @@ TbBool parse_magic_spell_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Magic file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Magic file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -279,7 +279,7 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      LbWarnLog("Block [%s] not found in Magic config file.\n",block_buf);
+      WARNMSG("Block [%s] not found in Magic config file.",block_buf);
       continue;
     }
     shotstat = &shot_stats[i];
@@ -295,7 +295,7 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,magic_conf.shot_names[i].text,COMMAND_WORD_LEN) <= 0)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Magic config file.\n",
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Magic config file.",
             get_conf_parameter_text(magic_shot_commands,cmd_num),block_buf);
             break;
           }
@@ -310,7 +310,7 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Magic config file.\n",
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Magic config file.",
             get_conf_parameter_text(magic_spell_commands,cmd_num),block_buf);
           }
           break;
@@ -323,7 +323,7 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Magic config file.\n",
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Magic config file.",
             get_conf_parameter_text(magic_spell_commands,cmd_num),block_buf);
           }
           break;
@@ -336,7 +336,7 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Magic config file.\n",
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Magic config file.",
             get_conf_parameter_text(magic_spell_commands,cmd_num),block_buf);
           }
           break;
@@ -345,8 +345,8 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Magic file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Magic file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -388,7 +388,7 @@ TbBool parse_magic_power_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      LbWarnLog("Block [%s] not found in Magic config file.\n",block_buf);
+      WARNMSG("Block [%s] not found in Magic config file.",block_buf);
       continue;
     }
     magstat = &game.magic_stats[i];
@@ -404,7 +404,7 @@ TbBool parse_magic_power_blocks(char *buf,long len)
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,magic_conf.power_names[i].text,COMMAND_WORD_LEN) <= 0)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Magic config file.\n",
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Magic config file.",
             get_conf_parameter_text(magic_power_commands,cmd_num),block_buf);
             break;
           }
@@ -415,7 +415,7 @@ TbBool parse_magic_power_blocks(char *buf,long len)
             k = atoi(word_buf);
             if (n >= MAGIC_OVERCHARGE_LEVELS)
             {
-              LbWarnLog("Too many \"%s\" parameters in [%s] block of Magic config file.\n",
+              CONFWRNLOG("Too many \"%s\" parameters in [%s] block of Magic config file.",
               get_conf_parameter_text(magic_power_commands,cmd_num),block_buf);
               break;
             }
@@ -424,7 +424,7 @@ TbBool parse_magic_power_blocks(char *buf,long len)
           }
           if (n < MAGIC_OVERCHARGE_LEVELS)
           {
-            LbWarnLog("Couldn't read all \"%s\" parameters in [%s] block of Magic config file.\n",
+            CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of Magic config file.",
             get_conf_parameter_text(magic_power_commands,cmd_num),block_buf);
           }
           break;
@@ -434,7 +434,7 @@ TbBool parse_magic_power_blocks(char *buf,long len)
             k = atoi(word_buf);
             if (n >= MAGIC_OVERCHARGE_LEVELS)
             {
-              LbWarnLog("Too many \"%s\" parameters in [%s] block of Magic config file.\n",
+              CONFWRNLOG("Too many \"%s\" parameters in [%s] block of Magic config file.",
               get_conf_parameter_text(magic_power_commands,cmd_num),block_buf);
               break;
             }
@@ -443,7 +443,7 @@ TbBool parse_magic_power_blocks(char *buf,long len)
           }
           if (n < MAGIC_OVERCHARGE_LEVELS)
           {
-            LbWarnLog("Couldn't read all \"%s\" parameters in [%s] block of Magic config file.\n",
+            CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of Magic config file.",
             get_conf_parameter_text(magic_power_commands,cmd_num),block_buf);
           }
           break;
@@ -456,7 +456,7 @@ TbBool parse_magic_power_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Magic config file.\n",
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Magic config file.",
             get_conf_parameter_text(magic_power_commands,cmd_num),block_buf);
           }
           break;
@@ -465,8 +465,8 @@ TbBool parse_magic_power_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Magic file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Magic file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -477,25 +477,22 @@ TbBool parse_magic_power_blocks(char *buf,long len)
 
 TbBool load_magic_config(const char *conf_fname,unsigned short flags)
 {
-  static const char *func_name="load_magic_config";
   char *fname;
   char *buf;
   long len,pos;
   int cmd_num;
   TbBool result;
-#if (BFDEBUG_LEVEL > 0)
-    LbSyncLog("Reading Magic config file \"%s\".\n",conf_fname);
-#endif
+  SYNCDBG(0,"Reading Magic config file \"%s\".",conf_fname);
   fname = prepare_file_path(FGrp_FxData,conf_fname);
   len = LbFileLengthRnc(fname);
   if (len < 2)
   {
-    LbWarnLog("Magic config file \"%s\" doesn't exist or is too small.\n",conf_fname);
+    WARNMSG("Magic config file \"%s\" doesn't exist or is too small.",conf_fname);
     return false;
   }
   if (len > 65536)
   {
-    LbWarnLog("Magic config file \"%s\" is too large.\n",conf_fname);
+    WARNMSG("Magic config file \"%s\" is too large.",conf_fname);
     return false;
   }
   buf = (char *)LbMemoryAlloc(len+256);
@@ -508,25 +505,25 @@ TbBool load_magic_config(const char *conf_fname,unsigned short flags)
   {
     result = parse_magic_common_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing Magic file \"%s\" common blocks failed.\n",conf_fname);
+      WARNMSG("Parsing Magic file \"%s\" common blocks failed.",conf_fname);
   }
   if (result)
   {
     result = parse_magic_spell_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing Magic file \"%s\" spell blocks failed.\n",conf_fname);
+      WARNMSG("Parsing Magic file \"%s\" spell blocks failed.",conf_fname);
   }
   if (result)
   {
     result = parse_magic_shot_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing Magic file \"%s\" shot blocks failed.\n",conf_fname);
+      WARNMSG("Parsing Magic file \"%s\" shot blocks failed.",conf_fname);
   }
   if (result)
   {
     result = parse_magic_power_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing Magic file \"%s\" power blocks failed.\n",conf_fname);
+      WARNMSG("Parsing Magic file \"%s\" power blocks failed.",conf_fname);
   }
   //Freeing and exiting
   LbMemoryFree(buf);
@@ -554,7 +551,6 @@ TbBool make_all_powers_free(void)
  */
 TbBool make_all_powers_researchable(long plyr_idx)
 {
-  static const char *func_name="make_all_powers_researchable";
   struct Dungeon *dungeon;
   long i;
   dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
@@ -565,12 +561,13 @@ TbBool make_all_powers_researchable(long plyr_idx)
   return true;
 }
 
-/*
+/**
  * Sets power availability state.
  */
 TbBool set_power_available(long plyr_idx, long spl_idx, long resrch, long avail)
 {
   struct Dungeon *dungeon;
+  SYNCDBG(8,"Starting for spell %ld, player %ld, state %ld,%ld",spl_idx,plyr_idx,resrch,avail);
   dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
   dungeon->magic_resrchable[spl_idx] = resrch;
   if (avail != 0)
@@ -585,12 +582,11 @@ TbBool set_power_available(long plyr_idx, long spl_idx, long resrch, long avail)
  */
 TbBool make_available_all_researchable_powers(long plyr_idx)
 {
-  static const char *func_name="make_available_all_researchable_powers";
   struct Dungeon *dungeon;
+  TbBool ret;
   long i;
-#if (BFDEBUG_LEVEL > 0)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(0,"Starting");
+  ret = true;
   dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
   for (i=0; i < KEEPER_SPELLS_COUNT; i++)
   {
@@ -599,7 +595,7 @@ TbBool make_available_all_researchable_powers(long plyr_idx)
       add_spell_to_player(i, plyr_idx);
     }
   }
-  return true;
+  return ret;
 }
 
 /******************************************************************************/

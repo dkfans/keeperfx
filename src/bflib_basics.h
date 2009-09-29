@@ -53,8 +53,9 @@ enum TbLogFlags {
 };
 
 enum TbErrorCode {
-    Lb_OK                   =  0,
     Lb_FAIL                 = -1,
+    Lb_OK                   =  0,
+    Lb_SUCCESS              =  1,
 };
 
 /******************************************************************************/
@@ -126,6 +127,7 @@ int LbSyncLog(const char *format, ...);
 int LbNetLog(const char *format, ...);
 int LbJustLog(const char *format, ...);
 int LbScriptLog(unsigned long line,const char *format, ...);
+int LbConfigLog(unsigned long line,const char *format, ...);
 
 int __fastcall LbErrorLogSetup(const char *directory, const char *filename, TbBool flag);
 int __fastcall LbErrorLogClose(void);
@@ -153,6 +155,7 @@ unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits)
 
 struct TbNetworkCallbackData;
 typedef int TbError;
+typedef int TbResult;
 
 #ifdef __cplusplus
 #include "bflib_basinln.h"

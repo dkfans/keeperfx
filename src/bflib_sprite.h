@@ -41,14 +41,13 @@ struct TbSetupSprite {
 };
 
 #pragma pack()
+/******************************************************************************/
 
 /*
 extern struct TbSetupSprite setup_sprites[];
 extern char mouse_pointer_sprite;
 extern char lang_selection;
 */
-
-/******************************************************************************/
 
 /******************************************************************************/
 int LbSpriteSetupAll(struct TbSetupSprite t_setup[]);

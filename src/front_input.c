@@ -243,11 +243,7 @@ short get_packet_load_game_control_inputs(void)
 
 long get_small_map_inputs(long x, long y, long zoom)
 {
-  static const char *func_name="get_small_map_inputs";
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  //return _DK_get_small_map_inputs(x, y, zoom);
+  SYNCDBG(7,"Starting");
   long curr_mx,curr_my;
   short result;
   result = 0;
@@ -281,15 +277,12 @@ long get_small_map_inputs(long x, long y, long zoom)
   old_my = curr_my;
   if (grabbed_small_map)
     game.small_map_state = 2;
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(8,"Finished");
   return result;
 }
 
 short get_bookmark_inputs(void)
 {
-  //return _DK_get_bookmark_inputs();
   struct Bookmark *bmark;
   struct PlayerInfo *player;
   int kcode;
@@ -419,9 +412,9 @@ short get_global_inputs(void)
   // Code for debugging purposes
   if ( is_key_pressed(KC_D,KM_ALT) )
   {
-    LbJustLog("REPORT for gameturn %d\n",game.play_gameturn);
+    JUSTMSG("REPORT for gameturn %d",game.play_gameturn);
     // Timing report
-    LbJustLog("Now time is %d, last loop time was %d, clock is %d, requested fps is %d\n",LbTimerClock(),last_loop_time,clock(),game.num_fps);
+    JUSTMSG("Now time is %d, last loop time was %d, clock is %d, requested fps is %d",LbTimerClock(),last_loop_time,clock(),game.num_fps);
     test_variable = !test_variable;
   }
 
@@ -473,13 +466,9 @@ short get_global_inputs(void)
 
 short get_level_lost_inputs(void)
 {
-  static const char *func_name="get_level_lost_inputs";
-//  _DK_get_level_lost_inputs();
   struct PlayerInfo *player;
   long keycode;
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(6,"Starting");
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
   if (player->field_0 & 0x04)
   {
@@ -769,12 +758,9 @@ short get_creature_passenger_action_inputs(void)
 
 short get_creature_control_action_inputs(void)
 {
-  static const char *func_name="get_creature_control_action_inputs";
   struct PlayerInfo *player;
   long keycode;
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(6,"Starting");
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   if (get_players_packet_action(player) != PckA_None)
     return 1;
@@ -855,12 +841,8 @@ short get_creature_control_action_inputs(void)
 
 void get_packet_control_mouse_clicks(void)
 {
-  static const char *func_name="get_packet_control_mouse_clicks";
   struct PlayerInfo *player;
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  //_DK_get_packet_control_mouse_clicks(); return;
+  SYNCDBG(8,"Starting");
   if ((game.numfield_C & 0x01) == 0)
   {
     player=&(game.players[my_player_number%PLAYERS_COUNT]);
@@ -1224,15 +1206,11 @@ void get_creature_control_nonaction_inputs(void)
 
 short get_inputs(void)
 {
-  static const char *func_name="get_inputs";
-  //return _DK_get_inputs();
   struct PlayerInfo *player;
   long keycode;
   if ((game.flags_cd & MFlg_IsDemoMode) != 0)
   {
-  #if (BFDEBUG_LEVEL > 5)
-    LbSyncLog("%s: Starting for demo mode\n",func_name);
-  #endif
+    SYNCDBG(5,"Starting for demo mode");
     load_packets_for_turn(game.pckt_gameturn);
     game.pckt_gameturn++;
     get_packet_load_demo_inputs();
@@ -1240,18 +1218,14 @@ short get_inputs(void)
   }
   if (game.packet_load_enable)
   {
-  #if (BFDEBUG_LEVEL > 5)
-    LbSyncLog("%s: Loading packet inputs\n",func_name);
-  #endif
+    SYNCDBG(5,"Loading packet inputs");
     return get_packet_load_game_inputs();
   }
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   if ((player->field_0 & 0x80) != 0)
   {
     struct Packet *pckt;
-  #if (BFDEBUG_LEVEL > 5)
-    LbSyncLog("%s: Starting for creature fade\n",func_name);
-  #endif
+    SYNCDBG(5,"Starting for creature fade");
     set_players_packet_position(player,127,127);
     if ((!game_is_busy_doing_gui_string_input()) && (game.numfield_C & 0x01))
     {
@@ -1263,9 +1237,7 @@ short get_inputs(void)
     }
     return false;
   }
-#if (BFDEBUG_LEVEL > 5)
-  LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(5,"Starting");
   if (gui_process_inputs())
   {
     return true;
@@ -1358,20 +1330,14 @@ short get_inputs(void)
       }
       return false;
   default:
-#if (BFDEBUG_LEVEL > 7)
-      LbSyncLog("%s: Default exit\n", func_name);
-#endif
+      SYNCDBG(7,"Default exit");
       return false;
   }
 }
 
 void input(void)
 {
-  static const char *func_name="input";
-#if (BFDEBUG_LEVEL > 4)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  //_DK_input();return;
+  SYNCDBG(4,"Starting");
   update_key_modifiers();
   if ((game_is_busy_doing_gui_string_input()) && (lbInkey>0))
   {
@@ -1391,9 +1357,7 @@ void input(void)
     pckt->field_10 &= 0xBFu;
 
   get_inputs();
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(7,"Finished");
 }
 
 

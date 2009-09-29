@@ -78,7 +78,7 @@ char SmackSoundUseMSS(void* dig_driver)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackSoundUseMSS@4");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of SmackSoundUseMSS function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of SmackSoundUseMSS function; skipped."); return 0; }
     return ((FARPROCP_C)proc)(dig_driver);
 }
 
@@ -89,7 +89,7 @@ struct SmackTag *SmackOpen(const char *name,unsigned int flags,int extrabuf)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackOpen@12");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of SmackOpen function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of SmackOpen function; skipped."); return 0; }
     return ((FARSMACKOPEN)proc)(name,flags,extrabuf);
 }
 
@@ -100,7 +100,7 @@ void SmackSummary(struct SmackTag *smk,struct SmackSumTag *sum)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackSummary@8");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of SmackSummary function; skipped.\n"); return; }
+    { ERRORLOG("Can't get address of SmackSummary function; skipped."); return; }
     ((FARSMACKSUMMARY)proc)(smk,sum);
 }
 
@@ -111,7 +111,7 @@ unsigned long SmackWait(struct SmackTag *smk)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackWait@4");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of SmackWait function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of SmackWait function; skipped."); return 0; }
     return ((FARPROCP_U)proc)(smk);
 }
 
@@ -122,7 +122,7 @@ void SmackClose(struct SmackTag *smk)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackClose@4");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of SmackClose function; skipped.\n"); return; }
+    { ERRORLOG("Can't get address of SmackClose function; skipped."); return; }
     ((FARPROCP_V)proc)(smk);
 }
 
@@ -133,7 +133,7 @@ unsigned long SmackDoFrame(struct SmackTag *smk)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackDoFrame@4");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of SmackDoFrame function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of SmackDoFrame function; skipped."); return 0; }
     return ((FARPROCP_U)proc)(smk);
 }
 
@@ -144,7 +144,7 @@ void SmackNextFrame(struct SmackTag *smk)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackNextFrame@4");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of SmackNextFrame function; skipped.\n"); return; }
+    { ERRORLOG("Can't get address of SmackNextFrame function; skipped."); return; }
     ((FARPROCP_V)proc)(smk);
 }
 
@@ -156,7 +156,7 @@ void SmackToBuffer(struct SmackTag *smk,unsigned long left,unsigned long top,
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackToBuffer@28");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of SmackToBuffer function; skipped.\n"); return; }
+    { ERRORLOG("Can't get address of SmackToBuffer function; skipped."); return; }
     ((FARSMACKTOBUF)proc)(smk,left,top,Pitch,destheight,buf,Flags);
 }
 
@@ -167,7 +167,7 @@ void SmackGoto(struct SmackTag *smk,unsigned long frame)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackGoto@8");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of SmackGoto function; skipped.\n"); return; }
+    { ERRORLOG("Can't get address of SmackGoto function; skipped."); return; }
     ((FARPROCPU_V)proc)(smk,frame);
 }
 
@@ -178,7 +178,7 @@ void SmackSimulate(unsigned long sim)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackSimulate@4");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of SmackSimulate function; skipped.\n"); return; }
+    { ERRORLOG("Can't get address of SmackSimulate function; skipped."); return; }
     ((FARPROCU_V)proc)(sim);
 }
 
@@ -1145,18 +1145,18 @@ short anim_record(void)
   struct TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
   if ( mdinfo->BitsPerPixel != 8 )
   {
-    error(func_name, 179, "Cannot record movie in non-8bit screen mode");
+    ERRORLOG("Cannot record movie in non-8bit screen mode");
     return 0;
   }
   int idx;
-  for (idx=0;idx<10000;idx++)
+  for (idx=0; idx < 10000; idx++)
   {
       sprintf(finalname, "%s/game%04d.flc","scrshots",idx);
       if (LbFileExists(finalname))
         continue;
       return anim_open(finalname, 0, 0, MyScreenWidth/pixel_size,MyScreenHeight/pixel_size,8, 1);
   }
-  error(func_name, 180, "No free file name for recorded movie");
+  ERRORLOG("No free file name for recorded movie");
   return 0;
 }
 

@@ -53,7 +53,7 @@ int __stdcall FreeAudio(void)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_FreeAudio@0");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of FreeAudio function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of FreeAudio function; skipped."); return 0; }
     return proc();
 }
 
@@ -64,7 +64,7 @@ int __stdcall SetRedbookVolume(int volume)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SetRedbookVolume@4");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of SetRedbookVolume function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of SetRedbookVolume function; skipped."); return 0; }
     return ((FARPROCI)proc)(volume);
 }
 
@@ -75,7 +75,7 @@ int __stdcall SetSoundMasterVolume(int volume)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SetSoundMasterVolume@4");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of SetSoundMasterVolume function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of SetSoundMasterVolume function; skipped."); return 0; }
     return ((FARPROCI)proc)(volume);
 }
 
@@ -86,7 +86,7 @@ int __stdcall SetMusicMasterVolume(int volume)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SetMusicMasterVolume@4");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of SetMusicMasterVolume function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of SetMusicMasterVolume function; skipped."); return 0; }
     return ((FARPROCI)proc)(volume);
 }
 
@@ -97,7 +97,7 @@ int __stdcall GetSoundInstalled(void)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_GetSoundInstalled@0");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of GetSoundInstalled function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of GetSoundInstalled function; skipped."); return 0; }
     return proc();
 }
 
@@ -108,7 +108,7 @@ int __stdcall PlayRedbookTrack(int track)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_PlayRedbookTrack@4");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of PlayRedbookTrack function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of PlayRedbookTrack function; skipped."); return 0; }
     return ((FARPROCI)proc)(track);
 }
 
@@ -119,7 +119,7 @@ int __stdcall MonitorStreamedSoundTrack(void)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_MonitorStreamedSoundTrack@0");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of MonitorStreamedSoundTrack function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of MonitorStreamedSoundTrack function; skipped."); return 0; }
     return proc();
 }
 
@@ -130,7 +130,7 @@ int __stdcall StopRedbookTrack(void)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_StopRedbookTrack@0");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of StopRedbookTrack function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of StopRedbookTrack function; skipped."); return 0; }
     return proc();
 }
 
@@ -141,7 +141,7 @@ void * __stdcall GetSoundDriver(void)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_GetSoundDriver@0");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of GetSoundDriver function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of GetSoundDriver function; skipped."); return 0; }
     return (void *)proc();
 }
 
@@ -152,7 +152,7 @@ int __stdcall StopAllSamples(void)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_StopAllSamples@0");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of StopAllSamples function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of StopAllSamples function; skipped."); return 0; }
     return proc();
 }
 
@@ -163,7 +163,7 @@ int __stdcall GetFirstSampleInfoStructure(void)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_GetFirstSampleInfoStructure@0");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of GetFirstSampleInfoStructure function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of GetFirstSampleInfoStructure function; skipped."); return 0; }
     return proc();
 }
 
@@ -174,7 +174,7 @@ int __stdcall LoadMusic(int i)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_LoadMusic@4");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of LoadMusic function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of LoadMusic function; skipped."); return 0; }
     return ((FARPROCI)proc)(i);
 }
 
@@ -185,7 +185,7 @@ int __stdcall InitAudio(void *i)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_InitAudio@4");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of InitAudio function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of InitAudio function; skipped."); return 0; }
     return ((FARPROCP)proc)(i);
 }
 
@@ -196,7 +196,7 @@ int __stdcall SetupAudioOptionDefaults(void *i)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SetupAudioOptionDefaults@4");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of SetupAudioOptionDefaults function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of SetupAudioOptionDefaults function; skipped."); return 0; }
     return ((FARPROCP)proc)(i);
 }
 
@@ -207,7 +207,7 @@ int __stdcall PlayStreamedSample(char *fname, int a2, int a3, int a4)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_PlayStreamedSample@16");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of PlayStreamedSample function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of PlayStreamedSample function; skipped."); return 0; }
     return ((FARPROCSIII)proc)(fname, a2, a3, a4);
 }
 
@@ -218,7 +218,7 @@ int __stdcall StopStreamedSample(void)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_StopStreamedSample@0");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of StopStreamedSample function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of StopStreamedSample function; skipped."); return 0; }
     return proc();
 }
 
@@ -229,7 +229,7 @@ int __stdcall StreamedSampleFinished(void)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_StreamedSampleFinished@0");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of StreamedSampleFinished function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of StreamedSampleFinished function; skipped."); return 0; }
     return proc();
 }
 
@@ -240,7 +240,7 @@ int __stdcall SetStreamedSampleVolume(int volume)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SetStreamedSampleVolume@4");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of SetStreamedSampleVolume function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of SetStreamedSampleVolume function; skipped."); return 0; }
     return ((FARPROCI)proc)(volume);
 }
 
@@ -251,7 +251,7 @@ int __stdcall GetLastSampleInfoStructure(void)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_GetLastSampleInfoStructure@0");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of GetLastSampleInfoStructure function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of GetLastSampleInfoStructure function; skipped."); return 0; }
     return proc();
 }
 
@@ -262,7 +262,7 @@ int __stdcall GetCurrentSoundMasterVolume(void)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_GetCurrentSoundMasterVolume@0");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of GetCurrentSoundMasterVolume function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of GetCurrentSoundMasterVolume function; skipped."); return 0; }
     return proc();
 }
 
@@ -273,7 +273,7 @@ int __stdcall StopMusic(void)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_StopMusic@0");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of StopMusic function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of StopMusic function; skipped."); return 0; }
     return proc();
 }
 
@@ -284,7 +284,7 @@ int __stdcall LoadAwe32Soundfont(const char *fname)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_LoadAwe32Soundfont@4");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of LoadAwe32Soundfont function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of LoadAwe32Soundfont function; skipped."); return 0; }
     return ((FARPROCS)proc)(fname);
 }
 
@@ -295,7 +295,7 @@ int __stdcall StartMusic(int i,int v)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_StartMusic@8");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of StartMusic function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of StartMusic function; skipped."); return 0; }
     return ((FARPROCII)proc)(i,v);
 }
 
@@ -306,7 +306,7 @@ int __stdcall SetSampleVolume(int a,int b,int c,int d)
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SetSampleVolume@16");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of SetSampleVolume function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of SetSampleVolume function; skipped."); return 0; }
     return ((FARPROCIIII)proc)(a,b,c,d);
 }
 
@@ -317,7 +317,7 @@ struct SampleInfo * __stdcall PlaySampleFromAddress(int a1, int smpl_idx, int a3
     FARPROC proc;
     proc=GetProcAddress(hModule,"_PlaySampleFromAddress@36");
     if (proc==NULL)
-    { LbErrorLog("Can't get address of PlaySampleFromAddress function; skipped.\n"); return 0; }
+    { ERRORLOG("Can't get address of PlaySampleFromAddress function; skipped."); return 0; }
     return ((FARPROC_PLAY1)proc)(a1, smpl_idx, a3, a4, a5, a6, a7, hmhandle, a9);
 }
 /******************************************************************************/

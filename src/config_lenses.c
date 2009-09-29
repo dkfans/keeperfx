@@ -66,7 +66,7 @@ TbBool parse_lenses_common_blocks(char *buf,long len)
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    LbWarnLog("Block [%s] not found in lenses config file.\n",block_buf);
+    WARNMSG("Block [%s] not found in lenses config file.",block_buf);
     return false;
   }
   while (pos<len)
@@ -90,7 +90,7 @@ TbBool parse_lenses_common_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Lenses file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Lenses file.",
                 get_conf_parameter_text(lenses_common_commands,cmd_num),block_buf);
           }
           break;
@@ -99,8 +99,8 @@ TbBool parse_lenses_common_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Lenses file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Lenses file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -140,7 +140,7 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      LbWarnLog("Block [%s] not found in Lense config file.\n",block_buf);
+      WARNMSG("Block [%s] not found in Lense config file.",block_buf);
       continue;
     }
     while (pos<len)
@@ -155,7 +155,7 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,lenses_conf.lense_names[i].text,COMMAND_WORD_LEN) <= 0)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Lense config file.\n",
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Lense config file.",
             get_conf_parameter_text(lenses_data_commands,cmd_num),block_buf);
             break;
           }
@@ -166,8 +166,8 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Lense file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Lense file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -178,25 +178,22 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
 
 TbBool load_lenses_config(const char *conf_fname,unsigned short flags)
 {
-  static const char *func_name="load_lenses_config";
   char *fname;
   char *buf;
   long len,pos;
   int cmd_num;
   TbBool result;
-#if (BFDEBUG_LEVEL > 0)
-    LbSyncLog("Reading Lenses config file \"%s\".\n",conf_fname);
-#endif
+  SYNCDBG(0,"Reading Lenses config file \"%s\".",conf_fname);
   fname = prepare_file_path(FGrp_FxData,conf_fname);
   len = LbFileLengthRnc(fname);
   if (len < 2)
   {
-    LbWarnLog("Lenses config file \"%s\" doesn't exist or is too small.\n",conf_fname);
+    WARNMSG("Lenses config file \"%s\" doesn't exist or is too small.",conf_fname);
     return false;
   }
   if (len > 65536)
   {
-    LbWarnLog("Lenses config file \"%s\" is too large.\n",conf_fname);
+    WARNMSG("Lenses config file \"%s\" is too large.",conf_fname);
     return false;
   }
   buf = (char *)LbMemoryAlloc(len+256);
@@ -209,13 +206,13 @@ TbBool load_lenses_config(const char *conf_fname,unsigned short flags)
   {
     result = parse_lenses_common_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing Lenses file \"%s\" common blocks failed.\n",conf_fname);
+      WARNMSG("Parsing Lenses file \"%s\" common blocks failed.",conf_fname);
   }
   if (result)
   {
     result = parse_lenses_data_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing Lenses file \"%s\" data blocks failed.\n",conf_fname);
+      WARNMSG("Parsing Lenses file \"%s\" data blocks failed.",conf_fname);
   }
   //Freeing and exiting
   LbMemoryFree(buf);

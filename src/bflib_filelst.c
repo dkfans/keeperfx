@@ -138,12 +138,12 @@ short LbDataLoadAll(struct TbLoadFiles load_files[])
     ret_val = LbDataLoad(t_lfile);
     if ( ret_val == -100 )
     {
-      LbErrorLog("Can't allocate memory for \"%s\".\n", t_lfile->FName);
+      ERRORLOG("Can't allocate memory for \"%s\"", t_lfile->FName);
       ferror++;
     } else
     if ( ret_val == -101 )
     {
-      LbErrorLog("Can't load file \"%s\".\n", t_lfile->FName);
+      ERRORLOG("Can't load file \"%s\"", t_lfile->FName);
       ferror++;
     }
     i++;

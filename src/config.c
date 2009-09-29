@@ -111,7 +111,7 @@ TbBool update_features(unsigned long mem_size)
     features_enabled |= Ft_BigPointer;
     features_enabled |= Ft_AdvAmbSonud;
   }
-  LbSyncLog("Memory-demanding features %s.\n",result?"enabled":"disabled");
+  SYNCMSG("Memory-demanding features %s.",result?"enabled":"disabled");
   return result;
 }
 
@@ -431,9 +431,7 @@ TbBool prepare_diskpath(char *buf,long buflen)
 short load_configuration(void)
 {
   static const char *func_name="load_configuration";
-#if (BFDEBUG_LEVEL > 4)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(4,"Starting");
   //return _DK_load_configuration();
   const char *fname;
   char *buf;
@@ -452,12 +450,12 @@ short load_configuration(void)
   len = LbFileLengthRnc(fname);
   if (len < 2)
   {
-    LbWarnLog("Config file \"%s\" doesn't exist or is too small.\n",keeper_config_file);
+    WARNMSG("Config file \"%s\" doesn't exist or is too small.",keeper_config_file);
     return false;
   }
   if (len > 65536)
   {
-    LbWarnLog("Config file \"%s\" is too large.\n",keeper_config_file);
+    WARNMSG("Config file \"%s\" is too large.",keeper_config_file);
     return false;
   }
   buf = (char *)LbMemoryAlloc(len+256);
@@ -467,9 +465,7 @@ short load_configuration(void)
   len = LbFileLoadAt(fname, buf);
   if (len>0)
   {
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Processing config file, %d bytes\n",func_name, len);
-#endif
+    SYNCDBG(7,"Processing config file, %d bytes",len);
     buf[len] = '\0';
     pos = 0;
     while (pos<len)
@@ -484,7 +480,7 @@ short load_configuration(void)
           i = get_conf_parameter_whole(buf,&pos,len,install_info.inst_path,sizeof(install_info.inst_path));
           if (i <= 0)
           {
-            LbWarnLog("Couldn't read \"%s\" command parameter in config file.\n","INSTALL_PATH");
+            WARNMSG("Couldn't read \"%s\" command parameter in config file.","INSTALL_PATH");
             break;
           }
           prepare_diskpath(install_info.inst_path,sizeof(install_info.inst_path));
@@ -496,7 +492,7 @@ short load_configuration(void)
           i = recognize_conf_parameter(buf,&pos,len,lang_type);
           if (i <= 0)
           {
-            LbWarnLog("Couldn't recognize \"%s\" command parameter in config file.\n","LANGUAGE");
+            WARNMSG("Couldn't recognize \"%s\" command parameter in config file.","LANGUAGE");
             break;
           }
           install_info.lang_id = i;
@@ -508,7 +504,7 @@ short load_configuration(void)
           i = recognize_conf_parameter(buf,&pos,len,scrshot_type);
           if (i <= 0)
           {
-            LbWarnLog("Couldn't recognize \"%s\" command parameter in config file.\n","SCREENSHOT");
+            WARNMSG("Couldn't recognize \"%s\" command parameter in config file.","SCREENSHOT");
             break;
           }
           screenshot_format = i;
@@ -522,7 +518,7 @@ short load_configuration(void)
               k = -1;
             if (k<=0)
             {
-               LbWarnLog("Couldn't recognize video mode %d in \"%s\" command of config file.\n",i+1,"FRONTEND_RES");
+               WARNMSG("Couldn't recognize video mode %d in \"%s\" command of config file.",i+1,"FRONTEND_RES");
                continue;
             }
             switch (i)
@@ -548,13 +544,13 @@ short load_configuration(void)
               if (k > 0)
                 set_game_vidmode(i,k);
               else
-                LbWarnLog("Couldn't recognize video mode %d in \"%s\" command of config file.\n",i+1,"INGAME_RES");
+                WARNMSG("Couldn't recognize video mode %d in \"%s\" command of config file.",i+1,"INGAME_RES");
             } else
             {
               if (i > 0)
                 set_game_vidmode(i,Lb_SCREEN_MODE_INVALID);
               else
-                LbWarnLog("Video modes list empty in \"%s\" command of config file.\n","INGAME_RES");
+                WARNMSG("Video modes list empty in \"%s\" command of config file.","INGAME_RES");
               break;
             }
           }
@@ -564,15 +560,13 @@ short load_configuration(void)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command in config file, starting on byte %d.\n",pos);
+          WARNMSG("Unrecognized command in config file, starting on byte %d.",pos);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
     }
   }
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Config loaded\n",func_name);
-#endif
+  SYNCDBG(7,"Config loaded");
   // Freeing
   LbMemoryFree(buf);
   // Updating game according to loaded srettings
@@ -765,19 +759,19 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   fsize = LbFileLengthRnc(ffullpath);
   if (fsize < *ldsize)
   {
-    LbWarnLog("File \"%s\" doesn't exist or is too small.\n",fname);
+    WARNMSG("File \"%s\" doesn't exist or is too small.",fname);
     return NULL;
   }
   buf = LbMemoryAlloc(fsize+16);
   if (buf == NULL)
   {
-    LbWarnLog("Can't allocate %ld bytes to load \"%s\".\n",fsize,fname);
+    WARNMSG("Can't allocate %ld bytes to load \"%s\".",fsize,fname);
     return NULL;
   }
   fsize = LbFileLoadAt(ffullpath,buf);
   if (fsize < *ldsize)
   {
-    LbWarnLog("Reading file \"%s\" failed.\n",fname);
+    WARNMSG("Reading file \"%s\" failed.",fname);
     LbMemoryFree(buf);
     return NULL;
   }
@@ -796,7 +790,7 @@ short calculate_moon_phase(short do_calculate,short add_to_log)
   if ((phase_of_moon > -0.05) && (phase_of_moon < 0.05))
   {
     if (add_to_log)
-      LbSyncLog("Full moon %.4f\n", phase_of_moon);
+      SYNCMSG("Full moon %.4f", phase_of_moon);
     is_full_moon = 1;
     is_near_full_moon = 0;
     is_new_moon = 0;
@@ -805,7 +799,7 @@ short calculate_moon_phase(short do_calculate,short add_to_log)
   if ((phase_of_moon > -0.1) && (phase_of_moon < 0.1))
   {
     if (add_to_log)
-      LbSyncLog("Near Full moon %.4f\n", phase_of_moon);
+      SYNCMSG("Near Full moon %.4f", phase_of_moon);
     is_full_moon = 0;
     is_near_full_moon = 1;
     is_new_moon = 0;
@@ -814,7 +808,7 @@ short calculate_moon_phase(short do_calculate,short add_to_log)
   if ((phase_of_moon < -0.95) || (phase_of_moon > 0.95))
   {
     if (add_to_log)
-      LbSyncLog("New moon %.4f\n", phase_of_moon);
+      SYNCMSG("New moon %.4f", phase_of_moon);
     is_full_moon = 0;
     is_near_full_moon = 0;
     is_new_moon = 1;
@@ -823,7 +817,7 @@ short calculate_moon_phase(short do_calculate,short add_to_log)
   if ((phase_of_moon < -0.9) || (phase_of_moon > 0.9))
   {
     if (add_to_log)
-      LbSyncLog("Near new moon %.4f\n", phase_of_moon);
+      SYNCMSG("Near new moon %.4f", phase_of_moon);
     is_full_moon = 0;
     is_near_full_moon = 0;
     is_new_moon = 0;
@@ -831,7 +825,7 @@ short calculate_moon_phase(short do_calculate,short add_to_log)
   } else
   {
     if (add_to_log)
-      LbSyncLog("Moon phase %.4f\n", phase_of_moon);
+      SYNCMSG("Moon phase %.4f", phase_of_moon);
     is_full_moon = 0;
     is_near_full_moon = 0;
     is_new_moon = 0;
@@ -846,7 +840,7 @@ void load_or_create_high_score_table(void)
 {
   if (!load_high_score_table())
   {
-     LbSyncLog("High scores table bad; creating new one.\n");
+     SYNCMSG("High scores table bad; creating new one.");
      create_empty_high_score_table();
      save_high_score_table();
   }
@@ -934,7 +928,7 @@ int add_high_score_entry(unsigned long score, LevelNumber lvnum, char *name)
   // If the table is not initiated - return
   if (campaign.hiscore_table == NULL)
   {
-    LbWarnLog("Can't add entry to uninitiated high score table\n");
+    WARNMSG("Can't add entry to uninitiated high score table");
     return false;
   }
   // Determining position of the new entry
@@ -1120,28 +1114,26 @@ TbBool setup_gui_strings_data(void)
   short result;
   long filelen;
   long loaded_size;
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(8,"Starting");
 
   fname = prepare_file_fmtpath(FGrp_FxData,"gtext_%s.dat",get_conf_parameter_text(lang_type,install_info.lang_id));
   filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
-    error(func_name, 1501, "GUI Strings file does not exist or can't be opened");
+    ERRORLOG("GUI Strings file does not exist or can't be opened");
     return false;
   }
   gui_strings_data = (char *)LbMemoryAlloc(filelen + 256);
   if (gui_strings_data == NULL)
   {
-    error(func_name, 1509, "Can't allocate memory for GUI Strings data");
+    ERRORLOG("Can't allocate memory for GUI Strings data");
     return false;
   }
   strings_data_end = gui_strings_data+filelen+255;
   loaded_size = LbFileLoadAt(fname, gui_strings_data);
   if (loaded_size < 16)
   {
-    error(func_name, 1501, "GUI Strings file couldn't be loaded or is too small");
+    ERRORLOG("GUI Strings file couldn't be loaded or is too small");
     return false;
   }
   // Resetting all values to empty strings
@@ -1150,9 +1142,7 @@ TbBool setup_gui_strings_data(void)
   result = create_strings_list(gui_strings, gui_strings_data, strings_data_end);
   // Updating strings inside the DLL
   LbMemoryCopy(_DK_strings, gui_strings, DK_STRINGS_MAX*sizeof(char *));
-#if (BFDEBUG_LEVEL > 19)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(19,"Finished");
   return result;
 }
 
@@ -1176,20 +1166,18 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
   char *fname;
   short result;
   long filelen;
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(18,"Starting");
   fname = prepare_file_path(FGrp_Main,campgn->strings_fname);
   filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
-    error(func_name, 1501, "Campaign Strings file does not exist or can't be opened");
+    ERRORLOG("Campaign Strings file does not exist or can't be opened");
     return false;
   }
   campgn->strings_data = (char *)LbMemoryAlloc(filelen + 256);
   if (campgn->strings_data == NULL)
   {
-    error(func_name, 1509, "Can't allocate memory for Campaign Strings data");
+    ERRORLOG("Can't allocate memory for Campaign Strings data");
     return false;
   }
   strings_data_end = campgn->strings_data+filelen+255;
@@ -1197,16 +1185,14 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
   loaded_size = LbFileLoadAt(fname, campgn->strings_data);
   if (loaded_size < 16)
   {
-    error(func_name, 1501, "Campaign Strings file couldn't be loaded or is too small");
+    ERRORLOG("Campaign Strings file couldn't be loaded or is too small");
     return false;
   }
   // Resetting all values to empty strings
   reset_strings(campgn->strings);
   // Analyzing strings data and filling correct values
   result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end);
-#if (BFDEBUG_LEVEL > 19)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(19,"Finished");
   return result;
 }
 
@@ -1237,7 +1223,7 @@ TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    LbWarnLog("Block [%s] not found in Credits file.\n",block_buf);
+    WARNMSG("Block [%s] not found in Credits file.",block_buf);
     return 0;
   }
   n = 0;
@@ -1338,7 +1324,7 @@ TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
     }
   }
   if (credits[0].kind == CIK_None)
-    LbWarnLog("Credits list empty after parsing [%s] block of Credits file.\n", block_buf);
+    WARNMSG("Credits list empty after parsing [%s] block of Credits file.", block_buf);
   return true;
 }
 
@@ -1353,20 +1339,18 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
   short result;
   long loaded_size;
   long filelen;
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(18,"Starting");
   fname = prepare_file_path(FGrp_LandView,campgn->credits_fname);
   filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
-    error(func_name, 1581, "Campaign Credits file does not exist or can't be opened");
+    ERRORLOG("Campaign Credits file does not exist or can't be opened");
     return false;
   }
   campgn->credits_data = (char *)LbMemoryAlloc(filelen + 256);
   if (campgn->credits_data == NULL)
   {
-    error(func_name, 1509, "Can't allocate memory for Campaign Credits data");
+    ERRORLOG("Can't allocate memory for Campaign Credits data");
     return false;
   }
   credits_data_end = campgn->credits_data+filelen+255;
@@ -1374,7 +1358,7 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
   loaded_size = LbFileLoadAt(fname, campgn->credits_data);
   if (loaded_size < 4)
   {
-    error(func_name, 1501, "Campaign Credits file couldn't be loaded or is too small");
+    ERRORLOG("Campaign Credits file couldn't be loaded or is too small");
     result = false;
   }
   // Resetting all values to unused
@@ -1384,11 +1368,9 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
   {
     result = parse_credits_block(campgn->credits, campgn->credits_data, credits_data_end);
     if (!result)
-      LbWarnLog("Parsing credits file \"%s\" credits block failed.\n",campgn->credits_fname);
+      WARNMSG("Parsing credits file \"%s\" credits block failed.",campgn->credits_fname);
   }
-#if (BFDEBUG_LEVEL > 19)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(19,"Finished");
   return result;
 }
 
@@ -1633,9 +1615,7 @@ LevelNumber get_extra_level(unsigned short elv_kind)
   if ((i < 0) || (i >= CAMPAIGN_LEVELS_COUNT))
     return LEVELNUMBER_ERROR;
   lvnum = campaign.extra_levels[i];
-#if (BFDEBUG_LEVEL > 5)
-    LbSyncLog("Extra level kind %d has number %ld\n",(int)elv_kind,lvnum);
-#endif
+  SYNCDBG(5,"Extra level kind %d has number %ld",(int)elv_kind,lvnum);
   if (lvnum > 0)
   {
     return lvnum;
@@ -1834,24 +1814,18 @@ short is_singleplayer_level(LevelNumber lvnum)
   int i;
   if (lvnum < 1)
   {
-  #if (BFDEBUG_LEVEL > 17)
-    LbSyncLog("%s: Level index %ld is not correct\n",func_name,lvnum);
-  #endif
+    SYNCDBG(17,"Level index %ld is not correct",lvnum);
     return false;
   }
   for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.single_levels[i] == lvnum)
     {
-  #if (BFDEBUG_LEVEL > 17)
-      LbSyncLog("%s: Level %ld identified as SP\n",func_name,lvnum);
-  #endif
-        return true;
+      SYNCDBG(17,"Level %ld identified as SP",lvnum);
+      return true;
     }
   }
-#if (BFDEBUG_LEVEL > 17)
-    LbSyncLog("%s: Level %ld not recognized as SP\n",func_name,lvnum);
-#endif
+  SYNCDBG(17,"Level %ld not recognized as SP",lvnum);
   return false;
 }
 
@@ -1909,11 +1883,11 @@ short is_freeplay_level(LevelNumber lvnum)
   {
     if (campaign.freeplay_levels[i] == lvnum)
     {
-//LbSyncLog("%d is freeplay\n",lvnum);
+//SYNCMSG("%d is freeplay",lvnum);
         return true;
     }
   }
-//LbSyncLog("%d is NOT freeplay\n",lvnum);
+//SYNCMSG("%d is NOT freeplay",lvnum);
   return false;
 }
 /******************************************************************************/

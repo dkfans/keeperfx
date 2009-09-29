@@ -39,7 +39,7 @@ struct SmackTag {
   unsigned long SmackerType;       // bit 0 set=ring frame
   unsigned long LargestInTrack[7]; // Largest single size for each track
   unsigned long tablesize;         // Size of the init tables
-  unsigned long codesize;          // Compression info   
+  unsigned long codesize;          // Compression info
   unsigned long absize;            // ditto
   unsigned long detailsize;        // ditto
   unsigned long typesize;          // ditto
@@ -73,7 +73,7 @@ struct SmackSumTag {
   unsigned long SkippedFrames;     // Total number of skipped frames
   unsigned long SoundSkips;        // Total number of sound skips
   unsigned long TotalBlitTime;     // Total time spent blitting
-  unsigned long TotalReadTime;     // Total time spent reading 
+  unsigned long TotalReadTime;     // Total time spent reading
   unsigned long TotalDecompTime;   // Total time spent decompressing
   unsigned long TotalBackReadTime; // Total time spent reading in background
   unsigned long TotalReadSpeed;    // Total io speed (bytes/second)
@@ -150,7 +150,6 @@ DLLIMPORT struct Animation _DK_animation;
 #define animation _DK_animation
 
 #pragma pack()
-
 /******************************************************************************/
 // Exported functions - SMK related
 short play_smk_(char *fname, int smkflags, int plyflags);

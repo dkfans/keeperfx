@@ -5,11 +5,11 @@
 /** @file bflib_video.h
  *     Header file for bflib_video.c.
  * @par Purpose:
- *     Video support library.
+ *     Video support library for 8-bit graphics.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     11 Feb 2008 - 30 Dec 2008
+ * @date     11 Feb 2008 - 28 Nov 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ extern "C" {
 #define PALETTE_SIZE 768
 #define PALETTE_COLORS 256
 
+/******************************************************************************/
 #pragma pack(1)
 
 typedef unsigned char TbPixel;

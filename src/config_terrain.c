@@ -113,7 +113,7 @@ TbBool parse_terrain_common_blocks(char *buf,long len)
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    LbWarnLog("Block [%s] not found in terrain config file.\n",block_buf);
+    WARNMSG("Block [%s] not found in terrain config file.",block_buf);
     return false;
   }
   while (pos<len)
@@ -137,7 +137,7 @@ TbBool parse_terrain_common_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.",
                 get_conf_parameter_text(terrain_common_commands,cmd_num),block_buf);
           }
           break;
@@ -153,7 +153,7 @@ TbBool parse_terrain_common_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.",
                 get_conf_parameter_text(terrain_common_commands,cmd_num),block_buf);
           }
           break;
@@ -169,7 +169,7 @@ TbBool parse_terrain_common_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.",
                 get_conf_parameter_text(terrain_common_commands,cmd_num),block_buf);
           }
           break;
@@ -185,7 +185,7 @@ TbBool parse_terrain_common_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.",
                 get_conf_parameter_text(terrain_common_commands,cmd_num),block_buf);
           }
           break;
@@ -194,8 +194,8 @@ TbBool parse_terrain_common_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Terrain file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Terrain file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -235,7 +235,7 @@ TbBool parse_terrain_slab_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      LbWarnLog("Block [%s] not found in Terrain config file.\n",block_buf);
+      WARNMSG("Block [%s] not found in Terrain config file.",block_buf);
       continue;
     }
     while (pos<len)
@@ -250,7 +250,7 @@ TbBool parse_terrain_slab_blocks(char *buf,long len)
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,slab_conf.slab_names[i].text,COMMAND_WORD_LEN) <= 0)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Terrain config file.\n",
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Terrain config file.",
             get_conf_parameter_text(terrain_slab_commands,cmd_num),block_buf);
             break;
           }
@@ -260,8 +260,8 @@ TbBool parse_terrain_slab_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Terrain file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Terrain file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -273,7 +273,7 @@ TbBool parse_terrain_slab_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      LbWarnLog("Block [%s] not found in Terrain config file.\n",block_buf);
+      WARNMSG("Block [%s] not found in Terrain config file.",block_buf);
     } else
     while (pos<len)
     {
@@ -301,7 +301,7 @@ TbBool parse_terrain_slab_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.",
                 get_conf_parameter_text(terrain_health_commands,cmd_num),block_buf);
           }
           break;
@@ -310,8 +310,8 @@ TbBool parse_terrain_slab_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Terrain file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Terrain file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -358,7 +358,7 @@ TbBool parse_terrain_room_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      LbWarnLog("Block [%s] not found in Terrain config file.\n",block_buf);
+      WARNMSG("Block [%s] not found in Terrain config file.",block_buf);
       continue;
     }
     rstat = &game.room_stats[i];
@@ -378,7 +378,7 @@ TbBool parse_terrain_room_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Terrain config file.\n",
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Terrain config file.",
             get_conf_parameter_text(terrain_room_commands,cmd_num),block_buf);
           }
           break;
@@ -391,7 +391,7 @@ TbBool parse_terrain_room_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.",
                 get_conf_parameter_text(terrain_room_commands,cmd_num),block_buf);
           }
           break;
@@ -404,7 +404,7 @@ TbBool parse_terrain_room_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.",
                 get_conf_parameter_text(terrain_room_commands,cmd_num),block_buf);
           }
           break;
@@ -413,8 +413,8 @@ TbBool parse_terrain_room_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Terrain file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Terrain file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -465,7 +465,7 @@ TbBool parse_terrain_trap_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      LbWarnLog("Block [%s] not found in Terrain config file.\n",block_buf);
+      WARNMSG("Block [%s] not found in Terrain config file.",block_buf);
       continue;
     }
     mconf = &game.traps_config[i];
@@ -481,7 +481,7 @@ TbBool parse_terrain_trap_blocks(char *buf,long len)
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,slab_conf.trap_names[i].text,COMMAND_WORD_LEN) <= 0)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Terrain config file.\n",
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Terrain config file.",
             get_conf_parameter_text(terrain_trap_commands,cmd_num),block_buf);
             break;
           }
@@ -495,7 +495,7 @@ TbBool parse_terrain_trap_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.",
                 get_conf_parameter_text(terrain_trap_commands,cmd_num),block_buf);
           }
           break;
@@ -508,7 +508,7 @@ TbBool parse_terrain_trap_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.",
                 get_conf_parameter_text(terrain_trap_commands,cmd_num),block_buf);
           }
           break;
@@ -521,7 +521,7 @@ TbBool parse_terrain_trap_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.",
                 get_conf_parameter_text(terrain_trap_commands,cmd_num),block_buf);
           }
           break;
@@ -534,7 +534,7 @@ TbBool parse_terrain_trap_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.",
                 get_conf_parameter_text(terrain_trap_commands,cmd_num),block_buf);
           }
           break;
@@ -547,7 +547,7 @@ TbBool parse_terrain_trap_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.",
                 get_conf_parameter_text(terrain_trap_commands,cmd_num),block_buf);
           }
           break;
@@ -556,8 +556,8 @@ TbBool parse_terrain_trap_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Terrain file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Terrain file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -599,7 +599,7 @@ TbBool parse_terrain_door_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      LbWarnLog("Block [%s] not found in Terrain config file.\n",block_buf);
+      WARNMSG("Block [%s] not found in Terrain config file.",block_buf);
       continue;
     }
     mconf = &game.doors_config[i];
@@ -615,7 +615,7 @@ TbBool parse_terrain_door_blocks(char *buf,long len)
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,slab_conf.door_names[i].text,COMMAND_WORD_LEN) <= 0)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Terrain config file.\n",
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Terrain config file.",
             get_conf_parameter_text(terrain_door_commands,cmd_num),block_buf);
             break;
           }
@@ -629,7 +629,7 @@ TbBool parse_terrain_door_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.",
                 get_conf_parameter_text(terrain_door_commands,cmd_num),block_buf);
           }
           break;
@@ -643,7 +643,7 @@ TbBool parse_terrain_door_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.",
                 get_conf_parameter_text(terrain_door_commands,cmd_num),block_buf);
           }
           break;
@@ -656,7 +656,7 @@ TbBool parse_terrain_door_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.",
                 get_conf_parameter_text(terrain_door_commands,cmd_num),block_buf);
           }
           break;
@@ -670,7 +670,7 @@ TbBool parse_terrain_door_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Terrain file.",
                 get_conf_parameter_text(terrain_door_commands,cmd_num),block_buf);
           }
           break;
@@ -679,8 +679,8 @@ TbBool parse_terrain_door_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Terrain file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Terrain file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -697,19 +697,17 @@ TbBool load_terrain_config(const char *conf_fname,unsigned short flags)
   long len,pos;
   int cmd_num;
   TbBool result;
-#if (BFDEBUG_LEVEL > 0)
-    LbSyncLog("Reading terrain config file \"%s\".\n",conf_fname);
-#endif
+  SYNCDBG(0,"Reading terrain config file \"%s\".",conf_fname);
   fname = prepare_file_path(FGrp_FxData,conf_fname);
   len = LbFileLengthRnc(fname);
   if (len < 2)
   {
-    LbWarnLog("Terrain config file \"%s\" doesn't exist or is too small.\n",conf_fname);
+    WARNMSG("Terrain config file \"%s\" doesn't exist or is too small.",conf_fname);
     return false;
   }
   if (len > 65536)
   {
-    LbWarnLog("Terrain config file \"%s\" is too large.\n",conf_fname);
+    WARNMSG("Terrain config file \"%s\" is too large.",conf_fname);
     return false;
   }
   buf = (char *)LbMemoryAlloc(len+256);
@@ -722,31 +720,31 @@ TbBool load_terrain_config(const char *conf_fname,unsigned short flags)
   {
     result = parse_terrain_common_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing terrain file \"%s\" common blocks failed.\n",conf_fname);
+      WARNMSG("Parsing terrain file \"%s\" common blocks failed.",conf_fname);
   }
   if (result)
   {
     result = parse_terrain_slab_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing terrain file \"%s\" slab blocks failed.\n",conf_fname);
+      WARNMSG("Parsing terrain file \"%s\" slab blocks failed.",conf_fname);
   }
   if (result)
   {
     result = parse_terrain_room_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing terrain file \"%s\" room blocks failed.\n",conf_fname);
+      WARNMSG("Parsing terrain file \"%s\" room blocks failed.",conf_fname);
   }
   if (result)
   {
     result = parse_terrain_trap_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing terrain file \"%s\" trap blocks failed.\n",conf_fname);
+      WARNMSG("Parsing terrain file \"%s\" trap blocks failed.",conf_fname);
   }
   if (result)
   {
     result = parse_terrain_door_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing terrain file \"%s\" door blocks failed.\n",conf_fname);
+      WARNMSG("Parsing terrain file \"%s\" door blocks failed.",conf_fname);
   }
   //Freeing and exiting
   LbMemoryFree(buf);
@@ -789,12 +787,11 @@ TbBool make_all_rooms_researchable(long plyr_idx)
  */
 TbBool set_room_available(long plyr_idx, long room_idx, long resrch, long avail)
 {
-  static const char *func_name="set_room_available";
   struct Dungeon *dungeon;
   dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
   if ((room_idx < 0) || (room_idx >= ROOM_TYPES_COUNT))
   {
-    LbErrorLog("%s: Can't add incorrect room %ld to player %ld\n",func_name,room_idx, plyr_idx);
+    ERRORLOG("Can't add incorrect room %ld to player %ld",room_idx, plyr_idx);
     return false;
   }
   dungeon->room_resrchable[room_idx] = resrch;
@@ -810,12 +807,9 @@ TbBool set_room_available(long plyr_idx, long room_idx, long resrch, long avail)
  */
 TbBool make_available_all_researchable_rooms(long plyr_idx)
 {
-  static const char *func_name="make_available_all_researchable_rooms";
   struct Dungeon *dungeon;
   long i;
-#if (BFDEBUG_LEVEL > 0)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(0,"Starting");
   dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
   for (i=0; i < ROOM_TYPES_COUNT; i++)
   {

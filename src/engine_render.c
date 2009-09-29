@@ -282,7 +282,7 @@ void find_gamut(void)
 {
   static const char *func_name="find_gamut";
 #if (BFDEBUG_LEVEL > 19)
-    LbSyncLog("%s: Starting\n",func_name);
+    SYNCDBG(0,"Starting");
 #endif
   _DK_find_gamut();
 }
@@ -336,7 +336,7 @@ void display_drawlist(void)
 {
   static const char *func_name="display_drawlist";
 #if (BFDEBUG_LEVEL > 9)
-    LbSyncLog("%s: Starting\n",func_name);
+    SYNCDBG(0,"Starting");
 #endif
   _DK_display_drawlist();
 }
@@ -352,9 +352,8 @@ void draw_view(struct Camera *cam, unsigned char a2)
   struct EngineCol *ec;
   struct MinMax *mm;
 #if (BFDEBUG_LEVEL > 9)
-    LbSyncLog("%s: Starting\n",func_name);
+    SYNCDBG(0,"Starting");
 #endif
-  //_DK_draw_view(cam, a2); return;
   nlens = cam->field_17 / pixel_size;
   getpoly = poly_pool;
   LbMemorySet(buckets, 0, sizeof(buckets));
@@ -883,13 +882,7 @@ void draw_frontview_engine(struct Camera *cam)
   long lim_x,lim_y;
   unsigned long laaa;
   long i;
-
-#if (BFDEBUG_LEVEL > 9)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-
-  //_DK_draw_frontview_engine(cam); return;
-
+  SYNCDBG(10,"Starting");
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   UseFastBlockDraw = (cam->field_17 == 65536);
   if (cam->field_17 > 65536)
@@ -939,7 +932,7 @@ void draw_frontview_engine(struct Camera *cam)
       py--;
       break;
   default:
-      LbErrorLog("%s: Illegal quadrant, %d\n",func_name,qdrant);
+      ERRORLOG("Illegal quadrant, %d.",qdrant);
       LbScreenLoadGraphicsWindow(&grwnd);
       return;
   }

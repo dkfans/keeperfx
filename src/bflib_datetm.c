@@ -25,6 +25,7 @@
 #include <time.h>
 
 #include "bflib_basics.h"
+#include "globals.h"
 
 #if defined(WIN32)
 //instead of #include <windows.h>
@@ -173,10 +174,10 @@ short LbTimerInit(void)
     break;
   default:
     LbTimerClock = LbTimerClock_any;
-    LbWarnLog("Timer uses unsafe clock multiplication!\n");
+    WARNMSG("Timer uses unsafe clock multiplication!");
     break;
   }
-  return 1;
+  return Lb_SUCCESS;
 }
 
 /******************************************************************************/

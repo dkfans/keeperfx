@@ -3,14 +3,14 @@
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
 /** @file bflib_video.c
- *     Video support library.
+ *     Video support library for 8-bit graphics.
  * @par Purpose:
- *     Allows displaying on graphics device - graphic canvas setup and drawing
+ *     Allows displaying on graphics device - graphic canvas setup and locking
  *     functions.
  * @par Comment:
  *     None yet.
  * @author   Tomasz Lis
- * @date     11 Feb 2008 - 30 Dec 2008
+ * @date     11 Feb 2008 - 28 Nov 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by

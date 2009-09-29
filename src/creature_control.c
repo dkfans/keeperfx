@@ -96,16 +96,13 @@ TbBool creature_control_invalid(struct CreatureControl *cctrl)
 
 struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long kind, struct Coord3d *pos)
 {
-  static const char *func_name="create_and_control_creature_as_controller";
   struct CreatureStats *crstat;
   struct CreatureControl *cctrl;
   struct Dungeon *dungeon;
   struct Thing *thing;
   struct Camera *cam;
   struct InitLight ilght;
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(6,"Starting");
   //return _DK_create_and_control_creature_as_controller(player, a2, pos);
   thing = create_creature(pos, kind, player->field_2B);
   if (thing_is_invalid(thing))
@@ -143,7 +140,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     light_set_light_never_cache(thing->field_62);
   } else
   {
-    error(func_name, 642, "Cannot allocate light to new hero");
+    ERRORLOG("Cannot allocate light to new hero");
   }
   if (is_my_player_number(thing->owner))
   {
@@ -158,7 +155,6 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
 
 TbBool disband_creatures_group(struct Thing *thing)
 {
-  static const char *func_name="disband_creatures_group";
   struct CreatureControl *cctrl;
   struct Thing *ntng;
   struct Thing *ctng;
@@ -175,10 +171,11 @@ TbBool disband_creatures_group(struct Thing *thing)
     k++;
     if (k > CREATURES_COUNT)
     {
-      error(func_name,4435,"Infinite loop detected when sweeping creatures group");
+      ERRORLOG("Infinite loop detected when sweeping creatures group");
       break;
     }
   }
+  // Disband the group, removing creatures from end
   k = 0;
   while (ctng != NULL)
   {
@@ -195,7 +192,7 @@ TbBool disband_creatures_group(struct Thing *thing)
     k++;
     if (k > CREATURES_COUNT)
     {
-      error(func_name,4453,"Infinite loop detected when sweeping creatures group");
+      ERRORLOG("Infinite loop detected when sweeping creatures group");
       return false;
     }
   }
@@ -204,7 +201,6 @@ TbBool disband_creatures_group(struct Thing *thing)
 
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
 {
-  static const char *func_name="get_creature_sound";
   switch (snd_idx)
   {
     case 1:
@@ -251,22 +247,19 @@ TbBool playing_creature_sound(struct Thing *thing, long snd_idx)
 
 void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4)
 {
-  static const char *func_name="play_creature_sound";
   struct CreatureSound *crsound;
   long i;
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(8,"Starting");
   if (playing_creature_sound(thing, snd_idx))
     return;
   crsound = get_creature_sound(thing, snd_idx);
   if (crsound == NULL)
   {
-    //LbSyncLog("%s: No sample %d for creature %d\n",func_name,snd_idx,thing->model);
+    //SYNCLOG("No sample %d for creature %d",snd_idx,thing->model);
     return;
   }
-  i = seed_check_random(crsound->count, &game.rand_14BB4E, func_name, 5634);
-  //LbSyncLog("%s: Playing sample %d (index %d) for creature %d\n",func_name,snd_idx,crsound->index+i,thing->model);
+  i = seed_check_random(crsound->count, &game.rand_14BB4E, __func__, 5634);
+  //SYNCLOG("Playing sample %d (index %d) for creature %d",snd_idx,crsound->index+i,thing->model);
   if ( a4 )
     thing_play_sample(thing, crsound->index+i, 100, 0, 3, 8, a3, 256);
   else

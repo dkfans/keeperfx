@@ -74,7 +74,7 @@
 #endif
 
 // Debug level is scaled 0..10, default=1
-#define BFDEBUG_LEVEL 0
+#define BFDEBUG_LEVEL 10
 #define PROGRAM_NAME "Dungeon Keeper FX"
 #define PROGRAM_FULL_NAME "Dungeon Keeper Fan eXpansion"
 #define DEFAULT_LOG_FILENAME "keeperfx.log"
@@ -89,6 +89,50 @@
 // Note: error codes -1..-79 are reserved standard C library errors with sign reverted.
 //    these are defined in errno.h
 #define ERR_BASE_RNC      -90
+
+// Debug fuction-like macros - for free messages
+#define ERRORMSG(format,args...) LbErrorLog(format "\n", ## args)
+#define WARNMSG(format,args...) LbWarnLog(format "\n", ## args)
+#define SYNCMSG(format,args...) LbSyncLog(format "\n", ## args)
+#define JUSTMSG(format,args...) LbJustLog(format "\n", ## args)
+#define SCRPTMSG(format,args...) LbScriptLog(format "\n", ## args)
+#define NETMSG(format,args...) LbNetLog(format "\n", ## args)
+#define NOMSG(format,args...)
+
+// Debug fuction-like macros - for code logging (with function name)
+#define ERRORLOG(format,args...) LbErrorLog("%s: " format "\n", __func__ , ## args)
+#define WARNLOG(format,args...) LbWarnLog("%s: " format "\n", __func__ , ## args)
+#define SYNCLOG(format,args...) LbSyncLog("%s: " format "\n", __func__ , ## args)
+#define JUSTLOG(format,args...) LbJustLog("%s: " format "\n", __func__ , ## args)
+#define SCRPTLOG(format,args...) LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ## args)
+#define SCRPTERRLOG(format,args...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, ## args)
+#define SCRPTWRNLOG(format,args...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, ## args)
+#define CONFLOG(format,args...) LbConfigLog(text_line_number,"%s: " format "\n", __func__ , ## args)
+#define CONFERRLOG(format,args...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, ## args)
+#define CONFWRNLOG(format,args...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, ## args)
+#define NETLOG(format,args...) LbNetLog("%s: " format "\n", __func__ , ## args)
+#define NOLOG(format,args...)
+
+// Debug fuction-like macros - for debug code logging
+#if (BFDEBUG_LEVEL > 0)
+  #define SYNCDBG(dblv,format,args...) {\
+    if (BFDEBUG_LEVEL > dblv)\
+      LbSyncLog("%s: " format "\n", __func__ , ## args); }
+  #define WARNDBG(dblv,format,args...) {\
+    if (BFDEBUG_LEVEL > dblv)\
+      LbWarnLog("%s: " format "\n", __func__ , ## args); }
+  #define ERRORDBG(dblv,format,args...) {\
+    if (BFDEBUG_LEVEL > dblv)\
+      LbErrorLog("%s: " format "\n", __func__ , ## args); }
+  #define SCRIPTDBG(dblv,format,args...) {\
+    if (BFDEBUG_LEVEL > dblv)\
+      LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ## args); }
+#else
+  #define SYNCDBG(dblv,format,args...)
+  #define WARNDBG(dblv,format,args...)
+  #define ERRORDBG(dblv,format,args...)
+  #define SCRIPTDBG(dblv,format,args...)
+#endif
 
 #pragma pack(1)
 

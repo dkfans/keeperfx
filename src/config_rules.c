@@ -176,7 +176,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    LbWarnLog("Block [%s] not found in rules config file.\n",block_buf);
+    WARNMSG("Block [%s] not found in rules config file.",block_buf);
     return false;
   }
   while (pos<len)
@@ -197,7 +197,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -210,7 +210,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -223,7 +223,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -236,7 +236,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -249,7 +249,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -274,7 +274,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -287,7 +287,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -300,7 +300,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -313,7 +313,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -326,7 +326,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -339,7 +339,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -352,7 +352,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -365,7 +365,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -378,7 +378,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -391,7 +391,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -408,7 +408,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -421,7 +421,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -434,7 +434,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -447,7 +447,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_game_commands,cmd_num),block_buf);
           }
           break;
@@ -456,8 +456,8 @@ TbBool parse_rules_game_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Rules file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Rules file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -479,7 +479,7 @@ TbBool parse_rules_computer_blocks(char *buf,long len)
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    LbWarnLog("Block [%s] not found in rules config file.\n",block_buf);
+    WARNMSG("Block [%s] not found in rules config file.",block_buf);
     return false;
   }
   while (pos<len)
@@ -503,7 +503,7 @@ TbBool parse_rules_computer_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_computer_commands,cmd_num),block_buf);
           }
           break;
@@ -516,7 +516,7 @@ TbBool parse_rules_computer_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_computer_commands,cmd_num),block_buf);
           }
           break;
@@ -529,7 +529,7 @@ TbBool parse_rules_computer_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_computer_commands,cmd_num),block_buf);
           }
           break;
@@ -542,7 +542,7 @@ TbBool parse_rules_computer_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_computer_commands,cmd_num),block_buf);
           }
           break;
@@ -551,8 +551,8 @@ TbBool parse_rules_computer_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Rules file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Rules file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -574,7 +574,7 @@ TbBool parse_rules_creatures_blocks(char *buf,long len)
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    LbWarnLog("Block [%s] not found in rules config file.\n",block_buf);
+    WARNMSG("Block [%s] not found in rules config file.",block_buf);
     return false;
   }
   while (pos<len)
@@ -595,7 +595,7 @@ TbBool parse_rules_creatures_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_creatures_commands,cmd_num),block_buf);
           }
           break;
@@ -608,7 +608,7 @@ TbBool parse_rules_creatures_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_creatures_commands,cmd_num),block_buf);
           }
           break;
@@ -621,7 +621,7 @@ TbBool parse_rules_creatures_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_creatures_commands,cmd_num),block_buf);
           }
           break;
@@ -634,7 +634,7 @@ TbBool parse_rules_creatures_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_creatures_commands,cmd_num),block_buf);
           }
           break;
@@ -647,7 +647,7 @@ TbBool parse_rules_creatures_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_creatures_commands,cmd_num),block_buf);
           }
           break;
@@ -660,7 +660,7 @@ TbBool parse_rules_creatures_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_creatures_commands,cmd_num),block_buf);
           }
           break;
@@ -673,7 +673,7 @@ TbBool parse_rules_creatures_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_creatures_commands,cmd_num),block_buf);
           }
           break;
@@ -682,8 +682,8 @@ TbBool parse_rules_creatures_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Rules file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Rules file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -705,7 +705,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len)
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    LbWarnLog("Block [%s] not found in rules config file.\n",block_buf);
+    WARNMSG("Block [%s] not found in rules config file.",block_buf);
     return false;
   }
   while (pos<len)
@@ -726,7 +726,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_magic_commands,cmd_num),block_buf);
           }
           break;
@@ -739,7 +739,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_magic_commands,cmd_num),block_buf);
           }
           break;
@@ -752,7 +752,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_magic_commands,cmd_num),block_buf);
           }
           break;
@@ -765,7 +765,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_magic_commands,cmd_num),block_buf);
           }
           break;
@@ -778,7 +778,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_magic_commands,cmd_num),block_buf);
           }
           break;
@@ -791,7 +791,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_magic_commands,cmd_num),block_buf);
           }
           break;
@@ -804,7 +804,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_magic_commands,cmd_num),block_buf);
           }
           break;
@@ -817,7 +817,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_magic_commands,cmd_num),block_buf);
           }
           break;
@@ -830,7 +830,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_magic_commands,cmd_num),block_buf);
           }
           break;
@@ -843,7 +843,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_magic_commands,cmd_num),block_buf);
           }
           break;
@@ -856,7 +856,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_magic_commands,cmd_num),block_buf);
           }
           break;
@@ -872,7 +872,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_magic_commands,cmd_num),block_buf);
           }
           break;
@@ -881,8 +881,8 @@ TbBool parse_rules_magic_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Rules file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Rules file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -904,7 +904,7 @@ TbBool parse_rules_rooms_blocks(char *buf,long len)
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    LbWarnLog("Block [%s] not found in rules config file.\n",block_buf);
+    WARNMSG("Block [%s] not found in rules config file.",block_buf);
     return false;
   }
   while (pos<len)
@@ -925,7 +925,7 @@ TbBool parse_rules_rooms_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_rooms_commands,cmd_num),block_buf);
           }
           break;
@@ -938,7 +938,7 @@ TbBool parse_rules_rooms_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_rooms_commands,cmd_num),block_buf);
           }
           break;
@@ -951,7 +951,7 @@ TbBool parse_rules_rooms_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_rooms_commands,cmd_num),block_buf);
           }
           break;
@@ -970,7 +970,7 @@ TbBool parse_rules_rooms_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_rooms_commands,cmd_num),block_buf);
           }
           break;
@@ -995,7 +995,7 @@ TbBool parse_rules_rooms_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_rooms_commands,cmd_num),block_buf);
           }
           break;
@@ -1008,7 +1008,7 @@ TbBool parse_rules_rooms_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_rooms_commands,cmd_num),block_buf);
           }
           break;
@@ -1027,7 +1027,7 @@ TbBool parse_rules_rooms_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_rooms_commands,cmd_num),block_buf);
           }
           break;
@@ -1040,7 +1040,7 @@ TbBool parse_rules_rooms_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_rooms_commands,cmd_num),block_buf);
           }
           break;
@@ -1053,7 +1053,7 @@ TbBool parse_rules_rooms_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_rooms_commands,cmd_num),block_buf);
           }
           break;
@@ -1066,7 +1066,7 @@ TbBool parse_rules_rooms_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_rooms_commands,cmd_num),block_buf);
           }
           break;
@@ -1075,12 +1075,13 @@ TbBool parse_rules_rooms_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Rules file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Rules file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
   }
+  //SYNCMSG("Prison skeleton chance = %d",game.prison_skeleton_chance);
   return true;
 }
 
@@ -1098,7 +1099,7 @@ TbBool parse_rules_workers_blocks(char *buf,long len)
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    LbWarnLog("Block [%s] not found in rules config file.\n",block_buf);
+    WARNMSG("Block [%s] not found in rules config file.",block_buf);
     return false;
   }
   while (pos<len)
@@ -1119,7 +1120,7 @@ TbBool parse_rules_workers_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_workers_commands,cmd_num),block_buf);
           }
           break;
@@ -1144,7 +1145,7 @@ TbBool parse_rules_workers_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_workers_commands,cmd_num),block_buf);
           }
           break;
@@ -1157,7 +1158,7 @@ TbBool parse_rules_workers_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_workers_commands,cmd_num),block_buf);
           }
           break;
@@ -1170,7 +1171,7 @@ TbBool parse_rules_workers_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_workers_commands,cmd_num),block_buf);
           }
           break;
@@ -1179,8 +1180,8 @@ TbBool parse_rules_workers_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Rules file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Rules file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -1202,7 +1203,7 @@ TbBool parse_rules_health_blocks(char *buf,long len)
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    LbWarnLog("Block [%s] not found in rules config file.\n",block_buf);
+    WARNMSG("Block [%s] not found in rules config file.",block_buf);
     return false;
   }
   while (pos<len)
@@ -1223,7 +1224,7 @@ TbBool parse_rules_health_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_health_commands,cmd_num),block_buf);
           }
           break;
@@ -1236,7 +1237,7 @@ TbBool parse_rules_health_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_health_commands,cmd_num),block_buf);
           }
           break;
@@ -1249,7 +1250,7 @@ TbBool parse_rules_health_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_health_commands,cmd_num),block_buf);
           }
           break;
@@ -1268,7 +1269,7 @@ TbBool parse_rules_health_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_health_commands,cmd_num),block_buf);
           }
           break;
@@ -1281,7 +1282,7 @@ TbBool parse_rules_health_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_health_commands,cmd_num),block_buf);
           }
           break;
@@ -1290,8 +1291,8 @@ TbBool parse_rules_health_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Rules file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Rules file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -1309,8 +1310,7 @@ long get_research_id(long item_type, char *trg_name, const char *func_name)
        item_id = get_id(power_desc, trg_name);
       if (item_id == -1)
       {
-        text = buf_sprintf("(line:%lu) Unknown magic, '%s'", text_line_number, trg_name);
-        error(func_name, 1589, text);
+        ERRORMSG("%s(line %lu): " "Unknown magic, '%s'", func_name , text_line_number, trg_name);
         return -1;
       }
       break;
@@ -1318,8 +1318,7 @@ long get_research_id(long item_type, char *trg_name, const char *func_name)
       item_id = get_id(room_desc, trg_name);
       if (item_id == -1)
       {
-        text = buf_sprintf("(line:%lu) Unknown room, '%s'", text_line_number, trg_name);
-        error(func_name, 1598, text);
+        ERRORMSG("%s(line %lu): " "Unknown room, '%s'", func_name , text_line_number, trg_name);
         return -1;
       }
       break;
@@ -1327,15 +1326,13 @@ long get_research_id(long item_type, char *trg_name, const char *func_name)
       item_id = get_id(creature_desc, trg_name);
       if (item_id == -1)
       {
-        text = buf_sprintf("(line:%lu) Unknown creature, '%s'", text_line_number, trg_name);
-        error(func_name, 1607, text);
+        ERRORMSG("%s(line %lu): " "Unknown creature, '%s'", func_name , text_line_number, trg_name);
         return -1;
       }
       break;
   case -1:
   default:
-      text = buf_sprintf("(line:%lu) Unhandled research type, '%s'", text_line_number, item_type);
-      error(func_name, 1580, text);
+      ERRORMSG("%s(line %lu): " "Unhandled research type, '%s'", func_name , text_line_number, item_type);
       return -1;
   }
   return item_id;
@@ -1343,7 +1340,6 @@ long get_research_id(long item_type, char *trg_name, const char *func_name)
 
 TbBool parse_rules_research_blocks(char *buf,long len)
 {
-  static const char *func_name="parse_rules_research_blocks";
   long pos;
   int i,k,l,n;
   int cmd_num;
@@ -1356,7 +1352,7 @@ TbBool parse_rules_research_blocks(char *buf,long len)
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    LbWarnLog("Block [%s] not found in rules config file.\n",block_buf);
+    WARNMSG("Block [%s] not found in rules config file.",block_buf);
     return false;
   }
   while (pos<len)
@@ -1378,7 +1374,7 @@ TbBool parse_rules_research_blocks(char *buf,long len)
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            l = get_research_id(i, word_buf, func_name);
+            l = get_research_id(i, word_buf, __func__);
             if (l >= 0)
               n++;
           }
@@ -1389,7 +1385,7 @@ TbBool parse_rules_research_blocks(char *buf,long len)
           }
           if (n < 3)
           {
-            LbWarnLog("Incorrect value of \"%s\" parameter in [%s] block of Rules file.\n",
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Rules file.",
                 get_conf_parameter_text(rules_research_commands,cmd_num),block_buf);
             break;
           }
@@ -1400,8 +1396,8 @@ TbBool parse_rules_research_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command (%d) in [%s] block of Rules file, starting on byte %d.\n",
-              cmd_num,block_buf,pos);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Rules file.",
+              cmd_num,block_buf);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -1412,25 +1408,22 @@ TbBool parse_rules_research_blocks(char *buf,long len)
 
 TbBool load_rules_config(const char *conf_fname,unsigned short flags)
 {
-  static const char *func_name="load_rules_config";
   char *fname;
   char *buf;
   long len,pos;
   int cmd_num;
   TbBool result;
-#if (BFDEBUG_LEVEL > 0)
-    LbSyncLog("Reading rules config file \"%s\".\n",conf_fname);
-#endif
+  SYNCDBG(0,"Reading rules config file \"%s\".",conf_fname);
   fname = prepare_file_path(FGrp_FxData,conf_fname);
   len = LbFileLengthRnc(fname);
   if (len < 2)
   {
-    LbWarnLog("Game Rules config file \"%s\" doesn't exist or is too small.\n",conf_fname);
+    WARNMSG("Game Rules config file \"%s\" doesn't exist or is too small.",conf_fname);
     return false;
   }
   if (len > 65536)
   {
-    LbWarnLog("Game Rules config file \"%s\" is too large.\n",conf_fname);
+    WARNMSG("Game Rules config file \"%s\" is too large.",conf_fname);
     return false;
   }
   buf = (char *)LbMemoryAlloc(len+256);
@@ -1443,49 +1436,49 @@ TbBool load_rules_config(const char *conf_fname,unsigned short flags)
   {
     result = parse_rules_game_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing rules file \"%s\" game blocks failed.\n",conf_fname);
+      WARNMSG("Parsing rules file \"%s\" game blocks failed.",conf_fname);
   }
   if (result)
   {
     result = parse_rules_computer_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing rules file \"%s\" computer blocks failed.\n",conf_fname);
+      WARNMSG("Parsing rules file \"%s\" computer blocks failed.",conf_fname);
   }
   if (result)
   {
     result = parse_rules_creatures_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing rules file \"%s\" creatures blocks failed.\n",conf_fname);
+      WARNMSG("Parsing rules file \"%s\" creatures blocks failed.",conf_fname);
   }
   if (result)
   {
     result = parse_rules_magic_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing rules file \"%s\" magic blocks failed.\n",conf_fname);
+      WARNMSG("Parsing rules file \"%s\" magic blocks failed.",conf_fname);
   }
   if (result)
   {
     result = parse_rules_rooms_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing rules file \"%s\" rooms blocks failed.\n",conf_fname);
+      WARNMSG("Parsing rules file \"%s\" rooms blocks failed.",conf_fname);
   }
   if (result)
   {
     result = parse_rules_workers_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing rules file \"%s\" workers blocks failed.\n",conf_fname);
+      WARNMSG("Parsing rules file \"%s\" workers blocks failed.",conf_fname);
   }
   if (result)
   {
     result = parse_rules_health_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing rules file \"%s\" health blocks failed.\n",conf_fname);
+      WARNMSG("Parsing rules file \"%s\" health blocks failed.",conf_fname);
   }
   if (result)
   {
     result = parse_rules_research_blocks(buf, len);
     if (!result)
-      LbWarnLog("Parsing rules file \"%s\" research blocks failed.\n",conf_fname);
+      WARNMSG("Parsing rules file \"%s\" research blocks failed.",conf_fname);
   }
   //Freeing and exiting
   LbMemoryFree(buf);

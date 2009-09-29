@@ -27,6 +27,7 @@
 #include "bflib_heapmgr.h"
 #include "bflib_sndlib.h"
 #include "bflib_fileio.h"
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,11 +62,10 @@ long start_emitter_playing(struct SoundEmitter *emit, long a2, long a3, long a4,
 
 long get_best_sound_heap_size(long mem_size)
 {
-  static const char *func_name="get_best_sound_heap_size";
   //return _DK_get_best_sound_heap_size(mem_size);
   if (mem_size < 8)
   {
-    error(func_name, 59, "Unhandled PhysicalMemory");
+    ERRORLOG("Unhandled PhysicalMemory");
     return 0;
   }
   if (mem_size <= 8)
@@ -218,7 +218,6 @@ void close_sound_heap(void)
 
 void play_non_3d_sample(long sample_idx)
 {
-  static const char *func_name="play_non_3d_sample";
   if (SoundDisabled)
     return;
   if (GetCurrentSoundMasterVolume() <= 0)
@@ -226,7 +225,7 @@ void play_non_3d_sample(long sample_idx)
   if (Non3DEmitter != 0)
     if (!sound_emitter_in_use(Non3DEmitter))
     {
-      error(func_name, 263, "Non 3d Emitter has been deleted!");
+      ERRORLOG("Non 3d Emitter has been deleted!");
       Non3DEmitter = 0;
     }
   if (Non3DEmitter == 0)
@@ -240,7 +239,6 @@ void play_non_3d_sample(long sample_idx)
 
 void play_non_3d_sample_no_overlap(long smpl_idx)
 {
-  static const char *func_name="play_non_3d_sample_no_overlap";
   if (SoundDisabled)
     return;
   if (GetCurrentSoundMasterVolume() <= 0)
@@ -249,7 +247,7 @@ void play_non_3d_sample_no_overlap(long smpl_idx)
   {
     if (!sound_emitter_in_use(Non3DEmitter))
     {
-      error(func_name, 263, "Non 3d Emitter has been deleted!");
+      ERRORLOG("Non 3d Emitter has been deleted!");
       Non3DEmitter = 0;
     }
   }
@@ -269,7 +267,6 @@ void play_non_3d_sample_no_overlap(long smpl_idx)
  */
 long allocate_free_sound_emitter(void)
 {
-  static const char *func_name="allocate_free_sound_emitter";
   struct SoundEmitter *emit;
   long i;
   for (i=1; i < NoSoundEmitters; i++)
@@ -290,12 +287,11 @@ long allocate_free_sound_emitter(void)
  */
 void delete_sound_emitter(long idx)
 {
-  static const char *func_name="delete_sound_emitter";
   struct SoundEmitter *emit;
   emit = &emitter[idx];
   if ((emit <= &emitter[0]) || (emit > &emitter[SOUND_EMITTERS_MAX-1]))
   {
-    LbWarnLog("%s: Tried to delete outranged emitter\n",func_name);
+    WARNLOG("Tried to delete outranged emitter");
   }
   if ((emit->flags & 0x01) != 0)
   {
@@ -320,13 +316,12 @@ long stop_emitter_samples(struct SoundEmitter *emit)
 
 struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, long file_pos, unsigned char bank_id)
 {
-  static const char *func_name="find_handle_for_new_sample";
   struct SampleTable *smp_table;
   struct HeapMgrHandle *hmhandle;
   long i;
   if ((!using_two_banks) && (bank_id > 0))
   {
-    error(func_name, 400, "Trying to use two sound banks when only one has been set up");
+    ERRORLOG("Trying to use two sound banks when only one has been set up");
     return NULL;
   }
   hmhandle = heapmgr_add_item(sndheap, smpl_len);
@@ -368,13 +363,12 @@ struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, l
 
 struct SampleInfo *play_sample_using_heap(unsigned long a1, short smpl_idx, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, unsigned char bank_id)
 {
-  static const char *func_name="play_sample_using_heap";
   struct SampleInfo *sample;
   struct SampleTable *smp_table;
   struct HeapMgrHandle *hmhandle;
   if ((!using_two_banks) && (bank_id > 0))
   {
-    error(func_name, 302, "Trying to use two sound banks when only one has been set up");
+    ERRORLOG("Trying to use two sound banks when only one has been set up");
     return NULL;
   }
   // TODO: use rewritten version when sound routines are rewritten
@@ -386,7 +380,7 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, short smpl_idx, unsi
       return 0;
     if ((smpl_idx <= 0) || (smpl_idx >= samples_in_bank2))
     {
-      LbErrorLog("Sample %d exceeds bank %d bounds\n",smpl_idx,2);
+      ERRORLOG("Sample %d exceeds bank %d bounds",smpl_idx,2);
       return NULL;
     }
     smp_table = &sample_table2[smpl_idx];
@@ -396,7 +390,7 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, short smpl_idx, unsi
       return 0;
     if ((smpl_idx <= 0) || (smpl_idx >= samples_in_bank))
     {
-      LbErrorLog("Sample %d exceeds bank %d bounds\n",smpl_idx,1);
+      ERRORLOG("Sample %d exceeds bank %d bounds",smpl_idx,1);
       return NULL;
     }
     smp_table = &sample_table[smpl_idx];
@@ -405,14 +399,14 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, short smpl_idx, unsi
     smp_table->hmhandle = find_handle_for_new_sample(smp_table->field_4, smpl_idx, smp_table->field_0, bank_id);
   if (smp_table->hmhandle == NULL)
   {
-    LbErrorLog("Can't find handle to play sample %d\n",smpl_idx);
+    ERRORLOG("Can't find handle to play sample %d",smpl_idx);
     return NULL;
   }
   heapmgr_make_newest(sndheap, smp_table->hmhandle);
   sample = PlaySampleFromAddress(a1, smpl_idx, a3, a4, a5, a6, a7, smp_table->hmhandle, smp_table->field_8);
   if (sample == NULL)
   {
-    LbErrorLog("Can't start playing sample %d\n",smpl_idx);
+    ERRORLOG("Can't start playing sample %d",smpl_idx);
     return NULL;
   }
   sample->field_17 |= 0x01;
@@ -429,7 +423,6 @@ void stop_sample_using_heap(unsigned long a1, short a2, unsigned char a3)
 
 long speech_sample_playing(void)
 {
-  static const char *func_name="speech_sample_playing";
   long sp_emiter;
   if (SoundDisabled)
     return false;
@@ -443,7 +436,7 @@ long speech_sample_playing(void)
       sp_emiter = SpeechEmitter;
     } else
     {
-      error(func_name, 339, "Speech Emitter has been deleted");
+      ERRORLOG("Speech Emitter has been deleted");
       sp_emiter = 0;
     }
   }
@@ -455,7 +448,6 @@ long speech_sample_playing(void)
 
 long play_speech_sample(long smpl_idx)
 {
-  static const char *func_name="play_speech_sample";
   long sp_emiter;
   if (SoundDisabled)
     return false;
@@ -469,7 +461,7 @@ long play_speech_sample(long smpl_idx)
       sp_emiter = SpeechEmitter;
     } else
     {
-      error(func_name, 295, "Speech Emitter has been deleted");
+      ERRORLOG("Speech Emitter has been deleted");
       sp_emiter = 0;
     }
   }
@@ -485,7 +477,7 @@ long play_speech_sample(long smpl_idx)
   SpeechEmitter = sp_emiter;
   if (sp_emiter == 0)
   {
-    error(func_name, 308, "Cannot create speech emitter.");
+    ERRORLOG("Cannot create speech emitter.");
     return false;
   }
   return true;

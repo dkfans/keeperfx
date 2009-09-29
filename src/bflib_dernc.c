@@ -29,6 +29,7 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_memory.h"
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -498,7 +499,7 @@ long __fastcall LbFileLoadAt(const char *fname, void *buffer)
         result = filelength;
   } else
   {
-      LbErrorLog("ERROR decompressing %s\n",fname);
+      ERRORLOG("ERROR decompressing \"%s\"",fname);
       result = -1;
   }
   return result;

@@ -51,67 +51,57 @@ class ServiceProvider *spPtr;
 // Nil callbacks content
 void NilAddMsgCallback(unsigned long a1, char *a2, void *a3)
 {
-  static const char *func_name="NilAddMsgCallback";
-  LbWarnLog("%s(%d, \"%s\") hit\n",func_name,a1,a2);
+  WARNLOG("hit(%d, \"%s\", *)",a1,a2);
 }
 
 void NilDeleteMsgCallback(unsigned long a1, void *a2)
 {
-  static const char *func_name="NilDeleteMsgCallback";
-  LbWarnLog("%s(%d) hit\n",func_name,a1);
+  WARNLOG("hit(%d, *)",a1);
 }
 
 void NilHostMsgCallback(unsigned long a1, void *a2)
 {
-  static const char *func_name="NilHostMsgCallback";
-  LbWarnLog("%s(%d) hit\n",func_name,a1);
+  WARNLOG("hit(%d, *)",a1);
 }
 
 void NilUserSysMsgCallback(void *a1)
 {
-  static const char *func_name="NilUserSysMsgCallback";
-  LbWarnLog("%s() hit\n",func_name);
+  WARNLOG("hit(*)");
 }
 
 void *NilUserDataMsgCallback(unsigned long a1, unsigned long a2, unsigned long a3, void *a4)
 {
-  static const char *func_name="NilUserDataMsgCallback";
-  LbWarnLog("%s(%d, %d %d) hit\n",func_name,a1,a2,a3);
+  WARNLOG("hit(%d, %d, %d, *)",a1,a2,a3);
   return NULL;
 }
 
 void NilRequestExchangeDataMsgCallback(unsigned long a1, unsigned long a2, void *a3)
 {
-  static const char *func_name="NilRequestExchangeDataMsgCallback";
-  LbWarnLog("%s(%d %d) hit\n",func_name,a1,a2);
+  WARNLOG("hit(%d, %d, *)",a1,a2);
 }
 
 void NilRequestCompositeExchangeDataMsgCallback(unsigned long a1, unsigned long a2, void *a3)
 {
-  static const char *func_name="NilRequestCompositeExchangeDataMsgCallback";
-  LbWarnLog("%s(%d %d) hit\n",func_name,a1,a2);
+  WARNLOG("hit(%d, %d, *)",a1,a2);
 }
 
 void *NilUnidirectionalMsgCallback(unsigned long a1, unsigned long a2, void *a3)
 {
-  static const char *func_name="NilUnidirectionalMsgCallback";
-  LbWarnLog("%s(%d %d) hit\n",func_name,a1,a2);
+  WARNLOG("hit(%d, %d, *)",a1,a2);
 }
 
 void NilSystemUserMsgCallback(unsigned long a1, void *a2, unsigned long a3, void *a4)
 {
-  static const char *func_name="NilSystemUserMsgCallback";
-  LbWarnLog("%s(%d %d) hit\n",func_name,a1,a3);
+  WARNLOG("hit(%d, *, %d, *)",a1,a3);
 }
 /******************************************************************************/
 // methods of virtual class ServiceProvider
 
 void ServiceProvider::EncodeMessageStub(void *buf, unsigned long a2, unsigned char a3, unsigned long a4)
 {
-  static const char *func_name="ServiceProvider::EncodeMessageStub";
   if (buf == NULL)
   {
-    LbWarnLog("%s: NULL ptr\n",func_name);
+    WARNLOG("NULL ptr");
     return;
   }
   *(unsigned long *)buf = (a3 << 24) | ((a4 & 0xF) << 20) | (a2 & 0xFFFFF);
@@ -119,9 +109,8 @@ void ServiceProvider::EncodeMessageStub(void *buf, unsigned long a2, unsigned ch
 
 void ServiceProvider::EncodeDeletePlayerMsg(unsigned char *buf, unsigned long val)
 {
-  static const char *func_name="ServiceProvider::EncodeDeletePlayerMsg";
   if (buf == NULL)
-    LbWarnLog("%s: NULL ptr\n",func_name);
+    WARNLOG("NULL ptr");
   else
     *(unsigned long *)buf = 0x2000004;
   memcpy(buf+4, &val, 4);
@@ -129,10 +118,9 @@ void ServiceProvider::EncodeDeletePlayerMsg(unsigned char *buf, unsigned long va
 
 void ServiceProvider::EncodeRequestExchangeDataMsg(unsigned char *buf, unsigned long a1, unsigned long a2)
 {
-  static const char *func_name="ServiceProvider::EncodeRequestExchangeDataMsg";
   if (buf == NULL)
   {
-    LbWarnLog("%s: NULL ptr\n",func_name);
+    WARNLOG("NULL ptr");
     return;
   }
   *(unsigned long *)buf = ((a2 & 0xF) << 20) | 0x5000004;
@@ -141,10 +129,9 @@ void ServiceProvider::EncodeRequestExchangeDataMsg(unsigned char *buf, unsigned 
 
 void ServiceProvider::EncodeRequestCompositeExchangeDataMsg(unsigned char *buf, unsigned long a1, unsigned long a2)
 {
-  static const char *func_name="ServiceProvider::EncodeRequestCompositeExchangeDataMsg";
   if (buf == NULL)
   {
-    LbWarnLog("%s: NULL ptr\n",func_name);
+    WARNLOG("NULL ptr");
     return;
   }
   *(unsigned long *)buf = ((a2 & 0xF) << 20) | 0x6000004;
@@ -159,11 +146,10 @@ unsigned long ServiceProvider::DecodeRequestCompositeExchangeDataMsg(unsigned ch
 
 void ServiceProvider::DecodeMessageStub(void *buf, unsigned long *a2, unsigned char *a3, unsigned long *a4)
 {
-  static const char *func_name="ServiceProvider::DecodeMessageStub";
   unsigned long k;
   if (buf == NULL)
   {
-    LbWarnLog("%s: NULL ptr\n",func_name);
+    WARNLOG("NULL ptr");
     return;
   }
   if (a2 != NULL)
@@ -209,16 +195,14 @@ ServiceProvider::ServiceProvider()
 
 ServiceProvider::~ServiceProvider()
 {
-  static const char *func_name="ServiceProvider::~ServiceProvider";
-  LbNetLog("Destructing Service Provider\n");
+  NETMSG("Destructing Service Provider");
 }
 
 TbError ServiceProvider::Initialise(struct ReceiveCallbacks *nCallbacks, void *a2)
 {
-  static const char *func_name="ServiceProvider::Initialise";
-  LbNetLog("Initialising Service Provider\n");
+  NETMSG("Initialising Service Provider");
   if (this->field_7A4)
-    LbWarnLog("%s: Service Provider already set up!\n",func_name);
+    WARNLOG("Service Provider already set up!");
   this->field_7AC = 0;
   ClearSessions();
   this->field_D78 = a2;
@@ -232,7 +216,6 @@ TbError ServiceProvider::Initialise(struct ReceiveCallbacks *nCallbacks, void *a
 
 TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
 {
-  static const char *func_name="ServiceProvider::Send";
   unsigned char messageType;
   unsigned long p1,p2,p3;
   void *imsg;
@@ -240,7 +223,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
   long i;
   if (this->field_D74 < 1)
   {
-    LbWarnLog("%s: not initialised\n",func_name);
+    WARNLOG("not initialised");
     return Lb_FAIL;
   }
   DecodeMessageStub(buf,&p1,&messageType,&p2);
@@ -249,7 +232,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
     i = (messageType != 0) && (messageType != 5) && (messageType != 6) && (messageType != 8);
     if (this->SendMessage(plr_id, buf, i) != Lb_OK)
     {
-      LbWarnLog("%s: failure on SendMessage()\n",func_name);
+      WARNLOG("failure on SendMessage()");
       return Lb_FAIL;
     }
     return Lb_OK;
@@ -259,7 +242,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
   case 0:
       if (recvCallbacks->multiPlayer == NULL)
       {
-        LbWarnLog("%s: NIL target for userDataMsgCallbackProc\n",func_name);
+        WARNLOG("NIL target for userDataMsgCallbackProc");
         break;
       }
       imsg = recvCallbacks->multiPlayer(this->local_id, p1+4, p2, this->field_D78);
@@ -292,7 +275,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
   case 4:
       if (recvCallbacks->systemUserMsg == NULL)
       {
-        LbWarnLog("%s: NIL target for systemUserMsgCallbackProc\n",func_name);
+        WARNLOG("NIL target for systemUserMsgCallbackProc");
         break;
       }
       recvCallbacks->systemUserMsg(this->local_id, (char *)buf+4, p1, this->field_D78);
@@ -323,7 +306,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       recvCallbacks->field_24(p3, buf);
       break;
   default:
-      LbWarnLog("%s: messageType is out of range\n",func_name);
+      WARNLOG("messageType is out of range");
       break;
   }
   return Lb_OK;
@@ -331,13 +314,12 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
 
 TbError ServiceProvider::Receive(unsigned long a1)
 {
-  static const char *func_name="ServiceProvider::Receive";
   unsigned long p1,p2,p3;
   unsigned char messageType;
   TbBool keepExchng;
   if (this->field_D74 < 1)
   {
-    LbWarnLog("%s: not initialised\n",func_name);
+    WARNLOG("not initialised");
     return Lb_FAIL;
   }
   keepExchng = true;
@@ -360,7 +342,7 @@ TbError ServiceProvider::Receive(unsigned long a1)
         //TODO
         break;
     default:
-        LbWarnLog("%s: messageType is out of range\n",func_name);
+        WARNLOG("messageType is out of range");
         break;
     }
   }
@@ -369,11 +351,10 @@ TbError ServiceProvider::Receive(unsigned long a1)
 
 TbError ServiceProvider::Release(void)
 {
-  static const char *func_name="ServiceProvider::Release";
-  LbNetLog("Releasing Service Provider\n");
+  NETMSG("Releasing Service Provider");
   this->field_7A8 = 0;
   if (this->field_7A4 != 1)
-    LbWarnLog("%s: Service Provider not set up!\n",func_name);
+    WARNLOG("Service Provider not set up!");
   this->field_7A4--;
   return Lb_OK;
 }

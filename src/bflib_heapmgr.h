@@ -26,6 +26,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#pragma pack(1)
+
 struct HeapMgrHeader { // sizeof = 36
   unsigned char *field_0;
   unsigned char *field_4;
@@ -49,8 +51,7 @@ struct HeapMgrHandle { // sizeof = 28
   unsigned long field_18;
 };
 
-
-
+#pragma pack()
 /******************************************************************************/
 struct HeapMgrHandle *find_free_handle(struct HeapMgrHeader *hmhead);
 long heapmgr_free_oldest(struct HeapMgrHeader *hmhead);
