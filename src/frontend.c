@@ -1636,7 +1636,6 @@ TbBool validate_versions(void)
 
 void versions_different_error(void)
 {
-  static const char *func_name="versions_different_error";
   struct TbNetworkPlayerName *plyr_nam;
   struct ScreenPacket *nspckt;
   char text[MESSAGE_TEXT_LEN];
@@ -1644,7 +1643,7 @@ void versions_different_error(void)
   int i;
   if (LbNetwork_Stop())
   {
-    error(func_name, 2977, "LbNetwork_Stop() failed");
+    ERRORLOG("LbNetwork_Stop() failed");
   }
   lbKeyOn[KC_ESCAPE] = 0;
   lbKeyOn[KC_SPACE] = 0;
@@ -2117,7 +2116,6 @@ void menu_tab_maintain(struct GuiButton *gbtn)
 
 void maintain_turn_on_autopilot(struct GuiButton *gbtn)
 {
-  static const char *func_name="maintain_turn_on_autopilot";
   struct PlayerInfo *player;
   unsigned long cplr_model;
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
@@ -2125,7 +2123,7 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
   if ((cplr_model >= 0) && (cplr_model < 10))
     gbtn->tooltip_id = computer_types[cplr_model];
   else
-    error(func_name, 2774, "Illegal computer player");
+    ERRORLOG("Illegal computer player");
 }
 
 void maintain_room(struct GuiButton *gbtn)
@@ -2528,7 +2526,6 @@ long torture_door_over_point(long x,long y)
 
 void fronttorture_unload(void)
 {
-  //_DK_fronttorture_unload();
   LbDataFreeAll(torture_load_files);
   memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
   StopAllSamples();
@@ -2544,12 +2541,10 @@ void fronttorture_unload(void)
 
 void fronttorture_load(void)
 {
-  static const char *func_name="fronttorture_load";
   struct PlayerInfo *player;
   char *fname;
   unsigned char *ptr;
   long i,k;
-  //_DK_fronttorture_load();
   wait_for_cd_to_be_available();
   frontend_load_data_from_cd();
   memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
@@ -2609,7 +2604,7 @@ void fronttorture_load(void)
   }
 
   if ( LbDataLoadAll(torture_load_files) )
-    error(func_name, 252, "Unable to load torture load files");
+    ERRORLOG("Unable to load torture load files");
   LbSpriteSetupAll(setup_torture_sprites);
   frontend_load_data_reset();
   memcpy(&frontend_palette, torture_palette, PALETTE_SIZE);
@@ -2632,10 +2627,9 @@ void fronttorture_load(void)
 
 void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
-  static const char *func_name="enum_services_callback";
   if (net_number_of_services >= NET_SERVICES_COUNT)
   {
-    error(func_name, 2422, "Too many services in enumeration");
+    ERRORLOG("Too many services in enumeration");
     return;
   }
   if (stricmp("SERIAL", netcdat->svc_name) == 0)
@@ -2654,16 +2648,15 @@ void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, voi
     net_number_of_services++;
   } else
   {
-    error(func_name, 2416, "Unrecognised Network Service");
+    ERRORLOG("Unrecognised Network Service");
   }
 }
 
 void __stdcall enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
-  static const char *func_name="enum_players_callback";
   if (net_number_of_enum_players >= 4)
   {
-    error(func_name, 2382, "Too many players in enumeration");
+    ERRORLOG("Too many players in enumeration");
     return;
   }
   strncpy(net_player[net_number_of_enum_players].name, netcdat->field_C, sizeof(struct TbNetworkPlayerName));
@@ -2672,10 +2665,9 @@ void __stdcall enum_players_callback(struct TbNetworkCallbackData *netcdat, void
 
 void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
 {
-  static const char *func_name="enum_sessions_callback";
   if (net_number_of_sessions >= 32)
   {
-    error(func_name, 2370, "Too many sessions in enumeration");
+    ERRORLOG("Too many sessions in enumeration");
     return;
   }
   if (net_service_index_selected == 0)
@@ -2719,12 +2711,11 @@ void net_load_config_file(void)
 
 void frontnet_service_setup(void)
 {
-  static const char *func_name="frontnet_service_setup";
   net_number_of_services = 0;
   LbMemorySet(net_service, 0, sizeof(net_service));
   // Create list of available services
   if (LbNetwork_EnumerateServices(enum_services_callback, NULL))
-    error(func_name, 946, "LbNetwork_EnumerateServices() failed");
+    ERRORLOG("LbNetwork_EnumerateServices() failed");
   // Create skirmish option if it should be enabled
   if (game.one_player)
   {
@@ -2797,14 +2788,9 @@ void gui_go_to_map(struct GuiButton *gbtn)
 
 void gui_area_new_normal_button(struct GuiButton *gbtn)
 {
-  static const char *func_name="gui_area_new_normal_button";
-#if (BFDEBUG_LEVEL > 10)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(10,"Starting");
   _DK_gui_area_new_normal_button(gbtn);
-#if (BFDEBUG_LEVEL > 12)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(12,"Finished");
 }
 
 void gui_area_autopilot_button(struct GuiButton *gbtn)
@@ -2819,9 +2805,8 @@ void gui_set_menu_mode(struct GuiButton *gbtn)
 
 void gui_draw_tab(struct GuiButton *gbtn)
 {
-  static const char *func_name="gui_draw_tab";
   if (gbtn->gbtype == Lb_CYCLEBTN)
-    error(func_name, 10020, "Cycle button cannot use this draw function!");
+    ERRORLOG("Cycle button cannot use this draw function!");
   if ((gbtn->field_1) || (gbtn->field_2))
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
   else
@@ -2840,14 +2825,11 @@ void frontstats_initialise(void)
 
 void gui_open_event(struct GuiButton *gbtn)
 {
-  static const char *func_name="gui_open_event";
   struct Dungeon *dungeon;
   dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
   unsigned int idx;
   unsigned int evnt_idx;
-#if (BFDEBUG_LEVEL > 5)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(5,"Starting");
   idx = (unsigned long)gbtn->field_33;
   if (idx < 121) //size of the field_13A7 array (I can't be completely sure of it)
     evnt_idx = dungeon->field_13A7[idx];
@@ -2925,14 +2907,9 @@ void gui_area_new_null_button(struct GuiButton *gbtn)
 
 void gui_area_new_no_anim_button(struct GuiButton *gbtn)
 {
-  static const char *func_name="gui_area_new_no_anim_button";
-#if (BFDEBUG_LEVEL > 10)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(10,"Starting");
   _DK_gui_area_new_no_anim_button(gbtn);
-#if (BFDEBUG_LEVEL > 12)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(12,"Finished");
 }
 
 void gui_remove_area_for_rooms(struct GuiButton *gbtn)
@@ -3152,11 +3129,9 @@ void gui_area_ally(struct GuiButton *gbtn)
 
 void gui_save_game(struct GuiButton *gbtn)
 {
-  static const char *func_name="gui_save_game";
   struct CatalogueEntry *catentry;
   struct PlayerInfo *player;
   long slot_idx;
-  //_DK_gui_save_game(gbtn);
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   if (stricmp((char *)gbtn->field_33, gui_strings[342]) != 0) // "UNUSED"
   {
@@ -3169,7 +3144,7 @@ void gui_save_game(struct GuiButton *gbtn)
       output_message(103, 0, 1);
     } else
     {
-      error(func_name, 7282, "Error in save!");
+      ERRORLOG("Error in save!");
       create_error_box(536);
     }
   }
@@ -3672,14 +3647,10 @@ void turn_off_roaming_menus(void)
 
 void gui_area_anger_button(struct GuiButton *gbtn)
 {
-  static const char *func_name="gui_area_anger_button";
   struct Dungeon *dungeon;
   int spridx,actvty_idx,i;
   long breed_idx,cr_total;
-#if (BFDEBUG_LEVEL > 10)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  //_DK_gui_area_anger_button(gbtn);
+  SYNCDBG(10,"Starting");
   actvty_idx = (((long)gbtn->field_33 - (long)&activity_list) / sizeof(long));
   if (gbtn->field_1B != 0)
     breed_idx = breed_activities[(top_of_breed_list+(actvty_idx>>2))%CREATURE_TYPES_COUNT];
@@ -3697,9 +3668,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
           i = dungeon->field_4E4[breed_idx][(actvty_idx & 0x03)];
           if (i > cr_total)
           {
-  #if (BFDEBUG_LEVEL > 9)
-    LbWarnLog("%s: Creature %d stats inconsistency; total=%d, doing activity%d=%d\n",func_name,breed_idx,cr_total,(actvty_idx & 0x03),i);
-  #endif
+            WARNDBG(9,"Creature %d stats inconsistency; total=%d, doing activity%d=%d",breed_idx,cr_total,(actvty_idx & 0x03),i);
             i = cr_total;
           }
           if (i < 0)
@@ -3727,9 +3696,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
         draw_button_string(gbtn, gui_textbuf);
       }
   }
-#if (BFDEBUG_LEVEL > 12)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(12,"Finished");
 }
 
 void gui_area_text(struct GuiButton *gbtn)
@@ -3967,11 +3934,9 @@ void frontnet_session_create(struct GuiButton *gbtn)
 
 void frontnet_return_to_main_menu(struct GuiButton *gbtn)
 {
-  static const char *func_name="frontnet_return_to_main_menu";
-  //_DK_frontnet_return_to_main_menu(gbtn);
   if ( LbNetwork_Stop() )
   {
-    error(func_name, 816, "LbNetwork_Stop() failed");
+    ERRORLOG("LbNetwork_Stop() failed");
     return;
   }
   frontend_set_state(FeSt_MAIN_MENU);
@@ -4054,11 +4019,9 @@ void set_packet_start(struct GuiButton *gbtn)
 
 void frontnet_return_to_session_menu(struct GuiButton *gbtn)
 {
-  static const char *func_name="frontnet_return_to_session_menu";
-  //_DK_frontnet_return_to_session_menu(gbtn);
   if ( LbNetwork_Stop() )
   {
-    error(func_name, 826, "LbNetwork_Stop() failed");
+    ERRORLOG("LbNetwork_Stop() failed");
     return;
   }
   if ( setup_network_service(net_service_index_selected) )
@@ -4174,12 +4137,11 @@ void frontnet_net_set_modem_answer(struct GuiButton *gbtn)
 
 void frontnet_net_serial_start(struct GuiButton *gbtn)
 {
-  static const char *func_name="frontnet_net_serial_start";
   net_serial_data.field_0 = net_config_info.numfield_0;
   if (strcmp(net_speed[net_config_info.numfield_9], "ISDN") != 0)
     net_serial_data.numfield_4 = atoi(net_speed[net_config_info.numfield_9]);
   else
-    error(func_name, 1276, "ISDN not supported by Serial");
+    ERRORLOG("ISDN not supported by Serial");
   net_serial_data.field_8 = net_config_info.numfield_1[net_config_info.numfield_0];
   net_serial_data.str_dial = NULL;
   net_serial_data.str_phone = NULL;
@@ -4190,13 +4152,11 @@ void frontnet_net_serial_start(struct GuiButton *gbtn)
 
 void gui_load_game(struct GuiButton *gbtn)
 {
-  static const char *func_name="gui_load_game";
   struct PlayerInfo *player;
-  //_DK_gui_load_game(gbtn);
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
   if (!load_game(gbtn->field_1B))
   {
-    error(func_name, 7266, "Error in load!");
+    ERRORLOG("Error in load!");
   }
   set_players_packet_action(player, 22, 0, 0, 0, 0);
 }
@@ -4359,12 +4319,9 @@ void frontend_netservice_change_state(struct GuiButton *gbtn)
 
 TbBool frontend_start_new_campaign(const char *cmpgn_fname)
 {
-  static const char *func_name="frontend_start_new_campaign";
   struct PlayerInfo *player;
   int i;
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(7,"Starting");
   if (!change_campaign(cmpgn_fname))
     return false;
   set_continue_level_number(first_singleplayer_level());
@@ -4384,14 +4341,10 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
 
 void frontend_start_new_game(struct GuiButton *gbtn)
 {
-  static const char *func_name="frontend_start_new_game";
   struct PlayerInfo *player;
   char *cmpgn_fname;
   int i;
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Clicked\n",func_name);
-#endif
-  //_DK_frontend_start_new_game(gbtn);
+  SYNCDBG(6,"Clicked");
   // Check if we can just start the game without campaign selection screen
   if (campaigns_list.items_num < 1)
     cmpgn_fname = "";
@@ -4404,7 +4357,7 @@ void frontend_start_new_game(struct GuiButton *gbtn)
   { // If there's only one campaign, then start it
     if (!frontend_start_new_campaign(cmpgn_fname))
     {
-      error(func_name, 731, "Unable to start new campaign");
+      ERRORLOG("Unable to start new campaign");
       return;
     }
     frontend_set_state(FeSt_LAND_VIEW);
@@ -4422,15 +4375,12 @@ void frontend_start_new_game(struct GuiButton *gbtn)
  */
 short frontend_save_continue_game(short allow_lvnum_grow)
 {
-  static const char *func_name="frontend_save_continue_game";
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   unsigned short victory_state;
   short flg_mem;
   LevelNumber lvnum;
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(6,"Starting");
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
   // Save some of the data from clearing
@@ -4626,7 +4576,7 @@ void fronttorture_input(void)
   if ((game.numfield_A & 0x01) != 0)
   {
     if (LbNetwork_Exchange(pckt))
-      error(func_name, 391, "LbNetwork_Exchange failed");
+      ERRORLOG("LbNetwork_Exchange failed");
   }
   // Determine the controlling player and get his mouse coords
   for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
@@ -4950,10 +4900,7 @@ void add_score_to_high_score_table(void)
 
 void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
 {
-  static const char *func_name="do_button_release_actions";
- #if (BFDEBUG_LEVEL > 17)
-  LbSyncLog("%s: Starting\n", func_name);
-#endif
+  SYNCDBG(17,"Starting");
   int i;
   struct GuiMenu *gmnu;
   switch ( gbtn->gbtype )
@@ -5004,9 +4951,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       gmnu->field_1 = 3;
     }
   }
-#if (BFDEBUG_LEVEL > 17)
-  LbSyncLog("%s: Finished\n", func_name);
-#endif
+  SYNCDBG(17,"Finished");
 }
 
 /*
@@ -5068,11 +5013,10 @@ short is_toggleable_menu(short mnu_idx)
 
 void add_to_menu_stack(unsigned char mnu_idx)
 {
-  static const char *func_name="add_to_menu_stack";
   short i;
   if (no_of_active_menus >= ACTIVE_MENUS_COUNT)
   {
-    error(func_name, 1830, "No more room for menu stack");
+    ERRORLOG("No more room for menu stack");
     return;
   }
 
@@ -5086,14 +5030,14 @@ void add_to_menu_stack(unsigned char mnu_idx)
         i++;
       }
       menu_stack[no_of_active_menus-1] = mnu_idx;
-      //LbSyncLog("Menu %d moved to end of stack, at position %d.\n",mnu_idx,no_of_active_menus-1);
+      //SYNCMSG("Menu %d moved to end of stack, at position %d.",mnu_idx,no_of_active_menus-1);
       return;
     }
   }
   // If not in stack, add at end
   menu_stack[no_of_active_menus] = mnu_idx;
   no_of_active_menus++;
-  //LbSyncLog("Menu %d put on stack, at position %d.\n",mnu_idx,no_of_active_menus-1);
+  //SYNCMSG("Menu %d put on stack, at position %d.",mnu_idx,no_of_active_menus-1);
 }
 
 long first_available_menu(void)
@@ -5389,7 +5333,7 @@ char create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit)
   i=_DK_create_button(gmnu, gbinit);
 
   gbtn = &active_buttons[i];
-  //LbSyncLog("Created button %d at (%d,%d) size (%d,%d)\n",i,
+  //SYNCMSG("Created button %d at (%d,%d) size (%d,%d)",i,
   //    gbtn->pos_x,gbtn->pos_y,gbtn->width,gbtn->height);
 
   return i;
@@ -5485,16 +5429,13 @@ long compute_menu_position_y(long desired_pos,int menu_height)
 
 char create_menu(struct GuiMenu *gmnu)
 {
-  static const char *func_name="create_menu";
   int mnu_num;
   struct GuiMenu *amnu;
   struct PlayerInfo *player;
   Gf_Mnu_Callback callback;
   struct GuiButtonInit *btninit;
   int i;
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting menu %d\n",func_name,gmnu->field_0);
-#endif
+  SYNCDBG(18,"Starting menu %d",gmnu->field_0);
   mnu_num = menu_id_to_number(gmnu->field_0);
   if (mnu_num >= 0)
   {
@@ -5508,7 +5449,7 @@ char create_menu(struct GuiMenu *gmnu)
   mnu_num = first_available_menu();
   if (mnu_num == -1)
   {
-      error(func_name, 3066, "Too many menus open");
+      ERRORLOG("Too many menus open");
       return -1;
   }
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
@@ -5537,7 +5478,7 @@ char create_menu(struct GuiMenu *gmnu)
   }
   amnu->numfield_2 = gmnu->numfield_2;
   if (amnu->numfield_2 < 1)
-    error(func_name, 3019, "Oi! There is a fade time less than 1. Idiot.");
+    ERRORLOG("Oi! There is a fade time less than 1. Idiot.");
   amnu->ptrfield_4 = gmnu->ptrfield_4;
   amnu->width = gmnu->width;
   amnu->height = gmnu->height;
@@ -5554,14 +5495,14 @@ char create_menu(struct GuiMenu *gmnu)
   {
     if (create_button(amnu, &btninit[i]) == -1)
     {
-      error(func_name, 3050, "Cannot Allocate button");
+      ERRORLOG("Cannot Allocate button");
       return -1;
     }
   }
   update_radio_button_data(amnu);
   init_slider_bars(amnu);
   init_menu_buttons(amnu);
-  LbSyncLog("Created menu at slot %d, pos (%d,%d) size (%d,%d)\n",mnu_num,
+  SYNCMSG("Created menu at slot %d, pos (%d,%d) size (%d,%d)",mnu_num,
       amnu->pos_x,amnu->pos_y,amnu->width,amnu->height);
   return mnu_num;
 }
@@ -5758,7 +5699,7 @@ TbBool toggle_first_person_menu(TbBool visible)
       set_menu_visible_on(GMnu_CREATURE_QUERY2);
     else
     {
-      LbWarnLog("No active query for first person menu; assuming query 1.\n");
+      WARNMSG("No active query for first person menu; assuming query 1.");
       set_menu_visible_on(GMnu_CREATURE_QUERY1);
     }
     return true;
@@ -5781,10 +5722,7 @@ TbBool toggle_first_person_menu(TbBool visible)
 
 void set_gui_visible(short visible)
 {
-  static const char *func_name="set_gui_visible";
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(6,"Starting");
   set_flag_byte(&game.numfield_C,0x20,visible);
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   unsigned char is_visbl = ((game.numfield_C & 0x20) != 0);
@@ -5825,12 +5763,11 @@ void frontend_load_data_reset(void)
 
 void frontstory_load(void)
 {
-    static const char *func_name="frontstory_load";
     wait_for_cd_to_be_available();
     frontend_load_data_from_cd();
     if ( LbDataLoadAll(frontstory_load_files) )
     {
-        error(func_name, 2790, "Unable to Load FRONT STORY FILES");
+        ERRORLOG("Unable to Load FRONT STORY FILES");
     } else
     {
         LbDataLoadSetModifyFilenameFunction(_DK_mdlf_default);
@@ -6037,7 +5974,6 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
 
 void frontend_campaign_select(struct GuiButton *gbtn)
 {
-  static const char *func_name="frontend_campaign_select";
   long i;
   struct GameCampaign *campgn;
   i = (long)gbtn->field_33 + select_level_scroll_offset - 45;
@@ -6048,7 +5984,7 @@ void frontend_campaign_select(struct GuiButton *gbtn)
     return;
   if (!frontend_start_new_campaign(campgn->fname))
   {
-    error(func_name, 731, "Unable to start new campaign");
+    ERRORLOG("Unable to start new campaign");
     return;
   }
   frontend_set_state(FeSt_LAND_VIEW);
@@ -6115,11 +6051,8 @@ void init_gui(void)
 
 int frontend_set_state(long nstate)
 {
-  static const char *func_name="frontend_set_state";
   char *fname;
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: State %d will be switched to %d\n",func_name,frontend_menu_state,nstate);
-#endif
+  SYNCDBG(8,"State %d will be switched to %d",frontend_menu_state,nstate);
   switch (frontend_menu_state)
   {
   case 0:
@@ -6127,7 +6060,7 @@ int frontend_set_state(long nstate)
       wait_for_cd_to_be_available();
       fname = prepare_file_path(FGrp_LoData,"front.pal");
       if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
-        error(func_name, 1323, "Unable to load FRONTEND PALETTE");
+        ERRORLOG("Unable to load FRONTEND PALETTE");
       wait_for_cd_to_be_available();
       LbMouseSetPosition(lbDisplay.PhysicalScreenWidth>>1, lbDisplay.PhysicalScreenHeight>>1);
       update_mouse();
@@ -6208,13 +6141,13 @@ int frontend_set_state(long nstate)
   case 25:
       break;
   default:
-      error(func_name, 1444, "Unhandled FRONTEND previous state");
+      ERRORLOG("Unhandled FRONTEND previous state");
       break;
   }
   if ( frontend_menu_state )
     fade_out();
   fade_palette_in = 1;
-  LbSyncLog("Frontend state change from %u into %u\n",frontend_menu_state,nstate);
+  SYNCMSG("Frontend state change from %u into %u",frontend_menu_state,nstate);
   switch ( nstate )
   {
     case 0:
@@ -6322,7 +6255,7 @@ int frontend_set_state(long nstate)
       turn_on_menu(GMnu_FECAMPAIGN_SELECT);
       break;
     default:
-      error(func_name, 1609, "Unhandled FRONTEND new state");
+      ERRORLOG("Unhandled FRONTEND new state");
       break;
   }
   frontend_menu_state = nstate;
@@ -6409,12 +6342,9 @@ short get_frontend_global_inputs(void)
 
 void frontend_input(void)
 {
-  static const char *func_name="frontend_input";
-#if (BFDEBUG_LEVEL > 7)
-  LbSyncLog("%s: Starting\n", func_name);
-#endif
-    switch (frontend_menu_state)
-    {
+  SYNCDBG(7,"Starting");
+  switch (frontend_menu_state)
+  {
       case FeSt_MAIN_MENU:
         frontmainmnu_input();
         break;
@@ -6457,12 +6387,10 @@ void frontend_input(void)
       default:
         get_gui_inputs(0);
         break;
-    } // end switch
-    get_frontend_global_inputs();
-    get_screen_capture_inputs();
-#if (BFDEBUG_LEVEL > 19)
-  LbSyncLog("%s: Finished\n", func_name);
-#endif
+  } // end switch
+  get_frontend_global_inputs();
+  get_screen_capture_inputs();
+  SYNCDBG(19,"Finished");
 }
 
 int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)
@@ -6509,7 +6437,7 @@ void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
   m = get_bitmap_max_scale(img_width, img_height, rect_w, rect_h);
   if (m < 1)
   {
-    LbSyncLog("The %dx%d frontend image does not fit in %dx%d window, skipped.\n", img_width, img_height,rect_w,rect_h);
+    SYNCMSG("The %dx%d frontend image does not fit in %dx%d window, skipped.", img_width, img_height,rect_w,rect_h);
     return;
   }
   // Starting point coords
@@ -6598,14 +6526,10 @@ void toggle_gui_overlay_map(void)
 
 void draw_menu_buttons(struct GuiMenu *gmnu)
 {
-  static const char *func_name="draw_menu_buttons";
   int i;
   struct GuiButton *gbtn;
   Gf_Btn_Callback callback;
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting phase one\n",func_name);
-#endif
-  //_DK_draw_menu_buttons(gmnu); return;
+  SYNCDBG(18,"Starting phase one");
   for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
   {
     gbtn = &active_buttons[i];
@@ -6616,9 +6540,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
         callback(gbtn);
     }
   }
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting phase two\n",func_name);
-#endif
+  SYNCDBG(18,"Starting phase two");
   for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
   {
     gbtn = &active_buttons[i];
@@ -6629,9 +6551,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
         callback(gbtn);
     }
   }
-#if (BFDEBUG_LEVEL > 19)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(19,"Finished");
 }
 
 long menu_id_to_number(short menu_id)
@@ -6649,10 +6569,7 @@ long menu_id_to_number(short menu_id)
 
 void update_fade_active_menus(void)
 {
-  static const char *func_name="update_fade_active_menus";
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(8,"Starting");
   struct GuiMenu *gmnu;
   int k;
   for (k=0; k < ACTIVE_MENUS_COUNT; k++)
@@ -6664,27 +6581,22 @@ void update_fade_active_menus(void)
       remove_from_menu_stack(gmnu->field_0);
     }
   }
-#if (BFDEBUG_LEVEL > 19)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(19,"Finished");
 }
 
 void draw_active_menus_buttons(void)
 {
-  static const char *func_name="draw_active_menus_buttons";
   struct GuiMenu *gmnu;
   int k;
   long menu_num;
   Gf_Mnu_Callback callback;
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Starting with %d active menus\n",func_name,no_of_active_menus);
-#endif
+  SYNCDBG(8,"Starting with %d active menus",no_of_active_menus);
   for (k=0; k < no_of_active_menus; k++)
   {
     menu_num = menu_id_to_number(menu_stack[k]);
     if (menu_num < 0) continue;
     gmnu = &active_menus[menu_num];
-//LbSyncLog("DRAW menu %d, fields %d, %d\n",menu_num,gmnu->field_1,gmnu->flgfield_1D);
+//SYNCMSG("DRAW menu %d, fields %d, %d",menu_num,gmnu->field_1,gmnu->flgfield_1D);
     if ((gmnu->field_1) && (gmnu->flgfield_1D))
     {
         if ((gmnu->field_1 != 2) && (gmnu->numfield_2))
@@ -6701,9 +6613,7 @@ void draw_active_menus_buttons(void)
         lbDisplay.DrawFlags &= 0xFFFBu;
     }
   }
-#if (BFDEBUG_LEVEL > 9)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(9,"Finished");
 }
 
 void spangle_button(struct GuiButton *gbtn)
@@ -6718,7 +6628,6 @@ void spangle_button(struct GuiButton *gbtn)
 
 void draw_menu_spangle(struct GuiMenu *gmnu)
 {
-  static const char *func_name="draw_menu_spangle";
   struct GuiButton *gbtn;
   struct GuiMenu *secmnu;
   int i,j;
@@ -6771,12 +6680,9 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
 
 void draw_active_menus_highlights(void)
 {
-  static const char *func_name="draw_active_menus_highlights";
   struct GuiMenu *gmnu;
   int k;
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(8,"Starting");
   for (k=0; k<ACTIVE_MENUS_COUNT; k++)
   {
     gmnu = &active_menus[k];
@@ -6787,11 +6693,7 @@ void draw_active_menus_highlights(void)
 
 void draw_gui(void)
 {
-  static const char *func_name="draw_gui";
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  //_DK_draw_gui(); return;
+  SYNCDBG(6,"Starting");
   unsigned int flg_mem;
   lbFontPtr = winfont;
   flg_mem = lbDisplay.DrawFlags;
@@ -6809,9 +6711,7 @@ void draw_gui(void)
     }
   }
   lbDisplay.DrawFlags = flg_mem;
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(8,"Finished");
 }
 
 struct TbBirthday {
@@ -6972,7 +6872,6 @@ void gui_turn_on_autopilot(struct GuiButton *gbtn)
 
 void gui_set_autopilot(struct GuiButton *gbtn)
 {
-  static const char *func_name="gui_set_autopilot";
   struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
   int ntype;
   if (game.field_1517F7)
@@ -6992,7 +6891,7 @@ void gui_set_autopilot(struct GuiButton *gbtn)
     ntype = 4;
   } else
   {
-    error(func_name, 7053, "Illegal Autopilot type, resetting to default");
+    ERRORLOG("Illegal Autopilot type, resetting to default");
     ntype = 1;
   }
   set_players_packet_action(player, 109, ntype, 0, 0, 0);
@@ -7010,7 +6909,6 @@ void frontnet_service_update(void)
 
 void frontnet_session_update(void)
 {
-  static const char *func_name="frontnet_session_update";
 //  _DK_frontnet_session_update();
   static long last_enum_players = 0;
   static long last_enum_sessions = 0;
@@ -7021,7 +6919,7 @@ void frontnet_session_update(void)
     net_number_of_sessions = 0;
     memset(net_session, 0, sizeof(net_session));
     if ( LbNetwork_EnumerateSessions(enum_sessions_callback, 0) )
-      error(func_name, 1417, "LbNetwork_EnumerateSessions() failed");
+      ERRORLOG("LbNetwork_EnumerateSessions() failed");
     last_enum_sessions = timeGetTime();
 
     if (net_number_of_sessions == 0)
@@ -7124,18 +7022,15 @@ void frontnet_rewite_net_messages(void)
 
 void frontnet_start_update(void)
 {
-  static const char *func_name="frontnet_start_update";
   static TbClockMSec player_last_time = 0;
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(18,"Starting");
   if (LbTimerClock() >= player_last_time+200)
   {
     net_number_of_enum_players = 0;
     LbMemorySet(net_player, 0, sizeof(net_player));
     if ( LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0) )
     {
-      error(func_name, 1882, "LbNetwork_EnumeratePlayers() failed");
+      ERRORLOG("LbNetwork_EnumeratePlayers() failed");
       return;
     }
     player_last_time = LbTimerClock();
@@ -7183,10 +7078,7 @@ void fronttorture_update(void)
 
 void frontend_update(short *finish_menu)
 {
-  static const char *func_name="frontend_update";
-#if (BFDEBUG_LEVEL > 7)
-  LbSyncLog("%s: Starting for menu state %d\n", func_name, (int)frontend_menu_state);
-#endif
+    SYNCDBG(18,"Starting for menu state %d", (int)frontend_menu_state);
     switch ( frontend_menu_state )
     {
       case 1:
@@ -7252,9 +7144,7 @@ void frontend_update(short *finish_menu)
       default:
         break;
     }
-#if (BFDEBUG_LEVEL > 17)
-  LbSyncLog("%s: Finished\n", func_name);
-#endif
+  SYNCDBG(17,"Finished");
 }
 
 /*
@@ -7263,28 +7153,27 @@ void frontend_update(short *finish_menu)
  */
 int get_startup_menu_state(void)
 {
-  static const char *func_name="get_startup_menu_state";
   struct PlayerInfo *player;
   LevelNumber lvnum;
   if (game.flags_cd & 0x40)
   {
     if (is_full_moon)
     {
-        LbSyncLog("%s: Full moon state selected\n",func_name);
+        SYNCLOG("Full moon state selected");
         return FeSt_STORY_POEM;
     } else
     if (get_team_birthday() != NULL)
     {
-        LbSyncLog("%s: Birthday state selected\n",func_name);
+        SYNCLOG("Birthday state selected");
         return FeSt_STORY_BIRTHDAY;
     } else
     {
-        LbSyncLog("%s: Standard startup state selected\n",func_name);
+        SYNCLOG("Standard startup state selected");
         return 1;
     }
   } else
   {
-    LbSyncLog("%s: Player-based state selected\n",func_name);
+    SYNCLOG("Player-based state selected");
     player = &(game.players[my_player_number]);
     lvnum = get_loaded_level_number();
     if ((game.numfield_A & 0x01) != 0)
@@ -7366,17 +7255,14 @@ int get_startup_menu_state(void)
         return FeSt_MAIN_MENU;
     }
   }
-  error(func_name, 978, "Unresolved menu state");
+  ERRORLOG("Unresolved menu state");
   return FeSt_MAIN_MENU;
 }
 
 void gui_draw_all_boxes(void)
 {
-  static const char *func_name="gui_draw_all_boxes";
   struct GuiBox *gbox;
-#if (BFDEBUG_LEVEL > 5)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(5,"Starting");
   lbDisplay.DrawFlags = 0x0040;
   lbFontPtr = font_sprites;
   gbox = gui_get_lowest_priority_box();
@@ -7395,10 +7281,9 @@ short gui_box_is_not_valid(struct GuiBox *gbox)
 
 void gui_insert_box_at_list_top(struct GuiBox *gbox)
 {
-  static const char *func_name="gui_insert_box_at_list_top";
   if (gbox->field_0 & 0x02)
   {
-    error(func_name, 425, "GuiBox is already in list");
+    ERRORLOG("GuiBox is already in list");
     return;
   }
   gbox->field_0 |= 0x02;
@@ -7460,10 +7345,9 @@ long gui_calculate_box_height(struct GuiBox *gbox)
 
 void gui_remove_box_from_list(struct GuiBox *gbox)
 {
-  static const char *func_name="gui_remove_box_from_list";
   if ((gbox->field_0 & 0x02) == 0)
   {
-    error(func_name, 460, "Cannot remove box from list when it is not in one!");
+    ERRORLOG("Cannot remove box from list when it is not in one!");
     return;
   }
   gbox->field_0 &= 0xFDu;
@@ -7729,10 +7613,7 @@ struct GuiBoxOption *gui_move_active_box_option(struct GuiBox *gbox, int val)
 
 void gui_draw_box(struct GuiBox *gbox)
 {
-  static const char *func_name="gui_draw_box";
-#if (BFDEBUG_LEVEL > 6)
-  LbSyncLog("%s: Drawing box, first optn \"%s\"\n",func_name,gbox->optn_list->label);
-#endif
+  SYNCDBG(6,"Drawing box, first optn \"%s\"",gbox->optn_list->label);
   struct GuiBox *gbox_over;
   struct GuiBoxOption *goptn_over;
   struct GuiBoxOption *goptn;
@@ -7855,15 +7736,12 @@ short gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn)
  */
 short gui_process_inputs(void)
 {
-  static const char *func_name="gui_process_inputs";
   long mouse_y,mouse_x;
   struct GuiBox *gbox;
   struct GuiBox *hpbox;
   struct GuiBoxOption *goptn;
   short result;
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(8,"Starting");
   mouse_x = GetMouseX();
   mouse_y = GetMouseY();
   result = false;
@@ -7965,6 +7843,7 @@ short gui_process_inputs(void)
       result = true;
     }
   }
+  SYNCDBG(9,"Returning %s",result?"true":"false");
   return result;
 }
 

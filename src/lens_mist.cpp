@@ -68,7 +68,7 @@ void CMistFade::mist(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf
 
   if ((lens_data == NULL) || (fade_data == NULL))
   {
-    LbErrorLog("Can't draw Mist as it's not initialized!\n");
+    ERRORLOG("Can't draw Mist as it's not initialized!");
     return;
   }
   src = srcbuf;

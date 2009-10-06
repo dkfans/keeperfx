@@ -99,6 +99,7 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
 {
   struct Thing *thing;
   struct PlayerInfo *player;
+  SYNCDBG(18,"Starting");
   thing = get_trap_for_slab_position(map_to_slab[pos->x.stl.num],map_to_slab[pos->y.stl.num]);;
   if (thing_is_invalid(thing)) return false;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
@@ -194,6 +195,7 @@ short setup_land_tooltips(struct Coord3d *pos)
   struct SlabMap *slb;
   int attridx;
   int stridx;
+  SYNCDBG(18,"Starting");
   if (!settings.tooltips_on)
     return false;
   slb = get_slabmap_for_subtile(pos->x.stl.num, pos->y.stl.num);
@@ -243,11 +245,8 @@ short setup_room_tooltips(struct Coord3d *pos)
 
 short setup_scrolling_tooltips(struct Coord3d *mappos)
 {
-  static const char *func_name="setup_scrolling_tooltips";
   short shown;
-#if (BFDEBUG_LEVEL > 17)
-  LbSyncLog("%s: Starting\n", func_name);
-#endif
+  SYNCDBG(18,"Starting");
   shown = false;
   if (!shown)
     shown = setup_trap_tooltips(mappos);
@@ -358,19 +357,19 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
 
 short input_gameplay_tooltips(TbBool gameplay_on)
 {
-  static const char *func_name="input_gameplay_tooltips";
   struct Coord3d mappos;
   struct PlayerInfo *player;
-  short shown;
-#if (BFDEBUG_LEVEL > 7)
-  LbSyncLog("%s: Starting\n", func_name);
-#endif
+  TbBool shown;
+  SYNCDBG(7,"Starting");
   shown = false;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   if ((gameplay_on) && (tool_tip_time == 0) && (!busy_doing_gui))
   {
     if (player->acamera == NULL)
+    {
+      ERRORLOG("No active camera");
       return false;
+    }
     if (screen_to_map(player->acamera,GetMouseX(),GetMouseY(),&mappos))
     {
       if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->field_2B))
@@ -382,6 +381,7 @@ short input_gameplay_tooltips(TbBool gameplay_on)
   }
   if (tool_tip_box.field_0 == 0)
     reset_scrolling_tooltip();
+  SYNCDBG(19,"Finished");
   return shown;
 }
 
@@ -403,10 +403,7 @@ void toggle_tooltips(void)
 
 void draw_tooltip(void)
 {
-  static const char *func_name="draw_tooltip";
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(7,"Starting");
   _DK_draw_tooltip();
 }
 

@@ -39,12 +39,11 @@ DLLIMPORT int _DK_draw_text_box(char *text);
 
 void draw_bar64k(long pos_x, long pos_y, long width)
 {
-  static const char *func_name="draw_bar64k";
   long body_end;
   long x;
   if (width < 72)
   {
-    error(func_name, 5317, "Bar is too small");
+    ERRORLOG("Bar is too small");
     return;
   }
   // Button opening sprite
@@ -62,12 +61,11 @@ void draw_bar64k(long pos_x, long pos_y, long width)
 
 void draw_lit_bar64k(long pos_x, long pos_y, long width)
 {
-  static const char *func_name="draw_lit_bar64k";
   long body_end;
   long x;
   if (width < 32)
   {
-    error(func_name, 5340, "Bar is too small");
+    ERRORLOG("Bar is too small");
     return;
   }
   // opening sprite

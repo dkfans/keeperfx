@@ -109,7 +109,6 @@ short is_save_game_loadable(long num)
 
 short load_game(long slot_num)
 {
-  static const char *func_name="load_game";
   //return _DK_load_game(slot_num);
   char *fname;
   TbFileHandle handle;
@@ -117,9 +116,7 @@ short load_game(long slot_num)
   struct Dungeon *dungeon;
   unsigned char buf[14];
   char cmpgn_fname[CAMPAIGN_FNAME_LEN];
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(6,"Starting");
   reset_eye_lenses();
   fname = prepare_file_fmtpath(FGrp_Save,saved_game_filename,slot_num);
   if (!wait_for_cd_to_be_available())
@@ -127,7 +124,7 @@ short load_game(long slot_num)
   handle = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
   if (handle == -1)
   {
-    LbWarnLog("Cannot open saved game file \"%s\".\n",fname);
+    WARNMSG("Cannot open saved game file \"%s\".",fname);
     save_catalogue_slot_disable(slot_num);
     return 0;
   }
@@ -143,12 +140,12 @@ short load_game(long slot_num)
   LbFileClose(handle);
   if (!change_campaign(cmpgn_fname))
   {
-    error(func_name, 867, "Unable to load campaign associated with saved game");
+    ERRORLOG("Unable to load campaign associated with saved game");
     return 0;
   }
   if (!save_version_compatible(LbFileLength(fname),(struct Game *)buf))
   {
-    LbWarnLog("Saved game file \"%s\" has incompatible version; restarting level.\n",fname);
+    WARNMSG("Saved game file \"%s\" has incompatible version; restarting level.",fname);
     player = &(game.players[my_player_number%PLAYERS_COUNT]);
     player->field_7 = 0;
     my_player_number = default_loc_player;
@@ -163,7 +160,7 @@ short load_game(long slot_num)
   }
   if (LbFileLoadAt(fname, &game) != sizeof(struct Game))
   {
-    LbWarnLog("Couldn't correctly load saved game \"%s\".\n",fname);
+    WARNMSG("Couldn't correctly load saved game \"%s\".",fname);
     return 0;
   }
   LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
@@ -260,7 +257,6 @@ short initialise_load_game_slots(void)
 
 short save_continue_game(LevelNumber lvnum)
 {
-  static const char *func_name="save_continue_game";
   LevelNumber bkp_lvnum;
   char *fname;
   long fsize;
@@ -268,9 +264,7 @@ short save_continue_game(LevelNumber lvnum)
   bkp_lvnum = get_continue_level_number();
   if (is_singleplayer_like_level(lvnum))
     set_continue_level_number(lvnum);
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Continue set to level %d (loaded is %d)\n",func_name,(int)get_continue_level_number(),(int)get_loaded_level_number());
-#endif
+  SYNCDBG(6,"Continue set to level %d (loaded is %d)",(int)get_continue_level_number(),(int)get_loaded_level_number());
   fname = prepare_file_path(FGrp_Save,continue_game_filename);
   fsize = LbFileSaveAt(fname, &game, sizeof(struct Game));
   // Reset original continue level number
@@ -281,24 +275,19 @@ short save_continue_game(LevelNumber lvnum)
 
 short read_continue_game_part(unsigned char *buf,long pos,long buf_len)
 {
-  static const char *func_name="read_continue_game_part";
   TbFileHandle fh;
   short result;
   char *fname;
   fname = prepare_file_path(FGrp_Save,continue_game_filename);
   if (LbFileLength(fname) != sizeof(struct Game))
   {
-  #if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: No correct .SAV file; there's no continue\n",func_name);
-  #endif
+    SYNCDBG(7,"No correct .SAV file; there's no continue");
     return false;
   }
   fh = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
   if (fh == -1)
   {
-  #if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Can't open .SAV file; there's no continue\n",func_name);
-  #endif
+    SYNCDBG(7,"Can't open .SAV file; there's no continue");
     return false;
   }
   LbFileSeek(fh, pos, Lb_FILE_SEEK_BEGINNING);
@@ -309,15 +298,12 @@ short read_continue_game_part(unsigned char *buf,long pos,long buf_len)
 
 short continue_game_available(void)
 {
-  static const char *func_name="continue_game_available";
   unsigned char buf[14];
   char cmpgn_fname[CAMPAIGN_FNAME_LEN];
   long lvnum;
   long i;
 //  static short continue_needs_checking_file = 1;
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(6,"Starting");
 //  if (continue_needs_checking_file)
   {
     if (!read_continue_game_part(buf,0,14))
@@ -330,7 +316,7 @@ short continue_game_available(void)
     lvnum = ((struct Game *)buf)->continue_level_number;
     if (!change_campaign(cmpgn_fname))
     {
-      error(func_name, 701, "Unable to load campaign");
+      ERRORLOG("Unable to load campaign");
       return false;
     }
     if (is_singleplayer_like_level(lvnum))
@@ -340,22 +326,17 @@ short continue_game_available(void)
   lvnum = get_continue_level_number();
   if (is_singleplayer_like_level(lvnum))
   {
-  #if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Continue to level %d is available\n",func_name,(int)lvnum);
-  #endif
+    SYNCDBG(7,"Continue to level %d is available",(int)lvnum);
     return true;
   } else
   {
-  #if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Level %d from continue file is not single player\n",func_name,(int)lvnum);
-  #endif
+    SYNCDBG(7,"Level %d from continue file is not single player",(int)lvnum);
     return false;
   }
 }
 
 short load_continue_game(void)
 {
-  static const char *func_name="load_continue_game";
   unsigned char buf[14];
   unsigned char bonus[12];
   char cmpgn_fname[CAMPAIGN_FNAME_LEN];
@@ -364,7 +345,7 @@ short load_continue_game(void)
 
   if (!read_continue_game_part(buf,0,14))
   {
-    LbWarnLog("%s: Can't read continue game file head\n",func_name);
+    WARNLOG("Can't read continue game file head");
     return false;
   }
   i = (char *)&game.campaign_fname[0] - (char *)&game.load_restart_level;
@@ -372,13 +353,13 @@ short load_continue_game(void)
   cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
   if (!change_campaign(cmpgn_fname))
   {
-    error(func_name, 731, "Unable to load campaign");
+    ERRORLOG("Unable to load campaign");
     return false;
   }
   lvnum = ((struct Game *)buf)->continue_level_number;
   if (!is_singleplayer_like_level(lvnum))
   {
-    LbWarnLog("%s: Level number in continue file is incorrect\n",func_name);
+    WARNLOG("Level number in continue file is incorrect");
     return false;
   }
   set_continue_level_number(lvnum);

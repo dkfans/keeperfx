@@ -318,16 +318,13 @@ DLLIMPORT long _DK_add_creature_to_group(struct Thing *crthing, struct Thing *gr
  */
 const struct CommandDesc *get_next_word(char **line, char *param, unsigned char *line_end)
 {
-  static const char *func_name="get_next_word";
   const struct CommandDesc *cmnd_desc;
   long rnd_min,rnd_max;
   unsigned int pos;
   char *text;
   char chr;
   int i;
-#if (BFDEBUG_LEVEL > 12)
-  LbScriptLog(text_line_number,"%s: Starting\n",func_name);
-#endif
+  SCRIPTDBG(12,"Starting");
   cmnd_desc = NULL;
   // Find start of an item to read
   pos = 0;
@@ -402,8 +399,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
       {
         if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
         {
-          text = buf_sprintf("(script:%lu) Invalid first argument for RANDOM command", text_line_number);
-          error(func_name, 900, text);
+          SCRPTERRLOG("Invalid first argument for RANDOM command");
           (*line_end) = true;
           return NULL;
         }
@@ -435,8 +431,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
       {
         if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
         {
-          text = buf_sprintf("(script:%lu) Invalid second argument for RANDOM command", text_line_number);
-          error(func_name, 901, text);
+          SCRPTERRLOG("Invalid second argument for RANDOM command");
           (*line_end) = true;
           return NULL;
         }
@@ -477,8 +472,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
       chr = **line;
       if (!isdigit(chr))
       {
-        text = buf_sprintf("(script:%lu) Unexpected '-' not followed by a number", text_line_number);
-        error(func_name, 904, text);
+        SCRPTERRLOG("Unexpected '-' not followed by a number");
         return NULL;
       }
       while ( isdigit(chr) )
@@ -520,8 +514,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
           chr = **line;
           if (chr != '=')
           {
-            text = buf_sprintf("(script:%lu) Expected '=' after '!'", text_line_number);
-            error(func_name, 947, text);
+            SCRPTERRLOG("Expected '=' after '!'");
             return NULL;
           }
           param[pos] = chr;
@@ -542,8 +535,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
           chr = **line;
           if (chr != '=')
           {
-            text = buf_sprintf("(script:%lu) Expected '=' after '='", text_line_number);
-            error(func_name, 936, text);
+            SCRPTERRLOG("Expected '=' after '='");
             return 0;
           }
           param[pos] = chr;
@@ -564,7 +556,6 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
 const char *script_get_command_name(long cmnd_index)
 {
   long i;
-  static const char *func_name="script_get_command_name";
   i = 0;
   while (command_desc[i].textptr != NULL)
   {
@@ -598,8 +589,7 @@ long get_players_range(char *plrname, int *plr_start, int *plr_end, const char *
   plr_id = get_rid(player_desc, plrname);
   if (plr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Invalid player name, '%s'", text_line_number, plrname);
-    error(func_name, ln_num, text);
+    ERRORMSG("%s(line %lu): Invalid player name, '%s'",func_name,ln_num, plrname);
     *plr_start = 0;
     *plr_end = 0;
     return -1;
@@ -616,8 +606,7 @@ long get_players_range(char *plrname, int *plr_start, int *plr_end, const char *
     *plr_end = (*plr_start) + 1;
     return plr_id;
   }
-  text = buf_sprintf("(script:%lu) Player '%s' out of range", text_line_number, plrname);
-  error(func_name, ln_num, text);
+  ERRORMSG("%s(line %lu): Player '%s' out of range",func_name,ln_num, plrname);
   *plr_start = 0;
   *plr_end = 0;
   return -1;
@@ -629,8 +618,7 @@ TbBool get_player_id(char *plrname, long *plr_id, const char *func_name, long ln
   *plr_id = get_rid(player_desc, plrname);
   if (*plr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Invalid player name, '%s'", text_line_number, plrname);
-    error(func_name, ln_num, text);
+    ERRORMSG("%s(line %lu): Invalid player name, '%s'",func_name,ln_num, plrname);
     return false;
   }
   return true;
@@ -698,8 +686,7 @@ TbBool get_map_location_id(char *locname, TbMapLocation *location, const char *f
     thing = find_hero_gate_of_number(-i);
     if (thing_is_invalid(thing))
     {
-      text = buf_sprintf("(script:%lu) Nonexisting Hero Door, no %d", text_line_number, -i);
-      error(func_name, 2152, text);
+      ERRORMSG("%s(line %lu): Nonexisting Hero Door, no %d",func_name,ln_num, -i);
       *location = MLoc_NONE;
       return false;
     }
@@ -710,8 +697,7 @@ TbBool get_map_location_id(char *locname, TbMapLocation *location, const char *f
   {
     if (!action_point_exists_number(i))
     {
-      text = buf_sprintf("(script:%lu) Nonexisting Action Point, no %d", text_line_number, i);
-      error(func_name, 2347, text);
+      ERRORMSG("%s(line %lu): Nonexisting Action Point, no %d",func_name,ln_num, i);
       *location = MLoc_NONE;
       return false;
     }
@@ -720,8 +706,7 @@ TbBool get_map_location_id(char *locname, TbMapLocation *location, const char *f
   } else
   // Zero is an error; reset to no location
   {
-    text = buf_sprintf("(script:%lu) Invalid LOCATION = '%s'", text_line_number, locname);
-    error(func_name, 2467, text);
+    ERRORMSG("%s(line %lu): Invalid LOCATION = '%s'",func_name,ln_num, locname);
     *location = MLoc_NONE;
   }
   return true;
@@ -742,18 +727,16 @@ short script_support_setup_player_as_computer_keeper(unsigned short plyridx, lon
 
 void command_create_party(char *prtname)
 {
-  static const char *func_name="command_create_party";
   struct Party *party;
   char *text;
   if (game.script.creature_partys_num >= CREATURE_PARTYS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many partys in script", text_line_number);
-    error(func_name, 1086, text);
+    SCRPTERRLOG("Too many partys in script");
     return;
   }
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Party '%s' defined inside conditional statement\n",text_line_number,prtname);
+    SCRPTWRNLOG("Party '%s' defined inside conditional statement",prtname);
   }
   party = (&game.script.creature_partys[game.script.creature_partys_num]);
   strncpy(party->prtname, prtname, sizeof(party->prtname));
@@ -763,12 +746,10 @@ void command_create_party(char *prtname)
 
 long pop_condition(void)
 {
-  static const char *func_name="pop_condition";
   char *text;
   if (script_current_condition == -1)
   {
-    text = buf_sprintf("(script:%lu) unexpected ENDIF", text_line_number);
-    error(func_name, 1070, text);
+    SCRPTERRLOG("unexpected ENDIF");
     return -1;
   }
   if ( condition_stack_pos )
@@ -810,49 +791,43 @@ int get_party_index_of_name(char *prtname)
 
 void command_add_to_party(char *prtname, char *crtr_name, long crtr_level, long carried_gold, char *objectv, long countdown)
 {
-  static const char *func_name="command_add_to_party";
   struct Party *party;
   struct PartyMember *member;
   long crtr_id, objctv_id;
   char *text;
   if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
   {
-    text = buf_sprintf("(script:%lu) Invalid Creature Level parameter; %ld not in range (%d,%d)", text_line_number,crtr_level,1,CREATURE_MAX_LEVEL);
-    error(func_name, 1100, text);
+    SCRPTERRLOG("Invalid Creature Level parameter; %ld not in range (%d,%d)",crtr_level,1,CREATURE_MAX_LEVEL);
     return;
   }
   crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
-    error(func_name, 1117, text);
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
   objctv_id = get_rid(hero_objective_desc, objectv);
   if (objctv_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown party member objective, '%s'", text_line_number, objectv);
-    error(func_name, 1123, text);
+    SCRPTERRLOG("Unknown party member objective, '%s'", objectv);
     return;
   }
   party = get_party_of_name(prtname);
   if (party == NULL)
   {
-    text = buf_sprintf("(script:%lu) Party of requested name, '%s', is not defined", text_line_number,prtname);
-    error(func_name, 1138, text);
+    SCRPTERRLOG("Party of requested name, '%s', is not defined", prtname);
     return;
   }
   if (party->members_num >= PARTY_MEMBERS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many creatures in party '%s' (limit is %d members)",
-        text_line_number, prtname, PARTY_MEMBERS_COUNT);
-    error(func_name, 1138, text);
+    SCRPTERRLOG("Too many creatures in party '%s' (limit is %d members)",
+        prtname, PARTY_MEMBERS_COUNT);
     return;
   }
-//LbSyncLog("(script:%lu) Party '%s' member kind %d, level %d\n",text_line_number,prtname,crtr_id,crtr_level);
+//SCRPTLOG("Party '%s' member kind %d, level %d",prtname,crtr_id,crtr_level);
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Party '%s' member added inside conditional statement\n",text_line_number,prtname);
+    SCRPTWRNLOG("Party '%s' member added inside conditional statement",prtname);
   }
   member = &(party->members[party->members_num]);
   set_flag_byte(&(member->flags), TrgF_DISABLED, false);
@@ -872,7 +847,6 @@ void command_tutorial_flash_button(long btn_id, long duration)
 
 void command_add_party_to_level(char *plrname, char *prtname, char *locname, long ncopies)
 {
-  static const char *func_name="command_add_party_to_level";
   struct PartyTrigger *pr_trig;
   struct Party *party;
   TbMapLocation location;
@@ -880,28 +854,25 @@ void command_add_party_to_level(char *plrname, char *prtname, char *locname, lon
   char *text;
   if (ncopies < 1)
   {
-    text = buf_sprintf("(script:%lu) Invalid NUMBER parameter", text_line_number);
-    error(func_name, 1149, text);
+    SCRPTERRLOG("Invalid NUMBER parameter");
     return;
   }
   if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many ADD_CREATURE commands in script", text_line_number);
-    error(func_name, 1155, text);
+    SCRPTERRLOG("Too many ADD_CREATURE commands in script");
     return;
   }
   // Recognize player
-  if (!get_player_id(plrname, &plr_id, func_name, 1196))
+  if (!get_player_id(plrname, &plr_id, __func__, 1196))
     return;
   // Recognize place where party is created
-  if (!get_map_location_id(locname, &location, func_name, 1204))
+  if (!get_map_location_id(locname, &location, __func__, 1204))
     return;
   // Recognize party name
   prty_id = get_party_index_of_name(prtname);
   if (prty_id < 0)
   {
-    text = buf_sprintf("(script:%lu) Party of requested name, '%s', is not defined", text_line_number,prtname);
-    error(func_name, 1213, text);
+    SCRPTERRLOG("Party of requested name, '%s', is not defined",prtname);
     return;
   }
   if ((script_current_condition < 0) && (next_command_reusable == 0))
@@ -924,41 +895,36 @@ void command_add_party_to_level(char *plrname, char *prtname, char *locname, lon
 
 void command_add_creature_to_level(char *plrname, char *crtr_name, char *locname, long ncopies, long crtr_level, long carried_gold)
 {
-  static const char *func_name="command_add_creature_to_level";
   struct PartyTrigger *pr_trig;
   TbMapLocation location;
   long plr_id,crtr_id;
   char *text;
   if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
   {
-    text = buf_sprintf("(script:%lu) Invalid CREATURE LEVEL parameter", text_line_number);
-    error(func_name, 1245, text);
+    SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
     return;
   }
   if ((ncopies <= 0) || (ncopies >= CREATURES_COUNT))
   {
-    sprintf(text, "(script:%lu) Invalid number of creatures to add", text_line_number);
-    error(func_name, 1251, text);
+    SCRPTERRLOG("Invalid number of creatures to add");
     return;
   }
   if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many ADD_CREATURE commands in script", text_line_number);
-    error(func_name, 1266, text);
+    SCRPTERRLOG("Too many ADD_CREATURE commands in script");
     return;
   }
   crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
-    error(func_name, 1277, text);
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
   // Recognize player
-  if (!get_player_id(plrname, &plr_id, func_name, 1282))
+  if (!get_player_id(plrname, &plr_id, __func__, 1282))
     return;
   // Recognize place where party is created
-  if (!get_map_location_id(locname, &location, func_name, 1288))
+  if (!get_map_location_id(locname, &location, __func__, 1288))
     return;
   if (script_current_condition < 0)
   {
@@ -981,7 +947,6 @@ void command_add_creature_to_level(char *plrname, char *crtr_name, char *locname
 
 void command_add_condition(long plr_id, long opertr_id, long varib_type, long varib_id, long value)
 {
-  static const char *func_name="command_add_condition";
   char *text;
   struct Condition *condt;
   condt = &game.script.conditions[game.script.conditions_num];
@@ -994,7 +959,7 @@ void command_add_condition(long plr_id, long opertr_id, long varib_type, long va
   if (condition_stack_pos >= CONDITIONS_COUNT)
   {
     game.script.conditions_num++;
-    LbWarnLog("(script:%lu) Conditions too deep in script\n", text_line_number);
+    SCRPTWRNLOG("Conditions too deep in script");
     return;
   }
   if (script_current_condition >= 0)
@@ -1008,18 +973,16 @@ void command_add_condition(long plr_id, long opertr_id, long varib_type, long va
 
 void command_if(char *plrname, char *varib_name, char *operatr, long value)
 {
-  static const char *func_name="command_if";
   long plr_id,opertr_id;
   long varib_type,varib_id;
   char *text;
   if (game.script.conditions_num >= CONDITIONS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many (over %d) conditions in script", text_line_number, CONDITIONS_COUNT);
-    error(func_name, 989, text);
+    SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
     return;
   }
   // Recognize player
-  if (!get_player_id(plrname, &plr_id, func_name, 996))
+  if (!get_player_id(plrname, &plr_id, __func__, 996))
     return;
   // Recognize variable
   varib_type = get_id(variable_desc, varib_name);
@@ -1054,16 +1017,14 @@ void command_if(char *plrname, char *varib_name, char *operatr, long value)
   }
   if (varib_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown variable name, '%s'", text_line_number, varib_name);
-    error(func_name, 1434, text);
+    SCRPTERRLOG("Unknown variable name, '%s'", varib_name);
     return;
   }
   // Recognize comparison
   opertr_id = get_id(comparison_desc, operatr);
   if (opertr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown comparison name, '%s'", text_line_number, operatr);
-    error(func_name, 1036, text);
+    SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
     return;
   }
   // Add the condition to script structure
@@ -1101,28 +1062,24 @@ void command_add_value(unsigned long var_index, unsigned long val1, long val2, l
 
 void command_display_information(long msg_num, char *where, long x, long y)
 {
-  static const char *func_name="command_display_information";
   TbMapLocation location;
   char *text;
   if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
   {
-    text = buf_sprintf("(script:%lu) Invalid TEXT number", text_line_number);
-    error(func_name, 2198, text);
+    SCRPTERRLOG("Invalid TEXT number");
     return;
   }
-  if (!get_map_location_id(where, &location, func_name, 1943))
+  if (!get_map_location_id(where, &location, __func__, 1943))
     return;
   command_add_value(Cmd_DISPLAY_INFORMATION, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
 }
 
 void command_set_generate_speed(long game_turns)
 {
-  static const char *func_name="command_set_generate_speed";
   char *text;
   if (game_turns <= 0)
   {
-    text = buf_sprintf("(script:%lu) Genaration speed must be positive number", text_line_number);
-    error(func_name, 2228, text);
+    SCRPTERRLOG("Genaration speed must be positive number");
     return;
   }
   command_add_value(Cmd_SET_GENERATE_SPEED, 0, game_turns, 0, 0);
@@ -1130,18 +1087,15 @@ void command_set_generate_speed(long game_turns)
 
 void command_dead_creatures_return_to_pool(long val)
 {
-  static const char *func_name="command_dead_creatures_return_to_pool";
   command_add_value(Cmd_DEAD_CREATURES_RETURN_TO_POOL, 0, val, 0, 0);
 }
 
 void command_bonus_level_time(long game_turns)
 {
-  static const char *func_name="command_bonus_level_time";
   char *text;
   if (game_turns < 0)
   {
-    text = buf_sprintf("(script:%lu) Bonus time must be nonnegative", text_line_number);
-    error(func_name, 2228, text);
+    SCRPTERRLOG("Bonus time must be nonnegative");
     return;
   }
   command_add_value(Cmd_BONUS_LEVEL_TIME, 0, game_turns, 0, 0);
@@ -1157,26 +1111,20 @@ void player_command_add_start_money(int plridx, long gold_val)
 
 void player_reveal_map_area(int plyr_idx, long x, long y, long w, long h)
 {
-  static const char *func_name="player_reveal_map_area";
-#if (BFDEBUG_LEVEL > 0)
-  LbSyncLog("%s: Revealing around (%d,%d)\n",func_name,x,y);
-#endif
+  SYNCDBG(0,"Revealing around (%d,%d)",x,y);
   reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1));
 }
 
 void player_reveal_map_location(int plyr_idx, TbMapLocation target, long r)
 {
-  static const char *func_name="player_reveal_map_location";
   long x,y;
-#if (BFDEBUG_LEVEL > 0)
-  LbSyncLog("%s: Revealing location type %d\n",func_name,target);
-#endif
+  SYNCDBG(0,"Revealing location type %d",target);
   x = 0;
   y = 0;
-  find_map_location_coords(target, &x, &y, func_name);
+  find_map_location_coords(target, &x, &y, __func__);
   if ((x == 0) && (y == 0))
   {
-    LbWarnLog("Can't decode location %d\n",func_name,target);
+    WARNLOG("Can't decode location %d",target);
     return;
   }
   reveal_map_area(plyr_idx, x-(r>>1), x+(r>>1)+(r%1), y-(r>>1), y+(r>>1)+(r%1));
@@ -1184,15 +1132,14 @@ void player_reveal_map_location(int plyr_idx, TbMapLocation target, long r)
 
 void command_set_start_money(char *plrname, long gold_val)
 {
-  static const char *func_name="command_set_start_money";
   int plr_start, plr_end;
   char *text;
   int i;
-  if (get_players_range(plrname, &plr_start, &plr_end, func_name, 2456) < 0)
+  if (get_players_range(plrname, &plr_start, &plr_end, __func__, 2456) < 0)
     return;
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Start money set inside conditional block\n",text_line_number);
+    SCRPTWRNLOG("Start money set inside conditional block");
   }
   for (i=plr_start; i < plr_end; i++)
     player_command_add_start_money(i, gold_val);
@@ -1208,8 +1155,7 @@ void command_room_available(char *plrname, char *roomname, unsigned long can_res
   room_id = get_rid(room_desc, roomname);
   if (room_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown room name, '%s'", text_line_number, roomname);
-    error(func_name, 1434, text);
+    SCRPTERRLOG("Unknown room name, '%s'", roomname);
     return;
   }
   command_add_value(Cmd_ROOM_AVAILABLE, plr_id, room_id, can_resrch, can_build);
@@ -1225,8 +1171,7 @@ void command_creature_available(char *plrname, char *crtr_name, unsigned long a3
   crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
-    error(func_name, 1457, text);
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
   command_add_value(Cmd_CREATURE_AVAILABLE, plr_id, crtr_id, a3, a4);
@@ -1242,8 +1187,7 @@ void command_magic_available(char *plrname, char *magname, unsigned long can_res
   mag_id = get_rid(power_desc, magname);
   if (mag_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown magic, '%s'", text_line_number, magname);
-    error(func_name, 1480, text);
+    SCRPTERRLOG("Unknown magic, '%s'", magname);
     return;
   }
   command_add_value(Cmd_MAGIC_AVAILABLE, plr_id, mag_id, can_resrch, can_use);
@@ -1259,8 +1203,7 @@ void command_trap_available(char *plrname, char *trapname, unsigned long can_bui
   trap_id = get_rid(trap_desc, trapname);
   if (trap_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown trap, '%s'", text_line_number, trapname);
-    error(func_name, 1503, text);
+    SCRPTERRLOG("Unknown trap, '%s'", trapname);
     return;
   }
   command_add_value(Cmd_TRAP_AVAILABLE, plr_id, trap_id, can_build, amount);
@@ -1310,13 +1253,12 @@ void command_research_order(char *plrname, char *trg_type, char *trg_name, unsig
     dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
     if (dungeon->research_num >= 34)
     {
-      text = buf_sprintf("(script:%lu) Too many RESEARCH ITEMS, for player %d", text_line_number, i);
-      error(func_name, 1562, text);
+      SCRPTERRLOG("Too many RESEARCH ITEMS, for player %d", i);
       return;
     }
   }
   item_type = get_rid(research_desc, trg_type);
-  item_id = get_research_id(item_type, trg_name, func_name);
+  item_id = get_research_id(item_type, trg_name, __func__);
   if (item_id < 0)
     return;
   command_add_value(Cmd_RESEARCH_ORDER, plr_id, item_type, item_id, val);
@@ -1324,26 +1266,23 @@ void command_research_order(char *plrname, char *trg_type, char *trg_name, unsig
 
 void command_if_action_point(long apt_num, char *plrname)
 {
-  static const char *func_name="command_if_action_point";
   long plr_id,opertr_id;
   long apt_id;
   char *text;
   if (game.script.conditions_num >= CONDITIONS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many (over %d) conditions in script", text_line_number, CONDITIONS_COUNT);
-    error(func_name, 1674, text);
+    SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
     return;
   }
   // Check the Action Point
   apt_id = action_point_number_to_index(apt_num);
   if (!action_point_exists_idx(apt_id))
   {
-    text = buf_sprintf("(script:%lu) Nonexisting Action Point, no %d", text_line_number, apt_num);
-    error(func_name, 1683, text);
+    SCRPTERRLOG("Nonexisting Action Point, no %d", apt_num);
     return;
   }
   // Recognize player
-  if (!get_player_id(plrname, &plr_id, func_name, 1688))
+  if (!get_player_id(plrname, &plr_id, __func__, 1688))
     return;
   command_add_condition(plr_id, 0, 19, apt_id, 0);
 }
@@ -1357,7 +1296,7 @@ void command_computer_player(char *plrname, long comp_model)
     return;
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Computer player setup inside conditional block\n",text_line_number);
+    SCRPTWRNLOG("Computer player setup inside conditional block");
   }
   script_support_setup_player_as_computer_keeper(plr_id, comp_model);
 }
@@ -1372,8 +1311,7 @@ void command_set_timer(char *plrname, char *timrname)
   timr_id = get_rid(timer_desc, timrname);
   if (timr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown timer, '%s'", text_line_number, timrname);
-    error(func_name, 1715, text);
+    SCRPTERRLOG("Unknown timer, '%s'", timrname);
     return;
   }
   command_add_value(Cmd_SET_TIMER, plr_id, timr_id, 0, 0);
@@ -1381,17 +1319,15 @@ void command_set_timer(char *plrname, char *timrname)
 
 void command_win_game(void)
 {
-  static const char *func_name="command_win_game";
   char *text;
   if (script_current_condition == -1)
   {
-    text = buf_sprintf("(script:%lu) Command WIN GAME found with no condition", text_line_number);
-    error(func_name, 1822, text);
+    SCRPTERRLOG("Command WIN GAME found with no condition");
     return;
   }
   if (game.script.win_conditions_num >= WIN_CONDITIONS_COUNT)
   {
-    error(func_name, 1827, "Too many WIN GAME conditions in script");
+    SCRPTERRLOG("Too many WIN GAME conditions in script");
     return;
   }
   game.script.win_conditions[game.script.win_conditions_num] = script_current_condition;
@@ -1400,17 +1336,15 @@ void command_win_game(void)
 
 void command_lose_game(void)
 {
-  static const char *func_name="command_lose_game";
   char *text;
   if (script_current_condition == -1)
   {
-    text = buf_sprintf("(script:%lu) Command LOSE GAME found with no condition", text_line_number);
-    error(func_name, 1839, text);
+    SCRPTERRLOG("Command LOSE GAME found with no condition");
     return;
   }
   if (game.script.lose_conditions_num >= WIN_CONDITIONS_COUNT)
   {
-    error(func_name, 1844, "Too many LOSE GAME conditions in script");
+    SCRPTERRLOG("Too many LOSE GAME conditions in script");
     return;
   }
   game.script.lose_conditions[game.script.lose_conditions_num] = script_current_condition;
@@ -1427,8 +1361,7 @@ void command_set_flag(char *plrname, char *flgname, long val)
   flg_id = get_rid(flag_desc, flgname);
   if (flg_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown flag, '%s'", text_line_number, flgname);
-    error(func_name, 1946, text);
+    SCRPTERRLOG("Unknown flag, '%s'", flgname);
     return;
   }
   command_add_value(Cmd_SET_FLAG, plr_id, flg_id, val, 0);
@@ -1454,8 +1387,7 @@ void command_door_available(char *plrname, char *doorname, unsigned long a3, uns
   door_id = get_rid(door_desc, doorname);
   if (door_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown door, '%s'", text_line_number, doorname);
-    error(func_name, 1526, text);
+    SCRPTERRLOG("Unknown door, '%s'", doorname);
     return;
   }
   command_add_value(Cmd_DOOR_AVAILABLE, plr_id, door_id, a3, a4);
@@ -1463,23 +1395,20 @@ void command_door_available(char *plrname, char *doorname, unsigned long a3, uns
 
 void command_display_objective(long msg_num, char *where, long x, long y)
 {
-  static const char *func_name="command_display_objective";
   TbMapLocation location;
   char *text;
   if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
   {
-    text = buf_sprintf("(script:%lu) Invalid TEXT number", text_line_number);
-    error(func_name, 2047, text);
+    SCRPTERRLOG("Invalid TEXT number");
     return;
   }
-  if (!get_map_location_id(where, &location, func_name, 1963))
+  if (!get_map_location_id(where, &location, __func__, 1963))
     return;
   command_add_value(Cmd_DISPLAY_OBJECTIVE, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
 }
 
 void command_add_tunneller_to_level(char *plrname, char *locname, char *objectv, long target, unsigned char crtr_level, unsigned long carried_gold)
 {
-  static const char *func_name="command_add_tunneller_to_level";
   struct TunnellerTrigger *tn_trig;
   TbMapLocation location;
   long plr_id;
@@ -1487,27 +1416,24 @@ void command_add_tunneller_to_level(char *plrname, char *locname, char *objectv,
   char *text;
   if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
   {
-    text = buf_sprintf("(script:%lu) Invalid CREATURE LEVEL parameter", text_line_number);
-    error(func_name, 1212, text);
+    SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
     return;
   }
   if (game.script.tunneller_triggers_num >= TUNNELLER_TRIGGERS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many ADD_TUNNELLER commands in script", text_line_number);
-    error(func_name, 1245, text);
+    SCRPTERRLOG("Too many ADD_TUNNELLER commands in script");
     return;
   }
   // Recognize player
-  if (!get_player_id(plrname, &plr_id, func_name, 1767))
+  if (!get_player_id(plrname, &plr_id, __func__, 1767))
     return;
   // Recognize place where party is created
-  if (!get_map_location_id(locname, &location, func_name, 1777))
+  if (!get_map_location_id(locname, &location, __func__, 1777))
     return;
   head_id = get_rid(head_for_desc, objectv);
   if (head_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unhandled heading objective, '%s'", text_line_number, objectv);
-    error(func_name, 1788, text);
+    SCRPTERRLOG("Unhandled heading objective, '%s'", objectv);
     return;
   }
   if (script_current_condition < 0)
@@ -1533,7 +1459,6 @@ void command_add_tunneller_to_level(char *plrname, char *locname, char *objectv,
 
 void command_add_tunneller_party_to_level(char *plrname, char *prtname, char *locname, char *objectv, long target, char crtr_level, unsigned long carried_gold)
 {
-  static const char *func_name="command_add_tunneller_party_to_level";
   struct TunnellerTrigger *tn_trig;
   struct Party *party;
   TbMapLocation location;
@@ -1542,42 +1467,37 @@ void command_add_tunneller_party_to_level(char *plrname, char *prtname, char *lo
   char *text;
   if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
   {
-    text = buf_sprintf("(script:%lu) Invalid CREATURE LEVEL parameter", text_line_number);
-    error(func_name, 2112, text);
+    SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
     return;
   }
   if (game.script.tunneller_triggers_num >= TUNNELLER_TRIGGERS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many ADD_TUNNELLER commands in script", text_line_number);
-    error(func_name, 2145, text);
+    SCRPTERRLOG("Too many ADD_TUNNELLER commands in script");
     return;
   }
   // Recognize player
-  if (!get_player_id(plrname, &plr_id, func_name, 2167))
+  if (!get_player_id(plrname, &plr_id, __func__, 2167))
     return;
   // Recognize place where party is created
-  if (!get_map_location_id(locname, &location, func_name, 2177))
+  if (!get_map_location_id(locname, &location, __func__, 2177))
     return;
   head_id = get_rid(head_for_desc, objectv);
   if (head_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unhandled heading objective, '%s'", text_line_number, objectv);
-    error(func_name, 2188, text);
+    SCRPTERRLOG("Unhandled heading objective, '%s'", objectv);
     return;
   }
   // Recognize party name
   prty_id = get_party_index_of_name(prtname);
   if (prty_id < 0)
   {
-    text = buf_sprintf("(script:%lu) Party of requested name, '%s', is not defined", text_line_number,prtname);
-    error(func_name, 2193, text);
+    SCRPTERRLOG("Party of requested name, '%s', is not defined", prtname);
     return;
   }
   party = &game.script.creature_partys[prty_id];
   if (party->members_num >= PARTY_MEMBERS_COUNT-1)
   {
-    sprintf(text, "Party too big for ADD_TUNNELLER (Max %d members)", PARTY_MEMBERS_COUNT-1);
-    error(func_name, 2247, text);
+    SCRPTERRLOG("Party too big for ADD_TUNNELLER (Max %d members)", PARTY_MEMBERS_COUNT-1);
     return;
   }
   if (script_current_condition < 0)
@@ -1603,20 +1523,17 @@ void command_add_tunneller_party_to_level(char *plrname, char *prtname, char *lo
 
 void command_add_creature_to_pool(char *crtr_name, long amount)
 {
-  static const char *func_name="command_add_creature_to_pool";
   long crtr_id;
   char *text;
   crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
-    error(func_name, 2324, text);
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
   if ((amount < 0) || (amount >= CREATURES_COUNT))
   {
-    text = buf_sprintf("(script:%lu) Invalid number of '%s' creatures for pool, %d", text_line_number, crtr_name, amount);
-    error(func_name, 2330, text);
+    SCRPTERRLOG("Invalid number of '%s' creatures for pool, %d", crtr_name, amount);
     return;
   }
   command_add_value(Cmd_ADD_CREATURE_TO_POOL, 0, crtr_id, amount, 0);
@@ -1624,14 +1541,12 @@ void command_add_creature_to_pool(char *crtr_name, long amount)
 
 void command_reset_action_point(long apt_num)
 {
-  static const char *func_name="command_reset_action_point";
   long apt_idx;
   char *text;
   apt_idx = action_point_number_to_index(apt_num);
   if (!action_point_exists_idx(apt_idx))
   {
-    text = buf_sprintf("(script:%lu) Nonexisting Action Point, no %d", text_line_number, apt_num);
-    error(func_name, 2347, text);
+    SCRPTERRLOG("Nonexisting Action Point, no %d", apt_num);
     return;
   }
   command_add_value(Cmd_RESET_ACTION_POINT, 0, apt_idx, 0, 0);
@@ -1639,22 +1554,19 @@ void command_reset_action_point(long apt_num)
 
 void command_set_creature_max_level(char *plrname, char *crtr_name, long crtr_level)
 {
-  static const char *func_name="command_set_creature_max_level";
   long plr_id,crtr_id;
   char *text;
-  if (!get_player_id(plrname, &plr_id, func_name, 1456))
+  if (!get_player_id(plrname, &plr_id, __func__, 1456))
     return;
   crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
-    error(func_name, 1457, text);
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
   if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
   {
-    text = buf_sprintf("(script:%lu) Invalid '%s' experience level, %d", text_line_number, crtr_name, crtr_level);
-    error(func_name, 2379, text);
+    SCRPTERRLOG("Invalid '%s' experience level, %d", crtr_name, crtr_level);
   }
   command_add_value(Cmd_SET_CREATURE_MAX_LEVEL, plr_id, crtr_id, crtr_level-1, 0);
 }
@@ -1663,7 +1575,7 @@ void command_set_music(long val)
 {
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Music set inside conditional block\n",text_line_number);
+    SCRPTWRNLOG("Music set inside conditional block");
   }
   game.field_1506D5 = val;
 }
@@ -1675,18 +1587,16 @@ void command_set_hate(long a1, long a2, long a3)
 
 void command_if_available(char *plrname, char *varib_name, char *operatr, long value)
 {
-  static const char *func_name="command_if_available";
   long plr_id,opertr_id;
   long varib_type,varib_id;
   char *text;
   if (game.script.conditions_num >= CONDITIONS_COUNT)
   {
-    text = buf_sprintf("(script:%lu) Too many (over %d) conditions in script", text_line_number, CONDITIONS_COUNT);
-    error(func_name, 2570, text);
+    SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
     return;
   }
   // Recognize player
-  if (!get_player_id(plrname, &plr_id, func_name, 996))
+  if (!get_player_id(plrname, &plr_id, __func__, 996))
     return;
   // Recognize variable
   varib_id = -1;
@@ -1712,16 +1622,14 @@ void command_if_available(char *plrname, char *varib_name, char *operatr, long v
   }
   if (varib_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unrecognized VARIABLE, '%s'", text_line_number, varib_name);
-    error(func_name, 9812, text);
+    SCRPTERRLOG("Unrecognized VARIABLE, '%s'", varib_name);
     return;
   }
   // Recognize comparison
   opertr_id = get_id(comparison_desc, operatr);
   if (opertr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown comparison name, '%s'", text_line_number, operatr);
-    error(func_name, 2608, text);
+    SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
     return;
   }
   // Add the condition to script structure
@@ -1730,16 +1638,15 @@ void command_if_available(char *plrname, char *varib_name, char *operatr, long v
 
 void command_set_computer_globals(char *plrname, long val1, long val2, long val3, long val4, long val5, long val6)
 {
-  static const char *func_name="command_set_computer_globals";
   struct Computer2 *comp;
   int plr_start, plr_end;
   char *text;
   long i;
-  if (get_players_range(plrname, &plr_start, &plr_end, func_name, 3109) < 0)
+  if (get_players_range(plrname, &plr_start, &plr_end, __func__, 3109) < 0)
     return;
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Computer globals altered inside conditional block\n",text_line_number);
+    SCRPTWRNLOG("Computer globals altered inside conditional block");
   }
   for (i=plr_start; i < plr_end; i++)
   {
@@ -1755,16 +1662,15 @@ void command_set_computer_globals(char *plrname, long val1, long val2, long val3
 
 void command_set_computer_checks(char *plrname, char *chkname, long val1, long val2, long val3, long val4, long val5)
 {
-  static const char *func_name="command_set_computer_checks";
   struct ComputerCheck *check;
   int plr_start, plr_end;
   char *text;
   long i,k,n;
-  if (get_players_range(plrname, &plr_start, &plr_end, func_name, 5612) < 0)
+  if (get_players_range(plrname, &plr_start, &plr_end, __func__, 5612) < 0)
     return;
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Computer check altered inside conditional block\n",text_line_number);
+    SCRPTWRNLOG("Computer check altered inside conditional block");
   }
   n = 0;
   for (i=plr_start; i < plr_end; i++)
@@ -1789,27 +1695,23 @@ void command_set_computer_checks(char *plrname, char *chkname, long val1, long v
   }
   if (n == 0)
   {
-    text = buf_sprintf("(script:%lu) no computer check found called '%s'", text_line_number, chkname);
-    error(func_name, 2732, text);
+    SCRPTERRLOG("No computer check found called '%s'", chkname);
     return;
   }
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Altered %d checks\n",func_name,n);
-#endif
+  SCRIPTDBG(6,"Altered %d checks",n);
 }
 
 void command_set_computer_events(char *plrname, char *evntname, long val1, long val2)
 {
-  static const char *func_name="command_set_computer_events";
   struct ComputerEvent *event;
   int plr_start, plr_end;
   char *text;
   long i,k,n;
-  if (get_players_range(plrname, &plr_start, &plr_end, func_name, 1640) < 0)
+  if (get_players_range(plrname, &plr_start, &plr_end, __func__, 1640) < 0)
     return;
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Computer event altered inside conditional block\n",text_line_number);
+    SCRPTWRNLOG("Computer event altered inside conditional block");
   }
   n = 0;
   for (i=plr_start; i < plr_end; i++)
@@ -1829,27 +1731,23 @@ void command_set_computer_events(char *plrname, char *evntname, long val1, long 
   }
   if (n == 0)
   {
-    text = buf_sprintf("(script:%lu) no computer event found called '%s'", text_line_number, evntname);
-    error(func_name, 2775, text);
+    SCRPTERRLOG("no computer event found called '%s'", evntname);
     return;
   }
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Altered %d events\n",func_name,n);
-#endif
+  SCRIPTDBG(6,"Altered %d events",n);
 }
 
 void command_set_computer_process(char *plrname, char *procname, long val1, long val2, long val3, long val4, long val5)
 {
-  static const char *func_name="command_set_computer_process";
   struct ComputerProcess *process;
   int plr_start, plr_end;
   char *text;
   long i,k,n;
-  if (get_players_range(plrname, &plr_start, &plr_end, func_name, 1373) < 0)
+  if (get_players_range(plrname, &plr_start, &plr_end, __func__, 1373) < 0)
     return;
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Computer process altered inside conditional block\n",text_line_number);
+    SCRPTWRNLOG("Computer process altered inside conditional block");
   }
   n = 0;
   for (i=plr_start; i < plr_end; i++)
@@ -1874,31 +1772,25 @@ void command_set_computer_process(char *plrname, char *procname, long val1, long
   }
   if (n == 0)
   {
-    text = buf_sprintf("(script:%lu) no computer process found called '%s'", text_line_number, procname);
-    error(func_name, 2821, text);
+    SCRPTERRLOG("No computer process found called '%s'", procname);
     return;
   }
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Altered %d processes\n",func_name,n);
-#endif
+  SCRIPTDBG(6,"Altered %d processes",n);
 }
 
 void command_set_creature_health(char *crtr_name, long val)
 {
-  static const char *func_name="command_set_creature_health";
   long crtr_id;
   char *text;
   crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
-    error(func_name, 2324, text);
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
   if ((val < 0) || (val > 65535))
   {
-    text = buf_sprintf("(script:%lu) Invalid '%s' health value, %d", text_line_number, crtr_name, val);
-    error(func_name, 2330, text);
+    SCRPTERRLOG("Invalid '%s' health value, %d", crtr_name, val);
     return;
   }
   command_add_value(Cmd_SET_CREATURE_HEALTH, 0, crtr_id, val, 0);
@@ -1906,20 +1798,17 @@ void command_set_creature_health(char *crtr_name, long val)
 
 void command_set_creature_strength(char *crtr_name, long val)
 {
-  static const char *func_name="command_set_creature_strength";
   long crtr_id;
   char *text;
   crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
-    error(func_name, 2324, text);
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
   if ((val < 0) || (val > 255))
   {
-    text = buf_sprintf("(script:%lu) Invalid '%s' strength value, %d", text_line_number, crtr_name, val);
-    error(func_name, 2330, text);
+    SCRPTERRLOG("Invalid '%s' strength value, %d", crtr_name, val);
     return;
   }
   command_add_value(Cmd_SET_CREATURE_STRENGTH, 0, crtr_id, val, 0);
@@ -1927,20 +1816,17 @@ void command_set_creature_strength(char *crtr_name, long val)
 
 void command_set_creature_armour(char *crtr_name, long val)
 {
-  static const char *func_name="command_set_creature_armour";
   long crtr_id;
   char *text;
   crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
-    error(func_name, 2324, text);
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
   if ((val < 0) || (val > 255))
   {
-    text = buf_sprintf("(script:%lu) Invalid '%s' armour value, %d", text_line_number, crtr_name, val);
-    error(func_name, 2330, text);
+    SCRPTERRLOG("Invalid '%s' armour value, %d", crtr_name, val);
     return;
   }
   command_add_value(Cmd_SET_CREATURE_ARMOUR, 0, crtr_id, val, 0);
@@ -1948,20 +1834,17 @@ void command_set_creature_armour(char *crtr_name, long val)
 
 void command_set_creature_fear(char *crtr_name, long val)
 {
-  static const char *func_name="command_set_creature_fear";
   long crtr_id;
   char *text;
   crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
-    error(func_name, 2324, text);
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
   if ((val < 0) || (val > 255))
   {
-    text = buf_sprintf("(script:%lu) Invalid '%s' fear value, %d", text_line_number, crtr_name, val);
-    error(func_name, 2330, text);
+    SCRPTERRLOG("Invalid '%s' fear value, %d", crtr_name, val);
     return;
   }
   command_add_value(Cmd_SET_CREATURE_FEAR, 0, crtr_id, val, 0);
@@ -1969,80 +1852,73 @@ void command_set_creature_fear(char *crtr_name, long val)
 
 void command_ally_players(char *plr1name, char *plr2name)
 {
-  static const char *func_name="command_set_creature_max_level";
   long plr1_id,plr2_id;
   char *text;
-  if (!get_player_id(plr1name, &plr1_id, func_name, 1453))
+  if (!get_player_id(plr1name, &plr1_id, __func__, 1453))
     return;
-  if (!get_player_id(plr2name, &plr2_id, func_name, 1463))
+  if (!get_player_id(plr2name, &plr2_id, __func__, 1463))
     return;
   command_add_value(Cmd_ALLY_PLAYERS, 0, plr1_id, plr2_id, 0);
 }
 
 void command_quick_objective(int idx, char *msgtext, char *where, long x, long y)
 {
-  static const char *func_name="command_quick_objective";
   TbMapLocation location;
   char *text;
   if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
   {
-    text = buf_sprintf("(script:%lu) Invalid QUICK OBJECTIVE number (%d)", text_line_number, idx);
-    error(func_name, 2105, text);
+    SCRPTERRLOG("Invalid QUICK OBJECTIVE number (%d)", idx);
     return;
   }
   if (strlen(msgtext) > MESSAGE_TEXT_LEN)
   {
-    LbWarnLog("(script:%lu) Objective TEXT too long; truncating to %d characters\n", text_line_number, MESSAGE_TEXT_LEN-1);
+    SCRPTWRNLOG("Objective TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
     msgtext[MESSAGE_TEXT_LEN-1] = '\0';
   }
   if ((quick_messages[idx][0] != '\0') && (strcmp(quick_messages[idx],msgtext) != 0))
   {
-    LbWarnLog("(script:%lu) Quick Objective no %d overwritten by different text.\n", text_line_number, idx);
+    SCRPTWRNLOG("Quick Objective no %d overwritten by different text.", idx);
   }
   strcpy(quick_messages[idx], msgtext);
-  if (!get_map_location_id(where, &location, func_name, 1963))
+  if (!get_map_location_id(where, &location, __func__, 1963))
     return;
   command_add_value(Cmd_QUICK_OBJECTIVE, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
 }
 
 void command_quick_information(int idx, char *msgtext, char *where, long x, long y)
 {
-  static const char *func_name="command_quick_information";
   TbMapLocation location;
   char *text;
   if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
   {
-    text = buf_sprintf("(script:%lu) Invalid information ID number (%d)", text_line_number, idx);
-    error(func_name, 2105, text);
+    SCRPTERRLOG("Invalid information ID number (%d)", idx);
     return;
   }
   if (strlen(msgtext) > MESSAGE_TEXT_LEN)
   {
-    LbWarnLog("(script:%lu) Information TEXT too long; truncating to %d characters\n", text_line_number, MESSAGE_TEXT_LEN-1);
+    SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
     msgtext[MESSAGE_TEXT_LEN-1] = '\0';
   }
   if ((quick_messages[idx][0] != '\0') && (strcmp(quick_messages[idx],msgtext) != 0))
   {
-    LbWarnLog("(script:%lu) Quick Message no %d overwritten by different text.\n", text_line_number, idx);
+    SCRPTWRNLOG("Quick Message no %d overwritten by different text.", idx);
   }
   strcpy(quick_messages[idx], msgtext);
-  if (!get_map_location_id(where, &location, func_name, 1963))
+  if (!get_map_location_id(where, &location, __func__, 1963))
     return;
   command_add_value(Cmd_QUICK_INFORMATION, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
 }
 
 void command_play_message(char *plrname, char *msgtype, int msg_num)
 {
-  static const char *func_name="command_play_message";
   long plr_id,msgtype_id;
   char *text;
-  if (!get_player_id(plrname, &plr_id, func_name, 1973))
+  if (!get_player_id(plrname, &plr_id, __func__, 1973))
     return;
   msgtype_id = get_id(msgtype_desc, msgtype);
   if (msgtype_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unrecognized message type, '%s'", text_line_number, msgtype);
-    error(func_name, 1973, text);
+    SCRPTERRLOG("Unrecognized message type, '%s'", msgtype);
     return;
   }
   command_add_value(Cmd_PLAY_MESSAGE, plr_id, msgtype_id, msg_num, 0);
@@ -2067,8 +1943,7 @@ void command_set_creature_tendencies(char *plrname, char *tendency, long value)
   tend_id = get_rid(tendency_desc, tendency);
   if (tend_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unrecognized tendency type, '%s'", text_line_number, tendency);
-    error(func_name, 2167, text);
+    SCRPTERRLOG("Unrecognized tendency type, '%s'", tendency);
     return;
   }
   command_add_value(Cmd_SET_CREATURE_TENDENCIES, plr_id, tend_id, value, 0);
@@ -2097,71 +1972,60 @@ void command_reveal_map_location(char *plrname, char *locname, long range)
 
 void command_message(char *msgtext, unsigned char kind)
 {
-  static const char *func_name="command_message";
   const char *cmd;
   if (kind == 80)
     cmd = script_get_command_name(Cmd_PRINT);
   else
     cmd = script_get_command_name(Cmd_MESSAGE);
-  LbWarnLog("(script:%lu) Command '%s' is only supported in Dungeon Keeper Beta\n", text_line_number,cmd);
+  SCRPTWRNLOG("Command '%s' is only supported in Dungeon Keeper Beta", cmd);
 }
 
 void command_swap_creature(char *ncrt_name, char *crtr_name)
 {
-  static const char *func_name="command_swap_creature";
   long ncrt_id,crtr_id;
   char *text;
   ncrt_id = get_rid(newcrtr_desc, ncrt_name);
   if (ncrt_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown new creature, '%s'", text_line_number, ncrt_name);
-    error(func_name, 2457, text);
+    SCRPTERRLOG("Unknown new creature, '%s'", ncrt_name);
     return;
   }
   crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
-    error(func_name, 2457, text);
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
   if ((crtr_id == 23) || (crtr_id == 8))
   {
-    error(func_name, 2875, "Unable to swap IMPs or TUNNELLERs");
-    return;
+    SCRPTERRLOG("Unable to swap IMPs or TUNNELLERs");
   }
   if (script_current_condition != -1)
   {
-    LbWarnLog("(script:%lu) Creature swapping placed inside conditional statement\n",text_line_number);
+    SCRPTWRNLOG("Creature swapping placed inside conditional statement");
   }
   if (!swap_creature(ncrt_id, crtr_id))
   {
-    text = buf_sprintf("(script:%lu) Error swapping creatures '%s'<->'%s'", text_line_number, ncrt_name, crtr_name);
-    error(func_name, 2881, text);
+    SCRPTERRLOG("Error swapping creatures '%s'<->'%s'", ncrt_name, crtr_name);
   }
 }
 
 void command_kill_creature(char *plrname, char *crtr_name, char *criteria, int count)
 {
-  static const char *func_name="command_kill_creature";
   long plr_id,crtr_id;
   char *text;
-#if (BFDEBUG_LEVEL > 11)
-  LbSyncLog("%s: Starting\n",func_name);
-#endif
-  if (!get_player_id(plrname, &plr_id, func_name, 1995))
+  SCRIPTDBG(11,"Starting");
+  if (!get_player_id(plrname, &plr_id, __func__, 1995))
     return;
   if (count <= 0)
   {
-    text = buf_sprintf("(script:%lu) Bad creatures count, %d", text_line_number, count);
-    error(func_name, 2597, text);
+    SCRPTERRLOG("Bad creatures count, %d", count);
     return;
   }
   crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    text = buf_sprintf("(script:%lu) Unknown creature, '%s'", text_line_number, crtr_name);
-    error(func_name, 2471, text);
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
   //TODO: finish!
@@ -2169,21 +2033,17 @@ void command_kill_creature(char *plrname, char *crtr_name, char *criteria, int c
 
 long script_scan_line(char *line,TbBool preloaded)
 {
-  static const char *func_name="script_scan_line";
   const struct CommandDesc *cmd_desc;
   struct ScriptLine *scline;
   unsigned char line_end;
   char *text;
   char chr;
   int i;
-#if (BFDEBUG_LEVEL > 12)
-  LbSyncLog("%s: Starting for line %d\n",func_name,text_line_number);
-#endif
+  SCRIPTDBG(12,"Starting");
   scline = (struct ScriptLine *)LbMemoryAlloc(sizeof(struct ScriptLine));
   if (scline == NULL)
   {
-    text = buf_sprintf("(script:%lu) Can't allocate buffer to recognize line", text_line_number);
-    error(func_name, 811, text);
+    SCRPTERRLOG("Can't allocate buffer to recognize line");
     return 0;
   }
   line_end = false;
@@ -2195,15 +2055,12 @@ long script_scan_line(char *line,TbBool preloaded)
   {
     if ( isalnum(scline->tcmnd[0]) )
     {
-      text = buf_sprintf("(script:%lu) Invalid command, '%s' (lev ver %d)", text_line_number, scline->tcmnd,level_file_version);
-      error(func_name, 817, text);
+      SCRPTERRLOG("Invalid command, '%s' (lev ver %d)", scline->tcmnd,level_file_version);
     }
     LbMemoryFree(scline);
     return 0;
   }
-#if (BFDEBUG_LEVEL > 12)
-  LbSyncLog("%s: Executing command %lu\n",func_name,cmd_desc->index);
-#endif
+  SCRIPTDBG(12,"Executing command %lu",cmd_desc->index);
   // Handling comments
   if (cmd_desc->index == Cmd_REM)
   {
@@ -2232,7 +2089,7 @@ long script_scan_line(char *line,TbBool preloaded)
     {
       scline->np[i] = strtol(scline->tp[i],&text,0);
       if (text != &scline->tp[i][strlen(scline->tp[i])])
-        LbWarnLog("(script:%lu) numerical value '%s' interpreted as %ld\n", text_line_number, scline->tp[i], scline->np[i]);
+        SCRPTWRNLOG("Numerical value '%s' interpreted as %ld", scline->tp[i], scline->np[i]);
     }
   }
   if (i < COMMANDDESC_ARGS_COUNT)
@@ -2240,8 +2097,7 @@ long script_scan_line(char *line,TbBool preloaded)
     chr = cmd_desc->args[i];
     if ((chr == 'A') || (chr == 'N'))
     {
-      text = buf_sprintf("(script:%lu) Not enough parameters for \"%s\"", text_line_number, cmd_desc->textptr);
-      error(func_name, 536, text);
+      SCRPTERRLOG("Not enough parameters for \"%s\"", cmd_desc->textptr);
       LbMemoryFree(scline);
       return -1;
     }
@@ -2436,17 +2292,14 @@ long script_scan_line(char *line,TbBool preloaded)
       break;
   case Cmd_LEVEL_VERSION:
       level_file_version = scline->np[0];
-      LbSyncLog("Level files version %d.\n",level_file_version);
+      SCRPTLOG("Level files version %d.",level_file_version);
       break;
   default:
-      text = buf_sprintf("(script:%lu) Unhandled SCRIPT command '%s'", text_line_number,scline->tcmnd);
-      error(func_name, 809, text);
+      SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
       break;
   }
   LbMemoryFree(scline);
-#if (BFDEBUG_LEVEL > 13)
-  LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SCRIPTDBG(13,"Finished");
   return 0;
 }
 
@@ -2468,15 +2321,12 @@ short clear_quick_messages(void)
 
 short preload_script(long lvnum)
 {
-  static const char *func_name="preload_script";
   char *buf;
   char *buf_end;
   int lnlen;
   char *script_data;
   long script_len;
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(7,"Starting");
   script_current_condition = -1;
   text_line_number = 1;
   level_file_version = DEFAULT_LEVEL_VERSION;
@@ -2507,7 +2357,7 @@ short preload_script(long lvnum)
       if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
         lnlen++;
     }
-    //LbSyncLog("%s: Line %d\n",func_name, text_line_number);
+    //SCRPTLOG("Analyse");
     // Analyze the line
     script_scan_line(buf, true);
     // Set new line start
@@ -2520,15 +2370,12 @@ short preload_script(long lvnum)
 
 short load_script(long lvnum)
 {
-  static const char *func_name="load_script";
   char *buf;
   char *buf_end;
   int lnlen;
   char *script_data;
   long script_len;
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(7,"Starting");
   //return _DK_load_script(lvnum);
 
   // Clear script data
@@ -2579,9 +2426,9 @@ short load_script(long lvnum)
   }
   LbMemoryFree(script_data);
   if (game.script.win_conditions_num == 0)
-    LbWarnLog("No WIN GAME conditions in script file.\n");
+    WARNMSG("No WIN GAME conditions in script file.");
   if (script_current_condition != -1)
-    LbWarnLog("Missing ENDIF's in script file.\n");
+    WARNMSG("Missing ENDIF's in script file.");
   return true;
 }
 
@@ -2601,70 +2448,48 @@ void script_process_lose_game(unsigned short plyr_idx)
 
 long script_support_create_thing_at_hero_door(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5)
 {
-  static const char *func_name="script_support_create_thing_at_hero_door";
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(7,"Starting");
   return _DK_script_support_create_thing_at_hero_door(a1, a2, a3, a4, a5);
 }
 
 long script_support_create_thing_at_action_point(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5)
 {
-  static const char *func_name="script_support_create_thing_at_action_point";
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(7,"Starting");
   return _DK_script_support_create_thing_at_action_point(a1, a2, a3, a4, a5);
 }
 
 long script_support_create_creature_at_dungeon_heart(unsigned char a1, unsigned char a2, unsigned char a3)
 {
-  static const char *func_name="script_support_create_creature_at_dungeon_heart";
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(7,"Starting");
   return _DK_script_support_create_creature_at_dungeon_heart(a1, a2, a3);
 }
 
 long script_support_send_tunneller_to_action_point(struct Thing *thing, long a2)
 {
-  static const char *func_name="script_support_send_tunneller_to_action_point";
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(7,"Starting");
   return _DK_script_support_send_tunneller_to_action_point(thing, a2);
 }
 
 long script_support_send_tunneller_to_dungeon(struct Thing *thing, unsigned char a2)
 {
-  static const char *func_name="script_support_send_tunneller_to_dungeon";
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(7,"Starting");
   return _DK_script_support_send_tunneller_to_dungeon(thing, a2);
 }
 
 long script_support_send_tunneller_to_dungeon_heart(struct Thing *thing, unsigned char a2)
 {
-  static const char *func_name="script_support_send_tunneller_to_dungeon_heart";
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(7,"Starting");
   return _DK_script_support_send_tunneller_to_dungeon_heart(thing, a2);
 }
 
 long script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing)
 {
-  static const char *func_name="script_support_send_tunneller_to_appropriate_dungeon";
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(7,"Starting");
   return _DK_script_support_send_tunneller_to_appropriate_dungeon(thing);
 }
 
 struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long kind, long location)
 {
-  static const char *func_name="create_creature_at_location";
   struct CreatureControl *cctrl;
   struct Thing *thing;
   long tng_idx;
@@ -2700,7 +2525,7 @@ struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long ki
   thing = thing_get(tng_idx);
   if (thing_is_invalid(thing))
   {
-    LbErrorLog("%s: Couldn't create creature kind %d at location %ld\n",func_name,(int)kind,location);
+    ERRORLOG("Couldn't create creature kind %d at location %ld",(int)kind,location);
     return game.things_lookup[0];
   }
   cctrl = creature_control_get_from_thing(thing);
@@ -2725,7 +2550,6 @@ struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long ki
 
 struct Thing *script_process_new_tunneller(unsigned char plyr_idx, TbMapLocation location, unsigned char heading, long target, unsigned char crtr_level, unsigned long carried_gold)
 {
-  static const char *func_name="script_process_new_tunneller";
   struct Thing *thing;
   long i;
   //return _DK_script_process_new_tunneller(plyr_idx, location, a3, a4, a5, a6);
@@ -2749,7 +2573,7 @@ struct Thing *script_process_new_tunneller(unsigned char plyr_idx, TbMapLocation
       script_support_send_tunneller_to_appropriate_dungeon(thing);
       break;
   default:
-      error(func_name, 624, "Invalid Heading objective");
+      ERRORLOG("Invalid Heading objective");
       break;
   }
   return thing;
@@ -2757,7 +2581,6 @@ struct Thing *script_process_new_tunneller(unsigned char plyr_idx, TbMapLocation
 
 struct Thing *script_process_new_party(struct Party *party, unsigned char plyr_idx, long location, long copies_num)
 {
-  static const char *func_name="script_process_new_party";
   struct CreatureControl *cctrl;
   struct PartyMember *member;
   struct Thing *prthing;
@@ -2773,7 +2596,7 @@ struct Thing *script_process_new_party(struct Party *party, unsigned char plyr_i
     {
       if (k >= 8)
       {
-        error(func_name, 551, "Party too big");
+        ERRORLOG("Party too big");
         break;
       }
       member = &(party->members[k]);
@@ -2803,7 +2626,6 @@ struct Thing *script_process_new_party(struct Party *party, unsigned char plyr_i
 
 struct Thing *script_create_new_creature(unsigned char plyr_idx, long kind, long location, long carried_gold, long crtr_level)
 {
-  static const char *func_name="script_create_new_creature";
   struct Thing *thing;
   //return _DK_script_create_new_creature(plyr_idx, kind, location, carried_gold, crtr_level);
   thing = script_create_creature_at_location(plyr_idx, kind, location);
@@ -2826,20 +2648,19 @@ long add_creature_to_group(struct Thing *crthing, struct Thing *grthing)
 
 void script_process_new_tunneller_party(unsigned char plyr_idx, long prty_id, long location, unsigned char heading, long target, unsigned char crtr_level, unsigned long carried_gold)
 {
-  static const char *func_name="script_process_new_tunneller_party";
   struct Thing *gpthing;
   struct Thing *ldthing;
   //_DK_script_process_new_tunneller_party(a1, a2, a3, a4, a5, a6, a7);
   ldthing = script_process_new_tunneller(plyr_idx, location, heading, target, crtr_level, carried_gold);
   if (thing_is_invalid(ldthing))
   {
-    error(func_name, 610, "Couldn't create tunnelling group leader");
+    ERRORLOG("Couldn't create tunnelling group leader");
     return;
   }
   gpthing = script_process_new_party(&game.script.creature_partys[prty_id], plyr_idx, location, 1);
   if (thing_is_invalid(gpthing))
   {
-    error(func_name, 610, "Couldn't create creature group");
+    ERRORLOG("Couldn't create creature group");
     return;
   }
   add_creature_to_group_as_leader(ldthing, gpthing);
@@ -2876,14 +2697,11 @@ TbBool action_point_activated_by_player(long apt_idx,long plyr_idx)
 
 long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char validx)
 {
-  static const char *func_name="get_condition_value";
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   struct Thing *thing;
   long i,k;
-#if (BFDEBUG_LEVEL > 10)
-    LbSyncLog("%s: Checking condition %d for player %d\n",func_name,(int)valtype,(int)plyr_idx);
-#endif
+  SYNCDBG(10,"Checking condition %d for player %d",(int)valtype,(int)plyr_idx);
   switch (valtype)
   {
   case SVar_MONEY:
@@ -3025,13 +2843,10 @@ TbBool condition_inactive(long cond_idx)
 
 void process_condition(struct Condition *condt)
 {
-  static const char *func_name="process_condition";
   TbBool new_status;
   int plr_start, plr_end;
   long i,k;
-#if (BFDEBUG_LEVEL > 18)
-  LbSyncLog("%s: Starting for type %d, player %d\n",func_name,(int)condt->variabl_type,(int)condt->plyr_idx);
-#endif
+  SYNCDBG(18,"Starting for type %d, player %d",(int)condt->variabl_type,(int)condt->plyr_idx);
   if (condition_inactive(condt->condit_idx))
   {
     set_flag_byte(&condt->status, 0x01, false);
@@ -3073,9 +2888,7 @@ void process_condition(struct Condition *condt)
     set_flag_byte(&condt->status, 0x02,  true);
     set_flag_byte(&condt->status, 0x04,  true);
   }
-#if (BFDEBUG_LEVEL > 19)
-  LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SCRIPTDBG(19,"Finished");
 }
 
 void process_conditions(void)
@@ -3091,7 +2904,6 @@ void process_conditions(void)
 
 void process_check_new_creature_partys(void)
 {
-  static const char *func_name="process_check_new_creature_partys";
   struct PartyTrigger *pr_trig;
   long i,k,n;
   for (i=0; i < game.script.party_triggers_num; i++)
@@ -3104,16 +2916,12 @@ void process_check_new_creature_partys(void)
         n = pr_trig->creatr_id;
         if (n <= 0)
         {
-        #if (BFDEBUG_LEVEL > 6)
-            LbSyncLog("%s: Adding party %d\n",func_name,-n);
-        #endif
+          SYNCDBG(6,"Adding party %d",-n);
           script_process_new_party(&game.script.creature_partys[-n],
               pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
         } else
         {
-        #if (BFDEBUG_LEVEL > 6)
-            LbSyncLog("%s: Adding creature %d\n",func_name,n);
-        #endif
+          SCRIPTDBG(6,"Adding creature %d",n);
           script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
               pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level);
         }
@@ -3126,7 +2934,6 @@ void process_check_new_creature_partys(void)
 
 void process_check_new_tunneller_partys(void)
 {
-  static const char *func_name="process_check_new_tunneller_partys";
   struct TunnellerTrigger *tn_trig;
   struct Thing *grptng;
   struct Thing *thing;
@@ -3142,9 +2949,7 @@ void process_check_new_tunneller_partys(void)
         if (k > 0)
         {
           n = tn_trig->plyr_idx;
-        #if (BFDEBUG_LEVEL > 6)
-            LbSyncLog("%s: Adding tunneller party %d\n",func_name,k);
-        #endif
+          SCRIPTDBG(6,"Adding tunneller party %d",k);
           thing = script_process_new_tunneller(n, tn_trig->location, tn_trig->heading,
                       tn_trig->target, tn_trig->crtr_level, tn_trig->carried_gold);
            if (!thing_is_invalid(thing))
@@ -3155,9 +2960,7 @@ void process_check_new_tunneller_partys(void)
            }
         } else
         {
-        #if (BFDEBUG_LEVEL > 6)
-            LbSyncLog("%s: Adding tunneller, heading %d\n",func_name,tn_trig->heading);
-        #endif
+          SCRIPTDBG(6,"Adding tunneller, heading %d",tn_trig->heading);
           script_process_new_tunneller(tn_trig->plyr_idx, tn_trig->location, tn_trig->heading,
                 tn_trig->target, tn_trig->crtr_level, tn_trig->carried_gold);
         }
@@ -3414,7 +3217,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       }
       break;
   default:
-      LbWarnLog("Unsupported Game VALUE, type %d.\n",var_index);
+      WARNMSG("Unsupported Game VALUE, type %d.",var_index);
       break;
   }
 }

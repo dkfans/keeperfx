@@ -237,9 +237,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
   player = &(game.players[plyr_idx%PLAYERS_COUNT]);
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting for state %d\n",func_name,(int)player->work_state);
-#endif
+  SYNCDBG(6,"Starting for state %d",(int)player->work_state);
   player->field_4A4 = 1;
   packet_left_button_double_clicked[plyr_idx] = 0;
   if ((pckt->control_flags & 0x4000) != 0)
@@ -1013,7 +1011,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
           room = room_get(slb->room_index);
           if (room_is_invalid(room))
           {
-            LbErrorLog("No room to delete at subtile (%d,%d)\n",stl_x,stl_y);
+            ERRORLOG("No room to delete at subtile (%d,%d)",stl_x,stl_y);
           } else
           {
             i = ((long)game.room_stats[room->kind].cost) * 50 / 100;
@@ -1060,7 +1058,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         }
       } else
       {
-        LbWarnLog("%s: Player %d can't sell item on unowned ground.\n",func_name,(int)plyr_idx);
+        WARNLOG("Player %d can't sell item on unowned ground.",(int)plyr_idx);
       }
       if (i != 0)
       {
@@ -1149,7 +1147,6 @@ TbBigChecksum get_packet_save_checksum(void)
 
 void open_new_packet_file_for_save(void)
 {
-  static const char *func_name="open_new_packet_file_for_save";
   struct PlayerInfo *player;
   int i;
   // Filling the header
@@ -1173,7 +1170,7 @@ void open_new_packet_file_for_save(void)
   game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_NEW);
   if (game.packet_save_fp == -1)
   {
-    error(func_name, 3774, "Cannot open keeper packet file for save");
+    ERRORLOG("Cannot open keeper packet file for save");
     return;
   }
   game.packet_fopened = 1;
@@ -1198,20 +1195,20 @@ void load_packets_for_turn(long nturn)
   pckt_chksum = pckt->chksum;
   if (nturn >= game.field_149F30)
   {
-    error(func_name, 3973, "Out of turns to load from Packet File");
+    ERRORLOG("Out of turns to load from Packet File");
     return;
   }
 
   data_size = PACKET_START_POS + turn_data_size*nturn;
   if (data_size != game.packet_file_pos)
   {
-    error(func_name, 3879, "Packet Loading Seek Offset is wrong");
+    ERRORLOG("Packet Loading Seek Offset is wrong");
     LbFileSeek(game.packet_save_fp, data_size, Lb_FILE_SEEK_BEGINNING);
     game.packet_file_pos = data_size;
   }
   if (LbFileRead(game.packet_save_fp, &pckt_buf, turn_data_size) == -1)
   {
-    error(func_name, 3879, "Cannot read turn data from Packet File");
+    ERRORLOG("Cannot read turn data from Packet File");
     return;
   }
   game.packet_file_pos += turn_data_size;
@@ -1236,13 +1233,13 @@ void load_packets_for_turn(long nturn)
         game.pckt_gameturn++;
         if (data_size != game.packet_file_pos)
         {
-          error(func_name, 3914, "Packet Saving Seek Offset is wrong");
+          ERRORLOG("Packet Saving Seek Offset is wrong");
           LbFileSeek(game.packet_save_fp, data_size, Lb_FILE_SEEK_BEGINNING);
           game.packet_file_pos = data_size;
         }
         if (LbFileRead(game.packet_save_fp, &pckt_buf, turn_data_size) == -1)
         {
-          error(func_name, 3451, "Cannot read turn data from Packet File");
+          ERRORLOG("Cannot read turn data from Packet File");
           return;
         }
         game.packet_file_pos += turn_data_size;
@@ -1259,15 +1256,13 @@ void load_packets_for_turn(long nturn)
       pckt = &game.packets[player->packet_num%PACKETS_COUNT];
       if (get_packet_save_checksum() != tot_chksum)
       {
-        text = buf_sprintf("PacketSave checksum - Out of sync (GameTurn %d)", game.play_gameturn);
-        error(func_name, 3947, text);
+        ERRORLOG("PacketSave checksum - Out of sync (GameTurn %d)", game.play_gameturn);
         if (!is_onscreen_msg_visible())
           show_onscreen_msg(game.num_fps, "Out of sync");
       } else
       if (pckt->chksum != pckt_chksum)
       {
-        text = buf_sprintf("Opps we are really Out Of Sync (GameTurn %d)", game.play_gameturn);
-        error(func_name, 3955, text);
+        ERRORLOG("Opps we are really Out Of Sync (GameTurn %d)", game.play_gameturn);
         if (!is_onscreen_msg_visible())
           show_onscreen_msg(game.num_fps, "Out of sync");
       }
@@ -1281,14 +1276,11 @@ void process_pause_packet(long a1, long a2)
 
 void process_players_dungeon_control_packet_control(long idx)
 {
-  static const char *func_name="process_players_dungeon_control_packet_control";
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
   struct PlayerInfo *player;
   struct Packet *pckt;
   struct Camera *cam;
   unsigned long zoom_min,zoom_max;
+  SYNCDBG(6,"Starting");
 
   player = &(game.players[idx%PLAYERS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
@@ -1494,7 +1486,6 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
 
 char process_players_global_packet_action(long plyridx)
 {
-  static const char *func_name="process_players_global_packet_action";
   //TODO: add commands from beta
   struct PlayerInfo *player;
   struct PlayerInfo *myplyr;
@@ -1503,9 +1494,7 @@ char process_players_global_packet_action(long plyridx)
   struct Thing *thing;
   struct Room *room;
   int i;
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(6,"Starting");
   player=&(game.players[plyridx%PLAYERS_COUNT]);
   pckt=&game.packets[player->packet_num%PACKETS_COUNT];
   switch (pckt->action)
@@ -1859,13 +1848,10 @@ char process_players_global_packet_action(long plyridx)
 
 void process_players_map_packet_control(long idx)
 {
-  static const char *func_name="process_players_map_packet_control";
   struct PlayerInfo *player;
   struct Packet *pckt;
   unsigned short x,y;
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(6,"Starting");
   player=&(game.players[idx%PLAYERS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
   x = (3*pckt->pos_x - 450)/4 - 6;
@@ -1874,33 +1860,23 @@ void process_players_map_packet_control(long idx)
   player->cameras[2].mappos.x.val = (x << 8) + 1920;
   player->cameras[2].mappos.y.val = (y << 8) + 1920;
   set_mouse_light(player);
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(8,"Finished");
 }
 
 void process_map_packet_clicks(long idx)
 {
-  static const char *func_name="process_map_packet_clicks";
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(7,"Starting");
   _DK_process_map_packet_clicks(idx);
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(8,"Finished");
 }
 
 void process_players_packet(long idx)
 {
-  static const char *func_name="process_players_packet";
   struct PlayerInfo *player;
   struct Packet *pckt;
   player=&(game.players[idx%PLAYERS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Processing player %d packet of type %d.\n",func_name,idx,(int)pckt->action);
-#endif
+  SYNCDBG(6,"Processing player %d packet of type %d.",idx,(int)pckt->action);
   player->field_4 = (pckt->field_10 & 0x20) >> 5;
   player->field_5 = (pckt->field_10 & 0x40) >> 6;
   if ( (player->field_0 & 0x04) && (pckt->action == PckA_PlyrMsgChar))
@@ -1929,19 +1905,14 @@ void process_players_packet(long idx)
         break;
       }
   }
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(8,"Finished");
 }
 
 void process_players_creature_passenger_packet_action(long idx)
 {
-  static const char *func_name="process_players_creature_passenger_packet_action";
   struct PlayerInfo *player;
   struct Packet *pckt;
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(6,"Starting");
   player=&(game.players[idx%PLAYERS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
   if (pckt->action == 32)
@@ -1949,17 +1920,12 @@ void process_players_creature_passenger_packet_action(long idx)
     player->field_43E = pckt->field_6;
     set_player_instance(player, 8, 0);
   }
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(8,"Finished");
 }
 
 void process_players_dungeon_control_packet_action(long idx)
 {
-  static const char *func_name="process_players_dungeon_control_packet_action";
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(6,"Starting");
   struct PlayerInfo *player;
   struct Packet *pckt;
   player = &(game.players[idx%PLAYERS_COUNT]);
@@ -1987,24 +1953,18 @@ void process_players_dungeon_control_packet_action(long idx)
 
 void process_players_creature_control_packet_control(long idx)
 {
-  static const char *func_name="process_players_creature_control_packet_control";
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(6,"Starting");
   _DK_process_players_creature_control_packet_control(idx);
 }
 
 void process_players_creature_control_packet_action(long idx)
 {
-  static const char *func_name="process_players_creature_control_packet_action";
   struct CreatureControl *cctrl;
   struct PlayerInfo *player;
   struct Thing *thing;
   struct Packet *pckt;
   long i,k;
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(6,"Starting");
   player = &(game.players[idx%PLAYERS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
   switch (pckt->action)
@@ -2042,12 +2002,11 @@ void process_players_creature_control_packet_action(long idx)
 
 void open_packet_file_for_load(char *fname)
 {
-  static const char *func_name="open_packet_file_for_load";
   strcpy(game.packet_fname, fname);
   game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_READ_ONLY);
   if (game.packet_save_fp == -1)
   {
-    error(func_name, 3835, "Cannot open keeper packet file for load");
+    ERRORLOG("Cannot open keeper packet file for load");
     return;
   }
   LbFileRead(game.packet_save_fp, &game.packet_save_head, sizeof(struct PacketSaveHead));
@@ -2055,7 +2014,7 @@ void open_packet_file_for_load(char *fname)
   game.field_149F30 = (LbFileLengthRnc(fname) - PACKET_START_POS) / PACKET_TURN_SIZE;
   if ((game.packet_checksum) && (!game.packet_save_head.chksum))
   {
-      LbWarnLog("PacketSave checksum not available, checking disabled.\n");
+      WARNMSG("PacketSave checksum not available, checking disabled.");
       game.packet_checksum = false;
   }
   if (game.numfield_149F3A == -1)
@@ -2078,14 +2037,11 @@ void post_init_packets(void)
 
 short save_packets(void)
 {
-  static const char *func_name="save_packets";
   const int turn_data_size = PACKET_TURN_SIZE;
   unsigned char pckt_buf[PACKET_TURN_SIZE+4];
   TbBigChecksum chksum;
   int i;
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(6,"Starting");
   if (game.packet_checksum)
     chksum = get_packet_save_checksum();
   else
@@ -2098,11 +2054,11 @@ short save_packets(void)
   // Write buffer into file
   if (LbFileWrite(game.packet_save_fp, &pckt_buf, turn_data_size) != turn_data_size)
   {
-    error(func_name, 3818, "Packet file write error");
+    ERRORLOG("Packet file write error");
   }
   if ( !LbFileFlush(game.packet_save_fp) )
   {
-    error(func_name, 3821, "Unable to flush PacketSave File");
+    ERRORLOG("Unable to flush PacketSave File");
     return false;
   }
   return true;
@@ -2129,14 +2085,10 @@ void write_debug_packets(void)
 
 void process_packets(void)
 {
-  static const char *func_name="process_packets";
-
   int i,j,k;
   struct Packet *pckt;
   struct PlayerInfo *player;
-#if (BFDEBUG_LEVEL > 5)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(5,"Starting");
   // Do the network data exchange
   lbDisplay.DrawColour = colours[15][15][15];
   // Exchange packets with the network
@@ -2154,7 +2106,7 @@ void process_packets(void)
       pckt = &game.packets[player->packet_num%PACKETS_COUNT];
       if (LbNetwork_Exchange(pckt) != 0)
       {
-        error(func_name, 426, "LbNetwork_Exchange failed");
+        ERRORLOG("LbNetwork_Exchange failed");
       }
     }
     k=0;
@@ -2213,19 +2165,14 @@ void process_packets(void)
     memset(&game.packets[i], 0, sizeof(struct Packet));
   if ((game.numfield_A & 0x02) || (game.numfield_A & 0x04))
   {
-  #if (BFDEBUG_LEVEL > 0)
-    LbSyncLog("%s: Resyncing.\n",func_name);
-  #endif
+    SYNCDBG(0,"Resyncing");
     resync_game();
   }
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(7,"Finished");
 }
 
 void process_frontend_packets(void)
 {
-  static const char *func_name="process_frontend_packets";
   struct ScreenPacket *nspckt;
   struct PlayerInfo *player;
   long i,k;
@@ -2242,7 +2189,7 @@ void process_frontend_packets(void)
   nspckt->field_6 = VersionMajor;
   nspckt->field_8 = VersionMinor;
   if (LbNetwork_Exchange(nspckt))
-    error(func_name, 2559, "LbNetwork_Exchange failed");
+    ERRORLOG("LbNetwork_Exchange failed");
   if (frontend_should_all_players_quit())
   {
     i = frontnet_number_of_players_in_session();
@@ -2256,7 +2203,7 @@ void process_frontend_packets(void)
       {
         if (LbNetwork_Stop())
         {
-          error(func_name, 2584, "LbNetwork_Stop() failed");
+          ERRORLOG("LbNetwork_Stop() failed");
           return;
         }
         frontend_set_state(1);
@@ -2265,15 +2212,15 @@ void process_frontend_packets(void)
       {
         if (LbNetwork_Stop())
         {
-          error(func_name, 2593, "LbNetwork_Stop() failed");
+          ERRORLOG("LbNetwork_Stop() failed");
           return;
         }
         if (setup_network_service(net_service_index_selected))
         {
-          frontend_set_state(5);
+          frontend_set_state(FeSt_NET_SESSION);
         } else
         {
-          frontend_set_state(1);
+          frontend_set_state(FeSt_MAIN_MENU);
         }
       }
     }

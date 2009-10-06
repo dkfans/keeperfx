@@ -156,7 +156,7 @@ short copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_wi
   {
     if (w > mdinfo->Width)
     {
-      LbSyncLog("The %dx%d image does not fit on %dx%d screen, skipped.\n", img_width, img_height,mdinfo->Width,mdinfo->Height);
+      SYNCMSG("The %dx%d image does not fit on %dx%d screen, skipped.", img_width, img_height,mdinfo->Width,mdinfo->Height);
       return false;
     }
     m=1;
@@ -177,7 +177,6 @@ short copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_wi
 
 short show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int height,TbClockMSec tmdelay)
 {
-  static const char *func_name="show_rawimage_screen";
       if (height>lbDisplay.PhysicalScreenHeight)
            height=lbDisplay.PhysicalScreenHeight;
       LbPaletteSet(pal);
@@ -222,7 +221,6 @@ short clear_bitmap_screen(struct ActiveBitmap *actv_bmp)
  */
 short free_bitmap_screen(struct ActiveBitmap *actv_bmp)
 {
-  static const char *func_name="free_bitmap_screen";
   LbMemoryFree(actv_bmp->raw_data);
   LbMemoryFree(actv_bmp->pal_data);
   return clear_bitmap_screen(actv_bmp);
@@ -234,7 +232,6 @@ short free_bitmap_screen(struct ActiveBitmap *actv_bmp)
  */
 short init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
 {
-  static const char *func_name="init_bitmap_screen";
   struct TbScreenModeInfo *mdinfo;
   struct RawBitmap *rbmp;
   unsigned char *buf;
@@ -256,7 +253,7 @@ short init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
   buf = load_data_file_to_buffer(&ldsize, rbmp->fgroup, rbmp->pal_fname);
   if (buf == NULL)
   {
-    LbErrorLog("Couldn't load palette file for %s screen\n",rbmp->name);
+    ERRORLOG("Couldn't load palette file for %s screen",rbmp->name);
     clear_bitmap_screen(actv_bmp);
     return false;
   }
@@ -266,7 +263,7 @@ short init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
   buf = load_data_file_to_buffer(&ldsize, rbmp->fgroup, rbmp->raw_fname);
   if (buf == NULL)
   {
-    LbErrorLog("Couldn't load raw bitmap file for %s screen\n",rbmp->name);
+    ERRORLOG("Couldn't load raw bitmap file for %s screen",rbmp->name);
     LbMemoryFree(actv_bmp->pal_data);
     clear_bitmap_screen(actv_bmp);
     return false;
@@ -390,7 +387,6 @@ short display_loading_screen(void)
 
 TbBool wait_for_cd_to_be_available(void)
 {
-  static const char *func_name="wait_for_cd_to_be_available";
   char ffullpath[2048];
 //  _DK_wait_for_cd_to_be_available(); return;
   short was_locked = LbScreenIsLocked();
@@ -399,10 +395,10 @@ TbBool wait_for_cd_to_be_available(void)
     return true;
   if ( was_locked )
     LbScreenUnlock();
-  LbSyncLog("CD not found in drive, waiting\n");
+  SYNCMSG("CD not found in drive, waiting");
   if (!init_bitmap_screen(&nocd_bmp,RBmp_WaitNoCD))
   {
-      error(func_name, 78, "Unable to display CD wait monit");
+      ERRORLOG("Unable to display CD wait monit");
       return false;
   }
   draw_bitmap_screen(&nocd_bmp);
@@ -426,7 +422,7 @@ TbBool wait_for_cd_to_be_available(void)
         }
         if (is_key_pressed(KC_Q,KM_DONTCARE) || is_key_pressed(KC_X,KM_DONTCARE))
         {
-          error(func_name, 77, "User requested quit, giving up");
+          ERRORLOG("User requested quit, giving up");
           clear_key_pressed(KC_Q);
           clear_key_pressed(KC_X);
           exit_keeper = 1;
@@ -438,11 +434,11 @@ TbBool wait_for_cd_to_be_available(void)
       counter++;
       if (counter>300)
       {
-          error(func_name, 79, "Wait time too long, giving up");
+          ERRORLOG("Wait time too long, giving up");
           exit_keeper = 1;
       }
   }
-  LbSyncLog("Finished waiting for CD after %lu seconds\n",counter);
+  SYNCMSG("Finished waiting for CD after %lu seconds",counter);
   free_bitmap_screen(&nocd_bmp);
   if ( was_locked )
     LbScreenLock();
@@ -451,7 +447,6 @@ TbBool wait_for_cd_to_be_available(void)
 
 TbBool display_centered_message(long showTime, char *text)
 {
-  static const char *func_name="display_centered_message";
   TbBool finish;
   TbClockMSec tmEnd;
   long tmDelta;
@@ -494,7 +489,7 @@ TbBool display_centered_message(long showTime, char *text)
       update_key_modifiers();
       if (is_key_pressed(KC_Q,KM_DONTCARE) || is_key_pressed(KC_X,KM_DONTCARE))
       {
-        error(func_name, 77, "User requested quit, giving up");
+        ERRORLOG("User requested quit, giving up");
         clear_key_pressed(KC_Q);
         clear_key_pressed(KC_X);
         exit_keeper = 1;
