@@ -809,12 +809,9 @@ void set_player_instance(struct PlayerInfo *player, long ninum, short force)
 
 void process_player_instance(struct PlayerInfo *player)
 {
-  static const char *func_name="process_player_instance";
   struct PlayerInstanceInfo *inst_info;
   InstncInfo_Func callback;
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting for instance %d\n",func_name,player->instance_num);
-#endif
+  SYNCDBG(6,"Starting for instance %d",player->instance_num);
   //_DK_process_player_instance(player); return;
   if (player->instance_num > 0)
   {
@@ -839,7 +836,6 @@ void process_player_instance(struct PlayerInfo *player)
 
 void process_player_instances(void)
 {
-  static const char *func_name="process_player_instances";
   //_DK_process_player_instances();return;
   int i;
   struct PlayerInfo *player;
@@ -849,20 +845,15 @@ void process_player_instances(void)
     if (player->field_0 & 0x01)
       process_player_instance(player);
   }
-#if (BFDEBUG_LEVEL > 9)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(9,"Finished");
 }
 
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
 {
-  static const char *func_name="leave_creature_as_controller";
   struct CreatureControl *cctrl;
   struct CreatureStats *crstat;
   long i,k;
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(7,"Starting");
   //_DK_leave_creature_as_controller(player, thing);
   if ((thing->owner != player->field_2B) || (thing->index != player->field_2F))
   {
@@ -911,12 +902,9 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
 
 void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
 {
-  static const char *func_name="leave_creature_as_passenger";
   struct CreatureStats *crstat;
   long i,k;
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(7,"Starting");
   if ((thing->owner != player->field_2B) || (thing->index != player->field_2F))
   {
     set_player_instance(player, 0, 1);
@@ -948,13 +936,12 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
 
 TbBool set_selected_creature(struct PlayerInfo *player, struct Thing *thing)
 {
-  static const char *func_name="set_selected_creature";
   if (thing->class_id == TCls_Creature)
   {
     player->field_2F = thing->index;
     return true;
   }
-  error(func_name, 1410, "Cannot select thing for information");
+  ERRORLOG("Cannot select thing for information");
   return false;
 }
 /******************************************************************************/

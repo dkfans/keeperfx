@@ -38,7 +38,6 @@ unsigned char cap_palette[768];
 /******************************************************************************/
 long prepare_hsi_screenshot(unsigned char *buf,unsigned char *palette)
 {
-  static const char *func_name="prepare_hsi_screenshot";
   long pos,i;
   int w,h;
   short lock_mem;
@@ -77,7 +76,7 @@ long prepare_hsi_screenshot(unsigned char *buf,unsigned char *palette)
   {
     if (LbScreenLock()!=1)
     {
-      error(func_name, 3852,"Can't lock canvas");
+      ERRORLOG("Can't lock canvas");
       LbMemoryFree(buf);
       return 0;
     }
@@ -94,7 +93,6 @@ long prepare_hsi_screenshot(unsigned char *buf,unsigned char *palette)
 
 long prepare_bmp_screenshot(unsigned char *buf,unsigned char *palette)
 {
-  static const char *func_name="prepare_bmp_screenshot";
   long pos,i,j;
   int width,height;
   short lock_mem;
@@ -140,7 +138,7 @@ long prepare_bmp_screenshot(unsigned char *buf,unsigned char *palette)
   {
     if (LbScreenLock()!=1)
     {
-      error(func_name, 3852,"Can't lock canvas");
+      ERRORLOG("Can't lock canvas");
       LbMemoryFree(buf);
       return 0;
     }
@@ -177,8 +175,8 @@ short cumulative_screen_shot(void)
     fext="bmp";
     break;
   default:
-    error(func_name, 3849,"Screenshot format incorrectly set.");
-    return 0;
+    ERRORLOG("Screenshot format incorrectly set.");
+    return false;
   }
   long i;
   unsigned char *buf;
@@ -202,8 +200,8 @@ short cumulative_screen_shot(void)
   buf = LbMemoryAlloc((w+3)*h+2048);
   if (buf == NULL)
   {
-    error(func_name, 3851,"Can't allocate buffer");
-    return 0;
+    ERRORLOG("Can't allocate buffer");
+    return false;
   }
   LbPaletteGet(cap_palette);
   switch (screenshot_format)
@@ -245,7 +243,6 @@ short movie_record_stop(void)
 
 short movie_record_frame(void)
 {
-  static const char *func_name="movie_record_frame";
   short lock_mem;
   short result;
   lock_mem = LbScreenIsLocked();

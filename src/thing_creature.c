@@ -225,7 +225,6 @@ void apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell
 
 short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing)
 {
-  static const char *func_name="creature_take_wage_from_gold_pile";
   struct CreatureStats *crstat;
   struct CreatureControl *cctrl;
   long i;
@@ -233,7 +232,7 @@ short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obth
   cctrl = creature_control_get_from_thing(crthing);
   if (obthing->long_13 <= 0)
   {
-    error(func_name, 1573, "GoldPile had no gold so was deleted.");
+    ERRORLOG("GoldPile had no gold so was deleted.");
     delete_thing_structure(obthing, 0);
     return false;
   }
@@ -276,7 +275,7 @@ void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, lo
   }
   if ((spl_idx < 0) || (spl_idx >= 30))
   {
-    LbErrorLog("%s: Thing owned by player %d tried to cast invalid spell %ld\n",func_name,(int)caster->owner,spl_idx);
+    ERRORLOG("Thing owned by player %d tried to cast invalid spell %ld",(int)caster->owner,spl_idx);
     return;
   }
   creature_fire_shot(caster, target, spell_info[spl_idx].field_1, a4, i);
@@ -284,7 +283,6 @@ void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, lo
 
 void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x, long trg_y)
 {
-  static const char *func_name="creature_cast_spell";
   struct SpellInfo *spinfo;
   struct CreatureControl *cctrl;
   struct Thing *efthing;
@@ -294,7 +292,7 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
   cctrl = creature_control_get_from_thing(caster);
   if (creature_control_invalid(cctrl))
   {
-    LbErrorLog("%s: Invalid thing tried to cast spell %ld\n",func_name,spl_idx);
+    ERRORLOG("Invalid thing tried to cast spell %ld",spl_idx);
     return;
   }
   if (spl_idx == 10)
@@ -519,7 +517,6 @@ unsigned short find_next_annoyed_creature(unsigned char a1, unsigned short a2)
 
 void draw_creature_view(struct Thing *thing)
 {
-  static const char *func_name="draw_creature_view";
   struct TbGraphicsWindow grwnd;
   struct PlayerInfo *player;
   long grscr_w,grscr_h;
@@ -594,7 +591,7 @@ void draw_creature_view(struct Thing *thing)
       Mist->animate();
       break;
   default:
-      error(func_name, 768, "Invalid lens mode");
+      ERRORLOG("Invalid lens mode.");
       break;
   }
 }

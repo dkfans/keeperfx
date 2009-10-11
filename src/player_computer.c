@@ -861,7 +861,7 @@ short parse_computer_player_common_blocks(char *buf,long len)
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    LbWarnLog("Block [%s] not found in Computer Player file.\n",block_buf);
+    WARNMSG("Block [%s] not found in Computer Player file.",block_buf);
     return 0;
   }
   while (pos<len)
@@ -893,7 +893,7 @@ short parse_computer_player_common_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command in Computer Player file, starting on byte %d.\n",pos);
+          WARNMSG("Unrecognized command in Computer Player file, starting on byte %d.",pos);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -918,7 +918,7 @@ short parse_computer_player_process_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      LbWarnLog("Block [%s] not found in Computer Player file.\n",block_buf);
+      WARNMSG("Block [%s] not found in Computer Player file.",block_buf);
       continue;
     }
     process = computer_process_config_list[i].process;
@@ -968,7 +968,7 @@ short parse_computer_player_process_blocks(char *buf,long len)
           }
           if (n < 5)
           {
-            LbWarnLog("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.\n","VALUES",block_buf);
+            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","VALUES",block_buf);
           }
           break;
       case 3: // FUNCTIONS
@@ -1006,7 +1006,7 @@ short parse_computer_player_process_blocks(char *buf,long len)
           }
           if (n < 5)
           {
-            LbWarnLog("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.\n","FUNCTIONS",block_buf);
+            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","FUNCTIONS",block_buf);
           }
           break;
       case 4: // PARAMS
@@ -1048,13 +1048,13 @@ short parse_computer_player_process_blocks(char *buf,long len)
           }
           if (n < 6)
           {
-            LbWarnLog("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.\n","PARAMS",block_buf);
+            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","PARAMS",block_buf);
           }
           break;
       case 5: // MNEMONIC
           if (get_conf_parameter_whole(buf,&pos,len,computer_process_config_list[i].name,sizeof(computer_process_config_list[i].name)) <= 0)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Computer file.\n","MNEMONIC",block_buf);
+            WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","MNEMONIC",block_buf);
             break;
           }
           break;
@@ -1063,7 +1063,7 @@ short parse_computer_player_process_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command in Computer Player file, starting on byte %d.\n",pos);
+          WARNMSG("Unrecognized command in Computer Player file, starting on byte %d.",pos);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -1100,7 +1100,7 @@ short parse_computer_player_check_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      LbWarnLog("Block [%s] not found in Computer Player file.\n",block_buf);
+      WARNMSG("Block [%s] not found in Computer Player file.",block_buf);
       continue;
     }
     check = computer_check_config_list[i].check;
@@ -1116,7 +1116,7 @@ short parse_computer_player_check_blocks(char *buf,long len)
       case 1: // NAME
           if (get_conf_parameter_whole(buf,&pos,len,check->name,LINEMSG_SIZE) <= 0)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Computer file.\n","NAME",block_buf);
+            WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","NAME",block_buf);
             break;
           }
           break;
@@ -1135,7 +1135,7 @@ short parse_computer_player_check_blocks(char *buf,long len)
           }
           if (n < 2)
           {
-            LbWarnLog("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.\n","VALUES",block_buf);
+            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","VALUES",block_buf);
           }
           break;
       case 3: // FUNCTIONS
@@ -1147,7 +1147,7 @@ short parse_computer_player_check_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            LbWarnLog("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.\n","FUNCTIONS",block_buf);
+            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","FUNCTIONS",block_buf);
           }
           break;
       case 4: // PARAMS
@@ -1177,13 +1177,13 @@ short parse_computer_player_check_blocks(char *buf,long len)
           }
           if (n < 4)
           {
-            LbWarnLog("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.\n","PARAMS",block_buf);
+            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","PARAMS",block_buf);
           }
           break;
       case 5: // MNEMONIC
           if (get_conf_parameter_whole(buf,&pos,len,computer_check_config_list[i].name,sizeof(computer_check_config_list[i].name)) <= 0)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Computer file.\n","MNEMONIC",block_buf);
+            WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","MNEMONIC",block_buf);
             break;
           }
           break;
@@ -1192,7 +1192,7 @@ short parse_computer_player_check_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command in Computer Player file, starting on byte %d.\n",pos);
+          WARNMSG("Unrecognized command in Computer Player file, starting on byte %d.",pos);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -1229,7 +1229,7 @@ short parse_computer_player_event_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      LbWarnLog("Block [%s] not found in Computer Player file.\n",block_buf);
+      WARNMSG("Block [%s] not found in Computer Player file.",block_buf);
       continue;
     }
     event = computer_event_config_list[i].event;
@@ -1245,7 +1245,7 @@ short parse_computer_player_event_blocks(char *buf,long len)
       case 1: // NAME
           if (get_conf_parameter_whole(buf,&pos,len,event->name,LINEMSG_SIZE) <= 0)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Computer file.\n","NAME",block_buf);
+            WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","NAME",block_buf);
             break;
           }
           break;
@@ -1270,7 +1270,7 @@ short parse_computer_player_event_blocks(char *buf,long len)
           }
           if (n < 3)
           {
-            LbWarnLog("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.\n","VALUES",block_buf);
+            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","VALUES",block_buf);
           }
           break;
       case 3: // FUNCTIONS
@@ -1288,7 +1288,7 @@ short parse_computer_player_event_blocks(char *buf,long len)
           }
           if (n < 2)
           {
-            LbWarnLog("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.\n","FUNCTIONS",block_buf);
+            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","FUNCTIONS",block_buf);
           }
           break;
       case 4: // PROCESS
@@ -1300,7 +1300,7 @@ short parse_computer_player_event_blocks(char *buf,long len)
               event->process = computer_process_config_list[k].process;
             } else
             {
-              LbWarnLog("Couldn't recognize \"%s\" parameter \"%s\" in Computer file.\n","PROCESS",word_buf);
+              WARNMSG("Couldn't recognize \"%s\" parameter \"%s\" in Computer file.","PROCESS",word_buf);
             }
           }
           break;
@@ -1331,13 +1331,13 @@ short parse_computer_player_event_blocks(char *buf,long len)
           }
           if (n < 4)
           {
-            LbWarnLog("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.\n","PARAMS",block_buf);
+            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","PARAMS",block_buf);
           }
           break;
       case 6: // MNEMONIC
           if (get_conf_parameter_whole(buf,&pos,len,computer_event_config_list[i].name,sizeof(computer_event_config_list[i].name)) <= 0)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Computer file.\n","MNEMONIC",block_buf);
+            WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","MNEMONIC",block_buf);
             break;
           }
           break;
@@ -1346,7 +1346,7 @@ short parse_computer_player_event_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command in Computer Player file, starting on byte %d.\n",pos);
+          WARNMSG("Unrecognized command in Computer Player file, starting on byte %d.",pos);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -1357,23 +1357,23 @@ short parse_computer_player_event_blocks(char *buf,long len)
 
 short write_computer_player_check_to_log(struct ComputerCheck *check)
 {
-  LbJustLog("[checkXX]\n");
-  LbJustLog("Name = %s\n",check->name);
-  LbJustLog("Mnemonic = %s\n","XX");
-  LbJustLog("Values = %d %d\n",check->field_4,check->field_8);
-  LbJustLog("Functions = %x\n",check->func_check);
-  LbJustLog("Params = %d %d %d %d\n",check->param1,check->param2,check->param3,check->param4);
+  JUSTMSG("[checkXX]");
+  JUSTMSG("Name = %s",check->name);
+  JUSTMSG("Mnemonic = %s","XX");
+  JUSTMSG("Values = %d %d",check->field_4,check->field_8);
+  JUSTMSG("Functions = %x",check->func_check);
+  JUSTMSG("Params = %d %d %d %d",check->param1,check->param2,check->param3,check->param4);
   return true;
 }
 
 short write_computer_player_event_to_log(struct ComputerEvent *event)
 {
-  LbJustLog("[eventXX]\n");
-  LbJustLog("Name = %s\n",event->name);
-  LbJustLog("Mnemonic = %s\n","XX");
-  LbJustLog("Values = %d %d %d\n",event->field_4,event->field_8,event->field_14);
-  LbJustLog("Functions = %x %x\n",event->func_event,event->func_test);
-  LbJustLog("Params = %d %d %d %d\n",event->param1,event->param2,event->param3,event->param4);
+  JUSTMSG("[eventXX]");
+  JUSTMSG("Name = %s",event->name);
+  JUSTMSG("Mnemonic = %s","XX");
+  JUSTMSG("Values = %d %d %d",event->field_4,event->field_8,event->field_14);
+  JUSTMSG("Functions = %x %x",event->func_event,event->func_test);
+  JUSTMSG("Params = %d %d %d %d",event->param1,event->param2,event->param3,event->param4);
   return true;
 }
 
@@ -1388,9 +1388,9 @@ short write_computer_player_file_to_log(void)
   while (ComputerProcessLists[i].name != NULL)
   {
     cpt = &ComputerProcessLists[i];
-    LbJustLog("[computer%d]\n",i);
-    LbJustLog("Name = %s\n",cpt->name);
-    LbJustLog("Values = %d %d %d %d %d %d %d\n",cpt->field_4,cpt->field_8,
+    JUSTMSG("[computer%d]",i);
+    JUSTMSG("Name = %s",cpt->name);
+    JUSTMSG("Values = %d %d %d %d %d %d %d",cpt->field_4,cpt->field_8,
         cpt->field_C,cpt->field_10,cpt->field_14,cpt->field_18,cpt->field_1C);
     LbJustLog("Processes = ");
     for (k=0; k<COMPUTER_PROCESSES_COUNT; k++)
@@ -1449,7 +1449,7 @@ short parse_computer_player_computer_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      LbWarnLog("Block [%s] not found in Computer Player file.\n",block_buf);
+      WARNMSG("Block [%s] not found in Computer Player file.",block_buf);
       continue;
     }
     cpt = &ComputerProcessLists[i];
@@ -1465,7 +1465,7 @@ short parse_computer_player_computer_blocks(char *buf,long len)
       case 1: // NAME
           if (get_conf_parameter_whole(buf,&pos,len,cpt->name,LINEMSG_SIZE) <= 0)
           {
-            LbWarnLog("Couldn't read \"%s\" parameter in [%s] block of Computer file.\n","NAME",block_buf);
+            WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","NAME",block_buf);
             break;
           }
           break;
@@ -1514,7 +1514,7 @@ short parse_computer_player_computer_blocks(char *buf,long len)
           }
           if (n < 7)
           {
-            LbWarnLog("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.\n","VALUES",block_buf);
+            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","VALUES",block_buf);
           }
           break;
       case 3: // PROCESSES
@@ -1524,12 +1524,12 @@ short parse_computer_player_computer_blocks(char *buf,long len)
             k = get_computer_process_config_list_index_mnem(word_buf);
             if (k <= 0)
             {
-              LbWarnLog("Couldn't recognize \"%s\" parameter \"%s\" in Computer file.\n","PROCESSES",word_buf);
+              WARNMSG("Couldn't recognize \"%s\" parameter \"%s\" in Computer file.","PROCESSES",word_buf);
               continue;
             }
             n = computer_type_add_process(cpt, computer_process_config_list[k].process);
             if (n < 0)
-              LbWarnLog("Couldn't add \"%s\" list element \"%s\" when reading Computer file.\n","PROCESSES",word_buf);
+              WARNMSG("Couldn't add \"%s\" list element \"%s\" when reading Computer file.","PROCESSES",word_buf);
           }
           break;
       case 4: // CHECKS
@@ -1539,12 +1539,12 @@ short parse_computer_player_computer_blocks(char *buf,long len)
             k = get_computer_check_config_list_index_mnem(word_buf);
             if (k <= 0)
             {
-              LbWarnLog("Couldn't recognize \"%s\" parameter \"%s\" in Computer file.\n","CHECKS",word_buf);
+              WARNMSG("Couldn't recognize \"%s\" parameter \"%s\" in Computer file.","CHECKS",word_buf);
               continue;
             }
             n = computer_type_add_check(cpt, computer_check_config_list[k].check);
             if (n < 0)
-              LbWarnLog("Couldn't add \"%s\" list element \"%s\" when reading Computer file.\n","CHECKS",word_buf);
+              WARNMSG("Couldn't add \"%s\" list element \"%s\" when reading Computer file.","CHECKS",word_buf);
           }
           break;
       case 5: // EVENTS
@@ -1554,12 +1554,12 @@ short parse_computer_player_computer_blocks(char *buf,long len)
             k = get_computer_event_config_list_index_mnem(word_buf);
             if (k <= 0)
             {
-              LbWarnLog("Couldn't recognize \"%s\" parameter \"%s\" in Computer file.\n","EVENTS",word_buf);
+              WARNMSG("Couldn't recognize \"%s\" parameter \"%s\" in Computer file.","EVENTS",word_buf);
               continue;
             }
             n = computer_type_add_event(cpt, computer_event_config_list[k].event);
             if (n < 0)
-              LbWarnLog("Couldn't add \"%s\" list element \"%s\" when reading Computer file.\n","EVENTS",word_buf);
+              WARNMSG("Couldn't add \"%s\" list element \"%s\" when reading Computer file.","EVENTS",word_buf);
           }
           break;
       case 0: // comment
@@ -1567,7 +1567,7 @@ short parse_computer_player_computer_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          LbWarnLog("Unrecognized command in Computer Player file, starting on byte %d.\n",pos);
+          WARNMSG("Unrecognized command in Computer Player file, starting on byte %d.",pos);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -1578,7 +1578,6 @@ short parse_computer_player_computer_blocks(char *buf,long len)
 
 short load_computer_player_config(void)
 {
-  static const char *func_name="load_computer_player_config";
   const char *fname;
   char *buf;
   long len;
@@ -1588,12 +1587,12 @@ short load_computer_player_config(void)
   len = LbFileLengthRnc(fname);
   if (len < 2)
   {
-    LbErrorLog("Computer Player file \"%s\" doesn't exist or is too small.\n",keeper_compplayer_file);
+    ERRORLOG("Computer Player file \"%s\" doesn't exist or is too small.",keeper_compplayer_file);
     return false;
   }
   if (len > 65536)
   {
-    LbErrorLog("Computer Player file \"%s\" is too large.\n",keeper_compplayer_file);
+    ERRORLOG("Computer Player file \"%s\" is too large.",keeper_compplayer_file);
     return false;
   }
   buf = (char *)LbMemoryAlloc(len+256);
@@ -1665,7 +1664,7 @@ long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *pro
     i = (long)((char *)process - (char *)&comp->processes[0]) / sizeof(struct ComputerProcess);
     if ((i < 0) || (i > COMPUTER_PROCESSES_COUNT))
     {
-      LbErrorLog("Process \"%s\" is outside of Computer Player.\n",process->name);
+      ERRORLOG("Process \"%s\" is outside of Computer Player.",process->name);
       i = COMPUTER_PROCESSES_COUNT;
     }
     task->field_8C = i;
@@ -2001,7 +2000,6 @@ long process_tasks(struct Computer2 *comp)
 
 short process_processes_and_task(struct Computer2 *comp)
 {
-  static const char *func_name="process_processes_and_task";
   struct ComputerProcess *process;
   Comp_Process_Func callback;
   int i;
@@ -2033,7 +2031,7 @@ short process_processes_and_task(struct Computer2 *comp)
             callback(comp,process);
         } else
         {
-          error(func_name, 231, "No Process for a computer player");
+          ERRORLOG("No Process for a computer player");
           comp->field_0 = 1;
         }
         break;
@@ -2044,9 +2042,9 @@ short process_processes_and_task(struct Computer2 *comp)
 
 void process_computer_player2(unsigned long plridx)
 {
-  static const char *func_name="process_computer_player2";
   //_DK_process_computer_player2(plridx);
   struct Computer2 *comp;
+  SYNCDBG(7,"Starting for player %lu",plridx);
   comp = &game.computer[plridx%PLAYERS_COUNT];
   if ((comp->field_14) && (comp->field_2C <= game.play_gameturn))
     comp->field_10 = 1;
@@ -2058,7 +2056,7 @@ void process_computer_player2(unsigned long plridx)
   process_checks(comp);
   process_processes_and_task(comp);
   if ((comp->field_10 < 0) || (comp->field_10 > 1))
-    error(func_name, 239, "Computer performed more than one task");
+    ERRORLOG("Computer performed more than one task");
 }
 
 void process_computer_players2(void)

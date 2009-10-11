@@ -196,14 +196,12 @@ void delete_all_room_structures(void)
 
 struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, unsigned char rkind)
 {
-  static const char *func_name="link_adjacent_rooms_of_type";
   // TODO: rework! may lead to hang on map borders
   return _DK_link_adjacent_rooms_of_type(owner, x, y, rkind);
 }
 
 struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned short x, unsigned short y)
 {
-  static const char *func_name="create_room";
   struct Dungeon *dungeon;
   struct MapOffset *sstep;
   struct SlabMap *slb;
@@ -225,7 +223,7 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
       slb_y = i / map_tiles_x;
       if (slb_y >= map_tiles_y)
       {
-        LbErrorLog("Index out of range when sweeping Slabs in %s.\n",func_name);
+        ERRORLOG("Index out of range when sweeping Slabs.");
         break;
       }
       slb = get_slabmap_block(slb_x,slb_y);
@@ -274,7 +272,7 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
       slb_y = (i / map_tiles_x);
       if (slb_y >= map_tiles_y)
       {
-        LbErrorLog("Index out of range when sweeping Slabs in %s.\n",func_name);
+        ERRORLOG("Index out of range when sweeping Slabs.");
         break;
       }
       slb = get_slabmap_block(slb_x,slb_y);
@@ -292,7 +290,7 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
       slb_y = (i / map_tiles_x);
       if (slb_y >= map_tiles_y)
       {
-        LbErrorLog("Index out of range when sweeping Slabs in %s.\n",func_name);
+        ERRORLOG("Index out of range when sweeping Slabs.");
         break;
       }
       slb = get_slabmap_block(slb_x,slb_y);
@@ -344,7 +342,7 @@ void create_room_flag(struct Room *room)
     }
     if (thing == NULL)
     {
-      error(func_name, 5541, "Cannot create room_flag");
+      ERRORLOG("Cannot create room_flag");
       return;
     }
     thing->word_13.w0 = room->index;

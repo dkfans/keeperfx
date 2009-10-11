@@ -63,7 +63,7 @@ void unlock_door(struct Thing *thing)
     thing->mappos.x.stl.num+1, thing->mappos.y.stl.num+1);
   pannel_map_update(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1, 3, 3);
   if (!remove_key_on_door(thing))
-    LbWarnLog("Cannot remove keyhole when unlocking door.\n");
+    WARNMSG("Cannot remove keyhole when unlocking door.");
 }
 
 void lock_door(struct Thing *thing)
@@ -81,7 +81,7 @@ void lock_door(struct Thing *thing)
     thing->mappos.x_stl_num-1+2,thing->mappos.y_stl_num-1+2);
   pannel_map_update(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1, 3, 3);
   if (!add_key_on_door(thing))
-    LbWarnLog("Cannot create a keyhole when locking a door.\n");
+    WARNMSG("Cannot create a keyhole when locking a door.");
 */
 }
 

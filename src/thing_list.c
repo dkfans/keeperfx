@@ -67,15 +67,11 @@ long creature_near_filter_is_owned_by(struct Thing *thing, long val)
 
 TbBigChecksum update_things_in_list(struct StructureList *list)
 {
-  static const char *func_name="update_things_in_list";
   struct Thing *thing;
   unsigned long k;
   TbBigChecksum sum;
   int i;
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  //return _DK_update_things_in_list(list);
+  SYNCDBG(18,"Starting");
   sum = 0;
   k = 0;
   i = list->index;
@@ -83,7 +79,7 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
   {
     if (i >= THINGS_COUNT)
     {
-      error(func_name,4578,"Jump out of things array bounds detected");
+      error(__func__,4578,"Jump out of things array bounds detected");
       break;
     }
     thing = game.things_lookup[i];
@@ -101,13 +97,11 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
     k++;
     if (k > THINGS_COUNT)
     {
-      error(func_name,4579,"Infinite loop detected when sweeping things list");
+      ERRORLOG("Infinite loop detected when sweeping things list");
       break;
     }
   }
-#if (BFDEBUG_LEVEL > 19)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(19,"Finished");
   return sum;
 }
 
@@ -138,7 +132,7 @@ unsigned long update_cave_in_things(void)
     k++;
     if (k > THINGS_COUNT)
     {
-      error(func_name,4577,"Infinite loop detected when sweeping things list");
+      ERRORLOG("Infinite loop detected when sweeping things list");
       break;
     }
   }
@@ -151,7 +145,6 @@ unsigned long update_cave_in_things(void)
  */
 unsigned long update_things_sounds_in_list(struct StructureList *list)
 {
-  static const char *func_name="update_things_sounds_in_list";
   struct Thing *thing;
   unsigned long k;
   int i;
@@ -161,7 +154,7 @@ unsigned long update_things_sounds_in_list(struct StructureList *list)
   {
     if (i >= THINGS_COUNT)
     {
-      error(func_name,4578,"Jump out of things array bounds detected");
+      error(__func__,4578,"Jump out of things array bounds detected");
       break;
     }
     thing = game.things_lookup[i];
@@ -172,7 +165,7 @@ unsigned long update_things_sounds_in_list(struct StructureList *list)
     k++;
     if (k > THINGS_COUNT)
     {
-      error(func_name,4579,"Infinite loop detected when sweeping things list");
+      ERRORLOG("Infinite loop detected when sweeping things list");
       break;
     }
   }
@@ -190,10 +183,7 @@ void update_creatures_not_in_list(void)
 
 void update_things(void)
 {
-  static const char *func_name="update_things";
-#if (BFDEBUG_LEVEL > 7)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
+  SYNCDBG(7,"Starting");
   //_DK_update_things(); return;
   TbBigChecksum sum;
   struct PlayerInfo *player;
@@ -217,9 +207,7 @@ void update_things(void)
   sum += game.field_14BB4A;
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
   game.packets[player->packet_num%PACKETS_COUNT].chksum = sum;
-#if (BFDEBUG_LEVEL > 9)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(9,"Finished");
 }
 
 void init_player_start(struct PlayerInfo *player)
@@ -251,7 +239,7 @@ void init_player_start(struct PlayerInfo *player)
     k++;
     if (k > THINGS_COUNT)
     {
-      error(func_name,4579,"Infinite loop detected when sweeping things list");
+      ERRORLOG("Infinite loop detected when sweeping things list");
       break;
     }
   }
@@ -283,7 +271,7 @@ void init_traps(void)
     k++;
     if (k > THINGS_COUNT)
     {
-      error(func_name,4579,"Infinite loop detected when sweeping things list");
+      ERRORLOG("Infinite loop detected when sweeping things list");
       break;
     }
   }
@@ -391,7 +379,7 @@ struct Thing *find_hero_gate_of_number(long num)
     k++;
     if (k > THINGS_COUNT)
     {
-      error(func_name,7641,"Infinite loop detected when sweeping things list");
+      ERRORLOG("Infinite loop detected when sweeping things list");
       break;
     }
   }
@@ -424,10 +412,11 @@ long creature_of_model_in_prison(int model)
       if ((n == 41) || (n == 40))
         return i;
     }
+    // Thing list loop body ends
     k++;
     if (k > THINGS_COUNT)
     {
-      error(func_name,4577,"Infinite loop detected when sweeping things list");
+      ERRORLOG("Infinite loop detected when sweeping things list");
       break;
     }
   }
@@ -455,7 +444,6 @@ long get_free_hero_gate_number(void)
 
 long count_player_creatures_of_model(long plyr_idx, long model)
 {
-  static const char *func_name="count_player_creatures_of_model";
   struct Dungeon *dungeon;
   struct CreatureControl *cctrl;
   struct Thing *thing;
@@ -470,7 +458,7 @@ long count_player_creatures_of_model(long plyr_idx, long model)
   {
     if (i >= THINGS_COUNT)
     {
-      error(func_name,1953,"Jump out of things array bounds detected");
+      error(__func__,1953,"Jump out of things array bounds detected");
       break;
     }
     thing = game.things_lookup[i];
@@ -483,7 +471,7 @@ long count_player_creatures_of_model(long plyr_idx, long model)
     k++;
     if (k > THINGS_COUNT)
     {
-      error(func_name,7641,"Infinite loop detected when sweeping things list");
+      ERRORLOG("Infinite loop detected when sweeping things list");
       break;
     }
   }
@@ -492,7 +480,6 @@ long count_player_creatures_of_model(long plyr_idx, long model)
 
 long count_player_creatures_not_counting_to_total(long plyr_idx)
 {
-  static const char *func_name="count_player_creatures_total";
   struct Dungeon *dungeon;
   struct CreatureControl *cctrl;
   struct Thing *thing;
@@ -507,7 +494,7 @@ long count_player_creatures_not_counting_to_total(long plyr_idx)
   {
     if (i >= THINGS_COUNT)
     {
-      error(func_name,1953,"Jump out of things array bounds detected");
+      error(__func__,1953,"Jump out of things array bounds detected");
       break;
     }
     thing = game.things_lookup[i];
@@ -523,7 +510,7 @@ long count_player_creatures_not_counting_to_total(long plyr_idx)
     k++;
     if (k > THINGS_COUNT)
     {
-      error(func_name,7641,"Infinite loop detected when sweeping things list");
+      ERRORLOG("Infinite loop detected when sweeping things list");
       break;
     }
   }

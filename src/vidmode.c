@@ -219,12 +219,12 @@ short LoadMcgaData(void)
     ret_val = LbDataLoad(t_lfile);
     if (ret_val == -100)
     {
-      LbErrorLog("Can't allocate memory for MCGA files element \"%s\".\n", t_lfile->FName);
+      ERRORLOG("Can't allocate memory for MCGA files element \"%s\".", t_lfile->FName);
       ferror++;
     } else
     if ( ret_val == -101 )
     {
-      LbErrorLog("Can't load MCGA file \"%s\".\n", t_lfile->FName);
+      ERRORLOG("Can't load MCGA file \"%s\".", t_lfile->FName);
       ferror++;
     }
     i++;
@@ -259,7 +259,7 @@ TbScreenMode get_next_vidmode(unsigned short mode)
   {
     if (switching_vidmodes[i]==mode) break;
   }
-//  LbSyncLog("SEL IDX %d ALL %d SEL %d PREV %d\n",i,maxmodes,switching_vidmodes[i],mode);
+//  SYNCMSG("SEL IDX %d ALL %d SEL %d PREV %d",i,maxmodes,switching_vidmodes[i],mode);
   i++;
   if (i>=maxmodes)
   {
@@ -323,7 +323,6 @@ void set_frontend_vidmode(unsigned short nmode)
 
 void load_pointer_file(short hi_res)
 {
-  static const char *func_name="load_pointer_file";
   struct TbLoadFiles *ldfiles;
   if ((features_enabled & Ft_BigPointer) == 0)
   {
@@ -339,7 +338,7 @@ void load_pointer_file(short hi_res)
       ldfiles = low_res_pointer_load_files;
   }
   if ( LbDataLoadAll(ldfiles) )
-    error(func_name, 1105, "Unable to load pointer files");
+    ERRORLOG("Unable to load pointer files");
   LbSpriteSetup(pointer_sprites, end_pointer_sprites, (unsigned long)pointer_data);
 }
 
@@ -351,10 +350,9 @@ TbBool set_pointer_graphic_none(void)
 
 TbBool set_pointer_graphic_menu(void)
 {
-  static const char *func_name="set_pointer_graphic_menu";
   if (frontend_sprite == NULL)
   {
-    LbWarnLog("%s: Frontend sprites not loaded, setting pointer to none\n",func_name);
+    WARNLOG("Frontend sprites not loaded, setting pointer to none");
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
@@ -364,21 +362,18 @@ TbBool set_pointer_graphic_menu(void)
 
 TbBool set_pointer_graphic_spell(long group_idx, long frame)
 {
-  static const char *func_name="set_pointer_graphic_spell";
   long i,x,y;
   struct TbSprite *spr;
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Setting to group %ld\n",func_name,group_idx);
-#endif
+  SYNCDBG(8,"Setting to group %ld",group_idx);
   if (pointer_sprites == NULL)
   {
-    LbWarnLog("%s: Pointer sprites not loaded, setting to none\n",func_name);
+    WARNLOG("Pointer sprites not loaded, setting to none");
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
   if ((group_idx < 0) || (group_idx >= SPELL_POINTER_GROUPS))
   {
-    LbWarnLog("%s: Group index out of range, setting pointer to none\n",func_name);
+    WARNLOG("Group index out of range, setting pointer to none");
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
@@ -394,15 +389,13 @@ TbBool set_pointer_graphic_spell(long group_idx, long frame)
     i = group_idx;
   }
   spr = &pointer_sprites[40+i];
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Activating pointer %d\n",func_name,40+i);
-#endif
+  SYNCDBG(8,"Activating pointer %d",40+i);
   if ((spr >= pointer_sprites) && (spr < end_pointer_sprites))
   {
     LbMouseChangeSpriteAndHotspot(spr, x/2, y/2);
   } else
   {
-    LbWarnLog("%s: Sprite %ld exceeds buffer, setting pointer to none\n",func_name,i);
+    WARNLOG("Sprite %ld exceeds buffer, setting pointer to none",i);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
   }
   return true;
@@ -410,15 +403,12 @@ TbBool set_pointer_graphic_spell(long group_idx, long frame)
 
 TbBool set_pointer_graphic(long ptr_idx)
 {
-  static const char *func_name="set_pointer_graphic";
   long x,y;
   struct TbSprite *spr;
-#if (BFDEBUG_LEVEL > 8)
-    LbSyncLog("%s: Setting to %ld\n",func_name,ptr_idx);
-#endif
+  SYNCDBG(8,"Setting to %ld",ptr_idx);
   if (pointer_sprites == NULL)
   {
-    LbWarnLog("%s: Pointer sprites not loaded, setting to none\n",func_name);
+    WARNLOG("Pointer sprites not loaded, setting to none");
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
@@ -496,7 +486,7 @@ TbBool set_pointer_graphic(long ptr_idx)
       x = 12; y = 15;
       break;
   default:
-    LbWarnLog("Unrecognized Mouse Pointer index, %d\n",ptr_idx);
+    WARNLOG("Unrecognized Mouse Pointer index, %d",ptr_idx);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
@@ -505,7 +495,7 @@ TbBool set_pointer_graphic(long ptr_idx)
     LbMouseChangeSpriteAndHotspot(spr, x, y);
   } else
   {
-    LbWarnLog("%s: Sprite %ld exceeds buffer, setting pointer to none\n",func_name,ptr_idx);
+    WARNLOG("Sprite %ld exceeds buffer, setting pointer to none",ptr_idx);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
   }
   return true;
@@ -540,20 +530,18 @@ char *get_vidmode_name(unsigned short mode)
 
 short setup_screen_mode(unsigned short nmode)
 {
-  static const char *func_name="setup_screen_mode";
   char *fname;
   struct TbScreenModeInfo *mdinfo;
   //return _DK_setup_screen_mode(nmode);
   unsigned int flg_mem;
   long lens_mem;
   short was_minimal_res;
+  SYNCDBG(4,"Setting up mode %d",(int)nmode);
   if (!force_video_mode_reset)
   {
     if ((nmode == lbDisplay.ScreenMode) && (!MinimalResolutionSetup))
     {
-  #if (BFDEBUG_LEVEL > 6)
-      LbSyncLog("%s: Mode %d already active, no changes.\n",func_name,(int)nmode);
-  #endif
+      SYNCDBG(6,"Mode %d already active, no changes.",(int)nmode);
       return 1;
     }
   }
@@ -571,7 +559,7 @@ short setup_screen_mode(unsigned short nmode)
       if (lbDisplay.ScreenMode != nmode)
         LbScreenReset();
       LbDataFreeAll(mcga_load_files_minimal);
-      error(func_name, 625, "MCGA Minimal not allowed (Reset)");
+      ERRORLOG("MCGA Minimal not allowed (Reset)");
       MinimalResolutionSetup = 0;
     } else
     {
@@ -610,22 +598,20 @@ short setup_screen_mode(unsigned short nmode)
     }
     break;
   default:
-    error(func_name, 677, "Unhandled previous Screen Mode (Reset)");
+    WARNLOG("Unhandled previous Screen Mode %d, Reset skipped",(int)lbDisplay.ScreenMode);
     return 0;
   }
-  
+
   mdinfo = LbScreenGetModeInfo(nmode);
   switch (nmode)
   {
   case Lb_SCREEN_MODE_320_200_8:
   case Lb_SCREEN_MODE_320_240_8:
   case Lb_SCREEN_MODE_512_384_8:
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Entering low-res mode %d, resolution %ldx%ld.\n",func_name,(int)nmode,mdinfo->Width,mdinfo->Height);
-#endif
+    SYNCDBG(6,"Entering low-res mode %d, resolution %ldx%ld.",(int)nmode,mdinfo->Width,mdinfo->Height);
     if (!LoadMcgaData())
     {
-      error(func_name, 689, "Loading Mcga files failed");
+      ERRORLOG("Loading Mcga files failed");
       force_video_mode_reset = true;
       return 0;
     }
@@ -633,7 +619,8 @@ short setup_screen_mode(unsigned short nmode)
     {
       if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 2, 0) != 1)
       {
-        error(func_name, 904, "Unable to setup screen resolution");
+        ERRORLOG("Unable to setup screen resolution %s (mode %d)",
+            mdinfo->Desc,(int)nmode);
         force_video_mode_reset = true;
         return 0;
       }
@@ -646,12 +633,10 @@ short setup_screen_mode(unsigned short nmode)
   case Lb_SCREEN_MODE_1024_768_8:
   case Lb_SCREEN_MODE_1200_1024_8:
   case Lb_SCREEN_MODE_1600_1200_8:
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Entering hi-res mode %d, resolution %ldx%ld.\n",func_name,(int)nmode,mdinfo->Width,mdinfo->Height);
-#endif
+    SYNCDBG(6,"Entering hi-res mode %d, resolution %ldx%ld.",(int)nmode,mdinfo->Width,mdinfo->Height);
     if (!LoadVRes256Data(mdinfo->Width*mdinfo->Height))
     {
-      error(func_name, 727, "Unable to load vres256_load_files");
+      ERRORLOG("Unable to load VRes256 data files");
       force_video_mode_reset = true;
       return 0;
     }
@@ -659,7 +644,8 @@ short setup_screen_mode(unsigned short nmode)
     {
       if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 1, 0) != 1)
       {
-        error(func_name, 904, "Unable to setup screen resolution");
+        ERRORLOG("Unable to setup screen resolution %s (mode %d)",
+            mdinfo->Desc,(int)nmode);
         force_video_mode_reset = true;
         return 0;
       }
@@ -667,7 +653,7 @@ short setup_screen_mode(unsigned short nmode)
     load_pointer_file(1);
     break;
   default:
-    error(func_name, 779, "Unhandled Screen Mode (Setup)");
+    ERRORLOG("Unhandled Screen Mode %d, setup failed",(int)nmode);
     force_video_mode_reset = true;
     return 0;
   }
@@ -687,6 +673,7 @@ short setup_screen_mode(unsigned short nmode)
   setup_heap_manager();
   game.numfield_C &= 0xFFFB;
   force_video_mode_reset = false;
+  SYNCDBG(8,"Finished");
   return 1;
 }
 
@@ -716,11 +703,10 @@ short update_screen_mode_data(long width, long height)
 
 short setup_screen_mode_minimal(unsigned short nmode)
 {
-  static const char *func_name="setup_screen_mode_minimal";
   //return _DK_setup_screen_mode_minimal(nmode);
   unsigned int flg_mem;
   struct TbScreenModeInfo *mdinfo;
-
+  SYNCDBG(4,"Setting up mode %d",(int)nmode);
   if (!force_video_mode_reset)
   {
     if ((nmode == lbDisplay.ScreenMode) && (MinimalResolutionSetup))
@@ -775,7 +761,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
     }
     break;
   default:
-    error(func_name, 884, "Unhandled previous Screen Mode (Reset)");
+    WARNLOG("Unhandled previous Screen Mode %d, Reset skipped",(int)lbDisplay.ScreenMode);
     break;
   }
   mdinfo = LbScreenGetModeInfo(nmode);
@@ -787,14 +773,15 @@ short setup_screen_mode_minimal(unsigned short nmode)
     MinimalResolutionSetup = 1;
     if ( !LoadMcgaDataMinimal() )
     {
-      error(func_name, 895, "Unable to load minimal MCGA files");
+      ERRORLOG("Unable to load minimal MCGA files");
       return 0;
     }
     if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
     {
       if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 2, 0) != 1)
       {
-        error(func_name, 904, "Unable to setup screen resolution");
+        ERRORLOG("Unable to setup screen resolution %s (mode %d)",
+            mdinfo->Desc,(int)nmode);
         force_video_mode_reset = true;
         return 0;
       }
@@ -810,7 +797,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
     frontend_load_data_from_cd();
     if ( LbDataLoadAll(vres256_load_files_minimal) )
     {
-      error(func_name, 924, "Unable to load vres256_load_files_minimal");
+      ERRORLOG("Unable to load vres256_load_files_minimal files");
       force_video_mode_reset = true;
       return 0;
     }
@@ -819,14 +806,15 @@ short setup_screen_mode_minimal(unsigned short nmode)
     {
      if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 1, 0) != 1)
      {
-        error(func_name, 904, "Unable to setup screen resolution");
+        ERRORLOG("Unable to setup screen resolution %s (mode %d)",
+            mdinfo->Desc,(int)nmode);
         force_video_mode_reset = true;
         return 0;
      }
     }
     break;
   default:
-    error(func_name, 948, "Unhandled Screen Mode (Setup)");
+    ERRORLOG("Unhandled Screen Mode (Setup)");
     force_video_mode_reset = true;
     return 0;
   }
@@ -840,17 +828,15 @@ short setup_screen_mode_minimal(unsigned short nmode)
 
 TbBool setup_screen_mode_zero(unsigned short nmode)
 {
-  static const char *func_name="setup_screen_mode_zero";
   struct TbScreenModeInfo *mdinfo;
-#if (BFDEBUG_LEVEL > 4)
-    LbSyncLog("%s: Setting up mode %d\n",func_name,(int)nmode);
-#endif
+  SYNCDBG(4,"Setting up mode %d",(int)nmode);
   mdinfo = LbScreenGetModeInfo(nmode);
   memset(_DK_palette, 0, PALETTE_SIZE);
   if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 2, 0) != 1)
   {
-        error(func_name, 904, "Unable to setup screen resolution");
-        return false;
+      ERRORLOG("Unable to setup screen resolution %s (mode %d)",
+          mdinfo->Desc,(int)nmode);
+      return false;
   }
   force_video_mode_reset = true;
   return true;
@@ -866,8 +852,8 @@ TbScreenMode reenter_video_mode(void)
       _DK_settings.field_B = scrmode;
   } else
   {
-      LbSyncLog("%s: Can't enter %s (mode %d), falling to failsafe mode\n",
-          func_name,get_vidmode_name(scrmode),(int)scrmode);
+      SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode",
+          get_vidmode_name(scrmode),(int)scrmode);
       scrmode=get_failsafe_vidmode();
       if ( !setup_screen_mode(scrmode) )
       {
@@ -878,13 +864,12 @@ TbScreenMode reenter_video_mode(void)
       _DK_settings.field_B = scrmode;
       save_settings();
   }
-  LbSyncLog("%s: Switched to video mode %d\n",func_name,(int)scrmode);
+  SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
   return scrmode;
 }
 
 TbScreenMode switch_to_next_video_mode(void)
 {
-  static const char *func_name="switch_to_next_video_mode";
   TbScreenMode scrmode;
   unsigned long prev_units_per_pixel_size;
   prev_units_per_pixel_size = units_per_pixel*pixel_size;
@@ -894,8 +879,8 @@ TbScreenMode switch_to_next_video_mode(void)
       _DK_settings.field_B = scrmode;
   } else
   {
-      LbSyncLog("%s: Can't enter %s (mode %d), falling to failsafe mode\n",
-          func_name,get_vidmode_name(scrmode),(int)scrmode);
+      SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode",
+          get_vidmode_name(scrmode),(int)scrmode);
       scrmode = get_failsafe_vidmode();
       if ( !setup_screen_mode(scrmode) )
       {
@@ -905,7 +890,7 @@ TbScreenMode switch_to_next_video_mode(void)
       }
       _DK_settings.field_B = scrmode;
   }
-  LbSyncLog("%s: Switched to video mode %d\n",func_name,(int)scrmode);
+  SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
   int x1,y1,x2,y2;
   LbScreenClear(0);
   LbScreenSwap();
