@@ -188,6 +188,7 @@ DLLIMPORT int _DK_lbKeyboardLang;
 #define lbKeyboardLang _DK_lbKeyboardLang;
 
 #pragma pack()
+/******************************************************************************/
 
 /*
 extern unsigned long text_buf_pos;
@@ -205,6 +206,7 @@ short LbIKeyboardOpen(void);
 short LbIKeyboardClose(void);
 void LbKeyboardSetLanguage(int lngnum);
 short LbKeyCodeValid(TbKeyCode key);
+long __stdcall KeyboardProc(int, unsigned int, long);
 /******************************************************************************/
 #ifdef __cplusplus
 }

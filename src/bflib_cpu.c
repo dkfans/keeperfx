@@ -49,7 +49,6 @@ static inline int cpuid_string(int code, unsigned long where[4]) {
 void cpu_detect(struct CPU_INFO *cpu)
 {
   static char const anonvendor[] = "AnonymousCPU";
-  long i;
   unsigned long where[4];
   unsigned long cpuflags;
   // Fill with defaults
@@ -91,17 +90,42 @@ void cpu_detect(struct CPU_INFO *cpu)
     cpuid(CPUID_GETFEATURES, &where[0], &where[3]);
     cpu->feature_intl = where[0];
     cpu->feature_edx = where[3];
-    if (cpu->feature_intl != 0)
-      i = (cpu->feature_intl >> 8) & 0xF;
-    else
-      i = 4;
-    if (i >= 5)
+    if (cpu_get_family(cpu) >= 5)
     {
       if (cpu->feature_edx & CPUID_FEAT_EDX_TSC)
         cpu->timeStampCounter = 1;
     }
   }
 }
+
+unsigned short cpu_get_type(struct CPU_INFO *cpu)
+{
+  if (cpu->feature_intl != 0)
+    return (cpu->feature_intl>>12) & 0x3;
+  else
+    return CPUID_TYPE_OEM;
+}
+
+unsigned short cpu_get_family(struct CPU_INFO *cpu)
+{
+  if (cpu->feature_intl != 0)
+    return (cpu->feature_intl>>8) & 0xF;
+  else
+    return CPUID_FAMILY_486;
+}
+
+unsigned short cpu_get_model(struct CPU_INFO *cpu)
+{
+  return (cpu->feature_intl>>4) & 0xF;
+}
+
+unsigned short cpu_get_stepping(struct CPU_INFO *cpu)
+{
+  return (cpu->feature_intl) & 0x7;
+}
+
+
+
 
 /******************************************************************************/
 #ifdef __cplusplus

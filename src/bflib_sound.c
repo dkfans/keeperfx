@@ -193,6 +193,21 @@ long S3DEmitterIsPlayingAnySample(long eidx)
   return false;
 }
 
+void S3DSetLineOfSightFunction(S3D_LineOfSight_Func callback)
+{
+  LineOfSightFunction = callback;
+}
+
+void S3DSetDeadzoneRadius(long radius)
+{
+  deadzone_radius = radius;
+}
+
+long S3DGetDeadzoneRadius(void)
+{
+  return deadzone_radius;
+}
+
 short sound_emitter_in_use(long eidx)
 {
   return S3DEmitterIsAllocated(eidx);

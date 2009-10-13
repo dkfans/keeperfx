@@ -31,15 +31,15 @@ extern struct TbTime global_time;
 extern struct TbDate global_date;
 extern TbClockMSec (* LbTimerClock)(void);
 /******************************************************************************/
-//void LbDoMultitasking(void);
-short __fastcall LbSleepFor(TbClockMSec delay);
-short __fastcall LbSleepUntil(TbClockMSec endtime);
-int LbTime(struct TbTime *curr_time);
+//void __fastcall LbDoMultitasking(void);
+TbBool __fastcall LbSleepFor(TbClockMSec delay);
+TbBool __fastcall LbSleepUntil(TbClockMSec endtime);
+TbResult LbTime(struct TbTime *curr_time);
 TbTimeSec LbTimeSec(void);
-int LbDate(struct TbDate *curr_date);
-int LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time);
-int LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date, struct TbTime *curr_time);
-short LbTimerInit(void);
+TbResult LbDate(struct TbDate *curr_date);
+TbResult LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time);
+TbResult LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date, struct TbTime *curr_time);
+TbResult LbTimerInit(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

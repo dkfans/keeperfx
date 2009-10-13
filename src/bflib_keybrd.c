@@ -22,6 +22,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include "globals.h"
 #include "bflib_mouse.h"
 
 #ifdef __cplusplus
@@ -82,6 +83,8 @@ char lbInkeyToAsciiShift[] = {
 };
 
 /******************************************************************************/
+DLLIMPORT long __stdcall _DK_KeyboardProc(int a1, unsigned int a2, long a3);
+/******************************************************************************/
 short LbIKeyboardClose(void)
 {
   return 1;
@@ -104,6 +107,11 @@ short LbKeyCodeValid(TbKeyCode key)
   if (key > KC_WAKE) // last key in enumeration - update if enumeration is changed
     return false;
   return true;
+}
+
+long __stdcall KeyboardProc(int a1, unsigned int a2, long a3)
+{
+  return _DK_KeyboardProc(a1, a2, a3);
 }
 /******************************************************************************/
 #ifdef __cplusplus

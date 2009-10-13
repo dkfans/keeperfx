@@ -738,6 +738,7 @@
  0001:000DCEE0       LbMouseSuspend@0
  0001:000DF200       LbSpriteDrawOneColour
  0001:000DFDF0       LbSpriteDrawRemap
+ 0001:000E0D70       KeyboardProc@12
  0001:000E3900       LbNetwork_EnableNewPlayers
  0001:000E3920       LbNetwork_Init
  0001:000E3C60       LbNetwork_Startup
@@ -1025,6 +1026,8 @@
  0003:00052DC8       emitter
  0003:000538C8       SampleList
  0003:00053B18       MaxNoSounds
+ 0003:00053B1C       LineOfSightFunction
+ 0003:00053B20       deadzone_radius
  0003:00053B80       optimised_lights
  0003:00053B84       do_lights
  0003:00053B88       total_lights

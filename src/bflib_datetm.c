@@ -70,11 +70,12 @@ TbClockMSec LbTimerClock_1024(void)
  */
 TbClockMSec LbTimerClock_any(void)
 {
-  return (500 * clock() / CLOCKS_PER_SEC) << 1;
+  long long clk = 500 * clock();
+  return (clk / CLOCKS_PER_SEC) << 1;
 }
 
 //Fills structure with current time
-int LbTime(struct TbTime *curr_time)
+TbResult LbTime(struct TbTime *curr_time)
 {
   time_t dtime;
   time(&dtime);
@@ -90,7 +91,7 @@ TbTimeSec LbTimeSec(void)
 }
 
 //Fills structure with current date
-int LbDate(struct TbDate *curr_date)
+TbResult LbDate(struct TbDate *curr_date)
 {
   time_t dtime;
   time(&dtime);
@@ -98,14 +99,14 @@ int LbDate(struct TbDate *curr_date)
 }
 
 //Fills structures with current date and time
-int LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time)
+TbResult LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time)
 {
   time_t dtime;
   time(&dtime);
   return LbDateTimeDecode(&dtime,curr_date,curr_time);
 }
 
-int LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date,struct TbTime *curr_time)
+TbResult LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date,struct TbTime *curr_time)
 {
   struct tm *ltime=localtime(datetime);
   if (curr_date!=NULL)
@@ -122,7 +123,7 @@ int LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date,struct TbTi
     curr_time->Second=ltime->tm_sec;
     curr_time->HSecond=0;
   }
-  return 1;
+  return Lb_SUCCESS;
 }
 
 void inline LbDoMultitasking(void)
@@ -132,7 +133,7 @@ void inline LbDoMultitasking(void)
 #endif
 }
 
-short __fastcall LbSleepFor(TbClockMSec delay)
+TbBool __fastcall LbSleepFor(TbClockMSec delay)
 {
   register TbClockMSec currclk;
   register TbClockMSec endclk;
@@ -145,10 +146,10 @@ short __fastcall LbSleepFor(TbClockMSec delay)
   }
   while (currclk < endclk)
     currclk=LbTimerClock();
-  return 1;
+  return true;
 }
 
-short __fastcall LbSleepUntil(TbClockMSec endtime)
+TbBool __fastcall LbSleepUntil(TbClockMSec endtime)
 {
   register TbClockMSec currclk;
   currclk=LbTimerClock();
@@ -159,10 +160,10 @@ short __fastcall LbSleepUntil(TbClockMSec endtime)
   }
   while (currclk < endtime)
     currclk=LbTimerClock();
-  return 1;
+  return true;
 }
 
-short LbTimerInit(void)
+TbResult LbTimerInit(void)
 {
   switch (CLOCKS_PER_SEC)
   {

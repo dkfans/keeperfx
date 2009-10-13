@@ -96,6 +96,18 @@ long LbMathOperation(unsigned char opkind, long val1, long val2)
   }
 }
 
+unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place)
+{
+  if (range == 0)
+    return 0;
+  unsigned long i;
+  i = 9377 * (*seed) + 9439;
+  *seed = _lrotr(i, 13);
+  i = (*seed) % range;
+//  SYNCMSG("%s: at %d, random val %d", func_name, place, i);
+  return i;
+}
+
 
 /******************************************************************************/
 #ifdef __cplusplus

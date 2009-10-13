@@ -100,6 +100,19 @@ enum {
     CPUID_FEAT_EDX_PBE          = 1 << 31
 };
 
+enum {
+    CPUID_TYPE_OEM              = 0x00,
+    CPUID_TYPE_OVERDRIVE        = 0x01,
+    CPUID_TYPE_DUAL             = 0x02,
+    CPUID_TYPE_RESERVED         = 0x03,
+};
+
+enum {
+    CPUID_FAMILY_486            = 0x04,
+    CPUID_FAMILY_PENTIUM        = 0x05,
+    CPUID_FAMILY_P2             = 0x06,
+};
+
 /* Vendor-strings. */
 #define CPUID_VENDOR_OLDAMD       "AMDisbetter!" //early engineering samples of AMD K5 processor
 #define CPUID_VENDOR_AMD          "AuthenticAMD"
@@ -125,6 +138,10 @@ struct CPU_INFO {
 
 /******************************************************************************/
 void cpu_detect(struct CPU_INFO *cpu);
+unsigned short cpu_get_type(struct CPU_INFO *cpu);
+unsigned short cpu_get_family(struct CPU_INFO *cpu);
+unsigned short cpu_get_model(struct CPU_INFO *cpu);
+unsigned short cpu_get_stepping(struct CPU_INFO *cpu);
 
 
 /******************************************************************************/

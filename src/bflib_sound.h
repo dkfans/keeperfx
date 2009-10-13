@@ -36,6 +36,9 @@ struct HeapMgrHeader;
 struct HeapMgrHandle;
 
 // Type definitions
+
+typedef long (*S3D_LineOfSight_Func)(long, long, long, long, long, long);
+
 struct SoundEmitter {
     unsigned char flags;
     unsigned char field_1;
@@ -118,6 +121,10 @@ DLLIMPORT struct SampleTable *_DK_sample_table2;
 #define sample_table2 _DK_sample_table2
 DLLIMPORT struct HeapMgrHeader *_DK_sndheap;
 #define sndheap _DK_sndheap
+DLLIMPORT S3D_LineOfSight_Func _DK_LineOfSightFunction;
+#define LineOfSightFunction _DK_LineOfSightFunction
+DLLIMPORT long _DK_deadzone_radius;
+#define deadzone_radius _DK_deadzone_radius
 // Exported variables
 
 /******************************************************************************/
@@ -136,6 +143,9 @@ long S3DEmitterIsAllocated(long eidx);
 long S3DEmitterIsPlayingAnySample(long eidx);
 TbBool S3DEmitterIsPlayingSample(long emitr, long smpl_idx, long a2);
 TbBool S3DDestroySoundEmitterAndSamples(long eidx);
+void S3DSetLineOfSightFunction(S3D_LineOfSight_Func);
+void S3DSetDeadzoneRadius(long radius);
+long S3DGetDeadzoneRadius(void);
 
 void play_non_3d_sample(long sample_idx);
 void play_non_3d_sample_no_overlap(long smpl_idx);

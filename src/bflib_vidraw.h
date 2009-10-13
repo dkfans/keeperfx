@@ -141,20 +141,6 @@ struct PurpleDrawItem {
         // pos=24d
         unsigned short Flags;
 };
-
-#pragma pack()
-/******************************************************************************/
-/*
-extern struct PurpleDrawItem *purple_draw_list;
-extern unsigned short purple_draw_index;
-extern TbSprite *lbFontPtr;
-extern TbPixel vec_colour;
-extern unsigned char vec_tmap[];
-extern StartScreenPoint proj_origin;
-extern unsigned short text_window_x1, text_window_y1;
-extern unsigned short text_window_x2, text_window_y2;
-extern char my_line_spacing;
-*/
 /******************************************************************************/
 DLLIMPORT unsigned char *_DK_poly_screen;
 #define poly_screen _DK_poly_screen
@@ -172,6 +158,20 @@ DLLIMPORT unsigned char *_DK_dither_map;
 #define dither_map _DK_dither_map
 DLLIMPORT unsigned char *_DK_dither_end;
 #define dither_end _DK_dither_end
+
+#pragma pack()
+/******************************************************************************/
+/*
+extern struct PurpleDrawItem *purple_draw_list;
+extern unsigned short purple_draw_index;
+extern TbSprite *lbFontPtr;
+extern TbPixel vec_colour;
+extern unsigned char vec_tmap[];
+extern StartScreenPoint proj_origin;
+extern unsigned short text_window_x1, text_window_y1;
+extern unsigned short text_window_x2, text_window_y2;
+extern char my_line_spacing;
+*/
 /******************************************************************************/
 //Routines to be moved into bflib_vipurp
 /*
