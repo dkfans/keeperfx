@@ -20,6 +20,7 @@
 #include "bflib_netsp.h"
 
 #include "bflib_basics.h"
+#include "bflib_memory.h"
 
 /******************************************************************************/
 // Nil callbacks declaration
@@ -48,6 +49,20 @@ struct ReceiveCallbacks nilReceiveAspect = {
 /******************************************************************************/
 class ServiceProvider *spPtr;
 /******************************************************************************/
+void net_copy_name_string(char *dst,const char *src,long max_len)
+{
+  LbMemorySet(dst, 0, max_len);
+  if (dst != NULL)
+  {
+    if (src != NULL)
+    {
+      strncpy(dst, src, max_len-1);
+      dst[max_len-1] = '\0';
+    }
+  }
+}
+/******************************************************************************/
+
 // Nil callbacks content
 void NilAddMsgCallback(unsigned long a1, char *a2, void *a3)
 {
@@ -97,14 +112,14 @@ void NilSystemUserMsgCallback(unsigned long a1, void *a2, unsigned long a3, void
 /******************************************************************************/
 // methods of virtual class ServiceProvider
 
-void ServiceProvider::EncodeMessageStub(void *buf, unsigned long a2, unsigned char a3, unsigned long a4)
+void ServiceProvider::EncodeMessageStub(void *enc_msg, unsigned long a2, unsigned char messageType, unsigned long a4)
 {
-  if (buf == NULL)
+  if (enc_msg == NULL)
   {
     WARNLOG("NULL ptr");
     return;
   }
-  *(unsigned long *)buf = (a3 << 24) | ((a4 & 0xF) << 20) | (a2 & 0xFFFFF);
+  *(unsigned long *)enc_msg = (messageType << 24) | ((a4 & 0xF) << 20) | (a2 & 0xFFFFF);
 }
 
 void ServiceProvider::EncodeDeletePlayerMsg(unsigned char *buf, unsigned long val)
@@ -144,28 +159,28 @@ unsigned long ServiceProvider::DecodeRequestCompositeExchangeDataMsg(unsigned ch
   return 1;
 }
 
-void ServiceProvider::DecodeMessageStub(void *buf, unsigned long *a2, unsigned char *a3, unsigned long *a4)
+void ServiceProvider::DecodeMessageStub(const void *enc_msg, unsigned long *a2, unsigned char *messageType, unsigned long *a4)
 {
   unsigned long k;
-  if (buf == NULL)
+  if (enc_msg == NULL)
   {
     WARNLOG("NULL ptr");
     return;
   }
   if (a2 != NULL)
   {
-    k = *(unsigned long *)buf;
+    k = *(unsigned long *)enc_msg;
     *a2 = k & 0xFFFFF;
   }
   if (a4 != NULL)
   {
-    k = *(unsigned long *)buf;
+    k = *(unsigned long *)enc_msg;
     *a4 = ((k >> 20) & 0xF);
   }
-  if (a3 != NULL)
+  if (messageType != NULL)
   {
-    k = *(unsigned long *)buf;
-    *(unsigned char *)a3 = (k >> 24)  & 0xFF;
+    k = *(unsigned long *)enc_msg;
+    *messageType = (k >> 24)  & 0xFF;
   }
 }
 
@@ -180,13 +195,13 @@ ServiceProvider::ServiceProvider()
   this->local_id = 0;
   for (i=0; i < SESSION_ENTRIES_COUNT; i++)
   {
-    nsnames[i].field_1 = 0;
-    nsnames[i].field_5 = 0;
-    nsnames[i].text[0] = '\0';
+    nsnames[i].id = 0;
+    nsnames[i].in_use = false;
+    LbMemorySet(nsnames[i].text, 0, SESSION_NAME_MAX_LEN);
   }
   this->field_7A4 = 0;
   this->field_7A8 = 0;
-  this->field_7AC = 0;
+  this->players_count = 0;
   strcpy(this->field_D50,"");
   this->field_D74 = 0;
   this->field_D78 = 0;
@@ -203,7 +218,7 @@ TbError ServiceProvider::Initialise(struct ReceiveCallbacks *nCallbacks, void *a
   NETMSG("Initialising Service Provider");
   if (this->field_7A4)
     WARNLOG("Service Provider already set up!");
-  this->field_7AC = 0;
+  this->players_count = 0;
   ClearSessions();
   this->field_D78 = a2;
   if (nCallbacks != NULL)
@@ -261,7 +276,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       recvCallbacks->addMsg(p3, str, this->field_D78);
       break;
   case 2:
-      this->CheckForDeletedHost((uchar *)buf);
+      this->CheckForDeletedHost(buf);
       memcpy(&p1, (uchar *)buf+4, 4);
       this->DeletePlayer(p1);
       if (recvCallbacks->deleteMsg == NULL)
@@ -315,6 +330,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
 TbError ServiceProvider::Receive(unsigned long a1)
 {
   unsigned long p1,p2,p3;
+  unsigned long decode_a2,decode_a4;
   unsigned char messageType;
   TbBool keepExchng;
   if (this->field_D74 < 1)
@@ -331,14 +347,37 @@ TbError ServiceProvider::Receive(unsigned long a1)
       keepExchng = false;
       break;
     }
-//!!!!!!!!!
-/*    DecodeMessageStub(&p2, &v37, &messageType, &38);
+//TODO!!!!!!!!!
+    DecodeMessageStub(&p2, &decode_a2, &messageType, &decode_a4);
     if (a1 & 0x08)
-      a1 = -1;
-*/
+      a1 = 0xFF;
     switch (messageType)
     {
     case 0:
+        //TODO
+        break;
+    case 1:
+        //TODO
+        break;
+    case 2:
+        //TODO
+        break;
+    case 3:
+        //TODO
+        break;
+    case 4:
+        //TODO
+        break;
+    case 5:
+        //TODO
+        break;
+    case 6:
+        //TODO
+        break;
+    case 7:
+        //TODO
+        break;
+    case 8:
         //TODO
         break;
     default:
@@ -359,95 +398,316 @@ TbError ServiceProvider::Release(void)
   return Lb_OK;
 }
 
-TbError ServiceProvider::AddPlayer(unsigned long a1, char *a2, unsigned long a3, unsigned long a4)
+long ServiceProvider::PlayerIndex(unsigned long plyr_id)
 {
-  //TODO
-  return Lb_FAIL;
+  struct TbNetworkPlayerEntry *netplyr;
+  long i;
+  for (i=0; i < this->players_count; i++)
+  {
+    netplyr = &this->players[i];
+    if (plyr_id == netplyr->id)
+      return i;
+  }
+  return -1;
 }
 
-TbError ServiceProvider::DeletePlayer(unsigned long a1)
+TbError ServiceProvider::AddPlayer(unsigned long plyr_id, const char *namestr, unsigned long a3, unsigned long a4)
 {
-  //TODO
-  return Lb_FAIL;
+  struct TbNetworkPlayerEntry *netplyr;
+  long i;
+  // Check if we already have the player on list
+  if (PlayerIndex(plyr_id) >= 0)
+    return Lb_OK;
+  // Get a structure for new player
+  i = this->players_count;
+  if (i >= NETSP_PLAYERS_COUNT)
+  {
+    WARNLOG("player table is full");
+    return Lb_FAIL;
+  }
+  netplyr = &this->players[i];
+  netplyr->id = plyr_id;
+  net_copy_name_string(netplyr->name,namestr,NETSP_PLAYER_NAME_MAX_LEN);
+  netplyr->field_5 = a3;
+  netplyr->field_9 = a4;
+  this->players_count++;
+  return Lb_OK;
+}
+
+TbError ServiceProvider::DeletePlayer(unsigned long plyr_id)
+{
+  long i;
+  // Check if we have the player on list
+  i = PlayerIndex(plyr_id);
+  if (i < 0)
+    return Lb_OK;
+  while (i < this->players_count-1)
+  {
+    memcpy(&this->players[i], &this->players[i+1], sizeof(struct TbNetworkPlayerEntry));
+    i++;
+  }
+  this->players_count--;
+  return Lb_OK;
 }
 
 void ServiceProvider::ClearPlayers(void)
 {
-  this->field_7AC = 0;
+  this->players_count = 0;
 }
 
-struct TbNetworkSessionNameEntry *ServiceProvider::AddSession(unsigned long a1, char *a2)
+long ServiceProvider::SessionIndex(unsigned long sess_id)
 {
-  //TODO
-  return NULL;
+  struct TbNetworkSessionNameEntry *nsname;
+  int i;
+  for (i=0; i < SESSION_ENTRIES_COUNT; i++)
+  {
+    nsname = &this->nsnames[i];
+    if ((nsname->in_use) && (nsname->id == sess_id))
+        return i;
+  }
+  return -1;
 }
 
+/**
+ * Adds a session with given a1 and name string.
+ * @param namestr Text name of the new session, or NULL if session is unnamed.
+ * @return Returns session name structure, or NULL if couldn't add.
+ */
+struct TbNetworkSessionNameEntry *ServiceProvider::AddSession(unsigned long sess_id, const char *namestr)
+{
+  struct TbNetworkSessionNameEntry *nsname;
+  TbBool got;
+  long i;
+  // Check if the session i already in list
+  if (SessionIndex(sess_id) >= 0)
+    return nsname;
+  // Search for unused slot
+  got = false;
+  for (i=0; i < SESSION_ENTRIES_COUNT; i++)
+  {
+    nsname = &this->nsnames[i];
+    if (!nsname->in_use)
+    {
+      got = true;
+      break;
+    }
+  }
+  if (!got)
+    return NULL;
+  // Fill the new entry
+  nsname->id = sess_id;
+  net_copy_name_string(nsname->text,namestr,SESSION_NAME_MAX_LEN);
+  nsname->in_use = true;
+  return nsname;
+}
+
+/**
+ * Sets all sessions as unused.
+ */
 void ServiceProvider::ClearSessions(void)
 {
   long i;
   for (i=0; i < SESSION_ENTRIES_COUNT; i++)
   {
-    nsnames[i].field_5 = 0;
+    nsnames[i].in_use = false;
   }
 }
 
 TbError ServiceProvider::EnumeratePlayers(TbNetworkCallbackFunc callback, void *a2)
 {
-  //TODO
+  struct TbNetworkPlayerEntry *netplyr;
+  TbError result;
+  long i;
+  result = Lb_OK;
+  for (i=0; i < players_count; i++)
+  {
+    netplyr = &this->players[i];
+    callback((struct TbNetworkCallbackData *)netplyr, a2);
+  }
+  return result;
+}
+
+unsigned long ServiceProvider::GetAddPlayerMsgSize(char *msg_str)
+{
+  return strlen(msg_str) + 1 + sizeof(unsigned long) + sizeof(unsigned long);
+}
+
+void ServiceProvider::EncodeAddPlayerMsg(unsigned char *enc_buf, unsigned long id, const char *msg_str)
+{
+  long len;
+  unsigned char *out;
+  out = enc_buf;
+  if (enc_buf == NULL)
+  {
+    WARNLOG("Can't write to NULL buffer!");
+    return;
+  }
+  len = strlen(msg_str) + 5;
+  *(unsigned long *)out = len & 0xFFFFF | 0x1000000;
+  out += sizeof(unsigned long);
+  memcpy(out, &id, sizeof(unsigned long));
+  out += sizeof(unsigned long);
+  strcpy((char *)out,msg_str);
+}
+
+TbBool ServiceProvider::DecodeAddPlayerMsg(const unsigned char *enc_buf, unsigned long &id, char *msg_str)
+{
+  const unsigned char *inp;
+  inp = enc_buf;
+  inp += sizeof(unsigned long);
+  memcpy(&id, inp, sizeof(unsigned long));
+  if (msg_str == NULL)
+    return true;
+  inp += sizeof(unsigned long);
+  strcpy(msg_str, (const char *)inp);
+  return true;
+}
+
+TbError ServiceProvider::SystemAddPlayerHandler(const void *enc_buf)
+{
+  char name[NETSP_PLAYER_NAME_MAX_LEN];
+  const unsigned char *inp;
+  unsigned long plyr_id;
+  inp = (const unsigned char *)enc_buf;
+  inp += sizeof(unsigned long);
+  memcpy(&plyr_id, inp, sizeof(unsigned long));
+  inp += sizeof(unsigned long);
+  net_copy_name_string(name,(const char *)inp,NETSP_PLAYER_NAME_MAX_LEN);
+  if (AddPlayer(plyr_id, name, 0, 0) == Lb_OK)
+    return Lb_OK;
   return Lb_FAIL;
 }
 
-unsigned long ServiceProvider::GetAddPlayerMsgSize(char *a1)
+TbError ServiceProvider::SystemDeletePlayerHandler(const void *enc_buf)
 {
-  //TODO
-  return 0;
-}
-
-void ServiceProvider::EncodeAddPlayerMsg(char *a1, unsigned long a2, char *a3)
-{
-  //TODO
-}
-
-unsigned long ServiceProvider::DecodeAddPlayerMsg(char *a1, unsigned long &a2, char *a3)
-{
-  //TODO
-  return 0;
-}
-
-TbError ServiceProvider::SystemAddPlayerHandler(char *a1)
-{
-  //TODO
+  const unsigned char *inp;
+  unsigned long plyr_id;
+  CheckForDeletedHost(enc_buf);
+  inp = (const unsigned char *)enc_buf;
+  inp += sizeof(unsigned long);
+  memcpy(&plyr_id, inp, sizeof(unsigned long));
+  if (DeletePlayer(plyr_id) == Lb_OK)
+    return Lb_OK;
   return Lb_FAIL;
 }
 
-TbError ServiceProvider::SystemDeletePlayerHandler(char *a1)
+TbError ServiceProvider::CheckForDeletedHost(const void *enc_buf)
 {
-  //TODO
-  return Lb_FAIL;
-}
+  struct TbNetworkPlayerEntry *netplyr;
+  const unsigned char *inp;
+  unsigned long plyr_id;
+  unsigned long idx1,idx2;
+  TbBool got;
+  long i;
+  inp = (const unsigned char *)enc_buf;
+  inp += sizeof(unsigned long);
+  memcpy(&plyr_id, inp, sizeof(unsigned long));
 
-TbError ServiceProvider::CheckForDeletedHost(unsigned char *a1)
-{
+
   //TODO
-  return Lb_FAIL;
+  got = 0;
+  for (i=0; i < players_count; i++)
+  {
+    netplyr = &this->players[i];
+    if ((plyr_id == netplyr->id) && (netplyr->field_9))
+    {
+      idx1 = i;
+      got = 1;
+      break;
+    }
+  }
+  if (!got)
+    return Lb_OK;
+/*!!!!!!
+  got = 0;
+  for (i=0; i < players_count; i++)
+  {
+    netplyr = &this->players[i];
+    if (!netplyr->field_9)
+    {
+      if ( got )
+      {
+        if ( ebp0 > *(_DWORD *)&v5->field_D50[1] )
+        {
+          ebp0 = *(_DWORD *)&v5->field_D50[1];
+          idx2 = i;
+        }
+      } else
+      {
+        got = 1;
+        idx2 = i;
+        ebp0 = *(_DWORD *)&v5->field_D50[1];
+      }
+    }
+  }
+
+  if ( got )
+  {
+    netplyr = &this->players[idx1];
+    netplyr->field_9 = 1;
+    netplyr = &this->players[idx1];
+    netplyr->field_9 = 0;
+    if (recvCallbacks->deleteMsg != NULL)
+      (recvCallbacks->deleteMsg(ebp0, *(_DWORD *)&this1[1].nsnames[23].field_9[16]);
+  }
+*/
+  return Lb_OK;
 }
 
 TbError ServiceProvider::LookForSystemMessages(void)
 {
-  //TODO
-  return Lb_FAIL;
+  return this->Receive(0xB6);
 }
 
-TbError ServiceProvider::BroadcastSystemMessage(char *a1)
+TbError ServiceProvider::BroadcastSystemMessage(void *enc_msg)
 {
-  //TODO
-  return Lb_FAIL;
+  struct TbNetworkPlayerEntry *netplyr;
+  unsigned char messageType;
+  unsigned long id;
+  TbError result;
+  unsigned char *inp;
+  long i;
+  inp = (unsigned char *)enc_msg;
+  this->DecodeMessageStub(inp, NULL, &messageType, NULL);
+  inp += sizeof(unsigned long);
+  if ( (messageType < 1) || ((messageType > 1) && (messageType != 2)) )
+  {
+    WARNLOG("invalid message type: %02X", (int)messageType);
+    return Lb_FAIL;
+  } else
+  {
+    memcpy(&id, inp, sizeof(unsigned long));
+  }
+  inp += sizeof(unsigned long);
+  result = Lb_OK;
+  for (i=0; i < this->players_count; i++)
+  {
+    netplyr = &this->players[i];
+    if ((netplyr->id != this->local_id) && (netplyr->id != id))
+    {
+      if (this->SendMessage(netplyr->id,inp,1) != Lb_OK)
+      {
+        WARNLOG("failure while sending message");
+        result = Lb_FAIL;
+      }
+    }
+  }
+  return result;
 }
 
 TbError ServiceProvider::EnumeratePlayersForSessionRunning(TbNetworkCallbackFunc callback, void *a2)
 {
-  //TODO
-  return Lb_FAIL;
+  if (this->LookForSystemMessages() != Lb_OK)
+  {
+    WARNLOG("failure while looking for system messages");
+    return Lb_FAIL;
+  }
+  if (this->EnumeratePlayers(callback, a2) != Lb_OK)
+  {
+    WARNLOG("failure while enumerating players");
+    return Lb_FAIL;
+  }
+  return Lb_OK;
 }
 
 TbError ServiceProvider::EnableNewPlayers(TbBool allow)

@@ -25,13 +25,25 @@
 
 #include "globals.h"
 /******************************************************************************/
+#define NETSP_PLAYERS_COUNT 32
 #define SESSION_ENTRIES_COUNT 32
+#define SESSION_NAME_MAX_LEN  32
+#define NETSP_PLAYER_NAME_MAX_LEN 32
 
 struct TbNetworkSessionNameEntry {
   unsigned char field_0;
-  unsigned long field_1;
+  unsigned long id;
+  unsigned long in_use;
+  char text[SESSION_NAME_MAX_LEN];
+  unsigned char field_29[20];
+};
+
+struct TbNetworkPlayerEntry {
+  unsigned char field_0;
+  unsigned long id;
   unsigned long field_5;
-  unsigned char text[52];
+  unsigned long field_9;
+  char name[32];
 };
 
 struct ReceiveCallbacks {
@@ -52,29 +64,31 @@ public:
   ServiceProvider();
   virtual ~ServiceProvider();
   static unsigned long GetRequestCompositeExchangeDataMsgSize(void);
-  static void EncodeMessageStub(void *buf, unsigned long a2, unsigned char a3, unsigned long a4);
+  static void EncodeMessageStub(void *enc_msg, unsigned long a2, unsigned char a3, unsigned long a4);
   static void EncodeDeletePlayerMsg(unsigned char *buf, unsigned long val);
   static void EncodeRequestExchangeDataMsg(unsigned char *buf, unsigned long a1, unsigned long a2);
   static void EncodeRequestCompositeExchangeDataMsg(unsigned char *buf, unsigned long a1, unsigned long a2);
   static unsigned long DecodeRequestCompositeExchangeDataMsg(unsigned char *buf, unsigned long &a1);
-  static void DecodeMessageStub(void *buf, unsigned long *a2, unsigned char *a3, unsigned long *a4);
+  static void DecodeMessageStub(const void *enc_msg, unsigned long *a2, unsigned char *a3, unsigned long *a4);
   TbError Send(unsigned long a1, void *a2);
   TbError Receive(unsigned long a1);
   TbError Initialise(struct ReceiveCallbacks *nCallbacks, void *a2);
-  TbError AddPlayer(unsigned long a1, char *a2, unsigned long a3, unsigned long a4);
-  TbError DeletePlayer(unsigned long a1);
+  long PlayerIndex(unsigned long plyr_id);
+  TbError AddPlayer(unsigned long plyr_id, const char *namestr, unsigned long a3, unsigned long a4);
+  TbError DeletePlayer(unsigned long plyr_id);
   void ClearPlayers(void);
-  struct TbNetworkSessionNameEntry *AddSession(unsigned long a1, char *a2);
+  long SessionIndex(unsigned long sess_id);
+  struct TbNetworkSessionNameEntry *AddSession(unsigned long sess_id, const char *namestr);
   void ClearSessions(void);
   TbError EnumeratePlayers(TbNetworkCallbackFunc callback, void *a2);
-  unsigned long GetAddPlayerMsgSize(char *a1);
-  void EncodeAddPlayerMsg(char *a1, unsigned long a2, char *a3);
-  unsigned long DecodeAddPlayerMsg(char *a1, unsigned long &a2, char *a3);
-  TbError SystemAddPlayerHandler(char *a1);
-  TbError SystemDeletePlayerHandler(char *);
-  TbError CheckForDeletedHost(unsigned char *);
+  unsigned long GetAddPlayerMsgSize(char *msg_str);
+  void EncodeAddPlayerMsg(unsigned char *enc_buf, unsigned long id, const char *msg_str);
+  TbBool DecodeAddPlayerMsg(const unsigned char *enc_buf, unsigned long &id, char *msg_str);
+  TbError SystemAddPlayerHandler(const void *enc_buf);
+  TbError SystemDeletePlayerHandler(const void *enc_buf);
+  TbError CheckForDeletedHost(const void *enc_buf);
   TbError LookForSystemMessages(void);
-  TbError BroadcastSystemMessage(char *);
+  TbError BroadcastSystemMessage(void *enc_msg);
   TbError EnumeratePlayersForSessionRunning(TbNetworkCallbackFunc callback, void *);
   virtual TbError Start(struct TbNetworkSessionNameEntry *, char *, void *) = 0;
   virtual TbError Start(char *, char *, unsigned long, void *) = 0;
@@ -93,8 +107,8 @@ public:
   struct TbNetworkSessionNameEntry nsnames[SESSION_ENTRIES_COUNT];
   unsigned long field_7A4;
   unsigned long field_7A8;
-  unsigned long field_7AC;
-  unsigned char field_7B0[1440];
+  unsigned long players_count;
+  struct TbNetworkPlayerEntry players[NETSP_PLAYERS_COUNT];
   char field_D50[32];
   struct ReceiveCallbacks *recvCallbacks;
   unsigned long field_D74;
