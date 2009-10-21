@@ -28,6 +28,7 @@
 #include "packets.h"
 #include "thing_list.h"
 #include "player_computer.h"
+#include "game_merge.h"
 #include "game_saves.h"
 #include "engine_camera.h"
 #include "thing_creature.h"
@@ -508,12 +509,6 @@ struct SpellData {
       Expand_Check_Func field_15;
       unsigned char flag_19;
       unsigned char flag_1A;
-};
-
-struct CreatureData {
-      unsigned char field_0;
-      short field_1;
-      short field_3;
 };
 
 struct SpellInfo { // sizeof = 17
@@ -1411,8 +1406,6 @@ DLLIMPORT extern unsigned char _DK_door_to_object[DOOR_TYPES_COUNT];
 DLLIMPORT extern unsigned short _DK_specials_text[10];
 #define specials_text _DK_specials_text
 DLLIMPORT extern unsigned short _DK_door_names[DOOR_TYPES_COUNT];
-DLLIMPORT extern struct CreatureData _DK_creature_data[CREATURE_TYPES_COUNT];
-#define creature_data _DK_creature_data
 DLLIMPORT extern struct Objects _DK_objects[135];
 DLLIMPORT extern unsigned char _DK_eastegg_skeksis_cntr;
 #define eastegg_skeksis_cntr _DK_eastegg_skeksis_cntr
@@ -1823,10 +1816,11 @@ long remove_workshop_item(long a1, long a2, long a3);
 struct Thing *create_trap(struct Coord3d *pos, unsigned short a1, unsigned short a2);
 short update_spell_overcharge(struct PlayerInfo *player, int spl_idx);
 void set_chosen_spell(long sptype, long sptooltip);
+void set_chosen_spell_none(void);
 unsigned char sight_of_evil_expand_check(void);
 unsigned char call_to_arms_expand_check(void);
 unsigned char general_expand_check(void);
-void add_spell_to_player(long spl_idx, long plyr_idx);
+TbBool add_spell_to_player(long spl_idx, long plyr_idx);
 struct Room *place_room(unsigned char a1, unsigned char a2, unsigned short a3, unsigned short a4);
 unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
 short magic_use_power_slap(unsigned short plyr_idx, unsigned short stl_x, unsigned short stl_y);

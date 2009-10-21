@@ -24,6 +24,7 @@
 #include "kjm_input.h"
 #include "frontend.h"
 #include "keeperfx.h"
+#include "config_creature.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -120,8 +121,10 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
 {
   char *text;
   struct Thing *thing;
+  struct CreatureData *crdata;
   struct PlayerInfo *player;
   long i;
+  SYNCDBG(18,"Starting");
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   // Find a special to show tooltip for
   thing = thing_get(player->thing_under_hand);
@@ -177,8 +180,8 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
       update_gui_tooltip_target(thing);
       if ( (help_tip_time > 20) || (player->work_state == 12))
       {
-        i = creature_data[thing->model%CREATURE_TYPES_COUNT].field_3;
-        set_gui_tooltip_box_fmt(5,"%s %s", gui_strings[i%STRINGS_MAX], gui_strings[609]); // (creature) Lair
+        crdata = creature_data_get(_DK_objects[thing->model].field_13);
+        set_gui_tooltip_box_fmt(5,"%s %s", gui_strings[crdata->namestr_idx%STRINGS_MAX], gui_strings[609]); // (creature) Lair
       } else
       {
         help_tip_time++;
@@ -267,9 +270,9 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
+  struct CreatureData *crdata;
   char *text;
   long i,k;
-  //_DK_setup_gui_tooltip(gbtn); return;
   if (gbtn->tooltip_id == 201)
     return;
   if (!settings.tooltips_on)
@@ -300,7 +303,8 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
       k = breed_activities[(top_of_breed_list+gbtn->field_1B)%CREATURE_TYPES_COUNT];
     else
       k = 23;
-    sprintf(tool_tip_box.text, "%-6s: %s", gui_strings[creature_data[k].field_3], text);
+    crdata = creature_data_get(k);
+    sprintf(tool_tip_box.text, "%-6s: %s", gui_strings[crdata->namestr_idx], text);
   } else
   {
     strncpy(tool_tip_box.text, text, TOOLTIP_MAX_LEN);

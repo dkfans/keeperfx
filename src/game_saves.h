@@ -23,6 +23,16 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+enum SaveGameChunks {
+     SGC_GameOrig,
+     SGC_GameAdd,
+};
+
+struct FileChunkHeader {
+    unsigned short id;
+    unsigned long len;
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -58,6 +68,9 @@ short is_save_game_loadable(long slot_num);
 short save_catalogue_slot_disable(unsigned int slot_idx);
 short save_game_save_catalogue(void);
 short load_game_save_catalogue(void);
+/******************************************************************************/
+TbBool set_transfered_creature(long plyr_idx, long model, long explevel);
+void clear_transfered_creature(void);
 /******************************************************************************/
 short continue_game_available(void);
 short load_continue_game(void);

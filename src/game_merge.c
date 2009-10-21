@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file config_crtrmodel.h
- *     Header file for config_crtrmodel.c.
+/** @file game_merge.c
+ *     Module which merges all elements of the game into single Game structure.
  * @par Purpose:
- *     Support of configuration files for specific creatures.
+ *     Allows easy saving and loading of game data.
  * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
+ *     None.
  * @author   Tomasz Lis
- * @date     25 May 2009 - 04 Jul 2009
+ * @date     21 Oct 2009 - 25 Nov 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,24 +16,22 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_CFGCRMODL_H
-#define DK_CFGCRMODL_H
+#include "game_merge.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
-
-#include "config.h"
+#include "bflib_memory.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-
+struct GameAdd gameadd;
 /******************************************************************************/
-TbBool load_creaturemodel_config(long crtr_model,unsigned short flags);
-TbBool make_all_creatures_free(void);
+/******************************************************************************/
+
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
-#endif
 #endif

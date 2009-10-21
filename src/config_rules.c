@@ -29,6 +29,7 @@
 #include "config_lenses.h"
 #include "config_magic.h"
 #include "config_creature.h"
+#include "game_merge.h"
 
 #include "keeperfx.h"
 
@@ -149,19 +150,93 @@ const struct NamedCommand rules_health_commands[] = {
   };
 
 const struct NamedCommand rules_research_commands[] = {
-  {"RESEARCH",        1},
-  {NULL,              0},
+  {"RESEARCH",            1},
+  {NULL,                  0},
   };
 
 const struct NamedCommand research_desc[] = {
-  {"MAGIC",                1},
-  {"ROOM",                 2},
-  {"CREATURE",             3},
-  {NULL,                   0},
-};
+  {"MAGIC",               1},
+  {"ROOM",                2},
+  {"CREATURE",            3},
+  {NULL,                  0},
+  };
 
+const struct NamedCommand rules_sacrifices_commands[] = {
+  {"MKCREATURE",          SacA_MkCreature},
+  {"MKGOODHERO",          SacA_MkGoodHero},
+  {"NEGSPELLALL",         SacA_NegSpellAll},
+  {"POSSPELLALL",         SacA_PosSpellAll},
+  {"NEGUNIQFUNC",         SacA_NegUniqFunc},
+  {"POSUNIQFUNC",         SacA_PosUniqFunc},
+  {NULL,                  0},
+  };
 
+const struct NamedCommand sacrifice_unique_desc[] = {
+  {"ALL_CREATRS_ANGRY",   UnqF_MkAllAngry},
+  {"COMPLETE_RESEARCH",   UnqF_ComplResrch},
+  {"COMPLETE_MANUFACTR",  UnqF_ComplManufc},
+  {"KILL_ALL_CHICKENS",   UnqF_KillChickns},
+  {"CHEAPER_IMPS",        UnqF_CheaperImp},
+  {NULL,                  0},
+  };
 /******************************************************************************/
+/**
+ * Returns the first unused sacrifice slot, or invalid slot if no empty one.
+ */
+struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void)
+{
+  struct SacrificeRecipe *sac;
+  long i;
+  for (i=1; i < MAX_SACRIFICE_RECIPES; i++)
+  {
+    sac = &gameadd.sacrifice_recipes[i];
+    if (sac->action == SacA_None)
+      return sac;
+  }
+  return &gameadd.sacrifice_recipes[0];
+}
+
+/**
+ * Clears all sacrifice slots.
+ */
+void clear_sacrifice_recipes(void)
+{
+  struct SacrificeRecipe *sac;
+  long i;
+  for (i=0; i < MAX_SACRIFICE_RECIPES; i++)
+  {
+    sac = &gameadd.sacrifice_recipes[i];
+    LbMemorySet(sac, '\0', sizeof(struct SacrificeRecipe));
+    sac->action = SacA_None;
+  }
+}
+
+TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
+{
+  long i,k;
+  // If all slots are taken, then just drop it.
+  if (sac->victims[MAX_SACRIFICE_VICTIMS-1] != 0)
+    return false;
+  // Otherwise, find place for our item (array is sorted)
+  for (i=0; i < MAX_SACRIFICE_VICTIMS; i++)
+  {
+    if ((sac->victims[i] == 0) || (sac->victims[i] > crtr_idx))
+    {
+      // Move the entries to make place
+      for (k=MAX_SACRIFICE_VICTIMS-1; k > i; k--)
+        sac->victims[k] = sac->victims[k-1];
+      if (i > 0)
+      {
+        sac->victims[i] = sac->victims[i-1];
+        i--;
+      }
+      sac->victims[i] = crtr_idx;
+      return true;
+    }
+  }
+  return false;
+}
+
 TbBool parse_rules_game_blocks(char *buf,long len)
 {
   long pos;
@@ -1405,6 +1480,186 @@ TbBool parse_rules_research_blocks(char *buf,long len)
   return true;
 }
 
+TbBool parse_rules_sacrifices_blocks(char *buf,long len)
+{
+  long pos;
+  int i,k,l,n;
+  int cmd_num;
+  // Block name and parameter word store variables
+  char block_buf[COMMAND_WORD_LEN];
+  char word_buf[COMMAND_WORD_LEN];
+  struct SacrificeRecipe *sac;
+  // Clear previous data
+  clear_sacrifice_recipes();
+  // Find the block
+  sprintf(block_buf,"sacrifices");
+  pos = 0;
+  k = find_conf_block(buf,&pos,len,block_buf);
+  if (k < 0)
+  {
+    WARNMSG("Block [%s] not found in rules config file.",block_buf);
+    return false;
+  }
+  while (pos<len)
+  {
+      // Finding command number in this line
+      cmd_num = recognize_conf_command(buf,&pos,len,rules_sacrifices_commands);
+      // Now store the config item in correct place
+      if (cmd_num == -3) break; // if next block starts
+      n = 0;
+      switch (cmd_num)
+      {
+      case 1: // MKCREATURE
+      case 2: // MKGOODHERO
+          i = 0;
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = get_id(creature_desc, word_buf);
+          }
+          if (i <= 0)
+          {
+            CONFWRNLOG("Incorrect creature \"%s\" in [%s] block of Rules file.",
+                word_buf,block_buf);
+            break;
+          }
+          sac = get_unused_sacrifice_recipe_slot();
+          if (sac <= &gameadd.sacrifice_recipes[0])
+          {
+            CONFWRNLOG("No free slot to store \"%s\" from [%s] block of Rules file.",
+                word_buf,block_buf);
+            break;
+          }
+          sac->action = cmd_num;
+          sac->param = i;
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = get_id(creature_desc, word_buf);
+            if (i > 0)
+            {
+              if (add_sacrifice_victim(sac,i))
+              {
+                n++;
+              } else
+              {
+                CONFWRNLOG("Too many victims in \"%s\" from [%s] block of Rules file.",
+                  word_buf,block_buf);
+                break;
+              }
+            }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("No victims in \"%s\" from [%s] block of Rules file.",
+                word_buf,block_buf);
+            break;
+          }
+          n++; // delayed increase for first argument
+          break;
+      case 3: // NEGSPELLALL
+      case 4: // POSSPELLALL
+          i = 0;
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = get_id(spell_desc, word_buf);
+          }
+          if (i <= 0)
+          {
+            CONFWRNLOG("Incorrect creature spell \"%s\" in [%s] block of Rules file.",
+                word_buf,block_buf);
+            break;
+          }
+          sac = get_unused_sacrifice_recipe_slot();
+          if (sac <= &gameadd.sacrifice_recipes[0])
+          {
+            CONFWRNLOG("No free slot to store \"%s\" from [%s] block of Rules file.",
+                word_buf,block_buf);
+            break;
+          }
+          sac->action = cmd_num;
+          sac->param = i;
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = get_id(creature_desc, word_buf);
+            if (i > 0)
+            {
+              if (add_sacrifice_victim(sac,i))
+              {
+                n++;
+              } else
+              {
+                CONFWRNLOG("Too many victims in \"%s\" from [%s] block of Rules file.",
+                  word_buf,block_buf);
+                break;
+              }
+            }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("No victims in \"%s\" from [%s] block of Rules file.",
+                word_buf,block_buf);
+            break;
+          }
+          n++; // delayed increase for first argument
+          break;
+      case 5: // NEGUNIQFUNC
+      case 6: // POSUNIQFUNC
+          i = 0;
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = get_id(sacrifice_unique_desc, word_buf);
+          }
+          if (i <= 0)
+          {
+            CONFWRNLOG("Incorrect unique function \"%s\" in [%s] block of Rules file.",
+                word_buf,block_buf);
+            break;
+          }
+          sac = get_unused_sacrifice_recipe_slot();
+          if (sac <= &gameadd.sacrifice_recipes[0])
+          {
+            CONFWRNLOG("No free slot to store \"%s\" from [%s] block of Rules file.",
+                word_buf,block_buf);
+            break;
+          }
+          sac->action = cmd_num;
+          sac->param = i;
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = get_id(creature_desc, word_buf);
+            if (i > 0)
+            {
+              if (add_sacrifice_victim(sac,i))
+              {
+                n++;
+              } else
+              {
+                CONFWRNLOG("Too many victims in \"%s\" from [%s] block of Rules file.",
+                  word_buf,block_buf);
+                break;
+              }
+            }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("No victims in \"%s\" from [%s] block of Rules file.",
+                word_buf,block_buf);
+            break;
+          }
+          n++; // delayed increase for first argument
+          break;
+      case 0: // comment
+          break;
+      case -1: // end of buffer
+          break;
+      default:
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Rules file.",
+              cmd_num,block_buf);
+          break;
+      }
+      skip_conf_to_next_line(buf,&pos,len);
+  }
+  return true;
+}
 
 TbBool load_rules_config(const char *conf_fname,unsigned short flags)
 {
@@ -1480,6 +1735,12 @@ TbBool load_rules_config(const char *conf_fname,unsigned short flags)
     if (!result)
       WARNMSG("Parsing rules file \"%s\" research blocks failed.",conf_fname);
   }
+  if (result)
+  {
+    result = parse_rules_sacrifices_blocks(buf, len);
+    if (!result)
+      WARNMSG("Parsing rules file \"%s\" sacrifices blocks failed.",conf_fname);
+   }
   //Freeing and exiting
   LbMemoryFree(buf);
   return result;

@@ -570,11 +570,14 @@ TbBool set_power_available(long plyr_idx, long spl_idx, long resrch, long avail)
   SYNCDBG(8,"Starting for spell %ld, player %ld, state %ld,%ld",spl_idx,plyr_idx,resrch,avail);
   dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
   dungeon->magic_resrchable[spl_idx] = resrch;
-  if (avail != 0)
-    add_spell_to_player(spl_idx, plyr_idx);
-  else
-    dungeon->magic_level[spl_idx] = avail;
-  return true;
+  if (avail <= 0)
+  {
+    dungeon->magic_level[spl_idx] = 0;
+    if (game.chosen_spell_type == spl_idx)
+      set_chosen_spell_none();
+    return true;
+  }
+  return add_spell_to_player(spl_idx, plyr_idx);
 }
 
 /*
@@ -592,7 +595,7 @@ TbBool make_available_all_researchable_powers(long plyr_idx)
   {
     if (dungeon->magic_resrchable[i])
     {
-      add_spell_to_player(i, plyr_idx);
+      ret &= add_spell_to_player(i, plyr_idx);
     }
   }
   return ret;

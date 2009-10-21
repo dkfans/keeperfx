@@ -239,8 +239,8 @@ struct CreatureSounds {
 extern struct CreatureSounds creature_sounds[];
 /******************************************************************************/
 struct CreatureControl *creature_control_get(long cctrl_idx);
-struct CreatureControl *creature_control_get_from_thing(struct Thing *thing);
-TbBool creature_control_invalid(struct CreatureControl *cctrl);
+struct CreatureControl *creature_control_get_from_thing(const struct Thing *thing);
+TbBool creature_control_invalid(const struct CreatureControl *cctrl);
 
 struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long a2, struct Coord3d *pos);
 TbBool disband_creatures_group(struct Thing *thing);

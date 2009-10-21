@@ -31,10 +31,30 @@ extern "C" {
 #define CREATURE_TYPES_MAX 64
 #define INSTANCE_TYPES_MAX 64
 /******************************************************************************/
+enum CreatureModelFlags {
+    MF_IsSpecDigger   = 0x0001, // Imp and Tunneller
+    MF_IsArachnid     = 0x0002, // simply, Spider
+    MF_IsDiptera      = 0x0004, // simply, Fly
+    MF_IsLordOTLand   = 0x0008, // simply, Knight
+    MF_IsSpectator    = 0x0010, // simply, Floating spirit
+    MF_IsEvil         = 0x0020, // All evil creatures
+};
+
+struct CreatureModelConfig {
+    char name[COMMAND_WORD_LEN];
+    long namestr_idx;
+    unsigned short model_flags;
+};
+
+struct CreatureData {
+      unsigned char flags;
+      short field_1;
+      short namestr_idx;
+};
 
 struct CreatureConfig {
-    long kind_count;
-    struct CommandWord kind_names[CREATURE_TYPES_MAX];
+    long model_count;
+    struct CreatureModelConfig model[CREATURE_TYPES_MAX];
     long instance_count;
     struct CommandWord instance_names[INSTANCE_TYPES_MAX];
     long job_count;
@@ -53,6 +73,7 @@ DLLIMPORT struct InstanceInfo _DK_instance_info[48];
 
 #pragma pack()
 /******************************************************************************/
+extern struct CreatureData creature_data[];
 extern const char keeper_creaturetp_file[];
 extern struct NamedCommand creature_desc[];
 extern const struct NamedCommand angerjob_desc[];
@@ -62,12 +83,16 @@ extern struct NamedCommand instance_desc[];
 extern struct CreatureConfig crtr_conf;
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(long crstat_idx);
-struct CreatureStats *creature_stats_get_from_thing(struct Thing *thing);
-TbBool creature_stats_invalid(struct CreatureStats *crstat);
+struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
+struct CreatureData *creature_data_get(long crstat_idx);
+struct CreatureData *creature_data_get_from_thing(const struct Thing *thing);
+TbBool creature_stats_invalid(const struct CreatureStats *crstat);
 /******************************************************************************/
 TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/
-long calculate_correct_creature_maxspeed(struct Thing *thing);
+long calculate_correct_creature_maxspeed(const struct Thing *thing);
+unsigned short get_creature_model_flags(const struct Thing *thing);
+TbBool set_creature_available(long plyr_idx, long crtr_model, long can_be_avail, long force_avail);
 /******************************************************************************/
 #ifdef __cplusplus
 }

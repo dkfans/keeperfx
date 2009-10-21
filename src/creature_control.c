@@ -31,7 +31,7 @@ extern "C" {
 DLLIMPORT struct Thing *_DK_create_and_control_creature_as_controller(struct PlayerInfo *player, long a2, struct Coord3d *pos);
 /******************************************************************************/
 struct CreatureSounds creature_sounds[] = {
-{  {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, },
+{ {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, },
 { {   1, 4}, { 609, 3}, { 607, 1}, { 608, 1}, { 609, 3}, { 612, 2}, { 614, 1}, { 615, 1}, { 616, 3}, { 619, 1}, { 604, 3}, },
 { {   1, 4}, { 626, 3}, { 624, 1}, { 625, 1}, { 626, 3}, { 629, 2}, { 631, 1}, { 632, 1}, { 633, 3}, { 636, 1}, { 621, 3}, },
 { {   1, 4}, { 643, 3}, { 641, 1}, { 642, 1}, { 643, 3}, { 646, 2}, { 648, 1}, { 649, 1}, { 650, 3}, { 653, 1}, { 638, 3}, },
@@ -64,6 +64,7 @@ struct CreatureSounds creature_sounds[] = {
 { {   9, 4}, { 371, 3}, { 369, 1}, { 370, 1}, { 371, 3}, { 374, 2}, { 376, 1}, { 377, 1}, { 378, 3}, { 381, 1}, { 366, 3}, },
 { {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, },
 };
+
 /******************************************************************************/
 /*
  * Returns CreatureControl of given index.
@@ -79,7 +80,7 @@ struct CreatureControl *creature_control_get(long cctrl_idx)
  * Returns CreatureControl assigned to given thing.
  * Thing must be a creature.
  */
-struct CreatureControl *creature_control_get_from_thing(struct Thing *thing)
+struct CreatureControl *creature_control_get_from_thing(const struct Thing *thing)
 {
   if ((thing->field_64 < 1) || (thing->field_64 > CREATURES_COUNT))
     return game.persons.cctrl_lookup[0];
@@ -89,7 +90,7 @@ struct CreatureControl *creature_control_get_from_thing(struct Thing *thing)
 /*
  * Returns if given CreatureControl pointer is incorrect.
  */
-TbBool creature_control_invalid(struct CreatureControl *cctrl)
+TbBool creature_control_invalid(const struct CreatureControl *cctrl)
 {
   return (cctrl <= game.persons.cctrl_lookup[0]) || (cctrl == NULL);
 }

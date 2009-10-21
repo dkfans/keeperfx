@@ -36,6 +36,7 @@
 #include "config_creature.h"
 #include "player_instances.h"
 #include "lvl_filesdk1.h"
+#include "game_merge.h"
 #include "keeperfx.h"
 
 #ifdef __cplusplus
@@ -1875,11 +1876,11 @@ void command_quick_objective(int idx, char *msgtext, char *where, long x, long y
     SCRPTWRNLOG("Objective TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
     msgtext[MESSAGE_TEXT_LEN-1] = '\0';
   }
-  if ((quick_messages[idx][0] != '\0') && (strcmp(quick_messages[idx],msgtext) != 0))
+  if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
   {
     SCRPTWRNLOG("Quick Objective no %d overwritten by different text.", idx);
   }
-  strcpy(quick_messages[idx], msgtext);
+  strcpy(gameadd.quick_messages[idx], msgtext);
   if (!get_map_location_id(where, &location, __func__, 1963))
     return;
   command_add_value(Cmd_QUICK_OBJECTIVE, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
@@ -1899,11 +1900,11 @@ void command_quick_information(int idx, char *msgtext, char *where, long x, long
     SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
     msgtext[MESSAGE_TEXT_LEN-1] = '\0';
   }
-  if ((quick_messages[idx][0] != '\0') && (strcmp(quick_messages[idx],msgtext) != 0))
+  if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
   {
     SCRPTWRNLOG("Quick Message no %d overwritten by different text.", idx);
   }
-  strcpy(quick_messages[idx], msgtext);
+  strcpy(gameadd.quick_messages[idx], msgtext);
   if (!get_map_location_id(where, &location, __func__, 1963))
     return;
   command_add_value(Cmd_QUICK_INFORMATION, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
@@ -2315,7 +2316,7 @@ short clear_quick_messages(void)
 {
   long i;
   for (i=0; i < QUICK_MESSAGES_COUNT; i++)
-    memset(quick_messages[i],0,MESSAGE_TEXT_LEN);
+    memset(gameadd.quick_messages[i],0,MESSAGE_TEXT_LEN);
   return true;
 }
 
@@ -3171,7 +3172,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       break;
   case Cmd_QUICK_OBJECTIVE:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-        process_objective(quick_messages[val2%QUICK_MESSAGES_COUNT], val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
+        process_objective(gameadd.quick_messages[val2%QUICK_MESSAGES_COUNT], val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
       break;
   case Cmd_QUICK_INFORMATION:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))

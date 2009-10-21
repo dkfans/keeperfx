@@ -66,6 +66,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"DAMAGETOBOULDER", 25},
   {"THINGSIZE",       26},
   {"PROPERTIES",      27},
+  {"NAMETEXTID",      28},
   {NULL,               0},
   };
 
@@ -78,6 +79,12 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"FLYING",            7},
   {"SEE_INVISIBLE",     8},
   {"PASS_LOCKED_DOORS", 9},
+  {"SPECIAL_DIGGER",   10},
+  {"ARACHNID",         11},
+  {"DIPTERA",          12},
+  {"LORD",             13},
+  {"SPECTATOR",        14},
+  {"EVIL",             15},
   {NULL,                0},
   };
 
@@ -157,11 +164,11 @@ const struct NamedCommand creatmodel_jobs_commands[] = {
   {"REALTRAINING",        11},
   {NULL,                   0},
   };
-
 /******************************************************************************/
 TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len)
 {
   struct CreatureStats *crstat;
+  struct CreatureModelConfig *crconf;
   long pos;
   int i,k,n;
   int cmd_num;
@@ -170,6 +177,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len)
   char word_buf[COMMAND_WORD_LEN];
   // Initialize block data
   crstat = creature_stats_get(crtr_model);
+  crconf = &crtr_conf.model[crtr_model];
   crstat->health = 1;
   crstat->heal_requirement = 1;
   crstat->heal_threshold = 1;
@@ -203,6 +211,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len)
   crstat->flying = false;
   crstat->can_see_invisible = false;
   crstat->can_go_locked_doors = false;
+  crconf->namestr_idx = 0;
+  crconf->model_flags = 0;
   // Find the block
   sprintf(block_buf,"attributes");
   pos = 0;
@@ -582,11 +592,51 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len)
               crstat->can_go_locked_doors = true;
               n++;
               break;
+            case 10: // SPECIAL_DIGGER
+              crconf->model_flags |= MF_IsSpecDigger;
+              n++;
+              break;
+            case 11: // ARACHNID
+              crconf->model_flags |= MF_IsArachnid;
+              n++;
+              break;
+            case 12: // DIPTERA
+              crconf->model_flags |= MF_IsDiptera;
+              n++;
+              break;
+            case 13: // LORD
+              crconf->model_flags |= MF_IsLordOTLand;
+              n++;
+              break;
+            case 14: // SPECTATOR
+              crconf->model_flags |= MF_IsSpectator;
+              n++;
+              break;
+            case 15: // EVIL
+              crconf->model_flags |= MF_IsEvil;
+              n++;
+              break;
             default:
               CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of Creature Model file.",
                 get_conf_parameter_text(creatmodel_attributes_commands,cmd_num),word_buf,block_buf);
               break;
             }
+          }
+          break;
+      case 28: // NAMETEXTID
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              crconf->namestr_idx = k;
+              n++;
+            }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Creature Model file.",
+                get_conf_parameter_text(creatmodel_attributes_commands,cmd_num),block_buf);
           }
           break;
       case 0: // comment
@@ -600,6 +650,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len)
       }
       skip_conf_to_next_line(buf,&pos,len);
   }
+//  if (crstat->humanoid_creature) SYNCMSG("Creature is humanoid.");
   return true;
 }
 
@@ -1782,7 +1833,7 @@ TbBool make_all_creatures_free(void)
 {
   struct CreatureStats *crstat;
   long i;
-  for (i=0; i < crtr_conf.kind_count; i++)
+  for (i=0; i < crtr_conf.model_count; i++)
   {
     crstat = creature_stats_get(i);
     crstat->training_cost = 0;

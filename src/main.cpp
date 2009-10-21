@@ -56,6 +56,7 @@
 #include "room_data.h"
 #include "creature_control.h"
 #include "lens_mist.h"
+#include "game_merge.h"
 
 int test_variable;
 
@@ -2216,24 +2217,25 @@ void process_keeper_spell_effect(struct Thing *thing)
   _DK_process_keeper_spell_effect(thing);
 }
 
-void add_spell_to_player(long spl_idx, long plyr_idx)
+TbBool add_spell_to_player(long spl_idx, long plyr_idx)
 {
   struct Dungeon *dungeon;
   long i;
   if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT))
   {
     ERRORLOG("Can't add incorrect spell %ld to player %ld",spl_idx, plyr_idx);
-    return;
+    return false;
   }
   dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
   i = dungeon->magic_level[spl_idx];
   if (i >= 255)
   {
     ERRORLOG("Spell %ld has bad magic_level=%ld for player %ld",spl_idx, i, plyr_idx);
-    return;
+    return false;
   }
   dungeon->magic_level[spl_idx] = i+1;
   dungeon->magic_resrchable[spl_idx] = 1;
+  return true;
 }
 
 unsigned char sight_of_evil_expand_check(void)
@@ -6031,7 +6033,7 @@ TbBool load_stats_files(void)
   // note that rules file requires definitions of magic and creature types
   if (!load_rules_config(keeper_rules_file,0))
     result = false;
-  for (i=0; i < crtr_conf.kind_count; i++)
+  for (i=0; i < crtr_conf.model_count; i++)
   {
     if (!load_creaturemodel_config(i+1,0))
       result = false;
@@ -7641,7 +7643,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         thing = thing_get(event->field_C);
         if (thing_is_invalid(thing))
           break;
-        i = creature_data[thing->model % CREATURE_TYPES_COUNT].field_3;
+        i = creature_data[thing->model % CREATURE_TYPES_COUNT].namestr_idx;
         text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
@@ -7672,7 +7674,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         thing = thing_get(event->field_C);
         if (thing_is_invalid(thing))
           break;
-        i = creature_data[thing->model % CREATURE_TYPES_COUNT].field_3;
+        i = creature_data[thing->model % CREATURE_TYPES_COUNT].namestr_idx;
         text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
@@ -7710,7 +7712,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         thing = thing_get(event->field_C);
         if (thing_is_invalid(thing))
           break;
-        i = creature_data[thing->model % CREATURE_TYPES_COUNT].field_3;
+        i = creature_data[thing->model % CREATURE_TYPES_COUNT].namestr_idx;
         text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
@@ -7773,7 +7775,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
           i = -i;
           event->field_C = i;
         }
-        strncpy(game.evntbox_text_buffer, quick_messages[i%QUICK_MESSAGES_COUNT], MESSAGE_TEXT_LEN-1);
+        strncpy(game.evntbox_text_buffer, gameadd.quick_messages[i%QUICK_MESSAGES_COUNT], MESSAGE_TEXT_LEN-1);
         strncpy(game.evntbox_text_shown, game.evntbox_text_buffer, MESSAGE_TEXT_LEN-1);
         other_off = 1;
         turn_on_menu(GMnu_TEXT_INFO);
@@ -11958,6 +11960,14 @@ void set_chosen_spell(long sptype, long sptooltip)
   game.chosen_spell_type = sptype;
   game.chosen_spell_look = spell_data[sptype].field_9;
   game.chosen_spell_tooltip = sptooltip;
+}
+
+void set_chosen_spell_none(void)
+{
+  SYNCDBG(6,"Setting to %d",0);
+  game.chosen_spell_type = 0;
+  game.chosen_spell_look = 0;
+  game.chosen_spell_tooltip = 0;
 }
 
 void init_player_music(struct PlayerInfo *player)

@@ -76,7 +76,18 @@ const struct NamedCommand conf_commands[] = {
   {"SCREENSHOT",    5},
   {"FRONTEND_RES",  6},
   {"INGAME_RES",    7},
+  {"CENSORSHIP",    8},
   {NULL,            0},
+  };
+
+const struct NamedCommand logicval_type[] = {
+  {"ENABLED",  1},
+  {"DISABLED", 2},
+  {"ON",       1},
+  {"OFF",      2},
+  {"TRUE",     1},
+  {"FALSE",    2},
+  {NULL,       0},
   };
 
 unsigned long features_enabled = 0;
@@ -115,6 +126,15 @@ TbBool update_features(unsigned long mem_size)
   return result;
 }
 
+/**
+ * Returns if the censorship is on. This mostly affects blood.
+ * Originally, censorship was on for german language.
+ */
+TbBool censorship_enabled(void)
+{
+  return ((features_enabled & Ft_Censorship) != 0);
+}
+
 TbBool is_feature_on(unsigned long feature)
 {
   return ((features_enabled & feature) != 0);
@@ -139,24 +159,32 @@ TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen)
   return ((*pos)<buflen);
 }
 
+TbBool skip_conf_spaces(const char *buf,long *pos,long buflen)
+{
+  while ((*pos)<buflen)
+  {
+    if ((buf[*pos]!=' ') && (buf[*pos]!='\t') && (buf[*pos] != 26) && ((unsigned char)buf[*pos] >= 7)) break;
+    (*pos)++;
+  }
+  return ((*pos)<buflen);
+}
+
 /*
  * Searches for start of INI file block with given name.
- * Starts at position given with pos, and setsd it to position of block data.
+ * Starts at position given with pos, and sets it to position of block data.
  * @return Returns 1 if the block is found, -1 if buffer exceeded.
  */
 short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname)
 {
   int blname_len;
   char *bblname;
+  text_line_number = 1;
   blname_len = strlen(blockname);
   while (*pos+blname_len+2 < buflen)
   {
     // Skipping starting spaces
-    while ((buf[*pos] == ' ') || (buf[*pos] == '\t') || (buf[*pos] == '\n') || (buf[*pos] == '\r') || (buf[*pos] == 26) || ((unsigned char)buf[*pos] < 7))
-    {
-      (*pos)++;
-      if ((*pos) >= buflen) break;
-    }
+    if (!skip_conf_spaces(buf,pos,buflen))
+      break;
     // Checking if this line is start of a block
     if (buf[*pos] != '[')
     {
@@ -165,25 +193,19 @@ short find_conf_block(const char *buf,long *pos,long buflen,const char *blocknam
     }
     (*pos)++;
     // Skipping any spaces
-    while ((buf[*pos] == ' ') || (buf[*pos] == '\t'))
-    {
-      (*pos)++;
-      if ((*pos) >= buflen) break;
-    }
+    if (!skip_conf_spaces(buf,pos,buflen))
+      break;
     if (*pos+blname_len+2 >= buflen)
       break;
-    if (strnicmp(&buf[*pos],blockname,blname_len) != 0)
+    if (strncasecmp(&buf[*pos],blockname,blname_len) != 0)
     {
       skip_conf_to_next_line(buf,pos,buflen);
       continue;
     }
     (*pos)+=blname_len;
     // Skipping any spaces
-    while ((buf[*pos] == ' ') || (buf[*pos] == '\t'))
-    {
-      (*pos)++;
-      if ((*pos) >= buflen) break;
-    }
+    if (!skip_conf_spaces(buf,pos,buflen))
+      break;
     if (buf[*pos] != ']')
     {
       skip_conf_to_next_line(buf,pos,buflen);
@@ -554,6 +576,16 @@ short load_configuration(void)
               break;
             }
           }
+          break;
+      case 8: // CENSORSHIP
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+            WARNMSG("Couldn't recognize \"%s\" command parameter in config file.","CENSORSHIP");
+            break;
+          }
+          if (i == 1)
+            features_enabled |= Ft_Censorship;
           break;
       case 0: // comment
           break;
