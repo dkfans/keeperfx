@@ -61,7 +61,6 @@ DLLIMPORT void _DK_rotpers_fisheye(struct EngineCoord *epos, struct M33 *matx);
 /******************************************************************************/
 void perspective_standard(struct XYZ *cor, struct PolyPoint *ppt)
 {
-  //_DK_perspective_standard(cor, ppt);
   long i;
   if (cor->z >= 32)
   {

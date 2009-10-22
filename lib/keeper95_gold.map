@@ -523,6 +523,7 @@
  0001:00099D80       setup_gui_tooltip
  0001:00099F50       draw_tooltip
  0001:0009A380       draw_slab64k
+ 0001:0009ABD0       draw_ornate_slab64k
  0001:0009AFF0       gui_pretty_background
  0001:0009B150       gui_round_glass_background
  0001:0009B250       gui_scroll_activity_up

@@ -41,7 +41,6 @@ void frontcredits_draw(void)
   long i,k;
   long h;
   const char *text;
-  //_DK_frontcredits_draw(); return;
   credits_offset -= credits_scroll_speed;
   frontend_copy_background();
 

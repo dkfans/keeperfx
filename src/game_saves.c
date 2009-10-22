@@ -206,7 +206,6 @@ int count_valid_saved_games(void)
 short game_save_catalogue(struct CatalogueEntry *game_catalg,int nentries)
 {
   char *fname;
-  //return _DK_save_game_save_catalogue(game_catalg);
   fname = prepare_file_path(FGrp_Save,save_catalogue_filename);
   return (LbFileSaveAt(fname, game_catalg, nentries*sizeof(struct CatalogueEntry)) != -1);
 }
@@ -234,7 +233,6 @@ short save_game_save_catalogue(void)
 short load_game_catalogue(struct CatalogueEntry *game_catalg)
 {
   char *fname;
-  //_DK_load_game_save_catalogue(game_catalg); return;
   fname = prepare_file_path(FGrp_Save,save_catalogue_filename);
   if (LbFileLoadAt(fname, game_catalg) == -1)
   {
@@ -379,6 +377,22 @@ short load_continue_game(void)
   return true;
 }
 
+TbBool set_transfered_creature(long plyr_idx, long model, long explevel)
+{
+  if (is_my_player_number(plyr_idx))
+  {
+    game.transfered_creature.model = model;
+    game.transfered_creature.explevel = explevel;
+    return true;
+  }
+  return false;
+}
+
+void clear_transfered_creature(void)
+{
+  game.transfered_creature.model = 0;
+  game.transfered_creature.explevel = 0;
+}
 
 /******************************************************************************/
 #ifdef __cplusplus

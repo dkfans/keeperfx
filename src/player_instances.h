@@ -43,6 +43,20 @@ enum PlayerInstanceNum {
     PI_ZoomToPos    = 16,
 };
 
+enum PlayerStates {
+    PSt_None           =    0,
+    PSt_BuildRoom      =    2,
+    PSt_MkGoodWorker   =    3,
+    PSt_MkGoodCreatr   =    4,
+    PSt_CtrlPassngr    =   10,
+    PSt_CtrlDirect     =   11,
+    PSt_OrderCreatr    =   13,
+    PSt_MkBadCreatr    =   14,
+    PSt_SplDstrWalls   =   25,
+    PSt_SplDisease     =   26,
+    PSt_SplChicken     =   27,
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif

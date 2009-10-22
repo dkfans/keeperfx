@@ -369,7 +369,6 @@ short show_actv_bitmap_screen(TbClockMSec tmdelay)
 short display_loading_screen(void)
 {
   short done;
-  //_DK_display_loading_screen();
   draw_clear_screen();
   if (!wait_for_cd_to_be_available())
     return false;

@@ -211,6 +211,16 @@ struct ARect {
   long bottom;
 };
 
+struct Around { // sizeof = 2
+  signed char delta_x;
+  signed char delta_y;
+};
+
+struct AroundLByte {
+  signed short delta_x;
+  signed short delta_y;
+};
+
 typedef long LevelNumber;
 typedef long MapCoord;
 typedef long MapSubtlCoord;

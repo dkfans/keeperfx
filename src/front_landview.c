@@ -596,7 +596,6 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
   long src_delta,bpos_x,bpos_y;
   long dst_width,dst_height,dst_scanln;
   long x,y;
-  //_DK_frontzoom_to_point(map_x, map_y, zoom);
   src_delta = 256 - zoom;
   // Restricting coordinates - to make sure we won't go outside of the buffer
   if (map_x >= (MAP_SCREEN_WIDTH-(lbDisplay.GraphicsScreenWidth>>1)))
@@ -696,7 +695,6 @@ void compressed_window_draw(void)
   int wdata;
   int wskip;
   long w,h;
-  //_DK_compressed_window_draw(); return;
 
   xshift = map_info.scrshift_x / 2;
   yshift = map_info.scrshift_y / 2;
@@ -1387,7 +1385,7 @@ void frontmap_input(void)
   if (is_key_pressed(KC_ESCAPE, KM_DONTCARE))
   {
     clear_key_pressed(KC_ESCAPE);
-    frontend_set_state(1);
+    frontend_set_state(FeSt_MAIN_MENU);
     LbPaletteStopOpenFade();
     return;
   }
@@ -1445,7 +1443,6 @@ void frontnetmap_input(void)
 {
   struct LevelInformation *lvinfo;
   long i;
-  //_DK_frontnetmap_input();
   if (lbKeyOn[KC_ESCAPE])
   {
     fe_net_level_selected = -2;
@@ -1665,7 +1662,7 @@ long frontnetmap_update(void)
             frontend_set_state(FeSt_NET_START);
           } else
           {
-            frontend_set_state(1);
+            frontend_set_state(FeSt_MAIN_MENU);
           }
           return 0;
       }

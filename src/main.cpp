@@ -7633,14 +7633,14 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         break;
     case 5:
         other_off = 1;
-        i = room_data[event->field_C].field_13;
+        i = room_data[event->target].field_13;
         text = buf_sprintf("%s:\n%s",game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 6:
         other_off = 1;
-        thing = thing_get(event->field_C);
+        thing = thing_get(event->target);
         if (thing_is_invalid(thing))
           break;
         i = creature_data[thing->model % CREATURE_TYPES_COUNT].namestr_idx;
@@ -7650,28 +7650,28 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         break;
     case 7:
         other_off = 1;
-        i = spell_data[event->field_C % (SPELL_TYPES_COUNT+1)].field_D;
+        i = spell_data[event->target % (SPELL_TYPES_COUNT+1)].field_D;
         text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 8:
         other_off = 1;
-        i = trap_data[event->field_C % MANUFCTR_TYPES_COUNT].name_stridx;
+        i = trap_data[event->target % MANUFCTR_TYPES_COUNT].name_stridx;
         text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 9:
         other_off = 1;
-        i = door_names[event->field_C % DOOR_TYPES_COUNT];
+        i = door_names[event->target % DOOR_TYPES_COUNT];
         text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 10:
         other_off = 1;
-        thing = thing_get(event->field_C);
+        thing = thing_get(event->target);
         if (thing_is_invalid(thing))
           break;
         i = creature_data[thing->model % CREATURE_TYPES_COUNT].namestr_idx;
@@ -7686,13 +7686,13 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         break;
     case 12:
         other_off = 1;
-        text = buf_sprintf("%s:\n %d", game.evntbox_text_shown, event->field_C);
+        text = buf_sprintf("%s:\n %d", game.evntbox_text_shown, event->target);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 14:
         other_off = 1;
-        thing = thing_get(event->field_C);
+        thing = thing_get(event->target);
         if (thing_is_invalid(thing))
           break;
         i = spell_data[object_to_magic[thing->model % OBJECT_TYPES_COUNT]].field_D;
@@ -7702,14 +7702,14 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         break;
     case 15:
         other_off = 1;
-        i = room_data[event->field_C].field_13;
+        i = room_data[event->target].field_13;
         text = buf_sprintf("%s:\n %s",game.evntbox_text_shown,gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 16:
         other_off = 1;
-        thing = thing_get(event->field_C);
+        thing = thing_get(event->target);
         if (thing_is_invalid(thing))
           break;
         i = creature_data[thing->model % CREATURE_TYPES_COUNT].namestr_idx;
@@ -7727,11 +7727,11 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 21:
-        i = (long)event->field_C;
+        i = (long)event->target;
         if (i < 0)
         {
           i = -i;
-          event->field_C = i;
+          event->target = i;
         }
         strncpy(game.evntbox_text_buffer, campaign.strings[i%STRINGS_MAX], MESSAGE_TEXT_LEN-1);
         strncpy(game.evntbox_text_shown, game.evntbox_text_buffer, MESSAGE_TEXT_LEN-1);
@@ -7740,7 +7740,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         break;
     case 24:
         other_off = 1;
-        thing = thing_get(event->field_C);
+        thing = thing_get(event->target);
         if (thing_is_invalid(thing))
           break;
         i = trap_data[object_to_door_or_trap[thing->model % OBJECT_TYPES_COUNT]].name_stridx;
@@ -7750,7 +7750,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         break;
       case 25:
         other_off = 1;
-        thing = thing_get(event->field_C);
+        thing = thing_get(event->target);
         if (thing_is_invalid(thing))
           break;
         i = door_names[object_to_door_or_trap[thing->model % OBJECT_TYPES_COUNT]];
@@ -7760,7 +7760,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         break;
       case 26:
         other_off = 1;
-        thing = thing_get(event->field_C);
+        thing = thing_get(event->target);
         if (thing_is_invalid(thing))
           break;
         i = specials_text[thing_to_special(thing)];
@@ -7769,11 +7769,11 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         turn_on_menu(GMnu_TEXT_INFO);
         break;
       case 27:
-        i = (long)event->field_C;
+        i = (long)event->target;
         if (i < 0)
         {
           i = -i;
-          event->field_C = i;
+          event->target = i;
         }
         strncpy(game.evntbox_text_buffer, gameadd.quick_messages[i%QUICK_MESSAGES_COUNT], MESSAGE_TEXT_LEN-1);
         strncpy(game.evntbox_text_shown, game.evntbox_text_buffer, MESSAGE_TEXT_LEN-1);
@@ -8653,13 +8653,12 @@ struct Event *event_allocate_free_event_structure(void)
 
 void event_initialise_event(struct Event *event, long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id)
 {
-  static const char *func_name="event_initialise_event";
   event->mappos_x = map_x;
   event->mappos_y = map_y;
   event->kind = evkind;
   event->owner = dngn_id;
   event->birth_turn = event_button_info[evkind].field_8;
-  event->field_C = msg_id;
+  event->target = msg_id;
   event->field_14 = 1;
 }
 
@@ -8773,7 +8772,7 @@ struct Thing *event_is_attached_to_thing(long ev_idx)
   case 24:
   case 25:
   case 26:
-      i = event->field_C;
+      i = event->target;
       break;
   default:
       i = 0;
@@ -9089,11 +9088,6 @@ int clear_active_dungeons_stats(void)
       memset((char *)dungeon->field_4E4, 0, CREATURE_TYPES_COUNT*3*sizeof(unsigned short));
   }
   return i;
-}
-
-void draw_slab64k(long pos_x, long pos_y, long width, long height)
-{
-  _DK_draw_slab64k(pos_x, pos_y, width, height);
 }
 
 short update_3d_sound_receiver(struct PlayerInfo *player)

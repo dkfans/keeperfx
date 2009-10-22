@@ -799,37 +799,32 @@ void draw_selected_slab_box(struct Camera *cam, unsigned char stl_width)
   }
 }
 
-void draw_frontview_things_on_element(struct Map *map, struct Camera *cam)
+void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struct Camera *cam)
 {
-  struct Thing *thing;
   long cx,cy,cz;
-  long i;
-  thing = thing_get(thing_index_on_map_block(map));
-  while ( !thing_is_invalid(thing) )
+  if ((thing->field_4F & 0x01) != 0)
+    return;
+  switch ( (thing->field_50 >> 2) )
   {
-    if ((thing->field_4F & 0x01) == 0)
-    {
-      switch ( (thing->field_50 >> 2) )
-      {
-      case 2:
+  case 2:
           convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
           if (is_free_space_in_poly_pool(1))
           {
             add_unkn11_to_polypool(thing, cx, cy, cy, cz-3);
-            if ((thing->class_id == 5) && is_free_space_in_poly_pool(1))
+            if ((thing->class_id == TCls_Creature) && is_free_space_in_poly_pool(1))
             {
               create_fast_view_status_box(thing, cx, cy);
             }
           }
           break;
-      case 4:
+  case 4:
           convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
           if (is_free_space_in_poly_pool(1))
           {
             add_unkn16_to_polypool(cx, cy, thing->long_13, 1);
           }
           break;
-      case 5:
+  case 5:
           convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
           if (is_free_space_in_poly_pool(1))
           {
@@ -852,18 +847,41 @@ void draw_frontview_things_on_element(struct Map *map, struct Camera *cam)
             }
           }
           break;
-      case 6:
+  case 6:
           convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
           if (is_free_space_in_poly_pool(1))
           {
             add_unkn18_to_polypool(thing, cx, cy, cy, cz-3);
           }
           break;
-      default:
+  default:
           break;
-      }
+  }
+}
+
+void draw_frontview_things_on_element(struct Map *map, struct Camera *cam)
+{
+  struct Thing *thing;
+  long i;
+  unsigned long k;
+  k = 0;
+  i = thing_index_on_map_block(map);
+  while (i != 0)
+  {
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
+    {
+      ERRORLOG("Jump to invalid thing detected");
+      break;
     }
-    thing = thing_get(thing->field_2);
+    i = thing->field_2;
+    draw_frontview_thing_on_element(thing, map, cam);
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping things list");
+      break;
+    }
   }
 }
 

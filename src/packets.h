@@ -40,6 +40,7 @@ enum TbPacketAction {
         PckA_SetMinimapConf =   28,
         PckA_PasngrCtrlExit =   32,
         PckA_SetPlyrState   =   36,
+        PckA_ToggleTendency =   55,
         PckA_CheatEnter     =   60,
         PckA_CheatAllFree   =   61,
         PckA_CheatCrtSpells =   62,

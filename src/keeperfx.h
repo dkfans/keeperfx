@@ -323,10 +323,6 @@ unsigned char field_11;
 unsigned char field_12[2];
 };
 
-struct Around { // sizeof = 2
-  signed char delta_x;
-  signed char delta_y;
-};
 
 struct MapOffset {
   char v;
@@ -530,7 +526,7 @@ unsigned char field_1;
     long mappos_y;
     unsigned char owner;
     unsigned char kind;
-long field_C; // signed
+    long target;
     long birth_turn;
 unsigned char field_14;
 };
@@ -1634,6 +1630,7 @@ extern const short door_names[];
 extern struct SpellData spell_data[];
 extern struct RoomInfo room_info[];
 extern const struct Around around[];
+
 //Functions - exported by the DLL
 
 DLLIMPORT int __stdcall _DK_WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd);

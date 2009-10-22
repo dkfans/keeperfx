@@ -71,7 +71,6 @@ short get_bookmark_inputs(void);
 /******************************************************************************/
 short game_is_busy_doing_gui_string_input(void)
 {
-  //return _DK_game_is_busy_doing_gui_string_input();
   return (input_button != NULL);
 }
 
@@ -82,9 +81,8 @@ short current_view_supports_status_menu()
   return (player->view_type != PVT_MapScreen);
 }
 
-int is_game_key_pressed(long key_id, long *val, short ignore_mods)
+int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
 {
-  //return _DK_is_game_key_pressed(key_id, val, ignore_mods);
   int result;
   int i;
   if ((key_id < 0) || (key_id >= GAME_KEYS_COUNT))
@@ -415,6 +413,9 @@ short get_global_inputs(void)
     JUSTMSG("REPORT for gameturn %d",game.play_gameturn);
     // Timing report
     JUSTMSG("Now time is %d, last loop time was %d, clock is %d, requested fps is %d",LbTimerClock(),last_loop_time,clock(),game.num_fps);
+    struct Dungeon *dungeon;
+    dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+//    show_onscreen_msg(2*game.num_fps, "DEBUG field_8D4=%d", (int)dungeon->chickens_sacrificed);
     test_variable = !test_variable;
   }
 
@@ -594,7 +595,7 @@ short get_level_lost_inputs(void)
       break;
     case PVT_CreatureContrl:
       thing = thing_get(player->field_2F);
-      if (thing->class_id == 5)
+      if (thing->class_id == TCls_Creature)
       {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
@@ -652,7 +653,6 @@ short get_status_panel_keyboard_action_inputs(void)
 
 long get_dungeon_control_action_inputs(void)
 {
-  //return _DK_get_dungeon_control_action_inputs();
   struct PlayerInfo *player;
   long val;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
@@ -931,12 +931,121 @@ short get_map_action_inputs(void)
 
 void get_isometric_view_nonaction_inputs(void)
 {
-  _DK_get_isometric_view_nonaction_inputs();
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  int key4_pressed,key5_pressed;
+  long mx,my;
+
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  mx = my_mouse_x;
+  my = my_mouse_y;
+  key4_pressed = is_game_key_pressed(4, NULL, true);
+  key5_pressed = is_game_key_pressed(5, NULL, true);
+  if ((player->field_0 & 0x10) != 0)
+    return;
+  if ( key5_pressed )
+    pckt->field_10 |= 0x01;
+  if (mx <= 4)
+  {
+    if ( is_game_key_pressed(2, NULL, false) )
+    {
+      if (!key4_pressed)
+        pckt->field_10 |= 0x01;
+    }
+    set_packet_control(pckt, 0x010);
+  }
+  if (mx >= MyScreenWidth-4)
+  {
+    if ( is_game_key_pressed(3, NULL, false) )
+    {
+      if (!key4_pressed)
+        pckt->field_10 |= 0x01;
+    }
+    set_packet_control(pckt, 0x020);
+  }
+  if (my <= 4)
+  {
+    if ( is_game_key_pressed(0, NULL, false) )
+    {
+      if (!key4_pressed)
+        pckt->field_10 |= 0x01;
+    }
+    set_packet_control(pckt, 0x04);
+  }
+  if (my >= MyScreenHeight-4)
+  {
+    if ( is_game_key_pressed(1, NULL, false) )
+    {
+      if (!key4_pressed)
+        pckt->field_10 |= 0x01;
+    }
+    set_packet_control(pckt, 0x08);
+  }
+  if ( key4_pressed )
+  {
+    if ( is_game_key_pressed(2, NULL, key5_pressed!=0) )
+      set_packet_control(pckt, 0x01);
+    if ( is_game_key_pressed(3, NULL, key5_pressed!=0) )
+      set_packet_control(pckt, 0x02);
+    if ( is_game_key_pressed(0, NULL, key5_pressed!=0) )
+      set_packet_control(pckt, 0x40);
+    if ( is_game_key_pressed(1, NULL, key5_pressed!=0) )
+      set_packet_control(pckt, 0x80);
+  } else
+  {
+    if ( is_game_key_pressed(6, NULL, false) )
+      set_packet_control(pckt, 0x01);
+    if ( is_game_key_pressed(7, NULL, false) )
+      set_packet_control(pckt, 0x02);
+    if ( is_game_key_pressed(8, NULL, false) )
+      set_packet_control(pckt, 0x40);
+    if ( is_game_key_pressed(9, NULL, false) )
+      set_packet_control(pckt, 0x80);
+    if ( is_game_key_pressed(2, NULL, key5_pressed!=0) )
+      set_packet_control(pckt, 0x10);
+    if ( is_game_key_pressed(3, NULL, key5_pressed!=0) )
+      set_packet_control(pckt, 0x20);
+    if ( is_game_key_pressed(0, NULL, key5_pressed!=0) )
+      set_packet_control(pckt, 0x04);
+    if ( is_game_key_pressed(1, NULL, key5_pressed!=0) )
+      set_packet_control(pckt, 0x08);
+  }
 }
 
 void get_overhead_view_nonaction_inputs(void)
 {
-  _DK_get_overhead_view_nonaction_inputs();
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  int key4_pressed,key5_pressed;
+  long mx,my;
+  SYNCDBG(19,"Starting");
+  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  my = my_mouse_y;
+  mx = my_mouse_x;
+  key4_pressed = is_game_key_pressed(4, 0, 1);
+  key5_pressed = is_game_key_pressed(5, 0, 1);
+  if ((player->field_0 & 0x10) == 0)
+  {
+    if (key5_pressed)
+      pckt->field_10 |= 0x01;
+    if (key4_pressed)
+    {
+      if ( is_game_key_pressed(0, NULL, key5_pressed!=0) )
+        set_packet_control(pckt, 0x40);
+      if ( is_game_key_pressed(1, NULL, key5_pressed!=0) )
+        set_packet_control(pckt, 0x80);
+    }
+    if (my <= 4)
+      set_packet_control(pckt, 0x04);
+    if (my >= MyScreenHeight-4)
+      set_packet_control(pckt, 0x08);
+    if (mx <= 4)
+      set_packet_control(pckt, 0x10);
+    if (mx >= MyScreenWidth-4)
+      set_packet_control(pckt, 0x20);
+  }
 }
 
 void get_front_view_nonaction_inputs(void)
@@ -956,11 +1065,9 @@ short slab_type_is_door(unsigned short slab_type)
 unsigned char get_player_coords_and_context(struct Coord3d *pos, unsigned char *context)
 {
   struct PlayerInfo *player;
-  struct Dungeon *dungeon;
   struct SlabMap *slb;
   struct SlabAttr *slbattr;
   struct Thing *thing;
-  struct Map *map;
   unsigned long x,y;
   unsigned int slab_x,slab_y;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
@@ -979,22 +1086,20 @@ unsigned char get_player_coords_and_context(struct Coord3d *pos, unsigned char *
   slab_x = map_to_slab[x];
   slab_y = map_to_slab[y];
   slb = get_slabmap_block(slab_x, slab_y);
-  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
   slbattr = &slab_attrs[slb->slab%SLAB_TYPES_COUNT];
-  map = get_map_block(x, y);
   if (slab_type_is_door(slb->slab) && ((slb->field_5 & 7) == player->field_2B))
   {
     *context = 2;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if (dungeon->things_in_hand[0])
+  if (!power_hand_is_empty(player))
   {
     *context = 3;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if (((1 << player->field_2B) & (map->data >> 28)) == 0)
+  if (!subtile_revealed(x,y,player->field_2B))
   {
     *context = 1;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -1030,7 +1135,6 @@ unsigned char get_player_coords_and_context(struct Coord3d *pos, unsigned char *
 
 void get_dungeon_control_nonaction_inputs(void)
 {
-  //_DK_get_dungeon_control_nonaction_inputs(); return;
   unsigned char context;
   struct Coord3d pos;
   struct PlayerInfo *player;
@@ -1079,7 +1183,10 @@ void get_map_nonaction_inputs(void)
   struct Coord3d pos;
   struct PlayerInfo *player;
   struct Packet *pckt;
-  //_DK_get_map_nonaction_inputs();
+  SYNCDBG(9,"Starting");
+  pos.x.val = 0;
+  pos.y.val = 0;
+  pos.z.val = 0;
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
   pckt = &game.packets[player->packet_num%PACKETS_COUNT];
   set_players_packet_position(player,GetMouseX(),GetMouseY());
@@ -1094,7 +1201,6 @@ void get_map_nonaction_inputs(void)
 
 short get_packet_load_game_inputs(void)
 {
-  static const char *func_name="get_packet_load_game_inputs";
   struct PlayerInfo *player;
   load_packets_for_turn(game.pckt_gameturn);
   game.pckt_gameturn++;
@@ -1131,8 +1237,6 @@ short get_packet_load_demo_inputs(void)
 
 void get_creature_control_nonaction_inputs(void)
 {
-  static const char *func_name="get_creature_control_nonaction_inputs";
-//  _DK_get_creature_control_nonaction_inputs(); return;
   struct PlayerInfo *player;
   struct Packet *pckt;
   struct Thing *thing;
@@ -1174,10 +1278,10 @@ void get_creature_control_nonaction_inputs(void)
     pckt->pos_y = k*y + 127;
   }
   // Bound posx and pos_y
-  if (pckt->pos_x > 255)
-    pckt->pos_x = 255;
-  if (pckt->pos_y > 255)
-    pckt->pos_y = 255;
+  if (pckt->pos_x > map_subtiles_x)
+    pckt->pos_x = map_subtiles_x;
+  if (pckt->pos_y > map_subtiles_y)
+    pckt->pos_y = map_subtiles_y;
   // Now do user actions
   if (thing_is_invalid(thing))
     return;
@@ -1264,13 +1368,14 @@ short get_inputs(void)
       return true;
     }
   }
-  short inp_handled = false;
+  TbBool inp_handled = false;
   if (((game.numfield_C & 0x01) == 0) || ((game.numfield_C & 0x80) != 0))
     inp_handled = get_gui_inputs(1);
   if (!inp_handled)
     inp_handled = get_global_inputs();
   if (game_is_busy_doing_gui_string_input())
     return false;
+  SYNCDBG(7,"Getting inputs for view %d",(int)player->view_type);
   switch (player->view_type)
   {
   case PVT_DungeonTop:

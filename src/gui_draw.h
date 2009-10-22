@@ -51,6 +51,8 @@ DLLIMPORT extern unsigned long _DK_end_gui_panel_sprite_data;
 /******************************************************************************/
 void draw_bar64k(long pos_x, long pos_y, long width);
 void draw_lit_bar64k(long pos_x, long pos_y, long width);
+void draw_slab64k(long pos_x, long pos_y, long width, long height);
+void draw_ornate_slab64k(long pos_x, long pos_y, long width, long height);
 void draw_button_string(struct GuiButton *gbtn, const char *text);
 int draw_text_box(char *text);
 

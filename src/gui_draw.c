@@ -33,6 +33,8 @@ char gui_textbuf[TEXT_BUFFER_LENGTH];
 /******************************************************************************/
 DLLIMPORT void _DK_draw_button_string(struct GuiButton *gbtn, const char *text);
 DLLIMPORT int _DK_draw_text_box(char *text);
+DLLIMPORT void _DK_draw_slab64k(long pos_x, long pos_y, long width, long height);
+DLLIMPORT void _DK_draw_ornate_slab64k(long pos_x, long pos_y, long width, long height);
 /******************************************************************************/
 
 /******************************************************************************/
@@ -79,6 +81,16 @@ void draw_lit_bar64k(long pos_x, long pos_y, long width)
   LbSpriteDraw(body_end/pixel_size, pos_y/pixel_size, &button_sprite[8]);
   // ending sprite
   LbSpriteDraw((pos_x+width-32)/pixel_size, pos_y/pixel_size, &button_sprite[9]);
+}
+
+void draw_slab64k(long pos_x, long pos_y, long width, long height)
+{
+  _DK_draw_slab64k(pos_x, pos_y, width, height);
+}
+
+void draw_ornate_slab64k(long pos_x, long pos_y, long width, long height)
+{
+  _DK_draw_ornate_slab64k(pos_x, pos_y, width, height);
 }
 
 void draw_button_string(struct GuiButton *gbtn, const char *text)
