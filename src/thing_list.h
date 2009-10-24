@@ -126,7 +126,7 @@ unsigned short field_58;
     short health; //signed
 unsigned short field_60;
     unsigned short field_62;
-    short field_64;
+    short ccontrol_idx;
     unsigned char field_66;
     short next_of_class;
     unsigned char field_69;

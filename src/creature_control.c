@@ -20,6 +20,7 @@
 #include "globals.h"
 
 #include "bflib_sound.h"
+#include "bflib_math.h"
 #include "keeperfx.h"
 #include "config_creature.h"
 #include "frontend.h"
@@ -82,9 +83,9 @@ struct CreatureControl *creature_control_get(long cctrl_idx)
  */
 struct CreatureControl *creature_control_get_from_thing(const struct Thing *thing)
 {
-  if ((thing->field_64 < 1) || (thing->field_64 > CREATURES_COUNT))
+  if ((thing->ccontrol_idx < 1) || (thing->ccontrol_idx > CREATURES_COUNT))
     return game.persons.cctrl_lookup[0];
-  return game.persons.cctrl_lookup[thing->field_64];
+  return game.persons.cctrl_lookup[thing->ccontrol_idx];
 }
 
 /*
@@ -154,6 +155,14 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
   return thing;
 }
 
+void clear_creature_instance(struct Thing *thing)
+{
+  struct CreatureControl *cctrl;
+  cctrl = creature_control_get_from_thing(thing);
+  cctrl->field_D2 = 0;
+  cctrl->field_D4 = 0;
+}
+
 TbBool disband_creatures_group(struct Thing *thing)
 {
   struct CreatureControl *cctrl;
@@ -163,11 +172,12 @@ TbBool disband_creatures_group(struct Thing *thing)
   cctrl = creature_control_get_from_thing(thing);
   if ((cctrl->field_7A & 0xFFF) == 0)
     return true;
+  // Find the last creature in group
   ctng = thing;
   k = 0;
-  while (cctrl->field_76 > 0)
+  while (cctrl->next_in_group > 0)
   {
-    ctng = thing_get(cctrl->field_76);
+    ctng = thing_get(cctrl->next_in_group);
     cctrl = creature_control_get_from_thing(ctng);
     k++;
     if (k > CREATURES_COUNT)
@@ -181,7 +191,7 @@ TbBool disband_creatures_group(struct Thing *thing)
   while (ctng != NULL)
   {
     cctrl = creature_control_get_from_thing(ctng);
-    ntng = thing_get(cctrl->field_78);
+    ntng = thing_get(cctrl->prev_in_group);
     if (!thing_is_invalid(ntng))
     {
       remove_creature_from_group(ctng);
@@ -202,30 +212,37 @@ TbBool disband_creatures_group(struct Thing *thing)
 
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
 {
+  unsigned int cmodel;
+  cmodel = thing->model;
+  if ((cmodel < 1) || (cmodel >= CREATURE_TYPES_COUNT))
+  {
+    ERRORLOG("Trying to get sound for undefined creature type");
+    return NULL;
+  }
   switch (snd_idx)
   {
     case 1:
-      return &creature_sounds[thing->model].snd05;
+      return &creature_sounds[cmodel].snd05;
     case 2:
-      return &creature_sounds[thing->model].snd02;
+      return &creature_sounds[cmodel].snd02;
     case 3:
-      return &creature_sounds[thing->model].snd03;
+      return &creature_sounds[cmodel].snd03;
     case 4:
-      return &creature_sounds[thing->model].snd04;
+      return &creature_sounds[cmodel].snd04;
     case 5:
-      return &creature_sounds[thing->model].snd07;
+      return &creature_sounds[cmodel].snd07;
     case 6:
-      return &creature_sounds[thing->model].snd08;
+      return &creature_sounds[cmodel].snd08;
     case 7:
-      return &creature_sounds[thing->model].snd09;
+      return &creature_sounds[cmodel].snd09;
     case 8:
-      return &creature_sounds[thing->model].snd10;
+      return &creature_sounds[cmodel].snd10;
     case 9:
-      return &creature_sounds[thing->model].snd06;
+      return &creature_sounds[cmodel].snd06;
     case 10:
-      return &creature_sounds[thing->model].snd01;
+      return &creature_sounds[cmodel].snd01;
     case 11:
-      return &creature_sounds[thing->model].snd11;
+      return &creature_sounds[cmodel].snd11;
     default:
       return NULL;
   }

@@ -1484,14 +1484,6 @@ void apply_damage_to_thing(struct Thing *thing, long a2, char a3)
   _DK_apply_damage_to_thing(thing, a2, a3);
 }
 
-void clear_creature_instance(struct Thing *thing)
-{
-  struct CreatureControl *cctrl;
-  cctrl = creature_control_get_from_thing(thing);
-  cctrl->field_D2 = 0;
-  cctrl->field_D4 = 0;
-}
-
 void slap_creature(struct PlayerInfo *player, struct Thing *thing)
 {
   struct CreatureStats *crstat;
@@ -2870,9 +2862,9 @@ long update_creature(struct Thing *thing)
   move_creature(thing);
   if ((thing->field_0 & 0x20) != 0)
   {
-    if ((cctrl->field_0 & 0x4000) == 0)
+    if ((cctrl->flgfield_0 & 0x4000) == 0)
       cctrl->field_C8 /= 2;
-    if ((cctrl->field_0 & 0x8000) == 0)
+    if ((cctrl->flgfield_0 & 0x8000) == 0)
       cctrl->field_CA /= 2;
   } else
   {
@@ -2909,10 +2901,11 @@ long update_creature(struct Thing *thing)
   cctrl->pos_BB.x.val = 0;
   cctrl->pos_BB.y.val = 0;
   cctrl->pos_BB.z.val = 0;
-  set_flag_word(&cctrl->field_0,0x4000,false);
-  set_flag_word(&cctrl->field_0,0x8000,false);
+  set_flag_word(&cctrl->flgfield_0,0x4000,false);
+  set_flag_word(&cctrl->flgfield_0,0x8000,false);
   set_flag_byte(&cctrl->field_AD,0x04,false);
   process_thing_spell_effects(thing);
+  SYNCDBG(19,"Finished");
   return 1;
 }
 
@@ -6435,7 +6428,7 @@ void multiply_creatures(struct PlayerInfo *player)
       break;
     set_creature_level(tncopy, thing->field_23);
     tncopy->health = thing->health;
-    if (thing->field_64 >= CREATURES_COUNT)
+    if (thing->ccontrol_idx >= CREATURES_COUNT)
       break;
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
@@ -6998,7 +6991,7 @@ void delete_all_control_structures(void)
   {
     if (cctrl != NULL)
     {
-      if (cctrl->field_0 & 0x0100)
+      if (cctrl->flgfield_0 & 0x0100)
         delete_control_structure(cctrl);
     }
   }
@@ -7414,7 +7407,7 @@ void level_lost_go_first_person(long plyr_idx)
     return;
   }
   cctrl = creature_control_get_from_thing(thing);
-  cctrl->field_0 |= 0x0200;
+  cctrl->flgfield_0 |= 0x0200;
   SYNCDBG(8,"Finished");
 }
 
