@@ -68,20 +68,27 @@ TbBool subtile_coords_invalid(long stl_x, long stl_y)
   return false;
 }
 
-struct Map *get_map_block(long stl_x, long stl_y)
+struct Map *get_map_block_at(long stl_x, long stl_y)
 {
   if ((stl_x < 0) || (stl_x > map_subtiles_x))
-      return &bad_map_block;
+      return INVALID_MAP_BLOCK;
   if ((stl_y < 0) || (stl_y > map_subtiles_y))
-      return &bad_map_block;
+      return INVALID_MAP_BLOCK;
   return &game.map[get_subtile_number(stl_x,stl_y)];
+}
+
+struct Map *get_map_block_at_pos(long stl_num)
+{
+  if ((stl_num < 0) || (stl_num > get_subtile_number(map_subtiles_x,map_subtiles_y)))
+      return INVALID_MAP_BLOCK;
+  return &game.map[stl_num];
 }
 
 TbBool map_block_invalid(struct Map *map)
 {
   if (map == NULL)
     return true;
-  if (map == &bad_map_block)
+  if (map == INVALID_MAP_BLOCK)
     return true;
   return (map < &game.map[0]);
 }
@@ -113,35 +120,43 @@ void reveal_map_subtile(long stl_x, long stl_y, long plyr_idx)
   struct Map *map;
   unsigned long i;
   nflag = (1 << plyr_idx);
-  map = get_map_block(stl_x, stl_y);
+  map = get_map_block_at(stl_x, stl_y);
   i = (map->data >> 28) | nflag;
   map->data |= (i & 0x0F) << 28;
 }
 
 TbBool subtile_revealed(long stl_x, long stl_y, long plyr_idx)
 {
-  unsigned short nflag;
+  unsigned short plyr_bit;
   struct Map *map;
-  nflag = (1 << plyr_idx);
-  map = get_map_block(stl_x, stl_y);
+  plyr_bit = (1 << plyr_idx);
+  map = get_map_block_at(stl_x, stl_y);
   if (map_block_invalid(map))
     return false;
-  if ((map->data >> 28) & nflag)
+  if ((map->data >> 28) & plyr_bit)
     return true;
   return false;
 }
 
 TbBool map_block_revealed(struct Map *map, long plyr_idx)
 {
-  unsigned short nflag;
-  nflag = (1 << plyr_idx);
+  unsigned short plyr_bit;
+  plyr_bit = (1 << plyr_idx);
   if (map_block_invalid(map))
     return false;
-  if ((map->data >> 28) & nflag)
+  if ((map->data >> 28) & plyr_bit)
     return true;
   return false;
 }
 
+TbBool map_block_revealed_bit(struct Map *map, long plyr_bit)
+{
+  if (map_block_invalid(map))
+    return false;
+  if ((map->data >> 28) & plyr_bit)
+    return true;
+  return false;
+}
 /******************************************************************************/
 
 TbBool set_coords_to_subtile_center(struct Coord3d *pos, long stl_x, long stl_y, long stl_z)
@@ -265,7 +280,7 @@ void clear_mapmap(void)
   for (y=0; y < (map_subtiles_y+1); y++)
     for (x=0; x < (map_subtiles_x+1); x++)
     {
-      map = get_map_block(x,y);
+      map = get_map_block_at(x,y);
       wptr = &game.field_46157[get_subtile_number(x,y)];
       flg = &game.mapflags[get_subtile_number(x,y)];
       memset(map, 0, sizeof(struct Map));
@@ -315,6 +330,14 @@ void reveal_map_area(long plyr_idx,long start_x,long end_x,long start_y,long end
   reveal_map_rect(plyr_idx,start_x,end_x,start_y,end_y);
   pannel_map_update(start_x,start_y,end_x,end_y);
 }
+
+TbBool map_pos_is_lava(long stl_x, long stl_y)
+{
+  unsigned long mflags;
+  mflags = get_map_flags(stl_x, stl_y);
+  return ((mflags & 0x10) != 0);
+}
+
 /******************************************************************************/
 
 /******************************************************************************/

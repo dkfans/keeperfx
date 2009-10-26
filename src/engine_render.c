@@ -692,10 +692,9 @@ void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, lo
     pos_y = (point_x / laaa) * y_step2[qdrant] + (point_y / laaa) * y_step1[qdrant] + (h << 8);
     slb_x = (pos_x >> 8) + x_offs[qdrant];
     slb_y = (pos_y >> 8) + y_offs[qdrant];
-    map = get_map_block(slb_x, slb_y);
+    map = get_map_block_at(slb_x, slb_y);
     if (!map_block_invalid(map))
     {
-      map = get_map_block(slb_x, slb_y);
       if (i == 0)
       {
         floor_pointed_at_x = slb_x;
@@ -979,7 +978,7 @@ void draw_frontview_engine(struct Camera *cam)
     pos_y = qy;
     while (pos_y > lim_y)
     {
-          map = get_map_block(stl_x, stl_y);
+          map = get_map_block_at(stl_x, stl_y);
           if (!map_block_invalid(map))
           {
             if (map->data & 0x7FF)

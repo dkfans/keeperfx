@@ -2782,8 +2782,7 @@ long update_creature(struct Thing *thing)
   struct Map *map;
   int i;
   SYNCDBG(18,"Starting");
-
-  map = get_map_block(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+  map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
   if ((thing->field_7 == 67) && (map->flags & 0x40))
   {
     kill_creature(thing, game.things_lookup[0], -1, 1, 0, 1);
@@ -9354,7 +9353,7 @@ TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsign
   struct Map *mapblk;
   struct SlabMap *slb;
   TbBool can_cast;
-  mapblk = get_map_block(stl_x, stl_y);
+  mapblk = get_map_block_at(stl_x, stl_y);
   slb = get_slabmap_for_subtile(stl_x, stl_y);
   can_cast = false;
   switch (spl_id)
@@ -10536,7 +10535,7 @@ void draw_zoom_box(void)
     scr_x = scrtop_x;
     for (map_dx=0; map_dx < map_tiles_x; map_dx++)
     {
-      mapblk = get_map_block(map_x+map_dx,map_y+map_dy);
+      mapblk = get_map_block_at(map_x+map_dx,map_y+map_dy);
       if (map_block_revealed(mapblk, player->field_2B))
       {
         k = element_top_face_texture(mapblk);
@@ -10561,7 +10560,7 @@ void draw_zoom_box(void)
     scr_x = 0;
     for (map_dx=0; map_dx < map_tiles_x; map_dx++)
     {
-      mapblk = get_map_block(map_x+map_dx,map_y+map_dy);
+      mapblk = get_map_block_at(map_x+map_dx,map_y+map_dy);
       if (map_block_revealed(mapblk, player->field_2B))
       {
         draw_zoom_box_things_on_mapblk(mapblk,subtile_size,scr_x,scr_y);
@@ -10593,7 +10592,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 
   if (i > 0)
   {
-    map = get_map_block(x,y);
+    map = get_map_block_at(x,y);
     visible = (player_bit & (map->data >> 28) != 0);
     if ((!visible) || ((map->data & 0x7FF) > 0))
     {
@@ -10632,7 +10631,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
     }
   } else
   {
-      map = get_map_block(x,y);
+      map = get_map_block_at(x,y);
       floor_pointed_at_x = x;
       floor_pointed_at_y = y;
       block_pointed_at_x = x;
@@ -10657,7 +10656,7 @@ void update_blocks_pointed(void)
     {
       block_pointed_at_x = 0;
       block_pointed_at_y = 0;
-      me_pointed_at = get_map_block(0,0);
+      me_pointed_at = get_map_block_at(0,0);
     } else
     {
       hori_ptr_y = hori_offset[0] * (pointer_y - y_init_off);

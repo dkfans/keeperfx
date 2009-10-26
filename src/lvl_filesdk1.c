@@ -588,7 +588,7 @@ long load_map_data_file(unsigned long lv_num)
   for (y=0; y < (map_subtiles_y+1); y++)
     for (x=0; x < (map_subtiles_x+1); x++)
     {
-      map = get_map_block(x,y);
+      map = get_map_block_at(x,y);
       n = -lword(&buf[i]);
       map->data = map->data ^ (map->data ^ n) & 0x7FF;
       i += 2;
@@ -598,7 +598,7 @@ long load_map_data_file(unsigned long lv_num)
   for (y=0; y < (map_subtiles_y+1); y++)
     for (x=0; x < (map_subtiles_x+1); x++)
     {
-      map = get_map_block(x,y);
+      map = get_map_block_at(x,y);
       wptr = &game.field_46157[get_subtile_number(x,y)];
       *wptr = 32;
       map->data &= 0xFFC007FFu;
@@ -949,7 +949,7 @@ short load_slab_file(void)
 long load_map_wibble_file(unsigned long lv_num)
 {
   struct Map *map;
-  unsigned long x,y;
+  unsigned long stl_x,stl_y;
   unsigned char *buf;
   unsigned long i,k;
   char *fname;
@@ -959,10 +959,10 @@ long load_map_wibble_file(unsigned long lv_num)
   if (buf == NULL)
     return false;
   i = 0;
-  for (y=0; y < (map_subtiles_y+1); y++)
-    for (x=0; x < (map_subtiles_x+1); x++)
+  for (stl_y=0; stl_y < (map_subtiles_y+1); stl_y++)
+    for (stl_x=0; stl_x < (map_subtiles_x+1); stl_x++)
     {
-      map = get_map_block(x,y);
+      map = get_map_block_at(stl_x,stl_y);
       k = buf[i];
       k = map->data ^ (k << 22);
       map->data = map->data ^ k & 0xC00000;
@@ -1120,7 +1120,7 @@ short load_map_flag_file(unsigned long lv_num)
 {
   SYNCDBG(5,"Starting");
   struct Map *map;
-  unsigned long x,y;
+  unsigned long stl_x,stl_y;
   unsigned char *buf;
   unsigned long i;
   long fsize;
@@ -1129,10 +1129,10 @@ short load_map_flag_file(unsigned long lv_num)
   if (buf == NULL)
     return false;
   i = 0;
-  for (y=0; y < (map_subtiles_y+1); y++)
-    for (x=0; x < (map_subtiles_x+1); x++)
+  for (stl_y=0; stl_y < (map_subtiles_y+1); stl_y++)
+    for (stl_x=0; stl_x < (map_subtiles_x+1); stl_x++)
     {
-      map = get_map_block(x,y);
+      map = get_map_block_at(stl_x,stl_y);
       map->flags = buf[i];
       i += 2;
     }

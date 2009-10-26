@@ -687,7 +687,6 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = 0;
       else
         player->thing_under_hand = thing->index;
-
       if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
       {
         if (player->thing_under_hand > 0)
@@ -1003,7 +1002,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       i = 0;
       slb = get_slabmap_for_subtile(stl_x, stl_y);
-      map = get_map_block(stl_x,stl_y);
+      map = get_map_block_at(stl_x,stl_y);
       if ((slb->field_5 & 7) == plyr_idx)
       {
         if (((map->flags & 0x02) != 0) && (slb->slab != SlbT_ENTRANCE) && (slb->slab != SlbT_DUNGHEART))

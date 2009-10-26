@@ -27,28 +27,28 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Map {
       unsigned char flags;
       unsigned long data;
 };
 
-#ifdef __cplusplus
+#define INVALID_MAP_BLOCK (&bad_map_block)
+
 #pragma pack()
-#endif
 /******************************************************************************/
 extern struct Map bad_map_block;
 extern const long map_to_slab[];
 /******************************************************************************/
-struct Map *get_map_block(long stl_x, long stl_y);
+struct Map *get_map_block_at(long stl_x, long stl_y);
+struct Map *get_map_block_at_pos(long stl_num);
 unsigned long get_map_flags(long stl_x, long stl_y);
 TbBool map_block_invalid(struct Map *map);
 void reveal_map_subtile(long stl_x, long stl_y, long plyr_idx);
 TbBool subtile_revealed(long stl_x, long stl_y, long plyr_idx);
 TbBool map_block_revealed(struct Map *map, long plyr_idx);
+TbBool map_block_revealed_bit(struct Map *map, long plyr_bit);
 long get_ceiling_height(struct Coord3d *pos);
 long thing_index_on_map_block(struct Map *map);
 
@@ -65,6 +65,8 @@ long stl_num_decode_y(unsigned long stl_num);
 long slab_center_subtile(long stl_v);
 long slab_starting_subtile(long stl_v);
 long slab_ending_subtile(long stl_v);
+
+TbBool map_pos_is_lava(long stl_x, long stl_y);
 
 void clear_dig_for_map_rect(long plyr_idx,long start_x,long end_x,long start_y,long end_y);
 void reveal_map_rect(long plyr_idx,long start_x,long end_x,long start_y,long end_y);
