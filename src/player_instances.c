@@ -165,7 +165,7 @@ long pinstfm_hand_grab(struct PlayerInfo *player, long *n)
   //return _DK_pinstfs_hand_grab(player, n);
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
   thing = thing_get(player->field_43E);
-  if (thing->class_id == 5)
+  if (thing->class_id == TCls_Creature)
   {
     dungeon->field_43 += (creature_picked_up_offset[thing->model].field_4 - 60) / 4;
     dungeon->field_53 += (creature_picked_up_offset[thing->model].field_6 - 40) / 4;
@@ -182,34 +182,35 @@ long pinstfm_hand_grab(struct PlayerInfo *player, long *n)
 long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
 {
   //return _DK_pinstfe_hand_grab(player, n);
-  struct Thing *picktng;
-  struct Thing *thing2;
+  struct Thing *dsttng;
+  struct Thing *grabtng;
   struct CreatureControl *cctrl;
   long i;
-  picktng = thing_get(player->field_43E);
-  thing2 = thing_get(player->field_43A);
-  if (!thing_is_pickable_by_hand(player,picktng))
+  SYNCDBG(8,"Starting");
+  dsttng = thing_get(player->field_43E);
+  grabtng = thing_get(player->field_43A);
+  if (!thing_is_pickable_by_hand(player,dsttng))
   {
     player->field_440 = 0;
     player->field_43E = 0;
     return 0;
   }
-  set_power_hand_offset(player, picktng);
-  switch (picktng->class_id)
+  set_power_hand_offset(player, dsttng);
+  switch (dsttng->class_id)
   {
   case TCls_Creature:
-      if (!external_set_thing_state(picktng, 38))
+      if (!external_set_thing_state(dsttng, 38))
         return 0;
-      cctrl = creature_control_get_from_thing(picktng);
+      cctrl = creature_control_get_from_thing(dsttng);
       if (cctrl->field_AD & 0x02)
         i = convert_td_iso(122);
       else
-        i = get_creature_anim(picktng, 9);
-      set_thing_draw(picktng, i, 256, -1, -1, 0, 2);
+        i = get_creature_anim(dsttng, 9);
+      set_thing_draw(dsttng, i, 256, -1, -1, 0, 2);
       break;
   case TCls_Object:
-      picktng = process_object_being_picked_up(picktng, thing2->owner);
-      if (thing_is_invalid(picktng))
+      dsttng = process_object_being_picked_up(dsttng, grabtng->owner);
+      if (thing_is_invalid(dsttng))
       {
         player->field_440 = 0;
         player->field_43E = 0;
@@ -217,12 +218,12 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
       }
       break;
   }
-  if (!thing_is_invalid(thing2))
+  if (!thing_is_invalid(grabtng))
     set_power_hand_graphic(player->field_2B, 784, 256);
-  dump_thing_in_power_hand(picktng, player->field_2B);
+  dump_thing_in_power_hand(dsttng, player->field_2B);
   player->field_440 = 0;
   player->field_43E = 0;
-  place_thing_in_limbo(picktng);
+  place_thing_in_limbo(dsttng);
   return 0;
 }
 
@@ -380,7 +381,7 @@ long pinstfe_hand_whip_end(struct PlayerInfo *player, long *n)
 
 long pinstfs_control_creature(struct PlayerInfo *player, long *n)
 {
-  struct Camera *cam; // ST00_4@3
+  struct Camera *cam;
   //return _DK_pinstfs_control_creature(player, n);
   player->field_0 |= 0x80;
   if (is_my_player(player))
@@ -674,12 +675,62 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
 
 long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfm_zoom_out_of_heart(player, n);
+  struct Dungeon *dungeon;
+  struct Thing *thing;
+  struct Camera *dstcam;
+  struct Camera *cam;
+  unsigned long deltax,deltay;
+  unsigned long addval;
+  //return _DK_pinstfm_zoom_out_of_heart(player, n);
+  if (player->field_37 != 5)
+  {
+    cam = player->acamera;
+    dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+    thing = thing_get(dungeon->dnheart_idx);
+    if (cam != NULL)
+    {
+      cam->field_17 -= 988;
+      cam->orient_a += 16;
+      addval = (thing->field_58 >> 1);
+      deltax = (LbSinL(cam->orient_a) * (thing->mappos.z.val+addval) >> 16);
+      deltay = (LbCosL(cam->orient_a) * (thing->mappos.z.val+addval) >> 16);
+    } else
+    {
+      addval = (thing->field_58 >> 1);
+      deltax = thing->mappos.z.val+addval;
+      deltay = thing->mappos.z.val+addval;
+    }
+    dstcam = &player->cameras[0];
+    dstcam->mappos.x.val = thing->mappos.x.val + deltax;
+    dstcam->mappos.y.val = thing->mappos.y.val - deltay;
+    dstcam = &player->cameras[3];
+    dstcam->mappos.x.val = thing->mappos.x.val + deltax;
+    dstcam->mappos.y.val = thing->mappos.y.val - deltay;
+  }
+  if (player->field_4B1 >= 8)
+    LbPaletteFade(_DK_palette, 8, Lb_PALETTE_FADE_OPEN);
+  return 0;
+
 }
 
 long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfe_zoom_out_of_heart(player, n);
+  struct Camera *cam;
+  //return _DK_pinstfe_zoom_out_of_heart(player, n);
+  LbPaletteStopOpenFade();
+  cam = player->acamera;
+  if ((player->field_37 != 5) && (cam != NULL))
+  {
+    cam->field_17 = 8192;
+    cam->orient_a = 256;
+  }
+  light_turn_light_on(player->field_460);
+  player->field_0 &= 0xEF;
+  player->field_0 &= 0x7F;
+  game.numfield_D &= 0xF7;
+  if (is_my_player(player))
+    PaletteSetPlayerPalette(player, _DK_palette);
+  return 0;
 }
 
 long pinstfm_control_creature_fade(struct PlayerInfo *player, long *n)

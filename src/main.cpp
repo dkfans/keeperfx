@@ -611,7 +611,6 @@ DLLIMPORT void _DK_check_and_auto_fix_stats(void);
 DLLIMPORT long _DK_update_dungeon_scores(void);
 DLLIMPORT long _DK_update_dungeon_generation_speeds(void);
 DLLIMPORT void _DK_calculate_dungeon_area_scores(void);
-DLLIMPORT void _DK_setup_computer_players2(void);
 DLLIMPORT long _DK_get_next_research_item(struct Dungeon *dungeon);
 DLLIMPORT void _DK_clear_columns(void);
 DLLIMPORT void _DK_delete_all_structures(void);
@@ -6065,28 +6064,6 @@ void check_map_for_gold(void)
 {
   SYNCDBG(8,"Starting");
   _DK_check_map_for_gold();
-}
-
-void setup_computer_players2(void)
-{
-  struct PlayerInfo *player;
-  int i;
-  check_map_for_gold();
-  for (i=0; i < COMPUTER_TASKS_COUNT; i++)
-  {
-    LbMemorySet(&game.computer_task[i], 0, sizeof(struct ComputerTask));
-  }
-  for (i=0; i < PLAYERS_COUNT; i++)
-  {
-    player = &(game.players[i]);
-    if (player->field_0 & 0x01)
-    {
-      if (player->field_2C == 1)
-      {
-        setup_a_computer_player(i, 7);
-      }
-    }
-  }
 }
 
 void gui_set_button_flashing(long a1, long a2)

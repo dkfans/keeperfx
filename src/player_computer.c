@@ -84,6 +84,7 @@ ComputerType computer_assist_types[] = { 6, 7, 8, 9 };
 unsigned short computer_types[] = { 201, 201, 201, 201, 201, 201, 729, 730, 731, 732 };
 
 /******************************************************************************/
+DLLIMPORT void _DK_setup_computer_players2(void);
 DLLIMPORT void _DK_process_computer_player2(unsigned long plridx);
 DLLIMPORT void _DK_setup_a_computer_player(unsigned long a1, long a2);
 DLLIMPORT struct ComputerTask *_DK_computer_setup_build_room(struct Computer2 *comp, unsigned short a2, long a3, long a4, long a5);
@@ -2059,22 +2060,52 @@ void process_computer_player2(unsigned long plridx)
     ERRORLOG("Computer performed more than one task");
 }
 
+struct ComputerProcess *computer_player_find_process_by_func_setup(long plyr_idx,Comp_Process_Func func_setup)
+{
+  struct ComputerProcess *process;
+  struct Computer2 *comp;
+  comp = &(game.computer[plyr_idx]);
+  process = &comp->processes[0];
+  while ((process->field_44 & 0x02) == 0)
+  {
+    if (process->func_setup == func_setup)
+    {
+        return process;
+    }
+    process++;
+  }
+  return NULL;
+}
+
+TbBool computer_player_demands_gold_check(long plyr_idx)
+{
+  struct ComputerProcess *dig_process;
+  dig_process = computer_player_find_process_by_func_setup(plyr_idx,computer_setup_dig_to_gold);
+  // If this computer player has no gold digging process
+  if (dig_process == NULL)
+    return false;
+  if ((dig_process->field_44 & 0x04) == 0)
+    return false;
+  // If the computer player needs to dig for gold
+  if (gameadd.turn_last_checked_for_gold+5000 < game.play_gameturn)
+  {
+    set_flag_dword(&dig_process->field_44, 0x04, false);
+    return true;
+  }
+  return false;
+}
+
 void process_computer_players2(void)
 {
   //_DK_process_computer_players2();
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
-  struct Computer2 *comp;
-  struct ComputerProcess *process;
-  struct ComputerProcess *dig_process;
-  short needs_gold_check;
+  TbBool needs_gold_check;
   int i;
-  static long turn_last_checked_for_gold;
   needs_gold_check = false;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
     player = &(game.players[i]);
-    comp = &(game.computer[i]);
     dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
     if ((player->field_0 & 0x01) == 0)
       continue;
@@ -2082,32 +2113,44 @@ void process_computer_players2(void)
       if (player->field_2C == 1)
       {
         process_computer_player2(i);
-        dig_process = NULL;
-        process = &comp->processes[0];
-        while ((process->field_44 & 0x02) == 0)
+        if (computer_player_demands_gold_check(i))
         {
-          if (process->func_setup == computer_setup_dig_to_gold)
-          {
-            if ((process->field_44 & 0x04) != 0)
-            {
-              dig_process = process;
-              break;
-            }
-          }
-          process++;
+          needs_gold_check = true;
         }
-        if (dig_process != NULL)
-          if (turn_last_checked_for_gold+5000 < game.play_gameturn)
-          {
-            needs_gold_check = true;
-            set_flag_dword(&dig_process->field_44, 0x0004, false);
-          }
       }
   }
   if (needs_gold_check)
   {
-    turn_last_checked_for_gold = game.play_gameturn;
+    SYNCDBG(0,"Computer players demand gold check.");
+    gameadd.turn_last_checked_for_gold = game.play_gameturn;
     check_map_for_gold();
+  } else
+  if (gameadd.turn_last_checked_for_gold > game.play_gameturn)
+  {
+    gameadd.turn_last_checked_for_gold = 0;
+  }
+}
+
+void setup_computer_players2(void)
+{
+  struct PlayerInfo *player;
+  int i;
+  gameadd.turn_last_checked_for_gold = game.play_gameturn;
+  check_map_for_gold();
+  for (i=0; i < COMPUTER_TASKS_COUNT; i++)
+  {
+    LbMemorySet(&game.computer_task[i], 0, sizeof(struct ComputerTask));
+  }
+  for (i=0; i < PLAYERS_COUNT; i++)
+  {
+    player = &(game.players[i]);
+    if (player->field_0 & 0x01)
+    {
+      if (player->field_2C == 1)
+      {
+        setup_a_computer_player(i, 7);
+      }
+    }
   }
 }
 

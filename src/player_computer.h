@@ -36,6 +36,7 @@ extern "C" {
 #define COMPUTER_CHECKS_TYPES_COUNT  51
 #define COMPUTER_EVENTS_TYPES_COUNT  31
 
+/******************************************************************************/
 #pragma pack(1)
 
 struct Computer2;
@@ -198,6 +199,7 @@ long get_computer_money_less_cost(struct Computer2 *comp);
 void setup_a_computer_player(unsigned short plyridx, long comp_model);
 void process_computer_players2(void);
 short load_computer_player_config(void);
+void setup_computer_players2(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
