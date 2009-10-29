@@ -66,7 +66,7 @@ DLLIMPORT void _DK_set_packet_action(struct Packet *pckt,unsigned char,short,sho
 /******************************************************************************/
 #define PACKET_START_POS (sizeof(struct PacketSaveHead))
 #define PACKET_TURN_SIZE (NET_PLAYERS_COUNT*sizeof(struct Packet) + sizeof(TbBigChecksum))
-
+struct Packet bad_packet;
 /******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
 {
@@ -78,7 +78,7 @@ void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned shor
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
 {
   struct Packet *pckt;
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet_direct(player->packet_num);
   pckt->field_6 = par1;
   pckt->field_8 = par2;
   pckt->action = pcktype;
@@ -87,7 +87,7 @@ void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
 unsigned char get_players_packet_action(struct PlayerInfo *player)
 {
   struct Packet *pckt;
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet_direct(player->packet_num);
   return pckt->action;
 }
 
@@ -99,7 +99,7 @@ void set_packet_control(struct Packet *pckt, unsigned long flag)
 void set_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 {
   struct Packet *pckt;
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet_direct(player->packet_num);
   pckt->control_flags |= flag;
 }
 
@@ -111,16 +111,45 @@ void unset_packet_control(struct Packet *pckt, unsigned long flag)
 void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 {
   struct Packet *pckt;
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet_direct(player->packet_num);
   pckt->control_flags &= ~flag;
 }
 
 void set_players_packet_position(struct PlayerInfo *player, long x, long y)
 {
   struct Packet *pckt;
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet_direct(player->packet_num);
   pckt->pos_x = x;
   pckt->pos_y = y;
+}
+
+/**
+ * Gives a pointer for the player's packet.
+ * @param plyr_idx The player index for which we want the packet.
+ * @return Returns Pactet pointer. On error, returns a dummy structure.
+ */
+struct Packet *get_packet(long plyr_idx)
+{
+  struct PlayerInfo *player;
+  struct Packet *pckt;
+  if ((plyr_idx < 0) || (plyr_idx >= PLAYERS_COUNT))
+    return INVALID_PACKET;
+  player = &(game.players[plyr_idx]);
+  if (player->packet_num >= PACKETS_COUNT)
+    return INVALID_PACKET;
+  return &game.packets[player->packet_num];
+}
+
+/**
+ * Gives a pointer to packet of given index.
+ * @param pckt_idx Packet index in the array. Note that it may differ from player index.
+ * @return Returns Pactet pointer. On error, returns a dummy structure.
+ */
+struct Packet *get_packet_direct(long pckt_idx)
+{
+  if ((pckt_idx < 0) || (pckt_idx >= PACKETS_COUNT))
+    return INVALID_PACKET;
+  return &game.packets[pckt_idx];
 }
 
 void clear_packets(void)
@@ -139,17 +168,17 @@ short set_packet_pause_toggle(void)
   player=&(game.players[my_player_number]);
   if (player->packet_num >= PACKETS_COUNT)
     return false;
-  pckt = &game.packets[player->packet_num];
+  pckt = get_packet_direct(player->packet_num);
   set_packet_action(pckt, PckA_TogglePause, 0, 0, 0, 0);
   return true;
 }
 
-unsigned long compute_players_checksum(void)
+TbBigChecksum compute_players_checksum(void)
 {
   struct PlayerInfo *player;
   struct Coord3d *mappos;
   int i;
-  unsigned long sum;
+  TbBigChecksum sum;
   sum = 0;
   for (i=0; i<PLAYERS_COUNT; i++)
   {
@@ -162,6 +191,13 @@ unsigned long compute_players_checksum(void)
     }
   }
   return sum;
+}
+
+void set_player_packet_checksum(long plyr_idx,TbBigChecksum sum)
+{
+  struct Packet *pckt;
+  pckt = get_packet(plyr_idx);
+  pckt->chksum = sum;
 }
 
 /*
@@ -181,7 +217,7 @@ short checksums_different(void)
     player=&(game.players[i]);
     if (((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0))
     {
-        pckt = &game.packets[player->packet_num];
+        pckt = get_packet_direct(player->packet_num);
         if (!is_set)
         {
           checksum = pckt->chksum;
@@ -198,11 +234,9 @@ short checksums_different(void)
 
 void update_double_click_detection(long plyr_idx)
 {
-  struct PlayerInfo *player;
   struct Packet *pckt;
   unsigned short i;
-  player = &(game.players[plyr_idx%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet(plyr_idx);
   if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
   {
     if (packet_left_button_click_space_count[plyr_idx] < 5)
@@ -216,9 +250,52 @@ void update_double_click_detection(long plyr_idx)
   }
 }
 
+struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
+{
+  struct PlayerInfo *player;
+  struct Dungeon *dungeon;
+  struct Thing *thing;
+  struct Room *room;
+  struct Coord3d pos;
+  MapCoord x,y;
+  long k;
+  player = &(game.players[plyr_idx%PLAYERS_COUNT]);
+  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  k = game.room_stats[rkind].cost;
+  if (!i_can_allocate_free_room_structure())
+  {
+    if (is_my_player(player))
+      play_non_3d_sample(119);
+    return NULL;
+  }
+  if (take_money_from_dungeon(plyr_idx, k, 1) < 0)
+  {
+    if (is_my_player(player))
+      output_message(87, 0, 1);
+    return NULL;
+  }
+  x = ((player->field_4A4+1) / 2) + 3*map_to_slab[stl_x];
+  y = ((player->field_4A4+1) / 2) + 3*map_to_slab[stl_y];
+  room = place_room(plyr_idx, rkind, x, y);
+  if (!room_is_invalid(room))
+  {
+    if (rkind == RoK_BRIDGE)
+      dungeon->lvstats.bridges_built++;
+    dungeon->field_EA4 = 192;
+    if (is_my_player(player))
+      play_non_3d_sample(77);
+    set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
+    thing = create_effect_element(&pos, 41, plyr_idx);
+    if (!thing_is_invalid(thing))
+    {
+      thing->long_13 = k;
+    }
+  }
+  return room;
+}
+
 void process_dungeon_control_packet_clicks(long plyr_idx)
 {
-  static const char *func_name="process_dungeon_control_packet_clicks";
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   struct Packet *pckt;
@@ -236,7 +313,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
 
   player = &(game.players[plyr_idx%PLAYERS_COUNT]);
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Starting for state %d",(int)player->work_state);
   player->field_4A4 = 1;
   packet_left_button_double_clicked[plyr_idx] = 0;
@@ -354,7 +431,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
               if (!thing_is_invalid(thing))
                 thing->field_4F |= 0x01;
             } else
-            if ((thing->class_id == 1) && object_is_gold_pile(thing))
+            if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
             {
               set_power_hand_graphic(plyr_idx, 781, 256);
               thing->field_4F &= 0xFEu;
@@ -388,13 +465,15 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
             break;
           case 2:
             thing = get_door_for_position(player->field_4AB, player->field_4AD);
-            if (!thing_is_invalid(thing))
+            if (thing_is_invalid(thing))
             {
-              if (thing->byte_17.h)
-                unlock_door(thing);
-              else
-                lock_door(thing);
+              ERRORLOG("Door thing not found at map pos (%d,%d)",(int)player->field_4AB,(int)player->field_4AD);
+              break;
             }
+            if (thing->byte_17.h)
+              unlock_door(thing);
+            else
+              lock_door(thing);
             break;
           case 3:
             if (player->thing_under_hand == 0)
@@ -584,30 +663,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         }
         break;
       }
-      k = game.room_stats[player->field_4A3].cost;
-      if (i_can_allocate_free_room_structure())
-      {
-        if (take_money_from_dungeon(plyr_idx, k, 1) < 0)
-        {
-          if (is_my_player(player))
-            output_message(87, 0, 1);
-          break;
-        }
-      }
-      x = ((player->field_4A4+1) / 2) + 3*map_to_slab[stl_x];
-      y = ((player->field_4A4+1) / 2) + 3*map_to_slab[stl_y];
-      if (place_room(plyr_idx, player->field_4A3, x, y) != NULL)
-      {
-        if (player->field_4A3 == 15)
-          dungeon->lvstats.bridges_built++;
-        dungeon->field_EA4 = 192;
-        if (is_my_player(player))
-          play_non_3d_sample(77);
-        set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
-        thing = create_effect_element(&pos, 41, plyr_idx);
-        if (!thing_is_invalid(thing))
-          thing->long_13 = k;
-      }
+      keeper_build_room(stl_x,stl_y,plyr_idx,player->field_4A3);
       unset_packet_control(pckt, PCtr_LBtnClick);
       break;
   case 3:
@@ -1178,8 +1234,6 @@ void open_new_packet_file_for_save(void)
 
 void load_packets_for_turn(long nturn)
 {
-  static const char *func_name="load_packets_for_turn";
-  struct PlayerInfo *player;
   struct Packet *pckt;
   TbChecksum pckt_chksum;
   TbBigChecksum tot_chksum;
@@ -1189,8 +1243,7 @@ void load_packets_for_turn(long nturn)
   long i;
   const int turn_data_size = PACKET_TURN_SIZE;
   unsigned char pckt_buf[PACKET_TURN_SIZE+4];
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet(my_player_number);
   pckt_chksum = pckt->chksum;
   if (nturn >= game.field_149F30)
   {
@@ -1221,7 +1274,7 @@ void load_packets_for_turn(long nturn)
       {
         for (i=0; i<NET_PLAYERS_COUNT; i++)
         {
-          pckt = &game.packets[i];
+          pckt = get_packet_direct(i);
           if ((pckt->action != 0) || (pckt->control_flags != 0))
           {
             done = true;
@@ -1251,8 +1304,7 @@ void load_packets_for_turn(long nturn)
       game.turns_fastforward--;
   if (game.packet_checksum)
   {
-      player=&(game.players[my_player_number%PLAYERS_COUNT]);
-      pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+      pckt = get_packet(my_player_number);
       if (get_packet_save_checksum() != tot_chksum)
       {
         ERRORLOG("PacketSave checksum - Out of sync (GameTurn %d)", game.play_gameturn);
@@ -1273,16 +1325,15 @@ void process_pause_packet(long a1, long a2)
   _DK_process_pause_packet(a1, a2);
 }
 
-void process_players_dungeon_control_packet_control(long idx)
+void process_players_dungeon_control_packet_control(long plyr_idx)
 {
   struct PlayerInfo *player;
   struct Packet *pckt;
   struct Camera *cam;
   unsigned long zoom_min,zoom_max;
   SYNCDBG(6,"Starting");
-
-  player = &(game.players[idx%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  player = &(game.players[plyr_idx]);
+  pckt = get_packet_direct(player->packet_num);
   cam = player->acamera;
   long inter_val;
   switch (cam->field_6)
@@ -1360,18 +1411,16 @@ void process_players_dungeon_control_packet_control(long idx)
         break;
     }
   }
-  process_dungeon_control_packet_clicks(idx);
+  process_dungeon_control_packet_clicks(plyr_idx);
   set_mouse_light(player);
 }
 
 void process_players_message_character(struct PlayerInfo *player)
 {
   struct Packet *pcktd;
-  struct PlayerInfo *playerd;
   char chr;
   int chpos;
-  playerd = &(game.players[player->field_2B%PLAYERS_COUNT]);
-  pcktd = &game.packets[playerd->packet_num%PACKETS_COUNT];
+  pcktd = get_packet(player->field_2B);
   if (pcktd->field_6 > 0)
   {
     chr = key_to_ascii(pcktd->field_6, pcktd->field_8);
@@ -1495,7 +1544,7 @@ char process_players_global_packet_action(long plyridx)
   int i;
   SYNCDBG(6,"Starting");
   player=&(game.players[plyridx%PLAYERS_COUNT]);
-  pckt=&game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet_direct(player->packet_num);
   switch (pckt->action)
   {
     case 1:
@@ -1689,7 +1738,7 @@ char process_players_global_packet_action(long plyridx)
     case 84:
       if (player->work_state == 15)
         turn_off_query(plyridx);
-      room = &game.rooms[pckt->field_6];
+      room = room_get(pckt->field_6);
       player->field_E4 = room->field_8 << 8;
       player->field_E6 = room->field_9 << 8;
       set_player_instance(player, 16, 0);
@@ -1852,7 +1901,7 @@ void process_players_map_packet_control(long idx)
   unsigned short x,y;
   SYNCDBG(6,"Starting");
   player=&(game.players[idx%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet_direct(player->packet_num);
   x = (3*pckt->pos_x - 450)/4 - 6;
   y = (3*pckt->pos_y - 168)/4 - 6;
   process_map_packet_clicks(idx);
@@ -1874,7 +1923,7 @@ void process_players_packet(long idx)
   struct PlayerInfo *player;
   struct Packet *pckt;
   player=&(game.players[idx%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d packet of type %d.",idx,(int)pckt->action);
   player->field_4 = (pckt->field_10 & 0x20) >> 5;
   player->field_5 = (pckt->field_10 & 0x40) >> 6;
@@ -1913,7 +1962,7 @@ void process_players_creature_passenger_packet_action(long idx)
   struct Packet *pckt;
   SYNCDBG(6,"Starting");
   player=&(game.players[idx%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet_direct(player->packet_num);
   if (pckt->action == 32)
   {
     player->field_43E = pckt->field_6;
@@ -1928,7 +1977,7 @@ void process_players_dungeon_control_packet_action(long idx)
   struct PlayerInfo *player;
   struct Packet *pckt;
   player = &(game.players[idx%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet_direct(player->packet_num);
   switch (pckt->action)
   {
     case 41:
@@ -1965,7 +2014,7 @@ void process_players_creature_control_packet_action(long idx)
   long i,k;
   SYNCDBG(6,"Starting");
   player = &(game.players[idx%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet_direct(player->packet_num);
   switch (pckt->action)
   {
   case 33:
@@ -2102,7 +2151,7 @@ void process_packets(void)
     }
     if ( !game.packet_load_enable || game.numfield_149F47 )
     {
-      pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+      pckt = get_packet_direct(player->packet_num);
       if (LbNetwork_Exchange(pckt) != 0)
       {
         ERRORLOG("LbNetwork_Exchange failed");
@@ -2160,8 +2209,7 @@ void process_packets(void)
       process_players_packet(i);
   }
   // Clear all packets
-  for (i=0; i<PACKETS_COUNT; i++)
-    memset(&game.packets[i], 0, sizeof(struct Packet));
+  clear_packets();
   if ((game.numfield_A & 0x02) || (game.numfield_A & 0x04))
   {
     SYNCDBG(0,"Resyncing");
@@ -2205,7 +2253,7 @@ void process_frontend_packets(void)
           ERRORLOG("LbNetwork_Stop() failed");
           return;
         }
-        frontend_set_state(1);
+        frontend_set_state(FeSt_MAIN_MENU);
       } else
       if (frontend_menu_state == 6)
       {
@@ -2242,7 +2290,7 @@ void process_frontend_packets(void)
           break;
         }
         fe_network_active = 1;
-        frontend_set_state(24);
+        frontend_set_state(FeSt_NETLAND_VIEW);
         break;
       case 4:
         frontend_set_alliance(nspckt->field_A, nspckt->field_B);

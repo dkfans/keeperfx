@@ -12140,7 +12140,7 @@ short perform_checksum_verification()
       }
   }
   clear_packets();
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet(my_player_number);
   set_packet_action(pckt, 12, 0, 0, 0, 0);
   pckt->chksum = checksum_mem + game.field_14BB4A;
   if (LbNetwork_Exchange(pckt))
@@ -12189,14 +12189,14 @@ void setup_exchange_player_number(void)
   SYNCDBG(6,"Starting");
   clear_packets();
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[my_player_number];
+  pckt = get_packet_direct(my_player_number);
   set_packet_action(pckt, 10, player->field_2C, settings.field_3, 0, 0);
   if (LbNetwork_Exchange(pckt))
       ERRORLOG("Network Exchange failed");
   k = 0;
   for (i=0; i<NET_PLAYERS_COUNT; i++)
   {
-      pckt = &game.packets[i];
+      pckt = get_packet_direct(i);
       if ((net_player_info[i].field_20) && (pckt->action == 10))
       {
           player = &(game.players[k%PLAYERS_COUNT]);

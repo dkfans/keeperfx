@@ -937,7 +937,7 @@ void get_isometric_view_nonaction_inputs(void)
   long mx,my;
 
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet(my_player_number);
   mx = my_mouse_x;
   my = my_mouse_y;
   key4_pressed = is_game_key_pressed(4, NULL, true);
@@ -1021,7 +1021,7 @@ void get_overhead_view_nonaction_inputs(void)
   long mx,my;
   SYNCDBG(19,"Starting");
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet(my_player_number);
   my = my_mouse_y;
   mx = my_mouse_x;
   key4_pressed = is_game_key_pressed(4, 0, 1);

@@ -4535,7 +4535,7 @@ void fronttorture_input(void)
   long plyr_idx,door_id;
   clear_packets();
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet(my_player_number);
   // Get inputs and create packet
   if (player->victory_state == 1)
   {
@@ -4568,7 +4568,7 @@ void fronttorture_input(void)
   for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
   {
     player = &(game.players[plyr_idx]);
-    pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+    pckt = get_packet(plyr_idx);
     if ((pckt->action != 0) && (player->victory_state == 1))
       break;
   }
@@ -4580,7 +4580,7 @@ void fronttorture_input(void)
   {
     plyr_idx = my_player_number;
     player = &(game.players[plyr_idx%PLAYERS_COUNT]);
-    pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+    pckt = get_packet(plyr_idx);
     x = 0;
     y = 0;
   }

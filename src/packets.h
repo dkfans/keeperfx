@@ -71,6 +71,9 @@ enum TbPacketControl {
 #define PCtr_RBtnAnyAction (PCtr_RBtnClick | PCtr_RBtnHeld | PCtr_RBtnRelease)
 #define PCtr_HeldAnyButton (PCtr_LBtnHeld | PCtr_RBtnHeld)
 
+#define INVALID_PACKET (&bad_packet)
+
+/******************************************************************************/
 #pragma pack(1)
 
 struct Packet { // sizeof = 0x11 (17)
@@ -95,9 +98,10 @@ unsigned int field_8;
     };
 
 #pragma pack()
-
 /******************************************************************************/
 /******************************************************************************/
+struct Packet *get_packet_direct(long pckt_idx);
+struct Packet *get_packet(long plyr_idx);
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
 void set_packet_control(struct Packet *pckt, unsigned long flag);
@@ -118,7 +122,8 @@ void process_pause_packet(long a1, long a2);
 void process_quit_packet(struct PlayerInfo *player, short complete_quit);
 void process_packets(void);
 void clear_packets(void);
-unsigned long compute_players_checksum(void);
+TbBigChecksum compute_players_checksum(void);
+void set_player_packet_checksum(long plyr_idx,TbBigChecksum sum);
 short checksums_different(void);
 void post_init_packets(void);
 
