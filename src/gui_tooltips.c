@@ -221,16 +221,15 @@ short setup_land_tooltips(struct Coord3d *pos)
 short setup_room_tooltips(struct Coord3d *pos)
 {
   struct PlayerInfo *player;
-  struct SlabMap *slb;
   struct Room *room;
   int stridx;
+  SYNCDBG(18,"Starting");
   if (!settings.tooltips_on)
     return false;
-  slb = get_slabmap_block(map_to_slab[pos->x.stl.num], map_to_slab[pos->y.stl.num]);
-  room = &game.rooms[slb->room_index];
-  if (room == NULL)
+  room = subtile_room_get(pos->x.stl.num, pos->y.stl.num);
+  if (room_is_invalid(room))
     return false;
-  stridx = room_data[room->kind].field_13;
+  stridx = room_data[room->kind].msg1str_idx;
   if (stridx == 201)
     return false;
   update_gui_tooltip_target(room);

@@ -27,6 +27,7 @@ extern "C" {
 #endif
 
 #define ROOM_TYPES_COUNT      17
+#define SLAB_AROUND_COUNT      4
 /******************************************************************************/
 enum RoomKinds {
     RoK_NONE                =   0,
@@ -53,6 +54,8 @@ enum RoomKinds {
 
 typedef unsigned char RoomKind;
 
+typedef void (*Room_Update_Func)(struct Room *);
+
 struct RoomInfo { // sizeof = 6
   unsigned short field_0;
   unsigned short field_2;
@@ -68,7 +71,8 @@ struct Room {
     unsigned char field_8;
     unsigned char field_9;
     unsigned short kind;
-    unsigned char field_C[4];
+    unsigned char field_C[2];
+    unsigned short field_E;
     short field_10;
     unsigned char field_12;
     unsigned char field_13[4];
@@ -78,29 +82,40 @@ struct Room {
     unsigned short field_37;
     unsigned short field_39;
     unsigned short field_3B;
-    unsigned char field_3D[4];
-    unsigned char field_41[2];
-    unsigned char field_43[2];
+    unsigned char field_3D[2];
+    unsigned short field_3F;
+    unsigned short field_41;
+    unsigned char field_43;
+    unsigned char field_44;
 };
 
 struct RoomData {
       unsigned char numfield_0;
       short numfield_1;
-      long ofsfield_3;
-      long ofsfield_7;
-      long offfield_B;
+      Room_Update_Func ofsfield_3;
+      Room_Update_Func ofsfield_7;
+      Room_Update_Func offfield_B;
       unsigned char field_F;
       unsigned char field_10;
       short field_11;
-      short field_13;
-      short field_15;
+      short msg1str_idx;
+      short msg2str_idx;
 };
 
-/******************************************************************************/
-DLLIMPORT extern struct RoomData _DK_room_data[ROOM_TYPES_COUNT];
-#define room_data _DK_room_data
+#define INVALID_ROOM (&game.rooms[0])
+#define INVALID_ROOM_DATA (&room_data[0])
 
+/******************************************************************************/
+DLLIMPORT extern struct RoomData _DK_room_data[];
+//#define room_data _DK_room_data
 #pragma pack()
+/******************************************************************************/
+extern unsigned short const room_effect_elements[];
+extern const short slab_around[];
+extern struct AroundLByte const room_spark_offset[];
+extern struct Around const small_around[];
+extern struct RoomData room_data[];
+
 /******************************************************************************/
 struct Room *room_get(long room_idx);
 struct Room *subtile_room_get(long stl_x, long stl_y);
@@ -112,6 +127,7 @@ long get_room_look_through(RoomKind rkind);
 void set_room_efficiency(struct Room *room);
 void set_room_capacity(struct Room *room, long capac);
 long get_room_slabs_count(long plyr_idx, unsigned short rkind);
+long get_player_rooms_count(long plyr_idx, unsigned short rkind);
 void reinitialise_treaure_rooms(void);
 
 void create_room_flag(struct Room *room);
@@ -121,6 +137,7 @@ void delete_all_room_structures(void);
 void delete_room_structure(struct Room *room);
 struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, unsigned char rkind);
 struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned short x, unsigned short y);
+short room_grow_food(struct Room *room);
 
 /******************************************************************************/
 #ifdef __cplusplus

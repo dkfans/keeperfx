@@ -7553,8 +7553,8 @@ struct Event *event_create_event(long map_x, long map_y, unsigned char evkind, u
 
 void go_on_then_activate_the_event_box(long plridx, long evidx)
 {
-  static const char *func_name="go_on_then_activate_the_event_box";
   struct Dungeon *dungeon;
+  struct RoomData *rdata;
   struct Event *event;
   struct Thing *thing;
   char *text;
@@ -7602,7 +7602,8 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         break;
     case 5:
         other_off = 1;
-        i = room_data[event->target].field_13;
+        rdata = room_data_get_for_kind(event->target);
+        i = rdata->msg1str_idx;
         text = buf_sprintf("%s:\n%s",game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
@@ -7671,8 +7672,9 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         break;
     case 15:
         other_off = 1;
-        i = room_data[event->target].field_13;
-        text = buf_sprintf("%s:\n %s",game.evntbox_text_shown,gui_strings[i%STRINGS_MAX]);
+        rdata = room_data_get_for_kind(event->target);
+        i = rdata->msg1str_idx;
+        text = buf_sprintf("%s:\n%s",game.evntbox_text_shown,gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
@@ -12838,6 +12840,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 //TODO: delete when won't be needed anymore
   memcpy(_DK_menu_list,menu_list,40*sizeof(struct GuiMenu *));
   memcpy(_DK_player_instance_info,player_instance_info,17*sizeof(struct PlayerInstanceInfo));
+  memcpy(_DK_room_data,room_data,17*sizeof(struct RoomData));
+  
 #if (BFDEBUG_LEVEL > 1)
 /*  {
       struct PlayerInfo *player=&(game.players[0]);

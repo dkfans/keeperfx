@@ -659,6 +659,16 @@
  0001:000B7820       set_room_capacity
  0001:000B7980       send_creature_to_room
  0001:000B8AF0       link_adjacent_rooms_of_type
+ 0001:000BA0A0       setup_prison_move
+ 0001:000BA1C0       count_gold_slabs_with_efficiency
+ 0001:000BA220       count_gold_hoardes_in_room
+ 0001:000BA570       count_food_in_room
+ 0001:000BA8B0       count_books_in_room
+ 0001:000BAC90       count_bodies_in_room
+ 0001:000BAFF0       count_crates_in_room
+ 0001:000BB3C0       count_workers_in_room
+ 0001:000BB440       count_lair_occupants
+ 0001:000B4970       room_grow_food
  0001:000BBA70       go_to_my_next_room_of_type
  0001:000BCF00       get_room_thing_is_on
  0001:000BD240       player_has_room_of_type

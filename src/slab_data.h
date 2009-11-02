@@ -107,10 +107,17 @@ struct SlabObj { // sizeof = 13
   unsigned short field_B;
 };
 
+#define INVALID_SLABMAP_BLOCK (&bad_slabmap_block)
+
 #pragma pack()
 /******************************************************************************/
+unsigned long get_slab_number(long slb_x, long slb_y);
+long slb_num_decode_x(unsigned long slb_num);
+long slb_num_decode_y(unsigned long slb_num);
+
 struct SlabMap *get_slabmap_block(long slab_x, long slab_y);
 struct SlabMap *get_slabmap_for_subtile(long stl_x, long stl_y);
+struct SlabMap *get_slabmap_direct(long slab_num);
 TbBool slabmap_block_invalid(struct SlabMap *slb);
 long slabmap_owner(struct SlabMap *slb);
 void clear_slabs(void);

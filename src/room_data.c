@@ -26,12 +26,47 @@
 extern "C" {
 #endif
 /******************************************************************************/
+void count_slabs(struct Room *room);
+void count_gold_slabs_with_efficiency(struct Room *room);
+void count_gold_hoardes_in_room(struct Room *room);
+void count_slabs_div2(struct Room *room);
+void count_books_in_room(struct Room *room);
+void count_workers_in_room(struct Room *room);
+void count_slabs_with_efficiency(struct Room *room);
+void count_crates_in_room(struct Room *room);
+void count_workers_in_room(struct Room *room);
+void count_bodies_in_room(struct Room *room);
+void count_capacity_in_garden(struct Room *room);
+void count_food_in_room(struct Room *room);
+void count_lair_occupants(struct Room *room);
+/******************************************************************************/
+
 RoomKind look_through_rooms[] = {
     RoK_DUNGHEART, RoK_TREASURE, RoK_LAIR,      RoK_GARDEN,
     RoK_LIBRARY,   RoK_TRAINING, RoK_WORKSHOP,  RoK_SCAVENGER,
     RoK_PRISON,    RoK_TEMPLE,   RoK_TORTURE,   RoK_GRAVEYARD,
     RoK_BARRACKS,  RoK_BRIDGE,   RoK_GUARDPOST, RoK_ENTRANCE,
     RoK_DUNGHEART, RoK_UNKN17,};
+
+struct RoomData room_data[] = {
+  { 0,  0, NULL,                    NULL,                   NULL,                  0, 0, 0, 201, 201},
+  {14,  0, count_slabs,             NULL,                   NULL,                  0, 0, 0, 598, 614},
+  {16, 57, count_gold_slabs_with_efficiency, count_gold_hoardes_in_room, NULL,     1, 0, 0, 599, 615},
+  {18, 61, count_slabs_div2,        count_books_in_room,    count_workers_in_room, 0, 0, 0, 600, 616},
+  {20, 65, count_slabs_with_efficiency, NULL,               NULL,                  1, 0, 0, 601, 617},
+  {22, 63, count_slabs_div2,        NULL,                   NULL,                  0, 0, 0, 602, 619},
+  {24, 67, count_slabs_div2,        NULL,                   NULL,                  0, 0, 0, 603, 618},
+  {26,  0, NULL,                    NULL,                   NULL,                  0, 0, 0, 604, 620},
+  {28, 75, count_slabs_div2,        count_crates_in_room,   count_workers_in_room, 0, 0, 0, 605, 621},
+  {30, 77, count_slabs_div2,        NULL,                   NULL,                  0, 0, 0, 613, 629},
+  {32, 73, count_slabs_div2,        NULL,                   NULL,                  1, 0, 0, 612, 628},
+  {34, 71, count_slabs_div2,        count_bodies_in_room,   NULL,                  0, 0, 0, 606, 622},
+  {40, 69, count_slabs_div2,        NULL,                   NULL,                  0, 0, 0, 607, 623},
+  {36, 59, count_capacity_in_garden, count_food_in_room,    NULL,                  1, 0, 0, 608, 624},
+  {38, 79, count_slabs_with_efficiency, count_lair_occupants, NULL,                1, 0, 0, 609, 625},
+  {51, 81, NULL,                    NULL,                   NULL,                  0, 0, 0, 610, 626},
+  {53, 83, count_slabs,             NULL,                   NULL,                  0, 0, 0, 611, 627},
+};
 
 struct RoomInfo room_info[] = {
   { 0,  0,  0},
@@ -53,7 +88,41 @@ struct RoomInfo room_info[] = {
   {55, 83,  0},
 };
 
+struct AroundLByte const room_spark_offset[] = {
+  {-256,  256},
+  {-256,    0},
+  {-256, -256},
+  {-256, -256},
+  {   0, -256},
+  { 256, -256},
+  { 256, -256},
+  { 256,    0},
+  { 256,  256},
+  { 256,  256},
+  {   0,  256},
+  {-256,  256},
+};
+
+struct Around const small_around[] = {
+  { 0,-1},
+  { 1, 0},
+  { 0, 1},
+  {-1, 0},
+};
+
+unsigned short const room_effect_elements[] = { 55, 56, 57, 58, 0, 0 };
+const short slab_around[] = { -85, 1, 85, -1 };
 /******************************************************************************/
+DLLIMPORT void _DK_count_gold_slabs_with_efficiency(struct Room *room);
+DLLIMPORT void _DK_count_gold_hoardes_in_room(struct Room *room);
+DLLIMPORT void _DK_count_books_in_room(struct Room *room);
+DLLIMPORT void _DK_count_workers_in_room(struct Room *room);
+DLLIMPORT void _DK_count_crates_in_room(struct Room *room);
+DLLIMPORT void _DK_count_workers_in_room(struct Room *room);
+DLLIMPORT void _DK_count_bodies_in_room(struct Room *room);
+DLLIMPORT void _DK_count_food_in_room(struct Room *room);
+DLLIMPORT void _DK_count_lair_occupants(struct Room *room);
+DLLIMPORT short _DK_room_grow_food(struct Room *room);
 DLLIMPORT void _DK_set_room_capacity(struct Room *room, long capac);
 DLLIMPORT void _DK_set_room_efficiency(struct Room *room);
 DLLIMPORT struct Room *_DK_link_adjacent_rooms_of_type(unsigned char owner, long x, long y, unsigned char rkind);
@@ -75,13 +144,17 @@ struct Room *subtile_room_get(long stl_x, long stl_y)
   struct SlabMap *slb;
   slb = get_slabmap_for_subtile(stl_x,stl_y);
   if (slabmap_block_invalid(slb))
-    return &game.rooms[0];
+    return INVALID_ROOM;
   return room_get(slb->room_index);
 }
 
 TbBool room_is_invalid(const struct Room *room)
 {
-  return (room <= &game.rooms[0]) || (room == NULL);
+  if (room == NULL)
+    return true;
+  if (room == INVALID_ROOM)
+    return true;
+  return (room <= &game.rooms[0]);
 }
 
 struct RoomData *room_data_get_for_kind(long room_kind)
@@ -112,37 +185,62 @@ long get_room_look_through(RoomKind rkind)
 
 long get_room_slabs_count(long plyr_idx, unsigned short rkind)
 {
-  static const char *func_name="get_room_slabs_count";
   struct Dungeon *dungeon;
   struct Room *room;
   unsigned long k;
-  long i,n;
-  int count;
+  long i;
+  long count;
   dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
   count = 0;
   i = dungeon->room_kind[rkind];
   k = 0;
-  while (i>0)
+  while (i != 0)
   {
-    if (i >= ROOMS_COUNT)
+    room = room_get(i);
+    if (room_is_invalid(room))
     {
-      error(func_name,1953,"Jump out of rooms array bounds detected");
+      ERRORLOG("Jump to invalid room detected");
       break;
     }
-    room = &game.rooms[i];
-    if (room_is_invalid(room))
-      break;
     i = room->field_6;
     count += room->field_3B;
     k++;
     if (k > ROOMS_COUNT)
     {
-      error(func_name,7641,"Infinite loop detected when sweeping rooms list");
+      ERRORLOG("Infinite loop detected when sweeping rooms list");
       break;
     }
   }
   return count;
 
+}
+
+long get_player_rooms_count(long plyr_idx, unsigned short rkind)
+{
+  struct Dungeon *dungeon;
+  struct Room *room;
+  unsigned long k;
+  long i;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  i = dungeon->room_kind[rkind];
+  k = 0;
+  while (i != 0)
+  {
+    room = room_get(i);
+    if (room_is_invalid(room))
+    {
+      ERRORLOG("Jump to invalid room detected");
+      break;
+    }
+    i = room->field_6;
+    k++;
+    if (k > ROOMS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping rooms list");
+      break;
+    }
+  }
+  return k;
 }
 
 void set_room_capacity(struct Room *room, long capac)
@@ -154,6 +252,83 @@ void set_room_efficiency(struct Room *room)
 {
   _DK_set_room_efficiency(room);
 }
+
+void count_slabs(struct Room *room)
+{
+  room->field_E = room->field_3B;
+}
+
+void count_gold_slabs_with_efficiency(struct Room *room)
+{
+  _DK_count_gold_slabs_with_efficiency(room);
+}
+
+void count_gold_hoardes_in_room(struct Room *room)
+{
+  _DK_count_gold_hoardes_in_room(room);
+}
+
+void count_slabs_div2(struct Room *room)
+{
+  unsigned long count;
+  count = room->field_3B * room->field_3F;
+  count = ((count/256) >> 1);
+  if (count <= 1)
+    count = 1;
+  room->field_E = count;
+
+}
+
+void count_books_in_room(struct Room *room)
+{
+  _DK_count_books_in_room(room);
+}
+
+void count_workers_in_room(struct Room *room)
+{
+  _DK_count_workers_in_room(room);
+}
+
+void count_slabs_with_efficiency(struct Room *room)
+{
+  unsigned long count;
+  count = room->field_3B * room->field_3F;
+  count = (count/256);
+  if (count <= 1)
+    count = 1;
+  room->field_E = count;
+}
+
+void count_crates_in_room(struct Room *room)
+{
+  _DK_count_crates_in_room(room);
+}
+
+void count_bodies_in_room(struct Room *room)
+{
+  _DK_count_bodies_in_room(room);
+}
+
+void count_capacity_in_garden(struct Room *room)
+{
+  unsigned long count;
+  count = room->field_3B * room->field_3F;
+  count = (count/256);
+  if (count <= 1)
+    count = 1;
+  room->field_E = count;
+}
+
+void count_food_in_room(struct Room *room)
+{
+  _DK_count_food_in_room(room);
+}
+
+void count_lair_occupants(struct Room *room)
+{
+  _DK_count_lair_occupants(room);
+}
+
 
 void delete_room_structure(struct Room *room)
 {
@@ -261,7 +436,7 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
     i = map_tiles_x*slb_y + slb_x;
     room->field_37 = i;
     room->field_39 = i;
-    slb = &game.slabmap[i];
+    slb = get_slabmap_direct(i);
     slb->field_1 = 0;
     room->field_3B = 0;
     i = room->field_37;
@@ -323,14 +498,14 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
 
 void create_room_flag(struct Room *room)
 {
-  static const char *func_name="create_room_flag";
   struct Thing *thing;
   struct Coord3d pos;
   long x,y;
   //_DK_create_room_flag(room);
   x = 3 * (room->field_37 % map_tiles_x) + 1;
   y = 3 * (room->field_37 / map_tiles_x) + 1;
-  if ((room->kind != 7) && (room->kind != 1) && (room->kind != 16) && (room->kind != 15))
+  if ((room->kind != RoK_DUNGHEART) && (room->kind != RoK_ENTRANCE)
+     && (room->kind != RoK_GUARDPOST) && (room->kind != RoK_BRIDGE))
   {
     pos.z.val = 512;
     pos.x.val = x << 8;
@@ -356,12 +531,14 @@ struct Room *allocate_free_room_structure(void)
 
 unsigned short i_can_allocate_free_room_structure(void)
 {
-  return _DK_i_can_allocate_free_room_structure();
+  unsigned short ret = _DK_i_can_allocate_free_room_structure();
+  if (ret == 0)
+      SYNCDBG(3,"No slot for next room");
+  return ret;
 }
 
 void reinitialise_treaure_rooms(void)
 {
-  static const char *func_name="reinitialise_treaure_rooms";
   struct Dungeon *dungeon;
   struct Room *room;
   unsigned int i,k,n;
@@ -370,28 +547,30 @@ void reinitialise_treaure_rooms(void)
     dungeon = &(game.dungeon[n]);
     i = dungeon->room_kind[RoK_TREASURE];
     k = 0;
-    while (i > 0)
+    while (i != 0)
     {
-      if (i > ROOMS_COUNT)
+      room = room_get(i);
+      if (room_is_invalid(room))
       {
-        error(func_name,478,"Jump out of rooms array detected");
+        ERRORLOG("Jump to invalid room detected");
         break;
       }
-      room = &game.rooms[i];
-      if (room_is_invalid(room))
-        break;
       i = room->field_6;
       set_room_capacity(room, 1);
       k++;
       if (k > ROOMS_COUNT)
       {
-        error(func_name,479,"Infinite loop detected when sweeping rooms list");
+        ERRORLOG("Infinite loop detected when sweeping rooms list");
         break;
       }
     }
   }
 }
 
+short room_grow_food(struct Room *room)
+{
+  return _DK_room_grow_food(room);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
