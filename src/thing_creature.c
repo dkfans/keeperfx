@@ -24,6 +24,7 @@
 #include "config_creature.h"
 #include "lens_mist.h"
 #include "keeperfx.h"
+#include "frontend.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -134,6 +135,8 @@ struct CreaturePickedUpOffset creature_picked_up_offset[] = {
 int creature_swap_idx[CREATURE_TYPES_COUNT];
 
 /******************************************************************************/
+DLLIMPORT long _DK_remove_all_traces_of_combat(struct Thing *thing);
+DLLIMPORT void _DK_cause_creature_death(struct Thing *thing, unsigned char a2);
 DLLIMPORT void _DK_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev);
 DLLIMPORT void _DK_creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
 DLLIMPORT void _DK_creature_cast_spell(struct Thing *caster, long a2, long a3, long a4, long a5);
@@ -167,15 +170,123 @@ DLLIMPORT void _DK_update_creature_count(struct Thing *thing);
 DLLIMPORT long _DK_process_creature_state(struct Thing *thing);
 DLLIMPORT long _DK_move_creature(struct Thing *thing);
 DLLIMPORT void _DK_init_creature_level(struct Thing *thing, long nlev);
+DLLIMPORT long _DK_check_for_first_person_barrack_party(struct Thing *thing);
 /******************************************************************************/
-unsigned long control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
+TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
-  return _DK_control_creature_as_controller(player, thing);
+  if (thing->class_id == TCls_Creature)
+    return true;
+  if (thing->class_id == TCls_DeadCreature)
+    return true;
+  return false;
 }
 
-unsigned long control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
+TbBool thing_can_be_controlled_as_passenger(struct Thing *thing)
 {
-  return _DK_control_creature_as_passenger(player, thing);
+  if (thing->class_id == TCls_Creature)
+    return true;
+  if (thing->class_id == TCls_DeadCreature)
+    return true;
+  if ((thing->class_id == TCls_Object) && (thing->model == 10))
+    return true;
+  return false;
+}
+
+long check_for_first_person_barrack_party(struct Thing *thing)
+{
+  return _DK_check_for_first_person_barrack_party(thing);
+}
+
+TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
+{
+  struct CreatureStats *crstat;
+  struct CreatureControl *cctrl;
+  struct InitLight ilght;
+  struct Camera *cam;
+  //return _DK_control_creature_as_controller(player, thing);
+  if ( (thing->owner != player->field_2B) || !thing_can_be_controlled_as_controller(thing) )
+  {
+    if (!control_creature_as_passenger(player, thing))
+      return false;
+    player->acamera->mappos.z.val += game.creature_stats[23].eye_height;
+    return true;
+  }
+  cctrl = creature_control_get_from_thing(thing);
+  cctrl->field_2D = 0;
+  cctrl->field_2F = 0;
+  cctrl->field_31 = 0;
+  if (is_my_player(player))
+  {
+    toggle_status_menu(0);
+    turn_off_roaming_menus();
+  }
+  cam = player->acamera;
+  player->field_2F = thing->index;
+  player->field_31 = thing->field_9;
+  if (cam != NULL)
+    player->field_4B5 = cam->field_6;
+  thing->field_0 |= 0x20u;
+  thing->field_4F |= 0x01;
+  set_start_state(thing);
+  set_player_mode(player, 2);
+  if (thing->class_id == TCls_Creature)
+  {
+    cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+    check_for_first_person_barrack_party(thing);
+    if ((cctrl->field_7A & 0xFFF) != 0)
+      make_group_member_leader(thing);
+  }
+  memset(&ilght, 0, sizeof(struct InitLight));
+  ilght.mappos.x.val = thing->mappos.x.val;
+  ilght.mappos.y.val = thing->mappos.y.val;
+  ilght.mappos.z.val = thing->mappos.z.val;
+  ilght.field_3 = 1;
+  ilght.field_2 = 36;
+  ilght.field_0 = 2560;
+  ilght.field_11 = 1;
+  thing->field_62 = light_create_light(&ilght);
+  light_set_light_never_cache(thing->field_62);
+  if (thing->field_62 == 0)
+    ERRORLOG("Cannot allocate light to new controlled thing");
+  if (is_my_player_number(thing->owner))
+  {
+    if (thing->class_id == TCls_Creature)
+    {
+      crstat = creature_stats_get_from_thing(thing);
+      setup_eye_lens(crstat->eye_effect);
+    }
+  }
+  return true;
+}
+
+TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
+{
+  struct Camera *cam;
+  //return _DK_control_creature_as_passenger(player, thing);
+  if (thing->owner != player->field_2B)
+  {
+    ERRORLOG("Player %d cannot control as passenger thing owned by player %d",(int)player->field_2B,(int)thing->owner);
+    return false;
+  }
+  if (!thing_can_be_controlled_as_passenger(thing))
+  {
+    ERRORLOG("Thing of class %d and model %d can't be controlled as passenger",
+        (int)thing->class_id,(int)thing->model);
+    return false;
+  }
+  if (is_my_player(player))
+  {
+    toggle_status_menu(0);
+    turn_off_roaming_menus();
+  }
+  cam = player->acamera;
+  player->field_2F = thing->index;
+  player->field_31 = thing->field_9;
+  if (cam != NULL)
+    player->field_4B5 = cam->field_6;
+  set_player_mode(player, 3);
+  thing->field_4F |= 0x01;
+  return true;
 }
 
 void load_swipe_graphic_for_creature(struct Thing *thing)
@@ -255,17 +366,16 @@ short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obth
 
 void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long spl_idx, long a4)
 {
-  static const char *func_name="creature_cast_spell_at_thing";
   long i;
   if ((caster->field_0 & 0x20) != 0)
   {
-    if (target->class_id == 1)
+    if (target->class_id == TCls_Object)
       i = 1;
     else
       i = 2;
   } else
   {
-    if (target->class_id == 1)
+    if (target->class_id == TCls_Object)
       i = 3;
     else
     if (target->owner == caster->owner)
@@ -314,8 +424,9 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
     if (i > 0)
       thing_play_sample(caster, i, 100, 0, 3, 0, 4, 256);
     i = cctrl->explevel;
-    if (i > 8) // Note: originally it was <=, but I think it's an error
-      i = 8;
+    // Make sure the creature level isn't larger than max spell level
+    if (i > SPELL_MAX_LEVEL)
+      i = SPELL_MAX_LEVEL;
     apply_spell_effect_to_thing(caster, spl_idx, i);
   }
 
@@ -337,7 +448,32 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
 
 void process_creature_instance(struct Thing *thing)
 {
-  _DK_process_creature_instance(thing);
+  struct CreatureControl *cctrl;
+  struct InstanceInfo *inst_inf;
+  cctrl = creature_control_get_from_thing(thing);
+  //_DK_process_creature_instance(thing);
+  if (cctrl->field_D2)
+  {
+    cctrl->field_D4++;
+    if (cctrl->field_D6 == cctrl->field_D4)
+    {
+       inst_inf = &instance_info[cctrl->field_D2];
+      if (inst_inf->func_cb != NULL)
+        inst_inf->func_cb(thing, &inst_inf->field_22);
+    }
+    if (cctrl->field_D8 == cctrl->field_D4)
+    {
+      if ( cctrl->field_D3 )
+      {
+        cctrl->field_D4--;
+        cctrl->field_D3 = 0;
+        return;
+      }
+      cctrl->field_DE[cctrl->field_D2] = game.play_gameturn;
+      cctrl->field_D2 = 0;
+    }
+    cctrl->field_D3 = 0;
+  }
 }
 
 void update_creature_count(struct Thing *thing)
@@ -345,12 +481,72 @@ void update_creature_count(struct Thing *thing)
   _DK_update_creature_count(thing);
 }
 
+struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
+{
+  struct Thing *thing;
+  struct Room *room;
+  unsigned long k;
+  long i;
+  k = 0;
+  i = ((mapblk->data & 0x3FF800u) >> 11);
+  while (i != 0)
+  {
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
+    {
+      WARNLOG("Jump out of things array");
+      break;
+    }
+    i = thing->field_2;
+    if (thing->class_id == TCls_Object)
+    {
+      if ((thing->model == 43) && thing_touching_floor(thing))
+        return thing;
+      if (thing->model == 10)
+      {
+        room = get_room_thing_is_on(thing);
+        if (room_is_invalid(room))
+          return thing;
+        if ((room->kind != RoK_GARDEN) && (room->kind != RoK_TORTURE) && (room->kind != RoK_PRISON))
+          return thing;
+      }
+    }
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  return INVALID_THING;
+}
+
+struct Thing *find_interesting_object_laying_around_thing(struct Thing *crthing)
+{
+  struct Thing *thing;
+  struct Map *mapblk;
+  long stl_x,stl_y;
+  long k;
+  for (k=0; k < AROUND_TILES_COUNT; k++)
+  {
+    stl_x = crthing->mappos.x.stl.num + around[k].delta_x;
+    stl_y = crthing->mappos.y.stl.num + around[k].delta_y;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    if (!map_block_invalid(mapblk))
+    {
+      if ((mapblk->flags & 0x10) == 0)
+      {
+        thing = find_gold_pile_or_chicken_laying_on_mapblk(mapblk);
+        if (!thing_is_invalid(thing))
+          return thing;
+      }
+    }
+  }
+  return INVALID_THING;
+}
+
 long process_creature_state(struct Thing *thing)
 {
-  static const char *func_name="process_creature_state";
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
 //TODO: rework! (causes hang if out of things)
   return _DK_process_creature_state(thing);
 }
@@ -434,9 +630,155 @@ long move_creature(struct Thing *thing)
   return _DK_move_creature(thing);
 }
 
-short kill_creature(struct Thing *thing, struct Thing *tngrp, char a1, unsigned char a2, unsigned char a3, unsigned char a4)
+void cause_creature_death(struct Thing *thing, unsigned char a2)
 {
-  return _DK_kill_creature(thing, tngrp, a1, a2, a3, a4);
+  _DK_cause_creature_death(thing, a2);
+}
+
+long remove_all_traces_of_combat(struct Thing *thing)
+{
+  return _DK_remove_all_traces_of_combat(thing);
+}
+
+void prepare_to_controlled_creature_death(struct Thing *thing)
+{
+  struct PlayerInfo *player;
+  player = &(game.players[thing->owner%PLAYERS_COUNT]);
+  leave_creature_as_controller(player, thing);
+  player->field_43E = 0;
+  if (player->field_2B == thing->owner)
+    setup_eye_lens(0);
+  set_camera_zoom(player->acamera, player->field_4B6);
+  if (player->field_2B == thing->owner)
+  {
+    turn_off_all_window_menus();
+    turn_off_menu(31);
+    turn_off_menu(35);
+    turn_off_menu(32);
+    turn_on_main_panel_menu();
+    set_flag_byte(&game.numfield_C,0x40,(game.numfield_C & 0x20) != 0);
+  }
+  light_turn_light_on(player->field_460);
+}
+
+TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3, unsigned char a4, unsigned char a5, unsigned char a6)
+{
+  struct CreatureControl *cctrl;
+  struct CreatureControl *cctrlgrp;
+  struct CreatureStats *crstat;
+  struct Dungeon *dungeon;
+  struct Dungeon *killerdngn;
+  long i,k;
+  //return _DK_kill_creature(thing, killertng, a3, a4, a5, a6);
+  dungeon = NULL;
+  cctrl = creature_control_get_from_thing(thing);
+  cleanup_current_thing_state(thing);
+  remove_all_traces_of_combat(thing);
+  if ((cctrl->field_7A & 0xFFF) != 0)
+    remove_creature_from_group(thing);
+  if (thing->owner != game.field_14E497)
+    dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+  if (!thing_is_invalid(killertng) && (killertng->owner == game.field_14E497) || (a3 == game.field_14E497))
+    a5 = 0;
+  remove_events_thing_is_attached_to(thing);
+  update_dead_creatures_list(dungeon, thing);
+  if ((dungeon != NULL) && (a5))
+  {
+      dungeon->battles_lost++;
+  }
+
+  if ((cctrl->field_AC & 0x04) != 0)
+  {
+    cctrl->field_AC &= 0xFB;
+    for (i=0; i < 3; i++)
+    {
+      k = cctrl->field_2B3[i];
+      if (k != 0)
+      {
+        thing = thing_get(k);
+        delete_thing_structure(thing, 0);
+        cctrl->field_2B3[i] = 0;
+      }
+    }
+  }
+  if ((cctrl->field_AD & 0x01) != 0)
+  {
+    cctrl->field_AD &= 0xFE;
+    for (i=0; i < 3; i++)
+    {
+      k = cctrl->field_2B9[i];
+      if (k != 0)
+      {
+        thing = thing_get(k);
+        delete_thing_structure(thing, 0);
+        cctrl->field_2B9[i] = 0;
+      }
+    }
+  }
+  update_kills_counters(thing, killertng, a3, a5);
+  if (thing_is_invalid(killertng) || (killertng->owner == game.field_14E497) || (a3 == game.field_14E497) || (dungeon == NULL))
+  {
+    if ((a4) && ((thing->field_0 & 0x20) != 0))
+    {
+      prepare_to_controlled_creature_death(thing);
+    }
+    cause_creature_death(thing, a4);
+    return true;
+  }
+  if (thing->owner == killertng->owner)
+  {
+    if ((get_creature_model_flags(thing) & MF_IsDiptera) && (get_creature_model_flags(killertng) & MF_IsArachnid))
+    {
+      dungeon->lvstats.flies_killed_by_spiders++;
+    }
+  }
+  cctrlgrp = creature_control_get_from_thing(killertng);
+  cctrlgrp->field_C2++;
+  if (is_my_player_number(thing->owner))
+  {
+    output_message(11, 40, 1);
+  } else
+  if (is_my_player_number(killertng->owner))
+  {
+    output_message(12, 40, 1);
+  }
+  if (game.field_14E496 == killertng->owner)
+  {
+    killerdngn = &(game.dungeon[killertng->owner%DUNGEONS_COUNT]);
+    if ((killerdngn->creature_tendencies & 0x01) != 0)
+      ERRORLOG("How can hero have tend to imprison");
+  }
+  crstat = creature_stats_get_from_thing(killertng);
+  anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, 4, 1);
+  if (a5)
+    cctrlgrp->field_8C[14]++;
+  if (dungeon != NULL)
+    dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
+  killerdngn = &(game.dungeon[killertng->owner%DUNGEONS_COUNT]);
+  if ((a6) || (killerdngn->room_kind[4] == 0)
+    || (killerdngn->creature_tendencies & 0x01) == 0)
+  {
+    if (a4 == 0)
+    {
+      cause_creature_death(thing, a4);
+      return true;
+    }
+  }
+  if (a4)
+  {
+    if ((thing->field_0 & 0x20) != 0)
+      prepare_to_controlled_creature_death(thing);
+    cause_creature_death(thing, a4);
+    return true;
+  }
+  clear_creature_instance(thing);
+  thing->field_7 = 67;
+  cctrl = creature_control_get_from_thing(thing);
+  cctrl->flgfield_0 |= 0x0400;
+  cctrl->flgfield_0 |= 0x0200;
+  cctrl->field_280 = 2000;
+  thing->health = 1;
+  return true;
 }
 
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos)
@@ -640,13 +982,13 @@ TbBool thing_is_creature(const struct Thing *thing)
   return true;
 }
 
-TbBool thing_is_creature_special_worker(const struct Thing *thing)
+TbBool thing_is_creature_special_digger(const struct Thing *thing)
 {
   if (thing_is_invalid(thing))
     return false;
   if (thing->class_id != TCls_Creature)
     return false;
-  return (thing->model == 23);
+  return ((get_creature_model_flags(thing) & MF_IsSpecDigger) != 0);
 }
 
 /******************************************************************************/

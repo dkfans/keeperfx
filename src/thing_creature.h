@@ -22,6 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include "thing_list.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -34,9 +36,7 @@ struct Thing;
 /******************************************************************************/
 #pragma pack(1)
 
-typedef long (*Thing_Class_Func)(struct Thing *);
 typedef long (*Creature_Instf_Func)(struct Thing *, long *);
-typedef long (*Thing_Filter)(struct Thing *, long);
 
 struct InstanceInfo { // sizeof = 42
 unsigned char field_0;
@@ -66,8 +66,8 @@ extern struct CreaturePickedUpOffset creature_picked_up_offset[];
 extern unsigned short creature_graphics[][22];
 extern int creature_swap_idx[CREATURE_TYPES_COUNT];
 /******************************************************************************/
-unsigned long control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
-unsigned long control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
+TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
+TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void load_swipe_graphic_for_creature(struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 long creature_available_for_combat_this_turn(struct Thing *thing);
@@ -82,7 +82,7 @@ struct Thing *get_creature_near_with_filter(unsigned short pos_x, unsigned short
 void anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, long a3);
 void apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev);
 long move_creature(struct Thing *thing);
-short kill_creature(struct Thing *thing, struct Thing *tngrp, char a1, unsigned char a2, unsigned char a3, unsigned char a4);
+TbBool kill_creature(struct Thing *thing, struct Thing *tngrp, char a1, unsigned char a2, unsigned char a3, unsigned char a4);
 void process_creature_instance(struct Thing *thing);
 void update_creature_count(struct Thing *thing);
 long process_creature_state(struct Thing *thing);
@@ -105,7 +105,7 @@ void remove_first_creature(struct Thing *thing);
 
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
-TbBool thing_is_creature_special_worker(const struct Thing *thing);
+TbBool thing_is_creature_special_digger(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

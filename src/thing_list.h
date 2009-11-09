@@ -20,6 +20,7 @@
 #define DK_THINGLIST_H
 
 #include "globals.h"
+#include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,9 +41,13 @@ enum ThingClass {
     TCls_EffectGen    =  7,
     TCls_Trap         =  8,
     TCls_Door         =  9,
-//    TCls_AmbientSnd   =  x,
+    TCls_AmbientSnd   = 12,
 //    TCls_CaveIn       =  x,
 };
+
+typedef long (*Thing_State_Func)(struct Thing *);
+typedef long (*Thing_Class_Func)(struct Thing *);
+typedef long (*Thing_Filter)(struct Thing *, long);
 
 struct StructureList {
      unsigned long count;
@@ -63,8 +68,7 @@ struct Thing {
     unsigned char field_0;
     unsigned char field_1;
     unsigned short field_2;
-    unsigned char field_4;
-    unsigned char field_5;
+    unsigned short field_4;
     unsigned char owner;
     unsigned char field_7;
     unsigned char field_8;
@@ -133,7 +137,11 @@ unsigned short field_60;
     unsigned char field_6A;
 };
 
+#define INVALID_THING (game.things_lookup[0])
+
 #pragma pack()
+/******************************************************************************/
+extern Thing_Class_Func class_functions[];
 /******************************************************************************/
 long creature_near_filter_not_imp(struct Thing *thing, long val);
 long creature_near_filter_is_enemy_of_and_not_imp(struct Thing *thing, long val);
@@ -142,7 +150,7 @@ long creature_near_filter_is_owned_by(struct Thing *thing, long val);
 unsigned long update_things_sounds_in_list(struct StructureList *list);
 void stop_all_things_playing_samples(void);
 unsigned long update_cave_in_things(void);
-void update_creatures_not_in_list(void);
+unsigned long update_creatures_not_in_list(void);
 unsigned long update_things_in_list(struct StructureList *list);
 void init_traps(void);
 void init_player_start(struct PlayerInfo *player);
@@ -151,7 +159,7 @@ void init_all_creature_states(void);
 long creature_of_model_in_prison(int model);
 long count_player_creatures_of_model(long plyr_idx, long model);
 long count_player_creatures_not_counting_to_total(long plyr_idx);
-short knight_in_prison(void);
+TbBool knight_in_prison(void);
 
 void update_things(void);
 
@@ -159,12 +167,17 @@ struct Thing *find_hero_gate_of_number(long num);
 long get_free_hero_gate_number(void);
 
 struct Thing *thing_get(long tng_idx);
-short thing_exists_idx(long tng_idx);
-short thing_exists(const struct Thing *thing);
+TbBool thing_exists_idx(long tng_idx);
+TbBool thing_exists(const struct Thing *thing);
 short thing_is_invalid(const struct Thing *thing);
 long thing_get_index(const struct Thing *thing);
 
 int thing_to_special(const struct Thing *thing);
+TbBool thing_touching_floor(const struct Thing *thing);
+
+TbBool update_thing(struct Thing *thing);
+TbBigChecksum get_thing_checksum(struct Thing *thing);
+short update_thing_sound(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

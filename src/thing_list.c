@@ -23,6 +23,7 @@
 #include "bflib_sound.h"
 #include "packets.h"
 #include "lvl_script.h"
+#include "config_creature.h"
 #include "keeperfx.h"
 
 #ifdef __cplusplus
@@ -33,22 +34,48 @@ extern "C" {
 DLLIMPORT void _DK_update_creatures_not_in_list(void);
 DLLIMPORT long _DK_update_things_in_list(struct StructureList *list);
 DLLIMPORT void _DK_update_things(void);
+DLLIMPORT long _DK_update_thing(struct Thing *thing);
+DLLIMPORT long _DK_get_thing_checksum(struct Thing *thing);
+DLLIMPORT long _DK_update_thing_sound(struct Thing *thing);
 /******************************************************************************/
+Thing_Class_Func class_functions[] = {
+  NULL,
+  update_object,
+  update_shot,
+  update_effect_element,
+  update_dead_creature,
+  update_creature,
+  update_effect,
+  process_effect_generator,
+  update_trap,
+  process_door,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+};
+/******************************************************************************/
+
 long creature_near_filter_not_imp(struct Thing *thing, long val)
 {
-  return (thing->model != 23);
+  return ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0);
 }
 
-long creature_near_filter_is_enemy_of_and_not_imp(struct Thing *thing, long val)
+long creature_near_filter_is_enemy_of_and_not_imp(struct Thing *thing, long plyr_idx)
 {
-  return (thing->owner != val) && (thing->model != 23);
+  if (thing->owner == plyr_idx)
+    return false;
+  return ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0);
 }
 
-long creature_near_filter_is_owned_by(struct Thing *thing, long val)
+long creature_near_filter_is_owned_by(struct Thing *thing, long plyr_idx)
 {
   struct SlabMap *slb;
   int i;
-  if (thing->owner == val)
+  if (thing->owner == plyr_idx)
   {
     return 1;
   }
@@ -59,12 +86,17 @@ long creature_near_filter_is_owned_by(struct Thing *thing, long val)
   if ((i == 41) || (i == 40) || (i == 43) || (i == 42))
   {
     slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    if ((slb->field_5 & 0x07) == val);
+    if ((slb->field_5 & 0x07) == plyr_idx);
       return true;
   }
   return false;
 }
 
+/**
+ * Makes per game turn update of all things in given StructureList.
+ * @param list List of things to process.
+ * @return Returns checksum computed from status of all things in list.
+ */
 TbBigChecksum update_things_in_list(struct StructureList *list)
 {
   struct Thing *thing;
@@ -75,16 +107,14 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
   sum = 0;
   k = 0;
   i = list->index;
-  while (i>0)
+  while (i != 0)
   {
-    if (i >= THINGS_COUNT)
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
     {
-      error(__func__,4578,"Jump out of things array bounds detected");
+      ERRORLOG("Jump to invalid thing detected");
       break;
     }
-    thing = game.things_lookup[i];
-    if (thing_is_invalid(thing))
-      break;
     i = thing->next_of_class;
     if ((thing->field_0 & 0x40) == 0)
     {
@@ -105,28 +135,25 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
   return sum;
 }
 
-/*
- * Updates cave in things, using proper StructureList.
- * Returns amount of items in the list.
+/**
+ * Makes per game turn update of cave in things, using proper StructureList.
+ * @return Returns amount of cave in things in list.
  */
 unsigned long update_cave_in_things(void)
 {
-  static const char *func_name="update_cave_in_things";
   struct Thing *thing;
   unsigned long k;
   int i;
   k = 0;
   i = game.thing_lists[10].index;
-  while (i>0)
+  while (i != 0)
   {
-    if (i >= THINGS_COUNT)
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
     {
-      error(func_name,4576,"Jump out of things array bounds detected");
+      ERRORLOG("Jump to invalid thing detected");
       break;
     }
-    thing = game.things_lookup[i];
-    if (thing_is_invalid(thing))
-      break;
     i = thing->next_of_class;
     update_cave_in(thing);
     k++;
@@ -142,6 +169,7 @@ unsigned long update_cave_in_things(void)
 /*
  * Updates sounds of things from given StructureList.
  * Returns amount of items in the list.
+  SYNCDBG(18,"Starting");
  */
 unsigned long update_things_sounds_in_list(struct StructureList *list)
 {
@@ -150,16 +178,14 @@ unsigned long update_things_sounds_in_list(struct StructureList *list)
   int i;
   k = 0;
   i = list->index;
-  while (i>0)
+  while (i != 0)
   {
-    if (i >= THINGS_COUNT)
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
     {
-      error(__func__,4578,"Jump out of things array bounds detected");
+      ERRORLOG("Jump to invalid thing detected");
       break;
     }
-    thing = game.things_lookup[i];
-    if (thing_is_invalid(thing))
-      break;
     i = thing->next_of_class;
     update_thing_sound(thing);
     k++;
@@ -172,13 +198,45 @@ unsigned long update_things_sounds_in_list(struct StructureList *list)
   return k;
 }
 
-void update_creatures_not_in_list(void)
+unsigned long update_creatures_not_in_list(void)
 {
-  static const char *func_name="update_creatures_not_in_list";
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  _DK_update_creatures_not_in_list();
+  struct Thing *thing;
+  unsigned long k;
+  int i;
+  SYNCDBG(18,"Starting");
+  //_DK_update_creatures_not_in_list();
+  k = 0;
+  i = game.thing_lists[0].index;
+  while (i != 0)
+  {
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
+    {
+      ERRORLOG("Jump to invalid thing detected");
+      break;
+    }
+    i = thing->next_of_class;
+    if (thing->index == 0)
+    {
+      ERRORLOG("Some THING has been deleted during the processing of another thing");
+      break;
+    }
+    if ((thing->field_0 & 0x40) != 0)
+    {
+      if ((thing->field_0 & 0x10) != 0)
+        update_thing_animation(thing);
+      else
+        update_thing(thing);
+    }
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  SYNCDBG(18,"Finished");
+  return k;
 }
 
 void update_things(void)
@@ -186,7 +244,6 @@ void update_things(void)
   SYNCDBG(7,"Starting");
   //_DK_update_things(); return;
   TbBigChecksum sum;
-  struct PlayerInfo *player;
   optimised_lights = 0;
   total_lights = 0;
   do_lights = game.field_4614D;
@@ -205,29 +262,25 @@ void update_things(void)
   update_cave_in_things();
   sum += compute_players_checksum();
   sum += game.field_14BB4A;
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  game.packets[player->packet_num%PACKETS_COUNT].chksum = sum;
+  set_player_packet_checksum(my_player_number,sum);
   SYNCDBG(9,"Finished");
 }
 
 void init_player_start(struct PlayerInfo *player)
 {
-  static const char *func_name="init_player_start";
   struct Dungeon *dungeon;
   struct Thing *thing;
   int i,k;
   k = 0;
   i = game.thing_lists[2].index;
-  while (i>0)
+  while (i != 0)
   {
-    if (i >= THINGS_COUNT)
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
     {
-      error(func_name,4578,"Jump out of things array bounds detected");
+      ERRORLOG("Jump to invalid thing detected");
       break;
     }
-    thing = game.things_lookup[i];
-    if (thing_is_invalid(thing))
-      break;
     i = thing->next_of_class;
     if ((game.objects_config[thing->model].field_6) && (thing->owner == player->field_2B))
     {
@@ -247,21 +300,18 @@ void init_player_start(struct PlayerInfo *player)
 
 void init_traps(void)
 {
-  static const char *func_name="init_traps";
   struct Thing *thing;
   int i,k;
   k = 0;
   i = game.thing_lists[7].index;
-  while (i>0)
+  while (i != 0)
   {
-    if (i >= THINGS_COUNT)
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
     {
-      error(func_name,4578,"Jump out of things array bounds detected");
+      ERRORLOG("Jump to invalid thing detected");
       break;
     }
-    thing = game.things_lookup[i];
-    if (thing_is_invalid(thing))
-      break;
     i = thing->next_of_class;
     if (thing->byte_13.l == 0)
     {
@@ -277,73 +327,70 @@ void init_traps(void)
   }
 }
 
+void setup_computer_player(int plr_idx)
+{
+  struct Thing *thing;
+  int i,k;
+  struct PlayerInfo *player;
+  SYNCDBG(5,"Starting for player %d",plr_idx);
+  player = &(game.players[plr_idx]);
+  k = 0;
+  i = game.thing_lists[2].index;
+  while (i != 0)
+  {
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
+    {
+      ERRORLOG("Jump to invalid thing detected");
+      break;
+    }
+    i = thing->next_of_class;
+    if ((game.objects_config[thing->model].field_6) && (thing->owner == plr_idx))
+    {
+      script_support_setup_player_as_computer_keeper(plr_idx, 0);
+      break;
+    }
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+}
+
 void setup_computer_players(void)
 {
-  static const char *func_name="setup_computer_players";
   struct PlayerInfo *player;
-  struct Thing *thing;
   int plr_idx;
-  int i,k;
-#if (BFDEBUG_LEVEL > 5)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
   for (plr_idx=0; plr_idx<PLAYERS_COUNT; plr_idx++)
   {
-      player=&(game.players[plr_idx]);
+      player = &(game.players[plr_idx]);
       if ((player->field_0 & 0x01) == 0)
-      {
-        k = 0;
-        i = game.thing_lists[2].index;
-        while (i>0)
-        {
-          if (i >= THINGS_COUNT)
-          {
-            error(func_name,4578,"Jump out of things array bounds detected");
-            break;
-          }
-          thing = game.things_lookup[i];
-          if (thing_is_invalid(thing))
-            break;
-          i = thing->next_of_class;
-          if ((game.objects_config[thing->model].field_6) && (thing->owner == plr_idx))
-          {
-            script_support_setup_player_as_computer_keeper(plr_idx, 0);
-            break;
-          }
-          k++;
-          if (k > THINGS_COUNT)
-          {
-            error(func_name,4579,"Infinite loop detected when sweeping things list");
-            break;
-          }
-        }
-      }
+        setup_computer_player(plr_idx);
   }
 }
 
 void init_all_creature_states(void)
 {
-  static const char *func_name="init_all_creature_states";
   struct Thing *thing;
   int i,k;
   k = 0;
   i = game.thing_lists[0].index;
-  while (i>0)
+  while (i != 0)
   {
-    if (i >= THINGS_COUNT)
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
     {
-      error(func_name,4578,"Jump out of things array bounds detected");
+      ERRORLOG("Jump to invalid thing detected");
       break;
     }
-    thing = game.things_lookup[i];
-    if (thing_is_invalid(thing))
-      break;
     i = thing->next_of_class;
     init_creature_state(thing);
     k++;
     if (k > THINGS_COUNT)
     {
-      error(func_name,4579,"Infinite loop detected when sweeping things list");
+      ERRORLOG("Infinite loop detected when sweeping things list");
       break;
     }
   }
@@ -355,22 +402,19 @@ void init_all_creature_states(void)
  */
 struct Thing *find_hero_gate_of_number(long num)
 {
-  static const char *func_name="find_hero_gate_of_number";
   struct Thing *thing;
   unsigned long k;
   long i;
   i = game.thing_lists[2].index;
   k = 0;
-  while (i>0)
+  while (i != 0)
   {
-    if (i >= THINGS_COUNT)
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
     {
-      error(func_name,1953,"Jump out of things array bounds detected");
+      ERRORLOG("Jump to invalid thing detected");
       break;
     }
-    thing = game.things_lookup[i];
-    if (thing_is_invalid(thing))
-      break;
     i = thing->next_of_class;
     if ((thing->model == 49) && (thing->byte_13.l == num))
     {
@@ -383,27 +427,25 @@ struct Thing *find_hero_gate_of_number(long num)
       break;
     }
   }
-  return game.things_lookup[0];
+  return INVALID_THING;
 }
 
 long creature_of_model_in_prison(int model)
 {
-  static const char *func_name="creature_of_model_in_prison";
   struct Thing *thing;
   long i,k,n;
   i = game.thing_lists[0].index;
   k = 0;
-  while (i>0)
+  while (i != 0)
   {
-    if (i >= THINGS_COUNT)
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
     {
-      error(func_name,4576,"Jump out of things array bounds detected");
+      ERRORLOG("Jump to invalid thing detected");
       break;
     }
-    thing = game.things_lookup[i];
-    if (thing_is_invalid(thing))
-      break;
     i = thing->next_of_class;
+    // Thing list loop body
     if (thing->model == model)
     {
       n = thing->field_7;
@@ -423,7 +465,7 @@ long creature_of_model_in_prison(int model)
   return 0;
 }
 
-short knight_in_prison(void)
+TbBool knight_in_prison(void)
 {
   return (creature_of_model_in_prison(6) > 0);
 }
@@ -454,16 +496,14 @@ long count_player_creatures_of_model(long plyr_idx, long model)
   count = 0;
   i = dungeon->field_2D;
   k = 0;
-  while (i>0)
+  while (i != 0)
   {
-    if (i >= THINGS_COUNT)
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
     {
-      error(__func__,1953,"Jump out of things array bounds detected");
+      ERRORLOG("Jump to invalid thing detected");
       break;
     }
-    thing = game.things_lookup[i];
-    if (thing_is_invalid(thing))
-      break;
     cctrl = creature_control_get_from_thing(thing);
     i = cctrl->thing_idx;
     if (thing->model == model)
@@ -490,16 +530,14 @@ long count_player_creatures_not_counting_to_total(long plyr_idx)
   count = 0;
   k = 0;
   i = dungeon->field_2D;
-  while (i>0)
+  while (i != 0)
   {
-    if (i >= THINGS_COUNT)
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
     {
-      error(__func__,1953,"Jump out of things array bounds detected");
+      ERRORLOG("Jump to invalid thing detected");
       break;
     }
-    thing = game.things_lookup[i];
-    if (thing_is_invalid(thing))
-      break;
     cctrl = creature_control_get_from_thing(thing);
     i = cctrl->thing_idx;
     n = thing->field_7;
@@ -525,7 +563,7 @@ struct Thing *thing_get(long tng_idx)
 {
   if ((tng_idx > 0) && (tng_idx < THINGS_COUNT))
     return game.things_lookup[tng_idx];
-  return game.things_lookup[0];
+  return INVALID_THING;
 }
 
 long thing_get_index(const struct Thing *thing)
@@ -542,7 +580,7 @@ short thing_is_invalid(const struct Thing *thing)
   return (thing <= game.things_lookup[0]) || (thing == NULL);
 }
 
-short thing_exists_idx(long tng_idx)
+TbBool thing_exists_idx(long tng_idx)
 {
   struct Thing *thing;
   thing = thing_get(tng_idx);
@@ -551,7 +589,7 @@ short thing_exists_idx(long tng_idx)
   return ((thing->field_0 & 0x01) != 0);
 }
 
-short thing_exists(const struct Thing *thing)
+TbBool thing_exists(const struct Thing *thing)
 {
   if (thing_is_invalid(thing))
     return false;
@@ -565,6 +603,11 @@ int thing_to_special(const struct Thing *thing)
   if ((thing->class_id != 1) || (thing->model >= OBJECT_TYPES_COUNT))
     return 0;
   return object_to_special[thing->model];
+}
+
+TbBool thing_touching_floor(const struct Thing *thing)
+{
+  return (thing->field_60 == thing->mappos.z.val);
 }
 /******************************************************************************/
 void stop_all_things_playing_samples(void)
@@ -584,6 +627,114 @@ void stop_all_things_playing_samples(void)
     }
   }
 }
+
+TbBool update_thing(struct Thing *thing)
+{
+  Thing_Class_Func classfunc;
+  struct Coord3d pos;
+  SYNCDBG(18,"Starting");
+
+  if ((thing->field_25 & 0x40) == 0)
+  {
+    if ((thing->field_1 & 0x04) != 0)
+    {
+      thing->pos_2C.x.val += thing->pos_32.x.val;
+      thing->pos_2C.y.val += thing->pos_32.y.val;
+      thing->pos_2C.z.val += thing->pos_32.z.val;
+      thing->pos_32.x.val = 0;
+      thing->pos_32.y.val = 0;
+      thing->pos_32.z.val = 0;
+      set_flag_byte(&thing->field_1,0x04,false);
+    }
+    thing->pos_38.x.val = thing->pos_2C.x.val;
+    thing->pos_38.y.val = thing->pos_2C.y.val;
+    thing->pos_38.z.val = thing->pos_2C.z.val;
+    if (thing->field_1 & 0x08)
+    {
+      thing->pos_38.x.val += thing->pos_26.x.val;
+      thing->pos_38.y.val += thing->pos_26.y.val;
+      thing->pos_38.z.val += thing->pos_26.z.val;
+      thing->pos_26.x.val = 0;
+      thing->pos_26.y.val = 0;
+      thing->pos_26.z.val = 0;
+      set_flag_byte(&thing->field_1,0x08,false);
+    }
+  }
+  classfunc = class_functions[thing->class_id%THING_CLASSES_COUNT];
+  if (classfunc == NULL)
+      return false;
+  if (classfunc(thing) < 0)
+      return false;
+  SYNCDBG(18,"Class function end ok");
+  if ((thing->field_25 & 0x40) == 0)
+  {
+      if (thing->mappos.z.val > thing->field_60)
+      {
+        if (thing->pos_2C.x.val != 0)
+          thing->pos_2C.x.val = thing->pos_2C.x.val * (256 - thing->field_24) / 256;
+        if (thing->pos_2C.y.val != 0)
+          thing->pos_2C.y.val = thing->pos_2C.y.val * (256 - thing->field_24) / 256;
+        if ((thing->field_25 & 0x20) == 0)
+        {
+          thing->pos_32.z.val -= thing->field_20;
+          thing->field_1 |= 0x04;
+        }
+      } else
+      {
+        if (thing->pos_2C.x.val != 0)
+          thing->pos_2C.x.val = thing->pos_2C.x.val * (256 - thing->field_23) / 256;
+        if (thing->pos_2C.y.val != 0)
+          thing->pos_2C.y.val = thing->pos_2C.y.val * (256 - thing->field_23) / 256;
+        thing->mappos.z.val = thing->field_60;
+        if ((thing->field_25 & 0x08) != 0)
+        {
+          thing->pos_2C.z.val = 0;
+        }
+      }
+  }
+  update_thing_animation(thing);
+  update_thing_sound(thing);
+  if ((do_lights) && (thing->field_62 != 0))
+  {
+      if (light_is_light_allocated(thing->field_62))
+      {
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = thing->mappos.z.val + thing->field_58;
+        light_set_light_position(thing->field_62, &pos);
+      } else
+      {
+        thing->field_62 = 0;
+      }
+  }
+  return true;
+}
+
+TbBigChecksum get_thing_checksum(struct Thing *thing)
+{
+  SYNCDBG(18,"Starting");
+  return _DK_get_thing_checksum(thing);
+}
+
+short update_thing_sound(struct Thing *thing)
+{
+  SYNCDBG(18,"Starting");
+  if (thing->field_66)
+  {
+    if ( S3DEmitterHasFinishedPlaying(thing->field_66) )
+    {
+      S3DDestroySoundEmitter(thing->field_66);
+      thing->field_66 = 0;
+    } else
+    {
+      S3DMoveSoundEmitterTo(thing->field_66,
+          thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val);
+    }
+  }
+  return true;
+}
+
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

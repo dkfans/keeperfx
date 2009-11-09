@@ -442,6 +442,7 @@
  0001:00082CD0       make_safe
  0001:000830E0       steal_hero
  0001:00083340       process_obey_leader
+ 0001:00083710       check_for_first_person_barrack_party
  0001:000851D0       command_if
  0001:00085710       command_add_to_party
  0001:00085A30       command_add_party_to_level
@@ -461,6 +462,7 @@
  0001:0008AE80       explosion_affecting_area
  0001:0008B950       process_effect_generator
  0001:0008DF40       creature_look_for_combat
+ 0001:0008E500       remove_all_traces_of_combat
  0001:0008F460       creature_available_for_combat_this_turn
  0001:00090120       creature_fire_shot
  0001:00092A20       reset_scroll_window
@@ -680,6 +682,8 @@
  0001:000BF400       initialise_thing_state
  0001:000BF510       can_change_from_state_to
  0001:000C01E0       setup_move_off_lava
+ 0001:000C0360       creature_escaping_death
+ 0001:000C0380       cause_creature_death
  0001:000C0D90       control_creature_as_passenger
  0001:000C0E40       control_creature_as_controller
  0001:000C1480       leave_creature_as_controller

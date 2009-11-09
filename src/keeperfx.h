@@ -63,6 +63,7 @@
 #define WIN_CONDITIONS_COUNT    4
 #define CONDITIONS_COUNT       48
 #define CREATURE_MAX_LEVEL     10
+#define SPELL_MAX_LEVEL         8
 #define THING_CLASSES_COUNT    10
 #define GAME_KEYS_COUNT        32
 #define GAMMA_LEVELS_COUNT      5
@@ -1522,8 +1523,6 @@ DLLIMPORT struct MessageQueueEntry _DK_message_queue[MESSAGE_QUEUE_COUNT];
 #define message_queue _DK_message_queue
 DLLIMPORT struct TrapStats _DK_trap_stats[7]; //not sure - maybe it's 8?
 #define trap_stats _DK_trap_stats
-//DLLIMPORT Thing_Class_Func _DK_class_functions[14];
-//#define class_functions _DK_class_functions
 DLLIMPORT long _DK_imp_spangle_effects[];
 #define imp_spangle_effects _DK_imp_spangle_effects
 DLLIMPORT struct Creatures _DK_creatures[CREATURE_TYPES_COUNT];
@@ -2098,9 +2097,6 @@ unsigned char i_can_allocate_free_thing_structure(unsigned char a1);
 struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short a2, unsigned short owner);
 long take_money_from_dungeon(short a1, long a2, unsigned char a3);
 void update_thing_animation(struct Thing *thing);
-long update_thing(struct Thing *thing);
-TbBigChecksum get_thing_checksum(struct Thing *thing);
-short update_thing_sound(struct Thing *thing);
 long update_cave_in(struct Thing *thing);
 void move_thing_in_map(struct Thing *thing, struct Coord3d *pos);
 long get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos);

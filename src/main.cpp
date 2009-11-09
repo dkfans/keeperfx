@@ -195,27 +195,6 @@ short default_loc_player = 0;
 short hero_player = 4;
 unsigned long gold_per_hoarde = 2000;
 struct StartupParameters start_params;
-#define TRACE LbNetLog
-
-Thing_Class_Func class_functions[] = {
-  NULL,
-  update_object,
-  update_shot,
-  update_effect_element,
-  update_dead_creature,
-  update_creature,
-  update_effect,
-  process_effect_generator,
-  update_trap,
-  process_door,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-};
 
 //long const imp_spangle_effects[] = {
 
@@ -620,9 +599,6 @@ DLLIMPORT void _DK_clear_game(void);
 DLLIMPORT void _DK_clear_game_for_save(void);
 DLLIMPORT long _DK_update_cave_in(struct Thing *thing);
 DLLIMPORT void _DK_update_thing_animation(struct Thing *thing);
-DLLIMPORT long _DK_update_thing(struct Thing *thing);
-DLLIMPORT long _DK_get_thing_checksum(struct Thing *thing);
-DLLIMPORT long _DK_update_thing_sound(struct Thing *thing);
 DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
 DLLIMPORT void _DK_init_messages(void);
 DLLIMPORT void _DK_battle_initialise(void);
@@ -3001,119 +2977,6 @@ void update_thing_animation(struct Thing *thing)
         thing->field_4A = 0;
     }
   }
-}
-
-long update_thing(struct Thing *thing)
-{
-  static const char *func_name="update_thing";
-  Thing_Class_Func classfunc;
-  struct Coord3d pos;
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-
-  if ((thing->field_25 & 0x40) == 0)
-  {
-    if ((thing->field_1 & 0x04) != 0)
-    {
-      thing->pos_2C.x.val += thing->pos_32.x.val;
-      thing->pos_2C.y.val += thing->pos_32.y.val;
-      thing->pos_2C.z.val += thing->pos_32.z.val;
-      thing->pos_32.x.val = 0;
-      thing->pos_32.y.val = 0;
-      thing->pos_32.z.val = 0;
-      set_flag_byte(&thing->field_1,0x04,false);
-    }
-    thing->pos_38.x.val = thing->pos_2C.x.val;
-    thing->pos_38.y.val = thing->pos_2C.y.val;
-    thing->pos_38.z.val = thing->pos_2C.z.val;
-    if (thing->field_1 & 0x08)
-    {
-      thing->pos_38.x.val += thing->pos_26.x.val;
-      thing->pos_38.y.val += thing->pos_26.y.val;
-      thing->pos_38.z.val += thing->pos_26.z.val;
-      thing->pos_26.x.val = 0;
-      thing->pos_26.y.val = 0;
-      thing->pos_26.z.val = 0;
-      set_flag_byte(&thing->field_1,0x08,false);
-    }
-  }
-  classfunc = class_functions[thing->class_id%THING_CLASSES_COUNT];
-  if (classfunc == NULL)
-      return 0;
-  if (classfunc(thing) < 0)
-      return 0;
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Class function end ok\n",func_name);
-#endif
-  if ((thing->field_25 & 0x40) == 0)
-  {
-      if (thing->mappos.z.val > thing->field_60)
-      {
-        if (thing->pos_2C.x.val != 0)
-          thing->pos_2C.x.val = thing->pos_2C.x.val * (256 - thing->field_24) / 256;
-        if (thing->pos_2C.y.val != 0)
-          thing->pos_2C.y.val = thing->pos_2C.y.val * (256 - thing->field_24) / 256;
-        if ((thing->field_25 & 0x20) == 0)
-        {
-          thing->pos_32.z.val -= thing->field_20;
-          thing->field_1 |= 0x04;
-        }
-      } else
-      {
-        if (thing->pos_2C.x.val != 0)
-          thing->pos_2C.x.val = thing->pos_2C.x.val * (256 - thing->field_23) / 256;
-        if (thing->pos_2C.y.val != 0)
-          thing->pos_2C.y.val = thing->pos_2C.y.val * (256 - thing->field_23) / 256;
-        thing->mappos.z.val = thing->field_60;
-        if ((thing->field_25 & 0x08) != 0)
-        {
-          thing->pos_2C.z.val = 0;
-        }
-      }
-  }
-  update_thing_animation(thing);
-  update_thing_sound(thing);
-  if ((do_lights) && (thing->field_62 != 0))
-  {
-      if (light_is_light_allocated(thing->field_62))
-      {
-        pos.x.val = thing->mappos.x.val;
-        pos.y.val = thing->mappos.y.val;
-        pos.z.val = thing->mappos.z.val + thing->field_58;
-        light_set_light_position(thing->field_62, &pos);
-      } else
-      {
-        thing->field_62 = 0;
-      }
-  }
-  return 1;
-}
-
-TbBigChecksum get_thing_checksum(struct Thing *thing)
-{
-  static const char *func_name="get_thing_checksum";
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  return _DK_get_thing_checksum(thing);
-}
-
-short update_thing_sound(struct Thing *thing)
-{
-  if (thing->field_66)
-  {
-    if ( S3DEmitterHasFinishedPlaying(thing->field_66) )
-    {
-      S3DDestroySoundEmitter(thing->field_66);
-      thing->field_66 = 0;
-    } else
-    {
-      S3DMoveSoundEmitterTo(thing->field_66,
-          thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val);
-    }
-  }
-  return true;
 }
 
 /*

@@ -408,7 +408,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if (player->field_43A == 0)
             create_power_hand(player->field_2B);
-          i = thing_is_creature_special_worker(thing);
+          i = thing_is_creature_special_digger(thing);
           if (can_drop_thing_here(stl_x, stl_y, player->field_2B, i)
             || !can_dig_here(stl_x, stl_y, player->field_2B))
           {
