@@ -40,7 +40,7 @@ DLLIMPORT extern struct ToolTipBox _DK_tool_tip_box;
 /******************************************************************************/
 void toggle_tooltips(void);
 void draw_tooltip(void);
-short input_gameplay_tooltips(TbBool gameplay_on);
+TbBool input_gameplay_tooltips(TbBool gameplay_on);
 short setup_scrolling_tooltips(struct Coord3d *mappos);
 void setup_gui_tooltip(struct GuiButton *gbtn);
 TbBool gui_button_tooltip_update(int gbtn_idx);

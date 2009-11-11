@@ -20,7 +20,9 @@
 #include "globals.h"
 #include "bflib_memory.h"
 #include "bflib_guibtns.h"
+#include "bflib_sprfnt.h"
 
+#include "gui_draw.h"
 #include "kjm_input.h"
 #include "frontend.h"
 #include "keeperfx.h"
@@ -121,6 +123,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
 {
   char *text;
   struct Thing *thing;
+  struct Objects *objdat;
   struct CreatureData *crdata;
   struct PlayerInfo *player;
   long i;
@@ -180,7 +183,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
       update_gui_tooltip_target(thing);
       if ( (help_tip_time > 20) || (player->work_state == 12))
       {
-        crdata = creature_data_get(_DK_objects[thing->model].field_13);
+        crdata = creature_data_get(objdat->field_13);
         set_gui_tooltip_box_fmt(5,"%s %s", gui_strings[crdata->namestr_idx%STRINGS_MAX], gui_strings[609]); // (creature) Lair
       } else
       {
@@ -358,7 +361,7 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
   return false;
 }
 
-short input_gameplay_tooltips(TbBool gameplay_on)
+TbBool input_gameplay_tooltips(TbBool gameplay_on)
 {
   struct Coord3d mappos;
   struct PlayerInfo *player;
@@ -404,10 +407,148 @@ void toggle_tooltips(void)
   save_settings();
 }
 
+void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, long ttheight, long viswidth)
+{
+  unsigned int flg_mem;
+  long x,y;
+  flg_mem = lbDisplay.DrawFlags;
+  if (ttwidth > viswidth)
+  {
+    if (tooltip_scroll_timer <= 0)
+    {
+      if (-ttwidth >= tooltip_scroll_offset)
+        tooltip_scroll_offset = viswidth;
+      else
+        tooltip_scroll_offset -= 4;
+    } else
+    {
+      tooltip_scroll_timer--;
+      if (tooltip_scroll_timer < 0)
+        tooltip_scroll_offset = 0;
+    }
+  }
+  if (tttext != NULL)
+  {
+    x = pos_x+26;
+    lbDisplay.DrawFlags &= 0xFFBFu;
+    y = pos_y - (ttheight+28);
+    if (x > MyScreenWidth)
+      x = MyScreenWidth;
+    if (x < 6)
+      x = 6;
+    if (y > MyScreenHeight)
+      y = MyScreenHeight;
+    if (y < 4)
+      y = 4;
+    if (x+viswidth >= MyScreenWidth)
+      x = MyScreenWidth-viswidth;
+    if (y+ttheight >= MyScreenHeight)
+      y = MyScreenHeight-ttheight;
+    if (*tttext)
+    {
+      LbTextSetWindow(x/pixel_size, y/pixel_size, viswidth/pixel_size, ttheight/pixel_size);
+      draw_slab64k(x, y, viswidth, ttheight);
+      lbDisplay.DrawFlags = 0;
+      LbTextDraw(tooltip_scroll_offset/pixel_size, -2/pixel_size, tttext);
+    }
+  }
+  LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);
+  lbDisplay.DrawFlags = flg_mem;
+}
+
+long find_string_length_to_first_character(char *str, char fch)
+{
+  long i;
+  for (i=0; str[i] != '\0'; i++)
+  {
+    if (str[i] == fch)
+      break;
+  }
+  return i;
+}
+
+long find_string_width_to_first_character(char *str, char fch)
+{
+  long len;
+  char text[TOOLTIP_MAX_LEN];
+  len = find_string_length_to_first_character(str, fch);
+  if (len >= sizeof(text))
+  {
+    WARNLOG("This bloody tooltip is too long");
+    len = sizeof(text)-1;
+  }
+  strncpy(text, str, len);
+  text[len] = '\0';
+  return pixel_size * LbTextStringWidth(text);
+}
+
+void move_characters_forward_and_fill_empty_space(char *str,long move_pos,long shift,long clear_pos,long dst_pos,char fill_ch)
+{
+  long i = dst_pos;
+  while (i >= move_pos)
+  {
+    str[i] = str[i-shift];
+    i--;
+  }
+  while (i >= clear_pos)
+  {
+    str[i] = fill_ch;
+    i--;
+  }
+}
+
+long find_and_pad_string_width_to_first_character(char *str, char fch)
+{
+  long len,fill_len;
+  len = find_string_length_to_first_character(str, fch);
+  fill_len = 10-len;
+  if (fill_len > 0)
+  {
+    // Moving characters after fch beyond the tooltip box size
+    move_characters_forward_and_fill_empty_space(str,10,fill_len,len,strlen(str)+9,' ');
+    move_characters_forward_and_fill_empty_space(str,fill_len/2,fill_len/2,0,9,' ');
+  }
+  return find_string_width_to_first_character(str, fch);
+}
+
+void draw_tooltip_at(long ttpos_x,long ttpos_y,char *tttext)
+{
+  struct PlayerInfo *player;
+  unsigned int flg_mem;
+  long hdwidth,ttwidth,ttheight;
+  long pos_x,pos_y;
+  if (tttext == NULL)
+    return;
+  flg_mem = lbDisplay.DrawFlags;
+  lbDisplay.DrawFlags &= 0xFFBFu;
+  hdwidth = find_and_pad_string_width_to_first_character(tttext, ':');
+  ttwidth = pixel_size * LbTextStringWidth(tttext);
+  ttheight = pixel_size * LbTextStringHeight(tttext);
+  lbDisplay.DrawFlags = flg_mem;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  pos_x = ttpos_x;
+  pos_y = ttpos_y;
+  if (player->view_type == 4)
+  {
+    pos_y = GetMouseY() + 24;
+    if (pos_y > MyScreenHeight-104)
+      pos_y = MyScreenHeight - 104;
+    if (pos_y < 0)
+      pos_y = 0;
+  }
+  draw_tooltip_slab64k(tttext, pos_x, pos_y, ttwidth, ttheight, hdwidth);
+}
+
 void draw_tooltip(void)
 {
   SYNCDBG(7,"Starting");
-  _DK_draw_tooltip();
+  lbFontPtr = winfont;
+  if (tool_tip_box.field_0)
+  {
+    draw_tooltip_at(tool_tip_box.pos_x,tool_tip_box.pos_y,tool_tip_box.text);
+  }
+  LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+  tool_tip_box.field_0 = 0;
 }
 
 /******************************************************************************/
