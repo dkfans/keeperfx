@@ -19,6 +19,7 @@
 #ifndef DK_SCRCAPT_H
 #define DK_SCRCAPT_H
 
+#include "bflib_basics.h"
 #include "globals.h"
 
 #ifdef __cplusplus
@@ -30,7 +31,7 @@ extern short screenshot_format;
 
 /******************************************************************************/
 short perform_any_screen_capturing(void);
-short cumulative_screen_shot(void);
+TbBool cumulative_screen_shot(void);
 
 short movie_record_start(void);
 short movie_record_stop(void);

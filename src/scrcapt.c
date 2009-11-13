@@ -158,9 +158,8 @@ long prepare_bmp_screenshot(unsigned char *buf,unsigned char *palette)
   return pos;
 }
 
-short cumulative_screen_shot(void)
+TbBool cumulative_screen_shot(void)
 {
-  static const char *func_name="cumulative_screen_shot";
   //_DK_cumulative_screen_shot();return;
   static long frame_number=0;
   char fname[255];
@@ -190,7 +189,7 @@ short cumulative_screen_shot(void)
   if (frame_number >= 10000)
   {
     show_onscreen_msg(game.num_fps, "No free filename for screenshot.");
-    return 0;
+    return false;
   }
   sprintf(fname, "scrshots/scr%05d.%s", frame_number, fext);
 

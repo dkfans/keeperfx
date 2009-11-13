@@ -844,12 +844,11 @@ TbBool setup_screen_mode_zero(unsigned short nmode)
 
 TbScreenMode reenter_video_mode(void)
 {
-  static const char *func_name="reenter_video_mode";
  TbScreenMode scrmode;
- scrmode=validate_vidmode(_DK_settings.field_B);
+ scrmode=validate_vidmode(_DK_settings.video_scrnmode);
  if ( setup_screen_mode(scrmode) )
   {
-      _DK_settings.field_B = scrmode;
+      _DK_settings.video_scrnmode = scrmode;
   } else
   {
       SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode",
@@ -861,7 +860,7 @@ TbScreenMode reenter_video_mode(void)
         exit_keeper = 1;
         return Lb_SCREEN_MODE_INVALID;
       }
-      _DK_settings.field_B = scrmode;
+      _DK_settings.video_scrnmode = scrmode;
       save_settings();
   }
   SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
@@ -876,7 +875,7 @@ TbScreenMode switch_to_next_video_mode(void)
   scrmode = get_next_vidmode(lbDisplay.ScreenMode);
   if ( setup_screen_mode(scrmode) )
   {
-      _DK_settings.field_B = scrmode;
+      _DK_settings.video_scrnmode = scrmode;
   } else
   {
       SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode",
@@ -888,7 +887,7 @@ TbScreenMode switch_to_next_video_mode(void)
         exit_keeper = 1;
         return Lb_SCREEN_MODE_INVALID;
       }
-      _DK_settings.field_B = scrmode;
+      _DK_settings.video_scrnmode = scrmode;
   }
   SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
   int x1,y1,x2,y2;

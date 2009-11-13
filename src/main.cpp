@@ -66,27 +66,6 @@ char cmndline[CMDLN_MAXLEN+1];
 unsigned short bf_argc;
 char *bf_argv[CMDLN_MAXLEN+1];
 
-const struct GameSettings default_settings = {
-   0, 4, 3, 0, 1, 0, 127, 90, 1, 0, 1,
-   {
-    {KC_UP, KM_NONE},       {KC_DOWN, KM_NONE},
-    {KC_LEFT, KM_NONE},     {KC_RIGHT, KM_NONE},
-    {KC_LCONTROL, KM_NONE}, {KC_LSHIFT, KM_NONE},
-    {KC_DELETE, KM_NONE},   {KC_PGDOWN, KM_NONE},
-    {KC_HOME, KM_NONE},     {KC_END, KM_NONE},
-    {KC_T, KM_NONE},        {KC_L, KM_NONE},
-    {KC_L, KM_SHIFT},       {KC_P, KM_SHIFT},
-    {KC_T, KM_ALT},         {KC_T, KM_SHIFT},
-    {KC_H, KM_NONE},        {KC_W, KM_NONE},
-    {KC_S, KM_NONE},        {KC_T, KM_CONTROL},
-    {KC_G, KM_NONE},        {KC_B, KM_NONE},
-    {KC_H, KM_SHIFT},       {KC_G, KM_SHIFT},
-    {KC_B, KM_SHIFT},       {KC_F, KM_NONE},
-    {KC_A, KM_NONE},        {KC_LSHIFT, KM_NONE},
-    {KC_NUMPAD0, KM_NONE},  {KC_BACK, KM_NONE},
-    {KC_P, KM_NONE},        {KC_M, KM_NONE},
-   }, 1, 0, 6};
-
 struct KeyToStringInit key_to_string_init[] = {
   {KC_A,  -65},
   {KC_B,  -66},
@@ -4747,18 +4726,45 @@ short ceiling_set_info(long height_max, long height_min, long step)
   return 1;
 }
 
-short load_settings(void)
+void setup_default_settings(void)
 {
-  static const char *func_name="load_settings";
-#if (BFDEBUG_LEVEL > 6)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
   // CPU status variable
   struct CPU_INFO cpu_info;
+  const struct GameSettings default_settings = {
+   0, 4, 3, 0, 1, 0, 127, 90, 1, 0, 1,
+   {
+    {KC_UP, KM_NONE},       {KC_DOWN, KM_NONE},
+    {KC_LEFT, KM_NONE},     {KC_RIGHT, KM_NONE},
+    {KC_LCONTROL, KM_NONE}, {KC_LSHIFT, KM_NONE},
+    {KC_DELETE, KM_NONE},   {KC_PGDOWN, KM_NONE},
+    {KC_HOME, KM_NONE},     {KC_END, KM_NONE},
+    {KC_T, KM_NONE},        {KC_L, KM_NONE},
+    {KC_L, KM_SHIFT},       {KC_P, KM_SHIFT},
+    {KC_T, KM_ALT},         {KC_T, KM_SHIFT},
+    {KC_H, KM_NONE},        {KC_W, KM_NONE},
+    {KC_S, KM_NONE},        {KC_T, KM_CONTROL},
+    {KC_G, KM_NONE},        {KC_B, KM_NONE},
+    {KC_H, KM_SHIFT},       {KC_G, KM_SHIFT},
+    {KC_B, KM_SHIFT},       {KC_F, KM_NONE},
+    {KC_A, KM_NONE},        {KC_LSHIFT, KM_NONE},
+    {KC_NUMPAD0, KM_NONE},  {KC_BACK, KM_NONE},
+    {KC_P, KM_NONE},        {KC_M, KM_NONE},
+   }, 1, 0, 6};
+  LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
+  cpu_detect(&cpu_info);
+  settings.video_scrnmode = get_next_vidmode(Lb_SCREEN_MODE_INVALID);
+  if ((cpu_get_family(&cpu_info) > CPUID_FAMILY_PENTIUM) && (is_feature_on(Ft_HiResVideo)))
+  {
+    SYNCDBG(6,"Updating to hires video mode");
+    settings.video_scrnmode = get_next_vidmode(settings.video_scrnmode);
+  }
+}
+
+TbBool load_settings(void)
+{
+  SYNCDBG(6,"Starting");
   char *fname;
   long len;
-  // Do only a very basic setup
-  cpu_detect(&cpu_info);
   fname = prepare_file_path(FGrp_Save,"settings.dat");
   len = LbFileLengthRnc(fname);
   if (len == sizeof(struct GameSettings))
@@ -4766,10 +4772,7 @@ short load_settings(void)
     if (LbFileLoadAt(fname, &settings) == sizeof(struct GameSettings))
       return true;
   }
-  LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
-  settings.field_B = get_next_vidmode(Lb_SCREEN_MODE_INVALID);
-  if ((((cpu_info.feature_intl>>8) & 0x0Fu) >= 6) && (is_feature_on(Ft_HiResVideo)))
-    settings.field_B = get_next_vidmode(settings.field_B);
+  setup_default_settings();
   LbFileSaveAt(fname, &settings, sizeof(struct GameSettings));
   return false;
 }
@@ -4815,7 +4818,9 @@ short setup_game(void)
   char *fname;
   // Do only a very basic setup
   cpu_detect(&cpu_info);
-  LbSyncLog("CPU %s features %08x %08x\n",cpu_info.vendor,cpu_info.feature_intl,cpu_info.feature_edx);
+  SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
+      (int)cpu_get_type(&cpu_info),(int)cpu_get_family(&cpu_info),(int)cpu_get_model(&cpu_info),
+      (int)cpu_get_stepping(&cpu_info),cpu_info.feature_edx);
   update_memory_constraits();
 
   // Enable features thar require more resources

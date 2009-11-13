@@ -34,9 +34,6 @@ extern "C" {
 #define MAP_SCREEN_WIDTH           1280
 #define MAP_SCREEN_HEIGHT           960
 
-#define MESSAGE_TEXT_LEN           1024
-#define QUICK_MESSAGES_COUNT         50
-
 enum TbFileGroups {
         FGrp_None,
         FGrp_StdData,
@@ -144,7 +141,6 @@ extern short is_new_moon;
 extern short is_near_new_moon;
 extern unsigned long text_line_number;
 extern const struct NamedCommand lang_type[];
-extern char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
 /******************************************************************************/
 DLLIMPORT int __stdcall _DK_load_configuration(void);
 /******************************************************************************/

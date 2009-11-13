@@ -690,7 +690,7 @@ struct GameSettings { // sizeof = 0x52 (82)
     unsigned char redbook_volume;
     unsigned char field_8;
     unsigned short gamma_correction;
-    int field_B;
+    int video_scrnmode;
     struct GameKey kbkeys[GAME_KEYS_COUNT];
     unsigned char tooltips_on;
     unsigned char field_50;
@@ -2020,7 +2020,7 @@ void setup_heap_manager(void);
 TbBool setup_heap_memory(void);
 void reset_heap_manager(void);
 void reset_heap_memory(void);
-short load_settings(void);
+TbBool load_settings(void);
 unsigned long convert_td_iso(unsigned long n);
 long light_create_light(struct InitLight *ilght);
 void light_set_light_never_cache(long idx);

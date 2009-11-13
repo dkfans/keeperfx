@@ -91,7 +91,6 @@ const struct NamedCommand logicval_type[] = {
   };
 
 unsigned long features_enabled = 0;
-char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
 // Line number, used when loading text files
 unsigned long text_line_number;
 
