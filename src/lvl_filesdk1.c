@@ -50,13 +50,13 @@ DLLIMPORT void _DK_load_level_file(long lvnum);
 DLLIMPORT void _DK_initialise_extra_slab_info(unsigned long lv_num);
 /******************************************************************************/
 
-/*
+/**
  * Loads map file with given level number and file extension.
  * @return Returns NULL if the file doesn't exist or is smaller than ldsize;
  * on success, returns a buffer which should be freed after use,
  * and sets ldsize into its size.
  */
-unsigned char *load_single_map_file_to_buffer(unsigned long lvnum,const char *fext,long *ldsize)
+unsigned char *load_single_map_file_to_buffer(unsigned long lvnum,const char *fext,long *ldsize,unsigned short flags)
 {
   unsigned char *buf;
   char *fname;
@@ -68,24 +68,36 @@ unsigned char *load_single_map_file_to_buffer(unsigned long lvnum,const char *fe
   fsize = LbFileLengthRnc(fname);
   if (fsize < *ldsize)
   {
-    LbWarnLog("Map file \"map%05lu.%s\" doesn't exist or is too small.\n",lvnum,fext);
+    if ((flags & LMFF_Optional) == 0)
+      WARNMSG("Map file \"map%05lu.%s\" doesn't exist or is too small.",lvnum,fext);
+    else
+      SYNCMSG("Optional file \"map%05lu.%s\" doesn't exist or is too small.",lvnum,fext);
     return NULL;
   }
   if (fsize > ANY_MAP_FILE_MAX_SIZE)
   {
-    LbWarnLog("Map file \"map%05lu.%s\" exceeds max size of %d; loading failed.\n",lvnum,fext,ANY_MAP_FILE_MAX_SIZE);
+    if ((flags & LMFF_Optional) == 0)
+      WARNMSG("Map file \"map%05lu.%s\" exceeds max size of %d; loading failed.",lvnum,fext,ANY_MAP_FILE_MAX_SIZE);
+    else
+      SYNCMSG("Optional file \"map%05lu.%s\" exceeds max size of %d; not loading.",lvnum,fext,ANY_MAP_FILE_MAX_SIZE);
     return NULL;
   }
   buf = LbMemoryAlloc(fsize+16);
   if (buf == NULL)
   {
-    LbWarnLog("Can't allocate %ld bytes to load \"map%05lu.%s\".\n",fsize,lvnum,fext);
+    if ((flags & LMFF_Optional) == 0)
+      WARNMSG("Can't allocate %ld bytes to load \"map%05lu.%s\".",fsize,lvnum,fext);
+    else
+      SYNCMSG("Can't allocate %ld bytes to load \"map%05lu.%s\".",fsize,lvnum,fext);
     return NULL;
   }
   fsize = LbFileLoadAt(fname,buf);
   if (fsize < *ldsize)
   {
-    LbWarnLog("Reading map file \"map%05lu.%s\" failed.\n",lvnum,fext);
+    if ((flags & LMFF_Optional) == 0)
+      WARNMSG("Reading map file \"map%05lu.%s\" failed.",lvnum,fext);
+    else
+      SYNCMSG("Reading optional file \"map%05lu.%s\" failed.",lvnum,fext);
     LbMemoryFree(buf);
     return NULL;
   }
@@ -531,7 +543,7 @@ short load_column_file(unsigned long lv_num)
     set_flag_byte(&game.numfield_C,0x08,false);
   }
   fsize = 8;
-  buf = load_single_map_file_to_buffer(lv_num,"clm",&fsize);
+  buf = load_single_map_file_to_buffer(lv_num,"clm",&fsize,LMFF_None);
   if (buf == NULL)
     return false;
   clear_columns();
@@ -581,7 +593,7 @@ long load_map_data_file(unsigned long lv_num)
   long fsize;
   clear_map();
   fsize = 2*(map_subtiles_y+1)*(map_subtiles_x+1);
-  buf = load_single_map_file_to_buffer(lv_num,"dat",&fsize);
+  buf = load_single_map_file_to_buffer(lv_num,"dat",&fsize,LMFF_None);
   if (buf == NULL)
     return false;
   i = 0;
@@ -618,7 +630,7 @@ short load_thing_file(unsigned long lv_num)
   unsigned char *buf;
   long fsize;
   fsize = 2;
-  buf = load_single_map_file_to_buffer(lv_num,"tng",&fsize);
+  buf = load_single_map_file_to_buffer(lv_num,"tng",&fsize,LMFF_None);
   if (buf == NULL)
     return false;
   i = 0;
@@ -658,7 +670,7 @@ long load_action_point_file(unsigned long lv_num)
   char *text;
   long fsize;
   fsize = 4;
-  buf = load_single_map_file_to_buffer(lv_num,"apt",&fsize);
+  buf = load_single_map_file_to_buffer(lv_num,"apt",&fsize,LMFF_None);
   if (buf == NULL)
     return false;
   i = 0;
@@ -955,7 +967,7 @@ long load_map_wibble_file(unsigned long lv_num)
   char *fname;
   long fsize;
   fsize = (map_subtiles_y+1)*(map_subtiles_x+1);
-  buf = load_single_map_file_to_buffer(lv_num,"wib",&fsize);
+  buf = load_single_map_file_to_buffer(lv_num,"wib",&fsize,LMFF_None);
   if (buf == NULL)
     return false;
   i = 0;
@@ -981,7 +993,7 @@ short load_map_ownership_file(unsigned long lv_num)
   char *fname;
   long fsize;
   fsize = (map_subtiles_y+1)*(map_subtiles_x+1);
-  buf = load_single_map_file_to_buffer(lv_num,"own",&fsize);
+  buf = load_single_map_file_to_buffer(lv_num,"own",&fsize,LMFF_None);
   if (buf == NULL)
     return false;
   i = 0;
@@ -1041,7 +1053,7 @@ short load_map_wlb_file(unsigned long lv_num)
   SYNCDBG(7,"Starting");
   nfixes = 0;
   fsize = map_tiles_y*map_tiles_x;
-  buf = load_single_map_file_to_buffer(lv_num,"wlb",&fsize);
+  buf = load_single_map_file_to_buffer(lv_num,"wlb",&fsize,LMFF_Optional);
   if (buf == NULL)
     return false;
   i = 0;
@@ -1073,7 +1085,6 @@ short load_map_wlb_file(unsigned long lv_num)
 short initialise_extra_slab_info(unsigned long lv_num)
 {
   short result;
-  //_DK_initialise_extra_slab_info(lv_num); return true;
   initialise_map_rooms();
   result = load_map_wlb_file(lv_num);
   if (!result)
@@ -1092,7 +1103,7 @@ short load_map_slab_file(unsigned long lv_num)
   unsigned long n;
   long fsize;
   fsize = 2*map_tiles_y*map_tiles_x;
-  buf = load_single_map_file_to_buffer(lv_num,"slb",&fsize);
+  buf = load_single_map_file_to_buffer(lv_num,"slb",&fsize,LMFF_None);
   if (buf == NULL)
     return false;
   i = 0;
@@ -1125,7 +1136,7 @@ short load_map_flag_file(unsigned long lv_num)
   unsigned long i;
   long fsize;
   fsize = 2*(map_subtiles_y+1)*(map_subtiles_x+1);
-  buf = load_single_map_file_to_buffer(lv_num,"flg",&fsize);
+  buf = load_single_map_file_to_buffer(lv_num,"flg",&fsize,LMFF_Optional);
   if (buf == NULL)
     return false;
   i = 0;
@@ -1149,7 +1160,7 @@ long load_static_light_file(unsigned long lv_num)
   struct InitLight ilght;
   long fsize;
   fsize = 4;
-  buf = load_single_map_file_to_buffer(lv_num,"lgt",&fsize);
+  buf = load_single_map_file_to_buffer(lv_num,"lgt",&fsize,LMFF_Optional);
   if (buf == NULL)
     return false;
   light_initialise();
@@ -1188,7 +1199,7 @@ short load_and_setup_map_info(unsigned long lv_num)
   unsigned char *buf;
   long fsize;
   fsize = 1;
-  buf = load_single_map_file_to_buffer(lv_num,"inf",&fsize);
+  buf = load_single_map_file_to_buffer(lv_num,"inf",&fsize,LMFF_None);
   if (buf == NULL)
   {
     game.texture_id = 0;

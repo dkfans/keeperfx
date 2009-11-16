@@ -583,7 +583,8 @@ TbBool script_is_preloaded_command(long cmnd_index)
   }
 }
 
-long get_players_range(char *plrname, int *plr_start, int *plr_end, const char *func_name, long ln_num)
+#define get_players_range(plrname, plr_start, plr_end) get_players_range_f(plrname, plr_start, plr_end, __func__, text_line_number)
+long get_players_range_f(char *plrname, int *plr_start, int *plr_end, const char *func_name, long ln_num)
 {
   long plr_id;
   char *text;
@@ -613,7 +614,8 @@ long get_players_range(char *plrname, int *plr_start, int *plr_end, const char *
   return -1;
 }
 
-TbBool get_player_id(char *plrname, long *plr_id, const char *func_name, long ln_num)
+#define get_player_id(plrname, plr_id) get_player_id_f(plrname, plr_id, __func__, text_line_number)
+TbBool get_player_id_f(char *plrname, long *plr_id, const char *func_name, long ln_num)
 {
   char *text;
   *plr_id = get_rid(player_desc, plrname);
@@ -645,7 +647,8 @@ unsigned short get_map_location_plyridx(TbMapLocation location)
   return (location >> 4) & 0xFF;
 }
 
-TbBool get_map_location_id(char *locname, TbMapLocation *location, const char *func_name, long ln_num)
+#define get_map_location_id(locname, location) get_map_location_id_f(locname, location, __func__, text_line_number)
+TbBool get_map_location_id_f(char *locname, TbMapLocation *location, const char *func_name, long ln_num)
 {
   struct Thing *thing;
   char *text;
@@ -864,10 +867,10 @@ void command_add_party_to_level(char *plrname, char *prtname, char *locname, lon
     return;
   }
   // Recognize player
-  if (!get_player_id(plrname, &plr_id, __func__, 1196))
+  if (!get_player_id(plrname, &plr_id))
     return;
   // Recognize place where party is created
-  if (!get_map_location_id(locname, &location, __func__, 1204))
+  if (!get_map_location_id(locname, &location))
     return;
   // Recognize party name
   prty_id = get_party_index_of_name(prtname);
@@ -922,10 +925,10 @@ void command_add_creature_to_level(char *plrname, char *crtr_name, char *locname
     return;
   }
   // Recognize player
-  if (!get_player_id(plrname, &plr_id, __func__, 1282))
+  if (!get_player_id(plrname, &plr_id))
     return;
   // Recognize place where party is created
-  if (!get_map_location_id(locname, &location, __func__, 1288))
+  if (!get_map_location_id(locname, &location))
     return;
   if (script_current_condition < 0)
   {
@@ -983,7 +986,7 @@ void command_if(char *plrname, char *varib_name, char *operatr, long value)
     return;
   }
   // Recognize player
-  if (!get_player_id(plrname, &plr_id, __func__, 996))
+  if (!get_player_id(plrname, &plr_id))
     return;
   // Recognize variable
   varib_type = get_id(variable_desc, varib_name);
@@ -1032,33 +1035,41 @@ void command_if(char *plrname, char *varib_name, char *operatr, long value)
   command_add_condition(plr_id, opertr_id, varib_type, varib_id, value);
 }
 
+struct ScriptValue *allocate_script_value(void)
+{
+  struct ScriptValue *value;
+  if (game.script.values_num < 0)
+    return NULL;
+  if (game.script.values_num >= SCRIPT_VALUES_COUNT)
+    return NULL;
+  value = &game.script.values[game.script.values_num];
+  game.script.values_num++;
+  return value;
+}
+
 void command_add_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4)
 {
-  static const char *func_name="command_add_value";
   struct ScriptValue *value;
   char *text;
-  if (game.script.values_num >= SCRIPT_VALUES_COUNT)
-  {
-    text = buf_sprintf("(script:%lu) Too many VALUEs in script (limit is %d)", text_line_number,SCRIPT_VALUES_COUNT);
-    error(func_name, 1396, text);
-    return;
-  }
   if ((script_current_condition < 0) && (next_command_reusable == 0))
   {
     script_process_value(var_index, val1, val2, val3, val4);
-  } else
-  {
-    value = &game.script.values[game.script.values_num];
-    set_flag_byte(&value->flags, TrgF_REUSABLE, next_command_reusable);
-    set_flag_byte(&value->flags, TrgF_DISABLED, false);
-    value->valtype = var_index;
-    value->field_3 = val1;
-    value->field_4 = val2;
-    value->field_8 = val3;
-    value->field_C = val4;
-    value->condit_idx = script_current_condition;
-    game.script.values_num++;
+    return;
   }
+  value = allocate_script_value();
+  if (value == NULL)
+  {
+    SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
+    return;
+  }
+  set_flag_byte(&value->flags, TrgF_REUSABLE, next_command_reusable);
+  set_flag_byte(&value->flags, TrgF_DISABLED, false);
+  value->valtype = var_index;
+  value->field_3 = val1;
+  value->field_4 = val2;
+  value->field_8 = val3;
+  value->field_C = val4;
+  value->condit_idx = script_current_condition;
 }
 
 void command_display_information(long msg_num, char *where, long x, long y)
@@ -1070,7 +1081,7 @@ void command_display_information(long msg_num, char *where, long x, long y)
     SCRPTERRLOG("Invalid TEXT number");
     return;
   }
-  if (!get_map_location_id(where, &location, __func__, 1943))
+  if (!get_map_location_id(where, &location))
     return;
   command_add_value(Cmd_DISPLAY_INFORMATION, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
 }
@@ -1136,7 +1147,7 @@ void command_set_start_money(char *plrname, long gold_val)
   int plr_start, plr_end;
   char *text;
   int i;
-  if (get_players_range(plrname, &plr_start, &plr_end, __func__, 2456) < 0)
+  if (get_players_range(plrname, &plr_start, &plr_end) < 0)
     return;
   if (script_current_condition != -1)
   {
@@ -1148,10 +1159,9 @@ void command_set_start_money(char *plrname, long gold_val)
 
 void command_room_available(char *plrname, char *roomname, unsigned long can_resrch, unsigned long can_build)
 {
-  static const char *func_name="command_room_available";
   long plr_id,room_id;
   char *text;
-  if (!get_player_id(plrname, &plr_id, func_name, 1434))
+  if (!get_player_id(plrname, &plr_id))
     return;
   room_id = get_rid(room_desc, roomname);
   if (room_id == -1)
@@ -1164,10 +1174,9 @@ void command_room_available(char *plrname, char *roomname, unsigned long can_res
 
 void command_creature_available(char *plrname, char *crtr_name, unsigned long a3, unsigned long a4)
 {
-  static const char *func_name="command_creature_available";
   long plr_id,crtr_id;
   char *text;
-  if (!get_player_id(plrname, &plr_id, func_name, 1456))
+  if (!get_player_id(plrname, &plr_id))
     return;
   crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
@@ -1180,10 +1189,9 @@ void command_creature_available(char *plrname, char *crtr_name, unsigned long a3
 
 void command_magic_available(char *plrname, char *magname, unsigned long can_resrch, unsigned long can_use)
 {
-  static const char *func_name="command_magic_available";
   long plr_id,mag_id;
   char *text;
-  if (!get_player_id(plrname, &plr_id, func_name, 1479))
+  if (!get_player_id(plrname, &plr_id))
     return;
   mag_id = get_rid(power_desc, magname);
   if (mag_id == -1)
@@ -1196,10 +1204,9 @@ void command_magic_available(char *plrname, char *magname, unsigned long can_res
 
 void command_trap_available(char *plrname, char *trapname, unsigned long can_build, unsigned long amount)
 {
-  static const char *func_name="command_trap_available";
   long plr_id,trap_id;
   char *text;
-  if (!get_player_id(plrname, &plr_id, func_name, 1502))
+  if (!get_player_id(plrname, &plr_id))
     return;
   trap_id = get_rid(trap_desc, trapname);
   if (trap_id == -1)
@@ -1216,18 +1223,17 @@ void command_trap_available(char *plrname, char *trapname, unsigned long can_bui
  */
 void command_research(char *plrname, char *trg_type, char *trg_name, unsigned long val)
 {
-  static const char *func_name="command_research";
   struct Dungeon *dungeon;
   long plr_id;
   int plr_start, plr_end;
   long item_type,item_id;
   char *text;
   long i;
-  plr_id = get_players_range(plrname, &plr_start, &plr_end, func_name, 1823);
+  plr_id = get_players_range(plrname, &plr_start, &plr_end);
   if (plr_id < 0)
     return;
   item_type = get_rid(research_desc, trg_type);
-  item_id = get_research_id(item_type, trg_name, func_name);
+  item_id = get_research_id(item_type, trg_name, __func__);
   if (item_id < 0)
     return;
   command_add_value(Cmd_RESEARCH, plr_id, item_type, item_id, val);
@@ -1239,14 +1245,13 @@ void command_research(char *plrname, char *trg_type, char *trg_name, unsigned lo
  */
 void command_research_order(char *plrname, char *trg_type, char *trg_name, unsigned long val)
 {
-  static const char *func_name="command_research_order";
   struct Dungeon *dungeon;
   long plr_id;
   int plr_start, plr_end;
   long item_type,item_id;
   char *text;
   long i;
-  plr_id = get_players_range(plrname, &plr_start, &plr_end, func_name, 1823);
+  plr_id = get_players_range(plrname, &plr_start, &plr_end);
   if (plr_id < 0)
     return;
   for (i=plr_start; i < plr_end; i++)
@@ -1283,17 +1288,16 @@ void command_if_action_point(long apt_num, char *plrname)
     return;
   }
   // Recognize player
-  if (!get_player_id(plrname, &plr_id, __func__, 1688))
+  if (!get_player_id(plrname, &plr_id))
     return;
   command_add_condition(plr_id, 0, 19, apt_id, 0);
 }
 
 void command_computer_player(char *plrname, long comp_model)
 {
-  static const char *func_name="command_computer_player";
   long plr_id,trap_id;
   char *text;
-  if (!get_player_id(plrname, &plr_id, func_name, 1636))
+  if (!get_player_id(plrname, &plr_id))
     return;
   if (script_current_condition != -1)
   {
@@ -1304,10 +1308,9 @@ void command_computer_player(char *plrname, long comp_model)
 
 void command_set_timer(char *plrname, char *timrname)
 {
-  static const char *func_name="command_set_timer";
   long plr_id,timr_id;
   char *text;
-  if (!get_player_id(plrname, &plr_id, func_name, 1709))
+  if (!get_player_id(plrname, &plr_id))
     return;
   timr_id = get_rid(timer_desc, timrname);
   if (timr_id == -1)
@@ -1354,10 +1357,9 @@ void command_lose_game(void)
 
 void command_set_flag(char *plrname, char *flgname, long val)
 {
-  static const char *func_name="command_set_flag";
   long plr_id,flg_id;
   char *text;
-  if (!get_player_id(plrname, &plr_id, func_name, 1940))
+  if (!get_player_id(plrname, &plr_id))
     return;
   flg_id = get_rid(flag_desc, flgname);
   if (flg_id == -1)
@@ -1370,20 +1372,18 @@ void command_set_flag(char *plrname, char *flgname, long val)
 
 void command_max_creatures(char *plrname, long val)
 {
-  static const char *func_name="command_max_creatures";
   long plr_id;
   char *text;
-  if (!get_player_id(plrname, &plr_id, func_name, 1959))
+  if (!get_player_id(plrname, &plr_id))
     return;
   command_add_value(Cmd_MAX_CREATURES, plr_id, val, 0, 0);
 }
 
 void command_door_available(char *plrname, char *doorname, unsigned long a3, unsigned long a4)
 {
-  static const char *func_name="command_door_available";
   long plr_id,door_id;
   char *text;
-  if (!get_player_id(plrname, &plr_id, func_name, 1940))
+  if (!get_player_id(plrname, &plr_id))
     return;
   door_id = get_rid(door_desc, doorname);
   if (door_id == -1)
@@ -1403,7 +1403,7 @@ void command_display_objective(long msg_num, char *where, long x, long y)
     SCRPTERRLOG("Invalid TEXT number");
     return;
   }
-  if (!get_map_location_id(where, &location, __func__, 1963))
+  if (!get_map_location_id(where, &location))
     return;
   command_add_value(Cmd_DISPLAY_OBJECTIVE, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
 }
@@ -1426,10 +1426,10 @@ void command_add_tunneller_to_level(char *plrname, char *locname, char *objectv,
     return;
   }
   // Recognize player
-  if (!get_player_id(plrname, &plr_id, __func__, 1767))
+  if (!get_player_id(plrname, &plr_id))
     return;
   // Recognize place where party is created
-  if (!get_map_location_id(locname, &location, __func__, 1777))
+  if (!get_map_location_id(locname, &location))
     return;
   head_id = get_rid(head_for_desc, objectv);
   if (head_id == -1)
@@ -1477,10 +1477,10 @@ void command_add_tunneller_party_to_level(char *plrname, char *prtname, char *lo
     return;
   }
   // Recognize player
-  if (!get_player_id(plrname, &plr_id, __func__, 2167))
+  if (!get_player_id(plrname, &plr_id))
     return;
   // Recognize place where party is created
-  if (!get_map_location_id(locname, &location, __func__, 2177))
+  if (!get_map_location_id(locname, &location))
     return;
   head_id = get_rid(head_for_desc, objectv);
   if (head_id == -1)
@@ -1557,7 +1557,7 @@ void command_set_creature_max_level(char *plrname, char *crtr_name, long crtr_le
 {
   long plr_id,crtr_id;
   char *text;
-  if (!get_player_id(plrname, &plr_id, __func__, 1456))
+  if (!get_player_id(plrname, &plr_id))
     return;
   crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
@@ -1597,7 +1597,7 @@ void command_if_available(char *plrname, char *varib_name, char *operatr, long v
     return;
   }
   // Recognize player
-  if (!get_player_id(plrname, &plr_id, __func__, 996))
+  if (!get_player_id(plrname, &plr_id))
     return;
   // Recognize variable
   varib_id = -1;
@@ -1643,7 +1643,7 @@ void command_set_computer_globals(char *plrname, long val1, long val2, long val3
   int plr_start, plr_end;
   char *text;
   long i;
-  if (get_players_range(plrname, &plr_start, &plr_end, __func__, 3109) < 0)
+  if (get_players_range(plrname, &plr_start, &plr_end) < 0)
     return;
   if (script_current_condition != -1)
   {
@@ -1667,7 +1667,7 @@ void command_set_computer_checks(char *plrname, char *chkname, long val1, long v
   int plr_start, plr_end;
   char *text;
   long i,k,n;
-  if (get_players_range(plrname, &plr_start, &plr_end, __func__, 5612) < 0)
+  if (get_players_range(plrname, &plr_start, &plr_end) < 0)
     return;
   if (script_current_condition != -1)
   {
@@ -1683,7 +1683,7 @@ void command_set_computer_checks(char *plrname, char *chkname, long val1, long v
         break;
       if (check->name == NULL)
         break;
-      if (stricmp(chkname, check->name) == 0)
+      if (strcasecmp(chkname, check->name) == 0)
       {
         check->field_8 = val1;
         check->param1 = val2;
@@ -1708,7 +1708,7 @@ void command_set_computer_events(char *plrname, char *evntname, long val1, long 
   int plr_start, plr_end;
   char *text;
   long i,k,n;
-  if (get_players_range(plrname, &plr_start, &plr_end, __func__, 1640) < 0)
+  if (get_players_range(plrname, &plr_start, &plr_end) < 0)
     return;
   if (script_current_condition != -1)
   {
@@ -1744,7 +1744,7 @@ void command_set_computer_process(char *plrname, char *procname, long val1, long
   int plr_start, plr_end;
   char *text;
   long i,k,n;
-  if (get_players_range(plrname, &plr_start, &plr_end, __func__, 1373) < 0)
+  if (get_players_range(plrname, &plr_start, &plr_end) < 0)
     return;
   if (script_current_condition != -1)
   {
@@ -1855,9 +1855,9 @@ void command_ally_players(char *plr1name, char *plr2name)
 {
   long plr1_id,plr2_id;
   char *text;
-  if (!get_player_id(plr1name, &plr1_id, __func__, 1453))
+  if (!get_player_id(plr1name, &plr1_id))
     return;
-  if (!get_player_id(plr2name, &plr2_id, __func__, 1463))
+  if (!get_player_id(plr2name, &plr2_id))
     return;
   command_add_value(Cmd_ALLY_PLAYERS, 0, plr1_id, plr2_id, 0);
 }
@@ -1881,7 +1881,7 @@ void command_quick_objective(int idx, char *msgtext, char *where, long x, long y
     SCRPTWRNLOG("Quick Objective no %d overwritten by different text.", idx);
   }
   strcpy(gameadd.quick_messages[idx], msgtext);
-  if (!get_map_location_id(where, &location, __func__, 1963))
+  if (!get_map_location_id(where, &location))
     return;
   command_add_value(Cmd_QUICK_OBJECTIVE, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
 }
@@ -1905,7 +1905,7 @@ void command_quick_information(int idx, char *msgtext, char *where, long x, long
     SCRPTWRNLOG("Quick Message no %d overwritten by different text.", idx);
   }
   strcpy(gameadd.quick_messages[idx], msgtext);
-  if (!get_map_location_id(where, &location, __func__, 1963))
+  if (!get_map_location_id(where, &location))
     return;
   command_add_value(Cmd_QUICK_INFORMATION, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
 }
@@ -1914,7 +1914,7 @@ void command_play_message(char *plrname, char *msgtype, int msg_num)
 {
   long plr_id,msgtype_id;
   char *text;
-  if (!get_player_id(plrname, &plr_id, __func__, 1973))
+  if (!get_player_id(plrname, &plr_id))
     return;
   msgtype_id = get_id(msgtype_desc, msgtype);
   if (msgtype_id == -1)
@@ -1927,19 +1927,17 @@ void command_play_message(char *plrname, char *msgtype, int msg_num)
 
 void command_add_gold_to_player(char *plrname, long amount)
 {
-  static const char *func_name="command_add_gold_to_player";
   long plr_id,msgtype_id;
-  if (!get_player_id(plrname, &plr_id, func_name, 1982))
+  if (!get_player_id(plrname, &plr_id))
     return;
   command_add_value(Cmd_ADD_GOLD_TO_PLAYER, plr_id, amount, 0, 0);
 }
 
 void command_set_creature_tendencies(char *plrname, char *tendency, long value)
 {
-  static const char *func_name="command_set_creature_tendencies";
   long plr_id,tend_id;
   char *text;
-  if (!get_player_id(plrname, &plr_id, func_name, 1231))
+  if (!get_player_id(plrname, &plr_id))
     return;
   tend_id = get_rid(tendency_desc, tendency);
   if (tend_id == -1)
@@ -1952,21 +1950,19 @@ void command_set_creature_tendencies(char *plrname, char *tendency, long value)
 
 void command_reveal_map_rect(char *plrname, long x, long y, long w, long h)
 {
-  static const char *func_name="command_reveal_map_rect";
   long plr_id;
-  if (!get_player_id(plrname, &plr_id, func_name, 1992))
+  if (!get_player_id(plrname, &plr_id))
     return;
   command_add_value(Cmd_REVEAL_MAP_RECT, plr_id, x, y, (h<<16)+w);
 }
 
 void command_reveal_map_location(char *plrname, char *locname, long range)
 {
-  static const char *func_name="command_reveal_map_location";
   long plr_id;
   TbMapLocation location;
-  if (!get_player_id(plrname, &plr_id, func_name, 1995))
+  if (!get_player_id(plrname, &plr_id))
     return;
-  if (!get_map_location_id(locname, &location, func_name, 1997))
+  if (!get_map_location_id(locname, &location))
     return;
   command_add_value(Cmd_REVEAL_MAP_LOCATION, plr_id, location, range, 0);
 }
@@ -2016,7 +2012,7 @@ void command_kill_creature(char *plrname, char *crtr_name, char *criteria, int c
   long plr_id,crtr_id;
   char *text;
   SCRIPTDBG(11,"Starting");
-  if (!get_player_id(plrname, &plr_id, __func__, 1995))
+  if (!get_player_id(plrname, &plr_id))
     return;
   if (count <= 0)
   {
@@ -2334,7 +2330,7 @@ short preload_script(long lvnum)
   clear_quick_messages();
   // Load the file
   script_len = 1;
-  script_data = (char *)load_single_map_file_to_buffer(lvnum,"txt",&script_len);
+  script_data = (char *)load_single_map_file_to_buffer(lvnum,"txt",&script_len,LMFF_None);
   if (script_data == NULL)
     return false;
   // Process the file lines
@@ -2395,7 +2391,7 @@ short load_script(long lvnum)
   }
   // Load the file
   script_len = 1;
-  script_data = (char *)load_single_map_file_to_buffer(lvnum,"txt",&script_len);
+  script_data = (char *)load_single_map_file_to_buffer(lvnum,"txt",&script_len,LMFF_None);
   if (script_data == NULL)
     return false;
   // Process the file lines
@@ -3053,15 +3049,15 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_CREATURE_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
-        dungeon->creature_allowed[val2] = val3;
-        dungeon->creature_enabled[val2] = val4;
+        if (!set_creature_available(i,val2,val3,val4))
+          WARNLOG("Setting creature %ld availability failed.",val2);
       }
       break;
   case Cmd_MAGIC_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-        set_power_available(i,val2,val3,val4);
+        if (!set_power_available(i,val2,val3,val4))
+          WARNLOG("Setting magic %ld availability failed.",val2);
       }
       break;
   case Cmd_TRAP_AVAILABLE:
