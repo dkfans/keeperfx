@@ -276,7 +276,7 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4)
     //SYNCLOG("No sample %d for creature %d",snd_idx,thing->model);
     return;
   }
-  i = seed_check_random(crsound->count, &game.rand_14BB4E, __func__, 5634);
+  i = UNSYNC_RANDOM(crsound->count);
   //SYNCLOG("Playing sample %d (index %d) for creature %d",snd_idx,crsound->index+i,thing->model);
   if ( a4 )
     thing_play_sample(thing, crsound->index+i, 100, 0, 3, 8, a3, 256);

@@ -295,7 +295,7 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
     else
       sprintf(tool_tip_box.text, "%s", text);
   } else
-  if ((i == 658) && (dungeon->field_8D4 > 16))
+  if ((i == 658) && (dungeon->chickens_sacrificed > 16))
   {
     strncpy(tool_tip_box.text, jtytext, TOOLTIP_MAX_LEN);
   } else

@@ -1309,7 +1309,7 @@ void destroy_food(struct Thing *thing)
   efftng = create_effect(&thing->mappos, 49, plyr_idx);
   if (!thing_is_invalid(efftng))
   {
-    i = seed_check_random(3, &game.rand_14BB4E, func_name, 3455);
+    i = UNSYNC_RANDOM(3);
     thing_play_sample(efftng, 112+i, 100, 0, 3, 0, 2, 256);
   }
   pos.x.val = thing->mappos.x.val;
@@ -1517,7 +1517,6 @@ void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing)
 
 struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
 {
-  static const char *func_name="process_object_being_picked_up";
   struct PlayerInfo *player;
   struct Thing *picktng;
   struct Thing *tmptng;
@@ -1541,7 +1540,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
       picktng = thing;
       break;
     case 10:
-      i = seed_check_random(3, &game.rand_14BB4E, func_name, 4534);
+      i = UNSYNC_RANDOM(3);
       thing_play_sample(thing, 109+i, 100, 0, 3, 0, 2, 256);
       i = convert_td_iso(122);
       set_thing_draw(thing, i, 256, -1, -1, 0, 2);
@@ -5436,7 +5435,7 @@ void increase_level(struct PlayerInfo *player)
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
 
   k = 0;
-  i = dungeon->field_2D;
+  i = dungeon->creatr_list_start;
   while (i > 0)
   {
     thing = thing_get(i);
@@ -5456,7 +5455,7 @@ void increase_level(struct PlayerInfo *player)
   }
 
   k = 0;
-  i = dungeon->field_2F;
+  i = dungeon->worker_list_start;
   while (i > 0)
   {
     thing = thing_get(i);
@@ -5977,11 +5976,10 @@ short zoom_to_fight(unsigned char a1)
 
 short create_random_evil_creature(long x, long y, unsigned short owner, long max_lv)
 {
-  static const char *func_name="create_random_evil_creature";
   struct Thing *thing;
   struct Coord3d pos;
   long i;
-  i = seed_check_random(17, &game.field_14BB4A, func_name, 24597) + 14;
+  i = ACTION_RANDOM(17) + 14;
   pos.x.val = x;
   pos.y.val = y;
   pos.z.val = 0;
@@ -6004,18 +6002,17 @@ short create_random_evil_creature(long x, long y, unsigned short owner, long max
   remove_first_creature(thing);
   set_first_creature(thing);
   set_start_state(thing);
-  i = seed_check_random(max_lv, &game.field_14BB4A, func_name, 24741);
+  i = ACTION_RANDOM(max_lv);
   set_creature_level(thing, i);
   return true;
 }
 
 short create_random_hero_creature(long x, long y, unsigned short owner, long max_lv)
 {
-  static const char *func_name="create_random_hero_creature";
   struct Thing *thing;
   struct Coord3d pos;
   long i;
-  i = seed_check_random(13, &game.field_14BB4A, func_name, 45671) + 1;
+  i = ACTION_RANDOM(13) + 1;
   pos.x.val = x;
   pos.y.val = y;
   pos.z.val = 0;
@@ -6040,7 +6037,7 @@ short create_random_hero_creature(long x, long y, unsigned short owner, long max
 //  set_start_state(thing); - simplified to the following two commands
   game.field_14E498 = game.play_gameturn;
   game.field_14E49C++;
-  i = seed_check_random(max_lv, &game.field_14BB4A, func_name, 24741);
+  i = ACTION_RANDOM(max_lv);
   set_creature_level(thing, i);
   return true;
 }
@@ -6261,7 +6258,7 @@ void multiply_creatures(struct PlayerInfo *player)
 
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
   k = 0;
-  i = dungeon->field_2D;
+  i = dungeon->creatr_list_start;
   while (i > 0)
   {
     thing = thing_get(i);
@@ -6287,7 +6284,7 @@ void multiply_creatures(struct PlayerInfo *player)
   }
 
   k = 0;
-  i = dungeon->field_2F;
+  i = dungeon->worker_list_start;
   while (i > 0)
   {
     thing = thing_get(i);
@@ -6881,7 +6878,7 @@ void clear_game_for_summary(void)
   clear_stat_light_map();
   clear_mapwho();
   game.field_14E938 = 0;
-  game.field_14BB4A = 0;
+  game.action_rand_seed = 0;
   set_flag_byte(&game.numfield_C,0x04,false);
   clear_columns();
   clear_action_points();
@@ -6909,7 +6906,7 @@ void clear_game_for_save(void)
   light_initialise();
   clear_mapwho();
   game.field_14E938 = 0;
-  game.field_14BB4A = 0;
+  game.action_rand_seed = 0;
   set_flag_byte(&game.numfield_C,0x04,false);
   clear_columns();
   clear_players_for_save();
@@ -8111,7 +8108,7 @@ void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char ply
   if ((tng1->field_1 & 0x01) || (tng1->field_0 & 0x80))
   {
     k = 0;
-    i = dungeon->field_2F;
+    i = dungeon->worker_list_start;
     while (i > 0)
     {
       thing = thing_get(i);
@@ -8307,7 +8304,7 @@ long get_phrase_for_message(long msg_idx)
   struct SMessage *smsg;
   long i;
   smsg = &messages[msg_idx];
-  i = seed_check_random(smsg->count, &game.rand_14BB4E, __func__, 3451);
+  i = UNSYNC_RANDOM(smsg->count);
   return smsg->start_idx + i;
 }
 
@@ -9036,14 +9033,14 @@ void update(void)
   // Rare message easter egg
   if ((game.play_gameturn != 0) && ((game.play_gameturn % 0x4E20) == 0))
   {
-      if (seed_check_random(0x7D0u, &game.field_14BB4A, __func__, 4345) == 0)
+      if (seed_check_random(0x7D0u, &game.action_rand_seed, __func__, 4345) == 0)
       {
-        if (seed_check_random(10, &game.rand_14BB4E, __func__, 4346) == 7)
+        if (seed_check_random(10, &game.unsync_rand_seed, __func__, 4346) == 7)
         {
           output_message(94, 0, 1);// 'Your pants are definitely too tight'
         } else
         {
-          output_message((game.rand_14BB4E % 10) + 91, 0, 1);
+          output_message((game.unsync_rand_seed % 10) + 91, 0, 1);
         }
       }
   }
@@ -10104,14 +10101,13 @@ void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos
 
 void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
 {
-  static const char *func_name="make_camera_deviations";
   long x,y;
   x = player->acamera->mappos.x.val;
   y = player->acamera->mappos.y.val;
   if (dungeon->field_EA0)
   {
-    x += seed_check_random(80, &game.rand_14BB4E, func_name, 8653) - 40;
-    y += seed_check_random(80, &game.rand_14BB4E, func_name, 8654) - 40;
+    x += UNSYNC_RANDOM(80) - 40;
+    y += UNSYNC_RANDOM(80) - 40;
   }
   if (dungeon->field_EA4)
   {
@@ -11139,7 +11135,7 @@ void set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, cha
   } else
   if (a6 == -1)
   {
-    i = seed_check_random(thing->field_49, &game.field_14BB4A, __func__, 34515);
+    i = ACTION_RANDOM(thing->field_49);
     thing->field_48 = i;
     thing->field_40 = i << 8;
   } else
@@ -11277,8 +11273,8 @@ void init_dungeons(void)
     dungeon->hates_player[game.field_14E496%DUNGEONS_COUNT] = game.fight_max_hate;
     dungeon->field_918 = 0;
     dungeon->field_919 = 0;
-    dungeon->field_2D = 0;
-    dungeon->field_2F = 0;
+    dungeon->creatr_list_start = 0;
+    dungeon->worker_list_start = 0;
     dungeon->field_E9F = i;
     dungeon->max_creatures = game.default_max_crtrs_gen_entrance;
     dungeon->dead_creatures_count = 0;
@@ -11721,7 +11717,7 @@ void init_level(void)
 
   LbMemoryCopy(&transfer_mem,&game.transfered_creature,sizeof(struct CreatureStorage));
   memset(&pos,0,sizeof(struct Coord3d));
-  game.field_14BB4A = 1;
+  game.action_rand_seed = 1;
   free_swipe_graphic();
   game.field_1516FF = -1;
   game.play_gameturn = 0;
@@ -11745,10 +11741,10 @@ void init_level(void)
   LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
   // Initialize unsynchnonized random seed (the value may be different
   // on computers in MP, as it shouldn't affect game actions)
-  game.rand_14BB4E = (unsigned long)LbTimeSec();
+  game.unsync_rand_seed = (unsigned long)LbTimeSec();
   if (!SoundDisabled)
   {
-    game.field_14BB54 = (seed_check_random(67, &game.rand_14BB4E, __func__, 5712) % 3 + 1);
+    game.field_14BB54 = (UNSYNC_RANDOM(67) % 3 + 1);
     game.field_14BB55 = 0;
   }
   light_set_lights_on(1);
@@ -11805,12 +11801,11 @@ void set_chosen_spell_none(void)
 
 void init_player_music(struct PlayerInfo *player)
 {
-  static const char *func_name="init_player_music";
   LevelNumber lvnum;
   lvnum = get_loaded_level_number();
   game.audiotrack = ((lvnum - 1) % -4) + 3;
   StopMusic();
-  switch (seed_check_random(3, &game.rand_14BB4E, func_name, 363))
+  switch (UNSYNC_RANDOM(3))
   {
   case 0:
       if (LoadAwe32Soundfont("bullfrog"))
@@ -12012,7 +12007,7 @@ short perform_checksum_verification()
   clear_packets();
   pckt = get_packet(my_player_number);
   set_packet_action(pckt, 12, 0, 0, 0, 0);
-  pckt->chksum = checksum_mem + game.field_14BB4A;
+  pckt->chksum = checksum_mem + game.action_rand_seed;
   if (LbNetwork_Exchange(pckt))
   {
     ERRORLOG("Network exchange failed on level checksum verification");

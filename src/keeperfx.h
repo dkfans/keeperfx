@@ -92,6 +92,7 @@
 #define SMALL_MAP_RADIUS       58
 #define BLOOD_TYPES_COUNT       7
 #define AROUND_TILES_COUNT      9
+#define IMP_TASK_MAX_COUNT     64
 // Static textures
 #define TEXTURE_BLOCKS_STAT_COUNT   544
 // Animated textures
@@ -437,6 +438,11 @@ char field_B;
 char field_C[14];
 char field_1A;
 short field_1B;
+};
+
+struct ImpStack { // sizeof = 4
+  unsigned short field_0;
+  unsigned short field_2;
 };
 
 struct Armageddon { // sizeof = 14
@@ -901,8 +907,8 @@ struct Dungeon {
     unsigned char field_9;
     unsigned char computer_enabled;
     unsigned short room_kind[ROOM_TYPES_COUNT];
-    short field_2D;
-    short field_2F;
+    short creatr_list_start;
+    short worker_list_start;
     short field_31;
     short things_in_hand[MAX_THINGS_IN_HAND];
     short field_43;
@@ -931,10 +937,11 @@ struct Dungeon {
     int field_888;
     int field_88C[10];
     int field_8B4[8];
-    unsigned char field_8D4;
+    unsigned char chickens_sacrificed;
     unsigned char field_8D5;
-    unsigned char field_8D6[23];
-    unsigned char field_8ED[43];
+    unsigned char creature_sacrifice[CREATURE_TYPES_COUNT];
+    unsigned char creature_sacrifice_exp[CREATURE_TYPES_COUNT];
+    unsigned char field_916[2];
     unsigned char field_918;
     unsigned char field_919;
     unsigned char field_91A[32];
@@ -991,8 +998,10 @@ unsigned char field_F7D;
     struct TurnTimer turn_timers[TURN_TIMERS_COUNT];
     unsigned char script_flags[SCRIPT_FLAGS_COUNT];
     long max_creatures;
-    unsigned char field_1060[34];
-    unsigned char field_1082[241];
+    unsigned char field_1060[11];
+    struct ImpStack imp_stack[IMP_TASK_MAX_COUNT];
+    unsigned long imp_stack_update_turn;
+    unsigned long imp_stack_length;
     unsigned char field_1173;
     unsigned char field_1174;
     unsigned char field_1175;
@@ -1138,8 +1147,8 @@ unsigned short field_14AB3F;
     unsigned short free_things[THINGS_COUNT];
     unsigned long play_gameturn;
     unsigned long pckt_gameturn;
-    unsigned long field_14BB4A;
-    unsigned long rand_14BB4E; // primary random seed; shouldn't affect game actions
+    unsigned long action_rand_seed;
+    unsigned long unsync_rand_seed; // primary random seed; shouldn't affect game actions
 short field_14BB52;
 unsigned char field_14BB54;
 int field_14BB55;
@@ -1175,9 +1184,9 @@ unsigned short field_14E906;
     unsigned short per_imp_gold_dig_size;
     unsigned short default_generate_speed;
     unsigned short generate_speed;
-unsigned short field_14E92E;
+    unsigned short field_14E92E;
 unsigned char field_14E930[4];
-long field_14E934;
+    unsigned long entrance_last_generate_turn;
 unsigned short field_14E938;
 unsigned short field_14E93A;
     unsigned short gold_per_gold_block;

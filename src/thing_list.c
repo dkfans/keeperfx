@@ -261,7 +261,7 @@ void update_things(void)
   update_things_sounds_in_list(&game.thing_lists[9]);
   update_cave_in_things();
   sum += compute_players_checksum();
-  sum += game.field_14BB4A;
+  sum += game.action_rand_seed;
   set_player_packet_checksum(my_player_number,sum);
   SYNCDBG(9,"Finished");
 }
@@ -494,7 +494,7 @@ long count_player_creatures_of_model(long plyr_idx, long model)
   int count;
   dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
   count = 0;
-  i = dungeon->field_2D;
+  i = dungeon->creatr_list_start;
   k = 0;
   while (i != 0)
   {
@@ -529,7 +529,7 @@ long count_player_creatures_not_counting_to_total(long plyr_idx)
   dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
   count = 0;
   k = 0;
-  i = dungeon->field_2D;
+  i = dungeon->creatr_list_start;
   while (i != 0)
   {
     thing = thing_get(i);
