@@ -256,15 +256,23 @@
  0001:00042040       set_power_hand_graphic
  0001:00042110       packet_place_door
  0001:00042540       process_pause_packet
+ 0001:00042980       object_update_call_to_arms
+ 0001:00042B60       object_update_dungeon_heart
+ 0001:00042DE0       object_update_armour
+ 0001:00043020       object_update_armour2
  0001:00043260       process_dungeon_devastation_effects
  0001:00043BB0       object_is_gold
  0001:00043C30       object_is_gold_pile
  0001:00043CF0       object_is_pickable_by_hand
+ 0001:00044120       object_update_object_scale
+ 0001:000443A0       object_update_power_sight
+ 0001:00044770       object_update_power_lightning
  0001:00044A20       thing_is_spellbook
  0001:00044AB0       get_spellbook_at_position
  0001:00044C00       get_crate_at_position
  0001:00044D80       get_special_at_position
  0001:00044ED0       get_nearest_object_at_position
+ 0001:00045000       object_being_dropped
  0001:00045D20       view_set_camera_y_inertia
  0001:00045D60       view_set_camera_x_inertia
  0001:00045DA0       view_set_camera_rotation_inertia
@@ -619,6 +627,8 @@
  0001:000A80C0       process_messages
  0001:000A82E0       init_messages
  0001:000A8430       remove_food_from_food_room_if_possible
+ 0001:000A8AB0       food_grows
+ 0001:000A8D60       food_moves
  0001:000AC500       frontend_draw_vlarge_menu_button
  0001:000AC580       frontend_draw_small_menu_button
  0001:000AC6F0       frontend_over_button
@@ -711,6 +721,7 @@
  0001:000C9A40       convert_old_column_file
  0001:000CA6D0       setup_person_move_to_position
  0001:000CAB80       move_creature
+ 0001:000CB220       move_object
  0001:000CCC90       process_checks
  0001:000CCD00       computer_checks_hates
  0001:000CCF40       computer_check_move_creatures_to_room

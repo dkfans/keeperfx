@@ -106,7 +106,6 @@
 #define MANUFCTR_TYPES_COUNT  11
 #define TRAP_TYPES_COUNT       7
 #define DOOR_TYPES_COUNT       5
-#define OBJECT_TYPES_COUNT   136
 #define ACTN_POINTS_COUNT     32
 #define SLAB_TYPES_COUNT      58
 #define SCRIPT_VALUES_COUNT   64
@@ -470,25 +469,6 @@ struct KeyToStringInit { // sizeof = 5
   long str_idx;
 };
 
-struct Objects {
-    unsigned char field_0;
-    unsigned char field_1;
-    unsigned char field_2;
-    unsigned char field_3;
-    unsigned char field_4;
-    short field_5;
-    short field_7;
-    short field_9;
-    short field_B;
-    short field_D;
-    unsigned char field_F;
-    unsigned char field_10;
-    unsigned char field_11;
-    unsigned char field_12;
-    unsigned char field_13;
-    unsigned char field_14;
-    unsigned char field_15;
-};
 
 struct TrapData {
       long field_0;
@@ -1395,14 +1375,6 @@ DLLIMPORT extern struct TrapData _DK_trap_data[MANUFCTR_TYPES_COUNT];
 DLLIMPORT extern struct SpellData _DK_spell_data[SPELL_TYPES_COUNT+1];
 DLLIMPORT extern struct SlabAttr _DK_slab_attrs[SLAB_TYPES_COUNT];
 #define slab_attrs _DK_slab_attrs
-DLLIMPORT extern unsigned char _DK_object_to_special[OBJECT_TYPES_COUNT];
-#define object_to_special _DK_object_to_special
-DLLIMPORT extern unsigned char _DK_object_to_magic[OBJECT_TYPES_COUNT];
-#define object_to_magic _DK_object_to_magic
-DLLIMPORT extern unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
-#define workshop_object_class _DK_workshop_object_class
-DLLIMPORT extern unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
-#define object_to_door_or_trap _DK_object_to_door_or_trap
 DLLIMPORT extern unsigned char _DK_magic_to_object[24];
 #define magic_to_object _DK_magic_to_object
 DLLIMPORT extern unsigned char _DK_trap_to_object[8];
@@ -1412,7 +1384,6 @@ DLLIMPORT extern unsigned char _DK_door_to_object[DOOR_TYPES_COUNT];
 DLLIMPORT extern unsigned short _DK_specials_text[10];
 #define specials_text _DK_specials_text
 DLLIMPORT extern unsigned short _DK_door_names[DOOR_TYPES_COUNT];
-DLLIMPORT extern struct Objects _DK_objects[135];
 DLLIMPORT extern unsigned char _DK_eastegg_skeksis_cntr;
 #define eastegg_skeksis_cntr _DK_eastegg_skeksis_cntr
 DLLIMPORT extern long _DK_pointer_x;
@@ -1752,13 +1723,11 @@ void increase_level(struct PlayerInfo *player);
 void multiply_creatures(struct PlayerInfo *player);
 struct Thing *create_creature(struct Coord3d *pos, unsigned short a1, unsigned short a2);
 struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
-short thing_is_special(struct Thing *thing);
 TbBool slap_object(struct Thing *thing);
 TbBool object_is_slappable(struct Thing *thing, long plyr_idx);
 unsigned char external_set_thing_state(struct Thing *thing, long state);
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2);
 long is_thing_passenger_controlled(struct Thing *thing);
-#define is_dungeon_special thing_is_special
 void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player);
 void resurrect_creature(struct Thing *thing, unsigned char a2, unsigned char a3, unsigned char a4);
 void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char a3);
@@ -1921,6 +1890,8 @@ long element_top_face_texture(struct Map *map);
 long thing_is_spellbook(struct Thing *thing);
 struct Thing *get_spellbook_at_position(long x, long y);
 struct Thing *get_special_at_position(long x, long y);
+struct Thing *get_crate_at_position(long x, long y);
+struct Thing *get_nearest_object_at_position(long x, long y);
 short create_random_evil_creature(long x, long y, unsigned short owner, long max_lv);
 short create_random_hero_creature(long x, long y, unsigned short owner, long max_lv);
 long object_is_gold(struct Thing *thing);
@@ -2159,7 +2130,6 @@ short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, lon
 short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
 short do_right_map_click(long start_x, long start_y, long curr_x, long curr_y, long zoom);
 
-long update_object(struct Thing *thing);
 long update_shot(struct Thing *thing);
 long update_effect_element(struct Thing *thing);
 long update_dead_creature(struct Thing *thing);

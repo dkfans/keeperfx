@@ -52,6 +52,7 @@
 #include "engine_camera.h"
 #include "front_landview.h"
 #include "thing_creature.h"
+#include "thing_objects.h"
 #include "slab_data.h"
 #include "room_data.h"
 #include "creature_control.h"
@@ -2433,20 +2434,6 @@ long process_creature_self_spell_casting(struct Thing *thing)
 void process_thing_spell_effects(struct Thing *thing)
 {
   _DK_process_thing_spell_effects(thing);
-}
-
-short thing_is_special(struct Thing *thing)
-{
-  return (thing_to_special(thing) > 0);
-}
-
-long update_object(struct Thing *thing)
-{
-  static const char *func_name="update_object";
-#if (BFDEBUG_LEVEL > 18)
-    LbSyncLog("%s: Starting\n",func_name);
-#endif
-  return _DK_update_object(thing);
 }
 
 long update_shot(struct Thing *thing)
@@ -7599,8 +7586,8 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         thing = thing_get(event->target);
         if (thing_is_invalid(thing))
           break;
-        i = specials_text[thing_to_special(thing)];
-        text = buf_sprintf("%s:\n %s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
+        i = specials_text[box_thing_to_special(thing)];
+        text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
@@ -10250,6 +10237,16 @@ struct Thing *get_special_at_position(long x, long y)
   return _DK_get_special_at_position(x, y);
 }
 
+struct Thing *get_crate_at_position(long x, long y)
+{
+  return _DK_get_crate_at_position(x, y);
+}
+
+struct Thing *get_nearest_object_at_position(long x, long y)
+{
+  return _DK_get_nearest_object_at_position(x, y);
+}
+
 long object_is_gold(struct Thing *thing)
 {
   return _DK_object_is_gold(thing);
@@ -10267,11 +10264,14 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   k = 0;
   i = ((mapblk->data & 0x3FF800u) >> 11);
-  while (i > 0)
+  while (i != 0)
   {
     thing = thing_get(i);
     if (thing_is_invalid(thing))
+    {
+      WARNLOG("Jump out of things array");
       break;
+    }
     i = thing->field_2;
     if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
     {

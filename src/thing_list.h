@@ -172,7 +172,6 @@ TbBool thing_exists(const struct Thing *thing);
 short thing_is_invalid(const struct Thing *thing);
 long thing_get_index(const struct Thing *thing);
 
-int thing_to_special(const struct Thing *thing);
 TbBool thing_touching_floor(const struct Thing *thing);
 
 TbBool update_thing(struct Thing *thing);

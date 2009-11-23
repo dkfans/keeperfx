@@ -26,6 +26,7 @@
 #include "kjm_input.h"
 #include "frontend.h"
 #include "keeperfx.h"
+#include "thing_objects.h"
 #include "config_creature.h"
 
 #ifdef __cplusplus
@@ -136,7 +137,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   if (thing != NULL)
   {
     update_gui_tooltip_target(thing);
-    set_gui_tooltip_box(5,specials_text[thing_to_special(thing)]);
+    set_gui_tooltip_box(5,specials_text[box_thing_to_special(thing)]);
     return true;
   }
   // Find a spellbook to show tooltip for
@@ -144,26 +145,26 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   if (thing != NULL)
   {
     update_gui_tooltip_target(thing);
-    i = object_to_magic[thing->model];
+    i = book_thing_to_magic(thing);
     set_gui_tooltip_box(5,spell_data[i].field_D);
     return true;
   }
   // Find a workshop crate to show tooltip for
-  thing = _DK_get_crate_at_position(pos->x.stl.num, pos->y.stl.num);
+  thing = get_crate_at_position(pos->x.stl.num, pos->y.stl.num);
   if (thing != NULL)
   {
     update_gui_tooltip_target(thing);
-    if (workshop_object_class[thing->model%OBJECT_TYPES_COUNT] == 8)
-      i = trap_data[object_to_door_or_trap[thing->model%OBJECT_TYPES_COUNT]].name_stridx;
+    if (get_workshop_object_class_for_thing(thing) == 8)
+      i = trap_data[box_thing_to_door_or_trap(thing)].name_stridx;
     else
-      i = door_names[object_to_door_or_trap[thing->model%OBJECT_TYPES_COUNT]];
+      i = door_names[box_thing_to_door_or_trap(thing)];
     set_gui_tooltip_box(5,i);
     return true;
   }
   if (!settings.tooltips_on)
     return false;
   // Find a hero gate/creature lair to show tooltip for
-  thing = _DK_get_nearest_object_at_position(pos->x.stl.num, pos->y.stl.num);
+  thing = get_nearest_object_at_position(pos->x.stl.num, pos->y.stl.num);
   if (thing != NULL)
   {
     if (thing->model == 49)
@@ -178,7 +179,8 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
       }
       return true;
     }
-    if (_DK_objects[thing->model].field_13)
+    objdat = get_objects_data_for_thing(thing);
+    if (objdat->field_13)
     {
       update_gui_tooltip_target(thing);
       if ( (help_tip_time > 20) || (player->work_state == 12))

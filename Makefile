@@ -58,6 +58,7 @@ obj/lvl_script.o \
 obj/lvl_filesdk1.o \
 obj/game_merge.o \
 obj/thing_doors.o \
+obj/thing_objects.o \
 obj/thing_list.o \
 obj/thing_creature.o \
 obj/bflib_basics.o \

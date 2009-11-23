@@ -23,6 +23,7 @@
 #include "bflib_sound.h"
 #include "packets.h"
 #include "lvl_script.h"
+#include "thing_objects.h"
 #include "config_creature.h"
 #include "keeperfx.h"
 
@@ -596,14 +597,6 @@ TbBool thing_exists(const struct Thing *thing)
   return ((thing->field_0 & 0x01) != 0);
 }
 
-int thing_to_special(const struct Thing *thing)
-{
-  if (thing_is_invalid(thing))
-    return 0;
-  if ((thing->class_id != 1) || (thing->model >= OBJECT_TYPES_COUNT))
-    return 0;
-  return object_to_special[thing->model];
-}
 
 TbBool thing_touching_floor(const struct Thing *thing)
 {
