@@ -49,6 +49,7 @@ obj/lens_mist.o \
 obj/room_data.o \
 obj/slab_data.o \
 obj/map_data.o \
+obj/map_columns.o \
 obj/vidmode.o \
 obj/scrcapt.o \
 obj/kjm_input.o \

@@ -55,6 +55,7 @@
 #include "thing_objects.h"
 #include "slab_data.h"
 #include "room_data.h"
+#include "map_columns.h"
 #include "creature_control.h"
 #include "lens_mist.h"
 #include "game_merge.h"
@@ -470,8 +471,6 @@ DLLIMPORT long _DK_is_thing_passenger_controlled(struct Thing *thing);
 DLLIMPORT void __cdecl _DK_setup_3d(void);
 DLLIMPORT void __cdecl _DK_setup_stuff(void);
 DLLIMPORT void __cdecl _DK_init_keeper(void);
-DLLIMPORT long _DK_find_column(struct Column *col);
-DLLIMPORT long _DK_create_column(struct Column *col);
 DLLIMPORT void _DK_light_delete_light(long idx);
 DLLIMPORT void _DK_light_initialise_lighting_tables(void);
 DLLIMPORT void _DK_check_map_for_gold(void);
@@ -500,9 +499,6 @@ DLLIMPORT struct Thing *_DK_create_effect_generator(struct Coord3d *pos, unsigne
 DLLIMPORT void _DK_clear_mapwho(void);
 DLLIMPORT void _DK_clear_map(void);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
-DLLIMPORT void _DK_init_top_texture_to_cube_table(void);
-DLLIMPORT void _DK_init_columns(void);
-DLLIMPORT void _DK_init_whole_blocks(void);
 DLLIMPORT void _DK_draw_jonty_mapwho(struct JontySpr *jspr);
 DLLIMPORT void _DK_draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);
 DLLIMPORT void _DK_draw_engine_number(struct Number *num);
@@ -539,7 +535,6 @@ DLLIMPORT void _DK_move_thing_in_map(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT void _DK_process_spells_affected_by_effect_elements(struct Thing *thing);
 DLLIMPORT long _DK_load_texture_map_file(unsigned long lv_num, unsigned char n);
-DLLIMPORT long _DK_get_top_cube_at_pos(long mpos);
 DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char a2);
 DLLIMPORT long _DK_get_foot_creature_has_down(struct Thing *thing);
 DLLIMPORT void _DK_process_disease(struct Thing *thing);
@@ -550,7 +545,6 @@ DLLIMPORT void _DK_leader_find_positions_for_followers(struct Thing *thing);
 DLLIMPORT long _DK_update_creature_levels(struct Thing *thing);
 DLLIMPORT long _DK_process_creature_self_spell_casting(struct Thing *thing);
 DLLIMPORT void _DK_process_thing_spell_effects(struct Thing *thing);
-DLLIMPORT long _DK_update_object(struct Thing *thing);
 DLLIMPORT long _DK_update_shot(struct Thing *thing);
 DLLIMPORT long _DK_update_effect_element(struct Thing *thing);
 DLLIMPORT long _DK_update_dead_creature(struct Thing *thing);
@@ -571,7 +565,6 @@ DLLIMPORT long _DK_update_dungeon_scores(void);
 DLLIMPORT long _DK_update_dungeon_generation_speeds(void);
 DLLIMPORT void _DK_calculate_dungeon_area_scores(void);
 DLLIMPORT long _DK_get_next_research_item(struct Dungeon *dungeon);
-DLLIMPORT void _DK_clear_columns(void);
 DLLIMPORT void _DK_delete_all_structures(void);
 DLLIMPORT void _DK_clear_mapwho(void);
 DLLIMPORT void _DK_light_initialise(void);
@@ -2130,11 +2123,6 @@ long get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos)
 void process_spells_affected_by_effect_elements(struct Thing *thing)
 {
   _DK_process_spells_affected_by_effect_elements(thing);
-}
-
-long get_top_cube_at_pos(long mpos)
-{
-  return _DK_get_top_cube_at_pos(mpos);
 }
 
 void apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char a2)
@@ -5508,7 +5496,7 @@ void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
   }
 }
 
-short engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
+TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
 {
   struct PlayerInfo *player;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
@@ -5534,13 +5522,13 @@ short engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, l
     if ( *map_y < 0 )
       *map_y = 0;
     else
-    if ( *map_y > 0xFEFFu )
-      *map_y = 0xFEFFu;
+    if ( *map_y > ((map_subtiles_y<<8)-1) )
+      *map_y = ((map_subtiles_y<<8)-1);
     if ( *map_x < 0 )
       *map_x = 0;
     else
-    if ( *map_x > 0xFEFFu )
-      *map_x = 0xFEFFu;
+    if ( *map_x > ((map_subtiles_x<<8)-1) )
+      *map_x = ((map_subtiles_x<<8)-1);
     return true;
   }
   return false;
@@ -5567,10 +5555,12 @@ short point_to_overhead_map(struct Camera *camera, long screen_x, long screen_y,
   return false;
 }
 
-short screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos)
+TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos)
 {
-  short result;
+  TbBool result;
   long x,y;
+  //SYNCDBG(19,"Starting");
+  result = false;
   if (camera != NULL)
   {
     switch (camera->field_6)
@@ -5594,10 +5584,11 @@ short screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct 
     mappos->x.val = x;
     mappos->y.val = y;
   }
-  if ( mappos->x.val > 0xFEFFu )
-    mappos->x.val = 0xFEFFu;
-  if ( mappos->y.val > 0xFEFFu )
-    mappos->y.val = 0xFEFFu;
+  if ( mappos->x.val > ((map_subtiles_x<<8)-1) )
+    mappos->x.val = ((map_subtiles_x<<8)-1);
+  if ( mappos->y.val > ((map_subtiles_y<<8)-1) )
+    mappos->y.val = ((map_subtiles_y<<8)-1);
+  //SYNCDBG(19,"Finished");
   return result;
 }
 
@@ -6599,63 +6590,6 @@ void clear_map(void)
   clear_slabs();
   clear_columns();
   clear_slabsets();
-}
-
-void make_solidmask(struct Column *col)
-{
-  int i;
-  col->solidmask = 0;
-  for (i=0; i<COLUMN_STACK_HEIGHT; i++)
-  {
-    if (col->cubes[i] != 0)
-      col->solidmask |= (1 << i);
-  }
-}
-
-unsigned short find_column_height(struct Column *col)
-{
-  unsigned short h;
-  h = 0;
-  if (col->solidmask == 0)
-    return h;
-  while (col->cubes[h] > 0)
-  {
-    h++;
-    if (h >= COLUMN_STACK_HEIGHT)
-      return COLUMN_STACK_HEIGHT;
-  }
-  return h;
-}
-
-long find_column(struct Column *col)
-{
-  return _DK_find_column(col);
-}
-
-long create_column(struct Column *col)
-{
-  return _DK_create_column(col);
-}
-
-void clear_columns(void)
-{
-  //  _DK_clear_columns();
-  struct Column *col;
-  int i;
-  for (i=0; i < COLUMNS_COUNT; i++)
-  {
-    col = &game.columns[i];
-    memset(col, 0, sizeof(struct Column));
-    col->baseblock = 1;
-    make_solidmask(col);
-  }
-  game.field_149E6E = -1;
-  game.field_149E7C = 24;
-  game.field_149E77 = 0;
-  for (i=0; i < 18; i++)
-  {
-    game.field_14A818[i] = 0;
-  }
 }
 
 void clear_things_and_persons_data(void)
@@ -11483,42 +11417,6 @@ short thing_create_thing(struct InitThing *itng)
     return false;
   }
   return true;
-}
-
-
-void init_top_texture_to_cube_table(void)
-{
-  _DK_init_top_texture_to_cube_table();
-}
-
-void init_columns(void)
-{
-  _DK_init_columns();
-}
-
-void init_whole_blocks(void)
-{
-  struct Column col;
-  long i;
-  //_DK_init_whole_blocks(); return;
-  game.field_149E6E = -1;
-  memset(&col, 0, sizeof(col));
-  // Prepare the local column
-  col.baseblock = 22;
-  col.cubes[0] = 10;
-  col.cubes[1] = 1;
-  col.cubes[2] = 1;
-  col.cubes[3] = 1;
-  col.cubes[4] = 141;
-  make_solidmask(&col);
-  // Find it or add to column list
-  i = find_column(&col);
-  if (i == 0)
-    i = create_column(&col);
-  // Update its parameters
-  game.columns[i].bitfileds |= 0x01;
-  game.field_149E7C = 24;
-  game.field_149E77 = i;
 }
 
 struct ActionPoint *allocate_free_action_point_structure_with_number(long apt_num)

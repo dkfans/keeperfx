@@ -35,6 +35,7 @@
 #include "creature_control.h"
 #include "slab_data.h"
 #include "map_data.h"
+#include "map_columns.h"
 #include "room_data.h"
 #include "config.h"
 #include "config_magic.h"
@@ -49,7 +50,6 @@
 #define NET_SERVICES_COUNT     16
 #define PACKETS_COUNT           5
 #define THINGS_COUNT         2048
-#define COLUMNS_COUNT        2048
 #define EVENTS_COUNT          100
 #define EVENT_BUTTONS_COUNT    12
 #define EVENT_KIND_COUNT       27
@@ -72,7 +72,6 @@
 #define LIGHTS_COUNT          400
 #define SHADOW_LIMITS_COUNT  2048
 #define SPIRAL_STEPS_COUNT   2500
-#define COLUMN_STACK_HEIGHT     8
 #define GOLD_LOOKUP_COUNT      40
 #define TURN_TIMERS_COUNT       8
 #define SCRIPT_FLAGS_COUNT      8
@@ -364,15 +363,6 @@ struct ActionPoint { // sizeof = 0xA
     unsigned short range;
     unsigned short num;
     unsigned char activated;
-};
-
-struct Column { // sizeof=0x18
-    short use;
-    unsigned char bitfileds;
-    unsigned short solidmask;
-    unsigned short baseblock;
-    unsigned char orient;
-    unsigned short cubes[COLUMN_STACK_HEIGHT];
 };
 
 struct SpecialDesc {
@@ -1983,7 +1973,7 @@ void draw_overlay_compass(long a1, long a2);
 void draw_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int scanln);
 void flyeye_blitsec(unsigned char *srcbuf, unsigned char *dstbuf, long srcwidth, long dstwidth, long n, long height);
 void flyeye_setup(long width, long height);
-short screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos);
+TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos);
 void draw_jonty_mapwho(struct JontySpr *jspr);
 struct Thing *find_base_thing_on_mapwho(unsigned char oclass, unsigned short okind, unsigned short x, unsigned short y);
 void draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);

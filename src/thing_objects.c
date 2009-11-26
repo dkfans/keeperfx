@@ -21,6 +21,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "map_data.h"
+#include "map_columns.h"
 #include "keeperfx.h"
 
 #ifdef __cplusplus
@@ -325,8 +326,52 @@ long move_object(struct Thing *thing)
 
 long update_object(struct Thing *thing)
 {
+  Thing_State_Func upcallback;
+  Thing_State_Func stcallback;
+  struct Objects *objdat;
   SYNCDBG(18,"Starting for model %d",(int)thing->model);
-  return _DK_update_object(thing);
+  //return _DK_update_object(thing);
+
+  upcallback = object_update_functions[thing->model];
+  if (upcallback != NULL)
+  {
+    if (upcallback(thing) <= 0)
+      return -1;
+  }
+  stcallback = object_state_functions[thing->field_7];
+  if (stcallback != NULL)
+  {
+    if (stcallback(thing) <= 0)
+      return -1;
+  }
+  thing->field_25 &= 0xFE;
+  thing->field_25 &= 0xFD;
+  if ( ((thing->field_25 & 0x40) == 0) && thing_touching_floor(thing) )
+  {
+    if ( map_pos_is_lava(thing->mappos.x.stl.num, thing->mappos.y.stl.num) )
+    {
+      thing->field_25 |= 0x02;
+      objdat = get_objects_data_for_thing(thing);
+      if ( (objdat->field_12) && ((thing->field_1 & 0x01) == 0) && ((thing->field_0 & 0x80) == 0) )
+      {
+            if (thing->model == 10)
+            {
+              destroy_food(thing);
+            } else
+            {
+              delete_thing_structure(thing, 0);
+            }
+            return -1;
+      }
+    } else
+    if (get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num) == 39)
+    {
+      thing->field_25 |= 0x01;
+    }
+  }
+  if ((thing->field_25 & 0x40) != 0)
+    return 1;
+  return move_object(thing);
 }
 
 /******************************************************************************/
