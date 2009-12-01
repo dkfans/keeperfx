@@ -24,6 +24,7 @@
 #include "bflib_sound.h"
 
 #include "creature_control.h"
+#include "creature_states.h"
 #include "config_creature.h"
 #include "front_simple.h"
 #include "frontend.h"
@@ -273,7 +274,6 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   struct CreatureStats *crstat;
   struct Thing *efftng;
   struct Thing *thing;
-  TbBool uncensored;
   struct Camera *cam;
   struct Coord3d pos;
   //return _DK_pinstfe_hand_whip(player, n);
@@ -299,14 +299,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           pos.y.val = thing->mappos.y.val;
           pos.z.val = thing->mappos.z.val + (thing->field_58 >> 1);
           crstat = creature_stats_get_from_thing(thing);
-          if (install_info.lang_id == 3)
-          {
-            uncensored = crstat->bleeds && ((thing->model < 1) || (thing->model > 13));
-          } else
-          {
-            uncensored = crstat->bleeds;
-          }
-          if ( uncensored )
+          if ( creature_model_bleeds(thing->model) )
             create_effect(&pos, 6, thing->owner);
           thing_play_sample(thing, 75, 100, 0, 3, 0, 3, 256);
           cam = player->acamera;

@@ -42,6 +42,7 @@ obj/front_landview.o \
 obj/player_computer.o \
 obj/player_instances.o \
 obj/creature_control.o \
+obj/creature_states.o \
 obj/engine_lenses.o \
 obj/engine_camera.o \
 obj/engine_render.o \

@@ -22,6 +22,7 @@
 #include "bflib_memory.h"
 #include "engine_lenses.h"
 #include "config_creature.h"
+#include "creature_states.h"
 #include "lens_mist.h"
 #include "keeperfx.h"
 #include "frontend.h"
@@ -547,8 +548,103 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *crthing)
 
 long process_creature_state(struct Thing *thing)
 {
+  struct CreatureControl *cctrl;
+  struct CreatureStats *crstat;
+  struct StateInfo *stati;
+  struct Thing *tgthing;
+  long x,y;
+  long k;
+  SYNCDBG(18,"Starting");
 //TODO: rework! (causes hang if out of things)
-  return _DK_process_creature_state(thing);
+  //return _DK_process_creature_state(thing);
+
+  cctrl = creature_control_get_from_thing(thing);
+  process_person_moods_and_needs(thing);
+  if (creature_available_for_combat_this_turn(thing))
+  {
+    if (!creature_look_for_combat(thing))
+    {
+      if ((!cctrl->field_3) && (thing->model != 23))
+      {
+        tgthing = get_enemy_dungeon_heart_creature_can_see(thing);
+        if (!thing_is_invalid(tgthing))
+          set_creature_object_combat(thing, tgthing);
+      }
+    }
+  }
+  if ((cctrl->field_3 & 0x10) == 0)
+  {
+    if ((cctrl->field_1D0) && ((cctrl->flgfield_0 & 0x0200) == 0))
+    {
+        if ( can_change_from_state_to(thing, thing->field_7, 86) )
+        {
+          x = stl_num_decode_x(cctrl->field_1D0);
+          y = stl_num_decode_y(cctrl->field_1D0);
+          tgthing = get_door_for_position(x,y);
+          if (!thing_is_invalid(tgthing))
+          {
+            if (thing->owner != tgthing->owner)
+              set_creature_door_combat(thing, tgthing);
+          }
+        }
+    }
+  }
+  cctrl->field_1D0 = 0;
+  if ((cctrl->field_7A & 0xFFF) != 0)
+  {
+    if (!creature_is_group_leader(thing))
+      process_obey_leader(thing);
+  }
+  if ((thing->field_7 < 1) || (thing->field_7 >= 145))
+  {
+    ERRORLOG("Creature has illegal state[1], T%d, S%d, TCS%d", (int)thing->index, (int)thing->field_7, (int)thing->field_8);
+    set_start_state(thing);
+  }
+  if (((thing->field_25 & 0x20) == 0) && (thing->model != 23))
+  {
+    tgthing = find_interesting_object_laying_around_thing(thing);
+    if (!thing_is_invalid(tgthing))
+    {
+      if (tgthing->model == 43)
+      {
+        crstat = creature_stats_get_from_thing(thing);
+        if (tgthing->long_13 > 0)
+        {
+          if (thing->long_13 < crstat->gold_hold)
+          {
+            if (crstat->gold_hold < tgthing->long_13 + thing->long_13)
+            {
+              k = crstat->gold_hold - thing->long_13;
+              thing->long_13 += k;
+              tgthing->long_13 -= k;
+            } else
+            {
+              thing->long_13 += tgthing->long_13;
+              delete_thing_structure(tgthing, 0);
+            }
+          }
+        } else
+        {
+          ERRORLOG("GoldPile with no gold!");
+          delete_thing_structure(tgthing, 0);
+        }
+        anger_apply_anger_to_creature(thing, crstat->annoy_got_wage, 1, 1);
+      } else
+      if (tgthing->model == 10)
+      {
+        if (!is_thing_passenger_controlled(tgthing))
+          food_eaten_by_creature(tgthing, thing);
+      }
+    }
+  }
+  SYNCDBG(18,"Executing state %d",(int)thing->field_7);
+  stati = get_thing_state_info(thing);
+  if (stati->ofsfield_0 == NULL)
+    return false;
+  if (stati->ofsfield_0(thing) != -1)
+    return false;
+  SYNCDBG(18,"Finished");
+  return true;
 }
 
 TbBool update_dead_creatures_list(struct Dungeon *dungeon, struct Thing *thing)

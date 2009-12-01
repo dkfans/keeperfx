@@ -57,6 +57,7 @@
 #include "room_data.h"
 #include "map_columns.h"
 #include "creature_control.h"
+#include "creature_states.h"
 #include "lens_mist.h"
 #include "game_merge.h"
 
@@ -150,7 +151,8 @@ int map_tiles_y = 85;
 
 unsigned short player_colors_map[] = {0, 1, 2, 3, 4, 5, 0, 0, 0, };
 
-TbPixel const player_path_colours[] = {131, 90, 163, 181, 20, 4, };
+TbPixel const player_path_colours[] = {131, 90, 163, 181,  20,   4, };
+TbPixel const player_room_colours[] = {132, 92, 164, 183,  21, 132, };
 
 unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
 
@@ -668,6 +670,7 @@ DLLIMPORT int __cdecl _DK_initial_setup(void);
 DLLIMPORT long _DK_ceiling_set_info(long a1, long a2, long a3);
 DLLIMPORT int __cdecl _DK_process_sound_heap(void);
 DLLIMPORT void __cdecl _DK_startup_saved_packet_game(void);
+DLLIMPORT long _DK_creature_turn_to_face_angle(struct Thing *thing, long a2);
 #ifdef __cplusplus
 }
 #endif
@@ -714,7 +717,7 @@ void reset_eye_lenses(void)
 
 void reset_creature_eye_lens(struct Thing *thing)
 {
-  if (game.players[my_player_number].field_2B == thing->owner)
+  if (is_my_player_number(thing->owner))
   {
     setup_eye_lens(0);
   }
@@ -867,11 +870,11 @@ void setup_eye_lens(long nlens)
       Mist->animset(0, 1024);
       break;
   case 13:
-      player->field_4C9 = dog_palette;
+      player->palette = dog_palette;
       player->field_7 = dog_palette;
       break;
   case 14:
-      player->field_4C9 = vampire_palette;
+      player->palette = vampire_palette;
       player->field_7 = vampire_palette;
       break;
   default:
@@ -1148,7 +1151,7 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
   struct InitLight ilght;
   memset(&ilght, 0, sizeof(struct InitLight));
   player->field_4CD = 0;
-  ilght.field_0 = 0x0A00;
+  ilght.field_0 = 2560;
   ilght.field_2 = 48;
   ilght.field_3 = 5;
   ilght.field_11 = 1;
@@ -1170,7 +1173,7 @@ void setup_3d(void)
   seed = 0;
   for (i=0; i < 512; i++)
   {
-    k = seed_check_random(127, &seed, __func__, 4791);
+    k = LB_RANDOM(127, &seed);
     randomisors[i] = k - 63;
   }
 }
@@ -1283,14 +1286,8 @@ struct Room *get_room_thing_is_on(struct Thing *thing)
   return _DK_get_room_thing_is_on(thing);
 }
 
-short thing_touching_floor(struct Thing *thing)
-{
-  return (thing->field_60 == thing->mappos.z.val);
-}
-
 void destroy_food(struct Thing *thing)
 {
-  static const char *func_name="destroy_food";
   struct Room *room;
   struct Dungeon *dungeon;
   struct Thing *efftng;
@@ -1623,6 +1620,30 @@ void place_thing_in_limbo(struct Thing *thing)
   thing->field_0 |= 0x10;
 }
 
+void add_creature_to_sacrifice_list(long plyr_idx, long model, long explevel)
+{
+  struct Dungeon *dungeon;
+  if ((plyr_idx < 0) || (plyr_idx >= DUNGEONS_COUNT))
+  {
+    ERRORLOG("How can you sacrifice a neutral creature?");
+    return;
+  }
+  if ((model < 0) || (model >= CREATURE_TYPES_COUNT))
+  {
+    ERRORLOG("Tried to sacrifice invalid creature model.");
+    return;
+  }
+  dungeon = &(game.dungeon[plyr_idx]);
+  dungeon->creature_sacrifice[model]++;
+  dungeon->creature_sacrifice_exp[model] += explevel+1;
+  dungeon->lvstats.creatures_sacrificed++;
+}
+
+long creature_turn_to_face_angle(struct Thing *thing, long a2)
+{
+  return _DK_creature_turn_to_face_angle(thing, a2);
+}
+
 struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2)
 {
   return _DK_create_gold_for_hand_grab(thing, a2);
@@ -1756,9 +1777,37 @@ long find_from_task_list(long plyr_idx, long srch_tsk)
   return -1;
 }
 
-void reset_player_mode(struct PlayerInfo *player, unsigned char a2)
+void reset_player_mode(struct PlayerInfo *player, unsigned short nmode)
 {
-  _DK_reset_player_mode(player, a2);
+  //_DK_reset_player_mode(player, nmode);
+  player->view_type = nmode;
+  switch (nmode)
+  {
+    case 1:
+      player->work_state = player->field_456;
+      if (player->field_4B5 == 5)
+        set_engine_view(player, 5);
+      else
+        set_engine_view(player, 2);
+      if (is_my_player(player))
+        game.numfield_D &= 0xFEu;
+      break;
+    case 2:
+    case 3:
+      player->work_state = player->field_456;
+      set_engine_view(player, 1);
+      if (is_my_player(player))
+        game.numfield_D |= 0x01;
+      break;
+    case 4:
+      player->work_state = player->field_456;
+      set_engine_view(player, 3);
+      if (is_my_player(player))
+        game.numfield_D &= 0xFEu;
+      break;
+    default:
+      break;
+  }
 }
 
 void init_keeper_map_exploration(struct PlayerInfo *player)
@@ -2233,14 +2282,14 @@ long instf_creature_fire_shot(struct Thing *thing, long *param)
   if ((thing->field_0 & 0x20) != 0)
   {
     target = thing_get(cctrl->field_DA);
-    if (target->class_id == 1)
+    if (target->class_id == TCls_Object)
       i = 1;
     else
       i = 2;
   } else
   {
     target = thing_get(cctrl->field_DA);
-    if (target->class_id == 1)
+    if (target->class_id == TCls_Object)
       i = 1;
     else
     if (target->owner == thing->owner)
@@ -2410,7 +2459,7 @@ long update_creature_levels(struct Thing *thing)
     player->field_2F = newtng->index;
     player->field_31 = newtng->field_9;
   }
-  kill_creature(thing, game.things_lookup[0], -1, 1, 0, 1);
+  kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
   return -1;
 }
 
@@ -2713,12 +2762,12 @@ long update_creature(struct Thing *thing)
   map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
   if ((thing->field_7 == 67) && (map->flags & 0x40))
   {
-    kill_creature(thing, game.things_lookup[0], -1, 1, 0, 1);
+    kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
     return 0;
   }
   if (thing->health < 0)
   {
-    kill_creature(thing, game.things_lookup[0], -1, 0, 0, 0);
+    kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
     return 0;
   }
   cctrl = creature_control_get_from_thing(thing);
@@ -2741,7 +2790,7 @@ long update_creature(struct Thing *thing)
   if (cctrl->field_302 == 0)
     process_creature_instance(thing);
   update_creature_count(thing);
-  if (thing->field_0 & 0x20)
+  if ((thing->field_0 & 0x20) != 0)
   {
     if (cctrl->field_AB == 0)
     {
@@ -2984,7 +3033,7 @@ short play_smacker_file(char *filename, int nstate)
   LbScreenClear(0);
   LbScreenSwap();
   LbPaletteSet(frontend_palette);
-  if ( nstate >= 0 )
+  if (nstate >= 0)
     frontend_set_state(nstate);
   lbDisplay.LeftButton = 0;
   lbDisplay.RightButton = 0;
@@ -3077,13 +3126,13 @@ short setup_network_service(int srvidx)
   net_service_index_selected = srvidx;
   if ((game.flags_font & FFlg_unk10) != 0)
     LbNetwork_ChangeExchangeTimeout(10);
-  frontend_set_state(5);
+  frontend_set_state(FeSt_NET_SESSION);
   return 1;
 }
 
 void init_censorship(void)
 {
-  if (install_info.lang_id == 3) // German language
+  if ( censorship_enabled() )
   {
     // Modification for Dark Mistress
     creature_graphics[20][14] = 48;
@@ -3253,6 +3302,7 @@ TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *
   // TODO: use rewritten version when sound routines are rewritten
   i = _DK_init_sound_heap_two_banks(heap_mem, heap_size, snd_fname, spc_fname, a5);
   SYNCMSG("Sound samples in banks: %d,%d",(int)samples_in_bank,(int)samples_in_bank2);
+  return (i != 0);
 
   LbMemorySet(heap_mem, 0, heap_size);
   if (sound_file != -1)
@@ -5043,7 +5093,7 @@ struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short model, un
     return NULL;
   }
   thing = allocate_free_thing_structure(1);
-  thing->class_id = 12;
+  thing->class_id = TCls_AmbientSnd;
   thing->model = model;
   thing->field_1D = thing->index;
   memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
@@ -5741,9 +5791,26 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short a1, unsigned s
   return _DK_create_creature(pos, a1, a2);
 }
 
-void creature_increase_level(struct Thing *thing)
+TbBool creature_increase_level(struct Thing *thing)
 {
-  _DK_creature_increase_level(thing);
+  struct Dungeon *dungeon;
+  struct CreatureStats *crstat;
+  struct CreatureControl *cctrl;
+  //_DK_creature_increase_level(thing);
+  cctrl = creature_control_get_from_thing(thing);
+  if (creature_control_invalid(cctrl))
+    return false;
+  dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+  if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
+  {
+    crstat = creature_stats_get_from_thing(thing);
+    if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
+    {
+      cctrl->field_AD |= 0x40;
+      return true;
+    }
+  }
+  return false;
 }
 
 void remove_events_thing_is_attached_to(struct Thing *thing)
@@ -6092,7 +6159,7 @@ LevelNumber get_selected_level_number(void)
  */
 LevelNumber set_selected_level_number(LevelNumber lvnum)
 {
-  if (lvnum > 0)
+  if (lvnum >= 0)
     game.selected_level_number = lvnum;
   return game.selected_level_number;
 }
@@ -6939,9 +7006,9 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
   {
     player->field_3 &= 0xFB;
   }
-  if ((player->field_7 == 0) || (pal != player->field_4C9) && (pal == player->field_7))
+  if ((player->field_7 == 0) || (pal != player->palette) && (pal == player->field_7))
   {
-    player->field_4C9 = pal;
+    player->palette = pal;
     player->field_4C1 = 0;
     player->field_4C5 = 0;
     if (is_my_player(player))
@@ -9613,7 +9680,7 @@ void draw_power_hand(void)
   {
     switch (picktng->class_id)
     {
-    case 5:
+    case TCls_Creature:
         cctrl = creature_control_get_from_thing(picktng);
         if ((cctrl->field_AD & 0x02) == 0)
         {
@@ -9632,7 +9699,7 @@ void draw_power_hand(void)
               picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
         }
         break;
-    case 1:
+    case TCls_Object:
         if (picktng->model == 10)
         {
           x = GetMouseX()+11;
@@ -9641,7 +9708,7 @@ void draw_power_hand(void)
               picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
           break;
         } else
-        if ((picktng->class_id == 1) && object_is_gold_pile(picktng))
+        if ((picktng->class_id == TCls_Object) && object_is_gold_pile(picktng))
           break;
     default:
         x = GetMouseX();
@@ -10249,7 +10316,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
         } else
         if ( thing_is_spellbook(thing) )
         {
-          spridx = spell_data[object_to_magic[thing->model]].field_B;
+          spridx = spell_data[book_thing_to_magic(thing)].field_B;
           draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
         }
         break;
@@ -10797,7 +10864,7 @@ short display_should_be_updated_this_turn(void)
  * Makes last updates to the video buffer, and swaps buffers to show
  * the new image.
  */
-short keeper_screen_swap(void)
+TbBool keeper_screen_swap(void)
 {
 /*  // For resolution 640x480, move the graphics data 40 lines lower
   if ( lbDisplay.ScreenMode == Lb_SCREEN_MODE_640_480_8 )
@@ -10813,14 +10880,14 @@ short keeper_screen_swap(void)
       LbScreenUnlock();
     }*/
   LbScreenSwap();
-  return 1;
+  return true;
 }
 
 /*
  * Waits until the next game turn. Delay is usually controlled by
  * num_fps variable.
  */
-short keeper_wait_for_next_turn(void)
+TbBool keeper_wait_for_next_turn(void)
 {
   if (game.numfield_D & 0x10)
   {
@@ -10828,7 +10895,7 @@ short keeper_wait_for_next_turn(void)
       TbClockMSec sleep_end = last_loop_time + 1000;
       LbSleepUntil(sleep_end);
       last_loop_time = LbTimerClock();
-      return 1;
+      return true;
   }
   if (game.frame_skip == 0)
   {
@@ -10836,15 +10903,15 @@ short keeper_wait_for_next_turn(void)
       TbClockMSec sleep_end = last_loop_time + 1000/game.num_fps;
       LbSleepUntil(sleep_end);
       last_loop_time = LbTimerClock();
-      return 1;
+      return true;
   }
-  return 0;
+  return false;
 }
 
 /*
  * Redraws the game display buffer.
  */
-short keeper_screen_redraw(void)
+TbBool keeper_screen_redraw(void)
 {
   struct PlayerInfo *player;
   SYNCDBG(5,"Starting");
@@ -11732,7 +11799,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
   player->field_456 = 1;
   player->work_state = 1;
   player->field_14 = 2;
-  player->field_4C9 = _DK_palette;
+  player->palette = _DK_palette;
   if (is_my_player(player))
   {
     set_flag_byte(&game.numfield_C,0x40,true);
@@ -12118,7 +12185,7 @@ void faststartup_network_game(void)
 
 int setup_old_network_service(void)
 {
-    return setup_network_service(_DK_net_service_index_selected);
+    return setup_network_service(net_service_index_selected);
 }
 
 void wait_at_frontend(void)
@@ -12238,7 +12305,8 @@ void wait_at_frontend(void)
   frontend_set_state(0);
   if (exit_keeper)
   {
-    game.players[my_player_number].field_6 &= 0xFDu;
+    player = &(game.players[my_player_number%PLAYERS_COUNT]);
+    player->field_6 &= 0xFDu;
     return;
   }
   reenter_video_mode();
@@ -12251,13 +12319,15 @@ void wait_at_frontend(void)
         my_player_number = default_loc_player;
         game.flagfield_14EA4A = 2;
         game.numfield_A &= 0xFFFEu;
-        game.players[my_player_number].field_2C = 1;
+        player = &(game.players[my_player_number%PLAYERS_COUNT]);
+        player->field_2C = 1;
         startup_network_game();
         break;
   case 8:
         game.numfield_A |= 0x01;
         game.flagfield_14EA4A = 5;
-        game.players[my_player_number].field_2C = 1;
+        player = &(game.players[my_player_number%PLAYERS_COUNT]);
+        player->field_2C = 1;
         startup_network_game();
         break;
   case 10:
@@ -12282,7 +12352,8 @@ void wait_at_frontend(void)
         set_flag_byte(&game.numfield_C,0x40,false);
         break;
   }
-  game.players[my_player_number].field_6 &= 0xFDu;
+  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player->field_6 &= 0xFDu;
 }
 
 void game_loop(void)
@@ -12394,77 +12465,81 @@ short process_command_line(unsigned short argc, char *argv[])
       else
         pr2str[0]='\0';
 
-      if (stricmp(parstr, "nointro") == 0)
+      if (strcasecmp(parstr, "nointro") == 0)
       {
         start_params.no_intro = 1;
       } else
-      if (stricmp(parstr, "nocd") == 0)
+      if (strcasecmp(parstr, "nocd") == 0)
       {
           set_flag_byte(&start_params.flags_cd,MFlg_NoMusic,true);
       } else
-      if (stricmp(parstr, "1player") == 0)
+      if (strcasecmp(parstr, "1player") == 0)
       {
           start_params.one_player = 1;
       } else
-      if ((stricmp(parstr, "s") == 0) || (stricmp(parstr, "nosound") == 0))
+      if ((strcasecmp(parstr, "s") == 0) || (strcasecmp(parstr, "nosound") == 0))
       {
           SoundDisabled = 1;
       } else
-      if (stricmp(parstr, "fps") == 0)
+      if (strcasecmp(parstr, "fps") == 0)
       {
           narg++;
           start_params.num_fps = atoi(pr2str);
       } else
-      if (stricmp(parstr, "human") == 0)
+      if (strcasecmp(parstr, "human") == 0)
       {
           narg++;
           default_loc_player = atoi(pr2str);
       } else
-      if (stricmp(parstr, "usersfont") == 0)
+      if (strcasecmp(parstr, "usersfont") == 0)
       {
           set_flag_byte(&start_params.flags_font,FFlg_UsrSndFont,true);
       } else
-      if (stricmp(parstr, "vidsmooth") == 0)
+      if (strcasecmp(parstr, "vidsmooth") == 0)
       {
           smooth_on = 1;
       } else
-      if ( stricmp(parstr,"level") == 0 )
+      if ( strcasecmp(parstr,"level") == 0 )
       {
         set_flag_byte(&start_params.numfield_C,0x02,true);
         level_num = atoi(pr2str);
         narg++;
       } else
-      if (stricmp(parstr,"packetload") == 0)
+      if ( strcasecmp(parstr,"altinput") == 0 )
+      {
+        lbUseSdk = false;
+      } else
+      if (strcasecmp(parstr,"packetload") == 0)
       {
          if (start_params.packet_save_enable)
-            LbWarnLog("PacketSave disabled to enable PacketLoad.\n");
+            WARNMSG("PacketSave disabled to enable PacketLoad.");
          start_params.packet_load_enable = true;
          start_params.packet_save_enable = false;
          strncpy(start_params.packet_fname,pr2str,149);
          narg++;
       } else
-      if (stricmp(parstr,"packetsave") == 0)
+      if (strcasecmp(parstr,"packetsave") == 0)
       {
          if (start_params.packet_load_enable)
-            LbWarnLog("PacketLoad disabled to enable PacketSave.\n");
+            WARNMSG("PacketLoad disabled to enable PacketSave.");
          start_params.packet_load_enable = false;
          start_params.packet_save_enable = true;
          strncpy(start_params.packet_fname,pr2str,149);
          narg++;
       } else
-      if (stricmp(parstr,"q") == 0)
+      if (strcasecmp(parstr,"q") == 0)
       {
          set_flag_byte(&start_params.numfield_C,0x02,true);
       } else
-      if (stricmp(parstr,"columnconvert") == 0)
+      if (strcasecmp(parstr,"columnconvert") == 0)
       {
          set_flag_byte(&start_params.numfield_C,0x08,true);
       } else
-      if (stricmp(parstr,"lightconvert") == 0)
+      if (strcasecmp(parstr,"lightconvert") == 0)
       {
          set_flag_byte(&start_params.numfield_C,0x10,true);
       } else
-      if (stricmp(parstr,"alex") == 0)
+      if (strcasecmp(parstr,"alex") == 0)
       {
          set_flag_byte(&start_params.flags_font,FFlg_AlexCheat,true);
       } else
