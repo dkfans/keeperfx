@@ -76,30 +76,36 @@ DLLIMPORT void __cdecl _DK_copy_to_screen(unsigned char *srcbuf, unsigned long w
 DLLIMPORT int __stdcall _DK_LbIsActive(void);
 /******************************************************************************/
 DLLIMPORT extern int _DK_icon_index;
+volatile int lbUserQuit = 0;
 /******************************************************************************/
-short LbScreenLock(void)
+void *LbExeReferenceNumber(void)
+{
+  return NULL;
+}
+
+TbResult LbScreenLock(void)
 {
   return _DK_LbScreenLock();
 }
 
-short LbScreenUnlock(void)
+TbResult LbScreenUnlock(void)
 {
   return _DK_LbScreenUnlock();
 }
 
-short LbScreenSwap(void)
+TbResult LbScreenSwap(void)
 {
   return _DK_LbScreenSwap();
 }
 
-short LbScreenClear(TbPixel colour)
+TbResult LbScreenClear(TbPixel colour)
 {
   return _DK_LbScreenClear(colour);
 }
 
-short LbWindowsControl(void)
+TbBool LbWindowsControl(void)
 {
-  return _DK_LbWindowsControl();
+  return (lbUserQuit < 1);
 }
 
 void LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long n)
@@ -116,15 +122,14 @@ void LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long n)
   LbPaletteSet(palette);
 }
 
-short LbPaletteStopOpenFade(void)
+TbResult LbPaletteStopOpenFade(void)
 {
     fade_started = 0;
-    return 1;
+    return Lb_SUCCESS;
 }
 
 long LbPaletteFade(unsigned char *pal, long n, enum TbPaletteFadeFlag flg)
 {
-  //return _DK_LbPaletteFade(pal, n, flg);
   if (flg == Lb_PALETTE_FADE_CLOSED)
   {
     LbPaletteGet(from_pal);
@@ -165,25 +170,38 @@ long LbPaletteFade(unsigned char *pal, long n, enum TbPaletteFadeFlag flg)
   return fade_count;
 }
 
-void LbScreenWaitVbi(void)
+TbResult LbScreenWaitVbi(void)
 {
   _DK_LbScreenWaitVbi();
 }
 
-int LbScreenSetup(enum TbScreenMode mode, unsigned int width,
-               unsigned int height, unsigned char *palette, int flag1, int flag2)
+TbResult LbScreenFindVideoModes(void)
 {
-  return _DK_LbScreenSetup(mode,width,height,palette,flag1,flag2);
+  /*if (lpDDC == NULL)
+    return Lb_FAIL;
+  lpDDC->find_video_modes(); */
+  return Lb_SUCCESS;
 }
 
-int LbPaletteSet(unsigned char *palette)
+TbResult LbScreenSetup(enum TbScreenMode mode, unsigned int width, unsigned int height,
+    unsigned char *palette, short buffers_count, TbBool wscreen_vid)
+{
+  return _DK_LbScreenSetup(mode,width,height,palette,buffers_count,wscreen_vid);
+}
+
+TbResult LbPaletteSet(unsigned char *palette)
 {
   return _DK_LbPaletteSet(palette);
 }
 
-int LbPaletteGet(unsigned char *palette)
+TbResult LbPaletteGet(unsigned char *palette)
 {
   return _DK_LbPaletteGet(palette);
+}
+
+TbResult LbSetTitle(const char *title)
+{
+  return Lb_SUCCESS;
 }
 
 void LbSetIcon(unsigned short nicon)
@@ -199,17 +217,17 @@ struct TbScreenModeInfo *LbScreenGetModeInfo(unsigned short mode)
   return &lbScreenModeInfo[0];
 }
 
-short LbScreenIsLocked(void)
+TbBool LbScreenIsLocked(void)
 {
     return (lbDisplay.WScreen > NULL);
 }
 
-short LbScreenReset(void)
+TbResult LbScreenReset(void)
 {
   return _DK_LbScreenReset();
 }
 
-short LbIsActive(void)
+TbBool LbIsActive(void)
 {
   return _DK_LbIsActive();
 /*  if (lpDDC != NULL)
@@ -222,13 +240,13 @@ short LbIsActive(void)
  * Intended to use with LbScreenLoadGraphicsWindow() when changing the window
  * temporarly.
  */
-short LbScreenStoreGraphicsWindow(struct TbGraphicsWindow *grwnd)
+TbResult LbScreenStoreGraphicsWindow(struct TbGraphicsWindow *grwnd)
 {
   grwnd->x = lbDisplay.GraphicsWindowX;
   grwnd->y = lbDisplay.GraphicsWindowY;
   grwnd->width = lbDisplay.GraphicsWindowWidth;
   grwnd->height = lbDisplay.GraphicsWindowHeight;
-  return true;
+  return Lb_SUCCESS;
 }
 
 /*
@@ -237,7 +255,7 @@ short LbScreenStoreGraphicsWindow(struct TbGraphicsWindow *grwnd)
  * LbScreenStoreGraphicsWindow(), because the values are not checked for sanity!
  * To set values from other sources, use LbScreenSetGraphicsWindow() instead.
  */
-short LbScreenLoadGraphicsWindow(struct TbGraphicsWindow *grwnd)
+TbResult LbScreenLoadGraphicsWindow(struct TbGraphicsWindow *grwnd)
 {
   lbDisplay.GraphicsWindowX = grwnd->x;
   lbDisplay.GraphicsWindowY = grwnd->y;
@@ -245,12 +263,11 @@ short LbScreenLoadGraphicsWindow(struct TbGraphicsWindow *grwnd)
   lbDisplay.GraphicsWindowHeight = grwnd->height;
   lbDisplay.GraphicsWindowPtr = lbDisplay.WScreen
       + lbDisplay.GraphicsScreenWidth*lbDisplay.GraphicsWindowY + lbDisplay.GraphicsWindowX;
-  return true;
+  return Lb_SUCCESS;
 }
 
-short LbScreenSetGraphicsWindow(long x, long y, long width, long height)
+TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
 {
-//  return _DK_LbScreenSetGraphicsWindow(x, y, width, height);
   long x2,y2;
   long i;
   x2 = x + width;
@@ -288,10 +305,10 @@ short LbScreenSetGraphicsWindow(long x, long y, long width, long height)
   lbDisplay.GraphicsWindowWidth = x2 - x;
   lbDisplay.GraphicsWindowHeight = y2 - y;
   lbDisplay.GraphicsWindowPtr = lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth*y + x;
-  return 1;
+  return Lb_SUCCESS;
 }
 
-short LbScreenIsModeAvailable(enum TbScreenMode mode)
+TbBool LbScreenIsModeAvailable(enum TbScreenMode mode)
 {
   return _DK_LbScreenIsModeAvailable(mode);
 }

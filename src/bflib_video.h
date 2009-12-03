@@ -73,20 +73,20 @@ enum TbPaletteFadeFlag {
         Lb_PALETTE_FADE_CLOSED = 1,
 };
 
-struct TbScreenModeInfo {
-          unsigned short Width;
-          unsigned short Height;
-          unsigned short BitsPerPixel;
-          long Available;//bool
-          long VideoMode;
-          char Desc[23];
-};
-
 struct TbGraphicsWindow {
     long x;
     long y;
     long width;
     long height;
+};
+
+struct TbScreenModeInfo {
+          unsigned short Width;
+          unsigned short Height;
+          unsigned short BitsPerPixel;
+          int Available;//bool
+          long VideoMode;
+          char Desc[23];
 };
 
 struct TbDisplayStruct {
@@ -140,6 +140,8 @@ DLLIMPORT extern unsigned short _DK_MyScreenHeight;
 #define MyScreenHeight _DK_MyScreenHeight
 DLLIMPORT extern unsigned short _DK_pixel_size;
 #define pixel_size _DK_pixel_size
+DLLIMPORT extern int _DK_lbUseSdk;
+//#define lbUseSdk _DK_lbUseSdk
 
 DLLIMPORT unsigned char _DK_fade_started;
 #define fade_started _DK_fade_started
@@ -162,40 +164,41 @@ extern char redraw_screen_flag;
 extern bool lbScreenDirectAccessActive;
 extern unsigned short lbVesaPage;
 */
+extern volatile int lbUserQuit;
+extern volatile TbBool lbScreenInitialised;
+extern volatile TbBool lbUseSdk;
 /******************************************************************************/
-short LbScreenLock(void);
-short LbScreenUnlock(void);
-short LbScreenIsLocked(void);
-short LbScreenSwap(void);
-short LbScreenClear(TbPixel colour);
-short LbWindowsControl(void);
+TbResult LbScreenLock(void);
+TbResult LbScreenUnlock(void);
+TbBool LbScreenIsLocked(void);
+TbResult LbScreenSwap(void);
+TbResult LbScreenClear(TbPixel colour);
+TbBool LbWindowsControl(void);
 long LbPaletteFade(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
-short LbPaletteStopOpenFade(void);
-void LbScreenWaitVbi(void);
-int LbScreenSetup(enum TbScreenMode mode, unsigned int width,
-               unsigned int height, TbPixel *palette, int flag1, int flag2);
-int LbPaletteSet(unsigned char *palette);
-int LbPaletteGet(unsigned char *palette);
+TbResult LbPaletteStopOpenFade(void);
+TbResult LbScreenWaitVbi(void);
+TbResult LbScreenSetup(enum TbScreenMode mode, unsigned int width, unsigned int height,
+    unsigned char *palette, short buffers_count, TbBool wscreen_vid);
+TbResult LbPaletteSet(unsigned char *palette);
+TbResult LbPaletteGet(unsigned char *palette);
 void LbSetIcon(unsigned short nicon);
-short LbScreenReset(void);
-short LbScreenStoreGraphicsWindow(struct TbGraphicsWindow *grwnd);
-short LbScreenLoadGraphicsWindow(struct TbGraphicsWindow *grwnd);
+TbResult LbScreenReset(void);
+TbResult LbScreenStoreGraphicsWindow(struct TbGraphicsWindow *grwnd);
+TbResult LbScreenLoadGraphicsWindow(struct TbGraphicsWindow *grwnd);
 void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
 struct TbScreenModeInfo *LbScreenGetModeInfo(unsigned short mode);
 enum TbScreenMode LbRecogniseVideoModeString(char *str);
-short LbScreenSetGraphicsWindow(long x, long y, long width, long height);
-short LbScreenIsModeAvailable(enum TbScreenMode mode);
-short LbIsActive(void);
+TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height);
+TbBool LbScreenIsModeAvailable(enum TbScreenMode mode);
+TbBool LbIsActive(void);
 TbPixel LbPaletteFindColour(unsigned char *pal, unsigned char r, unsigned char g, unsigned char b);
+TbResult LbScreenFindVideoModes(void);
+TbResult LbSetTitle(const char *title);
 /*
 bool __fastcall LbVesaGetGran(TbScreenMode mode);
 int __fastcall LbVesaSetPage(short npage);
 
 bool __fastcall LbScreenSetDoubleBuffering(bool newstate);
-int __fastcall LbScreenSetup(TbScreenMode mode, unsigned int width,
-               unsigned int height, unsigned char *palette);
-bool __fastcall LbScreenClearGraphicsWindow(unsigned char colour);
-bool __fastcall LbScreenClear(unsigned char colour);
 int __cdecl LbScreenSwapBoxClear(int source_screen, int SourceX, int SourceY,
   int DestinationX, int DestinationY, unsigned int width, unsigned int height,
   unsigned char colour);
