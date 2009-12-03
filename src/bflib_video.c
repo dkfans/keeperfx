@@ -20,63 +20,20 @@
 /******************************************************************************/
 #include "bflib_video.h"
 
+#include "bflib_mouse.h"
+#include "bflib_drawsdk.h"
+#include "bflib_sprfnt.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-struct TbScreenModeInfo lbScreenModeInfo[]={
-    {   0,   0, 0,0,   0x0,"MODE_INVALID"},
-    { 320, 200, 8,0,   0x0,"MODE_320_200_8"},
-    { 320, 200,16,0,   0x0,"MODE_320_200_16"},
-    { 320, 200,24,0,   0x0,"MODE_320_200_24"},
-    { 320, 240, 8,0,   0x0,"MODE_320_240_8"},
-    { 320, 240,16,0,   0x0,"MODE_320_240_16"},
-    { 320, 240,24,0,   0x0,"MODE_320_240_24"},
-    { 512, 384, 8,0,   0x0,"MODE_512_384_8"},
-    { 512, 384,16,0,   0x0,"MODE_512_384_16"},
-    { 512, 384,24,0,0x0100,"MODE_512_384_24"},
-    { 640, 400, 8,0,   0x0,"MODE_640_400_8"},
-    { 640, 400,16,0,   0x0,"MODE_640_400_16"},
-    { 640, 400,24,0,0x0101,"MODE_640_400_24"},
-    { 640, 480, 8,0,   0x0,"MODE_640_480_8"},
-    { 640, 480,16,0,   0x0,"MODE_640_480_16"},
-    { 640, 480,24,0,0x0103,"MODE_640_480_24"},
-    { 800, 600, 8,0,   0x0,"MODE_800_600_8"},
-    { 800, 600,16,0,   0x0,"MODE_800_600_16"},
-    { 800, 600,24,0,0x0105,"MODE_800_600_24"},
-    {1024, 768, 8,0,   0x0,"MODE_1024_768_8"},
-    {1024, 768,16,0,   0x0,"MODE_1024_768_16"},
-    {1024, 768,24,0,0x0107,"MODE_1024_768_24"},
-    {1280,1024, 8,0,   0x0,"MODE_1280_1024_8"},
-    {1280,1024,16,0,   0x0,"MODE_1280_1024_16"},
-    {1280,1024,24,0,   0x0,"MODE_1280_1024_24"},
-    {1600,1200, 8,0,   0x0,"MODE_1600_1200_8"},
-    {1600,1200,16,0,   0x0,"MODE_1600_1200_16"},
-    {1600,1200,24,0,   0x0,"MODE_1600_1200_24"},
-    {   0,   0, 0,0,   0x0,"MODE_INVALID"},
-};
-
-/******************************************************************************/
 DLLIMPORT int _DK_LbPaletteFindColour(unsigned char *pal, unsigned char r, unsigned char g, unsigned char b);
-DLLIMPORT int __stdcall _DK_LbScreenReset(void);
-DLLIMPORT int _DK_LbScreenSetGraphicsWindow(int x, int y, uint width, uint height);
-DLLIMPORT int _DK_LbScreenIsModeAvailable(enum TbScreenMode mode);
-DLLIMPORT int __stdcall _DK_LbScreenLock(void);
-DLLIMPORT int __stdcall _DK_LbScreenUnlock(void);
-DLLIMPORT int __stdcall _DK_LbScreenSwap(void);
-DLLIMPORT int __cdecl _DK_LbScreenClear(TbPixel colour);
-DLLIMPORT int __stdcall _DK_LbWindowsControl(void);
-DLLIMPORT int __cdecl _DK_LbPaletteFade(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
-DLLIMPORT void __cdecl _DK_LbScreenWaitVbi(void);
-DLLIMPORT int __cdecl _DK_LbScreenSetup(enum TbScreenMode mode, unsigned int width,
-               unsigned int height, unsigned char *palette, int flag1, int flag2);
-DLLIMPORT int __cdecl _DK_LbPaletteSet(unsigned char *palette);
-DLLIMPORT int __cdecl _DK_LbPaletteGet(unsigned char *palette);
 DLLIMPORT void __cdecl _DK_copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
-DLLIMPORT int __stdcall _DK_LbIsActive(void);
 /******************************************************************************/
-DLLIMPORT extern int _DK_icon_index;
 volatile int lbUserQuit = 0;
+volatile TbBool lbScreenInitialised = false;
+volatile TbBool lbUseSdk = true;
 /******************************************************************************/
 void *LbExeReferenceNumber(void)
 {
@@ -85,22 +42,49 @@ void *LbExeReferenceNumber(void)
 
 TbResult LbScreenLock(void)
 {
-  return _DK_LbScreenLock();
+  if (lpDDC == NULL)
+    return Lb_FAIL;
+  if (lpDDC->lock_screen())
+    return Lb_SUCCESS;
+  else
+    return Lb_FAIL;
 }
 
 TbResult LbScreenUnlock(void)
 {
-  return _DK_LbScreenUnlock();
+  if (lpDDC == NULL)
+    return Lb_FAIL;
+  if (lpDDC->unlock_screen())
+    return Lb_SUCCESS;
+  else
+    return Lb_FAIL;
 }
 
 TbResult LbScreenSwap(void)
 {
-  return _DK_LbScreenSwap();
+  int ret;
+  if (lpDDC == NULL)
+    return Lb_FAIL;
+  ret = false;
+  if (LbMouseOnBeginSwap() == Lb_SUCCESS)
+  {
+    ret = lpDDC->swap_screen();
+    LbMouseOnEndSwap();
+  }
+  if (ret)
+    return Lb_SUCCESS;
+  else
+    return Lb_FAIL;
 }
 
 TbResult LbScreenClear(TbPixel colour)
 {
-  return _DK_LbScreenClear(colour);
+  if (lpDDC == NULL)
+    return Lb_FAIL;
+  if (lpDDC->clear_screen(colour))
+    return Lb_SUCCESS;
+  else
+    return Lb_FAIL;
 }
 
 TbBool LbWindowsControl(void)
@@ -172,49 +156,112 @@ long LbPaletteFade(unsigned char *pal, long n, enum TbPaletteFadeFlag flg)
 
 TbResult LbScreenWaitVbi(void)
 {
-  _DK_LbScreenWaitVbi();
+  if (lpDDC == NULL)
+    return Lb_FAIL;
+  lpDDC->wait_vbi();
+  return Lb_SUCCESS;
 }
 
 TbResult LbScreenFindVideoModes(void)
 {
-  /*if (lpDDC == NULL)
+  if (lpDDC == NULL)
     return Lb_FAIL;
-  lpDDC->find_video_modes(); */
+  lpDDC->find_video_modes();
   return Lb_SUCCESS;
 }
 
 TbResult LbScreenSetup(enum TbScreenMode mode, unsigned int width, unsigned int height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {
-  return _DK_LbScreenSetup(mode,width,height,palette,buffers_count,wscreen_vid);
+  long hot_x,hot_y;
+  struct TbSprite *msspr;
+  struct TbScreenModeInfo *mdinfo;
+  if (lpDDC == NULL)
+  {
+    lpDDC = new TDDrawSdk();
+  }
+  msspr = NULL;
+  LbExeReferenceNumber();
+  if (lbDisplay.MouseSprite != NULL)
+  {
+    msspr = lbDisplay.MouseSprite;
+    GetPointerHotspot(&hot_x,&hot_y);
+  }
+  LbScreenReset();
+  lpDDC->set_double_buffering_video(buffers_count > 1);
+  lpDDC->set_wscreen_in_video(wscreen_vid);
+
+  if (!lpDDC->setup_screen(mode))
+  {
+    LbScreenReset();
+    SYNCDBG(8,"Setting up screen failed");
+    return Lb_FAIL;
+  }
+  SYNCDBG(8,"Mode setup succeeded");
+  if (palette != NULL)
+    LbPaletteSet(palette);
+  mdinfo = LbScreenGetModeInfo(mode);
+  lbDisplay.PhysicalScreen = NULL;
+  lbDisplay.GraphicsWindowPtr = NULL;
+  lbDisplay.ScreenMode = mode;
+  lbDisplay.GraphicsScreenHeight = mdinfo->Height;
+  lbDisplay.GraphicsScreenWidth = mdinfo->Width;
+  lbDisplay.PhysicalScreenWidth = mdinfo->Width;
+  lbDisplay.PhysicalScreenHeight = mdinfo->Height;
+  lbDisplay.DrawColour = 0;
+  lbDisplay.DrawFlags = 0;
+  LbScreenSetGraphicsWindow(0, 0, mdinfo->Width, mdinfo->Height);
+  LbTextSetWindow(0, 0, mdinfo->Width, mdinfo->Height);
+  SYNCDBG(8,"Done filling display properties struct");
+  if ( LbMouseIsInstalled() )
+  {
+      LbMouseSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
+      LbMouseSetPosition(lbDisplay.PhysicalScreenWidth / 2, lbDisplay.PhysicalScreenHeight / 2);
+      if (msspr != NULL)
+        LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
+  }
+  lbScreenInitialised = true;
+  SYNCDBG(8,"Finished");
+  return Lb_SUCCESS;
 }
 
 TbResult LbPaletteSet(unsigned char *palette)
 {
-  return _DK_LbPaletteSet(palette);
+  if (lpDDC == NULL)
+    return Lb_FAIL;
+  if (lpDDC->set_palette(palette, 0, PALETTE_COLORS))
+  {
+    lbDisplay.Palette = palette;
+    return Lb_SUCCESS;
+  }
+  return Lb_FAIL;
 }
 
 TbResult LbPaletteGet(unsigned char *palette)
 {
-  return _DK_LbPaletteGet(palette);
+  if (lpDDC == NULL)
+    return Lb_FAIL;
+  if (lpDDC->get_palette(palette, 0, PALETTE_COLORS))
+  {
+    return Lb_SUCCESS;
+  }
+  return Lb_FAIL;
 }
 
 TbResult LbSetTitle(const char *title)
 {
+  strncpy(lbDrawAreaTitle, title, sizeof(lbDrawAreaTitle)-1);
   return Lb_SUCCESS;
 }
 
 void LbSetIcon(unsigned short nicon)
 {
-  _DK_icon_index=nicon;
+  lbIconIndex=nicon;
 }
 
 struct TbScreenModeInfo *LbScreenGetModeInfo(unsigned short mode)
 {
-  int maxmode=sizeof(lbScreenModeInfo)/sizeof(struct TbScreenModeInfo);
-  if (mode < maxmode)
-    return &lbScreenModeInfo[mode];
-  return &lbScreenModeInfo[0];
+  return TDDrawSdk::get_mode_info(mode);
 }
 
 TbBool LbScreenIsLocked(void)
@@ -224,15 +271,23 @@ TbBool LbScreenIsLocked(void)
 
 TbResult LbScreenReset(void)
 {
-  return _DK_LbScreenReset();
+  LbMouseChangeSprite(NULL);
+  if (lpDDC == NULL)
+    return Lb_FAIL;
+  if (lpDDC->reset_screen())
+  {
+    lbScreenInitialised = false;
+    return Lb_SUCCESS;
+  }
+  return Lb_FAIL;
 }
 
 TbBool LbIsActive(void)
 {
-  return _DK_LbIsActive();
-/*  if (lpDDC != NULL)
-    return lpDDC->numfield_1C;
-  return -1;*/
+  // On error, let's assume the window is active.
+  if (lpDDC == NULL)
+    return true;
+  return lpDDC->IsActive();
 }
 
 /*
@@ -310,19 +365,21 @@ TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
 
 TbBool LbScreenIsModeAvailable(enum TbScreenMode mode)
 {
-  return _DK_LbScreenIsModeAvailable(mode);
+  struct TbScreenModeInfo *mdinfo;
+  static TbBool setup = false;
+  if (!setup)
+  {
+    if (LbScreenFindVideoModes() != Lb_SUCCESS)
+      return false;
+    setup = true;
+  }
+  mdinfo = TDDrawSdk::get_mode_info(mode);
+  return mdinfo->Available;
 }
 
 enum TbScreenMode LbRecogniseVideoModeString(char *str)
 {
-  int maxmode=sizeof(lbScreenModeInfo)/sizeof(struct TbScreenModeInfo);
-  int mode;
-  for (mode=0; mode<maxmode; mode++)
-  {
-    if (stricmp(lbScreenModeInfo[mode].Desc,str) == 0)
-      return (enum TbScreenMode)mode;
-  }
-  return Lb_SCREEN_MODE_INVALID;
+  return TDDrawSdk::get_mode_info_by_str(str);
 }
 
 TbPixel LbPaletteFindColour(unsigned char *pal, unsigned char r, unsigned char g, unsigned char b)

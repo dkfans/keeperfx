@@ -24,6 +24,7 @@
 #include "bflib_mouse.h"
 #include "bflib_filelst.h"
 #include "bflib_network.h"
+#include "bflib_drawbas.h"
 
 #include "front_simple.h"
 #include "frontend.h"
@@ -173,7 +174,6 @@ const char *sound_fname = "sound.dat";
 const char *speech_fname = "speech.dat";
 
 char sound_dir[64] = "SOUND";
-char window_class_name[128]="Bullfrog Shell";
 short default_loc_player = 0;
 short hero_player = 4;
 unsigned long gold_per_hoarde = 2000;
@@ -8941,7 +8941,6 @@ void recompute_rooms_count_in_dungeons(void)
     }
   }
 }
-
 void process_rooms(void)
 {
   SYNCDBG(7,"Starting");
@@ -9960,6 +9959,7 @@ void update(void)
       }
   }
   game.field_14EA4B = 0;
+  SYNCDBG(6,"Finished");
 }
 
 long map_fade_in(long a)
@@ -13626,39 +13626,30 @@ short process_command_line(unsigned short argc, char *argv[])
 
 void close_video_context(void)
 {
-  if ( _DK_lpDDC != NULL )
+  // New way - will be the only that remain in the future
+  if (lpDDC != NULL)
   {
-    TDDrawBaseVTable *vtable=_DK_lpDDC->vtable;
-    //Note: __thiscall is for functions with no arguments same as __fastcall,
-    // so we're using __fastcall and passing the "this" pointer manually
-    vtable->reset_screen(_DK_lpDDC);
-    if ( _DK_lpDDC != NULL )
-    {
-      vtable=_DK_lpDDC->vtable;
-      // Destructor requires a flag passed in AX
-      asm volatile ("  movl $1,%eax\n");
-      vtable->dt(_DK_lpDDC);
-    }
+    lpDDC->reset_screen();
+    delete lpDDC; // Note that the pointer is set to NULL automatically
   }
 }
 
 int LbBullfrogMain(unsigned short argc, char *argv[])
 {
-  static const char *func_name="LbBullfrogMain";
   //return _DK_LbBullfrogMain(argc, argv);
   short retval;
   retval=0;
   LbErrorLogSetup("/", log_file_name, 5);
-  strcpy(window_class_name, PROGRAM_NAME);
+  LbSetTitle(PROGRAM_NAME);
   LbTimerInit();
-  LbSetIcon(110);
+  LbSetIcon(1);
   srand(LbTimerClock());
 
   retval=process_command_line(argc,argv);
   if ( retval < 1 )
   {
       static const char *msg_text="Command line parameters analysis failed.\n";
-      error_dialog_fatal(func_name, 1, msg_text);
+      error_dialog_fatal(__func__, 1, msg_text);
       close_video_context();
       LbErrorLogClose();
       return 0;
@@ -13733,10 +13724,10 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
                     int nFunsterStil)
 {
 //  return _DK_WinMain(hThisInstance,hPrevInstance,lpszArgument,nFunsterStil);
-  static const char *func_name="WinMain";
   char *text;
   _DK_hInstance = hThisInstance;
-  _DK_lpDDC = NULL;
+  lbhInstance = hThisInstance;
+  lpDDC = NULL;
 
   get_cmdln_args(bf_argc, bf_argv);
 

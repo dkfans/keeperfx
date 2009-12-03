@@ -170,13 +170,13 @@ unsigned long update_cave_in_things(void)
 /*
  * Updates sounds of things from given StructureList.
  * Returns amount of items in the list.
-  SYNCDBG(18,"Starting");
  */
 unsigned long update_things_sounds_in_list(struct StructureList *list)
 {
   struct Thing *thing;
   unsigned long k;
   int i;
+  SYNCDBG(18,"Starting");
   k = 0;
   i = list->index;
   while (i != 0)
@@ -596,7 +596,6 @@ TbBool thing_exists(const struct Thing *thing)
     return false;
   return ((thing->field_0 & 0x01) != 0);
 }
-
 
 TbBool thing_touching_floor(const struct Thing *thing)
 {

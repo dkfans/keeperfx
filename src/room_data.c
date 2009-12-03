@@ -212,7 +212,6 @@ long get_room_slabs_count(long plyr_idx, unsigned short rkind)
     }
   }
   return count;
-
 }
 
 long get_player_rooms_count(long plyr_idx, unsigned short rkind)

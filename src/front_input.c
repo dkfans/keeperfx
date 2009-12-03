@@ -1142,7 +1142,7 @@ void get_dungeon_control_nonaction_inputs(void)
   my_mouse_x = GetMouseX();
   my_mouse_y = GetMouseY();
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet(my_player_number);
   unset_packet_control(pckt, PCtr_MapCoordsValid);
   if (player->work_state == 1)
   {
@@ -1188,11 +1188,13 @@ void get_map_nonaction_inputs(void)
   pos.y.val = 0;
   pos.z.val = 0;
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
   set_players_packet_position(player,GetMouseX(),GetMouseY());
+  pckt = get_packet(my_player_number);
   unset_packet_control(pckt, PCtr_MapCoordsValid);
   if (screen_to_map(player->acamera, pckt->pos_x, pckt->pos_y, &pos))
+  {
     set_packet_control(pckt, PCtr_MapCoordsValid);
+  }
   if (((game.numfield_C & 0x01) == 0) && (player->field_37 == 3))
   {
     get_overhead_view_nonaction_inputs();
@@ -1242,7 +1244,7 @@ void get_creature_control_nonaction_inputs(void)
   struct Thing *thing;
   long x,y,i,k;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt = &game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet(my_player_number);
 
   x = GetMouseX();
   y = GetMouseY();
@@ -1448,10 +1450,8 @@ void input(void)
   {
     lbKeyOn[lbInkey] = 0;
   }
-  struct PlayerInfo *player;
   struct Packet *pckt;
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  pckt=&game.packets[player->packet_num%PACKETS_COUNT];
+  pckt = get_packet(my_player_number);
   if (is_game_key_pressed(27, 0, 0) != 0)
     pckt->field_10 |= 0x20;
   else

@@ -121,11 +121,6 @@
 extern "C" {
 #endif
 
-// Temporary
-typedef struct SSurface {
-       char a;
-       } TSurface;
-
 enum PlayerViewType {
     PVT_DungeonTop          =  1,
     PVT_CreatureContrl      =  2,
@@ -183,6 +178,7 @@ enum KeeperStateTypes {
     KSt_TurnChicken         =  27,
 };
 
+/******************************************************************************/
 #pragma pack(1)
 
 typedef unsigned long Phrase;
@@ -208,16 +204,16 @@ typedef struct {
     long __fastcall (*restore_surfaces)(void *ths); // +52 virtual long restore_surfaces(void);
     void __fastcall (*wait_vbi)(void *ths); // +56 virtual void wait_vbi(void);
     long (*swap_box)(struct tagPOINT,struct tagRECT &); // +60 virtual long swap_box(tagPOINT,tagRECT &);
-    long (*create_surface)(TSurface *,unsigned long,unsigned long); // +64 virtual long create_surface(_TSurface *,unsigned long,unsigned long);
-    long (*release_surface)(TSurface *); // +68 virtual long release_surface(_TSurface *);
-    long (*blt_surface)(TSurface *,unsigned long,unsigned long,struct tagRECT *,unsigned long); // +72 virtual long blt_surface(_TSurface *,unsigned long,unsigned long,tagRECT *,unsigned long);
-    long (*lock_surface)(TSurface *); // +76 virtual long lock_surface(_TSurface *);
-    long (*unlock_surface)(TSurface *); // +80 virtual long unlock_surface(_TSurface *);
+    long (*create_surface)(void *,unsigned long,unsigned long); // +64 virtual long create_surface(_TSurface *,unsigned long,unsigned long);
+    long (*release_surface)(void *); // +68 virtual long release_surface(_TSurface *);
+    long (*blt_surface)(void *,unsigned long,unsigned long,struct tagRECT *,unsigned long); // +72 virtual long blt_surface(_TSurface *,unsigned long,unsigned long,tagRECT *,unsigned long);
+    long (*lock_surface)(void *); // +76 virtual long lock_surface(_TSurface *);
+    long (*unlock_surface)(void *); // +80 virtual long unlock_surface(_TSurface *);
     void (*LoresEmulation)(int); // +84 virtual void LoresEmulation(int);
     void *unkn[4];
        } TDDrawBaseVTable;
 
-typedef struct DDrawBaseClass {
+typedef struct DDrawBaseClassS {
        TDDrawBaseVTable *vtable;
        unsigned int unkvar4;
        char *textn2;
@@ -226,9 +222,9 @@ typedef struct DDrawBaseClass {
        unsigned int numfield_14;
        unsigned int numfield_18;
        unsigned int numfield_1C;
-       } TDDrawBaseClass;
+       } TDDrawBaseClassS;
 
-typedef struct DDrawSdk {
+typedef struct DDrawSdkS {
        TDDrawBaseVTable *vtable;
        // From base class
        unsigned int unkvar4;
@@ -240,7 +236,7 @@ typedef struct DDrawSdk {
        unsigned int numfield_1C;
        // The rest
        char unkn[376];
-       } TDDrawSdk;
+       } TDDrawSdkS;
 
 // Windows-standard structure
 /*struct _GUID {
@@ -1319,8 +1315,7 @@ int numfield_151821;
 // Global variables migration between DLL and the program
 
 DLLIMPORT extern HINSTANCE _DK_hInstance;
-DLLIMPORT extern TDDrawBaseClass *_DK_lpDDC;
-#define lpDDC _DK_lpDDC
+//DLLIMPORT extern TDDrawBaseClassS *_DK_lpDDC;
 DLLIMPORT extern struct Game _DK_game;
 #define game _DK_game
 DLLIMPORT extern unsigned char _DK_my_player_number;
@@ -1339,8 +1334,6 @@ DLLIMPORT extern unsigned char _DK_quit_game;
 #define quit_game _DK_quit_game
 DLLIMPORT extern int _DK_number_of_saved_games;
 #define number_of_saved_games _DK_number_of_saved_games
-DLLIMPORT extern int _DK_lbUseSdk;
-#define lbUseSdk _DK_lbUseSdk
 DLLIMPORT extern unsigned char _DK_frontend_palette[768];
 #define frontend_palette _DK_frontend_palette
 DLLIMPORT extern int _DK_continue_game_option_available;

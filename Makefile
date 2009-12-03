@@ -73,6 +73,8 @@ obj/bflib_memory.o \
 obj/bflib_cpu.o \
 obj/bflib_pom.o \
 obj/bflib_mouse.o \
+obj/bflib_mshandler.o \
+obj/bflib_mspointer.o \
 obj/bflib_heapmgr.o \
 obj/bflib_network.o \
 obj/bflib_sndlib.o \
@@ -84,15 +86,17 @@ obj/bflib_video.o \
 obj/bflib_fmvids.o \
 obj/bflib_filelst.o \
 obj/bflib_guibtns.o \
+obj/bflib_drawbas.o \
+obj/bflib_drawsdk.o \
 obj/bflib_vidraw.o \
 obj/bflib_sprfnt.o \
 obj/bflib_sprite.o \
 $(RES)
 
 LINKOBJ  = $(OBJ)
-LIBS =  -mwindows obj/keeperfx.a -lwinmm -g -O0  -march=i386 
-INCS = 
-CXXINCS = 
+LIBS =  -L"directx/lib" -mwindows obj/keeperfx.a -lwinmm -lddraw -g -O0  -march=i386 
+INCS =  -I"directx/include"
+CXXINCS =  -I"directx/include" 
 CXXFLAGS = $(CXXINCS) -g -O0  -march=i386
 CFLAGS = $(INCS) -g -O0  -march=i386
 
@@ -116,6 +120,7 @@ clean: clean-build clean-tools clean-package
 clean-build:
 	-$(RM) $(OBJ) $(BIN)
 	-$(RM) obj/keeperfx.* bin/keeperfx.dll $(GENSRC)
+	-$(RM) directx/lib/lib*.a
 
 clean-tools:
 	make -C tools/peresec clean
@@ -123,7 +128,7 @@ clean-tools:
 clean-package:
 	-$(RM) pkg/keeperfx*
 
-$(BIN): $(OBJ) obj/keeperfx.a
+$(BIN): $(OBJ) obj/keeperfx.a directx/lib/libddraw.a
 	@echo "Final link"
 	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS)
 
@@ -156,6 +161,9 @@ bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map t
 
 tools/peresec/peresec: tools/peresec/peresec.c
 	make -C tools/peresec
+
+directx/lib/lib%.a: directx/lib/%.def
+	make -C "$(@D)" "$(@F)" CC=$(CC) DLLTOOL=$(DLLTOOL) CFLAGS="-I\"../include\" -Wall"
 
 package: pkg-before
 	$(MKDIR) pkg/fxdata

@@ -23,6 +23,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 //#include <SDL/SDL.h>
+#include <windows.h>
 
 #include "bflib_basics.h"
 #include "globals.h"
@@ -31,13 +32,15 @@
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
 #include "bflib_semphr.h"
+#include "bflib_mshandler.h"
+
+//#include "keeperfx.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 /*
-int volatile lbMouseInstalled=false;
 
 struct mouse_buffer mbuffer;
 struct mouse_info minfo;
@@ -57,77 +60,262 @@ DLLIMPORT int _DK_LbMouseSetup(struct TbSprite *MouseSprite);
 DLLIMPORT int _DK_LbMouseSetPointerHotspot(int x, int y);
 DLLIMPORT int _DK_LbMouseSetPosition(int x, int y);
 DLLIMPORT int _DK_LbMouseChangeSprite(struct TbSprite *MouseSprite);
-DLLIMPORT int __stdcall _DK_LbMouseSuspend(void);
+DLLIMPORT int _DK_LbMouseSuspend(void);
+DLLIMPORT int _DK_LbMouseIsInstalled(void);
+DLLIMPORT int _DK_LbMouseSetWindow(int x, int y, int width, int height);
+DLLIMPORT long _DK_LbMouseOnMove(struct tagPOINT pos);
+DLLIMPORT long __cdecl _DK_LbMouseOnBeginSwap(void);
+DLLIMPORT void __cdecl _DK_LbMouseOnEndSwap(void);
 /******************************************************************************/
-/*
- * Adjusts point coordinates; returns true if the coordinates have changed.
+TbResult __stdcall LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, long hot_x, long hot_y)
+{
+#if (BFDEBUG_LEVEL > 18)
+  if (mouseSprite == NULL)
+    SYNCLOG("Setting to %s","NONE");
+  else
+    SYNCLOG("Setting to %dx%d, data at %p",(int)mouseSprite->SWidth,(int)mouseSprite->SHeight,mouseSprite);
+#endif
+  if (!lbMouseInstalled)
+    return Lb_FAIL;
+  if (!winMouseHandler.SetMousePointerAndOffset(mouseSprite, hot_x, hot_y))
+    return Lb_FAIL;
+  return Lb_SUCCESS;
+}
+
+TbResult __stdcall LbMouseSetup(struct TbSprite *mouseSprite)
+{
+  TbResult ret;
+  long x,y;
+  if (lbMouseInstalled)
+    LbMouseSuspend();
+  y = (lbDisplay.MouseWindowHeight + lbDisplay.MouseWindowY) / 2;
+  x = (lbDisplay.MouseWindowWidth + lbDisplay.MouseWindowX) / 2;
+  winMouseHandler.Install();
+  lbMouseOffline = true;
+  lbMouseInstalled = true;
+  LbMouseSetWindow(0,0,lbDisplay.PhysicalScreenWidth,lbDisplay.PhysicalScreenHeight);
+  ret = Lb_SUCCESS;
+  if (LbMouseSetPosition(x,y) != Lb_SUCCESS)
+    ret = Lb_FAIL;
+  if (LbMouseChangeSprite(mouseSprite) != Lb_SUCCESS)
+    ret = Lb_FAIL;
+  lbMouseInstalled = (ret == Lb_SUCCESS);
+  lbMouseOffline = false;
+  return ret;
+}
+
+TbResult __stdcall LbMouseSetPointerHotspot(long hot_x, long hot_y)
+{
+  if (!lbMouseInstalled)
+    return Lb_FAIL;
+  if (!winMouseHandler.SetPointerOffset(hot_x, hot_y))
+    return Lb_FAIL;
+  return Lb_SUCCESS;
+}
+
+TbResult __stdcall LbMouseSetPosition(long x, long y)
+{
+  if (!lbMouseInstalled)
+    return Lb_FAIL;
+  if (!winMouseHandler.SetMousePosition(x, y))
+    return Lb_FAIL;
+  return Lb_SUCCESS;
+}
+
+TbResult __stdcall LbMouseChangeSprite(struct TbSprite *mouseSprite)
+{
+#if (BFDEBUG_LEVEL > 18)
+  if (mouseSprite == NULL)
+    SYNCLOG("Setting to %s","NONE");
+  else
+    SYNCLOG("Setting to %dx%d, data at %p",(int)mouseSprite->SWidth,(int)mouseSprite->SHeight,mouseSprite);
+#endif
+  if (!lbMouseInstalled)
+    return Lb_FAIL;
+  if (!winMouseHandler.SetMousePointer(mouseSprite))
+    return Lb_FAIL;
+  return Lb_SUCCESS;
+}
+
+void GetPointerHotspot(long *hot_x, long *hot_y)
+{
+  struct tagPOINT *hotspot;
+  hotspot = winMouseHandler.GetPointerOffset();
+  if (hotspot == NULL)
+    return;
+  *hot_x = hotspot->x;
+  *hot_y = hotspot->y;
+}
+
+TbResult __stdcall LbMouseIsInstalled(void)
+{
+  if (!lbMouseInstalled)
+    return Lb_FAIL;
+  if (!winMouseHandler.IsInstalled())
+    return Lb_FAIL;
+  return Lb_SUCCESS;
+}
+
+TbResult __stdcall LbMouseSetWindow(long x, long y, long width, long height)
+{
+  if (!lbMouseInstalled)
+    return Lb_FAIL;
+  if (!winMouseHandler.SetMouseWindow(x, y, width, height))
+    return Lb_FAIL;
+  return Lb_SUCCESS;
+}
+
+TbResult __stdcall LbMouseOnMove(struct tagPOINT shift)
+{
+  if ((!lbMouseInstalled) || (lbMouseOffline))
+    return Lb_FAIL;
+  if (!winMouseHandler.SetMousePosition(lbDisplay.MMouseX+shift.x, lbDisplay.MMouseY+shift.y))
+    return Lb_FAIL;
+  return Lb_SUCCESS;
+}
+
+/**
+ * Converts mouse coordinates into relative shift coordinates.
  */
-TbBool adjust_point(long *x, long *y)
+void MouseToScreen(struct tagPOINT *pos)
 {
-  return false;
+  static long mx = 0;
+  static long my = 0;
+  struct tagRECT clip;
+  struct tagPOINT orig;
+  if ( lbUseSdk )
+  {
+    if ( GetClipCursor(&clip) )
+    {
+      orig.x = pos->x;
+      orig.y = pos->y;
+      pos->x -= mx;
+      pos->y -= my;
+      mx = orig.x;
+      my = orig.y;
+      if ((mx < clip.left + 50) || (mx > clip.right - 50)
+       || (my < clip.top + 50) || (my > clip.bottom - 50))
+      {
+        mx = (clip.right-clip.left)/2 + clip.left;
+        my = (clip.bottom-clip.top)/2 + clip.top;
+        SetCursorPos(mx, my);
+      }
+    }
+  } else
+  {
+    pos->x -= lbDisplay.MMouseX;
+    pos->y -= lbDisplay.MMouseY;
+  }
 }
 
-int LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, int hot_x, int hot_y)
+TbResult __stdcall LbMouseSuspend(void)
 {
-  static const char *func_name="LbMouseChangeSpriteAndHotspot";
-#if (BFDEBUG_LEVEL > 8)
-  if (mouseSprite == NULL)
-    LbSyncLog("%s: Setting to %s\n",func_name,"NONE");
-  else
-    LbSyncLog("%s: Setting to %dx%d, data at %p\n",func_name,(int)mouseSprite->SWidth,(int)mouseSprite->SHeight,mouseSprite);
-#endif
-  return _DK_LbMouseChangeSpriteAndHotspot(mouseSprite, hot_x, hot_y);
+  if (!lbMouseInstalled)
+    return Lb_FAIL;
+  if (!winMouseHandler.Release())
+    return Lb_FAIL;
+  return Lb_SUCCESS;
 }
 
-int LbMouseSetup(struct TbSprite *mouseSprite)
+TbResult __stdcall LbMouseOnBeginSwap(void)
 {
-  return _DK_LbMouseSetup(mouseSprite);
+  if (!winMouseHandler.PointerBeginSwap())
+    return Lb_FAIL;
+  return Lb_SUCCESS;
 }
 
-int LbMouseSetPointerHotspot(int hot_x, int hot_y)
+void __stdcall LbMouseOnEndSwap(void)
 {
-  return _DK_LbMouseSetPointerHotspot(hot_x, hot_y);
+  winMouseHandler.PointerEndSwap();
 }
 
-int LbMouseSetPosition(int x, int y)
+void __stdcall mouseControl(unsigned int action, struct tagPOINT *pos)
 {
-  return _DK_LbMouseSetPosition(x, y);
+  struct tagPOINT dstPos;
+  dstPos.x = pos->x;
+  dstPos.y = pos->y;
+  switch ( action )
+  {
+    case 512:
+      MouseToScreen(&dstPos);
+      LbMouseOnMove(dstPos);
+      break;
+    case 513:
+    case 515:
+      lbDisplay.MLeftButton = 1;
+      if ( !lbDisplay.LeftButton )
+      {
+        MouseToScreen(&dstPos);
+        LbMouseOnMove(dstPos);
+        lbDisplay.MouseX = lbDisplay.MMouseX;
+        lbDisplay.MouseY = lbDisplay.MMouseY;
+        lbDisplay.RLeftButton = 0;
+        lbDisplay.LeftButton = 1;
+      }
+      break;
+    case 514:
+      lbDisplay.MLeftButton = 0;
+      if ( !lbDisplay.RLeftButton )
+      {
+        MouseToScreen(&dstPos);
+        LbMouseOnMove(dstPos);
+        lbDisplay.RMouseX = lbDisplay.MMouseX;
+        lbDisplay.RMouseY = lbDisplay.MMouseY;
+        lbDisplay.RLeftButton = 1;
+      }
+      break;
+    case 516:
+    case 518:
+      lbDisplay.MRightButton = 1;
+      if ( !lbDisplay.RightButton )
+      {
+        MouseToScreen(&dstPos);
+        LbMouseOnMove(dstPos);
+        lbDisplay.MouseX = lbDisplay.MMouseX;
+        lbDisplay.MouseY = lbDisplay.MMouseY;
+        lbDisplay.RRightButton = 0;
+        lbDisplay.RightButton = 1;
+      }
+      break;
+    case 517:
+      lbDisplay.MRightButton = 0;
+      if ( !lbDisplay.RRightButton )
+      {
+        MouseToScreen(&dstPos);
+        LbMouseOnMove(dstPos);
+        lbDisplay.RMouseX = lbDisplay.MMouseX;
+        lbDisplay.RMouseY = lbDisplay.MMouseY;
+        lbDisplay.RRightButton = 1;
+      }
+      break;
+    case 519:
+    case 521:
+      lbDisplay.MMiddleButton = 1;
+      if ( !lbDisplay.MiddleButton )
+      {
+        MouseToScreen(&dstPos);
+        LbMouseOnMove(dstPos);
+        lbDisplay.MouseX = lbDisplay.MMouseX;
+        lbDisplay.MouseY = lbDisplay.MMouseY;
+        lbDisplay.MiddleButton = 1;
+        lbDisplay.RMiddleButton = 0;
+      }
+      break;
+    case 520:
+      lbDisplay.MMiddleButton = 0;
+      if ( !lbDisplay.RMiddleButton )
+      {
+        MouseToScreen(&dstPos);
+        LbMouseOnMove(dstPos);
+        lbDisplay.RMouseX = lbDisplay.MMouseX;
+        lbDisplay.RMouseY = lbDisplay.MMouseY;
+        lbDisplay.RMiddleButton = 1;
+      }
+      break;
+    default:
+      break;
+  }
 }
-
-short LbMouseChangeSprite(struct TbSprite *mouseSprite)
-{
-  static const char *func_name="LbMouseChangeSprite";
-#if (BFDEBUG_LEVEL > 8)
-  if (mouseSprite == NULL)
-    LbSyncLog("%s: Setting to %s\n",func_name,"NONE");
-  else
-    LbSyncLog("%s: Setting to %dx%d, data at %p\n",func_name,(int)mouseSprite->SWidth,(int)mouseSprite->SHeight,mouseSprite);
-#endif
-  return _DK_LbMouseChangeSprite(mouseSprite);
-}
-
-int LbMouseSuspend(void)
-{
-  return _DK_LbMouseSuspend();
-}
-
-/*READY - enable when all winMouseHandler uses are rewritten
-int LbMouseSetWindow(int x, int y, int width, int height)
-{
-  if ( !lbMouseInstalled )
-    return -1;
-  LbSemaLock semlock(winMouseHandler.semaphore,0);
-  if (!semlock.Lock(true))
-    return -1;
-  lbDisplay.MouseWindowX = x;
-  lbDisplay.MouseWindowY = y;
-  lbDisplay.MouseWindowWidth = width;
-  lbDisplay.MouseWindowHeight = height;
-  adjust_point(&lbDisplay.MMouseX, &lbDisplay.MMouseY);
-  adjust_point(&lbDisplay.MouseX, &lbDisplay.MouseY);
-  return 1;
-}
-*/
 
 /*
 int __fastcall LbMouseChangeMoveRatio(int x, int y)
@@ -141,366 +329,6 @@ int __fastcall LbMouseChangeMoveRatio(int x, int y)
   minfo.XMoveRatio = x;
   minfo.YMoveRatio = y;
   return 1;
-}
-
-int __fastcall LbMouseSetup(struct TbSprite *MouseSprite, char x_ratio, char y_ratio)
-{
-  if ( lbMouseInstalled )
-    return -1;
-  if ( !mouse_initialised )
-  {
-    if (segread_(), inregs = v5, int386_(), v11 != 65535)
-    {
-      return -1;
-    }
-  }
-  lbMouseInstalled = true;
-  SDL_ShowCursor(0);
-  minfo.XMoveRatio = 1;
-  minfo.YMoveRatio = 1;
-  minfo.XSpriteOffset = 0;
-  minfo.YSpriteOffset = 0;
-  memset(minfo.Sprite, 254, 4096);
-  lbDisplay.MouseSprite = NULL;
-  redraw_active = 0;
-  LbMemorySet(&mbuffer, 0, sizeof(struct mouse_buffer));
-  if (LbMouseSetWindow(0,0,lbDisplay.GraphicsScreenWidth,lbDisplay.GraphicsScreenHeight)!=1)
-  {
-      lbMouseInstalled = 0;
-      return -1;
-  }
-  if (LbMouseChangeMoveRatio(x_ratio,y_ratio)!=1)
-  {
-      lbMouseInstalled = 0;
-      return -1;
-  }
-  if ( LbMouseSetPosition(lbDisplay.GraphicsScreenWidth>>1, lbDisplay.GraphicsScreenHeight>>1) != 1 )
-  {
-      lbMouseInstalled = 0;
-      return -1;
-  }
-  if (LbMouseChangeSprite(MouseSprite)!=1)
-  {
-      lbMouseInstalled = 0;
-      return -1;
-  }
-  if ( !mouse_initialised )
-  {
-      sregs = __CS__;
-      int386x_();
-      mouse_initialised = true;
-  }
-  return 1;
-}
-
-int __fastcall LbMouseReset()
-{
-  if ( !lbMouseInstalled )
-    return -1;
-  redraw_active = 1;
-  if ( !lbScreenDirectAccessActive )
-      screen_remove(1u);
-  LbMemorySet(&mbuffer, 0, sizeof(struct mouse_buffer));
-  int386_();
-  mouse_initialised = 0;
-  lbDisplay.MouseSprite = NULL;
-  lbMouseInstalled = false;
-  SDL_ShowCursor(1);
-  redraw_active = 0;
-  return 1;
-}
-
-int __fastcall LbMouseSuspend(void)
-{
-  if ( !lbMouseInstalled )
-    return -1;
-  redraw_active = 1;
-  if ( !lbScreenDirectAccessActive )
-      screen_remove(1u);
-  LbMemorySet(&mbuffer, 0, sizeof(struct mouse_buffer));
-  lbDisplay.MouseSprite = NULL;
-  lbMouseInstalled = false;
-  redraw_active = 0;
-  return 1;
-}
-
-//Places mouse sprite on the screen.
-//Requires screen to be locked before calling.
-int __fastcall LbMousePlace(void)
-{
-  redraw_active = 1;
-  if ( lbDisplay.MouseSprite == NULL )
-    return 1;
-  mbuffer.X = minfo.XSpriteOffset + lbDisplay.MMouseX;
-  mbuffer.Y = minfo.YSpriteOffset + lbDisplay.MMouseY;
-  mbuffer.Valid = mouse_setup_range();
-  if ( mbuffer.Valid != true )
-    return 1;
-  unsigned char *buf_ptr;
-  unsigned char *bspr_ptr;
-  unsigned char *bscr_ptr;
-  buf_ptr = mbuffer.Buffer;
-  bspr_ptr = &minfo.Sprite[mbuffer.XOffset + lbDisplay.MouseSprite->SWidth*mbuffer.YOffset];
-  mbuffer.Offset = (mbuffer.YOffset+mbuffer.Y)*lbDisplay.GraphicsScreenWidth
-          + mbuffer.XOffset+mbuffer.X;
-  bscr_ptr = &lbDisplay.WScreen[mbuffer.Offset];
-  unsigned int c1,c2;
-  for (c1=0;c1<mbuffer.Height;c1++)
-  {
-        unsigned char *scr_ptr;
-        unsigned char *spr_ptr;
-        scr_ptr = bscr_ptr;
-        spr_ptr = bspr_ptr;
-        c2 = 0;
-        while ( c2 < mbuffer.Width )
-        {
-          *buf_ptr = *scr_ptr;
-          if ( *spr_ptr != 254 )
-            *scr_ptr = *spr_ptr;
-          c2++;
-          buf_ptr++;
-          scr_ptr++;
-          spr_ptr++;
-        }
-        bscr_ptr += lbDisplay.GraphicsScreenWidth;
-        bspr_ptr += lbDisplay.MouseSprite->SWidth;
-  }
-  return 1;
-}
-
-//Removes mouse from the screen.
-//Requires screen to be locked before calling.
-int __fastcall LbMouseRemove(void)
-{
-  if ( (mbuffer.Valid) && (lbDisplay.WScreen!=NULL) )
-  {
-    unsigned char *scr_ptr;
-    unsigned char *bscr_ptr;
-    unsigned char *spr_ptr;
-    int c1,c2;
-    spr_ptr = mbuffer.Buffer;
-    bscr_ptr = &lbDisplay.WScreen[mbuffer.Offset];
-    for (c1=0;c1<mbuffer.Height;c1++)
-    {
-      scr_ptr = bscr_ptr;
-      for (c2=0;c2<mbuffer.Width;c2++)
-      {
-        *scr_ptr=*spr_ptr;
-        spr_ptr++;
-        scr_ptr++;
-      }
-      bscr_ptr += lbDisplay.GraphicsScreenWidth;
-    }
-  }
-  if ( mouse_pos_change_saved )
-  {
-    lbDisplay.MMouseX += mouse_dx;
-    lbDisplay.MMouseY += mouse_dy;
-    adjust_point(&lbDisplay.MMouseX, &lbDisplay.MMouseY);
-    if ( !lbScreenDirectAccessActive )
-    {
-      screen_remove(0);
-      screen_place();
-    }
-    mouse_pos_change_saved = 0;
-  }
-  redraw_active = 0;
-  return 1;
-}
-
-int __fastcall LbMouseSetPosition(long x, long y)
-{
-  if ( !lbMouseInstalled )
-    return -1;
-  redraw_active = 1;
-  if ( !lbScreenDirectAccessActive )
-    screen_remove(1u);
-  adjust_point(&x, &y);
-  lbDisplay.MMouseX = x;
-  lbDisplay.MouseX = lbDisplay.MMouseX;
-  lbDisplay.MMouseY = y;
-  lbDisplay.MouseY = lbDisplay.MMouseY;
-  if ( !lbScreenDirectAccessActive )
-    screen_place();
-  redraw_active = 0;
-  return 1;
-}
-
-int __fastcall LbMouseChangeSprite(struct TbSprite *pointer)
-{
-  if ( !lbMouseInstalled )
-      return -1;
-  //Setting same pointer more than one
-  if ( lbDisplay.MouseSprite == pointer )
-      return 1;
-  //Size limitation
-  if ( (pointer!=NULL) && ((pointer->SWidth>64)||(pointer->SHeight>64)) )
-      return -1;
-  redraw_active = 1;
-  if ( !lbScreenDirectAccessActive )
-    screen_remove(1u);
-  lbDisplay.MouseSprite = pointer;
-  memset(minfo.Sprite, 254, 4096);
-  if ( pointer != NULL )
-  {
-      unsigned char *wscr_backup;
-      int gwx,gwy;
-      int gww,gwh,gsw;
-      unsigned short dflags;
-      wscr_backup = lbDisplay.WScreen;
-      lbDisplay.WScreen = minfo.Sprite;
-      gwx = lbDisplay.GraphicsWindowX;
-      gwy = lbDisplay.GraphicsWindowY;
-      gww = lbDisplay.GraphicsWindowWidth;
-      gwh = lbDisplay.GraphicsWindowHeight;
-      gsw = lbDisplay.GraphicsScreenWidth;
-      dflags = lbDisplay.DrawFlags;
-      lbDisplay.GraphicsScreenWidth = pointer->SWidth;
-      lbDisplay.DrawFlags = 0;
-      LbScreenSetGraphicsWindow(0, 0, pointer->SWidth, pointer->SHeight);
-      LbSpriteDraw(0, 0, pointer);
-      lbDisplay.WScreen = wscr_backup;
-      lbDisplay.GraphicsScreenWidth = gsw;
-      lbDisplay.DrawFlags = dflags;
-      LbScreenSetGraphicsWindow(gwx, gwy, gww, gwh);
-  }
-  if ( !lbScreenDirectAccessActive )
-      screen_place();
-  redraw_active = 0;
-  return 1;
-}
-
-inline void __fastcall MouseHandlerMove(int mickey_x,int mickey_y)
-{
-    int old_mx;
-    int old_my;
-    static int old_rx;
-    static int old_ry;
-    old_mx=mouse_mickey_x;
-    old_my=mouse_mickey_y;
-    mouse_mickey_x=mickey_x;
-    mouse_mickey_y=mickey_y;
-    int dtx = mouse_mickey_x-old_mx;
-    if (dtx!=0)
-    {
-        mouse_dx=dtx/minfo.XMoveRatio;
-        old_rx+=dtx%minfo.XMoveRatio;
-        //Note: I'm not sure here...
-        if (old_rx<0)
-        {
-          old_rx=minfo.XMoveRatio + (dtx%minfo.XMoveRatio);
-          mouse_dx--;
-        }
-    mouse_pos_change_saved=1;
-    }
-    int dty = mouse_mickey_y-old_my;
-    if (dty!=0)
-    {
-        mouse_dy=dty/minfo.YMoveRatio;
-        old_ry+=dty%minfo.YMoveRatio;
-        //Note: I'm not sure here...
-        if (old_ry<0)
-        {
-          old_ry=minfo.YMoveRatio + (dty%minfo.YMoveRatio);
-          mouse_dy--;
-        }
-    mouse_pos_change_saved=1;
-    }
-    if (redraw_active==0)
-    {
-      lbDisplay.MMouseX+=mouse_dx;
-      lbDisplay.MMouseY+=mouse_dy;
-      bool remove=adjust_point(&lbDisplay.MMouseX,&lbDisplay.MMouseY);
-      int vesa_page=lbVesaPage;
-      screen_remove(remove);
-      screen_place();
-      if (lbDisplay.VesaIsSetUp)
-        LbVesaSetPage(vesa_page);
-      mouse_pos_change_saved=0;
-    }
-}
-
-//DOS interrupt handler for the mouse driver, not used with SDL
-void __fastcall MouseHandler256(int mx, int my, int event)
-{
-  if (!lbMouseInstalled)
-    return;
-  if (event != 0x01)
-  {
-    if (event & 0x02)
-    {
-      lbDisplay.MLeftButton=1;
-      if (lbDisplay.LeftButton==0)
-      {
-        lbDisplay.LeftButton=1;
-        lbDisplay.MouseX=lbDisplay.MMouseX;
-        lbDisplay.MouseY=lbDisplay.MMouseY;
-        lbDisplay.RLeftButton=0;
-      }
-    }
-    if (event & 0x04)
-    {
-      lbDisplay.MLeftButton=0;
-      if (lbDisplay.RLeftButton==0)
-      {
-        lbDisplay.RLeftButton=1;
-        lbDisplay.RMouseX=lbDisplay.MMouseX;
-        lbDisplay.RMouseY=lbDisplay.MMouseY;
-      }
-    }
-    if (event & 0x08)
-    {
-      lbDisplay.MRightButton=1;
-      if (lbDisplay.RightButton==0)
-      {
-        lbDisplay.RightButton=1;
-        lbDisplay.MouseX=lbDisplay.MMouseX;
-        lbDisplay.MouseY=lbDisplay.MMouseY;
-        lbDisplay.RRightButton=0;
-      }
-    }
-    if (event & 0x10)
-    {
-      lbDisplay.MRightButton=0;
-      if (lbDisplay.RRightButton==0)
-      {
-        lbDisplay.RRightButton=1;
-        lbDisplay.RMouseX=lbDisplay.MMouseX;
-        lbDisplay.RMouseY=lbDisplay.MMouseY;
-      }
-    }
-
-    if (event & 0x20)
-    {
-      lbDisplay.MMiddleButton=1;
-      if (lbDisplay.MiddleButton==0)
-      {
-        lbDisplay.MiddleButton=1;
-        lbDisplay.MouseX=lbDisplay.MMouseX;
-        lbDisplay.MouseY=lbDisplay.MMouseY;
-        lbDisplay.RMiddleButton=0;
-      }
-    }
-    if (event & 0x40)
-    {
-      lbDisplay.MMiddleButton=0;
-      if (lbDisplay.RMiddleButton==0)
-      {
-        lbDisplay.RMiddleButton=1;
-        lbDisplay.RMouseX=lbDisplay.MMouseX;
-        lbDisplay.RMouseY=lbDisplay.MMouseY;
-      }
-    }
-  }
-  if (event & 0x01)
-  {
-    MouseHandlerMove(mx,my);
-  }
-}
-
-void __fastcall LbProcessMouseMove(SDL_MouseMotionEvent *motion)
-{
-  MouseHandlerMove(motion->x,motion->y);
 }
 
 void __fastcall LbProcessMouseClick(SDL_MouseButtonEvent *button)
@@ -576,117 +404,6 @@ void __fastcall LbProcessMouseClick(SDL_MouseButtonEvent *button)
   //MouseHandlerMove(button->x,button->y);
 }
 
-
-int __fastcall screen_place(void)
-{
-//todo
-  return 1;
-}
-
-int __fastcall screen_remove(unsigned long force)
-{
-  if ( !lbMouseInstalled )
-    return -1;
-  if ( (lbDisplay.MMouseX==mbuffer.X) && (lbDisplay.MMouseY==mbuffer.Y) && (!force) )
-    return 1;
-  if ( mbuffer.Valid )
-  {
-      unsigned char *spr_ptr;
-      unsigned char *bscr_ptr;
-      int c1;
-      unsigned char *scr_ptr;
-      spr_ptr = mbuffer.Buffer;
-//TODO: make it write on screen buffer, not the physical one
-      if ( lbDisplay.VesaIsSetUp )
-      {
-          unsigned int vesa_page = mbuffer.Offset >> 16;
-          LbVesaSetPage(vesa_page);
-          bscr_ptr = (mbuffer.Offset&0xffff) + lbDisplay.PhysicalScreen;
-          int to_copy;
-          int init_copy;
-          for (c1=mbuffer.Height-1;c1>=0;c1--)
-          {
-            scr_ptr = bscr_ptr;
-            to_copy = mbuffer.Width;
-            if ( mbuffer.Width + bscr_ptr >= byte_B0000 )
-            {
-              init_copy = &byte_B0000[-scr_ptr];
-              if ( (signed int)&byte_B0000[-scr_ptr] > 0 )
-              {
-                int c2;
-                for (c2=0;c2<init_copy;c2++)
-                {
-                  *scr_ptr=*spr_ptr;
-                  spr_ptr++;
-                  scr_ptr++;
-                }
-                to_copy -= init_copy;
-              }
-              vesa_page++;
-              LbVesaSetPage(vesa_page);
-              scr_ptr -= byte_10000;
-              bscr_ptr -= byte_10000;
-            }
-            int c2;
-            for (c2=0;c2<to_copy;c2++)
-            {
-              *scr_ptr=*spr_ptr;
-              spr_ptr++;
-              scr_ptr++;
-            }
-            bscr_ptr += lbDisplay.PhysicalScreenWidth;
-          }
-      } else
-      {
-          bscr_ptr = lbDisplay.PhysicalScreen + mbuffer.Offset;
-          for (c1=mbuffer.Height-1;c1>=0;c1--)
-          {
-            scr_ptr = bscr_ptr;
-            int c2;
-            for (c2=0;c2<mbuffer.Width;c2++)
-            {
-              *scr_ptr=*spr_ptr;
-              spr_ptr++;
-              scr_ptr++;
-            }
-            bscr_ptr += lbDisplay.PhysicalScreenWidth;
-          }
-      }
-      mbuffer.Valid = 0;
-  }
-  return 1;
-}
-
-bool mouse_setup_range(void)
-{
-  if (lbDisplay.MouseSprite==NULL)
-    return false;
-  mbuffer.Width = lbDisplay.MouseSprite->SWidth;
-  mbuffer.Height = lbDisplay.MouseSprite->SHeight;
-  mbuffer.XOffset = 0;
-  mbuffer.YOffset = 0;
-  //Basic range checking
-  if ( (mbuffer.X<=(-mbuffer.Width)) || (mbuffer.X>=lbDisplay.GraphicsScreenWidth) )
-    return false;
-  if ( (mbuffer.Y<=(-mbuffer.Height)) || (mbuffer.Y>=lbDisplay.GraphicsScreenHeight) )
-    return false;
-  // Adjusting position
-  if ( mbuffer.X < 0 )
-  {
-      mbuffer.XOffset = -mbuffer.X;
-      mbuffer.Width += mbuffer.X;
-  }
-  if ( mbuffer.Width + mbuffer.X > lbDisplay.GraphicsScreenWidth )
-      mbuffer.Width = lbDisplay.GraphicsScreenWidth - mbuffer.X;
-  if ( mbuffer.Y < 0 )
-  {
-      mbuffer.YOffset = -mbuffer.Y;
-      mbuffer.Height += mbuffer.Y;
-  }
-  if ( mbuffer.Height + mbuffer.Y > lbDisplay.GraphicsScreenHeight )
-      mbuffer.Height = lbDisplay.GraphicsScreenHeight - mbuffer.Y;
-  return true;
-}
 
 //Adjusts point coordinates; returns true if the coordinates have changed.
 bool __fastcall adjust_point(long *x, long *y)

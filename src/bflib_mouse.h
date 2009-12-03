@@ -31,34 +31,7 @@ extern "C" {
 
 struct TbSprite;
 class LbSemaphore;
-
-struct MouseStateHandler { // sizeof = 4224
-  LbSemaphore *semaphore;
-  unsigned long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
-  unsigned long field_10;
-  unsigned long field_14;
-  unsigned long field_18;
-  unsigned long field_1C;
-  unsigned long field_20;
-  unsigned long field_24;
-  unsigned char field_28[12];
-  unsigned long field_34;
-  unsigned long field_38;
-  unsigned long field_3C;
-  unsigned char field_40[4108];
-  unsigned long field_104C;
-  unsigned long field_1050;
-  unsigned char field_1054[16];
-  unsigned long field_1064;
-  unsigned long field_1068;
-  unsigned long field_106C;
-  unsigned long field_1070;
-  unsigned long field_1074;
-  unsigned long sema_rel;
-  unsigned long field_107C;
-};
+struct tagPOINT;
 
 struct mouse_buffer {
         long Valid;//bool
@@ -128,20 +101,22 @@ struct DevInput {
         unsigned char Init[16];
 };
 
-/******************************************************************************/
-DLLIMPORT struct MouseStateHandler _DK_winMouseHandler;
-#define winMouseHandler _DK_winMouseHandler
-DLLIMPORT int volatile _DK_lbMouseInstalled;
-#define lbMouseInstalled _DK_lbMouseInstalled
-
 #pragma pack()
 /******************************************************************************/
-int LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, int hot_x, int hot_y);
-int LbMouseSetup(struct TbSprite *MouseSprite);
-int LbMouseSetPointerHotspot(int hot_x, int hot_y);
-int LbMouseSetPosition(int x, int y);
-short LbMouseChangeSprite(struct TbSprite *MouseSprite);
-int LbMouseSuspend(void);
+TbResult __stdcall LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, long hot_x, long hot_y);
+TbResult __stdcall LbMouseSetup(struct TbSprite *mouseSprite);
+TbResult __stdcall LbMouseSetPointerHotspot(long hot_x, long hot_y);
+TbResult __stdcall LbMouseSetPosition(long x, long y);
+TbResult __stdcall LbMouseChangeSprite(struct TbSprite *mouseSprite);
+TbResult __stdcall LbMouseSuspend(void);
+void GetPointerHotspot(long *hot_x, long *hot_y);
+TbResult __stdcall LbMouseIsInstalled(void);
+TbResult __stdcall LbMouseSetWindow(long x, long y, long width, long height);
+
+void __stdcall mouseControl(unsigned int action, struct tagPOINT *pos);
+TbResult __stdcall LbMouseOnBeginSwap(void);
+void __stdcall LbMouseOnEndSwap(void);
+
 /*
 int __fastcall LbMouseReset();
 int __fastcall LbMousePlace(void);

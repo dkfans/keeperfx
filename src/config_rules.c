@@ -1740,7 +1740,7 @@ TbBool load_rules_config(const char *conf_fname,unsigned short flags)
     result = parse_rules_sacrifices_blocks(buf, len);
     if (!result)
       WARNMSG("Parsing rules file \"%s\" sacrifices blocks failed.",conf_fname);
-   }
+  }
   //Freeing and exiting
   LbMemoryFree(buf);
   return result;
