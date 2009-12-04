@@ -1,22 +1,25 @@
 Dungeon Keeper Fan Expansion
 ------------------------------
 
-KeeperFX is a executable mod for Dungeon Keeper.
+KeeperFX is an extensive mod for Dungeon Keeper.
 
 It is written by fans and not supported by original developer.
-Still, it requires original Dungeon Keeper to work.
+It uses some of original Dungeon Keeper data, but many files
+are also modified or remade.
+It requires original Dungeon Keeper to work.
+
+Installation of KeeperFX CCP:
+
+KeeperFX CCP contains all the files neccessary to play the game.
+Decompress it anywhere, and it's ready to run. If you wish
+to change language, edit 'KEEPERFX.CFG' and set its shortcut
+in the 'LANGUAGE=' line. Run "keeperfx.exe" to start the game.
+If something doesn't work, see the 'troubleshooting' section.
 
 Installation over original DK:
 
-Copy all the files into your Dungeon Keeper directory.
-If you've installed DK from CD, then you will also have to copy
-folders DATA, LDATA and LEVELS from CD into this directory.
-Then open 'KEEPERFX.CFG' with Notepad, and set proper language
-shortcut in the 'LANGUAGE=' line.
-Run "keeperfx.exe" to start the game.
-
-Note that automatic builds of KeeperFX do not contain all of
-neccessary files, you need to use a released version first.
+From ver 0.33 of KeeperFX, installation over the original DK
+is no longer supported.
 
 Command line options:
 
@@ -26,6 +29,7 @@ Command line options:
   The CD Sound tracks won't play.
 -1player
   Allows playing multiplayer maps in skirmish mode.
+  This is normally ON, so the option has no effect.
 -nosound or -s
   Disables all the sounds.
 -fps <num>
@@ -37,7 +41,7 @@ Command line options:
 -level <num>
   Brings you directly to level number <num>.
   After the level is finished, quits the game.
-  Note that level number must be 1..255.
+  Note that level number must be 1..65534.
 -human <num>
   Changes human player to <num>. This option will
   work properly only in skirmish mode. Single player
@@ -53,6 +57,10 @@ Command line options:
   Same thing, but for lights.
 -vidsmooth
   Smoothes the 3D view using 1-pixel bilinear blur.
+-altinput
+  Uses alternate input method. This changes the way of
+  using mouse, keyboard and video driver. May be helpful
+  if original method isn't working right (ie. mouse stops).
 -packetsave <filename>
   Writes a packet file (replay file) when playing.
   After using this option, you must start a new level
@@ -77,28 +85,30 @@ A: Select "Run in 256 colors" and "Run in 640x480" in the
     into those written in next answer.
 
 Q: Intro doesn't play. LOG file says:
-     Error: In source setup_game:
-     1500 - Can't enter movies screen mode to play intro
+     Error: setup_game: Can't enter movies screen mode to play intro
 A: The problem is that your drivers can't support 320x200 mode.
+   Change the resolution config lines in KEEPERFX.CFG
+    into those written in next answer.
+
+Q: Game stops when loading a map. LOG file says:
+     Error: setup_screen_mode: Unable to setup screen resolution
+            MODE_640_400_8 (mode 10) 
+A: The problem is that your drivers can't support 640x400 mode.
    Change the resolution config lines in KEEPERFX.CFG into:
   FRONTEND_RES=MODE_640_480_8 MODE_640_480_8 MODE_640_480_8
   INGAME_RES=MODE_640_480_8
 
 Q: The game doesn't run. LOG file says:
-     Error: In source setup_strings_data:
-     1501 - Strings file couldn't be loaded or is too small
+     Error: setup_strings_data: Strings file couldn't be loaded
+            or is too small
 A: Check if there's a language file in 'FXDATA' folder for the
      language which you've selected in KEEPERFX.CFG.
 
-Q: Mouse doesn't work properly.
-A: There's no fix for this yet.
+Q: Mouse stops/teleports/moves insorrectly during the game.
+A: Try the '-altinput' command line switch.
 
 Q: I get a message 'Cannot initialize' when I try to enter network game.
 A: There's no fix; use stanard DK with IPX fix for multiplayer.
-
-Q: Switching resolution/Taking over control in map view disables
-   all rooms and spells!
-A: Press TAB key twice to bring back working menu.
 
 Q: There are no special eye effects when I posses Beetle, Fly,
     Dragon, Tentacle etc.!
@@ -133,12 +143,10 @@ SCREENSHOT
 
 LANGUAGE
   This option is used to select language file, used for
-  displaying texts. Note that changing this option will not
-  completely switch the language - only text messages
-  will be changed. If the language setting doesn't match
-  the one selected during installation, then national
-  letters may be displayed incorrectly. Also, this option
-  doesn't change the speech language.
+  displaying texts. It also changes language in lecturer
+  speeches. Note that if the specific campaign doesn't
+  have support for your language, the default language
+  will be used.
   
 New in-game commands:
 
@@ -248,6 +256,21 @@ New and modified level script commands:
   and never changes during the gameplay.
 
 Changelog:
+
+Version: 0.3.3
+  Rewritten creature killing code
+  Improved creature config files
+  Tooltip drawing code improved
+  Remade another part of network support
+  Improved logging system
+  Creature states are now defined outside DLL
+  Fixed checking for gold bug (gold digging by computer)
+  Changed Video and Mouse driver - EXPERIMENTAL
+  Added '-altinput' command line parameter
+  Rewritten digging and claiming effects
+  Rewritten part of imp tasks management
+  Rewritten and extended creature sacrifice recipes
+  Censorship no longer bounded to german language
 
 Version: 0.3.2
   Added CPU identification
