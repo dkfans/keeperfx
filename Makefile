@@ -100,6 +100,13 @@ CXXINCS =  -I"directx/include"
 CXXFLAGS = $(CXXINCS) -g -O0  -march=i386
 CFLAGS = $(INCS) -g -O0  -march=i386
 
+CAMPAIGNS  = \
+ancntkpr \
+keeporig \
+questfth
+
+CAMPAIGN_CFGS = $(patsubst %,pkg/campgns/%.cfg,$(CAMPAIGNS))
+
 # load program version
 include version.mk
 VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(VER_BUILD)
@@ -126,6 +133,13 @@ clean-tools:
 	make -C tools/peresec clean
 
 clean-package:
+	-$(RM) -R pkg/campgns
+	-$(RM) -R pkg/creatrs
+	-$(RM) -R pkg/fxdata
+	-$(RM) -R pkg/ldata
+	-$(RM) -R pkg/data
+	-$(RM) -R pkg/sound
+	-$(RM) -R pkg/levels
 	-$(RM) pkg/keeperfx*
 
 $(BIN): $(OBJ) obj/keeperfx.a directx/lib/libddraw.a
@@ -165,18 +179,30 @@ tools/peresec/peresec: tools/peresec/peresec.c
 directx/lib/lib%.a: directx/lib/%.def
 	make -C "$(@D)" "$(@F)" CC=$(CC) DLLTOOL=$(DLLTOOL) CFLAGS="-I\"../include\" -Wall"
 
-package: pkg-before
-	$(MKDIR) pkg/fxdata
-	$(MKDIR) pkg/campgns
+package: pkg-before pkg-copydat pkg-campaigns
 	$(CP) bin/* pkg/
-	$(CP) config/*.cfg pkg/
-	$(CP) config/fxdata/*.cfg pkg/fxdata/
-	$(CP) campgns/*.cfg pkg/campgns/
 	$(CP) docs/keeperfx_readme.txt pkg/
 	cd pkg; \
 	7z a "keeperfx-$(subst .,_,$(VER_STRING))-patch.7z" "*" -x!*/.svn -x!.svn -x!.git -x!*.7z
 
 pkg-before:
 	-$(RM) "pkg/keeperfx-$(subst .,_,$(VER_STRING))-patch.7z"
-	$(MKDIR) pkg
+	$(MKDIR) pkg/creatrs
+	$(MKDIR) pkg/fxdata
+	$(MKDIR) pkg/campgns
+
+pkg-copydat: pkg-before
+	$(CP) config/keeperfx.cfg pkg/
+	$(CP) config/creatrs/*.cfg pkg/creatrs/
+	$(CP) config/fxdata/*.cfg pkg/fxdata/
+
+pkg-campaigns: pkg-before $(CAMPAIGN_CFGS)
+
+pkg/campgns/%.cfg: campgns/%.cfg
+	@$(MKDIR) $(@D)
+#	 Copy folder with campaign name (w/o extension), if it exists
+	$(if $(wildcard $(<:%.cfg=%)),$(MKDIR) $(@:%.cfg=%))
+	$(if $(wildcard $(<:%.cfg=%)),-$(CP) $(<:%.cfg=%)/map*.* $(@:%.cfg=%)/)
+#	 Copy the actual campaign file
+	$(CP) $< $@
 
