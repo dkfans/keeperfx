@@ -46,6 +46,11 @@
 
 #include "keeperfx_private.h"
 
+#ifndef BFDEBUG_LEVEL
+// Debug level is scaled 0..10
+#define BFDEBUG_LEVEL 0
+#endif
+
 #if defined(BUILD_DLL)
 # define DLLIMPORT __declspec (dllexport)
 #else // Not defined BUILD_DLL
@@ -73,8 +78,6 @@
 #define min(a,b) ((a)<(b)?(a):(b))
 #endif
 
-// Debug level is scaled 0..10, default=1
-#define BFDEBUG_LEVEL 10
 #define PROGRAM_NAME "Dungeon Keeper FX"
 #define PROGRAM_FULL_NAME "Dungeon Keeper Fan eXpansion"
 #define DEFAULT_LOG_FILENAME "keeperfx.log"

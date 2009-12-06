@@ -17,12 +17,14 @@ MV       = mv -f
 CP       = cp -f
 MKDIR    = mkdir -p
 ECHO     = @echo
-
+# Names of target binary files
 BIN      = bin/keeperfx$(EXEEXT)
-RES      = obj/keeperfx_stdres.res
+HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
+# Names of intermediate build products
 GENSRC   = obj/ver_defs.h
-
-OBJ  = \
+RES      = obj/keeperfx_stdres.res
+LIBS     = obj/libkeeperfx.a  directx/lib/libddraw.a
+OBJS  = \
 obj/main.o \
 obj/front_simple.o \
 obj/game_saves.o \
@@ -93,12 +95,34 @@ obj/bflib_sprfnt.o \
 obj/bflib_sprite.o \
 $(RES)
 
-LINKOBJ  = $(OBJ)
-LIBS =  -L"directx/lib" -mwindows obj/keeperfx.a -lwinmm -lddraw -g -O0  -march=i386 
+LINKLIB =  -L"directx/lib" -mwindows obj/libkeeperfx.a -lwinmm -lddraw -g -O0  -march=i386 
 INCS =  -I"directx/include"
 CXXINCS =  -I"directx/include" 
-CXXFLAGS = $(CXXINCS) -g -O0  -march=i386
-CFLAGS = $(INCS) -g -O0  -march=i386
+
+STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
+HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
+
+# code optimization and debugging flags
+DEBUG ?= 0
+ifeq ($(DEBUG), 1)
+  OPTFLAGS = -march=i686 -O0
+  DBGFLAGS = -g -DDEBUG
+else
+  # frame pointer is required for ASM code to work
+  OPTFLAGS = -march=i686 -fno-omit-frame-pointer -O3
+  DBGFLAGS = 
+endif
+# linker flags
+LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,-Map,"$(@:%.exe=%.map)" -Wl,--enable-auto-import
+# logging level flags
+STLOGFLAGS = -DBFDEBUG_LEVEL=0 
+HVLOGFLAGS = -DBFDEBUG_LEVEL=10
+# compiler warning generation flags
+WARNFLAGS = -Wall -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing
+# disabled warnings: -Wextra -Wtype-limits
+CXXFLAGS = $(CXXINCS) -c -fmessage-length=0 $(WARNFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
+CFLAGS = $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
+LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
 
 CAMPAIGNS  = \
 ancntkpr \
@@ -111,22 +135,37 @@ CAMPAIGN_CFGS = $(patsubst %,pkg/campgns/%.cfg,$(CAMPAIGNS))
 include version.mk
 VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(VER_BUILD)
 
-.PHONY: all all-before all-after standard heavylog clean clean-build clean-tools clean-package package pkg-before
+# mark icons as precious, because even though we can re-create them, it requires having "png2ico" tool
+.PRECIOUS: res/%.ico
+# name virtual targets
+.PHONY: all standard std-before std-after debug hvlog-before hvlog-after docs docsdox clean clean-build clean-tools clean-package package pkg-before pkg-copydat pkg-campaigns tools
 
 all: standard
 
-standard: all-before $(BIN) all-after
+standard: CXXFLAGS += $(STLOGFLAGS)
+standard: CFLAGS += $(STLOGFLAGS)
+standard: std-before $(BIN) std-after
 
-heavylog: all-before all-after
+heavylog: CXXFLAGS += $(HVLOGFLAGS)
+heavylog: CFLAGS += $(HVLOGFLAGS)
+heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
-all-before:
-	$(MKDIR) obj bin
+std-before:
+	$(MKDIR) obj/std bin
+
+hvlog-before:
+	$(MKDIR) obj/hvlog bin
 
 clean: clean-build clean-tools clean-package
 
 clean-build:
-	-$(RM) $(OBJ) $(BIN)
-	-$(RM) obj/keeperfx.* bin/keeperfx.dll $(GENSRC)
+	-$(RM) $(STDOBJS)
+	-$(RM) $(HVLOGOBJS)
+	-$(RM) $(BIN) $(BIN:%.exe=%.map)
+	-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.map)
+	-$(RM) bin/keeperfx.dll
+	-$(RM) $(LIBS) $(GENSRC)
+	-$(RM) obj/keeperfx.*
 	-$(RM) directx/lib/lib*.a
 
 clean-tools:
@@ -142,17 +181,31 @@ clean-package:
 	-$(RM) -R pkg/levels
 	-$(RM) pkg/keeperfx*
 
-$(BIN): $(OBJ) obj/keeperfx.a directx/lib/libddraw.a
-	@echo "Final link"
-	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS)
+$(BIN): $(GENSRC) $(STDOBJS) $(LIBS)
+	-$(ECHO) 'Building target: $@'
+	$(CPP) -o "$@" $(STDOBJS) $(LDFLAGS)
+	-$(ECHO) 'Finished building target: $@'
+	-$(ECHO) ' '
 
-obj/%.o: src/%.cpp $(GENSRC)
-	$(CPP) -c $(CXXFLAGS) -o"$@" "$<"
+$(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(LIBS)
+	-$(ECHO) 'Building target: $@'
+	$(CPP) -o "$@" $(HVLOGOBJS) $(LDFLAGS)
+	-$(ECHO) 'Finished building target: $@'
+	-$(ECHO) ' '
 
-obj/%.o: src/%.c $(GENSRC)
-	$(CPP) -c $(CFLAGS) -o"$@" "$<"
+obj/std/%.o obj/hvlog/%.o: src/%.cpp $(GENSRC)
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
 
-obj/%.res: res/%.rc $(GENSRC)
+obj/std/%.o obj/hvlog/%.o: src/%.c $(GENSRC)
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/std/%.res obj/hvlog/%.res: res/%.rc $(GENSRC)
 	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff 
 
 obj/ver_defs.h: version.mk Makefile
@@ -163,8 +216,11 @@ obj/ver_defs.h: version.mk Makefile
 	$(ECHO) \#define VER_STRING  \"$(VER_STRING)\" >> "$(@D)/tmp"
 	$(MV) "$(@D)/tmp" "$@"
 
-obj/keeperfx.a: bin/keeperfx.dll obj/keeperfx.def
-	$(DLLTOOL) --dllname bin/keeperfx.dll --def obj/keeperfx.def --output-lib obj/keeperfx.a
+obj/libkeeperfx.a: bin/keeperfx.dll obj/keeperfx.def
+	-$(ECHO) 'Generating gcc library archive for: $<'
+	$(DLLTOOL) --dllname "$<" --def "obj/keeperfx.def" --output-lib "$@"
+	-$(ECHO) 'Finished generating: $@'
+	-$(ECHO) ' '
 
 bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map tools/peresec/peresec
 	$(CP) lib/keeper95_gold.dll obj/keeperfx.dll
