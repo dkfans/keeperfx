@@ -530,7 +530,7 @@ TbBool load_magic_config(const char *conf_fname,unsigned short flags)
   return result;
 }
 
-/*
+/**
  * Zeroes all the costs for all spells.
  */
 TbBool make_all_powers_free(void)
@@ -546,7 +546,7 @@ TbBool make_all_powers_free(void)
   return true;
 }
 
-/*
+/**
  * Makes all keeper spells to be available to research.
  */
 TbBool make_all_powers_researchable(long plyr_idx)
@@ -580,7 +580,7 @@ TbBool set_power_available(long plyr_idx, long spl_idx, long resrch, long avail)
   return add_spell_to_player(spl_idx, plyr_idx);
 }
 
-/*
+/**
  * Makes all the powers, which are researchable, to be instantly available.
  */
 TbBool make_available_all_researchable_powers(long plyr_idx)

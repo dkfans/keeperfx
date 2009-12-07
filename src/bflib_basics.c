@@ -65,9 +65,11 @@ short error_dialog(const char *codefile,const int ecode,const char *message)
 short error_dialog_fatal(const char *codefile,const int ecode,const char *message)
 {
   static char msg_text[2048];
+  HWND whandle;
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
   sprintf(msg_text,"%s This error in '%s' makes the program unable to continue. See '%s' for details.",message,codefile,log_file_name);
-  MessageBox(NULL, msg_text, PROGRAM_FULL_NAME, MB_OK | MB_ICONERROR);
+  whandle = GetDesktopWindow();
+  MessageBox(whandle, msg_text, PROGRAM_FULL_NAME, MB_OK | MB_ICONERROR);
   return 0;
 }
 

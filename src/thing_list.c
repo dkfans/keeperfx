@@ -624,7 +624,7 @@ TbBool update_thing(struct Thing *thing)
 {
   Thing_Class_Func classfunc;
   struct Coord3d pos;
-  SYNCDBG(18,"Starting");
+  SYNCDBG(18,"Starting for thing class %d",(int)thing->class_id);
 
   if ((thing->field_25 & 0x40) == 0)
   {
@@ -699,6 +699,7 @@ TbBool update_thing(struct Thing *thing)
         thing->field_62 = 0;
       }
   }
+  SYNCDBG(18,"Finished");
   return true;
 }
 

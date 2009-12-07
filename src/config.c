@@ -451,7 +451,6 @@ TbBool prepare_diskpath(char *buf,long buflen)
 
 short load_configuration(void)
 {
-  static const char *func_name="load_configuration";
   SYNCDBG(4,"Starting");
   //return _DK_load_configuration();
   const char *fname;
@@ -1139,7 +1138,6 @@ TbBool create_strings_list(char **strings,char *strings_data,char *strings_data_
  */
 TbBool setup_gui_strings_data(void)
 {
-  static const char *func_name="setup_gui_strings_data";
   char *strings_data_end;
   char *fname;
   short result;
@@ -1192,7 +1190,6 @@ TbBool free_gui_strings_data(void)
  */
 TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
 {
-  static const char *func_name="setup_campaign_strings_data";
   char *strings_data_end;
   char *fname;
   short result;
@@ -1364,7 +1361,6 @@ TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
  */
 TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
 {
-  static const char *func_name="setup_campaign_credits_data";
   char *credits_data_end;
   char *fname;
   short result;
@@ -1841,7 +1837,6 @@ short is_singleplayer_like_level(LevelNumber lvnum)
  */
 short is_singleplayer_level(LevelNumber lvnum)
 {
-  static const char *func_name="is_singleplayer_level";
   int i;
   if (lvnum < 1)
   {

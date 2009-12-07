@@ -945,6 +945,7 @@ TbBool summon_creature(long model, Coord3d *pos, long owner, long explevel)
 {
   struct CreatureControl *cctrl;
   struct Thing *thing;
+  SYNCDBG(4,"Creating model %ld for player %ld",model,owner);
   thing = create_creature(pos, model, owner);
   if (thing_is_invalid(thing))
   {
@@ -978,6 +979,7 @@ long create_sacrifice_unique_award(struct Coord3d *pos, long plyr_idx, long sacf
       kill_all_players_chickens(plyr_idx);
       return SacR_Punished;
   case UnqF_CheaperImp:
+      // No processing needed - just don't clear the amount of sacrificed imps.
       return SacR_Pleased;
   default:
       ERRORLOG("Unsupported unique secrifice award!");
@@ -1059,9 +1061,10 @@ long process_sacrifice_award(struct Coord3d *pos, long model, long plyr_idx)
   struct Dungeon *dungeon;
   long explevel;
   long ret;
+  //return _DK_process_sacrifice_award(pos, model, plyr_idx);
   if ((plyr_idx < 0) || (plyr_idx >= DUNGEONS_COUNT))
   {
-    ERRORLOG("How can you sacrifice a neutral creature?");
+    ERRORLOG("Player %d cannot sacrifice creatures.",plyr_idx);
     return 0;
   }
   dungeon = &(game.dungeon[plyr_idx]);
@@ -1090,7 +1093,7 @@ long process_sacrifice_award(struct Coord3d *pos, long model, long plyr_idx)
       // Check if the complete sacrifice condition is met
       if (sacrifice_victim_conditions_met(dungeon, sac))
       {
-        SYNCDBG(6,"Sacrifice recipe %d condition met",(int)(int)(sac-&gameadd.sacrifice_recipes[0]));
+        SYNCDBG(6,"Sacrifice recipe %d condition met, action %d for player %d",(int)(sac-&gameadd.sacrifice_recipes[0]),(int)sac->action,(int)plyr_idx);
         explevel = creature_sacrifice_average_explevel(dungeon, sac);
         switch (sac->action)
         {

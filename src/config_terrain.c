@@ -691,7 +691,6 @@ TbBool parse_terrain_door_blocks(char *buf,long len)
 
 TbBool load_terrain_config(const char *conf_fname,unsigned short flags)
 {
-  static const char *func_name="load_terrain_config";
   char *fname;
   char *buf;
   long len,pos;
@@ -771,7 +770,6 @@ TbBool make_all_rooms_free(void)
  */
 TbBool make_all_rooms_researchable(long plyr_idx)
 {
-  static const char *func_name="make_all_rooms_researchable";
   struct Dungeon *dungeon;
   long i;
   dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);

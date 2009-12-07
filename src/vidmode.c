@@ -770,6 +770,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
   case Lb_SCREEN_MODE_320_200_8:
   case Lb_SCREEN_MODE_320_240_8:
   case Lb_SCREEN_MODE_512_384_8:
+    SYNCDBG(17,"Preparing minimal low resolution mode");
     MinimalResolutionSetup = 1;
     if ( !LoadMcgaDataMinimal() )
     {
@@ -793,6 +794,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
   case Lb_SCREEN_MODE_1024_768_8:
   case Lb_SCREEN_MODE_1200_1024_8:
   case Lb_SCREEN_MODE_1600_1200_8:
+    SYNCDBG(17,"Preparing minimal high resolution mode");
     MinimalResolutionSetup = 1;
     frontend_load_data_from_cd();
     if ( LbDataLoadAll(vres256_load_files_minimal) )

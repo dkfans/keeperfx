@@ -1700,9 +1700,10 @@ void place_thing_in_limbo(struct Thing *thing)
 void add_creature_to_sacrifice_list(long plyr_idx, long model, long explevel)
 {
   struct Dungeon *dungeon;
+  SYNCDBG(6,"Player %ld sacrificed creture model %ld exp level %d",plyr_idx,model,explevel);
   if ((plyr_idx < 0) || (plyr_idx >= DUNGEONS_COUNT))
   {
-    ERRORLOG("How can you sacrifice a neutral creature?");
+    ERRORLOG("How can this player sacrifice a creature?");
     return;
   }
   if ((model < 0) || (model >= CREATURE_TYPES_COUNT))
@@ -3380,7 +3381,7 @@ long process_door(struct Thing *thing)
 
 void update_thing_animation(struct Thing *thing)
 {
-  SYNCDBG(18,"Starting");
+  SYNCDBG(18,"Starting for thing class %d model %d",(int)thing->class_id,(int)thing->model);
   int i;
   struct CreatureControl *cctrl;
   if (thing->class_id == TCls_Creature)

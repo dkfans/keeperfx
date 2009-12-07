@@ -660,10 +660,12 @@ TbBool update_dead_creatures_list(struct Dungeon *dungeon, struct Thing *thing)
     if ((cstore->model == thing->model) && (cstore->explevel == cctrl->explevel))
     {
       // This creature is already in list
+      SYNCDBG(18,"Already in list");
       return false;
     }
     i--;
   }
+  // Find a slot for the new creature
   if (dungeon->dead_creatures_count < DEAD_CREATURES_MAX_COUNT)
   {
     i = dungeon->dead_creatures_count;
@@ -678,6 +680,7 @@ TbBool update_dead_creatures_list(struct Dungeon *dungeon, struct Thing *thing)
   cstore = &dungeon->dead_creatures[i];
   cstore->model = thing->model;
   cstore->explevel = cctrl->explevel;
+  SYNCDBG(19,"Finished");
   return true;
 }
 
@@ -765,7 +768,8 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3, unsi
   struct Dungeon *dungeon;
   struct Dungeon *killerdngn;
   long i,k;
-  //return _DK_kill_creature(thing, killertng, a3, a4, a5, a6);
+  SYNCDBG(18,"Starting");
+  //return _DK_kill_creature(thing, killertng, a3, a4, died_in_battle, a6);
   dungeon = NULL;
   cctrl = creature_control_get_from_thing(thing);
   cleanup_current_thing_state(thing);
@@ -821,6 +825,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3, unsi
     cause_creature_death(thing, a4);
     return true;
   }
+  // Now we are sure that killertng and dungeon pointers are correct
   if (thing->owner == killertng->owner)
   {
     if ((get_creature_model_flags(thing) & MF_IsDiptera) && (get_creature_model_flags(killertng) & MF_IsArachnid))

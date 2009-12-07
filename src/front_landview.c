@@ -787,6 +787,7 @@ TbBool load_map_and_window(LevelNumber lvnum)
   char *land_window;
   char *fname;
   long flen;
+  SYNCDBG(8,"Starting");
 //  return _DK_load_map_and_window(cmpgidx);
   land_view = NULL;
   land_window = NULL;
@@ -854,6 +855,7 @@ TbBool load_map_and_window(LevelNumber lvnum)
     return 0;
   }
   map_window = (unsigned char *)(window_y_offset + 720);
+  SYNCDBG(9,"Finished");
   return true;
 }
 
@@ -946,7 +948,7 @@ TbBool frontmap_load(void)
   struct TbSprite *spr;
   LevelNumber lvnum;
   long lvidx;
-  SYNCDBG(18,"Starting");
+  SYNCDBG(8,"Starting");
 //  return _DK_frontmap_load();
   memset(scratch, 0, PALETTE_SIZE);
   LbPaletteSet(scratch);
@@ -1047,6 +1049,7 @@ TbBool frontmap_load(void)
     SetRedbookVolume(settings.redbook_volume);
   fe_computer_players = 0;
   update_ensigns_visibility();
+  SYNCDBG(9,"Finished");
   return true;
 }
 

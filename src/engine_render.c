@@ -72,9 +72,7 @@ unsigned char temp_cluedo_mode;
 /******************************************************************************/
 void gpoly_enable_pentium_pro(TbBool state)
 {
-#if (BFDEBUG_LEVEL > 4)
-  LbSyncLog("Pentium Pro polygon rendering %s\n",state?"on":"off");
-#endif
+  SYNCMSG("Pentium Pro polygon rendering %s",state?"on":"off");
   if (state)
     gpoly_pro_enable_mode_ofs = (1<<6);
   else
@@ -83,7 +81,6 @@ void gpoly_enable_pentium_pro(TbBool state)
 
 long compute_cells_away(void)
 {
-  static const char *func_name="compute_cells_away";
   long xmin,ymin,xmax,ymax;
   long xcell,ycell;
   struct PlayerInfo *player;
@@ -280,10 +277,7 @@ void do_perspective_rotation(long x, long y, long z)
 
 void find_gamut(void)
 {
-  static const char *func_name="find_gamut";
-#if (BFDEBUG_LEVEL > 19)
-    SYNCDBG(0,"Starting");
-#endif
+  SYNCDBG(19,"Starting");
   _DK_find_gamut();
 }
 
@@ -334,16 +328,12 @@ void draw_map_volume_box(long a1, long a2, long a3, long a4, long a5, unsigned c
 
 void display_drawlist(void)
 {
-  static const char *func_name="display_drawlist";
-#if (BFDEBUG_LEVEL > 9)
-    SYNCDBG(0,"Starting");
-#endif
+  SYNCDBG(9,"Starting");
   _DK_display_drawlist();
 }
 
 void draw_view(struct Camera *cam, unsigned char a2)
 {
-  static const char *func_name="draw_view";
   long nlens;
   long x,y,z;
   long xcell,ycell;
@@ -351,9 +341,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
   long aposc,bposc;
   struct EngineCol *ec;
   struct MinMax *mm;
-#if (BFDEBUG_LEVEL > 9)
-    SYNCDBG(0,"Starting");
-#endif
+  SYNCDBG(9,"Starting");
   nlens = cam->field_17 / pixel_size;
   getpoly = poly_pool;
   LbMemorySet(buckets, 0, sizeof(buckets));
@@ -452,9 +440,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     create_map_volume_box(x, y, z);
   display_drawlist();
   map_volume_box.field_0 = 0;
-#if (BFDEBUG_LEVEL > 9)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(9,"Finished");
 }
 
 void clear_fast_bucket_list(void)
@@ -886,7 +872,6 @@ void draw_frontview_things_on_element(struct Map *map, struct Camera *cam)
 
 void draw_frontview_engine(struct Camera *cam)
 {
-  static const char *func_name="draw_frontview_engine";
   struct PlayerInfo *player;
   struct TbGraphicsWindow grwnd;
   struct TbGraphicsWindow ewnd;
@@ -1001,9 +986,7 @@ void draw_frontview_engine(struct Camera *cam)
 
   display_fast_drawlist(cam);
   LbScreenLoadGraphicsWindow(&grwnd);
-#if (BFDEBUG_LEVEL > 9)
-    LbSyncLog("%s: Finished\n",func_name);
-#endif
+  SYNCDBG(9,"Finished");
 }
 /******************************************************************************/
 #ifdef __cplusplus

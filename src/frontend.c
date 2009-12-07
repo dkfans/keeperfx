@@ -1863,16 +1863,19 @@ char get_button_area_input(struct GuiButton *gbtn, int a2)
 
 void gui_activity_background(struct GuiMenu *gmnu)
 {
+  SYNCDBG(9,"Starting");
   _DK_gui_activity_background(gmnu);
 }
 
 void gui_pretty_background(struct GuiMenu *gmnu)
 {
+  SYNCDBG(9,"Starting");
   _DK_gui_pretty_background(gmnu);
 }
 
 void frontend_copy_mnu_background(struct GuiMenu *gmnu)
 {
+  SYNCDBG(9,"Starting");
   frontend_copy_background_at(gmnu->pos_x,gmnu->pos_y,gmnu->width,gmnu->height);
 }
 
@@ -1921,6 +1924,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, char *
   int fntidx;
   long x,y;
   int h;
+  SYNCDBG(9,"Drawing type %d, text \"%s\"",(int)btntype,text);
   fbinfo_idx = (unsigned int)gbtn->field_33;
   if ((gbtn->field_0 & 0x08) == 0)
   {
@@ -2004,16 +2008,19 @@ void gui_area_null(struct GuiButton *gbtn)
 
 void gui_round_glass_background(struct GuiMenu *gmnu)
 {
+  SYNCDBG(19,"Starting");
   _DK_gui_round_glass_background(gmnu);
 }
 
 void gui_creature_query_background1(struct GuiMenu *gmnu)
 {
+  SYNCDBG(19,"Starting");
   _DK_gui_creature_query_background1(gmnu);
 }
 
 void gui_creature_query_background2(struct GuiMenu *gmnu)
 {
+  SYNCDBG(19,"Starting");
   _DK_gui_creature_query_background2(gmnu);
 }
 
@@ -5013,7 +5020,7 @@ void add_to_menu_stack(unsigned char mnu_idx)
   short i;
   if (no_of_active_menus >= ACTIVE_MENUS_COUNT)
   {
-    ERRORLOG("No more room for menu stack");
+    ERRORLOG("No more room on menu stack");
     return;
   }
 
@@ -5034,7 +5041,7 @@ void add_to_menu_stack(unsigned char mnu_idx)
   // If not in stack, add at end
   menu_stack[no_of_active_menus] = mnu_idx;
   no_of_active_menus++;
-  //SYNCMSG("Menu %d put on stack, at position %d.",mnu_idx,no_of_active_menus-1);
+  SYNCDBG(9,"Menu %d put on stack, at position %d.",mnu_idx,no_of_active_menus-1);
 }
 
 long first_available_menu(void)
