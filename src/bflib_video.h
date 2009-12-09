@@ -38,39 +38,46 @@ extern "C" {
 typedef unsigned char TbPixel;
 
 enum TbScreenMode {
-        Lb_SCREEN_MODE_INVALID      = 0x00,
-        Lb_SCREEN_MODE_320_200_8    = 0x01,
-        Lb_SCREEN_MODE_320_200_16   = 0x02,
-        Lb_SCREEN_MODE_320_200_24   = 0x03,
-        Lb_SCREEN_MODE_512_384_16   = 0x08,
-        Lb_SCREEN_MODE_512_384_24   = 0x09,
-        Lb_SCREEN_MODE_640_400_8    = 0x0A,
-        Lb_SCREEN_MODE_640_400_16   = 0x0B,
-        Lb_SCREEN_MODE_320_240_8    = 0x04,
-        Lb_SCREEN_MODE_320_240_16   = 0x05,
-        Lb_SCREEN_MODE_320_240_24   = 0x06,
-        Lb_SCREEN_MODE_512_384_8    = 0x07,
-        Lb_SCREEN_MODE_640_400_24   = 0x0C,
-        Lb_SCREEN_MODE_640_480_8    = 0x0D,
-        Lb_SCREEN_MODE_640_480_16   = 0x0E,
-        Lb_SCREEN_MODE_640_480_24   = 0x0F,
-        Lb_SCREEN_MODE_800_600_8    = 0x10,
-        Lb_SCREEN_MODE_800_600_16   = 0x11,
-        Lb_SCREEN_MODE_800_600_24   = 0x12,
-        Lb_SCREEN_MODE_1024_768_8   = 0x13,
-        Lb_SCREEN_MODE_1024_768_16  = 0x14,
-        Lb_SCREEN_MODE_1024_768_24  = 0x15,
-        Lb_SCREEN_MODE_1200_1024_8  = 0x16,
-        Lb_SCREEN_MODE_1200_1024_16 = 0x17,
-        Lb_SCREEN_MODE_1200_1024_24 = 0x18,
-        Lb_SCREEN_MODE_1600_1200_8  = 0x19,
-        Lb_SCREEN_MODE_1600_1200_16 = 0x1A,
-        Lb_SCREEN_MODE_1600_1200_24 = 0x1B,
+    Lb_SCREEN_MODE_INVALID      = 0x00,
+    Lb_SCREEN_MODE_320_200_8    = 0x01,
+    Lb_SCREEN_MODE_320_200_16   = 0x02,
+    Lb_SCREEN_MODE_320_200_24   = 0x03,
+    Lb_SCREEN_MODE_512_384_16   = 0x08,
+    Lb_SCREEN_MODE_512_384_24   = 0x09,
+    Lb_SCREEN_MODE_640_400_8    = 0x0A,
+    Lb_SCREEN_MODE_640_400_16   = 0x0B,
+    Lb_SCREEN_MODE_320_240_8    = 0x04,
+    Lb_SCREEN_MODE_320_240_16   = 0x05,
+    Lb_SCREEN_MODE_320_240_24   = 0x06,
+    Lb_SCREEN_MODE_512_384_8    = 0x07,
+    Lb_SCREEN_MODE_640_400_24   = 0x0C,
+    Lb_SCREEN_MODE_640_480_8    = 0x0D,
+    Lb_SCREEN_MODE_640_480_16   = 0x0E,
+    Lb_SCREEN_MODE_640_480_24   = 0x0F,
+    Lb_SCREEN_MODE_800_600_8    = 0x10,
+    Lb_SCREEN_MODE_800_600_16   = 0x11,
+    Lb_SCREEN_MODE_800_600_24   = 0x12,
+    Lb_SCREEN_MODE_1024_768_8   = 0x13,
+    Lb_SCREEN_MODE_1024_768_16  = 0x14,
+    Lb_SCREEN_MODE_1024_768_24  = 0x15,
+    Lb_SCREEN_MODE_1200_1024_8  = 0x16,
+    Lb_SCREEN_MODE_1200_1024_16 = 0x17,
+    Lb_SCREEN_MODE_1200_1024_24 = 0x18,
+    Lb_SCREEN_MODE_1600_1200_8  = 0x19,
+    Lb_SCREEN_MODE_1600_1200_16 = 0x1A,
+    Lb_SCREEN_MODE_1600_1200_24 = 0x1B,
 };
 
 enum TbPaletteFadeFlag {
-        Lb_PALETTE_FADE_OPEN   = 0,
-        Lb_PALETTE_FADE_CLOSED = 1,
+    Lb_PALETTE_FADE_OPEN   = 0,
+    Lb_PALETTE_FADE_CLOSED = 1,
+};
+
+enum TbDrawFlags {
+    Lb_TEXT_HALIGN_LEFT    = 0x0020,
+    Lb_TEXT_HALIGN_RIGHT   = 0x0080,
+    Lb_TEXT_HALIGN_CENTER  = 0x0100,
+    Lb_TEXT_HALIGN_JUSTIFY = 0x0200,
 };
 
 struct TbGraphicsWindow {
@@ -151,6 +158,10 @@ DLLIMPORT unsigned char _DK_to_pal[PALETTE_SIZE];
 #define to_pal _DK_to_pal
 DLLIMPORT long _DK_fade_count;
 #define fade_count _DK_fade_count
+DLLIMPORT struct TbGraphicsWindow _DK_lbTextJustifyWindow;
+#define lbTextJustifyWindow _DK_lbTextJustifyWindow
+DLLIMPORT struct TbGraphicsWindow _DK_lbTextClipWindow;
+#define lbTextClipWindow _DK_lbTextClipWindow
 
 #pragma pack()
 /******************************************************************************/

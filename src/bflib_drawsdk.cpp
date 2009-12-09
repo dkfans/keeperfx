@@ -73,8 +73,7 @@ TDDrawSdk::TDDrawSdk(void) : TDDrawBaseClass()
   this->lpDDSurface3 = NULL;
   this->lpDDSurface2 = NULL;
   this->lpDDSurface1 = NULL;
-  this->lpDDPalette1 = NULL;
-  this->lpDDPalette2 = NULL;
+  this->lpDDPalette = NULL;
   this->vidMode = Lb_SCREEN_MODE_INVALID;
   this->resWidth = 0;
   this->resHeight = 0;
@@ -225,7 +224,7 @@ bool TDDrawSdk::get_palette(void *palette,unsigned long base,unsigned long numEn
   HRESULT locRet;
   long i;
   SYNCDBG(12,"Starting");
-  if (lpDDPalette1 == NULL)
+  if (lpDDPalette == NULL)
   {
     return false;
   }
@@ -234,11 +233,12 @@ bool TDDrawSdk::get_palette(void *palette,unsigned long base,unsigned long numEn
     return false;
   }
   // Get palette from DDraw
-  locRet = lpDDPalette1->GetEntries(0, base, numEntries, ddEntries);
+  locRet = lpDDPalette->GetEntries(0, base, numEntries, ddEntries);
   if (locRet == DDERR_SURFACELOST)
   {
+    WARNLOG("DDraw surface lost - restoring.");
     restore_surfaces();
-    locRet = lpDDPalette1->GetEntries(0, base, numEntries, ddEntries);
+    locRet = lpDDPalette->GetEntries(0, base, numEntries, ddEntries);
   }
   if (locRet != DD_OK)
   {
@@ -280,7 +280,7 @@ bool TDDrawSdk::set_palette(void *palette,unsigned long base,unsigned long numEn
     return false;
   }
   // If not initiialized yet, then all entries must be set
-  if (lpDDPalette1 == NULL)
+  if (lpDDPalette == NULL)
   {
     if ((base != 0) || (numEntries != 256))
     {
@@ -303,15 +303,15 @@ bool TDDrawSdk::set_palette(void *palette,unsigned long base,unsigned long numEn
   {
     return true;
   }
-  if (lpDDPalette1 == NULL)
+  if (lpDDPalette == NULL)
   {
-    locRet = lpDDInterface->CreatePalette(DDPCAPS_ALLOW256|DDPCAPS_8BIT, ddEntries, &lpDDPalette1, NULL);
+    locRet = lpDDInterface->CreatePalette(DDPCAPS_ALLOW256|DDPCAPS_8BIT, ddEntries, &lpDDPalette, NULL);
     if (locRet != DD_OK)
     {
       ERRORLOG("Cannot create palette");
       return false;
     }
-    locRet = lpDDSurface3->SetPalette(lpDDPalette1);
+    locRet = lpDDSurface3->SetPalette(lpDDPalette);
     if (locRet != DD_OK)
     {
       ERRORLOG("Cannot set the newly created palette");
@@ -319,11 +319,12 @@ bool TDDrawSdk::set_palette(void *palette,unsigned long base,unsigned long numEn
     }
     return true;
   }
-  locRet = lpDDPalette1->SetEntries(0, base, numEntries, ddEntries);
+  locRet = lpDDPalette->SetEntries(0, base, numEntries, ddEntries);
   if (locRet == DDERR_SURFACELOST)
   {
+    WARNLOG("DDraw surface lost - restoring.");
     restore_surfaces();
-    locRet = lpDDPalette1->SetEntries(0, base, numEntries, ddEntries);
+    locRet = lpDDPalette->SetEntries(0, base, numEntries, ddEntries);
   }
   if (locRet != DD_OK)
   {
@@ -402,7 +403,7 @@ bool TDDrawSdk::setup_screen(TbScreenMode mode)
     this->field_180 = ddSurfDesc.lPitch;
   } else
   {
-    SYNCLOG("Pitch stays at %d", this->field_180);
+    SYNCDBG(1,"Pitch stays at %d", this->field_180);
   }
   lbDisplay.DrawFlags = 0;
   lbDisplay.DrawColour = 0;
@@ -434,6 +435,7 @@ bool TDDrawSdk::lock_screen(void)
   ddResult = lpDDSurf->Lock(NULL, &ddSurfDesc, DDLOCK_WAIT, NULL);
   if (ddResult == DDERR_SURFACELOST)
   {
+    WARNLOG("DDraw surface lost - restoring.");
     restore_surfaces();
     lbDisplay.GraphicsWindowPtr = NULL;
     lbDisplay.WScreen = NULL;
@@ -468,12 +470,12 @@ bool TDDrawSdk::unlock_screen(void)
   switch (locRet)
   {
   case DDERR_NOTLOCKED:
-      WARNLOG("trying to unlock surface which is not locked");
+      WARNLOG("Trying to unlock surface which is not locked");
       lbDisplay.WScreen = NULL;
       lbDisplay.GraphicsWindowPtr = NULL;
       break;
   case DDERR_GENERIC:
-      WARNLOG("GENERIC ERROR while unlocking");
+      WARNLOG("DDraw Generic Error while unlocking");
       break;
   case DD_OK:
       lbDisplay.WScreen = NULL;
@@ -481,6 +483,7 @@ bool TDDrawSdk::unlock_screen(void)
       backLockCount = 0;
       break;
   case DDERR_SURFACELOST:
+      WARNLOG("DDraw surface lost - restoring.");
       restore_surfaces();
       backLockCount--;
       break;
@@ -508,6 +511,7 @@ bool TDDrawSdk::clear_screen(unsigned long color)
   locRet = lpDDSurf->Blt(NULL, 0, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddBltFx);
   if (locRet == DDERR_SURFACELOST)
   {
+    WARNLOG("DDraw surface lost - restoring.");
     restore_surfaces();
     return false;
   }
@@ -539,6 +543,7 @@ bool TDDrawSdk::clear_window(long x,long y,unsigned long w,unsigned long h,unsig
   locRet = lpDDSurf->Blt(NULL, 0, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddBltFx);
   if (locRet == DDERR_SURFACELOST)
   {
+    WARNLOG("DDraw surface lost - restoring.");
     restore_surfaces();
     return false;
   }
@@ -575,6 +580,7 @@ bool TDDrawSdk::swap_screen(void)
       }
       if (locRet == DDERR_SURFACELOST)
       {
+        WARNLOG("DDraw surface lost - restoring.");
         restore_surfaces();
         return false;
       }
@@ -592,6 +598,7 @@ bool TDDrawSdk::swap_screen(void)
     }
     if (locRet == DDERR_SURFACELOST)
     {
+      WARNLOG("DDraw surface lost - restoring.");
       restore_surfaces();
       return false;
     }
@@ -621,6 +628,7 @@ bool TDDrawSdk::swap_screen(void)
       }
       if (locRet == DDERR_SURFACELOST)
       {
+        WARNLOG("DDraw surface lost - restoring.");
         restore_surfaces();
         return false;
       }
@@ -660,8 +668,8 @@ bool TDDrawSdk::restore_surfaces(void)
     if (lpDDSurface3->IsLost() == DDERR_SURFACELOST)
     {
       ddResult = lpDDSurface3->Restore();
-      if (lpDDPalette1 != NULL)
-        lpDDSurface3->SetPalette(lpDDPalette1);
+      if (lpDDPalette != NULL)
+        lpDDSurface3->SetPalette(lpDDPalette);
     }
   }
   if (lpDDSurface1 != NULL)
@@ -669,6 +677,8 @@ bool TDDrawSdk::restore_surfaces(void)
     if (lpDDSurface1->IsLost() == DDERR_SURFACELOST)
     {
       ddResult = lpDDSurface1->Restore();
+      if (lpDDPalette != NULL)
+        lpDDSurface1->SetPalette(lpDDPalette);
     }
   }
   return (ddResult == DD_OK);
@@ -936,7 +946,7 @@ bool TDDrawSdk::reset_direct_draw(void)
   }
   if (lpDDInterface != NULL)
   {
-    if ((this->field_170.dwCaps & 0x200000) != 0)
+    if ((this->ddSurfaceCaps.dwCaps & 0x200000) != 0)
     {
       release_surfaces();
       lpDDInterface->RestoreDisplayMode();
@@ -972,10 +982,10 @@ bool TDDrawSdk::setup_dds_double_video(void)
     ERRORLOG("Could not create primary surface");
     return false;
   }
-  lpDDSurface3->GetCaps(&this->field_170);
-  if (lpDDPalette1 != NULL)
+  lpDDSurface3->GetCaps(&this->ddSurfaceCaps);
+  if (lpDDPalette != NULL)
   {
-    ddResult = lpDDSurface3->SetPalette(lpDDPalette1);
+    ddResult = lpDDSurface3->SetPalette(lpDDPalette);
   }
   // Back buffer
   memset(&ddBltFx, 0, sizeof(ddBltFx));
@@ -1010,10 +1020,10 @@ bool TDDrawSdk::setup_dds_single_video(void)
     ERRORLOG("Could not create surface");
     return false;
   }
-  lpDDSurface3->GetCaps(&this->field_170);
-  if (lpDDPalette1 != NULL)
+  lpDDSurface3->GetCaps(&this->ddSurfaceCaps);
+  if (lpDDPalette != NULL)
   {
-    ddResult = lpDDSurface3->SetPalette(lpDDPalette1);
+    ddResult = lpDDSurface3->SetPalette(lpDDPalette);
   }
   memset(&ddBltFx, 0, sizeof(ddBltFx));
   ddBltFx.dwFillColor = 0;
@@ -1078,22 +1088,25 @@ bool TDDrawSdk::setup_surfaces(short w, short h, short bpp)
 
 bool TDDrawSdk::release_surfaces(void)
 {
+  LPDIRECTDRAWSURFACE lpDDSurLocal;
   if (!this->active)
     return false;
   flags &= 0xFFFFFFFDu;
   if ((flags & 0x01) != 0)
   {
-    if (lpDDSurface3 != NULL)
+    lpDDSurLocal = lpDDSurface3;
+    if (lpDDSurLocal != NULL)
     {
-      while (lpDDSurface3->Release() != DD_OK)
+      lpDDSurface3 = NULL;
+      while (lpDDSurLocal->Release() != DD_OK)
         Sleep(1);
-      this->lpDDSurface3 = NULL;
     }
-    if (lpDDSurface1 != NULL)
+    lpDDSurLocal = lpDDSurface1;
+    if (lpDDSurLocal != NULL)
     {
-      while (lpDDSurface1->Release() != DD_OK)
-        Sleep(1);
       lpDDSurface1 = NULL;
+      while (lpDDSurLocal->Release() != DD_OK)
+        Sleep(1);
     }
   }
   return true;
@@ -1101,18 +1114,15 @@ bool TDDrawSdk::release_surfaces(void)
 
 bool TDDrawSdk::release_palettes(void)
 {
+  LPDIRECTDRAWPALETTE lpDDPalLocal;
   if ((flags & 0x01) == 0)
     return false;
-  if (lpDDPalette1 != NULL)
+  lpDDPalLocal = lpDDPalette;
+  if (lpDDPalette != NULL)
   {
-    while (lpDDPalette1->Release() != DD_OK)
+    lpDDPalette = NULL;
+    while (lpDDPalLocal->Release() != DD_OK)
     { Sleep(1); }
-    lpDDPalette1 = NULL;
-  }
-  if (lpDDPalette2 != NULL)
-  {
-    lpDDPalette2->Release();
-    lpDDPalette2 = NULL;
   }
   return true;
 }
@@ -1140,12 +1150,6 @@ LPDIRECTDRAWSURFACE TDDrawSdk::wscreen_surface(void)
   }
 }
 
-bool TDDrawSdk::initFail(const char *msgtext)
-{
-  ERRORLOG("initFail called: %s",msgtext);
-  return false;
-}
-
 DWORD CALLBACK TDDrawSdk::sdk_window_thread(LPVOID lpParam)
 {
   struct TDDrawSdk *pthis;
@@ -1158,7 +1162,7 @@ DWORD CALLBACK TDDrawSdk::sdk_window_thread(LPVOID lpParam)
     return 0;
   }
   pthis->window_created = 1;
-  while ( gmRet = GetMessage(&tMsg, pthis->hWindow, 0, 0) != 0)
+  while ((gmRet = GetMessage(&tMsg, pthis->hWindow, 0, 0)) != 0)
   {
     if (gmRet == -1)
     {

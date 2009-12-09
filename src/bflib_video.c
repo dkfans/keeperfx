@@ -316,8 +316,14 @@ TbResult LbScreenLoadGraphicsWindow(struct TbGraphicsWindow *grwnd)
   lbDisplay.GraphicsWindowY = grwnd->y;
   lbDisplay.GraphicsWindowWidth = grwnd->width;
   lbDisplay.GraphicsWindowHeight = grwnd->height;
-  lbDisplay.GraphicsWindowPtr = lbDisplay.WScreen
+  if (lbDisplay.WScreen != NULL)
+  {
+    lbDisplay.GraphicsWindowPtr = lbDisplay.WScreen
       + lbDisplay.GraphicsScreenWidth*lbDisplay.GraphicsWindowY + lbDisplay.GraphicsWindowX;
+  } else
+  {
+    lbDisplay.GraphicsWindowPtr = NULL;
+  }
   return Lb_SUCCESS;
 }
 
@@ -359,7 +365,13 @@ TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
   lbDisplay.GraphicsWindowY = y;
   lbDisplay.GraphicsWindowWidth = x2 - x;
   lbDisplay.GraphicsWindowHeight = y2 - y;
-  lbDisplay.GraphicsWindowPtr = lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth*y + x;
+  if (lbDisplay.WScreen != NULL)
+  {
+    lbDisplay.GraphicsWindowPtr = lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth*y + x;
+  } else
+  {
+    lbDisplay.GraphicsWindowPtr = NULL;
+  }
   return Lb_SUCCESS;
 }
 

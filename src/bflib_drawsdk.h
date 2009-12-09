@@ -80,7 +80,6 @@ class TDDrawSdk : public TDDrawBaseClass {
     bool release_surfaces(void);
     bool release_palettes(void);
     LPDIRECTDRAWSURFACE wscreen_surface(void);
-    bool initFail(const char *msgtext);
     void SetIcon(void);
     static DWORD CALLBACK sdk_window_thread(LPVOID);
     bool create_sdk_window(void);
@@ -92,11 +91,10 @@ class TDDrawSdk : public TDDrawBaseClass {
     // Properties
     LPDIRECTDRAWSURFACE lpDDSurface2;
     LPDIRECTDRAWSURFACE lpDDSurface1;
-    LPDIRECTDRAWPALETTE lpDDPalette1;
-    LPDIRECTDRAWPALETTE lpDDPalette2;
+    LPDIRECTDRAWPALETTE lpDDPalette;
     HRESULT ddResult;
     DDCAPS ddDriverCaps;
-    DDSCAPS field_170;
+    DDSCAPS ddSurfaceCaps;
     unsigned long vidMode;
     unsigned long resWidth;
     unsigned long resHeight;

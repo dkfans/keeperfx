@@ -219,7 +219,7 @@ short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
         }
       }
       SmackDoFrame(smktag);
-      if ( LbScreenLock() == 1 )
+      if (LbScreenLock() == Lb_SUCCESS)
       {
         copy_to_screen(buf, smktag->Width, smktag->Height, plyflags);
         LbScreenUnlock();
@@ -288,7 +288,7 @@ short play_smk_direct(char *fname, int smkflags, int plyflags)
           smk_palette[idx] = chr>>2;
         }
       }
-      if ( LbScreenLock() == 1 )
+      if (LbScreenLock() == Lb_SUCCESS)
       {
         int left = 0;
         if ( smktag->Width < _DK_lbDisplay.PhysicalScreenWidth )
