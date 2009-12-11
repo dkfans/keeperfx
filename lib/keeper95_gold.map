@@ -1117,6 +1117,7 @@
  0003:000258E8       lbSinTable
  0003:000260E8       lbCosTable
  0003:000280E8       lbFontPtr
+ 0003:000280EC       lbSpacesPerTab
  0003:000280F4       lpDDC
  0003:00028178       icon_index
  0003:00028280       lbKeyboardLang
@@ -1439,6 +1440,8 @@
  0003:0025C9F4       pixmap
  0003:002609F4       ghost
  0003:002735D0       lbDisplay
+ 0003:00273648       lbTextClipWindow
+ 0003:00273660       lbTextJustifyWindow
  0003:0027377C       hInstance
  0003:00273BAC       lbInkey
  0003:00273BB0       lbKeyOn

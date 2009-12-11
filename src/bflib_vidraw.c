@@ -35,9 +35,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT int _DK_LbSpriteDraw(long x, long y, struct TbSprite *spr);
-DLLIMPORT int _DK_LbSpriteDrawRemap(long x, long y, struct TbSprite *spr,unsigned char *map);
-DLLIMPORT int _DK_LbSpriteDrawOneColour(long x, long y, struct TbSprite *spr, TbPixel colour);
+DLLIMPORT int _DK_LbSpriteDraw(long x, long y, const struct TbSprite *spr);
+DLLIMPORT int _DK_LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,unsigned char *map);
+DLLIMPORT int _DK_LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour);
 /******************************************************************************/
 /*
 bool sprscale_enlarge;
@@ -205,6 +205,7 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
     }
   }
 }
+
 /*
  * Draws a filled box on current graphic window.
  * Performs clipping if needed to stay inside the window.
@@ -317,17 +318,17 @@ int LbDrawBox(long x, long y, unsigned long width, unsigned long height, TbPixel
   return 1;
 }
 
-int LbSpriteDraw(long x, long y, struct TbSprite *spr)
+int LbSpriteDraw(long x, long y, const struct TbSprite *spr)
 {
   return _DK_LbSpriteDraw(x, y, spr);
 }
 
-int LbSpriteDrawRemap(long x, long y, struct TbSprite *spr,unsigned char *map)
+int LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,unsigned char *map)
 {
   return _DK_LbSpriteDrawRemap(x, y, spr,map);
 }
 
-int LbSpriteDrawOneColour(long x, long y, struct TbSprite *spr, TbPixel colour)
+int LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour)
 {
   return _DK_LbSpriteDrawOneColour(x, y, spr, colour);
 }
@@ -2105,7 +2106,7 @@ inline void parse_text_line(const char *text, const long lastlinepos, const long
           if ( (lbFontPtr!=sprites.Font3) || (lang_selection!=1) )
               cj = my_to_upper(cj);
           struct TbSprite *chrsprite = &lbFontPtr[cj-31];
-          if ( lbDisplay.DrawFlags & 0x0040 )
+          if ((lbDisplay.DrawFlags & 0x0040) != 0)
           {
               LbSpriteDrawOneColour(*x, (*y)-font_offset(cj), chrsprite,
                   lbDisplay.DrawColour);
@@ -2386,7 +2387,7 @@ void __fastcall draw_purple_screen(void)
   vec_mode=17;
   int hs=0; //hotspot index
   int draw_item_idx=0;
-  if (LbScreenLock())
+  if (LbScreenLock() == Lb_SUCCESS)
   {
     while (draw_item_idx < purple_draw_index)
     {
