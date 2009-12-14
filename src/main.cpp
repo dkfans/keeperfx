@@ -2191,7 +2191,7 @@ long modem_initialise_callback(void)
     clear_key_pressed(KC_ESCAPE);
     return -7;
   }
-  if (LbScreenLock() == 1)
+  if (LbScreenLock() == Lb_SUCCESS)
   {
     draw_text_box(gui_strings[531]); // Initialising Modem
     LbScreenUnlock();
@@ -2207,7 +2207,7 @@ long modem_connect_callback(void)
     clear_key_pressed(KC_ESCAPE);
     return -7;
   }
-  if (LbScreenLock() == 1)
+  if (LbScreenLock() == Lb_SUCCESS)
   {
     draw_text_box(gui_strings[532]); // Connecting Modem
     LbScreenUnlock();
@@ -7499,7 +7499,7 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
     x = box_width + (MyScreenWidth-box_width-ornate_width) / 2;
     y = (MyScreenHeight-ornate_height) / 2;
     draw_ornate_slab64k(x, y, ornate_width, ornate_height);
-    lbFontPtr = winfont;
+    LbTextSetFont(winfont);
     lbDisplay.DrawFlags = 0x100;
     LbTextSetWindow(x/pixel_size, y/pixel_size, ornate_width/pixel_size, ornate_height/pixel_size);
     text_h = LbTextHeight("Wq");
@@ -10140,7 +10140,7 @@ void draw_sound_stuff(void)
   {
       unsigned char pos;
       eastegg_skeksis_cntr++;
-      lbFontPtr = winfont;
+      LbTextSetFont(winfont);
       text=buf_sprintf("Dene says a big 'Hello' to Goth Buns, Tarts and Barbies");
       lbDisplay.DrawFlags = 0x40;
       for (i=0; i<30; i+=2)
@@ -10163,7 +10163,7 @@ void draw_sound_stuff(void)
   {
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     lbDisplay.DrawFlags &= 0xFFBFu;
-    lbFontPtr = winfont;
+    LbTextSetFont(winfont);
     i = 0;
     text = buf_sprintf("Simon says Hi to everyone he knows...");
     px[i] += vx[i];
@@ -10203,7 +10203,7 @@ void draw_sound_stuff(void)
   {
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     lbDisplay.DrawFlags &= 0xFFBFu;
-    lbFontPtr = winfont;
+    LbTextSetFont(winfont);
     i = 1;
     text = buf_sprintf("Alex, hopefully lying on a beach with Jo, says Hi");
     px[i] += vx[i];
@@ -10626,8 +10626,8 @@ void message_draw(void)
   int i,h;
   long x,y;
   SYNCDBG(7,"Starting");
-  lbFontPtr = winfont;
-  h = LbTextHeight("Wg");
+  LbTextSetFont(winfont);
+  h = LbTextLineHeight();
   x = 148;
   y = 28;
   for (i=0; i < game.active_messages_count; i++)
@@ -11690,7 +11690,7 @@ void draw_map_level_name(void)
   // Drawing
   if (lv_name != NULL)
   {
-    lbFontPtr = winfont;
+    LbTextSetFont(winfont);
     lbDisplay.DrawFlags = 0;
     LbTextSetWindow(x/pixel_size, y/pixel_size, w/pixel_size, h/pixel_size);
     LbTextDraw((w-pixel_size*LbTextStringWidth(lv_name))/2 / pixel_size, 32 / pixel_size, lv_name);
@@ -11782,7 +11782,7 @@ void redraw_display(void)
       break;
   }
   //LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-  lbFontPtr = winfont;
+  LbTextSetFont(winfont);
   lbDisplay.DrawFlags &= 0xFFBFu;
   LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
   if (player->field_0 & 0x04)
@@ -11797,7 +11797,7 @@ void redraw_display(void)
       drwflags_mem = lbDisplay.DrawFlags;
       LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
       lbDisplay.DrawFlags = 0;
-      lbFontPtr = winfont;
+      LbTextSetFont(winfont);
       text = buf_sprintf("%d", draw_spell_cost);
       pos_y = GetMouseY() - pixel_size*LbTextStringHeight(text)/2 - 2;
       pos_x = GetMouseX() - pixel_size*LbTextStringWidth(text)/2;
@@ -11809,14 +11809,12 @@ void redraw_display(void)
     draw_bonus_timer();
   if (((game.numfield_C & 0x01) != 0) && ((game.numfield_C & 0x80) == 0))
   {
-        lbFontPtr = winfont;
+        LbTextSetFont(winfont);
         text = gui_strings[320]; // "Paused"
         long pos_x,pos_y;
         long w,h;
         int i;
-        i = 0;
-        if (lbFontPtr != NULL)
-          i = lbFontPtr[1].SWidth;
+        i = LbTextCharWidth(' ');
         w = pixel_size * (LbTextStringWidth(text) + 2*i);
         i = player->field_37;
         if ((i == 2) || (i == 5) || (i == 1))
@@ -11824,9 +11822,7 @@ void redraw_display(void)
         else
           pos_x = (MyScreenWidth-w)/2;
         pos_y=16;
-        i = 0;
-        if (lbFontPtr != NULL)
-          i = lbFontPtr[1].SHeight;
+        i = LbTextLineHeight();
         lbDisplay.DrawFlags = 0x0100;
         h = pixel_size*i + pixel_size*i/2;
         LbTextSetWindow(pos_x/pixel_size, pos_y/pixel_size, w/pixel_size, h/pixel_size);
@@ -11848,17 +11844,13 @@ void redraw_display(void)
     {
       i = game.play_gameturn - game.field_150356 - game.armageddon.count_down;
     }
-    lbFontPtr = winfont;
+    LbTextSetFont(winfont);
     text = buf_sprintf(" %s %03d", gui_strings[646], i/2); // Armageddon message
-    i = 0;
-    if (lbFontPtr != NULL)
-      i = lbFontPtr[1].SWidth;
+    i = LbTextCharWidth(' ');
     w = pixel_size*LbTextStringWidth(text) + 6*i;
     pos_x = MyScreenWidth - w - 16;
     pos_y = 16;
-    i = 0;
-    if (lbFontPtr != NULL)
-      i = lbFontPtr[1].SHeight;
+    i = LbTextLineHeight();
     lbDisplay.DrawFlags = 0x0100;
     h = pixel_size*i + pixel_size*i/2;
     LbTextSetWindow(pos_x/pixel_size, pos_y/pixel_size, w/pixel_size, h/pixel_size);
@@ -11935,7 +11927,7 @@ TbBool keeper_screen_swap(void)
 {
 /*  // For resolution 640x480, move the graphics data 40 lines lower
   if ( lbDisplay.ScreenMode == Lb_SCREEN_MODE_640_480_8 )
-    if ( LbScreenLock() == 1 )
+    if (LbScreenLock() == Lb_SUCCESS)
     {
       int i;
       int scrmove_x=0;
@@ -11984,7 +11976,7 @@ TbBool keeper_screen_redraw(void)
   SYNCDBG(5,"Starting");
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   LbScreenClear(0);
-  if (LbScreenLock() == 1)
+  if (LbScreenLock() == Lb_SUCCESS)
   {
     setup_engine_window(player->engine_window_x, player->engine_window_y,
         player->engine_window_width, player->engine_window_height);
@@ -12084,7 +12076,7 @@ void keeper_gameplay_loop(void)
         keeper_screen_redraw();
       keeper_wait_for_screen_focus();
       // Direct information/error messages
-      if (LbScreenLock() == 1)
+      if (LbScreenLock() == Lb_SUCCESS)
       {
         if ( do_draw )
           perform_any_screen_capturing();

@@ -60,7 +60,7 @@ void frontcredits_draw(void)
       fontid = credit->font;
       lbFontPtr = frontend_font[fontid];
     }
-    if (h > -LbTextHeight("Wg"))
+    if (h > -LbTextLineHeight())
     {
         switch (credit->kind)
         {
@@ -80,7 +80,7 @@ void frontcredits_draw(void)
         LbTextDraw(0, h, text);
         did_draw = 1;
     }
-    h += LbTextHeight("Wg") + 2;
+    h += LbTextLineHeight() + 2;
   }
   if (!did_draw)
   {

@@ -162,7 +162,7 @@ short copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_wi
     m=1;
   }
   // Locking screen
-  if (LbScreenLock()!=1)
+  if (LbScreenLock() != Lb_SUCCESS)
     return false;
   // Starting point coords
   spx = (mdinfo->Width-m*img_width)>>1;
@@ -463,7 +463,7 @@ TbBool display_centered_message(long showTime, char *text)
   while ( !finish )
   {
       // Redraw screen
-      if (LbScreenLock() == 1)
+      if (LbScreenLock() == Lb_SUCCESS)
       {
         draw_text_box(text);
         LbScreenUnlock();

@@ -835,11 +835,14 @@ TbBool load_map_and_window(LevelNumber lvnum)
     ERRORLOG("Unable to load land Map background");
     return false;
   }
+JUSTLOG("8");
   map_screen = &game.land_map_start;
-  memcpy(frontend_backup_palette, frontend_palette, PALETTE_SIZE);
+JUSTLOG("9 %x",frontend_backup_palette);
+  memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
+JUSTLOG("10 [%s]",land_window);
   fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
   wait_for_cd_to_be_available();
-  if (LbFileLoadAt(fname, block_mem) == -1)
+  if (LbFileLoadAt(fname, block_mem) < 1)
   {
     ERRORLOG("Unable to load Land Map Window");
     unload_map_and_window();

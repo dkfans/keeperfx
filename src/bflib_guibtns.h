@@ -156,7 +156,7 @@ struct GuiMenu {
       short pos_y;
       short width;
       short height;
-      Gf_Mnu_Callback ptrfield_10;
+      Gf_Mnu_Callback draw_cb;
       char field_14;
       struct GuiMenu *ptrfield_15;
       Gf_Mnu_Callback ptrfield_19;

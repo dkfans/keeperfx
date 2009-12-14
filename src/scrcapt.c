@@ -74,7 +74,7 @@ long prepare_hsi_screenshot(unsigned char *buf,unsigned char *palette)
   lock_mem = LbScreenIsLocked();
   if (!lock_mem)
   {
-    if (LbScreenLock()!=1)
+    if (LbScreenLock() != Lb_SUCCESS)
     {
       ERRORLOG("Can't lock canvas");
       LbMemoryFree(buf);
@@ -136,7 +136,7 @@ long prepare_bmp_screenshot(unsigned char *buf,unsigned char *palette)
   lock_mem = LbScreenIsLocked();
   if (!lock_mem)
   {
-    if (LbScreenLock()!=1)
+    if (LbScreenLock() != Lb_SUCCESS)
     {
       ERRORLOG("Can't lock canvas");
       LbMemoryFree(buf);
@@ -247,7 +247,7 @@ short movie_record_frame(void)
   lock_mem = LbScreenIsLocked();
   if (!lock_mem)
   {
-    if (LbScreenLock()!=1)
+    if (LbScreenLock() != Lb_SUCCESS)
       return 0;
   }
   LbPaletteGet(cap_palette);

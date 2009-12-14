@@ -1671,7 +1671,7 @@ void versions_different_error(void)
     if (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_SPACE] || lbKeyOn[KC_RETURN])
       break;
     LbWindowsControl();
-    if (LbScreenLock() == 1)
+    if (LbScreenLock() == Lb_SUCCESS)
     {
       draw_text_box(text);
       LbScreenUnlock();
@@ -1911,7 +1911,7 @@ int frontend_font_char_width(int fnt_idx,char c)
 
 int frontend_font_string_width(int fnt_idx,char *str)
 {
-  lbFontPtr = frontend_font[fnt_idx];
+  LbTextSetFont(frontend_font[fnt_idx]);
   return LbTextStringWidth(str);
 }
 
@@ -1967,8 +1967,8 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, char *
   if (text != NULL)
   {
     lbDisplay.DrawFlags = drw_flags;
-    lbFontPtr = frontend_font[fntidx];
-    h=LbTextHeight(text);
+    LbTextSetFont(frontend_font[fntidx]);
+    h = LbTextHeight(text);
     x = gbtn->scr_pos_x + ((40) >> 1);
     y = gbtn->scr_pos_y + ((frontend_sprite[spridx].SHeight-h) >> 1);
     LbTextSetWindow(x, y, gbtn->width-40, h);
@@ -3486,7 +3486,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     pos_x += swpspr->SWidth;
     swpspr++;
   }
-  lbFontPtr = frontend_font[1];
+  LbTextSetFont(frontend_font[1]);
   lbDisplay.DrawFlags = 0;
   spr = &frontend_sprite[33];
   pos_x = gbtn->scr_pos_x + spr->SWidth;
@@ -3499,7 +3499,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
   for (k=0; k < VISIBLE_HIGH_SCORES_COUNT-1; k++)
   {
     draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width);
-    pos_y += LbTextHeight("Wg");
+    pos_y += LbTextLineHeight();
   }
   if (high_score_entry_input_active > k)
     draw_high_score_entry(high_score_entry_input_active, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width);
@@ -3569,7 +3569,7 @@ TbBool frontend_high_score_table_input(void)
     chr = key_to_ascii(lbInkey, key_modifiers);
     if (chr != 0)
     {
-      lbFontPtr = frontend_font[1];
+      LbTextSetFont(frontend_font[1]);
       i = LbTextCharWidth(chr);
       if ((i > 0) && (i+LbTextStringWidth(high_score_entry) < 308))
       {
@@ -3753,12 +3753,12 @@ void frontend_draw_text(struct GuiButton *gbtn)
   lbDisplay.DrawFlags = 0x20;
   febtn_data = &frontend_button_info[i%FRONTEND_BUTTON_INFO_COUNT];
   if ((gbtn->field_0 & 0x08) == 0)
-    lbFontPtr = frontend_font[3];
+    LbTextSetFont(frontend_font[3]);
   else
   if ((i != 0) && (frontend_mouse_over_button == i))
-    lbFontPtr = frontend_font[2];
+    LbTextSetFont(frontend_font[2]);
   else
-    lbFontPtr = frontend_font[febtn_data->field_2];
+    LbTextSetFont(frontend_font[febtn_data->field_2]);
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
   LbTextDraw(0, 0, gui_strings[febtn_data->capstr_idx%STRINGS_MAX]);
 }
@@ -3840,7 +3840,7 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
 
 void display_attempting_to_join_message(void)
 {
-  if (LbScreenLock() == 1)
+  if (LbScreenLock() == Lb_SUCCESS)
   {
     draw_text_box(gui_strings[868]); // "Attempting To Join"
     LbScreenUnlock();
@@ -4265,8 +4265,8 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
   if ((gbidx != 0) && (frontend_mouse_over_button == gbidx))
       nfont = 2;
   lbDisplay.DrawFlags = 0x20;
-  lbFontPtr = frontend_font[nfont];
-  h = LbTextHeight("Wg");
+  LbTextSetFont(frontend_font[nfont]);
+  h = LbTextLineHeight();
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, h);
   i = frontend_load_game_button_to_index(gbtn);
   if (i < 0)
@@ -4839,12 +4839,11 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
   fntidx = frontend_button_info[fbinfo_idx%FRONTEND_BUTTON_INFO_COUNT].field_2;
   if ((fbinfo_idx != 0) && (frontend_mouse_over_button == fbinfo_idx))
       fntidx = 2;
-  lbFontPtr = frontend_font[fntidx];
+  LbTextSetFont(frontend_font[fntidx]);
   // Set drawing windsow
-  int height = 0;
+  int height;
   lbDisplay.DrawFlags = 0x0020;
-  if ( lbFontPtr!=NULL )
-      height = LbTextHeight(net_service[srvidx]);
+  height = LbTextHeight(net_service[srvidx]);
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
   //Draw the text
   LbTextDraw(0, 0, net_service[srvidx]);
@@ -5486,7 +5485,7 @@ char create_menu(struct GuiMenu *gmnu)
   amnu->ptrfield_4 = gmnu->ptrfield_4;
   amnu->width = gmnu->width;
   amnu->height = gmnu->height;
-  amnu->ptrfield_10 = gmnu->ptrfield_10;
+  amnu->draw_cb = gmnu->draw_cb;
   amnu->ptrfield_19 = gmnu->ptrfield_19;
   amnu->flgfield_1E = gmnu->flgfield_1E;
   amnu->field_1F = gmnu->field_1F;
@@ -5861,8 +5860,8 @@ void frontend_draw_level_select_button(struct GuiButton *gbtn)
   else
     i = 1;
   lbDisplay.DrawFlags = 0x20;
-  lbFontPtr = frontend_font[i];
-  i = LbTextStringHeight("Wg");
+  LbTextSetFont(frontend_font[i]);
+  i = LbTextLineHeight();
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
   LbTextDraw(0, 0, lvinfo->name);
 }
@@ -5969,8 +5968,8 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
   else*/
     i = 1;
   lbDisplay.DrawFlags = 0x20;
-  lbFontPtr = frontend_font[i];
-  i = LbTextStringHeight("Wg");
+  LbTextSetFont(frontend_font[i]);
+  i = LbTextLineHeight();
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
   LbTextDraw(0, 0, campgn->name);
 }
@@ -6507,7 +6506,7 @@ int frontstory_draw(void)
 {
   frontend_copy_background();
   LbTextSetWindow(70, 70, 500, 340);
-  lbFontPtr = frontstory_font;
+  LbTextSetFont(frontstory_font);
   lbDisplay.DrawFlags = 0x0100;
   LbTextDraw(0, 0, gui_strings[frontstory_text_no%STRINGS_MAX]);
 }
@@ -6600,7 +6599,7 @@ void draw_active_menus_buttons(void)
     if (menu_num < 0) continue;
     gmnu = &active_menus[menu_num];
 //SYNCMSG("DRAW menu %d, fields %d, %d",menu_num,gmnu->field_1,gmnu->flgfield_1D);
-    if ((gmnu->field_1) && (gmnu->flgfield_1D))
+    if ((gmnu->field_1 != 0) && (gmnu->flgfield_1D))
     {
         if ((gmnu->field_1 != 2) && (gmnu->numfield_2))
         {
@@ -6608,7 +6607,7 @@ void draw_active_menus_buttons(void)
             if (gmnu->ptrfield_15->numfield_2)
               lbDisplay.DrawFlags |= 0x04;
         }
-        callback = gmnu->ptrfield_10;
+        callback = gmnu->draw_cb;
         if (callback != NULL)
           callback(gmnu);
         if (gmnu->field_1 == 2)
@@ -6698,7 +6697,7 @@ void draw_gui(void)
 {
   SYNCDBG(6,"Starting");
   unsigned int flg_mem;
-  lbFontPtr = winfont;
+  LbTextSetFont(winfont);
   flg_mem = lbDisplay.DrawFlags;
   LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   update_fade_active_menus();
@@ -6755,14 +6754,13 @@ void frontbirthday_draw()
 {
   frontend_copy_background();
   LbTextSetWindow(70, 70, 500, 340);
-  lbFontPtr = frontstory_font;
+  LbTextSetFont(frontstory_font);
   lbDisplay.DrawFlags = 0x0100;
   const char *name=get_team_birthday();
   if ( name != NULL )
   {
-      unsigned short line_pos = 0;
-      if ( lbFontPtr != NULL )
-          line_pos = lbFontPtr[1].SHeight;
+      unsigned short line_pos;
+      line_pos = LbTextLineHeight();
       LbTextDraw(0, 170-line_pos, gui_strings[885]); // "Happy Birthday"
       LbTextDraw(0, 170, name);
   } else
@@ -6787,9 +6785,10 @@ short frontend_draw(void)
         return 0;
     }
 
-    if ( LbScreenLock() != 1 )
-        return result;
+    if (LbScreenLock() != Lb_SUCCESS)
+        return 2;
 
+    result = 1;
     switch ( frontend_menu_state )
     {
     case FeSt_MAIN_MENU:
@@ -7056,8 +7055,8 @@ void frontstats_update(void)
   LevelNumber lvnum;
   int h;
   scrolling_offset++;
-  lbFontPtr = frontend_font[1];
-  h = LbTextHeight("Wg");
+  LbTextSetFont(frontend_font[1]);
+  h = LbTextLineHeight();
   if (h+4 < scrolling_offset)
   {
     scrolling_offset -= h+4;
@@ -7267,7 +7266,7 @@ void gui_draw_all_boxes(void)
   struct GuiBox *gbox;
   SYNCDBG(5,"Starting");
   lbDisplay.DrawFlags = 0x0040;
-  lbFontPtr = font_sprites;
+  LbTextSetFont(font_sprites);
   gbox = gui_get_lowest_priority_box();
   while (gbox != NULL)
   {
@@ -7343,7 +7342,7 @@ long gui_calculate_box_height(struct GuiBox *gbox)
     i++;
     goptn++;
   }
-  return i*(pixel_size*LbTextStringHeight("Wg")+2) + 16;
+  return i*(pixel_size*LbTextLineHeight()+2) + 16;
 }
 
 void gui_remove_box_from_list(struct GuiBox *gbox)
@@ -7379,7 +7378,7 @@ struct GuiBox *gui_create_box(long x, long y, struct GuiBoxOption *optn_list)
   if (gbox == NULL)
     return NULL;
   // Setting gui font - will be required to properly calculate box dimensions
-  lbFontPtr = font_sprites;
+  LbTextSetFont(font_sprites);
   gbox->optn_list = optn_list;
   gbox->pos_x = x;
   gbox->pos_y = y;
@@ -7563,7 +7562,7 @@ struct GuiBoxOption *gui_get_box_option_point_over(struct GuiBox *gbox, long x, 
   sx = gbox->pos_x + 8;
   sy = gbox->pos_y + 8;
   gboptn = gbox->optn_list;
-  lnheight = LbTextStringHeight("Wg")*pixel_size + 2;
+  lnheight = LbTextLineHeight()*pixel_size + 2;
   while (gboptn->label[0] != '!')
   {
     height = LbTextStringHeight(gboptn->label)*pixel_size;
@@ -7633,8 +7632,8 @@ void gui_draw_box(struct GuiBox *gbox)
     goptn_over = gui_get_box_option_point_over(gbox_over, mouse_x, mouse_y);
   }
 
-  lbFontPtr = font_sprites;
-  lnheight = pixel_size * LbTextStringHeight("Wg") + 2;
+  LbTextSetFont(font_sprites);
+  lnheight = pixel_size * LbTextLineHeight() + 2;
   pos_y = gbox->pos_y + 8;
   pos_x = gbox->pos_x + 8;
   if (gbox != gui_get_highest_priority_box())
@@ -7770,7 +7769,7 @@ short gui_process_inputs(void)
   } else
   if (left_button_clicked)
   {
-    lbFontPtr = font_sprites;
+    LbTextSetFont(font_sprites);
     gbox = gui_get_box_point_over(left_button_clicked_x, left_button_clicked_y);
     if (gbox != NULL)
     {
@@ -7796,7 +7795,7 @@ short gui_process_inputs(void)
     gbox = gui_get_box_point_over(left_button_clicked_x, left_button_clicked_y);
     if (gbox != NULL)
     {
-      lbFontPtr = font_sprites;
+      LbTextSetFont(font_sprites);
       goptn = gui_get_box_option_point_over(gbox, left_button_clicked_x, left_button_clicked_y);
       if ((gbox == hpbox) && (goptn != NULL))
       {
@@ -7810,7 +7809,7 @@ short gui_process_inputs(void)
     gbox = gui_get_box_point_over(left_button_clicked_x, left_button_clicked_y);
     if (gbox != NULL)
     {
-      lbFontPtr = font_sprites;
+      LbTextSetFont(font_sprites);
       goptn = gui_get_box_option_point_over(gbox, left_button_clicked_x, left_button_clicked_y);
       if ((gbox == hpbox) && (goptn != NULL))
       {
@@ -7819,6 +7818,7 @@ short gui_process_inputs(void)
       result = true;
     }
   }
+/* These are making incorrect mouse function in possesion - thus disabled
   if (hpbox != NULL)
   {
     if (is_key_pressed(KC_UP,KM_NONE))
@@ -7846,6 +7846,7 @@ short gui_process_inputs(void)
       result = true;
     }
   }
+*/
   SYNCDBG(9,"Returning %s",result?"true":"false");
   return result;
 }
