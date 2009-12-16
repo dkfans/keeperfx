@@ -112,7 +112,7 @@ DLLIMPORT char _DK_update_menu_fade_level(struct GuiMenu *gmnu);
 DLLIMPORT void _DK_draw_menu_buttons(struct GuiMenu *gmnu);
 DLLIMPORT void _DK_draw_load_button(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_null(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_button(struct GuiButton *gbtn, long a2, char *text, long a4);
+DLLIMPORT void _DK_frontend_draw_button(struct GuiButton *gbtn, long a2, const char *text, long a4);
 DLLIMPORT char _DK_create_menu(struct GuiMenu *mnu);
 DLLIMPORT char _DK_create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit);
 DLLIMPORT void _DK_maintain_event_button(struct GuiButton *gbtn);
@@ -1915,7 +1915,7 @@ int frontend_font_string_width(int fnt_idx,char *str)
   return LbTextStringWidth(str);
 }
 
-void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, char *text, unsigned int drw_flags)
+void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const char *text, unsigned int drw_flags)
 {
   static const long large_button_sprite_anims[] =
       { 2, 5, 8, 11, 14, 11, 8, 5, };
@@ -3401,7 +3401,17 @@ void frontstats_leave(struct GuiButton *gbtn)
 
 void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn)
 {
-  _DK_frontend_draw_vlarge_menu_button(gbtn);
+  unsigned int fbinfo_idx;
+  const char *text;
+  int i;
+  //_DK_frontend_draw_vlarge_menu_button(gbtn);
+  fbinfo_idx = (unsigned long)gbtn->field_33;
+  i = frontend_button_info[fbinfo_idx%FRONTEND_BUTTON_INFO_COUNT].capstr_idx;
+  if (i > 0)
+    text = gui_strings[i];
+  else
+    text = NULL;
+  frontend_draw_button(gbtn, 2, text, 256);
 }
 
 void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width)
@@ -6769,9 +6779,13 @@ void frontbirthday_draw()
   }
 }
 
+/**
+ * Frontend drawing function.
+ * @return Gives 0 if a movie has started, 1 if normal draw occured, 2 on error.
+ */
 short frontend_draw(void)
 {
-    short result=1;
+    short result;
     switch (frontend_menu_state)
     {
     case FeSt_INTRO:
@@ -7083,7 +7097,7 @@ void frontend_update(short *finish_menu)
     SYNCDBG(18,"Starting for menu state %d", (int)frontend_menu_state);
     switch ( frontend_menu_state )
     {
-      case 1:
+      case FeSt_MAIN_MENU:
         frontend_button_info[8].field_2 = (continue_game_option_available?1:3);
         //this uses original timing function for compatibility with frontend_set_state()
         if ( abs(LbTimerClock()-time_last_played_demo) > MNU_DEMO_IDLE_TIME )
@@ -7095,26 +7109,26 @@ void frontend_update(short *finish_menu)
       case FeSt_LAND_VIEW:
         *finish_menu = frontmap_update();
         break;
-      case 4:
+      case FeSt_NET_SERVICE:
         frontnet_service_update();
         break;
-      case 5:
+      case FeSt_NET_SESSION:
         frontnet_session_update();
         break;
-      case 6:
+      case FeSt_NET_START:
         frontnet_start_update();
         break;
       case 7:
       case 8:
-      case 10:
-      case 25:
+      case FeSt_LOAD_GAME:
+      case FeSt_PACKET_DEMO:
         *finish_menu = 1;
         break;
       case 9:
         *finish_menu = 1;
         exit_keeper = 1;
         break;
-      case 13:
+      case FeSt_CREDITS:
         if ((game.flags_cd & MFlg_NoMusic) == 0)
           PlayRedbookTrack(7);
         break;

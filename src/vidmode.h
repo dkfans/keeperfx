@@ -79,7 +79,7 @@ TbBool setup_screen_mode_zero(unsigned short nmode);
 
 short LoadMcgaData(void);
 short LoadMcgaDataMinimal(void);
-short update_screen_mode_data(long width, long height);
+TbBool update_screen_mode_data(long width, long height);
 void load_pointer_file(short hi_res);
 
 TbBool set_pointer_graphic_none(void);

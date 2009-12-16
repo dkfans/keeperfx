@@ -876,7 +876,7 @@ void load_or_create_high_score_table(void)
   }
 }
 
-short load_high_score_table(void)
+TbBool load_high_score_table(void)
 {
   char *fname;
   long arr_size;
@@ -899,7 +899,7 @@ short load_high_score_table(void)
   return false;
 }
 
-short save_high_score_table(void)
+TbBool save_high_score_table(void)
 {
   char *fname;
   long fsize;
@@ -915,10 +915,10 @@ short save_high_score_table(void)
   return false;
 }
 
-/*
+/**
  * Generates new high score table if previous can't be loaded.
  */
-short create_empty_high_score_table(void)
+TbBool create_empty_high_score_table(void)
 {
   long arr_size;
   int npoints;
@@ -949,7 +949,7 @@ short create_empty_high_score_table(void)
   }
 }
 
-/*
+/**
  * Adds new entry to high score table. Returns its index.
  */
 int add_high_score_entry(unsigned long score, LevelNumber lvnum, char *name)

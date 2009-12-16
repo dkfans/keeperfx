@@ -13649,6 +13649,29 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
   }
 
   retval = setup_game();
+  if (retval)
+  {
+    if ((install_info.lang_id == 16) || (install_info.lang_id == 17) ||
+        (install_info.lang_id == 18))
+    {
+      switch (install_info.lang_id)
+      {
+      case 16:
+          dbc_set_language(1);
+          break;
+      case 17:
+          dbc_set_language(2);
+          break;
+      case 18:
+          dbc_set_language(3);
+          break;
+      }
+      if (dbc_initialize("fxdata"))
+      {
+        ERRORLOG("DBC fonts Initialization failed.");
+      }
+    }
+  }
   if ( retval )
     game_loop();
   reset_game();

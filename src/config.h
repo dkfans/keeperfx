@@ -155,9 +155,9 @@ TbBool censorship_enabled(void);
 short load_configuration(void);
 short calculate_moon_phase(short do_calculate,short add_to_log);
 void load_or_create_high_score_table(void);
-short load_high_score_table(void);
-short save_high_score_table(void);
-short create_empty_high_score_table(void);
+TbBool load_high_score_table(void);
+TbBool save_high_score_table(void);
+TbBool create_empty_high_score_table(void);
 int add_high_score_entry(unsigned long score, LevelNumber lvnum, char *name);
 unsigned long get_level_highest_score(LevelNumber lvnum);
 /******************************************************************************/

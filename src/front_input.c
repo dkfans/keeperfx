@@ -933,24 +933,29 @@ void get_isometric_view_nonaction_inputs(void)
 {
   struct PlayerInfo *player;
   struct Packet *pckt;
-  int key4_pressed,key5_pressed;
+  int speed_pressed,rotate_pressed;
+  TbBool no_mods;
   long mx,my;
-
+  //_DK_get_isometric_view_nonaction_inputs(); return;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   pckt = get_packet(my_player_number);
   mx = my_mouse_x;
   my = my_mouse_y;
-  key4_pressed = is_game_key_pressed(4, NULL, true);
-  key5_pressed = is_game_key_pressed(5, NULL, true);
+  speed_pressed = is_game_key_pressed(4, NULL, true);
+  rotate_pressed = is_game_key_pressed(5, NULL, true);
   if ((player->field_0 & 0x10) != 0)
     return;
-  if ( key5_pressed )
+  if (rotate_pressed != 0)
     pckt->field_10 |= 0x01;
+  no_mods = false;
+  if ((speed_pressed != 0) || (rotate_pressed != 0))
+    no_mods = true;
+
   if (mx <= 4)
   {
     if ( is_game_key_pressed(2, NULL, false) )
     {
-      if (!key4_pressed)
+      if (!speed_pressed)
         pckt->field_10 |= 0x01;
     }
     set_packet_control(pckt, 0x010);
@@ -959,7 +964,7 @@ void get_isometric_view_nonaction_inputs(void)
   {
     if ( is_game_key_pressed(3, NULL, false) )
     {
-      if (!key4_pressed)
+      if (!speed_pressed)
         pckt->field_10 |= 0x01;
     }
     set_packet_control(pckt, 0x020);
@@ -968,7 +973,7 @@ void get_isometric_view_nonaction_inputs(void)
   {
     if ( is_game_key_pressed(0, NULL, false) )
     {
-      if (!key4_pressed)
+      if (!speed_pressed)
         pckt->field_10 |= 0x01;
     }
     set_packet_control(pckt, 0x04);
@@ -977,20 +982,20 @@ void get_isometric_view_nonaction_inputs(void)
   {
     if ( is_game_key_pressed(1, NULL, false) )
     {
-      if (!key4_pressed)
+      if (!speed_pressed)
         pckt->field_10 |= 0x01;
     }
     set_packet_control(pckt, 0x08);
   }
-  if ( key4_pressed )
+  if ( speed_pressed )
   {
-    if ( is_game_key_pressed(2, NULL, key5_pressed!=0) )
+    if ( is_game_key_pressed(2, NULL, no_mods) )
       set_packet_control(pckt, 0x01);
-    if ( is_game_key_pressed(3, NULL, key5_pressed!=0) )
+    if ( is_game_key_pressed(3, NULL, no_mods) )
       set_packet_control(pckt, 0x02);
-    if ( is_game_key_pressed(0, NULL, key5_pressed!=0) )
+    if ( is_game_key_pressed(0, NULL, no_mods) )
       set_packet_control(pckt, 0x40);
-    if ( is_game_key_pressed(1, NULL, key5_pressed!=0) )
+    if ( is_game_key_pressed(1, NULL, no_mods) )
       set_packet_control(pckt, 0x80);
   } else
   {
@@ -1002,13 +1007,13 @@ void get_isometric_view_nonaction_inputs(void)
       set_packet_control(pckt, 0x40);
     if ( is_game_key_pressed(9, NULL, false) )
       set_packet_control(pckt, 0x80);
-    if ( is_game_key_pressed(2, NULL, key5_pressed!=0) )
+    if ( is_game_key_pressed(2, NULL, no_mods) )
       set_packet_control(pckt, 0x10);
-    if ( is_game_key_pressed(3, NULL, key5_pressed!=0) )
+    if ( is_game_key_pressed(3, NULL, no_mods) )
       set_packet_control(pckt, 0x20);
-    if ( is_game_key_pressed(0, NULL, key5_pressed!=0) )
+    if ( is_game_key_pressed(0, NULL, no_mods) )
       set_packet_control(pckt, 0x04);
-    if ( is_game_key_pressed(1, NULL, key5_pressed!=0) )
+    if ( is_game_key_pressed(1, NULL, no_mods) )
       set_packet_control(pckt, 0x08);
   }
 }
@@ -1017,24 +1022,24 @@ void get_overhead_view_nonaction_inputs(void)
 {
   struct PlayerInfo *player;
   struct Packet *pckt;
-  int key4_pressed,key5_pressed;
+  int speed_pressed,rotate_pressed;
   long mx,my;
   SYNCDBG(19,"Starting");
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
   pckt = get_packet(my_player_number);
   my = my_mouse_y;
   mx = my_mouse_x;
-  key4_pressed = is_game_key_pressed(4, 0, 1);
-  key5_pressed = is_game_key_pressed(5, 0, 1);
+  speed_pressed = is_game_key_pressed(4, NULL, true);
+  rotate_pressed = is_game_key_pressed(5, NULL, true);
   if ((player->field_0 & 0x10) == 0)
   {
-    if (key5_pressed)
+    if (rotate_pressed)
       pckt->field_10 |= 0x01;
-    if (key4_pressed)
+    if (speed_pressed)
     {
-      if ( is_game_key_pressed(0, NULL, key5_pressed!=0) )
+      if ( is_game_key_pressed(0, NULL, rotate_pressed!=0) )
         set_packet_control(pckt, 0x40);
-      if ( is_game_key_pressed(1, NULL, key5_pressed!=0) )
+      if ( is_game_key_pressed(1, NULL, rotate_pressed!=0) )
         set_packet_control(pckt, 0x80);
     }
     if (my <= 4)
@@ -1062,7 +1067,7 @@ short slab_type_is_door(unsigned short slab_type)
  * Updates given position and context variables.
  * Makes no changes to the Game or Packets.
  */
-unsigned char get_player_coords_and_context(struct Coord3d *pos, unsigned char *context)
+TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context)
 {
   struct PlayerInfo *player;
   struct SlabMap *slb;
@@ -1072,8 +1077,8 @@ unsigned char get_player_coords_and_context(struct Coord3d *pos, unsigned char *
   unsigned int slab_x,slab_y;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   if ((pointer_x < 0) || (pointer_y < 0)
-    || (pointer_x >= player->engine_window_width/pixel_size)
-    || (pointer_y >= player->engine_window_height/pixel_size))
+   || (pointer_x >= player->engine_window_width/pixel_size)
+   || (pointer_y >= player->engine_window_height/pixel_size))
       return false;
   if (top_pointed_at_x <= map_subtiles_x)
     x = top_pointed_at_x;
@@ -1087,7 +1092,7 @@ unsigned char get_player_coords_and_context(struct Coord3d *pos, unsigned char *
   slab_y = map_to_slab[y];
   slb = get_slabmap_block(slab_x, slab_y);
   slbattr = &slab_attrs[slb->slab%SLAB_TYPES_COUNT];
-  if (slab_type_is_door(slb->slab) && ((slb->field_5 & 7) == player->field_2B))
+  if (slab_type_is_door(slb->slab) && (slabmap_owner(slb) == player->field_2B))
   {
     *context = 2;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -1126,10 +1131,10 @@ unsigned char get_player_coords_and_context(struct Coord3d *pos, unsigned char *
     else
       *context = 0;
   }
-  if (pos->x.val > (map_subtiles_x << 8))
-    pos->x.val = (map_subtiles_x << 8);
-  if (pos->y.val > (map_subtiles_y << 8))
-    pos->y.val = (map_subtiles_y << 8);
+  if (pos->x.val >= (map_subtiles_x << 8))
+    pos->x.val = (map_subtiles_x << 8)-1;
+  if (pos->y.val >= (map_subtiles_y << 8))
+    pos->y.val = (map_subtiles_y << 8)-1;
   return true;
 }
 
