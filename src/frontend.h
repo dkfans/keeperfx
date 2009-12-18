@@ -128,6 +128,8 @@ enum FrontendMenuState {
   FeSt_STORY_BIRTHDAY     = 29,
   FeSt_LEVEL_SELECT       = 30,
   FeSt_CAMPAIGN_SELECT    = 31,
+  // Special testing states
+  FeSt_FONT_TEST          = 255,
 };
 
 struct DemoItem { //sizeof = 5
@@ -482,6 +484,13 @@ extern struct GuiMenu *menu_list[MENU_LIST_ITEMS_COUNT];
 
 extern int status_panel_width;
 
+#if (BFDEBUG_LEVEL > 0)
+#define TESTFONTS_COUNT 12
+extern struct TbSprite *testfont[TESTFONTS_COUNT];
+extern struct TbSprite *testfont_end[TESTFONTS_COUNT];
+extern unsigned long testfont_data[TESTFONTS_COUNT];
+extern unsigned char *testfont_palette[3];
+#endif
 /******************************************************************************/
 
 // Reworked functions

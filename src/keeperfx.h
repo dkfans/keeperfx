@@ -279,6 +279,14 @@ struct MessageQueueEntry { // sizeof = 9
      unsigned long field_5;
 };
 
+struct TextScrollWindow {
+    char text[MESSAGE_TEXT_LEN];
+    long start_y;
+    char action;
+    long text_height;
+    long window_height;
+};
+
 struct ResearchVal { // sizeof = 6
   unsigned char rtyp;
   unsigned char rkind;
@@ -1273,11 +1281,7 @@ unsigned char field_1506D4;
 long field_1506D5;
     char evntbox_text_objective[MESSAGE_TEXT_LEN];
     char evntbox_text_buffer[MESSAGE_TEXT_LEN];
-    char evntbox_text_shown[MESSAGE_TEXT_LEN];
-int field_1512D9;
-char field_1512DD;
-int field_1512DE;
-int field_1512E2;
+    struct TextScrollWindow evntbox_scroll_window;
 char field_1512E6[1037];
 int field_1516F3;
 int field_1516F7; // signed

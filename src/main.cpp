@@ -7212,7 +7212,7 @@ void clear_events(void)
   {
     memset(&game.event[i], 0, sizeof(struct Event));
   }
-  memset(&game.evntbox_text_shown, 0, MESSAGE_TEXT_LEN);
+  memset(&game.evntbox_scroll_window, 0, sizeof(struct TextScrollWindow));
   memset(&game.evntbox_text_buffer, 0, MESSAGE_TEXT_LEN);
   memset(&game.evntbox_text_objective, 0, MESSAGE_TEXT_LEN);
   for (i=0; i < 5; i++)
@@ -7932,10 +7932,10 @@ void turn_off_sight_of_evil(long plridx)
 
 void reset_scroll_window(void)
 {
-  game.field_1512D9 = 0;
-  game.field_1512DD = 0;
-  game.field_1512DE = 0;
-  game.field_1512E2 = 0;
+  game.evntbox_scroll_window.start_y = 0;
+  game.evntbox_scroll_window.action = 0;
+  game.evntbox_scroll_window.text_height = 0;
+  game.evntbox_scroll_window.window_height = 0;
 }
 
 unsigned char find_first_battle_of_mine(unsigned char idx)
@@ -8147,7 +8147,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
   {
     i = event_button_info[event->kind].field_6;
     if (i != 201)
-      strcpy(game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
+      strcpy(game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
   }
   if (event->kind == 2)
     dungeon->field_1174 = find_first_battle_of_mine(plridx);
@@ -8166,7 +8166,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         turn_on_menu(GMnu_BATTLE);
         break;
     case 3:
-        strcpy(game.evntbox_text_shown, game.evntbox_text_objective);
+        strcpy(game.evntbox_scroll_window.text, game.evntbox_text_objective);
         for (i=EVENT_BUTTONS_COUNT; i >= 0; i--)
         {
           k = dungeon->field_13A7[i];
@@ -8183,8 +8183,8 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         other_off = 1;
         rdata = room_data_get_for_kind(event->target);
         i = rdata->msg1str_idx;
-        text = buf_sprintf("%s:\n%s",game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
+        text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 6:
@@ -8196,30 +8196,30 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         {
           crdata = creature_data_get_from_thing(thing);
           i = crdata->namestr_idx;
-          text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
-          strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
+          text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+          strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         }
         turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 7:
         other_off = 1;
         i = spell_data[event->target % (SPELL_TYPES_COUNT+1)].field_D;
-        text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
+        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 8:
         other_off = 1;
         i = trap_data[event->target % MANUFCTR_TYPES_COUNT].name_stridx;
-        text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
+        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 9:
         other_off = 1;
         i = door_names[event->target % DOOR_TYPES_COUNT];
-        text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
+        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 10: // Scavenge detected
@@ -8231,8 +8231,8 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         {
           crdata = creature_data_get_from_thing(thing);
           i = crdata->namestr_idx;
-          text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
-          strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
+          text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+          strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         }
         turn_on_menu(GMnu_TEXT_INFO);
         break;
@@ -8243,8 +8243,8 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         break;
     case 12:
         other_off = 1;
-        text = buf_sprintf("%s:\n %d", game.evntbox_text_shown, event->target);
-        strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
+        text = buf_sprintf("%s:\n %d", game.evntbox_scroll_window.text, event->target);
+        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 14:
@@ -8253,16 +8253,16 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         if (thing_is_invalid(thing))
           break;
         i = spell_data[book_thing_to_magic(thing)].field_D;
-        text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
+        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 15:
         other_off = 1;
         rdata = room_data_get_for_kind(event->target);
         i = rdata->msg1str_idx;
-        text = buf_sprintf("%s:\n%s",game.evntbox_text_shown,gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
+        text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text,gui_strings[i%STRINGS_MAX]);
+        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 16:
@@ -8274,8 +8274,8 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         {
           crdata = creature_data_get_from_thing(thing);
           i = crdata->namestr_idx;
-          text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
-          strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
+          text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+          strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         }
         turn_on_menu(GMnu_TEXT_INFO);
         break;
@@ -8296,7 +8296,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
           event->target = i;
         }
         strncpy(game.evntbox_text_buffer, campaign.strings[i%STRINGS_MAX], MESSAGE_TEXT_LEN-1);
-        strncpy(game.evntbox_text_shown, game.evntbox_text_buffer, MESSAGE_TEXT_LEN-1);
+        strncpy(game.evntbox_scroll_window.text, game.evntbox_text_buffer, MESSAGE_TEXT_LEN-1);
         other_off = 1;
         turn_on_menu(GMnu_TEXT_INFO);
         break;
@@ -8306,8 +8306,8 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         if (thing_is_invalid(thing))
           break;
         i = trap_data[box_thing_to_door_or_trap(thing)].name_stridx;
-        text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
+        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
       case 25:
@@ -8316,8 +8316,8 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         if (thing_is_invalid(thing))
           break;
         i = door_names[box_thing_to_door_or_trap(thing)];
-        text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
+        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
       case 26:
@@ -8326,8 +8326,8 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         if (thing_is_invalid(thing))
           break;
         i = specials_text[box_thing_to_special(thing)];
-        text = buf_sprintf("%s:\n%s", game.evntbox_text_shown, gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_text_shown,text,MESSAGE_TEXT_LEN-1);
+        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
       case 27:
@@ -8338,7 +8338,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
           event->target = i;
         }
         strncpy(game.evntbox_text_buffer, gameadd.quick_messages[i%QUICK_MESSAGES_COUNT], MESSAGE_TEXT_LEN-1);
-        strncpy(game.evntbox_text_shown, game.evntbox_text_buffer, MESSAGE_TEXT_LEN-1);
+        strncpy(game.evntbox_scroll_window.text, game.evntbox_text_buffer, MESSAGE_TEXT_LEN-1);
         other_off = 1;
         turn_on_menu(GMnu_TEXT_INFO);
         break;

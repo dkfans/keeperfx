@@ -95,6 +95,52 @@ struct TbSetupSprite setup_sprites[] = {
   {NULL,                  NULL,                   NULL},
 };
 
+#if (BFDEBUG_LEVEL > 0)
+// Declarations for font testing screen (debug version only)
+struct TbSetupSprite setup_testfont[] = {
+  {&testfont[0],          &testfont_end[0],       &testfont_data[0]},
+  {&testfont[1],          &testfont_end[1],       &testfont_data[1]},
+  {&testfont[2],          &testfont_end[2],       &testfont_data[2]},
+  {&testfont[3],          &testfont_end[3],       &testfont_data[3]},
+  {&testfont[4],          &testfont_end[4],       &testfont_data[4]},
+  {&testfont[5],          &testfont_end[5],       &testfont_data[5]},
+  {&testfont[6],          &testfont_end[6],       &testfont_data[6]},
+  {&testfont[7],          &testfont_end[7],       &testfont_data[7]},
+  {&testfont[8],          &testfont_end[8],       &testfont_data[8]},
+  {&testfont[9],          &testfont_end[9],       &testfont_data[9]},
+  {&testfont[10],         &testfont_end[10],      &testfont_data[10]},
+  {NULL,                  NULL,                   NULL},
+};
+
+struct TbLoadFiles testfont_load_files[] = {
+  {"ldata/frontft1.dat", (unsigned char **)&testfont_data[0], NULL,                                          0, 0, 0},
+  {"ldata/frontft1.tab", (unsigned char **)&testfont[0],      (unsigned char **)&testfont_end[0],            0, 0, 0},
+  {"ldata/frontft2.dat", (unsigned char **)&testfont_data[1], NULL,                                          0, 0, 0},
+  {"ldata/frontft2.tab", (unsigned char **)&testfont[1],      (unsigned char **)&testfont_end[1],            0, 0, 0},
+  {"ldata/frontft3.dat", (unsigned char **)&testfont_data[2], NULL,                                          0, 0, 0},
+  {"ldata/frontft3.tab", (unsigned char **)&testfont[2],      (unsigned char **)&testfont_end[2],            0, 0, 0},
+  {"ldata/frontft4.dat", (unsigned char **)&testfont_data[3], NULL,                                          0, 0, 0},
+  {"ldata/frontft4.tab", (unsigned char **)&testfont[3],      (unsigned char **)&testfont_end[3],            0, 0, 0},
+  {"data/font0-0.dat",   (unsigned char **)&testfont_data[4], NULL,                                          0, 0, 0},
+  {"data/font0-0.tab",   (unsigned char **)&testfont[4],      (unsigned char **)&testfont_end[4],            0, 0, 0},
+  {"data/font0-1.dat",   (unsigned char **)&testfont_data[5], NULL,                                          0, 0, 0},
+  {"data/font0-1.tab",   (unsigned char **)&testfont[5],      (unsigned char **)&testfont_end[5],            0, 0, 0},
+  {"data/font2-0.dat",   (unsigned char **)&testfont_data[6], NULL,                                          0, 0, 0},
+  {"data/font2-0.tab",   (unsigned char **)&testfont[6],      (unsigned char **)&testfont_end[6],            0, 0, 0},
+  {"data/font2-1.dat",   (unsigned char **)&testfont_data[7], NULL,                                          0, 0, 0},
+  {"data/font2-1.tab",   (unsigned char **)&testfont[7],      (unsigned char **)&testfont_end[7],            0, 0, 0},
+  {"data/hifont.dat",    (unsigned char **)&testfont_data[8], NULL,                                          0, 0, 0},
+  {"data/hifont.tab",    (unsigned char **)&testfont[8],      (unsigned char **)&testfont_end[8],            0, 0, 0},
+  {"data/lofont.dat",    (unsigned char **)&testfont_data[9], NULL,                                          0, 0, 0},
+  {"data/lofont.tab",    (unsigned char **)&testfont[9],      (unsigned char **)&testfont_end[9],            0, 0, 0},
+  {"ldata/netfont.dat",  (unsigned char **)&testfont_data[10],NULL,                                          0, 0, 0},
+  {"ldata/netfont.tab",  (unsigned char **)&testfont[10],     (unsigned char **)&testfont_end[10],           0, 0, 0},
+  {"data/frontend.pal",  (unsigned char **)&testfont_palette[0],NULL,                                        0, 0, 0},
+  {"data/palette.dat",   (unsigned char **)&testfont_palette[1],NULL,                                        0, 0, 0},
+  {"",                    NULL,                               NULL,                                          0, 0, 0},
+};
+#endif
+
 struct TbLoadFiles mcga_load_files[] = {
   {"data/gui.dat",       (unsigned char **)&button_sprite_data,    (unsigned char **)&end_button_sprite_data,      0, 0, 0},
   {"data/gui2-0-0.dat",  (unsigned char **)&gui_panel_sprite_data, (unsigned char **)&end_gui_panel_sprite_data,   0, 0, 0},
@@ -904,6 +950,26 @@ TbScreenMode switch_to_next_video_mode(void)
 //  reinit_all_menus();
   return scrmode;
 }
+
+#if (BFDEBUG_LEVEL > 0)
+// Code for font testing screen (debug version only)
+
+TbBool load_testfont_fonts(void)
+{
+  if ( LbDataLoadAll(testfont_load_files) )
+  {
+    ERRORLOG("Unable to load testfont_load_files files");
+    return false;
+  }
+  LbSpriteSetupAll(setup_testfont);
+  return true;
+}
+
+void free_testfont_fonts(void)
+{
+  LbDataFreeAll(testfont_load_files);
+}
+#endif
 
 /******************************************************************************/
 #ifdef __cplusplus

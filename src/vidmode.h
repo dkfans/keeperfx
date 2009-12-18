@@ -81,6 +81,8 @@ short LoadMcgaData(void);
 short LoadMcgaDataMinimal(void);
 TbBool update_screen_mode_data(long width, long height);
 void load_pointer_file(short hi_res);
+TbBool load_testfont_fonts(void);
+void free_testfont_fonts(void);
 
 TbBool set_pointer_graphic_none(void);
 TbBool set_pointer_graphic_menu(void);

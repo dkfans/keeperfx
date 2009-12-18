@@ -711,11 +711,11 @@ struct GuiButtonInit instance_menu_buttons[] = {
 };
 
 struct GuiButtonInit text_info_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,   4, 999,   4,400, 78, gui_area_scroll_window,            0, 201,  0,(long)&game.evntbox_text_shown,0,0, NULL },
+  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,   4, 999,   4,400, 78, gui_area_scroll_window,            0, 201,  0,(long)&game.evntbox_scroll_window,0,0, NULL },
   { 1, 63, 0, 0, 0, gui_go_to_event,    NULL,        NULL,               0,   4,   4,   4,   4, 30, 24, gui_area_new_normal_button,      276, 466,  0,       0,             0,0, maintain_zoom_to_event },
   { 0, 64, 0, 0, 1, gui_close_objective,gui_close_objective,NULL,        0,   4,  56,   4,  56, 30, 24, gui_area_new_normal_button,      274, 465,  0,       0,             0,0, NULL },
-  { 1, 66, 0, 0, 0, gui_scroll_text_up, NULL,        NULL,               0, 446,   4, 446,   4, 30, 24, gui_area_new_normal_button,      486, 201,  0,(long)&game.evntbox_text_shown,0,0, maintain_scroll_up },
-  { 1, 65, 0, 0, 0, gui_scroll_text_down,NULL,       NULL,               0, 446,  56, 446,  56, 30, 24, gui_area_new_normal_button,      272, 201,  0,(long)&game.evntbox_text_shown,0,0, maintain_scroll_down },
+  { 1, 66, 0, 0, 0, gui_scroll_text_up, NULL,        NULL,               0, 446,   4, 446,   4, 30, 24, gui_area_new_normal_button,      486, 201,  0,(long)&game.evntbox_scroll_window,0,0, maintain_scroll_up },
+  { 1, 65, 0, 0, 0, gui_scroll_text_down,NULL,       NULL,               0, 446,  56, 446,  56, 30, 24, gui_area_new_normal_button,      272, 201,  0,(long)&game.evntbox_scroll_window,0,0, maintain_scroll_down },
   {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       0,            0, 0, NULL },
 };
 
@@ -1473,6 +1473,16 @@ const char *net_speed[] = {
  "115200",
    "ISDN",
 };
+
+#if (BFDEBUG_LEVEL > 0)
+// Declarations for font testing screen (debug version only)
+struct TbSprite *testfont[TESTFONTS_COUNT];
+struct TbSprite *testfont_end[TESTFONTS_COUNT];
+unsigned long testfont_data[TESTFONTS_COUNT];
+unsigned char *testfont_palette[3];
+long num_chars_in_font = 128;
+#endif
+
 long torture_doors_available = TORTURE_DOORS_COUNT;
 
 
@@ -3294,6 +3304,76 @@ void gui_area_stat_button(struct GuiButton *gbtn)
   }
 }
 
+#if (BFDEBUG_LEVEL > 0)
+// Code for font testing screen (debug version only)
+TbBool fronttestfont_draw(void)
+{
+  const struct TbSprite *spr;
+  unsigned long i,k;
+  long w,h;
+  long x,y;
+  SYNCDBG(9,"Starting");
+  for (y=0; y < lbDisplay.GraphicsScreenHeight; y++)
+    for (x=0; x < lbDisplay.GraphicsScreenWidth; x++)
+    {
+        lbDisplay.WScreen[y*lbDisplay.GraphicsScreenWidth+x] = 0;
+    }
+  LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);
+  // Drawing
+  w = 32;
+  h = 48;
+  for (i=31; i < num_chars_in_font+31; i++)
+  {
+    k = (i-31);
+    SYNCDBG(9,"Drawing char %d",i);
+    x = (k%32)*w + 2;
+    y = (k/32)*h + 2;
+    if (lbFontPtr != NULL)
+      spr = LbFontCharSprite(lbFontPtr,i);
+    else
+      spr = NULL;
+    if (spr != NULL)
+    {
+      LbDrawBox(x, y, spr->SWidth+2, spr->SHeight+2, 255);
+      LbSpriteDraw(x+1, y+1, spr);
+    }
+//    !!!!!!!!!!!!!!!!
+  }
+  // Displaying the new frame
+  return true;
+}
+
+TbBool fronttestfont_input(void)
+{
+  const unsigned int keys[] = {KC_Z,KC_1,KC_2,KC_3,KC_4,KC_5,KC_6,KC_7,KC_8,KC_9,KC_0};
+  int i;
+  if (lbKeyOn[KC_Q])
+  {
+    lbKeyOn[KC_Q] = 0;
+    frontend_set_state(FeSt_MAIN_MENU);
+    return true;
+  }
+  for (i=0; i < sizeof(keys)/sizeof(keys[0]); i++)
+  {
+    if (lbKeyOn[keys[i]])
+    {
+      lbKeyOn[keys[i]] = 0;
+      num_chars_in_font = testfont_end[i]-testfont[i];
+      SYNCDBG(9,"Characters in font %d: %d",i,num_chars_in_font);
+      if (i < 4)
+        LbPaletteSet(frontend_palette);//testfont_palette[0]
+      else
+        LbPaletteSet(testfont_palette[1]);
+      LbTextSetFont(testfont[i]);
+      return true;
+    }
+  }
+  // Handle GUI inputs
+  return get_gui_inputs(0);
+}
+#endif
+
+
 void frontend_define_key_up(struct GuiButton *gbtn)
 {
   _DK_frontend_define_key_up(gbtn);
@@ -4170,9 +4250,99 @@ void gui_load_game(struct GuiButton *gbtn)
   set_players_packet_action(player, 22, 0, 0, 0, 0);
 }
 
+void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
+{
+  struct TextScrollWindow *scrollwnd;
+  unsigned short flg_mem;
+  long text_height,area_height;
+  flg_mem = lbDisplay.DrawFlags;
+  lbDisplay.DrawFlags &= 0xFFBF;
+  lbDisplay.DrawFlags |= 0x0100;
+  LbTextSetWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
+        gbtn->width/pixel_size, gbtn->height/pixel_size);
+  scrollwnd = (struct TextScrollWindow *)gbtn->field_33;
+  if (scrollwnd == NULL)
+  {
+    ERRORLOG("Cannot have a TEXT_SCROLLING box type without a pointer to a TextScrollWindow");
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);
+    return;
+  }
+  area_height = gbtn->height;
+  scrollwnd->window_height = area_height;
+  text_height = scrollwnd->text_height;
+  if (text_height == 0)
+  {
+    text_height = text_string_height(text);
+    SYNCDBG(18,"Computed message height %ld for \"%s\"",text_height,text);
+    scrollwnd->text_height = text_height;
+  }
+  SYNCDBG(18,"Message h=%ld Area h=%d",text_height,area_height);
+  // If the text is smaller that the area we have for it - just place it at center
+  if (text_height <= area_height)
+  {
+    scrollwnd->start_y = (area_height - text_height) / 2;
+  } else
+  // Otherwise - we must take scrollbars into account
+  {
+    // Maintain scrolling actions
+    switch ( scrollwnd->action )
+    {
+    case 1:
+      scrollwnd->start_y += 8;
+      break;
+    case 2:
+      scrollwnd->start_y -= 8;
+      break;
+    case 3:
+      scrollwnd->start_y += area_height;
+      break;
+    case 4:
+    case 5:
+      scrollwnd->start_y -= area_height;
+      break;
+    }
+    if (scrollwnd->action == 5)
+    {
+      if (scrollwnd->start_y < -text_height)
+      {
+        scrollwnd->start_y = 0;
+      }
+    } else
+    if (scrollwnd->action != 0)
+    {
+      if (scrollwnd->start_y < gbtn->height-text_height)
+      {
+        scrollwnd->start_y = gbtn->height-text_height;
+      } else
+      if (scrollwnd->start_y > 0)
+      {
+        scrollwnd->start_y = 0;
+      }
+    }
+    scrollwnd->action = 0;
+  }
+  // Finally, draw the text
+  LbTextDraw(0/pixel_size, scrollwnd->start_y/pixel_size, text);
+  // And restore default drawing options
+  LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);
+  lbDisplay.DrawFlags = flg_mem;
+}
+
 void gui_area_scroll_window(struct GuiButton *gbtn)
 {
-  _DK_gui_area_scroll_window(gbtn);
+  struct TextScrollWindow *scrollwnd;
+  char *text;
+  //_DK_gui_area_scroll_window(gbtn); return;
+  if ((gbtn->field_0 & 8) == 0)
+    return;
+  scrollwnd = (struct TextScrollWindow *)gbtn->field_33;
+  if (scrollwnd == NULL)
+  {
+    ERRORLOG("Button doesn't point to a TextScrollWindow data item");
+    return;
+  }
+  text = buf_sprintf("%s", scrollwnd->text);
+  draw_scrolling_button_string(gbtn, text);
 }
 
 void gui_go_to_event(struct GuiButton *gbtn)
@@ -6151,7 +6321,11 @@ int frontend_set_state(long nstate)
   case FeSt_DEMO: //demo state (intro/credits)
   case FeSt_OUTRO:
   case 25:
+#if (BFDEBUG_LEVEL > 0)
+  case FeSt_FONT_TEST:
+      free_testfont_fonts();
       break;
+#endif
   default:
       ERRORLOG("Unhandled FRONTEND previous state");
       break;
@@ -6266,6 +6440,13 @@ int frontend_set_state(long nstate)
   case FeSt_CAMPAIGN_SELECT:
       turn_on_menu(GMnu_FECAMPAIGN_SELECT);
       break;
+#if (BFDEBUG_LEVEL > 0)
+  case FeSt_FONT_TEST:
+      fade_palette_in = 0;
+      load_testfont_fonts();
+      set_pointer_graphic_menu();
+      break;
+#endif
     default:
       ERRORLOG("Unhandled FRONTEND new state");
       break;
@@ -6308,6 +6489,17 @@ TbBool frontmainmnu_input(void)
       return true;
     }
   }
+#if (BFDEBUG_LEVEL > 0)
+  if (lbKeyOn[KC_F] && lbKeyOn[KC_LSHIFT])
+  {
+    if ((game.flags_font & FFlg_AlexCheat) != 0)
+    {
+      lbKeyOn[KC_F] = 0;
+      frontend_set_state(FeSt_FONT_TEST);
+      return true;
+    }
+  }
+#endif
   // Handle GUI inputs
   return get_gui_inputs(0);
 }
@@ -6396,6 +6588,11 @@ void frontend_input(void)
         else
           define_key_input();
         break;
+#if (BFDEBUG_LEVEL > 0)
+      case FeSt_FONT_TEST:
+        fronttestfont_input();
+        break;
+#endif
       default:
         get_gui_inputs(0);
         break;
@@ -6845,13 +7042,18 @@ short frontend_draw(void)
     case FeSt_STORY_BIRTHDAY:
         frontbirthday_draw();
         break;
+#if (BFDEBUG_LEVEL > 0)
+    case FeSt_FONT_TEST:
+        fronttestfont_draw();
+        break;
+#endif
     default:
         break;
     }
     // In-Menu information, for debugging messages
     //char text[255];
     //sprintf(text, "time %7d, mode %d",LbTimerClock(),frontend_menu_state);
-    //lbDisplay.DrawFlags=0;LbTextSetWindow(0,0,640,200);lbFontPtr = frontend_font[0];
+    //lbDisplay.DrawFlags=0;LbTextSetWindow(0,0,640,200);LbTextSetFont(frontend_font[0]);
     //LbTextDraw(200/pixel_size, 8/pixel_size, text);text[0]='\0';
     perform_any_screen_capturing();
     LbScreenUnlock();

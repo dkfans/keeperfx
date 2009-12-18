@@ -204,7 +204,8 @@ void clear_key_pressed(long key)
   if ((key<0) || (key>=sizeof(lbKeyOn)))
     return;
   lbKeyOn[key] = 0;
-  lbInkey = 0;
+  if (key == lbInkey)
+    lbInkey = KC_UNASSIGNED;
 }
 
 /*
