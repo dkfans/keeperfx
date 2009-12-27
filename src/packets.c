@@ -396,7 +396,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         }
       } else
       {
-        thing = get_nearest_thing_for_hand_or_slap(plyr_idx, pckt->pos_x, pckt->pos_y);
+        thing = get_nearest_thing_for_hand_or_slap(plyr_idx, x, y);
         if (!thing_is_invalid(thing))
         {
           if (player->field_43A == 0)
@@ -1059,7 +1059,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       i = 0;
       slb = get_slabmap_for_subtile(stl_x, stl_y);
       map = get_map_block_at(stl_x,stl_y);
-      if ((slb->field_5 & 7) == plyr_idx)
+      if (slabmap_owner(slb) == plyr_idx)
       {
         if (((map->flags & 0x02) != 0) && (slb->slab != SlbT_ENTRANCE) && (slb->slab != SlbT_DUNGHEART))
         {

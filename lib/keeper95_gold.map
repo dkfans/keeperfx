@@ -888,6 +888,7 @@
  0001:000C4C00       place_thing_in_power_hand
  0001:000C4CD0       dump_held_things_on_map
  0001:000C5230       get_enemy_dungeon_heart_creature_can_see
+ 0001:000C5340       can_thing_be_picked_up_by_player
  0001:000C5750       get_nearest_thing_for_hand_or_slap
  0001:000C59A0       is_thing_passenger_controlled
  0001:000C5CD0       food_eaten_by_creature

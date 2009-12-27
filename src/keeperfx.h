@@ -65,6 +65,7 @@
 #define CREATURE_MAX_LEVEL     10
 #define SPELL_MAX_LEVEL         8
 #define THING_CLASSES_COUNT    10
+#define MANUFACTURED_ITEMS_LIMIT 199
 #define GAME_KEYS_COUNT        32
 #define GAMMA_LEVELS_COUNT      5
 #define LENSES_COUNT           15
@@ -1769,7 +1770,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long a2);
 void set_power_hand_graphic(long a1, long a2, long a3);
 TbBool power_hand_is_empty(struct PlayerInfo *player);
 struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player);
-long dump_thing_in_power_hand(struct Thing *thing, long a2);
+TbBool dump_thing_in_power_hand(struct Thing *thing, long plyr_idx);
 unsigned long get_creature_anim(struct Thing *thing, unsigned short frame);
 void place_thing_in_limbo(struct Thing *thing);
 short destroy_trap(struct Thing *thing);
@@ -2084,7 +2085,7 @@ unsigned char keepersprite_frames(unsigned short n);
 void remove_thing_from_mapwho(struct Thing *thing);
 void place_thing_in_mapwho(struct Thing *thing);
 long get_thing_height_at(struct Thing *thing, struct Coord3d *pos);
-struct Thing *get_nearest_thing_for_hand_or_slap(unsigned char a1, long a2, long a3);
+struct Thing *get_nearest_thing_for_hand_or_slap(long plyr_idx, long x, long y);
 unsigned long can_drop_thing_here(long x, long y, long a3, unsigned long a4);
 short can_dig_here(long x, long y, long owner);
 long thing_in_wall_at(struct Thing *thing, struct Coord3d *pos);

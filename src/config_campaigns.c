@@ -96,7 +96,27 @@ TbBool free_campaign(struct GameCampaign *campgn)
   return true;
 }
 
-/*
+void clear_level_info(struct LevelInformation *lvinfo)
+{
+  LbMemorySet(lvinfo,0,sizeof(struct LevelInformation));
+  lvinfo->lvnum = 0;
+  LbMemorySet(lvinfo->name, 0, LINEMSG_SIZE);
+  LbMemorySet(lvinfo->speech_before, 0, DISKPATH_SIZE);
+  LbMemorySet(lvinfo->speech_after, 0, DISKPATH_SIZE);
+  LbMemorySet(lvinfo->land_view, 0, DISKPATH_SIZE);
+  LbMemorySet(lvinfo->land_window, 0, DISKPATH_SIZE);
+  lvinfo->name_id = 0;
+  lvinfo->players = 1;
+  lvinfo->ensign_x = (MAP_SCREEN_WIDTH>>1);
+  lvinfo->ensign_y = (MAP_SCREEN_HEIGHT>>1);
+  lvinfo->ensign_zoom_x = (MAP_SCREEN_WIDTH>>1);
+  lvinfo->ensign_zoom_y = (MAP_SCREEN_HEIGHT>>1);
+  lvinfo->options = LvOp_None;
+  lvinfo->state = LvSt_Hidden;
+  lvinfo->location = LvLc_VarLevels;
+}
+
+/**
  * Clears campaign entries without freeing memory.
  */
 TbBool clear_campaign(struct GameCampaign *campgn)
@@ -259,6 +279,7 @@ struct LevelInformation *new_level_info_entry(struct GameCampaign *campgn, Level
   {
     if (campgn->lvinfos[i].lvnum <= 0)
     {
+      clear_level_info(&campgn->lvinfos[i]);
       campgn->lvinfos[i].lvnum = lvnum;
       return &campgn->lvinfos[i];
     }
@@ -268,25 +289,6 @@ struct LevelInformation *new_level_info_entry(struct GameCampaign *campgn, Level
     return NULL;
   campgn->lvinfos[i].lvnum = lvnum;
   return &campgn->lvinfos[i];
-}
-
-void clear_level_info(struct LevelInformation *lvinfo)
-{
-  lvinfo->lvnum = 0;
-  LbMemorySet(lvinfo->name, 0, LINEMSG_SIZE);
-  LbMemorySet(lvinfo->speech_before, 0, DISKPATH_SIZE);
-  LbMemorySet(lvinfo->speech_after, 0, DISKPATH_SIZE);
-  LbMemorySet(lvinfo->land_view, 0, DISKPATH_SIZE);
-  LbMemorySet(lvinfo->land_window, 0, DISKPATH_SIZE);
-  lvinfo->name_id = 0;
-  lvinfo->players = 1;
-  lvinfo->ensign_x = (MAP_SCREEN_WIDTH>>1);
-  lvinfo->ensign_y = (MAP_SCREEN_HEIGHT>>1);
-  lvinfo->ensign_zoom_x = (MAP_SCREEN_WIDTH>>1);
-  lvinfo->ensign_zoom_y = (MAP_SCREEN_HEIGHT>>1);
-  lvinfo->options = LvOp_None;
-  lvinfo->state = LvSt_Hidden;
-  lvinfo->location = LvLc_VarLevels;
 }
 
 TbBool init_level_info_entries(struct GameCampaign *campgn, long num_entries)

@@ -1128,7 +1128,8 @@ long process_sacrifice_award(struct Coord3d *pos, long model, long plyr_idx)
             ret = SacR_Pleased;
             break;
         }
-        creature_sacrifice_reset(dungeon, sac);
+        if ((ret != SacR_Pleased) && (ret != SacR_AngryWarn))
+          creature_sacrifice_reset(dungeon, sac);
         return ret;
       }
     }
@@ -1154,7 +1155,7 @@ short creature_being_sacrificed(struct Thing *thing)
     thing->field_25 &= 0xDFu;
     return 0;
   }
-  slb = get_slabmap_block(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+  slb = get_slabmap_for_subtile(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
   owner = slabmap_owner(slb);
   add_creature_to_sacrifice_list(owner, thing->model, cctrl->explevel);
   pos.x.val = thing->mappos.x.val;

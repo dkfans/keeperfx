@@ -50,7 +50,8 @@ TbBool subtile_revealed(long stl_x, long stl_y, long plyr_idx);
 TbBool map_block_revealed(struct Map *map, long plyr_idx);
 TbBool map_block_revealed_bit(struct Map *map, long plyr_bit);
 long get_ceiling_height(struct Coord3d *pos);
-long thing_index_on_map_block(struct Map *map);
+long get_mapwho_thing_index(struct Map *map);
+void set_mapwho_thing_index(struct Map *map, long thing_idx);
 
 TbBool subtile_has_slab(long stl_x, long stl_y);
 TbBool subtile_coords_invalid(long stl_x, long stl_y);

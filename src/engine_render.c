@@ -850,7 +850,7 @@ void draw_frontview_things_on_element(struct Map *map, struct Camera *cam)
   long i;
   unsigned long k;
   k = 0;
-  i = thing_index_on_map_block(map);
+  i = get_mapwho_thing_index(map);
   while (i != 0)
   {
     thing = thing_get(i);

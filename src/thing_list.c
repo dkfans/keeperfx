@@ -87,7 +87,7 @@ long creature_near_filter_is_owned_by(struct Thing *thing, long plyr_idx)
   if ((i == 41) || (i == 40) || (i == 43) || (i == 42))
   {
     slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    if ((slb->field_5 & 0x07) == plyr_idx);
+    if (slabmap_owner(slb) == plyr_idx)
       return true;
   }
   return false;

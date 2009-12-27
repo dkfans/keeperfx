@@ -109,9 +109,19 @@ long get_ceiling_height(struct Coord3d *pos)
   return ((game.map[i].data & 0xF000000u) >> 24) << 8;
 }
 
-long thing_index_on_map_block(struct Map *map)
+long get_mapwho_thing_index(struct Map *map)
 {
   return ((map->data >> 11) & 0x7FF);
+  //could also be ((map->data & 0x3FF800) >> 11);
+}
+
+void set_mapwho_thing_index(struct Map *map, long thing_idx)
+{
+  // Check if new value is correct
+  if ((unsigned long)thing_idx > 0x7FF)
+    return;
+  // Clear previous and set new
+  map->data ^= (map->data ^ ((unsigned long)thing_idx << 11)) & 0x3FF800;
 }
 
 void reveal_map_subtile(long stl_x, long stl_y, long plyr_idx)

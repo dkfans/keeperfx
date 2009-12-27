@@ -389,6 +389,7 @@ TbClockMSec last_loop_time=0;
 #ifdef __cplusplus
 extern "C" {
 #endif
+DLLIMPORT int _DK_can_thing_be_picked_up_by_player(struct Thing *thing, unsigned char plyr_idx);
 DLLIMPORT void _DK_draw_overhead_room_icons(long x, long y);
 DLLIMPORT void _DK_draw_overhead_things(long x, long y);
 DLLIMPORT void _DK_init_alpha_table(void);
@@ -1685,9 +1686,54 @@ struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player)
   return thing_get(dungeon->things_in_hand[0]);
 }
 
-long dump_thing_in_power_hand(struct Thing *thing, long a2)
+/** Silently removes a thing from player's power hand.
+ */
+TbBool remove_thing_from_power_hand(struct Thing *thing, long plyr_idx)
 {
-  return _DK_dump_thing_in_power_hand(thing, a2);
+  struct Dungeon *dungeon;
+  long i;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  for (i = 0; i < dungeon->field_63; i++)
+  {
+    if (dungeon->things_in_hand[i] == thing->index)
+    {
+      for ( ; i < dungeon->field_63-1; i++)
+      {
+        dungeon->things_in_hand[i] = dungeon->things_in_hand[i+1];
+      }
+      dungeon->field_63--;
+      dungeon->things_in_hand[dungeon->field_63] = 0;
+      return true;
+    }
+  }
+  return false;
+}
+
+/** Puts a thing into player's power hand.
+ */
+TbBool dump_thing_in_power_hand(struct Thing *thing, long plyr_idx)
+{
+  struct Dungeon *dungeon;
+  long i;
+  //return _DK_dump_thing_in_power_hand(thing, plyr_idx);
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  if (dungeon->field_63 >= MAX_THINGS_IN_HAND)
+    return false;
+  // Move all things in list up, to free position 0
+  for (i = MAX_THINGS_IN_HAND-1; i > 0; i--)
+  {
+    dungeon->things_in_hand[i] = dungeon->things_in_hand[i-1];
+  }
+  dungeon->field_63++;
+  dungeon->things_in_hand[0] = thing->index;
+  if (thing->class_id == TCls_Creature)
+    remove_all_traces_of_combat(thing);
+  if (is_my_player_number(thing->owner))
+  {
+    if (thing->class_id == TCls_Creature)
+      play_creature_sound(thing, 5, 3, 1);
+  }
+  return true;
 }
 
 void place_thing_in_limbo(struct Thing *thing)
@@ -3039,9 +3085,9 @@ TbBool any_player_close_enough_to_see(struct Coord3d *pos)
   return false;
 }
 
-void poison_cloud_affecting_area(struct Thing *thing, struct Coord3d *pos, long a3, long a4, unsigned char a5)
+void poison_cloud_affecting_area(struct Thing *owntng, struct Coord3d *pos, long a3, long a4, unsigned char a5)
 {
-  _DK_poison_cloud_affecting_area(thing, pos, a3, a4, a5);
+  _DK_poison_cloud_affecting_area(owntng, pos, a3, a4, a5);
 }
 
 void do_slab_efficiency_alteration(unsigned char a1, unsigned char a2)
@@ -3097,7 +3143,7 @@ TbBool effect_can_affect_thing(struct Thing *efftng, struct Thing *thing)
   case 4:
       return thing_is_shootable_by_any_player_except_own_excluding_objects(efftng, thing);
   case 7:
-      if ((thing->class_id == 1) && (thing->model == 5) && (thing->owner != efftng->owner))
+      if ((thing->class_id == TCls_Object) && (thing->model == 5) && (thing->owner != efftng->owner))
         return true;
       return false;
   case 8:
@@ -3108,14 +3154,26 @@ TbBool effect_can_affect_thing(struct Thing *efftng, struct Thing *thing)
   }
 }
 
+/**
+ * Returns a value which decays around some epicentre, like blast damage.
+ */
+inline long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance)
+{
+  if (distance >= decay_start+decay_length)
+    return 0;
+  else
+  if (distance >= decay_start)
+    return magnitude * (decay_length - (distance-decay_start)) / decay_length;
+  else
+    return magnitude;
+}
+
 long get_word_of_power_damage(struct Thing *efftng, struct Thing *dsttng)
 {
   long distance;
   distance = get_2d_box_distance(&dsttng->mappos, &efftng->mappos);
-  if (distance >= 640)
-    return 150 * (640 - (distance-640)) / 640;
-  else
-    return 150;
+  // TODO: the damage and the distance should be in config files.
+  return get_radially_decaying_value(150,640,640,distance);
 }
 
 void word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntng, struct Map *mapblk)
@@ -3125,7 +3183,7 @@ void word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntn
   long i;
   unsigned long k;
   k = 0;
-  i = thing_index_on_map_block(mapblk);
+  i = get_mapwho_thing_index(mapblk);
   while (i != 0)
   {
     thing = thing_get(i);
@@ -5259,7 +5317,7 @@ TbBool load_settings(void)
 /*
  * Initial video setup - loads only most importand files to show startup screens.
  */
-short initial_setup(void)
+TbBool initial_setup(void)
 {
   SYNCDBG(6,"Starting");
   // setting this will force video mode change, even if previous one is same
@@ -6233,9 +6291,74 @@ void load_engine_window(struct TbGraphicsWindow *ewnd)
   player->engine_window_height = ewnd->height;
 }
 
-struct Thing *get_nearest_thing_for_hand_or_slap(unsigned char plyr_idx, long x, long y)
+int can_thing_be_picked_up_by_player(struct Thing *thing, unsigned char plyr_idx)
 {
-  return _DK_get_nearest_thing_for_hand_or_slap(plyr_idx, x, y);
+  return _DK_can_thing_be_picked_up_by_player(thing, plyr_idx);
+}
+
+void get_nearest_thing_for_hand_or_slap_on_map_block(long *near_distance, struct Thing **near_thing,struct Map *mapblk, long plyr_idx, long x, long y)
+{
+  struct Thing *thing;
+  long i;
+  unsigned long k;
+  k = 0;
+  i = get_mapwho_thing_index(mapblk);
+  while (i != 0)
+  {
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
+    {
+      ERRORLOG("Jump to invalid thing detected");
+      break;
+    }
+    i = thing->field_2;
+    // Begin per-loop code
+    if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0) && (thing->field_7 != 67))
+    {
+      if (can_thing_be_picked_up_by_player(thing, plyr_idx) || thing_slappable(thing, plyr_idx))
+      {
+        if (*near_distance > 2 * abs(y-thing->mappos.y.stl.pos))
+        {
+          *near_distance = 2 * abs(y-thing->mappos.y.stl.pos);
+          *near_thing = thing;
+        }
+      }
+    }
+    // End of per-loop code
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+}
+
+struct Thing *get_nearest_thing_for_hand_or_slap(long plyr_idx, long x, long y)
+{
+  long near_distance;
+  struct Thing *near_thing;
+  struct Map *mapblk;
+  struct Thing *thing;
+  long sx,sy;
+  int around;
+  //return _DK_get_nearest_thing_for_hand_or_slap(plyr_idx, x, y);
+  near_distance = LONG_MAX;
+  near_thing = NULL;
+  for (around=4; around < sizeof(small_around_pos)/sizeof(small_around_pos[0]); around++)
+  {
+    sx = (x >> 8) + stl_num_decode_x(small_around_pos[around]);
+    sy = (y >> 8) + stl_num_decode_y(small_around_pos[around]);
+    mapblk = get_map_block_at(sx, sy);
+    if (!map_block_invalid(mapblk))
+    {
+      if (map_block_revealed(mapblk, plyr_idx))
+      {
+        get_nearest_thing_for_hand_or_slap_on_map_block(&near_distance,&near_thing,mapblk, plyr_idx, x, y);
+      }
+    }
+  }
+  return near_thing;
 }
 
 long creature_instance_is_available(struct Thing *thing, long inum)
@@ -6625,46 +6748,35 @@ LevelNumber set_selected_level_number(LevelNumber lvnum)
   return game.selected_level_number;
 }
 
-/*
+/**
  * Returns if the given bonus level is visible in land view screen.
  */
 short is_bonus_level_visible(struct PlayerInfo *player, long bn_lvnum)
 {
   int i,n,k;
   i = storage_index_for_bonus_level(bn_lvnum);
-/* new way - enable when process_dungeon_control_packet_clicks() is rewritten
   n = i/8;
   k = (1 << (i%8));
   if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
     return false;
   return ((game.bonuses_found[n] & k) != 0);
-*/
-  if ((i < 0) || (i >= BONUS_LEVEL_STORAGE_COUNT))
-    return false;
-  return (game.bonuses_found[i] != 0);
 }
 
-/*
+/**
  * Makes the bonus level visible on the land map screen.
  */
 short set_bonus_level_visibility(long bn_lvnum, short visible)
 {
   int i,n,k;
   i = storage_index_for_bonus_level(bn_lvnum);
-/* new way - enable when process_dungeon_control_packet_clicks() is rewritten
   n = i/8;
   k = (1 << (i%8));
   if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
     return false;
   set_flag_byte(&game.bonuses_found[n], k, visible);
-*/
-  if ((i < 0) || (i >= BONUS_LEVEL_STORAGE_COUNT))
-    return false;
-  game.bonuses_found[i] = visible;
-  return true;
 }
 
-/*
+/**
  * Makes a bonus level for specified SP level visible on the land map screen.
  */
 short set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible)
@@ -8788,15 +8900,11 @@ void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char ply
 {
   SYNCDBG(7,"Starting");
   struct Dungeon *dungeon;
-  struct PlayerInfo *player;
   struct CreatureControl *cctrl;
   struct Thing *thing;
   long i,k;
-  dungeon = (&game.dungeon[i]);
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
-
+  dungeon = (&game.dungeon[plyr_idx%PLAYERS_COUNT]);
   // Check if 'things' are correct
-
   if ((tng1->field_0 & 0x01) == 0)
     return;
   if ((tng1->class_id != TCls_Object) || (tng1->model != 88))
@@ -8852,7 +8960,7 @@ void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char ply
     }
   }
   delete_thing_structure(tng1, 0);
-  if (player->field_2B == plyr_idx)
+  if (is_my_player_number(plyr_idx))
     output_message(80, 0, 1);
 }
 
@@ -9211,7 +9319,7 @@ void remove_thing_from_mapwho(struct Thing *thing)
   } else
   {
     map = get_map_block_at(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-    map->data ^= (map->data ^ (thing->field_2 << 11)) & 0x3FF800;
+    set_mapwho_thing_index(map, thing->field_2);
   }
   if (thing->field_2 > 0)
   {
@@ -9284,7 +9392,7 @@ short process_player_manufacturing(long plr_idx)
   {
   case 8:
       i = dungeon->field_118A%TRAP_TYPES_COUNT;
-      if (dungeon->trap_amount[i] >= 199)
+      if (dungeon->trap_amount[i] >= MANUFACTURED_ITEMS_LIMIT)
       {
         ERRORLOG("Bad trap choice for manufacturing - limit reached");
         return false;
@@ -9299,7 +9407,7 @@ short process_player_manufacturing(long plr_idx)
       break;
   case 9:
       i = dungeon->field_118A%DOOR_TYPES_COUNT;
-      if (dungeon->door_amount[i] >= 199)
+      if (dungeon->door_amount[i] >= MANUFACTURED_ITEMS_LIMIT)
       {
         ERRORLOG("Bad door choice for manufacturing - limit reached");
         return 0;
@@ -10351,12 +10459,14 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   thing = thing_get(tng_idx);
   allow_cast = false;
-  if (!thing_is_invalid(thing) || (thing->owner == player->field_2B) || (spell_data[spl_id].flag_1A != 0))
+  if ((tng_idx == 0) || (thing->owner == player->field_2B) || (spell_data[spl_id].flag_1A != 0))
   {
     if (can_cast_spell_at_xy(player->field_2B, spl_id, stl_x, stl_y, 0))
     {
-      if (!thing_is_invalid(thing) || can_cast_spell_on_creature(player->field_2B, thing, spl_id))
+      if ((tng_idx == 0) || can_cast_spell_on_creature(player->field_2B, thing, spl_id))
+      {
         allow_cast = true;
+      }
     }
   }
   if (!allow_cast)
@@ -11331,7 +11441,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
   long i;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   k = 0;
-  i = ((mapblk->data & 0x3FF800u) >> 11);
+  i = get_mapwho_thing_index(mapblk);
   while (i != 0)
   {
     thing = thing_get(i);
@@ -11504,7 +11614,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
   if (i > 0)
   {
     map = get_map_block_at(x,y);
-    visible = (player_bit & (map->data >> 28) != 0);
+    visible = map_block_revealed_bit(map, player_bit);
     if ((!visible) || ((map->data & 0x7FF) > 0))
     {
       if (visible)
@@ -11563,21 +11673,21 @@ void update_blocks_pointed(void)
   long hvdiv_x,hvdiv_y;
   long k;
   int i;
-    if ((!vert_offset[1]) && (!hori_offset[1]))
-    {
+  if ((!vert_offset[1]) && (!hori_offset[1]))
+  {
       block_pointed_at_x = 0;
       block_pointed_at_y = 0;
-      me_pointed_at = get_map_block_at(0,0);
-    } else
-    {
-      hori_ptr_y = hori_offset[0] * (pointer_y - y_init_off);
-      vert_ptr_y = vert_offset[0] * (pointer_y - y_init_off);
-      hori_hdelta_y = hori_offset[0] * (high_offset[1] >> 8);
-      vert_hdelta_y = vert_offset[0] * (high_offset[1] >> 8);
-      vert_ptr_x = (signed long)(vert_offset[1] * (pointer_x - x_init_off)) >> 1;
-      hori_ptr_x = (signed long)(hori_offset[1] * (pointer_x - x_init_off)) >> 1;
-      hvdiv_x = (signed long)(hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1]) >> 11;
-      hvdiv_y = (signed long)(vert_offset[0] * hori_offset[1] - hori_offset[0] * vert_offset[1]) >> 11;
+      me_pointed_at = INVALID_MAP_BLOCK;//get_map_block_at(0,0);
+  } else
+  {
+      hori_ptr_y = (long)hori_offset[0] * (pointer_y - y_init_off);
+      vert_ptr_y = (long)vert_offset[0] * (pointer_y - y_init_off);
+      hori_hdelta_y = (long)hori_offset[0] * ((long)high_offset[1] >> 8);
+      vert_hdelta_y = (long)vert_offset[0] * ((long)high_offset[1] >> 8);
+      vert_ptr_x = (long)(vert_offset[1] * (pointer_x - x_init_off)) >> 1;
+      hori_ptr_x = (long)(hori_offset[1] * (pointer_x - x_init_off)) >> 1;
+      hvdiv_x = (long)(hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1]) >> 11;
+      hvdiv_y = (long)(vert_offset[0] * hori_offset[1] - hori_offset[0] * vert_offset[1]) >> 11;
       for (i=0; i < 8; i++)
       {
         k = (vert_ptr_x - (vert_ptr_y >> 1)) / hvdiv_x;
@@ -11593,7 +11703,7 @@ void update_blocks_pointed(void)
         hori_ptr_y -= hori_hdelta_y;
         vert_ptr_y -= vert_hdelta_y;
       }
-    }
+  }
 }
 
 void engine(struct Camera *cam)
@@ -12633,7 +12743,7 @@ short initialise_map_rooms(void)
       slb = get_slabmap_block(x, y);
       rkind = slab_to_room_type(slb->slab);
       if (rkind > 0)
-        room = create_room(slb->field_5 & 7, rkind, 3*x+1, 3*y+1);
+        room = create_room(slabmap_owner(slb), rkind, 3*x+1, 3*y+1);
       else
         room = NULL;
       if (room != NULL)

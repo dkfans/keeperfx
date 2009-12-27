@@ -489,7 +489,7 @@ struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
   unsigned long k;
   long i;
   k = 0;
-  i = ((mapblk->data & 0x3FF800u) >> 11);
+  i = get_mapwho_thing_index(mapblk);
   while (i != 0)
   {
     thing = thing_get(i);
@@ -652,7 +652,14 @@ TbBool update_dead_creatures_list(struct Dungeon *dungeon, struct Thing *thing)
   struct CreatureStorage *cstore;
   struct CreatureControl *cctrl;
   long i;
+  SYNCDBG(18,"Starting");
   cctrl = creature_control_get_from_thing(thing);
+  if ((dungeon == NULL) || creature_control_invalid(cctrl))
+  {
+    WARNLOG("Invalid victim or dungeon");
+    return false;
+  }
+  // Check if the creature of same type is in list
   i = dungeon->dead_creatures_count-1;
   while (i >= 0)
   {
@@ -760,7 +767,8 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
   light_turn_light_on(player->field_460);
 }
 
-TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3, unsigned char a4, unsigned char a5, unsigned char a6)
+TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3,
+      unsigned char a4, TbBool died_in_battle, unsigned char a6)
 {
   struct CreatureControl *cctrl;
   struct CreatureControl *cctrlgrp;
@@ -779,43 +787,49 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3, unsi
   if (thing->owner != game.field_14E497)
     dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
   if (!thing_is_invalid(killertng) && (killertng->owner == game.field_14E497) || (a3 == game.field_14E497))
-    a5 = 0;
+    died_in_battle = 0;
   remove_events_thing_is_attached_to(thing);
-  update_dead_creatures_list(dungeon, thing);
-  if ((dungeon != NULL) && (a5))
+  if (dungeon != NULL)
   {
+    update_dead_creatures_list(dungeon, thing);
+    if (died_in_battle)
+    {
       dungeon->battles_lost++;
+    }
   }
 
-  if ((cctrl->field_AC & 0x04) != 0)
+  if (!creature_control_invalid(cctrl))
   {
-    cctrl->field_AC &= 0xFB;
-    for (i=0; i < 3; i++)
+    if ((cctrl->field_AC & 0x04) != 0)
     {
-      k = cctrl->field_2B3[i];
-      if (k != 0)
+      cctrl->field_AC &= 0xFB;
+      for (i=0; i < 3; i++)
       {
-        thing = thing_get(k);
-        delete_thing_structure(thing, 0);
-        cctrl->field_2B3[i] = 0;
+        k = cctrl->field_2B3[i];
+        if (k != 0)
+        {
+          thing = thing_get(k);
+          delete_thing_structure(thing, 0);
+          cctrl->field_2B3[i] = 0;
+        }
+      }
+    }
+    if ((cctrl->field_AD & 0x01) != 0)
+    {
+      cctrl->field_AD &= 0xFE;
+      for (i=0; i < 3; i++)
+      {
+        k = cctrl->field_2B9[i];
+        if (k != 0)
+        {
+          thing = thing_get(k);
+          delete_thing_structure(thing, 0);
+          cctrl->field_2B9[i] = 0;
+        }
       }
     }
   }
-  if ((cctrl->field_AD & 0x01) != 0)
-  {
-    cctrl->field_AD &= 0xFE;
-    for (i=0; i < 3; i++)
-    {
-      k = cctrl->field_2B9[i];
-      if (k != 0)
-      {
-        thing = thing_get(k);
-        delete_thing_structure(thing, 0);
-        cctrl->field_2B9[i] = 0;
-      }
-    }
-  }
-  update_kills_counters(thing, killertng, a3, a5);
+  update_kills_counters(thing, killertng, a3, died_in_battle);
   if (thing_is_invalid(killertng) || (killertng->owner == game.field_14E497) || (a3 == game.field_14E497) || (dungeon == NULL))
   {
     if ((a4) && ((thing->field_0 & 0x20) != 0))
@@ -834,7 +848,8 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3, unsi
     }
   }
   cctrlgrp = creature_control_get_from_thing(killertng);
-  cctrlgrp->field_C2++;
+  if (!creature_control_invalid(cctrlgrp))
+    cctrlgrp->field_C2++;
   if (is_my_player_number(thing->owner))
   {
     output_message(11, 40, 1);
@@ -851,10 +866,11 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3, unsi
   }
   crstat = creature_stats_get_from_thing(killertng);
   anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, 4, 1);
-  if (a5)
+  if (!creature_control_invalid(cctrlgrp) && died_in_battle)
     cctrlgrp->field_8C[14]++;
   if (dungeon != NULL)
     dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
+  SYNCDBG(18,"Almost finished");
   killerdngn = &(game.dungeon[killertng->owner%DUNGEONS_COUNT]);
   if ((a6) || (killerdngn->room_kind[4] == 0)
     || (killerdngn->creature_tendencies & 0x01) == 0)

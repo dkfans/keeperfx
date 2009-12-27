@@ -110,6 +110,14 @@ struct Around const small_around[] = {
   {-1, 0},
 };
 
+/**
+ * Should contain values encoded with get_subtile_number(). */
+const unsigned short small_around_pos[] = {
+  0xFF00, 0x0001, 0x0100, 0xFFFF, 0x0000,
+  0xFF00, 0x0001, 0x0100, 0x00FF, 0xFFFF,
+  0x0FF01, 0x01FF, 0x0101
+};
+
 unsigned short const room_effect_elements[] = { 55, 56, 57, 58, 0, 0 };
 const short slab_around[] = { -85, 1, 85, -1 };
 /******************************************************************************/
