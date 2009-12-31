@@ -16,10 +16,25 @@ to change language, edit 'KEEPERFX.CFG' and set its shortcut
 in the 'LANGUAGE=' line. Run "keeperfx.exe" to start the game.
 If something doesn't work, see the 'troubleshooting' section.
 
+Please note that there are two types of releases: complete
+version and patch. You need a complete version to play the game;
+a patch is only an additional feature, which you can use by
+overwriting some files from complete version with new ones.
+
 Installation over original DK:
 
-From ver 0.33 of KeeperFX, installation over the original DK
+From ver 0.3.3 of KeeperFX, installation over the original DK
 is no longer supported.
+
+Available languages:
+
+The following languages are currently functional:
+ ENG ITA FRE SPA DUT GER POL SWE
+The following languages are partially functional:
+ RUS CHI CHT JAP
+Note that some campaigns may not support your language.
+In this case, default language will be used inside this
+campaign.
 
 Command line options:
 
@@ -104,7 +119,7 @@ Q: The game doesn't run. LOG file says:
 A: Check if there's a language file in 'FXDATA' folder for the
      language which you've selected in KEEPERFX.CFG.
 
-Q: Mouse stops/teleports/moves insorrectly during the game.
+Q: Mouse stops/teleports/moves incorrectly during the game.
 A: Try the '-altinput' command line switch.
 
 Q: I get a message 'Cannot initialize' when I try to enter network game.
@@ -256,6 +271,19 @@ New and modified level script commands:
   and never changes during the gameplay.
 
 Changelog:
+
+Version: 0.3.4
+  Some fixups in CPU Identification code
+  Fixed Imps sacrifice code
+  Text drawing functions remade
+  Fixed CTRL+Arrows keys support
+  Fixed transfer creature bug
+  New way of storing bonus levels availability
+  Fixed spell cursors when playing player > 0
+  Fixed sacrifices when playing player > 0
+  Asian languages support reached alpha stage
+  Shift+M key now works in high scores screen
+  Fixed incorrect memory write on creature suicide
 
 Version: 0.3.3
   Rewritten creature killing code
@@ -449,5 +477,5 @@ Graphics:
  Madkill
  Synesthesia
 
-Part of the code closed into DLL is copyrighted
- by Bullfrog Productions.
+Part of the code closed into DLL and some data files
+ are copyrighted by Bullfrog Productions.
