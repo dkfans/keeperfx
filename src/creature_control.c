@@ -21,7 +21,7 @@
 
 #include "bflib_sound.h"
 #include "bflib_math.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 #include "config_creature.h"
 #include "frontend.h"
 

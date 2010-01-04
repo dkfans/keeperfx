@@ -1,8 +1,8 @@
 /******************************************************************************/
-// keeperfx.h - Dungeon Keeper fan extension.
+// Dungeon Keeper fan extension.
 /******************************************************************************/
-/** @file keeperfx.h
- *     Header file for main.c.
+/** @file keeperfx.hpp
+ *     Header file for config.c.
  * @par Purpose:
  *     Header file. Defines exported routines from keeperfx.dll.
  * @par Comment:
@@ -38,7 +38,7 @@
 #include "map_columns.h"
 #include "room_data.h"
 #include "config.h"
-#include "config_magic.h"
+#include "config_magic.hpp"
 
 #define LEGAL_WIDTH  640
 #define LEGAL_HEIGHT 480

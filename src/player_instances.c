@@ -28,7 +28,7 @@
 #include "config_creature.h"
 #include "front_simple.h"
 #include "frontend.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

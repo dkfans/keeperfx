@@ -22,8 +22,8 @@
 #include "bflib_basics.h"
 #include "bflib_datetm.h"
 #include "bflib_memory.h"
-#include "bflib_netsp.h"
-#include "bflib_netsp_ipx.h"
+#include "bflib_netsp.hpp"
+#include "bflib_netsp_ipx.hpp"
 #include "globals.h"
 
 #ifdef __cplusplus

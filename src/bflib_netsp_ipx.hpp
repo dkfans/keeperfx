@@ -2,7 +2,7 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_netsp_ipx.h
+/** @file bflib_netsp_ipx.hpp
  *     Header file for bflib_netsp_ipx.cpp.
  * @par Purpose:
  *     IPX Network ServiceProvider subclass declaration.
@@ -24,7 +24,7 @@
 #include "bflib_basics.h"
 
 #include "globals.h"
-#include "bflib_netsp.h"
+#include "bflib_netsp.hpp"
 /******************************************************************************/
 
 class IPXServiceProvider : public ServiceProvider {

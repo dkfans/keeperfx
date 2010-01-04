@@ -27,7 +27,7 @@
 #include "bflib_dernc.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
-#include "bflib_pom.h"
+#include "bflib_pom.hpp"
 
 #include "config_campaigns.h"
 #include "front_simple.h"

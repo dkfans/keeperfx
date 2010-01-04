@@ -30,10 +30,11 @@
 #include "bflib_filelst.h"
 
 #include "front_simple.h"
+#include "front_landview.h"
 #include "frontend.h"
 #include "gui_draw.h"
 #include "config.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

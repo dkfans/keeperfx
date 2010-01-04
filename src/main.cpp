@@ -2,7 +2,7 @@
 #include <windows.h>
 #include <winbase.h>
 #include <math.h>
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #include "bflib_math.h"
 #include "bflib_memory.h"
@@ -24,7 +24,7 @@
 #include "bflib_mouse.h"
 #include "bflib_filelst.h"
 #include "bflib_network.h"
-#include "bflib_drawbas.h"
+#include "bflib_drawbas.hpp"
 
 #include "front_simple.h"
 #include "frontend.h"
@@ -40,7 +40,7 @@
 #include "config_terrain.h"
 #include "config_rules.h"
 #include "config_lenses.h"
-#include "config_magic.h"
+#include "config_magic.hpp"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
 #include "lvl_script.h"

@@ -26,7 +26,7 @@
 #include "bflib_memory.h"
 
 #include "config.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

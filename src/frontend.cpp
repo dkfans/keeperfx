@@ -1,7 +1,7 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file frontend.c
+/** @file frontend.cpp
  *     Frontend menu implementation for Dungeon Keeper.
  * @par Purpose:
  *     Functions to display and maintain the game menu.
@@ -36,7 +36,7 @@
 #include "bflib_filelst.h"
 #include "bflib_sound.h"
 #include "bflib_network.h"
-#include "bflib_netsp.h"
+#include "bflib_netsp.hpp"
 #include "config.h"
 #include "config_campaigns.h"
 #include "config_creature.h"
@@ -52,7 +52,7 @@
 #include "front_credits.h"
 #include "lvl_filesdk1.h"
 #include "player_instances.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

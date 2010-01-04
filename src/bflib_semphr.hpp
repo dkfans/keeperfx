@@ -2,8 +2,8 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_semphr.h
- *     Header file for bflib_semphr.c.
+/** @file bflib_semphr.hpp
+ *     Header file for bflib_semphr.cpp.
  * @par Purpose:
  *     Semaphores wrapper.
  * @par Comment:
@@ -26,7 +26,7 @@
 
 /******************************************************************************/
 #if defined(WIN32)
-//Selected declarations frow Win32 API - I don't want to use whole API
+//Selected declarations from Win32 API - I don't want to use whole API
 // since it influences everything
 typedef void *PVOID,*LPVOID;
 typedef PVOID HANDLE;

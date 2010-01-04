@@ -28,7 +28,7 @@
 #include "engine_lenses.h"
 #include "engine_camera.h"
 #include "kjm_input.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

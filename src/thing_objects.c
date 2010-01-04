@@ -20,9 +20,11 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_memory.h"
+#include "bflib_sound.h"
 #include "map_data.h"
 #include "map_columns.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

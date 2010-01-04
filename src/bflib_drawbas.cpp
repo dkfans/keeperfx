@@ -17,7 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "bflib_drawbas.h"
+#include "bflib_drawbas.hpp"
 
 #include <string.h>
 #include <stdio.h>

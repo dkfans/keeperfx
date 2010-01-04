@@ -20,7 +20,7 @@
 #include "globals.h"
 
 #include "slab_data.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

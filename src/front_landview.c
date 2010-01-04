@@ -42,7 +42,7 @@
 #include "kjm_input.h"
 #include "vidmode.h"
 
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

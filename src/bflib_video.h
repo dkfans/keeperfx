@@ -3,7 +3,7 @@
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
 /** @file bflib_video.h
- *     Header file for bflib_video.c.
+ *     Header file for bflib_video.cpp.
  * @par Purpose:
  *     Video support library for 8-bit graphics.
  * @par Comment:

@@ -30,7 +30,6 @@ extern "C" {
 #pragma pack(1)
 
 struct TbSprite;
-class LbSemaphore;
 struct tagPOINT;
 
 struct mouse_buffer {

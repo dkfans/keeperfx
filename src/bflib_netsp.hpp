@@ -2,7 +2,7 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_netsp.h
+/** @file bflib_netsp.hpp
  *     Header file for bflib_netsp.cpp.
  * @par Purpose:
  *     Network ServiceProvider class declaration.

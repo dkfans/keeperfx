@@ -807,6 +807,7 @@
  0001:000B4460       creature_scavenged_reappear
  0001:000B44E0       creature_being_scavenged
  0001:000B45F0       process_rooms
+ 0001:000B4970       room_grow_food
  0001:000B4EC0       set_room_efficiency
  0001:000B4FA0       delete_room_slab
  0001:000B6C00       find_nearest_room_for_thing_with_spare_capacity
@@ -826,7 +827,6 @@
  0001:000BAFF0       count_crates_in_room
  0001:000BB3C0       count_workers_in_room
  0001:000BB440       count_lair_occupants
- 0001:000B4970       room_grow_food
  0001:000BBA70       go_to_my_next_room_of_type
  0001:000BCF00       get_room_thing_is_on
  0001:000BD240       player_has_room_of_type

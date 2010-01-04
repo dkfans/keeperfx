@@ -2,7 +2,7 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games.
 // PhaseOfMoon namespace for Dungeon Keeper remake.
 /******************************************************************************/
-/** @file bflib_pom.h
+/** @file bflib_pom.hpp
  *     Header file for bflib_pom.cpp.
  * @par Purpose:
  *     Moon phase calculator.

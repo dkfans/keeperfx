@@ -2,7 +2,7 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_semphr.c
+/** @file bflib_semphr.cpp
  *     Semaphores wrapper.
  * @par Purpose:
  *     Creates unified interface for semaphores, which are used for
@@ -18,7 +18,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "bflib_semphr.h"
+#include "bflib_semphr.hpp"
 
 #include "bflib_basics.h"
 

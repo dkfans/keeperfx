@@ -36,7 +36,7 @@
 #include "player_instances.h"
 #include "config_creature.h"
 #include "gui_tooltips.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

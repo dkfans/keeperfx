@@ -2,7 +2,7 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_drawbas.h
+/** @file bflib_drawbas.hpp
  *     Header file for bflib_drawbas.cpp.
  * @par Purpose:
  *     Graphics drawing support base class.

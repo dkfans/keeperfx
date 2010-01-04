@@ -2,7 +2,7 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_video.c
+/** @file bflib_video.cpp
  *     Video support library for 8-bit graphics.
  * @par Purpose:
  *     Allows displaying on graphics device - graphic canvas setup and locking
@@ -21,7 +21,7 @@
 #include "bflib_video.h"
 
 #include "bflib_mouse.h"
-#include "bflib_drawsdk.h"
+#include "bflib_drawsdk.hpp"
 #include "bflib_sprfnt.h"
 
 #ifdef __cplusplus

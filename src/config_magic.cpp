@@ -16,7 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "config_magic.h"
+#include "config_magic.hpp"
 #include "globals.h"
 
 #include "bflib_basics.h"
@@ -27,7 +27,7 @@
 #include "config.h"
 #include "thing_doors.h"
 
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

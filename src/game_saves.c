@@ -30,7 +30,7 @@
 #include "front_simple.h"
 #include "frontend.h"
 #include "front_landview.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -212,7 +212,6 @@ short game_save_catalogue(struct CatalogueEntry *game_catalg,int nentries)
 
 short game_catalogue_slot_disable(struct CatalogueEntry *game_catalg,unsigned int slot_idx)
 {
-  char *fname;
   if (slot_idx >= SAVE_SLOTS_COUNT)
     return false;
   game_catalg[slot_idx].used = false;

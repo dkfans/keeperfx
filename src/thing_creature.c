@@ -20,11 +20,12 @@
 #include "globals.h"
 
 #include "bflib_memory.h"
+
 #include "engine_lenses.h"
 #include "config_creature.h"
 #include "creature_states.h"
 #include "lens_mist.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 #include "frontend.h"
 
 #ifdef __cplusplus

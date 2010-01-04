@@ -17,7 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "bflib_mshandler.h"
+#include "bflib_mshandler.hpp"
 
 #include <string.h>
 #include <stdio.h>
@@ -26,7 +26,7 @@
 #include "bflib_mouse.h"
 #include "bflib_sprite.h"
 
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 /******************************************************************************/
 // Global variables
 int volatile lbMouseInstalled = false;
@@ -230,7 +230,6 @@ bool MouseStateHandler::SetMousePointerAndOffset(struct TbSprite *mouseSprite, l
 
 bool MouseStateHandler::SetMousePointer(struct TbSprite *mouseSprite)
 {
-  struct tagPOINT point;
   LbSemaLock semlock(&semaphore,0);
   if (!semlock.Lock(true))
     return false;

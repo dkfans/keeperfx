@@ -29,6 +29,7 @@
 #include "bflib_dernc.h"
 #include "bflib_network.h"
 #include "bflib_sound.h"
+#include "bflib_sndlib.h"
 
 #include "kjm_input.h"
 #include "front_simple.h"
@@ -41,7 +42,7 @@
 #include "config_terrain.h"
 #include "player_instances.h"
 #include "thing_doors.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

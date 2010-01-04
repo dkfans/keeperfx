@@ -27,11 +27,11 @@
 #include "config.h"
 #include "config_terrain.h"
 #include "config_lenses.h"
-#include "config_magic.h"
+#include "config_magic.hpp"
 #include "config_creature.h"
 #include "game_merge.h"
 
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

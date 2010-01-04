@@ -17,7 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "bflib_mspointer.h"
+#include "bflib_mspointer.hpp"
 
 #include <string.h>
 #include <stdio.h>
@@ -26,8 +26,10 @@
 #include "bflib_mouse.h"
 #include "bflib_sprite.h"
 
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 /******************************************************************************/
+struct SSurface;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

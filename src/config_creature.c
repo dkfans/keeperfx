@@ -29,7 +29,7 @@
 #include "thing_doors.h"
 #include "thing_creature.h"
 
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

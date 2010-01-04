@@ -17,7 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "bflib_drawsdk.h"
+#include "bflib_drawsdk.hpp"
 
 #include <string.h>
 #include <stdio.h>

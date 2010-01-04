@@ -25,7 +25,7 @@
 #include "lvl_script.h"
 #include "thing_objects.h"
 #include "config_creature.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

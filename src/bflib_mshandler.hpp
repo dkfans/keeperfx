@@ -2,7 +2,7 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_mshandler.h
+/** @file bflib_mshandler.hpp
  *     Header file for bflib_mshandler.cpp.
  * @par Purpose:
  *     Graphics drawing support sdk class.
@@ -22,11 +22,8 @@
 
 #include "bflib_basics.h"
 #include "bflib_video.h"
-#include "bflib_mspointer.h"
+#include "bflib_mspointer.hpp"
 
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
 /******************************************************************************/
 
 // Exported class
@@ -59,10 +56,6 @@ class MouseStateHandler {
     class LbI_PointerHandler pointer;
     bool swap;
     };
-
-#ifdef __cplusplus
-#pragma pack()
-#endif
 
 /******************************************************************************/
 extern class MouseStateHandler winMouseHandler;

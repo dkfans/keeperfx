@@ -29,7 +29,7 @@
 #include "front_simple.h"
 #include "config.h"
 #include "config_campaigns.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -212,7 +212,7 @@ short level_lif_file_parse(char *fname, char *buf, long buflen)
       pos += i+1;
       if (pos+1 >= buflen)
         break;
-    } 
+    }
   } while (i > 0);
   return result;
 }

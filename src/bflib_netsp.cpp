@@ -17,7 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "bflib_netsp.h"
+#include "bflib_netsp.hpp"
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"

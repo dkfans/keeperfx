@@ -25,7 +25,7 @@
 #include "gui_draw.h"
 #include "kjm_input.h"
 #include "frontend.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 #include "thing_objects.h"
 #include "config_creature.h"
 

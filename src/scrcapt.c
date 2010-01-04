@@ -27,7 +27,7 @@
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "globals.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #include <string.h>
 /******************************************************************************/

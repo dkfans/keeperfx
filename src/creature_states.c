@@ -25,7 +25,7 @@
 #include "config_creature.h"
 #include "config_rules.h"
 #include "thing_objects.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

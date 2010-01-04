@@ -32,12 +32,12 @@
 #include "config_terrain.h"
 #include "config_rules.h"
 #include "config_lenses.h"
-#include "config_magic.h"
+#include "config_magic.hpp"
 #include "config_creature.h"
 #include "player_instances.h"
 #include "lvl_filesdk1.h"
 #include "game_merge.h"
-#include "keeperfx.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

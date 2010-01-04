@@ -2,7 +2,7 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_mspointer.h
+/** @file bflib_mspointer.hpp
  *     Header file for bflib_mspointer.cpp.
  * @par Purpose:
  *     Graphics drawing support sdk class.
@@ -21,13 +21,10 @@
 #define BFLIB_MSPOINTER_H
 
 #include "bflib_basics.h"
-#include "bflib_semphr.h"
+#include "bflib_semphr.hpp"
 #include "bflib_video.h"
-#include "bflib_drawsdk.h"
+#include "bflib_drawsdk.hpp"
 
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
 /******************************************************************************/
 
 // Exported class
@@ -65,11 +62,6 @@ class LbI_PointerHandler {
     struct TbSprite *sprite;
     LbSemaphore sema_rel;
     };
-
-#ifdef __cplusplus
-#pragma pack()
-#endif
-
 
 /******************************************************************************/
 

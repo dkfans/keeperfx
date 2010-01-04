@@ -23,16 +23,6 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
-enum SaveGameChunks {
-     SGC_GameOrig,
-     SGC_GameAdd,
-};
-
-struct FileChunkHeader {
-    unsigned short id;
-    unsigned long len;
-};
-
 #ifdef __cplusplus
 extern "C" {
 #endif

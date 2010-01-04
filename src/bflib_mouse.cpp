@@ -31,8 +31,7 @@
 #include "bflib_memory.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
-#include "bflib_semphr.h"
-#include "bflib_mshandler.h"
+#include "bflib_mshandler.hpp"
 
 //#include "keeperfx.h"
 
