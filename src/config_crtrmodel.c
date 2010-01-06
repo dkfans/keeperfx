@@ -170,7 +170,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len)
   struct CreatureStats *crstat;
   struct CreatureModelConfig *crconf;
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -658,7 +658,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len)
 {
   struct CreatureStats *crstat;
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -778,7 +778,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len)
 {
   struct CreatureStats *crstat;
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -1161,7 +1161,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len)
 {
   struct CreatureStats *crstat;
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -1277,7 +1277,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len)
 {
   struct CreatureStats *crstat;
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -1348,7 +1348,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len)
 {
   struct CreatureStats *crstat;
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -1532,7 +1532,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len)
 {
   struct CreatureStats *crstat;
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -1741,7 +1741,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *conf_fnstr,uns
 {
   char *fname;
   char *buf;
-  long len,pos;
+  long len;
   TbBool result;
   SYNCDBG(0,"Reading \"%s.cfg\".",conf_fnstr);
   fname = prepare_file_fmtpath(FGrp_CrtrData,"%s.cfg",conf_fnstr);

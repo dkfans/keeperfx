@@ -1,16 +1,29 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
+/** @file keeperfx_stdres.rc
+ *     Standard Windows resoures used by KeeperFX application.
+ * @par Purpose:
+ *     Defines icons and executable information data (VersionInfo)
+ *     used by Ms Windows as description of the application.
+ * @par Comment:
+ *     None.
+ * @author   Tomasz Lis
+ * @date     27 Apr 2009 - 12 Jan 2010
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
 
 #include <windows.h> // include for version info constants
-#include "../src/keeperfx_private.h" // version
-
+#include "../src/keeperfx_private.h" // define values for version info
 
 A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "keeperfx_icon.ico"
 
-//
-// TO CHANGE VERSION INFORMATION, EDIT PROJECT OPTIONS...
-//
+// Create version info block, using defines from the header file
 1 VERSIONINFO
 FILEVERSION VER_MAJOR,VER_MINOR,VER_RELEASE,VER_BUILD
 PRODUCTVERSION VER_MAJOR,VER_MINOR,VER_RELEASE,VER_BUILD
@@ -36,4 +49,4 @@ FILETYPE VFT_APP
 		 VALUE "Translation", 0x0409, 1252
 	 }
 }
-
+/******************************************************************************/

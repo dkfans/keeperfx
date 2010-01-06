@@ -182,7 +182,7 @@ TbBool cumulative_screen_shot(void)
   long ssize;
   for (i=frame_number; i<10000; i++)
   {
-    sprintf(fname, "scrshots/scr%05d.%s", i, fext);
+    sprintf(fname, "scrshots/scr%05ld.%s", i, fext);
     if (!LbFileExists(fname)) break;
   }
   frame_number = i;
@@ -191,7 +191,7 @@ TbBool cumulative_screen_shot(void)
     show_onscreen_msg(game.num_fps, "No free filename for screenshot.");
     return false;
   }
-  sprintf(fname, "scrshots/scr%05d.%s", frame_number, fext);
+  sprintf(fname, "scrshots/scr%05ld.%s", frame_number, fext);
 
   w=MyScreenWidth/pixel_size;
   h=MyScreenHeight/pixel_size;
@@ -248,7 +248,7 @@ short movie_record_frame(void)
   if (!lock_mem)
   {
     if (LbScreenLock() != Lb_SUCCESS)
-      return 0;
+      return false;
   }
   LbPaletteGet(cap_palette);
   result=anim_record_frame(lbDisplay.WScreen, cap_palette);

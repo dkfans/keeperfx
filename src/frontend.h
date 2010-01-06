@@ -2,7 +2,7 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file frontend.h
- *     Header file for frontend.c.
+ *     Header file for frontend.cpp.
  * @par Purpose:
  *     Functions to display and maintain the game menu.
  * @par Comment:
@@ -48,11 +48,6 @@ extern "C" {
 // After that much miliseconds in main menu, demo is started
 #define MNU_DEMO_IDLE_TIME 30000
 /******************************************************************************/
-#pragma pack(1)
-
-struct GuiMenu;
-struct GuiButton;
-
 enum DemoItem_Kind {
     DIK_PlaySmkVideo,
     DIK_LoadPacket,
@@ -131,6 +126,12 @@ enum FrontendMenuState {
   // Special testing states
   FeSt_FONT_TEST          = 255,
 };
+
+/******************************************************************************/
+#pragma pack(1)
+
+struct GuiMenu;
+struct GuiButton;
 
 struct DemoItem { //sizeof = 5
     unsigned char numfield_0;

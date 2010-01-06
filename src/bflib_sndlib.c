@@ -320,6 +320,7 @@ struct SampleInfo * __stdcall PlaySampleFromAddress(int a1, int smpl_idx, int a3
     { ERRORLOG("Can't get address of PlaySampleFromAddress function; skipped."); return 0; }
     return ((FARPROC_PLAY1)proc)(a1, smpl_idx, a3, a4, a5, a6, a7, hmhandle, a9);
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

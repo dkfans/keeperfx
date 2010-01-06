@@ -31,6 +31,8 @@ extern "C" {
 #define CREATURE_TYPES_MAX 64
 #define INSTANCE_TYPES_MAX 64
 /******************************************************************************/
+struct Thing;
+/******************************************************************************/
 enum CreatureModelFlags {
     MF_IsSpecDigger   = 0x0001, // Imp and Tunneller
     MF_IsArachnid     = 0x0002, // simply, Spider

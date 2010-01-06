@@ -38,7 +38,7 @@ void frontcredits_draw(void)
   struct CreditsItem *credit;
   TbBool did_draw;
   int fontid;
-  long i,k;
+  long i;
   long h;
   const char *text;
   credits_offset -= credits_scroll_speed;

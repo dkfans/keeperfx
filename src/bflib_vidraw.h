@@ -141,6 +141,7 @@ struct PurpleDrawItem {
         // pos=24d
         unsigned short Flags;
 };
+
 /******************************************************************************/
 DLLIMPORT unsigned char *_DK_poly_screen;
 #define poly_screen _DK_poly_screen

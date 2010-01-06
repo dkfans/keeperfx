@@ -144,10 +144,19 @@ struct KeyToStringInit key_to_string_init[] = {
   {  0,     0},
 };
 
-// Map size variables
+/** Map subtiles, X dimension.
+ *  @note The subtile indexed [map_subtiles_x] should exist
+ *      in the map, so there really is map_subtiles_x+1 subtiles. */
 int map_subtiles_x = 255;
+/** Map subtiles, Y dimension.
+ *  @note The subtile indexed [map_subtiles_y] should exist
+ *      in the map, so there really is map_subtiles_y+1 subtiles. */
 int map_subtiles_y = 255;
+/** Map tiles, X dimension.
+ *  Equals to tiles (slabs) count; The last slab has index map_tiles_x-1. */
 int map_tiles_x = 85;
+/** Map tiles, Y dimension.
+ *  Equals to tiles (slabs) count; The last slab has index map_tiles_y-1. */
 int map_tiles_y = 85;
 
 unsigned short player_colors_map[] = {0, 1, 2, 3, 4, 5, 0, 0, 0, };
@@ -888,7 +897,6 @@ void setup_eye_lens(long nlens)
   //_DK_setup_eye_lens(nlens);return;
   struct PlayerInfo *player;
   char *fname;
-
   if ((game.flags_cd & MFlg_EyeLensReady) == 0)
   {
     WARNLOG("Can't setup lens - not initialized");
@@ -1161,7 +1169,6 @@ void light_turn_light_off(long idx)
 void light_turn_light_on(long idx)
 {
   struct Light *lgt;
-  long x1,y1,x2,y2;
 
   if (idx == 0)
   {
@@ -1279,7 +1286,7 @@ void setup_block_mem(void)
 void compute_fade_tables(struct TbColorTables *coltbl,unsigned char *spal,unsigned char *dpal)
 {
   unsigned char *dst;
-  unsigned long i,k,n;
+  unsigned long i,k;
   unsigned char r,g,b;
   unsigned char rr,rg,rb;
   SYNCMSG("Recomputing fade tables");
@@ -1908,7 +1915,7 @@ TbBool player_is_friendly_or_defeated(int plyr_idx, int win_plyr_idx)
 TbBool all_dungeons_destroyed(struct PlayerInfo *win_player)
 {
   long win_plyr_idx;
-  long i,k;
+  long i;
   win_plyr_idx = win_player->field_2B;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
@@ -2924,12 +2931,10 @@ void process_landscape_affecting_creature(struct Thing *thing)
 
 long update_creature(struct Thing *thing)
 {
-  //return _DK_update_creature(thing);
   struct PlayerInfo *player;
   struct CreatureControl *cctrl;
   struct Thing *tngp;
   struct Map *map;
-  int i;
   SYNCDBG(18,"Starting");
   map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
   if ((thing->field_7 == 67) && (map->flags & 0x40))
@@ -3559,8 +3564,6 @@ short play_smacker_file(char *filename, int nstate)
 void process_network_error(long errcode)
 {
   char *text;
-  TbBool finish;
-  TbClockMSec tmEnd;
   switch (errcode)
   {
   case 4:
@@ -3887,7 +3890,7 @@ TbBool setup_heaps(void)
   TbBool low_memory;
   char snd_fname[2048];
   char *spc_fname;
-  long i,k;
+  long i;
   SYNCDBG(8,"Starting");
   low_memory = false;
   if (!SoundDisabled)
@@ -5359,7 +5362,6 @@ short setup_game(void)
       (int)cpu_get_type(&cpu_info),(int)cpu_get_family(&cpu_info),(int)cpu_get_model(&cpu_info),
       (int)cpu_get_stepping(&cpu_info),cpu_info.feature_edx);
   update_memory_constraits();
-
   // Enable features thar require more resources
   update_features(mem_size);
 
@@ -5379,7 +5381,6 @@ short setup_game(void)
   }
 
   short result;
-  short need_clean;
 
   // View the legal screen
 
@@ -5500,7 +5501,6 @@ short setup_game(void)
 
 unsigned short input_eastegg_keycodes(unsigned char *counter,short allow,struct KeycodeString const *codes)
 {
-  int keys_total;
   TbKeyCode currkey;
   unsigned short result;
   if (!allow)
@@ -6339,7 +6339,6 @@ struct Thing *get_nearest_thing_for_hand_or_slap(long plyr_idx, long x, long y)
   long near_distance;
   struct Thing *near_thing;
   struct Map *mapblk;
-  struct Thing *thing;
   long sx,sy;
   int around;
   //return _DK_get_nearest_thing_for_hand_or_slap(plyr_idx, x, y);
@@ -6833,7 +6832,7 @@ unsigned short get_extra_level_kind_visibility(unsigned short elv_kind)
  */
 short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum)
 {
-  int i,n,k;
+  int i;
   i = array_index_for_extra_level(ex_lvnum);
   switch (i+1)
   {
@@ -7183,6 +7182,7 @@ short set_default_startup_parameters(void)
   start_params.one_player = 1;
   set_flag_byte(&start_params.flags_cd,MFlg_IsDemoMode,false);
   set_flag_byte(&start_params.flags_cd,0x40,true);
+  return true;
 }
 
 /*
@@ -7402,6 +7402,7 @@ void delete_all_control_structures(void)
   struct CreatureControl *cctrl;
   for (i=1; i < CREATURES_COUNT; i++)
   {
+  	cctrl = creature_control_get(i);
     if (cctrl != NULL)
     {
       if (cctrl->flgfield_0 & 0x0100)
@@ -7629,7 +7630,6 @@ TbBool send_resync_game(void)
 {
   TbFileHandle fh;
   char *fname;
-  long i;
   fname = prepare_file_path(FGrp_Save,"resync.dat");
   fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
   if (fh == -1)
@@ -8513,7 +8513,6 @@ short winning_player_quitting(struct PlayerInfo *player, long *plyr_count)
 
 short lose_level(struct PlayerInfo *player)
 {
-  long lvnum;
   if (!is_my_player(player))
     return false;
   if (game.numfield_A & 0x01)
@@ -8526,7 +8525,6 @@ short lose_level(struct PlayerInfo *player)
 
 short resign_level(struct PlayerInfo *player)
 {
-  long lvnum;
   if (!is_my_player(player))
     return false;
   if (game.numfield_A & 0x01)
@@ -9004,7 +9002,6 @@ void room_update_surrounding_flames(struct Room *room,struct Coord3d *pos)
 
 void process_room_surrounding_flames(struct Room *room)
 {
-  struct SlabMap *slb;
   struct Coord3d pos;
   long x,y;
   long i;
@@ -10001,7 +9998,6 @@ void update_player_sounds(void)
 void update(void)
 {
   struct PlayerInfo *player;
-  int i,k;
   SYNCDBG(4,"Starting");
 
   if ((game.numfield_C & 0x01) == 0)
@@ -10781,7 +10777,6 @@ void draw_power_hand(void)
   struct Room *room;
   struct RoomData *rdata;
   long x,y;
-  long i;
   //_DK_draw_power_hand(); return;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
@@ -11143,7 +11138,6 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   struct Thing *thing;
-  int i;
   do_map_rotate_stuff(curr_mx-start_x-58, curr_my-start_y-58, &x, &y, zoom);
   game.field_1517FD = x;
   game.field_1517FF = y;
@@ -11205,7 +11199,6 @@ void redraw_creature_view(void)
   struct TbGraphicsWindow ewnd;
   struct PlayerInfo *player;
   struct Thing *thing;
-  long i;
   //_DK_redraw_creature_view(); return;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   if (player->field_45F != 2)
@@ -11310,7 +11303,6 @@ void redraw_isometric_view(void)
   struct Dungeon *dungeon;
   struct TbGraphicsWindow ewnd;
   struct Coord3d pos;
-  int i;
   SYNCDBG(6,"Starting");
   //_DK_redraw_isometric_view(); return;
 
@@ -11525,7 +11517,7 @@ void draw_zoom_box(void)
   int map_dx,map_dy;
   int scr_x,scr_y;
   int map_x,map_y;
-  int i,k;
+  int k;
 
   map_tiles_x = 13;
   map_tiles_y = 13;
@@ -11848,7 +11840,6 @@ void redraw_display(void)
   //_DK_redraw_display();return;
   char *text;
   struct PlayerInfo *player;
-  int i;
   SYNCDBG(5,"Starting");
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   set_flag_byte(&player->field_6,0x01,false);
@@ -11858,8 +11849,6 @@ void redraw_display(void)
     set_pointer_graphic_none();
   else
     process_pointer_graphic();
-//TODO!!!!!!!remove when possession bug solved
-  SYNCDBG(0,"Redrawing view %d",(int)player->field_37);
   switch (player->field_37)
   {
   case 0:
@@ -12122,7 +12111,6 @@ TbBool keeper_wait_for_screen_focus(void)
  */
 short draw_onscreen_direct_messages(void)
 {
-  char *text;
   unsigned int msg_pos;
   SYNCDBG(5,"Starting");
   // Display in-game message for debug purposes
@@ -12574,7 +12562,6 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
 short thing_create_thing(struct InitThing *itng)
 {
   struct Thing *thing;
-  char *text;
   if (itng->owner == 7)
   {
     ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.field_14E496);
@@ -12791,7 +12778,6 @@ void do_creature_swap(long ncrt_id, long crtr_id)
 
 TbBool swap_creature(long ncrt_id, long crtr_id)
 {
-  char *text;
   if ((crtr_id < 0) || (crtr_id >= CREATURE_TYPES_COUNT))
   {
     ERRORLOG("Creature index %d is invalid", crtr_id);
@@ -12840,7 +12826,6 @@ void init_level(void)
   struct Thing *thing;
   struct Coord3d pos;
   struct CreatureStorage transfer_mem;
-  int i,k;
   //_DK_init_level(); return;
 
   LbMemoryCopy(&transfer_mem,&game.transfered_creature,sizeof(struct CreatureStorage));
@@ -13089,7 +13074,6 @@ void post_init_players(void)
 
 short init_animating_texture_maps(void)
 {
-  int i;
   SYNCDBG(8,"Starting");
   //_DK_init_animating_texture_maps(); return;
   anim_counter = 7;
@@ -13258,8 +13242,6 @@ void setup_count_players(void)
 
 void startup_saved_packet_game(void)
 {
-  struct PlayerInfo *player;
-  int i;
   //_DK_startup_saved_packet_game(); return;
   clear_packets();
   open_packet_file_for_load(game.packet_fname);
@@ -13503,7 +13485,7 @@ void wait_at_frontend(void)
   case 10:
         flgmem = game.numfield_15;
         game.numfield_A &= 0xFFFEu;
-        if ( game.numfield_15 == -2 )
+        if (game.numfield_15 == -2)
         {
           ERRORLOG("Why are we here");
           game.numfield_15 = flgmem;
@@ -13862,7 +13844,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
   memcpy(_DK_player_instance_info,player_instance_info,17*sizeof(struct PlayerInstanceInfo));
   memcpy(_DK_states,states,145*sizeof(struct StateInfo));
   memcpy(_DK_room_data,room_data,17*sizeof(struct RoomData));
-  
+
 #if (BFDEBUG_LEVEL > 1)
 /*  {
       struct PlayerInfo *player=&(game.players[0]);

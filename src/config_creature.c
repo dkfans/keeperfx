@@ -492,8 +492,7 @@ TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags)
 {
   char *fname;
   char *buf;
-  long len,pos;
-  int cmd_num;
+  long len;
   TbBool result;
   SYNCDBG(0,"Reading Creature config file \"%s\".",conf_fname);
   fname = prepare_file_path(FGrp_FxData,conf_fname);

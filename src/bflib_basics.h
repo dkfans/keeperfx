@@ -41,7 +41,7 @@ extern "C" {
 
 enum TbErrorLogFlags {
         Lb_ERROR_LOG_APPEND = 0,
-        Lb_ERROR_LOG_NEW =  1,
+        Lb_ERROR_LOG_NEW    = 1,
 };
 
 enum TbLogFlags {

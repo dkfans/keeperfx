@@ -97,7 +97,7 @@ struct NamedCommand door_desc[TERRAIN_ITEMS_MAX];
 TbBool parse_terrain_common_blocks(char *buf,long len)
 {
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -693,8 +693,7 @@ TbBool load_terrain_config(const char *conf_fname,unsigned short flags)
 {
   char *fname;
   char *buf;
-  long len,pos;
-  int cmd_num;
+  long len;
   TbBool result;
   SYNCDBG(0,"Reading terrain config file \"%s\".",conf_fname);
   fname = prepare_file_path(FGrp_FxData,conf_fname);

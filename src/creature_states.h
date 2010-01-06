@@ -31,6 +31,8 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+struct Thing;
+
 struct StateInfo { // sizeof = 41
   short (*ofsfield_0)(struct Thing *);
   short (*ofsfield_4)(struct Thing *);

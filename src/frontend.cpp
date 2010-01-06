@@ -1903,7 +1903,7 @@ void draw_load_button(struct GuiButton *gbtn)
   }
   if (gbtn->field_33 != NULL)
   {
-    sprintf(gui_textbuf, "%s", gbtn->field_33);
+    sprintf(gui_textbuf, "%s", (const char *)gbtn->field_33);
     draw_button_string(gbtn, gui_textbuf);
   }
 }
@@ -3491,7 +3491,7 @@ void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn)
     text = gui_strings[i];
   else
     text = NULL;
-  frontend_draw_button(gbtn, 2, text, 256);
+  frontend_draw_button(gbtn, 2, text, 0x100);
 }
 
 void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width)
@@ -3751,6 +3751,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     breed_idx = breed_activities[(top_of_breed_list+(actvty_idx>>2))%CREATURE_TYPES_COUNT];
   else
     breed_idx = 23;
+  cr_total = 0;
   if ((breed_idx > 0) && (breed_idx < CREATURE_TYPES_COUNT) &&(gbtn->field_0 & 0x08))
   {
       dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
@@ -4516,9 +4517,7 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
 
 void frontend_start_new_game(struct GuiButton *gbtn)
 {
-  struct PlayerInfo *player;
   char *cmpgn_fname;
-  int i;
   SYNCDBG(6,"Clicked");
   // Check if we can just start the game without campaign selection screen
   if (campaigns_list.items_num < 1)
@@ -4874,6 +4873,7 @@ long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
     set_player_as_won_level(player);
   else
     set_player_as_lost_level(player);
+  return 1;
 }
 
 long gf_change_player_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
@@ -5062,8 +5062,6 @@ void add_score_to_high_score_table(void)
 {
   struct Dungeon *dungeon;
   struct PlayerInfo *player;
-  LevelNumber lvnum;
-  long new_score;
   int idx;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
@@ -6838,9 +6836,7 @@ void spangle_button(struct GuiButton *gbtn)
 void draw_menu_spangle(struct GuiMenu *gmnu)
 {
   struct GuiButton *gbtn;
-  struct GuiMenu *secmnu;
-  int i,j;
-  int x,y;
+  int i;
   short in_range;
   if (gmnu->flgfield_1D == 0)
     return;
@@ -7814,6 +7810,7 @@ struct GuiBoxOption *gui_move_active_box_option(struct GuiBox *gbox, int val)
     {
       opt_num = opt_total;
 //      goptn->active = 0;
+//!!!!!!!!!!!deactivate
     }
     goptn++;
     opt_total++;
@@ -7824,6 +7821,7 @@ struct GuiBoxOption *gui_move_active_box_option(struct GuiBox *gbox, int val)
     goptn = &gbox->optn_list[opt_num];
     if (goptn->callback != NULL)
       goptn->callback(gbox, goptn, 1, &goptn->field_19);
+//!!!!!!!!!!!activate
     return goptn;
   }
   return NULL;

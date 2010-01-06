@@ -138,9 +138,7 @@ TbError LbNetwork_Shutdown(void)
 
 TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct SerialInitData *init_data)
 {
-  struct TbNetworkPlayerInfo *lpinfo;
   TbError res;
-  long i;
   //return _DK_LbNetwork_Init(srvcp,guid,maxplayrs,exchng_buf,exchng_size,locplayr,init_data);
   exchangeSize = exchng_size;
   maximumPlayers = maxplayrs;
@@ -538,7 +536,8 @@ TbError ClearClientData(void)
   {
     clientDataTable[i].field_4 = 0;
   }
-}  
+  return Lb_OK;
+}
 
 TbError GetCurrentPlayers(void)
 {
@@ -598,6 +597,7 @@ TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
   {
     return Lb_FAIL;
   }
+  plr_id = 0;
   found_id = false;
   for (i=0; i < maximumPlayers; i++)
   {
@@ -1001,7 +1001,6 @@ TbError CompleteTwoPlayerExchange(void *buf)
   TbBool keepExchng;
   TbClockMSec tmPassed;
   long nRetries;
-  long i;
   ret = Lb_FAIL;
   keepExchng = true;
   if (!clientDataTable[remotePlayerIndex].field_4 )

@@ -142,7 +142,7 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
 #endif
       if (inputend-input<6)
       {
-          if (!(flags&RNC_IGNORE_HUF_EXCEEDS_RANGE)) 
+          if (!(flags&RNC_IGNORE_HUF_EXCEEDS_RANGE))
               return RNC_HUF_EXCEEDS_RANGE;
             else
               {output=outputend;ch_count=0;break;}
@@ -159,7 +159,7 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
 	    length = huf_read (&raw, &bs, &input,inputend);
         if (length == -1)
             {
-            if (!(flags&RNC_IGNORE_HUF_DECODE_ERROR)) 
+            if (!(flags&RNC_IGNORE_HUF_DECODE_ERROR))
                 return RNC_HUF_DECODE_ERROR;
             else
                 {output=outputend;ch_count=0;break;}
@@ -170,7 +170,7 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
             {
                 if ((input>=inputend)||(output>=outputend))
                    {
-                   if (!(flags&RNC_IGNORE_HUF_EXCEEDS_RANGE)) 
+                   if (!(flags&RNC_IGNORE_HUF_EXCEEDS_RANGE))
                        return RNC_HUF_EXCEEDS_RANGE;
                    else
                        {output=outputend;ch_count=0;break;}
@@ -185,7 +185,7 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
 	    posn = huf_read (&dist, &bs, &input,inputend);
 	    if (posn == -1)
         {
-            if (!(flags&RNC_IGNORE_HUF_DECODE_ERROR)) 
+            if (!(flags&RNC_IGNORE_HUF_DECODE_ERROR))
 		        return RNC_HUF_DECODE_ERROR;
             else
                 {output=outputend;ch_count=0;break;}
@@ -193,7 +193,7 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
 	    length = huf_read (&len, &bs, &input,inputend);
         if (length == -1)
         {
-            if (!(flags&RNC_IGNORE_HUF_DECODE_ERROR)) 
+            if (!(flags&RNC_IGNORE_HUF_DECODE_ERROR))
 		        return RNC_HUF_DECODE_ERROR;
             else
                 {output=outputend;ch_count=0;break;}
@@ -207,7 +207,7 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
              || ((output)<(unsigned char *)unpacked)
              || ((output)>(unsigned char *)outputend))
             {
-                   if (!(flags&RNC_IGNORE_HUF_EXCEEDS_RANGE)) 
+                   if (!(flags&RNC_IGNORE_HUF_EXCEEDS_RANGE))
                        return RNC_HUF_EXCEEDS_RANGE;
                    else
                        {output=outputend-1;ch_count=0;break;}
@@ -420,7 +420,6 @@ long rnc_crc(void *data, unsigned long len)
 
 long __fastcall LbFileLengthRnc(const char *fname)
 {
-  static const char *func_name="LbFileLengthRnc";
   TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
   if ( handle == -1 )
       return -1;

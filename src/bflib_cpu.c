@@ -25,18 +25,17 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void __fastcall _DK_get_cpu_info(struct CPU_INFO *cpu_info);
-/******************************************************************************/
 
-/** issue a single request to CPUID. Fits 'intel features', for instance
- *  note that even if only "eax" and "edx" are of interrest, other registers
- *  will be modified by the operation, so we need to tell the compiler about it.
+/** Issue a single request to CPUID.
+ *  Fits 'intel features', for instance note that even if only "eax" and "edx"
+ *  are of interrest, other registers will be modified by the operation,
+ *  so we need to tell the compiler about it.
  */
 static inline void cpuid(int code, unsigned long *a, unsigned long *d) {
   asm volatile("cpuid":"=a"(*a),"=d"(*d):"0"(code):"ecx","ebx");
 }
- 
-/** issue a complete request, storing general registers output as a string
+
+/** Issue a complete request, storing general registers output in an array.
  */
 static inline int cpuid_string(int code, unsigned long where[4]) {
   int highest;
@@ -123,9 +122,6 @@ unsigned short cpu_get_stepping(struct CPU_INFO *cpu)
 {
   return (cpu->feature_intl) & 0x7;
 }
-
-
-
 
 /******************************************************************************/
 #ifdef __cplusplus

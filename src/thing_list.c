@@ -474,7 +474,6 @@ TbBool knight_in_prison(void)
 long get_free_hero_gate_number(void)
 {
   struct Thing *thing;
-  short found;
   long n;
   for (n=1; n < 256; n++)
   {
@@ -601,7 +600,7 @@ TbBool thing_touching_floor(const struct Thing *thing)
 {
   return (thing->field_60 == thing->mappos.z.val);
 }
-/******************************************************************************/
+
 void stop_all_things_playing_samples(void)
 {
   struct Thing *thing;

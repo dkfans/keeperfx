@@ -4,7 +4,7 @@
 /** @file lens_mist.h
  *     Header file for lens_mist.cpp.
  * @par Purpose:
- *     Mist lense effect functions.
+ *     Mist lens effect functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis

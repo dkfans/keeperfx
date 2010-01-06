@@ -77,7 +77,7 @@ struct CreatureControl *creature_control_get(long cctrl_idx)
   return game.persons.cctrl_lookup[cctrl_idx];
 }
 
-/*
+/**
  * Returns CreatureControl assigned to given thing.
  * Thing must be a creature.
  */
@@ -168,7 +168,7 @@ TbBool disband_creatures_group(struct Thing *thing)
   struct CreatureControl *cctrl;
   struct Thing *ntng;
   struct Thing *ctng;
-  long i,k;
+  long k;
   cctrl = creature_control_get_from_thing(thing);
   if ((cctrl->field_7A & 0xFFF) == 0)
     return true;

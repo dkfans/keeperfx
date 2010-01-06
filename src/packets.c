@@ -132,7 +132,6 @@ void set_players_packet_position(struct PlayerInfo *player, long x, long y)
 struct Packet *get_packet(long plyr_idx)
 {
   struct PlayerInfo *player;
-  struct Packet *pckt;
   if ((plyr_idx < 0) || (plyr_idx >= PLAYERS_COUNT))
     return INVALID_PACKET;
   player = &(game.players[plyr_idx]);
@@ -212,6 +211,7 @@ short checksums_different(void)
   TbChecksum checksum;
   unsigned short is_set;
   int i;
+  checksum = 0;
   is_set = false;
   for (i=0; i<PLAYERS_COUNT; i++)
   {
@@ -236,7 +236,6 @@ short checksums_different(void)
 void update_double_click_detection(long plyr_idx)
 {
   struct Packet *pckt;
-  unsigned short i;
   pckt = get_packet(plyr_idx);
   if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
   {
@@ -1240,7 +1239,6 @@ void load_packets_for_turn(long nturn)
   TbBigChecksum tot_chksum;
   long data_size;
   short done;
-  char *text;
   long i;
   const int turn_data_size = PACKET_TURN_SIZE;
   unsigned char pckt_buf[PACKET_TURN_SIZE+4];
@@ -1431,9 +1429,9 @@ void process_players_message_character(struct PlayerInfo *player)
       if (chpos>0)
         player->strfield_463[chpos-1] = '\0';
     } else
-    if ((chr >= 'a') && (chr <= 'z') ||
-        (chr >= 'A') && (chr <= 'Z') ||
-        (chr >= '0') && (chr <= '9') || (chr == ' ')  || (chr == '!') ||
+    if (((chr >= 'a') && (chr <= 'z')) ||
+        ((chr >= 'A') && (chr <= 'Z')) ||
+        ((chr >= '0') && (chr <= '9')) || (chr == ' ')  || (chr == '!') ||
         (chr == '.'))
     {
       if (chpos < 63)

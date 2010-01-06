@@ -851,11 +851,10 @@ short init_computer_process_lists(void)
 short parse_computer_player_common_blocks(char *buf,long len)
 {
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[32];
-  char word_buf[32];
   // Find the block
   sprintf(block_buf,"common");
   pos = 0;

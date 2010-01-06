@@ -702,7 +702,8 @@ void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, lo
           block_pointed_at_y = slb_y;
           me_pointed_at = map;
         }
-        if ((temp_cluedo_mode) && (i == 2) || (!temp_cluedo_mode) && (i == 5))
+        if (((temp_cluedo_mode)  && (i == 2))
+         || ((!temp_cluedo_mode) && (i == 5)))
         {
           top_pointed_at_frac_x = pos_x & 0xFF;
           top_pointed_at_frac_y = pos_y & 0xFF;
@@ -724,7 +725,7 @@ void draw_selected_slab_box(struct Camera *cam, unsigned char stl_width)
   long slb_width,depth;
   long vstart,vend;
   long delta[4];
-  
+
   if (!map_volume_box.field_0)
     return;
   pos.y.val = map_volume_box.field_7;
@@ -884,7 +885,7 @@ void draw_frontview_engine(struct Camera *cam)
   long lim_x,lim_y;
   unsigned long laaa;
   long i;
-  SYNCDBG(10,"Starting");
+  SYNCDBG(9,"Starting");
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   UseFastBlockDraw = (cam->field_17 == 65536);
   if (cam->field_17 > 65536)

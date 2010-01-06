@@ -240,7 +240,7 @@ TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
 TbBool parse_rules_game_blocks(char *buf,long len)
 {
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -543,7 +543,7 @@ TbBool parse_rules_game_blocks(char *buf,long len)
 TbBool parse_rules_computer_blocks(char *buf,long len)
 {
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -638,7 +638,7 @@ TbBool parse_rules_computer_blocks(char *buf,long len)
 TbBool parse_rules_creatures_blocks(char *buf,long len)
 {
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -769,7 +769,7 @@ TbBool parse_rules_creatures_blocks(char *buf,long len)
 TbBool parse_rules_magic_blocks(char *buf,long len)
 {
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -968,7 +968,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len)
 TbBool parse_rules_rooms_blocks(char *buf,long len)
 {
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -1163,7 +1163,7 @@ TbBool parse_rules_rooms_blocks(char *buf,long len)
 TbBool parse_rules_workers_blocks(char *buf,long len)
 {
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -1267,7 +1267,7 @@ TbBool parse_rules_workers_blocks(char *buf,long len)
 TbBool parse_rules_health_blocks(char *buf,long len)
 {
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -1378,7 +1378,6 @@ TbBool parse_rules_health_blocks(char *buf,long len)
 long get_research_id(long item_type, char *trg_name, const char *func_name)
 {
   long item_id;
-  char *text;
   switch (item_type)
   {
   case 1:
@@ -1437,6 +1436,7 @@ TbBool parse_rules_research_blocks(char *buf,long len)
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
       n = 0;
+      l = 0;
       switch (cmd_num)
       {
       case 1: // RESEARCH
@@ -1483,7 +1483,7 @@ TbBool parse_rules_research_blocks(char *buf,long len)
 TbBool parse_rules_sacrifices_blocks(char *buf,long len)
 {
   long pos;
-  int i,k,l,n;
+  int i,k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -1665,8 +1665,7 @@ TbBool load_rules_config(const char *conf_fname,unsigned short flags)
 {
   char *fname;
   char *buf;
-  long len,pos;
-  int cmd_num;
+  long len;
   TbBool result;
   SYNCDBG(0,"Reading rules config file \"%s\".",conf_fname);
   fname = prepare_file_path(FGrp_FxData,conf_fname);

@@ -98,7 +98,7 @@ short copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int
       dst = dst_buf + (h)*scanline;
       memset(dst,0,scanline);
     }
-    // Clearing bottom of the canvas 
+    // Clearing bottom of the canvas
     // (Note: it must be done before drawing, to make sure we won't overwrite last line)
     for (h=nlines-spy; h<nlines; h++)
     {
@@ -458,7 +458,6 @@ TbBool display_centered_message(long showTime, char *text)
   if ( was_locked )
     LbScreenUnlock();
 
-  unsigned int i;
   finish = false;
   while ( !finish )
   {

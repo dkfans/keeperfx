@@ -53,7 +53,7 @@ struct NamedCommand lenses_desc[LENSE_ITEMS_MAX];
 TbBool parse_lenses_common_blocks(char *buf,long len)
 {
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -115,7 +115,6 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
   // Initialize the array
   int arr_size = sizeof(lenses_conf.lense_names)/sizeof(lenses_conf.lense_names[0]);
   for (i=0; i < arr_size; i++)
@@ -180,8 +179,7 @@ TbBool load_lenses_config(const char *conf_fname,unsigned short flags)
 {
   char *fname;
   char *buf;
-  long len,pos;
-  int cmd_num;
+  long len;
   TbBool result;
   SYNCDBG(0,"Reading Lenses config file \"%s\".",conf_fname);
   fname = prepare_file_path(FGrp_FxData,conf_fname);

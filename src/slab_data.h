@@ -72,6 +72,7 @@ enum SlabTypes {
 /******************************************************************************/
 #pragma pack(1)
 
+struct PlayerInfo;
 typedef unsigned char SlabType;
 
 struct SlabMap {

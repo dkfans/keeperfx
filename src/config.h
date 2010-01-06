@@ -26,6 +26,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+/******************************************************************************/
+struct CreditsItem;
+struct GameCampaign;
 
 #define SINGLEPLAYER_FINISHED        -1
 #define SINGLEPLAYER_NOTSTARTED       0

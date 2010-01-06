@@ -14,13 +14,13 @@
 //#define VER_STRING        "1.2.3.4"
 
 #define COMPANY_NAME	"Fan community"
-#define FILE_VERSION	""
+#define FILE_VERSION	VER_STRING
 #define FILE_DESCRIPTION	"Dungeon Keeper FX"
 #define INTERNAL_NAME	"keeperfx"
 #define LEGAL_COPYRIGHT	"Open Source"
 #define LEGAL_TRADEMARKS	"DK is a trademark of Electronic Arts"
 #define ORIGINAL_FILENAME	"keeperfx.exe"
 #define PRODUCT_NAME	"Dungeon Keeper Fan eXpansion"
-#define PRODUCT_VERSION	""
+#define PRODUCT_VERSION	VER_STRING
 
 #endif /*KEEPERFX_PRIVATE_H*/

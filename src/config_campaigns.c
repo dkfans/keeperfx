@@ -532,7 +532,6 @@ short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long l
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[32];
-  char word_buf[32];
   // Find the block
   sprintf(block_buf,"strings");
   pos = 0;
@@ -576,7 +575,6 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[32];
-  char word_buf[32];
   // Find the block
   sprintf(block_buf,"speech");
   pos = 0;
@@ -621,7 +619,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
 {
   struct LevelInformation *lvinfo;
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[32];
@@ -843,8 +841,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
 {
   char *fname;
   char *buf;
-  long len,pos;
-  int cmd_num;
+  long len;
   TbBool result;
   // Preparing campaign file name and checking the file
   clear_campaign(campgn);

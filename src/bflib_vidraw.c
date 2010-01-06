@@ -294,7 +294,7 @@ void LbDrawBoxClip(long x, long y, unsigned long width, unsigned long height, Tb
 
 /*
  * Draws a rectangular box on current graphics window.
- * Does no screen locking. 
+ * Does no screen locking.
  * @return If wrong dimensions returns -1. On success returns 1.
 */
 int LbDrawBox(long x, long y, unsigned long width, unsigned long height, TbPixel colour)
@@ -771,8 +771,8 @@ int __fastcall LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprit
 //TODO - this one is hard
   LbSyncLog("LbSpriteDrawUsingScalingData: UNFINISHED!\n");
   return 1;
-} 
- 
+}
+
 int __fastcall LbSpriteDrawScaled(long xpos, long ypos, struct TbSprite *sprite, long dest_width, long dest_height)
 {
 #ifdef __DEBUG

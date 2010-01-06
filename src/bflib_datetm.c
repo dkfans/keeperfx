@@ -43,8 +43,8 @@ struct TbTime global_time;
 struct TbDate global_date;
 TbClockMSec (* LbTimerClock)(void);
 /******************************************************************************/
-/*
- * Returns the number of miliseconds elapsed since the program was launched.
+/**
+ * Returns the number of milliseconds elapsed since the program was launched.
  * A version for (CLOCKS_PER_SEC == 1000).
  */
 TbClockMSec LbTimerClock_1000(void)
@@ -53,8 +53,8 @@ TbClockMSec LbTimerClock_1000(void)
   return clock();
 }
 
-/*
- * Returns the number of miliseconds elapsed since the program was launched.
+/**
+ * Returns the number of milliseconds elapsed since the program was launched.
  * A version for (CLOCKS_PER_SEC == 1024).
  */
 TbClockMSec LbTimerClock_1024(void)
@@ -64,8 +64,8 @@ TbClockMSec LbTimerClock_1024(void)
   return cclk - (cclk>>6) - (cclk>>7);
 }
 
-/*
- * Returns the number of miliseconds elapsed since the program was launched.
+/**
+ * Returns the number of milliseconds elapsed since the program was launched.
  * Version for any CLOCKS_PER_SEC, but unsafe.
  */
 TbClockMSec LbTimerClock_any(void)
@@ -74,7 +74,11 @@ TbClockMSec LbTimerClock_any(void)
   return (clk / CLOCKS_PER_SEC) << 1;
 }
 
-//Fills structure with current time
+/** Fills structure with current time.
+ *
+ * @param curr_time The structure to be filled.
+ * @return
+ */
 TbResult LbTime(struct TbTime *curr_time)
 {
   time_t dtime;
@@ -82,7 +86,10 @@ TbResult LbTime(struct TbTime *curr_time)
   return LbDateTimeDecode(&dtime,NULL,curr_time);
 }
 
-//Returns current time in seconds
+/** Returns current calendar time in seconds.
+ *
+ * @return System time in seconds.
+ */
 TbTimeSec LbTimeSec(void)
 {
   time_t dtime;
@@ -126,7 +133,7 @@ TbResult LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date,struct
   return Lb_SUCCESS;
 }
 
-void inline LbDoMultitasking(void)
+inline void LbDoMultitasking(void)
 {
 #if defined(WIN32)
     Sleep(LARGE_DELAY_TIME>>1); // This switches to other tasks

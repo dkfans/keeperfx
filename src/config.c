@@ -176,7 +176,6 @@ TbBool skip_conf_spaces(const char *buf,long *pos,long buflen)
 short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname)
 {
   int blname_len;
-  char *bblname;
   text_line_number = 1;
   blname_len = strlen(blockname);
   while (*pos+blname_len+2 < buflen)
@@ -349,7 +348,7 @@ int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct 
   return 0;
 }
 
-/*
+/**
  * Returns name of a config parameter with given number, or empty string.
  */
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num)
@@ -358,6 +357,7 @@ const char *get_conf_parameter_text(const struct NamedCommand commands[],int num
   i = 0;
   while (commands[i].num > 0)
   {
+      //SYNCLOG("\"%s\", %d %d",commands[i].name,commands[i].num,num);
       if (commands[i].num == num)
           return commands[i].name;
       i++;
@@ -459,7 +459,6 @@ short load_configuration(void)
   int cmd_num;
   // Variables to use when recognizing parameters
   char word_buf[32];
-  char *bufpt;
   int i,k;
   // Preparing config file name and checking the file
   strcpy(install_info.inst_path,"");
@@ -599,7 +598,7 @@ short load_configuration(void)
   SYNCDBG(7,"Config loaded");
   // Freeing
   LbMemoryFree(buf);
-  // Updating game according to loaded srettings
+  // Updating game according to loaded settings
   switch (install_info.lang_id)
   {
   case 1:
@@ -947,6 +946,7 @@ TbBool create_empty_high_score_table(void)
     campaign.hiscore_table[i].lvnum = 0;
     i++;
   }
+  return true;
 }
 
 /**
@@ -1238,8 +1238,7 @@ TbBool reset_credits(struct CreditsItem *credits)
 TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
 {
   long pos;
-  int i,k,n;
-  int cmd_num;
+  int k,n;
   long len;
   // Block name and parameter word store variables
   char block_buf[32];

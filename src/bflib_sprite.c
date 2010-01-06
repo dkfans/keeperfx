@@ -33,7 +33,6 @@ DLLIMPORT int _DK_LbSpriteSetup(struct TbSprite *start, const struct TbSprite *e
 /******************************************************************************/
 short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, unsigned long data)
 {
-  static const char *func_name="LbSpriteSetup";
   //return _DK_LbSpriteSetup(start, end, data);
   struct TbSprite *sprt;
   int n;
@@ -56,7 +55,6 @@ short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, unsigned
 
 int LbSpriteSetupAll(struct TbSetupSprite t_setup[])
 {
-  static const char *func_name="LbSpriteSetupAll";
   //return _DK_LbSpriteSetupAll(t_setup);
   struct TbSetupSprite *stp_sprite;
   int idx;

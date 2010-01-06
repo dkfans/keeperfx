@@ -168,7 +168,6 @@ void update_ensigns_visibility(void)
   struct PlayerInfo *player;
   long lvnum,bn_lvnum;
   short show_all_sp;
-  int i,k;
   SYNCDBG(18,"Starting");
   set_all_ensigns_state(LvSt_Hidden);
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
@@ -218,9 +217,7 @@ void update_net_ensigns_visibility(void)
 {
   struct LevelInformation *lvinfo;
   struct PlayerInfo *player;
-  long lvnum,bn_lvnum;
-  short show_all_sp;
-  int i,k;
+  long lvnum;
   SYNCDBG(18,"Starting");
   set_all_ensigns_state(LvSt_Hidden);
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
@@ -577,7 +574,6 @@ short play_description_speech(LevelNumber lvnum, short play_good)
 
 TbBool set_pointer_graphic_spland(long frame)
 {
-  long i,x,y;
   struct TbSprite *spr;
   spr = get_map_flag(1);
   if (spr == &dummy_sprite)
@@ -890,7 +886,7 @@ void frontnetmap_unload(void)
 
 TbBool frontnetmap_load(void)
 {
-  long i,k;
+  long i;
   if (fe_network_active)
   {
     if (LbNetwork_EnableNewPlayers(0))
@@ -948,9 +944,7 @@ TbBool frontmap_load(void)
 {
   struct PlayerInfo *player;
   struct LevelInformation *lvinfo;
-  struct TbSprite *spr;
   LevelNumber lvnum;
-  long lvidx;
   SYNCDBG(8,"Starting");
 //  return _DK_frontmap_load();
   memset(scratch, 0, PALETTE_SIZE);
@@ -1280,7 +1274,8 @@ void draw_netmap_players_hands(void)
         n = nspck->field_4 & 0xF8;
         if (n == 8)
         {
-          spr = &map_hand[nspck->field_A];
+          k = (unsigned char)nspck->field_A;
+          spr = &map_hand[k];
         } else
         if (n == 16)
         {
@@ -1342,9 +1337,9 @@ void draw_map_level_descriptions(void)
     else
       lv_name = lvinfo->name;
     if ((lv_name != NULL) && (strlen(lv_name) > 0))
-      sprintf(level_name, "%s %d: %s", gui_strings[406], lvinfo->lvnum, lv_name);
+      sprintf(level_name, "%s %d: %s", gui_strings[406], (int)lvinfo->lvnum, lv_name);
     else
-      sprintf(level_name, "%s %d", gui_strings[406], lvinfo->lvnum);
+      sprintf(level_name, "%s %d", gui_strings[406], (int)lvinfo->lvnum);
     w = LbTextStringWidth(level_name);
     x = lvinfo->ensign_x - map_info.scrshift_x;
     y = lvinfo->ensign_y - map_info.scrshift_y - 8;
@@ -1448,7 +1443,6 @@ void frontmap_input(void)
 void frontnetmap_input(void)
 {
   struct LevelInformation *lvinfo;
-  long i;
   if (lbKeyOn[KC_ESCAPE])
   {
     fe_net_level_selected = -2;
@@ -1495,7 +1489,7 @@ void frontnetmap_input(void)
             left_button_clicked = 0;
             lvinfo = get_level_info(fe_net_level_selected);
             if (lvinfo != NULL)
-              sprintf(level_name, "%s %d", gui_strings[406], lvinfo->lvnum);
+              sprintf(level_name, "%s %d", gui_strings[406], (int)lvinfo->lvnum);
             else
               sprintf(level_name, "%s", gui_strings[406]);
           }
@@ -1713,7 +1707,7 @@ long frontnetmap_update(void)
   if ((!tmp1) && (lvnum > 0) && (is_selected))
   {
     set_selected_level_number(lvnum);
-    sprintf(level_name, "%s %d", gui_strings[406], lvnum);
+    sprintf(level_name, "%s %d", gui_strings[406], (int)lvnum);
     map_info.field_1 = 1;
     map_info.fade_pos = 1;
     map_info.fade_step = 4;

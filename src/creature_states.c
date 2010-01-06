@@ -1817,8 +1817,9 @@ long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
 {
   struct MapTask* mtask;
   long stl_x, stl_y;
-  long i,k;
+  long i,nused;
   SYNCDBG(18,"Starting");
+  nused = 0;
   for (i = 0; i < dungeon->field_AF7; i++)
   {
     if ((num <= 0) || (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT))
@@ -1834,10 +1835,12 @@ long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
         {
           add_to_imp_stack_using_pos(mtask->field_1, 9, dungeon);
           num--;
+          nused++;
         }
       }
     }
   }
+  return nused;
 }
 
 void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon)
@@ -2136,7 +2139,7 @@ short kinky_torturing(struct Thing *thing)
       {
         process_kinky_function(thing);
         process_torture_visuals(thing, room, 110);
-        
+
         return true;
       }
   set_start_state(thing);
@@ -2278,11 +2281,10 @@ void prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thing)
 TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
 {
   struct CreatureStats *crstat;
-  struct PlayerInfo *player;
   crstat = creature_stats_get_from_thing(thing);
   if ( (thing->health >= 0) || (!crstat->humanoid_creature) )
     return false;
-  if (ACTION_RANDOM(100) > game.prison_skeleton_chance)
+  if (ACTION_RANDOM(101) > game.prison_skeleton_chance)
     return false;
   if (is_my_player_number(thing->owner))
     output_message(55, 0, 1);

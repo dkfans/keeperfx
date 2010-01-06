@@ -317,7 +317,9 @@ void delete_sound_emitter(long idx)
 long stop_emitter_samples(struct SoundEmitter *emit)
 {
   struct S3DSample *smpl3d;
+  long num_stopped;
   long i;
+  num_stopped = 0;
   for (i=0; i < MaxNoSounds; i++)
   {
     smpl3d = &SampleList[i];
@@ -325,8 +327,10 @@ long stop_emitter_samples(struct SoundEmitter *emit)
     {
       stop_sample_using_heap(emit->field_2 + 4000, smpl3d->field_8, smpl3d->field_A);
       smpl3d->field_1F = 0;
+      num_stopped++;
     }
   }
+  return num_stopped;
 }
 
 struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, long file_pos, unsigned char bank_id)
@@ -380,7 +384,6 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, short smpl_idx, unsi
 {
   struct SampleInfo *sample;
   struct SampleTable *smp_table;
-  struct HeapMgrHandle *hmhandle;
   if ((!using_two_banks) && (bank_id > 0))
   {
     ERRORLOG("Trying to use two sound banks when only one has been set up");

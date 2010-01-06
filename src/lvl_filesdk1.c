@@ -272,7 +272,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
   char word_buf[32];
   long lvnum;
   int cmd_num;
-  int i,k,n;
+  int k,n;
   SYNCDBG(8,"Starting for \"%s\"",fname);
   if (buf == NULL)
     return false;
@@ -524,7 +524,7 @@ TbBool find_and_load_lof_files(void)
 
 long convert_old_column_file(unsigned long lv_num)
 {
-  _DK_convert_old_column_file(lv_num);
+  return _DK_convert_old_column_file(lv_num);
 }
 
 short load_column_file(unsigned long lv_num)
@@ -667,7 +667,6 @@ long load_action_point_file(unsigned long lv_num)
   long k;
   long total;
   unsigned char *buf;
-  char *text;
   long fsize;
   fsize = 4;
   buf = load_single_map_file_to_buffer(lv_num,"apt",&fsize,LMFF_None);
@@ -888,7 +887,7 @@ short load_slab_datclm_files(void)
   struct SlabSet *slbset;
   long slbset_tot;
   struct SlabSet *sset;
-  long i,k,n;
+  long i;
   SYNCDBG(5,"Starting");
   // Load Column Set
   cols_tot = COLUMNS_COUNT;
@@ -964,7 +963,6 @@ long load_map_wibble_file(unsigned long lv_num)
   unsigned long stl_x,stl_y;
   unsigned char *buf;
   unsigned long i,k;
-  char *fname;
   long fsize;
   fsize = (map_subtiles_y+1)*(map_subtiles_x+1);
   buf = load_single_map_file_to_buffer(lv_num,"wib",&fsize,LMFF_None);
@@ -990,7 +988,6 @@ short load_map_ownership_file(unsigned long lv_num)
   unsigned long x,y;
   unsigned char *buf;
   unsigned long i;
-  char *fname;
   long fsize;
   fsize = (map_subtiles_y+1)*(map_subtiles_x+1);
   buf = load_single_map_file_to_buffer(lv_num,"own",&fsize,LMFF_None);
@@ -1048,7 +1045,6 @@ short load_map_wlb_file(unsigned long lv_num)
   unsigned long i;
   unsigned long n;
   unsigned long nfixes;
-  char *text;
   long fsize;
   SYNCDBG(7,"Starting");
   nfixes = 0;
@@ -1195,7 +1191,6 @@ long load_static_light_file(unsigned long lv_num)
 
 short load_and_setup_map_info(unsigned long lv_num)
 {
-  char *fname;
   unsigned char *buf;
   long fsize;
   fsize = 1;

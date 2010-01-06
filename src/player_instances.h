@@ -23,6 +23,23 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+/******************************************************************************/
+struct Thing;
+struct PlayerInfo;
+typedef long (*InstncInfo_Func)(struct PlayerInfo *player, long *n);
+
+enum PlayerNames {
+    PLAYER0          =  0,
+    PLAYER1          =  1,
+    PLAYER2          =  2,
+    PLAYER3          =  3,
+    PLAYER_GOOD      =  4,
+    ALL_PLAYERS      =  8,
+};
+
 enum PlayerInstanceNum {
     PI_Unset        =  0,
     PI_Grab         =  1,
@@ -57,23 +74,8 @@ enum PlayerStates {
     PSt_SplChicken     =   27,
 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-enum PlayerNames {
-    PLAYER0          =  0,
-    PLAYER1          =  1,
-    PLAYER2          =  2,
-    PLAYER3          =  3,
-    PLAYER_GOOD      =  4,
-    ALL_PLAYERS      =  8,
-};
-
 /******************************************************************************/
 #pragma pack(1)
-
-typedef long (*InstncInfo_Func)(struct PlayerInfo *player, long *n);
 
 struct PlayerInstanceInfo { // sizeof = 44
   long field_0;

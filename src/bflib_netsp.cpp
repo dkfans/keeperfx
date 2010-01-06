@@ -103,6 +103,7 @@ void NilRequestCompositeExchangeDataMsgCallback(unsigned long a1, unsigned long 
 void *NilUnidirectionalMsgCallback(unsigned long a1, unsigned long a2, void *a3)
 {
   WARNLOG("hit(%d, %d, *)",a1,a2);
+  return NULL;
 }
 
 void NilSystemUserMsgCallback(unsigned long a1, void *a2, unsigned long a3, void *a4)
@@ -469,7 +470,8 @@ long ServiceProvider::SessionIndex(unsigned long sess_id)
 }
 
 /**
- * Adds a session with given a1 and name string.
+ * Adds a session with given sess_id and name string.
+ * @param sess_id ID of the session, or -1 if new session should be added.
  * @param namestr Text name of the new session, or NULL if session is unnamed.
  * @return Returns session name structure, or NULL if couldn't add.
  */
@@ -479,8 +481,9 @@ struct TbNetworkSessionNameEntry *ServiceProvider::AddSession(unsigned long sess
   TbBool got;
   long i;
   // Check if the session i already in list
-  if (SessionIndex(sess_id) >= 0)
-    return nsname;
+  i = SessionIndex(sess_id);
+  if (i >= 0)
+    return &this->nsnames[i];
   // Search for unused slot
   got = false;
   for (i=0; i < SESSION_ENTRIES_COUNT; i++)
@@ -596,7 +599,7 @@ TbError ServiceProvider::CheckForDeletedHost(const void *enc_buf)
   struct TbNetworkPlayerEntry *netplyr;
   const unsigned char *inp;
   unsigned long plyr_id;
-  unsigned long idx1,idx2;
+  unsigned long idx1;
   TbBool got;
   long i;
   inp = (const unsigned char *)enc_buf;

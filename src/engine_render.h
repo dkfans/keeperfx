@@ -29,6 +29,10 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+struct MinMax;
+struct Camera;
+struct PlayerInfo;
+
 struct BasicQ { // sizeof = 28
   struct BasicQ *next;
   unsigned char field_4;
@@ -222,10 +226,10 @@ DLLIMPORT long _DK_gtblock_clip_height;
 #define gtblock_clip_height _DK_gtblock_clip_height
 DLLIMPORT long _DK_gtblock_screen_width;
 #define gtblock_screen_width _DK_gtblock_screen_width
-/******************************************************************************/
-extern unsigned char temp_cluedo_mode;
 
 #pragma pack()
+/******************************************************************************/
+extern unsigned char temp_cluedo_mode;
 /******************************************************************************/
 void do_a_plane_of_engine_columns_perspective(long a1, long a2, long a3, long a4);
 void do_a_plane_of_engine_columns_cluedo(long a1, long a2, long a3, long a4);

@@ -2,7 +2,8 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file vidmode.h
- *     Header file for vidmode.c.
+ *     Header file for vidmode.cpp.
+ *     Note that this file is a C header, while its code is CPP.
  * @par Purpose:
  *     Video mode switching/setting function.
  * @par Comment:

@@ -154,6 +154,9 @@ enum TriggerFlags {
 /******************************************************************************/
 #pragma pack(1)
 
+struct Condition;
+struct Party;
+
 typedef unsigned long TbMapLocation;
 
 struct CommandDesc { // sizeof = 14 // originally was 13
@@ -187,6 +190,7 @@ DLLIMPORT unsigned short _DK_condition_stack[48];
 //DLLIMPORT struct NamedCommand _DK_door_desc[5];
 //DLLIMPORT struct NamedCommand _DK_trap_desc[8];
 //DLLIMPORT struct NamedCommand _DK_hero_objective_desc[];
+/******************************************************************************/
 
 #pragma pack()
 /******************************************************************************/

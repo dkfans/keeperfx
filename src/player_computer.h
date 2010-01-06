@@ -2,7 +2,8 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file player_computer.h
- *     Header file for player_computer.c.
+ *     Header file for player_computer.cpp.
+ *     Note that this file is a C header, while its code is CPP.
  * @par Purpose:
  *     Computer player definitions and activities.
  * @par Comment:

@@ -57,6 +57,10 @@
 # define DLLIMPORT __declspec (dllimport)
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Basic Definitions
 
 #if defined(unix) && !defined (GO32)
@@ -205,8 +209,6 @@ struct CoordDelta3d {
     } z;
 };
 
-#pragma pack()
-
 struct ARect {
   long left;
   long top;
@@ -229,6 +231,8 @@ typedef long MapCoord;
 typedef long MapSubtlCoord;
 typedef short MapSlabCoord;
 typedef unsigned char PlayerFlags;
+
+#pragma pack()
 
 struct IPOINT_2D {
     int x;
@@ -264,4 +268,7 @@ struct IRECT_2D {
     int b;
 };
 
+#ifdef __cplusplus
+}
+#endif
 #endif // KEEPFX_GLOBALS_H

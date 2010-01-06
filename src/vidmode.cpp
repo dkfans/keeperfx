@@ -939,7 +939,6 @@ TbScreenMode switch_to_next_video_mode(void)
       settings.video_scrnmode = scrmode;
   }
   SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
-  int x1,y1,x2,y2;
   LbScreenClear(0);
   LbScreenSwap();
   save_settings();

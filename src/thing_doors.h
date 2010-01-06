@@ -28,6 +28,8 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+struct Thing;
+
 struct DoorStats { // sizeof = 8
   unsigned short field_0;
   long health;

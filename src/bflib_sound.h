@@ -93,7 +93,6 @@ DLLIMPORT extern long _DK_Non3DEmitter;
 #define Non3DEmitter _DK_Non3DEmitter
 DLLIMPORT extern long _DK_SpeechEmitter;
 #define SpeechEmitter _DK_SpeechEmitter
-
 DLLIMPORT extern struct SoundReceiver _DK_Receiver;
 #define Receiver _DK_Receiver
 DLLIMPORT extern long _DK_MaxSoundDistance;
@@ -102,9 +101,6 @@ DLLIMPORT extern long _DK_MaxNoSounds;
 #define MaxNoSounds _DK_MaxNoSounds
 DLLIMPORT extern struct S3DSample _DK_SampleList[SOUNDS_MAX_COUNT];
 #define SampleList _DK_SampleList
-
-#pragma pack()
-/******************************************************************************/
 DLLIMPORT TbFileHandle _DK_sound_file;
 #define sound_file _DK_sound_file
 DLLIMPORT TbFileHandle _DK_sound_file2;
@@ -125,8 +121,8 @@ DLLIMPORT S3D_LineOfSight_Func _DK_LineOfSightFunction;
 #define LineOfSightFunction _DK_LineOfSightFunction
 DLLIMPORT long _DK_deadzone_radius;
 #define deadzone_radius _DK_deadzone_radius
-// Exported variables
 
+#pragma pack()
 /******************************************************************************/
 // Exported functions
 long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);

@@ -52,6 +52,7 @@ enum RoomKinds {
 /******************************************************************************/
 #pragma pack(1)
 
+struct Room;
 typedef unsigned char RoomKind;
 
 typedef void (*Room_Update_Func)(struct Room *);
@@ -108,6 +109,7 @@ struct RoomData {
 /******************************************************************************/
 DLLIMPORT extern struct RoomData _DK_room_data[];
 //#define room_data _DK_room_data
+
 #pragma pack()
 /******************************************************************************/
 extern unsigned short const room_effect_elements[];
@@ -116,7 +118,6 @@ extern const unsigned short small_around_pos[13];
 extern struct AroundLByte const room_spark_offset[];
 extern struct Around const small_around[];
 extern struct RoomData room_data[];
-
 /******************************************************************************/
 struct Room *room_get(long room_idx);
 struct Room *subtile_room_get(long stl_x, long stl_y);

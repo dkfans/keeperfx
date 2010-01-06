@@ -25,7 +25,6 @@
 #include "bflib_sprite.h"
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
-#include "bflib_video.h"
 #include "bflib_vidraw.h"
 
 //TODO: this breaks my convention - non-bflib call from bflib
@@ -79,11 +78,11 @@ TbBool is_wide_charcode(unsigned long chr)
     switch (dbc_language)
     {
     case 1:
-        return (chr >= 0x81) && (chr <= 0x9F) || (chr >= 0xE0) && (chr <= 0xFC);
+        return ((chr >= 0x81) && (chr <= 0x9F)) || ((chr >= 0xE0) && (chr <= 0xFC));
     case 2:
-        return (chr > 0xA0) && (chr <= 0xFF);
+        return ((chr > 0xA0) && (chr <= 0xFF));
     case 3:
-        return (chr > 0xA0) && (chr <= 0xFF);
+        return ((chr > 0xA0) && (chr <= 0xFF));
     }
   }
   return false;
@@ -384,7 +383,6 @@ LABEL_21:
 void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y, long len)
 {
   const char *c;
-  const struct TbSprite *spr;
   unsigned long chr;
   long w,h;
   struct AsianFontWindow awind;
@@ -1014,7 +1012,6 @@ int LbTextStringHeight(const char *str)
 
 int LbTextNumberDraw(int pos_x, int pos_y, long number, unsigned short fdflags)
 {
-  long base;
   char text[16];
   int w,h;
   if (lbFontPtr == NULL)
@@ -1040,7 +1037,6 @@ int LbTextNumberDraw(int pos_x, int pos_y, long number, unsigned short fdflags)
 
 int LbTextStringDraw(int pos_x, int pos_y, const char *text, unsigned short fdflags)
 {
-  long base;
   int w,h;
   if (lbFontPtr == NULL)
     return 0;
@@ -1066,7 +1062,7 @@ int LbTextStringDraw(int pos_x, int pos_y, const char *text, unsigned short fdfl
 
 TbBool LbAlignMethodSet(unsigned short fdflags)
 {
-  const unsigned short align_flags = 
+  const unsigned short align_flags =
         Lb_TEXT_HALIGN_LEFT | Lb_TEXT_HALIGN_RIGHT
       | Lb_TEXT_HALIGN_CENTER | Lb_TEXT_HALIGN_JUSTIFY;
   if ((fdflags & align_flags) != 0)

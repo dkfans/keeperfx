@@ -1208,7 +1208,6 @@ void get_map_nonaction_inputs(void)
 
 short get_packet_load_game_inputs(void)
 {
-  struct PlayerInfo *player;
   load_packets_for_turn(game.pckt_gameturn);
   game.pckt_gameturn++;
   get_packet_load_game_control_inputs();
@@ -1239,7 +1238,9 @@ short get_packet_load_demo_inputs(void)
       lbKeyOn[KC_X] = 0;
       left_button_clicked = 0;
       quit_game = 1;
+      return true;
   }
+  return false;
 }
 
 void get_creature_control_nonaction_inputs(void)
@@ -1335,7 +1336,6 @@ short get_inputs(void)
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   if ((player->field_0 & 0x80) != 0)
   {
-    struct Packet *pckt;
     SYNCDBG(5,"Starting for creature fade");
     set_players_packet_position(player,127,127);
     if ((!game_is_busy_doing_gui_string_input()) && (game.numfield_C & 0x01))

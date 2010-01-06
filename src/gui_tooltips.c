@@ -122,7 +122,6 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
 
 TbBool setup_object_tooltips(struct Coord3d *pos)
 {
-  char *text;
   struct Thing *thing;
   struct Objects *objdat;
   struct CreatureData *crdata;
@@ -239,7 +238,6 @@ short setup_room_tooltips(struct Coord3d *pos)
     return false;
   update_gui_tooltip_target(room);
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  int widener=0;
   if ( (help_tip_time > 20) || (player->work_state == 12) )
   {
     set_gui_tooltip_box(1,stridx);
