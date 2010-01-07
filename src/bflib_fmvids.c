@@ -184,8 +184,7 @@ void SmackSimulate(unsigned long sim)
 
 short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
 {
-  static const char *func_name="play_smk_via_buffer";
-  //LbSyncLog("Starting %s.\n",func_name);
+  SYNCDBG(7,"Starting");
   //return _DK_play_smk_via_buffer(fname, smkflags, plyflags);
   void *snd_driver=GetSoundDriver();
   if ( snd_driver )
@@ -240,7 +239,7 @@ short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
             return 2;
         }
         if (((plyflags & 0x02)==0) && (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_RETURN]
-            || lbKeyOn[KC_SPACE] || _DK_lbDisplay.LeftButton) )
+            || lbKeyOn[KC_SPACE] || lbDisplay.LeftButton) )
         {
             SmackClose(smktag);
             LbMemoryFree(buf);
@@ -260,8 +259,7 @@ short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
  */
 short play_smk_direct(char *fname, int smkflags, int plyflags)
 {
-  static const char *func_name="play_smk_direct";
-  //LbSyncLog("Starting %s.\n",func_name);
+    SYNCDBG(7,"Starting");
   //return _DK_play_smk_direct(fname, smkflags, plyflags);
 
   void *snd_driver=GetSoundDriver();
@@ -291,13 +289,13 @@ short play_smk_direct(char *fname, int smkflags, int plyflags)
       if (LbScreenLock() == Lb_SUCCESS)
       {
         int left = 0;
-        if ( smktag->Width < _DK_lbDisplay.PhysicalScreenWidth )
-          left = (_DK_lbDisplay.PhysicalScreenWidth-smktag->Width) >> 1;
+        if ( smktag->Width < lbDisplay.PhysicalScreenWidth )
+          left = (lbDisplay.PhysicalScreenWidth-smktag->Width) >> 1;
         int top = 0;
-        if ( smktag->Height < _DK_lbDisplay.PhysicalScreenHeight )
-          top = (_DK_lbDisplay.PhysicalScreenHeight-smktag->Height) >> 1;
-        SmackToBuffer(smktag,left,top,_DK_lbDisplay.GraphicsScreenWidth,
-            _DK_lbDisplay.GraphicsScreenHeight,_DK_lbDisplay.WScreen,0);
+        if ( smktag->Height < lbDisplay.PhysicalScreenHeight )
+          top = (lbDisplay.PhysicalScreenHeight-smktag->Height) >> 1;
+        SmackToBuffer(smktag,left,top,lbDisplay.GraphicsScreenWidth,
+            lbDisplay.GraphicsScreenHeight,lbDisplay.WScreen,0);
         SmackDoFrame(smktag);
         LbScreenUnlock();
         //LbDoMultitasking();
@@ -317,7 +315,7 @@ short play_smk_direct(char *fname, int smkflags, int plyflags)
             return 2;
         }
         if (((plyflags & 0x02)==0) && (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_RETURN]
-            || lbKeyOn[KC_SPACE] || _DK_lbDisplay.LeftButton) )
+            || lbKeyOn[KC_SPACE] || lbDisplay.LeftButton) )
         {
             SmackClose(smktag);
             return 2;
@@ -538,7 +536,7 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
   unsigned char *pbf;
   short h,w;
   short k,nsame,ndiff;
-  short hend,wend;
+  short wend;
   short wendt;
   cbuf = curdat;
   pbuf = prvdat;
@@ -595,7 +593,7 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
         }
         cbf += wendt;
         pbf += wendt;
-        
+
         for (nsame=0; nsame<127; nsame++)
         {
           if (w <= 2) break;
@@ -1009,11 +1007,10 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
   return true;
 }
 
-short anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
+TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
 {
-  static const char *func_name="anim_make_next_frame";
+    SYNCDBG(7,"Starting");
   //return _DK_anim_make_next_frame(screenbuf, palette);
-//LbSyncLog("Starting frame.\n");
   unsigned long max_chunk_size;
   unsigned char *dataptr;
   long brun_size,lc_size,ss2_size;
@@ -1126,7 +1123,7 @@ short anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
   return true;
 }
 
-short anim_record_frame(unsigned char *screenbuf, unsigned char *palette)
+TbBool anim_record_frame(unsigned char *screenbuf, unsigned char *palette)
 {
   if ((animation.field_0 & 0x01)==0)
     return false;
@@ -1138,7 +1135,7 @@ short anim_record_frame(unsigned char *screenbuf, unsigned char *palette)
 
 short anim_record(void)
 {
-  static const char *func_name="anim_record";
+    SYNCDBG(7,"Starting");
   //return _DK_anim_record();
   static char finalname[255];
   TbFileHandle fh;

@@ -21,26 +21,34 @@
 
 #include "bflib_basics.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 /******************************************************************************/
-unsigned short lbSqrTable[] = 
+unsigned short lbSqrTable[] =
   {0x0001, 0x0002, 0x0002, 0x0004, 0x0005, 0x0008, 0x000B, 0x0010,
    0x0016, 0x0020, 0x002D, 0x0040, 0x005A, 0x0080, 0x00B5, 0x0100,
    0x016A, 0x0200, 0x02D4, 0x0400, 0x05A8, 0x0800, 0x0B50, 0x1000,
    0x16A0, 0x2000, 0x2D41, 0x4000, 0x5A82, 0x8000, 0xB504, 0xFFFF,};
 /******************************************************************************/
-#ifndef __cplusplus
-#include "bflib_mathinln.h"
-#endif
+DLLIMPORT int _DK_lbCosTable[2048];
+#define lbCosTable _DK_lbCosTable
+DLLIMPORT int _DK_lbSinTable[2048];
+#define lbSinTable _DK_lbSinTable
 /******************************************************************************/
-long __fastcall LbSqrL(long x)
+long LbSinL(long x)
+{
+  return lbSinTable[(unsigned long)x & 0x7FF];
+}
+
+long LbCosL(long x)
+{
+  return lbCosTable[(unsigned long)x & 0x7FF];
+}
+
+long LbSqrL(long x)
 {
   long y;
   if (x <= 0)
     return 0;
-  // 
+  //
   asm ("bsrl     %1, %%eax;\n"
        "movl %%eax, %0;\n"
        :"=r"(y)  // output
@@ -107,9 +115,4 @@ unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const cha
 //  SYNCMSG("%s: at %d, random val %d", func_name, place, i);
   return i;
 }
-
-
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

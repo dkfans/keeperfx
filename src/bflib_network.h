@@ -28,9 +28,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
+
 #define CLIENT_TABLE_LEN 32
 /******************************************************************************/
 #pragma pack(1)
+
+struct TbNetworkSessionNameEntry;
 
 typedef long (*Net_Callback_Func)(void);
 

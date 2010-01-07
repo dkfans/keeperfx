@@ -205,3 +205,13 @@ long PhaseOfMoon::JulToday(double &daypart,long &moon_periods_n)
   daypart /= (3600.0*24.0);
   return tdjul;
 }
+
+/**
+ * Library exported routine for calculating Phase Of Moon.
+ * Defined in Ansi-C header "bflib_datetm.h".
+ */
+double LbMoonPhase(void)
+{
+  return PhaseOfMoon::Calculate();
+}
+/******************************************************************************/

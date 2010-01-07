@@ -160,7 +160,7 @@ short play_smk_via_buffer(char *fname, int smkflags, int plyflags);
 short anim_open(char *fname, int arg1, short arg2, int width, int height, int arg5, unsigned int flags);
 short anim_stop(void);
 short anim_record(void);
-short anim_record_frame(unsigned char *screenbuf, unsigned char *palette);
+TbBool anim_record_frame(unsigned char *screenbuf, unsigned char *palette);
 
 /******************************************************************************/
 #ifdef __cplusplus

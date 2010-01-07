@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-typedef unsigned char * __fastcall MemAllocFunc(ulong);
+typedef unsigned char * MemAllocFunc(ulong);
 /******************************************************************************/
 extern char lbEmptyString[];
 /******************************************************************************/
@@ -35,20 +35,20 @@ DLLIMPORT extern unsigned long _DK_mem_size;
 #define mem_size _DK_mem_size
 /******************************************************************************/
 short update_memory_constraits(void);
-void * __fastcall LbMemorySet(void *dst, uchar c, ulong length);
-void * __fastcall LbMemoryCopy(void *in_dst, const void *in_src, ulong len);
-int __fastcall LbMemorySetup();
+void * LbMemorySet(void *dst, uchar c, ulong length);
+void * LbMemoryCopy(void *in_dst, const void *in_src, ulong len);
+int LbMemorySetup();
 int LbMemoryReset(void);
 short LbMemoryCheck(void);
-unsigned char * __fastcall LbMemoryAllocLow(ulong size);
-unsigned char * __fastcall LbMemoryAlloc(ulong size);
-int __fastcall LbMemoryFree(void *mem_ptr);
-void * __fastcall LbMemoryGrow(void *ptr, unsigned long size);
-void * __fastcall LbMemoryShrink(void *ptr, unsigned long size);
-void * __fastcall LbStringCopy(char *dst, const char *src, const ulong dst_buflen);
-void * __fastcall LbStringConcat(char *dst, const char *src, const ulong dst_buflen);
-ulong __fastcall LbStringLength(const char *str);
-void * __fastcall LbStringToLowerCopy(char *dst, const char *src, const ulong dst_buflen);
+unsigned char * LbMemoryAllocLow(ulong size);
+unsigned char * LbMemoryAlloc(ulong size);
+int LbMemoryFree(void *mem_ptr);
+void * LbMemoryGrow(void *ptr, unsigned long size);
+void * LbMemoryShrink(void *ptr, unsigned long size);
+void * LbStringCopy(char *dst, const char *src, const ulong dst_buflen);
+void * LbStringConcat(char *dst, const char *src, const ulong dst_buflen);
+ulong LbStringLength(const char *str);
+void * LbStringToLowerCopy(char *dst, const char *src, const ulong dst_buflen);
 /******************************************************************************/
 #ifdef __cplusplus
 }

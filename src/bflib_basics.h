@@ -112,6 +112,10 @@ struct TbLog {
         long position;
 };
 
+struct TbNetworkCallbackData;
+typedef int TbError;
+typedef int TbResult;
+
 #pragma pack()
 /******************************************************************************/
 extern const char *log_file_name;
@@ -137,6 +141,8 @@ int __fastcall LbLogSetup(struct TbLog *log, const char *filename, ulong flags);
 int __fastcall LbLogSetPrefix(struct TbLog *log, const char *prefix);
 int __fastcall LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...);
 /******************************************************************************/
+typedef void __stdcall (*TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
+/******************************************************************************/
 unsigned long blong (unsigned char *p);
 unsigned long llong (unsigned char *p);
 unsigned long bword (unsigned char *p);
@@ -152,15 +158,4 @@ unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits)
 #ifdef __cplusplus
 }
 #endif
-
-struct TbNetworkCallbackData;
-typedef int TbError;
-typedef int TbResult;
-
-#ifdef __cplusplus
-#include "bflib_basinln.h"
 #endif
-
-#endif
-typedef void __stdcall (*TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
-/******************************************************************************/

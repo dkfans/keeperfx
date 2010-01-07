@@ -49,8 +49,8 @@ class LbI_PointerHandler {
     void Undraw(bool);
     void Backup(bool);
     // Properties
-    struct TSurface surf1;
-    struct TSurface surf2;
+    struct SSurface surf1;
+    struct SSurface surf2;
     unsigned char sprite_data[4096];
     struct tagPOINT *position;
     struct tagPOINT *spr_offset;

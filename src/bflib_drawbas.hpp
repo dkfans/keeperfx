@@ -24,11 +24,25 @@
 #include "bflib_video.h"
 #include <windows.h>
 
-#pragma pack(1)
+enum DDrawModeFlags {
+  DMF_DoneSetup           = 0x0001,
+  DMF_SurfacesSetup       = 0x0002,
+  DMF_DoubleBuffering     = 0x0004,
+  DMF_WScreenInVideo      = 0x0008,
+  DMF_Unknown0010         = 0x0010,
+  DMF_Unknown0020         = 0x0020,
+  DMF_PaletteSetup        = 0x0040,
+  DMF_ControlDisplayMode  = 0x0080,
+  DMF_Unknown0100         = 0x0100,
+  DMF_Unknown0200         = 0x0200,
+  DMF_LoresForceAvailable = 0x0400,
+  DMF_Unknown0800         = 0x0800,
+  DMF_Unknown1000         = 0x1000,
+  DMF_LoresEmulation      = 0x2000,
+};
 
-struct TSurface;
+struct SSurface;
 
-#pragma pack()
 /******************************************************************************/
 /**
  * Base class for graphics support drivers.
@@ -53,11 +67,11 @@ class TDDrawBaseClass {
     virtual bool restore_surfaces(void) = 0;
     virtual void wait_vbi(void) = 0;
     virtual bool swap_box(struct tagPOINT,struct tagRECT &) = 0;
-    virtual bool create_surface(struct TSurface *,unsigned long,unsigned long) = 0;
-    virtual bool release_surface(struct TSurface *) = 0;
-    virtual bool blt_surface(struct TSurface *,unsigned long,unsigned long,tagRECT *,unsigned long) = 0;
-    virtual void *lock_surface(struct TSurface *) = 0;
-    virtual bool unlock_surface(struct TSurface *) = 0;
+    virtual bool create_surface(struct SSurface *,unsigned long,unsigned long) = 0;
+    virtual bool release_surface(struct SSurface *) = 0;
+    virtual bool blt_surface(struct SSurface *,unsigned long,unsigned long,tagRECT *,unsigned long) = 0;
+    virtual void *lock_surface(struct SSurface *) = 0;
+    virtual bool unlock_surface(struct SSurface *) = 0;
     virtual void LoresEmulation(bool);
     // Nonvirtual Methods
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -75,6 +89,7 @@ class TDDrawBaseClass {
     HWND hWindow;
     bool active;
     };
+
 /******************************************************************************/
 extern char lbDrawAreaTitle[128];
 extern class TDDrawBaseClass *lpDDC;

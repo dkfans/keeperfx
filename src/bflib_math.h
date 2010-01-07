@@ -47,19 +47,15 @@ enum MathOperator {
     MOp_MULTIPLY                       = 15,
     MOp_DIVIDE                         = 16,
     MOp_MODULO                         = 17,
-}; 
+};
 
 /******************************************************************************/
-DLLIMPORT int _DK_lbCosTable[2048];
-#define lbCosTable _DK_lbCosTable
-DLLIMPORT int _DK_lbSinTable[2048];
-#define lbSinTable _DK_lbSinTable
 #define LB_RANDOM(range,seed) LbRandomSeries(range, seed, __func__, __LINE__)
 /******************************************************************************/
 
 long LbSinL(long x);
 long LbCosL(long x);
-long __fastcall LbSqrL(long x);
+long LbSqrL(long x);
 long LbMathOperation(unsigned char opkind, long val1, long val2);
 unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
 
@@ -67,9 +63,4 @@ unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const cha
 #ifdef __cplusplus
 }
 #endif
-
-#ifdef __cplusplus
-#include "bflib_mathinln.h"
-#endif
-
 #endif

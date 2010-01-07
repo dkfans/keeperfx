@@ -69,22 +69,23 @@ static unsigned long mirror(unsigned long x, int n);
  */
 const char *rnc_error (long errcode) {
     static const char *const errors[] = {
-	"No error",
-	"File is not RNC-1 format",
-	"Huffman decode error",
-	"File size mismatch",
-	"CRC error in packed data",
-	"CRC error in unpacked data",
-	"Compressed file header invalid",
-	"Huffman decode leads outside buffers",
-	"Unknown error"
+        "No error",
+        "File is not RNC-1 format",
+        "Huffman decode error",
+        "File size mismatch",
+        "CRC error in packed data",
+        "CRC error in unpacked data",
+        "Compressed file header invalid",
+        "Huffman decode leads outside buffers",
+        "Unknown error"
     };
-
+    long errlimit;
+    errlimit = sizeof(errors)/sizeof(*errors) - 1;
     errcode = -errcode;
     if (errcode < 0)
-	errcode = 0;
-    if (errcode > sizeof(errors)/sizeof(*errors) - 1)
-	errcode = sizeof(errors)/sizeof(*errors) - 1;
+        errcode = 0;
+    if (errcode > errlimit)
+        errcode = errlimit;
     return errors[errcode];
 }
 
@@ -107,7 +108,7 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
     huf_table raw, dist, len;
     unsigned long ch_count;
     unsigned long ret_len, inp_len;
-    unsigned out_crc;
+    long out_crc;
 #ifdef COMPRESSOR
     long lee = 0;
 #endif
@@ -126,7 +127,7 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
     // Check the packed-data CRC. Also save the unpacked-data CRC
     // for later.
 
-    if (rnc_crc(input, inputend-input) != bword(input-4))
+    if (rnc_crc(input, inputend-input) != (long)bword(input-4))
 	    if (!(flags&RNC_IGNORE_PACKED_CRC_ERROR)) return RNC_PACKED_CRC_ERROR;
     out_crc = bword(input-6);
 

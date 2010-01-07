@@ -27,131 +27,20 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-inline long read_int32_le_buf (const unsigned char *buff);
-inline unsigned short read_int16_le_buf (const unsigned char *buff);
+long read_int32_le_buf (const unsigned char *buff);
+unsigned short read_int16_le_buf (const unsigned char *buff);
 
-inline void write_int16_le_buf (unsigned char *buff, unsigned short x);
-inline void write_int32_le_buf (unsigned char *buff, unsigned long x);
+void write_int16_le_buf (unsigned char *buff, unsigned short x);
+void write_int32_le_buf (unsigned char *buff, unsigned long x);
 
-inline long read_int32_be_buf (const unsigned char *buff);
-inline unsigned short read_int16_be_buf (const unsigned char *buff);
+long read_int32_be_buf (const unsigned char *buff);
+unsigned short read_int16_be_buf (const unsigned char *buff);
 
-inline void write_int16_be_buf (unsigned char *buff, unsigned short x);
-inline void write_int32_be_buf (unsigned char *buff, unsigned long x);
+void write_int16_be_buf (unsigned char *buff, unsigned short x);
+void write_int32_be_buf (unsigned char *buff, unsigned long x);
 
-inline unsigned char read_int8_buf (const unsigned char *buff);
-inline void write_int8_buf (unsigned char *buff, unsigned char x);
-
-/******************************************************************************/
-
-// Putting bodies here, because GCC acts strangely if the inline functions
-// are defined in .c file
-
-/**
- * Writes 2-byte little-endian number into given buffer.
- */
-inline void write_int16_le_buf (unsigned char *buff, unsigned short x)
-{
-    buff[0]=(x&255);
-    buff[1]=((x>>8)&255);
-}
-
-/**
- * Writes 4-byte little-endian number into given buffer.
- */
-inline void write_int32_le_buf (unsigned char *buff, unsigned long x)
-{
-    buff[0]=(x&255);
-    buff[1]=((x>>8)&255);
-    buff[2]=((x>>16)&255);
-    buff[3]=((x>>24)&255);
-}
-
-/**
- * Reads 4-byte little-endian number from given buffer.
- */
-inline long read_int32_le_buf (const unsigned char *buff)
-{
-    long l;
-    l = buff[0];
-    l += buff[1]<<8;
-    l += buff[2]<<16;
-    l += buff[3]<<24;
-    return l;
-}
-
-/**
- * Reads 2-byte little-endian number from given buffer.
- */
-inline unsigned short read_int16_le_buf (const unsigned char *buff)
-{
-    long l;
-    l = buff[0];
-    l += buff[1]<<8;
-    return l;
-}
-
-/**
- * Reads 4-byte big-endian number from given buffer.
- */
-inline long read_int32_be_buf (const unsigned char *buff)
-{
-    long l;
-    l =  buff[3];
-    l += buff[2]<<8;
-    l += buff[1]<<16;
-    l += buff[0]<<24;
-    return l;
-}
-
-/**
- * Reads 2-byte big-endian number from given buffer.
- */
-inline unsigned short read_int16_be_buf (const unsigned char *buff)
-{
-    long l;
-    l = buff[1];
-    l += buff[0]<<8;
-    return l;
-}
-
-/**
- * Writes 2-byte big-endian number into given buffer.
- */
-inline void write_int16_be_buf (unsigned char *buff, unsigned short x)
-{
-    buff[1]=(x&255);
-    buff[0]=((x>>8)&255);
-}
-
-/**
- * Writes 4-byte big-endian number into given buffer.
- */
-inline void write_int32_be_buf (unsigned char *buff, unsigned long x)
-{
-    buff[3]=(x&255);
-    buff[2]=((x>>8)&255);
-    buff[1]=((x>>16)&255);
-    buff[0]=((x>>24)&255);
-}
-
-/**
- * Reads 1-byte number from given buffer.
- * Simple wrapper for use with both little and big endian files.
- */
-inline unsigned char read_int8_buf (const unsigned char *buff)
-{
-    return buff[0];
-}
-
-/**
- * Writes 1-byte number into given buffer.
- * Simple wrapper for use with both little and big endian files.
- */
-inline void write_int8_buf (unsigned char *buff, unsigned char x)
-{
-    buff[0]=x;
-}
+unsigned char read_int8_buf (const unsigned char *buff);
+void write_int8_buf (unsigned char *buff, unsigned char x);
 
 /******************************************************************************/
 #ifdef __cplusplus

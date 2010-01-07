@@ -41,7 +41,7 @@ DLLIMPORT __cdecl long _DK_PointerDraw(long x, long y, struct TbSprite *spr, uns
 // Global variables
 
 /******************************************************************************/
-void ClearSurface(struct TSurface *surf) // this was originally TSurface constructor
+void ClearSurface(struct SSurface *surf) // this was originally TSurface constructor
 {
   surf->lpDDSurf = NULL;
   surf->field_4 = 0;

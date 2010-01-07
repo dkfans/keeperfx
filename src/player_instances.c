@@ -305,8 +305,8 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           cam = player->acamera;
           if (cam != NULL)
           {
-            thing->pos_2C.x.val += lbSinTable[cam->orient_a] << 6 >> 16;
-            thing->pos_2C.y.val += -(lbCosTable[cam->orient_a] << 6 >> 8) >> 8;
+            thing->pos_2C.x.val += LbSinL(cam->orient_a) << 6 >> 16;
+            thing->pos_2C.y.val += -(LbCosL(cam->orient_a) << 6 >> 8) >> 8;
           }
       }
       break;

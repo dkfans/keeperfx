@@ -29,6 +29,14 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+struct GuiButton;
+
+enum TooltipFlags {
+  TTip_Visible   = 0x01,
+  TTip_NeedReset = 0x02,
+};
+
+/******************************************************************************/
 DLLIMPORT extern long _DK_tooltip_scroll_offset;
 #define tooltip_scroll_offset _DK_tooltip_scroll_offset
 DLLIMPORT extern long _DK_tooltip_scroll_timer;

@@ -28,6 +28,8 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+struct TbLoadFiles;
+
 typedef char *ModifyDataLoadFnameFunc(struct TbLoadFiles *);
 
 struct TbLoadFiles {

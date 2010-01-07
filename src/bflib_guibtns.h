@@ -166,7 +166,7 @@ struct GuiMenu {
 };
 
 struct ToolTipBox {
-      unsigned char field_0;
+      unsigned char flags;
       char text[TOOLTIP_MAX_LEN];
       struct GuiButton *gbutton;
       void *target;

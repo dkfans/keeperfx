@@ -28,10 +28,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-//DLLIMPORT int __stdcall _DK_LbDataFreeAll(struct TbLoadFiles load_files[]);
-//DLLIMPORT int _DK_LbDataLoadAll(const struct TbLoadFiles load_files[]);
-//DLLIMPORT int _DK_LbDataLoadAll(struct TbLoadFiles *load_files);
-//DLLIMPORT int __stdcall _DK_LbDataFreeAll(struct TbLoadFiles *load_files);
 DLLIMPORT extern ModifyDataLoadFnameFunc *_DK_modify_data_load_filename_function;
 /******************************************************************************/
 
@@ -123,7 +119,6 @@ short LbDataLoad(struct TbLoadFiles *load_file)
  */
 short LbDataLoadAll(struct TbLoadFiles load_files[])
 {
-  //return _DK_LbDataLoadAll(load_files);
   struct TbLoadFiles *t_lfile;
   int ferror;
   int ret_val;

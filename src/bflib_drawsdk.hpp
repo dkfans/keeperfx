@@ -25,10 +25,9 @@
 #include "bflib_drawbas.hpp"
 #include <ddraw.h>
 
-#pragma pack(1)
 /******************************************************************************/
 
-struct TSurface {
+struct SSurface {
     LPDIRECTDRAWSURFACE lpDDSurf;
     long field_4;
     unsigned long locks_count;
@@ -36,9 +35,6 @@ struct TSurface {
     long field_10;
     long field_14;
 };
-
-#pragma pack()
-/******************************************************************************/
 
 // Exported class
 class TDDrawSdk : public TDDrawBaseClass {
@@ -61,11 +57,11 @@ class TDDrawSdk : public TDDrawBaseClass {
     bool restore_surfaces(void);
     void wait_vbi(void);
     bool swap_box(struct tagPOINT,struct tagRECT &);
-    bool create_surface(struct TSurface *,unsigned long,unsigned long);
-    bool release_surface(struct TSurface *);
-    bool blt_surface(struct TSurface *,unsigned long,unsigned long,tagRECT *,unsigned long);
-    void *lock_surface(struct TSurface *);
-    bool unlock_surface(struct TSurface *);
+    bool create_surface(struct SSurface *,unsigned long,unsigned long);
+    bool release_surface(struct SSurface *);
+    bool blt_surface(struct SSurface *,unsigned long,unsigned long,tagRECT *,unsigned long);
+    void *lock_surface(struct SSurface *);
+    bool unlock_surface(struct SSurface *);
     void LoresEmulation(bool);
     // Nonvirtual methods
     static HRESULT CALLBACK screen_mode_callback(LPDDSURFACEDESC lpDDSurf, LPVOID lpContext);
@@ -105,6 +101,8 @@ class TDDrawSdk : public TDDrawBaseClass {
     LPDIRECTDRAW lpDDInterface;
     LPDIRECTDRAWSURFACE lpDDSurface3;
     };
+
+
 /******************************************************************************/
 
 #endif

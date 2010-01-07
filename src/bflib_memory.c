@@ -24,6 +24,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+/******************************************************************************/
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -90,12 +91,16 @@ WINBASEAPI VOID WINAPI GlobalMemoryStatus(LPMEMORYSTATUS);
 //DLLIMPORT int __stdcall _DK_LbMemoryFree(void *buffer);
 DLLIMPORT int __stdcall _DK_LbMemoryReset(void);
 /******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
+/******************************************************************************/
 unsigned long lbMemoryAvailable=0;
 short lbMemorySetup=0;
 char lbEmptyString[] = "";
 /******************************************************************************/
-/*
- * Updates CPU and memory status variables.
+/**
+ * Updates memory status variables.
  */
 short update_memory_constraits(void)
 {
@@ -122,19 +127,19 @@ short update_memory_constraits(void)
   return true;
 }
 
-void * __fastcall LbMemorySet(void *dst, uchar c, ulong length)
+void * LbMemorySet(void *dst, uchar c, ulong length)
 {
   return memset(dst, c, length);
 }
 
-void * __fastcall LbMemoryCopy(void *in_dst, const void *in_src, ulong len)
+void * LbMemoryCopy(void *in_dst, const void *in_src, ulong len)
 {
   return memcpy(in_dst,in_src,len);
 }
 
 //Appends characters of source to destination, plus a terminating null-character.
 // Prevents string in dst of getting bigger than maxlen characters.
-void * __fastcall LbStringConcat(char *dst, const char *src, const ulong dst_buflen)
+void * LbStringConcat(char *dst, const char *src, const ulong dst_buflen)
 {
   int max_num=dst_buflen-strlen(dst);
   if (max_num<=0) return dst;
@@ -143,7 +148,7 @@ void * __fastcall LbStringConcat(char *dst, const char *src, const ulong dst_buf
   return dst;
 }
 
-void * __fastcall LbStringCopy(char *dst, const char *src, const ulong dst_buflen)
+void * LbStringCopy(char *dst, const char *src, const ulong dst_buflen)
 {
   if (dst_buflen < 1)
     return dst;
@@ -152,7 +157,7 @@ void * __fastcall LbStringCopy(char *dst, const char *src, const ulong dst_bufle
   return dst;
 }
 
-void * __fastcall LbStringToLowerCopy(char *dst, const char *src, const ulong dst_buflen)
+void * LbStringToLowerCopy(char *dst, const char *src, const ulong dst_buflen)
 {
   int i;
   char chr;
@@ -169,13 +174,13 @@ void * __fastcall LbStringToLowerCopy(char *dst, const char *src, const ulong ds
   return dst;
 }
 
-ulong __fastcall LbStringLength(const char *str)
+ulong LbStringLength(const char *str)
 {
   if (str==NULL) return 0;
   return strlen(str);
 }
 
-int __fastcall LbMemorySetup()
+int LbMemorySetup()
 {
   if (lbMemorySetup == 0)
   {
@@ -194,7 +199,7 @@ int LbMemoryReset(void)
 //  return 1;
 }
 
-unsigned char * __fastcall LbMemoryAllocLow(ulong size)
+unsigned char * LbMemoryAllocLow(ulong size)
 {
 //Simplified as we no longer need such memory routines
   unsigned char *ptr;
@@ -204,7 +209,7 @@ unsigned char * __fastcall LbMemoryAllocLow(ulong size)
   return ptr;
 }
 
-unsigned char * __fastcall LbMemoryAlloc(ulong size)
+unsigned char * LbMemoryAlloc(ulong size)
 {
 //Simplified as we no longer need such memory routines
   unsigned char *ptr;
@@ -214,7 +219,7 @@ unsigned char * __fastcall LbMemoryAlloc(ulong size)
   return ptr;
 }
 
-int __fastcall LbMemoryFree(void *mem_ptr)
+int LbMemoryFree(void *mem_ptr)
 {
     if (mem_ptr==NULL) return -1;
     free(mem_ptr);
@@ -234,27 +239,34 @@ short LbMemoryCheck(void)
   return 1;
 }
 
-//The size of the memory block pointed to by the ptr parameter is changed
-// to the size bytes, expanding the amount of memory available
-// in the block. A pointer to the reallocated memory block is returned,
-// which may be either the same as the ptr argument or a new location.
-//If the function failed to allocate the requested block of memory,
-// a NULL pointer is returned.
-void * __fastcall LbMemoryGrow(void *ptr, unsigned long size)
+/** Enlarge previously allocated memory block.
+ *  The size of the memory block pointed to by the ptr parameter is
+ *  changed to the size bytes, expanding the amount of memory available
+ *  in the block. A pointer to the reallocated memory block is returned,
+ *  which may be either the same as the ptr argument or a new location.
+ *  If the function failed to allocate the requested block of memory,
+ *  a NULL pointer is returned.
+ *
+ * @param ptr The previously allocated memory block.
+ * @param size New size of the block.
+ */
+void * LbMemoryGrow(void *ptr, unsigned long size)
 {
     return realloc(ptr,size);
 }
 
-//The size of the memory block pointed to by the ptr parameter is changed
-// to the size bytes, reducing the amount of memory available
-// in the block. A pointer to the reallocated memory block is returned,
-// which usually is the same as the ptr argument.
-void * __fastcall LbMemoryShrink(void *ptr, unsigned long size)
+/** Reduce previously allocated memory block.
+ *  The size of the memory block pointed to by the ptr parameter is
+ *  changed to the size bytes, reducing the amount of memory available
+ *  in the block. A pointer to the reallocated memory block is returned,
+ *  which usually is the same as the ptr argument.
+ *
+ * @param ptr The previously allocated memory block.
+ * @param size New size of the block.
+ */
+void * LbMemoryShrink(void *ptr, unsigned long size)
 {
     return realloc(ptr,size);
 }
 
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

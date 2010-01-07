@@ -34,16 +34,15 @@
 #include "bflib_basics.h"
 #include "bflib_datetm.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #if defined(WIN32)||defined(DOS)||defined(GO32)
 #include <dos.h>
 #include <direct.h>
 #endif
 
 #if defined(WIN32)
+#ifdef __cplusplus
+extern "C" {
+#endif
 //Selected declarations frow Win32 API - I don't want to use whole API
 // since it influences everything
 #ifndef WINBASEAPI
@@ -66,13 +65,16 @@ typedef HANDLE *PHANDLE,*LPHANDLE;
 WINBASEAPI DWORD WINAPI GetShortPathNameA(LPCSTR,LPSTR,DWORD);
 #define GetShortPathName GetShortPathNameA
 WINBASEAPI BOOL WINAPI FlushFileBuffers(HANDLE);
+#ifdef __cplusplus
+}
+#endif
 #endif
 /******************************************************************************/
 //Internal declarations
-void __fastcall convert_find_info(struct TbFileFind *ffind);
+void convert_find_info(struct TbFileFind *ffind);
 /******************************************************************************/
 
-int __fastcall LbDriveCurrent(unsigned int *drive)
+int LbDriveCurrent(unsigned int *drive)
 {
 #if defined(WIN32)||defined(DOS)||defined(GO32)
   *drive=_getdrive();
@@ -84,7 +86,7 @@ int __fastcall LbDriveCurrent(unsigned int *drive)
 }
 
 //  Changes the current disk drive into given one
-int __fastcall LbDriveChange(const unsigned int drive)
+int LbDriveChange(const unsigned int drive)
 {
   int result;
 #if defined(WIN32)||defined(DOS)||defined(GO32)
@@ -110,7 +112,7 @@ int __fastcall LbDriveChange(const unsigned int drive)
 }
 
 //Returns if a given drive exists
-int __fastcall LbDriveExists(const unsigned int drive)
+int LbDriveExists(const unsigned int drive)
 {
   int result;
 #if defined(WIN32)||defined(DOS)||defined(GO32)
@@ -140,7 +142,7 @@ int __fastcall LbDriveExists(const unsigned int drive)
 //If no drive is specified in path then the current drive is assumed.
 //The path can be either relative to the current directory
 // on the specified drive or it can be an absolute path name.
-int __fastcall LbDirectoryChange(const char *path)
+int LbDirectoryChange(const char *path)
 {
   int result;
   if ( chdir(path) )
@@ -150,7 +152,7 @@ int __fastcall LbDirectoryChange(const char *path)
   return result;
 }
 
-int __fastcall LbDriveFreeSpace(const unsigned int drive, struct TbDriveInfo *drvinfo)
+int LbDriveFreeSpace(const unsigned int drive, struct TbDriveInfo *drvinfo)
 {
   int result;
 #if defined(WIN32)||defined(DOS)||defined(GO32)
@@ -178,18 +180,18 @@ int __fastcall LbDriveFreeSpace(const unsigned int drive, struct TbDriveInfo *dr
   return result;
 }
 
-short __fastcall LbFileExists(const char *fname)
+short LbFileExists(const char *fname)
 {
   return access(fname,F_OK) == 0;
 }
 
-int __fastcall LbFilePosition(int handle)
+int LbFilePosition(int handle)
 {
   int result = tell(handle);
   return result;
 }
 
-TbFileHandle __fastcall LbFileOpen(const char *fname, const unsigned char accmode)
+TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 {
   unsigned char mode = accmode;
 
@@ -247,7 +249,7 @@ TbFileHandle __fastcall LbFileOpen(const char *fname, const unsigned char accmod
 }
 
 //Closes a file
-int __fastcall LbFileClose(TbFileHandle handle)
+int LbFileClose(TbFileHandle handle)
 {
   if ( close(handle) )
     return -1;
@@ -258,7 +260,7 @@ int __fastcall LbFileClose(TbFileHandle handle)
 /*
  * Checks if the file position indicator is placed at end of the file.
  */
-TbBool __fastcall LbFileEof(TbFileHandle handle)
+TbBool LbFileEof(TbFileHandle handle)
 {
   if (LbFilePosition(handle) >= LbFileLengthHandle(handle))
     return 1;
@@ -266,7 +268,7 @@ TbBool __fastcall LbFileEof(TbFileHandle handle)
 }
 
 //Changes position in opened file
-int __fastcall LbFileSeek(TbFileHandle handle, unsigned long offset, unsigned char origin)
+int LbFileSeek(TbFileHandle handle, unsigned long offset, unsigned char origin)
 //int a1, int a2, unsigned __int8 a3)
 {
   int rc = -1;
@@ -288,7 +290,7 @@ int __fastcall LbFileSeek(TbFileHandle handle, unsigned long offset, unsigned ch
 }
 
 //Reads from opened disk file. Returns -1 on error
-int __fastcall LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
+int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
 {
   int result;
   //'read' returns (-1) on error
@@ -303,7 +305,7 @@ int __fastcall LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
  * @return Returns the number of bytes (does not include any extra carriage-return
  * characters transmitted) of data transmitted to the file.
 */
-long __fastcall LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long len)
+long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long len)
 {
   long result;
   result = write(handle, buffer, len);
@@ -314,7 +316,7 @@ long __fastcall LbFileWrite(TbFileHandle handle, const void *buffer, const unsig
  * Flushes the file buffers, writing all data immediatelly.
  * @return Returns 1 on success, 0 on error.
 */
-short __fastcall LbFileFlush(TbFileHandle handle)
+short LbFileFlush(TbFileHandle handle)
 {
 #if defined(WIN32)
   // Crappy Windows has its own
@@ -332,7 +334,7 @@ short __fastcall LbFileFlush(TbFileHandle handle)
 
 }
 
-long __fastcall LbFileLengthHandle(TbFileHandle handle)
+long LbFileLengthHandle(TbFileHandle handle)
 {
   long result;
   result = filelength(handle);
@@ -340,7 +342,7 @@ long __fastcall LbFileLengthHandle(TbFileHandle handle)
 }
 
 //Returns disk size of file
-long __fastcall LbFileLength(const char *fname)
+long LbFileLength(const char *fname)
 {
   TbFileHandle handle;
   handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
@@ -355,7 +357,7 @@ long __fastcall LbFileLength(const char *fname)
 
 //Converts file search information from platform-specific into independent form
 //Yeah, right...
-void __fastcall convert_find_info(struct TbFileFind *ffind)
+void convert_find_info(struct TbFileFind *ffind)
 {
   struct _finddata_t *fdata=&(ffind->Reserved);
   strncpy(ffind->Filename,fdata->name,144);
@@ -377,7 +379,7 @@ void __fastcall convert_find_info(struct TbFileFind *ffind)
 
 // returns -1 if no match is found. Otherwise returns 1 and stores a handle
 // to be used in _findnext and _findclose calls inside TbFileFind struct.
-int __fastcall LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,unsigned int attributes)
+int LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,unsigned int attributes)
 {
   // original Watcom code was
   //dos_findfirst_(path, attributes,&(ffind->Reserved))
@@ -396,7 +398,7 @@ int __fastcall LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,un
 }
 
 // returns -1 if no match is found, otherwise returns 1
-int __fastcall LbFileFindNext(struct TbFileFind *ffind)
+int LbFileFindNext(struct TbFileFind *ffind)
 {
   ;
   int result;
@@ -414,14 +416,14 @@ int __fastcall LbFileFindNext(struct TbFileFind *ffind)
 }
 
 //Ends file searching sequence
-int __fastcall LbFileFindEnd(struct TbFileFind *ffind)
+int LbFileFindEnd(struct TbFileFind *ffind)
 {
   _findclose(ffind->ReservedHandle);
   return 1;
 }
 
 //Renames a disk file
-int __fastcall LbFileRename(const char *fname_old, const char *fname_new)
+int LbFileRename(const char *fname_old, const char *fname_new)
 {
   int result;
   if ( rename(fname_old,fname_new) )
@@ -432,7 +434,7 @@ int __fastcall LbFileRename(const char *fname_old, const char *fname_new)
 }
 
 //Removes a disk file
-int __fastcall LbFileDelete(const char *filename)
+int LbFileDelete(const char *filename)
 {
   int result;
   if ( remove(filename) )
@@ -442,7 +444,7 @@ int __fastcall LbFileDelete(const char *filename)
   return result;
 }
 
-char *__fastcall LbGetCurrWorkDir(char *dest, const unsigned long maxlen)
+char *LbGetCurrWorkDir(char *dest, const unsigned long maxlen)
 {
   return getcwd(dest,maxlen);
 }
@@ -465,7 +467,7 @@ int LbDirectoryCurrent(char *buf, unsigned long buflen)
   return -1;
 }
 
-int __fastcall LbFileMakeFullPath(const short append_cur_dir,
+int LbFileMakeFullPath(const short append_cur_dir,
   const char *directory, const char *filename, char *buf, const unsigned long len)
 {
   if (filename==NULL)
@@ -493,7 +495,6 @@ int __fastcall LbFileMakeFullPath(const short append_cur_dir,
     copy_len = strlen(directory);
     if ( len-2 <= namestart+copy_len-1 )
       return -1;
-    int invlen;
     memcpy(buf+namestart, directory, copy_len);
     namestart += copy_len-1;
     if ( (namestart>0) && (buf[namestart-1]!='\\') && (buf[namestart-1]!='/'))
@@ -530,6 +531,3 @@ int __fastcall LbFileMakeFullPath(const short append_cur_dir,
 }
 
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

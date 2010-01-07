@@ -206,13 +206,13 @@ long TDDrawSdk::WindowProc(HWND hWnd, unsigned int message, WPARAM wParam, LPARA
 
 void TDDrawSdk::find_video_modes(void)
 {
-  if ((flags & 0x01) == 0)
+  if ((flags & DMF_DoneSetup) == 0)
   {
     WARNLOG("Direct Draw not set up.");
     return;
   }
   lpDDInterface->EnumDisplayModes(0, NULL, NULL, screen_mode_callback);
-  if ((flags & 0x0400) != 0)
+  if ((flags & DMF_LoresForceAvailable) != 0)
     lbScreenModeInfo[Lb_SCREEN_MODE_320_200_8].Available = 1;
 }
 
@@ -228,7 +228,7 @@ bool TDDrawSdk::get_palette(void *palette,unsigned long base,unsigned long numEn
   {
     return false;
   }
-  if ((flags & 0x40) == 0)
+  if ((flags & DMF_PaletteSetup) == 0)
   {
     return false;
   }
@@ -270,7 +270,7 @@ bool TDDrawSdk::set_palette(void *palette,unsigned long base,unsigned long numEn
   {
     return false;
   }
-  if ((flags & 0x40) == 0)
+  if ((flags & DMF_PaletteSetup) == 0)
   {
     return false;
   }
@@ -340,17 +340,17 @@ bool TDDrawSdk::setup_screen(TbScreenMode mode)
   DDSURFACEDESC ddSurfDesc;
   SYNCDBG(12,"Starting");
   reset_screen();
-  flags &= 0xFFFFFFFEu;
-  flags &= 0xFFFFFFFDu;
-  flags &= 0xFFFFFFEFu;
-  flags &= 0xFFFFFFDFu;
-  flags |= 0x0040u;
-  flags |= 0x0080u;
-  flags |= 0x0100u;
-  flags |= 0x200u;
-  flags &= 0xFFFFFBFFu;
-  flags &= 0xFFFFF7FFu;
-  flags &= 0xFFFFEFFFu;
+  flags &= ~DMF_DoneSetup;
+  flags &= ~DMF_SurfacesSetup;
+  flags &= ~DMF_Unknown0010;
+  flags &= ~DMF_Unknown0020;
+  flags |= DMF_PaletteSetup;
+  flags |= DMF_ControlDisplayMode;
+  flags |= DMF_Unknown0100;
+  flags |= DMF_Unknown0200;
+  flags &= ~DMF_LoresForceAvailable;
+  flags &= ~DMF_Unknown0800;
+  flags &= ~DMF_Unknown1000;
   if ( !setup_window() )
   {
     ERRORLOG("Could not set up the SDK window.");
@@ -369,18 +369,18 @@ bool TDDrawSdk::setup_screen(TbScreenMode mode)
   if (ResultDDMsg() != DD_OK)
     return false;
   mdinfo = TDDrawSdk::get_mode_info(mode);
-  if ((mdinfo->Width == 320) && ((flags & 0x04) == 0))
+  if ((mdinfo->Width == 320) && ((flags & DMF_DoubleBuffering) == 0))
   {
     ERRORLOG("Could not setup double buffering for ModeX");
     return false;
   }
   this->vidMode = mode;
   this->field_180 = mdinfo->Width;
-  if (((flags & 0x08) != 0) && (mdinfo->Width != 320))
+  if (((flags & DMF_WScreenInVideo) != 0) && (mdinfo->Width != 320))
   {
     memset(&ddSurfDesc, 0, sizeof(ddSurfDesc));
     ddSurfDesc.dwSize = sizeof(ddSurfDesc);
-    if ((flags & 0x04) != 0)
+    if ((flags & DMF_DoubleBuffering) != 0)
     {
       ddResult = lpDDSurface2->Lock(NULL, &ddSurfDesc, DDLOCK_WAIT, NULL);
       if (ddResult != DD_OK)
@@ -457,7 +457,6 @@ bool TDDrawSdk::lock_screen(void)
 bool TDDrawSdk::unlock_screen(void)
 {
   LPDIRECTDRAWSURFACE lpDDSurf;
-  DDSURFACEDESC ddSurfDesc;
   HRESULT locRet;
   SYNCDBG(12,"Starting");
   lpDDSurf = wscreen_surface();
@@ -561,13 +560,13 @@ bool TDDrawSdk::swap_screen(void)
   static RECT srcRect;
   static RECT destRect;
   SYNCDBG(12,"Starting");
-  if ((flags & 0x02) == 0)
+  if ((flags & DMF_SurfacesSetup) == 0)
     return false;
-  if ((flags & 0x04) != 0)
+  if ((flags & DMF_DoubleBuffering) != 0)
   {
-    if ((flags & 0x08) == 0)
+    if ((flags & DMF_WScreenInVideo) == 0)
     {
-      if ((flags & 0x2000) != 0)
+      if ((flags & DMF_LoresEmulation) != 0)
       {
         srcRect.left = 0;
         srcRect.top = 0;
@@ -609,9 +608,9 @@ bool TDDrawSdk::swap_screen(void)
     }
   } else
   {
-    if ((flags & 0x08) == 0)
+    if ((flags & DMF_WScreenInVideo) == 0)
     {
-      if ((flags & 0x2000) != 0)
+      if ((flags & DMF_LoresEmulation) != 0)
       {
         srcRect.left = 0;
         srcRect.top = 0;
@@ -644,7 +643,7 @@ bool TDDrawSdk::swap_screen(void)
 
 bool TDDrawSdk::reset_screen(void)
 {
-  if ((flags & 0x01) == 0)
+  if ((flags & DMF_DoneSetup) == 0)
   {
     return false;
   }
@@ -660,8 +659,7 @@ bool TDDrawSdk::reset_screen(void)
 
 bool TDDrawSdk::restore_surfaces(void)
 {
-  HRESULT locRes;
-  if ((flags & 0x02) == 0)
+  if ((flags & DMF_SurfacesSetup) == 0)
     return false;
   if (lpDDSurface3 != NULL)
   {
@@ -721,7 +719,7 @@ bool TDDrawSdk::swap_box(struct tagPOINT coord,struct tagRECT &rect)
   return true;
 }
 
-bool TDDrawSdk::create_surface(struct TSurface *surf,unsigned long w,unsigned long h)
+bool TDDrawSdk::create_surface(struct SSurface *surf,unsigned long w,unsigned long h)
 {
   DDSURFACEDESC ddSurfDesc;
   DDCOLORKEY ddColorKey;
@@ -747,7 +745,7 @@ bool TDDrawSdk::create_surface(struct TSurface *surf,unsigned long w,unsigned lo
   return true;
 }
 
-bool TDDrawSdk::release_surface(struct TSurface *surf)
+bool TDDrawSdk::release_surface(struct SSurface *surf)
 {
   if (surf->lpDDSurf == NULL)
   {
@@ -758,26 +756,25 @@ bool TDDrawSdk::release_surface(struct TSurface *surf)
   return true;
 }
 
-bool TDDrawSdk::blt_surface(struct TSurface *surf,unsigned long x,unsigned long y,tagRECT *rect,unsigned long flags)
+bool TDDrawSdk::blt_surface(struct SSurface *surf,unsigned long x,unsigned long y,tagRECT *rect,unsigned long blflags)
 {
   LPDIRECTDRAWSURFACE secSurf;
   RECT reverseRect;
   DWORD dwTrans;
-  HRESULT locRet;
   secSurf = wscreen_surface();
   if (secSurf == NULL)
   {
     //ERRORLOG("no valid wscreen.");
     return false;
   }
-  if ((flags & 0x02) != 0)
+  if ((blflags & 0x02) != 0)
     secSurf = lpDDSurface3;
   dwTrans = 0;
-  if ((flags & 0x04) != 0)
+  if ((blflags & 0x04) != 0)
       dwTrans |= DDBLTFAST_SRCCOLORKEY;
-  if ((flags & 0x10) != 0)
+  if ((blflags & 0x10) != 0)
       dwTrans |= DDBLTFAST_WAIT;
-  if ((flags & 0x08) != 0)
+  if ((blflags & 0x08) != 0)
   {
     secSurf->BltFast(x, y, surf->lpDDSurf, rect, dwTrans);
   } else
@@ -791,7 +788,7 @@ bool TDDrawSdk::blt_surface(struct TSurface *surf,unsigned long x,unsigned long 
   return true;
 }
 
-void *TDDrawSdk::lock_surface(struct TSurface *surf)
+void *TDDrawSdk::lock_surface(struct SSurface *surf)
 {
   DDSURFACEDESC ddSurfDesc;
   HRESULT locRes;
@@ -811,7 +808,7 @@ void *TDDrawSdk::lock_surface(struct TSurface *surf)
   return ddSurfDesc.lpSurface;
 }
 
-bool TDDrawSdk::unlock_surface(struct TSurface *surf)
+bool TDDrawSdk::unlock_surface(struct SSurface *surf)
 {
   if (surf->locks_count == 0)
   {
@@ -831,7 +828,7 @@ void TDDrawSdk::LoresEmulation(bool nstate)
   static bool lre_set = false;
   static long w;
   static long h;
-  static struct TbDisplayStruct backup;
+  static TbDisplayStruct backup;
   if (lre_set == nstate)
     return;
   if ((lre_set) || (this->resWidth > 320) && (this->resHeight > 200))
@@ -844,9 +841,9 @@ void TDDrawSdk::LoresEmulation(bool nstate)
     }
     // Update the flag
     if (nstate)
-      flags |= 0x2000;
+      flags |= DMF_LoresEmulation;
     else
-      flags ^= flags & 0x2000;
+      flags ^= flags & DMF_LoresEmulation;
     // Do the save or restore
     if (nstate)
     {
@@ -914,7 +911,7 @@ HRESULT CALLBACK TDDrawSdk::screen_mode_callback(LPDDSURFACEDESC lpDDSurf, LPVOI
 bool TDDrawSdk::setup_direct_draw(void)
 {
   DDCAPS ddEmulCaps;
-  this->flags &= 0xFFFFFFFEu;
+  this->flags &= ~DMF_DoneSetup;
   if (this->lpDDInterface == 0)
   {
     ddResult = DirectDrawCreate(0, &lpDDInterface, NULL);
@@ -934,13 +931,13 @@ bool TDDrawSdk::setup_direct_draw(void)
     ERRORLOG("Could not set cooperative level.");
     return false;
   }
-  flags |= 0x0001;
+  flags |= DMF_DoneSetup;
   return true;
 }
 
 bool TDDrawSdk::reset_direct_draw(void)
 {
-  if ((flags & 0x01) == 0)
+  if ((flags & DMF_DoneSetup) == 0)
   {
     return false;
   }
@@ -959,7 +956,7 @@ bool TDDrawSdk::reset_direct_draw(void)
       lpDDInterface->SetCooperativeLevel(hWindow, DDSCL_NORMAL);
     }
   }
-  flags &= 0xFFFFFFFEu;
+  flags &= ~DMF_DoneSetup;
   return true;
 }
 
@@ -1047,13 +1044,13 @@ bool TDDrawSdk::setup_dds_system(void)
 
 bool TDDrawSdk::setup_surfaces(short w, short h, short bpp)
 {
-  if ((flags & 0x01) == 0)
+  if ((flags & DMF_DoneSetup) == 0)
   {
     return false;
   }
   lpDDInterface->WaitForVerticalBlank(1,NULL);
   release_surfaces();
-  if ((flags & 0x80) != 0)
+  if ((flags & DMF_ControlDisplayMode) != 0)
   {
     ddResult = lpDDInterface->SetCooperativeLevel(hWindow, DDSCL_ALLOWMODEX|DDSCL_FULLSCREEN|DDSCL_EXCLUSIVE);
     ddResult = lpDDInterface->SetDisplayMode(w, h, bpp);
@@ -1082,7 +1079,7 @@ bool TDDrawSdk::setup_surfaces(short w, short h, short bpp)
     if (!setup_dds_system())
       set_wscreen_in_video(true);
   }
-  flags |= 0x0002;
+  flags |= DMF_SurfacesSetup;
   return true;
 }
 
@@ -1091,8 +1088,8 @@ bool TDDrawSdk::release_surfaces(void)
   LPDIRECTDRAWSURFACE lpDDSurLocal;
   if (!this->active)
     return false;
-  flags &= 0xFFFFFFFDu;
-  if ((flags & 0x01) != 0)
+  flags &= ~DMF_SurfacesSetup;
+  if ((flags & DMF_DoneSetup) != 0)
   {
     lpDDSurLocal = lpDDSurface3;
     if (lpDDSurLocal != NULL)
@@ -1115,7 +1112,7 @@ bool TDDrawSdk::release_surfaces(void)
 bool TDDrawSdk::release_palettes(void)
 {
   LPDIRECTDRAWPALETTE lpDDPalLocal;
-  if ((flags & 0x01) == 0)
+  if ((flags & DMF_DoneSetup) == 0)
     return false;
   lpDDPalLocal = lpDDPalette;
   if (lpDDPalette != NULL)
@@ -1129,19 +1126,19 @@ bool TDDrawSdk::release_palettes(void)
 
 LPDIRECTDRAWSURFACE TDDrawSdk::wscreen_surface(void)
 {
-  if ((flags & 0x01) == 0)
+  if ((flags & DMF_DoneSetup) == 0)
   {
     return NULL;
   } else
-  if ((flags & 0x02) == 0)
+  if ((flags & DMF_SurfacesSetup) == 0)
   {
     return NULL;
   } else
-  if ((flags & 0x08) == 0)
+  if ((flags & DMF_WScreenInVideo) == 0)
   {
     return lpDDSurface1;
   } else
-  if ((flags & 0x04) == 0)
+  if ((flags & DMF_DoubleBuffering) == 0)
   {
     return lpDDSurface3;
   } else

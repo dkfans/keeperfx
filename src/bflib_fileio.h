@@ -40,6 +40,8 @@ enum TbFileSeekMode {
         Lb_FILE_SEEK_END       = 2,
 };
 
+/******************************************************************************/
+
 struct TbDriveInfo {
         unsigned long TotalClusters;
         unsigned long FreeClusters;
@@ -50,30 +52,30 @@ struct TbDriveInfo {
 #pragma pack()
 /******************************************************************************/
 
-int __fastcall LbDriveCurrent(unsigned int *drive);
-int __fastcall LbDriveChange(const unsigned int drive);
-int __fastcall LbDriveExists(const unsigned int drive);
-int __fastcall LbDirectoryChange(const char *path);
-int __fastcall LbDriveFreeSpace(const unsigned int drive, struct TbDriveInfo *drvinfo);
-short __fastcall LbFileExists(const char *fname);
-int __fastcall LbFilePosition(TbFileHandle handle);
-TbFileHandle __fastcall LbFileOpen(const char *fname, unsigned char accmode);
-TbBool __fastcall LbFileEof(TbFileHandle handle);
-int __fastcall LbFileClose(TbFileHandle handle);
-int __fastcall LbFileSeek(TbFileHandle handle, unsigned long offset, unsigned char origin);
-int __fastcall LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);
-long __fastcall LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long len);
-long __fastcall LbFileLength(const char *fname);
-long __fastcall LbFileLengthHandle(TbFileHandle handle);
-int __fastcall LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,unsigned int attributes);
-int __fastcall LbFileFindNext(struct TbFileFind *ffind);
-int __fastcall LbFileFindEnd(struct TbFileFind *ffind);
-int __fastcall LbFileRename(const char *fname_old, const char *fname_new);
-int __fastcall LbFileDelete(const char *filename);
-short __fastcall LbFileFlush(TbFileHandle handle);
-char *__fastcall LbGetCurrWorkDir(char *dest, const unsigned long maxlen);
+int LbDriveCurrent(unsigned int *drive);
+int LbDriveChange(const unsigned int drive);
+int LbDriveExists(const unsigned int drive);
+int LbDirectoryChange(const char *path);
+int LbDriveFreeSpace(const unsigned int drive, struct TbDriveInfo *drvinfo);
+short LbFileExists(const char *fname);
+int LbFilePosition(TbFileHandle handle);
+TbFileHandle LbFileOpen(const char *fname, unsigned char accmode);
+TbBool LbFileEof(TbFileHandle handle);
+int LbFileClose(TbFileHandle handle);
+int LbFileSeek(TbFileHandle handle, unsigned long offset, unsigned char origin);
+int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);
+long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long len);
+long LbFileLength(const char *fname);
+long LbFileLengthHandle(TbFileHandle handle);
+int LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,unsigned int attributes);
+int LbFileFindNext(struct TbFileFind *ffind);
+int LbFileFindEnd(struct TbFileFind *ffind);
+int LbFileRename(const char *fname_old, const char *fname_new);
+int LbFileDelete(const char *filename);
+short LbFileFlush(TbFileHandle handle);
+char *LbGetCurrWorkDir(char *dest, const unsigned long maxlen);
 int LbDirectoryCurrent(char *buf, unsigned long buflen);
-int __fastcall LbFileMakeFullPath(const short append_cur_dir,
+int LbFileMakeFullPath(const short append_cur_dir,
   const char *directory, const char *filename, char *buf, const unsigned long len);
 
 /******************************************************************************/

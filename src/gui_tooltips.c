@@ -50,11 +50,12 @@ inline void reset_scrolling_tooltip(void)
 {
     tooltip_scroll_offset = 0;
     tooltip_scroll_timer = 25;
+    set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,false);
 }
 
 inline void set_gui_tooltip_box(int bxtype,long stridx)
 {
-  tool_tip_box.field_0 = 1;
+  set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
   if ((stridx > 0) && (stridx < STRINGS_MAX))
     strncpy(tool_tip_box.text, gui_strings[stridx], TOOLTIP_MAX_LEN);
   else
@@ -66,7 +67,7 @@ inline void set_gui_tooltip_box(int bxtype,long stridx)
 
 inline void set_gui_tooltip_box_fmt(int bxtype,const char *format, ...)
 {
-  tool_tip_box.field_0 = 1;
+  set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
   va_list val;
   va_start(val, format);
   vsprintf(tool_tip_box.text, format, val);
@@ -82,6 +83,7 @@ inline TbBool update_gui_tooltip_target(void *target)
   {
     help_tip_time = 0;
     tool_tip_box.target = target;
+    set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,true);
     return true;
   }
   return false;
@@ -91,6 +93,7 @@ inline void clear_gui_tooltip_target(void)
 {
   help_tip_time = 0;
   tool_tip_box.target = NULL;
+  set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,true);
 }
 
 inline void clear_gui_tooltip_button(void)
@@ -280,7 +283,7 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
   if (!settings.tooltips_on)
     return;
   dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
-  tool_tip_box.field_0 = 1;
+  set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
   i = gbtn->tooltip_id;
   if ((i >= 0) && (i < STRINGS_MAX))
     text = gui_strings[i];
@@ -385,7 +388,7 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
       }
     }
   }
-  if (tool_tip_box.field_0 == 0)
+  if (((tool_tip_box.flags & TTip_Visible) == 0) || ((tool_tip_box.flags & TTip_NeedReset) != 0))
     reset_scrolling_tooltip();
   SYNCDBG(19,"Finished");
   return shown;
@@ -543,12 +546,12 @@ void draw_tooltip(void)
 {
   SYNCDBG(7,"Starting");
   lbFontPtr = winfont;
-  if (tool_tip_box.field_0)
+  if ((tool_tip_box.flags & TTip_Visible) != 0)
   {
     draw_tooltip_at(tool_tip_box.pos_x,tool_tip_box.pos_y,tool_tip_box.text);
   }
   LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-  tool_tip_box.field_0 = 0;
+  set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
 }
 
 /******************************************************************************/
