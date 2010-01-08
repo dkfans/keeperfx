@@ -134,11 +134,9 @@ short copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int
  */
 short copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_width,const int img_height)
 {
-  struct TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
-  int w,h,m,i,k;
+  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+  int w,h,m;
   int spx,spy;
-  unsigned char *dst;
-  const unsigned char *src;
   // Only 8bpp supported for now
   if (mdinfo->BitsPerPixel != 8)
     return false;
@@ -232,7 +230,7 @@ short free_bitmap_screen(struct ActiveBitmap *actv_bmp)
  */
 short init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
 {
-  struct TbScreenModeInfo *mdinfo;
+  TbScreenModeInfo *mdinfo;
   struct RawBitmap *rbmp;
   unsigned char *buf;
   long ldsize;

@@ -116,8 +116,6 @@
 // Strings length
 #define CAMPAIGN_FNAME_LEN    64
 
-#define SIZEOF_TDDrawSdk 408
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -183,61 +181,10 @@ enum KeeperStateTypes {
 #pragma pack(1)
 
 typedef unsigned long Phrase;
-
-//This seems to be array of functions in __thiscall convention
-// they are all methods for class TDDrawBase and its derivants
-// Note: May be incorrectly named - the Beta version was used to get them!
-// The inplementation as class is made in "bflib_drawcls.h"
-typedef struct {
-    void __fastcall (*dt)(void *ths); // +0 virtual ~TDDrawSdk(void);
-    long __fastcall (*setup_window)(void *ths); // +4 virtual int setup_window(void);
-    long CALLBACK (*WindowProc)(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam); // +8 virtual unsigned int WindowProc(void *,unsigned int,unsigned int,long);
-    void __fastcall (*find_video_modes)(void *ths); // +12 virtual void find_video_modes(void);
-    int (*get_palette)(void *,unsigned long,unsigned long); // +16 virtual int get_palette(void *,unsigned long,unsigned long);
-    int (*set_palette)(void *,unsigned long,unsigned long); // +20 virtual int set_palette(void *,unsigned long,unsigned long);
-    int (*setup_screen)(TbScreenMode); // +24 virtual int setup_screen(TbScreenMode);
-    long __fastcall (*lock_screen)(void *ths); // +28 virtual long lock_screen(void);
-    long __fastcall (*unlock_screen)(void *ths); // +32 virtual long unlock_screen(void);
-    long (*clear_screen)(unsigned long); // +36 virtual long clear_screen(unsigned long);
-    long (*clear_window)(long,long,unsigned long,unsigned long,unsigned long); // +40 virtual long clear_window(long,long,unsigned long,unsigned long,unsigned long);
-    int __fastcall (*swap_screen)(void *ths); //+44 virtual int swap_screen(void);
-    int __fastcall (*reset_screen)(void *ths); // +48 virtual int reset_screen(void);
-    long __fastcall (*restore_surfaces)(void *ths); // +52 virtual long restore_surfaces(void);
-    void __fastcall (*wait_vbi)(void *ths); // +56 virtual void wait_vbi(void);
-    long (*swap_box)(struct tagPOINT,struct tagRECT &); // +60 virtual long swap_box(tagPOINT,tagRECT &);
-    long (*create_surface)(void *,unsigned long,unsigned long); // +64 virtual long create_surface(_TSurface *,unsigned long,unsigned long);
-    long (*release_surface)(void *); // +68 virtual long release_surface(_TSurface *);
-    long (*blt_surface)(void *,unsigned long,unsigned long,struct tagRECT *,unsigned long); // +72 virtual long blt_surface(_TSurface *,unsigned long,unsigned long,tagRECT *,unsigned long);
-    long (*lock_surface)(void *); // +76 virtual long lock_surface(_TSurface *);
-    long (*unlock_surface)(void *); // +80 virtual long unlock_surface(_TSurface *);
-    void (*LoresEmulation)(int); // +84 virtual void LoresEmulation(int);
-    void *unkn[4];
-       } TDDrawBaseVTable;
-
-typedef struct DDrawBaseClassS {
-       TDDrawBaseVTable *vtable;
-       unsigned int unkvar4;
-       char *textn2;
-       char *textname;
-       unsigned int flags;
-       unsigned int numfield_14;
-       unsigned int numfield_18;
-       unsigned int numfield_1C;
-       } TDDrawBaseClassS;
-
-typedef struct DDrawSdkS {
-       TDDrawBaseVTable *vtable;
-       // From base class
-       unsigned int unkvar4;
-       char *textn2;
-       char *textname;
-       unsigned int flags;
-       unsigned int numfield_14;
-       unsigned int numfield_18;
-       unsigned int numfield_1C;
-       // The rest
-       char unkn[376];
-       } TDDrawSdkS;
+struct TbLoadFiles;
+struct RoomFlag;
+struct Number;
+struct JontySpr;
 
 // Windows-standard structure
 /*struct _GUID {

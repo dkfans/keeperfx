@@ -28,7 +28,7 @@
 
 /******************************************************************************/
 // Global variables
-struct TbScreenModeInfo lbScreenModeInfo[]={
+struct ScreenModeInfo lbScreenModeInfo[]={
 
     {   0,   0, 0,0,   0x0,"MODE_INVALID"},
     { 320, 200, 8,0,   0x0,"MODE_320_200_8"},
@@ -60,6 +60,7 @@ struct TbScreenModeInfo lbScreenModeInfo[]={
     {1600,1200,24,0,   0x0,"MODE_1600_1200_24"},
     {   0,   0, 0,0,   0x0,"MODE_INVALID"},
 };
+typedef struct ScreenModeInfo TbScreenModeInfo;
 
 HRESULT lbDDRval = DD_OK;
 volatile int lbWait = 0;
@@ -118,8 +119,8 @@ bool TDDrawSdk::setup_window(void)
 
 long TDDrawSdk::WindowProc(HWND hWnd, unsigned int message, WPARAM wParam, LPARAM lParam)
 {
-  struct TbScreenModeInfo *mdinfo;
-  struct TDDrawSdk *sdk;
+  TbScreenModeInfo *mdinfo;
+  TDDrawSdk *sdk;
   struct tagPOINT mouse_pos;
   switch (message)
   {
@@ -175,14 +176,14 @@ long TDDrawSdk::WindowProc(HWND hWnd, unsigned int message, WPARAM wParam, LPARA
       return DefWindowProcA(hWnd, message, wParam, lParam);
 
   case WM_USER+100:
-      sdk = (struct TDDrawSdk *)lParam;
+      sdk = (TDDrawSdk *)lParam;
       if ( !sdk->setup_direct_draw() )
         lbDDRval = DDERR_GENERIC;
       lbWait = 0;
       return 0;
 
   case WM_USER+101:
-      sdk = (struct TDDrawSdk *)lParam;
+      sdk = (TDDrawSdk *)lParam;
       sdk->reset_direct_draw();
       lbWait = 0;
       return 0;
@@ -336,7 +337,7 @@ bool TDDrawSdk::set_palette(void *palette,unsigned long base,unsigned long numEn
 
 bool TDDrawSdk::setup_screen(TbScreenMode mode)
 {
-  struct TbScreenModeInfo *mdinfo;
+  TbScreenModeInfo *mdinfo;
   DDSURFACEDESC ddSurfDesc;
   SYNCDBG(12,"Starting");
   reset_screen();
@@ -893,7 +894,7 @@ HRESULT TDDrawSdk::ResultDDMsg(void)
 
 HRESULT CALLBACK TDDrawSdk::screen_mode_callback(LPDDSURFACEDESC lpDDSurf, LPVOID lpContext)
 {
-  struct TbScreenModeInfo *mdinfo;
+  TbScreenModeInfo *mdinfo;
   mdinfo = &lbScreenModeInfo[1];
   while (mdinfo->Width > 0)
   {
@@ -1240,22 +1241,22 @@ bool TDDrawSdk::remove_sdk_window(void)
   return false;
 }
 
-struct TbScreenModeInfo *TDDrawSdk::get_mode_info(unsigned short mode)
+TbScreenModeInfo *TDDrawSdk::get_mode_info(unsigned short mode)
 {
-  int maxmode=sizeof(lbScreenModeInfo)/sizeof(struct TbScreenModeInfo);
+  int maxmode=sizeof(lbScreenModeInfo)/sizeof(TbScreenModeInfo);
   if (mode < maxmode)
     return &lbScreenModeInfo[mode];
   return &lbScreenModeInfo[0];
 }
 
-enum TbScreenMode TDDrawSdk::get_mode_info_by_str(char *str)
+TbScreenMode TDDrawSdk::get_mode_info_by_str(char *str)
 {
-  int maxmode=sizeof(lbScreenModeInfo)/sizeof(struct TbScreenModeInfo);
+  int maxmode=sizeof(lbScreenModeInfo)/sizeof(TbScreenModeInfo);
   int mode;
   for (mode=0; mode<maxmode; mode++)
   {
     if (stricmp(lbScreenModeInfo[mode].Desc,str) == 0)
-      return (enum TbScreenMode)mode;
+      return (TbScreenMode)mode;
   }
   return Lb_SCREEN_MODE_INVALID;
 }

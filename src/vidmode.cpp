@@ -570,15 +570,14 @@ void unload_pointer_file(short hi_res)
 
 char *get_vidmode_name(unsigned short mode)
 {
-  struct TbScreenModeInfo *mdinfo;
+  TbScreenModeInfo *mdinfo;
   mdinfo = LbScreenGetModeInfo(mode);
   return   mdinfo->Desc;
 }
 
 short setup_screen_mode(unsigned short nmode)
 {
-  char *fname;
-  struct TbScreenModeInfo *mdinfo;
+  TbScreenModeInfo *mdinfo;
   //return _DK_setup_screen_mode(nmode);
   unsigned int flg_mem;
   long lens_mem;
@@ -752,7 +751,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
 {
   //return _DK_setup_screen_mode_minimal(nmode);
   unsigned int flg_mem;
-  struct TbScreenModeInfo *mdinfo;
+  TbScreenModeInfo *mdinfo;
   SYNCDBG(4,"Setting up mode %d",(int)nmode);
   if (!force_video_mode_reset)
   {
@@ -877,7 +876,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
 
 TbBool setup_screen_mode_zero(unsigned short nmode)
 {
-  struct TbScreenModeInfo *mdinfo;
+  TbScreenModeInfo *mdinfo;
   SYNCDBG(4,"Setting up mode %d",(int)nmode);
   mdinfo = LbScreenGetModeInfo(nmode);
   memset(_DK_palette, 0, PALETTE_SIZE);

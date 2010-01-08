@@ -1127,7 +1127,7 @@ TbBool anim_record_frame(unsigned char *screenbuf, unsigned char *palette)
 {
   if ((animation.field_0 & 0x01)==0)
     return false;
-  struct TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
   if (!anim_format_matches(MyScreenWidth/pixel_size,MyScreenHeight/pixel_size,mdinfo->BitsPerPixel))
     return false;
   return anim_make_next_frame(screenbuf, palette);
@@ -1138,8 +1138,7 @@ short anim_record(void)
     SYNCDBG(7,"Starting");
   //return _DK_anim_record();
   static char finalname[255];
-  TbFileHandle fh;
-  struct TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
   if ( mdinfo->BitsPerPixel != 8 )
   {
     ERRORLOG("Cannot record movie in non-8bit screen mode");

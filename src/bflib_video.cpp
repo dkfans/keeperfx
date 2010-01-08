@@ -170,12 +170,12 @@ TbResult LbScreenFindVideoModes(void)
   return Lb_SUCCESS;
 }
 
-TbResult LbScreenSetup(enum TbScreenMode mode, unsigned int width, unsigned int height,
+TbResult LbScreenSetup(TbScreenMode mode, unsigned int width, unsigned int height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {
   long hot_x,hot_y;
   struct TbSprite *msspr;
-  struct TbScreenModeInfo *mdinfo;
+  TbScreenModeInfo *mdinfo;
   if (lpDDC == NULL)
   {
     lpDDC = new TDDrawSdk();
@@ -259,7 +259,7 @@ void LbSetIcon(unsigned short nicon)
   lbIconIndex=nicon;
 }
 
-struct TbScreenModeInfo *LbScreenGetModeInfo(unsigned short mode)
+TbScreenModeInfo *LbScreenGetModeInfo(unsigned short mode)
 {
   return TDDrawSdk::get_mode_info(mode);
 }
@@ -375,9 +375,9 @@ TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
   return Lb_SUCCESS;
 }
 
-TbBool LbScreenIsModeAvailable(enum TbScreenMode mode)
+TbBool LbScreenIsModeAvailable(TbScreenMode mode)
 {
-  struct TbScreenModeInfo *mdinfo;
+  TbScreenModeInfo *mdinfo;
   static TbBool setup = false;
   if (!setup)
   {
@@ -389,7 +389,7 @@ TbBool LbScreenIsModeAvailable(enum TbScreenMode mode)
   return mdinfo->Available;
 }
 
-enum TbScreenMode LbRecogniseVideoModeString(char *str)
+TbScreenMode LbRecogniseVideoModeString(char *str)
 {
   return TDDrawSdk::get_mode_info_by_str(str);
 }

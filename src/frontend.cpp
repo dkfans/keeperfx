@@ -4594,14 +4594,12 @@ void frontend_load_continue_game(struct GuiButton *gbtn)
 
 TbBool fronttorture_draw(void)
 {
-  struct TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
   struct TbSprite *spr;
   const int img_width = 640;
   const int img_height = 480;
-  int w,h,m,i,k;
+  int w,h,m,i;
   int spx,spy;
-  unsigned char *dst;
-  const unsigned char *src;
   // Only 8bpp supported for now
   if (mdinfo->BitsPerPixel != 8)
     return false;
@@ -6627,11 +6625,9 @@ void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
   const int img_width = 640;
   const int img_height = 480;
   const unsigned char *srcbuf=frontend_background;
-  struct TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
-  int m,i,k;
+  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+  int m;
   int spx,spy;
-  unsigned char *dst;
-  const unsigned char *src;
   // Only 8bpp supported for now
   if (mdinfo->BitsPerPixel != 8)
     return;
@@ -6671,11 +6667,9 @@ void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
     img_height = 480;
     srcbuf = hires_parchment;
   }
-  struct TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
-  int m,i,k;
+  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+  int m;
   int spx,spy;
-  unsigned char *dst;
-  const unsigned char *src;
   // Only 8bpp supported for now
   if (mdinfo->BitsPerPixel != 8)
     return;

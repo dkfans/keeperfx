@@ -37,7 +37,7 @@ extern "C" {
 
 typedef unsigned char TbPixel;
 
-enum TbScreenMode {
+enum ScreenMode {
     Lb_SCREEN_MODE_INVALID      = 0x00,
     Lb_SCREEN_MODE_320_200_8    = 0x01,
     Lb_SCREEN_MODE_320_200_16   = 0x02,
@@ -68,6 +68,8 @@ enum TbScreenMode {
     Lb_SCREEN_MODE_1600_1200_24 = 0x1B,
 };
 
+typedef enum ScreenMode TbScreenMode;
+
 enum TbPaletteFadeFlag {
     Lb_PALETTE_FADE_OPEN   = 0,
     Lb_PALETTE_FADE_CLOSED = 1,
@@ -87,7 +89,7 @@ struct TbGraphicsWindow {
     long height;
 };
 
-struct TbScreenModeInfo {
+struct ScreenModeInfo {
           unsigned short Width;
           unsigned short Height;
           unsigned short BitsPerPixel;
@@ -95,8 +97,9 @@ struct TbScreenModeInfo {
           long VideoMode;
           char Desc[23];
 };
+typedef struct ScreenModeInfo TbScreenModeInfo;
 
-struct TbDisplayStruct {
+struct DisplayStruct {
         uchar *PhysicalScreen;
         uchar *WScreen;
         uchar *GlassMap;
@@ -139,7 +142,12 @@ struct TbDisplayStruct {
         uchar *Palette;
 };
 
-DLLIMPORT extern struct TbDisplayStruct _DK_lbDisplay;
+typedef struct DisplayStruct TbDisplayStruct;
+struct SSurface;
+typedef struct SSurface TSurface;
+
+/******************************************************************************/
+DLLIMPORT extern TbDisplayStruct _DK_lbDisplay;
 #define lbDisplay _DK_lbDisplay
 DLLIMPORT extern unsigned short _DK_MyScreenWidth;
 #define MyScreenWidth _DK_MyScreenWidth
@@ -188,7 +196,7 @@ TbBool LbWindowsControl(void);
 long LbPaletteFade(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
 TbResult LbPaletteStopOpenFade(void);
 TbResult LbScreenWaitVbi(void);
-TbResult LbScreenSetup(enum TbScreenMode mode, unsigned int width, unsigned int height,
+TbResult LbScreenSetup(TbScreenMode mode, unsigned int width, unsigned int height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid);
 TbResult LbPaletteSet(unsigned char *palette);
 TbResult LbPaletteGet(unsigned char *palette);
@@ -197,10 +205,10 @@ TbResult LbScreenReset(void);
 TbResult LbScreenStoreGraphicsWindow(struct TbGraphicsWindow *grwnd);
 TbResult LbScreenLoadGraphicsWindow(struct TbGraphicsWindow *grwnd);
 void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
-struct TbScreenModeInfo *LbScreenGetModeInfo(unsigned short mode);
-enum TbScreenMode LbRecogniseVideoModeString(char *str);
+TbScreenModeInfo *LbScreenGetModeInfo(unsigned short mode);
+TbScreenMode LbRecogniseVideoModeString(char *str);
 TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height);
-TbBool LbScreenIsModeAvailable(enum TbScreenMode mode);
+TbBool LbScreenIsModeAvailable(TbScreenMode mode);
 TbBool LbIsActive(void);
 TbPixel LbPaletteFindColour(unsigned char *pal, unsigned char r, unsigned char g, unsigned char b);
 TbResult LbScreenFindVideoModes(void);
