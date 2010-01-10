@@ -21,6 +21,29 @@
 #include "bflib_basics.h"
 
 /******************************************************************************/
+class CMistFade {
+  public:
+    CMistFade(void);
+    virtual ~CMistFade(void);
+    void setup(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost);
+    void animset(long a1, long a2);
+    void mist(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf, long srcwidth, long width, long height);
+    void animate(void);
+  protected:
+    unsigned char *lens_data;
+    unsigned char *fade_data;
+    unsigned char *ghost_data;
+    unsigned char field_C;
+    unsigned char field_D;
+    unsigned char field_E;
+    unsigned char field_F;
+    long field_10;
+    long field_14;
+    unsigned char field_18;
+    unsigned char field_19;
+    unsigned char field_1A;
+    unsigned char field_1B;
+    };
 
 /******************************************************************************/
 CMistFade *Mist = new CMistFade();
@@ -114,4 +137,22 @@ CMistFade::~CMistFade(void)
 {
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void draw_mist(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf, long srcwidth, long width, long height)
+{
+    Mist->mist(dstbuf, dstwidth, srcbuf, srcwidth, width, height);
+    Mist->animate();
+}
+
+void setup_mist(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost)
+{
+  Mist->setup(lens_mem, fade, ghost);
+  Mist->animset(0, 1024);
+}
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/

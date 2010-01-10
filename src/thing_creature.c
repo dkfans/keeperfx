@@ -1046,9 +1046,8 @@ void draw_creature_view(struct Thing *thing)
   case 10:
   case 11:
   case 12:
-      Mist->mist(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, scrmem,
+	  draw_mist(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, scrmem,
           MyScreenWidth/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-      Mist->animate();
       break;
   default:
       ERRORLOG("Invalid lens mode.");

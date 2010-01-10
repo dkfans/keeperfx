@@ -946,14 +946,12 @@ void setup_eye_lens(long nlens)
   case 11:
       fname = prepare_file_fmtpath(FGrp_StdData,"frac%02d.dat",nlens-4);
       LbFileLoadAt(fname, eye_lens_memory);
-      Mist->setup((unsigned char *)eye_lens_memory, &pixmap.fade_tables[0], &pixmap.ghost[0]);
-      Mist->animset(0, 1024);
+      setup_mist((unsigned char *)eye_lens_memory, &pixmap.fade_tables[0], &pixmap.ghost[0]);
       break;
   case 12:
       fname = prepare_file_fmtpath(FGrp_StdData,"frac%02d.dat",nlens-4);
       LbFileLoadAt(fname, eye_lens_memory);
-      Mist->setup((unsigned char *)eye_lens_memory, &pixmap.fade_tables[1024], &pixmap.ghost[0]);
-      Mist->animset(0, 1024);
+      setup_mist((unsigned char *)eye_lens_memory, &pixmap.fade_tables[1024], &pixmap.ghost[0]);
       break;
   case 13:
       player->palette = dog_palette;
