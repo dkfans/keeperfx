@@ -48,25 +48,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-struct TbLoadFiles map_flag_load_files[] = {
-  {"ldata/dkflag00.dat", (unsigned char **)&map_flag_data,(unsigned char **)&end_map_flag_data, 0, 0, 0},
-  {"ldata/dkflag00.tab", (unsigned char **)&map_flag,     (unsigned char **)&end_map_flag,      0, 0, 0},
-  {"",                   NULL,                            NULL,                                 0, 0, 0},
-};
-/*
-struct TbSetupSprite map_flag_setup_sprites[] = {
-  {&map_flag, &end_map_flag, &map_flag_data},
-  {NULL,      NULL,          NULL,},
-};
-
-struct TbSetupSprite netmap_flag_setup_sprites[] = {
-  {&map_flag, &end_map_flag, &map_flag_data},
-  {&map_font, &end_map_font, &map_font_data},
-  {&map_hand, &end_map_hand, &map_hand_data},
-  {NULL,      NULL,          NULL,},
-};
-*/
-
 TbPixel net_player_colours[] = { 251, 58, 182, 11};
 const long hand_limp_xoffset[] = { 32,  31,  30,  29,  28,  27,  26,  24,  22,  19,  15,  9, };
 const long hand_limp_yoffset[] = {-11, -10,  -9,  -8,  -7,  -6,  -5,  -4,  -3,  -2,  -1,  0, };

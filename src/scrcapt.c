@@ -226,21 +226,24 @@ TbBool cumulative_screen_shot(void)
   return (ssize>0);
 }
 
-short movie_record_start(void)
+TbBool movie_record_start(void)
 {
   if ( anim_record() )
   {
     game.numfield_A |= 0x08;
+    return true;
   }
+  return false;
 }
 
-short movie_record_stop(void)
+TbBool movie_record_stop(void)
 {
   game.numfield_A &= 0xF7u;
   anim_stop();
+  return true;
 }
 
-short movie_record_frame(void)
+TbBool movie_record_frame(void)
 {
   short lock_mem;
   short result;
@@ -261,9 +264,9 @@ short movie_record_frame(void)
  * Captures the screen to make a gameplay movie or screenshot image.
  * @return Returns 0 if no capturing was performed, nonzero otherwise.
  */
-short perform_any_screen_capturing(void)
+TbBool perform_any_screen_capturing(void)
 {
-  short captured=0;
+    TbBool captured=0;
   if ( game.numfield_A & 0x10 )
   {
     captured|=cumulative_screen_shot();

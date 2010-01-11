@@ -47,6 +47,8 @@ DLLIMPORT unsigned short _DK_pixels_per_block;
 #define pixels_per_block _DK_pixels_per_block
 DLLIMPORT unsigned short _DK_units_per_pixel;
 #define units_per_pixel _DK_units_per_pixel
+DLLIMPORT int _DK_MinimalResolutionSetup;
+#define MinimalResolutionSetup _DK_MinimalResolutionSetup
 
 //DLLIMPORT unsigned char _DK_ghost[256*16];
 //#define ghost _DK_ghost
@@ -54,12 +56,14 @@ DLLIMPORT unsigned short _DK_units_per_pixel;
 //#define fade_tables _DK_fade_tables
 DLLIMPORT struct TbColorTables _DK_pixmap;
 #define pixmap _DK_pixmap
-DLLIMPORT int _DK_MinimalResolutionSetup;
-#define MinimalResolutionSetup _DK_MinimalResolutionSetup
+DLLIMPORT extern struct TbLoadFiles _DK_map_flag_load_files[];
+//#define map_flag_load_files _DK_map_flag_load_files
 
 #pragma pack()
 /******************************************************************************/
 extern struct TbSprite *pointer_sprites;
+extern struct TbLoadFiles legal_load_files[];
+extern struct TbLoadFiles map_flag_load_files[];
 /******************************************************************************/
 TbScreenMode switch_to_next_video_mode(void);
 void set_game_vidmode(unsigned short i,unsigned short nmode);

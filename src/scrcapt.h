@@ -30,11 +30,11 @@ extern "C" {
 extern short screenshot_format;
 
 /******************************************************************************/
-short perform_any_screen_capturing(void);
+TbBool perform_any_screen_capturing(void);
 TbBool cumulative_screen_shot(void);
 
-short movie_record_start(void);
-short movie_record_stop(void);
+TbBool movie_record_start(void);
+TbBool movie_record_stop(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

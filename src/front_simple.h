@@ -59,7 +59,6 @@ struct ActiveBitmap {
 
 /******************************************************************************/
 extern unsigned char palette_buf[PALETTE_SIZE];
-extern struct TbLoadFiles legal_load_files[];
 /******************************************************************************/
 DLLIMPORT extern unsigned char *_DK_palette;
 DLLIMPORT extern unsigned char *_DK_scratch;
@@ -67,7 +66,7 @@ DLLIMPORT extern unsigned char *_DK_scratch;
 /******************************************************************************/
 short copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int nlines,const int spx,const int spy,const unsigned char *src_buf,const int src_width,const int src_height,const int m);
 short copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_width,const int img_height);
-short show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int height,TbClockMSec tmdelay);
+TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int height,TbClockMSec tmdelay);
 /******************************************************************************/
 short draw_clear_screen(void);
 short init_actv_bitmap_screen(int stype);

@@ -335,7 +335,7 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
   doing_tooltip = false;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   gbtn = &active_buttons[gbtn_idx];
-  if ((active_menus[gbtn->gmenu_idx].field_1 == 2) && ((gbtn->field_1B & 0x8000u) == 0))
+  if ((get_active_menu(gbtn->gmenu_idx)->field_1 == 2) && ((gbtn->field_1B & 0x8000u) == 0))
   {
     if (tool_tip_box.gbutton == gbtn)
     {

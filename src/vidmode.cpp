@@ -211,6 +211,41 @@ struct TbLoadFiles hi_res_small_pointer_load_files[] = {
   {"",                    NULL,                                     NULL,                                          0, 0, 0},
 };
 
+//DLLIMPORT extern struct TbLoadFiles _DK_legal_load_files[];
+struct TbLoadFiles legal_load_files[] = {
+    {"*PALETTE", &_DK_palette, NULL, PALETTE_SIZE, 0, 0},
+    {"*SCRATCH", &scratch, NULL, 0x10000, 1, 0},
+    {"", NULL, NULL, 0, 0, 0}, };
+
+/*
+unsigned char *nocd_raw;
+unsigned char *nocd_pal;
+
+struct TbLoadFiles nocd_load_files[] = {
+    {"data/nocd.raw", &nocd_raw, NULL, 0, 0, 0},
+    {"data/nocd.pal", &nocd_pal, NULL, 0, 0, 0},
+    {"", NULL, NULL, 0, 0, 0}, };
+*/
+
+struct TbLoadFiles map_flag_load_files[] = {
+  {"ldata/dkflag00.dat", (unsigned char **)&map_flag_data,(unsigned char **)&end_map_flag_data, 0, 0, 0},
+  {"ldata/dkflag00.tab", (unsigned char **)&map_flag,     (unsigned char **)&end_map_flag,      0, 0, 0},
+  {"",                   NULL,                            NULL,                                 0, 0, 0},
+};
+/*
+struct TbSetupSprite map_flag_setup_sprites[] = {
+  {&map_flag, &end_map_flag, &map_flag_data},
+  {NULL,      NULL,          NULL,},
+};
+
+struct TbSetupSprite netmap_flag_setup_sprites[] = {
+  {&map_flag, &end_map_flag, &map_flag_data},
+  {&map_font, &end_map_font, &map_font_data},
+  {&map_hand, &end_map_hand, &map_hand_data},
+  {NULL,      NULL,          NULL,},
+};
+*/
+
 short force_video_mode_reset = true;
 /******************************************************************************/
 

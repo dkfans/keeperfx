@@ -62,22 +62,6 @@ struct ActiveBitmap nocd_bmp;
 //DLLIMPORT void __cdecl _DK_wait_for_cd_to_be_available(void);
 /******************************************************************************/
 unsigned char palette_buf[PALETTE_SIZE];
-
-//DLLIMPORT extern struct TbLoadFiles _DK_legal_load_files[];
-struct TbLoadFiles legal_load_files[] = {
-    {"*PALETTE", &_DK_palette, NULL, PALETTE_SIZE, 0, 0},
-    {"*SCRATCH", &scratch, NULL, 0x10000, 1, 0},
-    {"", NULL, NULL, 0, 0, 0}, };
-
-/*
-unsigned char *nocd_raw;
-unsigned char *nocd_pal;
-
-struct TbLoadFiles nocd_load_files[] = {
-    {"data/nocd.raw", &nocd_raw, NULL, 0, 0, 0},
-    {"data/nocd.pal", &nocd_pal, NULL, 0, 0, 0},
-    {"", NULL, NULL, 0, 0, 0}, };
-*/
 /******************************************************************************/
 /*
  * Copies the given RAW image at center of screen buffer.
@@ -173,34 +157,37 @@ short copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_wi
   return true;
 }
 
-short show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int height,TbClockMSec tmdelay)
+TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int height,TbClockMSec tmdelay)
 {
-      if (height>lbDisplay.PhysicalScreenHeight)
-           height=lbDisplay.PhysicalScreenHeight;
-      LbPaletteSet(pal);
-      TbClockMSec end_time;
-      end_time = LbTimerClock() + tmdelay;
-      TbClockMSec tmdelta;
-      tmdelta = tmdelay/100;
-      if (tmdelta>100) tmdelta=100;
-      if (tmdelta<10) tmdelta=10;
-      while (LbTimerClock() < end_time)
-      {
-          LbWindowsControl();
-          copy_raw8_image_to_screen_center(raw,width,height);
-          if (is_key_pressed(KC_SPACE,KM_DONTCARE) ||
-              is_key_pressed(KC_ESCAPE,KM_DONTCARE) ||
-              is_key_pressed(KC_RETURN,KM_DONTCARE) ||
-              is_mouse_pressed_lrbutton())
-          {
-              clear_key_pressed(KC_SPACE);
-              clear_key_pressed(KC_ESCAPE);
-              clear_key_pressed(KC_RETURN);
-              clear_mouse_pressed_lrbutton();
-              break;
-          }
-          LbSleepFor(tmdelta);
-      }
+      if (height > lbDisplay.PhysicalScreenHeight)
+        height = lbDisplay.PhysicalScreenHeight;
+    LbPaletteSet(pal);
+    TbClockMSec end_time;
+    end_time = LbTimerClock() + tmdelay;
+    TbClockMSec tmdelta;
+    tmdelta = tmdelay / 100;
+    if (tmdelta > 100)
+        tmdelta = 100;
+    if (tmdelta < 10)
+        tmdelta = 10;
+    while (LbTimerClock() < end_time)
+    {
+        LbWindowsControl();
+        copy_raw8_image_to_screen_center(raw, width, height);
+        if (is_key_pressed(KC_SPACE, KM_DONTCARE)
+         || is_key_pressed(KC_ESCAPE, KM_DONTCARE)
+         || is_key_pressed(KC_RETURN, KM_DONTCARE)
+         || is_mouse_pressed_lrbutton())
+        {
+            clear_key_pressed(KC_SPACE);
+            clear_key_pressed(KC_ESCAPE);
+            clear_key_pressed(KC_RETURN);
+            clear_mouse_pressed_lrbutton();
+            break;
+        }
+        LbSleepFor(tmdelta);
+    }
+    return true;
 }
 
 /*

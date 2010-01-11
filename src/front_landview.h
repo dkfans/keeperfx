@@ -81,16 +81,6 @@ DLLIMPORT extern unsigned long _DK_end_map_font_data;
 #define end_map_font_data _DK_end_map_font_data
 DLLIMPORT extern unsigned long _DK_map_hand_data;
 #define map_hand_data _DK_map_hand_data
-DLLIMPORT extern struct TbSetupSprite _DK_netmap_flag_setup_sprites[];
-#define netmap_flag_setup_sprites _DK_netmap_flag_setup_sprites
-DLLIMPORT extern long _DK_fe_net_level_selected;
-#define fe_net_level_selected _DK_fe_net_level_selected
-DLLIMPORT extern long _DK_net_map_limp_time;
-#define net_map_limp_time _DK_net_map_limp_time
-DLLIMPORT extern struct ScreenPacket _DK_net_screen_packet[4];
-#define net_screen_packet _DK_net_screen_packet
-DLLIMPORT extern long _DK_players_currently_in_session;
-#define players_currently_in_session _DK_players_currently_in_session
 DLLIMPORT extern unsigned long _DK_end_map_hand_data;
 #define end_map_hand_data _DK_end_map_hand_data
 DLLIMPORT extern struct TbSprite *_DK_map_flag;
@@ -115,10 +105,18 @@ DLLIMPORT extern long *_DK_window_y_offset;
 #define window_y_offset _DK_window_y_offset
 DLLIMPORT extern unsigned char *_DK_map_window;
 #define map_window _DK_map_window
-DLLIMPORT extern struct TbLoadFiles _DK_map_flag_load_files[];
-//#define map_flag_load_files _DK_map_flag_load_files
 DLLIMPORT extern struct TbSetupSprite _DK_map_flag_setup_sprites[];
 #define map_flag_setup_sprites _DK_map_flag_setup_sprites
+DLLIMPORT extern struct TbSetupSprite _DK_netmap_flag_setup_sprites[];
+#define netmap_flag_setup_sprites _DK_netmap_flag_setup_sprites
+DLLIMPORT extern long _DK_fe_net_level_selected;
+#define fe_net_level_selected _DK_fe_net_level_selected
+DLLIMPORT extern long _DK_net_map_limp_time;
+#define net_map_limp_time _DK_net_map_limp_time
+DLLIMPORT extern struct ScreenPacket _DK_net_screen_packet[4];
+#define net_screen_packet _DK_net_screen_packet
+DLLIMPORT extern long _DK_players_currently_in_session;
+#define players_currently_in_session _DK_players_currently_in_session
 
 #pragma pack()
 /******************************************************************************/

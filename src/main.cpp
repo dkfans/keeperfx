@@ -5645,9 +5645,8 @@ int point_is_over_gui_menu(long x, long y)
 int first_monopoly_menu(void)
 {
   int idx;
-  const short gmax=8;//sizeof(active_menus)/sizeof(struct GuiMenu);
   struct GuiMenu *gmnu;
-  for (idx=0;idx<gmax;idx++)
+  for (idx=0;idx<ACTIVE_MENUS_COUNT;idx++)
   {
     gmnu=&active_menus[idx];
     if ((gmnu->field_1!=0) && (gmnu->flgfield_1E!=0))
@@ -5880,7 +5879,7 @@ short get_gui_inputs(short gameplay_on)
     gbtn = &active_buttons[gidx];
     if ((gbtn->field_0 & 0x01) == 0)
       continue;
-    if (!active_menus[gbtn->gmenu_idx].flgfield_1D)
+    if (!get_active_menu(gbtn->gmenu_idx)->flgfield_1D)
       continue;
     Gf_Btn_Callback callback;
     callback = gbtn->field_17;

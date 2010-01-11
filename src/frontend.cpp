@@ -1463,17 +1463,6 @@ const struct ConfigInfo default_net_config_info = {
     "",
 };
 
-const char *net_speed[] = {
-   "9600",
-  "14400",
-  "19200",
-  "28800",
-  "38400",
-  "57600",
- "115200",
-   "ISDN",
-};
-
 #if (BFDEBUG_LEVEL > 0)
 // Declarations for font testing screen (debug version only)
 struct TbSprite *testfont[TESTFONTS_COUNT];
@@ -1507,12 +1496,31 @@ long stat_return_c_slong(long *ptr)
   return *ptr;
 }
 
+const char *get_net_speed_text(int id)
+{
+  static const char *net_speed[] = {
+     "9600",
+    "14400",
+    "19200",
+    "28800",
+    "38400",
+    "57600",
+   "115200",
+     "ISDN",
+  };
+  const int limit = sizeof(net_speed)/sizeof(*net_speed) - 1;
+  if (id < 0)
+    id = 0;
+  if (id > limit)
+    id = limit;
+  return net_speed[id];
+}
 short menu_is_active(short idx)
 {
   return (menu_id_to_number(idx) >= 0);
 }
 
-short a_menu_window_is_active(void)
+TbBool a_menu_window_is_active(void)
 {
   if (no_of_active_menus <= 0)
     return false;
@@ -1526,10 +1534,18 @@ short a_menu_window_is_active(void)
   return false;
 }
 
+struct GuiMenu *get_active_menu(int id)
+{
+    if (id < 0)
+        id = 0;
+    if (id >= ACTIVE_MENUS_COUNT)
+        id = 0;
+    return &active_menus[id];
+}
+
 void get_player_gui_clicks(void)
 {
   struct PlayerInfo *player;
-  struct Dungeon *dungeon;
   struct Thing *thing;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
 
@@ -1634,6 +1650,7 @@ TbBool validate_versions(void)
 {
   struct PlayerInfo *player;
   long i,ver;
+  ver = -1;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
     player = &(game.players[i%PLAYERS_COUNT]);
@@ -1833,7 +1850,7 @@ void turn_off_menu(short mnu_idx)
       if (input_button->gmenu_idx == menu_num)
         kill_button_area_input();
     }
-    gmnu = &active_menus[menu_num];
+    gmnu = get_active_menu(menu_num);
     gmnu->field_1 = 3;
     if (update_menu_fade_level(gmnu) == -1)
     {
@@ -4227,12 +4244,17 @@ void frontnet_net_set_modem_answer(struct GuiButton *gbtn)
 
 void frontnet_net_serial_start(struct GuiButton *gbtn)
 {
-  net_serial_data.field_0 = net_config_info.numfield_0;
-  if (strcmp(net_speed[net_config_info.numfield_9], "ISDN") != 0)
-    net_serial_data.numfield_4 = atoi(net_speed[net_config_info.numfield_9]);
-  else
+    const char *net_speed_text;
+    net_serial_data.field_0 = net_config_info.numfield_0;
+    net_speed_text = get_net_speed_text(net_config_info.numfield_9);
+    if (strcmp(net_speed_text, "ISDN") != 0)
+    {
+      net_serial_data.numfield_4 = atoi(net_speed_text);
+    } else
+    {
     ERRORLOG("ISDN not supported by Serial");
-  net_serial_data.field_8 = net_config_info.numfield_1[net_config_info.numfield_0];
+    }
+  net_serial_data.field_8 = net_config_info.numfield_1[(unsigned char)net_config_info.numfield_0];
   net_serial_data.str_dial = NULL;
   net_serial_data.str_phone = NULL;
   net_serial_data.str_hang = NULL;
@@ -5120,7 +5142,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
 
   if ((char *)gbtn - (char *)s == -1)
   {
-    gmnu = &active_menus[gbtn->gmenu_idx];
+    gmnu = get_active_menu(gbtn->gmenu_idx);
     if (gbtn->field_2F != NULL)
       create_menu(gbtn->field_2F);
     if ((gbtn->field_0 & 0x02) && (gbtn->gbtype != 5))
@@ -5208,13 +5230,13 @@ void add_to_menu_stack(unsigned char mnu_idx)
         menu_stack[i] = menu_stack[i+1];
         i++;
       }
-      menu_stack[no_of_active_menus-1] = mnu_idx;
+      menu_stack[(int)no_of_active_menus-1] = mnu_idx;
       //SYNCMSG("Menu %d moved to end of stack, at position %d.",mnu_idx,no_of_active_menus-1);
       return;
     }
   }
   // If not in stack, add at end
-  menu_stack[no_of_active_menus] = mnu_idx;
+  menu_stack[(unsigned char)no_of_active_menus] = mnu_idx;
   no_of_active_menus++;
   SYNCDBG(9,"Menu %d put on stack, at position %d.",mnu_idx,no_of_active_menus-1);
 }
@@ -5264,7 +5286,7 @@ void turn_off_all_panel_menus(void)
   mnu_num = menu_id_to_number(1);
   if (mnu_num >= 0)
   {
-    gmnu = &active_menus[mnu_num];
+    gmnu = get_active_menu(mnu_num);
     setup_radio_buttons(gmnu);
   }
   if ( menu_is_active(2) )
@@ -5505,13 +5527,13 @@ void init_menu_buttons(struct GuiMenu *gmnu)
   }
 }
 
-char create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit)
+int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit)
 {
-  struct GuiButton *gbtn;
-  char i;
+  //struct GuiButton *gbtn;
+  int i;
   i=_DK_create_button(gmnu, gbinit);
 
-  gbtn = &active_buttons[i];
+  //gbtn = &active_buttons[i];
   //SYNCMSG("Created button %d at (%d,%d) size (%d,%d)",i,
   //    gbtn->pos_x,gbtn->pos_y,gbtn->width,gbtn->height);
 
@@ -5618,7 +5640,7 @@ char create_menu(struct GuiMenu *gmnu)
   mnu_num = menu_id_to_number(gmnu->field_0);
   if (mnu_num >= 0)
   {
-    amnu = &active_menus[mnu_num];
+    amnu = get_active_menu(mnu_num);
     amnu->field_1 = 1;
     amnu->numfield_2 = gmnu->numfield_2;
     amnu->flgfield_1D = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->field_0));
@@ -5632,7 +5654,7 @@ char create_menu(struct GuiMenu *gmnu)
       return -1;
   }
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  amnu = &active_menus[mnu_num];
+  amnu = get_active_menu(mnu_num);
   amnu->field_1 = 1;
   amnu->field_14 = mnu_num;
   amnu->ptrfield_15 = gmnu;
@@ -5701,7 +5723,7 @@ void set_menu_visible_on(long menu_id)
   menu_num = menu_id_to_number(menu_id);
   if (menu_num < 0)
     return;
-  active_menus[menu_num].flgfield_1D = 1;
+  get_active_menu(menu_num)->flgfield_1D = 1;
   int idx;
   for (idx=0; idx<ACTIVE_BUTTONS_COUNT; idx++)
   {
@@ -5722,7 +5744,7 @@ void set_menu_visible_off(long menu_id)
   menu_num = menu_id_to_number(menu_id);
   if (menu_num < 0)
     return;
-  active_menus[menu_num].flgfield_1D = 0;
+  get_active_menu(menu_num)->flgfield_1D = 0;
 }
 
 //TODO: Remove when original toggle_status_menu() won't be used anymore.
@@ -5774,7 +5796,7 @@ unsigned long toggle_status_menu(short visible)
   unsigned long i;
   k = menu_id_to_number(1);
   if (k < 0) return 0;
-  i = active_menus[k].flgfield_1D;
+  i = get_active_menu(k)->flgfield_1D;
   if (visible != i)
   {
     if ( visible )
@@ -5811,55 +5833,55 @@ unsigned long toggle_status_menu(short visible)
       set_menu_visible_off(GMnu_MAIN);
       k = menu_id_to_number(GMnu_ROOM);
       if (k >= 0)
-        room_on = active_menus[k].flgfield_1D;
+        room_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_ROOM);
       k = menu_id_to_number(GMnu_SPELL);
       if (k >= 0)
-        spell_on = active_menus[k].flgfield_1D;
+        spell_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_SPELL);
       k = menu_id_to_number(GMnu_SPELL_LOST);
       if (k >= 0)
-        spell_lost_on = active_menus[k].flgfield_1D;
+        spell_lost_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_SPELL_LOST);
       k = menu_id_to_number(GMnu_TRAP);
       if (k >= 0)
-      trap_on = active_menus[k].flgfield_1D;
+      trap_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_TRAP);
       k = menu_id_to_number(GMnu_CREATURE);
       if (k >= 0)
-        creat_on = active_menus[k].flgfield_1D;
+        creat_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_CREATURE);
       k = menu_id_to_number(GMnu_EVENT);
       if (k >= 0)
-        event_on = active_menus[k].flgfield_1D;
+        event_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_EVENT);
       k = menu_id_to_number(GMnu_QUERY);
       if (k >= 0)
-        query_on = active_menus[k].flgfield_1D;
+        query_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_QUERY);
       k = menu_id_to_number(GMnu_CREATURE_QUERY1);
       if (k >= 0)
-        creature_query1_on = active_menus[k].flgfield_1D;
+        creature_query1_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_CREATURE_QUERY1);
       k = menu_id_to_number(GMnu_CREATURE_QUERY2);
       if (k >= 0)
-        creature_query2_on = active_menus[k].flgfield_1D;
+        creature_query2_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_CREATURE_QUERY2);
       k = menu_id_to_number(GMnu_CREATURE_QUERY3);
       if (k >= 0)
-        creature_query3_on = active_menus[k].flgfield_1D;
+        creature_query3_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_CREATURE_QUERY3);
       k = menu_id_to_number(GMnu_TEXT_INFO);
       if (k >= 0)
-        objective_on = active_menus[k].flgfield_1D;
+        objective_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_TEXT_INFO);
       k = menu_id_to_number(GMnu_BATTLE);
       if (k >= 0)
-        battle_on = active_menus[k].flgfield_1D;
+        battle_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_BATTLE);
       k = menu_id_to_number(GMnu_DUNGEON_SPECIAL);
       if (k >= 0)
-        special_on = active_menus[k].flgfield_1D;
+        special_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_DUNGEON_SPECIAL);
     }
   }
@@ -5888,12 +5910,12 @@ TbBool toggle_first_person_menu(TbBool visible)
     // CREATURE_QUERY1
     menu_num = menu_id_to_number(GMnu_CREATURE_QUERY1);
     if (menu_num >= 0)
-      set_flag_byte(&creature_query_on, 0x01, active_menus[menu_num].flgfield_1D);
+      set_flag_byte(&creature_query_on, 0x01, get_active_menu(menu_num)->flgfield_1D);
     set_menu_visible_off(GMnu_CREATURE_QUERY1);
     // CREATURE_QUERY2
     menu_num = menu_id_to_number(GMnu_CREATURE_QUERY2);
     if (menu_num >= 0)
-      set_flag_byte(&creature_query_on, 0x02, active_menus[menu_num].flgfield_1D);
+      set_flag_byte(&creature_query_on, 0x02, get_active_menu(menu_num)->flgfield_1D);
     set_menu_visible_off(GMnu_CREATURE_QUERY2);
     return true;
   }
@@ -6204,7 +6226,7 @@ void initialise_tab_tags_and_menu(long menu_id)
   initialise_tab_tags(menu_id);
   menu_num = menu_id_to_number(menu_id);
   if (menu_num >= 0)
-    setup_radio_buttons(&active_menus[menu_num%ACTIVE_MENUS_COUNT]);
+    setup_radio_buttons(get_active_menu(menu_num));
 }
 
 void init_gui(void)
@@ -6701,7 +6723,7 @@ void frontend_copy_background(void)
   frontend_copy_background_at(0,0,POS_AUTO,POS_AUTO);
 }
 
-int frontstory_draw(void)
+void frontstory_draw(void)
 {
   frontend_copy_background();
   LbTextSetWindow(70, 70, 500, 340);
