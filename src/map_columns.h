@@ -45,6 +45,7 @@ struct Column { // sizeof=0x18
 /******************************************************************************/
 struct Column *get_column_at(long slb_x, long slb_y);
 struct Column *get_map_column(struct Map *map);
+struct Column *get_column(long idx);
 
 long get_top_cube_at_pos(long mpos);
 long get_top_cube_at(long slb_x, long slb_y);

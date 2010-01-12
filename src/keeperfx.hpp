@@ -1267,7 +1267,6 @@ int numfield_151821;
 // Global variables migration between DLL and the program
 
 DLLIMPORT extern HINSTANCE _DK_hInstance;
-//DLLIMPORT extern TDDrawBaseClassS *_DK_lpDDC;
 DLLIMPORT extern struct Game _DK_game;
 #define game _DK_game
 DLLIMPORT extern unsigned char _DK_my_player_number;
@@ -1665,8 +1664,8 @@ LevelNumber get_continue_level_number(void);
 LevelNumber set_continue_level_number(LevelNumber lvnum);
 LevelNumber get_selected_level_number(void);
 LevelNumber set_selected_level_number(LevelNumber lvnum);
-short activate_bonus_level(struct PlayerInfo *player);
-short is_bonus_level_visible(struct PlayerInfo *player, long bn_lvnum);
+TbBool activate_bonus_level(struct PlayerInfo *player);
+TbBool is_bonus_level_visible(struct PlayerInfo *player, long bn_lvnum);
 void hide_all_bonus_levels(struct PlayerInfo *player);
 unsigned short get_extra_level_kind_visibility(unsigned short elv_kind);
 short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum);
@@ -1720,7 +1719,7 @@ struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player);
 TbBool dump_thing_in_power_hand(struct Thing *thing, long plyr_idx);
 unsigned long get_creature_anim(struct Thing *thing, unsigned short frame);
 void place_thing_in_limbo(struct Thing *thing);
-short destroy_trap(struct Thing *thing);
+TbBool destroy_trap(struct Thing *thing);
 long destroy_door(struct Thing *thing);
 short delete_room_slab(long x, long y, unsigned char gnd_slab);
 void delete_thing_structure(struct Thing *thing, long a2);
@@ -1906,7 +1905,7 @@ void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 void update_breed_activities(void);
 void set_level_objective(char *msg_text);
 void find_map_location_coords(long location, long *x, long *y, const char *func_name);
-long get_2d_box_distance(struct Coord3d *pos1, struct Coord3d *pos2);
+long get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
 long get_word_of_power_damage(struct Thing *efftng, struct Thing *thing);
 TbBool any_player_close_enough_to_see(struct Coord3d *pos);
 
@@ -1931,7 +1930,7 @@ void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4
 struct Thing *create_effect(struct Coord3d *pos, unsigned short a2, unsigned char a3);
 void turn_off_query(short a);
 void free_swipe_graphic(void);
-short set_gamma(char corrlvl, short do_set);
+TbBool set_gamma(char corrlvl, TbBool do_set);
 void resync_game(void);
 void level_lost_go_first_person(long plridx);
 long battle_move_player_towards_battle(struct PlayerInfo *player, long var);

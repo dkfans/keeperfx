@@ -3060,7 +3060,7 @@ long update_creature(struct Thing *thing)
   return 1;
 }
 
-long get_2d_box_distance(struct Coord3d *pos1, struct Coord3d *pos2)
+long get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
   long dx,dy;
   dy = abs(pos1->y.val - pos2->y.val);
@@ -6747,35 +6747,52 @@ LevelNumber set_selected_level_number(LevelNumber lvnum)
 /**
  * Returns if the given bonus level is visible in land view screen.
  */
-short is_bonus_level_visible(struct PlayerInfo *player, long bn_lvnum)
+TbBool is_bonus_level_visible(struct PlayerInfo *player, LevelNumber bn_lvnum)
 {
   int i,n,k;
   i = storage_index_for_bonus_level(bn_lvnum);
+  if (i < 0)
+  {
+      WARNLOG("Someone asked for state of nonexisting bonus level %d.",(int)bn_lvnum);
+      return false;
+  }
   n = i/8;
   k = (1 << (i%8));
   if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
+  {
+    WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
     return false;
+  }
   return ((game.bonuses_found[n] & k) != 0);
 }
 
 /**
  * Makes the bonus level visible on the land map screen.
  */
-short set_bonus_level_visibility(long bn_lvnum, short visible)
+TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible)
 {
   int i,n,k;
   i = storage_index_for_bonus_level(bn_lvnum);
+  if (i < 0)
+  {
+      WARNLOG("Can't set state of nonexisting bonus level %d.",(int)bn_lvnum);
+      return false;
+  }
   n = i/8;
   k = (1 << (i%8));
   if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
+  {
+    WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
     return false;
+  }
   set_flag_byte(&game.bonuses_found[n], k, visible);
+  return true;
 }
 
 /**
  * Makes a bonus level for specified SP level visible on the land map screen.
  */
-short set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible)
+TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible)
 {
   long bn_lvnum;
   bn_lvnum = bonus_level_for_singleplayer_level(sp_lvnum);
@@ -6845,12 +6862,12 @@ void update_extra_levels_visibility(void)
 {
 }
 
-/*
+/**
  * Makes a bonus level for current SP level visible on the land map screen.
  */
-short activate_bonus_level(struct PlayerInfo *player)
+TbBool activate_bonus_level(struct PlayerInfo *player)
 {
-  short result;
+  TbBool result;
   LevelNumber sp_lvnum;
   SYNCDBG(5,"Starting");
   set_flag_byte(&game.flags_font,FFlg_unk02,true);
@@ -7164,11 +7181,11 @@ TbBool process_action_points(void)
   return true;
 }
 
-/*
+/**
  * Sets to defaults some basic parameters which are
  * later copied into Game structure.
  */
-short set_default_startup_parameters(void)
+TbBool set_default_startup_parameters(void)
 {
   memset(&start_params, 0, sizeof(struct StartupParameters));
   start_params.packet_checksum = 1;
@@ -7736,10 +7753,10 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
   }
 }
 
-short set_gamma(char corrlvl, short do_set)
+TbBool set_gamma(char corrlvl, TbBool do_set)
 {
   char *fname;
-  short result=1;
+  TbBool result = true;
   if (corrlvl < 0)
     corrlvl = 0;
   else
@@ -7750,13 +7767,13 @@ short set_gamma(char corrlvl, short do_set)
   if (!LbFileExists(fname))
   {
     WARNMSG("Palette file \"%s\" doesn't exist.", fname);
-    result = 0;
+    result = false;
   }
   if (result)
   {
     result = (LbFileLoadAt(fname, _DK_palette) != -1);
   }
-  if ((result)&&(do_set))
+  if ((result) && (do_set))
   {
     struct PlayerInfo *myplyr;
     myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
@@ -12470,7 +12487,7 @@ long destroy_door(struct Thing *thing)
   return _DK_destroy_door(thing);
 }
 
-short destroy_trap(struct Thing *thing)
+TbBool destroy_trap(struct Thing *thing)
 {
   delete_thing_structure(thing, 0);
   return true;

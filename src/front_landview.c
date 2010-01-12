@@ -1555,7 +1555,8 @@ long frontnetmap_update(void)
   struct TbSprite *spr;
   long i;
   long tmp1,tmp2;
-  long lvnum;
+  LevelNumber lvnum;
+  LevelNumber pckt_lvnum;
   TbBool is_selected;
   SYNCDBG(8,"Starting");
 //  return _DK_frontnetmap_update();
@@ -1571,6 +1572,9 @@ long frontnetmap_update(void)
     SetRedbookVolume(i);
   }
 
+  tmp1 = 0;
+  lvnum = SINGLEPLAYER_NOTSTARTED;
+  is_selected = false;
   if (map_info.field_1 == 0)
   {
     memset(net_screen_packet, 0, sizeof(net_screen_packet));
@@ -1625,9 +1629,6 @@ long frontnetmap_update(void)
         ERRORLOG("LbNetwork_Exchange failed");
     }
     memset(scratch, 0, PALETTE_SIZE);
-    is_selected = false;
-    lvnum = SINGLEPLAYER_NOTSTARTED;
-    tmp1 = 0;
     tmp2 = -1;
     for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
@@ -1652,14 +1653,15 @@ long frontnetmap_update(void)
           tmp1++;
       } else
       {
-          scratch[nspck->field_A]++;
-          if (scratch[nspck->field_A] == tmp2)
+          pckt_lvnum = (unsigned char)nspck->field_A;
+          scratch[pckt_lvnum]++;
+          if (scratch[pckt_lvnum] == tmp2)
           {
             is_selected = false;
           } else
-          if (scratch[nspck->field_A] > tmp2)
+          if (scratch[pckt_lvnum] > tmp2)
           {
-            lvnum = nspck->field_A;
+            lvnum = pckt_lvnum;
             tmp2 = scratch[lvnum];
             is_selected = true;
           }

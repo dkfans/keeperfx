@@ -573,8 +573,10 @@ short load_column_file(unsigned long lv_num)
   {
     col = &game.columns[k];
     LbMemoryCopy(col, &buf[i], sizeof(struct Column));
+    //Update top cube in the column
     n = find_column_height(col);
-    col->bitfileds = (n<<4) ^ ((n<<4) ^ (col->bitfileds)) & 0xF;
+    col->bitfileds &= 0x0F;
+    col->bitfileds |= (n<<4) & 0xF0;
     i += sizeof(struct Column);
   }
   LbMemoryFree(buf);
@@ -602,7 +604,7 @@ long load_map_data_file(unsigned long lv_num)
     {
       map = get_map_block_at(x,y);
       n = -lword(&buf[i]);
-      map->data = map->data ^ (map->data ^ n) & 0x7FF;
+      map->data ^= (map->data ^ n) & 0x7FF;
       i += 2;
     }
   LbMemoryFree(buf);
@@ -974,8 +976,7 @@ long load_map_wibble_file(unsigned long lv_num)
     {
       map = get_map_block_at(stl_x,stl_y);
       k = buf[i];
-      k = map->data ^ (k << 22);
-      map->data = map->data ^ k & 0xC00000;
+      map->data ^= ((map->data ^ (k << 22)) & 0xC00000);
       i++;
     }
   LbMemoryFree(buf);

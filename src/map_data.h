@@ -44,13 +44,13 @@ extern const long map_to_slab[];
 struct Map *get_map_block_at(long stl_x, long stl_y);
 struct Map *get_map_block_at_pos(long stl_num);
 unsigned long get_map_flags(long stl_x, long stl_y);
-TbBool map_block_invalid(struct Map *map);
+TbBool map_block_invalid(const struct Map *map);
 void reveal_map_subtile(long stl_x, long stl_y, long plyr_idx);
 TbBool subtile_revealed(long stl_x, long stl_y, long plyr_idx);
-TbBool map_block_revealed(struct Map *map, long plyr_idx);
-TbBool map_block_revealed_bit(struct Map *map, long plyr_bit);
-long get_ceiling_height(struct Coord3d *pos);
-long get_mapwho_thing_index(struct Map *map);
+TbBool map_block_revealed(const struct Map *map, long plyr_idx);
+TbBool map_block_revealed_bit(const struct Map *map, long plyr_bit);
+long get_ceiling_height(const struct Coord3d *pos);
+long get_mapwho_thing_index(const struct Map *map);
 void set_mapwho_thing_index(struct Map *map, long thing_idx);
 
 TbBool subtile_has_slab(long stl_x, long stl_y);

@@ -35,6 +35,13 @@ DLLIMPORT long _DK_create_column(struct Column *col);
 DLLIMPORT void _DK_init_top_texture_to_cube_table(void);
 DLLIMPORT void _DK_init_whole_blocks(void);
 /******************************************************************************/
+struct Column *get_column(long idx)
+{
+  if ((idx < 1) || (idx >= COLUMNS_COUNT))
+    return &game.columns[0];
+  return &game.columns[idx];
+}
+
 struct Column *get_column_at(long slb_x, long slb_y)
 {
   struct Map *map;
@@ -146,23 +153,23 @@ void init_columns(void)
 
 void init_whole_blocks(void)
 {
-  struct Column col;
+  struct Column lcol;
   long i;
   //_DK_init_whole_blocks(); return;
   game.field_149E6E = -1;
-  memset(&col, 0, sizeof(col));
+  memset(&lcol, 0, sizeof(lcol));
   // Prepare the local column
-  col.baseblock = 22;
-  col.cubes[0] = 10;
-  col.cubes[1] = 1;
-  col.cubes[2] = 1;
-  col.cubes[3] = 1;
-  col.cubes[4] = 141;
-  make_solidmask(&col);
+  lcol.baseblock = 22;
+  lcol.cubes[0] = 10;
+  lcol.cubes[1] = 1;
+  lcol.cubes[2] = 1;
+  lcol.cubes[3] = 1;
+  lcol.cubes[4] = 141;
+  make_solidmask(&lcol);
   // Find it or add to column list
-  i = find_column(&col);
+  i = find_column(&lcol);
   if (i == 0)
-    i = create_column(&col);
+    i = create_column(&lcol);
   // Update its parameters
   game.columns[i].bitfileds |= 0x01;
   game.field_149E7C = 24;

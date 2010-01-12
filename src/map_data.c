@@ -84,7 +84,7 @@ struct Map *get_map_block_at_pos(long stl_num)
   return &game.map[stl_num];
 }
 
-TbBool map_block_invalid(struct Map *map)
+TbBool map_block_invalid(const struct Map *map)
 {
   if (map == NULL)
     return true;
@@ -102,14 +102,14 @@ unsigned long get_map_flags(long stl_x, long stl_y)
   return game.mapflags[get_subtile_number(stl_x,stl_y)];
 }
 
-long get_ceiling_height(struct Coord3d *pos)
+long get_ceiling_height(const struct Coord3d *pos)
 {
   long i;
   i = get_subtile_number(pos->x.stl.num,pos->y.stl.num);
   return ((game.map[i].data & 0xF000000u) >> 24) << 8;
 }
 
-long get_mapwho_thing_index(struct Map *map)
+long get_mapwho_thing_index(const struct Map *map)
 {
   return ((map->data >> 11) & 0x7FF);
   //could also be ((map->data & 0x3FF800) >> 11);
@@ -148,7 +148,7 @@ TbBool subtile_revealed(long stl_x, long stl_y, long plyr_idx)
   return false;
 }
 
-TbBool map_block_revealed(struct Map *map, long plyr_idx)
+TbBool map_block_revealed(const struct Map *map, long plyr_idx)
 {
   unsigned short plyr_bit;
   plyr_bit = (1 << plyr_idx);
@@ -159,7 +159,7 @@ TbBool map_block_revealed(struct Map *map, long plyr_idx)
   return false;
 }
 
-TbBool map_block_revealed_bit(struct Map *map, long plyr_bit)
+TbBool map_block_revealed_bit(const struct Map *map, long plyr_bit)
 {
   if (map_block_invalid(map))
     return false;
