@@ -28,8 +28,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define MAGIC_ITEMS_MAX 64
-#define MAGIC_OVERCHARGE_LEVELS 9
+#define MAGIC_ITEMS_MAX        64
+#define SPELL_MAX_LEVEL         8
+#define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
+#define MAGIC_TYPES_COUNT      30
+#define POWER_TYPES_COUNT      20
 
 struct MagicConfig {
     long spell_types_count;
@@ -43,7 +46,9 @@ struct MagicConfig {
 /******************************************************************************/
 #pragma pack(1)
 
-struct SpellConfig { // sizeof=4??
+typedef unsigned char (*Expand_Check_Func)(void);
+
+struct SpellConfig { // sizeof=4
   int duration;
 };
 
@@ -68,9 +73,9 @@ struct ShotStats // sizeof = 101
   short damage;
   unsigned char field_18;
   short speed;
-  short field_1B;
-  unsigned char field_1D;
-  short field_1E;
+  short firing_sound;
+  unsigned char firing_sound_variants;
+  short shot_sound;
   short field_20;
   short field_22;
   unsigned char field_24;
@@ -119,9 +124,38 @@ struct MagicStats {  // sizeof=0x4C
   long power[MAGIC_OVERCHARGE_LEVELS];
 };
 
+struct SpellInfo { // sizeof = 17
+  unsigned char field_0;
+  unsigned char field_1;
+  unsigned char field_2;
+  unsigned char cast_effect;
+  unsigned short field_4;
+  unsigned short field_6;
+  unsigned long area_range;
+  long area_damage;
+  unsigned char area_hit_type;
+};
+
+struct SpellData {
+      long field_0;
+      long field_4;
+      unsigned char flag_8;
+      short field_9;
+      short field_B;
+      short field_D;
+      unsigned short field_F;
+      short field_11;
+      short field_13;
+      Expand_Check_Func field_15;
+      unsigned char flag_19;
+      unsigned char flag_1A;
+};
+
 /******************************************************************************/
 DLLIMPORT struct ShotStats _DK_shot_stats[30];
 #define shot_stats _DK_shot_stats
+DLLIMPORT struct SpellInfo _DK_spell_info[];
+DLLIMPORT struct SpellData _DK_spell_data[POWER_TYPES_COUNT+1];
 
 #pragma pack()
 /******************************************************************************/
@@ -129,6 +163,16 @@ extern const char keeper_magic_file[];
 extern struct NamedCommand spell_desc[];
 extern struct NamedCommand shot_desc[];
 extern struct NamedCommand power_desc[];
+extern struct SpellData spell_data[];
+extern struct SpellInfo spell_info[];
+/******************************************************************************/
+struct SpellInfo *get_magic_info(int mgc_idx);
+TbBool magic_info_is_invalid(const struct SpellInfo *mgcinfo);
+struct SpellData *get_power_data(int pwr_idx);
+long get_power_description_strindex(int pwr_idx);
+TbBool power_data_is_invalid(const struct SpellData *pwrdata);
+TbBool spell_is_stupid(int sptype);
+long get_power_index_for_work_state(long work_state);
 /******************************************************************************/
 TbBool load_magic_config(const char *conf_fname,unsigned short flags);
 TbBool make_all_powers_free(void);

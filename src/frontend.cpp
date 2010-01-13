@@ -1863,6 +1863,7 @@ void turn_off_menu(short mnu_idx)
 short game_is_busy_doing_gui(void)
 {
   struct PlayerInfo *player;
+  struct SpellData *pwrdata;
   struct Thing *thing;
   long spl_idx;
   if (!busy_doing_gui)
@@ -1873,12 +1874,13 @@ short game_is_busy_doing_gui(void)
   spl_idx = -1;
   if (player->work_state < PLAYER_STATES_COUNT)
     spl_idx = player_state_to_spell[player->work_state];
-  if ((spl_idx >= 0) && (spl_idx <= SPELL_TYPES_COUNT))
+  pwrdata = get_power_data(spl_idx);
+  if (!power_data_is_invalid(pwrdata))
   {
-    if (!spell_data[spl_idx].flag_19)
+    if (!pwrdata->flag_19)
       return true;
     thing = thing_get(battle_creature_over);
-    return  (thing->owner != player->field_2B) && (!spell_data[spl_idx].flag_1A);
+    return  (thing->owner != player->field_2B) && (!pwrdata->flag_1A);
   }
   return false;
 }
@@ -2959,19 +2961,14 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
   _DK_gui_area_big_room_button(gbtn);
 }
 
-TbBool spell_is_stupid(int sptype)
-{
-  if ((sptype < 0) || (sptype >= SPELL_TYPES_COUNT))
-    return true;
-  return (spell_data[sptype].field_0 <= 0);
-}
-
 TbBool set_players_packet_change_spell(struct PlayerInfo *player,int sptype)
 {
+  struct SpellData *pwrdata;
   long k;
   if (spell_is_stupid(game.chosen_spell_type))
     return false;
-  k = spell_data[sptype].field_4;
+  pwrdata = get_power_data(sptype);
+  k = pwrdata->field_4;
   if ((k == KSt_CallToArms) && (player->work_state == KSt_CallToArms))
   {
     set_players_packet_action(player, PckA_SpellCTADis, 0, 0, 0, 0);
@@ -2981,8 +2978,8 @@ TbBool set_players_packet_change_spell(struct PlayerInfo *player,int sptype)
     set_players_packet_action(player, PckA_SpellSOEDis, 0, 0, 0, 0);
   } else
   {
-    set_players_packet_action(player, spell_data[sptype].field_0, k, 0, 0, 0);
-    play_non_3d_sample(spell_data[sptype].field_11);
+    set_players_packet_action(player, pwrdata->field_0, k, 0, 0, 0);
+    play_non_3d_sample(pwrdata->field_11);
   }
   return true;
 }
@@ -3016,14 +3013,16 @@ void gui_area_spell_button(struct GuiButton *gbtn)
 
 void gui_choose_special_spell(struct GuiButton *gbtn)
 {
-  long idx;
   struct Dungeon *dungeon;
+  struct SpellData *pwrdata;
+  long idx;
   dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
-  idx = (long)gbtn->field_33 % SPELL_TYPES_COUNT;
+  idx = (long)gbtn->field_33 % POWER_TYPES_COUNT;
   set_chosen_spell(idx, gbtn->tooltip_id);
   if (dungeon->field_AF9 >= game.magic_stats[idx].cost[0])
   {
-    play_non_3d_sample(spell_data[idx].field_11); // Play the spell speech
+    pwrdata = get_power_data(idx);
+    play_non_3d_sample(pwrdata->field_11); // Play the spell speech
     switch (idx)
     {
     case 19:

@@ -27,9 +27,19 @@ extern "C" {
 #endif
 
 #define CREATURES_COUNT       256
-
+/** Percentage of creature pay increase for every experience level. */
+#define CREATURE_PAY_INCREASE_ON_EXP      35
+/** Percentage of creature damage increase for every experience level. */
+#define CREATURE_DAMAGE_INCREASE_ON_EXP   20
+/** Percentage of creature parameter increase for every experience level.
+ *  Used for all parameters that have no separate definition, ie. strength,
+ *  health, dexterity...*/
+#define CREATURE_PROPERTY_INCREASE_ON_EXP 35
 /******************************************************************************/
 #pragma pack(1)
+
+struct Thing;
+struct PlayerInfo;
 
 struct Creatures { // sizeof = 16
   unsigned short numfield_0;

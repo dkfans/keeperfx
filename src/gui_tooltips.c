@@ -148,7 +148,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   {
     update_gui_tooltip_target(thing);
     i = book_thing_to_magic(thing);
-    set_gui_tooltip_box(5,spell_data[i].field_D);
+    set_gui_tooltip_box(5,get_power_description_strindex(i));
     return true;
   }
   // Find a workshop crate to show tooltip for

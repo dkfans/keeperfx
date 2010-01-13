@@ -368,6 +368,7 @@ short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obth
 
 void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long spl_idx, long a4)
 {
+  const struct SpellInfo *spinfo;
   long i;
   if ((caster->field_0 & 0x20) != 0)
   {
@@ -385,33 +386,36 @@ void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, lo
     else
       i = 4;
   }
-  if ((spl_idx < 0) || (spl_idx >= 30))
+  spinfo = get_magic_info(spl_idx);
+  if (magic_info_is_invalid(spinfo))
   {
     ERRORLOG("Thing owned by player %d tried to cast invalid spell %ld",(int)caster->owner,spl_idx);
     return;
   }
-  creature_fire_shot(caster, target, spell_info[spl_idx].field_1, a4, i);
+  creature_fire_shot(caster, target, spinfo->field_1, a4, i);
 }
 
 void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x, long trg_y)
 {
-  struct SpellInfo *spinfo;
+  const struct SpellInfo *spinfo;
   struct CreatureControl *cctrl;
+  struct CreatureStats *crstat;
   struct Thing *efthing;
-  long i;
+  long i,k;
   //_DK_creature_cast_spell(caster, spl_idx, a3, trg_x, trg_y);
-  spinfo = &spell_info[spl_idx];
+  spinfo = get_magic_info(spl_idx);
   cctrl = creature_control_get_from_thing(caster);
   if (creature_control_invalid(cctrl))
   {
-    ERRORLOG("Invalid thing tried to cast spell %ld",spl_idx);
+    ERRORLOG("Invalid creature tried to cast spell %ld",spl_idx);
     return;
   }
-  if (spl_idx == 10)
+  if (spl_idx == 10) // Teleport
   {
     cctrl->field_B7 = trg_x;
     cctrl->field_B8 = trg_y;
   }
+  // Check if the spell can be fired as a shot
   if (spinfo->field_1)
   {
     if ((caster->field_0 & 0x20) != 0)
@@ -420,6 +424,7 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
       i = 4;
     creature_fire_shot(caster, 0, spinfo->field_1, a3, i);
   } else
+  // Check if the spell can be self-casted
   if (spinfo->field_2)
   {
     i = (long)spinfo->field_6;
@@ -431,20 +436,27 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
       i = SPELL_MAX_LEVEL;
     apply_spell_effect_to_thing(caster, spl_idx, i);
   }
-
-  if (spinfo->field_3)
+  // Check if the spell has an effect associated
+  if (spinfo->cast_effect != 0)
   {
-    efthing = create_effect(&caster->mappos, spinfo->field_3, caster->owner);
+    efthing = create_effect(&caster->mappos, spinfo->cast_effect, caster->owner);
     if (!thing_is_invalid(efthing))
     {
-      if (spinfo->field_3 == 14)
+      if (spinfo->cast_effect == 14)
         efthing->byte_13.f3 = 3;
     }
   }
-
-  if (spinfo->field_8)
+  // If the spell has area_range, then make area damage
+  if (spinfo->area_range > 0)
   {
-    explosion_affecting_area(caster, &caster->mappos, spinfo->field_8, spinfo->field_C, spinfo->field_10);
+    i = cctrl->explevel;
+    // This damage is computed directly, not selected from array, so it
+    // don't have to be limited as others... but let's limit it anyway
+    if (i > SPELL_MAX_LEVEL)
+      i = SPELL_MAX_LEVEL;
+    k = compute_creature_max_range(spinfo->area_range, i);
+    i = compute_creature_attack_damage(spinfo->area_damage, crstat->luck, i);
+    explosion_affecting_area(caster, &caster->mappos, k, i, spinfo->area_hit_type);
   }
 }
 

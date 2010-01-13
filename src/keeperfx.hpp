@@ -63,7 +63,6 @@
 #define WIN_CONDITIONS_COUNT    4
 #define CONDITIONS_COUNT       48
 #define CREATURE_MAX_LEVEL     10
-#define SPELL_MAX_LEVEL         8
 #define THING_CLASSES_COUNT    10
 #define MANUFACTURED_ITEMS_LIMIT 199
 #define GAME_KEYS_COUNT        32
@@ -102,7 +101,6 @@
 // note - this is temporary value; not correct
 #define CREATURE_FRAMELIST_LENGTH     982
 // Types of objects
-#define SPELL_TYPES_COUNT     20
 #define MANUFCTR_TYPES_COUNT  11
 #define TRAP_TYPES_COUNT       7
 #define DOOR_TYPES_COUNT       5
@@ -457,33 +455,6 @@ struct TrapData {
       short field_A;
       unsigned short name_stridx;
       short field_E;
-};
-
-struct SpellData {
-      long field_0;
-      long field_4;
-      unsigned char flag_8;
-      short field_9;
-      short field_B;
-      short field_D;
-      unsigned short field_F;
-      short field_11;
-      short field_13;
-      Expand_Check_Func field_15;
-      unsigned char flag_19;
-      unsigned char flag_1A;
-};
-
-struct SpellInfo { // sizeof = 17
-  unsigned char field_0;
-  unsigned char field_1;
-  unsigned char field_2;
-  unsigned char field_3;
-  unsigned char field_4[2];
-  unsigned short field_6;
-  long field_8;
-  long field_C;
-  unsigned char field_10;
 };
 
 struct Event { // sizeof=0x15
@@ -1121,7 +1092,7 @@ short field_14BB65[592];
     struct Packet packets[PACKETS_COUNT];
     struct CreatureStats creature_stats[CREATURE_TYPES_COUNT];
     struct RoomStats room_stats[ROOM_TYPES_COUNT];
-    struct MagicStats magic_stats[SPELL_TYPES_COUNT];
+    struct MagicStats magic_stats[POWER_TYPES_COUNT];
     struct ActionPoint action_points[ACTN_POINTS_COUNT];
 char field_14E495;
     unsigned char field_14E496;
@@ -1344,7 +1315,6 @@ DLLIMPORT extern long _DK_gui_last_right_button_pressed_id;
 DLLIMPORT extern long _DK_map_to_slab[256];
 DLLIMPORT extern struct TrapData _DK_trap_data[MANUFCTR_TYPES_COUNT];
 #define trap_data _DK_trap_data
-DLLIMPORT extern struct SpellData _DK_spell_data[SPELL_TYPES_COUNT+1];
 DLLIMPORT extern struct SlabAttr _DK_slab_attrs[SLAB_TYPES_COUNT];
 #define slab_attrs _DK_slab_attrs
 DLLIMPORT extern unsigned char _DK_magic_to_object[24];
@@ -1551,8 +1521,8 @@ DLLIMPORT struct InitEffect _DK_effect_info[];
 #define effect_info _DK_effect_info
 DLLIMPORT unsigned char _DK_temp_pal[768];
 #define temp_pal _DK_temp_pal
-DLLIMPORT extern struct SpellInfo _DK_spell_info[];
-#define spell_info _DK_spell_info
+DLLIMPORT unsigned char *_DK_lightning_palette;
+#define lightning_palette _DK_lightning_palette
 DLLIMPORT unsigned char _DK_EngineSpriteDrawUsingAlpha;
 #define EngineSpriteDrawUsingAlpha _DK_EngineSpriteDrawUsingAlpha
 DLLIMPORT long _DK_sound_heap_size;
@@ -1583,7 +1553,6 @@ extern int test_variable;
 extern unsigned short const player_cubes[];
 extern unsigned short const player_state_to_spell[];
 extern const short door_names[];
-extern struct SpellData spell_data[];
 extern struct RoomInfo room_info[];
 extern const struct Around around[];
 
@@ -1834,9 +1803,13 @@ short zoom_to_fight(unsigned char a1);
 void go_to_my_next_room_of_type(unsigned long rkind);
 long compute_creature_max_pay(long base_pay,unsigned short crlevel);
 long compute_creature_max_health(long base_health,unsigned short crlevel);
-long compute_creature_max_parameter(long base_param,unsigned short crlevel);
-#define compute_creature_max_dexterity compute_creature_max_parameter
-#define compute_creature_max_defence compute_creature_max_parameter
+long compute_creature_attack_damage(long base_param,long luck,unsigned short crlevel);
+long compute_creature_max_cparameter(long base_param,unsigned short crlevel);
+long compute_creature_max_sparameter(long base_param,unsigned short crlevel);
+#define compute_creature_max_dexterity compute_creature_max_cparameter
+#define compute_creature_max_defence compute_creature_max_cparameter
+#define compute_creature_max_pay compute_creature_max_sparameter
+#define compute_creature_max_range compute_creature_max_sparameter
 long compute_creature_max_strength(long base_param,unsigned short crlevel);
 long compute_creature_max_unaffected(long base_param,unsigned short crlevel);
 #define compute_creature_max_luck compute_creature_max_unaffected

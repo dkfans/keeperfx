@@ -365,30 +365,6 @@ unsigned short const player_state_to_spell[] = {
   0,10, 0, 11, 12, 13, 8, 0, 2,16, 14, 15, 0, 3, 0, 0,
 };
 
-struct SpellData spell_data[] = {
-  {36, 11, 0,   0,   0,   0,   0,   0,  0, NULL,                 0, 0},      //[0]
-  { 0,  0, 0,   0,   0,   0,   0,   0,  0, NULL,                 0, 0},      //[1]
-  {36, 24, 0,  95, 118, 631, 648, 831,  5, NULL,                 0, 0},      //[2]
-  {97,  0, 0, 394, 452, 636, 653, 834,  0, NULL,                 0, 0},      //[3]
-  { 0,  0, 0,   0,   0,   0,   0,   0,  0, NULL,                 0, 0},      //[4]
-  {36,  8, 1,  85, 108, 632, 649, 828, 12, sight_of_evil_expand_check,0, 0}, //[5] Sight of Evil
-  {36,  6, 1,  93, 116, 633, 650, 826,  0, call_to_arms_expand_check, 1, 1}, //[6] Call To Arms
-  {36,  7, 1,  97, 120, 635, 652, 837, 10, general_expand_check, 0, 0},      //[7]
-  {36, 22, 0,  87, 110, 644, 661, 829,  8, general_expand_check, 1, 0},      //[8]
-  {41,  0, 0,  89, 112, 634, 651, 830,  0, general_expand_check, 0, 0},      //[9] Hold Audience
-  {36, 17, 0, 101, 124, 640, 657, 833,  6, general_expand_check, 1, 1},      //[10]
-  {36, 19, 0,  99, 122, 637, 654, 838, 11, general_expand_check, 1, 0},      //[11]
-  {36, 20, 0, 103, 126, 638, 655, 825,  9, general_expand_check, 1, 0},      //[12]
-  {36, 21, 0, 105, 128, 639, 656, 832,  1, general_expand_check, 1, 0},      //[13]
-  {36, 26, 0, 310, 319, 642, 659, 835,  3, general_expand_check, 1, 1},      //[14]
-  {36, 27, 0, 306, 314, 641, 658, 827,  2, general_expand_check, 1, 1},      //[15]
-  {36, 25, 0, 308, 317, 643, 660, 839,  4, general_expand_check, 0, 0},      //[16]
-  {36, 28, 0, 105, 128, 645, 662,   0,  0, NULL,                 0, 0},      //[17]
-  {36, 11, 0,  91, 114, 630, 647, 836,  7, NULL,                 1, 0},      //[18] Possession
-  {98,  0, 0, 312, 321, 646, 663, 824,  0, NULL,                 0, 0},      //[19] Armageddon
-  { 0,  0, 0,   0,   0,   0,   0,   0,  0, NULL,                 0, 0},      //[20]
-};
-
 long instf_creature_fire_shot(struct Thing *thing, long *param);
 long instf_creature_cast_spell(struct Thing *thing, long *param);
 
@@ -407,7 +383,7 @@ DLLIMPORT void _DK_apply_damage_to_thing(struct Thing *thing, long a2, char a3);
 DLLIMPORT long _DK_parse_sound_file(long a1, unsigned char *a2, long *a3, long a4, long a5);
 DLLIMPORT void _DK_light_remove_light_from_list(struct Light *lgt, struct StructureList *list);
 DLLIMPORT void _DK_light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
-DLLIMPORT void _DK_explosion_affecting_area(struct Thing *thing, struct Coord3d *pos, long a3, long a4, unsigned char a5);
+DLLIMPORT void _DK_explosion_affecting_area(struct Thing *thing, const struct Coord3d *pos, long a3, long a4, unsigned char a5);
 DLLIMPORT void _DK_engine_init(void);
 DLLIMPORT long _DK_load_anim_file(void);
 DLLIMPORT long _DK_load_cube_file(void);
@@ -2486,17 +2462,21 @@ long instf_creature_cast_spell(struct Thing *thing, long *param)
 {
   struct CreatureControl *cctrl;
   struct Thing *trthing;
+  struct SpellInfo *magicinf;
+  long mgc_idx;
   cctrl = creature_control_get_from_thing(thing);
-  if ( spell_info[*param].field_0 )
+  mgc_idx = *param;
+  magicinf = get_magic_info(mgc_idx);
+  if (magicinf->field_0)
   {
     trthing = thing_get(cctrl->field_DA);
     if (!thing_is_invalid(trthing))
     {
-      creature_cast_spell_at_thing(thing, trthing, *param, 1);
+      creature_cast_spell_at_thing(thing, trthing, mgc_idx, 1);
       return 0;
     }
   }
-  creature_cast_spell(thing, *param, 1, cctrl->target_x, cctrl->target_y);
+  creature_cast_spell(thing, mgc_idx, 1, cctrl->target_x, cctrl->target_y);
   return 0;
 }
 
@@ -2512,30 +2492,30 @@ long compute_creature_max_health(long base_health,unsigned short crlevel)
     base_health = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_health = base_health + (35*base_health*crlevel)/100;
+  max_health = base_health + (CREATURE_PROPERTY_INCREASE_ON_EXP*base_health*crlevel)/100;
   return saturate_set_signed(max_health, 16);
 }
 
 /*
- * Computes amount of gold a creature takes on payday.
+ * Computes 16-bit parameter (damage,gold pay,range) of a creature on given level.
  */
-long compute_creature_max_pay(long base_pay,unsigned short crlevel)
+long compute_creature_max_pay(long base_param,unsigned short crlevel)
 {
-  long max_pay;
-  if (base_pay <= 0)
+  long max_param;
+  if (base_param <= 0)
     return 0;
-  if (base_pay > 100000)
-    base_pay = 100000;
+  if (base_param > 100000)
+    base_param = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_pay = base_pay + (35*base_pay*crlevel)/100;
-  return saturate_set_signed(max_pay, 16);
+  max_param = base_param + (CREATURE_PAY_INCREASE_ON_EXP*base_param*crlevel)/100;
+  return saturate_set_signed(max_param, 16);
 }
 
-/*
+/**
  * Computes 8-bit parameter (defence,dexterity) of a creature on given level.
  */
-long compute_creature_max_parameter(long base_param,unsigned short crlevel)
+long compute_creature_max_cparameter(long base_param,unsigned short crlevel)
 {
   long max_param;
   if (base_param <= 0)
@@ -2544,11 +2524,11 @@ long compute_creature_max_parameter(long base_param,unsigned short crlevel)
     base_param = 10000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (35*base_param*crlevel)/100;
+  max_param = base_param + (CREATURE_PROPERTY_INCREASE_ON_EXP*base_param*crlevel)/100;
   return saturate_set_unsigned(max_param, 8);
 }
 
-/*
+/**
  * Computes strength of a creature on given level.
  */
 long compute_creature_max_strength(long base_param,unsigned short crlevel)
@@ -2558,13 +2538,34 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel)
     base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (35*base_param*crlevel)/100;
+  max_param = base_param + (CREATURE_PROPERTY_INCREASE_ON_EXP*base_param*crlevel)/100;
   return saturate_set_unsigned(max_param, 15);
 }
 
-/*
- * Computes parameter (luck,armour) of a creature on given level,
- * where the level doesn't really matters.
+/**
+ * Computes damage of an attack, taking luck and creature level into account.
+ */
+long compute_creature_attack_damage(long base_param,long luck,unsigned short crlevel)
+{
+  long max_param;
+  if (base_param < -60000)
+    base_param = -60000;
+  if (base_param > 60000)
+    base_param = 60000;
+  if (crlevel >= CREATURE_MAX_LEVEL)
+    crlevel = CREATURE_MAX_LEVEL-1;
+  max_param = base_param + (CREATURE_DAMAGE_INCREASE_ON_EXP*base_param*crlevel)/100;
+  if (luck > 0)
+  {
+    if (ACTION_RANDOM(256) < luck)
+      max_param *= 2;
+  }
+  return saturate_set_signed(max_param, 16);
+}
+
+/**
+ * Computes parameter (luck,armour) of a creature on given level.
+ * Applies for situations where the level doesn't really matters.
  */
 long compute_creature_max_unaffected(long base_param,unsigned short crlevel)
 {
@@ -6402,8 +6403,8 @@ int get_spell_overcharge_level(struct PlayerInfo *player)
 {
   int i;
   i = (player->field_4D2 >> 2);
-  if (i >= MAGIC_OVERCHARGE_LEVELS)
-    return MAGIC_OVERCHARGE_LEVELS-1;
+  if (i > SPELL_MAX_LEVEL)
+    return SPELL_MAX_LEVEL;
   return i;
 }
 
@@ -6413,10 +6414,10 @@ short update_spell_overcharge(struct PlayerInfo *player, int spl_idx)
   struct MagicStats *mgstat;
   int i;
   dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
-  mgstat = &(game.magic_stats[spl_idx%SPELL_TYPES_COUNT]);
+  mgstat = &(game.magic_stats[spl_idx%POWER_TYPES_COUNT]);
   i = (player->field_4D2+1) >> 2;
-  if (i >= MAGIC_OVERCHARGE_LEVELS)
-    i = MAGIC_OVERCHARGE_LEVELS-1;
+  if (i > SPELL_MAX_LEVEL)
+    i = SPELL_MAX_LEVEL;
   if (mgstat->cost[i] <= dungeon->field_AF9)
   {
     // If we have more money, increase overcharge
@@ -6434,7 +6435,7 @@ short update_spell_overcharge(struct PlayerInfo *player, int spl_idx)
     else
       player->field_4D2 = 0;
   }
-  return (i < (MAGIC_OVERCHARGE_LEVELS-1));
+  return (i < SPELL_MAX_LEVEL);
 }
 
 long take_money_from_dungeon(short a1, long a2, unsigned char a3)
@@ -8329,7 +8330,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         break;
     case 7:
         other_off = 1;
-        i = spell_data[event->target % (SPELL_TYPES_COUNT+1)].field_D;
+        i = get_power_description_strindex(event->target);
         text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
@@ -8378,7 +8379,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         thing = thing_get(event->target);
         if (thing_is_invalid(thing))
           break;
-        i = spell_data[book_thing_to_magic(thing)].field_D;
+        i = get_power_description_strindex(book_thing_to_magic(thing));
         text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
@@ -10452,6 +10453,7 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
 {
   struct PlayerInfo *player;
   struct Thing *thing;
+  struct SpellData *pwrdata;
   Expand_Check_Func chkfunc;
   TbBool allow_cast;
   long spl_id;
@@ -10469,7 +10471,8 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   thing = thing_get(tng_idx);
   allow_cast = false;
-  if ((tng_idx == 0) || (thing->owner == player->field_2B) || (spell_data[spl_id].flag_1A != 0))
+  pwrdata = get_power_data(spl_id);
+  if ((tng_idx == 0) || (thing->owner == player->field_2B) || (pwrdata->flag_1A != 0))
   {
     if (can_cast_spell_at_xy(player->field_2B, spl_id, stl_x, stl_y, 0))
     {
@@ -10484,7 +10487,7 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
     set_pointer_graphic(15);
     return;
   }
-  chkfunc = spell_data[spl_id].field_15;
+  chkfunc = pwrdata->field_15;
   if (chkfunc != NULL)
   {
     if (chkfunc())
@@ -10497,13 +10500,14 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
       return;
     }
   }
-  i = spell_data[spl_id].field_13;
+  i = pwrdata->field_13;
   set_pointer_graphic_spell(i, game.play_gameturn);
 }
 
 void process_pointer_graphic(void)
 {
   struct PlayerInfo *player;
+  struct SpellData *pwrdata;
   struct Dungeon *dungeon;
   struct Thing *thing;
   long i;
@@ -10531,7 +10535,8 @@ void process_pointer_graphic(void)
         i = -1;
         if (player->work_state < PLAYER_STATES_COUNT)
           i = player_state_to_spell[player->work_state];
-        if ((i > 0) && (spell_data[i].flag_19))
+        pwrdata = get_power_data(i);
+        if ((i > 0) && (pwrdata->flag_19))
         {
           thing = thing_get(battle_creature_over);
           draw_spell_cursor(player->work_state, battle_creature_over,
@@ -11439,6 +11444,7 @@ long object_is_gold(struct Thing *thing)
 void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_size,int scr_x,int scr_y)
 {
   struct PlayerInfo *player;
+  struct SpellData *pwrdata;
   struct Thing *thing;
   int spos_x,spos_y;
   TbPixel color;
@@ -11499,7 +11505,8 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
         } else
         if ( thing_is_spellbook(thing) )
         {
-          spridx = spell_data[book_thing_to_magic(thing)].field_B;
+          pwrdata = get_power_data(book_thing_to_magic(thing));
+          spridx = pwrdata->field_B;
           draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
         }
         break;
@@ -12910,11 +12917,13 @@ void pannel_map_update(long x, long y, long w, long h)
 
 void set_chosen_spell(long sptype, long sptooltip)
 {
-  if ((sptype < 0) || (sptype >= SPELL_TYPES_COUNT))
+  struct SpellData *pwrdata;
+  pwrdata = get_power_data(sptype);
+  if (power_data_is_invalid(pwrdata))
     sptype = 0;
   SYNCDBG(6,"Setting to %ld",sptype);
   game.chosen_spell_type = sptype;
-  game.chosen_spell_look = spell_data[sptype].field_9;
+  game.chosen_spell_look = pwrdata->field_9;
   game.chosen_spell_tooltip = sptooltip;
 }
 

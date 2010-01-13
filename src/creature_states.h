@@ -81,6 +81,7 @@ TbBool internal_set_thing_state(struct Thing *thing, long nState);
 struct StateInfo *get_thing_state_info(struct Thing *thing);
 struct StateInfo *get_thing_state_info_num(long state_id);
 TbBool state_info_invalid(struct StateInfo *stati);
+void create_effect_around_thing(struct Thing *thing, long eff_kind);
 /******************************************************************************/
 #ifdef __cplusplus
 }

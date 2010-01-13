@@ -45,6 +45,7 @@ const struct NamedCommand magic_common_commands[] = {
 const struct NamedCommand magic_spell_commands[] = {
   {"NAME",            1},
   {"DURATION",        2},
+  {"AREADAMAGE",      3},
   {NULL,              0},
   };
 
@@ -64,17 +65,134 @@ const struct NamedCommand magic_power_commands[] = {
   {NULL,              0},
   };
 
+struct SpellInfo spell_info[] = {
+  {0,  0, 0,  0,  0,  0, 0,    0, 0}, // [0] NULL
+  {1,  1, 0,  0,  5,  0, 0,    0, 0}, // [1] FIREBALL
+  {1,  2, 0,  0,  6,  0, 0,    0, 0},
+  {1,  3, 0,  0,  7,  0, 0,    0, 0},
+  {0,  0, 1,  0,  8, 37, 0,    0, 0},
+  {1,  4, 0,  0,  9,  0, 0,    0, 0}, // [5] LIGHTNING
+  {0,  0, 1,  0, 10, 37, 0,    0, 0},
+  {0,  0, 1,  0, 11, 37, 0,    0, 0},
+  {1,  5, 0,  0, 12,  0, 0,    0, 0},
+  {0,  0, 1,  0, 13, 37, 0,    0, 0},
+  {0,  0, 1,  0, 14,  0, 0,    0, 0}, // [10] TELEPORT
+  {0,  0, 1,  0, 15, 38, 0,    0, 0},
+  {1, 10, 0,  0, 16,  0, 0,    0, 0},
+  {1, 12, 0,  0, 17,  0, 0,    0, 0},
+  {0,  0, 1,  0, 18,  0, 0,    0, 0},
+  {1,  9, 0,  0, 19,  0, 0,    0, 0}, // [15] MISSILE
+  {1,  6, 0,  0, 20,  0, 0,    0, 0},
+  {1,  7, 0,  0, 21,  0, 0,    0, 0},
+  {0,  8, 0,  0, 22,  0, 0,    0, 0},
+  {0,  0, 1,  0, 23,  0, 0,    0, 0},
+  {0,  0, 1,  0, 24, 37, 0,    0, 0}, // [20] FLY
+  {0,  0, 1,  0, 25, 37, 0,    0, 0},
+  {0, 11, 0,  0, 26,  0, 0,    0, 0},
+  {1, 13, 0,  0, 27,  0, 0,    0, 0}, // [23] HAILSTORM
+  {0,  0, 0, 14, 28,  0, 8, 4000, 4}, // [24] WORD_OF_POWER
+  {0,  0, 0,  0,  0,  0, 0,    0, 0},
+  {1, 26, 0,  0, 41,  0, 0,    0, 0},
+  {1, 27, 0,  0, 42,  0, 0,    0, 0},
+  {1, 28, 0,  0, 43,  0, 0,    0, 0},
+  {1, 25, 0,  0, 40,  0, 0,    0, 0},
+};
+
+struct SpellData spell_data[] = {
+  {36, 11, 0,   0,   0,   0,   0,   0,  0, NULL,                 0, 0},      //[0]
+  { 0,  0, 0,   0,   0,   0,   0,   0,  0, NULL,                 0, 0},      //[1]
+  {36, 24, 0,  95, 118, 631, 648, 831,  5, NULL,                 0, 0},      //[2]
+  {97,  0, 0, 394, 452, 636, 653, 834,  0, NULL,                 0, 0},      //[3]
+  { 0,  0, 0,   0,   0,   0,   0,   0,  0, NULL,                 0, 0},      //[4]
+  {36,  8, 1,  85, 108, 632, 649, 828, 12, sight_of_evil_expand_check,0, 0}, //[5] Sight of Evil
+  {36,  6, 1,  93, 116, 633, 650, 826,  0, call_to_arms_expand_check, 1, 1}, //[6] Call To Arms
+  {36,  7, 1,  97, 120, 635, 652, 837, 10, general_expand_check, 0, 0},      //[7]
+  {36, 22, 0,  87, 110, 644, 661, 829,  8, general_expand_check, 1, 0},      //[8]
+  {41,  0, 0,  89, 112, 634, 651, 830,  0, general_expand_check, 0, 0},      //[9] Hold Audience
+  {36, 17, 0, 101, 124, 640, 657, 833,  6, general_expand_check, 1, 1},      //[10]
+  {36, 19, 0,  99, 122, 637, 654, 838, 11, general_expand_check, 1, 0},      //[11]
+  {36, 20, 0, 103, 126, 638, 655, 825,  9, general_expand_check, 1, 0},      //[12]
+  {36, 21, 0, 105, 128, 639, 656, 832,  1, general_expand_check, 1, 0},      //[13]
+  {36, 26, 0, 310, 319, 642, 659, 835,  3, general_expand_check, 1, 1},      //[14]
+  {36, 27, 0, 306, 314, 641, 658, 827,  2, general_expand_check, 1, 1},      //[15]
+  {36, 25, 0, 308, 317, 643, 660, 839,  4, general_expand_check, 0, 0},      //[16]
+  {36, 28, 0, 105, 128, 645, 662,   0,  0, NULL,                 0, 0},      //[17]
+  {36, 11, 0,  91, 114, 630, 647, 836,  7, NULL,                 1, 0},      //[18] Possession
+  {98,  0, 0, 312, 321, 646, 663, 824,  0, NULL,                 0, 0},      //[19] Armageddon
+  { 0,  0, 0,   0,   0,   0,   0,   0,  0, NULL,                 0, 0},      //[20]
+};
+
 /******************************************************************************/
 struct MagicConfig magic_conf;
 struct NamedCommand spell_desc[MAGIC_ITEMS_MAX];
 struct NamedCommand shot_desc[MAGIC_ITEMS_MAX];
 struct NamedCommand power_desc[MAGIC_ITEMS_MAX];
 /******************************************************************************/
+struct SpellInfo *get_magic_info(int mgc_idx)
+{
+  if ((mgc_idx < 0) || (mgc_idx >= MAGIC_TYPES_COUNT))
+    return &spell_info[0];
+  return &spell_info[mgc_idx];
+}
+
+TbBool magic_info_is_invalid(const struct SpellInfo *mgcinfo)
+{
+  if (mgcinfo <= &spell_info[0])
+    return true;
+  return false;
+}
+
+struct SpellData *get_power_data(int pwr_idx)
+{
+  if ((pwr_idx > 0) && (pwr_idx < POWER_TYPES_COUNT))
+    return &spell_data[pwr_idx];
+  if ((pwr_idx < -1) || (pwr_idx >= POWER_TYPES_COUNT))
+    ERRORLOG("Request of invalid power (no %d) intercepted",pwr_idx);
+  return &spell_data[0];
+}
+
+long get_power_description_strindex(int pwr_idx)
+{
+  if ((pwr_idx < 0) || (pwr_idx >= POWER_TYPES_COUNT))
+    return 0;
+  return spell_data[pwr_idx].field_D;
+}
+
+TbBool power_data_is_invalid(const struct SpellData *pwrdata)
+{
+  if (pwrdata <= &spell_data[0])
+    return true;
+  return false;
+}
+
+long get_power_index_for_work_state(long work_state)
+{
+  long i;
+  for (i=0; i<POWER_TYPES_COUNT; i++)
+  {
+    if (spell_data[i].field_4 == work_state)
+    {
+      return i;
+    }
+  }
+  return 0;
+}
+
+TbBool spell_is_stupid(int sptype)
+{
+  struct SpellData *pwrdata;
+  pwrdata = get_power_data(sptype);
+  // now a test similar to the one in power_data_is_invalid()
+  // but we accept the NULL power (power 0)
+  if (pwrdata < &spell_data[0])
+    return true;
+  return (pwrdata->field_0 <= 0);
+}
 
 TbBool parse_magic_common_blocks(char *buf,long len)
 {
   long pos;
-  int i,k,n;
+  int k,n;
   int cmd_num;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
@@ -166,6 +284,7 @@ TbBool parse_magic_common_blocks(char *buf,long len)
 TbBool parse_magic_spell_blocks(char *buf,long len)
 {
   struct SpellConfig *splconf;
+  struct SpellInfo *magicinf;
   long pos;
   int i,k,n;
   int cmd_num;
@@ -200,6 +319,7 @@ TbBool parse_magic_spell_blocks(char *buf,long len)
       continue;
     }
     splconf = &game.spells_config[i];
+    magicinf = get_magic_info(i);
     while (pos<len)
     {
       // Finding command number in this line
@@ -226,6 +346,31 @@ TbBool parse_magic_spell_blocks(char *buf,long len)
             n++;
           }
           if (n < 1)
+          {
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Magic config file.",
+            get_conf_parameter_text(magic_spell_commands,cmd_num),block_buf);
+          }
+          break;
+      case 3: // AREADAMAGE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            magicinf->area_hit_type = k;
+            n++;
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            magicinf->area_range = k;
+            n++;
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            magicinf->area_damage = k;
+            n++;
+          }
+          if (n < 3)
           {
             CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Magic config file.",
             get_conf_parameter_text(magic_spell_commands,cmd_num),block_buf);
@@ -413,7 +558,7 @@ TbBool parse_magic_power_blocks(char *buf,long len)
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            if (n >= MAGIC_OVERCHARGE_LEVELS)
+            if (n > SPELL_MAX_LEVEL)
             {
               CONFWRNLOG("Too many \"%s\" parameters in [%s] block of Magic config file.",
               get_conf_parameter_text(magic_power_commands,cmd_num),block_buf);
@@ -422,7 +567,7 @@ TbBool parse_magic_power_blocks(char *buf,long len)
             magstat->power[n] = k;
             n++;
           }
-          if (n < MAGIC_OVERCHARGE_LEVELS)
+          if (n <= SPELL_MAX_LEVEL)
           {
             CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of Magic config file.",
             get_conf_parameter_text(magic_power_commands,cmd_num),block_buf);
@@ -432,7 +577,7 @@ TbBool parse_magic_power_blocks(char *buf,long len)
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            if (n >= MAGIC_OVERCHARGE_LEVELS)
+            if (n > SPELL_MAX_LEVEL)
             {
               CONFWRNLOG("Too many \"%s\" parameters in [%s] block of Magic config file.",
               get_conf_parameter_text(magic_power_commands,cmd_num),block_buf);
@@ -441,7 +586,7 @@ TbBool parse_magic_power_blocks(char *buf,long len)
             magstat->cost[n] = k;
             n++;
           }
-          if (n < MAGIC_OVERCHARGE_LEVELS)
+          if (n <= SPELL_MAX_LEVEL)
           {
             CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of Magic config file.",
             get_conf_parameter_text(magic_power_commands,cmd_num),block_buf);
@@ -479,8 +624,7 @@ TbBool load_magic_config(const char *conf_fname,unsigned short flags)
 {
   char *fname;
   char *buf;
-  long len,pos;
-  int cmd_num;
+  long len;
   TbBool result;
   SYNCDBG(0,"Reading Magic config file \"%s\".",conf_fname);
   fname = prepare_file_path(FGrp_FxData,conf_fname);
@@ -540,7 +684,7 @@ TbBool make_all_powers_free(void)
   for (i=0; i < magic_conf.power_types_count; i++)
   {
     magstat = &game.magic_stats[i];
-    for (n=0; n < MAGIC_OVERCHARGE_LEVELS; n++)
+    for (n=0; n <= SPELL_MAX_LEVEL; n++)
       magstat->cost[n] = 0;
   }
   return true;

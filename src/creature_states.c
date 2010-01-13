@@ -941,7 +941,7 @@ void force_complete_current_research(long plyr_idx)
   _DK_force_complete_current_research(plyr_idx);
 }
 
-TbBool summon_creature(long model, Coord3d *pos, long owner, long explevel)
+TbBool summon_creature(long model, struct Coord3d *pos, long owner, long explevel)
 {
   struct CreatureControl *cctrl;
   struct Thing *thing;
@@ -1110,12 +1110,12 @@ long process_sacrifice_award(struct Coord3d *pos, long model, long plyr_idx)
             ret = SacR_Punished;
             break;
         case SacA_NegSpellAll:
-            if (explevel >= MAGIC_OVERCHARGE_LEVELS) explevel = MAGIC_OVERCHARGE_LEVELS-1;
+            if (explevel > SPELL_MAX_LEVEL) explevel = SPELL_MAX_LEVEL;
             apply_spell_effect_to_players_creatures(plyr_idx, sac->param, explevel);
             ret = SacR_Punished;
             break;
         case SacA_PosSpellAll:
-            if (explevel >= MAGIC_OVERCHARGE_LEVELS) explevel = MAGIC_OVERCHARGE_LEVELS-1;
+            if (explevel > SPELL_MAX_LEVEL) explevel = SPELL_MAX_LEVEL;
             apply_spell_effect_to_players_creatures(plyr_idx, sac->param, explevel);
             ret = SacR_Awarded;
             break;

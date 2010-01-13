@@ -1538,6 +1538,7 @@ char process_players_global_packet_action(long plyridx)
   struct PlayerInfo *myplyr;
   struct Packet *pckt;
   struct Dungeon *dungeon;
+  struct SpellData *pwrdata;
   struct Thing *thing;
   struct Room *room;
   int i;
@@ -1832,16 +1833,12 @@ char process_players_global_packet_action(long plyridx)
           }
           break;
       }
-      if ( spell_data[pckt->field_6].field_0 )
+      pwrdata = get_power_data(pckt->field_6);
+      if ( pwrdata->field_0 )
       {
-        for (i=0; i<21; i++)
-        {
-          if (spell_data[i].field_4 == player->work_state)
-          {
-            set_player_state(player, spell_data[pckt->field_6].field_4, 0);
-            break;
-          }
-        }
+        i = get_power_index_for_work_state(player->work_state);
+        if (i > 0)
+          set_player_state(player, pwrdata->field_4, 0);
       }
       return 0;
     case PckA_PlyrFastMsg:
