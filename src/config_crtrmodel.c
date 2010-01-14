@@ -31,8 +31,6 @@
 #include "config_lenses.h"
 #include "creature_control.h"
 
-#include "keeperfx.hpp"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -145,8 +145,6 @@ extern short is_near_new_moon;
 extern unsigned long text_line_number;
 extern const struct NamedCommand lang_type[];
 /******************************************************************************/
-DLLIMPORT int __stdcall _DK_load_configuration(void);
-/******************************************************************************/
 char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname);
 char *prepare_file_path(short fgroup,const char *fname);
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
@@ -204,7 +202,7 @@ struct LevelInformation *get_prev_level_info(struct LevelInformation *nextinfo);
 short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvoptions);
 short get_level_fgroup(LevelNumber lvnum);
 const char *get_current_language_str(void);
-char *get_language_lwrstr(int lang_id);
+const char *get_language_lwrstr(int lang_id);
 /******************************************************************************/
 TbBool setup_gui_strings_data(void);
 TbBool free_gui_strings_data(void);

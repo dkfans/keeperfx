@@ -27,7 +27,7 @@
 #include "bflib_dernc.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
-#include "bflib_pom.hpp"
+#include "bflib_datetm.h"
 
 #include "config_campaigns.h"
 #include "front_simple.h"
@@ -376,7 +376,7 @@ const char *get_current_language_str(void)
 /*
  * Returns copy of the requested language string in lower case.
  */
-char *get_language_lwrstr(int lang_id)
+const char *get_language_lwrstr(int lang_id)
 {
   static char lang_str[4];
   const char *src;
@@ -814,7 +814,7 @@ short calculate_moon_phase(short do_calculate,short add_to_log)
   //Moon phase calculation
   if (do_calculate)
   {
-    phase_of_moon = PhaseOfMoon::Calculate();
+    phase_of_moon = LbMoonPhase();
   }
   if ((phase_of_moon > -0.05) && (phase_of_moon < 0.05))
   {
@@ -1145,17 +1145,19 @@ TbBool setup_gui_strings_data(void)
   long loaded_size;
   SYNCDBG(8,"Starting");
 
-  fname = prepare_file_fmtpath(FGrp_FxData,"gtext_%s.dat",get_conf_parameter_text(lang_type,install_info.lang_id));
+  fname = prepare_file_fmtpath(FGrp_FxData,"gtext_%s.dat",get_language_lwrstr(install_info.lang_id));
   filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
     ERRORLOG("GUI Strings file does not exist or can't be opened");
+    SYNCLOG("Strings file name is \"%s\"",fname);
     return false;
   }
   gui_strings_data = (char *)LbMemoryAlloc(filelen + 256);
   if (gui_strings_data == NULL)
   {
     ERRORLOG("Can't allocate memory for GUI Strings data");
+    SYNCLOG("Strings file name is \"%s\"",fname);
     return false;
   }
   strings_data_end = gui_strings_data+filelen+255;
@@ -1424,11 +1426,11 @@ short is_extra_level(long lvnum)
   return false;
 }
 
-/*
+/**
  * Returns index for Game->bonus_levels associated with given single player level.
  * Gives -1 if there's no store place for the level.
  */
-int storage_index_for_bonus_level(long bn_lvnum)
+int storage_index_for_bonus_level(LevelNumber bn_lvnum)
 {
   int i,k;
   if (bn_lvnum < 1) return -1;

@@ -424,6 +424,9 @@
  0001:0005CDB0       find_column
  0001:0005CE30       create_column
  0001:0005D110       init_columns
+ 0001:0005D1F0       get_angle_xy_to
+ 0001:0005D230       get_angle_yz_to
+ 0001:0005D340       angles_to_vector
  0001:0005D4D0       find_nearest_rooms_for_ambient_sound
  0001:0005D9E0       init_top_texture_to_cube_table
  0001:0005DA80       get_top_cube_at_pos
@@ -506,6 +509,8 @@
  0001:000788F0       find_first_battle_of_mine
  0001:00078ED0       battle_move_player_towards_battle
  0001:000791A0       can_drop_thing_here
+ 0001:00079340       get_2d_distance
+ 0001:00079F30       project_point_to_wall_on_angle
  0001:0007A530       get_packet_save_checksum
  0001:0007B6C0       update_navigation_triangulation
  0001:0007B7F0       init_navigation

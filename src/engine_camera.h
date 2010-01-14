@@ -38,6 +38,12 @@ struct MinMax { // sizeof = 8
     long max;
 };
 
+struct ComponentVector {
+    short x;
+    short y;
+    short z;
+};
+
 //I'm not sure about size of this structure
 struct Camera {
     struct Coord3d mappos;
@@ -71,6 +77,11 @@ DLLIMPORT extern struct MinMax _DK_minmaxs[];
 #pragma pack()
 /******************************************************************************/
 long get_3d_box_distance(struct Coord3d *pos1, struct Coord3d *pos2);
+void angles_to_vector(short theta, short phi, long dist, struct ComponentVector *cvect);
+long get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
+long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
+long get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
+void project_point_to_wall_on_angle(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4, long a5, long a6);
 
 /******************************************************************************/
 #ifdef __cplusplus

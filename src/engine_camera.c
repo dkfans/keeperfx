@@ -33,6 +33,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT long _DK_get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
+DLLIMPORT long _DK_get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
+DLLIMPORT long _DK_get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
+DLLIMPORT void _DK_project_point_to_wall_on_angle(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4, long a5, long a6);
+DLLIMPORT void _DK_angles_to_vector(short angle_xy, short angle_yz, long dist, struct ComponentVector *cvect);
+/******************************************************************************/
 long get_3d_box_distance(struct Coord3d *pos1, struct Coord3d *pos2)
 {
   long dx;
@@ -48,12 +54,44 @@ long get_3d_box_distance(struct Coord3d *pos1, struct Coord3d *pos2)
   return dy;
 }
 
-/******************************************************************************/
+void angles_to_vector(short angle_xy, short angle_yz, long dist, struct ComponentVector *cvect)
+{
+  _DK_angles_to_vector(angle_xy, angle_yz, dist, cvect); return;
+  // TODO: fix and enable
+  long sin_yz,cos_yz,sin_xy,cos_xy;
+  long long mag,factor;
+  cos_yz = LbCosL(angle_yz) >> 2;
+  sin_yz = LbSinL(angle_yz) >> 2;
+  cos_xy = LbCosL(angle_xy) >> 2;
+  sin_xy = LbSinL(angle_xy) >> 2;
+  mag = (dist << 14) - cos_yz;
+  factor = sin_xy * mag;
+  cvect->x = (factor >> 14) >> 14;
+  factor = cos_xy * mag;
+  cvect->y = -(factor >> 14) >> 14;
+  factor = dist * sin_yz;
+  cvect->z = (factor >> 14);
+}
 
-/******************************************************************************/
+long get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
+{
+  return _DK_get_angle_xy_to(pos1, pos2);
+}
 
+long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
+{
+  return _DK_get_angle_yz_to(pos1, pos2);
+}
 
+long get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
+{
+  return _DK_get_2d_distance(pos1, pos2);
+}
 
+void project_point_to_wall_on_angle(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4, long a5, long a6)
+{
+  _DK_project_point_to_wall_on_angle(pos1, pos2, a3, a4, a5, a6);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -465,7 +465,7 @@ short get_global_inputs(void)
   return false;
 }
 
-short get_level_lost_inputs(void)
+TbBool get_level_lost_inputs(void)
 {
   struct PlayerInfo *player;
   long keycode;
@@ -539,8 +539,8 @@ short get_level_lost_inputs(void)
       if (player->field_37 != 7)
       {
         turn_off_all_window_menus();
-        game.numfield_C = (game.numfield_C ^ (unsigned __int8)(2 * game.numfield_C)) & 0x40 ^ game.numfield_C;
-        if ((game.numfield_A & 0x01) || (lbDisplay.PhysicalScreenWidth > 320))
+        set_flag_byte(&game.numfield_C, 0x40, (game.numfield_C & 0x20) != 0);
+        if (((game.numfield_A & 0x01) != 0) || (lbDisplay.PhysicalScreenWidth > 320))
         {
               if (toggle_status_menu(0))
                 set_flag_byte(&game.numfield_C,0x40,true);
@@ -564,7 +564,7 @@ short get_level_lost_inputs(void)
       turn_on_menu(GMnu_OPTIONS);
   }
   struct Thing *thing;
-  short inp_done=false;
+  TbBool inp_done=false;
   switch (player->view_type)
   {
     case PVT_DungeonTop:
@@ -600,10 +600,14 @@ short get_level_lost_inputs(void)
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->field_2 & 0x02) == 0)
+        {
           set_players_packet_action(player, 33, player->field_2F,0,0,0);
+          inp_done = true;
+        }
       } else
       {
         set_players_packet_action(player, 33, player->field_2F,0,0,0);
+        inp_done = true;
       }
       break;
     case PVT_CreaturePasngr:
@@ -617,8 +621,9 @@ short get_level_lost_inputs(void)
       }
       break;
     default:
-      return false;
+        break;
   }
+  return inp_done;
 }
 
 short get_status_panel_keyboard_action_inputs(void)
@@ -1220,11 +1225,11 @@ short get_packet_load_game_inputs(void)
   return false;
 }
 
-/*
+/**
  * Inputs for demo mode. In this mode, the only control keys
  * should take the game back into main menu.
  */
-short get_packet_load_demo_inputs(void)
+TbBool get_packet_load_demo_inputs(void)
 {
   if (is_key_pressed(KC_SPACE,KM_DONTCARE) ||
       is_key_pressed(KC_ESCAPE,KM_DONTCARE) ||

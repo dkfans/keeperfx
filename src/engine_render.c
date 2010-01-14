@@ -102,7 +102,7 @@ long compute_cells_away(void)
     if ((vert_offset[1]) || (hori_offset[1]))
     {
       xcell = 320 / pixel_size - player->engine_window_x/pixel_size - x_init_off;
-      ycell = 200 / pixel_size - ymin - y_init_off;
+      ycell = 200 / pixel_size - player->engine_window_y/pixel_size - y_init_off;
       ymin = (((vert_offset[1] * xcell) >> 1) - ((vert_offset[0] * ycell) >> 1))
           / ((hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1]) >> 11) >> 2;
       xmin = (((hori_offset[1] * xcell) >> 1) - ((hori_offset[0] * ycell) >> 1))
