@@ -33,10 +33,22 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+struct Game;
+
 struct CatalogueEntry {
     char used;
     char  numfield_1;
     char textname[SAVE_TEXTNAME_LEN];
+};
+
+enum SaveGameChunks {
+     SGC_GameOrig,
+     SGC_GameAdd,
+};
+
+struct FileChunkHeader {
+    unsigned short id;
+    unsigned long len;
 };
 
 /******************************************************************************/

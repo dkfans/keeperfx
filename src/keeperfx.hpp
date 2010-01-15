@@ -154,6 +154,11 @@ enum FFlags {
     FFlg_unk80              =  0x80,
 };
 
+enum DebugFlags {
+    DFlg_ShotsDamage        =  0x01,
+    DFlg_unk02              =  0x02,
+};
+
 enum KeeperStateTypes {
     KSt_NONE                =   0,
     KSt_PutHero             =   4,
@@ -192,8 +197,6 @@ struct JontySpr;
      unsigned char Data4[8];
 };*/
 
-typedef unsigned char (*Expand_Check_Func)(void);
-
 struct KeycodeString {
     TbKeyCode keys[LINEMSG_SIZE];
     long length;
@@ -206,6 +209,7 @@ struct StartupParameters {
     unsigned char numfield_C;
     unsigned char flags_font;
     unsigned char flags_cd;
+    unsigned char debug_flags;
     long num_fps;
     unsigned char packet_save_enable;
     unsigned char packet_load_enable;
@@ -1555,6 +1559,7 @@ extern unsigned short const player_state_to_spell[];
 extern const short door_names[];
 extern struct RoomInfo room_info[];
 extern const struct Around around[];
+extern struct StartupParameters start_params;
 
 //Functions - exported by the DLL
 
@@ -1575,12 +1580,7 @@ DLLIMPORT void __cdecl _DK_setup_eye_lens(long);
 DLLIMPORT char *_DK_mdlf_for_cd(struct TbLoadFiles *);
 DLLIMPORT char *_DK_mdlf_default(struct TbLoadFiles *);
 
-#ifdef __cplusplus
-}
-#endif
-
 //Functions - reworked
-
 short setup_game(void);
 void game_loop(void);
 short reset_game(void);
@@ -2026,22 +2026,11 @@ void startup_network_game(void);
 void startup_saved_packet_game(void);
 void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);
+void fade_in(void);
+void fade_out(void);
+long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance);
 
-//Functions - internal
-
-//Functions - inline
-
-void inline fade_in(void)
-{
-  ProperFadePalette(_DK_frontend_palette, 8, Lb_PALETTE_FADE_OPEN);
+#ifdef __cplusplus
 }
-
-void inline fade_out(void)
-{
-  ProperFadePalette(0, 8, Lb_PALETTE_FADE_CLOSED);
-  LbScreenClear(0);
-}
-
-// Variables - no longer imported
-
+#endif
 #endif // DK_KEEPERFX_H

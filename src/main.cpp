@@ -761,6 +761,31 @@ short show_onscreen_msg(int nturns, const char *fmt_str, ...)
     return result;
 }
 
+void fade_in(void)
+{
+  ProperFadePalette(_DK_frontend_palette, 8, Lb_PALETTE_FADE_OPEN);
+}
+
+void fade_out(void)
+{
+  ProperFadePalette(0, 8, Lb_PALETTE_FADE_CLOSED);
+  LbScreenClear(0);
+}
+
+/**
+ * Returns a value which decays around some epicenter, like blast damage.
+ */
+long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance)
+{
+  if (distance >= decay_start+decay_length)
+    return 0;
+  else
+  if (distance >= decay_start)
+    return magnitude * (decay_length - (distance-decay_start)) / decay_length;
+  else
+    return magnitude;
+}
+
 void reset_eye_lenses(void)
 {
   if (eye_lens_memory != NULL)
@@ -1499,7 +1524,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
   anger_apply_anger_to_creature(thing, crstat->annoy_slapped, 4, 1);
   if (crstat->slaps_to_kill > 0)
   {
-    i = (crstat->health + (35*crstat->health*cctrl->explevel)/100) / crstat->slaps_to_kill;
+    i = compute_creature_max_health(crstat->health,cctrl->explevel) / crstat->slaps_to_kill;
     if (i > 0)
     {
       apply_damage_to_thing(thing, i, player->field_2B);
@@ -3156,20 +3181,6 @@ TbBool effect_can_affect_thing(struct Thing *efftng, struct Thing *thing)
       WARNLOG("Thing has no hit thing type");
       return false;
   }
-}
-
-/**
- * Returns a value which decays around some epicentre, like blast damage.
- */
-inline long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance)
-{
-  if (distance >= decay_start+decay_length)
-    return 0;
-  else
-  if (distance >= decay_start)
-    return magnitude * (decay_length - (distance-decay_start)) / decay_length;
-  else
-    return magnitude;
 }
 
 long get_word_of_power_damage(struct Thing *efftng, struct Thing *dsttng)
@@ -13713,6 +13724,10 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr,"lightconvert") == 0)
       {
          set_flag_byte(&start_params.numfield_C,0x10,true);
+      } else
+      if (strcasecmp(parstr, "dbgshots") == 0)
+      {
+          set_flag_byte(&start_params.debug_flags,DFlg_ShotsDamage,true);
       } else
       if (strcasecmp(parstr,"alex") == 0)
       {
