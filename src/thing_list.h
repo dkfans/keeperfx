@@ -30,6 +30,7 @@ extern "C" {
 #pragma pack(1)
 
 struct PlayerInfo;
+struct Thing;
 
 enum ThingClass {
     TCls_Empty        =  0,
@@ -110,7 +111,7 @@ unsigned char field_25;
     struct CoordDelta3d pos_32;
     struct CoordDelta3d pos_38;
 unsigned short field_3E;
-unsigned long field_40;
+    long field_40;
 unsigned short field_44;
 unsigned short field_46;
 unsigned char field_48;
@@ -121,8 +122,8 @@ unsigned short field_4D;
     unsigned char field_4F;
     unsigned char field_50;
 unsigned char field_51;
-    unsigned short field_52;
-    unsigned short field_54;
+    short field_52;
+    short field_54;
     unsigned short field_56;
 unsigned short field_58;
     unsigned short field_5A;
@@ -173,6 +174,11 @@ short thing_is_invalid(const struct Thing *thing);
 long thing_get_index(const struct Thing *thing);
 
 TbBool thing_touching_floor(const struct Thing *thing);
+
+long thing_is_shootable_by_any_player_including_objects(struct Thing *thing);
+long thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *shooter, struct Thing *thing);
+long thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing);
+long thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing);
 
 TbBool update_thing(struct Thing *thing);
 TbBigChecksum get_thing_checksum(struct Thing *thing);

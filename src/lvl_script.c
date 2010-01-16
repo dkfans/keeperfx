@@ -35,6 +35,7 @@
 #include "config_magic.hpp"
 #include "config_creature.h"
 #include "player_instances.h"
+#include "thing_effects.h"
 #include "lvl_filesdk1.h"
 #include "game_merge.h"
 #include "keeperfx.hpp"

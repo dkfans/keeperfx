@@ -201,6 +201,8 @@ DLLIMPORT long _DK_object_update_object_scale(struct Thing *thing);
 DLLIMPORT long _DK_object_update_armour2(struct Thing *thing);
 DLLIMPORT long _DK_object_update_power_sight(struct Thing *thing);
 DLLIMPORT long _DK_object_update_power_lightning(struct Thing *thing);
+DLLIMPORT long _DK_object_is_gold_pile(struct Thing *thing);
+DLLIMPORT long _DK_object_is_gold(struct Thing *thing);
 /******************************************************************************/
 struct Objects *get_objects_data_for_thing(struct Thing *thing)
 {
@@ -269,6 +271,59 @@ TbBool thing_is_special(const struct Thing *thing)
 TbBool thing_is_door_or_trap(const struct Thing *thing)
 {
   return (box_thing_to_door_or_trap(thing) > 0);
+}
+
+TbBool thing_is_dungeon_heart(const struct Thing *thing)
+{
+  if (thing_is_invalid(thing))
+    return false;
+  return (thing->class_id == TCls_Object) && (thing->model == 5);
+}
+
+TbBool thing_is_mature_food(const struct Thing *thing)
+{
+  if (thing_is_invalid(thing))
+    return false;
+  return (thing->class_id == TCls_Object) && (thing->model == 10);
+}
+
+TbBool object_is_mature_food(const struct Thing *thing)
+{
+  return (thing->model == 10);
+}
+
+TbBool object_is_gold(const struct Thing *thing)
+{
+  //return _DK_object_is_gold(thing);
+  switch (thing->model)
+  {
+    case 3:
+    case 6:
+    case 43:
+    case 52:
+    case 53:
+    case 54:
+    case 55:
+    case 56:
+        return true;
+    default:
+        return false;
+  }
+}
+
+TbBool object_is_gold_pile(const struct Thing *thing)
+{
+  //return _DK_object_is_gold_pile(thing);
+  switch (thing->model)
+  {
+    case 3:
+    case 6:
+    case 43:
+    case 128:
+        return true;
+    default:
+        return false;
+  }
 }
 
 long food_moves(struct Thing *thing)

@@ -81,6 +81,11 @@ int box_thing_to_door_or_trap(const struct Thing *thing);
 TbBool thing_is_special(const struct Thing *thing);
 #define is_dungeon_special thing_is_special
 TbBool thing_is_door_or_trap(const struct Thing *thing);
+TbBool thing_is_dungeon_heart(const struct Thing *thing);
+TbBool thing_is_mature_food(const struct Thing *thing);
+TbBool object_is_mature_food(const struct Thing *thing);
+TbBool object_is_gold(const struct Thing *thing);
+TbBool object_is_gold_pile(const struct Thing *thing);
 
 long update_object(struct Thing *thing);
 

@@ -54,6 +54,7 @@
 #include "front_landview.h"
 #include "thing_creature.h"
 #include "thing_objects.h"
+#include "thing_effects.h"
 #include "slab_data.h"
 #include "room_data.h"
 #include "map_columns.h"
@@ -422,7 +423,6 @@ DLLIMPORT void _DK_magic_use_power_cave_in(unsigned char a1, long a2, long a3, l
 DLLIMPORT long _DK_magic_use_power_call_to_arms(unsigned char a1, long a2, long a3, long a4, long a5);
 DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3);
 DLLIMPORT struct Thing *_DK_get_queryable_object_near(unsigned short a1, unsigned short a2, long a3);
-DLLIMPORT long _DK_object_is_gold_pile(struct Thing *thing);
 DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
 DLLIMPORT int _DK_can_thing_be_possessed(struct Thing *thing, long a2);
 DLLIMPORT short _DK_magic_use_power_hand(unsigned short a1, unsigned short a2, unsigned short a3, unsigned short a4);
@@ -446,7 +446,6 @@ DLLIMPORT void _DK_tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, lo
 DLLIMPORT void _DK_create_power_hand(unsigned char a1);
 DLLIMPORT struct Thing *_DK_create_gold_for_hand_grab(struct Thing *thing, long a2);
 DLLIMPORT long _DK_remove_food_from_food_room_if_possible(struct Thing *thing);
-DLLIMPORT struct Thing *_DK_create_effect_element(struct Coord3d *pos, unsigned short a2, unsigned short a3);
 DLLIMPORT unsigned long _DK_object_is_pickable_by_hand(struct Thing *thing, long a2);
 DLLIMPORT void _DK_set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing);
 DLLIMPORT struct Thing *_DK_process_object_being_picked_up(struct Thing *thing, long a2);
@@ -487,7 +486,6 @@ DLLIMPORT void _DK_initialise_map_health(void);
 DLLIMPORT void _DK_initialise_extra_slab_info(unsigned long lv_num);
 DLLIMPORT long _DK_add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount);
 DLLIMPORT struct Thing *_DK_create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
-DLLIMPORT struct Thing *_DK_create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
 DLLIMPORT void _DK_clear_mapwho(void);
 DLLIMPORT void _DK_clear_map(void);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
@@ -505,7 +503,6 @@ DLLIMPORT void _DK_draw_texture(long a1, long a2, long a3, long a4, long a5, lon
 DLLIMPORT void _DK_draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
 DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
 DLLIMPORT long _DK_thing_is_spellbook(struct Thing *thing);
-DLLIMPORT long _DK_object_is_gold(struct Thing *thing);
 DLLIMPORT void _DK_check_players_won(void);
 DLLIMPORT void _DK_check_players_lost(void);
 DLLIMPORT void _DK_process_dungeon_power_magic(void);
@@ -525,7 +522,6 @@ DLLIMPORT unsigned long _DK_setup_move_off_lava(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_create_thing(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
 DLLIMPORT void _DK_move_thing_in_map(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos);
-DLLIMPORT void _DK_process_spells_affected_by_effect_elements(struct Thing *thing);
 DLLIMPORT long _DK_load_texture_map_file(unsigned long lv_num, unsigned char n);
 DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char a2);
 DLLIMPORT long _DK_get_foot_creature_has_down(struct Thing *thing);
@@ -536,13 +532,9 @@ DLLIMPORT long _DK_creature_is_group_leader(struct Thing *thing);
 DLLIMPORT void _DK_leader_find_positions_for_followers(struct Thing *thing);
 DLLIMPORT long _DK_update_creature_levels(struct Thing *thing);
 DLLIMPORT long _DK_process_creature_self_spell_casting(struct Thing *thing);
-DLLIMPORT void _DK_process_thing_spell_effects(struct Thing *thing);
 DLLIMPORT long _DK_update_shot(struct Thing *thing);
-DLLIMPORT long _DK_update_effect_element(struct Thing *thing);
 DLLIMPORT long _DK_update_dead_creature(struct Thing *thing);
 DLLIMPORT long _DK_update_creature(struct Thing *thing);
-DLLIMPORT long _DK_update_effect(struct Thing *thing);
-DLLIMPORT long _DK_process_effect_generator(struct Thing *thing);
 DLLIMPORT long _DK_update_trap(struct Thing *thing);
 DLLIMPORT long _DK_process_door(struct Thing *thing);
 DLLIMPORT long _DK_light_is_light_allocated(long lgt_id);
@@ -618,7 +610,6 @@ DLLIMPORT long _DK_init_navigation(void);
 DLLIMPORT int __cdecl _DK_load_settings(void);
 DLLIMPORT void _DK_sound_reinit_after_load(void);
 DLLIMPORT void _DK_restore_computer_player_after_load(void);
-DLLIMPORT struct Thing *_DK_create_effect(struct Coord3d *pos, unsigned short a2, unsigned char a3);
 DLLIMPORT void _DK_delete_thing_structure(struct Thing *thing, long a2);
 DLLIMPORT void _DK_make_safe(struct PlayerInfo *player);
 DLLIMPORT struct Thing *_DK_create_creature(struct Coord3d *pos, unsigned short a1, unsigned short a2);
@@ -665,11 +656,6 @@ DLLIMPORT void __cdecl _DK_set_sprite_view_isometric(void);
 DLLIMPORT void __cdecl _DK_poison_cloud_affecting_area(struct Thing *thing, struct Coord3d *pos, long a3, long a4, unsigned char a5);
 DLLIMPORT void __cdecl _DK_do_slab_efficiency_alteration(unsigned char a1, unsigned char a2);
 DLLIMPORT void __cdecl _DK_place_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5);
-DLLIMPORT long _DK_move_effect(struct Thing *thing);
-DLLIMPORT long _DK_thing_is_shootable_by_any_player_including_objects(struct Thing *thing);
-DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *shooter, struct Thing *thing);
-DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing);
-DLLIMPORT long _DK_thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing);
 DLLIMPORT long _DK_light_get_light_intensity(long idx);
 DLLIMPORT long _DK_light_set_light_intensity(long a1, long a2);
 DLLIMPORT void __cdecl _DK_event_kill_all_players_events(long plyr_idx);
@@ -1594,7 +1580,6 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
 {
   struct PlayerInfo *player;
   struct Thing *picktng;
-  struct Thing *tmptng;
   struct Coord3d pos;
   long i;
   switch (thing->model)
@@ -1608,9 +1593,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
         pos.z.val = thing->mappos.z.val + 128;
-        tmptng = create_effect_element(&pos, 41, thing->owner);
-        if (tmptng != NULL)
-          tmptng->long_13 = i;
+        create_price_effect(&pos, thing->owner, i);
       }
       picktng = thing;
       break;
@@ -1782,11 +1765,6 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2)
 long remove_food_from_food_room_if_possible(struct Thing *thing)
 {
   return _DK_remove_food_from_food_room_if_possible(thing);
-}
-
-struct Thing *create_effect_element(struct Coord3d *pos, unsigned short a2, unsigned short a3)
-{
-  return _DK_create_effect_element(pos, a2, a3);
 }
 
 unsigned char can_change_from_state_to(struct Thing *thing, long a2, long a3)
@@ -2347,11 +2325,6 @@ long get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos)
   return _DK_get_floor_height_under_thing_at(thing, pos);
 }
 
-void process_spells_affected_by_effect_elements(struct Thing *thing)
-{
-  _DK_process_spells_affected_by_effect_elements(thing);
-}
-
 void apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char a2)
 {
   _DK_apply_damage_to_thing_and_display_health(thing, a1, a2);
@@ -2671,24 +2644,13 @@ long process_creature_self_spell_casting(struct Thing *thing)
   return _DK_process_creature_self_spell_casting(thing);
 }
 
-void process_thing_spell_effects(struct Thing *thing)
-{
-  _DK_process_thing_spell_effects(thing);
-}
-
 long update_shot(struct Thing *thing)
 {
   SYNCDBG(18,"Starting");
   return _DK_update_shot(thing);
 }
 
-long update_effect_element(struct Thing *thing)
-{
-  SYNCDBG(18,"Starting");
-  return _DK_update_effect_element(thing);
-}
-
-void explosion_affecting_area(struct Thing *thing, struct Coord3d *pos, long a3, long a4, unsigned char a5)
+void explosion_affecting_area(struct Thing *thing, const struct Coord3d *pos, long a3, long a4, unsigned char a5)
 {
   _DK_explosion_affecting_area(thing, pos, a3, a4, a5);
 }
@@ -2799,11 +2761,6 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short a1, unsigned shor
 struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4)
 {
   return _DK_create_door(pos, a1, a2, a3, a4);
-}
-
-struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4)
-{
-  return _DK_create_effect_generator(pos, a1, a2, a3, a4);
 }
 
 long cleanup_current_thing_state(struct Thing *thing)
@@ -3129,154 +3086,6 @@ void place_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, unsigne
   _DK_place_slab_type_on_map(a1, a2, a3, a4, a5);
 }
 
-long move_effect(struct Thing *thing)
-{
-  return _DK_move_effect(thing);
-}
-
-long thing_is_shootable_by_any_player_including_objects(struct Thing *thing)
-{
-  return _DK_thing_is_shootable_by_any_player_including_objects(thing);
-}
-
-long thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *shooter, struct Thing *thing)
-{
-  return _DK_thing_is_shootable_by_any_player_except_own_including_objects(shooter, thing);
-}
-
-long thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing)
-{
-  return _DK_thing_is_shootable_by_any_player_except_own_excluding_objects(shooter, thing);
-}
-
-long thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing)
-{
-  return _DK_thing_is_shootable_by_any_player_excluding_objects(thing);
-}
-
-TbBool effect_can_affect_thing(struct Thing *efftng, struct Thing *thing)
-{
-  if (thing_is_invalid(efftng) || thing_is_invalid(thing))
-  {
-    WARNLOG("Invalid thing tries to affect other things");
-    return false;
-  }
-  switch (efftng->byte_13.f3)
-  {
-  case 1:
-      return thing_is_shootable_by_any_player_including_objects(thing);
-  case 2:
-      return thing_is_shootable_by_any_player_excluding_objects(thing);
-  case 3:
-      return thing_is_shootable_by_any_player_except_own_including_objects(efftng, thing);
-  case 4:
-      return thing_is_shootable_by_any_player_except_own_excluding_objects(efftng, thing);
-  case 7:
-      if ((thing->class_id == TCls_Object) && (thing->model == 5) && (thing->owner != efftng->owner))
-        return true;
-      return false;
-  case 8:
-      return false;
-  default:
-      WARNLOG("Thing has no hit thing type");
-      return false;
-  }
-}
-
-long get_word_of_power_damage(struct Thing *efftng, struct Thing *dsttng)
-{
-  long distance;
-  distance = get_2d_box_distance(&dsttng->mappos, &efftng->mappos);
-  // TODO: the damage and the distance should be in config files.
-  return get_radially_decaying_value(150,640,640,distance);
-}
-
-void word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntng, struct Map *mapblk)
-{
-  struct Thing *thing;
-  long damage;
-  long i;
-  unsigned long k;
-  k = 0;
-  i = get_mapwho_thing_index(mapblk);
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
-    {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
-    }
-    i = thing->field_2;
-    if (effect_can_affect_thing(efftng, thing)
-      || (thing->class_id == TCls_Door) && (thing->owner != owntng->owner))
-    {
-      damage = get_word_of_power_damage(efftng, thing);
-      apply_damage_to_thing_and_display_health(thing, damage, owntng->owner);
-    }
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
-}
-
-void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, struct Coord3d *pos)
-{
-  struct Map *mapblk;
-  long stl_xmin,stl_xmax;
-  long stl_ymin,stl_ymax;
-  long stl_x,stl_y;
-  if (efftng->field_9 != game.play_gameturn)
-    return;
-  stl_xmin = pos->x.stl.num - 5;
-  stl_xmax = pos->x.stl.num + 6;
-  stl_ymin = pos->y.stl.num - 5;
-  stl_ymax = pos->y.stl.num + 6;
-  if (stl_xmin < 0)
-  {
-    stl_xmin = 0;
-  } else
-  if (stl_xmin > map_subtiles_x)
-  {
-    stl_xmin = map_subtiles_x;
-  }
-  if (stl_ymin < 0)
-  {
-    stl_ymin = 0;
-  } else
-  if (stl_ymin > map_subtiles_y)
-  {
-    stl_ymin = map_subtiles_y;
-  }
-  if (stl_xmax < 0)
-  {
-    stl_xmax = 0;
-  } else
-  if (stl_xmax > map_subtiles_x)
-  {
-    stl_xmax = map_subtiles_x;
-  }
-  if (stl_ymax < 0)
-  {
-    stl_ymax = 0;
-  } else
-  if (stl_ymax > map_subtiles_y)
-  {
-    stl_ymax = map_subtiles_y;
-  }
-  for (stl_y=stl_ymin; stl_y <= stl_ymax; stl_y++)
-  {
-    for (stl_x=stl_xmin; stl_x <= stl_xmax; stl_x++)
-    {
-      mapblk = get_map_block_at(stl_x, stl_y);
-      word_of_power_affecting_map_block(efftng, owntng, mapblk);
-    }
-  }
-}
-
 long light_get_light_intensity(long idx)
 {
   return _DK_light_get_light_intensity(idx);
@@ -3285,159 +3094,6 @@ long light_get_light_intensity(long idx)
 long light_set_light_intensity(long a1, long a2)
 {
   return _DK_light_set_light_intensity(a1, a2);
-}
-
-long update_effect(struct Thing *thing)
-{
-  SYNCDBG(18,"Starting for model %d",(int)thing->model);
-  //return _DK_update_effect(thing);
-  struct InitEffect *effnfo;
-  struct PlayerInfo *player;
-  struct Thing *subtng;
-  struct Thing *elemtng;
-  struct Coord3d pos;
-  long i,k,n;
-  long mag;
-  unsigned long arg,argZ;
-
-  subtng = NULL;
-  effnfo = &effect_info[thing->model];
-  if ( thing->field_1D )
-    subtng = thing_get(thing->field_1D);
-  if (thing->health <= 0)
-  {
-    if (thing->model == 43)
-    {
-      place_slab_type_on_map(12, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner, 0);
-      do_slab_efficiency_alteration(map_to_slab[thing->mappos.x.stl.num], map_to_slab[thing->mappos.y.stl.num]);
-    }
-    if (thing->field_66 != 0)
-    {
-      S3DDestroySoundEmitter(thing->field_66);
-      thing->field_66 = 0;
-    }
-    delete_thing_structure(thing, 0);
-    return 0;
-  }
-
-  if (thing->field_62 != 0)
-  {
-      if (thing->health < 4)
-      {
-        i = light_get_light_intensity(thing->field_62);
-        light_set_light_intensity(thing->field_62, (3*i)/4);
-      }
-  }
-  if ( (effnfo->field_11 == 0) || any_player_close_enough_to_see(&thing->mappos) )
-  {
-    SYNCDBG(18,"Preparing Effect, Generation Type %d",(int)effnfo->generation_type);
-    switch (effnfo->generation_type)
-    {
-    case 1:
-        for (i=0; i < effnfo->field_B; i++)
-        {
-          if (effnfo->kind_min > 0)
-          {
-            n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
-            elemtng = create_effect_element(&thing->mappos, n, thing->owner);
-            if (thing_is_invalid(elemtng))
-              break;
-            arg = ACTION_RANDOM(0x800);
-            argZ = ACTION_RANDOM(0x400);
-            // Setting XY acceleration
-            k = abs(effnfo->accel_xy_max - effnfo->accel_xy_min);
-            if (k <= 1) k = 1;
-            mag = effnfo->accel_xy_min + ACTION_RANDOM(k);
-            elemtng->pos_32.x.val += (mag*LbSinL(arg)) >> 16;
-            elemtng->pos_32.y.val -= (mag*LbCosL(arg)) >> 16;
-            // Setting Z acceleration
-            k = abs(effnfo->accel_z_max - effnfo->accel_z_min);
-            if (k <= 1) k = 1;
-            mag = effnfo->accel_z_min + ACTION_RANDOM(k);
-            elemtng->pos_32.z.val += (mag*LbSinL(argZ)) >> 16;
-            elemtng->field_1 |= 0x04;
-          }
-        }
-        break;
-    case 2:
-        k = 0;
-        for (i=0; i < effnfo->field_B; i++)
-        {
-            n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
-            mag = effnfo->numfield_0 - thing->health;
-            arg = (mag << 7) + k/effnfo->field_B;
-            pos.x.val = thing->mappos.x.val + ((16*mag*LbSinL(arg)) >> 16);
-            pos.y.val = thing->mappos.y.val - ((16*mag*LbCosL(arg)) >> 16);
-            pos.z.val = thing->mappos.z.val;
-            elemtng = create_effect_element(&pos, n, thing->owner);
-            k += 2048;
-        }
-        break;
-    case 3:
-        k = 0;
-        for (i=0; i < effnfo->field_B; i++)
-        {
-            n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
-            mag = thing->health;
-            arg = (mag << 7) + k/effnfo->field_B;
-            pos.x.val = thing->mappos.x.val + ((16*mag*LbSinL(arg)) >> 16);
-            pos.y.val = thing->mappos.y.val - ((16*mag*LbCosL(arg)) >> 16);
-            pos.z.val = thing->mappos.z.val;
-            elemtng = create_effect_element(&pos, n, thing->owner);
-            k += 2048;
-        }
-        break;
-    case 4:
-        if (thing->model != 48)
-          break;
-        i = effnfo->numfield_0 / 2;
-        if (thing->health == effnfo->numfield_0)
-        {
-          memset(temp_pal, 63, PALETTE_SIZE);
-        } else
-        if (thing->health > i)
-        {
-          LbPaletteFade(temp_pal, i, Lb_PALETTE_FADE_OPEN);
-        } else
-        if (thing->health == i)
-        {
-          LbPaletteStopOpenFade();
-          LbPaletteSet(temp_pal);
-        } else
-        if (thing->health > 0)
-        {
-          LbPaletteFade(_DK_palette, 8, Lb_PALETTE_FADE_OPEN);
-        } else
-        {
-          player = &(game.players[my_player_number%PLAYERS_COUNT]);
-          PaletteSetPlayerPalette(player, _DK_palette);
-          LbPaletteStopOpenFade();
-        }
-        break;
-    default:
-        ERRORLOG("Unknown Effect Generation Type %d",(int)effnfo->generation_type);
-        break;
-    }
-  }
-  // Let the effect affect area
-  switch (effnfo->area_affect_type)
-  {
-  case 1:
-  case 3:
-      poison_cloud_affecting_area(subtng, &thing->mappos, 1280, 60, effnfo->area_affect_type);
-      break;
-  case 4:
-      word_of_power_affecting_area(thing, subtng, &thing->mappos);
-      break;
-  }
-  thing->health--;
-  return move_effect(thing);
-}
-
-long process_effect_generator(struct Thing *thing)
-{
-  SYNCDBG(18,"Starting");
-  return _DK_process_effect_generator(thing);
 }
 
 long update_trap(struct Thing *thing)
@@ -8833,16 +8489,6 @@ void delete_thing_structure(struct Thing *thing, long a2)
   _DK_delete_thing_structure(thing, a2);
 }
 
-struct Thing *create_effect(struct Coord3d *pos, unsigned short a2, unsigned char a3)
-{
-  return _DK_create_effect(pos, a2, a3);
-}
-
-void create_special_used_effect(struct Coord3d *pos, long plyr_idx)
-{
-  create_effect(pos, 67, plyr_idx);
-}
-
 void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player)
 {
   SYNCDBG(6,"Starting");
@@ -11447,11 +11093,6 @@ struct Thing *get_nearest_object_at_position(long x, long y)
   return _DK_get_nearest_object_at_position(x, y);
 }
 
-long object_is_gold(struct Thing *thing)
-{
-  return _DK_object_is_gold(thing);
-}
-
 void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_size,int scr_x,int scr_y)
 {
   struct PlayerInfo *player;
@@ -12468,11 +12109,6 @@ short thing_model_is_gold_hoarde(unsigned short model)
 long add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount)
 {
   return _DK_add_gold_to_hoarde(thing, room, amount);
-}
-
-long object_is_gold_pile(struct Thing *thing)
-{
-  return _DK_object_is_gold_pile(thing);
 }
 
 int can_thing_be_queried(struct Thing *thing, long a2)

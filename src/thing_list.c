@@ -24,6 +24,7 @@
 #include "packets.h"
 #include "lvl_script.h"
 #include "thing_objects.h"
+#include "thing_effects.h"
 #include "config_creature.h"
 #include "keeperfx.hpp"
 
@@ -31,13 +32,6 @@
 extern "C" {
 #endif
 
-/******************************************************************************/
-DLLIMPORT void _DK_update_creatures_not_in_list(void);
-DLLIMPORT long _DK_update_things_in_list(struct StructureList *list);
-DLLIMPORT void _DK_update_things(void);
-DLLIMPORT long _DK_update_thing(struct Thing *thing);
-DLLIMPORT long _DK_get_thing_checksum(struct Thing *thing);
-DLLIMPORT long _DK_update_thing_sound(struct Thing *thing);
 /******************************************************************************/
 Thing_Class_Func class_functions[] = {
   NULL,
@@ -58,8 +52,19 @@ Thing_Class_Func class_functions[] = {
   NULL,
   NULL,
 };
-/******************************************************************************/
 
+/******************************************************************************/
+DLLIMPORT long _DK_update_thing(struct Thing *thing);
+DLLIMPORT long _DK_get_thing_checksum(struct Thing *thing);
+DLLIMPORT long _DK_update_thing_sound(struct Thing *thing);
+DLLIMPORT void _DK_update_creatures_not_in_list(void);
+DLLIMPORT long _DK_update_things_in_list(struct StructureList *list);
+DLLIMPORT void _DK_update_things(void);
+DLLIMPORT long _DK_thing_is_shootable_by_any_player_including_objects(struct Thing *thing);
+DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *shooter, struct Thing *thing);
+DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing);
+DLLIMPORT long _DK_thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing);
+/******************************************************************************/
 long creature_near_filter_not_imp(struct Thing *thing, long val)
 {
   return ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0);
@@ -563,6 +568,8 @@ struct Thing *thing_get(long tng_idx)
 {
   if ((tng_idx > 0) && (tng_idx < THINGS_COUNT))
     return game.things_lookup[tng_idx];
+  if ((tng_idx < -1) || (tng_idx >= THINGS_COUNT))
+    ERRORLOG("Request of invalid thing (no %ld) intercepted",tng_idx);
   return INVALID_THING;
 }
 
@@ -724,6 +731,26 @@ short update_thing_sound(struct Thing *thing)
     }
   }
   return true;
+}
+
+long thing_is_shootable_by_any_player_including_objects(struct Thing *thing)
+{
+  return _DK_thing_is_shootable_by_any_player_including_objects(thing);
+}
+
+long thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *shooter, struct Thing *thing)
+{
+  return _DK_thing_is_shootable_by_any_player_except_own_including_objects(shooter, thing);
+}
+
+long thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing)
+{
+  return _DK_thing_is_shootable_by_any_player_except_own_excluding_objects(shooter, thing);
+}
+
+long thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing)
+{
+  return _DK_thing_is_shootable_by_any_player_excluding_objects(thing);
 }
 
 /******************************************************************************/

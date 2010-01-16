@@ -42,6 +42,8 @@
 #include "config_terrain.h"
 #include "player_instances.h"
 #include "thing_doors.h"
+#include "thing_effects.h"
+#include "thing_objects.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -254,7 +256,6 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
 {
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
-  struct Thing *thing;
   struct Room *room;
   struct Coord3d pos;
   MapCoord x,y;
@@ -285,11 +286,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
     if (is_my_player(player))
       play_non_3d_sample(77);
     set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
-    thing = create_effect_element(&pos, 41, plyr_idx);
-    if (!thing_is_invalid(thing))
-    {
-      thing->long_13 = k;
-    }
+    create_price_effect(&pos, plyr_idx, k);
   }
   return room;
 }
@@ -1117,9 +1114,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       if (i != 0)
       {
-        thing = create_effect_element(&pos, 41, plyr_idx);
-        if (!thing_is_invalid(thing))
-          thing->long_13 = i;
+        create_price_effect(&pos, plyr_idx, i);
         dungeon->field_AFD += i;
         dungeon->field_AF9 += i;
       }

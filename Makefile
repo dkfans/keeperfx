@@ -106,6 +106,7 @@ obj/scrcapt.o \
 obj/slab_data.o \
 obj/thing_creature.o \
 obj/thing_doors.o \
+obj/thing_effects.o \
 obj/thing_list.o \
 obj/thing_objects.o \
 obj/vidmode.o \
