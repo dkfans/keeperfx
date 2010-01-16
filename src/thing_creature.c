@@ -405,6 +405,7 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
   //_DK_creature_cast_spell(caster, spl_idx, a3, trg_x, trg_y);
   spinfo = get_magic_info(spl_idx);
   cctrl = creature_control_get_from_thing(caster);
+  crstat = creature_stats_get_from_thing(caster);
   if (creature_control_invalid(cctrl))
   {
     ERRORLOG("Invalid creature tried to cast spell %ld",spl_idx);
@@ -412,8 +413,8 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
   }
   if (spl_idx == 10) // Teleport
   {
-    cctrl->field_B7 = trg_x;
-    cctrl->field_B8 = trg_y;
+    cctrl->teleport_x = trg_x;
+    cctrl->teleport_y = trg_y;
   }
   // Check if the spell can be fired as a shot
   if (spinfo->field_1)
