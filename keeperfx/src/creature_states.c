@@ -1,0 +1,2482 @@
+/******************************************************************************/
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
+/******************************************************************************/
+/** @file creature_control.c
+ *     Creature states structure and function definitions.
+ * @par Purpose:
+ *     Defines elements of states[] array, containing valid creature states.
+ * @par Comment:
+ *     None.
+ * @author   Tomasz Lis
+ * @date     23 Sep 2009 - 11 Nov 2009
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
+#include "creature_states.h"
+#include "globals.h"
+
+#include "bflib_math.h"
+#include "thing_list.h"
+#include "creature_control.h"
+#include "config_creature.h"
+#include "config_rules.h"
+#include "thing_objects.h"
+#include "keeperfx.hpp"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+/******************************************************************************/
+DLLIMPORT short _DK_already_at_call_to_arms(struct Thing *thing);
+DLLIMPORT short _DK_arrive_at_alarm(struct Thing *thing);
+DLLIMPORT short _DK_arrive_at_call_to_arms(struct Thing *thing);
+DLLIMPORT short _DK_at_barrack_room(struct Thing *thing);
+DLLIMPORT short _DK_at_guard_post_room(struct Thing *thing);
+DLLIMPORT short _DK_at_kinky_torture_room(struct Thing *thing);
+DLLIMPORT short _DK_at_lair_to_sleep(struct Thing *thing);
+DLLIMPORT short _DK_at_research_room(struct Thing *thing);
+DLLIMPORT short _DK_at_scavenger_room(struct Thing *thing);
+DLLIMPORT short _DK_at_temple(struct Thing *thing);
+DLLIMPORT short _DK_at_torture_room(struct Thing *thing);
+DLLIMPORT short _DK_at_training_room(struct Thing *thing);
+DLLIMPORT short _DK_at_workshop_room(struct Thing *thing);
+DLLIMPORT short _DK_barracking(struct Thing *thing);
+DLLIMPORT short _DK_cleanup_combat(struct Thing *thing);
+DLLIMPORT short _DK_cleanup_door_combat(struct Thing *thing);
+DLLIMPORT short _DK_cleanup_hold_audience(struct Thing *thing);
+DLLIMPORT short _DK_cleanup_object_combat(struct Thing *thing);
+DLLIMPORT short _DK_cleanup_prison(struct Thing *thing);
+DLLIMPORT short _DK_cleanup_sacrifice(struct Thing *thing);
+DLLIMPORT short _DK_cleanup_seek_the_enemy(struct Thing *thing);
+DLLIMPORT short _DK_cleanup_sleep(struct Thing *thing);
+DLLIMPORT short _DK_cleanup_torturing(struct Thing *thing);
+DLLIMPORT short _DK_creature_arms_trap(struct Thing *thing);
+DLLIMPORT short _DK_creature_arrived_at_garden(struct Thing *thing);
+DLLIMPORT short _DK_creature_arrived_at_prison(struct Thing *thing);
+DLLIMPORT short _DK_creature_at_changed_lair(struct Thing *thing);
+DLLIMPORT short _DK_creature_at_new_lair(struct Thing *thing);
+DLLIMPORT short _DK_creature_attack_rooms(struct Thing *thing);
+DLLIMPORT short _DK_creature_attempt_to_damage_walls(struct Thing *thing);
+DLLIMPORT short _DK_creature_be_happy(struct Thing *thing);
+DLLIMPORT short _DK_creature_being_dropped(struct Thing *thing);
+DLLIMPORT short _DK_creature_being_sacrificed(struct Thing *thing);
+DLLIMPORT short _DK_creature_being_scavenged(struct Thing *thing);
+DLLIMPORT short _DK_creature_being_summoned(struct Thing *thing);
+DLLIMPORT short _DK_creature_cannot_find_anything_to_do(struct Thing *thing);
+DLLIMPORT short _DK_creature_change_from_chicken(struct Thing *thing);
+DLLIMPORT short _DK_creature_change_lair(struct Thing *thing);
+DLLIMPORT short _DK_creature_change_to_chicken(struct Thing *thing);
+DLLIMPORT short _DK_creature_choose_room_for_lair_site(struct Thing *thing);
+DLLIMPORT short _DK_creature_combat_flee(struct Thing *thing);
+DLLIMPORT short _DK_creature_damage_walls(struct Thing *thing);
+DLLIMPORT short _DK_creature_doing_nothing(struct Thing *thing);
+DLLIMPORT short _DK_creature_door_combat(struct Thing *thing);
+DLLIMPORT short _DK_creature_dormant(struct Thing *thing);
+DLLIMPORT short _DK_creature_drop_body_in_prison(struct Thing *thing);
+DLLIMPORT short _DK_creature_drops_corpse_in_graveyard(struct Thing *thing);
+DLLIMPORT short _DK_creature_drops_crate_in_workshop(struct Thing *thing);
+DLLIMPORT short _DK_creature_drops_spell_object_in_library(struct Thing *thing);
+DLLIMPORT short _DK_creature_eat(struct Thing *thing);
+DLLIMPORT short _DK_creature_eating_at_garden(struct Thing *thing);
+DLLIMPORT short _DK_creature_escaping_death(struct Thing *thing);
+DLLIMPORT short _DK_creature_evacuate_room(struct Thing *thing);
+DLLIMPORT short _DK_creature_explore_dungeon(struct Thing *thing);
+DLLIMPORT short _DK_creature_fired(struct Thing *thing);
+DLLIMPORT short _DK_creature_follow_leader(struct Thing *thing);
+DLLIMPORT short _DK_creature_freeze_prisonors(struct Thing *thing);
+DLLIMPORT short _DK_creature_going_home_to_sleep(struct Thing *thing);
+DLLIMPORT short _DK_creature_hero_entering(struct Thing *thing);
+DLLIMPORT short _DK_creature_in_combat(struct Thing *thing);
+DLLIMPORT short _DK_creature_in_hold_audience(struct Thing *thing);
+DLLIMPORT short _DK_creature_in_prison(struct Thing *thing);
+DLLIMPORT short _DK_creature_kill_creatures(struct Thing *thing);
+DLLIMPORT short _DK_creature_leaves(struct Thing *thing);
+DLLIMPORT short _DK_creature_leaves_or_dies(struct Thing *thing);
+DLLIMPORT short _DK_creature_leaving_dungeon(struct Thing *thing);
+DLLIMPORT short _DK_creature_moan(struct Thing *thing);
+DLLIMPORT short _DK_creature_object_combat(struct Thing *thing);
+DLLIMPORT short _DK_creature_persuade(struct Thing *thing);
+DLLIMPORT short _DK_creature_pick_up_unconscious_body(struct Thing *thing);
+DLLIMPORT short _DK_creature_picks_up_corpse(struct Thing *thing);
+DLLIMPORT short _DK_creature_picks_up_spell_object(struct Thing *thing);
+DLLIMPORT short _DK_creature_picks_up_trap_for_workshop(struct Thing *thing);
+DLLIMPORT short _DK_creature_picks_up_trap_object(struct Thing *thing);
+DLLIMPORT short _DK_creature_piss(struct Thing *thing);
+DLLIMPORT short _DK_creature_present_to_dungeon_heart(struct Thing *thing);
+DLLIMPORT short _DK_creature_pretend_chicken_move(struct Thing *thing);
+DLLIMPORT short _DK_creature_pretend_chicken_setup_move(struct Thing *thing);
+DLLIMPORT short _DK_creature_roar(struct Thing *thing);
+DLLIMPORT short _DK_creature_sacrifice(struct Thing *thing);
+DLLIMPORT short _DK_creature_scavenged_disappear(struct Thing *thing);
+DLLIMPORT short _DK_creature_scavenged_reappear(struct Thing *thing);
+DLLIMPORT short _DK_creature_search_for_gold_to_steal_in_room(struct Thing *thing);
+DLLIMPORT short _DK_creature_set_work_room_based_on_position(struct Thing *thing);
+DLLIMPORT short _DK_creature_slap_cowers(struct Thing *thing);
+DLLIMPORT short _DK_creature_sleep(struct Thing *thing);
+DLLIMPORT short _DK_creature_steal_gold(struct Thing *thing);
+DLLIMPORT short _DK_creature_take_salary(struct Thing *thing);
+DLLIMPORT short _DK_creature_to_garden(struct Thing *thing);
+DLLIMPORT short _DK_creature_unconscious(struct Thing *thing);
+DLLIMPORT short _DK_creature_vandalise_rooms(struct Thing *thing);
+DLLIMPORT short _DK_creature_wait_at_treasure_room_door(struct Thing *thing);
+DLLIMPORT short _DK_creature_wants_a_home(struct Thing *thing);
+DLLIMPORT short _DK_creature_wants_salary(struct Thing *thing);
+DLLIMPORT short _DK_good_attack_room(struct Thing *thing);
+DLLIMPORT short _DK_good_back_at_start(struct Thing *thing);
+DLLIMPORT short _DK_good_doing_nothing(struct Thing *thing);
+DLLIMPORT short _DK_good_drops_gold(struct Thing *thing);
+DLLIMPORT short _DK_good_leave_through_exit_door(struct Thing *thing);
+DLLIMPORT short _DK_good_returns_to_start(struct Thing *thing);
+DLLIMPORT short _DK_good_wait_in_exit_door(struct Thing *thing);
+DLLIMPORT short _DK_guarding(struct Thing *thing);
+DLLIMPORT short _DK_imp_arrives_at_convert_dungeon(struct Thing *thing);
+DLLIMPORT short _DK_imp_arrives_at_dig_or_mine(struct Thing *thing);
+DLLIMPORT short _DK_imp_arrives_at_improve_dungeon(struct Thing *thing);
+DLLIMPORT short _DK_imp_arrives_at_reinforce(struct Thing *thing);
+DLLIMPORT short _DK_imp_birth(struct Thing *thing);
+DLLIMPORT short _DK_imp_converts_dungeon(struct Thing *thing);
+DLLIMPORT short _DK_imp_digs_mines(struct Thing *thing);
+DLLIMPORT short _DK_imp_doing_nothing(struct Thing *thing);
+DLLIMPORT short _DK_imp_drops_gold(struct Thing *thing);
+DLLIMPORT short _DK_imp_improves_dungeon(struct Thing *thing);
+DLLIMPORT short _DK_imp_last_did_job(struct Thing *thing);
+DLLIMPORT short _DK_imp_picks_up_gold_pile(struct Thing *thing);
+DLLIMPORT short _DK_imp_reinforces(struct Thing *thing);
+DLLIMPORT short _DK_imp_toking(struct Thing *thing);
+DLLIMPORT short _DK_kinky_torturing(struct Thing *thing);
+DLLIMPORT short _DK_mad_killing_psycho(struct Thing *thing);
+DLLIMPORT short _DK_manufacturing(struct Thing *thing);
+DLLIMPORT short _DK_move_backwards_to_position(struct Thing *thing);
+DLLIMPORT long _DK_move_check_attack_any_door(struct Thing *thing);
+DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *thing);
+DLLIMPORT long _DK_move_check_kill_creatures(struct Thing *thing);
+DLLIMPORT long _DK_move_check_near_dungeon_heart(struct Thing *thing);
+DLLIMPORT long _DK_move_check_on_head_for_room(struct Thing *thing);
+DLLIMPORT long _DK_move_check_persuade(struct Thing *thing);
+DLLIMPORT long _DK_move_check_wait_at_door_for_wage(struct Thing *thing);
+DLLIMPORT short _DK_move_to_position(struct Thing *thing);
+DLLIMPORT char _DK_new_slab_tunneller_check_for_breaches(struct Thing *thing);
+DLLIMPORT short _DK_patrol_here(struct Thing *thing);
+DLLIMPORT short _DK_patrolling(struct Thing *thing);
+DLLIMPORT short _DK_person_sulk_at_lair(struct Thing *thing);
+DLLIMPORT short _DK_person_sulk_head_for_lair(struct Thing *thing);
+DLLIMPORT short _DK_person_sulking(struct Thing *thing);
+DLLIMPORT short _DK_praying_in_temple(struct Thing *thing);
+DLLIMPORT long _DK_process_kinky_function(struct Thing *thing);
+DLLIMPORT long _DK_process_prison_function(struct Thing *thing);
+DLLIMPORT long _DK_process_research_function(struct Thing *thing);
+DLLIMPORT long _DK_process_scavenge_function(struct Thing *thing);
+DLLIMPORT long _DK_process_temple_function(struct Thing *thing);
+DLLIMPORT long _DK_process_torture_function(struct Thing *thing);
+DLLIMPORT short _DK_researching(struct Thing *thing);
+DLLIMPORT short _DK_scavengering(struct Thing *thing);
+DLLIMPORT short _DK_seek_the_enemy(struct Thing *thing);
+DLLIMPORT short _DK_state_cleanup_dragging_body(struct Thing *thing);
+DLLIMPORT short _DK_state_cleanup_dragging_object(struct Thing *thing);
+DLLIMPORT short _DK_state_cleanup_in_room(struct Thing *thing);
+DLLIMPORT short _DK_state_cleanup_in_temple(struct Thing *thing);
+DLLIMPORT short _DK_state_cleanup_unable_to_fight(struct Thing *thing);
+DLLIMPORT short _DK_state_cleanup_unconscious(struct Thing *thing);
+DLLIMPORT short _DK_torturing(struct Thing *thing);
+DLLIMPORT short _DK_training(struct Thing *thing);
+DLLIMPORT short _DK_tunneller_doing_nothing(struct Thing *thing);
+DLLIMPORT short _DK_tunnelling(struct Thing *thing);
+DLLIMPORT long _DK_process_torture_visuals(struct Thing *thing, struct Room *room, long a3);
+DLLIMPORT long _DK_check_out_imp_last_did(struct Thing *thing);
+DLLIMPORT long _DK_check_place_to_convert_excluding(struct Thing *thing, long a2, long a3);
+DLLIMPORT long _DK_imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3);
+DLLIMPORT long _DK_check_out_unconverted_spiral(struct Thing *thing, long a2);
+DLLIMPORT long _DK_check_place_to_pretty_excluding(struct Thing *thing, long a2, long a3);
+DLLIMPORT long _DK_check_out_unprettied_spiral(struct Thing *thing, long a2);
+DLLIMPORT long _DK_check_out_undug_place(struct Thing *thing);
+DLLIMPORT long _DK_check_out_undug_area(struct Thing *thing);
+DLLIMPORT long _DK_imp_stack_update(struct Thing *thing);
+DLLIMPORT long _DK_check_out_unprettied_or_unconverted_area(struct Thing *thing);
+DLLIMPORT long _DK_creature_can_be_trained(struct Thing *thing);
+DLLIMPORT long _DK_player_can_afford_to_train_creature(struct Thing *thing);
+DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *thing);
+DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *thing);
+DLLIMPORT struct Room* _DK_find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing,
+    signed char a2, signed char a3, unsigned char a4, long a5);
+DLLIMPORT long _DK_setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3);
+DLLIMPORT struct Room* _DK_find_room_with_spare_capacity(unsigned char a1, signed char a2, long a3);
+DLLIMPORT long _DK_add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long a2);
+DLLIMPORT long _DK_add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long a2);
+DLLIMPORT long _DK_add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long a2);
+DLLIMPORT void _DK_add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon);
+DLLIMPORT long _DK_add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon);
+DLLIMPORT long _DK_add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *thing);
+DLLIMPORT long _DK_block_has_diggable_side(long a1, long a2, long a3);
+DLLIMPORT long _DK_process_sacrifice_award(struct Coord3d *pos, long model, long plyr_idx);
+DLLIMPORT long _DK_make_all_players_creatures_angry(long plyr_idx);
+DLLIMPORT long _DK_force_complete_current_manufacturing(long plyr_idx);
+DLLIMPORT void _DK_apply_spell_effect_to_players_creatures(long a1, long a2, long a3);
+DLLIMPORT void _DK_kill_all_players_chickens(long plyr_idx);
+DLLIMPORT void _DK_force_complete_current_research(long plyr_idx);
+DLLIMPORT void _DK_anger_set_creature_anger(struct Thing *thing, long a1, long a2);
+DLLIMPORT void _DK_create_effect_around_thing(struct Thing *thing, long eff_kind);
+DLLIMPORT void _DK_remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
+DLLIMPORT long _DK_process_prison_food(struct Thing *thing, struct Room *room);
+DLLIMPORT long _DK_slab_by_players_land(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
+DLLIMPORT long _DK_setup_prison_move(struct Thing *thing, struct Room *room);
+/******************************************************************************/
+short already_at_call_to_arms(struct Thing *thing);
+short arrive_at_alarm(struct Thing *thing);
+short arrive_at_call_to_arms(struct Thing *thing);
+short at_barrack_room(struct Thing *thing);
+short at_guard_post_room(struct Thing *thing);
+short at_kinky_torture_room(struct Thing *thing);
+short at_lair_to_sleep(struct Thing *thing);
+short at_research_room(struct Thing *thing);
+short at_scavenger_room(struct Thing *thing);
+short at_temple(struct Thing *thing);
+short at_torture_room(struct Thing *thing);
+short at_training_room(struct Thing *thing);
+short at_workshop_room(struct Thing *thing);
+short barracking(struct Thing *thing);
+short cleanup_combat(struct Thing *thing);
+short cleanup_door_combat(struct Thing *thing);
+short cleanup_hold_audience(struct Thing *thing);
+short cleanup_object_combat(struct Thing *thing);
+short cleanup_prison(struct Thing *thing);
+short cleanup_sacrifice(struct Thing *thing);
+short cleanup_seek_the_enemy(struct Thing *thing);
+short cleanup_sleep(struct Thing *thing);
+short cleanup_torturing(struct Thing *thing);
+short creature_arms_trap(struct Thing *thing);
+short creature_arrived_at_garden(struct Thing *thing);
+short creature_arrived_at_prison(struct Thing *thing);
+short creature_at_changed_lair(struct Thing *thing);
+short creature_at_new_lair(struct Thing *thing);
+short creature_attack_rooms(struct Thing *thing);
+short creature_attempt_to_damage_walls(struct Thing *thing);
+short creature_be_happy(struct Thing *thing);
+short creature_being_dropped(struct Thing *thing);
+short creature_being_sacrificed(struct Thing *thing);
+short creature_being_scavenged(struct Thing *thing);
+short creature_being_summoned(struct Thing *thing);
+short creature_cannot_find_anything_to_do(struct Thing *thing);
+short creature_change_from_chicken(struct Thing *thing);
+short creature_change_lair(struct Thing *thing);
+short creature_change_to_chicken(struct Thing *thing);
+short creature_choose_room_for_lair_site(struct Thing *thing);
+short creature_combat_flee(struct Thing *thing);
+short creature_damage_walls(struct Thing *thing);
+short creature_doing_nothing(struct Thing *thing);
+short creature_door_combat(struct Thing *thing);
+short creature_dormant(struct Thing *thing);
+short creature_drop_body_in_prison(struct Thing *thing);
+short creature_drops_corpse_in_graveyard(struct Thing *thing);
+short creature_drops_crate_in_workshop(struct Thing *thing);
+short creature_drops_spell_object_in_library(struct Thing *thing);
+short creature_eat(struct Thing *thing);
+short creature_eating_at_garden(struct Thing *thing);
+short creature_escaping_death(struct Thing *thing);
+short creature_evacuate_room(struct Thing *thing);
+short creature_explore_dungeon(struct Thing *thing);
+short creature_fired(struct Thing *thing);
+short creature_follow_leader(struct Thing *thing);
+short creature_freeze_prisonors(struct Thing *thing);
+short creature_going_home_to_sleep(struct Thing *thing);
+short creature_hero_entering(struct Thing *thing);
+short creature_in_combat(struct Thing *thing);
+short creature_in_hold_audience(struct Thing *thing);
+short creature_in_prison(struct Thing *thing);
+short creature_kill_creatures(struct Thing *thing);
+short creature_leaves(struct Thing *thing);
+short creature_leaves_or_dies(struct Thing *thing);
+short creature_leaving_dungeon(struct Thing *thing);
+short creature_moan(struct Thing *thing);
+short creature_object_combat(struct Thing *thing);
+short creature_persuade(struct Thing *thing);
+short creature_pick_up_unconscious_body(struct Thing *thing);
+short creature_picks_up_corpse(struct Thing *thing);
+short creature_picks_up_spell_object(struct Thing *thing);
+short creature_picks_up_trap_for_workshop(struct Thing *thing);
+short creature_picks_up_trap_object(struct Thing *thing);
+short creature_piss(struct Thing *thing);
+short creature_present_to_dungeon_heart(struct Thing *thing);
+short creature_pretend_chicken_move(struct Thing *thing);
+short creature_pretend_chicken_setup_move(struct Thing *thing);
+short creature_roar(struct Thing *thing);
+short creature_sacrifice(struct Thing *thing);
+short creature_scavenged_disappear(struct Thing *thing);
+short creature_scavenged_reappear(struct Thing *thing);
+short creature_search_for_gold_to_steal_in_room(struct Thing *thing);
+short creature_set_work_room_based_on_position(struct Thing *thing);
+short creature_slap_cowers(struct Thing *thing);
+short creature_sleep(struct Thing *thing);
+short creature_steal_gold(struct Thing *thing);
+short creature_take_salary(struct Thing *thing);
+short creature_to_garden(struct Thing *thing);
+short creature_unconscious(struct Thing *thing);
+short creature_vandalise_rooms(struct Thing *thing);
+short creature_wait_at_treasure_room_door(struct Thing *thing);
+short creature_wants_a_home(struct Thing *thing);
+short creature_wants_salary(struct Thing *thing);
+short good_attack_room(struct Thing *thing);
+short good_back_at_start(struct Thing *thing);
+short good_doing_nothing(struct Thing *thing);
+short good_drops_gold(struct Thing *thing);
+short good_leave_through_exit_door(struct Thing *thing);
+short good_returns_to_start(struct Thing *thing);
+short good_wait_in_exit_door(struct Thing *thing);
+short guarding(struct Thing *thing);
+short imp_arrives_at_convert_dungeon(struct Thing *thing);
+short imp_arrives_at_dig_or_mine(struct Thing *thing);
+short imp_arrives_at_improve_dungeon(struct Thing *thing);
+short imp_arrives_at_reinforce(struct Thing *thing);
+short imp_birth(struct Thing *thing);
+short imp_converts_dungeon(struct Thing *thing);
+short imp_digs_mines(struct Thing *thing);
+short imp_doing_nothing(struct Thing *thing);
+short imp_drops_gold(struct Thing *thing);
+short imp_improves_dungeon(struct Thing *thing);
+short imp_last_did_job(struct Thing *thing);
+short imp_picks_up_gold_pile(struct Thing *thing);
+short imp_reinforces(struct Thing *thing);
+short imp_toking(struct Thing *thing);
+short kinky_torturing(struct Thing *thing);
+short mad_killing_psycho(struct Thing *thing);
+short manufacturing(struct Thing *thing);
+short move_backwards_to_position(struct Thing *thing);
+long move_check_attack_any_door(struct Thing *thing);
+long move_check_can_damage_wall(struct Thing *thing);
+long move_check_kill_creatures(struct Thing *thing);
+long move_check_near_dungeon_heart(struct Thing *thing);
+long move_check_on_head_for_room(struct Thing *thing);
+long move_check_persuade(struct Thing *thing);
+long move_check_wait_at_door_for_wage(struct Thing *thing);
+short move_to_position(struct Thing *thing);
+char new_slab_tunneller_check_for_breaches(struct Thing *thing);
+short patrol_here(struct Thing *thing);
+short patrolling(struct Thing *thing);
+short person_sulk_at_lair(struct Thing *thing);
+short person_sulk_head_for_lair(struct Thing *thing);
+short person_sulking(struct Thing *thing);
+short praying_in_temple(struct Thing *thing);
+long process_kinky_function(struct Thing *thing);
+long process_prison_function(struct Thing *thing);
+long process_research_function(struct Thing *thing);
+long process_scavenge_function(struct Thing *thing);
+long process_temple_function(struct Thing *thing);
+long process_torture_function(struct Thing *thing);
+short researching(struct Thing *thing);
+short scavengering(struct Thing *thing);
+short seek_the_enemy(struct Thing *thing);
+short state_cleanup_dragging_body(struct Thing *thing);
+short state_cleanup_dragging_object(struct Thing *thing);
+short state_cleanup_in_room(struct Thing *thing);
+short state_cleanup_in_temple(struct Thing *thing);
+short state_cleanup_unable_to_fight(struct Thing *thing);
+short state_cleanup_unconscious(struct Thing *thing);
+short torturing(struct Thing *thing);
+short training(struct Thing *thing);
+short tunneller_doing_nothing(struct Thing *thing);
+short tunnelling(struct Thing *thing);
+/******************************************************************************/
+struct StateInfo states[] = {
+  {NULL, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {imp_doing_nothing, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {imp_arrives_at_dig_or_mine, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {imp_arrives_at_dig_or_mine, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {imp_digs_mines, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {imp_digs_mines, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {NULL, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 1, 0, 0, 0, 0, 1},
+  {imp_drops_gold, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {imp_last_did_job, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1},
+  {imp_arrives_at_improve_dungeon, NULL, NULL,  NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {imp_improves_dungeon, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {creature_picks_up_trap_object, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {creature_arms_trap, state_cleanup_dragging_object, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {creature_picks_up_trap_for_workshop, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {move_to_position, NULL, NULL, NULL,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 1, 0, 0, 0, 0, 1},
+  {NULL, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0,  0, 1, 0, 0, 0, 0, 1},
+  {creature_drops_crate_in_workshop, state_cleanup_dragging_object, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,  0, 0, 1},
+  {creature_doing_nothing, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 1},
+  {creature_to_garden, NULL, NULL, NULL,
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 0, 1, 0, 59, 1, 0,  1},
+  {creature_arrived_at_garden, state_cleanup_in_room, NULL, move_check_on_head_for_room,
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 0, 2, 0, 59, 1, 0,  1},
+  {creature_wants_a_home, NULL, NULL, NULL,
+    0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 1, 0, 58, 1, 0,  1},
+  {creature_choose_room_for_lair_site, NULL, NULL, NULL,
+    0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0,  1, 0, 58, 1, 0, 1},
+  {creature_at_new_lair, NULL, NULL, NULL,
+    0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 1, 0, 58, 1, 0,  1},
+  {person_sulk_head_for_lair, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 0,   55, 1, 0, 1},
+  {person_sulk_at_lair, NULL, NULL, NULL,
+    0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, 55, 1, 0,  1},
+  {creature_going_home_to_sleep, NULL, NULL, NULL,
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3, 0, 0, 1, 0,  54, 1, 0, 1},
+  {creature_sleep, cleanup_sleep, NULL, NULL,
+    0, 1, 0, 0, 0,  0, 0, 0, 0, 1, 0, 0, 0, 0, 3, 0, 0, 2, 0, 54, 1, 0, 1},
+  {NULL, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,  0, 1, 0, 0, 0, 0, 1},
+  {tunnelling, NULL, new_slab_tunneller_check_for_breaches, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,  0, 0, 0, 1},
+  {NULL, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 1, 0, 0, 0, 0, 1},
+  {at_research_room, NULL, NULL, move_check_on_head_for_room,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 56, 1, 0,   1},
+  {researching, state_cleanup_in_room, NULL, process_research_function,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 56, 1, 0,   1},
+  {at_training_room, NULL, NULL, move_check_on_head_for_room,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 57, 1, 0,   1},
+  {training, state_cleanup_in_room, NULL, NULL,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 57, 1, 0,   1},
+  {good_doing_nothing, NULL, NULL, NULL,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
+  {good_returns_to_start, NULL, NULL, NULL,
+    0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  1},
+  {good_back_at_start, NULL, NULL, NULL,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
+  {good_drops_gold, NULL, NULL, NULL,
+    0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1},
+  {NULL, NULL, NULL, NULL,
+    1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0,  1, 1, 0, 0, 0, 0, 0},
+  {arrive_at_call_to_arms, NULL, NULL, NULL,
+    1,  0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 1, 0, 62,   1, 0, 0},
+  {creature_arrived_at_prison, state_cleanup_unable_to_fight, NULL, move_check_on_head_for_room,
+    1, 0,   1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 1, 0, 0, 0, 66, 1, 0,  0},
+  {creature_in_prison, cleanup_prison, NULL, process_prison_function,
+    1, 0, 1,   1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 1, 0, 0, 0, 66, 1, 0, 0},
+  {at_torture_room, state_cleanup_unable_to_fight, NULL, move_check_on_head_for_room,
+    1, 0,   1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 1, 0, 0, 0, 65, 1, 0,  0},
+  {torturing, cleanup_torturing, NULL, process_torture_function,
+    1, 0, 1,   1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 1, 0, 0, 0, 65, 1, 0, 0},
+  {at_workshop_room, NULL, NULL, move_check_on_head_for_room,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 67, 1, 0,   1},
+  {manufacturing, state_cleanup_in_room, NULL, NULL,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 67, 1, 0,   1},
+  {at_scavenger_room, NULL, NULL, move_check_on_head_for_room,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 69, 1, 0,   1},
+  {scavengering, state_cleanup_in_room, NULL, process_scavenge_function,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 69, 1, 0,   1},
+  {creature_dormant, NULL, NULL, move_check_near_dungeon_heart,
+    1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0,  0, 1},
+  {creature_in_combat, cleanup_combat, NULL, NULL,
+    1, 1, 1, 0,   1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 5, 0, 0, 1, 1, 51, 1, 0, 0},
+  {creature_leaving_dungeon, NULL, NULL, NULL,
+    0,  1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 1, 1, 1, 0, 61,   1, 0, 1},
+  {creature_leaves, NULL, NULL, NULL,
+    0, 1, 1, 0,  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 1, 1, 1, 0, 61, 1, 0, 1},
+  {creature_in_hold_audience, cleanup_hold_audience, NULL, NULL,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1},
+  {patrol_here, NULL, NULL, NULL,
+    0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1},
+  {patrolling, NULL, NULL, NULL,
+    0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1},
+  {NULL, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 0, 1},
+  {NULL, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1},
+  {NULL, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 1, 0, 0, 0, 0, 0},
+  {NULL, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 1, 0, 0, 0, 0, 1},
+  {creature_kill_creatures, NULL, NULL, move_check_kill_creatures,
+    0, 1, 1,  0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 1, 0, 61, 1, 0,   1},
+  {NULL, NULL, NULL, NULL,
+    1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 0, 1},
+  {person_sulking, NULL, NULL, NULL,
+    0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, 55, 1, 0, 1},
+  {NULL, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {NULL, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {at_barrack_room, NULL, NULL, move_check_on_head_for_room,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 63, 1, 0,   1},
+  {barracking, state_cleanup_in_room, NULL, NULL,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 63, 1, 0,   1},
+  {creature_slap_cowers, NULL, NULL, NULL,
+    1,   1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0,  0, 1},
+  {creature_unconscious, state_cleanup_unconscious, NULL, NULL,
+    1,  1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 9, 0, 0, 0, 1, 0, 0,  0, 1},
+  {creature_pick_up_unconscious_body, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1,  0, 0, 0, 0, 1},
+  {imp_toking, NULL, NULL, NULL,
+    0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {imp_picks_up_gold_pile, NULL, NULL, NULL,
+    0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0,  0, 1},
+  {move_backwards_to_position, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 1, 0, 0,  0, 0, 1},
+  {creature_drop_body_in_prison, state_cleanup_dragging_body, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0,  0, 1},
+  {imp_arrives_at_convert_dungeon, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  0, 0, 0, 1},
+  {imp_converts_dungeon, NULL, NULL, NULL,
+    0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,  1},
+  {creature_wants_salary, NULL, NULL, NULL,
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 7, 0, 0, 1, 0, 52,   1, 0, 1},
+  {creature_take_salary, NULL, NULL, move_check_wait_at_door_for_wage,
+    0,  1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 7, 0, 0, 1, 0, 52,   1, 0, 1},
+  {tunneller_doing_nothing, NULL, NULL, NULL,
+    0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 1},
+  {creature_object_combat, cleanup_object_combat, NULL, NULL,
+    1, 1,   1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 12, 0, 0, 1, 0, 51, 1, 0,  0},
+  {NULL, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1},
+  {creature_change_lair, NULL, NULL, move_check_on_head_for_room,
+    0, 0,   1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 1, 0, 58, 1, 0,  1},
+  {imp_birth, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {at_temple, NULL, NULL, move_check_on_head_for_room,
+    0, 1, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 1, 0, 68, 1, 0,   1},
+  {praying_in_temple, state_cleanup_in_temple, NULL, process_temple_function,
+    0, 1, 0, 0,  0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 2, 0, 68, 1, 0, 1},
+  {NULL, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1},
+  {creature_follow_leader, NULL, NULL, NULL,
+    0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 0, 0, 0,  0, 0},
+  {creature_door_combat, cleanup_door_combat, NULL, NULL,
+    1, 1, 0,  1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 11, 0, 0, 1, 0, 51, 1, 0, 0},
+  {creature_combat_flee, NULL, NULL, NULL,
+    1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 53,   1, 0, 0},
+  {creature_sacrifice, NULL, NULL, NULL,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0},
+  {at_lair_to_sleep, NULL, NULL, NULL,
+    0, 1, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3, 0, 0, 2, 0, 54, 1, 0,   1},
+  {creature_fired, NULL, NULL, NULL,
+    0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 61, 1, 0, 1},
+  {creature_being_dropped, state_cleanup_unable_to_fight, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1},
+  {creature_being_sacrificed, cleanup_sacrifice, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
+  {creature_scavenged_disappear, NULL, NULL, NULL,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0,  0, 0, 0, 0},
+  {creature_scavenged_reappear, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,  0, 0, 0},
+  {creature_being_summoned, cleanup_sacrifice, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
+  {creature_hero_entering, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,  0, 1},
+  {imp_arrives_at_reinforce, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,  0, 1},
+  {imp_reinforces, NULL, NULL, NULL,
+    0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {arrive_at_alarm, NULL, NULL, NULL,
+    1, 1, 1, 0,  0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 62, 1, 0, 0},
+  {creature_picks_up_spell_object, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 1, 0,  0, 0, 0, 1},
+  {creature_drops_spell_object_in_library, state_cleanup_dragging_object, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0,  0, 0, 1},
+  {creature_picks_up_corpse, NULL, NULL, NULL,
+    0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 1, 0, 0, 0,  0, 1},
+  {creature_drops_corpse_in_graveyard, state_cleanup_dragging_object, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0,  0, 0, 1},
+  {at_guard_post_room, NULL, NULL, move_check_on_head_for_room,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 50, 1, 0, 0},
+  {guarding, state_cleanup_in_room, NULL, NULL,
+    0, 1, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 2, 0, 50, 1, 0, 0},
+  {creature_eat, NULL, NULL, NULL,
+    0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 59, 1, 0, 1},
+  {creature_evacuate_room, NULL, NULL, NULL,
+    0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 1},
+  {creature_wait_at_treasure_room_door,  NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0,  1, 0, 0, 0, 0, 1},
+  {at_kinky_torture_room, NULL, NULL, move_check_on_head_for_room,
+    1, 1,   1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,  1},
+  {kinky_torturing, cleanup_torturing, NULL, process_kinky_function,
+    1, 1, 1, 1,  1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {mad_killing_psycho, NULL, NULL, NULL,
+    0, 1, 0,  0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 55, 1, 0,   1},
+  {creature_search_for_gold_to_steal_in_room, NULL, NULL, move_check_attack_any_door,
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 55,   1, 0, 1},
+  {creature_vandalise_rooms, NULL, NULL, move_check_attack_any_door,
+    0, 1,   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 55, 1, 0,  1},
+  {creature_steal_gold, NULL, NULL, move_check_attack_any_door,
+    0, 1,   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 55, 1, 0,  1},
+  {seek_the_enemy, cleanup_seek_the_enemy, NULL, NULL,
+    0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,  1},
+  {already_at_call_to_arms, NULL, NULL, NULL,
+    1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 1, 0,   62, 1, 0, 0},
+  {creature_damage_walls, NULL, NULL, NULL,
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0,  0, 1},
+  {creature_attempt_to_damage_walls, NULL, NULL, move_check_can_damage_wall,
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 55,   1, 0, 1},
+  {creature_persuade, NULL, NULL, move_check_persuade,
+    0, 1, 1, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 1, 0, 55, 1, 0, 1},
+  {creature_change_to_chicken, NULL, NULL, NULL,
+    1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0,  0, 0, 0},
+  {creature_change_from_chicken, NULL, NULL, NULL,
+    1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0,  0, 0, 0, 0},
+  {NULL, NULL, NULL, NULL,
+    1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1},
+  {creature_cannot_find_anything_to_do, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,  1, 0, 0, 0, 0, 1},
+  {creature_piss, NULL, NULL, NULL,
+    0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1},
+  {creature_roar, NULL, NULL, NULL,
+    0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 1, 0, 55, 1, 0, 1},
+  {creature_at_changed_lair, NULL, NULL, NULL,
+    0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0, 0,  0, 1},
+  {creature_be_happy, NULL, NULL, NULL,
+    0, 0,   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,  1},
+  {good_leave_through_exit_door, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0,  0, 0, 0, 1},
+  {good_wait_in_exit_door, NULL, NULL, NULL,
+    0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,  0, 1},
+  {good_attack_room, NULL, NULL, NULL,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1},
+  {creature_search_for_gold_to_steal_in_room, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 1,   1, 0, 0, 0, 0, 0, 1},
+  {good_attack_room, NULL, NULL, NULL,
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1},
+  {creature_pretend_chicken_setup_move, NULL, NULL, NULL,
+    1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1,  0, 0, 0, 0, 0, 0},
+  {creature_pretend_chicken_move, NULL, NULL, NULL,
+    1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0,  0, 0, 0, 0},
+  {creature_attack_rooms, NULL, NULL, move_check_attack_any_door,
+    0, 1,   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 51, 1, 0,  0},
+  {creature_freeze_prisonors, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,  0, 0, 1},
+  {creature_explore_dungeon, NULL, NULL, NULL,
+    0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 1},
+  {creature_eating_at_garden, NULL, NULL, NULL,
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 0, 2, 0,   59, 1, 0, 1},
+  {creature_leaves_or_dies, NULL, NULL, NULL,
+    1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 2, 1, 1, 1, 0,   61, 1, 0, 0},
+  {creature_moan, NULL, NULL, NULL,
+    1, 1, 1, 0,  0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0, 0, 0, 1},
+  {creature_set_work_room_based_on_position, NULL, NULL, NULL,
+    1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,  0, 0, 0, 0, 0, 1},
+  {creature_being_scavenged, NULL, NULL, NULL,
+    0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 69,   1, 0, 0},
+  {creature_escaping_death, NULL, NULL, NULL,
+    1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 8, 1, 0, 0, 0, 0,  1, 0, 0},
+  {creature_present_to_dungeon_heart, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 1},
+  // Some redundant NULLs
+  {NULL, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+};
+/******************************************************************************/
+struct StateInfo *get_thing_state_info(struct Thing *thing)
+{
+  if (thing->field_7 >= CREATURE_STATES_COUNT)
+    return &states[0];
+  return &states[thing->field_7];
+}
+
+struct StateInfo *get_thing_state_info_num(long state_id)
+{
+  if (state_id >= CREATURE_STATES_COUNT)
+    return &states[0];
+  return &states[state_id];
+}
+
+TbBool state_info_invalid(struct StateInfo *stati)
+{
+  if (stati <= &states[0])
+    return true;
+  return false;
+}
+
+TbBool creature_model_bleeds(unsigned long model)
+{
+  struct CreatureStats *crstat;
+  crstat = creature_stats_get(model);
+  if ( censorship_enabled() )
+  {
+    return (crstat->bleeds) && ((model < 1) || (model > 13));
+  }
+  return crstat->bleeds;
+}
+/******************************************************************************/
+short already_at_call_to_arms(struct Thing *thing)
+{
+  return _DK_already_at_call_to_arms(thing);
+}
+
+short arrive_at_alarm(struct Thing *thing)
+{
+  return _DK_arrive_at_alarm(thing);
+}
+
+short arrive_at_call_to_arms(struct Thing *thing)
+{
+  return _DK_arrive_at_call_to_arms(thing);
+}
+
+short at_barrack_room(struct Thing *thing)
+{
+  return _DK_at_barrack_room(thing);
+}
+
+short at_guard_post_room(struct Thing *thing)
+{
+  return _DK_at_guard_post_room(thing);
+}
+
+short at_kinky_torture_room(struct Thing *thing)
+{
+  return _DK_at_kinky_torture_room(thing);
+}
+
+short at_lair_to_sleep(struct Thing *thing)
+{
+  return _DK_at_lair_to_sleep(thing);
+}
+
+short at_research_room(struct Thing *thing)
+{
+  return _DK_at_research_room(thing);
+}
+
+short at_scavenger_room(struct Thing *thing)
+{
+  return _DK_at_scavenger_room(thing);
+}
+
+short at_temple(struct Thing *thing)
+{
+  return _DK_at_temple(thing);
+}
+
+short at_torture_room(struct Thing *thing)
+{
+  return _DK_at_torture_room(thing);
+}
+
+short at_training_room(struct Thing *thing)
+{
+  return _DK_at_training_room(thing);
+}
+
+short at_workshop_room(struct Thing *thing)
+{
+  return _DK_at_workshop_room(thing);
+}
+
+short barracking(struct Thing *thing)
+{
+  return _DK_barracking(thing);
+}
+
+short cleanup_combat(struct Thing *thing)
+{
+  return _DK_cleanup_combat(thing);
+}
+
+short cleanup_door_combat(struct Thing *thing)
+{
+  return _DK_cleanup_door_combat(thing);
+}
+
+short cleanup_hold_audience(struct Thing *thing)
+{
+  return _DK_cleanup_hold_audience(thing);
+}
+
+short cleanup_object_combat(struct Thing *thing)
+{
+  return _DK_cleanup_object_combat(thing);
+}
+
+short cleanup_prison(struct Thing *thing)
+{
+  return _DK_cleanup_prison(thing);
+}
+
+short cleanup_sacrifice(struct Thing *thing)
+{
+  return _DK_cleanup_sacrifice(thing);
+}
+
+short cleanup_seek_the_enemy(struct Thing *thing)
+{
+  return _DK_cleanup_seek_the_enemy(thing);
+}
+
+short cleanup_sleep(struct Thing *thing)
+{
+  return _DK_cleanup_sleep(thing);
+}
+
+short cleanup_torturing(struct Thing *thing)
+{
+  return _DK_cleanup_torturing(thing);
+}
+
+short creature_arms_trap(struct Thing *thing)
+{
+  return _DK_creature_arms_trap(thing);
+}
+
+short creature_arrived_at_garden(struct Thing *thing)
+{
+  return _DK_creature_arrived_at_garden(thing);
+}
+
+short creature_arrived_at_prison(struct Thing *thing)
+{
+  return _DK_creature_arrived_at_prison(thing);
+}
+
+short creature_at_changed_lair(struct Thing *thing)
+{
+  return _DK_creature_at_changed_lair(thing);
+}
+
+short creature_at_new_lair(struct Thing *thing)
+{
+  return _DK_creature_at_new_lair(thing);
+}
+
+short creature_attack_rooms(struct Thing *thing)
+{
+  return _DK_creature_attack_rooms(thing);
+}
+
+short creature_attempt_to_damage_walls(struct Thing *thing)
+{
+  return _DK_creature_attempt_to_damage_walls(thing);
+}
+
+short creature_be_happy(struct Thing *thing)
+{
+  return _DK_creature_be_happy(thing);
+}
+
+short creature_being_dropped(struct Thing *thing)
+{
+  return _DK_creature_being_dropped(thing);
+}
+
+void anger_set_creature_anger(struct Thing *thing, long annoy_lv, long reason)
+{
+  SYNCDBG(8,"Setting to %d",(int)annoy_lv);
+  _DK_anger_set_creature_anger(thing, annoy_lv, reason);
+}
+
+TbBool anger_make_creature_angry(struct Thing *thing, long reason)
+{
+  struct CreatureStats *crstat;
+  struct CreatureControl *cctrl;
+  cctrl = creature_control_get_from_thing(thing);
+  crstat = creature_stats_get_from_thing(thing);
+  if ((crstat->annoy_level <= 0) || ((cctrl->field_66 & 0x01) != 0))
+    return false;
+  anger_set_creature_anger(thing, crstat->annoy_level, reason);
+  return true;
+}
+
+TbBool make_all_players_creatures_angry(long plyr_idx)
+{
+  struct Dungeon *dungeon;
+  struct CreatureControl *cctrl;
+  struct Thing *thing;
+  unsigned long k;
+  int i;
+  SYNCDBG(8,"Starting");
+  //return _DK_make_all_players_creatures_angry(plyr_idx);
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  k = 0;
+  i = dungeon->creatr_list_start;
+  while (i != 0)
+  {
+    thing = thing_get(i);
+    cctrl = creature_control_get_from_thing(thing);
+    if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+    {
+      ERRORLOG("Jump to invalid creature detected");
+      break;
+    }
+    i = cctrl->thing_idx;
+    // Thing list loop body
+    anger_make_creature_angry(thing, 4);
+    // Thing list loop body ends
+    k++;
+    if (k > CREATURES_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping creatures list");
+      break;
+    }
+  }
+  SYNCDBG(19,"Finished");
+  return true;
+}
+
+long force_complete_current_manufacturing(long plyr_idx)
+{
+  return _DK_force_complete_current_manufacturing(plyr_idx);
+}
+
+void apply_spell_effect_to_players_creatures(long plyr_idx, long spl_idx, long overchrg)
+{
+  _DK_apply_spell_effect_to_players_creatures(plyr_idx, spl_idx, overchrg);
+}
+
+void kill_all_players_chickens(long plyr_idx)
+{
+  _DK_kill_all_players_chickens(plyr_idx);
+}
+
+void force_complete_current_research(long plyr_idx)
+{
+  _DK_force_complete_current_research(plyr_idx);
+}
+
+TbBool summon_creature(long model, struct Coord3d *pos, long owner, long explevel)
+{
+  struct CreatureControl *cctrl;
+  struct Thing *thing;
+  SYNCDBG(4,"Creating model %ld for player %ld",model,owner);
+  thing = create_creature(pos, model, owner);
+  if (thing_is_invalid(thing))
+  {
+    ERRORLOG("Could not create creature");
+    return false;
+  }
+  init_creature_level(thing, explevel);
+  internal_set_thing_state(thing, 95);
+  thing->field_25 |= 0x04;
+  cctrl = creature_control_get_from_thing(thing);
+  cctrl->word_9C = 48;
+  return true;
+}
+
+long create_sacrifice_unique_award(struct Coord3d *pos, long plyr_idx, long sacfunc, long explevel)
+{
+  struct Dungeon *dungeon;
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  switch (sacfunc)
+  {
+  case UnqF_MkAllAngry:
+      make_all_players_creatures_angry(plyr_idx);
+      return SacR_Punished;
+  case UnqF_ComplResrch:
+      force_complete_current_research(plyr_idx);
+      return SacR_Awarded;
+  case UnqF_ComplManufc:
+      force_complete_current_manufacturing(plyr_idx);
+      return SacR_Awarded;
+  case UnqF_KillChickns:
+      kill_all_players_chickens(plyr_idx);
+      return SacR_Punished;
+  case UnqF_CheaperImp:
+      // No processing needed - just don't clear the amount of sacrificed imps.
+      return SacR_Pleased;
+  default:
+      ERRORLOG("Unsupported unique secrifice award!");
+      return SacR_AngryWarn;
+  }
+}
+
+long creature_sacrifice_average_explevel(struct Dungeon *dungeon, struct SacrificeRecipe *sac)
+{
+  long num;
+  long exp;
+  long i;
+  long model;
+  num = 0;
+  exp = 0;
+  for (i=0; i < MAX_SACRIFICE_VICTIMS; i++)
+  {
+    model = sac->victims[i];
+    // Do not count the same model twice
+    if (i > 0)
+    {
+      if (model == sac->victims[i-1])
+        break;
+    }
+    num += dungeon->creature_sacrifice[model];
+    exp += dungeon->creature_sacrifice_exp[model];
+  }
+  if (num < 1) num = 1;
+  exp = (exp/num);
+  if (exp < 0) return 0;
+  return exp;
+}
+
+void creature_sacrifice_reset(struct Dungeon *dungeon, struct SacrificeRecipe *sac)
+{
+  long i;
+  long model;
+  // Some models may be set more than once; dut we don't really care...
+  for (i=0; i < MAX_SACRIFICE_VICTIMS; i++)
+  {
+    model = sac->victims[i];
+    dungeon->creature_sacrifice[model] = 0;
+    dungeon->creature_sacrifice_exp[model] = 0;
+  }
+}
+
+long sacrifice_victim_model_count(struct SacrificeRecipe *sac, long model)
+{
+  long i;
+  long k;
+  k = 0;
+  for (i=0; i < MAX_SACRIFICE_VICTIMS; i++)
+  {
+    if (sac->victims[i] == model) k++;
+  }
+  return k;
+}
+
+TbBool sacrifice_victim_conditions_met(struct Dungeon *dungeon, struct SacrificeRecipe *sac)
+{
+  long i,required;
+  long model;
+  // Some models may be checked more than once; dut we don't really care...
+  for (i=0; i < MAX_SACRIFICE_VICTIMS; i++)
+  {
+    model = sac->victims[i];
+    if (model < 1) continue;
+    required = sacrifice_victim_model_count(sac, model);
+    SYNCDBG(6,"Model %d exists %d times",(int)model,(int)required);
+    if (dungeon->creature_sacrifice[model] < required)
+      return false;
+  }
+  return true;
+}
+
+long process_sacrifice_award(struct Coord3d *pos, long model, long plyr_idx)
+{
+  struct SacrificeRecipe *sac;
+  struct Dungeon *dungeon;
+  long explevel;
+  long ret;
+  //return _DK_process_sacrifice_award(pos, model, plyr_idx);
+  if ((plyr_idx < 0) || (plyr_idx >= DUNGEONS_COUNT))
+  {
+    ERRORLOG("Player %d cannot sacrifice creatures.",plyr_idx);
+    return 0;
+  }
+  dungeon = &(game.dungeon[plyr_idx]);
+  ret = SacR_DontCare;
+  sac = &gameadd.sacrifice_recipes[0];
+  do {
+    // Check if the just sacrificed creature is in the sacrifice
+    if (sacrifice_victim_model_count(sac,model) > 0)
+    {
+      // Set the return value in case of partial sacrifice recipe
+      if (ret != SacR_Pleased)
+      {
+        switch (sac->action)
+        {
+        case SacA_MkGoodHero:
+        case SacA_NegSpellAll:
+        case SacA_NegUniqFunc:
+          ret = SacR_AngryWarn;
+          break;
+        default:
+          ret = SacR_Pleased;
+          break;
+        }
+      }
+      SYNCDBG(8,"Creature %d used in sacrifice %d",(int)model,(int)(sac-&gameadd.sacrifice_recipes[0]));
+      // Check if the complete sacrifice condition is met
+      if (sacrifice_victim_conditions_met(dungeon, sac))
+      {
+        SYNCDBG(6,"Sacrifice recipe %d condition met, action %d for player %d",(int)(sac-&gameadd.sacrifice_recipes[0]),(int)sac->action,(int)plyr_idx);
+        explevel = creature_sacrifice_average_explevel(dungeon, sac);
+        switch (sac->action)
+        {
+        case SacA_MkCreature:
+            if (explevel >= CREATURE_MAX_LEVEL) explevel = CREATURE_MAX_LEVEL-1;
+            if ( summon_creature(sac->param, pos, plyr_idx, explevel) )
+              dungeon->lvstats.creatures_from_sacrifice++;
+            ret = SacR_Awarded;
+            break;
+        case SacA_MkGoodHero:
+            if (explevel >= CREATURE_MAX_LEVEL) explevel = CREATURE_MAX_LEVEL-1;
+            if ( summon_creature(sac->param, pos, 4, explevel) )
+              dungeon->lvstats.creatures_from_sacrifice++;
+            ret = SacR_Punished;
+            break;
+        case SacA_NegSpellAll:
+            if (explevel > SPELL_MAX_LEVEL) explevel = SPELL_MAX_LEVEL;
+            apply_spell_effect_to_players_creatures(plyr_idx, sac->param, explevel);
+            ret = SacR_Punished;
+            break;
+        case SacA_PosSpellAll:
+            if (explevel > SPELL_MAX_LEVEL) explevel = SPELL_MAX_LEVEL;
+            apply_spell_effect_to_players_creatures(plyr_idx, sac->param, explevel);
+            ret = SacR_Awarded;
+            break;
+        case SacA_NegUniqFunc:
+        case SacA_PosUniqFunc:
+            ret = create_sacrifice_unique_award(pos, plyr_idx, sac->param, explevel);
+            break;
+        default:
+            ERRORLOG("Unsupported sacrifice action %d!",(int)sac->action);
+            ret = SacR_Pleased;
+            break;
+        }
+        if ((ret != SacR_Pleased) && (ret != SacR_AngryWarn))
+          creature_sacrifice_reset(dungeon, sac);
+        return ret;
+      }
+    }
+    sac++;
+  } while (sac->action != SacA_None);
+  return ret;
+}
+
+short creature_being_sacrificed(struct Thing *thing)
+{
+  struct CreatureControl *cctrl;
+  struct SlabMap *slb;
+  struct Coord3d pos;
+  long owner,model,award;
+  SYNCDBG(6,"Starting");
+  //return _DK_creature_being_sacrificed(thing);
+
+  cctrl = creature_control_get_from_thing(thing);
+  cctrl->word_9A--;
+  if (cctrl->word_9A > 0)
+  {
+    award = creature_turn_to_face_angle(thing, thing->field_52 + 256);
+    thing->field_25 &= 0xDFu;
+    return 0;
+  }
+  slb = get_slabmap_for_subtile(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+  owner = slabmap_owner(slb);
+  add_creature_to_sacrifice_list(owner, thing->model, cctrl->explevel);
+  pos.x.val = thing->mappos.x.val;
+  pos.y.val = thing->mappos.y.val;
+  pos.z.val = thing->mappos.z.val;
+  model = thing->model;
+  kill_creature(thing, game.things_lookup[0], -1, 1, 0, 0);
+  award = process_sacrifice_award(&pos, model, owner);
+  if (is_my_player_number(owner))
+  {
+    switch (award)
+    {
+    case SacR_AngryWarn:
+        output_message(68, 0, 1);
+        break;
+    case SacR_DontCare:
+        output_message(67, 0, 1);
+        break;
+    case SacR_Pleased:
+        output_message(65, 0, 1);
+        break;
+    case SacR_Awarded:
+        output_message(66, 0, 1);
+        break;
+    case SacR_Punished:
+        output_message(69, 0, 1);
+        break;
+    default:
+        ERRORLOG("Invalid sacrifice return");
+        break;
+    }
+  }
+  return -1;
+}
+
+short creature_being_scavenged(struct Thing *thing)
+{
+  return _DK_creature_being_scavenged(thing);
+}
+
+short creature_being_summoned(struct Thing *thing)
+{
+  return _DK_creature_being_summoned(thing);
+}
+
+short creature_cannot_find_anything_to_do(struct Thing *thing)
+{
+  return _DK_creature_cannot_find_anything_to_do(thing);
+}
+
+short creature_change_from_chicken(struct Thing *thing)
+{
+  return _DK_creature_change_from_chicken(thing);
+}
+
+short creature_change_lair(struct Thing *thing)
+{
+  return _DK_creature_change_lair(thing);
+}
+
+short creature_change_to_chicken(struct Thing *thing)
+{
+  return _DK_creature_change_to_chicken(thing);
+}
+
+short creature_choose_room_for_lair_site(struct Thing *thing)
+{
+  return _DK_creature_choose_room_for_lair_site(thing);
+}
+
+short creature_combat_flee(struct Thing *thing)
+{
+  return _DK_creature_combat_flee(thing);
+}
+
+short creature_damage_walls(struct Thing *thing)
+{
+  return _DK_creature_damage_walls(thing);
+}
+
+short creature_doing_nothing(struct Thing *thing)
+{
+  return _DK_creature_doing_nothing(thing);
+}
+
+short creature_door_combat(struct Thing *thing)
+{
+  return _DK_creature_door_combat(thing);
+}
+
+short creature_dormant(struct Thing *thing)
+{
+  return _DK_creature_dormant(thing);
+}
+
+short creature_drop_body_in_prison(struct Thing *thing)
+{
+  return _DK_creature_drop_body_in_prison(thing);
+}
+
+short creature_drops_corpse_in_graveyard(struct Thing *thing)
+{
+  return _DK_creature_drops_corpse_in_graveyard(thing);
+}
+
+short creature_drops_crate_in_workshop(struct Thing *thing)
+{
+  return _DK_creature_drops_crate_in_workshop(thing);
+}
+
+short creature_drops_spell_object_in_library(struct Thing *thing)
+{
+  return _DK_creature_drops_spell_object_in_library(thing);
+}
+
+short creature_eat(struct Thing *thing)
+{
+  struct CreatureControl *cctrl;
+  //return _DK_creature_eat(thing);
+  cctrl = creature_control_get_from_thing(thing);
+  if (cctrl->field_D2 != 36)
+    internal_set_thing_state(thing, thing->field_8);
+  return true;
+}
+
+short creature_eating_at_garden(struct Thing *thing)
+{
+  return _DK_creature_eating_at_garden(thing);
+}
+
+short creature_escaping_death(struct Thing *thing)
+{
+  return _DK_creature_escaping_death(thing);
+}
+
+short creature_evacuate_room(struct Thing *thing)
+{
+  return _DK_creature_evacuate_room(thing);
+}
+
+short creature_explore_dungeon(struct Thing *thing)
+{
+  return _DK_creature_explore_dungeon(thing);
+}
+
+short creature_fired(struct Thing *thing)
+{
+  return _DK_creature_fired(thing);
+}
+
+short creature_follow_leader(struct Thing *thing)
+{
+  return _DK_creature_follow_leader(thing);
+}
+
+short creature_freeze_prisonors(struct Thing *thing)
+{
+  return _DK_creature_freeze_prisonors(thing);
+}
+
+short creature_going_home_to_sleep(struct Thing *thing)
+{
+  return _DK_creature_going_home_to_sleep(thing);
+}
+
+short creature_hero_entering(struct Thing *thing)
+{
+  return _DK_creature_hero_entering(thing);
+}
+
+short creature_in_combat(struct Thing *thing)
+{
+  return _DK_creature_in_combat(thing);
+}
+
+short creature_in_hold_audience(struct Thing *thing)
+{
+  return _DK_creature_in_hold_audience(thing);
+}
+
+long setup_prison_move(struct Thing *thing, struct Room *room)
+{
+  return _DK_setup_prison_move(thing, room);
+}
+
+long process_prison_visuals(struct Thing *thing, struct Room *room)
+{
+  struct CreatureControl *cctrl;
+  cctrl = creature_control_get_from_thing(thing);
+  if (cctrl->field_D2 != 0)
+    return Lb_OK;
+  if (game.play_gameturn-cctrl->field_82 > 200)
+  {
+    if (game.play_gameturn-cctrl->field_82 < 250)
+    {
+      set_creature_instance(thing, 44, 1, 0, 0);
+      if (game.play_gameturn-cctrl->long_9A > 32)
+      {
+        play_creature_sound(thing, 4, 2, 0);
+        cctrl->long_9A = game.play_gameturn;
+      }
+      return Lb_SUCCESS;
+    }
+    cctrl->field_82 = game.play_gameturn;
+  }
+  if ( setup_prison_move(thing, room) )
+  {
+    thing->field_8 = 41;
+    return Lb_SUCCESS;
+  }
+  return Lb_OK;
+}
+
+short creature_in_prison(struct Thing *thing)
+{
+  struct CreatureControl *cctrl;
+  struct Room *room;
+  TbResult ret;
+  //return _DK_creature_in_prison(thing);
+  cctrl = creature_control_get_from_thing(thing);
+  room = get_room_thing_is_on(thing);
+  if (room_is_invalid(room))
+  {
+    set_start_state(thing);
+    return Lb_OK;
+  }
+  if ( (room->kind != 4) || (cctrl->field_7E != room->index) )
+  {
+    set_start_state(thing);
+    return Lb_OK;
+  }
+  if (room->field_E < room->field_10)
+  {
+    if (is_my_player_number(room->owner))
+      output_message(26, 0, 1);
+    set_start_state(thing);
+    return Lb_OK;
+  }
+  ret = process_prison_function(thing);
+  if (ret == Lb_OK)
+    process_prison_visuals(thing,room);
+  return ret;
+}
+
+short creature_kill_creatures(struct Thing *thing)
+{
+  return _DK_creature_kill_creatures(thing);
+}
+
+short creature_leaves(struct Thing *thing)
+{
+  return _DK_creature_leaves(thing);
+}
+
+short creature_leaves_or_dies(struct Thing *thing)
+{
+  return _DK_creature_leaves_or_dies(thing);
+}
+
+short creature_leaving_dungeon(struct Thing *thing)
+{
+  return _DK_creature_leaving_dungeon(thing);
+}
+
+short creature_moan(struct Thing *thing)
+{
+  return _DK_creature_moan(thing);
+}
+
+short creature_object_combat(struct Thing *thing)
+{
+  return _DK_creature_object_combat(thing);
+}
+
+short creature_persuade(struct Thing *thing)
+{
+  return _DK_creature_persuade(thing);
+}
+
+short creature_pick_up_unconscious_body(struct Thing *thing)
+{
+  return _DK_creature_pick_up_unconscious_body(thing);
+}
+
+short creature_picks_up_corpse(struct Thing *thing)
+{
+  return _DK_creature_picks_up_corpse(thing);
+}
+
+short creature_picks_up_spell_object(struct Thing *thing)
+{
+  return _DK_creature_picks_up_spell_object(thing);
+}
+
+short creature_picks_up_trap_for_workshop(struct Thing *thing)
+{
+  return _DK_creature_picks_up_trap_for_workshop(thing);
+}
+
+short creature_picks_up_trap_object(struct Thing *thing)
+{
+  return _DK_creature_picks_up_trap_object(thing);
+}
+
+short creature_piss(struct Thing *thing)
+{
+  return _DK_creature_piss(thing);
+}
+
+short creature_present_to_dungeon_heart(struct Thing *thing)
+{
+  return _DK_creature_present_to_dungeon_heart(thing);
+}
+
+short creature_pretend_chicken_move(struct Thing *thing)
+{
+  return _DK_creature_pretend_chicken_move(thing);
+}
+
+short creature_pretend_chicken_setup_move(struct Thing *thing)
+{
+  return _DK_creature_pretend_chicken_setup_move(thing);
+}
+
+short creature_roar(struct Thing *thing)
+{
+  return _DK_creature_roar(thing);
+}
+
+short creature_sacrifice(struct Thing *thing)
+{
+  return _DK_creature_sacrifice(thing);
+}
+
+short creature_scavenged_disappear(struct Thing *thing)
+{
+  return _DK_creature_scavenged_disappear(thing);
+}
+
+short creature_scavenged_reappear(struct Thing *thing)
+{
+  return _DK_creature_scavenged_reappear(thing);
+}
+
+short creature_search_for_gold_to_steal_in_room(struct Thing *thing)
+{
+  return _DK_creature_search_for_gold_to_steal_in_room(thing);
+}
+
+short creature_set_work_room_based_on_position(struct Thing *thing)
+{
+  return _DK_creature_set_work_room_based_on_position(thing);
+}
+
+short creature_slap_cowers(struct Thing *thing)
+{
+  return _DK_creature_slap_cowers(thing);
+}
+
+short creature_sleep(struct Thing *thing)
+{
+  return _DK_creature_sleep(thing);
+}
+
+short creature_steal_gold(struct Thing *thing)
+{
+  return _DK_creature_steal_gold(thing);
+}
+
+short creature_take_salary(struct Thing *thing)
+{
+  return _DK_creature_take_salary(thing);
+}
+
+short creature_to_garden(struct Thing *thing)
+{
+  return _DK_creature_to_garden(thing);
+}
+
+short creature_unconscious(struct Thing *thing)
+{
+  return _DK_creature_unconscious(thing);
+}
+
+short creature_vandalise_rooms(struct Thing *thing)
+{
+  return _DK_creature_vandalise_rooms(thing);
+}
+
+short creature_wait_at_treasure_room_door(struct Thing *thing)
+{
+  return _DK_creature_wait_at_treasure_room_door(thing);
+}
+
+short creature_wants_a_home(struct Thing *thing)
+{
+  return _DK_creature_wants_a_home(thing);
+}
+
+short creature_wants_salary(struct Thing *thing)
+{
+  return _DK_creature_wants_salary(thing);
+}
+
+short good_attack_room(struct Thing *thing)
+{
+  return _DK_good_attack_room(thing);
+}
+
+short good_back_at_start(struct Thing *thing)
+{
+  return _DK_good_back_at_start(thing);
+}
+
+short good_doing_nothing(struct Thing *thing)
+{
+  return _DK_good_doing_nothing(thing);
+}
+
+short good_drops_gold(struct Thing *thing)
+{
+  return _DK_good_drops_gold(thing);
+}
+
+short good_leave_through_exit_door(struct Thing *thing)
+{
+  return _DK_good_leave_through_exit_door(thing);
+}
+
+short good_returns_to_start(struct Thing *thing)
+{
+  return _DK_good_returns_to_start(thing);
+}
+
+short good_wait_in_exit_door(struct Thing *thing)
+{
+  return _DK_good_wait_in_exit_door(thing);
+}
+
+short guarding(struct Thing *thing)
+{
+  return _DK_guarding(thing);
+}
+
+short imp_arrives_at_convert_dungeon(struct Thing *thing)
+{
+  return _DK_imp_arrives_at_convert_dungeon(thing);
+}
+
+short imp_arrives_at_dig_or_mine(struct Thing *thing)
+{
+  return _DK_imp_arrives_at_dig_or_mine(thing);
+}
+
+short imp_arrives_at_improve_dungeon(struct Thing *thing)
+{
+  return _DK_imp_arrives_at_improve_dungeon(thing);
+}
+
+short imp_arrives_at_reinforce(struct Thing *thing)
+{
+  return _DK_imp_arrives_at_reinforce(thing);
+}
+
+short imp_birth(struct Thing *thing)
+{
+  return _DK_imp_birth(thing);
+}
+
+short imp_converts_dungeon(struct Thing *thing)
+{
+  return _DK_imp_converts_dungeon(thing);
+}
+
+short imp_digs_mines(struct Thing *thing)
+{
+  return _DK_imp_digs_mines(thing);
+}
+
+short imp_doing_nothing(struct Thing *thing)
+{
+  return _DK_imp_doing_nothing(thing);
+}
+
+short imp_drops_gold(struct Thing *thing)
+{
+  return _DK_imp_drops_gold(thing);
+}
+
+short imp_improves_dungeon(struct Thing *thing)
+{
+  return _DK_imp_improves_dungeon(thing);
+}
+
+long check_place_to_convert_excluding(struct Thing *thing, long a2, long a3)
+{
+  return _DK_check_place_to_convert_excluding(thing, a2, a3);
+}
+
+long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3)
+{
+  return _DK_imp_will_soon_be_working_at_excluding(thing, a2, a3);
+}
+
+long check_out_unconverted_spiral(struct Thing *thing, long a2)
+{
+  return _DK_check_out_unconverted_spiral(thing, a2);
+}
+
+long check_place_to_pretty_excluding(struct Thing *thing, long a2, long a3)
+{
+  return _DK_check_place_to_pretty_excluding(thing, a2, a3);
+}
+
+long check_out_unprettied_spiral(struct Thing *thing, long a2)
+{
+  return _DK_check_out_unprettied_spiral(thing, a2);
+}
+
+TbBool check_out_unconverted_place(struct Thing *thing)
+{
+  long stl_x,stl_y;
+  long slb_x,slb_y;
+  slb_x = map_to_slab[thing->mappos.x.stl.num];
+  slb_y = map_to_slab[thing->mappos.y.stl.num];
+  stl_x = 3*slb_x + 1;
+  stl_y = 3*slb_y + 1;
+  if ( check_place_to_convert_excluding(thing, slb_x, slb_y)
+    && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y)
+    && setup_person_move_to_position(thing, stl_x, stl_y, 0) )
+  {
+    thing->field_8 = 73;
+    return true;
+  } else
+  if ( check_out_unconverted_spiral(thing, 1) )
+  {
+    return true;
+  }
+  return false;
+}
+
+long check_out_unprettied_place(struct Thing *thing)
+{
+  long stl_x,stl_y;
+  long slb_x,slb_y;
+  slb_x = map_to_slab[thing->mappos.x.stl.num];
+  slb_y = map_to_slab[thing->mappos.y.stl.num];
+  stl_x = 3*slb_x + 1;
+  stl_y = 3*slb_y + 1;
+  if ( check_place_to_pretty_excluding(thing, slb_x, slb_y)
+    && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y)
+    && setup_person_move_to_position(thing, stl_x, stl_y, 0) )
+  {
+    thing->field_8 = 9;
+    return true;
+  } else
+  if ( check_out_unprettied_spiral(thing, 1) )
+  {
+    return true;
+  }
+  return false;
+}
+
+long check_out_undug_place(struct Thing *thing)
+{
+  return _DK_check_out_undug_place(thing);
+}
+
+long check_out_undug_area(struct Thing *thing)
+{
+  return _DK_check_out_undug_area(thing);
+}
+
+void setup_imp_stack(struct Dungeon *dungeon)
+{
+  long i;
+  for (i = 0; i < dungeon->imp_stack_length; i++)
+  {
+    dungeon->imp_stack[i].field_2 = 0;
+  }
+  dungeon->imp_stack_update_turn = game.play_gameturn;
+  dungeon->imp_stack_length = 0;
+  r_stackpos = 0;
+}
+
+long add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long a2)
+{
+  return _DK_add_unclaimed_unconscious_bodies_to_imp_stack(dungeon, a2);
+}
+
+long add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long a2)
+{
+  return _DK_add_unclaimed_dead_bodies_to_imp_stack(dungeon, a2);
+}
+
+long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long a2)
+{
+  return _DK_add_unclaimed_spells_to_imp_stack(dungeon, a2);
+}
+
+long add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *thing)
+{
+  return _DK_add_object_for_trap_to_imp_stack(dungeon, thing);
+}
+
+TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num)
+{
+  struct Thing *thing;
+  unsigned long k;
+  int i;
+  SYNCDBG(18,"Starting");
+  k = 0;
+  i = game.thing_lists[7].index;
+  while (i != 0)
+  {
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
+    {
+      ERRORLOG("Jump to invalid thing detected");
+      break;
+    }
+    i = thing->next_of_class;
+    // Thing list loop body
+    if ((num <= 0) || (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT))
+      break;
+    if ((!thing->byte_13.l) && (thing->owner == dungeon->field_E9F))
+    {
+      if ( add_object_for_trap_to_imp_stack(dungeon, thing) )
+        num--;
+    }
+    // Thing list loop body ends
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  SYNCDBG(19,"Finished");
+  return true;
+}
+
+TbBool add_to_imp_stack_using_pos(long a1, long a2, struct Dungeon *dungeon)
+{
+  long i;
+  i = dungeon->imp_stack_length;
+  dungeon->imp_stack_length++;
+  dungeon->imp_stack[i].field_0 = a1;
+  dungeon->imp_stack[i].field_2 = a2;
+  return (dungeon->imp_stack_length < IMP_TASK_MAX_COUNT);
+}
+
+long block_has_diggable_side(long a1, long a2, long a3)
+{
+  return _DK_block_has_diggable_side(a1, a2, a3);
+}
+
+long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
+{
+  struct MapTask* mtask;
+  long stl_x, stl_y;
+  long i,nused;
+  SYNCDBG(18,"Starting");
+  nused = 0;
+  for (i = 0; i < dungeon->field_AF7; i++)
+  {
+    if ((num <= 0) || (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT))
+      break;
+    mtask = &dungeon->task_list[i];
+    if ((mtask->field_0 != 0) && (mtask->field_0 != 3))
+    {
+      stl_x = stl_num_decode_x(mtask->field_1);
+      stl_y = stl_num_decode_y(mtask->field_1);
+      if ( subtile_revealed(stl_x, stl_y, dungeon->field_E9F) )
+      {
+        if ( block_has_diggable_side(dungeon->field_E9F, map_to_slab[stl_x], map_to_slab[stl_y]) )
+        {
+          add_to_imp_stack_using_pos(mtask->field_1, 9, dungeon);
+          num--;
+          nused++;
+        }
+      }
+    }
+  }
+  return nused;
+}
+
+void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon)
+{
+  SYNCDBG(18,"Starting");
+//TODO: rework! (causes hang if near egde of the map)
+  _DK_add_pretty_and_convert_to_imp_stack(dungeon); return;
+}
+
+long add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon)
+{
+  return _DK_add_unclaimed_gold_to_imp_stack(dungeon);
+}
+
+TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
+{
+  struct SlabMap* slb;
+  struct Room* room;
+  unsigned long stl_num;
+  struct Thing* thing;
+  unsigned long k;
+  int i;
+  SYNCDBG(18,"Starting");
+  // Checking if the workshop exists
+  room = find_room_with_spare_room_item_capacity(dungeon->field_E9F, RoK_WORKSHOP);
+  if ( (dungeon->room_kind[RoK_WORKSHOP] <= 0) || room_is_invalid(room) )
+    return false;
+  k = 0;
+  i = game.thing_lists[2].index;
+  while (i != 0)
+  {
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
+    {
+      ERRORLOG("Jump to invalid thing detected");
+      break;
+    }
+    i = thing->next_of_class;
+    // Thing list loop body
+    if (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT)
+      break;
+    if ( thing_is_door_or_trap(thing) )
+    {
+      if ((thing->field_1 & 0x01) == 0)
+      {
+        if ((thing->owner == dungeon->field_E9F) || (thing->owner == game.field_14E497))
+        {
+          slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+          if (slabmap_owner(slb) == dungeon->field_E9F)
+          {
+            room = get_room_thing_is_on(thing);
+            if (room_is_invalid(room) || (room->kind != RoK_WORKSHOP))
+            {
+              stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+              add_to_imp_stack_using_pos(stl_num, 8, dungeon);
+            }
+          }
+        }
+      }
+    }
+    // Thing list loop body ends
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  SYNCDBG(19,"Finished");
+  return true;
+}
+
+void add_reinforce_to_imp_stack(struct Dungeon *dungeon)
+{
+  struct ImpStack *rfstack;
+  long i;
+  for (i=0; i < r_stackpos; i++)
+  {
+    if (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT)
+      break;
+    rfstack = &reinforce_stack[i];
+    add_to_imp_stack_using_pos(rfstack->field_0, rfstack->field_2, dungeon);
+  }
+}
+
+long imp_stack_update(struct Thing *thing)
+{
+  struct Dungeon *dungeon;
+  SYNCDBG(18,"Starting");
+  //return _DK_imp_stack_update(thing);
+  dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+  if ((game.play_gameturn - dungeon->imp_stack_update_turn) < 128)
+    return 0;
+  SYNCDBG(8,"Updating");
+  setup_imp_stack(dungeon);
+  add_unclaimed_unconscious_bodies_to_imp_stack(dungeon, 15);
+  add_unclaimed_dead_bodies_to_imp_stack(dungeon, 15);
+  add_unclaimed_spells_to_imp_stack(dungeon, 5);
+  add_empty_traps_to_imp_stack(dungeon, 10);
+  add_undug_to_imp_stack(dungeon, 40);
+  add_pretty_and_convert_to_imp_stack(dungeon);
+  add_unclaimed_gold_to_imp_stack(dungeon);
+  add_unclaimed_traps_to_imp_stack(dungeon);
+  add_reinforce_to_imp_stack(dungeon);
+  return 1;
+}
+
+long check_out_unprettied_or_unconverted_area(struct Thing *thing)
+{
+  return _DK_check_out_unprettied_or_unconverted_area(thing);
+}
+
+long creature_can_be_trained(struct Thing *thing)
+{
+  return _DK_creature_can_be_trained(thing);
+}
+
+long player_can_afford_to_train_creature(struct Thing *thing)
+{
+  return _DK_player_can_afford_to_train_creature(thing);
+}
+
+long check_out_unreinforced_place(struct Thing *thing)
+{
+  return _DK_check_out_unreinforced_place(thing);
+}
+
+long check_out_unreinforced_area(struct Thing *thing)
+{
+  return _DK_check_out_unreinforced_area(thing);
+}
+
+struct Room* find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing,
+    signed char a2, signed char a3, unsigned char a4, long a5)
+{
+  return _DK_find_nearest_room_for_thing_with_spare_capacity(thing, a2, a3, a4, a5);
+}
+long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3)
+{
+  return _DK_setup_random_head_for_room(thing, room, a3);
+}
+
+struct Room* find_room_with_spare_capacity(unsigned char a1, signed char a2, long a3)
+{
+  return _DK_find_room_with_spare_capacity(a1, a2, a3);
+}
+
+long check_out_imp_last_did(struct Thing *thing)
+{
+  struct CreatureControl *cctrl;
+  struct Dungeon *dungeon;
+  struct Room *room;
+  //return _DK_check_out_imp_last_did(thing);
+  cctrl = creature_control_get_from_thing(thing);
+  //SYNCDBG(9,"Starting case %d",(int)cctrl->field_8C[8]);
+  switch (cctrl->field_8C[8])
+  {
+  case 0:
+      return false;
+  case 1:
+      if ( check_out_undug_place(thing) || check_out_undug_area(thing) )
+      {
+        cctrl->field_8C[8] = 1;
+        return true;
+      }
+      if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
+      {
+        cctrl->field_8C[8] = 2;
+        return true;
+      }
+      imp_stack_update(thing);
+      if ( check_out_unprettied_or_unconverted_area(thing) )
+      {
+        cctrl->field_8C[8] = 2;
+        return true;
+      }
+      break;
+  case 2:
+      if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
+      {
+        cctrl->field_8C[8] = 2;
+        return true;
+      }
+      imp_stack_update(thing);
+      if ( check_out_unprettied_or_unconverted_area(thing) )
+      {
+        cctrl->field_8C[8] = 2;
+        return true;
+      }
+      if ( check_out_undug_area(thing) )
+      {
+        cctrl->field_8C[8] = 1;
+        return true;
+      }
+      break;
+  case 3:
+      dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+      imp_stack_update(thing);
+      if ((dungeon->imp_stack_update_turn != *((long *)&cctrl->field_89)) && (dungeon->imp_stack_length != 3))
+        break;
+      if ( check_out_unreinforced_place(thing) )
+      {
+        cctrl->field_8C[8] = 3;
+        return true;
+      }
+      if ( check_out_unreinforced_area(thing) )
+      {
+        cctrl->field_8C[8] = 3;
+        return true;
+      }
+      break;
+  case 4:
+      if ( !creature_can_be_trained(thing) || !player_can_afford_to_train_creature(thing) )
+        break;
+      room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, 6, 0, 1);
+      if (!room_is_invalid(room))
+      {
+        if ( setup_random_head_for_room(thing, room, 0) )
+        {
+          thing->field_8 = 32;
+          cctrl->field_80 = room->index;
+          return true;
+        }
+      }
+      if (is_my_player_number(thing->owner))
+      {
+        if ( !find_room_with_spare_capacity(thing->owner, 6, 1) )
+          output_message(28, 0, 1);
+      }
+      break;
+  case 9:
+      if ( check_out_unreinforced_place(thing) )
+      {
+        cctrl->field_8C[8] = 9;
+        return true;
+      }
+      if ( check_out_unreinforced_area(thing) )
+      {
+        cctrl->field_8C[8] = 9;
+        return true;
+      }
+      break;
+  default:
+      break;
+  }
+  cctrl->field_8C[8] = 0;
+  return false;
+}
+
+short imp_last_did_job(struct Thing *thing)
+{
+  //return _DK_imp_last_did_job(thing);
+  SYNCDBG(18,"Starting");
+  if (check_out_imp_last_did(thing))
+  {
+    return true;
+  } else
+  {
+    set_start_state(thing);
+    return false;
+  }
+}
+
+short imp_picks_up_gold_pile(struct Thing *thing)
+{
+  return _DK_imp_picks_up_gold_pile(thing);
+}
+
+short imp_reinforces(struct Thing *thing)
+{
+  return _DK_imp_reinforces(thing);
+}
+
+short imp_toking(struct Thing *thing)
+{
+  return _DK_imp_toking(thing);
+}
+
+long process_torture_visuals(struct Thing *thing, struct Room *room, long a3)
+{
+  return _DK_process_torture_visuals(thing, room, a3);
+}
+
+short kinky_torturing(struct Thing *thing)
+{
+  struct CreatureStats *crstat;
+  struct CreatureControl *cctrl;
+  struct Room *room;
+  //return _DK_kinky_torturing(thing);
+  crstat = creature_stats_get_from_thing(thing);
+  cctrl = creature_control_get_from_thing(thing);
+  room = get_room_thing_is_on(thing);
+  if (!room_is_invalid(room))
+    if ((room->kind == 5) && (cctrl->field_7E == room->index))
+      if (game.play_gameturn-cctrl->field_82 <= crstat->torture_time)
+      {
+        process_kinky_function(thing);
+        process_torture_visuals(thing, room, 110);
+
+        return true;
+      }
+  set_start_state(thing);
+  return false;
+}
+
+short mad_killing_psycho(struct Thing *thing)
+{
+  return _DK_mad_killing_psycho(thing);
+}
+
+short manufacturing(struct Thing *thing)
+{
+  return _DK_manufacturing(thing);
+}
+
+short move_backwards_to_position(struct Thing *thing)
+{
+  return _DK_move_backwards_to_position(thing);
+}
+
+long move_check_attack_any_door(struct Thing *thing)
+{
+  return _DK_move_check_attack_any_door(thing);
+}
+
+long move_check_can_damage_wall(struct Thing *thing)
+{
+  return _DK_move_check_can_damage_wall(thing);
+}
+
+long move_check_kill_creatures(struct Thing *thing)
+{
+  return _DK_move_check_kill_creatures(thing);
+}
+
+long move_check_near_dungeon_heart(struct Thing *thing)
+{
+  return _DK_move_check_near_dungeon_heart(thing);
+}
+
+long move_check_on_head_for_room(struct Thing *thing)
+{
+  return _DK_move_check_on_head_for_room(thing);
+}
+
+long move_check_persuade(struct Thing *thing)
+{
+  return _DK_move_check_persuade(thing);
+}
+
+long move_check_wait_at_door_for_wage(struct Thing *thing)
+{
+  return _DK_move_check_wait_at_door_for_wage(thing);
+}
+
+short move_to_position(struct Thing *thing)
+{
+  return _DK_move_to_position(thing);
+}
+
+char new_slab_tunneller_check_for_breaches(struct Thing *thing)
+{
+  return _DK_new_slab_tunneller_check_for_breaches(thing);
+}
+
+short patrol_here(struct Thing *thing)
+{
+  return _DK_patrol_here(thing);
+}
+
+short patrolling(struct Thing *thing)
+{
+  return _DK_patrolling(thing);
+}
+
+short person_sulk_at_lair(struct Thing *thing)
+{
+  return _DK_person_sulk_at_lair(thing);
+}
+
+short person_sulk_head_for_lair(struct Thing *thing)
+{
+  return _DK_person_sulk_head_for_lair(thing);
+}
+
+short person_sulking(struct Thing *thing)
+{
+  return _DK_person_sulking(thing);
+}
+
+short praying_in_temple(struct Thing *thing)
+{
+  return _DK_praying_in_temple(thing);
+}
+
+long process_kinky_function(struct Thing *thing)
+{
+  struct CreatureStats *crstat;
+  //return _DK_process_kinky_function(thing);
+  crstat = creature_stats_get_from_thing(thing);
+  anger_apply_anger_to_creature(thing, crstat->annoy_in_torture, 4, 1);
+  return 0;
+}
+
+long room_still_valid_as_type_for_thing(struct Room *room, long rkind, struct Thing *thing)
+{
+  return ((room->field_0 & 0x01) != 0) && (room->kind == rkind);
+}
+
+void create_effect_around_thing(struct Thing *thing, long eff_kind)
+{
+  _DK_create_effect_around_thing(thing, eff_kind);
+}
+
+void prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thing)
+{
+  struct Dungeon *dungeon;
+  struct CreatureStats *crstat;
+  struct CreatureControl *cctrl;
+  struct Thing *crthing;
+  cctrl = creature_control_get_from_thing(thing);
+  crstat = creature_stats_get_from_thing(thing);
+  crthing = create_creature(&thing->mappos, 15, room->owner);
+  if (thing_is_invalid(crthing))
+  {
+    ERRORLOG("Couldn't create skeleton in prison");
+    return;
+  }
+  init_creature_level(crthing, cctrl->explevel);
+  set_start_state(crthing);
+  if ( creature_model_bleeds(thing->model) )
+    create_effect_around_thing(thing, 10);
+  kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
+  dungeon = &(game.dungeon[room->owner%DUNGEONS_COUNT]);
+  dungeon->lvstats.skeletons_raised++;
+}
+
+TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
+{
+  struct CreatureStats *crstat;
+  crstat = creature_stats_get_from_thing(thing);
+  if ( (thing->health >= 0) || (!crstat->humanoid_creature) )
+    return false;
+  if (ACTION_RANDOM(101) > game.prison_skeleton_chance)
+    return false;
+  if (is_my_player_number(thing->owner))
+    output_message(55, 0, 1);
+  prison_convert_creature_to_skeleton(room,thing);
+  return true;
+}
+
+void remove_health_from_thing_and_display_health(struct Thing *thing, long delta)
+{
+  _DK_remove_health_from_thing_and_display_health(thing, delta);
+}
+
+long slab_by_players_land(long plyr_idx, long slb_x, long slb_y)
+{
+  return _DK_slab_by_players_land(plyr_idx, slb_x, slb_y);
+}
+
+TbBool jailbreak_possible(struct Room *room, long plyr_idx)
+{
+  unsigned long i;
+  unsigned long k;
+  struct SlabMap *slb;
+  if ( (room->owner == plyr_idx) || (!room->field_37) )
+    return false;
+  k = 0;
+  i = room->field_37;
+  while (i > 0)
+  {
+    slb = get_slabmap_direct(i);
+    if (slabmap_block_invalid(slb))
+    {
+      ERRORLOG("Jump to invalid room slab detected");
+      break;
+    }
+    if (slab_by_players_land(plyr_idx, slb_num_decode_x(i), slb_num_decode_y(i)))
+      return true;
+    i = slb->field_1;
+    k++;
+    if (k > map_tiles_x*map_tiles_y)
+    {
+      ERRORLOG("Infinite loop detected when sweeping room slabs");
+      break;
+    }
+  }
+  return false;
+}
+
+TbBool process_creature_hunger(struct Thing *thing)
+{
+  struct CreatureControl *cctrl;
+  struct CreatureStats *crstat;
+  cctrl = creature_control_get_from_thing(thing);
+  crstat = creature_stats_get_from_thing(thing);
+  if ( (crstat->hunger_rate == 0) || ((cctrl->field_AB & 0x02) != 0) )
+    return false;
+  cctrl->field_39++;
+  if (cctrl->field_39 <= crstat->hunger_rate)
+    return false;
+  if ((game.play_gameturn % game.turns_per_hunger_health_loss) == 0)
+    remove_health_from_thing_and_display_health(thing, game.hunger_health_loss);
+  return true;
+}
+
+long process_prison_food(struct Thing *thing, struct Room *room)
+{
+  return _DK_process_prison_food(thing, room);
+}
+
+long process_prison_function(struct Thing *thing)
+{
+  struct CreatureControl *cctrl;
+  struct Room *room;
+  //return _DK_process_prison_function(thing);
+  cctrl = creature_control_get_from_thing(thing);
+  room = room_get(cctrl->field_7E);
+  if ( !room_still_valid_as_type_for_thing(room, 4, thing) )
+  {
+    set_start_state(thing);
+    return 1;
+  }
+  process_creature_hunger(thing);
+  if ( process_prisoner_skelification(thing,room) )
+    return -1;
+  if ((cctrl->field_D2 == 0) && process_prison_food(thing, room) )
+    return 1;
+  if ((game.play_gameturn & 0x3F) != 0)
+    return 0;
+  if (!jailbreak_possible(room, thing->owner))
+    return 0;
+  if ( is_my_player_number(room->owner) )
+    output_message(57, 0, 1);
+  set_start_state(thing);
+  return 1;
+}
+
+long process_research_function(struct Thing *thing)
+{
+  return _DK_process_research_function(thing);
+}
+
+long process_scavenge_function(struct Thing *thing)
+{
+  return _DK_process_scavenge_function(thing);
+}
+
+long process_temple_function(struct Thing *thing)
+{
+  return _DK_process_temple_function(thing);
+}
+
+long process_torture_function(struct Thing *thing)
+{
+  return _DK_process_torture_function(thing);
+}
+
+short researching(struct Thing *thing)
+{
+  return _DK_researching(thing);
+}
+
+short scavengering(struct Thing *thing)
+{
+  return _DK_scavengering(thing);
+}
+
+short seek_the_enemy(struct Thing *thing)
+{
+  return _DK_seek_the_enemy(thing);
+}
+
+short state_cleanup_dragging_body(struct Thing *thing)
+{
+  return _DK_state_cleanup_dragging_body(thing);
+}
+
+short state_cleanup_dragging_object(struct Thing *thing)
+{
+  return _DK_state_cleanup_dragging_object(thing);
+}
+
+short state_cleanup_in_room(struct Thing *thing)
+{
+  return _DK_state_cleanup_in_room(thing);
+}
+
+short state_cleanup_in_temple(struct Thing *thing)
+{
+  return _DK_state_cleanup_in_temple(thing);
+}
+
+short state_cleanup_unable_to_fight(struct Thing *thing)
+{
+  return _DK_state_cleanup_unable_to_fight(thing);
+}
+
+short state_cleanup_unconscious(struct Thing *thing)
+{
+  return _DK_state_cleanup_unconscious(thing);
+}
+
+short torturing(struct Thing *thing)
+{
+  return _DK_torturing(thing);
+}
+
+short training(struct Thing *thing)
+{
+  return _DK_training(thing);
+}
+
+short tunneller_doing_nothing(struct Thing *thing)
+{
+  return _DK_tunneller_doing_nothing(thing);
+}
+
+short tunnelling(struct Thing *thing)
+{
+  return _DK_tunnelling(thing);
+}
+/******************************************************************************/
+TbBool internal_set_thing_state(struct Thing *thing, long nState)
+{
+  struct CreatureControl *cctrl;
+  thing->field_7 = nState;
+  thing->field_1 &= 0xEF;
+  thing->field_8 = 0;
+  cctrl = creature_control_get_from_thing(thing);
+  cctrl->field_302 = 0;
+  clear_creature_instance(thing);
+  return true;
+}
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
