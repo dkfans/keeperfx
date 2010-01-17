@@ -74,25 +74,25 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n);
 long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n);
 
 struct PlayerInstanceInfo player_instance_info[] = {
-  { 0, 0, NULL,                      NULL,                      NULL,                               0, 0, 0},
-  { 3, 1, pinstfs_hand_grab,         pinstfm_hand_grab,         pinstfe_hand_grab,                  0, 0, 0},
-  { 3, 1, pinstfs_hand_drop,         pinstfm_hand_drop,         pinstfe_hand_drop,                  0, 0, 0},
-  { 4, 0, pinstfs_hand_whip,         NULL,                      pinstfe_hand_whip,                  0, 0, 0},
-  { 5, 0, pinstfs_hand_whip_end,     NULL,                      pinstfe_hand_whip_end,              0, 0, 0},
-  {12, 1, pinstfs_control_creature,  pinstfm_control_creature,  pinstfe_direct_control_creature,    0, 0, 0},
-  {12, 1, pinstfs_control_creature,  pinstfm_control_creature,  pinstfe_passenger_control_creature, 0, 0, 0},
-  {12, 1, pinstfs_direct_leave_creature,pinstfm_leave_creature, pinstfe_leave_creature,             0, 0, 0},
-  {12, 1, pinstfs_passenger_leave_creature,pinstfm_leave_creature,pinstfe_leave_creature,           0, 0, 0},
-  { 0, 1, pinstfs_query_creature,    NULL,                      NULL,                               0, 0, 0},
-  { 0, 1, pinstfs_unquery_creature,  NULL,                      NULL,                               0, 0, 0},
-  {16, 1, pinstfs_zoom_to_heart,     pinstfm_zoom_to_heart,     pinstfe_zoom_to_heart,              0, 0, 0},
-  {16, 1, pinstfs_zoom_out_of_heart, pinstfm_zoom_out_of_heart, pinstfe_zoom_out_of_heart,          0, 0, 0},
-  {12, 1, NULL,                      pinstfm_control_creature_fade,pinstfe_control_creature_fade,   0, 0, 0},
-  { 8, 1, pinstfs_fade_to_map,       pinstfm_fade_to_map,       pinstfe_fade_to_map,                0, 0, 0},
-  { 8, 1, pinstfs_fade_from_map,     pinstfm_fade_from_map,     pinstfe_fade_from_map,              0, 0, 0},
-  {-1, 1, pinstfs_zoom_to_position,  pinstfm_zoom_to_position,  pinstfe_zoom_to_position,           0, 0, 0},
-  { 0, 0, NULL,                      NULL,                      NULL,                               0, 0, 0},
-  { 0, 0, NULL,                      NULL,                      NULL,                               0, 0, 0},
+  { 0, 0, NULL,                      NULL,                      NULL,                               {0}, {0}, 0, 0},
+  { 3, 1, pinstfs_hand_grab,         pinstfm_hand_grab,         pinstfe_hand_grab,                  {0}, {0}, 0, 0},
+  { 3, 1, pinstfs_hand_drop,         pinstfm_hand_drop,         pinstfe_hand_drop,                  {0}, {0}, 0, 0},
+  { 4, 0, pinstfs_hand_whip,         NULL,                      pinstfe_hand_whip,                  {0}, {0}, 0, 0},
+  { 5, 0, pinstfs_hand_whip_end,     NULL,                      pinstfe_hand_whip_end,              {0}, {0}, 0, 0},
+  {12, 1, pinstfs_control_creature,  pinstfm_control_creature,  pinstfe_direct_control_creature,    {0}, {0}, 0, 0},
+  {12, 1, pinstfs_control_creature,  pinstfm_control_creature,  pinstfe_passenger_control_creature, {0}, {0}, 0, 0},
+  {12, 1, pinstfs_direct_leave_creature,pinstfm_leave_creature, pinstfe_leave_creature,             {0}, {0}, 0, 0},
+  {12, 1, pinstfs_passenger_leave_creature,pinstfm_leave_creature,pinstfe_leave_creature,           {0}, {0}, 0, 0},
+  { 0, 1, pinstfs_query_creature,    NULL,                      NULL,                               {0}, {0}, 0, 0},
+  { 0, 1, pinstfs_unquery_creature,  NULL,                      NULL,                               {0}, {0}, 0, 0},
+  {16, 1, pinstfs_zoom_to_heart,     pinstfm_zoom_to_heart,     pinstfe_zoom_to_heart,              {0}, {0}, 0, 0},
+  {16, 1, pinstfs_zoom_out_of_heart, pinstfm_zoom_out_of_heart, pinstfe_zoom_out_of_heart,          {0}, {0}, 0, 0},
+  {12, 1, NULL,                      pinstfm_control_creature_fade,pinstfe_control_creature_fade,   {0}, {0}, 0, 0},
+  { 8, 1, pinstfs_fade_to_map,       pinstfm_fade_to_map,       pinstfe_fade_to_map,                {0}, {0}, 0, 0},
+  { 8, 1, pinstfs_fade_from_map,     pinstfm_fade_from_map,     pinstfe_fade_from_map,              {0}, {0}, 0, 0},
+  {-1, 1, pinstfs_zoom_to_position,  pinstfm_zoom_to_position,  pinstfe_zoom_to_position,           {0}, {0}, 0, 0},
+  { 0, 0, NULL,                      NULL,                      NULL,                               {0}, {0}, 0, 0},
+  { 0, 0, NULL,                      NULL,                      NULL,                               {0}, {0}, 0, 0},
 };
 
 /******************************************************************************/
@@ -736,7 +736,18 @@ long pinstfm_control_creature_fade(struct PlayerInfo *player, long *n)
 
 long pinstfe_control_creature_fade(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfe_control_creature_fade(player, n);
+  //return _DK_pinstfe_control_creature_fade(player, n);
+  if (is_my_player(player))
+  {
+    if ((player->field_3 & 0x04) == 0)
+      PaletteSetPlayerPalette(player, _DK_blue_palette);
+    else
+      PaletteSetPlayerPalette(player, _DK_palette);
+  }
+  player->field_0 &= 0xEF;
+  light_turn_light_off(player->field_460);
+  player->field_0 &= 0x7F;
+  return 0;
 }
 
 long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)

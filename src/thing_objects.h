@@ -66,9 +66,6 @@ DLLIMPORT extern unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
 
 #pragma pack()
 /******************************************************************************/
-extern Thing_Class_Func object_state_functions[];
-extern Thing_Class_Func object_update_functions[];
-/******************************************************************************/
 struct Objects *get_objects_data_for_thing(struct Thing *thing);
 struct Objects *get_objects_data(unsigned int tmodel);
 unsigned int get_workshop_object_class_for_thing(struct Thing *thing);

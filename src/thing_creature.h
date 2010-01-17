@@ -82,7 +82,8 @@ struct Thing *get_creature_near_with_filter(unsigned short pos_x, unsigned short
 void anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, long a3);
 void apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev);
 long move_creature(struct Thing *thing);
-TbBool kill_creature(struct Thing *thing, struct Thing *tngrp, char a1, unsigned char a2, unsigned char a3, TbBool a4);
+TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3,
+      unsigned char a4, TbBool died_in_battle, unsigned char a6);
 void process_creature_instance(struct Thing *thing);
 void update_creature_count(struct Thing *thing);
 long process_creature_state(struct Thing *thing);

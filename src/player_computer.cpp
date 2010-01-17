@@ -1380,7 +1380,7 @@ short write_computer_player_event_to_log(struct ComputerEvent *event)
 /*
  * Writes AI config file to keeper log.
  */
-short write_computer_player_file_to_log(void)
+void write_computer_player_file_to_log(void)
 {
   int i,k,n;
   struct ComputerProcessTypes *cpt;

@@ -375,6 +375,9 @@ TbClockMSec last_loop_time=0;
 #ifdef __cplusplus
 extern "C" {
 #endif
+DLLIMPORT void _DK_draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
+DLLIMPORT void _DK_draw_lightning(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
+DLLIMPORT unsigned char _DK_line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2);
 DLLIMPORT int _DK_can_thing_be_picked_up_by_player(struct Thing *thing, unsigned char plyr_idx);
 DLLIMPORT void _DK_draw_overhead_room_icons(long x, long y);
 DLLIMPORT void _DK_draw_overhead_things(long x, long y);
@@ -492,7 +495,7 @@ DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
 DLLIMPORT void _DK_draw_jonty_mapwho(struct JontySpr *jspr);
 DLLIMPORT void _DK_draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);
 DLLIMPORT void _DK_draw_engine_number(struct Number *num);
-DLLIMPORT void _DK_draw_engine_room_flag_top(struct RoomFlag *rflg);
+DLLIMPORT void _DK_draw_engine_room_flag(struct RoomFlag *rflg);
 DLLIMPORT struct Thing *_DK_get_nearest_thing_for_hand_or_slap(unsigned char a1, long a2, long a3);
 DLLIMPORT long _DK_screen_to_map(struct Camera *camera, long scrpos_x, long scrpos_y, struct Coord3d *mappos);
 DLLIMPORT void _DK_draw_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int scanln);
@@ -531,6 +534,16 @@ DLLIMPORT void _DK_process_keeper_spell_effect(struct Thing *thing);
 DLLIMPORT long _DK_creature_is_group_leader(struct Thing *thing);
 DLLIMPORT void _DK_leader_find_positions_for_followers(struct Thing *thing);
 DLLIMPORT long _DK_update_creature_levels(struct Thing *thing);
+DLLIMPORT unsigned long _DK_lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
+DLLIMPORT void _DK_affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
+DLLIMPORT void _DK_god_lightning_choose_next_creature(struct Thing *thing);
+DLLIMPORT long _DK_move_shot(struct Thing *thing);
+DLLIMPORT void _DK_draw_god_lightning(struct Thing *thing);
+DLLIMPORT void _DK_affect_nearby_stuff_with_vortex(struct Thing *thing);
+DLLIMPORT void _DK_affect_nearby_friends_with_alarm(struct Thing *thing);
+DLLIMPORT long _DK_apply_wallhug_force_to_boulder(struct Thing *thing);
+DLLIMPORT void _DK_lightning_modify_palette(struct Thing *thing);
+DLLIMPORT void _DK_update_god_lightning_ball(struct Thing *thing);
 DLLIMPORT long _DK_process_creature_self_spell_casting(struct Thing *thing);
 DLLIMPORT long _DK_update_shot(struct Thing *thing);
 DLLIMPORT long _DK_update_dead_creature(struct Thing *thing);
@@ -653,7 +666,6 @@ DLLIMPORT int __cdecl _DK_process_sound_heap(void);
 DLLIMPORT void __cdecl _DK_startup_saved_packet_game(void);
 DLLIMPORT void __cdecl _DK_set_sprite_view_3d(void);
 DLLIMPORT void __cdecl _DK_set_sprite_view_isometric(void);
-DLLIMPORT void __cdecl _DK_poison_cloud_affecting_area(struct Thing *thing, struct Coord3d *pos, long a3, long a4, unsigned char a5);
 DLLIMPORT void __cdecl _DK_do_slab_efficiency_alteration(unsigned char a1, unsigned char a2);
 DLLIMPORT void __cdecl _DK_place_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 DLLIMPORT long _DK_light_get_light_intensity(long idx);
@@ -720,6 +732,7 @@ DLLIMPORT void _DK_post_init_players(void);
 DLLIMPORT void _DK_init_level(void);
 DLLIMPORT void _DK_init_player(struct PlayerInfo *player, int a2);
 DLLIMPORT int _DK_frontend_is_player_allied(long plyr1, long plyr2);
+DLLIMPORT void _DK_process_dungeon_destroy(struct Thing *thing);
 #ifdef __cplusplus
 }
 #endif
@@ -983,9 +996,9 @@ void draw_engine_number(struct Number *num)
   _DK_draw_engine_number(num);
 }
 
-void draw_engine_room_flag_top(struct RoomFlag *rflg)
+void draw_engine_room_flag(struct RoomFlag *rflg)
 {
-  _DK_draw_engine_room_flag_top(rflg);
+  _DK_draw_engine_room_flag(rflg);
 }
 
 long get_smaller_memory_amount(long amount)
@@ -1399,7 +1412,7 @@ void destroy_food(struct Thing *thing)
 
 TbBool slap_object(struct Thing *thing)
 {
-  if (thing->model == 10)
+  if (object_is_mature_food(thing))
   {
     destroy_food(thing);
     return true;
@@ -1411,7 +1424,7 @@ TbBool object_is_slappable(struct Thing *thing, long plyr_idx)
 {
   if (thing->owner == plyr_idx)
   {
-    return (thing->model == 10);
+    return (object_is_mature_food(thing));
   }
   return false;
 }
@@ -1750,6 +1763,11 @@ void add_creature_to_sacrifice_list(long plyr_idx, long model, long explevel)
   dungeon->creature_sacrifice[model]++;
   dungeon->creature_sacrifice_exp[model] += explevel+1;
   dungeon->lvstats.creatures_sacrificed++;
+}
+
+void process_dungeon_destroy(struct Thing *thing)
+{
+  _DK_process_dungeon_destroy(thing);
 }
 
 long creature_turn_to_face_angle(struct Thing *thing, long a2)
@@ -2644,15 +2662,425 @@ long process_creature_self_spell_casting(struct Thing *thing)
   return _DK_process_creature_self_spell_casting(thing);
 }
 
-long update_shot(struct Thing *thing)
+unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
 {
-  SYNCDBG(18,"Starting");
-  return _DK_update_shot(thing);
+  return _DK_lightning_is_close_to_player(player, pos);
 }
 
-void explosion_affecting_area(struct Thing *thing, const struct Coord3d *pos, long a3, long a4, unsigned char a5)
+void affect_nearby_enemy_creatures_with_wind(struct Thing *thing)
 {
-  _DK_explosion_affecting_area(thing, pos, a3, a4, a5);
+  _DK_affect_nearby_enemy_creatures_with_wind(thing);
+}
+
+void god_lightning_choose_next_creature(struct Thing *thing)
+{
+  _DK_god_lightning_choose_next_creature(thing);
+}
+
+long move_shot(struct Thing *thing)
+{
+  return _DK_move_shot(thing);
+}
+
+void draw_god_lightning(struct Thing *thing)
+{
+  _DK_draw_god_lightning(thing);
+}
+
+void affect_nearby_stuff_with_vortex(struct Thing *thing)
+{
+  _DK_affect_nearby_stuff_with_vortex(thing);
+}
+
+void affect_nearby_friends_with_alarm(struct Thing *thing)
+{
+    _DK_affect_nearby_friends_with_alarm(thing);
+}
+
+long apply_wallhug_force_to_boulder(struct Thing *thing)
+{
+  return _DK_apply_wallhug_force_to_boulder(thing);
+}
+
+void lightning_modify_palette(struct Thing *thing)
+{
+  struct PlayerInfo *myplyr;
+  // _DK_lightning_modify_palette(thing);
+  myplyr = &game.players[my_player_number%PLAYERS_COUNT];
+
+  if (thing->health == 0)
+  {
+    PaletteSetPlayerPalette(myplyr, _DK_palette);
+    myplyr->field_3 &= 0xF7u;
+    return;
+  }
+  if (myplyr->acamera == NULL)
+    return;
+  if (((thing->health % 8) != 7) && (thing->health != 1) && (ACTION_RANDOM(4) != 0))
+  {
+    if ((myplyr->field_3 & 0x08) != 0)
+    {
+      if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
+      {
+          PaletteSetPlayerPalette(myplyr, _DK_palette);
+          myplyr->field_3 &= 0xF7u;
+      }
+    }
+    return;
+  }
+  if ((myplyr->field_37 != 6) && (myplyr->field_37 != 7) && (myplyr->field_37 != 3))
+  {
+    if ((myplyr->field_3 & 0x08) == 0)
+    {
+      if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
+      {
+        PaletteSetPlayerPalette(myplyr, lightning_palette);
+        myplyr->field_3 |= 0x08;
+      }
+    }
+  }
+}
+
+void update_god_lightning_ball(struct Thing *thing)
+{
+  _DK_update_god_lightning_ball(thing);
+}
+
+long update_shot(struct Thing *thing)
+{
+  struct ShotStats *shotstat;
+  struct PlayerInfo *myplyr;
+  struct PlayerInfo *player;
+  struct Thing *target;
+  struct Coord3d pos1;
+  struct Coord3d pos2;
+  struct CoordDelta3d dtpos;
+  struct ComponentVector cvect;
+  long i;
+  TbBool hit;
+  SYNCDBG(18,"Starting");
+  //return _DK_update_shot(thing);
+  target = NULL;
+  hit = false;
+  shotstat = &shot_stats[thing->model];
+  myplyr = &game.players[my_player_number%PLAYERS_COUNT];
+  player = &game.players[thing->owner%PLAYERS_COUNT];
+  if (thing->index != thing->field_1D)
+    target = thing_get(thing->field_1D);
+  if (shotstat->shot_sound != 0)
+  {
+    if (!S3DEmitterIsPlayingSample(thing->field_66, shotstat->shot_sound, 0))
+      thing_play_sample(thing, shotstat->shot_sound, 100, 0, 3, 0, 2, 256);
+  }
+  if (shotstat->field_47)
+    thing->health--;
+  if (thing->health < 0)
+  {
+    hit = true;
+  } else
+  {
+    switch ( thing->model )
+    {
+      case 2:
+        for (i = 2; i > 0; i--)
+        {
+          pos1.x.val = thing->mappos.x.val - ACTION_RANDOM(127) + 63;
+          pos1.y.val = thing->mappos.y.val - ACTION_RANDOM(127) + 63;
+          pos1.z.val = thing->mappos.z.val - ACTION_RANDOM(127) + 63;
+          create_thing(&pos1, 3, 1, thing->owner, -1);
+        }
+        break;
+      case 4:
+        if ( lightning_is_close_to_player(myplyr, &thing->mappos) )
+        {
+          if (is_my_player_number(thing->owner))
+          {
+            if ((thing->field_1D != 0) && (myplyr->field_2F == thing->field_1D))
+            {
+              PaletteSetPlayerPalette(player, lightning_palette);
+              myplyr->field_3 |= 0x08;
+            }
+          }
+        }
+        break;
+      case 6:
+        target = thing_get(thing->word_17);
+        if ((!thing_is_invalid(target)) && (target->class_id == TCls_Creature))
+        {
+            pos2.x.val = target->mappos.x.val;
+            pos2.y.val = target->mappos.y.val;
+            pos2.z.val = target->mappos.z.val;
+            pos2.z.val += (target->field_58 >> 1);
+            thing->field_52 = get_angle_xy_to(&thing->mappos, &pos2);
+            thing->field_54 = get_angle_yz_to(&thing->mappos, &pos2);
+            angles_to_vector(thing->field_52, thing->field_54, shotstat->speed, &cvect);
+            dtpos.x.val = cvect.x - thing->pos_2C.x.val;
+            dtpos.y.val = cvect.y - thing->pos_2C.y.val;
+            dtpos.z.val = cvect.z - thing->pos_2C.z.val;
+            cvect.x = dtpos.x.val;
+            cvect.y = dtpos.y.val;
+            cvect.z = dtpos.z.val;
+            i = LbSqrL(dtpos.x.val*dtpos.x.val + dtpos.y.val*dtpos.y.val + dtpos.z.val*dtpos.z.val);
+            if (i > 128)
+            {
+              dtpos.x.val = (cvect.x << 7) / i;
+              dtpos.y.val = (cvect.y << 7) / i;
+              dtpos.z.val = (cvect.z << 7) / i;
+              cvect.x = dtpos.x.val;
+              cvect.y = dtpos.y.val;
+              cvect.z = dtpos.z.val;
+            }
+            thing->pos_32.x.val += cvect.x;
+            thing->pos_32.y.val += cvect.y;
+            thing->pos_32.z.val += cvect.z;
+            thing->field_1 |= 0x04;
+        }
+        break;
+      case 8:
+        for (i = 10; i > 0; i--)
+        {
+          pos1.x.val = thing->mappos.x.val - ACTION_RANDOM(1023) + 511;
+          pos1.y.val = thing->mappos.y.val - ACTION_RANDOM(1023) + 511;
+          pos1.z.val = thing->mappos.z.val - ACTION_RANDOM(1023) + 511;
+          create_thing(&pos1, 3, 12, thing->owner, -1);
+        }
+        affect_nearby_enemy_creatures_with_wind(thing);
+        break;
+      case 11:
+        thing->field_52 = (thing->field_52 + 113) & 0x7FF;
+        break;
+      case 15:
+      case 20:
+        if ( apply_wallhug_force_to_boulder(thing) )
+          hit = true;
+        break;
+      case 16:
+        draw_god_lightning(thing);
+        lightning_modify_palette(thing);
+        break;
+      case 18:
+        affect_nearby_stuff_with_vortex(thing);
+        break;
+      case 19:
+        affect_nearby_friends_with_alarm(thing);
+        break;
+      case 24:
+        update_god_lightning_ball(thing);
+        break;
+      case 29:
+        if (((game.play_gameturn - thing->field_9) % 16) == 0)
+        {
+          thing->field_19 = 5;
+          god_lightning_choose_next_creature(thing);
+          target = thing_get(thing->word_17);
+          if (!thing_is_invalid(target))
+          {
+            shotstat = &shot_stats[24];
+            draw_lightning(&thing->mappos,&target->mappos, 96, 60);
+            apply_damage_to_thing_and_display_health(target, shotstat->damage, thing->owner);
+          }
+        }
+        break;
+      default:
+        break;
+    }
+  }
+  if (!hit)
+    return move_shot(thing);
+  switch ( thing->model )
+  {
+    case 4:
+    case 16:
+    case 24:
+      PaletteSetPlayerPalette(myplyr, _DK_palette);
+      break;
+    case 11:
+      create_effect(&thing->mappos, 50, thing->owner);
+      create_effect(&thing->mappos,  9, thing->owner);
+      explosion_affecting_area(target, &thing->mappos, 8, 256, thing->byte_13.f3);
+      break;
+    case 15:
+      create_effect_around_thing(thing, 26);
+      break;
+    default:
+      break;
+  }
+  delete_thing_structure(thing, 0);
+  return 0;
+}
+
+unsigned char line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2)
+{
+  return _DK_line_of_sight_3d(pos1, pos2);
+}
+
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4)
+{
+  _DK_draw_flame_breath(pos1, pos2, a3, a4);
+}
+
+void draw_lightning(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4)
+{
+  _DK_draw_lightning(pos1, pos2, a3, a4);
+}
+
+/**
+ * Determines if an explosion of given hit thing type and owner can affect given thing.
+ * Explosions can affect a lot more things than shots. If only the thing isn't invalid,
+ * it is by default affected by explosions.
+ */
+TbBool explosion_can_affect_thing(struct Thing *thing, long hit_type, long explode_owner)
+{
+  if (thing_is_invalid(thing))
+  {
+    WARNLOG("Invalid thing tries to interact with explosion");
+    return false;
+  }
+  switch (hit_type)
+  {
+  case 1:
+      if ((thing->class_id != TCls_Creature) && (thing->class_id != TCls_Object))
+        return false;
+      return true;
+  case 2:
+      if (thing->class_id != TCls_Creature)
+        return false;
+      return true;
+  case 3:
+      if ((thing->class_id != TCls_Creature) && (thing->class_id != TCls_Object))
+        return false;
+      if (thing->owner == explode_owner)
+        return false;
+      return true;
+  case 4:
+      if (thing->class_id != TCls_Creature)
+        return false;
+      if (thing->owner == explode_owner)
+        return false;
+      return true;
+  case 7:
+      if (thing->class_id == TCls_Object)
+        return true;
+      if (thing_is_dungeon_heart(thing))
+        return true;
+      return false;
+  case 8:
+      return true;
+  default:
+      WARNLOG("Illegal hit thing type for explosion");
+      return true;
+  }
+}
+
+void explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos, long max_dist, long max_damage, long owner)
+{
+  long move_dist,move_angle;
+  long distance,damage;
+  if ( line_of_sight_3d(pos, &tngdst->mappos) )
+  {
+    move_angle = get_angle_xy_to(pos, &tngdst->mappos);
+    distance = get_2d_distance(pos, &tngdst->mappos);
+    if ( distance < max_dist )
+    {
+      move_dist = ((max_dist - distance) << 8) / max_dist;
+      if (tngdst->class_id == TCls_Creature)
+      {
+        // damage = (max_dist - distance) * 300 * max_damage / 256 / max_dist + 1;
+        damage = get_radially_decaying_value(max_damage,max_dist/4,max_dist,distance)+1;
+        apply_damage_to_thing_and_display_health(tngdst, damage, owner);
+      }
+      // If the thing isn't dying, move it
+      if ((tngdst->class_id != TCls_Creature) || (tngdst->health >= 0))
+      {
+        tngdst->pos_32.x.val +=   move_dist * LbSinL(move_angle) >> 16;
+        tngdst->pos_32.y.val += -(move_dist * LbCosL(move_angle) >> 8) >> 8;
+        tngdst->field_1 |= 0x04;
+      } else
+      {
+        kill_creature(tngdst, tngsrc, -1, 0, 1, 0);
+      }
+    }
+  }
+}
+
+void explosion_affecting_mapblk(struct Thing *tngsrc, const struct Map *mapblk, const struct Coord3d *pos, long max_dist, long max_damage, unsigned char hit_type)
+{
+  struct Thing *thing;
+  long owner;
+  unsigned long k;
+  long i;
+  if (!thing_is_invalid(tngsrc))
+    owner = tngsrc->owner;
+  else
+    owner = -1;
+  k = 0;
+  i = get_mapwho_thing_index(mapblk);
+  while (i != 0)
+  {
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
+    {
+      WARNLOG("Jump out of things array");
+      break;
+    }
+    i = thing->field_2;
+    // Should never happen - only invalid thing may have index of 0
+    if (thing->index == 0)
+    {
+      WARNLOG("Found zero indexed thing at pos %d",thing-thing_get(0));
+      break;
+    }
+    // Per thing processing block
+    if (explosion_can_affect_thing(thing, hit_type, owner))
+    {
+      explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, owner);
+    }
+    // Per thing processing block ends
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+}
+
+void explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
+      long range, long max_damage, unsigned char hit_type)
+{
+  const struct Map *mapblk;
+  long start_x,start_y;
+  long end_x,end_y;
+  long stl_x,stl_y;
+  long max_dist;
+  //_DK_explosion_affecting_area(tngsrc, pos, range, max_damage, hit_type); return;
+  max_dist = (range << 8);
+  if (pos->x.stl.num > range)
+    start_x = pos->x.stl.num - range;
+  else
+    start_x = 0;
+  if (pos->y.stl.num > range)
+    start_y = pos->y.stl.num - range;
+  else
+    start_y = 0;
+  end_x = range + pos->x.stl.num;
+  if (end_x >= map_subtiles_x)
+    end_x = map_subtiles_x;
+  end_y = range + pos->y.stl.num;
+  if (end_y > map_subtiles_y)
+    end_y = map_subtiles_y;
+#if (BFDEBUG_LEVEL > 0)
+  if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
+    create_price_effect(pos, my_player_number, max_damage);
+#endif
+  for (stl_y = start_y; stl_y <= end_y; stl_y++)
+  {
+    for (stl_x = start_x; stl_x <= end_x; stl_x++)
+    {
+      mapblk = get_map_block_at(stl_x, stl_y);
+      explosion_affecting_mapblk(tngsrc, mapblk, pos, max_dist, max_damage, hit_type);
+    }
+  }
 }
 
 long update_dead_creature(struct Thing *thing)
@@ -3069,11 +3497,6 @@ TbBool any_player_close_enough_to_see(struct Coord3d *pos)
     }
   }
   return false;
-}
-
-void poison_cloud_affecting_area(struct Thing *owntng, struct Coord3d *pos, long a3, long a4, unsigned char a5)
-{
-  _DK_poison_cloud_affecting_area(owntng, pos, a3, a4, a5);
 }
 
 void do_slab_efficiency_alteration(unsigned char a1, unsigned char a2)
@@ -10548,7 +10971,7 @@ void draw_power_hand(void)
         }
         break;
     case TCls_Object:
-        if (picktng->model == 10)
+        if (object_is_mature_food(picktng))
         {
           x = GetMouseX()+11;
           y = GetMouseY()+56;
@@ -12419,7 +12842,7 @@ long process_temple_special(struct Thing *thing)
 {
   struct Dungeon *dungeon;
   dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
-  if (thing->model == 10)
+  if (object_is_mature_food(thing))
   {
     dungeon->chickens_sacrificed++;
   } else

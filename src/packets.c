@@ -1316,7 +1316,60 @@ void load_packets_for_turn(long nturn)
 
 void process_pause_packet(long a1, long a2)
 {
-  _DK_process_pause_packet(a1, a2);
+  struct PlayerInfo *player;
+  TbBool can;
+  long i;
+  //_DK_process_pause_packet(a1, a2);
+  can = true;
+  for (i=0; i < PLAYERS_COUNT; i++)
+  {
+    player = &(game.players[i%PLAYERS_COUNT]);
+    if (((player->field_0 & 0x01) != 0) && (player->field_2C == 1))
+    {
+        if ((player->field_0 & 0x40) == 0)
+        {
+          if ((player->instance_num == 14) || (player->instance_num == 15)
+           || (player->instance_num == 13) || (player->instance_num ==  5)
+           || (player->instance_num ==  6) || (player->instance_num ==  7)
+           || (player->instance_num ==  8))
+          {
+            can = false;
+            break;
+          }
+        }
+    }
+  }
+  if ( can )
+  {
+    player = &(game.players[my_player_number%PLAYERS_COUNT]);
+    set_flag_byte(&game.numfield_C, 0x01, a1);
+    if ((game.numfield_C & 0x01) != 0)
+      set_flag_byte(&game.numfield_C, 0x80, a2);
+    else
+      set_flag_byte(&game.numfield_C, 0x01, false);
+    if ( !SoundDisabled )
+    {
+      if ((game.numfield_C & 0x01) != 0)
+      {
+        SetSoundMasterVolume(settings.sound_volume >> 1);
+        SetRedbookVolume(settings.redbook_volume >> 1);
+        SetMusicMasterVolume(settings.sound_volume >> 1);
+      } else
+      {
+        SetSoundMasterVolume(settings.sound_volume);
+        SetRedbookVolume(settings.redbook_volume);
+        SetMusicMasterVolume(settings.sound_volume);
+      }
+    }
+    if ((game.numfield_C & 0x01) != 0)
+    {
+      if ((player->field_3 & 0x08) != 0)
+      {
+        PaletteSetPlayerPalette(player, _DK_palette);
+        player->field_3 &= 0xF7u;
+      }
+    }
+  }
 }
 
 void process_players_dungeon_control_packet_control(long plyr_idx)
@@ -2223,7 +2276,7 @@ void process_frontend_packets(void)
   set_flag_byte(&nspckt->field_4, 0x01, true);
   nspckt->field_5 = frontend_alliances;
   set_flag_byte(&nspckt->field_4, 0x01, true);
-  nspckt->field_4 ^= (nspckt->field_4 ^ (fe_computer_players << 1) & 0x06);
+  nspckt->field_4 ^= ((nspckt->field_4 ^ (fe_computer_players << 1)) & 0x06);
   nspckt->field_6 = VersionMajor;
   nspckt->field_8 = VersionMinor;
   if (LbNetwork_Exchange(nspckt))

@@ -783,7 +783,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
   light_turn_light_on(player->field_460);
 }
 
-TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3,
+TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_plyr_idx,
       unsigned char a4, TbBool died_in_battle, unsigned char a6)
 {
   struct CreatureControl *cctrl;
@@ -793,7 +793,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3,
   struct Dungeon *killerdngn;
   long i,k;
   SYNCDBG(18,"Starting");
-  //return _DK_kill_creature(thing, killertng, a3, a4, died_in_battle, a6);
+  //return _DK_kill_creature(thing, killertng, killer_plyr_idx, a4, died_in_battle, a6);
   dungeon = NULL;
   cctrl = creature_control_get_from_thing(thing);
   cleanup_current_thing_state(thing);
@@ -802,7 +802,9 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3,
     remove_creature_from_group(thing);
   if (thing->owner != game.field_14E497)
     dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
-  if (!thing_is_invalid(killertng) && (killertng->owner == game.field_14E497) || (a3 == game.field_14E497))
+  if (!thing_is_invalid(killertng) && (killertng->owner == game.field_14E497))
+    died_in_battle = 0;
+  if (killer_plyr_idx == game.field_14E497)
     died_in_battle = 0;
   remove_events_thing_is_attached_to(thing);
   if (dungeon != NULL)
@@ -845,8 +847,8 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3,
       }
     }
   }
-  update_kills_counters(thing, killertng, a3, died_in_battle);
-  if (thing_is_invalid(killertng) || (killertng->owner == game.field_14E497) || (a3 == game.field_14E497) || (dungeon == NULL))
+  update_kills_counters(thing, killertng, killer_plyr_idx, died_in_battle);
+  if (thing_is_invalid(killertng) || (killertng->owner == game.field_14E497) || (killer_plyr_idx == game.field_14E497) || (dungeon == NULL))
   {
     if ((a4) && ((thing->field_0 & 0x20) != 0))
     {
@@ -919,9 +921,191 @@ void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d
   _DK_process_creature_standing_on_corpses_at(thing, pos);
 }
 
-void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short a1, char a2, unsigned char a3)
+/**
+ * Calculates damage made by a creature by hand (using strength).
+ */
+long calculate_melee_damage(struct Thing *thing)
 {
-  _DK_creature_fire_shot(firing,target, a1, a2, a3);
+  struct CreatureControl *cctrl;
+  struct CreatureStats *crstat;
+  cctrl = creature_control_get_from_thing(thing);
+  crstat = creature_stats_get_from_thing(thing);
+  return compute_creature_attack_damage(crstat->strength, crstat->luck, cctrl->explevel);
+  /* TODO: check if we really have to restrict it that much
+  if (damage >= 256)
+    damage = 256;
+  return damage;*/
+}
+
+/**
+ * Calculates damage made by a creature using specific shot type.
+ */
+long calculate_shot_damage(struct Thing *thing,long shot_kind)
+{
+  struct CreatureControl *cctrl;
+  struct CreatureStats *crstat;
+  struct ShotStats *shotstat;
+  shotstat = &shot_stats[shot_kind];
+  cctrl = creature_control_get_from_thing(thing);
+  crstat = creature_stats_get_from_thing(thing);
+  return compute_creature_attack_damage(shotstat->damage, crstat->luck, cctrl->explevel);
+}
+
+void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short shot_kind, char a2, unsigned char a3)
+{
+  struct CreatureControl *cctrl;
+  struct CreatureStats *crstat;
+  struct ShotStats *shotstat;
+  struct Coord3d pos1;
+  struct Coord3d pos2;
+  struct ComponentVector cvect;
+  struct Thing *shot;
+  struct Thing *tmptng;
+  short angle_xy,angle_yz;
+  long damage;
+  long target_idx,i;
+  TbBool flag1;
+  //_DK_creature_fire_shot(firing,target, a1, a2, a3); return;
+  cctrl = creature_control_get_from_thing(firing);
+  crstat = creature_stats_get_from_thing(firing);
+  shotstat = &shot_stats[shot_kind];
+  flag1 = false;
+  // Prepare source position
+  pos1.x.val = firing->mappos.x.val;
+  pos1.y.val = firing->mappos.y.val;
+  pos1.z.val = firing->mappos.z.val;
+  pos1.x.val += (cctrl->field_2C1 * LbSinL(firing->field_52+512) >> 16);
+  pos1.y.val -= (cctrl->field_2C1 * LbCosL(firing->field_52+512) >> 8) >> 8;
+  pos1.x.val += (cctrl->field_2C3 * LbSinL(firing->field_52) >> 16);
+  pos1.y.val -= (cctrl->field_2C3 * LbCosL(firing->field_52) >> 8) >> 8;
+  pos1.z.val += (cctrl->field_2C5);
+  // Compute launch angles
+  if (thing_is_invalid(target))
+  {
+    angle_xy = firing->field_52;
+    angle_yz = firing->field_54;
+  } else
+  {
+    pos2.x.val = target->mappos.x.val;
+    pos2.y.val = target->mappos.y.val;
+    pos2.z.val = target->mappos.z.val;
+    pos2.z.val += (target->field_58 >> 1);
+    if (( shotstat->field_48 ) && (target->class_id != 9))
+    {
+      flag1 = true;
+      pos1.z.val = pos2.z.val;
+    }
+    angle_xy = get_angle_xy_to(&pos1, &pos2);
+    angle_yz = get_angle_yz_to(&pos1, &pos2);
+  }
+  // Compute shot damage
+  if ( shotstat->field_48 )
+  {
+    damage = calculate_melee_damage(firing);
+  } else
+  {
+    damage = calculate_shot_damage(firing,shot_kind);
+  }
+  shot = NULL;
+  target_idx = 0;
+  // Set target index for navigating shots
+  if (shot_kind == 6)
+  {
+    if (!thing_is_invalid(target))
+      target_idx = target->index;
+  }
+  switch ( shot_kind )
+  {
+    case 4:
+    case 12:
+      if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 5120))
+      {
+          project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 20);
+      }
+      shot = create_thing(&pos2, 2, shot_kind, firing->owner, -1);
+      if (thing_is_invalid(shot))
+        return;
+      if (shot_kind == 12)
+        draw_lightning(&pos1, &pos2, 96, 93);
+      else
+        draw_lightning(&pos1, &pos2, 96, 60);
+      shot->health = shotstat->health;
+      *(short *)&shot->byte_13.h = shotstat->damage;
+      shot->field_1D = firing->index;
+      break;
+    case 7:
+      if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 768))
+        project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 4);
+      shot = create_thing(&pos2, 2, shot_kind, firing->owner, -1);
+      if (thing_is_invalid(shot))
+        return;
+      draw_flame_breath(&pos1, &pos2, 96, 2);
+      shot->health = shotstat->health;
+      *(short *)&shot->byte_13.h = shotstat->damage;
+      shot->field_1D = firing->index;
+      break;
+    case 13:
+      for (i=0; i < 32; i++)
+      {
+        tmptng = create_thing(&pos1, 2, shot_kind, firing->owner, -1);
+        if (thing_is_invalid(tmptng))
+          break;
+        shot = tmptng;
+        shot->byte_13.f3 = a3;
+        shot->field_52 = (angle_xy + ACTION_RANDOM(101) - 50) & 0x7FF;
+        shot->field_54 = (angle_yz + ACTION_RANDOM(101) - 50) & 0x7FF;
+        angles_to_vector(shot->field_52, shot->field_54, shotstat->speed, &cvect);
+        shot->pos_32.x.val += cvect.x;
+        shot->pos_32.y.val += cvect.y;
+        shot->pos_32.z.val += cvect.z;
+        shot->field_1 |= 0x04;
+        *(short *)&shot->byte_13.h = damage;
+        shot->health = shotstat->health;
+        shot->field_1D = firing->index;
+      }
+      break;
+    default:
+      shot = create_thing(&pos1, 2, shot_kind, firing->owner, -1);
+      if (thing_is_invalid(shot))
+        return;
+      shot->field_52 = angle_xy;
+      shot->field_54 = angle_yz;
+      angles_to_vector(shot->field_52, shot->field_54, shotstat->speed, &cvect);
+      shot->pos_32.x.val += cvect.x;
+      shot->pos_32.y.val += cvect.y;
+      shot->pos_32.z.val += cvect.z;
+      shot->field_1 |= 0x04;
+      *(short *)&shot->byte_13.h = damage;
+      shot->health = shotstat->health;
+      shot->field_1D = firing->index;
+      shot->word_17 = target_idx;
+      shot->byte_13.l = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
+      break;
+  }
+  if (!thing_is_invalid(shot))
+  {
+#if (BFDEBUG_LEVEL > 0)
+    damage = *(short *)&shot->byte_13.h;
+    // Special debug code that shows amount of damage the shot will make
+    if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
+        create_price_effect(&pos1, my_player_number, damage);
+    if ((damage < 0) || (damage > 2000))
+    {
+      WARNLOG("Shot of type %d carries %d damage",(int)shot_kind,(int)damage);
+    }
+#endif
+    shot->byte_13.f3 = a3;
+    if (shotstat->firing_sound > 0)
+    {
+      thing_play_sample(firing, shotstat->firing_sound + UNSYNC_RANDOM(shotstat->firing_sound_variants),
+          100, 0, 3, 0, 3, 256);
+    }
+    if (shotstat->shot_sound > 0)
+    {
+      thing_play_sample(shot, shotstat->shot_sound, 100, 0, 3, 0, shotstat->field_20, 256);
+    }
+    set_flag_byte(&shot->field_25,0x10,flag1);
+  }
 }
 
 void set_creature_level(struct Thing *thing, long nlvl)

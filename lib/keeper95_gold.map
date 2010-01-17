@@ -1,6 +1,17 @@
+
+ 0001:000001F0       cumulative_screen_shot
+ 0001:00000560       anim_record
+ 0001:000005E0       anim_record_frame
+ 0001:00000610       anim_stop
+ 0001:00000680       anim_open
+ 0001:00000A60       anim_make_next_frame
  0001:00000E70       anim_make_FLI_COLOUR256
+ 0001:00000F90       anim_make_FLI_SS2
+ 0001:00001350       anim_make_FLI_LC
+ 0001:000017F0       anim_make_FLI_BRUN
  0001:000019E0       rotate_base_axis
  0001:00001DD0       process_tasks
+ 0001:00004C80       heapmgr_init
  0001:00004CD0       heapmgr_add_item
  0001:00004E10       heapmgr_free_oldest
  0001:00004E60       heapmgr_make_newest
@@ -17,10 +28,8 @@
  0001:00007400       light_stat_light_map_clear_area
  0001:00007850       light_remove_light_from_list
  0001:00007980       light_initialise_lighting_tables
- 0001:00008010       frontnet_init_level_descriptions
  0001:000081D0       frontend_is_player_allied
  0001:00008200       frontnet_draw_slider_button
- 0001:00008370       process_network_error
  0001:000084A0       frontnet_draw_scroll_box
  0001:00008710       frontnet_draw_small_scroll_box
  0001:00008A70       frontnet_draw_comport_scroll_tab
@@ -36,7 +45,6 @@
  0001:00008E80       frontnet_draw_alliance_button
  0001:00008EE0       frontnet_draw_alliance_grid
  0001:00008FE0       frontnet_draw_alliance_box_tab
- 0001:00009130       frontnet_service_setup
  0001:00009250       frontnet_service_update
  0001:00009450       frontnet_serial_setup
  0001:00009560       frontnet_serial_update
@@ -57,8 +65,6 @@
  0001:000098E0       frontnet_draw_speed_button
  0001:00009980       frontnet_draw_comport_selected
  0001:000099D0       frontnet_draw_speed_selected
- 0001:00009A20       frontnet_net_serial_start_maintain
- 0001:00009A50       frontnet_net_serial_start
  0001:00009B10       frontnet_modem_setup
  0001:00009CE0       frontnet_modem_update
  0001:00009D70       frontnet_modem_reset
@@ -102,10 +108,10 @@
  0001:0000B530       frontnet_select_alliance
  0001:0000B5A0       frontend_draw_computer_players
  0001:0000B660       frontend_toggle_computer_players
- 0001:0000B750       enum_players_callback
  0001:0000C9F0       external_activate_trap_shot_at_angle
  0001:0000CAF0       get_trap_for_position
  0001:0000CB50       get_trap_for_slab_position
+ 0001:0000CDD0       wait_for_cd_to_be_available
  0001:0000CFB0       add_creature_to_group
  0001:0000D170       add_creature_to_group_as_leader
  0001:0000D2B0       remove_creature_from_group
@@ -115,8 +121,10 @@
  0001:0000DDC0       set_creature_instance
  0001:0000DFE0       process_creature_instance
  0001:0000E0C0       creature_instance_has_reset
+ 0001:0000E1B0       process_player_instance
  0001:0000EFB0       pinstfs_hand_grab
  0001:0000F040       pinstfm_hand_grab
+ 0001:0000F110       pinstfe_hand_grab
  0001:0000F2E0       pinstfs_hand_drop
  0001:0000F340       pinstfm_hand_drop
  0001:0000F3D0       pinstfe_hand_drop
@@ -126,6 +134,8 @@
  0001:0000F760       pinstfe_hand_whip_end
  0001:0000F7A0       pinstfs_control_creature
  0001:0000F850       pinstfm_control_creature
+ 0001:0000FA80       pinstfe_direct_control_creature
+ 0001:0000FC30       pinstfe_passenger_control_creature
  0001:0000FCA0       pinstfs_passenger_leave_creature
  0001:0000FDC0       pinstfs_direct_leave_creature
  0001:0000FEE0       pinstfm_leave_creature
@@ -136,18 +146,22 @@
  0001:00010120       pinstfs_query_creature
  0001:00010170       pinstfs_unquery_creature
  0001:000101A0       pinstfs_zoom_to_heart
+ 0001:00010260       pinstfm_zoom_to_heart
+ 0001:000102C0       pinstfe_zoom_to_heart
+ 0001:00010320       pinstfs_zoom_out_of_heart
  0001:00010410       pinstfm_zoom_out_of_heart
  0001:00010560       pinstfe_zoom_out_of_heart
+ 0001:000105E0       pinstfm_control_creature_fade
  0001:000105F0       pinstfe_control_creature_fade
  0001:00010660       pinstfs_fade_to_map
  0001:00010700       pinstfe_fade_to_map
  0001:00010750       pinstfs_fade_from_map
  0001:000107D0       pinstfe_fade_from_map
  0001:000109E0       load_swipe_graphic_for_creature
- 0001:00010AD0       free_swipe_graphic
  0001:00010B50       process_thing_spell_effects
  0001:00010DF0       apply_spell_effect_to_thing
  0001:00011970       apply_spell_effect_to_players_creatures
+ 0001:00011C80       creature_cast_spell
  0001:00011E10       process_spells_affected_by_effect_elements
  0001:000122B0       process_keeper_spell_effect
  0001:000128A0       place_slab_type_on_map
@@ -156,27 +170,27 @@
  0001:00014990       initialise_map_health
  0001:00014EB0       do_slab_efficiency_alteration
  0001:000156E0       delete_room_slabbed_objects
- 0001:00015940       process_level_script
- 0001:00016780       script_process_new_creatures
+ 0001:00015F90       script_process_value
+ 0001:00016670       script_create_new_creature
  0001:000167C0       script_process_new_party
  0001:000168F0       script_process_new_tunneller
+ 0001:00016A30       script_process_new_tunneller_party
+ 0001:00016AA0       get_condition_value
  0001:00017160       setup_rotate_stuff
  0001:00017620       draw_jonty_mapwho
  0001:00018030       state_cleanup_in_temple
  0001:000180E0       process_temple_function
  0001:000181B0       at_temple
  0001:00018290       praying_in_temple
+ 0001:00018480       process_sacrifice_award
  0001:00018CA0       creature_sacrifice
+ 0001:00018E30       creature_being_sacrificed
  0001:00019000       cleanup_sacrifice
  0001:00019040       creature_being_summoned
  0001:00019800       anger_apply_anger_to_creature
  0001:0001A110       anger_set_creature_anger
- 0001:0001B250       draw_sound_stuff
+ 0001:0001A920       play_non_3d_sample
  0001:0001B790       sound_reinit_after_load
- 0001:0001B900       fronttorture_load
- 0001:0001BC90       fronttorture_unload
- 0001:0001BD50       fronttorture_draw
- 0001:0001BE20       fronttorture_input
  0001:0001C280       fronttorture_update
  0001:0001C370       process_research_function
  0001:0001C720       at_research_room
@@ -191,11 +205,12 @@
  0001:0001DF10       script_support_send_tunneller_to_dungeon
  0001:0001DF90       script_support_send_tunneller_to_appropriate_dungeon
  0001:0001E000       script_support_send_tunneller_to_action_point
- 0001:0001E0B0       process_action_points
  0001:0001E0F0       action_point_get_players_within
  0001:0001E340       PaletteFadePlayer
- 0001:0001E510       PaletteSetPlayerPalette
+ 0001:0001E590       redraw_display
+ 0001:0001EE90       redraw_isometric_view
  0001:0001F4A0       redraw_frontview
+ 0001:0001F7D0       redraw_creature_view
  0001:0001FB40       draw_creature_view
  0001:00020140       draw_2d_map
  0001:00020520       draw_overhead_things
@@ -206,6 +221,8 @@
  0001:000224D0       set_sprite_view_3d
  0001:000225B0       draw_power_hand
  0001:00022D70       draw_mini_things_in_hand
+ 0001:00022FD0       draw_zoom_box
+ 0001:00023960       set_thing_draw
  0001:00023AA0       draw_swipe
  0001:00023DF0       draw_gold_total
  0001:00023ED0       draw_overlay_compass
@@ -236,24 +253,24 @@
  0001:00031BA0       fill_in_points_isometric
  0001:00032200       fill_in_points_cluedo
  0001:00032860       rotpers_parallel_3
+ 0001:00032990       engine
  0001:00033590       draw_status_sprites
  0001:00033C00       draw_engine_number
- 0001:00033E40       draw_engine_room_flag_top
+ 0001:00033CF0       draw_engine_room_flag
  0001:00034130       wander_point_update
  0001:00034720       set_game_key
  0001:00035970       get_isometric_view_nonaction_inputs
  0001:00035F70       get_front_view_nonaction_inputs
  0001:000365B0       get_overhead_view_nonaction_inputs
- 0001:000367D0       get_creature_control_nonaction_inputs
- 0001:00037610       set_player_mode
+ 0001:00036B90       get_global_inputs
  0001:000377E0       reset_player_mode
  0001:00037900       set_player_state
  0001:00037FF0       do_map_rotate_stuff
- 0001:000395F0       @get_cpu_info@4
- 0001:000396C0       get_best_sound_heap_size
- 0001:00039740       setup_stuff
+ 0001:000394C0       mouse_is_over_small_map
  0001:000399A0       init_alpha_table
- 0001:0003B040       setup_game_sound_heap
+ 0001:00039D60       LoadMcgaData
+ 0001:0003A520       setup_screen_mode
+ 0001:0003AAC0       setup_screen_mode_minimal
  0001:0003B4D0       computer_check_events
  0001:0003B5B0       computer_event_battle
  0001:0003B770       computer_event_check_imps_in_danger
@@ -265,16 +282,16 @@
  0001:0003BEE0       frontstats_initialise
  0001:0003C3A0       frontstats_draw_main_stats
  0001:0003C4F0       frontstats_draw_scrolling_stats
- 0001:0003C8B0       setup_heap_memory
- 0001:0003C9B0       reset_heap_memory
  0001:0003C9D0       setup_heap_manager
  0001:0003CAF0       reset_heap_manager
+ 0001:0003CDB0       startup_network_game
+ 0001:0003D2C0       startup_saved_packet_game
+ 0001:0003D970       set_packet_action
  0001:0003E9A0       process_players_creature_control_packet_control
  0001:0003F1C0       set_mouse_light
- 0001:0003F2B0       process_dungeon_control_packet_clicks
  0001:00041A60       process_map_packet_clicks
+ 0001:00041CD0       load_packets_for_turn
  0001:00041F50       create_power_hand
- 0001:00042040       set_power_hand_graphic
  0001:00042110       packet_place_door
  0001:00042540       process_pause_packet
  0001:00042980       object_update_call_to_arms
@@ -282,6 +299,7 @@
  0001:00042DE0       object_update_armour
  0001:00043020       object_update_armour2
  0001:00043260       process_dungeon_devastation_effects
+ 0001:00043550       process_dungeon_destroy
  0001:00043BB0       object_is_gold
  0001:00043C30       object_is_gold_pile
  0001:00043CF0       object_is_pickable_by_hand
@@ -291,11 +309,14 @@
  0001:00044A20       thing_is_spellbook
  0001:00044AB0       get_spellbook_at_position
  0001:00044C00       get_crate_at_position
+ 0001:00044D50       thing_is_special
  0001:00044D80       get_special_at_position
  0001:00044ED0       get_nearest_object_at_position
  0001:00045000       object_being_dropped
  0001:000453E0       creature_arrived_at_prison
  0001:000454E0       process_prison_food
+ 0001:000456A0       process_prison_function
+ 0001:000459A0       creature_in_prison
  0001:00045AF0       cleanup_prison
  0001:00045B20       creature_freeze_prisonors
  0001:00045D20       view_set_camera_y_inertia
@@ -305,6 +326,7 @@
  0001:00046290       view_zoom_camera_out
  0001:00046380       get_camera_zoom
  0001:000463A0       set_camera_zoom
+ 0001:000463D0       setup_engine_window
  0001:000467E0       set_engine_view
  0001:000469C0       get_creature_near
  0001:00046AB0       get_creature_near_with_filter
@@ -340,11 +362,9 @@
  0001:0004E340       computer_event_find_link
  0001:00050870       S3DInit
  0001:00050910       S3DSetMaximumSoundDistance
- 0001:00050940       S3DSetNumberOfSounds
  0001:00050970       S3DCreateSoundEmitterPri
  0001:00050B10       S3DDestroySoundEmitter
  0001:00050BF0       S3DMoveSoundEmitterTo
- 0001:00050C30       S3DEmitterHasFinishedPlaying
  0001:00050C50       S3DAddSampleToEmitterPri
  0001:00050E00       S3DSetSoundReceiverPosition
  0001:00050E30       S3DSetSoundReceiverOrientation
@@ -382,6 +402,7 @@
  0001:00056D10       creature_attack_rooms
  0001:00056FE0       creature_explore_dungeon
  0001:00057260       process_creature_self_spell_casting
+ 0001:00057960       update_things
  0001:00057D20       update_creatures_not_in_list
  0001:00058A40       process_disease
  0001:00058BE0       process_creature_state
@@ -394,6 +415,7 @@
  0001:0005A1A0       update_footsteps_nearest_camera
  0001:0005A3F0       get_human_controlled_creature_target
  0001:0005A730       process_creature_standing_on_corpses_at
+ 0001:0005AA00       process_player_instances
  0001:0005AA30       process_player_states
  0001:0005AA90       update_flames_nearest_camera
  0001:0005ABC0       update_cave_in
@@ -405,6 +427,7 @@
  0001:0005B6A0       allocate_free_room_structure
  0001:0005B6F0       allocate_free_action_point_structure_with_number
  0001:0005B740       delete_thing_structure
+ 0001:0005B8C0       delete_room_structure
  0001:0005B970       add_thing_to_list
  0001:0005BA90       imp_birth
  0001:0005BB20       imp_toking
@@ -418,6 +441,7 @@
  0001:0005C2F0       imp_improves_dungeon
  0001:0005C3A0       imp_arrives_at_convert_dungeon
  0001:0005C3F0       imp_converts_dungeon
+ 0001:0005C5A0       imp_last_did_job
  0001:0005C5D0       imp_doing_nothing
  0001:0005C710       map_fade_in
  0001:0005C920       map_fade_out
@@ -437,13 +461,18 @@
  0001:0005EE00       remove_thing_from_mapwho
  0001:0005EEB0       find_base_thing_on_mapwho
  0001:0005F490       add_gold_to_hoarde
- 0001:0005F6D0       init_creature_scores
+ 0001:0005FB70       init_player
+ 0001:0005FFB0       init_level
+ 0001:000603A0       post_init_level
  0001:000605F0       post_init_players
  0001:00060670       init_keeper_map_exploration
+ 0001:00060A80       init_whole_blocks
+ 0001:00060B10       init_animating_texture_maps
  0001:00062AC0       init_player_cameras
  0001:00062BB0       init_colours
  0001:00063480       create_thing
  0001:00063630       create_creature
+ 0001:000639F0       create_object
  0001:00063FD0       create_effect_element
  0001:00064350       create_trap
  0001:00064520       create_door
@@ -452,18 +481,26 @@
  0001:00064DE0       check_and_auto_fix_stats
  0001:00065630       setup_eye_lens
  0001:000658D0       event_initialise_all
+ 0001:00065910       event_create_event
  0001:00065CE0       event_kill_all_players_events
+ 0001:00065DC0       event_delete_event
  0001:00065E50       event_process_events
  0001:00065F80       event_move_player_towards_event
  0001:00065FC0       remove_events_thing_is_attached_to
+ 0001:00066100       update_all_events
+ 0001:0006EC80       setup_a_computer_player
  0001:0006EE60       restore_computer_player_after_load
+ 0001:0006EF80       process_computer_players2
+ 0001:0006F070       process_computer_player2
  0001:0006F1A0       set_autopilot_type
  0001:0006F7E0       at_torture_room
  0001:0006F8D0       process_torture_visuals
  0001:0006FC10       process_torture_function
  0001:00070070       torturing
  0001:000700E0       cleanup_torturing
+ 0001:00070210       process_kinky_function
  0001:00070240       at_kinky_torture_room
+ 0001:00070300       kinky_torturing
  0001:00070CA0       process_person_moods_and_needs
  0001:00071090       resync_game
  0001:00072570       creature_leaving_dungeon
@@ -478,6 +515,7 @@
  0001:00074ED0       set_next_process
  0001:000750B0       computer_check_build_all_rooms
  0001:00075120       computer_check_any_room
+ 0001:00075210       computer_setup_any_room
  0001:00075300       computer_setup_any_room_continue
  0001:000753F0       computer_check_dig_to_entrance
  0001:000755A0       computer_setup_dig_to_entrance
@@ -490,6 +528,10 @@
  0001:00075FB0       computer_check_safe_attack
  0001:00076120       computer_setup_attack1
  0001:00076180       computer_completed_attack1
+ 0001:000762F0       computer_completed_task
+ 0001:00076310       computer_process_task
+ 0001:00076320       computer_paused_task
+ 0001:00076330       computer_completed_build_a_room
  0001:00076350       set_creature_object_combat
  0001:000763F0       creature_object_combat
  0001:000765C0       cleanup_object_combat
@@ -508,8 +550,10 @@
  0001:00078330       battle_initialise
  0001:000788F0       find_first_battle_of_mine
  0001:00078ED0       battle_move_player_towards_battle
+ 0001:00079140       GetMouseY
  0001:000791A0       can_drop_thing_here
  0001:00079340       get_2d_distance
+ 0001:00079560       line_of_sight_3d
  0001:00079F30       project_point_to_wall_on_angle
  0001:0007A530       get_packet_save_checksum
  0001:0007B6C0       update_navigation_triangulation
@@ -531,7 +575,6 @@
  0001:00082180       maintain_transfer_creature_scroll
  0001:00082200       select_transfer_creature
  0001:000828E0       resurrect_creature
- 0001:00082A50       transfer_creature
  0001:00082CD0       make_safe
  0001:000830E0       steal_hero
  0001:00083260       at_barrack_room
@@ -539,20 +582,7 @@
  0001:00083340       process_obey_leader
  0001:00083440       creature_follow_leader
  0001:00083710       check_for_first_person_barrack_party
- 0001:000851D0       command_if
- 0001:00085710       command_add_to_party
- 0001:00085A30       command_add_party_to_level
- 0001:00085E30       command_add_creature_to_level
  0001:000863E0       get_id
- 0001:00086450       command_research
- 0001:00086880       command_if_action_point
- 0001:00086AA0       command_add_tunneller_to_level
- 0001:00086EE0       command_display_objective
- 0001:000870A0       command_add_tunneller_party_to_level
- 0001:000875D0       command_if_available
- 0001:00087A70       command_set_computer_globals
- 0001:00087D30       command_set_computer_events
- 0001:00087ED0       command_set_computer_process
  0001:00088100       check_place_to_pretty_excluding
  0001:000881C0       check_place_to_convert_excluding
  0001:00088DB0       creature_vandalise_rooms
@@ -566,12 +596,23 @@
  0001:00089510       creature_kill_creatures
  0001:00089600       move_check_attack_any_door
  0001:00089670       move_check_can_damage_wall
+ 0001:00089AA0       make_all_players_creatures_angry
  0001:00089B70       create_effect
  0001:00089CB0       update_effect
+ 0001:0008A6C0       draw_lightning
+ 0001:0008AAD0       draw_flame_breath
+ 0001:0008ADC0       draw_god_lightning
  0001:0008AE80       explosion_affecting_area
  0001:0008B160       poison_cloud_affecting_area
+ 0001:0008B490       affect_nearby_enemy_creatures_with_wind
  0001:0008B950       process_effect_generator
  0001:0008BD60       create_effect_around_thing
+ 0001:0008BEA0       affect_nearby_stuff_with_vortex
+ 0001:0008BEB0       affect_nearby_friends_with_alarm
+ 0001:0008C070       update_god_lightning_ball
+ 0001:0008C170       god_lightning_choose_next_creature
+ 0001:0008C230       lightning_is_close_to_player
+ 0001:0008C260       lightning_modify_palette
  0001:0008C560       slab_by_players_land
  0001:0008C900       imp_will_soon_be_working_at_excluding
  0001:0008CA00       block_has_diggable_side
@@ -583,6 +624,7 @@
  0001:000921D0       thing_is_shootable_by_any_player_except_own_excluding_objects
  0001:00092230       thing_is_shootable_by_any_player_including_objects
  0001:00092280       thing_is_shootable_by_any_player_excluding_objects
+ 0001:000922C0       apply_wallhug_force_to_boulder
  0001:00092A20       reset_scroll_window
  0001:00092B60       init_video_menu
  0001:00092BA0       init_audio_menu
@@ -598,18 +640,17 @@
  0001:000931B0       maintain_activity_row
  0001:00093240       maintain_room
  0001:00093290       maintain_big_room
- 0001:00093300       maintain_spell
  0001:000933C0       maintain_big_spell
  0001:00093430       maintain_big_trap
  0001:000934D0       maintain_trap
  0001:00093580       instant_instance_selected
  0001:00093620       maintain_instance
  0001:00093820       maintain_activity_pic
- 0001:000938E0       maintain_zoom_to_event
  0001:00093C20       gui_creature_query_background1
  0001:00093D20       gui_creature_query_background2
  0001:00093DF0       gui_activity_background
  0001:000946B0       create_button
+ 0001:00094DF0       gui_area_null
  0001:00094E60       gui_area_normal_button
  0001:00094F10       gui_area_autopilot_button
  0001:00095010       gui_area_flash_cycle_button
@@ -640,8 +681,6 @@
  0001:00098300       draw_button_string
  0001:00099980       do_button_click_actions
  0001:00099D10       update_menu_fade_level
- 0001:00099D80       setup_gui_tooltip
- 0001:00099F50       draw_tooltip
  0001:0009A380       draw_slab64k
  0001:0009ABD0       draw_ornate_slab64k
  0001:0009AFF0       gui_pretty_background
@@ -649,13 +688,11 @@
  0001:0009B250       gui_scroll_activity_up
  0001:0009B270       gui_scroll_activity_down
  0001:0009B290       gui_set_query
- 0001:0009B2D0       gui_choose_room
  0001:0009B340       gui_choose_spell
  0001:0009B590       gui_go_to_next_spell
  0001:0009B5D0       gui_remove_area_for_rooms
  0001:0009B620       gui_remove_area_for_traps
  0001:0009B670       gui_choose_trap
- 0001:0009B6F0       gui_set_tend_to
  0001:0009B7D0       gui_go_to_next_wanderer
  0001:0009B7E0       gui_go_to_next_worker
  0001:0009B7F0       gui_go_to_next_fighter
@@ -693,16 +730,21 @@
  0001:0009D090       gui_over_door_button
  0001:0009D0B0       update_breed_activities
  0001:0009E070       get_button_area_input
+ 0001:0009E3B0       toggle_tooltips
+ 0001:0009EC90       toggle_gui
+ 0001:0009F250       toggle_gui_overlay_map
  0001:0009F270       display_objectives
  0001:0009F360       gui_close_objective
+ 0001:0009F6B0       text_string_height
+ 0001:0009F840       set_level_objective
  0001:0009F8E0       turn_off_roaming_menus
  0001:000A0AA0       choose_hold_audience
  0001:000A0AE0       choose_armageddon
  0001:000A0B20       turn_off_query
  0001:000A0E70       gui_toggle_ally
- 0001:000A1150       gui_set_button_flashing
  0001:000A11F0       fake_button_click
  0001:000A1300       level_lost_go_first_person
+ 0001:000A14F0       draw_load_button
  0001:000A15C0       maintain_my_battle_list
  0001:000A1840       active_battle_exists
  0001:000A1870       step_battles_forward
@@ -715,14 +757,9 @@
  0001:000A21D0       person_sulk_at_lair
  0001:000A2320       person_sulking
  0001:000A3220       creature_at_changed_lair
- 0001:000A41F0       frontnetmap_load
- 0001:000A4380       frontnetmap_unload
- 0001:000A4470       frontnetmap_input
+ 0001:000A32F0       frontmap_load
  0001:000A4670       frontnetmap_update
- 0001:000A4F60       frontnetmap_draw
- 0001:000A5300       compressed_window_draw
- 0001:000A5540       check_mouse_scroll
- 0001:000A5650       update_velocity
+ 0001:000A5720       load_map_and_window
  0001:000A5AB0       process_payday
  0001:000A5D30       check_players_lost
  0001:000A5DD0       check_players_won
@@ -741,7 +778,6 @@
  0001:000A7950       stop_sample_using_heap
  0001:000A7A20       play_sample_using_heap
  0001:000A7D00       parse_sound_file
- 0001:000A7F10       output_message
  0001:000A80C0       process_messages
  0001:000A82E0       init_messages
  0001:000A8430       remove_food_from_food_room_if_possible
@@ -750,6 +786,7 @@
  0001:000A8A50       creature_arrived_at_garden
  0001:000A8AB0       food_grows
  0001:000A8D60       food_moves
+ 0001:000A9350       creature_eat
  0001:000A94D0       kill_all_players_chickens
  0001:000A9630       creature_pretend_chicken_setup_move
  0001:000A9760       creature_pretend_chicken_move
@@ -762,9 +799,9 @@
  0001:000AC500       frontend_draw_vlarge_menu_button
  0001:000AC580       frontend_draw_small_menu_button
  0001:000AC6F0       frontend_over_button
- 0001:000AD310       frontend_draw_text
  0001:000AD3B0       frontend_draw_enter_text
  0001:000AD500       frontend_draw_icon
+ 0001:000AD8A0       frontend_draw_high_score_table
  0001:000ADFB0       frontend_draw_slider
  0001:000AE0E0       frontend_draw_small_slider
  0001:000AE1F0       frontend_invert_mouse
@@ -777,7 +814,7 @@
  0001:000AE330       frontend_define_key_maintain
  0001:000AE360       frontend_draw_define_key_scroll_tab
  0001:000AE3C0       frontend_init_options_menu
- 0001:000AE650       frontcredits_draw
+ 0001:000AE530       play_smacker_file
  0001:000AE7F0       mdlf_default
  0001:000AE800       mdlf_for_cd
  0001:000AE910       frontend_draw_define_key
@@ -788,6 +825,7 @@
  0001:000AF840       pannel_map_update
  0001:000AFB40       at_workshop_room
  0001:000AFBD0       manufacturing
+ 0001:000AFD40       process_player_manufacturing
  0001:000AFFC0       force_complete_current_manufacturing
  0001:000B0050       create_workshop_object_in_workshop_room
  0001:000B02B0       get_next_manufacture
@@ -795,6 +833,7 @@
  0001:000B1110       remove_workshop_item
  0001:000B11C0       tag_blocks_for_digging_in_rectangle_around
  0001:000B1230       untag_blocks_for_digging_in_rectangle_around
+ 0001:000B1D10       imp_stack_update
  0001:000B20F0       add_pretty_and_convert_to_imp_stack
  0001:000B2950       add_unclaimed_unconscious_bodies_to_imp_stack
  0001:000B2AC0       add_unclaimed_dead_bodies_to_imp_stack
@@ -818,6 +857,7 @@
  0001:000B6C00       find_nearest_room_for_thing_with_spare_capacity
  0001:000B6D10       find_room_with_spare_room_item_capacity
  0001:000B6EF0       find_room_with_spare_capacity
+ 0001:000B7120       create_room
  0001:000B7440       place_room
  0001:000B7820       set_room_capacity
  0001:000B7980       send_creature_to_room
@@ -833,6 +873,7 @@
  0001:000BB3C0       count_workers_in_room
  0001:000BB440       count_lair_occupants
  0001:000BBA70       go_to_my_next_room_of_type
+ 0001:000BCDB0       create_room_flag
  0001:000BCF00       get_room_thing_is_on
  0001:000BD240       player_has_room_of_type
  0001:000BD2F0       move_check_on_head_for_room
@@ -879,6 +920,7 @@
  0001:000C0380       cause_creature_death
  0001:000C0D90       control_creature_as_passenger
  0001:000C0E40       control_creature_as_controller
+ 0001:000C10F0       create_and_control_creature_as_controller
  0001:000C1480       leave_creature_as_controller
  0001:000C16A0       set_creature_graphic
  0001:000C1E50       apply_damage_to_thing
@@ -886,8 +928,8 @@
  0001:000C2030       remove_health_from_thing_and_display_health
  0001:000C2150       get_foot_creature_has_down
  0001:000C2440       creature_increase_level
+ 0001:000C2700       set_creature_level
  0001:000C28E0       init_creature_level
- 0001:000C2950       toggle_creature_tendencies
  0001:000C41E0       find_next_annoyed_creature
  0001:000C4B40       dump_thing_in_power_hand
  0001:000C4C00       place_thing_in_power_hand
@@ -905,11 +947,19 @@
  0001:000C69E0       creature_sleep
  0001:000C6D20       cleanup_sleep
  0001:000C6E80       load_cube_file
+ 0001:000C6F60       load_map_data_file
+ 0001:000C7050       load_column_file
  0001:000C7190       load_anim_file
+ 0001:000C7210       load_action_point_file
+ 0001:000C7320       load_configuration@0
  0001:000C7DE0       load_stats_files
+ 0001:000C90A0       load_script
+ 0001:000C9460       load_game
  0001:000C9A40       convert_old_column_file
+ 0001:000CA040       load_map_slab_file
  0001:000CA6D0       setup_person_move_to_position
  0001:000CAB80       move_creature
+ 0001:000CAF40       move_shot
  0001:000CB220       move_object
  0001:000CB760       move_effect
  0001:000CBC00       move_to_position
@@ -938,48 +988,32 @@
  0001:000D2490       check_out_undug_area
  0001:000D27B0       check_out_unreinforced_place
  0001:000D2A30       check_out_unreinforced_area
+ 0001:000D2BD0       check_out_imp_last_did
  0001:000D9DE0       LbErrorLogSetup@12
+ 0001:000D9FC0       LbMemoryFree@4
  0001:000DA0C0       LbMemoryReset@0
- 0001:000DA3F0       LbScreenIsModeAvailable
- 0001:000DA4F0       LbScreenSetup
- 0001:000DA710       LbScreenClear
- 0001:000DA740       LbScreenLock@0
- 0001:000DA760       LbIsActive@0
- 0001:000DA780       LbScreenUnlock@0
- 0001:000DA7B0       LbScreenReset@0
- 0001:000DA830       LbScreenSwap@0
- 0001:000DA870       LbScreenWaitVbi
- 0001:000DA8A0       LbPaletteGet
- 0001:000DA8D0       LbPaletteSet
+ 0001:000DA800       LbScreenFindVideoModes
+ 0001:000DA9F0       @LbFileClose@4
  0001:000DABB0       LbTextSetWindow
  0001:000DAD00       LbTextStringWidth
  0001:000DAE70       LbTextDraw
- 0001:000DBF80       LbWindowsControl@0
+ 0001:000DB6C0       put_down_sprites
+ 0001:000DBB60       LbSetIcon@4
+ 0001:000DBFC0       LbDataLoad@4
  0001:000DC3B0       LbPaletteFindColour
- 0001:000DC920       LbMouseSetPosition
- 0001:000DCA70       LbMouseChangeSprite
- 0001:000DCB10       LbMouseChangeSpriteAndHotspot
- 0001:000DCBC0       LbMouseSetPointerHotspot
- 0001:000DCC60       LbMouseSetup
- 0001:000DCEE0       LbMouseSuspend@0
+ 0001:000DC670       LbSpriteSetupAll
  0001:000DDC80       PointerDraw
  0001:000DF200       LbSpriteDrawOneColour
+ 0001:000DFDE0       LbIKeyboardClose@0
  0001:000DFDF0       LbSpriteDrawRemap
  0001:000E0D70       KeyboardProc@12
- 0001:000E3900       LbNetwork_EnableNewPlayers
- 0001:000E3920       LbNetwork_Init
- 0001:000E3C60       LbNetwork_Startup
- 0001:000E3DD0       LbNetwork_Shutdown
- 0001:000E3EC0       LbNetwork_Create
- 0001:000E3FF0       LbNetwork_Join
- 0001:000E40F0       LbNetwork_Stop
- 0001:000E4280       LbNetwork_EnumerateSessions
- 0001:000E4300       LbNetwork_EnumeratePlayers
- 0001:000E4350       LbNetwork_Exchange
- 0001:000E4BB0       LbNetwork_ChangeExchangeBuffer
+ 0001:000FCF90       play_smk_@12
+ 0001:000FCFD0       play_smk_via_buffer
+ 0001:000FD1B0       play_smk_direct
  0001:000FD5D0       copy_to_screen
  0002:00000010       map_to_slab
  0002:00000D50       imp_spangle_effects
+ 0003:00000060       frame_number
  0003:00001838       net_guid
  0003:00001888       net_config_info
  0003:00002190       BuildAllRooms3x3
@@ -1021,15 +1055,20 @@
  0003:0000E270       spell_data
  0003:0000E4A8       room_data
  0003:0000E630       trap_data
+ 0003:0000E6E0       door_names
  0003:0000E6F0       instance_info
  0003:0000EED0       spell_info
  0003:0000F160       player_instance_info
  0003:0000F620       trap_stats
+ 0003:0000FC20       class_functions
  0003:0000FC58       object_to_magic
  0003:0000FCE0       object_to_special
+ 0003:0000FD68       magic_to_object
  0003:0000FD80       trap_to_object
+ 0003:0000FD88       door_to_object
  0003:0000FD90       object_to_door_or_trap
  0003:0000FE18       workshop_object_class
+ 0003:0000FF20       event_button_info
  0003:000103C0       slab_attrs
  0003:00010CBC       Non3DEmitter
  0003:00010CC0       SpeechEmitter
@@ -1042,14 +1081,13 @@
  0003:00011504       cells_away
  0003:00011508       max_i_can_see
  0003:0001150C       lens_mode
+ 0003:00011580       rotpers_routines
+ 0003:00011590       perspective_routines
  0003:000115C4       grabbed_small_map
  0003:000115C8       clicked_on_small_map
  0003:000115CC       eastegg_skeksis_cntr
  0003:00011610       MinimalResolutionSetup
- 0003:00011618       low_res_pointer_load_files
- 0003:000116A0       low_res_small_pointer_load_files
- 0003:00011728       hi_res_pointer_load_files
- 0003:000117B0       hi_res_small_pointer_load_files
+ 0003:00011838       legal_load_files
  0003:00011C60       scrolling_index
  0003:00011C64       scrolling_offset
  0003:00011CB0       scrolling_stats_data
@@ -1061,10 +1099,21 @@
  0003:00014950       script_line_number
  0003:00014954       script_current_condition
  0003:00014960       sound_heap_memory
+ 0003:00014964       strings_data
  0003:00014968       SoundDisabled
  0003:0001496C       FatalError
  0003:000150F4       UseFastBlockDraw
  0003:00015630       special_desc
+ 0003:000160C8       room_desc
+ 0003:00016118       creature_desc
+ 0003:000161B8       player_desc
+ 0003:00016280       magic_desc
+ 0003:000162E8       trap_desc
+ 0003:00016328       command_desc
+ 0003:00016598       timer_desc
+ 0003:000165E8       flag_desc
+ 0003:00016618       door_desc
+ 0003:00016638       hero_objective_desc
  0003:00017530       tooltip_scroll_offset
  0003:00017534       tooltip_scroll_timer
  0003:00017538       gui_last_left_button_pressed_id
@@ -1086,6 +1135,83 @@
  0003:00017578       gui_trap_type_highlighted
  0003:0001757C       gui_creature_type_highlighted
  0003:00017590       menu_list
+ 0003:00017630       main_menu
+ 0003:00017650       room_menu
+ 0003:00017670       spell_menu
+ 0003:00017690       spell_lost_menu
+ 0003:000176B0       trap_menu
+ 0003:000176D0       creature_menu
+ 0003:000176F0       event_menu
+ 0003:00017710       options_menu
+ 0003:00017730       instance_menu
+ 0003:00017750       query_menu
+ 0003:00017770       quit_menu
+ 0003:00017790       load_menu
+ 0003:000177B0       save_menu
+ 0003:000177D0       video_menu
+ 0003:000177F0       sound_menu
+ 0003:00017810       error_box
+ 0003:00017830       text_info_menu
+ 0003:00017850       hold_audience_menu
+ 0003:00017870       dungeon_special_menu
+ 0003:00017890       resurrect_creature_menu
+ 0003:000178B0       transfer_creature_menu
+ 0003:000178D0       armageddon_menu
+ 0003:000178F0       frontend_main_menu
+ 0003:00017910       frontend_load_menu
+ 0003:00017930       frontend_net_service_menu
+ 0003:00017950       frontend_net_session_menu
+ 0003:00017970       frontend_net_start_menu
+ 0003:00017990       frontend_net_modem_menu
+ 0003:000179B0       frontend_net_serial_menu
+ 0003:000179D0       frontend_statistics_menu
+ 0003:000179F0       frontend_high_score_table_menu
+ 0003:00017A10       creature_query_menu1
+ 0003:00017A30       creature_query_menu2
+ 0003:00017A50       creature_query_menu3
+ 0003:00017A70       battle_menu
+ 0003:00017A90       frontend_define_keys_menu
+ 0003:00017AB0       autopilot_menu
+ 0003:00017AD0       frontend_option_menu
+ 0003:00017AF0       main_menu_buttons
+ 0003:00018050       room_menu_buttons
+ 0003:00018430       spell_menu_buttons
+ 0003:00018810       spell_lost_menu_buttons
+ 0003:00018BF0       trap_menu_buttons
+ 0003:00018FD0       creature_menu_buttons
+ 0003:00019648       event_menu_buttons
+ 0003:00019680       options_menu_buttons
+ 0003:00019838       query_menu_buttons
+ 0003:00019C50       instance_menu_buttons
+ 0003:00019C88       quit_menu_buttons
+ 0003:00019D68       load_menu_buttons
+ 0003:00019F90       save_menu_buttons
+ 0003:0001A1B8       video_menu_buttons
+ 0003:0001A340       sound_menu_buttons
+ 0003:0001A490       error_box_buttons
+ 0003:0001A570       text_info_buttons
+ 0003:0001A6C0       pause_buttons
+ 0003:0001A730       hold_audience_buttons
+ 0003:0001A810       armageddon_buttons
+ 0003:0001A8F0       dungeon_special_buttons
+ 0003:0001A928       battle_buttons
+ 0003:0001AB88       resurrect_creature_buttons
+ 0003:0001ADE8       transfer_creature_buttons
+ 0003:0001B048       frontend_main_menu_buttons
+ 0003:0001B238       frontend_load_menu_buttons
+ 0003:0001B578       frontend_net_service_buttons
+ 0003:0001B8B8       frontend_net_session_buttons
+ 0003:0001BE18       frontend_net_start_buttons
+ 0003:0001C5D8       frontend_net_modem_buttons
+ 0003:0001CDD0       frontend_net_serial_buttons
+ 0003:0001D290       frontend_statistics_buttons
+ 0003:0001D3A8       frontend_high_score_score_buttons
+ 0003:0001D488       creature_query_buttons1
+ 0003:0001D6E8       creature_query_buttons2
+ 0003:0001D948       creature_query_buttons3
+ 0003:0001DBE0       frontend_define_keys_buttons
+ 0003:0001DF88       autopilot_menu_buttons
+ 0003:0001E0D8       frontend_option_buttons
  0003:0001E4B8       menu_ids
  0003:0001E5B0       room_on
  0003:0001E5B4       spell_on
@@ -1101,6 +1227,7 @@
  0003:0001E5DC       battle_on
  0003:0001E5E0       special_on
  0003:0001E5F0       specials_text
+ 0003:0001EAF8       map_flag_load_files
  0003:0001EB80       map_flag_setup_sprites
  0003:0001EB98       netmap_flag_load_files
  0003:0001ECD0       netmap_flag_setup_sprites
@@ -1108,6 +1235,7 @@
  0003:0001F218       sound_file
  0003:0001F21C       sound_file2
  0003:00020670       frontend_menu_state
+ 0003:00020678       frontend_button_info
  0003:000207B4       high_score_entry_input_active
  0003:000207B8       fade_palette_in
  0003:000207C0       frontstory_load_files
@@ -1126,6 +1254,8 @@
  0003:000280EC       lbSpacesPerTab
  0003:000280F4       lpDDC
  0003:00028178       icon_index
+ 0003:00028180       lbInkeyToAscii
+ 0003:00028200       lbInkeyToAsciiShift
  0003:00028280       lbKeyboardLang
  0003:00028284       modify_data_load_filename_function
  0003:00028338       fade_started
@@ -1250,6 +1380,7 @@
  0003:00040DE0       old_mx
  0003:00040DE4       old_my
  0003:00040DE8       frontstats_timer
+ 0003:00040DF0       frontstats_data
  0003:00052D68       packet_left_button_double_clicked
  0003:00052D80       packet_left_button_click_space_count
  0003:00052DB0       Receiver
@@ -1323,6 +1454,7 @@
  0003:00241458       port_sprite
  0003:00241460       install_info
  0003:00241500       end_gui_panel_sprite_data
+ 0003:00241504       lightning_palette
  0003:00241508       heap
  0003:0024150C       end_pointer_sprites
  0003:00241510       my_player_number
@@ -1379,6 +1511,7 @@
  0003:00247004       sound_level
  0003:00247008       video_shadows
  0003:0024700C       music_level
+ 0003:00247010       video_textures
  0003:00247014       battle_creature_over
  0003:00247018       breed_activities
  0003:00247058       video_view_distance_level
@@ -1431,6 +1564,7 @@
  0003:00247B48       defining_a_key
  0003:00247B50       time_last_played_demo
  0003:00247C5C       credits_scroll_speed
+ 0003:00247C60       high_score_table
  0003:00247F30       fe_computer_players
  0003:00247F38       frontend_sprite
  0003:00247F3C       frontstory_font
@@ -1444,7 +1578,6 @@
  0003:0025C8C8       reinforce_stack
  0003:0025C9C8       r_stackpos
  0003:0025C9F4       pixmap
- 0003:002609F4       ghost
  0003:002735D0       lbDisplay
  0003:00273648       lbTextClipWindow
  0003:00273660       lbTextJustifyWindow
@@ -1454,7 +1587,7 @@
  0003:00273CB0       from_pal
  0003:00273FB0       fade_count
  0003:00273FB8       to_pal
- 0005:00006562       set_cpu_mode
+ 0003:002753D8       maximumPlayers
  0005:00011C10       LbSpriteDraw
  0006:00000008       gpoly_pro_enable_mode_ofs
  0006:00000010       gtblock_clip_width
