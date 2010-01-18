@@ -129,7 +129,7 @@ void set_players_packet_position(struct PlayerInfo *player, long x, long y)
 /**
  * Gives a pointer for the player's packet.
  * @param plyr_idx The player index for which we want the packet.
- * @return Returns Pactet pointer. On error, returns a dummy structure.
+ * @return Returns Packet pointer. On error, returns a dummy structure.
  */
 struct Packet *get_packet(long plyr_idx)
 {
@@ -145,7 +145,7 @@ struct Packet *get_packet(long plyr_idx)
 /**
  * Gives a pointer to packet of given index.
  * @param pckt_idx Packet index in the array. Note that it may differ from player index.
- * @return Returns Pactet pointer. On error, returns a dummy structure.
+ * @return Returns Packet pointer. On error, returns a dummy structure.
  */
 struct Packet *get_packet_direct(long pckt_idx)
 {
@@ -2015,7 +2015,7 @@ void process_players_creature_passenger_packet_action(long idx)
   SYNCDBG(8,"Finished");
 }
 
-void process_players_dungeon_control_packet_action(long idx)
+TbBool process_players_dungeon_control_packet_action(long idx)
 {
   SYNCDBG(6,"Starting");
   struct PlayerInfo *player;
@@ -2040,7 +2040,10 @@ void process_players_dungeon_control_packet_action(long idx)
     case 107:
       toggle_computer_player(idx);
       break;
+    default:
+      return false;
   }
+  return true;
 }
 
 void process_players_creature_control_packet_control(long idx)

@@ -1,0 +1,65 @@
+ADDED:
+Number 824 : "SP_APOC.WAV" is unused. Simply, it should be the spell voice of the Armageddon spell when clicking on its icon.
+
+Number 830 : "SP_HOLD.WAV" is unused. Simply, it should be the spell voice of the Hold Audience spell when clicking on its icon.
+
+
+TODO:
+
+For the sounds, here are the numbers of unused ones (first one starts as number 1) :
+
+Number 62 : "BUTTON3.WAV" is unused. Maybe this one could be used for some kind of "down" arrow or something. Anyway, this one is not completely necessary.
+
+Number 84 : "FANFARE3.WAV" is unused. It was used in the BETA version of the game only as the enemy CTA spell. It'd be interesting to use it in the game as well.
+
+Number 87 : "WHIP.WAV" is unused. I have no idea where we could use it.
+
+Numbers 121 to 127 are unused. Those sounds should have been used when a creature with a sword hits an enemy that also has a sword and when a creature with a sword hits an enemy with an armour. I think those ones should be nice to use with the Knight and the Avatar when creatures are missing their hits.
+
+Number 174 : "TABFALL.WAV" is unused. In the original version of Sound.dat, there's a "NULL.WAV" sound there, but in the BETA version, that wav sound is used at this slot. Simply, this sound should be played while a little icon drops at the left of the screen.
+
+There are also some unused sounds with creatures that should be played when slapping them, but the way it is currently in the game is way better and well, we shouldn't do anything about that.
+
+Now, for speeches :
+
+Number 16 : "IGAME015.WAV" (You are losing territory). This one should be played when enemy imps or tunnellers are claiming our own claimed tiles. Or, we could use it when the number of claimed tiles we own is becoming low.
+
+Number 21 : "IGAME020.WAV" (The battle is over). This one should be played when a creature that is fighting amongst another one of ours is killed, when a spider kills a fly for example.
+
+For the next ones, I don't know if those are possible :
+
+Number 47 : "IGAME046.WAV" (You have taken an enemy spellbook)
+Number 48 : "IGAME047.WAV" (You have taken an enemy's trap design)
+Number 49 : "IGAME048.WAV" (You have taken an enemy's door design)
+Number 50 : "IGAME049.WAV" (The enemy has stolen a spellbook)
+Number 51 : "IGAME050.WAV" (A trap design has been taken from you)
+Number 52 : "IGAME051.WAV" (The enemy has taken a door design)
+
+Number 59 : "IGAME058.WAV" (You have freed your creatures from a prison). I don't know if this one is used in the game but if not, then it should be interesting to use it.
+
+Number 60 : "IGAME059.WAV" (Your prisoners are starving to death). This one is unused. Would be fun when a healed prisoner is starving, but at the same time, I just hope it won't be annoying.
+
+Number 71 : "IGAME070.WAV" (Your creatures have discovered a mysterious magic box). This one SHOULD be used when an imp is claiming a tile under the special bonus crate or when he goes taking it.
+
+Number 72 : "IGAME071.WAV" (Your creatures have found a spell). Same thing, but for a spellbook.
+
+Number 73 : "IGAME072.WAV" (A door design has been discovered). Same thing, but for a door crate.
+
+Number 74 : "IGAME073.WAV" (A trap design has been discovered). Same thing, but for a trap crate.
+
+Number 75 : "IGAME074.WAV" (New creatures has joined your dungeon). This one should be played when we get neutral creatures.
+
+Number 78 : "IGAME077.WAV" (You may resurrect one creature). When clicking on the "Resurrect creature" bonus box.
+
+Number 79 : "IGAME078.WAV" (Select the creature to take with you to the next realm). When clicking on the "Transfer creature" bonus box.
+
+Number 107 : "IGAME106.WAV" (Master, I sense the presence of the Avatar). I guess this one should be played at the beginning of the Level 20 : Skybird Trill or during the level.
+
+For the two last ones, I don't understand the spoken sentences well so that I won't write them.
+
+Number 108 : "IGAME107.WAV". Surely played when the Avatar's body disappear on Level 20 or when he's turned to our cause.
+
+Number 109 : "IGAME108.WAV". This is one should be played when we win on the last level of the campaign.
+
+That's all!
+
