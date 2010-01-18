@@ -118,7 +118,7 @@ void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 void set_players_packet_position(struct PlayerInfo *player, long x, long y);
 short set_packet_pause_toggle(void);
 void process_dungeon_control_packet_clicks(long idx);
-void process_players_dungeon_control_packet_action(long idx);
+TbBool process_players_dungeon_control_packet_action(long idx);
 void process_players_creature_control_packet_control(long idx);
 void process_players_creature_passenger_packet_action(long idx);
 void process_players_creature_control_packet_action(long idx);

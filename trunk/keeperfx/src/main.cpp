@@ -6844,7 +6844,8 @@ TbBool is_bonus_level_visible(struct PlayerInfo *player, LevelNumber bn_lvnum)
   i = storage_index_for_bonus_level(bn_lvnum);
   if (i < 0)
   {
-      WARNLOG("Someone asked for state of nonexisting bonus level %d.",(int)bn_lvnum);
+      // This hapens quite often - status of bonus level is checked even
+      // if there's no such bonus level. So no log message here.
       return false;
   }
   n = i/8;
