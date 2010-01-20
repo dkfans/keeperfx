@@ -52,6 +52,10 @@ struct Objects {
     unsigned char field_15;
 };
 
+#define OBJECT_TYPES_COUNT  135
+/******************************************************************************/
+extern Thing_Class_Func object_state_functions[];
+extern Thing_Class_Func object_update_functions[];
 /******************************************************************************/
 DLLIMPORT extern struct Objects _DK_objects[OBJECT_TYPES_COUNT];
 #define objects_data _DK_objects

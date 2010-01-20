@@ -931,6 +931,7 @@
  0001:000C2700       set_creature_level
  0001:000C28E0       init_creature_level
  0001:000C41E0       find_next_annoyed_creature
+ 0001:000C4AA0       prepare_thing_for_power_hand
  0001:000C4B40       dump_thing_in_power_hand
  0001:000C4C00       place_thing_in_power_hand
  0001:000C4CD0       dump_held_things_on_map

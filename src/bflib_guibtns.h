@@ -189,6 +189,9 @@ struct EventTypeInfo { //sizeof=0x10
 };
 
 /******************************************************************************/
+extern char *gui_strings[STRINGS_MAX+1];
+extern char *gui_strings_data;
+/******************************************************************************/
 // Exported variables
 DLLIMPORT extern struct GuiButton *_DK_input_button;
 #define input_button _DK_input_button

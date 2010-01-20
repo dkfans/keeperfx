@@ -31,6 +31,8 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+struct Map;
+
 struct Column { // sizeof=0x18
     short use;
     unsigned char bitfileds;
