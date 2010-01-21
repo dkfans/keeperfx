@@ -141,10 +141,16 @@ $(BIN): $(OBJS) $(LIBS)
 	@echo 'Finished building: $<'
 	@echo ' '
 
-./lib/libkeeperfx.a: ./lib/keeperfx.dll
+./lib/libkeeperfx.a: ./lib/keeperfx.dll ./lib/keeperfx.def
 	@echo 'Generating gcc library archive for: $<'
 	$(DLLTOOL) --dllname "$<" --def "./lib/keeperfx.def" --output-lib "$@"
-	@echo 'Finished building: $<'
+	@echo 'Finished generating: $@'
+	@echo ' '
+
+./lib/keeperfx.dll: ./lib/keeper95_gold.dll ./lib/keeper95_gold.map
+	@echo 'Rebuilding DLL export table from: $<'
+	./lib/peresec -o"$@" -p"_DK_" "$<"
+	@echo 'Finished creating: $@'
 	@echo ' '
 
 ./build/%.res: ./res/%.rc
