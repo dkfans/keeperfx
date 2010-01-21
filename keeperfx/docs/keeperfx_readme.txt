@@ -276,6 +276,8 @@ Version: 0.35
   Rewritten some of Dungeon Heart behaviour
   Programming IDE switched to Eclipse for C++
   New Makefile and project structure - easier to recompile
+  Rewritten and fixed Word of Power damage code
+  Rewritten missing function for new way of storing bonus levels
 
 Version: 0.34
   Some fixups in CPU Identification code
