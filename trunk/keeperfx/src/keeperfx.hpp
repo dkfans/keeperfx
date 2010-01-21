@@ -1652,7 +1652,7 @@ void update_extra_levels_visibility(void);
 
 int can_thing_be_queried(struct Thing *thing, long a2);
 int can_thing_be_possessed(struct Thing *thing, long a2);
-short magic_use_power_hand(unsigned short a1, unsigned short a2, unsigned short a3, unsigned short a4);
+TbBool magic_use_power_hand(long plyr_idx, unsigned short a2, unsigned short a3, unsigned short tng_idx);
 void magic_use_power_chicken(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
 void magic_use_power_disease(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
 void magic_use_power_destroy_walls(unsigned char a1, long a2, long a3, long a4);

@@ -375,6 +375,7 @@ TbClockMSec last_loop_time=0;
 #ifdef __cplusplus
 extern "C" {
 #endif
+DLLIMPORT long _DK_prepare_thing_for_power_hand(unsigned short tng_idx, long plyr_idx);
 DLLIMPORT void _DK_draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
 DLLIMPORT void _DK_draw_lightning(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
 DLLIMPORT unsigned char _DK_line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2);
@@ -12545,9 +12546,57 @@ int can_thing_be_possessed(struct Thing *thing, long a2)
   return _DK_can_thing_be_possessed(thing, a2);
 }
 
-short magic_use_power_hand(unsigned short a1, unsigned short a2, unsigned short a3, unsigned short a4)
+long prepare_thing_for_power_hand(unsigned short tng_idx, long plyr_idx)
 {
-  return _DK_magic_use_power_hand(a1, a2, a3, a4);
+    return _DK_prepare_thing_for_power_hand(tng_idx, plyr_idx);
+}
+
+TbBool magic_use_power_hand(long plyr_idx, unsigned short a2, unsigned short a3, unsigned short tng_idx)
+{
+  struct PlayerInfo *player;
+  struct Dungeon *dungeon;
+  struct Thing *thing;
+  //return _DK_magic_use_power_hand(plyr_idx, a2, a3, tng_idx);
+  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  player = &(game.players[plyr_idx%PLAYERS_COUNT]);
+  if (dungeon->field_63 >= 8)
+    return false;
+  thing = thing_get(tng_idx);
+  if (thing_is_invalid(thing))
+  {
+    thing = NULL;
+  } else
+  if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
+  {
+      thing = NULL;
+  }
+  if (thing == NULL)
+  {
+      if (player->thing_under_hand > 0)
+          thing = thing_get(player->thing_under_hand);
+  }
+  if (thing_is_invalid(thing))
+      return false;
+  if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
+  {
+      return false;
+  }
+  if (thing->class_id != TCls_Object)
+  {
+      prepare_thing_for_power_hand(thing->index, plyr_idx);
+      return true;
+  }
+  if (is_dungeon_special(thing))
+  {
+      activate_dungeon_special(thing, player);
+      return false;
+  }
+  if ( object_is_pickable_by_hand(thing, plyr_idx) )
+  {
+      prepare_thing_for_power_hand(thing->index, plyr_idx);
+      return true;
+  }
+  return false;
 }
 
 long tag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3)
