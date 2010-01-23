@@ -1,0 +1,7 @@
+
+
+Attacking doesn't cause invisible creatures to turn visible back. There's however a problem related with that: you can easily attack and destroy a dungeon heart while being unnoticed. I was wondering if you could do something about that like, for example, forcing the visibility of the creature when he's nearby the dungeon heart or when a possessed creature attacks. That would be way much better.
+
+When a visible creature meets an invisible creature, a weird thing occurs: the visible creature wants to attack the invisible creature but cannot and causes the fight to stop, without giving enough time for the invisible creature to attack properly (excepted if he's close of an enemy dungeon heart or the targeted visible creature). Once the fight stops, the game checks for fights again and it starts back between the same two creatures: the visible creature wants to attack the invisible creature but cannot and the fight stops, the fight starts over again then stops then starts then stops and so on in a constant loop which causes the attacks to loop very fast as well, which is not good. Would it be possible that, when a visible creature meets an invisible creature, he flees and the invisible creature keeps trying to attack the visible one? That would be WAAAY much better.
+
+

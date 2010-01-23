@@ -272,6 +272,14 @@ New and modified level script commands:
 
 Changelog:
 
+Version: 0.3.5
+  Rewritten shot throwing code (for both melee combat and spells)
+  Rewritten some of Dungeon Heart behaviour
+  Programming IDE switched to Eclipse for C++
+  New Makefile and project structure - easier to recompile
+  Rewritten and fixed Word of Power damage code
+  Rewritten missing function for new way of storing bonus levels
+
 Version: 0.3.4
   Some fixups in CPU Identification code
   Fixed Imps sacrifice code

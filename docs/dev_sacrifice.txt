@@ -1,0 +1,46 @@
+Common rules and ideas of sacrifices are stored here.
+
+New unique SAC ideas:
+
+All Your Prisoners Die (No Skeletons, just die)
+All Your Spell books disappear (You have to research them again)
+All Your Trap Boxes Disappear (You have to Manufacture them again)
+All your walls are unfortified. 
+All your imps become level 10
+
+"Doesn't care" creatures - not used in sacrifices:
+ARCHER
+FAIRY
+BARBARIAN
+SORCEROR
+FLOATING_SPIRIT
+WITCH
+TUNNELLER
+DWARFA
+GIANT
+ORC
+SAMURAI
+THIEF
+TENTACLE
+AVATAR
+
+"Made the gods angry" creatures - used for bad sacrifices:
+KNIGHT
+MONK
+WIZARD
+SKELETON
+VAMPIRE
+GHOST (already taken)
+HORNY (already taken)
+
+"Gods are pleased" creatures - for good sacrifices:
+BILE_DEMON
+TROLL
+DRAGON
+FLY
+BUG
+DARK_MISTRESS
+DEMONSPAWN
+HELL_HOUND
+SPIDER
+IMP (already taken)
