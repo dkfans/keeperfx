@@ -419,7 +419,7 @@ long rnc_crc(void *data, unsigned long len)
   return val;
 }
 
-long __fastcall LbFileLengthRnc(const char *fname)
+long LbFileLengthRnc(const char *fname)
 {
   TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
   if ( handle == -1 )
@@ -454,7 +454,7 @@ long __fastcall LbFileLengthRnc(const char *fname)
   return flength;
 }
 
-long __fastcall UnpackM1(unsigned char *buffer, ulong bufsize)
+long UnpackM1(unsigned char *buffer, ulong bufsize)
 {
   //If file isn't compressed - return with zero
   if (blong(buffer+0)!=RNC_SIGNATURE)
@@ -471,7 +471,7 @@ long __fastcall UnpackM1(unsigned char *buffer, ulong bufsize)
   return retcode;
 }
 
-long __fastcall LbFileLoadAt(const char *fname, void *buffer)
+long LbFileLoadAt(const char *fname, void *buffer)
 {
   long filelength = LbFileLengthRnc(fname);
   TbFileHandle handle=-1;
@@ -505,7 +505,7 @@ long __fastcall LbFileLoadAt(const char *fname, void *buffer)
   return result;
 }
 
-long __fastcall LbFileSaveAt(const char *fname, const void *buffer,unsigned long len)
+long LbFileSaveAt(const char *fname, const void *buffer,unsigned long len)
 {
   TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
   if ( handle == -1 )

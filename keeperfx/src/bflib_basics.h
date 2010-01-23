@@ -137,13 +137,13 @@ int LbJustLog(const char *format, ...);
 int LbScriptLog(unsigned long line,const char *format, ...);
 int LbConfigLog(unsigned long line,const char *format, ...);
 
-int __fastcall LbErrorLogSetup(const char *directory, const char *filename, TbBool flag);
-int __fastcall LbErrorLogClose(void);
+int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag);
+int LbErrorLogClose(void);
 
-int __fastcall LbLogClose(struct TbLog *log);
-int __fastcall LbLogSetup(struct TbLog *log, const char *filename, ulong flags);
-int __fastcall LbLogSetPrefix(struct TbLog *log, const char *prefix);
-int __fastcall LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...);
+int LbLogClose(struct TbLog *log);
+int LbLogSetup(struct TbLog *log, const char *filename, ulong flags);
+int LbLogSetPrefix(struct TbLog *log, const char *prefix);
+int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...);
 /******************************************************************************/
 typedef void __stdcall (*TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
 /******************************************************************************/

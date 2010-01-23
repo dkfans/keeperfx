@@ -19,7 +19,7 @@
 /******************************************************************************/
 
 #include <windows.h> // include for version info constants
-#include "../src/keeperfx_private.h" // define values for version info
+#include "../src/version.h" // define values for version info
 
 A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "keeperfx.ico"
 
