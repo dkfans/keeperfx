@@ -16,7 +16,6 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
 #ifndef KEEPFX_GLOBALS_H
 #define KEEPFX_GLOBALS_H
 
@@ -106,7 +105,7 @@ extern "C" {
 #define NETMSG(format,args...) LbNetLog(format "\n", ## args)
 #define NOMSG(format,args...)
 
-// Debug fuction-like macros - for code logging (with function name)
+// Debug function-like macros - for code logging (with function name)
 #define ERRORLOG(format,args...) LbErrorLog("%s: " format "\n", __func__ , ## args)
 #define WARNLOG(format,args...) LbWarnLog("%s: " format "\n", __func__ , ## args)
 #define SYNCLOG(format,args...) LbSyncLog("%s: " format "\n", __func__ , ## args)
@@ -120,7 +119,7 @@ extern "C" {
 #define NETLOG(format,args...) LbNetLog("%s: " format "\n", __func__ , ## args)
 #define NOLOG(format,args...)
 
-// Debug fuction-like macros - for debug code logging
+// Debug function-like macros - for debug code logging
 #if (BFDEBUG_LEVEL > 0)
   #define SYNCDBG(dblv,format,args...) {\
     if (BFDEBUG_LEVEL > dblv)\

@@ -313,7 +313,7 @@ int LbJustLog(const char *format, ...)
     return result;
 }
 
-int __fastcall LbErrorLogSetup(const char *directory, const char *filename, TbBool flag)
+int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag)
 {
   if ( error_log_initialised )
     return -1;
@@ -340,7 +340,7 @@ int __fastcall LbErrorLogSetup(const char *directory, const char *filename, TbBo
   return result;
 }
 
-int __fastcall LbErrorLogClose(void)
+int LbErrorLogClose(void)
 {
     if (!error_log_initialised)
         return -1;
@@ -451,7 +451,7 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
   return 1;
 }
 
-int __fastcall LbLogSetPrefix(struct TbLog *log, const char *prefix)
+int LbLogSetPrefix(struct TbLog *log, const char *prefix)
 {
   if (!log->Initialised)
     return -1;
@@ -465,7 +465,7 @@ int __fastcall LbLogSetPrefix(struct TbLog *log, const char *prefix)
   return 1;
 }
 
-int __fastcall LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...)
+int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...)
 {
   va_list val;
   if (!log->Initialised)
@@ -482,7 +482,7 @@ int __fastcall LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...)
   return 1;
 }
 
-int __fastcall LbLogSetup(struct TbLog *log, const char *filename, ulong flags)
+int LbLogSetup(struct TbLog *log, const char *filename, ulong flags)
 {
   log->Initialised = false;
   LbMemorySet(log->filename, 0, DISKPATH_SIZE);
@@ -499,7 +499,7 @@ int __fastcall LbLogSetup(struct TbLog *log, const char *filename, ulong flags)
   return 1;
 }
 
-int __fastcall LbLogClose(struct TbLog *log)
+int LbLogClose(struct TbLog *log)
 {
   if ( !log->Initialised )
     return -1;
