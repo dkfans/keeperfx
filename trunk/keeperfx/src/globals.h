@@ -16,7 +16,6 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
 #ifndef KEEPFX_GLOBALS_H
 #define KEEPFX_GLOBALS_H
 
@@ -44,7 +43,7 @@
 #include <process.h>
 #endif
 
-#include "keeperfx_private.h"
+#include "version.h"
 
 #if defined(BUILD_DLL)
 # define DLLIMPORT __declspec (dllexport)
@@ -77,12 +76,6 @@ extern "C" {
 #define min(a,b) ((a)<(b)?(a):(b))
 #endif
 
-// Debug level is scaled 0..10, default=1
-#define BFDEBUG_LEVEL 10
-#define PROGRAM_NAME "Dungeon Keeper FX"
-#define PROGRAM_FULL_NAME "Dungeon Keeper Fan eXpansion"
-#define DEFAULT_LOG_FILENAME "keeperfx.log"
-
 // Return values for verification functions
 #define VERIF_ERROR   0
 #define VERIF_OK      1
@@ -103,7 +96,7 @@ extern "C" {
 #define NETMSG(format,args...) LbNetLog(format "\n", ## args)
 #define NOMSG(format,args...)
 
-// Debug fuction-like macros - for code logging (with function name)
+// Debug function-like macros - for code logging (with function name)
 #define ERRORLOG(format,args...) LbErrorLog("%s: " format "\n", __func__ , ## args)
 #define WARNLOG(format,args...) LbWarnLog("%s: " format "\n", __func__ , ## args)
 #define SYNCLOG(format,args...) LbSyncLog("%s: " format "\n", __func__ , ## args)
@@ -117,7 +110,7 @@ extern "C" {
 #define NETLOG(format,args...) LbNetLog("%s: " format "\n", __func__ , ## args)
 #define NOLOG(format,args...)
 
-// Debug fuction-like macros - for debug code logging
+// Debug function-like macros - for debug code logging
 #if (BFDEBUG_LEVEL > 0)
   #define SYNCDBG(dblv,format,args...) {\
     if (BFDEBUG_LEVEL > dblv)\

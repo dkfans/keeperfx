@@ -53,10 +53,10 @@ extern "C" {
 #define RNC_HEADER_LEN 18
 
 /******************************************************************************/
-long __fastcall LbFileLengthRnc(const char *fname);
-long __fastcall LbFileLoadAt(const char *fname, void *buffer);
-long __fastcall LbFileSaveAt(const char *fname, const void *buffer,unsigned long len);
-long __fastcall UnpackM1(unsigned char *buffer, unsigned long bufsize);
+long LbFileLengthRnc(const char *fname);
+long LbFileLoadAt(const char *fname, void *buffer);
+long LbFileSaveAt(const char *fname, const void *buffer,unsigned long len);
+long UnpackM1(unsigned char *buffer, unsigned long bufsize);
 /******************************************************************************/
 #ifndef COMPRESSOR
 long rnc_unpack (void *packed, void *unpacked, unsigned int flags);
