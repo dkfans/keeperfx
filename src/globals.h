@@ -43,10 +43,10 @@
 #include <process.h>
 #endif
 
-#include "keeperfx_private.h"
+#include "version.h"
 
 #ifndef BFDEBUG_LEVEL
-// Debug level is scaled 0..10
+#error "BFDEBUG_LEVEL should be defined in version.h"
 #define BFDEBUG_LEVEL 0
 #endif
 
@@ -80,10 +80,6 @@ extern "C" {
 #ifndef min
 #define min(a,b) ((a)<(b)?(a):(b))
 #endif
-
-#define PROGRAM_NAME "Dungeon Keeper FX"
-#define PROGRAM_FULL_NAME "Dungeon Keeper Fan eXpansion"
-#define DEFAULT_LOG_FILENAME "keeperfx.log"
 
 // Return values for verification functions
 #define VERIF_ERROR   0
