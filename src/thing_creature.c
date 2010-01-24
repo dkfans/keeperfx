@@ -25,6 +25,7 @@
 #include "engine_lenses.h"
 #include "config_creature.h"
 #include "creature_states.h"
+#include "config_lenses.h"
 #include "thing_effects.h"
 #include "lens_mist.h"
 #include "keeperfx.hpp"
@@ -1180,6 +1181,7 @@ void draw_creature_view(struct Thing *thing)
 {
   struct TbGraphicsWindow grwnd;
   struct PlayerInfo *player;
+  struct LensConfig *lenscfg;
   long grscr_w,grscr_h;
   unsigned char *wscr_cp;
   unsigned char *scrmem;
@@ -1198,12 +1200,6 @@ void draw_creature_view(struct Thing *thing)
     return;
   }
 
-  //TODO: Temporary hack, until rewritten CMistFade is not completely used
-  if ((game.numfield_1B >= 4) && (game.numfield_1B <= 12))
-  {
-    _DK_draw_creature_view(thing);
-    return;
-  }
   scrmem = eye_lens_spare_screen_memory;
   // Store previous graphics settings
   wscr_cp = lbDisplay.WScreen;
@@ -1227,32 +1223,36 @@ void draw_creature_view(struct Thing *thing)
   LbScreenLoadGraphicsWindow(&grwnd);
   // Draw the buffer on real screen
   setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-  switch (game.numfield_1B)
+  if ((game.numfield_1B < 1) || (game.numfield_1B > lenses_conf.lenses_count))
   {
-  case 1:
-  case 2:
-      draw_lens(lbDisplay.WScreen, scrmem, eye_lens_memory,
-            MyScreenWidth/pixel_size, MyScreenHeight/pixel_size, lbDisplay.GraphicsScreenWidth);
-      break;
-  case 3:
-      flyeye_blitsec(scrmem, lbDisplay.WScreen, MyScreenWidth/pixel_size,
-            lbDisplay.GraphicsScreenWidth, 1, MyScreenHeight/pixel_size);
-      break;
-  case 4:
-  case 5:
-  case 6:
-  case 7:
-  case 8:
-  case 9:
-  case 10:
-  case 11:
-  case 12:
-	  draw_mist(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, scrmem,
+      if (game.numfield_1B != 0)
+          ERRORLOG("Invalid lens effect");
+      return;
+  }
+  lenscfg = &lenses_conf.lenses[game.numfield_1B];
+  if ((lenscfg->flags & LCF_HasMist) != 0)
+  {
+      draw_mist(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, scrmem,
           MyScreenWidth/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-      break;
-  default:
-      ERRORLOG("Invalid lens mode.");
-      break;
+  }
+  if ((lenscfg->flags & LCF_HasDisplace) != 0)
+  {
+      switch (lenscfg->displace_kind)
+      {
+      case 1:
+      case 2:
+          draw_lens(lbDisplay.WScreen, scrmem, eye_lens_memory,
+                MyScreenWidth/pixel_size, MyScreenHeight/pixel_size, lbDisplay.GraphicsScreenWidth);
+          break;
+      case 3:
+          flyeye_blitsec(scrmem, lbDisplay.WScreen, MyScreenWidth/pixel_size,
+                lbDisplay.GraphicsScreenWidth, 1, MyScreenHeight/pixel_size);
+          break;
+      }
+  }
+  if ((lenscfg->flags & LCF_HasPalette) != 0)
+  {
+      // Nothing to do - palette is just set and don't have to be drawn
   }
 }
 

@@ -77,6 +77,7 @@ extern unsigned int eye_lens_width;
 extern unsigned int eye_lens_height;
 /******************************************************************************/
 void init_lens(unsigned long *lens_mem, int width, int height, int scanln, int nlens);
+void flyeye_setup(long width, long height);
 void perspective_standard(struct XYZ *cor, struct PolyPoint *ppt);
 void perspective_fisheye(struct XYZ *cor, struct PolyPoint *ppt);
 void rotpers_parallel(struct EngineCoord *epos, struct M33 *matx);

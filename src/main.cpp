@@ -474,7 +474,7 @@ DLLIMPORT void _DK_light_set_light_minimum_size_to_cache(long a1, long a2, long 
 DLLIMPORT struct Thing *_DK_create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
 DLLIMPORT struct Thing *_DK_find_base_thing_on_mapwho(unsigned char oclass, unsigned short model, unsigned short x, unsigned short y);
 DLLIMPORT void _DK_delete_room_structure(struct Room *room);
-DLLIMPORT int __cdecl _DK_get_gui_inputs(int);
+DLLIMPORT int _DK_get_gui_inputs(int);
 DLLIMPORT unsigned long _DK_can_drop_thing_here(long x, long y, long a3, unsigned long a4);
 DLLIMPORT long _DK_thing_in_wall_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT void _DK_do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
@@ -502,7 +502,6 @@ DLLIMPORT long _DK_screen_to_map(struct Camera *camera, long scrpos_x, long scrp
 DLLIMPORT void _DK_draw_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int scanln);
 DLLIMPORT void _DK_flyeye_blitsec(unsigned char *srcbuf, unsigned char *dstbuf, long srcwidth, long dstwidth, long n, long height);
 DLLIMPORT void _DK_draw_swipe(void);
-DLLIMPORT void _DK_flyeye_setup(long width, long height);
 DLLIMPORT void _DK_draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 DLLIMPORT void _DK_draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
 DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
@@ -637,10 +636,10 @@ DLLIMPORT void _DK_activate_dungeon_special(struct Thing *thing, struct PlayerIn
 DLLIMPORT void _DK_resurrect_creature(struct Thing *thing, unsigned char a2, unsigned char a3, unsigned char a4);
 DLLIMPORT void _DK_transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char a3);
 DLLIMPORT long _DK_thing_is_special(Thing *thing);
-DLLIMPORT int __cdecl _DK_play_smacker_file(char *fname, int);
-DLLIMPORT void __cdecl _DK_reset_eye_lenses(void);
-DLLIMPORT void __cdecl _DK_reset_heap_manager(void);
-DLLIMPORT void __cdecl _DK_reset_heap_memory(void);
+DLLIMPORT int _DK_play_smacker_file(char *fname, int);
+DLLIMPORT void _DK_reset_eye_lenses(void);
+DLLIMPORT void _DK_reset_heap_manager(void);
+DLLIMPORT void _DK_reset_heap_memory(void);
 DLLIMPORT int _DK_LoadMcgaData(void);
 DLLIMPORT void _DK_initialise_eye_lenses(void);
 DLLIMPORT void _DK_setup_eye_lens(long nlens);
@@ -788,19 +787,20 @@ long get_radially_decaying_value(long magnitude,long decay_start,long decay_leng
 
 void reset_eye_lenses(void)
 {
-  if (eye_lens_memory != NULL)
-  {
-    LbMemoryFree(eye_lens_memory);
-    eye_lens_memory = NULL;
-  }
-  if (eye_lens_spare_screen_memory != NULL)
-  {
-    LbMemoryFree(eye_lens_spare_screen_memory);
-    eye_lens_spare_screen_memory = NULL;
-  }
-  set_flag_byte(&game.flags_cd,MFlg_EyeLensReady,false);
-  game.numfield_1A = 0;
-  game.numfield_1B = 0;
+    free_mist();
+    if (eye_lens_memory != NULL)
+    {
+        LbMemoryFree(eye_lens_memory);
+        eye_lens_memory = NULL;
+    }
+    if (eye_lens_spare_screen_memory != NULL)
+    {
+        LbMemoryFree(eye_lens_spare_screen_memory);
+        eye_lens_spare_screen_memory = NULL;
+    }
+    set_flag_byte(&game.flags_cd, MFlg_EyeLensReady, false);
+    game.numfield_1A = 0;
+    game.numfield_1B = 0;
 }
 
 void reset_creature_eye_lens(struct Thing *thing)
@@ -862,7 +862,7 @@ void initialise_eye_lenses(void)
     set_flag_byte(&game.flags_cd,MFlg_EyeLensReady,false);
     return;
   }
-
+/*
   //TODO: Hack for compatibility - eye lens supported only in 3 modes
   if ((lbDisplay.ScreenMode != Lb_SCREEN_MODE_320_200_8) &&
       (lbDisplay.ScreenMode != Lb_SCREEN_MODE_640_400_8) &&
@@ -872,10 +872,11 @@ void initialise_eye_lenses(void)
     set_flag_byte(&game.flags_cd,MFlg_EyeLensReady,false);
     return;
   }
-
+*/
   eye_lens_height = lbDisplay.GraphicsScreenHeight;
   eye_lens_width = lbDisplay.GraphicsScreenWidth;
   screen_size = eye_lens_width * eye_lens_height + 2;
+  if (screen_size < 256*256) screen_size = 256*256 + 2;
   eye_lens_memory = (unsigned long *)LbMemoryAlloc(screen_size*sizeof(unsigned long));
   eye_lens_spare_screen_memory = (unsigned char *)LbMemoryAlloc(screen_size*sizeof(TbPixel));
   if ((eye_lens_memory == NULL) || (eye_lens_spare_screen_memory == NULL))
@@ -888,15 +889,11 @@ void initialise_eye_lenses(void)
   set_flag_byte(&game.flags_cd,MFlg_EyeLensReady,true);
 }
 
-void flyeye_setup(long width, long height)
-{
-  _DK_flyeye_setup(width, height);
-}
-
 void setup_eye_lens(long nlens)
 {
   //_DK_setup_eye_lens(nlens);return;
   struct PlayerInfo *player;
+  struct LensConfig *lenscfg;
   char *fname;
   if ((game.flags_cd & MFlg_EyeLensReady) == 0)
   {
@@ -904,68 +901,55 @@ void setup_eye_lens(long nlens)
     return;
   }
   SYNCDBG(7,"Starting for lens %ld",nlens);
-  //TODO: Temporary hack, until rewritten CMistFade is not completely used
-  if ((nlens >= 4) && (nlens <= 12))
-  {
-    _DK_setup_eye_lens(nlens);
-    return;
-  }
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
   if ((game.numfield_1B >= 13) && (game.numfield_1B <= 14))
   {
       player->field_7 = 0;
       game.numfield_1A = 0;
   }
-  if (nlens < 1)
+  if ((nlens < 1) || (nlens > lenses_conf.lenses_count))
   {
-    game.numfield_1A = 0;
-    game.numfield_1B = 0;
-    return;
+      if (nlens != 0)
+          ERRORLOG("Invalid lens effect");
+      game.numfield_1A = 0;
+      game.numfield_1B = 0;
+      return;
   }
   if (game.numfield_1A == nlens)
   {
     game.numfield_1B = nlens;
     return;
   }
-  switch (nlens)
+  lenscfg = &lenses_conf.lenses[nlens];
+  if ((lenscfg->flags & LCF_HasMist) != 0)
   {
-  case 1:
-  case 2:
-      init_lens(eye_lens_memory, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size,
-              lbDisplay.GraphicsScreenWidth, nlens);
-      break;
-  case 3:
-      flyeye_setup(MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-      break;
-  case 4:
-  case 5:
-  case 6:
-  case 7:
-  case 8:
-  case 9:
-  case 10:
-  case 11:
-      fname = prepare_file_fmtpath(FGrp_StdData,"frac%02d.dat",nlens-4);
+      SYNCDBG(9,"Mist config entered");
+      fname = prepare_file_path(FGrp_StdData,lenscfg->mist_file);
       LbFileLoadAt(fname, eye_lens_memory);
-      setup_mist((unsigned char *)eye_lens_memory, &pixmap.fade_tables[0], &pixmap.ghost[0]);
-      break;
-  case 12:
-      fname = prepare_file_fmtpath(FGrp_StdData,"frac%02d.dat",nlens-4);
-      LbFileLoadAt(fname, eye_lens_memory);
-      setup_mist((unsigned char *)eye_lens_memory, &pixmap.fade_tables[1024], &pixmap.ghost[0]);
-      break;
-  case 13:
-      player->palette = dog_palette;
-      player->field_7 = dog_palette;
-      break;
-  case 14:
-      player->palette = vampire_palette;
-      player->field_7 = vampire_palette;
-      break;
-  default:
-      ERRORLOG("Invalid lens effect");
-      nlens = 0;
-      break;
+      setup_mist((unsigned char *)eye_lens_memory,
+          &pixmap.fade_tables[(lenscfg->mist_lightness)*256],
+          &pixmap.ghost[(lenscfg->mist_ghost)*256]);
+  }
+  if ((lenscfg->flags & LCF_HasDisplace) != 0)
+  {
+      SYNCDBG(9,"Displace config entered");
+      switch (lenscfg->displace_kind)
+      {
+      case 1:
+      case 2:
+          init_lens(eye_lens_memory, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size,
+                  lbDisplay.GraphicsScreenWidth, nlens);
+          break;
+      case 3:
+          flyeye_setup(MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+          break;
+      }
+  }
+  if ((lenscfg->flags & LCF_HasPalette) != 0)
+  {
+      SYNCDBG(9,"Palette config entered");
+      player->palette = lenscfg->palette;
+      player->field_7 = lenscfg->palette;
   }
   game.numfield_1B = nlens;
   game.numfield_1A = nlens;
@@ -7541,17 +7525,17 @@ void delete_control_structure(struct CreatureControl *cctrl)
 
 void delete_all_control_structures(void)
 {
-  long i;
-  struct CreatureControl *cctrl;
-  for (i=1; i < CREATURES_COUNT; i++)
-  {
-  	cctrl = creature_control_get(i);
-    if (cctrl != NULL)
+    long i;
+    struct CreatureControl *cctrl;
+    for (i=1; i < CREATURES_COUNT; i++)
     {
-      if (cctrl->flgfield_0 & 0x0100)
-        delete_control_structure(cctrl);
+      cctrl = creature_control_get(i);
+      if (cctrl != NULL)
+      {
+        if (cctrl->flgfield_0 & 0x0100)
+          delete_control_structure(cctrl);
+      }
     }
-  }
 }
 
 void delete_action_point_structure(struct ActionPoint *apt)
