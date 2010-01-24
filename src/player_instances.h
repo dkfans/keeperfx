@@ -16,7 +16,6 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
 #ifndef DK_PLYR_INSTNC_H
 #define DK_PLYR_INSTNC_H
 
@@ -98,7 +97,7 @@ DLLIMPORT struct PlayerInstanceInfo _DK_player_instance_info[];
 extern struct PlayerInstanceInfo player_instance_info[];
 /******************************************************************************/
 
-void set_player_instance(struct PlayerInfo *player, long ninum, short force);
+void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force);
 void process_player_instance(struct PlayerInfo *player);
 void process_player_instances(void);
 

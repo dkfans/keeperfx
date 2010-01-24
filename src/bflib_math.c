@@ -35,12 +35,14 @@ DLLIMPORT int _DK_lbSinTable[2048];
 /******************************************************************************/
 long LbSinL(long x)
 {
-  return lbSinTable[(unsigned long)x & 0x7FF];
+    // "& 0x7FF" is faster than "% ANGLE_TRIGL_PERIOD"
+    return lbSinTable[(unsigned long)x & 0x7FF];
 }
 
 long LbCosL(long x)
 {
-  return lbCosTable[(unsigned long)x & 0x7FF];
+    // "& 0x7FF" is faster than "% ANGLE_TRIGL_PERIOD"
+    return lbCosTable[(unsigned long)x & 0x7FF];
 }
 
 long LbSqrL(long x)

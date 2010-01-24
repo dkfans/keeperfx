@@ -32,7 +32,7 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT struct Thing *_DK_create_effect_element(const struct Coord3d *pos, unsigned short a2, unsigned short a3);
 DLLIMPORT struct Thing *_DK_create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
-DLLIMPORT void __cdecl _DK_poison_cloud_affecting_area(struct Thing *thing, struct Coord3d *pos, long a3, long a4, unsigned char a5);
+DLLIMPORT void _DK_poison_cloud_affecting_area(struct Thing *thing, struct Coord3d *pos, long a3, long a4, unsigned char a5);
 DLLIMPORT void _DK_process_spells_affected_by_effect_elements(struct Thing *thing);
 DLLIMPORT void _DK_process_thing_spell_effects(struct Thing *thing);
 DLLIMPORT long _DK_update_effect_element(struct Thing *thing);

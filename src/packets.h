@@ -16,7 +16,6 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
 #ifndef DK_PACKETS_H
 #define DK_PACKETS_H
 

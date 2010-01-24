@@ -108,7 +108,19 @@ TbBool slabmap_block_invalid(struct SlabMap *slb)
  */
 long slabmap_owner(struct SlabMap *slb)
 {
-  return slb->field_5 & 0x07;
+    if (slabmap_block_invalid(slb))
+        return 5;
+    return slb->field_5 & 0x07;
+}
+
+/**
+ * Returns owner index of given SlabMap.
+ */
+void slabmap_set_owner(struct SlabMap *slb, long owner)
+{
+    if (slabmap_block_invalid(slb))
+        return;
+    slb->field_5 ^= (slb->field_5 ^ owner) & 0x07;
 }
 
 /**

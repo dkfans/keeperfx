@@ -1162,7 +1162,7 @@ short creature_being_sacrificed(struct Thing *thing)
   pos.y.val = thing->mappos.y.val;
   pos.z.val = thing->mappos.z.val;
   model = thing->model;
-  kill_creature(thing, game.things_lookup[0], -1, 1, 0, 0);
+  kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
   award = process_sacrifice_award(&pos, model, owner);
   if (is_my_player_number(owner))
   {
