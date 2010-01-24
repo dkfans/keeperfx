@@ -21,80 +21,80 @@ CPP  = g++
 CC   = gcc
 WINDRES = windres
 DLLTOOL = dlltool
-BIN  = ./build/keeperfx.exe
-RES  = ./build/keeperfx_stdres.res
+BIN  = ./bin/keeperfx.exe
+RES  = ./obj/keeperfx_stdres.res
 LIBS = ./lib/libkeeperfx.a
 OBJS = \
-./build/main.o \
-./build/bflib_dernc.o \
-./build/bflib_fileio.o \
-./build/bflib_memory.o \
-./build/bflib_datetm.o \
-./build/bflib_basics.o \
-./build/bflib_pom.o \
-./build/bflib_keybrd.o \
-./build/bflib_sndlib.o \
-./build/bflib_sound.o \
-./build/bflib_fmvids.o \
-./build/bflib_guibtns.o \
-./build/bflib_bufrw.o \
-./build/scrcapt.o \
-./build/bflib_sprite.o \
-./build/bflib_vidraw.o \
-./build/bflib_sprfnt.o \
-./build/gui_draw.o \
-./build/kjm_input.o \
-./build/packets.o \
-./build/config.o \
-./build/front_input.o \
-./build/thing_list.o \
-./build/lvl_script.o \
-./build/bflib_filelst.o \
-./build/bflib_math.o \
-./build/player_instances.o \
-./build/lvl_filesdk1.o \
-./build/front_simple.o \
-./build/game_saves.o \
-./build/engine_render.o \
-./build/engine_camera.o \
-./build/engine_lenses.o \
-./build/front_landview.o \
-./build/gui_tooltips.o \
-./build/thing_creature.o \
-./build/slab_data.o \
-./build/room_data.o \
-./build/creature_control.o \
-./build/map_data.o \
-./build/thing_doors.o \
-./build/config_campaigns.o \
-./build/front_credits.o \
-./build/bflib_semphr.o \
-./build/config_terrain.o \
-./build/config_rules.o \
-./build/config_lenses.o \
-./build/config_creature.o \
-./build/config_crtrmodel.o \
-./build/bflib_cpu.o \
-./build/bflib_heapmgr.o \
-./build/bflib_netsp.o \
-./build/bflib_netsp_ipx.o \
-./build/lens_mist.o \
-./build/creature_states.o \
-./build/thing_objects.o \
-./build/map_columns.o \
-./build/bflib_drawbas.o \
-./build/bflib_drawsdk.o \
-./build/game_merge.o \
-./build/bflib_mshandler.o \
-./build/bflib_mspointer.o \
-./build/thing_effects.o \
-./build/bflib_mouse.o \
-./build/bflib_network.o \
-./build/bflib_video.o \
-./build/config_magic.o \
-./build/frontend.o \
-./build/player_computer.o \
-./build/vidmode.o \
+./obj/main.o \
+./obj/bflib_dernc.o \
+./obj/bflib_fileio.o \
+./obj/bflib_memory.o \
+./obj/bflib_datetm.o \
+./obj/bflib_basics.o \
+./obj/bflib_pom.o \
+./obj/bflib_keybrd.o \
+./obj/bflib_sndlib.o \
+./obj/bflib_sound.o \
+./obj/bflib_fmvids.o \
+./obj/bflib_guibtns.o \
+./obj/bflib_bufrw.o \
+./obj/scrcapt.o \
+./obj/bflib_sprite.o \
+./obj/bflib_vidraw.o \
+./obj/bflib_sprfnt.o \
+./obj/gui_draw.o \
+./obj/kjm_input.o \
+./obj/packets.o \
+./obj/config.o \
+./obj/front_input.o \
+./obj/thing_list.o \
+./obj/lvl_script.o \
+./obj/bflib_filelst.o \
+./obj/bflib_math.o \
+./obj/player_instances.o \
+./obj/lvl_filesdk1.o \
+./obj/front_simple.o \
+./obj/game_saves.o \
+./obj/engine_render.o \
+./obj/engine_camera.o \
+./obj/engine_lenses.o \
+./obj/front_landview.o \
+./obj/gui_tooltips.o \
+./obj/thing_creature.o \
+./obj/slab_data.o \
+./obj/room_data.o \
+./obj/creature_control.o \
+./obj/map_data.o \
+./obj/thing_doors.o \
+./obj/config_campaigns.o \
+./obj/front_credits.o \
+./obj/bflib_semphr.o \
+./obj/config_terrain.o \
+./obj/config_rules.o \
+./obj/config_lenses.o \
+./obj/config_creature.o \
+./obj/config_crtrmodel.o \
+./obj/bflib_cpu.o \
+./obj/bflib_heapmgr.o \
+./obj/bflib_netsp.o \
+./obj/bflib_netsp_ipx.o \
+./obj/lens_mist.o \
+./obj/creature_states.o \
+./obj/thing_objects.o \
+./obj/map_columns.o \
+./obj/bflib_drawbas.o \
+./obj/bflib_drawsdk.o \
+./obj/game_merge.o \
+./obj/bflib_mshandler.o \
+./obj/bflib_mspointer.o \
+./obj/thing_effects.o \
+./obj/bflib_mouse.o \
+./obj/bflib_network.o \
+./obj/bflib_video.o \
+./obj/config_magic.o \
+./obj/frontend.o \
+./obj/player_computer.o \
+./obj/vidmode.o \
 $(RES)
 
 LINKOBJ  = $(OBJS)
@@ -126,13 +126,13 @@ $(BIN): $(OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-./build/%.o: ./src/%.cpp
+./obj/%.o: ./src/%.cpp
 	@echo 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
-./build/%.o: ./src/%.c
+./obj/%.o: ./src/%.c
 	@echo 'Building file: $<'
 # In order to make the keeperfx.dll work, we must compile .c files
 # which use the library with c++ compiler. Not sure why..
@@ -141,19 +141,19 @@ $(BIN): $(OBJS) $(LIBS)
 	@echo 'Finished building: $<'
 	@echo ' '
 
-./lib/libkeeperfx.a: ./lib/keeperfx.dll ./lib/keeperfx.def
+./lib/libkeeperfx.a: ./bin/keeperfx.dll ./lib/keeperfx.def
 	@echo 'Generating gcc library archive for: $<'
 	$(DLLTOOL) --dllname "$<" --def "./lib/keeperfx.def" --output-lib "$@"
 	@echo 'Finished generating: $@'
 	@echo ' '
 
-./lib/keeperfx.dll: ./lib/keeper95_gold.dll ./lib/keeper95_gold.map
+./bin/keeperfx.dll: ./lib/keeper95_gold.dll ./lib/keeper95_gold.map
 	@echo 'Rebuilding DLL export table from: $<'
-	./lib/peresec -o"$@" -p"_DK_" "$<"
+	./lib/peresec -o"$@" --def "./lib/keeperfx.def" -p"_DK_" "$<"
 	@echo 'Finished creating: $@'
 	@echo ' '
 
-./build/%.res: ./res/%.rc
+./obj/%.res: ./res/%.rc
 	@echo 'Building resource: $<'
 	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff 
 	@echo 'Finished building: $<'
