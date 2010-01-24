@@ -2744,7 +2744,43 @@ void lightning_modify_palette(struct Thing *thing)
 
 void update_god_lightning_ball(struct Thing *thing)
 {
-  _DK_update_god_lightning_ball(thing);
+    struct CreatureControl *cctrl;
+    struct Thing *target;
+    struct ShotStats *shotstat;
+    long i;
+//    _DK_update_god_lightning_ball(thing);
+    if (thing->health <= 0)
+    {
+        lightning_modify_palette(thing);
+        return;
+    }
+    i = (game.play_gameturn - thing->field_9) % 16;
+    switch (i)
+    {
+    case 0:
+        god_lightning_choose_next_creature(thing);
+        break;
+    case 1:
+        target = thing_get(thing->word_17);
+        if (thing_is_invalid(target))
+            break;
+        draw_lightning(&thing->mappos,&target->mappos, 96, 60);
+        break;
+    case 2:
+        target = thing_get(thing->word_17);
+        if (thing_is_invalid(target))
+            break;
+        shotstat = &shot_stats[24];
+        apply_damage_to_thing_and_display_health(target, shotstat->damage, thing->owner);
+        if (target->health < 0)
+        {
+            cctrl = creature_control_get_from_thing(target);
+            cctrl->field_1D3[0] = 24;
+            kill_creature(target, INVALID_THING, thing->owner, 0, 1, 0);
+        }
+        thing->word_17 = 0;
+        break;
+    }
 }
 
 long update_shot(struct Thing *thing)
@@ -7053,25 +7089,25 @@ short toggle_computer_player(int idx)
   return true;
 }
 
-short load_texture_map_file(unsigned long tmapidx, unsigned char n)
+TbBool load_texture_map_file(unsigned long tmapidx, unsigned char n)
 {
   char *fname;
   SYNCDBG(7,"Starting");
   fname = prepare_file_fmtpath(FGrp_StdData,"tmapa%03d.dat",tmapidx);
   if (!wait_for_cd_to_be_available())
-    return 0;
+    return false;
   if (!LbFileExists(fname))
   {
     WARNMSG("Texture file \"%s\" doesn't exits.",fname);
-    return 0;
+    return false;
   }
   // The texture file has always over 500kb
   if (LbFileLoadAt(fname, block_mem) < 65536)
   {
     WARNMSG("Texture file \"%s\" can't be loaded or is too small.",fname);
-    return 0;
+    return false;
   }
-  return 1;
+  return true;
 }
 
 void reinit_level_after_load(void)
