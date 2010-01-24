@@ -125,6 +125,7 @@ struct SlabMap *get_slabmap_for_subtile(long stl_x, long stl_y);
 struct SlabMap *get_slabmap_direct(long slab_num);
 TbBool slabmap_block_invalid(struct SlabMap *slb);
 long slabmap_owner(struct SlabMap *slb);
+void slabmap_set_owner(struct SlabMap *slb, long owner);
 void clear_slabs(void);
 void reveal_whole_map(struct PlayerInfo *player);
 

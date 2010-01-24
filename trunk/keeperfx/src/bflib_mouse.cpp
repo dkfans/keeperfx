@@ -63,8 +63,8 @@ DLLIMPORT int _DK_LbMouseSuspend(void);
 DLLIMPORT int _DK_LbMouseIsInstalled(void);
 DLLIMPORT int _DK_LbMouseSetWindow(int x, int y, int width, int height);
 DLLIMPORT long _DK_LbMouseOnMove(struct tagPOINT pos);
-DLLIMPORT long __cdecl _DK_LbMouseOnBeginSwap(void);
-DLLIMPORT void __cdecl _DK_LbMouseOnEndSwap(void);
+DLLIMPORT long _DK_LbMouseOnBeginSwap(void);
+DLLIMPORT void _DK_LbMouseOnEndSwap(void);
 /******************************************************************************/
 TbResult __stdcall LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, long hot_x, long hot_y)
 {

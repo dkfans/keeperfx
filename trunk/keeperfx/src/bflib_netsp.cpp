@@ -216,7 +216,7 @@ ServiceProvider::~ServiceProvider()
 
 TbError ServiceProvider::Initialise(struct ReceiveCallbacks *nCallbacks, void *a2)
 {
-  NETMSG("Initialising Service Provider");
+  NETMSG("Initializing Service Provider");
   if (this->field_7A4)
     WARNLOG("Service Provider already set up!");
   this->players_count = 0;
@@ -239,7 +239,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
   long i;
   if (this->field_D74 < 1)
   {
-    WARNLOG("not initialised");
+    WARNLOG("not initialized");
     return Lb_FAIL;
   }
   DecodeMessageStub(buf,&p1,&messageType,&p2);

@@ -135,9 +135,9 @@ DLLIMPORT long _DK_pinstfe_fade_from_map(struct PlayerInfo *player, long *n);
 DLLIMPORT long _DK_pinstfs_zoom_to_position(struct PlayerInfo *player, long *n);
 DLLIMPORT long _DK_pinstfm_zoom_to_position(struct PlayerInfo *player, long *n);
 DLLIMPORT long _DK_pinstfe_zoom_to_position(struct PlayerInfo *player, long *n);
-DLLIMPORT void __cdecl _DK_process_player_instance(struct PlayerInfo *player);
+DLLIMPORT void _DK_process_player_instance(struct PlayerInfo *player);
 DLLIMPORT void _DK_process_player_instances(void);
-DLLIMPORT void __cdecl _DK_set_player_instance(struct PlayerInfo *playerinf, long, int);
+DLLIMPORT void _DK_set_player_instance(struct PlayerInfo *playerinf, long, int);
 DLLIMPORT void _DK_leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 
 /******************************************************************************/
@@ -336,7 +336,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       }
       break;
   }
-  set_player_instance(player, 4, 0);
+  set_player_instance(player, 4, false);
   return 0;
 }
 
@@ -397,7 +397,77 @@ long pinstfs_control_creature(struct PlayerInfo *player, long *n)
 
 long pinstfm_control_creature(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfm_control_creature(player, n);
+    struct CreatureStats *crstat;
+    struct Thing *thing;
+    struct Camera *cam;
+    long mv_x,mv_y,mv_a;
+//    return _DK_pinstfm_control_creature(player, n);
+    cam = player->acamera;
+    if (cam == NULL)
+        return 0;
+    thing = thing_get(player->field_43E);
+    if (thing_is_invalid(thing) || (thing->class_id == 4) || (thing->health < 0))
+    {
+        set_camera_zoom(cam, player->field_4B6);
+        if (is_my_player(player))
+            PaletteSetPlayerPalette(player, _DK_palette);
+        player->field_43E = 0;
+        player->field_0 &= 0xEF;
+        player->field_0 &= 0x7F;
+        set_player_instance(player, 0, true);
+        return 0;
+    }
+    if (player->field_37 != 5)
+    {
+        view_zoom_camera_in(cam, 30000, 6000);
+        // Compute new camera angle
+        mv_a = (thing->field_52 - cam->orient_a) % ANGLE_TRIGL_PERIOD;
+        if (mv_a > ANGLE_TRIGL_PERIOD/2)
+          mv_a -= ANGLE_TRIGL_PERIOD;
+        if (mv_a < -170)
+        {
+            mv_a = -170;
+        } else
+        if (mv_a > 170)
+        {
+            mv_a = 170;
+        }
+        cam->orient_a += mv_a;
+        cam->orient_a %= ANGLE_TRIGL_PERIOD;
+        thing = thing_get(player->field_43E);
+        crstat = creature_stats_get_from_thing(thing);
+        // Now mv_a becomes a circle radius
+        mv_a = crstat->eye_height + thing->mappos.z.val;
+        mv_x = thing->mappos.x.val + (mv_a * LbSinL(cam->orient_a) >> 16) - cam->mappos.x.val;
+        mv_y = thing->mappos.y.val - (mv_a * LbCosL(cam->orient_a) >> 16) - cam->mappos.y.val;
+        if (mv_x < -128)
+        {
+            mv_x = -128;
+        } else
+        if (mv_x > 128)
+        {
+            mv_x = 128;
+        }
+        if (mv_y < -128)
+        {
+            mv_y = -128;
+        } else
+        if (mv_y > 128)
+        {
+            mv_y = 128;
+        }
+        cam->mappos.x.val += mv_x;
+        cam->mappos.y.val += mv_y;
+        if (cam->orient_a < 0)
+        {
+          cam->orient_a += ANGLE_TRIGL_PERIOD;
+        }
+        if (cam->orient_a >= ANGLE_TRIGL_PERIOD)
+        {
+          cam->orient_a -= ANGLE_TRIGL_PERIOD;
+        }
+    }
+    return 0;
 }
 
 long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
@@ -424,7 +494,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
     player->field_0 &= 0x7F;
     return 0;
   }
-  set_player_instance(player, 13, 0);
+  set_player_instance(player, 13, false);
   if (thing->class_id == TCls_Creature)
   {
     load_swipe_graphic_for_creature(thing);
@@ -465,15 +535,10 @@ long pinstfe_passenger_control_creature(struct PlayerInfo *player, long *n)
 long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
 {
   struct Thing *thing;
-  InstncInfo_Func callback;
   //return _DK_pinstfs_direct_leave_creature(player, n);
   if (player->field_43E == 0)
   {
-    player->instance_num = 0;
-    player->field_4B1 = player_instance_info[0].field_0;
-    callback = player_instance_info[0].start_cb;
-    if (callback != NULL)
-      callback(player, player_instance_info[0].field_14);
+    set_player_instance(player, 0, true);
     return 0;
   }
   player->field_0 |= 0x80;
@@ -514,16 +579,11 @@ long pinstfm_leave_creature(struct PlayerInfo *player, long *n)
 long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
 {
   struct Thing *thing;
-  InstncInfo_Func callback;
   //return _DK_pinstfs_passenger_leave_creature(player, n);
   if (player->field_43E == 0)
   {
-    player->instance_num = 0;
-    player->field_4B1 = player_instance_info[0].field_0;
-    callback = player_instance_info[0].start_cb;
-    if (callback != NULL)
-      callback(player, player_instance_info[0].field_14);
-    return 0;
+      set_player_instance(player, 0, true);
+      return 0;
   }
   player->field_0 |= 0x80;
   thing = thing_get(player->field_43E);
@@ -844,7 +904,7 @@ long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n)
   return 0;
 }
 
-void set_player_instance(struct PlayerInfo *player, long ninum, short force)
+void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force)
 {
   struct PlayerInstanceInfo *inst_info;
   InstncInfo_Func callback;

@@ -1,7 +1,7 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file XXXX.h
+/** @file thing_objects.h
  *     Header file for thing_objects.c.
  * @par Purpose:
  *     Things of class 'object' handling functions.
