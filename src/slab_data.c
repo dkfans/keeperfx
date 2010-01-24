@@ -29,8 +29,8 @@ extern "C" {
 struct SlabMap bad_slabmap_block;
 /******************************************************************************/
 /******************************************************************************/
-/*
- * Slab number - stores both X and Y coords in one number.
+/**
+ * Returns slab number, which stores both X and Y coords in one number.
  */
 unsigned long get_slab_number(long slb_x, long slb_y)
 {
@@ -41,7 +41,7 @@ unsigned long get_slab_number(long slb_x, long slb_y)
   return slb_y*(map_tiles_x) + slb_x;
 }
 
-/*
+/**
  * Decodes X coordinate from slab number.
  */
 long slb_num_decode_x(unsigned long slb_num)
@@ -49,7 +49,7 @@ long slb_num_decode_x(unsigned long slb_num)
   return slb_num % (map_tiles_x);
 }
 
-/*
+/**
  * Decodes Y coordinate from slab number.
  */
 long slb_num_decode_y(unsigned long slb_num)
@@ -57,6 +57,9 @@ long slb_num_decode_y(unsigned long slb_num)
   return (slb_num/(map_tiles_x))%map_tiles_y;
 }
 
+/**
+ * Returns SlabMap struct for given slab number.
+ */
 struct SlabMap *get_slabmap_direct(long slab_num)
 {
   if ((slab_num < 0) || (slab_num >= map_tiles_x*map_tiles_y))
@@ -64,6 +67,9 @@ struct SlabMap *get_slabmap_direct(long slab_num)
   return &game.slabmap[slab_num];
 }
 
+/**
+ * Returns SlabMap struct for given (X,Y) slab coords.
+ */
 struct SlabMap *get_slabmap_block(long slab_x, long slab_y)
 {
   if ((slab_x < 0) || (slab_x >= map_tiles_x))
@@ -73,6 +79,9 @@ struct SlabMap *get_slabmap_block(long slab_x, long slab_y)
   return &game.slabmap[slab_y*(map_tiles_x) + slab_x];
 }
 
+/**
+ * Returns SlabMap struct for given (X,Y) subtile coords.
+ */
 struct SlabMap *get_slabmap_for_subtile(long stl_x, long stl_y)
 {
   if ((stl_x < 0) || (stl_x >= map_subtiles_x))
@@ -82,6 +91,9 @@ struct SlabMap *get_slabmap_for_subtile(long stl_x, long stl_y)
   return &game.slabmap[map_to_slab[stl_y]*(map_tiles_x) + map_to_slab[stl_x]];
 }
 
+/**
+ * Returns if given SlabMap is not a part of the map.
+ */
 TbBool slabmap_block_invalid(struct SlabMap *slb)
 {
   if (slb == NULL)
@@ -91,11 +103,17 @@ TbBool slabmap_block_invalid(struct SlabMap *slb)
   return (slb < &game.slabmap[0]);
 }
 
+/**
+ * Returns owner index of given SlabMap.
+ */
 long slabmap_owner(struct SlabMap *slb)
 {
   return slb->field_5 & 0x07;
 }
 
+/**
+ * Clears all SlabMap structures in the map.
+ */
 void clear_slabs(void)
 {
   struct SlabMap *slb;
@@ -109,6 +127,9 @@ void clear_slabs(void)
     }
 }
 
+/**
+ * Reveals the whole map for specific player.
+ */
 void reveal_whole_map(struct PlayerInfo *player)
 {
   clear_dig_for_map_rect(player->field_2B,0,map_tiles_x,0,map_tiles_y);

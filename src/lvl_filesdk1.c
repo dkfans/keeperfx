@@ -118,9 +118,9 @@ long get_level_number_from_file_name(char *fname)
   return lvnum;
 }
 
-/*
- * Analyses one line of .LIF file buffer. The buffer must be null-terminated.
- * @return Returns length of the parsed line.
+/**
+ * Analyzes one line of .LIF file buffer. The buffer must be null-terminated.
+ * @return Length of the parsed line.
  */
 long level_lif_entry_parse(char *fname, char *buf)
 {
@@ -191,8 +191,8 @@ long level_lif_entry_parse(char *fname, char *buf)
   return (cbuf-buf)+i;
 }
 
-/*
- * Analyses given .LIF file buffer. The buffer must be null-terminated.
+/**
+ * Analyzes given LIF file buffer. The buffer must be null-terminated.
  */
 short level_lif_file_parse(char *fname, char *buf, long buflen)
 {
@@ -217,7 +217,7 @@ short level_lif_file_parse(char *fname, char *buf, long buflen)
   return result;
 }
 
-/*
+/**
  * Searches levels folder for LIF files and adds them to campaign levels list.
  */
 TbBool find_and_load_lif_files(void)
@@ -262,8 +262,8 @@ TbBool find_and_load_lif_files(void)
   return result;
 }
 
-/*
- * Analyses given .LOF file buffer. The buffer must be null-terminated.
+/**
+ * Analyzes given LOF file buffer. The buffer must be null-terminated.
  */
 TbBool level_lof_file_parse(char *fname, char *buf, long len)
 {
@@ -476,7 +476,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
   return true;
 }
 
-/*
+/**
  * Searches levels folder for LOF files and adds them to campaign levels list.
  */
 TbBool find_and_load_lof_files(void)
@@ -527,7 +527,7 @@ long convert_old_column_file(unsigned long lv_num)
   return _DK_convert_old_column_file(lv_num);
 }
 
-short load_column_file(unsigned long lv_num)
+TbBool load_column_file(unsigned long lv_num)
 {
   //return _DK_load_column_file(lv_num);
   struct Column *col;
@@ -583,7 +583,7 @@ short load_column_file(unsigned long lv_num)
   return true;
 }
 
-long load_map_data_file(unsigned long lv_num)
+TbBool load_map_data_file(unsigned long lv_num)
 {
   //return _DK_load_map_data_file(lv_num);
   struct Map *map;
@@ -622,15 +622,15 @@ long load_map_data_file(unsigned long lv_num)
   return true;
 }
 
-short load_thing_file(unsigned long lv_num)
+TbBool load_thing_file(unsigned long lv_num)
 {
-  SYNCDBG(5,"Starting");
   struct InitThing itng;
   unsigned long i;
   long k;
   long total;
   unsigned char *buf;
   long fsize;
+  SYNCDBG(5,"Starting");
   fsize = 2;
   buf = load_single_map_file_to_buffer(lv_num,"tng",&fsize,LMFF_None);
   if (buf == NULL)
@@ -660,16 +660,16 @@ short load_thing_file(unsigned long lv_num)
   return true;
 }
 
-long load_action_point_file(unsigned long lv_num)
+TbBool load_action_point_file(unsigned long lv_num)
 {
-  SYNCDBG(5,"Starting");
-  //return _DK_load_action_point_file(lv_num);
   struct InitActionPoint iapt;
   unsigned long i;
   long k;
   long total;
   unsigned char *buf;
   long fsize;
+  SYNCDBG(5,"Starting");
+  //return _DK_load_action_point_file(lv_num);
   fsize = 4;
   buf = load_single_map_file_to_buffer(lv_num,"apt",&fsize,LMFF_None);
   if (buf == NULL)
@@ -702,13 +702,13 @@ long load_action_point_file(unsigned long lv_num)
   return true;
 }
 
-short load_slabdat_file(struct SlabSet *slbset, long *scount)
+TbBool load_slabdat_file(struct SlabSet *slbset, long *scount)
 {
-  SYNCDBG(5,"Starting");
   long total;
   unsigned char *buf;
   long fsize;
   long i,k,n;
+  SYNCDBG(5,"Starting");
   fsize = 2;
   buf = load_data_file_to_buffer(&fsize, FGrp_StdData, "slabs.dat");
   if (buf == NULL)
@@ -738,10 +738,10 @@ short load_slabdat_file(struct SlabSet *slbset, long *scount)
   return true;
 }
 
-/*
+/**
  * Updates "use" property of given columns set, using given SlabSet entries.
  */
-short update_columns_use(struct Column *cols,long ccount,struct SlabSet *sset,long scount)
+TbBool update_columns_use(struct Column *cols,long ccount,struct SlabSet *sset,long scount)
 {
   long i,k;
   long ncol;
@@ -759,7 +759,7 @@ short update_columns_use(struct Column *cols,long ccount,struct SlabSet *sset,lo
   return true;
 }
 
-short load_slabclm_file(struct Column *cols, long *ccount)
+TbBool load_slabclm_file(struct Column *cols, long *ccount)
 {
   long total;
   unsigned char *buf;
@@ -794,7 +794,7 @@ short load_slabclm_file(struct Column *cols, long *ccount)
   return true;
 }
 
-short columns_add_static_entries(void)
+TbBool columns_add_static_entries(void)
 {
   struct Column col;
   short *wptr;
@@ -825,7 +825,7 @@ short columns_add_static_entries(void)
   return true;
 }
 
-short update_slabset_column_indices(struct Column *cols, long ccount)
+TbBool update_slabset_column_indices(struct Column *cols, long ccount)
 {
   struct Column col;
   struct SlabSet *sset;
@@ -865,7 +865,7 @@ short update_slabset_column_indices(struct Column *cols, long ccount)
   return true;
 }
 
-short create_columns_from_list(struct Column *cols, long ccount)
+TbBool create_columns_from_list(struct Column *cols, long ccount)
 {
   long ncol;
   long i;
@@ -882,7 +882,7 @@ short create_columns_from_list(struct Column *cols, long ccount)
   return true;
 }
 
-short load_slab_datclm_files(void)
+TbBool load_slab_datclm_files(void)
 {
   struct Column *cols;
   long cols_tot;
@@ -933,7 +933,7 @@ short load_slab_datclm_files(void)
   return true;
 }
 
-short load_slab_tng_file(void)
+TbBool load_slab_tng_file(void)
 {
   char *fname;
   SYNCDBG(5,"Starting");
@@ -946,17 +946,17 @@ short load_slab_tng_file(void)
   return true;
 }
 
-short load_slab_file(void)
+TbBool load_slab_file(void)
 {
-  short result;
-  result = true;
-  if (!load_slab_datclm_files())
-    result = false;
-  if (!columns_add_static_entries())
-    result = false;
-  if (!load_slab_tng_file())
-    result = false;
-  return result;
+    TbBool result;
+    result = true;
+    if (!load_slab_datclm_files())
+        result = false;
+    if (!columns_add_static_entries())
+        result = false;
+    if (!load_slab_tng_file())
+        result = false;
+    return result;
 }
 
 long load_map_wibble_file(unsigned long lv_num)
@@ -1250,15 +1250,15 @@ short load_level_file(LevelNumber lvnum)
   return result;
 }
 
-short load_map_file(LevelNumber lvnum)
+TbBool load_map_file(LevelNumber lvnum)
 {
-  short result;
-  result = load_level_file(lvnum);
-  if (result)
-    set_loaded_level_number(lvnum);
-  else
-    set_loaded_level_number(SINGLEPLAYER_NOTSTARTED);
-  return result;
+    TbBool result;
+    result = load_level_file(lvnum);
+    if (result)
+        set_loaded_level_number(lvnum);
+    else
+        set_loaded_level_number(SINGLEPLAYER_NOTSTARTED);
+    return result;
 }
 /******************************************************************************/
 #ifdef __cplusplus
