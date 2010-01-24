@@ -126,8 +126,8 @@ A: There's no fix; use stanard DK with IPX fix for multiplayer.
 
 Q: There are no special eye effects when I posses Beetle, Fly,
     Dragon, Tentacle etc.!
-A: Lense effect only work if you have over 16MB RAM and in screen
-     resolutions: 320x200, 640x400 and 640x480.
+A: Lense effect only work if the game detects over 16MB RAM.
+   Also, make sure that "fxdata/lenses.cfg" is present and not damaged.
 
 Q: I've found a cheat menu, but it doesn't work!
 A: The three cheat menus are only partially functional.
@@ -278,6 +278,8 @@ Version: 0.35
   New Makefile and project structure - easier to recompile
   Rewritten and fixed Word of Power damage code
   Rewritten missing function for new way of storing bonus levels
+  Rewritten more of eye lenses code, updated lenses config file
+  Eye lenses now supported in all resolutions
 
 Version: 0.34
   Some fixups in CPU Identification code

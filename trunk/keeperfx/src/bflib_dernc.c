@@ -36,23 +36,23 @@ extern "C" {
 #endif
 
 typedef struct {
-    unsigned long bitbuf;	       /* holds between 16 and 32 bits */
-    int bitcount;		       /* how many bits does bitbuf hold? */
+    unsigned long bitbuf;           /* holds between 16 and 32 bits */
+    int bitcount;               /* how many bits does bitbuf hold? */
 } bit_stream;
 
 typedef struct {
-    int num;			       /* number of nodes in the tree */
+    int num;                   /* number of nodes in the tree */
     struct {
-	unsigned long code;
-	int codelen;
-	int value;
+    unsigned long code;
+    int codelen;
+    int value;
     } table[32];
 } huf_table;
 
 static void read_huftable (huf_table *h, bit_stream *bs,
                    unsigned char **p, unsigned char *pend);
 static long huf_read (huf_table *h, bit_stream *bs,
-			       unsigned char **p,unsigned char *pend);
+                   unsigned char **p,unsigned char *pend);
 
 static void bitread_init (bit_stream *bs, unsigned char **p, unsigned char *pend);
 static void bitread_fix (bit_stream *bs, unsigned char **p, unsigned char *pend);
@@ -60,7 +60,7 @@ static unsigned long bit_peek (bit_stream *bs, unsigned long mask);
 static void bit_advance (bit_stream *bs, int n,
                    unsigned char **p, unsigned char *pend);
 static unsigned long bit_read (bit_stream *bs, unsigned long mask,
-			       int n, unsigned char **p, unsigned char *pend);
+                   int n, unsigned char **p, unsigned char *pend);
 
 static unsigned long mirror(unsigned long x, int n);
 
@@ -97,9 +97,9 @@ const char *rnc_error (long errcode) {
 // in `*leeway', if `leeway' isn't NULL.
 long rnc_unpack (void *packed, void *unpacked, unsigned int flags
 #ifdef COMPRESSOR
-		 , long *leeway
+         , long *leeway
 #endif
-		 )
+         )
 {
     unsigned char *input = (unsigned char *)packed;
     unsigned char *output = (unsigned char *)unpacked;
@@ -122,13 +122,13 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
     outputend = output + ret_len;
     inputend = input + 18 + inp_len;
 
-    input += 18;		       // skip header
+    input += 18;               // skip header
 
     // Check the packed-data CRC. Also save the unpacked-data CRC
     // for later.
 
     if (rnc_crc(input, inputend-input) != (long)bword(input-4))
-	    if (!(flags&RNC_IGNORE_PACKED_CRC_ERROR)) return RNC_PACKED_CRC_ERROR;
+        if (!(flags&RNC_IGNORE_PACKED_CRC_ERROR)) return RNC_PACKED_CRC_ERROR;
     out_crc = bword(input-6);
 
     bitread_init (&bs, &input, inputend);
@@ -139,7 +139,7 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
   while (output < outputend)
   {
 #ifdef COMPRESSOR
-	  long this_lee;
+      long this_lee;
 #endif
       if (inputend-input<6)
       {
@@ -148,16 +148,16 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
             else
               {output=outputend;ch_count=0;break;}
       }
-	  read_huftable (&raw,  &bs, &input, inputend);
-	  read_huftable (&dist, &bs, &input, inputend);
+      read_huftable (&raw,  &bs, &input, inputend);
+      read_huftable (&dist, &bs, &input, inputend);
       read_huftable (&len,  &bs, &input, inputend);
       ch_count = bit_read (&bs, 0xFFFF, 16, &input, inputend);
 
       while (1)
       {
-	    long length, posn;
+        long length, posn;
 
-	    length = huf_read (&raw, &bs, &input,inputend);
+        length = huf_read (&raw, &bs, &input,inputend);
         if (length == -1)
             {
             if (!(flags&RNC_IGNORE_HUF_DECODE_ERROR))
@@ -165,9 +165,9 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
             else
                 {output=outputend;ch_count=0;break;}
             }
-	    if (length)
+        if (length)
         {
-		    while (length--)
+            while (length--)
             {
                 if ((input>=inputend)||(output>=outputend))
                    {
@@ -176,32 +176,32 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
                    else
                        {output=outputend;ch_count=0;break;}
                    }
-		        *output++ = *input++;
+                *output++ = *input++;
             }
             bitread_fix (&bs, &input, inputend);
-	    }
-	    if (--ch_count <= 0)
-		    break;
+        }
+        if (--ch_count <= 0)
+            break;
 
-	    posn = huf_read (&dist, &bs, &input,inputend);
-	    if (posn == -1)
+        posn = huf_read (&dist, &bs, &input,inputend);
+        if (posn == -1)
         {
             if (!(flags&RNC_IGNORE_HUF_DECODE_ERROR))
-		        return RNC_HUF_DECODE_ERROR;
+                return RNC_HUF_DECODE_ERROR;
             else
                 {output=outputend;ch_count=0;break;}
         }
-	    length = huf_read (&len, &bs, &input,inputend);
+        length = huf_read (&len, &bs, &input,inputend);
         if (length == -1)
         {
             if (!(flags&RNC_IGNORE_HUF_DECODE_ERROR))
-		        return RNC_HUF_DECODE_ERROR;
+                return RNC_HUF_DECODE_ERROR;
             else
                 {output=outputend;ch_count=0;break;}
         }
-	    posn += 1;
-	    length += 2;
-	    while (length--)
+        posn += 1;
+        length += 2;
+        while (length--)
         {
             if (((output-posn)<(unsigned char *)unpacked)
              || ((output-posn)>(unsigned char *)outputend)
@@ -213,26 +213,26 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
                    else
                        {output=outputend-1;ch_count=0;break;}
             }
-		    *output = output[-posn];
-		    output++;
-	    }
+            *output = output[-posn];
+            output++;
+        }
 #ifdef COMPRESSOR
-	    this_lee = (inputend - input) - (outputend - output);
-	    if (lee < this_lee)
-		    lee = this_lee;
+        this_lee = (inputend - input) - (outputend - output);
+        if (lee < this_lee)
+            lee = this_lee;
 #endif
-	  }
+      }
   }
 
     if (outputend != output)
     {
         if (!(flags&RNC_IGNORE_FILE_SIZE_MISMATCH))
-	        return RNC_FILE_SIZE_MISMATCH;
+            return RNC_FILE_SIZE_MISMATCH;
     }
 
 #ifdef COMPRESSOR
     if (leeway)
-	    *leeway = lee;
+        *leeway = lee;
 #endif
 
     // Check the unpacked-data CRC.
@@ -253,7 +253,7 @@ static void read_huftable (huf_table *h, bit_stream *bs,
     int i, j, k, num;
     int leaflen[32];
     int leafmax;
-    unsigned long codeb;	       // big-endian form of code
+    unsigned long codeb;           // big-endian form of code
 
     num = bit_read (bs, 0x1F, 5, p, pend);
     if (!num)
@@ -264,23 +264,23 @@ static void read_huftable (huf_table *h, bit_stream *bs,
     {
         leaflen[i] = bit_read (bs, 0x0F, 4, p, pend);
         if (leafmax < leaflen[i])
-	        leafmax = leaflen[i];
+            leafmax = leaflen[i];
     }
 
     codeb = 0L;
     k = 0;
     for (i=1; i<=leafmax; i++)
     {
-	for (j=0; j<num; j++)
-	    if (leaflen[j] == i)
+    for (j=0; j<num; j++)
+        if (leaflen[j] == i)
         {
-		    h->table[k].code = mirror (codeb, i);
-		    h->table[k].codelen = i;
+            h->table[k].code = mirror (codeb, i);
+            h->table[k].codelen = i;
             h->table[k].value = j;
             codeb++;
             k++;
-	    }
-	codeb <<= 1;
+        }
+    codeb <<= 1;
     }
 
     h->num = k;
@@ -288,7 +288,7 @@ static void read_huftable (huf_table *h, bit_stream *bs,
 
 // Read a value out of the bit stream using the given Huffman table.
 static long huf_read (huf_table *h, bit_stream *bs,
-			       unsigned char **p,unsigned char *pend)
+                   unsigned char **p,unsigned char *pend)
 {
     int i;
     unsigned long val;
@@ -297,7 +297,7 @@ static long huf_read (huf_table *h, bit_stream *bs,
     {
         unsigned long mask = (1 << h->table[i].codelen) - 1;
         if (bit_peek(bs, mask) == h->table[i].code)
-	        break;
+            break;
     }
     if (i == h->num)
         return -1;
@@ -307,7 +307,7 @@ static long huf_read (huf_table *h, bit_stream *bs,
 
     if (val >= 2)
     {
-	    val = 1 << (val-1);
+        val = 1 << (val-1);
         val |= bit_read (bs, val-1, h->table[i].value - 1, p, pend);
     }
     return val;
@@ -360,7 +360,7 @@ static void bit_advance (bit_stream *bs, int n, unsigned char **p, unsigned char
 
 // Reads some bits in one go (ie the above two routines combined).
 static unsigned long bit_read (bit_stream *bs, unsigned long mask,
-			       int n, unsigned char **p, unsigned char *pend)
+                   int n, unsigned char **p, unsigned char *pend)
 {
     unsigned long result = bit_peek (bs, mask);
     bit_advance (bs, n, p, pend);
@@ -401,11 +401,11 @@ long rnc_crc(void *data, unsigned long len)
         for (j=0; j<8; j++)
         {
           if (val & 1)
-       	    val = (val >> 1) ^ 0xA001;
+               val = (val >> 1) ^ 0xA001;
           else
             val = (val >> 1);
-	    }
-	    crctab[i] = val;
+        }
+        crctab[i] = val;
     }
   crctab_ready=true;
   }
