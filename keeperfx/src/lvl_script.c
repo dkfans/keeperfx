@@ -2470,7 +2470,7 @@ struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long ki
   if (thing_is_invalid(thing))
   {
     ERRORLOG("Couldn't create creature kind %d at location %ld",(int)kind,location);
-    return game.things_lookup[0];
+    return INVALID_THING;
   }
   cctrl = creature_control_get_from_thing(thing);
   switch (effect)
@@ -2498,7 +2498,7 @@ struct Thing *script_process_new_tunneller(unsigned char plyr_idx, TbMapLocation
   //return _DK_script_process_new_tunneller(plyr_idx, location, a3, a4, a5, a6);
   thing = script_create_creature_at_location(plyr_idx, 8, location);
   if (thing_is_invalid(thing))
-    return game.things_lookup[0];
+    return INVALID_THING;
   thing->long_13 = carried_gold;
   init_creature_level(thing, crtr_level);
   switch (heading)
@@ -2573,7 +2573,7 @@ struct Thing *script_create_new_creature(unsigned char plyr_idx, long kind, long
   //return _DK_script_create_new_creature(plyr_idx, kind, location, carried_gold, crtr_level);
   thing = script_create_creature_at_location(plyr_idx, kind, location);
   if (thing_is_invalid(thing))
-    return game.things_lookup[0];
+    return INVALID_THING;
   thing->long_13 = carried_gold;
   init_creature_level(thing, crtr_level);
   return thing;

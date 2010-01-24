@@ -664,7 +664,7 @@ TbError GenericSerialInit(struct _GUID guid, void *init_data)
   receiveCallbacks.multiPlayer = TwoPlayerCallback;
   if (sp_init != NULL)
     sp_init->field_C = 1;
-//TODO
+  //TODO: set when SerialSP is ready
   spPtr = NULL;//new SerialSP(...);
   if (spPtr == NULL)
   {
@@ -702,7 +702,7 @@ TbError GenericModemInit(struct _GUID guid, void *init_data)
   receiveCallbacks.multiPlayer = TwoPlayerCallback;
   if (sp_init != NULL)
     sp_init->field_C = 2;
-//TODO
+//TODO: set when ModemSP is ready
   spPtr = NULL;//new ModemSP(...);
   if (spPtr == NULL)
   {
@@ -1400,7 +1400,7 @@ void SystemUserMsgCallback(unsigned long plr_id, void *msgbuf, unsigned long msg
 
 void TwoPlayerReqExDataMsgCallback(unsigned long, unsigned long, void *)
 {
-//TODO (less importand - used only for modem and serial)
+//TODO: rewrite (less importand - used only for modem and serial)
 }
 
 void *TwoPlayerCallback(unsigned long, unsigned long, unsigned long, void *)

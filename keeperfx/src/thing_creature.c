@@ -212,7 +212,9 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
   {
     if (!control_creature_as_passenger(player, thing))
       return false;
-    player->acamera->mappos.z.val += game.creature_stats[23].eye_height;
+    cam = player->acamera;
+    crstat = creature_stats_get(23);
+    cam->mappos.z.val += crstat->eye_height;
     return true;
   }
   cctrl = creature_control_get_from_thing(thing);

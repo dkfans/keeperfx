@@ -985,7 +985,7 @@ long load_map_wibble_file(unsigned long lv_num)
 
 short load_map_ownership_file(unsigned long lv_num)
 {
-  struct SlabMap *slbmap;
+  struct SlabMap *slb;
   unsigned long x,y;
   unsigned char *buf;
   unsigned long i;
@@ -998,12 +998,11 @@ short load_map_ownership_file(unsigned long lv_num)
   for (y=0; y < (map_subtiles_y+1); y++)
     for (x=0; x < (map_subtiles_x+1); x++)
     {
-      slbmap = get_slabmap_for_subtile(x,y);
+      slb = get_slabmap_for_subtile(x,y);
       if ((x < map_subtiles_x) && (y < map_subtiles_y))
-        slbmap->field_5 ^= (slbmap->field_5 ^ buf[i]) & 7;
+          slabmap_set_owner(slb,buf[i]);
       else
-        // TODO: This should be set to 5, but some errors prevent it (hang on map 9)
-        slbmap->field_5 ^= (slbmap->field_5 ^ 0) & 7;
+          slabmap_set_owner(slb,5);
       i++;
     }
   LbMemoryFree(buf);
@@ -1093,7 +1092,7 @@ short load_map_slab_file(unsigned long lv_num)
 {
   SYNCDBG(7,"Starting");
   //return _DK_load_map_slab_file(lv_num);
-  struct SlabMap *slbmap;
+  struct SlabMap *slb;
   unsigned long x,y;
   unsigned char *buf;
   unsigned long i;
@@ -1107,14 +1106,14 @@ short load_map_slab_file(unsigned long lv_num)
   for (y=0; y < map_tiles_y; y++)
     for (x=0; x < map_tiles_x; x++)
     {
-      slbmap = get_slabmap_block(x,y);
+      slb = get_slabmap_block(x,y);
       n = lword(&buf[i]);
       if (n > SLAB_TYPES_COUNT)
       {
         WARNMSG("Slab Type %d exceeds limit of %d",n,SLAB_TYPES_COUNT);
         n = SlbT_ROCK;
       }
-      slbmap->slab = n;
+      slb->slab = n;
       i += 2;
     }
   LbMemoryFree(buf);

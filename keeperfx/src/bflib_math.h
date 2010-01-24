@@ -50,6 +50,7 @@ enum MathOperator {
 };
 
 /******************************************************************************/
+#define ANGLE_TRIGL_PERIOD 0x800
 #define LB_RANDOM(range,seed) LbRandomSeries(range, seed, __func__, __LINE__)
 /******************************************************************************/
 

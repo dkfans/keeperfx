@@ -17,7 +17,6 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
 #ifndef DK_PLYR_COMPUT_H
 #define DK_PLYR_COMPUT_H
 
