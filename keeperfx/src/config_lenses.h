@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_video.h"
 
 #include "config.h"
 
@@ -28,15 +29,32 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define LENSE_ITEMS_MAX 32
+#define LENS_ITEMS_MAX 32
+
+enum LensConfigFlags {
+    LCF_HasMist     = 0x01,
+    LCF_HasDisplace = 0x02,
+    LCF_HasPalette  = 0x04,
+};
+
+struct LensConfig {
+    char name[COMMAND_WORD_LEN];
+    unsigned char flags;
+    TbPixel palette[PALETTE_SIZE];
+    short mist_lightness;
+    short mist_ghost;
+    char mist_file[DISKPATH_SIZE];
+    short displace_kind;
+};
 
 struct LensesConfig {
-    long lense_types_count;
-    struct CommandWord lense_names[LENSE_ITEMS_MAX];
+    long lenses_count;
+    struct LensConfig lenses[LENS_ITEMS_MAX];
 };
 /******************************************************************************/
 extern const char keeper_lenses_file[];
-extern struct NamedCommand lenses_desc[LENSE_ITEMS_MAX];
+extern struct LensesConfig lenses_conf;
+extern struct NamedCommand lenses_desc[LENS_ITEMS_MAX];
 /******************************************************************************/
 TbBool load_lenses_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/

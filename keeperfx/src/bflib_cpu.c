@@ -49,30 +49,30 @@ void cpu_detect(struct CPU_INFO *cpu)
   // Fill with defaults
   strncpy(cpu->vendor,anonvendor,sizeof(cpu->vendor));
   cpu->timeStampCounter = 0;
-  cpu->feature_intl = 0;
-  cpu->feature_edx = 0;
-   // Get the CPU flags
-	asm volatile (
-		/* See if CPUID instruction is supported ... */
-		/* ... Get copies of EFLAGS into eax and ecx */
-		"pushf\n\t"
-		"popl %%eax\n\t"
-		"movl %%eax, %%ecx\n\t"
+    cpu->feature_intl = 0;
+    cpu->feature_edx = 0;
+    // Get the CPU flags
+    asm volatile (
+        /* See if CPUID instruction is supported ... */
+        /* ... Get copies of EFLAGS into eax and ecx */
+        "pushf\n\t"
+        "popl %%eax\n\t"
+        "movl %%eax, %%ecx\n\t"
 
-		/* ... Toggle the ID bit in one copy and store */
-		/*     to the EFLAGS reg */
-		"xorl $0x200000, %%eax\n\t"
-		"push %%eax\n\t"
-		"popf\n\t"
+        /* ... Toggle the ID bit in one copy and store */
+        /*     to the EFLAGS reg */
+        "xorl $0x200000, %%eax\n\t"
+        "push %%eax\n\t"
+        "popf\n\t"
 
-		/* ... Get the (hopefully modified) EFLAGS */
-		"pushf\n\t"
-		"popl %%eax\n\t"
+        /* ... Get the (hopefully modified) EFLAGS */
+        "pushf\n\t"
+        "popl %%eax\n\t"
 
-		/* ... Compare and test result */
-		"xorl %%eax, %%ecx\n\t"
-		"movl %%ecx, %0\n\t"
-		: "=r" (cpuflags)
+        /* ... Compare and test result */
+        "xorl %%eax, %%ecx\n\t"
+        "movl %%ecx, %0\n\t"
+        : "=r" (cpuflags)
     );
   /* if CPUID is supported */
   if ((cpuflags & 0x200000) != 0)

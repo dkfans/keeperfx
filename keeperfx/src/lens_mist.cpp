@@ -30,6 +30,8 @@ class CMistFade {
     void mist(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf, long srcwidth, long width, long height);
     void animate(void);
   protected:
+    /** Mist data width and height are the same and equal to this dimension */
+    unsigned int lens_dim;
     unsigned char *lens_data;
     unsigned char *fade_data;
     unsigned char *ghost_data;
@@ -46,7 +48,7 @@ class CMistFade {
     };
 
 /******************************************************************************/
-CMistFade *Mist = new CMistFade();
+CMistFade *mist = NULL;
 /******************************************************************************/
 
 void CMistFade::setup(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost)
@@ -54,6 +56,7 @@ void CMistFade::setup(unsigned char *lens_mem, unsigned char *fade, unsigned cha
   this->lens_data = lens_mem;
   this->fade_data = fade;
   this->ghost_data = ghost;
+  this->lens_dim = 256;
   this->field_C = 0;
   this->field_D = 0;
   this->field_E = 50;
@@ -86,6 +89,7 @@ void CMistFade::mist(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf
   unsigned char *src;
   unsigned char *dst;
   unsigned long p2,c2,p1,c1;
+  unsigned long lens_div;
   long i,k,n;
   long w,h;
 
@@ -100,31 +104,47 @@ void CMistFade::mist(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf
   c2 = this->field_D;
   p1 = this->field_E;
   c1 = this->field_F;
+  lens_div = width/(2*lens_dim);
+  if (lens_div < 1) lens_div = 1;
   for (h=height; h > 0; h--)
   {
     for (w=width; w > 0; w--)
     {
-      i = this->lens_data[(c1 << 8) + p1];
-      k = this->lens_data[(c2 << 8) + p2];
+//JUSTLOG("POS %d,%d Px %d,%d",w,h,p1,p2);
+      i = lens_data[(c1 * lens_dim) + p1];
+      k = lens_data[(c2 * lens_dim) + p2];
       n = (k + i) >> 3;
       if (n > 32)
         n = 32;
+      else
       if (n < 0)
         n = 0;
       *dst = this->fade_data[(n << 8) + *src];
       src++;
       dst++;
-      c1--;
-      p2++;
+      if ((w%lens_div) == 0)
+      {
+          c1--;
+          c1 %= lens_dim;
+          p2++;
+          p2 %= lens_dim;
+      }
     }
     // Move buffers to end of this line
     dst += (dstwidth-width);
     src += (srcwidth-width);
     // Update other counters
-    p2 -= width;
-    c1 += width;
-    c2++;
-    p1--;
+    if ((h%lens_div) == 0)
+    {
+        c1 += width;
+        c1 %= lens_dim;
+        p2 -= width;
+        p2 %= lens_dim;
+        c2++;
+        c2 %= lens_dim;
+        p1--;
+        p1 %= lens_dim;
+    }
   }
 }
 
@@ -137,22 +157,30 @@ CMistFade::~CMistFade(void)
 {
 }
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 void draw_mist(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf, long srcwidth, long width, long height)
 {
-    Mist->mist(dstbuf, dstwidth, srcbuf, srcwidth, width, height);
-    Mist->animate();
+    SYNCDBG(8,"Starting");
+    if (mist == NULL)
+    {
+        WARNLOG("Tried to use uninitialized mist!");
+        return;
+    }
+    mist->mist(dstbuf, dstwidth, srcbuf, srcwidth, width, height);
+    mist->animate();
 }
 
 void setup_mist(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost)
 {
-  Mist->setup(lens_mem, fade, ghost);
-  Mist->animset(0, 1024);
+    SYNCDBG(8,"Starting");
+    if (mist == NULL)
+        mist = new CMistFade();
+    mist->setup(lens_mem, fade, ghost);
+    mist->animset(0, 1024);
 }
-#ifdef __cplusplus
+
+void free_mist(void)
+{
+    delete mist;
+    mist = NULL;
 }
-#endif
 /******************************************************************************/
