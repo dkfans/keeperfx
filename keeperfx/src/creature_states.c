@@ -25,6 +25,8 @@
 #include "config_creature.h"
 #include "config_rules.h"
 #include "thing_objects.h"
+#include "thing_effects.h"
+#include "room_data.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -1492,7 +1494,52 @@ short creature_sacrifice(struct Thing *thing)
 
 short creature_scavenged_disappear(struct Thing *thing)
 {
-  return _DK_creature_scavenged_disappear(thing);
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    struct Room *room;
+    struct Coord3d pos;
+    long stl_x, stl_y;
+    long i;
+    //return _DK_creature_scavenged_disappear(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->byte_9A--;
+    if (cctrl->byte_9A > 0)
+    {
+      if ((cctrl->byte_9A == 7) && (cctrl->byte_9B < PLAYERS_COUNT))
+      {
+        create_effect(&thing->mappos, get_scavenge_effect_element(cctrl->byte_9B), thing->owner);
+      }
+      return 0;
+    }
+    // We don't really have to convert coordinates into numbers and back to XY.
+    i = get_subtile_number(cctrl->byte_9D, cctrl->field_9E);
+    stl_x = stl_num_decode_x(i);
+    stl_y = stl_num_decode_y(i);
+    room = subtile_room_get(stl_x, stl_y);
+    if (room_is_invalid(room) || (room->kind != 9))
+    {
+      ERRORLOG("Scavenger room disappeared.");
+      kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
+      return -1;
+    }
+    if (find_random_valid_position_for_thing_in_room(thing, room, &pos))
+    {
+      move_thing_in_map(thing, &pos);
+      anger_set_creature_anger_all_types(thing, 0);
+      dungeon = &(game.dungeon[cctrl->byte_9B%DUNGEONS_COUNT]);
+      dungeon->field_98B++;
+      if (is_my_player_number(thing->owner))
+        output_message(62, 0, 1);
+      cctrl->byte_9C = thing->owner;
+      change_creature_owner(thing, cctrl->byte_9B);
+      internal_set_thing_state(thing, 94);
+      return 0;
+    } else
+    {
+      ERRORLOG("No valid position inside scavenger room.");
+      kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
+      return -1;
+    }
 }
 
 short creature_scavenged_reappear(struct Thing *thing)

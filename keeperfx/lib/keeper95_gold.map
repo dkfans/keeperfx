@@ -1598,3 +1598,7 @@
  0001:000922C0       apply_wallhug_force_to_boulder
  0001:0008C070       update_god_lightning_ball
  0001:000C4AA0       prepare_thing_for_power_hand
+ 0001:000B8DF0       find_random_valid_position_for_thing_in_room
+ 0001:000BD890       change_creature_owner
+ 0001:0001A2B0       anger_set_creature_anger_all_types
+ 0001:000C4460       find_my_next_creature_of_breed_and_job

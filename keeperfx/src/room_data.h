@@ -134,6 +134,7 @@ void set_room_capacity(struct Room *room, long capac);
 long get_room_slabs_count(long plyr_idx, unsigned short rkind);
 long get_player_rooms_count(long plyr_idx, unsigned short rkind);
 void reinitialise_treaure_rooms(void);
+TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 
 void create_room_flag(struct Room *room);
 struct Room *allocate_free_room_structure(void);

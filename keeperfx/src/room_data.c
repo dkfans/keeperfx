@@ -121,6 +121,7 @@ const unsigned short small_around_pos[] = {
 unsigned short const room_effect_elements[] = { 55, 56, 57, 58, 0, 0 };
 const short slab_around[] = { -85, 1, 85, -1 };
 /******************************************************************************/
+DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 DLLIMPORT void _DK_count_gold_slabs_with_efficiency(struct Room *room);
 DLLIMPORT void _DK_count_gold_hoardes_in_room(struct Room *room);
 DLLIMPORT void _DK_count_books_in_room(struct Room *room);
@@ -578,6 +579,12 @@ short room_grow_food(struct Room *room)
 {
   return _DK_room_grow_food(room);
 }
+
+TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos)
+{
+    return _DK_find_random_valid_position_for_thing_in_room(thing, room, pos);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
