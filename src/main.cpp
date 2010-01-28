@@ -166,6 +166,7 @@ TbPixel const player_path_colours[] = {131, 90, 163, 181,  20,   4, };
 TbPixel const player_room_colours[] = {132, 92, 164, 183,  21, 132, };
 
 unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
+long const scavenge_effect_element[] = {60, 61, 62, 63, 64, 64,};
 
 struct KeycodeString eastegg_feckoff_codes = {
     {KC_F,KC_E,KC_C,KC_K,KC_O,KC_F,KC_F,KC_UNASSIGNED}, 7,
@@ -1231,6 +1232,11 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
 TbPixel get_player_path_colour(unsigned short owner)
 {
   return player_path_colours[player_colors_map[owner % PLAYERS_EXT_COUNT]];
+}
+
+long get_scavenge_effect_element(unsigned short owner)
+{
+  return scavenge_effect_element[player_colors_map[owner % PLAYERS_EXT_COUNT]];
 }
 
 void setup_3d(void)

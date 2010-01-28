@@ -281,6 +281,7 @@ Version: 0.3.5
   Rewritten missing function for new way of storing bonus levels
   Rewritten more of eye lenses code, updated lenses config file
   Eye lenses now supported in all resolutions
+  Rewritten part of scavenging code
 
 Version: 0.3.4
   Some fixups in CPU Identification code

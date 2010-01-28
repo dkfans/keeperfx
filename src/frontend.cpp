@@ -3743,7 +3743,17 @@ void gui_go_to_next_creature(struct GuiButton *gbtn)
 
 void pick_up_creature_doing_activity(struct GuiButton *gbtn)
 {
-  _DK_pick_up_creature_doing_activity(gbtn);
+    long i,job_idx,kind;
+    SYNCDBG(10,"Starting");
+    //_DK_pick_up_creature_doing_activity(gbtn); return;
+    i = gbtn->field_1B;
+    // Get index from pointer
+    job_idx = ((long *)gbtn->field_33 - &activity_list[0]);
+    if (i > 0)
+        kind = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
+    else
+        kind = 23;
+    pick_up_creature_of_breed_and_job(kind, (job_idx & 0x03), my_player_number);
 }
 
 void gui_go_to_next_creature_activity(struct GuiButton *gbtn)
@@ -3758,57 +3768,61 @@ void turn_off_roaming_menus(void)
 
 void gui_area_anger_button(struct GuiButton *gbtn)
 {
-  struct Dungeon *dungeon;
-  int spridx,actvty_idx,i;
-  long breed_idx,cr_total;
-  SYNCDBG(10,"Starting");
-  actvty_idx = (((long)gbtn->field_33 - (long)&activity_list) / sizeof(long));
-  if (gbtn->field_1B != 0)
-    breed_idx = breed_activities[(top_of_breed_list+(actvty_idx>>2))%CREATURE_TYPES_COUNT];
-  else
-    breed_idx = 23;
-  cr_total = 0;
-  if ((breed_idx > 0) && (breed_idx < CREATURE_TYPES_COUNT) &&(gbtn->field_0 & 0x08))
-  {
-      dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
-      spridx = gbtn->field_29;
-      if (gbtn->field_33 != NULL)
-      {
-        cr_total = *(long *)gbtn->field_33;
-        if (cr_total > 0)
+    long i,job_idx,kind;
+    SYNCDBG(10,"Starting");
+    i = gbtn->field_1B;
+    // Get index from pointer
+    job_idx = ((long *)gbtn->field_33 - &activity_list[0]);
+    if (i > 0)
+        kind = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
+    else
+        kind = 23;
+    // Now draw the button
+    struct Dungeon *dungeon;
+    int spridx;
+    long cr_total;
+    cr_total = 0;
+    if ((kind > 0) && (kind < CREATURE_TYPES_COUNT) && (gbtn->field_0 & 0x08))
+    {
+        dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+        spridx = gbtn->field_29;
+        if (gbtn->field_33 != NULL)
         {
-          i = dungeon->field_4E4[breed_idx][(actvty_idx & 0x03)];
-          if (i > cr_total)
+          cr_total = *(long *)gbtn->field_33;
+          if (cr_total > 0)
           {
-            WARNDBG(9,"Creature %d stats inconsistency; total=%d, doing activity%d=%d",breed_idx,cr_total,(actvty_idx & 0x03),i);
-            i = cr_total;
+            i = dungeon->field_4E4[kind][(job_idx & 0x03)];
+            if (i > cr_total)
+            {
+              WARNDBG(9,"Creature %d stats inconsistency; total=%d, doing activity%d=%d",kind,cr_total,(job_idx & 0x03),i);
+              i = cr_total;
+            }
+            if (i < 0)
+            {
+              i = 0;
+            }
+            spridx += 14 * i / cr_total;
           }
-          if (i < 0)
-          {
-            i = 0;
-          }
-          spridx += 14 * i / cr_total;
         }
-      }
-      if ((gbtn->field_1) || (gbtn->field_2))
-      {
-        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y-2, spridx, 3072);
-      } else
-      {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y-2, spridx);
-      }
-      if (gbtn->field_33 != NULL)
-      {
-        sprintf(gui_textbuf, "%ld", cr_total);
-        if ((cr_total > 0) && (dungeon->field_424[breed_idx][(actvty_idx & 0x03)] ))
+        if ((gbtn->field_1) || (gbtn->field_2))
         {
-            for (i=0; gui_textbuf[i] != '\0'; i++)
-                gui_textbuf[i] -= 120;
+          draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y-2, spridx, 3072);
+        } else
+        {
+          draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y-2, spridx);
         }
-        draw_button_string(gbtn, gui_textbuf);
-      }
-  }
-  SYNCDBG(12,"Finished");
+        if (gbtn->field_33 != NULL)
+        {
+          sprintf(gui_textbuf, "%ld", cr_total);
+          if ((cr_total > 0) && (dungeon->field_424[kind][(job_idx & 0x03)] ))
+          {
+              for (i=0; gui_textbuf[i] != '\0'; i++)
+                  gui_textbuf[i] -= 120;
+          }
+          draw_button_string(gbtn, gui_textbuf);
+        }
+    }
+    SYNCDBG(12,"Finished");
 }
 
 void gui_area_text(struct GuiButton *gbtn)

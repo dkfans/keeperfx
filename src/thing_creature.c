@@ -140,6 +140,9 @@ struct CreaturePickedUpOffset creature_picked_up_offset[] = {
 int creature_swap_idx[CREATURE_TYPES_COUNT];
 
 /******************************************************************************/
+DLLIMPORT struct Thing *_DK_find_my_next_creature_of_breed_and_job(long breed_idx, long job_idx);
+DLLIMPORT void _DK_anger_set_creature_anger_all_types(struct Thing *thing, long a2);
+DLLIMPORT void _DK_change_creature_owner(struct Thing *thing , char nowner);
 DLLIMPORT long _DK_remove_all_traces_of_combat(struct Thing *thing);
 DLLIMPORT void _DK_cause_creature_death(struct Thing *thing, unsigned char a2);
 DLLIMPORT void _DK_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev);
@@ -1309,6 +1312,46 @@ TbBool thing_is_creature_special_digger(const struct Thing *thing)
   return ((get_creature_model_flags(thing) & MF_IsSpecDigger) != 0);
 }
 
+void anger_set_creature_anger_all_types(struct Thing *thing, long a2)
+{
+    _DK_anger_set_creature_anger_all_types(thing, a2);
+}
+void change_creature_owner(struct Thing *thing, long nowner)
+{
+    _DK_change_creature_owner(thing, nowner);
+}
+
+struct Thing *find_my_next_creature_of_breed_and_job(long breed_idx, long job_idx)
+{
+    return _DK_find_my_next_creature_of_breed_and_job(breed_idx, job_idx);
+}
+
+struct Thing *pick_up_creature_of_breed_and_job(long kind, long job_idx, long owner)
+{
+    struct PlayerInfo *myplyr;
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    thing = find_my_next_creature_of_breed_and_job(kind, job_idx);
+    if (thing_is_invalid(thing))
+    {
+        WARNLOG("Can't find creature of kind %ld and job %ld.",kind,job_idx);
+        return INVALID_THING;
+    }
+    dungeon = &(game.dungeon[owner%DUNGEONS_COUNT]);
+    if ((kind > 0) && (kind < CREATURE_TYPES_COUNT))
+    {
+        if ((job_idx == -1) || (dungeon->field_424[kind][job_idx & 0x03]))
+        {
+            myplyr = &(game.players[my_player_number%PLAYERS_COUNT]);
+            set_players_packet_action(myplyr, 90, thing->index, 0, 0, 0);
+        }
+    } else
+    {
+        ERRORLOG("Creature kind %ld out of range.",kind);
+    }
+    return thing;
+
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

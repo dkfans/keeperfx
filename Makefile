@@ -242,6 +242,7 @@ obj/ver_defs.h: version.mk Makefile
 	$(ECHO) \#define VER_RELEASE $(VER_RELEASE) >> "$(@D)/tmp"
 	$(ECHO) \#define VER_BUILD   $(VER_BUILD) >> "$(@D)/tmp"
 	$(ECHO) \#define VER_STRING  \"$(VER_STRING)\" >> "$(@D)/tmp"
+	$(ECHO) \#define PACKAGE_SUFFIX  \"$(PACKAGE_SUFFIX)\" >> "$(@D)/tmp"
 	$(MV) "$(@D)/tmp" "$@"
 
 obj/libkeeperfx.a: bin/keeperfx.dll obj/keeperfx.def
@@ -269,7 +270,7 @@ package: pkg-before pkg-copydat pkg-campaigns
 	$(CP) bin/* pkg/
 	$(CP) docs/keeperfx_readme.txt pkg/
 	cd pkg; \
-	7z a "keeperfx-$(subst .,_,$(VER_STRING))-patch.7z" "*" -x!*/.svn -x!.svn -x!.git -x!*.7z
+	7z a "keeperfx-$(subst .,_,$(VER_STRING))-$(PACKAGE_SUFFIX)-patch.7z" "*" -x!*/.svn -x!.svn -x!.git -x!*.7z
 
 pkg-before:
 	-$(RM) "pkg/keeperfx-$(subst .,_,$(VER_STRING))-patch.7z"

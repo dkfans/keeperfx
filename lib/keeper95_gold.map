@@ -189,6 +189,7 @@
  0001:00019040       creature_being_summoned
  0001:00019800       anger_apply_anger_to_creature
  0001:0001A110       anger_set_creature_anger
+ 0001:0001A2B0       anger_set_creature_anger_all_types
  0001:0001A920       play_non_3d_sample
  0001:0001B790       sound_reinit_after_load
  0001:0001C280       fronttorture_update
@@ -863,6 +864,7 @@
  0001:000B7980       send_creature_to_room
  0001:000B8930       setup_random_head_for_room
  0001:000B8AF0       link_adjacent_rooms_of_type
+ 0001:000B8DF0       find_random_valid_position_for_thing_in_room
  0001:000BA0A0       setup_prison_move
  0001:000BA1C0       count_gold_slabs_with_efficiency
  0001:000BA220       count_gold_hoardes_in_room
@@ -880,6 +882,7 @@
  0001:000BD390       creature_set_work_room_based_on_position
  0001:000BD3A0       set_first_creature
  0001:000BD660       remove_first_creature
+ 0001:000BD890       change_creature_owner
  0001:000BDA30       creature_dormant
  0001:000BDA60       set_start_state
  0001:000BDE40       patrol_here
@@ -931,6 +934,7 @@
  0001:000C2700       set_creature_level
  0001:000C28E0       init_creature_level
  0001:000C41E0       find_next_annoyed_creature
+ 0001:000C4460       find_my_next_creature_of_breed_and_job
  0001:000C4AA0       prepare_thing_for_power_hand
  0001:000C4B40       dump_thing_in_power_hand
  0001:000C4C00       place_thing_in_power_hand
