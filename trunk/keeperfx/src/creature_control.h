@@ -91,9 +91,16 @@ unsigned char field_8C[14];
     short word_9A;
     short word_9C;
     };
+  struct {
+    unsigned char byte_9A;
+    unsigned char byte_9B;
+    unsigned char byte_9C;
+    unsigned char byte_9D;
+    };
     unsigned long long_9A;
   };
-    unsigned char field_9E[13];
+    unsigned char field_9E;
+    unsigned char field_9F[12];
     unsigned char field_AB;
 unsigned char field_AC;
     unsigned char field_AD;

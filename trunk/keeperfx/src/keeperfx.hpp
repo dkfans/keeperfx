@@ -2023,6 +2023,9 @@ short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, lon
 short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
 short do_right_map_click(long start_x, long start_y, long curr_x, long curr_y, long zoom);
 
+TbPixel get_player_path_colour(unsigned short owner);
+long get_scavenge_effect_element(unsigned short owner);
+
 long update_shot(struct Thing *thing);
 long update_dead_creature(struct Thing *thing);
 long update_creature(struct Thing *thing);
