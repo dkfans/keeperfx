@@ -146,7 +146,7 @@ long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
   struct Thing *thing;
   struct Dungeon *dungeon;
   //return _DK_pinstfs_hand_grab(player, n);
-  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
   thing = thing_get(player->field_43A);
   if (dungeon->field_63)
   {
@@ -154,7 +154,7 @@ long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
     dungeon->field_53 = 40;
   }
   if (!thing_is_invalid(thing))
-    set_power_hand_graphic(player->field_2B, 783, 256);
+    set_power_hand_graphic(player->index, 783, 256);
   return 0;
 
 }
@@ -165,7 +165,7 @@ long pinstfm_hand_grab(struct PlayerInfo *player, long *n)
   struct Thing *thing;
   struct Dungeon *dungeon;
   //return _DK_pinstfs_hand_grab(player, n);
-  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
   thing = thing_get(player->field_43E);
   if (thing->class_id == TCls_Creature)
   {
@@ -221,8 +221,8 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
       break;
   }
   if (!thing_is_invalid(grabtng))
-    set_power_hand_graphic(player->field_2B, 784, 256);
-  dump_thing_in_power_hand(dsttng, player->field_2B);
+    set_power_hand_graphic(player->index, 784, 256);
+  dump_thing_in_power_hand(dsttng, player->index);
   player->field_440 = 0;
   player->field_43E = 0;
   place_thing_in_limbo(dsttng);
@@ -234,11 +234,11 @@ long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
   struct Thing *thing;
   struct Dungeon *dungeon;
   //return _DK_pinstfs_hand_drop(player, n);
-  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
   thing = thing_get(player->field_43A);
   player->field_43E = dungeon->things_in_hand[0];
   if (!thing_is_invalid(thing))
-    set_power_hand_graphic(player->field_2B, 783, -256);
+    set_power_hand_graphic(player->index, 783, -256);
   return 0;
 
 }
@@ -248,12 +248,12 @@ long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
   struct Thing *thing;
   struct Dungeon *dungeon;
   //return _DK_pinstfe_hand_drop(player, n);
-  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
   thing = thing_get(player->field_43A);
   dungeon->field_43 = 60;
   dungeon->field_53 = 40;
   if (!thing_is_invalid(thing))
-    set_power_hand_graphic(player->field_2B, 782, 256);
+    set_power_hand_graphic(player->index, 782, 256);
   player->field_43E = 0;
   return 0;
 
@@ -265,7 +265,7 @@ long pinstfs_hand_whip(struct PlayerInfo *player, long *n)
   //return _DK_pinstfs_hand_whip(player, n);
   thing = thing_get(player->field_43A);
   if (!thing_is_invalid(thing))
-    set_power_hand_graphic(player->field_2B, 786, 256);
+    set_power_hand_graphic(player->index, 786, 256);
   return 0;
 }
 
@@ -280,7 +280,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   //return _DK_pinstfe_hand_whip(player, n);
 
   thing = thing_get(player->field_43E);
-  if (((thing->field_0 & 0x01) == 0) || (thing->field_9 != player->field_440) || (!thing_slappable(thing, player->field_2B)))
+  if (((thing->field_0 & 0x01) == 0) || (thing->field_9 != player->field_440) || (!thing_slappable(thing, player->index)))
   {
     player->field_440 = 0;
     player->field_43E = 0;
@@ -327,7 +327,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
         external_activate_trap_shot_at_angle(thing, player->acamera->orient_a);
       break;
   case TCls_Object:
-      if (object_is_slappable(thing, player->field_2B))
+      if (object_is_slappable(thing, player->index))
       {
         efftng = create_effect(&thing->mappos, 49, thing->owner);
         if (!thing_is_invalid(efftng))
@@ -345,7 +345,7 @@ long pinstfm_hand_drop(struct PlayerInfo *player, long *n)
   struct Dungeon *dungeon;
   long i;
   //return _DK_pinstfm_hand_drop(player, n);
-  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
   i = player->field_4B1+1;
   if (i < 1) i = 1;
   dungeon->field_43 += (60 - dungeon->field_43) / i;
@@ -359,7 +359,7 @@ long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
   //return _DK_pinstfs_hand_whip_end(player, n);
   thing = thing_get(player->field_43A);
   if (!thing_is_invalid(thing))
-    set_power_hand_graphic(player->field_2B, 787, 256);
+    set_power_hand_graphic(player->index, 787, 256);
   return 0;
 }
 
@@ -369,7 +369,7 @@ long pinstfe_hand_whip_end(struct PlayerInfo *player, long *n)
   //return _DK_pinstfe_hand_whip_end(player, n);
   thing = thing_get(player->field_43A);
   if (!thing_is_invalid(thing))
-    set_power_hand_graphic(player->field_2B, 785, 256);
+    set_power_hand_graphic(player->index, 785, 256);
   return 0;
 }
 
@@ -647,7 +647,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
   //return _DK_pinstfs_zoom_to_heart(player, n);
   memset(zoom_to_heart_palette, 0x3F, sizeof(zoom_to_heart_palette));
   light_turn_light_off(player->field_460);
-  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
   thing = thing_get(dungeon->dnheart_idx);
   mappos.x.val = thing->mappos.x.val;
   mappos.y.val = thing->mappos.y.val + 1792;
@@ -703,7 +703,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   set_player_mode(player, 1);
   cam = player->acamera;
   if (cam == NULL) return 0;
-  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
   thing = thing_get(dungeon->dnheart_idx);
   if (thing_is_invalid(thing))
   {
@@ -739,7 +739,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   if (player->field_37 != 5)
   {
     cam = player->acamera;
-    dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+    dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
     thing = thing_get(dungeon->dnheart_idx);
     if (cam != NULL)
     {
@@ -971,7 +971,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
   long i,k;
   SYNCDBG(7,"Starting");
   //_DK_leave_creature_as_controller(player, thing);
-  if ((thing->owner != player->field_2B) || (thing->index != player->field_2F))
+  if ((thing->owner != player->index) || (thing->index != player->field_2F))
   {
     set_player_instance(player, 0, 1);
     player->field_2F = 0;
@@ -1021,7 +1021,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   struct CreatureStats *crstat;
   long i,k;
   SYNCDBG(7,"Starting");
-  if ((thing->owner != player->field_2B) || (thing->index != player->field_2F))
+  if ((thing->owner != player->index) || (thing->index != player->field_2F))
   {
     set_player_instance(player, 0, 1);
     player->field_2F = 0;

@@ -2042,11 +2042,11 @@ short process_processes_and_task(struct Computer2 *comp)
 
 void process_computer_player2(unsigned long plridx)
 {
-  //_DK_process_computer_player2(plridx);
   struct Computer2 *comp;
   SYNCDBG(7,"Starting for player %lu",plridx);
+  //_DK_process_computer_player2(plridx);
   comp = &game.computer[plridx%PLAYERS_COUNT];
-  if ((comp->field_14) && (comp->field_2C <= game.play_gameturn))
+  if ((comp->field_14 != 0) && (comp->field_2C <= game.play_gameturn))
     comp->field_10 = 1;
   else
     comp->field_10 = 0;
@@ -2096,11 +2096,11 @@ TbBool computer_player_demands_gold_check(long plyr_idx)
 
 void process_computer_players2(void)
 {
-  //_DK_process_computer_players2();
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   TbBool needs_gold_check;
   int i;
+  //_DK_process_computer_players2();
   needs_gold_check = false;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
@@ -2108,7 +2108,8 @@ void process_computer_players2(void)
     dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
     if ((player->field_0 & 0x01) == 0)
       continue;
-    if ((player->field_0 & 0x40) || (dungeon->computer_enabled & 0x01))
+    if (((player->field_0 & 0x40) != 0) || ((dungeon->computer_enabled & 0x01) != 0))
+    {
       if (player->field_2C == 1)
       {
         process_computer_player2(i);
@@ -2117,6 +2118,7 @@ void process_computer_players2(void)
           needs_gold_check = true;
         }
       }
+    }
   }
   if (needs_gold_check)
   {

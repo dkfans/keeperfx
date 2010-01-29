@@ -27,12 +27,13 @@
 #include "bflib_keybrd.h"
 #include "packets.h"
 #include "thing_list.h"
+#include "dungeon_data.h"
 #include "player_computer.h"
 #include "game_merge.h"
 #include "game_saves.h"
-#include "engine_camera.h"
 #include "thing_creature.h"
 #include "creature_control.h"
+#include "player_data.h"
 #include "slab_data.h"
 #include "map_data.h"
 #include "map_columns.h"
@@ -47,16 +48,12 @@ extern "C" {
 #define LEGAL_WIDTH  640
 #define LEGAL_HEIGHT 480
 
-#define DUNGEONS_COUNT          5
-#define PLAYERS_COUNT           5
 #define PLAYERS_EXT_COUNT       6
 #define NET_PLAYERS_COUNT       4
 #define NET_SERVICES_COUNT     16
 #define PACKETS_COUNT           5
 #define THINGS_COUNT         2048
 #define EVENTS_COUNT          100
-#define EVENT_BUTTONS_COUNT    12
-#define EVENT_KIND_COUNT       27
 #define ROOMS_COUNT           150
 #define MESSAGE_QUEUE_COUNT     4
 #define GUI_MESSAGES_COUNT      3
@@ -77,17 +74,11 @@ extern "C" {
 #define SHADOW_LIMITS_COUNT  2048
 #define SPIRAL_STEPS_COUNT   2500
 #define GOLD_LOOKUP_COUNT      40
-#define TURN_TIMERS_COUNT       8
-#define SCRIPT_FLAGS_COUNT      8
-#define DUNGEON_RESEARCH_COUNT 34
-#define KEEPER_SPELLS_COUNT    20
 #define SPELL_POINTER_GROUPS   14
 #define SLABSET_COUNT        1304
 #define SLABOBJS_COUNT        512
-#define MAPTASKS_COUNT        300
 #define BONUS_LEVEL_STORAGE_COUNT 6
 #define BOOKMARKS_COUNT         5
-#define MAX_THINGS_IN_HAND      8
 // Amount of instances; it's 17, 18 or 19
 #define PLAYER_INSTANCES_COUNT 19
 #define PLAYER_STATES_COUNT    32
@@ -95,7 +86,6 @@ extern "C" {
 #define SMALL_MAP_RADIUS       58
 #define BLOOD_TYPES_COUNT       7
 #define AROUND_TILES_COUNT      9
-#define IMP_TASK_MAX_COUNT     64
 // Static textures
 #define TEXTURE_BLOCKS_STAT_COUNT   544
 // Animated textures
@@ -106,8 +96,6 @@ extern "C" {
 #define CREATURE_FRAMELIST_LENGTH     982
 // Types of objects
 #define MANUFCTR_TYPES_COUNT  11
-#define TRAP_TYPES_COUNT       7
-#define DOOR_TYPES_COUNT       5
 #define ACTN_POINTS_COUNT     32
 #define SLAB_TYPES_COUNT      58
 #define SCRIPT_VALUES_COUNT   64
@@ -238,12 +226,6 @@ struct TextScrollWindow {
     long window_height;
 };
 
-struct ResearchVal { // sizeof = 6
-  unsigned char rtyp;
-  unsigned char rkind;
-  long req_amount;
-};
-
 struct PartyMember { // sizeof = 13
   unsigned char flags;
   unsigned char field_65;
@@ -260,11 +242,6 @@ struct Party { // sizeof = 208
   char prtname[100];
   struct PartyMember members[PARTY_MEMBERS_COUNT];
   unsigned long members_num;
-};
-
-struct TurnTimer { // sizeof = 5
-  unsigned long count;
-  unsigned char state;
 };
 
 struct InitLight { // sizeof=0x14
@@ -402,11 +379,6 @@ char field_1A;
 short field_1B;
 };
 
-struct ImpStack { // sizeof = 4
-  unsigned short field_0;
-  unsigned short field_2;
-};
-
 struct Armageddon { // sizeof = 14
   unsigned long count_down;
   unsigned long duration;
@@ -494,107 +466,6 @@ unsigned char field_1A[6];
 unsigned char field_20[8];
 unsigned char field_28[8];
 unsigned char field_30[6];
-};
-
-struct LevelStats { // sizeof = 392
-  unsigned long things_researched;
-  unsigned long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
-  unsigned long field_10;
-  unsigned long field_14;
-  unsigned long field_18;
-  unsigned long field_1C;
-  unsigned long field_20;
-  unsigned long field_24;
-  unsigned long field_28;
-  unsigned long field_2C;
-  unsigned long field_30;
-  unsigned long field_34;
-  unsigned long field_38;
-  unsigned long field_3C;
-  unsigned long field_40;
-  unsigned long field_44;
-  unsigned long field_48;
-  unsigned long field_4C;
-  unsigned long field_50;
-  unsigned long field_54;
-  unsigned long field_58;
-  unsigned long field_5C;
-  unsigned long field_60;
-  unsigned long field_64;
-  unsigned long field_68;
-  unsigned long field_6C;
-  unsigned long field_70;
-  unsigned long field_74;
-  unsigned long field_78;
-  unsigned long field_7C;
-  unsigned long field_80;
-  unsigned long field_84;
-  unsigned long field_88;
-  unsigned long gold_mined;
-  unsigned long field_90;
-  unsigned long manufactured_doors;
-  unsigned long manufactured_traps;
-  unsigned long manufactured_items;
-  unsigned long time1;
-  unsigned long time2;
-  unsigned long creatures_trained;
-  unsigned long creatures_tortured;
-  unsigned long creatures_sacrificed;
-  unsigned long creatures_converted;
-  unsigned long creatures_summoned;
-  unsigned long num_slaps;
-  unsigned long num_caveins;
-  unsigned long bridges_built;
-  unsigned long rock_dug_out;
-  unsigned long salary_cost;
-  unsigned long flies_killed_by_spiders;
-  unsigned long territory_destroyed;
-  unsigned long territory_lost;
-  unsigned long rooms_constructed;
-  unsigned long traps_used;
-  unsigned long traps_armed;
-  unsigned long doors_used;
-  unsigned long keepers_destroyed;
-  unsigned long area_claimed;
-  unsigned long backs_stabbed;
-  unsigned long chickens_hatched;
-  unsigned long chickens_eaten;
-  unsigned long chickens_wasted;
-  unsigned long promises_broken;
-  unsigned long ghosts_raised;
-  unsigned long skeletons_raised;
-  unsigned long friendly_kills;
-  unsigned long lies_told;
-  unsigned long creatures_annoyed;
-  unsigned long graveyard_bodys;
-  unsigned long vamps_created;
-  unsigned long num_creatures;
-  unsigned long imps_deployed;
-  unsigned long battles_won;
-  unsigned long battles_lost;
-  unsigned long money;
-  unsigned long dngn_breached_count;
-  unsigned long doors_destroyed;
-  unsigned long rooms_destroyed;
-  unsigned long dungeon_area;
-  unsigned long ideas_researched;
-  unsigned long creatures_scavenged;
-  unsigned long creatures_from_sacrifice;
-  unsigned long spells_stolen;
-  unsigned long gold_pots_stolen;
-  unsigned long field_15C;
-  unsigned long field_160;
-  unsigned long field_164;
-  unsigned long doors_unused;
-  unsigned long traps_unused;
-  unsigned long num_rooms;
-  unsigned long field_174;
-  unsigned long num_entrances;
-  unsigned long hopes_dashed;
-  unsigned long allow_save_score;
-  unsigned long player_score;
 };
 
 struct CreaturePool { // sizeof = 129
@@ -685,15 +556,6 @@ struct UnkSndSampleStr { // sizeof = 16
   unsigned long field_C;
 };
 
-struct Wander {
-unsigned char field_0[424];
-    };
-
-struct MapTask { // sizeof = 3
-  unsigned char field_0;
-  unsigned short field_1;
-};
-
 struct TunnellerTrigger { // sizeof = 18
   unsigned char flags;
   char condit_idx;
@@ -753,226 +615,6 @@ struct LevelScript { // sizeof = 5884
     unsigned short lose_conditions[WIN_CONDITIONS_COUNT];
     unsigned long lose_conditions_num;
 };
-
-#define SIZEOF_PlayerInfo 0x4EF
-struct PlayerInfo {
-    unsigned char field_0;
-    unsigned char field_1;
-    unsigned char field_2; //seems to be never used
-    unsigned char field_3;
-    unsigned char field_4;
-    unsigned char field_5;
-    unsigned char field_6;
-    unsigned char *field_7;
-    unsigned char packet_num; // index of packet slot associated with this player
-    long field_C;
-unsigned int field_10;
-unsigned char field_14;
-    char field_15[20]; //size may be shorter
-    unsigned char victory_state;
-    unsigned char field_2A;
-    unsigned char field_2B;
-    unsigned char field_2C;
-    unsigned char field_2D[2];
-    short field_2F;
-    long field_31;
-    short thing_under_hand;
-    unsigned char field_37;
-    struct Camera *acamera;  // Pointer to the currently active camera
-    struct Camera cameras[4];
-    unsigned short field_E4;
-    unsigned short field_E6;
-char field_E8[2];
-    struct Wander wandr1;
-    struct Wander wandr2;
-    short field_43A;
-char field_43C[2];
-    short field_43E;
-    long field_440;
-    short engine_window_width;
-    short engine_window_height;
-    short engine_window_x;
-    short engine_window_y;
-    short mouse_x;
-    short mouse_y;
-    unsigned short minimap_zoom;
-    unsigned char view_type;
-    unsigned char work_state;
-    unsigned char field_454;
-    unsigned char field_455;
-    unsigned char field_456;
-char field_457[8];
-char field_45F;
-short field_460;
-char field_462;
-    char strfield_463[64];
-    unsigned char field_4A3;
-    unsigned char field_4A4;
-    char field_4A5;
-    char field_4A6;
-    char field_4A7[4];
-    short field_4AB;
-    short field_4AD;
-    unsigned char field_4AF;
-    unsigned char instance_num;
-    unsigned long field_4B1;
-    char field_4B5;
-    long field_4B6;
-    char field_4BA[3];
-    long field_4BD;
-    long field_4C1;
-    long field_4C5;
-    unsigned char *palette;
-    long field_4CD;
-    char field_4D1;
-    long field_4D2;
-    long field_4D6;
-    char field_4DA;
-    long field_4DB;
-    long field_4DF;
-    long field_4E3;
-    long field_4E7;
-    long field_4EB;
-    };
-
-#define SIZEOF_Dungeon 0x1508
-struct Dungeon {
-    unsigned short dnheart_idx;
-    struct Coord3d mappos;
-    unsigned char creature_tendencies;
-    unsigned char field_9;
-    unsigned char computer_enabled;
-    unsigned short room_kind[ROOM_TYPES_COUNT];
-    short creatr_list_start;
-    short worker_list_start;
-    short field_31;
-    short things_in_hand[MAX_THINGS_IN_HAND];
-    short field_43;
-    int field_45;
-    int field_49;
-    int field_4D;
-    short field_51;
-    short field_53;
-    int field_55;
-    int field_59;
-    int field_5D;
-    short field_61;
-    unsigned char field_63;
-    short field_64[480];
-    unsigned short field_424[CREATURE_TYPES_COUNT][3];
-    unsigned short field_4E4[CREATURE_TYPES_COUNT][3];
-    short field_5A4[15];
-    unsigned char room_slabs_count[ROOM_TYPES_COUNT+1];
-    int field_5D4;
-    short field_5D8;
-    unsigned char field_5DA[679];
-    unsigned char field_881;
-    unsigned char field_882;
-    unsigned char field_883;
-    int field_884;
-    int field_888;
-    int field_88C[10];
-    int field_8B4[8];
-    unsigned char chickens_sacrificed;
-    unsigned char field_8D5;
-    unsigned char creature_sacrifice[CREATURE_TYPES_COUNT];
-    unsigned char creature_sacrifice_exp[CREATURE_TYPES_COUNT];
-    unsigned char field_916[2];
-    unsigned char field_918;
-    unsigned char field_919;
-    unsigned char field_91A[32];
-    unsigned char field_93A;
-    unsigned short total_doors;
-    unsigned short total_area;
-    unsigned short total_creatures_left;
-    int field_941;
-    int field_945;
-    short field_949;
-    short field_94B[32];
-    short field_98B;
-    short field_98D;
-    short field_98F[96];
-    int creature_max_level[CREATURE_TYPES_COUNT];
-    unsigned short creatures_annoyed;
-    unsigned short battles_lost;
-    unsigned short battles_won;
-    unsigned short rooms_destroyed;
-    unsigned short spells_stolen;
-    unsigned short times_broken_into;
-    unsigned short gold_pots_stolen;
-    int field_ADD;
-    int field_AE1;
-    int field_AE5[4];
-    short field_AF5;
-    short field_AF7;
-    int field_AF9;
-    int field_AFD;
-    short hates_player[DUNGEONS_COUNT];
-    struct MapTask task_list[MAPTASKS_COUNT];
-    int field_E8F;
-    int field_E93[3];
-    unsigned char field_E9F;
-    int field_EA0;
-    int field_EA4;
-    long field_EA8;
-    struct ResearchVal research[DUNGEON_RESEARCH_COUNT];
-    int field_F78;
-    unsigned char research_num;
-unsigned char field_F7D;
-    unsigned char room_buildable[ROOM_TYPES_COUNT];
-    unsigned char room_resrchable[ROOM_TYPES_COUNT];
-    unsigned char creature_enabled[CREATURE_TYPES_COUNT]; // 'Enabled' creature can come from portal
-    unsigned char creature_allowed[CREATURE_TYPES_COUNT]; // 'Allowed' creature is conditionally enabled
-    unsigned char magic_level[KEEPER_SPELLS_COUNT];
-    unsigned char magic_resrchable[KEEPER_SPELLS_COUNT];
-    unsigned char trap_amount[TRAP_TYPES_COUNT];
-    unsigned char trap_buildable[TRAP_TYPES_COUNT];
-    unsigned char trap_placeable[TRAP_TYPES_COUNT];
-    unsigned char door_amount[DOOR_TYPES_COUNT]; // Amount of doors the player can place
-    unsigned char door_buildable[DOOR_TYPES_COUNT]; // Door can be build in workshop
-    unsigned char door_placeable[DOOR_TYPES_COUNT]; // Door is enabled in GUI panel
-    struct TurnTimer turn_timers[TURN_TIMERS_COUNT];
-    unsigned char script_flags[SCRIPT_FLAGS_COUNT];
-    long max_creatures;
-    unsigned char field_1060[5];
-    struct Coord3d pos_1065;
-    struct ImpStack imp_stack[IMP_TASK_MAX_COUNT];
-    unsigned long imp_stack_update_turn;
-    unsigned long imp_stack_length;
-    unsigned char field_1173;
-    unsigned char field_1174;
-    unsigned char field_1175;
-    unsigned char field_1176;
-    short field_1177;
-    long field_1179;
-    long field_117D;
-long field_1181;
-long field_1185;
-    unsigned char field_1189;
-unsigned char field_118A;
-long field_118B;
-long field_118F;
-long field_1193;
-    struct LevelStats lvstats;
-    struct CreatureStorage dead_creatures[DEAD_CREATURES_MAX_COUNT];
-    long dead_creatures_count;
-    long dead_creature_idx;
-    unsigned char field_13A7[EVENT_BUTTONS_COUNT+1];
-    long field_13B4[EVENT_KIND_COUNT]; // warning: missing 4 bytes!
-unsigned short field_1420[32];
-unsigned char field_1460[41];
-unsigned char field_1489[32];
-int field_14A9;
-unsigned char research_override; // could be easily changed into flags..
-int field_14AE;
-unsigned char field_14B2[2];
-int field_14B4;
-int field_14B8;
-unsigned char field_14BC[6];
-unsigned short field_14C2[32];
-    short field_1502;
-    int field_1504;
-    };
 
 #define SIZEOF_Game 1382437
 
@@ -1606,8 +1248,6 @@ short get_gui_inputs(short gameplay_on);
 void intro(void);
 void outro(void);
 
-TbBool is_my_player(struct PlayerInfo *player);
-TbBool is_my_player_number(long plyr_idx);
 void increase_level(struct PlayerInfo *player);
 void multiply_creatures(struct PlayerInfo *player);
 struct Thing *create_creature(struct Coord3d *pos, unsigned short a1, unsigned short a2);

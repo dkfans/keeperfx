@@ -106,7 +106,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
   struct InitLight ilght;
   SYNCDBG(6,"Starting");
   //return _DK_create_and_control_creature_as_controller(player, a2, pos);
-  thing = create_creature(pos, kind, player->field_2B);
+  thing = create_creature(pos, kind, player->index);
   if (thing_is_invalid(thing))
     return NULL;
   dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);

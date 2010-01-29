@@ -414,7 +414,7 @@ short get_global_inputs(void)
     // Timing report
     JUSTMSG("Now time is %d, last loop time was %d, clock is %d, requested fps is %d",LbTimerClock(),last_loop_time,clock(),game.num_fps);
     struct Dungeon *dungeon;
-    dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+    dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
 //    show_onscreen_msg(2*game.num_fps, "DEBUG field_8D4=%d", (int)dungeon->chickens_sacrificed);
     test_variable = !test_variable;
   }
@@ -701,7 +701,7 @@ long get_dungeon_control_action_inputs(void)
   if (is_game_key_pressed(25, &val, 0))
   {
     clear_key_pressed(val);
-    zoom_to_fight(player->field_2B);
+    zoom_to_fight(player->index);
     return 1;
   }
   if ( is_game_key_pressed(26, &val, 0) )
@@ -1097,7 +1097,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   slab_y = map_to_slab[y];
   slb = get_slabmap_block(slab_x, slab_y);
   slbattr = &slab_attrs[slb->slab%SLAB_TYPES_COUNT];
-  if (slab_type_is_door(slb->slab) && (slabmap_owner(slb) == player->field_2B))
+  if (slab_type_is_door(slb->slab) && (slabmap_owner(slb) == player->index))
   {
     *context = 2;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -1109,7 +1109,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if (!subtile_revealed(x,y,player->field_2B))
+  if (!subtile_revealed(x,y,player->index))
   {
     *context = 1;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -1130,7 +1130,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   {
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
-    thing = get_nearest_thing_for_hand_or_slap(player->field_2B, pos->x.val, pos->y.val);
+    thing = get_nearest_thing_for_hand_or_slap(player->index, pos->x.val, pos->y.val);
     if (!thing_is_invalid(thing))
       *context = 3;
     else

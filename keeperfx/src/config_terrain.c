@@ -779,7 +779,7 @@ TbBool make_all_rooms_researchable(long plyr_idx)
   return true;
 }
 
-/*
+/**
  * Sets room availability state.
  */
 TbBool set_room_available(long plyr_idx, long room_idx, long resrch, long avail)
@@ -797,6 +797,33 @@ TbBool set_room_available(long plyr_idx, long room_idx, long resrch, long avail)
   else
     dungeon->room_buildable[room_idx] = 0;
   return true;
+}
+
+/**
+ * Returns if the room can be built by a player.
+ * Checks only if it's available and if the player is 'alive'.
+ * Doesn't check if the player has enough money or map position is on correct spot.
+ */
+TbBool is_room_available(long plyr_idx, long room_idx)
+{
+    struct Dungeon *dungeon;
+    // Check if the player even have a dungeon
+    if ((plyr_idx < 0) || (plyr_idx >= DUNGEONS_COUNT))
+        return false;
+    dungeon = &(game.dungeon[plyr_idx]);
+    // Player must have dungeon heart to build rooms
+    if (dungeon->dnheart_idx <= 0)
+    {
+        return false;
+    }
+    if ((room_idx < 0) || (room_idx >= ROOM_TYPES_COUNT))
+    {
+      ERRORLOG("Incorrect room %ld (player %ld)",room_idx, plyr_idx);
+      return false;
+    }
+    if (dungeon->room_buildable[room_idx])
+      return true;
+    return false;
 }
 
 /*
