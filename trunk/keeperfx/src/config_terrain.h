@@ -53,6 +53,7 @@ TbBool make_all_rooms_free(void);
 TbBool set_room_available(long plyr_idx, long room_idx, long resrch, long avail);
 TbBool make_available_all_researchable_rooms(long plyr_idx);
 TbBool make_all_rooms_researchable(long plyr_idx);
+TbBool is_room_available(long plyr_idx, long room_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

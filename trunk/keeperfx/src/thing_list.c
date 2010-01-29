@@ -288,9 +288,9 @@ void init_player_start(struct PlayerInfo *player)
       break;
     }
     i = thing->next_of_class;
-    if ((game.objects_config[thing->model].field_6) && (thing->owner == player->field_2B))
+    if ((game.objects_config[thing->model].field_6) && (thing->owner == player->index))
     {
-      dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+      dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
       dungeon->dnheart_idx = thing->index;
       memcpy(&dungeon->mappos,&thing->mappos,sizeof(struct Coord3d));
       break;

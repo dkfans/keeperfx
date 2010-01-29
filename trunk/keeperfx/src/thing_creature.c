@@ -212,7 +212,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
   struct InitLight ilght;
   struct Camera *cam;
   //return _DK_control_creature_as_controller(player, thing);
-  if ( (thing->owner != player->field_2B) || !thing_can_be_controlled_as_controller(thing) )
+  if ( (thing->owner != player->index) || !thing_can_be_controlled_as_controller(thing) )
   {
     if (!control_creature_as_passenger(player, thing))
       return false;
@@ -273,9 +273,9 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
 {
   struct Camera *cam;
   //return _DK_control_creature_as_passenger(player, thing);
-  if (thing->owner != player->field_2B)
+  if (thing->owner != player->index)
   {
-    ERRORLOG("Player %d cannot control as passenger thing owned by player %d",(int)player->field_2B,(int)thing->owner);
+    ERRORLOG("Player %d cannot control as passenger thing owned by player %d",(int)player->index,(int)thing->owner);
     return false;
   }
   if (!thing_can_be_controlled_as_passenger(thing))
@@ -774,10 +774,10 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
   player = &(game.players[thing->owner%PLAYERS_COUNT]);
   leave_creature_as_controller(player, thing);
   player->field_43E = 0;
-  if (player->field_2B == thing->owner)
+  if (player->index == thing->owner)
     setup_eye_lens(0);
   set_camera_zoom(player->acamera, player->field_4B6);
-  if (player->field_2B == thing->owner)
+  if (player->index == thing->owner)
   {
     turn_off_all_window_menus();
     turn_off_menu(31);
@@ -1340,7 +1340,7 @@ struct Thing *pick_up_creature_of_breed_and_job(long kind, long job_idx, long ow
     dungeon = &(game.dungeon[owner%DUNGEONS_COUNT]);
     if ((kind > 0) && (kind < CREATURE_TYPES_COUNT))
     {
-        if ((job_idx == -1) || (dungeon->field_424[kind][job_idx & 0x03]))
+        if ((job_idx == -1) || (dungeon->job_breeds_count[kind][job_idx & 0x03]))
         {
             myplyr = &(game.players[my_player_number%PLAYERS_COUNT]);
             set_players_packet_action(myplyr, 90, thing->index, 0, 0, 0);

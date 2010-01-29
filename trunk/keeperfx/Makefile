@@ -38,10 +38,12 @@ OBJS = \
 ./obj/bflib_fmvids.o \
 ./obj/bflib_guibtns.o \
 ./obj/bflib_bufrw.o \
-./obj/scrcapt.o \
 ./obj/bflib_sprite.o \
 ./obj/bflib_vidraw.o \
 ./obj/bflib_sprfnt.o \
+./obj/bflib_filelst.o \
+./obj/bflib_math.o \
+./obj/scrcapt.o \
 ./obj/gui_draw.o \
 ./obj/kjm_input.o \
 ./obj/packets.o \
@@ -49,8 +51,8 @@ OBJS = \
 ./obj/front_input.o \
 ./obj/thing_list.o \
 ./obj/lvl_script.o \
-./obj/bflib_filelst.o \
-./obj/bflib_math.o \
+./obj/dungeon_data.o \
+./obj/player_data.o \
 ./obj/player_instances.o \
 ./obj/lvl_filesdk1.o \
 ./obj/front_simple.o \

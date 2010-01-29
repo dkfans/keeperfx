@@ -110,7 +110,7 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
   thing = get_trap_for_slab_position(map_to_slab[pos->x.stl.num],map_to_slab[pos->y.stl.num]);;
   if (thing_is_invalid(thing)) return false;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  if ((thing->byte_17.h == 0) && (player->field_2B != thing->owner))
+  if ((thing->byte_17.h == 0) && (player->index != thing->owner))
     return false;
   update_gui_tooltip_target(thing);
   if ((help_tip_time > 20) || (player->work_state == 12))
@@ -381,7 +381,7 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
     }
     if (screen_to_map(player->acamera,GetMouseX(),GetMouseY(),&mappos))
     {
-      if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->field_2B))
+      if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->index))
       {
         if (player->field_37 != 1)
           shown = setup_scrolling_tooltips(&mappos);
