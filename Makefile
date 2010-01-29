@@ -80,6 +80,7 @@ obj/config_rules.o \
 obj/config_terrain.o \
 obj/creature_control.o \
 obj/creature_states.o \
+obj/dungeon_data.o \
 obj/engine_camera.o \
 obj/engine_lenses.o \
 obj/engine_render.o \
@@ -100,6 +101,7 @@ obj/map_columns.o \
 obj/map_data.o \
 obj/packets.o \
 obj/player_computer.o \
+obj/player_data.o \
 obj/player_instances.o \
 obj/room_data.o \
 obj/scrcapt.o \

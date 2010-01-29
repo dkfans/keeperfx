@@ -41,6 +41,7 @@
 #include "config_crtrmodel.h"
 #include "config_terrain.h"
 #include "player_instances.h"
+#include "player_data.h"
 #include "thing_doors.h"
 #include "thing_effects.h"
 #include "thing_objects.h"
@@ -260,8 +261,8 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
   struct Coord3d pos;
   MapCoord x,y;
   long k;
-  player = &(game.players[plyr_idx%PLAYERS_COUNT]);
-  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  player = get_player(plyr_idx);
+  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
   k = game.room_stats[rkind].cost;
   if (!i_can_allocate_free_room_structure())
   {
@@ -308,8 +309,8 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
   MapCoord x,y;
   long i,k;
 
-  player = &(game.players[plyr_idx%PLAYERS_COUNT]);
-  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  player = get_player(plyr_idx);
+  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Starting for state %d",(int)player->work_state);
   player->field_4A4 = 1;
@@ -397,23 +398,23 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         if (!thing_is_invalid(thing))
         {
           if (player->field_43A == 0)
-            create_power_hand(player->field_2B);
+            create_power_hand(player->index);
           player->thing_under_hand = thing->index;
         }
         thing = get_first_thing_in_power_hand(player);
         if (!thing_is_invalid(thing))
         {
           if (player->field_43A == 0)
-            create_power_hand(player->field_2B);
+            create_power_hand(player->index);
           i = thing_is_creature_special_digger(thing);
-          if (can_drop_thing_here(stl_x, stl_y, player->field_2B, i)
-            || !can_dig_here(stl_x, stl_y, player->field_2B))
+          if (can_drop_thing_here(stl_x, stl_y, player->index, i)
+            || !can_dig_here(stl_x, stl_y, player->index))
           {
-            tag_cursor_blocks_thing_in_hand(player->field_2B, stl_x, stl_y, i, player->field_4A4);
+            tag_cursor_blocks_thing_in_hand(player->index, stl_x, stl_y, i, player->field_4A4);
           } else
           {
             player->field_3 |= 0x02u;
-            tag_cursor_blocks_dig(player->field_2B, stl_x, stl_y, player->field_4A4);
+            tag_cursor_blocks_dig(player->index, stl_x, stl_y, player->field_4A4);
           }
         }
         if (player->field_43A != 0)
@@ -446,7 +447,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         if (is_my_player(player) && !game_is_busy_doing_gui())
         {
           if (player->field_454 == 1)
-            tag_cursor_blocks_dig(player->field_2B, stl_x, stl_y, player->field_4A4);
+            tag_cursor_blocks_dig(player->index, stl_x, stl_y, player->field_4A4);
         }
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
         {
@@ -529,7 +530,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
                 } else
                 if (dungeon->field_E8F < 300)
                 {
-                  if (can_dig_here(stl_x, stl_y, player->field_2B))
+                  if (can_dig_here(stl_x, stl_y, player->index))
                     tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
                 } else
                 if (is_my_player(player))
@@ -613,7 +614,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if (!power_hand_is_empty(player))
           {
-            if (dump_held_things_on_map(player->field_2B, stl_x, stl_y, 1))
+            if (dump_held_things_on_map(player->index, stl_x, stl_y, 1))
             {
               player->field_4AF = 0;
               unset_packet_control(pckt, PCtr_RBtnRelease);
@@ -641,7 +642,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       player->field_4A4 = 1;
       if (is_my_player(player))
         gui_room_type_highlighted = player->field_4A3;
-      i = tag_cursor_blocks_place_room(player->field_2B, stl_x, stl_y, player->field_4A4);
+      i = tag_cursor_blocks_place_room(player->index, stl_x, stl_y, player->field_4A4);
       if ((pckt->control_flags & PCtr_LBtnClick) == 0)
       {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
@@ -894,7 +895,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
       player->field_4A4 = 1;
-      i = tag_cursor_blocks_place_trap(player->field_2B, stl_x, stl_y);
+      i = tag_cursor_blocks_place_trap(player->index, stl_x, stl_y);
       if ((pckt->control_flags & PCtr_LBtnClick) == 0)
       {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
@@ -943,12 +944,12 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       {
         player->field_4A4 = 1;
         // Make the frame around active slab
-        i = tag_cursor_blocks_place_door(player->field_2B, stl_x, stl_y);
+        i = tag_cursor_blocks_place_door(player->index, stl_x, stl_y);
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
         {
           k = map_tiles_x * map_to_slab[stl_y] + map_to_slab[stl_x];
           delete_room_slabbed_objects(k);
-          packet_place_door(stl_x, stl_y, player->field_2B, player->field_4A6, i);
+          packet_place_door(stl_x, stl_y, player->index, player->field_4A6, i);
         }
         unset_packet_control(pckt, PCtr_LBtnClick);
       }
@@ -1042,7 +1043,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       if (is_my_player(player))
       {
         if (!game_is_busy_doing_gui())
-          tag_cursor_blocks_sell_area(player->field_2B, stl_x, stl_y, player->field_4A4);
+          tag_cursor_blocks_sell_area(player->index, stl_x, stl_y, player->field_4A4);
       }
       if ((pckt->control_flags & PCtr_LBtnClick) == 0)
       {
@@ -1467,7 +1468,7 @@ void process_players_message_character(struct PlayerInfo *player)
   struct Packet *pcktd;
   char chr;
   int chpos;
-  pcktd = get_packet(player->field_2B);
+  pcktd = get_packet(player->index);
   if (pcktd->field_6 > 0)
   {
     chr = key_to_ascii(pcktd->field_6, pcktd->field_8);
@@ -1535,7 +1536,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
         } else
         {
           player->field_0 |= 0x40;
-          toggle_computer_player(player->field_2B);
+          toggle_computer_player(player->index);
         }
         if (player == myplyr)
         {
@@ -1579,7 +1580,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
   }
 }
 
-char process_players_global_packet_action(long plyridx)
+char process_players_global_packet_action(long plyr_idx)
 {
   //TODO: add commands from beta
   struct PlayerInfo *player;
@@ -1591,13 +1592,12 @@ char process_players_global_packet_action(long plyridx)
   struct Room *room;
   int i;
   SYNCDBG(6,"Starting");
-  player=&(game.players[plyridx%PLAYERS_COUNT]);
+  player=&(game.players[plyr_idx%PLAYERS_COUNT]);
   pckt = get_packet_direct(player->packet_num);
   switch (pckt->action)
   {
     case 1:
-      myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
-      if (my_player_number == plyridx)
+      if (is_my_player(player))
       {
         turn_off_all_menus();
         frontend_save_continue_game(true);
@@ -1607,8 +1607,7 @@ char process_players_global_packet_action(long plyridx)
       process_quit_packet(player, 0);
       return 1;
     case 3:
-      myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
-      if (my_player_number == plyridx)
+      if (is_my_player(player))
       {
         turn_off_all_menus();
         frontend_save_continue_game(true);
@@ -1619,7 +1618,7 @@ char process_players_global_packet_action(long plyridx)
     case 4:
       return 1;
     case 5:
-      if (my_player_number == plyridx)
+      if (is_my_player(player))
       {
         turn_off_all_menus();
         free_swipe_graphic();
@@ -1642,7 +1641,7 @@ char process_players_global_packet_action(long plyridx)
           break;
       }
       player->field_0 &= 0xFEu;
-      if (my_player_number == plyridx)
+      if (is_my_player(player))
       {
         frontend_save_continue_game(false);
       }
@@ -1653,23 +1652,22 @@ char process_players_global_packet_action(long plyridx)
     case PckA_PlyrMsgEnd:
       player->field_0 &= 0xFBu;
       if (player->strfield_463[0] != '\0')
-        message_add(player->field_2B);
+        message_add(player->index);
       memset(player->strfield_463, 0, 64);
       return 0;
     case PckA_ToggleLights:
-      if (my_player_number == plyridx)
+      if (is_my_player(player))
         light_set_lights_on(game.field_4614D == 0);
       return 1;
     case PckA_SwitchScrnRes:
-      if (my_player_number == plyridx)
+        if (is_my_player(player))
         switch_to_next_video_mode();
       return 1;
     case 22:
       process_pause_packet((game.numfield_C & 0x01) == 0, pckt->field_6);
       return 1;
     case 24:
-      myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
-      if (myplyr->field_2B == plyridx)
+      if (is_my_player(player))
       {
         settings.video_cluedo_mode = pckt->field_6;
         save_settings();
@@ -1677,8 +1675,7 @@ char process_players_global_packet_action(long plyridx)
       player->field_4DA = pckt->field_6;
       return 0;
     case 25:
-      myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
-      if (myplyr->field_2B == player->field_2B)
+      if (is_my_player(player))
       {
         change_engine_window_relative_size(pckt->field_6, pckt->field_8);
         centre_engine_window();
@@ -1688,7 +1685,7 @@ char process_players_global_packet_action(long plyridx)
       set_player_cameras_position(player, pckt->field_6 << 8, pckt->field_8 << 8);
       return 0;
     case PckA_SetGammaLevel:
-      if (myplyr->field_2B == player->field_2B)
+      if (is_my_player(player))
       {
         set_gamma(pckt->field_6, 1);
         save_settings();
@@ -1713,7 +1710,7 @@ char process_players_global_packet_action(long plyridx)
       return 0;
     case PckA_CheatEnter:
 //      game.???[my_player_number].cheat_mode = 1;
-      show_onscreen_msg(2*game.num_fps, "Cheat mode activated by player %d", plyridx);
+      show_onscreen_msg(2*game.num_fps, "Cheat mode activated by player %d", plyr_idx);
       return 1;
     case PckA_CheatAllFree:
       make_all_creatures_free();
@@ -1767,7 +1764,7 @@ char process_players_global_packet_action(long plyridx)
       player->cameras[0].orient_a = 0;
       if ((game.numfield_A & 0x01) || (lbDisplay.PhysicalScreenWidth > 320))
       {
-        if (my_player_number == plyridx)
+        if (my_player_number == plyr_idx)
           toggle_status_menu((game.numfield_C & 0x40) != 0);
         set_player_mode(player, 1);
       } else
@@ -1780,12 +1777,12 @@ char process_players_global_packet_action(long plyridx)
       return 1;
     case 83:
       if (player->work_state == 15)
-        turn_off_query(plyridx);
+        turn_off_query(plyr_idx);
       event_move_player_towards_event(player, pckt->field_6);
       return 0;
     case 84:
       if (player->work_state == 15)
-        turn_off_query(plyridx);
+        turn_off_query(plyr_idx);
       room = room_get(pckt->field_6);
       player->field_E4 = room->field_8 << 8;
       player->field_E6 = room->field_9 << 8;
@@ -1795,7 +1792,7 @@ char process_players_global_packet_action(long plyridx)
       return 0;
     case 85:
       if (player->work_state == 15)
-        turn_off_query(plyridx);
+        turn_off_query(plyr_idx);
       thing = thing_get(pckt->field_6);
       player->field_E4 = thing->mappos.x.val;
       player->field_E6 = thing->mappos.y.val;
@@ -1805,7 +1802,7 @@ char process_players_global_packet_action(long plyridx)
       return 0;
     case 86:
       if (player->work_state == 15)
-        turn_off_query(plyridx);
+        turn_off_query(plyr_idx);
       thing = thing_get(pckt->field_6);
       player->field_E4 = thing->mappos.x.val;
       player->field_E6 = thing->mappos.y.val;
@@ -1815,7 +1812,7 @@ char process_players_global_packet_action(long plyridx)
       return 0;
     case 87:
       if (player->work_state == 15)
-        turn_off_query(plyridx);
+        turn_off_query(plyr_idx);
       player->field_E4 = pckt->field_6;
       player->field_E6 = pckt->field_8;
       set_player_instance(player, 16, 0);
@@ -1824,42 +1821,42 @@ char process_players_global_packet_action(long plyridx)
       game.numfield_D ^= (game.numfield_D ^ (0x04 * ((game.numfield_D & 0x04) == 0))) & 0x04;
       return 0;
     case PckA_SpellCTADis:
-      turn_off_call_to_arms(plyridx);
+      turn_off_call_to_arms(plyr_idx);
       return 0;
     case 90:
-      if (game.dungeon[plyridx].field_63 < 8)
-        place_thing_in_power_hand(thing_get(pckt->field_6), plyridx);
+      if (game.dungeon[plyr_idx].field_63 < 8)
+        place_thing_in_power_hand(thing_get(pckt->field_6), plyr_idx);
       return 0;
     case 91:
-      dump_held_things_on_map(plyridx, pckt->field_6, pckt->field_8, 1);
+      dump_held_things_on_map(plyr_idx, pckt->field_6, pckt->field_8, 1);
       return 0;
     case 92:
       if (game.event[pckt->field_6].kind == 3)
       {
-        turn_off_event_box_if_necessary(plyridx, pckt->field_6);
+        turn_off_event_box_if_necessary(plyr_idx, pckt->field_6);
       } else
       {
-        event_delete_event(plyridx, pckt->field_6);
+        event_delete_event(plyr_idx, pckt->field_6);
       }
       return 0;
     case 97:
-      magic_use_power_obey(plyridx);
+      magic_use_power_obey(plyr_idx);
       return 0;
     case 98:
-      magic_use_power_armageddon(plyridx);
+      magic_use_power_armageddon(plyr_idx);
       return 0;
     case 99:
-      turn_off_query(plyridx);
+      turn_off_query(plyr_idx);
       return 0;
     case 104:
       if (player->work_state == 15)
-        turn_off_query(plyridx);
+        turn_off_query(plyr_idx);
       battle_move_player_towards_battle(player, pckt->field_6);
       return 0;
     case 106:
       if (player->work_state == 15)
-        turn_off_query(plyridx);
-      dungeon = &(game.dungeon[plyridx]);
+        turn_off_query(plyr_idx);
+      dungeon = &(game.dungeon[plyr_idx]);
       switch (pckt->field_6)
       {
       case 5:
@@ -1890,39 +1887,39 @@ char process_players_global_packet_action(long plyridx)
       }
       return 0;
     case PckA_PlyrFastMsg:
-      //show_onscreen_msg(game.num_fps, "Message from player %d", plyridx);
+      //show_onscreen_msg(game.num_fps, "Message from player %d", plyr_idx);
       output_message(pckt->field_6+110, 0, 1);
       return 0;
     case 109:
-      set_autopilot_type(plyridx, pckt->field_6);
+      set_autopilot_type(plyr_idx, pckt->field_6);
       return 0;
     case 110:
-      level_lost_go_first_person(plyridx);
+      level_lost_go_first_person(plyr_idx);
       return 0;
     case 111:
-      if (game.dungeon[plyridx].field_63)
+      if (game.dungeon[plyr_idx].field_63)
       {
         thing = get_first_thing_in_power_hand(player);
-        dump_held_things_on_map(plyridx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 1);
+        dump_held_things_on_map(plyr_idx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 1);
       }
       return 0;
     case PckA_SpellSOEDis:
-      turn_off_sight_of_evil(plyridx);
+      turn_off_sight_of_evil(plyr_idx);
       return 0;
     case 115:
-      go_on_then_activate_the_event_box(plyridx, pckt->field_6);
+      go_on_then_activate_the_event_box(plyr_idx, pckt->field_6);
       return 0;
     case 116:
-      turn_off_event_box_if_necessary(plyridx, game.dungeon[plyridx].field_1173);
-      game.dungeon[plyridx].field_1173 = 0;
+      turn_off_event_box_if_necessary(plyr_idx, game.dungeon[plyr_idx].field_1173);
+      game.dungeon[plyr_idx].field_1173 = 0;
       return 0;
     case 117:
       i = player->field_4D2 / 4;
       if (i > 8) i = 8;
-      directly_cast_spell_on_thing(plyridx, pckt->field_6, pckt->field_8, i);
+      directly_cast_spell_on_thing(plyr_idx, pckt->field_6, pckt->field_8, i);
       return 0;
     case PckA_PlyrToggleAlly:
-      toggle_ally_with_player(plyridx, pckt->field_6);
+      toggle_ally_with_player(plyr_idx, pckt->field_6);
       return 0;
     case 119:
       if (player->acamera != NULL)

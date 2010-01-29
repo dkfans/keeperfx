@@ -1880,7 +1880,7 @@ short game_is_busy_doing_gui(void)
     if (!pwrdata->flag_19)
       return true;
     thing = thing_get(battle_creature_over);
-    return  (thing->owner != player->field_2B) && (!pwrdata->flag_1A);
+    return  (thing->owner != player->index) && (!pwrdata->flag_1A);
   }
   return false;
 }
@@ -2159,7 +2159,7 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
   struct PlayerInfo *player;
   unsigned long cplr_model;
   player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  cplr_model = game.computer[player->field_2B%PLAYERS_COUNT].model;
+  cplr_model = game.computer[player->index%PLAYERS_COUNT].model;
   if ((cplr_model >= 0) && (cplr_model < 10))
     gbtn->tooltip_id = computer_types[cplr_model];
   else
@@ -2182,9 +2182,9 @@ void maintain_spell(struct GuiButton *gbtn)
   struct Dungeon *dungeon;
   long i;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
   i = (unsigned long)(gbtn->field_33) & 0xff;
-  if (dungeon->magic_level[i] == 0)
+  if (!is_power_available(player->index,i))
   {
     gbtn->field_1B |= 0x8000u;
     gbtn->field_0 &= 0xF7;
@@ -3814,7 +3814,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
         if (gbtn->field_33 != NULL)
         {
           sprintf(gui_textbuf, "%ld", cr_total);
-          if ((cr_total > 0) && (dungeon->field_424[kind][(job_idx & 0x03)] ))
+          if ((cr_total > 0) && (dungeon->job_breeds_count[kind][(job_idx & 0x03)] ))
           {
               for (i=0; gui_textbuf[i] != '\0'; i++)
                   gui_textbuf[i] -= 120;
@@ -3840,7 +3840,7 @@ void frontend_set_player_number(long plr_num)
   struct PlayerInfo *player;
   my_player_number = plr_num;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  player->field_2B = plr_num;
+  player->index = plr_num;
 //  setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight); - maybe better?
   setup_engine_window(0, 0, 640, 480);
 
@@ -4798,7 +4798,7 @@ void fronttorture_input(void)
   } else
   {
     plyr_idx = my_player_number;
-    player = &(game.players[plyr_idx%PLAYERS_COUNT]);
+    player = get_player(plyr_idx);
     pckt = get_packet(plyr_idx);
     x = 0;
     y = 0;
@@ -5097,7 +5097,7 @@ void add_score_to_high_score_table(void)
   struct PlayerInfo *player;
   int idx;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
   idx = add_high_score_entry(dungeon->lvstats.player_score, get_loaded_level_number(), "");
   if (idx >= 0)
   {
@@ -6006,7 +6006,7 @@ void frontstats_save_high_score(void)
   struct Dungeon *dungeon;
   struct PlayerInfo *player;
   player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  dungeon = &(game.dungeon[player->field_2B%DUNGEONS_COUNT]);
+  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
   if (dungeon->lvstats.allow_save_score)
   {
     dungeon->lvstats.allow_save_score = false;

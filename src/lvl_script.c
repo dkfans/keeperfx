@@ -35,6 +35,7 @@
 #include "config_magic.hpp"
 #include "config_creature.h"
 #include "player_instances.h"
+#include "player_data.h"
 #include "thing_effects.h"
 #include "lvl_filesdk1.h"
 #include "game_merge.h"
@@ -713,14 +714,14 @@ TbBool get_map_location_id_f(char *locname, TbMapLocation *location, const char 
   return true;
 }
 
-short script_support_setup_player_as_computer_keeper(unsigned short plyridx, long comp_model)
+TbBool script_support_setup_player_as_computer_keeper(unsigned short plyridx, long comp_model)
 {
   struct PlayerInfo *player;
   player = &(game.players[plyridx%PLAYERS_COUNT]);
-  player->field_0 |= 0x01u;
-  player->field_2B = plyridx;
+  player->field_0 |= 0x01;
+  player->index = plyridx;
   player->field_2C = 1;
-  player->field_0 |= 0x40u;
+  player->field_0 |= 0x40;
   init_player_start(player);
   setup_a_computer_player(plyridx, comp_model);
   return true;
@@ -2379,14 +2380,14 @@ short load_script(long lvnum)
 void script_process_win_game(unsigned short plyr_idx)
 {
   struct PlayerInfo *player;
-  player = &(game.players[plyr_idx%PLAYERS_COUNT]);
+  player = get_player(plyr_idx);
   set_player_as_won_level(player);
 }
 
 void script_process_lose_game(unsigned short plyr_idx)
 {
   struct PlayerInfo *player;
-  player = &(game.players[plyr_idx%PLAYERS_COUNT]);
+  player = get_player(plyr_idx);
   set_player_as_lost_level(player);
 }
 
@@ -2709,7 +2710,7 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
         return 0;
   case SVar_DUNGEON_DESTROYED:
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
-      return (dungeon->dnheart_idx < 1);
+      return (dungeon->dnheart_idx <= 0);
   case SVar_TOTAL_GOLD_MINED:
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
       return dungeon->lvstats.gold_mined;
@@ -2740,7 +2741,7 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
       dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
       return dungeon->room_buildable[validx%ROOM_TYPES_COUNT];
   case SVar_ALL_DUNGEONS_DESTROYED:
-      player = &(game.players[plyr_idx%PLAYERS_COUNT]);
+      player = get_player(plyr_idx);
       return all_dungeons_destroyed(player);
   case SVar_DOOR_NUM:
       return find_door_of_type(validx, plyr_idx);
@@ -2916,7 +2917,7 @@ void process_win_and_lose_conditions(long plyr_idx)
 {
   struct PlayerInfo *player;
   long i,k;
-  player = &(game.players[plyr_idx%PLAYERS_COUNT]);
+  player = get_player(plyr_idx);
   if ((game.numfield_A & 0x01) != 0)
     return;
   for (i=0; i < game.script.win_conditions_num; i++)

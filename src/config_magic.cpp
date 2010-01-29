@@ -725,6 +725,33 @@ TbBool set_power_available(long plyr_idx, long spl_idx, long resrch, long avail)
 }
 
 /**
+ * Returns if the power can be used by a player.
+ * Checks only if it's available and if the player is 'alive'.
+ * Doesn't check if the player has enough money or map position is on correct spot.
+ */
+TbBool is_power_available(long plyr_idx, long spl_idx)
+{
+    struct Dungeon *dungeon;
+    // Check if the player even have a dungeon
+    if ((plyr_idx < 0) || (plyr_idx >= DUNGEONS_COUNT))
+        return false;
+    dungeon = &(game.dungeon[plyr_idx]);
+    // Player must have dungeon heart to cast spells
+    if (dungeon->dnheart_idx <= 0)
+    {
+        return false;
+    }
+    if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT))
+    {
+      ERRORLOG("Incorrect spell %ld (player %ld)",spl_idx, plyr_idx);
+      return false;
+    }
+    if (dungeon->magic_level[spl_idx] > 0)
+      return true;
+    return false;
+}
+
+/**
  * Makes all the powers, which are researchable, to be instantly available.
  */
 TbBool make_available_all_researchable_powers(long plyr_idx)

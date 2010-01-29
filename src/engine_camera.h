@@ -44,7 +44,6 @@ struct ComponentVector {
     short z;
 };
 
-//I'm not sure about size of this structure
 struct Camera {
     struct Coord3d mappos;
     unsigned char field_6;
