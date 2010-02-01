@@ -65,19 +65,18 @@ DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_including_objects
 DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing);
 DLLIMPORT long _DK_thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing);
 /******************************************************************************/
-long creature_near_filter_not_imp(struct Thing *thing, long val)
+long creature_near_filter_not_imp(const struct Thing *thing, FilterParam val)
 {
   return ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0);
 }
 
-long creature_near_filter_is_enemy_of_and_not_imp(struct Thing *thing, long plyr_idx)
+long creature_near_filter_is_enemy_of_and_not_imp(const struct Thing *thing, FilterParam plyr_idx)
 {
   if (thing->owner == plyr_idx)
     return false;
   return ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0);
 }
-
-long creature_near_filter_is_owned_by(struct Thing *thing, long plyr_idx)
+long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam plyr_idx)
 {
   struct SlabMap *slb;
   int i;
@@ -288,9 +287,9 @@ void init_player_start(struct PlayerInfo *player)
       break;
     }
     i = thing->next_of_class;
-    if ((game.objects_config[thing->model].field_6) && (thing->owner == player->index))
+    if ((game.objects_config[thing->model].field_6) && (thing->owner == player->id_number))
     {
-      dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
+      dungeon = &(game.dungeon[player->id_number%DUNGEONS_COUNT]);
       dungeon->dnheart_idx = thing->index;
       memcpy(&dungeon->mappos,&thing->mappos,sizeof(struct Coord3d));
       break;
@@ -339,7 +338,7 @@ void setup_computer_player(int plr_idx)
   int i,k;
   struct PlayerInfo *player;
   SYNCDBG(5,"Starting for player %d",plr_idx);
-  player = &(game.players[plr_idx]);
+  player = get_player(plr_idx);
   k = 0;
   i = game.thing_lists[2].index;
   while (i != 0)
@@ -371,7 +370,7 @@ void setup_computer_players(void)
   int plr_idx;
   for (plr_idx=0; plr_idx<PLAYERS_COUNT; plr_idx++)
   {
-      player = &(game.players[plr_idx]);
+      player = get_player(plr_idx);
       if ((player->field_0 & 0x01) == 0)
         setup_computer_player(plr_idx);
   }
@@ -560,7 +559,56 @@ long count_player_creatures_not_counting_to_total(long plyr_idx)
   return count;
 }
 
-/*
+/**
+ * Returns filtered creature from the players creature list starting from thing_idx.
+ * The creature which will return highest value from given filter function will be returned.
+ * If the filter function will return LONG_MAX, the current creature will be returned
+ * immediately and no further things will be checked.
+ * @return Returns thing, or invalid thing pointer if not found.
+ */
+struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param)
+{
+  struct CreatureControl *cctrl;
+  struct Thing *thing;
+  struct Thing *retng;
+  long maximizer;
+  unsigned long k;
+  long i,n;
+  retng = INVALID_THING;
+  maximizer = 0;
+  k = 0;
+  i = thing_idx;
+  while (i != 0)
+  {
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
+    {
+      ERRORLOG("Jump to invalid thing detected");
+      break;
+    }
+    cctrl = creature_control_get_from_thing(thing);
+    i = cctrl->thing_idx;
+    // Per creature code
+    n = filter(thing, param, maximizer);
+    if (n >= maximizer)
+    {
+        retng = thing;
+        maximizer = n;
+        if (maximizer == LONG_MAX)
+            break;
+    }
+    // Per creature code ends
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  return retng;
+}
+
+/**
  * Returns thing of given array index.
  * @return Returns thing, or invalid thing pointer if not found.
  */

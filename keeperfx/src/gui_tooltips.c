@@ -109,8 +109,8 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
   SYNCDBG(18,"Starting");
   thing = get_trap_for_slab_position(map_to_slab[pos->x.stl.num],map_to_slab[pos->y.stl.num]);;
   if (thing_is_invalid(thing)) return false;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  if ((thing->byte_17.h == 0) && (player->index != thing->owner))
+  player = get_my_player();
+  if ((thing->byte_17.h == 0) && (player->id_number != thing->owner))
     return false;
   update_gui_tooltip_target(thing);
   if ((help_tip_time > 20) || (player->work_state == 12))
@@ -131,7 +131,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   struct PlayerInfo *player;
   long i;
   SYNCDBG(18,"Starting");
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   // Find a special to show tooltip for
   thing = thing_get(player->thing_under_hand);
   if (thing_is_invalid(thing) || !thing_is_special(thing))
@@ -214,7 +214,7 @@ short setup_land_tooltips(struct Coord3d *pos)
   if (stridx == 201)
     return false;
   update_gui_tooltip_target((void *)attridx);
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   if ((help_tip_time > 20) || (player->work_state == 12))
   {
     set_gui_tooltip_box(2,stridx);
@@ -240,7 +240,7 @@ short setup_room_tooltips(struct Coord3d *pos)
   if (stridx == 201)
     return false;
   update_gui_tooltip_target(room);
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   if ( (help_tip_time > 20) || (player->work_state == 12) )
   {
     set_gui_tooltip_box(1,stridx);
@@ -291,8 +291,11 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
     text = lbEmptyString;
   if ((i == 456) || (i == 455))
   {
-    k = (long)tool_tip_box.gbutton->field_33;
-    player = &(game.players[k%PLAYERS_COUNT]);
+    if (tool_tip_box.gbutton != NULL)
+        k = (long)tool_tip_box.gbutton->field_33;
+    else
+        k = -1;
+    player = get_player(k);
     if (player->field_15[0] != '\0')
       sprintf(tool_tip_box.text, "%s: %s", text, player->field_15);
     else
@@ -333,7 +336,7 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
     return false;
   }
   doing_tooltip = false;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   gbtn = &active_buttons[gbtn_idx];
   if ((get_active_menu(gbtn->gmenu_idx)->field_1 == 2) && ((gbtn->field_1B & 0x8000u) == 0))
   {
@@ -371,7 +374,7 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
   TbBool shown;
   SYNCDBG(7,"Starting");
   shown = false;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   if ((gameplay_on) && (tool_tip_time == 0) && (!busy_doing_gui))
   {
     if (player->acamera == NULL)
@@ -381,7 +384,7 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
     }
     if (screen_to_map(player->acamera,GetMouseX(),GetMouseY(),&mappos))
     {
-      if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->index))
+      if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->id_number))
       {
         if (player->field_37 != 1)
           shown = setup_scrolling_tooltips(&mappos);
@@ -528,7 +531,7 @@ void draw_tooltip_at(long ttpos_x,long ttpos_y,char *tttext)
   ttwidth = pixel_size * LbTextStringWidth(tttext);
   ttheight = pixel_size * LbTextStringHeight(tttext);
   lbDisplay.DrawFlags = flg_mem;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   pos_x = ttpos_x;
   pos_y = ttpos_y;
   if (player->view_type == 4)

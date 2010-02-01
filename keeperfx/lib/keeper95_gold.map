@@ -1577,6 +1577,7 @@
  0001:00035970       get_isometric_view_nonaction_inputs
  0001:000365B0       get_overhead_view_nonaction_inputs
  0001:000C5340       can_thing_be_picked_up_by_player
+ 0001:000C5540       can_thing_be_picked_up2_by_player
  0001:0009F6B0       text_string_height
  0001:00079340       get_2d_distance
  0001:0005D1F0       get_angle_xy_to

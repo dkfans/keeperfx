@@ -35,6 +35,8 @@ extern "C" {
  *  Used for all parameters that have no separate definition, ie. strength,
  *  health, dexterity...*/
 #define CREATURE_PROPERTY_INCREASE_ON_EXP 35
+
+#define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/
 #ifdef __cplusplus
 #pragma pack(1)

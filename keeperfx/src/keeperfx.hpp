@@ -16,7 +16,6 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
 #ifndef DK_KEEPERFX_H
 #define DK_KEEPERFX_H
 
@@ -932,8 +931,6 @@ DLLIMPORT char *_DK_mdlf_default(struct TbLoadFiles *);
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 DLLIMPORT extern struct Game _DK_game;
 #define game _DK_game
-DLLIMPORT extern unsigned char _DK_my_player_number;
-#define my_player_number _DK_my_player_number
 DLLIMPORT extern unsigned char *_DK_blue_palette;
 #define blue_palette _DK_blue_palette
 DLLIMPORT extern struct TbLoadFiles _DK_game_load_files[];
@@ -1499,7 +1496,6 @@ void clear_game_for_save(void);
 void clear_complete_game(void);
 void clear_things_and_persons_data(void);
 void clear_rooms(void);
-void clear_dungeons(void);
 void clear_computer(void);
 TbBool swap_creature(long ncrt_id, long crtr_id);
 long init_navigation(void);
@@ -1534,6 +1530,8 @@ void find_map_location_coords(long location, long *x, long *y, const char *func_
 long get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
 TbBool any_player_close_enough_to_see(struct Coord3d *pos);
 unsigned char line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2);
+long can_thing_be_picked_up_by_player(const struct Thing *thing, long plyr_idx);
+long can_thing_be_picked_up2_by_player(const struct Thing *thing, long plyr_idx);
 
 unsigned long seed_check_random(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
 void setup_heap_manager(void);

@@ -33,6 +33,7 @@ extern "C" {
 
 struct PlayerInfo;
 struct Thing;
+struct CompoundFilterParam;
 
 enum ThingClass {
     TCls_Empty        =  0,
@@ -48,9 +49,22 @@ enum ThingClass {
 //    TCls_CaveIn       =  x,
 };
 
+
+typedef long FilterParam;
+typedef struct CompoundFilterParam * MaxFilterParam;
+
 typedef long (*Thing_State_Func)(struct Thing *);
 typedef long (*Thing_Class_Func)(struct Thing *);
-typedef long (*Thing_Filter)(struct Thing *, long);
+typedef long (*Thing_Filter)(const struct Thing *, FilterParam);
+typedef long (*Thing_Maximizer_Filter)(const struct Thing *, MaxFilterParam, long);
+
+struct CompoundFilterParam {
+     long plyr_idx;
+     long class_id;
+     long model_id;
+     long num1;
+     long num2;
+};
 
 struct StructureList {
      unsigned long count;
@@ -148,9 +162,11 @@ unsigned short field_60;
 /******************************************************************************/
 extern Thing_Class_Func class_functions[];
 /******************************************************************************/
-long creature_near_filter_not_imp(struct Thing *thing, long val);
-long creature_near_filter_is_enemy_of_and_not_imp(struct Thing *thing, long val);
-long creature_near_filter_is_owned_by(struct Thing *thing, long val);
+long creature_near_filter_not_imp(const struct Thing *thing, FilterParam val);
+long creature_near_filter_is_enemy_of_and_not_imp(const struct Thing *thing, FilterParam val);
+long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam val);
+
+struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param);
 
 unsigned long update_things_sounds_in_list(struct StructureList *list);
 void stop_all_things_playing_samples(void);

@@ -24,6 +24,7 @@
 #include "engine_camera.h"
 #include "thing_creature.h"
 #include "room_data.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -304,9 +305,8 @@ unsigned char field_14B2[2];
 int field_14B4;
 int field_14B8;
 unsigned char field_14BC[6];
-unsigned short field_14C2[32];
-    short field_1502;
-    int field_1504;
+    unsigned short selected_creatures_of_model[CREATURE_TYPES_COUNT];
+    unsigned short selected_creatures_of_gui_job[3];
     };
 
 #ifdef __cplusplus
@@ -316,8 +316,11 @@ unsigned short field_14C2[32];
 extern struct Dungeon bad_dungeon;
 /******************************************************************************/
 struct Dungeon *get_players_num_dungeon(long plyr_idx);
-struct Dungeon *get_dungeon(long dngn_idx);
+struct Dungeon *get_players_dungeon(struct PlayerInfo *player);
+struct Dungeon *get_dungeon(PlayerNumber plyr_num);
 TbBool dungeon_invalid(struct Dungeon *dungeon);
+
+void clear_dungeons(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
