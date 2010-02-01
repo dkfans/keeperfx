@@ -73,7 +73,7 @@ struct CreatureSounds creature_sounds[] = {
 struct CreatureControl *creature_control_get(long cctrl_idx)
 {
   if ((cctrl_idx < 1) || (cctrl_idx > CREATURES_COUNT))
-    return game.persons.cctrl_lookup[0];
+    return INVALID_CRTR_CONTROL;
   return game.persons.cctrl_lookup[cctrl_idx];
 }
 
@@ -84,7 +84,7 @@ struct CreatureControl *creature_control_get(long cctrl_idx)
 struct CreatureControl *creature_control_get_from_thing(const struct Thing *thing)
 {
   if ((thing->ccontrol_idx < 1) || (thing->ccontrol_idx > CREATURES_COUNT))
-    return game.persons.cctrl_lookup[0];
+    return INVALID_CRTR_CONTROL;
   return game.persons.cctrl_lookup[thing->ccontrol_idx];
 }
 
@@ -106,10 +106,10 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
   struct InitLight ilght;
   SYNCDBG(6,"Starting");
   //return _DK_create_and_control_creature_as_controller(player, a2, pos);
-  thing = create_creature(pos, kind, player->index);
+  thing = create_creature(pos, kind, player->id_number);
   if (thing_is_invalid(thing))
     return NULL;
-  dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+  dungeon = get_dungeon(thing->owner);
   dungeon->field_919--;
   dungeon->field_91A[thing->model]--;
   if (is_my_player(player))

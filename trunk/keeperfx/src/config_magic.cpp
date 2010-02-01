@@ -697,7 +697,7 @@ TbBool make_all_powers_researchable(long plyr_idx)
 {
   struct Dungeon *dungeon;
   long i;
-  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(plyr_idx);
   for (i=0; i < KEEPER_SPELLS_COUNT; i++)
   {
     dungeon->magic_resrchable[i] = 1;
@@ -712,7 +712,7 @@ TbBool set_power_available(long plyr_idx, long spl_idx, long resrch, long avail)
 {
   struct Dungeon *dungeon;
   SYNCDBG(8,"Starting for spell %ld, player %ld, state %ld,%ld",spl_idx,plyr_idx,resrch,avail);
-  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(plyr_idx);
   dungeon->magic_resrchable[spl_idx] = resrch;
   if (avail <= 0)
   {
@@ -732,10 +732,10 @@ TbBool set_power_available(long plyr_idx, long spl_idx, long resrch, long avail)
 TbBool is_power_available(long plyr_idx, long spl_idx)
 {
     struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
     // Check if the player even have a dungeon
-    if ((plyr_idx < 0) || (plyr_idx >= DUNGEONS_COUNT))
+    if (dungeon_invalid(dungeon))
         return false;
-    dungeon = &(game.dungeon[plyr_idx]);
     // Player must have dungeon heart to cast spells
     if (dungeon->dnheart_idx <= 0)
     {
@@ -761,7 +761,9 @@ TbBool make_available_all_researchable_powers(long plyr_idx)
   long i;
   SYNCDBG(0,"Starting");
   ret = true;
-  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(plyr_idx);
+  if (dungeon_invalid(dungeon))
+      return false;
   for (i=0; i < KEEPER_SPELLS_COUNT; i++)
   {
     if (dungeon->magic_resrchable[i])

@@ -146,10 +146,10 @@ short load_game(long slot_num)
   if (!save_version_compatible(LbFileLength(fname),(struct Game *)buf))
   {
     WARNMSG("Saved game file \"%s\" has incompatible version; restarting level.",fname);
-    player = &(game.players[my_player_number%PLAYERS_COUNT]);
+    player = get_my_player();
     player->field_7 = 0;
     my_player_number = default_loc_player;
-    player = &(game.players[my_player_number%PLAYERS_COUNT]);
+    player = get_my_player();
     game.flagfield_14EA4A = 2;
     set_flag_byte(&game.numfield_A,0x01,false);
     player->field_2C = 1;
@@ -170,7 +170,7 @@ short load_game(long slot_num)
   pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
   calculate_moon_phase(false,false);
   update_extra_levels_visibility();
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   set_flag_byte(&player->field_3,0x08,false);
   set_flag_byte(&player->field_3,0x04,false);
   player->field_4C1 = 0;
@@ -181,7 +181,7 @@ short load_game(long slot_num)
   if (player->victory_state != VicS_Undecided)
   {
     frontstats_initialise();
-    dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+    dungeon = get_players_num_dungeon(my_player_number);
     dungeon->lvstats.player_score = 0;
     dungeon->lvstats.allow_save_score = 1;
   }

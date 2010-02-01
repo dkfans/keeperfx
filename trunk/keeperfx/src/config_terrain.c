@@ -764,14 +764,16 @@ TbBool make_all_rooms_free(void)
   return true;
 }
 
-/*
+/**
  * Makes all rooms to be available to research for the player.
  */
 TbBool make_all_rooms_researchable(long plyr_idx)
 {
   struct Dungeon *dungeon;
   long i;
-  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(plyr_idx);
+  if (dungeon_invalid(dungeon))
+      return false;
   for (i=0; i < slab_conf.room_types_count; i++)
   {
     dungeon->room_resrchable[i] = 1;
@@ -785,7 +787,7 @@ TbBool make_all_rooms_researchable(long plyr_idx)
 TbBool set_room_available(long plyr_idx, long room_idx, long resrch, long avail)
 {
   struct Dungeon *dungeon;
-  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(plyr_idx);
   if ((room_idx < 0) || (room_idx >= ROOM_TYPES_COUNT))
   {
     ERRORLOG("Can't add incorrect room %ld to player %ld",room_idx, plyr_idx);
@@ -807,10 +809,10 @@ TbBool set_room_available(long plyr_idx, long room_idx, long resrch, long avail)
 TbBool is_room_available(long plyr_idx, long room_idx)
 {
     struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
     // Check if the player even have a dungeon
-    if ((plyr_idx < 0) || (plyr_idx >= DUNGEONS_COUNT))
+    if (dungeon_invalid(dungeon))
         return false;
-    dungeon = &(game.dungeon[plyr_idx]);
     // Player must have dungeon heart to build rooms
     if (dungeon->dnheart_idx <= 0)
     {
@@ -834,7 +836,9 @@ TbBool make_available_all_researchable_rooms(long plyr_idx)
   struct Dungeon *dungeon;
   long i;
   SYNCDBG(0,"Starting");
-  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(plyr_idx);
+  if (dungeon_invalid(dungeon))
+      return false;
   for (i=0; i < ROOM_TYPES_COUNT; i++)
   {
     if (dungeon->room_resrchable[i])

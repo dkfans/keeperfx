@@ -57,8 +57,8 @@ unsigned int field_10;
 unsigned char field_14;
     char field_15[20]; //size may be shorter
     unsigned char victory_state;
-    unsigned char field_2A;
-    unsigned char index;
+    unsigned char allied_players;
+    unsigned char id_number;
     unsigned char field_2C;
     unsigned char field_2D[2];
     short field_2F;
@@ -126,12 +126,20 @@ char field_462;
 #pragma pack()
 #endif
 /******************************************************************************/
+DLLIMPORT extern unsigned char _DK_my_player_number;
+#define my_player_number _DK_my_player_number
+/******************************************************************************/
+extern long hero_player_number;
 extern struct PlayerInfo bad_player;
 /******************************************************************************/
 struct PlayerInfo *get_player(long plyr_idx);
+#define get_my_player() get_player(my_player_number)
 TbBool player_invalid(struct PlayerInfo *player);
 TbBool is_my_player(struct PlayerInfo *player);
 TbBool is_my_player_number(PlayerNumber plyr_num);
+TbBool player_allied_with(struct PlayerInfo *player, long ally_idx);
+
+void clear_players(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

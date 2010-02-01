@@ -85,6 +85,8 @@ struct StateInfo *get_thing_state_info(struct Thing *thing);
 struct StateInfo *get_thing_state_info_num(long state_id);
 TbBool state_info_invalid(struct StateInfo *stati);
 void create_effect_around_thing(struct Thing *thing, long eff_kind);
+long get_creature_state_type(const struct Thing *thing);
+long get_creature_gui_state(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

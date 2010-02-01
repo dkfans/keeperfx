@@ -85,7 +85,7 @@ long compute_cells_away(void)
   long xcell,ycell;
   struct PlayerInfo *player;
   long ncells_a;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
     if ((vert_offset[1]) || (hori_offset[1]))
     {
       xcell = 660/pixel_size - player->engine_window_x/pixel_size - x_init_off;
@@ -168,7 +168,7 @@ void update_normal_shade(struct M33 *matx)
 
 void update_engine_settings(struct PlayerInfo *player)
 {
-  engine_player_number = player->index;
+  engine_player_number = player->id_number;
   player_bit = (1 << engine_player_number);
   switch (settings.field_0)
   {
@@ -244,7 +244,7 @@ void do_perspective_rotation(long x, long y, long z)
   struct PlayerInfo *player;
   struct EngineCoord epos;
 
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
     epos.x = -x;
     epos.y = 0;
     epos.z = y;
@@ -886,7 +886,7 @@ void draw_frontview_engine(struct Camera *cam)
   unsigned long laaa;
   long i;
   SYNCDBG(9,"Starting");
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   UseFastBlockDraw = (cam->field_17 == 65536);
   if (cam->field_17 > 65536)
     cam->field_17 = 65536;
@@ -895,8 +895,8 @@ void draw_frontview_engine(struct Camera *cam)
   LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
   gtblock_set_clipping_window(lbDisplay.GraphicsWindowPtr, ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
   setup_vecs(lbDisplay.GraphicsWindowPtr, NULL, lbDisplay.GraphicsScreenWidth, ewnd.width, ewnd.height);
-  engine_player_number = player->index;
-  player_bit = (1 << player->index);
+  engine_player_number = player->id_number;
+  player_bit = (1 << player->id_number);
   clear_fast_bucket_list();
   store_engine_window(&ewnd,1);
   setup_engine_window(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
@@ -970,7 +970,7 @@ void draw_frontview_engine(struct Camera *cam)
             if (map->data & 0x7FF)
             {
               draw_element(map, game.field_46157[get_subtile_number(stl_x,stl_y)], stl_x, stl_y, pos_x, pos_y, laaa, qdrant, &i);
-              if ( subtile_revealed(stl_x, stl_y, player->index) )
+              if ( subtile_revealed(stl_x, stl_y, player->id_number) )
               {
                 draw_frontview_things_on_element(map, cam);
               }
