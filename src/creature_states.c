@@ -33,6 +33,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#define CREATURE_GUI_STATES_COUNT 3
+/******************************************************************************/
 DLLIMPORT short _DK_already_at_call_to_arms(struct Thing *thing);
 DLLIMPORT short _DK_arrive_at_alarm(struct Thing *thing);
 DLLIMPORT short _DK_arrive_at_call_to_arms(struct Thing *thing);
@@ -676,6 +678,16 @@ struct StateInfo states[] = {
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
+
+/** GUI States of creatures - from "Creatures" Tab in UI.
+ * There are three states:
+ * - 0: Idle.
+ * - 1: Working.
+ * - 2: Fighting.
+ */
+long const state_type_to_gui_state[] = {
+    0, 1, 0, 0, 0, 2, 0, 0, 1, 0, 0, 2, 2, 1, 1, 0,
+};
 /******************************************************************************/
 struct StateInfo *get_thing_state_info(struct Thing *thing)
 {
@@ -709,6 +721,52 @@ TbBool creature_model_bleeds(unsigned long model)
   return crstat->bleeds;
 }
 /******************************************************************************/
+/** Returns type of given creature state.
+ *
+ * @param thing The source thing.
+ * @return Type of the creature state.
+ */
+long get_creature_state_type(const struct Thing *thing)
+{
+  long state_type;
+  long state;
+  state = thing->field_7;
+  if ( (state > 0) && (state < sizeof(states)/sizeof(states[0])) )
+      state_type = states[state].field_1E;
+  else
+      state_type = states[0].field_1E;
+  if (state_type == 6)
+  {
+    state = thing->field_8;
+    if ( (state > 0) && (state < sizeof(states)/sizeof(states[0])) )
+        state_type = states[state].field_1E;
+    else
+        state_type = states[0].field_1E;
+  }
+  return state_type;
+}
+
+/** Returns GUI State of given creature.
+ *  The GUI state is a simplified version of creature state which
+ *  only takes 3 values: 0-idle, 1-working, 2-fighting.
+ *
+ * @param thing The source thing.
+ * @return GUI state, in range 0..2.
+ */
+long get_creature_gui_state(const struct Thing *thing)
+{
+    long state_type;
+    state_type = get_creature_state_type(thing);
+    if ( (state_type > 0) && (state_type < sizeof(state_type_to_gui_state)/sizeof(state_type_to_gui_state[0])) )
+    {
+      return state_type_to_gui_state[state_type];
+    } else
+    {
+      WARNLOG("Creature has invalid state type(%ld)!",state_type);
+      return state_type_to_gui_state[0];
+    }
+}
+
 short already_at_call_to_arms(struct Thing *thing)
 {
   return _DK_already_at_call_to_arms(thing);
@@ -896,7 +954,7 @@ TbBool make_all_players_creatures_angry(long plyr_idx)
   int i;
   SYNCDBG(8,"Starting");
   //return _DK_make_all_players_creatures_angry(plyr_idx);
-  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(plyr_idx);
   k = 0;
   i = dungeon->creatr_list_start;
   while (i != 0)
@@ -965,7 +1023,7 @@ TbBool summon_creature(long model, struct Coord3d *pos, long owner, long expleve
 long create_sacrifice_unique_award(struct Coord3d *pos, long plyr_idx, long sacfunc, long explevel)
 {
   struct Dungeon *dungeon;
-  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(plyr_idx);
   switch (sacfunc)
   {
   case UnqF_MkAllAngry:
@@ -1064,12 +1122,12 @@ long process_sacrifice_award(struct Coord3d *pos, long model, long plyr_idx)
   long explevel;
   long ret;
   //return _DK_process_sacrifice_award(pos, model, plyr_idx);
-  if ((plyr_idx < 0) || (plyr_idx >= DUNGEONS_COUNT))
+  dungeon = get_players_num_dungeon(plyr_idx);
+  if (dungeon_invalid(dungeon))
   {
     ERRORLOG("Player %d cannot sacrifice creatures.",plyr_idx);
     return 0;
   }
-  dungeon = &(game.dungeon[plyr_idx]);
   ret = SacR_DontCare;
   sac = &gameadd.sacrifice_recipes[0];
   do {
@@ -1526,7 +1584,7 @@ short creature_scavenged_disappear(struct Thing *thing)
     {
       move_thing_in_map(thing, &pos);
       anger_set_creature_anger_all_types(thing, 0);
-      dungeon = &(game.dungeon[cctrl->byte_9B%DUNGEONS_COUNT]);
+      dungeon = get_dungeon(cctrl->byte_9B);
       dungeon->field_98B++;
       if (is_my_player_number(thing->owner))
         output_message(62, 0, 1);
@@ -1978,7 +2036,7 @@ long imp_stack_update(struct Thing *thing)
   struct Dungeon *dungeon;
   SYNCDBG(18,"Starting");
   //return _DK_imp_stack_update(thing);
-  dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+  dungeon = get_dungeon(thing->owner);
   if ((game.play_gameturn - dungeon->imp_stack_update_turn) < 128)
     return 0;
   SYNCDBG(8,"Updating");
@@ -2084,7 +2142,7 @@ long check_out_imp_last_did(struct Thing *thing)
       }
       break;
   case 3:
-      dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+      dungeon = get_dungeon(thing->owner);
       imp_stack_update(thing);
       if ((dungeon->imp_stack_update_turn != *((long *)&cctrl->field_89)) && (dungeon->imp_stack_length != 3))
         break;
@@ -2321,8 +2379,9 @@ void prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thing)
   if ( creature_model_bleeds(thing->model) )
     create_effect_around_thing(thing, 10);
   kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
-  dungeon = &(game.dungeon[room->owner%DUNGEONS_COUNT]);
-  dungeon->lvstats.skeletons_raised++;
+  dungeon = get_dungeon(room->owner);
+  if (!dungeon_invalid(dungeon))
+      dungeon->lvstats.skeletons_raised++;
 }
 
 TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)

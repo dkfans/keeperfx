@@ -547,7 +547,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     speed /= 2;
   if (game.field_14E497 != thing->owner)
   {
-    dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+    dungeon = get_dungeon(thing->owner);
     if (dungeon->field_1420[thing->model])
       speed = 5 * speed / 4;
     if (dungeon->field_888)
@@ -567,7 +567,7 @@ unsigned short get_creature_model_flags(const struct Thing *thing)
 TbBool set_creature_available(long plyr_idx, long crtr_model, long can_be_avail, long force_avail)
 {
   struct Dungeon *dungeon;
-  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(plyr_idx);
   dungeon->creature_allowed[crtr_model] = can_be_avail;
   dungeon->creature_enabled[crtr_model] = force_avail;
   return true;

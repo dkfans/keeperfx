@@ -1547,7 +1547,7 @@ void get_player_gui_clicks(void)
 {
   struct PlayerInfo *player;
   struct Thing *thing;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
 
   if ( ((game.numfield_C & 0x01) != 0) && ((game.numfield_C & 0x80) == 0))
     return;
@@ -1653,7 +1653,7 @@ TbBool validate_versions(void)
   ver = -1;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
-    player = &(game.players[i%PLAYERS_COUNT]);
+    player = get_player(i);
     if ((net_screen_packet[i].field_4 & 0x01) != 0)
     {
       if (ver == -1)
@@ -1784,7 +1784,8 @@ void turn_on_event_info_panel_if_necessary(unsigned short evnt_idx)
 
 void activate_event_box(long evnt_idx)
 {
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  struct PlayerInfo *player;
+  player = get_my_player();
   set_players_packet_action(player, 115, evnt_idx, 0,0,0);
 }
 
@@ -1870,7 +1871,7 @@ short game_is_busy_doing_gui(void)
     return false;
   if (battle_creature_over <= 0)
     return true;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   spl_idx = -1;
   if (player->work_state < PLAYER_STATES_COUNT)
     spl_idx = player_state_to_spell[player->work_state];
@@ -1880,7 +1881,7 @@ short game_is_busy_doing_gui(void)
     if (!pwrdata->flag_19)
       return true;
     thing = thing_get(battle_creature_over);
-    return  (thing->owner != player->index) && (!pwrdata->flag_1A);
+    return  (thing->owner != player->id_number) && (!pwrdata->flag_1A);
   }
   return false;
 }
@@ -2075,7 +2076,7 @@ void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
 void init_load_menu(struct GuiMenu *gmnu)
 {
   struct PlayerInfo *player;
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   set_players_packet_action(player, 82, 1, 1, 0, 0);
   load_game_save_catalogue();
   update_loadsave_input_strings(save_game_catalogue);
@@ -2084,7 +2085,7 @@ void init_load_menu(struct GuiMenu *gmnu)
 void init_save_menu(struct GuiMenu *gmnu)
 {
   struct PlayerInfo *player;
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   set_players_packet_action(player, 82, 1, 1, 0, 0);
   load_game_save_catalogue();
   update_loadsave_input_strings(save_game_catalogue);
@@ -2107,7 +2108,7 @@ void maintain_event_button(struct GuiButton *gbtn)
   unsigned short evnt_idx;
   unsigned long i;
 
-  dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(my_player_number);
   i = (unsigned long)gbtn->field_33;
   evnt_idx = dungeon->field_13A7[i&0xFF];
 
@@ -2150,7 +2151,7 @@ void maintain_event_button(struct GuiButton *gbtn)
 void menu_tab_maintain(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   set_flag_byte(&gbtn->field_0, 0x08, (player->victory_state != VicS_LostLevel));
 }
 
@@ -2158,8 +2159,8 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
   unsigned long cplr_model;
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
-  cplr_model = game.computer[player->index%PLAYERS_COUNT].model;
+  player = get_my_player();
+  cplr_model = game.computer[player->id_number%PLAYERS_COUNT].model;
   if ((cplr_model >= 0) && (cplr_model < 10))
     gbtn->tooltip_id = computer_types[cplr_model];
   else
@@ -2181,10 +2182,10 @@ void maintain_spell(struct GuiButton *gbtn)
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   long i;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
+  player = get_my_player();
+  dungeon = get_players_dungeon(player);
   i = (unsigned long)(gbtn->field_33) & 0xff;
-  if (!is_power_available(player->index,i))
+  if (!is_power_available(player->id_number,i))
   {
     gbtn->field_1B |= 0x8000u;
     gbtn->field_0 &= 0xF7;
@@ -2236,7 +2237,7 @@ void maintain_door(struct GuiButton *gbtn)
   int i;
   i = (unsigned int)gbtn->field_33;
   trap_dat = &trap_data[i%MANUFCTR_TYPES_COUNT];
-  dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(my_player_number);
   if (dungeon->door_placeable[trap_dat->field_4%DOOR_TYPES_COUNT])
   {
     gbtn->field_1B = 0;
@@ -2317,7 +2318,7 @@ void maintain_zoom_to_event(struct GuiButton *gbtn)
 {
   struct Dungeon *dungeon;
   struct Event *event;
-  dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(my_player_number);
   if (dungeon->field_1173)
   {
     event = &(game.event[dungeon->field_1173]);
@@ -2654,7 +2655,7 @@ void fronttorture_load(void)
   torture_sprite_direction = 0;
   memset(door_sound_state, 0, 0x48u);
 
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   if (player->victory_state == VicS_WonLevel)
   {
     LbMouseChangeSpriteAndHotspot(&fronttor_sprites[1], 0, 0);
@@ -2866,7 +2867,7 @@ void frontstats_initialise(void)
 void gui_open_event(struct GuiButton *gbtn)
 {
   struct Dungeon *dungeon;
-  dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(my_player_number);
   unsigned int idx;
   unsigned int evnt_idx;
   SYNCDBG(5,"Starting");
@@ -2896,7 +2897,7 @@ void gui_area_event_button(struct GuiButton *gbtn)
   unsigned long i;
   if ((gbtn->field_0 & 0x08) != 0)
   {
-    dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+    dungeon = get_players_num_dungeon(my_player_number);
     i = (unsigned long)gbtn->field_33;
     if ((gbtn->field_1) || (gbtn->field_2))
     {
@@ -2916,7 +2917,7 @@ void gui_choose_room(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
   long i;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   i = (long)gbtn->field_33;
   set_players_packet_action(player, PckA_SetPlyrState, PSt_BuildRoom, i, 0, 0);
   game.field_151801 = i;
@@ -2993,7 +2994,7 @@ void gui_choose_spell(struct GuiButton *gbtn)
   struct PlayerInfo *player;
   long i;
 //  _DK_gui_choose_spell(gbtn); return;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   i = (long)gbtn->field_33;
   // Disable previous spell
   if (!set_players_packet_change_spell(player,i))
@@ -3016,7 +3017,7 @@ void gui_choose_special_spell(struct GuiButton *gbtn)
   struct Dungeon *dungeon;
   struct SpellData *pwrdata;
   long idx;
-  dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(my_player_number);
   idx = (long)gbtn->field_33 % POWER_TYPES_COUNT;
   set_chosen_spell(idx, gbtn->tooltip_id);
   if (dungeon->field_AF9 >= game.magic_stats[idx].cost[0])
@@ -3107,7 +3108,7 @@ void gui_area_normal_button(struct GuiButton *gbtn)
 void gui_set_tend_to(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   set_players_packet_action(player, PckA_ToggleTendency, gbtn->field_1B, 0, 0, 0);
 }
 
@@ -3154,7 +3155,7 @@ void gui_toggle_ally(struct GuiButton *gbtn)
 void gui_quit_game(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   set_players_packet_action(player, 1, 0, 0, 0, 0);
 }
 
@@ -3168,7 +3169,7 @@ void gui_save_game(struct GuiButton *gbtn)
   struct CatalogueEntry *catentry;
   struct PlayerInfo *player;
   long slot_idx;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   if (stricmp((char *)gbtn->field_33, gui_strings[342]) != 0) // "UNUSED"
   {
     slot_idx = gbtn->field_1B%SAVE_SLOTS_COUNT;
@@ -3211,7 +3212,7 @@ void gui_video_cluedo_mode(struct GuiButton *gbtn)
 void gui_video_gamma_correction(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   video_gamma_correction = (video_gamma_correction + 1) % GAMMA_LEVELS_COUNT;
   set_players_packet_action(player, PckA_SetGammaLevel, video_gamma_correction, 0, 0, 0);
 }
@@ -3256,7 +3257,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
   char *text;
   long i;
   draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 459);
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   thing = thing_get(player->field_2F);
   if (thing == NULL)
     return;
@@ -3279,7 +3280,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
         text = buf_sprintf("%ld", i);
         break;
     case 3: // payday wage
-        dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+        dungeon = get_players_num_dungeon(thing->owner);
         if (dungeon->field_1420[thing->model])
           i = compute_creature_max_pay(crstat->pay,cctrl->explevel)/2;
         else
@@ -3474,7 +3475,7 @@ void frontstats_leave(struct GuiButton *gbtn)
     }
   } else
   {
-    player = &(game.players[my_player_number%PLAYERS_COUNT]);
+    player = get_my_player();
     lvnum = get_loaded_level_number();
     if (player->victory_state == VicS_WonLevel)
     {
@@ -3744,6 +3745,7 @@ void gui_go_to_next_creature(struct GuiButton *gbtn)
 void pick_up_creature_doing_activity(struct GuiButton *gbtn)
 {
     long i,job_idx,kind;
+    unsigned char pick_flags;
     SYNCDBG(10,"Starting");
     //_DK_pick_up_creature_doing_activity(gbtn); return;
     i = gbtn->field_1B;
@@ -3752,8 +3754,11 @@ void pick_up_creature_doing_activity(struct GuiButton *gbtn)
     if (i > 0)
         kind = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
     else
-        kind = 23;
-    pick_up_creature_of_breed_and_job(kind, (job_idx & 0x03), my_player_number);
+        kind = 23; //TODO: This should be SPECIAL_DIGGER kind
+    pick_flags = TPF_PickableCheck;
+    if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
+        pick_flags |= TPF_ReverseOrder;
+    pick_up_creature_of_breed_and_job(kind, (job_idx & 0x03), my_player_number, pick_flags);
 }
 
 void gui_go_to_next_creature_activity(struct GuiButton *gbtn)
@@ -3784,7 +3789,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     cr_total = 0;
     if ((kind > 0) && (kind < CREATURE_TYPES_COUNT) && (gbtn->field_0 & 0x08))
     {
-        dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+        dungeon = get_players_num_dungeon(my_player_number);
         spridx = gbtn->field_29;
         if (gbtn->field_33 != NULL)
         {
@@ -3839,8 +3844,8 @@ void frontend_set_player_number(long plr_num)
 {
   struct PlayerInfo *player;
   my_player_number = plr_num;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  player->index = plr_num;
+  player = get_my_player();
+  player->id_number = plr_num;
 //  setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight); - maybe better?
   setup_engine_window(0, 0, 640, 480);
 
@@ -4278,7 +4283,7 @@ void frontnet_net_serial_start(struct GuiButton *gbtn)
 void gui_load_game(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  player=get_my_player();
   if (!load_game(gbtn->field_1B))
   {
     ERRORLOG("Error in load!");
@@ -4539,10 +4544,10 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
   set_continue_level_number(first_singleplayer_level());
   for (i=0; i < PLAYERS_COUNT; i++)
   {
-    player = &(game.players[i]);
+    player = get_player(i);
     player->field_6 &= 0xFD;
   }
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   clear_transfered_creature();
   calculate_moon_phase(false,false);
   hide_all_bonus_levels(player);
@@ -4590,8 +4595,8 @@ short frontend_save_continue_game(short allow_lvnum_grow)
   short flg_mem;
   LevelNumber lvnum;
   SYNCDBG(6,"Starting");
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+  player = get_my_player();
+  dungeon = get_players_dungeon(player);
   // Save some of the data from clearing
   victory_state = player->victory_state;
   memcpy(scratch, &dungeon->lvstats, sizeof(struct LevelStats));
@@ -4753,7 +4758,7 @@ void fronttorture_input(void)
   long x,y;
   long plyr_idx,door_id;
   clear_packets();
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   pckt = get_packet(my_player_number);
   // Get inputs and create packet
   if (player->victory_state == 1)
@@ -4786,7 +4791,7 @@ void fronttorture_input(void)
   // Determine the controlling player and get his mouse coords
   for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
   {
-    player = &(game.players[plyr_idx]);
+    player = get_player(plyr_idx);
     pckt = get_packet(plyr_idx);
     if ((pckt->action != 0) && (player->victory_state == 1))
       break;
@@ -4884,7 +4889,7 @@ void fronttorture_input(void)
 long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   // Note: reworked from beta and unchecked
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  struct PlayerInfo *player=get_my_player();
   set_players_packet_action(player, PckA_SetPlyrState, tag[0], tag[1], 0, 0);
   struct GuiBoxOption *guop;
   guop=gbox->optn_list;
@@ -4901,7 +4906,7 @@ long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
 {
   //TODO: we should use packets! This way is unacceptable!
   struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   if (tag[0])
     set_player_as_won_level(player);
   else
@@ -4912,7 +4917,7 @@ long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
 long gf_change_player_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   struct PlayerInfo *player;
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  player=get_my_player();
   set_players_packet_action(player, 39, *tag, 0, 0, 0);
   return 1;
 }
@@ -4920,7 +4925,7 @@ long gf_change_player_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, 
 long gf_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
   if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
     return 0;
@@ -4931,7 +4936,7 @@ long gf_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption
 long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
   set_players_packet_action(player, PckA_CheatAllRooms, 0, 0, 0, 0);
   return 1;
@@ -4940,7 +4945,7 @@ long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
 long gf_all_researchable(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
   set_players_packet_action(player, PckA_CheatAllResrchbl, 0, 0, 0, 0);
   return 1;
@@ -4949,7 +4954,7 @@ long gf_all_researchable(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsign
 long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
   set_players_packet_action(player, PckA_CheatAllFree, 0, 0, 0, 0);
   return 1;
@@ -4958,7 +4963,7 @@ long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, un
 long gf_give_all_creatures_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
   set_players_packet_action(player, PckA_CheatCrAllSpls, 0, 0, 0, 0);
   return 1;
@@ -4967,7 +4972,7 @@ long gf_give_all_creatures_spells(struct GuiBox *gbox, struct GuiBoxOption *gopt
 long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
   set_players_packet_action(player, PckA_CheatRevealMap, 0, 0, 0, 0);
   return 1;
@@ -4976,7 +4981,7 @@ long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsi
 long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
   set_players_packet_action(player, PckA_CheatAllMagic, 0, 0, 0, 0);
   return 1;
@@ -4985,7 +4990,7 @@ long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
 long gfa_can_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag)
 {
   struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
   if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
     return false;
@@ -4996,7 +5001,7 @@ long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOpti
 {
   struct PlayerInfo *player;
   struct Thing *thing;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
     return false;
   thing = thing_get(player->field_2F);
@@ -5096,8 +5101,8 @@ void add_score_to_high_score_table(void)
   struct Dungeon *dungeon;
   struct PlayerInfo *player;
   int idx;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
+  player = get_my_player();
+  dungeon = get_players_dungeon(player);
   idx = add_high_score_entry(dungeon->lvstats.player_score, get_loaded_level_number(), "");
   if (idx >= 0)
   {
@@ -5556,7 +5561,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit)
 long compute_menu_position_x(long desired_pos,int menu_width)
 {
   struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   long pos;
   switch (desired_pos)
   {
@@ -5605,7 +5610,7 @@ long compute_menu_position_x(long desired_pos,int menu_width)
 long compute_menu_position_y(long desired_pos,int menu_height)
 {
   struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   long pos;
   switch (desired_pos)
   {
@@ -5666,7 +5671,7 @@ char create_menu(struct GuiMenu *gmnu)
       ERRORLOG("Too many menus open");
       return -1;
   }
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   amnu = get_active_menu(mnu_num);
   amnu->field_1 = 1;
   amnu->field_14 = mnu_num;
@@ -5938,7 +5943,7 @@ void set_gui_visible(short visible)
 {
   SYNCDBG(6,"Starting");
   set_flag_byte(&game.numfield_C,0x20,visible);
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  struct PlayerInfo *player=get_my_player();
   unsigned char is_visbl = ((game.numfield_C & 0x20) != 0);
   switch (player->view_type)
   {
@@ -6004,9 +6009,7 @@ void frontstats_set_timer(void)
 void frontstats_save_high_score(void)
 {
   struct Dungeon *dungeon;
-  struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
-  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(my_player_number);
   if (dungeon->lvstats.allow_save_score)
   {
     dungeon->lvstats.allow_save_score = false;
@@ -6515,7 +6518,7 @@ TbBool frontmainmnu_input(void)
     if ((game.flags_font & FFlg_AlexCheat) != 0)
     {
       lbKeyOn[KC_T] = 0;
-      set_player_as_won_level(&game.players[my_player_number]);
+      set_player_as_won_level(get_my_player());
       frontend_set_state(FeSt_TORTURE);
       return true;
     }
@@ -7099,14 +7102,15 @@ void load_game_update(void)
 
 void spell_lost_first_person(struct GuiButton *gbtn)
 {
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  struct PlayerInfo *player;
+  player=get_my_player();
   set_players_packet_action(player, 110, 0, 0, 0, 0);
 }
 
 void gui_turn_on_autopilot(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   if (player->victory_state != VicS_LostLevel)
   {
     set_players_packet_action(player, 107, 0, 0, 0, 0);
@@ -7115,7 +7119,8 @@ void gui_turn_on_autopilot(struct GuiButton *gbtn)
 
 void gui_set_autopilot(struct GuiButton *gbtn)
 {
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  struct PlayerInfo *player;
+  player = get_my_player();
   int ntype;
   if (game.field_1517F7)
   {
@@ -7417,7 +7422,7 @@ int get_startup_menu_state(void)
   } else
   {
     SYNCLOG("Player-based state selected");
-    player = &(game.players[my_player_number]);
+    player = get_my_player();
     lvnum = get_loaded_level_number();
     if ((game.numfield_A & 0x01) != 0)
     {

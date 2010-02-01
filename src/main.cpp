@@ -186,7 +186,6 @@ const char *speech_fname = "speech.dat";
 
 char sound_dir[64] = "SOUND";
 short default_loc_player = 0;
-short hero_player = 4;
 unsigned long gold_per_hoarde = 2000;
 struct StartupParameters start_params;
 /** Structure used for storing 'localised parameters' when resyncing net game*/
@@ -380,7 +379,8 @@ DLLIMPORT long _DK_prepare_thing_for_power_hand(unsigned short tng_idx, long ply
 DLLIMPORT void _DK_draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
 DLLIMPORT void _DK_draw_lightning(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
 DLLIMPORT unsigned char _DK_line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2);
-DLLIMPORT int _DK_can_thing_be_picked_up_by_player(struct Thing *thing, unsigned char plyr_idx);
+DLLIMPORT int _DK_can_thing_be_picked_up_by_player(const struct Thing *thing, unsigned char plyr_idx);
+DLLIMPORT int _DK_can_thing_be_picked_up2_by_player(const struct Thing *thing, unsigned char plyr_idx);
 DLLIMPORT void _DK_draw_overhead_room_icons(long x, long y);
 DLLIMPORT void _DK_draw_overhead_things(long x, long y);
 DLLIMPORT void _DK_init_alpha_table(void);
@@ -902,7 +902,7 @@ void setup_eye_lens(long nlens)
     return;
   }
   SYNCDBG(7,"Starting for lens %ld",nlens);
-  player = get_player(my_player_number);
+  player = get_my_player();
   if ((game.numfield_1B >= 13) && (game.numfield_1B <= 14))
   {
       player->field_7 = 0;
@@ -1517,7 +1517,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     i = compute_creature_max_health(crstat->health,cctrl->explevel) / crstat->slaps_to_kill;
     if (i > 0)
     {
-      apply_damage_to_thing(thing, i, player->index);
+      apply_damage_to_thing(thing, i, player->id_number);
       thing->word_17 = 8;
     }
   }
@@ -1569,7 +1569,7 @@ short thing_is_pickable_by_hand(struct PlayerInfo *player,struct Thing *thing)
   if (thing->class_id == TCls_Creature)
     return true;
   // Some objects can be picked
-  if ((thing->class_id == TCls_Object) && object_is_pickable_by_hand(thing, player->index))
+  if ((thing->class_id == TCls_Object) && object_is_pickable_by_hand(thing, player->id_number))
     return true;
   // Other things are not pickable
   return false;
@@ -1668,14 +1668,14 @@ void set_power_hand_graphic(long plyr_idx, long a2, long a3)
 TbBool power_hand_is_empty(struct PlayerInfo *player)
 {
   struct Dungeon *dungeon;
-  dungeon = get_dungeon(player->index);
+  dungeon = get_dungeon(player->id_number);
   return (dungeon->things_in_hand[0] == 0);
 }
 
 struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player)
 {
   struct Dungeon *dungeon;
-  dungeon = get_dungeon(player->index);
+  dungeon = get_dungeon(player->id_number);
   return thing_get(dungeon->things_in_hand[0]);
 }
 
@@ -1819,8 +1819,8 @@ void process_armageddon(void)
     return;
   if (game.armageddon.count_down+game.field_150356 > game.play_gameturn)
   {
-    player = &(game.players[game.field_15035E%PLAYERS_COUNT]);
-    dungeon = get_dungeon(player->index);
+    player = get_player(game.field_15035E);
+    dungeon = get_dungeon(player->id_number);
     thing = thing_get(dungeon->dnheart_idx);
     if ((player->victory_state == 2) || thing_is_invalid(thing) || (thing->field_7 == 3))
         game.field_150356 = 0;
@@ -1829,7 +1829,7 @@ void process_armageddon(void)
   {
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-      player = &(game.players[i%PLAYERS_COUNT]);
+      player = get_player(i);
       if ((player->field_0 & 0x01) != 0)
       {
         if (player->field_2C == 1)
@@ -1841,10 +1841,10 @@ void process_armageddon(void)
   {
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-      player = &(game.players[i%PLAYERS_COUNT]);
+      player = get_player(i);
       if ( ((player->field_0 & 0x01) != 0) && (player->field_2C == 1) )
       {
-        dungeon = get_dungeon(player->index);
+        dungeon = get_dungeon(player->id_number);
         if ( (player->victory_state == VicS_Undecided) && (dungeon->field_919 == 0))
         {
           event_kill_all_players_events(i);
@@ -1884,11 +1884,11 @@ TbBool player_is_friendly_or_defeated(int plyr_idx, int win_plyr_idx)
   struct PlayerInfo *win_player;
   struct Dungeon *dungeon;
   player = get_player(plyr_idx);
-  win_player = &(game.players[win_plyr_idx%PLAYERS_COUNT]);
+  win_player = get_player(win_plyr_idx);
   if ((player->field_0 & 0x01) != 0)
   {
-      if ((win_plyr_idx == game.field_14E497) || (plyr_idx == game.field_14E497)     || ((win_player->field_2A & (1<<plyr_idx)) == 0)
-       || (game.field_14E497 == plyr_idx)     || (win_plyr_idx == game.field_14E497) || ((player->field_2A & (1<<win_plyr_idx)) == 0))
+      if ((win_plyr_idx == game.field_14E497) || (plyr_idx == game.field_14E497)     || (!player_allied_with(win_player, plyr_idx))
+       || (game.field_14E497 == plyr_idx)     || (win_plyr_idx == game.field_14E497) || (!player_allied_with(player, win_plyr_idx)))
       {
         dungeon = get_dungeon(plyr_idx);
         if (dungeon->dnheart_idx > 0)
@@ -1902,7 +1902,7 @@ TbBool all_dungeons_destroyed(struct PlayerInfo *win_player)
 {
   long win_plyr_idx;
   long i;
-  win_plyr_idx = win_player->index;
+  win_plyr_idx = win_player->id_number;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
     if (i == win_plyr_idx)
@@ -1993,7 +1993,7 @@ void init_dungeons_research(void)
   int i;
   for (i=0; i < DUNGEONS_COUNT; i++)
   {
-    dungeon = (&game.dungeon[i]);
+    dungeon = get_dungeon(i);
     dungeon->field_F78 = get_next_research_item(dungeon);
   }
 }
@@ -2385,8 +2385,8 @@ unsigned char sight_of_evil_expand_check(void)
 {
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
-  player = get_player(my_player_number);
-  dungeon = get_dungeon(player->index);
+  player = get_my_player();
+  dungeon = get_dungeon(player->id_number);
   return (player->field_4D2 != 0) && (dungeon->field_5D8 == 0);
 }
 
@@ -2394,15 +2394,15 @@ unsigned char call_to_arms_expand_check(void)
 {
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
-  player = get_player(my_player_number);
-  dungeon = get_dungeon(player->index);
+  player = get_my_player();
+  dungeon = get_dungeon(player->id_number);
   return (player->field_4D2 != 0) && (dungeon->field_884 == 0);
 }
 
 unsigned char general_expand_check(void)
 {
   struct PlayerInfo *player;
-  player = get_player(my_player_number);
+  player = get_my_player();
   return (player->field_4D2 != 0);
 }
 
@@ -2632,7 +2632,7 @@ long update_creature_levels(struct Thing *thing)
   cctrl = creature_control_get_from_thing(thing);
   cctrl->field_282 = 50;
   external_set_thing_state(newtng, 127);
-  player = &(game.players[thing->owner%PLAYERS_COUNT]);
+  player = get_player(thing->owner);
   // Switch control if this creature is possessed
   if (is_thing_passenger_controlled(thing))
   {
@@ -2697,7 +2697,7 @@ void lightning_modify_palette(struct Thing *thing)
 {
   struct PlayerInfo *myplyr;
   // _DK_lightning_modify_palette(thing);
-  myplyr = &game.players[my_player_number%PLAYERS_COUNT];
+  myplyr = get_my_player();
 
   if (thing->health == 0)
   {
@@ -2790,8 +2790,8 @@ long update_shot(struct Thing *thing)
   target = NULL;
   hit = false;
   shotstat = &shot_stats[thing->model];
-  myplyr = &game.players[my_player_number%PLAYERS_COUNT];
-  player = &game.players[thing->owner%PLAYERS_COUNT];
+  myplyr = get_my_player();
+  player = get_player(thing->owner);
   if (thing->index != thing->field_1D)
     target = thing_get(thing->field_1D);
   if (shotstat->shot_sound != 0)
@@ -3417,7 +3417,7 @@ long update_creature(struct Thing *thing)
       }
     }
     cctrl = creature_control_get_from_thing(thing);
-    player = &(game.players[thing->owner%PLAYERS_COUNT]);
+    player = get_player(thing->owner);
     if (cctrl->field_AB & 0x02)
     {
       if ((player->field_3 & 0x04) == 0)
@@ -3514,7 +3514,7 @@ TbBool any_player_close_enough_to_see(struct Coord3d *pos)
   int i;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
-    player = &(game.players[i%PLAYERS_COUNT]);
+    player = get_player(i);
     if ( ((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0))
     {
       if (player->acamera == NULL)
@@ -5988,7 +5988,7 @@ short get_gui_inputs(short gameplay_on)
   int gmbtn_idx;
   int gidx;
   fmmenu_idx = first_monopoly_menu();
-  player = get_player(my_player_number);
+  player = get_my_player();
   gmbtn_idx = -1;
   struct GuiButton *gbtn;
   // Sweep through buttons
@@ -6085,7 +6085,7 @@ void increase_level(struct PlayerInfo *player)
   struct Thing *thing;
   unsigned long k;
   int i;
-  dungeon = get_dungeon(player->index);
+  dungeon = get_dungeon(player->id_number);
   // Increase level of normal creatures
   k = 0;
   i = dungeon->creatr_list_start;
@@ -6137,7 +6137,7 @@ void increase_level(struct PlayerInfo *player)
 void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
 {
   struct Dungeon *dungeon;
-  dungeon = get_dungeon(player->index);
+  dungeon = get_dungeon(player->id_number);
   if (dungeon->dead_creatures_count != 0)
   {
     if (is_my_player(player))
@@ -6153,7 +6153,7 @@ void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
 void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
 {
   struct Dungeon *dungeon;
-  dungeon = get_dungeon(player->index);
+  dungeon = get_dungeon(player->id_number);
   if (dungeon->field_919 != 0)
   {
     if (is_my_player(player))
@@ -6169,7 +6169,7 @@ void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
 TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
 {
   struct PlayerInfo *player;
-  player = get_player(my_player_number);
+  player = get_my_player();
   *map_x = 0;
   *map_y = 0;
   if ( (pointer_x >= 0) && (pointer_y >= 0)
@@ -6212,7 +6212,7 @@ void restore_computer_player_after_load(void)
 short point_to_overhead_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
 {
   struct PlayerInfo *player;
-  player = get_player(my_player_number);
+  player = get_my_player();
   *map_x = 0;
   *map_y = 0;
   if ((screen_x >= 150) && (screen_x < 490)
@@ -6298,7 +6298,7 @@ void zoom_to_map(void)
     set_flag_byte(&game.numfield_C,0x40,false);
   else
     set_flag_byte(&game.numfield_C,0x40,true);
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  player=get_my_player();
   if ((game.numfield_A & 0x01) || (lbDisplay.PhysicalScreenWidth > 320))
   {
     if (!toggle_status_menu(false))
@@ -6315,7 +6315,7 @@ void zoom_to_map(void)
 void zoom_from_map(void)
 {
   struct PlayerInfo *player;
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  player=get_my_player();
   if (((game.numfield_A & 0x01) != 0) || (lbDisplay.PhysicalScreenWidth > 320))
   {
       if ((game.numfield_C & 0x40) != 0)
@@ -6331,7 +6331,7 @@ void setup_engine_window(long x, long y, long width, long height)
 {
   struct PlayerInfo *player;
   SYNCDBG(6,"Starting");
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  player=get_my_player();
   if (game.numfield_C & 0x20)
   {
     if (x > MyScreenWidth)
@@ -6366,7 +6366,7 @@ void setup_engine_window(long x, long y, long width, long height)
 void store_engine_window(struct TbGraphicsWindow *ewnd,int divider)
 {
   struct PlayerInfo *player;
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  player=get_my_player();
   if (divider <= 1)
   {
     ewnd->x = player->engine_window_x;
@@ -6385,16 +6385,22 @@ void store_engine_window(struct TbGraphicsWindow *ewnd,int divider)
 void load_engine_window(struct TbGraphicsWindow *ewnd)
 {
   struct PlayerInfo *player;
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  player=get_my_player();
   player->engine_window_x = ewnd->x;
   player->engine_window_y = ewnd->y;
   player->engine_window_width = ewnd->width;
   player->engine_window_height = ewnd->height;
 }
 
-int can_thing_be_picked_up_by_player(struct Thing *thing, unsigned char plyr_idx)
+long can_thing_be_picked_up_by_player(const struct Thing *thing, long plyr_idx)
 {
   return _DK_can_thing_be_picked_up_by_player(thing, plyr_idx);
+}
+
+long can_thing_be_picked_up2_by_player(const struct Thing *thing, long plyr_idx)
+{
+  //TODO: rewrite, then give it better name
+  return _DK_can_thing_be_picked_up2_by_player(thing, plyr_idx);
 }
 
 void get_nearest_thing_for_hand_or_slap_on_map_block(long *near_distance, struct Thing **near_thing,struct Map *mapblk, long plyr_idx, long x, long y)
@@ -6516,7 +6522,7 @@ short update_spell_overcharge(struct PlayerInfo *player, int spl_idx)
   struct Dungeon *dungeon;
   struct MagicStats *mgstat;
   int i;
-  dungeon = get_dungeon(player->index);
+  dungeon = get_dungeon(player->id_number);
   mgstat = &(game.magic_stats[spl_idx%POWER_TYPES_COUNT]);
   i = (player->field_4D2+1) >> 2;
   if (i > SPELL_MAX_LEVEL)
@@ -6692,7 +6698,7 @@ short zoom_to_fight(unsigned char a1)
 {
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
-  player = get_player(my_player_number);
+  player = get_my_player();
   if (active_battle_exists(a1))
   {
     dungeon = get_players_num_dungeon(my_player_number);
@@ -6776,9 +6782,9 @@ short zoom_to_next_annoyed_creature(void)
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   struct Thing *thing;
-  player = get_player(my_player_number);
+  player = get_my_player();
   dungeon = get_players_num_dungeon(my_player_number);
-  dungeon->field_1177 = find_next_annoyed_creature(player->index,dungeon->field_1177);
+  dungeon->field_1177 = find_next_annoyed_creature(player->id_number,dungeon->field_1177);
   thing = thing_get(dungeon->field_1177);
   if (thing_is_invalid(thing))
   {
@@ -6992,7 +6998,7 @@ void multiply_creatures(struct PlayerInfo *player)
   struct CreatureControl *cctrl;
   unsigned long k;
   int i;
-  dungeon = get_dungeon(player->index);
+  dungeon = get_dungeon(player->id_number);
   // Copy 'normal' creatures
   k = 0;
   i = dungeon->creatr_list_start;
@@ -7007,7 +7013,7 @@ void multiply_creatures(struct PlayerInfo *player)
     }
     i = cctrl->thing_idx;
     // Thing list loop body
-    tncopy = create_creature(&thing->mappos, thing->model, player->index);
+    tncopy = create_creature(&thing->mappos, thing->model, player->id_number);
     if (thing_is_invalid(tncopy))
     {
       WARNLOG("Can't create a copy of creature");
@@ -7037,7 +7043,7 @@ void multiply_creatures(struct PlayerInfo *player)
     }
     i = cctrl->thing_idx;
     // Thing list loop body
-    tncopy = create_creature(&thing->mappos, thing->model, player->index);
+    tncopy = create_creature(&thing->mappos, thing->model, player->id_number);
     if (thing_is_invalid(tncopy))
     {
       WARNLOG("Can't create a copy of creature");
@@ -7058,9 +7064,9 @@ void multiply_creatures(struct PlayerInfo *player)
 short toggle_computer_player(int idx)
 {
   struct Dungeon *dungeon;
-  if (idx >= DUNGEONS_COUNT)
+  dungeon = get_players_num_dungeon(idx);
+  if (dungeon_invalid(dungeon))
     return false;
-  dungeon = &(game.dungeon[idx]);
   toggle_flag_byte(&dungeon->computer_enabled,0x01);
   return true;
 }
@@ -7091,14 +7097,14 @@ void reinit_level_after_load(void)
   struct PlayerInfo *player;
   int i;
   SYNCDBG(6,"Starting");
-  player = get_player(my_player_number);
+  player = get_my_player();
   player->field_7 = 0;
   init_lookups();
   init_navigation();
   parchment_loaded = 0;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
-    player = &(game.players[i%PLAYERS_COUNT]);
+    player = get_player(i);
     if (player->field_0 & 0x01)
       set_engine_view(player, player->field_37);
   }
@@ -7108,8 +7114,8 @@ void reinit_level_after_load(void)
   init_animating_texture_maps();
   init_gui();
   reset_gui_based_on_player_mode();
-  player = get_player(my_player_number);
-  reinit_tagged_blocks_for_player(player->index);
+  player = get_my_player();
+  reinit_tagged_blocks_for_player(player->id_number);
   restore_computer_player_after_load();
   sound_reinit_after_load();
 }
@@ -7402,18 +7408,6 @@ void clear_computer(void)
   }
 }
 
-void clear_players(void)
-{
-  int i;
-  for (i=0; i < PLAYERS_COUNT; i++)
-  {
-    memset(&game.players[i], 0, sizeof(struct PlayerInfo));
-  }
-  game.field_14E496 = hero_player;
-  game.field_14E495 = 0;
-  game.flagfield_14EA4A = 2;
-}
-
 void clear_rooms(void)
 {
   int i;
@@ -7421,19 +7415,6 @@ void clear_rooms(void)
   {
     memset(&game.rooms[i], 0, sizeof(struct Room));
   }
-}
-
-void clear_dungeons(void)
-{
-  SYNCDBG(6,"Starting");
-  int i;
-  for (i=0; i < DUNGEONS_COUNT; i++)
-  {
-    memset(&game.dungeon[i], 0, sizeof(struct Dungeon));
-  }
-  game.field_14E4A4 = 0;
-  game.field_14E4A0 = 0;
-  game.field_14E49E = 0;
 }
 
 void clear_events(void)
@@ -7458,7 +7439,7 @@ void init_keepers_map_exploration(void)
   int i;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
-    player = &(game.players[i%PLAYERS_COUNT]);
+    player = get_player(i);
     if ((player->field_0 & 0x01) && (player->field_2C == 1))
     {
         if (player->field_0 & 0x40)
@@ -7475,13 +7456,13 @@ void clear_players_for_save(void)
   int i;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
-    player=&(game.players[i%PLAYERS_COUNT]);
-    mem1 = player->index;
+    player = get_player(i);
+    mem1 = player->id_number;
     mem2 = player->field_2C;
     memflg = player->field_0;
     LbMemoryCopy(&cammem,&player->cameras[1],sizeof(struct Camera));
     memset(player, 0, sizeof(struct PlayerInfo));
-    player->index = mem1;
+    player->id_number = mem1;
     player->field_2C = mem2;
     set_flag_byte(&player->field_0,0x01,((memflg & 0x01) != 0));
     set_flag_byte(&player->field_0,0x40,((memflg & 0x40) != 0));
@@ -7613,7 +7594,7 @@ void reset_creature_max_levels(void)
   {
     for (k=1; k < CREATURE_TYPES_COUNT; k++)
     {
-      dungeon = &game.dungeon[i];
+      dungeon = get_dungeon(i);
       dungeon->creature_max_level[k] = CREATURE_MAX_LEVEL+1;
     }
   }
@@ -7625,7 +7606,7 @@ void reset_script_timers_and_flags(void)
   int i,k;
   for (i=0; i < DUNGEONS_COUNT; i++)
   {
-    dungeon = &(game.dungeon[i]);
+    dungeon = get_dungeon(i);
     dungeon->magic_resrchable[18] = 1;
     dungeon->magic_level[18] = 1;
     for (k=0; k<TURN_TIMERS_COUNT; k++)
@@ -7644,10 +7625,10 @@ void init_good_player_as(long plr_idx)
 {
   struct PlayerInfo *player;
   game.field_14E496 = plr_idx;
-  player = &(game.players[plr_idx%PLAYERS_COUNT]);
+  player = get_player(plr_idx);
   player->field_0 |= 0x01;
   player->field_0 |= 0x40;
-  player->index = game.field_14E496;
+  player->id_number = game.field_14E496;
 }
 
 void store_localised_game_structure(void)
@@ -7701,7 +7682,7 @@ long get_reync_sender(void)
   int i;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
-    player = &(game.players[i%PLAYERS_COUNT]);
+    player = get_player(i);
     if ( ((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0))
       return i;
   }
@@ -7773,7 +7754,7 @@ void resync_game(void)
   int i;
   SYNCDBG(2,"Starting");
   //return _DK_resync_game();
-  player = get_player(my_player_number);
+  player = get_my_player();
   draw_out_of_sync_box(0, 32, player->engine_window_x);
   reset_eye_lenses();
   store_localised_game_structure();
@@ -7829,7 +7810,7 @@ void light_set_lights_on(char state)
 void change_engine_window_relative_size(long w_delta, long h_delta)
 {
   struct PlayerInfo *myplyr;
-  myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
+  myplyr=get_my_player();
   setup_engine_window(myplyr->engine_window_x, myplyr->engine_window_y,
     myplyr->engine_window_width+w_delta, myplyr->engine_window_height+h_delta);
 }
@@ -7881,7 +7862,7 @@ TbBool set_gamma(char corrlvl, TbBool do_set)
   if ((result) && (do_set))
   {
     struct PlayerInfo *myplyr;
-    myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
+    myplyr=get_my_player();
     PaletteSetPlayerPalette(myplyr, _DK_palette);
   }
   if (!result)
@@ -7892,7 +7873,7 @@ TbBool set_gamma(char corrlvl, TbBool do_set)
 void centre_engine_window(void)
 {
   long x1,y1;
-  struct PlayerInfo *player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  struct PlayerInfo *player=get_my_player();
   if ((game.numfield_C & 0x20) != 0)
     x1 = (MyScreenWidth-player->engine_window_width-status_panel_width) / 2 + status_panel_width;
   else
@@ -7965,7 +7946,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
 TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type)
 {
   struct Dungeon *dungeon;
-  dungeon = get_dungeon(player->index);
+  dungeon = get_dungeon(player->id_number);
   switch (tend_type)
   {
   case 1:
@@ -7983,7 +7964,7 @@ TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend
 TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val)
 {
   struct Dungeon *dungeon;
-  dungeon = get_dungeon(player->index);
+  dungeon = get_dungeon(player->id_number);
   switch (tend_type)
   {
   case 1:
@@ -8037,20 +8018,20 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long a2)
       player->field_4A3 = a2;
       break;
   case 5:
-      create_power_hand(player->index);
+      create_power_hand(player->id_number);
       break;
   case 9:
       pos.x.val = 0;
       pos.y.val = 0;
       pos.z.val = 0;
-      thing = create_object(&pos, 37, player->index, -1);
+      thing = create_object(&pos, 37, player->id_number, -1);
       if (thing_is_invalid(thing))
       {
         player->field_43A = 0;
         break;
       }
       player->field_43A = thing->index;
-      set_power_hand_graphic(player->index, 785, 256);
+      set_power_hand_graphic(player->id_number, 785, 256);
       place_thing_in_limbo(thing);
       break;
   case 16:
@@ -8183,7 +8164,7 @@ void level_lost_go_first_person(long plyr_idx)
   SYNCDBG(6,"Starting for player %ld\n",plyr_idx);
   //_DK_level_lost_go_first_person(plridx);
   player = get_player(plyr_idx);
-  dungeon = get_dungeon(player->index);
+  dungeon = get_dungeon(player->id_number);
   player->field_4B6 = get_camera_zoom(player->acamera);
   thing = create_and_control_creature_as_controller(player, 31, &dungeon->mappos);
   if (thing_is_invalid(thing))
@@ -8233,8 +8214,8 @@ void find_map_location_coords(long location, long *x, long *y, const char *func_
       i = get_map_location_longval(location);
       if (i < PLAYERS_COUNT)
       {
-        player = &(game.players[i]);
-        dungeon = get_dungeon(player->index);
+        player = get_player(i);
+        dungeon = get_dungeon(player->id_number);
         thing = thing_get(dungeon->dnheart_idx);
       } else
         thing = NULL;
@@ -8274,7 +8255,7 @@ void set_general_information(long msg_id, long target, long x, long y)
 {
   struct PlayerInfo *player;
   long pos_x,pos_y;
-  player = get_player(my_player_number);
+  player = get_my_player();
   find_map_location_coords(target, &x, &y, __func__);
   pos_x = 0;
   pos_y = 0;
@@ -8283,14 +8264,14 @@ void set_general_information(long msg_id, long target, long x, long y)
     pos_y = (y << 8) + 128;
     pos_x = (x << 8) + 128;
   }
-  event_create_event(pos_x, pos_y, 21, player->index, -msg_id);
+  event_create_event(pos_x, pos_y, 21, player->id_number, -msg_id);
 }
 
 void set_quick_information(long msg_id, long target, long x, long y)
 {
   struct PlayerInfo *player;
   long pos_x,pos_y;
-  player = get_player(my_player_number);
+  player = get_my_player();
   find_map_location_coords(target, &x, &y, __func__);
   pos_x = 0;
   pos_y = 0;
@@ -8299,7 +8280,7 @@ void set_quick_information(long msg_id, long target, long x, long y)
     pos_y = (y << 8) + 128;
     pos_x = (x << 8) + 128;
   }
-  event_create_event(pos_x, pos_y, 27, player->index, -msg_id);
+  event_create_event(pos_x, pos_y, 27, player->id_number, -msg_id);
 }
 
 void set_general_objective(long msg_id, long target, long x, long y)
@@ -8311,12 +8292,12 @@ void process_objective(char *msg_text, long target, long x, long y)
 {
   struct PlayerInfo *player;
   long pos_x,pos_y;
-  player = get_player(my_player_number);
+  player = get_my_player();
   find_map_location_coords(target, &x, &y, __func__);
   pos_y = y;
   pos_x = x;
   set_level_objective(msg_text);
-  display_objectives(player->index, pos_x, pos_y);
+  display_objectives(player->id_number, pos_x, pos_y);
 }
 
 void event_initialise_all(void)
@@ -8342,7 +8323,7 @@ struct Event *event_create_event(long map_x, long map_y, unsigned char evkind, u
     ERRORLOG("Illegal Event kind to be created");
     return NULL;
   }
-  dungeon = &(game.dungeon[dngn_id%DUNGEONS_COUNT]);
+  dungeon = get_dungeon(dngn_id);
   i = dungeon->field_13B4[evkind%EVENT_KIND_COUNT];
   if (i != 0)
   {
@@ -8370,7 +8351,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
   char *text;
   int i,k;
   short other_off;
-  dungeon = &(game.dungeon[plridx%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(plridx);
   event = &game.event[evidx];
   SYNCDBG(6,"Starting for event kind %d",event->kind);
   dungeon->field_1173 = evidx;
@@ -8598,7 +8579,7 @@ void clear_things_in_hand(struct PlayerInfo *player)
 {
   struct Dungeon *dungeon;
   long i;
-  dungeon = get_dungeon(player->index);
+  dungeon = get_dungeon(player->id_number);
   for (i=0; i < MAX_THINGS_IN_HAND; i++)
     dungeon->things_in_hand[i] = 0;
 }
@@ -8615,7 +8596,7 @@ short winning_player_quitting(struct PlayerInfo *player, long *plyr_count)
   n = 0;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
-    swplyr = &(game.players[i]);
+    swplyr = get_player(i);
     if (swplyr->field_0 & 0x01)
     {
       if (swplyr->field_2C == 1)
@@ -8657,18 +8638,18 @@ short resign_level(struct PlayerInfo *player)
 short player_has_won(long plyr_idx)
 {
   struct PlayerInfo *player;
-  if ((plyr_idx < 0) || (plyr_idx > PLAYERS_COUNT))
+  player = get_player(plyr_idx);
+  if (player_invalid(player))
     return false;
-  player = &game.players[plyr_idx];
   return (player->victory_state == VicS_WonLevel);
 }
 
 short player_has_lost(long plyr_idx)
 {
   struct PlayerInfo *player;
-  if ((plyr_idx < 0) || (plyr_idx > PLAYERS_COUNT))
+  player = get_player(plyr_idx);
+  if (player_invalid(player))
     return false;
-  player = &game.players[plyr_idx];
   return (player->victory_state == VicS_LostLevel);
 }
 
@@ -8676,33 +8657,31 @@ long compute_player_final_score(struct PlayerInfo *player,long gameplay_score)
 {
   struct PlayerInfo *myplyr;
   long i;
-  myplyr = &game.players[my_player_number%PLAYERS_COUNT];
+  myplyr = get_my_player();
   if (((game.numfield_A & 0x01) != 0) || !is_singleplayer_level(game.loaded_level_number))
     i = 2 * gameplay_score;
   else
     i = gameplay_score + 10 * gameplay_score * array_index_for_singleplayer_level(game.loaded_level_number) / 100;
-  if (player_has_lost(player->index))
+  if (player_has_lost(player->id_number))
     i /= 2;
   return i;
 }
 
 void set_player_as_won_level(struct PlayerInfo *player)
 {
-  struct PlayerInfo *myplyr;
   struct Dungeon *dungeon;
   if (player->victory_state != VicS_Undecided)
     return;
-  myplyr = &game.players[my_player_number%PLAYERS_COUNT];
-  if (myplyr->index == player->index)
+  if (is_my_player(player))
     frontstats_initialise();
   player->victory_state = VicS_WonLevel;
-  dungeon = get_dungeon(player->index);
+  dungeon = get_dungeon(player->id_number);
   // Computing player score
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->field_AE5[3]);
   dungeon->lvstats.allow_save_score = 1;
   if ((game.numfield_A & 0x01) == 0)
     player->field_4EB = game.play_gameturn + 300;
-  if (myplyr == player)
+  if (is_my_player(player))
   {
     if (knight_in_prison())
     {
@@ -8715,19 +8694,17 @@ void set_player_as_won_level(struct PlayerInfo *player)
 
 void set_player_as_lost_level(struct PlayerInfo *player)
 {
-  struct PlayerInfo *myplyr;
   struct Dungeon *dungeon;
   struct Thing *thing;
   if (player->victory_state != VicS_Undecided)
     return;
-  myplyr = &game.players[my_player_number%PLAYERS_COUNT];
-  if (myplyr->index == player->index)
+  if (is_my_player(player))
     frontstats_initialise();
   player->victory_state = VicS_LostLevel;
-  dungeon = get_dungeon(player->index);
+  dungeon = get_dungeon(player->id_number);
   // Computing player score
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->field_AE5[3]);
-  if (myplyr == player)
+  if (is_my_player(player))
   {
     output_message(105, 0, 1);
     turn_off_all_menus();
@@ -8737,14 +8714,14 @@ void set_player_as_lost_level(struct PlayerInfo *player)
   clear_things_in_hand(player);
   dungeon->field_63 = 0;
   if (dungeon->field_884 != 0)
-    turn_off_call_to_arms(player->index);
+    turn_off_call_to_arms(player->id_number);
   if (dungeon->field_5D8 > 0)
   {
     thing = thing_get(dungeon->field_5D8);
     delete_thing_structure(thing, 0);
     dungeon->field_5D8 = 0;
   }
-  if (myplyr == player)
+  if (is_my_player(player))
     gui_set_button_flashing(0, 0);
   set_player_mode(player, 1);
   set_player_state(player, 1, 0);
@@ -8753,7 +8730,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
   if ((game.numfield_A & 0x01) != 0)
     reveal_whole_map(player);
   if (dungeon->computer_enabled & 0x01)
-    toggle_computer_player(player->index);
+    toggle_computer_player(player->id_number);
 }
 
 TbBool move_campaign_to_next_level(void)
@@ -8790,7 +8767,7 @@ short complete_level(struct PlayerInfo *player)
 {
   long lvnum;
   SYNCDBG(6,"Starting");
-  if (player != &game.players[my_player_number%PLAYERS_COUNT])
+  if (!is_my_player(player))
     return false;
   if (game.numfield_A & 0x01)
   {
@@ -8849,8 +8826,9 @@ void init_lookups(void)
 
 void  toggle_ally_with_player(long plyridx, unsigned int allyidx)
 {
-  struct PlayerInfo *player=&(game.players[plyridx%PLAYERS_COUNT]);
-  player->field_2A ^= (1 << allyidx);
+  struct PlayerInfo *player;
+  player = get_player(plyridx);
+  player->allied_players ^= (1 << allyidx);
 }
 
 void set_mouse_light(struct PlayerInfo *player)
@@ -8892,7 +8870,7 @@ void keep_camera_zoom_level(struct Camera *cam,unsigned long prev_units_per_pixe
 void keep_local_camera_zoom_level(unsigned long prev_units_per_pixel_size)
 {
   struct PlayerInfo *player;
-  player = get_player(my_player_number);
+  player = get_my_player();
   if (player->acamera != NULL)
     keep_camera_zoom_level(player->acamera,prev_units_per_pixel_size);
 }
@@ -8993,7 +8971,7 @@ void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player)
       {
         if (is_my_player(player))
           output_message(special_desc[spkindidx].field_8, 0, 1);
-        create_special_used_effect(&pos, player->index);
+        create_special_used_effect(&pos, player->id_number);
       }
   }
 }
@@ -9010,7 +8988,7 @@ void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char ply
   struct CreatureControl *cctrl;
   struct Thing *thing;
   long i,k;
-  dungeon = (&game.dungeon[plyr_idx%PLAYERS_COUNT]);
+  dungeon = get_players_num_dungeon(plyr_idx);
   // Check if 'things' are correct
   if ((tng1->field_0 & 0x01) == 0)
     return;
@@ -9145,7 +9123,7 @@ void recompute_rooms_count_in_dungeons(void)
   long i,k;
   for (i=0; i < DUNGEONS_COUNT; i++)
   {
-    dungeon = (&game.dungeon[i]);
+    dungeon = get_dungeon(i);
     dungeon->field_93A = 0;
     for (k = 1; k < 17; k++)
     {
@@ -9194,8 +9172,8 @@ void check_players_lost(void)
   //_DK_check_players_lost();
   for (i=0; i < PLAYERS_COUNT; i++)
   {
-    player = &(game.players[i%PLAYERS_COUNT]);
-    dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+    player = get_player(i);
+    dungeon = get_players_dungeon(player);
     if (((player->field_0 & 0x01) != 0) && (player->field_2C == 1))
     {
       thing = thing_get(dungeon->dnheart_idx);
@@ -9259,8 +9237,8 @@ void count_dungeon_stuff(void)
 
   for (i=0; i < DUNGEONS_COUNT; i++)
   {
-    dungeon = (&game.dungeon[i]);
-    player = &(game.players[i%PLAYERS_COUNT]);
+    dungeon = get_dungeon(i);
+    player = get_player(i);
     if (player->field_0 & 0x01)
     {
       game.field_14E4A0 += dungeon->field_AF9;
@@ -9471,7 +9449,7 @@ short process_player_manufacturing(long plr_idx)
   SYNCDBG(17,"Starting");
 //  return _DK_process_player_manufacturing(plr_idx);
 
-  dungeon = &(game.dungeon[plr_idx%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(plr_idx);
   if (player_has_room_of_type(plr_idx, 8) == NULL)
     return true;
   if (dungeon->field_1189 == 0)
@@ -9507,8 +9485,8 @@ short process_player_manufacturing(long plr_idx)
       dungeon->lvstats.manufactured_traps++;
       dungeon->trap_placeable[i] = 1;
       // If that's local player - make a message
-      player=&(game.players[my_player_number%PLAYERS_COUNT]);
-      if (player->index == plr_idx)
+      player=get_my_player();
+      if (player->id_number == plr_idx)
         output_message(45, 0, 1);
       break;
   case 9:
@@ -9522,8 +9500,8 @@ short process_player_manufacturing(long plr_idx)
       dungeon->lvstats.manufactured_doors++;
       dungeon->door_placeable[i] = 1;
       // If that's local player - make a message
-      player=&(game.players[my_player_number%PLAYERS_COUNT]);
-      if (player->index == plr_idx)
+      player=get_my_player();
+      if (player->id_number == plr_idx)
         output_message(44, 0, 1);
       break;
   default:
@@ -9651,10 +9629,10 @@ void maintain_all_players_event_lists(void)
   long i;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
-    player = &(game.players[i]);
+    player = get_player(i);
     if ((player->field_0 & 0x01) != 0)
     {
-      dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+      dungeon = get_players_dungeon(player);
       maintain_my_event_list(dungeon);
     }
   }
@@ -9722,7 +9700,7 @@ void process_level_script(void)
 {
   SYNCDBG(6,"Starting");
   struct PlayerInfo *player;
-  player = get_player(my_player_number);
+  player = get_my_player();
   if (((game.numfield_A & 0x01) == 0) && (player->victory_state != VicS_Undecided))
     return;
   process_conditions();
@@ -9730,7 +9708,7 @@ void process_level_script(void)
 //script_process_messages(); is not here, but it is in beta - check why
   process_check_new_tunneller_partys();
   process_values();
-  process_win_and_lose_conditions(player->index);
+  process_win_and_lose_conditions(player->id_number);
 //  show_onscreen_msg(8, "Flags %d %d %d %d %d %d", game.dungeon[0].script_flags[0],game.dungeon[0].script_flags[1],
 //    game.dungeon[0].script_flags[2],game.dungeon[0].script_flags[3],game.dungeon[0].script_flags[4],game.dungeon[0].script_flags[5]);
   SYNCDBG(19,"Finished");
@@ -9825,7 +9803,7 @@ void update_research(void)
   SYNCDBG(6,"Starting");
   for (i=0; i<PLAYERS_COUNT; i++)
   {
-      player=&(game.players[i]);
+      player = get_player(i);
       if ((player->field_0 & 0x01) && (player->field_2C == 1))
       {
           process_player_research(i);
@@ -9840,7 +9818,7 @@ void update_manufacturing(void)
   SYNCDBG(6,"Starting");
   for (i=0; i<PLAYERS_COUNT; i++)
   {
-      player=&(game.players[i]);
+      player = get_player(i);
       if ((player->field_0 & 0x01) && (player->field_2C == 1))
       {
           process_player_manufacturing(i);
@@ -9855,7 +9833,7 @@ void update_all_players_cameras(void)
   SYNCDBG(6,"Starting");
   for (i=0; i<PLAYERS_COUNT; i++)
   {
-    player=&(game.players[i]);
+    player = get_player(i);
     if ((player->field_0 & 0x01) && ((player->field_0 & 0x40) == 0))
     {
           update_player_camera(player);
@@ -9871,7 +9849,7 @@ void update_light_render_area(void)
   int startx,endx,starty,endy;
   struct PlayerInfo *player;
   SYNCDBG(6,"Starting");
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  player=get_my_player();
   if (player->field_37 >= 1)
     if ((player->field_37 <= 2) || (player->field_37 == 5))
     {
@@ -9950,7 +9928,7 @@ void update_player_objectives(int plridx)
 {
   struct PlayerInfo *player;
   SYNCDBG(6,"Starting for player %d",plridx);
-  player=&(game.players[plridx]);
+  player = get_player(plridx);
   if (game.numfield_A & 0x01)
   {
     if ((!player->field_4EB) && (player->victory_state != VicS_Undecided))
@@ -9963,12 +9941,12 @@ void update_player_objectives(int plridx)
     case VicS_WonLevel:
         if (plridx == my_player_number)
           set_level_objective(gui_strings[0]); // Success message
-        display_objectives(player->index, 0, 0);
+        display_objectives(player->id_number, 0, 0);
         break;
     case VicS_LostLevel:
         if (plridx == my_player_number)
           set_level_objective(gui_strings[335]); // Defeated message
-        display_objectives(player->index, 0, 0);
+        display_objectives(player->id_number, 0, 0);
         break;
     }
   }
@@ -9983,7 +9961,7 @@ void process_players(void)
   process_player_states();
   for (i=0; i<PLAYERS_COUNT; i++)
   {
-      player=&(game.players[i]);
+      player = get_player(i);
       if ((player->field_0 & 0x01) && (player->field_2C == 1))
       {
           SYNCDBG(6,"Doing updates for player %d",i);
@@ -10047,7 +10025,7 @@ int clear_active_dungeons_stats(void)
   int i;
   for (i=0; i<=(game.field_14E496%DUNGEONS_COUNT); i++)
   {
-      dungeon = &(game.dungeon[i]);
+      dungeon = get_dungeon(i);
       memset((char *)dungeon->field_64, 0, 480 * sizeof(short));
       memset((char *)dungeon->job_breeds_count, 0, CREATURE_TYPES_COUNT*3*sizeof(unsigned short));
       memset((char *)dungeon->field_4E4, 0, CREATURE_TYPES_COUNT*3*sizeof(unsigned short));
@@ -10078,7 +10056,7 @@ void update_player_sounds(void)
   SYNCDBG(7,"Starting");
   if ((game.numfield_C & 0x01) == 0)
   {
-    player = get_player(my_player_number);
+    player = get_my_player();
     process_messages();
     if (!SoundDisabled)
     {
@@ -10124,7 +10102,7 @@ void update(void)
 
   if ((game.numfield_C & 0x01) == 0)
   {
-    player = get_player(my_player_number);
+    player = get_my_player();
     if (player->field_3 & 0x08)
     {
       PaletteSetPlayerPalette(player, _DK_palette);
@@ -10146,7 +10124,7 @@ void update(void)
       process_computer_players2();
     process_players();
     process_action_points();
-    player = get_player(my_player_number);
+    player = get_my_player();
     if (player->field_37 == 1)
       update_flames_nearest_camera(player->acamera);
     update_footsteps_nearest_camera(player->acamera);
@@ -10332,8 +10310,8 @@ void draw_2d_map(void)
   struct PlayerInfo *player;
   SYNCDBG(8,"Starting");
   //_DK_draw_2d_map();
-  player = get_player(my_player_number);
-  draw_overhead_map(player->index);
+  player = get_my_player();
+  draw_overhead_map(player->id_number);
   draw_overhead_things(150, 56);
   draw_overhead_room_icons(150, 56);
 }
@@ -10562,15 +10540,15 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
     set_pointer_graphic(0);
     return;
   }
-  player = get_player(my_player_number);
+  player = get_my_player();
   thing = thing_get(tng_idx);
   allow_cast = false;
   pwrdata = get_power_data(spl_id);
-  if ((tng_idx == 0) || (thing->owner == player->index) || (pwrdata->flag_1A != 0))
+  if ((tng_idx == 0) || (thing->owner == player->id_number) || (pwrdata->flag_1A != 0))
   {
-    if (can_cast_spell_at_xy(player->index, spl_id, stl_x, stl_y, 0))
+    if (can_cast_spell_at_xy(player->id_number, spl_id, stl_x, stl_y, 0))
     {
-      if ((tng_idx == 0) || can_cast_spell_on_creature(player->index, thing, spl_id))
+      if ((tng_idx == 0) || can_cast_spell_on_creature(player->id_number, thing, spl_id))
       {
         allow_cast = true;
       }
@@ -10606,8 +10584,8 @@ void process_pointer_graphic(void)
   struct Thing *thing;
   long i;
   //_DK_process_pointer_graphic(); return;
-  player = get_player(my_player_number);
-  dungeon = get_dungeon(player->index);
+  player = get_my_player();
+  dungeon = get_dungeon(player->id_number);
   SYNCDBG(6,"Starting for view %d, player state %d, instance %d",(int)player->view_type,(int)player->work_state,(int)player->instance_num);
   switch (player->view_type)
   {
@@ -10662,7 +10640,7 @@ void process_pointer_graphic(void)
           case 3:
               thing = thing_get(player->thing_under_hand);
               if ((!thing_is_invalid(thing)) && (player->field_4) && (dungeon->things_in_hand[0] != player->thing_under_hand)
-                  && can_thing_be_possessed(thing, player->index))
+                  && can_thing_be_possessed(thing, player->id_number))
               {
                 if (is_feature_on(Ft_BigPointer))
                 {
@@ -10674,7 +10652,7 @@ void process_pointer_graphic(void)
                 player->field_6 |= 0x01;
               } else
               if ((!thing_is_invalid(thing)) && (player->field_5) && (dungeon->things_in_hand[0] != player->thing_under_hand)
-                  && can_thing_be_queried(thing, player->index))
+                  && can_thing_be_queried(thing, player->id_number))
               {
                 set_pointer_graphic(4);
                 player->field_6 |= 0x01;
@@ -10891,8 +10869,8 @@ void draw_power_hand(void)
   struct RoomData *rdata;
   long x,y;
   //_DK_draw_power_hand(); return;
-  player = get_player(my_player_number);
-  dungeon = get_dungeon(player->index);
+  player = get_my_player();
+  dungeon = get_dungeon(player->id_number);
   if ((player->field_6 & 0x01) != 0)
     return;
   if (game.small_map_state == 2)
@@ -10906,7 +10884,7 @@ void draw_power_hand(void)
     x = game.field_1517FD;
     y = game.field_1517FF;
     room = subtile_room_get(x,y);
-    if ((!room_is_invalid(room)) && (subtile_revealed(x, y, player->index)))
+    if ((!room_is_invalid(room)) && (subtile_revealed(x, y, player->id_number)))
     {
       rdata = room_data_get_for_room(room);
       draw_gui_panel_sprite_centered(GetMouseX()+24, GetMouseY()+32, rdata->numfield_1);
@@ -11051,7 +11029,7 @@ short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, lon
     y = 0;
   }
   do_map_rotate_stuff(x, y, &curr_x, &curr_y, zoom);
-  player = get_player(my_player_number);
+  player = get_my_player();
   game.field_1517FD = curr_x;
   game.field_1517FF = curr_y;
   if (subtile_has_slab(curr_x, curr_y))
@@ -11067,7 +11045,7 @@ short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, lo
   struct PlayerInfo *player;
   short result;
   result = 0;
-  player = get_player(my_player_number);
+  player = get_my_player();
   if ((left_button_released) && (clicked_on_small_map))
   {
       if (grabbed_small_map)
@@ -11254,12 +11232,12 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
   do_map_rotate_stuff(curr_mx-start_x-58, curr_my-start_y-58, &x, &y, zoom);
   game.field_1517FD = x;
   game.field_1517FF = y;
-  player = get_player(my_player_number);
-  dungeon = get_dungeon(player->index);
+  player = get_my_player();
+  dungeon = get_dungeon(player->id_number);
   thing = get_first_thing_in_power_hand(player);
   if (!thing_is_invalid(thing))
   {
-    if (can_place_thing_here(thing, x, y, player->index))
+    if (can_place_thing_here(thing, x, y, player->id_number))
       game.small_map_state = 1;
   }
   if (right_button_clicked)
@@ -11292,12 +11270,12 @@ void draw_whole_status_panel(void)
   struct Dungeon *dungeon;
   struct PlayerInfo *player;
   long mmzoom;
-  player = get_player(my_player_number);
+  player = get_my_player();
   dungeon = get_players_num_dungeon(my_player_number);
   lbDisplay.DrawColour = colours[15][15][15];
   lbDisplay.DrawFlags = 0;
   DrawBigSprite(0, 0, &status_panel, gui_panel_sprites);
-  draw_gold_total(player->index, 60, 134, dungeon->field_AF9);
+  draw_gold_total(player->id_number, 60, 134, dungeon->field_AF9);
   if (pixel_size < 3)
       mmzoom = (player->minimap_zoom) / (3-pixel_size);
   else
@@ -11313,7 +11291,7 @@ void redraw_creature_view(void)
   struct PlayerInfo *player;
   struct Thing *thing;
   //_DK_redraw_creature_view(); return;
-  player = get_player(my_player_number);
+  player = get_my_player();
   if (player->field_45F != 2)
     player->field_45F = 2;
   update_explored_flags_for_power_sight(player);
@@ -11419,7 +11397,7 @@ void redraw_isometric_view(void)
   SYNCDBG(6,"Starting");
   //_DK_redraw_isometric_view(); return;
 
-  player = get_player(my_player_number);
+  player = get_my_player();
   memcpy(&pos,&player->acamera->mappos,sizeof(struct Coord3d));
   if (player->field_45F != 1)
     player->field_45F = 1;
@@ -11463,7 +11441,7 @@ void redraw_frontview(void)
   //_DK_redraw_frontview();
   struct PlayerInfo *player;
   long w,h;
-  player = get_player(my_player_number);
+  player = get_my_player();
   update_explored_flags_for_power_sight(player);
   if ((game.flags_font & FFlg_unk08) != 0)
   {
@@ -11540,7 +11518,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
   long spridx;
   unsigned long k;
   long i;
-  player = get_player(my_player_number);
+  player = get_my_player();
   k = 0;
   i = get_mapwho_thing_index(mapblk);
   while (i != 0)
@@ -11571,7 +11549,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
         draw_status_sprites((spos_x+scr_x)/pixel_size - 10, (spos_y+scr_y-20)/pixel_size, thing, 4096);
         break;
       case TCls_Trap:
-        if ((!thing->byte_17.h) && (player->index != thing->owner))
+        if ((!thing->byte_17.h) && (player->id_number != thing->owner))
           break;
         spridx = trap_data[thing->model].field_A;
         draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
@@ -11650,7 +11628,7 @@ void draw_zoom_box(void)
     scrtop_y = MyScreenHeight-map_tiles_y*subtile_size;
   if (scrtop_y < 0)
       scrtop_y = 0;
-  player = get_player(my_player_number);
+  player = get_my_player();
 
   scr_y = scrtop_y;
   for (map_dy=0; map_dy < map_tiles_y; map_dy++)
@@ -11659,7 +11637,7 @@ void draw_zoom_box(void)
     for (map_dx=0; map_dx < map_tiles_x; map_dx++)
     {
       mapblk = get_map_block_at(map_x+map_dx,map_y+map_dy);
-      if (map_block_revealed(mapblk, player->index))
+      if (map_block_revealed(mapblk, player->id_number))
       {
         k = element_top_face_texture(mapblk);
         draw_texture(scr_x, scr_y, subtile_size, subtile_size, k, 0, -1);
@@ -11684,7 +11662,7 @@ void draw_zoom_box(void)
     for (map_dx=0; map_dx < map_tiles_x; map_dx++)
     {
       mapblk = get_map_block_at(map_x+map_dx,map_y+map_dy);
-      if (map_block_revealed(mapblk, player->index))
+      if (map_block_revealed(mapblk, player->id_number))
       {
         draw_zoom_box_things_on_mapblk(mapblk,subtile_size,scr_x,scr_y);
       }
@@ -11818,7 +11796,7 @@ void engine(struct Camera *cam)
   SYNCDBG(9,"Starting");
   //_DK_engine(cam); return;
 
-  player = get_player(my_player_number);
+  player = get_my_player();
   flg_mem = lbDisplay.DrawFlags;
   update_engine_settings(player);
   mx = cam->mappos.x.val;
@@ -11951,7 +11929,7 @@ void redraw_display(void)
   char *text;
   struct PlayerInfo *player;
   SYNCDBG(5,"Starting");
-  player = get_player(my_player_number);
+  player = get_my_player();
   set_flag_byte(&player->field_6,0x01,false);
   if (game.flagfield_14EA4A == 1)
     return;
@@ -12183,7 +12161,7 @@ TbBool keeper_screen_redraw(void)
 {
   struct PlayerInfo *player;
   SYNCDBG(5,"Starting");
-  player = get_player(my_player_number);
+  player = get_my_player();
   LbScreenClear(0);
   if (LbScreenLock() == Lb_SUCCESS)
   {
@@ -12258,7 +12236,7 @@ void keeper_gameplay_loop(void)
   short do_draw;
   struct PlayerInfo *player;
   SYNCDBG(5,"Starting");
-  player = get_player(my_player_number);
+  player = get_my_player();
   PaletteSetPlayerPalette(player, _DK_palette);
   if ((game.numfield_C & 0x02) != 0)
     initialise_eye_lenses();
@@ -12515,9 +12493,9 @@ void init_dungeons(void)
   struct Dungeon *dungeon;
   for (i=0; i < DUNGEONS_COUNT; i++)
   {
-    dungeon = &(game.dungeon[game.field_14E496%DUNGEONS_COUNT]);
+    dungeon = get_dungeon(game.field_14E496);
     dungeon->hates_player[i%DUNGEONS_COUNT] = game.fight_max_hate;
-    dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+    dungeon = get_dungeon(i);
     dungeon->hates_player[game.field_14E496%DUNGEONS_COUNT] = game.fight_max_hate;
     dungeon->field_918 = 0;
     dungeon->field_919 = 0;
@@ -12992,7 +12970,7 @@ void init_level(void)
   lens_mode = 0;
   setup_heap_manager();
   load_computer_player_config();
-  init_good_player_as(hero_player);
+  init_good_player_as(hero_player_number);
 
   light_set_lights_on(1);
   start_rooms = &game.rooms[1];
@@ -13097,7 +13075,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
   player->mouse_x = 10;
   player->mouse_y = 12;
   player->minimap_zoom = 256;
-  player->field_4D1 = player->index;
+  player->field_4D1 = player->id_number;
   setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
   player->field_456 = 1;
   player->work_state = 1;
@@ -13142,7 +13120,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
   {
     init_player_music(player);
   }
-  player->field_2A = (1 << player->index);
+  player->allied_players = (1 << player->id_number);
   player->field_10 = 0;
 }
 
@@ -13152,11 +13130,11 @@ void init_players(void)
   int i;
   for (i=0;i<PLAYERS_COUNT;i++)
   {
-    player=&(game.players[i]);
+    player = get_player(i);
     player->field_0 ^= (player->field_0 ^ ((game.packet_save_head.field_C & (1 << i)) >> i)) & 1;
     if (player->field_0 & 0x01)
     {
-      player->index = i;
+      player->id_number = i;
       player->field_0 ^= (player->field_0 ^ (((game.packet_save_head.field_D & (1 << i)) >> i) << 6)) & 0x40;
       if ((player->field_0 & 0x40) == 0)
       {
@@ -13177,8 +13155,8 @@ TbBool create_transferred_creature_on_level(void)
   struct Coord3d *pos;
   if (game.transfered_creature.model > 0)
   {
-    player = get_player(my_player_number);
-    dungeon = get_dungeon(player->index);
+    player = get_my_player();
+    dungeon = get_dungeon(player->id_number);
     thing = thing_get(dungeon->dnheart_idx);
     pos = &(thing->mappos);
     thing = create_creature(pos, game.transfered_creature.model, 5);
@@ -13194,6 +13172,7 @@ TbBool create_transferred_creature_on_level(void)
 void post_init_level(void)
 {
   SYNCDBG(8,"Starting");
+  struct Dungeon *dungeon;
   //_DK_post_init_level(); return;
   if (game.packet_save_enable)
     open_new_packet_file_for_save();
@@ -13202,10 +13181,11 @@ void post_init_level(void)
   int i,k;
   for (i=0; i < DUNGEONS_COUNT; i++)
   {
-    for (k=0; k < CREATURE_TYPES_COUNT; k++)
-    {
-      game.dungeon[i].creature_max_level[k] = 10;
-    }
+      dungeon = get_dungeon(i);
+      for (k=0; k < CREATURE_TYPES_COUNT; k++)
+      {
+        dungeon->creature_max_level[k] = 10;
+      }
   }
   clear_creature_pool();
   setup_computer_players2();
@@ -13241,7 +13221,7 @@ void setup_alliances(void)
   struct PlayerInfo *player;
   for (i=0; i<PLAYERS_COUNT; i++)
   {
-      player = &(game.players[i]);
+      player = get_player(i);
       if ((i != my_player_number) && (player->field_0 & 0x01))
       {
           if (frontend_is_player_allied(my_player_number, i))
@@ -13265,7 +13245,7 @@ short perform_checksum_verification()
   unsigned long checksum_mem;
   short result;
   int i;
-  player = get_player(my_player_number);
+  player = get_my_player();
   result = true;
   checksum_mem = 0;
   for (i=1; i<THINGS_COUNT; i++)
@@ -13305,7 +13285,7 @@ short setup_select_player_number(void)
   SYNCDBG(6,"Starting");
   for (i=0; i<NET_PLAYERS_COUNT; i++)
   {
-      player=&(game.players[i%PLAYERS_COUNT]);
+      player = get_player(i);
       if ( net_player_info[i].field_20 )
       {
         player->packet_num = i;
@@ -13327,7 +13307,7 @@ void setup_exchange_player_number(void)
   int i,k;
   SYNCDBG(6,"Starting");
   clear_packets();
-  player = get_player(my_player_number);
+  player = get_my_player();
   pckt = get_packet_direct(my_player_number);
   set_packet_action(pckt, 10, player->field_2C, settings.field_3, 0, 0);
   if (LbNetwork_Exchange(pckt))
@@ -13338,8 +13318,8 @@ void setup_exchange_player_number(void)
       pckt = get_packet_direct(i);
       if ((net_player_info[i].field_20) && (pckt->action == 10))
       {
-          player = &(game.players[k%PLAYERS_COUNT]);
-          player->index = k;
+          player = get_player(k);
+          player->id_number = k;
           player->field_0 |= 0x01;
           if (pckt->field_8 < 1)
             player->field_4B5 = 2;
@@ -13357,8 +13337,8 @@ void init_players_local_game(void)
 {
   struct PlayerInfo *player;
   SYNCDBG(4,"Starting");
-  player = get_player(my_player_number);
-  player->index = my_player_number;
+  player = get_my_player();
+  player->id_number = my_player_number;
   player->field_0 |= 0x01;
   if (settings.field_3 < 1u)
     player->field_4B5 = 2;
@@ -13439,7 +13419,7 @@ void faststartup_saved_packet_game(void)
   struct PlayerInfo *player;
   reenter_video_mode();
   startup_saved_packet_game();
-  player = get_player(my_player_number);
+  player = get_my_player();
   player->field_6 &= 0xFDu;
   set_gui_visible(false);
   set_flag_byte(&game.numfield_C,0x40,false);
@@ -13452,10 +13432,10 @@ void startup_network_game(void)
   unsigned int flgmem;
   struct PlayerInfo *player;
   setup_count_players();
-  player = get_player(my_player_number);
+  player = get_my_player();
   flgmem = player->field_2C;
   init_level();
-  player = get_player(my_player_number);
+  player = get_my_player();
   player->field_2C = flgmem;
   if (game.flagfield_14EA4A == 2)
   {
@@ -13483,10 +13463,10 @@ void faststartup_network_game(void)
     if (!change_campaign(""))
       ERRORLOG("Unable to load campaign");
   }
-  player=&(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   player->field_2C = 1;
   startup_network_game();
-  player = get_player(my_player_number);
+  player = get_my_player();
   player->field_6 &= 0xFDu;
 }
 
@@ -13612,7 +13592,7 @@ void wait_at_frontend(void)
   frontend_set_state(0);
   if (exit_keeper)
   {
-    player = get_player(my_player_number);
+    player = get_my_player();
     player->field_6 &= 0xFDu;
     return;
   }
@@ -13626,14 +13606,14 @@ void wait_at_frontend(void)
         my_player_number = default_loc_player;
         game.flagfield_14EA4A = 2;
         game.numfield_A &= 0xFFFEu;
-        player = get_player(my_player_number);
+        player = get_my_player();
         player->field_2C = 1;
         startup_network_game();
         break;
   case 8:
         game.numfield_A |= 0x01;
         game.flagfield_14EA4A = 5;
-        player = get_player(my_player_number);
+        player = get_my_player();
         player->field_2C = 1;
         startup_network_game();
         break;
@@ -13659,7 +13639,7 @@ void wait_at_frontend(void)
         set_flag_byte(&game.numfield_C,0x40,false);
         break;
   }
-  player = get_player(my_player_number);
+  player = get_my_player();
   player->field_6 &= 0xFDu;
 }
 
@@ -13678,7 +13658,7 @@ void game_loop(void)
     if ( exit_keeper )
       break;
     struct PlayerInfo *player;
-    player = get_player(my_player_number);
+    player = get_my_player();
     if ( game.flagfield_14EA4A == 2 )
     {
       if ( game.numfield_15 == -1 )
@@ -14006,13 +13986,15 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
 #if (BFDEBUG_LEVEL > 1)
 /*  {
-      struct PlayerInfo *player=&(game.players[0]);
+      struct PlayerInfo *player;
+      player = get_player(0);
       text = buf_sprintf("Position of the first Player is %06x, first Camera is %06x bytes.\n",((int)player) - ((int)&_DK_game),((int)&(player->acamera)) - ((int)player));
       error_dialog(__func__, 1, text);
       return 0;
   }
   {
-      struct Dungeon *dungeon=&(game.dungeon[0]);
+      struct Dungeon *dungeon;
+      dungeon = get_dungeon(0);
       text = buf_sprintf("Position of the first Dungeon is %06x, field_ACF is at %06x bytes.\n",
                   ((int)dungeon) - ((int)&game),((int)(&dungeon->field_ACF)) - ((int)dungeon));
       error_dialog(__func__, 1, text);

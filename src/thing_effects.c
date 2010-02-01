@@ -206,7 +206,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
           LbPaletteFade(_DK_palette, 8, Lb_PALETTE_FADE_OPEN);
         } else
         {
-          player = &(game.players[my_player_number%PLAYERS_COUNT]);
+          player = get_my_player();
           PaletteSetPlayerPalette(player, _DK_palette);
           LbPaletteStopOpenFade();
         }

@@ -135,9 +135,9 @@ void set_players_packet_position(struct PlayerInfo *player, long x, long y)
 struct Packet *get_packet(long plyr_idx)
 {
   struct PlayerInfo *player;
-  if ((plyr_idx < 0) || (plyr_idx >= PLAYERS_COUNT))
+  player = get_player(plyr_idx);
+  if (player_invalid(player))
     return INVALID_PACKET;
-  player = &(game.players[plyr_idx]);
   if (player->packet_num >= PACKETS_COUNT)
     return INVALID_PACKET;
   return &game.packets[player->packet_num];
@@ -166,11 +166,11 @@ short set_packet_pause_toggle(void)
 {
   struct PlayerInfo *player;
   struct Packet *pckt;
-  if (my_player_number >= PLAYERS_COUNT)
-    return false;
-  player=&(game.players[my_player_number]);
+  player = get_my_player();
+  if (player_invalid(player))
+      return false;
   if (player->packet_num >= PACKETS_COUNT)
-    return false;
+      return false;
   pckt = get_packet_direct(player->packet_num);
   set_packet_action(pckt, PckA_TogglePause, 0, 0, 0, 0);
   return true;
@@ -185,7 +185,7 @@ TbBigChecksum compute_players_checksum(void)
   sum = 0;
   for (i=0; i<PLAYERS_COUNT; i++)
   {
-    player=&(game.players[i%PLAYERS_COUNT]);
+    player = get_player(i);
     if (((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0) && (player->acamera != NULL))
     {
         mappos = &(player->acamera->mappos);
@@ -218,7 +218,7 @@ short checksums_different(void)
   is_set = false;
   for (i=0; i<PLAYERS_COUNT; i++)
   {
-    player=&(game.players[i]);
+    player = get_player(i);
     if (((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0))
     {
         pckt = get_packet_direct(player->packet_num);
@@ -262,7 +262,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
   MapCoord x,y;
   long k;
   player = get_player(plyr_idx);
-  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
+  dungeon = &(game.dungeon[player->id_number%DUNGEONS_COUNT]);
   k = game.room_stats[rkind].cost;
   if (!i_can_allocate_free_room_structure())
   {
@@ -310,7 +310,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
   long i,k;
 
   player = get_player(plyr_idx);
-  dungeon = &(game.dungeon[player->index%DUNGEONS_COUNT]);
+  dungeon = &(game.dungeon[player->id_number%DUNGEONS_COUNT]);
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Starting for state %d",(int)player->work_state);
   player->field_4A4 = 1;
@@ -398,23 +398,23 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         if (!thing_is_invalid(thing))
         {
           if (player->field_43A == 0)
-            create_power_hand(player->index);
+            create_power_hand(player->id_number);
           player->thing_under_hand = thing->index;
         }
         thing = get_first_thing_in_power_hand(player);
         if (!thing_is_invalid(thing))
         {
           if (player->field_43A == 0)
-            create_power_hand(player->index);
+            create_power_hand(player->id_number);
           i = thing_is_creature_special_digger(thing);
-          if (can_drop_thing_here(stl_x, stl_y, player->index, i)
-            || !can_dig_here(stl_x, stl_y, player->index))
+          if (can_drop_thing_here(stl_x, stl_y, player->id_number, i)
+            || !can_dig_here(stl_x, stl_y, player->id_number))
           {
-            tag_cursor_blocks_thing_in_hand(player->index, stl_x, stl_y, i, player->field_4A4);
+            tag_cursor_blocks_thing_in_hand(player->id_number, stl_x, stl_y, i, player->field_4A4);
           } else
           {
             player->field_3 |= 0x02u;
-            tag_cursor_blocks_dig(player->index, stl_x, stl_y, player->field_4A4);
+            tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->field_4A4);
           }
         }
         if (player->field_43A != 0)
@@ -447,7 +447,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         if (is_my_player(player) && !game_is_busy_doing_gui())
         {
           if (player->field_454 == 1)
-            tag_cursor_blocks_dig(player->index, stl_x, stl_y, player->field_4A4);
+            tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->field_4A4);
         }
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
         {
@@ -530,7 +530,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
                 } else
                 if (dungeon->field_E8F < 300)
                 {
-                  if (can_dig_here(stl_x, stl_y, player->index))
+                  if (can_dig_here(stl_x, stl_y, player->id_number))
                     tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
                 } else
                 if (is_my_player(player))
@@ -614,7 +614,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if (!power_hand_is_empty(player))
           {
-            if (dump_held_things_on_map(player->index, stl_x, stl_y, 1))
+            if (dump_held_things_on_map(player->id_number, stl_x, stl_y, 1))
             {
               player->field_4AF = 0;
               unset_packet_control(pckt, PCtr_RBtnRelease);
@@ -642,7 +642,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       player->field_4A4 = 1;
       if (is_my_player(player))
         gui_room_type_highlighted = player->field_4A3;
-      i = tag_cursor_blocks_place_room(player->index, stl_x, stl_y, player->field_4A4);
+      i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->field_4A4);
       if ((pckt->control_flags & PCtr_LBtnClick) == 0)
       {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
@@ -895,7 +895,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
       player->field_4A4 = 1;
-      i = tag_cursor_blocks_place_trap(player->index, stl_x, stl_y);
+      i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y);
       if ((pckt->control_flags & PCtr_LBtnClick) == 0)
       {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
@@ -944,12 +944,12 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       {
         player->field_4A4 = 1;
         // Make the frame around active slab
-        i = tag_cursor_blocks_place_door(player->index, stl_x, stl_y);
+        i = tag_cursor_blocks_place_door(player->id_number, stl_x, stl_y);
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
         {
           k = map_tiles_x * map_to_slab[stl_y] + map_to_slab[stl_x];
           delete_room_slabbed_objects(k);
-          packet_place_door(stl_x, stl_y, player->index, player->field_4A6, i);
+          packet_place_door(stl_x, stl_y, player->id_number, player->field_4A6, i);
         }
         unset_packet_control(pckt, PCtr_LBtnClick);
       }
@@ -1043,7 +1043,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       if (is_my_player(player))
       {
         if (!game_is_busy_doing_gui())
-          tag_cursor_blocks_sell_area(player->index, stl_x, stl_y, player->field_4A4);
+          tag_cursor_blocks_sell_area(player->id_number, stl_x, stl_y, player->field_4A4);
       }
       if ((pckt->control_flags & PCtr_LBtnClick) == 0)
       {
@@ -1209,7 +1209,7 @@ void open_new_packet_file_for_save(void)
   game.packet_save_head.chksum = game.packet_checksum;
   for (i=0; i<PLAYERS_COUNT; i++)
   {
-    player=&(game.players[i%PLAYERS_COUNT]);
+    player = get_player(i);
     if (player->field_0 & 0x01)
     {
       game.packet_save_head.field_C |= (1 << i) & 0xff;
@@ -1324,7 +1324,7 @@ void process_pause_packet(long a1, long a2)
   can = true;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
-    player = &(game.players[i%PLAYERS_COUNT]);
+    player = get_player(i);
     if (((player->field_0 & 0x01) != 0) && (player->field_2C == 1))
     {
         if ((player->field_0 & 0x40) == 0)
@@ -1342,7 +1342,7 @@ void process_pause_packet(long a1, long a2)
   }
   if ( can )
   {
-    player = &(game.players[my_player_number%PLAYERS_COUNT]);
+    player = get_my_player();
     set_flag_byte(&game.numfield_C, 0x01, a1);
     if ((game.numfield_C & 0x01) != 0)
       set_flag_byte(&game.numfield_C, 0x80, a2);
@@ -1380,7 +1380,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
   struct Camera *cam;
   unsigned long zoom_min,zoom_max;
   SYNCDBG(6,"Starting");
-  player = &(game.players[plyr_idx]);
+  player = get_player(plyr_idx);
   pckt = get_packet_direct(player->packet_num);
   cam = player->acamera;
   long inter_val;
@@ -1468,7 +1468,7 @@ void process_players_message_character(struct PlayerInfo *player)
   struct Packet *pcktd;
   char chr;
   int chpos;
-  pcktd = get_packet(player->index);
+  pcktd = get_packet(player->id_number);
   if (pcktd->field_6 > 0)
   {
     chr = key_to_ascii(pcktd->field_6, pcktd->field_8);
@@ -1501,7 +1501,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
   int i;
 
   plyr_count = 0;
-  myplyr = &game.players[my_player_number%PLAYERS_COUNT];
+  myplyr = get_my_player();
   if ((game.numfield_A & 0x01) != 0)
   {
     winning_quit = winning_player_quitting(player, &plyr_count);
@@ -1510,7 +1510,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
       // Set other players as losers
       for (i=0; i < PLAYERS_COUNT; i++)
       {
-        swplyr = &(game.players[i]);
+        swplyr = get_player(i);
         if ((swplyr->field_0 & 0x01) != 0)
         {
           if (swplyr->field_2C == 1)
@@ -1536,7 +1536,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
         } else
         {
           player->field_0 |= 0x40;
-          toggle_computer_player(player->index);
+          toggle_computer_player(player->id_number);
         }
         if (player == myplyr)
         {
@@ -1558,7 +1558,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
     {
       for (i=0; i < PLAYERS_COUNT; i++)
       {
-        swplyr = &(game.players[i]);
+        swplyr = get_player(i);
         if ((swplyr->field_0 & 0x01) != 0)
         {
           swplyr->field_0 &= 0xFEu;
@@ -1592,7 +1592,7 @@ char process_players_global_packet_action(long plyr_idx)
   struct Room *room;
   int i;
   SYNCDBG(6,"Starting");
-  player=&(game.players[plyr_idx%PLAYERS_COUNT]);
+  player = get_player(plyr_idx);
   pckt = get_packet_direct(player->packet_num);
   switch (pckt->action)
   {
@@ -1652,7 +1652,7 @@ char process_players_global_packet_action(long plyr_idx)
     case PckA_PlyrMsgEnd:
       player->field_0 &= 0xFBu;
       if (player->strfield_463[0] != '\0')
-        message_add(player->index);
+        message_add(player->id_number);
       memset(player->strfield_463, 0, 64);
       return 0;
     case PckA_ToggleLights:
@@ -1728,7 +1728,7 @@ char process_players_global_packet_action(long plyr_idx)
       //TODO: remake from beta
       return 0;
     case PckA_CheatRevealMap:
-      myplyr = &(game.players[my_player_number%PLAYERS_COUNT]);
+      myplyr = get_my_player();
       reveal_whole_map(myplyr);
       return 0;
     case PckA_CheatCrAllSpls:
@@ -1757,7 +1757,7 @@ char process_players_global_packet_action(long plyr_idx)
       set_player_mode(player, pckt->field_6);
       return 0;
     case 81:
-      myplyr=&(game.players[my_player_number%PLAYERS_COUNT]);
+      myplyr=get_my_player();
       set_player_cameras_position(player, pckt->field_6 << 8, pckt->field_8 << 8);
       player->cameras[2].orient_a = 0;
       player->cameras[3].orient_a = 0;
@@ -1941,7 +1941,7 @@ void process_players_map_packet_control(long idx)
   struct Packet *pckt;
   unsigned short x,y;
   SYNCDBG(6,"Starting");
-  player=&(game.players[idx%PLAYERS_COUNT]);
+  player = get_player(idx);
   pckt = get_packet_direct(player->packet_num);
   x = (3*pckt->pos_x - 450)/4 - 6;
   y = (3*pckt->pos_y - 168)/4 - 6;
@@ -1963,7 +1963,7 @@ void process_players_packet(long idx)
 {
   struct PlayerInfo *player;
   struct Packet *pckt;
-  player=&(game.players[idx%PLAYERS_COUNT]);
+  player = get_player(idx);
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d packet of type %d.",idx,(int)pckt->action);
   player->field_4 = (pckt->field_10 & 0x20) >> 5;
@@ -2002,7 +2002,7 @@ void process_players_creature_passenger_packet_action(long idx)
   struct PlayerInfo *player;
   struct Packet *pckt;
   SYNCDBG(6,"Starting");
-  player=&(game.players[idx%PLAYERS_COUNT]);
+  player = get_player(idx);
   pckt = get_packet_direct(player->packet_num);
   if (pckt->action == 32)
   {
@@ -2017,7 +2017,7 @@ TbBool process_players_dungeon_control_packet_action(long idx)
   SYNCDBG(6,"Starting");
   struct PlayerInfo *player;
   struct Packet *pckt;
-  player = &(game.players[idx%PLAYERS_COUNT]);
+  player = get_player(idx);
   pckt = get_packet_direct(player->packet_num);
   switch (pckt->action)
   {
@@ -2057,7 +2057,7 @@ void process_players_creature_control_packet_action(long idx)
   struct Packet *pckt;
   long i,k;
   SYNCDBG(6,"Starting");
-  player = &(game.players[idx%PLAYERS_COUNT]);
+  player = get_player(idx);
   pckt = get_packet_direct(player->packet_num);
   switch (pckt->action)
   {
@@ -2186,7 +2186,7 @@ void process_packets(void)
   // Exchange packets with the network
   if (game.flagfield_14EA4A != 2)
   {
-    player = &(game.players[my_player_number%PLAYERS_COUNT]);
+    player = get_my_player();
     j=0;
     for (i=0; i<4; i++)
     {
@@ -2211,7 +2211,7 @@ void process_packets(void)
     {
       for (i=0; i<4; i++)
       {
-        player=&(game.players[i]);
+        player = get_player(i);
         if (net_player_info[player->packet_num%NET_PLAYERS_COUNT].field_20 == 0)
         {
           player->field_0 |= 0x40;
@@ -2248,7 +2248,7 @@ void process_packets(void)
   // Process the packets
   for (i=0; i<PACKETS_COUNT; i++)
   {
-    player=&(game.players[i]);
+    player = get_player(i);
     if (((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0))
       process_players_packet(i);
   }
@@ -2319,7 +2319,7 @@ void process_frontend_packets(void)
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
     nspckt = &net_screen_packet[i];
-    player = &(game.players[i]);
+    player = get_player(i);
     if ((nspckt->field_4 & 0x01) != 0)
     {
       switch (nspckt->field_4 >> 3)

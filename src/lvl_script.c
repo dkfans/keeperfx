@@ -717,9 +717,9 @@ TbBool get_map_location_id_f(char *locname, TbMapLocation *location, const char 
 TbBool script_support_setup_player_as_computer_keeper(unsigned short plyridx, long comp_model)
 {
   struct PlayerInfo *player;
-  player = &(game.players[plyridx%PLAYERS_COUNT]);
+  player = get_player(plyridx);
   player->field_0 |= 0x01;
-  player->index = plyridx;
+  player->id_number = plyridx;
   player->field_2C = 1;
   player->field_0 |= 0x40;
   init_player_start(player);
@@ -3142,7 +3142,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_SET_CREATURE_TENDENCIES:
       for (i=plr_start; i < plr_end; i++)
       {
-        player = &(game.players[i%PLAYERS_COUNT]);
+        player = get_player(i);
         set_creature_tendencies(player, val2, val3);
       }
       break;

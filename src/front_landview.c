@@ -151,7 +151,7 @@ void update_ensigns_visibility(void)
   short show_all_sp;
   SYNCDBG(18,"Starting");
   set_all_ensigns_state(LvSt_Hidden);
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   show_all_sp = false;
   lvnum = get_continue_level_number();
   if (lvnum > 0)
@@ -201,7 +201,7 @@ void update_net_ensigns_visibility(void)
   long lvnum;
   SYNCDBG(18,"Starting");
   set_all_ensigns_state(LvSt_Hidden);
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   lvnum = first_multiplayer_level();
   while (lvnum > 0)
   {
@@ -955,7 +955,7 @@ TbBool frontmap_load(void)
   frontend_load_data_reset();
   if ((game.flags_cd & 0x10) == 0)
     PlayRedbookTrack(2);
-  player = &(game.players[my_player_number%PLAYERS_COUNT]);
+  player = get_my_player();
   lvnum = get_continue_level_number();
   if ((player->field_6 & 0x02) != 0)
   {
@@ -1110,7 +1110,7 @@ TbBool test_hand_slap_collides(long plyr_idx)
   struct ARect rcta;
   struct ARect rctb;
   struct ScreenPacket *nspck;
-  if (plyr_idx == my_player_number)
+  if (is_my_player_number(plyr_idx))
     return false;
   nspck = &net_screen_packet[my_player_number];
   if ((nspck->field_4 >> 3) == 0x02)

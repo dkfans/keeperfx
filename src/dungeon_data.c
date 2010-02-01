@@ -31,23 +31,56 @@ struct Dungeon *get_players_num_dungeon(long plyr_idx)
     struct PlayerInfo *player;
     PlayerNumber plyr_num;
     player = get_player(plyr_idx);
-    plyr_num = player->index;
-    if ((plyr_num >= 0) && (plyr_num < DUNGEONS_COUNT))
-        return &(game.dungeon[plyr_num]);
-    return INVALID_DUNGEON;
+    plyr_num = player->id_number;
+    if ((plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
+    {
+        WARNLOG("Tried to get nonexisting dungeon!");
+        return INVALID_DUNGEON;
+    }
+    return &(game.dungeon[plyr_num]);
 }
 
-struct Dungeon *get_dungeon(long dngn_idx)
+struct Dungeon *get_players_dungeon(struct PlayerInfo *player)
 {
-    if ((dngn_idx >= 0) && (dngn_idx < DUNGEONS_COUNT))
-        return &(game.dungeon[dngn_idx]);
-    return INVALID_DUNGEON;
+    PlayerNumber plyr_num;
+    plyr_num = player->id_number;
+    if ((plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
+    {
+        WARNLOG("Tried to get nonexisting dungeon!");
+        return INVALID_DUNGEON;
+    }
+    return &(game.dungeon[plyr_num]);
+}
+
+struct Dungeon *get_dungeon(PlayerNumber plyr_num)
+{
+    if ((plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
+    {
+        WARNLOG("Tried to get nonexisting dungeon!");
+        return INVALID_DUNGEON;
+    }
+    return &(game.dungeon[plyr_num]);
 }
 
 TbBool dungeon_invalid(struct Dungeon *dungeon)
 {
     if (dungeon == INVALID_DUNGEON)
-        return false;
-    return (dungeon >= &game.dungeon[0]);
+        return true;
+    return (dungeon < &game.dungeon[0]);
 }
+
+void clear_dungeons(void)
+{
+  SYNCDBG(6,"Starting");
+  int i;
+  for (i=0; i < DUNGEONS_COUNT; i++)
+  {
+    memset(&game.dungeon[i], 0, sizeof(struct Dungeon));
+  }
+  memset(&bad_dungeon, 0, sizeof(struct Dungeon));
+  game.field_14E4A4 = 0;
+  game.field_14E4A0 = 0;
+  game.field_14E49E = 0;
+}
+
 /******************************************************************************/
