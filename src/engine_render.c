@@ -28,12 +28,24 @@
 #include "engine_lenses.h"
 #include "engine_camera.h"
 #include "kjm_input.h"
+#include "front_simple.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT void _DK_draw_gpoly(struct PolyPoint *point_x, struct PolyPoint *point_y, struct PolyPoint *point_z);
+DLLIMPORT void _DK_trig(struct PolyPoint *point_x, struct PolyPoint *point_y, struct PolyPoint *point_z);
+DLLIMPORT void _DK_draw_fastview_mapwho(struct Camera *cam, struct JontySpr *spr);
+DLLIMPORT void _DK_draw_clipped_line(long a1, long a2, long a3, long a4, unsigned char a5);
+DLLIMPORT void _DK_draw_engine_number(struct Number *num);
+DLLIMPORT void _DK_draw_engine_room_flagpole(struct RoomFlag *rflg);
+DLLIMPORT void _DK_draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
+DLLIMPORT void _DK_draw_iso_only_fastview_mapwho(struct Camera *cam, struct JontySpr *spr);
+DLLIMPORT void _DK_draw_engine_room_flag_top(struct RoomFlag *rflg);
+DLLIMPORT void _DK_draw_stripey_line(long a1, long a2, long a3, long a4, unsigned char a5);
+DLLIMPORT void _DK_draw_map_who(struct RotoSpr *spr);
 DLLIMPORT void _DK_draw_element(struct Map *map, long a2, long a3, long a4, long a5, long a6, long a7, unsigned char a8, long *a9);
 DLLIMPORT long _DK_convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z);
 DLLIMPORT void _DK_display_fast_drawlist(struct Camera *cam);
@@ -201,7 +213,7 @@ void update_engine_settings(struct PlayerInfo *player)
 
 TbBool is_free_space_in_poly_pool(int nitems)
 {
-  return (getpoly+(nitems*sizeof(struct BasicQ)) <= poly_pool_end);
+  return (getpoly+(nitems*sizeof(struct BasicUnk13)) <= poly_pool_end);
 }
 
 void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx)
@@ -315,6 +327,17 @@ void create_box_coords(struct EngineCoord *coord, long x, long z, long y)
   rotpers(coord, &camera_matrix);
 }
 
+void draw_gpoly(struct PolyPoint *point_x, struct PolyPoint *point_y, struct PolyPoint *point_z)
+{
+    _DK_draw_gpoly(point_x, point_y, point_z);
+}
+
+void trig(struct PolyPoint *point_x, struct PolyPoint *point_y, struct PolyPoint *point_z)
+{
+    //TODO!!!!: make, in correct calling convention (asm)
+    //_DK_trig(point_x, point_y, point_z);
+}
+
 void draw_map_volume_box(long a1, long a2, long a3, long a4, long a5, unsigned char color)
 {
   map_volume_box.field_0 = 1;
@@ -326,10 +349,271 @@ void draw_map_volume_box(long a1, long a2, long a3, long a4, long a5, unsigned c
   map_volume_box.color = color;
 }
 
+void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *spr)
+{
+    _DK_draw_fastview_mapwho(cam, spr);
+}
+
+void draw_clipped_line(long a1, long a2, long a3, long a4, unsigned char a5)
+{
+    _DK_draw_clipped_line(a1, a2, a3, a4, a5);
+}
+
+void draw_engine_number(struct Number *num)
+{
+    _DK_draw_engine_number(num);
+}
+
+void draw_engine_room_flagpole(struct RoomFlag *rflg)
+{
+    _DK_draw_engine_room_flagpole(rflg);
+}
+
+void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4)
+{
+    _DK_draw_status_sprites(a1, a2, thing, a4);
+}
+
+void draw_iso_only_fastview_mapwho(struct Camera *cam, struct JontySpr *spr)
+{
+    _DK_draw_iso_only_fastview_mapwho(cam, spr);
+}
+
+void draw_engine_room_flag_top(struct RoomFlag *rflg)
+{
+    _DK_draw_engine_room_flag_top(rflg);
+}
+
+void draw_stripey_line(long a1, long a2, long a3, long a4, unsigned char a5)
+{
+    _DK_draw_stripey_line(a1, a2, a3, a4, a5);
+}
+
+void draw_map_who(struct RotoSpr *spr)
+{
+    _DK_draw_map_who(spr);
+}
+
 void display_drawlist(void)
 {
-  SYNCDBG(9,"Starting");
-  _DK_display_drawlist();
+    struct PlayerInfo *player;
+    struct Camera *cam;
+    union {
+      struct BasicQ *b;
+      struct BasicUnk00 *unk00;
+      struct BasicUnk01 *unk01;
+      struct BasicUnk02 *unk02;
+      struct BasicUnk03 *unk03;
+      struct BasicUnk04 *unk04;
+      struct BasicUnk05 *unk05;
+      struct BasicUnk06 *unk06;
+      struct BasicUnk07 *unk07;
+      struct RotoSpr *rotSpr;
+      struct BasicUnk09 *unk09;
+      struct BasicUnk10 *unk10;
+      struct JontySpr *jonSpr;
+      struct BasicUnk12 *unk12;
+      struct BasicUnk13 *unk13;
+      struct BasicUnk14 *unk14;
+      struct BasicUnk15 *unk15;
+      struct Number *number;
+      struct RoomFlag *roomFlg;
+    } poly;
+    struct BasicQ **bucket;
+    long bucket_num;
+    struct PolyPoint point_a,point_b,point_c;
+    SYNCDBG(9,"Starting");
+    //TODO: remove when rewritten completely
+    _DK_display_drawlist(); return;
+    thing_pointed_at = 0;
+    for (bucket_num = 703; bucket_num > 0; bucket_num--)
+    {
+      bucket = &buckets[bucket_num];
+      for (poly.b = *bucket; poly.b != NULL; poly.b = poly.b->next)
+      {
+        switch ( poly.b->kind )
+        {
+        case 0:
+          vec_mode = 5;
+          vec_map = block_ptrs[poly.unk00->block];
+          draw_gpoly(&poly.unk00->p1, &poly.unk00->p2, &poly.unk00->p3);
+          break;
+        case 1:
+          vec_mode = 7;
+          vec_colour = ((poly.unk01->p3.field_10 + poly.unk01->p2.field_10 + poly.unk01->p1.field_10)/3) >> 16;
+          vec_map = block_ptrs[poly.unk01->block];
+          trig(&poly.unk01->p1, &poly.unk01->p2, &poly.unk01->p3);
+          break;
+        case 2:
+          vec_mode = 0;
+          vec_colour = poly.unk02->colour;
+          point_a.field_0 = poly.unk02->x1;
+          point_a.field_4 = poly.unk02->y1;
+          point_b.field_0 = poly.unk02->x2;
+          point_b.field_4 = poly.unk02->y2;
+          point_c.field_0 = poly.unk02->x3;
+          point_c.field_4 = poly.unk02->y3;
+          draw_gpoly(&point_a, &point_b, &point_c);
+          break;
+        case 3:
+          vec_mode = 4;
+          vec_colour = poly.unk03->colour;
+          point_a.field_0 = poly.unk03->x1;
+          point_a.field_4 = poly.unk03->y1;
+          point_b.field_0 = poly.unk03->x2;
+          point_b.field_4 = poly.unk03->y2;
+          point_c.field_0 = poly.unk03->x3;
+          point_c.field_4 = poly.unk03->y3;
+          point_a.field_10 = poly.unk03->vf1 << 16;
+          point_b.field_10 = poly.unk03->vf2 << 16;
+          point_c.field_10 = poly.unk03->vf3 << 16;
+          draw_gpoly(&point_a, &point_b, &point_c);
+          break;
+        case 4:
+          vec_mode = 2;
+          point_a.field_0 = poly.unk04->x1;
+          point_a.field_4 = poly.unk04->y1;
+          point_b.field_0 = poly.unk04->x2;
+          point_b.field_4 = poly.unk04->y2;
+          point_c.field_0 = poly.unk04->x3;
+          point_c.field_4 = poly.unk04->y3;
+          point_a.field_8 = poly.unk04->uf1 << 16;
+          point_a.field_C = poly.unk04->vf1 << 16;
+          point_b.field_8 = poly.unk04->uf2 << 16;
+          point_b.field_C = poly.unk04->vf2 << 16;
+          point_c.field_8 = poly.unk04->uf3 << 16;
+          point_c.field_C = poly.unk04->vf3 << 16;
+          trig(&point_a, &point_b, &point_c);
+          break;
+        case 5:
+          vec_mode = 5;
+          point_a.field_0 = poly.unk05->x1;
+          point_a.field_4 = poly.unk05->y1;
+          point_b.field_0 = poly.unk05->x2;
+          point_b.field_4 = poly.unk05->y2;
+          point_c.field_0 = poly.unk05->x3;
+          point_c.field_4 = poly.unk05->y3;
+          point_a.field_8 = poly.unk05->uf1 << 16;
+          point_a.field_C = poly.unk05->vf1 << 16;
+          point_b.field_8 = poly.unk05->uf2 << 16;
+          point_b.field_C = poly.unk05->vf2 << 16;
+          point_c.field_8 = poly.unk05->uf3 << 16;
+          point_c.field_C = poly.unk05->vf3 << 16;
+          point_a.field_10 = poly.unk05->wf1 << 16;
+          point_b.field_10 = poly.unk05->wf2 << 16;
+          point_c.field_10 = poly.unk05->wf3 << 16;
+          draw_gpoly(&point_a, &point_b, &point_c);
+          break;
+        case 6:
+          vec_mode = 3;
+          point_a.field_0 = poly.unk06->x1;
+          point_a.field_4 = poly.unk06->y1;
+          point_b.field_0 = poly.unk06->x2;
+          point_b.field_4 = poly.unk06->y2;
+          point_c.field_0 = poly.unk06->x3;
+          point_c.field_4 = poly.unk06->y3;
+          point_a.field_8 = poly.unk06->uf1 << 16;
+          point_a.field_C = poly.unk06->vf1 << 16;
+          point_b.field_8 = poly.unk06->uf2 << 16;
+          point_b.field_C = poly.unk06->vf2 << 16;
+          point_c.field_8 = poly.unk06->uf3 << 16;
+          point_c.field_C = poly.unk06->vf3 << 16;
+          trig(&point_a, &point_b, &point_c);
+          break;
+        case 7:
+          vec_mode = 6;
+          point_a.field_0 = poly.unk07->x1;
+          point_a.field_4 = poly.unk07->y1;
+          point_b.field_0 = poly.unk07->x2;
+          point_b.field_4 = poly.unk07->y2;
+          point_c.field_0 = poly.unk07->x3;
+          point_c.field_4 = poly.unk07->y3;
+          point_a.field_8 = poly.unk07->uf1 << 16;
+          point_a.field_C = poly.unk07->vf1 << 16;
+          point_b.field_8 = poly.unk07->uf2 << 16;
+          point_b.field_C = poly.unk07->vf2 << 16;
+          point_c.field_8 = poly.unk07->uf3 << 16;
+          point_c.field_C = poly.unk07->vf3 << 16;
+          point_a.field_10 = poly.unk07->wf1 << 16;
+          point_b.field_10 = poly.unk07->wf2 << 16;
+          point_c.field_10 = poly.unk07->wf3 << 16;
+          trig(&point_a, &point_b, &point_c);
+          break;
+        case 8:
+          draw_map_who(poly.rotSpr);
+          break;
+        case 9:
+            //TODO
+          break;
+        case 10:
+          vec_mode = 0;
+          vec_colour = poly.unk10->field_6;
+          draw_gpoly(&poly.unk10->p1, &poly.unk10->p2, &poly.unk10->p3);
+          break;
+        case 11:
+          draw_jonty_mapwho(poly.jonSpr);
+          break;
+        case 12:
+          draw_keepsprite_unscaled_in_buffer(poly.unk12->field_5C, poly.unk12->field_58, poly.unk12->field_5E, scratch);
+          vec_map = scratch;
+          vec_mode = 10;
+          vec_colour = poly.unk12->p1.field_10;
+          trig(&poly.unk12->p1, &poly.unk12->p2, &poly.unk12->p3);
+          trig(&poly.unk12->p1, &poly.unk12->p3, &poly.unk12->p4);
+          break;
+        case 13:
+          point_a.field_10 = poly.unk13->p.field_10;
+          point_a.field_C = poly.unk13->p.field_C;
+          point_a.field_8 = poly.unk13->p.field_8;
+          point_a.field_4 = poly.unk13->p.field_4;
+          point_a.field_0 = poly.unk13->p.field_0;
+          if ((point_a.field_0 >= 0) || (point_a.field_8 >= 0))
+          {
+            if ((point_a.field_4 >= 0) || (point_a.field_C >= 0))
+            {
+              player = get_my_player();
+              if ((point_a.field_0 < player->engine_window_width) || (point_a.field_8 < player->engine_window_width))
+              {
+                if ((point_a.field_4 < player->engine_window_width) || (point_a.field_C < player->engine_window_width))
+                {
+                  draw_stripey_line(point_a.field_0, point_a.field_4, point_a.field_8, point_a.field_C, point_a.field_10);
+                }
+              }
+            }
+          }
+          break;
+        case 14:
+          player = get_my_player();
+          cam = player->acamera;
+          if (cam != NULL)
+          {
+            if ((cam->field_6 == 2) || (cam->field_6 == 5))
+              draw_status_sprites(poly.unk14->field_C, poly.unk14->field_10, poly.unk14->thing, cam->field_17/pixel_size);
+          }
+          break;
+        case 16:
+          draw_engine_number(poly.number);
+          break;
+        case 17:
+          draw_engine_room_flagpole(poly.roomFlg);
+          break;
+        case 18:
+          player = get_my_player();
+          cam = player->acamera;
+          if (cam != NULL)
+          {
+            if (cam->field_6 == 2)
+              draw_jonty_mapwho(poly.jonSpr);
+          }
+          break;
+        case 19:
+          draw_engine_room_flag_top(poly.roomFlg);
+          break;
+        default:
+          break;
+      }
+    }
+  }
 }
 
 void draw_view(struct Camera *cam, unsigned char a2)
@@ -469,30 +753,30 @@ long convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct 
 
 void create_line_element(long a1, long a2, long a3, long a4, long bckt_idx, TbPixel color)
 {
-  struct BasicQ *poly;
+  struct BasicUnk13 *poly;
   if (bckt_idx >= 703)
     bckt_idx = 702;
   else
   if (bckt_idx < 0)
     bckt_idx = 0;
-  poly = (struct BasicQ *)getpoly;
-  getpoly += sizeof(struct BasicQ);
-  poly->next = buckets[bckt_idx];
-  poly->field_4 = 13;
-  buckets[bckt_idx] = poly;
+  poly = (struct BasicUnk13 *)getpoly;
+  getpoly += sizeof(struct BasicUnk13);
+  poly->b.next = buckets[bckt_idx];
+  poly->b.kind = 13;
+  buckets[bckt_idx] = (struct BasicQ *)poly;
   if (pixel_size > 0)
   {
-    poly->field_8 = a1 / pixel_size;
-    poly->field_C = a2 / pixel_size;
-    poly->field_10 = a3 / pixel_size;
-    poly->field_14 = a4 / pixel_size;
+    poly->p.field_0 = a1 / pixel_size;
+    poly->p.field_4 = a2 / pixel_size;
+    poly->p.field_8 = a3 / pixel_size;
+    poly->p.field_C = a4 / pixel_size;
   }
-  poly->field_18 = color;
+  poly->p.field_10 = color;
 }
 
 void create_line_segment(struct EngineCoord *start, struct EngineCoord *end, TbPixel color)
 {
-  struct BasicQ *poly;
+  struct BasicUnk13 *poly;
   long bckt_idx;
   if (!is_free_space_in_poly_pool(1))
     return;
@@ -504,35 +788,35 @@ void create_line_segment(struct EngineCoord *start, struct EngineCoord *end, TbP
   if (bckt_idx < 0)
     bckt_idx = 0;
   // Add to bucket
-  poly = (struct BasicQ *)getpoly;
-  getpoly += sizeof(struct BasicQ);
-  poly->next = buckets[bckt_idx];
-  poly->field_4 = 13;
-  buckets[bckt_idx] = poly;
+  poly = (struct BasicUnk13 *)getpoly;
+  getpoly += sizeof(struct BasicUnk13);
+  poly->b.next = buckets[bckt_idx];
+  poly->b.kind = 13;
+  buckets[bckt_idx] = (struct BasicQ *)poly;
   // Fill parameters
   if (pixel_size > 0)
   {
-    poly->field_8 = start->field_0;
-    poly->field_C = start->field_4;
-    poly->field_10 = end->field_0;
-    poly->field_14 = end->field_4;
+    poly->p.field_0 = start->field_0;
+    poly->p.field_4 = start->field_4;
+    poly->p.field_8 = end->field_0;
+    poly->p.field_C = end->field_4;
   }
-  poly->field_18 = color;
+  poly->p.field_10 = color;
 }
 
 void add_unkn11_to_polypool(struct Thing *thing, long a2, long a3, long a4, long bckt_idx)
 {
-  struct BasicQ *poly;
+  struct JontySpr *poly;
   if (bckt_idx >= 703)
     bckt_idx = 702;
   else
   if (bckt_idx < 0)
     bckt_idx = 0;
-  poly = (struct BasicQ *)getpoly;
-  getpoly += sizeof(struct BasicQ);
-  poly->next = buckets[bckt_idx];
-  poly->field_4 = 11;
-  buckets[bckt_idx] = poly;
+  poly = (struct JontySpr *)getpoly;
+  getpoly += sizeof(struct JontySpr);
+  poly->b.next = buckets[bckt_idx];
+  poly->b.kind = 11;
+  buckets[bckt_idx] = (struct BasicQ *)poly;
   poly->field_8 = (unsigned long)thing;
   if (pixel_size > 0)
   {
@@ -544,17 +828,17 @@ void add_unkn11_to_polypool(struct Thing *thing, long a2, long a3, long a4, long
 
 void add_unkn18_to_polypool(struct Thing *thing, long a2, long a3, long a4, long bckt_idx)
 {
-  struct BasicQ *poly;
+  struct JontySpr *poly;
   if (bckt_idx >= 703)
     bckt_idx = 702;
   else
   if (bckt_idx < 0)
     bckt_idx = 0;
-  poly = (struct BasicQ *)getpoly;
-  getpoly += sizeof(struct BasicQ);
-  poly->next = buckets[bckt_idx];
-  poly->field_4 = 18;
-  buckets[bckt_idx] = poly;
+  poly = (struct JontySpr *)getpoly;
+  getpoly += sizeof(struct JontySpr);
+  poly->b.next = buckets[bckt_idx];
+  poly->b.kind = 18;
+  buckets[bckt_idx] = (struct BasicQ *)poly;
   poly->field_8 = (unsigned long)thing;
   if (pixel_size > 0)
   {
@@ -566,18 +850,18 @@ void add_unkn18_to_polypool(struct Thing *thing, long a2, long a3, long a4, long
 
 void create_status_box_element(struct Thing *thing, long a2, long a3, long a4, long bckt_idx)
 {
-  struct BasicQ *poly;
+  struct BasicUnk14 *poly;
   if (bckt_idx >= 703)
     bckt_idx = 702;
   else
   if (bckt_idx < 0)
     bckt_idx = 0;
-  poly = (struct BasicQ *)getpoly;
-  getpoly += sizeof(struct BasicQ);
-  poly->next = buckets[bckt_idx];
-  poly->field_4 = 14;
-  buckets[bckt_idx] = poly;
-  poly->field_8 = (unsigned long)thing;
+  poly = (struct BasicUnk14 *)getpoly;
+  getpoly += sizeof(struct BasicUnk14);
+  poly->b.next = buckets[bckt_idx];
+  poly->b.kind = 14;
+  buckets[bckt_idx] = (struct BasicQ *)poly;
+  poly->thing = thing;
   if (pixel_size > 0)
   {
     poly->field_C = a2 / pixel_size;
@@ -593,16 +877,16 @@ void create_fast_view_status_box(struct Thing *thing, long x, long y)
 
 void add_unkn16_to_polypool(long x, long y, long lvl, long bckt_idx)
 {
-  struct BasicUnk1 *poly;
+  struct Number *poly;
   if (bckt_idx >= 703)
     bckt_idx = 702;
   else
   if (bckt_idx < 0)
     bckt_idx = 0;
-  poly = (struct BasicUnk1 *)getpoly;
-  getpoly += sizeof(struct BasicUnk1);
-  poly->next = buckets[bckt_idx];
-  poly->field_4 = 16;
+  poly = (struct Number *)getpoly;
+  getpoly += sizeof(struct Number);
+  poly->b.next = buckets[bckt_idx];
+  poly->b.kind = 16;
   buckets[bckt_idx] = (struct BasicQ *)poly;
   if (pixel_size > 0)
   {
@@ -614,16 +898,16 @@ void add_unkn16_to_polypool(long x, long y, long lvl, long bckt_idx)
 
 void add_unkn17_to_polypool(long x, long y, long lvl, long bckt_idx)
 {
-  struct BasicUnk2 *poly;
+  struct RoomFlag *poly;
   if (bckt_idx >= 703)
     bckt_idx = 702;
   else
   if (bckt_idx < 0)
     bckt_idx = 0;
-  poly = (struct BasicUnk2 *)getpoly;
-  getpoly += sizeof(struct BasicUnk2);
-  poly->next = buckets[bckt_idx];
-  poly->field_4 = 17;
+  poly = (struct RoomFlag *)getpoly;
+  getpoly += sizeof(struct RoomFlag);
+  poly->b.next = buckets[bckt_idx];
+  poly->b.kind = 17;
   buckets[bckt_idx] = (struct BasicQ *)poly;
   if (pixel_size > 0)
   {
@@ -635,16 +919,16 @@ void add_unkn17_to_polypool(long x, long y, long lvl, long bckt_idx)
 
 void add_unkn19_to_polypool(long x, long y, long lvl, long bckt_idx)
 {
-  struct BasicUnk2 *poly;
+  struct RoomFlag *poly;
   if (bckt_idx >= 703)
     bckt_idx = 702;
   else
   if (bckt_idx < 0)
     bckt_idx = 0;
-  poly = (struct BasicUnk2 *)getpoly;
-  getpoly += sizeof(struct BasicUnk2);
-  poly->next = buckets[bckt_idx];
-  poly->field_4 = 19;
+  poly = (struct RoomFlag *)getpoly;
+  getpoly += sizeof(struct RoomFlag);
+  poly->b.next = buckets[bckt_idx];
+  poly->b.kind = 19;
   buckets[bckt_idx] = (struct BasicQ *)poly;
   if (pixel_size > 0)
   {
