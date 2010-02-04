@@ -1520,8 +1520,6 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
 void draw_jonty_mapwho(struct JontySpr *jspr);
 struct Thing *find_base_thing_on_mapwho(unsigned char oclass, unsigned short okind, unsigned short x, unsigned short y);
 void draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);
-void draw_engine_number(struct Number *num);
-void draw_engine_room_flag(struct RoomFlag *rflg);
 short mouse_is_over_small_map(long x, long y);
 void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 void update_breed_activities(void);

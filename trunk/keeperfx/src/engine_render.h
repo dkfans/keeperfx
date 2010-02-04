@@ -35,34 +35,231 @@ struct MinMax;
 struct Camera;
 struct PlayerInfo;
 
-struct BasicQ { // sizeof = 28
+struct BasicQ { // sizeof = 5
   struct BasicQ *next;
-  unsigned char field_4;
-  unsigned char field_5[3];
-  unsigned long field_8;
-  unsigned long field_C;
-  unsigned long field_10;
-  unsigned long field_14;
-  unsigned char field_18;
-  unsigned char field_19[3];
+  unsigned char kind;
 };
 
-struct BasicUnk1 { // sizeof = 20
-  struct BasicQ *next;
-  unsigned char field_4;
-  unsigned char field_5[3];
-  unsigned long x;
-  unsigned long y;
-  unsigned long lvl;
+struct PolyPoint { // sizeof = 20
+  long field_0;
+  long field_4;
+  long field_8;
+  long field_C;
+  long field_10;
 };
 
-struct BasicUnk2 { // sizeof = 16
-  struct BasicQ *next;
-  unsigned char field_4;
-  unsigned char field_5;
-  unsigned short lvl;
-  unsigned long x;
-  unsigned long y;
+struct BasicUnk00 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short block;
+    struct PolyPoint p1;
+    struct PolyPoint p2;
+    struct PolyPoint p3;
+};
+
+struct BasicUnk01 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short block;
+    struct PolyPoint p1;
+    struct PolyPoint p2;
+    struct PolyPoint p3;
+};
+
+struct BasicUnk02 {
+    struct BasicQ b;
+    unsigned char colour;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+};
+
+struct BasicUnk03 {
+    struct BasicQ b;
+    unsigned char colour;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned char vf1;
+    unsigned char vf2;
+    unsigned char vf3;
+    unsigned char field_15[3];
+    unsigned char field_18;
+    unsigned char field_19[3];
+};
+
+struct BasicUnk04 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned short field_12;
+    unsigned char uf1;
+    unsigned char vf1;
+    unsigned char uf2;
+    unsigned char vf2;
+    unsigned char uf3;
+    unsigned char vf3;
+};
+
+struct BasicUnk05 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned short field_12;
+    unsigned char uf1;
+    unsigned char vf1;
+    unsigned char uf2;
+    unsigned char vf2;
+    unsigned char uf3;
+    unsigned char vf3;
+    unsigned char wf1;
+    unsigned char wf2;
+    unsigned char wf3;
+};
+
+struct BasicUnk06 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned short field_12;
+    unsigned char uf1;
+    unsigned char vf1;
+    unsigned char uf2;
+    unsigned char vf2;
+    unsigned char uf3;
+    unsigned char vf3;
+};
+
+struct BasicUnk07 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned short field_12;
+    unsigned char uf1;
+    unsigned char vf1;
+    unsigned char uf2;
+    unsigned char vf2;
+    unsigned char uf3;
+    unsigned char vf3;
+    unsigned char wf1;
+    unsigned char wf2;
+    unsigned char wf3;
+};
+
+struct RotoSpr {
+    struct BasicQ b;
+    unsigned char field_5[3];
+    unsigned long field_8;
+    unsigned long field_C;
+    unsigned long field_10;
+    unsigned long field_14;
+    unsigned char field_18;
+    unsigned char field_19[3];
+};
+
+struct BasicUnk09 {
+    struct BasicQ b;
+    unsigned char subtype;
+    unsigned short block;
+    unsigned long field_8;
+    unsigned long field_C;
+    unsigned long field_10;
+    unsigned long field_14;
+    unsigned char field_18;
+    unsigned char field_19[3];
+};
+
+struct BasicUnk10 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned char field_6;
+    unsigned char field_7;
+    struct PolyPoint p1;
+    struct PolyPoint p2;
+    struct PolyPoint p3;
+};
+
+struct JontySpr {  // BasicQ type 11,18
+    struct BasicQ b;
+    unsigned char field_5[3];
+    unsigned long field_8;
+    unsigned long field_C;
+    unsigned long field_10;
+    unsigned long field_14;
+    unsigned char field_18;
+    unsigned char field_19[3];
+};
+
+struct BasicUnk12 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short field_6;
+    struct PolyPoint p1;
+    struct PolyPoint p2;
+    struct PolyPoint p3;
+    struct PolyPoint p4;
+    unsigned long field_58;
+    unsigned short field_5C;
+    unsigned char field_5E;
+};
+
+struct BasicUnk13 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short field_6;
+    struct PolyPoint p;
+    unsigned char field_19[3];
+};
+
+struct BasicUnk14 { // sizeof = 24
+    struct BasicQ b;
+    unsigned char field_5[3];
+    struct Thing *thing;
+    unsigned long field_C;
+    unsigned long field_10;
+    unsigned long field_14;
+};
+
+struct Number { // BasicQ type 16
+    struct BasicQ b;
+    unsigned char field_5[3];
+    unsigned long x;
+    unsigned long y;
+    unsigned long lvl;
+};
+
+struct RoomFlag { // BasicQ type 17,19
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short lvl;
+    unsigned long x;
+    unsigned long y;
 };
 
 struct EngineCoord { // sizeof = 28
@@ -84,29 +281,6 @@ struct M33 { // sizeof = 48
 
 struct EngineCol {
 //TODO!!
-};
-/*
-struct BasicQ // sizeof = 46
-{
-  struct UnkPoly1C *first_poly;
-  unsigned char field_4;
-  unsigned char field_5;
-  unsigned long field_6;
-  unsigned long field_A;
-  unsigned long field_E;
-  unsigned long field_12;
-  unsigned long field_16;
-  unsigned long field_1A;
-  unsigned long field_1E;
-  unsigned long field_22;
-  unsigned long field_26;
-  unsigned long field_2A;
-};
-*/
-struct PolyPoint { // sizeof = 8
-  long field_0;
-  long field_4;
-//TODO!
 };
 
 struct MapVolumeBox { // sizeof = 24
@@ -248,6 +422,9 @@ void fill_in_points_cluedo(long a1, long a2, struct MinMax *mm);
 void fill_in_points_isometric(long a1, long a2, struct MinMax *mm);
 void frame_wibble_generate(void);
 void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8);
+
+void draw_engine_number(struct Number *num);
+void draw_engine_room_flagpole(struct RoomFlag *rflg);
 
 void update_engine_settings(struct PlayerInfo *player);
 void display_drawlist(void);
