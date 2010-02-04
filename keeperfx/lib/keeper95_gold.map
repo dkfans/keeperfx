@@ -46,6 +46,8 @@
  0001:00036B90       get_global_inputs
  0001:000FD5D0       copy_to_screen
  0005:00011C10       LbSpriteDraw
+ 0005:000001F0       draw_gpoly
+ 0005:00007AE0       trig
  0001:00076FA0       DrawBigSprite
  0001:000DFDF0       LbSpriteDrawRemap
  0001:00050B10       S3DDestroySoundEmitter
@@ -632,6 +634,8 @@
  0003:00273660       lbTextJustifyWindow
  0003:000280EC       lbSpacesPerTab
  0003:00241504       lightning_palette
+ 0003:00024D05       vec_mode
+ 0003:00024D04       vec_colour
 
  0006:00000008       gpoly_pro_enable_mode_ofs
  0006:00000010       gtblock_clip_width
@@ -1100,7 +1104,6 @@
  0001:000C5750       get_nearest_thing_for_hand_or_slap
  0001:00035F70       get_front_view_nonaction_inputs
  0001:00033C00       draw_engine_number
- 0001:00033CF0       draw_engine_room_flag
  0001:00054890       draw_keepsprite_unscaled_in_buffer
  0001:00017620       draw_jonty_mapwho
  0001:000C9A40       convert_old_column_file
@@ -1603,3 +1606,11 @@
  0001:000BD890       change_creature_owner
  0001:0001A2B0       anger_set_creature_anger_all_types
  0001:000C4460       find_my_next_creature_of_breed_and_job
+ 0001:00017B40       draw_fastview_mapwho
+ 0001:00025570       draw_stripey_line
+ 0001:00025B00       draw_clipped_line
+ 0001:00033E40       draw_engine_room_flag_top
+ 0001:00033CF0       draw_engine_room_flagpole
+ 0001:00017B20       draw_iso_only_fastview_mapwho
+ 0001:00018020       draw_map_who
+ 

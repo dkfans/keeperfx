@@ -496,15 +496,12 @@ DLLIMPORT void _DK_clear_map(void);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
 DLLIMPORT void _DK_draw_jonty_mapwho(struct JontySpr *jspr);
 DLLIMPORT void _DK_draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);
-DLLIMPORT void _DK_draw_engine_number(struct Number *num);
-DLLIMPORT void _DK_draw_engine_room_flag(struct RoomFlag *rflg);
 DLLIMPORT struct Thing *_DK_get_nearest_thing_for_hand_or_slap(unsigned char a1, long a2, long a3);
 DLLIMPORT long _DK_screen_to_map(struct Camera *camera, long scrpos_x, long scrpos_y, struct Coord3d *mappos);
 DLLIMPORT void _DK_draw_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int scanln);
 DLLIMPORT void _DK_flyeye_blitsec(unsigned char *srcbuf, unsigned char *dstbuf, long srcwidth, long dstwidth, long n, long height);
 DLLIMPORT void _DK_draw_swipe(void);
 DLLIMPORT void _DK_draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
-DLLIMPORT void _DK_draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
 DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
 DLLIMPORT long _DK_thing_is_spellbook(struct Thing *thing);
 DLLIMPORT void _DK_check_players_won(void);
@@ -975,16 +972,6 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
 void draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4)
 {
   _DK_draw_keepsprite_unscaled_in_buffer(a1, a2, a3, a4);
-}
-
-void draw_engine_number(struct Number *num)
-{
-  _DK_draw_engine_number(num);
-}
-
-void draw_engine_room_flag(struct RoomFlag *rflg)
-{
-  _DK_draw_engine_room_flag(rflg);
 }
 
 long get_smaller_memory_amount(long amount)
@@ -11471,11 +11458,6 @@ void redraw_frontview(void)
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7)
 {
   _DK_draw_texture(a1, a2, a3, a4, a5, a6, a7);
-}
-
-void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4)
-{
-  _DK_draw_status_sprites(a1, a2, thing, a4);
 }
 
 long element_top_face_texture(struct Map *map)
