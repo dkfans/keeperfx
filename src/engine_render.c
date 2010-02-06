@@ -35,8 +35,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_draw_gpoly(struct PolyPoint *point_x, struct PolyPoint *point_y, struct PolyPoint *point_z);
-DLLIMPORT void _DK_trig(struct PolyPoint *point_x, struct PolyPoint *point_y, struct PolyPoint *point_z);
+DLLIMPORT void _DK_draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
+DLLIMPORT void _DK_trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
 DLLIMPORT void _DK_draw_fastview_mapwho(struct Camera *cam, struct JontySpr *spr);
 DLLIMPORT void _DK_draw_clipped_line(long a1, long a2, long a3, long a4, unsigned char a5);
 DLLIMPORT void _DK_draw_engine_number(struct Number *num);
@@ -81,6 +81,8 @@ long const orient_table_yflip[] =  {0, 1, 1, 0};
 long const orient_table_rotate[] = {0, 1, 0, 1};
 unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
 unsigned char temp_cluedo_mode;
+unsigned long render_problems;
+long render_prob_kind;
 /******************************************************************************/
 void gpoly_enable_pentium_pro(TbBool state)
 {
@@ -327,15 +329,32 @@ void create_box_coords(struct EngineCoord *coord, long x, long z, long y)
   rotpers(coord, &camera_matrix);
 }
 
-void draw_gpoly(struct PolyPoint *point_x, struct PolyPoint *point_y, struct PolyPoint *point_z)
+void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
 {
-    _DK_draw_gpoly(point_x, point_y, point_z);
+    _DK_draw_gpoly(point_a, point_b, point_c);
 }
 
-void trig(struct PolyPoint *point_x, struct PolyPoint *point_y, struct PolyPoint *point_z)
+/** Triangle rendering function.
+ * @note I'm not completely sure it this ASM magic really works...
+ *
+ * @param point_a
+ * @param point_b
+ * @param point_c
+ */
+void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
 {
-    //TODO!!!!: make, in correct calling convention (asm)
-    //_DK_trig(point_x, point_y, point_z);
+    //JUSTLOG("start");
+/* values don't have to be put in registers as we use "a" "d" and "b" in parameters list.
+movl %0,%%eax; \
+          movl %1,%%edx; \
+          movl %2,%%ebx; \
+ */
+    asm ("call __DK_trig"
+         : /* no outputs */
+         : "a" (point_a), "d" (point_b), "b" (point_c)
+         );
+   //_DK_trig(point_a, point_b, point_c);
+    //JUSTLOG("end");
 }
 
 void draw_map_volume_box(long a1, long a2, long a3, long a4, long a5, unsigned char color)
@@ -352,11 +371,6 @@ void draw_map_volume_box(long a1, long a2, long a3, long a4, long a5, unsigned c
 void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *spr)
 {
     _DK_draw_fastview_mapwho(cam, spr);
-}
-
-void draw_clipped_line(long a1, long a2, long a3, long a4, unsigned char a5)
-{
-    _DK_draw_clipped_line(a1, a2, a3, a4, a5);
 }
 
 void draw_engine_number(struct Number *num)
@@ -389,11 +403,788 @@ void draw_stripey_line(long a1, long a2, long a3, long a4, unsigned char a5)
     _DK_draw_stripey_line(a1, a2, a3, a4, a5);
 }
 
+void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color)
+{
+    struct PlayerInfo *player;
+    if ((x1 >= 0) || (x2 >= 0))
+    {
+      if ((y1 >= 0) || (y2 >= 0))
+      {
+        player = get_my_player();
+        if ((x1 < player->engine_window_width) || (x2 < player->engine_window_width))
+        {
+          if ((y1 < player->engine_window_width) || (y2 < player->engine_window_width))
+          {
+            draw_stripey_line(x1, y1, x2, y2, color);
+          }
+        }
+      }
+    }
+}
+
 void draw_map_who(struct RotoSpr *spr)
 {
     _DK_draw_map_who(spr);
 }
 
+void draw_unkn09(struct BasicUnk09 *unk09)
+{
+    struct XYZ coord_a,coord_b,coord_c,coord_d,coord_e;
+    struct PolyPoint point_a,point_b,point_c,point_d,point_e,
+        point_f,point_g,point_h,point_i,point_j,point_k,point_l;
+    vec_map = block_ptrs[unk09->block];
+    switch (unk09->subtype)
+    {
+    case 0:
+        vec_mode = 5;
+        draw_gpoly(&unk09->p1,&unk09->p2,&unk09->p3);
+        break;
+    case 1:
+        vec_mode = 5;
+        coord_a.x = (unk09->field_50 + unk09->field_44) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_4C + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        point_a.field_10 = (unk09->p2.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_a, &point_a);
+        draw_gpoly(&unk09->p1, &point_a, &unk09->p3);
+        draw_gpoly(&point_a, &unk09->p2, &unk09->p3);
+        break;
+    case 2:
+        vec_mode = 5;
+        coord_a.x = (unk09->field_50 + unk09->field_5C) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_60) >> 1;
+        coord_a.z = (unk09->field_64 + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        point_a.field_10 = (unk09->p3.field_10 + unk09->p2.field_10) >> 1;
+        perspective(&coord_a, &point_a);
+        draw_gpoly(&unk09->p1, &unk09->p2, &point_a);
+        draw_gpoly(&unk09->p1, &point_a, &unk09->p3);
+        break;
+    case 3:
+        vec_mode = 5;
+        coord_a.x = (unk09->field_44 + unk09->field_5C) >> 1;
+        coord_a.y = (unk09->field_60 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_64 + unk09->field_4C) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
+        point_a.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        point_a.field_10 = (unk09->p3.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_a, &point_a);
+        draw_gpoly(&unk09->p1, &unk09->p2, &point_a);
+        draw_gpoly(&point_a, &unk09->p2, &unk09->p3);
+        break;
+    case 4:
+        vec_mode = 5;
+        coord_a.x = (unk09->field_50 + unk09->field_44) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_4C + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        point_a.field_10 = (unk09->p2.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_a, &point_a);
+        coord_b.x = (unk09->field_50 + unk09->field_5C) >> 1;
+        coord_b.y = (unk09->field_54 + unk09->field_60) >> 1;
+        coord_b.z = (unk09->field_64 + unk09->field_58) >> 1;
+        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
+        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        point_b.field_10 = (unk09->p3.field_10 + unk09->p2.field_10) >> 1;
+        perspective(&coord_b, &point_b);
+        coord_c.x = (unk09->field_44 + unk09->field_5C) >> 1;
+        coord_c.y = (unk09->field_60 + unk09->field_48) >> 1;
+        coord_c.z = (unk09->field_64 + unk09->field_4C) >> 1;
+        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
+        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        point_c.field_10 = (unk09->p3.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_c, &point_c);
+        draw_gpoly(&unk09->p1, &point_a, &point_c);
+        draw_gpoly(&point_a, &unk09->p2, &point_b);
+        draw_gpoly(&point_a, &point_b, &point_c);
+        draw_gpoly(&point_c, &point_b, &unk09->p3);
+        break;
+    case 5:
+        vec_mode = 5;
+        coord_a.x = (unk09->field_50 + unk09->field_44) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_4C + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        point_a.field_10 = (unk09->p2.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_a, &point_a);
+        coord_b.x = (coord_a.x + unk09->field_44) >> 1;
+        coord_b.y = (coord_a.y + unk09->field_48) >> 1;
+        coord_b.z = (coord_a.z + unk09->field_4C) >> 1;
+        point_b.field_8 = (point_a.field_8 + unk09->p1.field_8) >> 1;
+        point_b.field_C = (point_a.field_C + unk09->p1.field_C) >> 1;
+        point_b.field_10 = (point_a.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_b, &point_b);
+        coord_c.x = (coord_a.x + unk09->field_50) >> 1;
+        coord_c.y = (coord_a.y + unk09->field_54) >> 1;
+        coord_c.z = (coord_a.z + unk09->field_58) >> 1;
+        point_c.field_8 = (point_a.field_8 + unk09->p2.field_8) >> 1;
+        point_c.field_C = (point_a.field_C + unk09->p2.field_C) >> 1;
+        point_c.field_10 = (point_a.field_10 + unk09->p2.field_10) >> 1;
+        perspective(&coord_c, &point_c);
+        draw_gpoly(&unk09->p1, &point_b, &unk09->p3);
+        draw_gpoly(&point_b, &point_a, &unk09->p3);
+        draw_gpoly(&point_a, &point_c, &unk09->p3);
+        draw_gpoly(&point_c, &unk09->p2, &unk09->p3);
+        break;
+    case 6:
+        vec_mode = 5;
+        coord_a.x = (unk09->field_50 + unk09->field_5C) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_60) >> 1;
+        coord_a.z = (unk09->field_64 + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        point_a.field_10 = (unk09->p3.field_10 + unk09->p2.field_10) >> 1;
+        perspective(&coord_a, &point_a);
+        coord_b.x = (coord_a.x + unk09->field_50) >> 1;
+        coord_b.y = (coord_a.y + unk09->field_54) >> 1;
+        coord_b.z = (coord_a.z + unk09->field_58) >> 1;
+        point_b.field_8 = (point_a.field_8 + unk09->p2.field_8) >> 1;
+        point_b.field_C = (point_a.field_C + unk09->p2.field_C) >> 1;
+        point_b.field_10 = (point_a.field_10 + unk09->p2.field_10) >> 1;
+        perspective(&coord_b, &point_b);
+        coord_c.x = (coord_a.x + unk09->field_5C) >> 1;
+        coord_c.y = (coord_a.y + unk09->field_60) >> 1;
+        coord_c.z = (coord_a.z + unk09->field_64) >> 1;
+        point_c.field_8 = (point_a.field_8 + unk09->p3.field_8) >> 1;
+        point_c.field_C = (point_a.field_C + unk09->p3.field_C) >> 1;
+        point_c.field_10 = (point_a.field_10 + unk09->p3.field_10) >> 1;
+        perspective(&coord_c, &point_c);
+        draw_gpoly(&unk09->p1, &unk09->p2, &point_b);
+        draw_gpoly(&unk09->p1, &point_b, &point_a);
+        draw_gpoly(&unk09->p1, &point_a, &point_c);
+        draw_gpoly(&unk09->p1, &point_c, &unk09->p3);
+        break;
+    case 7:
+        vec_mode = 5;
+        coord_a.x = (unk09->field_44 + unk09->field_5C) >> 1;
+        coord_a.y = (unk09->field_60 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_64 + unk09->field_4C) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
+        point_a.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        point_a.field_10 = (unk09->p3.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_a, &point_a);
+        coord_b.x = (coord_a.x + unk09->field_5C) >> 1;
+        coord_b.y = (coord_a.y + unk09->field_60) >> 1;
+        coord_b.z = (coord_a.z + unk09->field_64) >> 1;
+        point_b.field_8 = (point_a.field_8 + unk09->p3.field_8) >> 1;
+        point_b.field_C = (point_a.field_C + unk09->p3.field_C) >> 1;
+        point_b.field_10 = (point_a.field_10 + unk09->p3.field_10) >> 1;
+        perspective(&coord_b, &point_b);
+        coord_c.x = (coord_a.x + unk09->field_44) >> 1;
+        coord_c.y = (coord_a.y + unk09->field_48) >> 1;
+        coord_c.z = (coord_a.z + unk09->field_4C) >> 1;
+        point_c.field_8 = (point_a.field_8 + unk09->p1.field_8) >> 1;
+        point_c.field_C = (point_a.field_C + unk09->p1.field_C) >> 1;
+        point_c.field_10 = (point_a.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_c, &point_c);
+        draw_gpoly(&unk09->p2, &unk09->p3, &point_b);
+        draw_gpoly(&unk09->p2, &point_b, &point_a);
+        draw_gpoly(&unk09->p2, &point_a, &point_c);
+        draw_gpoly(&unk09->p2, &point_c, &unk09->p1);
+        break;
+    case 8:
+        vec_mode = 5;
+        coord_a.x = (unk09->field_50 + unk09->field_44) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_4C + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        point_a.field_10 = (unk09->p2.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_a, &point_a);
+        coord_b.x = (unk09->field_50 + unk09->field_5C) >> 1;
+        coord_b.y = (unk09->field_54 + unk09->field_60) >> 1;
+        coord_b.z = (unk09->field_64 + unk09->field_58) >> 1;
+        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
+        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        point_b.field_10 = (unk09->p3.field_10 + unk09->p2.field_10) >> 1;
+        perspective(&coord_b, &point_b);
+        coord_c.x = (unk09->field_44 + unk09->field_5C) >> 1;
+        coord_c.y = (unk09->field_60 + unk09->field_48) >> 1;
+        coord_c.z = (unk09->field_64 + unk09->field_4C) >> 1;
+        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
+        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        point_c.field_10 = (unk09->p3.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_c, &point_c);
+        coord_d.x = (coord_a.x + unk09->field_44) >> 1;
+        coord_d.y = (coord_a.y + unk09->field_48) >> 1;
+        coord_d.z = (coord_a.z + unk09->field_4C) >> 1;
+        point_d.field_8 = (point_a.field_8 + unk09->p1.field_8) >> 1;
+        point_d.field_C = (point_a.field_C + unk09->p1.field_C) >> 1;
+        point_d.field_10 = (point_a.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_d, &point_d);
+        coord_e.x = (coord_a.x + unk09->field_50) >> 1;
+        coord_e.y = (coord_a.y + unk09->field_54) >> 1;
+        coord_e.z = (coord_a.z + unk09->field_58) >> 1;
+        point_e.field_8 = (point_a.field_8 + unk09->p2.field_8) >> 1;
+        point_e.field_C = (point_a.field_C + unk09->p2.field_C) >> 1;
+        point_e.field_10 = (point_a.field_10 + unk09->p2.field_10) >> 1;
+        perspective(&coord_e, &point_e);
+        draw_gpoly(&unk09->p1, &point_d, &point_c);
+        draw_gpoly(&point_d, &point_a, &point_c);
+        draw_gpoly(&point_a, &point_e, &point_b);
+        draw_gpoly(&point_e, &unk09->p2, &point_b);
+        draw_gpoly(&point_a, &point_b, &point_c);
+        draw_gpoly(&point_c, &point_b, &unk09->p3);
+        break;
+    case 9:
+        vec_mode = 5;
+        coord_a.x = (unk09->field_50 + unk09->field_44) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_4C + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        point_a.field_10 = (unk09->p2.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_a, &point_a);
+        coord_b.x = (unk09->field_50 + unk09->field_5C) >> 1;
+        coord_b.y = (unk09->field_54 + unk09->field_60) >> 1;
+        coord_b.z = (unk09->field_64 + unk09->field_58) >> 1;
+        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
+        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        point_b.field_10 = (unk09->p3.field_10 + unk09->p2.field_10) >> 1;
+        perspective(&coord_b, &point_b);
+        coord_c.x = (unk09->field_44 + unk09->field_5C) >> 1;
+        coord_c.y = (unk09->field_60 + unk09->field_48) >> 1;
+        coord_c.z = (unk09->field_64 + unk09->field_4C) >> 1;
+        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
+        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        point_c.field_10 = (unk09->p3.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_c, &point_c);
+        coord_d.x = (coord_b.x + unk09->field_50) >> 1;
+        coord_d.y = (coord_b.y + unk09->field_54) >> 1;
+        coord_d.z = (coord_b.z + unk09->field_58) >> 1;
+        point_d.field_8 = (point_b.field_8 + unk09->p2.field_8) >> 1;
+        point_d.field_C = (point_b.field_C + unk09->p2.field_C) >> 1;
+        point_d.field_10 = (point_b.field_10 + unk09->p2.field_10) >> 1;
+        perspective(&coord_d, &point_d);
+        coord_e.x = (coord_b.x + unk09->field_5C) >> 1;
+        coord_e.y = (coord_b.y + unk09->field_60) >> 1;
+        coord_e.z = (coord_b.z + unk09->field_64) >> 1;
+        point_e.field_8 = (point_b.field_8 + unk09->p3.field_8) >> 1;
+        point_e.field_C = (point_b.field_C + unk09->p3.field_C) >> 1;
+        point_e.field_10 = (point_b.field_10 + unk09->p3.field_10) >> 1;
+        perspective(&coord_e, &point_e);
+        draw_gpoly(&unk09->p1, &point_a, &point_c);
+        draw_gpoly(&point_a, &point_b, &point_c);
+        draw_gpoly(&point_a, &unk09->p2, &point_d);
+        draw_gpoly(&point_a, &point_d, &point_b);
+        draw_gpoly(&point_c, &point_b, &point_e);
+        draw_gpoly(&point_c, &point_e, &unk09->p3);
+        break;
+    case 10:
+        vec_mode = 5;
+        coord_a.x = (unk09->field_50 + unk09->field_44) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_4C + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        point_a.field_10 = (unk09->p2.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_a, &point_a);
+        coord_b.x = (unk09->field_50 + unk09->field_5C) >> 1;
+        coord_b.y = (unk09->field_54 + unk09->field_60) >> 1;
+        coord_b.z = (unk09->field_64 + unk09->field_58) >> 1;
+        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
+        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        point_b.field_10 = (unk09->p3.field_10 + unk09->p2.field_10) >> 1;
+        perspective(&coord_b, &point_b);
+        coord_c.x = (unk09->field_44 + unk09->field_5C) >> 1;
+        coord_c.y = (unk09->field_60 + unk09->field_48) >> 1;
+        coord_c.z = (unk09->field_64 + unk09->field_4C) >> 1;
+        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
+        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        point_c.field_10 = (unk09->p3.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_c, &point_c);
+        coord_d.x = (coord_c.x + unk09->field_5C) >> 1;
+        coord_d.y = (coord_c.y + unk09->field_60) >> 1;
+        coord_d.z = (coord_c.z + unk09->field_64) >> 1;
+        point_d.field_8 = (point_c.field_8 + unk09->p3.field_8) >> 1;
+        point_d.field_C = (point_c.field_C + unk09->p3.field_C) >> 1;
+        point_d.field_10 = (point_c.field_10 + unk09->p3.field_10) >> 1;
+        perspective(&coord_d, &point_d);
+        coord_e.x = (coord_c.x + unk09->field_44) >> 1;
+        coord_e.y = (coord_c.y + unk09->field_48) >> 1;
+        coord_e.z = (coord_c.z + unk09->field_4C) >> 1;
+        point_e.field_8 = (point_c.field_8 + unk09->p1.field_8) >> 1;
+        point_e.field_C = (point_c.field_C + unk09->p1.field_C) >> 1;
+        point_e.field_10 = (point_c.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_e, &point_e);
+        draw_gpoly(&point_a, &unk09->p2, &point_b);
+        draw_gpoly(&point_a, &point_b, &point_c);
+        draw_gpoly(&unk09->p1, &point_a, &point_e);
+        draw_gpoly(&point_e, &point_a, &point_c);
+        draw_gpoly(&point_c, &point_b, &point_d);
+        draw_gpoly(&point_d, &point_b, &unk09->p3);
+        break;
+    case 11:
+        vec_mode = 5;
+        coord_a.x = (unk09->field_50 + unk09->field_44) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_4C + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        point_a.field_10 = (unk09->p2.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_a, &point_a);
+        coord_b.x = (unk09->field_50 + unk09->field_5C) >> 1;
+        coord_b.y = (unk09->field_54 + unk09->field_60) >> 1;
+        coord_b.z = (unk09->field_64 + unk09->field_58) >> 1;
+        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
+        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        point_b.field_10 = (unk09->p3.field_10 + unk09->p2.field_10) >> 1;
+        perspective(&coord_b, &point_b);
+        coord_c.x = (unk09->field_44 + unk09->field_5C) >> 1;
+        coord_c.y = (unk09->field_60 + unk09->field_48) >> 1;
+        coord_c.z = (unk09->field_64 + unk09->field_4C) >> 1;
+        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
+        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        point_c.field_10 = (unk09->p3.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_c, &point_c);
+        coord_d.x = (coord_a.x + unk09->field_44) >> 1;
+        coord_d.y = (coord_a.y + unk09->field_48) >> 1;
+        coord_d.z = (coord_a.z + unk09->field_4C) >> 1;
+        point_d.field_8 = (point_a.field_8 + unk09->p1.field_8) >> 1;
+        point_d.field_C = (point_a.field_C + unk09->p1.field_C) >> 1;
+        point_d.field_10 = (point_a.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_d, &point_d);
+        coord_e.x = (coord_a.x + unk09->field_50) >> 1;
+        coord_e.y = (coord_a.y + unk09->field_54) >> 1;
+        coord_e.z = (coord_a.z + unk09->field_58) >> 1;
+        point_e.field_8 = (point_a.field_8 + unk09->p2.field_8) >> 1;
+        point_e.field_C = (point_a.field_C + unk09->p2.field_C) >> 1;
+        point_e.field_10 = (point_a.field_10 + unk09->p2.field_10) >> 1;
+        perspective(&coord_e, &point_e);
+        coord_d.x = (coord_b.x + unk09->field_50) >> 1;
+        coord_d.y = (coord_b.y + unk09->field_54) >> 1;
+        coord_d.z = (coord_b.z + unk09->field_58) >> 1;
+        point_f.field_8 = (point_b.field_8 + unk09->p2.field_8) >> 1;
+        point_f.field_C = (point_b.field_C + unk09->p2.field_C) >> 1;
+        point_f.field_10 = (point_b.field_10 + unk09->p2.field_10) >> 1;
+        perspective(&coord_d, &point_f);
+        coord_e.x = (coord_b.x + unk09->field_5C) >> 1;
+        coord_e.y = (coord_b.y + unk09->field_60) >> 1;
+        coord_e.z = (coord_b.z + unk09->field_64) >> 1;
+        point_g.field_8 = (point_b.field_8 + unk09->p3.field_8) >> 1;
+        point_g.field_C = (point_b.field_C + unk09->p3.field_C) >> 1;
+        point_g.field_10 = (point_b.field_10 + unk09->p3.field_10) >> 1;
+        perspective(&coord_e, &point_g);
+        coord_d.x = (coord_c.x + unk09->field_5C) >> 1;
+        coord_d.y = (coord_c.y + unk09->field_60) >> 1;
+        coord_d.z = (coord_c.z + unk09->field_64) >> 1;
+        point_h.field_8 = (point_c.field_8 + unk09->p3.field_8) >> 1;
+        point_h.field_C = (point_c.field_C + unk09->p3.field_C) >> 1;
+        point_h.field_10 = (point_c.field_10 + unk09->p3.field_10) >> 1;
+        perspective(&coord_d, &point_h);
+        coord_e.x = (coord_c.x + unk09->field_44) >> 1;
+        coord_e.y = (coord_c.y + unk09->field_48) >> 1;
+        coord_e.z = (coord_c.z + unk09->field_4C) >> 1;
+        point_i.field_8 = (point_c.field_8 + unk09->p1.field_8) >> 1;
+        point_i.field_C = (point_c.field_C + unk09->p1.field_C) >> 1;
+        point_i.field_10 = (point_c.field_10 + unk09->p1.field_10) >> 1;
+        perspective(&coord_e, &point_i);
+        coord_d.x = (coord_a.x + coord_c.x) >> 1;
+        coord_d.y = (coord_a.y + coord_c.y) >> 1;
+        coord_d.z = (coord_a.z + coord_c.z) >> 1;
+        point_j.field_8 = (point_a.field_8 + point_c.field_8) >> 1;
+        point_j.field_C = (point_a.field_C + point_c.field_C) >> 1;
+        point_j.field_10 = (point_a.field_10 + point_c.field_10) >> 1;
+        perspective(&coord_d, &point_j);
+        coord_e.x = (coord_a.x + coord_b.x) >> 1;
+        coord_e.y = (coord_a.y + coord_b.y) >> 1;
+        coord_e.z = (coord_a.z + coord_b.z) >> 1;
+        point_k.field_8 = (point_a.field_8 + point_b.field_8) >> 1;
+        point_k.field_C = (point_a.field_C + point_b.field_C) >> 1;
+        point_k.field_10 = (point_a.field_10 + point_b.field_10) >> 1;
+        perspective(&coord_e, &point_k);
+        coord_d.x = (coord_b.x + coord_c.x) >> 1;
+        coord_d.y = (coord_b.y + coord_c.y) >> 1;
+        coord_d.z = (coord_b.z + coord_c.z) >> 1;
+        point_l.field_8 = (point_b.field_8 + point_c.field_8) >> 1;
+        point_l.field_C = (point_b.field_C + point_c.field_C) >> 1;
+        point_l.field_10 = (point_b.field_10 + point_c.field_10) >> 1;
+        perspective(&coord_d, &point_l);
+        draw_gpoly(&unk09->p1, &point_d, &point_i);
+        draw_gpoly(&point_d, &point_a, &point_j);
+        draw_gpoly(&point_a, &point_e, &point_k);
+        draw_gpoly(&point_e, &unk09->p2, &point_f);
+        draw_gpoly(&point_d, &point_j, &point_i);
+        draw_gpoly(&point_a, &point_k, &point_j);
+        draw_gpoly(&point_e, &point_f, &point_k);
+        draw_gpoly(&point_i, &point_j, &point_c);
+        draw_gpoly(&point_j, &point_k, &point_l);
+        draw_gpoly(&point_k, &point_f, &point_b);
+        draw_gpoly(&point_j, &point_l, &point_c);
+        draw_gpoly(&point_k, &point_b, &point_l);
+        draw_gpoly(&point_c, &point_l, &point_h);
+        draw_gpoly(&point_l, &point_b, &point_g);
+        draw_gpoly(&point_l, &point_g, &point_h);
+        draw_gpoly(&point_h, &point_g, &unk09->p3);
+        break;
+    case 12:
+        vec_mode = 7;
+        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        trig(&unk09->p1, &unk09->p2, &unk09->p3);
+        break;
+    case 13:
+        vec_mode = 7;
+        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        coord_a.x = (unk09->field_50 + unk09->field_44) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_4C + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_a, &point_a);
+        trig(&unk09->p1, &point_a, &unk09->p3);
+        trig(&point_a, &unk09->p2, &unk09->p3);
+        break;
+    case 14:
+        vec_mode = 7;
+        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        coord_a.x = (unk09->field_50 + unk09->field_5C) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_60) >> 1;
+        coord_a.z = (unk09->field_64 + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        perspective(&coord_a, &point_a);
+        trig(&unk09->p1, &unk09->p2, &point_a);
+        trig(&unk09->p1, &point_a, &unk09->p3);
+        break;
+    case 15:
+        vec_mode = 7;
+        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        coord_a.x = (unk09->field_44 + unk09->field_5C) >> 1;
+        coord_a.y = (unk09->field_60 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_64 + unk09->field_4C) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
+        point_a.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_a, &point_a);
+        trig(&unk09->p1, &unk09->p2, &point_a);
+        trig(&point_a, &unk09->p2, &unk09->p3);
+        break;
+    case 16:
+        vec_mode = 7;
+        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        coord_a.x = (unk09->field_50 + unk09->field_44) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_4C + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_a, &point_a);
+        coord_b.x = (unk09->field_50 + unk09->field_5C) >> 1;
+        coord_b.y = (unk09->field_54 + unk09->field_60) >> 1;
+        coord_b.z = (unk09->field_64 + unk09->field_58) >> 1;
+        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
+        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        perspective(&coord_b, &point_b);
+        coord_c.x = (unk09->field_44 + unk09->field_5C) >> 1;
+        coord_c.y = (unk09->field_60 + unk09->field_48) >> 1;
+        coord_c.z = (unk09->field_64 + unk09->field_4C) >> 1;
+        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
+        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_c, &point_c);
+        trig(&unk09->p1, &point_a, &point_c);
+        trig(&point_a, &unk09->p2, &point_b);
+        trig(&point_a, &point_b, &point_c);
+        trig(&point_c, &point_b, &unk09->p3);
+        break;
+    case 17:
+        vec_mode = 7;
+        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        coord_a.x = (unk09->field_50 + unk09->field_44) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_4C + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_a, &point_a);
+        coord_b.x = (coord_a.x + unk09->field_44) >> 1;
+        coord_b.y = (coord_a.y + unk09->field_48) >> 1;
+        coord_b.z = (coord_a.z + unk09->field_4C) >> 1;
+        point_b.field_8 = (point_a.field_8 + unk09->p1.field_8) >> 1;
+        point_b.field_C = (point_a.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_b, &point_b);
+        coord_c.x = (coord_a.x + unk09->field_50) >> 1;
+        coord_c.y = (coord_a.y + unk09->field_54) >> 1;
+        coord_c.z = (coord_a.z + unk09->field_58) >> 1;
+        point_c.field_8 = (point_a.field_8 + unk09->p2.field_8) >> 1;
+        point_c.field_C = (point_a.field_C + unk09->p2.field_C) >> 1;
+        perspective(&coord_c, &point_c);
+        trig(&unk09->p1, &point_b, &unk09->p3);
+        trig(&point_b, &point_a, &unk09->p3);
+        trig(&point_a, &point_c, &unk09->p3);
+        trig(&point_c, &unk09->p2, &unk09->p3);
+        break;
+    case 18:
+        vec_mode = 7;
+        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        coord_a.x = (unk09->field_50 + unk09->field_5C) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_60) >> 1;
+        coord_a.z = (unk09->field_64 + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        perspective(&coord_a, &point_a);
+        coord_b.x = (coord_a.x + unk09->field_50) >> 1;
+        coord_b.y = (coord_a.y + unk09->field_54) >> 1;
+        coord_b.z = (coord_a.z + unk09->field_58) >> 1;
+        point_b.field_8 = (point_a.field_8 + unk09->p2.field_8) >> 1;
+        point_b.field_C = (point_a.field_C + unk09->p2.field_C) >> 1;
+        perspective(&coord_b, &point_b);
+        coord_c.x = (coord_a.x + unk09->field_5C) >> 1;
+        coord_c.y = (coord_a.y + unk09->field_60) >> 1;
+        coord_c.z = (coord_a.z + unk09->field_64) >> 1;
+        point_c.field_8 = (point_a.field_8 + unk09->p3.field_8) >> 1;
+        point_c.field_C = (point_a.field_C + unk09->p3.field_C) >> 1;
+        perspective(&coord_c, &point_c);
+        trig(&unk09->p1, &unk09->p2, &point_b);
+        trig(&unk09->p1, &point_b, &point_a);
+        trig(&unk09->p1, &point_a, &point_c);
+        trig(&unk09->p1, &point_c, &unk09->p3);
+        break;
+    case 19:
+        vec_mode = 7;
+        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        coord_a.x = (unk09->field_44 + unk09->field_5C) >> 1;
+        coord_a.y = (unk09->field_60 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_64 + unk09->field_4C) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
+        point_a.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_a, &point_a);
+        coord_b.x = (coord_a.x + unk09->field_5C) >> 1;
+        coord_b.y = (coord_a.y + unk09->field_60) >> 1;
+        coord_b.z = (coord_a.z + unk09->field_64) >> 1;
+        point_b.field_8 = (point_a.field_8 + unk09->p3.field_8) >> 1;
+        point_b.field_C = (point_a.field_C + unk09->p3.field_C) >> 1;
+        perspective(&coord_b, &point_b);
+        coord_c.x = (coord_a.x + unk09->field_44) >> 1;
+        coord_c.y = (coord_a.y + unk09->field_48) >> 1;
+        coord_c.z = (coord_a.z + unk09->field_4C) >> 1;
+        point_c.field_8 = (point_a.field_8 + unk09->p1.field_8) >> 1;
+        point_c.field_C = (point_a.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_c, &point_c);
+        trig(&unk09->p2, &unk09->p3, &point_b);
+        trig(&unk09->p2, &point_b, &point_a);
+        trig(&unk09->p2, &point_a, &point_c);
+        trig(&unk09->p2, &point_c, &unk09->p1);
+        break;
+    case 20:
+        vec_mode = 7;
+        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        coord_a.x = (unk09->field_50 + unk09->field_44) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_4C + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_a, &point_a);
+        coord_b.x = (unk09->field_50 + unk09->field_5C) >> 1;
+        coord_b.y = (unk09->field_54 + unk09->field_60) >> 1;
+        coord_b.z = (unk09->field_64 + unk09->field_58) >> 1;
+        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
+        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        perspective(&coord_b, &point_b);
+        coord_c.x = (unk09->field_44 + unk09->field_5C) >> 1;
+        coord_c.y = (unk09->field_60 + unk09->field_48) >> 1;
+        coord_c.z = (unk09->field_64 + unk09->field_4C) >> 1;
+        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
+        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_c, &point_c);
+        coord_d.x = (coord_a.x + unk09->field_44) >> 1;
+        coord_d.y = (coord_a.y + unk09->field_48) >> 1;
+        coord_d.z = (coord_a.z + unk09->field_4C) >> 1;
+        point_d.field_8 = (point_a.field_8 + unk09->p1.field_8) >> 1;
+        point_d.field_C = (point_a.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_d, &point_d);
+        coord_e.x = (coord_a.x + unk09->field_50) >> 1;
+        coord_e.y = (coord_a.y + unk09->field_54) >> 1;
+        coord_e.z = (coord_a.z + unk09->field_58) >> 1;
+        point_e.field_8 = (point_a.field_8 + unk09->p2.field_8) >> 1;
+        point_e.field_C = (point_a.field_C + unk09->p2.field_C) >> 1;
+        perspective(&coord_e, &point_e);
+        trig(&unk09->p1, &point_d, &point_c);
+        trig(&point_d, &point_a, &point_c);
+        trig(&point_a, &point_e, &point_b);
+        trig(&point_e, &unk09->p2, &point_b);
+        trig(&point_a, &point_b, &point_c);
+        trig(&point_c, &point_b, &unk09->p3);
+        break;
+    case 21:
+        vec_mode = 7;
+        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        coord_a.x = (unk09->field_50 + unk09->field_44) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_4C + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_a, &point_a);
+        coord_b.x = (unk09->field_50 + unk09->field_5C) >> 1;
+        coord_b.y = (unk09->field_54 + unk09->field_60) >> 1;
+        coord_b.z = (unk09->field_64 + unk09->field_58) >> 1;
+        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
+        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        perspective(&coord_b, &point_b);
+        coord_c.x = (unk09->field_44 + unk09->field_5C) >> 1;
+        coord_c.y = (unk09->field_60 + unk09->field_48) >> 1;
+        coord_c.z = (unk09->field_64 + unk09->field_4C) >> 1;
+        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
+        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_c, &point_c);
+        coord_d.x = (coord_b.x + unk09->field_50) >> 1;
+        coord_d.y = (coord_b.y + unk09->field_54) >> 1;
+        coord_d.z = (coord_b.z + unk09->field_58) >> 1;
+        point_d.field_8 = (point_b.field_8 + unk09->p2.field_8) >> 1;
+        point_d.field_C = (point_b.field_C + unk09->p2.field_C) >> 1;
+        perspective(&coord_d, &point_d);
+        coord_e.x = (coord_b.x + unk09->field_5C) >> 1;
+        coord_e.y = (coord_b.y + unk09->field_60) >> 1;
+        coord_e.z = (coord_b.z + unk09->field_64) >> 1;
+        point_e.field_8 = (point_b.field_8 + unk09->p3.field_8) >> 1;
+        point_e.field_C = (point_b.field_C + unk09->p3.field_C) >> 1;
+        perspective(&coord_e, &point_e);
+        trig(&unk09->p1, &point_a, &point_c);
+        trig(&point_a, &point_b, &point_c);
+        trig(&point_a, &unk09->p2, &point_d);
+        trig(&point_a, &point_d, &point_b);
+        trig(&point_c, &point_b, &point_e);
+        trig(&point_c, &point_e, &unk09->p3);
+        break;
+    case 22:
+        vec_mode = 7;
+        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        coord_a.x = (unk09->field_50 + unk09->field_44) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_4C + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_a, &point_a);
+        coord_b.x = (unk09->field_50 + unk09->field_5C) >> 1;
+        coord_b.y = (unk09->field_54 + unk09->field_60) >> 1;
+        coord_b.z = (unk09->field_64 + unk09->field_58) >> 1;
+        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
+        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        perspective(&coord_b, &point_b);
+        coord_c.x = (unk09->field_44 + unk09->field_5C) >> 1;
+        coord_c.y = (unk09->field_60 + unk09->field_48) >> 1;
+        coord_c.z = (unk09->field_64 + unk09->field_4C) >> 1;
+        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
+        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_c, &point_c);
+        coord_d.x = (coord_c.x + unk09->field_5C) >> 1;
+        coord_d.y = (coord_c.y + unk09->field_60) >> 1;
+        coord_d.z = (coord_c.z + unk09->field_64) >> 1;
+        point_d.field_8 = (point_c.field_8 + unk09->p3.field_8) >> 1;
+        point_d.field_C = (point_c.field_C + unk09->p3.field_C) >> 1;
+        perspective(&coord_d, &point_d);
+        coord_e.x = (coord_c.x + unk09->field_44) >> 1;
+        coord_e.y = (coord_c.y + unk09->field_48) >> 1;
+        coord_e.z = (coord_c.z + unk09->field_4C) >> 1;
+        point_e.field_8 = (point_c.field_8 + unk09->p1.field_8) >> 1;
+        point_e.field_C = (point_c.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_e, &point_e);
+        trig(&point_a, &unk09->p2, &point_b);
+        trig(&point_a, &point_b, &point_c);
+        trig(&unk09->p1, &point_a, &point_e);
+        trig(&point_e, &point_a, &point_c);
+        trig(&point_c, &point_b, &point_d);
+        trig(&point_d, &point_b, &unk09->p3);
+        break;
+    case 23:
+        vec_mode = 7;
+        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        coord_a.x = (unk09->field_50 + unk09->field_44) >> 1;
+        coord_a.y = (unk09->field_54 + unk09->field_48) >> 1;
+        coord_a.z = (unk09->field_4C + unk09->field_58) >> 1;
+        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
+        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_a, &point_a);
+        coord_b.x = (unk09->field_50 + unk09->field_5C) >> 1;
+        coord_b.y = (unk09->field_54 + unk09->field_60) >> 1;
+        coord_b.z = (unk09->field_64 + unk09->field_58) >> 1;
+        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
+        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        perspective(&coord_b, &point_b);
+        coord_c.x = (unk09->field_44 + unk09->field_5C) >> 1;
+        coord_c.y = (unk09->field_60 + unk09->field_48) >> 1;
+        coord_c.z = (unk09->field_64 + unk09->field_4C) >> 1;
+        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
+        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_c, &point_c);
+        coord_d.x = (coord_a.x + unk09->field_44) >> 1;
+        coord_d.y = (coord_a.y + unk09->field_48) >> 1;
+        coord_d.z = (coord_a.z + unk09->field_4C) >> 1;
+        point_d.field_8 = (point_a.field_8 + unk09->p1.field_8) >> 1;
+        point_d.field_C = (point_a.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_d, &point_d);
+        coord_e.x = (coord_a.x + unk09->field_50) >> 1;
+        coord_e.y = (coord_a.y + unk09->field_54) >> 1;
+        coord_e.z = (coord_a.z + unk09->field_58) >> 1;
+        point_e.field_8 = (point_a.field_8 + unk09->p2.field_8) >> 1;
+        point_e.field_C = (point_a.field_C + unk09->p2.field_C) >> 1;
+        perspective(&coord_e, &point_e);
+        coord_d.x = (coord_b.x + unk09->field_50) >> 1;
+        coord_d.y = (coord_b.y + unk09->field_54) >> 1;
+        coord_d.z = (coord_b.z + unk09->field_58) >> 1;
+        point_f.field_8 = (point_b.field_8 + unk09->p2.field_8) >> 1;
+        point_f.field_C = (point_b.field_C + unk09->p2.field_C) >> 1;
+        perspective(&coord_d, &point_f);
+        coord_e.x = (coord_b.x + unk09->field_5C) >> 1;
+        coord_e.y = (coord_b.y + unk09->field_60) >> 1;
+        coord_e.z = (coord_b.z + unk09->field_64) >> 1;
+        point_g.field_8 = (point_b.field_8 + unk09->p3.field_8) >> 1;
+        point_g.field_C = (point_b.field_C + unk09->p3.field_C) >> 1;
+        perspective(&coord_e, &point_g);
+        coord_d.x = (coord_c.x + unk09->field_5C) >> 1;
+        coord_d.y = (coord_c.y + unk09->field_60) >> 1;
+        coord_d.z = (coord_c.z + unk09->field_64) >> 1;
+        point_h.field_8 = (point_c.field_8 + unk09->p3.field_8) >> 1;
+        point_h.field_C = (point_c.field_C + unk09->p3.field_C) >> 1;
+        perspective(&coord_d, &point_h);
+        coord_e.x = (coord_c.x + unk09->field_44) >> 1;
+        coord_e.y = (coord_c.y + unk09->field_48) >> 1;
+        coord_e.z = (coord_c.z + unk09->field_4C) >> 1;
+        point_i.field_8 = (point_c.field_8 + unk09->p1.field_8) >> 1;
+        point_i.field_C = (point_c.field_C + unk09->p1.field_C) >> 1;
+        perspective(&coord_e, &point_i);
+        coord_d.x = (coord_a.x + coord_c.x) >> 1;
+        coord_d.y = (coord_a.y + coord_c.y) >> 1;
+        coord_d.z = (coord_a.z + coord_c.z) >> 1;
+        point_j.field_8 = (point_a.field_8 + point_c.field_8) >> 1;
+        point_j.field_C = (point_a.field_C + point_c.field_C) >> 1;
+        perspective(&coord_d, &point_j);
+        coord_e.x = (coord_a.x + coord_b.x) >> 1;
+        coord_e.y = (coord_a.y + coord_b.y) >> 1;
+        coord_e.z = (coord_a.z + coord_b.z) >> 1;
+        point_k.field_8 = (point_a.field_8 + point_b.field_8) >> 1;
+        point_k.field_C = (point_a.field_C + point_b.field_C) >> 1;
+        perspective(&coord_e, &point_k);
+        coord_d.x = (coord_b.x + coord_c.x) >> 1;
+        coord_d.y = (coord_b.y + coord_c.y) >> 1;
+        coord_d.z = (coord_b.z + coord_c.z) >> 1;
+        point_l.field_8 = (point_b.field_8 + point_c.field_8) >> 1;
+        point_l.field_C = (point_b.field_C + point_c.field_C) >> 1;
+        perspective(&coord_d, &point_l);
+        trig(&unk09->p1, &point_d, &point_i);
+        trig(&point_d, &point_a, &point_j);
+        trig(&point_a, &point_e, &point_k);
+        trig(&point_e, &unk09->p2, &point_f);
+        trig(&point_d, &point_j, &point_i);
+        trig(&point_a, &point_k, &point_j);
+        trig(&point_e, &point_f, &point_k);
+        trig(&point_i, &point_j, &point_c);
+        trig(&point_j, &point_k, &point_l);
+        trig(&point_k, &point_f, &point_b);
+        trig(&point_j, &point_l, &point_c);
+        trig(&point_k, &point_b, &point_l);
+        trig(&point_c, &point_l, &point_h);
+        trig(&point_l, &point_b, &point_g);
+        trig(&point_l, &point_g, &point_h);
+        trig(&point_h, &point_g, &unk09->p3);
+        break;
+    default:
+        render_problems++;
+        render_prob_kind = unk09->b.kind;
+        break;
+    }
+}
 void display_drawlist(void)
 {
     struct PlayerInfo *player;
@@ -423,14 +1214,15 @@ void display_drawlist(void)
     long bucket_num;
     struct PolyPoint point_a,point_b,point_c;
     SYNCDBG(9,"Starting");
-    //TODO: remove when rewritten completely
-    _DK_display_drawlist(); return;
+    //_DK_display_drawlist(); return;
+    render_problems = 0;
     thing_pointed_at = 0;
-    for (bucket_num = 703; bucket_num > 0; bucket_num--)
+    for (bucket_num = BUCKETS_COUNT-1; bucket_num > 0; bucket_num--)
     {
       bucket = &buckets[bucket_num];
       for (poly.b = *bucket; poly.b != NULL; poly.b = poly.b->next)
       {
+        //JUSTLOG("%d",(int)poly.b->kind);
         switch ( poly.b->kind )
         {
         case 0:
@@ -543,7 +1335,7 @@ void display_drawlist(void)
           draw_map_who(poly.rotSpr);
           break;
         case 9:
-            //TODO
+          draw_unkn09(poly.unk09);
           break;
         case 10:
           vec_mode = 0;
@@ -562,25 +1354,7 @@ void display_drawlist(void)
           trig(&poly.unk12->p1, &poly.unk12->p3, &poly.unk12->p4);
           break;
         case 13:
-          point_a.field_10 = poly.unk13->p.field_10;
-          point_a.field_C = poly.unk13->p.field_C;
-          point_a.field_8 = poly.unk13->p.field_8;
-          point_a.field_4 = poly.unk13->p.field_4;
-          point_a.field_0 = poly.unk13->p.field_0;
-          if ((point_a.field_0 >= 0) || (point_a.field_8 >= 0))
-          {
-            if ((point_a.field_4 >= 0) || (point_a.field_C >= 0))
-            {
-              player = get_my_player();
-              if ((point_a.field_0 < player->engine_window_width) || (point_a.field_8 < player->engine_window_width))
-              {
-                if ((point_a.field_4 < player->engine_window_width) || (point_a.field_C < player->engine_window_width))
-                {
-                  draw_stripey_line(point_a.field_0, point_a.field_4, point_a.field_8, point_a.field_C, point_a.field_10);
-                }
-              }
-            }
-          }
+          draw_clipped_line(poly.unk13->p.field_0,poly.unk13->p.field_4,poly.unk13->p.field_8,poly.unk13->p.field_C,poly.unk13->p.field_10);
           break;
         case 14:
           player = get_my_player();
@@ -610,10 +1384,14 @@ void display_drawlist(void)
           draw_engine_room_flag_top(poly.roomFlg);
           break;
         default:
+          render_problems++;
+          render_prob_kind = poly.b->kind;
           break;
+        }
       }
     }
-  }
+    if (render_problems > 0)
+      WARNLOG("Encoured %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
 }
 
 void draw_view(struct Camera *cam, unsigned char a2)
@@ -754,8 +1532,8 @@ long convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct 
 void create_line_element(long a1, long a2, long a3, long a4, long bckt_idx, TbPixel color)
 {
   struct BasicUnk13 *poly;
-  if (bckt_idx >= 703)
-    bckt_idx = 702;
+  if (bckt_idx >= BUCKETS_COUNT)
+    bckt_idx = BUCKETS_COUNT-1;
   else
   if (bckt_idx < 0)
     bckt_idx = 0;
@@ -782,8 +1560,8 @@ void create_line_segment(struct EngineCoord *start, struct EngineCoord *end, TbP
     return;
   // Get bucket index
   bckt_idx = (start->z+end->z)/2 / 16 - 2;
-  if (bckt_idx >= 703)
-    bckt_idx = 702;
+  if (bckt_idx >= BUCKETS_COUNT)
+    bckt_idx = BUCKETS_COUNT-1;
   else
   if (bckt_idx < 0)
     bckt_idx = 0;
@@ -807,8 +1585,8 @@ void create_line_segment(struct EngineCoord *start, struct EngineCoord *end, TbP
 void add_unkn11_to_polypool(struct Thing *thing, long a2, long a3, long a4, long bckt_idx)
 {
   struct JontySpr *poly;
-  if (bckt_idx >= 703)
-    bckt_idx = 702;
+  if (bckt_idx >= BUCKETS_COUNT)
+    bckt_idx = BUCKETS_COUNT-1;
   else
   if (bckt_idx < 0)
     bckt_idx = 0;
@@ -829,8 +1607,8 @@ void add_unkn11_to_polypool(struct Thing *thing, long a2, long a3, long a4, long
 void add_unkn18_to_polypool(struct Thing *thing, long a2, long a3, long a4, long bckt_idx)
 {
   struct JontySpr *poly;
-  if (bckt_idx >= 703)
-    bckt_idx = 702;
+  if (bckt_idx >= BUCKETS_COUNT)
+    bckt_idx = BUCKETS_COUNT-1;
   else
   if (bckt_idx < 0)
     bckt_idx = 0;
@@ -851,8 +1629,8 @@ void add_unkn18_to_polypool(struct Thing *thing, long a2, long a3, long a4, long
 void create_status_box_element(struct Thing *thing, long a2, long a3, long a4, long bckt_idx)
 {
   struct BasicUnk14 *poly;
-  if (bckt_idx >= 703)
-    bckt_idx = 702;
+  if (bckt_idx >= BUCKETS_COUNT)
+    bckt_idx = BUCKETS_COUNT-1;
   else
   if (bckt_idx < 0)
     bckt_idx = 0;
@@ -878,8 +1656,8 @@ void create_fast_view_status_box(struct Thing *thing, long x, long y)
 void add_unkn16_to_polypool(long x, long y, long lvl, long bckt_idx)
 {
   struct Number *poly;
-  if (bckt_idx >= 703)
-    bckt_idx = 702;
+  if (bckt_idx >= BUCKETS_COUNT)
+    bckt_idx = BUCKETS_COUNT-1;
   else
   if (bckt_idx < 0)
     bckt_idx = 0;
@@ -899,8 +1677,8 @@ void add_unkn16_to_polypool(long x, long y, long lvl, long bckt_idx)
 void add_unkn17_to_polypool(long x, long y, long lvl, long bckt_idx)
 {
   struct RoomFlag *poly;
-  if (bckt_idx >= 703)
-    bckt_idx = 702;
+  if (bckt_idx >= BUCKETS_COUNT)
+    bckt_idx = BUCKETS_COUNT-1;
   else
   if (bckt_idx < 0)
     bckt_idx = 0;
@@ -920,8 +1698,8 @@ void add_unkn17_to_polypool(long x, long y, long lvl, long bckt_idx)
 void add_unkn19_to_polypool(long x, long y, long lvl, long bckt_idx)
 {
   struct RoomFlag *poly;
-  if (bckt_idx >= 703)
-    bckt_idx = 702;
+  if (bckt_idx >= BUCKETS_COUNT)
+    bckt_idx = BUCKETS_COUNT-1;
   else
   if (bckt_idx < 0)
     bckt_idx = 0;
@@ -950,16 +1728,16 @@ void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, lo
   struct Map *map;
   long pos_x,pos_y;
   long slb_x,slb_y;
-  long point_x,point_y,delta;
+  long point_a,point_b,delta;
   long i;
   store_engine_window(&ewnd,1);
-  point_x = (((GetMouseX() - ewnd.x) << 8) - qx) << 8;
-  point_y = (((GetMouseY() - ewnd.y) << 8) - qy) << 8;
+  point_a = (((GetMouseX() - ewnd.x) << 8) - qx) << 8;
+  point_b = (((GetMouseY() - ewnd.y) << 8) - qy) << 8;
   delta = (laaa << 7) / 256 << 8;
   for (i=0; i < 8; i++)
   {
-    pos_x = (point_x / laaa) * x_step2[qdrant] + (point_y / laaa) * x_step1[qdrant] + (w << 8);
-    pos_y = (point_x / laaa) * y_step2[qdrant] + (point_y / laaa) * y_step1[qdrant] + (h << 8);
+    pos_x = (point_a / laaa) * x_step2[qdrant] + (point_b / laaa) * x_step1[qdrant] + (w << 8);
+    pos_y = (point_a / laaa) * y_step2[qdrant] + (point_b / laaa) * y_step1[qdrant] + (h << 8);
     slb_x = (pos_x >> 8) + x_offs[qdrant];
     slb_y = (pos_y >> 8) + y_offs[qdrant];
     map = get_map_block_at(slb_x, slb_y);
@@ -996,7 +1774,7 @@ void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, lo
         }
       }
     }
-    point_y += delta;
+    point_b += delta;
   }
 }
 
