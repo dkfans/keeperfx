@@ -31,6 +31,8 @@ extern "C" {
 #pragma pack(1)
 #endif
 
+#define BUCKETS_COUNT 704
+
 struct MinMax;
 struct Camera;
 struct PlayerInfo;
@@ -175,11 +177,11 @@ struct BasicUnk07 {
 struct RotoSpr {
     struct BasicQ b;
     unsigned char field_5[3];
-    unsigned long field_8;
-    unsigned long field_C;
-    unsigned long field_10;
-    unsigned long field_14;
-    unsigned char field_18;
+    long field_8;
+    long field_C;
+    long field_10;
+    long field_14;
+    char field_18;
     unsigned char field_19[3];
 };
 
@@ -187,12 +189,18 @@ struct BasicUnk09 {
     struct BasicQ b;
     unsigned char subtype;
     unsigned short block;
-    unsigned long field_8;
-    unsigned long field_C;
-    unsigned long field_10;
-    unsigned long field_14;
-    unsigned char field_18;
-    unsigned char field_19[3];
+    struct PolyPoint p1;
+    struct PolyPoint p2;
+    struct PolyPoint p3;
+    long field_44;
+    long field_48;
+    long field_4C;
+    long field_50;
+    long field_54;
+    long field_58;
+    long field_5C;
+    long field_60;
+    long field_64;
 };
 
 struct BasicUnk10 {
@@ -208,10 +216,10 @@ struct BasicUnk10 {
 struct JontySpr {  // BasicQ type 11,18
     struct BasicQ b;
     unsigned char field_5[3];
-    unsigned long field_8;
-    unsigned long field_C;
-    unsigned long field_10;
-    unsigned long field_14;
+    long field_8;
+    long field_C;
+    long field_10;
+    long field_14;
     unsigned char field_18;
     unsigned char field_19[3];
 };
@@ -224,7 +232,7 @@ struct BasicUnk12 {
     struct PolyPoint p2;
     struct PolyPoint p3;
     struct PolyPoint p4;
-    unsigned long field_58;
+    long field_58;
     unsigned short field_5C;
     unsigned char field_5E;
 };
@@ -241,42 +249,42 @@ struct BasicUnk14 { // sizeof = 24
     struct BasicQ b;
     unsigned char field_5[3];
     struct Thing *thing;
-    unsigned long field_C;
-    unsigned long field_10;
-    unsigned long field_14;
+    long field_C;
+    long field_10;
+    long field_14;
 };
 
 struct Number { // BasicQ type 16
     struct BasicQ b;
     unsigned char field_5[3];
-    unsigned long x;
-    unsigned long y;
-    unsigned long lvl;
+    long x;
+    long y;
+    long lvl;
 };
 
 struct RoomFlag { // BasicQ type 17,19
     struct BasicQ b;
     unsigned char field_5;
     unsigned short lvl;
-    unsigned long x;
-    unsigned long y;
+    long x;
+    long y;
 };
 
 struct EngineCoord { // sizeof = 28
-  unsigned long field_0;
-  unsigned long field_4;
+  long field_0;
+  long field_4;
   unsigned short field_8;
   unsigned short field_A;
-  unsigned long field_C;
+  long field_C;
   long x;
   long y;
   long z;
 };
 
 struct M33 { // sizeof = 48
-  unsigned long r0[4];
-  unsigned long r1[4];
-  unsigned long r2[4];
+  long r0[4];
+  long r1[4];
+  long r2[4];
 };
 
 struct EngineCol {
@@ -287,11 +295,11 @@ struct MapVolumeBox { // sizeof = 24
   unsigned char field_0;
   unsigned char color;
   unsigned char field_2;
-  unsigned long field_3;
-  unsigned long field_7;
-  unsigned long field_B;
-  unsigned long field_F;
-  unsigned long field_13;
+  long field_3;
+  long field_7;
+  long field_B;
+  long field_F;
+  long field_13;
   unsigned char field_17;
 };
 
@@ -306,7 +314,7 @@ DLLIMPORT unsigned char _DK_poly_pool[0x40000];
 #define poly_pool _DK_poly_pool
 DLLIMPORT unsigned char *_DK_poly_pool_end;
 #define poly_pool_end _DK_poly_pool_end
-DLLIMPORT struct BasicQ *_DK_buckets[704];
+DLLIMPORT struct BasicQ *_DK_buckets[BUCKETS_COUNT];
 #define buckets _DK_buckets
 DLLIMPORT Offset _DK_vert_offset[3];
 #define vert_offset _DK_vert_offset
