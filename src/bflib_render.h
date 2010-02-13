@@ -3,7 +3,7 @@
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
 /** @file bflib_render.h
- *     Header file for bflib_render.c.
+ *     Header file for bflib_render.c and bflib_render_*.c.
  * @par Purpose:
  *     Rendering the 3D view functions.
  * @par Comment:
@@ -55,6 +55,13 @@ extern TbPixel vec_colour;
 extern unsigned char vec_mode;
 extern unsigned char *render_fade_tables;
 extern unsigned char *render_ghost;
+extern struct PolyPoint polyscans[POLY_SCANS_COUNT];
+// Rename pending for these entries
+extern unsigned char *LOC_poly_screen;
+extern unsigned char *LOC_vec_map;
+extern unsigned long LOC_vec_screen_width;
+extern unsigned long LOC_vec_window_width;
+extern unsigned long LOC_vec_window_height;
 /******************************************************************************/
 void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
 void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);

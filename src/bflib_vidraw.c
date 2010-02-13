@@ -68,8 +68,8 @@ struct StartScreenPoint *hotspot_buffer=hots;
 unsigned char *lbSpriteReMapPtr;
 */
 /******************************************************************************/
-/*
- * Prints horizonal or vertical line on current graphics window.
+/**
+ * Prints horizontal or vertical line on current graphics window.
  * Does no screen locking - screen must be lock before and unlocked
  * after a call to this function.
  */
@@ -162,7 +162,7 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
       }
     }
   } else
-  {//Horizonal line
+  {//Horizontal line
     long idx = xpos2 - xpos1 + 1;
     if ( lbDisplay.DrawFlags & 4 )
     {
@@ -206,7 +206,7 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
   }
 }
 
-/*
+/**
  * Draws a filled box on current graphic window.
  * Performs clipping if needed to stay inside the window.
  * Does no screen locking.
@@ -292,7 +292,7 @@ void LbDrawBoxClip(long x, long y, unsigned long width, unsigned long height, Tb
   }
 }
 
-/*
+/**
  * Draws a rectangular box on current graphics window.
  * Does no screen locking.
  * @return If wrong dimensions returns -1. On success returns 1.
@@ -356,145 +356,6 @@ void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
 }
 
 /*
-//Adds box drawing command to list
-void __fastcall draw_box_purple_list(const long x, const long y, const unsigned long width, const unsigned long height, const TbPixel colour)
-{
-  if (purple_draw_index>=NUM_DRAWITEMS) return;
-  purple_draw_list[purple_draw_index].U.Box.X = lbDisplay.GraphicsWindowX + x;
-  purple_draw_list[purple_draw_index].U.Box.Y = lbDisplay.GraphicsWindowY + y;
-  purple_draw_list[purple_draw_index].U.Box.Width = width;
-  purple_draw_list[purple_draw_index].U.Box.Height = height;
-  purple_draw_list[purple_draw_index].U.Box.Colour = colour;
-  purple_draw_list[purple_draw_index].Flags = lbDisplay.DrawFlags;
-  purple_draw_list[purple_draw_index].Type=1;
-  purple_draw_index++;
-}
-
-void __fastcall copy_box_purple_list(const long x, const long y, const unsigned long width, const unsigned long height)
-{
-  if (purple_draw_index>=NUM_DRAWITEMS) return;
-  purple_draw_list[purple_draw_index].U.Box.X = lbDisplay.GraphicsWindowX + x;
-  purple_draw_list[purple_draw_index].U.Box.Y = lbDisplay.GraphicsWindowY + y;
-  purple_draw_list[purple_draw_index].U.Box.Width = width;
-  purple_draw_list[purple_draw_index].U.Box.Height = height;
-  purple_draw_list[purple_draw_index].U.Box.Colour = 0;
-  purple_draw_list[purple_draw_index].Flags = lbDisplay.DrawFlags;
-  purple_draw_list[purple_draw_index].Type=4;
-  purple_draw_index++;
-}
-
-void __fastcall my_set_text_window(const unsigned short x1, const unsigned short y1,
-        const unsigned short width, const unsigned short height)
-{
-  text_window_x1 = x1;
-  text_window_y1 = y1;
-  text_window_x2 = width + x1 - 1;
-  text_window_y2 = height + y1 - 1;
-}
-
-void __fastcall draw_text_purple_list(const long x, const long y, const char *text, const int line)
-{
-  if (purple_draw_index>=NUM_DRAWITEMS) return;
-  purple_draw_list[purple_draw_index].U.Text.WindowX = text_window_x1;
-  purple_draw_list[purple_draw_index].U.Text.WindowY = text_window_y1;
-  purple_draw_list[purple_draw_index].U.Text.Width =  text_window_x2 - text_window_x1 + 1;
-  purple_draw_list[purple_draw_index].U.Text.Height = text_window_y2 - text_window_y1 + 1;
-  purple_draw_list[purple_draw_index].U.Text.X = x;
-  purple_draw_list[purple_draw_index].U.Text.Y = y;
-  purple_draw_list[purple_draw_index].U.Text.Text = text;
-  purple_draw_list[purple_draw_index].U.Text.Font = lbFontPtr;
-  purple_draw_list[purple_draw_index].U.Text.Line = line;
-  purple_draw_list[purple_draw_index].U.Text.Colour = lbDisplay.DrawColour;
-  purple_draw_list[purple_draw_index].Flags = lbDisplay.DrawFlags;
-  purple_draw_list[purple_draw_index].Type=2;
-  purple_draw_index++;
-}
-
-void __fastcall draw_sprite_purple_list(long x, long y, struct TbSprite *sprite)
-{
-  if (purple_draw_index>=NUM_DRAWITEMS) return;
-  purple_draw_list[purple_draw_index].U.Sprite.X = lbDisplay.GraphicsWindowX + x;
-  purple_draw_list[purple_draw_index].U.Sprite.Y = lbDisplay.GraphicsWindowY + y;
-  purple_draw_list[purple_draw_index].U.Sprite.Sprite = sprite;
-  purple_draw_list[purple_draw_index].U.Sprite.Colour = lbDisplay.DrawColour;
-  purple_draw_list[purple_draw_index].Flags = lbDisplay.DrawFlags;
-  purple_draw_list[purple_draw_index].Type=5;
-  purple_draw_index++;
-}
-
-void __fastcall draw_trig_purple_list(long x2, long y2, long x3, long y3)
-{
-  if (purple_draw_index>=NUM_DRAWITEMS) return;
-  purple_draw_list[purple_draw_index].U.Trig.X2 = lbDisplay.GraphicsWindowX + x2;
-  purple_draw_list[purple_draw_index].U.Trig.Y2 = lbDisplay.GraphicsWindowY + y2;
-  purple_draw_list[purple_draw_index].U.Trig.X3 = lbDisplay.GraphicsWindowX + x3;
-  purple_draw_list[purple_draw_index].U.Trig.Y3 = lbDisplay.GraphicsWindowY + y3;
-  purple_draw_list[purple_draw_index].U.Trig.Colour = vec_colour;
-  purple_draw_list[purple_draw_index].Flags = lbDisplay.DrawFlags;
-  purple_draw_list[purple_draw_index].Type=6;
-  purple_draw_index++;
-}
-
-void __fastcall  draw_triangle_purple_list(long x1, long y1, long x2, long y2,
-        long x3, long y3, TbPixel colour)
-{
-  if (purple_draw_index>=NUM_DRAWITEMS) return;
-  purple_draw_list[purple_draw_index].U.Triangle.X1 = lbDisplay.GraphicsWindowX + x1;
-  purple_draw_list[purple_draw_index].U.Triangle.Y1 = lbDisplay.GraphicsWindowY + y1;
-  purple_draw_list[purple_draw_index].U.Triangle.X2 = lbDisplay.GraphicsWindowX + x2;
-  purple_draw_list[purple_draw_index].U.Triangle.Y2 = lbDisplay.GraphicsWindowY + y2;
-  purple_draw_list[purple_draw_index].U.Triangle.X3 = lbDisplay.GraphicsWindowX + x3;
-  purple_draw_list[purple_draw_index].U.Triangle.Y3 = lbDisplay.GraphicsWindowY + y3;
-  purple_draw_list[purple_draw_index].U.Triangle.Colour = colour;
-  purple_draw_list[purple_draw_index].Flags = lbDisplay.DrawFlags;
-  purple_draw_list[purple_draw_index].Type=11;
-  purple_draw_index++;
-}
-
-void __fastcall draw_line_purple_list(long x1, long y1, long x2, long y2, TbPixel colour)
-{
-  if (purple_draw_index>=NUM_DRAWITEMS) return;
-  purple_draw_list[purple_draw_index].U.Line.X1 = lbDisplay.GraphicsWindowX + x1;
-  purple_draw_list[purple_draw_index].U.Line.Y1 = lbDisplay.GraphicsWindowY + y1;
-  purple_draw_list[purple_draw_index].U.Line.X2 = lbDisplay.GraphicsWindowX + x2;
-  purple_draw_list[purple_draw_index].U.Line.Y2 = lbDisplay.GraphicsWindowY + y2;
-  purple_draw_list[purple_draw_index].U.Line.Colour = colour;
-  purple_draw_list[purple_draw_index].Flags = lbDisplay.DrawFlags;
-  if ( x1 == x2 )
-    purple_draw_list[purple_draw_index].Type=10;
-  else
-    purple_draw_list[purple_draw_index].Type=9;
-  purple_draw_index++;
-}
-
-void __fastcall draw_flic_purple_list(FlicFunc *fn)
-{
-  if (purple_draw_index>=NUM_DRAWITEMS) return;
-  purple_draw_list[purple_draw_index].U.Flic.Function = fn;
-  purple_draw_list[purple_draw_index].U.Flic.Colour = lbDisplay.DrawColour;
-  purple_draw_list[purple_draw_index].Flags = lbDisplay.DrawFlags;
-  purple_draw_list[purple_draw_index].Type=7;
-  purple_draw_index++;
-}
-
-void __fastcall draw_hotspot_purple_list(long x, long y)
-{
-  purple_draw_list[purple_draw_index].U.Hotspot.X = lbDisplay.GraphicsWindowX + x;
-  purple_draw_list[purple_draw_index].U.Hotspot.Y = lbDisplay.GraphicsWindowY + y;
-  purple_draw_list[purple_draw_index].Flags = 0; //um... why?? strange...
-  purple_draw_list[purple_draw_index].Type=12;
-  purple_draw_index++;
-}
-
-void __fastcall trig(struct EnginePoint *point1,
-      struct EnginePoint *point2, struct EnginePoint *point3)
-{
-//TODO - omg, this one is impossible!
-//This is probably the main function of whole engine!
-//  LbDrawTriangle(point1->X,point1->Y,point2->X,point2->Y,point3->X,point3->Y,127);
-  LbSyncLog("trig: UNFINISHED!\n");
-}
-
 unsigned short __fastcall is_it_clockwise(struct EnginePoint *point1,
       struct EnginePoint *point2, struct EnginePoint *point3)
 {
@@ -508,8 +369,6 @@ unsigned short __fastcall is_it_clockwise(struct EnginePoint *point1,
   wy = point3->Y - point2->Y;
   return (wy * vx - wx * vy) > 0;
 }
-
-//#define __DEBUG
 
 void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight)
 {

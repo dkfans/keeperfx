@@ -64,6 +64,8 @@ obj/bflib_netsp_ipx.o \
 obj/bflib_network.o \
 obj/bflib_pom.o \
 obj/bflib_render.o \
+obj/bflib_render_trig.o \
+obj/bflib_render_gpoly.o \
 obj/bflib_semphr.o \
 obj/bflib_sndlib.o \
 obj/bflib_sound.o \
@@ -227,7 +229,7 @@ obj/std/%.o obj/hvlog/%.o: src/%.cpp $(GENSRC)
 obj/std/%.o obj/hvlog/%.o: src/%.c $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 # In order to make the keeperfx.dll work, we must compile .c files
-# which use the library with c++ compiler. Not sure why..
+# which use variables from the library with c++ compiler. Not sure why..
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 #	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
