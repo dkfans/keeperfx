@@ -333,7 +333,7 @@ int LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPi
   return _DK_LbSpriteDrawOneColour(x, y, spr, colour);
 }
 
-void __fastcall setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
+void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
         unsigned int line_len, unsigned int width, unsigned int height)
 {
   if ( line_len > 0 )

@@ -200,7 +200,7 @@ int LbDrawBox(long x, long y, unsigned long width, unsigned long height, TbPixel
 void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour);
 int LbSpriteDraw(long x, long y, const struct TbSprite *spr);
 int LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,unsigned char *map);
-void __fastcall setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
+void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
         unsigned int line_len, unsigned int width, unsigned int height);
 int LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour);
 /*

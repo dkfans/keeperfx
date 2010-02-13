@@ -16,12 +16,12 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
 #ifndef DK_ENGNREND_H
 #define DK_ENGNREND_H
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_render.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,14 +40,6 @@ struct PlayerInfo;
 struct BasicQ { // sizeof = 5
   struct BasicQ *next;
   unsigned char kind;
-};
-
-struct PolyPoint { // sizeof = 20
-  long field_0;
-  long field_4;
-  long field_8;
-  long field_C;
-  long field_10;
 };
 
 struct BasicUnk00 {

@@ -1146,10 +1146,6 @@ DLLIMPORT struct Map *_DK_me_pointed_at;
 #define me_pointed_at _DK_me_pointed_at
 DLLIMPORT struct CScan *_DK_ScanBuffer;
 #define ScanBuffer _DK_ScanBuffer
-DLLIMPORT unsigned char _DK_vec_mode;
-#define vec_mode _DK_vec_mode
-DLLIMPORT unsigned char _DK_vec_colour;
-#define vec_colour _DK_vec_colour
 DLLIMPORT long _DK_my_mouse_x;
 #define my_mouse_x _DK_my_mouse_x
 DLLIMPORT long _DK_my_mouse_y;
