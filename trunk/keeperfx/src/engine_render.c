@@ -29,14 +29,13 @@
 #include "engine_camera.h"
 #include "kjm_input.h"
 #include "front_simple.h"
+#include "vidmode.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
-DLLIMPORT void _DK_trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
 DLLIMPORT void _DK_draw_fastview_mapwho(struct Camera *cam, struct JontySpr *spr);
 DLLIMPORT void _DK_draw_clipped_line(long a1, long a2, long a3, long a4, unsigned char a5);
 DLLIMPORT void _DK_draw_engine_number(struct Number *num);
@@ -327,34 +326,6 @@ void create_box_coords(struct EngineCoord *coord, long x, long z, long y)
   coord->field_8 = 0;
   coord->y = y;
   rotpers(coord, &camera_matrix);
-}
-
-void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
-{
-    _DK_draw_gpoly(point_a, point_b, point_c);
-}
-
-/** Triangle rendering function.
- * @note I'm not completely sure it this ASM magic really works...
- *
- * @param point_a
- * @param point_b
- * @param point_c
- */
-void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
-{
-    //JUSTLOG("start");
-/* values don't have to be put in registers as we use "a" "d" and "b" in parameters list.
-movl %0,%%eax; \
-          movl %1,%%edx; \
-          movl %2,%%ebx; \
- */
-    asm ("call __DK_trig"
-         : /* no outputs */
-         : "a" (point_a), "d" (point_b), "b" (point_c)
-         );
-   //_DK_trig(point_a, point_b, point_c);
-    //JUSTLOG("end");
 }
 
 void draw_map_volume_box(long a1, long a2, long a3, long a4, long a5, unsigned char color)
@@ -1215,6 +1186,8 @@ void display_drawlist(void)
     struct PolyPoint point_a,point_b,point_c;
     SYNCDBG(9,"Starting");
     //_DK_display_drawlist(); return;
+    render_fade_tables = pixmap.fade_tables;
+    render_ghost = pixmap.ghost;
     render_problems = 0;
     thing_pointed_at = 0;
     for (bucket_num = BUCKETS_COUNT-1; bucket_num > 0; bucket_num--)

@@ -77,6 +77,7 @@ OBJS = \
 ./obj/config_creature.o \
 ./obj/config_crtrmodel.o \
 ./obj/bflib_cpu.o \
+./obj/bflib_render.o \
 ./obj/bflib_heapmgr.o \
 ./obj/bflib_netsp.o \
 ./obj/bflib_netsp_ipx.o \
@@ -131,6 +132,12 @@ $(BIN): $(OBJS) $(LIBS)
 ./obj/%.o: ./src/%.cpp
 	@echo 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+./obj/bflib_render.o: ./src/bflib_render.c
+	@echo 'Building file: $<'
+	$(CC) $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) -o"$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
