@@ -2,14 +2,14 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_render.c
- *     Rendering the 3D view elements functions.
+/** @file bflib_render_gpoly.c
+ *     Rendering function gpoly() for drawing 3D view elements.
  * @par Purpose:
- *     Functions for rendering 3D elements.
+ *     Function for rendering 3D elements.
  * @par Comment:
  *     Go away from here, you bad optimizer! Do not compile this with optimizations.
  * @author   Tomasz Lis
- * @date     20 Mar 2009 - 30 Mar 2009
+ * @date     20 Mar 2009 - 14 Feb 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -27,14 +27,12 @@
 #include "bflib_vidraw.h"
 
 /******************************************************************************/
-TbPixel vec_colour = 112;
-unsigned char vec_mode;
-unsigned char *LOC_poly_screen;
-unsigned char *LOC_vec_map;
-unsigned char *render_fade_tables = NULL;
-unsigned char *render_ghost = NULL;
-unsigned long LOC_vec_screen_width;
-unsigned long LOC_vec_window_width;
-unsigned long LOC_vec_window_height;
-struct PolyPoint polyscans[POLY_SCANS_COUNT];
+DLLIMPORT void _DK_draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
+/******************************************************************************/
+void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
+{
+    _DK_vec_mode = vec_mode;
+    _DK_vec_colour = vec_colour;
+    _DK_draw_gpoly(point_a, point_b, point_c);
+}
 /******************************************************************************/

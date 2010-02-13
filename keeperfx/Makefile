@@ -43,6 +43,18 @@ OBJS = \
 ./obj/bflib_sprfnt.o \
 ./obj/bflib_filelst.o \
 ./obj/bflib_math.o \
+./obj/bflib_cpu.o \
+./obj/bflib_render.o \
+./obj/bflib_render_trig.o \
+./obj/bflib_render_gpoly.o \
+./obj/bflib_heapmgr.o \
+./obj/bflib_netsp.o \
+./obj/bflib_netsp_ipx.o \
+./obj/bflib_mshandler.o \
+./obj/bflib_mspointer.o \
+./obj/bflib_mouse.o \
+./obj/bflib_network.o \
+./obj/bflib_video.o \
 ./obj/scrcapt.o \
 ./obj/gui_draw.o \
 ./obj/kjm_input.o \
@@ -76,11 +88,6 @@ OBJS = \
 ./obj/config_lenses.o \
 ./obj/config_creature.o \
 ./obj/config_crtrmodel.o \
-./obj/bflib_cpu.o \
-./obj/bflib_render.o \
-./obj/bflib_heapmgr.o \
-./obj/bflib_netsp.o \
-./obj/bflib_netsp_ipx.o \
 ./obj/lens_mist.o \
 ./obj/creature_states.o \
 ./obj/thing_objects.o \
@@ -88,12 +95,7 @@ OBJS = \
 ./obj/bflib_drawbas.o \
 ./obj/bflib_drawsdk.o \
 ./obj/game_merge.o \
-./obj/bflib_mshandler.o \
-./obj/bflib_mspointer.o \
 ./obj/thing_effects.o \
-./obj/bflib_mouse.o \
-./obj/bflib_network.o \
-./obj/bflib_video.o \
 ./obj/config_magic.o \
 ./obj/frontend.o \
 ./obj/player_computer.o \
@@ -135,16 +137,28 @@ $(BIN): $(OBJS) $(LIBS)
 	@echo 'Finished building: $<'
 	@echo ' '
 
+./obj/bflib_render_trig.o: ./src/bflib_render_trig.c
+	@echo 'Building file: $<'
+	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+./obj/bflib_render_gpoly.o: ./src/bflib_render_gpoly.c
+	@echo 'Building file: $<'
+	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
 ./obj/bflib_render.o: ./src/bflib_render.c
 	@echo 'Building file: $<'
-	$(CC) $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) -o"$@" "$<"
+	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
 ./obj/%.o: ./src/%.c
 	@echo 'Building file: $<'
 # In order to make the keeperfx.dll work, we must compile .c files
-# which use the library with c++ compiler. Not sure why..
+# which use variables from the library with c++ compiler. Not sure why..
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 #	$(CC) $(CFLAGS) -o"$@" "$<"
 	@echo 'Finished building: $<'
