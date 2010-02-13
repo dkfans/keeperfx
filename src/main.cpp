@@ -13886,7 +13886,9 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
   }
   if ( retval )
-    game_loop();
+  {
+      game_loop();
+  }
   reset_game();
   close_video_context();
   if ( !retval )
@@ -13947,6 +13949,11 @@ void get_cmdln_args(unsigned short &argc, char *argv[])
   }
 }
 
+void exit_handler(void)
+{
+    ERRORMSG("Application exit called.");
+}
+
 int WINAPI WinMain (HINSTANCE hThisInstance,
                     HINSTANCE hPrevInstance,
                     LPSTR lpszArgument,
@@ -13986,23 +13993,31 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
   {
       text = buf_sprintf("Bad compilation - struct PlayerInfo has wrong size!\nThe difference is %d bytes.\n",sizeof(struct PlayerInfo)-SIZEOF_PlayerInfo);
       error_dialog(__func__, 1, text);
-      return 0;
+      return 1;
   }
   if (sizeof(struct Dungeon) != SIZEOF_Dungeon)
   {
       text = buf_sprintf("Bad compilation - struct Dungeon has wrong size!\nThe difference is %d bytes.\n",sizeof(struct Dungeon)-SIZEOF_Dungeon);
       error_dialog(__func__, 1, text);
-      return 0;
+      return 1;
   }
   if (sizeof(struct Game) != SIZEOF_Game)
   {
       text = buf_sprintf("Bad compilation - struct Game has wrong size!\nThe difference is %d bytes.\n",sizeof(struct Game)-SIZEOF_Game);
       error_dialog(__func__, 1, text);
-      return 0;
+      return 1;
   }
 #endif
 
+  atexit(exit_handler);
+  try {
   LbBullfrogMain(bf_argc, bf_argv);
+  } catch (...)
+  {
+      text = buf_sprintf("Exception raised!");
+      error_dialog(__func__, 1, text);
+      return 1;
+  }
 
 //  LbFileSaveAt("!tmp_file", &_DK_game, sizeof(struct Game));
 
