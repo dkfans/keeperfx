@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-
+#define FRONTMAP_ZOOM_LENGTH 240
 /******************************************************************************/
 #ifdef __cplusplus
 #pragma pack(1)
@@ -38,12 +38,12 @@ struct TbSprite;
 
 struct MapLevelInfo { // sizeof = 56
   unsigned char field_0;
-  unsigned char field_1;
+  unsigned char fading;
   long fade_step;
   long fade_pos;
-  long field_A;
-  long field_E;
-  long field_12;
+  long zoomspot_x;
+  long zoomspot_y;
+  long state_trigger;
   long scrshift_x;
   long scrshift_y;
   long field_1E;
@@ -128,7 +128,7 @@ void frontnetmap_unload(void);
 TbBool frontnetmap_load(void);
 void frontnetmap_input(void);
 void frontnetmap_draw(void);
-long frontnetmap_update(void);
+TbBool frontnetmap_update(void);
 void frontmap_input(void);
 void frontmap_draw(void);
 TbBool frontmap_load(void);

@@ -35,6 +35,25 @@ Note that some campaigns may not support your language.
 In this case, default language will be used inside this
 campaign.
 
+Running KeeperFX:
+
+To start the game, run 'KEEPERFX.EXE'. If you want to report
+any errors you encounter, you may run 'KEEPERFX_DBG.EXE'
+instead. This will run a "debug version", which writes a lot of
+information into 'KEEPERFX.LOG'. In case of the game hanging
+on suddenly disappearing, you may send a last few lines of the
+generated LOG to the author with your description of the bug.
+
+Note that 'KEEPERFX_DBG.EXE' requires a lot more CPU than
+standard version, and may be slow even on new computers.
+Also, the generated LOG file may be very large, and after
+a few hours of play it will have several hundereds megabytes.
+This is why you should use standard 'KEEPERFX.EXE' if you're
+not planning reporting any errors.
+
+Both versions will recognize all command line options described
+below.
+
 Command line options:
 
 -nointro
@@ -51,7 +70,7 @@ Command line options:
 -usersfont
   Disable the AWE32/64 SoundFonts (.SBK files).
 -alex
-  Used to show the 'JLW' easter egg.
+  Used to show the 'JLW' easter egg. And not only that.
 -level <num>
   Brings you directly to level number <num>.
   After the level is finished, quits the game.
@@ -200,6 +219,7 @@ New in-game commands:
   pressed Ctrl+'+' before.
 
 New and modified level script commands:
+
  ADD_GOLD_TO_PLAYER
   Allows to add some off-map gold as a reward to a player.
   Example: ADD_GOLD_TO_PLAYER(PLAYER0,5000)
@@ -281,6 +301,7 @@ Version: 0.35
   Rewritten more of eye lenses code, updated lenses config file
   Eye lenses now supported in all resolutions
   Rewritten part of scavenging code
+  Rewritten part of the polygon rendering code
 
 Version: 0.34
   Some fixups in CPU Identification code
