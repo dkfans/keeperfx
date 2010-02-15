@@ -55,8 +55,8 @@ extern "C" {
 //DLLIMPORT unsigned long _DK_pointer_data;
 
 
-DLLIMPORT __cdecl int _DK_setup_screen_mode(short nmode);
-DLLIMPORT __cdecl int _DK_setup_screen_mode_minimal(short nmode);
+DLLIMPORT int _DK_setup_screen_mode(short nmode);
+DLLIMPORT int _DK_setup_screen_mode_minimal(short nmode);
 /******************************************************************************/
 TbScreenMode switching_vidmodes[] = {
   Lb_SCREEN_MODE_320_200_8,
@@ -985,6 +985,7 @@ TbScreenMode switch_to_next_video_mode(void)
   return scrmode;
 }
 
+#if (BFDEBUG_LEVEL > 0)
 TbBool load_testfont_fonts(void)
 {
   if ( LbDataLoadAll(testfont_load_files) )
@@ -1000,6 +1001,7 @@ void free_testfont_fonts(void)
 {
   LbDataFreeAll(testfont_load_files);
 }
+#endif
 
 /******************************************************************************/
 #ifdef __cplusplus
