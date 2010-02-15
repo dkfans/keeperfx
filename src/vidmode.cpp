@@ -55,8 +55,8 @@ extern "C" {
 //DLLIMPORT unsigned long _DK_pointer_data;
 
 
-DLLIMPORT __cdecl int _DK_setup_screen_mode(short nmode);
-DLLIMPORT __cdecl int _DK_setup_screen_mode_minimal(short nmode);
+DLLIMPORT int _DK_setup_screen_mode(short nmode);
+DLLIMPORT int _DK_setup_screen_mode_minimal(short nmode);
 /******************************************************************************/
 TbScreenMode switching_vidmodes[] = {
   Lb_SCREEN_MODE_320_200_8,

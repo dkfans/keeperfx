@@ -8723,53 +8723,61 @@ void set_player_as_lost_level(struct PlayerInfo *player)
 TbBool move_campaign_to_next_level(void)
 {
   long lvnum;
-  lvnum = next_singleplayer_level(get_continue_level_number());
+  long curr_lvnum;
+  curr_lvnum = get_continue_level_number();
+  lvnum = next_singleplayer_level(curr_lvnum);
   if (lvnum != LEVELNUMBER_ERROR)
   {
     set_continue_level_number(lvnum);
+    SYNCDBG(8,"Continue level moved to %ld.",lvnum);
     return true;
   } else
   {
     set_continue_level_number(SINGLEPLAYER_NOTSTARTED);
+    SYNCDBG(8,"Continue level moved to NOTSTARTED.");
     return false;
   }
 }
 
 TbBool move_campaign_to_prev_level(void)
 {
-  long lvnum;
-  lvnum = prev_singleplayer_level(get_continue_level_number());
-  if (lvnum != LEVELNUMBER_ERROR)
-  {
-    set_continue_level_number(lvnum);
-    return true;
-  } else
-  {
-    set_continue_level_number(SINGLEPLAYER_FINISHED);
-    return false;
-  }
+    long lvnum;
+    long curr_lvnum;
+    curr_lvnum = get_continue_level_number();
+    lvnum = prev_singleplayer_level(curr_lvnum);
+    if (lvnum != LEVELNUMBER_ERROR)
+    {
+        set_continue_level_number(lvnum);
+        SYNCDBG(8,"Continue level moved to %ld.",lvnum);
+        return true;
+    } else
+    {
+        set_continue_level_number(SINGLEPLAYER_FINISHED);
+        SYNCDBG(8,"Continue level moved to FINISHED.");
+        return false;
+    }
 }
 
 short complete_level(struct PlayerInfo *player)
 {
-  long lvnum;
-  SYNCDBG(6,"Starting");
-  if (!is_my_player(player))
-    return false;
-  if (game.numfield_A & 0x01)
-  {
-    LbNetwork_Stop();
+    long lvnum;
+    SYNCDBG(6,"Starting");
+    if (!is_my_player(player))
+      return false;
+    if (game.numfield_A & 0x01)
+    {
+      LbNetwork_Stop();
+      quit_game = 1;
+      return true;
+    }
+    lvnum = get_continue_level_number();
+    if (get_loaded_level_number() == lvnum)
+    {
+      move_campaign_to_next_level();
+    }
+    set_selected_level_number(get_continue_level_number());
     quit_game = 1;
     return true;
-  }
-  lvnum = get_continue_level_number();
-  if (get_loaded_level_number() == lvnum)
-  {
-    move_campaign_to_next_level();
-  }
-  set_selected_level_number(get_continue_level_number());
-  quit_game = 1;
-  return true;
 }
 
 long init_navigation(void)

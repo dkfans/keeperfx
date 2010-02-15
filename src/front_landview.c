@@ -487,13 +487,13 @@ short clicked_map_level_ensign(void)
   {
     set_selected_level_number(lvinfo->lvnum);
     map_info.field_0 = 1;
-    map_info.field_1 = 1;
+    map_info.fading = true;
     map_info.fade_pos = 1;
-    map_info.field_A = lvinfo->ensign_zoom_x;
-    map_info.field_E = lvinfo->ensign_zoom_y;
+    map_info.zoomspot_x = lvinfo->ensign_zoom_x;
+    map_info.zoomspot_y = lvinfo->ensign_zoom_y;
     map_info.fade_step = 4;
-    map_info.field_12 = 7;
-    set_map_info_visible_hotspot(map_info.field_A, map_info.field_E);
+    map_info.state_trigger = 7;
+    set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
     map_info.field_1E = map_info.scrshift_x << 8;
     map_info.field_22 = map_info.scrshift_y << 8;
     return true;
@@ -812,11 +812,8 @@ TbBool load_map_and_window(LevelNumber lvnum)
     ERRORLOG("Unable to load land Map background");
     return false;
   }
-JUSTLOG("8");
   map_screen = &game.land_map_start;
-JUSTLOG("9 %x",frontend_backup_palette);
   memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
-JUSTLOG("10 [%s]",land_window);
   fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
   wait_for_cd_to_be_available();
   if (LbFileLoadAt(fname, block_mem) < 1)
@@ -832,7 +829,7 @@ JUSTLOG("10 [%s]",land_window);
   {
     ERRORLOG("Unable to load Land Map screen palette");
     unload_map_and_window();
-    return 0;
+    return false;
   }
   map_window = (unsigned char *)(window_y_offset + 720);
   SYNCDBG(9,"Finished");
@@ -921,6 +918,68 @@ TbBool frontnetmap_load(void)
   return true;
 }
 
+void process_map_zoom_in(void)
+{
+    update_frontmap_info_draw_hotspot();
+    if (map_sound_fade > 0)
+    {
+        map_sound_fade = 256 + 5 * (1-map_info.fade_pos) / 4;
+        if (map_sound_fade < 0)
+          map_sound_fade = 0;
+    }
+}
+
+void process_zoom_palette(void)
+{
+    SYNCDBG(8,"Starting");
+    if (map_info.fade_step > 0)
+    {
+        if (map_info.fade_pos >= FRONTMAP_ZOOM_LENGTH/2)
+        {
+            LbPaletteFade(NULL, 29, Lb_PALETTE_FADE_OPEN);
+        }
+    } else
+    if (map_info.fade_step < 0)
+    {
+        if (map_info.fade_pos > FRONTMAP_ZOOM_LENGTH/2)
+        {
+            if (map_info.fade_pos+map_info.fade_step > FRONTMAP_ZOOM_LENGTH/2)
+            {
+                LbPaletteFade(frontend_palette, 29, Lb_PALETTE_FADE_OPEN);
+            } else
+            {
+                LbPaletteSet(frontend_palette);
+            }
+        }
+    }
+}
+
+TbBool update_zoom(void)
+{
+    SYNCDBG(8,"Starting");
+    if (map_info.fade_step == 4)
+    {
+      process_map_zoom_in();
+    }
+    map_info.fade_pos += map_info.fade_step;
+    if ((map_info.fade_pos <= 1) || (map_info.fade_pos >= FRONTMAP_ZOOM_LENGTH))
+    {
+      SYNCDBG(8,"Stopping fade");
+      LbPaletteStopOpenFade();
+      map_info.fading = false;
+      if (map_info.state_trigger != 0)
+      {
+        frontend_set_state(map_info.state_trigger);
+        LbScreenClear(0);
+        LbScreenSwap();
+        map_info.state_trigger = 0;
+        return true;
+      }
+    }
+    process_zoom_palette();
+    return false;
+}
+
 TbBool frontmap_load(void)
 {
   struct PlayerInfo *player;
@@ -963,33 +1022,42 @@ TbBool frontmap_load(void)
     lvinfo = get_level_info(lvnum);
     if (lvinfo != NULL)
     {
-      map_info.field_A = lvinfo->ensign_zoom_x;
-      map_info.field_E = lvinfo->ensign_zoom_y;
+      map_info.zoomspot_x = lvinfo->ensign_zoom_x;
+      map_info.zoomspot_y = lvinfo->ensign_zoom_y;
       set_map_info_draw_hotspot(lvinfo->ensign_zoom_x,lvinfo->ensign_zoom_y);
     } else
     {
-      map_info.field_A = (MAP_SCREEN_WIDTH>>1);
-      map_info.field_E = (MAP_SCREEN_HEIGHT>>1);
+      map_info.zoomspot_x = (MAP_SCREEN_WIDTH>>1);
+      map_info.zoomspot_y = (MAP_SCREEN_HEIGHT>>1);
       set_map_info_draw_hotspot((MAP_SCREEN_WIDTH>>1),(MAP_SCREEN_HEIGHT>>1));
     }
-    map_info.fade_pos = 240;
+    map_info.fade_pos = FRONTMAP_ZOOM_LENGTH;
     map_info.fade_step = -4;
     map_info.field_0 = 1;
-    map_info.field_1 = 1;
+    map_info.fading = true;
   } else
   if ((lvnum == first_singleplayer_level()) || (player->victory_state == VicS_LostLevel) || (player->victory_state == VicS_State3))
   {
     lvinfo = get_level_info(lvnum);
     if (lvinfo != NULL)
     {
-      set_map_info_draw_hotspot(lvinfo->ensign_zoom_x,lvinfo->ensign_zoom_y);
-      set_map_info_visible_hotspot(lvinfo->ensign_zoom_x, lvinfo->ensign_zoom_y);
+        map_info.zoomspot_x = lvinfo->ensign_zoom_x;
+        map_info.zoomspot_y = lvinfo->ensign_zoom_y;
+        set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
+        set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
     } else
     {
-      set_map_info_draw_hotspot((MAP_SCREEN_WIDTH>>1),(MAP_SCREEN_HEIGHT>>1));
-      set_map_info_visible_hotspot((MAP_SCREEN_WIDTH>>1),(MAP_SCREEN_HEIGHT>>1));
+        map_info.zoomspot_x = (MAP_SCREEN_WIDTH>>1);
+        map_info.zoomspot_y = (MAP_SCREEN_HEIGHT>>1);
+        set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
+        set_map_info_visible_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
     }
     map_info.field_0 = 0;
+    map_info.fade_pos = 1;
+    map_info.fade_step = 0;
+    map_info.fading = false;
+    // Fading will be controlled by main frontend loop
+    fade_palette_in = 1;
     play_desc_speech_time = LbTimerClock() + 1000;
   } else
   {
@@ -997,19 +1065,19 @@ TbBool frontmap_load(void)
     lvinfo = get_level_info(lvnum);
     if (lvinfo != NULL)
     {
-      map_info.field_A = lvinfo->ensign_zoom_x;
-      map_info.field_E = lvinfo->ensign_zoom_y;
+      map_info.zoomspot_x = lvinfo->ensign_zoom_x;
+      map_info.zoomspot_y = lvinfo->ensign_zoom_y;
       set_map_info_draw_hotspot(lvinfo->ensign_zoom_x,lvinfo->ensign_zoom_y);
     } else
     {
-      map_info.field_A = (MAP_SCREEN_WIDTH>>1);
-      map_info.field_E = (MAP_SCREEN_HEIGHT>>1);
+      map_info.zoomspot_x = (MAP_SCREEN_WIDTH>>1);
+      map_info.zoomspot_y = (MAP_SCREEN_HEIGHT>>1);
       set_map_info_draw_hotspot((MAP_SCREEN_WIDTH>>1),(MAP_SCREEN_HEIGHT>>1));
     }
-    map_info.fade_pos = 240;
+    map_info.fade_pos = FRONTMAP_ZOOM_LENGTH;
     map_info.fade_step = -4;
     map_info.field_0 = 1;
-    map_info.field_1 = 1;
+    map_info.fading = true;
   }
   map_sound_fade = 256;
   map_info.field_26 = 0;
@@ -1029,62 +1097,6 @@ TbBool frontmap_load(void)
   update_ensigns_visibility();
   SYNCDBG(9,"Finished");
   return true;
-}
-
-void process_map_zoom_in(void)
-{
-  update_frontmap_info_draw_hotspot();
-  if (map_sound_fade > 0)
-  {
-    map_sound_fade = 256 + 5 * (1-map_info.fade_pos) / 4;
-    if (map_sound_fade < 0)
-      map_sound_fade = 0;
-  }
-}
-
-void process_zoom_palette(void)
-{
-  if (map_info.fade_step >= 0)
-  {
-      if (map_info.fade_pos >= 120)
-      {
-        LbPaletteFade(NULL, 29, Lb_PALETTE_FADE_OPEN);
-      }
-  } else
-  {
-      if (map_info.fade_pos > 120)
-      {
-        if (map_info.fade_step+map_info.fade_pos > 120)
-          LbPaletteFade(frontend_palette, 29, Lb_PALETTE_FADE_OPEN);
-        else
-          LbPaletteSet(frontend_palette);
-      }
-  }
-}
-
-TbBool update_zoom(void)
-{
-  SYNCDBG(8,"Starting");
-  if (map_info.fade_step == 4)
-  {
-    process_map_zoom_in();
-  }
-  map_info.fade_pos += map_info.fade_step;
-  if ((map_info.fade_pos <= 1) || (map_info.fade_pos >= 240))
-  {
-    LbPaletteStopOpenFade();
-    map_info.field_1 = 0;
-    if (map_info.field_12 != 0)
-    {
-      frontend_set_state(map_info.field_12);
-      LbScreenClear(0);
-      LbScreenSwap();
-      map_info.field_12 = 0;
-      return true;
-    }
-  }
-  process_zoom_palette();
-  return false;
 }
 
 TbBool rectangle_intersects(struct ARect *rcta, struct ARect *rctb)
@@ -1152,9 +1164,9 @@ TbBool test_hand_slap_collides(long plyr_idx)
 void frontmap_draw(void)
 {
   SYNCDBG(8,"Starting");
-  if (map_info.field_1)
+  if (map_info.fading)
   {
-    frontzoom_to_point(map_info.field_A, map_info.field_E, map_info.fade_pos);
+    frontzoom_to_point(map_info.zoomspot_x, map_info.zoomspot_y, map_info.fade_pos);
     compressed_window_draw();
   } else
   {
@@ -1333,9 +1345,9 @@ void draw_map_level_descriptions(void)
 void frontnetmap_draw(void)
 {
   SYNCDBG(8,"Starting");
-  if (map_info.field_1)
+  if (map_info.fading)
   {
-    frontzoom_to_point(map_info.field_A, map_info.field_E, map_info.fade_pos);
+    frontzoom_to_point(map_info.zoomspot_x, map_info.zoomspot_y, map_info.fade_pos);
     compressed_window_draw();
   } else
   {
@@ -1354,7 +1366,7 @@ void frontmap_input(void)
   long mouse_x,mouse_y;
   if (map_info.field_0)
   {
-    if (!map_info.field_1)
+    if (!map_info.fading)
     {
       map_info.field_0 = 0;
       play_desc_speech_time = LbTimerClock() + 1000;
@@ -1512,27 +1524,13 @@ long frontmap_update(void)
   }
   update_frontmap_ambient_sound();
 
-  if ( map_info.field_1 )
+  if (map_info.fading)
   {
-    if (map_info.fade_step == 4)
-    {
-      process_map_zoom_in();
-    }
-    map_info.fade_pos += map_info.fade_step;
-    if ((map_info.fade_pos <= 1) || (map_info.fade_pos >= 240))
-    {
-      LbPaletteStopOpenFade();
-      map_info.field_1 = 0;
-      if (map_info.field_12)
+      if (update_zoom())
       {
-        frontend_set_state(map_info.field_12);
-        LbScreenClear(0);
-        LbScreenSwap();
-        map_info.field_12 = 0;
+        SYNCDBG(8,"Zoom end");
         return true;
       }
-    }
-    process_zoom_palette();
   }
   if (playing_good_descriptive_speech)
   {
@@ -1548,7 +1546,7 @@ long frontmap_update(void)
   return 0;
 }
 
-long frontnetmap_update(void)
+TbBool frontnetmap_update(void)
 {
   struct ScreenPacket *nspck;
   struct LevelInformation *lvinfo;
@@ -1575,7 +1573,14 @@ long frontnetmap_update(void)
   tmp1 = 0;
   lvnum = SINGLEPLAYER_NOTSTARTED;
   is_selected = false;
-  if (map_info.field_1 == 0)
+  if (map_info.fading)
+  {
+    if (update_zoom())
+    {
+      SYNCDBG(8,"Zoom end");
+      return true;
+    }
+  } else
   {
     memset(net_screen_packet, 0, sizeof(net_screen_packet));
     nspck = &net_screen_packet[my_player_number];
@@ -1679,30 +1684,23 @@ long frontnetmap_update(void)
           }
       }
     }
-  } else
-  {
-    if (update_zoom())
-    {
-      SYNCDBG(8,"Zoom end");
-      return 1;
-    }
   }
   if ((!tmp1) && (lvnum > 0) && (is_selected))
   {
     set_selected_level_number(lvnum);
     sprintf(level_name, "%s %d", gui_strings[406], (int)lvnum);
-    map_info.field_1 = 1;
+    map_info.fading = true;
     map_info.fade_pos = 1;
     map_info.fade_step = 4;
     spr = get_map_flag(1);
     lvinfo = get_level_info(lvnum);
     if (lvinfo != NULL)
     {
-      map_info.field_A = lvinfo->ensign_x + my_player_number * spr->SWidth;
-      map_info.field_E = lvinfo->ensign_y - 48;
+      map_info.zoomspot_x = lvinfo->ensign_x + my_player_number * spr->SWidth;
+      map_info.zoomspot_y = lvinfo->ensign_y - 48;
     }
-    map_info.field_12 = 8 - ((unsigned int)fe_network_active < 1);
-    set_map_info_visible_hotspot(map_info.field_A, map_info.field_E);
+    map_info.state_trigger = 8 - ((unsigned int)fe_network_active < 1);
+    set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
     map_info.field_1E = map_info.scrshift_x << 8;
     map_info.field_22 = map_info.scrshift_y << 8;
     if (!fe_network_active)
@@ -1712,7 +1710,7 @@ long frontnetmap_update(void)
   if ((game.flags_cd & 0x10) == 0)
     PlayRedbookTrack(2);
   SYNCDBG(8,"Normal end");
-  return 0;
+  return false;
 }
 
 
