@@ -315,9 +315,14 @@ unsigned char field_14BC[6];
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;
 /******************************************************************************/
-struct Dungeon *get_players_num_dungeon(long plyr_idx);
-struct Dungeon *get_players_dungeon(struct PlayerInfo *player);
-struct Dungeon *get_dungeon(PlayerNumber plyr_num);
+struct Dungeon *get_players_num_dungeon_ptr(long plyr_idx,const char *func_name);
+struct Dungeon *get_players_dungeon_ptr(struct PlayerInfo *player,const char *func_name);
+struct Dungeon *get_dungeon_ptr(PlayerNumber plyr_num,const char *func_name);
+#define get_players_num_dungeon(plyr_idx) get_players_num_dungeon_ptr(plyr_idx,__func__)
+#define get_players_dungeon(player) get_players_dungeon_ptr(player,__func__)
+#define get_dungeon(plyr_idx) get_dungeon_ptr(plyr_idx,__func__)
+#define get_my_dungeon() get_players_num_dungeon_ptr(my_player_number,__func__)
+
 TbBool dungeon_invalid(struct Dungeon *dungeon);
 
 void clear_dungeons(void);

@@ -132,8 +132,9 @@ DLLIMPORT extern unsigned char _DK_my_player_number;
 extern long hero_player_number;
 extern struct PlayerInfo bad_player;
 /******************************************************************************/
-struct PlayerInfo *get_player(long plyr_idx);
-#define get_my_player() get_player(my_player_number)
+struct PlayerInfo *get_player_ptr(long plyr_idx,const char *func_name);
+#define get_player(plyr_idx) get_player_ptr(plyr_idx,__func__)
+#define get_my_player() get_player_ptr(my_player_number,__func__)
 TbBool player_invalid(struct PlayerInfo *player);
 TbBool is_my_player(struct PlayerInfo *player);
 TbBool is_my_player_number(PlayerNumber plyr_num);

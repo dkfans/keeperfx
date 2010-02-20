@@ -3746,7 +3746,7 @@ void pick_up_creature_doing_activity(struct GuiButton *gbtn)
 {
     long i,job_idx,kind;
     unsigned char pick_flags;
-    SYNCDBG(10,"Starting");
+    SYNCDBG(8,"Starting");
     //_DK_pick_up_creature_doing_activity(gbtn); return;
     i = gbtn->field_1B;
     // Get index from pointer
@@ -3758,7 +3758,7 @@ void pick_up_creature_doing_activity(struct GuiButton *gbtn)
     pick_flags = TPF_PickableCheck;
     if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
         pick_flags |= TPF_ReverseOrder;
-    pick_up_creature_of_breed_and_job(kind, (job_idx & 0x03), my_player_number, pick_flags);
+    pick_up_creature_of_breed_and_gui_job(kind, (job_idx & 0x03), my_player_number, pick_flags);
 }
 
 void gui_go_to_next_creature_activity(struct GuiButton *gbtn)
@@ -3799,7 +3799,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
             i = dungeon->field_4E4[kind][(job_idx & 0x03)];
             if (i > cr_total)
             {
-              WARNDBG(9,"Creature %d stats inconsistency; total=%d, doing activity%d=%d",kind,cr_total,(job_idx & 0x03),i);
+              WARNDBG(7,"Creature %d stats inconsistency; total=%d, doing activity%d=%d",kind,cr_total,(job_idx & 0x03),i);
               i = cr_total;
             }
             if (i < 0)
@@ -6355,6 +6355,7 @@ int frontend_set_state(long nstate)
   case FeSt_DEMO: //demo state (intro/credits)
   case FeSt_OUTRO:
   case 25:
+      break;
 #if (BFDEBUG_LEVEL > 0)
   case FeSt_FONT_TEST:
       free_testfont_fonts();
@@ -7668,9 +7669,9 @@ short gui_move_box(struct GuiBox *gbox, long x, long y, unsigned short fdflags)
   return result;
 }
 
-/*
+/**
  * Toggles cheat menu. It should not allow cheats in Network mode.
- * Returns true if the menu was toggled, false if cheat is not allowed.
+ * @return Gives true if the menu was toggled, false if cheat is not allowed.
  */
 short toggle_main_cheat_menu(void)
 {
@@ -7690,9 +7691,9 @@ short toggle_main_cheat_menu(void)
   return true;
 }
 
-/*
+/**
  * Toggles cheat menu. It should not allow cheats in Network mode.
- * Returns true if the menu was toggled, false if cheat is not allowed.
+ * @return Gives true if the menu was toggled, false if cheat is not allowed.
  */
 short toggle_instance_cheat_menu(void)
 {
@@ -7844,7 +7845,7 @@ struct GuiBoxOption *gui_move_active_box_option(struct GuiBox *gbox, int val)
     {
       opt_num = opt_total;
 //      goptn->active = 0;
-//!!!!!!!!!!!deactivate
+//TODO: deactivate
     }
     goptn++;
     opt_total++;
@@ -7855,7 +7856,7 @@ struct GuiBoxOption *gui_move_active_box_option(struct GuiBox *gbox, int val)
     goptn = &gbox->optn_list[opt_num];
     if (goptn->callback != NULL)
       goptn->callback(gbox, goptn, 1, &goptn->field_19);
-//!!!!!!!!!!!activate
+//TODO: activate
     return goptn;
   }
   return NULL;

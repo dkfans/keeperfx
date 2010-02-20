@@ -29,7 +29,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT int _DK_LbPaletteFindColour(unsigned char *pal, unsigned char r, unsigned char g, unsigned char b);
-DLLIMPORT void __cdecl _DK_copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
+DLLIMPORT void _DK_copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
 /******************************************************************************/
 volatile int lbUserQuit = 0;
 volatile TbBool lbScreenInitialised = false;

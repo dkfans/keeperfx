@@ -27,6 +27,7 @@
 #include "frontend.h"
 #include "keeperfx.hpp"
 #include "thing_objects.h"
+#include "dungeon_data.h"
 #include "config_creature.h"
 
 #ifdef __cplusplus
@@ -282,7 +283,7 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
     return;
   if (!settings.tooltips_on)
     return;
-  dungeon = &(game.dungeon[my_player_number%DUNGEONS_COUNT]);
+  dungeon = get_my_dungeon();
   set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
   i = gbtn->tooltip_id;
   if ((i >= 0) && (i < STRINGS_MAX))

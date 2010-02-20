@@ -117,8 +117,8 @@ long remove_all_traces_of_combat(struct Thing *thing);
 
 void anger_set_creature_anger_all_types(struct Thing *thing, long a2);
 void change_creature_owner(struct Thing *thing, long nowner);
-struct Thing *find_my_next_creature_of_breed_and_job(long breed_idx, long job_idx, TbBool pick_check);
-struct Thing *pick_up_creature_of_breed_and_job(long breed_idx, long job_idx, long owner, unsigned char pick_flags);
+struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long job_idx, TbBool pick_check);
+struct Thing *pick_up_creature_of_breed_and_gui_job(long breed_idx, long job_idx, long owner, unsigned char pick_flags);
 
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);

@@ -1445,12 +1445,12 @@ void go_to_my_next_room_of_type(unsigned long rkind);
 long compute_creature_max_pay(long base_pay,unsigned short crlevel);
 long compute_creature_max_health(long base_health,unsigned short crlevel);
 long compute_creature_attack_damage(long base_param,long luck,unsigned short crlevel);
+long compute_creature_attack_range(long base_param,long luck,unsigned short crlevel);
 long compute_creature_max_cparameter(long base_param,unsigned short crlevel);
 long compute_creature_max_sparameter(long base_param,unsigned short crlevel);
 #define compute_creature_max_dexterity compute_creature_max_cparameter
 #define compute_creature_max_defence compute_creature_max_cparameter
-#define compute_creature_max_pay compute_creature_max_sparameter
-#define compute_creature_max_range compute_creature_max_sparameter
+//#define compute_creature_max_range compute_creature_max_sparameter
 long compute_creature_max_strength(long base_param,unsigned short crlevel);
 long compute_creature_max_unaffected(long base_param,unsigned short crlevel);
 #define compute_creature_max_luck compute_creature_max_unaffected

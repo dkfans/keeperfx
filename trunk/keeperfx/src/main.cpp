@@ -464,9 +464,9 @@ DLLIMPORT struct Thing *_DK_get_trap_for_slab_position(long slb_x, long slb_y);
 DLLIMPORT long _DK_process_obey_leader(struct Thing *thing);
 DLLIMPORT unsigned char _DK_external_set_thing_state(struct Thing *thing, long state);
 DLLIMPORT long _DK_is_thing_passenger_controlled(struct Thing *thing);
-DLLIMPORT void __cdecl _DK_setup_3d(void);
-DLLIMPORT void __cdecl _DK_setup_stuff(void);
-DLLIMPORT void __cdecl _DK_init_keeper(void);
+DLLIMPORT void _DK_setup_3d(void);
+DLLIMPORT void _DK_setup_stuff(void);
+DLLIMPORT void _DK_init_keeper(void);
 DLLIMPORT void _DK_light_delete_light(long idx);
 DLLIMPORT void _DK_light_initialise_lighting_tables(void);
 DLLIMPORT void _DK_check_map_for_gold(void);
@@ -2490,8 +2490,8 @@ long compute_creature_max_health(long base_health,unsigned short crlevel)
   return saturate_set_signed(max_health, 16);
 }
 
-/*
- * Computes 16-bit parameter (damage,gold pay,range) of a creature on given level.
+/**
+ * Computes gold pay of a creature on given level.
  */
 long compute_creature_max_pay(long base_param,unsigned short crlevel)
 {
@@ -2503,6 +2503,22 @@ long compute_creature_max_pay(long base_param,unsigned short crlevel)
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
   max_param = base_param + (CREATURE_PAY_INCREASE_ON_EXP*base_param*crlevel)/100;
+  return saturate_set_signed(max_param, 16);
+}
+
+/**
+ * Computes 16-bit parameter of a creature on given level.
+ */
+long compute_creature_max_sparameter(long base_param,unsigned short crlevel)
+{
+  long max_param;
+  if (base_param <= 0)
+    return 0;
+  if (base_param > 100000)
+    base_param = 100000;
+  if (crlevel >= CREATURE_MAX_LEVEL)
+    crlevel = CREATURE_MAX_LEVEL-1;
+  max_param = base_param + (CREATURE_PROPERTY_INCREASE_ON_EXP*base_param*crlevel)/100;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -2551,9 +2567,25 @@ long compute_creature_attack_damage(long base_param,long luck,unsigned short crl
   max_param = base_param + (CREATURE_DAMAGE_INCREASE_ON_EXP*base_param*crlevel)/100;
   if (luck > 0)
   {
-    if (ACTION_RANDOM(256) < luck)
+    if (ACTION_RANDOM(101) < luck)
       max_param *= 2;
   }
+  return saturate_set_signed(max_param, 16);
+}
+
+/**
+ * Computes spell range/area of effect for a creature on given level.
+ */
+long compute_creature_attack_range(long base_param,long luck,unsigned short crlevel)
+{
+  long max_param;
+  if (base_param <= 0)
+    return 0;
+  if (base_param > 100000)
+    base_param = 100000;
+  if (crlevel >= CREATURE_MAX_LEVEL)
+    crlevel = CREATURE_MAX_LEVEL-1;
+  max_param = base_param + (CREATURE_RANGE_INCREASE_ON_EXP*base_param*crlevel)/100;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -3372,7 +3404,11 @@ long update_creature(struct Thing *thing)
   }
   cctrl = creature_control_get_from_thing(thing);
   if (creature_control_invalid(cctrl))
+  {
+    WARNLOG("Killing creature with invalid control.");
+    kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
     return 0;
+  }
   if (game.field_150356)
   {
     if ((cctrl->field_2EF != 0) && (cctrl->field_2EF <= game.play_gameturn))
@@ -13662,9 +13698,11 @@ void game_loop(void)
     }
     unsigned long starttime;
     unsigned long endtime;
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
     starttime = LbTimerClock();
-    game.dungeon[my_player_number%DUNGEONS_COUNT].lvstats.time1 = timeGetTime();//starttime;
-    game.dungeon[my_player_number%DUNGEONS_COUNT].lvstats.time2 = timeGetTime();//starttime;
+    dungeon->lvstats.time1 = timeGetTime();//starttime;
+    dungeon->lvstats.time2 = timeGetTime();//starttime;
     LbScreenClear(0);
     LbScreenSwap();
     keeper_gameplay_loop();

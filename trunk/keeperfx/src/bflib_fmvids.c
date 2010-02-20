@@ -878,12 +878,11 @@ short anim_format_matches(int width,int height,int bpp)
 
 short anim_stop(void)
 {
-  static const char *func_name="anim_stop";
-  LbSyncLog("Finishing movie recording.\n");
+  SYNCLOG("Finishing movie recording.");
   //return _DK_anim_stop();
   if ( ((animation.field_0 & 0x01)==0) || (animation.outfhndl==0))
   {
-    error(func_name, 44563, "Can't stop recording movie");
+    ERRORLOG("Can't stop recording movie");
     return false;
   }
   LbFileSeek(animation.outfhndl, 0, Lb_FILE_SEEK_BEGINNING);
@@ -891,7 +890,7 @@ short anim_stop(void)
   LbFileWrite(animation.outfhndl, &animation.header, sizeof(struct AnimFLIHeader));
   if ( LbFileClose(animation.outfhndl) == -1 )
   {
-      error(func_name, 44564, "Can't close movie file");
+      ERRORLOG("Can't close movie file");
       return false;
   }
   animation.outfhndl = 0;
@@ -903,36 +902,35 @@ short anim_stop(void)
 
 short anim_open(char *fname, int arg1, short arg2, int width, int height, int bpp, unsigned int flags)
 {
-  static const char *func_name="anim_open";
   //return _DK_anim_open(fname, arg1, arg2, width, height, bpp, flags);
 
   if ( flags & animation.field_0 )
   {
-    error(func_name, 44567, "Cannot record movie");
+      ERRORLOG("Cannot record movie");
     return false;
   }
   if (flags & 0x01)
   {
-      LbSyncLog("Starting to record new movie, \"%s\".\n",fname);
+      SYNCLOG("Starting to record new movie, \"%s\".",fname);
       memset(&animation, 0, sizeof(struct Animation));
       animation.field_0 |= flags;
       animation.videobuf = LbMemoryAlloc(2 * height*width);
       if (animation.videobuf==NULL)
       {
-        error(func_name, 44568, "Cannot allocate video buffer.");
+          ERRORLOG("Cannot allocate video buffer.");
         return false;
       }
       long max_chunk_size = anim_buffer_size(width,height,bpp);
       animation.chunkdata = LbMemoryAlloc(max_chunk_size);
       if (animation.chunkdata==NULL)
       {
-        error(func_name, 44569, "Cannot allocate chunk buffer.");
+          ERRORLOG("Cannot allocate chunk buffer.");
         return false;
       }
       animation.outfhndl = LbFileOpen(fname, Lb_FILE_MODE_NEW);
       if (animation.outfhndl == -1)
       {
-        error(func_name, 44570, "Can't open movie file.");
+          ERRORLOG("Can't open movie file.");
         return false;
       }
       animation.header.dsize = 128;
@@ -957,7 +955,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
       animation.field_18 = arg2;
       if ( !anim_write_data(&animation.header, sizeof(struct AnimFLIHeader)) )
       {
-        error(func_name, 44571, "Movie write error.");
+          ERRORLOG("Movie write error.");
         LbFileClose(animation.outfhndl);
         return false;
       }
@@ -967,7 +965,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
   }
   if (flags & 0x02)
   {
-      LbSyncLog("Resuming movie recording, \"%s\".\n",fname);
+      SYNCLOG("Resuming movie recording, \"%s\".",fname);
       animation.field_0 |= flags;
       animation.inpfhndl = LbFileOpen(fname, 2);
       if ( animation.inpfhndl == -1 )
@@ -975,7 +973,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
       // Reading header
       if (!anim_read_data(&animation.header, sizeof(struct AnimFLIHeader)))
       {
-        error(func_name, 44572, "Movie header read error.");
+          ERRORLOG("Movie header read error.");
         LbFileClose(animation.inpfhndl);
         return false;
       }
@@ -986,7 +984,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
         return false;
       if (!anim_read_data(&animation.chunk, sizeof(struct AnimFLIChunk)))
       {
-        error(func_name, 44573, "Movie chunk read error.");
+          ERRORLOG("Movie chunk read error.");
         LbFileClose(animation.inpfhndl);
         return false;
       }
@@ -994,9 +992,9 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
       {
         if (!anim_read_data(animation.chunkdata, animation.chunk.csize-sizeof(struct AnimFLIChunk)))
         {
-          error(func_name, 44574, "Movie data read error.");
-          LbFileClose(animation.inpfhndl);
-          return false;
+            ERRORLOG("Movie data read error.");
+            LbFileClose(animation.inpfhndl);
+            return false;
         }
       } else
       {

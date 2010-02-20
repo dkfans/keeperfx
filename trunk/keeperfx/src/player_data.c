@@ -27,11 +27,11 @@
 long hero_player_number = 4;
 struct PlayerInfo bad_player;
 /******************************************************************************/
-struct PlayerInfo *get_player(long plyr_idx)
+struct PlayerInfo *get_player_ptr(long plyr_idx,const char *func_name)
 {
     if ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT))
         return &game.players[plyr_idx];
-    ERRORLOG("Tried to get nonexisting player!");
+    ERRORLOG("%s: Tried to get nonexisting player %ld!",func_name,plyr_idx);
     return INVALID_PLAYER;
 }
 
