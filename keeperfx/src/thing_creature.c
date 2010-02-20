@@ -458,13 +458,10 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
   // If the spell has area_range, then make area damage
   if (spinfo->area_range > 0)
   {
-    i = cctrl->explevel;
     // This damage is computed directly, not selected from array, so it
     // don't have to be limited as others... but let's limit it anyway
-    if (i > SPELL_MAX_LEVEL)
-      i = SPELL_MAX_LEVEL;
-    k = compute_creature_max_range(spinfo->area_range, i);
-    i = compute_creature_attack_damage(spinfo->area_damage, crstat->luck, i);
+    k = compute_creature_attack_range(spinfo->area_range, crstat->luck, cctrl->explevel);
+    i = compute_creature_attack_damage(spinfo->area_damage, crstat->luck, cctrl->explevel);
     explosion_affecting_area(caster, &caster->mappos, k, i, spinfo->area_hit_type);
   }
 }
@@ -659,6 +656,8 @@ long process_creature_state(struct Thing *thing)
       }
     }
   }
+  // Enable this to know which function hangs on update_creature.
+  //TODO: rewrite state subfunctions so they won't hang
   SYNCDBG(18,"Executing state %d",(int)thing->field_7);
   stati = get_thing_state_info(thing);
   if (stati->ofsfield_0 == NULL)
@@ -719,7 +718,7 @@ TbBool update_dead_creatures_list(struct Dungeon *dungeon, struct Thing *thing)
 TbBool inc_player_kills_counter(long killer_idx, struct Thing *victim)
 {
   struct Dungeon *killer_dungeon;
-  killer_dungeon = &(game.dungeon[killer_idx%DUNGEONS_COUNT]);
+  killer_dungeon = get_players_num_dungeon(killer_idx);
   if (victim->owner == killer_idx)
     killer_dungeon->lvstats.friendly_kills++;
   else
@@ -807,7 +806,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
   if ((cctrl->field_7A & 0xFFF) != 0)
     remove_creature_from_group(thing);
   if (thing->owner != game.field_14E497)
-    dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+    dungeon = get_players_num_dungeon(thing->owner);
   if (!thing_is_invalid(killertng) && (killertng->owner == game.field_14E497))
     died_in_battle = 0;
   if (killer_plyr_idx == game.field_14E497)
@@ -884,7 +883,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
   }
   if (game.field_14E496 == killertng->owner)
   {
-    killerdngn = &(game.dungeon[killertng->owner%DUNGEONS_COUNT]);
+    killerdngn = get_players_num_dungeon(killertng->owner);
     if ((killerdngn->creature_tendencies & 0x01) != 0)
       ERRORLOG("How can hero have tend to imprison");
   }
@@ -895,7 +894,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
   if (dungeon != NULL)
     dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
   SYNCDBG(18,"Almost finished");
-  killerdngn = &(game.dungeon[killertng->owner%DUNGEONS_COUNT]);
+  killerdngn = get_players_num_dungeon(killertng->owner);
   if ((a6) || (killerdngn->room_kind[4] == 0)
     || (killerdngn->creature_tendencies & 0x01) == 0)
   {
@@ -1150,7 +1149,7 @@ void set_creature_level(struct Thing *thing, long nlvl)
   }
   if (game.field_14E497 != thing->owner)
   {
-    dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+    dungeon = get_players_num_dungeon(thing->owner);
     dungeon->field_EA8 += game.creature_scores[thing->model%CREATURE_TYPES_COUNT].value[cctrl->explevel%CREATURE_MAX_LEVEL];
   }
 }
@@ -1303,6 +1302,11 @@ TbBool thing_is_creature(const struct Thing *thing)
   return true;
 }
 
+/** Returns if a thing is special digger creature.
+ *
+ * @param thing The thing to be checked.
+ * @return True if the thing is creature and special digger, false otherwise.
+ */
 TbBool thing_is_creature_special_digger(const struct Thing *thing)
 {
   if (thing_is_invalid(thing))
@@ -1347,8 +1351,8 @@ long player_list_creature_filter_most_experienced_and_pickable1(const struct Thi
         return nmaxim;
       }
     }
-    // If conditions are not met, return 0 to be sure thing will not be returned.
-    return 0;
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
 }
 
 /**
@@ -1377,8 +1381,8 @@ long player_list_creature_filter_most_experienced_and_pickable2(const struct Thi
         return nmaxim;
       }
     }
-    // If conditions are not met, return 0 to be sure thing will not be returned.
-    return 0;
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
 }
 
 /**
@@ -1407,8 +1411,8 @@ long player_list_creature_filter_least_experienced_and_pickable1(const struct Th
         return nmaxim;
       }
     }
-    // If conditions are not met, return 0 to be sure thing will not be returned.
-    return 0;
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
 }
 
 /**
@@ -1437,19 +1441,19 @@ long player_list_creature_filter_least_experienced_and_pickable2(const struct Th
         return nmaxim;
       }
     }
-    // If conditions are not met, return 0 to be sure thing will not be returned.
-    return 0;
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
 }
 
 /**
- * Filter function for selecting first pickable creature with given GUI state.
+ * Filter function for selecting first pickable creature with given GUI Job.
  *
  * @param thing Creature thing to be filtered.
- * @param param Struct with creature model, owner and GUI state to be accepted.
+ * @param param Struct with creature model, owner and GUI Job to be accepted.
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_of_gui_state_and_pickable1(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long player_list_creature_filter_of_gui_job_and_pickable1(const struct Thing *thing, MaxFilterParam param, long maximizer)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
@@ -1457,7 +1461,7 @@ long player_list_creature_filter_of_gui_state_and_pickable1(const struct Thing *
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
       && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0)
-      && ((param->num1 == -1) || (get_creature_gui_state(thing) == param->num1)) // job_idx
+      && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1)) // job_idx
       && (thing->field_7 != 67) )
     {
       if (can_thing_be_picked_up_by_player(thing, param->plyr_idx))
@@ -1467,8 +1471,8 @@ long player_list_creature_filter_of_gui_state_and_pickable1(const struct Thing *
           return LONG_MAX;
       }
     }
-    // If conditions are not met, return 0 to be sure thing will not be returned.
-    return 0;
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
 }
 
 /**
@@ -1479,7 +1483,7 @@ long player_list_creature_filter_of_gui_state_and_pickable1(const struct Thing *
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_of_gui_state_and_pickable2(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *thing, MaxFilterParam param, long maximizer)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
@@ -1487,7 +1491,7 @@ long player_list_creature_filter_of_gui_state_and_pickable2(const struct Thing *
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
       && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0)
-      && ((param->num1 == -1) || (get_creature_gui_state(thing) == param->num1))
+      && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
       && (thing->field_7 != 67) )
     {
       if (can_thing_be_picked_up2_by_player(thing, param->plyr_idx))
@@ -1497,8 +1501,8 @@ long player_list_creature_filter_of_gui_state_and_pickable2(const struct Thing *
           return LONG_MAX;
       }
     }
-    // If conditions are not met, return 0 to be sure thing will not be returned.
-    return 0;
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
 }
 
 struct Thing *find_my_highest_level_creature_of_breed(long breed_idx, TbBool pick_check)
@@ -1556,12 +1560,13 @@ struct Thing *find_my_lowest_level_creature_of_breed(long breed_idx, TbBool pick
     return thing;
 }
 
-struct Thing *find_my_first_creature_of_breed_and_gui_state(long breed_idx, long job_idx, TbBool pick_check)
+struct Thing *find_my_first_creature_of_breed_and_gui_job(long breed_idx, long job_idx, TbBool pick_check)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundFilterParam param;
     struct Dungeon *dungeon;
     struct Thing *thing;
+    SYNCDBG(5,"Searching for breed %ld, job %ld",breed_idx,job_idx);
     dungeon = get_players_num_dungeon(my_player_number);
     param.plyr_idx = my_player_number;
     param.class_id = TCls_Creature;
@@ -1569,10 +1574,10 @@ struct Thing *find_my_first_creature_of_breed_and_gui_state(long breed_idx, long
     param.num1 = job_idx;
     if (pick_check)
     {
-        filter = player_list_creature_filter_of_gui_state_and_pickable1;
+        filter = player_list_creature_filter_of_gui_job_and_pickable1;
     } else
     {
-        filter = player_list_creature_filter_of_gui_state_and_pickable2;
+        filter = player_list_creature_filter_of_gui_job_and_pickable2;
     }
     //TODO: condition should be based on SPECIAL_DIGGER attribute
     if ((breed_idx == 23) || (breed_idx == -1))
@@ -1585,7 +1590,7 @@ struct Thing *find_my_first_creature_of_breed_and_gui_state(long breed_idx, long
     return thing;
 }
 
-struct Thing *find_my_next_creature_of_breed_and_job(long breed_idx, long job_idx, unsigned char pick_flags)
+struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long job_idx, unsigned char pick_flags)
 {
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
@@ -1593,9 +1598,10 @@ struct Thing *find_my_next_creature_of_breed_and_job(long breed_idx, long job_id
     Thing_Maximizer_Filter filter;
     struct CompoundFilterParam param;
     long i;
-    //return _DK_find_my_next_creature_of_breed_and_job(breed_idx, job_idx, pick_check);
+    SYNCDBG(5,"Searching for breed %ld, job %ld",breed_idx,job_idx);
+    //return _DK_find_my_next_creature_of_breed_and_job(breed_idx, job_idx, (pick_flags & TPF_PickableCheck) != 0);
     thing = NULL;
-    dungeon = get_players_num_dungeon(my_player_number);
+    dungeon = get_my_dungeon();
     if (breed_idx != -1)
     {
       i = dungeon->selected_creatures_of_model[breed_idx];
@@ -1624,7 +1630,7 @@ struct Thing *find_my_next_creature_of_breed_and_job(long breed_idx, long job_id
         if ( ((thing->field_0 & 0x01) != 0) && (thing->class_id == TCls_Creature)
           && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0)
           && (thing->field_7 != 67) && is_my_player_number(thing->owner)
-          && (get_creature_gui_state(thing) == job_idx) )
+          && (get_creature_gui_job(thing) == job_idx) )
         {
             cctrl = creature_control_get_from_thing(thing);
             thing = thing_get(cctrl->thing_idx);
@@ -1653,49 +1659,52 @@ struct Thing *find_my_next_creature_of_breed_and_job(long breed_idx, long job_id
         param.num1 = job_idx;
         if ((pick_flags & TPF_PickableCheck) != 0)
         {
-            filter = player_list_creature_filter_of_gui_state_and_pickable1;
+            filter = player_list_creature_filter_of_gui_job_and_pickable1;
         } else
         {
-            filter = player_list_creature_filter_of_gui_state_and_pickable2;
+            filter = player_list_creature_filter_of_gui_job_and_pickable2;
         }
         thing = get_player_list_creature_with_filter(thing->index, filter, &param);
     }
     if (thing_is_invalid(thing))
     {
-        thing = find_my_first_creature_of_breed_and_gui_state(breed_idx, job_idx, (pick_flags & TPF_PickableCheck) != 0);
+        thing = find_my_first_creature_of_breed_and_gui_job(breed_idx, job_idx, (pick_flags & TPF_PickableCheck) != 0);
     }
     if (thing_is_invalid(thing))
     {
         return NULL;
     }
+    if ((breed_idx != -1) && (thing->model != breed_idx))
+    {
+        ERRORLOG("Searched for breed %ld, but found %d.",breed_idx,(int)thing->model);
+    }
     dungeon->selected_creatures_of_model[thing->model] = thing->index;
-    dungeon->selected_creatures_of_gui_job[get_creature_gui_state(thing)] = thing->index;
+    dungeon->selected_creatures_of_gui_job[get_creature_gui_job(thing)] = thing->index;
     return thing;
 }
 
-struct Thing *pick_up_creature_of_breed_and_job(long kind, long job_idx, long owner, unsigned char pick_flags)
+struct Thing *pick_up_creature_of_breed_and_gui_job(long breed, long job_idx, long owner, unsigned char pick_flags)
 {
     struct Dungeon *dungeon;
     struct Thing *thing;
-    thing = find_my_next_creature_of_breed_and_job(kind, job_idx, pick_flags);
+    thing = find_my_next_creature_of_breed_and_gui_job(breed, job_idx, pick_flags);
     if (thing_is_invalid(thing))
     {
-        WARNLOG("Can't find creature of kind %ld and job %ld.",kind,job_idx);
+        WARNLOG("Can't find creature of breed %ld and job %ld.",breed,job_idx);
         return INVALID_THING;
     }
     dungeon = get_dungeon(owner);
-    if ((kind > 0) && (kind < CREATURE_TYPES_COUNT))
+    if ((breed > 0) && (breed < CREATURE_TYPES_COUNT))
     {
-        if ((job_idx == -1) || (dungeon->job_breeds_count[kind][job_idx & 0x03]))
+        if ((job_idx == -1) || (dungeon->job_breeds_count[breed][job_idx & 0x03]))
         {
             set_players_packet_action(get_my_player(), 90, thing->index, 0, 0, 0);
         }
     } else
     {
-        ERRORLOG("Creature kind %ld out of range.",kind);
+        ERRORLOG("Creature breed %ld out of range.",breed);
     }
     return thing;
-
 }
 /******************************************************************************/
 #ifdef __cplusplus

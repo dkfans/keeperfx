@@ -1909,7 +1909,7 @@ void setup_a_computer_player(unsigned short plyridx, long comp_model)
   comp = &game.computer[plyridx];
   LbMemorySet(comp, 0, sizeof(struct Computer2));
   cproctype = &ComputerProcessLists[comp_model];
-  comp->field_24 = &game.dungeon[plyridx];
+  comp->field_24 = get_players_num_dungeon(plyridx);
   comp->model = comp_model;
   comp->field_18 = cproctype->field_C;
   comp->field_14 = cproctype->field_8;
@@ -2105,7 +2105,7 @@ void process_computer_players2(void)
   for (i=0; i < PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+    dungeon = get_players_dungeon(player);
     if ((player->field_0 & 0x01) == 0)
       continue;
     if (((player->field_0 & 0x40) != 0) || ((dungeon->computer_enabled & 0x01) != 0))

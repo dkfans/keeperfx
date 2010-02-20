@@ -199,7 +199,7 @@ long get_room_slabs_count(long plyr_idx, unsigned short rkind)
   unsigned long k;
   long i;
   long count;
-  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(plyr_idx);
   count = 0;
   i = dungeon->room_kind[rkind];
   k = 0;
@@ -229,7 +229,7 @@ long get_player_rooms_count(long plyr_idx, unsigned short rkind)
   struct Room *room;
   unsigned long k;
   long i;
-  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(plyr_idx);
   i = dungeon->room_kind[rkind];
   k = 0;
   while (i != 0)
@@ -349,7 +349,7 @@ void delete_room_structure(struct Room *room)
   {
     if (game.field_14E497 != room->owner)
     {
-        dungeon = &(game.dungeon[room->owner%DUNGEONS_COUNT]);
+        dungeon = get_players_num_dungeon(room->owner);
         wptr = &dungeon->room_kind[room->kind];
         if (room->index == *wptr)
         {
@@ -432,7 +432,7 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
     }
     if (owner != game.field_14E497)
     {
-      dungeon = &(game.dungeon[owner%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(owner);
       i = dungeon->room_kind[room->kind%ROOM_TYPES_COUNT];
       room->field_6 = i;
       game.rooms[i].field_4 = room->index;
@@ -552,7 +552,7 @@ void reinitialise_treaure_rooms(void)
   unsigned int i,k,n;
   for (n=0; n < DUNGEONS_COUNT; n++)
   {
-    dungeon = &(game.dungeon[n]);
+    dungeon = get_dungeon(n);
     i = dungeon->room_kind[RoK_TREASURE];
     k = 0;
     while (i != 0)

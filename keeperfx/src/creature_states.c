@@ -404,7 +404,7 @@ struct StateInfo states[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1},
   {imp_arrives_at_improve_dungeon, NULL, NULL,  NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-  {imp_improves_dungeon, NULL, NULL, NULL,
+  {imp_improves_dungeon, NULL, NULL, NULL, // [10]
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
   {creature_picks_up_trap_object, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
@@ -424,7 +424,7 @@ struct StateInfo states[] = {
     0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 0, 1, 0, 59, 1, 0,  1},
   {creature_arrived_at_garden, state_cleanup_in_room, NULL, move_check_on_head_for_room,
     0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 0, 2, 0, 59, 1, 0,  1},
-  {creature_wants_a_home, NULL, NULL, NULL,
+  {creature_wants_a_home, NULL, NULL, NULL, // [20]
     0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 1, 0, 58, 1, 0,  1},
   {creature_choose_room_for_lair_site, NULL, NULL, NULL,
     0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0,  1, 0, 58, 1, 0, 1},
@@ -444,7 +444,7 @@ struct StateInfo states[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,  0, 0, 0, 1},
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 1, 0, 0, 0, 0, 1},
-  {at_research_room, NULL, NULL, move_check_on_head_for_room,
+  {at_research_room, NULL, NULL, move_check_on_head_for_room, // [30]
     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 56, 1, 0,   1},
   {researching, state_cleanup_in_room, NULL, process_research_function,
     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 56, 1, 0,   1},
@@ -464,7 +464,7 @@ struct StateInfo states[] = {
     1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0,  1, 1, 0, 0, 0, 0, 0},
   {arrive_at_call_to_arms, NULL, NULL, NULL,
     1,  0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 1, 0, 62,   1, 0, 0},
-  {creature_arrived_at_prison, state_cleanup_unable_to_fight, NULL, move_check_on_head_for_room,
+  {creature_arrived_at_prison, state_cleanup_unable_to_fight, NULL, move_check_on_head_for_room, // [40]
     1, 0,   1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 1, 0, 0, 0, 66, 1, 0,  0},
   {creature_in_prison, cleanup_prison, NULL, process_prison_function,
     1, 0, 1,   1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 1, 0, 0, 0, 66, 1, 0, 0},
@@ -732,37 +732,45 @@ long get_creature_state_type(const struct Thing *thing)
   long state;
   state = thing->field_7;
   if ( (state > 0) && (state < sizeof(states)/sizeof(states[0])) )
-      state_type = states[state].field_1E;
-  else
-      state_type = states[0].field_1E;
+  {
+      state_type = states[state].state_type;
+  } else
+  {
+      state_type = states[0].state_type;
+      WARNLOG("Creature state[0]=%ld is out of range.",state);
+  }
   if (state_type == 6)
   {
     state = thing->field_8;
     if ( (state > 0) && (state < sizeof(states)/sizeof(states[0])) )
-        state_type = states[state].field_1E;
-    else
-        state_type = states[0].field_1E;
+    {
+        state_type = states[state].state_type;
+    } else
+    {
+        state_type = states[0].state_type;
+        WARNLOG("Creature state[1]=%ld is out of range.",state);
+    }
   }
   return state_type;
 }
 
-/** Returns GUI State of given creature.
- *  The GUI state is a simplified version of creature state which
+/** Returns GUI Job of given creature.
+ *  The GUI Job is a simplified version of creature state which
  *  only takes 3 values: 0-idle, 1-working, 2-fighting.
  *
  * @param thing The source thing.
  * @return GUI state, in range 0..2.
  */
-long get_creature_gui_state(const struct Thing *thing)
+long get_creature_gui_job(const struct Thing *thing)
 {
     long state_type;
     state_type = get_creature_state_type(thing);
-    if ( (state_type > 0) && (state_type < sizeof(state_type_to_gui_state)/sizeof(state_type_to_gui_state[0])) )
+    if ( (state_type >= 0) && (state_type < sizeof(state_type_to_gui_state)/sizeof(state_type_to_gui_state[0])) )
     {
       return state_type_to_gui_state[state_type];
     } else
     {
-      WARNLOG("Creature has invalid state type(%ld)!",state_type);
+      WARNLOG("Creature of breed %d has invalid state type(%ld)!",(int)thing->model,state_type);
       return state_type_to_gui_state[0];
     }
 }
@@ -1677,6 +1685,8 @@ short good_back_at_start(struct Thing *thing)
 
 short good_doing_nothing(struct Thing *thing)
 {
+    SYNCDBG(18,"Starting");
+  // hangs if out of things
   return _DK_good_doing_nothing(thing);
 }
 

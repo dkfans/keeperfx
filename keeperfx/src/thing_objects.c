@@ -389,7 +389,7 @@ long object_update_dungeon_heart(struct Thing *thing)
   long long k;
   SYNCDBG(8,"Starting");
   //return _DK_object_update_dungeon_heart(thing);
-  dungeon = &(game.dungeon[thing->owner%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(thing->owner);
   if ((thing->health > 0) && (game.dungeon_heart_heal_time != 0))
   {
     if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)

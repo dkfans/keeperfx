@@ -146,7 +146,7 @@ long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
   struct Thing *thing;
   struct Dungeon *dungeon;
   //return _DK_pinstfs_hand_grab(player, n);
-  dungeon = &(game.dungeon[player->id_number%DUNGEONS_COUNT]);
+  dungeon = get_players_dungeon(player);
   thing = thing_get(player->field_43A);
   if (dungeon->field_63)
   {
@@ -165,7 +165,7 @@ long pinstfm_hand_grab(struct PlayerInfo *player, long *n)
   struct Thing *thing;
   struct Dungeon *dungeon;
   //return _DK_pinstfs_hand_grab(player, n);
-  dungeon = &(game.dungeon[player->id_number%DUNGEONS_COUNT]);
+  dungeon = get_players_dungeon(player);
   thing = thing_get(player->field_43E);
   if (thing->class_id == TCls_Creature)
   {
@@ -234,7 +234,7 @@ long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
   struct Thing *thing;
   struct Dungeon *dungeon;
   //return _DK_pinstfs_hand_drop(player, n);
-  dungeon = &(game.dungeon[player->id_number%DUNGEONS_COUNT]);
+  dungeon = get_players_dungeon(player);
   thing = thing_get(player->field_43A);
   player->field_43E = dungeon->things_in_hand[0];
   if (!thing_is_invalid(thing))
@@ -248,7 +248,7 @@ long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
   struct Thing *thing;
   struct Dungeon *dungeon;
   //return _DK_pinstfe_hand_drop(player, n);
-  dungeon = &(game.dungeon[player->id_number%DUNGEONS_COUNT]);
+  dungeon = get_players_dungeon(player);
   thing = thing_get(player->field_43A);
   dungeon->field_43 = 60;
   dungeon->field_53 = 40;
@@ -345,7 +345,7 @@ long pinstfm_hand_drop(struct PlayerInfo *player, long *n)
   struct Dungeon *dungeon;
   long i;
   //return _DK_pinstfm_hand_drop(player, n);
-  dungeon = &(game.dungeon[player->id_number%DUNGEONS_COUNT]);
+  dungeon = get_players_dungeon(player);
   i = player->field_4B1+1;
   if (i < 1) i = 1;
   dungeon->field_43 += (60 - dungeon->field_43) / i;
@@ -647,7 +647,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
   //return _DK_pinstfs_zoom_to_heart(player, n);
   memset(zoom_to_heart_palette, 0x3F, sizeof(zoom_to_heart_palette));
   light_turn_light_off(player->field_460);
-  dungeon = &(game.dungeon[player->id_number%DUNGEONS_COUNT]);
+  dungeon = get_players_dungeon(player);
   thing = thing_get(dungeon->dnheart_idx);
   mappos.x.val = thing->mappos.x.val;
   mappos.y.val = thing->mappos.y.val + 1792;
@@ -703,7 +703,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   set_player_mode(player, 1);
   cam = player->acamera;
   if (cam == NULL) return 0;
-  dungeon = &(game.dungeon[player->id_number%DUNGEONS_COUNT]);
+  dungeon = get_players_dungeon(player);
   thing = thing_get(dungeon->dnheart_idx);
   if (thing_is_invalid(thing))
   {
@@ -739,7 +739,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   if (player->field_37 != 5)
   {
     cam = player->acamera;
-    dungeon = &(game.dungeon[player->id_number%DUNGEONS_COUNT]);
+    dungeon = get_players_dungeon(player);
     thing = thing_get(dungeon->dnheart_idx);
     if (cam != NULL)
     {
