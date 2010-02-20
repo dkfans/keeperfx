@@ -68,15 +68,19 @@ TbBool player_allied_with(struct PlayerInfo *player, long ally_idx)
 
 void clear_players(void)
 {
-  int i;
-  for (i=0; i < PLAYERS_COUNT; i++)
-  {
-    memset(&game.players[i], 0, sizeof(struct PlayerInfo));
-  }
-  memset(&bad_player, 0, sizeof(struct PlayerInfo));
-  game.field_14E496 = hero_player_number;
-  game.field_14E495 = 0;
-  game.flagfield_14EA4A = 2;
+    struct PlayerInfo *player;
+    int i;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+        player = &game.players[i];
+        memset(player, 0, sizeof(struct PlayerInfo));
+        player->id_number = PLAYERS_COUNT;
+    }
+    memset(&bad_player, 0, sizeof(struct PlayerInfo));
+    bad_player.id_number = PLAYERS_COUNT;
+    game.field_14E496 = hero_player_number;
+    game.field_14E495 = 0;
+    game.flagfield_14EA4A = 2;
 }
 
 /******************************************************************************/

@@ -1104,7 +1104,9 @@ void command_bonus_level_time(long game_turns)
 void player_command_add_start_money(int plridx, long gold_val)
 {
   struct Dungeon *dungeon;
-  dungeon = get_players_num_dungeon(plridx);
+  // note that we can't get_players_num_dungeon() because players
+  // may be uninitialized yet when this is called.
+  dungeon = get_dungeon(plridx);
   dungeon->field_AFD += gold_val;
   dungeon->field_AF9 += gold_val;
 }
@@ -1235,7 +1237,7 @@ void command_research_order(char *plrname, char *trg_type, char *trg_name, unsig
     return;
   for (i=plr_start; i < plr_end; i++)
   {
-    dungeon = get_players_num_dungeon(i);
+    dungeon = get_dungeon(i);
     if (dungeon->research_num >= 34)
     {
       SCRPTERRLOG("Too many RESEARCH ITEMS, for player %d", i);
@@ -2647,98 +2649,98 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
   switch (valtype)
   {
   case SVar_MONEY:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->field_AF9;
   case SVar_GAME_TURN:
       return game.play_gameturn;
   case SVar_BREAK_IN:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->field_AF5;
   case SVar_CREATURE_NUM:
       if (validx == 23)
       {
-        dungeon = get_players_num_dungeon(plyr_idx);
+        dungeon = get_dungeon(plyr_idx);
         return dungeon->field_918;
       } else
       {
         return count_player_creatures_of_model(plyr_idx, validx);
       }
   case SVar_TOTAL_IMPS:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->field_918;
   case SVar_TOTAL_CREATURES:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->field_919 - count_player_creatures_not_counting_to_total(plyr_idx);
   case SVar_TOTAL_RESEARCH:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->field_117D / 256;
   case SVar_TOTAL_DOORS:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->total_doors;
   case SVar_TOTAL_AREA:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->total_area;
   case SVar_TOTAL_CREATURES_LEFT:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->total_creatures_left;
   case SVar_CREATURES_ANNOYED:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->creatures_annoyed;
   case SVar_BATTLES_LOST:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->battles_lost;
   case SVar_BATTLES_WON:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->battles_won;
   case SVar_ROOMS_DESTROYED:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->rooms_destroyed;
   case SVar_SPELLS_STOLEN:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->spells_stolen;
   case SVar_TIMES_BROKEN_INTO:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->times_broken_into;
   case SVar_GOLD_POTS_STOLEN:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->gold_pots_stolen;
   case SVar_TIMER:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       if (dungeon->turn_timers[validx].state)
         return game.play_gameturn - dungeon->turn_timers[validx].count;
       else
         return 0;
   case SVar_DUNGEON_DESTROYED:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return (dungeon->dnheart_idx <= 0);
   case SVar_TOTAL_GOLD_MINED:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->lvstats.gold_mined;
   case SVar_FLAG:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->script_flags[validx];
   case SVar_ROOM_SLABS:
       return get_room_slabs_count(plyr_idx, validx);
   case SVar_DOORS_DESTROYED:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->field_945;
   case SVar_CREATURES_SCAVENGED_LOST:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->field_98D;
   case SVar_CREATURES_SCAVENGED_GAINED:
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->field_98B;
   case SVar_AVAILABLE_MAGIC: // IF_AVAILABLE(MAGIC)
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->magic_level[validx%KEEPER_SPELLS_COUNT];
   case SVar_AVAILABLE_TRAP: // IF_AVAILABLE(TRAP)
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->trap_amount[validx%TRAP_TYPES_COUNT];
   case SVar_AVAILABLE_DOOR: // IF_AVAILABLE(DOOR)
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->door_amount[validx%DOOR_TYPES_COUNT];
   case SVar_AVAILABLE_ROOM: // IF_AVAILABLE(ROOM)
-      dungeon = get_players_num_dungeon(plyr_idx);
+      dungeon = get_dungeon(plyr_idx);
       return dungeon->room_buildable[validx%ROOM_TYPES_COUNT];
   case SVar_ALL_DUNGEONS_DESTROYED:
       player = get_player(plyr_idx);
@@ -2978,7 +2980,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_SET_HATE:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = get_players_num_dungeon(i);
+        dungeon = get_dungeon(i);
         dungeon->hates_player[val2%DUNGEONS_COUNT] = val3;
       }
       break;
@@ -3008,7 +3010,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_TRAP_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = get_players_num_dungeon(i);
+        dungeon = get_dungeon(i);
         dungeon->trap_buildable[val2%TRAP_TYPES_COUNT] = val3;
         dungeon->trap_amount[val2%TRAP_TYPES_COUNT] = val4;
         if (val4 != 0)
@@ -3032,7 +3034,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_SET_TIMER:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = get_players_num_dungeon(i);
+        dungeon = get_dungeon(i);
         dungeon->turn_timers[val2%TURN_TIMERS_COUNT].state = 1;
         dungeon->turn_timers[val2%TURN_TIMERS_COUNT].count = game.play_gameturn;
       }
@@ -3040,21 +3042,21 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_SET_FLAG:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = get_players_num_dungeon(i);
+        dungeon = get_dungeon(i);
         dungeon->script_flags[val2%SCRIPT_FLAGS_COUNT] = val3;
       }
       break;
   case Cmd_MAX_CREATURES:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = get_players_num_dungeon(i);
+        dungeon = get_dungeon(i);
         dungeon->max_creatures = val2;
       }
       break;
   case Cmd_DOOR_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = get_players_num_dungeon(i);
+        dungeon = get_dungeon(i);
         dungeon->door_buildable[val2%DOOR_TYPES_COUNT] = val3;
         dungeon->door_amount[val2%DOOR_TYPES_COUNT] = val4;
         if (val4 != 0)
@@ -3081,7 +3083,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_SET_CREATURE_MAX_LEVEL:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = get_players_num_dungeon(i);
+        dungeon = get_dungeon(i);
         dungeon->creature_max_level[val2%CREATURE_TYPES_COUNT] = val3;
       }
       break;

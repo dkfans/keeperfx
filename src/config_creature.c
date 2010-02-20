@@ -566,11 +566,15 @@ unsigned short get_creature_model_flags(const struct Thing *thing)
  */
 TbBool set_creature_available(long plyr_idx, long crtr_model, long can_be_avail, long force_avail)
 {
-  struct Dungeon *dungeon;
-  dungeon = get_players_num_dungeon(plyr_idx);
-  dungeon->creature_allowed[crtr_model] = can_be_avail;
-  dungeon->creature_enabled[crtr_model] = force_avail;
-  return true;
+    struct Dungeon *dungeon;
+    // note that we can't get_players_num_dungeon() because players
+    // may be uninitialized yet when this is called.
+    dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon))
+        return false;
+    dungeon->creature_allowed[crtr_model] = can_be_avail;
+    dungeon->creature_enabled[crtr_model] = force_avail;
+    return true;
 }
 
 /******************************************************************************/
