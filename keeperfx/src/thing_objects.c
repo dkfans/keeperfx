@@ -511,6 +511,21 @@ long update_object(struct Thing *thing)
   return move_object(thing);
 }
 
+struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx)
+{
+    struct Thing *thing;
+    struct Coord3d pos;
+    pos.x.val = pos_x;
+    pos.y.val = pos_y;
+    pos.z.val = (3 << 8);
+    thing = create_object(&pos, 6, plyr_idx, -1);
+    if (thing_is_invalid(thing))
+        return NULL;
+    thing->long_13 = game.pot_of_gold_holds;
+    return thing;
+}
+
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

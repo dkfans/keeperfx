@@ -146,27 +146,6 @@ enum DebugFlags {
     DFlg_unk02              =  0x02,
 };
 
-enum KeeperStateTypes {
-    KSt_NONE                =   0,
-    KSt_PutHero             =   4,
-    KSt_CallToArms          =   6,
-    KSt_CaveIn              =   7,
-    KSt_SightOfEvil         =   8,
-    KSt_Slap                =   9,
-    KSt_PutCreature         =  14,
-    KSt_Lightning           =  17,
-    KSt_PlaceDoor           =  18,
-    KSt_SpeedUp             =  19,
-    KSt_Armour              =  20,
-    KSt_Conceal             =  21,
-    KSt_Heal                =  22,
-    KSt_Sell                =  23,
-    KSt_CreateImp           =  24,
-    KSt_DestroyWalls        =  25,
-    KSt_Disease             =  26,
-    KSt_TurnChicken         =  27,
-};
-
 typedef unsigned long Phrase;
 struct TbLoadFiles;
 struct RoomFlag;
@@ -849,8 +828,8 @@ long field_1506D5;
     char evntbox_text_buffer[MESSAGE_TEXT_LEN];
     struct TextScrollWindow evntbox_scroll_window;
 char field_1512E6[1037];
-int field_1516F3;
-int field_1516F7; // signed
+int flash_button_index;
+int flash_button_gameturns; // signed
 int field_1516FB;
 char field_1516FF;
     long boulder_reduce_health_wall;
@@ -1404,7 +1383,7 @@ short send_creature_to_room(struct Thing *thing, struct Room *room);
 struct Room *get_room_thing_is_on(struct Thing *thing);
 short set_start_state(struct Thing *thing);
 void init_creature_state(struct Thing *thing);
-void gui_set_button_flashing(long a1, long a2);
+void gui_set_button_flashing(long btn_idx, long gameturns);
 struct Thing *get_trap_for_position(long pos_x, long pos_y);
 struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
@@ -1450,7 +1429,6 @@ long compute_creature_max_cparameter(long base_param,unsigned short crlevel);
 long compute_creature_max_sparameter(long base_param,unsigned short crlevel);
 #define compute_creature_max_dexterity compute_creature_max_cparameter
 #define compute_creature_max_defence compute_creature_max_cparameter
-//#define compute_creature_max_range compute_creature_max_sparameter
 long compute_creature_max_strength(long base_param,unsigned short crlevel);
 long compute_creature_max_unaffected(long base_param,unsigned short crlevel);
 #define compute_creature_max_luck compute_creature_max_unaffected

@@ -1613,4 +1613,4 @@
  0001:00033CF0       draw_engine_room_flagpole
  0001:00017B20       draw_iso_only_fastview_mapwho
  0001:00018020       draw_map_who
- 
+ 0001:0001A7A0       set_room_playing_ambient_sound

@@ -107,7 +107,7 @@ short is_save_game_loadable(long num)
   return false;
 }
 
-short load_game(long slot_num)
+TbBool load_game(long slot_num)
 {
   //return _DK_load_game(slot_num);
   char *fname;
@@ -120,19 +120,19 @@ short load_game(long slot_num)
   reset_eye_lenses();
   fname = prepare_file_fmtpath(FGrp_Save,saved_game_filename,slot_num);
   if (!wait_for_cd_to_be_available())
-    return 0;
+    return false;
   handle = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
   if (handle == -1)
   {
     WARNMSG("Cannot open saved game file \"%s\".",fname);
     save_catalogue_slot_disable(slot_num);
-    return 0;
+    return false;
   }
   if (LbFileRead(handle, buf, 14) != 14)
   {
     LbFileClose(handle);
     save_catalogue_slot_disable(slot_num);
-    return 0;
+    return false;
   }
   LbFileSeek(handle, (char *)&game.campaign_fname[0] - (char *)&game.load_restart_level, Lb_FILE_SEEK_BEGINNING);
   LbFileRead(handle, cmpgn_fname, CAMPAIGN_FNAME_LEN);
@@ -141,7 +141,6 @@ short load_game(long slot_num)
   if (!change_campaign(cmpgn_fname))
   {
     ERRORLOG("Unable to load campaign associated with saved game");
-    return 0;
   }
   if (!save_version_compatible(LbFileLength(fname),(struct Game *)buf))
   {
@@ -156,12 +155,12 @@ short load_game(long slot_num)
     set_selected_level_number(((struct Game *)buf)->load_restart_level);
     set_continue_level_number(((struct Game *)buf)->continue_level_number);
     startup_network_game();
-    return 1;
+    return true;
   }
   if (LbFileLoadAt(fname, &game) != sizeof(struct Game))
   {
     WARNMSG("Couldn't correctly load saved game \"%s\".",fname);
-    return 0;
+    return false;
   }
   LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
   init_lookups();
@@ -181,12 +180,12 @@ short load_game(long slot_num)
   if (player->victory_state != VicS_Undecided)
   {
     frontstats_initialise();
-    dungeon = get_players_num_dungeon(my_player_number);
+    dungeon = get_players_dungeon(player);
     dungeon->lvstats.player_score = 0;
     dungeon->lvstats.allow_save_score = 1;
   }
   game.field_1516FF = 0;
-  return 1;
+  return true;
 }
 
 int count_valid_saved_games(void)
