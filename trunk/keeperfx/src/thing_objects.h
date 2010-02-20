@@ -92,6 +92,7 @@ TbBool object_is_gold_pile(const struct Thing *thing);
 
 long update_object(struct Thing *thing);
 
+struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

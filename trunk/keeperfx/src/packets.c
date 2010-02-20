@@ -323,31 +323,31 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
   {
     switch (player->work_state)
     {
-    case KSt_CallToArms:
+    case PSt_CallToArms:
         if (dungeon->field_884)
           player->field_4D2 = (dungeon->field_883 << 2);
         else
           update_spell_overcharge(player, 6);
         break;
-    case KSt_CaveIn:
+    case PSt_CaveIn:
         update_spell_overcharge(player, 7);
         break;
-    case KSt_SightOfEvil:
+    case PSt_SightOfEvil:
         update_spell_overcharge(player, 5);
         break;
-    case KSt_Lightning:
+    case PSt_Lightning:
         update_spell_overcharge(player, 10);
         break;
-    case KSt_SpeedUp:
+    case PSt_SpeedUp:
         update_spell_overcharge(player, 11);
         break;
-    case KSt_Armour:
+    case PSt_Armour:
         update_spell_overcharge(player, 12);
         break;
-    case KSt_Conceal:
+    case PSt_Conceal:
         update_spell_overcharge(player, 13);
         break;
-    case KSt_Heal:
+    case PSt_Heal:
         update_spell_overcharge(player, 8);
         break;
     default:
@@ -630,7 +630,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         }
       }
       break;
-  case 2:
+  case PSt_BuildRoom:
       if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
       {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
@@ -665,7 +665,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       keeper_build_room(stl_x,stl_y,plyr_idx,player->field_4A3);
       unset_packet_control(pckt, PCtr_LBtnClick);
       break;
-  case 3:
+  case PSt_MkGoodWorker:
       if (((pckt->control_flags & PCtr_LBtnRelease) == 0) || ((pckt->control_flags & PCtr_MapCoordsValid) == 0))
         break;
       pos.x.val = x;
@@ -692,13 +692,20 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case KSt_PutHero:
+  case PSt_MkGoodCreatr:
       if (((pckt->control_flags & PCtr_LBtnRelease) == 0) || ((pckt->control_flags & PCtr_MapCoordsValid) == 0))
         break;
       create_random_hero_creature(x, y, game.field_14E496, CREATURE_MAX_LEVEL);
       unset_packet_control(pckt, PCtr_LBtnRelease);
       break;
-  case KSt_CallToArms:
+  case PSt_MkGoldPot:
+      if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+      {
+        create_gold_pot_at(x, y, player->id_number);
+        unset_packet_control(pckt, PCtr_LBtnRelease);
+      }
+      break;
+  case PSt_CallToArms:
       if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
       {
         i = get_spell_overcharge_level(player);
@@ -706,7 +713,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case KSt_CaveIn:
+  case PSt_CaveIn:
       if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
       {
         i = get_spell_overcharge_level(player);
@@ -714,7 +721,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case KSt_SightOfEvil:
+  case PSt_SightOfEvil:
       if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
       {
         i = get_spell_overcharge_level(player);
@@ -722,7 +729,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case KSt_Slap:
+  case PSt_Slap:
       val172 = 1;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
@@ -735,7 +742,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case 10:
+  case PSt_CtrlPassngr:
       val172 = 1;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
@@ -760,7 +767,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         }
       }
       break;
-  case 11:
+  case PSt_CtrlDirect:
       val172 = 1;
       thing = get_creature_near_for_controlling(plyr_idx, x, y);
       if (thing_is_invalid(thing))
@@ -835,7 +842,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         }
       }
       break;
-  case 13:
+  case PSt_OrderCreatr:
       val172 = 1;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
@@ -878,7 +885,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_RBtnRelease);
       }
       break;
-  case KSt_PutCreature:
+  case PSt_MkBadCreatr:
       if (((pckt->control_flags & PCtr_LBtnRelease) == 0) || ((pckt->control_flags & PCtr_MapCoordsValid) == 0))
         break;
       create_random_evil_creature(x, y, plyr_idx, CREATURE_MAX_LEVEL);
@@ -931,7 +938,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       unset_packet_control(pckt, PCtr_LBtnClick);
       break;
-  case KSt_Lightning:
+  case PSt_Lightning:
       player->thing_under_hand = 0;
       if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
       {
@@ -940,7 +947,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case KSt_PlaceDoor:
+  case PSt_PlaceDoor:
       if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
       {
         player->field_4A4 = 1;
@@ -963,7 +970,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         }
       }
       break;
-  case KSt_SpeedUp:
+  case PSt_SpeedUp:
       val172 = true;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
@@ -979,7 +986,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case KSt_Armour:
+  case PSt_Armour:
       val172 = true;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
@@ -995,7 +1002,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case KSt_Conceal:
+  case PSt_Conceal:
       val172 = true;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
@@ -1011,7 +1018,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case KSt_Heal:
+  case PSt_Heal:
       val172 = true;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
       if (thing_is_invalid(thing))
@@ -1027,7 +1034,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case KSt_Sell:
+  case PSt_Sell:
       if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
       {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
@@ -1122,14 +1129,14 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       unset_packet_control(pckt, PCtr_LBtnClick);
       break;
-  case KSt_CreateImp:
+  case PSt_CreateDigger:
       if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
       {
         magic_use_power_imp(plyr_idx, stl_x, stl_y);
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case KSt_DestroyWalls:
+  case PSt_DestroyWalls:
       if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
       {
         i = get_spell_overcharge_level(player);
@@ -1137,7 +1144,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case KSt_Disease:
+  case PSt_CastDisease:
       thing = get_creature_near_with_filter(x, y, creature_near_filter_is_enemy_of_and_not_imp, plyr_idx);
       if (thing_is_invalid(thing))
       {
@@ -1152,7 +1159,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
-  case KSt_TurnChicken:
+  case PSt_TurnChicken:
       val172 = true;
       thing = get_creature_near_with_filter(x, y, creature_near_filter_not_imp, plyr_idx);
       if (thing_is_invalid(thing))
@@ -1758,14 +1765,13 @@ char process_players_global_packet_action(long plyr_idx)
       set_player_mode(player, pckt->field_6);
       return 0;
     case 81:
-      myplyr=get_my_player();
       set_player_cameras_position(player, pckt->field_6 << 8, pckt->field_8 << 8);
       player->cameras[2].orient_a = 0;
       player->cameras[3].orient_a = 0;
       player->cameras[0].orient_a = 0;
       if ((game.numfield_A & 0x01) || (lbDisplay.PhysicalScreenWidth > 320))
       {
-        if (my_player_number == plyr_idx)
+        if (is_my_player_number(plyr_idx))
           toggle_status_menu((game.numfield_C & 0x40) != 0);
         set_player_mode(player, 1);
       } else
