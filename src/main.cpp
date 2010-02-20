@@ -375,6 +375,7 @@ TbClockMSec last_loop_time=0;
 #ifdef __cplusplus
 extern "C" {
 #endif
+DLLIMPORT void _DK_set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx);
 DLLIMPORT long _DK_prepare_thing_for_power_hand(unsigned short tng_idx, long plyr_idx);
 DLLIMPORT void _DK_draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
 DLLIMPORT void _DK_draw_lightning(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
@@ -618,7 +619,7 @@ DLLIMPORT void _DK_reset_gui_based_on_player_mode(void);
 DLLIMPORT void _DK_init_animating_texture_maps(void);
 DLLIMPORT void _DK_init_lookups(void);
 DLLIMPORT long _DK_init_navigation(void);
-DLLIMPORT int __cdecl _DK_load_settings(void);
+DLLIMPORT int _DK_load_settings(void);
 DLLIMPORT void _DK_sound_reinit_after_load(void);
 DLLIMPORT void _DK_restore_computer_player_after_load(void);
 DLLIMPORT void _DK_delete_thing_structure(struct Thing *thing, long a2);
@@ -2715,7 +2716,10 @@ void lightning_modify_palette(struct Thing *thing)
     return;
   }
   if (myplyr->acamera == NULL)
-    return;
+  {
+      WARNLOG("No active camera");
+      return;
+  }
   if (((thing->health % 8) != 7) && (thing->health != 1) && (ACTION_RANDOM(4) != 0))
   {
     if ((myplyr->field_3 & 0x08) != 0)
@@ -5887,10 +5891,10 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
   if ( left_button_clicked )
   {
       result = true;
-      if (game.field_1516F3 != 0)
+      if (game.flash_button_index != 0)
       {
-        if (gbtn->id_num == game.field_1516F3)
-          game.field_1516F3 = 0;
+        if (gbtn->id_num == game.flash_button_index)
+          game.flash_button_index = 0;
       }
       callback = gbtn->click_event;
       if ((callback != NULL) || (gbtn->field_0 & 0x02) ||
@@ -5904,10 +5908,10 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
   if ( right_button_clicked )
   {
       result = true;
-      if (game.field_1516F3 != 0)
+      if (game.flash_button_index != 0)
       {
-        if (gbtn->id_num == game.field_1516F3)
-          game.field_1516F3 = 0;
+        if (gbtn->id_num == game.flash_button_index)
+          game.flash_button_index = 0;
       }
       callback = gbtn->rclick_event;
       if ((callback != NULL))
@@ -6191,8 +6195,8 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
   {
     int i;
     i = player->work_state;
-    if ( ((i == 1) && (player->field_454)) || (i == 2) ||
-      (i == 18) || (i == 16) || (i == KSt_SightOfEvil) || (i == 23) )
+    if ( ((i == 1) && (player->field_454)) || (i == PSt_BuildRoom) ||
+      (i == PSt_PlaceDoor) || (i == 16) || (i == PSt_SightOfEvil) || (i == PSt_Sell) )
     {
           *map_x = ( top_pointed_at_x << 8) + top_pointed_at_frac_x;
           *map_y = ( top_pointed_at_y << 8) + top_pointed_at_frac_y;
@@ -6202,15 +6206,15 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
           *map_y = (block_pointed_at_y << 8) + pointed_at_frac_y;
     }
     // Clipping coordinates
-    if ( *map_y < 0 )
+    if (*map_y < 0)
       *map_y = 0;
     else
-    if ( *map_y > ((map_subtiles_y<<8)-1) )
+    if (*map_y > ((map_subtiles_y<<8)-1))
       *map_y = ((map_subtiles_y<<8)-1);
-    if ( *map_x < 0 )
+    if (*map_x < 0)
       *map_x = 0;
     else
-    if ( *map_x > ((map_subtiles_x<<8)-1) )
+    if (*map_x > ((map_subtiles_x<<8)-1))
       *map_x = ((map_subtiles_x<<8)-1);
     return true;
   }
@@ -6681,10 +6685,10 @@ void check_map_for_gold(void)
   _DK_check_map_for_gold();
 }
 
-void gui_set_button_flashing(long a1, long a2)
+void gui_set_button_flashing(long btn_idx, long gameturns)
 {
-  game.field_1516F3 = a1;
-  game.field_1516F7 = a2;
+  game.flash_button_index = btn_idx;
+  game.flash_button_gameturns = gameturns;
 }
 
 long get_next_research_item(struct Dungeon *dungeon)
@@ -7467,18 +7471,18 @@ void init_keepers_map_exploration(void)
 void clear_players_for_save(void)
 {
   struct PlayerInfo *player;
-  unsigned short mem1,mem2,memflg;
+  unsigned short id_mem,mem2,memflg;
   struct Camera cammem;
   int i;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    mem1 = player->id_number;
+    id_mem = player->id_number;
     mem2 = player->field_2C;
     memflg = player->field_0;
     LbMemoryCopy(&cammem,&player->cameras[1],sizeof(struct Camera));
     memset(player, 0, sizeof(struct PlayerInfo));
-    player->id_number = mem1;
+    player->id_number = id_mem;
     player->field_2C = mem2;
     set_flag_byte(&player->field_0,0x01,((memflg & 0x01) != 0));
     set_flag_byte(&player->field_0,0x40,((memflg & 0x40) != 0));
@@ -7692,7 +7696,7 @@ void recall_localised_game_structure(void)
   game.numfield_151821 = boing.field_2B;
 }
 
-long get_reync_sender(void)
+long get_resync_sender(void)
 {
   struct PlayerInfo *player;
   int i;
@@ -7774,7 +7778,7 @@ void resync_game(void)
   draw_out_of_sync_box(0, 32, player->engine_window_x);
   reset_eye_lenses();
   store_localised_game_structure();
-  i = get_reync_sender();
+  i = get_resync_sender();
   if (is_my_player_number(i))
   {
     send_resync_game();
@@ -8000,17 +8004,18 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long a2)
   struct Thing *thing;
   struct Coord3d pos;
   //_DK_set_player_state(player, nwrk_state, a2);
+  // Selecting the same state again - update only 2nd parameter
   if (player->work_state == nwrk_state)
   {
     switch ( player->work_state )
     {
-    case 2:
+    case PSt_BuildRoom:
         player->field_4A3 = a2;
         break;
     case 16:
         player->field_4A5 = a2;
         break;
-    case 18:
+    case PSt_PlaceDoor:
         player->field_4A6 = a2;
         break;
     }
@@ -8030,13 +8035,13 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long a2)
   case 1:
       player->field_4A4 = 1;
       break;
-  case 2:
+  case PSt_BuildRoom:
       player->field_4A3 = a2;
       break;
   case 5:
       create_power_hand(player->id_number);
       break;
-  case 9:
+  case PSt_Slap:
       pos.x.val = 0;
       pos.y.val = 0;
       pos.z.val = 0;
@@ -8053,7 +8058,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long a2)
   case 16:
       player->field_4A5 = a2;
       break;
-  case 18:
+  case PSt_PlaceDoor:
       player->field_4A6 = a2;
       break;
   default:
@@ -9372,9 +9377,61 @@ short bonus_timer_enabled(void)
   return (is_bonus_level(lvnum) || is_extra_level(lvnum));
 }
 
+void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
+{
+    _DK_set_room_playing_ambient_sound(pos, sample_idx);
+}
+
 void find_nearest_rooms_for_ambient_sound(void)
 {
-  _DK_find_nearest_rooms_for_ambient_sound();
+    struct PlayerInfo *player;
+    struct Room *room;
+    struct MapOffset *sstep;
+    struct SlabMap *slb;
+    struct Map *map;
+    struct Coord3d pos;
+    long slb_x,slb_y;
+    long stl_x,stl_y;
+    long i,k;
+    SYNCDBG(8,"Starting");
+    //_DK_find_nearest_rooms_for_ambient_sound();
+    if ((SoundDisabled) || (GetCurrentSoundMasterVolume() <= 0))
+        return;
+    player = get_my_player();
+    if (player->acamera == NULL)
+    {
+        ERRORLOG("No active camera");
+        set_room_playing_ambient_sound(NULL, 0);
+        return;
+    }
+    slb_x = player->acamera->mappos.x.stl.num / 3;
+    slb_y = player->acamera->mappos.y.stl.num / 3;
+    for (i = 0; i < 120; i++)
+    {
+        sstep = &spiral_step[i];
+        stl_x = 3 * (slb_x + sstep->h);
+        stl_y = 3 * (slb_y + sstep->v);
+        map = get_map_block_at(stl_x, stl_y);
+        slb = get_slabmap_for_subtile(stl_x,stl_y);
+        if (map_block_invalid(map) || slabmap_block_invalid(slb))
+            continue;
+        if (((map->flags & 0x02) != 0) && (player->id_number == slabmap_owner(slb)))
+        {
+            room = room_get(slb->room_index);
+            if (room_is_invalid(room))
+                continue;
+            k = room_info[room->kind].field_4;
+            if (k > 0)
+            {
+                pos.x.val = (stl_x << 8);
+                pos.y.val = (stl_y << 8);
+                pos.z.val = (1 << 8);
+                set_room_playing_ambient_sound(&pos, k);
+                return;
+            }
+        }
+    }
+    set_room_playing_ambient_sound(NULL, 0);
 }
 
 void light_render_area(int startx, int starty, int endx, int endy)
@@ -9384,7 +9441,8 @@ void light_render_area(int startx, int starty, int endx, int endy)
 
 void process_3d_sounds(void)
 {
-  _DK_process_3d_sounds();
+    SYNCDBG(9,"Starting");
+    _DK_process_3d_sounds();
 }
 
 void process_player_research(int plr_idx)
@@ -9732,7 +9790,7 @@ void process_level_script(void)
 //script_process_messages(); is not here, but it is in beta - check why
   process_check_new_tunneller_partys();
   process_values();
-  process_win_and_lose_conditions(player->id_number);
+  process_win_and_lose_conditions(my_player_number); //player->id_number may be uninitialized yet
 //  show_onscreen_msg(8, "Flags %d %d %d %d %d %d", game.dungeon[0].script_flags[0],game.dungeon[0].script_flags[1],
 //    game.dungeon[0].script_flags[2],game.dungeon[0].script_flags[3],game.dungeon[0].script_flags[4],game.dungeon[0].script_flags[5]);
   SYNCDBG(19,"Finished");
@@ -10610,6 +10668,11 @@ void process_pointer_graphic(void)
   //_DK_process_pointer_graphic(); return;
   player = get_my_player();
   dungeon = get_dungeon(player->id_number);
+  if (dungeon_invalid(dungeon))
+  {
+      set_pointer_graphic(0);
+      return;
+  }
   SYNCDBG(6,"Starting for view %d, player state %d, instance %d",(int)player->view_type,(int)player->work_state,(int)player->instance_num);
   switch (player->view_type)
   {
@@ -10696,7 +10759,7 @@ void process_pointer_graphic(void)
               break;
           }
           break;
-      case 2:
+      case PSt_BuildRoom:
           switch (player->field_4A3)
           {
           case 2:
@@ -10744,23 +10807,23 @@ void process_pointer_graphic(void)
           }
           return;
       case 5:
-      case 9:
+      case PSt_Slap:
           set_pointer_graphic(0);
           break;
-      case 6:
-      case 7:
-      case 8:
-      case 10:
-      case 11:
-      case 17:
-      case 19:
-      case 20:
-      case 21:
-      case 22:
-      case 24:
-      case 25:
-      case 26:
-      case 27:
+      case PSt_CallToArms:
+      case PSt_CaveIn:
+      case PSt_SightOfEvil:
+      case PSt_CtrlPassngr:
+      case PSt_CtrlDirect:
+      case PSt_Lightning:
+      case PSt_SpeedUp:
+      case PSt_Armour:
+      case PSt_Conceal:
+      case PSt_Heal:
+      case PSt_CreateDigger:
+      case PSt_DestroyWalls:
+      case PSt_CastDisease:
+      case PSt_TurnChicken:
           draw_spell_cursor(player->work_state, 0, game.pos_14C006.x.stl.num, game.pos_14C006.y.stl.num);
           break;
       case 12:
@@ -10790,7 +10853,7 @@ void process_pointer_graphic(void)
               break;
           }
           return;
-      case 18:
+      case PSt_PlaceDoor:
           switch (player->field_4A6)
           {
           case 1:
@@ -10807,7 +10870,7 @@ void process_pointer_graphic(void)
               break;
           }
           return;
-      case 23:
+      case PSt_Sell:
           set_pointer_graphic(3);
           break;
       default:
@@ -10946,7 +11009,7 @@ void draw_power_hand(void)
     {
       if ((player->instance_num != 1) && (player->instance_num != 2))
       {
-        if (player->work_state == 9)
+        if (player->work_state == PSt_Slap)
         {
           process_keeper_sprite((GetMouseX()+70) / pixel_size, (GetMouseY()+46) / pixel_size,
               thing->field_44, 0, thing->field_48, 64 / pixel_size);
@@ -13639,17 +13702,14 @@ void wait_at_frontend(void)
   case 10:
         flgmem = game.numfield_15;
         game.numfield_A &= 0xFFFEu;
-        if (game.numfield_15 == -2)
+        LbScreenClear(0);
+        LbScreenSwap();
+        if (!load_game(game.numfield_15))
         {
-          ERRORLOG("Why are we here");
-          game.numfield_15 = flgmem;
-        } else
-        {
-          LbScreenClear(0);
-          LbScreenSwap();
-          load_game(game.numfield_15);
-          game.numfield_15 = flgmem;
+            ERRORLOG("Error in load!");
+            quit_game = 1;
         }
+        game.numfield_15 = flgmem;
         break;
   case 25:
         game.flags_cd |= MFlg_IsDemoMode;
@@ -13692,7 +13752,8 @@ void game_loop(void)
     unsigned long starttime;
     unsigned long endtime;
     struct Dungeon *dungeon;
-    dungeon = get_my_dungeon();
+    // get_my_dungeon() can't be used here because players are not initialized yet
+    dungeon = get_dungeon(my_player_number);
     starttime = LbTimerClock();
     dungeon->lvstats.time1 = timeGetTime();//starttime;
     dungeon->lvstats.time2 = timeGetTime();//starttime;

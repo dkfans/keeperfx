@@ -12,7 +12,7 @@ Installation of KeeperFX CCP:
 
 KeeperFX CCP contains all the files neccessary to play the game.
 Decompress it anywhere, and it's ready to run. If you wish
-to change language, edit 'KEEPERFX.CFG' and set its shortcut
+to change language, edit "keeperfx.cfg" and set its shortcut
 in the 'LANGUAGE=' line. Run "keeperfx.exe" to start the game.
 If something doesn't work, see the 'troubleshooting' section.
 
@@ -38,18 +38,18 @@ campaign.
 
 Running KeeperFX:
 
-To start the game, run 'KEEPERFX.EXE'. If you want to report
-any errors you encounter, you may run 'KEEPERFX_HVLOG.EXE'
+To start the game, run "keeperfx.exe". If you want to report
+any errors you encounter, you may run "keeperfx_hvlog.exe"
 instead. This will run a "heavylog version", which writes a lot of
-information into 'KEEPERFX.LOG'. In case of the game hanging
+information into "keeperfx.log". In case of the game hanging
 on suddenly disappearing, you may send a last few lines of the
 generated LOG to the author with your description of the bug.
 
-Note that 'KEEPERFX_HVLOG.EXE' requires a lot more CPU than
+Note that "keeperfx_hvlog.exe" requires a lot more CPU than
 standard version, and may be slow even on new computers.
 Also, the generated LOG file may be very large, and after
 a few hours of play it will have several hundereds megabytes.
-This is why you should use standard 'KEEPERFX.EXE' if you're
+This is why you should use standard "keeperfx.exe" if you're
 not planning reporting any errors.
 
 Both versions will recognize all command line options described
@@ -113,7 +113,7 @@ Command line options:
 Troubleshooting:
 
 Q: Colors are changed in menu or during gameplay,
-    but no problem is mentioned in KEEPERFX.LOG.
+    but no problem is mentioned in "keeperfx.log".
 A: Select "Run in 256 colors" and "Run in 640x480" in the
     program properties, and change lines in KEEPERFX.CFG
     into those written in next answer.
@@ -177,7 +177,7 @@ SCREENSHOT
 
 LANGUAGE
   This option is used to select language file, used for
-  displaying texts. It also changes language in lecturer
+  displaying texts. It also changes language in mentor
   speeches. Note that if the specific campaign doesn't
   have support for your language, the default language
   will be used.
@@ -292,6 +292,11 @@ New and modified level script commands:
 
 Changelog:
 
+Version: 0.3.6
+  Rewritten some of room sound playing
+  Saved game can now be loaded even if loading campaign file fails
+  Improved handling of player index errors
+
 Version: 0.3.5
   Rewritten shot throwing code (for both melee combat and spells)
   Rewritten some of Dungeon Heart behaviour
@@ -377,7 +382,7 @@ Version: 0.2.8b
   DISPLAY_INFORMATION now requires two parameters (added zoom location)
   QUICK_INFORMATION now requires three parameters (added zoom location)
   When selling multiple traps on same tile, total cost is displayed
-  Text file is now selected based on language setting in 'keeperfx.cfg'
+  Text file is now selected based on language setting in "keeperfx.cfg"
   Fixed room selling (v0.2.8a)
   Fixed wage and luck value displayed in creature info panel (v0.2.8a)
   Fixed typing mistake in hero party objectives (v0.2.8b)

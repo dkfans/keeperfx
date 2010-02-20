@@ -627,7 +627,6 @@ inline void LbDrawOneColorLineSolid(unsigned char **buf_scr,const TbPixel colour
 
 int __fastcall LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *sprite)
 {
-//TODO - this one is hard
   LbSyncLog("LbSpriteDrawUsingScalingData: UNFINISHED!\n");
   return 1;
 }

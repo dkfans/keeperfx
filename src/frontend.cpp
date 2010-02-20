@@ -398,9 +398,10 @@ struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
   {"Place tunneller mode",     1,           NULL,      gf_change_player_state, 0, 0, 0,PSt_MkGoodWorker, 0, 0, 0, 0},
   {"Place creature mode",      1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_MkBadCreatr, 0, 0, 0, 0},
   {"Place hero mode",          1,           NULL,      gf_change_player_state, 0, 0, 0,PSt_MkGoodCreatr, 0, 0, 0, 0},
-  {"Destroy walls mode",       1,           NULL,      gf_change_player_state, 0, 0, 0,PSt_SplDstrWalls, 0, 0, 0, 0},
-  {"Disease mode",             1,           NULL,      gf_change_player_state, 0, 0, 0,  PSt_SplDisease, 0, 0, 0, 0},
-  {"Peter mode",               1,           NULL,      gf_change_player_state, 0, 0, 0,  PSt_SplChicken, 0, 0, 0, 0},
+  {"Destroy walls mode",       1,           NULL,      gf_change_player_state, 0, 0, 0,PSt_DestroyWalls, 0, 0, 0, 0},
+  {"Disease mode",             1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_CastDisease, 0, 0, 0, 0},
+  {"Peter mode",               1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_TurnChicken, 0, 0, 0, 0},
+  {"Create gold mode",         1,           NULL,      gf_change_player_state, 0, 0, 0,   PSt_MkGoldPot, 0, 0, 0, 0},
   {"",                         2,           NULL,                        NULL, 0, 0, 0,        PSt_None, 0, 0, 0, 0},
   {"Passenger control mode",   1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_CtrlPassngr, 0, 0, 0, 0},
   {"Direct control mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,  PSt_CtrlDirect, 0, 0, 0, 0},
@@ -2970,11 +2971,11 @@ TbBool set_players_packet_change_spell(struct PlayerInfo *player,int sptype)
     return false;
   pwrdata = get_power_data(sptype);
   k = pwrdata->field_4;
-  if ((k == KSt_CallToArms) && (player->work_state == KSt_CallToArms))
+  if ((k == PSt_CallToArms) && (player->work_state == PSt_CallToArms))
   {
     set_players_packet_action(player, PckA_SpellCTADis, 0, 0, 0, 0);
   } else
-  if ((k == KSt_SightOfEvil) && (player->work_state == KSt_SightOfEvil))
+  if ((k == PSt_SightOfEvil) && (player->work_state == PSt_SightOfEvil))
   {
     set_players_packet_action(player, PckA_SpellSOEDis, 0, 0, 0, 0);
   } else
@@ -4286,7 +4287,9 @@ void gui_load_game(struct GuiButton *gbtn)
   player=get_my_player();
   if (!load_game(gbtn->field_1B))
   {
-    ERRORLOG("Error in load!");
+      ERRORLOG("Error in load!");
+      quit_game = 1;
+      return;
   }
   set_players_packet_action(player, 22, 0, 0, 0, 0);
 }
@@ -6876,29 +6879,29 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
   for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
   {
     gbtn = &active_buttons[i];
-    if ((!gbtn->field_13) || ((gbtn->field_0 & 0x04) == 0) || ((gbtn->field_0 & 0x01) == 0) || (!game.field_1516F3))
+    if ((!gbtn->field_13) || ((gbtn->field_0 & 0x04) == 0) || ((gbtn->field_0 & 0x01) == 0) || (game.flash_button_index == 0))
       continue;
     in_range = 0;
     switch (gbtn->id_num)
     {
     case BID_INFO_TAB:
-      if ((game.field_1516F3 >= 68) && (game.field_1516F3 <= 71))
+      if ((game.flash_button_index >= 68) && (game.flash_button_index <= 71))
         in_range = 1;
       break;
     case BID_ROOM_TAB:
-      if ((game.field_1516F3 >= 6) && (game.field_1516F3 <= 20))
+      if ((game.flash_button_index >= 6) && (game.flash_button_index <= 20))
         in_range = 1;
       break;
     case BID_SPELL_TAB:
-      if ((game.field_1516F3 >= 21) && (game.field_1516F3 <= 36))
+      if ((game.flash_button_index >= 21) && (game.flash_button_index <= 36))
         in_range = 1;
       break;
     case BID_TRAP_TAB:
-      if ((game.field_1516F3 >= 53) && (game.field_1516F3 <= 61))
+      if ((game.flash_button_index >= 53) && (game.flash_button_index <= 61))
         in_range = 1;
       break;
     case BID_CREATR_TAB:
-      if ((game.field_1516F3 >= 72) && (game.field_1516F3 <= 74))
+      if ((game.flash_button_index >= 72) && (game.flash_button_index <= 74))
         in_range = 1;
       break;
     default:
@@ -6909,7 +6912,7 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
       if (!menu_is_active(gbtn->field_1B))
         spangle_button(gbtn);
     } else
-    if ((gbtn->id_num > 0) && (gbtn->id_num == game.field_1516F3))
+    if ((gbtn->id_num > 0) && (gbtn->id_num == game.flash_button_index))
     {
       spangle_button(gbtn);
     }
@@ -6938,14 +6941,14 @@ void draw_gui(void)
   LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   update_fade_active_menus();
   draw_active_menus_buttons();
-  if (game.field_1516F3 != 0)
+  if (game.flash_button_index != 0)
   {
     draw_active_menus_highlights();
-    if (game.field_1516F7 != -1)
+    if (game.flash_button_gameturns != -1)
     {
-      game.field_1516F7--;
-      if (game.field_1516F7 == 0)
-        game.field_1516F3 = 0;
+      game.flash_button_gameturns--;
+      if (game.flash_button_gameturns <= 0)
+        game.flash_button_index = 0;
     }
   }
   lbDisplay.DrawFlags = flg_mem;
