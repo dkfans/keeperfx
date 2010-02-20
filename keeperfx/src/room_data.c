@@ -229,7 +229,11 @@ long get_player_rooms_count(long plyr_idx, unsigned short rkind)
   struct Room *room;
   unsigned long k;
   long i;
-  dungeon = get_players_num_dungeon(plyr_idx);
+  // note that we can't get_players_num_dungeon() because players
+  // may be uninitialized yet when this is called.
+  dungeon = get_dungeon(plyr_idx);
+  if (dungeon_invalid(dungeon))
+      return 0;
   i = dungeon->room_kind[rkind];
   k = 0;
   while (i != 0)
@@ -432,12 +436,14 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
     }
     if (owner != game.field_14E497)
     {
-      dungeon = get_players_num_dungeon(owner);
-      i = dungeon->room_kind[room->kind%ROOM_TYPES_COUNT];
-      room->field_6 = i;
-      game.rooms[i].field_4 = room->index;
-      dungeon->room_kind[room->kind%ROOM_TYPES_COUNT] = room->index;
-      dungeon->room_slabs_count[room->kind%ROOM_TYPES_COUNT]++;
+        // note that we can't get_players_num_dungeon() because players
+        // may be uninitialized yet when this is called.
+        dungeon = get_dungeon(owner);
+        i = dungeon->room_kind[room->kind%ROOM_TYPES_COUNT];
+        room->field_6 = i;
+        game.rooms[i].field_4 = room->index;
+        dungeon->room_kind[room->kind%ROOM_TYPES_COUNT] = room->index;
+        dungeon->room_slabs_count[room->kind%ROOM_TYPES_COUNT]++;
     }
     slb_x = map_to_slab[x%(map_subtiles_x+1)];
     slb_y = map_to_slab[y%(map_subtiles_y+1)];

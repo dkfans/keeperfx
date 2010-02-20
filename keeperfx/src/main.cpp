@@ -668,22 +668,22 @@ DLLIMPORT void __cdecl _DK_do_slab_efficiency_alteration(unsigned char a1, unsig
 DLLIMPORT void __cdecl _DK_place_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 DLLIMPORT long _DK_light_get_light_intensity(long idx);
 DLLIMPORT long _DK_light_set_light_intensity(long a1, long a2);
-DLLIMPORT void __cdecl _DK_event_kill_all_players_events(long plyr_idx);
+DLLIMPORT void _DK_event_kill_all_players_events(long plyr_idx);
 DLLIMPORT long _DK_creature_turn_to_face_angle(struct Thing *thing, long a2);
 DLLIMPORT void __stdcall _DK_IsRunningMark(void);
 DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
 DLLIMPORT int __stdcall _DK_play_smk_(char *fname, int smkflags, int plyflags);
 DLLIMPORT int __fastcall _DK_LbFileClose(TbFileHandle handle);
-DLLIMPORT void __cdecl _DK_setup_engine_window(long, long, long, long);
-DLLIMPORT void __cdecl _DK_redraw_display(void);
-DLLIMPORT void __cdecl _DK_cumulative_screen_shot(void);
-DLLIMPORT long __cdecl _DK_anim_record_frame(unsigned char *screenbuf, unsigned char *palette);
-DLLIMPORT void __cdecl _DK_frontend_set_state(long);
-DLLIMPORT void __cdecl _DK_demo(void);
-DLLIMPORT void __cdecl _DK_draw_gui(void);
-DLLIMPORT void __cdecl _DK_save_settings(void);
-DLLIMPORT int __cdecl _DK_setup_network_service(int srvidx);
-DLLIMPORT int __cdecl _DK_process_3d_sounds(void);
+DLLIMPORT void _DK_setup_engine_window(long, long, long, long);
+DLLIMPORT void _DK_redraw_display(void);
+DLLIMPORT void _DK_cumulative_screen_shot(void);
+DLLIMPORT long _DK_anim_record_frame(unsigned char *screenbuf, unsigned char *palette);
+DLLIMPORT void _DK_frontend_set_state(long);
+DLLIMPORT void _DK_demo(void);
+DLLIMPORT void _DK_draw_gui(void);
+DLLIMPORT void _DK_save_settings(void);
+DLLIMPORT int _DK_setup_network_service(int srvidx);
+DLLIMPORT int _DK_process_3d_sounds(void);
 DLLIMPORT int _DK_LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
 DLLIMPORT struct Thing *_DK_get_crate_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long x, long y);
@@ -860,17 +860,7 @@ void initialise_eye_lenses(void)
     set_flag_byte(&game.flags_cd,MFlg_EyeLensReady,false);
     return;
   }
-/*
-  //TODO: Hack for compatibility - eye lens supported only in 3 modes
-  if ((lbDisplay.ScreenMode != Lb_SCREEN_MODE_320_200_8) &&
-      (lbDisplay.ScreenMode != Lb_SCREEN_MODE_640_400_8) &&
-      (lbDisplay.ScreenMode != Lb_SCREEN_MODE_640_480_8))
-  {
-    WARNMSG("EyeLens not supported in current screen mode");
-    set_flag_byte(&game.flags_cd,MFlg_EyeLensReady,false);
-    return;
-  }
-*/
+
   eye_lens_height = lbDisplay.GraphicsScreenHeight;
   eye_lens_width = lbDisplay.GraphicsScreenWidth;
   screen_size = eye_lens_width * eye_lens_height + 2;
@@ -7393,15 +7383,18 @@ void clear_map(void)
 
 void clear_things_and_persons_data(void)
 {
-  long i;
-  for (i=0; i < THINGS_COUNT; i++)
-  {
-    memset(&game.things_data[i], 0, sizeof(struct Thing));
-  }
-  for (i=0; i < CREATURES_COUNT; i++)
-  {
-    memset(&game.cctrl_data[i], 0, sizeof(struct CreatureControl));
-  }
+    struct Thing *thing;
+    long i;
+    for (i=0; i < THINGS_COUNT; i++)
+    {
+        thing = &game.things_data[i];
+        memset(thing, 0, sizeof(struct Thing));
+        thing->owner = PLAYERS_COUNT;
+    }
+    for (i=0; i < CREATURES_COUNT; i++)
+    {
+      memset(&game.cctrl_data[i], 0, sizeof(struct CreatureControl));
+    }
 }
 
 void clear_action_points(void)
@@ -8263,7 +8256,7 @@ void find_map_location_coords(long location, long *x, long *y, const char *func_
       } else
         WARNMSG("%s: Thing %d location not found",func_name,i);
       break;
-  case MLoc_CREATUREKIND:
+  case MLoc_CREATUREBREED:
   case MLoc_OBJECTKIND:
   case MLoc_ROOMKIND:
   default:
@@ -9203,21 +9196,21 @@ void check_players_lost(void)
   //_DK_check_players_lost();
   for (i=0; i < PLAYERS_COUNT; i++)
   {
-    player = get_player(i);
-    dungeon = get_players_dungeon(player);
-    if (((player->field_0 & 0x01) != 0) && (player->field_2C == 1))
-    {
-      thing = thing_get(dungeon->dnheart_idx);
-      if (thing_is_invalid(thing))
-        continue;
-      if ((thing->field_7 == 3) && (player->victory_state == VicS_Undecided))
+      player = get_player(i);
+      if (((player->field_0 & 0x01) != 0) && (player->field_2C == 1))
       {
-        event_kill_all_players_events(i);
-        set_player_as_lost_level(player);
-        if (is_my_player_number(i))
-          LbPaletteSet(_DK_palette);
+          dungeon = get_players_dungeon(player);
+          thing = thing_get(dungeon->dnheart_idx);
+          if (thing_is_invalid(thing))
+            continue;
+          if ((thing->field_7 == 3) && (player->victory_state == VicS_Undecided))
+          {
+            event_kill_all_players_events(i);
+            set_player_as_lost_level(player);
+            if (is_my_player_number(i))
+              LbPaletteSet(_DK_palette);
+          }
       }
-    }
   }
 }
 

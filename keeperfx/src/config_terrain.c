@@ -787,7 +787,11 @@ TbBool make_all_rooms_researchable(long plyr_idx)
 TbBool set_room_available(long plyr_idx, long room_idx, long resrch, long avail)
 {
   struct Dungeon *dungeon;
-  dungeon = get_players_num_dungeon(plyr_idx);
+  // note that we can't get_players_num_dungeon() because players
+  // may be uninitialized yet when this is called.
+  dungeon = get_dungeon(plyr_idx);
+  if (dungeon_invalid(dungeon))
+      return false;
   if ((room_idx < 0) || (room_idx >= ROOM_TYPES_COUNT))
   {
     ERRORLOG("Can't add incorrect room %ld to player %ld",room_idx, plyr_idx);

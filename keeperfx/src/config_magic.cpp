@@ -712,7 +712,11 @@ TbBool set_power_available(long plyr_idx, long spl_idx, long resrch, long avail)
 {
   struct Dungeon *dungeon;
   SYNCDBG(8,"Starting for spell %ld, player %ld, state %ld,%ld",spl_idx,plyr_idx,resrch,avail);
-  dungeon = get_players_num_dungeon(plyr_idx);
+  // note that we can't get_players_num_dungeon() because players
+  // may be uninitialized yet when this is called.
+  dungeon = get_dungeon(plyr_idx);
+  if (dungeon_invalid(dungeon))
+      return false;
   dungeon->magic_resrchable[spl_idx] = resrch;
   if (avail <= 0)
   {
