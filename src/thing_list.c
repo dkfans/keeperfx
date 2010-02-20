@@ -289,7 +289,7 @@ void init_player_start(struct PlayerInfo *player)
     i = thing->next_of_class;
     if ((game.objects_config[thing->model].field_6) && (thing->owner == player->id_number))
     {
-      dungeon = &(game.dungeon[player->id_number%DUNGEONS_COUNT]);
+      dungeon = get_players_dungeon(player);
       dungeon->dnheart_idx = thing->index;
       memcpy(&dungeon->mappos,&thing->mappos,sizeof(struct Coord3d));
       break;
@@ -496,7 +496,7 @@ long count_player_creatures_of_model(long plyr_idx, long model)
   unsigned long k;
   long i;
   int count;
-  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(plyr_idx);
   count = 0;
   i = dungeon->creatr_list_start;
   k = 0;
@@ -530,7 +530,7 @@ long count_player_creatures_not_counting_to_total(long plyr_idx)
   unsigned long k;
   long i,n;
   int count;
-  dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(plyr_idx);
   count = 0;
   k = 0;
   i = dungeon->creatr_list_start;
@@ -561,7 +561,8 @@ long count_player_creatures_not_counting_to_total(long plyr_idx)
 
 /**
  * Returns filtered creature from the players creature list starting from thing_idx.
- * The creature which will return highest value from given filter function will be returned.
+ * The creature which will return highest nonnegative value from given filter function
+ * will be returned.
  * If the filter function will return LONG_MAX, the current creature will be returned
  * immediately and no further things will be checked.
  * @return Returns thing, or invalid thing pointer if not found.
@@ -574,6 +575,7 @@ struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximiz
   long maximizer;
   unsigned long k;
   long i,n;
+  SYNCDBG(9,"Starting");
   retng = INVALID_THING;
   maximizer = 0;
   k = 0;

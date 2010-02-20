@@ -96,7 +96,7 @@ TbBool creature_control_invalid(const struct CreatureControl *cctrl)
   return (cctrl <= game.persons.cctrl_lookup[0]) || (cctrl == NULL);
 }
 
-struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long kind, struct Coord3d *pos)
+struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long breed, struct Coord3d *pos)
 {
   struct CreatureStats *crstat;
   struct CreatureControl *cctrl;
@@ -104,9 +104,9 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
   struct Thing *thing;
   struct Camera *cam;
   struct InitLight ilght;
-  SYNCDBG(6,"Starting");
+  SYNCDBG(6,"Request for breed %ld at (%d,%d,%d)",breed,(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
   //return _DK_create_and_control_creature_as_controller(player, a2, pos);
-  thing = create_creature(pos, kind, player->id_number);
+  thing = create_creature(pos, breed, player->id_number);
   if (thing_is_invalid(thing))
     return NULL;
   dungeon = get_dungeon(thing->owner);

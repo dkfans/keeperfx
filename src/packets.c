@@ -45,6 +45,7 @@
 #include "thing_doors.h"
 #include "thing_effects.h"
 #include "thing_objects.h"
+#include "dungeon_data.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -262,7 +263,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
   MapCoord x,y;
   long k;
   player = get_player(plyr_idx);
-  dungeon = &(game.dungeon[player->id_number%DUNGEONS_COUNT]);
+  dungeon = get_players_dungeon(player);
   k = game.room_stats[rkind].cost;
   if (!i_can_allocate_free_room_structure())
   {
@@ -310,7 +311,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
   long i,k;
 
   player = get_player(plyr_idx);
-  dungeon = &(game.dungeon[player->id_number%DUNGEONS_COUNT]);
+  dungeon = get_players_dungeon(player);
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Starting for state %d",(int)player->work_state);
   player->field_4A4 = 1;
@@ -1068,7 +1069,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
           } else
           {
             i = ((long)game.room_stats[room->kind].cost) * 50 / 100;
-            dungeon = &(game.dungeon[room->owner%DUNGEONS_COUNT]);
+            dungeon = get_players_num_dungeon(room->owner);
             if (room->owner != game.field_14E497)
               dungeon->rooms_destroyed++;
             delete_room_slab(map_to_slab[stl_x], map_to_slab[stl_y], 0);
@@ -1824,7 +1825,8 @@ char process_players_global_packet_action(long plyr_idx)
       turn_off_call_to_arms(plyr_idx);
       return 0;
     case 90:
-      if (game.dungeon[plyr_idx].field_63 < 8)
+        dungeon = get_players_num_dungeon(plyr_idx);
+      if (dungeon->field_63 < 8)
         place_thing_in_power_hand(thing_get(pckt->field_6), plyr_idx);
       return 0;
     case 91:
@@ -1856,7 +1858,7 @@ char process_players_global_packet_action(long plyr_idx)
     case 106:
       if (player->work_state == 15)
         turn_off_query(plyr_idx);
-      dungeon = &(game.dungeon[plyr_idx]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       switch (pckt->field_6)
       {
       case 5:
@@ -1897,7 +1899,8 @@ char process_players_global_packet_action(long plyr_idx)
       level_lost_go_first_person(plyr_idx);
       return 0;
     case 111:
-      if (game.dungeon[plyr_idx].field_63)
+      dungeon = get_players_num_dungeon(plyr_idx);
+      if (dungeon->field_63)
       {
         thing = get_first_thing_in_power_hand(player);
         dump_held_things_on_map(plyr_idx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 1);
@@ -1910,8 +1913,9 @@ char process_players_global_packet_action(long plyr_idx)
       go_on_then_activate_the_event_box(plyr_idx, pckt->field_6);
       return 0;
     case 116:
-      turn_off_event_box_if_necessary(plyr_idx, game.dungeon[plyr_idx].field_1173);
-      game.dungeon[plyr_idx].field_1173 = 0;
+      dungeon = get_players_num_dungeon(plyr_idx);
+      turn_off_event_box_if_necessary(plyr_idx, dungeon->field_1173);
+      dungeon->field_1173 = 0;
       return 0;
     case 117:
       i = player->field_4D2 / 4;

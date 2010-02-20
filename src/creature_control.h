@@ -31,6 +31,8 @@ extern "C" {
 #define CREATURE_PAY_INCREASE_ON_EXP      35
 /** Percentage of creature damage increase for every experience level. */
 #define CREATURE_DAMAGE_INCREASE_ON_EXP   20
+/** Percentage of spell range/area of effect increase for every experience level. */
+#define CREATURE_RANGE_INCREASE_ON_EXP   10
 /** Percentage of creature parameter increase for every experience level.
  *  Used for all parameters that have no separate definition, ie. strength,
  *  health, dexterity...*/

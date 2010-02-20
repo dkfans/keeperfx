@@ -139,7 +139,7 @@ enum MapLocationTypes {
     MLoc_ACTIONPOINT                   =  1,
     MLoc_HEROGATE                      =  2,
     MLoc_PLAYERSHEART                  =  3,
-    MLoc_CREATUREKIND                  =  4,
+    MLoc_CREATUREBREED                 =  4,
     MLoc_OBJECTKIND                    =  5,
     MLoc_ROOMKIND                      =  6,
     MLoc_THING                         =  7,

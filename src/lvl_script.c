@@ -39,6 +39,7 @@
 #include "thing_effects.h"
 #include "lvl_filesdk1.h"
 #include "game_merge.h"
+#include "dungeon_data.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -671,7 +672,7 @@ TbBool get_map_location_id_f(char *locname, TbMapLocation *location, const char 
   i = get_rid(creature_desc, locname);
   if (i != -1)
   {
-    *location = ((unsigned long)i << 12) | MLoc_CREATUREKIND;
+    *location = ((unsigned long)i << 12) | MLoc_CREATUREBREED;
     return true;
   }
   // Room name means location of such room belonging to player0
@@ -1103,7 +1104,7 @@ void command_bonus_level_time(long game_turns)
 void player_command_add_start_money(int plridx, long gold_val)
 {
   struct Dungeon *dungeon;
-  dungeon = &(game.dungeon[plridx%DUNGEONS_COUNT]);
+  dungeon = get_players_num_dungeon(plridx);
   dungeon->field_AFD += gold_val;
   dungeon->field_AF9 += gold_val;
 }
@@ -1234,7 +1235,7 @@ void command_research_order(char *plrname, char *trg_type, char *trg_name, unsig
     return;
   for (i=plr_start; i < plr_end; i++)
   {
-    dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+    dungeon = get_players_num_dungeon(i);
     if (dungeon->research_num >= 34)
     {
       SCRPTERRLOG("Too many RESEARCH ITEMS, for player %d", i);
@@ -2433,7 +2434,7 @@ long script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing)
   return _DK_script_support_send_tunneller_to_appropriate_dungeon(thing);
 }
 
-struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long kind, long location)
+struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long breed, long location)
 {
   struct CreatureControl *cctrl;
   struct Thing *thing;
@@ -2444,21 +2445,21 @@ struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long ki
   {
   case MLoc_ACTIONPOINT:
       i = get_map_location_longval(location);
-      tng_idx = script_support_create_thing_at_action_point(i, TCls_Creature, kind, plyr_idx, 1);
+      tng_idx = script_support_create_thing_at_action_point(i, TCls_Creature, breed, plyr_idx, 1);
       effect = 1;
       break;
   case MLoc_HEROGATE:
       i = get_map_location_longval(location);
-      tng_idx = script_support_create_thing_at_hero_door(i, TCls_Creature, kind, plyr_idx, 1);
+      tng_idx = script_support_create_thing_at_hero_door(i, TCls_Creature, breed, plyr_idx, 1);
       effect = 0;
       break;
   case MLoc_PLAYERSHEART:
       i = get_map_location_longval(location);
-      tng_idx = script_support_create_creature_at_dungeon_heart(kind, plyr_idx, i);
+      tng_idx = script_support_create_creature_at_dungeon_heart(breed, plyr_idx, i);
       effect = 0;
       break;
   case MLoc_NONE:
-  case MLoc_CREATUREKIND:
+  case MLoc_CREATUREBREED:
   case MLoc_OBJECTKIND:
   case MLoc_ROOMKIND:
   case MLoc_THING:
@@ -2470,7 +2471,7 @@ struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long ki
   thing = thing_get(tng_idx);
   if (thing_is_invalid(thing))
   {
-    ERRORLOG("Couldn't create creature kind %d at location %ld",(int)kind,location);
+    ERRORLOG("Couldn't create creature breed %d at location %ld",(int)breed,location);
     return INVALID_THING;
   }
   cctrl = creature_control_get_from_thing(thing);
@@ -2491,7 +2492,6 @@ struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long ki
   }
   return thing;
 }
-
 
 struct Thing *script_process_new_tunneller(unsigned char plyr_idx, TbMapLocation location, unsigned char heading, long target, unsigned char crtr_level, unsigned long carried_gold)
 {
@@ -2568,11 +2568,11 @@ struct Thing *script_process_new_party(struct Party *party, unsigned char plyr_i
   return ldthing;
 }
 
-struct Thing *script_create_new_creature(unsigned char plyr_idx, long kind, long location, long carried_gold, long crtr_level)
+struct Thing *script_create_new_creature(unsigned char plyr_idx, long breed, long location, long carried_gold, long crtr_level)
 {
   struct Thing *thing;
-  //return _DK_script_create_new_creature(plyr_idx, kind, location, carried_gold, crtr_level);
-  thing = script_create_creature_at_location(plyr_idx, kind, location);
+  //return _DK_script_create_new_creature(plyr_idx, breed, location, carried_gold, crtr_level);
+  thing = script_create_creature_at_location(plyr_idx, breed, location);
   if (thing_is_invalid(thing))
     return INVALID_THING;
   thing->long_13 = carried_gold;
@@ -2610,11 +2610,11 @@ void script_process_new_tunneller_party(unsigned char plyr_idx, long prty_id, lo
   add_creature_to_group_as_leader(ldthing, gpthing);
 }
 
-void script_process_new_creatures(unsigned char plyr_idx, long crtr_kind, long location, long copies_num, long carried_gold, long crtr_level)
+void script_process_new_creatures(unsigned char plyr_idx, long crtr_breed, long location, long copies_num, long carried_gold, long crtr_level)
 {
   long i;
   for (i=0; i < copies_num; i++)
-    script_create_new_creature(plyr_idx, crtr_kind, location, carried_gold, crtr_level);
+    script_create_new_creature(plyr_idx, crtr_breed, location, carried_gold, crtr_level);
 }
 
 /*
@@ -2647,98 +2647,98 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
   switch (valtype)
   {
   case SVar_MONEY:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->field_AF9;
   case SVar_GAME_TURN:
       return game.play_gameturn;
   case SVar_BREAK_IN:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->field_AF5;
   case SVar_CREATURE_NUM:
       if (validx == 23)
       {
-        dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+        dungeon = get_players_num_dungeon(plyr_idx);
         return dungeon->field_918;
       } else
       {
         return count_player_creatures_of_model(plyr_idx, validx);
       }
   case SVar_TOTAL_IMPS:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->field_918;
   case SVar_TOTAL_CREATURES:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->field_919 - count_player_creatures_not_counting_to_total(plyr_idx);
   case SVar_TOTAL_RESEARCH:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->field_117D / 256;
   case SVar_TOTAL_DOORS:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->total_doors;
   case SVar_TOTAL_AREA:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->total_area;
   case SVar_TOTAL_CREATURES_LEFT:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->total_creatures_left;
   case SVar_CREATURES_ANNOYED:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->creatures_annoyed;
   case SVar_BATTLES_LOST:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->battles_lost;
   case SVar_BATTLES_WON:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->battles_won;
   case SVar_ROOMS_DESTROYED:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->rooms_destroyed;
   case SVar_SPELLS_STOLEN:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->spells_stolen;
   case SVar_TIMES_BROKEN_INTO:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->times_broken_into;
   case SVar_GOLD_POTS_STOLEN:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->gold_pots_stolen;
   case SVar_TIMER:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       if (dungeon->turn_timers[validx].state)
         return game.play_gameturn - dungeon->turn_timers[validx].count;
       else
         return 0;
   case SVar_DUNGEON_DESTROYED:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return (dungeon->dnheart_idx <= 0);
   case SVar_TOTAL_GOLD_MINED:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->lvstats.gold_mined;
   case SVar_FLAG:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->script_flags[validx];
   case SVar_ROOM_SLABS:
       return get_room_slabs_count(plyr_idx, validx);
   case SVar_DOORS_DESTROYED:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->field_945;
   case SVar_CREATURES_SCAVENGED_LOST:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->field_98D;
   case SVar_CREATURES_SCAVENGED_GAINED:
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->field_98B;
   case SVar_AVAILABLE_MAGIC: // IF_AVAILABLE(MAGIC)
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->magic_level[validx%KEEPER_SPELLS_COUNT];
   case SVar_AVAILABLE_TRAP: // IF_AVAILABLE(TRAP)
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->trap_amount[validx%TRAP_TYPES_COUNT];
   case SVar_AVAILABLE_DOOR: // IF_AVAILABLE(DOOR)
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->door_amount[validx%DOOR_TYPES_COUNT];
   case SVar_AVAILABLE_ROOM: // IF_AVAILABLE(ROOM)
-      dungeon = &(game.dungeon[plyr_idx%DUNGEONS_COUNT]);
+      dungeon = get_players_num_dungeon(plyr_idx);
       return dungeon->room_buildable[validx%ROOM_TYPES_COUNT];
   case SVar_ALL_DUNGEONS_DESTROYED:
       player = get_player(plyr_idx);
@@ -2978,7 +2978,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_SET_HATE:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon = get_players_num_dungeon(i);
         dungeon->hates_player[val2%DUNGEONS_COUNT] = val3;
       }
       break;
@@ -3008,7 +3008,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_TRAP_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon = get_players_num_dungeon(i);
         dungeon->trap_buildable[val2%TRAP_TYPES_COUNT] = val3;
         dungeon->trap_amount[val2%TRAP_TYPES_COUNT] = val4;
         if (val4 != 0)
@@ -3032,7 +3032,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_SET_TIMER:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon = get_players_num_dungeon(i);
         dungeon->turn_timers[val2%TURN_TIMERS_COUNT].state = 1;
         dungeon->turn_timers[val2%TURN_TIMERS_COUNT].count = game.play_gameturn;
       }
@@ -3040,21 +3040,21 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_SET_FLAG:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon = get_players_num_dungeon(i);
         dungeon->script_flags[val2%SCRIPT_FLAGS_COUNT] = val3;
       }
       break;
   case Cmd_MAX_CREATURES:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon = get_players_num_dungeon(i);
         dungeon->max_creatures = val2;
       }
       break;
   case Cmd_DOOR_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon = get_players_num_dungeon(i);
         dungeon->door_buildable[val2%DOOR_TYPES_COUNT] = val3;
         dungeon->door_amount[val2%DOOR_TYPES_COUNT] = val4;
         if (val4 != 0)
@@ -3081,7 +3081,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_SET_CREATURE_MAX_LEVEL:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = &(game.dungeon[i%DUNGEONS_COUNT]);
+        dungeon = get_players_num_dungeon(i);
         dungeon->creature_max_level[val2%CREATURE_TYPES_COUNT] = val3;
       }
       break;
