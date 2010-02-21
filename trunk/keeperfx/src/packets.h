@@ -39,6 +39,7 @@ enum TbPacketAction {
         PckA_SetMinimapConf =   28,
         PckA_PasngrCtrlExit =   32,
         PckA_SetPlyrState   =   36,
+        PckA_HoldAudience   =   41,
         PckA_ToggleTendency =   55,
         PckA_CheatEnter     =   60,
         PckA_CheatAllFree   =   61,
@@ -49,6 +50,10 @@ enum TbPacketAction {
         PckA_CheatAllRooms  =   67,
         PckA_CheatAllResrchbl=  70,
         PckA_SpellCTADis    =   89,
+        PckA_UseSpecialBox  =   93,
+        PckA_ResurrectCrtr  =   95,
+        PckA_TransferCreatr =   96,
+        PckA_ToggleComputer =  107,
         PckA_PlyrFastMsg    =  108,
         PckA_SpellSOEDis    =  114,
         PckA_PlyrToggleAlly =  118,
@@ -116,7 +121,7 @@ void unset_packet_control(struct Packet *pckt, unsigned long flag);
 void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag);
 void set_players_packet_position(struct PlayerInfo *player, long x, long y);
 short set_packet_pause_toggle(void);
-void process_dungeon_control_packet_clicks(long idx);
+TbBool process_dungeon_control_packet_clicks(long idx);
 TbBool process_players_dungeon_control_packet_action(long idx);
 void process_players_creature_control_packet_control(long idx);
 void process_players_creature_passenger_packet_action(long idx);

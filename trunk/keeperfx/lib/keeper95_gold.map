@@ -1614,3 +1614,5 @@
  0001:00017B20       draw_iso_only_fastview_mapwho
  0001:00018020       draw_map_who
  0001:0001A7A0       set_room_playing_ambient_sound
+ 0001:0007F7A0       ariadne_initialise_creature_route
+ 

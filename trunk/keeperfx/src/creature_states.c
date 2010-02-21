@@ -27,6 +27,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "room_data.h"
+#include "ariadne.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -382,6 +383,10 @@ short torturing(struct Thing *thing);
 short training(struct Thing *thing);
 short tunneller_doing_nothing(struct Thing *thing);
 short tunnelling(struct Thing *thing);
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 struct StateInfo states[] = {
   {NULL, NULL, NULL, NULL,
@@ -1673,6 +1678,67 @@ short creature_wants_salary(struct Thing *thing)
   return _DK_creature_wants_salary(thing);
 }
 
+TbBool creature_can_navigate_to_with_storage(struct Thing *crtng, struct Coord3d *pos, unsigned char storage)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(crtng);
+    return ariadne_initialise_creature_route(crtng, pos, cctrl->max_speed, storage) == 0;
+}
+
+/**
+ * Returns a hero gate object to which given hero can navigate.
+ * @todo It returns first hero door found - maybe it should find the one he will reach faster?
+ * @param herotng The hero to be able to make it to gate.
+ * @return The gate thing, or invalid thing.
+ */
+struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
+{
+    struct Thing *thing;
+    unsigned long k;
+    int i;
+    k = 0;
+    i = game.thing_lists[2].index;
+    while (i != 0)
+    {
+      thing = thing_get(i);
+      if (thing_is_invalid(thing))
+      {
+        ERRORLOG("Jump to invalid thing detected");
+        break;
+      }
+      i = thing->next_of_class;
+      // Per thing code
+      if ((thing->model == 49) && creature_can_navigate_to_with_storage(herotng, &thing->mappos, 0))
+        return thing;
+      // Per thing code ends
+      k++;
+      if (k > THINGS_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping things list");
+        break;
+      }
+    }
+    return NULL;
+}
+
+TbBool good_setup_wander_to_exit(struct Thing *thing)
+{
+    struct Thing *gatetng;
+    gatetng = find_hero_door_hero_can_navigate_to(thing);
+    if (thing_is_invalid(gatetng))
+    {
+        SYNCLOG("Can't find any exit gate for hero of breed %d.",(int)thing->model);
+        return false;
+    }
+    if (!setup_person_move_to_position(thing, gatetng->mappos.x.stl.num, gatetng->mappos.y.stl.num, 0))
+    {
+        WARNLOG("Hero of breed %d can't move to exit gate at (%d,%d).",(int)thing->model,(int)gatetng->mappos.x.stl.num, (int)gatetng->mappos.y.stl.num);
+        return false;
+    }
+    thing->field_8 = 128;
+    return true;
+}
+
 short good_attack_room(struct Thing *thing)
 {
   return _DK_good_attack_room(thing);
@@ -2593,6 +2659,3 @@ TbBool internal_set_thing_state(struct Thing *thing, long nState)
   return true;
 }
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

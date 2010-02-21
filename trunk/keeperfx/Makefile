@@ -89,6 +89,7 @@ OBJS = \
 ./obj/config_creature.o \
 ./obj/config_crtrmodel.o \
 ./obj/lens_mist.o \
+./obj/ariadne.o \
 ./obj/creature_states.o \
 ./obj/thing_objects.o \
 ./obj/map_columns.o \

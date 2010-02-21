@@ -57,25 +57,26 @@ long get_ceiling_height(const struct Coord3d *pos);
 long get_mapwho_thing_index(const struct Map *map);
 void set_mapwho_thing_index(struct Map *map, long thing_idx);
 
-TbBool subtile_has_slab(long stl_x, long stl_y);
-TbBool subtile_coords_invalid(long stl_x, long stl_y);
+TbBool subtile_has_slab(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool subtile_coords_invalid(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool set_coords_to_subtile_center(struct Coord3d *pos, long x, long y, long z);
 TbBool set_coords_to_subtile_start(struct Coord3d *pos, long x, long y, long z);
 TbBool set_coords_to_subtile_end(struct Coord3d *pos, long x, long y, long z);
 TbBool set_coords_to_slab_center(struct Coord3d *pos, long slb_x, long slb_y);
-unsigned long get_subtile_number(long stl_x, long stl_y);
+MapCoord get_subtile_center_pos(MapSubtlCoord stl_v);
+unsigned long get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 unsigned long get_subtile_number_at_slab_center(long slb_x, long slb_y);
-long stl_num_decode_x(unsigned long stl_num);
-long stl_num_decode_y(unsigned long stl_num);
-long slab_center_subtile(long stl_v);
-long slab_starting_subtile(long stl_v);
-long slab_ending_subtile(long stl_v);
+MapSubtlCoord stl_num_decode_x(unsigned long stl_num);
+MapSubtlCoord stl_num_decode_y(unsigned long stl_num);
+long slab_center_subtile(MapSubtlCoord stl_v);
+long slab_starting_subtile(MapSubtlCoord stl_v);
+long slab_ending_subtile(MapSubtlCoord stl_v);
 
-TbBool map_pos_is_lava(long stl_x, long stl_y);
+TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-void clear_dig_for_map_rect(long plyr_idx,long start_x,long end_x,long start_y,long end_y);
-void reveal_map_rect(long plyr_idx,long start_x,long end_x,long start_y,long end_y);
-void reveal_map_area(long plyr_idx,long start_x,long end_x,long start_y,long end_y);
+void clear_dig_for_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
+void reveal_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
+void reveal_map_area(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
 void clear_mapwho(void);
 void clear_mapmap(void);
 /******************************************************************************/
