@@ -61,6 +61,7 @@ enum PlayerInstanceNum {
 
 enum PlayerStates {
     PSt_None                =   0,
+    PSt_CtrlDungeon         =   1,
     PSt_BuildRoom           =   2,
     PSt_MkGoodWorker        =   3,
     PSt_MkGoodCreatr        =   4,
@@ -72,6 +73,7 @@ enum PlayerStates {
     PSt_CtrlDirect          =  11,
     PSt_OrderCreatr         =  13,
     PSt_MkBadCreatr         =  14,
+    PSt_PlaceTrap           =  16,
     PSt_Lightning           =  17,
     PSt_PlaceDoor           =  18,
     PSt_SpeedUp             =  19,

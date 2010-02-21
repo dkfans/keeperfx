@@ -293,7 +293,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
   return room;
 }
 
-void process_dungeon_control_packet_clicks(long plyr_idx)
+TbBool process_dungeon_control_packet_clicks(long plyr_idx)
 {
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
@@ -307,6 +307,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
   MapSubtlCoord cx,cy;
   short val172;
   struct Coord3d pos;
+  TbBool ret;
   MapCoord x,y;
   long i,k;
 
@@ -317,7 +318,8 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
   player->field_4A4 = 1;
   packet_left_button_double_clicked[plyr_idx] = 0;
   if ((pckt->control_flags & 0x4000) != 0)
-    return;
+    return false;
+  ret = true;
 
   if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
   {
@@ -377,7 +379,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
 
   switch (player->work_state)
   {
-  case 1:
+  case PSt_CtrlDungeon:
       val172 = 1;
       cx = slab_starting_subtile(stl_x);
       cy = slab_starting_subtile(stl_y);
@@ -891,7 +893,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       create_random_evil_creature(x, y, plyr_idx, CREATURE_MAX_LEVEL);
       unset_packet_control(pckt, PCtr_LBtnRelease);
       break;
-  case 16:
+  case PSt_PlaceTrap:
       if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
       {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
@@ -1176,16 +1178,18 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
       }
       break;
   default:
+      ERRORLOG("Unrecognized player %ld work state: %d", plyr_idx, (int)player->work_state);
+      ret = false;
       break;
   }
   // resetting position variables - they may have been changed
   x = ((unsigned short)pckt->pos_x);
   y = ((unsigned short)pckt->pos_y);
-  stl_x = x/(map_subtiles_x+1);
-  stl_y = y/(map_subtiles_y+1);
+  stl_x = x/256;
+  stl_y = y/256;
   if (player->thing_under_hand == 0)
   {
-    if ((x != 0) && (y == 0))  // what this condition is supposed to mean!?
+    if ((x != 0) && (y == 0))  // what this condition is supposed to mean!? (checked with Gold - seems OK..)
     {
       thing = get_queryable_object_near(x, y, plyr_idx);
       if (!thing_is_invalid(thing))
@@ -1197,6 +1201,7 @@ void process_dungeon_control_packet_clicks(long plyr_idx)
     if ((player->field_455 == 0) || (player->field_455 == 3))
       stop_creatures_around_hand(plyr_idx, stl_x, stl_y);
   }
+  return ret;
 }
 
 TbBigChecksum get_packet_save_checksum(void)
@@ -1940,24 +1945,31 @@ char process_players_global_packet_action(long plyr_idx)
       set_player_mode(player, pckt->field_6);
       set_engine_view(player, player->field_4B5);
       return 0;
+    case PckA_None:
+      return false;
     default:
-      return 0;
+      WARNLOG("Unrecognized player %ld packet action: %d",plyr_idx,pckt->action);
+      return false;
   }
 }
 
-void process_players_map_packet_control(long idx)
+void process_players_map_packet_control(long plyr_idx)
 {
   struct PlayerInfo *player;
   struct Packet *pckt;
-  unsigned short x,y;
+  MapSubtlCoord x,y;
   SYNCDBG(6,"Starting");
-  player = get_player(idx);
+  player = get_player(plyr_idx);
   pckt = get_packet_direct(player->packet_num);
-  x = (3*pckt->pos_x - 450)/4 - 6;
-  y = (3*pckt->pos_y - 168)/4 - 6;
-  process_map_packet_clicks(idx);
-  player->cameras[2].mappos.x.val = (x << 8) + 1920;
-  player->cameras[2].mappos.y.val = (y << 8) + 1920;
+  x = (3*pckt->pos_x - 450)/4 + 1;
+  y = (3*pckt->pos_y - 168)/4 + 1;
+  if (x < 0) x = 0; else
+  if (x > map_subtiles_x) x = map_subtiles_x;
+  if (y < 0) y = 0; else
+  if (y > map_subtiles_y) y = map_subtiles_y;
+  process_map_packet_clicks(plyr_idx);
+  player->cameras[2].mappos.x.val = get_subtile_center_pos(x);
+  player->cameras[2].mappos.y.val = get_subtile_center_pos(y);
   set_mouse_light(player);
   SYNCDBG(8,"Finished");
 }
@@ -1976,9 +1988,9 @@ void process_players_packet(long idx)
   player = get_player(idx);
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d packet of type %d.",idx,(int)pckt->action);
-  player->field_4 = (pckt->field_10 & 0x20) >> 5;
-  player->field_5 = (pckt->field_10 & 0x40) >> 6;
-  if ( (player->field_0 & 0x04) && (pckt->action == PckA_PlyrMsgChar))
+  player->field_4 = ((pckt->field_10 & 0x20) != 0);
+  player->field_5 = ((pckt->field_10 & 0x40) != 0);
+  if (((player->field_0 & 0x04) != 0) && (pckt->action == PckA_PlyrMsgChar))
   {
      process_players_message_character(player);
   } else
@@ -2031,20 +2043,20 @@ TbBool process_players_dungeon_control_packet_action(long idx)
   pckt = get_packet_direct(player->packet_num);
   switch (pckt->action)
   {
-    case 41:
+    case PckA_HoldAudience:
       magic_use_power_hold_audience(idx);
       break;
-    case 93:
+    case PckA_UseSpecialBox:
       activate_dungeon_special(thing_get(pckt->field_6), player);
       break;
-    case 95:
+    case PckA_ResurrectCrtr:
       resurrect_creature(thing_get(pckt->field_6),
         (pckt->field_8) & 0x0F, (pckt->field_8 >> 4) & 0xFF, (pckt->field_8 >> 12) & 0x0F);
       break;
-    case 96:
+    case PckA_TransferCreatr:
       transfer_creature(thing_get(pckt->field_6), thing_get(pckt->field_8), idx);
       break;
-    case 107:
+    case PckA_ToggleComputer:
       toggle_computer_player(idx);
       break;
     default:

@@ -1690,7 +1690,7 @@ struct Thing *pick_up_creature_of_breed_and_gui_job(long breed, long job_idx, lo
     thing = find_my_next_creature_of_breed_and_gui_job(breed, job_idx, pick_flags);
     if (thing_is_invalid(thing))
     {
-        WARNLOG("Can't find creature of breed %ld and job %ld.",breed,job_idx);
+        SYNCDBG(2,"Can't find creature of breed %ld and job %ld.",breed,job_idx);
         return INVALID_THING;
     }
     dungeon = get_dungeon(owner);

@@ -48,7 +48,7 @@ const long map_to_slab[] = {
 /*
  * Returns if the subtile coords are in range of subtiles which have slab entry.
  */
-TbBool subtile_has_slab(long stl_x, long stl_y)
+TbBool subtile_has_slab(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   if ((stl_x >= 0) && (stl_x < 3*map_tiles_x))
     if ((stl_y >= 0) && (stl_y < 3*map_tiles_y))
@@ -59,7 +59,7 @@ TbBool subtile_has_slab(long stl_x, long stl_y)
 /*
  * Returns if the subtile coords are in range map subtiles.
  */
-TbBool subtile_coords_invalid(long stl_x, long stl_y)
+TbBool subtile_coords_invalid(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   if ((stl_x < 0) || (stl_x > map_subtiles_x))
       return true;
@@ -68,7 +68,7 @@ TbBool subtile_coords_invalid(long stl_x, long stl_y)
   return false;
 }
 
-struct Map *get_map_block_at(long stl_x, long stl_y)
+struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   if ((stl_x < 0) || (stl_x > map_subtiles_x))
       return INVALID_MAP_BLOCK;
@@ -93,7 +93,7 @@ TbBool map_block_invalid(const struct Map *map)
   return (map < &game.map[0]);
 }
 
-unsigned long get_map_flags(long stl_x, long stl_y)
+unsigned long get_map_flags(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   if ((stl_x < 0) || (stl_x > map_subtiles_x))
       return 0;
@@ -124,7 +124,7 @@ void set_mapwho_thing_index(struct Map *map, long thing_idx)
   map->data ^= (map->data ^ ((unsigned long)thing_idx << 11)) & 0x3FF800;
 }
 
-void reveal_map_subtile(long stl_x, long stl_y, long plyr_idx)
+void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
 {
   unsigned short nflag;
   struct Map *map;
@@ -135,7 +135,7 @@ void reveal_map_subtile(long stl_x, long stl_y, long plyr_idx)
   map->data |= (i & 0x0F) << 28;
 }
 
-TbBool subtile_revealed(long stl_x, long stl_y, long plyr_idx)
+TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
 {
   unsigned short plyr_bit;
   struct Map *map;
@@ -169,7 +169,7 @@ TbBool map_block_revealed_bit(const struct Map *map, long plyr_bit)
 }
 /******************************************************************************/
 
-TbBool set_coords_to_subtile_center(struct Coord3d *pos, long stl_x, long stl_y, long stl_z)
+TbBool set_coords_to_subtile_center(struct Coord3d *pos, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z)
 {
   if (stl_x > map_subtiles_x+1) stl_x = map_subtiles_x+1;
   if (stl_y > map_subtiles_y+1) stl_y = map_subtiles_y+1;
@@ -183,15 +183,19 @@ TbBool set_coords_to_subtile_center(struct Coord3d *pos, long stl_x, long stl_y,
   return true;
 }
 
-TbBool set_coords_to_slab_center(struct Coord3d *pos, long slb_x, long slb_y)
+TbBool set_coords_to_slab_center(struct Coord3d *pos, MapSubtlCoord slb_x, MapSubtlCoord slb_y)
 {
   return set_coords_to_subtile_center(pos, slb_x*3+1,slb_y*3+1, 1);
 }
 
+MapCoord get_subtile_center_pos(MapSubtlCoord stl_v)
+{
+    return (stl_v<<8) + 128;
+}
 /*
  * Subtile number - stores both X and Y coords in one number.
  */
-unsigned long get_subtile_number(long stl_x, long stl_y)
+unsigned long get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   if (stl_x > map_subtiles_x+1) stl_x = map_subtiles_x+1;
   if (stl_y > map_subtiles_y+1) stl_y = map_subtiles_y+1;
@@ -203,7 +207,7 @@ unsigned long get_subtile_number(long stl_x, long stl_y)
 /*
  * Decodes X coordinate from subtile number.
  */
-long stl_num_decode_x(unsigned long stl_num)
+MapSubtlCoord stl_num_decode_x(unsigned long stl_num)
 {
   return stl_num % (map_subtiles_x+1);
 }
@@ -211,7 +215,7 @@ long stl_num_decode_x(unsigned long stl_num)
 /*
  * Decodes Y coordinate from subtile number.
  */
-long stl_num_decode_y(unsigned long stl_num)
+MapSubtlCoord stl_num_decode_y(unsigned long stl_num)
 {
   return (stl_num/(map_subtiles_x+1))%map_subtiles_y;
 }
@@ -227,7 +231,7 @@ unsigned long get_subtile_number_at_slab_center(long slb_x, long slb_y)
 /*
  * Returns subtile coordinate for central subtile on given slab.
  */
-long slab_center_subtile(long stl_v)
+long slab_center_subtile(MapSubtlCoord stl_v)
 {
   return map_to_slab[stl_v]*3+1;
 }
@@ -235,7 +239,7 @@ long slab_center_subtile(long stl_v)
 /*
  * Returns subtile coordinate for starting subtile on given slab.
  */
-long slab_starting_subtile(long stl_v)
+long slab_starting_subtile(MapSubtlCoord stl_v)
 {
   return map_to_slab[stl_v]*3;
 }
@@ -243,7 +247,7 @@ long slab_starting_subtile(long stl_v)
 /*
  * Returns subtile coordinate for ending subtile on given slab.
  */
-long slab_ending_subtile(long stl_v)
+long slab_ending_subtile(MapSubtlCoord stl_v)
 {
   return map_to_slab[stl_v]*3+2;
 }
@@ -253,7 +257,7 @@ void clear_mapwho(void)
 {
   //_DK_clear_mapwho();
   struct Map *map;
-  unsigned long x,y;
+  MapSubtlCoord x,y;
   for (y=0; y < (map_subtiles_y+1); y++)
     for (x=0; x < (map_subtiles_x+1); x++)
     {
@@ -265,7 +269,7 @@ void clear_mapwho(void)
 void clear_mapmap_soft(void)
 {
   struct Map *map;
-  unsigned long x,y;
+  MapSubtlCoord x,y;
   unsigned short *wptr;
   for (y=0; y < (map_subtiles_y+1); y++)
     for (x=0; x < (map_subtiles_x+1); x++)
@@ -316,9 +320,9 @@ void clear_dig_for_map_rect(long plyr_idx,long start_x,long end_x,long start_y,l
  * Reveals map subtiles rectangle for given player.
  * Low level function - use reveal_map_area() instead.
  */
-void reveal_map_rect(long plyr_idx,long start_x,long end_x,long start_y,long end_y)
+void reveal_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y)
 {
-  long x,y;
+    MapSubtlCoord x,y;
   for (y = start_y; y < end_y; y++)
     for (x = start_x; x < end_x; x++)
     {
@@ -329,7 +333,7 @@ void reveal_map_rect(long plyr_idx,long start_x,long end_x,long start_y,long end
 /*
  * Reveals map subtiles rectangle for given player.
  */
-void reveal_map_area(long plyr_idx,long start_x,long end_x,long start_y,long end_y)
+void reveal_map_area(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y)
 {
   start_x = slab_starting_subtile(start_x);
   start_y = slab_starting_subtile(start_y);
@@ -341,7 +345,7 @@ void reveal_map_area(long plyr_idx,long start_x,long end_x,long start_y,long end
   pannel_map_update(start_x,start_y,end_x,end_y);
 }
 
-TbBool map_pos_is_lava(long stl_x, long stl_y)
+TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   unsigned long mflags;
   mflags = get_map_flags(stl_x, stl_y);

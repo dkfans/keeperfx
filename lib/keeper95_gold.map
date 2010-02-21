@@ -570,6 +570,7 @@
  0001:0007ED90       update_dungeon_scores
  0001:0007F050       update_dungeon_generation_speeds
  0001:0007F430       creature_turn_to_face_angle
+ 0001:0007F7A0       ariadne_initialise_creature_route
  0001:00081B30       draw_resurrect_creature
  0001:00081D10       select_resurrect_creature_up
  0001:00081D20       select_resurrect_creature_down
