@@ -111,10 +111,13 @@ struct SlabObj { // sizeof = 13
 };
 
 #define INVALID_SLABMAP_BLOCK (&bad_slabmap_block)
+extern const short around_slab[];
+extern const short small_around_slab[];
 
 #ifdef __cplusplus
 #pragma pack()
 #endif
+
 /******************************************************************************/
 unsigned long get_slab_number(long slb_x, long slb_y);
 long slb_num_decode_x(unsigned long slb_num);

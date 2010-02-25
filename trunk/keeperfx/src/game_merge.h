@@ -35,6 +35,19 @@ extern "C" {
 
 #define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__)
 #define ACTION_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
+
+enum GameSystemFlags {
+    GSF_NetworkActive    = 0x0001,
+    GSF_NetGameNoSync    = 0x0002,
+    GSF_NetSeedNoSync    = 0x0004,
+    GSF_CaptureMovie     = 0x0008,
+    GSF_CaptureSShot     = 0x0010,
+    GSF_AllowOnePlayer   = 0x0040,
+};
+
+enum GameGUIFlags {
+    GGUI_CountdownTimer  = 0x0002,
+};
 /******************************************************************************/
 #ifdef __cplusplus
 #pragma pack(1)

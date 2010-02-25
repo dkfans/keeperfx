@@ -628,8 +628,8 @@ struct GuiButtonInit options_menu_buttons[] = {
 
 struct GuiButtonInit query_menu_buttons[] = {
   { 0,  0, 0, 0, 0, gui_set_query,      NULL,        NULL,               0,  44, 374,  44, 374, 52, 20, gui_area_new_normal_button,      475, 432,  0,       {0},            0, 0, NULL },
-  { 2, 69, 0, 0, 0, gui_set_tend_to,    NULL,        NULL,               1,  36, 190,  36, 190, 32, 26, gui_area_flash_cycle_button,     350, 307,  0,{(long)&game.field_1517FB}, 1, 0, maintain_prison_bar },
-  { 2, 70, 0, 0, 0, gui_set_tend_to,    NULL,        NULL,               2,  74, 190,  74, 190, 32, 26, gui_area_flash_cycle_button,     346, 306,  0,{(long)&game.field_1517FC}, 1, 0, NULL },
+  { 2, 69, 0, 0, 0, gui_set_tend_to,    NULL,        NULL,               1,  36, 190,  36, 190, 32, 26, gui_area_flash_cycle_button,     350, 307,  0,{(long)&game.creatures_tend_1}, 1, 0, maintain_prison_bar },
+  { 2, 70, 0, 0, 0, gui_set_tend_to,    NULL,        NULL,               2,  74, 190,  74, 190, 32, 26, gui_area_flash_cycle_button,     346, 306,  0,{(long)&game.creatures_tend_2}, 1, 0, NULL },
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   4, 216,   4, 222,130, 24, gui_area_payday_button,          341, 454,  0,       {0},            0, 0, NULL },
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   2, 246,   2, 246, 60, 24, gui_area_research_bar,            61, 452,  0,       {0},            0, 0, NULL },
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  74, 246,  74, 246, 60, 24, gui_area_workshop_bar,            75, 453,  0,       {0},            0, 0, NULL },
@@ -1059,10 +1059,10 @@ struct GuiButtonInit frontend_define_keys_buttons[] = {
 
 struct GuiButtonInit autopilot_menu_buttons[] = {
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, 845,  0,       {0},            0, 0, NULL },
-  { 3,  0, 0, 0, 0, gui_set_autopilot,  NULL,        NULL,               0,  12,  36,  12,  36, 46, 64, gui_area_new_normal_button,      503, 729,  0,{(long)&game.field_1517F7}, 0, 0, NULL },
-  { 3,  0, 0, 0, 0, gui_set_autopilot,  NULL,        NULL,               0,  60,  36,  60,  36, 46, 64, gui_area_new_normal_button,      505, 730,  0,{(long)&game.field_1517F8}, 0, 0, NULL },
-  { 3,  0, 0, 0, 0, gui_set_autopilot,  NULL,        NULL,               0, 108,  36, 108,  36, 46, 64, gui_area_new_normal_button,      507, 731,  0,{(long)&game.field_1517F9}, 0, 0, NULL },
-  { 3,  0, 0, 0, 0, gui_set_autopilot,  NULL,        NULL,               0, 156,  36, 156,  36, 46, 64, gui_area_new_normal_button,      509, 732,  0,{(long)&game.field_1517FA}, 0, 0, NULL },
+  { 3,  0, 0, 0, 0, gui_set_autopilot,  NULL,        NULL,               0,  12,  36,  12,  36, 46, 64, gui_area_new_normal_button,      503, 729,  0,{(long)&game.comp_player_aggressive}, 0, 0, NULL },
+  { 3,  0, 0, 0, 0, gui_set_autopilot,  NULL,        NULL,               0,  60,  36,  60,  36, 46, 64, gui_area_new_normal_button,      505, 730,  0,{(long)&game.comp_player_defensive}, 0, 0, NULL },
+  { 3,  0, 0, 0, 0, gui_set_autopilot,  NULL,        NULL,               0, 108,  36, 108,  36, 46, 64, gui_area_new_normal_button,      507, 731,  0,{(long)&game.comp_player_construct}, 0, 0, NULL },
+  { 3,  0, 0, 0, 0, gui_set_autopilot,  NULL,        NULL,               0, 156,  36, 156,  36, 46, 64, gui_area_new_normal_button,      509, 732,  0,{(long)&game.comp_player_creatrsonly}, 0, 0, NULL },
   {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
 };
 
@@ -2277,7 +2277,7 @@ void maintain_activity_row(struct GuiButton *gbtn)
 
 void maintain_loadsave(struct GuiButton *gbtn)
 {
-  set_flag_byte(&gbtn->field_0, 0x08, ((game.numfield_A & 0x01) == 0));
+  set_flag_byte(&gbtn->field_0, 0x08, ((game.system_flags & GSF_NetworkActive) == 0));
 }
 
 void maintain_prison_bar(struct GuiButton *gbtn)
@@ -2759,7 +2759,7 @@ void frontnet_service_setup(void)
   if (LbNetwork_EnumerateServices(enum_services_callback, NULL))
     ERRORLOG("LbNetwork_EnumerateServices() failed");
   // Create skirmish option if it should be enabled
-  if (game.one_player)
+  if ((game.system_flags & GSF_AllowOnePlayer) != 0)
   {
     LbStringCopy(net_service[net_number_of_services], gui_strings[870], 64);
     net_number_of_services++;
@@ -3464,7 +3464,7 @@ void frontstats_leave(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
   LevelNumber lvnum;
-  if (game.numfield_A & 0x01)
+  if ((game.system_flags & GSF_NetworkActive) != 0)
   {
     if ( setup_old_network_service() )
     {
@@ -4611,7 +4611,8 @@ short frontend_save_continue_game(short allow_lvnum_grow)
   memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
   set_flag_byte(&player->field_3,0x10,flg_mem);
   // Only save continue if level was won, and not in packet mode
-  if (((game.numfield_A & 0x01) != 0) || ((game.numfield_C & 0x02) != 0)
+  if (((game.system_flags & GSF_NetworkActive) != 0)
+   || ((game.numfield_C & 0x02) != 0)
    || (game.packet_load_enable))
     return false;
   lvnum = get_continue_level_number();
@@ -4786,7 +4787,7 @@ void fronttorture_input(void)
     pckt->field_8 = GetMouseY();
   }
   // Exchange packet with other players
-  if ((game.numfield_A & 0x01) != 0)
+  if ((game.system_flags & GSF_NetworkActive) != 0)
   {
     if (LbNetwork_Exchange(pckt))
       ERRORLOG("LbNetwork_Exchange failed");
@@ -4814,7 +4815,7 @@ void fronttorture_input(void)
   if ((pckt->action & 0x01) != 0)
   {
     frontend_set_state(FeSt_LEVEL_STATS);
-    if ((game.numfield_A & 0x01) != 0)
+    if ((game.system_flags & GSF_NetworkActive) != 0)
       LbNetwork_Stop();
     return;
   }
@@ -5074,7 +5075,8 @@ void frontnet_service_select(struct GuiButton *gbtn)
 {
   int srvidx;
   srvidx = (long)(gbtn->field_33) + net_service_scroll_offset - 45;
-  if ( (game.one_player) && (srvidx+1>=net_number_of_services) )
+  if ( ((game.system_flags & GSF_AllowOnePlayer) != 0)
+     && (srvidx+1>=net_number_of_services) )
   {
     fe_network_active = 0;
     frontend_set_state(FeSt_NETLAND_VIEW);
@@ -6385,7 +6387,7 @@ int frontend_set_state(long nstate)
       last_mouse_y = GetMouseY();
       time_last_played_demo = LbTimerClock();
       fe_high_score_table_from_main_menu = true;
-      game.numfield_A &= 0xFEu;
+      set_flag_byte(&game.system_flags, GSF_NetworkActive, false);
       break;
     case FeSt_FELOAD_GAME:
       turn_on_menu(GMnu_FELOAD);
@@ -6403,13 +6405,13 @@ int frontend_set_state(long nstate)
       turn_on_menu(GMnu_FENET_SESSION);
       frontnet_session_setup();
       set_pointer_graphic_menu();
-      game.numfield_A &= 0xFEu;
+      set_flag_byte(&game.system_flags, GSF_NetworkActive, false);
       break;
     case FeSt_NET_START:
       turn_on_menu(GMnu_FENET_START);
       frontnet_start_setup();
       set_pointer_graphic_menu();
-      game.numfield_A |= 0x01;
+      set_flag_byte(&game.system_flags, GSF_NetworkActive, true);
       break;
     case 7:
     case 9:
@@ -7126,19 +7128,19 @@ void gui_set_autopilot(struct GuiButton *gbtn)
   struct PlayerInfo *player;
   player = get_my_player();
   int ntype;
-  if (game.field_1517F7)
+  if (game.comp_player_aggressive)
   {
     ntype = 1;
   } else
-  if (game.field_1517F8)
+  if (game.comp_player_defensive)
   {
     ntype = 2;
   } else
-  if (game.field_1517F9)
+  if (game.comp_player_construct)
   {
     ntype = 3;
   } else
-  if (game.field_1517FA)
+  if (game.comp_player_creatrsonly)
   {
     ntype = 4;
   } else
@@ -7146,7 +7148,7 @@ void gui_set_autopilot(struct GuiButton *gbtn)
     ERRORLOG("Illegal Autopilot type, resetting to default");
     ntype = 1;
   }
-  set_players_packet_action(player, 109, ntype, 0, 0, 0);
+  set_players_packet_action(player, PckA_SetComputerKind, ntype, 0, 0, 0);
 }
 
 void display_objectives(long plyr_idx,long x,long y)
@@ -7428,7 +7430,7 @@ int get_startup_menu_state(void)
     SYNCLOG("Player-based state selected");
     player = get_my_player();
     lvnum = get_loaded_level_number();
-    if ((game.numfield_A & 0x01) != 0)
+    if ((game.system_flags & GSF_NetworkActive) != 0)
     {
       if ((player->field_3 & 0x10) != 0)
       {

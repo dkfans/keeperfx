@@ -603,12 +603,12 @@ struct Game { // (sizeof=0x151825)
     unsigned short version_major; // changed from int
     unsigned short version_minor; // changed from int
     LevelNumber continue_level_number;
-unsigned char numfield_A;
+    unsigned char system_flags;
 char align_B;
     unsigned char numfield_C;
 char numfield_D;
     unsigned char flags_font;
-char one_player;
+    unsigned char flags_gui;
     unsigned char eastegg01_cntr;
 unsigned char flags_cd;
     unsigned char eastegg02_cntr;
@@ -686,6 +686,7 @@ unsigned int numfield_149F3E;
     int numfield_149F42;
 unsigned char numfield_149F46;
 unsigned char numfield_149F47;
+// Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
     char save_catalogue_UNUSED[72];
     struct Event event[EVENTS_COUNT];
@@ -828,9 +829,9 @@ long field_1506D5;
     char evntbox_text_buffer[MESSAGE_TEXT_LEN];
     struct TextScrollWindow evntbox_scroll_window;
 char field_1512E6[1037];
-int flash_button_index;
-int flash_button_gameturns; // signed
-int field_1516FB;
+    long flash_button_index;
+    long flash_button_gameturns; // signed
+long field_1516FB;
 char field_1516FF;
     long boulder_reduce_health_wall;
     long boulder_reduce_health_slap;
@@ -842,12 +843,12 @@ char field_1516FF;
     struct CreatureStorage transfered_creature;
     struct Armageddon armageddon;
 char field_1517F6;
-char field_1517F7;
-char field_1517F8;
-char field_1517F9;
-char field_1517FA;
-char field_1517FB;
-char field_1517FC;
+    char comp_player_aggressive;
+    char comp_player_defensive;
+    char comp_player_construct;
+    char comp_player_creatrsonly;
+    char creatures_tend_1;
+    char creatures_tend_2;
 short field_1517FD;
 short field_1517FF;
 int field_151801;
@@ -1199,6 +1200,10 @@ DLLIMPORT unsigned char _DK_temp_pal[768];
 #define temp_pal _DK_temp_pal
 DLLIMPORT unsigned char *_DK_lightning_palette;
 #define lightning_palette _DK_lightning_palette
+DLLIMPORT long _DK_owner_player_navigating;
+#define _DK_owner_player_navigating owner_player_navigating
+DLLIMPORT long _DK_nav_thing_can_travel_over_lava;
+#define _DK_nav_thing_can_travel_over_lava nav_thing_can_travel_over_lava
 
 #ifdef __cplusplus
 }
@@ -1337,7 +1342,7 @@ void process_dungeon_devastation_effects(void);
 void process_entrance_generation(void);
 void process_things_in_dungeon_hand(void);
 void process_payday(void);
-short bonus_timer_enabled(void);
+TbBool bonus_timer_enabled(void);
 void load_parchment_file(void);
 void reload_parchment_file(short hires);
 void process_sound_heap(void);
@@ -1410,7 +1415,6 @@ unsigned char can_change_from_state_to(struct Thing *thing, long a2, long a3);
 struct Thing *get_door_for_position(long pos_x, long pos_y);
 long process_obey_leader(struct Thing *thing);
 unsigned char initialise_thing_state(struct Thing *thing, long a2);
-short setup_person_move_to_position(struct Thing *thing, long pos_x, long pos_y, unsigned char a4);
 void tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
 void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
 void draw_spell_cursor(unsigned char a1, unsigned short a2, unsigned char stl_x, unsigned char stl_y);

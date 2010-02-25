@@ -55,6 +55,7 @@ enum TbPacketAction {
         PckA_TransferCreatr =   96,
         PckA_ToggleComputer =  107,
         PckA_PlyrFastMsg    =  108,
+        PckA_SetComputerKind=  109,
         PckA_SpellSOEDis    =  114,
         PckA_PlyrToggleAlly =  118,
         PckA_PlyrMsgChar    =  121,

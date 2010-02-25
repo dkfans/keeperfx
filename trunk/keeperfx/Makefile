@@ -97,6 +97,7 @@ OBJS = \
 ./obj/bflib_drawsdk.o \
 ./obj/game_merge.o \
 ./obj/thing_effects.o \
+./obj/thing_navigate.o \
 ./obj/config_magic.o \
 ./obj/frontend.o \
 ./obj/player_computer.o \
