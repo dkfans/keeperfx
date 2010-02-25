@@ -1615,4 +1615,6 @@
  0001:00018020       draw_map_who
  0001:0001A7A0       set_room_playing_ambient_sound
  0001:0007F7A0       ariadne_initialise_creature_route
+ 0001:0006E050       path_init8_wide
+ 0001:000C2CA0       creature_can_navigate_to
  

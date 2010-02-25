@@ -446,7 +446,6 @@ DLLIMPORT struct Room *_DK_place_room(unsigned char a1, unsigned char a2, unsign
 DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT short _DK_magic_use_power_slap(unsigned short a1, unsigned short a2, unsigned short a3);
 DLLIMPORT unsigned char _DK_initialise_thing_state(struct Thing *thing, long a2);
-DLLIMPORT short _DK_setup_person_move_to_position(struct Thing *thing, long pos_x, long pos_y, unsigned char a4);
 DLLIMPORT void _DK_tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT void _DK_tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
 DLLIMPORT void _DK_create_power_hand(unsigned char a1);
@@ -661,12 +660,12 @@ DLLIMPORT int __stdcall _DK_setup_game(void);
 DLLIMPORT int __stdcall _DK_init_sound(void);
 DLLIMPORT int __cdecl _DK_initial_setup(void);
 DLLIMPORT long _DK_ceiling_set_info(long a1, long a2, long a3);
-DLLIMPORT int __cdecl _DK_process_sound_heap(void);
-DLLIMPORT void __cdecl _DK_startup_saved_packet_game(void);
-DLLIMPORT void __cdecl _DK_set_sprite_view_3d(void);
-DLLIMPORT void __cdecl _DK_set_sprite_view_isometric(void);
-DLLIMPORT void __cdecl _DK_do_slab_efficiency_alteration(unsigned char a1, unsigned char a2);
-DLLIMPORT void __cdecl _DK_place_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5);
+DLLIMPORT int _DK_process_sound_heap(void);
+DLLIMPORT void _DK_startup_saved_packet_game(void);
+DLLIMPORT void _DK_set_sprite_view_3d(void);
+DLLIMPORT void _DK_set_sprite_view_isometric(void);
+DLLIMPORT void _DK_do_slab_efficiency_alteration(unsigned char a1, unsigned char a2);
+DLLIMPORT void _DK_place_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 DLLIMPORT long _DK_light_get_light_intensity(long idx);
 DLLIMPORT long _DK_light_set_light_intensity(long a1, long a2);
 DLLIMPORT void _DK_event_kill_all_players_events(long plyr_idx);
@@ -3415,8 +3414,8 @@ long update_creature(struct Thing *thing)
 
   if (cctrl->field_B1 > 0)
     cctrl->field_B1--;
-  if (cctrl->field_8B == 0)
-    cctrl->field_8B = game.field_14EA4B;
+  if (cctrl->byte_8B == 0)
+    cctrl->byte_8B = game.field_14EA4B;
   if (cctrl->field_302 == 0)
     process_creature_instance(thing);
   update_creature_count(thing);
@@ -5351,13 +5350,13 @@ void init_keeper(void)
     game.generate_speed = game.default_generate_speed;
   poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
   lbDisplay.GlassMap = pixmap.ghost;
-  game.field_1517F8 = 1;
   lbDisplay.DrawColour = colours[15][15][15];
-  game.field_1517F7 = 0;
-  game.field_1517F9 = 0;
-  game.field_1517FA = 0;
-  game.field_1517FB = 0;
-  game.field_1517FC = 0;
+  game.comp_player_aggressive = 0;
+  game.comp_player_defensive = 1;
+  game.comp_player_construct = 0;
+  game.comp_player_creatrsonly = 0;
+  game.creatures_tend_1 = 0;
+  game.creatures_tend_2 = 0;
   game.numfield_C |= 0x40;
   game.numfield_D |= (0x20 | 0x40);
   init_censorship();
@@ -6316,7 +6315,8 @@ void zoom_to_map(void)
   else
     set_flag_byte(&game.numfield_C,0x40,true);
   player=get_my_player();
-  if ((game.numfield_A & 0x01) || (lbDisplay.PhysicalScreenWidth > 320))
+  if (((game.system_flags & GSF_NetworkActive) != 0)
+      || (lbDisplay.PhysicalScreenWidth > 320))
   {
     if (!toggle_status_menu(false))
       set_flag_byte(&game.numfield_C,0x40,false);
@@ -6333,7 +6333,8 @@ void zoom_from_map(void)
 {
   struct PlayerInfo *player;
   player=get_my_player();
-  if (((game.numfield_A & 0x01) != 0) || (lbDisplay.PhysicalScreenWidth > 320))
+  if (((game.system_flags & GSF_NetworkActive) != 0)
+      || (lbDisplay.PhysicalScreenWidth > 320))
   {
       if ((game.numfield_C & 0x40) != 0)
         toggle_status_menu(true);
@@ -7349,7 +7350,8 @@ void clear_complete_game(void)
   game.num_fps = start_params.num_fps;
   game.flags_cd = start_params.flags_cd;
   game.no_intro = start_params.no_intro;
-  game.one_player = start_params.one_player;
+  set_flag_byte(&game.system_flags,GSF_AllowOnePlayer,start_params.one_player);
+//  game.one_player = start_params.one_player;
   game.numfield_C = start_params.numfield_C;
   strncpy(game.packet_fname,start_params.packet_fname,150);
   game.packet_save_enable = start_params.packet_save_enable;
@@ -7394,6 +7396,8 @@ void clear_things_and_persons_data(void)
         thing = &game.things_data[i];
         memset(thing, 0, sizeof(struct Thing));
         thing->owner = PLAYERS_COUNT;
+        thing->mappos.x.val = get_subtile_center_pos(map_subtiles_x/2);
+        thing->mappos.y.val = get_subtile_center_pos(map_subtiles_y/2);
     }
     for (i=0; i < CREATURES_COUNT; i++)
     {
@@ -7654,12 +7658,12 @@ void init_good_player_as(long plr_idx)
 void store_localised_game_structure(void)
 {
   boing.field_0 = game.field_1517F6;
-  boing.field_1 = game.field_1517F7;
-  boing.field_2 = game.field_1517F8;
-  boing.field_3 = game.field_1517F9;
-  boing.field_4 = game.field_1517FA;
-  boing.field_5 = game.field_1517FB;
-  boing.field_6 = game.field_1517FC;
+  boing.field_1 = game.comp_player_aggressive;
+  boing.field_2 = game.comp_player_defensive;
+  boing.field_3 = game.comp_player_construct;
+  boing.field_4 = game.comp_player_creatrsonly;
+  boing.field_5 = game.creatures_tend_1;
+  boing.field_6 = game.creatures_tend_2;
   boing.field_7 = game.field_1517FD;
   boing.field_9 = game.field_1517FF;
   boing.field_B = game.field_151801;
@@ -7676,24 +7680,24 @@ void store_localised_game_structure(void)
 
 void recall_localised_game_structure(void)
 {
-  game.field_1517F6 = boing.field_0;
-  game.field_1517F7 = boing.field_1;
-  game.field_1517F8 = boing.field_2;
-  game.field_1517F9 = boing.field_3;
-  game.field_1517FA = boing.field_4;
-  game.field_1517FB = boing.field_5;
-  game.field_1517FC = boing.field_6;
-  game.field_1517FD = boing.field_7;
-  game.field_1517FF = boing.field_9;
-  game.field_151801 = boing.field_B;
-  game.field_151805 = boing.field_F;
-  game.field_151809 = boing.field_13;
-  game.chosen_spell_type = boing.field_17;
-  game.chosen_spell_look = boing.field_1B;
-  game.chosen_spell_tooltip = boing.field_1F;
-  game.numfield_151819 = boing.field_23;
-  game.numfield_15181D = boing.field_27;
-  game.numfield_151821 = boing.field_2B;
+    game.field_1517F6 = boing.field_0;
+    game.comp_player_aggressive = boing.field_1;
+    game.comp_player_defensive = boing.field_2;
+    game.comp_player_construct = boing.field_3;
+    game.comp_player_creatrsonly = boing.field_4;
+    game.creatures_tend_1 = boing.field_5;
+    game.creatures_tend_2 = boing.field_6;
+    game.field_1517FD = boing.field_7;
+    game.field_1517FF = boing.field_9;
+    game.field_151801 = boing.field_B;
+    game.field_151805 = boing.field_F;
+    game.field_151809 = boing.field_13;
+    game.chosen_spell_type = boing.field_17;
+    game.chosen_spell_look = boing.field_1B;
+    game.chosen_spell_tooltip = boing.field_1F;
+    game.numfield_151819 = boing.field_23;
+    game.numfield_15181D = boing.field_27;
+    game.numfield_151821 = boing.field_2B;
 }
 
 long get_resync_sender(void)
@@ -7788,7 +7792,8 @@ void resync_game(void)
   }
   recall_localised_game_structure();
   reinit_level_after_load();
-  game.numfield_A &= 0xF9;
+  set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
+  set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
 }
 
 void free_swipe_graphic(void)
@@ -8636,7 +8641,7 @@ short lose_level(struct PlayerInfo *player)
 {
   if (!is_my_player(player))
     return false;
-  if (game.numfield_A & 0x01)
+  if ((game.system_flags & GSF_NetworkActive) != 0)
   {
     LbNetwork_Stop();
   }
@@ -8648,7 +8653,7 @@ short resign_level(struct PlayerInfo *player)
 {
   if (!is_my_player(player))
     return false;
-  if (game.numfield_A & 0x01)
+  if ((game.system_flags & GSF_NetworkActive) != 0)
   {
     LbNetwork_Stop();
   }
@@ -8679,7 +8684,8 @@ long compute_player_final_score(struct PlayerInfo *player,long gameplay_score)
   struct PlayerInfo *myplyr;
   long i;
   myplyr = get_my_player();
-  if (((game.numfield_A & 0x01) != 0) || !is_singleplayer_level(game.loaded_level_number))
+  if (((game.system_flags & GSF_NetworkActive) != 0)
+      || !is_singleplayer_level(game.loaded_level_number))
     i = 2 * gameplay_score;
   else
     i = gameplay_score + 10 * gameplay_score * array_index_for_singleplayer_level(game.loaded_level_number) / 100;
@@ -8700,7 +8706,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
   // Computing player score
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->field_AE5[3]);
   dungeon->lvstats.allow_save_score = 1;
-  if ((game.numfield_A & 0x01) == 0)
+  if ((game.system_flags & GSF_NetworkActive) == 0)
     player->field_4EB = game.play_gameturn + 300;
   if (is_my_player(player))
   {
@@ -8746,9 +8752,9 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     gui_set_button_flashing(0, 0);
   set_player_mode(player, 1);
   set_player_state(player, 1, 0);
-  if ((game.numfield_A & 0x01) == 0)
+  if ((game.system_flags & GSF_NetworkActive) == 0)
     player->field_4EB = game.play_gameturn + 300;
-  if ((game.numfield_A & 0x01) != 0)
+  if ((game.system_flags & GSF_NetworkActive) != 0)
     reveal_whole_map(player);
   if (dungeon->computer_enabled & 0x01)
     toggle_computer_player(player->id_number);
@@ -8798,7 +8804,7 @@ short complete_level(struct PlayerInfo *player)
     SYNCDBG(6,"Starting");
     if (!is_my_player(player))
       return false;
-    if (game.numfield_A & 0x01)
+    if ((game.system_flags & GSF_NetworkActive) != 0)
     {
       LbNetwork_Stop();
       quit_game = 1;
@@ -9370,11 +9376,12 @@ long get_phrase_sample(long phr_idx)
 /*
  * Returns if there is a bonus timer visible on the level.
  */
-short bonus_timer_enabled(void)
+TbBool bonus_timer_enabled(void)
 {
-  LevelNumber lvnum;
+  return ((game.flags_gui & GGUI_CountdownTimer) != 0);
+/*  LevelNumber lvnum;
   lvnum = get_loaded_level_number();
-  return (is_bonus_level(lvnum) || is_extra_level(lvnum));
+  return (is_bonus_level(lvnum) || is_extra_level(lvnum));*/
 }
 
 void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
@@ -9783,7 +9790,8 @@ void process_level_script(void)
   SYNCDBG(6,"Starting");
   struct PlayerInfo *player;
   player = get_my_player();
-  if (((game.numfield_A & 0x01) == 0) && (player->victory_state != VicS_Undecided))
+  if (((game.system_flags & GSF_NetworkActive) == 0)
+      && (player->victory_state != VicS_Undecided))
     return;
   process_conditions();
   process_check_new_creature_partys();
@@ -10011,7 +10019,7 @@ void update_player_objectives(int plridx)
   struct PlayerInfo *player;
   SYNCDBG(6,"Starting for player %d",plridx);
   player = get_player(plridx);
-  if (game.numfield_A & 0x01)
+  if ((game.system_flags & GSF_NetworkActive) != 0)
   {
     if ((!player->field_4EB) && (player->victory_state != VicS_Undecided))
       player->field_4EB = game.play_gameturn+1;
@@ -11243,11 +11251,6 @@ unsigned char initialise_thing_state(struct Thing *thing, long a2)
   return _DK_initialise_thing_state(thing, a2);
 }
 
-short setup_person_move_to_position(struct Thing *thing, long pos_x, long pos_y, unsigned char a4)
-{
-  return _DK_setup_person_move_to_position(thing, pos_x, pos_y, a4);
-}
-
 void tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4)
 {
   SYNCDBG(7,"Starting");
@@ -12261,14 +12264,14 @@ TbBool keeper_wait_for_screen_focus(void)
   do {
     if ( !LbWindowsControl() )
     {
-      if ((game.numfield_A & 0x01) == 0)
+      if ((game.system_flags & GSF_NetworkActive) == 0)
       {
         exit_keeper = 1;
         break;
       }
       SYNCLOG("Alex's point reached");
     }
-    if ((game.numfield_A & 0x01) || (LbIsActive()))
+    if (((game.system_flags & GSF_NetworkActive) != 0) || (LbIsActive()))
       return true;
     LbSleepFor(50);
   } while ((!exit_keeper) && (!quit_game));
@@ -12291,14 +12294,14 @@ short draw_onscreen_direct_messages(void)
       onscreen_msg_turns--;
   }
   msg_pos = 200;
-  if (game.numfield_A & 0x02)
+  if ((game.system_flags & GSF_NetGameNoSync) != 0)
   {
       ERRORLOG("OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
       if ( LbScreenIsLocked() )
         LbTextDraw(300/pixel_size, msg_pos/pixel_size, "OUT OF SYNC");
       msg_pos += 20;
   }
-  if (game.numfield_A & 0x04)
+  if ((game.system_flags & GSF_NetSeedNoSync) != 0)
   {
       ERRORLOG("SEED OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
       if ( LbScreenIsLocked() )
@@ -13042,7 +13045,8 @@ void init_level(void)
   //_DK_init_level(); return;
 
   LbMemoryCopy(&transfer_mem,&game.transfered_creature,sizeof(struct CreatureStorage));
-  memset(&pos,0,sizeof(struct Coord3d));
+  memset(&pos,0,sizeof(struct Coord3d)); // ambient sound position
+  game.flags_gui = 0;
   game.action_rand_seed = 1;
   free_swipe_graphic();
   game.field_1516FF = -1;
@@ -13088,8 +13092,8 @@ void init_level(void)
   game.field_150356 = 0;
   game.field_15035A = 0;
   init_messages();
-  game.field_1517FB = 0;
-  game.field_1517FC = 0;
+  game.creatures_tend_1 = 0;
+  game.creatures_tend_2 = 0;
   game.field_15033A = 0;
   game.field_151801 = 0;
   game.field_151805 = 0;
@@ -13617,7 +13621,7 @@ void wait_at_frontend(void)
   long last_loop_time = LbTimerClock();
   do
   {
-    if ((!LbWindowsControl()) && ((game.numfield_A & 0x01) == 0))
+    if ((!LbWindowsControl()) && ((game.system_flags & GSF_NetworkActive) == 0))
     {
       exit_keeper = 1;
       SYNCDBG(0,"Windows Control exit condition invoked");
@@ -13687,13 +13691,13 @@ void wait_at_frontend(void)
   case 7:
         my_player_number = default_loc_player;
         game.flagfield_14EA4A = 2;
-        game.numfield_A &= 0xFFFEu;
+        set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
         player = get_my_player();
         player->field_2C = 1;
         startup_network_game();
         break;
   case 8:
-        game.numfield_A |= 0x01;
+        set_flag_byte(&game.system_flags,GSF_NetworkActive,true);
         game.flagfield_14EA4A = 5;
         player = get_my_player();
         player->field_2C = 1;
@@ -13701,7 +13705,7 @@ void wait_at_frontend(void)
         break;
   case 10:
         flgmem = game.numfield_15;
-        game.numfield_A &= 0xFFFEu;
+        set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
         LbScreenClear(0);
         LbScreenSwap();
         if (!load_game(game.numfield_15))
@@ -13779,7 +13783,7 @@ void game_loop(void)
     close_packet_file();
   } // end while
   // Stop the movie recording if it's on
-  if (game.numfield_A & 0x08)
+  if ((game.system_flags & GSF_CaptureMovie) != 0)
     movie_record_stop();
 }
 
@@ -14089,21 +14093,34 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
       error_dialog(__func__, 1, text);
       return 0;
   }*/
-  if (sizeof(struct PlayerInfo) != SIZEOF_PlayerInfo)
-  {
-      text = buf_sprintf("Bad compilation - struct PlayerInfo has wrong size!\nThe difference is %d bytes.\n",sizeof(struct PlayerInfo)-SIZEOF_PlayerInfo);
-      error_dialog(__func__, 1, text);
-      return 1;
-  }
-  if (sizeof(struct Dungeon) != SIZEOF_Dungeon)
-  {
-      text = buf_sprintf("Bad compilation - struct Dungeon has wrong size!\nThe difference is %d bytes.\n",sizeof(struct Dungeon)-SIZEOF_Dungeon);
-      error_dialog(__func__, 1, text);
-      return 1;
-  }
   if (sizeof(struct Game) != SIZEOF_Game)
   {
-      text = buf_sprintf("Bad compilation - struct Game has wrong size!\nThe difference is %d bytes.\n",sizeof(struct Game)-SIZEOF_Game);
+      long delta1,delta2,delta3;
+      if (sizeof(struct PlayerInfo) != SIZEOF_PlayerInfo)
+      {
+          text = buf_sprintf("Bad compilation - struct PlayerInfo has wrong size!\nThe difference is %d bytes.\n",sizeof(struct PlayerInfo)-SIZEOF_PlayerInfo);
+          error_dialog(__func__, 1, text);
+          return 1;
+      }
+      if (sizeof(struct Dungeon) != SIZEOF_Dungeon)
+      {
+          text = buf_sprintf("Bad compilation - struct Dungeon has wrong size!\nThe difference is %d bytes.\n",sizeof(struct Dungeon)-SIZEOF_Dungeon);
+          error_dialog(__func__, 1, text);
+          return 1;
+      }
+      if (sizeof(struct CreatureControl) != SIZEOF_CreatureControl)
+      {
+          //delta1 =((char *)&game.cctrl_data[0].moveto_pos) - ((char *)&game.cctrl_data);
+          text = buf_sprintf("Bad compilation - struct CreatureControl has wrong size!\nThe difference is %d bytes.\n",sizeof(struct CreatureControl)-SIZEOF_CreatureControl);
+          error_dialog(__func__, 1, text);
+          return 1;
+      }
+      delta1 =((char *)&game.land_map_start) - ((char *)&game) - 0x1DD40;
+      delta2 =((char *)&game.cctrl_data) - ((char *)&game) - 0x66157;
+      delta3 =((char *)&game.creature_scores) - ((char *)&game) - 0x14EA4C;
+      text = buf_sprintf("Bad compilation - struct Game has wrong size!\nThe difference is %d bytes.\n"
+          "Field \"land_map_start\" is moved by %ld bytes.\nField \"cctrl_data\" is moved by %ld bytes.\n"
+          "Field \"creature_scores\" is moved by %ld bytes.\n",sizeof(struct Game)-SIZEOF_Game,delta1,delta2,delta3);
       error_dialog(__func__, 1, text);
       return 1;
   }

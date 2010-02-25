@@ -26,6 +26,7 @@
 extern "C" {
 #endif
 
+#define MAX_SIZEXY            768
 #define CREATURES_COUNT       256
 /** Percentage of creature pay increase for every experience level. */
 #define CREATURE_PAY_INCREASE_ON_EXP      35
@@ -58,6 +59,8 @@ struct Creatures { // sizeof = 16
   unsigned char field_C[4];
 };
 
+#define SIZEOF_CreatureControl 776
+
 struct CreatureControl {
     unsigned short flgfield_0;
     unsigned char field_2;
@@ -69,9 +72,7 @@ char field_9[22];
 unsigned short field_21;
     unsigned char explevel;
 unsigned char field_24[9];
-    unsigned short field_2D;
-    unsigned short field_2F;
-    unsigned short field_31;
+    struct Coord3d moveto_pos;
 unsigned char field_33[6];
     long field_39;
 unsigned char field_3D[41];
@@ -86,10 +87,18 @@ unsigned char field_7C[2];
     short field_7E;
     short field_80;
     long field_82;
-unsigned char field_86[3];
-    short field_89;
-    unsigned char field_8B;
-unsigned char field_8C[14];
+unsigned char field_86[2];
+unsigned char field_88;
+  union {
+  struct {
+    unsigned char byte_89;
+    unsigned char byte_8A;
+    unsigned char byte_8B;
+    unsigned char byte_8C;
+    };
+    long long_89;
+  };
+unsigned char field_8D[13];
   union {
   struct {
     short word_9A;
@@ -101,7 +110,7 @@ unsigned char field_8C[14];
     unsigned char byte_9C;
     unsigned char byte_9D;
     };
-    unsigned long long_9A;
+    long long_9A;
   };
     unsigned char field_9E;
     unsigned char field_9F[12];

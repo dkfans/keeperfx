@@ -119,7 +119,10 @@ void set_mapwho_thing_index(struct Map *map, long thing_idx)
 {
   // Check if new value is correct
   if ((unsigned long)thing_idx > 0x7FF)
-    return;
+  {
+      ERRORLOG("Tried to set invalid thing %ld",thing_idx);
+      return;
+  }
   // Clear previous and set new
   map->data ^= (map->data ^ ((unsigned long)thing_idx << 11)) & 0x3FF800;
 }

@@ -1,15 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file ariadne.c
- *     Dungeon routing and path finding system.
+/** @file thing_navigate.h
+ *     Header file for thing_navigate.c.
  * @par Purpose:
- *     Defines functions for finding creature routes and navigating
- *     through the dungeon.
+ *     Things movement navigation functions.
  * @par Comment:
- *     None.
+ *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     10 Jan 2010 - 20 Feb 2010
+ * @date     25 Mar 2009 - 12 Aug 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,31 +16,38 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "ariadne.h"
+#ifndef DK_TNGNAVIGATE_H
+#define DK_TNGNAVIGATE_H
 
-#include "globals.h"
 #include "bflib_basics.h"
-#include "keeperfx.hpp"
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /******************************************************************************/
-DLLIMPORT AriadneReturn _DK_ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long a3, unsigned char a4);
-DLLIMPORT void _DK_path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size);
+#ifdef __cplusplus
+#pragma pack(1)
+#endif
+
+struct Thing;
+
+
+/******************************************************************************/
+#ifdef __cplusplus
+#pragma pack()
+#endif
+/******************************************************************************/
+TbBool setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char a4);
+TbBool creature_can_travel_over_lava(struct Thing *thing);
+TbBool creature_can_navigate_to(struct Thing *thing, struct Coord3d *pos, TbBool no_owner);
+TbBool creature_can_navigate_to_with_storage(struct Thing *crtng, struct Coord3d *pos, unsigned char storage);
+TbBool creature_can_get_to_dungeon(struct Thing *thing, long plyr_idx);
+struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
-/******************************************************************************/
-AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long a3, unsigned char a4)
-{
-    return _DK_ariadne_initialise_creature_route(thing, pos, a3, a4);
-}
-
-void path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size)
-{
-    _DK_path_init8_wide(path, start_x, start_y, end_x, end_y, a6, nav_size);
-}
-
-/******************************************************************************/
+#endif

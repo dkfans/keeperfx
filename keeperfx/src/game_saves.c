@@ -150,7 +150,7 @@ TbBool load_game(long slot_num)
     my_player_number = default_loc_player;
     player = get_my_player();
     game.flagfield_14EA4A = 2;
-    set_flag_byte(&game.numfield_A,0x01,false);
+    set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
     player->field_2C = 1;
     set_selected_level_number(((struct Game *)buf)->load_restart_level);
     set_continue_level_number(((struct Game *)buf)->continue_level_number);
