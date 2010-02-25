@@ -431,31 +431,55 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
             {
             case LvOp_IsSingle:
               if ((lvinfo->options & LvOp_IsSingle) == 0)
-                add_single_level_to_campaign(&campaign,lvinfo->lvnum);
-              lvinfo->options |= LvOp_IsSingle;
+              {
+                  if (add_single_level_to_campaign(&campaign,lvinfo->lvnum) >= 0)
+                      n++;
+                  lvinfo->options |= LvOp_IsSingle;
+              } else
+                  n++;
               break;
             case LvOp_IsMulti:
               if ((lvinfo->options & LvOp_IsMulti) == 0)
-                add_multi_level_to_campaign(&campaign,lvinfo->lvnum);
-              lvinfo->options |= LvOp_IsMulti;
+              {
+                  if (add_multi_level_to_campaign(&campaign,lvinfo->lvnum) >= 0)
+                      n++;
+                  lvinfo->options |= LvOp_IsMulti;
+              } else
+                  n++;
               break;
             case LvOp_IsBonus:
               if ((lvinfo->options & LvOp_IsBonus) == 0)
-                add_bonus_level_to_campaign(&campaign,lvinfo->lvnum);
-              lvinfo->options |= LvOp_IsBonus;
+              {
+                  if (add_bonus_level_to_campaign(&campaign,lvinfo->lvnum) >= 0)
+                      n++;
+                  lvinfo->options |= LvOp_IsBonus;
+              } else
+                  n++;
               break;
             case LvOp_IsExtra:
               if ((lvinfo->options & LvOp_IsExtra) == 0)
-                add_extra_level_to_campaign(&campaign,lvinfo->lvnum);
-              lvinfo->options |= LvOp_IsExtra;
+              {
+                  if (add_extra_level_to_campaign(&campaign,lvinfo->lvnum) >= 0)
+                      n++;
+                  lvinfo->options |= LvOp_IsExtra;
+              } else
+                  n++;
               break;
             case LvOp_IsFree:
               if ((lvinfo->options & LvOp_IsFree) == 0)
-                add_freeplay_level_to_campaign(&campaign,lvinfo->lvnum);
-              lvinfo->options |= LvOp_IsFree;
+              {
+                  if (add_freeplay_level_to_campaign(&campaign,lvinfo->lvnum) >= 0)
+                      n++;
+                  lvinfo->options |= LvOp_IsFree;
+              } else
+                  n++;
               break;
             }
-            n++;
+            if (n < 1)
+            {
+                WARNMSG("Level %ld defined in '%s' wasn't added to any list; "
+                    "kind is wrong or there's no space.",(long)lvinfo->lvnum,fname);
+            }
           }
           break;
       case 10: // AUTHOR

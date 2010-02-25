@@ -28,6 +28,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT AriadneReturn _DK_ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long a3, unsigned char a4);
+DLLIMPORT void _DK_path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -37,4 +38,10 @@ AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coor
 {
     return _DK_ariadne_initialise_creature_route(thing, pos, a3, a4);
 }
+
+void path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size)
+{
+    _DK_path_init8_wide(path, start_x, start_y, end_x, end_y, a6, nav_size);
+}
+
 /******************************************************************************/

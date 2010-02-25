@@ -112,6 +112,9 @@ struct SlabObj { // sizeof = 13
 
 #pragma pack()
 /******************************************************************************/
+extern const short around_slab[];
+extern const short small_around_slab[];
+/******************************************************************************/
 unsigned long get_slab_number(long slb_x, long slb_y);
 long slb_num_decode_x(unsigned long slb_num);
 long slb_num_decode_y(unsigned long slb_num);

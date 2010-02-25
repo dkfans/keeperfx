@@ -314,9 +314,10 @@ void do_a_plane_of_engine_columns_cluedo(long a1, long a2, long a3, long a4)
   _DK_do_a_plane_of_engine_columns_cluedo(a1, a2, a3, a4);
 }
 
-void do_a_plane_of_engine_columns_isometric(long a1, long a2, long a3, long a4)
+void do_a_plane_of_engine_columns_isometric(long xcell, long ycell, long a3, long a4)
 {
-  _DK_do_a_plane_of_engine_columns_isometric(a1, a2, a3, a4);
+  //TODO: This is where first and last columns are cut off from rendering
+  _DK_do_a_plane_of_engine_columns_isometric(xcell, ycell, a3, a4);
 }
 
 void create_box_coords(struct EngineCoord *coord, long x, long z, long y)
@@ -1689,9 +1690,9 @@ void add_unkn19_to_polypool(long x, long y, long lvl, long bckt_idx)
   poly->lvl = lvl;
 }
 
-void draw_element(struct Map *map, long a2, long a3, long a4, long a5, long a6, long a7, unsigned char a8, long *a9)
+void draw_element(struct Map *map, long a2, long stl_x, long stl_y, long pos_x, long pos_y, long a7, unsigned char a8, long *a9)
 {
-  _DK_draw_element(map, a2, a3, a4, a5, a6, a7, a8, a9);
+  _DK_draw_element(map, a2, stl_x, stl_y, pos_x, pos_y, a7, a8, a9);
 }
 
 void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, long w, long h, long qx, long qy)
@@ -1989,6 +1990,7 @@ void draw_frontview_engine(struct Camera *cam)
   lim_x = ewnd.width << 8;
   lim_y = -laaa;
   pos_x = qx;
+  //SYNCDBG(9,"Range (%ld,%ld) to (%ld,%ld), quadrant %d",px,py,qx,qy,(int)qdrant);
   while (pos_x < lim_x)
   {
     i = (ewnd.height << 8);
@@ -1999,9 +2001,9 @@ void draw_frontview_engine(struct Camera *cam)
     pos_y = qy;
     while (pos_y > lim_y)
     {
-          map = get_map_block_at(stl_x, stl_y);
-          if (!map_block_invalid(map))
-          {
+        map = get_map_block_at(stl_x, stl_y);
+        if (!map_block_invalid(map))
+        {
             if (map->data & 0x7FF)
             {
               draw_element(map, game.field_46157[get_subtile_number(stl_x,stl_y)], stl_x, stl_y, pos_x, pos_y, laaa, qdrant, &i);
@@ -2010,10 +2012,10 @@ void draw_frontview_engine(struct Camera *cam)
                 draw_frontview_things_on_element(map, cam);
               }
             }
-          }
-          stl_x -= x_step1[qdrant];
-          stl_y -= y_step1[qdrant];
-          pos_y -= laaa;
+        }
+        stl_x -= x_step1[qdrant];
+        stl_y -= y_step1[qdrant];
+        pos_y -= laaa;
     }
     stl_x += x_step2[qdrant];
     stl_y += y_step2[qdrant];

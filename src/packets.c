@@ -45,6 +45,7 @@
 #include "thing_doors.h"
 #include "thing_effects.h"
 #include "thing_objects.h"
+#include "thing_navigate.h"
 #include "dungeon_data.h"
 #include "keeperfx.hpp"
 
@@ -72,6 +73,10 @@ DLLIMPORT void _DK_set_packet_action(struct Packet *pckt,unsigned char,short,sho
 #define PACKET_START_POS (sizeof(struct PacketSaveHead))
 #define PACKET_TURN_SIZE (NET_PLAYERS_COUNT*sizeof(struct Packet) + sizeof(TbBigChecksum))
 struct Packet bad_packet;
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
 {
@@ -1515,7 +1520,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
 
   plyr_count = 0;
   myplyr = get_my_player();
-  if ((game.numfield_A & 0x01) != 0)
+  if ((game.system_flags & GSF_NetworkActive) != 0)
   {
     winning_quit = winning_player_quitting(player, &plyr_count);
     if (winning_quit)
@@ -1636,7 +1641,7 @@ char process_players_global_packet_action(long plyr_idx)
         turn_off_all_menus();
         free_swipe_graphic();
       }
-      if ((game.numfield_A & 0x01) != 0)
+      if ((game.system_flags & GSF_NetworkActive) != 0)
       {
         process_quit_packet(player, 0);
         return 0;
@@ -1718,7 +1723,7 @@ char process_players_global_packet_action(long plyr_idx)
     case 37:
       set_engine_view(player, pckt->field_6);
       return 0;
-    case 55:
+    case PckA_ToggleTendency:
       toggle_creature_tendencies(player, pckt->field_6);
       return 0;
     case PckA_CheatEnter:
@@ -1774,7 +1779,8 @@ char process_players_global_packet_action(long plyr_idx)
       player->cameras[2].orient_a = 0;
       player->cameras[3].orient_a = 0;
       player->cameras[0].orient_a = 0;
-      if ((game.numfield_A & 0x01) || (lbDisplay.PhysicalScreenWidth > 320))
+      if (((game.system_flags & GSF_NetworkActive) != 0)
+          || (lbDisplay.PhysicalScreenWidth > 320))
       {
         if (is_my_player_number(plyr_idx))
           toggle_status_menu((game.numfield_C & 0x40) != 0);
@@ -1903,7 +1909,7 @@ char process_players_global_packet_action(long plyr_idx)
       //show_onscreen_msg(game.num_fps, "Message from player %d", plyr_idx);
       output_message(pckt->field_6+110, 0, 1);
       return 0;
-    case 109:
+    case PckA_SetComputerKind:
       set_autopilot_type(plyr_idx, pckt->field_6);
       return 0;
     case 110:
@@ -2246,20 +2252,20 @@ void process_packets(void)
   switch (checksums_different())
   {
   case 1:
-    game.numfield_A |= 0x02;
-    game.numfield_A &= 0xFB;
+      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
+      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
     break;
   case 2:
-    game.numfield_A |= 0x04;
-    game.numfield_A &= 0xFD;
+      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
+      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
     break;
   case 3:
-    game.numfield_A |= 0x04;
-    game.numfield_A |= 0x02;
+      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
+      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
     break;
   default:
-    game.numfield_A &= 0xFD;
-    game.numfield_A &= 0xFB;
+      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
+      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
     break;
   }
   // Write packets into file, if requested
@@ -2276,7 +2282,8 @@ void process_packets(void)
   }
   // Clear all packets
   clear_packets();
-  if ((game.numfield_A & 0x02) || (game.numfield_A & 0x04))
+  if (((game.system_flags & GSF_NetGameNoSync) != 0)
+   || ((game.system_flags & GSF_NetSeedNoSync) != 0))
   {
     SYNCDBG(0,"Resyncing");
     resync_game();
@@ -2433,6 +2440,3 @@ void process_frontend_packets(void)
 }
 
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

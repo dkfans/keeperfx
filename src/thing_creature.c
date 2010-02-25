@@ -222,9 +222,9 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     return true;
   }
   cctrl = creature_control_get_from_thing(thing);
-  cctrl->field_2D = 0;
-  cctrl->field_2F = 0;
-  cctrl->field_31 = 0;
+  cctrl->moveto_pos.x.val = 0;
+  cctrl->moveto_pos.y.val = 0;
+  cctrl->moveto_pos.z.val = 0;
   if (is_my_player(player))
   {
     toggle_status_menu(0);
@@ -890,7 +890,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
   crstat = creature_stats_get_from_thing(killertng);
   anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, 4, 1);
   if (!creature_control_invalid(cctrlgrp) && died_in_battle)
-    cctrlgrp->field_8C[14]++;
+    cctrlgrp->byte_9A++;
   if (dungeon != NULL)
     dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
   SYNCDBG(18,"Almost finished");
@@ -1566,7 +1566,7 @@ struct Thing *find_my_first_creature_of_breed_and_gui_job(long breed_idx, long j
     struct CompoundFilterParam param;
     struct Dungeon *dungeon;
     struct Thing *thing;
-    SYNCDBG(5,"Searching for breed %ld, job %ld",breed_idx,job_idx);
+    SYNCDBG(5,"Searching for breed %ld, GUI job %ld",breed_idx,job_idx);
     dungeon = get_players_num_dungeon(my_player_number);
     param.plyr_idx = my_player_number;
     param.class_id = TCls_Creature;
@@ -1598,7 +1598,7 @@ struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long jo
     Thing_Maximizer_Filter filter;
     struct CompoundFilterParam param;
     long i;
-    SYNCDBG(5,"Searching for breed %ld, job %ld",breed_idx,job_idx);
+    SYNCDBG(5,"Searching for breed %ld, GUI job %ld",breed_idx,job_idx);
     //return _DK_find_my_next_creature_of_breed_and_job(breed_idx, job_idx, (pick_flags & TPF_PickableCheck) != 0);
     thing = NULL;
     dungeon = get_my_dungeon();
@@ -1690,7 +1690,7 @@ struct Thing *pick_up_creature_of_breed_and_gui_job(long breed, long job_idx, lo
     thing = find_my_next_creature_of_breed_and_gui_job(breed, job_idx, pick_flags);
     if (thing_is_invalid(thing))
     {
-        SYNCDBG(2,"Can't find creature of breed %ld and job %ld.",breed,job_idx);
+        SYNCDBG(2,"Can't find creature of breed %ld and GUI job %ld.",breed,job_idx);
         return INVALID_THING;
     }
     dungeon = get_dungeon(owner);

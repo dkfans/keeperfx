@@ -29,7 +29,9 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define CAMPAIGN_LEVELS_COUNT        50
-#define FREE_LEVELS_COUNT         10000
+#define EXTRA_LEVELS_COUNT           10
+#define MULTI_LEVELS_COUNT         1000
+#define FREE_LEVELS_COUNT          5000
 #define VISIBLE_HIGH_SCORES_COUNT    10
 #define LEVEL_INFO_GROW_DELTA        32
 #define HISCORE_NAME_LENGTH          64
@@ -71,7 +73,7 @@ struct GameCampaign {
   LevelNumber single_levels[CAMPAIGN_LEVELS_COUNT];
   LevelNumber multi_levels[CAMPAIGN_LEVELS_COUNT];
   LevelNumber bonus_levels[CAMPAIGN_LEVELS_COUNT];
-  LevelNumber extra_levels[CAMPAIGN_LEVELS_COUNT];
+  LevelNumber extra_levels[EXTRA_LEVELS_COUNT];
   LevelNumber freeplay_levels[FREE_LEVELS_COUNT];
   unsigned long single_levels_count;
   unsigned long multi_levels_count;

@@ -2332,6 +2332,7 @@ short load_script(long lvnum)
   script_current_condition = -1;
   text_line_number = 1;
   game.bonus_time = 0;
+  set_flag_byte(&game.flags_gui,GGUI_CountdownTimer,false);
   game.flags_cd |= 0x08;
   reset_creature_max_levels();
   reset_script_timers_and_flags();
@@ -2920,7 +2921,7 @@ void process_win_and_lose_conditions(long plyr_idx)
   struct PlayerInfo *player;
   long i,k;
   player = get_player(plyr_idx);
-  if ((game.numfield_A & 0x01) != 0)
+  if ((game.system_flags & GSF_NetworkActive) != 0)
     return;
   for (i=0; i < game.script.win_conditions_num; i++)
   {
@@ -3112,6 +3113,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       break;
   case Cmd_BONUS_LEVEL_TIME:
       game.bonus_time = val2;
+      set_flag_byte(&game.flags_gui,GGUI_CountdownTimer,(val2 > 0));
       break;
   case Cmd_QUICK_OBJECTIVE:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))

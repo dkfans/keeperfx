@@ -230,17 +230,17 @@ TbBool movie_record_start(void)
 {
   if ( anim_record() )
   {
-    game.numfield_A |= 0x08;
-    return true;
+      set_flag_byte(&game.system_flags,GSF_CaptureMovie,true);
+      return true;
   }
   return false;
 }
 
 TbBool movie_record_stop(void)
 {
-  game.numfield_A &= 0xF7u;
-  anim_stop();
-  return true;
+    set_flag_byte(&game.system_flags,GSF_CaptureMovie,false);
+    anim_stop();
+    return true;
 }
 
 TbBool movie_record_frame(void)
@@ -267,18 +267,18 @@ TbBool movie_record_frame(void)
 TbBool perform_any_screen_capturing(void)
 {
     TbBool captured=0;
-  if ( game.numfield_A & 0x10 )
-  {
-    captured|=cumulative_screen_shot();
-    game.numfield_A &= 0xEFu;
-  }
-  if ( game.numfield_A & 0x08 )
-  {
-    captured|=movie_record_frame();
-  }
-  if (captured)
-    LbTextDraw(600/pixel_size, 4/pixel_size, "REC");
-  return captured;
+    if ((game.system_flags & GSF_CaptureSShot) != 0)
+    {
+      captured |= cumulative_screen_shot();
+      set_flag_byte(&game.system_flags,GSF_CaptureSShot,false);
+    }
+    if ((game.system_flags & GSF_CaptureMovie) != 0)
+    {
+      captured |= movie_record_frame();
+    }
+    if (captured)
+      LbTextDraw(600/pixel_size, 4/pixel_size, "REC");
+    return captured;
 }
 
 /******************************************************************************/

@@ -8,7 +8,7 @@
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
- * @date     23 Sep 2009 - 11 Nov 2009
+ * @date     23 Sep 2009 - 22 Feb 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -26,8 +26,8 @@
 #include "config_rules.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
+#include "thing_navigate.h"
 #include "room_data.h"
-#include "ariadne.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -692,6 +692,34 @@ struct StateInfo states[] = {
  */
 long const state_type_to_gui_state[] = {
     0, 1, 0, 0, 0, 2, 0, 0, 1, 0, 0, 2, 2, 1, 1, 0,
+};
+
+unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+    4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+    4,
 };
 /******************************************************************************/
 struct StateInfo *get_thing_state_info(struct Thing *thing)
@@ -1678,47 +1706,108 @@ short creature_wants_salary(struct Thing *thing)
   return _DK_creature_wants_salary(thing);
 }
 
-TbBool creature_can_navigate_to_with_storage(struct Thing *crtng, struct Coord3d *pos, unsigned char storage)
+/**
+ * Return index of a dungeon which the hero may attack.
+ * @todo Shouldn't we support allies with heroes?
+ *
+ * @param thing The hero searching for target.
+ * @return Player index, or -1 if no dungeon to attack found.
+ */
+long good_find_enemy_dungeon(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(crtng);
-    return ariadne_initialise_creature_route(crtng, pos, cctrl->max_speed, storage) == 0;
+  struct CreatureControl *cctrl;
+  long i;
+  cctrl = creature_control_get_from_thing(thing);
+  if ((cctrl->byte_8C != 0) || (cctrl->byte_8B != 0))
+  {
+    cctrl->byte_8C = 0;
+    cctrl->byte_8B = 0;
+    for (i = 0; i < PLAYERS_COUNT; i++)
+    {
+      if ( creature_can_get_to_dungeon(thing, i) )
+        return i;
+    }
+  }
+  return -1;
 }
 
-/**
- * Returns a hero gate object to which given hero can navigate.
- * @todo It returns first hero door found - maybe it should find the one he will reach faster?
- * @param herotng The hero to be able to make it to gate.
- * @return The gate thing, or invalid thing.
- */
-struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
+TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing)
 {
-    struct Thing *thing;
-    unsigned long k;
-    int i;
-    k = 0;
-    i = game.thing_lists[2].index;
-    while (i != 0)
+    struct CreatureStats *crstat;
+    struct SlabMap *slb;
+    struct Thing *doortng;
+    long base_x,base_y;
+    long stl_x,stl_y;
+    long start_stl;
+    long slab_num,slab_base;
+    long i,k,m,n;
+    TbBool do_move;
+    long x,y;
+
+    stl_x = thing->mappos.x.stl.num;
+    stl_y = thing->mappos.y.stl.num;
+
+    slab_base = get_slab_number(map_to_slab[stl_x], map_to_slab[stl_y]);
+
+    start_stl = ACTION_RANDOM(9);
+    m = ACTION_RANDOM(4);
+    for (n=0; n < 4; n++)
     {
-      thing = thing_get(i);
-      if (thing_is_invalid(thing))
-      {
-        ERRORLOG("Jump to invalid thing detected");
-        break;
-      }
-      i = thing->next_of_class;
-      // Per thing code
-      if ((thing->model == 49) && creature_can_navigate_to_with_storage(herotng, &thing->mappos, 0))
-        return thing;
-      // Per thing code ends
-      k++;
-      if (k > THINGS_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping things list");
-        break;
-      }
+        slab_num = slab_base + small_around_slab[m];
+        slb = get_slabmap_direct(slab_num);
+        i = slab_attrs[slb->slab%SLAB_TYPES_COUNT].field_6;
+        do_move = false;
+        if ( ((i & 0x02) != 0) || ((i & 0x10) == 0) )
+            do_move = true;
+        base_x = 3 * slb_num_decode_x(slab_num);
+        base_y = 3 * slb_num_decode_y(slab_num);
+        if (!do_move)
+        {
+          doortng = get_door_for_position(base_x, base_y);
+          if (!thing_is_invalid(doortng))
+          {
+            if ((doortng->owner == thing->owner) && (!doortng->byte_17.h))
+                do_move = true;
+          }
+        }
+        if (do_move)
+        {
+            k = start_stl;
+            for (i=0; i < 9; i++)
+            {
+              x = base_x + (k%3);
+              y = base_y + (k/3);
+              if ((x != stl_x) || (y != stl_y))
+              {
+                  crstat = creature_stats_get_from_thing(thing);
+                  if ((crstat->hurt_by_lava <= 0) || !map_pos_is_lava(stl_x,stl_y))
+                  {
+                      if (setup_person_move_to_position(thing, x, y, 0))
+                          return true;
+                  }
+              }
+              k = (k+1) % 9;
+            }
+            if (slb->slab != 12)
+              return false;
+        }
+        m = (m+1) % 4;
     }
-    return NULL;
+    base_x = 3 * map_to_slab[thing->mappos.x.stl.num];
+    base_y = 3 * map_to_slab[thing->mappos.y.stl.num];
+    k = start_stl;
+    for (i=0; i < 9; i++)
+    {
+        x = base_x + (k%3);
+        y = base_y + (k/3);
+        if ((x != stl_x) || (y != stl_y))
+        {
+          if (setup_person_move_to_position(thing, x, y, 0))
+              return true;
+        }
+        k = (k+1) % 9;
+    }
+    return false;
 }
 
 TbBool good_setup_wander_to_exit(struct Thing *thing)
@@ -2176,60 +2265,60 @@ long check_out_imp_last_did(struct Thing *thing)
   struct Room *room;
   //return _DK_check_out_imp_last_did(thing);
   cctrl = creature_control_get_from_thing(thing);
-  //SYNCDBG(9,"Starting case %d",(int)cctrl->field_8C[8]);
-  switch (cctrl->field_8C[8])
+  //SYNCDBG(9,"Starting case %d",(int)cctrl->field_8D[7]);
+  switch (cctrl->field_8D[7])
   {
   case 0:
       return false;
   case 1:
       if ( check_out_undug_place(thing) || check_out_undug_area(thing) )
       {
-        cctrl->field_8C[8] = 1;
+        cctrl->field_8D[7] = 1;
         return true;
       }
       if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
       {
-        cctrl->field_8C[8] = 2;
+        cctrl->field_8D[7] = 2;
         return true;
       }
       imp_stack_update(thing);
       if ( check_out_unprettied_or_unconverted_area(thing) )
       {
-        cctrl->field_8C[8] = 2;
+        cctrl->field_8D[7] = 2;
         return true;
       }
       break;
   case 2:
       if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
       {
-        cctrl->field_8C[8] = 2;
+        cctrl->field_8D[7] = 2;
         return true;
       }
       imp_stack_update(thing);
       if ( check_out_unprettied_or_unconverted_area(thing) )
       {
-        cctrl->field_8C[8] = 2;
+        cctrl->field_8D[7] = 2;
         return true;
       }
       if ( check_out_undug_area(thing) )
       {
-        cctrl->field_8C[8] = 1;
+        cctrl->field_8D[7] = 1;
         return true;
       }
       break;
   case 3:
       dungeon = get_dungeon(thing->owner);
       imp_stack_update(thing);
-      if ((dungeon->imp_stack_update_turn != *((long *)&cctrl->field_89)) && (dungeon->imp_stack_length != 3))
+      if ((dungeon->imp_stack_update_turn != (cctrl->long_89)) && (dungeon->imp_stack_length != 3))
         break;
       if ( check_out_unreinforced_place(thing) )
       {
-        cctrl->field_8C[8] = 3;
+        cctrl->field_8D[7] = 3;
         return true;
       }
       if ( check_out_unreinforced_area(thing) )
       {
-        cctrl->field_8C[8] = 3;
+        cctrl->field_8D[7] = 3;
         return true;
       }
       break;
@@ -2255,19 +2344,19 @@ long check_out_imp_last_did(struct Thing *thing)
   case 9:
       if ( check_out_unreinforced_place(thing) )
       {
-        cctrl->field_8C[8] = 9;
+        cctrl->field_8D[7] = 9;
         return true;
       }
       if ( check_out_unreinforced_area(thing) )
       {
-        cctrl->field_8C[8] = 9;
+        cctrl->field_8D[7] = 9;
         return true;
       }
       break;
   default:
       break;
   }
-  cctrl->field_8C[8] = 0;
+  cctrl->field_8D[7] = 0;
   return false;
 }
 

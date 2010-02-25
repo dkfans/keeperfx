@@ -496,6 +496,7 @@
  0001:00065F80       event_move_player_towards_event
  0001:00065FC0       remove_events_thing_is_attached_to
  0001:00066100       update_all_events
+ 0001:0006E050       path_init8_wide
  0001:0006EC80       setup_a_computer_player
  0001:0006EE60       restore_computer_player_after_load
  0001:0006EF80       process_computer_players2
@@ -941,6 +942,7 @@
  0001:000C2440       creature_increase_level
  0001:000C2700       set_creature_level
  0001:000C28E0       init_creature_level
+ 0001:000C2CA0       creature_can_navigate_to
  0001:000C41E0       find_next_annoyed_creature
  0001:000C4460       find_my_next_creature_of_breed_and_job
  0001:000C4AA0       prepare_thing_for_power_hand

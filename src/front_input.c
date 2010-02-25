@@ -155,16 +155,16 @@ short get_screen_capture_inputs(void)
 {
   if (is_key_pressed(KC_M,KM_SHIFT))
   {
-    if ((game.numfield_A & 0x08) != 0)
-      movie_record_stop();
-    else
-      movie_record_start();
-    clear_key_pressed(KC_M);
+      if ((game.system_flags & GSF_CaptureMovie) != 0)
+        movie_record_stop();
+      else
+        movie_record_start();
+      clear_key_pressed(KC_M);
   }
   if (is_key_pressed(KC_C,KM_SHIFT))
   {
-    game.numfield_A |= 0x10;
-    clear_key_pressed(KC_C);
+      set_flag_byte(&game.system_flags,GSF_CaptureSShot,true);
+      clear_key_pressed(KC_C);
   }
   return false;
 }
@@ -220,7 +220,7 @@ short get_packet_load_game_control_inputs(void)
   if (lbKeyOn[KC_LALT] && lbKeyOn[KC_X])
   {
     clear_key_pressed(KC_X);
-    if ((game.numfield_A & 0x01) != 0)
+    if ((game.system_flags & GSF_NetworkActive) != 0)
       LbNetwork_Stop();
     quit_game = 1;
     exit_keeper = 1;
@@ -398,7 +398,8 @@ short get_global_inputs(void)
     get_players_message_inputs();
     return true;
   }
-  if ((player->view_type == PVT_DungeonTop) && ((game.numfield_A & 0x01) != 0))
+  if ((player->view_type == PVT_DungeonTop)
+  && ((game.system_flags & GSF_NetworkActive) != 0))
   {
       if (is_key_pressed(KC_RETURN,KM_NONE))
       {
@@ -476,7 +477,7 @@ TbBool get_level_lost_inputs(void)
     get_players_message_inputs();
     return true;
   }
-  if ((game.numfield_A & 0x01) != 0)
+  if ((game.system_flags & GSF_NetworkActive) != 0)
   {
     if (is_key_pressed(KC_RETURN,KM_NONE))
     {
@@ -540,7 +541,8 @@ TbBool get_level_lost_inputs(void)
       {
         turn_off_all_window_menus();
         set_flag_byte(&game.numfield_C, 0x40, (game.numfield_C & 0x20) != 0);
-        if (((game.numfield_A & 0x01) != 0) || (lbDisplay.PhysicalScreenWidth > 320))
+        if (((game.system_flags & GSF_NetworkActive) != 0)
+          || (lbDisplay.PhysicalScreenWidth > 320))
         {
               if (toggle_status_menu(0))
                 set_flag_byte(&game.numfield_C,0x40,true);
@@ -1432,7 +1434,7 @@ short get_inputs(void)
   case 5:
       if (player->field_37 != 6)
       {
-        if ((game.numfield_A & 0x01) == 0)
+        if ((game.system_flags & GSF_NetworkActive) == 0)
           game.numfield_C &= 0xFE;
         if (toggle_status_menu(false))
           player->field_1 |= 0x01;
