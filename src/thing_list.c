@@ -681,7 +681,8 @@ TbBool update_thing(struct Thing *thing)
   Thing_Class_Func classfunc;
   struct Coord3d pos;
   SYNCDBG(18,"Starting for thing class %d",(int)thing->class_id);
-
+  if (thing_is_invalid(thing))
+      return false;
   if ((thing->field_25 & 0x40) == 0)
   {
     if ((thing->field_1 & 0x04) != 0)
@@ -692,12 +693,12 @@ TbBool update_thing(struct Thing *thing)
       thing->pos_32.x.val = 0;
       thing->pos_32.y.val = 0;
       thing->pos_32.z.val = 0;
-      set_flag_byte(&thing->field_1,0x04,false);
+      set_flag_byte(&thing->field_1, 0x04, false);
     }
     thing->pos_38.x.val = thing->pos_2C.x.val;
     thing->pos_38.y.val = thing->pos_2C.y.val;
     thing->pos_38.z.val = thing->pos_2C.z.val;
-    if (thing->field_1 & 0x08)
+    if ((thing->field_1 & 0x08) != 0)
     {
       thing->pos_38.x.val += thing->pos_26.x.val;
       thing->pos_38.y.val += thing->pos_26.y.val;
@@ -705,7 +706,7 @@ TbBool update_thing(struct Thing *thing)
       thing->pos_26.x.val = 0;
       thing->pos_26.y.val = 0;
       thing->pos_26.z.val = 0;
-      set_flag_byte(&thing->field_1,0x08,false);
+      set_flag_byte(&thing->field_1, 0x08, false);
     }
   }
   classfunc = class_functions[thing->class_id%THING_CLASSES_COUNT];

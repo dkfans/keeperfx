@@ -1,4 +1,3 @@
-
  0001:000001F0       cumulative_screen_shot
  0001:00000560       anim_record
  0001:000005E0       anim_record_frame
@@ -391,6 +390,7 @@
  0001:00053450       good_wait_in_exit_door
  0001:00053540       good_attack_room
  0001:00053750       tunneller_doing_nothing
+ 0001:000539E0       good_setup_loot_treasure_room
  0001:00053E70       process_keeper_sprite
  0001:00054890       draw_keepsprite_unscaled_in_buffer
  0001:00054E00       creature_doing_nothing
@@ -490,6 +490,7 @@
  0001:00065630       setup_eye_lens
  0001:000658D0       event_initialise_all
  0001:00065910       event_create_event
+ 0001:00065B70       event_create_event_or_update_nearby_existing_event
  0001:00065CE0       event_kill_all_players_events
  0001:00065DC0       event_delete_event
  0001:00065E50       event_process_events
@@ -567,9 +568,12 @@
  0001:0007A530       get_packet_save_checksum
  0001:0007B6C0       update_navigation_triangulation
  0001:0007B7F0       init_navigation
+ 0001:0007B860       creature_follow_route_to_using_gates
  0001:0007E9D0       process_entrance_generation
  0001:0007ED90       update_dungeon_scores
  0001:0007F050       update_dungeon_generation_speeds
+ 0001:0007F2C0       creature_turn_to_face
+ 0001:0007F370       creature_turn_to_face_backwards
  0001:0007F430       creature_turn_to_face_angle
  0001:0007F7A0       ariadne_initialise_creature_route
  0001:00081B30       draw_resurrect_creature
@@ -864,6 +868,7 @@
  0001:000B4970       room_grow_food
  0001:000B4EC0       set_room_efficiency
  0001:000B4FA0       delete_room_slab
+ 0001:000B69C0       find_nearest_room_for_thing_excluding_two_types
  0001:000B6C00       find_nearest_room_for_thing_with_spare_capacity
  0001:000B6D10       find_room_with_spare_room_item_capacity
  0001:000B6EF0       find_room_with_spare_capacity
@@ -978,6 +983,7 @@
  0001:000CAF40       move_shot
  0001:000CB220       move_object
  0001:000CB760       move_effect
+ 0001:000CB8F0       creature_move_to_using_gates
  0001:000CBC00       move_to_position
  0001:000CBD50       move_backwards_to_position
  0001:000CBDF0       tunnelling

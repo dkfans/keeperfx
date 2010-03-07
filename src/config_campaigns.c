@@ -946,7 +946,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
 TbBool change_campaign(const char *cmpgn_fname)
 {
   TbBool result;
-  if ((campaign.fname[0] != '\0') && (stricmp(campaign.fname,cmpgn_fname) == 0))
+  if ((campaign.fname[0] != '\0') && (strcasecmp(campaign.fname,cmpgn_fname) == 0))
     return true;
   free_campaign(&campaign);
   if ((cmpgn_fname != NULL) && (cmpgn_fname[0] != '\0'))

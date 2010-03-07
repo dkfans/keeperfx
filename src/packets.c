@@ -863,7 +863,8 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
           {
             thing = thing_get(player->field_2F);
-            setup_person_move_to_position(thing, stl_x, stl_y, 0);
+            if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
+                WARNLOG("Person move order failed");
             thing->field_8 = 122;
           }
         } else
@@ -1598,7 +1599,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
   }
 }
 
-char process_players_global_packet_action(long plyr_idx)
+TbBool process_players_global_packet_action(long plyr_idx)
 {
   //TODO: add commands from beta
   struct PlayerInfo *player;
@@ -1846,7 +1847,7 @@ char process_players_global_packet_action(long plyr_idx)
       if (dungeon->field_63 < 8)
         place_thing_in_power_hand(thing_get(pckt->field_6), plyr_idx);
       return 0;
-    case 91:
+    case PckA_DumpHeldThings:
       dump_held_things_on_map(plyr_idx, pckt->field_6, pckt->field_8, 1);
       return 0;
     case 92:
@@ -1922,18 +1923,18 @@ char process_players_global_packet_action(long plyr_idx)
         thing = get_first_thing_in_power_hand(player);
         dump_held_things_on_map(plyr_idx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 1);
       }
-      return 0;
+      return false;
     case PckA_SpellSOEDis:
       turn_off_sight_of_evil(plyr_idx);
-      return 0;
+      return false;
     case 115:
       go_on_then_activate_the_event_box(plyr_idx, pckt->field_6);
-      return 0;
+      return false;
     case 116:
       dungeon = get_players_num_dungeon(plyr_idx);
       turn_off_event_box_if_necessary(plyr_idx, dungeon->field_1173);
       dungeon->field_1173 = 0;
-      return 0;
+      return false;
     case 117:
       i = player->field_4D2 / 4;
       if (i > 8) i = 8;
@@ -1946,15 +1947,12 @@ char process_players_global_packet_action(long plyr_idx)
       if (player->acamera != NULL)
         player->field_4B5 = player->acamera->field_6;
       set_player_mode(player, pckt->field_6);
-      return 0;
+      return false;
     case 120:
       set_player_mode(player, pckt->field_6);
       set_engine_view(player, player->field_4B5);
-      return 0;
-    case PckA_None:
       return false;
     default:
-      WARNLOG("Unrecognized player %ld packet action: %d",plyr_idx,pckt->action);
       return false;
   }
 }
