@@ -228,6 +228,9 @@ DLLIMPORT void _DK_remove_health_from_thing_and_display_health(struct Thing *thi
 DLLIMPORT long _DK_process_prison_food(struct Thing *thing, struct Room *room);
 DLLIMPORT long _DK_slab_by_players_land(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
 DLLIMPORT long _DK_setup_prison_move(struct Thing *thing, struct Room *room);
+DLLIMPORT long _DK_event_create_event_or_update_nearby_existing_event(long map_x, long map_y, unsigned char a3, unsigned char dngn_id, long msg_id);
+DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5);
+DLLIMPORT long _DK_good_setup_loot_treasure_room(struct Thing *thing, long dngn_id);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *thing);
 short arrive_at_alarm(struct Thing *thing);
@@ -489,7 +492,7 @@ struct StateInfo states[] = {
     1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0,  0, 1},
   {creature_in_combat, cleanup_combat, NULL, NULL,
     1, 1, 1, 0,   1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 5, 0, 0, 1, 1, 51, 1, 0, 0},
-  {creature_leaving_dungeon, NULL, NULL, NULL,
+  {creature_leaving_dungeon, NULL, NULL, NULL, // [50]
     0,  1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 1, 1, 1, 0, 61,   1, 0, 1},
   {creature_leaves, NULL, NULL, NULL,
     0, 1, 1, 0,  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 1, 1, 1, 0, 61, 1, 0, 1},
@@ -509,7 +512,7 @@ struct StateInfo states[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 1, 0, 0, 0, 0, 1},
   {creature_kill_creatures, NULL, NULL, move_check_kill_creatures,
     0, 1, 1,  0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 1, 0, 61, 1, 0,   1},
-  {NULL, NULL, NULL, NULL,
+  {NULL, NULL, NULL, NULL, // [60]
     1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 0, 1},
   {person_sulking, NULL, NULL, NULL,
     0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, 55, 1, 0, 1},
@@ -529,7 +532,7 @@ struct StateInfo states[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1,  0, 0, 0, 0, 1},
   {imp_toking, NULL, NULL, NULL,
     0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-  {imp_picks_up_gold_pile, NULL, NULL, NULL,
+  {imp_picks_up_gold_pile, NULL, NULL, NULL, // [70]
     0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0,  0, 1},
   {move_backwards_to_position, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 1, 0, 0,  0, 0, 1},
@@ -549,7 +552,7 @@ struct StateInfo states[] = {
     1, 1,   1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 12, 0, 0, 1, 0, 51, 1, 0,  0},
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1},
-  {creature_change_lair, NULL, NULL, move_check_on_head_for_room,
+  {creature_change_lair, NULL, NULL, move_check_on_head_for_room, // [80]
     0, 0,   1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 1, 0, 58, 1, 0,  1},
   {imp_birth, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
@@ -569,7 +572,7 @@ struct StateInfo states[] = {
     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0},
   {at_lair_to_sleep, NULL, NULL, NULL,
     0, 1, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3, 0, 0, 2, 0, 54, 1, 0,   1},
-  {creature_fired, NULL, NULL, NULL,
+  {creature_fired, NULL, NULL, NULL, // [90]
     0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 61, 1, 0, 1},
   {creature_being_dropped, state_cleanup_unable_to_fight, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1},
@@ -589,7 +592,7 @@ struct StateInfo states[] = {
     0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
   {arrive_at_alarm, NULL, NULL, NULL,
     1, 1, 1, 0,  0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 62, 1, 0, 0},
-  {creature_picks_up_spell_object, NULL, NULL, NULL,
+  {creature_picks_up_spell_object, NULL, NULL, NULL, // [100]
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 1, 0,  0, 0, 0, 1},
   {creature_drops_spell_object_in_library, state_cleanup_dragging_object, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0,  0, 0, 1},
@@ -609,7 +612,7 @@ struct StateInfo states[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0,  1, 0, 0, 0, 0, 1},
   {at_kinky_torture_room, NULL, NULL, move_check_on_head_for_room,
     1, 1,   1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,  1},
-  {kinky_torturing, cleanup_torturing, NULL, process_kinky_function,
+  {kinky_torturing, cleanup_torturing, NULL, process_kinky_function, /// [110]
     1, 1, 1, 1,  1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
   {mad_killing_psycho, NULL, NULL, NULL,
     0, 1, 0,  0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 55, 1, 0,   1},
@@ -629,7 +632,7 @@ struct StateInfo states[] = {
     0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 55,   1, 0, 1},
   {creature_persuade, NULL, NULL, move_check_persuade,
     0, 1, 1, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 1, 0, 55, 1, 0, 1},
-  {creature_change_to_chicken, NULL, NULL, NULL,
+  {creature_change_to_chicken, NULL, NULL, NULL, // [120]
     1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0,  0, 0, 0},
   {creature_change_from_chicken, NULL, NULL, NULL,
     1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0,  0, 0, 0, 0},
@@ -649,7 +652,7 @@ struct StateInfo states[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0,  0, 0, 0, 1},
   {good_wait_in_exit_door, NULL, NULL, NULL,
     0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,  0, 1},
-  {good_attack_room, NULL, NULL, NULL,
+  {good_attack_room, NULL, NULL, NULL, // [130]
     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1},
   {creature_search_for_gold_to_steal_in_room, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 1,   1, 0, 0, 0, 0, 0, 1},
@@ -669,7 +672,7 @@ struct StateInfo states[] = {
     0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 0, 2, 0,   59, 1, 0, 1},
   {creature_leaves_or_dies, NULL, NULL, NULL,
     1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 2, 1, 1, 1, 0,   61, 1, 0, 0},
-  {creature_moan, NULL, NULL, NULL,
+  {creature_moan, NULL, NULL, NULL, // [140]
     1, 1, 1, 0,  0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0, 0, 0, 1},
   {creature_set_work_room_based_on_position, NULL, NULL, NULL,
     1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,  0, 0, 0, 0, 0, 1},
@@ -694,39 +697,19 @@ long const state_type_to_gui_state[] = {
     0, 1, 0, 0, 0, 2, 0, 0, 1, 0, 0, 2, 2, 1, 1, 0,
 };
 
-unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-    4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-    4,
-};
 /******************************************************************************/
-struct StateInfo *get_thing_state_info(struct Thing *thing)
+struct StateInfo *get_thing_state7_info(struct Thing *thing)
 {
   if (thing->field_7 >= CREATURE_STATES_COUNT)
     return &states[0];
   return &states[thing->field_7];
+}
+
+struct StateInfo *get_thing_state8_info(struct Thing *thing)
+{
+  if (thing->field_8 >= CREATURE_STATES_COUNT)
+    return &states[0];
+  return &states[thing->field_8];
 }
 
 struct StateInfo *get_thing_state_info_num(long state_id)
@@ -1455,7 +1438,7 @@ long process_prison_visuals(struct Thing *thing, struct Room *room)
       set_creature_instance(thing, 44, 1, 0, 0);
       if (game.play_gameturn-cctrl->long_9A > 32)
       {
-        play_creature_sound(thing, 4, 2, 0);
+        play_creature_sound(thing, CrSnd_PrisonMoan, 2, 0);
         cctrl->long_9A = game.play_gameturn;
       }
       return Lb_SUCCESS;
@@ -1706,6 +1689,16 @@ short creature_wants_salary(struct Thing *thing)
   return _DK_creature_wants_salary(thing);
 }
 
+long check_place_to_convert_excluding(struct Thing *thing, long a2, long a3)
+{
+  return _DK_check_place_to_convert_excluding(thing, a2, a3);
+}
+
+long check_place_to_pretty_excluding(struct Thing *thing, long a2, long a3)
+{
+  return _DK_check_place_to_pretty_excluding(thing, a2, a3);
+}
+
 /**
  * Return index of a dungeon which the hero may attack.
  * @todo Shouldn't we support allies with heroes?
@@ -1725,9 +1718,13 @@ long good_find_enemy_dungeon(struct Thing *thing)
     for (i = 0; i < PLAYERS_COUNT; i++)
     {
       if ( creature_can_get_to_dungeon(thing, i) )
-        return i;
+      {
+          SYNCDBG(18,"Returning enemy player %ld",i);
+          return i;
+      }
     }
   }
+  SYNCDBG(18,"No enemy found");
   return -1;
 }
 
@@ -1743,15 +1740,15 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
     long i,k,m,n;
     TbBool do_move;
     long x,y;
-
+    SYNCDBG(17,"Starting");
     stl_x = thing->mappos.x.stl.num;
     stl_y = thing->mappos.y.stl.num;
 
     slab_base = get_slab_number(map_to_slab[stl_x], map_to_slab[stl_y]);
 
     start_stl = ACTION_RANDOM(9);
-    m = ACTION_RANDOM(4);
-    for (n=0; n < 4; n++)
+    m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+    for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         slab_num = slab_base + small_around_slab[m];
         slb = get_slabmap_direct(slab_num);
@@ -1783,15 +1780,18 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
                   if ((crstat->hurt_by_lava <= 0) || !map_pos_is_lava(stl_x,stl_y))
                   {
                       if (setup_person_move_to_position(thing, x, y, 0))
+                      {
+                          SYNCDBG(18,"Moving to (%d,%d)",(int)x,(int)y);
                           return true;
+                      }
                   }
               }
               k = (k+1) % 9;
             }
-            if (slb->slab != 12)
+            if (slb->slab != SlbT_LAVA)
               return false;
         }
-        m = (m+1) % 4;
+        m = (m+1) % SMALL_AROUND_SLAB_LENGTH;
     }
     base_x = 3 * map_to_slab[thing->mappos.x.stl.num];
     base_y = 3 * map_to_slab[thing->mappos.y.stl.num];
@@ -1803,16 +1803,21 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
         if ((x != stl_x) || (y != stl_y))
         {
           if (setup_person_move_to_position(thing, x, y, 0))
+          {
+              SYNCDBG(18,"Moving to (%d,%d)",(int)x,(int)y);
               return true;
+          }
         }
         k = (k+1) % 9;
     }
+    SYNCDBG(18,"Moving failed");
     return false;
 }
 
 TbBool good_setup_wander_to_exit(struct Thing *thing)
 {
     struct Thing *gatetng;
+    SYNCDBG(7,"Starting");
     gatetng = find_hero_door_hero_can_navigate_to(thing);
     if (thing_is_invalid(gatetng))
     {
@@ -1828,6 +1833,230 @@ TbBool good_setup_wander_to_exit(struct Thing *thing)
     return true;
 }
 
+long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3)
+{
+  return _DK_setup_random_head_for_room(thing, room, a3);
+}
+
+struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5)
+{
+    return _DK_find_nearest_room_for_thing_excluding_two_types(thing, owner, a3, a4, a5);
+}
+
+long event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, unsigned char a3, unsigned char dngn_id, long msg_id)
+{
+    return _DK_event_create_event_or_update_nearby_existing_event(map_x, map_y, a3, dngn_id, msg_id);
+}
+
+TbBool good_setup_attack_rooms(struct Thing *thing, long dngn_id)
+{
+    struct Room *room;
+    struct CreatureControl *cctrl;
+    struct Coord3d pos;
+    //W?find_nearest_room_for_thing_excluding_two_types$n(pn$Thing$$cccuc)pn$Room$$
+    room = find_nearest_room_for_thing_excluding_two_types(thing, dngn_id, 7, 1, 1);
+    if (room_is_invalid(room))
+    {
+        return false;
+    }
+    if (!find_random_valid_position_for_thing_in_room(thing, room, &pos)
+      || !creature_can_navigate_to_with_storage(thing, &pos, 1) )
+    {
+        return false;
+    }
+    if (!setup_random_head_for_room(thing, room, 1))
+    {
+        ERRORLOG("setup random head for room failed");
+        return false;
+    }
+    event_create_event_or_update_nearby_existing_event(
+        get_subtile_center_pos(room->field_8), get_subtile_center_pos(room->field_9),
+        19, room->owner, 0);
+    if (is_my_player_number(room->owner))
+      output_message(15, 400, 1);
+    cctrl = creature_control_get_from_thing(thing);
+    thing->field_8 = 130;
+    cctrl->field_80 = room->index;
+    return true;
+}
+
+long good_setup_loot_treasure_room(struct Thing *thing, long dngn_id)
+{
+    return _DK_good_setup_loot_treasure_room(thing, dngn_id);
+}
+
+TbBool good_setup_wander_to_creature(struct Thing *wanderer, long dngn_id)
+{
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    long navigable_targets,target_match;
+    unsigned long k;
+    long i;
+    SYNCDBG(7,"Starting");
+    cctrl = creature_control_get_from_thing(wanderer);
+    dungeon = get_dungeon(dngn_id);
+    navigable_targets = 0;
+    // Get the amount of possible targets
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+      thing = thing_get(i);
+      cctrl = creature_control_get_from_thing(thing);
+      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+      {
+        ERRORLOG("Jump to invalid creature detected");
+        break;
+      }
+      i = cctrl->thing_idx;
+      // Thing list loop body
+      if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
+      {
+          if ( creature_can_navigate_to(wanderer, &thing->mappos, 0) )
+            navigable_targets++;
+      }
+      // Thing list loop body ends
+      k++;
+      if (k > CREATURES_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping creatures list");
+        break;
+      }
+    }
+    // Select random target
+    if (navigable_targets < 1)
+    {
+        WARNLOG("No player %d creatures found to wander to",(int)dngn_id);
+        return false;
+    }
+    target_match = ACTION_RANDOM(navigable_targets);
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+      thing = thing_get(i);
+      cctrl = creature_control_get_from_thing(thing);
+      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+      {
+        ERRORLOG("Jump to invalid creature detected");
+        break;
+      }
+      i = cctrl->thing_idx;
+      // Thing list loop body
+      if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
+      {
+          if ( creature_can_navigate_to(wanderer, &thing->mappos, 0) )
+          {
+              if (target_match > 0)
+              {
+                  target_match--;
+              } else
+              if ( setup_person_move_to_position(wanderer, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0) )
+              {
+                  thing->field_8 = 34;
+                  return true;
+              }
+          }
+      }
+      // Thing list loop body ends
+      k++;
+      if (k > CREATURES_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping creatures list");
+        break;
+      }
+    }
+    WARNLOG("Internal - couldn't wander to player %d creature",(int)dngn_id);
+    return false;
+}
+
+TbBool good_setup_wander_to_imp(struct Thing *wanderer, long dngn_id)
+{
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    long navigable_targets,target_match;
+    unsigned long k;
+    long i;
+    SYNCDBG(7,"Starting");
+    cctrl = creature_control_get_from_thing(wanderer);
+    dungeon = get_dungeon(dngn_id);
+    navigable_targets = 0;
+    // Get the amount of possible targets
+    k = 0;
+    i = dungeon->worker_list_start;
+    while (i != 0)
+    {
+      thing = thing_get(i);
+      cctrl = creature_control_get_from_thing(thing);
+      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+      {
+        ERRORLOG("Jump to invalid creature detected");
+        break;
+      }
+      i = cctrl->thing_idx;
+      // Thing list loop body
+      if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
+      {
+          if ( creature_can_navigate_to(wanderer, &thing->mappos, 0) )
+            navigable_targets++;
+      }
+      // Thing list loop body ends
+      k++;
+      if (k > CREATURES_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping creatures list");
+        break;
+      }
+    }
+    // Select random target
+    if (navigable_targets < 1)
+    {
+        WARNLOG("No player %d creatures found to wander to",(int)dngn_id);
+        return false;
+    }
+    target_match = ACTION_RANDOM(navigable_targets);
+    k = 0;
+    i = dungeon->worker_list_start;
+    while (i != 0)
+    {
+      thing = thing_get(i);
+      cctrl = creature_control_get_from_thing(thing);
+      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+      {
+        ERRORLOG("Jump to invalid creature detected");
+        break;
+      }
+      i = cctrl->thing_idx;
+      // Thing list loop body
+      if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
+      {
+          if ( creature_can_navigate_to(wanderer, &thing->mappos, 0) )
+          {
+              if (target_match > 0)
+              {
+                  target_match--;
+              } else
+              if ( setup_person_move_to_position(wanderer, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0) )
+              {
+                  thing->field_8 = 34;
+                  return true;
+              }
+          }
+      }
+      // Thing list loop body ends
+      k++;
+      if (k > CREATURES_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping creatures list");
+        break;
+      }
+    }
+    WARNLOG("Internal - couldn't wander to player %d creature",(int)dngn_id);
+    return false;
+}
+
 short good_attack_room(struct Thing *thing)
 {
   return _DK_good_attack_room(thing);
@@ -1838,11 +2067,167 @@ short good_back_at_start(struct Thing *thing)
   return _DK_good_back_at_start(thing);
 }
 
+TbBool good_setup_wander_to_dungeon_heart(struct Thing *thing, long dngn_idx)
+{
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    struct Thing *heartng;
+    dungeon = get_dungeon(dngn_idx);
+    if (dungeon_invalid(dungeon) || (thing->owner == dngn_idx))
+    {
+        ERRORLOG("Creature breed %d tried to wander to invalid player (%d) heart", (int)thing->model, (int)dngn_idx);
+        return false;
+    }
+    player = get_player(dngn_idx);
+    if (((player->field_0 & 0x01) == 0) && (dungeon->dnheart_idx < 1))
+    {
+        WARNLOG("Creature breed %d tried to wander to inactive player (%d) heart", (int)thing->model, (int)dngn_idx);
+        return false;
+    }
+    heartng = thing_get(dungeon->dnheart_idx);
+    set_creature_object_combat(thing, heartng);
+    return true;
+}
+
 short good_doing_nothing(struct Thing *thing)
 {
-    SYNCDBG(18,"Starting");
-  // hangs if out of things
-  return _DK_good_doing_nothing(thing);
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct PlayerInfo *player;
+    long nturns;
+    long i;
+    // hangs if out of things
+    //return _DK_good_doing_nothing(thing);
+    SYNCDBG(8,"Starting");
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control; no action");
+        return false;
+    }
+    nturns = game.play_gameturn - cctrl->long_9A;
+    if (nturns <= 1)
+      return true;
+    if (cctrl->field_5 > (long)game.play_gameturn)
+    {
+      if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
+        thing->field_8 = 34;
+      return true;
+    }
+    i = cctrl->sbyte_89;
+    if (i != -1)
+    {
+      player = get_player(i);
+      if (player_invalid(player))
+      {
+          ERRORLOG("Invalid target player - reset");
+          cctrl->sbyte_89 = -1;
+          return false;
+      }
+      if (player->victory_state != 2)
+      {
+        nturns = game.play_gameturn - cctrl->long_91;
+        if (nturns <= 400)
+        {
+          if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
+          {
+            thing->field_8 = 34;
+            return false;
+          }
+        } else
+        {
+          if (!creature_can_get_to_dungeon(thing,i))
+          {
+            cctrl->sbyte_89 = -1;
+          }
+        }
+      } else
+      {
+        cctrl->sbyte_89 = -1;
+      }
+    }
+    i = cctrl->sbyte_89;
+    if (i == -1)
+    {
+      nturns = game.play_gameturn - cctrl->long_91;
+      if (nturns > 400)
+      {
+        cctrl->long_91 = game.play_gameturn;
+        cctrl->byte_8C = 1;
+      }
+      nturns = game.play_gameturn - cctrl->field_8D;
+      if (nturns > 64)
+      {
+        cctrl->field_8D = game.play_gameturn;
+        cctrl->sbyte_89 = good_find_enemy_dungeon(thing);
+      }
+      i = cctrl->sbyte_89;
+      if (i == -1)
+      {
+        SYNCDBG(4,"No enemy dungeon to perform task");
+        if ( creature_choose_random_destination_on_valid_adjacent_slab(thing) )
+        {
+          thing->field_8 = 34;
+          return true;
+        }
+        cctrl->field_5 = game.play_gameturn + 16;
+      }
+      return true;
+    }
+    SYNCDBG(8,"Performing task %d",(int)cctrl->field_4);
+    switch (cctrl->field_4)
+    {
+    case 1:
+        if (good_setup_attack_rooms(thing, i))
+        {
+            return true;
+        }
+        WARNLOG("Can't attack player %d rooms, switching to attack heart", (int)i);
+        cctrl->field_4 = 3;
+        return false;
+    case 3:
+        if (good_setup_wander_to_dungeon_heart(thing, i))
+        {
+            return true;
+        }
+        ERRORLOG("Cannot wander to player %d heart", (int)i);
+        return false;
+    case 4:
+        crstat = creature_stats_get_from_thing(thing);
+        if (thing->long_13 < crstat->gold_hold)
+        {
+            if (good_setup_loot_treasure_room(thing, i))
+                return true;
+            WARNLOG("Can't loot player %d treasury, switching to attack heart", (int)i);
+            cctrl->field_4 = 3;
+        } else
+        {
+            if (good_setup_wander_to_exit(thing))
+                return true;
+            WARNLOG("Can't wander to exit after looting player %d treasury, switching to attack heart", (int)i);
+            cctrl->field_4 = 3;
+        }
+        return false;
+    case 2:
+    case 0:
+    default:
+        if (ACTION_RANDOM(2) == 1)
+        {
+          if (good_setup_wander_to_creature(thing, cctrl->sbyte_89))
+          {
+              //SYNCDBG(7,"Finished - wander to creature");
+              return true;
+          }
+        }
+        if (good_setup_wander_to_imp(thing, cctrl->sbyte_89))
+        {
+            //SYNCDBG(7,"Finished - wander to worker");
+            return true;
+        }
+        WARNLOG("Can't attack player %d creature, switching to attack heart", (int)cctrl->sbyte_89);
+        cctrl->field_4 = 3;
+        return false;
+    }
 }
 
 short good_drops_gold(struct Thing *thing)
@@ -1872,7 +2257,17 @@ short guarding(struct Thing *thing)
 
 short imp_arrives_at_convert_dungeon(struct Thing *thing)
 {
-  return _DK_imp_arrives_at_convert_dungeon(thing);
+    //return _DK_imp_arrives_at_convert_dungeon(thing);
+    if (check_place_to_convert_excluding(thing,
+           map_to_slab[thing->mappos.x.stl.num],
+           map_to_slab[thing->mappos.y.stl.num]) )
+    {
+      internal_set_thing_state(thing, 74);
+    } else
+    {
+      internal_set_thing_state(thing, 8);
+    }
+    return 1;
 }
 
 short imp_arrives_at_dig_or_mine(struct Thing *thing)
@@ -1882,7 +2277,17 @@ short imp_arrives_at_dig_or_mine(struct Thing *thing)
 
 short imp_arrives_at_improve_dungeon(struct Thing *thing)
 {
-  return _DK_imp_arrives_at_improve_dungeon(thing);
+  //return _DK_imp_arrives_at_improve_dungeon(thing);
+  if ( check_place_to_pretty_excluding(thing,
+          map_to_slab[thing->mappos.x.stl.num],
+          map_to_slab[thing->mappos.y.stl.num]) )
+  {
+    internal_set_thing_state(thing, 10);
+  } else
+  {
+    internal_set_thing_state(thing, 8);
+  }
+  return 1;
 }
 
 short imp_arrives_at_reinforce(struct Thing *thing)
@@ -1902,12 +2307,14 @@ short imp_converts_dungeon(struct Thing *thing)
 
 short imp_digs_mines(struct Thing *thing)
 {
-  return _DK_imp_digs_mines(thing);
+    SYNCDBG(19,"Starting");
+    return _DK_imp_digs_mines(thing);
 }
 
 short imp_doing_nothing(struct Thing *thing)
 {
-  return _DK_imp_doing_nothing(thing);
+    SYNCDBG(19,"Starting");
+    return _DK_imp_doing_nothing(thing);
 }
 
 short imp_drops_gold(struct Thing *thing)
@@ -1920,11 +2327,6 @@ short imp_improves_dungeon(struct Thing *thing)
   return _DK_imp_improves_dungeon(thing);
 }
 
-long check_place_to_convert_excluding(struct Thing *thing, long a2, long a3)
-{
-  return _DK_check_place_to_convert_excluding(thing, a2, a3);
-}
-
 long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3)
 {
   return _DK_imp_will_soon_be_working_at_excluding(thing, a2, a3);
@@ -1933,11 +2335,6 @@ long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3
 long check_out_unconverted_spiral(struct Thing *thing, long a2)
 {
   return _DK_check_out_unconverted_spiral(thing, a2);
-}
-
-long check_place_to_pretty_excluding(struct Thing *thing, long a2, long a3)
-{
-  return _DK_check_place_to_pretty_excluding(thing, a2, a3);
 }
 
 long check_out_unprettied_spiral(struct Thing *thing, long a2)
@@ -1954,12 +2351,14 @@ TbBool check_out_unconverted_place(struct Thing *thing)
   stl_x = 3*slb_x + 1;
   stl_y = 3*slb_y + 1;
   if ( check_place_to_convert_excluding(thing, slb_x, slb_y)
-    && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y)
-    && setup_person_move_to_position(thing, stl_x, stl_y, 0) )
+    && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y) )
   {
-    thing->field_8 = 73;
-    return true;
-  } else
+      if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
+      {
+          thing->field_8 = 73;
+          return true;
+      }
+  }
   if ( check_out_unconverted_spiral(thing, 1) )
   {
     return true;
@@ -1976,12 +2375,14 @@ long check_out_unprettied_place(struct Thing *thing)
   stl_x = 3*slb_x + 1;
   stl_y = 3*slb_y + 1;
   if ( check_place_to_pretty_excluding(thing, slb_x, slb_y)
-    && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y)
-    && setup_person_move_to_position(thing, stl_x, stl_y, 0) )
+    && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y) )
   {
-    thing->field_8 = 9;
-    return true;
-  } else
+      if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
+      {
+          thing->field_8 = 9;
+          return true;
+      }
+  }
   if ( check_out_unprettied_spiral(thing, 1) )
   {
     return true;
@@ -2248,10 +2649,6 @@ struct Room* find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing
 {
   return _DK_find_nearest_room_for_thing_with_spare_capacity(thing, a2, a3, a4, a5);
 }
-long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3)
-{
-  return _DK_setup_random_head_for_room(thing, room, a3);
-}
 
 struct Room* find_room_with_spare_capacity(unsigned char a1, signed char a2, long a3)
 {
@@ -2265,44 +2662,44 @@ long check_out_imp_last_did(struct Thing *thing)
   struct Room *room;
   //return _DK_check_out_imp_last_did(thing);
   cctrl = creature_control_get_from_thing(thing);
-  //SYNCDBG(9,"Starting case %d",(int)cctrl->field_8D[7]);
-  switch (cctrl->field_8D[7])
+  SYNCDBG(19,"Starting case %d",(int)cctrl->byte_94);
+  switch (cctrl->byte_94)
   {
   case 0:
       return false;
   case 1:
       if ( check_out_undug_place(thing) || check_out_undug_area(thing) )
       {
-        cctrl->field_8D[7] = 1;
+        cctrl->byte_94 = 1;
         return true;
       }
       if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
       {
-        cctrl->field_8D[7] = 2;
+        cctrl->byte_94 = 2;
         return true;
       }
       imp_stack_update(thing);
       if ( check_out_unprettied_or_unconverted_area(thing) )
       {
-        cctrl->field_8D[7] = 2;
+        cctrl->byte_94 = 2;
         return true;
       }
       break;
   case 2:
       if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
       {
-        cctrl->field_8D[7] = 2;
+        cctrl->byte_94 = 2;
         return true;
       }
       imp_stack_update(thing);
       if ( check_out_unprettied_or_unconverted_area(thing) )
       {
-        cctrl->field_8D[7] = 2;
+        cctrl->byte_94 = 2;
         return true;
       }
       if ( check_out_undug_area(thing) )
       {
-        cctrl->field_8D[7] = 1;
+        cctrl->byte_94 = 1;
         return true;
       }
       break;
@@ -2313,12 +2710,12 @@ long check_out_imp_last_did(struct Thing *thing)
         break;
       if ( check_out_unreinforced_place(thing) )
       {
-        cctrl->field_8D[7] = 3;
+        cctrl->byte_94 = 3;
         return true;
       }
       if ( check_out_unreinforced_area(thing) )
       {
-        cctrl->field_8D[7] = 3;
+        cctrl->byte_94 = 3;
         return true;
       }
       break;
@@ -2344,34 +2741,33 @@ long check_out_imp_last_did(struct Thing *thing)
   case 9:
       if ( check_out_unreinforced_place(thing) )
       {
-        cctrl->field_8D[7] = 9;
+        cctrl->byte_94 = 9;
         return true;
       }
       if ( check_out_unreinforced_area(thing) )
       {
-        cctrl->field_8D[7] = 9;
+        cctrl->byte_94 = 9;
         return true;
       }
       break;
   default:
       break;
   }
-  cctrl->field_8D[7] = 0;
+  cctrl->byte_94 = 0;
   return false;
 }
 
 short imp_last_did_job(struct Thing *thing)
 {
-  //return _DK_imp_last_did_job(thing);
-  SYNCDBG(18,"Starting");
-  if (check_out_imp_last_did(thing))
-  {
-    return true;
-  } else
-  {
-    set_start_state(thing);
-    return false;
-  }
+    //return _DK_imp_last_did_job(thing);
+    if (check_out_imp_last_did(thing))
+    {
+        return true;
+    } else
+    {
+        set_start_state(thing);
+        return false;
+    }
 }
 
 short imp_picks_up_gold_pile(struct Thing *thing)
@@ -2409,7 +2805,6 @@ short kinky_torturing(struct Thing *thing)
       {
         process_kinky_function(thing);
         process_torture_visuals(thing, room, 110);
-
         return true;
       }
   set_start_state(thing);
@@ -2464,11 +2859,6 @@ long move_check_persuade(struct Thing *thing)
 long move_check_wait_at_door_for_wage(struct Thing *thing)
 {
   return _DK_move_check_wait_at_door_for_wage(thing);
-}
-
-short move_to_position(struct Thing *thing)
-{
-  return _DK_move_to_position(thing);
 }
 
 char new_slab_tunneller_check_for_breaches(struct Thing *thing)
@@ -2723,7 +3113,8 @@ short torturing(struct Thing *thing)
 
 short training(struct Thing *thing)
 {
-  return _DK_training(thing);
+    SYNCDBG(18,"Starting");
+    return _DK_training(thing);
 }
 
 short tunneller_doing_nothing(struct Thing *thing)

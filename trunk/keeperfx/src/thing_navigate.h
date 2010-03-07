@@ -46,6 +46,13 @@ TbBool creature_can_navigate_to_with_storage(struct Thing *crtng, struct Coord3d
 TbBool creature_can_get_to_dungeon(struct Thing *thing, long plyr_idx);
 struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng);
 
+long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, short a3, long a4, long a5, unsigned char a6);
+short move_to_position(struct Thing *thing);
+long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos);
+long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos);
+long creature_turn_to_face_angle(struct Thing *thing, long a2);
+void creature_set_speed(struct Thing *thing, short speed);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

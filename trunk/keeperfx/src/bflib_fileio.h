@@ -65,7 +65,7 @@ int LbFilePosition(TbFileHandle handle);
 TbFileHandle LbFileOpen(const char *fname, unsigned char accmode);
 TbBool LbFileEof(TbFileHandle handle);
 int LbFileClose(TbFileHandle handle);
-int LbFileSeek(TbFileHandle handle, unsigned long offset, unsigned char origin);
+int LbFileSeek(TbFileHandle handle, long offset, unsigned char origin);
 int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);
 long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long len);
 long LbFileLength(const char *fname);

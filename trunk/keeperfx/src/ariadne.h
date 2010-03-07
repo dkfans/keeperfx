@@ -29,6 +29,7 @@ extern "C" {
 typedef unsigned char AriadneReturn;
 /******************************************************************************/
 AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long a3, unsigned char a4);
+AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long a4, unsigned char a5);
 void path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size);
 /******************************************************************************/
 #ifdef __cplusplus

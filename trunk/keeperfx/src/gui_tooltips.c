@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "gui_tooltips.h"
 #include "globals.h"
+#include <stdarg.h>
 #include "bflib_memory.h"
 #include "bflib_guibtns.h"
 #include "bflib_sprfnt.h"

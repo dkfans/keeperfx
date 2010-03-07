@@ -267,29 +267,42 @@ TbBool LbFileEof(TbFileHandle handle)
   return 0;
 }
 
-//Changes position in opened file
-int LbFileSeek(TbFileHandle handle, unsigned long offset, unsigned char origin)
-//int a1, int a2, unsigned __int8 a3)
+/** Changes position in opened file.
+ *
+ * @param handle
+ * @param offset
+ * @param origin
+ * @return Returns new file position, or -1 on error.
+ */
+int LbFileSeek(TbFileHandle handle, long offset, unsigned char origin)
 {
-  int rc = -1;
-  if ( origin <= SEEK_SET )
+  int rc;
+  switch (origin)
   {
-      if ( origin != SEEK_SET )
-        return rc;
+  case Lb_FILE_SEEK_BEGINNING:
       rc = lseek(handle, offset, SEEK_SET);
-  } else
-  if ( origin <= SEEK_CUR )
-  {
+      break;
+  case Lb_FILE_SEEK_CURRENT:
       rc = lseek(handle, offset, SEEK_CUR);
-  } else
-  if ( origin == SEEK_END )
-  {
+      break;
+  case Lb_FILE_SEEK_END:
       rc = lseek(handle, offset, SEEK_END);
+      break;
+  default:
+      rc = -1;
+      break;
   }
   return rc;
 }
 
-//Reads from opened disk file. Returns -1 on error
+/**
+ * Reads from previously opened disk file.
+ *
+ * @param handle
+ * @param buffer
+ * @param len
+ * @return Gives amount of bytes read, or -1 on error.
+ */
 int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
 {
   int result;

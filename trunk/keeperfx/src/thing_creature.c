@@ -593,7 +593,7 @@ long process_creature_state(struct Thing *thing)
   }
   if ((cctrl->field_3 & 0x10) == 0)
   {
-    if ((cctrl->field_1D0) && ((cctrl->flgfield_0 & 0x0200) == 0))
+    if ((cctrl->field_1D0) && ((cctrl->flgfield_1 & 0x02) == 0))
     {
         if ( can_change_from_state_to(thing, thing->field_7, 86) )
         {
@@ -614,9 +614,9 @@ long process_creature_state(struct Thing *thing)
     if (!creature_is_group_leader(thing))
       process_obey_leader(thing);
   }
-  if ((thing->field_7 < 1) || (thing->field_7 >= 145))
+  if ((thing->field_7 < 1) || (thing->field_7 >= CREATURE_STATES_COUNT))
   {
-    ERRORLOG("Creature has illegal state[1], T%d, S%d, TCS%d", (int)thing->index, (int)thing->field_7, (int)thing->field_8);
+    ERRORLOG("Creature has illegal state[1], T=%d, M=%d, S=%d, TCS=%d", (int)thing->index, (int)thing->model, (int)thing->field_7, (int)thing->field_8);
     set_start_state(thing);
   }
   if (((thing->field_25 & 0x20) == 0) && (thing->model != 23))
@@ -659,7 +659,7 @@ long process_creature_state(struct Thing *thing)
   // Enable this to know which function hangs on update_creature.
   //TODO: rewrite state subfunctions so they won't hang
   SYNCDBG(18,"Executing state %d",(int)thing->field_7);
-  stati = get_thing_state_info(thing);
+  stati = get_thing_state7_info(thing);
   if (stati->ofsfield_0 == NULL)
     return false;
   if (stati->ofsfield_0(thing) != -1)
@@ -914,8 +914,8 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
   clear_creature_instance(thing);
   thing->field_7 = 67;
   cctrl = creature_control_get_from_thing(thing);
-  cctrl->flgfield_0 |= 0x0400;
-  cctrl->flgfield_0 |= 0x0200;
+  cctrl->flgfield_1 |= 0x04;
+  cctrl->flgfield_1 |= 0x02;
   cctrl->field_280 = 2000;
   thing->health = 1;
   return true;

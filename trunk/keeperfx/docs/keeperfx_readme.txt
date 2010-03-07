@@ -223,6 +223,14 @@ New and modified level script commands:
  ADD_GOLD_TO_PLAYER
   Allows to add some off-map gold as a reward to a player.
   Example: ADD_GOLD_TO_PLAYER(PLAYER0,5000)
+ BONUS_LEVEL_TIME
+  Sets time to be displayed on "bonus timer" - on-screen
+  time field, used mostly for bonus levels.
+  Like in original DK, this command accepts one parameter
+  - number of game turns to start the countdown from.
+  But now this command can be used to show bonus timer in
+  any level. Setting game turns to 0 will hide the timer.
+  Example: BONUS_LEVEL_TIME(12000)
  DISPLAY_OBJECTIVE
   The 2nd parameter can now have the following values:
   - 'PLAYERx' - zoom to player's dungeon heart
@@ -293,8 +301,10 @@ Changelog:
 
 Version: 0.36
   Rewritten some of room sound playing
+  Modified saved games format (old saves won't work anymore)
   Saved game can now be loaded even if loading campaign file fails
   Improved handling of player index errors
+  Improved BONUS_LEVEL_TIME() script command
 
 Version: 0.35
   Rewritten shot throwing code (for both melee combat and spells)

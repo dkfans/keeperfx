@@ -19,8 +19,6 @@
 #ifndef DK_KEEPERFX_H
 #define DK_KEEPERFX_H
 
-#include <windows.h>
-
 #include "globals.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
@@ -598,10 +596,9 @@ struct LevelScript { // sizeof = 5884
 
 // only one such struct exists at .data:005F0310
 // it ends at 00741B35
-struct Game { // (sizeof=0x151825)
-    short load_restart_level;
-    unsigned short version_major; // changed from int
-    unsigned short version_minor; // changed from int
+struct Game { // sizeof=0x151825
+    // This was a level and version before, but now saved games have another versioning system.
+    unsigned short unused_version[3];
     LevelNumber continue_level_number;
     unsigned char system_flags;
 char align_B;
@@ -610,7 +607,7 @@ char numfield_D;
     unsigned char flags_font;
     unsigned char flags_gui;
     unsigned char eastegg01_cntr;
-unsigned char flags_cd;
+    unsigned char flags_cd;
     unsigned char eastegg02_cntr;
 char audiotrack;
 char numfield_14;
@@ -849,8 +846,8 @@ char field_1517F6;
     char comp_player_creatrsonly;
     char creatures_tend_1;
     char creatures_tend_2;
-short field_1517FD;
-short field_1517FF;
+    short hand_over_subtile_x;
+    short hand_over_subtile_y;
 int field_151801;
 int field_151805;
 int field_151809;
@@ -888,11 +885,7 @@ extern const struct Around around[];
 extern struct StartupParameters start_params;
 //Functions - exported by the DLL
 
-DLLIMPORT int __stdcall _DK_WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd);
-DLLIMPORT int __stdcall _DK_LbBullfrogMain(unsigned short argc,char **argv);
-DLLIMPORT int __stdcall _DK_game_loop(void);
 DLLIMPORT int __stdcall _DK_LbErrorLogSetup(char *directory, char *filename, unsigned char flag);
-DLLIMPORT int __stdcall _DK_SyncLog(char *Format, ...);
 DLLIMPORT void _DK_set_cpu_mode(int mode);
 DLLIMPORT int _DK_setup_heaps(void);
 DLLIMPORT void _DK_input_eastegg(void);
@@ -908,7 +901,6 @@ DLLIMPORT char *_DK_mdlf_default(struct TbLoadFiles *);
 
 // Global variables migration between DLL and the program
 
-DLLIMPORT extern HINSTANCE _DK_hInstance;
 DLLIMPORT extern struct Game _DK_game;
 #define game _DK_game
 DLLIMPORT extern unsigned char *_DK_blue_palette;
@@ -1243,7 +1235,6 @@ void remove_events_thing_is_attached_to(struct Thing *thing);
 unsigned long steal_hero(struct PlayerInfo *player, struct Coord3d *pos);
 void make_safe(struct PlayerInfo *player);
 void add_creature_to_sacrifice_list(long owner, long model, long explevel);
-long creature_turn_to_face_angle(struct Thing *thing, long a2);
 
 struct ActionPoint *action_point_get(long apt_idx);
 struct ActionPoint *action_point_get_by_number(long apt_num);
@@ -1498,7 +1489,7 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
 void draw_jonty_mapwho(struct JontySpr *jspr);
 struct Thing *find_base_thing_on_mapwho(unsigned char oclass, unsigned short okind, unsigned short x, unsigned short y);
 void draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);
-short mouse_is_over_small_map(long x, long y);
+TbBool mouse_is_over_small_map(long x, long y);
 void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 void update_breed_activities(void);
 void set_level_objective(char *msg_text);

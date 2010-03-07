@@ -52,17 +52,19 @@
 #include "front_credits.h"
 #include "lvl_filesdk1.h"
 #include "player_instances.h"
+
+#include <windows.h>
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void __cdecl _DK_frontnet_service_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_session_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_start_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_modem_update(void);
-DLLIMPORT void __cdecl _DK_frontnet_serial_update(void);
+DLLIMPORT void _DK_frontnet_service_update(void);
+DLLIMPORT void _DK_frontnet_session_update(void);
+DLLIMPORT void _DK_frontnet_start_update(void);
+DLLIMPORT void _DK_frontnet_modem_update(void);
+DLLIMPORT void _DK_frontnet_serial_update(void);
 //DLLIMPORT void * __cdecl _DK_frontnet_session_join(GuiButton); (may be incorrect)
 DLLIMPORT void _DK_add_message(long plyr_idx, char *msg);
 DLLIMPORT unsigned long _DK_validate_versions(void);
@@ -2062,21 +2064,25 @@ void reset_scroll_window(struct GuiMenu *gmnu)
 
 void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
 {
-  long slot_idx;
-  char *text;
-  for (slot_idx=0; slot_idx < SAVE_SLOTS_COUNT; slot_idx++)
-  {
-    if (game_catalg[slot_idx].used)
-      text = game_catalg[slot_idx].textname;
-    else
-      text = gui_strings[342]; // UNUSED
-    strncpy(input_string[slot_idx], text, SAVE_TEXTNAME_LEN);
-  }
+    struct CatalogueEntry *centry;
+    long slot_num;
+    char *text;
+    SYNCDBG(6,"Starting");
+    for (slot_num=0; slot_num < SAVE_SLOTS_COUNT; slot_num++)
+    {
+        centry = &game_catalg[slot_num];
+        if ((centry->flags & CEF_InUse) != 0)
+          text = centry->textname;
+        else
+          text = gui_strings[342]; // UNUSED
+        strncpy(input_string[slot_num], text, SAVE_TEXTNAME_LEN);
+    }
 }
 
 void init_load_menu(struct GuiMenu *gmnu)
 {
   struct PlayerInfo *player;
+  SYNCDBG(6,"Starting");
   player = get_my_player();
   set_players_packet_action(player, 82, 1, 1, 0, 0);
   load_game_save_catalogue();
@@ -2086,6 +2092,7 @@ void init_load_menu(struct GuiMenu *gmnu)
 void init_save_menu(struct GuiMenu *gmnu)
 {
   struct PlayerInfo *player;
+  SYNCDBG(6,"Starting");
   player = get_my_player();
   set_players_packet_action(player, 82, 1, 1, 0, 0);
   load_game_save_catalogue();
@@ -2297,12 +2304,14 @@ void maintain_ally(struct GuiButton *gbtn)
 
 void gui_load_game_maintain(struct GuiButton *gbtn)
 {
-  long slot_idx;
+  long slot_num;
+  struct CatalogueEntry *centry;
   if (gbtn != NULL)
-    slot_idx = gbtn->field_1B;
+      slot_num = gbtn->field_1B;
   else
-    slot_idx = 0;
-  set_flag_byte(&gbtn->field_0, 0x08, save_game_catalogue[slot_idx].used);
+      slot_num = 0;
+  centry = &save_game_catalogue[slot_num];
+  set_flag_byte(&gbtn->field_0, 0x08, ((centry->flags & CEF_InUse) != 0));
 }
 
 void gui_video_cluedo_maintain(struct GuiButton *gbtn)
@@ -3167,27 +3176,23 @@ void gui_area_ally(struct GuiButton *gbtn)
 
 void gui_save_game(struct GuiButton *gbtn)
 {
-  struct CatalogueEntry *catentry;
   struct PlayerInfo *player;
-  long slot_idx;
+  long slot_num;
   player = get_my_player();
-  if (stricmp((char *)gbtn->field_33, gui_strings[342]) != 0) // "UNUSED"
+  if (strcasecmp((char *)gbtn->field_33, gui_strings[342]) != 0) // "UNUSED"
   {
-    slot_idx = gbtn->field_1B%SAVE_SLOTS_COUNT;
-    catentry = &save_game_catalogue[slot_idx];
-    strcpy(catentry->textname, (char *)gbtn->field_33);
-    catentry->used = 1;
-    if (save_game(slot_idx))
-    {
-      output_message(103, 0, 1);
-    } else
-    {
-      ERRORLOG("Error in save!");
-      create_error_box(536);
-    }
+      slot_num = gbtn->field_1B%SAVE_SLOTS_COUNT;
+      fill_game_catalogue_entry(slot_num,(char *)gbtn->field_33);
+      if (save_game(slot_num))
+      {
+        output_message(103, 0, 1);
+      } else
+      {
+        ERRORLOG("Error in save!");
+        create_error_box(536);
+      }
   }
-  set_players_packet_action(player, 22, 0, 0, 0, 0);
-
+  set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
 }
 
 void gui_video_shadows(struct GuiButton *gbtn)
@@ -4456,7 +4461,7 @@ int frontend_load_game_button_to_index(struct GuiButton *gbtn)
       if (k >= SAVE_SLOTS_COUNT)
         return -1;
       centry = &save_game_catalogue[k];
-    } while (!centry->used);
+    } while ((centry->flags & CEF_InUse) == 0);
   }
   return k;
 }
@@ -7168,13 +7173,13 @@ void frontnet_session_update(void)
   static long last_enum_sessions = 0;
   long i;
 
-  if (timeGetTime() >= last_enum_sessions)
+  if (LbTimerClock() >= last_enum_sessions)
   {
     net_number_of_sessions = 0;
     memset(net_session, 0, sizeof(net_session));
     if ( LbNetwork_EnumerateSessions(enum_sessions_callback, 0) )
       ERRORLOG("LbNetwork_EnumerateSessions() failed");
-    last_enum_sessions = timeGetTime();
+    last_enum_sessions = LbTimerClock();
 
     if (net_number_of_sessions == 0)
     {
@@ -7214,7 +7219,7 @@ void frontnet_session_update(void)
   {
     net_number_of_enum_players = 0;
   } else
-  if (timeGetTime() >= last_enum_players)
+  if (LbTimerClock() >= last_enum_players)
   {
     net_number_of_enum_players = 0;
     memset(net_player, 0, sizeof(net_player));
@@ -7224,7 +7229,7 @@ void frontnet_session_update(void)
       net_session_index_active_id = -1;
       return;
     }
-    last_enum_players = timeGetTime();
+    last_enum_players = LbTimerClock();
   }
 
   if (net_number_of_enum_players == 0)
