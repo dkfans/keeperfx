@@ -1533,9 +1533,9 @@
  0001:000D2BD0       check_out_imp_last_did
  0001:000D1BB0       check_out_unprettied_spiral
  0001:00088100       check_place_to_pretty_excluding
+ 0001:000881C0       check_place_to_convert_excluding
  0001:000D1780       check_out_unconverted_spiral
  0001:0008C900       imp_will_soon_be_working_at_excluding
- 0001:000881C0       check_place_to_convert_excluding
  0001:000D2170       check_out_undug_place
  0001:000D2490       check_out_undug_area
  0001:000B1D10       imp_stack_update
@@ -1559,6 +1559,8 @@
  0001:00011970       apply_spell_effect_to_players_creatures
  0001:000A94D0       kill_all_players_chickens
  0001:0001D320       force_complete_current_research
+ 0001:0007F2C0       creature_turn_to_face
+ 0001:0007F370       creature_turn_to_face_backwards
  0001:0007F430       creature_turn_to_face_angle
  0001:0001A110       anger_set_creature_anger
  0001:00083710       check_for_first_person_barrack_party
@@ -1617,4 +1619,9 @@
  0001:0007F7A0       ariadne_initialise_creature_route
  0001:0006E050       path_init8_wide
  0001:000C2CA0       creature_can_navigate_to
+ 0001:00065B70       event_create_event_or_update_nearby_existing_event
+ 0001:000B69C0       find_nearest_room_for_thing_excluding_two_types
+ 0001:000539E0       good_setup_loot_treasure_room
+ 0001:000CB8F0       creature_move_to_using_gates
+ 0001:0007B860       creature_follow_route_to_using_gates
  

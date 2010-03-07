@@ -16,7 +16,6 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
 #ifndef DK_GAMESAVE_H
 #define DK_GAMESAVE_H
 
@@ -29,6 +28,7 @@ extern "C" {
 /******************************************************************************/
 #define SAVE_SLOTS_COUNT       8
 #define SAVE_TEXTNAME_LEN     15
+#define PLAYER_NAME_LENGTH    64
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -37,42 +37,53 @@ extern "C" {
 
 struct Game;
 
+enum CatalogueEntryFlags {
+    CEF_InUse       = 0x0001,
+};
+
 struct CatalogueEntry {
-    char used;
-    char  numfield_1;
+    unsigned short flags;
+    unsigned long version;
     char textname[SAVE_TEXTNAME_LEN];
+    LevelNumber level_num;
+    char campaign_name[LINEMSG_SIZE];
+    char campaign_fname[DISKPATH_SIZE];
+    char player_name[PLAYER_NAME_LENGTH];
 };
 
 enum SaveGameChunks {
-     SGC_GameOrig,
-     SGC_GameAdd,
+     SGC_InfoBlock    = 0x4F464E49, //"INFO"
+     SGC_GameOrig     = 0x53444C4F, //"OLDS"
+     SGC_GameAdd      = 0x44444147, //"GADD"
 };
 
 struct FileChunkHeader {
-    unsigned short id;
     unsigned long len;
+    unsigned long id;
+    unsigned long ver;
 };
 
 #ifdef __cplusplus
 #pragma pack()
 #endif
 /******************************************************************************/
-DLLIMPORT extern struct CatalogueEntry _DK_save_game_catalogue[SAVE_SLOTS_COUNT];
-#define save_game_catalogue _DK_save_game_catalogue
+//DLLIMPORT extern struct CatalogueEntry _DK_save_game_catalogue[SAVE_SLOTS_COUNT];
+//#define save_game_catalogue _DK_save_game_catalogue
 /******************************************************************************/
 extern long const VersionMajor;
 extern long const VersionMinor;
+extern struct CatalogueEntry save_game_catalogue[];
 /******************************************************************************/
 TbBool load_game(long slot_idx);
-short save_game(long slot_idx);
-short initialise_load_game_slots(void);
+TbBool save_game(long slot_idx);
+TbBool initialise_load_game_slots(void);
 int count_valid_saved_games(void);
-short save_version_compatible(long filesize,struct Game *header);
-short is_save_game_loadable(long slot_num);
+TbBool is_save_game_loadable(long slot_num);
 /******************************************************************************/
-short save_catalogue_slot_disable(unsigned int slot_idx);
-short save_game_save_catalogue(void);
-short load_game_save_catalogue(void);
+TbBool save_catalogue_slot_disable(unsigned int slot_idx);
+TbBool save_game_save_catalogue(void);
+TbBool load_game_save_catalogue(void);
+TbBool fill_game_catalogue_entry(long slot_num,const char *textname);
 /******************************************************************************/
 TbBool set_transfered_creature(long plyr_idx, long model, long explevel);
 void clear_transfered_creature(void);

@@ -1287,7 +1287,7 @@ void draw_netmap_players_hands(void)
             spr = &map_hand[1 + (k%8)];
         } else
         {
-            k = timeGetTime() / 150;
+            k = LbTimerClock() / 150;
             spr = &map_hand[17 + (k%4)];
         }
         x += nspck->field_6 - map_info.scrshift_x - 18;

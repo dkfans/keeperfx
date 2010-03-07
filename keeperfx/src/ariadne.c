@@ -28,6 +28,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT AriadneReturn _DK_ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long a3, unsigned char a4);
+DLLIMPORT AriadneReturn _DK_creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long a4, unsigned char a5);
 DLLIMPORT void _DK_path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -37,6 +38,12 @@ DLLIMPORT void _DK_path_init8_wide(struct Path *path, long start_x, long start_y
 AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long a3, unsigned char a4)
 {
     return _DK_ariadne_initialise_creature_route(thing, pos, a3, a4);
+}
+
+AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long a4, unsigned char a5)
+{
+    SYNCDBG(18,"Starting");
+    return _DK_creature_follow_route_to_using_gates(thing, pos1, pos2, a4, a5);
 }
 
 void path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size)

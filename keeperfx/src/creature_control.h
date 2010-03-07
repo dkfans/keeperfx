@@ -48,6 +48,12 @@ extern "C" {
 struct Thing;
 struct PlayerInfo;
 
+enum CreatureSoundTypes {
+    CrSnd_SlappedOuch  = 1,
+    CrSnd_PrisonMoan   = 4,
+    CrSnd_HandPick     = 5,
+};
+
 struct Creatures { // sizeof = 16
   unsigned short numfield_0;
   unsigned short numfield_2;
@@ -55,14 +61,17 @@ struct Creatures { // sizeof = 16
   unsigned char field_6;
   unsigned char field_7;
   unsigned char field_8;
-  unsigned char field_9[3];
-  unsigned char field_C[4];
+  short field_9;
+  short field_B;
+  short field_D;
+  unsigned char field_F[1];
 };
 
 #define SIZEOF_CreatureControl 776
 
 struct CreatureControl {
-    unsigned short flgfield_0;
+    unsigned char index;
+    unsigned char flgfield_1;
     unsigned char field_2;
     unsigned char field_3;
     unsigned char field_4;
@@ -91,24 +100,34 @@ unsigned char field_86[2];
 unsigned char field_88;
   union {
   struct {
-    unsigned char byte_89;
+    char sbyte_89;
     unsigned char byte_8A;
     unsigned char byte_8B;
     unsigned char byte_8C;
     };
     long long_89;
   };
-unsigned char field_8D[13];
+long field_8D;
+union {
+struct {
+  unsigned char byte_91;
+  unsigned char byte_92;
+  unsigned char byte_93;
+  unsigned char byte_94;
+  };
+  long long_91;
+};
+unsigned char field_95[5];
   union {
-  struct {
-    short word_9A;
-    short word_9C;
-    };
   struct {
     unsigned char byte_9A;
     unsigned char byte_9B;
     unsigned char byte_9C;
     unsigned char byte_9D;
+    };
+  struct {
+    short word_9A;
+    short word_9C;
     };
     long long_9A;
   };
@@ -144,7 +163,10 @@ long field_DE[48];
     char instances[50];
   unsigned short field_1D0;
     char field_1D2;
-  unsigned char field_1D3[21];
+unsigned char field_1D3;
+unsigned char field_1D4;
+short field_1D5[8];
+  unsigned char field_1E5[3];
     char field_1E8;
 unsigned char field_1E9[148];
 unsigned char field_27D;
@@ -155,8 +177,10 @@ unsigned char field_27F;
 unsigned char field_284[2];
     unsigned char field_286;
     unsigned char field_287;
-unsigned char field_288[22];
-unsigned char field_29E[18];
+    struct Coord3d pos_288;
+unsigned char field_28E[16];
+unsigned char field_29E[16];
+short field_2AE;
     unsigned char field_2B0;
 unsigned char field_2B1[2];
 unsigned short field_2B3[3];
@@ -303,6 +327,10 @@ struct CreatureControl *creature_control_get(long cctrl_idx);
 struct CreatureControl *creature_control_get_from_thing(const struct Thing *thing);
 TbBool creature_control_invalid(const struct CreatureControl *cctrl);
 void clear_creature_instance(struct Thing *thing);
+long i_can_allocate_free_control_structure(void);
+struct CreatureControl *allocate_free_control_structure(void);
+void delete_control_structure(struct CreatureControl *cctrl);
+void delete_all_control_structures(void);
 
 struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long a2, struct Coord3d *pos);
 TbBool disband_creatures_group(struct Thing *thing);

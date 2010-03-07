@@ -31,7 +31,7 @@ struct PlayerInfo *get_player_ptr(long plyr_idx,const char *func_name)
 {
     if ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT))
         return &game.players[plyr_idx];
-    ERRORLOG("%s: Tried to get nonexisting player %ld!",func_name,plyr_idx);
+    ERRORMSG("%s: Tried to get nonexisting player %ld!",func_name,plyr_idx);
     return INVALID_PLAYER;
 }
 

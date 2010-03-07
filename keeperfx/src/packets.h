@@ -50,6 +50,7 @@ enum TbPacketAction {
         PckA_CheatAllRooms  =   67,
         PckA_CheatAllResrchbl=  70,
         PckA_SpellCTADis    =   89,
+        PckA_DumpHeldThings =   91,
         PckA_UseSpecialBox  =   93,
         PckA_ResurrectCrtr  =   95,
         PckA_TransferCreatr =   96,

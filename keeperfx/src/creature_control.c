@@ -19,11 +19,13 @@
 #include "creature_control.h"
 #include "globals.h"
 
-#include "bflib_sound.h"
+#include "bflib_memory.h"
 #include "bflib_math.h"
-#include "keeperfx.hpp"
+#include "bflib_sound.h"
 #include "config_creature.h"
 #include "frontend.h"
+
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -94,6 +96,63 @@ struct CreatureControl *creature_control_get_from_thing(const struct Thing *thin
 TbBool creature_control_invalid(const struct CreatureControl *cctrl)
 {
   return (cctrl <= game.persons.cctrl_lookup[0]) || (cctrl == NULL);
+}
+
+long i_can_allocate_free_control_structure(void)
+{
+  struct CreatureControl *cctrl;
+  long i;
+  for (i=1; i < CREATURES_COUNT; i++)
+  {
+    cctrl = game.persons.cctrl_lookup[i];
+    if (!creature_control_invalid(cctrl))
+    {
+        if ((cctrl->flgfield_1 & 0x01) == 0)
+            return i;
+    }
+  }
+  return 0;
+}
+
+struct CreatureControl *allocate_free_control_structure(void)
+{
+  struct CreatureControl *cctrl;
+  long i;
+  for (i=1; i < CREATURES_COUNT; i++)
+  {
+    cctrl = game.persons.cctrl_lookup[i];
+    if (!creature_control_invalid(cctrl))
+    {
+        if ((cctrl->flgfield_1 & 0x01) == 0)
+        {
+            LbMemorySet(cctrl, 0, sizeof(struct CreatureControl));
+            cctrl->flgfield_1 |= 0x01;
+            cctrl->index = i;
+            return cctrl;
+        }
+    }
+  }
+  return NULL;
+}
+
+void delete_control_structure(struct CreatureControl *cctrl)
+{
+  LbMemorySet(cctrl, 0, sizeof(struct CreatureControl));
+}
+
+void delete_all_control_structures(void)
+{
+    long i;
+    struct CreatureControl *cctrl;
+    for (i=1; i < CREATURES_COUNT; i++)
+    {
+      cctrl = creature_control_get(i);
+      if (cctrl != NULL)
+      {
+        if ((cctrl->flgfield_1 & 0x01) != 0)
+          delete_control_structure(cctrl);
+      }
+    }
 }
 
 struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long breed, struct Coord3d *pos)
@@ -221,15 +280,15 @@ struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
   }
   switch (snd_idx)
   {
-    case 1:
+    case CrSnd_SlappedOuch:
       return &creature_sounds[cmodel].snd05;
     case 2:
       return &creature_sounds[cmodel].snd02;
     case 3:
       return &creature_sounds[cmodel].snd03;
-    case 4:
+    case CrSnd_PrisonMoan:
       return &creature_sounds[cmodel].snd04;
-    case 5:
+    case CrSnd_HandPick:
       return &creature_sounds[cmodel].snd07;
     case 6:
       return &creature_sounds[cmodel].snd08;
