@@ -306,6 +306,7 @@ Version: 0.3.6
   Saved game can now be loaded even if loading campaign file fails
   Improved handling of player index errors
   Improved BONUS_LEVEL_TIME() script command
+  Remade part of creature states system
 
 Version: 0.3.5
   Rewritten shot throwing code (for both melee combat and spells)
