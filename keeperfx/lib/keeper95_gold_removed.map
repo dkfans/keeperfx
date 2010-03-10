@@ -270,3 +270,5 @@
  0001:000DA3F0       LbScreenIsModeAvailable
  0001:000395F0       @get_cpu_info@4
  0001:000DC1A0       LbDataFreeAll@4
+ 0001:000C2700       set_creature_level
+ 0001:00063630       create_creature

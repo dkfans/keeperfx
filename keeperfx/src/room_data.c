@@ -351,7 +351,7 @@ void delete_room_structure(struct Room *room)
     return;
   if (room->field_0 & 0x01)
   {
-    if (game.field_14E497 != room->owner)
+    if (game.neutral_player_num != room->owner)
     {
         dungeon = get_players_num_dungeon(room->owner);
         wptr = &dungeon->room_kind[room->kind];
@@ -434,7 +434,7 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
       game.field_14E938 = room->index;
       game.field_14E93A++;
     }
-    if (owner != game.field_14E497)
+    if (owner != game.neutral_player_num)
     {
         // note that we can't get_players_num_dungeon() because players
         // may be uninitialized yet when this is called.

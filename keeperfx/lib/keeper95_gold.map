@@ -973,8 +973,6 @@
  0001:000A67E0       clear_slab_dig
  0001:00065FC0       remove_events_thing_is_attached_to
  0001:0005B740       delete_thing_structure
- 0001:000C2700       set_creature_level
- 0001:00063630       create_creature
  0001:00082CD0       make_safe
  0001:00089B70       create_effect
  0001:00060B10       init_animating_texture_maps
@@ -1624,4 +1622,21 @@
  0001:000539E0       good_setup_loot_treasure_room
  0001:000CB8F0       creature_move_to_using_gates
  0001:0007B860       creature_follow_route_to_using_gates
- 
+ 0001:00001F40       task_dig_room_passage
+ 0001:000020C0       task_dig_room
+ 0001:000023A0       task_check_room_dug
+ 0001:00002680       task_place_room
+ 0001:000028F0       task_dig_to_entrance
+ 0001:00002B80       task_dig_to_gold
+ 0001:00003080       task_dig_to_attack
+ 0001:00003450       task_magic_call_to_arms
+ 0001:00003820       task_pickup_for_attack
+ 0001:00003A30       task_move_creature_to_room
+ 0001:00003A50       task_move_creature_to_pos
+ 0001:00003CD0       task_move_creatures_to_defend
+ 0001:00003F60       task_slap_imps
+ 0001:000040F0       task_dig_to_neutral
+ 0001:00004210       task_magic_speed_up
+ 0001:00004320       task_wait_for_bridge
+ 0001:00004500       task_attack_magic
+ 0001:000048B0       task_sell_traps_and_doors

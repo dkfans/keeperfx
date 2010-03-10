@@ -24,7 +24,8 @@
 
 /******************************************************************************/
 /******************************************************************************/
-long hero_player_number = 4;
+long neutral_player_number = NEUTRAL_PLAYER;
+long hero_player_number = HERO_PLAYER;
 struct PlayerInfo bad_player;
 /******************************************************************************/
 struct PlayerInfo *get_player_ptr(long plyr_idx,const char *func_name)

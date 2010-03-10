@@ -250,7 +250,7 @@ struct Dungeon {
     unsigned char field_E9F;
     int field_EA0;
     int field_EA4;
-    long field_EA8;
+    long score;
     struct ResearchVal research[DUNGEON_RESEARCH_COUNT];
     int field_F78;
     unsigned char research_num;

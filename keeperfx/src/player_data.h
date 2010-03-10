@@ -28,6 +28,10 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define PLAYERS_COUNT           5
+/** This acts as default value for neutral_player_number */
+#define NEUTRAL_PLAYER          5
+/** This acts as default value for hero_player_number */
+#define HERO_PLAYER             4
 
 #define INVALID_PLAYER (&bad_player)
 typedef long PlayerNumber;
@@ -129,6 +133,7 @@ char field_462;
 DLLIMPORT extern unsigned char _DK_my_player_number;
 #define my_player_number _DK_my_player_number
 /******************************************************************************/
+extern long neutral_player_number;
 extern long hero_player_number;
 extern struct PlayerInfo bad_player;
 /******************************************************************************/

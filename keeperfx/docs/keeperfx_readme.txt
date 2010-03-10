@@ -299,12 +299,16 @@ New and modified level script commands:
 
 Changelog:
 
+Version: 0.37
+  Rewritten computer tasks list
+
 Version: 0.36
   Rewritten some of room sound playing
   Modified saved games format (old saves won't work anymore)
   Saved game can now be loaded even if loading campaign file fails
   Improved handling of player index errors
   Improved BONUS_LEVEL_TIME() script command
+  Remade part of creature states system
 
 Version: 0.35
   Rewritten shot throwing code (for both melee combat and spells)
