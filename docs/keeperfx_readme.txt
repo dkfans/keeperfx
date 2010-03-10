@@ -300,6 +300,9 @@ New and modified level script commands:
 
 Changelog:
 
+Version: 0.3.7
+  Rewritten computer tasks list
+
 Version: 0.3.6
   Rewritten some of room sound playing
   Modified saved games format (old saves won't work anymore)

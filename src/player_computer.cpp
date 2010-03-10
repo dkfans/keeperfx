@@ -1993,11 +1993,6 @@ long process_checks(struct Computer2 *comp)
   return _DK_process_checks(comp);
 }
 
-long process_tasks(struct Computer2 *comp)
-{
-  return _DK_process_tasks(comp);
-}
-
 short process_processes_and_task(struct Computer2 *comp)
 {
   struct ComputerProcess *process;

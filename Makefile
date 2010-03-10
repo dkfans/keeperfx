@@ -104,6 +104,7 @@ obj/lvl_script.o \
 obj/map_columns.o \
 obj/map_data.o \
 obj/packets.o \
+obj/player_comptask.o \
 obj/player_computer.o \
 obj/player_data.o \
 obj/player_instances.o \

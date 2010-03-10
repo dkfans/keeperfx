@@ -10,6 +10,24 @@
  0001:000017F0       anim_make_FLI_BRUN
  0001:000019E0       rotate_base_axis
  0001:00001DD0       process_tasks
+ 0001:00001F40       task_dig_room_passage
+ 0001:000020C0       task_dig_room
+ 0001:000023A0       task_check_room_dug
+ 0001:00002680       task_place_room
+ 0001:000028F0       task_dig_to_entrance
+ 0001:00002B80       task_dig_to_gold
+ 0001:00003080       task_dig_to_attack
+ 0001:00003450       task_magic_call_to_arms
+ 0001:00003820       task_pickup_for_attack
+ 0001:00003A30       task_move_creature_to_room
+ 0001:00003A50       task_move_creature_to_pos
+ 0001:00003CD0       task_move_creatures_to_defend
+ 0001:00003F60       task_slap_imps
+ 0001:000040F0       task_dig_to_neutral
+ 0001:00004210       task_magic_speed_up
+ 0001:00004320       task_wait_for_bridge
+ 0001:00004500       task_attack_magic
+ 0001:000048B0       task_sell_traps_and_doors
  0001:00004C80       heapmgr_init
  0001:00004CD0       heapmgr_add_item
  0001:00004E10       heapmgr_free_oldest
@@ -479,7 +497,6 @@
  0001:00062AC0       init_player_cameras
  0001:00062BB0       init_colours
  0001:00063480       create_thing
- 0001:00063630       create_creature
  0001:000639F0       create_object
  0001:00063FD0       create_effect_element
  0001:00064350       create_trap
@@ -945,7 +962,6 @@
  0001:000C2030       remove_health_from_thing_and_display_health
  0001:000C2150       get_foot_creature_has_down
  0001:000C2440       creature_increase_level
- 0001:000C2700       set_creature_level
  0001:000C28E0       init_creature_level
  0001:000C2CA0       creature_can_navigate_to
  0001:000C41E0       find_next_annoyed_creature

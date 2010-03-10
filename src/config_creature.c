@@ -545,7 +545,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     speed *= 2;
   if ((cctrl->field_AC & 0x01) != 0)
     speed /= 2;
-  if (game.field_14E497 != thing->owner)
+  if (game.neutral_player_num != thing->owner)
   {
     dungeon = get_dungeon(thing->owner);
     if (dungeon->field_1420[thing->model])

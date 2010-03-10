@@ -623,8 +623,6 @@ DLLIMPORT void _DK_sound_reinit_after_load(void);
 DLLIMPORT void _DK_restore_computer_player_after_load(void);
 DLLIMPORT void _DK_delete_thing_structure(struct Thing *thing, long a2);
 DLLIMPORT void _DK_make_safe(struct PlayerInfo *player);
-DLLIMPORT struct Thing *_DK_create_creature(struct Coord3d *pos, unsigned short a1, unsigned short a2);
-DLLIMPORT void _DK_set_creature_level(struct Thing *thing, long nlvl);
 DLLIMPORT void _DK_remove_events_thing_is_attached_to(struct Thing *thing);
 DLLIMPORT unsigned long _DK_steal_hero(struct PlayerInfo *player, struct Coord3d *pos);
 DLLIMPORT void _DK_creature_increase_level(struct Thing *thing);
@@ -1347,7 +1345,7 @@ void destroy_food(struct Thing *thing)
   long plyr_idx,i;
   plyr_idx = thing->owner;
   dungeon = get_dungeon(plyr_idx);
-  if (game.field_14E497 != plyr_idx)
+  if (game.neutral_player_num != plyr_idx)
     dungeon->lvstats.chickens_wasted++;
   efftng = create_effect(&thing->mappos, 49, plyr_idx);
   if (!thing_is_invalid(efftng))
@@ -1360,7 +1358,7 @@ void destroy_food(struct Thing *thing)
   pos.z.val = thing->mappos.z.val + 256;
   create_effect(&thing->mappos, 51, plyr_idx);
   create_effect(&pos, 7, plyr_idx);
-  if (thing->owner != game.field_14E497)
+  if (thing->owner != game.neutral_player_num)
   {
     if (thing->word_13.w0 == -1)
     {
@@ -1860,8 +1858,8 @@ TbBool player_is_friendly_or_defeated(int plyr_idx, int win_plyr_idx)
   win_player = get_player(win_plyr_idx);
   if ((player->field_0 & 0x01) != 0)
   {
-      if ((win_plyr_idx == game.field_14E497) || (plyr_idx == game.field_14E497)     || (!player_allied_with(win_player, plyr_idx))
-       || (game.field_14E497 == plyr_idx)     || (win_plyr_idx == game.field_14E497) || (!player_allied_with(player, win_plyr_idx)))
+      if ((win_plyr_idx == game.neutral_player_num) || (plyr_idx == game.neutral_player_num)     || (!player_allied_with(win_player, plyr_idx))
+       || (game.neutral_player_num == plyr_idx)     || (win_plyr_idx == game.neutral_player_num) || (!player_allied_with(player, win_plyr_idx)))
       {
         dungeon = get_dungeon(plyr_idx);
         if (dungeon->dnheart_idx > 0)
@@ -2165,7 +2163,7 @@ void init_creature_scores(void)
 void init_creature_state(struct Thing *thing)
 {
   struct Room *room;
-  if (thing->owner != game.field_14E497)
+  if (thing->owner != game.neutral_player_num)
   {
     room = get_room_thing_is_on(thing);
     if (room != NULL)
@@ -2610,10 +2608,10 @@ long update_creature_levels(struct Thing *thing)
   if ((cctrl->field_AD & 0x40) == 0)
     return 0;
   cctrl->field_AD &= 0xBF;
-  if (game.field_14E497 != thing->owner)
+  if (game.neutral_player_num != thing->owner)
   {
     dungeon = get_dungeon(thing->owner);
-    dungeon->field_EA8 -= game.creature_scores[thing->model%CREATURE_TYPES_COUNT].value[cctrl->explevel%CREATURE_MAX_LEVEL];
+    dungeon->score -= game.creature_scores[thing->model%CREATURE_TYPES_COUNT].value[cctrl->explevel%CREATURE_MAX_LEVEL];
   }
   // If a creature is not on highest level, just update the level
   if (cctrl->explevel+1 < CREATURE_MAX_LEVEL)
@@ -5344,7 +5342,7 @@ void init_keeper(void)
   load_cube_file();
   init_top_texture_to_cube_table();
   load_anim_file();
-  game.field_14E497 = 5;
+  game.neutral_player_num = neutral_player_number;
   game.field_14EA34 = 4;
   game.field_14EA38 = 200;
   game.field_14EA28 = 256;
@@ -6506,7 +6504,6 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
     struct CreatureData *crdata;
     struct Thing *crtng;
     long i;
-    //return _DK_create_creature(pos, model, owner);
     crstat = creature_stats_get(model);
     if (!i_can_allocate_free_control_structure() || !i_can_allocate_free_thing_structure(1))
     {
@@ -6569,13 +6566,13 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
     if (owner <= PLAYERS_COUNT)
       set_first_creature(crtng);
     set_start_state(crtng);
-    if (game.field_14E497 != crtng->owner)
+    if (crtng->owner != game.neutral_player_num)
     {
         struct Dungeon *dungeon;
         dungeon = get_dungeon(crtng->owner);
         if (!dungeon_invalid(dungeon))
         {
-            dungeon->field_EA8 += game.creature_scores[crtng->model].value[cctrl->explevel];
+            dungeon->score += game.creature_scores[crtng->model].value[cctrl->explevel];
         }
     }
     crdata = creature_data_get(model);
@@ -8409,7 +8406,7 @@ struct Event *event_create_event(long map_x, long map_y, unsigned char evkind, u
   struct Event *event;
   long i,k;
 //  return _DK_event_create_event(map_x, map_y, evkind, dngn_id, msg_id);
-  if (dngn_id >= game.field_14E497)
+  if (dngn_id >= game.neutral_player_num)
     return NULL;
   if (evkind >= 28)
   {
@@ -9202,9 +9199,9 @@ void process_room_surrounding_flames(struct Room *room)
   pos.y.val = 256 * (y+1) + room_spark_offset[i].delta_y + 128;
   pos.z.val = 0;
   // Create new element
-  if (room->owner == game.field_14E497)
+  if (room->owner == game.neutral_player_num)
   {
-    create_room_surrounding_flame(room,&pos,game.play_gameturn & 3,game.field_14E497);
+    create_room_surrounding_flame(room,&pos,game.play_gameturn & 3,game.neutral_player_num);
   } else
   if (room_effect_elements[room->owner] != 0)
   {
@@ -10354,7 +10351,7 @@ TbPixel get_overhead_mapblock_color(long stl_x,long stl_y,long plyr_idx,TbPixel 
     {
       pixval = 31;
     } else
-    if (owner == game.field_14E497)
+    if (owner == game.neutral_player_num)
     {
       pixval = player_room_colours[game.play_gameturn & 3];
     } else
@@ -10400,7 +10397,7 @@ TbPixel get_overhead_mapblock_color(long stl_x,long stl_y,long plyr_idx,TbPixel 
       {
         pixval = 85;
       } else
-      if (owner == game.field_14E497)
+      if (owner == game.neutral_player_num)
       {
         pixval = 4;
       } else
@@ -12858,8 +12855,8 @@ short thing_create_thing(struct InitThing *itng)
   } else
   if (itng->owner == 8)
   {
-    ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.field_14E497);
-    itng->owner = game.field_14E497;
+    ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.neutral_player_num);
+    itng->owner = game.neutral_player_num;
   }
   if (itng->owner > 5)
   {
@@ -13156,7 +13153,7 @@ void init_level(void)
   LbMemoryCopy(&game.transfered_creature,&transfer_mem,sizeof(struct CreatureStorage));
   event_initialise_all();
   battle_initialise();
-  thing = create_ambient_sound(&pos, 1, game.field_14E497);
+  thing = create_ambient_sound(&pos, 1, game.neutral_player_num);
   if (thing != NULL)
     game.field_14E906 = thing->index;
   else
