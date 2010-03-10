@@ -740,12 +740,12 @@ TbBool update_kills_counters(struct Thing *victim, struct Thing *killer, char de
     {
       return inc_player_kills_counter(killer->owner, victim);
     }
-    if ((def_plyr_idx != -1) && (game.field_14E497 != def_plyr_idx))
+    if ((def_plyr_idx != -1) && (game.neutral_player_num != def_plyr_idx))
     {
       return inc_player_kills_counter(def_plyr_idx, victim);
     }
   }
-  if ((cctrl->field_1D2 != -1) && (game.field_14E497 != cctrl->field_1D2))
+  if ((cctrl->field_1D2 != -1) && (game.neutral_player_num != cctrl->field_1D2))
   {
     return inc_player_kills_counter(cctrl->field_1D2, victim);
   }
@@ -805,11 +805,11 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
   remove_all_traces_of_combat(thing);
   if ((cctrl->field_7A & 0xFFF) != 0)
     remove_creature_from_group(thing);
-  if (thing->owner != game.field_14E497)
+  if (thing->owner != game.neutral_player_num)
     dungeon = get_players_num_dungeon(thing->owner);
-  if (!thing_is_invalid(killertng) && (killertng->owner == game.field_14E497))
+  if (!thing_is_invalid(killertng) && (killertng->owner == game.neutral_player_num))
     died_in_battle = 0;
-  if (killer_plyr_idx == game.field_14E497)
+  if (killer_plyr_idx == game.neutral_player_num)
     died_in_battle = 0;
   remove_events_thing_is_attached_to(thing);
   if (dungeon != NULL)
@@ -853,7 +853,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     }
   }
   update_kills_counters(thing, killertng, killer_plyr_idx, died_in_battle);
-  if (thing_is_invalid(killertng) || (killertng->owner == game.field_14E497) || (killer_plyr_idx == game.field_14E497) || (dungeon == NULL))
+  if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) || (killer_plyr_idx == game.neutral_player_num) || (dungeon == NULL))
   {
     if ((a4) && ((thing->field_0 & 0x20) != 0))
     {
@@ -1147,10 +1147,10 @@ void set_creature_level(struct Thing *thing, long nlvl)
         cctrl->instances[k] = 1;
     }
   }
-  if (game.field_14E497 != thing->owner)
+  if (thing->owner != game.neutral_player_num)
   {
-    dungeon = get_players_num_dungeon(thing->owner);
-    dungeon->field_EA8 += game.creature_scores[thing->model%CREATURE_TYPES_COUNT].value[cctrl->explevel%CREATURE_MAX_LEVEL];
+    dungeon = get_dungeon(thing->owner);
+    dungeon->score += game.creature_scores[thing->model%CREATURE_TYPES_COUNT].value[cctrl->explevel%CREATURE_MAX_LEVEL];
   }
 }
 

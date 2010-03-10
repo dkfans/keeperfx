@@ -1085,7 +1085,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           {
             i = ((long)game.room_stats[room->kind].cost) * 50 / 100;
             dungeon = get_players_num_dungeon(room->owner);
-            if (room->owner != game.field_14E497)
+            if (room->owner != game.neutral_player_num)
               dungeon->rooms_destroyed++;
             delete_room_slab(map_to_slab[stl_x], map_to_slab[stl_y], 0);
             set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);

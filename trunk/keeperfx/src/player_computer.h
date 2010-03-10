@@ -53,10 +53,16 @@ typedef long (*Comp_Process_Func)(struct Computer2 *comp, struct ComputerProcess
 typedef long (*Comp_Check_Func)(struct Computer2 *comp, struct ComputerCheck * check);
 typedef long (*Comp_Event_Func)(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
 typedef long (*Comp_EvntTest_Func)(struct Computer2 *comp, struct ComputerEvent *cevent);
+typedef long (*Comp_Task_Func)(struct Computer2 *comp, struct ComputerTask *ctask);
 
 struct Comp_Check_Func_ListItem {
   const char *name;
   Comp_Check_Func func;
+};
+
+struct TaskFunctions {
+  const char *name;
+  Comp_Task_Func func;
 };
 
 struct ComputerProcess { // sizeof = 72
@@ -141,10 +147,13 @@ struct ComputerEventMnemonic {
 };
 
 struct ComputerTask { // sizeof = 148
-  unsigned char field_0[140];
-  unsigned short field_8C;
-  unsigned char field_8E[5];
-  unsigned char field_93;
+    unsigned char field_0;
+    unsigned char field_1;
+    unsigned char field_2;
+    unsigned char field_3[137];
+    unsigned short field_8C;
+    unsigned char field_8E[4];
+    unsigned short next_task;
 };
 
 struct Comp2_UnkStr1 { // sizeof = 394
@@ -177,7 +186,8 @@ struct Computer2 { // sizeof = 5322
   unsigned char field_1380[128];
   unsigned char field_1400[196];
   short field_14C4;
-  long field_14C6;
+  short field_14C6;
+  short field_14C8;
 };
 
 #ifdef __cplusplus

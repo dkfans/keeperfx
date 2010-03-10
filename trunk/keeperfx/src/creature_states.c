@@ -2557,7 +2557,7 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
     {
       if ((thing->field_1 & 0x01) == 0)
       {
-        if ((thing->owner == dungeon->field_E9F) || (thing->owner == game.field_14E497))
+        if ((thing->owner == dungeon->field_E9F) || (thing->owner == game.neutral_player_num))
         {
           slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
           if (slabmap_owner(slb) == dungeon->field_E9F)

@@ -66,6 +66,8 @@ OBJS = \
 ./obj/dungeon_data.o \
 ./obj/player_data.o \
 ./obj/player_instances.o \
+./obj/player_comptask.o \
+./obj/player_computer.o \
 ./obj/lvl_filesdk1.o \
 ./obj/front_simple.o \
 ./obj/game_saves.o \
@@ -100,7 +102,6 @@ OBJS = \
 ./obj/thing_navigate.o \
 ./obj/config_magic.o \
 ./obj/frontend.o \
-./obj/player_computer.o \
 ./obj/vidmode.o \
 $(RES)
 
