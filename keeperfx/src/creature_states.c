@@ -1927,7 +1927,7 @@ TbBool good_setup_wander_to_creature(struct Thing *wanderer, long dngn_id)
     // Select random target
     if (navigable_targets < 1)
     {
-        WARNLOG("No player %d creatures found to wander to",(int)dngn_id);
+        SYNCDBG(4,"No player %d creatures found to wander to",(int)dngn_id);
         return false;
     }
     target_match = ACTION_RANDOM(navigable_targets);
@@ -2013,7 +2013,7 @@ TbBool good_setup_wander_to_imp(struct Thing *wanderer, long dngn_id)
     // Select random target
     if (navigable_targets < 1)
     {
-        WARNLOG("No player %d creatures found to wander to",(int)dngn_id);
+        SYNCDBG(4,"No player %d creatures found to wander to",(int)dngn_id);
         return false;
     }
     target_match = ACTION_RANDOM(navigable_targets);
@@ -2096,7 +2096,7 @@ short good_doing_nothing(struct Thing *thing)
     struct PlayerInfo *player;
     long nturns;
     long i;
-    // hangs if out of things
+    //TODO: hangs if out of things
     //return _DK_good_doing_nothing(thing);
     SYNCDBG(8,"Starting");
     cctrl = creature_control_get_from_thing(thing);
@@ -2120,7 +2120,7 @@ short good_doing_nothing(struct Thing *thing)
       player = get_player(i);
       if (player_invalid(player))
       {
-          ERRORLOG("Invalid target player - reset");
+          ERRORLOG("Invalid target player in creature no %ld model %ld  - reset",(long)thing->index,(long)thing->model);
           cctrl->sbyte_89 = -1;
           return false;
       }
@@ -2215,13 +2215,13 @@ short good_doing_nothing(struct Thing *thing)
         {
           if (good_setup_wander_to_creature(thing, cctrl->sbyte_89))
           {
-              //SYNCDBG(7,"Finished - wander to creature");
+              SYNCDBG(17,"Finished - wandering to creature");
               return true;
           }
         }
         if (good_setup_wander_to_imp(thing, cctrl->sbyte_89))
         {
-            //SYNCDBG(7,"Finished - wander to worker");
+            SYNCDBG(17,"Finished - wandering to worker");
             return true;
         }
         WARNLOG("Can't attack player %d creature, switching to attack heart", (int)cctrl->sbyte_89);
