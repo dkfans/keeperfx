@@ -10,6 +10,7 @@
  0001:000017F0       anim_make_FLI_BRUN
  0001:000019E0       rotate_base_axis
  0001:00001DD0       process_tasks
+ 0001:00001E60       get_free_task
  0001:00001F40       task_dig_room_passage
  0001:000020C0       task_dig_room
  0001:000023A0       task_check_room_dug
@@ -384,7 +385,12 @@
  0001:0004AE00       directly_cast_spell_on_thing
  0001:0004B310       computer_setup_build_room
  0001:0004C030       get_computer_money_less_cost
+ 0001:0004C950       computer_find_non_solid_block
+ 0001:0004CCA0       computer_able_to_use_magic
+ 0001:0004DDE0       count_creatures_for_defend_pickup
  0001:0004E340       computer_event_find_link
+ 0001:0004EDF0       check_call_to_arms
+ 0001:0004EEA0       get_task_in_progress
  0001:00050870       S3DInit
  0001:00050910       S3DSetMaximumSoundDistance
  0001:00050970       S3DCreateSoundEmitterPri

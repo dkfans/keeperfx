@@ -510,8 +510,10 @@ long count_player_creatures_of_model(long plyr_idx, long model)
     }
     cctrl = creature_control_get_from_thing(thing);
     i = cctrl->thing_idx;
+    // Per creature code
     if (thing->model == model)
       count++;
+    // Per creature code ends
     k++;
     if (k > THINGS_COUNT)
     {
