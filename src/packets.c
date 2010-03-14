@@ -46,6 +46,7 @@
 #include "thing_effects.h"
 #include "thing_objects.h"
 #include "thing_navigate.h"
+#include "creature_states.h"
 #include "dungeon_data.h"
 #include "keeperfx.hpp"
 

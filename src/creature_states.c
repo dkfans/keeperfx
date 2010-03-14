@@ -231,6 +231,9 @@ DLLIMPORT long _DK_setup_prison_move(struct Thing *thing, struct Room *room);
 DLLIMPORT long _DK_event_create_event_or_update_nearby_existing_event(long map_x, long map_y, unsigned char a3, unsigned char dngn_id, long msg_id);
 DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5);
 DLLIMPORT long _DK_good_setup_loot_treasure_room(struct Thing *thing, long dngn_id);
+DLLIMPORT unsigned char _DK_initialise_thing_state(struct Thing *thing, long a2);
+DLLIMPORT unsigned char _DK_remove_creature_from_work_room(struct Thing *thing);
+DLLIMPORT long _DK_cleanup_current_thing_state(struct Thing *thing);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *thing);
 short arrive_at_alarm(struct Thing *thing);
@@ -714,9 +717,18 @@ struct StateInfo *get_thing_state8_info(struct Thing *thing)
 
 struct StateInfo *get_thing_state_info_num(long state_id)
 {
-  if (state_id >= CREATURE_STATES_COUNT)
+  if ((state_id < 0) || (state_id >= CREATURE_STATES_COUNT))
     return &states[0];
   return &states[state_id];
+}
+
+struct StateInfo *get_creature_state_with_task_completion(struct Thing *thing)
+{
+  struct StateInfo *stati;
+  stati = get_thing_state7_info(thing);
+  if (stati->state_type == 6)
+      stati = get_thing_state8_info(thing);
+  return stati;
 }
 
 TbBool state_info_invalid(struct StateInfo *stati)
@@ -1829,7 +1841,7 @@ TbBool good_setup_wander_to_exit(struct Thing *thing)
         WARNLOG("Hero of breed %d can't move to exit gate at (%d,%d).",(int)thing->model,(int)gatetng->mappos.x.stl.num, (int)gatetng->mappos.y.stl.num);
         return false;
     }
-    thing->field_8 = 128;
+    thing->field_8 = CrSt_GoodLeaveThroughExitDoor;
     return true;
 }
 
@@ -1853,7 +1865,6 @@ TbBool good_setup_attack_rooms(struct Thing *thing, long dngn_id)
     struct Room *room;
     struct CreatureControl *cctrl;
     struct Coord3d pos;
-    //W?find_nearest_room_for_thing_excluding_two_types$n(pn$Thing$$cccuc)pn$Room$$
     room = find_nearest_room_for_thing_excluding_two_types(thing, dngn_id, 7, 1, 1);
     if (room_is_invalid(room))
     {
@@ -1875,7 +1886,7 @@ TbBool good_setup_attack_rooms(struct Thing *thing, long dngn_id)
     if (is_my_player_number(room->owner))
       output_message(15, 400, 1);
     cctrl = creature_control_get_from_thing(thing);
-    thing->field_8 = 130;
+    thing->field_8 = CrSt_GoodAttackRoom1;
     cctrl->field_80 = room->index;
     return true;
 }
@@ -1954,7 +1965,7 @@ TbBool good_setup_wander_to_creature(struct Thing *wanderer, long dngn_id)
               } else
               if ( setup_person_move_to_position(wanderer, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0) )
               {
-                  thing->field_8 = 34;
+                  thing->field_8 = CrSt_GoodDoingNothing;
                   return true;
               }
           }
@@ -2040,7 +2051,7 @@ TbBool good_setup_wander_to_imp(struct Thing *wanderer, long dngn_id)
               } else
               if ( setup_person_move_to_position(wanderer, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0) )
               {
-                  thing->field_8 = 34;
+                  thing->field_8 = CrSt_GoodDoingNothing;
                   return true;
               }
           }
@@ -2059,12 +2070,26 @@ TbBool good_setup_wander_to_imp(struct Thing *wanderer, long dngn_id)
 
 short good_attack_room(struct Thing *thing)
 {
-  return _DK_good_attack_room(thing);
+    // Debug code to find incorrect states
+    if (thing->owner != hero_player_number)
+    {
+        ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+        set_start_state(thing);
+        return false;
+    }
+    return _DK_good_attack_room(thing);
 }
 
 short good_back_at_start(struct Thing *thing)
 {
-  return _DK_good_back_at_start(thing);
+    // Debug code to find incorrect states
+    if (thing->owner != hero_player_number)
+    {
+        ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+        set_start_state(thing);
+        return false;
+    }
+    return _DK_good_back_at_start(thing);
 }
 
 TbBool good_setup_wander_to_dungeon_heart(struct Thing *thing, long dngn_idx)
@@ -2099,6 +2124,13 @@ short good_doing_nothing(struct Thing *thing)
     //TODO: hangs if out of things
     //return _DK_good_doing_nothing(thing);
     SYNCDBG(8,"Starting");
+    // Debug code to find incorrect states
+    if (thing->owner != hero_player_number)
+    {
+        ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+        set_start_state(thing);
+        return false;
+    }
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
@@ -2111,7 +2143,7 @@ short good_doing_nothing(struct Thing *thing)
     if (cctrl->field_5 > (long)game.play_gameturn)
     {
       if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
-        thing->field_8 = 34;
+        thing->field_8 = CrSt_GoodDoingNothing;
       return true;
     }
     i = cctrl->sbyte_89;
@@ -2120,7 +2152,7 @@ short good_doing_nothing(struct Thing *thing)
       player = get_player(i);
       if (player_invalid(player))
       {
-          ERRORLOG("Invalid target player in creature no %ld model %ld  - reset",(long)thing->index,(long)thing->model);
+          ERRORLOG("Invalid target player in thing no %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
           cctrl->sbyte_89 = -1;
           return false;
       }
@@ -2131,7 +2163,7 @@ short good_doing_nothing(struct Thing *thing)
         {
           if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
           {
-            thing->field_8 = 34;
+            thing->field_8 = CrSt_GoodDoingNothing;
             return false;
           }
         } else
@@ -2232,22 +2264,50 @@ short good_doing_nothing(struct Thing *thing)
 
 short good_drops_gold(struct Thing *thing)
 {
-  return _DK_good_drops_gold(thing);
+    // Debug code to find incorrect states
+    if (thing->owner != hero_player_number)
+    {
+        ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+        set_start_state(thing);
+        return false;
+    }
+    return _DK_good_drops_gold(thing);
 }
 
 short good_leave_through_exit_door(struct Thing *thing)
 {
-  return _DK_good_leave_through_exit_door(thing);
+    // Debug code to find incorrect states
+    if (thing->owner != hero_player_number)
+    {
+        ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+        set_start_state(thing);
+        return false;
+    }
+    return _DK_good_leave_through_exit_door(thing);
 }
 
 short good_returns_to_start(struct Thing *thing)
 {
-  return _DK_good_returns_to_start(thing);
+    // Debug code to find incorrect states
+    if (thing->owner != hero_player_number)
+    {
+        ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+        set_start_state(thing);
+        return false;
+    }
+    return _DK_good_returns_to_start(thing);
 }
 
 short good_wait_in_exit_door(struct Thing *thing)
 {
-  return _DK_good_wait_in_exit_door(thing);
+    // Debug code to find incorrect states
+    if (thing->owner != hero_player_number)
+    {
+        ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+        set_start_state(thing);
+        return false;
+    }
+    return _DK_good_wait_in_exit_door(thing);
 }
 
 short guarding(struct Thing *thing)
@@ -2355,7 +2415,7 @@ TbBool check_out_unconverted_place(struct Thing *thing)
   {
       if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
       {
-          thing->field_8 = 73;
+          thing->field_8 = CrSt_ImpArrivesAtConvertDungeon;
           return true;
       }
   }
@@ -2379,7 +2439,7 @@ long check_out_unprettied_place(struct Thing *thing)
   {
       if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
       {
-          thing->field_8 = 9;
+          thing->field_8 = CrSt_ImpArrivesAtImproveDungeon;
           return true;
       }
   }
@@ -2727,7 +2787,7 @@ long check_out_imp_last_did(struct Thing *thing)
       {
         if ( setup_random_head_for_room(thing, room, 0) )
         {
-          thing->field_8 = 32;
+          thing->field_8 = CrSt_AtTrainingRoom;
           cctrl->field_80 = room->index;
           return true;
         }
@@ -3131,11 +3191,119 @@ TbBool internal_set_thing_state(struct Thing *thing, long nState)
 {
   struct CreatureControl *cctrl;
   thing->field_7 = nState;
-  thing->field_1 &= 0xEF;
-  thing->field_8 = 0;
+  set_flag_byte(&thing->field_1, 0x10, false);
+  thing->field_8 = CrSt_Unused;
   cctrl = creature_control_get_from_thing(thing);
   cctrl->field_302 = 0;
   clear_creature_instance(thing);
   return true;
+}
+
+unsigned char remove_creature_from_work_room(struct Thing *thing)
+{
+    return _DK_remove_creature_from_work_room(thing);
+}
+
+TbBool initialise_thing_state(struct Thing *thing, long nState)
+{
+    struct CreatureControl *cctrl;
+    //return _DK_initialise_thing_state(thing, nState);
+    cleanup_current_thing_state(thing);
+    thing->field_8 = CrSt_Unused;
+    thing->field_7 = nState;
+    set_flag_byte(&thing->field_1, 0x10, false);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_80 = 0;
+    cctrl->field_302 = 0;
+    if ((cctrl->flgfield_1 & 0x20) != 0)
+    {
+        ERRORLOG("Initialize state, but thing in room list even after cleanup");
+        remove_creature_from_work_room(thing);
+    }
+    return true;
+}
+
+TbBool cleanup_current_thing_state(struct Thing *thing)
+{
+    struct StateInfo *stati;
+    stati = get_creature_state_with_task_completion(thing);
+    if (stati->ofsfield_4 != NULL)
+    {
+        stati->ofsfield_4(thing);
+        set_flag_byte(&thing->field_1, 0x10, true);
+    } else
+    {
+        clear_creature_instance(thing);
+    }
+    return true;
+}
+
+TbBool can_change_from_state_to(struct Thing *thing, long curr_state, long next_state)
+{
+    struct StateInfo *next_stati;
+    struct StateInfo *curr_stati;
+    //return _DK_can_change_from_state_to(thing, curr_state, next_state);
+    curr_stati = get_thing_state_info_num(curr_state);
+    if (curr_stati->state_type == 6)
+      curr_stati = get_thing_state_info_num(thing->field_8);
+    next_stati = get_thing_state_info_num(next_state);
+    if ((curr_stati->field_20) && (!next_stati->field_16))
+        return false;
+    if ((curr_stati->field_1F) && (!next_stati->field_15))
+        return false;
+    switch (curr_stati->state_type)
+    {
+    case 2:
+        if ( next_stati->field_11 )
+            return true;
+        break;
+    case 3:
+        if ( next_stati->field_12 )
+            return true;
+        break;
+    case 4:
+        if ( next_stati->field_10 )
+            return true;
+        break;
+    case 5:
+        if ( next_stati->field_13 )
+            return true;
+        break;
+    case 7:
+        if ( next_stati->field_14 )
+            return true;
+        break;
+    case 8:
+        if ( next_stati->field_17 )
+            return true;
+        break;
+    case 9:
+        if ( next_stati->field_18 )
+            return true;
+        break;
+    case 10:
+        if ( next_stati->field_19 )
+            return true;
+        break;
+    case 11:
+        if ( next_stati->field_1B )
+            return true;
+        break;
+    case 12:
+        if ( next_stati->field_1A )
+            return true;
+        break;
+    case 13:
+        if ( next_stati->field_1C )
+            return true;
+        break;
+    case 14:
+        if ( next_stati->field_1D )
+            return true;
+        break;
+    default:
+        return true;
+    }
+    return false;
 }
 /******************************************************************************/

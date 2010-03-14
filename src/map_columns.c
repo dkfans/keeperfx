@@ -51,7 +51,7 @@ struct Column *get_column_at(long slb_x, long slb_y)
   return &game.columns[map->data & 0x7FF];
 }
 
-struct Column *get_map_column(struct Map *map)
+struct Column *get_map_column(const struct Map *map)
 {
   if (map_block_invalid(map))
     return &game.columns[0];
@@ -113,6 +113,22 @@ unsigned short find_column_height(struct Column *col)
       return COLUMN_STACK_HEIGHT;
   }
   return h;
+}
+
+long get_floor_height_at(struct Coord3d *pos)
+{
+    const struct Map *mapblk;
+    const struct Column *col;
+    long i,cubes_height;
+    mapblk = get_map_block_at(pos->x.val >> 8, pos->y.val >> 8);
+    col = get_map_column(mapblk);
+/*    if (column_invalid(col))
+        return (1 << 8);*/
+    cubes_height = 0;
+    i = col->bitfileds;
+    if ((i & 0xF0) > 0)
+        cubes_height = i >> 4;
+    return cubes_height << 8;
 }
 
 long find_column(struct Column *col)

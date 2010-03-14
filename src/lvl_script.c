@@ -37,6 +37,7 @@
 #include "player_instances.h"
 #include "player_data.h"
 #include "thing_effects.h"
+#include "creature_states.h"
 #include "lvl_filesdk1.h"
 #include "game_merge.h"
 #include "dungeon_data.h"
