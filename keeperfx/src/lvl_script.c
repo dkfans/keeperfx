@@ -37,6 +37,7 @@
 #include "player_instances.h"
 #include "player_data.h"
 #include "thing_effects.h"
+#include "creature_states.h"
 #include "lvl_filesdk1.h"
 #include "game_merge.h"
 #include "dungeon_data.h"
@@ -1643,17 +1644,17 @@ void command_set_computer_checks(char *plrname, char *chkname, long val1, long v
     for (k=0; k < COMPUTER_CHECKS_COUNT; k++)
     {
       check = &game.computer[i].checks[k];
-      if ((check->field_4 & 0x02) != 0)
+      if ((check->flags & 0x02) != 0)
         break;
       if (check->name == NULL)
         break;
       if (strcasecmp(chkname, check->name) == 0)
       {
-        check->field_8 = val1;
+        check->turns_interval = val1;
         check->param1 = val2;
         check->param2 = val3;
         check->param3 = val4;
-        check->param4 = val5;
+        check->turns_last = val5;
         n++;
       }
     }

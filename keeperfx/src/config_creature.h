@@ -85,6 +85,7 @@ struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
 struct CreatureData *creature_data_get(long crstat_idx);
 struct CreatureData *creature_data_get_from_thing(const struct Thing *thing);
 TbBool creature_stats_invalid(const struct CreatureStats *crstat);
+const char *creature_code_name(long crmodel);
 /******************************************************************************/
 TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/

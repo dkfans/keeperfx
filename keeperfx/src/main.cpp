@@ -445,7 +445,6 @@ DLLIMPORT struct Thing *_DK_create_trap(struct Coord3d *pos, unsigned short a1, 
 DLLIMPORT struct Room *_DK_place_room(unsigned char a1, unsigned char a2, unsigned short a3, unsigned short a4);
 DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT short _DK_magic_use_power_slap(unsigned short a1, unsigned short a2, unsigned short a3);
-DLLIMPORT unsigned char _DK_initialise_thing_state(struct Thing *thing, long a2);
 DLLIMPORT void _DK_tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT void _DK_tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
 DLLIMPORT void _DK_create_power_hand(unsigned char a1);
@@ -518,7 +517,6 @@ DLLIMPORT struct Room *_DK_player_has_room_of_type(long plr_idx, long roomkind);
 DLLIMPORT struct Room *_DK_find_room_with_spare_room_item_capacity(unsigned char a1, signed char a2);
 DLLIMPORT long _DK_create_workshop_object_in_workshop_room(long a1, long a2, long a3);
 DLLIMPORT long _DK_get_next_manufacture(struct Dungeon *dungeon);
-DLLIMPORT long _DK_cleanup_current_thing_state(struct Thing *thing);
 DLLIMPORT unsigned long _DK_setup_move_off_lava(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_create_thing(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
 DLLIMPORT void _DK_move_thing_in_map(struct Thing *thing, struct Coord3d *pos);
@@ -1745,11 +1743,6 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2)
 long remove_food_from_food_room_if_possible(struct Thing *thing)
 {
   return _DK_remove_food_from_food_room_if_possible(thing);
-}
-
-unsigned char can_change_from_state_to(struct Thing *thing, long a2, long a3)
-{
-  return _DK_can_change_from_state_to(thing, a2, a3);
 }
 
 struct Thing *get_door_for_position(long pos_x, long pos_y)
@@ -3225,11 +3218,6 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short a1, unsigned shor
 struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4)
 {
   return _DK_create_door(pos, a1, a2, a3, a4);
-}
-
-long cleanup_current_thing_state(struct Thing *thing)
-{
-  return _DK_cleanup_current_thing_state(thing);
 }
 
 unsigned long setup_move_off_lava(struct Thing *thing)
@@ -5722,9 +5710,44 @@ void add_thing_to_list(struct Thing *thing, struct StructureList *list)
   _DK_add_thing_to_list(thing, list);
 }
 
-struct Thing *allocate_free_thing_structure(unsigned char a1)
+struct Thing *allocate_free_thing_structure(unsigned char free_flags)
 {
-  return _DK_allocate_free_thing_structure(a1);
+    struct Thing *thing;
+    long i;
+    TbBool check_again;
+    //return _DK_allocate_free_thing_structure(a1);
+    check_again = true;
+    while (check_again)
+    {
+        i = game.free_things[THINGS_COUNT-1];
+        if (i < THINGS_COUNT-1)
+        {
+          thing = thing_get(game.free_things[i]);
+          LbMemorySet(thing, 0, sizeof(struct Thing));
+          if (!thing_is_invalid(thing))
+          {
+              thing->field_0 |= 0x01;
+              thing->index = game.free_things[i];
+              game.free_things[THINGS_COUNT-1]++;
+          }
+          return thing;
+        }
+        check_again = false;
+        if ((free_flags & 0x01) != 0)
+        {
+          thing = thing_get(game.thing_lists[3].index);
+          if (!thing_is_invalid(thing))
+          {
+              delete_thing_structure(thing, 0);
+              check_again = true;
+          } else
+          {
+              ERRORLOG("Cannot even free up effect thing!");
+          }
+        }
+    }
+    ERRORLOG("Cannot allocate a structure!");
+    return NULL;
 }
 
 unsigned char i_can_allocate_free_thing_structure(unsigned char a1)
@@ -11244,9 +11267,50 @@ void magic_use_power_destroy_walls(unsigned char a1, long a2, long a3, long a4)
   _DK_magic_use_power_destroy_walls(a1, a2, a3, a4);
 }
 
-short magic_use_power_imp(unsigned short a1, unsigned short a2, unsigned short a3)
+short magic_use_power_imp(unsigned short plyr_idx, unsigned short stl_x, unsigned short stl_y)
 {
-  return _DK_magic_use_power_imp(a1, a2, a3);
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    struct Thing *dnheart;
+    struct Coord3d pos;
+    long cost;
+    long i;
+    //return _DK_magic_use_power_imp(plyr_idx, x, y);
+    if (!can_cast_spell_at_xy(plyr_idx, 2, stl_x, stl_y, 0)
+     || !i_can_allocate_free_control_structure()
+     || !i_can_allocate_free_thing_structure(1))
+    {
+      if (is_my_player_number(plyr_idx))
+        play_non_3d_sample(119);
+      return 1;
+    }
+    dungeon = get_players_num_dungeon(plyr_idx);
+    i = dungeon->field_918 - dungeon->creature_sacrifice[23] + 1;
+    if (i < 1)
+      i = 1;
+    cost = game.magic_stats[2].cost[0]*i/2;
+    if (take_money_from_dungeon(plyr_idx, cost, 1) < 0)
+    {
+        if (is_my_player_number(plyr_idx))
+          output_message(87, 0, 1);
+        return -1;
+    }
+    dnheart = thing_get(dungeon->dnheart_idx);
+    pos.x.val = get_subtile_center_pos(stl_x);
+    pos.y.val = get_subtile_center_pos(stl_y);
+    pos.z.val = get_floor_height_at(&pos) + (dnheart->field_58 >> 1);
+    thing = create_creature(&pos, 23, plyr_idx); //TODO: seach for special worker instead of just 23
+    if (!thing_is_invalid(thing))
+    {
+        thing->pos_32.x.val += ACTION_RANDOM(161) - 80;
+        thing->pos_32.y.val += ACTION_RANDOM(161) - 80;
+        thing->pos_32.z.val += 160;
+        thing->field_1 |= 0x04;
+        thing->field_52 = 0;
+        initialise_thing_state(thing, CrSt_ImpBirth);
+        play_creature_sound(thing, 3, 2, 0);
+    }
+    return 1;
 }
 
 long remove_workshop_object_from_player(long a1, long a2)
@@ -11308,11 +11372,6 @@ void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3)
 struct Thing *get_queryable_object_near(unsigned short a1, unsigned short a2, long a3)
 {
   return _DK_get_queryable_object_near(a1, a2, a3);
-}
-
-unsigned char initialise_thing_state(struct Thing *thing, long a2)
-{
-  return _DK_initialise_thing_state(thing, a2);
 }
 
 void tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4)

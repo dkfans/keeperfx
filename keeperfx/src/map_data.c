@@ -127,6 +127,23 @@ void set_mapwho_thing_index(struct Map *map, long thing_idx)
   map->data ^= (map->data ^ ((unsigned long)thing_idx << 11)) & 0x3FF800;
 }
 
+long get_mapblk_column_index(const struct Map *map)
+{
+  return ((map->data) & 0x7FF);
+}
+
+void set_mapblk_column_index(struct Map *map, long column_idx)
+{
+  // Check if new value is correct
+  if ((unsigned long)column_idx > 0x7FF)
+  {
+      ERRORLOG("Tried to set invalid column %ld",column_idx);
+      return;
+  }
+  // Clear previous and set new
+  map->data ^= (map->data ^ ((unsigned long)column_idx)) & 0x7FF;
+}
+
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
 {
   unsigned short nflag;

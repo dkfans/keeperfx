@@ -2203,7 +2203,7 @@ void setup_computer_players2(void)
   for (i=0; i < PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    if (player->field_0 & 0x01)
+    if ((player->field_0 & 0x01) != 0)
     {
       if (player->field_2C == 1)
       {
