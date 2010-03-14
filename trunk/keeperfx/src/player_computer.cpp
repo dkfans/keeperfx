@@ -148,20 +148,10 @@ DLLIMPORT long _DK_computer_check_neutral_places(struct Computer2 *comp, struct 
 DLLIMPORT long _DK_computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck * check);
 DLLIMPORT long _DK_computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check);
 DLLIMPORT long _DK_computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check);
-//#define computer_checks_hates _DK_computer_checks_hates
-//#define computer_check_move_creatures_to_best_room _DK_computer_check_move_creatures_to_best_room
-//#define computer_check_move_creatures_to_room _DK_computer_check_move_creatures_to_room
-//#define computer_check_no_imps _DK_computer_check_no_imps
-//#define computer_check_for_pretty _DK_computer_check_for_pretty
-//#define computer_check_for_quick_attack _DK_computer_check_for_quick_attack
-//#define computer_check_for_accelerate _DK_computer_check_for_accelerate
-//#define computer_check_slap_imps _DK_computer_check_slap_imps
-//#define computer_check_enemy_entrances _DK_computer_check_enemy_entrances
-//#define computer_check_for_place_door _DK_computer_check_for_place_door
-//#define computer_check_neutral_places _DK_computer_check_neutral_places
-//#define computer_check_for_place_trap _DK_computer_check_for_place_trap
-//#define computer_check_for_expand_room _DK_computer_check_for_expand_room
-//#define computer_check_for_money _DK_computer_check_for_money
+DLLIMPORT long _DK_count_creatures_for_defend_pickup(struct Computer2 *comp);
+DLLIMPORT long _DK_computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos);
+DLLIMPORT long _DK_computer_able_to_use_magic(struct Computer2 *comp, long a2, long a3, long a4);
+DLLIMPORT long _DK_check_call_to_arms(struct Computer2 *comp);
 
 DLLIMPORT long _DK_computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
 DLLIMPORT long _DK_computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
@@ -171,6 +161,7 @@ DLLIMPORT long _DK_computer_event_attack_magic_foe(struct Computer2 *comp, struc
 DLLIMPORT long _DK_computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent);
 DLLIMPORT long _DK_computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent);
 DLLIMPORT long _DK_computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
+//TODO: we may also make "computer_event_breach" from beta
 //#define computer_event_battle _DK_computer_event_battle
 //#define computer_event_find_link _DK_computer_event_find_link
 //#define computer_event_battle_test _DK_computer_event_battle_test
@@ -664,40 +655,6 @@ int get_computer_process_config_list_index_mnem(const char *mnemonic)
   return 0;
 }
 
-int get_computer_check_config_list_index_prc(struct ComputerCheck *check)
-{
-  struct ComputerCheck *cchk;
-  int i;
-  const int arr_size = sizeof(computer_check_config_list)/sizeof(computer_check_config_list[0]);
-  for (i=1; i < arr_size; i++)
-  {
-    cchk = computer_check_config_list[i].check;
-    if ((cchk == NULL) || (cchk->name == NULL))
-      continue;
-    if (check == NULL)
-      continue;
-/*
-    if (stricmp(cchk->name, check->name) != 0)
-      continue;
-*/
-    if (cchk->field_4 != check->field_4)
-      continue;
-    if (cchk->field_8 != check->field_8)
-      continue;
-    if (cchk->param1 != check->param1)
-      continue;
-    if (cchk->param2 != check->param2)
-      continue;
-    if (cchk->param3 != check->param3)
-      continue;
-    if (cchk->param4 != check->param4)
-      continue;
-//    if (cchk->func_check == check->func_check)
-      return i;
-  }
-  return 0;
-}
-
 int get_computer_check_config_list_index_mnem(const char *mnemonic)
 {
   int i;
@@ -710,53 +667,19 @@ int get_computer_check_config_list_index_mnem(const char *mnemonic)
   return 0;
 }
 
-int get_computer_event_config_list_index_prc(struct ComputerEvent *event)
-{
-  struct ComputerEvent *cevnt;
-  int i;
-  const int arr_size = sizeof(computer_event_config_list)/sizeof(computer_event_config_list[0]);
-  for (i=1; i < arr_size; i++)
-  {
-    cevnt = computer_event_config_list[i].event;
-    if ((cevnt == NULL) || (cevnt->name == NULL))
-      continue;
-    if ((cevnt == NULL) || (event->name == NULL))
-      continue;
-    if (stricmp(cevnt->name, event->name) != 0)
-      continue;
-    if (cevnt->field_4 != event->field_4)
-      continue;
-    if (cevnt->field_8 != event->field_8)
-      continue;
-    if (cevnt->field_14 != event->field_14)
-      continue;
-    if (cevnt->param1 != event->param1)
-      continue;
-    if (cevnt->param2 != event->param2)
-      continue;
-    if (cevnt->param3 != event->param3)
-      continue;
-    if (cevnt->param4 != event->param4)
-      continue;
-//    if (cevnt->func_check == check->func_check)
-      return i;
-  }
-  return 0;
-}
-
 int get_computer_event_config_list_index_mnem(const char *mnemonic)
 {
   int i;
   const int arr_size = sizeof(computer_event_config_list)/sizeof(computer_event_config_list[0]);
   for (i=1; i < arr_size; i++)
   {
-    if (stricmp(computer_event_config_list[i].name, mnemonic) == 0)
+    if (strcasecmp(computer_event_config_list[i].name, mnemonic) == 0)
       return i;
   }
   return 0;
 }
 
-short computer_type_clear_processes(struct ComputerProcessTypes *cpt)
+TbBool computer_type_clear_processes(struct ComputerProcessTypes *cpt)
 {
   int i;
   for (i=0; i<COMPUTER_PROCESSES_COUNT; i++)
@@ -1124,13 +1047,13 @@ short parse_computer_player_check_blocks(char *buf,long len)
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            check->field_4 = k;
+            check->flags = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            check->field_8 = k;
+            check->turns_interval = k;
             n++;
           }
           if (n < 2)
@@ -1142,7 +1065,7 @@ short parse_computer_player_check_blocks(char *buf,long len)
           k = recognize_conf_parameter(buf,&pos,len,computer_check_func_type);
           if (k > 0)
           {
-              check->func_check = computer_check_func_list[k];
+              check->func = computer_check_func_list[k];
               n++;
           }
           if (n < 1)
@@ -1172,7 +1095,7 @@ short parse_computer_player_check_blocks(char *buf,long len)
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            check->param4 = k;
+            check->turns_last = k;
             n++;
           }
           if (n < 4)
@@ -1360,9 +1283,9 @@ short write_computer_player_check_to_log(struct ComputerCheck *check)
   JUSTMSG("[checkXX]");
   JUSTMSG("Name = %s",check->name);
   JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %d %d",check->field_4,check->field_8);
-  JUSTMSG("Functions = %x",check->func_check);
-  JUSTMSG("Params = %d %d %d %d",check->param1,check->param2,check->param3,check->param4);
+  JUSTMSG("Values = %d %d",check->flags,check->turns_interval);
+  JUSTMSG("Functions = %x",check->func);
+  JUSTMSG("Params = %d %d %d %d",check->param1,check->param2,check->param3,check->turns_last);
   return true;
 }
 
@@ -1375,61 +1298,6 @@ short write_computer_player_event_to_log(struct ComputerEvent *event)
   JUSTMSG("Functions = %x %x",event->func_event,event->func_test);
   JUSTMSG("Params = %d %d %d %d",event->param1,event->param2,event->param3,event->param4);
   return true;
-}
-
-/*
- * Writes AI config file to keeper log.
- */
-void write_computer_player_file_to_log(void)
-{
-  int i,k,n;
-  struct ComputerProcessTypes *cpt;
-  i = 0;
-  while (ComputerProcessLists[i].name != NULL)
-  {
-    cpt = &ComputerProcessLists[i];
-    JUSTMSG("[computer%d]",i);
-    JUSTMSG("Name = %s",cpt->name);
-    JUSTMSG("Values = %d %d %d %d %d %d %d",cpt->field_4,cpt->field_8,
-        cpt->field_C,cpt->field_10,cpt->field_14,cpt->field_18,cpt->field_1C);
-    LbJustLog("Processes = ");
-    for (k=0; k<COMPUTER_PROCESSES_COUNT; k++)
-    {
-      n = get_computer_process_config_list_index_prc(cpt->processes[k]);
-      LbJustLog("%s ",computer_process_config_list[n].name);
-    }
-    LbJustLog("\n");
-    LbJustLog("Checks =");
-    for (k=0; k<COMPUTER_CHECKS_COUNT; k++)
-    {
-      n = get_computer_check_config_list_index_prc(&cpt->checks[k]);
-      if (n == 0)
-      {
-        LbJustLog("\n");
-        write_computer_player_check_to_log(&cpt->checks[k]);
-        break;
-      }
-      LbJustLog(" %s",computer_check_config_list[n].name);
-    }
-    LbJustLog("\n");
-
-    LbJustLog("Events =");
-    for (k=0; k<COMPUTER_EVENTS_COUNT; k++)
-    {
-      n = get_computer_event_config_list_index_prc(&cpt->events[k]);
-      if (n == 0)
-      {
-        LbJustLog("\n");
-        write_computer_player_event_to_log(&cpt->events[k]);
-        break;
-      }
-      LbJustLog(" %s",computer_event_config_list[n].name);
-    }
-    LbJustLog("\n");
-
-    LbJustLog("\n");
-    i++;
-  }
 }
 
 short parse_computer_player_computer_blocks(char *buf,long len)
@@ -1606,7 +1474,6 @@ short load_computer_player_config(void)
     parse_computer_player_process_blocks(buf,len);
     parse_computer_player_check_blocks(buf,len);
     parse_computer_player_event_blocks(buf,len);
-//write_computer_player_file_to_log();
     parse_computer_player_computer_blocks(buf,len);
   }
   //Freeing and exiting
@@ -1850,12 +1717,185 @@ long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck
 
 long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check)
 {
-  return _DK_computer_check_for_money(comp, check);
+    long money;
+    struct ComputerProcess *cproc;
+    struct Dungeon *dungeon;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    struct Room *room;
+    long new_tasks,crstate,ret;
+    unsigned long k;
+    long i;
+    //return _DK_computer_check_for_money(comp, check);
+    ret = 4;
+    money = get_computer_money_less_cost(comp);
+    if ((check->param3 > money) || (check->param2 > money))
+    {
+      for (i=0; i <= COMPUTER_PROCESSES_COUNT; i++)
+      {
+          cproc = &comp->processes[i];
+          if ((cproc->field_44 & 0x02) != 0)
+              break;
+          if (cproc->func_check == computer_check_dig_to_gold)
+          {
+            cproc->field_4++;
+            if (game.play_gameturn - cproc->field_3C > 20)
+              cproc->field_3C = 0;
+          }
+      }
+    }
+
+    dungeon = comp->field_24;
+    if (dungeon->field_14B8 > dungeon->field_AF9)
+    {
+      if (dungeon->room_kind[8] != 0)
+      {
+        if (get_task_in_progress(comp, CTT_SellTrapsAndDoors) == NULL)
+        {
+          if (create_task_sell_traps_and_doors(comp, 3*dungeon->field_14B8/2))
+          {
+            ret = 1;
+          }
+        }
+      }
+    }
+    if (3*dungeon->field_14B8/2 <= dungeon->field_AF9)
+      return ret;
+
+    room = room_get(dungeon->room_kind[14]);
+    if (room_is_invalid(room))
+      return ret;
+    new_tasks = 0;
+    // Sweep through creatures list
+    i = dungeon->creatr_list_start;
+    k = 0;
+    while (i != 0)
+    {
+      thing = thing_get(i);
+      if (thing_is_invalid(thing))
+      {
+        ERRORLOG("Jump to invalid thing detected");
+        break;
+      }
+      cctrl = creature_control_get_from_thing(thing);
+      i = cctrl->thing_idx;
+      // Per creature code
+      if (thing->field_7 == 14)
+        crstate = thing->field_8;
+      else
+        crstate = thing->field_7;
+      if (crstate == 33)
+      {
+        if (!create_task_move_creature_to_pos(comp, thing, room->field_8, room->field_9))
+          return ret;
+        new_tasks++;
+        ret = 1;
+        if (new_tasks >= 3)
+          return ret;
+      }
+      // Per creature code ends
+      k++;
+      if (k > THINGS_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping things list");
+        break;
+      }
+    }
+    if (new_tasks >= 3)
+      return ret;
+    // Sweep through workers list
+    i = dungeon->worker_list_start;
+    k = 0;
+    while (i != 0)
+    {
+      thing = thing_get(i);
+      if (thing_is_invalid(thing))
+      {
+        ERRORLOG("Jump to invalid thing detected");
+        break;
+      }
+      cctrl = creature_control_get_from_thing(thing);
+      i = cctrl->thing_idx;
+      // Per creature code
+      if (thing->field_7 == 14)
+        crstate = thing->field_8;
+      else
+        crstate = thing->field_7;
+      if (crstate == 33)
+      {
+        if (!create_task_move_creature_to_pos(comp, thing, room->field_8, room->field_9))
+          return ret;
+        new_tasks++;
+        ret = 1;
+        if (new_tasks >= 3)
+          return ret;
+      }
+      // Per creature code ends
+      k++;
+      if (k > THINGS_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping things list");
+        break;
+      }
+    }
+    return ret;
+}
+
+long count_creatures_for_defend_pickup(struct Computer2 *comp)
+{
+    return _DK_count_creatures_for_defend_pickup(comp);
+}
+
+long computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos)
+{
+    return _DK_computer_find_non_solid_block(comp, pos);
+}
+
+long computer_able_to_use_magic(struct Computer2 *comp, long a2, long a3, long a4)
+{
+    return _DK_computer_able_to_use_magic(comp, a2, a3, a4);
+}
+
+long check_call_to_arms(struct Computer2 *comp)
+{
+    return _DK_check_call_to_arms(comp);
 }
 
 long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event)
 {
-  return _DK_computer_event_battle(comp, cevent, event);
+    long creatrs_def, creatrs_num;
+    struct Coord3d pos;
+    //return _DK_computer_event_battle(comp, cevent, event);
+    pos.x.stl.num = event->mappos_x;
+    pos.x.stl.pos = 0;
+    pos.y.stl.num = event->mappos_y;
+    pos.y.stl.pos = 0;
+    pos.z.val = 0;
+    if ((pos.x.val <= 0) || (pos.y.val <= 0))
+        return false;
+    creatrs_def = count_creatures_for_defend_pickup(comp);
+    creatrs_num = creatrs_def * cevent->param1 / 100;
+    if ((creatrs_num < 1) && (creatrs_def > 0))
+        creatrs_num = 1;
+    if (creatrs_num <= 0)
+        return false;
+    if (!computer_find_non_solid_block(comp, &pos))
+        return false;
+    if (!get_task_in_progress(comp, CTT_MoveCreaturesToDefend) || ((cevent->param2 & 0x02) != 0))
+    {
+        return create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->param2);
+    } else
+    if (computer_able_to_use_magic(comp, 6, 1, 1) == 1)
+    {
+        if (!get_task_in_progress(comp, CTT_MagicCallToArms) || ((cevent->param2 & 0x02) != 0))
+        {
+            if ( check_call_to_arms(comp) )
+            {
+                return create_task_magic_call_to_arms(comp, &pos, creatrs_num);
+            }
+        }
+    }
+    return false;
 }
 
 long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event)
@@ -1962,8 +2002,10 @@ void setup_a_computer_player(unsigned short plyridx, long comp_model)
     LbMemoryCopy(newchk, check, sizeof(struct ComputerCheck));
   }
   // Note that we don't have special, empty check at end of array
+  // The check with 0x02 flag identifies end of active checks
+  // (the check with 0x02 flag is invalid - only previous checks are in use)
   //newchk = &comp->checks[i];
-  newchk->field_4 |= 0x02;
+  newchk->flags |= 0x02;
 
   for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
   {
@@ -1988,12 +2030,33 @@ void computer_check_events(struct Computer2 *comp)
   _DK_computer_check_events(comp);
 }
 
-long process_checks(struct Computer2 *comp)
+TbBool process_checks(struct Computer2 *comp)
 {
-  return _DK_process_checks(comp);
+    struct ComputerCheck *ccheck;
+    long delta;
+    long i;
+    //return _DK_process_checks(comp);
+    for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
+    {
+        ccheck = &comp->checks[i];
+        if (comp->field_10 <= 0)
+            break;
+        if ((ccheck->flags & 0x02) != 0)
+            break;
+        if ((ccheck->flags & 0x01) == 0)
+        {
+            delta = (game.play_gameturn - ccheck->turns_last);
+            if (delta > ccheck->turns_interval)
+            {
+              ccheck->func(comp, ccheck);
+              ccheck->turns_last = game.play_gameturn;
+            }
+        }
+    }
+    return true;
 }
 
-short process_processes_and_task(struct Computer2 *comp)
+TbBool process_processes_and_task(struct Computer2 *comp)
 {
   struct ComputerProcess *process;
   Comp_Process_Func callback;
@@ -2035,12 +2098,12 @@ short process_processes_and_task(struct Computer2 *comp)
   return true;
 }
 
-void process_computer_player2(unsigned long plridx)
+void process_computer_player2(unsigned long plyr_idx)
 {
   struct Computer2 *comp;
-  SYNCDBG(7,"Starting for player %lu",plridx);
-  //_DK_process_computer_player2(plridx);
-  comp = &game.computer[plridx%PLAYERS_COUNT];
+  SYNCDBG(7,"Starting for player %lu",plyr_idx);
+  //_DK_process_computer_player2(plyr_idx);
+  comp = &game.computer[plyr_idx%PLAYERS_COUNT];
   if ((comp->field_14 != 0) && (comp->field_2C <= game.play_gameturn))
     comp->field_10 = 1;
   else

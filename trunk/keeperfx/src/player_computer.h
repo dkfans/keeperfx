@@ -46,6 +46,34 @@ struct ComputerCheck;
 struct ComputerEvent;
 struct Event;
 
+enum ComputerTaskTypes {
+    CTT_None = 0,
+    CTT_DigRoomPassage,
+    CTT_DigRoom,
+    CTT_CheckRoomDug,
+    CTT_PlaceRoom,
+    CTT_DigToEntrance,
+    CTT_DigToGold,
+    CTT_DigToAttack,
+    CTT_MagicCallToArms,
+    CTT_PickupForAttack,
+    CTT_MoveCreatureToRoom, // 10
+    CTT_MoveCreatureToPos,
+    CTT_MoveCreaturesToDefend,
+    CTT_SlapImps,
+    CTT_DigToNeutral,
+    CTT_MagicSpeedUp,
+    CTT_WaitForBridge,
+    CTT_AttackMagic,
+    CTT_SellTrapsAndDoors,
+};
+
+enum TrapDoorSellingCategory {
+    TDSC_EndList = 0,
+    TDSC_Door,
+    TDSC_Trap,
+};
+
 typedef unsigned char ComputerType;
 typedef char ComputerName[LINEMSG_SIZE];
 
@@ -88,13 +116,13 @@ struct ComputerProcess { // sizeof = 72
 
 struct ComputerCheck { // sizeof = 32
   char *name;
-  unsigned long field_4;
-  unsigned long field_8;
-  Comp_Check_Func func_check;
+  unsigned long flags;
+  long turns_interval;
+  Comp_Check_Func func;
   long param1;
   long param2;
   long param3;
-  long param4;
+  long turns_last;
 };
 
 struct ComputerEvent { // sizeof = 44
@@ -149,10 +177,45 @@ struct ComputerEventMnemonic {
 struct ComputerTask { // sizeof = 148
     unsigned char field_0;
     unsigned char field_1;
-    unsigned char field_2;
-    unsigned char field_3[137];
+    unsigned char ttype;
+    unsigned char field_3[7];
+    long field_A;
+    unsigned char field_E[21];
+    unsigned char field_23[32];
+    unsigned char field_43[6];
+    unsigned char field_49[19];
+    long field_5C;
+    long field_60;
+    unsigned char field_64[12];
+    long field_70;
+    unsigned char field_74[2];
+    union {
+    struct Coord3d pos_76;
+    long long_76;
+    struct {
+      short word_76;
+      short word_78;
+    };
+    };
+    long field_7C;
+    union {
+    long field_80;
+    struct {
+      short word_80;
+      short word_82;
+    };
+    };
+    unsigned char field_84[2];
+    union {
+    long long_86;
+    struct {
+      short word_86;
+      short word_88;
+    };
+    };
+    unsigned char field_8A[2];
     unsigned short field_8C;
-    unsigned char field_8E[4];
+    long field_8E;
     unsigned short next_task;
 };
 
@@ -173,7 +236,7 @@ struct Computer2 { // sizeof = 5322
   unsigned long field_18;
   unsigned long field_1C;
   unsigned long field_20;
-  void *field_24;
+  struct Dungeon *field_24;
   unsigned long model;
   unsigned long field_2C;
   unsigned long field_30;
@@ -205,9 +268,19 @@ void reset_process(struct Computer2 *comp, struct ComputerProcess *process);
 /******************************************************************************/
 long set_next_process(struct Computer2 *comp);
 void computer_check_events(struct Computer2 *comp);
-long process_checks(struct Computer2 *comp);
-long process_tasks(struct Computer2 *comp);
+TbBool process_checks(struct Computer2 *comp);
 long get_computer_money_less_cost(struct Computer2 *comp);
+/******************************************************************************/
+struct ComputerTask *get_computer_task(long idx);
+struct ComputerTask *get_task_in_progress(struct Computer2 *comp, long a2);
+struct ComputerTask *get_free_task(struct Computer2 *comp, long a2);
+TbBool computer_task_invalid(struct ComputerTask *ctask);
+TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask);
+TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num, unsigned long evflags);
+TbBool create_task_magic_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num);
+TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long value);
+TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, long a2, long a3);
+long process_tasks(struct Computer2 *comp);
 /******************************************************************************/
 void setup_a_computer_player(unsigned short plyridx, long comp_model);
 void process_computer_players2(void);

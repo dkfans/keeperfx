@@ -1640,3 +1640,10 @@
  0001:00004320       task_wait_for_bridge
  0001:00004500       task_attack_magic
  0001:000048B0       task_sell_traps_and_doors
+ 0001:0004C950       computer_find_non_solid_block
+ 0001:0004CCA0       computer_able_to_use_magic
+ 0001:0004DDE0       count_creatures_for_defend_pickup
+ 0001:0004EDF0       check_call_to_arms
+ 0001:0004EEA0       get_task_in_progress
+ 0001:00001E60       get_free_task
+ 
