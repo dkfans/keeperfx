@@ -50,7 +50,7 @@ struct Column { // sizeof=0x18
 /******************************************************************************/
 /******************************************************************************/
 struct Column *get_column_at(long slb_x, long slb_y);
-struct Column *get_map_column(struct Map *map);
+struct Column *get_map_column(const struct Map *map);
 struct Column *get_column(long idx);
 
 long get_top_cube_at_pos(long mpos);
@@ -61,6 +61,7 @@ void init_columns(void);
 long find_column(struct Column *col);
 long create_column(struct Column *col);
 unsigned short find_column_height(struct Column *col);
+long get_floor_height_at(struct Coord3d *pos);
 void init_whole_blocks(void);
 void init_top_texture_to_cube_table(void);
 /******************************************************************************/

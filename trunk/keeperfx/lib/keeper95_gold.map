@@ -1646,4 +1646,5 @@
  0001:0004EDF0       check_call_to_arms
  0001:0004EEA0       get_task_in_progress
  0001:00001E60       get_free_task
+ 0001:000B9A40       remove_creature_from_work_room
  

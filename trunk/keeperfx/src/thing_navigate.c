@@ -347,7 +347,7 @@ short move_to_position(struct Thing *thing)
       if (move_result == 1)
       {
         internal_set_thing_state(thing, thing->field_8);
-        thing->field_8 = 0;
+        thing->field_8 = CrSt_Unused;
         return 1;
       }
       if (move_result == -1)

@@ -1402,10 +1402,8 @@ unsigned char active_battle_exists(unsigned char a1);
 void maintain_my_battle_list(void);
 unsigned char step_battles_forward(unsigned char a1);
 void process_person_moods_and_needs(struct Thing *thing);
-unsigned char can_change_from_state_to(struct Thing *thing, long a2, long a3);
 struct Thing *get_door_for_position(long pos_x, long pos_y);
 long process_obey_leader(struct Thing *thing);
-unsigned char initialise_thing_state(struct Thing *thing, long a2);
 void tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
 void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
 void draw_spell_cursor(unsigned char a1, unsigned short a2, unsigned char stl_x, unsigned char stl_y);
@@ -1607,7 +1605,6 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short a1, unsigned shor
 struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
 struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2);
 long remove_food_from_food_room_if_possible(struct Thing *thing);
-long cleanup_current_thing_state(struct Thing *thing);
 unsigned long setup_move_off_lava(struct Thing *thing);
 struct Room *player_has_room_of_type(long plr_idx, long roomkind);
 struct Room *find_room_with_spare_room_item_capacity(unsigned char a1, signed char a2);

@@ -56,6 +56,8 @@ TbBool map_block_revealed_bit(const struct Map *map, long plyr_bit);
 long get_ceiling_height(const struct Coord3d *pos);
 long get_mapwho_thing_index(const struct Map *map);
 void set_mapwho_thing_index(struct Map *map, long thing_idx);
+long get_mapblk_column_index(const struct Map *map);
+void set_mapblk_column_index(struct Map *map, long column_idx);
 
 TbBool subtile_has_slab(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_coords_invalid(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
