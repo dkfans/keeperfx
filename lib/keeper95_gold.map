@@ -179,6 +179,7 @@
  0001:00010B50       process_thing_spell_effects
  0001:00010DF0       apply_spell_effect_to_thing
  0001:00011970       apply_spell_effect_to_players_creatures
+ 0001:000119E0       terminate_thing_spell_effect
  0001:00011C80       creature_cast_spell
  0001:00011E10       process_spells_affected_by_effect_elements
  0001:000122B0       process_keeper_spell_effect

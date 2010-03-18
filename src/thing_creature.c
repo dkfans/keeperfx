@@ -27,6 +27,7 @@
 #include "creature_states.h"
 #include "config_lenses.h"
 #include "thing_effects.h"
+#include "thing_navigate.h"
 #include "lens_mist.h"
 #include "keeperfx.hpp"
 #include "frontend.h"
@@ -179,6 +180,7 @@ DLLIMPORT long _DK_process_creature_state(struct Thing *thing);
 DLLIMPORT long _DK_move_creature(struct Thing *thing);
 DLLIMPORT void _DK_init_creature_level(struct Thing *thing, long nlev);
 DLLIMPORT long _DK_check_for_first_person_barrack_party(struct Thing *thing);
+DLLIMPORT void _DK_terminate_thing_spell_effect(struct Thing *thing, long a2);
 /******************************************************************************/
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
@@ -339,9 +341,339 @@ void anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, lon
   _DK_anger_apply_anger_to_creature(thing, anger, a2, a3);
 }
 
+void terminate_thing_spell_effect(struct Thing *thing, long a2)
+{
+    _DK_terminate_thing_spell_effect(thing, a2);
+}
+
+long get_free_spell_slot(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    long ci,cval;
+    long i,k;
+    cctrl = creature_control_get_from_thing(thing);
+    cval = LONG_MAX;
+    ci = -1;
+    for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        // If there's unused slot, return it immediately
+        if (cctrl->field_1D4[i].field_0 == 0)
+        {
+            return i;
+        }
+        // Otherwise, select the one making minimum damage
+        k = abs(cctrl->field_1D4[i].field_1);
+        if (k < cval)
+        {
+            cval = k;
+            ci = i;
+        }
+    }
+    // Terminate the min damage effect and return its slot index
+    terminate_thing_spell_effect(thing, cctrl->field_1D4[ci].field_0);
+    for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        if (cctrl->field_1D4[i].field_0 == 0)
+        {
+            return i;
+        }
+    }
+    ERRORLOG("Spell effect has been terminated, but still its slot (%ld) isn't empty!",ci);
+    return ci;
+}
+
+void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev)
+{
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct SpellConfig *splconf;
+    struct ComponentVector cvect;
+    struct Coord3d pos;
+    struct Thing *ntng;
+    long i,k,n;
+    cctrl = creature_control_get_from_thing(thing);
+    if (spell_lev > SPELL_MAX_LEVEL)
+        spell_lev = SPELL_MAX_LEVEL;
+    // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
+    splconf = &game.spells_config[spell_idx];
+    switch ( spell_idx )
+    {
+    case 3:
+        i = get_free_spell_slot(thing);
+        if (i != -1)
+        {
+            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].field_1 = splconf->duration;
+            cctrl->field_AB |= 0x02;
+            if ((thing->field_25 & 0x20) != 0)
+            {
+                cctrl->field_AD |= 0x80;
+                thing->field_25 &= 0xDF;
+            }
+            creature_set_speed(thing, 0);
+        }
+        break;
+    case 4:
+        i = get_free_spell_slot(thing);
+        if (i != -1)
+        {
+          cctrl->field_1D4[i].field_0 = spell_idx;
+          cctrl->field_1D4[i].field_1 = game.magic_stats[12].power[spell_lev];
+          n = 0;
+          cctrl->field_AC |= 0x04;
+          for (k=0; k < 3; k++)
+          {
+            pos.x.val = thing->mappos.x.val;
+            pos.y.val = thing->mappos.y.val;
+            pos.z.val = thing->mappos.z.val;
+            pos.x.val += (32 * LbSinL(n) >> 16);
+            pos.y.val -= (32 * LbCosL(n) >> 16);
+            pos.z.val += k * (thing->field_58 >> 1);
+            ntng = create_object(&pos, 51, thing->owner, -1);
+            if (!thing_is_invalid(ntng))
+            {
+              cctrl->field_2B3[k] = ntng->index;
+              ntng->health = game.magic_stats[12].power[spell_lev] + 1;
+              ntng->word_13.w0 = thing->index;
+              ntng->byte_13.f2 = k;
+              ntng->field_52 = thing->field_52;
+              ntng->field_54 = thing->field_54;
+              angles_to_vector(ntng->field_52, ntng->field_54, 32, &cvect);
+              ntng->pos_32.x.val += cvect.x;
+              ntng->pos_32.y.val += cvect.y;
+              ntng->pos_32.z.val += cvect.z;
+              ntng->field_1 |= 0x04;
+            }
+            n += ANGLE_TRIGL_PERIOD/3;
+          }
+        }
+        break;
+    case 6:
+        i = get_free_spell_slot(thing);
+        if (i != -1)
+        {
+            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].field_1 = splconf->duration;
+            cctrl->field_AC |= 0x08;
+        }
+        break;
+    case 7:
+        crstat = creature_stats_get_from_thing(thing);
+        i = saturate_set_signed(thing->health + game.magic_stats[8].power[spell_lev],16);
+        if (i < 0)
+        {
+          thing->health = 0;
+        } else
+        {
+          k = compute_creature_max_health(crstat->health,cctrl->explevel);
+          thing->health = min(i,k);
+        }
+        cctrl->field_2B0 = 7;
+        cctrl->field_2AE = game.magic_stats[8].time;
+        break;
+    case 9:
+        i = get_free_spell_slot(thing);
+        if (i != -1)
+        {
+            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].field_1 = game.magic_stats[13].power[spell_lev];
+            cctrl->field_AC |= 0x20;
+            cctrl->field_AF = 0;
+        }
+        break;
+    case 10:
+        i = get_free_spell_slot(thing);
+        if (i != -1)
+        {
+            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].field_1 = splconf->duration;
+            cctrl->field_AB |= 0x04;
+        }
+        break;
+    case 11:
+        i = get_free_spell_slot(thing);
+        if (i != -1)
+        {
+            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].field_1 = game.magic_stats[11].power[spell_lev];
+            cctrl->field_AC |= 0x02;
+            cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+        }
+        break;
+    case 12:
+        i = get_free_spell_slot(thing);
+        if (i != -1)
+        {
+            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].field_1 = splconf->duration;
+            cctrl->field_AC |= 0x01;
+            cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+        }
+        break;
+    case 20:
+        i = get_free_spell_slot(thing);
+        if (i != -1)
+        {
+            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].field_1 = splconf->duration;
+            cctrl->field_AC |= 0x10;
+            thing->field_25 |= 0x20;
+        }
+        break;
+    case 21:
+        i = get_free_spell_slot(thing);
+        if (i != -1)
+        {
+            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].field_1 = splconf->duration;
+            cctrl->field_AC |= 0x40;
+        }
+        break;
+    case 26:
+        i = get_free_spell_slot(thing);
+        if (i != -1)
+        {
+          cctrl->field_1D4[i].field_0 = spell_idx;
+          cctrl->field_1D4[i].field_1 = game.magic_stats[14].power[spell_lev];
+          n = 0;
+          cctrl->field_AD |= 0x01;
+          cctrl->field_B6 = thing->owner;
+          cctrl->field_2EB = game.play_gameturn;
+          for (k=0; k < 3; k++)
+          {
+            pos.x.val = thing->mappos.x.val;
+            pos.y.val = thing->mappos.y.val;
+            pos.z.val = thing->mappos.z.val;
+            pos.x.val += (32 * LbSinL(n) >> 16);
+            pos.y.val -= (32 * LbCosL(n) >> 16);
+            pos.z.val += k * (thing->field_58 >> 1);
+            ntng = create_object(&pos, 112, thing->owner, -1);
+            if (!thing_is_invalid(ntng))
+            {
+              cctrl->field_2B9[k] = ntng->index;
+              ntng->health = game.magic_stats[14].power[spell_lev] + 1;
+              ntng->word_13.w0 = thing->index;
+              ntng->byte_13.f2 = k;
+              ntng->field_52 = thing->field_52;
+              ntng->field_54 = thing->field_54;
+              angles_to_vector(ntng->field_52, ntng->field_54, 32, &cvect);
+              ntng->pos_32.x.val += cvect.x;
+              ntng->pos_32.y.val += cvect.y;
+              ntng->pos_32.z.val += cvect.z;
+              ntng->field_1 |= 0x04;
+            }
+            n += ANGLE_TRIGL_PERIOD/3;
+          }
+        }
+        break;
+    case 27:
+        i = get_free_spell_slot(thing);
+        if (i != -1)
+        {
+            external_set_thing_state(thing, 120);
+            cctrl->field_282 = 10;
+            cctrl->field_AD |= 0x02;
+            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].field_1 = game.magic_stats[15].power[spell_lev];
+        }
+        break;
+    default:
+        WARNLOG("No action for spell %ld at level %ld",spell_idx,spell_lev);
+        break;
+    }
+}
+
+void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev, long idx)
+{
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct SpellConfig *splconf;
+    long i,k;
+    cctrl = creature_control_get_from_thing(thing);
+    if (spell_lev > SPELL_MAX_LEVEL)
+        spell_lev = SPELL_MAX_LEVEL;
+    // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
+    splconf = &game.spells_config[spell_idx];
+    switch (spell_idx)
+    {
+    case 3:
+        cctrl->field_1D4[idx].field_1 = splconf->duration;
+        creature_set_speed(thing, 0);
+        break;
+    case 4:
+        cctrl->field_1D4[idx].field_1 = game.magic_stats[12].power[spell_lev];
+        break;
+    case 6:
+        cctrl->field_1D4[idx].field_1 = splconf->duration;
+        break;
+    case 7:
+        crstat = creature_stats_get_from_thing(thing);
+        i = saturate_set_signed(thing->health + game.magic_stats[8].power[spell_lev],16);
+        if (i < 0)
+        {
+          thing->health = 0;
+        } else
+        {
+          k = compute_creature_max_health(crstat->health,cctrl->explevel);
+          thing->health = min(i,k);
+        }
+        cctrl->field_2B0 = 7;
+        cctrl->field_2AE = game.magic_stats[8].time;
+        break;
+    case 9:
+        cctrl->field_1D4[idx].field_1 = game.magic_stats[13].power[spell_lev];
+        break;
+    case 10:
+        cctrl->field_1D4[idx].field_1 = splconf->duration;
+        break;
+    case 11:
+        cctrl->field_1D4[idx].field_1 = game.magic_stats[11].power[spell_lev];
+        break;
+    case 12:
+        cctrl->field_1D4[idx].field_1 = splconf->duration;
+        break;
+    case 19:
+        cctrl->field_1D4[idx].field_1 = splconf->duration;
+        break;
+    case 20:
+        cctrl->field_1D4[idx].field_1 = splconf->duration;
+        break;
+    case 21:
+        cctrl->field_1D4[idx].field_1 = splconf->duration;
+        break;
+    case 26:
+        cctrl->field_1D4[idx].field_1 = game.magic_stats[14].power[spell_lev];
+        cctrl->field_B2[4] = thing->owner;
+        break;
+    case 27:
+        external_set_thing_state(thing, 120);
+        cctrl->field_282 = 10;
+        cctrl->field_1D4[idx].field_1 = game.magic_stats[15].power[spell_lev];
+        break;
+    default:
+        WARNLOG("No action for spell %ld at level %ld",spell_idx,spell_lev);
+        break;
+    }
+}
+
 void apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev)
 {
-  _DK_apply_spell_effect_to_thing(thing, spell_idx, spell_lev);
+    struct CreatureControl *cctrl;
+    long i;
+    // Make sure the creature level isn't larger than max spell level
+    if (spell_lev > SPELL_MAX_LEVEL)
+        spell_lev = SPELL_MAX_LEVEL;
+    //_DK_apply_spell_effect_to_thing(thing, spell_idx, spell_lev); return;
+    cctrl = creature_control_get_from_thing(thing);
+    for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        if (cctrl->field_1D4[i].field_0 == spell_idx)
+        {
+            reapply_spell_effect_to_thing(thing, spell_idx, spell_lev, i);
+            return;
+        }
+    }
+    first_apply_spell_effect_to_thing(thing, spell_idx, spell_lev);
 }
 
 short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing)
@@ -439,11 +771,7 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
     i = (long)spinfo->field_6;
     if (i > 0)
       thing_play_sample(caster, i, 100, 0, 3, 0, 4, 256);
-    i = cctrl->explevel;
-    // Make sure the creature level isn't larger than max spell level
-    if (i > SPELL_MAX_LEVEL)
-      i = SPELL_MAX_LEVEL;
-    apply_spell_effect_to_thing(caster, spl_idx, i);
+    apply_spell_effect_to_thing(caster, spl_idx, cctrl->explevel);
   }
   // Check if the spell has an effect associated
   if (spinfo->cast_effect != 0)
