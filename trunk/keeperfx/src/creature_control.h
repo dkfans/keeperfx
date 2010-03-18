@@ -29,15 +29,23 @@ extern "C" {
 #define MAX_SIZEXY            768
 #define CREATURES_COUNT       256
 /** Percentage of creature pay increase for every experience level. */
-#define CREATURE_PAY_INCREASE_ON_EXP      35
+#define CREATURE_PAY_INCREASE_ON_EXP       35
 /** Percentage of creature damage increase for every experience level. */
-#define CREATURE_DAMAGE_INCREASE_ON_EXP   20
+#define CREATURE_DAMAGE_INCREASE_ON_EXP    20
 /** Percentage of spell range/area of effect increase for every experience level. */
-#define CREATURE_RANGE_INCREASE_ON_EXP   10
+#define CREATURE_RANGE_INCREASE_ON_EXP     10
+/** Percentage of creature health increase for every experience level. */
+#define CREATURE_HEALTH_INCREASE_ON_EXP    35
+/** Percentage of creature strength increase for every experience level. */
+#define CREATURE_STRENGTH_INCREASE_ON_EXP  35
+/** Percentage of creature dexterity increase for every experience level. */
+#define CREATURE_DEXTERITY_INCREASE_ON_EXP 15
+/** Percentage of creature defense increase for every experience level. */
+#define CREATURE_DEFENSE_INCREASE_ON_EXP   20
 /** Percentage of creature parameter increase for every experience level.
- *  Used for all parameters that have no separate definition, ie. strength,
- *  health, dexterity...*/
+ *  Used for all parameters that have no separate definition. */
 #define CREATURE_PROPERTY_INCREASE_ON_EXP 35
+#define CREATURE_MAX_SPELLS_CASTED_AT 5
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/
@@ -65,6 +73,12 @@ struct Creatures { // sizeof = 16
   short field_B;
   short field_D;
   unsigned char field_F[1];
+};
+
+struct CastedSpellData {
+    unsigned char field_0;
+    short field_1;
+    unsigned char field_3;
 };
 
 #define SIZEOF_CreatureControl 776
@@ -136,9 +150,11 @@ unsigned char field_95[5];
     unsigned char field_AB;
 unsigned char field_AC;
     unsigned char field_AD;
-unsigned char field_AE[3];
+unsigned char field_AE;
+    short field_AF;
     unsigned char field_B1;
-unsigned char field_B2[5];
+unsigned char field_B2[4];
+    unsigned char field_B6;
     unsigned char teleport_x;
     unsigned char teleport_y;
 unsigned short field_B9;
@@ -164,9 +180,7 @@ long field_DE[48];
   unsigned short field_1D0;
     char field_1D2;
 unsigned char field_1D3;
-unsigned char field_1D4;
-short field_1D5[8];
-  unsigned char field_1E5[3];
+  struct CastedSpellData field_1D4[CREATURE_MAX_SPELLS_CASTED_AT];
     char field_1E8;
 unsigned char field_1E9[148];
 unsigned char field_27D;
@@ -190,7 +204,8 @@ unsigned char field_2BF[2];
 unsigned short field_2C1;
 unsigned short field_2C3;
 unsigned short field_2C5;
-unsigned char field_2C7[40];
+unsigned char field_2C7[36];
+    long field_2EB;
     unsigned long field_2EF;
 unsigned char field_2F3[11];
     unsigned long field_2FE;

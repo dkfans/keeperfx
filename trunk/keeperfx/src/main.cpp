@@ -1472,9 +1472,9 @@ TbBool thing_slappable(struct Thing *thing, long plyr_idx)
   }
 }
 
-void apply_damage_to_thing(struct Thing *thing, long a2, char a3)
+void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
 {
-  _DK_apply_damage_to_thing(thing, a2, a3);
+  _DK_apply_damage_to_thing(thing, dmg, a3);
 }
 
 void slap_creature(struct PlayerInfo *player, struct Thing *thing)
@@ -2298,9 +2298,23 @@ long get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos)
   return _DK_get_floor_height_under_thing_at(thing, pos);
 }
 
-void apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char a2)
+/**
+ * Applies given damage points to a creature and shows health flower.
+ * Uses the creature defense value to compute the actual damage.
+ * Can be used only to make damage - never to heal creature.
+ *
+ * @param thing
+ * @param dmg
+ * @param a3
+ */
+void apply_damage_to_thing_and_display_health(struct Thing *thing, long dmg, char a3)
 {
-  _DK_apply_damage_to_thing_and_display_health(thing, a1, a2);
+    //_DK_apply_damage_to_thing_and_display_health(thing, a1, a2);
+    if (dmg > 0)
+    {
+      apply_damage_to_thing(thing, dmg, a3);
+      thing->word_17 = 8;
+    }
 }
 
 long get_foot_creature_has_down(struct Thing *thing)
@@ -2463,7 +2477,7 @@ long compute_creature_max_health(long base_health,unsigned short crlevel)
     base_health = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_health = base_health + (CREATURE_PROPERTY_INCREASE_ON_EXP*base_health*crlevel)/100;
+  max_health = base_health + (CREATURE_HEALTH_INCREASE_ON_EXP*base_health*crlevel)/100;
   return saturate_set_signed(max_health, 16);
 }
 
@@ -2500,9 +2514,9 @@ long compute_creature_max_sparameter(long base_param,unsigned short crlevel)
 }
 
 /**
- * Computes 8-bit parameter (defence,dexterity) of a creature on given level.
+ * Computes defence of a creature on given level.
  */
-long compute_creature_max_cparameter(long base_param,unsigned short crlevel)
+long compute_creature_max_defence(long base_param,unsigned short crlevel)
 {
   long max_param;
   if (base_param <= 0)
@@ -2511,7 +2525,23 @@ long compute_creature_max_cparameter(long base_param,unsigned short crlevel)
     base_param = 10000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_PROPERTY_INCREASE_ON_EXP*base_param*crlevel)/100;
+  max_param = base_param + (CREATURE_DEFENSE_INCREASE_ON_EXP*base_param*crlevel)/100;
+  return saturate_set_unsigned(max_param, 8);
+}
+
+/**
+ * Computes dexterity of a creature on given level.
+ */
+long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
+{
+  long max_param;
+  if (base_param <= 0)
+    return 0;
+  if (base_param > 10000)
+    base_param = 10000;
+  if (crlevel >= CREATURE_MAX_LEVEL)
+    crlevel = CREATURE_MAX_LEVEL-1;
+  max_param = base_param + (CREATURE_DEXTERITY_INCREASE_ON_EXP*base_param*crlevel)/100;
   return saturate_set_unsigned(max_param, 8);
 }
 
@@ -2525,7 +2555,7 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel)
     base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_PROPERTY_INCREASE_ON_EXP*base_param*crlevel)/100;
+  max_param = base_param + (CREATURE_STRENGTH_INCREASE_ON_EXP*base_param*crlevel)/100;
   return saturate_set_unsigned(max_param, 15);
 }
 
@@ -2908,6 +2938,7 @@ long update_shot(struct Thing *thing)
         }
         break;
       default:
+        WARNLOG("Unsupported shot model %d", (int)thing->model);
         break;
     }
   }
