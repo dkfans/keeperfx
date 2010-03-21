@@ -1648,4 +1648,8 @@
  0001:00001E60       get_free_task
  0001:000B9A40       remove_creature_from_work_room
  0001:000119E0       terminate_thing_spell_effect
- 
+ 0001:000D3660       check_out_imp_stack
+ 0001:000B90A0       find_first_valid_position_for_thing_in_room
+ 0001:000B89C0       setup_head_for_empty_treasure_space
+ 0001:000B9380       find_random_valid_position_for_thing_in_room_avoiding_object
+ 0001:0005F310       remove_gold_from_hoarde

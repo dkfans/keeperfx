@@ -75,12 +75,17 @@ struct Room {
     unsigned char field_9;
     unsigned short kind;
     unsigned char field_C[2];
-    unsigned short field_E;
+    short total_capacity;
     short field_10;
     unsigned char field_12;
     unsigned char field_13[4];
-    short field_17;
-    unsigned short field_19;
+    union {
+    long long_17;
+    struct {
+      short word_17;
+      short word_19;
+    };
+    };
     unsigned char field_1B[28];
     unsigned short field_37;
     unsigned short field_39;
@@ -135,6 +140,10 @@ long get_room_slabs_count(long plyr_idx, unsigned short rkind);
 long get_player_rooms_count(long plyr_idx, unsigned short rkind);
 void reinitialise_treaure_rooms(void);
 TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
+struct Room *find_room_with_spare_room_item_capacity(unsigned char a1, signed char a2);
+struct Room *find_room_with_spare_capacity(unsigned char owner, signed char kind, long spare);
+struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing, signed char owner, signed char kind, unsigned char nav_no_owner, long spare);
+struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsigned char owner, signed char kind, unsigned char nav_no_owner);
 
 void create_room_flag(struct Room *room);
 struct Room *allocate_free_room_structure(void);
@@ -144,6 +153,7 @@ void delete_room_structure(struct Room *room);
 struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, unsigned char rkind);
 struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned short x, unsigned short y);
 short room_grow_food(struct Room *room);
+long create_workshop_object_in_workshop_room(long a1, long a2, long a3);
 
 /******************************************************************************/
 #ifdef __cplusplus

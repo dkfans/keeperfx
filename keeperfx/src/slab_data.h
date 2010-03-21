@@ -130,6 +130,7 @@ struct SlabMap *get_slabmap_direct(long slab_num);
 TbBool slabmap_block_invalid(struct SlabMap *slb);
 long slabmap_owner(struct SlabMap *slb);
 void slabmap_set_owner(struct SlabMap *slb, long owner);
+long get_next_slab_number_in_room(long slab_num);
 void clear_slabs(void);
 void reveal_whole_map(struct PlayerInfo *player);
 

@@ -201,7 +201,8 @@ struct Dungeon {
     unsigned char room_slabs_count[ROOM_TYPES_COUNT+1];
     int field_5D4;
     short field_5D8;
-    unsigned char field_5DA[679];
+    unsigned char field_5DA;
+    unsigned char field_5DB[678];
     unsigned char field_881;
     unsigned char field_882;
     unsigned char field_883;
