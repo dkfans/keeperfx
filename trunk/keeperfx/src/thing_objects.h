@@ -89,10 +89,14 @@ TbBool thing_is_mature_food(const struct Thing *thing);
 TbBool object_is_mature_food(const struct Thing *thing);
 TbBool object_is_gold(const struct Thing *thing);
 TbBool object_is_gold_pile(const struct Thing *thing);
+TbBool thing_is_gold_hoarde(struct Thing *thing);
 
 long update_object(struct Thing *thing);
 
 struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx);
+
+long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount);
+struct Thing *find_gold_hoarde_at(unsigned short stl_x, unsigned short stl_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }

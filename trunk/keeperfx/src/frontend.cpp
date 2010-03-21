@@ -5639,8 +5639,8 @@ long compute_menu_position_y(long desired_pos,int menu_height)
   case POS_SCRBTM:
       pos = MyScreenHeight - menu_height;
       // TODO: remove when it's not needed; hack to make 640x480 work.
-      if (lbDisplay.ScreenMode == Lb_SCREEN_MODE_640_480_8)
-        pos -= 80;
+/*      if (lbDisplay.ScreenMode == Lb_SCREEN_MODE_640_480_8)
+        pos -= 80;*/
       break;
   default: // Desired position have direct coordinates
       pos = ((desired_pos*units_per_pixel)>>4)*pixel_size;

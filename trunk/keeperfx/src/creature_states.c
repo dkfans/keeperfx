@@ -205,10 +205,7 @@ DLLIMPORT long _DK_creature_can_be_trained(struct Thing *thing);
 DLLIMPORT long _DK_player_can_afford_to_train_creature(struct Thing *thing);
 DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *thing);
 DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *thing);
-DLLIMPORT struct Room* _DK_find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing,
-    signed char a2, signed char a3, unsigned char a4, long a5);
 DLLIMPORT long _DK_setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3);
-DLLIMPORT struct Room* _DK_find_room_with_spare_capacity(unsigned char a1, signed char a2, long a3);
 DLLIMPORT long _DK_add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long a2);
 DLLIMPORT long _DK_add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long a2);
 DLLIMPORT long _DK_add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long a2);
@@ -234,6 +231,9 @@ DLLIMPORT long _DK_good_setup_loot_treasure_room(struct Thing *thing, long dngn_
 DLLIMPORT unsigned char _DK_initialise_thing_state(struct Thing *thing, long a2);
 DLLIMPORT unsigned char _DK_remove_creature_from_work_room(struct Thing *thing);
 DLLIMPORT long _DK_cleanup_current_thing_state(struct Thing *thing);
+DLLIMPORT long _DK_check_out_imp_stack(struct Thing *thing);
+DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
+DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *thing);
 short arrive_at_alarm(struct Thing *thing);
@@ -1483,7 +1483,7 @@ short creature_in_prison(struct Thing *thing)
     set_start_state(thing);
     return Lb_OK;
   }
-  if (room->field_E < room->field_10)
+  if (room->total_capacity < room->field_10)
   {
     if (is_my_player_number(room->owner))
       output_message(26, 0, 1);
@@ -1541,9 +1541,115 @@ short creature_picks_up_corpse(struct Thing *thing)
   return _DK_creature_picks_up_corpse(thing);
 }
 
+void creature_drag_object(struct Thing *thing, struct Thing *dragtng)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_6E = dragtng->index;
+    dragtng->field_0 |= 0x80;
+    dragtng->field_1 |= 0x01;
+    dragtng->owner = game.neutral_player_num;
+    if (dragtng->field_62 != 0)
+    {
+      light_turn_light_off(dragtng->field_62);
+    }
+}
+
+void remove_spell_from_player(long spl_idx, long plyr_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(plyr_idx);
+    if (dungeon->magic_level[spl_idx] < 1)
+    {
+        ERRORLOG("Cannot remove a spell from player as he doesn't have it!");
+        return;
+    }
+    dungeon->magic_level[spl_idx]--;
+    switch ( spl_idx )
+    {
+    case 3:
+        if (dungeon->field_888)
+            dungeon->field_888 = 0;
+        break;
+    case 5:
+        if (dungeon->field_5D8)
+            turn_off_sight_of_evil(plyr_idx);
+        break;
+    case 6:
+        if (dungeon->field_884)
+            turn_off_call_to_arms(plyr_idx);
+        break;
+    }
+}
+
+unsigned char find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, struct Room *room, struct Coord3d *pos)
+{
+    return _DK_find_random_valid_position_for_thing_in_room_avoiding_object(thing, room, pos);
+}
+
+TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long new_owner)
+{
+    if (room->kind != RoK_LIBRARY)
+    {
+        SYNCDBG(4,"Spell was placed in a room of kind %d instead of library",(int)room->kind);
+        return false;
+    }
+    if (spelltng->owner != room->owner)
+    {
+        SYNCDBG(4,"Spell owned by player %d was placed in a room owned by player %d",(int)spelltng->owner,(int)room->owner);
+        return false;
+    }
+    if ((room->long_17 <= 0) || (room->field_10 <= 0))
+    {
+        ERRORLOG("Trying to remove spell from a room with no spell");
+        return false;
+    }
+    room->long_17--;
+    room->field_10--;
+    remove_spell_from_player(object_to_magic[spelltng->model], room->owner);
+    if (is_my_player_number(room->owner))
+    {
+        output_message(50, 0, 1);
+    } else
+    if (is_my_player_number(new_owner))
+    {
+        output_message(47, 0, 1);
+    }
+    return true;
+}
+
 short creature_picks_up_spell_object(struct Thing *thing)
 {
-  return _DK_creature_picks_up_spell_object(thing);
+    struct Room *enmroom, *ownroom;
+    struct CreatureControl *cctrl;
+    struct Thing *spelltng;
+    struct Coord3d pos;
+    //return _DK_creature_picks_up_spell_object(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    spelltng = thing_get(cctrl->field_72);
+    if (((spelltng->field_1 & 0x01) != 0) || thing_is_invalid(thing)
+      || (get_2d_box_distance(&thing->mappos, &spelltng->mappos) >= 512))
+    {
+      set_start_state(thing);
+      return 0;
+    }
+    enmroom = subtile_room_get(spelltng->mappos.x.stl.num,spelltng->mappos.y.stl.num);
+    ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, 3, 0, 1);
+    if (room_is_invalid(ownroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, ownroom, &pos))
+    {
+        WARNLOG("Player %d can't pick spell - doesn't have proper library to store it",(int)thing->owner);
+        set_start_state(thing);
+        return 0;
+    }
+    // Check if we're stealing the spell from a library
+    if (!room_is_invalid(enmroom))
+    {
+        remove_spell_from_library(enmroom, spelltng, thing->owner);
+    }
+    creature_drag_object(thing, spelltng);
+    setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0);
+    thing->field_8 = CrSt_CreatureDropsSpellObjectInLibrary;
+    return 1;
 }
 
 short creature_picks_up_trap_for_workshop(struct Thing *thing)
@@ -1641,9 +1747,83 @@ short creature_scavenged_reappear(struct Thing *thing)
   return _DK_creature_scavenged_reappear(thing);
 }
 
+struct Thing *find_gold_hoarde_in_room_for_creature(struct Thing *thing, struct Room *room)
+{
+    struct Thing *gldtng,*tmptng;
+    long selected;
+    long slb_x,slb_y;
+    unsigned long k;
+    long i;
+    gldtng = NULL;
+    if (room->field_3B <= 0)
+        return NULL;
+    selected = ACTION_RANDOM(room->field_3B);
+    k = 0;
+    i = room->field_37;
+    while (i != 0)
+    {
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        // Per room tile code
+        tmptng = find_gold_hoarde_at(3*slb_x+1, 3*slb_y+1);
+        if (!thing_is_invalid(tmptng))
+        {
+            if (creature_can_navigate_to_with_storage(thing, &tmptng->mappos, 0))
+            {
+                gldtng = tmptng;
+                if (selected > 0)
+                {
+                    selected--;
+                } else
+                {
+                    break;
+                }
+            }
+        }
+        // Per room tile code ends
+        i = get_next_slab_number_in_room(i);
+        k++;
+        if (k > room->field_3B)
+        {
+          ERRORLOG("Room slabs list length exceeded when sweeping");
+          break;
+        }
+    }
+    return gldtng;
+}
+
+/**
+ * State handler function for stealing gold.
+ * Should be invoked when a thief arrives at enemy treasure room.
+ * Searches for specific gold hoarde to steal from and enters next
+ * phase of stealing (CrSt_CreatureStealGold).
+ * @param thing The creature who is stealing gold.
+ * @return True on success, false if finding gold to steal failed.
+ */
 short creature_search_for_gold_to_steal_in_room(struct Thing *thing)
 {
-  return _DK_creature_search_for_gold_to_steal_in_room(thing);
+    struct SlabMap *slb;
+    struct Room *room;
+    struct Thing *gldtng;
+    //return _DK_creature_search_for_gold_to_steal_in_room(thing);
+    slb = get_slabmap_for_subtile(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+    room = room_get(slb->room_index);
+    if (room_is_invalid(room) || (room->kind != RoK_TREASURE))
+    {
+        WARNLOG("Cannot steal gold - not on treasure room at (%d,%d)",(int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num);
+        set_start_state(thing);
+        return 0;
+    }
+    gldtng = find_gold_hoarde_in_room_for_creature(thing, room);
+    if (thing_is_invalid(gldtng))
+    {
+        WARNLOG("Cannot steal gold - no gold hoarde found in treasure room");
+        set_start_state(thing);
+        return 0;
+    }
+    setup_person_move_to_position(thing, gldtng->mappos.x.stl.num, gldtng->mappos.y.stl.num, 0);
+    thing->field_8 = CrSt_CreatureStealGold;
+    return 1;
 }
 
 short creature_set_work_room_based_on_position(struct Thing *thing)
@@ -1663,7 +1843,36 @@ short creature_sleep(struct Thing *thing)
 
 short creature_steal_gold(struct Thing *thing)
 {
-  return _DK_creature_steal_gold(thing);
+    struct CreatureStats *crstat;
+    struct Room *room;
+    struct Thing *hrdtng;
+    long amount;
+    //return _DK_creature_steal_gold(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    room = subtile_room_get(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    if (room_is_invalid(room) || (room->kind != RoK_TREASURE))
+    {
+        WARNLOG("Cannot steal gold - not on treasure room at (%d,%d)",(int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num);
+        set_start_state(thing);
+        return 0;
+    }
+    hrdtng = find_gold_hoarde_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    if (thing_is_invalid(hrdtng))
+    {
+        WARNLOG("Cannot steal gold - no gold hoarde at (%d,%d)",(int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num);
+        set_start_state(thing);
+        return 0;
+    }
+    if (crstat->gold_hold-thing->long_13 > 0)
+    {
+        // Success! we are able to steal some gold!
+        amount = remove_gold_from_hoarde(hrdtng, room, crstat->gold_hold-thing->long_13);
+        thing->long_13 += amount;
+        create_price_effect(&thing->mappos, thing->owner, amount);
+        SYNCDBG(6,"Stolen %ld gold from hoarde at (%d,%d)",amount,(int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num);
+    }
+    set_start_state(thing);
+    return 0;
 }
 
 short creature_take_salary(struct Thing *thing)
@@ -1891,9 +2100,48 @@ TbBool good_setup_attack_rooms(struct Thing *thing, long dngn_id)
     return true;
 }
 
-long good_setup_loot_treasure_room(struct Thing *thing, long dngn_id)
+TbBool good_setup_loot_treasure_room(struct Thing *thing, long dngn_id)
 {
-    return _DK_good_setup_loot_treasure_room(thing, dngn_id);
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    //return _DK_good_setup_loot_treasure_room(thing, dngn_id);
+    room = find_random_room_creature_can_navigate_to(thing, dngn_id, RoK_TREASURE, 0);
+    if (room_is_invalid(room))
+    {
+        SYNCDBG(6,"No accessible player %ld treasure room found",dngn_id);
+        return false;
+    }
+    if (!setup_person_move_to_position(thing, room->field_8, room->field_9, 0))
+    {
+        WARNLOG("Cannot setup move to player %ld treasure room",dngn_id);
+        return false;
+    }
+    cctrl = creature_control_get_from_thing(thing);
+    thing->field_8 = CrSt_CreatureSearchForGoldToStealInRoom2;
+    cctrl->field_80 = room->index;
+    return true;
+}
+
+TbBool good_setup_loot_research_room(struct Thing *thing, long dngn_id)
+{
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    room = find_random_room_creature_can_navigate_to(thing, dngn_id, RoK_LIBRARY, 0);
+    if (room_is_invalid(room))
+    {
+        SYNCDBG(6,"No accessible player %ld library found",dngn_id);
+        return false;
+    }
+    if (!setup_person_move_to_position(thing, room->field_8, room->field_9, 0))
+    {
+        WARNLOG("Cannot setup move to player %ld library",dngn_id);
+        return false;
+    }
+    cctrl = creature_control_get_from_thing(thing);
+    //TODO: set into proper state for stealing spells
+    thing->field_8 = CrSt_CreatureSearchForGoldToStealInRoom2;
+    cctrl->field_80 = room->index;
+    return true;
 }
 
 TbBool good_setup_wander_to_creature(struct Thing *wanderer, long dngn_id)
@@ -2209,7 +2457,7 @@ short good_doing_nothing(struct Thing *thing)
     SYNCDBG(8,"Performing task %d",(int)cctrl->field_4);
     switch (cctrl->field_4)
     {
-    case 1:
+    case 1: // ATTACK_ROOMS
         if (good_setup_attack_rooms(thing, i))
         {
             return true;
@@ -2217,14 +2465,14 @@ short good_doing_nothing(struct Thing *thing)
         WARNLOG("Can't attack player %d rooms, switching to attack heart", (int)i);
         cctrl->field_4 = 3;
         return false;
-    case 3:
+    case 3: // ATTACK_DUNGEON_HEART
         if (good_setup_wander_to_dungeon_heart(thing, i))
         {
             return true;
         }
         ERRORLOG("Cannot wander to player %d heart", (int)i);
         return false;
-    case 4:
+    case 4: // STEAL_GOLD
         crstat = creature_stats_get_from_thing(thing);
         if (thing->long_13 < crstat->gold_hold)
         {
@@ -2240,7 +2488,23 @@ short good_doing_nothing(struct Thing *thing)
             cctrl->field_4 = 3;
         }
         return false;
-    case 2:
+    case 5: // STEAL_SPELLS
+        //TODO: write a correct code for stealing spells, then enable this
+        if (true)//!thing->holds_a_spell)
+        {
+            if (good_setup_loot_research_room(thing, i))
+                return true;
+            WARNLOG("Can't loot player %d spells, switching to attack heart", (int)i);
+            cctrl->field_4 = 3;
+        } else
+        {
+            if (good_setup_wander_to_exit(thing))
+                return true;
+            WARNLOG("Can't wander to exit after looting player %d spells, switching to attack heart", (int)i);
+            cctrl->field_4 = 3;
+        }
+        return false;
+    case 2: // ATTACK_ENEMIES
     case 0:
     default:
         if (ACTION_RANDOM(2) == 1)
@@ -2371,93 +2635,61 @@ short imp_digs_mines(struct Thing *thing)
     return _DK_imp_digs_mines(thing);
 }
 
-short imp_doing_nothing(struct Thing *thing)
+TbBool add_to_imp_stack_using_pos(long a1, long a2, struct Dungeon *dungeon)
 {
-    SYNCDBG(19,"Starting");
-    return _DK_imp_doing_nothing(thing);
+  long i;
+  i = dungeon->imp_stack_length;
+  dungeon->imp_stack_length++;
+  dungeon->imp_stack[i].field_0 = a1;
+  dungeon->imp_stack[i].field_2 = a2;
+  return (dungeon->imp_stack_length < IMP_TASK_MAX_COUNT);
 }
 
-short imp_drops_gold(struct Thing *thing)
+long block_has_diggable_side(long a1, long a2, long a3)
 {
-  return _DK_imp_drops_gold(thing);
+  return _DK_block_has_diggable_side(a1, a2, a3);
 }
 
-short imp_improves_dungeon(struct Thing *thing)
+long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
 {
-  return _DK_imp_improves_dungeon(thing);
-}
-
-long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3)
-{
-  return _DK_imp_will_soon_be_working_at_excluding(thing, a2, a3);
-}
-
-long check_out_unconverted_spiral(struct Thing *thing, long a2)
-{
-  return _DK_check_out_unconverted_spiral(thing, a2);
-}
-
-long check_out_unprettied_spiral(struct Thing *thing, long a2)
-{
-  return _DK_check_out_unprettied_spiral(thing, a2);
-}
-
-TbBool check_out_unconverted_place(struct Thing *thing)
-{
-  long stl_x,stl_y;
-  long slb_x,slb_y;
-  slb_x = map_to_slab[thing->mappos.x.stl.num];
-  slb_y = map_to_slab[thing->mappos.y.stl.num];
-  stl_x = 3*slb_x + 1;
-  stl_y = 3*slb_y + 1;
-  if ( check_place_to_convert_excluding(thing, slb_x, slb_y)
-    && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y) )
+  struct MapTask* mtask;
+  long stl_x, stl_y;
+  long i,nused;
+  SYNCDBG(18,"Starting");
+  nused = 0;
+  for (i = 0; i < dungeon->field_AF7; i++)
   {
-      if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
+    if ((num <= 0) || (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT))
+      break;
+    mtask = &dungeon->task_list[i];
+    if ((mtask->field_0 != 0) && (mtask->field_0 != 3))
+    {
+      stl_x = stl_num_decode_x(mtask->field_1);
+      stl_y = stl_num_decode_y(mtask->field_1);
+      if ( subtile_revealed(stl_x, stl_y, dungeon->field_E9F) )
       {
-          thing->field_8 = CrSt_ImpArrivesAtConvertDungeon;
-          return true;
+        if ( block_has_diggable_side(dungeon->field_E9F, map_to_slab[stl_x], map_to_slab[stl_y]) )
+        {
+          add_to_imp_stack_using_pos(mtask->field_1, 9, dungeon);
+          num--;
+          nused++;
+        }
       }
+    }
   }
-  if ( check_out_unconverted_spiral(thing, 1) )
-  {
-    return true;
-  }
-  return false;
+  return nused;
 }
 
-long check_out_unprettied_place(struct Thing *thing)
+void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon)
 {
-  long stl_x,stl_y;
-  long slb_x,slb_y;
-  slb_x = map_to_slab[thing->mappos.x.stl.num];
-  slb_y = map_to_slab[thing->mappos.y.stl.num];
-  stl_x = 3*slb_x + 1;
-  stl_y = 3*slb_y + 1;
-  if ( check_place_to_pretty_excluding(thing, slb_x, slb_y)
-    && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y) )
-  {
-      if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
-      {
-          thing->field_8 = CrSt_ImpArrivesAtImproveDungeon;
-          return true;
-      }
-  }
-  if ( check_out_unprettied_spiral(thing, 1) )
-  {
-    return true;
-  }
-  return false;
+  SYNCDBG(18,"Starting");
+//TODO: rework! (causes hang if near egde of the map)
+  _DK_add_pretty_and_convert_to_imp_stack(dungeon); return;
 }
 
-long check_out_undug_place(struct Thing *thing)
+long add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon)
 {
-  return _DK_check_out_undug_place(thing);
-}
-
-long check_out_undug_area(struct Thing *thing)
-{
-  return _DK_check_out_undug_area(thing);
+  return _DK_add_unclaimed_gold_to_imp_stack(dungeon);
 }
 
 void setup_imp_stack(struct Dungeon *dungeon)
@@ -2527,63 +2759,6 @@ TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num)
   }
   SYNCDBG(19,"Finished");
   return true;
-}
-
-TbBool add_to_imp_stack_using_pos(long a1, long a2, struct Dungeon *dungeon)
-{
-  long i;
-  i = dungeon->imp_stack_length;
-  dungeon->imp_stack_length++;
-  dungeon->imp_stack[i].field_0 = a1;
-  dungeon->imp_stack[i].field_2 = a2;
-  return (dungeon->imp_stack_length < IMP_TASK_MAX_COUNT);
-}
-
-long block_has_diggable_side(long a1, long a2, long a3)
-{
-  return _DK_block_has_diggable_side(a1, a2, a3);
-}
-
-long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
-{
-  struct MapTask* mtask;
-  long stl_x, stl_y;
-  long i,nused;
-  SYNCDBG(18,"Starting");
-  nused = 0;
-  for (i = 0; i < dungeon->field_AF7; i++)
-  {
-    if ((num <= 0) || (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT))
-      break;
-    mtask = &dungeon->task_list[i];
-    if ((mtask->field_0 != 0) && (mtask->field_0 != 3))
-    {
-      stl_x = stl_num_decode_x(mtask->field_1);
-      stl_y = stl_num_decode_y(mtask->field_1);
-      if ( subtile_revealed(stl_x, stl_y, dungeon->field_E9F) )
-      {
-        if ( block_has_diggable_side(dungeon->field_E9F, map_to_slab[stl_x], map_to_slab[stl_y]) )
-        {
-          add_to_imp_stack_using_pos(mtask->field_1, 9, dungeon);
-          num--;
-          nused++;
-        }
-      }
-    }
-  }
-  return nused;
-}
-
-void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon)
-{
-  SYNCDBG(18,"Starting");
-//TODO: rework! (causes hang if near egde of the map)
-  _DK_add_pretty_and_convert_to_imp_stack(dungeon); return;
-}
-
-long add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon)
-{
-  return _DK_add_unclaimed_gold_to_imp_stack(dungeon);
 }
 
 TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
@@ -2679,6 +2854,208 @@ long imp_stack_update(struct Thing *thing)
   return 1;
 }
 
+long check_out_imp_stack(struct Thing *thing)
+{
+    return _DK_check_out_imp_stack(thing);
+}
+
+long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
+{
+    return _DK_setup_head_for_empty_treasure_space(thing, room);
+}
+
+/**
+ * Checks if given digger has money for treasure room.
+ * If he does, he is ordered to return them into nearest treasure room
+ * which has the proper capacity. If there's no proper treasure room,
+ * a proper speech message is created.
+ * @param thing The digger creature.
+ * @return Gives 1 if the digger was ordered to go into treasure room, 0 otherwise.
+ */
+long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
+{
+    struct Dungeon *dungeon;
+    struct Room *room;
+    //If the imp doesn't have any money - then just return
+    if (thing->long_13 <= 0)
+      return 0;
+    // Find a treasure room to drop the money
+    room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TREASURE, 0, 1);
+    if (room != NULL)
+    {
+        if (setup_head_for_empty_treasure_space(thing, room))
+        {
+          thing->field_8 = 7;
+          return 1;
+        }
+        return 0;
+    }
+    dungeon = get_dungeon(thing->owner);
+    // Check why the treasure room search failed. Maybe we don't have treasure room?
+    if (dungeon->room_kind[RoK_TREASURE] == 0)
+    {
+        //"You must build a treasure room, to store gold"
+        if (is_my_player_number(thing->owner))
+            output_message(39, 1000, 1);
+        event_create_event_or_update_nearby_existing_event(0, 0, 20, thing->owner, 0);
+        return 0;
+    }
+    // If we have it, is it unreachable, or just too small?
+    if (find_room_with_spare_capacity(thing->owner, RoK_TREASURE, 1) != NULL)
+    {
+        //"Some of your minions are unable to reach the treasure room"
+        if (is_my_player_number(thing->owner))
+            output_message(35, 1000, 1);
+        return 0;
+    }
+    //"You need a bigger treasure room"
+    if (is_my_player_number(thing->owner))
+        output_message(24, 1000, 1);
+    event_create_event_or_update_nearby_existing_event(0, 0, 11, thing->owner, 0);
+    return 0;
+}
+
+long check_out_available_imp_tasks(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    imp_stack_update(thing);
+    if ( check_out_imp_stack(thing) )
+        return 1;
+    if (game.play_gameturn-cctrl->field_2C7 > 128)
+    {
+        check_out_imp_has_money_for_treasure_room(thing);
+        cctrl->field_2C7 = game.play_gameturn;
+        return 1;
+    }
+    return 0;
+}
+
+long check_out_imp_tokes(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    long i;
+    cctrl = creature_control_get_from_thing(thing);
+    i = ACTION_RANDOM(64);
+    // small chance of changing state
+    if (i != 0)
+      return 0;
+    internal_set_thing_state(thing, 69);
+    thing->field_8 = 1;
+    cctrl->field_282 = 200;
+    return 1;
+}
+
+short imp_doing_nothing(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    SYNCDBG(19,"Starting");
+    //return _DK_imp_doing_nothing(thing);
+    if (!thing_is_creature_special_digger(thing))
+    {
+        ERRORLOG("Non digger thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+        set_start_state(thing);
+        return 0;
+    }
+    cctrl = creature_control_get_from_thing(thing);
+    dungeon = get_dungeon(thing->owner);
+    if (game.play_gameturn-cctrl->long_9A <= 1)
+        return 1;
+    if (check_out_imp_last_did(thing) || check_out_available_imp_tasks(thing) || check_out_imp_tokes(thing))
+        return 1;
+    if ( creature_choose_random_destination_on_valid_adjacent_slab(thing) )
+    {
+        thing->field_8 = 1;
+        return 1;
+    }
+    dungeon->lvstats.promises_broken++;
+    return 1;
+}
+
+short imp_drops_gold(struct Thing *thing)
+{
+  return _DK_imp_drops_gold(thing);
+}
+
+short imp_improves_dungeon(struct Thing *thing)
+{
+  return _DK_imp_improves_dungeon(thing);
+}
+
+long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3)
+{
+  return _DK_imp_will_soon_be_working_at_excluding(thing, a2, a3);
+}
+
+long check_out_unconverted_spiral(struct Thing *thing, long a2)
+{
+  return _DK_check_out_unconverted_spiral(thing, a2);
+}
+
+long check_out_unprettied_spiral(struct Thing *thing, long a2)
+{
+  return _DK_check_out_unprettied_spiral(thing, a2);
+}
+
+TbBool check_out_unconverted_place(struct Thing *thing)
+{
+  long stl_x,stl_y;
+  long slb_x,slb_y;
+  slb_x = map_to_slab[thing->mappos.x.stl.num];
+  slb_y = map_to_slab[thing->mappos.y.stl.num];
+  stl_x = 3*slb_x + 1;
+  stl_y = 3*slb_y + 1;
+  if ( check_place_to_convert_excluding(thing, slb_x, slb_y)
+    && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y) )
+  {
+      if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
+      {
+          thing->field_8 = CrSt_ImpArrivesAtConvertDungeon;
+          return true;
+      }
+  }
+  if ( check_out_unconverted_spiral(thing, 1) )
+  {
+    return true;
+  }
+  return false;
+}
+
+long check_out_unprettied_place(struct Thing *thing)
+{
+  long stl_x,stl_y;
+  long slb_x,slb_y;
+  slb_x = map_to_slab[thing->mappos.x.stl.num];
+  slb_y = map_to_slab[thing->mappos.y.stl.num];
+  stl_x = 3*slb_x + 1;
+  stl_y = 3*slb_y + 1;
+  if ( check_place_to_pretty_excluding(thing, slb_x, slb_y)
+    && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y) )
+  {
+      if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
+      {
+          thing->field_8 = CrSt_ImpArrivesAtImproveDungeon;
+          return true;
+      }
+  }
+  if ( check_out_unprettied_spiral(thing, 1) )
+  {
+    return true;
+  }
+  return false;
+}
+
+long check_out_undug_place(struct Thing *thing)
+{
+  return _DK_check_out_undug_place(thing);
+}
+
+long check_out_undug_area(struct Thing *thing)
+{
+  return _DK_check_out_undug_area(thing);
+}
+
 long check_out_unprettied_or_unconverted_area(struct Thing *thing)
 {
   return _DK_check_out_unprettied_or_unconverted_area(thing);
@@ -2702,17 +3079,6 @@ long check_out_unreinforced_place(struct Thing *thing)
 long check_out_unreinforced_area(struct Thing *thing)
 {
   return _DK_check_out_unreinforced_area(thing);
-}
-
-struct Room* find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing,
-    signed char a2, signed char a3, unsigned char a4, long a5)
-{
-  return _DK_find_nearest_room_for_thing_with_spare_capacity(thing, a2, a3, a4, a5);
-}
-
-struct Room* find_room_with_spare_capacity(unsigned char a1, signed char a2, long a3)
-{
-  return _DK_find_room_with_spare_capacity(a1, a2, a3);
 }
 
 long check_out_imp_last_did(struct Thing *thing)
