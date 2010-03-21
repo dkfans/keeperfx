@@ -366,6 +366,8 @@ unsigned short const player_state_to_spell[] = {
   0,10, 0, 11, 12, 13, 8, 0, 2,16, 14, 15, 0, 3, 0, 0,
 };
 
+const long power_sight_close_instance_time[] = {4, 4, 5, 5, 6, 6, 7, 7, 8};
+
 long instf_creature_fire_shot(struct Thing *thing, long *param);
 long instf_creature_cast_spell(struct Thing *thing, long *param);
 
@@ -514,8 +516,6 @@ DLLIMPORT void _DK_remove_thing_from_mapwho(struct Thing *thing);
 DLLIMPORT void _DK_place_thing_in_mapwho(struct Thing *thing);
 DLLIMPORT long _DK_get_thing_height_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT struct Room *_DK_player_has_room_of_type(long plr_idx, long roomkind);
-DLLIMPORT struct Room *_DK_find_room_with_spare_room_item_capacity(unsigned char a1, signed char a2);
-DLLIMPORT long _DK_create_workshop_object_in_workshop_room(long a1, long a2, long a3);
 DLLIMPORT long _DK_get_next_manufacture(struct Dungeon *dungeon);
 DLLIMPORT unsigned long _DK_setup_move_off_lava(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_create_thing(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
@@ -1474,7 +1474,86 @@ TbBool thing_slappable(struct Thing *thing, long plyr_idx)
 
 void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
 {
-  _DK_apply_damage_to_thing(thing, dmg, a3);
+    struct PlayerInfo *player;
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    long carmour, cdamage;
+    long i;
+    //_DK_apply_damage_to_thing(thing, dmg, a3);
+    // We're here to damage, not to heal
+    if (dmg <= 0)
+        return;
+    // If it's already dead, then don't interfere
+    if (thing->health < 0)
+        return;
+
+    switch (thing->class_id)
+    {
+    case TCls_Creature:
+        cctrl = creature_control_get_from_thing(thing);
+        crstat = creature_stats_get_from_thing(thing);
+        if ((cctrl->flgfield_1 & 0x04) == 0)
+        {
+            player = get_player(thing->owner);
+            // Compute armour value
+            carmour = crstat->armour;
+            if (!creature_control_invalid(cctrl))
+            {
+              if ((cctrl->field_AC & 0x04) != 0)
+                  carmour = (320 * carmour) / 256;
+            }
+            if (carmour < 0)
+            {
+                carmour = 0;
+            } else
+            if (carmour > 200)
+            {
+                carmour = 200;
+            }
+            // Now compute damage
+            cdamage = (dmg * (256 - carmour)) / 256;
+            if (cdamage <= 0)
+              cdamage = 1;
+            // Apply damage to the thing
+            thing->health -= cdamage;
+            thing->word_17 = 8;
+            thing->field_4F |= 0x80;
+            // Red palette if the possessed creature is hit very strong
+            if (thing_get(player->field_2F) == thing)
+            {
+              i = (10 * cdamage) / compute_creature_max_health(crstat->health,cctrl->explevel);
+              if (i > 10)
+              {
+                  i = 10;
+              } else
+              if (i <= 0)
+              {
+                  i = 1;
+              }
+              PaletteApplyPainToPlayer(player, i);
+            }
+        }
+        break;
+    case TCls_Object:
+        cdamage = dmg;
+        thing->health -= cdamage;
+        thing->field_4F |= 0x80;
+        break;
+    case TCls_Door:
+        cdamage = dmg;
+        thing->health -= cdamage;
+        break;
+    default:
+        break;
+    }
+    if ((thing->class_id == TCls_Creature) && (thing->health < 0))
+    {
+        cctrl = creature_control_get_from_thing(thing);
+        if ((cctrl->field_1D2 == -1) && (a3 != -1))
+        {
+            cctrl->field_1D2 = a3;
+        }
+    }
 }
 
 void slap_creature(struct PlayerInfo *player, struct Thing *thing)
@@ -2938,7 +3017,7 @@ long update_shot(struct Thing *thing)
         }
         break;
       default:
-        WARNLOG("Unsupported shot model %d", (int)thing->model);
+        // All shots that do not require special processing
         break;
     }
   }
@@ -7879,14 +7958,14 @@ TbBool send_resync_game(void)
     ERRORLOG("Can't open resync file.");
     return false;
   }
-     //TODO
+     //TODO write the resync function
   LbFileClose(fh);
   return false;
 }
 
 TbBool receive_resync_game(void)
 {
-     //TODO
+     //TODO write the resync function
   return false;
 }
 
@@ -8281,9 +8360,29 @@ short magic_use_power_obey(unsigned short plridx)
   return _DK_magic_use_power_obey(plridx);
 }
 
-void turn_off_sight_of_evil(long plridx)
+void turn_off_sight_of_evil(long plyr_idx)
 {
-  _DK_turn_off_sight_of_evil(plridx);
+    struct Dungeon *dungeon;
+  struct MagicStats *mgstat;
+  long spl_lev,cit;
+  long i,imax,k,n;
+  //_DK_turn_off_sight_of_evil(plyr_idx);
+  dungeon = get_players_num_dungeon(plyr_idx);
+  mgstat = &(game.magic_stats[5]);
+  spl_lev = dungeon->field_5DA;
+  if (spl_lev > SPELL_MAX_LEVEL)
+      spl_lev = SPELL_MAX_LEVEL;
+  i = game.play_gameturn - dungeon->field_5D4;
+  imax = abs(mgstat->power[spl_lev]/4) >> 2;
+  if (i > imax)
+      i = imax;
+  if (i < 0)
+      i = 0;
+  n = game.play_gameturn - mgstat->power[spl_lev];
+  cit = power_sight_close_instance_time[spl_lev];
+  k = imax / cit;
+  if (k < 1) k = 1;
+  dungeon->field_5D4 = n + i/k - cit;
 }
 
 void reset_scroll_window(void)
@@ -9580,16 +9679,6 @@ struct Room *player_has_room_of_type(long plr_idx, long roomkind)
   return _DK_player_has_room_of_type(plr_idx, roomkind);
 }
 
-struct Room *find_room_with_spare_room_item_capacity(unsigned char a1, signed char a2)
-{
-  return _DK_find_room_with_spare_room_item_capacity(a1, a2);
-}
-
-long create_workshop_object_in_workshop_room(long a1, long a2, long a3)
-{
-  return _DK_create_workshop_object_in_workshop_room(a1, a2, a3);
-}
-
 long get_next_manufacture(struct Dungeon *dungeon)
 {
   return _DK_get_next_manufacture(dungeon);
@@ -9986,6 +10075,23 @@ long PaletteFadePlayer(struct PlayerInfo *player)
   LbScreenWaitVbi();
   LbPaletteSet(palette);
   return step;
+}
+
+void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense)
+{
+    long i;
+    i = player->field_4C1 + intense;
+    if (i < 1)
+        i = 1;
+    else
+    if (i > 10)
+        i = 10;
+    player->field_4C1 = i;
+}
+
+void PaletteClearPainFromPlayer(struct PlayerInfo *player)
+{
+    player->field_4C1 = 0;
 }
 
 void message_update(void)

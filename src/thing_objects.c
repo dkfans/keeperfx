@@ -203,6 +203,7 @@ DLLIMPORT long _DK_object_update_power_sight(struct Thing *thing);
 DLLIMPORT long _DK_object_update_power_lightning(struct Thing *thing);
 DLLIMPORT long _DK_object_is_gold_pile(struct Thing *thing);
 DLLIMPORT long _DK_object_is_gold(struct Thing *thing);
+DLLIMPORT long _DK_remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount);
 /******************************************************************************/
 struct Objects *get_objects_data_for_thing(struct Thing *thing)
 {
@@ -523,6 +524,52 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx)
         return NULL;
     thing->long_13 = game.pot_of_gold_holds;
     return thing;
+}
+
+long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount)
+{
+    return _DK_remove_gold_from_hoarde(thing, room, amount);
+}
+
+TbBool thing_is_gold_hoarde(struct Thing *thing)
+{
+    if (thing->class_id == TCls_Object)
+    {
+        return (thing->model == 52) || (thing->model == 53) || (thing->model == 54) || (thing->model == 55) || (thing->model == 56);
+    }
+    return false;
+}
+
+struct Thing *find_gold_hoarde_at(unsigned short stl_x, unsigned short stl_y)
+{
+    struct Thing *thing;
+    struct Map *mapblk;
+    long i;
+    unsigned long k;
+    k = 0;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+      thing = thing_get(i);
+      if (thing_is_invalid(thing))
+      {
+        WARNLOG("Jump out of things array");
+        break;
+      }
+      i = thing->field_2;
+      // Per-thing block
+      if (thing_is_gold_hoarde(thing))
+          return thing;
+      // Per-thing block ends
+      k++;
+      if (k > THINGS_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping things list");
+        break;
+      }
+    }
+    return INVALID_THING;
 }
 
 

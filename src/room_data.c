@@ -20,6 +20,8 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
+#include "bflib_math.h"
+#include "thing_navigate.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -139,6 +141,12 @@ DLLIMPORT struct Room *_DK_create_room(unsigned char a1, unsigned char a2, unsig
 DLLIMPORT void _DK_create_room_flag(struct Room *room);
 DLLIMPORT struct Room *_DK_allocate_free_room_structure(void);
 DLLIMPORT unsigned short _DK_i_can_allocate_free_room_structure(void);
+DLLIMPORT struct Room *_DK_find_room_with_spare_room_item_capacity(unsigned char a1, signed char a2);
+DLLIMPORT long _DK_create_workshop_object_in_workshop_room(long a1, long a2, long a3);
+DLLIMPORT unsigned char _DK_find_first_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
+DLLIMPORT struct Room* _DK_find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing,
+    signed char a2, signed char a3, unsigned char a4, long a5);
+DLLIMPORT struct Room* _DK_find_room_with_spare_capacity(unsigned char a1, signed char a2, long a3);
 
 /******************************************************************************/
 struct Room *room_get(long room_idx)
@@ -267,7 +275,7 @@ void set_room_efficiency(struct Room *room)
 
 void count_slabs(struct Room *room)
 {
-  room->field_E = room->field_3B;
+  room->total_capacity = room->field_3B;
 }
 
 void count_gold_slabs_with_efficiency(struct Room *room)
@@ -287,7 +295,7 @@ void count_slabs_div2(struct Room *room)
   count = ((count/256) >> 1);
   if (count <= 1)
     count = 1;
-  room->field_E = count;
+  room->total_capacity = count;
 
 }
 
@@ -308,7 +316,7 @@ void count_slabs_with_efficiency(struct Room *room)
   count = (count/256);
   if (count <= 1)
     count = 1;
-  room->field_E = count;
+  room->total_capacity = count;
 }
 
 void count_crates_in_room(struct Room *room)
@@ -328,7 +336,7 @@ void count_capacity_in_garden(struct Room *room)
   count = (count/256);
   if (count <= 1)
     count = 1;
-  room->field_E = count;
+  room->total_capacity = count;
 }
 
 void count_food_in_room(struct Room *room)
@@ -392,7 +400,7 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
   struct Dungeon *dungeon;
   struct MapOffset *sstep;
   struct SlabMap *slb;
-  struct Room *room;
+  struct Room *room,*nxroom;
   unsigned long tot_x,tot_y;
   unsigned long cx,cy;
   long slb_x,slb_y;
@@ -428,8 +436,9 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
     {
       if ((game.field_14E938 > 0) && (game.field_14E938 < ROOMS_COUNT))
       {
-        room->field_19 = game.field_14E938;
-        game.rooms[game.field_14E938].field_17 = room->index;
+        room->word_19 = game.field_14E938;
+        nxroom = room_get(game.field_14E938);
+        nxroom->word_17 = room->index;
       }
       game.field_14E938 = room->index;
       game.field_14E93A++;
@@ -589,6 +598,199 @@ short room_grow_food(struct Room *room)
 TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos)
 {
     return _DK_find_random_valid_position_for_thing_in_room(thing, room, pos);
+}
+
+struct Room *find_room_with_spare_room_item_capacity(unsigned char a1, signed char a2)
+{
+  return _DK_find_room_with_spare_room_item_capacity(a1, a2);
+}
+
+struct Room *find_room_with_spare_capacity(unsigned char owner, signed char kind, long spare)
+{
+    struct Dungeon *dungeon;
+    struct Room *room;
+    unsigned long k;
+    int i;
+    SYNCDBG(18,"Starting");
+    dungeon = get_dungeon(owner);
+    k = 0;
+    i = dungeon->room_kind[kind];
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->field_6;
+        // Per-room code
+        if (room->field_10 + spare <= room->total_capacity)
+        {
+            return room;
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
+    }
+    return NULL;
+}
+
+unsigned char find_first_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos)
+{
+    return _DK_find_first_valid_position_for_thing_in_room(thing, room, pos);
+}
+
+struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing, signed char owner, signed char kind, unsigned char nav_no_owner, long spare)
+{
+    struct Dungeon *dungeon;
+    struct Room *nearoom;
+    long neardistance,distance;
+    struct Coord3d pos;
+
+    struct Room *room;
+    unsigned long k;
+    int i;
+    SYNCDBG(18,"Starting");
+    dungeon = get_dungeon(owner);
+    nearoom = NULL;
+    neardistance = LONG_MAX;
+    k = 0;
+    i = dungeon->room_kind[kind];
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->field_6;
+        // Per-room code
+        // Compute simplified distance - without use of mul or div
+        distance = abs(thing->mappos.x.stl.num - room->field_8)
+                 + abs(thing->mappos.y.stl.num - room->field_9);
+        if ((neardistance > distance) && (room->field_10 + spare <= room->total_capacity))
+        {
+            if (find_first_valid_position_for_thing_in_room(thing, room, &pos))
+            {
+                if ((thing->class_id != TCls_Creature)
+                  || creature_can_navigate_to(thing, &pos, nav_no_owner))
+                {
+                  neardistance = distance;
+                  nearoom = room;
+                }
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
+    }
+    return nearoom;
+}
+
+long count_rooms_creature_can_navigate_to(struct Thing *thing, unsigned char owner, signed char kind, unsigned char nav_no_owner)
+{
+    struct Dungeon *dungeon;
+    struct Room *room;
+    unsigned long k;
+    int i;
+    struct Coord3d pos;
+    long count;
+    SYNCDBG(18,"Starting");
+    dungeon = get_dungeon(owner);
+    count = 0;
+    k = 0;
+    i = dungeon->room_kind[kind];
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->field_6;
+        // Per-room code
+        pos.x.val = room->field_8 << 8;
+        pos.y.val = room->field_9 << 8;
+        pos.z.val = 256;
+        if ((room->field_10) && creature_can_navigate_to(thing, &pos, nav_no_owner))
+        {
+            count++;
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    return count;
+}
+
+struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsigned char owner, signed char kind, unsigned char nav_no_owner)
+{
+    struct Dungeon *dungeon;
+    struct Room *room;
+    unsigned long k;
+    int i;
+    struct Coord3d pos;
+    long count,selected;
+    SYNCDBG(18,"Starting");
+    count = count_rooms_creature_can_navigate_to(thing, owner, kind, nav_no_owner);
+    if (count < 1)
+        return NULL;
+    dungeon = get_dungeon(owner);
+    selected = ACTION_RANDOM(count);
+    k = 0;
+    i = dungeon->room_kind[kind];
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->field_6;
+        // Per-room code
+        pos.x.val = room->field_8 << 8;
+        pos.y.val = room->field_9 << 8;
+        pos.z.val = 256;
+        if ((room->field_10) && creature_can_navigate_to(thing, &pos, nav_no_owner))
+        {
+            if (selected > 0)
+            {
+                selected--;
+            } else
+            {
+                return room;
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    return NULL;
+}
+
+long create_workshop_object_in_workshop_room(long a1, long a2, long a3)
+{
+  return _DK_create_workshop_object_in_workshop_room(a1, a2, a3);
 }
 
 /******************************************************************************/

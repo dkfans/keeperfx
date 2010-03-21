@@ -1264,10 +1264,6 @@ long calculate_melee_damage(struct Thing *thing)
   cctrl = creature_control_get_from_thing(thing);
   crstat = creature_stats_get_from_thing(thing);
   return compute_creature_attack_damage(crstat->strength, crstat->luck, cctrl->explevel);
-  /* TODO: check if we really have to restrict it that much
-  if (damage >= 256)
-    damage = 256;
-  return damage;*/
 }
 
 /**

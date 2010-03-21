@@ -126,6 +126,16 @@ void slabmap_set_owner(struct SlabMap *slb, long owner)
 }
 
 /**
+ * Returns slab number of the next tile in a room, after the given one.
+ */
+long get_next_slab_number_in_room(long slab_num)
+{
+    if ((slab_num < 0) || (slab_num >= map_tiles_x*map_tiles_y))
+        return 0;
+    return game.slabmap[slab_num].field_1;
+}
+
+/**
  * Clears all SlabMap structures in the map.
  */
 void clear_slabs(void)
