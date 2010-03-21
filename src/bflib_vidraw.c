@@ -1809,15 +1809,6 @@ char __fastcall LbDrawLine(long x1, long y1, long x2, long y2, TbPixel colour)
   return result;
 }
 
-//Draws a filled triangle on the current graphics window.
-//Does no screen locking. May be treated as low level.
-void __fastcall LbDrawTriangleFilled(long x1, long y1, long x2, long y2, long x3, long y3, TbPixel colour)
-{
-//TODO
-  LbSyncLog("LbDrawTriangleFilled: UNFINISHED!\n");
-  LbDrawTriangle(x1,y1,x2,y2,x3,y3,colour);
-}
-
 //Draws any triangle on the current graphics window.
 //Does no screen locking.
 void __fastcall LbDrawTriangle(long x1, long y1, long x2, long y2, long x3, long y3, TbPixel colour)

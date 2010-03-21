@@ -28,53 +28,53 @@
 
 IPXServiceProvider::IPXServiceProvider()
 {
-  //TODO
+  //TODO NET
 }
 
 IPXServiceProvider::~IPXServiceProvider()
 {
-  //TODO
+  //TODO NET
 }
 
 TbError IPXServiceProvider::Start(struct TbNetworkSessionNameEntry *nsname, char *a2, void *a3)
 {
-  //TODO
+  //TODO NET
   return Lb_FAIL;
 }
 
 TbError IPXServiceProvider::Start(char *, char *, unsigned long, void *)
 {
-  //TODO
+  //TODO NET
   return Lb_FAIL;
 }
 
 TbError IPXServiceProvider::Stop(void)
 {
-  //TODO
+  //TODO NET
   return Lb_FAIL;
 }
 
 TbError IPXServiceProvider::Enumerate(TbNetworkCallbackFunc callback, void *buf)
 {
-  //TODO
+  //TODO NET
   return Lb_FAIL;
 }
 
 TbError IPXServiceProvider::Enumerate(struct TbNetworkSessionNameEntry *nsname, TbNetworkCallbackFunc callback, void *buf)
 {
-  //TODO
+  //TODO NET
   return Lb_FAIL;
 }
 
 TbError IPXServiceProvider::Init(struct _GUID guid, struct _GUID *guidp, struct ReceiveCallbacks *recv_cb, void *buf)
 {
-  //TODO
+  //TODO NET
   return Lb_FAIL;
 }
 
 TbError IPXServiceProvider::Release(void)
 {
-  //TODO
+  //TODO NET
   return Lb_FAIL;
 }
 
@@ -85,25 +85,25 @@ TbError IPXServiceProvider::ChangeSettings(unsigned long, void *)
 
 TbError IPXServiceProvider::EnableNewPlayers(TbBool allow)
 {
-  //TODO
+  //TODO NET
   return Lb_FAIL;
 }
 
 unsigned long IPXServiceProvider::ReadMessage(unsigned long *, void *, unsigned long *)
 {
-  //TODO
+  //TODO NET
   return Lb_FAIL;
 }
 
 unsigned long IPXServiceProvider::PeekMessage(unsigned long *, void *, unsigned long *)
 {
-  //TODO
+  //TODO NET
   return Lb_FAIL;
 }
 
 TbError IPXServiceProvider::SendMessage(unsigned long, void *, unsigned char)
 {
-  //TODO
+  //TODO NET
   return Lb_FAIL;
 }
 

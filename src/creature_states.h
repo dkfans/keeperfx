@@ -139,7 +139,7 @@ enum CreatureStates {
     CrSt_CreatureEvacuateRoom,
     CrSt_CreatureWaitAtTreasureRoomDoor,
     CrSt_AtKinkyTortureRoom,
-    CrSt_KinkyTorturing,///[110]
+    CrSt_KinkyTorturing,//[110]
     CrSt_MadKillingPsycho,
     CrSt_CreatureSearchForGoldToStealInRoom1,
     CrSt_CreatureVandaliseRooms,

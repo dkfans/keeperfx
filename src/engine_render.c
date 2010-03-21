@@ -79,7 +79,7 @@ long const orient_table_xflip[] =  {0, 0, 1, 1};
 long const orient_table_yflip[] =  {0, 1, 1, 0};
 long const orient_table_rotate[] = {0, 1, 0, 1};
 unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
-unsigned char temp_cluedo_mode;
+//unsigned char temp_cluedo_mode;
 unsigned long render_problems;
 long render_prob_kind;
 /******************************************************************************/
@@ -198,6 +198,7 @@ void update_engine_settings(struct PlayerInfo *player)
       split2at = 1;
       break;
   case 3:
+  default:
       split1at = 0;
       split2at = 0;
       break;
@@ -331,7 +332,7 @@ void create_box_coords(struct EngineCoord *coord, long x, long z, long y)
 
 void draw_map_volume_box(long a1, long a2, long a3, long a4, long a5, unsigned char color)
 {
-  map_volume_box.field_0 = 1;
+  map_volume_box.visible = 1;
   map_volume_box.field_3 = a1 & 0xFFFF0000;
   map_volume_box.field_7 = a2 & 0xFF00;
   map_volume_box.field_B = a3 & 0xFFFF0000;
@@ -1472,10 +1473,10 @@ void draw_view(struct Camera *cam, unsigned char a2)
         }
       }
   }
-  if (map_volume_box.field_0)
+  if (map_volume_box.visible)
     create_map_volume_box(x, y, z);
   display_drawlist();
-  map_volume_box.field_0 = 0;
+  map_volume_box.visible = 0;
   SYNCDBG(9,"Finished");
 }
 
@@ -1752,7 +1753,7 @@ void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, lo
   }
 }
 
-void draw_selected_slab_box(struct Camera *cam, unsigned char stl_width)
+void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width)
 {
   struct Coord3d pos;
   long coord_x,coord_y,coord_z;
@@ -1762,8 +1763,6 @@ void draw_selected_slab_box(struct Camera *cam, unsigned char stl_width)
   long vstart,vend;
   long delta[4];
 
-  if (!map_volume_box.field_0)
-    return;
   pos.y.val = map_volume_box.field_7;
   pos.x.val = map_volume_box.field_3;
   pos.z.val = 1280;
@@ -1977,8 +1976,9 @@ void draw_frontview_engine(struct Camera *cam)
   }
 
   update_frontview_pointed_block(laaa, qdrant, px, py, qx, qy);
-  draw_selected_slab_box(cam, (laaa >> 8) & 0xFF);
-  map_volume_box.field_0 = 0;
+  if (map_volume_box.visible)
+      create_frontview_map_volume_box(cam, (laaa >> 8) & 0xFF);
+  map_volume_box.visible = 0;
 
   h = (8 * (laaa + 32 * ewnd.height) - qy) / laaa;
   w = (8 * (laaa + 32 * ewnd.height) - qy) / laaa;

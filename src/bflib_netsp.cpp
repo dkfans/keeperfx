@@ -348,38 +348,38 @@ TbError ServiceProvider::Receive(unsigned long a1)
       keepExchng = false;
       break;
     }
-//TODO!!!!!!!!!
+//TODO NET!!!!!!!!!
     DecodeMessageStub(&p2, &decode_a2, &messageType, &decode_a4);
     if (a1 & 0x08)
       a1 = 0xFF;
     switch (messageType)
     {
     case 0:
-        //TODO
+        //TODO NET
         break;
     case 1:
-        //TODO
+        //TODO NET
         break;
     case 2:
-        //TODO
+        //TODO NET
         break;
     case 3:
-        //TODO
+        //TODO NET
         break;
     case 4:
-        //TODO
+        //TODO NET
         break;
     case 5:
-        //TODO
+        //TODO NET
         break;
     case 6:
-        //TODO
+        //TODO NET
         break;
     case 7:
-        //TODO
+        //TODO NET
         break;
     case 8:
-        //TODO
+        //TODO NET
         break;
     default:
         WARNLOG("messageType is out of range");
@@ -607,7 +607,7 @@ TbError ServiceProvider::CheckForDeletedHost(const void *enc_buf)
   memcpy(&plyr_id, inp, sizeof(unsigned long));
 
 
-  //TODO
+  //TODO NET CheckForDeletedHost
   got = 0;
   for (i=0; i < players_count; i++)
   {

@@ -7958,14 +7958,14 @@ TbBool send_resync_game(void)
     ERRORLOG("Can't open resync file.");
     return false;
   }
-     //TODO write the resync function
+     //TODO NET write the resync function
   LbFileClose(fh);
   return false;
 }
 
 TbBool receive_resync_game(void)
 {
-     //TODO write the resync function
+     //TODO NET write the resync function
   return false;
 }
 
@@ -9399,7 +9399,7 @@ void process_rooms(void)
     if (room->kind == RoK_GARDEN)
       room_grow_food(room);
     pckt = get_packet(my_player_number);
-    pckt->chksum += (room->field_3B & 0xFF) + room->field_8 + room->field_9;
+    pckt->chksum += (room->field_3B & 0xFF) + room->stl_x + room->stl_y;
     if (((game.numfield_D & 0x40) == 0) || (room->kind == RoK_DUNGHEART))
       continue;
     process_room_surrounding_flames(room);
@@ -11418,7 +11418,7 @@ short magic_use_power_imp(unsigned short plyr_idx, unsigned short stl_x, unsigne
      || !i_can_allocate_free_thing_structure(1))
     {
       if (is_my_player_number(plyr_idx))
-        play_non_3d_sample(119);
+          play_non_3d_sample(119);
       return 1;
     }
     dungeon = get_players_num_dungeon(plyr_idx);
@@ -11436,7 +11436,7 @@ short magic_use_power_imp(unsigned short plyr_idx, unsigned short stl_x, unsigne
     pos.x.val = get_subtile_center_pos(stl_x);
     pos.y.val = get_subtile_center_pos(stl_y);
     pos.z.val = get_floor_height_at(&pos) + (dnheart->field_58 >> 1);
-    thing = create_creature(&pos, 23, plyr_idx); //TODO: seach for special worker instead of just 23
+    thing = create_creature(&pos, get_players_special_digger_breed(plyr_idx), plyr_idx);
     if (!thing_is_invalid(thing))
     {
         thing->pos_32.x.val += ACTION_RANDOM(161) - 80;
@@ -11523,9 +11523,35 @@ void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4,
   _DK_tag_cursor_blocks_thing_in_hand(a1, a2, a3, a4, a5);
 }
 
-void create_power_hand(unsigned char a1)
+void create_power_hand(unsigned char owner)
 {
-  _DK_create_power_hand(a1);
+    struct PlayerInfo *player;
+    struct Thing *thing;
+    struct Thing *grabtng;
+    struct Coord3d pos;
+    //_DK_create_power_hand(owner);
+    pos.x.val = 0;
+    pos.y.val = 0;
+    pos.z.val = 0;
+    thing = create_object(&pos, 37, owner, -1);
+    if (thing_is_invalid(thing))
+        return;
+    player = get_player(owner);
+    player->field_43A = thing->index;
+    player->field_C = 0;
+    grabtng = get_first_thing_in_power_hand(player);
+    if (thing_is_invalid(thing))
+    {
+      set_power_hand_graphic(owner, 782, 256);
+    } else
+    if ((grabtng->class_id == TCls_Object) && object_is_gold_pile(grabtng))
+    {
+        set_power_hand_graphic(owner, 781, 256);
+    } else
+    {
+        set_power_hand_graphic(owner, 784, 256);
+    }
+    place_thing_in_limbo(thing);
 }
 
 unsigned long can_drop_thing_here(long x, long y, long a3, unsigned long a4)
