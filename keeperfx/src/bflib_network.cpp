@@ -1400,12 +1400,12 @@ void SystemUserMsgCallback(unsigned long plr_id, void *msgbuf, unsigned long msg
 
 void TwoPlayerReqExDataMsgCallback(unsigned long, unsigned long, void *)
 {
-//TODO: rewrite (less importand - used only for modem and serial)
+//TODO NET rewrite (less importand - used only for modem and serial)
 }
 
 void *TwoPlayerCallback(unsigned long, unsigned long, unsigned long, void *)
 {
-//TODO (less importand - used only for modem and serial)
+//TODO NET (less importand - used only for modem and serial)
   return NULL;
 }
 

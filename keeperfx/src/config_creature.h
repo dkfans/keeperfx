@@ -65,6 +65,8 @@ struct CreatureConfig {
     struct CommandWord angerjob_names[INSTANCE_TYPES_MAX];
     long attackpref_count;
     struct CommandWord attackpref_names[INSTANCE_TYPES_MAX];
+    long special_digger_good;
+    long special_digger_evil;
 };
 
 /******************************************************************************/
@@ -92,6 +94,7 @@ TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags);
 long calculate_correct_creature_maxspeed(const struct Thing *thing);
 unsigned short get_creature_model_flags(const struct Thing *thing);
 TbBool set_creature_available(long plyr_idx, long crtr_model, long can_be_avail, long force_avail);
+long get_players_special_digger_breed(long plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

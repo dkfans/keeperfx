@@ -3760,7 +3760,7 @@ void pick_up_creature_doing_activity(struct GuiButton *gbtn)
     if (i > 0)
         kind = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
     else
-        kind = 23; //TODO: This should be SPECIAL_DIGGER kind
+        kind = get_players_special_digger_breed(my_player_number);
     pick_flags = TPF_PickableCheck;
     if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
         pick_flags |= TPF_ReverseOrder;
@@ -5638,9 +5638,6 @@ long compute_menu_position_y(long desired_pos,int menu_height)
       break;
   case POS_SCRBTM:
       pos = MyScreenHeight - menu_height;
-      // TODO: remove when it's not needed; hack to make 640x480 work.
-/*      if (lbDisplay.ScreenMode == Lb_SCREEN_MODE_640_480_8)
-        pos -= 80;*/
       break;
   default: // Desired position have direct coordinates
       pos = ((desired_pos*units_per_pixel)>>4)*pixel_size;
@@ -5697,6 +5694,7 @@ char create_menu(struct GuiMenu *gmnu)
   // Setting position Y
   amnu->pos_y = compute_menu_position_y(gmnu->pos_y,gmnu->height);
 
+/* TODO what's this? remove?
   for (i=0; i<3; i++)
   {
     if ((menu_ids[i] == gmnu->field_0) && (MyScreenHeight == 480))
@@ -5704,7 +5702,7 @@ char create_menu(struct GuiMenu *gmnu)
       amnu->pos_y += 80;
       break;
     }
-  }
+  }*/
   amnu->numfield_2 = gmnu->numfield_2;
   if (amnu->numfield_2 < 1)
     ERRORLOG("Oi! There is a fade time less than 1. Idiot.");

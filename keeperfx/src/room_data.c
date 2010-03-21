@@ -511,8 +511,8 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
     slb = get_slabmap_block(slb_x,slb_y);
     if (&game.rooms[slb->room_index] == room)
     {
-      room->field_8 = cx;
-      room->field_9 = cy;
+      room->stl_x = cx;
+      room->stl_y = cy;
       break;
     }
   }
@@ -672,8 +672,8 @@ struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing
         i = room->field_6;
         // Per-room code
         // Compute simplified distance - without use of mul or div
-        distance = abs(thing->mappos.x.stl.num - room->field_8)
-                 + abs(thing->mappos.y.stl.num - room->field_9);
+        distance = abs(thing->mappos.x.stl.num - room->stl_x)
+                 + abs(thing->mappos.y.stl.num - room->stl_y);
         if ((neardistance > distance) && (room->field_10 + spare <= room->total_capacity))
         {
             if (find_first_valid_position_for_thing_in_room(thing, room, &pos))
@@ -697,6 +697,14 @@ struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing
     return nearoom;
 }
 
+/**
+ * Counts all room of given kind and owner where the creature can navigate to.
+ * @param thing
+ * @param owner
+ * @param kind
+ * @param nav_no_owner
+ * @return
+ */
 long count_rooms_creature_can_navigate_to(struct Thing *thing, unsigned char owner, signed char kind, unsigned char nav_no_owner)
 {
     struct Dungeon *dungeon;
@@ -720,8 +728,8 @@ long count_rooms_creature_can_navigate_to(struct Thing *thing, unsigned char own
         }
         i = room->field_6;
         // Per-room code
-        pos.x.val = room->field_8 << 8;
-        pos.y.val = room->field_9 << 8;
+        pos.x.val = get_subtile_center_pos(room->stl_x);
+        pos.y.val = get_subtile_center_pos(room->stl_y);
         pos.z.val = 256;
         if ((room->field_10) && creature_can_navigate_to(thing, &pos, nav_no_owner))
         {
@@ -738,6 +746,15 @@ long count_rooms_creature_can_navigate_to(struct Thing *thing, unsigned char own
     return count;
 }
 
+/**
+ * Gives a room of given kind and owner where the creature can navigate to.
+ * Counts all possible rooms, then selects one and returns it.
+ * @param thing
+ * @param owner
+ * @param kind
+ * @param nav_no_owner
+ * @return
+ */
 struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsigned char owner, signed char kind, unsigned char nav_no_owner)
 {
     struct Dungeon *dungeon;
@@ -764,8 +781,8 @@ struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsi
         }
         i = room->field_6;
         // Per-room code
-        pos.x.val = room->field_8 << 8;
-        pos.y.val = room->field_9 << 8;
+        pos.x.val = get_subtile_center_pos(room->stl_x);
+        pos.y.val = get_subtile_center_pos(room->stl_y);
         pos.z.val = 256;
         if ((room->field_10) && creature_can_navigate_to(thing, &pos, nav_no_owner))
         {

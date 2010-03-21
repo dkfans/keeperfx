@@ -280,11 +280,11 @@ struct M33 { // sizeof = 48
 };
 
 struct EngineCol {
-//TODO!!
+//TODO figure out the EngineCol struct
 };
 
 struct MapVolumeBox { // sizeof = 24
-  unsigned char field_0;
+  unsigned char visible;
   unsigned char color;
   unsigned char field_2;
   long field_3;
@@ -380,8 +380,8 @@ DLLIMPORT int _DK_normal_shade_front;
 #define normal_shade_front _DK_normal_shade_front
 DLLIMPORT int _DK_normal_shade_back;
 #define normal_shade_back _DK_normal_shade_back
-//DLLIMPORT unsigned char _DK_temp_cluedo_mode;
-//#define temp_cluedo_mode _DK_temp_cluedo_mode
+DLLIMPORT unsigned char _DK_temp_cluedo_mode;
+#define temp_cluedo_mode _DK_temp_cluedo_mode
 DLLIMPORT long _DK_me_distance;
 #define me_distance _DK_me_distance
 DLLIMPORT short _DK_mx;
@@ -407,7 +407,7 @@ DLLIMPORT long _DK_gtblock_clip_height;
 DLLIMPORT long _DK_gtblock_screen_width;
 #define gtblock_screen_width _DK_gtblock_screen_width
 /******************************************************************************/
-extern unsigned char temp_cluedo_mode;
+//extern unsigned char temp_cluedo_mode;
 /******************************************************************************/
 void do_a_plane_of_engine_columns_perspective(long a1, long a2, long a3, long a4);
 void do_a_plane_of_engine_columns_cluedo(long a1, long a2, long a3, long a4);

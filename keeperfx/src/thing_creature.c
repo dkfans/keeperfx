@@ -1846,8 +1846,7 @@ struct Thing *find_my_highest_level_creature_of_breed(long breed_idx, TbBool pic
     {
         filter = player_list_creature_filter_most_experienced_and_pickable2;
     }
-    //TODO: condition should be based on SPECIAL_DIGGER attribute
-    if ((breed_idx == 23) || (breed_idx == -1))
+    if ((breed_idx == get_players_special_digger_breed(my_player_number)) || (breed_idx == -1))
     {
         thing = get_player_list_creature_with_filter(dungeon->worker_list_start, filter, &param);
     } else
@@ -1873,8 +1872,7 @@ struct Thing *find_my_lowest_level_creature_of_breed(long breed_idx, TbBool pick
     {
         filter = player_list_creature_filter_least_experienced_and_pickable2;
     }
-    //TODO: condition should be based on SPECIAL_DIGGER attribute
-    if ((breed_idx == 23) || (breed_idx == -1))
+    if ((breed_idx == get_players_special_digger_breed(my_player_number)) || (breed_idx == -1))
     {
         thing = get_player_list_creature_with_filter(dungeon->worker_list_start, filter, &param);
     } else
@@ -1903,8 +1901,7 @@ struct Thing *find_my_first_creature_of_breed_and_gui_job(long breed_idx, long j
     {
         filter = player_list_creature_filter_of_gui_job_and_pickable2;
     }
-    //TODO: condition should be based on SPECIAL_DIGGER attribute
-    if ((breed_idx == 23) || (breed_idx == -1))
+    if ((breed_idx == get_players_special_digger_breed(my_player_number)) || (breed_idx == -1))
     {
         thing = get_player_list_creature_with_filter(dungeon->worker_list_start, filter, &param);
     } else

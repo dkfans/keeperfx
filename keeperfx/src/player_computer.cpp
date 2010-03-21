@@ -797,19 +797,19 @@ short parse_computer_player_common_blocks(char *buf,long len)
       switch (cmd_num)
       {
       case 1: // COMPUTERASSISTS
-//TODO
+//TODO make it work when AI structures from DLL will no longer be used
           break;
       case 2: // PROCESSESCOUNT
-//TODO
+//TODO make it work when AI structures from DLL will no longer be used
           break;
       case 3: // CHECKSCOUNT
-//TODO
+//TODO make it work when AI structures from DLL will no longer be used
           break;
       case 4: // EVENTSCOUNT
-//TODO
+//TODO make it work when AI structures from DLL will no longer be used
           break;
       case 5: // COMPUTERSCOUNT
-//TODO
+//TODO make it work when AI structures from DLL will no longer be used
           break;
       case 0: // comment
           break;
@@ -1593,7 +1593,7 @@ long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
   return _DK_computer_check_dig_to_entrance(comp, process);
 }
 
-/*TODO
+/*TODO enable when computer_check_dig_to_gold offset will not be used in DLL
 long computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *process)
 {
   return _DK_computer_check_dig_to_gold(comp, process);
@@ -1786,7 +1786,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         crstate = thing->field_7;
       if (crstate == 33)
       {
-        if (!create_task_move_creature_to_pos(comp, thing, room->field_8, room->field_9))
+        if (!create_task_move_creature_to_pos(comp, thing, room->stl_x, room->stl_y))
           return ret;
         new_tasks++;
         ret = 1;
@@ -1823,7 +1823,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         crstate = thing->field_7;
       if (crstate == 33)
       {
-        if (!create_task_move_creature_to_pos(comp, thing, room->field_8, room->field_9))
+        if (!create_task_move_creature_to_pos(comp, thing, room->stl_x, room->stl_y))
           return ret;
         new_tasks++;
         ret = 1;
