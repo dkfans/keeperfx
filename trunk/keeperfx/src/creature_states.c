@@ -2090,7 +2090,7 @@ TbBool good_setup_attack_rooms(struct Thing *thing, long dngn_id)
         return false;
     }
     event_create_event_or_update_nearby_existing_event(
-        get_subtile_center_pos(room->field_8), get_subtile_center_pos(room->field_9),
+        get_subtile_center_pos(room->stl_x), get_subtile_center_pos(room->stl_y),
         19, room->owner, 0);
     if (is_my_player_number(room->owner))
       output_message(15, 400, 1);
@@ -2111,7 +2111,7 @@ TbBool good_setup_loot_treasure_room(struct Thing *thing, long dngn_id)
         SYNCDBG(6,"No accessible player %ld treasure room found",dngn_id);
         return false;
     }
-    if (!setup_person_move_to_position(thing, room->field_8, room->field_9, 0))
+    if (!setup_person_move_to_position(thing, room->stl_x, room->stl_y, 0))
     {
         WARNLOG("Cannot setup move to player %ld treasure room",dngn_id);
         return false;
@@ -2132,7 +2132,7 @@ TbBool good_setup_loot_research_room(struct Thing *thing, long dngn_id)
         SYNCDBG(6,"No accessible player %ld library found",dngn_id);
         return false;
     }
-    if (!setup_person_move_to_position(thing, room->field_8, room->field_9, 0))
+    if (!setup_person_move_to_position(thing, room->stl_x, room->stl_y, 0))
     {
         WARNLOG("Cannot setup move to player %ld library",dngn_id);
         return false;
@@ -3226,7 +3226,7 @@ short kinky_torturing(struct Thing *thing)
   cctrl = creature_control_get_from_thing(thing);
   room = get_room_thing_is_on(thing);
   if (!room_is_invalid(room))
-    if ((room->kind == 5) && (cctrl->field_7E == room->index))
+    if ((room->kind == RoK_TORTURE) && (cctrl->field_7E == room->index))
       if (game.play_gameturn-cctrl->field_82 <= crstat->torture_time)
       {
         process_kinky_function(thing);

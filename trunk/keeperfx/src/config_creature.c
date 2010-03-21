@@ -213,6 +213,8 @@ TbBool parse_creaturetypes_common_blocks(char *buf,long len)
   crtr_conf.job_count = 1;
   crtr_conf.angerjob_count = 1;
   crtr_conf.attackpref_count = 1;
+  crtr_conf.special_digger_good = 0;
+  crtr_conf.special_digger_evil = 0;
   k = sizeof(crtr_conf.model)/sizeof(crtr_conf.model[0]);
   for (i=0; i < k; i++)
   {
@@ -589,6 +591,28 @@ TbBool set_creature_available(long plyr_idx, long crtr_model, long can_be_avail,
     return true;
 }
 
+long get_players_special_digger_breed(long plyr_idx)
+{
+    long breed;
+    if (plyr_idx == hero_player_number)
+    {
+        breed = crtr_conf.special_digger_good;
+        if (breed == 0)
+        {
+            WARNLOG("Heroes have no digger breed!");
+            breed = crtr_conf.special_digger_evil;
+        }
+    } else
+    {
+        breed = crtr_conf.special_digger_evil;
+        if (breed == 0)
+        {
+            WARNLOG("Keepers have no digger breed!");
+            breed = crtr_conf.special_digger_good;
+        }
+    }
+    return breed;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
