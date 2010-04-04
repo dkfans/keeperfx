@@ -27,6 +27,7 @@
 #include "creature_states.h"
 #include "config_lenses.h"
 #include "thing_effects.h"
+#include "thing_objects.h"
 #include "thing_navigate.h"
 #include "lens_mist.h"
 #include "keeperfx.hpp"
@@ -181,6 +182,7 @@ DLLIMPORT long _DK_move_creature(struct Thing *thing);
 DLLIMPORT void _DK_init_creature_level(struct Thing *thing, long nlev);
 DLLIMPORT long _DK_check_for_first_person_barrack_party(struct Thing *thing);
 DLLIMPORT void _DK_terminate_thing_spell_effect(struct Thing *thing, long a2);
+DLLIMPORT void _DK_creature_increase_level(struct Thing *thing);
 /******************************************************************************/
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
@@ -398,7 +400,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
     splconf = &game.spells_config[spell_idx];
     switch ( spell_idx )
     {
-    case 3:
+    case SplK_Freeze:
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
@@ -413,14 +415,14 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
             creature_set_speed(thing, 0);
         }
         break;
-    case 4:
+    case SplK_Armour:
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
           cctrl->field_1D4[i].field_0 = spell_idx;
           cctrl->field_1D4[i].field_1 = game.magic_stats[12].power[spell_lev];
           n = 0;
-          cctrl->field_AC |= 0x04;
+          cctrl->spell_flags |= CSF_Armour;
           for (k=0; k < 3; k++)
           {
             pos.x.val = thing->mappos.x.val;
@@ -448,16 +450,16 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
           }
         }
         break;
-    case 6:
+    case SplK_Rebound:
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
             cctrl->field_1D4[i].field_0 = spell_idx;
             cctrl->field_1D4[i].field_1 = splconf->duration;
-            cctrl->field_AC |= 0x08;
+            cctrl->spell_flags |= CSF_Rebound;
         }
         break;
-    case 7:
+    case SplK_Heal:
         crstat = creature_stats_get_from_thing(thing);
         i = saturate_set_signed(thing->health + game.magic_stats[8].power[spell_lev],16);
         if (i < 0)
@@ -471,17 +473,17 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         cctrl->field_2B0 = 7;
         cctrl->field_2AE = game.magic_stats[8].time;
         break;
-    case 9:
+    case SplK_Invisibility:
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
             cctrl->field_1D4[i].field_0 = spell_idx;
             cctrl->field_1D4[i].field_1 = game.magic_stats[13].power[spell_lev];
-            cctrl->field_AC |= 0x20;
+            cctrl->spell_flags |= CSF_Conceal;
             cctrl->field_AF = 0;
         }
         break;
-    case 10:
+    case SplK_Teleport:
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
@@ -490,46 +492,46 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
             cctrl->field_AB |= 0x04;
         }
         break;
-    case 11:
+    case SplK_Speed:
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
             cctrl->field_1D4[i].field_0 = spell_idx;
             cctrl->field_1D4[i].field_1 = game.magic_stats[11].power[spell_lev];
-            cctrl->field_AC |= 0x02;
+            cctrl->spell_flags |= CSF_Speed;
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         }
         break;
-    case 12:
+    case SplK_Slow:
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
             cctrl->field_1D4[i].field_0 = spell_idx;
             cctrl->field_1D4[i].field_1 = splconf->duration;
-            cctrl->field_AC |= 0x01;
+            cctrl->spell_flags |= CSF_Slow;
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         }
         break;
-    case 20:
+    case SplK_Fly:
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
             cctrl->field_1D4[i].field_0 = spell_idx;
             cctrl->field_1D4[i].field_1 = splconf->duration;
-            cctrl->field_AC |= 0x10;
+            cctrl->spell_flags |= CSF_Fly;
             thing->field_25 |= 0x20;
         }
         break;
-    case 21:
+    case SplK_Sight:
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
             cctrl->field_1D4[i].field_0 = spell_idx;
             cctrl->field_1D4[i].field_1 = splconf->duration;
-            cctrl->field_AC |= 0x40;
+            cctrl->spell_flags |= CSF_Sight;
         }
         break;
-    case 26:
+    case SplK_Disease:
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
@@ -566,7 +568,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
           }
         }
         break;
-    case 27:
+    case SplK_Chicken:
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
@@ -596,17 +598,17 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     splconf = &game.spells_config[spell_idx];
     switch (spell_idx)
     {
-    case 3:
+    case SplK_Freeze:
         cctrl->field_1D4[idx].field_1 = splconf->duration;
         creature_set_speed(thing, 0);
         break;
-    case 4:
+    case SplK_Armour:
         cctrl->field_1D4[idx].field_1 = game.magic_stats[12].power[spell_lev];
         break;
-    case 6:
+    case SplK_Rebound:
         cctrl->field_1D4[idx].field_1 = splconf->duration;
         break;
-    case 7:
+    case SplK_Heal:
         crstat = creature_stats_get_from_thing(thing);
         i = saturate_set_signed(thing->health + game.magic_stats[8].power[spell_lev],16);
         if (i < 0)
@@ -620,32 +622,32 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         cctrl->field_2B0 = 7;
         cctrl->field_2AE = game.magic_stats[8].time;
         break;
-    case 9:
+    case SplK_Invisibility:
         cctrl->field_1D4[idx].field_1 = game.magic_stats[13].power[spell_lev];
         break;
-    case 10:
+    case SplK_Teleport:
         cctrl->field_1D4[idx].field_1 = splconf->duration;
         break;
-    case 11:
+    case SplK_Speed:
         cctrl->field_1D4[idx].field_1 = game.magic_stats[11].power[spell_lev];
         break;
-    case 12:
+    case SplK_Slow:
         cctrl->field_1D4[idx].field_1 = splconf->duration;
         break;
-    case 19:
+    case SplK_Light:
         cctrl->field_1D4[idx].field_1 = splconf->duration;
         break;
-    case 20:
+    case SplK_Fly:
         cctrl->field_1D4[idx].field_1 = splconf->duration;
         break;
-    case 21:
+    case SplK_Sight:
         cctrl->field_1D4[idx].field_1 = splconf->duration;
         break;
-    case 26:
+    case SplK_Disease:
         cctrl->field_1D4[idx].field_1 = game.magic_stats[14].power[spell_lev];
         cctrl->field_B2[4] = thing->owner;
         break;
-    case 27:
+    case SplK_Chicken:
         external_set_thing_state(thing, 120);
         cctrl->field_282 = 10;
         cctrl->field_1D4[idx].field_1 = game.magic_stats[15].power[spell_lev];
@@ -1151,9 +1153,9 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
 
   if (!creature_control_invalid(cctrl))
   {
-    if ((cctrl->field_AC & 0x04) != 0)
+    if ((cctrl->spell_flags & CSF_Armour) != 0)
     {
-      cctrl->field_AC &= 0xFB;
+      set_flag_byte(&cctrl->spell_flags, CSF_Armour, false);
       for (i=0; i < 3; i++)
       {
         k = cctrl->field_2B3[i];
@@ -1647,6 +1649,115 @@ void anger_set_creature_anger_all_types(struct Thing *thing, long a2)
 void change_creature_owner(struct Thing *thing, long nowner)
 {
     _DK_change_creature_owner(thing, nowner);
+}
+
+struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigned short owner)
+{
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct CreatureData *crdata;
+    struct Thing *crtng;
+    long i;
+    crstat = creature_stats_get(model);
+    if (!i_can_allocate_free_control_structure() || !i_can_allocate_free_thing_structure(1))
+    {
+        ERRORDBG(3,"Cannot create creature breed %d for player %d. There are too many creatures allocated.",(int)model,(int)owner);
+        thing_create_errors++;
+        return NULL;
+    }
+    crtng = allocate_free_thing_structure(1);
+    cctrl = allocate_free_control_structure();
+    crtng->ccontrol_idx = cctrl->index;
+    crtng->class_id = 5;
+    crtng->model = model;
+    crtng->field_1D = crtng->index;
+    crtng->mappos.x.val = pos->x.val;
+    crtng->mappos.y.val = pos->y.val;
+    crtng->mappos.z.val = pos->z.val;
+    crtng->field_56 = crstat->size_xy;
+    crtng->field_58 = crstat->size_yz;
+    crtng->field_5A = crstat->thing_size_xy;
+    crtng->field_5C = crstat->thing_size_yz;
+    crtng->field_20 = 32;
+    crtng->field_22 = 0;
+    crtng->field_23 = 32;
+    crtng->field_24 = 8;
+    crtng->field_25 |= 0x08;
+    crtng->owner = owner;
+    crtng->field_52 = 0;
+    crtng->field_54 = 0;
+    cctrl->max_speed = calculate_correct_creature_maxspeed(crtng);
+    cctrl->field_2C1 = creatures[model].field_9;
+    cctrl->field_2C3 = creatures[model].field_B;
+    cctrl->field_2C5 = creatures[model].field_D;
+    i = get_creature_anim(crtng, 0);
+    set_thing_draw(crtng, i, 256, 300, 0, 0, 2);
+    cctrl->explevel = 1;
+    crtng->health = crstat->health;
+    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
+    crtng->owner = owner;
+    crtng->mappos.x.val = pos->x.val;
+    crtng->mappos.y.val = pos->y.val;
+    crtng->mappos.z.val = pos->z.val;
+    crtng->field_9 = game.play_gameturn;
+    cctrl->field_286 = 17+ACTION_RANDOM(13);
+    cctrl->field_287 = ACTION_RANDOM(7);
+    if (game.field_14E496 == owner)
+    {
+      cctrl->sbyte_89 = -1;
+      cctrl->byte_8C = 1;
+    }
+    cctrl->pos_288.x.val = crtng->mappos.x.val;
+    cctrl->pos_288.y.val = crtng->mappos.y.val;
+    cctrl->pos_288.z.val = crtng->mappos.z.val;
+    cctrl->pos_288.z.val = get_thing_height_at(crtng, pos);
+    cctrl->field_1D2 = -1;
+    if (crstat->flying)
+      crtng->field_25 |= 0x20;
+    set_creature_level(crtng, 0);
+    crtng->health = compute_creature_max_health(crstat->health,cctrl->explevel);
+    add_thing_to_list(crtng, &game.thing_lists[0]);
+    place_thing_in_mapwho(crtng);
+    if (owner <= PLAYERS_COUNT)
+      set_first_creature(crtng);
+    set_start_state(crtng);
+    if (crtng->owner != game.neutral_player_num)
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_dungeon(crtng->owner);
+        if (!dungeon_invalid(dungeon))
+        {
+            dungeon->score += game.creature_scores[crtng->model].value[cctrl->explevel];
+        }
+    }
+    crdata = creature_data_get(model);
+    cctrl->field_1E8 = crdata->flags;
+    return crtng;
+}
+
+TbBool creature_increase_level(struct Thing *thing)
+{
+  struct Dungeon *dungeon;
+  struct CreatureStats *crstat;
+  struct CreatureControl *cctrl;
+  //_DK_creature_increase_level(thing);
+  cctrl = creature_control_get_from_thing(thing);
+  if (creature_control_invalid(cctrl))
+  {
+      ERRORLOG("Invalid creature control; no action");
+      return false;
+  }
+  dungeon = get_dungeon(thing->owner);
+  if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
+  {
+    crstat = creature_stats_get_from_thing(thing);
+    if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
+    {
+      cctrl->field_AD |= 0x40;
+      return true;
+    }
+  }
+  return false;
 }
 
 /**

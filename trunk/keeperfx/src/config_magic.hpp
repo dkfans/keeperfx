@@ -34,6 +34,48 @@ extern "C" {
 #define MAGIC_TYPES_COUNT      30
 #define POWER_TYPES_COUNT      20
 
+enum SpellKind {
+    SplK_None = 0,
+    SplK_Fireball,
+    SplK_FireBomb,
+    SplK_Freeze,
+    SplK_Armour,
+    SplK_Lightning,
+    SplK_Rebound,
+    SplK_Heal,
+    SplK_PoisonCloud,
+    SplK_Invisibility,
+    SplK_Teleport,//[10]
+    SplK_Speed,
+    SplK_Slow,
+    SplK_Drain,
+    SplK_Fear,
+    SplK_Missile,
+    SplK_NavigMissile,
+    SplK_FlameBreath,
+    SplK_Wind,
+    SplK_Light,
+    SplK_Fly,//[20]
+    SplK_Sight,
+    SplK_Grenade,
+    SplK_Hailstorm,
+    SplK_WordOfPower,//[24]
+    SplK_CrazyGas,
+    SplK_Disease,
+    SplK_Chicken,
+    SplK_TimeBomb,//[28]
+};
+
+enum CreatureSpellFlags {
+    CSF_Slow    = 0x01,
+    CSF_Speed   = 0x02,
+    CSF_Armour  = 0x04,
+    CSF_Rebound = 0x08,
+    CSF_Fly     = 0x10,
+    CSF_Conceal = 0x20,
+    CSF_Sight   = 0x40,
+};
+
 struct MagicConfig {
     long spell_types_count;
     struct CommandWord spell_names[MAGIC_ITEMS_MAX];

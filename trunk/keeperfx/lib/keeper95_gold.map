@@ -617,6 +617,7 @@
  0003:0002F9F4       net_session_scroll_offset
  0003:0002FDF8       net_player_scroll_offset
  0003:000150F4       UseFastBlockDraw
+ 0003:000153D4       nav_thing_can_travel_over_lava
  0003:00030CD8       fronttor_sprites
  0003:00030CE0       fronttor_end_sprites
  0003:00030CE4       fronttor_data
@@ -628,6 +629,7 @@
  0003:00053B20       deadzone_radius
  0003:0000D748       effect_info
  0003:00244E18       temp_pal
+ 0003:00244520       owner_player_navigating
  0003:0025C8C8       reinforce_stack
  0003:0025C9C8       r_stackpos
  0003:00273648       lbTextClipWindow
@@ -1653,3 +1655,6 @@
  0001:000B89C0       setup_head_for_empty_treasure_space
  0001:000B9380       find_random_valid_position_for_thing_in_room_avoiding_object
  0001:0005F310       remove_gold_from_hoarde
+ 0001:0006E7B0       nearest_search
+ 0001:000CBFC0       get_nearest_valid_position_for_creature_at
+ 

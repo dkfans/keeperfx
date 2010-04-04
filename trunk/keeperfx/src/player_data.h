@@ -40,10 +40,16 @@ typedef long PlayerNumber;
 #pragma pack(1)
 #endif
 
-struct Wander {
-    unsigned char field_0[424];
+struct Wander // sizeof = 424
+{
+  unsigned long field_0;
+  unsigned long field_4;
+  unsigned long field_8;
+  unsigned long field_C;
+  unsigned long field_10;
+  unsigned long field_14;
+  unsigned char field_18[400];
 };
-
 
 #define SIZEOF_PlayerInfo 0x4EF
 struct PlayerInfo {
@@ -141,9 +147,11 @@ struct PlayerInfo *get_player_ptr(long plyr_idx,const char *func_name);
 #define get_player(plyr_idx) get_player_ptr(plyr_idx,__func__)
 #define get_my_player() get_player_ptr(my_player_number,__func__)
 TbBool player_invalid(struct PlayerInfo *player);
+TbBool player_exists(struct PlayerInfo *player);
 TbBool is_my_player(struct PlayerInfo *player);
 TbBool is_my_player_number(PlayerNumber plyr_num);
 TbBool player_allied_with(struct PlayerInfo *player, long ally_idx);
+TbBool players_are_enemies(long plyr1_idx, long plyr2_idx);
 
 void clear_players(void);
 /******************************************************************************/
