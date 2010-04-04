@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "thing_objects.h"
 #include "thing_navigate.h"
 #include "keeperfx.hpp"
 

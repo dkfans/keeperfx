@@ -555,9 +555,9 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
   speed = crstat->base_speed;
   if (cctrl->field_21)
     speed *= 2;
-  if ((cctrl->field_AC & 0x02) != 0)
+  if ((cctrl->spell_flags & CSF_Speed) != 0)
     speed *= 2;
-  if ((cctrl->field_AC & 0x01) != 0)
+  if ((cctrl->spell_flags & CSF_Slow) != 0)
     speed /= 2;
   if (game.neutral_player_num != thing->owner)
   {
@@ -610,6 +610,27 @@ long get_players_special_digger_breed(long plyr_idx)
             WARNLOG("Keepers have no digger breed!");
             breed = crtr_conf.special_digger_good;
         }
+    }
+    return breed;
+}
+
+long get_room_creation_breed(long room_idx)
+{
+    long breed;
+    switch (room_idx)
+    {
+    case RoK_TORTURE:
+        breed = 28; // Ghost
+        break;
+    case RoK_GRAVEYARD:
+        breed = 25; // Vampire
+        break;
+    case RoK_PRISON:
+        breed = 15; // Skeleton
+        break;
+    default:
+        breed = 0;
+        break;
     }
     return breed;
 }

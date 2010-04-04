@@ -40,18 +40,23 @@ short LbDataFree(struct TbLoadFiles *load_file)
   if (load_file == NULL)
     return 0;
   unsigned char **data;
-  data = load_file->Start;
-  if (data != NULL)
-    if ((*data)!=NULL)
-    {
-       LbMemoryFree(*data);
-       (*data)=NULL;
-    }
   data = load_file->SEnd;
   if (data != NULL)
-    if ((*data)!=NULL)
+  {
+      (*data) = NULL;
+  }
+  data = load_file->Start;
+  if (data != NULL)
+    if ((*data) != NULL)
     {
-       (*data)=NULL;
+//#ifdef __DEBUG
+        LbSyncLog("LbDataFree: freeing \"%s\"...",load_file->FName);
+//#endif
+        LbMemoryFree(*data);
+        (*data) = NULL;
+//#ifdef __DEBUG
+        LbSyncLog("done\n");
+//#endif
     }
   return 1;
 }

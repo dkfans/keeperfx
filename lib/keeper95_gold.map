@@ -523,6 +523,7 @@
  0001:00065FC0       remove_events_thing_is_attached_to
  0001:00066100       update_all_events
  0001:0006E050       path_init8_wide
+ 0001:0006E7B0       nearest_search
  0001:0006EC80       setup_a_computer_player
  0001:0006EE60       restore_computer_player_after_load
  0001:0006EF80       process_computer_players2
@@ -1015,6 +1016,7 @@
  0001:000CBC00       move_to_position
  0001:000CBD50       move_backwards_to_position
  0001:000CBDF0       tunnelling
+ 0001:000CBFC0       get_nearest_valid_position_for_creature_at
  0001:000CCC90       process_checks
  0001:000CCD00       computer_checks_hates
  0001:000CCF40       computer_check_move_creatures_to_room
@@ -1154,6 +1156,7 @@
  0003:00014968       SoundDisabled
  0003:0001496C       FatalError
  0003:000150F4       UseFastBlockDraw
+ 0003:000153D4       nav_thing_can_travel_over_lava
  0003:00015630       special_desc
  0003:000160C8       room_desc
  0003:00016118       creature_desc
@@ -1513,6 +1516,7 @@
  0003:00241510       my_player_number
  0003:00243A0C       getpoly
  0003:00243A10       buckets
+ 0003:00244520       owner_player_navigating
  0003:00244D3C       transfer_creature_scroll_offset
  0003:00244D40       resurrect_creature_scroll_offset
  0003:00244D44       dungeon_special_selected

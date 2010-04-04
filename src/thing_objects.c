@@ -204,7 +204,113 @@ DLLIMPORT long _DK_object_update_power_lightning(struct Thing *thing);
 DLLIMPORT long _DK_object_is_gold_pile(struct Thing *thing);
 DLLIMPORT long _DK_object_is_gold(struct Thing *thing);
 DLLIMPORT long _DK_remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount);
+DLLIMPORT struct Thing *_DK_create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
 /******************************************************************************/
+struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4)
+{
+  struct Objects *objdat;
+  struct ObjectConfig *objconf;
+  struct InitLight ilight;
+  struct Thing *thing;
+  long i,k;
+  //thing = _DK_create_object(pos, model, owner, a4);
+
+  if (!i_can_allocate_free_thing_structure(1))
+  {
+      ERRORDBG(3,"Cannot create object model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+      thing_create_errors++;
+      return NULL;
+  }
+  LbMemorySet(&ilight, 0, sizeof(struct InitLight));
+  thing = allocate_free_thing_structure(1);
+  thing->class_id = TCls_Object;
+  thing->model = model;
+  if (a4 == -1)
+    thing->field_1D = -1;
+  else
+    thing->field_1D = a4;
+  LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
+  objconf = &game.objects_config[model];
+  objdat = get_objects_data_for_thing(thing);
+  thing->field_56 = objdat->field_9;
+  thing->field_58 = objdat->field_B;
+  thing->field_5A = objdat->field_9;
+  thing->field_5C = objdat->field_B;
+  thing->health = saturate_set_signed(objconf->health,16);
+  thing->field_20 = objconf->field_4;
+  thing->field_23 = 204;
+  thing->field_24 = 51;
+  thing->field_22 = 0;
+  thing->field_25 |= 0x08;
+
+  set_flag_byte(&thing->field_25, 0x40, objconf->field_8);
+  thing->owner = owner;
+  thing->field_9 = game.play_gameturn;
+
+  if (!objdat->field_2)
+  {
+    i = convert_td_iso(objdat->field_5);
+    k = 0;
+  } else
+  {
+    i = convert_td_iso(objdat->field_5);
+    k = -1;
+  }
+  set_thing_draw(thing, i, objdat->field_7, objdat->field_D, 0, k, objdat->field_11);
+  set_flag_byte(&thing->field_4F, 0x02, objconf->field_5);
+  set_flag_byte(&thing->field_4F, 0x01, objdat->field_3 & 0x01);
+  set_flag_byte(&thing->field_4F, 0x10, objdat->field_F & 0x01);
+  set_flag_byte(&thing->field_4F, 0x20, objdat->field_F & 0x02);
+  thing->field_7 = objdat->field_0;
+  if (objconf->light != 0)
+  {
+    LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
+    ilight.field_0 = objconf->light;
+    ilight.field_2 = objconf->field_B;
+    ilight.field_3 = objconf->field_C[0];
+    ilight.field_11 = objconf->field_1A;
+    thing->field_62 = light_create_light(&ilight);
+    if (thing->field_62 == 0)
+      ERRORLOG("Cannot allocate light to object model %d",(int)model);
+  }
+  switch (thing->model)
+  {
+    case 3:
+      thing->long_13 = game.chest_gold_hold;
+      break;
+    case 5:
+      thing->byte_13.h = 1;
+      light_set_light_minimum_size_to_cache(thing->field_62, 0, 56);
+      break;
+    case 6:
+      thing->long_13 = game.pot_of_gold_holds;
+      break;
+    case 33:
+      set_flag_byte(&thing->field_4F, 0x10, false);
+      set_flag_byte(&thing->field_4F, 0x20, true);
+      break;
+    case 43:
+      thing->long_13 = game.gold_pile_value;
+      break;
+    case 49:
+      i = get_free_hero_gate_number();
+      if (i > 0)
+      {
+        thing->byte_13.l = i;
+      } else
+      {
+        thing->byte_13.l = 0;
+        ERRORLOG("Could not allocate number for hero gate");
+      }
+      break;
+    default:
+      break;
+  }
+  add_thing_to_list(thing, &game.thing_lists[2]);
+  place_thing_in_mapwho(thing);
+  return thing;
+}
+
 struct Objects *get_objects_data_for_thing(struct Thing *thing)
 {
   unsigned int tmodel;

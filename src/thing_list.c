@@ -26,6 +26,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "config_creature.h"
+#include "creature_states.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -52,6 +53,8 @@ Thing_Class_Func class_functions[] = {
   NULL,
   NULL,
 };
+
+unsigned long thing_create_errors = 0;
 
 /******************************************************************************/
 DLLIMPORT long _DK_update_thing(struct Thing *thing);
@@ -371,8 +374,10 @@ void setup_computer_players(void)
   for (plr_idx=0; plr_idx<PLAYERS_COUNT; plr_idx++)
   {
       player = get_player(plr_idx);
-      if ((player->field_0 & 0x01) == 0)
+      if (!player_exists(player))
+      {
         setup_computer_player(plr_idx);
+      }
   }
 }
 
@@ -401,7 +406,7 @@ void init_all_creature_states(void)
   }
 }
 
-/*
+/**
  * Returns hero gate thing of given gate number.
  * @return Returns hero gate object, or invalid thing pointer if not found.
  */
@@ -421,10 +426,12 @@ struct Thing *find_hero_gate_of_number(long num)
       break;
     }
     i = thing->next_of_class;
+    // Per-thing code
     if ((thing->model == 49) && (thing->byte_13.l == num))
     {
       return thing;
     }
+    // Per-thing code ends
     k++;
     if (k > THINGS_COUNT)
     {
@@ -433,6 +440,50 @@ struct Thing *find_hero_gate_of_number(long num)
     }
   }
   return INVALID_THING;
+}
+
+struct Thing *find_nearest_enemy_creature(struct Thing *crtng)
+{
+  struct Thing *thing;
+  unsigned long k;
+  long i;
+  struct Thing *neartng;
+  long neardist,dist;
+  neardist = LONG_MAX;
+  neartng = NULL;
+  i = game.thing_lists[0].index;
+  k = 0;
+  while (i != 0)
+  {
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
+    {
+      ERRORLOG("Jump to invalid thing detected");
+      break;
+    }
+    i = thing->next_of_class;
+    // Per-thing code
+    if (players_are_enemies(crtng->owner, thing->owner))
+    {
+      if (creature_will_attack_creature(crtng, thing))
+      {
+          dist = get_2d_box_distance(&crtng->mappos, &thing->mappos);
+          if (dist < neardist)
+          {
+              neartng = thing;
+              neardist = dist;
+          }
+      }
+    }
+    // Per-thing code ends
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  return neartng;
 }
 
 long creature_of_model_in_prison(int model)
@@ -454,9 +505,9 @@ long creature_of_model_in_prison(int model)
     if (thing->model == model)
     {
       n = thing->field_7;
-      if (n == 14)
+      if (n == CrSt_MoveToPosition)
         n = thing->field_8;
-      if ((n == 41) || (n == 40))
+      if ((n == CrSt_CreatureInPrison) || (n == CrSt_CreatureArrivedAtPrison))
         return i;
     }
     // Thing list loop body ends

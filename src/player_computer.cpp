@@ -2163,7 +2163,7 @@ void process_computer_players2(void)
   for (i=0; i < PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    if ((player->field_0 & 0x01) == 0)
+    if (!player_exists(player))
       continue;
     dungeon = get_players_dungeon(player);
     if (((player->field_0 & 0x40) != 0) || ((dungeon->computer_enabled & 0x01) != 0))
@@ -2203,7 +2203,7 @@ void setup_computer_players2(void)
   for (i=0; i < PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    if ((player->field_0 & 0x01) != 0)
+    if (player_exists(player))
     {
       if (player->field_2C == 1)
       {

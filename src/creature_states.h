@@ -22,7 +22,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
-#define CREATURE_STATES_COUNT 145
+#define CREATURE_STATES_COUNT 147
 
 #ifdef __cplusplus
 extern "C" {
@@ -174,6 +174,8 @@ enum CreatureStates {
     CrSt_CreatureBeingScavenged,
     CrSt_CreatureEscapingDeath,
     CrSt_CreaturePresentToDungeonHeart,
+    CrSt_CreatureSearchForSpellToStealInRoom,
+    CrSt_CreatureStealSpell,
 };
 
 /******************************************************************************/
@@ -237,6 +239,8 @@ TbBool state_info_invalid(struct StateInfo *stati);
 void create_effect_around_thing(struct Thing *thing, long eff_kind);
 long get_creature_state_type(const struct Thing *thing);
 long get_creature_gui_job(const struct Thing *thing);
+/******************************************************************************/
+TbBool creature_will_attack_creature(struct Thing *tng1, struct Thing *tng2);
 /******************************************************************************/
 #ifdef __cplusplus
 }

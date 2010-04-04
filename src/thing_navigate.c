@@ -38,6 +38,8 @@ DLLIMPORT long _DK_creature_move_to_using_gates(struct Thing *thing, struct Coor
 DLLIMPORT long _DK_creature_turn_to_face(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_creature_turn_to_face_angle(struct Thing *thing, long a2);
+DLLIMPORT unsigned char _DK_get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Coord3d *pos);
+DLLIMPORT void _DK_nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
 
 /******************************************************************************/
 unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
@@ -81,7 +83,8 @@ TbBool creature_can_navigate_to_with_storage(struct Thing *crtng, struct Coord3d
 
 /**
  * Returns a hero gate object to which given hero can navigate.
- * @todo It returns first hero door found - maybe it should find the one he will reach faster?
+ * @todo It returns first hero door found, not the best one.
+ *     Maybe it should find the one he will reach faster, or at least a random one?
  * @param herotng The hero to be able to make it to gate.
  * @return The gate thing, or invalid thing.
  */
@@ -115,6 +118,40 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
     return NULL;
 }
 
+unsigned char get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Coord3d *pos)
+{
+    return _DK_get_nearest_valid_position_for_creature_at(thing, pos);
+}
+
+void nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py)
+{
+    _DK_nearest_search(size, srcx, srcy, dstx, dsty, px, py);
+}
+
+void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, unsigned char a4)
+{
+    struct CreatureStats *crstat;
+    long px, py;
+    crstat = creature_stats_get_from_thing(thing);
+    nav_thing_can_travel_over_lava = (!crstat->hurt_by_lava) || ((thing->field_25 & 0x20) != 0);
+    if ( a4 )
+    {
+      owner_player_navigating = -1;
+    } else
+    {
+      owner_player_navigating = thing->owner;
+    }
+    nearest_search(actual_sizexy_to_nav_block_sizexy_table[thing->field_56] - 1,
+      thing->mappos.x.val, thing->mappos.y.val,
+      pos1->x.val, pos1->y.val, &px, &py);
+    pos2->x.val = px;
+    pos2->y.val = py;
+    pos2->z.val = get_thing_height_at(thing, pos2);
+    if (thing_in_wall_at(thing, pos2))
+        get_nearest_valid_position_for_creature_at(thing, pos2);
+    nav_thing_can_travel_over_lava = 0;
+}
+
 TbBool setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char a4)
 {
     struct CreatureControl *cctrl;
@@ -144,6 +181,30 @@ TbBool setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y
     internal_set_thing_state(thing, 14);
     memcpy(&cctrl->moveto_pos,&pos,sizeof(struct Coord3d));
     return true;
+}
+
+TbBool setup_person_move_close_to_position(struct Thing *thing, long x, long y, unsigned char a4)
+{
+  struct CreatureControl *cctrl;
+  struct Coord3d trgpos;
+  struct Coord3d navpos;
+
+  cctrl = creature_control_get_from_thing(thing);
+  trgpos.x.stl.num = x;
+  trgpos.y.stl.num = y;
+  trgpos.x.stl.pos = 128;
+  trgpos.y.stl.pos = 128;
+  get_nearest_navigable_point_for_thing(thing, &trgpos, &navpos, a4);
+  if (!creature_can_navigate_to_with_storage(thing, &navpos, a4))
+  {
+    return false;
+  }
+  cctrl->field_88 = a4;
+  internal_set_thing_state(thing, 14);
+  cctrl->moveto_pos.x.val = navpos.x.val;
+  cctrl->moveto_pos.y.val = navpos.y.val;
+  cctrl->moveto_pos.z.val = navpos.z.val;
+  return true;
 }
 
 TbBool creature_can_travel_over_lava(struct Thing *thing)
@@ -190,7 +251,7 @@ TbBool creature_can_get_to_dungeon(struct Thing *thing, long plyr_idx)
     struct Dungeon *dungeon;
     struct Thing *heartng;
     player = get_player(plyr_idx);
-    if (((player->field_0 & 0x01) == 0) || (player->field_2C != 1))
+    if (!player_exists(player) || (player->field_2C != 1))
     {
         //WARNLOG("Cannot navigate to inactive player");
         return false;

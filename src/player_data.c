@@ -57,6 +57,34 @@ TbBool player_invalid(struct PlayerInfo *player)
     return (player < &game.players[0]);
 }
 
+/**
+ * Returns if the given player is in use on current map.
+ * @param player The player to check.
+ * @return True if the player is in use, false otherwise.
+ */
+TbBool player_exists(struct PlayerInfo *player)
+{
+    if (player_invalid(player))
+        return false;
+    return ((player->field_0 & 0x01) != 0);
+}
+
+TbBool players_are_enemies(long plyr1_idx, long plyr2_idx)
+{
+    struct PlayerInfo *player1,*player2;
+    // Player can't be his own enemy
+    if (plyr1_idx == plyr2_idx)
+        return false;
+    player1 = get_player(plyr1_idx);
+    player2 = get_player(plyr2_idx);
+    // Inactive or invalid players are not enemies
+    if (!player_exists(player1))
+        return false;
+    if (!player_exists(player2))
+        return false;
+    return ((player1->allied_players & (1<<plyr2_idx)) == 0);
+}
+
 TbBool player_allied_with(struct PlayerInfo *player, long ally_idx)
 {
     if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))

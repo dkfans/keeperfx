@@ -958,7 +958,7 @@ void process_player_instances(void)
   for (i=0; i<PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    if (player->field_0 & 0x01)
+    if (player_exists(player))
       process_player_instance(player);
   }
   SYNCDBG(9,"Finished");
