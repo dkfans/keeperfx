@@ -21,6 +21,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "thing_objects.h"
 #include "thing_list.h"
 #include "keeperfx.hpp"
 
@@ -29,10 +30,16 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_lock_door(struct Thing *thing);
+DLLIMPORT struct Thing *_DK_create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
 /******************************************************************************/
 
 
 /******************************************************************************/
+struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4)
+{
+  return _DK_create_door(pos, a1, a2, a3, a4);
+}
+
 TbBool remove_key_on_door(struct Thing *thing)
 {
   struct Thing *keytng;

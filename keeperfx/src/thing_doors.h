@@ -46,6 +46,7 @@ DLLIMPORT extern struct DoorStats _DK_door_stats[5][2];
 #pragma pack()
 #endif
 /******************************************************************************/
+struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
 void lock_door(struct Thing *thing);
 void unlock_door(struct Thing *thing);
 

@@ -1192,10 +1192,6 @@ DLLIMPORT unsigned char _DK_temp_pal[768];
 #define temp_pal _DK_temp_pal
 DLLIMPORT unsigned char *_DK_lightning_palette;
 #define lightning_palette _DK_lightning_palette
-DLLIMPORT long _DK_owner_player_navigating;
-#define _DK_owner_player_navigating owner_player_navigating
-DLLIMPORT long _DK_nav_thing_can_travel_over_lava;
-#define _DK_nav_thing_can_travel_over_lava nav_thing_can_travel_over_lava
 
 #ifdef __cplusplus
 }
@@ -1221,8 +1217,6 @@ void outro(void);
 
 void increase_level(struct PlayerInfo *player);
 void multiply_creatures(struct PlayerInfo *player);
-struct Thing *create_creature(struct Coord3d *pos, unsigned short a1, unsigned short a2);
-struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
 TbBool slap_object(struct Thing *thing);
 TbBool object_is_slappable(struct Thing *thing, long plyr_idx);
 unsigned char external_set_thing_state(struct Thing *thing, long state);
@@ -1231,7 +1225,6 @@ long is_thing_passenger_controlled(struct Thing *thing);
 void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player);
 void resurrect_creature(struct Thing *thing, unsigned char a2, unsigned char a3, unsigned char a4);
 void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char a3);
-TbBool creature_increase_level(struct Thing *thing);
 short thing_is_pickable_by_hand(struct PlayerInfo *player,struct Thing *thing);
 void remove_events_thing_is_attached_to(struct Thing *thing);
 unsigned long steal_hero(struct PlayerInfo *player, struct Coord3d *pos);
@@ -1603,7 +1596,6 @@ long process_creature_self_spell_casting(struct Thing *thing);
 struct ActionPoint *allocate_free_action_point_structure_with_number(long apt_num);
 struct ActionPoint *actnpoint_create_actnpoint(struct InitActionPoint *iapt);
 struct Thing *create_thing(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
-struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
 struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2);
 long remove_food_from_food_room_if_possible(struct Thing *thing);
 unsigned long setup_move_off_lava(struct Thing *thing);

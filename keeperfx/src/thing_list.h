@@ -161,6 +161,7 @@ unsigned short field_60;
 #endif
 /******************************************************************************/
 extern Thing_Class_Func class_functions[];
+extern unsigned long thing_create_errors;
 /******************************************************************************/
 long creature_near_filter_not_imp(const struct Thing *thing, FilterParam val);
 long creature_near_filter_is_enemy_of_and_not_imp(const struct Thing *thing, FilterParam val);
@@ -177,10 +178,12 @@ void init_traps(void);
 void init_player_start(struct PlayerInfo *player);
 void setup_computer_players(void);
 void init_all_creature_states(void);
+
 long creature_of_model_in_prison(int model);
 long count_player_creatures_of_model(long plyr_idx, long model);
 long count_player_creatures_not_counting_to_total(long plyr_idx);
 TbBool knight_in_prison(void);
+struct Thing *find_nearest_enemy_creature(struct Thing *crtng);
 
 void update_things(void);
 

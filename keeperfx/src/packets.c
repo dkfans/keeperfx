@@ -193,7 +193,7 @@ TbBigChecksum compute_players_checksum(void)
   for (i=0; i<PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    if (((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0) && (player->acamera != NULL))
+    if (player_exists(player) && ((player->field_0 & 0x40) == 0) && (player->acamera != NULL))
     {
         mappos = &(player->acamera->mappos);
         sum += player->field_4B1 + player->instance_num
@@ -226,7 +226,7 @@ short checksums_different(void)
   for (i=0; i<PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    if (((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0))
+    if (player_exists(player) && ((player->field_0 & 0x40) == 0))
     {
         pckt = get_packet_direct(player->packet_num);
         if (!is_set)
@@ -1230,7 +1230,7 @@ void open_new_packet_file_for_save(void)
   for (i=0; i<PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    if (player->field_0 & 0x01)
+    if (player_exists(player))
     {
       game.packet_save_head.field_C |= (1 << i) & 0xff;
       if (player->field_0 & 0x40)
@@ -1345,7 +1345,7 @@ void process_pause_packet(long a1, long a2)
   for (i=0; i < PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    if (((player->field_0 & 0x01) != 0) && (player->field_2C == 1))
+    if (player_exists(player) && (player->field_2C == 1))
     {
         if ((player->field_0 & 0x40) == 0)
         {
@@ -1531,7 +1531,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
       for (i=0; i < PLAYERS_COUNT; i++)
       {
         swplyr = get_player(i);
-        if ((swplyr->field_0 & 0x01) != 0)
+        if (player_exists(swplyr))
         {
           if (swplyr->field_2C == 1)
             if (swplyr->victory_state == VicS_Undecided)
@@ -1579,7 +1579,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
       for (i=0; i < PLAYERS_COUNT; i++)
       {
         swplyr = get_player(i);
-        if ((swplyr->field_0 & 0x01) != 0)
+        if (player_exists(swplyr))
         {
           swplyr->field_0 &= 0xFEu;
           swplyr->field_6 |= 0x02u;
@@ -1616,7 +1616,7 @@ TbBool process_players_global_packet_action(long plyr_idx)
   pckt = get_packet_direct(player->packet_num);
   switch (pckt->action)
   {
-    case 1:
+  case 1:
       if (is_my_player(player))
       {
         turn_off_all_menus();
@@ -1626,7 +1626,7 @@ TbBool process_players_global_packet_action(long plyr_idx)
       player->field_6 |= 0x02;
       process_quit_packet(player, 0);
       return 1;
-    case 3:
+  case 3:
       if (is_my_player(player))
       {
         turn_off_all_menus();
@@ -1635,9 +1635,9 @@ TbBool process_players_global_packet_action(long plyr_idx)
       player->field_6 |= 0x02;
       process_quit_packet(player, 1);
       return 1;
-    case 4:
+  case 4:
       return 1;
-    case 5:
+  case 5:
       if (is_my_player(player))
       {
         turn_off_all_menus();
@@ -1666,27 +1666,27 @@ TbBool process_players_global_packet_action(long plyr_idx)
         frontend_save_continue_game(false);
       }
       return 0;
-    case PckA_PlyrMsgBegin:
+  case PckA_PlyrMsgBegin:
       player->field_0 |= 0x04;
       return 0;
-    case PckA_PlyrMsgEnd:
+  case PckA_PlyrMsgEnd:
       player->field_0 &= 0xFBu;
       if (player->strfield_463[0] != '\0')
         message_add(player->id_number);
       memset(player->strfield_463, 0, 64);
       return 0;
-    case PckA_ToggleLights:
+  case PckA_ToggleLights:
       if (is_my_player(player))
         light_set_lights_on(game.field_4614D == 0);
       return 1;
-    case PckA_SwitchScrnRes:
+  case PckA_SwitchScrnRes:
         if (is_my_player(player))
         switch_to_next_video_mode();
       return 1;
-    case 22:
+  case 22:
       process_pause_packet((game.numfield_C & 0x01) == 0, pckt->field_6);
       return 1;
-    case 24:
+  case 24:
       if (is_my_player(player))
       {
         settings.video_cluedo_mode = pckt->field_6;
@@ -1694,45 +1694,45 @@ TbBool process_players_global_packet_action(long plyr_idx)
       }
       player->field_4DA = pckt->field_6;
       return 0;
-    case 25:
+  case 25:
       if (is_my_player(player))
       {
         change_engine_window_relative_size(pckt->field_6, pckt->field_8);
         centre_engine_window();
       }
       return 0;
-    case 26:
+  case 26:
       set_player_cameras_position(player, pckt->field_6 << 8, pckt->field_8 << 8);
       return 0;
-    case PckA_SetGammaLevel:
+  case PckA_SetGammaLevel:
       if (is_my_player(player))
       {
         set_gamma(pckt->field_6, 1);
         save_settings();
       }
       return 0;
-    case PckA_SetMinimapConf:
+  case PckA_SetMinimapConf:
       player->minimap_zoom = pckt->field_6;
       return 0;
-    case 29:
+  case 29:
       player->cameras[2].orient_a = pckt->field_6;
       player->cameras[3].orient_a = pckt->field_6;
       player->cameras[0].orient_a = pckt->field_6;
       return 0;
-    case PckA_SetPlyrState:
+  case PckA_SetPlyrState:
       set_player_state(player, pckt->field_6, pckt->field_8);
       return 0;
-    case 37:
+  case 37:
       set_engine_view(player, pckt->field_6);
       return 0;
-    case PckA_ToggleTendency:
+  case PckA_ToggleTendency:
       toggle_creature_tendencies(player, pckt->field_6);
       return 0;
-    case PckA_CheatEnter:
+  case PckA_CheatEnter:
 //      game.???[my_player_number].cheat_mode = 1;
       show_onscreen_msg(2*game.num_fps, "Cheat mode activated by player %d", plyr_idx);
       return 1;
-    case PckA_CheatAllFree:
+  case PckA_CheatAllFree:
       make_all_creatures_free();
       make_all_rooms_free();
       make_all_powers_free();
@@ -1744,39 +1744,39 @@ TbBool process_players_global_packet_action(long plyr_idx)
         word_5E674A = 15;
 */
       return 1;
-    case PckA_CheatCrtSpells:
+  case PckA_CheatCrtSpells:
       //TODO: remake from beta
       return 0;
-    case PckA_CheatRevealMap:
+  case PckA_CheatRevealMap:
       myplyr = get_my_player();
       reveal_whole_map(myplyr);
       return 0;
-    case PckA_CheatCrAllSpls:
+  case PckA_CheatCrAllSpls:
       //TODO: remake from beta
       return 0;
-    case 65:
+  case 65:
       //TODO: remake from beta
       return 0;
-    case PckA_CheatAllMagic:
+  case PckA_CheatAllMagic:
       make_available_all_researchable_powers(my_player_number);
       return 0;
-    case PckA_CheatAllRooms:
+  case PckA_CheatAllRooms:
       make_available_all_researchable_rooms(my_player_number);
       return 0;
-    case 68:
+  case 68:
       //TODO: remake from beta
       return 0;
-    case 69:
+  case 69:
       //TODO: remake from beta
       return 0;
-    case PckA_CheatAllResrchbl:
+  case PckA_CheatAllResrchbl:
       make_all_powers_researchable(my_player_number);
       make_all_rooms_researchable(my_player_number);
       return 0;
-    case 80:
+  case 80:
       set_player_mode(player, pckt->field_6);
       return 0;
-    case 81:
+  case 81:
       set_player_cameras_position(player, pckt->field_6 << 8, pckt->field_8 << 8);
       player->cameras[2].orient_a = 0;
       player->cameras[3].orient_a = 0;
@@ -1792,15 +1792,15 @@ TbBool process_players_global_packet_action(long plyr_idx)
         set_player_mode(player, 6);
       }
       return 0;
-    case 82:
+  case 82:
       process_pause_packet(pckt->field_6, pckt->field_8);
       return 1;
-    case 83:
+  case 83:
       if (player->work_state == 15)
         turn_off_query(plyr_idx);
       event_move_player_towards_event(player, pckt->field_6);
       return 0;
-    case 84:
+  case 84:
       if (player->work_state == 15)
         turn_off_query(plyr_idx);
       room = room_get(pckt->field_6);
@@ -1810,7 +1810,7 @@ TbBool process_players_global_packet_action(long plyr_idx)
       if (player->work_state == 2)
         set_player_state(player, 2, room->kind);
       return 0;
-    case 85:
+  case 85:
       if (player->work_state == 15)
         turn_off_query(plyr_idx);
       thing = thing_get(pckt->field_6);
@@ -1820,7 +1820,7 @@ TbBool process_players_global_packet_action(long plyr_idx)
       if ((player->work_state == 16) || (player->work_state == 18))
         set_player_state(player, 16, thing->model);
       return 0;
-    case 86:
+  case 86:
       if (player->work_state == 15)
         turn_off_query(plyr_idx);
       thing = thing_get(pckt->field_6);
@@ -1830,28 +1830,28 @@ TbBool process_players_global_packet_action(long plyr_idx)
       if ((player->work_state == 16) || (player->work_state == 18))
         set_player_state(player, 18, thing->model);
       return 0;
-    case 87:
+  case 87:
       if (player->work_state == 15)
         turn_off_query(plyr_idx);
       player->field_E4 = pckt->field_6;
       player->field_E6 = pckt->field_8;
       set_player_instance(player, 16, 0);
       return 0;
-    case 88:
+  case 88:
       game.numfield_D ^= (game.numfield_D ^ (0x04 * ((game.numfield_D & 0x04) == 0))) & 0x04;
       return 0;
-    case PckA_SpellCTADis:
+  case PckA_SpellCTADis:
       turn_off_call_to_arms(plyr_idx);
       return 0;
-    case 90:
+  case 90:
         dungeon = get_players_num_dungeon(plyr_idx);
       if (dungeon->field_63 < 8)
         place_thing_in_power_hand(thing_get(pckt->field_6), plyr_idx);
       return 0;
-    case PckA_DumpHeldThings:
+  case PckA_DumpHeldThings:
       dump_held_things_on_map(plyr_idx, pckt->field_6, pckt->field_8, 1);
       return 0;
-    case 92:
+  case 92:
       if (game.event[pckt->field_6].kind == 3)
       {
         turn_off_event_box_if_necessary(plyr_idx, pckt->field_6);
@@ -1860,21 +1860,21 @@ TbBool process_players_global_packet_action(long plyr_idx)
         event_delete_event(plyr_idx, pckt->field_6);
       }
       return 0;
-    case 97:
+  case 97:
       magic_use_power_obey(plyr_idx);
       return 0;
-    case 98:
+  case 98:
       magic_use_power_armageddon(plyr_idx);
       return 0;
-    case 99:
+  case 99:
       turn_off_query(plyr_idx);
       return 0;
-    case 104:
+  case 104:
       if (player->work_state == 15)
         turn_off_query(plyr_idx);
       battle_move_player_towards_battle(player, pckt->field_6);
       return 0;
-    case 106:
+  case 106:
       if (player->work_state == 15)
         turn_off_query(plyr_idx);
       dungeon = get_players_num_dungeon(plyr_idx);
@@ -1907,17 +1907,17 @@ TbBool process_players_global_packet_action(long plyr_idx)
           set_player_state(player, pwrdata->field_4, 0);
       }
       return 0;
-    case PckA_PlyrFastMsg:
+  case PckA_PlyrFastMsg:
       //show_onscreen_msg(game.num_fps, "Message from player %d", plyr_idx);
       output_message(pckt->field_6+110, 0, 1);
       return 0;
-    case PckA_SetComputerKind:
+  case PckA_SetComputerKind:
       set_autopilot_type(plyr_idx, pckt->field_6);
       return 0;
-    case 110:
+  case 110:
       level_lost_go_first_person(plyr_idx);
       return 0;
-    case 111:
+  case 111:
       dungeon = get_players_num_dungeon(plyr_idx);
       if (dungeon->field_63)
       {
@@ -1925,31 +1925,31 @@ TbBool process_players_global_packet_action(long plyr_idx)
         dump_held_things_on_map(plyr_idx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 1);
       }
       return false;
-    case PckA_SpellSOEDis:
+  case PckA_SpellSOEDis:
       turn_off_sight_of_evil(plyr_idx);
       return false;
-    case 115:
+  case 115:
       go_on_then_activate_the_event_box(plyr_idx, pckt->field_6);
       return false;
-    case 116:
+  case 116:
       dungeon = get_players_num_dungeon(plyr_idx);
       turn_off_event_box_if_necessary(plyr_idx, dungeon->field_1173);
       dungeon->field_1173 = 0;
       return false;
-    case 117:
+  case 117:
       i = player->field_4D2 / 4;
       if (i > 8) i = 8;
       directly_cast_spell_on_thing(plyr_idx, pckt->field_6, pckt->field_8, i);
       return 0;
-    case PckA_PlyrToggleAlly:
+  case PckA_PlyrToggleAlly:
       toggle_ally_with_player(plyr_idx, pckt->field_6);
       return 0;
-    case 119:
+  case 119:
       if (player->acamera != NULL)
         player->field_4B5 = player->acamera->field_6;
       set_player_mode(player, pckt->field_6);
       return false;
-    case 120:
+  case 120:
       set_player_mode(player, pckt->field_6);
       set_engine_view(player, player->field_4B5);
       return false;
@@ -2276,7 +2276,7 @@ void process_packets(void)
   for (i=0; i<PACKETS_COUNT; i++)
   {
     player = get_player(i);
-    if (((player->field_0 & 0x01) != 0) && ((player->field_0 & 0x40) == 0))
+    if (player_exists(player) && ((player->field_0 & 0x40) == 0))
       process_players_packet(i);
   }
   // Clear all packets

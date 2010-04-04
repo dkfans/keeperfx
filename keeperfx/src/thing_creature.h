@@ -75,7 +75,10 @@ struct CreatureStorage {
 extern struct CreaturePickedUpOffset creature_picked_up_offset[];
 extern unsigned short creature_graphics[][22];
 extern int creature_swap_idx[CREATURE_TYPES_COUNT];
+extern unsigned long creature_create_errors;
 /******************************************************************************/
+struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigned short owner);
+TbBool creature_increase_level(struct Thing *thing);
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void load_swipe_graphic_for_creature(struct Thing *thing);
