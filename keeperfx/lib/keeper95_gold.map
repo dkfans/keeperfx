@@ -1657,4 +1657,7 @@
  0001:0005F310       remove_gold_from_hoarde
  0001:0006E7B0       nearest_search
  0001:000CBFC0       get_nearest_valid_position_for_creature_at
- 
+ 0001:0008FF20       creature_has_other_attackers
+ 0001:000B3170       creature_in_ranged_combat
+ 0001:000B3230       creature_in_melee_combat
+ 0001:000B32F0       creature_in_combat_wait

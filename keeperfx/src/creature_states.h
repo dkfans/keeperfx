@@ -185,6 +185,8 @@ enum CreatureStates {
     CrSt_CreatureStealSpell,
 };
 
+typedef void (*CombatState)(struct Thing *);
+
 struct StateInfo { // sizeof = 41
   short (*ofsfield_0)(struct Thing *);
   short (*ofsfield_4)(struct Thing *);
@@ -226,6 +228,7 @@ DLLIMPORT long _DK_r_stackpos;
 #define r_stackpos _DK_r_stackpos
 DLLIMPORT struct ImpStack _DK_reinforce_stack[];
 #define reinforce_stack _DK_reinforce_stack
+extern const CombatState combat_state[];
 /******************************************************************************/
 long check_out_imp_last_did(struct Thing *thing);
 /******************************************************************************/

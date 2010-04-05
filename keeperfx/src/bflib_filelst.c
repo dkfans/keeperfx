@@ -50,12 +50,12 @@ short LbDataFree(struct TbLoadFiles *load_file)
     if ((*data) != NULL)
     {
 //#ifdef __DEBUG
-        LbSyncLog("LbDataFree: freeing \"%s\"...",load_file->FName);
+        LbJustLog("LbDataFree: freeing \"%s\"...",load_file->FName);
 //#endif
         LbMemoryFree(*data);
         (*data) = NULL;
 //#ifdef __DEBUG
-        LbSyncLog("done\n");
+        LbJustLog("done\n");
 //#endif
     }
   return 1;
@@ -87,7 +87,7 @@ short LbDataLoad(struct TbLoadFiles *load_file)
   if (fname[0] == '*')
   {
 #ifdef __DEBUG
-    LbSyncLog("LbDataLoad: * in fname \"%s\"\n",fname);
+      LbJustLog("LbDataLoad: * in fname \"%s\"\n",fname);
 #endif
     *(load_file->Start) = alloc_func(load_file->SLength);
     if ( (*(load_file->Start)) == NULL )
@@ -96,7 +96,7 @@ short LbDataLoad(struct TbLoadFiles *load_file)
   {
     long slength = LbFileLengthRnc(fname);
 #ifdef __DEBUG
-    LbSyncLog("LbDataLoad: filelength %ld for file \"%s\"\n",slength,fname);
+    LbJustLog("LbDataLoad: filelength %ld for file \"%s\"\n",slength,fname);
 #endif
     load_file->SLength = slength;
     if (slength <= 0 )
