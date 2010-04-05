@@ -142,29 +142,34 @@ unsigned char field_95[5];
     unsigned char byte_9D;
     unsigned char byte_9E;
     unsigned char byte_9F;
+    unsigned char byte_A0;
+    unsigned char byte_A1;
+    unsigned char byte_A2;
+    unsigned char byte_A3;
     };
   struct {
     short word_9A;
     short word_9C;
     short word_9E;
+    short word_A0;
+    short word_A2;
     };
   struct {
     short word_9A_cp2;
     long long_9C;
+    long long_A0;
     };
   struct {
     long long_9A;
-    short word_9E_cp2;
+    long long_9E;
+    short word_A2_cp2;
     };
   };
-  union {
-      long long_A0;
-  struct {
-    short word_A0;
-    short word_A2;
-    };
-  };
-    unsigned char field_A4[7];
+    unsigned char field_A4[2];
+    unsigned char field_A6;
+    unsigned char field_A7[2];
+    unsigned char field_A9;
+    unsigned char field_AA;
     unsigned char field_AB;
     unsigned char spell_flags;
     unsigned char field_AD;
@@ -210,7 +215,8 @@ unsigned char field_284[2];
     unsigned char field_286;
     unsigned char field_287;
     struct Coord3d pos_288;
-unsigned char field_28E[16];
+    long field_28E;
+unsigned char field_292[12];
 unsigned char field_29E[16];
 short field_2AE;
     unsigned char field_2B0;
