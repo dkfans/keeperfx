@@ -234,6 +234,10 @@ DLLIMPORT long _DK_cleanup_current_thing_state(struct Thing *thing);
 DLLIMPORT long _DK_check_out_imp_stack(struct Thing *thing);
 DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
 DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, struct Room *room, struct Coord3d *pos);
+DLLIMPORT void _DK_creature_in_combat_wait(struct Thing *thing);
+DLLIMPORT void _DK_creature_in_ranged_combat(struct Thing *thing);
+DLLIMPORT void _DK_creature_in_melee_combat(struct Thing *thing);
+DLLIMPORT long _DK_creature_has_other_attackers(struct Thing *thing, long a2);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *thing);
 short arrive_at_alarm(struct Thing *thing);
@@ -391,6 +395,9 @@ short tunneller_doing_nothing(struct Thing *thing);
 short tunnelling(struct Thing *thing);
 short creature_search_for_spell_to_steal_in_room(struct Thing *thing);
 short creature_steal_spell(struct Thing *thing);
+void creature_in_combat_wait(struct Thing *thing);
+void creature_in_ranged_combat(struct Thing *thing);
+void creature_in_melee_combat(struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -695,6 +702,13 @@ struct StateInfo states[] = {
   // Some redundant NULLs
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+};
+
+const CombatState combat_state[] = {
+    NULL,
+    creature_in_combat_wait,
+    creature_in_ranged_combat,
+    creature_in_melee_combat,
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
@@ -1526,9 +1540,172 @@ short creature_hero_entering(struct Thing *thing)
   return _DK_creature_hero_entering(thing);
 }
 
+long combat_enemy_exists(struct Thing *thing, struct Thing *enemy)
+{
+    struct CreatureControl *cctrl;
+    struct CreatureControl *enmcctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if (((enemy->field_0 & 0x01) == 0) || (cctrl->long_9E != enemy->field_9))
+    {
+        SYNCDBG(8,"Enemy creature doesn't exist");
+        return 0;
+    }
+    enmcctrl = creature_control_get_from_thing(enemy);
+    if (creature_control_invalid(enmcctrl) && (enemy->class_id != TCls_Object) && (enemy->class_id != TCls_Door))
+    {
+        ERRORLOG("No control structure - C%d M%d GT%ld CA%d", (int)enemy->class_id,
+            (int)enemy->model, (long)game.play_gameturn, (int)thing->field_9);
+        return 0;
+    }
+    return 1;
+}
+
+long get_combat_distance(struct Thing *thing, struct Thing *enemy)
+{
+    long dist,avgc;
+    dist = get_2d_box_distance(&thing->mappos, &enemy->mappos);
+    avgc = (enemy->field_56 + thing->field_56) / 2;
+    if (dist < avgc)
+        return 0;
+    return dist - avgc;
+}
+
+long creature_has_other_attackers(struct Thing *thing, long a2)
+{
+    return _DK_creature_has_other_attackers(thing, a2);
+}
+
+
+TbBool creature_is_actually_scared(struct Thing *thing, struct Thing *enemy)
+{
+    struct Dungeon *dungeon;
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    long maxhealth;
+    crstat = creature_stats_get_from_thing(thing);
+    // Creature with fear 255 are scared of everything other that their own model
+    if (crstat->fear == 255)
+    {
+        if (enemy->model != thing->model)
+          return true;
+        if (creature_has_other_attackers(thing, thing->model))
+          return true;
+        return false;
+    }
+    // With "Flee" tendency on, then creatures are scared if their health
+    // drops lower than  fear/256 percentage of base health
+    dungeon = get_dungeon(thing->owner);
+    if ((dungeon->creature_tendencies & 0x02) != 0)
+    {
+        cctrl = creature_control_get_from_thing(thing);
+        maxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
+        if ((crstat->fear * maxhealth) / 256 >= thing->health)
+        {
+            if (thing->owner != game.neutral_player_num)
+            {
+                SYNCDBG(8,"Creature is scared due to tendencies");
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+TbBool creature_scared(struct Thing *thing, struct Thing *enemy)
+{
+    struct CreatureControl *cctrl;
+    if (thing_is_invalid(enemy))
+    {
+        ERRORLOG("Thing %d enemy is invalid",(int)thing->index);
+        return false;
+    }
+    cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->field_A9)
+    {
+        return false;
+    }
+    return creature_is_actually_scared(thing, enemy);
+}
+
+TbBool creature_in_flee_zone(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    long dist;
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Creature no %d has invalid control",(int)thing->index);
+        return false;
+    }
+    dist = get_2d_box_distance(&thing->mappos, &cctrl->pos_288);
+    //TODO put flee_zone_radius into config file
+    return (dist < 1536);
+}
+
+TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enemy)
+{
+    //get_combat_distance(thing, enemy);
+    if (!creature_scared(thing, enemy))
+    {
+        return false;
+    }
+    if (creature_in_flee_zone(thing))
+    {
+        return false;
+    }
+    return true;
+}
+
+void creature_in_combat_wait(struct Thing *thing)
+{
+    _DK_creature_in_combat_wait(thing);
+}
+
+void creature_in_ranged_combat(struct Thing *thing)
+{
+    _DK_creature_in_ranged_combat(thing);
+}
+
+void creature_in_melee_combat(struct Thing *thing)
+{
+    _DK_creature_in_melee_combat(thing);
+}
+
 short creature_in_combat(struct Thing *thing)
 {
-  return _DK_creature_in_combat(thing);
+    struct CreatureControl *cctrl;
+    struct Thing *enmtng;
+    CombatState combat_func;
+    //return _DK_creature_in_combat(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    enmtng = thing_get(cctrl->word_A2);
+    if (!combat_enemy_exists(thing, enmtng))
+    {
+      set_start_state(thing);
+      return 0;
+    }
+    if (creature_too_scared_for_combat(thing, enmtng))
+    {
+        if (!external_set_thing_state(thing, CrSt_CreatureCombatFlee))
+        {
+            ERRORLOG("Cannot get thing no %d, model %d, in flee",(int)thing->index,(int)thing->model);
+            return 0;
+        }
+        cctrl->field_28E = game.play_gameturn;
+        return 0;
+    }
+    if (cctrl->field_A6 < sizeof(combat_state)/sizeof(combat_state[0]))
+        combat_func = combat_state[cctrl->field_A6];
+    else
+        combat_func = NULL;
+    if (combat_func != NULL)
+    {
+        combat_func(thing);
+        return 1;
+    }
+    ERRORLOG("No valid fight state %d in thing no %d",(int)cctrl->field_A6,(int)thing->index);
+    set_start_state(thing);
+    return 0;
 }
 
 short creature_in_hold_audience(struct Thing *thing)
@@ -3772,7 +3949,7 @@ short seek_the_enemy(struct Thing *thing)
             {
               if ((dist < 2304) && (game.play_gameturn-cctrl->field_282 < 20))
               {
-                set_creature_instance(thing, 34, 1, 0, 0);
+                set_creature_instance(thing, CrSt_GoodDoingNothing, 1, 0, 0);
                 thing_play_sample(thing, 168+UNSYNC_RANDOM(3), 100, 0, 3, 0, 2, 256);
                 return 1;
               }

@@ -183,6 +183,8 @@ enum CreatureStates {
 
 struct Thing;
 
+typedef void (*CombatState)(struct Thing *);
+
 struct StateInfo { // sizeof = 41
   short (*ofsfield_0)(struct Thing *);
   short (*ofsfield_4)(struct Thing *);
@@ -224,8 +226,10 @@ DLLIMPORT struct ImpStack _DK_reinforce_stack[];
 
 #pragma pack()
 /******************************************************************************/
-long check_out_imp_last_did(struct Thing *thing);
+extern const CombatState combat_state[];
 /******************************************************************************/
+long check_out_imp_last_did(struct Thing *thing);
+
 TbBool creature_model_bleeds(unsigned long model);
 TbBool can_change_from_state_to(struct Thing *thing, long curr_state, long next_state);
 TbBool internal_set_thing_state(struct Thing *thing, long nState);
