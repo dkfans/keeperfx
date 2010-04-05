@@ -1,0 +1,165 @@
+/******************************************************************************/
+// Bullfrog Engine Emulation Library - for use to remake classic games like
+// Syndicate Wars, Magic Carpet or Dungeon Keeper.
+/******************************************************************************/
+/** @file bflib_sound.h
+ *     Header file for bflib_sound.c.
+ * @par Purpose:
+ *     Sound and music related routines.
+ * @par Comment:
+ *     Just a header file - #defines, typedefs, function prototypes etc.
+ * @author   Tomasz Lis
+ * @date     16 Nov 2008 - 30 Dec 2008
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
+#ifndef BFLIB_SOUND_H
+#define BFLIB_SOUND_H
+
+#include "bflib_basics.h"
+#include "globals.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+/******************************************************************************/
+#define SOUNDS_MAX_COUNT  16
+#define SOUND_EMITTERS_MAX 128
+/******************************************************************************/
+#ifdef __cplusplus
+#pragma pack(1)
+#endif
+
+struct HeapMgrHeader;
+struct HeapMgrHandle;
+
+// Type definitions
+
+typedef long (*S3D_LineOfSight_Func)(long, long, long, long, long, long);
+
+struct SoundEmitter {
+    unsigned char flags;
+    unsigned char field_1;
+    short field_2;
+    short pos_x;
+    short pos_y;
+    short pos_z;
+    unsigned char field_A[10];
+    unsigned char field_14;
+    unsigned char field_15;
+};
+
+struct SoundReceiver { // sizeof = 17
+  short pos_x;
+  short pos_y;
+  short pos_z;
+  unsigned short field_6;
+  unsigned short field_8;
+  unsigned short field_A;
+  long field_C;
+  char field_10;
+};
+
+struct S3DSample { // sizeof = 37
+  unsigned long field_0;
+  unsigned long field_4;
+  unsigned short field_8;
+  unsigned char field_A;
+  unsigned char field_B[10];
+  struct SoundEmitter *emit_ptr;
+  unsigned char field_19[4];
+  unsigned char field_1D[2];
+  unsigned char field_1F;
+  unsigned char field_20;
+  unsigned long field_21;
+};
+
+struct SampleTable { // sizeof = 16
+  unsigned long field_0;
+  unsigned long field_4;
+  unsigned long field_8;
+  struct HeapMgrHandle *hmhandle;
+};
+
+#ifdef __cplusplus
+#pragma pack()
+#endif
+
+/******************************************************************************/
+// Exported variables
+DLLIMPORT extern int _DK_SoundDisabled;
+#define SoundDisabled _DK_SoundDisabled
+DLLIMPORT extern struct SoundEmitter _DK_emitter[128];
+#define emitter _DK_emitter
+DLLIMPORT extern long _DK_Non3DEmitter;
+#define Non3DEmitter _DK_Non3DEmitter
+DLLIMPORT extern long _DK_SpeechEmitter;
+#define SpeechEmitter _DK_SpeechEmitter
+DLLIMPORT extern struct SoundReceiver _DK_Receiver;
+#define Receiver _DK_Receiver
+DLLIMPORT extern long _DK_MaxSoundDistance;
+#define MaxSoundDistance _DK_MaxSoundDistance
+DLLIMPORT extern long _DK_MaxNoSounds;
+#define MaxNoSounds _DK_MaxNoSounds
+DLLIMPORT extern struct S3DSample _DK_SampleList[SOUNDS_MAX_COUNT];
+#define SampleList _DK_SampleList
+DLLIMPORT TbFileHandle _DK_sound_file;
+#define sound_file _DK_sound_file
+DLLIMPORT TbFileHandle _DK_sound_file2;
+#define sound_file2 _DK_sound_file2
+DLLIMPORT unsigned char _DK_using_two_banks;
+#define using_two_banks _DK_using_two_banks
+DLLIMPORT long _DK_samples_in_bank;
+#define samples_in_bank _DK_samples_in_bank
+DLLIMPORT struct SampleTable *_DK_sample_table;
+#define sample_table _DK_sample_table
+DLLIMPORT long _DK_samples_in_bank2;
+#define samples_in_bank2 _DK_samples_in_bank2
+DLLIMPORT struct SampleTable *_DK_sample_table2;
+#define sample_table2 _DK_sample_table2
+DLLIMPORT struct HeapMgrHeader *_DK_sndheap;
+#define sndheap _DK_sndheap
+DLLIMPORT S3D_LineOfSight_Func _DK_LineOfSightFunction;
+#define LineOfSightFunction _DK_LineOfSightFunction
+DLLIMPORT long _DK_deadzone_radius;
+#define deadzone_radius _DK_deadzone_radius
+/******************************************************************************/
+// Exported functions
+long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);
+long S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c);
+long S3DDestroySoundEmitter(long eidx);
+long S3DEmitterHasFinishedPlaying(long eidx);
+long S3DMoveSoundEmitterTo(long eidx, long x, long y, long z);
+long S3DInit(void);
+long S3DSetNumberOfSounds(long nMaxSounds);
+long S3DSetMaximumSoundDistance(long nDistance);
+TbBool S3DAddSampleToEmitterPri(long emidx, long a2, long a3, long a4, long a5, long a6, char a7, long a8, long a9);
+long S3DCreateSoundEmitterPri(long x, long y, long z, long a4, long a5, long a6, long a7, long a8, long a9, long a10);
+long S3DEmitterIsAllocated(long eidx);
+long S3DEmitterIsPlayingAnySample(long eidx);
+TbBool S3DEmitterIsPlayingSample(long emitr, long smpl_idx, long a2);
+TbBool S3DDestroySoundEmitterAndSamples(long eidx);
+void S3DSetLineOfSightFunction(S3D_LineOfSight_Func);
+void S3DSetDeadzoneRadius(long radius);
+long S3DGetDeadzoneRadius(void);
+
+void play_non_3d_sample(long sample_idx);
+void play_non_3d_sample_no_overlap(long smpl_idx);
+short sound_emitter_in_use(long eidx);
+long get_best_sound_heap_size(long mem_size);
+struct SampleInfo *play_sample_using_heap(unsigned long a1, short a2, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, unsigned char a8);
+void stop_sample_using_heap(unsigned long a1, short a2, unsigned char a3);
+long speech_sample_playing(void);
+long play_speech_sample(long smpl_idx);
+void close_sound_heap(void);
+long stop_emitter_samples(struct SoundEmitter *emit);
+
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
+#endif

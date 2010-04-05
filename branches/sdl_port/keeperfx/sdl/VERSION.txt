@@ -1,0 +1,1 @@
+This is SDL 1.2.14 (development, mingw32)
