@@ -21,6 +21,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <SDL_syswm.h>
 
 #include "bflib_basics.h"
 #include "bflib_mouse.h"
@@ -319,6 +320,8 @@ bool TDDrawSdk::setup_screen(TbScreenMode mode)
   }
 
   SDL_ShowCursor(SDL_DISABLE);
+  SDL_WM_SetCaption(lbDrawAreaTitle, lbDrawAreaTitle);
+  SetIcon();
 
   flags |= DMF_SurfacesSetup;
 
@@ -1089,28 +1092,33 @@ bool TDDrawSdk::create_sdk_window(void)
 
 LPCTSTR TDDrawSdk::resource_mapping(int index)
 {
-  /*switch (index)
+  switch (index)
   {
   case 1:
       return "A";
       //return MAKEINTRESOURCE(110); -- may work for other resource compilers
   default:
       return NULL;
-  }*/ return NULL;
+  } return NULL;
 }
 
 void TDDrawSdk::SetIcon(void)
 {
-  /*HICON hIcon;
-  if (hWindow == NULL)
-  {
-    WARNLOG("Cannot set - no valid window handle.");
-    return;
+  //TODO: replace with portable version
+
+  HICON hIcon;
+  SDL_SysWMinfo wmInfo;
+
+  SDL_VERSION(&wmInfo.version);
+  if (SDL_GetWMInfo(&wmInfo) < 0) {
+	  WARNLOG("Couldn't get SDL window info, therefore cannot set icon");
+	  return;
   }
+
   hIcon = LoadIcon(lbhInstance, resource_mapping(lbIconIndex));
-  SendMessage(hWindow, WM_SETICON, ICON_BIG,  (LPARAM)hIcon);
-  hIcon = LoadIcon(lbhInstance, resource_mapping(lbIconIndex));
-  SendMessage(hWindow, WM_SETICON, ICON_SMALL,(LPARAM)hIcon);*/
+  SendMessage(wmInfo.window, WM_SETICON, ICON_BIG,  (LPARAM)hIcon);
+  //hIcon = LoadIcon(lbhInstance, resource_mapping(lbIconIndex));
+  SendMessage(wmInfo.window, WM_SETICON, ICON_SMALL,(LPARAM)hIcon);
 }
 
 bool TDDrawSdk::remove_sdk_window(void)

@@ -14114,13 +14114,13 @@ static LPARAM make_LPARAM_from_sdl_key_event(const SDL_KeyboardEvent * const ev)
 }
 
 void poll_sdl_events() {
-    SYNCDBG(12,"Polling SDL events.");
+    SYNCDBG(12,"Starting");
 
     SDL_Event ev;
     struct tagPOINT mousePos;
     int x, y;
 
-    //TODO: handle double clicks, SDL don't generate them
+    //TODO: handle double clicks, SDL doesn't generate them
 
     while (SDL_PollEvent(&ev)) {
         switch (ev.type) {
@@ -14141,6 +14141,9 @@ void poll_sdl_events() {
             mousePos.y = y; //ev.button.y;
             mouseControl(get_mouse_message_type(ev.type, ev.button.button), &mousePos);
             break;
+        case SDL_ACTIVEEVENT:
+			SDL_ShowCursor(ev.active.gain? SDL_DISABLE : SDL_ENABLE);
+        	break;
         }
     }
 }
@@ -14389,11 +14392,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
   }
 
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-     ERRORLOG("SDL_Init failed.");
+     ERRORLOG("SDL cannot be inited.");
      return 0;
-  }
-  else {
-      SYNCDBG(0, "SDL_Init successful.");
   }
 
   retval = setup_game();
