@@ -3742,6 +3742,7 @@ void update_thing_animation(struct Thing *thing)
  */
 short play_smacker_file(char *filename, int nstate)
 {
+	TbScreenMode mode;
   unsigned int movie_flags = 0;
   if ( SoundDisabled )
     movie_flags |= 0x01;
@@ -3750,7 +3751,8 @@ short play_smacker_file(char *filename, int nstate)
   result = 1;
   if ((result)&&(nstate>-2))
   {
-    if ( setup_screen_mode_minimal(get_movies_vidmode()) )
+	mode = get_movies_vidmode();
+    if ( setup_screen_mode(&mode, true) )
     {
       LbMouseChangeSprite(NULL);
       LbScreenClear(0);
@@ -3772,7 +3774,8 @@ short play_smacker_file(char *filename, int nstate)
   }
   if (nstate>-2)
   {
-    if ( !setup_screen_mode_minimal(get_frontend_vidmode()) )
+	mode = get_frontend_vidmode();
+    if ( !setup_screen_mode(&mode, true) )
     {
       ERRORLOG("Can't re-enter frontend video mode after playing Smacker file");
       FatalError = 1;
@@ -5527,11 +5530,11 @@ void setup_default_settings(void)
    }, 1, 0, 6};
   LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
   cpu_detect(&cpu_info);
-  settings.video_scrnmode = get_next_vidmode(Lb_SCREEN_MODE_INVALID);
+  //settings.video_scrnmode = get_next_vidmode(Lb_SCREEN_MODE_INVALID);
   if ((cpu_get_family(&cpu_info) > CPUID_FAMILY_PENTIUM) && (is_feature_on(Ft_HiResVideo)))
   {
     SYNCDBG(6,"Updating to hires video mode");
-    settings.video_scrnmode = get_next_vidmode(settings.video_scrnmode);
+    //settings.video_scrnmode = get_next_vidmode(settings.video_scrnmode);
   }
 }
 
@@ -5591,6 +5594,8 @@ short setup_game(void)
   // CPU status variable
   struct CPU_INFO cpu_info;
   char *fname;
+  TbScreenMode mode;
+
   // Do only a very basic setup
   cpu_detect(&cpu_info);
   SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
@@ -5619,7 +5624,8 @@ short setup_game(void)
 
   // View the legal screen
 
-  if (!setup_screen_mode_zero(get_frontend_vidmode()))
+  mode = get_frontend_vidmode();
+  if (!setup_screen_mode_zero(&mode))
   {
       return 0;
   }
@@ -5666,7 +5672,8 @@ short setup_game(void)
   // loading and no CD screens can run in both 320x2?0 and 640x4?0.
   if ( result && (!game.no_intro) )
   {
-    int mode_ok = LbScreenSetup(get_movies_vidmode(), 320, 200, _DK_palette, 2, 0);
+	mode = get_movies_vidmode();
+    int mode_ok = LbScreenSetup(&mode, _DK_palette, 2, 0);
     if (mode_ok != 1)
     {
       ERRORLOG("Can't enter movies screen mode to play intro");
@@ -13858,6 +13865,7 @@ int setup_old_network_service(void)
 
 void wait_at_frontend(void)
 {
+	TbScreenMode mode;
   struct PlayerInfo *player;
   SYNCDBG(0,"Falling into frontend menu.");
   // Moon phase calculation
@@ -13892,7 +13900,8 @@ void wait_at_frontend(void)
     return;
   }
 
-  if ( !setup_screen_mode_minimal(get_frontend_vidmode()) )
+  mode = get_frontend_vidmode();
+  if ( !setup_screen_mode(&mode, true) )
   {
     FatalError = 1;
     exit_keeper = 1;

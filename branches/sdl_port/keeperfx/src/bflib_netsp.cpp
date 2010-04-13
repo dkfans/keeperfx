@@ -328,46 +328,169 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
   return Lb_OK;
 }
 
-TbError ServiceProvider::Receive(unsigned long a1)
+TbError ServiceProvider::Receive(unsigned long len) //a1 = length?
 {
-  unsigned long p1,p2,p3;
-  unsigned long decode_a2,decode_a4;
+  unsigned long p1, p2, p3;
+  unsigned long decode_20bits,decode_4bits;
   unsigned char messageType;
-  TbBool keepExchng;
+  unsigned long id;
+  TbBool keepExchanging;
+  char array1[1024];
+  char array2[32];
+  char array3[32];
+  char * array1Ptr;
+  char * array2Ptr;
+  char * array3Ptr;
+  void * tmpPtr;
+  long tmpInt1, tmpInt2;
+  TbError result;
+
+  //see what these are
+  char wtf;
+  unsigned long wtf2;
+  unsigned long wtf3;
+  unsigned long wtf4;
+
+  result = 0;
+
   if (this->field_D74 < 1)
   {
-    WARNLOG("not initialised");
+    WARNLOG("not initialized");
     return Lb_FAIL;
   }
-  keepExchng = true;
-  while (keepExchng)
+  keepExchanging = true;
+  while (keepExchanging)
   {
-    p3 = 1028;
-    if (!this->PeekMessage(&p1, &p2, &p3))
+    p3 = 1028; //probably a bitmask
+    if (PeekMessage(&p1, &p2, &p3))
     {
-      keepExchng = false;
+      keepExchanging = false;
       break;
     }
-//TODO NET!!!!!!!!!
-    DecodeMessageStub(&p2, &decode_a2, &messageType, &decode_a4);
-    if (a1 & 0x08)
-      a1 = 0xFF;
+
+    DecodeMessageStub(&p2, &decode_20bits, &messageType, &decode_4bits);
+    if (len & 0x08)
+      len = 0xFF;
     switch (messageType)
     {
     case 0:
-        //TODO NET
+        if (len & 1) {
+        	tmpPtr = 0;
+        	if (recvCallbacks->multiPlayer) {
+        		tmpPtr = recvCallbacks->multiPlayer(p1, decode_20bits + 4, decode_4bits, field_D78);
+        	}
+        	else {
+        		NETMSG("NIL target for userDataMsgCallbackProc"); //rename
+        	}
+        	if (tmpPtr == NULL) {
+        		tmpPtr = &p2;
+        		p3 = 1028;
+        	}
+        	if (!(ReadMessage(&p1, tmpPtr, &p3))) {
+        		NETMSG("Inconsistency between reads");
+				result = wtf;
+        	}
+        }
+
+        keepExchanging = false;
         break;
     case 1:
-        //TODO NET
+        if (!(len & 2)) {
+        	keepExchanging = false;
+        	break;
+        }
+
+        p3 = 1028;
+        if (!ReadMessage(&p1, &p2, &p3)) {
+        	NETMSG("Inconsistency on receive");
+        	break;
+        }
+
+        memcpy(&tmpInt1, array1, sizeof(tmpInt1));
+        if (array2) {
+        	array1Ptr = array1 + 4;
+        	array2Ptr = array2;
+        	bool cond;
+        	do {
+        		array2Ptr[0] = array1Ptr[0];
+        		if (!array1Ptr[0]) {
+        			break;
+        		}
+
+        		cond = array1Ptr[1];
+        		array1Ptr += 2;
+        		array2Ptr[1] = cond;
+        		array2Ptr += 2;
+        	} while (cond);
+        }
+        AddPlayer(tmpInt1, array2, 0, 0);
+
+        memcpy(&tmpInt2, array1, sizeof(tmpInt2));
+        memcpy(&tmpInt1, array1 + 4, sizeof(tmpInt1));
+        if (&p2 != (unsigned long *) -1028) {
+        	array1Ptr = array1 + 4;
+        	array3Ptr = array3;
+        	bool cond;
+        	do {
+        		array3Ptr[0] = array1Ptr[0];
+				if (!array1Ptr[0]) {
+					break;
+				}
+
+				cond = array1Ptr[1];
+				array1Ptr += 2;
+				array3Ptr[1] = cond;
+				array3Ptr += 2;
+        	} while (cond);
+        }
+
+        if (recvCallbacks->addMsg) {
+        	recvCallbacks->addMsg(tmpInt2, array3, field_D78);
+        }
+
         break;
     case 2:
-        //TODO NET
+        if (!(len & 4)) {
+        	keepExchanging = false;
+        	break;
+        }
+
+        p3 = 1028;
+        if (!ReadMessage(&p1, &p2, &p3)) {
+			NETMSG("Inconsistency on receive");
+			break;
+		}
+
+        CheckForDeletedHost(&p2);
+        memcpy(&id, array1, wtf2);
+        DeletePlayer(id);
+        memcpy(&tmpInt1, array1, wtf3);
+        if (recvCallbacks->deleteMsg) {
+        	recvCallbacks->deleteMsg(tmpInt1, field_D78);
+        }
+
         break;
     case 3:
-        //TODO NET
-        break;
+        continue;
     case 4:
-        //TODO NET
+        if (!(len & 0x80)) {
+        	keepExchanging = false;
+        	break;
+        }
+
+        p3 = 1028;
+		if (!ReadMessage(&p1, &p2, &p3)) {
+			NETMSG("Inconsistency on receive");
+			break;
+		}
+
+		if (&p2 != (unsigned long *) -1124) {
+			wtf4 = (unsigned int)((char *) (0xFFFFA + 5)) & p2; //TODO: what does this address point to?.......
+		}
+		if (recvCallbacks->systemUserMsg) {
+			recvCallbacks->systemUserMsg(p1, array1, wtf4, field_D78);
+		}
+
         break;
     case 5:
         //TODO NET

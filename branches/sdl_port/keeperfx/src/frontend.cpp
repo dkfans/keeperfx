@@ -2683,21 +2683,27 @@ void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, voi
     ERRORLOG("Too many services in enumeration");
     return;
   }
+
   if (stricmp("SERIAL", netcdat->svc_name) == 0)
   {
     strcpy(net_service[net_number_of_services], gui_strings[874]);
     net_number_of_services++;
-  } else
-  if (stricmp("MODEM", netcdat->svc_name) == 0)
+  }
+  else if (stricmp("MODEM", netcdat->svc_name) == 0)
   {
     strcpy(net_service[net_number_of_services], gui_strings[875]);
     net_number_of_services++;
-  } else
-  if (stricmp("IPX", netcdat->svc_name) == 0)
+  }
+  else if (stricmp("IPX", netcdat->svc_name) == 0)
   {
     strcpy(net_service[net_number_of_services], gui_strings[876]);
     net_number_of_services++;
-  } else
+  }
+  else if (stricmp("TCP", netcdat->svc_name) == 0) {
+    strcpy(net_service[net_number_of_services], "TCP/IP");
+    net_number_of_services++;
+  }
+  else
   {
     ERRORLOG("Unrecognised Network Service");
   }
@@ -4643,14 +4649,16 @@ void frontend_load_continue_game(struct GuiButton *gbtn)
 
 TbBool fronttorture_draw(void)
 {
-  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+	SYNCDBG(10, "Entering");
+
+	TbScreenMode * mode = getActiveScreenMode();
   struct TbSprite *spr;
   const int img_width = 640;
   const int img_height = 480;
   int w,h,m,i;
   int spx,spy;
   // Only 8bpp supported for now
-  if (mdinfo->BitsPerPixel != 8)
+  if (mode->bpp != 8)
     return false;
   w=0;
   h=0;
@@ -4663,7 +4671,7 @@ TbBool fronttorture_draw(void)
   //TODO: temporarely set to top left corner because input function is not rewritten
   spx = 0;//(mdinfo->Width-m*img_width)>>1;
   spy = 0;//(mdinfo->Height-m*img_height)>>1;
-  copy_raw8_image_buffer(lbDisplay.WScreen,mdinfo->Width,mdinfo->Height,
+  copy_raw8_image_buffer(lbDisplay.WScreen, mode->width , mode->height,
       spx,spy,torture_background,img_width,img_height,m);
 
   for (i=0; i < torture_doors_available; i++)
@@ -6672,16 +6680,16 @@ void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
   const int img_width = 640;
   const int img_height = 480;
   const unsigned char *srcbuf=frontend_background;
-  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+  TbScreenMode * mode = getActiveScreenMode();
   int m;
   int spx,spy;
   // Only 8bpp supported for now
-  if (mdinfo->BitsPerPixel != 8)
+  if (mode->bpp != 8)
     return;
   if (rect_w == POS_AUTO)
-    rect_w = mdinfo->Width-rect_x;
+    rect_w = mode->width - rect_x;
   if (rect_h == POS_AUTO)
-    rect_h = mdinfo->Height-rect_y;
+    rect_h = mode->height - rect_y;
   if (rect_w<0) rect_w=0;
   if (rect_h<0) rect_h=0;
   m = get_bitmap_max_scale(img_width, img_height, rect_w, rect_h);
@@ -6694,7 +6702,7 @@ void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
   spx = rect_x + ((rect_w-m*img_width)>>1);
   spy = rect_y + ((rect_h-m*img_height)>>1);
   // Do the drawing
-  copy_raw8_image_buffer(lbDisplay.WScreen,mdinfo->Width,mdinfo->Height,
+  copy_raw8_image_buffer(lbDisplay.WScreen, mode->width, mode->height,
       spx,spy,srcbuf,img_width,img_height,m);
 }
 
@@ -6714,16 +6722,17 @@ void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
     img_height = 480;
     srcbuf = hires_parchment;
   }
-  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+  TbScreenMode * mode = getActiveScreenMode();
+
   int m;
   int spx,spy;
   // Only 8bpp supported for now
-  if (mdinfo->BitsPerPixel != 8)
+  if (mode->bpp != 8)
     return;
   if (rect_w == POS_AUTO)
-    rect_w = mdinfo->Width-rect_x;
+    rect_w = mode->width - rect_x;
   if (rect_h == POS_AUTO)
-    rect_h = mdinfo->Height-rect_y;
+    rect_h = mode->height - rect_y;
   if (rect_w<0) rect_w=0;
   if (rect_h<0) rect_h=0;
   // Parchment bitmap can't be scaled
@@ -6736,7 +6745,7 @@ void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
   if (spy<0) spy=0;
 */
   // Do the drawing
-  copy_raw8_image_buffer(lbDisplay.WScreen,mdinfo->Width,mdinfo->Height,
+  copy_raw8_image_buffer(lbDisplay.WScreen, mode->width, mode->height,
       spx,spy,srcbuf,img_width,img_height,m);
   // Burning candle flames
   LbSpriteDraw(spx+(36/pixel_size),(spy+0/pixel_size), &button_sprite[198+(game.play_gameturn & 3)]);

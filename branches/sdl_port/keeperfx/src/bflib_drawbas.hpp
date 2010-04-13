@@ -61,7 +61,7 @@ class TDDrawBaseClass {
     virtual void find_video_modes(void) = 0;
     virtual bool get_palette(void *,unsigned long,unsigned long) = 0;
     virtual bool set_palette(void *,unsigned long,unsigned long) = 0;
-    virtual bool setup_screen(TbScreenMode) = 0;
+    virtual bool setup_screen(TbScreenMode*) = 0;
     virtual bool lock_screen(void) = 0;
     virtual bool unlock_screen(void) = 0;
     virtual bool clear_screen(unsigned long) = 0;

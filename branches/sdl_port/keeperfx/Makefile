@@ -50,6 +50,7 @@ OBJS = \
 ./obj/bflib_heapmgr.o \
 ./obj/bflib_netsp.o \
 ./obj/bflib_netsp_ipx.o \
+./obj/bflib_netsp_tcp.o \
 ./obj/bflib_mshandler.o \
 ./obj/bflib_mspointer.o \
 ./obj/bflib_mouse.o \

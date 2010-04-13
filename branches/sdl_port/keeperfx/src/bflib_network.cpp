@@ -24,6 +24,7 @@
 #include "bflib_memory.h"
 #include "bflib_netsp.hpp"
 #include "bflib_netsp_ipx.hpp"
+#include "bflib_netsp_tcp.hpp"
 #include "globals.h"
 
 #ifdef __cplusplus
@@ -51,6 +52,7 @@ TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname);
 TbError GenericSerialInit(struct _GUID guid, void *init_data);
 TbError GenericModemInit(struct _GUID guid, void *init_data);
 TbError GenericIPXInit(struct _GUID guid);
+static TbError genericTCPInit(struct _GUID guid);
 TbError StartTwoPlayerExchange(void *buf);
 TbError StartMultiPlayerExchange(void *buf);
 TbError CompleteTwoPlayerExchange(void *buf);
@@ -174,7 +176,7 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
   // Initialising the service provider object
   switch (srvcIndex)
   {
-  case 0:
+  case NS_Serial:
       NETMSG("Selecting Serial SP");
       if (GenericSerialInit(guid,init_data) == Lb_OK)
       {
@@ -185,7 +187,7 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
         res = Lb_FAIL;
       }
       break;
-  case 1:
+  case NS_Modem:
       NETMSG("Selecting Modem SP");
       if (GenericModemInit(guid,init_data) == Lb_OK)
       {
@@ -196,7 +198,7 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
         res = Lb_FAIL;
       }
       break;
-  case 2:
+  case NS_IPX:
       NETMSG("Selecting IPX SP");
       if (GenericIPXInit(guid) == Lb_OK)
       {
@@ -207,6 +209,16 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
         res = Lb_FAIL;
       }
       break;
+  case NS_TCP_IP:
+	  NETMSG("Selecting TCP/IP SP");
+	  if (genericTCPInit(guid) == Lb_OK) {
+		  res = Lb_OK;
+	  }
+	  else {
+		  WARNLOG("Failure on TCP/IP Initialization");
+		  res = Lb_FAIL;
+	  }
+	  break;
   default:
       WARNLOG("The serviceIndex value of %d is out of range", srvcIndex);
       res = Lb_FAIL;
@@ -457,6 +469,8 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
   strcpy(netcdat.svc_name, "Modem");
   callback(&netcdat, ptr);
   strcpy(netcdat.svc_name, "IPX");
+  callback(&netcdat, ptr);
+  strcpy(netcdat.svc_name, "TCP");
   callback(&netcdat, ptr);
   NETMSG("Enumerate Services called");
   return Lb_OK;
@@ -736,6 +750,27 @@ TbError GenericIPXInit(struct _GUID guid)
     WARNLOG("Failure on SP::Init()");
     return Lb_FAIL;
   }
+  return Lb_OK;
+}
+
+static TbError genericTCPInit(struct _GUID guid)
+{
+  if (spPtr != NULL) {
+    spPtr->Release();
+    delete spPtr;
+    spPtr = NULL;
+  }
+
+  spPtr = new TCPServiceProvider();
+  if (spPtr == NULL) {
+	  WARNLOG("Failure on SP construction");
+	  return Lb_FAIL;
+  }
+  if (spPtr->Init(guid, 0, &receiveCallbacks, 0) != Lb_OK) {
+	  WARNLOG("Failure on SP::Init()");
+	  return Lb_FAIL;
+  }
+
   return Lb_OK;
 }
 

@@ -48,7 +48,7 @@ class TDDrawSdk : public TDDrawBaseClass {
     void find_video_modes(void);
     bool get_palette(void *,unsigned long,unsigned long);
     bool set_palette(void *,unsigned long,unsigned long);
-    bool setup_screen(TbScreenMode);
+    bool setup_screen(TbScreenMode *);
     bool lock_screen(void);
     bool unlock_screen(void);
     bool clear_screen(unsigned long);
@@ -66,7 +66,7 @@ class TDDrawSdk : public TDDrawBaseClass {
     void LoresEmulation(bool);
     // Nonvirtual methods
     static HRESULT CALLBACK screen_mode_callback(LPDDSURFACEDESC lpDDSurf, LPVOID lpContext);
-    static TbScreenModeInfo *get_mode_info(unsigned short mode);
+    static bool is_mode_possible(TbScreenMode * mode);
     static TbScreenMode TDDrawSdk::get_mode_info_by_str(char *str);
     bool setup_direct_draw(void);
     bool reset_direct_draw(void);

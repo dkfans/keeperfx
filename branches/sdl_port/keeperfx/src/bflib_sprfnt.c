@@ -886,7 +886,7 @@ TbBool LbTextSetFont(const struct TbSprite *font)
     {
       dbc_colour0 = 243;
       dbc_colour1 = 1;
-      if (lbDisplay.ScreenMode == Lb_SCREEN_MODE_320_200_8)
+      if (lbDisplay.PhysicalScreenWidth == 320)
         result = change_dbcfont(0);
       else
         result = change_dbcfont(1);
@@ -895,7 +895,7 @@ TbBool LbTextSetFont(const struct TbSprite *font)
     {
       dbc_colour0 = 248;
       dbc_colour1 = 1;
-      if (lbDisplay.ScreenMode == Lb_SCREEN_MODE_320_200_8)
+      if (lbDisplay.PhysicalScreenWidth == 320)
         result = change_dbcfont(0);
       else
         result = change_dbcfont(1);
@@ -904,7 +904,7 @@ TbBool LbTextSetFont(const struct TbSprite *font)
     {
       dbc_colour0 = 119;
       dbc_colour1 = 1;
-      if (lbDisplay.ScreenMode == Lb_SCREEN_MODE_320_200_8)
+      if (lbDisplay.PhysicalScreenWidth == 320)
         result = change_dbcfont(0);
       else
         result = change_dbcfont(1);
@@ -913,7 +913,7 @@ TbBool LbTextSetFont(const struct TbSprite *font)
     {
       dbc_colour0 = 70;
       dbc_colour1 = 1;
-      if (lbDisplay.ScreenMode == Lb_SCREEN_MODE_320_200_8)
+      if (lbDisplay.PhysicalScreenWidth == 320)
         result = change_dbcfont(0);
       else
         result = change_dbcfont(1);
@@ -922,7 +922,7 @@ TbBool LbTextSetFont(const struct TbSprite *font)
     {
       dbc_colour0 = 1;
       dbc_colour1 = 0;
-      if (lbDisplay.ScreenMode == Lb_SCREEN_MODE_320_200_8)
+      if (lbDisplay.PhysicalScreenWidth == 320)
         result = change_dbcfont(0);
       else
         result = change_dbcfont(1);
@@ -931,7 +931,7 @@ TbBool LbTextSetFont(const struct TbSprite *font)
     {
       dbc_colour0 = 237;
       dbc_colour1 = 232;
-      if (lbDisplay.ScreenMode == Lb_SCREEN_MODE_320_200_8)
+      if (lbDisplay.PhysicalScreenWidth == 320)
         result = change_dbcfont(0);
       else
         result = change_dbcfont(1);
@@ -939,7 +939,7 @@ TbBool LbTextSetFont(const struct TbSprite *font)
     {
       dbc_colour0 = 70;
       dbc_colour1 = 1;
-      if (lbDisplay.ScreenMode == Lb_SCREEN_MODE_320_200_8)
+      if (lbDisplay.PhysicalScreenWidth == 320)
         result = change_dbcfont(0);
       else
         result = change_dbcfont(1);

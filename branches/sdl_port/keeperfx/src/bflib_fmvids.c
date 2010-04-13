@@ -29,6 +29,7 @@
 #include "bflib_keybrd.h"
 #include "bflib_fileio.h"
 #include <windows.h>
+#include "vidmode.h"
 
 //keeperfx header must be included for poll_sdl_events() for now
 #include "keeperfx.hpp"
@@ -1132,8 +1133,8 @@ TbBool anim_record_frame(unsigned char *screenbuf, unsigned char *palette)
 {
   if ((animation.field_0 & 0x01)==0)
     return false;
-  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
-  if (!anim_format_matches(MyScreenWidth/pixel_size,MyScreenHeight/pixel_size,mdinfo->BitsPerPixel))
+  TbScreenMode * mode = getActiveScreenMode();
+  if (!anim_format_matches(MyScreenWidth/pixel_size, MyScreenHeight/pixel_size, mode->bpp))
     return false;
   return anim_make_next_frame(screenbuf, palette);
 }
@@ -1143,8 +1144,9 @@ short anim_record(void)
     SYNCDBG(7,"Starting");
   //return _DK_anim_record();
   static char finalname[255];
-  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
-  if ( mdinfo->BitsPerPixel != 8 )
+  TbScreenMode * mode = getActiveScreenMode();
+
+  if ( mode->bpp != 8 )
   {
     ERRORLOG("Cannot record movie in non-8bit screen mode");
     return 0;

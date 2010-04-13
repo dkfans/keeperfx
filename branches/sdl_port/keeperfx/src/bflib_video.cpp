@@ -18,7 +18,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
 #include "bflib_video.h"
+
+#include <cassert>
+#include <cctype>
 
 #include "bflib_mouse.h"
 #include "bflib_drawsdk.hpp"
@@ -170,12 +174,11 @@ TbResult LbScreenFindVideoModes(void)
   return Lb_SUCCESS;
 }
 
-TbResult LbScreenSetup(TbScreenMode mode, unsigned int width, unsigned int height,
-    unsigned char *palette, short buffers_count, TbBool wscreen_vid)
+TbResult LbScreenSetup(TbScreenMode * mode, unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {
   long hot_x,hot_y;
   struct TbSprite *msspr;
-  TbScreenModeInfo *mdinfo;
+
   if (lpDDC == NULL)
   {
     lpDDC = new TDDrawSdk();
@@ -200,18 +203,17 @@ TbResult LbScreenSetup(TbScreenMode mode, unsigned int width, unsigned int heigh
   SYNCDBG(8,"Mode setup succeeded");
   if (palette != NULL)
     LbPaletteSet(palette);
-  mdinfo = LbScreenGetModeInfo(mode);
   lbDisplay.PhysicalScreen = NULL;
   lbDisplay.GraphicsWindowPtr = NULL;
-  lbDisplay.ScreenMode = mode;
-  lbDisplay.GraphicsScreenHeight = mdinfo->Height;
-  lbDisplay.GraphicsScreenWidth = mdinfo->Width;
-  lbDisplay.PhysicalScreenWidth = mdinfo->Width;
-  lbDisplay.PhysicalScreenHeight = mdinfo->Height;
+  lbDisplay.ScreenMode = 0; //TODO: fill in with best possible legacy mode code if it turns out important
+  lbDisplay.GraphicsScreenHeight = mode->height;
+  lbDisplay.GraphicsScreenWidth = mode->width;
+  lbDisplay.PhysicalScreenWidth = mode->width;
+  lbDisplay.PhysicalScreenHeight = mode->height;
   lbDisplay.DrawColour = 0;
   lbDisplay.DrawFlags = 0;
-  LbScreenSetGraphicsWindow(0, 0, mdinfo->Width, mdinfo->Height);
-  LbTextSetWindow(0, 0, mdinfo->Width, mdinfo->Height);
+  LbScreenSetGraphicsWindow(0, 0, mode->width, mode->height);
+  LbTextSetWindow(0, 0, mode->width, mode->height);
   SYNCDBG(8,"Done filling display properties struct");
   if ( LbMouseIsInstalled() )
   {
@@ -261,7 +263,8 @@ void LbSetIcon(unsigned short nicon)
 
 TbScreenModeInfo *LbScreenGetModeInfo(unsigned short mode)
 {
-  return TDDrawSdk::get_mode_info(mode);
+	ERRORLOG("this function should be removed because using it will cause a crash");
+	return NULL;
 }
 
 TbBool LbScreenIsLocked(void)
@@ -269,7 +272,7 @@ TbBool LbScreenIsLocked(void)
     return (lbDisplay.WScreen > NULL);
 }
 
-TbResult LbScreenReset(void)
+TbResult LbScreenReset(void) //can potentially be removed, check
 {
   LbMouseChangeSprite(NULL);
   if (lpDDC == NULL)
@@ -375,9 +378,8 @@ TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
   return Lb_SUCCESS;
 }
 
-TbBool LbScreenIsModeAvailable(TbScreenMode mode)
+TbBool LbScreenIsModeAvailable(TbScreenMode * mode)
 {
-  TbScreenModeInfo *mdinfo;
   static TbBool setup = false;
   if (!setup)
   {
@@ -385,13 +387,66 @@ TbBool LbScreenIsModeAvailable(TbScreenMode mode)
       return false;
     setup = true;
   }
-  mdinfo = TDDrawSdk::get_mode_info(mode);
-  return mdinfo->Available;
+  return TDDrawSdk::is_mode_possible(mode);
 }
 
-TbScreenMode LbRecogniseVideoModeString(char *str)
+TbBool LbRecogniseVideoModeString(char * str, int * w, int * h, int * bpp)
 {
-  return TDDrawSdk::get_mode_info_by_str(str);
+	assert(str != NULL);
+	assert(w != NULL);
+	assert(h != NULL);
+	assert(bpp != NULL);
+
+	SYNCDBG(7, "Entering with string %s", str);
+
+	*w = *h = *bpp = -1;
+
+	//read "MODE_"
+	if (strncmp(str, "MODE_", 5) != 0) {
+		return false;
+	}
+
+	str += 5;
+
+	// read width
+	if (!isdigit(*str)) {
+		return false;
+	}
+
+	*w = atoi(str);
+	for (; isdigit(*str); ++str);
+
+	//read '_'
+	if (*str != '_') {
+		return false;
+	}
+
+	++str;
+
+	//read height
+	if (!isdigit(*str)) {
+		return false;
+	}
+
+	*h = atoi(str);
+	for (; isdigit(*str); ++str);
+
+	//read '_'
+	if (*str != '_') {
+		return false;
+	}
+
+	++str;
+
+	//read bpp
+	if (!isdigit(*str)) {
+		return false;
+	}
+
+	*bpp = atoi(str);
+	for (; isdigit(*str); ++str);
+
+	return true;
 }
 
 TbPixel LbPaletteFindColour(unsigned char *pal, unsigned char r, unsigned char g, unsigned char b)

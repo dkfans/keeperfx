@@ -20,7 +20,7 @@
 #define KEEPERFX_VERSIONS_H
 
 /* Debug level is scaled 0..10, default=1 */
-#define BFDEBUG_LEVEL     10
+#define BFDEBUG_LEVEL     8
 /* Version definitions */
 #define VER_MAJOR         0
 #define VER_MINOR         3

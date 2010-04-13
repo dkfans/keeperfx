@@ -81,7 +81,6 @@ TDDrawSdk::TDDrawSdk(void) : TDDrawBaseClass()
   this->resHeight = 0;
   this->window_created = 0;
   hThread = NULL;*/
-  vidMode = Lb_SCREEN_MODE_INVALID;
   resWidth = 0;
   resHeight = 0;
   flags = 0;
@@ -257,13 +256,9 @@ bool TDDrawSdk::set_palette(void *palette,unsigned long base,unsigned long numEn
   return true;
 }
 
-bool TDDrawSdk::setup_screen(TbScreenMode mode)
+bool TDDrawSdk::setup_screen(TbScreenMode * mode)
 {
   SYNCDBG(12,"Starting");
-
-  // Get display mode information and verify that it is available.
-
-  TbScreenModeInfo * const screenModeInfo = TDDrawSdk::get_mode_info(mode);
 
   /*if (!LbScreenIsModeAvailable(mode)) { //TODO: implement properly first
     ERRORLOG("screen mode %d not available",(int)mode);
@@ -286,9 +281,8 @@ bool TDDrawSdk::setup_screen(TbScreenMode mode)
 
   // Set some members,
 
-  vidMode = mode;
-  resWidth = screenModeInfo->Width;
-  resHeight = screenModeInfo->Height;
+  resWidth = mode->width;
+  resHeight = mode->height;
 
   //setup SDL something...
 
@@ -311,8 +305,7 @@ bool TDDrawSdk::setup_screen(TbScreenMode mode)
 
   // Set SDL video mode (also creates window).
 
-  screenSurface = SDL_SetVideoMode(screenModeInfo->Width, screenModeInfo->Height,
-      screenModeInfo->BitsPerPixel, sdlFlags);
+  screenSurface = SDL_SetVideoMode(mode->width, mode->height, mode->bpp, sdlFlags);
 
   if (screenSurface == NULL) {
       ERRORLOG("Failed to initialize SDL video mode.");
@@ -333,7 +326,7 @@ bool TDDrawSdk::setup_screen(TbScreenMode mode)
   lbDisplay.GraphicsScreenHeight = resHeight;
   lbDisplay.PhysicalScreenWidth = resWidth;
   lbDisplay.PhysicalScreenHeight = resHeight;
-  lbDisplay.ScreenMode = mode;
+  lbDisplay.ScreenMode = 0; //TODO: emulate this if necessary
   lbDisplay.WScreen = NULL;
 
   // Set graphics window... Whatever it means.
@@ -1143,24 +1136,26 @@ bool TDDrawSdk::remove_sdk_window(void)
   return false;
 }
 
-TbScreenModeInfo *TDDrawSdk::get_mode_info(unsigned short mode)
+bool TDDrawSdk::is_mode_possible(TbScreenMode * mode)
 {
-  int maxmode=sizeof(lbScreenModeInfo)/sizeof(TbScreenModeInfo);
-  if (mode < maxmode)
-    return &lbScreenModeInfo[mode];
-  return &lbScreenModeInfo[0];
+	//for now assume these flags
+	unsigned long sdlFlags = SDL_HWPALETTE | SDL_DOUBLEBUF | SDL_FULLSCREEN;
+
+	return SDL_VideoModeOK(mode->width, mode->height, mode->bpp, sdlFlags) == mode->bpp;
 }
 
 TbScreenMode TDDrawSdk::get_mode_info_by_str(char *str)
 {
-  int maxmode=sizeof(lbScreenModeInfo)/sizeof(TbScreenModeInfo);
+  /*int maxmode=sizeof(lbScreenModeInfo)/sizeof(TbScreenModeInfo);
   int mode;
   for (mode=0; mode<maxmode; mode++)
   {
     if (stricmp(lbScreenModeInfo[mode].Desc,str) == 0)
       return (TbScreenMode)mode;
   }
-  return Lb_SCREEN_MODE_INVALID;
+  return Lb_SCREEN_MODE_INVALID;*/
+	TbScreenMode null = { -1, -1, -1 };
+	return null;
 }
 
 /******************************************************************************/

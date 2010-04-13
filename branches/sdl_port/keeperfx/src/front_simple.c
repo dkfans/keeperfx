@@ -118,11 +118,11 @@ short copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int
  */
 short copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_width,const int img_height)
 {
-  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+	TbScreenMode * mode = getActiveScreenMode();
   int w,h,m;
   int spx,spy;
   // Only 8bpp supported for now
-  if (mdinfo->BitsPerPixel != 8)
+  if (mode->bpp != 8)
     return false;
   w=0;
   h=0;
@@ -130,15 +130,16 @@ short copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_wi
   {
     w+=img_width;
     h+=img_height;
-    if (w > mdinfo->Width) break;
-    if (h > mdinfo->Height) break;
+    if (w > mode->width) break;
+    if (h > mode->height) break;
   }
   // The image width can't be larger than video resolution
   if (m<1)
   {
-    if (w > mdinfo->Width)
+    if (w > mode->width)
     {
-      SYNCMSG("The %dx%d image does not fit on %dx%d screen, skipped.", img_width, img_height,mdinfo->Width,mdinfo->Height);
+      SYNCMSG("The %dx%d image does not fit on %dx%d screen, skipped.", img_width, img_height,
+    		  mode->width, mode->height);
       return false;
     }
     m=1;
@@ -147,9 +148,9 @@ short copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_wi
   if (LbScreenLock() != Lb_SUCCESS)
     return false;
   // Starting point coords
-  spx = (mdinfo->Width-m*img_width)>>1;
-  spy = (mdinfo->Height-m*img_height)>>1;
-  copy_raw8_image_buffer(lbDisplay.WScreen,mdinfo->Width,mdinfo->Height,
+  spx = (mode->width - m*img_width)>>1;
+  spy = (mode->height - m*img_height)>>1;
+  copy_raw8_image_buffer(lbDisplay.WScreen, mode->width, mode->height,
       spx,spy,buf,img_width,img_height,m);
   perform_any_screen_capturing();
   LbScreenUnlock();
@@ -219,13 +220,13 @@ short free_bitmap_screen(struct ActiveBitmap *actv_bmp)
  */
 short init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
 {
-  TbScreenModeInfo *mdinfo;
+	TbScreenMode * mode = getActiveScreenMode();
   struct RawBitmap *rbmp;
   unsigned char *buf;
   long ldsize;
+
   // Set startup parameters
-  mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
-  if (mdinfo->Width >= 640)
+  if (mode->width >= 640)
     rbmp = &bitmaps_640[stype];
   else
     rbmp = &bitmaps_320[stype];

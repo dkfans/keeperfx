@@ -62,21 +62,22 @@ extern struct TbLoadFiles legal_load_files[];
 extern struct TbLoadFiles map_flag_load_files[];
 /******************************************************************************/
 TbScreenMode switch_to_next_video_mode(void);
-void set_game_vidmode(unsigned short i,unsigned short nmode);
-TbScreenMode reenter_video_mode(void);
+void set_game_vidmode(unsigned short i, int w, int h, int bpp);
+void reenter_video_mode(void);
 TbScreenMode get_next_vidmode(unsigned short mode);
-TbScreenMode validate_vidmode(unsigned short mode);
+bool validate_vidmode(TbScreenMode * mode);
 TbScreenMode get_failsafe_vidmode(void);
 TbScreenMode get_movies_vidmode(void);
 TbScreenMode get_frontend_vidmode(void);
-void set_failsafe_vidmode(unsigned short nmode);
-void set_movies_vidmode(unsigned short nmode);
-void set_frontend_vidmode(unsigned short nmode);
+void set_failsafe_vidmode(int w, int h, int bpp);
+void set_movies_vidmode(int w, int h, int bpp);
+void set_frontend_vidmode(int w, int h, int bpp);
 char *get_vidmode_name(unsigned short mode);
 
-short setup_screen_mode(unsigned short nmode);
-short setup_screen_mode_minimal(unsigned short nmode);
-TbBool setup_screen_mode_zero(unsigned short nmode);
+TbScreenMode * getActiveScreenMode();
+
+short setup_screen_mode(TbScreenMode * mode, bool minimal);
+TbBool setup_screen_mode_zero(TbScreenMode * mode);
 
 short LoadMcgaData(void);
 short LoadMcgaDataMinimal(void);
