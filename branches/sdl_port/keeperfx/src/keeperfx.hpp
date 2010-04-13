@@ -1206,7 +1206,7 @@ short setup_game(void);
 void game_loop(void);
 short reset_game(void);
 void update(void);
-void poll_sdl_events();
+void poll_sdl_events(TbBool mouseWheelRemap);
 
 short setup_network_service(int srvidx);
 long modem_initialise_callback(void);

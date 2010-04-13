@@ -2,8 +2,9 @@
 #include <windows.h>
 #include <winbase.h>
 #include <math.h>
-#include <string>
 #include <SDL.h>
+#include <string>
+
 #include "keeperfx.hpp"
 
 #include "bflib_math.h"
@@ -12639,7 +12640,7 @@ void keeper_gameplay_loop(void)
       // Check if we should redraw screen in this turn
       do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
 
-      poll_sdl_events();
+      poll_sdl_events(true);
       update_mouse();
       input_eastegg();
       input();
@@ -13931,7 +13932,7 @@ void wait_at_frontend(void)
       SYNCDBG(0,"Windows Control exit condition invoked");
       break;
     }
-    poll_sdl_events();
+    poll_sdl_events(false);
     update_mouse();
     update_key_modifiers();
     old_mouse_over_button = frontend_mouse_over_button;
@@ -14031,132 +14032,6 @@ void wait_at_frontend(void)
   player->field_6 &= 0xFDu;
 }
 
-/**
- * Converts an SDL mouse button event type and the corresponding mouse button to a Win32 API message.
- * @param eventType
- * @param button
- * @return
- */
-static unsigned get_mouse_message_type(int eventType, unsigned button) {
-    if (eventType == SDL_MOUSEBUTTONDOWN) {
-        switch (button)  {
-        case SDL_BUTTON_LEFT: return WM_LBUTTONDOWN;
-        case SDL_BUTTON_MIDDLE: return WM_MBUTTONDOWN;
-        case SDL_BUTTON_RIGHT: return WM_RBUTTONDOWN;
-        }
-    }
-    else if (eventType == SDL_MOUSEBUTTONUP) {
-        switch (button) {
-        case SDL_BUTTON_LEFT: return WM_LBUTTONUP;
-        case SDL_BUTTON_MIDDLE: return WM_MBUTTONUP;
-        case SDL_BUTTON_RIGHT: return WM_RBUTTONUP;
-        }
-    }
-
-    ERRORMSG("Shouldn't get here");
-    return 0;
-}
-
-/**
- * Temporary function that emulates the value of the extension bit in WM_KEYUP/WM_KEYDOWN
- * until KeyboardProc can be written.
- * @param sym
- * @return
- */
-static bool has_ext_bit(SDLKey sym)
-{
-	switch (sym) {
-	case SDLK_RALT:
-	case SDLK_RCTRL:
-	case SDLK_INSERT:
-	case SDLK_HOME:
-	case SDLK_END:
-	case SDLK_DELETE:
-	case SDLK_PAGEUP:
-	case SDLK_PAGEDOWN:
-	case SDLK_UP:
-	case SDLK_DOWN:
-	case SDLK_LEFT:
-	case SDLK_RIGHT:
-	case SDLK_KP_DIVIDE:
-	case SDLK_KP_ENTER:
-		return true;
-	default:
-		return false;
-	}
-}
-
-/**
- * Converts an SDL_KeyboardEvent to an LPARAM parameter as per Win32 API, because that's
- * what DK's KeyboardProc expects.
- * @param ev
- * @return
- */
-static LPARAM make_LPARAM_from_sdl_key_event(const SDL_KeyboardEvent * const ev)
-{
-	LPARAM lParam;
-
-	//bit 31: key up or down?
-	lParam = ev->type == SDL_KEYUP? 0x80000000 : 0;
-
-	//TODO: detect if key already was down (bit 30 of LPARAM)
-
-	//bit 29: state of alt key(s)
-	if (ev->keysym.mod & KMOD_ALT) {
-		lParam |= 0x20000000;
-	}
-
-	//bits 25-28 reserved, leave 0
-
-	//bit 24: extension bit
-	if (has_ext_bit(ev->keysym.sym)) {
-		lParam |= 0x1000000;
-	}
-
-	//bits 16-23: scancode
-	lParam |= ev->keysym.scancode << 16;
-
-	//bits 0-15: repeat count, always let this be 1 due to SDL semantics
-	lParam |= 1;
-
-	return lParam;
-}
-
-void poll_sdl_events() {
-    SYNCDBG(12,"Starting");
-
-    SDL_Event ev;
-    struct tagPOINT mousePos;
-    int x, y;
-
-    //TODO: handle double clicks, SDL doesn't generate them
-
-    while (SDL_PollEvent(&ev)) {
-        switch (ev.type) {
-        case SDL_KEYDOWN:
-        case SDL_KEYUP:
-            KeyboardProc(0, 0, make_LPARAM_from_sdl_key_event(&ev.key));
-            break;
-        case SDL_MOUSEMOTION:
-        	SDL_GetRelativeMouseState(&x, &y);
-        	mousePos.x = x; //ev.motion.x;
-        	mousePos.y = y; //ev.motion.y;
-            mouseControl(WM_MOUSEMOVE, &mousePos);
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-        	SDL_GetRelativeMouseState(&x, &y);
-            mousePos.x = x; //ev.button.x;
-            mousePos.y = y; //ev.button.y;
-            mouseControl(get_mouse_message_type(ev.type, ev.button.button), &mousePos);
-            break;
-        case SDL_ACTIVEEVENT:
-			SDL_ShowCursor(ev.active.gain? SDL_DISABLE : SDL_ENABLE);
-        	break;
-        }
-    }
-}
-
 void game_loop(void)
 {
   //_DK_game_loop(); return;
@@ -14167,7 +14042,7 @@ void game_loop(void)
   SYNCDBG(0,"Entering gameplay loop.");
   while ( !exit_keeper )
   {
-    poll_sdl_events();
+    poll_sdl_events(false);
     update_mouse();
     wait_at_frontend();
     if ( exit_keeper )

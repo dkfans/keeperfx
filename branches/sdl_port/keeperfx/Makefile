@@ -104,6 +104,7 @@ OBJS = \
 ./obj/config_magic.o \
 ./obj/frontend.o \
 ./obj/vidmode.o \
+./obj/sdl_events.o \
 $(RES)
 
 LINKOBJ  = $(OBJS)

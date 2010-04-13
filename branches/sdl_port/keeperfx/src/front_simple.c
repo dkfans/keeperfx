@@ -118,7 +118,7 @@ short copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int
  */
 short copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_width,const int img_height)
 {
-	TbScreenMode * mode = getActiveScreenMode();
+  TbScreenMode * mode = getActiveScreenMode();
   int w,h,m;
   int spx,spy;
   // Only 8bpp supported for now
@@ -176,7 +176,7 @@ TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int 
         LbWindowsControl();
         copy_raw8_image_to_screen_center(raw, width, height);
 
-        poll_sdl_events();
+        poll_sdl_events(false);
         if (is_key_pressed(KC_SPACE, KM_DONTCARE)
          || is_key_pressed(KC_ESCAPE, KM_DONTCARE)
          || is_key_pressed(KC_RETURN, KM_DONTCARE)

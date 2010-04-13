@@ -243,7 +243,7 @@ short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
             return 2;
         }
 
-        poll_sdl_events();
+        poll_sdl_events(false);
         if (((plyflags & 0x02)==0) && (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_RETURN]
             || lbKeyOn[KC_SPACE] || lbDisplay.LeftButton) )
         {
@@ -321,7 +321,7 @@ short play_smk_direct(char *fname, int smkflags, int plyflags)
             return 2;
         }
 
-        poll_sdl_events();
+        poll_sdl_events(false);
         if (((plyflags & 0x02)==0) && (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_RETURN]
             || lbKeyOn[KC_SPACE] || lbDisplay.LeftButton) )
         {
