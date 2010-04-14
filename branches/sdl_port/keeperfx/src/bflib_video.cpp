@@ -27,6 +27,7 @@
 #include "bflib_mouse.h"
 #include "bflib_drawsdk.hpp"
 #include "bflib_sprfnt.h"
+#include "vidmode.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -205,15 +206,17 @@ TbResult LbScreenSetup(TbScreenMode * mode, unsigned char *palette, short buffer
     LbPaletteSet(palette);
   lbDisplay.PhysicalScreen = NULL;
   lbDisplay.GraphicsWindowPtr = NULL;
-  lbDisplay.ScreenMode = 0; //TODO: fill in with best possible legacy mode code if it turns out important
+  lbDisplay.ScreenMode = getOldScreenModeNumber(mode); //attempt to find legacy mode
   lbDisplay.GraphicsScreenHeight = mode->height;
   lbDisplay.GraphicsScreenWidth = mode->width;
-  lbDisplay.PhysicalScreenWidth = mode->width;
+  lbDisplay.PhysicalScreenWidth = mode->width; //TODO: perhaps this should be pitch of drawing surface... at any rate it gets overwritten
   lbDisplay.PhysicalScreenHeight = mode->height;
   lbDisplay.DrawColour = 0;
   lbDisplay.DrawFlags = 0;
+  lbDisplay.WScreen = NULL;
   LbScreenSetGraphicsWindow(0, 0, mode->width, mode->height);
   LbTextSetWindow(0, 0, mode->width, mode->height);
+  setActiveScreenMode(mode);
   SYNCDBG(8,"Done filling display properties struct");
   if ( LbMouseIsInstalled() )
   {
@@ -272,7 +275,7 @@ TbBool LbScreenIsLocked(void)
     return (lbDisplay.WScreen > NULL);
 }
 
-TbResult LbScreenReset(void) //can potentially be removed, check
+TbResult LbScreenReset(void)
 {
   LbMouseChangeSprite(NULL);
   if (lpDDC == NULL)

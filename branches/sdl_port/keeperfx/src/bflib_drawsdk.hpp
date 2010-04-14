@@ -87,9 +87,8 @@ class TDDrawSdk : public TDDrawBaseClass {
     HRESULT ResultDDMsg(void);
 
     SDL_Surface * screenSurface;
-    unsigned long vidMode;
-    unsigned long resWidth;
-    unsigned long resHeight;
+    SDL_Surface * drawSurface; //may or may not be same as screen surface
+    bool hasSecondSurface;
 
     /*// Properties
     LPDIRECTDRAWSURFACE lpDDSurface2;

@@ -75,6 +75,8 @@ void set_frontend_vidmode(int w, int h, int bpp);
 char *get_vidmode_name(unsigned short mode);
 
 TbScreenMode * getActiveScreenMode();
+void setActiveScreenMode(const TbScreenMode * mode);
+int getOldScreenModeNumber(const TbScreenMode * mode);
 
 short setup_screen_mode(TbScreenMode * mode, bool minimal);
 TbBool setup_screen_mode_zero(TbScreenMode * mode);

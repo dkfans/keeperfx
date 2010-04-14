@@ -250,6 +250,59 @@ struct TbSetupSprite netmap_flag_setup_sprites[] = {
 short force_video_mode_reset = true;
 static TbScreenMode activeScreenMode; //new screen mode tracking variable, replacement for lbDisplay.ScreenMode
 
+// The following is needed to set lbDisplay.ScreenMode correctly in cases where it matters (in frontend primarily)
+
+enum OldScreenMode //previously 'ScreenMode'
+{
+    Lb_SCREEN_MODE_INVALID      = 0x00,
+    Lb_SCREEN_MODE_320_200_8    = 0x01,
+    Lb_SCREEN_MODE_320_200_16   = 0x02,
+    Lb_SCREEN_MODE_320_200_24   = 0x03,
+    Lb_SCREEN_MODE_512_384_16   = 0x08,
+    Lb_SCREEN_MODE_512_384_24   = 0x09,
+    Lb_SCREEN_MODE_640_400_8    = 0x0A,
+    Lb_SCREEN_MODE_640_400_16   = 0x0B,
+    Lb_SCREEN_MODE_320_240_8    = 0x04,
+    Lb_SCREEN_MODE_320_240_16   = 0x05,
+    Lb_SCREEN_MODE_320_240_24   = 0x06,
+    Lb_SCREEN_MODE_512_384_8    = 0x07,
+    Lb_SCREEN_MODE_640_400_24   = 0x0C,
+    Lb_SCREEN_MODE_640_480_8    = 0x0D,
+    Lb_SCREEN_MODE_640_480_16   = 0x0E,
+    Lb_SCREEN_MODE_640_480_24   = 0x0F,
+    Lb_SCREEN_MODE_800_600_8    = 0x10,
+    Lb_SCREEN_MODE_800_600_16   = 0x11,
+    Lb_SCREEN_MODE_800_600_24   = 0x12,
+    Lb_SCREEN_MODE_1024_768_8   = 0x13,
+    Lb_SCREEN_MODE_1024_768_16  = 0x14,
+    Lb_SCREEN_MODE_1024_768_24  = 0x15,
+    Lb_SCREEN_MODE_1200_1024_8  = 0x16,
+    Lb_SCREEN_MODE_1200_1024_16 = 0x17,
+    Lb_SCREEN_MODE_1200_1024_24 = 0x18,
+    Lb_SCREEN_MODE_1600_1200_8  = 0x19,
+    Lb_SCREEN_MODE_1600_1200_16 = 0x1A,
+    Lb_SCREEN_MODE_1600_1200_24 = 0x1B,
+};
+
+struct OldToNewScreenMode
+{
+	enum OldScreenMode modeNbr;
+	int w;
+	int h;
+	//ignore BPP, we emulate 8 bits anyway so engine doesn't need to know about it
+};
+
+static const OldToNewScreenMode oldToNewScreenModeTable[] = {
+		{ Lb_SCREEN_MODE_320_200_8, 320, 200 },
+		{ Lb_SCREEN_MODE_320_240_8, 320, 240 },
+		{ Lb_SCREEN_MODE_512_384_8, 512, 384 },
+		{ Lb_SCREEN_MODE_640_400_8, 640, 400 },
+		{ Lb_SCREEN_MODE_640_480_8, 640, 480 },
+		{ Lb_SCREEN_MODE_800_600_8, 800, 600 },
+		{ Lb_SCREEN_MODE_1024_768_8, 1024, 768 },
+		{ Lb_SCREEN_MODE_1200_1024_8, 1200, 1024 },
+		{ Lb_SCREEN_MODE_1600_1200_8, 1600, 1200 }
+};
 
 /******************************************************************************/
 
@@ -888,8 +941,36 @@ TbScreenMode switch_to_next_video_mode(void)
   return mode;
 }
 
+void setActiveScreenMode(const TbScreenMode * mode)
+{
+	activeScreenMode = *mode;
+}
+
 TbScreenMode * getActiveScreenMode() {
 	return &activeScreenMode;
+}
+
+/* TODO: is this needed? I coded this because I thought it was a problem which was something else,
+ * but perhaps something reads lbDisplay.ScreenMode anyway so I keep this until it's confirmed
+ */
+int getOldScreenModeNumber(const TbScreenMode * mode) {
+	int i;
+	const OldToNewScreenMode * conv;
+	int retval = 0;
+
+	SYNCDBG(9, "Starting, mode is %ix%ix%i", mode->width, mode->height, mode->bpp);
+
+	for (i = 0; i < sizeof(oldToNewScreenModeTable) / sizeof(oldToNewScreenModeTable[0]); ++i) {
+		conv = oldToNewScreenModeTable + i;
+		if (mode->width == conv->w && mode->height == conv->h) {
+			retval = conv->modeNbr;
+			break;
+		}
+	}
+
+	SYNCDBG(7, "Matched to old screen mode number %i", retval);
+
+	return retval;
 }
 
 #if (BFDEBUG_LEVEL > 0)

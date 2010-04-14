@@ -164,12 +164,6 @@ static void process_event(const SDL_Event & ev, TbBool mouseWheelRemap) {
 	switch (ev.type) {
 	case SDL_KEYDOWN:
 	case SDL_KEYUP:
-		if (ev.key.keysym.sym == SDLK_PAGEDOWN) {
-			ERRORLOG("scan code for PAGEDOWN is %i", ev.key.keysym.scancode);
-		}
-		if (ev.key.keysym.sym == SDLK_DELETE) {
-			ERRORLOG("scan code for DELETE is %i", ev.key.keysym.scancode);
-		}
 		KeyboardProc(0, 0, make_lparam_from_sdl_key_event(ev.key));
 		break;
 	case SDL_MOUSEMOTION:

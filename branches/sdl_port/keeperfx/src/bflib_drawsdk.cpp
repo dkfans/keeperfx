@@ -81,9 +81,10 @@ TDDrawSdk::TDDrawSdk(void) : TDDrawBaseClass()
   this->resHeight = 0;
   this->window_created = 0;
   hThread = NULL;*/
-  resWidth = 0;
-  resHeight = 0;
-  flags = 0;
+	screenSurface = NULL;
+	drawSurface = NULL;
+	flags = 0;
+	hasSecondSurface = false;
 }
 
 TDDrawSdk::~TDDrawSdk(void)
@@ -96,7 +97,7 @@ TDDrawSdk::~TDDrawSdk(void)
     lpDDInterface->Release();
     lpDDInterface = NULL;
   }*/
-  remove_sdk_window();
+	 remove_sdk_window();
 }
 
 bool TDDrawSdk::setup_window(void)
@@ -224,7 +225,7 @@ bool TDDrawSdk::get_palette(void *palette,unsigned long base,unsigned long numEn
   SYNCDBG(12,"Starting");
 
   char * destColors = (char *) palette;
-  const SDL_Color * const srcColors = screenSurface->format->palette->colors;
+  const SDL_Color * const srcColors = drawSurface->format->palette->colors;
   unsigned long i;
   for (i = 0; i < numEntries; ++i) {
       destColors[0] = srcColors[base+i].r >> 2;
@@ -250,7 +251,7 @@ bool TDDrawSdk::set_palette(void *palette,unsigned long base,unsigned long numEn
       srcColors += 3;
   }
 
-  SDL_SetPalette(screenSurface, SDL_LOGPAL | SDL_PHYSPAL, destColors, base, numEntries);
+  SDL_SetPalette(drawSurface, SDL_LOGPAL | SDL_PHYSPAL, destColors, base, numEntries);
   free(destColors);
 
   return true;
@@ -259,6 +260,8 @@ bool TDDrawSdk::set_palette(void *palette,unsigned long base,unsigned long numEn
 bool TDDrawSdk::setup_screen(TbScreenMode * mode)
 {
   SYNCDBG(12,"Starting");
+
+  //TODO: improve error handling in this function, and cleaning up when resetting video mode...
 
   /*if (!LbScreenIsModeAvailable(mode)) { //TODO: implement properly first
     ERRORLOG("screen mode %d not available",(int)mode);
@@ -279,25 +282,20 @@ bool TDDrawSdk::setup_screen(TbScreenMode * mode)
   flags &= ~DMF_Unknown0800;
   flags &= ~DMF_Unknown1000;
 
-  // Set some members,
-
-  resWidth = mode->width;
-  resHeight = mode->height;
-
   //setup SDL something...
 
   flags |= DMF_DoneSetup;
 
   //release_surfaces();
   bool fullscreen = flags & DMF_ControlDisplayMode;
-  bool doublebuffer = is_double_buffering_video();
   //bool wscreen = is_wscreen_in_video();
 
   // SDL video mode flags.
 
-  unsigned long sdlFlags = SDL_HWPALETTE;
-  if (doublebuffer) {
+  unsigned long sdlFlags = 0;
+  if (mode->bpp == 8) {
     sdlFlags |= SDL_DOUBLEBUF;
+    sdlFlags |= SDL_HWPALETTE;
   }
   if (fullscreen) {
     sdlFlags |= SDL_FULLSCREEN;
@@ -305,7 +303,7 @@ bool TDDrawSdk::setup_screen(TbScreenMode * mode)
 
   // Set SDL video mode (also creates window).
 
-  screenSurface = SDL_SetVideoMode(mode->width, mode->height, mode->bpp, sdlFlags);
+  screenSurface = drawSurface = SDL_SetVideoMode(mode->width, mode->height, mode->bpp, sdlFlags);
 
   if (screenSurface == NULL) {
       ERRORLOG("Failed to initialize SDL video mode.");
@@ -316,22 +314,36 @@ bool TDDrawSdk::setup_screen(TbScreenMode * mode)
   SDL_WM_SetCaption(lbDrawAreaTitle, lbDrawAreaTitle);
   SetIcon();
 
+  // Create secondary surface if necessary. Right now, only if BPP != 8.
+  //TODO: utilize this for rendering in different resolution later
+  if (mode->bpp != 8) {
+	  drawSurface = SDL_CreateRGBSurface(SDL_HWSURFACE, mode->width, mode->height, 8, 0, 0, 0, 0);
+
+	  if (drawSurface == NULL) {
+		  screenSurface = NULL;
+		  ERRORLOG("Can't create secondary surface");
+		  return false;
+	  }
+
+	  hasSecondSurface = true;
+  }
+
   flags |= DMF_SurfacesSetup;
 
   // Update DK display struct.
+  //TODO: actually I've commented it out because LbScreenSetup already does this AFAIK
 
-  lbDisplay.DrawFlags = 0;
+  /*lbDisplay.DrawFlags = 0;
   lbDisplay.DrawColour = 0;
-  lbDisplay.GraphicsScreenWidth = screenSurface->pitch; //TODO: verify this should be it rather than resWidth
+  lbDisplay.GraphicsScreenWidth = screenSurface->pitch; //TODO: note this
   lbDisplay.GraphicsScreenHeight = resHeight;
   lbDisplay.PhysicalScreenWidth = resWidth;
   lbDisplay.PhysicalScreenHeight = resHeight;
-  lbDisplay.ScreenMode = 0; //TODO: emulate this if necessary
+  lbDisplay.ScreenMode = ;
   lbDisplay.WScreen = NULL;
 
-  // Set graphics window... Whatever it means.
-
-  LbScreenSetGraphicsWindow(0, 0, resWidth, resHeight);
+  // Set graphics window...
+  LbScreenSetGraphicsWindow(0, 0, resWidth, resHeight); //already done by LbScreenSetup */
 
   return true;
 }
@@ -340,15 +352,15 @@ bool TDDrawSdk::lock_screen(void)
 {
   SYNCDBG(12,"Starting");
 
-  if (SDL_LockSurface(screenSurface) < 0) {
+  if (SDL_LockSurface(drawSurface) < 0) {
       lbDisplay.GraphicsWindowPtr = NULL;
       lbDisplay.WScreen = NULL;
       return false;
   }
 
   backLockCount++;
-  lbDisplay.WScreen = (unsigned char *) screenSurface->pixels;
-  lbDisplay.GraphicsScreenWidth = screenSurface->pitch;
+  lbDisplay.WScreen = (unsigned char *) drawSurface->pixels;
+  lbDisplay.GraphicsScreenWidth = drawSurface->pitch;
   lbDisplay.GraphicsWindowPtr = &lbDisplay.WScreen[lbDisplay.GraphicsWindowX +
                                                    lbDisplay.GraphicsScreenWidth * lbDisplay.GraphicsWindowY];
 
@@ -367,7 +379,7 @@ bool TDDrawSdk::unlock_screen(void)
   lbDisplay.WScreen = NULL;
   lbDisplay.GraphicsWindowPtr = NULL;
 
-  SDL_UnlockSurface(screenSurface);
+  SDL_UnlockSurface(drawSurface);
 
   return true;
 }
@@ -376,7 +388,7 @@ bool TDDrawSdk::clear_screen(unsigned long color)
 {
   SYNCDBG(12,"Starting");
 
-  if (SDL_FillRect(screenSurface, NULL, color) < 0) {
+  if (SDL_FillRect(drawSurface, NULL, color) < 0) {
       ERRORLOG("Error while clearing screen.");
       return false;
   }
@@ -394,7 +406,7 @@ bool TDDrawSdk::clear_window(long x,long y,unsigned long w,unsigned long h,unsig
   rect.w = w;
   rect.h = h;
 
-  if (SDL_FillRect(screenSurface, &rect, color) < 0) {
+  if (SDL_FillRect(drawSurface, &rect, color) < 0) {
       ERRORLOG("Error when clearing window.");
       return false;
   }
@@ -404,12 +416,19 @@ bool TDDrawSdk::clear_window(long x,long y,unsigned long w,unsigned long h,unsig
 
 bool TDDrawSdk::swap_screen(void)
 {
-  SYNCDBG(12,"Starting");
+	SYNCDBG(12,"Starting");
 
-  if (SDL_Flip(screenSurface) < 0) {
-      ERRORLOG("Call to SDL_Flip failed.");
-      return false;
-  }
+	if (hasSecondSurface) {
+		if (SDL_BlitSurface(drawSurface, NULL, screenSurface, NULL) == -1) {
+			ERRORLOG("SDL_BlitSurface failed.");
+			return false;
+		}
+	}
+
+	if (SDL_Flip(screenSurface) < 0) { //calls SDL_UpdateRect for entire screen if not double buffered
+		ERRORLOG("SDL_Flip failed.");
+		return false;
+	}
 
   //TODO: study original logic, see if it's needed...
 
@@ -501,17 +520,16 @@ bool TDDrawSdk::swap_screen(void)
 
 bool TDDrawSdk::reset_screen(void)
 {
-  /*if ((flags & DMF_DoneSetup) == 0)
-  {
-    return false;
+  if (hasSecondSurface) {
+	  SDL_FreeSurface(drawSurface);
   }
-  release_palettes();
-  release_surfaces();
-  SendDDMsg(WM_USER+101, 0);
-  if (ResultDDMsg() != DD_OK)
-  {
-    return false;
-  }*/
+
+  //do not free screen surface, it is freed automatically on SDL_Quit or next call to set video mode
+
+  hasSecondSurface = NULL;
+  drawSurface = NULL;
+  screenSurface = NULL;
+
   return true;
 }
 
@@ -582,9 +600,8 @@ bool TDDrawSdk::swap_box(struct tagPOINT coord,struct tagRECT &rect)
 
 bool TDDrawSdk::create_surface(struct SSurface *surf,unsigned long w,unsigned long h)
 {
-  SDL_PixelFormat * const format = screenSurface->format;
+  SDL_PixelFormat * const format = drawSurface->format;
 
-  //TODO: verify that SDL_CreateRGBSurface is sufficient for our purposes
   surf->surf = SDL_CreateRGBSurface(SDL_SRCCOLORKEY | SDL_HWSURFACE, w, h, format->BitsPerPixel,
       format->Rmask, format->Gmask, format->Bmask, format->Amask);
 
@@ -657,17 +674,17 @@ bool TDDrawSdk::blt_surface(struct SSurface *surf, unsigned long x, unsigned lon
   SDL_Palette * paletteBackup = NULL;
   if (surf->surf->format->BitsPerPixel == 8) {
 	  paletteBackup = surf->surf->format->palette;
-	  surf->surf->format->palette = screenSurface->format->palette;
+	  surf->surf->format->palette = drawSurface->format->palette;
   }
 
   //the blit
   if ((blflags & 0x08) != 0) {
 	//surface to screen
-    SDL_BlitSurface(surf->surf, &srcRect, screenSurface, &destRect);
+    SDL_BlitSurface(surf->surf, &srcRect, drawSurface, &destRect);
   }
   else {
 	//screen to surface
-    SDL_BlitSurface(screenSurface, &destRect, surf->surf, &srcRect);
+    SDL_BlitSurface(drawSurface, &destRect, surf->surf, &srcRect);
   }
 
   //restore palette
