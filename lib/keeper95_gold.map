@@ -658,7 +658,12 @@
  0001:0008CA00       block_has_diggable_side
  0001:0008DF40       creature_look_for_combat
  0001:0008E500       remove_all_traces_of_combat
+ 0001:0008E760       get_best_ranged_offensive_weapon
+ 0001:0008E970       get_best_melee_offensive_weapon
  0001:0008F460       creature_available_for_combat_this_turn
+ 0001:0008FAF0       check_for_valid_combat
+ 0001:0008FB60       combat_type_is_choice_of_creature
+ 0001:0008FC40       creature_is_most_suitable_for_combat
  0001:0008FF20       creature_has_other_attackers
  0001:00090120       creature_fire_shot
  0001:00092150       thing_is_shootable_by_any_player_except_own_including_objects
@@ -1021,6 +1026,8 @@
  0001:000CBD50       move_backwards_to_position
  0001:000CBDF0       tunnelling
  0001:000CBFC0       get_nearest_valid_position_for_creature_at
+ 0001:000CC690       ranged_combat_move
+ 0001:000CC8D0       melee_combat_move
  0001:000CCC90       process_checks
  0001:000CCD00       computer_checks_hates
  0001:000CCF40       computer_check_move_creatures_to_room

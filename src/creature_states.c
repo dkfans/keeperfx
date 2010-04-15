@@ -238,6 +238,13 @@ DLLIMPORT void _DK_creature_in_combat_wait(struct Thing *thing);
 DLLIMPORT void _DK_creature_in_ranged_combat(struct Thing *thing);
 DLLIMPORT void _DK_creature_in_melee_combat(struct Thing *thing);
 DLLIMPORT long _DK_creature_has_other_attackers(struct Thing *thing, long a2);
+DLLIMPORT long _DK_creature_is_most_suitable_for_combat(struct Thing *thing, struct Thing *enmtng);
+DLLIMPORT long _DK_check_for_valid_combat(struct Thing *thing, struct Thing *enmtng);
+DLLIMPORT long _DK_combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp);
+DLLIMPORT long _DK_get_best_ranged_offensive_weapon(struct Thing *thing, long a2);
+DLLIMPORT long _DK_ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4);
+DLLIMPORT long _DK_get_best_melee_offensive_weapon(struct Thing *thing, long a2);
+DLLIMPORT long _DK_melee_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *thing);
 short arrive_at_alarm(struct Thing *thing);
@@ -1570,11 +1577,45 @@ long get_combat_distance(struct Thing *thing, struct Thing *enemy)
     return dist - avgc;
 }
 
+long creature_is_most_suitable_for_combat(struct Thing *thing, struct Thing *enmtng)
+{
+    return _DK_creature_is_most_suitable_for_combat(thing, enmtng);
+}
+
+long check_for_valid_combat(struct Thing *thing, struct Thing *enmtng)
+{
+    return _DK_check_for_valid_combat(thing, enmtng);
+}
+
+long combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp)
+{
+    return _DK_combat_type_is_choice_of_creature(thing, cmbtyp);
+}
+
+long get_best_ranged_offensive_weapon(struct Thing *thing, long a2)
+{
+    return _DK_get_best_ranged_offensive_weapon(thing, a2);
+}
+
+long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4)
+{
+    return _DK_ranged_combat_move(thing, enmtng, a3, a4);
+}
+
+long get_best_melee_offensive_weapon(struct Thing *thing, long a2)
+{
+    return _DK_get_best_melee_offensive_weapon(thing, a2);
+}
+
+long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4)
+{
+    return _DK_melee_combat_move(thing, enmtng, a3, a4);
+}
+
 long creature_has_other_attackers(struct Thing *thing, long a2)
 {
     return _DK_creature_has_other_attackers(thing, a2);
 }
-
 
 TbBool creature_is_actually_scared(struct Thing *thing, struct Thing *enemy)
 {
@@ -1663,12 +1704,74 @@ void creature_in_combat_wait(struct Thing *thing)
 
 void creature_in_ranged_combat(struct Thing *thing)
 {
-    _DK_creature_in_ranged_combat(thing);
+    struct CreatureControl *cctrl;
+    struct Thing *enmtng;
+    long dist, cmbtyp, weapon;
+    //_DK_creature_in_ranged_combat(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    enmtng = thing_get(cctrl->word_A2);
+    if (!creature_is_most_suitable_for_combat(thing, enmtng))
+    {
+        set_start_state(thing);
+        return;
+    }
+    cmbtyp = check_for_valid_combat(thing, enmtng);
+    if (!combat_type_is_choice_of_creature(thing, cmbtyp))
+    {
+        set_start_state(thing);
+        return;
+    }
+    dist = get_combat_distance(thing, enmtng);
+    weapon = get_best_ranged_offensive_weapon(thing, dist);
+    if (weapon == 0)
+    {
+        set_start_state(thing);
+        return;
+    }
+    if (!ranged_combat_move(thing, enmtng, dist, 49))
+    {
+        return;
+    }
+    if (weapon > 0)
+    {
+        set_creature_instance(thing, weapon, 1, enmtng->index, 0);
+    }
 }
 
 void creature_in_melee_combat(struct Thing *thing)
 {
-    _DK_creature_in_melee_combat(thing);
+    struct CreatureControl *cctrl;
+    struct Thing *enmtng;
+    long dist, cmbtyp, weapon;
+    //_DK_creature_in_melee_combat(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    enmtng = thing_get(cctrl->word_A2);
+    if (!creature_is_most_suitable_for_combat(thing, enmtng))
+    {
+        set_start_state(thing);
+        return;
+    }
+    cmbtyp = check_for_valid_combat(thing, enmtng);
+    if (!combat_type_is_choice_of_creature(thing, cmbtyp))
+    {
+        set_start_state(thing);
+        return;
+    }
+    dist = get_combat_distance(thing, enmtng);
+    weapon = get_best_melee_offensive_weapon(thing, dist);
+    if (weapon == 0)
+    {
+        set_start_state(thing);
+        return;
+    }
+    if (!melee_combat_move(thing, enmtng, dist, 49))
+    {
+        return;
+    }
+    if (weapon > 0)
+    {
+        set_creature_instance(thing, weapon, 1, enmtng->index, 0);
+    }
 }
 
 short creature_in_combat(struct Thing *thing)

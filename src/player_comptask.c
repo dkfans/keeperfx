@@ -231,6 +231,7 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
 long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
+    // TODO: rewrite - may cause crash
     return _DK_task_move_creature_to_room(comp,ctask);
 }
 

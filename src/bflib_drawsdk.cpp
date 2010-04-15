@@ -80,6 +80,7 @@ TDDrawSdk::TDDrawSdk(void) : TDDrawBaseClass()
   this->resHeight = 0;
   this->field_180 = 0;
   this->window_created = 0;
+  this->need_restore_palettes = false;
   hThread = NULL;
   flags = 0;
 }
@@ -147,6 +148,13 @@ long TDDrawSdk::WindowProc(HWND hWnd, unsigned int message, WPARAM wParam, LPARA
 
   case WM_ACTIVATEAPP:
       this->active = (wParam) && (GetForegroundWindow() == hWnd);
+      return 0;
+
+  case WM_PALETTECHANGED:
+      if ((HWND)wParam != hWnd)
+      {
+          this->need_restore_palettes = true;
+      }
       return 0;
 
   case WM_CLOSE:
@@ -312,10 +320,12 @@ bool TDDrawSdk::set_palette(void *palette,unsigned long base,unsigned long numEn
       ERRORLOG("Cannot create palette");
       return false;
     }
+    this->need_restore_palettes = false;
     locRet = lpDDSurface3->SetPalette(lpDDPalette);
     if (locRet != DD_OK)
     {
       ERRORLOG("Cannot set the newly created palette");
+      this->need_restore_palettes = true;
       return false;
     }
     return true;
@@ -562,7 +572,9 @@ bool TDDrawSdk::swap_screen(void)
   static RECT destRect;
   SYNCDBG(12,"Starting");
   if ((flags & DMF_SurfacesSetup) == 0)
-    return false;
+      return false;
+  if (this->need_restore_palettes)
+      restore_palettes();
   if ((flags & DMF_DoubleBuffering) != 0)
   {
     if ((flags & DMF_WScreenInVideo) == 0)
@@ -681,6 +693,32 @@ bool TDDrawSdk::restore_surfaces(void)
     }
   }
   return (ddResult == DD_OK);
+}
+
+bool TDDrawSdk::restore_palettes(void)
+{
+  bool result;
+  if ((flags & DMF_SurfacesSetup) == 0)
+    return false;
+  result = false;
+  if (lpDDSurface3 != NULL)
+  {
+      if (lpDDPalette != NULL)
+      {
+          lpDDSurface3->SetPalette(lpDDPalette);
+          result = true;
+      }
+  }
+  if (lpDDSurface1 != NULL)
+  {
+      if (lpDDPalette != NULL)
+      {
+          lpDDSurface1->SetPalette(lpDDPalette);
+          result = true;
+      }
+  }
+  this->need_restore_palettes = false;
+  return result;
 }
 
 void TDDrawSdk::wait_vbi(void)
@@ -983,7 +1021,8 @@ bool TDDrawSdk::setup_dds_double_video(void)
   lpDDSurface3->GetCaps(&this->ddSurfaceCaps);
   if (lpDDPalette != NULL)
   {
-    ddResult = lpDDSurface3->SetPalette(lpDDPalette);
+      this->need_restore_palettes = false;
+      ddResult = lpDDSurface3->SetPalette(lpDDPalette);
   }
   // Back buffer
   memset(&ddBltFx, 0, sizeof(ddBltFx));
@@ -1021,7 +1060,8 @@ bool TDDrawSdk::setup_dds_single_video(void)
   lpDDSurface3->GetCaps(&this->ddSurfaceCaps);
   if (lpDDPalette != NULL)
   {
-    ddResult = lpDDSurface3->SetPalette(lpDDPalette);
+      this->need_restore_palettes = false;
+      ddResult = lpDDSurface3->SetPalette(lpDDPalette);
   }
   memset(&ddBltFx, 0, sizeof(ddBltFx));
   ddBltFx.dwFillColor = 0;
