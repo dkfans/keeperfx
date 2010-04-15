@@ -1661,3 +1661,10 @@
  0001:000B3170       creature_in_ranged_combat
  0001:000B3230       creature_in_melee_combat
  0001:000B32F0       creature_in_combat_wait
+ 0001:0008FAF0       check_for_valid_combat
+ 0001:0008FB60       combat_type_is_choice_of_creature
+ 0001:0008FC40       creature_is_most_suitable_for_combat
+ 0001:0008E760       get_best_ranged_offensive_weapon
+ 0001:0008E970       get_best_melee_offensive_weapon
+ 0001:000CC690       ranged_combat_move
+ 0001:000CC8D0       melee_combat_move
