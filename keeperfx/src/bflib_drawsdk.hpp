@@ -27,6 +27,12 @@
 
 /******************************************************************************/
 
+enum VideoNeedRestore {
+    VNR_None,
+    VNR_Palettes,
+    VNR_Surfaces,
+};
+
 struct SSurface {
     LPDIRECTDRAWSURFACE lpDDSurf;
     long field_4;
@@ -55,6 +61,7 @@ class TDDrawSdk : public TDDrawBaseClass {
     bool swap_screen(void);
     bool reset_screen(void);
     bool restore_surfaces(void);
+    bool restore_palettes(void);
     void wait_vbi(void);
     bool swap_box(struct tagPOINT,struct tagRECT &);
     bool create_surface(struct SSurface *,unsigned long,unsigned long);
@@ -66,7 +73,7 @@ class TDDrawSdk : public TDDrawBaseClass {
     // Nonvirtual methods
     static HRESULT CALLBACK screen_mode_callback(LPDDSURFACEDESC lpDDSurf, LPVOID lpContext);
     static TbScreenModeInfo *get_mode_info(unsigned short mode);
-    static TbScreenMode TDDrawSdk::get_mode_info_by_str(char *str);
+    static TbScreenMode get_mode_info_by_str(char *str);
     bool setup_direct_draw(void);
     bool reset_direct_draw(void);
     bool setup_dds_double_video(void);
@@ -96,6 +103,7 @@ class TDDrawSdk : public TDDrawBaseClass {
     unsigned long resHeight;
   unsigned long field_180;
     int window_created;
+    int need_restore_palettes;
     HANDLE hThread;
   unsigned long field_18C;
     LPDIRECTDRAW lpDDInterface;
