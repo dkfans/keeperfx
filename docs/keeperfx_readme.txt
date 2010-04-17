@@ -10,7 +10,7 @@ It requires original Dungeon Keeper to work.
 
 Installation of KeeperFX CCP:
 
-KeeperFX CCP contains all the files neccessary to play the game.
+KeeperFX CCP contains all the files necessary to play the game.
 Decompress it anywhere, and it's ready to run. If you wish
 to change language, edit "keeperfx.cfg" and set its shortcut
 in the 'LANGUAGE=' line. Run "keeperfx.exe" to start the game.
@@ -48,7 +48,7 @@ generated LOG to the author with your description of the bug.
 Note that "keeperfx_hvlog.exe" requires a lot more CPU than
 standard version, and may be slow even on new computers.
 Also, the generated LOG file may be very large, and after
-a few hours of play it will have several hundereds megabytes.
+a few hours of play it will have several hundreds megabytes.
 This is why you should use standard "keeperfx.exe" if you're
 not planning reporting any errors.
 
@@ -302,6 +302,12 @@ Changelog:
 
 Version: 0.3.7
   Rewritten computer tasks list
+  Added palette stealing protection to video driver
+  Rewritten some of creature fighting code
+  Rewritten enemy seeking code for heroes
+  Fixed green volume box height in clueo (low walls) mode
+  Rewritten gold stealing code
+  Remade some creature spells code
 
 Version: 0.3.6
   Rewritten some of room sound playing

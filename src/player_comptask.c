@@ -113,6 +113,9 @@ DLLIMPORT long _DK_task_attack_magic(struct Computer2 *comp, struct ComputerTask
 DLLIMPORT long _DK_task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT struct ComputerTask *_DK_get_task_in_progress(struct Computer2 *comp, long a2);
 DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long a2);
+DLLIMPORT short _DK_fake_dump_held_creatures_on_map(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos);
+DLLIMPORT long _DK_fake_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos);
+DLLIMPORT struct Thing *_DK_find_creature_to_be_placed_in_room(struct Computer2 *comp, struct Room **roomp);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -174,6 +177,23 @@ struct ComputerTask *get_free_task(struct Computer2 *comp, long a2)
     return _DK_get_free_task(comp, a2);
 }
 
+short fake_dump_held_creatures_on_map(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos)
+{
+    return _DK_fake_dump_held_creatures_on_map(comp, thing, pos);
+}
+
+long fake_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos)
+{
+    SYNCDBG(9,"Starting");
+    return _DK_fake_place_thing_in_power_hand(comp, thing, pos);
+}
+
+struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct Room **roomp)
+{
+    SYNCDBG(9,"Starting");
+    return _DK_find_creature_to_be_placed_in_room(comp, roomp);
+}
+
 long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
@@ -230,9 +250,45 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
 
 long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *ctask)
 {
+    struct Thing *thing;
+    struct Room *room;
+    struct Coord3d pos;
+    long i;
     SYNCDBG(9,"Starting");
-    // TODO: rewrite - may cause crash
-    return _DK_task_move_creature_to_room(comp,ctask);
+    //return _DK_task_move_creature_to_room(comp,ctask);
+    thing = thing_get(comp->field_14C8);
+    if (!thing_is_invalid(thing))
+    {
+      room = room_get(ctask->word_80);
+      pos.x.val = room->stl_x << 8;
+      pos.y.val = room->stl_y << 8;
+      pos.z.val = 256;
+      if (fake_dump_held_creatures_on_map(comp, thing, &pos) > 0)
+        return 2;
+      remove_task(comp, ctask);
+      return 0;
+    }
+    i = ctask->field_7C;
+    ctask->field_7C--;
+    if (i <= 0)
+    {
+      remove_task(comp, ctask);
+      return 1;
+    }
+    thing = find_creature_to_be_placed_in_room(comp, &room);
+    if (!thing_is_invalid(thing))
+    {
+      ctask->word_80 = room->index;
+      pos.x.val = room->stl_x << 8;
+      pos.y.val = room->stl_y << 8;
+      pos.z.val = 256;
+      if ( fake_place_thing_in_power_hand(comp, thing, &pos) )
+        return 2;
+      remove_task(comp, ctask);
+      return 0;
+    }
+    remove_task(comp, ctask);
+    return 0;
 }
 
 long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctask)
