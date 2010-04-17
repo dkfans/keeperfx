@@ -1668,3 +1668,6 @@
  0001:0008E970       get_best_melee_offensive_weapon
  0001:000CC690       ranged_combat_move
  0001:000CC8D0       melee_combat_move
+ 0001:0004CA10       fake_place_thing_in_power_hand
+ 0001:0004CB50       fake_dump_held_creatures_on_map
+ 0001:0004F4A0       find_creature_to_be_placed_in_room
