@@ -48,10 +48,10 @@ enum TbNetworkService {
 
 
 struct ClientDataEntry {
-  unsigned long field_0;
-  unsigned long field_4;
+  unsigned long playerId;
+  unsigned long playerActive;
   unsigned long field_8;
-  char field_C[32];
+  char playerName[32];
 };
 
 struct ConfigInfo { // sizeof = 130
@@ -88,8 +88,8 @@ struct ModemResponse {
 };
 
 struct TbNetworkPlayerInfo {
-char field_0[32];
-long field_20;
+char name[32];
+long active;
 };
 
 struct TbNetworkCallbackData {
@@ -104,10 +104,10 @@ struct TbNetworkPlayerName {
 
 struct TbNetworkPlayerNameEntry {
   unsigned char field_0;
-  unsigned long field_1;
-  unsigned long field_5;
-  unsigned long field_9;
-  char field_D[19];
+  unsigned long id;
+  unsigned long isLocal;
+  unsigned long isHost;
+  char name[19];
   unsigned char field_20[20];
   unsigned char field_34[4];
 };

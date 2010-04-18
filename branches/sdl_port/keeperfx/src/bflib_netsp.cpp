@@ -190,7 +190,8 @@ unsigned long ServiceProvider::GetRequestCompositeExchangeDataMsgSize(void)
   return 8;
 }
 
-ServiceProvider::ServiceProvider()
+ServiceProvider::ServiceProvider() :
+		nextSessionId(1)
 {
   long i;
   this->local_id = 0;
@@ -651,7 +652,7 @@ long ServiceProvider::SessionIndex(unsigned long sess_id)
 }
 
 /**
- * Adds a session with given sess_id and name string.
+ * Adds a session with given sess_id and name string. (A better name would be UpdateSessionNameOrAddSession.)
  * @param sess_id ID of the session, or -1 if new session should be added.
  * @param namestr Text name of the new session, or NULL if session is unnamed.
  * @return Returns session name structure, or NULL if couldn't add.
@@ -665,12 +666,18 @@ struct TbNetworkSessionNameEntry *ServiceProvider::AddSession(unsigned long sess
   i = SessionIndex(sess_id);
   if (i >= 0)
     return &this->nsnames[i];
+
+  if (sess_id != -1) {
+	  ERRORLOG("Expected existing session ID which wasn't found");
+	  return NULL;
+  }
+
   // Search for unused slot
   got = false;
   for (i=0; i < SESSION_ENTRIES_COUNT; i++)
   {
     nsname = &this->nsnames[i];
-    if (!nsname->in_use)
+    if (!nsname->in_use && !(i == SESSION_ENTRIES_COUNT - 1 && local_id == 0)) //reserves last slot if no game is being hosted
     {
       got = true;
       break;
@@ -679,7 +686,7 @@ struct TbNetworkSessionNameEntry *ServiceProvider::AddSession(unsigned long sess
   if (!got)
     return NULL;
   // Fill the new entry
-  nsname->id = sess_id;
+  nsname->id = nextSessionId++;
   net_copy_name_string(nsname->text,namestr,SESSION_NAME_MAX_LEN);
   nsname->in_use = true;
   return nsname;

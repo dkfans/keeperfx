@@ -13676,7 +13676,7 @@ short setup_select_player_number(void)
   for (i=0; i<NET_PLAYERS_COUNT; i++)
   {
       player = get_player(i);
-      if ( net_player_info[i].field_20 )
+      if ( net_player_info[i].active )
       {
         player->packet_num = i;
         if ((!is_set) && (my_player_number == i))
@@ -13706,7 +13706,7 @@ void setup_exchange_player_number(void)
   for (i=0; i<NET_PLAYERS_COUNT; i++)
   {
       pckt = get_packet_direct(i);
-      if ((net_player_info[i].field_20) && (pckt->action == 10))
+      if ((net_player_info[i].active) && (pckt->action == 10))
       {
           player = get_player(k);
           player->id_number = k;
@@ -13759,7 +13759,7 @@ void setup_count_players(void)
     game.field_14E495 = 0;
     for (i=0; i<NET_PLAYERS_COUNT; i++)
     {
-      if (net_player_info[i].field_20)
+      if (net_player_info[i].active)
         game.field_14E495++;
     }
   }

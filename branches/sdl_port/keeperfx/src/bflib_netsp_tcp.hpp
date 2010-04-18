@@ -23,7 +23,54 @@
 
 #include "bflib_netsp.hpp"
 
+#include <SDL_net.h>
+#include <SDL_thread.h>
+
 class TCPServiceProvider : public ServiceProvider {
+private:
+	struct SessionAddressBinding
+	{
+		unsigned long sessionId;
+		IPaddress addr;
+		unsigned long lastUpdate;
+	};
+
+	/**
+	 * Class for controlling the UDP session enumeration listen and broadcast threads.
+	 */
+	class ThreadCond
+	{
+	private:
+		SDL_mutex * const mutex;
+		SDL_cond * const cond;
+		bool exit; //shared
+		bool locked; //child thread
+	public:
+		ThreadCond();
+		~ThreadCond();
+
+		void reset(); //main thread
+		void signalExit(); //main thread
+		void waitMs(unsigned long ms); //child thread
+		void lock(); //child thread
+		void unlock(); //child thread
+		bool shouldExit(); //child thread
+	};
+
+	SessionAddressBinding sessionAddrTable[SESSION_ENTRIES_COUNT];
+
+	SDL_mutex * const sessionsMutex; //guards session related stuff in ServiceProvider
+	SDL_Thread * sessionListenThread;
+	SDL_Thread * sessionBroadcastThread;
+	ThreadCond sessionListenCond;
+	ThreadCond sessionBroadcastCond;
+
+	static int listenForSessions(TCPServiceProvider * sp); //executing in sessionListenThread
+	static int broadcastSession(TCPServiceProvider * sp); //executing in sessionBroadcastingThread
+
+	TbNetworkSessionNameEntry * reportSession(const IPaddress & addr, const char *namestr);
+	TbNetworkSessionNameEntry * findSessionByAddress(const IPaddress & addr);
+
 public:
 	TCPServiceProvider();
 	virtual ~TCPServiceProvider();

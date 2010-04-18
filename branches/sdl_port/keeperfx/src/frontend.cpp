@@ -2407,7 +2407,7 @@ long frontnet_number_of_players_in_session(void)
   nplyr = 0;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
-    if (net_player_info[i].field_20 != 0)
+    if (net_player_info[i].active != 0)
       nplyr++;
   }
   return nplyr;
@@ -7275,7 +7275,7 @@ void frontnet_rewite_net_messages(void)
   for (i=0; i < net_number_of_messages; i++)
   {
     nmsg = &net_message[i];
-    if (net_player_info[nmsg->plyr_idx].field_20)
+    if (net_player_info[nmsg->plyr_idx].active)
     {
       memcpy(&lmsg[k], nmsg, sizeof(struct NetMessage));
       k++;

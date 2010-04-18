@@ -60,11 +60,13 @@ struct ReceiveCallbacks {
 };
 
 class ServiceProvider {
+private:
+	unsigned long nextSessionId;
 protected:
 	TbError Initialise(struct ReceiveCallbacks *nCallbacks, void *a2);
 
 	//session management
-	struct TbNetworkSessionNameEntry *AddSession(unsigned long sess_id, const char *namestr);
+	TbNetworkSessionNameEntry *AddSession(unsigned long sess_id, const char *namestr);
 	void ClearSessions(void);
 	long SessionIndex(unsigned long sess_id);
 public:

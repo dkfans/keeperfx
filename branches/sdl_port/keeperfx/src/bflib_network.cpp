@@ -548,7 +548,7 @@ TbError ClearClientData(void)
   LbMemorySet(clientDataTable, 0, 32*sizeof(struct ClientDataEntry));
   for (i=0; i < maximumPlayers; i++)
   {
-    clientDataTable[i].field_4 = 0;
+    clientDataTable[i].playerActive = 0;
   }
   return Lb_OK;
 }
@@ -590,13 +590,13 @@ TbError GetPlayerInfo(void)
   {
     clidat = &clientDataTable[i];
     lpinfo = &localPlayerInfoPtr[i];
-    if ( clidat->field_4 )
+    if ( clidat->playerActive )
     {
-      lpinfo->field_20 = 1;
-      strncpy(lpinfo->field_0, clidat->field_C, 32);
+      lpinfo->active = 1;
+      strncpy(lpinfo->name, clidat->playerName, 32);
     } else
     {
-      lpinfo->field_20 = 0;
+      lpinfo->active = 0;
     }
   }
   return Lb_OK;
@@ -605,20 +605,24 @@ TbError GetPlayerInfo(void)
 TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
 {
   TbBool found_id;
-  unsigned long plr_id;
+  unsigned long playerIndex;
   long i;
+
+  SYNCDBG(7, "Starting");
+
   if (plyrname == NULL)
   {
+	ERRORLOG("Got null player");
     return Lb_FAIL;
   }
-  plr_id = 0;
+  playerIndex = 0;
   found_id = false;
   for (i=0; i < maximumPlayers; i++)
   {
-    if ((clientDataTable[i].field_4) && (clientDataTable[i].field_0 == plyrname->field_1))
+    if ((clientDataTable[i].playerActive) && (clientDataTable[i].playerId == plyrname->id))
     {
       found_id = true;
-      plr_id = i;
+      playerIndex = i;
     }
   }
   if (!found_id)
@@ -626,31 +630,31 @@ TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
     found_id = false;
     for (i=0; i < maximumPlayers; i++)
     {
-      if (clientDataTable[i].field_4)
+      if (!clientDataTable[i].playerActive)
       {
         found_id = true;
-        plr_id = i;
+        playerIndex = i;
       }
     }
     if (found_id)
     {
-      clientDataTable[plr_id].field_0 = plyrname->field_1;
-      clientDataTable[plr_id].field_4 = 1;
-      strcpy(clientDataTable[plr_id].field_C,plyrname->field_D);
-      localPlayerInfoPtr[i].field_20 = 1;
-      strcpy(localPlayerInfoPtr[i].field_0,plyrname->field_D);
+      clientDataTable[playerIndex].playerId = plyrname->id;
+      clientDataTable[playerIndex].playerActive = 1;
+      strcpy(clientDataTable[playerIndex].playerName,plyrname->name);
+      localPlayerInfoPtr[i].active = 1;
+      strcpy(localPlayerInfoPtr[i].name,plyrname->name);
     }
   }
   if (!found_id)
   {
     return Lb_FAIL;
   }
-  if (plyrname->field_9)
-    hostId = plyrname->field_1;
-  if (plyrname->field_5)
+  if (plyrname->isHost)
+    hostId = plyrname->id;
+  if (plyrname->isLocal)
   {
-    localPlayerId = plyrname->field_1;
-    localPlayerIndex = plr_id;
+    localPlayerId = plyrname->id;
+    localPlayerIndex = playerIndex;
   }
   return Lb_OK;
 }
@@ -801,9 +805,9 @@ TbError SendRequestToAllExchangeDataMsg(unsigned long src_id,unsigned long seq, 
   spPtr->EncodeRequestExchangeDataMsg(requestExchangeDataBuffer, src_id, seq);
   for (i=0; i < maximumPlayers; i++)
   {
-    if ((clientDataTable[i].field_4) && (!clientDataTable[i].field_8))
+    if ((clientDataTable[i].playerActive) && (!clientDataTable[i].field_8))
     {
-      if (spPtr->Send(clientDataTable[i].field_0,requestExchangeDataBuffer))
+      if (spPtr->Send(clientDataTable[i].playerId,requestExchangeDataBuffer))
         WARNMSG("%s: Failure on SP::Send()",func_name);
     }
   }
@@ -860,7 +864,7 @@ TbError HostDataCollection(void)
     exchngNeeded = 1;
     for (i=0; i < maximumPlayers; i++)
     {
-      if ((clientDataTable[i].field_4) && (!clientDataTable[i].field_8))
+      if ((clientDataTable[i].playerActive) && (!clientDataTable[i].field_8))
       {
         exchngNeeded = clientDataTable[i].field_8;
       }
@@ -899,14 +903,14 @@ TbError HostDataCollection(void)
         {
           for (i=0; i < maximumPlayers; i++)
           {
-            if ((clientDataTable[i].field_4) && (!clientDataTable[i].field_8))
+            if ((clientDataTable[i].playerActive) && (!clientDataTable[i].field_8))
             {
-              spPtr->EncodeDeletePlayerMsg(deletePlayerBuffer, clientDataTable[i].field_0);
+              spPtr->EncodeDeletePlayerMsg(deletePlayerBuffer, clientDataTable[i].playerId);
               for (k=0; k < maximumPlayers; k++)
               {
-                if ((clientDataTable[k].field_4) && (clientDataTable[k].field_0 != clientDataTable[i].field_0))
+                if ((clientDataTable[k].playerActive) && (clientDataTable[k].playerId != clientDataTable[i].playerId))
                 {
-                  if ( spPtr->Send(clientDataTable[i].field_0,deletePlayerBuffer) )
+                  if ( spPtr->Send(clientDataTable[i].playerId,deletePlayerBuffer) )
                     WARNLOG("failure on SP::Send()");
                 }
               }
@@ -935,9 +939,9 @@ TbError HostDataBroadcast(void)
   LbMemoryCopy(compositeBuffer, exchangeBuffer, maximumPlayers*exchangeSize);
   for (i=0; i < maximumPlayers; i++)
   {
-    if ((clientDataTable[i].field_4) && (clientDataTable[i].field_0 != hostId))
+    if ((clientDataTable[i].playerActive) && (clientDataTable[i].playerId != hostId))
     {
-      if ( spPtr->Send(clientDataTable[i].field_0, exchangeBuffer) )
+      if ( spPtr->Send(clientDataTable[i].playerId, exchangeBuffer) )
       {
         WARNLOG("Failure on SP::Send()");
           ret = Lb_FAIL;
@@ -975,16 +979,16 @@ TbError SendSequenceNumber(void *buf, const char *func_name)
 
 TbError StartTwoPlayerExchange(void *buf)
 {
-  if (!clientDataTable[remotePlayerIndex].field_4)
+  if (!clientDataTable[remotePlayerIndex].playerActive)
     spPtr->Receive(2);
   gotCompositeData = 0;
-  if (clientDataTable[remotePlayerIndex].field_4)
+  if (clientDataTable[remotePlayerIndex].playerActive)
   {
     spPtr->Receive(8);
     spPtr->Receive(16);
   }
   memcpy((uchar *)exchangeBuffer + exchangeSize * localPlayerIndex, buf, exchangeSize);
-  if (clientDataTable[remotePlayerIndex].field_4)
+  if (clientDataTable[remotePlayerIndex].playerActive)
   {
     spPtr->EncodeMessageStub(buf, exchangeSize-4, 0, sequenceNumber);
     if (spPtr->Send(remotePlayerId, buf) != Lb_OK)
@@ -1012,7 +1016,7 @@ TbError StartMultiPlayerExchange(void *buf)
   for (i=0; i < maximumPlayers; i++)
   {
     clidat = &clientDataTable[i];
-    if (clidat->field_4)
+    if (clidat->playerActive)
       clidat->field_8 = 0;
   }
   LbMemoryCopy((uchar *)exchangeBuffer + exchangeSize * localPlayerIndex, buf, exchangeSize);
@@ -1038,7 +1042,7 @@ TbError CompleteTwoPlayerExchange(void *buf)
   long nRetries;
   ret = Lb_FAIL;
   keepExchng = true;
-  if (!clientDataTable[remotePlayerIndex].field_4 )
+  if (!clientDataTable[remotePlayerIndex].playerActive )
     return 0;
   nRetries = 0;
   while ( keepExchng )
@@ -1098,7 +1102,7 @@ TbError CompleteTwoPlayerExchange(void *buf)
         }
       }
     }
-    if (!clientDataTable[remotePlayerIndex].field_4)
+    if (!clientDataTable[remotePlayerIndex].playerActive)
     {
       keepExchng = false;
       ret = 0;
@@ -1256,7 +1260,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
     found_id = false;
     for (i=0; i < maximumPlayers; i++)
     {
-      if ((clientDataTable[i].field_4) && (clientDataTable[i].field_0 == plr_id))
+      if ((clientDataTable[i].playerActive) && (clientDataTable[i].playerId == plr_id))
       {
         found_id = true;
         plr_id = i;
@@ -1290,7 +1294,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
     found_id = false;
     for (i=0; i < maximumPlayers; i++)
     {
-      if ((clientDataTable[i].field_4) && (clientDataTable[i].field_0 == plr_id))
+      if ((clientDataTable[i].playerActive) && (clientDataTable[i].playerId == plr_id))
       {
         found_id = true;
         plr_id = i;
@@ -1312,7 +1316,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
   found_id = false;
   for (i=0; i < maximumPlayers; i++)
   {
-    if ((clientDataTable[i].field_4) && (clientDataTable[i].field_0 == plr_id))
+    if ((clientDataTable[i].playerActive) && (clientDataTable[i].playerId == plr_id))
     {
       found_id = true;
       plr_id = i;
@@ -1359,13 +1363,13 @@ void MultiPlayerReqExDataMsgCallback(unsigned long plr_id, unsigned long seq, vo
   }
 }
 
-void AddMsgCallback(unsigned long a1, char *nmstr, void *a3)
+void AddMsgCallback(unsigned long playerId, char *nmstr, void *a3)
 {
   struct TbNetworkPlayerNameEntry npname;
-  npname.field_1 = a1;
-  strcpy(npname.field_D,nmstr);
-  npname.field_5 = 0;
-  npname.field_9 = 0;
+  npname.id = playerId;
+  strcpy(npname.name,nmstr);
+  npname.isLocal = 0;
+  npname.isHost = 0;
   AddAPlayer(&npname);
 }
 
@@ -1374,12 +1378,12 @@ void DeleteMsgCallback(unsigned long plr_id, void *a2)
   long i;
   for (i=0; i < maximumPlayers; i++)
   {
-    if ((clientDataTable[i].field_4) && (clientDataTable[i].field_0 == plr_id))
+    if ((clientDataTable[i].playerActive) && (clientDataTable[i].playerId == plr_id))
     {
-      clientDataTable[i].field_4 = 0;
+      clientDataTable[i].playerActive = 0;
       if (localPlayerInfoPtr != NULL)
       {
-        localPlayerInfoPtr[i].field_20 = 0;
+        localPlayerInfoPtr[i].active = 0;
       } else
       {
         WARNLOG("NULL localPlayerInfoPtr");
