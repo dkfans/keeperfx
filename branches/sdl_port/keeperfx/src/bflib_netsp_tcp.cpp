@@ -20,6 +20,15 @@
 
 #include "bflib_netsp_tcp.hpp"
 
+#include <cassert>
+#include <SDL_net.h>
+#include <string>
+
+#define BROADCAST_PORT_NUMBER 7777 //replace later
+#define MAX_PACKET_SIZE 200
+
+const static std::string broadcastMsg("KEEPERFX ENUMHOSTS");
+
 TCPServiceProvider::TCPServiceProvider() {
 
 }
@@ -28,11 +37,11 @@ TCPServiceProvider::~TCPServiceProvider() {
 
 }
 
-TbError TCPServiceProvider::Start(struct TbNetworkSessionNameEntry *, char *, void *) {
+TbError TCPServiceProvider::Start(struct TbNetworkSessionNameEntry * sessionName, char * playerName, void * options) {
 	return Lb_FAIL;
 }
 
-TbError TCPServiceProvider::Start(char *, char *, unsigned long, void *) {
+TbError TCPServiceProvider::Start(char * sessionName, char * playerName, unsigned long maxPlayers, void * options) {
 	return Lb_FAIL;
 }
 
@@ -40,16 +49,62 @@ TbError TCPServiceProvider::Stop(void) {
 	return Lb_FAIL;
 }
 
-TbError TCPServiceProvider::Enumerate(TbNetworkCallbackFunc, void *) {
+TbError TCPServiceProvider::Enumerate(TbNetworkCallbackFunc sessionCallback, void * ptr) {
+	SYNCDBG(7, "Starting");
+
+	ClearSessions();
+
+	// Create UDP socket.
+
+	UDPsocket socket = SDLNet_UDP_Open(0);
+	if (socket == NULL) {
+		NETMSG("Failed to open UDP socket: %s", SDLNet_GetError());
+		return Lb_FAIL;
+	}
+
+	// Create packet.
+
+	UDPpacket * const packet = SDLNet_AllocPacket(MAX_PACKET_SIZE);
+	if (packet == NULL) {
+		NETMSG("Failed to create UDP packet: %s", SDLNet_GetError());
+		SDLNet_UDP_Close(socket);
+		return Lb_FAIL;
+	}
+
+	// Fill in ENUMHOSTS packet.
+
+	packet->len = broadcastMsg.size() + 1;
+	assert(packet->len <= MAX_PACKET_SIZE);
+
+	packet->address.host = INADDR_BROADCAST;
+	packet->address.port = BROADCAST_PORT_NUMBER;
+	packet->channel = -1;
+	strcpy((char*) packet->data, broadcastMsg.c_str());
+
+	// Send ENUMHOSTS packet.
+
+	if (SDLNet_UDP_Send(socket, -1, packet) <= 0) {
+		NETMSG("Failed to send ENUMHOSTS packet");
+	}
+
+	//TODO: listen for replies
+
+	// Clean up.
+
+	SDLNet_FreePacket(packet);
+	SDLNet_UDP_Close(socket);
+
+	return Lb_OK;
+}
+
+TbError TCPServiceProvider::Enumerate(struct TbNetworkSessionNameEntry * sessionEntry,
+		TbNetworkCallbackFunc playerCallback, void * ptr) {
 	return Lb_FAIL;
 }
 
-TbError TCPServiceProvider::Enumerate(struct TbNetworkSessionNameEntry *, TbNetworkCallbackFunc, void *) {
-	return Lb_FAIL;
-}
-
-TbError TCPServiceProvider::Init(struct _GUID, struct _GUID *, struct ReceiveCallbacks *, void *) {
-	return Lb_FAIL;
+TbError TCPServiceProvider::Init(struct _GUID a1, struct _GUID * a2, struct ReceiveCallbacks * recCb, void * a4) {
+	Initialise(recCb, a4);
+	return Lb_OK;
 }
 
 TbError TCPServiceProvider::Release(void) {

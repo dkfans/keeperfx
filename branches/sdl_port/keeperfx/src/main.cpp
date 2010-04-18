@@ -3,6 +3,7 @@
 #include <winbase.h>
 #include <math.h>
 #include <SDL.h>
+#include <SDL_net.h>
 #include <string>
 
 #include "keeperfx.hpp"
@@ -14280,6 +14281,10 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
      return 0;
   }
 
+  if (SDLNet_Init() < 0) {
+	  WARNLOG("Failure to init SDL Net");
+  }
+
   retval = setup_game();
   if (retval)
   {
@@ -14311,6 +14316,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
   reset_game();
   close_video_context();
 
+  SDLNet_Quit();
   SDL_Quit();
 
   if ( !retval )

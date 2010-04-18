@@ -31,13 +31,13 @@ public:
 	virtual TbError Start(char * sessionName, char * playerName, unsigned long maxPlayers, void * options);
 	virtual TbError Stop(void);
 	virtual TbError Enumerate(TbNetworkCallbackFunc callback, void * ptr);
-	virtual TbError Enumerate(struct TbNetworkSessionNameEntry * sessionNbr,
-			TbNetworkCallbackFunc callback, void * buffer);
-	virtual TbError Init(struct _GUID, struct _GUID *, struct ReceiveCallbacks *, void *);
+	virtual TbError Enumerate(struct TbNetworkSessionNameEntry * sessionEntry,
+			TbNetworkCallbackFunc playerCb, void * ptr);
+	virtual TbError Init(struct _GUID a1, struct _GUID * a2, struct ReceiveCallbacks * recCb, void * a4);
 	virtual TbError Release(void);
 	virtual TbError ChangeSettings(unsigned long, void *);
 	virtual TbError EnableNewPlayers(TbBool allow);
-	virtual unsigned long ReadMessage(unsigned long * playerId, void * buffer, unsigned long *);
+	virtual unsigned long ReadMessage(unsigned long * playerId, void * msg, unsigned long *);
 	virtual unsigned long PeekMessage(unsigned long *, void *, unsigned long *);
 	virtual TbError SendMessage(unsigned long playerId, void * buffer, unsigned char i);
 };

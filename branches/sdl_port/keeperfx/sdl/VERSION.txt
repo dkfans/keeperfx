@@ -1,1 +1,1 @@
-This is SDL 1.2.14 (development, mingw32)
+This is SDL 1.2.14 and SDLnet 1.2.7 for mingw32

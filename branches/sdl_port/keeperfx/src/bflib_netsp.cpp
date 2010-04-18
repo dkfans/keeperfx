@@ -160,27 +160,27 @@ unsigned long ServiceProvider::DecodeRequestCompositeExchangeDataMsg(unsigned ch
   return 1;
 }
 
-void ServiceProvider::DecodeMessageStub(const void *enc_msg, unsigned long *a2, unsigned char *messageType, unsigned long *a4)
+void ServiceProvider::DecodeMessageStub(const void *msgHeader, unsigned long *dataLen, unsigned char *messageType, unsigned long *a4)
 {
   unsigned long k;
-  if (enc_msg == NULL)
+  if (msgHeader == NULL)
   {
     WARNLOG("NULL ptr");
     return;
   }
-  if (a2 != NULL)
+  if (dataLen != NULL)
   {
-    k = *(unsigned long *)enc_msg;
-    *a2 = k & 0xFFFFF;
+    k = *(unsigned long *)msgHeader;
+    *dataLen = k & 0xFFFFF; //does not include length of header (which is 4 bytes)
   }
   if (a4 != NULL)
   {
-    k = *(unsigned long *)enc_msg;
+    k = *(unsigned long *)msgHeader;
     *a4 = ((k >> 20) & 0xF);
   }
   if (messageType != NULL)
   {
-    k = *(unsigned long *)enc_msg;
+    k = *(unsigned long *)msgHeader;
     *messageType = (k >> 24)  & 0xFF;
   }
 }
@@ -328,7 +328,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
   return Lb_OK;
 }
 
-TbError ServiceProvider::Receive(unsigned long len) //a1 = length?
+TbError ServiceProvider::Receive(unsigned long flags)
 {
   unsigned long p1, p2, p3;
   unsigned long decode_20bits,decode_4bits;
@@ -341,15 +341,9 @@ TbError ServiceProvider::Receive(unsigned long len) //a1 = length?
   char * array1Ptr;
   char * array2Ptr;
   char * array3Ptr;
-  void * tmpPtr;
+  void * somePtr;
   long tmpInt1, tmpInt2;
   TbError result;
-
-  //see what these are
-  char wtf;
-  unsigned long wtf2;
-  unsigned long wtf3;
-  unsigned long wtf4;
 
   result = 0;
 
@@ -361,41 +355,44 @@ TbError ServiceProvider::Receive(unsigned long len) //a1 = length?
   keepExchanging = true;
   while (keepExchanging)
   {
-    p3 = 1028; //probably a bitmask
+    p3 = 1028;
     if (PeekMessage(&p1, &p2, &p3))
     {
       keepExchanging = false;
       break;
     }
 
+    somePtr = NULL;
+
     DecodeMessageStub(&p2, &decode_20bits, &messageType, &decode_4bits);
-    if (len & 0x08)
-      len = 0xFF;
+    if (flags & 0x08)
+      flags = 0xFF;
+
     switch (messageType)
     {
     case 0:
-        if (len & 1) {
-        	tmpPtr = 0;
+        if (flags & 1) {
+        	somePtr = 0;
         	if (recvCallbacks->multiPlayer) {
-        		tmpPtr = recvCallbacks->multiPlayer(p1, decode_20bits + 4, decode_4bits, field_D78);
+        		somePtr = recvCallbacks->multiPlayer(p1, decode_20bits + 4, decode_4bits, field_D78);
         	}
         	else {
         		NETMSG("NIL target for userDataMsgCallbackProc"); //rename
         	}
-        	if (tmpPtr == NULL) {
-        		tmpPtr = &p2;
+        	if (somePtr == NULL) {
+        		somePtr = &p2;
         		p3 = 1028;
         	}
-        	if (!(ReadMessage(&p1, tmpPtr, &p3))) {
+        	if (!(ReadMessage(&p1, somePtr, &p3))) {
         		NETMSG("Inconsistency between reads");
-				result = wtf;
+				result = 0xff;
         	}
         }
 
         keepExchanging = false;
         break;
     case 1:
-        if (!(len & 2)) {
+        if (!(flags & 2)) {
         	keepExchanging = false;
         	break;
         }
@@ -407,7 +404,7 @@ TbError ServiceProvider::Receive(unsigned long len) //a1 = length?
         }
 
         memcpy(&tmpInt1, array1, sizeof(tmpInt1));
-        if (array2) {
+        if (array2 != NULL) { //unnecessary?
         	array1Ptr = array1 + 4;
         	array2Ptr = array2;
         	bool cond;
@@ -427,7 +424,7 @@ TbError ServiceProvider::Receive(unsigned long len) //a1 = length?
 
         memcpy(&tmpInt2, array1, sizeof(tmpInt2));
         memcpy(&tmpInt1, array1 + 4, sizeof(tmpInt1));
-        if (&p2 != (unsigned long *) -1028) {
+        if (array3 != NULL) { //unnecessary?
         	array1Ptr = array1 + 4;
         	array3Ptr = array3;
         	bool cond;
@@ -450,7 +447,7 @@ TbError ServiceProvider::Receive(unsigned long len) //a1 = length?
 
         break;
     case 2:
-        if (!(len & 4)) {
+        if (!(flags & 4)) {
         	keepExchanging = false;
         	break;
         }
@@ -462,9 +459,9 @@ TbError ServiceProvider::Receive(unsigned long len) //a1 = length?
 		}
 
         CheckForDeletedHost(&p2);
-        memcpy(&id, array1, wtf2);
+        memcpy(&id, array1, id);
         DeletePlayer(id);
-        memcpy(&tmpInt1, array1, wtf3);
+        memcpy(&tmpInt1, array1, sizeof(tmpInt1));
         if (recvCallbacks->deleteMsg) {
         	recvCallbacks->deleteMsg(tmpInt1, field_D78);
         }
@@ -473,7 +470,7 @@ TbError ServiceProvider::Receive(unsigned long len) //a1 = length?
     case 3:
         continue;
     case 4:
-        if (!(len & 0x80)) {
+        if (!(flags & 0x80)) {
         	keepExchanging = false;
         	break;
         }
@@ -484,25 +481,86 @@ TbError ServiceProvider::Receive(unsigned long len) //a1 = length?
 			break;
 		}
 
-		if (&p2 != (unsigned long *) -1124) {
-			wtf4 = (unsigned int)((char *) (0xFFFFA + 5)) & p2; //TODO: what does this address point to?.......
+		if (&tmpInt1 != NULL) {
+			tmpInt1 = p2 & 0xFFFFF; //TODO: check everything regarding this, I was unable to comprehend the methods behind the compiler in this matter
 		}
+
 		if (recvCallbacks->systemUserMsg) {
-			recvCallbacks->systemUserMsg(p1, array1, wtf4, field_D78);
+			recvCallbacks->systemUserMsg(p1, array1, tmpInt1, field_D78);
 		}
 
         break;
     case 5:
-        //TODO NET
+        if (!(flags & 0x10)) {
+        	keepExchanging = false;
+        	break;
+        }
+
+        p3 = 1028;
+        if (!ReadMessage(&p1, &p2, &p3)) {
+			NETMSG("Inconsistency on receive");
+			break;
+		}
+
+        memcpy(&tmpInt1, array1, sizeof(tmpInt1));
+        if (recvCallbacks->mpReqExDataMsg) {
+        	recvCallbacks->mpReqExDataMsg(tmpInt1, decode_4bits, field_D78);
+        }
+
         break;
     case 6:
-        //TODO NET
+    	if (!(flags & 0x20)) {
+    		keepExchanging = false;
+    		break;
+    	}
+
+    	if (!ReadMessage(&p1, &p2, &p3)) {
+			NETMSG("Inconsistency on receive");
+			break;
+		}
+
+    	memcpy(&tmpInt1, array1, sizeof(tmpInt1));
+    	if (recvCallbacks->mpReqCompsExDataMsg) {
+    		recvCallbacks->mpReqCompsExDataMsg(tmpInt1, decode_4bits, field_D78);
+    	}
+
         break;
     case 7:
-        //TODO NET
+        if (flags & 0x40) {
+        	if (recvCallbacks->unidirectionalMsg) {
+        		somePtr = recvCallbacks->unidirectionalMsg(p1, decode_20bits + 4, field_D78);
+        	}
+        	else {
+        		NETMSG("NIL target for unidirectionalMsgCallbackProc");
+        	}
+
+        	if (somePtr == NULL) {
+        		somePtr = &p2;
+        		p3 = 1028;
+        	}
+
+        	if (!ReadMessage(&p1, somePtr, &p3)) {
+        		NETMSG("Inconsistency on receive");
+        		break;
+        	}
+        }
+
+        keepExchanging = false;
         break;
     case 8:
-        //TODO NET
+        if (!(flags & 0x01)) {
+        	break;
+        }
+
+        if (!recvCallbacks->field_24) {
+        	break;
+        }
+
+        p3 = decode_20bits + 4;
+        somePtr = LbMemoryAlloc(p3); //TODO: check that this is freed somewhere...
+        ReadMessage(&p1, somePtr, &p3);
+        recvCallbacks->field_24(p1, somePtr);
+
         break;
     default:
         WARNLOG("messageType is out of range");

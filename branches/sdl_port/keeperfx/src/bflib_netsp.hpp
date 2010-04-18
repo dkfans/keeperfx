@@ -60,6 +60,13 @@ struct ReceiveCallbacks {
 };
 
 class ServiceProvider {
+protected:
+	TbError Initialise(struct ReceiveCallbacks *nCallbacks, void *a2);
+
+	//session management
+	struct TbNetworkSessionNameEntry *AddSession(unsigned long sess_id, const char *namestr);
+	void ClearSessions(void);
+	long SessionIndex(unsigned long sess_id);
 public:
   ServiceProvider();
   virtual ~ServiceProvider();
@@ -72,14 +79,10 @@ public:
   static void DecodeMessageStub(const void *enc_msg, unsigned long *a2, unsigned char *a3, unsigned long *a4);
   TbError Send(unsigned long a1, void *a2);
   TbError Receive(unsigned long a1);
-  TbError Initialise(struct ReceiveCallbacks *nCallbacks, void *a2);
   long PlayerIndex(unsigned long plyr_id);
   TbError AddPlayer(unsigned long plyr_id, const char *namestr, unsigned long a3, unsigned long a4);
   TbError DeletePlayer(unsigned long plyr_id);
   void ClearPlayers(void);
-  long SessionIndex(unsigned long sess_id);
-  struct TbNetworkSessionNameEntry *AddSession(unsigned long sess_id, const char *namestr);
-  void ClearSessions(void);
   TbError EnumeratePlayers(TbNetworkCallbackFunc callback, void *a2);
   unsigned long GetAddPlayerMsgSize(char *msg_str);
   void EncodeAddPlayerMsg(unsigned char *enc_buf, unsigned long id, const char *msg_str);
@@ -93,8 +96,8 @@ public:
   virtual TbError Start(struct TbNetworkSessionNameEntry *, char *, void *) = 0;
   virtual TbError Start(char *, char *, unsigned long, void *) = 0;
   virtual TbError Stop(void) = 0;
-  virtual TbError Enumerate(TbNetworkCallbackFunc, void *) = 0;
-  virtual TbError Enumerate(struct TbNetworkSessionNameEntry *, TbNetworkCallbackFunc, void *) = 0;
+  virtual TbError Enumerate(TbNetworkCallbackFunc sessionCb, void * ptr) = 0;
+  virtual TbError Enumerate(struct TbNetworkSessionNameEntry * sessionEntry, TbNetworkCallbackFunc playerCb, void * ptr) = 0;
   virtual TbError Init(struct _GUID, struct _GUID *, struct ReceiveCallbacks *, void *) = 0;
   virtual TbError Release(void);
   virtual TbError ChangeSettings(unsigned long, void *) = 0;

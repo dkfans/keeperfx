@@ -108,7 +108,7 @@ OBJS = \
 $(RES)
 
 LINKOBJ  = $(OBJS)
-LINKLIB =  -L"./directx/lib" -L"./lib"  -L"./sdl/lib" -mwindows -lmingw32 -lkeeperfx -lwinmm -lddraw -lSDLmain -lSDL
+LINKLIB =  -L"./directx/lib" -L"./lib"  -L"./sdl/lib" -mwindows -lmingw32 -lkeeperfx -lwinmm -lddraw -lSDLmain -lSDL -lSDL_net
 INCS =  -I"./directx/include" -I"./sdl/include"
 CXXINCS =  -I"./directx/include"  -I"./sdl/include/SDL"
 # flags to generate dependency files
