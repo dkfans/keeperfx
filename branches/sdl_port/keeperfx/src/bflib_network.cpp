@@ -26,7 +26,6 @@
 #include "bflib_netsp_ipx.hpp"
 #include "bflib_netsp_tcp.hpp"
 #include "globals.h"
-#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -657,7 +656,6 @@ TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
   {
     localPlayerId = plyrname->id;
     localPlayerIndex = playerIndex;
-    my_player_number = playerIndex; //TODO: see if this should be set here, I added it because it appeared bugged
   }
   return Lb_OK;
 }
