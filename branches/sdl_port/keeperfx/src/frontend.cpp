@@ -3953,7 +3953,30 @@ void frontnet_session_select(struct GuiButton *gbtn)
 
 void frontnet_draw_session_button(struct GuiButton *gbtn)
 {
-  _DK_frontnet_draw_session_button(gbtn);
+  //_DK_frontnet_draw_session_button(gbtn);
+
+	long sessionIndex; // esi@1
+	long fontIndex; // edx@2
+	TbSprite * font; // edx@5
+	int height; // ecx@6
+
+	sessionIndex = net_session_scroll_offset + (long) gbtn->field_33 - 45;
+	if ( sessionIndex < net_number_of_sessions ) {
+		fontIndex = frontend_button_info[(long) gbtn->field_33].field_2;
+		if ( gbtn->field_33 ) {
+			if ( frontend_mouse_over_button == (long) gbtn->field_33 )
+				fontIndex = 2;
+		}
+		font = frontend_font[fontIndex];
+		lbDisplay.DrawFlags = 0;
+		lbFontPtr = font;
+		if ( font )
+			height = *(char *)(font + 11);
+		else
+			height = 0;
+		LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
+		LbTextDraw(0, 0, net_session[sessionIndex]->text);
+	}
 }
 
 void frontnet_players_up(struct GuiButton *gbtn)
@@ -7196,12 +7219,12 @@ void frontnet_session_update(void)
     if (net_session_index_active != -1)
     {
         if ((net_session_index_active >= net_number_of_sessions)
-          || (net_session[net_session_index_active]->field_0 != net_session_index_active_id))
+          || (!net_session[net_session_index_active]->joinable))
         {
           net_session_index_active = -1;
           for (i=0; i < net_number_of_sessions; i++)
           {
-            if ( net_session[i]->field_0 == net_session_index_active_id)
+            if ( net_session[i]->joinable)
             {
               net_session_index_active = i;
               break;

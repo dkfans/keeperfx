@@ -31,11 +31,11 @@
 #define NETSP_PLAYER_NAME_MAX_LEN 32
 
 struct TbNetworkSessionNameEntry {
-  unsigned char field_0;
+  unsigned char joinable; //possibly active or selected is better name
   unsigned long id;
   unsigned long in_use;
   char text[SESSION_NAME_MAX_LEN];
-  unsigned char field_29[20];
+  unsigned char field_29[20]; //does not appear to be a string
 };
 
 struct TbNetworkPlayerEntry {

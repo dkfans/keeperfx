@@ -689,6 +689,7 @@ struct TbNetworkSessionNameEntry *ServiceProvider::AddSession(unsigned long sess
   nsname->id = nextSessionId++;
   net_copy_name_string(nsname->text,namestr,SESSION_NAME_MAX_LEN);
   nsname->in_use = true;
+  nsname->joinable = true; //for now
   return nsname;
 }
 
