@@ -26,10 +26,11 @@
 
 #include "bflib_network.h"
 
+#define BROADCAST_ADDRESS				"255.255.255.255"
 #define BROADCAST_PORT_NUMBER			17777 //replace later
 #define HOST_PORT_NUMBER				17778 //replace later, dynamic ports are slightly more complicated but it can be done
-#define MAX_BROADCAST_PACKET_SIZE		200
-#define SESSION_BROADCAST_PERIOD		2000 //2 s
+#define MAX_BROADCAST_PACKET_SIZE		100
+#define SESSION_BROADCAST_PERIOD		4000 //2 s
 #define SESSION_IDLE_LISTEN_PERIOD		2000
 
 const static std::string broadcastMsgPrefix("KEEPERFX_SESSION:");
@@ -89,11 +90,7 @@ bool TCPServiceProvider::ThreadCond::shouldExit()
 int TCPServiceProvider::listenForSessions(TCPServiceProvider * sp)
 {
 	// Create UDP socket.
-
-	unsigned short port;
-	SDLNet_Write16(BROADCAST_PORT_NUMBER, &port);
-
-	UDPsocket socket = SDLNet_UDP_Open(port);
+	UDPsocket socket = SDLNet_UDP_Open(BROADCAST_PORT_NUMBER);
 	if (socket == NULL) {
 		NETMSG("Failed to open UDP socket: %s", SDLNet_GetError());
 		return Lb_FAIL;
@@ -111,9 +108,8 @@ int TCPServiceProvider::listenForSessions(TCPServiceProvider * sp)
 	sp->sessionListenCond.lock();
 
 	while (!sp->sessionListenCond.shouldExit()) {
-		if (SDLNet_UDP_Recv(socket, packet) == 1) {
-			SYNCDBG(7, "Received packet of length %d", packet->len);
-
+		int result = SDLNet_UDP_Recv(socket, packet);
+		if (result == 1) {
 			//unlock to give signalExit() a chance in case we're receiving a large number of packets
 			sp->sessionListenCond.unlock();
 
@@ -125,14 +121,20 @@ int TCPServiceProvider::listenForSessions(TCPServiceProvider * sp)
 				SDLNet_Write16(HOST_PORT_NUMBER, &addr.port);
 				packet->data[packet->len - 1] = 0; //prevent buffer overflow on invalid data
 
-				SDL_LockMutex(sp->sessionsMutex);
-				sp->reportSession(addr, reinterpret_cast<char *>(packet->data) + broadcastMsgPrefix.size());
-				SDL_UnlockMutex(sp->sessionsMutex);
+				if (strlen(reinterpret_cast<char *>(packet->data)) > broadcastMsgPrefix.size()) {
+					SDL_LockMutex(sp->sessionsMutex);
+					sp->reportSession(addr, reinterpret_cast<char *>(packet->data) + broadcastMsgPrefix.size());
+					SDL_UnlockMutex(sp->sessionsMutex);
+				}
 			}
 
 			sp->sessionListenCond.lock();
 		}
 		else {
+			if (result != 0) {
+				NETMSG("UDP receive error");
+			}
+
 			sp->sessionListenCond.waitMs(SESSION_IDLE_LISTEN_PERIOD);
 		}
 	}
@@ -192,8 +194,7 @@ int TCPServiceProvider::broadcastSession(TCPServiceProvider * sp)
 			packet->len = msg.size() + 1;
 			assert(packet->len <= MAX_BROADCAST_PACKET_SIZE);
 
-			packet->address.host = INADDR_BROADCAST;
-			SDLNet_Write16(BROADCAST_PORT_NUMBER, &packet->address.port);
+			SDLNet_ResolveHost(&packet->address, BROADCAST_ADDRESS, BROADCAST_PORT_NUMBER);
 			packet->channel = -1;
 			strcpy(reinterpret_cast<char *>(packet->data), msg.c_str());
 
@@ -218,6 +219,8 @@ int TCPServiceProvider::broadcastSession(TCPServiceProvider * sp)
 TbNetworkSessionNameEntry * TCPServiceProvider::reportSession(const IPaddress & addr, const char * namestr)
 {
 	//assumes sessionsMutex is held
+
+	SYNCDBG(7, "Starting with session name %s", namestr);
 
 	TbNetworkSessionNameEntry * session = findSessionByAddress(addr);
 	int index;
@@ -248,12 +251,14 @@ TbNetworkSessionNameEntry * TCPServiceProvider::findSessionByAddress(const IPadd
 {
 	//assumes sessionsMutex is held
 
+	SYNCDBG(7, "Starting");
+
 	for (int i = 0; i < SESSION_ENTRIES_COUNT; ++i) {
 		if (i == local_id) {
 			continue;
 		}
 
-		if (memcmp(&sessionAddrTable[i].addr, &addr, sizeof(addr)) == 0) {
+		if (sessionAddrTable[i].addr.host == addr.host && sessionAddrTable[i].addr.port == addr.port) {
 			int index = SessionIndex(sessionAddrTable[i].sessionId);
 			if (index >= 0) {
 				return &nsnames[index];
@@ -263,6 +268,8 @@ TbNetworkSessionNameEntry * TCPServiceProvider::findSessionByAddress(const IPadd
 			}
 		}
 	}
+
+	SYNCDBG(7, "No matching session entry found");
 
 	return NULL;
 }
