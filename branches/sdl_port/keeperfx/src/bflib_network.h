@@ -23,6 +23,7 @@
 #include <basetyps.h>
 #include "bflib_basics.h"
 #include "globals.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,7 +100,7 @@ struct TbNetworkCallbackData {
 };
 
 struct TbNetworkPlayerName {
-  char name[20];
+  char name[NET_PLAYER_NAME_LENGTH + 1];
 };
 
 struct TbNetworkPlayerNameEntry {

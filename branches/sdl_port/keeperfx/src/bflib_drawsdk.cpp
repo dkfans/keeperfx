@@ -8,7 +8,7 @@
  *     A link between game engine and the DirectDraw library.
  * @par Comment:
  *     None.
- * @author   Tomasz Lis
+ * @author   KeeperFX Team
  * @date     16 Nov 2008 - 21 Nov 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify

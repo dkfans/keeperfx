@@ -105,6 +105,9 @@ OBJS = \
 ./obj/frontend.o \
 ./obj/vidmode.o \
 ./obj/sdl_events.o \
+./obj/bflib_nethost_udp.o \
+./obj/bflib_netlisten_udp.o \
+./obj/bflib_threadcond.o \
 $(RES)
 
 LINKOBJ  = $(OBJS)
@@ -116,7 +119,7 @@ DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 # code optimization flags
 OPTFLAGS = -march=pentium -O3
 # compiler warning generation flags
-WARNFLAGS = -Wall -Wno-sign-compare -Wno-unused-parameter
+WARNFLAGS = -Wall -Wno-sign-compare -Wno-unused-parameter -Wno-uninitialized
 # disabled warnings: -Wextra -Wtype-limits
 CXXFLAGS = $(CXXINCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS)
 CFLAGS = $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS)

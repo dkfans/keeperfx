@@ -47,6 +47,7 @@ extern "C" {
 
 #define PLAYERS_EXT_COUNT       6
 #define NET_PLAYERS_COUNT       4
+#define NET_PLAYER_NAME_LENGTH 19
 #define NET_SERVICES_COUNT     16
 #define PACKETS_COUNT           5
 #define THINGS_COUNT         2048

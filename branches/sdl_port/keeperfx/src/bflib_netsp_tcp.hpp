@@ -5,7 +5,7 @@
 /** @file bflib_netsp_tcp.hpp
  *     Header file for bflib_netsp_tcp.cpp.
  * @par Purpose:
- *     TCP/IP network ServiceProvider subclass declaration.
+ *     IP network ServiceProvider subclass declaration.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   KeeperFX Team
@@ -21,55 +21,22 @@
 #ifndef BFLIB_NETSP_TCP_HPP
 #define BFLIB_NETSP_TCP_HPP
 
+#include <SDL_net.h>
+
 #include "bflib_netsp.hpp"
 
-#include <SDL_net.h>
-#include <SDL_thread.h>
+
+class UDP_NetHost;
+class UDP_NetListener;
 
 class TCPServiceProvider : public ServiceProvider {
 private:
-	struct SessionAddressBinding
-	{
-		unsigned long sessionId;
-		IPaddress addr;
-		unsigned long lastUpdate;
-	};
+	TCPsocket sockets[NETSP_PLAYERS_COUNT];
+	int maxPlayers;
+	bool isHost;
 
-	/**
-	 * Class for controlling the UDP session enumeration listen and broadcast threads.
-	 */
-	class ThreadCond
-	{
-	private:
-		SDL_mutex * const mutex;
-		SDL_cond * const cond;
-		bool exit; //shared
-		bool locked; //child thread
-	public:
-		ThreadCond();
-		~ThreadCond();
-
-		void reset(); //main thread
-		void signalExit(); //main thread
-		void waitMs(unsigned long ms); //child thread
-		void lock(); //child thread
-		void unlock(); //child thread
-		bool shouldExit(); //child thread
-	};
-
-	SessionAddressBinding sessionAddrTable[SESSION_ENTRIES_COUNT];
-
-	SDL_mutex * const sessionsMutex; //guards session related stuff in ServiceProvider
-	SDL_Thread * sessionListenThread;
-	SDL_Thread * sessionBroadcastThread;
-	ThreadCond sessionListenCond;
-	ThreadCond sessionBroadcastCond;
-
-	static int listenForSessions(TCPServiceProvider * sp); //executing in sessionListenThread
-	static int broadcastSession(TCPServiceProvider * sp); //executing in sessionBroadcastingThread
-
-	TbNetworkSessionNameEntry * reportSession(const IPaddress & addr, const char *namestr);
-	TbNetworkSessionNameEntry * findSessionByAddress(const IPaddress & addr);
+	UDP_NetHost * host;
+	UDP_NetListener * listener;
 
 public:
 	TCPServiceProvider();

@@ -191,7 +191,8 @@ unsigned long ServiceProvider::GetRequestCompositeExchangeDataMsgSize(void)
 }
 
 ServiceProvider::ServiceProvider() :
-		nextSessionId(1)
+		nextSessionId(1),
+		nextPlayerId(1)
 {
   long i;
   this->local_id = 0;
@@ -598,6 +599,9 @@ TbError ServiceProvider::AddPlayer(unsigned long plyr_id, const char *namestr, u
 {
   struct TbNetworkPlayerEntry *netplyr;
   long i;
+
+  SYNCDBG(7, "Starting");
+
   // Check if we already have the player on list
   if (PlayerIndex(plyr_id) >= 0)
     return Lb_OK;
@@ -705,7 +709,7 @@ void ServiceProvider::ClearSessions(void)
   }
 }
 
-TbError ServiceProvider::EnumeratePlayers(TbNetworkCallbackFunc callback, void *a2)
+TbError ServiceProvider::EnumeratePlayers(TbNetworkCallbackFunc callback, void * ptr)
 {
   struct TbNetworkPlayerEntry *netplyr;
   TbError result;
@@ -714,7 +718,7 @@ TbError ServiceProvider::EnumeratePlayers(TbNetworkCallbackFunc callback, void *
   for (i=0; i < players_count; i++)
   {
     netplyr = &this->players[i];
-    callback((struct TbNetworkCallbackData *)netplyr, a2);
+    callback((struct TbNetworkCallbackData *)netplyr, ptr);
   }
   return result;
 }

@@ -576,9 +576,10 @@ TbError GetCurrentPlayers(void)
   return Lb_OK;
 }
 
-void __stdcall GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2)
+void __stdcall GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void * ptr)
 {
-  AddAPlayer((struct TbNetworkPlayerNameEntry *)netcdat);
+	SYNCDBG(9, "Starting");
+	AddAPlayer((struct TbNetworkPlayerNameEntry *)netcdat);
 }
 
 TbError GetPlayerInfo(void)

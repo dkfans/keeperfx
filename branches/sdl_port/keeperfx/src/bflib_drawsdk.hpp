@@ -8,7 +8,7 @@
  *     Graphics drawing support sdk class.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Tomasz Lis, Petter Hansson
+ * @author   KeeperFX Team
  * @date     16 Nov 2008 - 21 Nov 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
@@ -67,7 +67,7 @@ class TDDrawSdk : public TDDrawBaseClass {
     // Nonvirtual methods
     static HRESULT CALLBACK screen_mode_callback(LPDDSURFACEDESC lpDDSurf, LPVOID lpContext);
     static bool is_mode_possible(TbScreenMode * mode);
-    static TbScreenMode TDDrawSdk::get_mode_info_by_str(char *str);
+    static TbScreenMode get_mode_info_by_str(char *str);
     bool setup_direct_draw(void);
     bool reset_direct_draw(void);
     bool setup_dds_double_video(void);

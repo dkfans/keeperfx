@@ -63,12 +63,24 @@ class ServiceProvider {
 private:
 	unsigned long nextSessionId;
 protected:
+	//see if these can be moved to private later
+	unsigned long players_count;
+	struct TbNetworkPlayerEntry players[NETSP_PLAYERS_COUNT];
+	unsigned long nextPlayerId;
+	unsigned long local_id; //local session ID
+
 	TbError Initialise(struct ReceiveCallbacks *nCallbacks, void *a2);
 
 	//session management
 	TbNetworkSessionNameEntry *AddSession(unsigned long sess_id, const char *namestr);
 	void ClearSessions(void);
 	long SessionIndex(unsigned long sess_id);
+
+	TbError EnumeratePlayers(TbNetworkCallbackFunc callback, void *a2);
+	long PlayerIndex(unsigned long plyr_id);
+	TbError AddPlayer(unsigned long plyr_id, const char *namestr, unsigned long a3, unsigned long a4);
+	TbError DeletePlayer(unsigned long plyr_id);
+	void ClearPlayers(void);
 public:
   ServiceProvider();
   virtual ~ServiceProvider();
@@ -81,11 +93,6 @@ public:
   static void DecodeMessageStub(const void *enc_msg, unsigned long *a2, unsigned char *a3, unsigned long *a4);
   TbError Send(unsigned long a1, void *a2);
   TbError Receive(unsigned long a1);
-  long PlayerIndex(unsigned long plyr_id);
-  TbError AddPlayer(unsigned long plyr_id, const char *namestr, unsigned long a3, unsigned long a4);
-  TbError DeletePlayer(unsigned long plyr_id);
-  void ClearPlayers(void);
-  TbError EnumeratePlayers(TbNetworkCallbackFunc callback, void *a2);
   unsigned long GetAddPlayerMsgSize(char *msg_str);
   void EncodeAddPlayerMsg(unsigned char *enc_buf, unsigned long id, const char *msg_str);
   TbBool DecodeAddPlayerMsg(const unsigned char *enc_buf, unsigned long &id, char *msg_str);
@@ -108,12 +115,9 @@ public:
   virtual unsigned long PeekMessage(unsigned long *, void *, unsigned long *) = 0;
   virtual TbError SendMessage(unsigned long, void *, unsigned char) = 0;
 
-  unsigned long local_id;
   struct TbNetworkSessionNameEntry nsnames[SESSION_ENTRIES_COUNT];
   unsigned long field_7A4;
   unsigned long field_7A8;
-  unsigned long players_count;
-  struct TbNetworkPlayerEntry players[NETSP_PLAYERS_COUNT];
   char field_D50[32];
   struct ReceiveCallbacks *recvCallbacks;
   unsigned long field_D74;
@@ -123,6 +127,8 @@ public:
 /******************************************************************************/
 extern class ServiceProvider *spPtr;
 /******************************************************************************/
+
+void net_copy_name_string(char *dst,const char *src,long max_len);
 
 /******************************************************************************/
 #endif
