@@ -1002,6 +1002,24 @@ void anger_set_creature_anger(struct Thing *thing, long annoy_lv, long reason)
   _DK_anger_set_creature_anger(thing, annoy_lv, reason);
 }
 
+TbBool anger_is_creature_livid(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+        return false;
+    return ((cctrl->field_66 & 0x02) != 0);
+}
+
+TbBool anger_is_creature_angry(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+        return false;
+    return ((cctrl->field_66 & 0x01) != 0);
+}
+
 TbBool anger_make_creature_angry(struct Thing *thing, long reason)
 {
   struct CreatureStats *crstat;

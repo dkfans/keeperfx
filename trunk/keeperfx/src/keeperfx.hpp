@@ -1420,6 +1420,8 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel);
 long compute_creature_max_unaffected(long base_param,unsigned short crlevel);
 #define compute_creature_max_luck compute_creature_max_unaffected
 #define compute_creature_max_armour compute_creature_max_unaffected
+long compute_value_percentage(long base_val, short npercent);
+long compute_value_8bpercentage(long base_val, short npercent);
 
 
 short ceiling_set_info(long height_max, long height_min, long step);

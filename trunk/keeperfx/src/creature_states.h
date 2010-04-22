@@ -247,6 +247,8 @@ long get_creature_state_type(const struct Thing *thing);
 long get_creature_gui_job(const struct Thing *thing);
 /******************************************************************************/
 TbBool creature_will_attack_creature(struct Thing *tng1, struct Thing *tng2);
+TbBool anger_is_creature_livid(struct Thing *thing);
+TbBool anger_is_creature_angry(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

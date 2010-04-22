@@ -21,6 +21,7 @@ CPP  = g++
 CC   = gcc
 WINDRES = windres
 DLLTOOL = dlltool
+EXETODLL = ./peresec/bin/peresec.exe
 BIN  = ./bin/keeperfx.exe
 RES  = ./obj/keeperfx_stdres.res
 LIBS = ./lib/libkeeperfx.a
@@ -126,6 +127,7 @@ all: all-before $(BIN) all-after
 
 clean: clean-custom
 	-${RM} $(OBJS) $(BIN) $(LIBS)
+	$(MAKE) clean -C ./peresec
 	-@echo ' '
 
 $(BIN): $(OBJS) $(LIBS)
@@ -173,11 +175,14 @@ $(BIN): $(OBJS) $(LIBS)
 	@echo 'Finished generating: $@'
 	@echo ' '
 
-./bin/keeperfx.dll: ./lib/keeper95_gold.dll ./lib/keeper95_gold.map
+./bin/keeperfx.dll: ./lib/keeper95_gold.dll ./lib/keeper95_gold.map $(EXETODLL)
 	@echo 'Rebuilding DLL export table from: $<'
-	./lib/peresec -o"$@" --def "./lib/keeperfx.def" -p"_DK_" "$<"
+	$(EXETODLL) -o"$@" --def "./lib/keeperfx.def" -p"_DK_" "$<"
 	@echo 'Finished creating: $@'
 	@echo ' '
+
+$(EXETODLL):
+	$(MAKE) -C ./peresec
 
 ./obj/%.res: ./res/%.rc
 	@echo 'Building resource: $<'

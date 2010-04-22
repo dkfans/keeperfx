@@ -168,6 +168,9 @@ long creature_near_filter_is_enemy_of_and_not_imp(const struct Thing *thing, Fil
 long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam val);
 
 struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param);
+struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param);
+struct Thing *get_player_list_nth_creature_of_model(long thing_idx, long model, long crtr_idx);
+struct Thing *get_random_players_creature_of_model(long plyr_idx, long model);
 
 unsigned long update_things_sounds_in_list(struct StructureList *list);
 void stop_all_things_playing_samples(void);
@@ -181,6 +184,7 @@ void init_all_creature_states(void);
 
 long creature_of_model_in_prison(int model);
 long count_player_creatures_of_model(long plyr_idx, long model);
+long count_player_list_creatures_of_model(long thing_idx, long model);
 long count_player_creatures_not_counting_to_total(long plyr_idx);
 TbBool knight_in_prison(void);
 struct Thing *find_nearest_enemy_creature(struct Thing *crtng);
