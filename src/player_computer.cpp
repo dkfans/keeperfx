@@ -1745,7 +1745,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
       }
     }
 
-    dungeon = comp->field_24;
+    dungeon = comp->dungeon;
     if (dungeon->field_14B8 > dungeon->field_AF9)
     {
       if (dungeon->room_kind[8] != 0)
@@ -1949,7 +1949,7 @@ void setup_a_computer_player(unsigned short plyridx, long comp_model)
   comp = &game.computer[plyridx];
   LbMemorySet(comp, 0, sizeof(struct Computer2));
   cproctype = &ComputerProcessLists[comp_model];
-  comp->field_24 = get_players_num_dungeon(plyridx);
+  comp->dungeon = get_players_num_dungeon(plyridx);
   comp->model = comp_model;
   comp->field_18 = cproctype->field_C;
   comp->field_14 = cproctype->field_8;
