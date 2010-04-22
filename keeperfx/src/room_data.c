@@ -606,16 +606,25 @@ struct Room *find_room_with_spare_room_item_capacity(unsigned char a1, signed ch
   return _DK_find_room_with_spare_room_item_capacity(a1, a2);
 }
 
-struct Room *find_room_with_spare_capacity(unsigned char owner, signed char kind, long spare)
+struct Room *find_room_with_spare_capacity(unsigned char owner, signed char rkind, long spare)
 {
     struct Dungeon *dungeon;
+    if ((rkind < 0) || (rkind >= ROOM_TYPES_COUNT))
+        return NULL;
+    dungeon = get_dungeon(owner);
+    if (dungeon_invalid(dungeon))
+        return NULL;
+    return find_room_with_spare_capacity_starting_with(dungeon->room_kind[rkind], spare);
+}
+
+struct Room *find_room_with_spare_capacity_starting_with(long room_idx, long spare)
+{
     struct Room *room;
     unsigned long k;
     int i;
     SYNCDBG(18,"Starting");
-    dungeon = get_dungeon(owner);
     k = 0;
-    i = dungeon->room_kind[kind];
+    i = room_idx;
     while (i != 0)
     {
         room = room_get(i);
@@ -641,12 +650,58 @@ struct Room *find_room_with_spare_capacity(unsigned char owner, signed char kind
     return NULL;
 }
 
+struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long *total_spare_cap)
+{
+    long max_spare_cap,loc_total_spare_cap,delta;
+    struct Room *max_spare_room;
+    struct Room *room;
+    unsigned long k;
+    int i;
+    SYNCDBG(18,"Starting");
+    loc_total_spare_cap = 0;
+    max_spare_room = NULL;
+    max_spare_cap = 0;
+    k = 0;
+    i = room_idx;
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->field_6;
+        // Per-room code
+        if (room->total_capacity > room->field_10)
+        {
+          delta = room->total_capacity - room->field_10;
+          loc_total_spare_cap += delta;
+          if (max_spare_cap < delta)
+          {
+            max_spare_cap = delta;
+            max_spare_room = room;
+          }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
+    }
+    if (total_spare_cap != NULL)
+       (*total_spare_cap) = loc_total_spare_cap;
+    return max_spare_room;
+}
+
 unsigned char find_first_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos)
 {
     return _DK_find_first_valid_position_for_thing_in_room(thing, room, pos);
 }
 
-struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing, signed char owner, signed char kind, unsigned char nav_no_owner, long spare)
+struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing, signed char owner, signed char rkind, unsigned char nav_no_owner, long spare)
 {
     struct Dungeon *dungeon;
     struct Room *nearoom;
@@ -661,7 +716,7 @@ struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing
     nearoom = NULL;
     neardistance = LONG_MAX;
     k = 0;
-    i = dungeon->room_kind[kind];
+    i = dungeon->room_kind[rkind];
     while (i != 0)
     {
         room = room_get(i);
@@ -732,7 +787,7 @@ long count_rooms_creature_can_navigate_to(struct Thing *thing, unsigned char own
         pos.x.val = get_subtile_center_pos(room->stl_x);
         pos.y.val = get_subtile_center_pos(room->stl_y);
         pos.z.val = 256;
-        if ((room->field_10) && creature_can_navigate_to(thing, &pos, nav_no_owner))
+        if ((room->field_10 > 0) && creature_can_navigate_to(thing, &pos, nav_no_owner))
         {
             count++;
         }
@@ -785,7 +840,7 @@ struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsi
         pos.x.val = get_subtile_center_pos(room->stl_x);
         pos.y.val = get_subtile_center_pos(room->stl_y);
         pos.z.val = 256;
-        if ((room->field_10) && creature_can_navigate_to(thing, &pos, nav_no_owner))
+        if ((room->field_10 > 0) && creature_can_navigate_to(thing, &pos, nav_no_owner))
         {
             if (selected > 0)
             {

@@ -2686,6 +2686,48 @@ long compute_creature_max_unaffected(long base_param,unsigned short crlevel)
   return saturate_set_unsigned(base_param, 8);
 }
 
+/** Computes percentage of given value.
+ *
+ * @param base_val Value to compute percentage of.
+ * @param npercent Percentage; 0..100%, but may be higher too.
+ * @return Gives npercent of base_val, with proper rounding.
+ */
+long compute_value_percentage(long base_val, short npercent)
+{
+    if (base_val > 0)
+    {
+        if ( base_val > LONG_MAX/(abs(npercent)+1) )
+            base_val = LONG_MAX/(abs(npercent)+1);
+    } else
+    if (base_val < 0)
+    {
+        if ( base_val < LONG_MIN/(abs(npercent)+1) )
+            base_val = LONG_MIN/(abs(npercent)+1);
+    }
+    return (base_val*npercent+49)/100;
+}
+
+/** Computes 8-bit percentage of given value.
+ *
+ * @param base_val Value to compute percentage of.
+ * @param npercent Percentage; 0..256, but may be higher too.
+ * @return Gives npercent of base_val, with proper rounding.
+ */
+long compute_value_8bpercentage(long base_val, short npercent)
+{
+    if (base_val > 0)
+    {
+        if ( base_val > LONG_MAX/(abs(npercent)+1) )
+            base_val = LONG_MAX/(abs(npercent)+1);
+    } else
+    if (base_val < 0)
+    {
+        if ( base_val < LONG_MIN/(abs(npercent)+1) )
+            base_val = LONG_MIN/(abs(npercent)+1);
+    }
+    return (base_val*npercent+127)/256;
+}
+
 short update_creature_health_to_max(struct Thing *thing)
 {
   struct CreatureStats *crstat;

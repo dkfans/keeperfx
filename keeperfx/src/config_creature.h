@@ -42,6 +42,25 @@ enum CreatureModelFlags {
     MF_IsEvil         = 0x0020, // All evil creatures
 };
 
+enum CreatureJobFlags {
+    Job_NULL             = 0x0000,
+    Job_TUNNEL           = 0x0001,
+    Job_DIG              = 0x0002,
+    Job_RESEARCH         = 0x0004,
+    Job_TRAIN            = 0x0008,
+    Job_MANUFACTURE      = 0x0010,
+    Job_SCAVENGE         = 0x0020,
+    Job_KINKY_TORTURE    = 0x0040,
+    Job_FIGHT            = 0x0080,
+    Job_SEEK_THE_ENEMY   = 0x0100,
+    Job_GUARD            = 0x0200,
+    Job_GROUP            = 0x0400,
+    Job_BARRACK          = 0x0800,
+    Job_TEMPLE           = 0x1000,
+    Job_FREEZE_PRISONERS = 0x2000,
+    Job_EXPLORE          = 0x4000,
+};
+
 struct CreatureModelConfig {
     char name[COMMAND_WORD_LEN];
     long namestr_idx;

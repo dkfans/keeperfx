@@ -19,6 +19,7 @@
 /******************************************************************************/
 #include "player_computer.h"
 
+#include <limits.h>
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
@@ -26,6 +27,7 @@
 #include "bflib_memory.h"
 
 #include "config.h"
+#include "config_creature.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -35,6 +37,11 @@ extern "C" {
 struct TrapDoorSelling {
     long category;
     long model;
+};
+
+struct MoveToRoom {
+    char kind;
+    long field_1;
 };
 
 /******************************************************************************/
@@ -91,6 +98,14 @@ const struct TrapDoorSelling trapdoor_sell[] = {
     {TDSC_Door, 1},
     {TDSC_Trap, 2},
     {TDSC_EndList, 0},
+};
+
+const struct MoveToRoom move_to_room[] = {
+    {RoK_TRAINING,  40},
+    {RoK_LIBRARY,   35},
+    {RoK_WORKSHOP,  32},
+    {RoK_SCAVENGER, 20},
+    {RoK_NONE,       0},
 };
 /******************************************************************************/
 DLLIMPORT long _DK_task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask);
@@ -188,9 +203,118 @@ long fake_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing,
     return _DK_fake_place_thing_in_power_hand(comp, thing, pos);
 }
 
+TbBool worker_needed_in_dungeons_room_kind(struct Dungeon *dungeon, long rkind)
+{
+    long i;
+    switch (rkind)
+    {
+    case RoK_LIBRARY:
+        if (dungeon->field_F78 < 0)
+            return false;
+        return true;
+    case RoK_TRAINING:
+        if (2 * dungeon->field_14B8 >= dungeon->field_AF9)
+            return false;
+        return true;
+    case RoK_WORKSHOP:
+        for (i = 1; i < TRAP_TYPES_COUNT; i++)
+        {
+            if ((dungeon->trap_buildable[i]) && (dungeon->trap_amount[i] == 0))
+            {
+              break;
+            }
+        }
+        if (i == TRAP_TYPES_COUNT)
+            return false;
+        return true;
+    default:
+        return true;
+    }
+}
+
+long get_job_for_room(long rkind)
+{
+    switch (rkind)
+    {
+    case RoK_LIBRARY:
+        return Job_RESEARCH;
+    case RoK_TRAINING:
+        return Job_TRAIN;
+    case RoK_WORKSHOP:
+        return Job_MANUFACTURE;
+    case RoK_SCAVENGER:
+        return Job_SCAVENGE;
+    case RoK_TEMPLE:
+        return Job_TEMPLE;
+    case RoK_GUARDPOST:
+        return Job_GUARD;
+//    case RoK_TORTURE: -- no 'bad jobs' should be listed here
+//        return Job_KINKY_TORTURE;
+    default:
+        return Job_NULL;
+    }
+}
+
+TbBool person_will_do_job_for_room(struct Thing *thing, struct Room *room)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    return (get_job_for_room(room->kind) & crstat->jobs_not_do) == 0;
+}
+
+TbBool person_will_do_job_for_room_kind(struct Thing *thing, long rkind)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    return (get_job_for_room(rkind) & crstat->jobs_not_do) == 0;
+}
+
+struct Room *get_room_to_place_creature(struct Computer2 *comp, struct Thing *thing)
+{
+  struct Dungeon *dungeon;
+  long chosen_priority;
+  struct Room *chosen_room;
+  struct Room *room;
+  long total_spare_cap;
+  long i,k,rkind;
+
+    dungeon = comp->dungeon;
+
+    chosen_room = NULL;
+    chosen_priority = LONG_MIN;
+    for (k=0; move_to_room[k].kind != RoK_NONE; k++)
+    {
+        rkind = move_to_room[k].kind;
+        if (person_will_do_job_for_room_kind(thing,rkind))
+        {
+            if (!worker_needed_in_dungeons_room_kind(dungeon,rkind))
+                continue;
+        }
+        // Find specific room which meets capacity demands
+        i = dungeon->room_kind[rkind];
+        room = find_room_with_most_spare_capacity_starting_with(i,&total_spare_cap);
+        if (room_is_invalid(room))
+            continue;
+        if (chosen_priority < total_spare_cap * move_to_room[k].field_1)
+        {
+            chosen_priority = total_spare_cap * move_to_room[k].field_1;
+            chosen_room = room;
+        }
+    }
+  return chosen_room;
+}
+
 struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct Room **roomp)
 {
+    struct Dungeon *dungeon;
     SYNCDBG(9,"Starting");
+    dungeon = comp->dungeon;
+    if (dungeon_invalid(dungeon))
+    {
+        ERRORLOG("Invalid dungeon in computer player.");
+        return NULL;
+    }
+    //TODO rewrite - may cause hang (issue 7)
     return _DK_find_creature_to_be_placed_in_room(comp, roomp);
 }
 
@@ -342,7 +466,12 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
     long i;
     SYNCDBG(19,"Starting");
     //return _DK_task_sell_traps_and_doors(comp,ctask);
-    dungeon = comp->field_24;
+    dungeon = comp->dungeon;
+    if (dungeon_invalid(dungeon))
+    {
+        ERRORLOG("Invalid dungeon in computer player.");
+        return 0;
+    }
     if ((ctask->field_7C >= ctask->long_76) && (ctask->field_80 >= dungeon->field_AF9))
     {
         i = 0;

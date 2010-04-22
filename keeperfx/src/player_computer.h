@@ -236,7 +236,7 @@ struct Computer2 { // sizeof = 5322
   unsigned long field_18;
   unsigned long field_1C;
   unsigned long field_20;
-  struct Dungeon *field_24;
+  struct Dungeon *dungeon;
   unsigned long model;
   unsigned long field_2C;
   unsigned long field_30;

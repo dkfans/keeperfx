@@ -19,6 +19,7 @@
 #include "thing_list.h"
 
 #include "bflib_basics.h"
+#include "bflib_math.h"
 #include "globals.h"
 #include "bflib_sound.h"
 #include "packets.h"
@@ -539,40 +540,86 @@ long get_free_hero_gate_number(void)
   return 0;
 }
 
+/** Counts creatures of given model belonging to given player.
+ * @param plyr_idx Target player.
+ * @param model Creature model, or -1 for all (except special diggers).
+ *
+ * @return Count of players creatures.
+ */
 long count_player_creatures_of_model(long plyr_idx, long model)
 {
   struct Dungeon *dungeon;
-  struct CreatureControl *cctrl;
-  struct Thing *thing;
-  unsigned long k;
-  long i;
-  int count;
   dungeon = get_players_num_dungeon(plyr_idx);
-  count = 0;
-  i = dungeon->creatr_list_start;
-  k = 0;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+  return count_player_list_creatures_of_model(dungeon->creatr_list_start, model);
+}
+
+long count_player_list_creatures_of_model(long thing_idx, long model)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    long i;
+    int count;
+    count = 0;
+    i = thing_idx;
+    k = 0;
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
+      thing = thing_get(i);
+      if (thing_is_invalid(thing))
+      {
+        ERRORLOG("Jump to invalid thing detected");
+        break;
+      }
+      cctrl = creature_control_get_from_thing(thing);
+      i = cctrl->thing_idx;
+      // Per creature code
+      if ((thing->model == model) || (model == -1))
+        count++;
+      // Per creature code ends
+      k++;
+      if (k > THINGS_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping things list");
+        break;
+      }
     }
-    cctrl = creature_control_get_from_thing(thing);
-    i = cctrl->thing_idx;
-    // Per creature code
-    if (thing->model == model)
-      count++;
-    // Per creature code ends
-    k++;
-    if (k > THINGS_COUNT)
+    return count;
+}
+
+struct Thing *get_player_list_nth_creature_of_model(long thing_idx, long model, long crtr_idx)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    long i;
+    i = thing_idx;
+    k = 0;
+    while (i != 0)
     {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
+      thing = thing_get(i);
+      if (thing_is_invalid(thing))
+      {
+        ERRORLOG("Jump to invalid thing detected");
+        return INVALID_THING;
+      }
+      cctrl = creature_control_get_from_thing(thing);
+      i = cctrl->thing_idx;
+      // Per creature code
+      if (crtr_idx <= 0)
+          return thing;
+      if ((thing->model == model) || (model == -1))
+          crtr_idx--;
+      // Per creature code ends
+      k++;
+      if (k > THINGS_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping things list");
+        return INVALID_THING;
+      }
     }
-  }
-  return count;
+    ERRORLOG("Tried to get creature of index exceeding list");
+    return INVALID_THING;
 }
 
 long count_player_creatures_not_counting_to_total(long plyr_idx)
@@ -598,9 +645,9 @@ long count_player_creatures_not_counting_to_total(long plyr_idx)
     cctrl = creature_control_get_from_thing(thing);
     i = cctrl->thing_idx;
     n = thing->field_7;
-    if (n == 14)
+    if (n == CrSt_MoveToPosition)
       n = thing->field_8;
-    if ((n == 41) || (n == 40))
+    if ((n == CrSt_CreatureInPrison) || (n == CrSt_CreatureArrivedAtPrison))
       count++;
     k++;
     if (k > THINGS_COUNT)
@@ -610,6 +657,18 @@ long count_player_creatures_not_counting_to_total(long plyr_idx)
     }
   }
   return count;
+}
+
+struct Thing *get_random_players_creature_of_model(long plyr_idx, long model)
+{
+    struct Dungeon *dungeon;
+    long total_count,crtr_idx;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    total_count = count_player_list_creatures_of_model(dungeon->creatr_list_start, model);
+    if (total_count < 1)
+        return INVALID_THING;
+    crtr_idx = ACTION_RANDOM(total_count);
+    return get_player_list_nth_creature_of_model(dungeon->creatr_list_start, model, crtr_idx);
 }
 
 /**
@@ -635,6 +694,71 @@ struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximiz
   i = thing_idx;
   while (i != 0)
   {
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
+    {
+      ERRORLOG("Jump to invalid thing detected");
+      break;
+    }
+    cctrl = creature_control_get_from_thing(thing);
+    i = cctrl->thing_idx;
+    // Per creature code
+    n = filter(thing, param, maximizer);
+    if (n >= maximizer)
+    {
+        retng = thing;
+        maximizer = n;
+        if (maximizer == LONG_MAX)
+            break;
+    }
+    // Per creature code ends
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  return retng;
+}
+
+/**
+ * Returns filtered creature from the players creature list starting at random index from thing_idx.
+ * The creature which will return highest nonnegative value from given filter function
+ * will be returned.
+ * If the filter function will return LONG_MAX, the current creature will be returned
+ * immediately and no further things will be checked.
+ * Unlike get_player_list_creature_with_filter(), this function doesn't start checking at thing_idx,
+ * but at random index in the list starting at thing_idx. When list end is reached, the function
+ * starts checking things of index lower than randomly selected starting index, so all things in list
+ * are checked.
+ * @return Returns thing, or invalid thing pointer if not found.
+ * @see get_player_list_creature_with_filter()
+ */
+struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param)
+{
+  struct CreatureControl *cctrl;
+  struct Thing *thing;
+  struct Thing *retng;
+  long maximizer;
+  long total_count,crtr_idx;
+  unsigned long k;
+  long i,n;
+  SYNCDBG(9,"Starting");
+  // Count all creatures in list, so that we can know range for our random index
+  total_count = count_player_list_creatures_of_model(thing_idx, -1);
+  retng = INVALID_THING;
+  maximizer = 0;
+  if (total_count < 1)
+      return retng;
+  k = 0;
+  // Get random index of a thing in list
+  thing = get_player_list_nth_creature_of_model(thing_idx, -1, ACTION_RANDOM(total_count));
+  i = thing->index;
+  while (k < total_count)
+  {
+    if (i == 0)
+        i = thing_idx;
     thing = thing_get(i);
     if (thing_is_invalid(thing))
     {
