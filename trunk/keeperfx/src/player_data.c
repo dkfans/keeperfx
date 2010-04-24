@@ -85,7 +85,7 @@ TbBool players_are_enemies(long plyr1_idx, long plyr2_idx)
     return ((player1->allied_players & (1<<plyr2_idx)) == 0);
 }
 
-TbBool player_allied_with(struct PlayerInfo *player, long ally_idx)
+TbBool player_allied_with(const struct PlayerInfo *player, long ally_idx)
 {
     if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))
     {

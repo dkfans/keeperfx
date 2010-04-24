@@ -741,7 +741,7 @@ struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_
   struct Thing *thing;
   struct Thing *retng;
   long maximizer;
-  long total_count,crtr_idx;
+  long total_count;
   unsigned long k;
   long i,n;
   SYNCDBG(9,"Starting");

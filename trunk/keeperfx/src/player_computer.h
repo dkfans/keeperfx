@@ -270,6 +270,7 @@ long set_next_process(struct Computer2 *comp);
 void computer_check_events(struct Computer2 *comp);
 TbBool process_checks(struct Computer2 *comp);
 long get_computer_money_less_cost(struct Computer2 *comp);
+struct Room *get_room_to_place_creature(const struct Computer2 *comp, const struct Thing *thing);
 /******************************************************************************/
 struct ComputerTask *get_computer_task(long idx);
 struct ComputerTask *get_task_in_progress(struct Computer2 *comp, long a2);

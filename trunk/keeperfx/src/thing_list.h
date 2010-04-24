@@ -62,8 +62,14 @@ struct CompoundFilterParam {
      long plyr_idx;
      long class_id;
      long model_id;
+     union {
      long num1;
+     void *ptr1;
+     };
+     union {
      long num2;
+     void *ptr2;
+     };
 };
 
 struct StructureList {

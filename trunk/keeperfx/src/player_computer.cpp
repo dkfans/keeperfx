@@ -244,7 +244,7 @@ long computer_completed_task(struct Computer2 *comp, struct ComputerProcess *pro
 long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *process);
 long computer_completed_build_a_room(struct Computer2 *comp, struct ComputerProcess *process);
 
-/*TODO!
+/*TODOenable ComputerProcess structs when there are no references to those in DLL
 struct ComputerProcess BuildAllRooms3x3 = {
   "BUILD ALL ROOM 3x3", 0, 3, 3, 0, -1, computer_check_build_all_rooms,
   computer_setup_any_room_continue, computer_process_task,
