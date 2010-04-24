@@ -1233,7 +1233,7 @@ void open_new_packet_file_for_save(void)
     if (player_exists(player))
     {
       game.packet_save_head.field_C |= (1 << i) & 0xff;
-      if (player->field_0 & 0x40)
+      if ((player->field_0 & 0x40) != 0)
         game.packet_save_head.field_D |= (1 << i) & 0xff;
     }
   }
@@ -1545,7 +1545,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
       if ((!winning_quit) || (plyr_count <= 1))
         LbNetwork_Stop();
       else
-        myplyr->field_3 |= 0x10u;
+        myplyr->field_3 |= 0x10;
     } else
     {
       if (!winning_quit)
@@ -1587,11 +1587,11 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
       }
     } else
     {
-      player->field_0 &= 0xFEu;
+      player->field_0 &= 0xFE;
     }
     return;
   }
-  player->field_0 &= 0xFEu;
+  player->field_0 &= 0xFE;
   if (player == myplyr)
   {
     quit_game = 1;
@@ -1660,7 +1660,7 @@ TbBool process_players_global_packet_action(long plyr_idx)
           resign_level(player);
           break;
       }
-      player->field_0 &= 0xFEu;
+      player->field_0 &= 0xFE;
       if (is_my_player(player))
       {
         frontend_save_continue_game(false);

@@ -38,7 +38,7 @@ const char export_section_name[]=".edata";
 // Text added at end of export section; just for fun
 const char export_end_str[] ="Blessed are those who have not seen and yet believe";
 
-/* TODO:
+/* TODO PeReSec
    - Make a code to export relocation table into file
 */
 

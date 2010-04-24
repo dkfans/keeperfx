@@ -150,7 +150,7 @@ TbBool player_invalid(struct PlayerInfo *player);
 TbBool player_exists(struct PlayerInfo *player);
 TbBool is_my_player(struct PlayerInfo *player);
 TbBool is_my_player_number(PlayerNumber plyr_num);
-TbBool player_allied_with(struct PlayerInfo *player, long ally_idx);
+TbBool player_allied_with(const struct PlayerInfo *player, long ally_idx);
 TbBool players_are_enemies(long plyr1_idx, long plyr2_idx);
 
 void clear_players(void);

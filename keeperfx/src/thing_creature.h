@@ -117,6 +117,7 @@ long add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2)
 void set_first_creature(struct Thing *thing);
 void remove_first_creature(struct Thing *thing);
 long remove_all_traces_of_combat(struct Thing *thing);
+long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *thing, MaxFilterParam param, long maximizer);
 
 void anger_set_creature_anger_all_types(struct Thing *thing, long a2);
 void change_creature_owner(struct Thing *thing, long nowner);

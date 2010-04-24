@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "config_creature.h"
 #include "thing_objects.h"
 #include "thing_navigate.h"
 #include "keeperfx.hpp"
@@ -220,8 +221,10 @@ long get_room_slabs_count(long plyr_idx, unsigned short rkind)
       ERRORLOG("Jump to invalid room detected");
       break;
     }
-    i = room->field_6;
+    i = room->next_of_owner;
+    // Per-room code
     count += room->field_3B;
+    // Per-room code ends
     k++;
     if (k > ROOMS_COUNT)
     {
@@ -253,7 +256,7 @@ long get_player_rooms_count(long plyr_idx, unsigned short rkind)
       ERRORLOG("Jump to invalid room detected");
       break;
     }
-    i = room->field_6;
+    i = room->next_of_owner;
     k++;
     if (k > ROOMS_COUNT)
     {
@@ -366,13 +369,13 @@ void delete_room_structure(struct Room *room)
         wptr = &dungeon->room_kind[room->kind];
         if (room->index == *wptr)
         {
-          *wptr = room->field_6;
-          game.rooms[room->field_6].field_4 = 0;
+          *wptr = room->next_of_owner;
+          game.rooms[room->next_of_owner].prev_of_owner = 0;
         }
         else
         {
-          game.rooms[room->field_6].field_4 = room->field_4;
-          game.rooms[room->field_4].field_6 = room->field_6;
+          game.rooms[room->next_of_owner].prev_of_owner = room->prev_of_owner;
+          game.rooms[room->prev_of_owner].next_of_owner = room->next_of_owner;
         }
     }
     memset(room, 0, sizeof(struct Room));
@@ -450,8 +453,8 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
         // may be uninitialized yet when this is called.
         dungeon = get_dungeon(owner);
         i = dungeon->room_kind[room->kind%ROOM_TYPES_COUNT];
-        room->field_6 = i;
-        game.rooms[i].field_4 = room->index;
+        room->next_of_owner = i;
+        game.rooms[i].prev_of_owner = room->index;
         dungeon->room_kind[room->kind%ROOM_TYPES_COUNT] = room->index;
         dungeon->room_slabs_count[room->kind%ROOM_TYPES_COUNT]++;
     }
@@ -579,7 +582,7 @@ void reinitialise_treaure_rooms(void)
         ERRORLOG("Jump to invalid room detected");
         break;
       }
-      i = room->field_6;
+      i = room->next_of_owner;
       set_room_capacity(room, 1);
       k++;
       if (k > ROOMS_COUNT)
@@ -633,7 +636,7 @@ struct Room *find_room_with_spare_capacity_starting_with(long room_idx, long spa
             ERRORLOG("Jump to invalid room detected");
             break;
         }
-        i = room->field_6;
+        i = room->next_of_owner;
         // Per-room code
         if (room->field_10 + spare <= room->total_capacity)
         {
@@ -671,7 +674,7 @@ struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long
             ERRORLOG("Jump to invalid room detected");
             break;
         }
-        i = room->field_6;
+        i = room->next_of_owner;
         // Per-room code
         if (room->total_capacity > room->field_10)
         {
@@ -725,7 +728,7 @@ struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing
             ERRORLOG("Jump to invalid room detected");
             break;
         }
-        i = room->field_6;
+        i = room->next_of_owner;
         // Per-room code
         // Compute simplified distance - without use of mul or div
         distance = abs(thing->mappos.x.stl.num - room->stl_x)
@@ -782,7 +785,7 @@ long count_rooms_creature_can_navigate_to(struct Thing *thing, unsigned char own
             ERRORLOG("Jump to invalid room detected");
             break;
         }
-        i = room->field_6;
+        i = room->next_of_owner;
         // Per-room code
         pos.x.val = get_subtile_center_pos(room->stl_x);
         pos.y.val = get_subtile_center_pos(room->stl_y);
@@ -835,7 +838,7 @@ struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsi
             ERRORLOG("Jump to invalid room detected");
             break;
         }
-        i = room->field_6;
+        i = room->next_of_owner;
         // Per-room code
         pos.x.val = get_subtile_center_pos(room->stl_x);
         pos.y.val = get_subtile_center_pos(room->stl_y);
@@ -859,6 +862,64 @@ struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsi
         }
     }
     return NULL;
+}
+
+//TODO try to make sure the creature will do proper activity in the room.
+//TODO try to select lair far away from CTA and enemies
+struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, long rkind)
+{
+  struct Room *room;
+  struct Room *retroom;
+  struct CreatureControl *cctrl;
+  struct CreatureStats *crstat;
+  long retdist,dist,pay;
+  unsigned long k;
+  long i;
+  retdist = LONG_MAX;
+  retroom = NULL;
+  i = dungeon->room_kind[rkind];
+  k = 0;
+  while (i != 0)
+  {
+    room = room_get(i);
+    if (room_is_invalid(room))
+    {
+      ERRORLOG("Jump to invalid room detected");
+      break;
+    }
+    i = room->next_of_owner;
+    // Per-room code
+    if (room->kind == RoK_TREASURE)
+    {
+        cctrl = creature_control_get_from_thing(thing);
+        crstat = creature_stats_get_from_thing(thing);
+        dungeon = get_dungeon(thing->owner);
+        if (dungeon->field_1420[thing->model] )
+        {
+          pay = compute_creature_max_pay(crstat->pay,cctrl->explevel) / 2;
+        } else
+        {
+          pay = compute_creature_max_pay(crstat->pay,cctrl->explevel);
+        }
+        if (room->long_17 > pay)
+          continue;
+    }
+    dist =  abs(thing->mappos.y.stl.num - room->stl_y);
+    dist += abs(thing->mappos.x.stl.num - room->stl_x);
+    if (retdist > dist)
+    {
+      retdist = dist;
+      retroom = room;
+    }
+    // Per-room code ends
+    k++;
+    if (k > ROOMS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping rooms list");
+      break;
+    }
+  }
+  return retroom;
 }
 
 long create_workshop_object_in_workshop_room(long a1, long a2, long a3)

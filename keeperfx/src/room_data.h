@@ -69,8 +69,8 @@ struct Room {
     unsigned char field_0;
     unsigned short index; // index in the rooms array
     unsigned char owner;
-    short field_4;
-    unsigned short field_6;
+    short prev_of_owner;
+    short next_of_owner;
     unsigned char stl_x;
     unsigned char stl_y;
     unsigned short kind;
@@ -156,6 +156,7 @@ struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, un
 struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned short x, unsigned short y);
 short room_grow_food(struct Room *room);
 long create_workshop_object_in_workshop_room(long a1, long a2, long a3);
+struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, long rkind);
 
 /******************************************************************************/
 #ifdef __cplusplus
