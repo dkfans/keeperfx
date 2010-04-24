@@ -831,6 +831,91 @@ long get_creature_gui_job(const struct Thing *thing)
     }
 }
 
+TbBool creature_is_doing_lair_activity(const struct Thing *thing)
+{
+    long i;
+    i = thing->field_7;
+    if (i == CrSt_CreatureSleep)
+        return true;
+    if (i == CrSt_MoveToPosition)
+        i = thing->field_8;
+    if ((i == CrSt_CreatureGoingHomeToSleep) || (i == CrSt_AtLairToSleep)
+      || (i == CrSt_CreatureChooseRoomForLairSite) || (i == CrSt_CreatureAtNewLair) || (i == CrSt_CreatureWantsAHome)
+      || (i == CrSt_CreatureChangeLair) || (i == CrSt_CreatureAtChangedLair))
+        return true;
+    return false;
+}
+
+TbBool creature_is_being_dropped(const struct Thing *thing)
+{
+    long i;
+    i = thing->field_7;
+    if (i == CrSt_MoveToPosition)
+        i = thing->field_8;
+    if (i == CrSt_CreatureBeingDropped)
+        return true;
+    return false;
+}
+
+TbBool creature_is_doing_dungeon_improvements(const struct Thing *thing)
+{
+    long i;
+    i = thing->field_7;
+    if (i == CrSt_MoveToPosition)
+        i = thing->field_8;
+    if (states[i].state_type == CrSt_ImpImprovesDungeon)
+        return true;
+    return false;
+}
+
+TbBool creature_is_doing_garden_activity(const struct Thing *thing)
+{
+    long i;
+    i = thing->field_7;
+    if (i == CrSt_CreatureEat)
+        return true;
+    if (i == CrSt_MoveToPosition)
+        i = thing->field_8;
+    if ((i == CrSt_CreatureToGarden) || (i == CrSt_CreatureArrivedAtGarden))
+        return true;
+    return false;
+}
+
+TbBool creature_is_taking_salary_activity(const struct Thing *thing)
+{
+    long i;
+    i = thing->field_7;
+    if (i == CrSt_CreatureWantsSalary)
+        return true;
+    if (i == CrSt_MoveToPosition)
+        i = thing->field_8;
+    if (i == CrSt_CreatureTakeSalary)
+        return true;
+    return false;
+}
+
+TbBool creature_is_doing_temple_activity(const struct Thing *thing)
+{
+    long i;
+    i = thing->field_7;
+    if (i == CrSt_MoveToPosition)
+        i = thing->field_8;
+    if ((i == CrSt_AtTemple) || (i == CrSt_PrayingInTemple))
+        return true;
+    return false;
+}
+
+TbBool creature_state_is_unset(const struct Thing *thing)
+{
+    long i;
+    i = thing->field_7;
+    if (i == CrSt_MoveToPosition)
+        i = thing->field_8;
+    if (states[i].state_type == 0)
+        return true;
+    return false;
+}
+
 short already_at_call_to_arms(struct Thing *thing)
 {
   return _DK_already_at_call_to_arms(thing);
@@ -1002,7 +1087,7 @@ void anger_set_creature_anger(struct Thing *thing, long annoy_lv, long reason)
   _DK_anger_set_creature_anger(thing, annoy_lv, reason);
 }
 
-TbBool anger_is_creature_livid(struct Thing *thing)
+TbBool anger_is_creature_livid(const struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
@@ -1011,7 +1096,7 @@ TbBool anger_is_creature_livid(struct Thing *thing)
     return ((cctrl->field_66 & 0x02) != 0);
 }
 
-TbBool anger_is_creature_angry(struct Thing *thing)
+TbBool anger_is_creature_angry(const struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
@@ -3915,7 +4000,7 @@ short scavengering(struct Thing *thing)
   return _DK_scavengering(thing);
 }
 
-TbBool creature_will_attack_creature(struct Thing *tng1, struct Thing *tng2)
+TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2)
 {
     struct CreatureControl *cctrl1;
     struct CreatureControl *cctrl2;

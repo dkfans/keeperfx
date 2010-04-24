@@ -2138,6 +2138,118 @@ struct Thing *pick_up_creature_of_breed_and_gui_job(long breed, long job_idx, lo
     }
     return thing;
 }
+
+long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *thing, MaxFilterParam param, long maximizer)
+{
+    struct Room *room;
+    struct Computer2 *comp;
+    struct Dungeon *dungeon;
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    long i,k;
+    SYNCDBG(19,"Starting");
+    comp = (struct Computer2 *)(param->ptr1);
+    dungeon = comp->dungeon;
+    if (!can_thing_be_picked_up_by_player(thing, dungeon->field_E9F))
+        return -1;
+    if (creature_is_being_dropped(thing))
+        return -1;
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+
+    // If the creature is too angry to help it, then let it go
+    if (dungeon->room_kind[RoK_ENTRANCE] > 0)
+    {
+        if (creature_is_doing_dungeon_improvements(thing) || anger_is_creature_livid(thing))
+        {
+          param->num2 = RoK_ENTRANCE;
+          return LONG_MAX;
+        }
+    }
+
+    // If it's angry but not furious, then should be placed in temple
+    if ( anger_is_creature_angry(thing) )
+    {
+        // If already at temple, then don't do anything
+        if (creature_is_doing_temple_activity(thing))
+           return -1;
+        if (dungeon->room_kind[RoK_TEMPLE] > 0)
+        {
+            param->num2 = RoK_TEMPLE;
+            return LONG_MAX;
+        }
+    }
+
+    // If the creature require healing, then drop it to lair
+    i = compute_creature_max_health(crstat->health,cctrl->explevel);
+    k = compute_value_8bpercentage(i,crstat->heal_threshold);
+    if (cctrl->field_3)
+    {
+        if (thing->health >= k)
+            return -1;
+        // If already at lair, then don't do anything
+        if (creature_is_doing_lair_activity(thing))
+            return -1;
+        if (dungeon->room_kind[RoK_LAIR] > 0)
+        {
+            param->num2 = RoK_LAIR;
+            return LONG_MAX;
+        }
+        return -1;
+    } else
+    if (thing->health < k)
+    {
+        // If already at lair, then don't do anything
+        if (creature_is_doing_lair_activity(thing))
+            return -1;
+        // don't force it to lair if it wants to eat or take salary
+        if (creature_is_doing_garden_activity(thing) || creature_is_taking_salary_activity(thing))
+            return -1;
+        if (dungeon->room_kind[RoK_LAIR] > 0)
+        {
+            param->num2 = RoK_LAIR;
+            return LONG_MAX;
+        }
+    }
+
+    // If creature is hungry, place it at garden
+    if ((crstat->hunger_rate != 0) && (cctrl->field_39 > crstat->hunger_rate))
+    {
+        // If already at garden, then don't do anything
+        if (creature_is_doing_garden_activity(thing))
+            return -1;
+        if (dungeon->room_kind[RoK_GARDEN] > 0)
+        {
+            param->num2 = RoK_GARDEN;
+            return LONG_MAX;
+        }
+    }
+
+    // If creature wants salary, let it go get the gold
+    if ( cctrl->field_3D[11] )
+    {
+        // If already taking salary, then don't do anything
+        if (creature_is_taking_salary_activity(thing))
+            return -1;
+        if (dungeon->room_kind[RoK_TREASURE] > 0)
+        {
+            param->num2 = RoK_TREASURE;
+            return LONG_MAX;
+        }
+    }
+
+    // Get other rooms the creature may work in
+    if (creature_state_is_unset(thing))
+    {
+        room = get_room_to_place_creature(comp, thing);
+        if (!room_is_invalid(room))
+        {
+            param->num2 = room->kind;
+            return LONG_MAX;
+        }
+    }
+    return -1;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

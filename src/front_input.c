@@ -472,7 +472,7 @@ TbBool get_level_lost_inputs(void)
   long keycode;
   SYNCDBG(6,"Starting");
   player = get_my_player();
-  if (player->field_0 & 0x04)
+  if ((player->field_0 & 0x04) != 0)
   {
     get_players_message_inputs();
     return true;

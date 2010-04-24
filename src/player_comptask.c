@@ -203,7 +203,7 @@ long fake_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing,
     return _DK_fake_place_thing_in_power_hand(comp, thing, pos);
 }
 
-TbBool worker_needed_in_dungeons_room_kind(struct Dungeon *dungeon, long rkind)
+TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, long rkind)
 {
     long i;
     switch (rkind)
@@ -255,23 +255,23 @@ long get_job_for_room(long rkind)
     }
 }
 
-TbBool person_will_do_job_for_room(struct Thing *thing, struct Room *room)
+TbBool person_will_do_job_for_room(const struct Thing *thing, const struct Room *room)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
     return (get_job_for_room(room->kind) & crstat->jobs_not_do) == 0;
 }
 
-TbBool person_will_do_job_for_room_kind(struct Thing *thing, long rkind)
+TbBool person_will_do_job_for_room_kind(const struct Thing *thing, long rkind)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
     return (get_job_for_room(rkind) & crstat->jobs_not_do) == 0;
 }
 
-struct Room *get_room_to_place_creature(struct Computer2 *comp, struct Thing *thing)
+struct Room *get_room_to_place_creature(const struct Computer2 *comp, const struct Thing *thing)
 {
-  struct Dungeon *dungeon;
+  const struct Dungeon *dungeon;
   long chosen_priority;
   struct Room *chosen_room;
   struct Room *room;
@@ -306,16 +306,29 @@ struct Room *get_room_to_place_creature(struct Computer2 *comp, struct Thing *th
 
 struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct Room **roomp)
 {
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
     struct Dungeon *dungeon;
+    struct Thing *thing;
+    struct Room *room;
     SYNCDBG(9,"Starting");
     dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon))
     {
         ERRORLOG("Invalid dungeon in computer player.");
-        return NULL;
+        return INVALID_THING;
     }
-    //TODO rewrite - may cause hang (issue 7)
-    return _DK_find_creature_to_be_placed_in_room(comp, roomp);
+    //return _DK_find_creature_to_be_placed_in_room(comp, roomp);
+    param.ptr1 = (void *)comp;
+    filter = player_list_creature_filter_needs_to_be_placed_in_room;
+    thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
+    if (thing_is_invalid(thing))
+        return INVALID_THING;
+    room = get_room_of_given_kind_for_thing(thing,dungeon,param.num2);
+    if (room_is_invalid(room))
+        return INVALID_THING;
+    *roomp = room;
+    return thing;
 }
 
 long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
@@ -402,17 +415,21 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     thing = find_creature_to_be_placed_in_room(comp, &room);
     if (!thing_is_invalid(thing))
     {
-      ctask->word_80 = room->index;
-      pos.x.val = room->stl_x << 8;
-      pos.y.val = room->stl_y << 8;
-      pos.z.val = 256;
-      if ( fake_place_thing_in_power_hand(comp, thing, &pos) )
-        return 2;
+        //TODO try to make sure the creature will do proper activity in the room,
+        //     ie. select a room tile which is far from CTA and enemies
+        //TODO don't place creatures at center of a temple
+        //TODO make sure to place creatures at "active" portal tile
+        ctask->word_80 = room->index;
+        pos.x.val = room->stl_x << 8;
+        pos.y.val = room->stl_y << 8;
+        pos.z.val = 256;
+        if ( fake_place_thing_in_power_hand(comp, thing, &pos) )
+          return 2;
+        remove_task(comp, ctask);
+        return 0;
+      }
       remove_task(comp, ctask);
       return 0;
-    }
-    remove_task(comp, ctask);
-    return 0;
 }
 
 long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctask)

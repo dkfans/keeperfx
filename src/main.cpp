@@ -7610,7 +7610,7 @@ void init_keepers_map_exploration(void)
     player = get_player(i);
     if (player_exists(player) && (player->field_2C == 1))
     {
-        if (player->field_0 & 0x40)
+        if ((player->field_0 & 0x40) != 0)
           init_keeper_map_exploration(player);
     }
   }
@@ -8868,7 +8868,10 @@ void set_player_as_lost_level(struct PlayerInfo *player)
   struct Dungeon *dungeon;
   struct Thing *thing;
   if (player->victory_state != VicS_Undecided)
-    return;
+  {
+      WARNLOG("Victory state already set to %d",(int)player->victory_state);
+      return;
+  }
   if (is_my_player(player))
     frontstats_initialise();
   player->victory_state = VicS_LostLevel;
@@ -8900,7 +8903,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     player->field_4EB = game.play_gameturn + 300;
   if ((game.system_flags & GSF_NetworkActive) != 0)
     reveal_whole_map(player);
-  if (dungeon->computer_enabled & 0x01)
+  if ((dungeon->computer_enabled & 0x01) != 0)
     toggle_computer_player(player->id_number);
 }
 
@@ -9356,12 +9359,12 @@ void check_players_lost(void)
       {
           dungeon = get_players_dungeon(player);
           thing = thing_get(dungeon->dnheart_idx);
-          if (thing_is_invalid(thing))
-            continue;
-          if ((thing->field_7 == 3) && (player->victory_state == VicS_Undecided))
+          if ((thing_is_invalid(thing) || (thing->field_7 == 3)) && (player->victory_state == VicS_Undecided))
           {
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);
+            //TODO: make sure we really want to do this; it wasn't here in oroginal code, but it will prevent computer player activities on dead player.
+            player->field_2C = 0;
             if (is_my_player_number(i))
               LbPaletteSet(_DK_palette);
           }
@@ -12283,7 +12286,7 @@ void redraw_display(void)
   LbTextSetFont(winfont);
   lbDisplay.DrawFlags &= 0xFFBFu;
   LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-  if (player->field_0 & 0x04)
+  if ((player->field_0 & 0x04) != 0)
   {
       text = buf_sprintf( ">%s_", player->strfield_463);
       LbTextDraw(148/pixel_size, 8/pixel_size, text);
