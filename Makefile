@@ -27,7 +27,7 @@ CPP   = $(CROSS_COMPILE)g++
 CC    = $(CROSS_COMPILE)gcc
 WINDRES  = $(CROSS_COMPILE)windres
 DLLTOOL  = $(CROSS_COMPILE)dlltool
-EXETODLL = tools/peresec/peresec
+EXETODLL = tools/peresec/bin/peresec$(CROSS_EXEEXT)
 RM       = rm -f
 MV       = mv -f
 CP       = cp -f
@@ -165,10 +165,13 @@ CAMPAIGN_CFGS = $(patsubst %,pkg/campgns/%.cfg,$(CAMPAIGNS))
 include version.mk
 VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(VER_BUILD)
 
+# load depenency packages
+include prebuilds.mk
+
 # mark icons as precious, because even though we can re-create them, it requires having "png2ico" tool
 .PRECIOUS: res/%.ico
 # name virtual targets
-.PHONY: all standard std-before std-after debug hvlog-before hvlog-after docs docsdox clean clean-build clean-tools clean-package package pkg-before pkg-copydat pkg-campaigns tools
+.PHONY: all standard std-before std-after heavylog hvlog-before hvlog-after docs docsdox clean clean-build clean-tools clean-package deep-clean deep-clean-tools package pkg-before pkg-copydat pkg-campaigns tools
 
 all: standard
 
@@ -186,6 +189,8 @@ std-before:
 hvlog-before:
 	$(MKDIR) obj/hvlog bin
 
+deep-clean: deep-clean-tools
+
 clean: clean-build clean-tools clean-package
 
 clean-build:
@@ -197,9 +202,6 @@ clean-build:
 	-$(RM) $(LIBS) $(GENSRC)
 	-$(RM) obj/keeperfx.*
 	-$(RM) directx/lib/lib*.a
-
-clean-tools:
-	make -C tools/peresec clean
 
 clean-package:
 	-$(RM) -R pkg/campgns
@@ -259,17 +261,13 @@ obj/libkeeperfx.a: bin/keeperfx.dll obj/keeperfx.def
 	-$(ECHO) 'Finished generating: $@'
 	-$(ECHO) ' '
 
-bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map tools/peresec/peresec
-	$(CP) lib/keeper95_gold.dll obj/keeperfx.dll
-	$(CP) lib/keeper95_gold.map obj/keeperfx.map
-	cd obj; \
-	../$(EXETODLL) keeperfx "_DK_"
-	$(MV) obj/keeperfx.dll bin/keeperfx.dll
+bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $(EXETODLL)
+	-$(ECHO) 'Rebuilding DLL export table from: $<'
+	$(EXETODLL) -o"$@" --def "obj/keeperfx.def" -p"_DK_" "$<"
+	-$(ECHO) 'Finished creating: $@'
+	-$(ECHO) ' '
 
-tools: tools/peresec/peresec
-
-tools/peresec/peresec: tools/peresec/peresec.c
-	make -C tools/peresec
+include tools.mk
 
 directx/lib/lib%.a: directx/lib/%.def
 	make -C "$(@D)" "$(@F)" CC=$(CC) DLLTOOL=$(DLLTOOL) CFLAGS="-I\"../include\" -Wall"
