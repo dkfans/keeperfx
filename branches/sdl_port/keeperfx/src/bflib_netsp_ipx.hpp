@@ -40,9 +40,10 @@ public:
   virtual TbError Release(void);
   virtual TbError ChangeSettings(unsigned long, void *);
   virtual TbError EnableNewPlayers(TbBool allow);
-  virtual unsigned long ReadMessage(unsigned long *, void *, unsigned long *);
-  virtual unsigned long PeekMessage(unsigned long *, void *, unsigned long *);
+  virtual bool ReadMessage(unsigned long *, void *, unsigned long *);
+  virtual bool PeekMessage(unsigned long *, void *, unsigned long *);
   virtual TbError SendMessage(unsigned long, void *, unsigned char);
+  virtual void tick();
 };
 
 /******************************************************************************/

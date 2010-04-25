@@ -405,8 +405,10 @@ TbError LbNetwork_Stop(void)
 
 TbError LbNetwork_Exchange(void *buf)
 {
-  NETLOG("Starting");
+  SYNCDBG(7, "Starting");
   //return _DK_LbNetwork_Exchange(buf);
+  spPtr->tick();
+
   if (LbNetwork_StartExchange(buf) != Lb_OK)
   {
     WARNLOG("Failure when Starting Exchange");

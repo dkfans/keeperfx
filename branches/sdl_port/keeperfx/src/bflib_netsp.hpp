@@ -59,15 +59,29 @@ struct ReceiveCallbacks {
   void *(*field_24)(unsigned long, void *);
 };
 
+enum NetMsgType
+{
+	NETMSGTYPE_MULTIPLAYER		= 0,
+	NETMSGTYPE_ADD				= 1,
+	NETMSGTYPE_DELETE			= 2,
+	NETMSGTYPE_PROBABLYHOST		= 3, //might be incorrect
+	NETMSGTYPE_SYSUSER			= 4,
+	NETMSGTYPE_MPREQEXDATA		= 5,
+	NETMSGTYPE_MPREQCOMPEXDATA	= 6,
+	NETMSGTYPE_UNIDIRECTIONAL	= 7,
+	NETMSGTYPE_UNKNOWN			= 8
+};
+
 class ServiceProvider {
 private:
 	unsigned long nextSessionId;
 protected:
 	//see if these can be moved to private later
+	bool started;
 	unsigned long players_count;
 	struct TbNetworkPlayerEntry players[NETSP_PLAYERS_COUNT];
 	unsigned long nextPlayerId;
-	unsigned long local_id; //local session ID
+	unsigned long localPlayerId; //local player ID
 
 	TbError Initialise(struct ReceiveCallbacks *nCallbacks, void *a2);
 
@@ -81,6 +95,30 @@ protected:
 	TbError AddPlayer(unsigned long plyr_id, const char *namestr, unsigned long a3, unsigned long a4);
 	TbError DeletePlayer(unsigned long plyr_id);
 	void ClearPlayers(void);
+
+	/**
+	 * Reads a message from some player.
+	 * @param playerId Holds the player that the message was sent from on return.
+	 * @param msgBuffer The buffer of the message. This must be at least the initial value of len bytes.
+	 * @param len The initial value specifies the maximum size of the message that may be received. It is
+	 * modified to contain the actual length of the message (including header).
+	 * @return True if a message was read (which implies there may be more to read).
+	 */
+	virtual bool ReadMessage(unsigned long * playerId, void * msgBuffer, unsigned long * len) = 0;
+
+	/**
+	 * Same as ReadMessage but does not remove the received message (if any), which means it can still be Read.
+	 */
+	virtual bool PeekMessage(unsigned long * playerId, void * msgBuffer, unsigned long * len) = 0;
+
+	/**
+	 * Sends a message to a specific player.
+	 * @param playerId The player that the message should be sent to.
+	 * @param msgBuffer The buffer of the message.
+	 * @param Not sure... Anyway, it can be deduced from message type.
+	 * @return Whether operation was a success or a failure.
+	 */
+	virtual TbError SendMessage(unsigned long playerId, void * msgBuffer, unsigned char) = 0;
 public:
   ServiceProvider();
   virtual ~ServiceProvider();
@@ -102,6 +140,7 @@ public:
   TbError LookForSystemMessages(void);
   TbError BroadcastSystemMessage(void *enc_msg);
   TbError EnumeratePlayersForSessionRunning(TbNetworkCallbackFunc callback, void *);
+  virtual TbError EnableNewPlayers(TbBool allow);
   virtual TbError Start(struct TbNetworkSessionNameEntry *, char *, void *) = 0;
   virtual TbError Start(char *, char *, unsigned long, void *) = 0;
   virtual TbError Stop(void) = 0;
@@ -110,17 +149,13 @@ public:
   virtual TbError Init(struct _GUID, struct _GUID *, struct ReceiveCallbacks *, void *) = 0;
   virtual TbError Release(void);
   virtual TbError ChangeSettings(unsigned long, void *) = 0;
-  virtual TbError EnableNewPlayers(TbBool allow);
-  virtual unsigned long ReadMessage(unsigned long *, void *, unsigned long *) = 0;
-  virtual unsigned long PeekMessage(unsigned long *, void *, unsigned long *) = 0;
-  virtual TbError SendMessage(unsigned long, void *, unsigned char) = 0;
+  virtual void tick() = 0; //in case SP needs execution time once per frame
 
   struct TbNetworkSessionNameEntry nsnames[SESSION_ENTRIES_COUNT];
   unsigned long field_7A4;
   unsigned long field_7A8;
   char field_D50[32];
   struct ReceiveCallbacks *recvCallbacks;
-  unsigned long field_D74;
   void *field_D78;
 };
 

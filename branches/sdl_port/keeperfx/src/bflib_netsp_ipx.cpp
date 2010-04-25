@@ -89,13 +89,13 @@ TbError IPXServiceProvider::EnableNewPlayers(TbBool allow)
   return Lb_FAIL;
 }
 
-unsigned long IPXServiceProvider::ReadMessage(unsigned long *, void *, unsigned long *)
+bool IPXServiceProvider::ReadMessage(unsigned long *, void *, unsigned long *)
 {
   //TODO NET
   return Lb_FAIL;
 }
 
-unsigned long IPXServiceProvider::PeekMessage(unsigned long *, void *, unsigned long *)
+bool IPXServiceProvider::PeekMessage(unsigned long *, void *, unsigned long *)
 {
   //TODO NET
   return Lb_FAIL;
@@ -105,6 +105,10 @@ TbError IPXServiceProvider::SendMessage(unsigned long, void *, unsigned char)
 {
   //TODO NET
   return Lb_FAIL;
+}
+
+void IPXServiceProvider::tick()
+{
 }
 
 /******************************************************************************/

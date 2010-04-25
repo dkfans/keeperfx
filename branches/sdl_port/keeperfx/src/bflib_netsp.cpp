@@ -113,14 +113,15 @@ void NilSystemUserMsgCallback(unsigned long a1, void *a2, unsigned long a3, void
 /******************************************************************************/
 // methods of virtual class ServiceProvider
 
-void ServiceProvider::EncodeMessageStub(void *enc_msg, unsigned long a2, unsigned char messageType, unsigned long a4)
+void ServiceProvider::EncodeMessageStub(void *enc_msg, unsigned long dataLen,
+		unsigned char messageType, unsigned long seqNbr)
 {
   if (enc_msg == NULL)
   {
     WARNLOG("NULL ptr");
     return;
   }
-  *(unsigned long *)enc_msg = (messageType << 24) | ((a4 & 0xF) << 20) | (a2 & 0xFFFFF);
+  *(unsigned long *)enc_msg = (messageType << 24) | ((seqNbr & 0xF) << 20) | (dataLen & 0xFFFFF);
 }
 
 void ServiceProvider::EncodeDeletePlayerMsg(unsigned char *buf, unsigned long val)
@@ -160,7 +161,8 @@ unsigned long ServiceProvider::DecodeRequestCompositeExchangeDataMsg(unsigned ch
   return 1;
 }
 
-void ServiceProvider::DecodeMessageStub(const void *msgHeader, unsigned long *dataLen, unsigned char *messageType, unsigned long *a4)
+void ServiceProvider::DecodeMessageStub(const void *msgHeader, unsigned long *dataLen,
+		unsigned char *messageType, unsigned long *seqNbr)
 {
   unsigned long k;
   if (msgHeader == NULL)
@@ -173,10 +175,10 @@ void ServiceProvider::DecodeMessageStub(const void *msgHeader, unsigned long *da
     k = *(unsigned long *)msgHeader;
     *dataLen = k & 0xFFFFF; //does not include length of header (which is 4 bytes)
   }
-  if (a4 != NULL)
+  if (seqNbr != NULL)
   {
     k = *(unsigned long *)msgHeader;
-    *a4 = ((k >> 20) & 0xF);
+    *seqNbr = ((k >> 20) & 0xF);
   }
   if (messageType != NULL)
   {
@@ -192,10 +194,10 @@ unsigned long ServiceProvider::GetRequestCompositeExchangeDataMsgSize(void)
 
 ServiceProvider::ServiceProvider() :
 		nextSessionId(1),
-		nextPlayerId(1)
+		nextPlayerId(2)
 {
   long i;
-  this->local_id = 0;
+  this->localPlayerId = 0;
   for (i=0; i < SESSION_ENTRIES_COUNT; i++)
   {
     nsnames[i].id = 0;
@@ -206,7 +208,7 @@ ServiceProvider::ServiceProvider() :
   this->field_7A8 = 0;
   this->players_count = 0;
   strcpy(this->field_D50,"");
-  this->field_D74 = 0;
+  this->started = 0;
   this->field_D78 = 0;
   this->recvCallbacks = &nilReceiveAspect;
 }
@@ -227,7 +229,7 @@ TbError ServiceProvider::Initialise(struct ReceiveCallbacks *nCallbacks, void *a
   if (nCallbacks != NULL)
     this->recvCallbacks = nCallbacks;
   this->field_7A8 = 0;
-  this->field_D74 = 0;
+  this->started = false;
   this->field_7A4++;
   return Lb_OK;
 }
@@ -239,13 +241,13 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
   void *imsg;
   char str[32];
   long i;
-  if (this->field_D74 < 1)
+  if (this->started < 1)
   {
     WARNLOG("not initialized");
     return Lb_FAIL;
   }
   DecodeMessageStub(buf,&p1,&messageType,&p2);
-  if (plr_id != this->local_id)
+  if (plr_id != this->localPlayerId)
   {
     i = (messageType != 0) && (messageType != 5) && (messageType != 6) && (messageType != 8);
     if (this->SendMessage(plr_id, buf, i) != Lb_OK)
@@ -257,18 +259,18 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
   }
   switch (messageType)
   {
-  case 0:
+  case NETMSGTYPE_MULTIPLAYER:
       if (recvCallbacks->multiPlayer == NULL)
       {
         WARNLOG("NIL target for userDataMsgCallbackProc");
         break;
       }
-      imsg = recvCallbacks->multiPlayer(this->local_id, p1+4, p2, this->field_D78);
+      imsg = recvCallbacks->multiPlayer(this->localPlayerId, p1+4, p2, this->field_D78);
       if (imsg == NULL)
         break;
       memcpy(imsg, buf, p1+4);
       break;
-  case 1:
+  case NETMSGTYPE_ADD:
       memcpy(&p3, (uchar *)buf+4, sizeof(unsigned long));
       strncpy(str,(char *)buf+8, 32);
       this->AddPlayer(p3, str, 0, 0);
@@ -278,7 +280,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       }
       recvCallbacks->addMsg(p3, str, this->field_D78);
       break;
-  case 2:
+  case NETMSGTYPE_DELETE:
       this->CheckForDeletedHost(buf);
       memcpy(&p1, (uchar *)buf+4, 4);
       this->DeletePlayer(p1);
@@ -288,17 +290,17 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       }
       recvCallbacks->deleteMsg(p1, this->field_D78);
       break;
-  case 3:
+  case NETMSGTYPE_PROBABLYHOST:
       break;
-  case 4:
+  case NETMSGTYPE_SYSUSER:
       if (recvCallbacks->systemUserMsg == NULL)
       {
         WARNLOG("NIL target for systemUserMsgCallbackProc");
         break;
       }
-      recvCallbacks->systemUserMsg(this->local_id, (char *)buf+4, p1, this->field_D78);
+      recvCallbacks->systemUserMsg(this->localPlayerId, (char *)buf+4, p1, this->field_D78);
       break;
-  case 5:
+  case NETMSGTYPE_MPREQEXDATA:
       memcpy(&p3, (uchar *)buf+4, sizeof(unsigned long));
       if (recvCallbacks->mpReqExDataMsg == NULL)
       {
@@ -306,7 +308,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       }
       recvCallbacks->mpReqExDataMsg(p3, p2, this->field_D78);
       break;
-  case 6:
+  case NETMSGTYPE_MPREQCOMPEXDATA:
       memcpy(&p3, (uchar *)buf+4, sizeof(unsigned long));
       if (recvCallbacks->mpReqCompsExDataMsg == NULL)
       {
@@ -314,7 +316,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       }
       recvCallbacks->mpReqCompsExDataMsg(p3, p2, this->field_D78);
       break;
-  case 8:
+  case NETMSGTYPE_UNKNOWN:
       // This callback seems to never be used
       p3 = 0;
       if (recvCallbacks->field_24 == NULL)
@@ -332,16 +334,17 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
 
 TbError ServiceProvider::Receive(unsigned long flags)
 {
-  unsigned long p1, p2, p3;
+  unsigned long playerId;
   unsigned long decode_20bits,decode_4bits;
   unsigned char messageType;
   unsigned long id;
   TbBool keepExchanging;
-  char array1[1024];
+  char msgBuffer[1028];
+  ulong msgLen;
   char array2[32];
   char array3[32];
-  char * array1Ptr;
-  char * array2Ptr;
+  char * msgBufferPtr;
+  char * msgBufferPtr2;
   char * array3Ptr;
   void * somePtr;
   long tmpInt1, tmpInt2;
@@ -349,7 +352,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
 
   result = 0;
 
-  if (this->field_D74 < 1)
+  if (this->started < 1)
   {
     WARNLOG("not initialized");
     return Lb_FAIL;
@@ -357,8 +360,8 @@ TbError ServiceProvider::Receive(unsigned long flags)
   keepExchanging = true;
   while (keepExchanging)
   {
-    p3 = 1028;
-    if (PeekMessage(&p1, &p2, &p3))
+    msgLen = 1028;
+    if (!PeekMessage(&playerId, msgBuffer, &msgLen))
     {
       keepExchanging = false;
       break;
@@ -366,26 +369,26 @@ TbError ServiceProvider::Receive(unsigned long flags)
 
     somePtr = NULL;
 
-    DecodeMessageStub(&p2, &decode_20bits, &messageType, &decode_4bits);
+    DecodeMessageStub(msgBuffer, &decode_20bits, &messageType, &decode_4bits);
     if (flags & 0x08)
       flags = 0xFF;
 
     switch (messageType)
     {
-    case 0:
+    case NETMSGTYPE_MULTIPLAYER:
         if (flags & 1) {
         	somePtr = 0;
         	if (recvCallbacks->multiPlayer) {
-        		somePtr = recvCallbacks->multiPlayer(p1, decode_20bits + 4, decode_4bits, field_D78);
+        		somePtr = recvCallbacks->multiPlayer(playerId, decode_20bits + 4, decode_4bits, field_D78);
         	}
         	else {
         		NETMSG("NIL target for userDataMsgCallbackProc"); //rename
         	}
         	if (somePtr == NULL) {
-        		somePtr = &p2;
-        		p3 = 1028;
+        		somePtr = msgBuffer;
+        		msgLen = 1028;
         	}
-        	if (!(ReadMessage(&p1, somePtr, &p3))) {
+        	if (!(ReadMessage(&playerId, msgBuffer, &msgLen))) {
         		NETMSG("Inconsistency between reads");
 				result = 0xff;
         	}
@@ -393,51 +396,51 @@ TbError ServiceProvider::Receive(unsigned long flags)
 
         keepExchanging = false;
         break;
-    case 1:
+    case NETMSGTYPE_ADD:
         if (!(flags & 2)) {
         	keepExchanging = false;
         	break;
         }
 
-        p3 = 1028;
-        if (!ReadMessage(&p1, &p2, &p3)) {
+        msgLen = 1028;
+        if (!ReadMessage(&playerId, msgBuffer, &msgLen)) {
         	NETMSG("Inconsistency on receive");
         	break;
         }
 
-        memcpy(&tmpInt1, array1, sizeof(tmpInt1));
+        memcpy(&tmpInt1, msgBuffer, sizeof(tmpInt1));
         if (array2 != NULL) { //unnecessary?
-        	array1Ptr = array1 + 4;
-        	array2Ptr = array2;
+        	msgBufferPtr = msgBuffer + 4;
+        	msgBufferPtr2 = array2;
         	bool cond;
         	do {
-        		array2Ptr[0] = array1Ptr[0];
-        		if (!array1Ptr[0]) {
+        		msgBufferPtr2[0] = msgBufferPtr[0];
+        		if (!msgBufferPtr[0]) {
         			break;
         		}
 
-        		cond = array1Ptr[1];
-        		array1Ptr += 2;
-        		array2Ptr[1] = cond;
-        		array2Ptr += 2;
+        		cond = msgBufferPtr[1];
+        		msgBufferPtr += 2;
+        		msgBufferPtr2[1] = cond;
+        		msgBufferPtr2 += 2;
         	} while (cond);
         }
         AddPlayer(tmpInt1, array2, 0, 0);
 
-        memcpy(&tmpInt2, array1, sizeof(tmpInt2));
-        memcpy(&tmpInt1, array1 + 4, sizeof(tmpInt1));
+        memcpy(&tmpInt2, msgBuffer, sizeof(tmpInt2));
+        memcpy(&tmpInt1, msgBuffer + 4, sizeof(tmpInt1));
         if (array3 != NULL) { //unnecessary?
-        	array1Ptr = array1 + 4;
+        	msgBufferPtr = msgBuffer + 4;
         	array3Ptr = array3;
         	bool cond;
         	do {
-        		array3Ptr[0] = array1Ptr[0];
-				if (!array1Ptr[0]) {
+        		array3Ptr[0] = msgBufferPtr[0];
+				if (!msgBufferPtr[0]) {
 					break;
 				}
 
-				cond = array1Ptr[1];
-				array1Ptr += 2;
+				cond = msgBufferPtr[1];
+				msgBufferPtr += 2;
 				array3Ptr[1] = cond;
 				array3Ptr += 2;
         	} while (cond);
@@ -448,100 +451,96 @@ TbError ServiceProvider::Receive(unsigned long flags)
         }
 
         break;
-    case 2:
+    case NETMSGTYPE_DELETE:
         if (!(flags & 4)) {
         	keepExchanging = false;
         	break;
         }
 
-        p3 = 1028;
-        if (!ReadMessage(&p1, &p2, &p3)) {
+        msgLen = 1028;
+        if (!ReadMessage(&playerId, msgBuffer, &msgLen)) {
 			NETMSG("Inconsistency on receive");
 			break;
 		}
 
-        CheckForDeletedHost(&p2);
-        memcpy(&id, array1, id);
+        CheckForDeletedHost(msgBuffer);
+        memcpy(&id, msgBuffer, id);
         DeletePlayer(id);
-        memcpy(&tmpInt1, array1, sizeof(tmpInt1));
+        memcpy(&tmpInt1, msgBuffer, sizeof(tmpInt1));
         if (recvCallbacks->deleteMsg) {
         	recvCallbacks->deleteMsg(tmpInt1, field_D78);
         }
 
         break;
-    case 3:
+    case NETMSGTYPE_PROBABLYHOST:
         continue;
-    case 4:
+    case NETMSGTYPE_SYSUSER:
         if (!(flags & 0x80)) {
         	keepExchanging = false;
         	break;
         }
 
-        p3 = 1028;
-		if (!ReadMessage(&p1, &p2, &p3)) {
+        msgLen = 1028;
+		if (!ReadMessage(&playerId, msgBuffer, &msgLen)) {
 			NETMSG("Inconsistency on receive");
 			break;
 		}
 
-		if (&tmpInt1 != NULL) {
-			tmpInt1 = p2 & 0xFFFFF; //TODO: check everything regarding this, I was unable to comprehend the methods behind the compiler in this matter
-		}
-
 		if (recvCallbacks->systemUserMsg) {
-			recvCallbacks->systemUserMsg(p1, array1, tmpInt1, field_D78);
+			recvCallbacks->systemUserMsg(playerId, msgBuffer, (*(ulong*) msgBuffer) & 0xFFFFF, field_D78);
 		}
 
         break;
-    case 5:
+    case NETMSGTYPE_MPREQEXDATA:
         if (!(flags & 0x10)) {
         	keepExchanging = false;
         	break;
         }
 
-        p3 = 1028;
-        if (!ReadMessage(&p1, &p2, &p3)) {
+        msgLen = 1028;
+        if (!ReadMessage(&playerId, msgBuffer, &msgLen)) {
 			NETMSG("Inconsistency on receive");
 			break;
 		}
 
-        memcpy(&tmpInt1, array1, sizeof(tmpInt1));
+        memcpy(&tmpInt1, msgBuffer + 4, sizeof(tmpInt1));
         if (recvCallbacks->mpReqExDataMsg) {
         	recvCallbacks->mpReqExDataMsg(tmpInt1, decode_4bits, field_D78);
         }
 
         break;
-    case 6:
+    case NETMSGTYPE_MPREQCOMPEXDATA:
     	if (!(flags & 0x20)) {
     		keepExchanging = false;
     		break;
     	}
 
-    	if (!ReadMessage(&p1, &p2, &p3)) {
+    	if (!ReadMessage(&playerId, msgBuffer, &msgLen)) {
 			NETMSG("Inconsistency on receive");
 			break;
 		}
 
-    	memcpy(&tmpInt1, array1, sizeof(tmpInt1));
+    	memcpy(&tmpInt1, msgBuffer + 4, sizeof(tmpInt1));
     	if (recvCallbacks->mpReqCompsExDataMsg) {
     		recvCallbacks->mpReqCompsExDataMsg(tmpInt1, decode_4bits, field_D78);
     	}
 
         break;
-    case 7:
+    case NETMSGTYPE_UNIDIRECTIONAL:
         if (flags & 0x40) {
         	if (recvCallbacks->unidirectionalMsg) {
-        		somePtr = recvCallbacks->unidirectionalMsg(p1, decode_20bits + 4, field_D78);
+        		somePtr = recvCallbacks->unidirectionalMsg(playerId, decode_20bits + 4, field_D78);
         	}
         	else {
         		NETMSG("NIL target for unidirectionalMsgCallbackProc");
         	}
 
         	if (somePtr == NULL) {
-        		somePtr = &p2;
-        		p3 = 1028;
+        		somePtr = msgBuffer;
+        		msgLen = 1028;
         	}
 
-        	if (!ReadMessage(&p1, somePtr, &p3)) {
+        	if (!ReadMessage(&playerId, somePtr, &msgLen)) {
         		NETMSG("Inconsistency on receive");
         		break;
         	}
@@ -549,7 +548,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
 
         keepExchanging = false;
         break;
-    case 8:
+    case NETMSGTYPE_UNKNOWN:
         if (!(flags & 0x01)) {
         	break;
         }
@@ -558,10 +557,10 @@ TbError ServiceProvider::Receive(unsigned long flags)
         	break;
         }
 
-        p3 = decode_20bits + 4;
-        somePtr = LbMemoryAlloc(p3); //TODO: check that this is freed somewhere...
-        ReadMessage(&p1, somePtr, &p3);
-        recvCallbacks->field_24(p1, somePtr);
+        msgLen = decode_20bits + 4;
+        somePtr = LbMemoryAlloc(msgLen); //TODO: check that this is freed somewhere...
+        ReadMessage(&playerId, somePtr, &msgLen);
+        recvCallbacks->field_24(playerId, somePtr);
 
         break;
     default:
@@ -681,7 +680,7 @@ struct TbNetworkSessionNameEntry *ServiceProvider::AddSession(unsigned long sess
   for (i=0; i < SESSION_ENTRIES_COUNT; i++)
   {
     nsname = &this->nsnames[i];
-    if (!nsname->in_use && !(i == SESSION_ENTRIES_COUNT - 1 && local_id == 0)) //reserves last slot if no game is being hosted
+    if (!nsname->in_use && !(i == SESSION_ENTRIES_COUNT - 1 && localPlayerId == 0)) //reserves last slot if no game is being hosted
     {
       got = true;
       break;
@@ -879,7 +878,7 @@ TbError ServiceProvider::BroadcastSystemMessage(void *enc_msg)
   for (i=0; i < this->players_count; i++)
   {
     netplyr = &this->players[i];
-    if ((netplyr->id != this->local_id) && (netplyr->id != id))
+    if ((netplyr->id != this->localPlayerId) && (netplyr->id != id))
     {
       if (this->SendMessage(netplyr->id,inp,1) != Lb_OK)
       {

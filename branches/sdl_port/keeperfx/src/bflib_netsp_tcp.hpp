@@ -24,6 +24,7 @@
 #include <SDL_net.h>
 
 #include "bflib_netsp.hpp"
+#include "bflib_threadcond.hpp"
 
 
 class UDP_NetHost;
@@ -31,12 +32,40 @@ class UDP_NetListener;
 
 class TCPServiceProvider : public ServiceProvider {
 private:
-	TCPsocket sockets[NETSP_PLAYERS_COUNT];
+	TCPsocket mySocket;
+	struct
+	{
+		TCPsocket socket;
+		int playerId;
+	} remote[NETSP_PLAYERS_COUNT]; //could really be NETSP_PLAYERS_COUNT-1 but it doesn't matter
+	SDL_mutex * const remoteMutex;
 	int maxPlayers;
-	bool isHost;
+	bool runningServer;
+	bool joinable;
 
 	UDP_NetHost * host;
 	UDP_NetListener * listener;
+
+	//we must buffer messages because of PeekMessage
+	uchar * recvBuffer; //contains DK message (including DK header)
+	size_t recvBufferSize;
+	ulong recvPlayer;
+
+	SDLNet_SocketSet recvSocketSet;
+	SDL_Thread * recvThread;
+	ThreadCond recvCond;
+
+	static void serverReceiveThreadFunc(TCPServiceProvider * sp);
+	static void clientReceiveThreadFunc(TCPServiceProvider * sp);
+	void haltReceiveThread();
+
+	bool fetchMessage(ulong * playerId, void * msg, ulong * a3, bool peek);
+	void resetReceiveBuffer();
+
+	void addRemoteSocket(int index, TCPsocket);
+	TCPsocket getRemoteSocketByIndex(int index);
+	TCPsocket getRemoteSocketByPlayer(int playerId);
+	void removeRemoteSocket(TCPsocket sock);
 
 public:
 	TCPServiceProvider();
@@ -51,9 +80,10 @@ public:
 	virtual TbError Release(void);
 	virtual TbError ChangeSettings(unsigned long, void *);
 	virtual TbError EnableNewPlayers(TbBool allow);
-	virtual unsigned long ReadMessage(unsigned long * playerId, void * msg, unsigned long *);
-	virtual unsigned long PeekMessage(unsigned long *, void *, unsigned long *);
-	virtual TbError SendMessage(unsigned long playerId, void * buffer, unsigned char i);
+	virtual bool ReadMessage(unsigned long * playerId, void * msg, unsigned long *);
+	virtual bool PeekMessage(unsigned long *, void *, unsigned long *);
+	virtual TbError SendMessage(unsigned long playerId, void * msg, unsigned char i);
+	virtual void tick();
 };
 
 #endif //BFLIB_NETSP_TCP_HPP

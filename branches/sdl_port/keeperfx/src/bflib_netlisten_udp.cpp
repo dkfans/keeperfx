@@ -21,7 +21,7 @@
 /******************************************************************************/
 
 #include "bflib_netlisten_udp.hpp"
-#include "bflib_ipconfig.hpp"
+#include "bflib_netconfig.hpp"
 
 const int MAX_PACKET_SIZE = 400;
 
