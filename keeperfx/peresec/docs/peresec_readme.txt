@@ -80,6 +80,7 @@ Version: 1.0.9
  Switched compiler IDE to Eclipse for C++
  Created better makefile and directory structure
  Renamed and renewed version information file
+ The "is a dynamic library" characteristics flag is now set
 
 Version: 1.0.8
  Some of the messages are now shown only in verbose mode

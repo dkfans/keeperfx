@@ -23,8 +23,8 @@
 #define VER_MAJOR         1
 #define VER_MINOR         0
 #define VER_RELEASE       9
-#define VER_BUILD         21
-#define VER_STRING        "1.0.9.21"
+#define VER_BUILD         27
+#define VER_STRING        "1.0.9.27"
 /* Program name, copyrights and file names */
 #define PROGRAM_NAME      "PEReSec"
 #define PROGRAM_FULL_NAME "PE/DLL Rebuilder of Export Section"

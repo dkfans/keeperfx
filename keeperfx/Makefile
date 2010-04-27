@@ -181,7 +181,7 @@ $(BIN): $(OBJS) $(LIBS)
 	@echo 'Finished creating: $@'
 	@echo ' '
 
-$(EXETODLL):
+$(EXETODLL): ./peresec/src/peresec.c
 	$(MAKE) -C ./peresec
 
 ./obj/%.res: ./res/%.rc
