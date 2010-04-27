@@ -38,7 +38,7 @@ const char export_section_name[]=".edata";
 // Text added at end of export section; just for fun
 const char export_end_str[] ="Blessed are those who have not seen and yet believe";
 
-/* TODO PeReSec
+/* TODO PeRESec
    - Make a code to export relocation table into file
 */
 
@@ -52,6 +52,7 @@ const char export_end_str[] ="Blessed are those who have not seen and yet believ
 #define MZ_NEWHEADER_OFS        0x003C
 #define PE_SIZEOF_SIGNATURE     4
 #define PE_SIZEOF_FILE_HEADER   20
+#define PE_CHARACTERISTICS_OFS  18
 #define PE_NUM_SECTIONS_OFS     2
 #define PE_SIZEOF_OPTN_HEADER   96
 #define PE_OPTH_SECTION_ALIGNMENT    32
@@ -78,11 +79,11 @@ enum {
     ERR_NO_MEMORY   = -3, // malloc error
     ERR_FILE_READ   = -4, // fget/fread/fseek error
     ERR_FILE_WRITE  = -5, // fput/fwrite error
-    ERR_LIMIT_EXCEED= -6, // static limit exzceeded
+    ERR_LIMIT_EXCEED= -6, // static limit exceeded
 };
 
 struct section_entry {
-    unsigned long vaddr; // virtual addres
+    unsigned long vaddr; // virtual address
     unsigned long vsize;
     unsigned long raddr; // RAW address
     unsigned long rsize;
@@ -109,6 +110,35 @@ struct PEInfo {
 };
 
 int verbose = 0;
+
+/** A struct closing non-global command line parameters */
+struct ProgramOptions {
+    char *fname_inp;
+    char *fname_out;
+    char *fname_map;
+    char *fname_def;
+    char *module_name;
+    const char *funcname_prefix;
+};
+
+void clear_prog_options(struct ProgramOptions *opts)
+{
+    opts->fname_inp = NULL;
+    opts->fname_out = NULL;
+    opts->fname_map = NULL;
+    opts->fname_def = NULL;
+    opts->module_name = NULL;
+    opts->funcname_prefix = "";
+}
+
+void free_prog_options(struct ProgramOptions *opts)
+{
+    free(opts->fname_inp);
+    free(opts->fname_out);
+    free(opts->fname_map);
+    free(opts->fname_def);
+    free(opts->module_name);
+}
 
 void export_sort(struct export_entry **exp, long exp_size)
 {
@@ -336,6 +366,93 @@ char *file_name_strip_path(const char *fname_inp)
     return fname;
 }
 
+int load_command_line_options(struct ProgramOptions *opts, int argc, char *argv[])
+{
+    clear_prog_options(opts);
+    while (1)
+    {
+        static struct option long_options[] = {
+            {"verbose", no_argument,       0, 'v'},
+            {"output",  required_argument, 0, 'o'},
+            {"modname", required_argument, 0, 'n'},
+            {"map",     required_argument, 0, 'm'},
+            {"def",     required_argument, 0, 'f'},
+            {"prefix",  required_argument, 0, 'p'},
+            {NULL,      0,                 0,'\0'}
+        };
+        /* getopt_long stores the option index here. */
+        int c;
+        int option_index = 0;
+        c = getopt_long(argc, argv, "vo:m:f:n:p:", long_options, &option_index);
+        /* Detect the end of the options. */
+        if (c == -1)
+            break;
+        switch (c)
+        {
+        case 0:
+               /* If this option set a flag, do nothing else now. */
+               if (long_options[option_index].flag != 0)
+                 break;
+               printf ("option %s", long_options[option_index].name);
+               if (optarg)
+                 printf (" with arg %s", optarg);
+               printf ("\n");
+               break;
+        case 'v':
+            verbose = 1;
+            break;
+        case 'o':
+            opts->fname_out = strdup(optarg);
+            break;
+        case 'm':
+            opts->fname_map = strdup(optarg);
+            break;
+        case 'f':
+            opts->fname_def = strdup(optarg);
+            break;
+        case 'n':
+            opts->module_name = strdup(optarg);
+            break;
+        case 'p':
+            opts->funcname_prefix = optarg; // Note that it's not duplicated
+            break;
+        case '?':
+               // unrecognized option
+               // getopt_long already printed an error message
+        default:
+            return false;
+        }
+    }
+    // remaining command line arguments (not options)
+    if (optind < argc)
+    {
+        opts->fname_inp = strdup(argv[optind++]);
+    }
+    if ((optind < argc) || (opts->fname_inp == NULL))
+    {
+        printf("Incorrectly specified input file name.\n");
+        return false;
+    }
+    // fill names that were not set by arguments
+    if (opts->fname_out == NULL)
+    {
+        opts->fname_out = file_name_change_extension(opts->fname_inp,"dll");
+    }
+    if (opts->fname_map == NULL)
+    {
+        opts->fname_map = file_name_change_extension(opts->fname_inp,"map");
+    }
+    if (opts->fname_def == NULL)
+    {
+        opts->fname_def = file_name_change_extension(opts->fname_out,"def");
+    }
+    if (opts->module_name == NULL)
+    {
+        opts->module_name = file_name_strip_to_body(opts->fname_out);
+    }
+    return true;
+}
+
 short show_head(void)
 {
     printf("\nPE/DLL Rebuilder of Export Section (PeRESec) %s\n",VER_STRING);
@@ -512,7 +629,7 @@ short create_def(const char *fname_def, const char *fname_dll, struct PEInfo *pe
   return ERR_OK;
 }
 
-/** Aligns given size to multiplication of "file aligment" value. */
+/** Aligns given size to multiplication of "file alignment" value. */
 unsigned long align_file_section_size(unsigned char *buf, long filesize, unsigned long isize, struct PEInfo *pe)
 {
     unsigned char *data;
@@ -529,7 +646,7 @@ unsigned long align_file_section_size(unsigned char *buf, long filesize, unsigne
     return isize;
 }
 
-/** Aligns given size to multiplication of "section aligment" value. */
+/** Aligns given size to multiplication of "section alignment" value. */
 unsigned long align_virt_section_size(unsigned char *buf, long filesize, unsigned long isize, struct PEInfo *pe)
 {
     unsigned char *data;
@@ -546,6 +663,7 @@ unsigned long align_virt_section_size(unsigned char *buf, long filesize, unsigne
     return isize;
 }
 
+/** Sets specified data directory to the offset of given section. */
 short set_pe_data_directory_to_section(unsigned char *buf, long filesize, struct section_entry *sec, long ddir_idx, struct PEInfo *pe)
 {
     unsigned char *data;
@@ -577,6 +695,28 @@ short set_pe_data_directory_to_section(unsigned char *buf, long filesize, struct
     return ERR_OK;
 }
 
+/** Updates PE file characteristics flags.
+ * Requires read_sections_list() to be called before.
+ */
+short pe_file_characteristics_flag_set(unsigned char *buf, long filesize,
+        struct PEInfo *pe, unsigned long flag_up, unsigned long flag_down)
+{
+    unsigned char *data;
+    unsigned long i;
+    // Reading num. of sections
+    data = buf + pe->new_header_raddr+PE_SIZEOF_SIGNATURE+PE_CHARACTERISTICS_OFS;
+    if (pe->new_header_raddr+PE_SIZEOF_SIGNATURE+PE_SIZEOF_FILE_HEADER > filesize)
+    {
+      printf("The .DLL file has no valid 'new header'!\n");
+      return ERR_BAD_FILE;
+    }
+    i = read_int16_le_buf(data);
+    i |= flag_up;
+    i &= ~flag_down;
+    write_int16_le_buf(data,i);
+    return ERR_OK;
+}
+
 /** Reads list of sections from PE file buffer into PEInfo structure */
 short read_sections_list(unsigned char *buf, long filesize, struct PEInfo *pe)
 {
@@ -604,7 +744,7 @@ short read_sections_list(unsigned char *buf, long filesize, struct PEInfo *pe)
     {
       printf("The PE file has too many sections!\n");
       if (verbose)
-          printf("Increaseing MAX_SECTIONS_NUM to above %d will fix this.\n",(int)pe->sections_num);
+          printf("Increasing MAX_SECTIONS_NUM to above %d will fix this.\n",(int)pe->sections_num);
       return ERR_BAD_FILE;
     }
     // Reading num. of RVAs and sizes
@@ -713,7 +853,7 @@ short add_pe_section_header_to_buf(unsigned char **buf, long *filesize, struct s
     // Check if we have place for a new section header
     if (section_headers_raw_pos + (pe->sections_num+1)*PE_SIZEOF_SECTHDR_ENTRY > first_section_data_raddr)
     {
-        // TODO: We could move all sections to make more space
+        // TODO PeRESec We could move all sections to make more space
         printf("There's not enough free space to add new section header!\n");
         if (verbose)
             printf("Adding a new section header would overwrite body of first section.\n"
@@ -963,12 +1103,12 @@ short create_or_update_export_section(unsigned char **buf, long *filesize,
     long idx;
     short ret;
     sectn.rsize = compute_pe_export_section_size(module_name, pe);
-    // Find the export section exists, check its size
+    // Find the export section
     idx = get_section_index(export_section_name,pe);
-    // If the export section
+    // If the export section already exists
     if (idx >= 0)
     {
-        // If it already exists, check its size
+        // Check size of the existing section
         sec_ptr = pe->sections[idx];
         if (sec_ptr->rsize < sectn.rsize)
         {
@@ -1008,98 +1148,14 @@ short create_or_update_export_section(unsigned char **buf, long *filesize,
 int main(int argc, char *argv[])
 {
     static struct PEInfo peinfo;
-    char *fname_inp = NULL;
-    char *fname_out = NULL;
-    char *fname_map = NULL;
-    char *fname_def = NULL;
-    char *module_name = NULL;
-    const char *funcname_prefix = "";
+    static struct ProgramOptions opts;
     short ret;
 
-    while (1)
+    if (!load_command_line_options(&opts, argc, argv))
     {
-        static struct option long_options[] = {
-            {"verbose", no_argument,       0, 'v'},
-            {"output",  required_argument, 0, 'o'},
-            {"modname", required_argument, 0, 'n'},
-            {"map",     required_argument, 0, 'm'},
-            {"def",     required_argument, 0, 'f'},
-            {"prefix",  required_argument, 0, 'p'},
-            {NULL,      0,                 0,'\0'}
-        };
-        /* getopt_long stores the option index here. */
-        int c;
-        int option_index = 0;
-        c = getopt_long(argc, argv, "vo:m:f:n:p:", long_options, &option_index);
-        /* Detect the end of the options. */
-        if (c == -1)
-            break;
-        switch (c)
-        {
-        case 0:
-               /* If this option set a flag, do nothing else now. */
-               if (long_options[option_index].flag != 0)
-                 break;
-               printf ("option %s", long_options[option_index].name);
-               if (optarg)
-                 printf (" with arg %s", optarg);
-               printf ("\n");
-               break;
-        case 'v':
-            verbose = 1;
-            break;
-        case 'o':
-            fname_out = strdup(optarg);
-            break;
-        case 'm':
-            fname_map = strdup(optarg);
-            break;
-        case 'f':
-            fname_def = strdup(optarg);
-            break;
-        case 'n':
-            module_name = strdup(optarg);
-            break;
-        case 'p':
-            funcname_prefix = optarg; // Note that it's not duplicated
-            break;
-        case '?':
-               // unrecognized option
-               // getopt_long already printed an error message
-        default:
-            show_head();
-            show_usage(argv[0]);
-            return 11;
-        }
-    }
-    // remaining command line arguments (not options)
-    if (optind < argc)
-    {
-        fname_inp = strdup(argv[optind++]);
-    }
-    if ((optind < argc) || (fname_inp == NULL))
-    {
-        printf("Incorrectly specified input file name.\n");
         show_head();
         show_usage(argv[0]);
         return 11;
-    }
-    // fill names that were not set by arguments
-    if (fname_out == NULL)
-    {
-        fname_out = file_name_change_extension(fname_inp,"dll");
-    }
-    if (fname_map == NULL)
-    {
-        fname_map = file_name_change_extension(fname_inp,"map");
-    }
-    if (fname_def == NULL)
-    {
-        fname_def = file_name_change_extension(fname_out,"def");
-    }
-    if (module_name == NULL)
-    {
-        module_name = file_name_strip_to_body(fname_out);
     }
     // start the work
     if (verbose)
@@ -1109,92 +1165,92 @@ int main(int argc, char *argv[])
     int idx;
     for (idx=0;idx<MAX_EXPORTS;idx++)
         peinfo.exports[idx]=NULL;
-    if ((fname_inp == NULL) || (fname_map == NULL) || (fname_def == NULL)
-     || (fname_out == NULL) || (module_name == NULL))
+    if ((opts.fname_inp == NULL) || (opts.fname_map == NULL) || (opts.fname_def == NULL)
+     || (opts.fname_out == NULL) || (opts.module_name == NULL))
     {
         printf("Memory allocation error!\n");
         abort();
     }
   // Reading functions
-  peinfo.exports_num = read_map(fname_map,peinfo.exports);
+  peinfo.exports_num = read_map(opts.fname_map,peinfo.exports);
   if (peinfo.exports_num < 0)
   {
-    free(fname_inp); free(fname_map); free(fname_def);
-    free(fname_out); free(module_name);
-    return 1;
+      free_prog_options(&opts);
+      return 1;
   }
   // Creating destination names from input names
-  export_fill_dstnames(peinfo.exports,peinfo.exports_num,funcname_prefix);
+  export_fill_dstnames(peinfo.exports,peinfo.exports_num,opts.funcname_prefix);
   // Sorting functions
   export_sort(peinfo.exports,peinfo.exports_num);
   if (verbose)
       printf("Entries are now sorted in memory.\n");
-  // Checking
+  // Checking if there are no entries with same names
   int dupidx;
   dupidx = find_dupename(peinfo.exports,peinfo.exports_num);
   if (dupidx >= 0)
   {
-    if (verbose)
-        printf("Duplicate entry name found!\n");
-    printf("Entry \"%s\" duplicates. Aborting.\n",peinfo.exports[dupidx]->dstname);
-    if (verbose)
-        printf("Remove duplicated entry from .MAP file to fix this.\n");
-    free(fname_inp); free(fname_map); free(fname_def);
-    free(fname_out); free(module_name);
-    return 7;
+      if (verbose)
+          printf("Duplicate entry name found!\n");
+      printf("Entry \"%s\" duplicates. Aborting.\n",peinfo.exports[dupidx]->dstname);
+      if (verbose)
+          printf("Remove duplicated entry from .MAP file to fix this.\n");
+      free_prog_options(&opts);
+      return 7;
   }
+  // Checking if there are no entries with same offsets
   dupidx = find_dupeoffs(peinfo.exports,peinfo.exports_num);
   if (dupidx >= 0)
   {
-    if (verbose)
-        printf("Duplicate entry offset found!\n");
-    printf("Offset 0x%08lX duplicates. Aborting.\n",peinfo.exports[dupidx]->offs);
-    if (verbose)
-        printf("Remove duplicated entry from .MAP file to fix this.\n");
-    free(fname_inp); free(fname_map); free(fname_def);
-    free(fname_out); free(module_name);
-    return 8;
+      if (verbose)
+          printf("Duplicate entry offset found!\n");
+      printf("Offset 0x%08lX duplicates. Aborting.\n",peinfo.exports[dupidx]->offs);
+      if (verbose)
+          printf("Remove duplicated entry from .MAP file to fix this.\n");
+      free_prog_options(&opts);
+      return 8;
   }
 
   //Loading the PE file to be updated
-  dll_size = read_file_to_memory(fname_inp,&dll_data);
+  dll_size = read_file_to_memory(opts.fname_inp,&dll_data);
   if (dll_size < 0)
   {
-    free(fname_inp); free(fname_map); free(fname_def);
-    free(fname_out); free(module_name);
-    return 1;
+      free_prog_options(&opts);
+      return 1;
   }
   //Reading list of sections from memory image of the file
   if (read_sections_list(dll_data, dll_size, &peinfo) != ERR_OK)
   {
-    free(fname_inp); free(fname_map); free(fname_def);
-    free(fname_out); free(module_name);
-    free(dll_data);
-    return 9;
+      free_prog_options(&opts);
+      free(dll_data);
+      return 9;
+  }
+  //Setting "is a DLL" flag in characteristics in memory image of the file
+  //We're not un-setting "is executable" flag - DLLs seem to have it always set, too.
+  if (pe_file_characteristics_flag_set(dll_data,dll_size,&peinfo, 0x2000, 0x0000) != ERR_OK)
+  {
+      free_prog_options(&opts);
+      free(dll_data);
+      return 9;
   }
   //Creating or updating export section in memory image of the file
-  if (create_or_update_export_section(&dll_data,&dll_size,module_name,&peinfo) != ERR_OK)
+  if (create_or_update_export_section(&dll_data,&dll_size,opts.module_name,&peinfo) != ERR_OK)
   {
-    free(fname_inp); free(fname_map); free(fname_def);
-    free(fname_out); free(module_name);
-    free(dll_data);
-    return 9;
+      free_prog_options(&opts);
+      free(dll_data);
+      return 9;
   }
   //Saving the resulting file to disk
-  if (write_file_from_memory(fname_out,&dll_data,dll_size) != ERR_OK)
+  if (write_file_from_memory(opts.fname_out,&dll_data,dll_size) != ERR_OK)
   {
-    free(fname_inp); free(fname_map); free(fname_def);
-    free(fname_out); free(module_name);
-    return 10;
+      free_prog_options(&opts);
+      return 10;
   }
-  ret = create_def(fname_def,fname_out,&peinfo);
+  ret = create_def(opts.fname_def,opts.fname_out,&peinfo);
   if (ret != 0)
   {
-    free(fname_inp); free(fname_map); free(fname_def);
-    free(fname_out); free(module_name);
-    return 10;
+      free_prog_options(&opts);
+      return 10;
   }
-  free(fname_inp); free(fname_map); free(fname_def);
-  free(fname_out); free(module_name);
+  free_prog_options(&opts);
   return 0;
 }
