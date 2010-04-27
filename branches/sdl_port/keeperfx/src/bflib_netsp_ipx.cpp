@@ -107,8 +107,9 @@ TbError IPXServiceProvider::SendMessage(unsigned long, void *, unsigned char)
   return Lb_FAIL;
 }
 
-void IPXServiceProvider::tick()
+void IPXServiceProvider::update()
 {
+	return;
 }
 
 /******************************************************************************/

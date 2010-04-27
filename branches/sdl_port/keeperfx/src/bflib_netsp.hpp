@@ -149,7 +149,7 @@ public:
   virtual TbError Init(struct _GUID, struct _GUID *, struct ReceiveCallbacks *, void *) = 0;
   virtual TbError Release(void);
   virtual TbError ChangeSettings(unsigned long, void *) = 0;
-  virtual void tick() = 0; //in case SP needs execution time once per frame
+  virtual void update() = 0; //in case SP needs execution time once per frame
 
   struct TbNetworkSessionNameEntry nsnames[SESSION_ENTRIES_COUNT];
   unsigned long field_7A4;

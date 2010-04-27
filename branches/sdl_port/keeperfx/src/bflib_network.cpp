@@ -407,7 +407,7 @@ TbError LbNetwork_Exchange(void *buf)
 {
   SYNCDBG(7, "Starting");
   //return _DK_LbNetwork_Exchange(buf);
-  spPtr->tick();
+  spPtr->update();
 
   if (LbNetwork_StartExchange(buf) != Lb_OK)
   {

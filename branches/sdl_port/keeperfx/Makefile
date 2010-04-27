@@ -108,6 +108,9 @@ OBJS = \
 ./obj/bflib_nethost_udp.o \
 ./obj/bflib_netlisten_udp.o \
 ./obj/bflib_threadcond.o \
+./obj/bflib_base_tcp.o \
+./obj/bflib_server_tcp.o \
+./obj/bflib_client_tcp.o \
 $(RES)
 
 LINKOBJ  = $(OBJS)

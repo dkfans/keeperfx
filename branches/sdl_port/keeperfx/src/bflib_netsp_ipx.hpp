@@ -43,7 +43,7 @@ public:
   virtual bool ReadMessage(unsigned long *, void *, unsigned long *);
   virtual bool PeekMessage(unsigned long *, void *, unsigned long *);
   virtual TbError SendMessage(unsigned long, void *, unsigned char);
-  virtual void tick();
+  virtual void update();
 };
 
 /******************************************************************************/

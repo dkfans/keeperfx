@@ -21,51 +21,22 @@
 #ifndef BFLIB_NETSP_TCP_HPP
 #define BFLIB_NETSP_TCP_HPP
 
-#include <SDL_net.h>
-
 #include "bflib_netsp.hpp"
-#include "bflib_threadcond.hpp"
-
+#include "bflib_base_tcp.hpp"
 
 class UDP_NetHost;
 class UDP_NetListener;
+class TCP_Base;
 
 class TCPServiceProvider : public ServiceProvider {
 private:
-	TCPsocket mySocket;
-	struct
-	{
-		TCPsocket socket;
-		int playerId;
-	} remote[NETSP_PLAYERS_COUNT]; //could really be NETSP_PLAYERS_COUNT-1 but it doesn't matter
-	SDL_mutex * const remoteMutex;
 	int maxPlayers;
-	bool runningServer;
+	bool isServer;
 	bool joinable;
 
 	UDP_NetHost * host;
 	UDP_NetListener * listener;
-
-	//we must buffer messages because of PeekMessage
-	uchar * recvBuffer; //contains DK message (including DK header)
-	size_t recvBufferSize;
-	ulong recvPlayer;
-
-	SDLNet_SocketSet recvSocketSet;
-	SDL_Thread * recvThread;
-	ThreadCond recvCond;
-
-	static void serverReceiveThreadFunc(TCPServiceProvider * sp);
-	static void clientReceiveThreadFunc(TCPServiceProvider * sp);
-	void haltReceiveThread();
-
-	bool fetchMessage(ulong * playerId, void * msg, ulong * a3, bool peek);
-	void resetReceiveBuffer();
-
-	void addRemoteSocket(int index, TCPsocket);
-	TCPsocket getRemoteSocketByIndex(int index);
-	TCPsocket getRemoteSocketByPlayer(int playerId);
-	void removeRemoteSocket(TCPsocket sock);
+	TCP_NetBase * base;
 
 public:
 	TCPServiceProvider();
@@ -83,7 +54,7 @@ public:
 	virtual bool ReadMessage(unsigned long * playerId, void * msg, unsigned long *);
 	virtual bool PeekMessage(unsigned long *, void *, unsigned long *);
 	virtual TbError SendMessage(unsigned long playerId, void * msg, unsigned char i);
-	virtual void tick();
+	virtual void update();
 };
 
 #endif //BFLIB_NETSP_TCP_HPP

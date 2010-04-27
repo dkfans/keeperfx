@@ -2,11 +2,10 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_sessions_udp.hpp
- *     Header file for bflib_nethost_udp.cpp.
+/** @file bflib_client_tcp.hpp
+ *     Header file for bflib_client_tcp.cpp.
  * @par Purpose:
- *     UDP_NetHost: Handles LAN discovery of server through UDP broadcasts and
- *     answers requests for server info.
+ *     TCP client class.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   KeeperFX Team
@@ -19,34 +18,25 @@
  */
 /******************************************************************************/
 
-#ifndef BFLIB_NETHOST_UDP_HPP
-#define BFLIB_NETHOST_UDP_HPP
+#ifndef BFLIB_CLIENT_TCP_HPP
+#define BFLIB_CLIENT_TCP_HPP
 
-#include <SDL_net.h>
-#include <string>
-#include <vector>
+#include "bflib_base_tcp.hpp"
 
-#include "bflib_threadcond.hpp"
-#include "bflib_network.h" //try get rid of this dependency
+class TCP_NetClient : public TCP_NetBase
+{
+	TCPsocket mySocket; //potentially mutex is needed for this
 
-class UDP_NetHost {
+	SDL_Thread * recvThread;
+
+	static void recvThreadFunc(TCP_NetClient * cli);
+	void haltRecvThread();
 public:
-	typedef std::vector<std::string> StringVector;
-private:
-	SDL_Thread * thread;
-	ThreadCond cond;
+	TCP_NetClient(const char hostname[], ushort port);
+	virtual ~TCP_NetClient();
 
-	static void threadFunc(UDP_NetHost * sh);
-
-	StringVector broadcastAddr;
-
-	bool errorFlag;
-
-public:
-	explicit UDP_NetHost(const StringVector & broadcastAddresses);
-	~UDP_NetHost();
-
-	bool hadError() { return errorFlag; }
+	virtual void update();
+	virtual bool sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen);
 };
 
-#endif //!BFLIB_NETHOST_UDP_HPP
+#endif //!BFLIB_CLIENT_TCP_HPP
