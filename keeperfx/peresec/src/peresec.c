@@ -26,35 +26,56 @@
 #include <time.h>
 #include "peresec_version.h"
 
-// Maximum size of function name from input .MAP file.
-// Used to verify the input file sanity.
+/** Maximum size of function name from input .MAP file.
+ * Used to verify the input file sanity. */
 #define MAX_EXPORT_NAMELEN 255
-// Maximal amount of exported functions.
-// Used to allocate static arrays.
+/** Maximal amount of exported functions.
+ * Used to allocate static arrays. */
 #define MAX_EXPORTS 0x7fff
-// Name of the export section to overwrite.
+/** Maximal amount of relocation entries.
+ * Used to allocate static arrays. */
+#define MAX_RELOCATIONS 0x7ffff
+/** Max length of line in any of input files */
+#define MAX_LINE_LEN 4096
+/** Name of exports section. */
 const char export_section_name[]=".edata";
-
-// Text added at end of export section; just for fun
+/** Name of relocations section. */
+const char relocations_section_name[]=".reloc";
+/** Text added at end of export section; just for fun. */
 const char export_end_str[] ="Blessed are those who have not seen and yet believe";
-
-/* TODO PeRESec
-   - Make a code to export relocation table into file
-*/
-
+const char * relocation_methods[] = {
+    "ABSOLUTE",
+    "HIGH",
+    "LOW",
+    "HIGHLOW",
+    "HIGHADJ",
+    "MIPS_JMPADDR",
+    "TYPE6",
+    "TYPE7",
+    "TYPE8",
+    "IA64_IMM64",
+    "DIR64",
+    "TYPE11",
+    "TYPE12",
+    "TYPE13",
+    "TYPE14",
+    "TYPE15",
+};
 
 // Sections
-#define MAX_SECTIONS_NUM 64
-#define MAX_SECTION_NAME_LEN 8
+#define MAX_SECTIONS_NUM        64
+#define MAX_SECTION_NAME_LEN    8
 
 #define EXPORT_DIRECTORY_SIZE   0x0028
 #define MZ_SIZEOF_HEADER        0x0040
 #define MZ_NEWHEADER_OFS        0x003C
 #define PE_SIZEOF_SIGNATURE     4
 #define PE_SIZEOF_FILE_HEADER   20
-#define PE_CHARACTERISTICS_OFS  18
 #define PE_NUM_SECTIONS_OFS     2
+#define PE_TIMEDATSTAMP_OFS     4
+#define PE_CHARACTERISTICS_OFS  18
 #define PE_SIZEOF_OPTN_HEADER   96
+#define PE_OPTH_IMAGE_BASE           28
 #define PE_OPTH_SECTION_ALIGNMENT    32
 #define PE_OPTH_FILE_ALIGNMENT       36
 #define PE_OPTH_SIZE_OF_IMAGE        56
@@ -63,7 +84,15 @@ const char export_end_str[] ="Blessed are those who have not seen and yet believ
 #define PE_SIZEOF_DATADIR_ENTRY       8
 #define PE_DATA_DIRECTORY_EXPORT      0
 #define PE_DATA_DIRECTORY_IMPORT      1
+#define PE_DATA_DIRECTORY_RESOURCE    2
+#define PE_DATA_DIRECTORY_EXCEPTION   3
+#define PE_DATA_DIRECTORY_SECURITY    4
+#define PE_DATA_DIRECTORY_BASERELOC   5
+
 #define PE_SIZEOF_SECTHDR_ENTRY 40
+
+#define RELOCATION_BASE_SIZE    8
+#define RELOCATION_OFFSET_SIZE  2
 
 #ifndef false
 #define false 0
@@ -82,6 +111,10 @@ enum {
     ERR_LIMIT_EXCEED= -6, // static limit exceeded
 };
 
+#ifdef __cplusplus
+#pragma pack(1)
+#endif
+
 struct section_entry {
     unsigned long vaddr; // virtual address
     unsigned long vsize;
@@ -98,18 +131,33 @@ struct export_entry {
        char dstname[MAX_EXPORT_NAMELEN+1];
 };
 
+struct relocation_entry {
+    unsigned short seg;
+    unsigned long offs;
+    unsigned char method;
+};
+
 /** Complete PE Information structure. */
 struct PEInfo {
     unsigned long new_header_raddr; // RAW address or PE Header
     unsigned long rvas_and_sizes_raddr; // RAW address or "RVAs and sizes" array
-    long rvas_and_sizes_num; // Number of "RVAs and sizes" entrys
+    long rvas_and_sizes_num; // Number of "RVAs and sizes" entries
+    unsigned long image_base_vaddr; // default base address, from header
+    unsigned long timedatestamp; // timedate stamp of the file
     struct section_entry *sections[MAX_SECTIONS_NUM];
     long sections_num;
     struct export_entry *exports[MAX_EXPORTS];
     long exports_num;
+    struct relocation_entry relocations[MAX_RELOCATIONS];
+    long relocations_num;
 };
 
+#ifdef __cplusplus
+#pragma pack()
+#endif
+
 int verbose = 0;
+int extract = 0;
 
 /** A struct closing non-global command line parameters */
 struct ProgramOptions {
@@ -117,6 +165,7 @@ struct ProgramOptions {
     char *fname_out;
     char *fname_map;
     char *fname_def;
+    char *fname_rmap;
     char *module_name;
     const char *funcname_prefix;
 };
@@ -127,6 +176,7 @@ void clear_prog_options(struct ProgramOptions *opts)
     opts->fname_out = NULL;
     opts->fname_map = NULL;
     opts->fname_def = NULL;
+    opts->fname_rmap = NULL;
     opts->module_name = NULL;
     opts->funcname_prefix = "";
 }
@@ -137,6 +187,7 @@ void free_prog_options(struct ProgramOptions *opts)
     free(opts->fname_out);
     free(opts->fname_map);
     free(opts->fname_def);
+    free(opts->fname_rmap);
     free(opts->module_name);
 }
 
@@ -217,6 +268,19 @@ char *get_name_with_prefix(char *dname, const char *sname, const char *prefix)
   return dname;
 }
 
+int recognize_relocation_method(const char *mth_str)
+{
+    int i;
+    for (i=0; i < sizeof(relocation_methods)/sizeof(relocation_methods[0]); i++)
+    {
+        if (strcasecmp(mth_str,relocation_methods[i]) == 0)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 /** Uses given prefix and export->srcname to fill export->dstname with correct string. */
 void export_fill_dstnames(struct export_entry **exp, long exp_size, const char *funcname_prefix)
 {
@@ -225,6 +289,27 @@ void export_fill_dstnames(struct export_entry **exp, long exp_size, const char *
    for (i=0; i < exp_size; i++)
    {
       get_name_with_prefix(exp[i]->dstname,exp[i]->srcname,funcname_prefix);
+   }
+}
+
+void relocation_sort(struct relocation_entry *rel, long rel_size)
+{
+   int sorted=false;
+   long i;
+   struct relocation_entry rel_buf;
+   // Sort the strings in ascending order
+   while(!sorted)
+   {
+     sorted = true;
+     for (i=0; i < rel_size-1; i++)
+       if ((rel[i].seg > rel[i+1].seg) || ((rel[i].seg == rel[i+1].seg) && (rel[i].offs > rel[i+1].offs)))
+       {
+         sorted = false;     // We were out of order
+         // Swap items rel[i] and rel[i+1]
+         memcpy(&rel_buf, &rel[i], sizeof(struct relocation_entry));
+         memcpy(&rel[i], &rel[i+1], sizeof(struct relocation_entry));
+         memcpy(&rel[i+1], &rel_buf, sizeof(struct relocation_entry));
+       }
    }
 }
 
@@ -373,17 +458,19 @@ int load_command_line_options(struct ProgramOptions *opts, int argc, char *argv[
     {
         static struct option long_options[] = {
             {"verbose", no_argument,       0, 'v'},
+            {"extract", no_argument,       0, 'x'},
             {"output",  required_argument, 0, 'o'},
             {"modname", required_argument, 0, 'n'},
             {"map",     required_argument, 0, 'm'},
             {"def",     required_argument, 0, 'f'},
             {"prefix",  required_argument, 0, 'p'},
+            {"rmap",    required_argument, 0, 'r'},
             {NULL,      0,                 0,'\0'}
         };
         /* getopt_long stores the option index here. */
         int c;
         int option_index = 0;
-        c = getopt_long(argc, argv, "vo:m:f:n:p:", long_options, &option_index);
+        c = getopt_long(argc, argv, "vxo:m:f:n:p:r:", long_options, &option_index);
         /* Detect the end of the options. */
         if (c == -1)
             break;
@@ -401,6 +488,9 @@ int load_command_line_options(struct ProgramOptions *opts, int argc, char *argv[
         case 'v':
             verbose = 1;
             break;
+        case 'x':
+            extract = 1;
+            break;
         case 'o':
             opts->fname_out = strdup(optarg);
             break;
@@ -409,6 +499,9 @@ int load_command_line_options(struct ProgramOptions *opts, int argc, char *argv[
             break;
         case 'f':
             opts->fname_def = strdup(optarg);
+            break;
+        case 'r':
+            opts->fname_rmap = strdup(optarg);
             break;
         case 'n':
             opts->module_name = strdup(optarg);
@@ -470,9 +563,11 @@ short show_usage(char *fname)
     free(xname);
     printf("where <filename> should be the input PE file, and [options] are:\n");
     printf("    -v,--verbose             Verbose console output mode\n");
+    printf("    -x,--extract             Extract data from input file\n");
     printf("    -o<file>,--output<file>  Output file name\n");
     printf("    -n<text>,--modname<text> Module name for export table\n");
     printf("    -m<file>,--map<file>     Input .MAP file name\n");
+    printf("    -r<file>,--rmap<file>    Input .RMAP file name\n");
     printf("    -f<file>,--def<file>     Output .DEF file name\n");
     printf("    -p<text>,--prefix<text>  Function names prefix\n");
     return ERR_OK;
@@ -543,73 +638,152 @@ short write_file_from_memory(const char *fname, unsigned char **buf_ptr, long le
 /** Reads .MAP file into exports array; returns num of entries. */
 long read_map(const char *fname, struct export_entry **exports)
 {
-  long idx;
+  long idx,lnnum;
   FILE *fhndl;
+  char *lnbuf;
+  char *ln;
+  lnbuf = malloc(MAX_LINE_LEN);
+  if (lnbuf == NULL)
+  {
+      printf("Memory allocation error!\n");
+      abort();
+      return ERR_NO_MEMORY;
+  }
   fhndl = fopen(fname,"rb");
   if (fhndl == NULL)
   {
     printf("Can't open '%s' file!\n",fname);
     if (verbose)
         printf("Check if file name is correct, and you have rights to read it.\n");
+    free(lnbuf);
     return ERR_CANT_OPEN;
   }
   idx=0;
+  lnnum=0;
   while (!feof(fhndl))
   {
-    exports[idx] = malloc(sizeof(struct export_entry));
-    if (exports[idx] == NULL)
-    {
-      printf("Memory allocation error!\n");
-      fclose(fhndl);
-      abort();
-      return ERR_NO_MEMORY;
-    }
-    int nread;
-    nread = fscanf(fhndl," %hx:%lx %255s",&(exports[idx]->seg),&(exports[idx]->offs),exports[idx]->srcname);
-    if ((nread<3) || (strlen(exports[idx]->srcname)<1))
-    {
-      if ((nread<=0) && feof(fhndl))
+      lnnum++;
+      ln = fgets(lnbuf,MAX_LINE_LEN,fhndl);
+      if (ln == NULL)
+          break;
+      // Check if the line is correct
+      while (isspace(*ln)) ln++;
+      if (*ln == '\0')
+          continue;
+      if (*ln != '0')
       {
-        free(exports[idx]);
-        exports[idx]=NULL;
-        break;
+          if (idx > 0)
+          {
+              printf("Export entry %ld (line %ld) does not start with 4-digit segment number!\n",idx,lnnum);
+              if (verbose)
+                  printf("Fix the .MAP file with text editor and try again.\n");
+              fclose(fhndl);
+              free(lnbuf);
+              return ERR_BAD_FILE;
+          }
+          continue;
       }
-      printf("Error reading entry %ld!\n",idx);
-      if (verbose)
-          printf("Fix the .MAP file and then retry.\n");
-        fclose(fhndl);
-      return ERR_BAD_FILE;
-    } else
-    {
-      exports[idx]->dstname[0] = '\0';
-      exports[idx]->nmoffs=0;
-      idx++;
-      if (idx>=MAX_EXPORTS)
+      exports[idx] = malloc(sizeof(struct export_entry));
+      if (exports[idx] == NULL)
       {
-        printf("Too many exports in .MAP file!\n");
-        if (verbose)
-            printf("Strip the file or increase MAX_EXPORTS to fix this.\n");
-        fclose(fhndl);
-        return ERR_LIMIT_EXCEED;
+          printf("Memory allocation error!\n");
+          fclose(fhndl);
+          free(lnbuf);
+          abort();
+          return ERR_NO_MEMORY;
       }
-    }
+      int nread;
+      nread = sscanf(ln," %hx:%lx %255s",&(exports[idx]->seg),&(exports[idx]->offs),exports[idx]->srcname);
+      if ((nread<3) || (strlen(exports[idx]->srcname)<1))
+      {
+          if ((nread<=0) && feof(fhndl))
+          {
+            free(exports[idx]);
+            exports[idx]=NULL;
+            break;
+          }
+          printf("Error reading export entry %ld (line %ld)!\n",idx,lnnum);
+          if (verbose)
+              printf("Fix the .MAP file and then retry.\n");
+          fclose(fhndl);
+          free(lnbuf);
+          return ERR_BAD_FILE;
+      } else
+      {
+        exports[idx]->dstname[0] = '\0';
+        exports[idx]->nmoffs=0;
+        idx++;
+        if (idx >= MAX_EXPORTS)
+        {
+            printf("Too many (over %d) exports in .MAP file!\n",MAX_EXPORTS);
+            if (verbose)
+                printf("Strip the file or increase MAX_EXPORTS to fix this.\n");
+            fclose(fhndl);
+            free(lnbuf);
+            return ERR_LIMIT_EXCEED;
+        }
+      }
   }
   fclose(fhndl);
+  free(lnbuf);
   printf("Got %ld entries from .MAP file.\n",idx);
   return idx;
 }
 
+/** Creates .MAP file from given exports array. */
+short create_map(const char *fname, const char *fname_dll, struct PEInfo *pe)
+{
+    long idx;
+    FILE *fhndl;
+    char *fname_strip;
+    time_t ftime;
+    char *ftime_str;
+    fhndl = fopen(fname,"wb");
+    if (fhndl == NULL)
+    {
+      printf("Can't create file '%s'!\n",fname);
+      if (verbose)
+          printf("Check if you have rights to write to it.\n");
+      return ERR_CANT_OPEN;
+    }
+    fname_strip = file_name_strip_path(fname_dll);
+    fprintf(fhndl,"%s\n",fname_strip);
+    free(fname_strip);
+    ftime = pe->timedatestamp;
+    ftime_str = ctime(&ftime);
+    fname_strip = strchr(ftime_str,'\n');
+    if (fname_strip != NULL)
+        *fname_strip = '\0';
+    fprintf(fhndl,"\nTimestamp is %lx (%s)\n",(unsigned long)pe->timedatestamp,ftime_str);
+    fprintf(fhndl,"Preferred load address is %08lx\n",(unsigned long)(pe->image_base_vaddr));
+    fprintf(fhndl,"\n  %-15s %-29s %s\n\n","Address","Publics by Name","Rva+Base");
+    for (idx=0; idx < pe->exports_num; idx++)
+    {
+        if (pe->exports[idx] == NULL)
+          continue;
+        const char *name;
+        name = pe->exports[idx]->srcname;
+        unsigned long rva = pe->exports[idx]->offs+pe->sections[(pe->exports[idx]->seg)%MAX_SECTIONS_NUM]->vaddr;
+        fprintf(fhndl,"  %04lX:%08lX   %-29s %08lx\n",(long)pe->exports[idx]->seg,(long)pe->exports[idx]->offs,name,(unsigned long)(pe->image_base_vaddr+rva));
+    }
+    fclose(fhndl);
+    printf("Written %ld names into .MAP file.\n",idx);
+    return idx;
+}
+
 /** Creates .DEF file from given exports list. */
-short create_def(const char *fname_def, const char *fname_dll, struct PEInfo *pe)
+short create_def(const char *fname, const char *fname_dll, struct PEInfo *pe)
 {
   long idx;
   FILE *fhndl;
   char *fname_strip;
-  fhndl = fopen(fname_def,"wb");
+  fhndl = fopen(fname,"wb");
   if (fhndl == NULL)
   {
-    printf("Can't open '%s' file!\n",fname_def);
-    return ERR_CANT_OPEN;
+      printf("Can't create file '%s'!\n",fname);
+      if (verbose)
+          printf("Check if you have rights to write to it.\n");
+      return ERR_CANT_OPEN;
   }
   fname_strip = file_name_strip_path(fname_dll);
   fprintf(fhndl,"LIBRARY     %s\n",fname_strip);
@@ -627,6 +801,123 @@ short create_def(const char *fname_def, const char *fname_dll, struct PEInfo *pe
   fclose(fhndl);
   printf("Written %ld names into .DEF file.\n",idx);
   return ERR_OK;
+}
+
+/** Reads .RMAP file into relocations array; returns num of entries. */
+long read_rmap(const char *fname, struct relocation_entry *relocations)
+{
+  long idx,lnnum;
+  FILE *fhndl;
+  char *lnbuf,*rdbuf;
+  char *ln;
+  long k;
+  lnbuf = malloc(MAX_LINE_LEN);
+  rdbuf = malloc(MAX_LINE_LEN);
+  if ((lnbuf == NULL) || (rdbuf == NULL))
+  {
+      printf("Memory allocation error!\n");
+      abort();
+      return ERR_NO_MEMORY;
+  }
+  fhndl = fopen(fname,"rb");
+  if (fhndl == NULL)
+  {
+    printf("Can't open file '%s'!\n",fname);
+    if (verbose)
+        printf("Check if file name is correct, and you have rights to read it.\n");
+    free(lnbuf);free(rdbuf);
+    return ERR_CANT_OPEN;
+  }
+  idx=0;
+  lnnum=0;
+  while (!feof(fhndl))
+  {
+      lnnum++;
+      ln = fgets(lnbuf,MAX_LINE_LEN,fhndl);
+      if (ln == NULL)
+          break;
+      // Check if the line is correct
+      while (isspace(*ln)) ln++;
+      if (*ln == '\0')
+          continue;
+      if (*ln != '0')
+      {
+          if (*ln != ';')
+          {
+              printf("Relocation entry %ld (line %ld) does not start with 4-digit segment number!\n",idx,lnnum);
+              if (verbose)
+                  printf("Fix the .RMAP file with text editor and try again.\n");
+              fclose(fhndl);
+              free(lnbuf);free(rdbuf);
+              return ERR_BAD_FILE;
+          }
+          continue;
+      }
+      int nread;
+      memset(rdbuf,'\0',MAX_LINE_LEN);
+      nread = sscanf(ln," %hx:%lx %255s",&(relocations[idx].seg),&(relocations[idx].offs),rdbuf);
+      k = recognize_relocation_method(rdbuf);
+      if ((nread < 3) || (k < 0))
+      {
+          if ((nread<=0) && feof(fhndl))
+          {
+            break;
+          }
+          printf("Error reading relocation entry %ld (line %ld)!\n",idx,lnnum);
+          if (verbose)
+              printf("Fix the .RMAP file and then retry.\n");
+          fclose(fhndl);
+          free(lnbuf);free(rdbuf);
+          return ERR_BAD_FILE;
+      } else
+      {
+          relocations[idx].method = k;
+          idx++;
+          if (idx >= MAX_RELOCATIONS)
+          {
+              printf("Too many (over %d) relocations in .RMAP file!\n",MAX_RELOCATIONS);
+              if (verbose)
+                  printf("Strip the file or increase MAX_RELOCATIONS to fix this.\n");
+              fclose(fhndl);
+              free(lnbuf);free(rdbuf);
+              return ERR_LIMIT_EXCEED;
+          }
+      }
+  }
+  fclose(fhndl);
+  free(lnbuf);free(rdbuf);
+  printf("Got %ld entries from .RMAP file.\n",idx);
+  return idx;
+}
+
+/** Creates .RMAP file from given relocations list. */
+short create_rmap(const char *fname, const char *fname_dll, struct PEInfo *pe)
+{
+    long idx;
+    FILE *fhndl;
+    char *fname_strip;
+    fhndl = fopen(fname,"wb");
+    if (fhndl == NULL)
+    {
+        printf("Can't create file '%s'!\n",fname);
+        if (verbose)
+            printf("Check if you have rights to write to it.\n");
+        return ERR_CANT_OPEN;
+    }
+    fname_strip = file_name_strip_path(fname_dll);
+    fprintf(fhndl,"; Relocations list file for %s\n",fname_strip);
+    free(fname_strip);
+    fprintf(fhndl,"; This file can be loaded by PeRESec in order to\n");
+    fprintf(fhndl,"; rebuild relocation table inside target PE file.\n\n");
+    for (idx=0; idx < pe->relocations_num; idx++)
+    {
+        const char *method = relocation_methods[pe->relocations[idx].method & 0x0f];
+        unsigned long rva = pe->relocations[idx].offs+pe->sections[(pe->relocations[idx].seg)%MAX_SECTIONS_NUM]->vaddr;
+        fprintf(fhndl,"  %04lX:%08lX       %-8s ; RVA=0x%08lX\n",(long)pe->relocations[idx].seg,(long)pe->relocations[idx].offs,method,rva);
+    }
+    fclose(fhndl);
+    printf("Written %ld entries into .RMAP file.\n",idx);
+    return ERR_OK;
 }
 
 /** Aligns given size to multiplication of "file alignment" value. */
@@ -747,11 +1038,18 @@ short read_sections_list(unsigned char *buf, long filesize, struct PEInfo *pe)
           printf("Increasing MAX_SECTIONS_NUM to above %d will fix this.\n",(int)pe->sections_num);
       return ERR_BAD_FILE;
     }
+    // Reading TimeDate stamp
+    data = buf + pe->new_header_raddr+PE_SIZEOF_SIGNATURE+PE_TIMEDATSTAMP_OFS;
+    pe->timedatestamp = read_int32_le_buf(data);
     // Reading num. of RVAs and sizes
     optional_header_raw_pos = pe->new_header_raddr+PE_SIZEOF_SIGNATURE+PE_SIZEOF_FILE_HEADER;
     data = buf + optional_header_raw_pos+PE_OPTH_NUM_RVAS_AND_SIZES;
     pe->rvas_and_sizes_num = read_int32_le_buf(data);
     pe->rvas_and_sizes_raddr = optional_header_raw_pos + PE_SIZEOF_OPTN_HEADER;
+    // Reading image base address
+    data = buf + optional_header_raw_pos+PE_OPTH_IMAGE_BASE;
+    pe->image_base_vaddr = read_int32_le_buf(data);
+
     // Now we have section headers position
     section_headers_raw_pos = pe->rvas_and_sizes_raddr + pe->rvas_and_sizes_num*PE_SIZEOF_DATADIR_ENTRY;
 //    if (verbose)
@@ -853,7 +1151,7 @@ short add_pe_section_header_to_buf(unsigned char **buf, long *filesize, struct s
     // Check if we have place for a new section header
     if (section_headers_raw_pos + (pe->sections_num+1)*PE_SIZEOF_SECTHDR_ENTRY > first_section_data_raddr)
     {
-        // TODO PeRESec We could move all sections to make more space
+        // TODO PeRESec: We could move all sections to make more space
         printf("There's not enough free space to add new section header!\n");
         if (verbose)
             printf("Adding a new section header would overwrite body of first section.\n"
@@ -891,7 +1189,7 @@ short add_pe_section_header_to_buf(unsigned char **buf, long *filesize, struct s
     return ERR_OK;
 }
 
-/** Get index of a section  in PEInfo structure. */
+/** Get index of a section in PEInfo structure with given name. */
 long get_section_index(const char *sec_name, struct PEInfo *pe)
 {
     long idx;
@@ -901,6 +1199,122 @@ long get_section_index(const char *sec_name, struct PEInfo *pe)
         { return idx; }
     }
     return -1;
+}
+
+/** Get index of a section in PEInfo structure containing given RVA. */
+long get_rva_section_index(long rva, struct PEInfo *pe)
+{
+    long idx;
+    for (idx=0; idx <= pe->sections_num; idx++)
+    {
+        if ((rva >= pe->sections[idx]->vaddr) && (rva < pe->sections[idx]->vaddr+pe->sections[idx]->vsize))
+        { return idx; }
+    }
+    return -1;
+}
+
+/** Reads relocations from given section into PEInfo struct. */
+short read_relocations_section(unsigned char *buf, long filesize, struct PEInfo *pe)
+{
+    long idx,pos,endpos;
+    unsigned char *data;
+    long base_vaddr, base_size, rva, k;
+    struct relocation_entry *rel;
+
+    pe->relocations_num = 0;
+    // Find the relocations section
+    struct section_entry *rel_sec;
+    idx = get_section_index(relocations_section_name,pe);
+    if (idx < 1)
+    {
+        printf("Cannot locate entry '%s' in section headers!\n",relocations_section_name);
+        if (verbose)
+            printf("To fix the problem, create relocations section or rename it.\n");
+        return ERR_BAD_FILE;
+    }
+    rel_sec = pe->sections[idx];
+    printf("Relocations section '%s' located at RAW %08lXh.\n",relocations_section_name,(long)rel_sec->raddr);
+    if (verbose)
+        printf("Section size is %ld bytes (%08lXh).\n",(long)rel_sec->rsize,(long)rel_sec->rsize);
+    pos = rel_sec->raddr;
+    endpos = pos + rel_sec->rsize;
+    while (pos+RELOCATION_BASE_SIZE < endpos)
+    {
+        data = buf + pos;
+        base_vaddr = read_int32_le_buf(data+0);
+        base_size = read_int32_le_buf(data+4);
+        if (base_size == 0)
+            break;
+        if (base_size < RELOCATION_BASE_SIZE+RELOCATION_OFFSET_SIZE)
+        {
+            printf("Invalid relocations base size, %ld!\n",base_size);
+            break;
+        }
+        for (idx=RELOCATION_BASE_SIZE; idx < base_size; idx+=RELOCATION_OFFSET_SIZE)
+        {
+            if (pe->relocations_num >= MAX_RELOCATIONS)
+            {
+                printf("Cannot load more than %d relocations!\n",MAX_RELOCATIONS);
+                if (verbose)
+                    printf("Increase MAX_RELOCATIONS and recompile PeRESec to fix this.\n");
+                return ERR_NO_MEMORY;
+            }
+            rel = &pe->relocations[pe->relocations_num];
+            k = read_int16_le_buf(data+idx);
+            rel->method = (k >> 12) & 0x0f;
+            // Ignore "absolute" relocations - they are only placefillers.
+            if (rel->method == 0)
+                continue;
+            // Find out which section contains the relocation RVA
+            rva = base_vaddr + (k & 0x0fff);
+            k = get_rva_section_index(rva, pe);
+            if (k < 0)
+            {
+                printf("Cannot find section containing RVA=0x%08lX.\n",rva);
+                if (verbose)
+                    printf("The address is incorrect and have been skipped.\n");
+                continue;
+            }
+            // Write relocation entry (rel->method was set before)
+            rel->seg = k;
+            rel->offs = rva - pe->sections[k%MAX_SECTIONS_NUM]->vaddr;
+            pe->relocations_num++;
+        }
+        pos += base_size;
+    }
+    if (verbose)
+        printf("Got %ld relocations from .DLL file.\n",(long)pe->relocations_num);
+    return ERR_OK;
+}
+
+/** Reads exports from given section into PEInfo struct. */
+short read_exports_section(unsigned char *buf, long filesize, struct PEInfo *pe)
+{
+    long idx;
+
+    pe->exports_num = 0;
+    // Find the export section
+    struct section_entry *exp_sec;
+    idx = get_section_index(export_section_name,pe);
+    if (idx < 1)
+    {
+        printf("Cannot locate entry '%s' in section headers!\n",export_section_name);
+        if (verbose)
+            printf("To fix the problem, create exports section or rename it.\n");
+        return ERR_BAD_FILE;
+    }
+    exp_sec = pe->sections[idx];
+    printf("Exports section '%s' located at RAW %08lXh.\n",export_section_name,(long)exp_sec->raddr);
+    if (verbose)
+        printf("Section size is %ld bytes (%08lXh).\n",(long)exp_sec->rsize,(long)exp_sec->rsize);
+
+    //TODO PeRESec: Should read exports from .DLL, not from .MAP!
+    //pe->exports_num = read_map(opts.fname_map,pe->exports);
+    printf("This function is NOT SUPPORTED (yet)!\n");
+
+    if (verbose)
+        printf("Got %ld exports from .DLL file.\n",(long)pe->exports_num);
+    return ERR_OK;
 }
 
 /** Returns expected size of export section in given PE buffer.
@@ -1077,7 +1491,7 @@ short update_pe_export_section_content(unsigned char *buf, long filesize,
     data = buf + fnnames_table_raw_pos;
     for (idx=0; idx < pe->exports_num; idx++)
     {
-      if (pe->exports[idx]==NULL)
+      if (pe->exports[idx] == NULL)
       {
         write_int32_le_buf(data, 0);
       } else
@@ -1145,11 +1559,222 @@ short create_or_update_export_section(unsigned char **buf, long *filesize,
   return ret;
 }
 
+long compute_pe_relocation_section_size(struct PEInfo *pe)
+{
+    long idx;
+    long data,lastbasesize;
+    long base_vaddr, base_size, rva, k;
+    struct relocation_entry *rel;
+
+    data = 0;
+    lastbasesize = 0;
+    base_size = RELOCATION_BASE_SIZE;
+    base_vaddr = -0x0fff;
+    for (idx=0; idx < pe->relocations_num; idx++)
+    {
+        rel = &pe->relocations[idx];
+        rva = rel->offs+pe->sections[(rel->seg)%MAX_SECTIONS_NUM]->vaddr;
+        if ((rva < base_vaddr) || (rva > base_vaddr+0x0fff))
+        {
+            // Update size of the previous base
+            if (lastbasesize != 0)
+            {
+                // Check if we have enough space
+                // Add dummy entry to make the position multiplication of 4
+                if ((base_size & 0x03) == 2)
+                {
+                    base_size += RELOCATION_OFFSET_SIZE;
+                    data += RELOCATION_OFFSET_SIZE;
+                }
+            }
+            // start new base
+            k = (rva & 0x0fff);
+            base_vaddr = rva - k;
+            base_size = RELOCATION_BASE_SIZE;
+            lastbasesize = data+4;
+            data += RELOCATION_BASE_SIZE;
+        }
+        base_size += RELOCATION_OFFSET_SIZE;
+        data += RELOCATION_OFFSET_SIZE;
+    }
+    // Finish the last base
+    if (lastbasesize != 0)
+    {
+        // Add dummy entry to make the position multiplication of 4
+        if ((base_size & 0x03) == 2)
+        {
+            base_size += RELOCATION_OFFSET_SIZE;
+            data += RELOCATION_OFFSET_SIZE;
+        }
+    }
+    // Add dummy base entry at end
+    data += RELOCATION_OFFSET_SIZE;
+    return data;
+}
+
+/** Updates export section in given PE buffer.
+ * Uses PEInfo structure to locate and obtain new parameters of the section.
+ * Requires section list to be loaded and exports filled in PEInfo before call.
+ */
+short update_pe_relocation_section_content(unsigned char *buf, long filesize,
+      struct PEInfo *pe)
+{
+    long idx;
+    unsigned char *data,*enddata,*lastbasesize;
+    long base_vaddr, base_size, rva, k;
+    struct relocation_entry *rel;
+
+    // Find the relocations section
+    struct section_entry *rel_sec;
+    idx = get_section_index(relocations_section_name,pe);
+    if (idx < 1)
+    {
+        printf("Cannot locate entry '%s' in section headers!\n",relocations_section_name);
+        if (verbose)
+            printf("To fix the problem, create relocations section or rename it.\n");
+        return ERR_BAD_FILE;
+    }
+    rel_sec = pe->sections[idx];
+    printf("Relocations section '%s' located at RAW %08lXh.\n",relocations_section_name,(long)rel_sec->raddr);
+    if (verbose)
+        printf("Section size is %ld bytes (%08lXh).\n",(long)rel_sec->rsize,(long)rel_sec->rsize);
+    data = buf + rel_sec->raddr;
+    enddata = data + rel_sec->rsize;
+    lastbasesize = NULL;
+    base_size = RELOCATION_BASE_SIZE;
+    base_vaddr = -0x0fff;
+    for (idx=0; idx < pe->relocations_num; idx++)
+    {
+        rel = &pe->relocations[idx];
+        rva = rel->offs+pe->sections[(rel->seg)%MAX_SECTIONS_NUM]->vaddr;
+        if ((rva < base_vaddr) || (rva > base_vaddr+0x0fff))
+        {
+            // Update size of the previous base
+            if (lastbasesize != NULL)
+            {
+                // Check if we have enough space
+                if (data+RELOCATION_BASE_SIZE+RELOCATION_OFFSET_SIZE >= enddata)
+                {
+                    printf("Section is too small to store base of relocation %ld!\n",idx);
+                    if (verbose)
+                        printf("Resize or remove the relocation section to fix it.\n");
+                    return ERR_NO_MEMORY;
+                }
+                // Add dummy entry to make the position multiplication of 4
+                if ((base_size & 0x03) == 2)
+                {
+                    base_size += RELOCATION_OFFSET_SIZE;
+                    write_int16_le_buf(data,0);
+                    data += RELOCATION_OFFSET_SIZE;
+                }
+                // Write the base size
+                write_int32_le_buf(lastbasesize,base_size);
+            }
+            // start new base
+            k = (rva & 0x0fff);
+            base_vaddr = rva - k;
+            base_size = RELOCATION_BASE_SIZE;
+            write_int32_le_buf(data+0,base_vaddr);
+            write_int32_le_buf(data+4,base_size);
+            lastbasesize = data+4;
+            data += RELOCATION_BASE_SIZE;
+        }
+        // add entry to the base
+        if (data+RELOCATION_OFFSET_SIZE >= enddata)
+        {
+            printf("Section is too small to store relocation %ld!\n",idx);
+            if (verbose)
+                printf("Resize or remove the relocation section to fix it.\n");
+            return ERR_NO_MEMORY;
+        }
+        k = (rva - base_vaddr) | (rel->method << 12);
+        base_size += RELOCATION_OFFSET_SIZE;
+        write_int16_le_buf(data,k);
+        data += RELOCATION_OFFSET_SIZE;
+    }
+    // Finish the last base
+    if (lastbasesize != NULL)
+    {
+        // Check if we have enough space
+        if (data+RELOCATION_BASE_SIZE >= enddata)
+        {
+            printf("Section is too small to store base of relocation %ld!\n",idx);
+            if (verbose)
+                printf("Resize or remove the relocation section to fix it.\n");
+            return ERR_NO_MEMORY;
+        }
+        // Add dummy entry to make the position multiplication of 4
+        if ((base_size & 0x03) == 2)
+        {
+            base_size += RELOCATION_OFFSET_SIZE;
+            write_int16_le_buf(data,0);
+            data += RELOCATION_OFFSET_SIZE;
+        }
+        // Write the base size
+        write_int32_le_buf(lastbasesize,base_size);
+    }
+    // Add dummy base entry at end
+    write_int32_le_buf(data+0,0);
+    write_int32_le_buf(data+4,0);
+    data += RELOCATION_OFFSET_SIZE;
+    printf("Placed %ld relocations in .DLL.\n",idx);
+    return ERR_OK;
+}
+
+short create_or_update_relocation_section(unsigned char **buf, long *filesize,
+        struct PEInfo *pe)
+{
+    struct section_entry *sec_ptr;
+    struct section_entry sectn;
+    long idx;
+    short ret;
+    sectn.rsize = compute_pe_relocation_section_size(pe);
+    // Find the relocation section
+    idx = get_section_index(relocations_section_name,pe);
+    // If the relocation section already exists
+    if (idx >= 0)
+    {
+        // Check size of the existing section
+        sec_ptr = pe->sections[idx];
+        if (sec_ptr->rsize < sectn.rsize)
+        {
+            printf("Relocation section '%s' has only %d bytes, but %d bytes are needed.\n",relocations_section_name,(int)sec_ptr->rsize,(int)sectn.rsize);
+            if (verbose)
+                printf("Section is too small. Remove some .RMAP entries,\n"
+                      " or delete the section to allow its re-creation.\n");
+            return ERR_BAD_FILE;
+        }
+    }
+    // If the relocation section doesn't exist, create it
+    if (idx < 0)
+    {
+        // Get the last section
+        sec_ptr = pe->sections[pe->sections_num];
+        // And add the new one after it
+        sectn.rsize = align_file_section_size(*buf, *filesize, sectn.rsize, pe);
+        sectn.vsize = align_virt_section_size(*buf, *filesize, sectn.rsize, pe);
+        sectn.vaddr = align_virt_section_size(*buf, *filesize, sec_ptr->vaddr+sec_ptr->rsize, pe);
+        sectn.raddr = align_file_section_size(*buf, *filesize, sec_ptr->raddr+sec_ptr->rsize, pe);
+        strcpy(sectn.name,relocations_section_name);
+        ret = add_pe_section_header_to_buf(buf, filesize, &sectn, pe);
+        if (ret == ERR_OK)
+            ret = read_sections_list(*buf, *filesize, pe);
+        if (ret == ERR_OK)
+            ret = add_pe_section_datablock_to_buf(buf, filesize, &sectn, pe);
+        if (ret == ERR_OK)
+            ret = set_pe_data_directory_to_section(*buf, *filesize, &sectn, PE_DATA_DIRECTORY_BASERELOC, pe);
+        if (ret != ERR_OK)
+            return ret;
+    }
+    //Updating relocation section in memory image of the file
+    ret = update_pe_relocation_section_content(*buf, *filesize, pe);
+    return ret;
+}
+
 int main(int argc, char *argv[])
 {
     static struct PEInfo peinfo;
     static struct ProgramOptions opts;
-    short ret;
 
     if (!load_command_line_options(&opts, argc, argv))
     {
@@ -1224,32 +1849,83 @@ int main(int argc, char *argv[])
       free(dll_data);
       return 9;
   }
-  //Setting "is a DLL" flag in characteristics in memory image of the file
-  //We're not un-setting "is executable" flag - DLLs seem to have it always set, too.
-  if (pe_file_characteristics_flag_set(dll_data,dll_size,&peinfo, 0x2000, 0x0000) != ERR_OK)
+  // Now, are we here for creating DLL, or extracting from input file?
+  if (extract)
   {
-      free_prog_options(&opts);
+      // Writing relocations into .rmap file
+      if(opts.fname_rmap != NULL)
+      {
+          if (read_relocations_section(dll_data, dll_size, &peinfo) != ERR_OK)
+          {
+              free_prog_options(&opts);
+              free(dll_data);
+              return 9;
+          }
+          if (create_rmap(opts.fname_rmap,opts.fname_out,&peinfo) != ERR_OK)
+          {
+              free_prog_options(&opts);
+              free(dll_data);
+              return 10;
+          }
+      }
+      // Writing exports into .map file
+      if (read_exports_section(dll_data, dll_size, &peinfo) == ERR_OK)
+      {
+          if (peinfo.exports_num > 0)
+          {
+              if (create_map(opts.fname_map,opts.fname_out,&peinfo) != ERR_OK)
+              {
+                  free_prog_options(&opts);
+                  free(dll_data);
+                  return 10;
+              }
+          }
+      }
       free(dll_data);
-      return 9;
-  }
-  //Creating or updating export section in memory image of the file
-  if (create_or_update_export_section(&dll_data,&dll_size,opts.module_name,&peinfo) != ERR_OK)
+  } else
   {
-      free_prog_options(&opts);
-      free(dll_data);
-      return 9;
-  }
-  //Saving the resulting file to disk
-  if (write_file_from_memory(opts.fname_out,&dll_data,dll_size) != ERR_OK)
-  {
-      free_prog_options(&opts);
-      return 10;
-  }
-  ret = create_def(opts.fname_def,opts.fname_out,&peinfo);
-  if (ret != 0)
-  {
-      free_prog_options(&opts);
-      return 10;
+      //Setting "is a DLL" flag in characteristics in memory image of the file
+      //We're not un-setting "is executable" flag - DLLs seem to have it always set, too.
+      if (pe_file_characteristics_flag_set(dll_data,dll_size,&peinfo, 0x2000, 0x0000) != ERR_OK)
+      {
+          free_prog_options(&opts);
+          free(dll_data);
+          return 9;
+      }
+      //Creating or updating export section in memory image of the file
+      if (create_or_update_export_section(&dll_data,&dll_size,opts.module_name,&peinfo) != ERR_OK)
+      {
+          free_prog_options(&opts);
+          free(dll_data);
+          return 9;
+      }
+      //Creating or updating relocations section in memory image of the file
+      if(opts.fname_rmap != NULL)
+      {
+          peinfo.relocations_num = read_rmap(opts.fname_rmap, peinfo.relocations);
+          if (peinfo.relocations_num >= 0)
+          {
+              relocation_sort(peinfo.relocations, peinfo.relocations_num);
+              //Creating or updating relocation section in memory image of the file
+              if (create_or_update_relocation_section(&dll_data,&dll_size,&peinfo) != ERR_OK)
+              {
+                  free_prog_options(&opts);
+                  free(dll_data);
+                  return 9;
+              }
+          }
+      }
+      //Saving the resulting file to disk
+      if (write_file_from_memory(opts.fname_out,&dll_data,dll_size) != ERR_OK)
+      {
+          free_prog_options(&opts);
+          return 10;
+      }
+      if (create_def(opts.fname_def,opts.fname_out,&peinfo) != ERR_OK)
+      {
+          free_prog_options(&opts);
+          return 10;
+      }
   }
   free_prog_options(&opts);
   return 0;
