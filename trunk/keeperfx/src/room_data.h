@@ -54,6 +54,8 @@ enum RoomKinds {
 #pragma pack(1)
 #endif
 
+#define ROOM_EFFICIENCY_MAX 256
+
 struct Room;
 typedef unsigned char RoomKind;
 
@@ -74,7 +76,7 @@ struct Room {
     unsigned char stl_x;
     unsigned char stl_y;
     unsigned short kind;
-    unsigned char field_C[2];
+    unsigned short field_C;
     short total_capacity;
     unsigned short field_10;
     unsigned char field_12;
@@ -87,11 +89,11 @@ struct Room {
     };
     };
     unsigned char field_1B[28];
-    unsigned short field_37;
+    unsigned short slabs_list;
     unsigned short field_39;
-    unsigned short field_3B;
-    unsigned char field_3D[2];
-    unsigned short field_3F;
+    unsigned short slabs_count;
+    unsigned short field_3D;
+    unsigned short efficiency;
     unsigned short field_41;
     unsigned char field_43;
     unsigned char field_44;
@@ -126,9 +128,12 @@ extern const unsigned short small_around_pos[13];
 extern struct AroundLByte const room_spark_offset[];
 extern struct Around const small_around[];
 extern struct RoomData room_data[];
+extern struct Around const my_around_eight[];
+extern short const around_map[];
 /******************************************************************************/
 struct Room *room_get(long room_idx);
 struct Room *subtile_room_get(long stl_x, long stl_y);
+struct Room *slab_room_get(long slb_x, long slb_y);
 TbBool room_is_invalid(const struct Room *room);
 struct RoomData *room_data_get_for_kind(long room_kind);
 struct RoomData *room_data_get_for_room(const struct Room *room);
@@ -148,6 +153,7 @@ struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing
 struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsigned char owner, signed char kind, unsigned char nav_no_owner);
 
 void create_room_flag(struct Room *room);
+void delete_room_flag(struct Room *room);
 struct Room *allocate_free_room_structure(void);
 unsigned short i_can_allocate_free_room_structure(void);
 void delete_all_room_structures(void);
@@ -155,9 +161,17 @@ void delete_room_structure(struct Room *room);
 struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, unsigned char rkind);
 struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned short x, unsigned short y);
 short room_grow_food(struct Room *room);
+void update_room_efficiency(struct Room *room);
 long create_workshop_object_in_workshop_room(long a1, long a2, long a3);
 struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, long rkind);
 
+void init_room_sparks(struct Room *room);
+void replace_room_slab(struct Room *room, long a2, long a3, unsigned char a4);
+short delete_room_slab_when_no_free_room_structures(long a1, long a2, unsigned char a3);
+long calculate_room_efficiency(struct Room *room);
+void kill_room_slab_and_contents(unsigned char a1, unsigned char a2, unsigned char a3);
+void free_room_structure(struct Room *room);
+void reset_creatures_rooms(struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
 }

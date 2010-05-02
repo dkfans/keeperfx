@@ -79,7 +79,7 @@ typedef unsigned char SlabType;
 
 struct SlabMap {
       SlabType slab;
-      short field_1;
+      short next_in_room;
       unsigned char room_index;
       unsigned char field_4;
       unsigned char field_5;
@@ -130,9 +130,12 @@ struct SlabMap *get_slabmap_direct(long slab_num);
 TbBool slabmap_block_invalid(struct SlabMap *slb);
 long slabmap_owner(struct SlabMap *slb);
 void slabmap_set_owner(struct SlabMap *slb, long owner);
+void set_whole_slab_owner(long slb_x, long slb_y, long owner);
 long get_next_slab_number_in_room(long slab_num);
+long calculate_effeciency_score_for_room_slab(long slab_num, long plyr_idx);
 void clear_slabs(void);
 void reveal_whole_map(struct PlayerInfo *player);
+void update_blocks_around_slab(long slb_x, long slb_y);
 
 /******************************************************************************/
 #ifdef __cplusplus

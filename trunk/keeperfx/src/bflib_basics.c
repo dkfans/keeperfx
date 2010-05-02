@@ -271,6 +271,18 @@ int LbSyncLog(const char *format, ...)
     return result;
 }
 
+int LbNaviLog(const char *format, ...)
+{
+    if (!error_log_initialised)
+        return -1;
+    LbLogSetPrefix(&error_log, "Navi: ");
+    va_list val;
+    va_start(val, format);
+    int result=LbLog(&error_log, format, val);
+    va_end(val);
+    return result;
+}
+
 /*
  * Logs script-related message.
  */

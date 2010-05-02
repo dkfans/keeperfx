@@ -525,6 +525,7 @@ long object_update_dungeon_heart(struct Thing *thing)
       dungeon->pos_1065.z.val = thing->mappos.z.val;
   }
   process_dungeon_destroy(thing);
+  SYNCDBG(8,"Beat update");
   if ((thing->field_0 & 0x01) == 0)
     return 0;
   if ( thing->byte_13.l )
@@ -576,18 +577,28 @@ long update_object(struct Thing *thing)
   SYNCDBG(18,"Starting for model %d",(int)thing->model);
   //return _DK_update_object(thing);
 
-  upcallback = object_update_functions[thing->model];
+  upcallback = NULL;
+  if (thing->model < sizeof(object_update_functions)/sizeof(object_update_functions[0]))
+      upcallback = object_update_functions[thing->model];
+  else
+      ERRORLOG("Object model %d exceeds update_functions dimensions",(int)thing->model);
   if (upcallback != NULL)
   {
     if (upcallback(thing) <= 0)
       return -1;
   }
-  stcallback = object_state_functions[thing->field_7];
+  stcallback = NULL;
+  if (thing->field_7 < sizeof(object_state_functions)/sizeof(object_state_functions[0]))
+      stcallback = object_state_functions[thing->field_7];
+  else
+      ERRORLOG("Object state %d exceeds state_functions dimensions",(int)thing->field_7);
   if (stcallback != NULL)
   {
-    if (stcallback(thing) <= 0)
-      return -1;
+      SYNCDBG(18,"Updating state");
+      if (stcallback(thing) <= 0)
+        return -1;
   }
+  SYNCDBG(18,"Updating position");
   thing->field_25 &= 0xFE;
   thing->field_25 &= 0xFD;
   if ( ((thing->field_25 & 0x40) == 0) && thing_touching_floor(thing) )

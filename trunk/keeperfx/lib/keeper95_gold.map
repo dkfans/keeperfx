@@ -638,6 +638,21 @@
  0003:00241504       lightning_palette
  0003:00024D05       vec_mode
  0003:00024D04       vec_colour
+ 0003:00055EB4       EdgeFit
+ 0003:000564F8       tree_Bx8
+ 0003:000564FC       tree_By8
+ 0003:00056544       tree_Ax8
+ 0003:00056548       tree_Ay8
+ 0003:0005C358       tree_route
+ 0003:00062338       tree_triA
+ 0003:0006233C       tree_triB
+ 0003:00062560       RadiusEdgeFit
+ 0003:00062960       Triangles
+ 0003:00094638       ap_GPathway
+ 0003:000971A8       tree_altA
+ 0003:000971AC       tree_altB
+ 0003:0009A090       tree_routelen
+ 0003:000A5C28       tree_routecost
 
  0006:00000008       gpoly_pro_enable_mode_ofs
  0006:00000010       gtblock_clip_width
@@ -1020,7 +1035,6 @@
  0001:0007F050       update_dungeon_generation_speeds
  0001:00064DE0       check_and_auto_fix_stats
  0001:000C7DE0       load_stats_files
- 0001:000BDA60       set_start_state
  0001:000BCF00       get_room_thing_is_on
  0001:000B7980       send_creature_to_room
  0001:000863E0       get_id
@@ -1321,7 +1335,6 @@
  0001:00077FA0       find_door_of_type
  0001:000A61B0       take_money_from_dungeon
  0001:0007B6C0       update_navigation_triangulation
- 0001:00013BB0       place_animating_slab_type_on_map
  0001:00077D20       lock_door
  0001:0004AB30       can_cast_spell_on_creature
  0001:000A68B0       power_sight_explored
@@ -1671,3 +1684,24 @@
  0001:0004CA10       fake_place_thing_in_power_hand
  0001:0004CB50       fake_dump_held_creatures_on_map
  0001:0004F4A0       find_creature_to_be_placed_in_room
+ 0001:000B4CA0       calculate_effeciency_score_for_room_slab
+ 0001:000B5450       calculate_room_efficiency
+ 0001:000B5520       delete_room_slab_when_no_free_room_structures
+ 0001:000B57E0       replace_room_slab
+ 0001:000B5900       kill_room_slab_and_contents
+ 0001:000B5FD0       free_room_structure
+ 0001:000BB560       reset_creatures_rooms
+ 0001:000663E0       edgelen_init
+ 0001:00066950       regions_connected
+ 0001:00067450       triangle_findSE8
+ 0001:0006C3B0       path_out_a_bit
+ 0001:0006C570       route_to_path
+ 0001:0006DA40       gate_navigator_init8
+ 0001:0006AF70       ma_triangle_route
+ 0001:0006DB40       route_through_gates
+ 0001:00013030       place_single_slab_type_on_map
+ 0001:00013BB0       place_animating_slab_type_on_map
+ 0001:00014650       alter_rock_style
+ 0001:000157E0       shuffle_unattached_things_on_slab
+ 0001:000B1720       update_blocks_in_area
+ 0001:000343B0       wp_check_map_pos_valid

@@ -131,6 +131,7 @@ void nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long 
 void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, unsigned char a4)
 {
     struct CreatureStats *crstat;
+    long nav_sizexy;
     long px, py;
     crstat = creature_stats_get_from_thing(thing);
     nav_thing_can_travel_over_lava = (!crstat->hurt_by_lava) || ((thing->field_25 & 0x20) != 0);
@@ -141,8 +142,8 @@ void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *
     {
       owner_player_navigating = thing->owner;
     }
-    nearest_search(actual_sizexy_to_nav_block_sizexy_table[thing->field_56] - 1,
-      thing->mappos.x.val, thing->mappos.y.val,
+    nav_sizexy = actual_sizexy_to_nav_block_sizexy_table[thing->field_56] - 1;
+    nearest_search(nav_sizexy, thing->mappos.x.val, thing->mappos.y.val,
       pos1->x.val, pos1->y.val, &px, &py);
     pos2->x.val = px;
     pos2->y.val = py;
@@ -216,12 +217,8 @@ TbBool creature_can_travel_over_lava(struct Thing *thing)
 
 TbBool creature_can_navigate_to(struct Thing *thing, struct Coord3d *pos, TbBool no_owner)
 {
-    TbBool result;
     SYNCDBG(17,"Starting");
-    result = _DK_creature_can_navigate_to(thing, pos, no_owner);
-    SYNCDBG(17,"Finished");
-    return result;
-/*
+    //result = _DK_creature_can_navigate_to(thing, pos, no_owner);
     struct Path path;
     long nav_sizexy;
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
@@ -233,7 +230,8 @@ TbBool creature_can_navigate_to(struct Thing *thing, struct Coord3d *pos, TbBool
     path_init8_wide(&path, thing->mappos.x.val, thing->mappos.y.val,
         pos->x.val, pos->y.val, -2, nav_sizexy);
     nav_thing_can_travel_over_lava = 0;
-    return path.field_10[0];*/
+    SYNCDBG(17,"Finished");
+    return (path.field_10 != 0);
 }
 
 /**
@@ -250,6 +248,7 @@ TbBool creature_can_get_to_dungeon(struct Thing *thing, long plyr_idx)
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
     struct Thing *heartng;
+    SYNCDBG(18,"Starting");
     player = get_player(plyr_idx);
     if (!player_exists(player) || (player->field_2C != 1))
     {

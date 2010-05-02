@@ -245,6 +245,7 @@ TbBool state_info_invalid(struct StateInfo *stati);
 void create_effect_around_thing(struct Thing *thing, long eff_kind);
 long get_creature_state_type(const struct Thing *thing);
 long get_creature_gui_job(const struct Thing *thing);
+short set_start_state(struct Thing *thing);
 
 TbBool creature_is_doing_lair_activity(const struct Thing *thing);
 TbBool creature_is_being_dropped(const struct Thing *thing);
@@ -253,6 +254,7 @@ TbBool creature_is_doing_garden_activity(const struct Thing *thing);
 TbBool creature_is_taking_salary_activity(const struct Thing *thing);
 TbBool creature_is_doing_temple_activity(const struct Thing *thing);
 TbBool creature_state_is_unset(const struct Thing *thing);
+TbBool remove_creature_from_work_room(struct Thing *thing);
 /******************************************************************************/
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2);
 TbBool anger_is_creature_livid(const struct Thing *thing);

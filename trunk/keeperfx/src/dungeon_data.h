@@ -327,6 +327,9 @@ struct Dungeon *get_dungeon_ptr(PlayerNumber plyr_num,const char *func_name);
 TbBool dungeon_invalid(struct Dungeon *dungeon);
 
 void clear_dungeons(void);
+void decrease_dungeon_area(unsigned char plyr_idx, long value);
+void increase_room_area(unsigned char plyr_idx, long value);
+void decrease_room_area(unsigned char plyr_idx, long value);
 /******************************************************************************/
 #ifdef __cplusplus
 }
