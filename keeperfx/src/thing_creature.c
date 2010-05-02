@@ -988,7 +988,7 @@ long process_creature_state(struct Thing *thing)
   }
   // Enable this to know which function hangs on update_creature.
   //TODO: rewrite state subfunctions so they won't hang
-  SYNCDBG(18,"Executing state %d",(int)thing->field_7);
+  SYNCDBG(8,"Executing state %d",(int)thing->field_7);
   stati = get_thing_state7_info(thing);
   if (stati->ofsfield_0 == NULL)
     return false;

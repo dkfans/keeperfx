@@ -87,4 +87,44 @@ void clear_dungeons(void)
   game.field_14E49E = 0;
 }
 
+void decrease_dungeon_area(unsigned char plyr_idx, long value)
+{
+    struct Dungeon *dungeon;
+    if (plyr_idx == game.neutral_player_num)
+        return;
+    dungeon = get_dungeon(plyr_idx);
+    if (dungeon->total_area < value)
+      dungeon->total_area = 0;
+    else
+      dungeon->total_area -= value;
+}
+
+void increase_room_area(unsigned char plyr_idx, long value)
+{
+    struct Dungeon *dungeon;
+    if (plyr_idx == game.neutral_player_num)
+        return;
+    dungeon = get_dungeon(plyr_idx);
+    dungeon->field_949 += value;
+    dungeon->total_area += value;
+}
+
+void decrease_room_area(unsigned char plyr_idx, long value)
+{
+    struct Dungeon *dungeon;
+    if (plyr_idx == game.neutral_player_num)
+        return;
+    dungeon = get_dungeon(plyr_idx);
+
+    if (dungeon->field_949 < value)
+      dungeon->field_949 = 0;
+    else
+      dungeon->field_949 -= value;
+
+    if (dungeon->total_area < value)
+      dungeon->total_area = 0;
+    else
+      dungeon->total_area -= value;
+}
+
 /******************************************************************************/
