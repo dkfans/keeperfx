@@ -1531,7 +1531,7 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
                   {
                       if (setup_person_move_to_position(thing, x, y, 0))
                       {
-                          SYNCDBG(18,"Moving to (%d,%d)",(int)x,(int)y);
+                          SYNCDBG(8,"Moving to (%d,%d)",(int)x,(int)y);
                           return true;
                       }
                   }
@@ -1539,7 +1539,10 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
               k = (k+1) % 9;
             }
             if (slb->slab != SlbT_LAVA)
-              return false;
+            {
+                SYNCDBG(8,"Found non lava around");
+                return false;
+            }
         }
         m = (m+1) % SMALL_AROUND_SLAB_LENGTH;
     }
@@ -1554,13 +1557,13 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
         {
           if (setup_person_move_to_position(thing, x, y, 0))
           {
-              SYNCDBG(18,"Moving to (%d,%d)",(int)x,(int)y);
+              SYNCDBG(8,"Moving to (%d,%d)",(int)x,(int)y);
               return true;
           }
         }
         k = (k+1) % 9;
     }
-    SYNCDBG(18,"Moving failed");
+    SYNCDBG(8,"Moving failed");
     return false;
 }
 
@@ -2242,11 +2245,14 @@ struct Thing *find_gold_hoarde_in_room_for_creature(struct Thing *thing, struct 
     unsigned long k;
     long i;
     gldtng = NULL;
-    if (room->field_3B <= 0)
+    if (room->slabs_count <= 0)
+    {
+        WARNLOG("Room with no slabs detected!");
         return NULL;
-    selected = ACTION_RANDOM(room->field_3B);
+    }
+    selected = ACTION_RANDOM(room->slabs_count);
     k = 0;
-    i = room->field_37;
+    i = room->slabs_list;
     while (i != 0)
     {
         slb_x = slb_num_decode_x(i);
@@ -2270,7 +2276,7 @@ struct Thing *find_gold_hoarde_in_room_for_creature(struct Thing *thing, struct 
         // Per room tile code ends
         i = get_next_slab_number_in_room(i);
         k++;
-        if (k > room->field_3B)
+        if (k > room->slabs_count)
         {
           ERRORLOG("Room slabs list length exceeded when sweeping");
           break;
@@ -2464,6 +2470,7 @@ long good_find_enemy_dungeon(struct Thing *thing)
 {
   struct CreatureControl *cctrl;
   long i;
+  SYNCDBG(18,"Starting");
   cctrl = creature_control_get_from_thing(thing);
   if ((cctrl->byte_8C != 0) || (cctrl->byte_8B != 0))
   {
@@ -2815,9 +2822,8 @@ short good_doing_nothing(struct Thing *thing)
     struct PlayerInfo *player;
     long nturns;
     long i;
-    //TODO: hangs if out of things
     //return _DK_good_doing_nothing(thing);
-    SYNCDBG(8,"Starting");
+    SYNCDBG(18,"Starting");
     // Debug code to find incorrect states
     if (thing->owner != hero_player_number)
     {
@@ -3357,6 +3363,8 @@ long imp_stack_update(struct Thing *thing)
 
 long check_out_imp_stack(struct Thing *thing)
 {
+    //TODO may hang in some cases
+    SYNCDBG(18,"Starting");
     return _DK_check_out_imp_stack(thing);
 }
 
@@ -3366,7 +3374,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
 }
 
 /**
- * Checks if given digger has money for treasure room.
+ * Checks if given digger has money that should be placed in treasure room.
  * If he does, he is ordered to return them into nearest treasure room
  * which has the proper capacity. If there's no proper treasure room,
  * a proper speech message is created.
@@ -3377,6 +3385,7 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
 {
     struct Dungeon *dungeon;
     struct Room *room;
+    SYNCDBG(18,"Starting");
     //If the imp doesn't have any money - then just return
     if (thing->long_13 <= 0)
       return 0;
@@ -3419,6 +3428,7 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
 long check_out_available_imp_tasks(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
+    SYNCDBG(9,"Starting");
     cctrl = creature_control_get_from_thing(thing);
     imp_stack_update(thing);
     if ( check_out_imp_stack(thing) )
@@ -3436,6 +3446,7 @@ long check_out_imp_tokes(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     long i;
+    SYNCDBG(19,"Starting");
     cctrl = creature_control_get_from_thing(thing);
     i = ACTION_RANDOM(64);
     // small chance of changing state
@@ -3501,26 +3512,27 @@ long check_out_unprettied_spiral(struct Thing *thing, long a2)
 
 TbBool check_out_unconverted_place(struct Thing *thing)
 {
-  long stl_x,stl_y;
-  long slb_x,slb_y;
-  slb_x = map_to_slab[thing->mappos.x.stl.num];
-  slb_y = map_to_slab[thing->mappos.y.stl.num];
-  stl_x = 3*slb_x + 1;
-  stl_y = 3*slb_y + 1;
-  if ( check_place_to_convert_excluding(thing, slb_x, slb_y)
-    && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y) )
-  {
-      if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
-      {
-          thing->field_8 = CrSt_ImpArrivesAtConvertDungeon;
-          return true;
-      }
-  }
-  if ( check_out_unconverted_spiral(thing, 1) )
-  {
-    return true;
-  }
-  return false;
+    long stl_x,stl_y;
+    long slb_x,slb_y;
+    SYNCDBG(19,"Starting");
+    slb_x = map_to_slab[thing->mappos.x.stl.num];
+    slb_y = map_to_slab[thing->mappos.y.stl.num];
+    stl_x = 3*slb_x + 1;
+    stl_y = 3*slb_y + 1;
+    if ( check_place_to_convert_excluding(thing, slb_x, slb_y)
+      && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y) )
+    {
+        if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
+        {
+            thing->field_8 = CrSt_ImpArrivesAtConvertDungeon;
+            return true;
+        }
+    }
+    if ( check_out_unconverted_spiral(thing, 1) )
+    {
+      return true;
+    }
+    return false;
 }
 
 long check_out_unprettied_place(struct Thing *thing)
@@ -3549,12 +3561,14 @@ long check_out_unprettied_place(struct Thing *thing)
 
 long check_out_undug_place(struct Thing *thing)
 {
-  return _DK_check_out_undug_place(thing);
+    SYNCDBG(19,"Starting");
+    return _DK_check_out_undug_place(thing);
 }
 
 long check_out_undug_area(struct Thing *thing)
 {
-  return _DK_check_out_undug_area(thing);
+    SYNCDBG(19,"Starting");
+    return _DK_check_out_undug_area(thing);
 }
 
 long check_out_unprettied_or_unconverted_area(struct Thing *thing)
@@ -3897,10 +3911,10 @@ TbBool jailbreak_possible(struct Room *room, long plyr_idx)
   unsigned long i;
   unsigned long k;
   struct SlabMap *slb;
-  if ( (room->owner == plyr_idx) || (!room->field_37) )
+  if ( (room->owner == plyr_idx) || (!room->slabs_list) )
     return false;
   k = 0;
-  i = room->field_37;
+  i = room->slabs_list;
   while (i > 0)
   {
     slb = get_slabmap_direct(i);
@@ -3911,7 +3925,7 @@ TbBool jailbreak_possible(struct Room *room, long plyr_idx)
     }
     if (slab_by_players_land(plyr_idx, slb_num_decode_x(i), slb_num_decode_y(i)))
       return true;
-    i = slb->field_1;
+    i = get_next_slab_number_in_room(i);
     k++;
     if (k > map_tiles_x*map_tiles_y)
     {
@@ -4272,9 +4286,51 @@ TbBool internal_set_thing_state(struct Thing *thing, long nState)
   return true;
 }
 
-unsigned char remove_creature_from_work_room(struct Thing *thing)
+TbBool remove_creature_from_work_room(struct Thing *thing)
 {
-    return _DK_remove_creature_from_work_room(thing);
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    struct Thing *sectng;
+    struct CreatureControl *secctrl;
+    //return _DK_remove_creature_from_work_room(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->field_7E == 0) || ((cctrl->flgfield_1 & 0x20) == 0))
+        return false;
+    room = room_get(cctrl->field_7E);
+    if (room_is_invalid(room))
+    {
+        WARNLOG("Creature had invalid room index");
+        cctrl->field_7E = 0;
+        return false;
+    }
+    if (room->field_10 > 0)
+    {
+      room->field_10--;
+    } else
+    {
+      WARNLOG("Attempt to remove a creature from room type %d with too little used space", (int)room->kind);
+    }
+    if (cctrl->field_2AC > 0)
+    {
+        sectng = thing_get(cctrl->field_2AC);
+        secctrl = creature_control_get_from_thing(thing);
+        secctrl->field_2AA = cctrl->field_2AA;
+    } else
+    {
+      room->field_3D = cctrl->field_2AA;
+    }
+    if (cctrl->field_2AA > 0)
+    {
+        sectng = thing_get(cctrl->field_2AA);
+        secctrl = creature_control_get_from_thing(thing);
+        secctrl->field_2AC = cctrl->field_2AC;
+    }
+    cctrl->field_7C = cctrl->field_7E;
+    cctrl->field_7E = 0;
+    cctrl->flgfield_1 &= 0xDF;
+    cctrl->field_2AA = 0;
+    cctrl->field_2AC = 0;
+    return true;
 }
 
 TbBool initialise_thing_state(struct Thing *thing, long nState)
@@ -4378,5 +4434,49 @@ TbBool can_change_from_state_to(struct Thing *thing, long curr_state, long next_
         return true;
     }
     return false;
+}
+
+short set_start_state(struct Thing *thing)
+{
+    struct PlayerInfo *player;
+    struct CreatureControl *cctrl;
+    long i;
+    SYNCDBG(8,"Starting");
+//    return _DK_set_start_state(thing);
+    if ((thing->field_0 & 0x20) != 0)
+    {
+      cleanup_current_thing_state(thing);
+      initialise_thing_state(thing, 122);
+      return thing->field_7;
+    }
+    if (thing->owner == game.neutral_player_num)
+    {
+      cleanup_current_thing_state(thing);
+      initialise_thing_state(thing, 48);
+      return thing->field_7;
+    }
+    if (thing->owner == game.field_14E496)
+    {
+      i = creatures[thing->model%CREATURE_TYPES_COUNT].numfield_2;
+      cleanup_current_thing_state(thing);
+      initialise_thing_state(thing, i);
+      return thing->field_7;
+    }
+    player = get_player(thing->owner);
+    if (player->victory_state == 2)
+    {
+      cleanup_current_thing_state(thing);
+      initialise_thing_state(thing, 139);
+      return thing->field_7;
+    }
+    cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->field_AD & 0x02) != 0)
+    {
+      cleanup_current_thing_state(thing);
+      initialise_thing_state(thing, 133);
+      return thing->field_7;
+    }
+    initialise_thing_state(thing, creatures[thing->model%CREATURE_TYPES_COUNT].numfield_0);
+    return thing->field_7;
 }
 /******************************************************************************/

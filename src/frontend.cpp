@@ -3360,7 +3360,7 @@ TbBool fronttestfont_draw(void)
       LbDrawBox(x, y, spr->SWidth+2, spr->SHeight+2, 255);
       LbSpriteDraw(x+1, y+1, spr);
     }
-//    !!!!!!!!!!!!!!!!
+//TODO enhance font support
   }
   // Displaying the new frame
   return true;
@@ -5694,15 +5694,6 @@ char create_menu(struct GuiMenu *gmnu)
   // Setting position Y
   amnu->pos_y = compute_menu_position_y(gmnu->pos_y,gmnu->height);
 
-/* TODO what's this? remove?
-  for (i=0; i<3; i++)
-  {
-    if ((menu_ids[i] == gmnu->field_0) && (MyScreenHeight == 480))
-    {
-      amnu->pos_y += 80;
-      break;
-    }
-  }*/
   amnu->numfield_2 = gmnu->numfield_2;
   if (amnu->numfield_2 < 1)
     ERRORLOG("Oi! There is a fade time less than 1. Idiot.");

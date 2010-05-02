@@ -184,11 +184,14 @@
  0001:00011E10       process_spells_affected_by_effect_elements
  0001:000122B0       process_keeper_spell_effect
  0001:000128A0       place_slab_type_on_map
+ 0001:00013030       place_single_slab_type_on_map
  0001:00013BB0       place_animating_slab_type_on_map
+ 0001:00014650       alter_rock_style
  0001:00014810       initialise_map_collides
  0001:00014990       initialise_map_health
  0001:00014EB0       do_slab_efficiency_alteration
  0001:000156E0       delete_room_slabbed_objects
+ 0001:000157E0       shuffle_unattached_things_on_slab
  0001:00015F90       script_process_value
  0001:00016670       script_create_new_creature
  0001:000167C0       script_process_new_party
@@ -285,6 +288,7 @@
  0001:00033CF0       draw_engine_room_flagpole
  0001:00033E40       draw_engine_room_flag_top
  0001:00034130       wander_point_update
+ 0001:000343B0       wp_check_map_pos_valid
  0001:00034720       set_game_key
  0001:00035970       get_isometric_view_nonaction_inputs
  0001:00035F70       get_front_view_nonaction_inputs
@@ -525,6 +529,14 @@
  0001:00065F80       event_move_player_towards_event
  0001:00065FC0       remove_events_thing_is_attached_to
  0001:00066100       update_all_events
+ 0001:000663E0       edgelen_init
+ 0001:00066950       regions_connected
+ 0001:00067450       triangle_findSE8
+ 0001:0006AF70       ma_triangle_route
+ 0001:0006C3B0       path_out_a_bit
+ 0001:0006C570       route_to_path
+ 0001:0006DA40       gate_navigator_init8
+ 0001:0006DB40       route_through_gates
  0001:0006E050       path_init8_wide
  0001:0006E7B0       nearest_search
  0001:0006EC80       setup_a_computer_player
@@ -882,6 +894,7 @@
  0001:000B1110       remove_workshop_item
  0001:000B11C0       tag_blocks_for_digging_in_rectangle_around
  0001:000B1230       untag_blocks_for_digging_in_rectangle_around
+ 0001:000B1720       update_blocks_in_area
  0001:000B1D10       imp_stack_update
  0001:000B20F0       add_pretty_and_convert_to_imp_stack
  0001:000B2950       add_unclaimed_unconscious_bodies_to_imp_stack
@@ -904,8 +917,14 @@
  0001:000B44E0       creature_being_scavenged
  0001:000B45F0       process_rooms
  0001:000B4970       room_grow_food
+ 0001:000B4CA0       calculate_effeciency_score_for_room_slab
  0001:000B4EC0       set_room_efficiency
  0001:000B4FA0       delete_room_slab
+ 0001:000B5450       calculate_room_efficiency
+ 0001:000B5520       delete_room_slab_when_no_free_room_structures
+ 0001:000B57E0       replace_room_slab
+ 0001:000B5900       kill_room_slab_and_contents
+ 0001:000B5FD0       free_room_structure
  0001:000B69C0       find_nearest_room_for_thing_excluding_two_types
  0001:000B6C00       find_nearest_room_for_thing_with_spare_capacity
  0001:000B6D10       find_room_with_spare_room_item_capacity
@@ -930,6 +949,7 @@
  0001:000BAFF0       count_crates_in_room
  0001:000BB3C0       count_workers_in_room
  0001:000BB440       count_lair_occupants
+ 0001:000BB560       reset_creatures_rooms
  0001:000BBA70       go_to_my_next_room_of_type
  0001:000BCDB0       create_room_flag
  0001:000BCF00       get_room_thing_is_on
@@ -940,7 +960,6 @@
  0001:000BD660       remove_first_creature
  0001:000BD890       change_creature_owner
  0001:000BDA30       creature_dormant
- 0001:000BDA60       set_start_state
  0001:000BDE40       patrol_here
  0001:000BDF80       patrolling
  0001:000BE0A0       creature_slap_cowers
@@ -1462,6 +1481,21 @@
  0003:00053B80       optimised_lights
  0003:00053B84       do_lights
  0003:00053B88       total_lights
+ 0003:00055EB4       EdgeFit
+ 0003:000564F8       tree_Bx8
+ 0003:000564FC       tree_By8
+ 0003:00056544       tree_Ax8
+ 0003:00056548       tree_Ay8
+ 0003:0005C358       tree_route
+ 0003:00062338       tree_triA
+ 0003:0006233C       tree_triB
+ 0003:00062560       RadiusEdgeFit
+ 0003:00062960       Triangles
+ 0003:00094638       ap_GPathway
+ 0003:000971A8       tree_altA
+ 0003:000971AC       tree_altB
+ 0003:0009A090       tree_routelen
+ 0003:000A5C28       tree_routecost
  0003:000A6550       end_level_names_data
  0003:000A6554       palette
  0003:000A655C       port_sprite_data

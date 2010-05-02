@@ -30,6 +30,8 @@ const short around_slab[] = {-86, -85, -84,  -1,   0,   1,  84,  85,  86};
 const short small_around_slab[] = {-85,   1,  85,  -1};
 struct SlabMap bad_slabmap_block;
 /******************************************************************************/
+DLLIMPORT long _DK_calculate_effeciency_score_for_room_slab(long a1, long plyr_idx);
+DLLIMPORT void _DK_update_blocks_in_area(long sx, long sy, long ex, long ey);
 /******************************************************************************/
 /**
  * Returns slab number, which stores both X and Y coords in one number.
@@ -116,7 +118,7 @@ long slabmap_owner(struct SlabMap *slb)
 }
 
 /**
- * Returns owner index of given SlabMap.
+ * Sets owner of given SlabMap.
  */
 void slabmap_set_owner(struct SlabMap *slb, long owner)
 {
@@ -126,13 +128,33 @@ void slabmap_set_owner(struct SlabMap *slb, long owner)
 }
 
 /**
+ * Sets owner of a slab on given position.
+ */
+void set_whole_slab_owner(long slb_x, long slb_y, long owner)
+{
+    struct SlabMap *slb;
+    long stl_x,stl_y;
+    long i,k;
+    stl_x = 3 * slb_x;
+    stl_y = 3 * slb_y;
+    for (i = 0; i < 3; i++)
+    {
+      for (k = 0; k < 3; k++)
+      {
+          slb = get_slabmap_for_subtile(stl_x + k, stl_y + i);
+          slabmap_set_owner(slb, owner);
+      }
+    }
+}
+
+/**
  * Returns slab number of the next tile in a room, after the given one.
  */
 long get_next_slab_number_in_room(long slab_num)
 {
     if ((slab_num < 0) || (slab_num >= map_tiles_x*map_tiles_y))
         return 0;
-    return game.slabmap[slab_num].field_1;
+    return game.slabmap[slab_num].next_in_room;
 }
 
 /**
@@ -151,6 +173,11 @@ void clear_slabs(void)
     }
 }
 
+long calculate_effeciency_score_for_room_slab(long slab_num, long plyr_idx)
+{
+    return _DK_calculate_effeciency_score_for_room_slab(slab_num, plyr_idx);
+}
+
 /**
  * Reveals the whole map for specific player.
  */
@@ -159,6 +186,33 @@ void reveal_whole_map(struct PlayerInfo *player)
   clear_dig_for_map_rect(player->id_number,0,map_tiles_x,0,map_tiles_y);
   reveal_map_rect(player->id_number,1,map_subtiles_x,1,map_subtiles_y);
   pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
+}
+
+void update_blocks_in_area(long sx, long sy, long ex, long ey)
+{
+    _DK_update_blocks_in_area(sx, sy, ex, ey);
+}
+
+void update_blocks_around_slab(long slb_x, long slb_y)
+{
+    long stl_x,stl_y;
+    long sx,sy,ex,ey;
+    stl_x = 3 * slb_x;
+    stl_y = 3 * slb_y;
+
+    ey = stl_y + 5;
+    if (ey >= 256)
+        ey = 256;
+    ex = stl_x + 5;
+    if (ex >= 256)
+        ex = 256;
+    sy = stl_y - 3;
+    if (sy <= 0)
+        sy = 0;
+    sx = stl_x - 3;
+    if (sx <= 0)
+        sx = 0;
+    update_blocks_in_area(sx, sy, ex, ey);
 }
 /******************************************************************************/
 #ifdef __cplusplus

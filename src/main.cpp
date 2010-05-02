@@ -550,7 +550,6 @@ DLLIMPORT void _DK_light_set_light_position(long lgt_id, struct Coord3d *pos);
 DLLIMPORT void _DK_gui_set_button_flashing(long a1, long a2);
 DLLIMPORT short _DK_send_creature_to_room(struct Thing *thing, struct Room *room);
 DLLIMPORT struct Room *_DK_get_room_thing_is_on(struct Thing *thing);
-DLLIMPORT short _DK_set_start_state(struct Thing *thing);
 DLLIMPORT long _DK_load_stats_files(void);
 DLLIMPORT void _DK_check_and_auto_fix_stats(void);
 DLLIMPORT long _DK_update_dungeon_scores(void);
@@ -688,7 +687,7 @@ DLLIMPORT void _DK_process_rooms(void);
 DLLIMPORT void _DK_process_dungeons(void);
 DLLIMPORT void _DK_process_messages(void);
 DLLIMPORT void _DK_find_nearest_rooms_for_ambient_sound(void);
-DLLIMPORT void __cdecl _DK_light_render_area(int startx, int starty, int endx, int endy);
+DLLIMPORT void _DK_light_render_area(int startx, int starty, int endx, int endy);
 DLLIMPORT void _DK_process_player_research(int plr_idx);
 DLLIMPORT long _DK_process_player_manufacturing(int plr_idx);
 DLLIMPORT void _DK_event_process_events(void);
@@ -724,6 +723,10 @@ DLLIMPORT void _DK_init_level(void);
 DLLIMPORT void _DK_init_player(struct PlayerInfo *player, int a2);
 DLLIMPORT int _DK_frontend_is_player_allied(long plyr1, long plyr2);
 DLLIMPORT void _DK_process_dungeon_destroy(struct Thing *thing);
+DLLIMPORT void _DK_place_single_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, unsigned char a4);
+DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long a2);
+DLLIMPORT unsigned char _DK_alter_rock_style(unsigned char a1, signed char a2, signed char a3, unsigned char a4);
+DLLIMPORT long _DK_wp_check_map_pos_valid(struct Wander *wandr, long a1);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 #ifdef __cplusplus
@@ -1492,7 +1495,6 @@ void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
         crstat = creature_stats_get_from_thing(thing);
         if ((cctrl->flgfield_1 & 0x04) == 0)
         {
-            player = get_player(thing->owner);
             // Compute armour value
             carmour = crstat->armour;
             if (!creature_control_invalid(cctrl))
@@ -1517,18 +1519,22 @@ void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
             thing->word_17 = 8;
             thing->field_4F |= 0x80;
             // Red palette if the possessed creature is hit very strong
-            if (thing_get(player->field_2F) == thing)
+            if (thing->owner != game.neutral_player_num)
             {
-              i = (10 * cdamage) / compute_creature_max_health(crstat->health,cctrl->explevel);
-              if (i > 10)
-              {
-                  i = 10;
-              } else
-              if (i <= 0)
-              {
-                  i = 1;
-              }
-              PaletteApplyPainToPlayer(player, i);
+                player = get_player(thing->owner);
+                if (thing_get(player->field_2F) == thing)
+                {
+                  i = (10 * cdamage) / compute_creature_max_health(crstat->health,cctrl->explevel);
+                  if (i > 10)
+                  {
+                      i = 10;
+                  } else
+                  if (i <= 0)
+                  {
+                      i = 1;
+                  }
+                  PaletteApplyPainToPlayer(player, i);
+                }
             }
         }
         break;
@@ -1593,11 +1599,6 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
 {
   _DK_external_activate_trap_shot_at_angle(thing, a2);
-}
-
-short set_start_state(struct Thing *thing)
-{
-  return _DK_set_start_state(thing);
 }
 
 void process_person_moods_and_needs(struct Thing *thing)
@@ -3683,9 +3684,244 @@ void do_slab_efficiency_alteration(unsigned char a1, unsigned char a2)
   _DK_do_slab_efficiency_alteration(a1, a2);
 }
 
-void place_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5)
+void place_slab_type_on_map(long nslab, long stl_x, long stl_y, unsigned char owner, unsigned char a5)
 {
-  _DK_place_slab_type_on_map(a1, a2, a3, a4, a5);
+    short previous_slab_types_around[8];
+    struct SlabMap *slb;
+    struct SlabMap *sslb1,*sslb2;
+    struct Map *mapblk;
+    long slb_x,slb_y;
+    long spos_x,spos_y;
+    struct Thing *thing;
+    struct Objects *objdat;
+    struct Coord3d pos;
+    long flag;
+    int skind;
+    unsigned long k;
+    long i,n;
+    //TODO may hang if out of rooms
+    SYNCDBG(7,"Starting");
+    //_DK_place_slab_type_on_map(nslab, stl_x, stl_y, owner, a5);
+    if ((stl_x < 0) || (stl_x > map_subtiles_x))
+        return;
+    if ((stl_y < 0) || (stl_y > map_subtiles_y))
+        return;
+    slb_x = map_to_slab[stl_x];
+    slb_y = map_to_slab[stl_y];
+    if (nslab >= 42)
+    {
+        ERRORLOG("Attempt to place animating slab %d as standard slab",(int)nslab);
+    }
+    for (i = 0; i < 8; i++)
+    {
+        spos_x = slb_x + my_around_eight[i].delta_x;
+        spos_y = slb_y + my_around_eight[i].delta_y;
+        slb = get_slabmap_block(spos_x,spos_y);
+        if (slabmap_block_invalid(slb))
+        {
+            previous_slab_types_around[i] = -1;
+            continue;
+        }
+        previous_slab_types_around[i] = slb->slab;
+    }
+
+    skind = alter_rock_style(nslab, slb_x, slb_y, owner);
+    slb = get_slabmap_block(slb_x,slb_y);
+    slb->slab = skind;
+
+    set_whole_slab_owner(slb_x, slb_y, owner);
+    place_single_slab_type_on_map(skind, slb_x, slb_y, owner);
+    shuffle_unattached_things_on_slab(slb_x, slb_y);
+
+    flag = slab_attrs[skind%SLAB_TYPES_COUNT].field_F;
+    if ((flag == 4) || (flag == 2))
+    {
+      for (i = 0; i < 8; i++)
+      {
+          spos_x = slb_x + my_around_eight[i].delta_x;
+          spos_y = slb_y + my_around_eight[i].delta_y;
+          slb = get_slabmap_block(spos_x,spos_y);
+          if (slabmap_block_invalid(slb))
+              continue;
+          if (slb->slab == 2)
+          {
+              flag = 0;
+              if ((spos_x % 5) == 0)
+              {
+                  sslb1 = get_slabmap_block(spos_x,spos_y+1);
+                  sslb2 = get_slabmap_block(spos_x,spos_y-1);
+                  if ((sslb1->slab == 11) || (sslb2->slab == 11))
+                      flag |= 0x01;
+              }
+              if ((spos_y % 5) == 0)
+              {
+                  sslb1 = get_slabmap_block(spos_x+1,spos_y);
+                  sslb2 = get_slabmap_block(spos_x-1,spos_y);
+                  if ((sslb1->slab == 11) || (sslb2->slab == 11))
+                      flag |= 0x02;
+              }
+              slb->slab = 3 - (flag < 1);
+          }
+      }
+    } else
+    {
+      for (i = 0; i < 8; i++)
+      {
+          spos_x = slb_x + my_around_eight[i].delta_x;
+          spos_y = slb_y + my_around_eight[i].delta_y;
+          slb = get_slabmap_block(spos_x,spos_y);
+          if (slabmap_block_invalid(slb))
+              continue;
+          if (slb->slab < 42)
+              slb->slab = alter_rock_style(slb->slab, spos_x, spos_y, owner);
+      }
+    }
+
+    pannel_map_update(3*slb_x, 3*slb_y, 3, 3);
+
+    for (i = 0; i < 8; i++)
+    {
+        spos_x = slb_x + my_around_eight[i].delta_x;
+        spos_y = slb_y + my_around_eight[i].delta_y;
+        slb = get_slabmap_block(spos_x,spos_y);
+        if (slabmap_block_invalid(slb))
+            continue;
+        if ((previous_slab_types_around[i] != slb->slab)
+          || (slb->slab != SlbT_GOLD) && (slb->slab != SlbT_ROCK)
+          || (game.flagfield_14EA4A == 1))
+        {
+            flag = slab_attrs[slb->slab%SLAB_TYPES_COUNT].field_F;
+            if (flag != 5)
+                place_single_slab_type_on_map(slb->slab, spos_x, spos_y, slabmap_owner(slb));
+        }
+    }
+    if (!a5)
+      update_blocks_around_slab(slb_x,slb_y);
+
+    switch (nslab)
+    {
+    case SlbT_EARTH:
+        for (n=0; n < 9; n++)
+        {
+          mapblk = get_map_block_at_pos(get_subtile_number(3*slb_x+1,3*slb_y+1)+around_map[n]);
+          k = 0;
+          i = get_mapwho_thing_index(mapblk);
+          while (i != 0)
+          {
+            thing = thing_get(i);
+            if (thing_is_invalid(thing))
+            {
+              WARNLOG("Jump out of things array");
+              break;
+            }
+            i = thing->field_2;
+            // Per thing code
+            if (thing->class_id == TCls_Object)
+            {
+                delete_thing_structure(thing, 0);
+            }
+            // Per thing code ends
+            k++;
+            if (k > THINGS_COUNT)
+            {
+              ERRORLOG("Infinite loop detected when sweeping things list");
+              break;
+            }
+          }
+        }
+        break;
+    case SlbT_LAVA:
+        for (n=0; n < 9; n++)
+        {
+          mapblk = get_map_block_at_pos(get_subtile_number(3*slb_x+1,3*slb_y+1)+around_map[n]);
+          k = 0;
+          i = get_mapwho_thing_index(mapblk);
+          while (i != 0)
+          {
+            thing = thing_get(i);
+            if (thing_is_invalid(thing))
+            {
+              WARNLOG("Jump out of things array");
+              break;
+            }
+            i = thing->field_2;
+            // Per thing code
+            if (thing->class_id == TCls_Object)
+            {
+                objdat = get_objects_data_for_thing(thing);
+                if (objdat->field_15)
+                {
+                    pos.x.val = thing->mappos.x.val;
+                    pos.y.val = thing->mappos.y.val;
+                    pos.z.val = get_floor_height_at(&thing->mappos);
+                    create_effect(&pos, 17, thing->owner);
+                    delete_thing_structure(thing, 0);
+                }
+            }
+            // Per thing code ends
+            k++;
+            if (k > THINGS_COUNT)
+            {
+              ERRORLOG("Infinite loop detected when sweeping things list");
+              break;
+            }
+          }
+        }
+        break;
+    case SlbT_WATER:
+        for (n=0; n < 9; n++)
+        {
+          mapblk = get_map_block_at_pos(get_subtile_number(3*slb_x+1,3*slb_y+1)+around_map[n]);
+          k = 0;
+          i = get_mapwho_thing_index(mapblk);
+          while (i != 0)
+          {
+            thing = thing_get(i);
+            if (thing_is_invalid(thing))
+            {
+              WARNLOG("Jump out of things array");
+              break;
+            }
+            i = thing->field_2;
+            // Per thing code
+            if (thing->class_id == TCls_Object)
+            {
+                objdat = get_objects_data_for_thing(thing);
+                if (objdat->field_15)
+                {
+                    pos.x.val = thing->mappos.x.val;
+                    pos.y.val = thing->mappos.y.val;
+                    pos.z.val = get_floor_height_at(&thing->mappos);
+                    create_effect(&pos, 21, thing->owner);
+                    delete_thing_structure(thing, 0);
+                }
+            }
+            // Per thing code ends
+            k++;
+            if (k > THINGS_COUNT)
+            {
+              ERRORLOG("Infinite loop detected when sweeping things list");
+              break;
+            }
+          }
+        }
+        break;
+    }
+}
+
+void place_single_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, unsigned char a4)
+{
+    _DK_place_single_slab_type_on_map(a1, a2, a3, a4);
+}
+
+void shuffle_unattached_things_on_slab(long a1, long a2)
+{
+    _DK_shuffle_unattached_things_on_slab(a1, a2);
+}
+
+unsigned char alter_rock_style(unsigned char a1, signed char a2, signed char a3, unsigned char a4)
+{
+    return _DK_alter_rock_style(a1, a2, a3, a4);
 }
 
 long light_get_light_intensity(long idx)
@@ -8979,7 +9215,8 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
 
 void place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5)
 {
-  _DK_place_animating_slab_type_on_map(a1,a2,a3,a4,a5);
+    SYNCDBG(7,"Starting");
+    _DK_place_animating_slab_type_on_map(a1,a2,a3,a4,a5);
 }
 
 void init_lookups(void)
@@ -9239,7 +9476,8 @@ struct Thing *create_room_surrounding_flame(struct Room *room,struct Coord3d *po
   {
     eething->mappos.z.val = get_thing_height_at(eething, &eething->mappos);
     eething->mappos.z.val += 10;
-    eething->field_46 = ((eething->field_46 - 80) * room->field_3F / 256) + 80;
+    // Size of the flame depends on room effifiency
+    eething->field_46 = ((eething->field_46 - 80) * room->efficiency / 256) + 80;
   }
   return eething;
 }
@@ -9329,7 +9567,7 @@ void process_rooms(void)
     if (room->kind == RoK_GARDEN)
       room_grow_food(room);
     pckt = get_packet(my_player_number);
-    pckt->chksum += (room->field_3B & 0xFF) + room->stl_x + room->stl_y;
+    pckt->chksum += (room->slabs_count & 0xFF) + room->stl_x + room->stl_y;
     if (((game.numfield_D & 0x40) == 0) || (room->kind == RoK_DUNGHEART))
       continue;
     process_room_surrounding_flames(room);
@@ -10030,9 +10268,89 @@ void message_update(void)
   _DK_message_update();
 }
 
+long wp_check_map_pos_valid(struct Wander *wandr, long a1)
+{
+    return _DK_wp_check_map_pos_valid(wandr, a1);
+}
+
 long wander_point_update(struct Wander *wandr)
 {
-  return _DK_wander_point_update(wandr);
+    long array[20];
+    double realidx,delta;
+    long tile1,tile2;
+    long slb_num,valid_num,idx;
+    long i;
+    //return _DK_wander_point_update(wandr);
+    valid_num = 0;
+    slb_num = wandr->field_8;
+    tile1 = 85;
+    tile2 = slb_num_decode_x(slb_num);
+    idx = 0;
+    for (i = 0; i < wandr->field_C; i++)
+    {
+        if (wp_check_map_pos_valid(wandr, tile1))
+        {
+          if (valid_num >= 20)
+              break;
+          valid_num++;
+          array[idx] = tile1;
+          idx++;
+          if (((wandr->field_14 & 0xFF) != 0) && (wandr->field_10 == valid_num))
+          {
+              slb_num = (wandr->field_C + wandr->field_8) % (map_tiles_x*map_tiles_y);
+              break;
+          }
+        }
+        slb_num++;
+        tile2++;
+        if (tile2 < map_tiles_x)
+        {
+          tile1 += 3;
+        } else
+        {
+          tile2 = 0;
+          if (slb_num >= map_tiles_x*map_tiles_y)
+            slb_num = 0;
+          tile1 = get_subtile_number(3*slb_num_decode_x(slb_num)+1, 3*slb_num_decode_y(slb_num)+1);
+        }
+    }
+    wandr->field_8 = slb_num;
+    if (valid_num <= 0)
+        return 1;
+    if (valid_num > wandr->field_10)
+    {
+      if (wandr->field_10 <= 0)
+          return 1;
+      wandr->field_4 %= 200;
+      delta = (double)valid_num / (double)wandr->field_10;
+      realidx = 0.0;
+      for (i = 0; i < wandr->field_10; i++)
+      {
+          tile1 = array[(unsigned int)realidx];
+          tile2 = ((tile1 >> 24) & 0xFF);
+          wandr->field_18[2 * wandr->field_4] = (tile2 ^ ((tile2 ^ tile1) - tile2)) - tile2;
+          wandr->field_18[2 * wandr->field_4 + 1] = (tile1 >> 8) & 0xFF;
+          wandr->field_4 = (wandr->field_4 + 1) % 200;
+          if (wandr->field_0 < 200)
+            wandr->field_0++;
+          realidx += delta;
+      }
+    } else
+    {
+        idx = 0;
+        while (valid_num > 0)
+        {
+            tile1 = array[idx];
+            wandr->field_18[2 * wandr->field_4] = abs(tile1);
+            wandr->field_18[2 * wandr->field_4 + 1] = (tile1 >> 8) & 0xFF;
+            wandr->field_4 = (wandr->field_4 + 1) % 200;
+            if (wandr->field_0 < 200)
+              wandr->field_0++;
+            idx++;
+            valid_num--;
+        }
+    }
+    return 1;
 }
 
 void update_player_camera(struct PlayerInfo *player)
@@ -12820,10 +13138,193 @@ TbBool destroy_trap(struct Thing *thing)
   return true;
 }
 
-short delete_room_slab(long x, long y, unsigned char gnd_slab)
+void kill_all_room_slabs_and_contents(struct Room *room)
 {
-  SYNCDBG(7,"Starting on (%ld,%ld)",x,y);
-  return _DK_delete_room_slab(x, y, gnd_slab);
+    struct SlabMap *slb;
+    long slb_x, slb_y;
+    unsigned long k;
+    long i;
+    k = 0;
+    i = room->slabs_list;
+    while (i != 0)
+    {
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        i = get_next_slab_number_in_room(i);
+        // Per room tile code
+        slb = get_slabmap_block(slb_x, slb_y);
+        kill_room_slab_and_contents(room->owner, slb_x, slb_y);
+        slb->next_in_room = 0;
+        // Per room tile code ends
+        k++;
+        if (k > room->slabs_count)
+        {
+            ERRORLOG("Room slabs list length exceeded when sweeping");
+            break;
+        }
+    }
+    room->slabs_list = 0;
+    room->slabs_count = 0;
+}
+
+void remove_slab_from_room_tiles_list(struct Room *room, long rslb_num)
+{
+    struct SlabMap *slb,*rslb;
+    unsigned long k;
+    long i;
+    rslb = get_slabmap_direct(rslb_num);
+    // If the slab to remove is first in room slabs list - it's simple
+    if (room->slabs_list == rslb_num)
+    {
+        delete_room_flag(room);
+        room->slabs_list = rslb->next_in_room;
+        create_room_flag(room);
+        return;
+    }
+    // If the slab to remove is not firs, we have to sweep the list
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+        slb = get_slabmap_direct(i);
+        if (slabmap_block_invalid(slb))
+        {
+          ERRORLOG("Jump to invalid item when sweeping Slabs.");
+          break;
+        }
+        i = get_next_slab_number_in_room(i);
+        // Per room tile code
+        if (slb->next_in_room == rslb_num)
+        {
+            // When the item was found, replace its reference with next item
+            slb->next_in_room = rslb->next_in_room;
+            rslb->next_in_room = 0;
+            room->slabs_count--;
+            return;
+        }
+        // Per room tile code ends
+        k++;
+        if (k > room->slabs_count)
+        {
+            ERRORLOG("Room slabs list length exceeded when sweeping");
+            break;
+        }
+    }
+    WARNLOG("Slab %ld couldn't be found in room tiles list.",rslb_num);
+}
+
+void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
+{
+    struct Dungeon *dungeon;
+    struct Room *nroom;
+    struct SlabMap *slb;
+    struct RoomData *rdata;
+    struct RoomStats *rstat;
+    struct Coord3d pos;
+    long slb_x, slb_y;
+    unsigned long k;
+    long i;
+    SYNCDBG(7,"Starting");
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+        slb = get_slabmap_direct(i);
+        if (slabmap_block_invalid(slb))
+        {
+          ERRORLOG("Jump to invalid item when sweeping Slabs.");
+          break;
+        }
+        i = get_next_slab_number_in_room(i);
+        // Per room tile code
+        slb->room_index = 0;
+        // Per room tile code ends
+        k++;
+        if (k > room->slabs_count)
+        {
+            ERRORLOG("Room slabs list length exceeded when sweeping");
+            break;
+        }
+    }
+    k = 0;
+    i = room->slabs_list;
+    while (i != 0)
+    {
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        i = get_next_slab_number_in_room(i);
+        // Per room tile code
+        nroom = create_room(room->owner, room->kind, 3*slb_x+1, 3*slb_y+1);
+        if (room_is_invalid(nroom))
+        {
+            delete_room_slab_when_no_free_room_structures(slb_x, slb_y, gnd_slab);
+            rstat = &game.room_stats[room->kind];
+            pos.x.val = 768 * slb_x + 128;
+            pos.y.val = 768 * slb_y + 128;
+            pos.z.val = 384;
+            create_price_effect(&pos, room->owner, rstat->cost/2);
+            dungeon = get_dungeon(room->owner);
+            dungeon->field_AFD += i;
+            dungeon->field_AF9 += i;
+        } else
+        {
+            nroom->efficiency = calculate_room_efficiency(nroom);
+            rdata = room_data_get_for_room(nroom);
+            nroom->field_C = game.hits_per_slab * nroom->slabs_count;
+            if (rdata->ofsfield_3 != NULL)
+                rdata->ofsfield_3(nroom);
+            if (rdata->ofsfield_7 != NULL)
+                rdata->ofsfield_7(nroom);
+            if (rdata->offfield_B != NULL)
+                rdata->offfield_B(nroom);
+            init_room_sparks(nroom);
+        }
+        // Per room tile code ends
+        k++;
+        if (k > room->slabs_count)
+        {
+            ERRORLOG("Room slabs list length exceeded when sweeping");
+            break;
+        }
+    }
+}
+
+short delete_room_slab(long slb_x, long slb_y, unsigned char gnd_slab)
+{
+    struct Room *room;
+    long slb_num;
+    struct SlabMap *slb;
+    SYNCDBG(7,"Starting on (%ld,%ld)",slb_x,slb_y);
+    //return _DK_delete_room_slab(slb_x, slb_y, gnd_slab);
+    room = slab_room_get(slb_x,slb_y);
+    if (room_is_invalid(room))
+    {
+        ERRORLOG("This is not a room slab");
+        return 0;
+    }
+    decrease_room_area(room->owner, 1);
+    kill_room_slab_and_contents(room->owner, slb_x, slb_y);
+    if (room->slabs_count <= 1)
+    {
+        delete_room_flag(room);
+        replace_room_slab(room, slb_x, slb_y, room->owner);
+        delete_room_flag(room);
+        kill_all_room_slabs_and_contents(room);
+        free_room_structure(room);
+        do_slab_efficiency_alteration(slb_x, slb_y);
+    } else
+    {
+        slb_num = get_slab_number(slb_x, slb_y);
+        // Remove the slab from room tiles list
+        remove_slab_from_room_tiles_list(room, slb_num);
+        replace_room_slab(room, slb_x, slb_y, room->owner);
+        recreate_rooms_from_room_slabs(room, gnd_slab);
+        reset_creatures_rooms(room);
+        free_room_structure(room);
+        slb = get_slabmap_direct(slb_num);
+        slb->next_in_room = 0;
+    }
+    return 0;
 }
 
 void tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4)
@@ -12839,7 +13340,8 @@ long packet_place_door(long a1, long a2, long a3, long a4, unsigned char a5)
 
 void delete_room_slabbed_objects(long a1)
 {
-  _DK_delete_room_slabbed_objects(a1);
+    SYNCDBG(17,"Starting");
+    _DK_delete_room_slabbed_objects(a1);
 }
 
 unsigned char tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3)
@@ -12860,10 +13362,59 @@ struct Thing *create_trap(struct Coord3d *pos, unsigned short a1, unsigned short
   return _DK_create_trap(pos, a1, a2);
 }
 
-struct Room *place_room(unsigned char a1, unsigned char a2, unsigned short a3, unsigned short a4)
+struct Room *place_room(unsigned char owner, unsigned char rkind, unsigned short stl_x, unsigned short stl_y)
 {
-  SYNCDBG(7,"Starting");
-  return _DK_place_room(a1, a2, a3, a4);
+    struct Room *room;
+    struct RoomData *rdata;
+    struct Dungeon *dungeon;
+    struct SlabMap *slb;
+    long slb_x, slb_y;
+    long i;
+    //return _DK_place_room(owner, rkind, stl_x, stl_y);
+    game.field_14EA4B = 1;
+    if (subtile_coords_invalid(stl_x, stl_y))
+        return INVALID_ROOM;
+    slb_x = map_to_slab[stl_x];
+    slb_y = map_to_slab[stl_y];
+    slb = get_slabmap_block(slb_x,slb_y);
+    if (slb->room_index > 0)
+    {
+      delete_room_slab(slb_x, slb_y, 0);
+    } else
+    {
+        decrease_dungeon_area(owner, 1);
+        increase_room_area(owner, 1);
+    }
+
+    room = create_room(owner, rkind, stl_x, stl_y);
+    if (room_is_invalid(room))
+        return INVALID_ROOM;
+    // Make sure we have first subtile
+    stl_x = slab_starting_subtile(stl_x);
+    stl_y = slab_starting_subtile(stl_y);
+    // Update slab type on map
+    rdata = room_data_get_for_room(room);
+    i = get_slab_number(slb_x, slb_y);
+    if ((rkind == RoK_GUARDPOST) || (rkind == RoK_BRIDGE))
+    {
+      delete_room_slabbed_objects(i);
+      place_animating_slab_type_on_map(rdata->numfield_0, 0, stl_x, stl_y, owner);
+    } else
+    {
+      delete_room_slabbed_objects(i);
+      place_slab_type_on_map(rdata->numfield_0, stl_x, stl_y, owner, 0);
+    }
+    SYNCDBG(7,"Updating efficiency");
+    do_slab_efficiency_alteration(slb_x, slb_y);
+    update_room_efficiency(room);
+    set_room_capacity(room,0);
+    if (owner != game.neutral_player_num)
+    {
+        dungeon = get_dungeon(owner);
+        dungeon->lvstats.rooms_constructed++;
+    }
+    pannel_map_update(stl_x, stl_y, 3, 3);
+    return room;
 }
 
 unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4)
@@ -13234,7 +13785,8 @@ void init_level(void)
 
 void pannel_map_update(long x, long y, long w, long h)
 {
-  _DK_pannel_map_update(x, y, w, h);
+    SYNCDBG(7,"Starting");
+    _DK_pannel_map_update(x, y, w, h);
 }
 
 void set_chosen_spell(long sptype, long sptooltip)

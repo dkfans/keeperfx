@@ -23,6 +23,7 @@
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "config_creature.h"
+#include "creature_states.h"
 #include "frontend.h"
 
 #include "keeperfx.hpp"
