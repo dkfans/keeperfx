@@ -22,6 +22,8 @@
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 
+#include "keeperfx.hpp"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -29,6 +31,180 @@ extern "C" {
 struct GameAdd gameadd;
 /******************************************************************************/
 /******************************************************************************/
+/*
+ * Returns the loaded level number.
+ */
+LevelNumber get_loaded_level_number(void)
+{
+  return game.loaded_level_number;
+}
+
+/*
+ * Sets the loaded level number. Does not make any cleanup or loading.
+ */
+LevelNumber set_loaded_level_number(LevelNumber lvnum)
+{
+  if (lvnum > 0)
+    game.loaded_level_number = lvnum;
+  return game.loaded_level_number;
+}
+
+/*
+ * Returns the continue level number.
+ */
+LevelNumber get_continue_level_number(void)
+{
+  return game.continue_level_number;
+}
+
+/*
+ * Sets the continue level number. The level informs of campaign progress.
+ * Levels which are not part of campaign will be ignored.
+ */
+LevelNumber set_continue_level_number(LevelNumber lvnum)
+{
+  if (is_singleplayer_like_level(lvnum))
+    game.continue_level_number = lvnum;
+  return game.continue_level_number;
+}
+
+/*
+ * Returns the selected level number. Selected level is loaded when staring game.
+ */
+LevelNumber get_selected_level_number(void)
+{
+  return game.selected_level_number;
+}
+
+/*
+ * Sets the selected level number. Selected level is loaded when staring game.
+ */
+LevelNumber set_selected_level_number(LevelNumber lvnum)
+{
+  if (lvnum >= 0)
+    game.selected_level_number = lvnum;
+  return game.selected_level_number;
+}
+
+/**
+ * Returns if the given bonus level is visible in land view screen.
+ */
+TbBool is_bonus_level_visible(struct PlayerInfo *player, LevelNumber bn_lvnum)
+{
+  int i,n,k;
+  i = storage_index_for_bonus_level(bn_lvnum);
+  if (i < 0)
+  {
+      // This hapens quite often - status of bonus level is checked even
+      // if there's no such bonus level. So no log message here.
+      return false;
+  }
+  n = i/8;
+  k = (1 << (i%8));
+  if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
+  {
+    WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
+    return false;
+  }
+  return ((game.bonuses_found[n] & k) != 0);
+}
+
+/**
+ * Makes the bonus level visible on the land map screen.
+ */
+TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible)
+{
+  int i,n,k;
+  i = storage_index_for_bonus_level(bn_lvnum);
+  if (i < 0)
+  {
+      WARNLOG("Can't set state of nonexisting bonus level %d.",(int)bn_lvnum);
+      return false;
+  }
+  n = i/8;
+  k = (1 << (i%8));
+  if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
+  {
+    WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
+    return false;
+  }
+  set_flag_byte(&game.bonuses_found[n], k, visible);
+  return true;
+}
+
+/**
+ * Makes a bonus level for specified SP level visible on the land map screen.
+ */
+TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible)
+{
+  long bn_lvnum;
+  bn_lvnum = bonus_level_for_singleplayer_level(sp_lvnum);
+  if (!set_bonus_level_visibility(bn_lvnum, visible))
+  {
+    if (visible)
+      WARNMSG("Couldn't store bonus award for level %d",sp_lvnum);
+    return false;
+  }
+  if (visible)
+    SYNCMSG("Bonus award for level %d enabled",sp_lvnum);
+  return true;
+}
+
+void hide_all_bonus_levels(struct PlayerInfo *player)
+{
+  int i;
+  for(i=0; i < BONUS_LEVEL_STORAGE_COUNT; i++)
+    game.bonuses_found[i] = 0;
+}
+
+/*
+ * Returns if the given extra level is visible in land view screen.
+ */
+unsigned short get_extra_level_kind_visibility(unsigned short elv_kind)
+{
+  LevelNumber ex_lvnum;
+  ex_lvnum = get_extra_level(elv_kind);
+  if (ex_lvnum <= 0)
+    return LvSt_Hidden;
+  switch (elv_kind)
+  {
+  case ExLv_FullMoon:
+    if (is_full_moon)
+      return LvSt_Visible;
+    if (is_near_full_moon)
+      return LvSt_HalfShow;
+    break;
+  case ExLv_NewMoon:
+    if (is_new_moon)
+      return LvSt_Visible;
+    if (is_near_new_moon)
+      return LvSt_HalfShow;
+    break;
+  }
+  return LvSt_Hidden;
+}
+
+/*
+ * Returns if the given extra level is visible in land view screen.
+ */
+short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum)
+{
+  int i;
+  i = array_index_for_extra_level(ex_lvnum);
+  switch (i+1)
+  {
+  case ExLv_FullMoon:
+    return is_full_moon;
+  case ExLv_NewMoon:
+    return is_new_moon;
+  }
+  return false;
+}
+
+void update_extra_levels_visibility(void)
+{
+}
+
 
 
 /******************************************************************************/

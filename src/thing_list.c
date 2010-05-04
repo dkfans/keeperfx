@@ -68,7 +68,13 @@ DLLIMPORT long _DK_thing_is_shootable_by_any_player_including_objects(struct Thi
 DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *shooter, struct Thing *thing);
 DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing);
 DLLIMPORT long _DK_thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing);
+DLLIMPORT void _DK_delete_thing_structure(struct Thing *thing, long a2);
 /******************************************************************************/
+void delete_thing_structure(struct Thing *thing, long a2)
+{
+  _DK_delete_thing_structure(thing, a2);
+}
+
 long creature_near_filter_not_imp(const struct Thing *thing, FilterParam val)
 {
   return ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0);

@@ -24,10 +24,15 @@
 #include "creature_control.h"
 #include "config_creature.h"
 #include "config_rules.h"
+#include "thing_stats.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
 #include "room_data.h"
+#include "tasks_list.h"
+#include "spworker_stack.h"
+#include "map_events.h"
+#include "power_hand.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -191,28 +196,9 @@ DLLIMPORT short _DK_training(struct Thing *thing);
 DLLIMPORT short _DK_tunneller_doing_nothing(struct Thing *thing);
 DLLIMPORT short _DK_tunnelling(struct Thing *thing);
 DLLIMPORT long _DK_process_torture_visuals(struct Thing *thing, struct Room *room, long a3);
-DLLIMPORT long _DK_check_out_imp_last_did(struct Thing *thing);
-DLLIMPORT long _DK_check_place_to_convert_excluding(struct Thing *thing, long a2, long a3);
-DLLIMPORT long _DK_imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3);
-DLLIMPORT long _DK_check_out_unconverted_spiral(struct Thing *thing, long a2);
-DLLIMPORT long _DK_check_place_to_pretty_excluding(struct Thing *thing, long a2, long a3);
-DLLIMPORT long _DK_check_out_unprettied_spiral(struct Thing *thing, long a2);
-DLLIMPORT long _DK_check_out_undug_place(struct Thing *thing);
-DLLIMPORT long _DK_check_out_undug_area(struct Thing *thing);
-DLLIMPORT long _DK_imp_stack_update(struct Thing *thing);
-DLLIMPORT long _DK_check_out_unprettied_or_unconverted_area(struct Thing *thing);
 DLLIMPORT long _DK_creature_can_be_trained(struct Thing *thing);
 DLLIMPORT long _DK_player_can_afford_to_train_creature(struct Thing *thing);
-DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *thing);
-DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *thing);
 DLLIMPORT long _DK_setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3);
-DLLIMPORT long _DK_add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long a2);
-DLLIMPORT long _DK_add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long a2);
-DLLIMPORT long _DK_add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long a2);
-DLLIMPORT void _DK_add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon);
-DLLIMPORT long _DK_add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon);
-DLLIMPORT long _DK_add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *thing);
-DLLIMPORT long _DK_block_has_diggable_side(long a1, long a2, long a3);
 DLLIMPORT long _DK_process_sacrifice_award(struct Coord3d *pos, long model, long plyr_idx);
 DLLIMPORT long _DK_make_all_players_creatures_angry(long plyr_idx);
 DLLIMPORT long _DK_force_complete_current_manufacturing(long plyr_idx);
@@ -225,14 +211,11 @@ DLLIMPORT void _DK_remove_health_from_thing_and_display_health(struct Thing *thi
 DLLIMPORT long _DK_process_prison_food(struct Thing *thing, struct Room *room);
 DLLIMPORT long _DK_slab_by_players_land(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
 DLLIMPORT long _DK_setup_prison_move(struct Thing *thing, struct Room *room);
-DLLIMPORT long _DK_event_create_event_or_update_nearby_existing_event(long map_x, long map_y, unsigned char a3, unsigned char dngn_id, long msg_id);
 DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5);
 DLLIMPORT long _DK_good_setup_loot_treasure_room(struct Thing *thing, long dngn_id);
 DLLIMPORT unsigned char _DK_initialise_thing_state(struct Thing *thing, long a2);
 DLLIMPORT unsigned char _DK_remove_creature_from_work_room(struct Thing *thing);
 DLLIMPORT long _DK_cleanup_current_thing_state(struct Thing *thing);
-DLLIMPORT long _DK_check_out_imp_stack(struct Thing *thing);
-DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
 DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 DLLIMPORT void _DK_creature_in_combat_wait(struct Thing *thing);
 DLLIMPORT void _DK_creature_in_ranged_combat(struct Thing *thing);
@@ -245,6 +228,7 @@ DLLIMPORT long _DK_get_best_ranged_offensive_weapon(struct Thing *thing, long a2
 DLLIMPORT long _DK_ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4);
 DLLIMPORT long _DK_get_best_melee_offensive_weapon(struct Thing *thing, long a2);
 DLLIMPORT long _DK_melee_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4);
+DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *thing);
 short arrive_at_alarm(struct Thing *thing);
@@ -2449,16 +2433,6 @@ short creature_wants_salary(struct Thing *thing)
   return _DK_creature_wants_salary(thing);
 }
 
-long check_place_to_convert_excluding(struct Thing *thing, long a2, long a3)
-{
-  return _DK_check_place_to_convert_excluding(thing, a2, a3);
-}
-
-long check_place_to_pretty_excluding(struct Thing *thing, long a2, long a3)
-{
-  return _DK_check_place_to_pretty_excluding(thing, a2, a3);
-}
-
 /**
  * Return index of a dungeon which the hero may attack.
  * @todo Shouldn't we support allies with heroes?
@@ -2508,6 +2482,11 @@ TbBool good_setup_wander_to_exit(struct Thing *thing)
     return true;
 }
 
+long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
+{
+    return _DK_setup_head_for_empty_treasure_space(thing, room);
+}
+
 long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3)
 {
   return _DK_setup_random_head_for_room(thing, room, a3);
@@ -2516,11 +2495,6 @@ long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned
 struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5)
 {
     return _DK_find_nearest_room_for_thing_excluding_two_types(thing, owner, a3, a4, a5);
-}
-
-long event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, unsigned char a3, unsigned char dngn_id, long msg_id)
-{
-    return _DK_event_create_event_or_update_nearby_existing_event(map_x, map_y, a3, dngn_id, msg_id);
 }
 
 TbBool good_setup_attack_rooms(struct Thing *thing, long dngn_id)
@@ -2887,10 +2861,10 @@ short good_doing_nothing(struct Thing *thing)
         cctrl->long_91 = game.play_gameturn;
         cctrl->byte_8C = 1;
       }
-      nturns = game.play_gameturn - cctrl->field_8D;
+      nturns = game.play_gameturn - cctrl->long_8D;
       if (nturns > 64)
       {
-        cctrl->field_8D = game.play_gameturn;
+        cctrl->long_8D = game.play_gameturn;
         cctrl->sbyte_89 = good_find_enemy_dungeon(thing);
       }
       i = cctrl->sbyte_89;
@@ -3142,322 +3116,6 @@ short imp_digs_mines(struct Thing *thing)
     return _DK_imp_digs_mines(thing);
 }
 
-TbBool add_to_imp_stack_using_pos(long a1, long a2, struct Dungeon *dungeon)
-{
-  long i;
-  i = dungeon->imp_stack_length;
-  dungeon->imp_stack_length++;
-  dungeon->imp_stack[i].field_0 = a1;
-  dungeon->imp_stack[i].field_2 = a2;
-  return (dungeon->imp_stack_length < IMP_TASK_MAX_COUNT);
-}
-
-long block_has_diggable_side(long a1, long a2, long a3)
-{
-  return _DK_block_has_diggable_side(a1, a2, a3);
-}
-
-long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
-{
-  struct MapTask* mtask;
-  long stl_x, stl_y;
-  long i,nused;
-  SYNCDBG(18,"Starting");
-  nused = 0;
-  for (i = 0; i < dungeon->field_AF7; i++)
-  {
-    if ((num <= 0) || (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT))
-      break;
-    mtask = &dungeon->task_list[i];
-    if ((mtask->field_0 != 0) && (mtask->field_0 != 3))
-    {
-      stl_x = stl_num_decode_x(mtask->field_1);
-      stl_y = stl_num_decode_y(mtask->field_1);
-      if ( subtile_revealed(stl_x, stl_y, dungeon->field_E9F) )
-      {
-        if ( block_has_diggable_side(dungeon->field_E9F, map_to_slab[stl_x], map_to_slab[stl_y]) )
-        {
-          add_to_imp_stack_using_pos(mtask->field_1, 9, dungeon);
-          num--;
-          nused++;
-        }
-      }
-    }
-  }
-  return nused;
-}
-
-void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon)
-{
-  SYNCDBG(18,"Starting");
-//TODO: rework! (causes hang if near egde of the map)
-  _DK_add_pretty_and_convert_to_imp_stack(dungeon); return;
-}
-
-long add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon)
-{
-  return _DK_add_unclaimed_gold_to_imp_stack(dungeon);
-}
-
-void setup_imp_stack(struct Dungeon *dungeon)
-{
-  long i;
-  for (i = 0; i < dungeon->imp_stack_length; i++)
-  {
-    dungeon->imp_stack[i].field_2 = 0;
-  }
-  dungeon->imp_stack_update_turn = game.play_gameturn;
-  dungeon->imp_stack_length = 0;
-  r_stackpos = 0;
-}
-
-long add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long a2)
-{
-  return _DK_add_unclaimed_unconscious_bodies_to_imp_stack(dungeon, a2);
-}
-
-long add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long a2)
-{
-  return _DK_add_unclaimed_dead_bodies_to_imp_stack(dungeon, a2);
-}
-
-long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long a2)
-{
-  return _DK_add_unclaimed_spells_to_imp_stack(dungeon, a2);
-}
-
-long add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *thing)
-{
-  return _DK_add_object_for_trap_to_imp_stack(dungeon, thing);
-}
-
-TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num)
-{
-  struct Thing *thing;
-  unsigned long k;
-  int i;
-  SYNCDBG(18,"Starting");
-  k = 0;
-  i = game.thing_lists[7].index;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
-    {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
-    }
-    i = thing->next_of_class;
-    // Thing list loop body
-    if ((num <= 0) || (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT))
-      break;
-    if ((!thing->byte_13.l) && (thing->owner == dungeon->field_E9F))
-    {
-      if ( add_object_for_trap_to_imp_stack(dungeon, thing) )
-        num--;
-    }
-    // Thing list loop body ends
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
-  SYNCDBG(19,"Finished");
-  return true;
-}
-
-TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
-{
-  struct SlabMap* slb;
-  struct Room* room;
-  unsigned long stl_num;
-  struct Thing* thing;
-  unsigned long k;
-  int i;
-  SYNCDBG(18,"Starting");
-  // Checking if the workshop exists
-  room = find_room_with_spare_room_item_capacity(dungeon->field_E9F, RoK_WORKSHOP);
-  if ( (dungeon->room_kind[RoK_WORKSHOP] <= 0) || room_is_invalid(room) )
-    return false;
-  k = 0;
-  i = game.thing_lists[2].index;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
-    {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
-    }
-    i = thing->next_of_class;
-    // Thing list loop body
-    if (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT)
-      break;
-    if ( thing_is_door_or_trap(thing) )
-    {
-      if ((thing->field_1 & 0x01) == 0)
-      {
-        if ((thing->owner == dungeon->field_E9F) || (thing->owner == game.neutral_player_num))
-        {
-          slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-          if (slabmap_owner(slb) == dungeon->field_E9F)
-          {
-            room = get_room_thing_is_on(thing);
-            if (room_is_invalid(room) || (room->kind != RoK_WORKSHOP))
-            {
-              stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-              add_to_imp_stack_using_pos(stl_num, 8, dungeon);
-            }
-          }
-        }
-      }
-    }
-    // Thing list loop body ends
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
-  SYNCDBG(19,"Finished");
-  return true;
-}
-
-void add_reinforce_to_imp_stack(struct Dungeon *dungeon)
-{
-  struct ImpStack *rfstack;
-  long i;
-  for (i=0; i < r_stackpos; i++)
-  {
-    if (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT)
-      break;
-    rfstack = &reinforce_stack[i];
-    add_to_imp_stack_using_pos(rfstack->field_0, rfstack->field_2, dungeon);
-  }
-}
-
-long imp_stack_update(struct Thing *thing)
-{
-  struct Dungeon *dungeon;
-  SYNCDBG(18,"Starting");
-  //return _DK_imp_stack_update(thing);
-  dungeon = get_dungeon(thing->owner);
-  if ((game.play_gameturn - dungeon->imp_stack_update_turn) < 128)
-    return 0;
-  SYNCDBG(8,"Updating");
-  setup_imp_stack(dungeon);
-  add_unclaimed_unconscious_bodies_to_imp_stack(dungeon, 15);
-  add_unclaimed_dead_bodies_to_imp_stack(dungeon, 15);
-  add_unclaimed_spells_to_imp_stack(dungeon, 5);
-  add_empty_traps_to_imp_stack(dungeon, 10);
-  add_undug_to_imp_stack(dungeon, 40);
-  add_pretty_and_convert_to_imp_stack(dungeon);
-  add_unclaimed_gold_to_imp_stack(dungeon);
-  add_unclaimed_traps_to_imp_stack(dungeon);
-  add_reinforce_to_imp_stack(dungeon);
-  return 1;
-}
-
-long check_out_imp_stack(struct Thing *thing)
-{
-    //TODO may hang in some cases
-    SYNCDBG(18,"Starting");
-    return _DK_check_out_imp_stack(thing);
-}
-
-long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
-{
-    return _DK_setup_head_for_empty_treasure_space(thing, room);
-}
-
-/**
- * Checks if given digger has money that should be placed in treasure room.
- * If he does, he is ordered to return them into nearest treasure room
- * which has the proper capacity. If there's no proper treasure room,
- * a proper speech message is created.
- * @param thing The digger creature.
- * @return Gives 1 if the digger was ordered to go into treasure room, 0 otherwise.
- */
-long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
-{
-    struct Dungeon *dungeon;
-    struct Room *room;
-    SYNCDBG(18,"Starting");
-    //If the imp doesn't have any money - then just return
-    if (thing->long_13 <= 0)
-      return 0;
-    // Find a treasure room to drop the money
-    room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TREASURE, 0, 1);
-    if (room != NULL)
-    {
-        if (setup_head_for_empty_treasure_space(thing, room))
-        {
-          thing->field_8 = CrSt_ImpDropsGold;
-          return 1;
-        }
-        return 0;
-    }
-    dungeon = get_dungeon(thing->owner);
-    // Check why the treasure room search failed. Maybe we don't have treasure room?
-    if (dungeon->room_kind[RoK_TREASURE] == 0)
-    {
-        //"You must build a treasure room, to store gold"
-        if (is_my_player_number(thing->owner))
-            output_message(39, 1000, 1);
-        event_create_event_or_update_nearby_existing_event(0, 0, 20, thing->owner, 0);
-        return 0;
-    }
-    // If we have it, is it unreachable, or just too small?
-    if (find_room_with_spare_capacity(thing->owner, RoK_TREASURE, 1) != NULL)
-    {
-        //"Some of your minions are unable to reach the treasure room"
-        if (is_my_player_number(thing->owner))
-            output_message(35, 1000, 1);
-        return 0;
-    }
-    //"You need a bigger treasure room"
-    if (is_my_player_number(thing->owner))
-        output_message(24, 1000, 1);
-    event_create_event_or_update_nearby_existing_event(0, 0, 11, thing->owner, 0);
-    return 0;
-}
-
-long check_out_available_imp_tasks(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    SYNCDBG(9,"Starting");
-    cctrl = creature_control_get_from_thing(thing);
-    imp_stack_update(thing);
-    if ( check_out_imp_stack(thing) )
-        return 1;
-    if (game.play_gameturn-cctrl->field_2C7 > 128)
-    {
-        check_out_imp_has_money_for_treasure_room(thing);
-        cctrl->field_2C7 = game.play_gameturn;
-        return 1;
-    }
-    return 0;
-}
-
-long check_out_imp_tokes(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    long i;
-    SYNCDBG(19,"Starting");
-    cctrl = creature_control_get_from_thing(thing);
-    i = ACTION_RANDOM(64);
-    // small chance of changing state
-    if (i != 0)
-      return 0;
-    internal_set_thing_state(thing, 69);
-    thing->field_8 = CrSt_ImpDoingNothing;
-    cctrl->field_282 = 200;
-    return 1;
-}
-
 short imp_doing_nothing(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -3495,87 +3153,6 @@ short imp_improves_dungeon(struct Thing *thing)
   return _DK_imp_improves_dungeon(thing);
 }
 
-long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3)
-{
-  return _DK_imp_will_soon_be_working_at_excluding(thing, a2, a3);
-}
-
-long check_out_unconverted_spiral(struct Thing *thing, long a2)
-{
-  return _DK_check_out_unconverted_spiral(thing, a2);
-}
-
-long check_out_unprettied_spiral(struct Thing *thing, long a2)
-{
-  return _DK_check_out_unprettied_spiral(thing, a2);
-}
-
-TbBool check_out_unconverted_place(struct Thing *thing)
-{
-    long stl_x,stl_y;
-    long slb_x,slb_y;
-    SYNCDBG(19,"Starting");
-    slb_x = map_to_slab[thing->mappos.x.stl.num];
-    slb_y = map_to_slab[thing->mappos.y.stl.num];
-    stl_x = 3*slb_x + 1;
-    stl_y = 3*slb_y + 1;
-    if ( check_place_to_convert_excluding(thing, slb_x, slb_y)
-      && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y) )
-    {
-        if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
-        {
-            thing->field_8 = CrSt_ImpArrivesAtConvertDungeon;
-            return true;
-        }
-    }
-    if ( check_out_unconverted_spiral(thing, 1) )
-    {
-      return true;
-    }
-    return false;
-}
-
-long check_out_unprettied_place(struct Thing *thing)
-{
-  long stl_x,stl_y;
-  long slb_x,slb_y;
-  slb_x = map_to_slab[thing->mappos.x.stl.num];
-  slb_y = map_to_slab[thing->mappos.y.stl.num];
-  stl_x = 3*slb_x + 1;
-  stl_y = 3*slb_y + 1;
-  if ( check_place_to_pretty_excluding(thing, slb_x, slb_y)
-    && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y) )
-  {
-      if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
-      {
-          thing->field_8 = CrSt_ImpArrivesAtImproveDungeon;
-          return true;
-      }
-  }
-  if ( check_out_unprettied_spiral(thing, 1) )
-  {
-    return true;
-  }
-  return false;
-}
-
-long check_out_undug_place(struct Thing *thing)
-{
-    SYNCDBG(19,"Starting");
-    return _DK_check_out_undug_place(thing);
-}
-
-long check_out_undug_area(struct Thing *thing)
-{
-    SYNCDBG(19,"Starting");
-    return _DK_check_out_undug_area(thing);
-}
-
-long check_out_unprettied_or_unconverted_area(struct Thing *thing)
-{
-  return _DK_check_out_unprettied_or_unconverted_area(thing);
-}
-
 long creature_can_be_trained(struct Thing *thing)
 {
   return _DK_creature_can_be_trained(thing);
@@ -3584,118 +3161,6 @@ long creature_can_be_trained(struct Thing *thing)
 long player_can_afford_to_train_creature(struct Thing *thing)
 {
   return _DK_player_can_afford_to_train_creature(thing);
-}
-
-long check_out_unreinforced_place(struct Thing *thing)
-{
-  return _DK_check_out_unreinforced_place(thing);
-}
-
-long check_out_unreinforced_area(struct Thing *thing)
-{
-  return _DK_check_out_unreinforced_area(thing);
-}
-
-long check_out_imp_last_did(struct Thing *thing)
-{
-  struct CreatureControl *cctrl;
-  struct Dungeon *dungeon;
-  struct Room *room;
-  //return _DK_check_out_imp_last_did(thing);
-  cctrl = creature_control_get_from_thing(thing);
-  SYNCDBG(19,"Starting case %d",(int)cctrl->byte_94);
-  switch (cctrl->byte_94)
-  {
-  case 0:
-      return false;
-  case 1:
-      if ( check_out_undug_place(thing) || check_out_undug_area(thing) )
-      {
-        cctrl->byte_94 = 1;
-        return true;
-      }
-      if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
-      {
-        cctrl->byte_94 = 2;
-        return true;
-      }
-      imp_stack_update(thing);
-      if ( check_out_unprettied_or_unconverted_area(thing) )
-      {
-        cctrl->byte_94 = 2;
-        return true;
-      }
-      break;
-  case 2:
-      if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
-      {
-        cctrl->byte_94 = 2;
-        return true;
-      }
-      imp_stack_update(thing);
-      if ( check_out_unprettied_or_unconverted_area(thing) )
-      {
-        cctrl->byte_94 = 2;
-        return true;
-      }
-      if ( check_out_undug_area(thing) )
-      {
-        cctrl->byte_94 = 1;
-        return true;
-      }
-      break;
-  case 3:
-      dungeon = get_dungeon(thing->owner);
-      imp_stack_update(thing);
-      if ((dungeon->imp_stack_update_turn != (cctrl->long_89)) && (dungeon->imp_stack_length != 3))
-        break;
-      if ( check_out_unreinforced_place(thing) )
-      {
-        cctrl->byte_94 = 3;
-        return true;
-      }
-      if ( check_out_unreinforced_area(thing) )
-      {
-        cctrl->byte_94 = 3;
-        return true;
-      }
-      break;
-  case 4:
-      if ( !creature_can_be_trained(thing) || !player_can_afford_to_train_creature(thing) )
-        break;
-      room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, 6, 0, 1);
-      if (!room_is_invalid(room))
-      {
-        if ( setup_random_head_for_room(thing, room, 0) )
-        {
-          thing->field_8 = CrSt_AtTrainingRoom;
-          cctrl->field_80 = room->index;
-          return true;
-        }
-      }
-      if (is_my_player_number(thing->owner))
-      {
-        if ( !find_room_with_spare_capacity(thing->owner, 6, 1) )
-          output_message(28, 0, 1);
-      }
-      break;
-  case 9:
-      if ( check_out_unreinforced_place(thing) )
-      {
-        cctrl->byte_94 = 9;
-        return true;
-      }
-      if ( check_out_unreinforced_area(thing) )
-      {
-        cctrl->byte_94 = 9;
-        return true;
-      }
-      break;
-  default:
-      break;
-  }
-  cctrl->byte_94 = 0;
-  return false;
 }
 
 short imp_last_did_job(struct Thing *thing)

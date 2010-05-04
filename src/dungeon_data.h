@@ -23,8 +23,10 @@
 #include "globals.h"
 #include "engine_camera.h"
 #include "thing_creature.h"
+#include "thing_doors.h"
 #include "room_data.h"
 #include "player_data.h"
+#include "map_events.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,10 +35,7 @@ extern "C" {
 #define DUNGEONS_COUNT          5
 #define IMP_TASK_MAX_COUNT     64
 #define TRAP_TYPES_COUNT        7
-#define DOOR_TYPES_COUNT        5
 #define DUNGEON_RESEARCH_COUNT 34
-#define EVENT_BUTTONS_COUNT    12
-#define EVENT_KIND_COUNT       27
 #define MAPTASKS_COUNT        300
 #define MAX_THINGS_IN_HAND      8
 #define KEEPER_SPELLS_COUNT    20

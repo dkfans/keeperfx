@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file lens_mist.h
- *     Header file for lens_mist.cpp.
+/** @file lens_flyeye.c
+ *     lens_flyeye support functions.
  * @par Purpose:
- *     Mist lens effect functions.
+ *     Functions to lens_flyeye.
  * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
+ *     None.
  * @author   Tomasz Lis
- * @date     05 Jan 2009 - 12 Aug 2009
+ * @date     11 Mar 2010 - 12 May 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,22 +16,28 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_LENSMIST_H
-#define DK_LENSMIST_H
+#include "lens_flyeye.h"
 
-#include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-void setup_mist(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost);
-TbBool draw_mist(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf, long srcwidth, long width, long height);
-void free_mist(void);
+DLLIMPORT void _DK_flyeye_setup(long width, long height);
+DLLIMPORT void _DK_flyeye_blitsec(unsigned char *srcbuf, unsigned char *dstbuf, long srcwidth, long dstwidth, long n, long height);
+/******************************************************************************/
+void flyeye_setup(long width, long height)
+{
+  _DK_flyeye_setup(width, height);
+}
+
+void flyeye_blitsec(unsigned char *srcbuf, unsigned char *dstbuf, long srcwidth, long dstwidth, long n, long height)
+{
+  _DK_flyeye_blitsec(srcbuf, dstbuf, srcwidth, dstwidth, n, height);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
-#endif
-
 #endif

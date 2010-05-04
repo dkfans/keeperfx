@@ -30,6 +30,7 @@
 #include "front_simple.h"
 #include "frontend.h"
 #include "front_landview.h"
+#include "lens_api.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

@@ -53,6 +53,13 @@ struct LensesConfig lenses_conf;
 struct NamedCommand lenses_desc[LENS_ITEMS_MAX];
 /******************************************************************************/
 
+struct LensConfig *get_lens_config(long lens_idx)
+{
+    if ((lens_idx < 1) || (lens_idx > lenses_conf.lenses_count))
+        return &lenses_conf.lenses[0];
+    return &lenses_conf.lenses[lens_idx];
+}
+
 TbBool parse_lenses_common_blocks(char *buf,long len)
 {
   long pos;

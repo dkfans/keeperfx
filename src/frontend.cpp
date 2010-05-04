@@ -51,6 +51,8 @@
 #include "front_landview.h"
 #include "front_credits.h"
 #include "lvl_filesdk1.h"
+#include "thing_stats.h"
+#include "power_hand.h"
 #include "player_instances.h"
 
 #include <windows.h>

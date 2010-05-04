@@ -29,6 +29,8 @@
 #include "thing_effects.h"
 #include "front_simple.h"
 #include "frontend.h"
+#include "power_hand.h"
+#include "magic.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

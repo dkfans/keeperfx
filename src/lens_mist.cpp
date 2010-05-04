@@ -4,7 +4,10 @@
 /** @file lens_mist.cpp
  *     Mist lense effect functions.
  * @par Purpose:
- *     Functions to apply Mist lense effect to the image.
+ *     Functions to apply Mist lens effect to the image.
+ *     Mist is a effect of bitmap image moving over original 3D view.
+ *     When moving, mist can change directions, but can never go upward.
+ *     Mist looks like there was a layer of dirt just behind the eye.
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
@@ -157,16 +160,17 @@ CMistFade::~CMistFade(void)
 {
 }
 
-void draw_mist(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf, long srcwidth, long width, long height)
+TbBool draw_mist(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf, long srcwidth, long width, long height)
 {
     SYNCDBG(8,"Starting");
     if (mist == NULL)
     {
         WARNLOG("Tried to use uninitialized mist!");
-        return;
+        return false;
     }
     mist->mist(dstbuf, dstwidth, srcbuf, srcwidth, width, height);
     mist->animate();
+    return true;
 }
 
 void setup_mist(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost)

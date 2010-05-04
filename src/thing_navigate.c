@@ -4,7 +4,7 @@
 /** @file thing_navigate.c
  *     Things movement navigation functions.
  * @par Purpose:
- *     Functions to support move and forrlowing paths by things.
+ *     Functions to support move and following paths by things.
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
@@ -157,6 +157,7 @@ TbBool setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y
 {
     struct CreatureControl *cctrl;
     struct Coord3d pos;
+    SYNCDBG(8,"Starting");
     pos.x.stl.num = stl_x;
     pos.x.stl.pos = 128;
     pos.y.stl.num = stl_y;
