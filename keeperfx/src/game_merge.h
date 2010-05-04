@@ -32,6 +32,7 @@ extern "C" {
 /******************************************************************************/
 #define MESSAGE_TEXT_LEN           1024
 #define QUICK_MESSAGES_COUNT         50
+#define BONUS_LEVEL_STORAGE_COUNT     6
 
 #define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__)
 #define ACTION_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
@@ -69,6 +70,19 @@ struct GameAdd {
 /******************************************************************************/
 extern struct GameAdd gameadd;
 /******************************************************************************/
+LevelNumber get_loaded_level_number(void);
+LevelNumber set_loaded_level_number(LevelNumber lvnum);
+LevelNumber get_continue_level_number(void);
+LevelNumber set_continue_level_number(LevelNumber lvnum);
+LevelNumber get_selected_level_number(void);
+LevelNumber set_selected_level_number(LevelNumber lvnum);
+TbBool activate_bonus_level(struct PlayerInfo *player);
+TbBool is_bonus_level_visible(struct PlayerInfo *player, long bn_lvnum);
+void hide_all_bonus_levels(struct PlayerInfo *player);
+unsigned short get_extra_level_kind_visibility(unsigned short elv_kind);
+short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum);
+void update_extra_levels_visibility(void);
+TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible);
 /******************************************************************************/
 #ifdef __cplusplus
 }

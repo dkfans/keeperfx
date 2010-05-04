@@ -49,8 +49,6 @@ unsigned int eye_lens_width = 0;
 unsigned int eye_lens_height = 0;
 
 /******************************************************************************/
-DLLIMPORT void _DK_init_lens(unsigned long *lens_mem, int width, int height, int scanln, int nlens);
-DLLIMPORT void _DK_flyeye_setup(long width, long height);
 DLLIMPORT void _DK_perspective_standard(struct XYZ *cor, struct PolyPoint *ppt);
 DLLIMPORT void _DK_perspective_fisheye(struct XYZ *cor, struct PolyPoint *ppt);
 DLLIMPORT void _DK_rotpers_parallel(struct EngineCoord *epos, struct M33 *matx);
@@ -96,17 +94,6 @@ void rotpers_fisheye(struct EngineCoord *epos, struct M33 *matx)
 {
   _DK_rotpers_fisheye(epos, matx);
 }
-
-void init_lens(unsigned long *lens_mem, int width, int height, int scanln, int nlens)
-{
-  _DK_init_lens(lens_mem, width, height, scanln, nlens);
-}
-
-void flyeye_setup(long width, long height)
-{
-  _DK_flyeye_setup(width, height);
-}
-
 /******************************************************************************/
 #ifdef __cplusplus
 }

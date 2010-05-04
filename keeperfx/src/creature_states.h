@@ -230,8 +230,6 @@ DLLIMPORT struct ImpStack _DK_reinforce_stack[];
 #define reinforce_stack _DK_reinforce_stack
 extern const CombatState combat_state[];
 /******************************************************************************/
-long check_out_imp_last_did(struct Thing *thing);
-/******************************************************************************/
 TbBool creature_model_bleeds(unsigned long model);
 TbBool can_change_from_state_to(struct Thing *thing, long curr_state, long next_state);
 TbBool internal_set_thing_state(struct Thing *thing, long nState);
@@ -255,6 +253,11 @@ TbBool creature_is_taking_salary_activity(const struct Thing *thing);
 TbBool creature_is_doing_temple_activity(const struct Thing *thing);
 TbBool creature_state_is_unset(const struct Thing *thing);
 TbBool remove_creature_from_work_room(struct Thing *thing);
+long creature_can_be_trained(struct Thing *thing);
+long player_can_afford_to_train_creature(struct Thing *thing);
+long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3);
+long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
+
 /******************************************************************************/
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2);
 TbBool anger_is_creature_livid(const struct Thing *thing);

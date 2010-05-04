@@ -36,6 +36,7 @@
 #include "player_instances.h"
 #include "config_creature.h"
 #include "gui_tooltips.h"
+#include "power_hand.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

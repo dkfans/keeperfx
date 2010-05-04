@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file thing_doors.h
- *     Header file for thing_doors.c.
+/** @file map_events.h
+ *     Header file for map_events.c.
  * @par Purpose:
- *     XXXX functions.
+ *     Map events support functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     25 Mar 2009 - 12 Aug 2009
+ * @date     11 Mar 2010 - 12 May 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_TNGDOORS_H
-#define DK_TNGDOORS_H
+#ifndef DK_MAP_EVENTS_H
+#define DK_MAP_EVENTS_H
 
 #include "globals.h"
 
@@ -25,34 +25,31 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define DOOR_TYPES_COUNT        5
+#define EVENT_BUTTONS_COUNT    12
+#define EVENT_KIND_COUNT       27
+#define EVENTS_COUNT          100
 /******************************************************************************/
 #ifdef __cplusplus
 #pragma pack(1)
 #endif
-
-struct Thing;
-
-struct DoorStats { // sizeof = 8
-  unsigned short field_0;
-  long health;
-  unsigned short field_6;
-};
-
 /******************************************************************************/
-extern const short door_names[];
+extern struct EventTypeInfo event_button_info[28];
 /******************************************************************************/
-DLLIMPORT extern struct DoorStats _DK_door_stats[5][2];
-#define door_stats _DK_door_stats
-DLLIMPORT extern unsigned short _DK_door_names[DOOR_TYPES_COUNT];
+DLLIMPORT struct EventTypeInfo _DK_event_button_info[27];
 /******************************************************************************/
 #ifdef __cplusplus
 #pragma pack()
 #endif
 /******************************************************************************/
-struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
-void lock_door(struct Thing *thing);
-void unlock_door(struct Thing *thing);
+long event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, unsigned char a3, unsigned char dngn_id, long msg_id);
+void event_initialise_all(void);
+long event_move_player_towards_event(struct PlayerInfo *player, long var);
+struct Event *event_create_event(long map_x, long map_y, unsigned char a3, unsigned char dngn_id, long msg_id);
+struct Event *event_allocate_free_event_structure(void);
+void event_initialise_event(struct Event *event, long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id);
+void event_add_to_event_list(struct Event *event, struct Dungeon *dungeon);
+void event_delete_event(long plridx, long num);
+void go_on_then_activate_the_event_box(long plridx, long evidx);
 
 /******************************************************************************/
 #ifdef __cplusplus

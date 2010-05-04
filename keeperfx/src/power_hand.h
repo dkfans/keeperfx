@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file thing_doors.h
- *     Header file for thing_doors.c.
+/** @file power_hand.h
+ *     Header file for power_hand.c.
  * @par Purpose:
- *     XXXX functions.
+ *     power_hand functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     25 Mar 2009 - 12 Aug 2009
+ * @date     11 Mar 2010 - 12 May 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,43 +16,38 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_TNGDOORS_H
-#define DK_TNGDOORS_H
+#ifndef DK_POWERHAND_H
+#define DK_POWERHAND_H
 
+#include "bflib_basics.h"
 #include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-#define DOOR_TYPES_COUNT        5
+
 /******************************************************************************/
 #ifdef __cplusplus
 #pragma pack(1)
 #endif
 
-struct Thing;
 
-struct DoorStats { // sizeof = 8
-  unsigned short field_0;
-  long health;
-  unsigned short field_6;
-};
-
-/******************************************************************************/
-extern const short door_names[];
-/******************************************************************************/
-DLLIMPORT extern struct DoorStats _DK_door_stats[5][2];
-#define door_stats _DK_door_stats
-DLLIMPORT extern unsigned short _DK_door_names[DOOR_TYPES_COUNT];
-/******************************************************************************/
 #ifdef __cplusplus
 #pragma pack()
 #endif
 /******************************************************************************/
-struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
-void lock_door(struct Thing *thing);
-void unlock_door(struct Thing *thing);
+void add_creature_to_sacrifice_list(long owner, long model, long explevel);
+void place_thing_in_limbo(struct Thing *thing);
+unsigned long object_is_pickable_by_hand(struct Thing *thing, long a2);
+void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing);
+struct Thing *process_object_being_picked_up(struct Thing *thing, long a2);
+void set_power_hand_graphic(long a1, long a2, long a3);
+TbBool power_hand_is_empty(struct PlayerInfo *player);
+struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player);
+TbBool dump_thing_in_power_hand(struct Thing *thing, long plyr_idx);
+void draw_power_hand(void);
+void clear_things_in_hand(struct PlayerInfo *player);
+TbBool magic_use_power_hand(long plyr_idx, unsigned short a2, unsigned short a3, unsigned short tng_idx);
 
 /******************************************************************************/
 #ifdef __cplusplus

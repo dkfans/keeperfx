@@ -52,6 +52,7 @@
 #include "engine_lenses.h"
 #include "engine_camera.h"
 #include "front_landview.h"
+#include "thing_stats.h"
 #include "thing_creature.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
@@ -59,9 +60,12 @@
 #include "slab_data.h"
 #include "room_data.h"
 #include "map_columns.h"
+#include "map_events.h"
 #include "creature_control.h"
 #include "creature_states.h"
-#include "lens_mist.h"
+#include "lens_api.h"
+#include "magic.h"
+#include "power_hand.h"
 #include "game_merge.h"
 
 int test_variable;
@@ -218,10 +222,6 @@ const char *blood_types[] = {
     NULL,
 };
 
-const short door_names[] = {
-    201, 590, 591, 592, 593, 0,
-};
-
 Phrase phrases[] = {
     0,  1,  2, 3,  4,   5,  6,  7,  8, 9,  10, 11, 12, 13, 14, 15,
    16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
@@ -367,8 +367,6 @@ unsigned short const player_state_to_spell[] = {
   0,10, 0, 11, 12, 13, 8, 0, 2,16, 14, 15, 0, 3, 0, 0,
 };
 
-const long power_sight_close_instance_time[] = {4, 4, 5, 5, 6, 6, 7, 7, 8};
-
 long instf_creature_fire_shot(struct Thing *thing, long *param);
 long instf_creature_cast_spell(struct Thing *thing, long *param);
 
@@ -379,7 +377,6 @@ TbClockMSec last_loop_time=0;
 extern "C" {
 #endif
 DLLIMPORT void _DK_set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx);
-DLLIMPORT long _DK_prepare_thing_for_power_hand(unsigned short tng_idx, long plyr_idx);
 DLLIMPORT void _DK_draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
 DLLIMPORT void _DK_draw_lightning(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
 DLLIMPORT unsigned char _DK_line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2);
@@ -389,7 +386,6 @@ DLLIMPORT void _DK_draw_overhead_room_icons(long x, long y);
 DLLIMPORT void _DK_draw_overhead_things(long x, long y);
 DLLIMPORT void _DK_init_alpha_table(void);
 DLLIMPORT void _DK_external_activate_trap_shot_at_angle(struct Thing *thing, long a2);
-DLLIMPORT void _DK_apply_damage_to_thing(struct Thing *thing, long a2, char a3);
 DLLIMPORT long _DK_parse_sound_file(long a1, unsigned char *a2, long *a3, long a4, long a4);
 DLLIMPORT void _DK_light_remove_light_from_list(struct Light *lgt, struct StructureList *list);
 DLLIMPORT void _DK_light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
@@ -399,11 +395,8 @@ DLLIMPORT long _DK_load_anim_file(void);
 DLLIMPORT long _DK_load_cube_file(void);
 DLLIMPORT void _DK_init_colours(void);
 DLLIMPORT long _DK_init_sound_heap_two_banks(unsigned char *a1, long a2, char *a3, char *a4, long a5);
-DLLIMPORT void _DK_draw_mini_things_in_hand(long x, long y);
 DLLIMPORT void _DK_process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6);
-DLLIMPORT long _DK_power_sight_explored(long stl_x, long stl_y, unsigned char plyr_idx);
 DLLIMPORT long _DK_can_cast_spell_on_creature(long a1, struct Thing *thing, long a3);
-DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char a1, unsigned char a2, unsigned char a3, unsigned char a4, long a5);
 DLLIMPORT long _DK_update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
 DLLIMPORT void _DK_place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
@@ -412,29 +405,15 @@ DLLIMPORT void _DK_draw_spell_cursor(unsigned char a1, unsigned short a2, unsign
 DLLIMPORT long _DK_take_money_from_dungeon(short a1, long a2, unsigned char a3);
 DLLIMPORT unsigned char _DK_find_door_of_type(unsigned long a1, unsigned char a2);
 DLLIMPORT void _DK_maintain_my_event_list(struct Dungeon *dungeon);
-DLLIMPORT struct Event *_DK_event_create_event(long map_x, long map_y, unsigned char a3, unsigned char dngn_id, long msg_id);
 DLLIMPORT void _DK_process_armageddon(void);
 DLLIMPORT void _DK_update_breed_activities(void);
 DLLIMPORT void _DK_maintain_my_battle_list(void);
-DLLIMPORT void _DK_magic_use_power_chicken(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_disease(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_destroy_walls(unsigned char a1, long a2, long a3, long a4);
-DLLIMPORT short _DK_magic_use_power_imp(unsigned short a1, unsigned short a2, unsigned short a3);
 DLLIMPORT long _DK_remove_workshop_object_from_player(long a1, long a2);
-DLLIMPORT void _DK_magic_use_power_heal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_conceal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_armour(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_speed(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_lightning(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_trap(unsigned char a1, long a2, long a3);
-DLLIMPORT long _DK_magic_use_power_sight(unsigned char a1, long a2, long a3, long a4);
-DLLIMPORT void _DK_magic_use_power_cave_in(unsigned char a1, long a2, long a3, long a4);
-DLLIMPORT long _DK_magic_use_power_call_to_arms(unsigned char a1, long a2, long a3, long a4, long a5);
 DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3);
 DLLIMPORT struct Thing *_DK_get_queryable_object_near(unsigned short a1, unsigned short a2, long a3);
 DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
 DLLIMPORT int _DK_can_thing_be_possessed(struct Thing *thing, long a2);
-DLLIMPORT short _DK_magic_use_power_hand(unsigned short a1, unsigned short a2, unsigned short a3, unsigned short a4);
 DLLIMPORT long _DK_tag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
 DLLIMPORT void _DK_untag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
 DLLIMPORT long _DK_destroy_door(struct Thing *thing);
@@ -447,17 +426,10 @@ DLLIMPORT long _DK_remove_workshop_item(long a1, long a2, long a3);
 DLLIMPORT struct Thing *_DK_create_trap(struct Coord3d *pos, unsigned short a1, unsigned short a2);
 DLLIMPORT struct Room *_DK_place_room(unsigned char a1, unsigned char a2, unsigned short a3, unsigned short a4);
 DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
-DLLIMPORT short _DK_magic_use_power_slap(unsigned short a1, unsigned short a2, unsigned short a3);
 DLLIMPORT void _DK_tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT void _DK_tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
-DLLIMPORT void _DK_create_power_hand(unsigned char a1);
 DLLIMPORT struct Thing *_DK_create_gold_for_hand_grab(struct Thing *thing, long a2);
 DLLIMPORT long _DK_remove_food_from_food_room_if_possible(struct Thing *thing);
-DLLIMPORT unsigned long _DK_object_is_pickable_by_hand(struct Thing *thing, long a2);
-DLLIMPORT void _DK_set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing);
-DLLIMPORT struct Thing *_DK_process_object_being_picked_up(struct Thing *thing, long a2);
-DLLIMPORT void _DK_set_power_hand_graphic(long a1, long a2, long a3);
-DLLIMPORT long _DK_dump_thing_in_power_hand(struct Thing *thing, long a2);
 DLLIMPORT void _DK_process_person_moods_and_needs(struct Thing *thing);
 DLLIMPORT unsigned char _DK_can_change_from_state_to(struct Thing *thing, long a2, long a3);
 DLLIMPORT struct Thing *_DK_get_door_for_position(long pos_x, long pos_y);
@@ -496,10 +468,7 @@ DLLIMPORT void _DK_clear_map(void);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
 DLLIMPORT void _DK_draw_jonty_mapwho(struct JontySpr *jspr);
 DLLIMPORT void _DK_draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);
-DLLIMPORT struct Thing *_DK_get_nearest_thing_for_hand_or_slap(unsigned char a1, long a2, long a3);
 DLLIMPORT long _DK_screen_to_map(struct Camera *camera, long scrpos_x, long scrpos_y, struct Coord3d *mappos);
-DLLIMPORT void _DK_draw_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int scanln);
-DLLIMPORT void _DK_flyeye_blitsec(unsigned char *srcbuf, unsigned char *dstbuf, long srcwidth, long dstwidth, long n, long height);
 DLLIMPORT void _DK_draw_swipe(void);
 DLLIMPORT void _DK_draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
@@ -509,7 +478,6 @@ DLLIMPORT void _DK_check_players_lost(void);
 DLLIMPORT void _DK_process_dungeon_power_magic(void);
 DLLIMPORT void _DK_process_dungeon_devastation_effects(void);
 DLLIMPORT void _DK_process_entrance_generation(void);
-DLLIMPORT void _DK_process_things_in_dungeon_hand(void);
 DLLIMPORT void _DK_process_payday(void);
 DLLIMPORT void _DK_remove_thing_from_mapwho(struct Thing *thing);
 DLLIMPORT void _DK_place_thing_in_mapwho(struct Thing *thing);
@@ -563,29 +531,21 @@ DLLIMPORT void _DK_clear_game(void);
 DLLIMPORT void _DK_clear_game_for_save(void);
 DLLIMPORT long _DK_update_cave_in(struct Thing *thing);
 DLLIMPORT void _DK_update_thing_animation(struct Thing *thing);
-DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
 DLLIMPORT void _DK_init_messages(void);
 DLLIMPORT void _DK_battle_initialise(void);
-DLLIMPORT void _DK_event_initialise_all(void);
 DLLIMPORT void _DK_add_thing_to_list(struct Thing *thing, struct StructureList *list);
 DLLIMPORT struct Thing *_DK_allocate_free_thing_structure(unsigned char a1);
 DLLIMPORT unsigned char _DK_i_can_allocate_free_thing_structure(unsigned char a1);
 DLLIMPORT void _DK_message_add(char c);
 DLLIMPORT void _DK_toggle_creature_tendencies(struct PlayerInfo *player, char val);
-DLLIMPORT long _DK_event_move_player_towards_event(struct PlayerInfo *player, long var);
 DLLIMPORT void _DK_turn_off_call_to_arms(long a);
-DLLIMPORT long _DK_place_thing_in_power_hand(struct Thing *thing, long var);
-DLLIMPORT short _DK_magic_use_power_obey(unsigned short plridx);
 DLLIMPORT void _DK_set_player_state(struct PlayerInfo *player, unsigned char a1, long a2);
 DLLIMPORT void _DK_event_delete_event(long plridx, long num);
 DLLIMPORT long _DK_set_autopilot_type(long plridx, long aptype);
 DLLIMPORT void _DK_set_player_mode(struct PlayerInfo *player, long val);
-DLLIMPORT short _DK_dump_held_things_on_map(unsigned char a1, long a2, long a3, short a4);
 DLLIMPORT void _DK_turn_off_sight_of_evil(long plridx);
-DLLIMPORT void _DK_go_on_then_activate_the_event_box(long plridx, long val);
 DLLIMPORT void _DK_directly_cast_spell_on_thing(unsigned char plridx, unsigned char a2, unsigned short a3, long a4);
 DLLIMPORT void _DK_lose_level(struct PlayerInfo *player);
-DLLIMPORT long _DK_magic_use_power_armageddon(unsigned char val);
 DLLIMPORT long _DK_battle_move_player_towards_battle(struct PlayerInfo *player, long var);
 DLLIMPORT void _DK_level_lost_go_first_person(long plridx);
 DLLIMPORT void _DK_process_network_error(long);
@@ -595,7 +555,6 @@ DLLIMPORT void _DK_complete_level(struct PlayerInfo *player);
 DLLIMPORT void _DK_free_swipe_graphic(void);
 DLLIMPORT void _DK_draw_sound_stuff(void);
 DLLIMPORT void _DK_draw_bonus_timer(void);
-DLLIMPORT void _DK_draw_power_hand(void);
 DLLIMPORT void _DK_update_explored_flags_for_power_sight(struct PlayerInfo *player);
 DLLIMPORT void _DK_engine(struct Camera *cam);
 DLLIMPORT void _DK_smooth_screen_area(unsigned char *a1, long a2, long a3, long a4, long a5, long a6);
@@ -617,23 +576,13 @@ DLLIMPORT long _DK_init_navigation(void);
 DLLIMPORT int _DK_load_settings(void);
 DLLIMPORT void _DK_sound_reinit_after_load(void);
 DLLIMPORT void _DK_restore_computer_player_after_load(void);
-DLLIMPORT void _DK_delete_thing_structure(struct Thing *thing, long a2);
-DLLIMPORT void _DK_make_safe(struct PlayerInfo *player);
 DLLIMPORT void _DK_remove_events_thing_is_attached_to(struct Thing *thing);
-DLLIMPORT unsigned long _DK_steal_hero(struct PlayerInfo *player, struct Coord3d *pos);
 DLLIMPORT void _DK_clear_slab_dig(long a1, long a2, char a3);
-DLLIMPORT void _DK_magic_use_power_hold_audience(unsigned char idx);
-DLLIMPORT void _DK_activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player);
-DLLIMPORT void _DK_resurrect_creature(struct Thing *thing, unsigned char a2, unsigned char a3, unsigned char a4);
-DLLIMPORT void _DK_transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char a3);
 DLLIMPORT long _DK_thing_is_special(Thing *thing);
 DLLIMPORT int _DK_play_smacker_file(char *fname, int);
-DLLIMPORT void _DK_reset_eye_lenses(void);
 DLLIMPORT void _DK_reset_heap_manager(void);
 DLLIMPORT void _DK_reset_heap_memory(void);
 DLLIMPORT int _DK_LoadMcgaData(void);
-DLLIMPORT void _DK_initialise_eye_lenses(void);
-DLLIMPORT void _DK_setup_eye_lens(long nlens);
 DLLIMPORT void _DK_setup_heap_manager(void);
 DLLIMPORT int _DK_setup_heap_memory(void);
 DLLIMPORT long _DK_light_create_light(struct InitLight *ilght);
@@ -781,32 +730,6 @@ long get_radially_decaying_value(long magnitude,long decay_start,long decay_leng
     return magnitude;
 }
 
-void reset_eye_lenses(void)
-{
-    free_mist();
-    if (eye_lens_memory != NULL)
-    {
-        LbMemoryFree(eye_lens_memory);
-        eye_lens_memory = NULL;
-    }
-    if (eye_lens_spare_screen_memory != NULL)
-    {
-        LbMemoryFree(eye_lens_spare_screen_memory);
-        eye_lens_spare_screen_memory = NULL;
-    }
-    set_flag_byte(&game.flags_cd, MFlg_EyeLensReady, false);
-    game.numfield_1A = 0;
-    game.numfield_1B = 0;
-}
-
-void reset_creature_eye_lens(struct Thing *thing)
-{
-  if (is_my_player_number(thing->owner))
-  {
-    setup_eye_lens(0);
-  }
-}
-
 void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3)
 {
   _DK_view_set_camera_y_inertia(cam, a2, a3);
@@ -842,114 +765,6 @@ void view_zoom_camera_out(struct Camera *cam, long a2, long a3)
 long get_camera_zoom(struct Camera *camera)
 {
   return _DK_get_camera_zoom(camera);
-}
-
-void initialise_eye_lenses(void)
-{
-  unsigned long screen_size;
-  SYNCDBG(7,"Starting");
-  if ((eye_lens_memory != NULL) || (eye_lens_spare_screen_memory != NULL))
-  {
-    //ERRORLOG("EyeLens Memory already allocated");
-    reset_eye_lenses();
-  }
-  if ((features_enabled & Ft_EyeLens) == 0)
-  {
-    set_flag_byte(&game.flags_cd,MFlg_EyeLensReady,false);
-    return;
-  }
-
-  eye_lens_height = lbDisplay.GraphicsScreenHeight;
-  eye_lens_width = lbDisplay.GraphicsScreenWidth;
-  screen_size = eye_lens_width * eye_lens_height + 2;
-  if (screen_size < 256*256) screen_size = 256*256 + 2;
-  eye_lens_memory = (unsigned long *)LbMemoryAlloc(screen_size*sizeof(unsigned long));
-  eye_lens_spare_screen_memory = (unsigned char *)LbMemoryAlloc(screen_size*sizeof(TbPixel));
-  if ((eye_lens_memory == NULL) || (eye_lens_spare_screen_memory == NULL))
-  {
-    reset_eye_lenses();
-    ERRORLOG("Cannot allocate EyeLens memory");
-    return;
-  }
-  SYNCDBG(9,"Buffer dimensions (%d,%d)",eye_lens_width,eye_lens_height);
-  set_flag_byte(&game.flags_cd,MFlg_EyeLensReady,true);
-}
-
-void setup_eye_lens(long nlens)
-{
-  //_DK_setup_eye_lens(nlens);return;
-  struct PlayerInfo *player;
-  struct LensConfig *lenscfg;
-  char *fname;
-  if ((game.flags_cd & MFlg_EyeLensReady) == 0)
-  {
-    WARNLOG("Can't setup lens - not initialized");
-    return;
-  }
-  SYNCDBG(7,"Starting for lens %ld",nlens);
-  player = get_my_player();
-  if ((game.numfield_1B >= 13) && (game.numfield_1B <= 14))
-  {
-      player->field_7 = 0;
-      game.numfield_1A = 0;
-  }
-  if ((nlens < 1) || (nlens > lenses_conf.lenses_count))
-  {
-      if (nlens != 0)
-          ERRORLOG("Invalid lens effect");
-      game.numfield_1A = 0;
-      game.numfield_1B = 0;
-      return;
-  }
-  if (game.numfield_1A == nlens)
-  {
-    game.numfield_1B = nlens;
-    return;
-  }
-  lenscfg = &lenses_conf.lenses[nlens];
-  if ((lenscfg->flags & LCF_HasMist) != 0)
-  {
-      SYNCDBG(9,"Mist config entered");
-      fname = prepare_file_path(FGrp_StdData,lenscfg->mist_file);
-      LbFileLoadAt(fname, eye_lens_memory);
-      setup_mist((unsigned char *)eye_lens_memory,
-          &pixmap.fade_tables[(lenscfg->mist_lightness)*256],
-          &pixmap.ghost[(lenscfg->mist_ghost)*256]);
-  }
-  if ((lenscfg->flags & LCF_HasDisplace) != 0)
-  {
-      SYNCDBG(9,"Displace config entered");
-      switch (lenscfg->displace_kind)
-      {
-      case 1:
-      case 2:
-          init_lens(eye_lens_memory, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size,
-                  lbDisplay.GraphicsScreenWidth, nlens);
-          break;
-      case 3:
-          flyeye_setup(MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-          break;
-      }
-  }
-  if ((lenscfg->flags & LCF_HasPalette) != 0)
-  {
-      SYNCDBG(9,"Palette config entered");
-      player->palette = lenscfg->palette;
-      player->field_7 = lenscfg->palette;
-  }
-  game.numfield_1B = nlens;
-  game.numfield_1A = nlens;
-}
-
-void reinitialise_eye_lens(long nlens)
-{
-  initialise_eye_lenses();
-  if ((game.flags_cd & MFlg_EyeLensReady) && (nlens>0))
-  {
-      game.numfield_1B = 0;
-      setup_eye_lens(nlens);
-  }
-  SYNCDBG(18,"Finished");
 }
 
 void draw_jonty_mapwho(struct JontySpr *jspr)
@@ -1473,129 +1288,6 @@ TbBool thing_slappable(struct Thing *thing, long plyr_idx)
   }
 }
 
-void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
-{
-    struct PlayerInfo *player;
-    struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
-    long carmour, cdamage;
-    long i;
-    //_DK_apply_damage_to_thing(thing, dmg, a3);
-    // We're here to damage, not to heal
-    if (dmg <= 0)
-        return;
-    // If it's already dead, then don't interfere
-    if (thing->health < 0)
-        return;
-
-    switch (thing->class_id)
-    {
-    case TCls_Creature:
-        cctrl = creature_control_get_from_thing(thing);
-        crstat = creature_stats_get_from_thing(thing);
-        if ((cctrl->flgfield_1 & 0x04) == 0)
-        {
-            // Compute armour value
-            carmour = crstat->armour;
-            if (!creature_control_invalid(cctrl))
-            {
-              if ((cctrl->spell_flags & CSF_Armour) != 0)
-                  carmour = (320 * carmour) / 256;
-            }
-            if (carmour < 0)
-            {
-                carmour = 0;
-            } else
-            if (carmour > 200)
-            {
-                carmour = 200;
-            }
-            // Now compute damage
-            cdamage = (dmg * (256 - carmour)) / 256;
-            if (cdamage <= 0)
-              cdamage = 1;
-            // Apply damage to the thing
-            thing->health -= cdamage;
-            thing->word_17 = 8;
-            thing->field_4F |= 0x80;
-            // Red palette if the possessed creature is hit very strong
-            if (thing->owner != game.neutral_player_num)
-            {
-                player = get_player(thing->owner);
-                if (thing_get(player->field_2F) == thing)
-                {
-                  i = (10 * cdamage) / compute_creature_max_health(crstat->health,cctrl->explevel);
-                  if (i > 10)
-                  {
-                      i = 10;
-                  } else
-                  if (i <= 0)
-                  {
-                      i = 1;
-                  }
-                  PaletteApplyPainToPlayer(player, i);
-                }
-            }
-        }
-        break;
-    case TCls_Object:
-        cdamage = dmg;
-        thing->health -= cdamage;
-        thing->field_4F |= 0x80;
-        break;
-    case TCls_Door:
-        cdamage = dmg;
-        thing->health -= cdamage;
-        break;
-    default:
-        break;
-    }
-    if ((thing->class_id == TCls_Creature) && (thing->health < 0))
-    {
-        cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->field_1D2 == -1) && (a3 != -1))
-        {
-            cctrl->field_1D2 = a3;
-        }
-    }
-}
-
-void slap_creature(struct PlayerInfo *player, struct Thing *thing)
-{
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
-  long i;
-  crstat = creature_stats_get_from_thing(thing);
-  cctrl = creature_control_get_from_thing(thing);
-
-  anger_apply_anger_to_creature(thing, crstat->annoy_slapped, 4, 1);
-  if (crstat->slaps_to_kill > 0)
-  {
-    i = compute_creature_max_health(crstat->health,cctrl->explevel) / crstat->slaps_to_kill;
-    if (i > 0)
-    {
-      apply_damage_to_thing(thing, i, player->id_number);
-      thing->word_17 = 8;
-    }
-  }
-  i = cctrl->field_21;
-  cctrl->field_21 = game.magic_stats[4].time;
-  if (i == 0)
-    cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-  if (thing->field_7 != 66)
-  {
-    clear_creature_instance(thing);
-    cctrl->field_27D = thing->field_7;
-    cctrl->field_27E = thing->field_8;
-    if (thing->field_7 == 26)
-      anger_apply_anger_to_creature(thing, crstat->annoy_woken_up, 4, 1);
-    external_set_thing_state(thing, 66);
-  }
-  cctrl->field_B1 = 6;
-  cctrl->field_27F = 18;
-  play_creature_sound(thing, CrSnd_SlappedOuch, 3, 0);
-}
-
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
 {
   _DK_external_activate_trap_shot_at_angle(thing, a2);
@@ -1604,208 +1296,6 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
 void process_person_moods_and_needs(struct Thing *thing)
 {
   _DK_process_person_moods_and_needs(thing);
-}
-
-unsigned long object_is_pickable_by_hand(struct Thing *thing, long a2)
-{
-  return _DK_object_is_pickable_by_hand(thing, a2);
-}
-
-short thing_is_pickable_by_hand(struct PlayerInfo *player,struct Thing *thing)
-{
-  if (thing_is_invalid(thing))
-    return false;
-  if (((thing->field_0 & 0x01) == 0) || (thing->field_9 != player->field_440))
-    return false;
-  // All creatures can be picked
-  if (thing->class_id == TCls_Creature)
-    return true;
-  // Some objects can be picked
-  if ((thing->class_id == TCls_Object) && object_is_pickable_by_hand(thing, player->id_number))
-    return true;
-  // Other things are not pickable
-  return false;
-}
-
-void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing)
-{
-  _DK_set_power_hand_offset(player, thing);
-}
-
-struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
-{
-  struct PlayerInfo *player;
-  struct Thing *picktng;
-  struct Coord3d pos;
-  long i;
-  switch (thing->model)
-  {
-    case 3:
-    case 6:
-    case 43:
-      i = thing->long_13;
-      if (i != 0)
-      {
-        pos.x.val = thing->mappos.x.val;
-        pos.y.val = thing->mappos.y.val;
-        pos.z.val = thing->mappos.z.val + 128;
-        create_price_effect(&pos, thing->owner, i);
-      }
-      picktng = thing;
-      break;
-    case 10:
-      i = UNSYNC_RANDOM(3);
-      thing_play_sample(thing, 109+i, 100, 0, 3, 0, 2, 256);
-      i = convert_td_iso(122);
-      set_thing_draw(thing, i, 256, -1, -1, 0, 2);
-      remove_food_from_food_room_if_possible(thing);
-      picktng = thing;
-      break;
-    case 52:
-    case 53:
-    case 54:
-    case 55:
-    case 56:
-      picktng = create_gold_for_hand_grab(thing, plyr_idx);
-      break;
-    case 86:
-    case 87:
-    case 88:
-    case 89:
-    case 90:
-    case 91:
-    case 92:
-    case 93:
-      player = get_player(plyr_idx);
-      activate_dungeon_special(thing, player);
-      picktng = NULL;
-      break;
-    default:
-      ERRORLOG("Picking up invalid object");
-      picktng = NULL;
-      break;
-  }
-  return picktng;
-}
-
-void set_power_hand_graphic(long plyr_idx, long a2, long a3)
-{
-  struct PlayerInfo *player;
-  struct Thing *thing;
-  player = get_player(plyr_idx);
-  if (player->field_10 >= game.play_gameturn)
-  {
-    if ((a2 == 786) || (a2 == 787))
-      player->field_10 = 0;
-  }
-  if (player->field_10 < game.play_gameturn)
-  {
-    if (player->field_C != a2)
-    {
-      player->field_C = a2;
-      thing = thing_get(player->field_43A);
-      if ((a2 == 782) || (a2 == 781))
-      {
-        set_thing_draw(thing, a2, a3, 300, 0, 0, 2);
-      } else
-      {
-        set_thing_draw(thing, a2, a3, 300, 1, 0, 2);
-      }
-      thing = get_first_thing_in_power_hand(player);
-      set_power_hand_offset(player,thing);
-    }
-  }
-}
-
-TbBool power_hand_is_empty(struct PlayerInfo *player)
-{
-  struct Dungeon *dungeon;
-  dungeon = get_dungeon(player->id_number);
-  return (dungeon->things_in_hand[0] == 0);
-}
-
-struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player)
-{
-  struct Dungeon *dungeon;
-  dungeon = get_dungeon(player->id_number);
-  return thing_get(dungeon->things_in_hand[0]);
-}
-
-/** Silently removes a thing from player's power hand.
- */
-TbBool remove_thing_from_power_hand(struct Thing *thing, long plyr_idx)
-{
-  struct Dungeon *dungeon;
-  long i;
-  dungeon = get_dungeon(plyr_idx);
-  for (i = 0; i < dungeon->field_63; i++)
-  {
-    if (dungeon->things_in_hand[i] == thing->index)
-    {
-      for ( ; i < dungeon->field_63-1; i++)
-      {
-        dungeon->things_in_hand[i] = dungeon->things_in_hand[i+1];
-      }
-      dungeon->field_63--;
-      dungeon->things_in_hand[dungeon->field_63] = 0;
-      return true;
-    }
-  }
-  return false;
-}
-
-/** Puts a thing into player's power hand.
- */
-TbBool dump_thing_in_power_hand(struct Thing *thing, long plyr_idx)
-{
-  struct Dungeon *dungeon;
-  long i;
-  //return _DK_dump_thing_in_power_hand(thing, plyr_idx);
-  dungeon = get_dungeon(plyr_idx);
-  if (dungeon->field_63 >= MAX_THINGS_IN_HAND)
-    return false;
-  // Move all things in list up, to free position 0
-  for (i = MAX_THINGS_IN_HAND-1; i > 0; i--)
-  {
-    dungeon->things_in_hand[i] = dungeon->things_in_hand[i-1];
-  }
-  dungeon->field_63++;
-  dungeon->things_in_hand[0] = thing->index;
-  if (thing->class_id == TCls_Creature)
-    remove_all_traces_of_combat(thing);
-  if (is_my_player_number(thing->owner))
-  {
-    if (thing->class_id == TCls_Creature)
-      play_creature_sound(thing, CrSnd_HandPick, 3, 1);
-  }
-  return true;
-}
-
-void place_thing_in_limbo(struct Thing *thing)
-{
-  remove_thing_from_mapwho(thing);
-  thing->field_4F |= 0x01;
-  thing->field_0 |= 0x10;
-}
-
-void add_creature_to_sacrifice_list(long plyr_idx, long model, long explevel)
-{
-  struct Dungeon *dungeon;
-  SYNCDBG(6,"Player %ld sacrificed creture model %ld exp level %d",plyr_idx,model,explevel);
-  if ((plyr_idx < 0) || (plyr_idx >= DUNGEONS_COUNT))
-  {
-    ERRORLOG("How can this player sacrifice a creature?");
-    return;
-  }
-  if ((model < 0) || (model >= CREATURE_TYPES_COUNT))
-  {
-    ERRORLOG("Tried to sacrifice invalid creature model.");
-    return;
-  }
-  dungeon = get_dungeon(plyr_idx);
-  dungeon->creature_sacrifice[model]++;
-  dungeon->creature_sacrifice_exp[model] += explevel+1;
-  dungeon->lvstats.creatures_sacrificed++;
 }
 
 void process_dungeon_destroy(struct Thing *thing)
@@ -1969,21 +1459,6 @@ short make_group_member_leader(struct Thing *leadtng)
     return true;
   }
   return false;
-}
-
-long find_from_task_list(long plyr_idx, long srch_tsk)
-{
-  struct Dungeon *dungeon;
-  struct MapTask *task;
-  long i;
-  dungeon = get_dungeon(plyr_idx);
-  for (i=0; i < dungeon->field_AF7; i++)
-  {
-    task = &dungeon->task_list[i%MAPTASKS_COUNT];
-    if (task->field_1 == srch_tsk)
-      return i;
-  }
-  return -1;
 }
 
 void reset_player_mode(struct PlayerInfo *player, unsigned short nmode)
@@ -2541,202 +2016,6 @@ long instf_creature_cast_spell(struct Thing *thing, long *param)
   }
   creature_cast_spell(thing, mgc_idx, 1, cctrl->target_x, cctrl->target_y);
   return 0;
-}
-
-/*
- * Computes max health of a creature on given level.
- */
-long compute_creature_max_health(long base_health,unsigned short crlevel)
-{
-  long max_health;
-  if (base_health <= 0)
-    return 0;
-  if (base_health > 100000)
-    base_health = 100000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  max_health = base_health + (CREATURE_HEALTH_INCREASE_ON_EXP*base_health*crlevel)/100;
-  return saturate_set_signed(max_health, 16);
-}
-
-/**
- * Computes gold pay of a creature on given level.
- */
-long compute_creature_max_pay(long base_param,unsigned short crlevel)
-{
-  long max_param;
-  if (base_param <= 0)
-    return 0;
-  if (base_param > 100000)
-    base_param = 100000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_PAY_INCREASE_ON_EXP*base_param*crlevel)/100;
-  return saturate_set_signed(max_param, 16);
-}
-
-/**
- * Computes 16-bit parameter of a creature on given level.
- */
-long compute_creature_max_sparameter(long base_param,unsigned short crlevel)
-{
-  long max_param;
-  if (base_param <= 0)
-    return 0;
-  if (base_param > 100000)
-    base_param = 100000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_PROPERTY_INCREASE_ON_EXP*base_param*crlevel)/100;
-  return saturate_set_signed(max_param, 16);
-}
-
-/**
- * Computes defence of a creature on given level.
- */
-long compute_creature_max_defence(long base_param,unsigned short crlevel)
-{
-  long max_param;
-  if (base_param <= 0)
-    return 0;
-  if (base_param > 10000)
-    base_param = 10000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_DEFENSE_INCREASE_ON_EXP*base_param*crlevel)/100;
-  return saturate_set_unsigned(max_param, 8);
-}
-
-/**
- * Computes dexterity of a creature on given level.
- */
-long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
-{
-  long max_param;
-  if (base_param <= 0)
-    return 0;
-  if (base_param > 10000)
-    base_param = 10000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_DEXTERITY_INCREASE_ON_EXP*base_param*crlevel)/100;
-  return saturate_set_unsigned(max_param, 8);
-}
-
-/**
- * Computes strength of a creature on given level.
- */
-long compute_creature_max_strength(long base_param,unsigned short crlevel)
-{
-  long max_param;
-  if ((base_param <= 0) || (base_param > 60000))
-    base_param = 60000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_STRENGTH_INCREASE_ON_EXP*base_param*crlevel)/100;
-  return saturate_set_unsigned(max_param, 15);
-}
-
-/**
- * Computes damage of an attack, taking luck and creature level into account.
- */
-long compute_creature_attack_damage(long base_param,long luck,unsigned short crlevel)
-{
-  long max_param;
-  if (base_param < -60000)
-    base_param = -60000;
-  if (base_param > 60000)
-    base_param = 60000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_DAMAGE_INCREASE_ON_EXP*base_param*crlevel)/100;
-  if (luck > 0)
-  {
-    if (ACTION_RANDOM(101) < luck)
-      max_param *= 2;
-  }
-  return saturate_set_signed(max_param, 16);
-}
-
-/**
- * Computes spell range/area of effect for a creature on given level.
- */
-long compute_creature_attack_range(long base_param,long luck,unsigned short crlevel)
-{
-  long max_param;
-  if (base_param <= 0)
-    return 0;
-  if (base_param > 100000)
-    base_param = 100000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_RANGE_INCREASE_ON_EXP*base_param*crlevel)/100;
-  return saturate_set_signed(max_param, 16);
-}
-
-/**
- * Computes parameter (luck,armour) of a creature on given level.
- * Applies for situations where the level doesn't really matters.
- */
-long compute_creature_max_unaffected(long base_param,unsigned short crlevel)
-{
-  if (base_param <= 0)
-    return 0;
-  if (base_param > 10000)
-    base_param = 10000;
-  return saturate_set_unsigned(base_param, 8);
-}
-
-/** Computes percentage of given value.
- *
- * @param base_val Value to compute percentage of.
- * @param npercent Percentage; 0..100%, but may be higher too.
- * @return Gives npercent of base_val, with proper rounding.
- */
-long compute_value_percentage(long base_val, short npercent)
-{
-    if (base_val > 0)
-    {
-        if ( base_val > LONG_MAX/(abs(npercent)+1) )
-            base_val = LONG_MAX/(abs(npercent)+1);
-    } else
-    if (base_val < 0)
-    {
-        if ( base_val < LONG_MIN/(abs(npercent)+1) )
-            base_val = LONG_MIN/(abs(npercent)+1);
-    }
-    return (base_val*npercent+49)/100;
-}
-
-/** Computes 8-bit percentage of given value.
- *
- * @param base_val Value to compute percentage of.
- * @param npercent Percentage; 0..256, but may be higher too.
- * @return Gives npercent of base_val, with proper rounding.
- */
-long compute_value_8bpercentage(long base_val, short npercent)
-{
-    if (base_val > 0)
-    {
-        if ( base_val > LONG_MAX/(abs(npercent)+1) )
-            base_val = LONG_MAX/(abs(npercent)+1);
-    } else
-    if (base_val < 0)
-    {
-        if ( base_val < LONG_MIN/(abs(npercent)+1) )
-            base_val = LONG_MIN/(abs(npercent)+1);
-    }
-    return (base_val*npercent+127)/256;
-}
-
-short update_creature_health_to_max(struct Thing *thing)
-{
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
-  crstat = creature_stats_get_from_thing(thing);
-  cctrl = creature_control_get_from_thing(thing);
-  thing->health = compute_creature_max_health(crstat->health,cctrl->explevel);
-  return true;
 }
 
 long update_creature_levels(struct Thing *thing)
@@ -6501,94 +5780,6 @@ short get_gui_inputs(short gameplay_on)
   return result;
 }
 
-void increase_level(struct PlayerInfo *player)
-{
-  struct Dungeon *dungeon;
-  struct CreatureControl *cctrl;
-  struct Thing *thing;
-  unsigned long k;
-  int i;
-  dungeon = get_dungeon(player->id_number);
-  // Increase level of normal creatures
-  k = 0;
-  i = dungeon->creatr_list_start;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    cctrl = creature_control_get_from_thing(thing);
-    if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-    {
-      ERRORLOG("Jump to invalid creature detected");
-      break;
-    }
-    i = cctrl->thing_idx;
-    // Thing list loop body
-    creature_increase_level(thing);
-    // Thing list loop body ends
-    k++;
-    if (k > CREATURES_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping creatures list");
-      break;
-    }
-  }
-  // Increase level of special workers
-  k = 0;
-  i = dungeon->worker_list_start;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    cctrl = creature_control_get_from_thing(thing);
-    if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-    {
-      ERRORLOG("Jump to invalid creature detected");
-      break;
-    }
-    i = cctrl->thing_idx;
-    // Thing list loop body
-    creature_increase_level(thing);
-    // Thing list loop body ends
-    k++;
-    if (k > CREATURES_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping creatures list");
-      break;
-    }
-  }
-}
-
-void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
-{
-  struct Dungeon *dungeon;
-  dungeon = get_dungeon(player->id_number);
-  if (dungeon->dead_creatures_count != 0)
-  {
-    if (is_my_player(player))
-    {
-      dungeon_special_selected = thing->index;
-      resurrect_creature_scroll_offset = 0;
-      turn_off_menu(GMnu_DUNGEON_SPECIAL);
-      turn_on_menu(GMnu_RESURRECT_CREATURE);
-    }
-  }
-}
-
-void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
-{
-  struct Dungeon *dungeon;
-  dungeon = get_dungeon(player->id_number);
-  if (dungeon->field_919 != 0)
-  {
-    if (is_my_player(player))
-    {
-      dungeon_special_selected = thing->index;
-      transfer_creature_scroll_offset = 0;
-      turn_off_menu(GMnu_DUNGEON_SPECIAL);
-      turn_on_menu(GMnu_TRANSFER_CREATURE);
-    }
-  }
-}
-
 TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
 {
   struct PlayerInfo *player;
@@ -6828,70 +6019,6 @@ long can_thing_be_picked_up2_by_player(const struct Thing *thing, long plyr_idx)
   return _DK_can_thing_be_picked_up2_by_player(thing, plyr_idx);
 }
 
-void get_nearest_thing_for_hand_or_slap_on_map_block(long *near_distance, struct Thing **near_thing,struct Map *mapblk, long plyr_idx, long x, long y)
-{
-  struct Thing *thing;
-  long i;
-  unsigned long k;
-  k = 0;
-  i = get_mapwho_thing_index(mapblk);
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
-    {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
-    }
-    i = thing->field_2;
-    // Begin per-loop code
-    if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0) && (thing->field_7 != 67))
-    {
-      if (can_thing_be_picked_up_by_player(thing, plyr_idx) || thing_slappable(thing, plyr_idx))
-      {
-        if (*near_distance > 2 * abs(y-thing->mappos.y.stl.pos))
-        {
-          *near_distance = 2 * abs(y-thing->mappos.y.stl.pos);
-          *near_thing = thing;
-        }
-      }
-    }
-    // End of per-loop code
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
-}
-
-struct Thing *get_nearest_thing_for_hand_or_slap(long plyr_idx, long x, long y)
-{
-  long near_distance;
-  struct Thing *near_thing;
-  struct Map *mapblk;
-  long sx,sy;
-  int around;
-  //return _DK_get_nearest_thing_for_hand_or_slap(plyr_idx, x, y);
-  near_distance = LONG_MAX;
-  near_thing = NULL;
-  for (around=4; around < sizeof(small_around_pos)/sizeof(small_around_pos[0]); around++)
-  {
-    sx = (x >> 8) + stl_num_decode_x(small_around_pos[around]);
-    sy = (y >> 8) + stl_num_decode_y(small_around_pos[around]);
-    mapblk = get_map_block_at(sx, sy);
-    if (!map_block_invalid(mapblk))
-    {
-      if (map_block_revealed(mapblk, plyr_idx))
-      {
-        get_nearest_thing_for_hand_or_slap_on_map_block(&near_distance,&near_thing,mapblk, plyr_idx, x, y);
-      }
-    }
-  }
-  return near_thing;
-}
-
 long creature_instance_is_available(struct Thing *thing, long inum)
 {
   struct CreatureControl *cctrl;
@@ -6948,16 +6075,6 @@ short update_spell_overcharge(struct PlayerInfo *player, int spl_idx)
 long take_money_from_dungeon(short a1, long a2, unsigned char a3)
 {
   return _DK_take_money_from_dungeon(a1, a2, a3);
-}
-
-unsigned long steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
-{
-  return _DK_steal_hero(player, pos);
-}
-
-void make_safe(struct PlayerInfo *player)
-{
-  _DK_make_safe(player);
 }
 
 void reset_gui_based_on_player_mode(void)
@@ -7195,268 +6312,6 @@ short zoom_to_next_annoyed_creature(void)
 void go_to_my_next_room_of_type(unsigned long rkind)
 {
   _DK_go_to_my_next_room_of_type(rkind);
-}
-
-/*
- * Returns the loaded level number.
- */
-LevelNumber get_loaded_level_number(void)
-{
-  return game.loaded_level_number;
-}
-
-/*
- * Sets the loaded level number. Does not make any cleanup or loading.
- */
-LevelNumber set_loaded_level_number(LevelNumber lvnum)
-{
-  if (lvnum > 0)
-    game.loaded_level_number = lvnum;
-  return game.loaded_level_number;
-}
-
-/*
- * Returns the continue level number.
- */
-LevelNumber get_continue_level_number(void)
-{
-  return game.continue_level_number;
-}
-
-/*
- * Sets the continue level number. The level informs of campaign progress.
- * Levels which are not part of campaign will be ignored.
- */
-LevelNumber set_continue_level_number(LevelNumber lvnum)
-{
-  if (is_singleplayer_like_level(lvnum))
-    game.continue_level_number = lvnum;
-  return game.continue_level_number;
-}
-
-/*
- * Returns the selected level number. Selected level is loaded when staring game.
- */
-LevelNumber get_selected_level_number(void)
-{
-  return game.selected_level_number;
-}
-
-/*
- * Sets the selected level number. Selected level is loaded when staring game.
- */
-LevelNumber set_selected_level_number(LevelNumber lvnum)
-{
-  if (lvnum >= 0)
-    game.selected_level_number = lvnum;
-  return game.selected_level_number;
-}
-
-/**
- * Returns if the given bonus level is visible in land view screen.
- */
-TbBool is_bonus_level_visible(struct PlayerInfo *player, LevelNumber bn_lvnum)
-{
-  int i,n,k;
-  i = storage_index_for_bonus_level(bn_lvnum);
-  if (i < 0)
-  {
-      // This hapens quite often - status of bonus level is checked even
-      // if there's no such bonus level. So no log message here.
-      return false;
-  }
-  n = i/8;
-  k = (1 << (i%8));
-  if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
-  {
-    WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
-    return false;
-  }
-  return ((game.bonuses_found[n] & k) != 0);
-}
-
-/**
- * Makes the bonus level visible on the land map screen.
- */
-TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible)
-{
-  int i,n,k;
-  i = storage_index_for_bonus_level(bn_lvnum);
-  if (i < 0)
-  {
-      WARNLOG("Can't set state of nonexisting bonus level %d.",(int)bn_lvnum);
-      return false;
-  }
-  n = i/8;
-  k = (1 << (i%8));
-  if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
-  {
-    WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
-    return false;
-  }
-  set_flag_byte(&game.bonuses_found[n], k, visible);
-  return true;
-}
-
-/**
- * Makes a bonus level for specified SP level visible on the land map screen.
- */
-TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible)
-{
-  long bn_lvnum;
-  bn_lvnum = bonus_level_for_singleplayer_level(sp_lvnum);
-  if (!set_bonus_level_visibility(bn_lvnum, visible))
-  {
-    if (visible)
-      WARNMSG("Couldn't store bonus award for level %d",sp_lvnum);
-    return false;
-  }
-  if (visible)
-    SYNCMSG("Bonus award for level %d enabled",sp_lvnum);
-  return true;
-}
-
-void hide_all_bonus_levels(struct PlayerInfo *player)
-{
-  int i;
-  for(i=0; i < BONUS_LEVEL_STORAGE_COUNT; i++)
-    game.bonuses_found[i] = 0;
-}
-
-/*
- * Returns if the given extra level is visible in land view screen.
- */
-unsigned short get_extra_level_kind_visibility(unsigned short elv_kind)
-{
-  LevelNumber ex_lvnum;
-  ex_lvnum = get_extra_level(elv_kind);
-  if (ex_lvnum <= 0)
-    return LvSt_Hidden;
-  switch (elv_kind)
-  {
-  case ExLv_FullMoon:
-    if (is_full_moon)
-      return LvSt_Visible;
-    if (is_near_full_moon)
-      return LvSt_HalfShow;
-    break;
-  case ExLv_NewMoon:
-    if (is_new_moon)
-      return LvSt_Visible;
-    if (is_near_new_moon)
-      return LvSt_HalfShow;
-    break;
-  }
-  return LvSt_Hidden;
-}
-
-/*
- * Returns if the given extra level is visible in land view screen.
- */
-short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum)
-{
-  int i;
-  i = array_index_for_extra_level(ex_lvnum);
-  switch (i+1)
-  {
-  case ExLv_FullMoon:
-    return is_full_moon;
-  case ExLv_NewMoon:
-    return is_new_moon;
-  }
-  return false;
-}
-
-void update_extra_levels_visibility(void)
-{
-}
-
-/**
- * Makes a bonus level for current SP level visible on the land map screen.
- */
-TbBool activate_bonus_level(struct PlayerInfo *player)
-{
-  TbBool result;
-  LevelNumber sp_lvnum;
-  SYNCDBG(5,"Starting");
-  set_flag_byte(&game.flags_font,FFlg_unk02,true);
-  sp_lvnum = get_loaded_level_number();
-  result = set_bonus_level_visibility_for_singleplayer_level(player, sp_lvnum, true);
-  if (!result)
-    ERRORLOG("No Bonus level assigned to level %d",(int)sp_lvnum);
-  set_flag_byte(&game.numfield_C,0x02,false);
-  return result;
-}
-
-void multiply_creatures(struct PlayerInfo *player)
-{
-  struct Dungeon *dungeon;
-  struct Thing *thing;
-  struct Thing *tncopy;
-  struct CreatureControl *cctrl;
-  unsigned long k;
-  int i;
-  dungeon = get_dungeon(player->id_number);
-  // Copy 'normal' creatures
-  k = 0;
-  i = dungeon->creatr_list_start;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    cctrl = creature_control_get_from_thing(thing);
-    if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-    {
-      ERRORLOG("Jump to invalid creature detected");
-      break;
-    }
-    i = cctrl->thing_idx;
-    // Thing list loop body
-    tncopy = create_creature(&thing->mappos, thing->model, player->id_number);
-    if (thing_is_invalid(tncopy))
-    {
-      WARNLOG("Can't create a copy of creature");
-      break;
-    }
-    set_creature_level(tncopy, thing->field_23);
-    tncopy->health = thing->health;
-    // Thing list loop body ends
-    k++;
-    if (k > CREATURES_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping creatures list");
-      break;
-    }
-  }
-  // Copy 'special worker' creatures
-  k = 0;
-  i = dungeon->worker_list_start;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    cctrl = creature_control_get_from_thing(thing);
-    if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-    {
-      ERRORLOG("Jump to invalid creature detected");
-      break;
-    }
-    i = cctrl->thing_idx;
-    // Thing list loop body
-    tncopy = create_creature(&thing->mappos, thing->model, player->id_number);
-    if (thing_is_invalid(tncopy))
-    {
-      WARNLOG("Can't create a copy of creature");
-      break;
-    }
-    set_creature_level(tncopy, thing->field_23);
-    tncopy->health = thing->health;
-    // Thing list loop body ends
-    k++;
-    if (k > CREATURES_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping creatures list");
-      break;
-    }
-  }
 }
 
 short toggle_computer_player(int idx)
@@ -8497,63 +7352,9 @@ long battle_move_player_towards_battle(struct PlayerInfo *player, long var)
   return _DK_battle_move_player_towards_battle(player, var);
 }
 
-long place_thing_in_power_hand(struct Thing *thing, long var)
-{
-  return _DK_place_thing_in_power_hand(thing, var);
-}
-
-short dump_held_things_on_map(unsigned int plyridx, long a2, long a3, short a4)
-{
-  return _DK_dump_held_things_on_map(plyridx, a2, a3, a4);
-}
-
-void magic_use_power_armageddon(unsigned int plridx)
-{
-  SYNCDBG(6,"Starting");
-  _DK_magic_use_power_armageddon(plridx);
-}
-
 long set_autopilot_type(unsigned int plridx, long aptype)
 {
   return _DK_set_autopilot_type(plridx, aptype);
-}
-
-short magic_use_power_obey(unsigned short plridx)
-{
-  return _DK_magic_use_power_obey(plridx);
-}
-
-void turn_off_sight_of_evil(long plyr_idx)
-{
-    struct Dungeon *dungeon;
-  struct MagicStats *mgstat;
-  long spl_lev,cit;
-  long i,imax,k,n;
-  //_DK_turn_off_sight_of_evil(plyr_idx);
-  dungeon = get_players_num_dungeon(plyr_idx);
-  mgstat = &(game.magic_stats[5]);
-  spl_lev = dungeon->field_5DA;
-  if (spl_lev > SPELL_MAX_LEVEL)
-      spl_lev = SPELL_MAX_LEVEL;
-  i = game.play_gameturn - dungeon->field_5D4;
-  imax = abs(mgstat->power[spl_lev]/4) >> 2;
-  if (i > imax)
-      i = imax;
-  if (i < 0)
-      i = 0;
-  n = game.play_gameturn - mgstat->power[spl_lev];
-  cit = power_sight_close_instance_time[spl_lev];
-  k = imax / cit;
-  if (k < 1) k = 1;
-  dungeon->field_5D4 = n + i/k - cit;
-}
-
-void reset_scroll_window(void)
-{
-  game.evntbox_scroll_window.start_y = 0;
-  game.evntbox_scroll_window.action = 0;
-  game.evntbox_scroll_window.text_height = 0;
-  game.evntbox_scroll_window.window_height = 0;
 }
 
 unsigned char find_first_battle_of_mine(unsigned char idx)
@@ -8706,288 +7507,9 @@ void process_objective(char *msg_text, long target, long x, long y)
   display_objectives(player->id_number, pos_x, pos_y);
 }
 
-void event_initialise_all(void)
-{
-  _DK_event_initialise_all();
-}
-
-long event_move_player_towards_event(struct PlayerInfo *player, long var)
-{
-  return _DK_event_move_player_towards_event(player,var);
-}
-
-struct Event *event_create_event(long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id)
-{
-  struct Dungeon *dungeon;
-  struct Event *event;
-  long i,k;
-//  return _DK_event_create_event(map_x, map_y, evkind, dngn_id, msg_id);
-  if (dngn_id >= game.neutral_player_num)
-    return NULL;
-  if (evkind >= 28)
-  {
-    ERRORLOG("Illegal Event kind to be created");
-    return NULL;
-  }
-  dungeon = get_dungeon(dngn_id);
-  i = dungeon->field_13B4[evkind%EVENT_KIND_COUNT];
-  if (i != 0)
-  {
-    k = event_button_info[evkind].field_C;
-    if ((k != 0) && (k+i >= game.play_gameturn))
-    {
-      return NULL;
-    }
-  }
-  event = event_allocate_free_event_structure();
-  if (event == NULL)
-    return NULL;
-  event_initialise_event(event, map_x, map_y, evkind, dngn_id, msg_id);
-  event_add_to_event_list(event, dungeon);
-  return event;
-}
-
-void go_on_then_activate_the_event_box(long plridx, long evidx)
-{
-  struct Dungeon *dungeon;
-  struct CreatureData *crdata;
-  struct RoomData *rdata;
-  struct Event *event;
-  struct Thing *thing;
-  char *text;
-  int i,k;
-  short other_off;
-  dungeon = get_players_num_dungeon(plridx);
-  event = &game.event[evidx];
-  SYNCDBG(6,"Starting for event kind %d",event->kind);
-  dungeon->field_1173 = evidx;
-  if (plridx == my_player_number)
-  {
-    i = event_button_info[event->kind].field_6;
-    if (i != 201)
-      strcpy(game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
-  }
-  if (event->kind == 2)
-    dungeon->field_1174 = find_first_battle_of_mine(plridx);
-  if (plridx == my_player_number)
-  {
-    other_off = 0;
-    switch (event->kind)
-    {
-    case 1:
-    case 4:
-        other_off = 1;
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-    case 2:
-        turn_off_menu(GMnu_TEXT_INFO);
-        turn_on_menu(GMnu_BATTLE);
-        break;
-    case 3:
-        strcpy(game.evntbox_scroll_window.text, game.evntbox_text_objective);
-        for (i=EVENT_BUTTONS_COUNT; i >= 0; i--)
-        {
-          k = dungeon->field_13A7[i];
-          if (game.event[k%EVENTS_COUNT].kind == 3)
-          {
-            other_off = 1;
-            turn_on_menu(GMnu_TEXT_INFO);
-            new_objective = 0;
-            break;
-          }
-        }
-        break;
-    case 5:
-        other_off = 1;
-        rdata = room_data_get_for_kind(event->target);
-        i = rdata->msg1str_idx;
-        text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-    case 6:
-        other_off = 1;
-        thing = thing_get(event->target);
-        // If thing is invalid - leave the message without it.
-        // Otherwise, put creature type in it.
-        if (!thing_is_invalid(thing))
-        {
-          crdata = creature_data_get_from_thing(thing);
-          i = crdata->namestr_idx;
-          text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
-          strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
-        }
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-    case 7:
-        other_off = 1;
-        i = get_power_description_strindex(event->target);
-        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-    case 8:
-        other_off = 1;
-        i = trap_data[event->target % MANUFCTR_TYPES_COUNT].name_stridx;
-        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-    case 9:
-        other_off = 1;
-        i = door_names[event->target % DOOR_TYPES_COUNT];
-        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-    case 10: // Scavenge detected
-        other_off = 1;
-        thing = thing_get(event->target);
-        // If thing is invalid - leave the message without it.
-        // Otherwise, put creature type in it.
-        if (!thing_is_invalid(thing))
-        {
-          crdata = creature_data_get_from_thing(thing);
-          i = crdata->namestr_idx;
-          text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
-          strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
-        }
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-    case 11:
-    case 13:
-        other_off = 1;
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-    case 12:
-        other_off = 1;
-        text = buf_sprintf("%s:\n %d", game.evntbox_scroll_window.text, event->target);
-        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-    case 14:
-        other_off = 1;
-        thing = thing_get(event->target);
-        if (thing_is_invalid(thing))
-          break;
-        i = get_power_description_strindex(book_thing_to_magic(thing));
-        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-    case 15:
-        other_off = 1;
-        rdata = room_data_get_for_kind(event->target);
-        i = rdata->msg1str_idx;
-        text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text,gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-    case 16:
-        other_off = 1;
-        thing = thing_get(event->target);
-        // If thing is invalid - leave the message without it.
-        // Otherwise, put creature type in it.
-        if (!thing_is_invalid(thing))
-        {
-          crdata = creature_data_get_from_thing(thing);
-          i = crdata->namestr_idx;
-          text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
-          strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
-        }
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-    case 17:
-    case 18:
-    case 19:
-    case 20:
-    case 22:
-    case 23:
-        other_off = 1;
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-    case 21:
-        i = (long)event->target;
-        if (i < 0)
-        {
-          i = -i;
-          event->target = i;
-        }
-        strncpy(game.evntbox_text_buffer, campaign.strings[i%STRINGS_MAX], MESSAGE_TEXT_LEN-1);
-        strncpy(game.evntbox_scroll_window.text, game.evntbox_text_buffer, MESSAGE_TEXT_LEN-1);
-        other_off = 1;
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-    case 24:
-        other_off = 1;
-        thing = thing_get(event->target);
-        if (thing_is_invalid(thing))
-          break;
-        i = trap_data[box_thing_to_door_or_trap(thing)].name_stridx;
-        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-      case 25:
-        other_off = 1;
-        thing = thing_get(event->target);
-        if (thing_is_invalid(thing))
-          break;
-        i = door_names[box_thing_to_door_or_trap(thing)];
-        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-      case 26:
-        other_off = 1;
-        thing = thing_get(event->target);
-        if (thing_is_invalid(thing))
-          break;
-        i = specials_text[box_thing_to_special(thing)];
-        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
-        strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-      case 27:
-        i = (long)event->target;
-        if (i < 0)
-        {
-          i = -i;
-          event->target = i;
-        }
-        strncpy(game.evntbox_text_buffer, gameadd.quick_messages[i%QUICK_MESSAGES_COUNT], MESSAGE_TEXT_LEN-1);
-        strncpy(game.evntbox_scroll_window.text, game.evntbox_text_buffer, MESSAGE_TEXT_LEN-1);
-        other_off = 1;
-        turn_on_menu(GMnu_TEXT_INFO);
-        break;
-    default:
-        ERRORLOG("Undefined event kind: %d", (int)event->kind);
-        break;
-    }
-    reset_scroll_window();
-    if (other_off)
-    {
-      turn_off_menu(34);
-      turn_off_menu(27);
-      turn_off_menu(28);
-      turn_off_menu(29);
-    }
-  }
-  SYNCDBG(8,"Finished");
-}
-
 void directly_cast_spell_on_thing(long plridx, unsigned char a2, unsigned short a3, long a4)
 {
   _DK_directly_cast_spell_on_thing(plridx, a2, a3, a4);
-}
-
-void clear_things_in_hand(struct PlayerInfo *player)
-{
-  struct Dungeon *dungeon;
-  long i;
-  dungeon = get_dungeon(player->id_number);
-  for (i=0; i < MAX_THINGS_IN_HAND; i++)
-    dungeon->things_in_hand[i] = 0;
 }
 
 short winning_player_quitting(struct PlayerInfo *player, long *plyr_count)
@@ -9120,7 +7642,6 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     turn_off_all_menus();
     clear_transfered_creature();
   }
-  // This is probably 16-byte struct, or array
   clear_things_in_hand(player);
   dungeon->field_63 = 0;
   if (dungeon->field_884 != 0)
@@ -9313,161 +7834,6 @@ void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigne
   set_camera_zoom(cam, zoom_val);
 }
 
-void magic_use_power_hold_audience(unsigned char idx)
-{
-  _DK_magic_use_power_hold_audience(idx);
-}
-
-void delete_thing_structure(struct Thing *thing, long a2)
-{
-  _DK_delete_thing_structure(thing, a2);
-}
-
-void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player)
-{
-  SYNCDBG(6,"Starting");
-  short used;
-  struct Coord3d pos;
-  int spkindidx;
-
-  // Gathering data which we'll need if the special is used and disposed.
-  memcpy(&pos,&thing->mappos,sizeof(struct Coord3d));
-  spkindidx = thing->model - 86;
-  used = 0;
-  if ((thing->field_0 & 0x01) && is_dungeon_special(thing))
-  {
-    switch (thing->model)
-    {
-        case 86:
-          reveal_whole_map(player);
-          remove_events_thing_is_attached_to(thing);
-          used = 1;
-          delete_thing_structure(thing, 0);
-          break;
-        case 87:
-          start_resurrect_creature(player, thing);
-          break;
-        case 88:
-          start_transfer_creature(player, thing);
-          break;
-        case 89:
-          if (steal_hero(player, &thing->mappos))
-          {
-            remove_events_thing_is_attached_to(thing);
-            used = 1;
-            delete_thing_structure(thing, 0);
-          }
-          break;
-        case 90:
-          multiply_creatures(player);
-          remove_events_thing_is_attached_to(thing);
-          used = 1;
-          delete_thing_structure(thing, 0);
-          break;
-        case 91:
-          increase_level(player);
-          remove_events_thing_is_attached_to(thing);
-          used = 1;
-          delete_thing_structure(thing, 0);
-          break;
-        case 92:
-          make_safe(player);
-          remove_events_thing_is_attached_to(thing);
-          used = 1;
-          delete_thing_structure(thing, 0);
-          break;
-        case 93:
-          activate_bonus_level(player);
-          remove_events_thing_is_attached_to(thing);
-          used = 1;
-          delete_thing_structure(thing, 0);
-          break;
-        default:
-          ERRORLOG("Invalid dungeon special (Model %d)", (int)thing->model);
-          break;
-      }
-      if ( used )
-      {
-        if (is_my_player(player))
-          output_message(special_desc[spkindidx].field_8, 0, 1);
-        create_special_used_effect(&pos, player->id_number);
-      }
-  }
-}
-
-void resurrect_creature(struct Thing *thing, unsigned char a2, unsigned char a3, unsigned char a4)
-{
-  _DK_resurrect_creature(thing, a2, a3, a4);
-}
-
-void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char plyr_idx)
-{
-  SYNCDBG(7,"Starting");
-  struct Dungeon *dungeon;
-  struct CreatureControl *cctrl;
-  struct Thing *thing;
-  long i,k;
-  dungeon = get_players_num_dungeon(plyr_idx);
-  // Check if 'things' are correct
-  if ((tng1->field_0 & 0x01) == 0)
-    return;
-  if ((tng1->class_id != TCls_Object) || (tng1->model != 88))
-    return;
-
-  if ((tng2->field_0 & 0x01) == 0)
-    return;
-  if ((tng2->class_id != TCls_Creature) || (tng2->owner != plyr_idx))
-    return;
-
-  cctrl = creature_control_get_from_thing(tng2);
-  set_transfered_creature(plyr_idx, tng2->model, cctrl->explevel);
-  // Remove the creature from power hand
-  for (i = 0; i < dungeon->field_63; i++)
-  {
-    if (dungeon->things_in_hand[i] == tng2->index)
-    {
-      for ( ; i < dungeon->field_63-1; i++)
-      {
-        dungeon->things_in_hand[i] = dungeon->things_in_hand[i+1];
-      }
-      dungeon->field_63--;
-      dungeon->things_in_hand[dungeon->field_63] = 0;
-    }
-  }
-  kill_creature(tng2, 0, 0, 1, 0, 0);
-  create_special_used_effect(&tng1->mappos, plyr_idx);
-  remove_events_thing_is_attached_to(tng1);
-  if ((tng1->field_1 & 0x01) || (tng1->field_0 & 0x80))
-  {
-    k = 0;
-    i = dungeon->worker_list_start;
-    while (i > 0)
-    {
-      thing = thing_get(i);
-      if (thing_is_invalid(thing))
-        break;
-      cctrl = creature_control_get_from_thing(thing);
-      if (creature_control_invalid(cctrl))
-        break;
-      if (cctrl->field_6E == tng1->index)
-      {
-        set_start_state(thing);
-        break;
-      }
-      i = cctrl->thing_idx;
-      k++;
-      if (k > CREATURES_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping creatures list");
-        break;
-      }
-    }
-  }
-  delete_thing_structure(tng1, 0);
-  if (is_my_player_number(plyr_idx))
-    output_message(80, 0, 1);
-}
-
 struct Thing *create_room_surrounding_flame(struct Room *room,struct Coord3d *pos,unsigned short eetype, unsigned short owner)
 {
   struct Thing *eething;
@@ -9633,11 +7999,6 @@ void process_entrance_generation(void)
 {
   SYNCDBG(8,"Starting");
   _DK_process_entrance_generation();
-}
-
-void process_things_in_dungeon_hand(void)
-{
-  _DK_process_things_in_dungeon_hand();
 }
 
 void process_payday(void)
@@ -9978,84 +8339,6 @@ short process_player_manufacturing(long plr_idx)
   dungeon->lvstats.manufactured_items++;
   get_next_manufacture(dungeon);
   return true;
-}
-
-struct Event *event_allocate_free_event_structure(void)
-{
-  struct Event *event;
-  long i;
-  for (i=1; i < EVENTS_COUNT; i++)
-  {
-    event = &game.event[i];
-    if ((event->field_0 & 0x01) == 0)
-    {
-      event->field_0 |= 0x01;
-      event->field_1 = i;
-      return event;
-    }
-  }
-  return NULL;
-}
-
-void event_initialise_event(struct Event *event, long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id)
-{
-  event->mappos_x = map_x;
-  event->mappos_y = map_y;
-  event->kind = evkind;
-  event->owner = dngn_id;
-  event->birth_turn = event_button_info[evkind].field_8;
-  event->target = msg_id;
-  event->field_14 = 1;
-}
-
-void event_delete_event_structure(long ev_idx)
-{
-  LbMemorySet(&game.event[ev_idx], 0, sizeof(struct Event));
-}
-
-void event_delete_event(long plyr_idx, long ev_idx)
-{
-  struct Dungeon *dungeon;
-  struct Event *event;
-  long i,k;
-//  _DK_event_delete_event(plridx, num);
-  event = &game.event[ev_idx];
-  dungeon = get_dungeon(plyr_idx);
-  dungeon->field_13B4[event->kind%EVENT_KIND_COUNT] = game.play_gameturn;
-  for (i=0; i <= EVENT_BUTTONS_COUNT; i++)
-  {
-    k = dungeon->field_13A7[i];
-    if (k == ev_idx)
-    {
-      turn_off_event_box_if_necessary(plyr_idx, k);
-      dungeon->field_13A7[i] = 0;
-      break;
-    }
-  }
-  event_delete_event_structure(ev_idx);
-}
-
-void event_add_to_event_list(struct Event *event, struct Dungeon *dungeon)
-{
-  long i,k;
-  for (i=EVENT_BUTTONS_COUNT; i > 0; i--)
-  {
-    k = dungeon->field_13A7[i];
-    if (k == 0)
-    {
-      if (dungeon->field_E9F != event->owner)
-      {
-        ERRORLOG("Illegal my_event player allocation");
-      }
-      dungeon->field_13A7[i] = event->field_1;
-      break;
-    }
-  }
-  if (i == 0)
-  {
-    kill_oldest_my_event(dungeon);
-    dungeon->field_13A7[EVENT_BUTTONS_COUNT] = event->field_1;
-  }
 }
 
 void maintain_my_event_list(struct Dungeon *dungeon)
@@ -10472,12 +8755,6 @@ void process_player_states(void)
 {
   SYNCDBG(6,"Starting");
   _DK_process_player_states();
-}
-
-void update_power_sight_explored(struct PlayerInfo *player)
-{
-  SYNCDBG(6,"Starting");
-  _DK_update_power_sight_explored(player);
 }
 
 void set_level_objective(char *msg_text)
@@ -10996,98 +9273,9 @@ void draw_sound_stuff(void)
   }
 }
 
-long power_sight_explored(long stl_x, long stl_y, unsigned char plyr_idx)
-{
-  return _DK_power_sight_explored(stl_x, stl_y, plyr_idx);
-}
-
 long can_cast_spell_on_creature(long a1, struct Thing *thing, long a3)
 {
   return _DK_can_cast_spell_on_creature(a1, thing, a3);
-}
-
-TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsigned char stl_x, unsigned char stl_y, long a5)
-{
-  struct PlayerInfo *player;
-  struct Map *mapblk;
-  struct SlabMap *slb;
-  TbBool can_cast;
-  mapblk = get_map_block_at(stl_x, stl_y);
-  slb = get_slabmap_for_subtile(stl_x, stl_y);
-  can_cast = false;
-  switch (spl_id)
-  {
-  default:
-      if ((mapblk->flags & 0x10) == 0)
-      {
-        can_cast = true;
-      }
-      break;
-  case 2:
-      if ((mapblk->flags & 0x10) == 0)
-      {
-        if (slabmap_owner(slb) == plyr_idx)
-        {
-          can_cast = true;
-        }
-      }
-      break;
-  case 5:
-      can_cast = true;
-      break;
-  case 6:
-      if ((mapblk->flags & 0x10) == 0)
-      {
-        if (map_block_revealed(mapblk, plyr_idx) || (a5 == 1))
-        {
-          can_cast = true;
-        }
-      }
-      break;
-  case 7:
-      if ((mapblk->flags & 0x10) == 0)
-      {
-        if (power_sight_explored(stl_x, stl_y, plyr_idx) || map_block_revealed(mapblk, plyr_idx))
-        {
-          can_cast = true;
-        }
-      }
-      break;
-  case 10:
-      if ((mapblk->flags & 0x10) == 0)
-      {
-        if (power_sight_explored(stl_x, stl_y, plyr_idx) || map_block_revealed(mapblk, plyr_idx))
-        {
-          player = get_player(plyr_idx);
-          if (player->field_4E3+20 < game.play_gameturn)
-          {
-            can_cast = true;
-          }
-        }
-      }
-      break;
-  case 14:
-  case 15:
-      if (slabmap_owner(slb) == plyr_idx)
-      {
-        can_cast = true;
-      }
-      break;
-  case 16:
-      if (power_sight_explored(stl_x, stl_y, plyr_idx) || map_block_revealed(mapblk, plyr_idx))
-      {
-        if ((mapblk->flags & 0x10) != 0)
-        {
-          if ((mapblk->flags & 0x43) == 0)
-          {
-            if (slb->slab != 0)
-              can_cast = true;
-          }
-        }
-      }
-      break;
-  }
-  return can_cast;
 }
 
 void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned char stl_x, unsigned char stl_y)
@@ -11411,165 +9599,9 @@ void message_draw(void)
   }
 }
 
-void draw_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int scanln)
-{
-  _DK_draw_lens(dstbuf, srcbuf, lens_mem, width, height, scanln);
-}
-
-void flyeye_blitsec(unsigned char *srcbuf, unsigned char *dstbuf, long srcwidth, long dstwidth, long n, long height)
-{
-  _DK_flyeye_blitsec(srcbuf, dstbuf, srcwidth, dstwidth, n, height);
-}
-
-void draw_mini_things_in_hand(long x, long y)
-{
-  _DK_draw_mini_things_in_hand(x, y);
-}
-
 void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6)
 {
   _DK_process_keeper_sprite(x, y, a3, a4, a5, a6);
-}
-
-void draw_power_hand(void)
-{
-  SYNCDBG(7,"Starting");
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  struct CreatureControl *cctrl;
-  struct Thing *thing;
-  struct Thing *picktng;
-  struct Room *room;
-  struct RoomData *rdata;
-  long x,y;
-  //_DK_draw_power_hand(); return;
-  player = get_my_player();
-  dungeon = get_dungeon(player->id_number);
-  if ((player->field_6 & 0x01) != 0)
-    return;
-  if (game.small_map_state == 2)
-    return;
-  lbDisplay.DrawFlags = 0x00;
-  if (player->view_type != 1)
-    return;
-  if (((game.numfield_C & 0x20) != 0) && (game.small_map_state != 2)
-    && mouse_is_over_small_map(player->mouse_x, player->mouse_y) )
-  {
-    x = game.hand_over_subtile_x;
-    y = game.hand_over_subtile_y;
-    room = subtile_room_get(x,y);
-    if ((!room_is_invalid(room)) && (subtile_revealed(x, y, player->id_number)))
-    {
-      rdata = room_data_get_for_room(room);
-      draw_gui_panel_sprite_centered(GetMouseX()+24, GetMouseY()+32, rdata->numfield_1);
-    }
-    if ((!power_hand_is_empty(player)) && (game.small_map_state == 1))
-    {
-      draw_mini_things_in_hand(GetMouseX()+10, GetMouseY()+10);
-    }
-    return;
-  }
-  if (game_is_busy_doing_gui())
-  {
-    draw_mini_things_in_hand(GetMouseX()+10, GetMouseY()+10);
-    return;
-  }
-  thing = thing_get(player->field_43A);
-  if (thing_is_invalid(thing))
-    return;
-  if (player->field_10 > game.play_gameturn)
-  {
-    process_keeper_sprite((GetMouseX()+60) / pixel_size, (GetMouseY()+40)/pixel_size,
-      thing->field_44, 0, thing->field_48, 64 / pixel_size);
-    draw_mini_things_in_hand(GetMouseX()+60, GetMouseY());
-    return;
-  }
-  if ((player->field_3 & 0x02) != 0)
-  {
-    draw_mini_things_in_hand(GetMouseX()+18, GetMouseY());
-    return;
-  }
-  if (player->work_state != 5)
-  {
-    if ( (player->work_state != 1)
-      || (player->field_455 != 3) && ((player->work_state != 1) || (player->field_455) || (player->field_454 != 3)) )
-    {
-      if ((player->instance_num != 1) && (player->instance_num != 2))
-      {
-        if (player->work_state == PSt_Slap)
-        {
-          process_keeper_sprite((GetMouseX()+70) / pixel_size, (GetMouseY()+46) / pixel_size,
-              thing->field_44, 0, thing->field_48, 64 / pixel_size);
-        } else
-        if (player->work_state == 1)
-        {
-          if ((player->field_455 == 2) || (player->field_454 == 2))
-          {
-            draw_mini_things_in_hand(GetMouseX()+18, GetMouseY());
-          }
-        }
-        return;
-      }
-    }
-  }
-  picktng = get_first_thing_in_power_hand(player);
-  if ((!thing_is_invalid(picktng)) && ((picktng->field_4F & 0x01) == 0))
-  {
-    switch (picktng->class_id)
-    {
-    case TCls_Creature:
-        cctrl = creature_control_get_from_thing(picktng);
-        if ((cctrl->field_AD & 0x02) == 0)
-        {
-          x = GetMouseX() + creature_picked_up_offset[picktng->model].delta_x;
-          y = GetMouseY() + creature_picked_up_offset[picktng->model].delta_y;
-          if (creatures[picktng->model].field_7 )
-            EngineSpriteDrawUsingAlpha = 1;
-          process_keeper_sprite(x / pixel_size, y / pixel_size,
-              picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
-          EngineSpriteDrawUsingAlpha = 0;
-        } else
-        {
-          x = GetMouseX()+11;
-          y = GetMouseY()+56;
-          process_keeper_sprite(x / pixel_size, y / pixel_size,
-              picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
-        }
-        break;
-    case TCls_Object:
-        if (object_is_mature_food(picktng))
-        {
-          x = GetMouseX()+11;
-          y = GetMouseY()+56;
-          process_keeper_sprite(x / pixel_size, y / pixel_size,
-              picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
-          break;
-        } else
-        if ((picktng->class_id == TCls_Object) && object_is_gold_pile(picktng))
-          break;
-    default:
-        x = GetMouseX();
-        y = GetMouseY();
-        process_keeper_sprite(x / pixel_size, y / pixel_size,
-              picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
-        break;
-    }
-  }
-  if (player->field_C == 784)
-  {
-    x = GetMouseX()+58;
-    y = GetMouseY()+6;
-    process_keeper_sprite(x / pixel_size, y / pixel_size,
-        thing->field_44, 0, thing->field_48, 64 / pixel_size);
-    draw_mini_things_in_hand(GetMouseX()+60, GetMouseY());
-  } else
-  {
-    x = GetMouseX()+60;
-    y = GetMouseY()+40;
-    process_keeper_sprite(x / pixel_size, y / pixel_size,
-        thing->field_44, 0, thing->field_48, 64 / pixel_size);
-    draw_mini_things_in_hand(GetMouseX()+60, GetMouseY());
-  }
 }
 
 void draw_swipe(void)
@@ -11644,116 +9676,15 @@ short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, lo
   return result;
 }
 
-void magic_use_power_chicken(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
-{
-  _DK_magic_use_power_chicken(a1, thing, a3, a4, a5);
-}
-
-void magic_use_power_disease(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
-{
-  _DK_magic_use_power_disease(a1, thing, a3, a4, a5);
-}
-
-void magic_use_power_destroy_walls(unsigned char a1, long a2, long a3, long a4)
-{
-  _DK_magic_use_power_destroy_walls(a1, a2, a3, a4);
-}
-
-short magic_use_power_imp(unsigned short plyr_idx, unsigned short stl_x, unsigned short stl_y)
-{
-    struct Dungeon *dungeon;
-    struct Thing *thing;
-    struct Thing *dnheart;
-    struct Coord3d pos;
-    long cost;
-    long i;
-    //return _DK_magic_use_power_imp(plyr_idx, x, y);
-    if (!can_cast_spell_at_xy(plyr_idx, 2, stl_x, stl_y, 0)
-     || !i_can_allocate_free_control_structure()
-     || !i_can_allocate_free_thing_structure(1))
-    {
-      if (is_my_player_number(plyr_idx))
-          play_non_3d_sample(119);
-      return 1;
-    }
-    dungeon = get_players_num_dungeon(plyr_idx);
-    i = dungeon->field_918 - dungeon->creature_sacrifice[23] + 1;
-    if (i < 1)
-      i = 1;
-    cost = game.magic_stats[2].cost[0]*i/2;
-    if (take_money_from_dungeon(plyr_idx, cost, 1) < 0)
-    {
-        if (is_my_player_number(plyr_idx))
-          output_message(87, 0, 1);
-        return -1;
-    }
-    dnheart = thing_get(dungeon->dnheart_idx);
-    pos.x.val = get_subtile_center_pos(stl_x);
-    pos.y.val = get_subtile_center_pos(stl_y);
-    pos.z.val = get_floor_height_at(&pos) + (dnheart->field_58 >> 1);
-    thing = create_creature(&pos, get_players_special_digger_breed(plyr_idx), plyr_idx);
-    if (!thing_is_invalid(thing))
-    {
-        thing->pos_32.x.val += ACTION_RANDOM(161) - 80;
-        thing->pos_32.y.val += ACTION_RANDOM(161) - 80;
-        thing->pos_32.z.val += 160;
-        thing->field_1 |= 0x04;
-        thing->field_52 = 0;
-        initialise_thing_state(thing, CrSt_ImpBirth);
-        play_creature_sound(thing, 3, 2, 0);
-    }
-    return 1;
-}
-
 long remove_workshop_object_from_player(long a1, long a2)
 {
   return _DK_remove_workshop_object_from_player(a1, a2);
-}
-
-void magic_use_power_heal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
-{
-  _DK_magic_use_power_heal(a1, thing, a3, a4, a5);
-}
-
-void magic_use_power_conceal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
-{
-  _DK_magic_use_power_conceal(a1, thing, a3, a4, a5);
-}
-
-void magic_use_power_armour(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
-{
-  _DK_magic_use_power_armour(a1, thing, a3, a4, a5);
-}
-
-void magic_use_power_speed(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
-{
-  _DK_magic_use_power_speed(a1, thing, a3, a4, a5);
-}
-
-void magic_use_power_lightning(unsigned char a1, long a2, long a3, long a4)
-{
-  _DK_magic_use_power_lightning(a1, a2, a3, a4);
 }
 
 unsigned char tag_cursor_blocks_place_trap(unsigned char a1, long a2, long a3)
 {
   SYNCDBG(7,"Starting");
   return _DK_tag_cursor_blocks_place_trap(a1, a2, a3);
-}
-
-long magic_use_power_sight(unsigned char a1, long a2, long a3, long a4)
-{
-  return _DK_magic_use_power_sight(a1, a2, a3, a4);
-}
-
-void magic_use_power_cave_in(unsigned char a1, long a2, long a3, long a4)
-{
-  _DK_magic_use_power_cave_in(a1, a2, a3, a4);
-}
-
-long magic_use_power_call_to_arms(unsigned char a1, long a2, long a3, long a4, long a5)
-{
-  return _DK_magic_use_power_call_to_arms(a1, a2, a3, a4, a5);
 }
 
 void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3)
@@ -11776,37 +9707,6 @@ void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4,
 {
   SYNCDBG(7,"Starting");
   _DK_tag_cursor_blocks_thing_in_hand(a1, a2, a3, a4, a5);
-}
-
-void create_power_hand(unsigned char owner)
-{
-    struct PlayerInfo *player;
-    struct Thing *thing;
-    struct Thing *grabtng;
-    struct Coord3d pos;
-    //_DK_create_power_hand(owner);
-    pos.x.val = 0;
-    pos.y.val = 0;
-    pos.z.val = 0;
-    thing = create_object(&pos, 37, owner, -1);
-    if (thing_is_invalid(thing))
-        return;
-    player = get_player(owner);
-    player->field_43A = thing->index;
-    player->field_C = 0;
-    grabtng = get_first_thing_in_power_hand(player);
-    if (thing_is_invalid(thing))
-    {
-      set_power_hand_graphic(owner, 782, 256);
-    } else
-    if ((grabtng->class_id == TCls_Object) && object_is_gold_pile(grabtng))
-    {
-        set_power_hand_graphic(owner, 781, 256);
-    } else
-    {
-        set_power_hand_graphic(owner, 784, 256);
-    }
-    place_thing_in_limbo(thing);
 }
 
 unsigned long can_drop_thing_here(long x, long y, long a3, unsigned long a4)
@@ -13064,59 +10964,6 @@ int can_thing_be_possessed(struct Thing *thing, long a2)
   return _DK_can_thing_be_possessed(thing, a2);
 }
 
-long prepare_thing_for_power_hand(unsigned short tng_idx, long plyr_idx)
-{
-    return _DK_prepare_thing_for_power_hand(tng_idx, plyr_idx);
-}
-
-TbBool magic_use_power_hand(long plyr_idx, unsigned short a2, unsigned short a3, unsigned short tng_idx)
-{
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  struct Thing *thing;
-  //return _DK_magic_use_power_hand(plyr_idx, a2, a3, tng_idx);
-  dungeon = get_dungeon(plyr_idx);
-  player = get_player(plyr_idx);
-  if (dungeon->field_63 >= 8)
-    return false;
-  thing = thing_get(tng_idx);
-  if (thing_is_invalid(thing))
-  {
-    thing = NULL;
-  } else
-  if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
-  {
-      thing = NULL;
-  }
-  if (thing == NULL)
-  {
-      if (player->thing_under_hand > 0)
-          thing = thing_get(player->thing_under_hand);
-  }
-  if (thing_is_invalid(thing))
-      return false;
-  if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
-  {
-      return false;
-  }
-  if (thing->class_id != TCls_Object)
-  {
-      prepare_thing_for_power_hand(thing->index, plyr_idx);
-      return true;
-  }
-  if (is_dungeon_special(thing))
-  {
-      activate_dungeon_special(thing, player);
-      return false;
-  }
-  if ( object_is_pickable_by_hand(thing, plyr_idx) )
-  {
-      prepare_thing_for_power_hand(thing->index, plyr_idx);
-      return true;
-  }
-  return false;
-}
-
 long tag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3)
 {
   return _DK_tag_blocks_for_digging_in_rectangle_around(a1, a2, a3);
@@ -13421,11 +11268,6 @@ unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, l
 {
   SYNCDBG(7,"Starting");
   return _DK_tag_cursor_blocks_place_room(a1, a2, a3, a4);
-}
-
-short magic_use_power_slap(unsigned short plyr_idx, unsigned short stl_x, unsigned short stl_y)
-{
-  return _DK_magic_use_power_slap(plyr_idx, stl_x, stl_y);
 }
 
 /**

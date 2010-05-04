@@ -24,6 +24,7 @@
 #include "config_creature.h"
 #include "thing_objects.h"
 #include "thing_navigate.h"
+#include "thing_stats.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -177,6 +178,7 @@ DLLIMPORT void _DK_kill_room_slab_and_contents(unsigned char a1, unsigned char a
 DLLIMPORT void _DK_free_room_structure(struct Room *room);
 DLLIMPORT void _DK_reset_creatures_rooms(struct Room *room);
 DLLIMPORT void _DK_replace_room_slab(struct Room *room, long a2, long a3, unsigned char a4);
+DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char a2, char a3, unsigned char a4);
 /******************************************************************************/
 struct Room *room_get(long room_idx)
 {
@@ -1127,6 +1129,11 @@ void reset_creatures_rooms(struct Room *room)
 void replace_room_slab(struct Room *room, long a2, long a3, unsigned char a4)
 {
     _DK_replace_room_slab(room, a2, a3, a4);
+}
+
+struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char a2, char a3, unsigned char a4)
+{
+    return _DK_find_nearest_room_for_thing_with_spare_item_capacity(thing, a2, a3, a4);
 }
 /******************************************************************************/
 #ifdef __cplusplus

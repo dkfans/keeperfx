@@ -34,6 +34,7 @@
 #include "frontend.h"
 #include "gui_draw.h"
 #include "config.h"
+#include "lens_api.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

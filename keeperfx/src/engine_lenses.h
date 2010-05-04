@@ -55,21 +55,11 @@ struct XYZ { // sizeof = 12
 /******************************************************************************/
 extern Perspect_Func perspective_routines[];
 extern RotPers_Func rotpers_routines[];
-extern unsigned int eye_lens_width;
-extern unsigned int eye_lens_height;
 /******************************************************************************/
 DLLIMPORT unsigned char _DK_lens_mode;
 #define lens_mode _DK_lens_mode
 DLLIMPORT long _DK_lens;
 #define lens _DK_lens
-DLLIMPORT unsigned long *_DK_eye_lens_memory;
-#define eye_lens_memory _DK_eye_lens_memory
-DLLIMPORT TbPixel *_DK_eye_lens_spare_screen_memory;
-#define eye_lens_spare_screen_memory _DK_eye_lens_spare_screen_memory
-DLLIMPORT unsigned char *_DK_dog_palette;
-#define dog_palette _DK_dog_palette
-DLLIMPORT unsigned char *_DK_vampire_palette;
-#define vampire_palette _DK_vampire_palette
 //DLLIMPORT RotPers_Func _DK_rotpers_routines[];
 //#define rotpers_routines _DK_rotpers_routines
 //DLLIMPORT Perspect_Func _DK_perspective_routines[];
@@ -79,15 +69,12 @@ DLLIMPORT Perspect_Func _DK_perspective;
 DLLIMPORT RotPers_Func _DK_rotpers;
 #define rotpers _DK_rotpers
 /******************************************************************************/
-void init_lens(unsigned long *lens_mem, int width, int height, int scanln, int nlens);
-void flyeye_setup(long width, long height);
 void perspective_standard(struct XYZ *cor, struct PolyPoint *ppt);
 void perspective_fisheye(struct XYZ *cor, struct PolyPoint *ppt);
 void rotpers_parallel(struct EngineCoord *epos, struct M33 *matx);
 void rotpers_standard(struct EngineCoord *epos, struct M33 *matx);
 void rotpers_circular(struct EngineCoord *epos, struct M33 *matx);
 void rotpers_fisheye(struct EngineCoord *epos, struct M33 *matx);
-
 /******************************************************************************/
 #ifdef __cplusplus
 }

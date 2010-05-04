@@ -372,12 +372,21 @@ int box_thing_to_door_or_trap(const struct Thing *thing)
 
 TbBool thing_is_special(const struct Thing *thing)
 {
-  return (box_thing_to_special(thing) > 0);
+    return (box_thing_to_special(thing) > 0);
 }
 
 TbBool thing_is_door_or_trap(const struct Thing *thing)
 {
-  return (box_thing_to_door_or_trap(thing) > 0);
+    return (box_thing_to_door_or_trap(thing) > 0);
+}
+
+TbBool thing_is_trap(const struct Thing *thing)
+{
+    if (thing_is_invalid(thing))
+        return false;
+    if ((thing->class_id != TCls_Object) || (thing->model >= OBJECT_TYPES_COUNT))
+        return false;
+    return (workshop_object_class[thing->model] == 8);
 }
 
 TbBool thing_is_dungeon_heart(const struct Thing *thing)
@@ -494,7 +503,7 @@ long object_update_dungeon_heart(struct Thing *thing)
   struct Dungeon *dungeon;
   long i;
   long long k;
-  SYNCDBG(8,"Starting");
+  SYNCDBG(18,"Starting");
   //return _DK_object_update_dungeon_heart(thing);
   dungeon = get_players_num_dungeon(thing->owner);
   if ((thing->health > 0) && (game.dungeon_heart_heal_time != 0))
@@ -525,7 +534,7 @@ long object_update_dungeon_heart(struct Thing *thing)
       dungeon->pos_1065.z.val = thing->mappos.z.val;
   }
   process_dungeon_destroy(thing);
-  SYNCDBG(8,"Beat update");
+  SYNCDBG(18,"Beat update");
   if ((thing->field_0 & 0x01) == 0)
     return 0;
   if ( thing->byte_13.l )

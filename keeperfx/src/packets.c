@@ -48,6 +48,11 @@
 #include "thing_navigate.h"
 #include "creature_states.h"
 #include "dungeon_data.h"
+#include "tasks_list.h"
+#include "power_specials.h"
+#include "power_hand.h"
+#include "thing_stats.h"
+#include "magic.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
