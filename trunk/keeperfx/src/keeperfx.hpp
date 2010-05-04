@@ -24,6 +24,7 @@
 #include "bflib_keybrd.h"
 #include "packets.h"
 #include "thing_list.h"
+#include "thing_doors.h"
 #include "dungeon_data.h"
 #include "player_computer.h"
 #include "game_merge.h"
@@ -50,7 +51,6 @@ extern "C" {
 #define NET_SERVICES_COUNT     16
 #define PACKETS_COUNT           5
 #define THINGS_COUNT         2048
-#define EVENTS_COUNT          100
 #define ROOMS_COUNT           150
 #define MESSAGE_QUEUE_COUNT     4
 #define GUI_MESSAGES_COUNT      3
@@ -60,7 +60,6 @@ extern "C" {
 #define TUNNELLER_TRIGGERS_COUNT 16
 #define WIN_CONDITIONS_COUNT    4
 #define CONDITIONS_COUNT       48
-#define CREATURE_MAX_LEVEL     10
 #define THING_CLASSES_COUNT    10
 #define MANUFACTURED_ITEMS_LIMIT 199
 #define GAME_KEYS_COUNT        32
@@ -74,7 +73,6 @@ extern "C" {
 #define SPELL_POINTER_GROUPS   14
 #define SLABSET_COUNT        1304
 #define SLABOBJS_COUNT        512
-#define BONUS_LEVEL_STORAGE_COUNT 6
 #define BOOKMARKS_COUNT         5
 // Amount of instances; it's 17, 18 or 19
 #define PLAYER_INSTANCES_COUNT 19
@@ -289,12 +287,6 @@ struct ActionPoint { // sizeof = 0xA
     unsigned short range;
     unsigned short num;
     unsigned char activated;
-};
-
-struct SpecialDesc {
-long field_0;
-long field_4;
-long field_8;
 };
 
 struct UnkStruc5 { // sizeof=0x12
@@ -879,7 +871,6 @@ extern const char *blood_types[];
 extern int test_variable;
 extern unsigned short const player_cubes[];
 extern unsigned short const player_state_to_spell[];
-extern const short door_names[];
 extern struct RoomInfo room_info[];
 extern const struct Around around[];
 extern struct StartupParameters start_params;
@@ -986,7 +977,6 @@ DLLIMPORT extern unsigned char _DK_door_to_object[DOOR_TYPES_COUNT];
 #define door_to_object _DK_door_to_object
 DLLIMPORT extern unsigned short _DK_specials_text[10];
 #define specials_text _DK_specials_text
-DLLIMPORT extern unsigned short _DK_door_names[DOOR_TYPES_COUNT];
 DLLIMPORT extern unsigned char _DK_eastegg_skeksis_cntr;
 #define eastegg_skeksis_cntr _DK_eastegg_skeksis_cntr
 DLLIMPORT extern long _DK_pointer_x;
@@ -1072,14 +1062,6 @@ DLLIMPORT unsigned char *_DK_hires_parchment;
 #define hires_parchment _DK_hires_parchment
 DLLIMPORT int _DK_fe_computer_players;
 #define fe_computer_players _DK_fe_computer_players
-DLLIMPORT long _DK_resurrect_creature_scroll_offset;
-#define resurrect_creature_scroll_offset _DK_resurrect_creature_scroll_offset
-DLLIMPORT unsigned short _DK_dungeon_special_selected;
-#define dungeon_special_selected _DK_dungeon_special_selected
-DLLIMPORT long _DK_transfer_creature_scroll_offset;
-#define transfer_creature_scroll_offset _DK_transfer_creature_scroll_offset
-DLLIMPORT struct SpecialDesc _DK_special_desc[8];
-#define special_desc _DK_special_desc
 DLLIMPORT unsigned char *_DK_block_mem;
 #define block_mem _DK_block_mem
 DLLIMPORT struct Room *_DK_start_rooms;
@@ -1215,21 +1197,13 @@ short get_gui_inputs(short gameplay_on);
 void intro(void);
 void outro(void);
 
-void increase_level(struct PlayerInfo *player);
-void multiply_creatures(struct PlayerInfo *player);
 TbBool slap_object(struct Thing *thing);
 TbBool object_is_slappable(struct Thing *thing, long plyr_idx);
 unsigned char external_set_thing_state(struct Thing *thing, long state);
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2);
 long is_thing_passenger_controlled(struct Thing *thing);
-void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player);
-void resurrect_creature(struct Thing *thing, unsigned char a2, unsigned char a3, unsigned char a4);
-void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char a3);
 short thing_is_pickable_by_hand(struct PlayerInfo *player,struct Thing *thing);
 void remove_events_thing_is_attached_to(struct Thing *thing);
-unsigned long steal_hero(struct PlayerInfo *player, struct Coord3d *pos);
-void make_safe(struct PlayerInfo *player);
-void add_creature_to_sacrifice_list(long owner, long model, long explevel);
 
 struct ActionPoint *action_point_get(long apt_idx);
 struct ActionPoint *action_point_get_by_number(long apt_num);
@@ -1240,36 +1214,10 @@ long action_point_number_to_index(long apt_num);
 TbBool action_point_is_invalid(const struct ActionPoint *apt);
 unsigned long get_action_point_activated_by_players_mask(long apt_idx);
 
-LevelNumber get_loaded_level_number(void);
-LevelNumber set_loaded_level_number(LevelNumber lvnum);
-LevelNumber get_continue_level_number(void);
-LevelNumber set_continue_level_number(LevelNumber lvnum);
-LevelNumber get_selected_level_number(void);
-LevelNumber set_selected_level_number(LevelNumber lvnum);
-TbBool activate_bonus_level(struct PlayerInfo *player);
-TbBool is_bonus_level_visible(struct PlayerInfo *player, long bn_lvnum);
-void hide_all_bonus_levels(struct PlayerInfo *player);
-unsigned short get_extra_level_kind_visibility(unsigned short elv_kind);
-short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum);
-void update_extra_levels_visibility(void);
-
 int can_thing_be_queried(struct Thing *thing, long a2);
 int can_thing_be_possessed(struct Thing *thing, long a2);
-TbBool magic_use_power_hand(long plyr_idx, unsigned short a2, unsigned short a3, unsigned short tng_idx);
-void magic_use_power_chicken(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-void magic_use_power_disease(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-void magic_use_power_destroy_walls(unsigned char a1, long a2, long a3, long a4);
-short magic_use_power_imp(unsigned short a1, unsigned short a2, unsigned short a3);
 long remove_workshop_object_from_player(long a1, long a2);
-void magic_use_power_heal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-void magic_use_power_conceal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-void magic_use_power_armour(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-void magic_use_power_speed(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-void magic_use_power_lightning(unsigned char a1, long a2, long a3, long a4);
 unsigned char tag_cursor_blocks_place_trap(unsigned char a1, long a2, long a3);
-long magic_use_power_sight(unsigned char a1, long a2, long a3, long a4);
-void magic_use_power_cave_in(unsigned char a1, long a2, long a3, long a4);
-long magic_use_power_call_to_arms(unsigned char a1, long a2, long a3, long a4, long a5);
 void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3);
 struct Thing *get_queryable_object_near(unsigned short a1, unsigned short a2, long a3);
 long tag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
@@ -1290,20 +1238,10 @@ unsigned char general_expand_check(void);
 TbBool add_spell_to_player(long spl_idx, long plyr_idx);
 struct Room *place_room(unsigned char owner, unsigned char rkind, unsigned short stl_x, unsigned short stl_y);
 unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
-short magic_use_power_slap(unsigned short plyr_idx, unsigned short stl_x, unsigned short stl_y);
-unsigned long object_is_pickable_by_hand(struct Thing *thing, long a2);
-void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing);
-struct Thing *process_object_being_picked_up(struct Thing *thing, long a2);
-void set_power_hand_graphic(long a1, long a2, long a3);
-TbBool power_hand_is_empty(struct PlayerInfo *player);
-struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player);
-TbBool dump_thing_in_power_hand(struct Thing *thing, long plyr_idx);
 unsigned long get_creature_anim(struct Thing *thing, unsigned short frame);
-void place_thing_in_limbo(struct Thing *thing);
 TbBool destroy_trap(struct Thing *thing);
 long destroy_door(struct Thing *thing);
 short delete_room_slab(long x, long y, unsigned char gnd_slab);
-void delete_thing_structure(struct Thing *thing, long a2);
 TbBool all_dungeons_destroyed(struct PlayerInfo *win_player);
 long creature_instance_is_available(struct Thing *thing, long inum);
 long add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount);
@@ -1313,7 +1251,6 @@ void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(unsigned char idx);
 void restore_computer_player_after_load(void);
 void sound_reinit_after_load(void);
-void draw_power_hand(void);
 void draw_swipe(void);
 void draw_bonus_timer(void);
 void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
@@ -1390,8 +1327,6 @@ void destroy_food(struct Thing *thing);
 TbBool trap_is_active(struct Thing *thing);
 TbBool trap_is_slappable(struct Thing *thing, long plyr_idx);
 TbBool thing_slappable(struct Thing *thing, long plyr_idx);
-void slap_creature(struct PlayerInfo *player, struct Thing *thing);
-void apply_damage_to_thing(struct Thing *thing, long a2, char a3);
 unsigned char active_battle_exists(unsigned char a1);
 void maintain_my_battle_list(void);
 unsigned char step_battles_forward(unsigned char a1);
@@ -1404,31 +1339,11 @@ void draw_spell_cursor(unsigned char a1, unsigned short a2, unsigned char stl_x,
 void create_power_hand(unsigned char a1);
 struct Thing *get_group_leader(struct Thing *thing);
 short make_group_member_leader(struct Thing *leadtng);
-long find_from_task_list(long plyr_idx, long srch_tsk);
 short zoom_to_next_annoyed_creature(void);
 short zoom_to_fight(unsigned char a1);
 void go_to_my_next_room_of_type(unsigned long rkind);
-long compute_creature_max_pay(long base_pay,unsigned short crlevel);
-long compute_creature_max_health(long base_health,unsigned short crlevel);
-long compute_creature_attack_damage(long base_param,long luck,unsigned short crlevel);
-long compute_creature_attack_range(long base_param,long luck,unsigned short crlevel);
-long compute_creature_max_sparameter(long base_param,unsigned short crlevel);
-long compute_creature_max_dexterity(long base_param,unsigned short crlevel);
-long compute_creature_max_defence(long base_param,unsigned short crlevel);
-long compute_creature_max_strength(long base_param,unsigned short crlevel);
-long compute_creature_max_unaffected(long base_param,unsigned short crlevel);
-#define compute_creature_max_luck compute_creature_max_unaffected
-#define compute_creature_max_armour compute_creature_max_unaffected
-long compute_value_percentage(long base_val, short npercent);
-long compute_value_8bpercentage(long base_val, short npercent);
-
 
 short ceiling_set_info(long height_max, long height_min, long step);
-void initialise_eye_lenses(void);
-void setup_eye_lens(long nlens);
-void reset_creature_eye_lens(struct Thing *thing);
-void reinitialise_eye_lens(long nlens);
-void reset_eye_lenses(void);
 void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
 void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
 void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
@@ -1439,9 +1354,6 @@ long get_camera_zoom(struct Camera *camera);
 void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min);
 void keep_local_camera_zoom_level(unsigned long prev_units_per_pixel_size);
 void set_mouse_light(struct PlayerInfo *player);
-void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing);
-void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing);
-void magic_use_power_hold_audience(unsigned char idx);
 void clear_slab_dig(long a1, long a2, char a3);
 void clear_light_system(void);
 void light_delete_light(long idx);
@@ -1476,8 +1388,6 @@ void draw_overlay_things(long zoom);
 void draw_overlay_compass(long a1, long a2);
 void draw_mini_things_in_hand(long x, long y);
 void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6);
-void draw_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int scanln);
-void flyeye_blitsec(unsigned char *srcbuf, unsigned char *dstbuf, long srcwidth, long dstwidth, long n, long height);
 TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos);
 void draw_jonty_mapwho(struct JontySpr *jspr);
 struct Thing *find_base_thing_on_mapwho(unsigned char oclass, unsigned short okind, unsigned short x, unsigned short y);
@@ -1521,7 +1431,6 @@ void resync_game(void);
 void level_lost_go_first_person(long plridx);
 long battle_move_player_towards_battle(struct PlayerInfo *player, long var);
 void  toggle_ally_with_player(long plyridx, unsigned int allyidx);
-void magic_use_power_armageddon(unsigned int plridx);
 short winning_player_quitting(struct PlayerInfo *player, long *plyr_count);
 TbBool move_campaign_to_next_level(void);
 TbBool move_campaign_to_prev_level(void);
@@ -1535,7 +1444,6 @@ TbBool message_already_in_queue(long msg_idx);
 TbBool add_message_to_queue(long msg_idx, long a2);
 long get_phrase_for_message(long msg_idx);
 long get_phrase_sample(long phr_idx);
-void go_on_then_activate_the_event_box(long plridx, long evidx);
 void set_general_information(long msg_id, long target, long x, long y);
 void set_quick_information(long msg_id, long target, long x, long y);
 void process_objective(char *msg_text, long target, long x, long y);
@@ -1543,20 +1451,13 @@ void set_general_objective(long msg_id, long target, long x, long y);
 struct Thing *event_is_attached_to_thing(long ev_idx);
 void maintain_my_event_list(struct Dungeon *dungeon);
 void kill_oldest_my_event(struct Dungeon *dungeon);
-struct Event *event_create_event(long map_x, long map_y, unsigned char a3, unsigned char dngn_id, long msg_id);
-struct Event *event_allocate_free_event_structure(void);
-void event_initialise_event(struct Event *event, long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id);
-void event_add_to_event_list(struct Event *event, struct Dungeon *dungeon);
 void turn_off_sight_of_evil(long plridx);
 short dump_held_things_on_map(unsigned int plyridx, long a2, long a3, short a4);
 void set_player_mode(struct PlayerInfo *player, long val);
 long set_autopilot_type(unsigned int plridx, long aptype);
-void event_delete_event(long plridx, long num);
 void set_player_state(struct PlayerInfo *player, short a1, long a2);
-short magic_use_power_obey(unsigned short plridx);
 long place_thing_in_power_hand(struct Thing *thing, long var);
 void turn_off_call_to_arms(long a);
-long event_move_player_towards_event(struct PlayerInfo *player, long var);
 TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val);
 TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type);
 void instant_instance_selected(long a1);
@@ -1566,7 +1467,6 @@ void light_set_lights_on(char state);
 void message_add(char c);
 void init_messages(void);
 void battle_initialise(void);
-void event_initialise_all(void);
 void add_thing_to_list(struct Thing *thing, struct StructureList *list);
 struct Thing *allocate_free_thing_structure(unsigned char a1);
 short thing_create_thing(struct InitThing *itng);

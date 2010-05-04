@@ -102,9 +102,9 @@ unsigned char field_3D[41];
     unsigned char field_66;
 unsigned char field_67[7];
     short field_6E;
-unsigned char field_70[2];
-    short field_72;
-unsigned char field_74[2];
+    unsigned short field_70;
+    unsigned short field_72;
+    unsigned short field_74;
     unsigned short next_in_group;
     unsigned short prev_in_group;
     unsigned short field_7A;
@@ -123,7 +123,13 @@ unsigned char field_88;
     };
     long long_89;
   };
-long field_8D;
+union {
+struct {
+  short word_8D;
+  short word_8F;
+  };
+  long long_8D;
+};
 union {
 struct {
   unsigned char byte_91;
@@ -131,9 +137,14 @@ struct {
   unsigned char byte_93;
   unsigned char byte_94;
   };
+struct {
+  short word_91;
+  short word_93;
+  };
   long long_91;
 };
-unsigned char field_95[5];
+unsigned char field_95;
+unsigned char field_96[4];
   union {
   struct {
     unsigned char byte_9A;
@@ -377,6 +388,7 @@ void delete_all_control_structures(void);
 struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long a2, struct Coord3d *pos);
 TbBool disband_creatures_group(struct Thing *thing);
 void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4);
+void reset_creature_eye_lens(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

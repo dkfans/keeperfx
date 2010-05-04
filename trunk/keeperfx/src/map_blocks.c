@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file lens_mist.h
- *     Header file for lens_mist.cpp.
+/** @file map_blocks.c
+ *     Map blocks support functions.
  * @par Purpose:
- *     Mist lens effect functions.
+ *     Functions to manage map blocks.
  * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
+ *     None.
  * @author   Tomasz Lis
- * @date     05 Jan 2009 - 12 Aug 2009
+ * @date     11 Mar 2010 - 12 May 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,22 +16,25 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_LENSMIST_H
-#define DK_LENSMIST_H
+#include "map_blocks.h"
 
-#include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-void setup_mist(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost);
-TbBool draw_mist(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf, long srcwidth, long width, long height);
-void free_mist(void);
+DLLIMPORT long _DK_block_has_diggable_side(long a1, long a2, long a3);
+
+/******************************************************************************/
+long block_has_diggable_side(long a1, long a2, long a3)
+{
+  return _DK_block_has_diggable_side(a1, a2, a3);
+}
+
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
-#endif
-
 #endif

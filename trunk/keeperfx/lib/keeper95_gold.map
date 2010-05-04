@@ -1705,3 +1705,14 @@
  0001:000157E0       shuffle_unattached_things_on_slab
  0001:000B1720       update_blocks_in_area
  0001:000343B0       wp_check_map_pos_valid
+ 0001:000886F0       check_for_empty_trap_for_imp_not_being_armed
+ 0001:0008CE70       check_out_uncrowded_reinforce_position
+ 0001:0008CAB0       check_place_to_dig_and_get_position
+ 0001:000884B0       check_place_to_pickup_dead_body
+ 0001:00088760       check_place_to_pickup_gold
+ 0001:00088430       check_place_to_pickup_unconscious_body
+ 0001:00088530       check_place_to_pickup_spell
+ 0001:000883A0       check_place_to_reinforce
+ 0001:0008D1B0       find_dig_from_task_list
+ 0001:000B6D80       find_nearest_room_for_thing_with_spare_item_capacity
+ 0001:000885F0       check_place_to_pickup_crate

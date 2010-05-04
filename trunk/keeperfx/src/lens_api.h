@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file thing_doors.h
- *     Header file for thing_doors.c.
+/** @file lens_api.h
+ *     Header file for lens_api.c.
  * @par Purpose:
- *     XXXX functions.
+ *     Eye lenses support functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     25 Mar 2009 - 12 Aug 2009
+ * @date     11 Mar 2010 - 12 May 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,44 +16,42 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_TNGDOORS_H
-#define DK_TNGDOORS_H
+#ifndef DK_LENS_API_H
+#define DK_LENS_API_H
 
 #include "globals.h"
+#include "bflib_video.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /******************************************************************************/
-#define DOOR_TYPES_COUNT        5
+extern unsigned int eye_lens_width;
+extern unsigned int eye_lens_height;
 /******************************************************************************/
 #ifdef __cplusplus
 #pragma pack(1)
 #endif
-
-struct Thing;
-
-struct DoorStats { // sizeof = 8
-  unsigned short field_0;
-  long health;
-  unsigned short field_6;
-};
-
 /******************************************************************************/
-extern const short door_names[];
-/******************************************************************************/
-DLLIMPORT extern struct DoorStats _DK_door_stats[5][2];
-#define door_stats _DK_door_stats
-DLLIMPORT extern unsigned short _DK_door_names[DOOR_TYPES_COUNT];
+DLLIMPORT unsigned long *_DK_eye_lens_memory;
+#define eye_lens_memory _DK_eye_lens_memory
+DLLIMPORT TbPixel *_DK_eye_lens_spare_screen_memory;
+#define eye_lens_spare_screen_memory _DK_eye_lens_spare_screen_memory
+DLLIMPORT unsigned char *_DK_dog_palette;
+#define dog_palette _DK_dog_palette
+DLLIMPORT unsigned char *_DK_vampire_palette;
+#define vampire_palette _DK_vampire_palette
 /******************************************************************************/
 #ifdef __cplusplus
 #pragma pack()
 #endif
 /******************************************************************************/
-struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
-void lock_door(struct Thing *thing);
-void unlock_door(struct Thing *thing);
-
+void initialise_eye_lenses(void);
+void setup_eye_lens(long nlens);
+void reinitialise_eye_lens(long nlens);
+void reset_eye_lenses(void);
+void draw_lens_effect(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf, long srcwidth, long width, long height, long effect);
 /******************************************************************************/
 #ifdef __cplusplus
 }

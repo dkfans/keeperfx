@@ -29,6 +29,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
+
+const short door_names[] = {
+    201, 590, 591, 592, 593, 0,
+};
+
+/******************************************************************************/
 DLLIMPORT void _DK_lock_door(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
 /******************************************************************************/

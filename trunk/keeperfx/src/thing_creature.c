@@ -26,10 +26,11 @@
 #include "config_creature.h"
 #include "creature_states.h"
 #include "config_lenses.h"
+#include "thing_stats.h"
 #include "thing_effects.h"
 #include "thing_objects.h"
 #include "thing_navigate.h"
-#include "lens_mist.h"
+#include "lens_api.h"
 #include "keeperfx.hpp"
 #include "frontend.h"
 
@@ -1509,7 +1510,6 @@ void draw_creature_view(struct Thing *thing)
 {
   struct TbGraphicsWindow grwnd;
   struct PlayerInfo *player;
-  struct LensConfig *lenscfg;
   long grscr_w,grscr_h;
   unsigned char *wscr_cp;
   unsigned char *scrmem;
@@ -1517,17 +1517,13 @@ void draw_creature_view(struct Thing *thing)
 
   // If no eye lens required - just draw on the screen, directly
   player = get_my_player();
-  if (((game.flags_cd & MFlg_EyeLensReady) == 0) || (eye_lens_memory == NULL))
+  if (((game.flags_cd & MFlg_EyeLensReady) == 0) || (eye_lens_memory == NULL) || (game.numfield_1B == 0))
   {
     engine(&player->cameras[1]);
     return;
   }
-  if ((game.numfield_1B == 0) || (game.numfield_1B == 13) || (game.numfield_1B >= 14))
-  {
-    engine(&player->cameras[1]);
-    return;
-  }
-
+  // So there is an eye lens - we have to put a buffer in place of screen,
+  // draw on that buffer, an then copy it to screen applying lens effect.
   scrmem = eye_lens_spare_screen_memory;
   // Store previous graphics settings
   wscr_cp = lbDisplay.WScreen;
@@ -1536,7 +1532,6 @@ void draw_creature_view(struct Thing *thing)
   LbScreenStoreGraphicsWindow(&grwnd);
   // Prepare new settings
   LbMemorySet(scrmem, 0, eye_lens_width*eye_lens_height*sizeof(TbPixel));
-
   lbDisplay.WScreen = scrmem;
   lbDisplay.GraphicsScreenHeight = eye_lens_height;
   lbDisplay.GraphicsScreenWidth = eye_lens_width;
@@ -1551,37 +1546,8 @@ void draw_creature_view(struct Thing *thing)
   LbScreenLoadGraphicsWindow(&grwnd);
   // Draw the buffer on real screen
   setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-  if ((game.numfield_1B < 1) || (game.numfield_1B > lenses_conf.lenses_count))
-  {
-      if (game.numfield_1B != 0)
-          ERRORLOG("Invalid lens effect");
-      return;
-  }
-  lenscfg = &lenses_conf.lenses[game.numfield_1B];
-  if ((lenscfg->flags & LCF_HasMist) != 0)
-  {
-      draw_mist(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, scrmem,
-          MyScreenWidth/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-  }
-  if ((lenscfg->flags & LCF_HasDisplace) != 0)
-  {
-      switch (lenscfg->displace_kind)
-      {
-      case 1:
-      case 2:
-          draw_lens(lbDisplay.WScreen, scrmem, eye_lens_memory,
-                MyScreenWidth/pixel_size, MyScreenHeight/pixel_size, lbDisplay.GraphicsScreenWidth);
-          break;
-      case 3:
-          flyeye_blitsec(scrmem, lbDisplay.WScreen, MyScreenWidth/pixel_size,
-                lbDisplay.GraphicsScreenWidth, 1, MyScreenHeight/pixel_size);
-          break;
-      }
-  }
-  if ((lenscfg->flags & LCF_HasPalette) != 0)
-  {
-      // Nothing to do - palette is just set and don't have to be drawn
-  }
+  draw_lens_effect(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, scrmem, MyScreenWidth/pixel_size,
+      MyScreenWidth/pixel_size, MyScreenHeight/pixel_size, game.numfield_1B);
 }
 
 struct Thing *get_creature_near(unsigned short pos_x, unsigned short pos_y)

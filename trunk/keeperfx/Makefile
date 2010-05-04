@@ -69,6 +69,8 @@ OBJS = \
 ./obj/player_instances.o \
 ./obj/player_comptask.o \
 ./obj/player_computer.o \
+./obj/tasks_list.o \
+./obj/spworker_stack.o \
 ./obj/lvl_filesdk1.o \
 ./obj/front_simple.o \
 ./obj/game_saves.o \
@@ -82,6 +84,7 @@ OBJS = \
 ./obj/room_data.o \
 ./obj/creature_control.o \
 ./obj/map_data.o \
+./obj/map_events.o \
 ./obj/thing_doors.o \
 ./obj/config_campaigns.o \
 ./obj/front_credits.o \
@@ -92,13 +95,20 @@ OBJS = \
 ./obj/config_creature.o \
 ./obj/config_crtrmodel.o \
 ./obj/lens_mist.o \
+./obj/lens_flyeye.o \
+./obj/lens_api.o \
 ./obj/ariadne.o \
 ./obj/creature_states.o \
 ./obj/thing_objects.o \
+./obj/magic.o \
+./obj/power_specials.o \
+./obj/power_hand.o \
 ./obj/map_columns.o \
+./obj/map_blocks.o \
 ./obj/bflib_drawbas.o \
 ./obj/bflib_drawsdk.o \
 ./obj/game_merge.o \
+./obj/thing_stats.o \
 ./obj/thing_effects.o \
 ./obj/thing_navigate.o \
 ./obj/config_magic.o \

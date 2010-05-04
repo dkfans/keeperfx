@@ -313,7 +313,6 @@ DLLIMPORT short _DK_old_menu_mouse_y;
 #define old_menu_mouse_y _DK_old_menu_mouse_y
 DLLIMPORT unsigned char _DK_menu_ids[3];
 #define menu_ids _DK_menu_ids
-DLLIMPORT struct EventTypeInfo _DK_event_button_info[27];
 DLLIMPORT unsigned char _DK_new_objective;
 #define new_objective _DK_new_objective
 DLLIMPORT char _DK_gui_error_text[256];
@@ -482,7 +481,6 @@ extern struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT
 extern struct GuiBoxOption gui_main_cheat_list[];
 extern struct GuiBoxOption gui_creature_cheat_option_list[];
 extern struct GuiBoxOption gui_instance_option_list[];
-extern struct EventTypeInfo event_button_info[28];
 
 extern struct GuiMenu *menu_list[MENU_LIST_ITEMS_COUNT];
 
@@ -879,7 +877,6 @@ void gui_round_glass_background(struct GuiMenu *gmnu);
 void gui_creature_query_background1(struct GuiMenu *gmnu);
 void gui_creature_query_background2(struct GuiMenu *gmnu);
 void maintain_event_button(struct GuiButton *gbtn);
-void reset_scroll_window(struct GuiMenu *gmnu);
 void init_load_menu(struct GuiMenu *gmnu);
 void init_save_menu(struct GuiMenu *gmnu);
 void init_video_menu(struct GuiMenu *gmnu);

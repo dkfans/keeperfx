@@ -23,7 +23,9 @@
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "config_creature.h"
+#include "creature_states.h"
 #include "frontend.h"
+#include "lens_api.h"
 
 #include "keeperfx.hpp"
 
@@ -341,6 +343,14 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4)
     thing_play_sample(thing, crsound->index+i, 100, 0, 3, 8, a3, 256);
   else
     thing_play_sample(thing, crsound->index+i, 100, 0, 3, 0, a3, 256);
+}
+
+void reset_creature_eye_lens(struct Thing *thing)
+{
+  if (is_my_player_number(thing->owner))
+  {
+    setup_eye_lens(0);
+  }
 }
 
 /******************************************************************************/
