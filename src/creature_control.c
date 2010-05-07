@@ -26,6 +26,7 @@
 #include "creature_states.h"
 #include "frontend.h"
 #include "lens_api.h"
+#include "light_data.h"
 
 #include "keeperfx.hpp"
 

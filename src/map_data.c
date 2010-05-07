@@ -44,6 +44,22 @@ const long map_to_slab[] = {
   78, 78, 78, 79, 79, 79, 80, 80, 80, 81, 81, 81, 82, 82, 82, 83, 83, 83,
   84, 84, 84, 85, 85, 85, 86, 86, 86, 87, 87, 87, 88, 88, 88, 89, 89, 89,
 };
+
+/** Map subtiles, X dimension.
+ *  @note The subtile indexed [map_subtiles_x] should exist
+ *      in the map, so there really is map_subtiles_x+1 subtiles. */
+int map_subtiles_x = 255;
+/** Map subtiles, Y dimension.
+ *  @note The subtile indexed [map_subtiles_y] should exist
+ *      in the map, so there really is map_subtiles_y+1 subtiles. */
+int map_subtiles_y = 255;
+/** Map tiles, X dimension.
+ *  Equals to tiles (slabs) count; The last slab has index map_tiles_x-1. */
+int map_tiles_x = 85;
+/** Map tiles, Y dimension.
+ *  Equals to tiles (slabs) count; The last slab has index map_tiles_y-1. */
+int map_tiles_y = 85;
+
 /******************************************************************************/
 /*
  * Returns if the subtile coords are in range of subtiles which have slab entry.
@@ -186,6 +202,18 @@ TbBool map_block_revealed_bit(const struct Map *map, long plyr_bit)
   if ((map->data >> 28) & plyr_bit)
     return true;
   return false;
+}
+
+TbBool valid_dig_position(long plyr_idx, long stl_x, long stl_y)
+{
+    const struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    if ((mapblk->flags & 0x10) == 0)
+    {
+        if (!map_block_revealed(mapblk, plyr_idx) && !map_pos_is_lava(stl_x, stl_y))
+            return true;
+    }
+    return false;
 }
 /******************************************************************************/
 

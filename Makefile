@@ -101,6 +101,7 @@ obj/kjm_input.o \
 obj/lens_api.o \
 obj/lens_flyeye.o \
 obj/lens_mist.o \
+obj/light_data.o \
 obj/lvl_filesdk1.o \
 obj/lvl_script.o \
 obj/magic.o \

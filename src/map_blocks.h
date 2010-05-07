@@ -19,6 +19,7 @@
 #ifndef DK_MAP_BLOCKS_H
 #define DK_MAP_BLOCKS_H
 
+#include "bflib_basics.h"
 #include "globals.h"
 
 #ifdef __cplusplus
@@ -35,7 +36,7 @@ extern "C" {
 #pragma pack()
 #endif
 /******************************************************************************/
-long block_has_diggable_side(long a1, long a2, long a3);
+TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y);
 
 /******************************************************************************/
 #ifdef __cplusplus

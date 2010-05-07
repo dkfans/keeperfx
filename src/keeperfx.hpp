@@ -33,6 +33,7 @@
 #include "creature_control.h"
 #include "player_data.h"
 #include "slab_data.h"
+#include "light_data.h"
 #include "map_data.h"
 #include "map_columns.h"
 #include "room_data.h"
@@ -62,7 +63,6 @@
 #define GAMMA_LEVELS_COUNT      5
 #define LENSES_COUNT           15
 #define MINMAXS_COUNT          64
-#define LIGHTS_COUNT          400
 #define SHADOW_LIMITS_COUNT  2048
 #define SPIRAL_STEPS_COUNT   2500
 #define GOLD_LOOKUP_COUNT      40
@@ -217,17 +217,6 @@ struct Party { // sizeof = 208
   unsigned long members_num;
 };
 
-struct InitLight { // sizeof=0x14
-short field_0;
-unsigned char field_2;
-unsigned char field_3;
-unsigned char field_4[6];
-    struct Coord3d mappos;
-unsigned char field_10;
-unsigned char field_11;
-unsigned char field_12[2];
-};
-
 struct InitEffect { // sizeof = 39
   short numfield_0;
   unsigned char generation_type;
@@ -307,24 +296,6 @@ struct UnkStruc7 { // sizeof = 17
   unsigned char field_4[9];
   unsigned short field_D;
   unsigned short field_F;
-};
-
-struct Light { // sizeof = 46
-  unsigned char field_0;
-  unsigned char field_1;
-  unsigned char field_2[3];
-  unsigned char field_5;
-  unsigned char field_6;
-  unsigned short field_7;
-  unsigned char field_9[5];
-  unsigned short field_E;
-  unsigned char field_10[22];
-  unsigned short field_26;
-  unsigned char field_28;
-  unsigned char field_29;
-  unsigned char field_2A;
-  unsigned char field_2B;
-  unsigned short field_2C;
 };
 
 struct ShadowCache { // sizeof = 129
@@ -924,11 +895,8 @@ DLLIMPORT extern long _DK_gui_last_left_button_pressed_id;
 #define gui_last_left_button_pressed_id _DK_gui_last_left_button_pressed_id
 DLLIMPORT extern long _DK_gui_last_right_button_pressed_id;
 #define gui_last_right_button_pressed_id _DK_gui_last_right_button_pressed_id
-DLLIMPORT extern long _DK_map_to_slab[256];
 DLLIMPORT extern struct TrapData _DK_trap_data[MANUFCTR_TYPES_COUNT];
 #define trap_data _DK_trap_data
-DLLIMPORT extern struct SlabAttr _DK_slab_attrs[SLAB_TYPES_COUNT];
-#define slab_attrs _DK_slab_attrs
 DLLIMPORT extern unsigned char _DK_magic_to_object[24];
 #define magic_to_object _DK_magic_to_object
 DLLIMPORT extern unsigned char _DK_trap_to_object[8];
@@ -1096,10 +1064,6 @@ DLLIMPORT unsigned short _DK_creature_list[CREATURE_FRAMELIST_LENGTH];
 #define creature_list _DK_creature_list
 DLLIMPORT struct KeeperSprite *_DK_creature_table;
 #define creature_table _DK_creature_table
-DLLIMPORT long _DK_stat_light_needs_updating;
-#define stat_light_needs_updating _DK_stat_light_needs_updating
-DLLIMPORT long _DK_light_bitmask[32];
-#define light_bitmask _DK_light_bitmask
 DLLIMPORT struct TbModemDev _DK_modem_dev;
 #define modem_dev _DK_modem_dev
 DLLIMPORT struct ConfigInfo _DK_net_config_info;
@@ -1140,10 +1104,6 @@ DLLIMPORT long _DK_key_to_string[256];
 
 // Variables inside the main module
 extern TbClockMSec last_loop_time;
-extern int map_subtiles_x;
-extern int map_subtiles_y;
-extern int map_tiles_x;
-extern int map_tiles_y;
 extern short default_loc_player;
 extern struct GuiBox *gui_box;
 extern struct GuiBox *gui_cheat_box;
@@ -1346,14 +1306,6 @@ void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigne
 void keep_local_camera_zoom_level(unsigned long prev_units_per_pixel_size);
 void set_mouse_light(struct PlayerInfo *player);
 void clear_slab_dig(long a1, long a2, char a3);
-void clear_light_system(void);
-void light_delete_light(long idx);
-void light_initialise_lighting_tables(void);
-void light_initialise(void);
-void light_turn_light_off(long num);
-void light_turn_light_on(long num);
-long light_get_light_intensity(long idx);
-long light_set_light_intensity(long a1, long a2);
 void delete_all_structures(void);
 void clear_map(void);
 void clear_game(void);
@@ -1401,10 +1353,6 @@ void reset_heap_manager(void);
 void reset_heap_memory(void);
 TbBool load_settings(void);
 unsigned long convert_td_iso(unsigned long n);
-long light_create_light(struct InitLight *ilght);
-void light_set_light_never_cache(long idx);
-long light_is_light_allocated(long lgt_id);
-void light_set_light_position(long lgt_id, struct Coord3d *pos);
 void reset_player_mode(struct PlayerInfo *player, unsigned short nmode);
 void init_keeper_map_exploration(struct PlayerInfo *player);
 void init_player_cameras(struct PlayerInfo *player);
@@ -1454,7 +1402,6 @@ TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend
 void instant_instance_selected(long a1);
 void centre_engine_window(void);
 void change_engine_window_relative_size(long w_delta, long h_delta);
-void light_set_lights_on(char state);
 void message_add(char c);
 void init_messages(void);
 void battle_initialise(void);
@@ -1496,7 +1443,6 @@ long remove_food_from_food_room_if_possible(struct Thing *thing);
 unsigned long setup_move_off_lava(struct Thing *thing);
 struct Room *player_has_room_of_type(long plr_idx, long roomkind);
 void set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char a6, unsigned char a7);
-void light_set_light_minimum_size_to_cache(long a1, long a2, long a3);
 long get_next_manufacture(struct Dungeon *dungeon);
 unsigned char keepersprite_frames(unsigned short n);
 void remove_thing_from_mapwho(struct Thing *thing);

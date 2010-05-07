@@ -373,12 +373,12 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, unsigned short 
     return _DK_check_out_uncrowded_reinforce_position(thing, a2, a3, a4);
 }
 
-long check_place_to_dig_and_get_position(struct Thing *thing, unsigned short a2, long *a3, long *a4)
+long check_place_to_dig_and_get_position(struct Thing *thing, unsigned long stl_num, long *retstl_x, long *retstl_y)
 {
     //TODO may hang in some cases
     //!!!!!!!!!!!!!!
     SYNCDBG(8,"Starting");
-    return _DK_check_place_to_dig_and_get_position(thing, a2, a3, a4);
+    return _DK_check_place_to_dig_and_get_position(thing, stl_num, retstl_x, retstl_y);
 }
 
 struct Thing *check_place_to_pickup_dead_body(struct Thing *thing, long stl_x, long stl_y)

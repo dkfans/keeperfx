@@ -30,6 +30,7 @@
 #include "thing_objects.h"
 #include "dungeon_data.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -205,21 +206,21 @@ short setup_land_tooltips(struct Coord3d *pos)
 {
   struct PlayerInfo *player;
   struct SlabMap *slb;
-  int attridx;
-  int stridx;
+  struct SlabAttr *slbattr;
+  long skind;
   SYNCDBG(18,"Starting");
   if (!settings.tooltips_on)
     return false;
   slb = get_slabmap_for_subtile(pos->x.stl.num, pos->y.stl.num);
-  attridx = slb->slab;
-  stridx = slab_attrs[attridx].field_0;
-  if (stridx == 201)
+  skind = slb->slab;
+  slbattr = get_slab_kind_attrs(skind);
+  if (slbattr->tooltip_idx == 201)
     return false;
-  update_gui_tooltip_target((void *)attridx);
+  update_gui_tooltip_target((void *)skind);
   player = get_my_player();
   if ((help_tip_time > 20) || (player->work_state == 12))
   {
-    set_gui_tooltip_box(2,stridx);
+    set_gui_tooltip_box(2,slbattr->tooltip_idx);
   } else
   {
     help_tip_time++;

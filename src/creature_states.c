@@ -24,6 +24,7 @@
 #include "creature_control.h"
 #include "config_creature.h"
 #include "config_rules.h"
+#include "config_terrain.h"
 #include "thing_stats.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
@@ -1466,6 +1467,7 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
 {
     struct CreatureStats *crstat;
     struct SlabMap *slb;
+    struct SlabAttr *slbattr;
     struct Thing *doortng;
     long base_x,base_y;
     long stl_x,stl_y;
@@ -1486,9 +1488,9 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
     {
         slab_num = slab_base + small_around_slab[m];
         slb = get_slabmap_direct(slab_num);
-        i = slab_attrs[slb->slab%SLAB_TYPES_COUNT].field_6;
+        slbattr = get_slab_attrs(slb);
         do_move = false;
-        if ( ((i & 0x02) != 0) || ((i & 0x10) == 0) )
+        if ( ((slbattr->field_6 & 0x02) != 0) || ((slbattr->field_6 & 0x10) == 0) )
             do_move = true;
         base_x = 3 * slb_num_decode_x(slab_num);
         base_y = 3 * slb_num_decode_y(slab_num);

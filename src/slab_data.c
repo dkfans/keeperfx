@@ -20,6 +20,7 @@
 #include "globals.h"
 
 #include "player_instances.h"
+#include "config_terrain.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -155,6 +156,21 @@ long get_next_slab_number_in_room(long slab_num)
     if ((slab_num < 0) || (slab_num >= map_tiles_x*map_tiles_y))
         return 0;
     return game.slabmap[slab_num].next_in_room;
+}
+
+TbBool slab_is_safe_land(long plyr_idx, long slb_x, long slb_y)
+{
+  struct SlabMap *slb;
+  struct SlabAttr *slbattr;
+  int slb_owner;
+  slb = get_slabmap_block(slb_x, slb_y);
+  slbattr = get_slab_attrs(slb);
+  slb_owner = slabmap_owner(slb);
+  if ((slb_owner == plyr_idx) || (slb_owner == game.neutral_player_num))
+  {
+      return slbattr->is_safe_land;
+  }
+  return false;
 }
 
 /**

@@ -677,7 +677,6 @@
  0001:0008C260       lightning_modify_palette
  0001:0008C560       slab_by_players_land
  0001:0008C900       imp_will_soon_be_working_at_excluding
- 0001:0008CA00       block_has_diggable_side
  0001:0008CAB0       check_place_to_dig_and_get_position
  0001:0008CE70       check_out_uncrowded_reinforce_position
  0001:0008D1B0       find_dig_from_task_list
@@ -1108,7 +1107,6 @@
  0001:000FCFD0       play_smk_via_buffer
  0001:000FD1B0       play_smk_direct
  0001:000FD5D0       copy_to_screen
- 0002:00000010       map_to_slab
  0002:00000D50       imp_spangle_effects
  0003:00000060       frame_number
  0003:00001838       net_guid
@@ -1166,7 +1164,6 @@
  0003:0000FD90       object_to_door_or_trap
  0003:0000FE18       workshop_object_class
  0003:0000FF20       event_button_info
- 0003:000103C0       slab_attrs
  0003:00010CBC       Non3DEmitter
  0003:00010CC0       SpeechEmitter
  0003:00010E00       doors
@@ -1523,7 +1520,6 @@
  0003:000A6E8C       font_sprites
  0003:000A6E90       gui_panel_sprites
  0003:000A6E94       end_winfont_data
- 0003:000A6E98       dog_palette
  0003:000A6EA0       td_iso
  0003:000A7650       randomisors
  0003:000A7E50       spiral_step
@@ -1553,7 +1549,6 @@
  0003:000EBEBC       pixels_per_block
  0003:000EBEC0       end_font_sprites
  0003:000EBEC4       end_button_sprites
- 0003:000EBEC8       vampire_palette
  0003:000EBED0       key_modifiers
  0003:000EBED4       MyScreenHeight
  0003:000EBEEC       edit_icon_data

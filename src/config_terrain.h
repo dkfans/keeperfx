@@ -31,6 +31,22 @@ extern "C" {
 
 #define TERRAIN_ITEMS_MAX 256
 
+struct SlabAttr {
+    unsigned short tooltip_idx;
+    short field_2;
+    short field_4;
+    long field_6;
+    long field_A;
+    unsigned char field_E;
+    unsigned char field_F;
+    unsigned char field_10;
+    unsigned char field_11;
+    unsigned char is_safe_land;
+    unsigned char field_13;
+    unsigned char field_14;
+    unsigned char field_15;
+};
+
 struct SlabsConfig {
     long slab_types_count;
     struct CommandWord slab_names[TERRAIN_ITEMS_MAX];
@@ -47,6 +63,9 @@ extern struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
 extern struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
 extern struct NamedCommand trap_desc[TERRAIN_ITEMS_MAX];
 extern struct NamedCommand door_desc[TERRAIN_ITEMS_MAX];
+/******************************************************************************/
+struct SlabAttr *get_slab_kind_attrs(long slab_kind);
+struct SlabAttr *get_slab_attrs(struct SlabMap *slb);
 /******************************************************************************/
 TbBool load_terrain_config(const char *conf_fname,unsigned short flags);
 TbBool make_all_rooms_free(void);

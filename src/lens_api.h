@@ -25,7 +25,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /******************************************************************************/
 extern unsigned int eye_lens_width;
 extern unsigned int eye_lens_height;
@@ -38,10 +37,6 @@ DLLIMPORT unsigned long *_DK_eye_lens_memory;
 #define eye_lens_memory _DK_eye_lens_memory
 DLLIMPORT TbPixel *_DK_eye_lens_spare_screen_memory;
 #define eye_lens_spare_screen_memory _DK_eye_lens_spare_screen_memory
-DLLIMPORT unsigned char *_DK_dog_palette;
-#define dog_palette _DK_dog_palette
-DLLIMPORT unsigned char *_DK_vampire_palette;
-#define vampire_palette _DK_vampire_palette
 /******************************************************************************/
 #ifdef __cplusplus
 #pragma pack()

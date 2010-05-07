@@ -21,16 +21,24 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "slab_data.h"
+#include "room_data.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_block_has_diggable_side(long a1, long a2, long a3);
 
 /******************************************************************************/
-long block_has_diggable_side(long a1, long a2, long a3)
+TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y)
 {
-  return _DK_block_has_diggable_side(a1, a2, a3);
+  long i;
+  for (i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
+  {
+    if (slab_is_safe_land(plyr_idx, slb_x + small_around[i].delta_x, slb_y + small_around[i].delta_y))
+      return true;
+  }
+  return false;
 }
 
 
