@@ -29,6 +29,8 @@
 #include "front_simple.h"
 #include "config.h"
 #include "config_campaigns.h"
+#include "config_terrain.h"
+#include "light_data.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -1036,6 +1038,7 @@ short load_map_ownership_file(unsigned long lv_num)
 short initialise_map_wlb_auto(void)
 {
   struct SlabMap *slb;
+  struct SlabAttr *slbattr;
   unsigned long x,y;
   unsigned long n,nbridge;
   nbridge = 0;
@@ -1054,7 +1057,8 @@ short initialise_map_wlb_auto(void)
       {
         n = slb->slab;
       }
-      n = (slab_attrs[n%SLAB_TYPES_COUNT].field_15 << 3);
+      slbattr = get_slab_kind_attrs(n);
+      n = (slbattr->field_15 << 3);
       slb->field_5 ^= (slb->field_5 ^ n) & 0x18;
     }
   SYNCMSG("Regenerated WLB flags, unsure for %lu bridge blocks.",nbridge);

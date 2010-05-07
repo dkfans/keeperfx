@@ -35,6 +35,7 @@
 #include "scrcapt.h"
 #include "player_instances.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "gui_tooltips.h"
 #include "power_hand.h"
 #include "keeperfx.hpp"
@@ -1100,7 +1101,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   slab_x = map_to_slab[x];
   slab_y = map_to_slab[y];
   slb = get_slabmap_block(slab_x, slab_y);
-  slbattr = &slab_attrs[slb->slab%SLAB_TYPES_COUNT];
+  slbattr = get_slab_attrs(slb);
   if (slab_type_is_door(slb->slab) && (slabmap_owner(slb) == player->id_number))
   {
     *context = 2;

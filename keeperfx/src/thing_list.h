@@ -213,6 +213,7 @@ long thing_is_shootable_by_any_player_including_objects(struct Thing *thing);
 long thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *shooter, struct Thing *thing);
 long thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing);
 long thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing);
+TbBool imp_already_digging_at_excluding(struct Thing *excltng, long stl_x, long stl_y);
 
 TbBool update_thing(struct Thing *thing);
 TbBigChecksum get_thing_checksum(struct Thing *thing);

@@ -272,3 +272,7 @@
  0001:000DC1A0       LbDataFreeAll@4
  0001:000C2700       set_creature_level
  0001:00063630       create_creature
+ 0003:000103C0       slab_attrs
+ 0002:00000010       map_to_slab
+ 0003:000A6E98       dog_palette
+ 0003:000EBEC8       vampire_palette

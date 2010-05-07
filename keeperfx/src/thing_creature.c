@@ -31,6 +31,7 @@
 #include "thing_objects.h"
 #include "thing_navigate.h"
 #include "lens_api.h"
+#include "light_data.h"
 #include "keeperfx.hpp"
 #include "frontend.h"
 

@@ -85,22 +85,6 @@ struct SlabMap {
       unsigned char field_5;
 };
 
-struct SlabAttr {
-    short field_0;
-    short field_2;
-    short field_4;
-    long field_6;
-    long field_A;
-    unsigned char field_E;
-    unsigned char field_F;
-    unsigned char field_10;
-    unsigned char field_11;
-    unsigned char field_12;
-    unsigned char field_13;
-    unsigned char field_14;
-    unsigned char field_15;
-};
-
 struct SlabSet { // sizeof = 18
   short col_idx[9];
 };
@@ -133,6 +117,8 @@ void slabmap_set_owner(struct SlabMap *slb, long owner);
 void set_whole_slab_owner(long slb_x, long slb_y, long owner);
 long get_next_slab_number_in_room(long slab_num);
 long calculate_effeciency_score_for_room_slab(long slab_num, long plyr_idx);
+TbBool slab_is_safe_land(long plyr_idx, long slb_x, long slb_y);
+
 void clear_slabs(void);
 void reveal_whole_map(struct PlayerInfo *player);
 void update_blocks_around_slab(long slb_x, long slb_y);
