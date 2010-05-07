@@ -36,6 +36,7 @@
 
 #include "config.h"
 #include "config_campaigns.h"
+#include "light_data.h"
 #include "lvl_filesdk1.h"
 #include "front_simple.h"
 #include "frontend.h"

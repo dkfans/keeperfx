@@ -64,6 +64,7 @@
 #include "creature_control.h"
 #include "creature_states.h"
 #include "lens_api.h"
+#include "light_data.h"
 #include "magic.h"
 #include "power_hand.h"
 #include "game_merge.h"
@@ -149,21 +150,6 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_RIGHT,  530},
   {  0,     0},
 };
-
-/** Map subtiles, X dimension.
- *  @note The subtile indexed [map_subtiles_x] should exist
- *      in the map, so there really is map_subtiles_x+1 subtiles. */
-int map_subtiles_x = 255;
-/** Map subtiles, Y dimension.
- *  @note The subtile indexed [map_subtiles_y] should exist
- *      in the map, so there really is map_subtiles_y+1 subtiles. */
-int map_subtiles_y = 255;
-/** Map tiles, X dimension.
- *  Equals to tiles (slabs) count; The last slab has index map_tiles_x-1. */
-int map_tiles_x = 85;
-/** Map tiles, Y dimension.
- *  Equals to tiles (slabs) count; The last slab has index map_tiles_y-1. */
-int map_tiles_y = 85;
 
 unsigned short player_colors_map[] = {0, 1, 2, 3, 4, 5, 0, 0, 0, };
 
@@ -387,8 +373,6 @@ DLLIMPORT void _DK_draw_overhead_things(long x, long y);
 DLLIMPORT void _DK_init_alpha_table(void);
 DLLIMPORT void _DK_external_activate_trap_shot_at_angle(struct Thing *thing, long a2);
 DLLIMPORT long _DK_parse_sound_file(long a1, unsigned char *a2, long *a3, long a4, long a4);
-DLLIMPORT void _DK_light_remove_light_from_list(struct Light *lgt, struct StructureList *list);
-DLLIMPORT void _DK_light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
 DLLIMPORT void _DK_explosion_affecting_area(struct Thing *thing, const struct Coord3d *pos, long a3, long a4, unsigned char a5);
 DLLIMPORT void _DK_engine_init(void);
 DLLIMPORT long _DK_load_anim_file(void);
@@ -441,11 +425,8 @@ DLLIMPORT long _DK_is_thing_passenger_controlled(struct Thing *thing);
 DLLIMPORT void _DK_setup_3d(void);
 DLLIMPORT void _DK_setup_stuff(void);
 DLLIMPORT void _DK_init_keeper(void);
-DLLIMPORT void _DK_light_delete_light(long idx);
-DLLIMPORT void _DK_light_initialise_lighting_tables(void);
 DLLIMPORT void _DK_check_map_for_gold(void);
 DLLIMPORT void _DK_set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char a6, unsigned char a7);
-DLLIMPORT void _DK_light_set_light_minimum_size_to_cache(long a1, long a2, long a3);
 DLLIMPORT struct Thing *_DK_find_base_thing_on_mapwho(unsigned char oclass, unsigned short model, unsigned short x, unsigned short y);
 DLLIMPORT void _DK_delete_room_structure(struct Room *room);
 DLLIMPORT int _DK_get_gui_inputs(int);
@@ -513,8 +494,6 @@ DLLIMPORT long _DK_update_dead_creature(struct Thing *thing);
 DLLIMPORT long _DK_update_creature(struct Thing *thing);
 DLLIMPORT long _DK_update_trap(struct Thing *thing);
 DLLIMPORT long _DK_process_door(struct Thing *thing);
-DLLIMPORT long _DK_light_is_light_allocated(long lgt_id);
-DLLIMPORT void _DK_light_set_light_position(long lgt_id, struct Coord3d *pos);
 DLLIMPORT void _DK_gui_set_button_flashing(long a1, long a2);
 DLLIMPORT short _DK_send_creature_to_room(struct Thing *thing, struct Room *room);
 DLLIMPORT struct Room *_DK_get_room_thing_is_on(struct Thing *thing);
@@ -526,7 +505,6 @@ DLLIMPORT void _DK_calculate_dungeon_area_scores(void);
 DLLIMPORT long _DK_get_next_research_item(struct Dungeon *dungeon);
 DLLIMPORT void _DK_delete_all_structures(void);
 DLLIMPORT void _DK_clear_mapwho(void);
-DLLIMPORT void _DK_light_initialise(void);
 DLLIMPORT void _DK_clear_game(void);
 DLLIMPORT void _DK_clear_game_for_save(void);
 DLLIMPORT long _DK_update_cave_in(struct Thing *thing);
@@ -585,8 +563,6 @@ DLLIMPORT void _DK_reset_heap_memory(void);
 DLLIMPORT int _DK_LoadMcgaData(void);
 DLLIMPORT void _DK_setup_heap_manager(void);
 DLLIMPORT int _DK_setup_heap_memory(void);
-DLLIMPORT long _DK_light_create_light(struct InitLight *ilght);
-DLLIMPORT void _DK_light_set_light_never_cache(long idx);
 DLLIMPORT void _DK_reset_player_mode(struct PlayerInfo *player, unsigned char a2);
 DLLIMPORT void _DK_init_keeper_map_exploration(struct PlayerInfo *player);
 DLLIMPORT void _DK_init_player_cameras(struct PlayerInfo *player);
@@ -608,8 +584,6 @@ DLLIMPORT void _DK_set_sprite_view_3d(void);
 DLLIMPORT void _DK_set_sprite_view_isometric(void);
 DLLIMPORT void _DK_do_slab_efficiency_alteration(unsigned char a1, unsigned char a2);
 DLLIMPORT void _DK_place_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5);
-DLLIMPORT long _DK_light_get_light_intensity(long idx);
-DLLIMPORT long _DK_light_set_light_intensity(long a1, long a2);
 DLLIMPORT void _DK_event_kill_all_players_events(long plyr_idx);
 DLLIMPORT void __stdcall _DK_IsRunningMark(void);
 DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
@@ -636,7 +610,6 @@ DLLIMPORT void _DK_process_rooms(void);
 DLLIMPORT void _DK_process_dungeons(void);
 DLLIMPORT void _DK_process_messages(void);
 DLLIMPORT void _DK_find_nearest_rooms_for_ambient_sound(void);
-DLLIMPORT void _DK_light_render_area(int startx, int starty, int endx, int endy);
 DLLIMPORT void _DK_process_player_research(int plr_idx);
 DLLIMPORT long _DK_process_player_manufacturing(int plr_idx);
 DLLIMPORT void _DK_event_process_events(void);
@@ -663,8 +636,6 @@ DLLIMPORT void _DK_draw_map_parchment(void);
 DLLIMPORT void _DK_draw_2d_map(void);
 DLLIMPORT void _DK_draw_gui(void);
 DLLIMPORT void _DK_draw_zoom_box(void);
-DLLIMPORT void _DK_light_stat_light_map_clear_area(long x1, long y1, long x2, long y2);
-DLLIMPORT void _DK_light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
 DLLIMPORT void _DK_turn_off_query(char a);
 DLLIMPORT void _DK_post_init_level(void);
 DLLIMPORT void _DK_post_init_players(void);
@@ -850,124 +821,6 @@ void reset_heap_memory(void)
   SYNCDBG(8,"Starting");
   LbMemoryFree(heap);
   heap = NULL;
-}
-
-TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list)
-{
-  if ((lgt->field_1 & 0x01) != 0)
-  {
-    ERRORLOG("Light is already in list");
-    return false;
-  }
-  list->count++;
-  lgt->field_1 |= 0x01;
-  lgt->field_26 = list->index;
-  list->index = lgt->field_E;
-  return true;
-}
-
-long light_create_light(struct InitLight *ilght)
-{
-  return _DK_light_create_light(ilght);
-}
-
-void light_set_light_never_cache(long idx)
-{
-  _DK_light_set_light_never_cache(idx);
-}
-
-long light_is_light_allocated(long lgt_id)
-{
-  return _DK_light_is_light_allocated(lgt_id);
-}
-
-void light_set_light_position(long lgt_id, struct Coord3d *pos)
-{
-  _DK_light_set_light_position(lgt_id, pos);
-}
-
-void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
-{
-  _DK_light_remove_light_from_list(lgt, list);
-}
-
-void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2)
-{
-  _DK_light_signal_stat_light_update_in_area(x1, y1, x2, y2);
-}
-
-void light_turn_light_off(long idx)
-{
-  struct Light *lgt;
-  long x1,y1,x2,y2;
-
-  if (idx == 0)
-  {
-    ERRORLOG("Attempt to turn off light 0");
-    return;
-  }
-  lgt = &game.lights[idx];
-  if ((lgt->field_0 & 0x01) == 0)
-  {
-    ERRORLOG("Attempt to turn off unallocated light structure");
-    return;
-  }
-  if ((lgt->field_0 & 0x02) == 0)
-    return;
-  lgt->field_0 &= 0xFD;
-  if ((lgt->field_0 & 0x04) != 0)
-  {
-    light_remove_light_from_list(lgt, &game.thing_lists[12]);
-    return;
-  }
-  // Area bounds
-  y2 = lgt->field_2B + lgt->field_5;
-  if (y2 >= map_subtiles_y)
-    y2 = map_subtiles_y;
-  x2 = lgt->field_29 + lgt->field_5;
-  if (x2 >= map_subtiles_x)
-    x2 = map_subtiles_x;
-  y1 = lgt->field_2B - lgt->field_5;
-  if (y1 <= 0)
-    y1 = 0;
-  x1 = lgt->field_29 - lgt->field_5;
-  if (x1 <= 0)
-    x1 = 0;
-  if ((x2 <= x1) || (y2 <= y1))
-    return;
-  light_signal_stat_light_update_in_area(x1, y1, x2, y2);
-  light_remove_light_from_list(lgt, &game.thing_lists[11]);
-  stat_light_needs_updating = 1;
-}
-
-void light_turn_light_on(long idx)
-{
-  struct Light *lgt;
-
-  if (idx == 0)
-  {
-    ERRORLOG("Attempt to turn on light 0");
-    return;
-  }
-  lgt = &game.lights[idx];
-  if ((lgt->field_0 & 0x01) == 0)
-  {
-    ERRORLOG("Attempt to turn on unallocated light structure");
-    return;
-  }
-  if ((lgt->field_0 & 0x02) != 0)
-    return;
-  lgt->field_0 |= 0x02;
-  if ((lgt->field_0 & 0x04) == 0)
-  {
-    light_add_light_to_list(lgt, &game.thing_lists[11]);
-    stat_light_needs_updating = 1;
-    lgt->field_0 |= 0x08;
-  } else
-  {
-    light_add_light_to_list(lgt, &game.thing_lists[12]);
-    lgt->field_0 |= 0x08;
-  }
 }
 
 unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
@@ -2968,6 +2821,7 @@ void place_slab_type_on_map(long nslab, long stl_x, long stl_y, unsigned char ow
     short previous_slab_types_around[8];
     struct SlabMap *slb;
     struct SlabMap *sslb1,*sslb2;
+    struct SlabAttr *slbattr;
     struct Map *mapblk;
     long slb_x,slb_y;
     long spos_x,spos_y;
@@ -3012,8 +2866,8 @@ void place_slab_type_on_map(long nslab, long stl_x, long stl_y, unsigned char ow
     place_single_slab_type_on_map(skind, slb_x, slb_y, owner);
     shuffle_unattached_things_on_slab(slb_x, slb_y);
 
-    flag = slab_attrs[skind%SLAB_TYPES_COUNT].field_F;
-    if ((flag == 4) || (flag == 2))
+    slbattr = get_slab_kind_attrs(skind);
+    if ((slbattr->field_F == 4) || (slbattr->field_F == 2))
     {
       for (i = 0; i < 8; i++)
       {
@@ -3069,8 +2923,8 @@ void place_slab_type_on_map(long nslab, long stl_x, long stl_y, unsigned char ow
           || (slb->slab != SlbT_GOLD) && (slb->slab != SlbT_ROCK)
           || (game.flagfield_14EA4A == 1))
         {
-            flag = slab_attrs[slb->slab%SLAB_TYPES_COUNT].field_F;
-            if (flag != 5)
+            slbattr = get_slab_kind_attrs(skind);
+            if (slbattr->field_F != 5)
                 place_single_slab_type_on_map(slb->slab, spos_x, spos_y, slabmap_owner(slb));
         }
     }
@@ -3201,16 +3055,6 @@ void shuffle_unattached_things_on_slab(long a1, long a2)
 unsigned char alter_rock_style(unsigned char a1, signed char a2, signed char a3, unsigned char a4)
 {
     return _DK_alter_rock_style(a1, a2, a3, a4);
-}
-
-long light_get_light_intensity(long idx)
-{
-  return _DK_light_get_light_intensity(idx);
-}
-
-long light_set_light_intensity(long a1, long a2)
-{
-  return _DK_light_set_light_intensity(a1, a2);
 }
 
 long update_trap(struct Thing *thing)
@@ -6385,62 +6229,9 @@ void create_shadow_limits(long start, long end)
   }
 }
 
-void clear_light_system(void)
-{
-  memset(game.field_1DD41, 0, 0x28416u);
-}
-
 void clear_shadow_limits(void)
 {
   memset(game.shadow_limits, 0, SHADOW_LIMITS_COUNT);
-}
-
-void clear_stat_light_map(void)
-{
-  unsigned long x,y,i;
-  game.field_46149 = 32;
-  game.field_4614D = 0;
-  game.field_4614F = 0;
-  for (y=0; y < (map_subtiles_y+1); y++)
-  {
-    for (x=0; x < (map_subtiles_x+1); x++)
-    {
-      i = get_subtile_number(x,y);
-      game.stat_light_map[i] = 0;
-    }
-  }
-}
-
-void light_delete_light(long idx)
-{
-  _DK_light_delete_light(idx);
-}
-
-void light_initialise_lighting_tables(void)
-{
-  _DK_light_initialise_lighting_tables();
-}
-
-
-void light_initialise(void)
-{
-  struct Light *lgt;
-  int i;
-  for (i=0; i < LIGHTS_COUNT; i++)
-  {
-    lgt = &game.lights[i];
-    if (lgt->field_0 & 0x01)
-      light_delete_light(lgt->field_E);
-  }
-  if (!game.field_4614E)
-  {
-    light_initialise_lighting_tables();
-    for (i=0; i < 32; i++)
-    {
-      light_bitmask[i] = 1 << (31-i);
-    }
-    game.field_4614E = 1;
-  }
 }
 
 struct ActionPoint *action_point_get(long apt_idx)
@@ -7024,27 +6815,6 @@ void free_swipe_graphic(void)
 void message_add(char c)
 {
   _DK_message_add(c);
-}
-
-void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
-{
-  _DK_light_stat_light_map_clear_area(x1, y1, x2, y2);
-}
-
-void light_set_lights_on(char state)
-{
-  if (state)
-  {
-    game.field_46149 = 10;
-    game.field_4614D = 1;
-  } else
-  {
-    game.field_46149 = 32;
-    game.field_4614D = 0;
-  }
-  // Enable lights on all but bounding subtiles
-  light_stat_light_map_clear_area(0, 0, map_subtiles_x, map_subtiles_y);
-  light_signal_stat_light_update_in_area(1, 1, map_subtiles_x, map_subtiles_y);
 }
 
 void change_engine_window_relative_size(long w_delta, long h_delta)
@@ -8187,11 +7957,6 @@ void find_nearest_rooms_for_ambient_sound(void)
     set_room_playing_ambient_sound(NULL, 0);
 }
 
-void light_render_area(int startx, int starty, int endx, int endy)
-{
-  _DK_light_render_area(startx, starty, endx, endy);
-}
-
 void process_3d_sounds(void)
 {
     SYNCDBG(9,"Starting");
@@ -8684,56 +8449,6 @@ void update_all_players_cameras(void)
           update_player_camera(player);
     }
   }
-}
-
-#define LIGHT_MAX_RANGE 30
-void update_light_render_area(void)
-{
-  int subtile_x,subtile_y;
-  int delta_x,delta_y;
-  int startx,endx,starty,endy;
-  struct PlayerInfo *player;
-  SYNCDBG(6,"Starting");
-  player=get_my_player();
-  if (player->field_37 >= 1)
-    if ((player->field_37 <= 2) || (player->field_37 == 5))
-    {
-        game.field_14BB5D = LIGHT_MAX_RANGE;
-        game.field_14BB59 = LIGHT_MAX_RANGE;
-    }
-  delta_x=abs(game.field_14BB59);
-  delta_y=abs(game.field_14BB5D);
-  // Prepare the area constraits
-  if (player->acamera != NULL)
-  {
-    subtile_y = player->acamera->mappos.y.stl.num;
-    subtile_x = player->acamera->mappos.x.stl.num;
-  } else
-  {
-    subtile_y = 0;
-    subtile_x = 0;
-  }
-//SYNCMSG("LghtRng %d,%d CamTil %d,%d",game.field_14BB59,game.field_14BB5D,tile_x,tile_y);
-  if (subtile_y > delta_y)
-  {
-    starty = subtile_y - delta_y;
-    if (starty > map_subtiles_y) starty = map_subtiles_y;
-  } else
-    starty = 0;
-  if (subtile_x > delta_x)
-  {
-    startx = subtile_x - delta_x;
-    if (startx > map_subtiles_x) startx = map_subtiles_x;
-  } else
-    startx = 0;
-  endy = subtile_y + delta_y;
-  if (endy < starty) endy = starty;
-  if (endy > map_subtiles_y) endy = map_subtiles_y;
-  endx = subtile_x + delta_x;
-  if (endx < startx) endx = startx;
-  if (endx > map_subtiles_x) endx = map_subtiles_x;
-  // Set the area
-  light_render_area(startx, starty, endx, endy);
 }
 
 void update_flames_nearest_camera(struct Camera *camera)
@@ -9720,7 +9435,7 @@ unsigned long can_drop_thing_here(long x, long y, long a3, unsigned long a4)
 short can_dig_here(long stl_x, long stl_y, long plyr_idx)
 {
   struct SlabMap *slb;
-  long i;
+  struct SlabAttr *slbattr;
   slb = get_slabmap_block(map_to_slab[stl_x],map_to_slab[stl_y]);
   if (slabmap_block_invalid(slb))
     return false;
@@ -9731,8 +9446,8 @@ short can_dig_here(long stl_x, long stl_y, long plyr_idx)
       if (slabmap_owner(slb) == plyr_idx)
         return false;
   }
-  i = slab_attrs[slb->slab%SLAB_TYPES_COUNT].field_6;
-  if ((i & 0x29) != 0)
+  slbattr = get_slab_attrs(slb);
+  if ((slbattr->field_6 & 0x29) != 0)
     return true;
   return false;
 }
@@ -10903,11 +10618,6 @@ void set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, cha
     thing->field_48 = i;
     thing->field_40 = i << 8;
   }
-}
-
-void light_set_light_minimum_size_to_cache(long a1, long a2, long a3)
-{
-  _DK_light_set_light_minimum_size_to_cache(a1, a2, a3);
 }
 
 struct Thing *find_base_thing_on_mapwho(unsigned char oclass, unsigned short model, unsigned short x, unsigned short y)

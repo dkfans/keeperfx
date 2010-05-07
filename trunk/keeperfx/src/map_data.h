@@ -44,6 +44,10 @@ struct Map {
 /******************************************************************************/
 extern struct Map bad_map_block;
 extern const long map_to_slab[];
+extern int map_subtiles_x;
+extern int map_subtiles_y;
+extern int map_tiles_x;
+extern int map_tiles_y;
 /******************************************************************************/
 struct Map *get_map_block_at(long stl_x, long stl_y);
 struct Map *get_map_block_at_pos(long stl_num);
@@ -53,6 +57,7 @@ void reveal_map_subtile(long stl_x, long stl_y, long plyr_idx);
 TbBool subtile_revealed(long stl_x, long stl_y, long plyr_idx);
 TbBool map_block_revealed(const struct Map *map, long plyr_idx);
 TbBool map_block_revealed_bit(const struct Map *map, long plyr_bit);
+TbBool valid_dig_position(long plyr_idx, long stl_x, long stl_y);
 long get_ceiling_height(const struct Coord3d *pos);
 long get_mapwho_thing_index(const struct Map *map);
 void set_mapwho_thing_index(struct Map *map, long thing_idx);

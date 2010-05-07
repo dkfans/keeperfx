@@ -162,8 +162,6 @@
  0003:0000E270       spell_data
  0003:0000E4A8       room_data
  0003:0000E630       trap_data
- 0002:00000010       map_to_slab
- 0003:000103C0       slab_attrs
  0003:0000FC58       object_to_magic
  0003:0000FCE0       object_to_special
  0003:0000FD68       magic_to_object
@@ -456,8 +454,6 @@
  0003:000315A8       minmaxs
  0003:000A6564       eye_lens_memory
  0003:0023EB54       eye_lens_spare_screen_memory
- 0003:000A6E98       dog_palette
- 0003:000EBEC8       vampire_palette
  0003:00040DCC       my_mouse_y
  0003:00040DD0       my_mouse_x
  0003:0000E6F0       instance_info
@@ -1566,7 +1562,6 @@
  0001:000B2D80       add_object_for_trap_to_imp_stack
  0001:000B2E50       add_unclaimed_gold_to_imp_stack
  0001:000B20F0       add_pretty_and_convert_to_imp_stack
- 0001:0008CA00       block_has_diggable_side
  0001:00089AA0       make_all_players_creatures_angry
  0001:000AFFC0       force_complete_current_manufacturing
  0001:00011970       apply_spell_effect_to_players_creatures
