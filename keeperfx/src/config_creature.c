@@ -28,6 +28,7 @@
 #include "config.h"
 #include "thing_doors.h"
 #include "thing_creature.h"
+#include "creature_instances.h"
 
 #include "keeperfx.hpp"
 
@@ -137,7 +138,7 @@ struct CreatureConfig crtr_conf;
 struct NamedCommand creature_desc[CREATURE_TYPES_MAX];
 struct NamedCommand instance_desc[INSTANCE_TYPES_MAX];
 /******************************************************************************/
-/*
+/**
  * Returns CreatureStats of given creature model.
  */
 struct CreatureStats *creature_stats_get(long crstat_idx)
@@ -147,7 +148,7 @@ struct CreatureStats *creature_stats_get(long crstat_idx)
   return &game.creature_stats[crstat_idx];
 }
 
-/*
+/**
  * Returns CreatureStats assigned to given thing.
  * Thing must be a creature.
  */
@@ -158,7 +159,7 @@ struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing)
   return &game.creature_stats[thing->model];
 }
 
-/*
+/**
  * Returns if given CreatureStats pointer is incorrect.
  */
 TbBool creature_stats_invalid(const struct CreatureStats *crstat)
@@ -166,7 +167,7 @@ TbBool creature_stats_invalid(const struct CreatureStats *crstat)
   return (crstat <= &game.creature_stats[0]) || (crstat == NULL);
 }
 
-/*
+/**
  * Returns CreatureData of given creature model.
  */
 struct CreatureData *creature_data_get(long crstat_idx)
@@ -176,7 +177,7 @@ struct CreatureData *creature_data_get(long crstat_idx)
   return &creature_data[crstat_idx];
 }
 
-/*
+/**
  * Returns CreatureData assigned to given thing.
  * Thing must be a creature.
  */
@@ -187,7 +188,7 @@ struct CreatureData *creature_data_get_from_thing(const struct Thing *thing)
   return &creature_data[thing->model];
 }
 
-/*
+/**
  * Returns Code Name (name to use in script file) of given creature model.
  */
 const char *creature_code_name(long crmodel)
@@ -377,7 +378,50 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len)
       WARNMSG("Block [%s] not found in Creature Types config file.",block_buf);
       continue;
     }
-    inst_inf = &instance_info[i];
+    inst_inf = creature_instance_info_get(i);
+    //TODO Hack to make our shot function work - remove when it's not needed
+    switch (i)
+    {
+    case 1:
+    case 2:
+    case 4:
+        inst_inf->func_cb = instf_creature_fire_shot;
+        break;
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+    case 15:
+    case 16:
+    case 17:
+    case 18:
+    case 19:
+    case 20:
+    case 21:
+    case 22:
+    case 23:
+    case 24:
+    case 25:
+    case 26:
+    case 27:
+    case 28:
+    case 40:
+    case 41:
+    case 42:
+    case 43:
+        inst_inf->func_cb = instf_creature_cast_spell;
+        break;
+    case 30:
+        inst_inf->func_cb = instf_dig;
+        break;
+    }
+
     while (pos<len)
     {
       // Finding command number in this line

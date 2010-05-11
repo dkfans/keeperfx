@@ -113,7 +113,7 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
   thing = get_trap_for_slab_position(map_to_slab[pos->x.stl.num],map_to_slab[pos->y.stl.num]);;
   if (thing_is_invalid(thing)) return false;
   player = get_my_player();
-  if ((thing->byte_17.h == 0) && (player->id_number != thing->owner))
+  if ((thing->byte_18 == 0) && (player->id_number != thing->owner))
     return false;
   update_gui_tooltip_target(thing);
   if ((help_tip_time > 20) || (player->work_state == 12))

@@ -126,7 +126,7 @@ unsigned char field_88;
 union {
 struct {
   short word_8D;
-  short word_8F;
+  unsigned short word_8F;
   };
   long long_8D;
 };

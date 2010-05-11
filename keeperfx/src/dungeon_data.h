@@ -27,6 +27,7 @@
 #include "room_data.h"
 #include "player_data.h"
 #include "map_events.h"
+#include "tasks_list.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +37,6 @@ extern "C" {
 #define IMP_TASK_MAX_COUNT     64
 #define TRAP_TYPES_COUNT        7
 #define DUNGEON_RESEARCH_COUNT 34
-#define MAPTASKS_COUNT        300
 #define MAX_THINGS_IN_HAND      8
 #define KEEPER_SPELLS_COUNT    20
 #define TURN_TIMERS_COUNT       8
@@ -163,11 +163,6 @@ struct ResearchVal { // sizeof = 6
 struct TurnTimer { // sizeof = 5
   unsigned long count;
   unsigned char state;
-};
-
-struct MapTask { // sizeof = 3
-  unsigned char field_0;
-  unsigned short field_1;
 };
 
 #define SIZEOF_Dungeon 0x1508

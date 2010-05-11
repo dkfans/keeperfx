@@ -63,7 +63,7 @@ struct ActiveBitmap nocd_bmp;
 /******************************************************************************/
 unsigned char palette_buf[PALETTE_SIZE];
 /******************************************************************************/
-/*
+/**
  * Copies the given RAW image at center of screen buffer.
  * @return Returns true on success.
  */
@@ -111,7 +111,7 @@ short copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int
   return true;
 }
 
-/*
+/**
  * Copies the given RAW image at center of screen buffer and swaps video
  * buffers to make the image visible.
  * @return Returns true on success.
@@ -190,7 +190,7 @@ TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int 
     return true;
 }
 
-/*
+/**
  * Resets bitmap screen structure to zero without freeing.
  * @return Returns true on success.
  */
@@ -200,7 +200,7 @@ short clear_bitmap_screen(struct ActiveBitmap *actv_bmp)
   return true;
 }
 
-/*
+/**
  * Frees memory used by bitmap screen and zeroes the data.
  * @return Returns true on success.
  */
@@ -211,7 +211,7 @@ short free_bitmap_screen(struct ActiveBitmap *actv_bmp)
   return clear_bitmap_screen(actv_bmp);
 }
 
-/*
+/**
  * Initializes bitmap screen. Loads all files and sets variables.
  * @return Returns true on success.
  */
@@ -257,7 +257,7 @@ short init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
   return true;
 }
 
-/*
+/**
  * Draws active bitmap on screen.
  * @return Returns true on success.
  */
@@ -272,7 +272,7 @@ short draw_bitmap_screen(struct ActiveBitmap *actv_bmp)
   return true;
 }
 
-/*
+/**
  * Draws active bitmap on screen, without setting palette.
  * @return Returns true on success.
  */
@@ -284,7 +284,7 @@ short redraw_bitmap_screen(struct ActiveBitmap *actv_bmp)
   return true;
 }
 
-/*
+/**
  * Shows active bitmap screen for specific time.
  * @return Returns true on success.
  */
@@ -298,7 +298,7 @@ short show_bitmap_screen(struct ActiveBitmap *actv_bmp,TbClockMSec tmdelay)
   return true;
 }
 
-/*
+/**
  * Clears the screen and its palette.
  * @return Returns true on success.
  */
@@ -311,7 +311,7 @@ short draw_clear_screen(void)
   return true;
 }
 
-/*
+/**
  * Initializes bitmap screen on static struct. Loads all files and sets variables.
  * @return Returns true on success.
  */
@@ -320,7 +320,7 @@ short init_actv_bitmap_screen(int stype)
   return init_bitmap_screen(&astd_bmp,stype);
 }
 
-/*
+/**
  * Frees static active bitmap struct.
  */
 short free_actv_bitmap_screen(void)
@@ -328,7 +328,7 @@ short free_actv_bitmap_screen(void)
   return free_bitmap_screen(&astd_bmp);
 }
 
-/*
+/**
  * Draws active bitmap on screen using static struct.
  * @return Returns true on success.
  */
@@ -337,7 +337,7 @@ short draw_actv_bitmap_screen(void)
   return draw_bitmap_screen(&astd_bmp);
 }
 
-/*
+/**
  * Shows active bitmap screen from static struct for specific time.
  * @return Returns true on success.
  */
@@ -346,7 +346,7 @@ short show_actv_bitmap_screen(TbClockMSec tmdelay)
   return show_bitmap_screen(&astd_bmp,tmdelay);
 }
 
-/*
+/**
  * Displays the loading screen.
  * Will work properly only on any resolutions.
  * @return Returns true on success.

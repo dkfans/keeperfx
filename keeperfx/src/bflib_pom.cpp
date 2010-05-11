@@ -93,6 +93,11 @@ void PhaseOfMoon::pom_error(const char *msg)
  * (0=full moon). Returns julian day and exact time in jd and frac parameters.
  *
  * Algorithm originally taken from old Fortran function, perfected by Tomasz Lis
+ *
+ * @param n Phase number.
+ * @param nph Phase type, 0...3; 0-full moon, 2-new moon, 1,3 - quadres.
+ * @param jd Julian day result.
+ * @param frac Day fraction (time) result.
  */
 void PhaseOfMoon::FlMoon(const long n, const short nph, long &jd, double &frac)
 {
@@ -191,7 +196,7 @@ long PhaseOfMoon::JulToday(double &daypart,long &moon_periods_n)
   long jul2;
   double frac2;
   PhaseOfMoon::FlMoon(moon_periods_n,0,jul2,frac2);
-  // Now correct the apprtoximation
+  // Now correct the approximation
   moon_periods_n += int((jul-jul2)/SYNODIC_MONTH_IN_DAYS + (jul >= jul2 ? 0.5 : -0.5));
   // Now part of the day
   if (ptm->tm_hour >= 12)

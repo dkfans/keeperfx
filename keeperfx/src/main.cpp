@@ -63,6 +63,7 @@
 #include "map_events.h"
 #include "creature_control.h"
 #include "creature_states.h"
+#include "creature_instances.h"
 #include "lens_api.h"
 #include "light_data.h"
 #include "magic.h"
@@ -352,9 +353,6 @@ unsigned short const player_state_to_spell[] = {
   0, 0, 0,  0,  0,  0, 6, 7, 5, 0, 18, 18, 0, 0, 0, 0,
   0,10, 0, 11, 12, 13, 8, 0, 2,16, 14, 15, 0, 3, 0, 0,
 };
-
-long instf_creature_fire_shot(struct Thing *thing, long *param);
-long instf_creature_cast_spell(struct Thing *thing, long *param);
 
 //static
 TbClockMSec last_loop_time=0;
@@ -771,7 +769,7 @@ void setup_heap_manager(void)
   _DK_setup_heap_manager();
 }
 
-/*
+/**
  * Allocates graphics heap.
  */
 TbBool setup_heap_memory(void)
@@ -828,7 +826,7 @@ unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
   // Note: I don't know if the zoom may be scaled for current resolution,
   // as there may be different resolution on another computer if playing MP game.
 //  return ((zoom_lvl*units_per_pixel) >> 4)*pixel_size;
-  return ((((zoom_lvl*units_per_pixel) >> 4)*(int)sqrt(pixel_size*units_per_pixel)) >> 2)*pixel_size;
+  return ((((zoom_lvl*(long)units_per_pixel) >> 4)*(int)sqrt(pixel_size*(long)units_per_pixel)) >> 2)*(long)pixel_size;
 }
 
 void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4, unsigned char a5, unsigned char a6, long a7, long a8)
@@ -919,8 +917,8 @@ void compute_fade_tables(struct TbColorTables *coltbl,unsigned char *spal,unsign
 {
   unsigned char *dst;
   unsigned long i,k;
-  unsigned char r,g,b;
-  unsigned char rr,rg,rb;
+  unsigned long r,g,b;
+  unsigned long rr,rg,rb;
   SYNCMSG("Recomputing fade tables");
   // Intense fade to/from black - slower fade near black
   dst = coltbl->fade_tables;
@@ -1027,7 +1025,7 @@ void destroy_food(struct Thing *thing)
   create_effect(&pos, 7, plyr_idx);
   if (thing->owner != game.neutral_player_num)
   {
-    if (thing->word_13.w0 == -1)
+    if (thing->word_13 == -1)
     {
       room = get_room_thing_is_on(thing);
       if (room != NULL)
@@ -1036,7 +1034,7 @@ void destroy_food(struct Thing *thing)
         {
             if (room->field_10 > 0)
               room->field_10--;
-            thing->word_13.w0 = game.food_life_out_of_hatchery;
+            thing->word_13 = game.food_life_out_of_hatchery;
         }
       }
     }
@@ -1065,7 +1063,7 @@ TbBool object_is_slappable(struct Thing *thing, long plyr_idx)
 
 TbBool trap_is_active(struct Thing *thing)
 {
-  return ((thing->byte_13.l > 0) && (*(unsigned long *)&thing->byte_13.h <= game.play_gameturn));
+  return ((thing->byte_13 > 0) && (thing->long_14 <= game.play_gameturn));
 }
 
 TbBool trap_is_slappable(struct Thing *thing, long plyr_idx)
@@ -1810,67 +1808,6 @@ long is_thing_passenger_controlled(struct Thing *thing)
   return _DK_is_thing_passenger_controlled(thing);
 }
 
-long instf_creature_fire_shot(struct Thing *thing, long *param)
-{
-  struct CreatureControl *cctrl;
-  struct Thing *target;
-  int i;
-  cctrl = creature_control_get_from_thing(thing);
-  if (cctrl->field_DA <= 0)
-  {
-    if ((thing->field_0 & 0x20) == 0)
-      i = 4;
-    else
-      i = 1;
-  } else
-  if ((thing->field_0 & 0x20) != 0)
-  {
-    target = thing_get(cctrl->field_DA);
-    if (target->class_id == TCls_Object)
-      i = 1;
-    else
-      i = 2;
-  } else
-  {
-    target = thing_get(cctrl->field_DA);
-    if (target->class_id == TCls_Object)
-      i = 1;
-    else
-    if (target->owner == thing->owner)
-      i = 2;
-    else
-      i = 4;
-  }
-  if (cctrl->field_DA > 0)
-    target = thing_get(cctrl->field_DA);
-  else
-    target = NULL;
-  creature_fire_shot(thing, target, *param, 1, i);
-  return 0;
-}
-
-long instf_creature_cast_spell(struct Thing *thing, long *param)
-{
-  struct CreatureControl *cctrl;
-  struct Thing *trthing;
-  struct SpellInfo *magicinf;
-  long mgc_idx;
-  cctrl = creature_control_get_from_thing(thing);
-  mgc_idx = *param;
-  magicinf = get_magic_info(mgc_idx);
-  if (magicinf->field_0)
-  {
-    trthing = thing_get(cctrl->field_DA);
-    if (!thing_is_invalid(trthing))
-    {
-      creature_cast_spell_at_thing(thing, trthing, mgc_idx, 1);
-      return 0;
-    }
-  }
-  creature_cast_spell(thing, mgc_idx, 1, cctrl->target_x, cctrl->target_y);
-  return 0;
-}
-
 long update_creature_levels(struct Thing *thing)
 {
   SYNCDBG(18,"Starting");
@@ -2128,12 +2065,12 @@ long update_shot(struct Thing *thing)
             cvect.x = dtpos.x.val;
             cvect.y = dtpos.y.val;
             cvect.z = dtpos.z.val;
-            i = LbSqrL(dtpos.x.val*dtpos.x.val + dtpos.y.val*dtpos.y.val + dtpos.z.val*dtpos.z.val);
+            i = LbSqrL(dtpos.x.val*(long)dtpos.x.val + dtpos.y.val*(long)dtpos.y.val + dtpos.z.val*(long)dtpos.z.val);
             if (i > 128)
             {
-              dtpos.x.val = (cvect.x << 7) / i;
-              dtpos.y.val = (cvect.y << 7) / i;
-              dtpos.z.val = (cvect.z << 7) / i;
+              dtpos.x.val = ((long)cvect.x << 7) / i;
+              dtpos.y.val = ((long)cvect.y << 7) / i;
+              dtpos.z.val = ((long)cvect.z << 7) / i;
               cvect.x = dtpos.x.val;
               cvect.y = dtpos.y.val;
               cvect.z = dtpos.z.val;
@@ -2206,7 +2143,7 @@ long update_shot(struct Thing *thing)
     case 11:
       create_effect(&thing->mappos, 50, thing->owner);
       create_effect(&thing->mappos,  9, thing->owner);
-      explosion_affecting_area(target, &thing->mappos, 8, 256, thing->byte_13.f3);
+      explosion_affecting_area(target, &thing->mappos, 8, 256, thing->byte_15);
       break;
     case 15:
       create_effect_around_thing(thing, 26);
@@ -3118,7 +3055,7 @@ void update_thing_animation(struct Thing *thing)
     } else
     {
       thing->field_46 = thing->field_4B;
-      if (thing->field_50 & 0x02)
+      if ((thing->field_50 & 0x02) != 0)
         thing->field_4A = -thing->field_4A;
       else
         thing->field_4A = 0;
@@ -3126,7 +3063,7 @@ void update_thing_animation(struct Thing *thing)
   }
 }
 
-/*
+/**
  * Plays a smacker animation file and sets frontend state to nstate.
  * @param nstate Frontend state; -1 means no change, -2 means don't even
  *    change screen mode.
@@ -3300,7 +3237,7 @@ void init_colours(void)
   _DK_init_colours();
 }
 
-/*
+/**
  * Fills the array of keyboard key names.
  */
 void init_key_to_strings(void)
@@ -3377,7 +3314,7 @@ long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, lo
       return 0;
   i = bentry->field_8 >> 5;
   *nsamples = i;
-  if (16 * *nsamples >= buf_len)
+  if (16 * (*nsamples) >= buf_len)
     return 0;
 
   LbFileSeek(fileh, bentry->field_0, Lb_FILE_SEEK_BEGINNING);
@@ -3391,7 +3328,7 @@ long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, lo
     smpl->field_8 = bsample.field_1E;
     smpl->field_C = 0;
   }
-  return 32 * *nsamples;
+  return 32 * (*nsamples);
 }
 
 short init_sound(void)
@@ -4944,7 +4881,7 @@ TbBool load_settings(void)
   return false;
 }
 
-/*
+/**
  * Initial video setup - loads only most importand files to show startup screens.
  */
 TbBool initial_setup(void)
@@ -4970,7 +4907,7 @@ TbBool initial_setup(void)
   return true;
 }
 
-/*
+/**
  * Displays 'legal' screens, intro and initializes basic game data.
  * If true is returned, then all files needed for startup were loaded,
  * and there should be the loading screen visible.
@@ -5278,7 +5215,7 @@ struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short model, un
   return thing;
 }
 
-/*
+/**
  * Checks if the given screen point is over a gui menu.
  * @param x,y Screen coordinates to check.
  * @return Returns index of the menu, or -1 if there's no menu on this point.
@@ -5357,7 +5294,7 @@ TbBool gui_slider_button_inputs(int gbtn_idx)
   {
     gbtn->slide_val = ((mouse_x-gbtn->pos_x) << 8) / (gbtn->width+1);
   }
-  *gbtn->field_33 = (gbtn->slide_val) * (gbtn->field_2D+1) >> 8;
+  *gbtn->field_33 = (gbtn->slide_val) * (((long)gbtn->field_2D)+1) >> 8;
   callback = gbtn->click_event;
   if (callback != NULL)
     callback(gbtn);
@@ -5580,7 +5517,7 @@ short get_gui_inputs(short gameplay_on)
       int mouse_y;
       int btnsize;
       mouse_x = GetMouseX();
-      btnsize = gbtn->scr_pos_x + ((gbtn->slide_val)*(gbtn->width-64) >> 8);
+      btnsize = gbtn->scr_pos_x + ((gbtn->slide_val)*(((long)gbtn->width)-64) >> 8);
       if ((mouse_x>(btnsize+22)) && (mouse_x<=(btnsize+44)))
       {
         mouse_y = GetMouseY();
@@ -5940,38 +5877,6 @@ TbBool load_stats_files(void)
 {
   int i;
   TbBool result;
-  // Hack to make our shot function work - remove when it's not needed
-  instance_info[1].func_cb = instf_creature_fire_shot;
-  instance_info[2].func_cb = instf_creature_fire_shot;
-  instance_info[4].func_cb = instf_creature_fire_shot;
-  instance_info[5].func_cb = instf_creature_cast_spell;
-  instance_info[6].func_cb = instf_creature_cast_spell;
-  instance_info[7].func_cb = instf_creature_cast_spell;
-  instance_info[8].func_cb = instf_creature_cast_spell;
-  instance_info[9].func_cb = instf_creature_cast_spell;
-  instance_info[10].func_cb = instf_creature_cast_spell;
-  instance_info[11].func_cb = instf_creature_cast_spell;
-  instance_info[12].func_cb = instf_creature_cast_spell;
-  instance_info[13].func_cb = instf_creature_cast_spell;
-  instance_info[14].func_cb = instf_creature_cast_spell;
-  instance_info[15].func_cb = instf_creature_cast_spell;
-  instance_info[16].func_cb = instf_creature_cast_spell;
-  instance_info[17].func_cb = instf_creature_cast_spell;
-  instance_info[18].func_cb = instf_creature_cast_spell;
-  instance_info[19].func_cb = instf_creature_cast_spell;
-  instance_info[20].func_cb = instf_creature_cast_spell;
-  instance_info[21].func_cb = instf_creature_cast_spell;
-  instance_info[22].func_cb = instf_creature_cast_spell;
-  instance_info[23].func_cb = instf_creature_cast_spell;
-  instance_info[24].func_cb = instf_creature_cast_spell;
-  instance_info[25].func_cb = instf_creature_cast_spell;
-  instance_info[26].func_cb = instf_creature_cast_spell;
-  instance_info[27].func_cb = instf_creature_cast_spell;
-  instance_info[28].func_cb = instf_creature_cast_spell;
-  instance_info[40].func_cb = instf_creature_cast_spell;
-  instance_info[41].func_cb = instf_creature_cast_spell;
-  instance_info[42].func_cb = instf_creature_cast_spell;
-  instance_info[43].func_cb = instf_creature_cast_spell;
   result = true;
   clear_research_for_all_players();
   if (!load_terrain_config(keeper_terrain_file,0))
@@ -6300,7 +6205,7 @@ TbBool action_point_reset_idx(long apt_idx)
   return ((apt->flags & 0x01) != 0);
 }
 
-/*
+/**
  * Returns an action point activation bitmask.
  * Bits which are set in the bitmask corresponds to players which have triggered action point.
  */
@@ -6354,7 +6259,7 @@ TbBool set_default_startup_parameters(void)
   return true;
 }
 
-/*
+/**
  * Clears the Game structure completely, and copies statrup parameters
  * from start_params structure.
  */
@@ -7547,7 +7452,7 @@ void set_mouse_light(struct PlayerInfo *player)
   _DK_set_mouse_light(player);
 }
 
-/*
+/**
  * Scales camera zoom level on resolution change. If prev_units_per_pixel_size
  * is zero, then the zoom level will be only clipped, without any scaling.
  */
@@ -7561,7 +7466,7 @@ void keep_camera_zoom_level(struct Camera *cam,unsigned long prev_units_per_pixe
   // Note: I don't know if the zoom may be scaled for current resolution,
   // as there may be different resolution on another computer if playing MP game.
   if (prev_units_per_pixel_size > 0)
-    zoom_val = zoom_val*units_per_pixel*pixel_size/prev_units_per_pixel_size;
+    zoom_val = (zoom_val*(long)units_per_pixel*(long)pixel_size)/prev_units_per_pixel_size;
   if (zoom_val < zoom_min)
   {
     zoom_val = zoom_min;
@@ -7573,7 +7478,7 @@ void keep_camera_zoom_level(struct Camera *cam,unsigned long prev_units_per_pixe
   set_camera_zoom(cam, zoom_val);
 }
 
-/*
+/**
  * Scales local player camera zoom level on resolution change. If prev_units_per_pixel_size
  * is zero, then the zoom level will be only clipped, without any scaling.
  */
@@ -7585,7 +7490,7 @@ void keep_local_camera_zoom_level(unsigned long prev_units_per_pixel_size)
     keep_camera_zoom_level(player->acamera,prev_units_per_pixel_size);
 }
 
-/*
+/**
  * Conducts clipping to zoom level of given camera, based on current screen mode.
  */
 void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min)
@@ -7613,12 +7518,12 @@ struct Thing *create_room_surrounding_flame(struct Room *room,struct Coord3d *po
     eething->mappos.z.val = get_thing_height_at(eething, &eething->mappos);
     eething->mappos.z.val += 10;
     // Size of the flame depends on room effifiency
-    eething->field_46 = ((eething->field_46 - 80) * room->efficiency / 256) + 80;
+    eething->field_46 = ((eething->field_46 - 80) * ((long)room->efficiency) / 256) + 80;
   }
   return eething;
 }
 
-void room_update_surrounding_flames(struct Room *room,struct Coord3d *pos)
+void room_update_surrounding_flames(struct Room *room, struct Coord3d *pos)
 {
   long x,y;
   long i,k;
@@ -7649,8 +7554,8 @@ void process_room_surrounding_flames(struct Room *room)
   long x,y;
   long i;
   SYNCDBG(19,"Starting");
-  x = 3 * (room->field_41 % map_tiles_x);
-  y = 3 * (room->field_41 / map_tiles_x);
+  x = 3 * slb_num_decode_x(room->field_41);
+  y = 3 * slb_num_decode_y(room->field_41);
   i = 3 * room->field_43 + room->field_44;
   pos.x.val = 256 * (x+1) + room_spark_offset[i].delta_x + 128;
   pos.y.val = 256 * (y+1) + room_spark_offset[i].delta_y + 128;
@@ -7889,7 +7794,7 @@ long get_phrase_sample(long phr_idx)
   return phrases[phr_idx];
 }
 
-/*
+/**
  * Returns if there is a bonus timer visible on the level.
  */
 TbBool bonus_timer_enabled(void)
@@ -8259,15 +8164,15 @@ long PaletteFadePlayer(struct PlayerInfo *player)
   {
     src = &player->palette[3*i];
     dst = &palette[3*i];
-    pix = ((step * (src[0] - 63)) / 120) + 63;
+    pix = ((step * (((long)src[0]) - 63)) / 120) + 63;
     if (pix > 63)
       pix = 63;
     dst[0] = pix;
-    pix = (step * src[1]) / 120;
+    pix = (step * ((long)src[1])) / 120;
     if (pix > 63)
       pix = 63;
     dst[1] = pix;
-    pix = (step * src[2]) / 120;
+    pix = (step * ((long)src[2])) / 120;
     if (pix > 63)
       pix = 63;
     dst[2] = pix;
@@ -8786,7 +8691,7 @@ TbPixel get_overhead_mapblock_color(long stl_x,long stl_y,long plyr_idx,TbPixel 
       {
         pixval = 31;
       } else
-      if (thing->byte_17.h)
+      if (thing->byte_18)
       {
         pixval = 79;
       } else
@@ -8877,7 +8782,7 @@ void draw_2d_map(void)
   draw_overhead_room_icons(150, 56);
 }
 
-/*
+/**
  * Strange name to hide easter eggs ;). Displays easter egg messages on screen.
  */
 void draw_sound_stuff(void)
@@ -8899,13 +8804,13 @@ void draw_sound_stuff(void)
       {
         pos = game.play_gameturn - i;
         lbDisplay.DrawColour = pos;
-        LbTextDraw((LbCosL(16*pos) / 512 + 120) / pixel_size,
-          (LbSinL(32*pos) / 512 + 200) / pixel_size, text);
+        LbTextDraw((LbCosL(16*(long)pos) / 512 + 120) / pixel_size,
+          (LbSinL(32*(long)pos) / 512 + 200) / pixel_size, text);
       }
       set_flag_word(&lbDisplay.DrawFlags,0x0040,false);
       pos=game.play_gameturn;
-      LbTextDraw((LbCosL(16*pos) / 512 + 120) / pixel_size,
-        (LbSinL(32*pos) / 512 + 200) / pixel_size, text);
+      LbTextDraw((LbCosL(16*(long)pos) / 512 + 120) / pixel_size,
+        (LbSinL(32*(long)pos) / 512 + 200) / pixel_size, text);
       if (eastegg_skeksis_cntr >= 255)
         eastegg_skeksis_cntr = 0;
   }
@@ -9429,7 +9334,7 @@ unsigned long can_drop_thing_here(long x, long y, long a3, unsigned long a4)
   return _DK_can_drop_thing_here(x, y, a3, a4);
 }
 
-/*
+/**
  * Returns if a given player (owner) can dig the specified subtile.
  */
 short can_dig_here(long stl_x, long stl_y, long plyr_idx)
@@ -9779,8 +9684,8 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
     i = thing->field_2;
     if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
     {
-      spos_x = ((subtile_size * thing->mappos.x.stl.pos) >> 8);
-      spos_y = ((subtile_size * thing->mappos.y.stl.pos) >> 8);
+      spos_x = ((subtile_size * ((long)thing->mappos.x.stl.pos)) >> 8);
+      spos_y = ((subtile_size * ((long)thing->mappos.y.stl.pos)) >> 8);
       switch (thing->class_id)
       {
       case TCls_Creature:
@@ -9796,7 +9701,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
         draw_status_sprites((spos_x+scr_x)/pixel_size - 10, (spos_y+scr_y-20)/pixel_size, thing, 4096);
         break;
       case TCls_Trap:
-        if ((!thing->byte_17.h) && (player->id_number != thing->owner))
+        if ((!thing->byte_18) && (player->id_number != thing->owner))
           break;
         spridx = trap_data[thing->model].field_A;
         draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
@@ -9837,7 +9742,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
   }
 }
 
-/*
+/**
  * Draws a box near mouse with more detailed top view of map.
  * Requires screen to be locked before.
  */
@@ -10051,7 +9956,7 @@ void engine(struct Camera *cam)
   mz = cam->mappos.z.val;
   pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
   pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
-  lens = cam->field_13 * MyScreenWidth/pixel_size / 320;
+  lens = (cam->field_13 * ((long)MyScreenWidth))/pixel_size / 320;
   if (lens_mode == 0)
     update_blocks_pointed();
   LbScreenStoreGraphicsWindow(&grwnd);
@@ -10331,7 +10236,7 @@ void packet_load_find_frame_rate(unsigned long incr)
   }
 }
 
-/*
+/**
  * Checks if the game screen needs redrawing.
  */
 short display_should_be_updated_this_turn(void)
@@ -10353,7 +10258,7 @@ short display_should_be_updated_this_turn(void)
   return false;
 }
 
-/*
+/**
  * Makes last updates to the video buffer, and swaps buffers to show
  * the new image.
  */
@@ -10376,7 +10281,7 @@ TbBool keeper_screen_swap(void)
   return true;
 }
 
-/*
+/**
  * Waits until the next game turn. Delay is usually controlled by
  * num_fps variable.
  */
@@ -10401,7 +10306,7 @@ TbBool keeper_wait_for_next_turn(void)
   return false;
 }
 
-/*
+/**
  * Redraws the game display buffer.
  */
 TbBool keeper_screen_redraw(void)
@@ -10440,7 +10345,7 @@ TbBool keeper_wait_for_screen_focus(void)
   return false;
 }
 
-/*
+/**
  * Draws the crucial warning messages on screen.
  * Requires the screen to be locked before.
  */
@@ -10827,7 +10732,7 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
         {
             nroom->efficiency = calculate_room_efficiency(nroom);
             rdata = room_data_get_for_room(nroom);
-            nroom->field_C = game.hits_per_slab * nroom->slabs_count;
+            nroom->field_C = game.hits_per_slab * ((long)nroom->slabs_count);
             if (rdata->ofsfield_3 != NULL)
                 rdata->ofsfield_3(nroom);
             if (rdata->ofsfield_7 != NULL)
@@ -10997,7 +10902,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
       delete_thing_structure(thing, 0);
       return false;
     }
-    n = (gold_per_hoarde/5)*(thing->model-51);
+    n = (gold_per_hoarde/5)*(((long)thing->model)-51);
     thing->owner = room->owner;
     add_gold_to_hoarde(thing, room, n);
   }
@@ -11029,7 +10934,7 @@ short thing_create_thing(struct InitThing *itng)
       if (thing != NULL)
       {
         if (itng->model == 49)
-          thing->byte_13.l = itng->params[1];
+          thing->byte_13 = itng->params[1];
         check_and_asimilate_thing_by_room(thing);
         // make sure we don't have invalid pointer
         thing = INVALID_THING;
@@ -11549,7 +11454,7 @@ void setup_alliances(void)
   }
 }
 
-/*
+/**
  * Exchanges verification packets between all players.
  * @return Returns true if all players return same checksum.
  */
@@ -12036,7 +11941,7 @@ short process_command_line(unsigned short argc, char *argv[])
   strncpy(fullpath, argv[0], CMDLN_MAXLEN);
 
   sprintf( keeper_runtime_directory, fullpath);
-  char *endpos=strrchr( keeper_runtime_directory, '\\');
+  char *endpos = strrchr( keeper_runtime_directory, '\\');
   if (endpos==NULL)
       endpos=strrchr( keeper_runtime_directory, '/');
   if (endpos!=NULL)

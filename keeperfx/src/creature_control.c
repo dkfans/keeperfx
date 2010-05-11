@@ -72,7 +72,7 @@ struct CreatureSounds creature_sounds[] = {
 };
 
 /******************************************************************************/
-/*
+/**
  * Returns CreatureControl of given index.
  */
 struct CreatureControl *creature_control_get(long cctrl_idx)
@@ -93,7 +93,7 @@ struct CreatureControl *creature_control_get_from_thing(const struct Thing *thin
   return game.persons.cctrl_lookup[thing->ccontrol_idx];
 }
 
-/*
+/**
  * Returns if given CreatureControl pointer is incorrect.
  */
 TbBool creature_control_invalid(const struct CreatureControl *cctrl)

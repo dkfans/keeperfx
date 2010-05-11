@@ -39,28 +39,9 @@ enum ThingPickFlags {
     TPF_ReverseOrder     = 0x02,
 };
 
-typedef long (*Creature_Instf_Func)(struct Thing *, long *);
-
 #ifdef __cplusplus
 #pragma pack(1)
 #endif
-
-struct InstanceInfo { // sizeof = 42
-unsigned char field_0;
-  long time;
-  long fp_time;
-  long action_time;
-  long fp_action_time;
-  long reset_time;
-  long fp_reset_time;
-unsigned char field_19;
-unsigned char field_1A;
-  short force_visibility;
-unsigned char field_1D;
-    Creature_Instf_Func func_cb;
-  long field_22;
-unsigned char field_26[4];
-};
 
 struct CreatureStorage {
   unsigned char model;
@@ -97,7 +78,6 @@ void apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell
 long move_creature(struct Thing *thing);
 TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3,
       unsigned char a4, TbBool died_in_battle, unsigned char a6);
-void process_creature_instance(struct Thing *thing);
 void update_creature_count(struct Thing *thing);
 long process_creature_state(struct Thing *thing);
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);

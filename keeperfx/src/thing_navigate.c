@@ -77,6 +77,7 @@ unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
 TbBool creature_can_navigate_to_with_storage(struct Thing *crtng, struct Coord3d *pos, unsigned char storage)
 {
     struct CreatureControl *cctrl;
+    SYNCDBG(18,"Starting");
     cctrl = creature_control_get_from_thing(crtng);
     return ariadne_initialise_creature_route(crtng, pos, cctrl->max_speed, storage) == 0;
 }
@@ -309,6 +310,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, shor
     struct Coord3d nextpos;
     AriadneReturn follow_result;
     long i;
+    SYNCDBG(18,"Starting");
     //return _DK_creature_move_to_using_gates(thing, pos, a3, a4, a5, backward);
     cctrl = creature_control_get_from_thing(thing);
     if ( backward )
@@ -345,6 +347,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, shor
             cctrl->pos_BB.y.val = nextpos.y.val - thing->mappos.y.val;
             cctrl->pos_BB.z.val = 0;
         }
+        SYNCDBG(18,"Backward target set");
     } else
     {
         if ( creature_turn_to_face(thing, &nextpos) )
@@ -359,6 +362,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, shor
           cctrl->pos_BB.y.val = nextpos.y.val - thing->mappos.y.val;
           cctrl->pos_BB.z.val = 0;
         }
+        SYNCDBG(18,"Forward target set");
     }
     return 0;
 }

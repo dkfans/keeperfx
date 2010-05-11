@@ -124,7 +124,7 @@ int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
   return result;
 }
 
-/*
+/**
  *  Reacts on a keystoke by sending text message packets.
  */
 short get_players_message_inputs(void)
@@ -149,7 +149,7 @@ short get_players_message_inputs(void)
   return false;
 }
 
-/*
+/**
  * Captures the screen to make a gameplay movie or screenshot image.
  * @return Returns true if packet was created, false otherwise.
  */
@@ -179,7 +179,7 @@ void clip_frame_skip(void)
     game.frame_skip = 0;
 }
 
-/*
+/**
  * Handles game speed control inputs.
  * @return Returns true if packet was created, false otherwise.
  */
@@ -214,7 +214,7 @@ short get_speed_control_inputs(void)
   return false;
 }
 
-/*
+/**
  * Handles control inputs in PacketLoad mode.
  */
 short get_packet_load_game_control_inputs(void)
@@ -335,7 +335,7 @@ short zoom_shortcuts(void)
   return false;
 }
 
-/*
+/**
  * Handles minimap control inputs.
  * @return Returns true if packet was created, false otherwise.
  */
@@ -349,7 +349,7 @@ short get_minimap_control_inputs(void)
   {
       if ( player->minimap_zoom < 0x0800 )
       {
-        set_players_packet_action(player, PckA_SetMinimapConf, 2 * player->minimap_zoom, 0, 0, 0);
+        set_players_packet_action(player, PckA_SetMinimapConf, 2 * (long)player->minimap_zoom, 0, 0, 0);
         packet_made = true;
       }
       clear_key_pressed(KC_SUBTRACT);
@@ -368,7 +368,7 @@ short get_minimap_control_inputs(void)
   return false;
 }
 
-/*
+/**
  * Handles screen control inputs.
  * @return Returns true if packet was created, false otherwise.
  */
@@ -1073,7 +1073,7 @@ short slab_type_is_door(unsigned short slab_type)
   return ((slab_type >= 42) && (slab_type <= 49));
 }
 
-/*
+/**
  * Updates given position and context variables.
  * Makes no changes to the Game or Packets.
  */
@@ -1275,7 +1275,7 @@ void get_creature_control_nonaction_inputs(void)
     LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, y/pixel_size);
   // Set pos_x and pos_y
   if (settings.field_50)
-    pckt->pos_y = 255 * (MyScreenHeight - y) / MyScreenHeight;
+    pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
   else
     pckt->pos_y = 255 * y / MyScreenHeight;
   pckt->pos_x = 255 * x / MyScreenWidth;

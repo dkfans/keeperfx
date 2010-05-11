@@ -1768,8 +1768,8 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
   pos.z.val = 1280;
   orient = ((unsigned int)(cam->orient_a + 256) >> 9) & 0x03;
   convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
-  depth = (5 - map_volume_box.field_13) * (stl_width << 7) / 256;
-  slb_width = 3 * stl_width;
+  depth = (5 - map_volume_box.field_13) * ((long)stl_width << 7) / 256;
+  slb_width = 3 * (long)stl_width;
   switch ( orient )
   {
   case 1:
@@ -1849,7 +1849,7 @@ void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struc
           convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
           if (is_free_space_in_poly_pool(1))
           {
-            if (game.play_gameturn - *(unsigned long *)(&thing->word_13.w1) != 1)
+            if (game.play_gameturn - thing->long_15 != 1)
             {
               thing->field_19 = 0;
             } else
@@ -1857,7 +1857,7 @@ void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struc
             {
               thing->field_19++;
             }
-            *(unsigned long *)(&thing->word_13.w1) = game.play_gameturn;
+            thing->long_15 = game.play_gameturn;
             if (thing->field_19 == 40)
             {
               add_unkn17_to_polypool(cx, cy, thing->long_13, cz-3);
@@ -1944,29 +1944,29 @@ void draw_frontview_engine(struct Camera *cam)
   case 0:
       px = (cam->mappos.x.val - w) >> 8;
       py = (cam->mappos.y.val - h) >> 8;
-      qx = (ewnd.width << 7) - (laaa * (cam->mappos.x.val - (px << 8)) >> 8);
-      qy = (ewnd.height << 7) - (laaa * (cam->mappos.y.val - (py << 8)) >> 8);
+      qx = (ewnd.width << 7)  - (laaa * (long)(cam->mappos.x.val - (px << 8)) >> 8);
+      qy = (ewnd.height << 7) - (laaa * (long)(cam->mappos.y.val - (py << 8)) >> 8);
       break;
   case 1:
       px = (cam->mappos.x.val + h) >> 8;
       py = (cam->mappos.y.val - w) >> 8;
-      qx = (ewnd.width << 7) - (laaa * (cam->mappos.y.val - (py << 8)) >> 8);
-      qy = (ewnd.height << 7) - (laaa * ((px << 8) - cam->mappos.x.val) >> 8);
+      qx = (ewnd.width << 7)  - (laaa * (long)(cam->mappos.y.val - (py << 8)) >> 8);
+      qy = (ewnd.height << 7) - (laaa * (long)((px << 8) - cam->mappos.x.val) >> 8);
       px--;
       break;
   case 2:
       px = ((cam->mappos.x.val + w) >> 8) + 1;
       py = (cam->mappos.y.val + h) >> 8;
-      qx = (ewnd.width << 7) - (laaa * ((px << 8) - cam->mappos.x.val) >> 8);
-      qy = (ewnd.height << 7) - (laaa * ((py << 8) - cam->mappos.y.val) >> 8);
+      qx = (ewnd.width << 7)  - (laaa * (long)((px << 8) - cam->mappos.x.val) >> 8);
+      qy = (ewnd.height << 7) - (laaa * (long)((py << 8) - cam->mappos.y.val) >> 8);
       px--;
       py--;
       break;
   case 3:
       px = (cam->mappos.x.val - h) >> 8;
       py = ((cam->mappos.y.val + w) >> 8) + 1;
-      qx = (ewnd.width << 7) - (laaa * ((py << 8) - cam->mappos.y.val) >> 8);
-      qy = (ewnd.height << 7) - (laaa * (cam->mappos.x.val - (px << 8)) >> 8);
+      qx = (ewnd.width << 7)  - (long)(laaa * ((py << 8) - cam->mappos.y.val) >> 8);
+      qy = (ewnd.height << 7) - (long)(laaa * (cam->mappos.x.val - (px << 8)) >> 8);
       py--;
       break;
   default:
