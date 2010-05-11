@@ -97,8 +97,6 @@ extern const struct NamedCommand attackpref_desc[];
 extern struct NamedCommand instance_desc[];
 extern struct CreatureConfig crtr_conf;
 /******************************************************************************/
-DLLIMPORT struct InstanceInfo _DK_instance_info[48];
-#define instance_info _DK_instance_info
 extern struct CreatureData creature_data[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(long crstat_idx);

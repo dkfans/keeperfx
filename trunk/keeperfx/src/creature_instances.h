@@ -1,10 +1,10 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file tasks_list.h
- *     Header file for tasks_list.c.
+/** @file creature_instances.h
+ *     Header file for creature_instances.c.
  * @par Purpose:
- *     Tasks list support functions.
+ *     creature_instances functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
@@ -16,34 +16,51 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_TASKSLIST_H
-#define DK_TASKSLIST_H
+#ifndef DK_CRTRINSTANCE_H
+#define DK_CRTRINSTANCE_H
 
 #include "globals.h"
-
-#define MAPTASKS_COUNT        300
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /******************************************************************************/
+typedef long (*Creature_Instf_Func)(struct Thing *, long *);
+
 #ifdef __cplusplus
 #pragma pack(1)
 #endif
 
-struct MapTask { // sizeof = 3
-  unsigned char field_0;
-  unsigned short field_1;
+struct InstanceInfo { // sizeof = 42
+unsigned char field_0;
+  long time;
+  long fp_time;
+  long action_time;
+  long fp_action_time;
+  long reset_time;
+  long fp_reset_time;
+unsigned char field_19;
+unsigned char field_1A;
+  short force_visibility;
+unsigned char field_1D;
+    Creature_Instf_Func func_cb;
+  long field_22;
+unsigned char field_26[4];
 };
 
 #ifdef __cplusplus
 #pragma pack()
 #endif
 /******************************************************************************/
-long find_from_task_list(long plyr_idx, long srch_tsk);
-long find_dig_from_task_list(long a1, long a2);
-long remove_from_task_list(long a1, long a2);
+#define creature_instance_info_get(inst_idx) creature_instance_info_get_ptr(inst_idx,__func__)
+/******************************************************************************/
+struct InstanceInfo *creature_instance_info_get_ptr(long inst_idx,const char *func_name);
+void process_creature_instance(struct Thing *thing);
+
+long instf_creature_fire_shot(struct Thing *thing, long *param);
+long instf_creature_cast_spell(struct Thing *thing, long *param);
+long instf_dig(struct Thing *thing, long *param);
 /******************************************************************************/
 #ifdef __cplusplus
 }

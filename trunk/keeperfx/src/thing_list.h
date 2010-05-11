@@ -98,24 +98,38 @@ struct Thing {
     long field_9;
     struct Coord3d mappos;
     union {
+      struct {
       long long_13;
+      short word_17a;
+      };
       struct {
-      short w0;
-      short w1;
-      } word_13;
+      short word_13a;
+      long long_15;
+      };
       struct {
-        unsigned char l;
-        unsigned char h;
-        unsigned char f2;
-        unsigned char f3;
-      } byte_13;
-    };
-    union {
+      short word_13;
+      short word_15;
       short word_17;
+      };
       struct {
-    unsigned char l;
-    unsigned char h;
-        } byte_17;
+      unsigned char byte_13b;
+      short word_14;
+      short word_16;
+      unsigned char byte_18b;
+      };
+      struct {
+      unsigned char byte_13a;
+      long long_14;
+      unsigned char byte_18a;
+      };
+      struct {
+        unsigned char byte_13;
+        unsigned char byte_14;
+        unsigned char byte_15;
+        unsigned char byte_16;
+        unsigned char byte_17;
+        unsigned char byte_18;
+      };
     };
     unsigned char field_19;
     unsigned char model;
@@ -214,6 +228,7 @@ long thing_is_shootable_by_any_player_except_own_including_objects(struct Thing 
 long thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing);
 long thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing);
 TbBool imp_already_digging_at_excluding(struct Thing *excltng, long stl_x, long stl_y);
+TbBool gold_pile_with_maximum_at_xy(long stl_x, long stl_y);
 
 TbBool update_thing(struct Thing *thing);
 TbBigChecksum get_thing_checksum(struct Thing *thing);

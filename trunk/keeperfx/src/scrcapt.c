@@ -122,13 +122,13 @@ long prepare_bmp_screenshot(unsigned char *buf,unsigned char *palette)
   for (i=0; i<768; i+=3)
   {
       unsigned int cval;
-      cval=(unsigned int)4*palette[i+2];
+      cval=4*(unsigned int)palette[i+2];
       if (cval>255) cval=255;
       write_int8_buf(buf+pos,cval);pos++;
-      cval=(unsigned int)4*palette[i+1];
+      cval=4*(unsigned int)palette[i+1];
       if (cval>255) cval=255;
       write_int8_buf(buf+pos,cval);pos++;
-      cval=(unsigned int)4*palette[i+0];
+      cval=4*(unsigned int)palette[i+0];
       if (cval>255) cval=255;
       write_int8_buf(buf+pos,cval);pos++;
       write_int8_buf(buf+pos,0);pos++;
@@ -260,7 +260,7 @@ TbBool movie_record_frame(void)
   return result;
 }
 
-/*
+/**
  * Captures the screen to make a gameplay movie or screenshot image.
  * @return Returns 0 if no capturing was performed, nonzero otherwise.
  */
@@ -282,4 +282,3 @@ TbBool perform_any_screen_capturing(void)
 }
 
 /******************************************************************************/
-

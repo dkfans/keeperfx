@@ -319,7 +319,7 @@ DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct T
 DLLIMPORT long _DK_get_highest_experience_level_in_group(struct Thing *thing);
 DLLIMPORT long _DK_add_creature_to_group(struct Thing *crthing, struct Thing *grthing);
 /******************************************************************************/
-/*
+/**
  * Reads word from 'line' into 'param'. Sets if 'line_end' was reached.
  */
 const struct CommandDesc *get_next_word(char **line, char *param, unsigned char *line_end)
@@ -571,7 +571,7 @@ const char *script_get_command_name(long cmnd_index)
   return NULL;
 }
 
-/*
+/**
  * Returns if the command is 'preloaded'. Preloaded commands are initialized
  * before the whole level data is loaded.
  */
@@ -1204,7 +1204,7 @@ void command_trap_available(char *plrname, char *trapname, unsigned long can_bui
   command_add_value(Cmd_TRAP_AVAILABLE, plr_id, trap_id, can_build, amount);
 }
 
-/*
+/**
  * Updates amount of RESEARCH points needed for the item to be researched.
  * Will not reorder the RESEARCH items.
  */
@@ -1223,7 +1223,7 @@ void command_research(char *plrname, char *trg_type, char *trg_name, unsigned lo
   command_add_value(Cmd_RESEARCH, plr_id, item_type, item_id, val);
 }
 
-/*
+/**
  * Updates amount of RESEARCH points needed for the item to be researched.
  * Reorders the RESEARCH items - needs all items to be re-added.
  */
@@ -2622,7 +2622,7 @@ void script_process_new_creatures(unsigned char plyr_idx, long crtr_breed, long 
     script_create_new_creature(plyr_idx, crtr_breed, location, carried_gold, crtr_level);
 }
 
-/*
+/**
  * Returns if the action point condition was activated.
  * Action point index and player to be activated should be stored inside condition.
  */
@@ -2631,8 +2631,8 @@ TbBool process_activation_status(struct Condition *condt)
   return action_point_activated_by_player(condt->variabl_idx,condt->plyr_idx);
 }
 
-/*
- * Returns if the action point of given index was triggered by given plyer.
+/**
+ * Returns if the action point of given index was triggered by given player.
  */
 TbBool action_point_activated_by_player(long apt_idx,long plyr_idx)
 {
@@ -2958,8 +2958,8 @@ void process_values(void)
   }
 }
 
-/*
- * Processes given VALUE immediatelly.
+/**
+ * Processes given VALUE immediately.
  */
 void script_process_value(unsigned long var_index, unsigned long plr_id, long val2, long val3, long val4)
 {
@@ -3173,4 +3173,3 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
 #ifdef __cplusplus
 }
 #endif
-

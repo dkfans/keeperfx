@@ -136,8 +136,8 @@ void draw_gui_panel_sprite_centered(long x, long y, long spridx)
   if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
     return;
   spr = &gui_panel_sprites[spridx];
-  x -= ((spr->SWidth*pixel_size) >> 1);
-  y -= ((spr->SHeight*pixel_size) >> 1);
+  x -= ((spr->SWidth*(long)pixel_size) >> 1);
+  y -= ((spr->SHeight*(long)pixel_size) >> 1);
   LbSpriteDraw(x/pixel_size, y/pixel_size, spr);
 }
 
@@ -147,8 +147,8 @@ void draw_gui_panel_sprite_occentered(long x, long y, long spridx, TbPixel color
   if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
     return;
   spr = &gui_panel_sprites[spridx];
-  x -= ((spr->SWidth*pixel_size) >> 1);
-  y -= ((spr->SHeight*pixel_size) >> 1);
+  x -= ((spr->SWidth*(long)pixel_size) >> 1);
+  y -= ((spr->SHeight*(long)pixel_size) >> 1);
   LbSpriteDrawOneColour(x/pixel_size, y/pixel_size, spr, color);
 }
 

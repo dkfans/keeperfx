@@ -182,7 +182,7 @@ unsigned long update_cave_in_things(void)
   return k;
 }
 
-/*
+/**
  * Updates sounds of things from given StructureList.
  * Returns amount of items in the list.
  */
@@ -329,9 +329,9 @@ void init_traps(void)
       break;
     }
     i = thing->next_of_class;
-    if (thing->byte_13.l == 0)
+    if (thing->byte_13 == 0)
     {
-      thing->byte_13.l = game.traps_config[thing->model].shots;
+      thing->byte_13 = game.traps_config[thing->model].shots;
       thing->field_4F ^= (thing->field_4F ^ (trap_stats[thing->model].field_12 << 4)) & 0x30;
     }
     k++;
@@ -435,7 +435,7 @@ struct Thing *find_hero_gate_of_number(long num)
     }
     i = thing->next_of_class;
     // Per-thing code
-    if ((thing->model == 49) && (thing->byte_13.l == num))
+    if ((thing->model == 49) && (thing->byte_13 == num))
     {
       return thing;
     }
@@ -904,9 +904,9 @@ TbBool update_thing(struct Thing *thing)
       if (thing->mappos.z.val > thing->field_60)
       {
         if (thing->pos_2C.x.val != 0)
-          thing->pos_2C.x.val = thing->pos_2C.x.val * (256 - thing->field_24) / 256;
+          thing->pos_2C.x.val = thing->pos_2C.x.val * (long)(256 - thing->field_24) / 256;
         if (thing->pos_2C.y.val != 0)
-          thing->pos_2C.y.val = thing->pos_2C.y.val * (256 - thing->field_24) / 256;
+          thing->pos_2C.y.val = thing->pos_2C.y.val * (long)(256 - thing->field_24) / 256;
         if ((thing->field_25 & 0x20) == 0)
         {
           thing->pos_32.z.val -= thing->field_20;
@@ -915,9 +915,9 @@ TbBool update_thing(struct Thing *thing)
       } else
       {
         if (thing->pos_2C.x.val != 0)
-          thing->pos_2C.x.val = thing->pos_2C.x.val * (256 - thing->field_23) / 256;
+          thing->pos_2C.x.val = thing->pos_2C.x.val * (long)(256 - thing->field_23) / 256;
         if (thing->pos_2C.y.val != 0)
-          thing->pos_2C.y.val = thing->pos_2C.y.val * (256 - thing->field_23) / 256;
+          thing->pos_2C.y.val = thing->pos_2C.y.val * (long)(256 - thing->field_23) / 256;
         thing->mappos.z.val = thing->field_60;
         if ((thing->field_25 & 0x08) != 0)
         {
@@ -1017,6 +1017,45 @@ TbBool imp_already_digging_at_excluding(struct Thing *excltng, long stl_x, long 
             {
                 return true;
             }
+        }
+    }
+    // Per thing processing block ends
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  return false;
+}
+
+TbBool gold_pile_with_maximum_at_xy(long stl_x, long stl_y)
+{
+  const struct Map *mapblk;
+  struct Thing *thing;
+  unsigned long k;
+  long i;
+  mapblk = get_map_block_at(stl_x, stl_y);
+  if (map_block_invalid(mapblk))
+      return false;
+  k = 0;
+  i = get_mapwho_thing_index(mapblk);
+  while (i != 0)
+  {
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
+    {
+      WARNLOG("Jump out of things array");
+      break;
+    }
+    i = thing->field_2;
+    // Per thing processing block
+    if ((thing->class_id == TCls_Object) && (thing->model == 43))
+    {
+        if (thing->long_13 >= game.gold_pile_maximum)
+        {
+            return true;
         }
     }
     // Per thing processing block ends

@@ -749,8 +749,8 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
       cam->field_17 -= 988;
       cam->orient_a += 16;
       addval = (thing->field_58 >> 1);
-      deltax = (LbSinL(cam->orient_a) * (thing->mappos.z.val+addval) >> 16);
-      deltay = (LbCosL(cam->orient_a) * (thing->mappos.z.val+addval) >> 16);
+      deltax = (LbSinL(cam->orient_a) * (((long)thing->mappos.z.val)+addval) >> 16);
+      deltay = (LbCosL(cam->orient_a) * (((long)thing->mappos.z.val)+addval) >> 16);
     } else
     {
       addval = (thing->field_58 >> 1);

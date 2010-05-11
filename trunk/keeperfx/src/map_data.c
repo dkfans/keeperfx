@@ -61,7 +61,7 @@ int map_tiles_x = 85;
 int map_tiles_y = 85;
 
 /******************************************************************************/
-/*
+/**
  * Returns if the subtile coords are in range of subtiles which have slab entry.
  */
 TbBool subtile_has_slab(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -72,7 +72,7 @@ TbBool subtile_has_slab(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return false;
 }
 
-/*
+/**
  * Returns if the subtile coords are in range map subtiles.
  */
 TbBool subtile_coords_invalid(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -210,7 +210,13 @@ TbBool valid_dig_position(long plyr_idx, long stl_x, long stl_y)
     mapblk = get_map_block_at(stl_x, stl_y);
     if ((mapblk->flags & 0x10) == 0)
     {
-        if (!map_block_revealed(mapblk, plyr_idx) && !map_pos_is_lava(stl_x, stl_y))
+        /* This is original condition that was in this function.
+         * I'm not sure what the author ment, but it's obviously wrong.
+        if ((plyr_idx == 0)  ||  !map_block_revealed(mapblk, 0))
+            if (!map_pos_is_lava(stl_x, stl_y))
+                return true;
+        */
+        if (map_block_revealed(mapblk, plyr_idx) && !map_pos_is_lava(stl_x, stl_y))
             return true;
     }
     return false;
@@ -240,7 +246,8 @@ MapCoord get_subtile_center_pos(MapSubtlCoord stl_v)
 {
     return (stl_v<<8) + 128;
 }
-/*
+
+/**
  * Subtile number - stores both X and Y coords in one number.
  */
 unsigned long get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -252,7 +259,7 @@ unsigned long get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return stl_y*(map_subtiles_x+1) + stl_x;
 }
 
-/*
+/**
  * Decodes X coordinate from subtile number.
  */
 MapSubtlCoord stl_num_decode_x(unsigned long stl_num)
@@ -260,7 +267,7 @@ MapSubtlCoord stl_num_decode_x(unsigned long stl_num)
   return stl_num % (map_subtiles_x+1);
 }
 
-/*
+/**
  * Decodes Y coordinate from subtile number.
  */
 MapSubtlCoord stl_num_decode_y(unsigned long stl_num)
@@ -268,7 +275,7 @@ MapSubtlCoord stl_num_decode_y(unsigned long stl_num)
   return (stl_num/(map_subtiles_x+1))%map_subtiles_y;
 }
 
-/*
+/**
  * Returns subtile number for center subtile on given slab.
  */
 unsigned long get_subtile_number_at_slab_center(long slb_x, long slb_y)
@@ -276,7 +283,7 @@ unsigned long get_subtile_number_at_slab_center(long slb_x, long slb_y)
   return get_subtile_number(slb_x*3+1,slb_y*3+1);
 }
 
-/*
+/**
  * Returns subtile coordinate for central subtile on given slab.
  */
 long slab_center_subtile(MapSubtlCoord stl_v)
@@ -284,7 +291,7 @@ long slab_center_subtile(MapSubtlCoord stl_v)
   return map_to_slab[stl_v]*3+1;
 }
 
-/*
+/**
  * Returns subtile coordinate for starting subtile on given slab.
  */
 long slab_starting_subtile(MapSubtlCoord stl_v)
@@ -292,7 +299,7 @@ long slab_starting_subtile(MapSubtlCoord stl_v)
   return map_to_slab[stl_v]*3;
 }
 
-/*
+/**
  * Returns subtile coordinate for ending subtile on given slab.
  */
 long slab_ending_subtile(MapSubtlCoord stl_v)
@@ -351,7 +358,7 @@ void clear_mapmap(void)
     }
 }
 
-/*
+/**
  * Clears digging operations for given player on given map slabs rectangle.
  */
 void clear_dig_for_map_rect(long plyr_idx,long start_x,long end_x,long start_y,long end_y)
@@ -364,7 +371,7 @@ void clear_dig_for_map_rect(long plyr_idx,long start_x,long end_x,long start_y,l
     }
 }
 
-/*
+/**
  * Reveals map subtiles rectangle for given player.
  * Low level function - use reveal_map_area() instead.
  */
@@ -378,7 +385,7 @@ void reveal_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,Map
     }
 }
 
-/*
+/**
  * Reveals map subtiles rectangle for given player.
  */
 void reveal_map_area(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y)
@@ -399,8 +406,6 @@ TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   mflags = get_map_flags(stl_x, stl_y);
   return ((mflags & 0x10) != 0);
 }
-
-/******************************************************************************/
 
 /******************************************************************************/
 #ifdef __cplusplus

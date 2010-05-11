@@ -25,6 +25,7 @@
 #include "engine_lenses.h"
 #include "config_creature.h"
 #include "creature_states.h"
+#include "creature_instances.h"
 #include "config_lenses.h"
 #include "thing_stats.h"
 #include "thing_effects.h"
@@ -177,7 +178,6 @@ DLLIMPORT void _DK_set_creature_instance(struct Thing *thing, long a1, long a2, 
 DLLIMPORT void _DK_draw_creature_view(struct Thing *thing);
 DLLIMPORT void _DK_process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT short _DK_kill_creature(struct Thing *thing, struct Thing *tngrp, char a1, unsigned char a2, unsigned char a3, unsigned char a4);
-DLLIMPORT void _DK_process_creature_instance(struct Thing *thing);
 DLLIMPORT void _DK_update_creature_count(struct Thing *thing);
 DLLIMPORT long _DK_process_creature_state(struct Thing *thing);
 DLLIMPORT long _DK_move_creature(struct Thing *thing);
@@ -432,14 +432,14 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
             pos.z.val = thing->mappos.z.val;
             pos.x.val += (32 * LbSinL(n) >> 16);
             pos.y.val -= (32 * LbCosL(n) >> 16);
-            pos.z.val += k * (thing->field_58 >> 1);
+            pos.z.val += k * (long)(thing->field_58 >> 1);
             ntng = create_object(&pos, 51, thing->owner, -1);
             if (!thing_is_invalid(ntng))
             {
               cctrl->field_2B3[k] = ntng->index;
               ntng->health = game.magic_stats[12].power[spell_lev] + 1;
-              ntng->word_13.w0 = thing->index;
-              ntng->byte_13.f2 = k;
+              ntng->word_13 = thing->index;
+              ntng->byte_15 = k;
               ntng->field_52 = thing->field_52;
               ntng->field_54 = thing->field_54;
               angles_to_vector(ntng->field_52, ntng->field_54, 32, &cvect);
@@ -550,14 +550,14 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
             pos.z.val = thing->mappos.z.val;
             pos.x.val += (32 * LbSinL(n) >> 16);
             pos.y.val -= (32 * LbCosL(n) >> 16);
-            pos.z.val += k * (thing->field_58 >> 1);
+            pos.z.val += k * (long)(thing->field_58 >> 1);
             ntng = create_object(&pos, 112, thing->owner, -1);
             if (!thing_is_invalid(ntng))
             {
               cctrl->field_2B9[k] = ntng->index;
               ntng->health = game.magic_stats[14].power[spell_lev] + 1;
-              ntng->word_13.w0 = thing->index;
-              ntng->byte_13.f2 = k;
+              ntng->word_13 = thing->index;
+              ntng->byte_15 = k;
               ntng->field_52 = thing->field_52;
               ntng->field_54 = thing->field_54;
               angles_to_vector(ntng->field_52, ntng->field_54, 32, &cvect);
@@ -784,7 +784,7 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
     if (!thing_is_invalid(efthing))
     {
       if (spinfo->cast_effect == 14)
-        efthing->byte_13.f3 = 3;
+        efthing->byte_16 = 3;
     }
   }
   // If the spell has area_range, then make area damage
@@ -795,36 +795,6 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
     k = compute_creature_attack_range(spinfo->area_range, crstat->luck, cctrl->explevel);
     i = compute_creature_attack_damage(spinfo->area_damage, crstat->luck, cctrl->explevel);
     explosion_affecting_area(caster, &caster->mappos, k, i, spinfo->area_hit_type);
-  }
-}
-
-void process_creature_instance(struct Thing *thing)
-{
-  struct CreatureControl *cctrl;
-  struct InstanceInfo *inst_inf;
-  cctrl = creature_control_get_from_thing(thing);
-  //_DK_process_creature_instance(thing);
-  if (cctrl->field_D2)
-  {
-    cctrl->field_D4++;
-    if (cctrl->field_D6 == cctrl->field_D4)
-    {
-       inst_inf = &instance_info[cctrl->field_D2];
-      if (inst_inf->func_cb != NULL)
-        inst_inf->func_cb(thing, &inst_inf->field_22);
-    }
-    if (cctrl->field_D8 == cctrl->field_D4)
-    {
-      if ( cctrl->field_D3 )
-      {
-        cctrl->field_D4--;
-        cctrl->field_D3 = 0;
-        return;
-      }
-      cctrl->field_DE[cctrl->field_D2] = game.play_gameturn;
-      cctrl->field_D2 = 0;
-    }
-    cctrl->field_D3 = 0;
   }
 }
 
@@ -990,7 +960,7 @@ long process_creature_state(struct Thing *thing)
   }
   // Enable this to know which function hangs on update_creature.
   //TODO: rewrite state subfunctions so they won't hang
-  SYNCDBG(8,"Executing state %d",(int)thing->field_7);
+  SYNCDBG(18,"Executing state %d",(int)thing->field_7);
   stati = get_thing_state7_info(thing);
   if (stati->ofsfield_0 == NULL)
     return false;
@@ -1044,7 +1014,7 @@ TbBool update_dead_creatures_list(struct Dungeon *dungeon, struct Thing *thing)
   return true;
 }
 
-/*
+/**
  * Increases proper kills counter for given player's dungeon.
  */
 TbBool inc_player_kills_counter(long killer_idx, struct Thing *victim)
@@ -1058,7 +1028,7 @@ TbBool inc_player_kills_counter(long killer_idx, struct Thing *victim)
   return true;
 }
 
-/*
+/**
  * Increases kills counters when victim is being killed by killer.
  * Note that killer may be invalid - in this case def_plyr_idx identifies the killer.
  */
@@ -1363,7 +1333,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
       else
         draw_lightning(&pos1, &pos2, 96, 60);
       shot->health = shotstat->health;
-      *(short *)&shot->byte_13.h = shotstat->damage;
+      shot->word_14 = shotstat->damage;
       shot->field_1D = firing->index;
       break;
     case 7:
@@ -1374,7 +1344,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
         return;
       draw_flame_breath(&pos1, &pos2, 96, 2);
       shot->health = shotstat->health;
-      *(short *)&shot->byte_13.h = shotstat->damage;
+      shot->word_14 = shotstat->damage;
       shot->field_1D = firing->index;
       break;
     case 13:
@@ -1384,7 +1354,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
         if (thing_is_invalid(tmptng))
           break;
         shot = tmptng;
-        shot->byte_13.f3 = a3;
+        shot->byte_16 = a3;
         shot->field_52 = (angle_xy + ACTION_RANDOM(101) - 50) & 0x7FF;
         shot->field_54 = (angle_yz + ACTION_RANDOM(101) - 50) & 0x7FF;
         angles_to_vector(shot->field_52, shot->field_54, shotstat->speed, &cvect);
@@ -1392,7 +1362,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
         shot->pos_32.y.val += cvect.y;
         shot->pos_32.z.val += cvect.z;
         shot->field_1 |= 0x04;
-        *(short *)&shot->byte_13.h = damage;
+        shot->word_14 = damage;
         shot->health = shotstat->health;
         shot->field_1D = firing->index;
       }
@@ -1408,17 +1378,17 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
       shot->pos_32.y.val += cvect.y;
       shot->pos_32.z.val += cvect.z;
       shot->field_1 |= 0x04;
-      *(short *)&shot->byte_13.h = damage;
+      shot->word_14 = damage;
       shot->health = shotstat->health;
       shot->field_1D = firing->index;
       shot->word_17 = target_idx;
-      shot->byte_13.l = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
+      shot->byte_13 = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
       break;
   }
   if (!thing_is_invalid(shot))
   {
 #if (BFDEBUG_LEVEL > 0)
-    damage = *(short *)&shot->byte_13.h;
+    damage = shot->word_14;
     // Special debug code that shows amount of damage the shot will make
     if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
         create_price_effect(&pos1, my_player_number, damage);
@@ -1427,7 +1397,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
       WARNLOG("Shot of type %d carries %d damage",(int)shot_kind,(int)damage);
     }
 #endif
-    shot->byte_13.f3 = a3;
+    shot->byte_16 = a3;
     if (shotstat->firing_sound > 0)
     {
       thing_play_sample(firing, shotstat->firing_sound + UNSYNC_RANDOM(shotstat->firing_sound_variants),
@@ -1464,7 +1434,7 @@ void set_creature_level(struct Thing *thing, long nlvl)
   if (cctrl->field_AD & 0x02)
     thing->field_46 = 300;
   else
-    thing->field_46 = saturate_set_signed( 300 + (300*cctrl->explevel) / 20, 16);
+    thing->field_46 = saturate_set_signed( 300 + (300*(long)cctrl->explevel) / 20, 16);
   thing->health = saturate_set_signed( (thing->health*max_health)/old_max_health, 16);
   for (i=0; i < 10; i++)
   {

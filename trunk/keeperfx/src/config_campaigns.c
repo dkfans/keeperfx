@@ -964,7 +964,7 @@ TbBool is_campaign_loaded(void)
   return (campaign.single_levels_count > 0) || (campaign.multi_levels_count > 0);
 }
 
-/*
+/**
  * Initializes list of campaigns, creating given number of empty list entries.
  */
 TbBool init_campaigns_list_entries(struct CampaignsList *clist, long num_entries)
@@ -987,7 +987,7 @@ TbBool init_campaigns_list_entries(struct CampaignsList *clist, long num_entries
   return true;
 }
 
-/*
+/**
  * Allocates more items in list of campaigns, adding given number of empty list entries.
  */
 TbBool grow_campaigns_list_entries(struct CampaignsList *clist, long add_entries)
@@ -1012,7 +1012,7 @@ TbBool grow_campaigns_list_entries(struct CampaignsList *clist, long add_entries
   return true;
 }
 
-/*
+/**
  * Frees memory allocated for list of campaigns.
  */
 TbBool free_campaigns_list_entries(struct CampaignsList *clist)
@@ -1040,7 +1040,7 @@ TbBool load_campaign_to_list(const char *cmpgn_fname,struct CampaignsList *clist
   return false;
 }
 
-/*
+/**
  * Searches for campaign files and creates a list of campaigns.
  */
 TbBool load_campaigns_list(void)

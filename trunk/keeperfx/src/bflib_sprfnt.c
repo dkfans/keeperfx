@@ -118,7 +118,7 @@ unsigned short dbc_char_to_font_char(unsigned long chr)
   case 3:
       i = ((chr)&0xFF);
       k = ((chr>>8)&0xFF);
-      font_char = 94 * k + i - 15295;
+      font_char = 94 * (short)k + i - 15295;
       break;
   }
   SYNCDBG(19,"Char %04X converted to %d",(int)chr,(int)font_char);
@@ -210,7 +210,7 @@ int dbc_draw_font_sprite(unsigned char *dst_buf, long dst_scanline, unsigned cha
   if ((src_bitwidth & 7) != 0)
     src_scanline++;
   if (start_y != 0)
-    src_buf += src_scanline * start_y;
+    src_buf += src_scanline * (long)start_y;
   src_val = 0;
   for (y=height; y > 1; y--)
   {
@@ -417,7 +417,7 @@ void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y
       } else
       if (chr == '\t')
       {
-        w = len*lbSpacesPerTab;
+        w = len*(long)lbSpacesPerTab;
         if ((lbDisplay.DrawFlags & 0x0400) != 0)
         {
           h = dbc_char_height(' ');
@@ -521,9 +521,9 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
       if ((lbDisplay.DrawFlags & 0x0400) != 0)
       {
         h = LbTextLineHeight();
-        LbDrawHVLine(x, y+h, x+len*lbSpacesPerTab, y+h, lbDisplay.DrawColour);
+        LbDrawHVLine(x, y+h, x+len*(long)lbSpacesPerTab, y+h, lbDisplay.DrawColour);
       }
-      x += len*lbSpacesPerTab;
+      x += len*(long)lbSpacesPerTab;
     } else
     {
       switch (chr)
@@ -639,7 +639,7 @@ long text_string_height(const char *text)
     }
   }
   nlines++;
-  return nlines * pixel_size * LbTextLineHeight();
+  return nlines * (long)pixel_size * LbTextLineHeight();
 }
 
 TbBool LbTextDraw(int posx, int posy, const char *text)

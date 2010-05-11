@@ -48,13 +48,15 @@ struct Column { // sizeof=0x18
 #pragma pack()
 #endif
 /******************************************************************************/
+#define INVALID_COLUMN &game.columns[0]
 /******************************************************************************/
-struct Column *get_column_at(long slb_x, long slb_y);
+struct Column *get_column_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Column *get_map_column(const struct Map *map);
 struct Column *get_column(long idx);
+TbBool column_invalid(const struct Column *col);
 
 long get_top_cube_at_pos(long mpos);
-long get_top_cube_at(long slb_x, long slb_y);
+long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void make_solidmask(struct Column *col);
 void clear_columns(void);
 void init_columns(void);

@@ -185,7 +185,7 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
         do
         {
           glass_idx&=0x00ff;
-          glass_idx |= ((*screen_ptr)<<8);
+          glass_idx |= (((unsigned short)*screen_ptr)<<8);
           *screen_ptr = lbDisplay.GlassMap[glass_idx];
           screen_ptr++;
           idx--;
@@ -268,7 +268,7 @@ void LbDrawBoxClip(long x, long y, unsigned long width, unsigned long height, Tb
             unsigned long idxw = width;
             do {
               glass_idx&=0x00ff;
-              glass_idx |= ((*screen_ptr)<<8);
+              glass_idx |= (((unsigned short)*screen_ptr)<<8);
               *screen_ptr = lbDisplay.GlassMap[glass_idx];
               screen_ptr++;
               idxw--;
