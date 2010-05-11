@@ -1874,7 +1874,7 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
     if ((pos.x.val <= 0) || (pos.y.val <= 0))
         return false;
     creatrs_def = count_creatures_for_defend_pickup(comp);
-    creatrs_num = creatrs_def * cevent->param1 / 100;
+    creatrs_num = creatrs_def * (long)cevent->param1 / 100;
     if ((creatrs_num < 1) && (creatrs_def > 0))
         creatrs_num = 1;
     if (creatrs_num <= 0)

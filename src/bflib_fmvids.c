@@ -561,11 +561,11 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
     {
       for ( k=0; w>0; k++)
       {
-        if ( *(unsigned short *)(pbf+2*k) != *(unsigned short *)(cbf+2*k) )
+        if ( *(unsigned short *)(pbf+2*(long)k) != *(unsigned short *)(cbf+2*(long)k) )
           break;
         w -= 2;
       }
-      if ( 2*k == animation.header.width )
+      if (2*(long)k == animation.header.width)
       {
         wend--;
         cbf += lbDisplay.GraphicsScreenWidth;
@@ -623,7 +623,7 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
           (*pckt_count)++;
         } else
         {
-          if ( w == 2 )
+          if (w == 2)
           {
             ndiff = 1;
             w -= 2;
@@ -646,10 +646,10 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
             animation.field_C++;
             *(unsigned char *)animation.field_C = ndiff;
             animation.field_C++;
-            memcpy(animation.field_C, cbf, 2*ndiff);
-            animation.field_C += 2*ndiff;
-            pbf += 2*ndiff;
-            cbf += 2*ndiff;
+            memcpy(animation.field_C, cbf, 2*(long)ndiff);
+            animation.field_C += 2*(long)ndiff;
+            pbf += 2*(long)ndiff;
+            cbf += 2*(long)ndiff;
             wend = 0;
             (*pckt_count)++;
           }
@@ -718,7 +718,7 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
   if (hend != 0)
   {
     hend = animation.header.height - hend;
-    blksize = animation.header.width * (animation.header.height-1);
+    blksize = animation.header.width * (long)(animation.header.height-1);
     cbuf = curdat+blksize;
     pbuf = prvdat+blksize;
     for (h=animation.header.height; h>0; h--)
@@ -735,7 +735,7 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
       pbuf -= lbDisplay.GraphicsScreenWidth;
     }
     hdim = h - hend;
-    blksize = animation.header.width * hend;
+    blksize = animation.header.width * (long)hend;
     cbuf = curdat+blksize;
     pbuf = prvdat+blksize;
     *(unsigned short *)animation.field_C = hend;
@@ -1045,7 +1045,7 @@ TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
     subchnk = (struct AnimFLIChunk *)animation.field_C;
     anim_store_data(&animation.subchunk, sizeof(struct AnimFLIChunk));
   }
-  int scrpoints = animation.header.height * animation.header.width;
+  int scrpoints = animation.header.height * (long)animation.header.width;
   if (animation.field_31C == 0)
   {
     if ( anim_make_FLI_BRUN(screenbuf) )

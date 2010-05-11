@@ -1832,7 +1832,7 @@ TbBool load_creaturemodel_config(long crtr_model,unsigned short flags)
   return load_creaturemodel_config_file(crtr_model,conf_fnstr,flags);
 }
 
-/*
+/**
  * Zeroes all the maintenance costs for all creatures.
  */
 TbBool make_all_creatures_free(void)

@@ -1648,7 +1648,7 @@ void add_message(long plyr_idx, char *msg)
     net_message_scroll_offset = i-4;
 }
 
-/*
+/**
  * Checks if all the network players are using compatible version of DK.
  */
 TbBool validate_versions(void)
@@ -1727,7 +1727,7 @@ void create_error_box(unsigned short msg_idx)
   }
 }
 
-/*
+/**
  * Checks if mouse pointer is currently over a specific button.
  * @return Returns true it mouse is over the button.
  */
@@ -2997,7 +2997,7 @@ TbBool set_players_packet_change_spell(struct PlayerInfo *player,int sptype)
   return true;
 }
 
-/*
+/**
  * Sets a new chosen spell.
  * Fills packet with the spell disable action.
  */
@@ -3058,7 +3058,7 @@ void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long f
   if (i <= 1)
     n = (gbtn->height - spr->SHeight) ^ k;
   else
-    n = scroll_offset * (k << 8) / (i - 1) >> 8;
+    n = (scroll_offset * (k << 8) / (i - 1)) >> 8;
   LbSpriteDraw(gbtn->scr_pos_x, n+gbtn->scr_pos_y, spr);
 }
 
@@ -3464,7 +3464,7 @@ void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
   _DK_frontstats_draw_scrolling_stats(gbtn);
 }
 
-/*
+/**
  * Loads next menu state after leaving frontstats.
  */
 void frontstats_leave(struct GuiButton *gbtn)
@@ -4505,7 +4505,7 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
   LbTextDraw(0, 0, save_game_catalogue[i].textname);
 }
 
-/*
+/**
  * Changes state based on a parameter inside GuiButton.
  * But first, loads the default campaign if no campaign is loaded yet.
  */
@@ -4519,7 +4519,7 @@ void frontend_ldcampaign_change_state(struct GuiButton *gbtn)
   frontend_change_state(gbtn);
 }
 
-/*
+/**
  * Changes state based on a parameter inside GuiButton.
  * But first, loads the default campaign if no campaign is loaded,
  * or the loaded one has no MP maps.
@@ -4591,7 +4591,7 @@ void frontend_start_new_game(struct GuiButton *gbtn)
   }
 }
 
-/*
+/**
  * Writes the continue game file.
  * If allow_lvnum_grow is true and my_player has won the singleplayer level,
  * then next level is written into continue file. This should be the case
@@ -5019,7 +5019,7 @@ long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOpti
   return creature_instance_is_available(thing, *tag);
 }
 
-/*
+/**
  * Draws parchment view background, used for in-game level map screen.
  */
 void draw_map_parchment(void)
@@ -5185,7 +5185,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
   SYNCDBG(17,"Finished");
 }
 
-/*
+/**
  * Returns if the menu is toggleable. If it's not, then it is always
  * visible until it's deleted.
  */
@@ -5593,9 +5593,9 @@ long compute_menu_position_x(long desired_pos,int menu_width)
       pos = MyScreenWidth - menu_width;
       break;
   default: // Desired position have direct coordinates
-      pos = ((desired_pos*units_per_pixel)>>4)*pixel_size;
-      if (pos+menu_width > lbDisplay.PhysicalScreenWidth*pixel_size)
-        pos = lbDisplay.PhysicalScreenWidth*pixel_size-menu_width;
+      pos = ((desired_pos*(long)units_per_pixel)>>4)*((long)pixel_size);
+      if (pos+menu_width > lbDisplay.PhysicalScreenWidth*((long)pixel_size))
+        pos = lbDisplay.PhysicalScreenWidth*((long)pixel_size)-menu_width;
 /* Helps not to touch left panel - disabling, as needs additional conditions
       if (pos < 140)
         pos = 140;
@@ -5642,9 +5642,9 @@ long compute_menu_position_y(long desired_pos,int menu_height)
       pos = MyScreenHeight - menu_height;
       break;
   default: // Desired position have direct coordinates
-      pos = ((desired_pos*units_per_pixel)>>4)*pixel_size;
-      if (pos+menu_height > lbDisplay.PhysicalScreenHeight*pixel_size)
-        pos = lbDisplay.PhysicalScreenHeight*pixel_size-menu_height;
+      pos = ((desired_pos*((long)units_per_pixel))>>4)*((long)pixel_size);
+      if (pos+menu_height > lbDisplay.PhysicalScreenHeight*((long)pixel_size))
+        pos = lbDisplay.PhysicalScreenHeight*((long)pixel_size)-menu_height;
       break;
   }
   // Clipping position Y
@@ -6861,8 +6861,8 @@ void spangle_button(struct GuiButton *gbtn)
 {
   long x,y;
   unsigned long i;
-  x = ((gbtn->width >> 1) - pixel_size * button_sprite[176].SWidth / 2 + gbtn->pos_x);
-  y = ((gbtn->height >> 1) - pixel_size * button_sprite[176].SHeight / 2 + gbtn->pos_y);
+  x = ((gbtn->width >> 1) - pixel_size * ((long)button_sprite[176].SWidth) / 2 + gbtn->pos_x);
+  y = ((gbtn->height >> 1) - pixel_size * ((long)button_sprite[176].SHeight) / 2 + gbtn->pos_y);
   i = 176+((game.play_gameturn >> 1) & 7);
   LbSpriteDraw(x/pixel_size, y/pixel_size, &button_sprite[i]);
 }
@@ -7397,7 +7397,7 @@ void frontend_update(short *finish_menu)
   SYNCDBG(17,"Finished");
 }
 
-/*
+/**
  * Chooses initial frontend menu state.
  * Used when game is first run, or player exits from gameplay.
  */
@@ -7720,7 +7720,7 @@ short toggle_instance_cheat_menu(void)
   return true;
 }
 
-/*
+/**
  * Opens cheat menu. It should not allow cheats in Network mode.
  * Returns true if the menu was toggled, false if cheat is not allowed.
  */
@@ -7734,7 +7734,7 @@ TbBool open_creature_cheat_menu(void)
   return (!gui_box_is_not_valid(gui_cheat_box));
 }
 
-/*
+/**
  * Closes cheat menu.
  * Returns true if the menu was closed.
  */
@@ -7747,7 +7747,7 @@ TbBool close_creature_cheat_menu(void)
   return true;
 }
 
-/*
+/**
  * Toggles cheat menu. It should not allow cheats in Network mode.
  * Returns true if the menu was toggled, false if cheat is not allowed.
  */
@@ -7798,7 +7798,7 @@ struct GuiBox *gui_get_box_point_over(long x, long y)
   return NULL;
 }
 
-/*
+/**
  * Returns box option under given position.
  * Requires text font to be set properly before running.
  */
@@ -7810,13 +7810,13 @@ struct GuiBoxOption *gui_get_box_option_point_over(struct GuiBox *gbox, long x, 
   sx = gbox->pos_x + 8;
   sy = gbox->pos_y + 8;
   gboptn = gbox->optn_list;
-  lnheight = LbTextLineHeight()*pixel_size + 2;
+  lnheight = LbTextLineHeight()*((long)pixel_size) + 2;
   while (gboptn->label[0] != '!')
   {
-    height = LbTextStringHeight(gboptn->label)*pixel_size;
+    height = LbTextStringHeight(gboptn->label)*((long)pixel_size);
     if ((y >= sy) && (y < sy+height))
     {
-      width = LbTextStringWidth(gboptn->label)*pixel_size;
+      width = LbTextStringWidth(gboptn->label)*((long)pixel_size);
       if ((x >= sx) && (x < sx+width))
       {
         if ((gboptn->numfield_4 == 2) || (gboptn->field_26 == 0))
@@ -7982,7 +7982,7 @@ TbBool gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn
   return false;
 }
 
-/*
+/**
  * Processes GUI Bixes inputs.
  * @return Returns true if the input event was captured by a GUI Box.
  */

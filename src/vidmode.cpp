@@ -250,8 +250,7 @@ struct TbSetupSprite netmap_flag_setup_sprites[] = {
 short force_video_mode_reset = true;
 /******************************************************************************/
 
-
-/*
+/**
  * Loads VGA 256 graphics files, for high resolution modes.
  * @return Returns true if all files were loaded, false otherwise.
  */
@@ -272,7 +271,7 @@ short LoadVRes256Data(long scrbuf_size)
   return 1;
 }
 
-/*
+/**
  * Loads MCGA graphics files, for low resolution mode.
  * It is modified version of LbDataLoadAll, optimized for maximum
  * game speed on very slow machines.
@@ -318,7 +317,7 @@ short LoadMcgaData(void)
   return (ferror == 0);
 }
 
-/*
+/**
  * Loads MCGA graphics files, for low resolution mode.
  * Loads only most importand files, where no GUI is needed.
  * @return Returns true if all files were loaded, false otherwise.
@@ -716,7 +715,7 @@ short setup_screen_mode(unsigned short nmode)
   case Lb_SCREEN_MODE_1200_1024_8:
   case Lb_SCREEN_MODE_1600_1200_8:
     SYNCDBG(6,"Entering hi-res mode %d, resolution %ldx%ld.",(int)nmode,mdinfo->Width,mdinfo->Height);
-    if (!LoadVRes256Data(mdinfo->Width*mdinfo->Height))
+    if (!LoadVRes256Data((long)mdinfo->Width*(long)mdinfo->Height))
     {
       ERRORLOG("Unable to load VRes256 data files");
       force_video_mode_reset = true;
@@ -768,9 +767,9 @@ TbBool update_screen_mode_data(long width, long height)
   {
     pixel_size = 2;
   }
-  MyScreenWidth = width * pixel_size;
-  MyScreenHeight = height * pixel_size;
-  pixels_per_block = 16 * pixel_size;
+  MyScreenWidth = width * (long)pixel_size;
+  MyScreenHeight = height * (long)pixel_size;
+  pixels_per_block = 16 * (long)pixel_size;
   units_per_pixel = width/40;// originally was 16 for hires, 8 for lores
   if (MinimalResolutionSetup)
     LbSpriteSetupAll(setup_sprites_minimal);
@@ -955,7 +954,7 @@ TbScreenMode switch_to_next_video_mode(void)
 {
   TbScreenMode scrmode;
   unsigned long prev_units_per_pixel_size;
-  prev_units_per_pixel_size = units_per_pixel*pixel_size;
+  prev_units_per_pixel_size = units_per_pixel*(long)pixel_size;
   scrmode = get_next_vidmode(lbDisplay.ScreenMode);
   if ( setup_screen_mode(scrmode) )
   {

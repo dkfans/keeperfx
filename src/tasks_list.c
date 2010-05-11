@@ -28,6 +28,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT long _DK_find_dig_from_task_list(long a1, long a2);
+DLLIMPORT long _DK_remove_from_task_list(long a1, long a2);
 
 /******************************************************************************/
 long find_from_task_list(long plyr_idx, long srch_tsk)
@@ -50,6 +51,10 @@ long find_dig_from_task_list(long a1, long a2)
     return _DK_find_dig_from_task_list(a1, a2);
 }
 
+long remove_from_task_list(long a1, long a2)
+{
+    return _DK_remove_from_task_list(a1, a2);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

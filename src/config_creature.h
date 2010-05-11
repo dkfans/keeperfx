@@ -89,13 +89,6 @@ struct CreatureConfig {
 };
 
 /******************************************************************************/
-#pragma pack(1)
-
-DLLIMPORT struct InstanceInfo _DK_instance_info[48];
-#define instance_info _DK_instance_info
-
-#pragma pack()
-/******************************************************************************/
 extern struct CreatureData creature_data[];
 extern const char keeper_creaturetp_file[];
 extern struct NamedCommand creature_desc[];

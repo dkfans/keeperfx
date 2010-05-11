@@ -42,10 +42,10 @@ struct Column *get_column(long idx)
   return &game.columns[idx];
 }
 
-struct Column *get_column_at(long slb_x, long slb_y)
+struct Column *get_column_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   struct Map *map;
-  map = get_map_block_at(slb_x, slb_y);
+  map = get_map_block_at(stl_x, stl_y);
   if (map_block_invalid(map))
     return &game.columns[0];
   return &game.columns[map->data & 0x7FF];
@@ -56,6 +56,15 @@ struct Column *get_map_column(const struct Map *map)
   if (map_block_invalid(map))
     return &game.columns[0];
   return &game.columns[map->data & 0x7FF];
+}
+
+TbBool column_invalid(const struct Column *col)
+{
+  if (col == NULL)
+    return true;
+  if (col == INVALID_COLUMN)
+    return true;
+  return (col < &game.columns[0]);
 }
 
 long get_top_cube_at_pos(long stl_num)
@@ -75,12 +84,12 @@ long get_top_cube_at_pos(long stl_num)
   return tcube;
 }
 
-long get_top_cube_at(long slb_x, long slb_y)
+long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   struct Column *col;
   unsigned long top_pos;
   long tcube;
-  col = get_column_at(slb_x, slb_y);
+  col = get_column_at(stl_x, stl_y);
   top_pos = (col->bitfileds >> 4) & 0x0F;
   if (top_pos > 0)
     tcube = col->cubes[top_pos-1];

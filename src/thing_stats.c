@@ -48,7 +48,7 @@ long compute_creature_max_health(long base_health,unsigned short crlevel)
     base_health = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_health = base_health + (CREATURE_HEALTH_INCREASE_ON_EXP*base_health*crlevel)/100;
+  max_health = base_health + (CREATURE_HEALTH_INCREASE_ON_EXP*base_health*(long)crlevel)/100;
   return saturate_set_signed(max_health, 16);
 }
 
@@ -64,7 +64,7 @@ long compute_creature_max_pay(long base_param,unsigned short crlevel)
     base_param = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_PAY_INCREASE_ON_EXP*base_param*crlevel)/100;
+  max_param = base_param + (CREATURE_PAY_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -80,7 +80,7 @@ long compute_creature_max_sparameter(long base_param,unsigned short crlevel)
     base_param = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_PROPERTY_INCREASE_ON_EXP*base_param*crlevel)/100;
+  max_param = base_param + (CREATURE_PROPERTY_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -96,7 +96,7 @@ long compute_creature_max_defence(long base_param,unsigned short crlevel)
     base_param = 10000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_DEFENSE_INCREASE_ON_EXP*base_param*crlevel)/100;
+  max_param = base_param + (CREATURE_DEFENSE_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
   return saturate_set_unsigned(max_param, 8);
 }
 
@@ -112,7 +112,7 @@ long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
     base_param = 10000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_DEXTERITY_INCREASE_ON_EXP*base_param*crlevel)/100;
+  max_param = base_param + (CREATURE_DEXTERITY_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
   return saturate_set_unsigned(max_param, 8);
 }
 
@@ -126,7 +126,7 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel)
     base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_STRENGTH_INCREASE_ON_EXP*base_param*crlevel)/100;
+  max_param = base_param + (CREATURE_STRENGTH_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
   return saturate_set_unsigned(max_param, 15);
 }
 
@@ -142,7 +142,7 @@ long compute_creature_attack_damage(long base_param,long luck,unsigned short crl
     base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_DAMAGE_INCREASE_ON_EXP*base_param*crlevel)/100;
+  max_param = base_param + (CREATURE_DAMAGE_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
   if (luck > 0)
   {
     if (ACTION_RANDOM(101) < luck)
@@ -163,7 +163,7 @@ long compute_creature_attack_range(long base_param,long luck,unsigned short crle
     base_param = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_RANGE_INCREASE_ON_EXP*base_param*crlevel)/100;
+  max_param = base_param + (CREATURE_RANGE_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -198,7 +198,7 @@ long compute_value_percentage(long base_val, short npercent)
         if ( base_val < LONG_MIN/(abs(npercent)+1) )
             base_val = LONG_MIN/(abs(npercent)+1);
     }
-    return (base_val*npercent+49)/100;
+    return (base_val*(long)npercent+49)/100;
 }
 
 /** Computes 8-bit percentage of given value.
@@ -219,7 +219,7 @@ long compute_value_8bpercentage(long base_val, short npercent)
         if ( base_val < LONG_MIN/(abs(npercent)+1) )
             base_val = LONG_MIN/(abs(npercent)+1);
     }
-    return (base_val*npercent+127)/256;
+    return (base_val*(long)npercent+127)/256;
 }
 
 TbBool update_creature_health_to_max(struct Thing *thing)
@@ -318,7 +318,6 @@ void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
         }
     }
 }
-
 
 /******************************************************************************/
 #ifdef __cplusplus

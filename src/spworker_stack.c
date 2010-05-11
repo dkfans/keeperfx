@@ -66,6 +66,8 @@ DLLIMPORT struct Thing *_DK_check_place_to_pickup_spell(struct Thing *thing, lon
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_unconscious_body(struct Thing *thing, long a2, long a3);
 DLLIMPORT long _DK_check_place_to_reinforce(struct Thing *thing, long a2, long a3);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_crate(struct Thing *thing, long stl_x, long stl_y);
+/******************************************************************************/
+long const dig_pos[] = {0, -1, 1};
 
 /******************************************************************************/
 TbBool add_to_imp_stack_using_pos(long stl_num, long task_type, struct Dungeon *dungeon)
@@ -280,7 +282,7 @@ TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num)
     // Thing list loop body
     if ((num <= 0) || (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT))
       break;
-    if ((!thing->byte_13.l) && (thing->owner == dungeon->field_E9F))
+    if ((!thing->byte_13) && (thing->owner == dungeon->field_E9F))
     {
       if ( add_object_for_trap_to_imp_stack(dungeon, thing) )
         num--;
@@ -373,12 +375,80 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, unsigned short 
     return _DK_check_out_uncrowded_reinforce_position(thing, a2, a3, a4);
 }
 
+#include "config_terrain.h"
+extern struct SlabAttr slab_attrs[];
 long check_place_to_dig_and_get_position(struct Thing *thing, unsigned long stl_num, long *retstl_x, long *retstl_y)
 {
-    //TODO may hang in some cases
-    //!!!!!!!!!!!!!!
-    SYNCDBG(8,"Starting");
-    return _DK_check_place_to_dig_and_get_position(thing, stl_num, retstl_x, retstl_y);
+    struct SlabMap *place_slb;
+    struct Coord3d pos;
+    long place_x,place_y;
+    long distance_x,distance_y;
+    long base_x,base_y;
+    long stl_x,stl_y;
+    long i,k,n,nstart;
+    SYNCDBG(18,"Starting");
+    //return _DK_check_place_to_dig_and_get_position(thing, stl_num, retstl_x, retstl_y);
+    place_x = stl_num_decode_x(stl_num);
+    place_y = stl_num_decode_y(stl_num);
+    if (!block_has_diggable_side(thing->owner, map_to_slab[place_x], map_to_slab[place_y]))
+        return 0;
+    distance_x = place_x - thing->mappos.x.stl.num;
+    distance_y = place_y - thing->mappos.y.stl.num;
+    if (abs(distance_y) >= abs(distance_x))
+    {
+      if (distance_y > 0)
+          nstart = 0;
+      else
+          nstart = 2;
+    } else
+    {
+      if (distance_x > 0)
+          nstart = 3;
+      else
+          nstart = 1;
+    }
+    place_slb = get_slabmap_for_subtile(place_x,place_y);
+    n = nstart;
+
+    for (i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
+    {
+      base_x = place_x + 2 * (long)small_around[n].delta_x;
+      base_y = place_y + 2 * (long)small_around[n].delta_y;
+      if (valid_dig_position(thing->owner, base_x, base_y))
+      {
+          for (k = 0; k < sizeof(dig_pos)/sizeof(dig_pos[0]); k++)
+          {
+              if ( k )
+              {
+                nstart = ((n + dig_pos[k]) & 3);
+                stl_x = base_x + small_around[nstart].delta_x;
+                stl_y = base_y + small_around[nstart].delta_y;
+              } else
+              {
+                stl_x = base_x;
+                stl_y = base_y;
+              }
+              if (valid_dig_position(thing->owner, stl_x, stl_y))
+              {
+                    if ((place_slb->slab != SlbT_GEMS) || !gold_pile_with_maximum_at_xy(stl_x, stl_y))
+                      if (!imp_already_digging_at_excluding(thing, stl_x, stl_y))
+                        if (!imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
+                        {
+                          set_coords_to_subtile_center(&pos, stl_x, stl_y, 0);
+                          pos.z.val = get_thing_height_at(thing, &pos);
+                          if (creature_can_navigate_to_with_storage(thing, &pos, 0))
+                          {
+                              *retstl_x = stl_x;
+                              *retstl_y = stl_y;
+                              return 1;
+                          }
+                        }
+              }
+          }
+      }
+      n = (n+1) % 4;
+    }
+    return 0;
 }
 
 struct Thing *check_place_to_pickup_dead_body(struct Thing *thing, long stl_x, long stl_y)

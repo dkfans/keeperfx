@@ -102,7 +102,7 @@ short is_near_new_moon = 0;
 /******************************************************************************/
 DLLIMPORT int __stdcall _DK_load_configuration(void);
 /******************************************************************************/
-/*
+/**
  * Updates enabled features flags. Returns true if ALL features are enabled.
  */
 TbBool update_features(unsigned long mem_size)
@@ -142,33 +142,33 @@ TbBool is_feature_on(unsigned long feature)
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen)
 {
   // Skip to end of the line
-  while ((*pos)<buflen)
+  while ((*pos) < buflen)
   {
     if ((buf[*pos]=='\r') || (buf[*pos]=='\n')) break;
     (*pos)++;
   }
   // Go to start of next line
-  while ((*pos)<buflen)
+  while ((*pos) < buflen)
   {
     if ((unsigned char)buf[*pos] > 32) break;
     if (buf[*pos]=='\n')
       text_line_number++;
     (*pos)++;
   }
-  return ((*pos)<buflen);
+  return ((*pos) < buflen);
 }
 
-TbBool skip_conf_spaces(const char *buf,long *pos,long buflen)
+TbBool skip_conf_spaces(const char *buf, long *pos, long buflen)
 {
-  while ((*pos)<buflen)
+  while ((*pos) < buflen)
   {
     if ((buf[*pos]!=' ') && (buf[*pos]!='\t') && (buf[*pos] != 26) && ((unsigned char)buf[*pos] >= 7)) break;
     (*pos)++;
   }
-  return ((*pos)<buflen);
+  return ((*pos) < buflen);
 }
 
-/*
+/**
  * Searches for start of INI file block with given name.
  * Starts at position given with pos, and sets it to position of block data.
  * @return Returns 1 if the block is found, -1 if buffer exceeded.
@@ -178,7 +178,7 @@ short find_conf_block(const char *buf,long *pos,long buflen,const char *blocknam
   int blname_len;
   text_line_number = 1;
   blname_len = strlen(blockname);
-  while (*pos+blname_len+2 < buflen)
+  while ((*pos)+blname_len+2 < buflen)
   {
     // Skipping starting spaces
     if (!skip_conf_spaces(buf,pos,buflen))
@@ -193,7 +193,7 @@ short find_conf_block(const char *buf,long *pos,long buflen,const char *blocknam
     // Skipping any spaces
     if (!skip_conf_spaces(buf,pos,buflen))
       break;
-    if (*pos+blname_len+2 >= buflen)
+    if ((*pos)+blname_len+2 >= buflen)
       break;
     if (strncasecmp(&buf[*pos],blockname,blname_len) != 0)
     {
@@ -315,7 +315,7 @@ int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,lo
   return i;
 }
 
-/*
+/**
  * Returns parameter num from given NamedCommand array, or 0 if not found.
  */
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand commands[])
@@ -365,7 +365,7 @@ const char *get_conf_parameter_text(const struct NamedCommand commands[],int num
   return lbEmptyString;
 }
 
-/*
+/**
  * Returns current language string.
  */
 const char *get_current_language_str(void)
@@ -373,7 +373,7 @@ const char *get_current_language_str(void)
   return get_conf_parameter_text(lang_type,install_info.lang_id);
 }
 
-/*
+/**
  * Returns copy of the requested language string in lower case.
  */
 const char *get_language_lwrstr(int lang_id)
@@ -387,7 +387,7 @@ const char *get_language_lwrstr(int lang_id)
   return lang_str;
 }
 
-/*
+/**
  * Returns ID of given item using NamedCommands list.
  * Similar to recognize_conf_parameter(), but for use only if the buffer stores
  * one word, ended with "\0".
@@ -407,7 +407,7 @@ long get_id(const struct NamedCommand *desc, char *itmname)
   return -1;
 }
 
-/*
+/**
  * Returns ID of given item using NamedCommands list, or any item if the string is 'RANDOM'.
  * Similar to recognize_conf_parameter(), but for use only if the buffer stores
  * one word, ended with "\0".
@@ -761,7 +761,7 @@ short get_level_fgroup(LevelNumber lvnum)
   return FGrp_VarLevels;
 }
 
-/*
+/**
  * Loads data file into allocated buffer.
  * @return Returns NULL if the file doesn't exist or is smaller than ldsize;
  * on success, returns a buffer which should be freed after use,
@@ -984,7 +984,7 @@ int add_high_score_entry(unsigned long score, LevelNumber lvnum, char *name)
   return idx;
 }
 
-/*
+/**
  * Returns highest score value for given level.
  */
 unsigned long get_level_highest_score(LevelNumber lvnum)
@@ -1021,7 +1021,7 @@ struct LevelInformation *get_or_create_level_info(LevelNumber lvnum, unsigned lo
   return NULL;
 }
 
-/*
+/**
  * Returns first level info structure in the array.
  */
 struct LevelInformation *get_first_level_info(void)
@@ -1031,7 +1031,7 @@ struct LevelInformation *get_first_level_info(void)
   return &campaign.lvinfos[0];
 }
 
-/*
+/**
  * Returns last level info structure in the array.
  */
 struct LevelInformation *get_last_level_info(void)
@@ -1041,7 +1041,7 @@ struct LevelInformation *get_last_level_info(void)
   return &campaign.lvinfos[campaign.lvinfos_count-1];
 }
 
-/*
+/**
  * Returns next level info structure in the array.
  * Note that it's not always corresponding to next campaign level; use
  * get_level_info() to get information for specific level. This function
@@ -1061,7 +1061,7 @@ struct LevelInformation *get_next_level_info(struct LevelInformation *previnfo)
   return &campaign.lvinfos[i];
 }
 
-/*
+/**
  * Returns previous level info structure in the array.
  * Note that it's not always corresponding to previous campaign level; use
  * get_level_info() to get information for specific level. This function
@@ -1133,7 +1133,7 @@ TbBool create_strings_list(char **strings,char *strings_data,char *strings_data_
   return (text_idx < STRINGS_MAX);
 }
 
-/*
+/**
  * Loads the language-specific strings data for game interface.
  */
 TbBool setup_gui_strings_data(void)
@@ -1187,7 +1187,7 @@ TbBool free_gui_strings_data(void)
   return true;
 }
 
-/*
+/**
  * Loads the language-specific strings data for the current campaign.
  */
 TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
@@ -1357,7 +1357,7 @@ TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
   return true;
 }
 
-/*
+/**
  * Loads the credits data for the current campaign.
  */
 TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
@@ -1445,7 +1445,7 @@ int storage_index_for_bonus_level(LevelNumber bn_lvnum)
   return -1;
 }
 
-/*
+/**
  * Returns index for Campaign->bonus_levels associated with given bonus level.
  * If the level is not found, returns -1.
  */
@@ -1461,7 +1461,7 @@ int array_index_for_bonus_level(long bn_lvnum)
   return -1;
 }
 
-/*
+/**
  * Returns index for Campaign->extra_levels associated with given extra level.
  * If the level is not found, returns -1.
  */
@@ -1477,7 +1477,7 @@ int array_index_for_extra_level(long ex_lvnum)
   return -1;
 }
 
-/*
+/**
  * Returns index for Campaign->single_levels associated with given singleplayer level.
  * If the level is not found, returns -1.
  */
@@ -1493,7 +1493,7 @@ int array_index_for_singleplayer_level(LevelNumber sp_lvnum)
   return -1;
 }
 
-/*
+/**
  * Returns index for Campaign->multi_levels associated with given multiplayer level.
  * If the level is not found, returns -1.
  */
@@ -1509,7 +1509,7 @@ int array_index_for_multiplayer_level(LevelNumber mp_lvnum)
   return -1;
 }
 
-/*
+/**
  * Returns index for Campaign->freeplay_levels associated with given freeplay level.
  * If the level is not found, returns -1.
  */
@@ -1525,7 +1525,7 @@ int array_index_for_freeplay_level(LevelNumber fp_lvnum)
   return -1;
 }
 
-/*
+/**
  * Returns bonus level number for given singleplayer level number.
  * If no bonus found, returns 0.
  */
@@ -1538,7 +1538,7 @@ LevelNumber bonus_level_for_singleplayer_level(LevelNumber sp_lvnum)
   return 0;
 }
 
-/*
+/**
  * Returns first single player level number.
  * On error, returns SINGLEPLAYER_NOTSTARTED.
  */
@@ -1550,7 +1550,7 @@ LevelNumber first_singleplayer_level(void)
   return SINGLEPLAYER_NOTSTARTED;
 }
 
-/*
+/**
  * Returns last single player level number.
  * On error, returns SINGLEPLAYER_NOTSTARTED.
  */
@@ -1563,7 +1563,7 @@ LevelNumber last_singleplayer_level(void)
   return SINGLEPLAYER_NOTSTARTED;
 }
 
-/*
+/**
  * Returns first multi player level number.
  * On error, returns SINGLEPLAYER_NOTSTARTED.
  */
@@ -1575,7 +1575,7 @@ LevelNumber first_multiplayer_level(void)
   return SINGLEPLAYER_NOTSTARTED;
 }
 
-/*
+/**
  * Returns last multi player level number.
  * On error, returns SINGLEPLAYER_NOTSTARTED.
  */
@@ -1588,7 +1588,7 @@ LevelNumber last_multiplayer_level(void)
   return SINGLEPLAYER_NOTSTARTED;
 }
 
-/*
+/**
  * Returns first free play level number.
  * On error, returns SINGLEPLAYER_NOTSTARTED.
  */
@@ -1600,7 +1600,7 @@ LevelNumber first_freeplay_level(void)
   return SINGLEPLAYER_NOTSTARTED;
 }
 
-/*
+/**
  * Returns last free play level number.
  * On error, returns SINGLEPLAYER_NOTSTARTED.
  */
@@ -1613,7 +1613,7 @@ LevelNumber last_freeplay_level(void)
   return SINGLEPLAYER_NOTSTARTED;
 }
 
-/*
+/**
  * Returns first extra level number.
  * On error, returns SINGLEPLAYER_NOTSTARTED.
  */
@@ -1630,7 +1630,7 @@ LevelNumber first_extra_level(void)
   return SINGLEPLAYER_NOTSTARTED;
 }
 
-/*
+/**
  * Returns the extra level number. Gives SINGLEPLAYER_NOTSTARTED if no such level,
  * LEVELNUMBER_ERROR on error.
  */
@@ -1651,7 +1651,7 @@ LevelNumber get_extra_level(unsigned short elv_kind)
   return SINGLEPLAYER_NOTSTARTED;
 }
 
-/*
+/**
  * Returns the next single player level. Gives SINGLEPLAYER_FINISHED if
  * last level was won, LEVELNUMBER_ERROR on error.
  */
@@ -1675,7 +1675,7 @@ LevelNumber next_singleplayer_level(LevelNumber sp_lvnum)
   return LEVELNUMBER_ERROR;
 }
 
-/*
+/**
  * Returns the previous single player level. Gives SINGLEPLAYER_NOTSTARTED if
  * first level was given, LEVELNUMBER_ERROR on error.
  */
@@ -1699,7 +1699,7 @@ LevelNumber prev_singleplayer_level(LevelNumber sp_lvnum)
   return LEVELNUMBER_ERROR;
 }
 
-/*
+/**
  * Returns the next multi player level. Gives SINGLEPLAYER_FINISHED if
  * last level was given, LEVELNUMBER_ERROR on error.
  */
@@ -1723,7 +1723,7 @@ LevelNumber next_multiplayer_level(LevelNumber mp_lvnum)
   return LEVELNUMBER_ERROR;
 }
 
-/*
+/**
  * Returns the previous multi player level. Gives SINGLEPLAYER_NOTSTARTED if
  * first level was given, LEVELNUMBER_ERROR on error.
  */
@@ -1747,7 +1747,7 @@ LevelNumber prev_multiplayer_level(LevelNumber mp_lvnum)
   return LEVELNUMBER_ERROR;
 }
 
-/*
+/**
  * Returns the next extra level. Gives SINGLEPLAYER_FINISHED if
  * last level was given, LEVELNUMBER_ERROR on error.
  */
@@ -1774,7 +1774,7 @@ LevelNumber next_extra_level(LevelNumber ex_lvnum)
   return LEVELNUMBER_ERROR;
 }
 
-/*
+/**
  * Returns the next freeplay level. Gives SINGLEPLAYER_FINISHED if
  * last level was given, LEVELNUMBER_ERROR on error.
  */
@@ -1798,7 +1798,7 @@ LevelNumber next_freeplay_level(LevelNumber fp_lvnum)
   return LEVELNUMBER_ERROR;
 }
 
-/*
+/**
  * Returns the previous freeplay level. Gives SINGLEPLAYER_NOTSTARTED if
  * first level was given, LEVELNUMBER_ERROR on error.
  */
@@ -1822,7 +1822,7 @@ LevelNumber prev_freeplay_level(LevelNumber fp_lvnum)
   return LEVELNUMBER_ERROR;
 }
 
-/*
+/**
  * Returns if the level is a single player campaign level,
  * or special non-existing level at start/end of campaign.
  */
@@ -1833,7 +1833,7 @@ short is_singleplayer_like_level(LevelNumber lvnum)
   return is_singleplayer_level(lvnum);
 }
 
-/*
+/**
  * Returns if the level is a single player campaign level.
  */
 short is_singleplayer_level(LevelNumber lvnum)
@@ -1885,7 +1885,7 @@ short is_multiplayer_level(LevelNumber lvnum)
   return false;
 }
 
-/*
+/**
  * Returns if the level is 'campaign' level.
  * All levels mentioned in campaign file are campaign levels. Campaign and
  * freeplay levels are exclusive.
@@ -1898,7 +1898,7 @@ short is_campaign_level(LevelNumber lvnum)
   return false;
 }
 
-/*
+/**
  * Returns if the level is 'free play' level, which should be visible
  * in list of levels.
  */
@@ -1910,11 +1910,11 @@ short is_freeplay_level(LevelNumber lvnum)
   {
     if (campaign.freeplay_levels[i] == lvnum)
     {
-//SYNCMSG("%d is freeplay",lvnum);
+        SYNCDBG(18,"%d is freeplay",lvnum);
         return true;
     }
   }
-//SYNCMSG("%d is NOT freeplay",lvnum);
+  SYNCDBG(18,"%d is NOT freeplay",lvnum);
   return false;
 }
 /******************************************************************************/

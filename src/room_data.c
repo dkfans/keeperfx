@@ -334,7 +334,7 @@ void count_gold_hoardes_in_room(struct Room *room)
 void count_slabs_div2(struct Room *room)
 {
   unsigned long count;
-  count = room->slabs_count * room->efficiency;
+  count = room->slabs_count * ((long)room->efficiency);
   count = ((count/256) >> 1);
   if (count <= 1)
     count = 1;
@@ -355,7 +355,7 @@ void count_workers_in_room(struct Room *room)
 void count_slabs_with_efficiency(struct Room *room)
 {
   unsigned long count;
-  count = room->slabs_count * room->efficiency;
+  count = room->slabs_count * ((long)room->efficiency);
   count = (count/256);
   if (count <= 1)
     count = 1;
@@ -375,7 +375,7 @@ void count_bodies_in_room(struct Room *room)
 void count_capacity_in_garden(struct Room *room)
 {
   unsigned long count;
-  count = room->slabs_count * room->efficiency;
+  count = room->slabs_count * ((long)room->efficiency);
   count = (count/256);
   if (count <= 1)
     count = 1;
@@ -471,19 +471,73 @@ void count_room_slabs(struct Room *room)
     }
 }
 
+void update_room_ensign_position(struct Room *room)
+{
+    struct MapOffset *sstep;
+    struct SlabMap *slb;
+    unsigned long tot_x,tot_y;
+    long cx,cy;
+    long slb_x,slb_y;
+    unsigned long k;
+    long i;
+    tot_x = 0;
+    tot_y = 0;
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        i = get_next_slab_number_in_room(i);
+        slb = get_slabmap_block(slb_x,slb_y);
+        if (slabmap_block_invalid(slb))
+        {
+          ERRORLOG("Jump to invalid item when sweeping Slabs.");
+          break;
+        }
+        // Per room tile code
+        tot_x += slb_x;
+        tot_y += slb_y;
+        // Per room tile code ends
+        k++;
+        if (k > room->slabs_count)
+        {
+            ERRORLOG("Room slabs list length exceeded when sweeping");
+            break;
+        }
+    }
+    if (room->slabs_count > 1)
+    {
+      tot_x /= room->slabs_count;
+      tot_y /= room->slabs_count;
+    }
+    for (i=0; i < 256; i++)
+    {
+      sstep = &spiral_step[i];
+      cx = 3 * (tot_x + sstep->h) + 1;
+      cy = 3 * (tot_y + sstep->v) + 1;
+      slb_x = map_to_slab[cx%(map_subtiles_x+1)];
+      slb_y = map_to_slab[cy%(map_subtiles_y+1)];
+      slb = get_slabmap_block(slb_x,slb_y);
+      if (&game.rooms[slb->room_index] == room)
+      {
+        room->stl_x = cx;
+        room->stl_y = cy;
+        return;
+      }
+    }
+    ERRORLOG("Cannot find position to place an ensign.");
+}
+
 struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned short x, unsigned short y)
 {
   struct Dungeon *dungeon;
-  struct MapOffset *sstep;
   struct SlabMap *slb;
   struct Room *room,*nxroom;
-  unsigned long tot_x,tot_y;
-  unsigned long cx,cy;
   long slb_x,slb_y;
-  unsigned long k;
   long i;
   SYNCDBG(7,"Starting");
-  //room = _DK_create_room(owner, rkind, x, y); return room;
+  // room = _DK_create_room(owner, rkind, x, y); return room;
   room = link_adjacent_rooms_of_type(owner, x, y, rkind);
   if (room != NULL)
   {
@@ -530,52 +584,7 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
     count_room_slabs(room);
     create_room_flag(room);
   }
-  tot_x = 0;
-  tot_y = 0;
-  k = 0;
-  i = room->slabs_list;
-  while (i > 0)
-  {
-      slb_x = slb_num_decode_x(i);
-      slb_y = slb_num_decode_y(i);
-      i = get_next_slab_number_in_room(i);
-      slb = get_slabmap_block(slb_x,slb_y);
-      if (slabmap_block_invalid(slb))
-      {
-        ERRORLOG("Jump to invalid item when sweeping Slabs.");
-        break;
-      }
-      // Per room tile code
-      tot_x += slb_x;
-      tot_y += slb_y;
-      // Per room tile code ends
-      k++;
-      if (k > room->slabs_count)
-      {
-          ERRORLOG("Room slabs list length exceeded when sweeping");
-          break;
-      }
-  }
-  if (room->slabs_count > 1)
-  {
-    tot_x /= room->slabs_count;
-    tot_y /= room->slabs_count;
-  }
-  for (i=0; i < 256; i++)
-  {
-    sstep = &spiral_step[i];
-    cx = 3 * (tot_x + sstep->h) + 1;
-    cy = 3 * (tot_y + sstep->v) + 1;
-    slb_x = map_to_slab[cx%(map_subtiles_x+1)];
-    slb_y = map_to_slab[cy%(map_subtiles_y+1)];
-    slb = get_slabmap_block(slb_x,slb_y);
-    if (&game.rooms[slb->room_index] == room)
-    {
-      room->stl_x = cx;
-      room->stl_y = cy;
-      break;
-    }
-  }
+  update_room_ensign_position(room);
   SYNCDBG(7,"Done");
   return room;
 }
@@ -591,7 +600,7 @@ void create_room_flag(struct Room *room)
   if ((room->kind != RoK_DUNGHEART) && (room->kind != RoK_ENTRANCE)
      && (room->kind != RoK_GUARDPOST) && (room->kind != RoK_BRIDGE))
   {
-    pos.z.val = 512;
+    pos.z.val = 2 << 8;
     pos.x.val = x << 8;
     pos.y.val = y << 8;
     thing = find_base_thing_on_mapwho(1, 25, x, y);
@@ -604,7 +613,7 @@ void create_room_flag(struct Room *room)
       ERRORLOG("Cannot create room_flag");
       return;
     }
-    thing->word_13.w0 = room->index;
+    thing->word_13 = room->index;
   }
 }
 
@@ -687,12 +696,12 @@ void update_room_efficiency(struct Room *room)
     if (room->slabs_count == 2)
         n = 4;
     else
-        n = 4 * room->slabs_count - 4;
+        n = 4 * ((long)room->slabs_count) - 4;
 
     peices = room->slabs_count;
     if (peices > 49)
         peices = 49;
-    peices = 2 * (slabs_to_centre_peices[peices] + 4 * room->slabs_count);
+    peices = 2 * (((long)slabs_to_centre_peices[peices]) + 4 * ((long)room->slabs_count));
     // Calculate efficiency score from slabs
     score = 0;
     k = 0;

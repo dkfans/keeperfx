@@ -825,7 +825,7 @@ TbBool load_terrain_config(const char *conf_fname,unsigned short flags)
   return result;
 }
 
-/*
+/**
  * Zeroes all the costs for all rooms.
  */
 TbBool make_all_rooms_free(void)

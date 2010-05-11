@@ -279,7 +279,7 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
       thing->long_13 = game.chest_gold_hold;
       break;
     case 5:
-      thing->byte_13.h = 1;
+      thing->byte_14 = 1;
       light_set_light_minimum_size_to_cache(thing->field_62, 0, 56);
       break;
     case 6:
@@ -296,10 +296,10 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
       i = get_free_hero_gate_number();
       if (i > 0)
       {
-        thing->byte_13.l = i;
+        thing->byte_13 = i;
       } else
       {
-        thing->byte_13.l = 0;
+        thing->byte_13 = 0;
         ERRORLOG("Could not allocate number for hero gate");
       }
       break;
@@ -465,9 +465,9 @@ void update_dungeon_heart_beat(struct Thing *thing)
   static long bounce = 0;
   if (thing->field_7 != 3)
   {
-    i = (char)thing->byte_13.h;
+    i = (char)thing->byte_14;
     thing->field_3E = 0;
-    k = 384 * (game.objects_config[5].health - thing->health) / game.objects_config[5].health;
+    k = 384 * (long)(game.objects_config[5].health - thing->health) / game.objects_config[5].health;
     k = base_heart_beat_rate / (k + 128);
     light_set_light_intensity(thing->field_62, light_get_light_intensity(thing->field_62) + (i*36/k));
     thing->field_40 += (i*base_heart_beat_rate/k);
@@ -475,13 +475,13 @@ void update_dungeon_heart_beat(struct Thing *thing)
     {
       thing->field_40 = 0;
       light_set_light_intensity(thing->field_62, 20);
-      thing->byte_13.h = 1;
+      thing->byte_14 = 1;
     }
     if (thing->field_40 > base_heart_beat_rate-1)
     {
       thing->field_40 = base_heart_beat_rate-1;
       light_set_light_intensity(thing->field_62, 56);
-      thing->byte_13.h = (unsigned char)-1;
+      thing->byte_14 = (unsigned char)-1;
       if ( bounce )
       {
         thing_play_sample(thing, 151, 100, 0, 3, 1, 6, 256);
@@ -522,8 +522,8 @@ long object_update_dungeon_heart(struct Thing *thing)
     }
     k = ((thing->health << 8) / game.objects_config[5].health) << 7;
     i = (saturate_set_signed(k,32) >> 8) + 128;
-    thing->field_46 = i * objects_data[5].field_D >> 8;
-    thing->field_56 = i * objects_data[5].field_9 >> 8;
+    thing->field_46 = i * (long)objects_data[5].field_D >> 8;
+    thing->field_56 = i * (long)objects_data[5].field_9 >> 8;
   } else
   if (dungeon->field_1060[0] == 0)
   {
@@ -537,8 +537,8 @@ long object_update_dungeon_heart(struct Thing *thing)
   SYNCDBG(18,"Beat update");
   if ((thing->field_0 & 0x01) == 0)
     return 0;
-  if ( thing->byte_13.l )
-    thing->byte_13.l--;
+  if ( thing->byte_13 )
+    thing->byte_13--;
   update_dungeon_heart_beat(thing);
   return 1;
 }
@@ -697,7 +697,6 @@ struct Thing *find_gold_hoarde_at(unsigned short stl_x, unsigned short stl_y)
     }
     return INVALID_THING;
 }
-
 
 /******************************************************************************/
 #ifdef __cplusplus

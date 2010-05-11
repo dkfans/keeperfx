@@ -82,7 +82,7 @@ TbBool effect_can_affect_thing(struct Thing *efftng, struct Thing *thing)
     WARNLOG("Invalid thing tries to interact with other things");
     return false;
   }
-  switch (efftng->byte_13.f3)
+  switch (efftng->byte_16)
   {
   case 1:
       return thing_is_shootable_by_any_player_including_objects(thing);

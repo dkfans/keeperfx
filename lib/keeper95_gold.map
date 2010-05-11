@@ -140,6 +140,7 @@
  0001:0000DFE0       process_creature_instance
  0001:0000E0C0       creature_instance_has_reset
  0001:0000E1B0       process_player_instance
+ 0001:0000E380       instf_dig
  0001:0000EFB0       pinstfs_hand_grab
  0001:0000F040       pinstfm_hand_grab
  0001:0000F110       pinstfe_hand_grab
@@ -667,6 +668,7 @@
  0001:0008AE80       explosion_affecting_area
  0001:0008B160       poison_cloud_affecting_area
  0001:0008B490       affect_nearby_enemy_creatures_with_wind
+ 0001:0008B8C0       create_gold_rubble_for_dug_block
  0001:0008B950       process_effect_generator
  0001:0008BD60       create_effect_around_thing
  0001:0008BEA0       affect_nearby_stuff_with_vortex
@@ -679,6 +681,7 @@
  0001:0008C900       imp_will_soon_be_working_at_excluding
  0001:0008CAB0       check_place_to_dig_and_get_position
  0001:0008CE70       check_out_uncrowded_reinforce_position
+ 0001:0008D110       remove_from_task_list
  0001:0008D1B0       find_dig_from_task_list
  0001:0008DF40       creature_look_for_combat
  0001:0008E500       remove_all_traces_of_combat
@@ -841,6 +844,7 @@
  0001:000A6940       update_explored_flags_for_power_sight
  0001:000A6DA0       update_power_sight_explored
  0001:000A7050       remove_explored_flags_for_power_sight
+ 0001:000A71B0       dig_has_revealed_area
  0001:000A7270       process_things_in_dungeon_hand
  0001:000A7530       init_sound_heap_two_banks
  0001:000A7800       close_sound_heap
@@ -903,7 +907,10 @@
  0001:000B1110       remove_workshop_item
  0001:000B11C0       tag_blocks_for_digging_in_rectangle_around
  0001:000B1230       untag_blocks_for_digging_in_rectangle_around
+ 0001:000B1600       untag_blocks_for_digging_in_area
  0001:000B1720       update_blocks_in_area
+ 0001:000B1760       dig_out_block
+ 0001:000B1970       mine_out_block
  0001:000B1D10       imp_stack_update
  0001:000B20F0       add_pretty_and_convert_to_imp_stack
  0001:000B2950       add_unclaimed_unconscious_bodies_to_imp_stack
@@ -1018,6 +1025,8 @@
  0001:000C2440       creature_increase_level
  0001:000C28E0       init_creature_level
  0001:000C2CA0       creature_can_navigate_to
+ 0001:000C2E60       set_slab_explored_flags
+ 0001:000C2F60       check_map_explored
  0001:000C41E0       find_next_annoyed_creature
  0001:000C4460       find_my_next_creature_of_breed_and_job
  0001:000C4AA0       prepare_thing_for_power_hand

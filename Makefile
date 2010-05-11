@@ -83,6 +83,7 @@ obj/config_magic.o \
 obj/config_rules.o \
 obj/config_terrain.o \
 obj/creature_control.o \
+obj/creature_instances.o \
 obj/creature_states.o \
 obj/dungeon_data.o \
 obj/engine_camera.o \

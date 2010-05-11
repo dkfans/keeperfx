@@ -47,6 +47,7 @@
 #include "thing_objects.h"
 #include "thing_navigate.h"
 #include "creature_states.h"
+#include "creature_instances.h"
 #include "dungeon_data.h"
 #include "tasks_list.h"
 #include "power_specials.h"
@@ -216,7 +217,7 @@ void set_player_packet_checksum(long plyr_idx,TbBigChecksum sum)
   pckt->chksum = sum;
 }
 
-/*
+/**
  * Checks if all active players packets have same checksums.
  * @return Returns false if all checksums are same; true if there's mismatch.
  */
@@ -483,7 +484,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
               ERRORLOG("Door thing not found at map pos (%d,%d)",(int)player->field_4AB,(int)player->field_4AD);
               break;
             }
-            if (thing->byte_17.h)
+            if (thing->byte_18)
               unlock_door(thing);
             else
               lock_door(thing);
@@ -940,10 +941,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         unset_packet_control(pckt, PCtr_LBtnClick);
         break;
       }
-      delete_room_slabbed_objects(map_to_slab[stl_x] + map_tiles_x * map_to_slab[stl_y]);
+      delete_room_slabbed_objects(get_slab_number(map_to_slab[stl_x],map_to_slab[stl_y]));
       thing = create_trap(&pos, player->field_4A5, plyr_idx);
       thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
-      thing->byte_17.h = 0;
+      thing->byte_18 = 0;
       if (remove_workshop_item(plyr_idx, 8, player->field_4A5))
         dungeon->lvstats.traps_used++;
       dungeon->field_EA4 = 192;
@@ -970,7 +971,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         i = tag_cursor_blocks_place_door(player->id_number, stl_x, stl_y);
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
         {
-          k = map_tiles_x * map_to_slab[stl_y] + map_to_slab[stl_x];
+          k = get_slab_number(map_to_slab[stl_x], map_to_slab[stl_y]);
           delete_room_slabbed_objects(k);
           packet_place_door(stl_x, stl_y, player->id_number, player->field_4A6, i);
         }
@@ -1121,7 +1122,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
               thing = get_trap_for_position(x+around[k].delta_x+1, y+around[k].delta_y+1);
               if (!thing_is_invalid(thing))
               {
-                if (thing->byte_13.l == 0)
+                if (thing->byte_13 == 0)
                   remove_workshop_object_from_player(thing->owner, trap_to_object[thing->model%TRAP_TYPES_COUNT]);
                 i += game.traps_config[thing->model].selling_value;
                 destroy_trap(thing);
@@ -1972,8 +1973,8 @@ void process_players_map_packet_control(long plyr_idx)
   SYNCDBG(6,"Starting");
   player = get_player(plyr_idx);
   pckt = get_packet_direct(player->packet_num);
-  x = (3*pckt->pos_x - 450)/4 + 1;
-  y = (3*pckt->pos_y - 168)/4 + 1;
+  x = (3*((long)pckt->pos_x) - 450)/4 + 1;
+  y = (3*((long)pckt->pos_y) - 168)/4 + 1;
   if (x < 0) x = 0; else
   if (x > map_subtiles_x) x = map_subtiles_x;
   if (y < 0) y = 0; else
@@ -2085,6 +2086,7 @@ void process_players_creature_control_packet_control(long idx)
 void process_players_creature_control_packet_action(long idx)
 {
   struct CreatureControl *cctrl;
+  struct InstanceInfo *inst_inf;
   struct PlayerInfo *player;
   struct Thing *thing;
   struct Packet *pckt;
@@ -2106,7 +2108,8 @@ void process_players_creature_control_packet_action(long idx)
       if (creature_control_invalid(cctrl))
         break;
       i = pckt->field_6;
-      if (!instance_info[i].field_0)
+      inst_inf = creature_instance_info_get(i);
+      if (!inst_inf->field_0)
       {
         cctrl->field_1E8 = i;
       } else
@@ -2115,7 +2118,8 @@ void process_players_creature_control_packet_action(long idx)
         if (creature_instance_is_available(thing,i) && creature_instance_has_reset(thing, pckt->field_6))
         {
           i = pckt->field_6;
-          k = get_human_controlled_creature_target(thing, instance_info[i].field_1D);
+          inst_inf = creature_instance_info_get(i);
+          k = get_human_controlled_creature_target(thing, inst_inf->field_1D);
           set_creature_instance(thing, i, 1, k, 0);
           if (idx == my_player_number)
             instant_instance_selected(i);

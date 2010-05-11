@@ -30,30 +30,30 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-DLLIMPORT  int __cdecl _DK_set_game_key(long key_id, unsigned char key, int shift_state, int ctrl_state);
-DLLIMPORT void __cdecl _DK_update_mouse(void);
+DLLIMPORT  int _DK_set_game_key(long key_id, unsigned char key, int shift_state, int ctrl_state);
+DLLIMPORT void _DK_update_mouse(void);
 DLLIMPORT long _DK_GetMouseY(void);
 /******************************************************************************/
 
 /******************************************************************************/
-/*
+/**
  * Returns X position of mouse cursor on screen.
  */
 long GetMouseX(void)
 {
   long result;
-  result = lbDisplay.MMouseX * pixel_size;
+  result = lbDisplay.MMouseX * (long)pixel_size;
   return result;
 }
 
-/*
+/**
  * Returns Y position of mouse cursor on screen.
  */
 long GetMouseY(void)
 {
   //return _DK_GetMouseY();
   long result;
-  result = lbDisplay.MMouseY * pixel_size;
+  result = lbDisplay.MMouseY * (long)pixel_size;
 /*  if ((lbDisplay.ScreenMode == 13) && (!MinimalResolutionSetup))
   {
       result -= 40;
@@ -153,15 +153,15 @@ void update_right_button_released(void)
 void update_left_button_clicked(void)
 {
   left_button_clicked = lbDisplay.LeftButton;
-  left_button_clicked_x = lbDisplay.MouseX * pixel_size;
-  left_button_clicked_y = lbDisplay.MouseY * pixel_size;
+  left_button_clicked_x = lbDisplay.MouseX * (long)pixel_size;
+  left_button_clicked_y = lbDisplay.MouseY * (long)pixel_size;
 }
 
 void update_right_button_clicked(void)
 {
   right_button_clicked = lbDisplay.RightButton;
-  right_button_clicked_x = lbDisplay.MouseX * pixel_size;
-  right_button_clicked_y = lbDisplay.MouseY * pixel_size;
+  right_button_clicked_x = lbDisplay.MouseX * (long)pixel_size;
+  right_button_clicked_y = lbDisplay.MouseY * (long)pixel_size;
 }
 
 void update_mouse(void)
@@ -174,7 +174,7 @@ void update_mouse(void)
   lbDisplay.RightButton = 0;
 }
 
-/*
+/**
  * Checks if a specific key is pressed.
  */
 short is_key_pressed(long key, long kmodif)
@@ -184,7 +184,7 @@ short is_key_pressed(long key, long kmodif)
   return 0;
 }
 
-/*
+/**
  * Converts keyboard key code into ASCII character.
  */
 unsigned short key_to_ascii(long key, long kmodif)
@@ -196,7 +196,7 @@ unsigned short key_to_ascii(long key, long kmodif)
   return lbInkeyToAscii[key];
 }
 
-/*
+/**
  * Clears the marking that a specific key is pressed.
  */
 void clear_key_pressed(long key)
@@ -208,7 +208,7 @@ void clear_key_pressed(long key)
     lbInkey = KC_UNASSIGNED;
 }
 
-/*
+/**
  * Set key modifiers based on the pressed key codes.
  */
 void update_key_modifiers(void)

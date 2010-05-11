@@ -31,7 +31,7 @@ extern "C" {
 struct GameAdd gameadd;
 /******************************************************************************/
 /******************************************************************************/
-/*
+/**
  * Returns the loaded level number.
  */
 LevelNumber get_loaded_level_number(void)
@@ -39,7 +39,7 @@ LevelNumber get_loaded_level_number(void)
   return game.loaded_level_number;
 }
 
-/*
+/**
  * Sets the loaded level number. Does not make any cleanup or loading.
  */
 LevelNumber set_loaded_level_number(LevelNumber lvnum)
@@ -49,7 +49,7 @@ LevelNumber set_loaded_level_number(LevelNumber lvnum)
   return game.loaded_level_number;
 }
 
-/*
+/**
  * Returns the continue level number.
  */
 LevelNumber get_continue_level_number(void)
@@ -57,7 +57,7 @@ LevelNumber get_continue_level_number(void)
   return game.continue_level_number;
 }
 
-/*
+/**
  * Sets the continue level number. The level informs of campaign progress.
  * Levels which are not part of campaign will be ignored.
  */
@@ -68,7 +68,7 @@ LevelNumber set_continue_level_number(LevelNumber lvnum)
   return game.continue_level_number;
 }
 
-/*
+/**
  * Returns the selected level number. Selected level is loaded when staring game.
  */
 LevelNumber get_selected_level_number(void)
@@ -76,7 +76,7 @@ LevelNumber get_selected_level_number(void)
   return game.selected_level_number;
 }
 
-/*
+/**
  * Sets the selected level number. Selected level is loaded when staring game.
  */
 LevelNumber set_selected_level_number(LevelNumber lvnum)
@@ -157,7 +157,7 @@ void hide_all_bonus_levels(struct PlayerInfo *player)
     game.bonuses_found[i] = 0;
 }
 
-/*
+/**
  * Returns if the given extra level is visible in land view screen.
  */
 unsigned short get_extra_level_kind_visibility(unsigned short elv_kind)
@@ -184,7 +184,7 @@ unsigned short get_extra_level_kind_visibility(unsigned short elv_kind)
   return LvSt_Hidden;
 }
 
-/*
+/**
  * Returns if the given extra level is visible in land view screen.
  */
 short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum)
@@ -204,8 +204,6 @@ short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum)
 void update_extra_levels_visibility(void)
 {
 }
-
-
 
 /******************************************************************************/
 #ifdef __cplusplus

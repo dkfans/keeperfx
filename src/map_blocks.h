@@ -38,6 +38,10 @@ extern "C" {
 /******************************************************************************/
 TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y);
 
+void mine_out_block(long a1, long a2, long a3);
+unsigned char dig_has_revealed_area(long a1, long a2, unsigned char a3);
+void dig_out_block(long a1, long a2, long a3);
+void check_map_explored(struct Thing *thing, long a2, long a3);
 /******************************************************************************/
 #ifdef __cplusplus
 }

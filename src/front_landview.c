@@ -130,8 +130,8 @@ short is_ensign_in_screen_rect(struct LevelInformation *lvinfo)
   return false;
 }
 
-/*
- * Chanes state of all land map ensigns.
+/**
+ * Changes state of all land map ensigns.
  */
 void set_all_ensigns_state(unsigned short nstate)
 {
@@ -267,7 +267,7 @@ void update_frontmap_ambient_sound(void)
     }
     SetStreamedSampleVolume(127*map_sound_fade/256);
     if ((game.flags_cd & 0x10) == 0)
-      SetRedbookVolume(map_sound_fade*settings.redbook_volume/256);
+      SetRedbookVolume(map_sound_fade*(long)settings.redbook_volume/256);
   } else
   {
     if ((features_enabled & Ft_AdvAmbSonud) != 0)
@@ -366,7 +366,7 @@ struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, in
   return spr;
 }
 
-/*
+/**
  * Draws the visible level ensigns on screen.
  * Note that the drawing is in reverse order than the one of reading inputs.
  */
@@ -1245,7 +1245,7 @@ void update_velocity(void)
   }
 }
 
-/*
+/**
  * Draws player's hands.
  */
 void draw_netmap_players_hands(void)
@@ -1308,7 +1308,7 @@ void draw_netmap_players_hands(void)
   }
 }
 
-/*
+/**
  * Draws text description of active level.
  */
 void draw_map_level_descriptions(void)
@@ -1561,7 +1561,7 @@ TbBool frontnetmap_update(void)
 //  return _DK_frontnetmap_update();
   if (map_sound_fade > 0)
   {
-    i = map_sound_fade * settings.redbook_volume / 256;
+    i = map_sound_fade * ((long)settings.redbook_volume) / 256;
   } else
   {
     i = 0;
@@ -1607,7 +1607,7 @@ TbBool frontnetmap_update(void)
       lvinfo = get_level_info(fe_net_level_selected);
       if (lvinfo != NULL)
       {
-        nspck->field_6 = lvinfo->ensign_x + my_player_number * spr->SWidth;
+        nspck->field_6 = lvinfo->ensign_x + my_player_number * ((long)spr->SWidth);
         nspck->field_8 = lvinfo->ensign_y - 48;
       }
     } else
@@ -1697,7 +1697,7 @@ TbBool frontnetmap_update(void)
     lvinfo = get_level_info(lvnum);
     if (lvinfo != NULL)
     {
-      map_info.zoomspot_x = lvinfo->ensign_x + my_player_number * spr->SWidth;
+      map_info.zoomspot_x = lvinfo->ensign_x + my_player_number * ((long)spr->SWidth);
       map_info.zoomspot_y = lvinfo->ensign_y - 48;
     }
     map_info.state_trigger = 8 - ((unsigned int)fe_network_active < 1);

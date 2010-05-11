@@ -1499,7 +1499,7 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
           doortng = get_door_for_position(base_x, base_y);
           if (!thing_is_invalid(doortng))
           {
-            if ((doortng->owner == thing->owner) && (!doortng->byte_17.h))
+            if ((doortng->owner == thing->owner) && (!doortng->byte_18))
                 do_move = true;
           }
         }

@@ -98,9 +98,9 @@ void LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long n)
   unsigned char palette[PALETTE_SIZE];
   for (i=0; i < PALETTE_COLORS; i++)
   {
-    palette[3*i+0] = from_pal[3*i+0] + fade_count * (short)(to_pal[3*i+0] - from_pal[3*i+0]) / n;
-    palette[3*i+1] = from_pal[3*i+1] + fade_count * (short)(to_pal[3*i+1] - from_pal[3*i+1]) / n;
-    palette[3*i+2] = from_pal[3*i+2] + fade_count * (short)(to_pal[3*i+2] - from_pal[3*i+2]) / n;
+    palette[3*i+0] = from_pal[3*i+0] + fade_count * (int)(to_pal[3*i+0] - from_pal[3*i+0]) / n;
+    palette[3*i+1] = from_pal[3*i+1] + fade_count * (int)(to_pal[3*i+1] - from_pal[3*i+1]) / n;
+    palette[3*i+2] = from_pal[3*i+2] + fade_count * (int)(to_pal[3*i+2] - from_pal[3*i+2]) / n;
   }
   LbScreenWaitVbi();
   LbPaletteSet(palette);
@@ -293,7 +293,7 @@ TbBool LbIsActive(void)
 /*
  * Stores the current graphics window coords into TbGraphicsWindow structure.
  * Intended to use with LbScreenLoadGraphicsWindow() when changing the window
- * temporarly.
+ * temporary.
  */
 TbResult LbScreenStoreGraphicsWindow(struct TbGraphicsWindow *grwnd)
 {
