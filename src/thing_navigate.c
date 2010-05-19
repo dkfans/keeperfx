@@ -181,8 +181,9 @@ TbBool setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y
         return false;
     }
     cctrl->field_88 = a4;
-    internal_set_thing_state(thing, 14);
+    internal_set_thing_state(thing, CrSt_MoveToPosition);
     memcpy(&cctrl->moveto_pos,&pos,sizeof(struct Coord3d));
+    SYNCDBG(19,"Done");
     return true;
 }
 
@@ -203,7 +204,7 @@ TbBool setup_person_move_close_to_position(struct Thing *thing, long x, long y, 
     return false;
   }
   cctrl->field_88 = a4;
-  internal_set_thing_state(thing, 14);
+  internal_set_thing_state(thing, CrSt_MoveToPosition);
   cctrl->moveto_pos.x.val = navpos.x.val;
   cctrl->moveto_pos.y.val = navpos.y.val;
   cctrl->moveto_pos.z.val = navpos.z.val;

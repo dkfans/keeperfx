@@ -33,19 +33,20 @@ extern "C" {
 const char keeper_campaign_file[]="keeporig.cfg";
 
 const struct NamedCommand cmpgn_common_commands[] = {
-  {"NAME",            1},
-  {"SINGLE_LEVELS",   2},
-  {"MULTI_LEVELS",    3},
-  {"BONUS_LEVELS",    4},
-  {"EXTRA_LEVELS",    5},
-  {"HIGH_SCORES",     6},
-  {"LAND_VIEW_START", 7},
-  {"LAND_VIEW_END",   8},
-  {"LAND_AMBIENT",    9},
-  {"LEVELS_LOCATION",10},
-  {"LAND_LOCATION",  11},
-  {"CREDITS",        12},
-  {NULL,              0},
+  {"NAME",                1},
+  {"SINGLE_LEVELS",       2},
+  {"MULTI_LEVELS",        3},
+  {"BONUS_LEVELS",        4},
+  {"EXTRA_LEVELS",        5},
+  {"HIGH_SCORES",         6},
+  {"LAND_VIEW_START",     7},
+  {"LAND_VIEW_END",       8},
+  {"LAND_AMBIENT",        9},
+  {"LEVELS_LOCATION",    10},
+  {"LAND_LOCATION",      11},
+  {"CREATURES_LOCATION", 12},
+  {"CREDITS",            13},
+  {NULL,                  0},
   };
 
 const struct NamedCommand cmpgn_map_commands[] = {
@@ -128,6 +129,7 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   memset(campgn->levels_location,0,DISKPATH_SIZE);
   memset(campgn->speech_location,0,DISKPATH_SIZE);
   memset(campgn->land_location,0,DISKPATH_SIZE);
+  memset(campgn->creatures_location,0,DISKPATH_SIZE);
   for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
   {
     campgn->single_levels[i] = 0;
@@ -544,7 +546,13 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
             WARNMSG("Couldn't read \"%s\" command parameter in config file.",
                 get_conf_parameter_text(cmpgn_common_commands,cmd_num));
           break;
-      case 12: // CREDITS
+      case 12: // CREATURES_LOCATION
+          i = get_conf_parameter_whole(buf,&pos,len,campgn->creatures_location,DISKPATH_SIZE);
+          if (i <= 0)
+            WARNMSG("Couldn't read \"%s\" command parameter in config file.",
+                get_conf_parameter_text(cmpgn_common_commands,cmd_num));
+          break;
+      case 13: // CREDITS
           i = get_conf_parameter_whole(buf,&pos,len,campgn->credits_fname,DISKPATH_SIZE);
           if (i <= 0)
             WARNMSG("Couldn't read \"%s\" command parameter in config file.",

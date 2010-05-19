@@ -36,6 +36,7 @@ DLLIMPORT void _DK_check_map_explored(struct Thing *thing, long a2, long a3);
 DLLIMPORT void _DK_create_gold_rubble_for_dug_block(long x, long y, unsigned char a3, unsigned char a4);
 DLLIMPORT long _DK_untag_blocks_for_digging_in_area(long slb_x, long slb_y, signed char a3);
 DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long slb_x, long slb_y);
+DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 
 /******************************************************************************/
 TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y)
@@ -134,6 +135,11 @@ void dig_out_block(long a1, long a2, long a3)
 void check_map_explored(struct Thing *thing, long a2, long a3)
 {
     _DK_check_map_explored(thing, a2, a3);
+}
+
+long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
+{
+    return _DK_ceiling_partially_recompute_heights(sx, sy, ex, ey);
 }
 
 /******************************************************************************/

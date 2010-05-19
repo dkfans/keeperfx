@@ -1422,7 +1422,10 @@ void set_creature_level(struct Thing *thing, long nlvl)
   crstat = creature_stats_get_from_thing(thing);
   cctrl = creature_control_get_from_thing(thing);
   if (creature_control_invalid(cctrl))
-    return;
+  {
+      ERRORLOG("Creature has no control");
+      return;
+  }
   if (nlvl > CREATURE_MAX_LEVEL-1)
     nlvl = CREATURE_MAX_LEVEL-1;
   if (nlvl < 0)
@@ -1431,11 +1434,14 @@ void set_creature_level(struct Thing *thing, long nlvl)
   cctrl->explevel = nlvl;
   max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
   cctrl->max_health = max_health;
-  if (cctrl->field_AD & 0x02)
+  if ((cctrl->field_AD & 0x02) != 0)
     thing->field_46 = 300;
   else
-    thing->field_46 = saturate_set_signed( 300 + (300*(long)cctrl->explevel) / 20, 16);
-  thing->health = saturate_set_signed( (thing->health*max_health)/old_max_health, 16);
+    thing->field_46 = saturate_set_signed( 300 + (300*(unsigned long)(cctrl->explevel)) / 20, 16);
+  if (old_max_health > 0)
+      thing->health = saturate_set_signed( (thing->health*max_health)/old_max_health, 16);
+  else
+      thing->health = -1;
   for (i=0; i < 10; i++)
   {
     k = crstat->instance_spell[i];
@@ -1454,7 +1460,16 @@ void set_creature_level(struct Thing *thing, long nlvl)
 
 void init_creature_level(struct Thing *thing, long nlev)
 {
-  _DK_init_creature_level(thing,nlev);
+    struct CreatureControl *cctrl;
+    //_DK_init_creature_level(thing,nlev);
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Creature has no control");
+        return;
+    }
+    set_creature_level(thing, nlev);
+    thing->health = cctrl->max_health;
 }
 
 long creature_instance_has_reset(struct Thing *thing, long a2)
@@ -1652,7 +1667,7 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
     if (crstat->flying)
       crtng->field_25 |= 0x20;
     set_creature_level(crtng, 0);
-    crtng->health = compute_creature_max_health(crstat->health,cctrl->explevel);
+    crtng->health = cctrl->max_health;
     add_thing_to_list(crtng, &game.thing_lists[0]);
     place_thing_in_mapwho(crtng);
     if (owner <= PLAYERS_COUNT)
@@ -1667,7 +1682,7 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
             dungeon->score += game.creature_scores[crtng->model].value[cctrl->explevel];
         }
     }
-    crdata = creature_data_get(model);
+    crdata = creature_data_get(crtng->model);
     cctrl->field_1E8 = crdata->flags;
     return crtng;
 }

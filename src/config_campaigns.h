@@ -39,8 +39,10 @@ extern "C" {
 #define CAMPAIGN_CREDITS_COUNT      360
 
 enum CampaignLoadFlags {
-    CLd_Standard   =  0x00,
-    CLd_ListOnly   =  0x01,
+    CLd_Standard      =  0x00,
+    CLd_ListOnly      =  0x01,
+    CLd_AcceptPartial =  0x02,
+    CLd_IgnoreErrors  =  0x04,
 };
 
 enum CreditsItemKind {
@@ -70,6 +72,7 @@ struct GameCampaign {
   char levels_location[DISKPATH_SIZE];
   char speech_location[DISKPATH_SIZE];
   char land_location[DISKPATH_SIZE];
+  char creatures_location[DISKPATH_SIZE];
   LevelNumber single_levels[CAMPAIGN_LEVELS_COUNT];
   LevelNumber multi_levels[CAMPAIGN_LEVELS_COUNT];
   LevelNumber bonus_levels[CAMPAIGN_LEVELS_COUNT];

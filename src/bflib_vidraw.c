@@ -318,9 +318,533 @@ int LbDrawBox(long x, long y, unsigned long width, unsigned long height, TbPixel
   return 1;
 }
 
+/** Internal function used to draw part of sprite line.
+ *
+ * @param buf_scr
+ * @param buf_inp
+ * @param buf_len
+ * @param mirror
+ */
+inline void LbDrawBufferLine(unsigned char **buf_scr,unsigned char **buf_inp,
+        const unsigned int buf_len, const bool mirror)
+{
+  unsigned int i;
+  if ( mirror )
+  {
+    if ((lbDisplay.DrawFlags & 0x0004) != 0)
+    {
+        SYNCDBG(19,"Drawing M4, %d points",buf_len);
+        for (i=0; i<buf_len; i++ )
+        {
+            **buf_scr = lbDisplay.GlassMap[((**buf_inp)<<8) + **buf_scr];
+            (*buf_inp)++;
+            (*buf_scr)--;
+        }
+    } else
+    {
+        SYNCDBG(19,"Drawing MX, %d points",buf_len);
+        for (i=0; i<buf_len; i++ )
+        {
+            **buf_scr = lbDisplay.GlassMap[((**buf_scr)<<8) + **buf_inp];
+            (*buf_inp)++;
+            (*buf_scr)--;
+        }
+    }
+  } else
+  {
+    if ( lbDisplay.DrawFlags & 0x0004 )
+    {
+        SYNCDBG(19,"Drawing S4, %d points",buf_len);
+        for (i=0; i<buf_len; i++ )
+        {
+            **buf_scr = lbDisplay.GlassMap[((**buf_inp)<<8) + **buf_scr];
+            (*buf_inp)++;
+            (*buf_scr)++;
+        }
+    } else
+    {
+        SYNCDBG(19,"Drawing SX, %d points",buf_len);
+        for (i=0; i<buf_len; i++ )
+        {
+            **buf_scr = lbDisplay.GlassMap[((**buf_scr)<<8) + **buf_inp];
+            (*buf_inp)++;
+            (*buf_scr)++;
+        }
+    }
+  }
+}
+
+/** Internal function used to draw part of sprite line.
+ *
+ * @param buf_scr
+ * @param buf_inp
+ * @param buf_len
+ * @param mirror
+ */
+inline void LbDrawBufferLineSolid(unsigned char **buf_scr,unsigned char **buf_inp,
+        const unsigned int buf_len, const bool mirror)
+{
+    unsigned int i;
+    for (i=0;i<buf_len;i++)
+    {
+        **buf_scr = **buf_inp;
+        (*buf_inp)++;
+        (*buf_scr)--;
+    }
+}
+
+inline int LbSpriteDrawTranspr(const char *sp,short sprWd,short sprHt,unsigned char *r,int nextRowDelta,short left,bool mirror)
+{
+    int x1;
+    unsigned char *nextRow;
+    long htIndex;
+    nextRow = &(r[nextRowDelta]);
+    x1 = sprWd;
+    htIndex = sprHt;
+    SYNCDBG(19,"Drawing %ld lines of %hd points",htIndex,sprWd);
+    while (1)
+    {
+        SYNCDBG(19,"Line %ld",htIndex);
+        if ( left != 0 )
+        {
+              unsigned char drawOut=0;
+              short lpos = left;
+              do {
+                char chr = *sp;
+                if ( chr == 0 )
+                {
+                  x1 = *sp;
+                  break;
+                } else
+                if ( chr > lpos )
+                {
+                  unsigned char *nchr = (unsigned char *)&sp[lpos+1];
+                  drawOut = *sp - lpos;
+                  if ( drawOut > sprWd )
+                    drawOut = sprWd;
+                  SYNCDBG(19,"Left line, screen buf pos=%ld, len=%d",r-lbDisplay.WScreen,(int)drawOut);
+                  LbDrawBufferLine(&r,&nchr,drawOut,mirror);
+                  sp += chr + 1;
+                  x1 -= drawOut;
+                  break;
+                } else
+                if ( chr < -lpos )
+                {
+                  drawOut = -(*sp) - lpos;
+                  if ( drawOut > sprWd )
+                    drawOut = sprWd;
+                  if ( mirror )
+                     r -= drawOut;
+                  else
+                     r += drawOut;
+                  x1 -= drawOut;
+                  sp++;
+                  break;
+                } else
+                if ( chr > 0 )
+                {
+                    lpos -= *sp;
+                    sp += *sp + 1;
+                } else
+                // if ( chr < 0 )
+                {
+                  lpos += *sp;
+                  sp++;
+                }
+              } while (lpos > 0);
+        }
+
+        while (x1 > 0)
+        {
+              char schr = *sp;
+              if ( schr == 0 )
+                break;
+              if ( schr < 0 )
+              {
+                x1 += schr;
+                if ( mirror )
+                   r += *sp;
+                else
+                   r -= *sp;
+                sp++;
+              } else
+              {
+                if ( schr >= x1 )
+                  schr = x1;
+                unsigned char *nchr = (unsigned char *)(sp+1);
+                SYNCDBG(19,"X1 line, screen buf pos=%ld, len=%d",r-lbDisplay.WScreen,(int)schr);
+                LbDrawBufferLine(&r,&nchr,schr,mirror);
+                x1 -= schr;
+                sp += schr+1;
+              }
+        }//end while
+
+        //Drawing loop end condition
+        htIndex--;
+        if ( htIndex<=0 )
+            break;
+
+        if ( x1 > 0 )
+        {
+            sp++;
+        } else
+        {
+            char schr;
+            do {
+              schr=*sp;
+              while ( schr>0 )
+              {
+                  sp+=schr+1;
+                  schr=*sp;
+              }
+              sp++;
+            } while ( schr != 0 );
+        }
+        r = nextRow;
+        nextRow += nextRowDelta;
+        x1 = sprWd;
+    } //end while
+    return 1;
+}
+
+inline int LbSpriteDrawSolid(const char *sp,short sprWd,short sprHt,unsigned char *r,int nextRowDelta,short left,bool mirror)
+{
+    int x1;
+    unsigned char *nextRow;
+    long htIndex;
+    nextRow = r;
+    htIndex = sprHt;
+    while (1)
+    {
+        r = nextRow;
+        nextRow += nextRowDelta;
+        x1 = sprWd;
+        if ( left != 0 )
+        {
+            unsigned char drawOut=0;
+            short lpos = left;
+            do {
+                char chr=*sp;
+
+                if ( chr == 0 )
+                {
+                  x1 = *sp;
+                  break;
+                } else
+                if ( chr > lpos )
+                {
+                    unsigned char *nchr = (unsigned char *)&sp[lpos+1];
+                    drawOut = *sp - lpos;
+                    if ( drawOut > sprWd )
+                      drawOut = sprWd;
+                    LbDrawBufferLineSolid(&r,&nchr,drawOut,mirror);
+                    sp += *sp + 1;
+                    x1 -= drawOut;
+                    break;
+                } else
+                if ( chr < -lpos )
+                {
+                  drawOut = -*sp -lpos;
+                  if ( drawOut > sprWd )
+                    drawOut = sprWd;
+                  r -= drawOut;
+                  x1 -= drawOut;
+                  sp++;
+                  break;
+                } else
+                if ( chr > 0 )
+                {
+                  lpos -= *sp;
+                  sp += *sp + 1;
+                } else
+                //if ( chr < 0 )
+                {
+                  lpos += *sp;
+                  sp++;
+                }
+            } while (lpos > 0);
+
+        }
+        while ( x1 > 0 )
+        {
+          char schr;
+          schr = *sp;
+          if ( schr == 0 )
+          {
+              break;
+          }
+          if ( schr < 0 )
+          {
+              x1 += schr;
+              r += *sp;
+              sp++;
+          } else
+          {
+            if ( schr >= x1 )
+              schr = x1;
+            unsigned char *nchr = (unsigned char *)&sp[1];
+            LbDrawBufferLineSolid(&r,&nchr,schr,mirror);
+            x1 -= schr;
+            sp += schr + 1;
+          }
+        }
+
+        htIndex--;
+        if ( htIndex==0 )
+            break;
+
+        if ( x1 <= 0 )
+        {
+            char schr;
+            do {
+              schr=*sp;
+              while ( schr>0 )
+              {
+                  sp+=schr+1;
+                  schr=*sp;
+              }
+              sp++;
+            } while ( schr != 0 );
+        } else
+        {
+            sp++;
+        }
+    } //end while
+    return 1;
+}
+
+inline int LbSpriteDrawFastCpy(const char *sp,short sprWd,short sprHt,unsigned char *r,int nextRowDelta,short left,bool mirror)
+{
+    int x1;
+    unsigned char *nextRow;
+    long htIndex;
+    nextRow = &(r[nextRowDelta]);
+    x1 = sprWd;
+    htIndex = sprHt;
+    while (1)
+    {
+        if ( left != 0 )
+        {
+          unsigned char drawOut=0;
+          short lpos = left;
+          do {
+            char schr = *sp;
+            while ( schr>0 )
+            {
+              if ( schr > lpos )
+              {
+                drawOut = *sp - lpos;
+                if ( drawOut > sprWd )
+                  drawOut = sprWd;
+                memcpy( r, (sp+1+lpos), drawOut);
+                r += drawOut;
+                sp += *sp + 1;
+                x1 -= drawOut;
+                break;
+              } else
+              {
+                lpos -= *sp;
+                sp += *sp + 1;
+                if ( !lpos )
+                  break;
+              }
+              schr = *sp;
+            }
+
+            if ( schr == 0 )
+            {
+              x1 = *sp;
+              break;
+            }
+            if ( *sp < -lpos )
+            {
+              drawOut = -*sp - lpos;
+              if ( drawOut > sprWd )
+                drawOut = sprWd;
+              sp++;
+               r += drawOut;
+              x1 -= drawOut;
+              break;
+            }
+            lpos += *sp;
+            sp++;
+          } while (lpos != 0);
+        }
+
+      while (x1 > 0)
+      {
+        char schr = *sp;
+        if (schr == 0)
+          break;
+        if ( schr < 0 )
+        {
+          x1 += schr;
+          r -= *sp;
+          sp++;
+        } else
+        //if ( schr > 0 )
+        {
+          if ( schr >= x1 )
+            schr = x1;
+          memcpy(r, sp+1, schr);
+          x1 -= *sp;
+          r += *sp;
+          sp += (*sp)+1;
+        }
+      } //end while
+      htIndex--;
+      if (htIndex==0)
+        return 1;
+      if ( x1 <= 0 )
+      {
+        char schr;
+        do {
+          schr=*sp;
+          while ( schr>0 )
+          {
+            sp+=schr+1;
+            schr=*sp;
+          }
+          sp++;
+        } while ( schr );
+      } else
+      {
+        sp++;
+      }
+      r = nextRow;
+      nextRow += nextRowDelta;
+      x1 = sprWd;
+    } //end while
+    return 1;
+}
+
 int LbSpriteDraw(long x, long y, const struct TbSprite *spr)
 {
-  return _DK_LbSpriteDraw(x, y, spr);
+    SYNCDBG(19,"At (%ld,%ld)",x,y);
+    //return _DK_LbSpriteDraw(x, y, spr);
+    if (spr == NULL)
+    {
+        SYNCDBG(19,"NULL sprite");
+        return 1;
+    }
+    if ((spr->SWidth < 1) || (spr->SHeight < 1))
+    {
+        SYNCDBG(19,"Zero size sprite (%d,%d)",spr->SWidth,spr->SHeight);
+        return 1;
+    }
+    if ( (lbDisplay.GraphicsWindowWidth==0) || (lbDisplay.GraphicsWindowHeight==0) )
+    {
+        SYNCDBG(19,"Invalid graphics window");
+        return 1;
+    }
+    x += lbDisplay.GraphicsWindowX;
+    y += lbDisplay.GraphicsWindowY;
+    short left,right,top,btm;
+    short sprWd = spr->SWidth;
+    short sprHt = spr->SHeight;
+    //Coordinates range checking
+    int delta;
+    delta = lbDisplay.GraphicsWindowX - x;
+    if ( delta <= 0 )
+    {
+      left = 0;
+    } else
+    {
+      if (sprWd <= delta)
+        return 1;
+      left = delta;
+    }
+    delta = x + sprWd - (lbDisplay.GraphicsWindowWidth+lbDisplay.GraphicsWindowX);
+    if ( delta <= 0 )
+    {
+      right = sprWd;
+    } else
+    {
+      if ( sprWd <= delta )
+        return 1;
+      right = sprWd - delta;
+    }
+    delta = lbDisplay.GraphicsWindowY - y;
+    if ( delta <= 0 )
+    {
+      top = 0;
+    } else
+    {
+      if ( sprHt <= delta )
+        return 1;
+      top = delta;
+    }
+    delta = y + sprHt - (lbDisplay.GraphicsWindowHeight + lbDisplay.GraphicsWindowY);
+    if ( y + sprHt - (lbDisplay.GraphicsWindowHeight + lbDisplay.GraphicsWindowY) <= 0 )
+    {
+      btm = sprHt;
+    } else
+    {
+      if ( sprHt <= delta )
+        return 1;
+      btm = sprHt - delta;
+    }
+    unsigned char *r;
+    int nextRowDelta;
+    if ((lbDisplay.DrawFlags & 0x0002) != 0)
+    {
+        r = &lbDisplay.WScreen[x + (y+btm-1)*lbDisplay.GraphicsScreenWidth + left];
+        nextRowDelta = -lbDisplay.GraphicsScreenWidth;
+        short tmp_btm = btm;
+        btm = sprHt - top;
+        top = sprHt - tmp_btm;
+    } else
+    {
+        r = &lbDisplay.WScreen[x + (y+top)*lbDisplay.GraphicsScreenWidth + left];
+        nextRowDelta = lbDisplay.GraphicsScreenWidth;
+    }
+    sprHt = btm - top;
+    sprWd = right - left;
+    const char *sp = (const char *)spr->Data;
+    SYNCDBG(19,"Sprite coords X=%d...%d Y=%d...%d data=%08x",left,right,top,btm,sp);
+    long htIndex;
+    if ( top )
+    {
+      htIndex = top;
+      while ( 1 )
+      {
+        char chr = *sp;
+        while ( chr>0 )
+        {
+          sp += chr + 1;
+          chr = *sp;
+        }
+        sp++;
+        if ( chr == 0 )
+        {
+          htIndex--;
+          if (htIndex<=0) break;
+        }
+      }
+    }
+    SYNCDBG(19,"Drawing sprite of size (%ld,%ld)",sprHt,sprWd);
+    bool mirror;
+    if ( lbDisplay.DrawFlags & (0x0004|0x0008|0x0001) )
+    {
+      if ((lbDisplay.DrawFlags & 0x0001) != 0)
+      {
+         r += sprWd - 1;
+        mirror = true;
+        short tmpwidth = spr->SWidth;
+        short tmpright = right;
+        right = tmpwidth - left;
+        left = tmpwidth - tmpright;
+      }
+      else
+      {
+        mirror = false;
+      }
+      if ((lbDisplay.DrawFlags & (0x0004|0x0008)) != 0)
+        return LbSpriteDrawTranspr(sp,sprWd,sprHt,r,nextRowDelta,left,mirror);
+      else
+        return LbSpriteDrawSolid(sp,sprWd,sprHt,r,nextRowDelta,left,mirror);
+    }
+    return LbSpriteDrawFastCpy(sp,sprWd,sprHt,r,nextRowDelta,left,mirror);
 }
 
 int LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,unsigned char *map)
@@ -487,77 +1011,6 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
   }
 }
 
-// Internal function used to draw part of sprite line
-inline void LbDrawBufferLine(unsigned char **buf_scr,unsigned char **buf_inp,
-        const unsigned int buf_len, const bool mirror)
-{
-  unsigned int i;
-  if ( mirror )
-  {
-    if ( lbDisplay.DrawFlags & 0x0004 )
-    {
-#ifdef __DEBUG
-    LbSyncLog("LbDrawBufferLine: Drawing M4, %d points\n",buf_len);
-#endif
-        for (i=0; i<buf_len; i++ )
-        {
-            **buf_scr = lbDisplay.GlassMap[((**buf_inp)<<8) + **buf_scr];
-            (*buf_inp)++;
-            (*buf_scr)--;
-        }
-    } else
-    {
-#ifdef __DEBUG
-    LbSyncLog("LbDrawBufferLine: Drawing MX, %d points\n",buf_len);
-#endif
-        for (i=0; i<buf_len; i++ )
-        {
-            **buf_scr = lbDisplay.GlassMap[((**buf_scr)<<8) + **buf_inp];
-            (*buf_inp)++;
-            (*buf_scr)--;
-        }
-    }
-  } else
-  {
-    if ( lbDisplay.DrawFlags & 0x0004 )
-    {
-#ifdef __DEBUG
-    LbSyncLog("LbDrawBufferLine: Drawing S4, %d points\n",buf_len);
-#endif
-        for (i=0; i<buf_len; i++ )
-        {
-            **buf_scr = lbDisplay.GlassMap[((**buf_inp)<<8) + **buf_scr];
-            (*buf_inp)++;
-            (*buf_scr)++;
-        }
-    } else
-    {
-#ifdef __DEBUG
-    LbSyncLog("LbDrawBufferLine: Drawing SX, %d points\n",buf_len);
-#endif
-        for (i=0; i<buf_len; i++ )
-        {
-            **buf_scr = lbDisplay.GlassMap[((**buf_scr)<<8) + **buf_inp];
-            (*buf_inp)++;
-            (*buf_scr)++;
-        }
-    }
-  }
-}
-
-// Internal function used to draw part of sprite line
-inline void LbDrawBufferLineSolid(unsigned char **buf_scr,unsigned char **buf_inp,
-        const unsigned int buf_len, const bool mirror)
-{
-    unsigned int i;
-    for (i=0;i<buf_len;i++)
-    {
-        **buf_scr = **buf_inp;
-        (*buf_inp)++;
-        (*buf_scr)--;
-    }
-}
-
 // Internal function used to draw part of sprite line with single colour.
 inline void LbDrawOneColorLine(unsigned char **buf_scr,const TbPixel colour,
         const unsigned int buf_len, const bool mirror)
@@ -642,338 +1095,6 @@ int __fastcall LbSpriteDrawScaled(long xpos, long ypos, struct TbSprite *sprite,
   lbSpriteReMapPtr = lbDisplay.FadeTable + ((lbDisplay.FadeStep & 0x3F) << 8);
   LbSpriteSetScalingData(xpos, ypos, sprite->SWidth, sprite->SHeight, dest_width, dest_height);
   return LbSpriteDrawUsingScalingData(0,0,sprite);
-}
-
-inline int LbSpriteDrawTranspr(char *sp,short sprWd,short sprHt,unsigned char *r,int nextRowDelta,short left,bool mirror)
-{
-  int x1;
-  unsigned char *nextRow;
-  long htIndex;
-  nextRow = &(r[nextRowDelta]);
-  x1 = sprWd;
-  htIndex = sprHt;
-#ifdef __DEBUG
-    LbSyncLog("LbSpriteDrawTranspr: Drawing %ld lines of %hd points\n",htIndex,sprWd);
-#endif
-  while (1)
-  {
-#ifdef __DEBUG
-    LbSyncLog("LbSpriteDrawTranspr: Line %ld\n",htIndex);
-#endif
-      if ( left != 0 )
-      {
-            unsigned char drawOut=0;
-            short lpos = left;
-            do {
-              char chr = *sp;
-              if ( chr == 0 )
-              {
-                x1 = *sp;
-                break;
-              } else
-              if ( chr > lpos )
-              {
-                unsigned char *nchr = (unsigned char *)&sp[lpos+1];
-                drawOut = *sp - lpos;
-                if ( drawOut > sprWd )
-                  drawOut = sprWd;
-#ifdef __DEBUG
-    LbSyncLog("LbSpriteDrawTranspr: Left line, screen buf pos=%ld, len=%d\n",r-lbDisplay.WScreen,(int)drawOut);
-#endif
-                LbDrawBufferLine(&r,&nchr,drawOut,mirror);
-                sp += chr + 1;
-                x1 -= drawOut;
-                break;
-              } else
-              if ( chr < -lpos )
-              {
-                drawOut = -(*sp) - lpos;
-                if ( drawOut > sprWd )
-                  drawOut = sprWd;
-                if ( mirror )
-                   r -= drawOut;
-                else
-                   r += drawOut;
-                x1 -= drawOut;
-                sp++;
-                break;
-              } else
-              if ( chr > 0 )
-              {
-                  lpos -= *sp;
-                  sp += *sp + 1;
-              } else
-              // if ( chr < 0 )
-              {
-                lpos += *sp;
-                sp++;
-              }
-            } while (lpos > 0);
-      }
-
-      while (x1 > 0)
-      {
-            char schr = *sp;
-            if ( schr == 0 )
-              break;
-            if ( schr < 0 )
-            {
-              x1 += schr;
-              if ( mirror )
-                 r += *sp;
-              else
-                 r -= *sp;
-              sp++;
-            } else
-            {
-              if ( schr >= x1 )
-                schr = x1;
-              unsigned char *nchr = (unsigned char *)(sp+1);
-#ifdef __DEBUG
-              LbSyncLog("LbSpriteDrawTranspr: X1 line, screen buf pos=%ld, len=%d\n",r-lbDisplay.WScreen,(int)schr);
-#endif
-              LbDrawBufferLine(&r,&nchr,schr,mirror);
-              x1 -= schr;
-              sp += schr+1;
-            }
-      }//end while
-
-      //Drawing loop end condition
-      htIndex--;
-      if ( htIndex<=0 )
-          break;
-
-      if ( x1 > 0 )
-      {
-          sp++;
-      } else
-      {
-          char schr;
-          do {
-            schr=*sp;
-            while ( schr>0 )
-            {
-                sp+=schr+1;
-                schr=*sp;
-            }
-            sp++;
-          } while ( schr != 0 );
-      }
-      r = nextRow;
-      nextRow += nextRowDelta;
-      x1 = sprWd;
-  } //end while
-  return 1;
-}
-
-inline int LbSpriteDrawSolid(char *sp,short sprWd,short sprHt,unsigned char *r,int nextRowDelta,short left,bool mirror)
-{
-  int x1;
-  unsigned char *nextRow;
-  long htIndex;
-  nextRow = r;
-  htIndex = sprHt;
-  while (1)
-  {
-      r = nextRow;
-      nextRow += nextRowDelta;
-      x1 = sprWd;
-      if ( left != 0 )
-      {
-          unsigned char drawOut=0;
-          short lpos = left;
-          do {
-              char chr=*sp;
-
-              if ( chr == 0 )
-              {
-                x1 = *sp;
-                break;
-              } else
-              if ( chr > lpos )
-              {
-                  unsigned char *nchr = (unsigned char *)&sp[lpos+1];
-                  drawOut = *sp - lpos;
-                  if ( drawOut > sprWd )
-                    drawOut = sprWd;
-                  LbDrawBufferLineSolid(&r,&nchr,drawOut,mirror);
-                  sp += *sp + 1;
-                  x1 -= drawOut;
-                  break;
-              } else
-              if ( chr < -lpos )
-              {
-                drawOut = -*sp -lpos;
-                if ( drawOut > sprWd )
-                  drawOut = sprWd;
-                r -= drawOut;
-                x1 -= drawOut;
-                sp++;
-                break;
-              } else
-              if ( chr > 0 )
-              {
-                lpos -= *sp;
-                sp += *sp + 1;
-              } else
-              //if ( chr < 0 )
-              {
-                lpos += *sp;
-                sp++;
-              }
-          } while (lpos > 0);
-
-      }
-      while ( x1 > 0 )
-      {
-        char schr;
-        schr = *sp;
-        if ( schr == 0 )
-        {
-            break;
-        }
-        if ( schr < 0 )
-        {
-            x1 += schr;
-            r += *sp;
-            sp++;
-        } else
-        {
-          if ( schr >= x1 )
-            schr = x1;
-          unsigned char *nchr = (unsigned char *)&sp[1];
-          LbDrawBufferLineSolid(&r,&nchr,schr,mirror);
-          x1 -= schr;
-          sp += schr + 1;
-        }
-      }
-
-      htIndex--;
-      if ( htIndex==0 )
-          break;
-
-      if ( x1 <= 0 )
-      {
-          char schr;
-          do {
-            schr=*sp;
-            while ( schr>0 )
-            {
-                sp+=schr+1;
-                schr=*sp;
-            }
-            sp++;
-          } while ( schr != 0 );
-      } else
-      {
-          sp++;
-      }
-  } //end while
-  return 1;
-}
-
-inline int LbSpriteDrawFastCpy(char *sp,short sprWd,short sprHt,unsigned char *r,int nextRowDelta,short left,bool mirror)
-{
-  int x1;
-  unsigned char *nextRow;
-  long htIndex;
-  nextRow = &(r[nextRowDelta]);
-  x1 = sprWd;
-  htIndex = sprHt;
-    while (1)
-    {
-        if ( left != 0 )
-        {
-          unsigned char drawOut=0;
-          short lpos = left;
-          do {
-            char schr = *sp;
-            while ( schr>0 )
-            {
-              if ( schr > lpos )
-              {
-                drawOut = *sp - lpos;
-                if ( drawOut > sprWd )
-                  drawOut = sprWd;
-                memcpy( r, (sp+1+lpos), drawOut);
-                r += drawOut;
-                sp += *sp + 1;
-                x1 -= drawOut;
-                break;
-              } else
-              {
-                lpos -= *sp;
-                sp += *sp + 1;
-                if ( !lpos )
-                  break;
-              }
-              schr = *sp;
-            }
-
-            if ( schr == 0 )
-            {
-              x1 = *sp;
-              break;
-            }
-            if ( *sp < -lpos )
-            {
-              drawOut = -*sp - lpos;
-              if ( drawOut > sprWd )
-                drawOut = sprWd;
-              sp++;
-               r += drawOut;
-              x1 -= drawOut;
-              break;
-            }
-            lpos += *sp;
-            sp++;
-          } while (lpos != 0);
-        }
-
-      while ( x1 > 0 )
-      {
-        char schr = *sp;
-        if ( schr == 0 )
-          break;
-        if ( schr < 0 )
-        {
-          x1 += schr;
-          r -= *sp;
-          sp++;
-        } else
-        //if ( schr > 0 )
-        {
-          if ( schr >= x1 )
-            schr = x1;
-          memcpy(r, sp+1, schr);
-          x1 -= *sp;
-          r += *sp;
-          sp += (*sp)+1;
-        }
-      } //end while
-      htIndex--;
-      if (htIndex==0)
-        return 1;
-      if ( x1 <= 0 )
-      {
-        char schr;
-        do {
-          schr=*sp;
-          while ( schr>0 )
-          {
-            sp+=schr+1;
-            schr=*sp;
-          }
-          sp++;
-        } while ( schr );
-      } else
-      {
-        sp++;
-      }
-      r = nextRow;
-      nextRow += nextRowDelta;
-      x1 = sprWd;
-    } //end while
 }
 
 inline int LbSpriteDrawTrOneColor(char *sp,short sprWd,short sprHt,
@@ -1305,148 +1426,6 @@ inline int LbSpriteDrawFCOneColor(char *sp,short sprWd,short sprHt,
       nextRow += nextRowDelta;
       x1 = sprWd;
     } //end while
-}
-
-int __fastcall LbSpriteDraw(long x, long y, TbSprite *spr)
-{
-#ifdef __DEBUG
-    LbSyncLog("LbSpriteDraw: Requested to draw sprite at (%ld,%ld)\n",x,y);
-#endif
-  if ( spr == NULL )
-  {
-#ifdef __DEBUG
-    LbSyncLog("LbSpriteDraw: Canelled NULL sprite\n");
-#endif
-    return 1;
-  }
-  if ( (spr->SWidth<1) || (spr->SHeight<1) )
-  {
-#ifdef __DEBUG
-    LbSyncLog("LbSpriteDraw: Canelled zero size sprite (%d,%d)\n",spr->SWidth,spr->SHeight);
-#endif
-    return 1;
-  }
-  if ( (lbDisplay.GraphicsWindowWidth==0) || (lbDisplay.GraphicsWindowHeight==0) )
-  {
-#ifdef __DEBUG
-    LbSyncLog("LbSpriteDraw: Graphics window has zero size - cancelled\n");
-#endif
-    return 1;
-  }
-  x += lbDisplay.GraphicsWindowX;
-  y += lbDisplay.GraphicsWindowY;
-  short left,right,top,btm;
-  short sprWd = spr->SWidth;
-  short sprHt = spr->SHeight;
-  //Coordinates range checking
-  int delta;
-  delta = lbDisplay.GraphicsWindowX - x;
-  if ( delta <= 0 )
-  {
-    left = 0;
-  } else
-  {
-    if ( sprWd <= delta )
-      return 1;
-    left = delta;
-  }
-  delta = x + sprWd - (lbDisplay.GraphicsWindowWidth+lbDisplay.GraphicsWindowX);
-  if ( delta <= 0 )
-  {
-    right = sprWd;
-  } else
-  {
-    if ( sprWd <= delta )
-      return 1;
-    right = sprWd - delta;
-  }
-  delta = lbDisplay.GraphicsWindowY - y;
-  if ( delta <= 0 )
-  {
-    top = 0;
-  } else
-  {
-    if ( sprHt <= delta )
-      return 1;
-    top = delta;
-  }
-  delta = y + sprHt - (lbDisplay.GraphicsWindowHeight + lbDisplay.GraphicsWindowY);
-  if ( y + sprHt - (lbDisplay.GraphicsWindowHeight + lbDisplay.GraphicsWindowY) <= 0 )
-  {
-    btm = sprHt;
-  } else
-  {
-    if ( sprHt <= delta )
-      return 1;
-    btm = sprHt - delta;
-  }
-  unsigned char *r;
-  int nextRowDelta;
-  if ( lbDisplay.DrawFlags & 0x0002 )
-  {
-     r = &lbDisplay.WScreen[x + (y+btm-1)*lbDisplay.GraphicsScreenWidth + left];
-    nextRowDelta = -lbDisplay.GraphicsScreenWidth;
-    short tmp_btm = btm;
-    btm = sprHt - top;
-    top = sprHt - tmp_btm;
-  } else
-  {
-     r = &lbDisplay.WScreen[x + (y+top)*lbDisplay.GraphicsScreenWidth + left];
-    nextRowDelta = lbDisplay.GraphicsScreenWidth;
-  }
-  sprHt = btm - top;
-  sprWd = right - left;
-  char *sp = spr->Data;
-#ifdef __DEBUG
-    LbSyncLog("LbSpriteDraw: Sprite coords X=%d...%d Y=%d...%d data=%08x\n",left,right,top,btm,sp);
-#endif
-  long htIndex;
-  if ( top )
-  {
-    htIndex = top;
-    while ( 1 )
-    {
-      char chr = *sp;
-      while ( chr>0 )
-      {
-        sp += chr + 1;
-        chr = *sp;
-      }
-      sp++;
-      if ( chr == 0 )
-      {
-        htIndex--;
-        if (htIndex<=0) break;
-      }
-    }
-  }
-#ifdef __DEBUG
-    LbSyncLog("LbSpriteDraw: Drawing sprite of size (%ld,%ld)\n",sprHt,sprWd);
-#endif
-  unsigned char *nextRow;
-  bool mirror;
-  int x1;
-  if ( lbDisplay.DrawFlags & (0x0004|0x0008|0x0001) )
-  {
-    if ( lbDisplay.DrawFlags & 0x0001 )
-    {
-       r += sprWd - 1;
-      mirror = true;
-      short tmpwidth = spr->SWidth;
-      short tmpright = right;
-      right = tmpwidth - left;
-      left = tmpwidth - tmpright;
-    }
-    else
-    {
-      mirror = false;
-    }
-    if ( lbDisplay.DrawFlags & (0x0004|0x0008) )
-      return LbSpriteDrawTranspr(sp,sprWd,sprHt,r,nextRowDelta,left,mirror);
-    else
-      return LbSpriteDrawSolid(sp,sprWd,sprHt,r,nextRowDelta,left,mirror);
-  }
-  return LbSpriteDrawFastCpy(sp,sprWd,sprHt,r,nextRowDelta,left,mirror);
 }
 
 int __fastcall LbSpriteDrawOneColour(long x, long y, struct TbSprite *spr, TbPixel colour)

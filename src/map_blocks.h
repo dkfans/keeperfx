@@ -42,6 +42,8 @@ void mine_out_block(long a1, long a2, long a3);
 unsigned char dig_has_revealed_area(long a1, long a2, unsigned char a3);
 void dig_out_block(long a1, long a2, long a3);
 void check_map_explored(struct Thing *thing, long a2, long a3);
+long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

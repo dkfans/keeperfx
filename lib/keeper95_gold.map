@@ -1,3 +1,4 @@
+  Address         Publics by Value
  0001:000001F0       cumulative_screen_shot
  0001:00000560       anim_record
  0001:000005E0       anim_record_frame
@@ -34,6 +35,7 @@
  0001:00004E10       heapmgr_free_oldest
  0001:00004E60       heapmgr_make_newest
  0001:00005380       light_render_area
+ 0001:00005730       light_signal_update_in_area
  0001:000057B0       light_create_light
  0001:00005970       light_delete_light
  0001:00005A70       light_set_light_position
@@ -365,6 +367,7 @@
  0001:00046BD0       get_queryable_object_near
  0001:00046CF0       get_creature_near_for_controlling
  0001:00047620       ceiling_init
+ 0001:00047960       ceiling_partially_recompute_heights
  0001:00048020       magic_use_power_hand
  0001:00048130       magic_use_power_imp
  0001:00048370       stop_creatures_around_hand
@@ -530,10 +533,28 @@
  0001:00065F80       event_move_player_towards_event
  0001:00065FC0       remove_events_thing_is_attached_to
  0001:00066100       update_all_events
+ 0001:00066220       triangulation_initxy
  0001:000663E0       edgelen_init
  0001:00066950       regions_connected
+ 0001:00066C60       triangulation_border_start
+ 0001:00067270       edge_find
  0001:00067450       triangle_findSE8
+ 0001:00067650       edge_rotateAC
+ 0001:000686F0       make_3or4point
+ 0001:00068940       delete_4point
+ 0001:00069000       delete_3point
+ 0001:00069DF0       delaunay_seeded
+ 0001:0006A440       tri_set_rectangle
+ 0001:0006A730       triangle_route_do_fwd
+ 0001:0006AB50       triangle_route_do_bak
  0001:0006AF70       ma_triangle_route
+ 0001:0006B0E0       border_clip_vertical
+ 0001:0006B190       border_clip_horizontal
+ 0001:0006B250       border_internal_points_delete
+ 0001:0006B610       edge_lock
+ 0001:0006B7E0       border_unlock
+ 0001:0006B9B0       fringe_get_rectangle
+ 0001:0006BB10       triangulate_area
  0001:0006C3B0       path_out_a_bit
  0001:0006C570       route_to_path
  0001:0006DA40       gate_navigator_init8
@@ -611,6 +632,7 @@
  0001:0007B6C0       update_navigation_triangulation
  0001:0007B7F0       init_navigation
  0001:0007B860       creature_follow_route_to_using_gates
+ 0001:0007B8B0       get_navigation_colour
  0001:0007E9D0       process_entrance_generation
  0001:0007ED90       update_dungeon_scores
  0001:0007F050       update_dungeon_generation_speeds
@@ -1196,6 +1218,10 @@
  0003:00011CB0       scrolling_stats_data
  0003:00012630       MaxSoundDistance
  0003:00012824       anim_counter
+ 0003:00013384       tri_initialised
+ 0003:0001338C       count_Triangles
+ 0003:000133BC       ix_Border
+ 0003:000133E4       LastTriangulatedMap
  0003:00013A60       creature_list
  0003:00014948       quit_game
  0003:0001494C       exit_keeper
@@ -1501,17 +1527,30 @@
  0003:00055EB4       EdgeFit
  0003:000564F8       tree_Bx8
  0003:000564FC       tree_By8
+ 0003:00056540       fringe_map
  0003:00056544       tree_Ax8
  0003:00056548       tree_Ay8
+ 0003:000574F0       Points
+ 0003:0005BB40       fwd_path
  0003:0005C358       tree_route
+ 0003:0005F238       bak_path
+ 0003:00061DA4       fringe_y
+ 0003:000621A8       Border
  0003:00062338       tree_triA
  0003:0006233C       tree_triB
  0003:00062560       RadiusEdgeFit
  0003:00062960       Triangles
+ 0003:000892E0       Regions
  0003:00094638       ap_GPathway
+ 0003:00096574       fringe_x2
+ 0003:00096578       fringe_y1
+ 0003:0009657C       fringe_x1
+ 0003:00096580       fringe_y2
  0003:000971A8       tree_altA
  0003:000971AC       tree_altB
+ 0003:000971B0       route_fwd
  0003:0009A090       tree_routelen
+ 0003:000A2D48       route_bak
  0003:000A5C28       tree_routecost
  0003:000A6550       end_level_names_data
  0003:000A6554       palette
@@ -1702,6 +1741,10 @@
  0003:00273648       lbTextClipWindow
  0003:00273660       lbTextJustifyWindow
  0003:0027377C       hInstance
+ 0003:00273B98       lbIInkey
+ 0003:00273B9C       lbInkeyFlags
+ 0003:00273BA4       lbIInkeyFlags
+ 0003:00273BA8       lbExtendedKeyPress
  0003:00273BAC       lbInkey
  0003:00273BB0       lbKeyOn
  0003:00273CB0       from_pal

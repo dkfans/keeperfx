@@ -60,6 +60,8 @@ int map_tiles_x = 85;
  *  Equals to tiles (slabs) count; The last slab has index map_tiles_y-1. */
 int map_tiles_y = 85;
 
+unsigned char *IanMap = (unsigned char *)&game.navigation_map;
+long nav_map_initialised = 0;
 /******************************************************************************/
 /**
  * Returns if the subtile coords are in range of subtiles which have slab entry.
@@ -109,13 +111,22 @@ TbBool map_block_invalid(const struct Map *map)
   return (map < &game.map[0]);
 }
 
-unsigned long get_map_flags(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   if ((stl_x < 0) || (stl_x > map_subtiles_x))
       return 0;
   if ((stl_y < 0) || (stl_y > map_subtiles_y))
       return 0;
-  return game.mapflags[get_subtile_number(stl_x,stl_y)];
+  return game.navigation_map[get_subtile_number(stl_x,stl_y)];
+}
+
+void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long navcolour)
+{
+  if ((stl_x < 0) || (stl_x > map_subtiles_x))
+      return;
+  if ((stl_y < 0) || (stl_y > map_subtiles_y))
+      return;
+  game.navigation_map[get_subtile_number(stl_x,stl_y)] = navcolour;
 }
 
 long get_ceiling_height(const struct Coord3d *pos)
@@ -351,7 +362,7 @@ void clear_mapmap(void)
     {
       map = get_map_block_at(x,y);
       wptr = &game.field_46157[get_subtile_number(x,y)];
-      flg = &game.mapflags[get_subtile_number(x,y)];
+      flg = &game.navigation_map[get_subtile_number(x,y)];
       memset(map, 0, sizeof(struct Map));
       *wptr = 8192;
       *flg = 0;
@@ -402,9 +413,9 @@ void reveal_map_area(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,Map
 
 TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  unsigned long mflags;
-  mflags = get_map_flags(stl_x, stl_y);
-  return ((mflags & 0x10) != 0);
+  unsigned long navmap;
+  navmap = get_navigation_map(stl_x, stl_y);
+  return ((navmap & 0x10) != 0);
 }
 
 /******************************************************************************/

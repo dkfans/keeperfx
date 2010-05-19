@@ -21,6 +21,8 @@
 
 #include "player_instances.h"
 #include "config_terrain.h"
+#include "map_blocks.h"
+#include "ariadne.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -206,7 +208,10 @@ void reveal_whole_map(struct PlayerInfo *player)
 
 void update_blocks_in_area(long sx, long sy, long ex, long ey)
 {
-    _DK_update_blocks_in_area(sx, sy, ex, ey);
+    //_DK_update_blocks_in_area(sx, sy, ex, ey);
+    update_navigation_triangulation(sx, sy, ex, ey);
+    ceiling_partially_recompute_heights(sx, sy, ex, ey);
+    light_signal_update_in_area(sx, sy, ex, ey);
 }
 
 void update_blocks_around_slab(long slb_x, long slb_y)

@@ -679,6 +679,10 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       sdir="sound";
       break;
   case FGrp_AtlSound:
+      if (campaign.speech_location[0] == '\0') {
+          mdir=NULL; sdir=NULL;
+          break;
+      }
       mdir=keeper_runtime_directory;
       sdir=campaign.speech_location;
       break;
@@ -691,10 +695,26 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       sdir="campgns";
       break;
   case FGrp_CmpgLvls:
+      if (campaign.levels_location[0] == '\0') {
+          mdir=NULL; sdir=NULL;
+          break;
+      }
       mdir=install_info.inst_path;
       sdir=campaign.levels_location;
       break;
+  case FGrp_CmpgCrtrs:
+      if (campaign.creatures_location[0] == '\0') {
+          mdir=NULL; sdir=NULL;
+          break;
+      }
+      mdir=install_info.inst_path;
+      sdir=campaign.creatures_location;
+      break;
   case FGrp_LandView:
+      if (campaign.land_location[0] == '\0') {
+          mdir=NULL; sdir=NULL;
+          break;
+      }
       mdir=install_info.inst_path;
       sdir=campaign.land_location;
       break;
@@ -707,10 +727,13 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       sdir=NULL;
       break;
   }
-  if (sdir != NULL)
-    sprintf(ffullpath,"%s/%s/%s",mdir,sdir,fname);
+  if (mdir == NULL)
+      ffullpath[0] = '\0';
   else
-    sprintf(ffullpath,"%s/%s",mdir,fname);
+  if (sdir == NULL)
+      sprintf(ffullpath,"%s/%s",mdir,fname);
+  else
+      sprintf(ffullpath,"%s/%s/%s",mdir,sdir,fname);
   return ffullpath;
 }
 

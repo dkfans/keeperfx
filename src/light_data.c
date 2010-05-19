@@ -43,7 +43,7 @@ DLLIMPORT long _DK_light_get_light_intensity(long idx);
 DLLIMPORT long _DK_light_set_light_intensity(long a1, long a2);
 DLLIMPORT void _DK_light_render_area(int startx, int starty, int endx, int endy);
 DLLIMPORT void _DK_light_stat_light_map_clear_area(long x1, long y1, long x2, long y2);
-DLLIMPORT void _DK_light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
+DLLIMPORT void _DK_light_signal_update_in_area(long sx, long sy, long ex, long ey);
 
 /******************************************************************************/
 TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list)
@@ -88,6 +88,11 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
 void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2)
 {
   _DK_light_signal_stat_light_update_in_area(x1, y1, x2, y2);
+}
+
+void light_signal_update_in_area(long sx, long sy, long ex, long ey)
+{
+    _DK_light_signal_update_in_area(sx, sy, ex, ey);
 }
 
 void light_turn_light_off(long idx)
