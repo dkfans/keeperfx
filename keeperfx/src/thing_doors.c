@@ -23,6 +23,7 @@
 
 #include "thing_objects.h"
 #include "thing_list.h"
+#include "ariadne.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
