@@ -2123,7 +2123,10 @@ short creature_picks_up_spell_object(struct Thing *thing)
         remove_spell_from_library(enmroom, spelltng, thing->owner);
     }
     creature_drag_object(thing, spelltng);
-    setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0);
+    if (!setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0))
+    {
+        SYNCDBG(8,"Cannot move to (%d,%d)",(int)pos.x.stl.num, (int)pos.y.stl.num);
+    }
     thing->field_8 = CrSt_CreatureDropsSpellObjectInLibrary;
     return 1;
 }
@@ -2300,7 +2303,10 @@ short creature_search_for_gold_to_steal_in_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    setup_person_move_to_position(thing, gldtng->mappos.x.stl.num, gldtng->mappos.y.stl.num, 0);
+    if (!setup_person_move_to_position(thing, gldtng->mappos.x.stl.num, gldtng->mappos.y.stl.num, 0))
+    {
+        SYNCDBG(8,"Cannot move to gold at (%d,%d)",(int)gldtng->mappos.x.stl.num, (int)gldtng->mappos.y.stl.num);
+    }
     thing->field_8 = CrSt_CreatureStealGold;
     return 1;
 }
@@ -2326,7 +2332,10 @@ short creature_search_for_spell_to_steal_in_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    setup_person_move_to_position(thing, spltng->mappos.x.stl.num, spltng->mappos.y.stl.num, 0);
+    if (!setup_person_move_to_position(thing, spltng->mappos.x.stl.num, spltng->mappos.y.stl.num, 0))
+    {
+        SYNCDBG(8,"Cannot move to spell at (%d,%d)",(int)spltng->mappos.x.stl.num, (int)spltng->mappos.y.stl.num);
+    }
     thing->field_8 = CrSt_CreatureStealSpell;
     return 1;
 }

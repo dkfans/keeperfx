@@ -69,6 +69,7 @@
 #include "magic.h"
 #include "power_hand.h"
 #include "game_merge.h"
+#include "ariadne.h"
 
 int test_variable;
 
@@ -379,7 +380,6 @@ DLLIMPORT void _DK_init_colours(void);
 DLLIMPORT long _DK_init_sound_heap_two_banks(unsigned char *a1, long a2, char *a3, char *a4, long a5);
 DLLIMPORT void _DK_process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6);
 DLLIMPORT long _DK_can_cast_spell_on_creature(long a1, struct Thing *thing, long a3);
-DLLIMPORT long _DK_update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
 DLLIMPORT void _DK_place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
@@ -548,7 +548,6 @@ DLLIMPORT void _DK_reinit_tagged_blocks_for_player(unsigned char idx);
 DLLIMPORT void _DK_reset_gui_based_on_player_mode(void);
 DLLIMPORT void _DK_init_animating_texture_maps(void);
 DLLIMPORT void _DK_init_lookups(void);
-DLLIMPORT long _DK_init_navigation(void);
 DLLIMPORT int _DK_load_settings(void);
 DLLIMPORT void _DK_sound_reinit_after_load(void);
 DLLIMPORT void _DK_restore_computer_player_after_load(void);
@@ -2498,6 +2497,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
   struct CreatureStats *crstat;
   struct CreatureControl *cctrl;
   struct SlabMap *slb;
+  unsigned long navmap;
   int stl_idx;
   short nfoot;
   int i;
@@ -2514,7 +2514,8 @@ void process_landscape_affecting_creature(struct Thing *thing)
   cctrl->field_B9 = 0;
 
   stl_idx = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-  if (((game.mapflags[stl_idx] & 0xF) << 8) == thing->mappos.z.val)
+  navmap = get_navigation_map(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+  if (((navmap & 0xF) << 8) == thing->mappos.z.val)
   {
     i = get_top_cube_at_pos(stl_idx);
     if ((i & 0xFFFFFFFE) == 40)
@@ -7399,16 +7400,6 @@ short complete_level(struct PlayerInfo *player)
     return true;
 }
 
-long init_navigation(void)
-{
-  return _DK_init_navigation();
-}
-
-long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y)
-{
-  return _DK_update_navigation_triangulation(start_x, start_y, end_x, end_y);
-}
-
 void place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5)
 {
     SYNCDBG(7,"Starting");
@@ -9862,7 +9853,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
           k = game.field_149E77;
         if (game.columns[k].solidmask >= 8)
         {
-          if ((!visible) || ((get_map_flags(x,y) & 0x80) == 0) && ((map->flags & 0x02) == 0))
+          if ((!visible) || ((get_navigation_map(x,y) & 0x80) == 0) && ((map->flags & 0x02) == 0))
             mask &= 3;
         }
       }

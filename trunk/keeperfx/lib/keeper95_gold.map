@@ -1,3 +1,6 @@
+
+  Address         Publics by Value
+
  0001:000D9DE0       LbErrorLogSetup@12
  0001:00051810       IsRunningMark@0
  0001:00051840       IsRunningUnmark@0
@@ -649,6 +652,27 @@
  0003:000971AC       tree_altB
  0003:0009A090       tree_routelen
  0003:000A5C28       tree_routecost
+ 0003:00061DA4       fringe_y
+ 0003:000621A8       Border
+ 0003:00096574       fringe_x2
+ 0003:00096578       fringe_y1
+ 0003:0009657C       fringe_x1
+ 0003:00096580       fringe_y2
+ 0003:000133BC       ix_Border
+ 0003:00013384       tri_initialised
+ 0003:0001338C       count_Triangles
+ 0003:00056540       fringe_map
+ 0003:000133E4       LastTriangulatedMap
+ 0003:000574F0       Points
+ 0003:000892E0       Regions
+ 0003:0005BB40       fwd_path
+ 0003:0005F238       bak_path
+ 0003:000971B0       route_fwd
+ 0003:000A2D48       route_bak
+ 0003:00273B98       lbIInkey
+ 0003:00273B9C       lbInkeyFlags
+ 0003:00273BA4       lbIInkeyFlags
+ 0003:00273BA8       lbExtendedKeyPress
 
  0006:00000008       gpoly_pro_enable_mode_ofs
  0006:00000010       gtblock_clip_width
@@ -1720,3 +1744,24 @@
  0001:000C2E60       set_slab_explored_flags
  0001:000B1600       untag_blocks_for_digging_in_area
  0001:0008B8C0       create_gold_rubble_for_dug_block
+ 0001:00005730       light_signal_update_in_area
+ 0001:00047960       ceiling_partially_recompute_heights
+ 0001:0006BB10       triangulate_area
+ 0001:0007B8B0       get_navigation_colour
+ 0001:0006B0E0       border_clip_vertical
+ 0001:0006B190       border_clip_horizontal
+ 0001:0006B250       border_internal_points_delete
+ 0001:0006B610       edge_lock
+ 0001:00069DF0       delaunay_seeded
+ 0001:0006A440       tri_set_rectangle
+ 0001:0006B9B0       fringe_get_rectangle
+ 0001:0006B7E0       border_unlock
+ 0001:00066C60       triangulation_border_start
+ 0001:00066220       triangulation_initxy
+ 0001:00067270       edge_find
+ 0001:000686F0       make_3or4point
+ 0001:00068940       delete_4point
+ 0001:00069000       delete_3point
+ 0001:00067650       edge_rotateAC
+ 0001:0006A730       triangle_route_do_fwd
+ 0001:0006AB50       triangle_route_do_bak

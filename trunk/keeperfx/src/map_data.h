@@ -48,10 +48,13 @@ extern int map_subtiles_x;
 extern int map_subtiles_y;
 extern int map_tiles_x;
 extern int map_tiles_y;
+extern unsigned char *IanMap;
+extern long nav_map_initialised;
 /******************************************************************************/
-struct Map *get_map_block_at(long stl_x, long stl_y);
+struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Map *get_map_block_at_pos(long stl_num);
-unsigned long get_map_flags(long stl_x, long stl_y);
+unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long navcolour);
 TbBool map_block_invalid(const struct Map *map);
 void reveal_map_subtile(long stl_x, long stl_y, long plyr_idx);
 TbBool subtile_revealed(long stl_x, long stl_y, long plyr_idx);

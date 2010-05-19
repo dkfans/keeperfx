@@ -28,6 +28,10 @@ extern "C" {
 /******************************************************************************/
 #define TREE_ROUTE_LEN 3000
 #define TRIANLGLES_COUNT 9000
+#define BORDER_LENGTH 100
+#define REGIONS_COUNT 300
+#define POINTS_COUNT 4500
+#define ROUTE_LENGTH 12000
 
 typedef unsigned char AriadneReturn;
 
@@ -45,32 +49,26 @@ struct Path { // sizeof = 2068
 };
 
 struct Triangle { // sizeof = 16
-  unsigned short field_0;
-  unsigned short field_2;
-  unsigned short field_4;
-  unsigned short field_6;
-  unsigned char field_8;
-  unsigned char field_9;
-  unsigned short field_A;
+  short field_0[3];
+  short field_6[3];
   unsigned char field_C;
   unsigned char field_D;
   unsigned short field_E;
 };
 
 struct Point { // sizeof = 18
-  long field_0;
-  unsigned short field_4;
-  unsigned short field_6;
-  unsigned short field_8;
-  unsigned short field_A;
-  unsigned short field_C;
-  unsigned short field_E;
-  unsigned short field_10;
+  short x;
+  short y;
 };
 
 struct Pathway { // sizeof = 7192
   unsigned char field_0[7188];
   unsigned long field_1C14;
+};
+
+struct RegionT { // sizeof = 3
+  unsigned short field_0;
+  unsigned char field_2;
 };
 
 /******************************************************************************/
@@ -102,12 +100,68 @@ DLLIMPORT long _DK_tree_Bx8;
 #define tree_Bx8 _DK_tree_Bx8
 DLLIMPORT long _DK_tree_By8;
 #define tree_By8 _DK_tree_By8
+DLLIMPORT long _DK_tri_initialised;
+#define tri_initialised _DK_tri_initialised
 DLLIMPORT struct Triangle _DK_Triangles[TRIANLGLES_COUNT];
 #define Triangles _DK_Triangles
+DLLIMPORT long _DK_count_Triangles;
+#define count_Triangles _DK_count_Triangles
+DLLIMPORT unsigned char *_DK_LastTriangulatedMap;
+#define LastTriangulatedMap _DK_LastTriangulatedMap
+DLLIMPORT unsigned char *_DK_fringe_map;
+#define fringe_map _DK_fringe_map
+DLLIMPORT long _DK_fringe_x2;
+#define fringe_x2 _DK_fringe_x2
+DLLIMPORT long _DK_fringe_y1;
+#define fringe_y1 _DK_fringe_y1
+DLLIMPORT long _DK_fringe_x1;
+#define fringe_x1 _DK_fringe_x1
+DLLIMPORT long _DK_fringe_y2;
+#define fringe_y2 _DK_fringe_y2
+//DLLIMPORT long _DK_ix_EdgePoints;
+//#define ix_EdgePoints _DK_ix_EdgePoints
+DLLIMPORT long _DK_fringe_y[256];
+#define fringe_y _DK_fringe_y
+DLLIMPORT long _DK_ix_Border;
+#define ix_Border _DK_ix_Border
+//DLLIMPORT long _DK_count_RegionQ;
+//#define count_RegionQ _DK_count_RegionQ
+DLLIMPORT long _DK_Border[BORDER_LENGTH];
+#define Border _DK_Border
+DLLIMPORT struct Point _DK_Points[POINTS_COUNT];
+#define Points _DK_Points
+DLLIMPORT struct RegionT _DK_Regions[REGIONS_COUNT];
+#define Regions _DK_Regions
+DLLIMPORT long _DK_route_fwd[ROUTE_LENGTH];
+#define route_fwd _DK_route_fwd
+DLLIMPORT long _DK_route_bak[ROUTE_LENGTH];
+#define route_bak _DK_route_bak
+DLLIMPORT struct Path _DK_fwd_path;
+#define fwd_path _DK_fwd_path
+DLLIMPORT struct Path _DK_bak_path;
+#define bak_path _DK_bak_path
 /******************************************************************************/
+long init_navigation(void);
+long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
 AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long a3, unsigned char a4);
 AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long a4, unsigned char a5);
 void path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size);
+long get_navigation_colour(long stl_x, long stl_y);
+void border_clip_horizontal(unsigned char *imap, long a1, long a2, long a3, long a4);
+void border_clip_vertical(unsigned char *imap, long a1, long a2, long a3, long a4);
+long link_find(long ntri, long val);
+#define edge_lock(fin_x, fin_y, bgn_x, bgn_y) edge_lock_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
+TbBool edge_lock_f(long fin_x, long fin_y, long bgn_x, long bgn_y, const char *func_name);
+#define region_set(ntri, nreg) region_set_f(ntri, nreg, __func__)
+void region_set_f(long ntri, unsigned long nreg, const char *func_name);
+void border_internal_points_delete(long a1, long a2, long a3, long a4);
+void tri_set_rectangle(long a1, long a2, long a3, long a4, unsigned char a5);
+long fringe_get_rectangle(long *a1, long *a2, long *a3, long *a4, unsigned char *a5);
+long delaunay_seeded(long a1, long a2, long a3, long a4);
+void border_unlock(long a1, long a2, long a3, long a4);
+void triangulation_border_start(long *a1, long *a2);
+void triangulate_area(unsigned char *imap, long sx, long sy, long ex, long ey);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
