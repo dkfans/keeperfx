@@ -714,6 +714,8 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
       switch (cmd_num)
       {
       case 1: // ENTRANCEROOM
+          for (k=0; k < 3; k++)
+            crstat->entrance_rooms[k] = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = get_id(room_desc, word_buf);
@@ -729,6 +731,8 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
           }
           break;
       case 2: // ROOMSLABSREQUIRED
+          for (k=0; k < 3; k++)
+            crstat->entrance_slabs_req[k] = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
