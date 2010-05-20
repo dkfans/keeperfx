@@ -1,0 +1,73 @@
+Ancient Keeper
+Land descriptions script for KeeperFX
+Created from author's descriptions.
+
+
+Red Carpet
+Welcome, Keeper, to the first of the Ancient Realms.
+
+Harmony 
+A strange land this is, Keeper!
+
+Avarice
+In this realm one of your enemies has captured a band of Avatars.
+
+T'Kaan's Mistress
+T'Kaan's mistress has been exiled to this realm.
+
+The Realm of Salaar
+Paranoid heroes guard this realm with care! 
+
+Save the Heroes
+They are about to die, so act swiftly! 
+
+Kwan Tek's Ordeal
+He has gifted you a powerful spell. 
+
+Avatar's Revenge
+He has tracked you down, and recalls a previous encounter!
+
+Knight Manoeuvres
+You must free your creatures, Master!
+
+The University of Hades
+Welcome, Keeper, to an esteemed seat of learning.
+
+Salaar's Test
+Do not disappoint him!
+
+Rescue the Avatar
+Your most valued convert is being tortured!
+
+Sloth
+This land requires aggression and speed, Keeper.
+
+Entomology
+Are you interested in Entomology, Keeper?
+
+Flowers of Despair
+In this realm the Ancients have granted you have workers but no fighters.
+
+Dragonia
+Welcome to the Land of Dragons, Keeper. With skill you will gain their services.
+
+Fortress of the Sun
+You have attracted the hottest babe in the Underworld!
+
+Thor's Diplomat
+Go and negotiate a settlement in this land.
+
+Antak's Ruin
+You must be patient and persistent, Keeper, if you are not to share his fate! 
+
+L'Cyfre's Challenge
+You have earned the right to the ultimate challenge - L'Cyfre's Challenge.
+
+Secret levels - name only:
+
+Colosseum
+Shorty
+Run fast
+Crusade
+Alone
+Full Moon
