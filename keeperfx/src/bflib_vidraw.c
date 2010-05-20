@@ -720,8 +720,9 @@ inline int LbSpriteDrawFastCpy(const char *sp,short sprWd,short sprHt,unsigned c
 
 int LbSpriteDraw(long x, long y, const struct TbSprite *spr)
 {
+    //TODO SPRITES Fix, then enable the rewritten code. Works incorrectly if image starts before left corner of the screen.
     SYNCDBG(19,"At (%ld,%ld)",x,y);
-    //return _DK_LbSpriteDraw(x, y, spr);
+    return _DK_LbSpriteDraw(x, y, spr);
     if (spr == NULL)
     {
         SYNCDBG(19,"NULL sprite");
