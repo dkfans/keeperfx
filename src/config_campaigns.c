@@ -1048,6 +1048,64 @@ TbBool load_campaign_to_list(const char *cmpgn_fname,struct CampaignsList *clist
   return false;
 }
 
+TbBool swap_campaigns_in_list(struct CampaignsList *clist, int idx1, int idx2)
+{
+    struct GameCampaign campbuf;
+    if ((idx1 < 0) || (idx1 >= clist->items_num) || (idx2 < 0) || (idx2 >= clist->items_num))
+      return false;
+    LbMemoryCopy(&campbuf,&clist->items[idx1],sizeof(struct GameCampaign));
+    LbMemoryCopy(&clist->items[idx1],&clist->items[idx2],sizeof(struct GameCampaign));
+    LbMemoryCopy(&clist->items[idx2],&campbuf,sizeof(struct GameCampaign));
+    return true;
+}
+
+/** Simple quick sort algorithm implementation.
+ *  Not very optimized, but we do not expect thousands of campaigns.
+ *
+ * @param clist
+ * @param beg
+ * @param end
+ */
+void sort_campaigns_quicksort(struct CampaignsList *clist, int beg, int end)
+{
+  if (end > beg + 1)
+  {
+    int l = beg + 1, r = end;
+    struct GameCampaign *campiv;
+    campiv = &clist->items[beg];
+    while (l < r)
+    {
+        if (strcasecmp(clist->items[l].name, campiv->name) <= 0)
+        {
+            l++;
+        } else
+        {
+            swap_campaigns_in_list(clist, l, --r);
+        }
+    }
+    swap_campaigns_in_list(clist, --l, beg);
+    sort_campaigns_quicksort(clist, beg, l);
+    sort_campaigns_quicksort(clist, r, end);
+  }
+}
+
+void sort_campaigns(struct CampaignsList *clist,const char *fname_first)
+{
+    int beg = 0;
+    int i;
+    for (i=0; i < clist->items_num; i++)
+    {
+        if (strcasecmp(clist->items[i].fname,fname_first) == 0)
+        {
+            if (i > 0)
+                swap_campaigns_in_list(clist, 0, i);
+            beg++;
+            break;
+        }
+    }
+    sort_campaigns_quicksort(clist, beg, clist->items_num);
+}
+
 /**
  * Searches for campaign files and creates a list of campaigns.
  */
@@ -1071,6 +1129,7 @@ TbBool load_campaigns_list(void)
   }
   LbFileFindEnd(&fileinfo);
   SYNCDBG(0,"Found %d campaign files, properly loaded %d.",cnum_all,cnum_ok);
+  sort_campaigns(&campaigns_list,keeper_campaign_file);
   return (campaigns_list.items_num > 0);
 }
 
