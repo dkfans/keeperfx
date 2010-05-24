@@ -56,6 +56,7 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"FPACTIONTIME",    6},
   {"FPRESETTIME",     7},
   {"FORCEVISIBILITY", 8},
+  {"GRAPHICS",        9},
   {NULL,              0},
   };
 
@@ -95,6 +96,32 @@ const struct NamedCommand creaturejob_desc[] = {
 const struct NamedCommand attackpref_desc[] = {
   {"MELEE",              1},
   {"RANGED",             2},
+  {NULL,                 0},
+  };
+
+const struct NamedCommand creature_graphics_desc[] = {
+  {"GFX00",              0},
+  {"GFX01",              1},
+  {"GFX02",              2},
+  {"ATTACK",             3},
+  {"GFX04",              4},
+  {"GFX05",              5},
+  {"GFX06",              6},
+  {"PRETTYDANCE",        7},
+  {"GFX08",              8},
+  {"GFX09",              9},
+  {"GFX11",             10},
+  {"GFX12",             11},
+  {"GFX13",             12},
+  {"EATCHICKEN",        13},
+  {"TORTURE",           14},
+  {"SCREAM",            15},
+  {"GFX16",             16},
+  {"GFX17",             17},
+  {"GFX18",             18},
+  {"GFX19",             19},
+  {"PARCHMNTSYMBOL",    20},
+  {"GFX21",             21},
   {NULL,                 0},
   };
 
@@ -524,6 +551,22 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len)
             k = atoi(word_buf);
             inst_inf->force_visibility = k;
             n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Creature Types config file.",
+            get_conf_parameter_text(creaturetype_instance_commands,cmd_num),block_buf);
+          }
+          break;
+      case 9: // GRAPHICS
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = get_id(creature_graphics_desc, word_buf);
+              if (k >= 0)
+              {
+                  inst_inf->graphics_idx = k;
+                  n++;
+              }
           }
           if (n < 1)
           {

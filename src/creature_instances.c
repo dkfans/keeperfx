@@ -51,6 +51,11 @@ struct InstanceInfo *creature_instance_info_get_ptr(long inst_idx,const char *fu
     return &instance_info[inst_idx];
 }
 
+TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf)
+{
+    return (inst_inf < &instance_info[1]);
+}
+
 void process_creature_instance(struct Thing *thing)
 {
   struct CreatureControl *cctrl;

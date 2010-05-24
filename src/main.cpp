@@ -64,6 +64,7 @@
 #include "creature_control.h"
 #include "creature_states.h"
 #include "creature_instances.h"
+#include "creature_graphics.h"
 #include "lens_api.h"
 #include "light_data.h"
 #include "magic.h"
@@ -3216,7 +3217,7 @@ void init_censorship(void)
   if ( censorship_enabled() )
   {
     // Modification for Dark Mistress
-    creature_graphics[20][14] = 48;
+      set_creature_graphics(20, 14, 48);
   }
 }
 
@@ -9680,7 +9681,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
       switch (thing->class_id)
       {
       case TCls_Creature:
-        spridx = creature_graphics[thing->model][20];
+        spridx = get_creature_graphics(thing->model,CGI_TopViewSymbol);
         if ((game.play_gameturn & 0x04) != 0)
         {
           color = get_player_path_colour(thing->owner);
@@ -10462,20 +10463,6 @@ unsigned long convert_td_iso(unsigned long n)
         return td_iso[n%TD_ISO_POINTS];
   }
   return n;
-}
-
-unsigned long get_creature_anim(struct Thing *thing, unsigned short frame)
-{
-  unsigned long idx;
-  idx = creature_graphics[thing->model%CREATURE_TYPES_COUNT][frame%22];
-  return convert_td_iso(idx);
-}
-
-unsigned char keepersprite_frames(unsigned short n)
-{
-  unsigned long i;
-  i = creature_list[n%CREATURE_FRAMELIST_LENGTH];
-  return creature_table[i].field_9;
 }
 
 void set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char a6, unsigned char a7)
