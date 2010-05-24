@@ -20,6 +20,7 @@
 #define DK_CRTRINSTANCE_H
 
 #include "globals.h"
+#include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,7 +41,7 @@ unsigned char field_0;
   long fp_action_time;
   long reset_time;
   long fp_reset_time;
-unsigned char field_19;
+  unsigned char graphics_idx;
 unsigned char field_1A;
   short force_visibility;
 unsigned char field_1D;
@@ -57,6 +58,7 @@ unsigned char field_26[4];
 /******************************************************************************/
 struct InstanceInfo *creature_instance_info_get_ptr(long inst_idx,const char *func_name);
 void process_creature_instance(struct Thing *thing);
+TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf);
 
 long instf_creature_fire_shot(struct Thing *thing, long *param);
 long instf_creature_cast_spell(struct Thing *thing, long *param);

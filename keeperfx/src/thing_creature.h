@@ -53,8 +53,6 @@ struct CreatureStorage {
 #pragma pack()
 #endif
 /******************************************************************************/
-extern struct CreaturePickedUpOffset creature_picked_up_offset[];
-extern unsigned short creature_graphics[][22];
 extern int creature_swap_idx[CREATURE_TYPES_COUNT];
 extern unsigned long creature_create_errors;
 /******************************************************************************/

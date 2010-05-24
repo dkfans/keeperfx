@@ -25,6 +25,7 @@
 
 #include "creature_control.h"
 #include "creature_states.h"
+#include "creature_graphics.h"
 #include "config_creature.h"
 #include "light_data.h"
 #include "thing_effects.h"
@@ -165,6 +166,7 @@ long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
 long pinstfm_hand_grab(struct PlayerInfo *player, long *n)
 {
   return _DK_pinstfm_hand_grab(player, n);
+  struct CreaturePickedUpOffset *pickoffs;
   struct Thing *thing;
   struct Dungeon *dungeon;
   //return _DK_pinstfs_hand_grab(player, n);
@@ -172,9 +174,10 @@ long pinstfm_hand_grab(struct PlayerInfo *player, long *n)
   thing = thing_get(player->field_43E);
   if (thing->class_id == TCls_Creature)
   {
-    dungeon->field_43 += (creature_picked_up_offset[thing->model].field_4 - 60) / 4;
-    dungeon->field_53 += (creature_picked_up_offset[thing->model].field_6 - 40) / 4;
-    return 0;
+      pickoffs = get_creature_picked_up_offset(thing);
+      dungeon->field_43 += (pickoffs->field_4 - 60) / 4;
+      dungeon->field_53 += (pickoffs->field_6 - 40) / 4;
+      return 0;
   }
   else
   {
