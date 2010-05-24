@@ -84,6 +84,7 @@ OBJS = \
 ./obj/room_data.o \
 ./obj/creature_control.o \
 ./obj/creature_instances.o \
+./obj/creature_graphics.o \
 ./obj/map_data.o \
 ./obj/map_events.o \
 ./obj/thing_doors.o \

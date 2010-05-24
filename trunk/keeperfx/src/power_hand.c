@@ -27,6 +27,7 @@
 #include "dungeon_data.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
+#include "creature_graphics.h"
 #include "player_instances.h"
 #include "kjm_input.h"
 #include "front_input.h"
@@ -242,6 +243,7 @@ void draw_power_hand(void)
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   struct CreatureControl *cctrl;
+  struct CreaturePickedUpOffset *pickoffs;
   struct Thing *thing;
   struct Thing *picktng;
   struct Room *room;
@@ -326,19 +328,20 @@ void draw_power_hand(void)
         cctrl = creature_control_get_from_thing(picktng);
         if ((cctrl->field_AD & 0x02) == 0)
         {
-          x = GetMouseX() + creature_picked_up_offset[picktng->model].delta_x;
-          y = GetMouseY() + creature_picked_up_offset[picktng->model].delta_y;
-          if (creatures[picktng->model].field_7 )
-            EngineSpriteDrawUsingAlpha = 1;
-          process_keeper_sprite(x / pixel_size, y / pixel_size,
-              picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
-          EngineSpriteDrawUsingAlpha = 0;
+            pickoffs = get_creature_picked_up_offset(picktng);
+            x = GetMouseX() + pickoffs->delta_x;
+            y = GetMouseY() + pickoffs->delta_y;
+            if (creatures[picktng->model].field_7 )
+              EngineSpriteDrawUsingAlpha = 1;
+            process_keeper_sprite(x / pixel_size, y / pixel_size,
+                picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
+            EngineSpriteDrawUsingAlpha = 0;
         } else
         {
-          x = GetMouseX()+11;
-          y = GetMouseY()+56;
-          process_keeper_sprite(x / pixel_size, y / pixel_size,
-              picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
+            x = GetMouseX()+11;
+            y = GetMouseY()+56;
+            process_keeper_sprite(x / pixel_size, y / pixel_size,
+                picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
         }
         break;
     case TCls_Object:

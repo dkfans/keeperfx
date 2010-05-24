@@ -86,9 +86,6 @@ extern "C" {
 // Animated textures
 #define TEXTURE_BLOCKS_ANIM_COUNT    48
 #define TEXTURE_BLOCKS_COUNT TEXTURE_BLOCKS_STAT_COUNT+TEXTURE_BLOCKS_ANIM_COUNT
-// Sprites
-// note - this is temporary value; not correct
-#define CREATURE_FRAMELIST_LENGTH     982
 // Types of objects
 #define MANUFCTR_TYPES_COUNT  11
 #define ACTN_POINTS_COUNT     32
@@ -241,13 +238,6 @@ struct MapOffset {
   char v;
   char h;
   unsigned short both;
-};
-
-struct KeeperSprite { // sizeof = 16
-  unsigned char field_0[9];
-  unsigned char field_9;
-  unsigned char field_A[4];
-  unsigned char field_E[2];
 };
 
 struct GoldLookup { // sizeof = 28
@@ -410,14 +400,6 @@ unsigned char field_30[6];
 struct CreaturePool { // sizeof = 129
   long crtr_kind[CREATURE_TYPES_COUNT];
   unsigned char is_empty;
-};
-
-struct CreaturePickedUpOffset // sizeof = 8
-{
-  short delta_x;
-  short delta_y;
-  short field_4;
-  short field_6;
 };
 
 struct Bookmark { // sizeof = 3
@@ -1096,10 +1078,6 @@ DLLIMPORT short _DK_td_iso[TD_ISO_POINTS];
 #define td_iso _DK_td_iso
 DLLIMPORT short _DK_iso_td[TD_ISO_POINTS];
 #define iso_td _DK_iso_td
-DLLIMPORT unsigned short _DK_creature_list[CREATURE_FRAMELIST_LENGTH];
-#define creature_list _DK_creature_list
-DLLIMPORT struct KeeperSprite *_DK_creature_table;
-#define creature_table _DK_creature_table
 DLLIMPORT struct TbModemDev _DK_modem_dev;
 #define modem_dev _DK_modem_dev
 DLLIMPORT struct ConfigInfo _DK_net_config_info;
@@ -1198,7 +1176,6 @@ unsigned char general_expand_check(void);
 TbBool add_spell_to_player(long spl_idx, long plyr_idx);
 struct Room *place_room(unsigned char owner, unsigned char rkind, unsigned short stl_x, unsigned short stl_y);
 unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
-unsigned long get_creature_anim(struct Thing *thing, unsigned short frame);
 TbBool destroy_trap(struct Thing *thing);
 long destroy_door(struct Thing *thing);
 short delete_room_slab(long x, long y, unsigned char gnd_slab);
@@ -1451,7 +1428,6 @@ unsigned long setup_move_off_lava(struct Thing *thing);
 struct Room *player_has_room_of_type(long plr_idx, long roomkind);
 void set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char a6, unsigned char a7);
 long get_next_manufacture(struct Dungeon *dungeon);
-unsigned char keepersprite_frames(unsigned short n);
 void remove_thing_from_mapwho(struct Thing *thing);
 void place_thing_in_mapwho(struct Thing *thing);
 long get_thing_height_at(struct Thing *thing, struct Coord3d *pos);
