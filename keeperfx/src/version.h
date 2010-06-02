@@ -19,14 +19,16 @@
 #ifndef KEEPERFX_VERSIONS_H
 #define KEEPERFX_VERSIONS_H
 
-/* Debug level is scaled 0..10, default=1 */
-#define BFDEBUG_LEVEL     10
+#ifndef BFDEBUG_LEVEL
+/* Debug level is scaled 0..10, default=1; usually defined in Makefile. */
+#define BFDEBUG_LEVEL     0
+#endif
 /* Version definitions */
 #define VER_MAJOR         0
 #define VER_MINOR         3
 #define VER_RELEASE       7
-#define VER_BUILD         44
-#define VER_STRING        "0.3.7.44"
+#define VER_BUILD         117
+#define VER_STRING        "0.3.7.117"
 /* Program name, copyrights and file names */
 #define PROGRAM_NAME      "Dungeon Keeper FX"
 #define PROGRAM_FULL_NAME "Dungeon Keeper Fan eXpansion"

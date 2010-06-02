@@ -62,19 +62,6 @@ enum CreatureSoundTypes {
     CrSnd_HandPick     = 5,
 };
 
-struct Creatures { // sizeof = 16
-  unsigned short numfield_0;
-  unsigned short numfield_2;
-  unsigned char field_4[2];
-  unsigned char field_6;
-  unsigned char field_7;
-  unsigned char field_8;
-  short field_9;
-  short field_B;
-  short field_D;
-  unsigned char field_F[1];
-};
-
 struct CastedSpellData {
     unsigned char field_0;
     short field_1;
@@ -90,7 +77,8 @@ struct CreatureControl {
     unsigned char field_3;
     unsigned char field_4;
     long field_5;
-char field_9[22];
+    short field_9;
+char field_B[20];
     unsigned short thing_idx;
 unsigned short field_21;
     unsigned char explevel;
@@ -211,7 +199,7 @@ unsigned char field_D3;
     unsigned char target_y;
 long field_DE[48];
     char instances[48];
-    unsigned short field_1CC;
+    unsigned short field_1CE;
   unsigned short field_1D0;
     char field_1D2;
 unsigned char field_1D3;

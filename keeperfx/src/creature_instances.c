@@ -164,7 +164,7 @@ long instf_dig(struct Thing *thing, long *param)
     task_idx = cctrl->word_91;
     {
       struct MapTask *task;
-      task = &dungeon->task_list[task_idx%MAPTASKS_COUNT];
+      task = get_dungeon_task_list_entry(dungeon,task_idx);
       taskkind = task->field_0;
       if (task->field_1 != cctrl->word_8F)
         return 0;
