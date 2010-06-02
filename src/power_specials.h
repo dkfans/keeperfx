@@ -27,9 +27,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct PlayerInfo;
 struct Thing;
@@ -50,9 +48,7 @@ DLLIMPORT unsigned short _DK_dungeon_special_selected;
 DLLIMPORT struct SpecialDesc _DK_special_desc[8];
 #define special_desc _DK_special_desc
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 void multiply_creatures(struct PlayerInfo *player);
 void increase_level(struct PlayerInfo *player);

@@ -28,6 +28,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "creature_graphics.h"
+#include "config_creature.h"
 #include "player_instances.h"
 #include "kjm_input.h"
 #include "front_input.h"

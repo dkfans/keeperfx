@@ -27,11 +27,9 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-typedef long (*Creature_Instf_Func)(struct Thing *, long *);
-
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
+
+typedef long (*Creature_Instf_Func)(struct Thing *, long *);
 
 struct InstanceInfo { // sizeof = 42
 unsigned char field_0;
@@ -50,9 +48,7 @@ unsigned char field_1D;
 unsigned char field_26[4];
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 #define creature_instance_info_get(inst_idx) creature_instance_info_get_ptr(inst_idx,__func__)
 /******************************************************************************/

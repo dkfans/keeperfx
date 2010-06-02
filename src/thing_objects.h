@@ -54,9 +54,6 @@ struct Objects {
 
 #define OBJECT_TYPES_COUNT  135
 /******************************************************************************/
-extern Thing_Class_Func object_state_functions[];
-extern Thing_Class_Func object_update_functions[];
-/******************************************************************************/
 DLLIMPORT extern struct Objects _DK_objects[OBJECT_TYPES_COUNT];
 #define objects_data _DK_objects
 DLLIMPORT extern unsigned char _DK_object_to_special[OBJECT_TYPES_COUNT];
@@ -69,6 +66,9 @@ DLLIMPORT extern unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
 #define object_to_door_or_trap _DK_object_to_door_or_trap
 
 #pragma pack()
+/******************************************************************************/
+extern Thing_Class_Func object_state_functions[];
+extern Thing_Class_Func object_update_functions[];
 /******************************************************************************/
 struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
 struct Objects *get_objects_data_for_thing(struct Thing *thing);

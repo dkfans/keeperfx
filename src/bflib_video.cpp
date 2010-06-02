@@ -92,18 +92,24 @@ TbBool LbWindowsControl(void)
   return (lbUserQuit < 1);
 }
 
-void LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long n)
+void LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long fade_steps)
 {
-  int i;
-  unsigned char palette[PALETTE_SIZE];
-  for (i=0; i < PALETTE_COLORS; i++)
-  {
-    palette[3*i+0] = from_pal[3*i+0] + fade_count * (int)(to_pal[3*i+0] - from_pal[3*i+0]) / n;
-    palette[3*i+1] = from_pal[3*i+1] + fade_count * (int)(to_pal[3*i+1] - from_pal[3*i+1]) / n;
-    palette[3*i+2] = from_pal[3*i+2] + fade_count * (int)(to_pal[3*i+2] - from_pal[3*i+2]) / n;
-  }
-  LbScreenWaitVbi();
-  LbPaletteSet(palette);
+    int i,c1,c2;
+    unsigned char palette[PALETTE_SIZE];
+    for (i=0; i < 3*PALETTE_COLORS; i+=3)
+    {
+        c1 =   to_pal[i+0];
+        c2 = from_pal[i+0];
+        palette[i+0] = fade_count * (c1 - c2) / fade_steps + c2;
+        c1 =   to_pal[i+1];
+        c2 = from_pal[i+1];
+        palette[i+1] = fade_count * (c1 - c2) / fade_steps + c2;
+        c1 =   to_pal[i+2];
+        c2 = from_pal[i+2];
+        palette[i+2] = fade_count * (c1 - c2) / fade_steps + c2;
+    }
+    LbScreenWaitVbi();
+    LbPaletteSet(palette);
 }
 
 TbResult LbPaletteStopOpenFade(void)
@@ -112,46 +118,47 @@ TbResult LbPaletteStopOpenFade(void)
     return Lb_SUCCESS;
 }
 
-long LbPaletteFade(unsigned char *pal, long n, enum TbPaletteFadeFlag flg)
+long LbPaletteFade(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag flg)
 {
-  if (flg == Lb_PALETTE_FADE_CLOSED)
-  {
-    LbPaletteGet(from_pal);
-    if (pal == NULL)
+    if (flg == Lb_PALETTE_FADE_CLOSED)
     {
-      pal = to_pal;
-      memset(to_pal, 0, PALETTE_SIZE);
+      // Finish the fading fast
+      LbPaletteGet(from_pal);
+      if (pal == NULL)
+      {
+        pal = to_pal;
+        memset(to_pal, 0, PALETTE_SIZE);
+      }
+      fade_count = 0;
+      do
+      {
+        LbPaletteFadeStep(from_pal,pal,fade_steps);
+        fade_count++;
+      }
+      while (fade_count <= fade_steps);
+      fade_started = false;
+      return fade_count;
     }
-    fade_count = 0;
-    do
+    if (fade_started)
     {
-      LbPaletteFadeStep(from_pal,pal,n);
       fade_count++;
-    }
-    while (fade_count <= n);
-    fade_started = 0;
-    return fade_count;
-  }
-  if (fade_started)
-  {
-    fade_count++;
-    if (fade_count == n)
-      fade_started = 0;
-    if (pal == NULL)
-      pal = to_pal;
-  } else
-  {
-    fade_count = 0;
-    fade_started = 1;
-    LbPaletteGet(from_pal);
-    if (pal == NULL)
+      if (fade_count >= fade_steps)
+        fade_started = false;
+      if (pal == NULL)
+        pal = to_pal;
+    } else
     {
-      memset(to_pal, 0, PALETTE_SIZE);
-      pal = to_pal;
+      fade_count = 0;
+      fade_started = true;
+      LbPaletteGet(from_pal);
+      if (pal == NULL)
+      {
+        memset(to_pal, 0, PALETTE_SIZE);
+        pal = to_pal;
+      }
     }
-  }
-  LbPaletteFadeStep(from_pal,pal,n);
-  return fade_count;
+    LbPaletteFadeStep(from_pal,pal,fade_steps);
+    return fade_count;
 }
 
 TbResult LbScreenWaitVbi(void)

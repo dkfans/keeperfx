@@ -27,15 +27,6 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
-
-
-#ifdef __cplusplus
-#pragma pack()
-#endif
-/******************************************************************************/
 TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y);
 
 void mine_out_block(long a1, long a2, long a3);

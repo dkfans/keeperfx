@@ -33,6 +33,9 @@ extern "C" {
 #define POINTS_COUNT 4500
 #define ROUTE_LENGTH 12000
 
+/******************************************************************************/
+#pragma pack(1)
+
 typedef unsigned char AriadneReturn;
 
 struct Path { // sizeof = 2068
@@ -140,6 +143,8 @@ DLLIMPORT struct Path _DK_fwd_path;
 #define fwd_path _DK_fwd_path
 DLLIMPORT struct Path _DK_bak_path;
 #define bak_path _DK_bak_path
+
+#pragma pack()
 /******************************************************************************/
 long init_navigation(void);
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);

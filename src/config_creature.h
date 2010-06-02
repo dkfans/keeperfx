@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "config.h"
+#include "thing_creature.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,9 +33,9 @@ extern "C" {
 #define INSTANCE_TYPES_MAX 64
 /******************************************************************************/
 struct Thing;
-/******************************************************************************/
+
 enum CreatureModelFlags {
-    MF_IsSpecDigger   = 0x0001, // Imp and Tunneller
+    MF_IsSpecDigger   = 0x0001, // Imp and Tunneler
     MF_IsArachnid     = 0x0002, // simply, Spider
     MF_IsDiptera      = 0x0004, // simply, Fly
     MF_IsLordOTLand   = 0x0008, // simply, Knight
@@ -60,6 +61,31 @@ enum CreatureJobFlags {
     Job_FREEZE_PRISONERS = 0x2000,
     Job_EXPLORE          = 0x4000,
 };
+
+/******************************************************************************/
+#pragma pack(1)
+
+struct Creatures { // sizeof = 16
+  unsigned short numfield_0;
+  unsigned short numfield_2;
+  unsigned char field_4[2];
+  unsigned char field_6;
+  unsigned char field_7;
+  unsigned char field_8;
+  short field_9;
+  short field_B;
+  short field_D;
+  unsigned char field_F;
+};
+
+/******************************************************************************/
+DLLIMPORT struct Creatures _DK_creatures[CREATURE_TYPES_COUNT];
+#define creatures _DK_creatures
+DLLIMPORT unsigned short _DK_breed_activities[CREATURE_TYPES_COUNT];
+#define breed_activities _DK_breed_activities
+
+#pragma pack()
+/******************************************************************************/
 
 struct CreatureModelConfig {
     char name[COMMAND_WORD_LEN];

@@ -472,7 +472,6 @@ DLLIMPORT long _DK_load_texture_map_file(unsigned long lv_num, unsigned char n);
 DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char a2);
 DLLIMPORT long _DK_get_foot_creature_has_down(struct Thing *thing);
 DLLIMPORT void _DK_process_disease(struct Thing *thing);
-DLLIMPORT void _DK_set_creature_graphic(struct Thing *thing);
 DLLIMPORT void _DK_process_keeper_spell_effect(struct Thing *thing);
 DLLIMPORT long _DK_creature_is_group_leader(struct Thing *thing);
 DLLIMPORT void _DK_leader_find_positions_for_followers(struct Thing *thing);
@@ -681,7 +680,7 @@ void fade_in(void)
 
 void fade_out(void)
 {
-  ProperFadePalette(0, 8, Lb_PALETTE_FADE_CLOSED);
+  ProperFadePalette(NULL, 8, Lb_PALETTE_FADE_CLOSED);
   LbScreenClear(0);
 }
 
@@ -1623,13 +1622,17 @@ long modem_connect_callback(void)
   return 0;
 }
 
-void ProperFadePalette(unsigned char *pal, long n, enum TbPaletteFadeFlag flg)
+void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag flg)
 {
-    if ( lbUseSdk )
+/*    if (flg != Lb_PALETTE_FADE_CLOSED)
+    {
+        LbPaletteFade(pal, fade_steps, flg);
+    } else*/
+    if (lbUseSdk)
     {
         TbClockMSec last_loop_time;
         last_loop_time = LbTimerClock();
-        while (LbPaletteFade(pal, n, Lb_PALETTE_FADE_OPEN) < n)
+        while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
           if (!is_key_pressed(KC_SPACE,KM_DONTCARE) &&
               !is_key_pressed(KC_ESCAPE,KM_DONTCARE) &&
@@ -1641,7 +1644,7 @@ void ProperFadePalette(unsigned char *pal, long n, enum TbPaletteFadeFlag flg)
           }
         }
     } else
-    if ( pal != NULL )
+    if (pal != NULL)
     {
         LbPaletteSet(pal);
     } else
@@ -1651,18 +1654,18 @@ void ProperFadePalette(unsigned char *pal, long n, enum TbPaletteFadeFlag flg)
     }
 }
 
-void ProperForcedFadePalette(unsigned char *pal, long n, enum TbPaletteFadeFlag flg)
+void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag flg)
 {
     if (flg == Lb_PALETTE_FADE_OPEN)
     {
-        LbPaletteFade(pal, n, flg);
+        LbPaletteFade(pal, fade_steps, flg);
         return;
     }
-    if ( lbUseSdk )
+    if (lbUseSdk)
     {
         TbClockMSec last_loop_time;
         last_loop_time = LbTimerClock();
-        while (LbPaletteFade(pal, n, Lb_PALETTE_FADE_OPEN) < n)
+        while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
           last_loop_time += 25;
           LbSleepUntil(last_loop_time);
@@ -1730,11 +1733,6 @@ void process_disease(struct Thing *thing)
 {
   SYNCDBG(18,"Starting");
   _DK_process_disease(thing);
-}
-
-void set_creature_graphic(struct Thing *thing)
-{
-  _DK_set_creature_graphic(thing);
 }
 
 void process_keeper_spell_effect(struct Thing *thing)
@@ -3217,7 +3215,7 @@ void init_censorship(void)
   if ( censorship_enabled() )
   {
     // Modification for Dark Mistress
-      set_creature_graphics(20, 14, 48);
+      set_creature_breed_graphics(20, 14, 48);
   }
 }
 
@@ -9681,7 +9679,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
       switch (thing->class_id)
       {
       case TCls_Creature:
-        spridx = get_creature_graphics(thing->model,CGI_TopViewSymbol);
+        spridx = get_creature_breed_graphics(thing->model,CGI_TopViewSymbol);
         if ((game.play_gameturn & 0x04) != 0)
         {
           color = get_player_path_colour(thing->owner);
@@ -10455,12 +10453,12 @@ unsigned long convert_td_iso(unsigned long n)
 {
   if ((lens_mode == 2) || (lens_mode == 3))
   {
-      if (iso_td[n%TD_ISO_POINTS] >= 0)
-        return iso_td[n%TD_ISO_POINTS];
+      if ((n < TD_ISO_POINTS) && (iso_td[n] >= 0))
+        return iso_td[n];
   } else
   {
-      if (td_iso[n%TD_ISO_POINTS] >= 0)
-        return td_iso[n%TD_ISO_POINTS];
+      if ((n < TD_ISO_POINTS) && (td_iso[n] >= 0))
+        return td_iso[n];
   }
   return n;
 }
@@ -12059,7 +12057,6 @@ void close_video_context(void)
 
 int LbBullfrogMain(unsigned short argc, char *argv[])
 {
-  //return _DK_LbBullfrogMain(argc, argv);
   short retval;
   retval=0;
   LbErrorLogSetup("/", log_file_name, 5);

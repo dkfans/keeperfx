@@ -28,9 +28,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 #define POLY_SCANS_COUNT 576
 
@@ -41,15 +39,14 @@ struct PolyPoint { // sizeof = 20
   long field_C;
   long field_10;
 };
-#ifdef __cplusplus
-#pragma pack()
-#endif
 
 /******************************************************************************/
 DLLIMPORT unsigned char _DK_vec_mode;
 //#define vec_mode _DK_vec_mode
 DLLIMPORT unsigned char _DK_vec_colour;
 //#define vec_colour _DK_vec_colour
+
+#pragma pack()
 /******************************************************************************/
 extern TbPixel vec_colour;
 extern unsigned char vec_mode;

@@ -145,10 +145,11 @@ long field_C;
     char *str_answr;
 };
 
-#pragma pack()
 /******************************************************************************/
 DLLIMPORT extern int _DK_network_initialized;
 #define network_initialized _DK_network_initialized
+
+#pragma pack()
 /******************************************************************************/
 TbError LbNetwork_Init(unsigned long srvcp,struct _GUID guid, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct SerialInitData *init_data);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, unsigned long *playr_num, void *optns);

@@ -29,10 +29,8 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
-/******************************************************************************/
+
 struct StructureList;
 
 struct Light { // sizeof = 46
@@ -68,10 +66,8 @@ DLLIMPORT long _DK_light_bitmask[32];
 #define light_bitmask _DK_light_bitmask
 DLLIMPORT long _DK_stat_light_needs_updating;
 #define stat_light_needs_updating _DK_stat_light_needs_updating
-/******************************************************************************/
-#ifdef __cplusplus
+
 #pragma pack()
-#endif
 /******************************************************************************/
 void clear_light_system(void);
 void clear_stat_light_map(void);
