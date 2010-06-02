@@ -1467,8 +1467,8 @@ void set_creature_instance(struct Thing *thing, long inst_idx, long a2, long a3,
     cctrl->field_D4 = 0;
     cctrl->field_D8 = itime;
     cctrl->field_D6 = aitime;
-    i = get_creature_graphics(thing->model,inst_inf->graphics_idx);
-    cctrl->field_1CC = get_lifespan_of_animation(i, 1) / itime;
+    i = get_creature_breed_graphics(thing->model,inst_inf->graphics_idx);
+    cctrl->field_1CE = get_lifespan_of_animation(i, 1) / itime;
     if (pos != NULL)
     {
       cctrl->target_x = (pos->x.val >> 8);

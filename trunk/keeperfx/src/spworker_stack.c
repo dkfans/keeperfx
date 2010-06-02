@@ -190,32 +190,31 @@ long check_out_undug_area(struct Thing *thing)
 
 long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
 {
-  struct MapTask* mtask;
-  long stl_x, stl_y;
-  long i,nused;
-  SYNCDBG(18,"Starting");
-  nused = 0;
-  for (i = 0; i < dungeon->field_AF7; i++)
-  {
-    if ((num <= 0) || (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT))
-      break;
-    mtask = &dungeon->task_list[i];
-    if ((mtask->field_0 != 0) && (mtask->field_0 != 3))
+    struct MapTask* mtask;
+    long stl_x, stl_y;
+    long i,nused;
+    SYNCDBG(18,"Starting");
+    nused = 0;
+    i = -1;
+    while ((num > 0) && (dungeon->imp_stack_length < IMP_TASK_MAX_COUNT))
     {
-      stl_x = stl_num_decode_x(mtask->field_1);
-      stl_y = stl_num_decode_y(mtask->field_1);
-      if ( subtile_revealed(stl_x, stl_y, dungeon->field_E9F) )
-      {
-        if ( block_has_diggable_side(dungeon->field_E9F, map_to_slab[stl_x], map_to_slab[stl_y]) )
+        i = find_next_dig_in_dungeon_task_list(dungeon, i);
+        if (i < 0)
+            break;
+        mtask = get_dungeon_task_list_entry(dungeon, i);
+        stl_x = stl_num_decode_x(mtask->field_1);
+        stl_y = stl_num_decode_y(mtask->field_1);
+        if ( subtile_revealed(stl_x, stl_y, dungeon->field_E9F) )
         {
-          add_to_imp_stack_using_pos(mtask->field_1, 9, dungeon);
-          num--;
-          nused++;
+          if ( block_has_diggable_side(dungeon->field_E9F, map_to_slab[stl_x], map_to_slab[stl_y]) )
+          {
+            add_to_imp_stack_using_pos(mtask->field_1, 9, dungeon);
+            num--;
+            nused++;
+          }
         }
-      }
     }
-  }
-  return nused;
+    return nused;
 }
 
 void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon)
@@ -699,6 +698,7 @@ long check_out_imp_stack(struct Thing *thing)
     struct Thing *sectng;
     struct Thing *trdtng;
     struct ImpStack *istack;
+    struct MapTask *task;
     long stl_x,stl_y;
     long i;
     SYNCDBG(18,"Starting");
@@ -1017,7 +1017,8 @@ long check_out_imp_stack(struct Thing *thing)
             cctrl->word_91 = i;
             cctrl->word_8F = istack->field_0;
             cctrl->byte_94 = 1;
-            if (dungeon->task_list[i].field_0 == 2)
+            task = get_dungeon_task_list_entry(dungeon, i);
+            if (task->field_0 == 2)
             {
               thing->field_8 = 3;
             } else

@@ -21,11 +21,11 @@ CPP  = g++
 CC   = gcc
 WINDRES = windres
 DLLTOOL = dlltool
-BIN  = ./bin/peresec.exe
-RES  = ./obj/peresec_stdres.res
+BIN  = bin/peresec.exe
+RES  = obj/peresec_stdres.res
 LIBS =
 OBJS = \
-./obj/peresec.o \
+obj/peresec.o \
 $(RES)
 
 LINKOBJ  = $(OBJS)
@@ -57,19 +57,19 @@ $(BIN): $(OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-./obj/%.o: ./src/%.cpp
+obj/%.o: src/%.cpp
 	@echo 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
-./obj/%.o: ./src/%.c
+obj/%.o: src/%.c
 	@echo 'Building file: $<'
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
-./obj/%.res: ./res/%.rc
+obj/%.res: res/%.rc
 	@echo 'Building resource: $<'
 	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff 
 	@echo 'Finished building: $<'

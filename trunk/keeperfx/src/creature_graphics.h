@@ -65,8 +65,9 @@ struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing
 unsigned char keepersprite_frames(unsigned short n);
 long get_lifespan_of_animation(long ani, long frameskip);
 unsigned long get_creature_anim(struct Thing *thing, unsigned short frame);
-unsigned long get_creature_graphics(long breed, unsigned short frame);
-void set_creature_graphics(long breed, unsigned short frame, unsigned long val);
+unsigned long get_creature_breed_graphics(long breed, unsigned short frame);
+void set_creature_breed_graphics(long breed, unsigned short frame, unsigned long val);
+void set_creature_graphic(struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus

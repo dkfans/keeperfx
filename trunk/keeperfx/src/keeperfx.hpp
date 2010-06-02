@@ -1018,8 +1018,6 @@ DLLIMPORT unsigned char _DK_smooth_on;
 #define smooth_on _DK_smooth_on
 DLLIMPORT struct BigSprite _DK_status_panel;
 #define status_panel _DK_status_panel
-DLLIMPORT unsigned short _DK_breed_activities[CREATURE_TYPES_COUNT];
-#define breed_activities _DK_breed_activities
 DLLIMPORT char _DK_top_of_breed_list;
 #define top_of_breed_list _DK_top_of_breed_list
 DLLIMPORT char _DK_no_of_breeds_owned;
@@ -1036,8 +1034,6 @@ DLLIMPORT struct TrapStats _DK_trap_stats[7]; //not sure - maybe it's 8?
 #define trap_stats _DK_trap_stats
 DLLIMPORT long _DK_imp_spangle_effects[];
 #define imp_spangle_effects _DK_imp_spangle_effects
-DLLIMPORT struct Creatures _DK_creatures[CREATURE_TYPES_COUNT];
-#define creatures _DK_creatures
 DLLIMPORT struct Thing *_DK_thing_being_displayed;
 #define thing_being_displayed _DK_thing_being_displayed
 DLLIMPORT struct Thing *_DK_thing_pointed_at;
@@ -1411,7 +1407,6 @@ void process_dungeon_destroy(struct Thing *thing);
 void apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char a2);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_disease(struct Thing *thing);
-void set_creature_graphic(struct Thing *thing);
 void process_keeper_spell_effect(struct Thing *thing);
 long creature_is_group_leader(struct Thing *thing);
 void leader_find_positions_for_followers(struct Thing *thing);
