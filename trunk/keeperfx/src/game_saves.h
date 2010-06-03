@@ -30,6 +30,12 @@ extern "C" {
 #define SAVE_TEXTNAME_LEN     15
 #define PLAYER_NAME_LENGTH    64
 
+enum SaveGameChunks {
+     SGC_InfoBlock    = 0x4F464E49, //"INFO"
+     SGC_GameOrig     = 0x53444C4F, //"OLDS"
+     SGC_GameAdd      = 0x44444147, //"GADD"
+};
+
 /******************************************************************************/
 #ifdef __cplusplus
 #pragma pack(1)
@@ -49,12 +55,6 @@ struct CatalogueEntry {
     char campaign_name[LINEMSG_SIZE];
     char campaign_fname[DISKPATH_SIZE];
     char player_name[PLAYER_NAME_LENGTH];
-};
-
-enum SaveGameChunks {
-     SGC_InfoBlock    = 0x4F464E49, //"INFO"
-     SGC_GameOrig     = 0x53444C4F, //"OLDS"
-     SGC_GameAdd      = 0x44444147, //"GADD"
 };
 
 struct FileChunkHeader {

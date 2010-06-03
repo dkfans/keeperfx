@@ -8,7 +8,7 @@
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
- * @date     25 May 2009 - 26 Jul 2009
+ * @date     25 May 2009 - 07 Jun 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -62,6 +62,7 @@ struct LensConfig *get_lens_config(long lens_idx)
 
 TbBool parse_lenses_common_blocks(char *buf,long len)
 {
+  static const char config_textname[] = "Lenses config";
   long pos;
   int k,n;
   int cmd_num;
@@ -76,9 +77,10 @@ TbBool parse_lenses_common_blocks(char *buf,long len)
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in lenses config file.",block_buf);
+    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
     return false;
   }
+#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(lenses_common_commands,cmd_num)
   while (pos<len)
   {
       // Finding command number in this line
@@ -100,8 +102,8 @@ TbBool parse_lenses_common_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Lenses file.",
-                get_conf_parameter_text(lenses_common_commands,cmd_num),block_buf);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 0: // comment
@@ -109,17 +111,19 @@ TbBool parse_lenses_common_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Lenses file.",
-              cmd_num,block_buf);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+              cmd_num,block_buf,config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
   }
+#undef COMMAND_TEXT
   return true;
 }
 
 TbBool parse_lenses_data_blocks(char *buf,long len)
 {
+  static const char config_textname[] = "Lenses config";
   long pos;
   int i,k,n;
   int cmd_num;
@@ -159,10 +163,11 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      WARNMSG("Block [%s] not found in Lenses config file.",block_buf);
+      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
       continue;
     }
     lenscfg = &lenses_conf.lenses[i];
+#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(lenses_data_commands,cmd_num)
     while (pos<len)
     {
       // Finding command number in this line
@@ -175,8 +180,8 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,lenscfg->name,COMMAND_WORD_LEN) <= 0)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Lenses config file.",
-                get_conf_parameter_text(lenses_data_commands,cmd_num),block_buf);
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
             break;
           }
           n++;
@@ -206,8 +211,8 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
           }
           if (n < 3)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Lenses file.",
-                  get_conf_parameter_text(lenses_data_commands,cmd_num),block_buf);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           } else
           {
               lenscfg->flags |= LCF_HasMist;
@@ -225,8 +230,8 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Lenses file.",
-                  get_conf_parameter_text(lenses_data_commands,cmd_num),block_buf);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           } else
           {
               lenscfg->flags |= LCF_HasDisplace;
@@ -243,8 +248,8 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Lenses file.",
-                  get_conf_parameter_text(lenses_data_commands,cmd_num),block_buf);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           } else
           {
               lenscfg->flags |= LCF_HasPalette;
@@ -255,12 +260,13 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Lenses file.",
-              cmd_num,block_buf);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+              cmd_num,block_buf,config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
     }
+#undef COMMAND_TEXT
   }
   return true;
 }

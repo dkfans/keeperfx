@@ -37,10 +37,58 @@ extern "C" {
 DLLIMPORT void _DK_process_creature_instance(struct Thing *thing);
 DLLIMPORT long _DK_instf_dig(struct Thing *thing, long *param);
 
-
 DLLIMPORT struct InstanceInfo _DK_instance_info[48];
 #define instance_info _DK_instance_info
 /******************************************************************************/
+long instf_creature_fire_shot(struct Thing *thing, long *param);
+long instf_creature_cast_spell(struct Thing *thing, long *param);
+long instf_dig(struct Thing *thing, long *param);
+
+const struct NamedCommand creature_instances_func_type[] = {
+  {"attack_room_slab",         1},
+  {"creature_cast_spell",      2},
+  {"creature_fire_shot",       3},
+  {"creature_damage_wall",     4},
+  {"creature_destroy",         5},
+  {"creature_dig",             6},
+  {"creature_eat",             7},
+  {"creature_fart",            8},
+  {"first_person_do_imp_task", 9},
+  {"creature_pretty_path",     10},
+  {"creature_reinforce",       11},
+  {"creature_tortured",        12},
+  {"creature_tunnel",          13},
+  {"none",                     14},
+  {NULL,                       0},
+};
+
+Creature_Instf_Func creature_instances_func_list[] = {
+  NULL,
+  NULL,//instf_attack_room_slab,
+  instf_creature_cast_spell,
+  instf_creature_fire_shot,
+  NULL,//instf_damage_wall,
+  NULL,//instf_destroy,
+  instf_dig,
+  NULL,//instf_eat,
+  NULL,//instf_fart,
+  NULL,//instf_first_person_do_imp_task,
+  NULL,//instf_pretty_path, //[10]
+  NULL,//instf_reinforce,
+  NULL,//instf_tortured,
+  NULL,//instf_tunnel,
+  NULL,
+  NULL,
+};
+
+/******************************************************************************/
+
+/** Returns creature instance info structure for given instance index.
+ *
+ * @param inst_idx Instance index.
+ * @param func_name Name of the caller function, for logging purposes.
+ * @return Instance Info struct is returned.
+ */
 struct InstanceInfo *creature_instance_info_get_ptr(long inst_idx,const char *func_name)
 {
     if ((inst_idx < 0) || (inst_idx >= sizeof(instance_info)/sizeof(instance_info[0])))

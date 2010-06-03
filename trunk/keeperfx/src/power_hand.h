@@ -31,6 +31,7 @@ extern "C" {
 #pragma pack(1)
 #endif
 
+struct Thing;
 
 #ifdef __cplusplus
 #pragma pack()
