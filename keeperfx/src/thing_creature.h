@@ -28,20 +28,20 @@
 extern "C" {
 #endif
 
-struct Thing;
-
 #define CREATURE_TYPES_COUNT  32
 #define DEAD_CREATURES_MAX_COUNT 64
 
 /******************************************************************************/
+#ifdef __cplusplus
+#pragma pack(1)
+#endif
+
+struct Thing;
+
 enum ThingPickFlags {
     TPF_PickableCheck    = 0x01,
     TPF_ReverseOrder     = 0x02,
 };
-
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
 
 struct CreatureStorage {
   unsigned char model;

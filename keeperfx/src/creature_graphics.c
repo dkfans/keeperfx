@@ -184,10 +184,10 @@ void set_creature_breed_graphics(long breed, unsigned short seq_idx, unsigned lo
     creature_graphics[breed][seq_idx] = val;
 }
 
-unsigned long get_creature_anim(struct Thing *thing, unsigned short frame)
+unsigned long get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 {
   unsigned long idx;
-  idx = get_creature_breed_graphics(thing->model, frame);
+  idx = get_creature_breed_graphics(thing->model, seq_idx);
   return convert_td_iso(idx);
 }
 
@@ -215,23 +215,24 @@ TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
     return false;
 }
 
+TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
+{
+    unsigned long i;
+    i = convert_td_iso(td_idx);
+    if (i != thing->field_44)
+    {
+        set_thing_draw(thing, i, speed, -1, -1, 0, 2);
+        return true;
+    }
+    return false;
+}
+
 void set_creature_graphic(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
     struct InstanceInfo *inst_inf;
-
-    signed int v9;
-    signed int v10;
-    signed int v11;
-    signed int v12;
-    signed int v13;
-    __int32 v20;
-    __int32 v22;
-    __int32 v23;
-    char v24;
-    char v25;
-    unsigned char v26;
+    long i;
 
     //_DK_set_creature_graphic(thing); return;
     cctrl = creature_control_get_from_thing(thing);
@@ -265,12 +266,10 @@ void set_creature_graphic(struct Thing *thing)
     if ((thing->field_50 & 0x01) != 0)
     {
       thing->field_50 &= 0x01;
-      goto LABEL_124;
     }
     if ((thing->field_7 == 96) && (cctrl->field_282 >= 0))
     {
       thing->field_4F |= 0x01;
-      goto LABEL_124;
     }
     if ((cctrl->field_AD & 0x02) == 0)
     {
@@ -282,150 +281,81 @@ void set_creature_graphic(struct Thing *thing)
           }
           inst_inf = creature_instance_info_get(cctrl->field_D2);
           update_creature_anim(thing, cctrl->field_1CE, inst_inf->graphics_idx);
-          goto LABEL_124;
-        }
+        } else
         if ((cctrl->field_B1 != 0) || (thing->health < 0) || ((cctrl->field_AB & 0x02) != 0))
         {
             update_creature_anim(thing, 256, 8);
-            goto LABEL_124;
         } else
         if ((cctrl->field_AB & 0x01) != 0)
         {
             update_creature_anim(thing, 256, 0);
-            goto LABEL_124;
         } else
         if (thing->field_7 == 66)
         {
             update_creature_anim(thing, 256, 10);
-            goto LABEL_124;
         } else
         if ((thing->field_7 == 124) || (thing->field_7 == 125))
         {
             update_creature_anim(thing, 128, 4);
-            goto LABEL_124;
         } else
         if (thing->field_7 == 67)
         {
             update_creature_anim(thing, 64, 16);
             thing->field_4F |= 0x40;
-            goto LABEL_124;
         } else
         if (thing->field_7 == 26)
         {
             thing->field_4F &= 0xCF;
             update_creature_anim(thing, 128, 12);
-            goto LABEL_124;
         } else
         if (cctrl->field_9 == 0)
         {
             update_creature_anim(thing, 256, 0);
-            goto LABEL_124;
         } else
-        if (thing->field_60 < (signed int)thing->mappos.z.val)
+        if (thing->field_60 < thing->mappos.z.val)
         {
             update_creature_anim(thing, 256, 0);
-            goto LABEL_124;
         } else
-        if ((cctrl->field_6E > 0) && thing_get(cctrl->field_6E)->field_1 & 0x01 )
+        if ((cctrl->field_6E > 0) && (thing_get(cctrl->field_6E)->field_1 & 0x01))
         {
-            v22 = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
-            update_creature_anim(thing, v22, 2);
-            goto LABEL_124;
+            i = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
+            update_creature_anim(thing, i, 2);
         } else
-        if (creatures[thing->model].field_6 != 4)
+        if (creatures[thing->model].field_6 == 4)
         {
-            v22 = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
-            if (update_creature_anim(thing, v22, 1))
-            {
-                goto LABEL_124;
-            }
-            if (creatures[thing->model].field_6 != 4)
-            {
-              thing->field_3E = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
-            }
-            goto LABEL_124;
+            update_creature_anim(thing, 256, 1);
         } else
         {
-            if (update_creature_anim(thing, 256, 1))
+            i = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
+            if (!update_creature_anim(thing, i, 1))
             {
-                goto LABEL_124;
+                thing->field_3E = i;
             }
-            if (creatures[thing->model].field_6 != 4)
-            {
-              thing->field_3E = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
-            }
-            goto LABEL_124;
         }
-        goto LABEL_124;
     } else
     {
-        thing->field_4F &= 0xCFu;
-        if ( cctrl->field_9 )
+        thing->field_4F &= ~0x30;
+        if (cctrl->field_9 == 0)
         {
-          if ( thing->field_60 >= (signed int)thing->mappos.z.val )
-          {
-              v11 = convert_td_iso(819);
-            if ( thing->field_44 != v11 )
-            {
-              if ( creatures[thing->model].field_6 != 4 )
-              {
-                v12 = convert_td_iso(819);
-                v26 = 2;
-                v25 = 0;
-                v24 = -1;
-                v23 = -1;
-                v22 = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
-                v20 = v12;
-                set_thing_draw(thing, v20, v22, v23, v24, v25, v26);
-                goto LABEL_124;
-              }
-              v10 = convert_td_iso(819);
-              v26 = 2;
-              v25 = 0;
-              v24 = -1;
-              v23 = -1;
-              v22 = 256;
-              v20 = v10;
-              set_thing_draw(thing, v20, v22, v23, v24, v25, v26);
-              goto LABEL_124;
-            }
-            if ( creatures[thing->model].field_6 != 4 )
-              thing->field_3E = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
-          }
-          else
-          {
-            v9 = convert_td_iso(820);
-            if ( thing->field_44 != v9 )
-            {
-              v10 = convert_td_iso(820);
-              v26 = 2;
-              v25 = 0;
-              v24 = -1;
-              v23 = -1;
-              v22 = 256;
-              set_thing_draw(thing, v10, v22, v23, v24, v25, v26);
-              goto LABEL_124;
-            }
-          }
-        }
-        else
+            update_creature_anim_td(thing, 256, 820);
+        } else
+        if (thing->field_60 < thing->mappos.z.val)
         {
-          v13 = convert_td_iso(820);
-          if ( thing->field_44 != v13 )
-          {
-            v26 = 2;
-            v25 = 0;
-            v24 = -1;
-            v23 = -1;
-            v22 = 256;
-            set_thing_draw(thing, v13, v22, v23, v24, v25, v26);
-            goto LABEL_124;
-          }
+            update_creature_anim_td(thing, 256, 820);
+        } else
+        if (creatures[thing->model].field_6 == 4)
+        {
+            update_creature_anim_td(thing, 256, 819);
+        } else
+        {
+            i = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
+            if (!update_creature_anim_td(thing, i, 819))
+            {
+                thing->field_3E = i;
+            }
         }
     }
 
-
-LABEL_124:
     if ((cctrl->field_AB & 0x02) != 0)
     {
         tint_thing(thing, colours[4][4][15], 1);

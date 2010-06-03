@@ -30,7 +30,28 @@ extern "C" {
 #define CREATURE_FRAMELIST_LENGTH     982
 
 enum CreatureGraphicsInstances {
-    CGI_TopViewSymbol = 20,
+    CGI_Stand       =  0,
+    CGI_Ambulate    =  1,
+    CGI_Drag        =  2,
+    CGI_Attack      =  3,
+    CGI_Dig         =  4,
+    CGI_Smoke       =  5,
+    CGI_Relax       =  6,
+    CGI_PrettyDance =  7,
+    CGI_GotHit      =  8,
+    CGI_PowerGrab   =  9,
+    CGI_GotSlapped  = 10,
+    CGI_WaveHands   = 11,
+    CGI_Sleep       = 12,
+    CGI_EatChicken  = 13,
+    CGI_Torture     = 14,
+    CGI_Scream      = 15,
+    CGI_DropDead    = 16,
+    CGI_DeadSplat   = 17,
+    CGI_GFX18       = 18,
+    CGI_QuerySymbol = 19,
+    CGI_HandSymbol  = 20,
+    CGI_GFX21       = 21,
 };
 /******************************************************************************/
 #ifdef __cplusplus

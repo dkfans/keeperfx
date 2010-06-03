@@ -34,7 +34,6 @@ extern "C" {
 struct Thing;
 
 
-/******************************************************************************/
 #ifdef __cplusplus
 #pragma pack()
 #endif

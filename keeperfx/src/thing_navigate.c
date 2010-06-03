@@ -158,7 +158,7 @@ TbBool setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y
 {
     struct CreatureControl *cctrl;
     struct Coord3d pos;
-    SYNCDBG(8,"Starting");
+    SYNCDBG(18,"Starting");
     pos.x.stl.num = stl_x;
     pos.x.stl.pos = 128;
     pos.y.stl.num = stl_y;

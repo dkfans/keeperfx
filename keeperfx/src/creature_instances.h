@@ -54,15 +54,14 @@ unsigned char field_26[4];
 #pragma pack()
 #endif
 /******************************************************************************/
-#define creature_instance_info_get(inst_idx) creature_instance_info_get_ptr(inst_idx,__func__)
+extern const struct NamedCommand creature_instances_func_type[];
+extern Creature_Instf_Func creature_instances_func_list[];
 /******************************************************************************/
+/** Returns creature instance info structure for given instance index. */
+#define creature_instance_info_get(inst_idx) creature_instance_info_get_ptr(inst_idx,__func__)
 struct InstanceInfo *creature_instance_info_get_ptr(long inst_idx,const char *func_name);
 void process_creature_instance(struct Thing *thing);
 TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf);
-
-long instf_creature_fire_shot(struct Thing *thing, long *param);
-long instf_creature_cast_spell(struct Thing *thing, long *param);
-long instf_dig(struct Thing *thing, long *param);
 /******************************************************************************/
 #ifdef __cplusplus
 }

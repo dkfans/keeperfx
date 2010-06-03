@@ -26,9 +26,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-extern unsigned int eye_lens_width;
-extern unsigned int eye_lens_height;
-/******************************************************************************/
 #ifdef __cplusplus
 #pragma pack(1)
 #endif
@@ -41,6 +38,9 @@ DLLIMPORT TbPixel *_DK_eye_lens_spare_screen_memory;
 #ifdef __cplusplus
 #pragma pack()
 #endif
+/******************************************************************************/
+extern unsigned int eye_lens_width;
+extern unsigned int eye_lens_height;
 /******************************************************************************/
 void initialise_eye_lenses(void);
 void setup_eye_lens(long nlens);

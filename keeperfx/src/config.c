@@ -91,7 +91,7 @@ const struct NamedCommand logicval_type[] = {
   };
 
 unsigned long features_enabled = 0;
-// Line number, used when loading text files
+/** Line number, used when loading text files. */
 unsigned long text_line_number;
 
 short is_full_moon = 0;
@@ -449,8 +449,7 @@ TbBool prepare_diskpath(char *buf,long buflen)
 
 short load_configuration(void)
 {
-  SYNCDBG(4,"Starting");
-  //return _DK_load_configuration();
+  static const char config_textname[] = "Config";
   const char *fname;
   char *buf;
   long len,pos;
@@ -458,6 +457,8 @@ short load_configuration(void)
   // Variables to use when recognizing parameters
   char word_buf[32];
   int i,k;
+  SYNCDBG(4,"Starting");
+  //return _DK_load_configuration();
   // Preparing config file name and checking the file
   strcpy(install_info.inst_path,"");
   install_info.field_9A = 0;
@@ -467,12 +468,12 @@ short load_configuration(void)
   len = LbFileLengthRnc(fname);
   if (len < 2)
   {
-    WARNMSG("Config file \"%s\" doesn't exist or is too small.",keeper_config_file);
+    WARNMSG("%s file \"%s\" doesn't exist or is too small.",config_textname,keeper_config_file);
     return false;
   }
   if (len > 65536)
   {
-    WARNMSG("Config file \"%s\" is too large.",keeper_config_file);
+    WARNMSG("%s file \"%s\" is too large.",config_textname,keeper_config_file);
     return false;
   }
   buf = (char *)LbMemoryAlloc(len+256);
@@ -482,9 +483,12 @@ short load_configuration(void)
   len = LbFileLoadAt(fname, buf);
   if (len>0)
   {
-    SYNCDBG(7,"Processing config file, %d bytes",len);
+    SYNCDBG(7,"Processing %s file, %d bytes",config_textname,len);
     buf[len] = '\0';
+    // Set text line number - we don't have blocks so we need to initialize it manually
+    text_line_number = 1;
     pos = 0;
+#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(conf_commands,cmd_num)
     while (pos<len)
     {
       // Finding command number in this line
@@ -497,7 +501,8 @@ short load_configuration(void)
           i = get_conf_parameter_whole(buf,&pos,len,install_info.inst_path,sizeof(install_info.inst_path));
           if (i <= 0)
           {
-            WARNMSG("Couldn't read \"%s\" command parameter in config file.","INSTALL_PATH");
+              CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
             break;
           }
           prepare_diskpath(install_info.inst_path,sizeof(install_info.inst_path));
@@ -509,7 +514,8 @@ short load_configuration(void)
           i = recognize_conf_parameter(buf,&pos,len,lang_type);
           if (i <= 0)
           {
-            WARNMSG("Couldn't recognize \"%s\" command parameter in config file.","LANGUAGE");
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
             break;
           }
           install_info.lang_id = i;
@@ -521,7 +527,8 @@ short load_configuration(void)
           i = recognize_conf_parameter(buf,&pos,len,scrshot_type);
           if (i <= 0)
           {
-            WARNMSG("Couldn't recognize \"%s\" command parameter in config file.","SCREENSHOT");
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
             break;
           }
           screenshot_format = i;
@@ -535,7 +542,8 @@ short load_configuration(void)
               k = -1;
             if (k<=0)
             {
-               WARNMSG("Couldn't recognize video mode %d in \"%s\" command of config file.",i+1,"FRONTEND_RES");
+                CONFWRNLOG("Couldn't recognize video mode %d in \"%s\" command of %s file.",
+                   i+1,COMMAND_TEXT(cmd_num),config_textname);
                continue;
             }
             switch (i)
@@ -561,13 +569,15 @@ short load_configuration(void)
               if (k > 0)
                 set_game_vidmode(i,k);
               else
-                WARNMSG("Couldn't recognize video mode %d in \"%s\" command of config file.",i+1,"INGAME_RES");
+                  CONFWRNLOG("Couldn't recognize video mode %d in \"%s\" command of %s file.",
+                    i+1,COMMAND_TEXT(cmd_num),config_textname);
             } else
             {
               if (i > 0)
                 set_game_vidmode(i,Lb_SCREEN_MODE_INVALID);
               else
-                WARNMSG("Video modes list empty in \"%s\" command of config file.","INGAME_RES");
+                  CONFWRNLOG("Video modes list empty in \"%s\" command of %s file.",
+                    COMMAND_TEXT(cmd_num),config_textname);
               break;
             }
           }
@@ -576,7 +586,8 @@ short load_configuration(void)
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
-            WARNMSG("Couldn't recognize \"%s\" command parameter in config file.","CENSORSHIP");
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
             break;
           }
           if (i == 1)
@@ -587,11 +598,13 @@ short load_configuration(void)
       case -1: // end of buffer
           break;
       default:
-          WARNMSG("Unrecognized command in config file, starting on byte %d.",pos);
+          CONFWRNLOG("Unrecognized command in %s file.",
+              config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
     }
+#undef COMMAND_TEXT
   }
   SYNCDBG(7,"Config loaded");
   // Freeing

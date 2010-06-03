@@ -171,12 +171,6 @@ struct ScriptLine {
   char tp[COMMANDDESC_ARGS_COUNT][MAX_TEXT_LENGTH];
 };
 
-#ifdef __cplusplus
-#pragma pack()
-#endif
-
-/******************************************************************************/
-extern const struct CommandDesc command_desc[];
 /******************************************************************************/
 DLLIMPORT short _DK_script_current_condition;
 #define script_current_condition _DK_script_current_condition
@@ -196,6 +190,11 @@ DLLIMPORT unsigned short _DK_condition_stack[48];
 //DLLIMPORT struct NamedCommand _DK_door_desc[5];
 //DLLIMPORT struct NamedCommand _DK_trap_desc[8];
 //DLLIMPORT struct NamedCommand _DK_hero_objective_desc[];
+#ifdef __cplusplus
+#pragma pack()
+#endif
+/******************************************************************************/
+extern const struct CommandDesc command_desc[];
 /******************************************************************************/
 TbBool script_support_setup_player_as_computer_keeper(unsigned short plyridx, long comp_model);
 long script_scan_line(char *line,TbBool preloaded);
