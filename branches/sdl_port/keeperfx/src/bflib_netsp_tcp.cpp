@@ -216,17 +216,25 @@ TbError TCPServiceProvider::EnableNewPlayers(TbBool allow) {
 	return Lb_OK;
 }
 
-bool TCPServiceProvider::ReadMessage(unsigned long * playerId, void * msg, unsigned long * len) {
-	//return fetchMessage(playerId, msg, len, false);
-	return false;
+bool TCPServiceProvider::ReadMessage(ulong * playerId, void * msg, ulong * len) {
+	assert(started);
+
+	size_t len2 = *len;
+	bool retval = base->fetchDKMessage(*playerId, reinterpret_cast<char *>(msg), len2, false);
+	*len = len2;
+	return retval;
 }
 
-bool TCPServiceProvider::PeekMessage(unsigned long * playerId, void * msg, unsigned long * len) {
-	//return fetchMessage(playerId, msg, len, true);
-	return false;
+bool TCPServiceProvider::PeekMessage(ulong * playerId, void * msg, ulong * len) {
+	assert(started);
+
+	size_t len2 = *len;
+	bool retval = base->fetchDKMessage(*playerId, reinterpret_cast<char *>(msg), len2, true);
+	*len = len2;
+	return retval;
 }
 
-TbError TCPServiceProvider::SendMessage(unsigned long playerId, void * msg, unsigned char i) {
+TbError TCPServiceProvider::SendMessage(ulong playerId, void * msg, uchar i) {
 	assert(started);
 
 	ulong totalMsgLen;
