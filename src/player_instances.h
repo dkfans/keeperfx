@@ -26,10 +26,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-struct Thing;
-struct PlayerInfo;
-typedef long (*InstncInfo_Func)(struct PlayerInfo *player, long *n);
-
 enum PlayerNames {
     PLAYER0          =  0,
     PLAYER1          =  1,
@@ -90,6 +86,11 @@ enum PlayerStates {
 
 /******************************************************************************/
 #pragma pack(1)
+
+struct Thing;
+struct PlayerInfo;
+
+typedef long (*InstncInfo_Func)(struct PlayerInfo *player, long *n);
 
 struct PlayerInstanceInfo { // sizeof = 44
   long field_0;

@@ -28,8 +28,6 @@
 extern "C" {
 #endif
 
-struct Thing;
-
 #define CREATURE_TYPES_COUNT  32
 #define DEAD_CREATURES_MAX_COUNT 64
 
@@ -40,6 +38,8 @@ enum ThingPickFlags {
 
 /******************************************************************************/
 #pragma pack(1)
+
+struct Thing;
 
 struct CreatureStorage {
   unsigned char model;

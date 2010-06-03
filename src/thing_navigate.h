@@ -31,7 +31,6 @@ extern "C" {
 
 struct Thing;
 
-
 /******************************************************************************/
 DLLIMPORT long _DK_owner_player_navigating;
 #define owner_player_navigating _DK_owner_player_navigating

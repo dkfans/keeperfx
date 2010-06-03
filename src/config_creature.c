@@ -57,6 +57,7 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"FPRESETTIME",     7},
   {"FORCEVISIBILITY", 8},
   {"GRAPHICS",        9},
+  {"FUNCTIONS",      10},
   {NULL,              0},
   };
 
@@ -102,22 +103,23 @@ const struct NamedCommand attackpref_desc[] = {
 const struct NamedCommand creature_graphics_desc[] = {
   {"STAND",              0},
   {"AMBULATE",           1},
-  {"GFX02",              2},
+  {"DRAG",               2},
   {"ATTACK",             3},
-  {"GFX04",              4},
-  {"GFX05",              5},
-  {"SMOKER",             6},
+  {"DIG",                4},
+  {"SMOKE",              5},
+  {"RELAX",              6},//was SMOKER
   {"PRETTYDANCE",        7},
-  {"GFX08",              8},
-  {"HANDGRAB",           9},
-  {"WAVEHANDS",         10},
-  {"GFX12",             11},
-  {"GFX13",             12},
+  {"GOTHIT",             8},
+  {"POWERGRAB",          9},//was HANDGRAB
+  {"GOTSLAPPED",        10},// was WAVEHANDS
+  {"WAVEHANDS",         11},
+  {"SLEEP",             12},
   {"EATCHICKEN",        13},
   {"TORTURE",           14},
   {"SCREAM",            15},
-  {"DEADBODY",          16},
-  {"DROPDEAD",          17},
+  {"DROPDEAD",          16},
+  {"DEADSPLAT",         17},
+// These below seems to be not from CREATURE.JTY
   {"GFX18",             18},
   {"QUERYSYMBOL",       19},
   {"HANDSYMBOL",        20},
@@ -227,7 +229,7 @@ const char *creature_code_name(long crmodel)
     return "INVALID";
 }
 
-TbBool parse_creaturetypes_common_blocks(char *buf,long len)
+TbBool parse_creaturetypes_common_blocks(char *buf,long len,const char *config_textname)
 {
   long pos;
   int i,k,n;
@@ -254,9 +256,10 @@ TbBool parse_creaturetypes_common_blocks(char *buf,long len)
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in Creature config file.",block_buf);
+    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
     return false;
   }
+#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_common_commands,cmd_num)
   while (pos<len)
   {
       // Finding command number in this line
@@ -274,8 +277,8 @@ TbBool parse_creaturetypes_common_blocks(char *buf,long len)
             n++;
             if (n >= CREATURE_TYPES_MAX)
             {
-              CONFWRNLOG("Too many spiecies defined with \"%s\" in [%s] block of Creature file.",
-                get_conf_parameter_text(creaturetype_common_commands,cmd_num),block_buf);
+              CONFWRNLOG("Too many species defined with \"%s\" in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
               break;
             }
           }
@@ -299,8 +302,8 @@ TbBool parse_creaturetypes_common_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Creature file.",
-                get_conf_parameter_text(creaturetype_common_commands,cmd_num),block_buf);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 3: // JOBSCOUNT
@@ -315,8 +318,8 @@ TbBool parse_creaturetypes_common_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Creature file.",
-                get_conf_parameter_text(creaturetype_common_commands,cmd_num),block_buf);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 4: // ANGERJOBSCOUNT
@@ -331,8 +334,8 @@ TbBool parse_creaturetypes_common_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Creature file.",
-                get_conf_parameter_text(creaturetype_common_commands,cmd_num),block_buf);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 5: // ATTACKPREFERENCESCOUNT
@@ -347,8 +350,8 @@ TbBool parse_creaturetypes_common_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of Creature file.",
-                get_conf_parameter_text(creaturetype_common_commands,cmd_num),block_buf);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 0: // comment
@@ -356,19 +359,22 @@ TbBool parse_creaturetypes_common_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Creature file.",cmd_num,block_buf);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+              cmd_num,block_buf,config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
   }
+#undef COMMAND_TEXT
   if (crtr_conf.model_count < 1)
   {
-      WARNLOG("No creature spiecies defined in [%s] block of Creature file.",block_buf);
+      WARNLOG("No creature species defined in [%s] block of %s file.",
+          block_buf,config_textname);
   }
   return true;
 }
 
-TbBool parse_creaturetype_instance_blocks(char *buf,long len)
+TbBool parse_creaturetype_instance_blocks(char *buf,long len,const char *config_textname)
 {
   struct InstanceInfo *inst_inf;
   long pos;
@@ -394,7 +400,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len)
     }
   }
   arr_size = crtr_conf.instance_count;
-  // Load the file
+  // Load the file blocks
   for (i=0; i < arr_size; i++)
   {
     sprintf(block_buf,"instance%d",i);
@@ -402,53 +408,11 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      WARNMSG("Block [%s] not found in Creature Types config file.",block_buf);
+      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
       continue;
     }
     inst_inf = creature_instance_info_get(i);
-    //TODO Hack to make our shot function work - remove when it's not needed
-    switch (i)
-    {
-    case 1:
-    case 2:
-    case 4:
-        inst_inf->func_cb = instf_creature_fire_shot;
-        break;
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-    case 9:
-    case 10:
-    case 11:
-    case 12:
-    case 13:
-    case 14:
-    case 15:
-    case 16:
-    case 17:
-    case 18:
-    case 19:
-    case 20:
-    case 21:
-    case 22:
-    case 23:
-    case 24:
-    case 25:
-    case 26:
-    case 27:
-    case 28:
-    case 40:
-    case 41:
-    case 42:
-    case 43:
-        inst_inf->func_cb = instf_creature_cast_spell;
-        break;
-    case 30:
-        inst_inf->func_cb = instf_dig;
-        break;
-    }
-
+#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_instance_commands,cmd_num)
     while (pos<len)
     {
       // Finding command number in this line
@@ -461,9 +425,9 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len)
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,crtr_conf.instance_names[i].text,COMMAND_WORD_LEN) <= 0)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Creature Types config file.",
-            get_conf_parameter_text(creaturetype_instance_commands,cmd_num),block_buf);
-            break;
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              break;
           }
           n++;
           break;
@@ -476,8 +440,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Creature Types config file.",
-            get_conf_parameter_text(creaturetype_instance_commands,cmd_num),block_buf);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 3: // ACTIONTIME
@@ -489,8 +453,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Creature Types config file.",
-            get_conf_parameter_text(creaturetype_instance_commands,cmd_num),block_buf);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 4: // RESETTIME
@@ -502,8 +466,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Creature Types config file.",
-            get_conf_parameter_text(creaturetype_instance_commands,cmd_num),block_buf);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 5: // FPTIME
@@ -515,8 +479,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Creature Types config file.",
-            get_conf_parameter_text(creaturetype_instance_commands,cmd_num),block_buf);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 6: // FPACTIONTIME
@@ -528,8 +492,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Creature Types config file.",
-            get_conf_parameter_text(creaturetype_instance_commands,cmd_num),block_buf);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 7: // FPRESETTIME
@@ -541,8 +505,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Creature Types config file.",
-            get_conf_parameter_text(creaturetype_instance_commands,cmd_num),block_buf);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 8: // FORCEVISIBILITY
@@ -554,8 +518,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Creature Types config file.",
-            get_conf_parameter_text(creaturetype_instance_commands,cmd_num),block_buf);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 9: // GRAPHICS
@@ -570,8 +534,21 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len)
           }
           if (n < 1)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of Creature Types config file.",
-            get_conf_parameter_text(creaturetype_instance_commands,cmd_num),block_buf);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 10: // FUNCTIONS
+          k = recognize_conf_parameter(buf,&pos,len,creature_instances_func_type);
+          if (k > 0)
+          {
+              inst_inf->func_cb = creature_instances_func_list[k];
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 0: // comment
@@ -579,33 +556,35 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len)
       case -1: // end of buffer
           break;
       default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of Creature Types file.",
-              cmd_num,block_buf);
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+              cmd_num,block_buf,config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
     }
+#undef COMMAND_TEXT
   }
   return true;
 }
 
 TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags)
 {
+  static const char config_textname[] = "Creature Type config";
   char *fname;
   char *buf;
   long len;
   TbBool result;
-  SYNCDBG(0,"Reading Creature config file \"%s\".",conf_fname);
+  SYNCDBG(0,"Reading %s file \"%s\".",config_textname,conf_fname);
   fname = prepare_file_path(FGrp_FxData,conf_fname);
   len = LbFileLengthRnc(fname);
   if (len < 2)
   {
-    WARNMSG("Creature config file \"%s\" doesn't exist or is too small.",conf_fname);
+    WARNMSG("%s file \"%s\" doesn't exist or is too small.",config_textname,conf_fname);
     return false;
   }
   if (len > 65536)
   {
-    WARNMSG("Creature config file \"%s\" is too large.",conf_fname);
+    WARNMSG("%s file \"%s\" is too large.",config_textname,conf_fname);
     return false;
   }
   buf = (char *)LbMemoryAlloc(len+256);
@@ -616,15 +595,15 @@ TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags)
   result = (len > 0);
   if (result)
   {
-    result = parse_creaturetypes_common_blocks(buf, len);
+    result = parse_creaturetypes_common_blocks(buf, len, config_textname);
     if (!result)
-      WARNMSG("Parsing Creature file \"%s\" common blocks failed.",conf_fname);
+      WARNMSG("Parsing %s file \"%s\" common blocks failed.",config_textname,conf_fname);
   }
   if (result)
   {
-    result = parse_creaturetype_instance_blocks(buf, len);
+    result = parse_creaturetype_instance_blocks(buf, len, config_textname);
     if (!result)
-      WARNMSG("Parsing Creature file \"%s\" instance blocks failed.",conf_fname);
+      WARNMSG("Parsing %s file \"%s\" instance blocks failed.",config_textname,conf_fname);
   }
   //Freeing and exiting
   LbMemoryFree(buf);

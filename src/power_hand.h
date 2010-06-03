@@ -27,6 +27,12 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+#pragma pack(1)
+
+struct Thing;
+
+#pragma pack()
+/******************************************************************************/
 void add_creature_to_sacrifice_list(long owner, long model, long explevel);
 void place_thing_in_limbo(struct Thing *thing);
 unsigned long object_is_pickable_by_hand(struct Thing *thing, long a2);

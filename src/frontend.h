@@ -45,7 +45,7 @@ extern "C" {
 #define POS_SCRCTR  -997
 #define POS_SCRBTM  -996
 #define POS_GAMECTR  999
-// After that much miliseconds in main menu, demo is started
+// After that much milliseconds in main menu, demo is started
 #define MNU_DEMO_IDLE_TIME 30000
 /******************************************************************************/
 enum DemoItem_Kind {
