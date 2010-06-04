@@ -640,6 +640,8 @@
  0001:0007F370       creature_turn_to_face_backwards
  0001:0007F430       creature_turn_to_face_angle
  0001:0007F7A0       ariadne_initialise_creature_route
+ 0001:0007FD80       ariadne_init_movement_to_current_waypoint
+ 0001:000816E0       ariadne_pull_out_waypoint
  0001:00081B30       draw_resurrect_creature
  0001:00081D10       select_resurrect_creature_up
  0001:00081D20       select_resurrect_creature_down

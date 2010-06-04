@@ -38,17 +38,39 @@ extern "C" {
 
 typedef unsigned char AriadneReturn;
 
+enum AriadneReturnValues {
+    AridRet_OK    = 0,
+};
+
+struct Ariadne { // sizeof = 102
+    struct Coord3d startpos;
+    struct Coord3d endpos;
+  struct Coord3d field_C;
+  struct Coord3d field_12;
+  unsigned char field_18[6];
+  unsigned char field_1E;
+  unsigned char field_1F[7];
+  unsigned short field_26;
+  unsigned char field_28;
+    struct Coord2d waypoints[10];
+    unsigned char stored_waypoints;
+    unsigned char total_waypoints;
+  unsigned char field_53[15];
+  unsigned long field_62;
+};
+
+struct PathWayPoint { // sizeof = 8
+    long x;
+    long y;
+};
+
 struct Path { // sizeof = 2068
     long field_0;
     long field_4;
     long field_8;
     long field_C;
-    long field_10;
-    unsigned char field_14[12];
-    unsigned char field_20[1968];
-    unsigned char field_7D0[48];
-    unsigned char field_800[16];
-    unsigned char field_810[4];
+    long waypoints_num;
+    struct PathWayPoint waypoints[256];
 };
 
 struct Triangle { // sizeof = 16
@@ -145,6 +167,8 @@ DLLIMPORT struct Path _DK_bak_path;
 #define bak_path _DK_bak_path
 
 #pragma pack()
+/******************************************************************************/
+extern unsigned char const actual_sizexy_to_nav_block_sizexy_table[];
 /******************************************************************************/
 long init_navigation(void);
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);

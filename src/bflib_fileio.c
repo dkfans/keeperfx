@@ -340,8 +340,7 @@ short LbFileFlush(TbFileHandle handle)
   if (result != 0)
       return true;
   result = GetLastError();
-  LbJustLog("ERROR %d",result);
-  return ((result != 0) && (result != 6));
+  return ((result == 0) || (result == 6));
 #else
 #if defined(DOS)||defined(GO32)
   // No idea how to do this on old systems
