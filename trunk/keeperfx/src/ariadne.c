@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "thing_navigate.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -59,12 +60,42 @@ DLLIMPORT long _DK_delete_3point(long a1, long a2);
 DLLIMPORT long _DK_edge_rotateAC(long a1, long a2);
 DLLIMPORT long _DK_triangle_route_do_fwd(long a1, long a2, long *a3, long *a4);
 DLLIMPORT long _DK_triangle_route_do_bak(long a1, long a2, long *a3, long *a4);
+DLLIMPORT void _DK_ariadne_pull_out_waypoint(struct Thing *thing, struct Ariadne *arid, long a3, struct Coord3d *pos);
+DLLIMPORT long _DK_ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariadne *arid);
 
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
+unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+    4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+    4,
+};
+
 const long MOD3[] = {0, 1, 2, 0, 1, 2};
 /******************************************************************************/
 long route_to_path(long a1, long a2, long a3, long a4, long *a5, long a6, struct Path *path, long *a8);
@@ -128,6 +159,7 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
 
 long route_to_path(long a1, long a2, long a3, long a4, long *a5, long a6, struct Path *path, long *a8)
 {
+    NAVIDBG(19,"Starting");
     return _DK_route_to_path(a1, a2, a3, a4, a5, a6, path, a8);
 }
 
@@ -153,9 +185,9 @@ long triangle_findSE8(long a1, long a2)
 
 long triangle_route_do_fwd(long a1, long a2, long *a3, long *a4)
 {
-//TODO: PATHFUNDING may hang if out of triangles
-//if (game.play_gameturn > 3500)
-//JUSTLOG("BB2");
+    //TODO: PATHFUNDING may hang if out of triangles; rework
+/*    if (game.play_gameturn > 3200)
+        NAVIDBG(9,"Starting");*/
     return _DK_triangle_route_do_fwd(a1, a2, a3, a4);
 }
 
@@ -172,6 +204,7 @@ long ma_triangle_route(long a1, long a2, long *a3)
     long i;
     //return _DK_ma_triangle_route(a1, a2, a3);
     // Forward route
+    NAVIDBG(19,"Making forward route");
     len_fwd = triangle_route_do_fwd(a1, a2, route_fwd, a3);
     if (len_fwd == -1)
     {
@@ -185,6 +218,7 @@ long ma_triangle_route(long a1, long a2, long *a3)
     tree_Bx8 = tx;
     tree_By8 = ty;
     // Backward route
+    NAVIDBG(19,"Making backward route");
     len_bak = triangle_route_do_bak(a2, a1, route_bak, a3);
     if (len_bak == -1)
     {
@@ -198,6 +232,7 @@ long ma_triangle_route(long a1, long a2, long *a3)
     tree_Bx8 = tx;
     tree_By8 = ty;
     // Select a route
+    NAVIDBG(19,"Selecting route");
     if (par_fwd < par_bak) //TODO PATHFINDING originally the condition was different - verify
     {
         for (i=0; i <= sizeof(tree_route)/sizeof(tree_route[0]); i++)
@@ -225,10 +260,127 @@ unsigned long regions_connected(long tree_reg1, long tree_reg2)
     return _DK_regions_connected(tree_reg1, tree_reg2);
 }
 
+TbBool ariadne_creature_reached_position(struct Thing *thing, struct Coord3d *pos)
+{
+    if (thing->mappos.x.val != pos->x.val)
+        return false;
+    if (thing->mappos.y.val != pos->y.val)
+        return false;
+    return true;
+}
+
+void ariadne_pull_out_waypoint(struct Thing *thing, struct Ariadne *arid, long a3, struct Coord3d *pos)
+{
+  _DK_ariadne_pull_out_waypoint(thing, arid, a3, pos);
+}
+
+void ariadne_init_current_waypoint(struct Thing *thing, struct Ariadne *arid)
+{
+    ariadne_pull_out_waypoint(thing, arid, arid->field_28, &arid->field_C);
+    arid->field_C.z.val = get_thing_height_at(thing, &arid->field_C);
+    arid->field_62 = get_2d_distance(&thing->mappos, &arid->field_C);
+}
+
+long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariadne *arid)
+{
+    return _DK_ariadne_init_movement_to_current_waypoint(thing, arid);
+}
+
+AriadneReturn ariadne_prepare_creature_route_target_reached(struct Thing *thing, struct Ariadne *arid, struct Coord3d *srcpos, struct Coord3d *dstpos)
+{
+    arid->startpos.x.val = srcpos->x.val;
+    arid->startpos.y.val = srcpos->y.val;
+    arid->startpos.z.val = srcpos->z.val;
+    arid->endpos.x.val = dstpos->x.val;
+    arid->endpos.y.val = dstpos->y.val;
+    arid->endpos.z.val = dstpos->z.val;
+    arid->waypoints[0].x.val = srcpos->x.val;
+    arid->waypoints[0].y.val = srcpos->y.val;
+    arid->field_C.x.val = srcpos->x.val;
+    arid->field_C.y.val = srcpos->y.val;
+    arid->field_C.z.val = srcpos->z.val;
+    arid->field_28 = 0;
+    arid->field_12.x.val = thing->mappos.x.val;
+    arid->field_12.y.val = thing->mappos.y.val;
+    arid->field_12.z.val = thing->mappos.z.val;
+    arid->stored_waypoints = 1;
+    arid->total_waypoints = 1;
+    arid->field_1E = 0;
+    return 0;
+}
+
+AriadneReturn ariadne_prepare_creature_route_to_target(struct Thing *thing, struct Ariadne *arid, struct Coord3d *srcpos, struct Coord3d *dstpos, long a3, unsigned char a4)
+{
+    struct Path path;
+    long nav_sizexy;
+    long i,k;
+    memset(&path, 0, sizeof(struct Path));
+    arid->startpos.x.val = srcpos->x.val;
+    arid->startpos.y.val = srcpos->y.val;
+    arid->startpos.z.val = srcpos->z.val;
+    arid->endpos.x.val = dstpos->x.val;
+    arid->endpos.y.val = dstpos->y.val;
+    arid->endpos.z.val = dstpos->z.val;
+    nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
+    if ( a4 )
+        owner_player_navigating = -1;
+    else
+        owner_player_navigating = thing->owner;
+    nav_sizexy = actual_sizexy_to_nav_block_sizexy_table[thing->field_56%(MAX_SIZEXY+1)]-1;
+    path_init8_wide(&path,
+        arid->startpos.x.val, arid->startpos.y.val,
+        arid->endpos.x.val, arid->endpos.y.val, -2, nav_sizexy);
+    nav_thing_can_travel_over_lava = 0;
+    if (path.waypoints_num <= 0)
+        return 2;
+    if (path.waypoints_num <= 255)
+        arid->total_waypoints = path.waypoints_num;
+    else
+        arid->total_waypoints = 255;
+    if (arid->total_waypoints < 10)
+        arid->stored_waypoints = arid->total_waypoints;
+    else
+        arid->stored_waypoints = 10;
+    k = 0;
+    for (i = 0; i < arid->stored_waypoints; i++)
+    {
+        arid->waypoints[i].x.val = path.waypoints[k].x;
+        arid->waypoints[i].y.val = path.waypoints[k].y;
+        k++;
+    }
+    arid->field_28 = 0;
+    arid->field_1E = a4;
+    arid->field_12.x.val = thing->mappos.x.val;
+    arid->field_12.y.val = thing->mappos.y.val;
+    arid->field_12.z.val = thing->mappos.z.val;
+    arid->field_26 = a3;
+    return 0;
+}
+
 AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long a3, unsigned char a4)
 {
+    struct CreatureControl *cctrl;
+    struct Ariadne *arid;
+    AriadneReturn ret;
     SYNCDBG(18,"Starting");
-    return _DK_ariadne_initialise_creature_route(thing, pos, a3, a4);
+    //return _DK_ariadne_initialise_creature_route(thing, pos, a3, a4);
+    cctrl = creature_control_get_from_thing(thing);
+    arid = &(cctrl->arid);
+    memset(arid, 0, sizeof(struct Ariadne));
+    if (ariadne_creature_reached_position(thing, pos))
+    {
+        ret = ariadne_prepare_creature_route_target_reached(thing, arid, &thing->mappos, pos);
+        if (ret != AridRet_OK)
+            return ret;
+    } else
+    {
+        ret = ariadne_prepare_creature_route_to_target(thing, arid, &thing->mappos, pos, a3, a4);
+        if (ret != AridRet_OK)
+            return ret;
+        ariadne_init_current_waypoint(thing, arid);
+    }
+    ariadne_init_movement_to_current_waypoint(thing, arid);
+    return 0;
 }
 
 AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long a4, unsigned char a5)
@@ -237,11 +389,23 @@ AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct C
     return _DK_creature_follow_route_to_using_gates(thing, pos1, pos2, a4, a5);
 }
 
+/**
+ * Initializes Path structure with path data to travel between given coordinates.
+ * Note that it works a bit different than in original DK - makes more error checks.
+ *
+ * @param path Target Path structure.
+ * @param start_x Starting point coordinate.
+ * @param start_y Starting point coordinate.
+ * @param end_x Destination point coordinate.
+ * @param end_y Destination point coordinate.
+ * @param a6
+ * @param nav_size
+ */
 void path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size)
 {
     int creature_radius;
     long route_dist;
-    //TODO: PATHFINDING hangs; probably if out of triangles
+    //TODO PATHFINDING hangs; probably if out of triangles
     //_DK_path_init8_wide(path, start_x, start_y, end_x, end_y, a6, nav_size);
     NAVIDBG(19,"F=%ld Path    %03ld,%03ld %03ld,%03ld", game.play_gameturn, start_x, start_y, end_x, end_y);
     if (a6 == -1)
@@ -250,7 +414,7 @@ void path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, 
     path->field_4 = start_y;
     path->field_8 = end_x;
     path->field_C = end_y;
-    path->field_10 = 0;
+    path->waypoints_num = 0;
     tree_Ax8 = start_x;
     tree_Ay8 = start_y;
     tree_Bx8 = end_x;
@@ -286,9 +450,9 @@ void path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, 
         NAVIDBG(19,"route=%d", tree_routelen);
         if (tree_routelen != -1)
         {
-          path->field_10 = route_to_path(start_x, start_y, end_x, end_y, tree_route, tree_routelen, path, &route_dist);
+          path->waypoints_num = route_to_path(start_x, start_y, end_x, end_y, tree_route, tree_routelen, path, &route_dist);
           path_out_a_bit(path, tree_route);
-          NAVIDBG(19,"way=%ld", path->field_10);
+          NAVIDBG(19,"way=%ld", path->waypoints_num);
         }
     } else
     {
