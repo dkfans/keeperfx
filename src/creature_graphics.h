@@ -28,6 +28,7 @@ extern "C" {
 
 // note - this is temporary value; not correct
 #define CREATURE_FRAMELIST_LENGTH     982
+#define CREATURE_GRAPHICS_INSTANCES     22
 
 enum CreatureGraphicsInstances {
     CGI_Stand       =  0,

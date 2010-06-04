@@ -122,6 +122,7 @@ extern const struct NamedCommand angerjob_desc[];
 extern const struct NamedCommand creaturejob_desc[];
 extern const struct NamedCommand attackpref_desc[];
 extern struct NamedCommand instance_desc[];
+extern const struct NamedCommand creature_graphics_desc[];
 extern struct CreatureConfig crtr_conf;
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(long crstat_idx);

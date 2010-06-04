@@ -101,29 +101,29 @@ const struct NamedCommand attackpref_desc[] = {
   };
 
 const struct NamedCommand creature_graphics_desc[] = {
-  {"STAND",              0},
-  {"AMBULATE",           1},
-  {"DRAG",               2},
-  {"ATTACK",             3},
-  {"DIG",                4},
-  {"SMOKE",              5},
-  {"RELAX",              6},//was SMOKER
-  {"PRETTYDANCE",        7},
-  {"GOTHIT",             8},
-  {"POWERGRAB",          9},//was HANDGRAB
-  {"GOTSLAPPED",        10},// was WAVEHANDS
-  {"WAVEHANDS",         11},
-  {"SLEEP",             12},
-  {"EATCHICKEN",        13},
-  {"TORTURE",           14},
-  {"SCREAM",            15},
-  {"DROPDEAD",          16},
-  {"DEADSPLAT",         17},
+  {"STAND",              0+1},
+  {"AMBULATE",           1+1},
+  {"DRAG",               2+1},
+  {"ATTACK",             3+1},
+  {"DIG",                4+1},
+  {"SMOKE",              5+1},
+  {"RELAX",              6+1},//was SMOKER
+  {"PRETTYDANCE",        7+1},
+  {"GOTHIT",             8+1},
+  {"POWERGRAB",          9+1},//was HANDGRAB
+  {"GOTSLAPPED",        10+1},// was WAVEHANDS
+  {"WAVEHANDS",         11+1},
+  {"SLEEP",             12+1},
+  {"EATCHICKEN",        13+1},
+  {"TORTURE",           14+1},
+  {"SCREAM",            15+1},
+  {"DROPDEAD",          16+1},
+  {"DEADSPLAT",         17+1},
 // These below seems to be not from CREATURE.JTY
-  {"GFX18",             18},
-  {"QUERYSYMBOL",       19},
-  {"HANDSYMBOL",        20},
-  {"GFX21",             21},
+  {"GFX18",             18+1},
+  {"QUERYSYMBOL",       19+1},
+  {"HANDSYMBOL",        20+1},
+  {"GFX21",             21+1},
   {NULL,                 0},
   };
 
@@ -526,9 +526,9 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len,const char *config_
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = get_id(creature_graphics_desc, word_buf);
-              if (k >= 0)
+              if (k > 0)
               {
-                  inst_inf->graphics_idx = k;
+                  inst_inf->graphics_idx = k-1;
                   n++;
               }
           }
