@@ -1978,7 +1978,7 @@ void command_kill_creature(char *plrname, char *crtr_name, char *criteria, int c
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
-  //TODO: finish killing code!
+  //TODO: SCRIPT finish killing code!
 }
 
 long script_scan_line(char *line,TbBool preloaded)

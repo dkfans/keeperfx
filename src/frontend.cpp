@@ -3362,7 +3362,7 @@ TbBool fronttestfont_draw(void)
       LbDrawBox(x, y, spr->SWidth+2, spr->SHeight+2, 255);
       LbSpriteDraw(x+1, y+1, spr);
     }
-//TODO enhance font support
+//TODO SPRITES enhance font support
   }
   // Displaying the new frame
   return true;

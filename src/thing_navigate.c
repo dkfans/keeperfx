@@ -77,9 +77,12 @@ unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
 TbBool creature_can_navigate_to_with_storage(struct Thing *crtng, struct Coord3d *pos, unsigned char storage)
 {
     struct CreatureControl *cctrl;
-    SYNCDBG(18,"Starting");
+    AriadneReturn ret;
+    SYNCDBG(8,"Starting");
     cctrl = creature_control_get_from_thing(crtng);
-    return ariadne_initialise_creature_route(crtng, pos, cctrl->max_speed, storage) == 0;
+    ret = ariadne_initialise_creature_route(crtng, pos, cctrl->max_speed, storage);
+    SYNCDBG(8,"Ariadne returned %d",(int)ret);
+    return (ret == 0);
 }
 
 /**

@@ -415,10 +415,10 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     thing = find_creature_to_be_placed_in_room(comp, &room);
     if (!thing_is_invalid(thing))
     {
-        //TODO try to make sure the creature will do proper activity in the room,
+        //TODO CREATURE_AI try to make sure the creature will do proper activity in the room
         //     ie. select a room tile which is far from CTA and enemies
-        //TODO don't place creatures at center of a temple
-        //TODO make sure to place creatures at "active" portal tile
+        //TODO CREATURE_AI don't place creatures at center of a temple
+        //TODO CREATURE_AI make sure to place creatures at "active" portal tile if we want them to leave
         ctask->word_80 = room->index;
         pos.x.val = room->stl_x << 8;
         pos.y.val = room->stl_y << 8;

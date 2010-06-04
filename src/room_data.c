@@ -1046,8 +1046,8 @@ struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsi
     return NULL;
 }
 
-//TODO try to make sure the creature will do proper activity in the room.
-//TODO try to select lair far away from CTA and enemies
+//TODO CREATURE_AI try to make sure the creature will do proper activity in the room.
+//TODO CREATURE_AI try to select lair far away from CTA and enemies
 struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, long rkind)
 {
   struct Room *room;

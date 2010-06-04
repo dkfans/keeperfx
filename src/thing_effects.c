@@ -258,7 +258,7 @@ long get_word_of_power_damage(const struct Thing *efftng, const struct Thing *ds
 {
   long distance;
   distance = get_2d_box_distance(&dsttng->mappos, &efftng->mappos);
-  // TODO: the damage and the distance should be in config files.
+  // TODO: SPELLS the damage and the distance should be in config files.
   return get_radially_decaying_value(150,640,640,distance);
 }
 

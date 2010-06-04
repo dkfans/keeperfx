@@ -153,7 +153,7 @@ long triangle_findSE8(long a1, long a2)
 
 long triangle_route_do_fwd(long a1, long a2, long *a3, long *a4)
 {
-//TODO: may hang if out of triangles
+//TODO: PATHFUNDING may hang if out of triangles
 //if (game.play_gameturn > 3500)
 //JUSTLOG("BB2");
     return _DK_triangle_route_do_fwd(a1, a2, a3, a4);
@@ -198,7 +198,7 @@ long ma_triangle_route(long a1, long a2, long *a3)
     tree_Bx8 = tx;
     tree_By8 = ty;
     // Select a route
-    if (par_fwd < par_bak) //TODO originally the condition was different - verify
+    if (par_fwd < par_bak) //TODO PATHFINDING originally the condition was different - verify
     {
         for (i=0; i <= sizeof(tree_route)/sizeof(tree_route[0]); i++)
         {
@@ -227,6 +227,7 @@ unsigned long regions_connected(long tree_reg1, long tree_reg2)
 
 AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long a3, unsigned char a4)
 {
+    SYNCDBG(18,"Starting");
     return _DK_ariadne_initialise_creature_route(thing, pos, a3, a4);
 }
 
@@ -240,7 +241,7 @@ void path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, 
 {
     int creature_radius;
     long route_dist;
-    //TODO: hangs; probably if out of things/rooms
+    //TODO: PATHFINDING hangs; probably if out of triangles
     //_DK_path_init8_wide(path, start_x, start_y, end_x, end_y, a6, nav_size);
     NAVIDBG(19,"F=%ld Path    %03ld,%03ld %03ld,%03ld", game.play_gameturn, start_x, start_y, end_x, end_y);
     if (a6 == -1)
