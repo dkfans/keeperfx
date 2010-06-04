@@ -664,7 +664,7 @@ TbError GenericSerialInit(struct _GUID guid, void *init_data)
   receiveCallbacks.multiPlayer = TwoPlayerCallback;
   if (sp_init != NULL)
     sp_init->field_C = 1;
-  //TODO: set when SerialSP is ready
+  //TODO: NET set when SerialSP is ready
   spPtr = NULL;//new SerialSP(...);
   if (spPtr == NULL)
   {
@@ -702,7 +702,7 @@ TbError GenericModemInit(struct _GUID guid, void *init_data)
   receiveCallbacks.multiPlayer = TwoPlayerCallback;
   if (sp_init != NULL)
     sp_init->field_C = 2;
-//TODO: set when ModemSP is ready
+//TODO: NET set when ModemSP is ready
   spPtr = NULL;//new ModemSP(...);
   if (spPtr == NULL)
   {

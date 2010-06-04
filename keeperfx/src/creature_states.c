@@ -1771,7 +1771,7 @@ TbBool creature_in_flee_zone(struct Thing *thing)
         return false;
     }
     dist = get_2d_box_distance(&thing->mappos, &cctrl->pos_288);
-    //TODO put flee_zone_radius into config file
+    //TODO CREATURE_AI put flee_zone_radius into config file
     return (dist < 1536);
 }
 
@@ -2446,7 +2446,7 @@ short creature_wants_salary(struct Thing *thing)
 
 /**
  * Return index of a dungeon which the hero may attack.
- * @todo Shouldn't we support allies with heroes?
+ * @todo HERO_AI Shouldn't we support allies with heroes?
  *
  * @param thing The hero searching for target.
  * @return Player index, or -1 if no dungeon to attack found.

@@ -65,6 +65,7 @@ typedef HANDLE *PHANDLE,*LPHANDLE;
 WINBASEAPI DWORD WINAPI GetShortPathNameA(LPCSTR,LPSTR,DWORD);
 #define GetShortPathName GetShortPathNameA
 WINBASEAPI BOOL WINAPI FlushFileBuffers(HANDLE);
+WINBASEAPI DWORD WINAPI GetLastError(void);
 #ifdef __cplusplus
 }
 #endif
@@ -332,8 +333,15 @@ long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long le
 short LbFileFlush(TbFileHandle handle)
 {
 #if defined(WIN32)
+  int result;
   // Crappy Windows has its own
-  return (FlushFileBuffers((HANDLE)handle) != 0);
+  result = FlushFileBuffers((HANDLE)handle);
+  // It returns 'invalid handle' error sometimes for no reason.. so disabling this error
+  if (result != 0)
+      return true;
+  result = GetLastError();
+  LbJustLog("ERROR %d",result);
+  return ((result != 0) && (result != 6));
 #else
 #if defined(DOS)||defined(GO32)
   // No idea how to do this on old systems

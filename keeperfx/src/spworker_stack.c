@@ -84,7 +84,8 @@ TbBool add_to_imp_stack_using_pos(long stl_num, long task_type, struct Dungeon *
 
 long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3)
 {
-  return _DK_imp_will_soon_be_working_at_excluding(thing, a2, a3);
+    SYNCDBG(19,"Starting");
+    return _DK_imp_will_soon_be_working_at_excluding(thing, a2, a3);
 }
 
 struct Thing *check_for_empty_trap_for_imp_not_being_armed(struct Thing *thing, long a2)
@@ -94,7 +95,8 @@ struct Thing *check_for_empty_trap_for_imp_not_being_armed(struct Thing *thing, 
 
 long check_out_unprettied_or_unconverted_area(struct Thing *thing)
 {
-  return _DK_check_out_unprettied_or_unconverted_area(thing);
+    SYNCDBG(19,"Starting");
+    return _DK_check_out_unprettied_or_unconverted_area(thing);
 }
 
 long check_out_unconverted_spiral(struct Thing *thing, long a2)
@@ -102,9 +104,74 @@ long check_out_unconverted_spiral(struct Thing *thing, long a2)
   return _DK_check_out_unconverted_spiral(thing, a2);
 }
 
-long check_out_unprettied_spiral(struct Thing *thing, long a2)
+TbBool check_out_unprettied_spot(struct Thing *thing, long slb_x, long slb_y)
 {
-  return _DK_check_out_unprettied_spiral(thing, a2);
+    long stl_x,stl_y;
+    if ((slb_x >= 0) && (slb_x < map_tiles_x) && (slb_y >= 0) && (slb_y < map_tiles_y))
+    {
+      if (check_place_to_pretty_excluding(thing, slb_x, slb_y))
+      {
+          stl_x = 3*slb_x+1;
+          stl_y = 3*slb_y+1;
+          if (!imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
+          {
+              if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
+              {
+                  thing->field_8 = 9;
+                  return true;
+              }
+          }
+      }
+    }
+    return false;
+}
+
+long check_out_unprettied_spiral(struct Thing *thing, long nslabs)
+{
+    const struct Around *arnd;
+    long slb_x,slb_y;
+    long slabi,arndi;
+    long i,imax,k;
+    SYNCDBG(9,"Starting");
+    //return _DK_check_out_unprettied_spiral(thing, nslabs);
+
+    slb_x = map_to_slab[thing->mappos.x.stl.num];
+    slb_y = map_to_slab[thing->mappos.y.stl.num];
+    imax = 2;
+    arndi = ACTION_RANDOM(4);
+    for (slabi = 0; slabi < nslabs; slabi++)
+    {
+        {
+          arnd = &small_around[arndi];
+          {
+              slb_x += arnd->delta_x;
+              slb_y += arnd->delta_y;
+              if (check_out_unprettied_spot(thing, slb_x, slb_y))
+              {
+                  return 1;
+              }
+          }
+          arndi = (arndi + 1) & 3;
+          i = 1;
+        }
+        for (k = 0; k < 4; k++)
+        {
+          arnd = &small_around[arndi];
+          for (; i < imax; i++)
+          {
+              slb_x += arnd->delta_x;
+              slb_y += arnd->delta_y;
+              if (check_out_unprettied_spot(thing, slb_x, slb_y))
+              {
+                  return 1;
+              }
+          }
+          arndi = (arndi + 1) & 3;
+          i = 0;
+        }
+        imax += 2;
+    }
+    return 0;
 }
 
 long check_place_to_convert_excluding(struct Thing *thing, long a2, long a3)
@@ -114,7 +181,8 @@ long check_place_to_convert_excluding(struct Thing *thing, long a2, long a3)
 
 long check_place_to_pretty_excluding(struct Thing *thing, long a2, long a3)
 {
-  return _DK_check_place_to_pretty_excluding(thing, a2, a3);
+    SYNCDBG(19,"Starting");
+    return _DK_check_place_to_pretty_excluding(thing, a2, a3);
 }
 
 long check_out_unreinforced_place(struct Thing *thing)
@@ -156,6 +224,7 @@ long check_out_unprettied_place(struct Thing *thing)
 {
   long stl_x,stl_y;
   long slb_x,slb_y;
+  SYNCDBG(19,"Starting");
   slb_x = map_to_slab[thing->mappos.x.stl.num];
   slb_y = map_to_slab[thing->mappos.y.stl.num];
   stl_x = 3*slb_x + 1;
@@ -592,6 +661,7 @@ long check_out_imp_last_did(struct Thing *thing)
       if ( check_out_unprettied_or_unconverted_area(thing) )
       {
         cctrl->byte_94 = 2;
+        SYNCDBG(19,"Done on unprettied or unconverted area");
         return true;
       }
       break;
@@ -599,6 +669,7 @@ long check_out_imp_last_did(struct Thing *thing)
       if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
       {
         cctrl->byte_94 = 2;
+        SYNCDBG(19,"Done on unprettied or unconverted place");
         return true;
       }
       imp_stack_update(thing);

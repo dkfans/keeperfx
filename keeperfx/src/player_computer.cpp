@@ -161,15 +161,6 @@ DLLIMPORT long _DK_computer_event_attack_magic_foe(struct Computer2 *comp, struc
 DLLIMPORT long _DK_computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent);
 DLLIMPORT long _DK_computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent);
 DLLIMPORT long _DK_computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
-//TODO: we may also make "computer_event_breach" from beta
-//#define computer_event_battle _DK_computer_event_battle
-//#define computer_event_find_link _DK_computer_event_find_link
-//#define computer_event_battle_test _DK_computer_event_battle_test
-//#define computer_event_check_fighters _DK_computer_event_check_fighters
-//#define computer_event_attack_magic_foe _DK_computer_event_attack_magic_foe
-//#define computer_event_check_rooms_full _DK_computer_event_check_rooms_full
-//#define computer_event_check_imps_in_danger _DK_computer_event_check_imps_in_danger
-//#define computer_event_check_payday _DK_computer_event_check_payday
 
 DLLIMPORT extern struct ComputerProcess _DK_BuildAllRooms3x3;
 #define BuildAllRooms3x3 _DK_BuildAllRooms3x3
@@ -463,6 +454,7 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
 long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
+long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
 
 struct ComputerProcessMnemonic computer_process_config_list[] = {
   {"Unused", NULL,},
@@ -1514,6 +1506,12 @@ long get_computer_money_less_cost(struct Computer2 *comp)
   return _DK_get_computer_money_less_cost(comp);
 }
 
+long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4)
+{
+    //TODO COMPUTER_EVENT_BREACH needs this function; may be also used somewhere else - not sure
+    return 0;
+}
+
 struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, unsigned short rkind, long a3, long a4, long a5)
 {
   return _DK_computer_setup_build_room(comp, rkind, a3, a4, a5);
@@ -1931,6 +1929,51 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
 long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event)
 {
   return _DK_computer_event_check_payday(comp, cevent, event);
+}
+
+long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event)
+{
+    //TODO COMPUTER_EVENT_BREACH is remade from beta; make it work (if it's really needed)
+    struct ComputerTask *ctask;
+    struct Coord3d pos;
+    long i,count;
+
+    //TODO COMPUTER_EVENT_BREACH check why mappos_x and mappos_y isn't used normally
+    pos.x.val = ((event->mappos_x & 0xFF) << 8);
+    pos.y.val = (((event->mappos_x >> 8) & 0xFF) << 8);
+    if ((pos.x.val <= 0) || (pos.y.val <= 0))
+    {
+        return 0;
+    }
+    count = count_creatures_for_pickup(comp, &pos, 0, cevent->param2);
+    i = count * cevent->param1 / 100;
+    if ((i <= 0) && (count > 0))
+    {
+        i = 1;
+    }
+    if (i <= 0)
+    {
+        return 4;
+    }
+    if (!computer_find_non_solid_block(comp, &pos))
+    {
+        return 4;
+    }
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask))
+    {
+        return 4;
+    }
+    ctask->ttype = CTT_MoveCreaturesToDefend;
+    ctask->pos_76.x.val = pos.x.val;
+    ctask->pos_76.y.val = pos.y.val;
+    ctask->pos_76.z.val = pos.z.val;
+    ctask->field_7C = i;
+    ctask->field_70 = cevent->param2;
+    ctask->field_A = game.play_gameturn;
+    ctask->field_5C = game.play_gameturn;
+    ctask->field_60 = comp->field_34;
+    return 1;
 }
 
 void setup_a_computer_player(unsigned short plyridx, long comp_model)
