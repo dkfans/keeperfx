@@ -1765,3 +1765,5 @@
  0001:00067650       edge_rotateAC
  0001:0006A730       triangle_route_do_fwd
  0001:0006AB50       triangle_route_do_bak
+ 0001:0007FD80       ariadne_init_movement_to_current_waypoint
+ 0001:000816E0       ariadne_pull_out_waypoint

@@ -20,6 +20,7 @@
 #define DK_CRTRCTRL_H
 
 #include "bflib_basics.h"
+#include "ariadne.h"
 #include "globals.h"
 
 #ifdef __cplusplus
@@ -205,7 +206,8 @@ long field_DE[48];
 unsigned char field_1D3;
   struct CastedSpellData field_1D4[CREATURE_MAX_SPELLS_CASTED_AT];
     char field_1E8;
-unsigned char field_1E9[148];
+unsigned char field_1E9[46];
+    struct Ariadne arid;
 unsigned char field_27D;
 unsigned char field_27E;
 unsigned char field_27F;

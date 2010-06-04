@@ -42,34 +42,6 @@ DLLIMPORT unsigned char _DK_get_nearest_valid_position_for_creature_at(struct Th
 DLLIMPORT void _DK_nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
 
 /******************************************************************************/
-unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-    4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-    4,
-};
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -78,11 +50,11 @@ TbBool creature_can_navigate_to_with_storage(struct Thing *crtng, struct Coord3d
 {
     struct CreatureControl *cctrl;
     AriadneReturn ret;
-    SYNCDBG(8,"Starting");
+    SYNCDBG(18,"Starting");
     cctrl = creature_control_get_from_thing(crtng);
     ret = ariadne_initialise_creature_route(crtng, pos, cctrl->max_speed, storage);
-    SYNCDBG(8,"Ariadne returned %d",(int)ret);
-    return (ret == 0);
+    SYNCDBG(18,"Ariadne returned %d",(int)ret);
+    return (ret == AridRet_OK);
 }
 
 /**
@@ -227,6 +199,7 @@ TbBool creature_can_navigate_to(struct Thing *thing, struct Coord3d *pos, TbBool
     //result = _DK_creature_can_navigate_to(thing, pos, no_owner);
     struct Path path;
     long nav_sizexy;
+    memset(&path, 0, sizeof(struct Path));
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
     if (no_owner)
       owner_player_navigating = -1;
@@ -236,8 +209,8 @@ TbBool creature_can_navigate_to(struct Thing *thing, struct Coord3d *pos, TbBool
     path_init8_wide(&path, thing->mappos.x.val, thing->mappos.y.val,
         pos->x.val, pos->y.val, -2, nav_sizexy);
     nav_thing_can_travel_over_lava = 0;
-    SYNCDBG(17,"Finished");
-    return (path.field_10 != 0);
+    SYNCDBG(17,"Finished, %ld waypoints",(long)path.waypoints_num);
+    return (path.waypoints_num > 0);
 }
 
 /**
