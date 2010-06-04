@@ -8550,8 +8550,7 @@ void update_player_sounds(void)
 void update(void)
 {
   struct PlayerInfo *player;
-  SYNCDBG(4,"Starting");
-
+  SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
   if ((game.numfield_C & 0x01) == 0)
     update_light_render_area();
   process_packets();

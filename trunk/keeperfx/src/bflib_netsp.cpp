@@ -348,7 +348,7 @@ TbError ServiceProvider::Receive(unsigned long a1)
       keepExchng = false;
       break;
     }
-//TODO NET!!!!!!!!!
+//TODO NET core element - important
     DecodeMessageStub(&p2, &decode_a2, &messageType, &decode_a4);
     if (a1 & 0x08)
       a1 = 0xFF;
