@@ -399,6 +399,7 @@ TbBool LbRecogniseVideoModeString(char * str, int * w, int * h, int * bpp, TbBoo
 	assert(w != NULL);
 	assert(h != NULL);
 	assert(bpp != NULL);
+	assert(windowed != NULL);
 
 	SYNCDBG(7, "Entering with string %s", str);
 

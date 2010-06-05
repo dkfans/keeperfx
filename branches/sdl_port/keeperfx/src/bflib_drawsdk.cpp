@@ -1155,8 +1155,13 @@ bool TDDrawSdk::remove_sdk_window(void)
 
 bool TDDrawSdk::is_mode_possible(TbScreenMode * mode)
 {
-	//for now assume these flags
-	unsigned long sdlFlags = SDL_HWPALETTE | SDL_DOUBLEBUF | SDL_FULLSCREEN;
+	unsigned long sdlFlags = 0;
+	if (mode->bpp == 8) {
+		sdlFlags |= SDL_HWPALETTE | SDL_DOUBLEBUF;
+	}
+	if (!mode->windowed) {
+		sdlFlags |= SDL_FULLSCREEN;
+	}
 
 	return SDL_VideoModeOK(mode->width, mode->height, mode->bpp, sdlFlags) == mode->bpp;
 }

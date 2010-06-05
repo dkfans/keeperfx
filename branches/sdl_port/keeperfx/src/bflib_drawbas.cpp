@@ -34,7 +34,9 @@ volatile unsigned long lbIconIndex = 0;
 /******************************************************************************/
 // Base class methods
 
-TDDrawBaseClass::TDDrawBaseClass(void)
+TDDrawBaseClass::TDDrawBaseClass(void) :
+		flags(0),
+		active(true)
 {
   /*WNDCLASSA WndClass;
   this->flags = 0;
