@@ -408,11 +408,12 @@ TbScreenMode get_next_vidmode(unsigned short mode)
 	return switching_vidmodes[curr];
 }
 
-void set_game_vidmode(unsigned short i, int w, int h, int bpp)
+void set_game_vidmode(unsigned short i, int w, int h, int bpp, TbBool windowed)
 {
 	switching_vidmodes[i].width = w;
 	switching_vidmodes[i].height = h;
 	switching_vidmodes[i].bpp = bpp;
+	switching_vidmodes[i].windowed = windowed;
 }
 
 bool validate_vidmode(TbScreenMode * mode)
@@ -425,11 +426,12 @@ TbScreenMode get_failsafe_vidmode(void)
   return failsafe_vidmode;
 }
 
-void set_failsafe_vidmode(int w, int h, int bpp)
+void set_failsafe_vidmode(int w, int h, int bpp, TbBool windowed)
 {
 	failsafe_vidmode.width = w;
 	failsafe_vidmode.height = h;
 	failsafe_vidmode.bpp = bpp;
+	failsafe_vidmode.windowed = windowed;
 }
 
 TbScreenMode get_movies_vidmode(void)
@@ -437,11 +439,12 @@ TbScreenMode get_movies_vidmode(void)
   return movies_vidmode;
 }
 
-void set_movies_vidmode(int w, int h, int bpp)
+void set_movies_vidmode(int w, int h, int bpp, TbBool windowed)
 {
 	movies_vidmode.width = w;
 	movies_vidmode.height = h;
 	movies_vidmode.bpp = bpp;
+	movies_vidmode.windowed = windowed;
 }
 
 TbScreenMode get_frontend_vidmode(void)
@@ -449,11 +452,12 @@ TbScreenMode get_frontend_vidmode(void)
   return frontend_vidmode;
 }
 
-void set_frontend_vidmode(int w, int h, int bpp)
+void set_frontend_vidmode(int w, int h, int bpp, TbBool windowed)
 {
 	frontend_vidmode.width = w;
 	frontend_vidmode.height = h;
 	frontend_vidmode.bpp = bpp;
+	frontend_vidmode.windowed = windowed;
 }
 
 void load_pointer_file(short hi_res)

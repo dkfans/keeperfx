@@ -42,6 +42,7 @@ struct ScreenMode {
 	int width;
 	int height;
 	int bpp;
+	TbBool windowed;
 };
 
 typedef struct ScreenMode TbScreenMode;
@@ -181,7 +182,7 @@ TbResult LbScreenStoreGraphicsWindow(struct TbGraphicsWindow *grwnd);
 TbResult LbScreenLoadGraphicsWindow(struct TbGraphicsWindow *grwnd);
 void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
 TbScreenModeInfo *LbScreenGetModeInfo(unsigned short mode);
-TbBool LbRecogniseVideoModeString(char * str, int * w, int * h, int * bpp);
+TbBool LbRecogniseVideoModeString(char * str, int * w, int * h, int * bpp, TbBool * windowed);
 TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height);
 TbBool LbScreenIsModeAvailable(TbScreenMode * mode);
 TbBool LbIsActive(void);

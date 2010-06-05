@@ -287,7 +287,7 @@ bool TDDrawSdk::setup_screen(TbScreenMode * mode)
   flags |= DMF_DoneSetup;
 
   //release_surfaces();
-  bool fullscreen = flags & DMF_ControlDisplayMode;
+  bool fullscreen = !mode->windowed;
   //bool wscreen = is_wscreen_in_video();
 
   // SDL video mode flags.

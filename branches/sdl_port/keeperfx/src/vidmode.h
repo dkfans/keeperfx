@@ -62,16 +62,16 @@ extern struct TbLoadFiles legal_load_files[];
 extern struct TbLoadFiles map_flag_load_files[];
 /******************************************************************************/
 TbScreenMode switch_to_next_video_mode(void);
-void set_game_vidmode(unsigned short i, int w, int h, int bpp);
+void set_game_vidmode(unsigned short i, int w, int h, int bpp, TbBool windowed);
 void reenter_video_mode(void);
 TbScreenMode get_next_vidmode(unsigned short mode);
 bool validate_vidmode(TbScreenMode * mode);
 TbScreenMode get_failsafe_vidmode(void);
 TbScreenMode get_movies_vidmode(void);
 TbScreenMode get_frontend_vidmode(void);
-void set_failsafe_vidmode(int w, int h, int bpp);
-void set_movies_vidmode(int w, int h, int bpp);
-void set_frontend_vidmode(int w, int h, int bpp);
+void set_failsafe_vidmode(int w, int h, int bpp, TbBool windowed);
+void set_movies_vidmode(int w, int h, int bpp, TbBool windowed);
+void set_frontend_vidmode(int w, int h, int bpp, TbBool windowed);
 char *get_vidmode_name(unsigned short mode);
 
 TbScreenMode * getActiveScreenMode();

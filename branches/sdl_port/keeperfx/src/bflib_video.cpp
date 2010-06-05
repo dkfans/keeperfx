@@ -393,7 +393,7 @@ TbBool LbScreenIsModeAvailable(TbScreenMode * mode)
   return TDDrawSdk::is_mode_possible(mode);
 }
 
-TbBool LbRecogniseVideoModeString(char * str, int * w, int * h, int * bpp)
+TbBool LbRecogniseVideoModeString(char * str, int * w, int * h, int * bpp, TbBool * windowed)
 {
 	assert(str != NULL);
 	assert(w != NULL);
@@ -403,6 +403,7 @@ TbBool LbRecogniseVideoModeString(char * str, int * w, int * h, int * bpp)
 	SYNCDBG(7, "Entering with string %s", str);
 
 	*w = *h = *bpp = -1;
+	*windowed = false;
 
 	//read "MODE_"
 	if (strncmp(str, "MODE_", 5) != 0) {
@@ -448,6 +449,12 @@ TbBool LbRecogniseVideoModeString(char * str, int * w, int * h, int * bpp)
 
 	*bpp = atoi(str);
 	for (; isdigit(*str); ++str);
+
+	//read windowed flag 'W'
+	if (*str == 'W') {
+		++str;
+		*windowed = true;
+	}
 
 	return true;
 }

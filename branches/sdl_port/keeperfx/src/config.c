@@ -459,6 +459,7 @@ short load_configuration(void)
   char word_buf[32];
   int i,k;
   int width, height, bpp;
+  TbBool windowed;
 
   // Preparing config file name and checking the file
   strcpy(install_info.inst_path,"");
@@ -532,7 +533,7 @@ short load_configuration(void)
           for (i=0; i<3; i++)
           {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
-              k = LbRecogniseVideoModeString(word_buf, &width, &height, &bpp);
+              k = LbRecogniseVideoModeString(word_buf, &width, &height, &bpp, &windowed);
               SYNCDBG(7, "Got video mode %ix%ix%i from recognition", width, height, bpp);
             }
             else {
@@ -546,13 +547,13 @@ short load_configuration(void)
             switch (i)
             {
             case 0:
-                set_failsafe_vidmode(width, height, bpp);
+                set_failsafe_vidmode(width, height, bpp, windowed);
                 break;
             case 1:
-                set_movies_vidmode(width, height, bpp);
+                set_movies_vidmode(width, height, bpp, windowed);
                 break;
             case 2:
-                set_frontend_vidmode(width, height, bpp);
+                set_frontend_vidmode(width, height, bpp, windowed);
                 break;
             }
           }
@@ -562,16 +563,16 @@ short load_configuration(void)
           {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = LbRecogniseVideoModeString(word_buf, &width, &height, &bpp);
+              k = LbRecogniseVideoModeString(word_buf, &width, &height, &bpp, &windowed);
               SYNCDBG(7, "Got video mode %ix%ix%i from recognition", width, height, bpp);
               if (k)
-                set_game_vidmode(i, width, height, bpp);
+                set_game_vidmode(i, width, height, bpp, windowed);
               else
                 WARNMSG("Couldn't recognize video mode %d in \"%s\" command of config file.",i+1,"INGAME_RES");
             } else
             {
               if (i > 0)
-                set_game_vidmode(i, -1, -1, -1);
+                set_game_vidmode(i, -1, -1, -1, false);
               else
                 WARNMSG("Video modes list empty in \"%s\" command of config file.","INGAME_RES");
               break;
