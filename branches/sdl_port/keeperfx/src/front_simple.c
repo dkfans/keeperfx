@@ -121,9 +121,7 @@ short copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_wi
   TbScreenMode * mode = getActiveScreenMode();
   int w,h,m;
   int spx,spy;
-  // Only 8bpp supported for now
-  if (mode->bpp != 8)
-    return false;
+
   w=0;
   h=0;
   for (m=0;m<5;m++)

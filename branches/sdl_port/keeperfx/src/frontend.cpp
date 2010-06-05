@@ -4680,9 +4680,7 @@ TbBool fronttorture_draw(void)
   const int img_height = 480;
   int w,h,m,i;
   int spx,spy;
-  // Only 8bpp supported for now
-  if (mode->bpp != 8)
-    return false;
+
   w=0;
   h=0;
   m=1;
@@ -6706,9 +6704,7 @@ void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
   TbScreenMode * mode = getActiveScreenMode();
   int m;
   int spx,spy;
-  // Only 8bpp supported for now
-  if (mode->bpp != 8)
-    return;
+
   if (rect_w == POS_AUTO)
     rect_w = mode->width - rect_x;
   if (rect_h == POS_AUTO)
@@ -6749,9 +6745,7 @@ void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
 
   int m;
   int spx,spy;
-  // Only 8bpp supported for now
-  if (mode->bpp != 8)
-    return;
+
   if (rect_w == POS_AUTO)
     rect_w = mode->width - rect_x;
   if (rect_h == POS_AUTO)

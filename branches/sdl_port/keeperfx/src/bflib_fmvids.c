@@ -1146,11 +1146,6 @@ short anim_record(void)
   static char finalname[255];
   TbScreenMode * mode = getActiveScreenMode();
 
-  if ( mode->bpp != 8 )
-  {
-    ERRORLOG("Cannot record movie in non-8bit screen mode");
-    return 0;
-  }
   int idx;
   for (idx=0; idx < 10000; idx++)
   {
