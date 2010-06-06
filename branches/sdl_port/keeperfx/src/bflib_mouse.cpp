@@ -168,8 +168,8 @@ TbResult __stdcall LbMouseOnMove(struct tagPOINT shift)
 {
   if ((!lbMouseInstalled) || (lbMouseOffline))
     return Lb_FAIL;
-  if (!winMouseHandler.SetMousePosition(lbDisplay.MMouseX+shift.x, lbDisplay.MMouseY+shift.y))
-    return Lb_FAIL;
+  /*if (!winMouseHandler.SetMousePosition(lbDisplay.MMouseX+shift.x, lbDisplay.MMouseY+shift.y))
+    return Lb_FAIL;*/
   return Lb_SUCCESS;
 }
 
@@ -230,25 +230,16 @@ void __stdcall LbMouseOnEndSwap(void)
 
 void __stdcall mouseControl(unsigned int action, struct tagPOINT *pos)
 {
-  //MouseToScreen calls were commented out because they are unnecessary; SDL can perform the
-  //necessary calculations of relative mouse coordinate much better.
-
-  struct tagPOINT dstPos;
-  dstPos.x = pos->x;
-  dstPos.y = pos->y;
+  winMouseHandler.updatePosition(pos->x, pos->y);
   switch ( action )
   {
     case 512:
-      //MouseToScreen(&dstPos);
-      LbMouseOnMove(dstPos);
       break;
     case 513:
     case 515:
       lbDisplay.MLeftButton = 1;
       if ( !lbDisplay.LeftButton )
       {
-        //MouseToScreen(&dstPos);
-        LbMouseOnMove(dstPos);
         lbDisplay.MouseX = lbDisplay.MMouseX;
         lbDisplay.MouseY = lbDisplay.MMouseY;
         lbDisplay.RLeftButton = 0;
@@ -259,8 +250,6 @@ void __stdcall mouseControl(unsigned int action, struct tagPOINT *pos)
       lbDisplay.MLeftButton = 0;
       if ( !lbDisplay.RLeftButton )
       {
-        //MouseToScreen(&dstPos);
-        LbMouseOnMove(dstPos);
         lbDisplay.RMouseX = lbDisplay.MMouseX;
         lbDisplay.RMouseY = lbDisplay.MMouseY;
         lbDisplay.RLeftButton = 1;
@@ -271,8 +260,6 @@ void __stdcall mouseControl(unsigned int action, struct tagPOINT *pos)
       lbDisplay.MRightButton = 1;
       if ( !lbDisplay.RightButton )
       {
-        //MouseToScreen(&dstPos);
-        LbMouseOnMove(dstPos);
         lbDisplay.MouseX = lbDisplay.MMouseX;
         lbDisplay.MouseY = lbDisplay.MMouseY;
         lbDisplay.RRightButton = 0;
@@ -283,8 +270,6 @@ void __stdcall mouseControl(unsigned int action, struct tagPOINT *pos)
       lbDisplay.MRightButton = 0;
       if ( !lbDisplay.RRightButton )
       {
-        //MouseToScreen(&dstPos);
-        LbMouseOnMove(dstPos);
         lbDisplay.RMouseX = lbDisplay.MMouseX;
         lbDisplay.RMouseY = lbDisplay.MMouseY;
         lbDisplay.RRightButton = 1;
@@ -295,8 +280,6 @@ void __stdcall mouseControl(unsigned int action, struct tagPOINT *pos)
       lbDisplay.MMiddleButton = 1;
       if ( !lbDisplay.MiddleButton )
       {
-        //MouseToScreen(&dstPos);
-        LbMouseOnMove(dstPos);
         lbDisplay.MouseX = lbDisplay.MMouseX;
         lbDisplay.MouseY = lbDisplay.MMouseY;
         lbDisplay.MiddleButton = 1;
@@ -307,8 +290,6 @@ void __stdcall mouseControl(unsigned int action, struct tagPOINT *pos)
       lbDisplay.MMiddleButton = 0;
       if ( !lbDisplay.RMiddleButton )
       {
-        //MouseToScreen(&dstPos);
-        LbMouseOnMove(dstPos);
         lbDisplay.RMouseX = lbDisplay.MMouseX;
         lbDisplay.RMouseY = lbDisplay.MMouseY;
         lbDisplay.RMiddleButton = 1;
@@ -319,132 +300,6 @@ void __stdcall mouseControl(unsigned int action, struct tagPOINT *pos)
   }
 }
 
-/*
-int __fastcall LbMouseChangeMoveRatio(int x, int y)
-{
-  if ( !lbMouseInstalled )
-    return -1;
-  if ( (x<1) || (x>63) )
-    return -1;
-  if ( (y<1) || (y>63) )
-    return -1;
-  minfo.XMoveRatio = x;
-  minfo.YMoveRatio = y;
-  return 1;
-}
-
-void __fastcall LbProcessMouseClick(SDL_MouseButtonEvent *button)
-{
-  switch (button->state)
-  {
-  case SDL_PRESSED:
-    switch (button->button)
-    {
-    case SDL_BUTTON_LEFT:
-        lbDisplay.MLeftButton=1;
-        if (lbDisplay.LeftButton==0)
-        {
-          lbDisplay.LeftButton=1;
-          lbDisplay.MouseX=lbDisplay.MMouseX;
-          lbDisplay.MouseY=lbDisplay.MMouseY;
-          lbDisplay.RLeftButton=0;
-        }
-       break;
-    case SDL_BUTTON_MIDDLE:
-        lbDisplay.MMiddleButton=1;
-        if (lbDisplay.MiddleButton==0)
-        {
-          lbDisplay.MiddleButton=1;
-          lbDisplay.MouseX=lbDisplay.MMouseX;
-          lbDisplay.MouseY=lbDisplay.MMouseY;
-          lbDisplay.RMiddleButton=0;
-        }
-       break;
-    case SDL_BUTTON_RIGHT:
-        lbDisplay.MRightButton=1;
-        if (lbDisplay.RightButton==0)
-        {
-          lbDisplay.RightButton=1;
-          lbDisplay.MouseX=lbDisplay.MMouseX;
-          lbDisplay.MouseY=lbDisplay.MMouseY;
-          lbDisplay.RRightButton=0;
-        }
-       break;
-    };break;
-  case SDL_RELEASED:
-    switch (button->button)
-    {
-    case SDL_BUTTON_LEFT:
-        lbDisplay.MLeftButton=0;
-        if (lbDisplay.RLeftButton==0)
-        {
-          lbDisplay.RLeftButton=1;
-          lbDisplay.RMouseX=lbDisplay.MMouseX;
-          lbDisplay.RMouseY=lbDisplay.MMouseY;
-        }
-       break;
-    case SDL_BUTTON_MIDDLE:
-        lbDisplay.MMiddleButton=0;
-        if (lbDisplay.RMiddleButton==0)
-        {
-          lbDisplay.RMiddleButton=1;
-          lbDisplay.RMouseX=lbDisplay.MMouseX;
-          lbDisplay.RMouseY=lbDisplay.MMouseY;
-        }
-       break;
-    case SDL_BUTTON_RIGHT:
-        lbDisplay.MRightButton=0;
-        if (lbDisplay.RRightButton==0)
-        {
-          lbDisplay.RRightButton=1;
-          lbDisplay.RMouseX=lbDisplay.MMouseX;
-          lbDisplay.RMouseY=lbDisplay.MMouseY;
-        }
-       break;
-    };break;
-  }
-  //MouseHandlerMove(button->x,button->y);
-}
-
-
-//Adjusts point coordinates; returns true if the coordinates have changed.
-bool __fastcall adjust_point(long *x, long *y)
-{
-  bool result = false;
-  if ( *x >= lbDisplay.MouseWindowX )
-  {
-    if ( lbDisplay.MouseWindowX + lbDisplay.MouseWindowWidth <= *x )
-    {
-      *x = lbDisplay.MouseWindowX + lbDisplay.MouseWindowWidth - 1;
-      result = true;
-    }
-  } else
-  {
-    *x = lbDisplay.MouseWindowX;
-    result = true;
-  }
-  if ( *y >= lbDisplay.MouseWindowY )
-  {
-    if ( lbDisplay.MouseWindowY + lbDisplay.MouseWindowHeight <= *y )
-    {
-      *y = lbDisplay.MouseWindowY + lbDisplay.MouseWindowHeight - 1;
-      result = true;
-    }
-  } else
-  {
-    *y = lbDisplay.MouseWindowY;
-    result = true;
-  }
-  return result;
-}
-
-//Returns if the current mouse position is inside of given rectangle
-char __fastcall mouse_in_rect(short x1, short x2, short y1, short y2)
-{
-  return (x1<=lbDisplay.MMouseX) && (x2>lbDisplay.MMouseX) &&
-         (y1<=lbDisplay.MMouseY) && (y2>lbDisplay.MMouseY);
-}
-*/
 /******************************************************************************/
 #ifdef __cplusplus
 }

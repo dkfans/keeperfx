@@ -38,8 +38,8 @@ class LbI_PointerHandler {
     void SetHotspot(long x, long y);
     void Initialise(struct TbSprite *spr, struct tagPOINT *, struct tagPOINT *);
     void Release(void);
-    void NewMousePos(void);
-    bool OnMove(void);
+    void NewMousePos(int x, int y);
+    bool OnMove(int x, int y);
     void OnBeginPartialUpdate(void);
     void OnEndPartialUpdate(void);
     void OnBeginSwap(void);
@@ -57,13 +57,12 @@ class LbI_PointerHandler {
     unsigned char sprite_data[4096];
     struct tagPOINT *position;
     struct tagPOINT *spr_offset;
-    struct tagRECT rect_1038;
+    struct tagRECT drawRect;
     long draw_pos_x;
     long draw_pos_y;
     bool field_1050;
     bool field_1054;
     struct TbSprite *sprite;
-    LbSemaphore sema_rel;
     };
 
 #ifdef __cplusplus

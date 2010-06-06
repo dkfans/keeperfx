@@ -45,10 +45,10 @@ class MouseStateHandler {
     bool SetMouseWindow(long x, long y,long width, long height);
     bool PointerBeginSwap(void);
     bool PointerEndSwap(void);
+    void updatePosition(int x, int y);
  protected:
     bool SetPointer(struct TbSprite *spr, struct tagPOINT *pt);
     // Properties
-    LbSemaphore semaphore;
     bool installed;
     struct TbSprite *mssprite;
     struct tagPOINT mspos;

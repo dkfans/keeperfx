@@ -178,7 +178,7 @@ static void process_event(const SDL_Event & ev, TbBool mouseWheelRemap) {
 			}
 		}
 		else {
-			SDL_GetRelativeMouseState(&x, &y);
+			SDL_GetMouseState(&x, &y);
 			mousePos.x = x;
 			mousePos.y = y;
 			mouseControl(WM_MOUSEMOVE, &mousePos);
@@ -186,7 +186,7 @@ static void process_event(const SDL_Event & ev, TbBool mouseWheelRemap) {
 		break;
 	case SDL_MOUSEBUTTONDOWN:
 	case SDL_MOUSEBUTTONUP:
-		SDL_GetRelativeMouseState(&x, &y);
+		SDL_GetMouseState(&x, &y);
 		mousePos.x = x;
 		mousePos.y = y;
 

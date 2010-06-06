@@ -77,8 +77,6 @@ LbI_PointerHandler::~LbI_PointerHandler(void)
 void LbI_PointerHandler::SetHotspot(long x, long y)
 {
   long prev_x,prev_y;
-  LbSemaLock semlock(&sema_rel,0);
-  semlock.Lock(true);
   if (this->field_1050)
   {
     // Set new coords, and backup previous ones
@@ -91,7 +89,7 @@ void LbI_PointerHandler::SetHotspot(long x, long y)
     if ((spr_offset->x != prev_x) || (spr_offset->y != prev_y))
     {
       Undraw(true);
-      NewMousePos();
+      NewMousePos(position->x, position->y);
       Backup(true);
       Draw(true);
     }
@@ -130,8 +128,6 @@ void LbI_PointerHandler::Initialise(struct TbSprite *spr, struct tagPOINT *npos,
   long i;
 
   Release();
-  LbSemaLock semlock(&sema_rel,0);
-  semlock.Lock(true);
   if (lpDDC == NULL)
     return;
   sprite = spr;
@@ -158,10 +154,10 @@ void LbI_PointerHandler::Initialise(struct TbSprite *spr, struct tagPOINT *npos,
   this->spr_offset = noffset;
   ClipHotspot();
   this->field_1050 = true;
-  NewMousePos();
+  NewMousePos(npos->x, npos->y);
   this->field_1054 = false;
 
-  lpDDC->blt_surface(&surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, 0x10|0x02);
+  lpDDC->blt_surface(&surf2, this->draw_pos_x, this->draw_pos_y, &drawRect, 0x10|0x02);
 }
 
 void LbI_PointerHandler::Draw(bool a1)
@@ -172,7 +168,7 @@ void LbI_PointerHandler::Draw(bool a1)
     flags |= 0x02;
   if (lpDDC == NULL)
     return;
-  lpDDC->blt_surface(&this->surf1, this->draw_pos_x, this->draw_pos_y, &rect_1038, flags);
+  lpDDC->blt_surface(&this->surf1, this->draw_pos_x, this->draw_pos_y, &drawRect, flags);
 }
 
 void LbI_PointerHandler::Backup(bool a1)
@@ -184,7 +180,7 @@ void LbI_PointerHandler::Backup(bool a1)
   if (lpDDC == NULL)
     return;
   this->field_1054 = false;
-  lpDDC->blt_surface(&this->surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, flags);
+  lpDDC->blt_surface(&this->surf2, this->draw_pos_x, this->draw_pos_y, &drawRect, flags);
 }
 
 void LbI_PointerHandler::Undraw(bool a1)
@@ -195,13 +191,11 @@ void LbI_PointerHandler::Undraw(bool a1)
     flags |= 0x02;
   if (lpDDC == NULL)
     return;
-  lpDDC->blt_surface(&this->surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, flags);
+  lpDDC->blt_surface(&this->surf2, this->draw_pos_x, this->draw_pos_y, &drawRect, flags);
 }
 
 void LbI_PointerHandler::Release(void)
 {
-  LbSemaLock semlock(&sema_rel,0);
-  semlock.Lock(true);
   if ( this->field_1050 )
   {
     if ( lbInteruptMouse )
@@ -219,108 +213,78 @@ void LbI_PointerHandler::Release(void)
   }
 }
 
-void LbI_PointerHandler::NewMousePos(void)
+void LbI_PointerHandler::NewMousePos(int x, int y)
 {
-  this->draw_pos_x = position->x - spr_offset->x;
-  this->draw_pos_y = position->y - spr_offset->y;
-  SetRect(&rect_1038, 0, 0, sprite->SWidth, sprite->SHeight);
-  if (this->draw_pos_x < 0)
-  {
-    rect_1038.left -= this->draw_pos_x;
-    this->draw_pos_x = 0;
-  } else
-  if (this->draw_pos_x+sprite->SWidth > lbDisplay.PhysicalScreenWidth)
-  {
-    rect_1038.right += lbDisplay.PhysicalScreenWidth-sprite->SWidth-this->draw_pos_x;
-  }
-  if (this->draw_pos_y < 0)
-  {
-    rect_1038.top -= this->draw_pos_y;
-    this->draw_pos_y = 0;
-  } else
-  if (this->draw_pos_y+sprite->SHeight > lbDisplay.PhysicalScreenHeight)
-  {
-    rect_1038.bottom += lbDisplay.PhysicalScreenHeight - sprite->SHeight - this->draw_pos_y;
-  }
+	if (sprite == NULL) {
+		return;
+	}
+
+	draw_pos_x = x - spr_offset->x;
+	draw_pos_y = y - spr_offset->y;
+
+	SetRect(&drawRect, 0, 0, sprite->SWidth, sprite->SHeight);
+	if (draw_pos_x < 0) {
+		drawRect.left -= draw_pos_x;
+		draw_pos_x = 0;
+	}
+	else if (draw_pos_x+sprite->SWidth > lbDisplay.PhysicalScreenWidth) {
+		drawRect.right += lbDisplay.PhysicalScreenWidth - sprite->SWidth - draw_pos_x;
+	}
+	if (draw_pos_y < 0) {
+		drawRect.top -= draw_pos_y;
+		draw_pos_y = 0;
+	}
+	else if (draw_pos_y+sprite->SHeight > lbDisplay.PhysicalScreenHeight) {
+		drawRect.bottom += lbDisplay.PhysicalScreenHeight - sprite->SHeight - draw_pos_y;
+	}
 }
 
-bool LbI_PointerHandler::OnMove(void)
+bool LbI_PointerHandler::OnMove(int x, int y)
 {
-  LbSemaLock semlock(&sema_rel,0);
-  if (!semlock.Lock(true))
-    return false;
   if (lbUseSdk && lbInteruptMouse)
   {
       Undraw(true);
-      NewMousePos();
+      NewMousePos(x, y);
       Backup(true);
       Draw(true);
   } else
   {
-    NewMousePos();
+    NewMousePos(x, y);
   }
   return true;
 }
 
 void LbI_PointerHandler::OnBeginPartialUpdate(void)
 {
-  LbSemaLock semlock(&sema_rel,0);
-  if (!semlock.Lock(true))
-    return;
   Backup(false);
   Draw(false);
 }
 
 void LbI_PointerHandler::OnEndPartialUpdate(void)
 {
-  LbSemaLock semlock(&sema_rel,1);
-  Undraw(false);
-  this->field_1054 = true;
-  semlock.Release();
+	Undraw(false);
+	this->field_1054 = true;
 }
 
 void LbI_PointerHandler::OnBeginSwap(void)
 {
-  LbSemaLock semlock(&sema_rel,0);
-  if (!semlock.Lock(true))
-    return;
-  /*if ( lbUseSdk )
-  {
-    Backup(false);*/
-    Draw(false);
-  /*} else
-  if (LbScreenLock() == Lb_SUCCESS)
-  {
-    PointerDraw(position->x - spr_offset->x, position->y - spr_offset->y,
-        sprite, lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth);
-    LbScreenUnlock();
-  }*/
+	Draw(false);
 }
 
 void LbI_PointerHandler::OnEndSwap(void) //not called any longer
 {
-  LbSemaLock semlock(&sema_rel,1);
-  if ( lbUseSdk )
-  {
-    Undraw(false);
-    this->field_1054 = true;
-  }
-  semlock.Release();
+	Undraw(false);
+	this->field_1054 = true;
 }
 
 void LbI_PointerHandler::OnBeginFlip(void)
 {
-  LbSemaLock semlock(&sema_rel,0);
-  if (!semlock.Lock(true))
-    return;
   Backup(false);
   Draw(false);
 }
 
 void LbI_PointerHandler::OnEndFlip(void)
 {
-  LbSemaLock semlock(&sema_rel,1);
-  semlock.Release();
 }
 
 /******************************************************************************/
