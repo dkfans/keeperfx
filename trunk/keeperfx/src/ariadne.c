@@ -24,6 +24,9 @@
 #include "thing_navigate.h"
 #include "keeperfx.hpp"
 
+#define EDGEFIT_LEN           64
+#define EDGEOR_COUNT           3
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -108,6 +111,66 @@ void edgelen_init(void);
 unsigned long regions_connected(long tree_reg1, long tree_reg1);
 /******************************************************************************/
 
+void nodes_classify(void)
+{
+}
+/*TODO prepare variables used inside, then enable
+void heap_init(void)
+{
+  heap_end = 0;
+}
+
+long heap_remove(void)
+{
+  long popval = Heap[1];
+  Heap[1] = Heap[heap_end];
+  heap_end--;
+  heap_down(1);
+  return popval;
+}
+
+unsigned long fits_thro(long tri_idx, long ormask_idx)
+{
+  static unsigned long const edgelen_ORmask[] = {60, 51, 15};
+  unsigned long eidx;
+  unsigned long emask;
+
+  if (tri_idx >= TRIANLGLES_COUNT)
+  {
+      ERRORLOG("triangles overflow");
+      return 0;
+  }
+  if (ormask_idx >= EDGEOR_COUNT)
+  {
+      ERRORLOG("ORmask overflow");
+      return 0;
+  }
+  emask = (Triangles[tri_idx].field_E % EDGEFIT_LEN);
+  eidx = edgelen_ORmask[ormask_idx] | emask;
+  if (EdgeFit != RadiusEdgeFit[0])
+  {
+    if (EdgeFit != RadiusEdgeFit[1])
+    {
+      if (EdgeFit != RadiusEdgeFit[2])
+      {
+        ERRORLOG("table err");
+        return 0;
+      }
+    }
+  }
+  if (edgelen_initialised != 1)
+  {
+      ERRORLOG("uninit");
+      return 0;
+  }
+  if (eidx >= EDGEFIT_LEN)
+  {
+      ERRORLOG("edgebits overflow");
+      return 0;
+  }
+  return EdgeFit[eidx];
+}
+*/
 long init_navigation(void)
 {
   return _DK_init_navigation();

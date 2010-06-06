@@ -351,7 +351,6 @@ short move_to_position(struct Thing *thing)
     struct StateInfo *stati;
     long move_result,state_result;
     long speed;
-    //TODO: rework! (causes hang if out of things)
     SYNCDBG(18,"Starting");
     //return _DK_move_to_position(thing);
     cctrl = creature_control_get_from_thing(thing);
