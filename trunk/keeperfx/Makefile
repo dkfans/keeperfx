@@ -121,9 +121,10 @@ obj/vidmode.o \
 $(RES)
 
 LINKOBJ  = $(OBJS)
-LINKLIB =  -L"directx/lib" -L"lib"  -mwindows -lkeeperfx -lwinmm -lddraw 
-INCS =  -I"directx/include"
-CXXINCS =  -I"directx/include" 
+LINKLIB =  -L"directx/lib" -L"lib" -L"sdl/lib" -mwindows -lmingw32 -lkeeperfx -lwinmm -lddraw -lSDLmain -lSDL -lSDL_net 
+INCS =  -I"directx/include" -I"sdl/include"
+CXXINCS =  -I"directx/include" -I"sdl/include"
+
 # flags to generate dependency files
 DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" 
 # code optimization flags

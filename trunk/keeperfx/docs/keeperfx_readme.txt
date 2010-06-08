@@ -307,6 +307,12 @@ Version: 0.37
   Fixed green volume box height in clueo (low walls) mode
   Rewritten gold stealing code
   Remade some creature spells code
+  Remade some of imps AI code
+  Remade and fixed some of Ariadne pathfinding system
+  Campaign list is now sorted
+  Imp tasks selection rewritten
+  Creature sprite indexes are now in .CFG files
+  Campaigns can now have their own creature config files
 
 Version: 0.36
   Rewritten some of room sound playing
