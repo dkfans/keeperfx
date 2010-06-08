@@ -35,36 +35,8 @@ volatile unsigned long lbIconIndex = 0;
 // Base class methods
 
 TDDrawBaseClass::TDDrawBaseClass(void) :
-		flags(0),
 		active(true)
 {
-  /*WNDCLASSA WndClass;
-  this->flags = 0;
-  set_double_buffering_video(false);
-  this->hWindow = NULL;
-  this->active = true;
-  set_wscreen_in_video(false);
-  this->flags &= ~DMF_LoresForceAvailable;
-  this->flags |= DMF_PaletteSetup;
-  this->flags |= DMF_ControlDisplayMode;
-  this->flags |= DMF_Unknown0100;
-  this->flags |= DMF_Unknown0200;
-  this->appName = lbDrawAreaTitle;
-  this->appTitle = lbDrawAreaTitle;
-  WndClass.style = 11;
-  WndClass.cbClsExtra = 0;
-  this->flags &= ~DMF_Unknown0800;
-  WndClass.cbWndExtra = 0;
-  WndClass.lpfnWndProc = WndProc;
-  this->flags &= ~DMF_Unknown1000;
-  WndClass.hInstance = lbhInstance;
-  WndClass.hIcon = LoadIconA(lbhInstance, (LPCSTR)0x7F00);
-  WndClass.hCursor = LoadCursorA(0, (LPCSTR)0x7F00);
-  WndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-  WndClass.lpszMenuName = this->appName;
-  WndClass.lpszClassName = this->appName;
-  RegisterClass(&WndClass);
-  lpDDC = this;*/
 }
 
 TDDrawBaseClass::~TDDrawBaseClass(void)
@@ -72,57 +44,9 @@ TDDrawBaseClass::~TDDrawBaseClass(void)
   lpDDC = NULL;
 }
 
-void TDDrawBaseClass::LoresEmulation(bool nstate)
+bool TDDrawBaseClass::isActive(void)
 {
+  return active;
 }
 
-/**
- *  Static callback, used only as a wrapper to call virtual WindowProc() method.
- */
-/*long CALLBACK TDDrawBaseClass::WndProc(HWND hWnd, unsigned int message, WPARAM wParam, LPARAM lParam)
-{
-  try {
-    return lpDDC->WindowProc(hWnd, message, wParam, lParam);
-  } catch (...)
-  {
-    return 0;
-  }
-}*/
-
-bool TDDrawBaseClass::is_double_buffering_video(void)
-{
-  return ((flags & DMF_DoubleBuffering) != 0);
-}
-
-bool TDDrawBaseClass::set_double_buffering_video(bool nstate)
-{
-  if (nstate)
-    flags |= DMF_DoubleBuffering;
-  else
-    flags ^= flags & DMF_DoubleBuffering;
-  return ((flags & DMF_DoubleBuffering) != 0);
-}
-
-bool TDDrawBaseClass::is_wscreen_in_video(void)
-{
-  return ((flags & DMF_WScreenInVideo) != 0);
-}
-
-bool TDDrawBaseClass::set_wscreen_in_video(bool nstate)
-{
-  if (nstate)
-    flags |= DMF_WScreenInVideo;
-  else
-    flags ^= flags & DMF_WScreenInVideo;
-  return ((flags & DMF_WScreenInVideo) != 0);
-}
-
-bool TDDrawBaseClass::IsActive(void)
-{
-  return this->active;
-}
-
-void TDDrawBaseClass::SetIcon(void)
-{
-}
 /******************************************************************************/

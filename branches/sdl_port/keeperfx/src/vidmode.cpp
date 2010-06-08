@@ -418,7 +418,7 @@ void set_game_vidmode(unsigned short i, int w, int h, int bpp, TbBool windowed)
 
 bool validate_vidmode(TbScreenMode * mode)
 {
-	return TDDrawSdk::is_mode_possible(mode);
+	return TDDrawSdk::isModePossible(mode);
 }
 
 TbScreenMode get_failsafe_vidmode(void)

@@ -56,9 +56,6 @@ class TDDrawBaseClass {
     TDDrawBaseClass(void);
     virtual ~TDDrawBaseClass(void);
     // Virtual Methods
-    virtual bool setup_window(void) = 0;
-    virtual long WindowProc(HWND hWnd, unsigned int message, WPARAM wParam, LPARAM lParam) = 0;
-    virtual void find_video_modes(void) = 0;
     virtual bool get_palette(void *,unsigned long,unsigned long) = 0;
     virtual bool set_palette(void *,unsigned long,unsigned long) = 0;
     virtual bool setup_screen(TbScreenMode*) = 0;
@@ -68,28 +65,18 @@ class TDDrawBaseClass {
     virtual bool clear_window(long,long,unsigned long,unsigned long,unsigned long) = 0;
     virtual bool swap_screen(void) = 0;
     virtual bool reset_screen(void) = 0;
-    virtual bool restore_surfaces(void) = 0;
-    virtual void wait_vbi(void) = 0;
     virtual bool swap_box(struct tagPOINT,struct tagRECT &) = 0;
     virtual bool create_surface(struct SSurface *,unsigned long,unsigned long) = 0;
     virtual bool release_surface(struct SSurface *) = 0;
     virtual bool blt_surface(struct SSurface *,unsigned long,unsigned long,tagRECT *,unsigned long) = 0;
     virtual void *lock_surface(struct SSurface *) = 0;
     virtual bool unlock_surface(struct SSurface *) = 0;
-    virtual void LoresEmulation(bool);
     // Nonvirtual Methods
-    static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-    bool set_double_buffering_video(bool);
-    bool is_double_buffering_video(void);
-    bool set_wscreen_in_video(bool);
-    bool is_wscreen_in_video(void);
-    bool IsActive(void);
-    void SetIcon(void);
+    bool isActive(void);
  protected:
     // Properties
     char *appTitle;
     char *appName;
-    unsigned long flags;
     HWND hWindow;
     bool active;
     };

@@ -163,7 +163,7 @@ TbResult LbScreenWaitVbi(void)
 {
   if (lpDDC == NULL)
     return Lb_FAIL;
-  lpDDC->wait_vbi();
+  //lpDDC->wait_vbi();
   return Lb_SUCCESS;
 }
 
@@ -171,7 +171,7 @@ TbResult LbScreenFindVideoModes(void)
 {
   if (lpDDC == NULL)
     return Lb_FAIL;
-  lpDDC->find_video_modes();
+  //lpDDC->find_video_modes();
   return Lb_SUCCESS;
 }
 
@@ -192,8 +192,8 @@ TbResult LbScreenSetup(TbScreenMode * mode, unsigned char *palette, short buffer
     GetPointerHotspot(&hot_x,&hot_y);
   }
   LbScreenReset();
-  lpDDC->set_double_buffering_video(buffers_count > 1);
-  lpDDC->set_wscreen_in_video(wscreen_vid);
+  /*lpDDC->set_double_buffering_video(buffers_count > 1);
+  lpDDC->set_wscreen_in_video(wscreen_vid);*/
 
   if (!lpDDC->setup_screen(mode))
   {
@@ -293,7 +293,7 @@ TbBool LbIsActive(void)
   // On error, let's assume the window is active.
   if (lpDDC == NULL)
     return true;
-  return lpDDC->IsActive();
+  return lpDDC->isActive();
 }
 
 /*
@@ -390,7 +390,7 @@ TbBool LbScreenIsModeAvailable(TbScreenMode * mode)
       return false;
     setup = true;
   }
-  return TDDrawSdk::is_mode_possible(mode);
+  return TDDrawSdk::isModePossible(mode);
 }
 
 TbBool LbRecogniseVideoModeString(char * str, int * w, int * h, int * bpp, TbBool * windowed)
