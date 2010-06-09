@@ -1,0 +1,92 @@
+#******************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+#******************************************************************************
+#   @file libexterns.mk
+#      A script used by GNU Make to recompile the project.
+#  @par Purpose:
+#      Defines make rules for libraries which source is external to KeeperFX.
+#      Most libraries can be downloaded from official prebuilds.
+#  @par Comment:
+#      None.
+#  @author   Tomasz Lis
+#  @date     08 Jun 2010 - 09 Jun 2010
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+#******************************************************************************
+
+.PHONY: clean-libsdl deep-clean-libsdl
+
+libexterns: libsdl libsdlnet
+
+clean-libexterns: clean-libsdl
+
+deep-clean-libexterns: deep-clean-libsdl
+
+ifneq (,$(findstring .tar.gz,$(SDL_PACKAGE)))
+
+libsdl: sdl/lib/libSDLmain.a
+
+# If we have tar gzip prebuild, download and extract it
+sdl/lib/libSDLmain.a: sdl/$(SDL_PACKAGE)
+	-$(ECHO) 'Extracting package: $<'
+	# Grep is used to remove bogus error messages, return state of tar is also ignored
+	-cd "$(<D)"; \
+	tar --strip-components=1 -zxmUf "$(<F)" --no-anchored bin include lib share 2>&1 | \
+	grep -v '^.*: Archive value .* is out of .* range.*$$'
+	-$(ECHO) 'Finished extracting: $<'
+	-$(ECHO) ' '
+
+sdl/$(SDL_PACKAGE):
+	-$(ECHO) 'Downloading package: $@'
+	$(MKDIR) "$(@D)"
+	curl -L -o "$@.dl" "$(SDL_DOWNLOAD)"
+	tar -tzf "$@.dl" >/dev/null
+	$(MV) "$@.dl" "$@"
+	-$(ECHO) 'Finished downloading: $@'
+	-$(ECHO) ' '
+
+else
+
+$(error Cannot handle SDL library prebuild. You need to prepare the library manually.)
+
+endif
+
+ifneq (,$(findstring .zip,$(SDL_NET_PACKAGE)))
+
+libsdlnet: sdl/lib/SDL_net.lib
+
+sdl/lib/SDL_net.lib: sdl/$(SDL_NET_PACKAGE)
+	-$(ECHO) 'Extracting package: $<'
+	$(MKDIR) sdl/lib sdl/include/SDL
+	cd "$(<D)"; \
+	unzip -DD -qo "$(<F)"
+	$(MV) sdl/SDL_net-*/include/* sdl/include/SDL/
+	$(MV) sdl/SDL_net-*/lib/* sdl/lib/
+	-$(ECHO) 'Finished extracting: $<'
+	-$(ECHO) ' '
+
+sdl/$(SDL_NET_PACKAGE):
+	-$(ECHO) 'Downloading package: $@'
+	$(MKDIR) "$(@D)"
+	curl -L -o "$@.dl" "$(SDL_NET_DOWNLOAD)"
+	unzip -qt "$@.dl"
+	$(MV) "$@.dl" "$@"
+	-$(ECHO) 'Finished downloading: $@'
+	-$(ECHO) ' '
+
+else
+
+$(error Cannot handle SDL_net library prebuild. You need to prepare the library manually.)
+
+endif
+
+clean-libsdl:
+	-$(RM) -R sdl/bin sdl/include sdl/lib sdl/share
+
+deep-clean-libsdl:
+	-$(RM) sdl/$(SDL_PACKAGE)
+	-$(RM) sdl/$(SDL_NET_PACKAGE)

@@ -134,9 +134,9 @@ obj/vidmode.o \
 obj/main.o \
 $(RES)
 
-LINKLIB =  -L"directx/lib" -mwindows obj/libkeeperfx.a -lwinmm -lddraw 
-INCS =  -I"directx/include"
-CXXINCS =  -I"directx/include" 
+LINKLIB =  -L"directx/lib" -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lddraw -lSDLmain -lSDL -lSDL_net 
+INCS =  -I"directx/include" -I"sdl/include"
+CXXINCS =  -I"directx/include" -I"sdl/include"
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
@@ -169,8 +169,21 @@ LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
 
 CAMPAIGNS  = \
 ancntkpr \
+burdnimp \
+dzjr06lv \
+dzjr10lv \
+dzjr25lv \
+evilkeep \
+grkreign \
+jdkmaps8 \
+kdklvpck \
 keeporig \
-questfth
+lqizgood \
+lrdvexer \
+ncastles \
+postanck \
+questfth \
+twinkprs
 
 CAMPAIGN_CFGS = $(patsubst %,pkg/campgns/%.cfg,$(CAMPAIGNS))
 
@@ -184,7 +197,12 @@ include prebuilds.mk
 # mark icons as precious, because even though we can re-create them, it requires having "png2ico" tool
 .PRECIOUS: res/%.ico
 # name virtual targets
-.PHONY: all standard std-before std-after heavylog hvlog-before hvlog-after docs docsdox clean clean-build clean-tools clean-package deep-clean deep-clean-tools package pkg-before pkg-copydat pkg-campaigns tools
+.PHONY: all docs docsdox clean clean-build deep-clean
+.PHONY: standard std-before std-after
+.PHONY: heavylog hvlog-before hvlog-after
+.PHONY: package pkg-before pkg-copydat pkg-campaigns clean-package
+.PHONY: tools clean-tools deep-clean-tools
+.PHONY: libexterns clean-libexterns deep-clean-libexterns
 
 all: standard
 
@@ -196,15 +214,15 @@ heavylog: CXXFLAGS += $(HVLOGFLAGS)
 heavylog: CFLAGS += $(HVLOGFLAGS)
 heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
-std-before:
+std-before: libexterns
 	$(MKDIR) obj/std bin
 
-hvlog-before:
+hvlog-before: libexterns
 	$(MKDIR) obj/hvlog bin
 
-deep-clean: deep-clean-tools
+deep-clean: deep-clean-tools deep-clean-libexterns deep-clean-package
 
-clean: clean-build clean-tools clean-package
+clean: clean-build clean-tools clean-libexterns clean-package
 
 clean-build:
 	-$(RM) $(STDOBJS) $(STDOBJS:%.o=%.d)
@@ -226,13 +244,13 @@ clean-package:
 	-$(RM) -R pkg/levels
 	-$(RM) pkg/keeperfx*
 
-$(BIN): $(GENSRC) $(STDOBJS) $(LIBS)
+$(BIN): $(GENSRC) $(STDOBJS) $(LIBS) std-before
 	-$(ECHO) 'Building target: $@'
 	$(CPP) -o "$@" $(STDOBJS) $(LDFLAGS)
 	-$(ECHO) 'Finished building target: $@'
 	-$(ECHO) ' '
 
-$(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(LIBS)
+$(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(LIBS) hvlog-before
 	-$(ECHO) 'Building target: $@'
 	$(CPP) -o "$@" $(HVLOGOBJS) $(LDFLAGS)
 	-$(ECHO) 'Finished building target: $@'
@@ -279,6 +297,8 @@ bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $
 	$(EXETODLL) -o"$@" --def "obj/keeperfx.def" -p"_DK_" "$<"
 	-$(ECHO) 'Finished creating: $@'
 	-$(ECHO) ' '
+
+include libexterns.mk
 
 include tools.mk
 

@@ -68,8 +68,7 @@ $(EXETODLL): tools/peresec/pkg/$(PERESEC_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	$(MKDIR) "$(@D)"
 	cd "$(@D)"; \
-	unzip -qo "../../../$<"
-	touch -c "$@"
+	unzip -DD -qo "../../../$<"
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 

@@ -1,1 +1,4 @@
 /directx/lib/*.a
+/bin
+/obj
+/sdl
