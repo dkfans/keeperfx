@@ -2227,7 +2227,7 @@ void process_packets(void)
     j=0;
     for (i=0; i<4; i++)
     {
-      if (net_player_info[i].field_20 != 0)
+      if (net_player_info[i].active != 0)
         j++;
     }
     if ( !game.packet_load_enable || game.numfield_149F47 )
@@ -2241,7 +2241,7 @@ void process_packets(void)
     k=0;
     for (i=0; i<4; i++)
     {
-      if (net_player_info[i].field_20 != 0)
+      if (net_player_info[i].active != 0)
         k++;
     }
     if (j != k)
@@ -2249,7 +2249,7 @@ void process_packets(void)
       for (i=0; i<4; i++)
       {
         player = get_player(i);
-        if (net_player_info[player->packet_num%NET_PLAYERS_COUNT].field_20 == 0)
+        if (net_player_info[player->packet_num%NET_PLAYERS_COUNT].active == 0)
         {
           player->field_0 |= 0x40;
           toggle_computer_player(i);

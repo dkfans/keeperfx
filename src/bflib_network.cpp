@@ -578,11 +578,11 @@ TbError GetPlayerInfo(void)
     lpinfo = &localPlayerInfoPtr[i];
     if ( clidat->field_4 )
     {
-      lpinfo->field_20 = 1;
+      lpinfo->active = 1;
       strncpy(lpinfo->field_0, clidat->field_C, 32);
     } else
     {
-      lpinfo->field_20 = 0;
+      lpinfo->active = 0;
     }
   }
   return Lb_OK;
@@ -623,7 +623,7 @@ TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
       clientDataTable[plr_id].field_0 = plyrname->field_1;
       clientDataTable[plr_id].field_4 = 1;
       strcpy(clientDataTable[plr_id].field_C,plyrname->field_D);
-      localPlayerInfoPtr[i].field_20 = 1;
+      localPlayerInfoPtr[i].active = 1;
       strcpy(localPlayerInfoPtr[i].field_0,plyrname->field_D);
     }
   }
@@ -1344,7 +1344,7 @@ void DeleteMsgCallback(unsigned long plr_id, void *a2)
       clientDataTable[i].field_4 = 0;
       if (localPlayerInfoPtr != NULL)
       {
-        localPlayerInfoPtr[i].field_20 = 0;
+        localPlayerInfoPtr[i].active = 0;
       } else
       {
         WARNLOG("NULL localPlayerInfoPtr");

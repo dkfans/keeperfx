@@ -223,8 +223,9 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return false;
+      if ((flags & CLd_AcceptPartial) == 0)
+          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      return false;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_attributes_commands,cmd_num)
   while (pos<len)
@@ -705,8 +706,9 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return false;
+      if ((flags & CLd_AcceptPartial) == 0)
+          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      return false;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_attraction_commands,cmd_num)
   while (pos<len)
@@ -850,8 +852,9 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      return false;
+        if ((flags & CLd_AcceptPartial) == 0)
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+        return false;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_annoyance_commands,cmd_num)
     while (pos<len)
@@ -1219,8 +1222,9 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      return false;
+        if ((flags & CLd_AcceptPartial) == 0)
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+        return false;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_senses_commands,cmd_num)
     while (pos<len)
@@ -1337,8 +1341,9 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      return false;
+        if ((flags & CLd_AcceptPartial) == 0)
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+        return false;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_appearance_commands,cmd_num)
     while (pos<len)
@@ -1423,8 +1428,9 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      return false;
+        if ((flags & CLd_AcceptPartial) == 0)
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+        return false;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_experience_commands,cmd_num)
     while (pos<len)
@@ -1611,8 +1617,9 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      return false;
+        if ((flags & CLd_AcceptPartial) == 0)
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+        return false;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_jobs_commands,cmd_num)
     while (pos<len)
@@ -1802,10 +1809,13 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
-  // Initialize block data
-  for (n = 0; n < CREATURE_GRAPHICS_INSTANCES; n++)
+  // If the file can't be partial, then initialize block data
+  if ((flags & CLd_AcceptPartial) == 0)
   {
-      set_creature_breed_graphics(crtr_model, n, 0);
+      for (n = 0; n < CREATURE_GRAPHICS_INSTANCES; n++)
+      {
+          set_creature_breed_graphics(crtr_model, n, 0);
+      }
   }
   // Find the block
   sprintf(block_buf,"sprites");
@@ -1813,8 +1823,9 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return false;
+      if ((flags & CLd_AcceptPartial) == 0)
+          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      return false;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creature_graphics_desc,cmd_num)
   while (pos<len)
@@ -1880,6 +1891,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *fname,unsigned
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     result = (len > 0);
+    if ((flags & CLd_AcceptPartial) == 0)
     {
       struct CreatureStats *crstat;
       crstat = creature_stats_get(crtr_model);
