@@ -2409,7 +2409,7 @@ long frontnet_number_of_players_in_session(void)
   nplyr = 0;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
-    if (net_player_info[i].field_20 != 0)
+    if (net_player_info[i].active != 0)
       nplyr++;
   }
   return nplyr;
@@ -2685,19 +2685,24 @@ void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, voi
     ERRORLOG("Too many services in enumeration");
     return;
   }
-  if (stricmp("SERIAL", netcdat->svc_name) == 0)
+  if (strcasecmp("SERIAL", netcdat->svc_name) == 0)
   {
     strcpy(net_service[net_number_of_services], gui_strings[874]);
     net_number_of_services++;
   } else
-  if (stricmp("MODEM", netcdat->svc_name) == 0)
+  if (strcasecmp("MODEM", netcdat->svc_name) == 0)
   {
     strcpy(net_service[net_number_of_services], gui_strings[875]);
     net_number_of_services++;
   } else
-  if (stricmp("IPX", netcdat->svc_name) == 0)
+  if (strcasecmp("IPX", netcdat->svc_name) == 0)
   {
     strcpy(net_service[net_number_of_services], gui_strings[876]);
+    net_number_of_services++;
+  } else
+  if (strcasecmp("TCP", netcdat->svc_name) == 0)
+  {
+    strcpy(net_service[net_number_of_services], "TCP/IP");
     net_number_of_services++;
   } else
   {
@@ -3949,7 +3954,25 @@ void frontnet_session_select(struct GuiButton *gbtn)
 
 void frontnet_draw_session_button(struct GuiButton *gbtn)
 {
-  _DK_frontnet_draw_session_button(gbtn);
+  //_DK_frontnet_draw_session_button(gbtn);
+  long sessionIndex;
+  long fontIndex;
+  long btnIndex;
+  long height;
+
+  btnIndex = (long)gbtn->field_33;
+  sessionIndex = net_session_scroll_offset + btnIndex - 45;
+  if ((sessionIndex < 0) || (sessionIndex >= net_number_of_sessions))
+      return;
+  fontIndex = frontend_button_info[btnIndex%FRONTEND_BUTTON_INFO_COUNT].field_2;
+  if ((btnIndex > 0) && (frontend_mouse_over_button == btnIndex)) {
+      fontIndex = 2;
+  }
+  lbDisplay.DrawFlags = 0;
+  LbTextSetFont(frontend_font[fontIndex]);
+  height = LbTextLineHeight();
+  LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
+  LbTextDraw(0, 0, net_session[sessionIndex]->text);
 }
 
 void frontnet_players_up(struct GuiButton *gbtn)
@@ -7259,7 +7282,7 @@ void frontnet_rewite_net_messages(void)
   for (i=0; i < net_number_of_messages; i++)
   {
     nmsg = &net_message[i];
-    if (net_player_info[nmsg->plyr_idx].field_20)
+    if (net_player_info[nmsg->plyr_idx].active)
     {
       memcpy(&lmsg[k], nmsg, sizeof(struct NetMessage));
       k++;

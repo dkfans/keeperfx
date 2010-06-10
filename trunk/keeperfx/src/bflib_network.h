@@ -89,7 +89,7 @@ struct ModemResponse {
 
 struct TbNetworkPlayerInfo {
 char field_0[32];
-long field_20;
+long active;
 };
 
 struct TbNetworkCallbackData {
