@@ -2756,43 +2756,158 @@ void do_slab_efficiency_alteration(unsigned char a1, unsigned char a2)
   _DK_do_slab_efficiency_alteration(a1, a2);
 }
 
-void place_slab_type_on_map(long nslab, long stl_x, long stl_y, unsigned char owner, unsigned char a5)
+unsigned short torch_flags_for_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    short previous_slab_types_around[8];
-    struct SlabMap *slb;
     struct SlabMap *sslb1,*sslb2;
-    struct SlabAttr *slbattr;
-    struct Map *mapblk;
-    long slb_x,slb_y;
-    long spos_x,spos_y;
+    unsigned short tflag;
+    tflag = 0;
+    if ((slb_x % 5) == 0)
+    {
+        sslb1 = get_slabmap_block(slb_x,slb_y+1);
+        sslb2 = get_slabmap_block(slb_x,slb_y-1);
+        if ((sslb1->slab == SlbT_CLAIMED) || (sslb2->slab == SlbT_CLAIMED))
+            tflag |= 0x01;
+    }
+    if ((slb_y % 5) == 0)
+    {
+        sslb1 = get_slabmap_block(slb_x+1,slb_y);
+        sslb2 = get_slabmap_block(slb_x-1,slb_y);
+        if ((sslb1->slab == SlbT_CLAIMED) || (sslb2->slab == SlbT_CLAIMED))
+            tflag |= 0x02;
+    }
+    return tflag;
+}
+
+long delete_all_object_things_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, long rmeffect)
+{
     struct Thing *thing;
-    struct Objects *objdat;
+    struct Map *mapblk;
     struct Coord3d pos;
-    long flag;
-    int skind;
+    long removed_num;
     unsigned long k;
     long i,n;
-    //TODO may hang if out of rooms
+    removed_num = 0;
+    for (n=0; n < 9; n++)
+    {
+      mapblk = get_map_block_at_pos(get_subtile_number(3*slb_x+1,3*slb_y+1)+around_map[n]);
+      k = 0;
+      i = get_mapwho_thing_index(mapblk);
+      while (i != 0)
+      {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+          WARNLOG("Jump out of things array");
+          break;
+        }
+        i = thing->field_2;
+        // Per thing code
+        if (thing->class_id == TCls_Object)
+        {
+            if (rmeffect > 0)
+            {
+                pos.x.val = thing->mappos.x.val;
+                pos.y.val = thing->mappos.y.val;
+                pos.z.val = get_floor_height_at(&thing->mappos);
+                create_effect(&pos, rmeffect, thing->owner);
+            }
+            delete_thing_structure(thing, 0);
+            removed_num++;
+        }
+        // Per thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+      }
+    }
+    return removed_num;
+}
+
+long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, long rmeffect)
+{
+    struct Thing *thing;
+    struct Map *mapblk;
+    struct Objects *objdat;
+    struct Coord3d pos;
+    long removed_num;
+    unsigned long k;
+    long i,n;
+    removed_num = 0;
+    for (n=0; n < 9; n++)
+    {
+      mapblk = get_map_block_at_pos(get_subtile_number(3*slb_x+1,3*slb_y+1)+around_map[n]);
+      k = 0;
+      i = get_mapwho_thing_index(mapblk);
+      while (i != 0)
+      {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+          WARNLOG("Jump out of things array");
+          break;
+        }
+        i = thing->field_2;
+        // Per thing code
+        if (thing->class_id == TCls_Object)
+        {
+            objdat = get_objects_data_for_thing(thing);
+            if (objdat->field_15)
+            {
+                if (rmeffect > 0)
+                {
+                    pos.x.val = thing->mappos.x.val;
+                    pos.y.val = thing->mappos.y.val;
+                    pos.z.val = get_floor_height_at(&thing->mappos);
+                    create_effect(&pos, rmeffect, thing->owner);
+                }
+                delete_thing_structure(thing, 0);
+                removed_num++;
+            }
+        }
+        // Per thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+      }
+    }
+    return removed_num;
+}
+
+void place_slab_type_on_map(long nslab, long stl_x, long stl_y, unsigned char owner, unsigned char a5)
+{
+    SlabType previous_slab_types_around[8];
+    struct SlabMap *slb;
+    struct SlabAttr *slbattr;
+    MapSlabCoord slb_x,slb_y;
+    MapSlabCoord spos_x,spos_y;
+    int skind;
+    long i;
     SYNCDBG(7,"Starting");
-    //_DK_place_slab_type_on_map(nslab, stl_x, stl_y, owner, a5);
+    //_DK_place_slab_type_on_map(nslab, stl_x, stl_y, owner, a5); return;
     if ((stl_x < 0) || (stl_x > map_subtiles_x))
         return;
     if ((stl_y < 0) || (stl_y > map_subtiles_y))
         return;
     slb_x = map_to_slab[stl_x];
     slb_y = map_to_slab[stl_y];
-    if (nslab >= 42)
+    if (slab_type_is_animated(nslab))
     {
-        ERRORLOG("Attempt to place animating slab %d as standard slab",(int)nslab);
+        ERRORLOG("Placing animating slab %d as standard slab",(int)nslab);
     }
     for (i = 0; i < 8; i++)
     {
-        spos_x = slb_x + my_around_eight[i].delta_x;
-        spos_y = slb_y + my_around_eight[i].delta_y;
+        spos_x = slb_x + (MapSlabCoord)my_around_eight[i].delta_x;
+        spos_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;
         slb = get_slabmap_block(spos_x,spos_y);
         if (slabmap_block_invalid(slb))
         {
-            previous_slab_types_around[i] = -1;
+            previous_slab_types_around[i] = SlbT_ROCK;
             continue;
         }
         previous_slab_types_around[i] = slb->slab;
@@ -2811,51 +2926,41 @@ void place_slab_type_on_map(long nslab, long stl_x, long stl_y, unsigned char ow
     {
       for (i = 0; i < 8; i++)
       {
-          spos_x = slb_x + my_around_eight[i].delta_x;
-          spos_y = slb_y + my_around_eight[i].delta_y;
+          spos_x = slb_x + (MapSlabCoord)my_around_eight[i].delta_x;
+          spos_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;
           slb = get_slabmap_block(spos_x,spos_y);
           if (slabmap_block_invalid(slb))
               continue;
-          if (slb->slab == 2)
+          if (slb->slab == SlbT_EARTH)
           {
-              flag = 0;
-              if ((spos_x % 5) == 0)
-              {
-                  sslb1 = get_slabmap_block(spos_x,spos_y+1);
-                  sslb2 = get_slabmap_block(spos_x,spos_y-1);
-                  if ((sslb1->slab == 11) || (sslb2->slab == 11))
-                      flag |= 0x01;
-              }
-              if ((spos_y % 5) == 0)
-              {
-                  sslb1 = get_slabmap_block(spos_x+1,spos_y);
-                  sslb2 = get_slabmap_block(spos_x-1,spos_y);
-                  if ((sslb1->slab == 11) || (sslb2->slab == 11))
-                      flag |= 0x02;
-              }
-              slb->slab = 3 - (flag < 1);
+              if (torch_flags_for_slab(spos_x, spos_y) == 0)
+                  slb->slab = SlbT_EARTH;
+              else
+                  slb->slab = SlbT_TORCHDIRT;
           }
       }
     } else
     {
       for (i = 0; i < 8; i++)
       {
-          spos_x = slb_x + my_around_eight[i].delta_x;
-          spos_y = slb_y + my_around_eight[i].delta_y;
+          spos_x = slb_x + (MapSlabCoord)my_around_eight[i].delta_x;
+          spos_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;
           slb = get_slabmap_block(spos_x,spos_y);
           if (slabmap_block_invalid(slb))
               continue;
-          if (slb->slab < 42)
+          if (!slab_type_is_animated(slb->slab))
+          {
               slb->slab = alter_rock_style(slb->slab, spos_x, spos_y, owner);
+          }
       }
     }
 
-    pannel_map_update(3*slb_x, 3*slb_y, 3, 3);
+    pannel_map_update(3*(MapSubtlCoord)slb_x, 3*(MapSubtlCoord)slb_y, 3, 3);
 
     for (i = 0; i < 8; i++)
     {
-        spos_x = slb_x + my_around_eight[i].delta_x;
-        spos_y = slb_y + my_around_eight[i].delta_y;
+        spos_x = slb_x + (MapSlabCoord)my_around_eight[i].delta_x;
+        spos_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;
         slb = get_slabmap_block(spos_x,spos_y);
         if (slabmap_block_invalid(slb))
             continue;
@@ -2863,123 +2968,27 @@ void place_slab_type_on_map(long nslab, long stl_x, long stl_y, unsigned char ow
           || (slb->slab != SlbT_GOLD) && (slb->slab != SlbT_ROCK)
           || (game.flagfield_14EA4A == 1))
         {
-            slbattr = get_slab_kind_attrs(skind);
+            slbattr = get_slab_kind_attrs(slb->slab);
             if (slbattr->field_F != 5)
                 place_single_slab_type_on_map(slb->slab, spos_x, spos_y, slabmap_owner(slb));
         }
     }
+
     if (!a5)
       update_blocks_around_slab(slb_x,slb_y);
-
     switch (nslab)
     {
     case SlbT_EARTH:
-        for (n=0; n < 9; n++)
-        {
-          mapblk = get_map_block_at_pos(get_subtile_number(3*slb_x+1,3*slb_y+1)+around_map[n]);
-          k = 0;
-          i = get_mapwho_thing_index(mapblk);
-          while (i != 0)
-          {
-            thing = thing_get(i);
-            if (thing_is_invalid(thing))
-            {
-              WARNLOG("Jump out of things array");
-              break;
-            }
-            i = thing->field_2;
-            // Per thing code
-            if (thing->class_id == TCls_Object)
-            {
-                delete_thing_structure(thing, 0);
-            }
-            // Per thing code ends
-            k++;
-            if (k > THINGS_COUNT)
-            {
-              ERRORLOG("Infinite loop detected when sweeping things list");
-              break;
-            }
-          }
-        }
+        delete_all_object_things_from_slab(slb_x, slb_y, 0);
         break;
     case SlbT_LAVA:
-        for (n=0; n < 9; n++)
-        {
-          mapblk = get_map_block_at_pos(get_subtile_number(3*slb_x+1,3*slb_y+1)+around_map[n]);
-          k = 0;
-          i = get_mapwho_thing_index(mapblk);
-          while (i != 0)
-          {
-            thing = thing_get(i);
-            if (thing_is_invalid(thing))
-            {
-              WARNLOG("Jump out of things array");
-              break;
-            }
-            i = thing->field_2;
-            // Per thing code
-            if (thing->class_id == TCls_Object)
-            {
-                objdat = get_objects_data_for_thing(thing);
-                if (objdat->field_15)
-                {
-                    pos.x.val = thing->mappos.x.val;
-                    pos.y.val = thing->mappos.y.val;
-                    pos.z.val = get_floor_height_at(&thing->mappos);
-                    create_effect(&pos, 17, thing->owner);
-                    delete_thing_structure(thing, 0);
-                }
-            }
-            // Per thing code ends
-            k++;
-            if (k > THINGS_COUNT)
-            {
-              ERRORLOG("Infinite loop detected when sweeping things list");
-              break;
-            }
-          }
-        }
+        delete_unwanted_things_from_liquid_slab(slb_x, slb_y, 17);
         break;
     case SlbT_WATER:
-        for (n=0; n < 9; n++)
-        {
-          mapblk = get_map_block_at_pos(get_subtile_number(3*slb_x+1,3*slb_y+1)+around_map[n]);
-          k = 0;
-          i = get_mapwho_thing_index(mapblk);
-          while (i != 0)
-          {
-            thing = thing_get(i);
-            if (thing_is_invalid(thing))
-            {
-              WARNLOG("Jump out of things array");
-              break;
-            }
-            i = thing->field_2;
-            // Per thing code
-            if (thing->class_id == TCls_Object)
-            {
-                objdat = get_objects_data_for_thing(thing);
-                if (objdat->field_15)
-                {
-                    pos.x.val = thing->mappos.x.val;
-                    pos.y.val = thing->mappos.y.val;
-                    pos.z.val = get_floor_height_at(&thing->mappos);
-                    create_effect(&pos, 21, thing->owner);
-                    delete_thing_structure(thing, 0);
-                }
-            }
-            // Per thing code ends
-            k++;
-            if (k > THINGS_COUNT)
-            {
-              ERRORLOG("Infinite loop detected when sweeping things list");
-              break;
-            }
-          }
-        }
+        delete_unwanted_things_from_liquid_slab(slb_x, slb_y, 21);
         break;
     }
+
 }
 
 void place_single_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, unsigned char a4)
@@ -5976,7 +5985,7 @@ short zoom_to_fight(unsigned char a1)
   return false;
 }
 
-short create_random_evil_creature(long x, long y, unsigned short owner, long max_lv)
+TbBool create_random_evil_creature(long x, long y, PlayerNumber owner, long max_lv)
 {
   struct Thing *thing;
   struct Coord3d pos;
@@ -6009,7 +6018,7 @@ short create_random_evil_creature(long x, long y, unsigned short owner, long max
   return true;
 }
 
-short create_random_hero_creature(long x, long y, unsigned short owner, long max_lv)
+TbBool create_random_hero_creature(long x, long y, PlayerNumber owner, long max_lv)
 {
   struct Thing *thing;
   struct Coord3d pos;
@@ -6042,6 +6051,36 @@ short create_random_hero_creature(long x, long y, unsigned short owner, long max
   i = ACTION_RANDOM(max_lv);
   set_creature_level(thing, i);
   return true;
+}
+
+TbBool create_hero_special_worker(long x, long y, PlayerNumber owner)
+{
+    struct Thing *thing;
+    struct Coord3d pos;
+    long i;
+    i = 8;
+    pos.x.val = x;
+    pos.y.val = y;
+    pos.z.val = 0;
+    thing = create_creature(&pos, i, owner);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Cannot create hero creature type %ld at (%ld,%ld)",i,x,y);
+        return false;
+    }
+    pos.z.val = get_thing_height_at(thing, &pos);
+    if (thing_in_wall_at(thing, &pos))
+    {
+        delete_thing_structure(thing, 0);
+        ERRORLOG("Hero creature type %ld at (%ld,%ld) deleted because is in wall",i,x,y);
+        return false;
+    }
+    thing->mappos.x.val = pos.x.val;
+    thing->mappos.y.val = pos.y.val;
+    thing->mappos.z.val = pos.z.val;
+    remove_first_creature(thing);
+    set_first_creature(thing);
+    return true;
 }
 
 short zoom_to_next_annoyed_creature(void)
@@ -6946,10 +6985,10 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long a2)
       thing = create_object(&pos, 37, player->id_number, -1);
       if (thing_is_invalid(thing))
       {
-        player->field_43A = 0;
+        player->hand_thing_idx = 0;
         break;
       }
-      player->field_43A = thing->index;
+      player->hand_thing_idx = thing->index;
       set_power_hand_graphic(player->id_number, 785, 256);
       place_thing_in_limbo(thing);
       break;
@@ -7518,20 +7557,20 @@ struct Thing *create_room_surrounding_flame(struct Room *room,struct Coord3d *po
 
 void room_update_surrounding_flames(struct Room *room, struct Coord3d *pos)
 {
-  long x,y;
+    MapSlabCoord x,y;
   long i,k;
   i = room->field_43;
-  x = pos->x.stl.num + small_around[i].delta_x;
-  y = pos->y.stl.num + small_around[i].delta_y;
+  x = pos->x.stl.num + (MapSlabCoord)small_around[i].delta_x;
+  y = pos->y.stl.num + (MapSlabCoord)small_around[i].delta_y;
   if (room != subtile_room_get(x,y))
   {
-      k = (i + 1) % -4;
+      k = (i + 1) % 4;
       room->field_43 = k;
       return;
   }
-  k = (i + 3) % -4;
-  x += small_around[k].delta_x;
-  y += small_around[k].delta_y;
+  k = (i + 3) % 4;
+  x += (MapSlabCoord)small_around[k].delta_x;
+  y += (MapSlabCoord)small_around[k].delta_y;
   if (room == subtile_room_get(x,y))
   {
       room->field_41 += slab_around[i] + slab_around[k];
@@ -8372,8 +8411,13 @@ void process_player_states(void)
 
 void set_level_objective(char *msg_text)
 {
-  strncpy(game.evntbox_text_objective, msg_text, MESSAGE_TEXT_LEN);
-  new_objective = 1;
+    if (msg_text == NULL)
+    {
+        ERRORLOG("Invalid message pointer");
+        return;
+    }
+    strncpy(game.evntbox_text_objective, msg_text, MESSAGE_TEXT_LEN);
+    new_objective = 1;
 }
 
 void update_player_objectives(int plridx)
@@ -10736,10 +10780,11 @@ short delete_room_slab(long slb_x, long slb_y, unsigned char gnd_slab)
     struct SlabMap *slb;
     SYNCDBG(7,"Starting on (%ld,%ld)",slb_x,slb_y);
     //return _DK_delete_room_slab(slb_x, slb_y, gnd_slab);
+
     room = slab_room_get(slb_x,slb_y);
     if (room_is_invalid(room))
     {
-        ERRORLOG("This is not a room slab");
+        ERRORLOG("Slab (%ld,%ld) is not a room",slb_x, slb_y);
         return 0;
     }
     decrease_room_area(room->owner, 1);
@@ -10747,7 +10792,7 @@ short delete_room_slab(long slb_x, long slb_y, unsigned char gnd_slab)
     if (room->slabs_count <= 1)
     {
         delete_room_flag(room);
-        replace_room_slab(room, slb_x, slb_y, room->owner);
+        replace_room_slab(room, slb_x, slb_y, room->owner, gnd_slab);
         delete_room_flag(room);
         kill_all_room_slabs_and_contents(room);
         free_room_structure(room);
@@ -10757,7 +10802,7 @@ short delete_room_slab(long slb_x, long slb_y, unsigned char gnd_slab)
         slb_num = get_slab_number(slb_x, slb_y);
         // Remove the slab from room tiles list
         remove_slab_from_room_tiles_list(room, slb_num);
-        replace_room_slab(room, slb_x, slb_y, room->owner);
+        replace_room_slab(room, slb_x, slb_y, room->owner, gnd_slab);
         recreate_rooms_from_room_slabs(room, gnd_slab);
         reset_creatures_rooms(room);
         free_room_structure(room);
@@ -11579,6 +11624,10 @@ void startup_saved_packet_game(void)
   //_DK_startup_saved_packet_game(); return;
   clear_packets();
   open_packet_file_for_load(game.packet_fname);
+  if (!change_campaign(""))
+  {
+    ERRORLOG("Unable to load campaign associated with packet file");
+  }
   set_selected_level_number(game.packet_save_head.level_num);
   lbDisplay.DrawColour = colours[15][15][15];
   game.pckt_gameturn = 0;

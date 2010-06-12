@@ -230,6 +230,8 @@ typedef long LevelNumber;
 typedef long MapCoord;
 typedef long MapSubtlCoord;
 typedef short MapSlabCoord;
+typedef unsigned long SubtlCodedCoords;
+typedef unsigned long SlabCodedCoords;
 typedef unsigned char PlayerFlags;
 
 #ifdef __cplusplus

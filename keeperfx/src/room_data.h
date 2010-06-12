@@ -135,8 +135,10 @@ struct Room *room_get(long room_idx);
 struct Room *subtile_room_get(long stl_x, long stl_y);
 struct Room *slab_room_get(long slb_x, long slb_y);
 TbBool room_is_invalid(const struct Room *room);
-struct RoomData *room_data_get_for_kind(long room_kind);
+struct RoomData *room_data_get_for_kind(RoomKind rkind);
 struct RoomData *room_data_get_for_room(const struct Room *room);
+struct RoomStats *room_stats_get_for_kind(RoomKind rkind);
+struct RoomStats *room_stats_get_for_room(const struct Room *room);
 
 long get_room_look_through(RoomKind rkind);
 void set_room_efficiency(struct Room *room);
@@ -166,7 +168,7 @@ long create_workshop_object_in_workshop_room(long a1, long a2, long a3);
 struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, long rkind);
 
 void init_room_sparks(struct Room *room);
-void replace_room_slab(struct Room *room, long a2, long a3, unsigned char a4);
+void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char owner, unsigned char a5);
 short delete_room_slab_when_no_free_room_structures(long a1, long a2, unsigned char a3);
 long calculate_room_efficiency(struct Room *room);
 void kill_room_slab_and_contents(unsigned char a1, unsigned char a2, unsigned char a3);

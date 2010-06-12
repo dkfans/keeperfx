@@ -25,7 +25,7 @@
 TCP_NetClient::TCP_NetClient(const char hostname[], ushort port) : TCP_NetBase()
 {
 	IPaddress addr;
-	SDLNet_ResolveHost(&addr, hostname, port); //TODO: change from local host to real session later
+	SDLNet_ResolveHost(&addr, hostname, port); //TODO NET change from local host to real session later
 	mySocket = SDLNet_TCP_Open(&addr);
 	if (mySocket == NULL) {
 		NETMSG("Failed to initialize TCP client socket");

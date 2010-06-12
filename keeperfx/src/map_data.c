@@ -261,7 +261,7 @@ MapCoord get_subtile_center_pos(MapSubtlCoord stl_v)
 /**
  * Subtile number - stores both X and Y coords in one number.
  */
-unsigned long get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+SubtlCodedCoords get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   if (stl_x > map_subtiles_x+1) stl_x = map_subtiles_x+1;
   if (stl_y > map_subtiles_y+1) stl_y = map_subtiles_y+1;
@@ -273,7 +273,7 @@ unsigned long get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 /**
  * Decodes X coordinate from subtile number.
  */
-MapSubtlCoord stl_num_decode_x(unsigned long stl_num)
+MapSubtlCoord stl_num_decode_x(SubtlCodedCoords stl_num)
 {
   return stl_num % (map_subtiles_x+1);
 }
@@ -281,7 +281,7 @@ MapSubtlCoord stl_num_decode_x(unsigned long stl_num)
 /**
  * Decodes Y coordinate from subtile number.
  */
-MapSubtlCoord stl_num_decode_y(unsigned long stl_num)
+MapSubtlCoord stl_num_decode_y(SubtlCodedCoords stl_num)
 {
   return (stl_num/(map_subtiles_x+1))%map_subtiles_y;
 }
@@ -289,7 +289,7 @@ MapSubtlCoord stl_num_decode_y(unsigned long stl_num)
 /**
  * Returns subtile number for center subtile on given slab.
  */
-unsigned long get_subtile_number_at_slab_center(long slb_x, long slb_y)
+SubtlCodedCoords get_subtile_number_at_slab_center(long slb_x, long slb_y)
 {
   return get_subtile_number(slb_x*3+1,slb_y*3+1);
 }
@@ -297,7 +297,7 @@ unsigned long get_subtile_number_at_slab_center(long slb_x, long slb_y)
 /**
  * Returns subtile coordinate for central subtile on given slab.
  */
-long slab_center_subtile(MapSubtlCoord stl_v)
+MapSubtlCoord slab_center_subtile(MapSubtlCoord stl_v)
 {
   return map_to_slab[stl_v]*3+1;
 }
@@ -305,7 +305,7 @@ long slab_center_subtile(MapSubtlCoord stl_v)
 /**
  * Returns subtile coordinate for starting subtile on given slab.
  */
-long slab_starting_subtile(MapSubtlCoord stl_v)
+MapSubtlCoord slab_starting_subtile(MapSubtlCoord stl_v)
 {
   return map_to_slab[stl_v]*3;
 }
@@ -313,7 +313,7 @@ long slab_starting_subtile(MapSubtlCoord stl_v)
 /**
  * Returns subtile coordinate for ending subtile on given slab.
  */
-long slab_ending_subtile(MapSubtlCoord stl_v)
+MapSubtlCoord slab_ending_subtile(MapSubtlCoord stl_v)
 {
   return map_to_slab[stl_v]*3+2;
 }
@@ -418,6 +418,20 @@ TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return ((navmap & 0x10) != 0);
 }
 
+TbBool subtile_is_sellable_room(long plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map *map;
+    struct SlabMap *slb;
+    map = get_map_block_at(stl_x,stl_y);
+    if (map_block_invalid(map) || ((map->flags & 0x02) == 0))
+        return false;
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    if (slabmap_owner(slb) != plyr_idx)
+        return false;
+    if ((slb->slab == SlbT_ENTRANCE) || (slb->slab == SlbT_DUNGHEART))
+        return false;
+    return true;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

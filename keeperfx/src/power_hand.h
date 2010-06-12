@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,7 +50,10 @@ TbBool dump_thing_in_power_hand(struct Thing *thing, long plyr_idx);
 void draw_power_hand(void);
 void clear_things_in_hand(struct PlayerInfo *player);
 TbBool magic_use_power_hand(long plyr_idx, unsigned short a2, unsigned short a3, unsigned short tng_idx);
+struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 
+struct Thing *create_power_hand(PlayerNumber owner);
+void delete_power_hand(PlayerNumber owner);
 /******************************************************************************/
 #ifdef __cplusplus
 }
