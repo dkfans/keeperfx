@@ -1068,11 +1068,6 @@ void get_front_view_nonaction_inputs(void)
   _DK_get_front_view_nonaction_inputs();
 }
 
-short slab_type_is_door(unsigned short slab_type)
-{
-  return ((slab_type >= 42) && (slab_type <= 49));
-}
-
 /**
  * Updates given position and context variables.
  * Makes no changes to the Game or Packets.

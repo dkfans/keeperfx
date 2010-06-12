@@ -61,7 +61,7 @@ void TCP_NetServer::recvThreadFunc(RecvThreadArg * arg)
 
 		ulong playerId = SDLNet_Read32(header);
 		ulong msgDataLen = SDLNet_Read32(header);
-		if (true /*playerId == sp->localPlayerId*/) { //TODO: handle this
+		if (true /*playerId == sp->localPlayerId*/) { //TODO NET handle this
 			//message is for us
 		}
 		else {
@@ -114,7 +114,7 @@ void TCP_NetServer::haltRecvThreads()
 
 void TCP_NetServer::update()
 {
-	//TODO: deal with this, needs data presently in TCPServiceProvider
+	//TODO NET deal with this, needs data presently in TCPServiceProvider
 	/*TCPsocket newSocket;
 	while ((newSocket = SDLNet_TCP_Accept(mySocket)) != NULL) { //does not block
 		if (joinable) {
@@ -124,7 +124,7 @@ void TCP_NetServer::update()
 					addRemoteSocket(i, newSocket);
 					notFound = false;
 					break;
-					//TODO: see if we should add player here or if protocol does this
+					//TODO NET see if we should add player here or if protocol does this
 				}
 			}
 
@@ -213,7 +213,7 @@ void TCP_NetServer::removeRemoteSocket(TCPsocket sock)
 		}
 	}
 
-	//TODO: inform everyone about what happened
+	//TODO NET inform everyone about what happened
 
 	SDL_UnlockMutex(remoteMutex);
 

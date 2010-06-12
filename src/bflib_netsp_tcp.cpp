@@ -57,7 +57,7 @@ TbError TCPServiceProvider::Start(struct TbNetworkSessionNameEntry * sessionName
 		return Lb_FAIL;
 	}
 
-	//TODO: see if we're responsible for adding ourself to player list or not
+	//TODO NET see if we're responsible for adding ourself to player list or not
 	localPlayerId = 0; //for now...
 
 	started = true;
@@ -90,7 +90,7 @@ TbError TCPServiceProvider::Start(char * sessionName, char * playerName, unsigne
 	localPlayerId = 1;
 	AddPlayer(localPlayerId++, playerName, 0, 0);
 
-	//TODO: make broadcast addresses configurable
+	//TODO NET make broadcast addresses configurable
 	std::vector<std::string> broadcastAddr;
 	broadcastAddr.push_back("255.255.255.255"); //global LAN broadcast addr
 	broadcastAddr.push_back("192.168.0.255"); //common LAN broadcast addr
@@ -163,7 +163,7 @@ TbError TCPServiceProvider::Enumerate(struct TbNetworkSessionNameEntry * session
 			TbNetworkPlayerNameEntry entry;
 			memset(&entry, 0, sizeof(entry));
 			if (i == 0) {
-				entry.isHost = isServer; //TODO: check correctness of this... was written for old code
+				entry.isHost = isServer; //TODO NET check correctness of this... was written for old code
 				entry.isLocal = true; //I hope
 			}
 
@@ -174,7 +174,7 @@ TbError TCPServiceProvider::Enumerate(struct TbNetworkSessionNameEntry * session
 		}
 	}
 	else {
-		//TODO: look up remote session
+		//TODO NET look up remote session
 	}
 
 	return Lb_OK;

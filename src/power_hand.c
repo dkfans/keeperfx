@@ -153,7 +153,7 @@ void set_power_hand_graphic(long plyr_idx, long a2, long a3)
     if (player->field_C != a2)
     {
       player->field_C = a2;
-      thing = thing_get(player->field_43A);
+      thing = thing_get(player->hand_thing_idx);
       if ((a2 == 782) || (a2 == 781))
       {
         set_thing_draw(thing, a2, a3, 300, 0, 0, 2);
@@ -282,7 +282,7 @@ void draw_power_hand(void)
     draw_mini_things_in_hand(GetMouseX()+10, GetMouseY()+10);
     return;
   }
-  thing = thing_get(player->field_43A);
+  thing = thing_get(player->hand_thing_idx);
   if (thing_is_invalid(thing))
     return;
   if (player->field_10 > game.play_gameturn)
@@ -419,7 +419,7 @@ void get_nearest_thing_for_hand_or_slap_on_map_block(long *near_distance, struct
   }
 }
 
-struct Thing *get_nearest_thing_for_hand_or_slap(long plyr_idx, long x, long y)
+struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y)
 {
   long near_distance;
   struct Thing *near_thing;
@@ -474,7 +474,7 @@ void draw_mini_things_in_hand(long x, long y)
   _DK_draw_mini_things_in_hand(x, y);
 }
 
-void create_power_hand(unsigned char owner)
+struct Thing *create_power_hand(PlayerNumber owner)
 {
     struct PlayerInfo *player;
     struct Thing *thing;
@@ -486,9 +486,9 @@ void create_power_hand(unsigned char owner)
     pos.z.val = 0;
     thing = create_object(&pos, 37, owner, -1);
     if (thing_is_invalid(thing))
-        return;
+        return NULL;
     player = get_player(owner);
-    player->field_43A = thing->index;
+    player->hand_thing_idx = thing->index;
     player->field_C = 0;
     grabtng = get_first_thing_in_power_hand(player);
     if (thing_is_invalid(thing))
@@ -503,6 +503,21 @@ void create_power_hand(unsigned char owner)
         set_power_hand_graphic(owner, 784, 256);
     }
     place_thing_in_limbo(thing);
+    return thing;
+}
+
+void delete_power_hand(PlayerNumber owner)
+{
+    struct PlayerInfo *player;
+    struct Thing *thing;
+    long hand_idx;
+    player = get_player(owner);
+    hand_idx = player->hand_thing_idx;
+    if (hand_idx == 0)
+        return;
+    player->hand_thing_idx = 0;
+    thing = thing_get(hand_idx);
+    delete_thing_structure(thing, 0);
 }
 
 long prepare_thing_for_power_hand(unsigned short tng_idx, long plyr_idx)

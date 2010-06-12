@@ -183,7 +183,7 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
     //return _DK_update_navigation_triangulation(start_x, start_y, end_x, end_y);
     if (!nav_map_initialised)
     {
-      for (y = 0; y < 255; y ++)
+      for (y = 0; y < 255; y++)
       {
         for (x = 0; x < 255; x++)
         {

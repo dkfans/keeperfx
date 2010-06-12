@@ -2023,7 +2023,7 @@ long script_scan_line(char *line,TbBool preloaded)
     LbMemoryFree(scline);
     return 0;
   }
-  // Recognising parameters
+  // Recognizing parameters
   for (i=0; i < COMMANDDESC_ARGS_COUNT; i++)
   {
     chr = cmd_desc->args[i];
@@ -2315,6 +2315,7 @@ short preload_script(long lvnum)
     buf += lnlen;
   }
   LbMemoryFree(script_data);
+  SYNCDBG(8,"Finished");
   return true;
 }
 
@@ -3068,7 +3069,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       break;
   case Cmd_DISPLAY_OBJECTIVE:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
+      {
         set_general_objective(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
+      }
       break;
   case Cmd_DISPLAY_INFORMATION:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))

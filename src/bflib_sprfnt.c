@@ -843,7 +843,7 @@ int LbTextWordWidth(const char *str)
 {
   if ((dbc_initialized) && (dbc_enabled))
   {
-    //TODO: make proper function
+    //TODO SPRITES make proper function
     return LbSprFontWordWidth(lbFontPtr,str);
   } else
   {

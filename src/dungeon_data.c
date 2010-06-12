@@ -127,4 +127,22 @@ void decrease_room_area(unsigned char plyr_idx, long value)
       dungeon->total_area -= value;
 }
 
+void increase_dungeon_area(unsigned char plyr_idx, long value)
+{
+    struct Dungeon *dungeon;
+    if (plyr_idx == game.neutral_player_num)
+        return;
+    dungeon = get_dungeon(plyr_idx);
+    dungeon->total_area += value;
+}
+
+void player_add_offmap_gold(long plyr_idx, long value)
+{
+    struct Dungeon *dungeon;
+    if (plyr_idx == game.neutral_player_num)
+        return;
+    dungeon = get_dungeon(plyr_idx);
+    dungeon->field_AFD += value;
+    dungeon->field_AF9 += value;
+}
 /******************************************************************************/

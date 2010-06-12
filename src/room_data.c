@@ -177,7 +177,7 @@ DLLIMPORT long _DK_calculate_room_efficiency(struct Room *room);
 DLLIMPORT void _DK_kill_room_slab_and_contents(unsigned char a1, unsigned char a2, unsigned char a3);
 DLLIMPORT void _DK_free_room_structure(struct Room *room);
 DLLIMPORT void _DK_reset_creatures_rooms(struct Room *room);
-DLLIMPORT void _DK_replace_room_slab(struct Room *room, long a2, long a3, unsigned char a4);
+DLLIMPORT void _DK_replace_room_slab(struct Room *room, long a2, long a3, unsigned char a4, unsigned char a5);
 DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char a2, char a3, unsigned char a4);
 /******************************************************************************/
 struct Room *room_get(long room_idx)
@@ -214,11 +214,11 @@ TbBool room_is_invalid(const struct Room *room)
   return (room <= &game.rooms[0]);
 }
 
-struct RoomData *room_data_get_for_kind(long room_kind)
+struct RoomData *room_data_get_for_kind(RoomKind rkind)
 {
-  if ((room_kind < 1) || (room_kind > ROOM_TYPES_COUNT))
+  if ((rkind < 1) || (rkind > ROOM_TYPES_COUNT))
     return &room_data[0];
-  return &room_data[room_kind];
+  return &room_data[rkind];
 }
 
 struct RoomData *room_data_get_for_room(const struct Room *room)
@@ -226,6 +226,20 @@ struct RoomData *room_data_get_for_room(const struct Room *room)
   if ((room->kind < 1) || (room->kind > ROOM_TYPES_COUNT))
     return &room_data[0];
   return &room_data[room->kind];
+}
+
+struct RoomStats *room_stats_get_for_kind(RoomKind rkind)
+{
+    if ((rkind < 1) || (rkind > ROOM_TYPES_COUNT))
+        return &game.room_stats[0];
+    return &game.room_stats[rkind];
+}
+
+struct RoomStats *room_stats_get_for_room(const struct Room *room)
+{
+    if ((room->kind < 1) || (room->kind > ROOM_TYPES_COUNT))
+        return &game.room_stats[0];
+    return &game.room_stats[room->kind];
 }
 
 long get_room_look_through(RoomKind rkind)
@@ -1135,9 +1149,38 @@ void reset_creatures_rooms(struct Room *room)
   _DK_reset_creatures_rooms(room);
 }
 
-void replace_room_slab(struct Room *room, long a2, long a3, unsigned char a4)
+void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char owner, unsigned char a5)
 {
-    _DK_replace_room_slab(room, a2, a3, a4);
+    struct SlabMap *slb;
+    unsigned short wlbflag;
+    //_DK_replace_room_slab(room, slb_x, slb_y, owner, a5);
+    if (room->kind == RoK_BRIDGE)
+    {
+        slb = get_slabmap_block(slb_x, slb_y);
+        wlbflag = slabmap_wlb(slb);
+        if (wlbflag == 0x01)
+        {
+          place_slab_type_on_map(12, 3 * slb_x, 3 * slb_y, game.neutral_player_num, 0);
+        } else
+        if (wlbflag == 0x02)
+        {
+            place_slab_type_on_map(13, 3 * slb_x, 3 * slb_y, game.neutral_player_num, 0);
+        } else
+        {
+            ERRORLOG("WLB flags seem damaged for slab (%ld,%ld).",(long)slb_x,(long)slb_y);
+            place_slab_type_on_map(13, 3 * slb_x, 3 * slb_y, game.neutral_player_num, 0);
+        }
+    } else
+    {
+        if ( a5 )
+        {
+            place_slab_type_on_map(10, 3 * slb_x, 3 * slb_y, game.neutral_player_num, 0);
+        } else
+        {
+            place_slab_type_on_map(11, 3 * slb_x, 3 * slb_y, owner, 0);
+            increase_dungeon_area(owner, 1);
+        }
+    }
 }
 
 struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char a2, char a3, unsigned char a4)
