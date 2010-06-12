@@ -324,6 +324,9 @@ void clear_dungeons(void);
 void decrease_dungeon_area(unsigned char plyr_idx, long value);
 void increase_room_area(unsigned char plyr_idx, long value);
 void decrease_room_area(unsigned char plyr_idx, long value);
+void increase_dungeon_area(unsigned char plyr_idx, long value);
+void player_add_offmap_gold(long plyr_idx, long value);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

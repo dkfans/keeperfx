@@ -82,7 +82,7 @@ unsigned char field_14;
 char field_E8[2];
     struct Wander wandr1;
     struct Wander wandr2;
-    short field_43A;
+    short hand_thing_idx;
 char field_43C[2];
     short field_43E;
     long field_440;

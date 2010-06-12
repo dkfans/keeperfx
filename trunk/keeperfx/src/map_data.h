@@ -51,6 +51,10 @@ extern int map_tiles_y;
 extern unsigned char *IanMap;
 extern long nav_map_initialised;
 /******************************************************************************/
+#define coord_subtile(coord) (coord/256)
+#define subtile_coord(stl,spos) (stl*256+spos)
+#define subtile_coord_center(stl) (stl*256+128)
+/******************************************************************************/
 struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Map *get_map_block_at_pos(long stl_num);
 unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
@@ -74,15 +78,16 @@ TbBool set_coords_to_subtile_start(struct Coord3d *pos, long x, long y, long z);
 TbBool set_coords_to_subtile_end(struct Coord3d *pos, long x, long y, long z);
 TbBool set_coords_to_slab_center(struct Coord3d *pos, long slb_x, long slb_y);
 MapCoord get_subtile_center_pos(MapSubtlCoord stl_v);
-unsigned long get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-unsigned long get_subtile_number_at_slab_center(long slb_x, long slb_y);
-MapSubtlCoord stl_num_decode_x(unsigned long stl_num);
-MapSubtlCoord stl_num_decode_y(unsigned long stl_num);
-long slab_center_subtile(MapSubtlCoord stl_v);
-long slab_starting_subtile(MapSubtlCoord stl_v);
-long slab_ending_subtile(MapSubtlCoord stl_v);
+SubtlCodedCoords get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+SubtlCodedCoords get_subtile_number_at_slab_center(long slb_x, long slb_y);
+MapSubtlCoord stl_num_decode_x(SubtlCodedCoords stl_num);
+MapSubtlCoord stl_num_decode_y(SubtlCodedCoords stl_num);
+MapSubtlCoord slab_center_subtile(MapSubtlCoord stl_v);
+MapSubtlCoord slab_starting_subtile(MapSubtlCoord stl_v);
+MapSubtlCoord slab_ending_subtile(MapSubtlCoord stl_v);
 
 TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool subtile_is_sellable_room(long plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 void clear_dig_for_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
 void reveal_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);

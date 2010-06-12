@@ -102,7 +102,7 @@ static LPARAM make_lparam_from_sdl_key_event(const SDL_KeyboardEvent & ev)
 	//bit 31: key up or down?
 	lParam = ev.type == SDL_KEYUP? 0x80000000 : 0;
 
-	//TODO: detect if key already was down (bit 30 of LPARAM)
+	//TODO KEYBOARD detect if key already was down (bit 30 of LPARAM)
 
 	//bit 29: state of alt key(s)
 	if (ev.keysym.mod & KMOD_ALT) {
@@ -190,7 +190,7 @@ static void process_event(const SDL_Event & ev, TbBool mouseWheelRemap) {
 		mousePos.x = x;
 		mousePos.y = y;
 
-		/* TODO: Instead of faking key presses for mouse wheel actions,
+		/* TODO MOUSE Instead of faking key presses for mouse wheel actions,
 		 * rewrite KeyboardProc and find out how to call those actions immediately.
 		 * This is important because this experimental code does not take key remappings into account nor
 		 * accurate scan codes.
@@ -239,7 +239,7 @@ void poll_sdl_events(TbBool mouseWheelRemap) {
     	}
     }
 
-    //TODO: handle double clicks, SDL doesn't generate them
+    //TODO MOUSE handle double clicks, SDL doesn't generate them
 
     //process events until event queue is empty
     while (SDL_PollEvent(&ev)) {
