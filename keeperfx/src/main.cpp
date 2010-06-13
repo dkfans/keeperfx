@@ -6749,16 +6749,6 @@ void resync_game(void)
   set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
 }
 
-void free_swipe_graphic(void)
-{
-  SYNCDBG(6,"Starting");
-  if (game.field_1516FF != -1)
-  {
-    LbDataFreeAll(swipe_load_file);
-    game.field_1516FF = -1;
-  }
-}
-
 void message_add(char c)
 {
   _DK_message_add(c);

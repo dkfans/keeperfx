@@ -2277,7 +2277,7 @@ struct Thing *find_gold_hoarde_in_room_for_creature(struct Thing *thing, struct 
 /**
  * State handler function for stealing gold.
  * Should be invoked when a thief arrives at enemy treasure room.
- * Searches for specific gold hoarde to steal from and enters next
+ * Searches for specific gold hoard to steal from and enters next
  * phase of stealing (CrSt_CreatureStealGold).
  * @param thing The creature who is stealing gold.
  * @return True on success, false if finding gold to steal failed.
@@ -2299,7 +2299,7 @@ short creature_search_for_gold_to_steal_in_room(struct Thing *thing)
     gldtng = find_gold_hoarde_in_room_for_creature(thing, room);
     if (thing_is_invalid(gldtng))
     {
-        WARNLOG("Cannot steal gold - no gold hoarde found in treasure room");
+        WARNLOG("Cannot steal gold - no gold hoard found in treasure room");
         set_start_state(thing);
         return 0;
     }
@@ -2374,7 +2374,7 @@ short creature_steal_gold(struct Thing *thing)
     hrdtng = find_gold_hoarde_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if (thing_is_invalid(hrdtng))
     {
-        WARNLOG("Cannot steal gold - no gold hoarde at (%d,%d)",(int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num);
+        WARNLOG("Cannot steal gold - no gold hoard at (%d,%d)",(int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num);
         set_start_state(thing);
         return 0;
     }
@@ -3123,6 +3123,7 @@ short imp_converts_dungeon(struct Thing *thing)
 
 short imp_digs_mines(struct Thing *thing)
 {
+    //TODO may hang if out of navi triangles
     SYNCDBG(19,"Starting");
     return _DK_imp_digs_mines(thing);
 }
@@ -3822,7 +3823,7 @@ TbBool initialise_thing_state(struct Thing *thing, long nState)
     cctrl->field_302 = 0;
     if ((cctrl->flgfield_1 & 0x20) != 0)
     {
-        ERRORLOG("Initialize state, but thing in room list even after cleanup");
+        WARNLOG("Thing model %d stays in room list even after cleanup",(int)thing->model);
         remove_creature_from_work_room(thing);
     }
     return true;

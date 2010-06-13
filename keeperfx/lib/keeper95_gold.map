@@ -335,6 +335,7 @@
  0003:00247F30       fe_computer_players
  0003:00006C20       game_load_files
  0003:000067D8       swipe_load_file
+ 0003:00006790       swipe_setup_sprites
  0003:00011610       MinimalResolutionSetup
  0003:000EBEBC       pixels_per_block
  0003:000AB4D8       units_per_pixel
@@ -673,6 +674,14 @@
  0003:00273B9C       lbInkeyFlags
  0003:00273BA4       lbIInkeyFlags
  0003:00273BA8       lbExtendedKeyPress
+ 0003:000133B0       tag_current
+ 0003:000133B4       edgelen_initialised
+ 0003:00089668       tree_dad
+ 0003:00092310       Tags
+ 0003:00096DA0       Heap
+ 0003:0009A094       heap_end
+ 0003:0009A0A0       tree_val
+ 0003:00013370       nav_rulesA2B
 
  0006:00000008       gpoly_pro_enable_mode_ofs
  0006:00000010       gtblock_clip_width
@@ -1767,3 +1776,5 @@
  0001:0006AB50       triangle_route_do_bak
  0001:0007FD80       ariadne_init_movement_to_current_waypoint
  0001:000816E0       ariadne_pull_out_waypoint
+ 0001:0006A690       heap_down
+ 

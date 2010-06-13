@@ -24,7 +24,7 @@
 #define BFLIB_NETLISTEN_UDP_HPP
 
 #include <SDL_net.h>
-//TODO: remove reliance on string and vector, MinGW 3.4.5 compiler is FUBAR
+//TODO NET remove reliance on string and vector, MinGW 3.4.5 compiler is FUBAR
 #include <string>
 #include <vector>
 

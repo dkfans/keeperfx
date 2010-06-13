@@ -21,6 +21,8 @@
 
 #include "bflib_memory.h"
 #include "bflib_math.h"
+#include "bflib_filelst.h"
+#include "bflib_sprite.h"
 
 #include "engine_lenses.h"
 #include "config_creature.h"
@@ -204,9 +206,48 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
   return true;
 }
 
+void free_swipe_graphic(void)
+{
+    SYNCDBG(6,"Starting");
+    if (game.field_1516FF != -1)
+    {
+      LbDataFreeAll(swipe_load_file);
+      game.field_1516FF = -1;
+    }
+    LbSpriteClearAll(swipe_setup_sprites);
+}
+
 void load_swipe_graphic_for_creature(struct Thing *thing)
 {
-  _DK_load_swipe_graphic_for_creature(thing);
+    struct TbLoadFiles *t_lfile;
+    int swpe_idx;
+    long i;
+    SYNCDBG(6,"Starting for model %d",(int)thing->model);
+    //_DK_load_swipe_graphic_for_creature(thing);
+
+    i = creatures[thing->model%CREATURE_TYPES_COUNT].field_8;
+    if ((i == 0) || (game.field_1516FF == i))
+        return;
+    free_swipe_graphic();
+    swpe_idx = 5 * (i-1);
+    t_lfile = &swipe_load_file[0];
+    for (i=0; i < 5; i++)
+    {
+        sprintf(t_lfile->FName, "data/swpe%02d.dat", swpe_idx);
+        t_lfile++;
+        swpe_idx++;
+        sprintf(t_lfile->FName, "data/swpe%02d.tab", swpe_idx);
+        t_lfile++;
+        swpe_idx++;
+    }
+    if ( LbDataLoadAll(swipe_load_file) )
+    {
+        free_swipe_graphic();
+        ERRORLOG("Unable to load swipe graphics for creature model %d",(int)thing->model);
+        return;
+    }
+    LbSpriteSetupAll(swipe_setup_sprites);
+    game.field_1516FF = swpe_idx;
 }
 
 long creature_available_for_combat_this_turn(struct Thing *thing)
