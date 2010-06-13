@@ -21,11 +21,6 @@ version and patch. You need a complete version to play the game;
 a patch is only an additional feature, which you can use by
 overwriting some files from complete version with new ones.
 
-Installation over original DK:
-
-From ver 0.3.3 of KeeperFX, installation over the original DK
-is no longer supported.
-
 Available languages:
 
 The following languages are currently functional:
@@ -300,6 +295,11 @@ New and modified level script commands:
 
 Changelog:
 
+Version: 0.3.7a
+  Fixed gems appearance bug
+  Fixed selling bug
+  Fixed per-campaign creatures config bug
+
 Version: 0.3.7
   Rewritten computer tasks list
   Added palette stealing protection to video driver
@@ -534,6 +534,7 @@ Known problems:
 
 Programming:
  Tomasz Lis aka Mefistotelis
+ Petter Hansson
 
 Graphics:
  Chagui
