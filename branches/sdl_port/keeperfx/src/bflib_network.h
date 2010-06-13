@@ -113,10 +113,9 @@ struct TbNetworkPlayerNameEntry {
   unsigned char field_34[4];
 };
 
-//TODO: find out what this struct really is, and how long is it
 struct SystemUserMsg {
-  unsigned char field_0;
-  char field_1[8];
+  unsigned char type;
+  ClientDataEntry clientDataTable[CLIENT_TABLE_LEN];
 };
 
 struct UnidirectionalDataMessage {

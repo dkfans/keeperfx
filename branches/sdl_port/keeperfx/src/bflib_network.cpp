@@ -267,11 +267,14 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
         if (LbTimerClock()-tmStart > 10000)
         {
           waitingForPlayerMapResponse = 0;
+          //exits due to time out
           return ret;
         }
       }
     }
   }
+
+  //we have received "player map" = clientDataTable
   ret = GetCurrentPlayers();
   if (ret != Lb_OK)
   {
@@ -1204,7 +1207,7 @@ TbError CompleteMultiPlayerExchange(void *buf)
   return ret;
 }
 
-TbError SendSystemUserMessage(unsigned long plr_id, int te, void *ibuf, unsigned long ibuf_len)
+TbError SendSystemUserMessage(unsigned long plr_id, int type, void *ibuf, unsigned long ibuf_len)
 {
   if (ibuf_len+5 > sizeof(systemUserBuffer))
   {
@@ -1212,7 +1215,7 @@ TbError SendSystemUserMessage(unsigned long plr_id, int te, void *ibuf, unsigned
     return Lb_FAIL;
   }
   spPtr->EncodeMessageStub(systemUserBuffer, ibuf_len+1, 4, 0);
-  systemUserBuffer[4] = te;
+  systemUserBuffer[4] = type;
   if ((ibuf != NULL) && (ibuf_len > 0))
   {
     memcpy(&systemUserBuffer[5], ibuf, ibuf_len);
@@ -1428,17 +1431,17 @@ void *UnidirectionalMsgCallback(unsigned long a1, unsigned long msg_len, void *a
   return &incomingUnidirectionalMessage;
 }
 
-void SystemUserMsgCallback(unsigned long plr_id, void *msgbuf, unsigned long msglen, void *a4)
+void SystemUserMsgCallback(unsigned long plr_id, void *msgdata, unsigned long msglen, void *a4)
 {
   struct SystemUserMsg *msg;
-  msg = (struct SystemUserMsg *)msgbuf;
-  if ((msgbuf = NULL) || (msglen <= 0))
+  msg = (struct SystemUserMsg *) msgdata;
+  if ((msgdata = NULL) || (msglen <= 0))
     return;
-  if (msg->field_0)
+  if (msg->type != 0)
   {
-    WARNLOG("Illegal sysMsgType %d",msg->field_0);
+    WARNLOG("Illegal sysMsgType %d",msg->type);
   }
-  PlayerMapMsgHandler(plr_id, msg->field_1, msglen-1);
+  PlayerMapMsgHandler(plr_id, msg->clientDataTable, msglen-1);
 }
 
 void TwoPlayerReqExDataMsgCallback(unsigned long, unsigned long, void *)

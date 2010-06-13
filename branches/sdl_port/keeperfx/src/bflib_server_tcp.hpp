@@ -50,12 +50,17 @@ class TCP_NetServer : public TCP_NetBase
 	TCPsocket getRemoteSocketByPlayer(int playerId);
 	void removeRemoteSocket(TCPsocket sock);
 
+	int maxPlayers;
+	bool joinable;
+
 public:
 	explicit TCP_NetServer(ushort port);
 	virtual ~TCP_NetServer();
 
 	virtual void update();
 	virtual bool sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen);
+
+	virtual void setServerOptions(int maxPlayers, bool joinable);
 };
 
 #endif //!BFLIB_SERVER_TCP_HPP

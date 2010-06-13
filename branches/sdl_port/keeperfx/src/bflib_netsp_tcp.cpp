@@ -29,6 +29,8 @@
 #include "bflib_client_tcp.hpp"
 #include "bflib_server_tcp.hpp"
 
+#define SORC(x) (x? "Server" : "Client") //"server or client"
+
 TCPServiceProvider::TCPServiceProvider() :
 		host(NULL),
 		listener(NULL),
@@ -85,6 +87,8 @@ TbError TCPServiceProvider::Start(char * sessionName, char * playerName, unsigne
 		base = NULL;
 		return Lb_FAIL;
 	}
+
+	base->setServerOptions(maxPlayers, true);
 
 	// Fill in player info.
 	localPlayerId = 1;
@@ -213,35 +217,61 @@ TbError TCPServiceProvider::ChangeSettings(unsigned long, void *) {
 
 TbError TCPServiceProvider::EnableNewPlayers(TbBool allow) {
 	joinable = allow;
+	if (base != NULL) {
+		base->setServerOptions(maxPlayers, joinable);
+	}
 	return Lb_OK;
 }
 
 bool TCPServiceProvider::ReadMessage(ulong * playerId, void * msg, ulong * len) {
 	assert(started);
 
+	SYNCDBG(6, "%s: Trying to read message", SORC(isServer));
+
 	size_t len2 = *len;
 	bool retval = base->fetchDKMessage(*playerId, reinterpret_cast<char *>(msg), len2, false);
 	*len = len2;
+
+	if (retval) {
+		SYNCDBG(6, "%s: Message read from %d of %d bytes", SORC(isServer), playerId, *len);
+	}
+	else {
+		SYNCDBG(6, "%s: No message read", SORC(isServer));
+	}
+
 	return retval;
 }
 
 bool TCPServiceProvider::PeekMessage(ulong * playerId, void * msg, ulong * len) {
 	assert(started);
 
+	SYNCDBG(6, "%s: Trying to peek message", SORC(isServer));
+
 	size_t len2 = *len;
 	bool retval = base->fetchDKMessage(*playerId, reinterpret_cast<char *>(msg), len2, true);
 	*len = len2;
+
+	if (retval) {
+		SYNCDBG(6, "%s: Message peeked from %d of %d bytes", SORC(isServer), playerId, *len);
+	}
+	else {
+		SYNCDBG(6, "%s: No message peeked", SORC(isServer));
+	}
+
 	return retval;
 }
 
 TbError TCPServiceProvider::SendMessage(ulong playerId, void * msg, uchar i) {
 	assert(started);
 
+	SYNCDBG(6, "%s: Sending message to player %d", SORC(isServer), playerId);
+
 	ulong totalMsgLen;
 	ServiceProvider::DecodeMessageStub(msg, &totalMsgLen, NULL, NULL);
 	totalMsgLen += 4; //include header
 
 	if (!base->sendDKMessage(playerId, reinterpret_cast<char *>(msg), totalMsgLen)) {
+		SYNCDBG(6, "%s: Failure to send message", SORC(isServer));
 		return Lb_FAIL;
 	}
 

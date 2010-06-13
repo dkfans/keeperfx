@@ -487,7 +487,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
 		}
 
 		if (recvCallbacks->systemUserMsg) {
-			recvCallbacks->systemUserMsg(playerId, msgBuffer, (*(ulong*) msgBuffer) & 0xFFFFF, field_D78);
+			recvCallbacks->systemUserMsg(playerId, msgBuffer + 4, (*(ulong*) msgBuffer) & 0xFFFFF, field_D78); //TODO NET: perhaps 2nd arg should be msgBuffer + 4
 		}
 
         break;

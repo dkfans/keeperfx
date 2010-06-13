@@ -21,7 +21,9 @@
 #include "bflib_server_tcp.hpp"
 
 TCP_NetServer::TCP_NetServer(ushort port) : TCP_NetBase(),
-		remoteMutex(SDL_CreateMutex())
+		remoteMutex(SDL_CreateMutex()),
+		maxPlayers(0),
+		joinable(false)
 {
 	memset(&remote, 0, sizeof(remote));
 
@@ -115,7 +117,7 @@ void TCP_NetServer::haltRecvThreads()
 void TCP_NetServer::update()
 {
 	//TODO: deal with this, needs data presently in TCPServiceProvider
-	/*TCPsocket newSocket;
+	TCPsocket newSocket;
 	while ((newSocket = SDLNet_TCP_Accept(mySocket)) != NULL) { //does not block
 		if (joinable) {
 			bool notFound = true;
@@ -123,8 +125,12 @@ void TCP_NetServer::update()
 				if (remote[i].socket == NULL) { //sockets will never be created by receive thread so no lock required
 					addRemoteSocket(i, newSocket);
 					notFound = false;
-					break;
+
 					//TODO: see if we should add player here or if protocol does this
+
+					NETMSG("Remote socket accepted");
+
+					break;
 				}
 			}
 
@@ -135,8 +141,9 @@ void TCP_NetServer::update()
 		}
 		else {
 			SDLNet_TCP_Close(newSocket);
+			NETMSG("Socket dropped because joining is disabled");
 		}
-	}*/
+	}
 }
 
 bool TCP_NetServer::sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen)
@@ -221,5 +228,11 @@ void TCP_NetServer::removeRemoteSocket(TCPsocket sock)
 		SDL_WaitThread(remote[removedIndex].recvThread, NULL);
 		remote[removedIndex].recvThread = NULL;
 	}
+}
+
+void TCP_NetServer::setServerOptions(int maxPlayers, bool joinable)
+{
+	this->maxPlayers = maxPlayers;
+	this->joinable = joinable;
 }
 

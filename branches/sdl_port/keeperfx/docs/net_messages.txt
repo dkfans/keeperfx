@@ -1,0 +1,51 @@
+Section 0: General message format description
+================================================================================
+
+I need to document the original DK net messages somewhere - unfortunately, it
+turns out it is necessary for me to go into the semantics of the jumbled DK
+messenging system to correctly implement networking. (Rather than simply
+encapsulate them as I first thought.)
+
+Each message consists of a 4 byte header divided into three fields, where (seen
+as a single Big-Endian word):
+
+---------------------------------------------------------------------
+MSB | Message Type : 8 | Sequence Number : 4 | Data Length : 20 | LSB
+---------------------------------------------------------------------
+
+The following message type values occur in code (see enum NetMsgType):
+
+MULTIPLAYER = 0
+ADDPLAYER = 1
+DELETEPLAYER = 2
+PROBABLYHOST = 3
+SYSUSER = 4
+MPREQEXDATA = 5
+MPREQCOMPEXDATA = 6
+UNIDIRECTIONAL = 7
+UNKNOWN = 8
+
+After the header follows a number of bytes equal to the field Data Length.
+
+It is worth nothing that the destination player is supposed to be handled by the
+underlying protocol - thus the player ID is not a part of the header word.
+
+Section 1: Detailed message format descriptions
+================================================================================
+
+1.4. SYSUSER:
+=========================
+
+This message looks like following (Litte-Endian byte description).
+
+--------------------------------------------------------
+LSB | Header : 4 | Type : 1 | Client Data : <rest> | MSB
+--------------------------------------------------------
+
+Type is always 0 as far as I can see. Maybe more types were intended but not
+implemented.
+
+This message is used directly upon connection by a client. It is then sent exactly
+with data length = 1 to the server. The server reponds by sending the same message
+extended by sizeof(ClientDataEntry) * maxPlayers bytes; it is mirroring
+clientDataTable to the client.

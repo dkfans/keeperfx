@@ -92,6 +92,8 @@ public:
 	virtual void update() = 0;
 	bool fetchDKMessage(ulong & playerId, char buffer[], size_t & bufferLen, bool peek);
 	virtual bool sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen) = 0;
+
+	virtual void setServerOptions(int maxPlayers, bool joinable) {} //TODO NET: try to improve code design here...
 };
 
 #endif //!BFLIB_BASE_TCP_HPP

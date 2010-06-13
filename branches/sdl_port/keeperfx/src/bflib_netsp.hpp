@@ -55,7 +55,7 @@ struct ReceiveCallbacks {
   void (*mpReqExDataMsg)(unsigned long, unsigned long, void *);
   void (*mpReqCompsExDataMsg)(unsigned long, unsigned long, void *);
   void *(*unidirectionalMsg)(unsigned long, unsigned long, void *);
-  void (*systemUserMsg)(unsigned long, void *, unsigned long, void *);
+  void (*systemUserMsg)(unsigned long playerId, void * msgBuffer, unsigned long msgLen, void *);
   void *(*field_24)(unsigned long, void *);
 };
 
@@ -65,7 +65,13 @@ enum NetMsgType
 	NETMSGTYPE_ADD				= 1,
 	NETMSGTYPE_DELETE			= 2,
 	NETMSGTYPE_PROBABLYHOST		= 3, //might be incorrect
+
+	/**
+	 * Initial message from client that requests clientDataTable,
+	 * server responds with another SYSUSER containing clientDataTable.
+	 */
 	NETMSGTYPE_SYSUSER			= 4,
+
 	NETMSGTYPE_MPREQEXDATA		= 5,
 	NETMSGTYPE_MPREQCOMPEXDATA	= 6,
 	NETMSGTYPE_UNIDIRECTIONAL	= 7,
