@@ -73,6 +73,29 @@ int LbSpriteSetupAll(struct TbSetupSprite t_setup[])
   return 1;
 }
 
+int LbSpriteClearAll(struct TbSetupSprite t_setup[])
+{
+  struct TbSetupSprite *stp_sprite;
+  int idx;
+  idx=0;
+  stp_sprite=&t_setup[idx];
+  while (stp_sprite->Data != NULL)
+  {
+    if ((stp_sprite->Start != NULL) && (stp_sprite->End != NULL))
+    {
+      *(stp_sprite->Start) = NULL;
+      *(stp_sprite->End) = NULL;
+      *(stp_sprite->Data) = 0;
+    }
+    idx++;
+    stp_sprite=&t_setup[idx];
+  }
+#ifdef __DEBUG
+  LbSyncLog("%s: Cleaned %d SetupSprite lists\n",func_name,idx);
+#endif
+  return 1;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

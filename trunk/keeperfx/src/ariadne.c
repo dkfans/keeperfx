@@ -25,7 +25,9 @@
 #include "keeperfx.hpp"
 
 #define EDGEFIT_LEN           64
-#define EDGEOR_COUNT           3
+#define EDGEOR_COUNT           4
+
+typedef long (*NavRules)(long, long);
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,7 +67,29 @@ DLLIMPORT long _DK_triangle_route_do_fwd(long a1, long a2, long *a3, long *a4);
 DLLIMPORT long _DK_triangle_route_do_bak(long a1, long a2, long *a3, long *a4);
 DLLIMPORT void _DK_ariadne_pull_out_waypoint(struct Thing *thing, struct Ariadne *arid, long a3, struct Coord3d *pos);
 DLLIMPORT long _DK_ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariadne *arid);
+DLLIMPORT void _DK_heap_down(long heapid);
 
+/******************************************************************************/
+DLLIMPORT unsigned char _DK_tag_current;
+#define tag_current _DK_tag_current
+DLLIMPORT unsigned char _DK_Tags[TRIANLGLES_COUNT];
+#define Tags _DK_Tags
+DLLIMPORT long _DK_tree_val[TRIANLGLES_COUNT+1];
+#define tree_val _DK_tree_val
+DLLIMPORT long _DK_tree_dad[TRIANLGLES_COUNT];
+#define tree_dad _DK_tree_dad
+DLLIMPORT long _DK_heap_end;
+#define heap_end _DK_heap_end
+DLLIMPORT long _DK_Heap[PATH_HEAP_LEN];
+#define Heap _DK_Heap
+DLLIMPORT unsigned long _DK_edgelen_initialised;
+#define edgelen_initialised _DK_edgelen_initialised
+DLLIMPORT unsigned long *_DK_EdgeFit;
+#define EdgeFit _DK_EdgeFit
+DLLIMPORT unsigned long _DK_RadiusEdgeFit[EDGEOR_COUNT][EDGEFIT_LEN];
+#define RadiusEdgeFit _DK_RadiusEdgeFit
+DLLIMPORT NavRules _DK_nav_rulesA2B;
+#define nav_rulesA2B _DK_nav_rulesA2B
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -100,6 +124,18 @@ unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
 };
 
 const long MOD3[] = {0, 1, 2, 0, 1, 2};
+
+/*
+unsigned char tag_current;
+unsigned char Tags[9000];
+long tree_val[9001];
+long tree_dad[9000];
+long heap_end;
+long Heap[258];
+unsigned long edgelen_initialised = 0;
+unsigned long *EdgeFit = NULL;
+unsigned long RadiusEdgeFit[EDGEOR_COUNT][EDGEFIT_LEN];
+*/
 /******************************************************************************/
 long route_to_path(long a1, long a2, long a3, long a4, long *a5, long a6, struct Path *path, long *a8);
 void path_out_a_bit(struct Path *path, long *a2);
@@ -114,10 +150,39 @@ unsigned long regions_connected(long tree_reg1, long tree_reg1);
 void nodes_classify(void)
 {
 }
-/*TODO prepare variables used inside, then enable
+
 void heap_init(void)
 {
   heap_end = 0;
+}
+
+void heap_down(long heapid)
+{
+    unsigned long hpos,hnew,hend;
+    long tree_id1,tree_id2,tree_idb,tree_ids;
+    long tval_idb;
+    //_DK_heap_down(heapid); return;
+
+    Heap[heap_end+1] = 9000;
+    tree_val[9000] = LONG_MAX;
+    hend = (heap_end >> 1);
+    tree_idb = Heap[heapid];
+    tval_idb = tree_val[tree_idb];
+    hpos = heapid;
+    while (hpos <= hend)
+    {
+        hnew = (hpos << 1);
+        tree_id1 = Heap[hnew];
+        tree_id2 = Heap[hnew+1];
+        if (tree_val[tree_id2] < tree_val[tree_id1])
+            hnew++;
+        tree_ids = Heap[hnew];
+        if (tree_val[tree_ids] > tval_idb)
+          break;
+        Heap[hpos] = tree_ids;
+        hpos = hnew;
+    }
+    Heap[hpos] = tree_idb;
 }
 
 long heap_remove(void)
@@ -127,6 +192,54 @@ long heap_remove(void)
   heap_end--;
   heap_down(1);
   return popval;
+}
+
+void heap_up(long heapid)
+{
+    unsigned long nmask,pmask;
+    long i,k;
+    pmask = heapid;
+    Heap[0] = 9000;
+    tree_val[9000] = -1;
+    nmask = pmask;
+    k = Heap[pmask];
+    while ( 1 )
+    {
+        nmask >>= 1;
+        i = Heap[nmask];
+        if (tree_val[k] > tree_val[i])
+          break;
+        if (pmask == 0)
+        {
+            ERRORLOG("sabotaged navigate heap");
+            break;
+        }
+        Heap[pmask] = i;
+        pmask = nmask;
+    }
+    Heap[pmask] = k;
+}
+
+TbBool heap_add(long heapid)
+{
+    if (heap_end >= 256)
+    {
+        ERRORLOG("navigate heap overflow");
+        return false;
+    }
+    heap_end++;
+    Heap[heap_end] = heapid;
+    heap_up(heap_end);
+    return true;
+}
+
+void tree_init(void)
+{
+  long i;
+  for (i=0; i <= TRIANLGLES_COUNT; i++)
+  {
+      tree_val[i] = -2147483647;
+  }
 }
 
 unsigned long fits_thro(long tri_idx, long ormask_idx)
@@ -170,7 +283,7 @@ unsigned long fits_thro(long tri_idx, long ormask_idx)
   }
   return EdgeFit[eidx];
 }
-*/
+
 long init_navigation(void)
 {
   return _DK_init_navigation();
@@ -246,12 +359,172 @@ long triangle_findSE8(long a1, long a2)
     return _DK_triangle_findSE8(a1, a2);
 }
 
-long triangle_route_do_fwd(long a1, long a2, long *a3, long *a4)
+void tags_init(void)
 {
-    //TODO: PATHFUNDING may hang if out of triangles; rework
-/*    if (game.play_gameturn > 3200)
-        NAVIDBG(9,"Starting");*/
-    return _DK_triangle_route_do_fwd(a1, a2, a3, a4);
+    if (tag_current >= 255)
+    {
+        memset(Tags, 0, sizeof(Tags));
+        tag_current = 0;
+    }
+    tag_current++;
+}
+
+/* TODO PATHFINDING Enable when needed
+void tag_open_closed_init(void)
+{
+    if (tag_current >= 254)
+    {
+        memset(Tags, 0, sizeof(Tags));
+        tag_current = 0;
+    }
+    tag_current+=2;
+    tag_open = tag_current - 1;
+}
+
+void tri_dispose(long tri_idx)
+{
+  long pfree_idx;
+  pfree_idx = free_Triangles;
+  free_Triangles = tri_idx;
+  Triangles[tri_idx].field_6 = pfree_idx;
+  Triangles[tri_idx].field_C = -1;
+  count_Triangles--;
+}
+*/
+
+long dest_node(long a1, long a2)
+{
+    long n;
+    n = Triangles[a1].field_6[a2];
+    if (n < 0)
+        return -1;
+    if (!nav_rulesA2B(Triangles[a1].field_C, Triangles[n].field_C))
+        return -1;
+    return n;
+}
+
+TbBool navitree_add(long itm_pos, long itm_dat, long mvcost)
+{
+    long tag_pos;
+    tag_pos = tag_current;
+    tree_val[itm_pos] = mvcost;
+    Tags[itm_pos] = tag_pos;
+    tree_dad[itm_pos] = itm_dat;
+    return heap_add(itm_pos);
+}
+
+long cost_to_start(long tri_idx)
+{
+    long long len_x,len_y;
+    long long mincost,newcost;
+    long pt_idx;
+    struct Triangle *tri;
+    long i;
+    mincost = 16777215;
+    tri = &Triangles[tri_idx];
+    for (i=0; i < 3; i++)
+    {
+        pt_idx = tri->field_0[i];
+        len_x = ((tree_Ax8 >> 8) - (long)(Points[pt_idx].x));
+        len_y = ((tree_Ay8 >> 8) - (long)(Points[pt_idx].y));
+        newcost = len_x*len_x+len_y*len_y;
+        if (newcost < mincost)
+            mincost = newcost;
+    }
+    return mincost;
+}
+
+long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
+{
+    struct Triangle *tri;
+    long ttriH1,ttriH2;
+    long mvcost,navrule;
+    long i,k,n;
+    NAVIDBG(19,"Starting");
+    //return _DK_triangle_route_do_fwd(ttriA, ttriB, route, routecost);
+    tags_init();
+    if ((ix_Border < 0) || (ix_Border >= BORDER_LENGTH))
+    {
+        ERRORLOG("Border overflow");
+        ix_Border = BORDER_LENGTH-1;
+    }
+    for (i = ix_Border; i > 0; i--)
+    {
+        n = Border[i];
+        if ((n < 0) || (n >= TRIANLGLES_COUNT))
+        {
+            ERRORLOG("Tags overflow");
+            continue;
+        }
+        Tags[n] = tag_current;
+    }
+
+    heap_end = 0;
+    navitree_add(ttriB, ttriB, 1);
+    while (ttriA != Heap[1])
+    {
+        if (heap_end == 0)
+            break;
+        ttriH1 = heap_remove();
+        if ( heap_end )
+        {
+            ttriH2 = Heap[1];
+            if (Heap[1] == ttriA)
+              break;
+            heap_remove();
+        } else
+        {
+            ttriH2 = -1;
+        }
+        while ( 1 )
+        {
+            tri = &Triangles[ttriH1];
+            n = 0;
+            for (i = 0; i < 3; i++)
+            {
+              k = tri->field_6[i];
+              if (tag_current != Tags[k])
+              {
+                if ( fits_thro(ttriH1, n) )
+                {
+                    navrule = nav_rulesA2B(Triangles[k].field_C, Triangles[ttriH1].field_C);
+                    if ( navrule )
+                    {
+                        mvcost = cost_to_start(k);
+                      if (navrule == 2)
+                          mvcost *= 16;
+                      navitree_add(k,ttriH1,mvcost);
+                    }
+                }
+              }
+              n++;
+            }
+            if (ttriH2 == -1)
+              break;
+            ttriH1 = ttriH2;
+            ttriH2 = -1;
+        }
+    }
+
+    NAVIDBG(19,"Nearly finished");
+    if (heap_end == 0)
+        return -1;
+    n = ttriA;
+    k = 0;
+    while ( 1 )
+    {
+        if (k > TRIANLGLES_COUNT)
+        {
+            ERRORLOG("Navigation tree looped");
+            return 0;
+        }
+        route[k] = n;
+        if (n == ttriB)
+            break;
+        k++;
+        n = tree_dad[n];
+    }
+    return k;
 }
 
 long triangle_route_do_bak(long a1, long a2, long *a3, long *a4)
@@ -259,16 +532,16 @@ long triangle_route_do_bak(long a1, long a2, long *a3, long *a4)
     return _DK_triangle_route_do_bak(a1, a2, a3, a4);
 }
 
-long ma_triangle_route(long a1, long a2, long *a3)
+long ma_triangle_route(long ttriA, long ttriB, long *routecost)
 {
     long len_fwd,len_bak;
     long par_fwd,par_bak;
     long tx,ty;
     long i;
-    //return _DK_ma_triangle_route(a1, a2, a3);
+    //return _DK_ma_triangle_route(ttriA, ttriB, routecost);
     // Forward route
     NAVIDBG(19,"Making forward route");
-    len_fwd = triangle_route_do_fwd(a1, a2, route_fwd, a3);
+    len_fwd = triangle_route_do_fwd(ttriA, ttriB, route_fwd, routecost);
     if (len_fwd == -1)
     {
         return -1;
@@ -282,7 +555,7 @@ long ma_triangle_route(long a1, long a2, long *a3)
     tree_By8 = ty;
     // Backward route
     NAVIDBG(19,"Making backward route");
-    len_bak = triangle_route_do_bak(a2, a1, route_bak, a3);
+    len_bak = triangle_route_do_bak(ttriB, ttriA, route_bak, routecost);
     if (len_bak == -1)
     {
         return -1;

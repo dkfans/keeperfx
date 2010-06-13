@@ -847,8 +847,6 @@ DLLIMPORT extern unsigned char *_DK_blue_palette;
 #define blue_palette _DK_blue_palette
 DLLIMPORT extern struct TbLoadFiles _DK_game_load_files[];
 #define game_load_files _DK_game_load_files
-DLLIMPORT extern struct TbLoadFiles _DK_swipe_load_file[];
-#define swipe_load_file _DK_swipe_load_file
 DLLIMPORT extern struct GameSettings _DK_settings;
 #define settings _DK_settings
 DLLIMPORT extern unsigned char _DK_exit_keeper;
@@ -1345,7 +1343,6 @@ unsigned char alter_rock_style(unsigned char a1, signed char a2, signed char a3,
 short play_smacker_file(char *filename, int nstate);
 void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4, unsigned char a5, unsigned char a6, long a7, long a8);
 void turn_off_query(short a);
-void free_swipe_graphic(void);
 TbBool set_gamma(char corrlvl, TbBool do_set);
 void resync_game(void);
 void level_lost_go_first_person(long plridx);
