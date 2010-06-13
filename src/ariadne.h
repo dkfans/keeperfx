@@ -26,6 +26,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#define PATH_HEAP_LEN 258
 #define TREE_ROUTE_LEN 3000
 #define TRIANLGLES_COUNT 9000
 #define BORDER_LENGTH 100
@@ -99,8 +100,6 @@ struct RegionT { // sizeof = 3
 /******************************************************************************/
 DLLIMPORT unsigned long *_DK_EdgeFit;
 #define EdgeFit _DK_EdgeFit
-DLLIMPORT unsigned long _DK_RadiusEdgeFit[4][64];
-#define RadiusEdgeFit _DK_RadiusEdgeFit
 DLLIMPORT struct Pathway _DK_ap_GPathway;
 #define ap_GPathway _DK_ap_GPathway
 DLLIMPORT long _DK_tree_routelen;

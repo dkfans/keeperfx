@@ -53,8 +53,8 @@ extern char lang_selection;
 
 /******************************************************************************/
 int LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
+int LbSpriteClearAll(struct TbSetupSprite t_setup[]);
 short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, unsigned long data);
-//short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const char *data);
 
 /******************************************************************************/
 #ifdef __cplusplus

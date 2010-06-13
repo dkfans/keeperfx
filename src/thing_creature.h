@@ -45,6 +45,11 @@ struct CreatureStorage {
   unsigned char model;
   unsigned char explevel;
 };
+/******************************************************************************/
+DLLIMPORT extern struct TbLoadFiles _DK_swipe_load_file[];
+#define swipe_load_file _DK_swipe_load_file
+DLLIMPORT extern struct TbSetupSprite _DK_swipe_setup_sprites[];
+#define swipe_setup_sprites _DK_swipe_setup_sprites
 
 #pragma pack()
 /******************************************************************************/
@@ -55,6 +60,7 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
 TbBool creature_increase_level(struct Thing *thing);
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
+void free_swipe_graphic(void);
 void load_swipe_graphic_for_creature(struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 long creature_available_for_combat_this_turn(struct Thing *thing);
