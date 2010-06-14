@@ -3618,8 +3618,9 @@ TbBool creature_can_hear_within_distance(struct Thing *thing, long dist)
 }
 
 /**
- * Enemy seeking function for hero creatures.
- * @param thing The hero creature to seek the enemy for.
+ * Enemy seeking function for creatures and heroes.
+ * Used for performing SEEK_THE_ENEMY job.
+ * @param thing The creature to seek the enemy for.
  * @return
  */
 short seek_the_enemy(struct Thing *thing)
@@ -3629,12 +3630,6 @@ short seek_the_enemy(struct Thing *thing)
     struct Coord3d pos;
     long dist;
     //return _DK_seek_the_enemy(thing);
-    if (thing->owner != hero_player_number)
-    {
-        ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
-        set_start_state(thing);
-        return false;
-    }
     cctrl = creature_control_get_from_thing(thing);
     enemytng = thing_update_enemy_to_fight_with(thing);
     if (!thing_is_invalid(enemytng))

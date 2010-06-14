@@ -118,6 +118,17 @@ A: The problem is that your drivers can't support 320x200 mode.
    Change the resolution config lines in KEEPERFX.CFG
     into those written in next answer.
 
+Q: The game is pixelated/works in low resolution mode only.
+   Can I make it work in higher resolutions?
+A: To switch resolutions during the game, press Alt+R.
+   If the screen blanks, but resolution doesn't change,
+   then the video mode used for higher resolution is probably
+   not supported by your video card/driver. In that case,
+   change the resolution config line in KEEPERFX.CFG into:
+  INGAME_RES=MODE_320_200_8 MODE_640_480_8
+   You may also try other resolutions, but those over 640x480
+   may be unstable.
+
 Q: Game stops when loading a map. LOG file says:
      Error: setup_screen_mode: Unable to setup screen resolution
             MODE_640_400_8 (mode 10) 
@@ -293,6 +304,10 @@ New and modified level script commands:
   and never changes during the gameplay.
 
 Changelog:
+
+Version: 0.37b
+  Fixed crash on freeing swipe sprites at end of mission
+  Fixed SEEK_THE_ENEMY job (Hellhound)
 
 Version: 0.37a
   Fixed gems appearance bug
