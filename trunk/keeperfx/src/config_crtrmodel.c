@@ -1978,7 +1978,7 @@ TbBool load_creaturemodel_config(long crtr_model,unsigned short flags)
       WARNMSG("Can't get config file name for creature %d.",crtr_model);
       return false;
     }
-    SYNCDBG(0,"Reading \"%s.cfg\".",conf_fnstr);
+    SYNCDBG(0,"Reading \"%s.cfg\" as model %ld.",conf_fnstr,crtr_model);
     fname = prepare_file_fmtpath(FGrp_CrtrData,"%s.cfg",conf_fnstr);
     ret = load_creaturemodel_config_file(crtr_model,fname,flags);
     fname = prepare_file_fmtpath(FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
