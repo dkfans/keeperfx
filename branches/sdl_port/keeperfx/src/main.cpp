@@ -14261,6 +14261,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
   short retval;
   retval=0;
   LbErrorLogSetup("/", log_file_name, 5);
+  LbNetLogSetup("/", "net.log", 5);
   LbSetTitle(PROGRAM_NAME);
   LbTimerInit();
   LbSetIcon(1);
@@ -14272,6 +14273,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
       static const char *msg_text="Command line parameters analysis failed.\n";
       error_dialog_fatal(__func__, 1, msg_text);
       close_video_context();
+      LbNetLogClose();
       LbErrorLogClose();
       return 0;
   }
@@ -14327,6 +14329,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
   {
     SYNCDBG(0,"finished properly");
   }
+  LbNetLogClose();
   LbErrorLogClose();
   return 0;
 }

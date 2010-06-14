@@ -219,6 +219,8 @@ short error_dialog_fatal(const char *codefile,const int ecode,const char *messag
 /******************************************************************************/
 short error_log_initialised=false;
 struct TbLog error_log;
+TbBool net_log_initialised = false;
+struct TbLog net_log;
 /******************************************************************************/
 int LbLog(struct TbLog *log, const char *fmt_str, va_list arg);
 /******************************************************************************/
@@ -249,12 +251,12 @@ int LbWarnLog(const char *format, ...)
 
 int LbNetLog(const char *format, ...)
 {
-    if (!error_log_initialised)
+    if (!net_log_initialised)
         return -1;
-    LbLogSetPrefix(&error_log, "Net: ");
+    LbLogSetPrefix(&net_log, "Net: ");
     va_list val;
     va_start(val, format);
-    int result=LbLog(&error_log, format, val);
+    int result=LbLog(&net_log, format, val);
     va_end(val);
     return result;
 }
@@ -338,6 +340,40 @@ int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag)
     result = -1;
   }
   return result;
+}
+
+int LbNetLogSetup(const char *directory, const char *filename, TbBool flag)
+{
+  if ( net_log_initialised )
+    return -1;
+  const char *fixed_fname;
+  if ((filename != NULL) && (filename[0] != '\0'))
+    fixed_fname = filename;
+  else
+    fixed_fname = "net.log";
+  char log_filename[DISKPATH_SIZE];
+  int result;
+  ulong flags;
+  if ( LbFileMakeFullPath(true,directory,fixed_fname,log_filename,DISKPATH_SIZE) != 1 )
+    return -1;
+  flags = (flag==0)+1;
+  flags |= LbLog_TimeInHeader | LbLog_DateInHeader | 0x04;
+  if ( LbLogSetup(&net_log, log_filename, flags) == 1 )
+  {
+    net_log_initialised = 1;
+    result = 1;
+  } else
+  {
+    result = -1;
+  }
+  return result;
+}
+
+int LbNetLogClose(void)
+{
+	if (!net_log_initialised)
+		return -1;
+	return LbLogClose(&net_log);
 }
 
 int LbErrorLogClose(void)

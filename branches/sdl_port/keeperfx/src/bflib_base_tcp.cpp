@@ -23,10 +23,11 @@
 
 #include "bflib_netsp.hpp"
 
-TCP_NetBase::TCP_NetBase() :
+TCP_NetBase::TCP_NetBase(int localPid) :
 		msgHead(NULL),
 		msgTail(NULL),
 		msgMutex(SDL_CreateMutex()),
+		localPlayerId(localPid),
 		errorFlag(false)
 {
 }

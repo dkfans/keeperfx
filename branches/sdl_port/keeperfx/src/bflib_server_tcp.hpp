@@ -26,41 +26,52 @@
 
 class TCP_NetServer : public TCP_NetBase
 {
-	TCPsocket mySocket;
-	struct
+	enum ReadState
+	{
+		HEADER = 0,
+		PASS_ON = 1,
+		CONSUME = 2
+	};
+
+	struct RemotePeer
 	{
 		TCPsocket socket;
 		int playerId;
-		SDL_Thread * recvThread;
-	} remote[NETSP_PLAYERS_COUNT]; //could really be NETSP_PLAYERS_COUNT-1 but it doesn't matter
 
-	SDL_mutex * const remoteMutex;
+		ReadState readState;
+		size_t bytesToRead;
 
-	struct RecvThreadArg
-	{
-		TCP_NetServer * svr;
-		int remoteIndex;
+		char headerBuf[TCP_HEADER_SIZE]; //for HEADER state
+		TCPsocket * destSocket; //for PASS_ON state
+		InternalMsg * currMsg; //for CONSUME and PASS_ON states
 	};
 
-	static void recvThreadFunc(RecvThreadArg * arg);
-	void haltRecvThreads();
-
-	void addRemoteSocket(int index, TCPsocket);
-	TCPsocket getRemoteSocketByIndex(int index, ulong & playerId);
-	TCPsocket getRemoteSocketByPlayer(int playerId);
-	void removeRemoteSocket(TCPsocket sock);
-
+	TCPsocket mySocket; //= Server socket
+	RemotePeer remote[NETSP_PLAYERS_COUNT];
+	SDLNet_SocketSet socketSet;
+	SDL_mutex * const remoteMutex;
+	SDL_Thread * recvThread;
 	int maxPlayers;
 	bool joinable;
+	bool shouldExit; //TODO NET: signal... perhaps ThreadCond..
+
+	static void recvThreadFunc(TCP_NetServer * svr);
+	void haltRecvThread();
+
+	void addRemoteSocket(int index, TCPsocket);
+	TCPsocket * getRemoteSocketByIndex(int index, ulong & playerId);
+	TCPsocket * getRemoteSocketByPlayer(int playerId);
+	void removeRemoteSocket(TCPsocket sock);
+	void readOnRemoteSocket(RemotePeer & peer);
 
 public:
-	explicit TCP_NetServer(ushort port);
+	TCP_NetServer(ushort port, int maxPlayers, int localPlayerId);
 	virtual ~TCP_NetServer();
 
 	virtual void update();
 	virtual bool sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen);
 
-	virtual void setServerOptions(int maxPlayers, bool joinable);
+	virtual void setServerOptions(bool joinable);
 };
 
 #endif //!BFLIB_SERVER_TCP_HPP

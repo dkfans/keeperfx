@@ -61,6 +61,7 @@ private:
 	InternalMsg * msgHead;
 	InternalMsg * msgTail;
 	SDL_mutex * const msgMutex;
+	int localPlayerId;
 
 	bool errorFlag; //indicates constructor error, we don't have exception handling
 
@@ -85,15 +86,16 @@ protected:
 	void setErrorFlag() { errorFlag = true; }
 
 public:
-	TCP_NetBase();
+	TCP_NetBase(int localPlayerId);
 	virtual ~TCP_NetBase();
 	bool hadError() { return errorFlag; }
+	int getLocalPlayerId() { return localPlayerId; }
 
 	virtual void update() = 0;
 	bool fetchDKMessage(ulong & playerId, char buffer[], size_t & bufferLen, bool peek);
 	virtual bool sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen) = 0;
 
-	virtual void setServerOptions(int maxPlayers, bool joinable) {} //TODO NET: try to improve code design here...
+	virtual void setServerOptions(bool joinable) {} //TODO NET: try to improve code design here...
 };
 
 #endif //!BFLIB_BASE_TCP_HPP

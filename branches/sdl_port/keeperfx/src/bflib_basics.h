@@ -140,6 +140,9 @@ int LbConfigLog(unsigned long line,const char *format, ...);
 int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag);
 int LbErrorLogClose(void);
 
+int LbNetLogSetup(const char *directory, const char *filename, TbBool flag);
+int LbNetLogClose(void); //TODO LOG: this and LbNetLogSetup are basically LbErrorLogSetup & Close copied
+
 int LbLogClose(struct TbLog *log);
 int LbLogSetup(struct TbLog *log, const char *filename, ulong flags);
 int LbLogSetPrefix(struct TbLog *log, const char *prefix);

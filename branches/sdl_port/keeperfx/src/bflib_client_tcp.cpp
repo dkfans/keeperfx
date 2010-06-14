@@ -22,7 +22,7 @@
 
 #include "globals.h"
 
-TCP_NetClient::TCP_NetClient(const char hostname[], ushort port) : TCP_NetBase()
+TCP_NetClient::TCP_NetClient(const char hostname[], ushort port) : TCP_NetBase(0)
 {
 	IPaddress addr;
 	SDLNet_ResolveHost(&addr, hostname, port); //TODO: change from local host to real session later

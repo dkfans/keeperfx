@@ -75,12 +75,13 @@ TbError TCPServiceProvider::Start(char * sessionName, char * playerName, unsigne
 	assert(maxPlayers <= NETSP_PLAYERS_COUNT);
 
 	isServer = true;
+	localPlayerId = 1;
 
 	ClearPlayers();
 	joinable = true;
 	this->maxPlayers = maxPlayers;
 
-	base = new TCP_NetServer(HOST_PORT_NUMBER);
+	base = new TCP_NetServer(HOST_PORT_NUMBER, maxPlayers, localPlayerId);
 
 	if (base == NULL || base->hadError()) {
 		delete base;
@@ -88,10 +89,7 @@ TbError TCPServiceProvider::Start(char * sessionName, char * playerName, unsigne
 		return Lb_FAIL;
 	}
 
-	base->setServerOptions(maxPlayers, true);
-
-	// Fill in player info.
-	localPlayerId = 1;
+	// Fill in player info
 	AddPlayer(localPlayerId++, playerName, 0, 0);
 
 	//TODO: make broadcast addresses configurable
@@ -218,7 +216,7 @@ TbError TCPServiceProvider::ChangeSettings(unsigned long, void *) {
 TbError TCPServiceProvider::EnableNewPlayers(TbBool allow) {
 	joinable = allow;
 	if (base != NULL) {
-		base->setServerOptions(maxPlayers, joinable);
+		base->setServerOptions(joinable);
 	}
 	return Lb_OK;
 }
@@ -226,17 +224,15 @@ TbError TCPServiceProvider::EnableNewPlayers(TbBool allow) {
 bool TCPServiceProvider::ReadMessage(ulong * playerId, void * msg, ulong * len) {
 	assert(started);
 
-	SYNCDBG(6, "%s: Trying to read message", SORC(isServer));
-
 	size_t len2 = *len;
 	bool retval = base->fetchDKMessage(*playerId, reinterpret_cast<char *>(msg), len2, false);
 	*len = len2;
 
 	if (retval) {
-		SYNCDBG(6, "%s: Message read from %d of %d bytes", SORC(isServer), playerId, *len);
+		NETDBG(6, "%s: Message read from %d of %d bytes", SORC(isServer), playerId, *len);
 	}
 	else {
-		SYNCDBG(6, "%s: No message read", SORC(isServer));
+		NETDBG(6, "%s: No message read", SORC(isServer));
 	}
 
 	return retval;
@@ -245,18 +241,14 @@ bool TCPServiceProvider::ReadMessage(ulong * playerId, void * msg, ulong * len) 
 bool TCPServiceProvider::PeekMessage(ulong * playerId, void * msg, ulong * len) {
 	assert(started);
 
-	SYNCDBG(6, "%s: Trying to peek message", SORC(isServer));
-
 	size_t len2 = *len;
 	bool retval = base->fetchDKMessage(*playerId, reinterpret_cast<char *>(msg), len2, true);
 	*len = len2;
 
 	if (retval) {
-		SYNCDBG(6, "%s: Message peeked from %d of %d bytes", SORC(isServer), playerId, *len);
+		NETDBG(6, "%s: Message peeked from %d of %d bytes", SORC(isServer), playerId, *len);
 	}
-	else {
-		SYNCDBG(6, "%s: No message peeked", SORC(isServer));
-	}
+	//failure to peek is common so don't display a message
 
 	return retval;
 }
@@ -264,14 +256,14 @@ bool TCPServiceProvider::PeekMessage(ulong * playerId, void * msg, ulong * len) 
 TbError TCPServiceProvider::SendMessage(ulong playerId, void * msg, uchar i) {
 	assert(started);
 
-	SYNCDBG(6, "%s: Sending message to player %d", SORC(isServer), playerId);
+	NETDBG(6, "%s: Sending message to player %d", SORC(isServer), playerId);
 
 	ulong totalMsgLen;
 	ServiceProvider::DecodeMessageStub(msg, &totalMsgLen, NULL, NULL);
 	totalMsgLen += 4; //include header
 
 	if (!base->sendDKMessage(playerId, reinterpret_cast<char *>(msg), totalMsgLen)) {
-		SYNCDBG(6, "%s: Failure to send message", SORC(isServer));
+		NETDBG(6, "%s: Failure to send message", SORC(isServer));
 		return Lb_FAIL;
 	}
 
