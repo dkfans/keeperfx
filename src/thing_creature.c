@@ -221,7 +221,7 @@ void load_swipe_graphic_for_creature(struct Thing *thing)
 {
     struct TbLoadFiles *t_lfile;
     int swpe_idx;
-    long i;
+    int i;
     SYNCDBG(6,"Starting for model %d",(int)thing->model);
     //_DK_load_swipe_graphic_for_creature(thing);
 
@@ -233,12 +233,10 @@ void load_swipe_graphic_for_creature(struct Thing *thing)
     t_lfile = &swipe_load_file[0];
     for (i=0; i < 5; i++)
     {
-        sprintf(t_lfile->FName, "data/swpe%02d.dat", swpe_idx);
+        sprintf(t_lfile->FName, "data/swpe%02d.dat", swpe_idx+i);
         t_lfile++;
-        swpe_idx++;
-        sprintf(t_lfile->FName, "data/swpe%02d.tab", swpe_idx);
+        sprintf(t_lfile->FName, "data/swpe%02d.tab", swpe_idx+i);
         t_lfile++;
-        swpe_idx++;
     }
     if ( LbDataLoadAll(swipe_load_file) )
     {
