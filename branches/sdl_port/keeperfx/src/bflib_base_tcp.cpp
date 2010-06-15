@@ -46,6 +46,17 @@ bool TCP_NetBase::fetchDKMessage(ulong & playerId, char buffer[], size_t & buffe
 		return false;
 	}
 
+	//TEMP
+	if (msg->getSize() <= 16) {
+		char buf[1024];
+		char * next = buf;
+		for (int i = 0; i < msg->getSize(); ++i) {
+			next += sprintf(next, "%x ", msg->getBufferPointer()[i]);
+		}
+		NETDBG(6, "Bytes: %s", buf);
+	}
+	//!TEMP
+
 	playerId = msg->getDestPlayer();
 	if (bufferLen < msg->getDataSize()) {
 		bufferLen = 0;

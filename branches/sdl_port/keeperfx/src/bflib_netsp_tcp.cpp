@@ -21,6 +21,7 @@
 #include "bflib_netsp_tcp.hpp"
 
 #include <cassert>
+#include <stdio>
 
 #include "bflib_netconfig.hpp"
 #include "bflib_network.h"
@@ -228,7 +229,7 @@ bool TCPServiceProvider::ReadMessage(ulong * playerId, void * msg, ulong * len) 
 	*len = len2;
 
 	if (retval) {
-		NETDBG(6, "%s: Message read from %d of %d bytes", SORC(isServer), playerId, *len);
+		NETDBG(6, "%s: Message read from player %d: %d bytes", SORC(isServer), *playerId, *len);
 	}
 	else {
 		NETDBG(6, "%s: No message read", SORC(isServer));
@@ -245,7 +246,16 @@ bool TCPServiceProvider::PeekMessage(ulong * playerId, void * msg, ulong * len) 
 	*len = len2;
 
 	if (retval) {
-		NETDBG(6, "%s: Message peeked from %d of %d bytes", SORC(isServer), playerId, *len);
+		NETDBG(6, "%s: Peek at message from player %d: %d bytes", SORC(isServer), *playerId, *len);
+
+		/*if (*len <= 16) {
+			char buf[1024];
+			char * next = buf;
+			for (int i = 0; i < *len; ++i) {
+				next += sprintf(next, "%x ", ((char*) msg)[i]);
+			}
+			NETDBG(6, "Bytes: %s", buf);
+		}*/
 	}
 	//failure to peek is common so don't display a message
 

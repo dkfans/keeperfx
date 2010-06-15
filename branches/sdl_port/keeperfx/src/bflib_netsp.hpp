@@ -61,7 +61,7 @@ struct ReceiveCallbacks {
   void (*mpReqExDataMsg)(unsigned long, unsigned long, void *);
   void (*mpReqCompsExDataMsg)(unsigned long, unsigned long, void *);
   void *(*unidirectionalMsg)(unsigned long, unsigned long, void *);
-  void (*systemUserMsg)(unsigned long playerId, void * msgBuffer, unsigned long msgLen, void *);
+  void (*systemUserMsg)(unsigned long playerId, void * msgData, unsigned long dataLen, void *);
   void *(*field_24)(unsigned long, void *);
 };
 

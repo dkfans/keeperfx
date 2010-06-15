@@ -478,10 +478,11 @@ TbError ServiceProvider::Receive(unsigned long flags)
     case NETMSGTYPE_PROBABLYHOST:
         continue;
     case NETMSGTYPE_SYSUSER:
-        if (!(flags & 0x80)) {
+        /*if (!(flags & 0x80)) {
         	keepExchanging = false;
         	break;
-        }
+        }*/
+    	keepExchanging = false;
 
         msgLen = 1028;
 		if (!ReadMessage(&playerId, msgBuffer, &msgLen)) {

@@ -61,11 +61,12 @@ void TCP_NetServer::recvThreadFunc(TCP_NetServer * svr)
 		if (SDLNet_CheckSockets(svr->socketSet, 100) <= 0) {
 			continue;
 		}
+		NETDBG(6, "Checking sockets");
 
 		SDL_LockMutex(svr->remoteMutex);
 
-		for (int i = 0; i < svr->maxPlayers; ++i) {
-			if (!SDLNet_SocketReady(svr->remote[i].socket)) {
+		for (int i = 0; i < svr->maxPlayers - 1; ++i) {
+			if (svr->remote[i].playerId == 0 || !SDLNet_SocketReady(svr->remote[i].socket)) {
 				continue;
 			}
 
@@ -94,8 +95,8 @@ void TCP_NetServer::readRemotePeer(RemotePeer & peer)
 	int bytesRead = SDLNet_TCP_Recv(peer.socket, destBuffer, peer.bytesToRead);
 	if (bytesRead < 0) {
 		NETLOG("TCP receive error, will drop remote client");
-		SDL_UnlockMutex(remoteMutex);
 		removeRemoteSocket(peer.socket);
+		SDL_UnlockMutex(remoteMutex);
 		return;
 	}
 
@@ -109,16 +110,8 @@ void TCP_NetServer::readRemotePeer(RemotePeer & peer)
 			peer.currMsg->inflate(); //TODO NET: add max allowed size sanity check
 			peer.bytesToRead = peer.currMsg->getDataSize();
 
-			if (peer.currMsg->getDestPlayer() == getLocalPlayerId()) {
-				//next state
-				peer.readState = CONSUME;
-			}
-			else {
-				peer.destSockets = getRemoteSocketsByPlayer(peer.currMsg->getDestPlayer());
-
-				//next state
-				peer.readState = PASS_ON;
-			}
+			//next state
+			peer.readState = peer.currMsg->getDestPlayer() == getLocalPlayerId()? CONSUME : PASS_ON;
 
 			//recheck socket
 			SDLNet_CheckSockets(socketSet, 0);
@@ -136,12 +129,13 @@ void TCP_NetServer::readRemotePeer(RemotePeer & peer)
 			peer.bytesToRead = TCP_HEADER_SIZE;
 			break;
 		case PASS_ON:
-			if (peer.destSockets != NULL) {
-				for (int i = 0; peer.destSockets[i] != NULL; ++i) {
-					SDLNet_TCP_Send(peer.destSockets[i], peer.currMsg->getBufferPointer(), peer.currMsg->getSize());
+			RemotePeer ** p = getPeersByPlayerId(peer.currMsg->getDestPlayer());
+			if (p != NULL) {
+				for (RemotePeer * it = p[0]; it != NULL; ++it) {
+					SDLNet_TCP_Send(it->socket, peer.currMsg->getBufferPointer(), peer.currMsg->getSize());
 				}
 
-				free(peer.destSockets);
+				free(p);
 			}
 
 			peer.currMsg->resizeData(0);
@@ -220,26 +214,35 @@ bool TCP_NetServer::sendDKMessage(unsigned long playerId, const char buffer[], s
 {
 	bool retval = true;
 
-	TCPsocket * const sockets = getRemoteSocketsByPlayer(playerId);
-	if (sockets == NULL) {
+	SDL_LockMutex(remoteMutex);
+
+	RemotePeer ** const peers = getPeersByPlayerId(playerId);
+	if (peers == NULL) {
 		NETLOG("No socket to player with ID %d", playerId);
 		retval = false;
 	}
 	else {
-		for (int i = 0; sockets[i] != NULL; ++i) {
-			InternalMsg * msg = buildTCPMessage(playerId, buffer, bufferLen);
+		InternalMsg * msg = buildTCPMessage(0, buffer, bufferLen);
 
-			if (SDLNet_TCP_Send(sockets[i], msg->getBufferPointer(), msg->getSize()) < msg->getDataSize()) {
-				removeRemoteSocket(sockets[i]);
-				NETDBG(5, "Remote client with ID %d closed", playerId);
+		for (RemotePeer * peer = peers[0]; peer != NULL; ++peer) {
+
+			NETMSG("Sending to socket for player %d", peer->playerId);
+			msg->setDestPlayer(peer->playerId);
+
+			if (SDLNet_TCP_Send(peer->socket, msg->getBufferPointer(), msg->getSize()) < msg->getDataSize()) {
+				removeRemoteSocket(peer->socket);
+				NETDBG(5, "Remote client with ID %d closed", peer->playerId);
 				retval = false;
 			}
-
-			delete msg;
 		}
+
+
+		delete msg;
 	}
 
-	free(sockets);
+	free(peers);
+
+	SDL_UnlockMutex(remoteMutex);
 
 	return retval;
 }
@@ -249,7 +252,7 @@ void TCP_NetServer::addRemoteSocket(int index, TCPsocket socket)
 	SDL_LockMutex(remoteMutex);
 
 	remote[index].socket = socket;
-	remote[index].playerId = 0;
+	remote[index].playerId = PLAYERID_UNASSIGNED;
 	remote[index].readState = HEADER;
 	remote[index].bytesToRead = TCP_HEADER_SIZE;
 	remote[index].currMsg = new InternalMsg(0);
@@ -275,28 +278,29 @@ TCPsocket * TCP_NetServer::getRemoteSocketByIndex(int index, ulong & playerId)
 	return sock;
 }
 
-TCPsocket * TCP_NetServer::getRemoteSocketsByPlayer(int playerId)
+TCP_NetServer::RemotePeer ** TCP_NetServer::getPeersByPlayerId(int playerId)
 {
 	SDL_LockMutex(remoteMutex);
 
+	bool everyone = playerId == PLAYERID_ALL || playerId == PLAYERID_ALLBUTSELF;
 	int count = 0;
 	for (int i = 0; i < maxPlayers - 1; ++i) {
-		if (playerId == PLAYERID_ALL || playerId == PLAYERID_ALLBUTSELF || remote[i].playerId == playerId) {
+		if ((everyone && remote[i].playerId != 0) || remote[i].playerId == playerId) {
 			count += 1;
 		}
 	}
 
-	TCPsocket * sockets = reinterpret_cast<TCPsocket *>(malloc(sizeof(TCPsocket) * (count + 1)));
+	RemotePeer ** const peers = reinterpret_cast<RemotePeer **>(malloc(sizeof(RemotePeer*) * (count + 1)));
 	for (int i = 0; i < maxPlayers - 1; ++i) {
-		if (playerId == PLAYERID_ALL || playerId == PLAYERID_ALLBUTSELF || remote[i].playerId == playerId) {
-			sockets[i] = remote[i].socket;
+		if ((everyone && remote[i].playerId != 0) || remote[i].playerId == playerId) {
+			peers[i] = &remote[i];
 		}
 	}
-	sockets[count] = NULL;
+	peers[count] = NULL;
 
 	SDL_UnlockMutex(remoteMutex);
 
-	return sockets;
+	return peers;
 }
 
 void TCP_NetServer::removeRemoteSocket(TCPsocket sock)
@@ -312,8 +316,6 @@ void TCP_NetServer::removeRemoteSocket(TCPsocket sock)
 			SDLNet_TCP_Close(remote[i].socket);
 			remote[i].socket = NULL;
 			remote[i].playerId = 0;
-			free(remote[i].destSockets);
-			remote[i].destSockets = NULL,
 			delete remote[i].currMsg;
 			remote[i].currMsg = NULL;
 			break;

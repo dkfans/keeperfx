@@ -41,7 +41,6 @@ class TCP_NetServer : public TCP_NetBase
 		size_t bytesToRead;
 		ulong playerId;
 
-		TCPsocket * destSockets; //for PASS_ON state
 		InternalMsg * currMsg; //for CONSUME and PASS_ON states
 	};
 
@@ -59,7 +58,7 @@ class TCP_NetServer : public TCP_NetBase
 
 	void addRemoteSocket(int index, TCPsocket);
 	TCPsocket * getRemoteSocketByIndex(int index, ulong & playerId);
-	TCPsocket * getRemoteSocketsByPlayer(int playerId);
+	RemotePeer ** getPeersByPlayerId(int playerId);
 	void removeRemoteSocket(TCPsocket sock);
 	void readRemotePeer(RemotePeer & peer);
 

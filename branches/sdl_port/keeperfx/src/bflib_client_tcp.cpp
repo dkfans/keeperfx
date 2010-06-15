@@ -61,6 +61,7 @@ void TCP_NetClient::recvThreadFunc(TCP_NetClient * cli)
 			break;
 		}
 
+		NETMSG("Got here");
 		cli->addIntMessage(msg);
 	}
 }
@@ -93,6 +94,7 @@ bool TCP_NetClient::sendDKMessage(unsigned long playerId, const char buffer[], s
 	InternalMsg * msg = buildTCPMessage(playerId, buffer, len);
 
 	if (SDLNet_TCP_Send(mySocket, msg->getBufferPointer(), msg->getSize()) < msg->getSize()) {
+		delete msg;
 		haltRecvThread();
 		NETMSG("Remote server closed");
 		retval = false;
