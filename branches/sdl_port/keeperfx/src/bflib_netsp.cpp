@@ -255,7 +255,10 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       WARNLOG("failure on SendMessage()");
       return Lb_FAIL;
     }
-    return Lb_OK;
+
+    if (plr_id != PLAYERID_ALL) {
+    	return Lb_OK;
+    }
   }
   switch (messageType)
   {

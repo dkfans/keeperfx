@@ -43,17 +43,50 @@ const size_t TCP_HEADER_SIZE = 8;
 class TCP_NetBase
 {
 protected:
-	class InternalMsg
+	class InternalMsg //TODO NET: store source player?
 	{
-	public:
-		struct InternalMsg * next; //I would have preferred std::list... again, compilation error
-		ulong playerId;
-		size_t len;
-		char * buffer;
+	private:
+		InternalMsg * next; //I would have preferred std::list... again, compilation error
+		ulong playerId; //native byte order
+		size_t dataLen; //native byte order
+		char * wholeBuffer; //contains header (in network byte order)
 
-		InternalMsg(size_t size, ulong player) : next(NULL), playerId(player), len(size),
-				buffer((char *)calloc(1, size)) { }
-		~InternalMsg() { free(buffer); }
+	public:
+		InternalMsg(size_t dataSize, ulong destPlayer) : next(NULL), playerId(destPlayer), dataLen(dataSize),
+				wholeBuffer(reinterpret_cast<char*>(malloc(dataSize + TCP_HEADER_SIZE)))
+		{
+			SDLNet_Write32(playerId, wholeBuffer);
+			SDLNet_Write32(dataLen, wholeBuffer + 4);
+		}
+		explicit InternalMsg(size_t dataSize) { InternalMsg(dataSize, 0); }
+		~InternalMsg() { free(wholeBuffer); }
+
+		bool hasNext() const { return next; }
+		InternalMsg * getNext() { return next; }
+		void setNext(InternalMsg * msg) { next = msg; }
+
+		void setDestPlayer(ulong pid) { playerId = pid; SDLNet_Write32(pid, wholeBuffer); }
+		ulong getDestPlayer() const { return playerId; }
+
+		size_t getSize() const { return dataLen + TCP_HEADER_SIZE; }
+		size_t getHeaderSize() const { return TCP_HEADER_SIZE; }
+		size_t getDataSize() const { return dataLen; }
+
+		char * getBufferPointer() { return wholeBuffer; }
+		char * getHeaderPointer() { return wholeBuffer; }
+		char * getDataPointer() { return wholeBuffer + TCP_HEADER_SIZE; }
+
+		void resizeData(size_t newDataSize)
+		{
+			dataLen = newDataSize;
+			wholeBuffer = reinterpret_cast<char*>(realloc(wholeBuffer, getSize()));
+			SDLNet_Write32(dataLen, wholeBuffer + 4);
+		}
+
+		void inflate() {
+			playerId = SDLNet_Read32(wholeBuffer);
+			resizeData(SDLNet_Read32(wholeBuffer + 4));
+		}
 	};
 
 private:
@@ -74,7 +107,7 @@ protected:
 	 * buffer after function exits.
 	 * @return The TCP message buffer. This must be free'd by caller.
 	 */
-	char * buildTCPMessageBuffer(ulong playerId, const char msg[], size_t & msgLen);
+	static InternalMsg * buildTCPMessage(ulong playerId, const char msg[], size_t & msgLen);
 	static bool receiveOnSocket(TCPsocket sock, char buffer[], size_t count);
 
 	//synchronized message queue

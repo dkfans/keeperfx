@@ -30,6 +30,12 @@
 #define SESSION_NAME_MAX_LEN  32
 #define NETSP_PLAYER_NAME_MAX_LEN 32
 
+#define PLAYERID_ALL			0
+#define PLAYERID_ALLBUTSELF		1
+#define PLAYERID_HOSTDEFAULT	2
+#define PLAYERID_UNASSIGNED		3
+#define PLAYERID_FIRSTFREE		4
+
 struct TbNetworkSessionNameEntry {
   unsigned char joinable; //possibly active or selected is better name
   unsigned long id;

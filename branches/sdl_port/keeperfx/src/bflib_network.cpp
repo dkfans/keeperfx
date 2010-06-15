@@ -122,6 +122,8 @@ struct UnidirectionalDataMessage dataMessage;
 //struct UnidirectionalHeader endMessage;
 //struct UnidirectionalHeader abortMessage;
 struct UnidirectionalRTSMessage rtsMessage;
+
+#define IS_HOST	(hostId == localPlayerId)
 /******************************************************************************/
 
 /*
@@ -151,7 +153,7 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
   sequenceNumber = 0;
   timeCount = 0;
   maxTime = 0;
-  runningTwoPlayerModel = 0;
+  runningTwoPlayerModel = false;
   waitingForPlayerMapResponse = 0;
   compositeBufferSize = 0;
   //_wint_thread_data = &thread_data_mem;
@@ -247,17 +249,20 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
     localPlayerId = 1;
     localPlayerIndex = 1;
   }
+  else {
+	localPlayerId = PLAYERID_UNASSIGNED;
+  }
   sequenceNumber = 15;
   if (spPtr->Start(nsname, plyr_name, optns))
   {
-    WARNLOG("Failure on Join");
+    NETMSG("Failure on Join");
     return Lb_FAIL;
   }
   if (!runningTwoPlayerModel)
   {
-    spPtr->EncodeMessageStub(&systemUserBuffer, 1, 4, runningTwoPlayerModel);
+    spPtr->EncodeMessageStub(&systemUserBuffer, 1, NETMSGTYPE_SYSUSER, runningTwoPlayerModel);
     systemUserBuffer[4] = 0;
-    spPtr->Send(0,systemUserBuffer);
+    spPtr->Send(PLAYERID_HOSTDEFAULT, systemUserBuffer);
     waitingForPlayerMapResponse = 1;
     while (waitingForPlayerMapResponse)
     {
@@ -293,11 +298,12 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns)
 {
+
   //return _DK_LbNetwork_Create(nsname_str, plyr_name, plyr_num);
   if (spPtr == NULL)
   {
-    ERRORLOG("ServiceProvider ptr is NULL");
-    return Lb_FAIL;
+	ERRORLOG("ServiceProvider ptr is NULL");
+	return Lb_FAIL;
   }
   if ( runningTwoPlayerModel )
   {
@@ -305,6 +311,11 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
     localPlayerIndex = 0;
     remotePlayerId = 1;
     remotePlayerIndex = 1;
+  }
+  else {
+	localPlayerId = PLAYERID_HOSTDEFAULT;
+	localPlayerIndex = 0;
+	hostId = PLAYERID_HOSTDEFAULT;
   }
   if (spPtr->Start(nsname_str, plyr_name, maximumPlayers, optns) != Lb_OK)
   {
@@ -766,21 +777,21 @@ TbError GenericIPXInit(struct _GUID guid)
 
 static TbError genericTCPInit(struct _GUID guid)
 {
-  if (spPtr != NULL) {
-    spPtr->Release();
-    delete spPtr;
-    spPtr = NULL;
-  }
+	if (spPtr != NULL) {
+		spPtr->Release();
+		delete spPtr;
+		spPtr = NULL;
+	}
 
-  spPtr = new TCPServiceProvider();
-  if (spPtr == NULL) {
-	  WARNLOG("Failure on SP construction");
-	  return Lb_FAIL;
-  }
-  if (spPtr->Init(guid, 0, &receiveCallbacks, 0) != Lb_OK) {
-	  WARNLOG("Failure on SP::Init()");
-	  return Lb_FAIL;
-  }
+	spPtr = new TCPServiceProvider();
+	if (spPtr == NULL) {
+		WARNLOG("Failure on SP construction");
+		return Lb_FAIL;
+	}
+	if (spPtr->Init(guid, 0, &receiveCallbacks, 0) != Lb_OK) {
+		WARNLOG("Failure on SP::Init()");
+		return Lb_FAIL;
+	}
 
   return Lb_OK;
 }
@@ -1225,11 +1236,10 @@ TbError SendSystemUserMessage(unsigned long plr_id, int type, void *ibuf, unsign
 
 void PlayerMapMsgHandler(unsigned long plr_id, void *msg, unsigned long msg_len)
 {
-  unsigned long len;
-  len = sizeof(struct ClientDataEntry)*maximumPlayers;
-  if (msg_len == 0)
+  unsigned long len = sizeof(struct ClientDataEntry)*maximumPlayers;
+  if (msg_len == 0 && IS_HOST)
   {
-    SendSystemUserMessage(plr_id, 0, clientDataTable, len);
+    SendSystemUserMessage(PLAYERID_ALLBUTSELF, 0, clientDataTable, len);
     return;
   }
   if (!waitingForPlayerMapResponse)

@@ -49,20 +49,14 @@ TCP_NetClient::~TCP_NetClient()
 void TCP_NetClient::recvThreadFunc(TCP_NetClient * cli)
 {
 	for (;;) {
-		char header[TCP_HEADER_SIZE];
-		if (!receiveOnSocket(cli->mySocket, header, sizeof(header))) {
+		InternalMsg * msg = new InternalMsg(0);
+		if (!receiveOnSocket(cli->mySocket, msg->getHeaderPointer(), msg->getHeaderSize())) {
 			break;
 		}
 
-		ulong playerId = SDLNet_Read32(header);
-		ulong msgDataLen = SDLNet_Read32(header + 4);
-		InternalMsg * msg = new InternalMsg(msgDataLen, playerId);
-		if (msg == NULL || msg->buffer == NULL) {
-			ERRORLOG("Failure to allocate memory for message");
-			break;
-		}
+		msg->inflate(); //TODO NET: add max allowed size sanity check
 
-		if (!receiveOnSocket(cli->mySocket, msg->buffer, msgDataLen)) {
+		if (!receiveOnSocket(cli->mySocket, msg->getDataPointer(), msg->getDataSize())) {
 			delete msg;
 			break;
 		}
@@ -96,15 +90,15 @@ bool TCP_NetClient::sendDKMessage(unsigned long playerId, const char buffer[], s
 	bool retval = true;
 
 	size_t len = bufferLen;
-	char * msg = buildTCPMessageBuffer(playerId, buffer, len);
+	InternalMsg * msg = buildTCPMessage(playerId, buffer, len);
 
-	if (SDLNet_TCP_Send(mySocket, msg, len) < len) {
+	if (SDLNet_TCP_Send(mySocket, msg->getBufferPointer(), msg->getSize()) < msg->getSize()) {
 		haltRecvThread();
 		NETMSG("Remote server closed");
 		retval = false;
 	}
 
-	free(msg);
+	delete msg;
 
 	return retval;
 }

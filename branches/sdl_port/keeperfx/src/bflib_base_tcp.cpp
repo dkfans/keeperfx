@@ -46,13 +46,13 @@ bool TCP_NetBase::fetchDKMessage(ulong & playerId, char buffer[], size_t & buffe
 		return false;
 	}
 
-	playerId = msg->playerId;
-	if (bufferLen < msg->len) {
+	playerId = msg->getDestPlayer();
+	if (bufferLen < msg->getDataSize()) {
 		bufferLen = 0;
 	}
 	else {
-		bufferLen = msg->len;
-		memcpy(buffer, msg, msg->len);
+		bufferLen = msg->getDataSize();
+		memcpy(buffer, msg->getDataPointer(), msg->getDataSize());
 	}
 
 	if (!peek) {
@@ -62,24 +62,13 @@ bool TCP_NetBase::fetchDKMessage(ulong & playerId, char buffer[], size_t & buffe
 	return true;
 }
 
-char * TCP_NetBase::buildTCPMessageBuffer(ulong playerId, const char msg[], size_t & msgLen)
+TCP_NetBase::InternalMsg * TCP_NetBase::buildTCPMessage(ulong playerId, const char msg[], size_t & msgLen)
 {
-	ulong totalMsgLen = msgLen + TCP_HEADER_SIZE;
+	InternalMsg * m = new InternalMsg(msgLen, playerId);
+	msgLen = m->getSize();
+	memcpy(m->getDataPointer(), msg, m->getDataSize());
 
-	//build buffer
-	char * const buffer = reinterpret_cast<char *>(malloc(totalMsgLen));
-	if (buffer == NULL) {
-		NETMSG("malloc failure");
-		msgLen = 0;
-		return buffer;
-	}
-
-	SDLNet_Write32(playerId, buffer);
-	SDLNet_Write32(msgLen, buffer + 4);
-	memcpy(buffer + 8, msg, msgLen);
-	msgLen = totalMsgLen;
-
-	return buffer;
+	return m;
 }
 
 bool TCP_NetBase::receiveOnSocket(TCPsocket sock, char buffer[], size_t count)
@@ -108,7 +97,7 @@ bool TCP_NetBase::receiveOnSocket(TCPsocket sock, char buffer[], size_t count)
 
 void TCP_NetBase::addIntMessage(InternalMsg * msg)
 {
-	msg->next = NULL;
+	msg->setNext(NULL);
 
 	SDL_LockMutex(msgMutex);
 
@@ -116,7 +105,7 @@ void TCP_NetBase::addIntMessage(InternalMsg * msg)
 		msgHead = msgTail = msg;
 	}
 	else {
-		msgTail->next = msg;
+		msgTail->setNext(msg);
 		msgTail = msg;
 	}
 
@@ -130,7 +119,7 @@ TCP_NetBase::InternalMsg * TCP_NetBase::getIntMessage()
 
 	if (msgHead != NULL) {
 		retval = msgHead;
-		msgHead = msgHead->next;
+		msgHead = msgHead->getNext();
 		if (msgHead == NULL) {
 			msgTail = NULL;
 		}

@@ -60,7 +60,7 @@ TbError TCPServiceProvider::Start(struct TbNetworkSessionNameEntry * sessionName
 	}
 
 	//TODO: see if we're responsible for adding ourself to player list or not
-	localPlayerId = 0; //for now...
+	localPlayerId = PLAYERID_UNASSIGNED; //until assigned other id
 
 	started = true;
 
@@ -75,7 +75,7 @@ TbError TCPServiceProvider::Start(char * sessionName, char * playerName, unsigne
 	assert(maxPlayers <= NETSP_PLAYERS_COUNT);
 
 	isServer = true;
-	localPlayerId = 1;
+	localPlayerId = PLAYERID_HOSTDEFAULT;
 
 	ClearPlayers();
 	joinable = true;
@@ -115,7 +115,6 @@ TbError TCPServiceProvider::Stop(void)
 	if (index >= 0) {
 		nsnames[index].in_use = false;
 	}*/
-	localPlayerId = 0;
 
 	delete host;
 	host = NULL;

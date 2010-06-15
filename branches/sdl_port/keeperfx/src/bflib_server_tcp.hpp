@@ -36,13 +36,12 @@ class TCP_NetServer : public TCP_NetBase
 	struct RemotePeer
 	{
 		TCPsocket socket;
-		int playerId;
 
 		ReadState readState;
 		size_t bytesToRead;
+		ulong playerId;
 
-		char headerBuf[TCP_HEADER_SIZE]; //for HEADER state
-		TCPsocket * destSocket; //for PASS_ON state
+		TCPsocket * destSockets; //for PASS_ON state
 		InternalMsg * currMsg; //for CONSUME and PASS_ON states
 	};
 
@@ -60,9 +59,9 @@ class TCP_NetServer : public TCP_NetBase
 
 	void addRemoteSocket(int index, TCPsocket);
 	TCPsocket * getRemoteSocketByIndex(int index, ulong & playerId);
-	TCPsocket * getRemoteSocketByPlayer(int playerId);
+	TCPsocket * getRemoteSocketsByPlayer(int playerId);
 	void removeRemoteSocket(TCPsocket sock);
-	void readOnRemoteSocket(RemotePeer & peer);
+	void readRemotePeer(RemotePeer & peer);
 
 public:
 	TCP_NetServer(ushort port, int maxPlayers, int localPlayerId);
