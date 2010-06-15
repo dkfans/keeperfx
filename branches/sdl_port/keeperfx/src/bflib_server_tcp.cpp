@@ -129,10 +129,10 @@ void TCP_NetServer::readRemotePeer(RemotePeer & peer)
 			peer.bytesToRead = TCP_HEADER_SIZE;
 			break;
 		case PASS_ON:
-			RemotePeer ** p = getPeersByPlayerId(peer.currMsg->getDestPlayer());
+			RemotePeer ** const p = getPeersByPlayerId(peer.currMsg->getDestPlayer());
 			if (p != NULL) {
-				for (RemotePeer * it = p[0]; it != NULL; ++it) {
-					SDLNet_TCP_Send(it->socket, peer.currMsg->getBufferPointer(), peer.currMsg->getSize());
+				for (RemotePeer ** it = p; *it != NULL; ++it) {
+					SDLNet_TCP_Send((*it)->socket, peer.currMsg->getBufferPointer(), peer.currMsg->getSize());
 				}
 
 				free(p);
@@ -223,15 +223,16 @@ bool TCP_NetServer::sendDKMessage(unsigned long playerId, const char buffer[], s
 	}
 	else {
 		InternalMsg * msg = buildTCPMessage(0, buffer, bufferLen);
+		NETMSG("Begins sending");
 
-		for (RemotePeer * peer = peers[0]; peer != NULL; ++peer) {
+		for (RemotePeer ** it = peers; *it != NULL; ++it) {
 
-			NETMSG("Sending to socket for player %d", peer->playerId);
-			msg->setDestPlayer(peer->playerId);
+			NETMSG("Sending to socket for player %d", (*it)->playerId);
+			msg->setDestPlayer((*it)->playerId);
 
-			if (SDLNet_TCP_Send(peer->socket, msg->getBufferPointer(), msg->getSize()) < msg->getDataSize()) {
-				removeRemoteSocket(peer->socket);
-				NETDBG(5, "Remote client with ID %d closed", peer->playerId);
+			if (SDLNet_TCP_Send((*it)->socket, msg->getBufferPointer(), msg->getSize()) < msg->getDataSize()) {
+				NETDBG(5, "Remote client with ID %d closed", (*it)->playerId);
+				removeRemoteSocket((*it)->socket);
 				retval = false;
 			}
 		}
@@ -290,10 +291,15 @@ TCP_NetServer::RemotePeer ** TCP_NetServer::getPeersByPlayerId(int playerId)
 		}
 	}
 
+	if (count == 0) {
+		return NULL;
+	}
+
+	count = 0;
 	RemotePeer ** const peers = reinterpret_cast<RemotePeer **>(malloc(sizeof(RemotePeer*) * (count + 1)));
 	for (int i = 0; i < maxPlayers - 1; ++i) {
 		if ((everyone && remote[i].playerId != 0) || remote[i].playerId == playerId) {
-			peers[i] = &remote[i];
+			peers[count++] = &remote[i];
 		}
 	}
 	peers[count] = NULL;

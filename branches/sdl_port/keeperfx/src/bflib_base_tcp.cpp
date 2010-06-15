@@ -58,13 +58,11 @@ bool TCP_NetBase::fetchDKMessage(ulong & playerId, char buffer[], size_t & buffe
 	//!TEMP
 
 	playerId = msg->getDestPlayer();
-	if (bufferLen < msg->getDataSize()) {
-		bufferLen = 0;
-	}
-	else {
+	if (bufferLen > msg->getDataSize()) {
 		bufferLen = msg->getDataSize();
-		memcpy(buffer, msg->getDataPointer(), msg->getDataSize());
 	}
+
+	memcpy(buffer, msg->getDataPointer(), bufferLen);
 
 	if (!peek) {
 		delete msg;
