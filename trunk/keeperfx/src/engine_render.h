@@ -246,6 +246,21 @@ struct BasicUnk14 { // sizeof = 24
     long field_14;
 };
 
+struct TexturedQuad { // sizeof = 46
+    struct BasicQ b;
+    unsigned char field_5;
+    long field_6;
+    long field_A;
+    long field_E;
+    long field_12;
+    long field_16;
+    long field_1A;
+    long field_1E;
+    long field_22;
+    long field_26;
+    long field_2A;
+};
+
 struct Number { // BasicQ type 16
     struct BasicQ b;
     unsigned char field_5[3];

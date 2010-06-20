@@ -70,6 +70,7 @@ long get_mapwho_thing_index(const struct Map *map);
 void set_mapwho_thing_index(struct Map *map, long thing_idx);
 long get_mapblk_column_index(const struct Map *map);
 void set_mapblk_column_index(struct Map *map, long column_idx);
+long get_subtile_lightness(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool subtile_has_slab(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_coords_invalid(MapSubtlCoord stl_x, MapSubtlCoord stl_y);

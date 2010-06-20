@@ -86,6 +86,12 @@ DLLIMPORT void _DK_init_creature_level(struct Thing *thing, long nlev);
 DLLIMPORT long _DK_check_for_first_person_barrack_party(struct Thing *thing);
 DLLIMPORT void _DK_terminate_thing_spell_effect(struct Thing *thing, long a2);
 DLLIMPORT void _DK_creature_increase_level(struct Thing *thing);
+DLLIMPORT struct Thing *_DK_destroy_creature_and_create_corpse(struct Thing *thing, long a1);
+DLLIMPORT void _DK_thing_death_flesh_explosion(struct Thing *thing);
+DLLIMPORT void _DK_thing_death_gas_and_flesh_explosion(struct Thing *thing);
+DLLIMPORT void _DK_thing_death_smoke_explosion(struct Thing *thing);
+DLLIMPORT void _DK_thing_death_ice_explosion(struct Thing *thing);
+DLLIMPORT struct Thing *_DK_create_dead_creature(struct Coord3d *pos, unsigned short model, unsigned short a1, unsigned short owner, long explevel);
 /******************************************************************************/
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
@@ -970,11 +976,11 @@ TbBool inc_player_kills_counter(long killer_idx, struct Thing *victim)
  * Increases kills counters when victim is being killed by killer.
  * Note that killer may be invalid - in this case def_plyr_idx identifies the killer.
  */
-TbBool update_kills_counters(struct Thing *victim, struct Thing *killer, char def_plyr_idx, unsigned char a5)
+TbBool update_kills_counters(struct Thing *victim, struct Thing *killer, char def_plyr_idx, unsigned char died_in_battle)
 {
   struct CreatureControl *cctrl;
   cctrl = creature_control_get_from_thing(victim);
-  if (a5)
+  if (died_in_battle)
   {
     if (!thing_is_invalid(killer))
     {
@@ -997,9 +1003,443 @@ long move_creature(struct Thing *thing)
   return _DK_move_creature(thing);
 }
 
+struct Thing *create_dead_creature(struct Coord3d *pos, unsigned short model, unsigned short a1, unsigned short owner, long explevel)
+{
+    struct Thing *thing;
+    unsigned long k;
+    //return _DK_create_dead_creature(pos, model, a1, owner, explevel);
+    if (!i_can_allocate_free_thing_structure(1))
+    {
+        ERRORLOG("Cannot create dead creature because there are too many things allocated.");
+        return INVALID_THING;
+    }
+    thing = allocate_free_thing_structure(1);
+    thing->class_id = 4;
+    thing->model = model;
+    thing->field_1D = thing->index;
+    thing->owner = owner;
+    thing->byte_13 = explevel;
+    thing->mappos.x.val = pos->x.val;
+    thing->mappos.y.val = pos->y.val;
+    thing->mappos.z.val = 0;
+    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
+    thing->field_56 = 0;
+    thing->field_58 = 0;
+    thing->field_5A = 0;
+    thing->field_5C = 0;
+    thing->field_20 = 16;
+    thing->field_23 = 204;
+    thing->field_24 = 51;
+    thing->field_22 = 0;
+    thing->field_25 |= 0x08;
+    thing->field_9 = game.play_gameturn;
+    if (creatures[model].field_7)
+      thing->field_4F |= 0x30;
+    add_thing_to_list(thing, &game.thing_lists[4]);
+    place_thing_in_mapwho(thing);
+    switch (a1)
+    {
+    case 2:
+        thing->field_7 = 2;
+        k = get_creature_anim(thing, 17);
+        set_thing_draw(thing, k, 256, 300, 0, 0, 2);
+        break;
+    default:
+        thing->field_7 = 1;
+        k = get_creature_anim(thing, 15);
+        set_thing_draw(thing, k, 128, 300, 0, 0, 2);
+        thing->health = 3 * get_lifespan_of_animation(thing->field_44, thing->field_3E);
+        play_creature_sound(thing, 9, 3, 0);
+        break;
+    }
+    thing->field_46 = (300 * (long)thing->byte_13) / 20 + 300;
+    return thing;
+}
+
+struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1)
+{
+    struct CreatureControl *cctrl;
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    struct Thing *deadtng;
+    struct Coord3d pos;
+    TbBool memf1;
+    long owner;
+    long crmodel;
+    long explevel;
+    long prev_idx;
+
+    //return _DK_destroy_creature_and_create_corpse(thing, a1);
+    crmodel = thing->model;
+    memf1 = ((thing->field_0 & 0x20) != 0);
+    pos.x.val = thing->mappos.x.val;
+    pos.y.val = thing->mappos.y.val;
+    pos.z.val = thing->mappos.z.val;
+    owner = thing->owner;
+    prev_idx = thing->index;
+    cctrl = creature_control_get_from_thing(thing);
+    explevel = cctrl->explevel;
+    player = NULL;
+    if (owner != game.neutral_player_num)
+    {
+        player = get_player(owner);
+        dungeon = get_players_dungeon(player);
+        dungeon->score -= (long)game.creature_scores[crmodel].value[explevel];
+    }
+    delete_thing_structure(thing, 0);
+    deadtng = create_dead_creature(&pos, crmodel, a1, owner, explevel);
+    if (thing_is_invalid(deadtng))
+    {
+        ERRORLOG("Could not create dead thing.");
+        return INVALID_THING;
+    }
+    set_flag_byte(&deadtng->field_0, 0x20, memf1);
+    if (owner != game.neutral_player_num)
+    {
+        // Update thing index inside player struct
+        if (player->field_2F == prev_idx)
+        {
+            player->field_2F = deadtng->index;
+            player->field_31 = deadtng->field_9;
+        }
+    }
+    return deadtng;
+}
+
+/**
+ * Causes creature rebirth at its lair.
+ * If lair isn't available, creature is reborn at dungeon heart.
+ *
+ * @param thing The creature to be reborn.
+ */
+void creature_rebirth_at_lair(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *lairtng;
+    struct Dungeon *dungeon;
+    cctrl = creature_control_get_from_thing(thing);
+    lairtng = thing_get(cctrl->lairtng_idx);
+    if (thing_is_invalid(lairtng))
+    {
+        dungeon = get_dungeon(thing->owner);
+        lairtng = thing_get(dungeon->dnheart_idx);
+    }
+    if (cctrl->explevel > 0)
+        set_creature_level(thing, cctrl->explevel-1);
+    thing->health = cctrl->max_health;
+    if (thing_is_invalid(lairtng))
+        return;
+    create_effect(&thing->mappos, 17, thing->owner);
+    move_thing_in_map(thing, &lairtng->mappos);
+    create_effect(&lairtng->mappos, 17, thing->owner);
+}
+
+void throw_out_gold(struct Thing *thing)
+{
+  struct Thing *gldtng;
+  long angle,radius,delta;
+  long x,y;
+  long i;
+  for (i = thing->long_13; i > 0; i -= delta)
+  {
+    gldtng = create_object(&thing->mappos, 6, game.neutral_player_num, -1);
+    if (thing_is_invalid(gldtng))
+        break;
+    angle = ACTION_RANDOM(ANGLE_TRIGL_PERIOD);
+    radius = ACTION_RANDOM(128);
+    x = (radius * LbSinL(angle)) / 256;
+    y = (radius * LbCosL(angle)) / 256;
+    gldtng->pos_32.x.val += x/256;
+    gldtng->pos_32.y.val -= y/256;
+    gldtng->pos_32.z.val += ACTION_RANDOM(64) + 96;
+    gldtng->field_1 |= 0x04;
+    if (i < 400)
+        delta = i;
+    else
+        delta = 400;
+    gldtng->long_13 = delta;
+  }
+}
+
+void thing_death_normal(struct Thing *thing)
+{
+    struct Thing *deadtng;
+    struct Coord3d memaccl;
+    long memp1;
+    memp1 = thing->field_52;
+    memaccl.x.val = thing->pos_2C.x.val;
+    memaccl.y.val = thing->pos_2C.y.val;
+    memaccl.z.val = thing->pos_2C.z.val;
+    deadtng = destroy_creature_and_create_corpse(thing, 1);
+    if (thing_is_invalid(deadtng))
+    {
+        ERRORLOG("Cannot create dead thing");
+        return;
+    }
+    deadtng->field_52 = memp1;
+    deadtng->pos_2C.x.val = memaccl.x.val;
+    deadtng->pos_2C.y.val = memaccl.y.val;
+    deadtng->pos_2C.z.val = memaccl.z.val;
+}
+
+void thing_death_flesh_explosion(struct Thing *thing)
+{
+    struct Thing *deadtng;
+    struct Coord3d pos;
+    struct Coord3d memaccl;
+    long memp1;
+    long i;
+    //_DK_thing_death_flesh_explosion(thing);return;
+    memp1 = thing->field_52;
+    memaccl.x.val = thing->pos_2C.x.val;
+    memaccl.y.val = thing->pos_2C.y.val;
+    memaccl.z.val = thing->pos_2C.z.val;
+    for (i = 0; i <= thing->field_58; i+=64)
+    {
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = thing->mappos.z.val+i;
+        create_effect(&pos, 9, thing->owner);
+    }
+    deadtng = destroy_creature_and_create_corpse(thing, 2);
+    if (thing_is_invalid(deadtng))
+    {
+        ERRORLOG("Cannot create dead thing");
+        return;
+    }
+    deadtng->field_52 = memp1;
+    deadtng->pos_2C.x.val = memaccl.x.val;
+    deadtng->pos_2C.y.val = memaccl.y.val;
+    deadtng->pos_2C.z.val = memaccl.z.val;
+    thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, 256);
+}
+
+void thing_death_gas_and_flesh_explosion(struct Thing *thing)
+{
+    struct Thing *deadtng;
+    struct Coord3d pos;
+    struct Coord3d memaccl;
+    long memp1;
+    long i;
+    //_DK_thing_death_gas_and_flesh_explosion(thing);return;
+    memp1 = thing->field_52;
+    memaccl.x.val = thing->pos_2C.x.val;
+    memaccl.y.val = thing->pos_2C.y.val;
+    memaccl.z.val = thing->pos_2C.z.val;
+    for (i = 0; i <= thing->field_58; i+=64)
+    {
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = thing->mappos.z.val+i;
+        create_effect(&pos, 9, thing->owner);
+    }
+    i = (thing->field_58 >> 1);
+    pos.x.val = thing->mappos.x.val;
+    pos.y.val = thing->mappos.y.val;
+    pos.z.val = thing->mappos.z.val+i;
+    create_effect(&pos, 13, thing->owner);
+    deadtng = destroy_creature_and_create_corpse(thing, 2);
+    if (thing_is_invalid(deadtng))
+    {
+        ERRORLOG("Cannot create dead thing");
+        return;
+    }
+    deadtng->field_52 = memp1;
+    deadtng->pos_2C.x.val = memaccl.x.val;
+    deadtng->pos_2C.y.val = memaccl.y.val;
+    deadtng->pos_2C.z.val = memaccl.z.val;
+    thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, 256);
+}
+
+void thing_death_smoke_explosion(struct Thing *thing)
+{
+    struct Thing *deadtng;
+    struct Coord3d pos;
+    struct Coord3d memaccl;
+    long memp1;
+    long i;
+    //_DK_thing_death_smoke_explosion(thing);return;
+    memp1 = thing->field_52;
+    memaccl.x.val = thing->pos_2C.x.val;
+    memaccl.y.val = thing->pos_2C.y.val;
+    memaccl.z.val = thing->pos_2C.z.val;
+    i = (thing->field_58 >> 1);
+    pos.x.val = thing->mappos.x.val;
+    pos.y.val = thing->mappos.y.val;
+    pos.z.val = thing->mappos.z.val+i;
+    create_effect(&pos, 16, thing->owner);
+    deadtng = destroy_creature_and_create_corpse(thing, 2);
+    if (thing_is_invalid(deadtng))
+    {
+        ERRORLOG("Cannot create dead thing");
+        return;
+    }
+    deadtng->field_52 = memp1;
+    deadtng->pos_2C.x.val = memaccl.x.val;
+    deadtng->pos_2C.y.val = memaccl.y.val;
+    deadtng->pos_2C.z.val = memaccl.z.val;
+    thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, 256);
+}
+
+void thing_death_ice_explosion(struct Thing *thing)
+{
+    struct Thing *deadtng;
+    struct Coord3d pos;
+    struct Coord3d memaccl;
+    long memp1;
+    long i;
+    //_DK_thing_death_ice_explosion(thing);return;
+    memp1 = thing->field_52;
+    memaccl.x.val = thing->pos_2C.x.val;
+    memaccl.y.val = thing->pos_2C.y.val;
+    memaccl.z.val = thing->pos_2C.z.val;
+    for (i = 0; i <= thing->field_58; i+=64)
+    {
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = thing->mappos.z.val+i;
+        create_effect(&pos, 24, thing->owner);
+    }
+    deadtng = destroy_creature_and_create_corpse(thing, 2);
+    if (thing_is_invalid(deadtng))
+    {
+        ERRORLOG("Cannot create dead thing");
+        return;
+    }
+    deadtng->field_52 = memp1;
+    deadtng->pos_2C.x.val = memaccl.x.val;
+    deadtng->pos_2C.y.val = memaccl.y.val;
+    deadtng->pos_2C.z.val = memaccl.z.val;
+    thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, 256);
+}
+
+void creature_death_as_nature_intended(struct Thing *thing)
+{
+    long i;
+    i = creatures[thing->model%CREATURE_TYPES_COUNT].field_4[0];
+    switch (i)
+    {
+    case 1:
+        thing_death_normal(thing);
+        break;
+    case 2:
+        thing_death_flesh_explosion(thing);
+        break;
+    case 3:
+        thing_death_gas_and_flesh_explosion(thing);
+        break;
+    case 4:
+        thing_death_smoke_explosion(thing);
+        break;
+    case 5:
+        thing_death_ice_explosion(thing);
+        break;
+    default:
+        WARNLOG("Unexpected creature death cause %ld",i);
+        break;
+    }
+}
+
+/**
+ * Removes given index in things from given StructureList.
+ * Returns amount of items updated.
+ * TODO figure out what this index is, then rename and move this function.
+ */
+unsigned long remove_thing_from_field1D_in_list(struct StructureList *list,long remove_idx)
+{
+  struct Thing *thing;
+  unsigned long n;
+  unsigned long k;
+  int i;
+  SYNCDBG(18,"Starting");
+  n = 0;
+  k = 0;
+  i = list->index;
+  while (i != 0)
+  {
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
+    {
+      ERRORLOG("Jump to invalid thing detected");
+      break;
+    }
+    i = thing->next_of_class;
+    // Per-thing code
+    if (thing->field_1D == remove_idx)
+    {
+        thing->field_1D = thing->index;
+        n++;
+    }
+    // Per-thing code ends
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  return n;
+}
+
 void cause_creature_death(struct Thing *thing, unsigned char a2)
 {
-  _DK_cause_creature_death(thing, a2);
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    long crmodel;
+    TbBool simple_death;
+
+    //_DK_cause_creature_death(thing, a2); return;
+
+    cctrl = creature_control_get_from_thing(thing);
+    anger_set_creature_anger_all_types(thing, 0);
+    throw_out_gold(thing);
+    remove_thing_from_field1D_in_list(&game.thing_lists[1],thing->index);
+
+    crmodel = thing->model;
+    crstat = creature_stats_get_from_thing(thing);
+    if ( a2 )
+    {
+        if ((game.flags_cd & 0x08) != 0)
+            add_creature_to_pool(crmodel, 1, 1);
+        delete_thing_structure(thing, 0);
+        return;
+    }
+    if ((crstat->rebirth) && (cctrl->lairtng_idx > 0)
+     && (crstat->rebirth-1 <= cctrl->explevel) )
+    {
+        creature_rebirth_at_lair(thing);
+        return;
+    }
+
+    //TODO check if this condition is right
+    if (censorship_enabled())
+        simple_death = crstat->bleeds;
+    else
+        simple_death = (crstat->bleeds) && ((get_creature_model_flags(thing) & MF_IsEvil) != 0);
+
+    if (simple_death)
+    {
+        if ((game.flags_cd & 0x08) != 0)
+            add_creature_to_pool(crmodel, 1, 1);
+        creature_death_as_nature_intended(thing);
+    } else
+    if ((cctrl->field_AB & 0x02) != 0)
+    {
+        if ((game.flags_cd & 0x08) != 0)
+            add_creature_to_pool(crmodel, 1, 1);
+        thing_death_ice_explosion(thing);
+    } else
+    if ((cctrl->field_1D3 == 2) || (cctrl->field_1D3 == 24))
+    {
+        if ((game.flags_cd & 0x08) != 0)
+            add_creature_to_pool(crmodel, 1, 1);
+        thing_death_flesh_explosion(thing);
+    } else
+    {
+        if ((game.flags_cd & 0x08) != 0)
+            add_creature_to_pool(crmodel, 1, 1);
+        creature_death_as_nature_intended(thing);
+    }
 }
 
 long remove_all_traces_of_combat(struct Thing *thing)
@@ -1038,6 +1478,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
   struct Dungeon *killerdngn;
   long i,k;
   SYNCDBG(18,"Starting");
+  //TODO check if invalid dead body can happen with original function
   //return _DK_kill_creature(thing, killertng, killer_plyr_idx, a4, died_in_battle, a6);
   dungeon = NULL;
   cctrl = creature_control_get_from_thing(thing);
@@ -1047,8 +1488,11 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     remove_creature_from_group(thing);
   if (thing->owner != game.neutral_player_num)
     dungeon = get_players_num_dungeon(thing->owner);
-  if (!thing_is_invalid(killertng) && (killertng->owner == game.neutral_player_num))
-    died_in_battle = 0;
+  if (!thing_is_invalid(killertng))
+  {
+      if (killertng->owner == game.neutral_player_num)
+          died_in_battle = 0;
+  }
   if (killer_plyr_idx == game.neutral_player_num)
     died_in_battle = 0;
   remove_events_thing_is_attached_to(thing);

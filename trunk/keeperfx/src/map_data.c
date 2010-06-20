@@ -317,6 +317,15 @@ MapSubtlCoord slab_ending_subtile(MapSubtlCoord stl_v)
 {
   return map_to_slab[stl_v]*3+2;
 }
+
+long get_subtile_lightness(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    if (stl_x > map_subtiles_x) stl_x = map_subtiles_x;
+    if (stl_y > map_subtiles_y) stl_y = map_subtiles_y;
+    if (stl_x < 0)  stl_x = 0;
+    if (stl_y < 0) stl_y = 0;
+    return game.field_46157[stl_y*(map_subtiles_x+1) + stl_x];
+}
 /******************************************************************************/
 
 void clear_mapwho(void)
