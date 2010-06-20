@@ -269,8 +269,8 @@ struct ActionPoint { // sizeof = 0xA
 };
 
 struct UnkStruc5 { // sizeof=0x12
-int field_0;
-char field_4[4];
+    unsigned short texture_0[3];
+char field_6[2];
 short field_8[5];
 };
 

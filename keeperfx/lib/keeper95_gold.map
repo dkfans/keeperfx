@@ -1777,4 +1777,9 @@
  0001:0007FD80       ariadne_init_movement_to_current_waypoint
  0001:000816E0       ariadne_pull_out_waypoint
  0001:0006A690       heap_down
- 
+ 0001:000C0C40       destroy_creature_and_create_corpse
+ 0001:000C08B0       thing_death_flesh_explosion
+ 0001:000C0990       thing_death_ice_explosion
+ 0001:000C0A70       thing_death_gas_and_flesh_explosion
+ 0001:000C0B80       thing_death_smoke_explosion
+ 0001:000646D0       create_dead_creature
