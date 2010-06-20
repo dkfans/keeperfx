@@ -1382,8 +1382,11 @@ void draw_view(struct Camera *cam, unsigned char a2)
   nlens = cam->field_17 / pixel_size;
   getpoly = poly_pool;
   LbMemorySet(buckets, 0, sizeof(buckets));
-  perspective = perspective_routines[lens_mode%PERS_ROUTINES_COUNT];
-  rotpers = rotpers_routines[lens_mode%PERS_ROUTINES_COUNT];
+  i = lens_mode;
+  if ((i < 0) || (i >= PERS_ROUTINES_COUNT))
+      i = 0;
+  perspective = perspective_routines[i];
+  rotpers = rotpers_routines[i];
   update_fade_limits(cells_away);
   init_coords_and_rotation(&object_origin,&camera_matrix);
   rotate_base_axis(&camera_matrix, cam->orient_a, 2);
@@ -1412,7 +1415,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     cells_away = compute_cells_away();
   }
   xcell = (x >> 8);
-  aposc = -(unsigned char)x;
+  aposc = -(x & 0xFF);
   bposc = (cells_away << 8) + (y & 0xFF);
   ycell = (y >> 8) - (cells_away+1);
   find_gamut();
@@ -1421,7 +1424,10 @@ void draw_view(struct Camera *cam, unsigned char a2)
   bpos = bposc;
   back_ec = &ecs1[0];
   front_ec = &ecs2[0];
-  mm = &minmaxs[31-cells_away];
+  i = 31-cells_away;
+  if (i < 0)
+      i = 0;
+  mm = &minmaxs[i];
   if (lens_mode != 0)
   {
     fill_in_points_perspective(xcell, ycell, mm);
@@ -1628,6 +1634,60 @@ void create_fast_view_status_box(struct Thing *thing, long x, long y)
   create_status_box_element(thing, x, y - (shield_offset[thing->model]+thing->field_58) / 12, y, 1);
 }
 
+void add_textruredquad_to_polypool(long x, long y, long texture_idx, long a7, long a8, long lightness, long a9, long bckt_idx)
+{
+    struct TexturedQuad *poly;
+    if (bckt_idx >= BUCKETS_COUNT)
+      bckt_idx = BUCKETS_COUNT-1;
+    else
+    if (bckt_idx < 0)
+      bckt_idx = 0;
+    poly = (struct TexturedQuad *)getpoly;
+    getpoly += sizeof(struct TexturedQuad);
+    poly->b.next = buckets[bckt_idx];
+    poly->b.kind = 15;
+    buckets[bckt_idx] = (struct BasicQ *)poly;
+
+    poly->field_6 = texture_idx;
+    poly->field_A = x;
+    poly->field_E = y;
+    poly->field_12 = a7;
+    poly->field_16 = a7;
+    poly->field_5 = a8;
+    poly->field_1A = lightness;
+    poly->field_1E = lightness;
+    poly->field_22 = lightness;
+    poly->field_26 = lightness;
+    poly->field_2A = a9;
+}
+
+void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long a6, long a7, long a8, long lg0, long lg1, long lg2, long lg3, long bckt_idx)
+{
+    struct TexturedQuad *poly;
+    if (bckt_idx >= BUCKETS_COUNT)
+      bckt_idx = BUCKETS_COUNT-1;
+    else
+    if (bckt_idx < 0)
+      bckt_idx = 0;
+    poly = (struct TexturedQuad *)getpoly;
+    getpoly += sizeof(struct TexturedQuad);
+    poly->b.next = buckets[bckt_idx];
+    poly->b.kind = 15;
+    buckets[bckt_idx] = (struct BasicQ *)poly;
+
+    poly->field_6 = texture_idx;
+    poly->field_A = x;
+    poly->field_E = y;
+    poly->field_12 = a6;
+    poly->field_16 = a7;
+    poly->field_5 = a8;
+    poly->field_1A = lg0;
+    poly->field_1E = lg1;
+    poly->field_22 = lg2;
+    poly->field_26 = lg3;
+    poly->field_2A = 3;
+}
+
 void add_unkn16_to_polypool(long x, long y, long lvl, long bckt_idx)
 {
   struct Number *poly;
@@ -1691,9 +1751,182 @@ void add_unkn19_to_polypool(long x, long y, long lvl, long bckt_idx)
   poly->lvl = lvl;
 }
 
-void draw_element(struct Map *map, long a2, long stl_x, long stl_y, long pos_x, long pos_y, long a7, unsigned char a8, long *a9)
+void prepare_lightness_intensity_array(long stl_x, long stl_y, long *arrp, long base_lightness)
 {
-  _DK_draw_element(map, a2, stl_x, stl_y, pos_x, pos_y, a7, a8, a9);
+    long *rndmis;
+    long rndi,nval;
+    long i;
+    i = 4 * stl_x + 17 * stl_y;
+    rndmis = &randomisors[i & 0xFF];
+    for (i=0; i < 9; i++)
+    {
+      if ((base_lightness <= 256) || (base_lightness > 15872))
+      {
+          nval = base_lightness;
+      } else
+      {
+          rndi = *rndmis;
+          rndmis++;
+          nval = 32 * (rndi & 0x3F) + base_lightness - 256;
+      }
+      *arrp = nval << 8;
+      arrp++;
+    }
+}
+
+void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long pos_x, long pos_y, long a7, unsigned char a8, long *a9)
+{
+    struct PlayerInfo *myplyr;
+    TbBool sibrevealed[3][3];
+    struct Column *col;
+    struct UnkStruc5 *unkstrcp;
+    struct Map *mapblk;
+    long lightness_arr[4][9];
+    long bckt_idx;
+    long cube_itm,delta_y;
+    long tc; // top cube index
+    long x,y;
+    long i;
+  //_DK_draw_element(map, lightness, stl_x, stl_y, pos_x, pos_y, a7, a8, a9); return;
+    myplyr = get_my_player();
+    cube_itm = (a8 + 2) & 3;
+    delta_y = (a7 << 7) / 256;
+    bckt_idx = myplyr->engine_window_height - (pos_y >> 8) + 64;
+    // Check if there's enough place to draw
+    if (!is_free_space_in_poly_pool(8))
+      return;
+
+    // Prepare light intensity array
+
+    for (y=0; y < 3; y++)
+        for (x=0; x < 3; x++)
+        {
+            sibrevealed[y][x] = subtile_revealed(stl_x+x-1, stl_y+y-1, myplyr->id_number);
+        }
+
+    i = 0;
+    if (sibrevealed[0][1] && sibrevealed[1][0] && sibrevealed[1][1] && sibrevealed[0][0])
+        i = lightness;
+    prepare_lightness_intensity_array(stl_x,stl_y,lightness_arr[(-a8) & 3],i);
+
+    i = 0;
+    if (sibrevealed[0][1] && sibrevealed[0][2] && sibrevealed[1][2] && sibrevealed[1][1])
+        i = get_subtile_lightness(stl_x+1,stl_y);
+    prepare_lightness_intensity_array(stl_x+1,stl_y,lightness_arr[(1-a8) & 3],i);
+
+    i = 0;
+    if (sibrevealed[1][0] && sibrevealed[1][1] && sibrevealed[2][0] && sibrevealed[2][1])
+        i = get_subtile_lightness(stl_x,stl_y+1);
+    prepare_lightness_intensity_array(stl_x,stl_y+1,lightness_arr[(-1-a8) & 3],i);
+
+    i = 0;
+    if (sibrevealed[2][2] && sibrevealed[1][2] && sibrevealed[1][1] && sibrevealed[2][1])
+        i = get_subtile_lightness(stl_x+1,stl_y+1);
+    prepare_lightness_intensity_array(stl_x+1,stl_y+1,lightness_arr[(-2-a8) & 3],i);
+
+    // Get column to be drawn on the current subtile
+
+    if (map_block_revealed_bit(map, player_bit))
+      i = get_mapblk_column_index(map);
+    else
+      i = game.field_149E77;
+    col = get_column(i);
+    mapblk = get_map_block_at(stl_x, stl_y);
+
+    // Draw the columns base block
+
+    if (*a9 > pos_y)
+    {
+      if ((col->baseblock != 0) && (col->cubes[0] == 0))
+      {
+          *a9 = pos_y;
+          if ((mapblk->flags & 0x04) != 0)
+          {
+              add_textruredquad_to_polypool(pos_x, pos_y, col->baseblock, a7, 0,
+                  2097152, 0, bckt_idx);
+          } else
+          {
+              add_lgttextrdquad_to_polypool(pos_x, pos_y, col->baseblock, a7, a7, 0,
+                  lightness_arr[0][0], lightness_arr[1][0], lightness_arr[2][0], lightness_arr[3][0], bckt_idx);
+          }
+      }
+    }
+
+    // Draw the columns cubes
+
+    y = a7 + pos_y;
+    unkstrcp = 0;
+    for (tc=0; tc < COLUMN_STACK_HEIGHT; tc++)
+    {
+      if (col->cubes[tc] == 0)
+        break;
+      y -= delta_y;
+      unkstrcp = &game.struc_D8C7[col->cubes[tc]];
+      if (*a9 > y)
+      {
+        *a9 = y;
+        add_lgttextrdquad_to_polypool(pos_x, y, unkstrcp->texture_0[cube_itm], a7, delta_y, 0,
+            lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
+      }
+    }
+
+    if (unkstrcp != NULL)
+    {
+      i = y - a7;
+      if (*a9 > i)
+      {
+        *a9 = i;
+        if ((mapblk->flags & 0x80) != 0)
+        {
+          add_textruredquad_to_polypool(pos_x, i, unkstrcp->field_8[0], a7, a8,
+              2097152, 1, bckt_idx);
+        } else
+        if ((mapblk->flags & 0x04) != 0)
+        {
+          add_textruredquad_to_polypool(pos_x, i, unkstrcp->field_8[0], a7, a8,
+              2097152, 0, bckt_idx);
+        } else
+        {
+          add_lgttextrdquad_to_polypool(pos_x, i, unkstrcp->field_8[0], a7, a7, a8,
+              lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
+        }
+      }
+    }
+
+    // If there are still some solid cubes higher than tc
+    if (((col->bitfileds & 0x0E) != 0) && (col->solidmask > (1 << tc)))
+    {
+        // Find any top cube separated by empty space
+        for (;tc < COLUMN_STACK_HEIGHT; tc++)
+        {
+            if (col->cubes[tc] != 0)
+              break;
+            y -= delta_y;
+        }
+
+        for (;tc < COLUMN_STACK_HEIGHT; tc++)
+        {
+            if (col->cubes[tc] == 0)
+              break;
+            y -= delta_y;
+            unkstrcp = &game.struc_D8C7[col->cubes[tc]];
+            if (*a9 > y)
+            {
+              add_lgttextrdquad_to_polypool(pos_x, y, unkstrcp->texture_0[cube_itm], a7, delta_y, 0,
+                  lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
+            }
+        }
+        if (unkstrcp != NULL)
+        {
+          i = y - a7;
+          if (*a9 > i)
+          {
+            add_lgttextrdquad_to_polypool(pos_x, i, unkstrcp->field_8[0], a7, a7, a8,
+                lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
+          }
+        }
+    }
+
 }
 
 void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, long w, long h, long qx, long qy)
@@ -1705,6 +1938,7 @@ void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, lo
   long slb_x,slb_y;
   long point_a,point_b,delta;
   long i;
+  SYNCDBG(16,"Starting");
   store_engine_window(&ewnd,1);
   point_a = (((GetMouseX() - ewnd.x) << 8) - qx) << 8;
   point_b = (((GetMouseY() - ewnd.y) << 8) - qy) << 8;
@@ -1918,7 +2152,8 @@ void draw_frontview_engine(struct Camera *cam)
   long pos_x,pos_y;
   long stl_x,stl_y;
   long lim_x,lim_y;
-  unsigned long laaa;
+  long cam_x,cam_y;
+  long long laaa,lbbb;
   long i;
   SYNCDBG(9,"Starting");
   player = get_my_player();
@@ -1936,37 +2171,47 @@ void draw_frontview_engine(struct Camera *cam)
   store_engine_window(&ewnd,1);
   setup_engine_window(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
   qdrant = ((unsigned int)(cam->orient_a + 256) >> 9) & 0x03;
-  laaa = 32 * cam->field_17 / 256;
+  laaa = (32 * cam->field_17) / 256;
   w = (ewnd.width << 16) / laaa >> 1;
   h = (ewnd.height << 16) / laaa >> 1;
+  cam_x = cam->mappos.x.val;
+  cam_y = cam->mappos.y.val;
   switch (qdrant)
   {
   case 0:
-      px = (cam->mappos.x.val - w) >> 8;
-      py = (cam->mappos.y.val - h) >> 8;
-      qx = (ewnd.width << 7)  - (laaa * (long)(cam->mappos.x.val - (px << 8)) >> 8);
-      qy = (ewnd.height << 7) - (laaa * (long)(cam->mappos.y.val - (py << 8)) >> 8);
+      px = ((cam_x - w) >> 8);
+      py = ((cam_y - h) >> 8);
+      lbbb = cam_x - (px << 8);
+      qx = (ewnd.width << 7)  - ((laaa * lbbb) >> 8);
+      lbbb = cam_y - (py << 8);
+      qy = (ewnd.height << 7) - ((laaa * lbbb) >> 8);
       break;
   case 1:
-      px = (cam->mappos.x.val + h) >> 8;
-      py = (cam->mappos.y.val - w) >> 8;
-      qx = (ewnd.width << 7)  - (laaa * (long)(cam->mappos.y.val - (py << 8)) >> 8);
-      qy = (ewnd.height << 7) - (laaa * (long)((px << 8) - cam->mappos.x.val) >> 8);
+      px = ((cam_x + h) >> 8);
+      py = ((cam_y - w) >> 8);
+      lbbb = cam_y - (py << 8);
+      qx = (ewnd.width << 7)  - ((laaa * lbbb) >> 8);
+      lbbb = (px << 8) - cam_x;
+      qy = (ewnd.height << 7) - ((laaa * lbbb) >> 8);
       px--;
       break;
   case 2:
-      px = ((cam->mappos.x.val + w) >> 8) + 1;
-      py = (cam->mappos.y.val + h) >> 8;
-      qx = (ewnd.width << 7)  - (laaa * (long)((px << 8) - cam->mappos.x.val) >> 8);
-      qy = (ewnd.height << 7) - (laaa * (long)((py << 8) - cam->mappos.y.val) >> 8);
+      px = ((cam_x + w) >> 8) + 1;
+      py = ((cam_y + h) >> 8);
+      lbbb = (px << 8) - cam_x;
+      qx = (ewnd.width << 7)  - ((laaa * lbbb) >> 8);
+      lbbb = (py << 8) - cam_y;
+      qy = (ewnd.height << 7) - ((laaa * lbbb) >> 8);
       px--;
       py--;
       break;
   case 3:
-      px = (cam->mappos.x.val - h) >> 8;
-      py = ((cam->mappos.y.val + w) >> 8) + 1;
-      qx = (ewnd.width << 7)  - (long)(laaa * ((py << 8) - cam->mappos.y.val) >> 8);
-      qy = (ewnd.height << 7) - (long)(laaa * (cam->mappos.x.val - (px << 8)) >> 8);
+      px = ((cam_x - h) >> 8);
+      py = ((cam_y + w) >> 8) + 1;
+      lbbb = (py << 8) - cam_y;
+      qx = (ewnd.width << 7)  - ((laaa * lbbb) >> 8);
+      lbbb = cam_x - (px << 8);
+      qy = (ewnd.height << 7) - ((laaa * lbbb) >> 8);
       py--;
       break;
   default:
@@ -1989,37 +2234,34 @@ void draw_frontview_engine(struct Camera *cam)
   py += y_step1[qdrant] * h;
   lim_x = ewnd.width << 8;
   lim_y = -laaa;
-  pos_x = qx;
-  //SYNCDBG(9,"Range (%ld,%ld) to (%ld,%ld), quadrant %d",px,py,qx,qy,(int)qdrant);
-  while (pos_x < lim_x)
+  SYNCDBG(19,"Range (%ld,%ld) to (%ld,%ld), quadrant %d",px,py,qx,qy,(int)qdrant);
+  for (pos_x=qx; pos_x < lim_x; pos_x += laaa)
   {
     i = (ewnd.height << 8);
+    // Initialize the stl_? which will be swept by second loop
     if (x_step1[qdrant] != 0)
       stl_x = px;
     else
       stl_y = py;
-    pos_y = qy;
-    while (pos_y > lim_y)
+    for (pos_y=qy; pos_y > lim_y; pos_y -= laaa)
     {
         map = get_map_block_at(stl_x, stl_y);
         if (!map_block_invalid(map))
         {
-            if (map->data & 0x7FF)
+            if (get_mapblk_column_index(map) > 0)
             {
-              draw_element(map, game.field_46157[get_subtile_number(stl_x,stl_y)], stl_x, stl_y, pos_x, pos_y, laaa, qdrant, &i);
-              if ( subtile_revealed(stl_x, stl_y, player->id_number) )
-              {
+                draw_element(map, game.field_46157[get_subtile_number(stl_x,stl_y)], stl_x, stl_y, pos_x, pos_y, laaa, qdrant, &i);
+            }
+            if ( subtile_revealed(stl_x, stl_y, player->id_number) )
+            {
                 draw_frontview_things_on_element(map, cam);
-              }
             }
         }
         stl_x -= x_step1[qdrant];
         stl_y -= y_step1[qdrant];
-        pos_y -= laaa;
     }
     stl_x += x_step2[qdrant];
     stl_y += y_step2[qdrant];
-    pos_x += laaa;
   }
 
   display_fast_drawlist(cam);

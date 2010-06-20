@@ -5739,7 +5739,7 @@ void zoom_from_map(void)
 void setup_engine_window(long x, long y, long width, long height)
 {
   struct PlayerInfo *player;
-  SYNCDBG(6,"Starting");
+  SYNCDBG(6,"Starting for size (%ld,%ld) at (%ld,%ld)",width,height,x,y);
   player=get_my_player();
   if (game.numfield_C & 0x20)
   {
@@ -10499,12 +10499,13 @@ unsigned long convert_td_iso(unsigned long n)
   return n;
 }
 
-void set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char a6, unsigned char a7)
+void set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char start_frame, unsigned char a7)
 {
-  //_DK_set_thing_draw(thing, a2, a3, a4, a5, a6, a7);
   unsigned long i;
+  //_DK_set_thing_draw(thing, a2, a3, a4, a5, start_frame, a7); return;
   thing->field_44 = convert_td_iso(a2);
-  thing->field_50 = (a7 << 2) ^ ((a7 << 2) ^ thing->field_50) & 0x03;
+  thing->field_50 &= 0x03;
+  thing->field_50 |= (a7 << 2);
   thing->field_49 = keepersprite_frames(thing->field_44);
   if (a3 != -1)
   {
@@ -10516,22 +10517,22 @@ void set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, cha
   }
   if (a5 != -1)
   {
-    thing->field_4F ^= (thing->field_4F ^ (a5 << 6)) & 0x40;
+    set_flag_byte(&thing->field_4F, 0x40, a5);
   }
-  if (a6 == -2)
+  if (start_frame == -2)
   {
     i = keepersprite_frames(thing->field_44) - 1;
     thing->field_48 = i;
     thing->field_40 = i << 8;
   } else
-  if (a6 == -1)
+  if (start_frame == -1)
   {
     i = ACTION_RANDOM(thing->field_49);
     thing->field_48 = i;
     thing->field_40 = i << 8;
   } else
   {
-    i = a6;
+    i = start_frame;
     thing->field_48 = i;
     thing->field_40 = i << 8;
   }

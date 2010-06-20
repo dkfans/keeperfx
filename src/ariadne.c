@@ -527,9 +527,9 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
     return k;
 }
 
-long triangle_route_do_bak(long a1, long a2, long *a3, long *a4)
+long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
 {
-    return _DK_triangle_route_do_bak(a1, a2, a3, a4);
+    return _DK_triangle_route_do_bak(ttriA, ttriB, route, routecost);
 }
 
 long ma_triangle_route(long ttriA, long ttriB, long *routecost)

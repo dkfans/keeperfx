@@ -520,6 +520,7 @@
  0001:00063FD0       create_effect_element
  0001:00064350       create_trap
  0001:00064520       create_door
+ 0001:000646D0       create_dead_creature
  0001:00064880       create_effect_generator
  0001:00064C80       reinit_tagged_blocks_for_player
  0001:00064DE0       check_and_auto_fix_stats
@@ -1038,6 +1039,11 @@
  0001:000C01E0       setup_move_off_lava
  0001:000C0360       creature_escaping_death
  0001:000C0380       cause_creature_death
+ 0001:000C08B0       thing_death_flesh_explosion
+ 0001:000C0990       thing_death_ice_explosion
+ 0001:000C0A70       thing_death_gas_and_flesh_explosion
+ 0001:000C0B80       thing_death_smoke_explosion
+ 0001:000C0C40       destroy_creature_and_create_corpse
  0001:000C0D90       control_creature_as_passenger
  0001:000C0E40       control_creature_as_controller
  0001:000C10F0       create_and_control_creature_as_controller

@@ -156,7 +156,10 @@ unsigned char keepersprite_frames(unsigned short n)
 {
   unsigned long i;
   if (n >= CREATURE_FRAMELIST_LENGTH)
+  {
+      ERRORLOG("Frame %d out of range",(int)n);
       n = 0;
+  }
   i = creature_list[n];
   return creature_table[i].field_9;
 }

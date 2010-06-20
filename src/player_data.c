@@ -75,6 +75,9 @@ TbBool players_are_enemies(long plyr1_idx, long plyr2_idx)
     // Player can't be his own enemy
     if (plyr1_idx == plyr2_idx)
         return false;
+    // And neutral player can't be enemy
+    if ((plyr1_idx == game.neutral_player_num) || (plyr2_idx == game.neutral_player_num))
+        return false;
     player1 = get_player(plyr1_idx);
     player2 = get_player(plyr2_idx);
     // Inactive or invalid players are not enemies
