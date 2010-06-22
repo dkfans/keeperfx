@@ -34,6 +34,7 @@
 #include "spworker_stack.h"
 #include "map_events.h"
 #include "power_hand.h"
+#include "gui_topmsg.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -812,6 +813,7 @@ long get_creature_gui_job(const struct Thing *thing)
     } else
     {
       WARNLOG("Creature of breed %d has invalid state type(%ld)!",(int)thing->model,state_type);
+      erstat_inc(ESE_BadCreatrState);
       return state_type_to_gui_state[0];
     }
 }
@@ -2970,6 +2972,7 @@ short good_drops_gold(struct Thing *thing)
     {
         ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
         set_start_state(thing);
+        erstat_inc(ESE_BadCreatrState);
         return false;
     }
     return _DK_good_drops_gold(thing);
@@ -2998,6 +3001,7 @@ short good_leave_through_exit_door(struct Thing *thing)
     {
         ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
         set_start_state(thing);
+        erstat_inc(ESE_BadCreatrState);
         return false;
     }
     //return _DK_good_leave_through_exit_door(thing);
@@ -3022,6 +3026,7 @@ short good_returns_to_start(struct Thing *thing)
     {
         ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
         set_start_state(thing);
+        erstat_inc(ESE_BadCreatrState);
         return false;
     }
     return _DK_good_returns_to_start(thing);
@@ -3036,6 +3041,7 @@ short good_wait_in_exit_door(struct Thing *thing)
     {
         ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
         set_start_state(thing);
+        erstat_inc(ESE_BadCreatrState);
         return false;
     }
     //return _DK_good_wait_in_exit_door(thing);
@@ -3138,6 +3144,7 @@ short imp_doing_nothing(struct Thing *thing)
     {
         ERRORLOG("Non digger thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
         set_start_state(thing);
+        erstat_inc(ESE_BadCreatrState);
         return 0;
     }
     cctrl = creature_control_get_from_thing(thing);
@@ -3773,6 +3780,7 @@ TbBool remove_creature_from_work_room(struct Thing *thing)
     {
         WARNLOG("Creature had invalid room index");
         cctrl->field_7E = 0;
+        erstat_inc(ESE_BadCreatrState);
         return false;
     }
     if (room->field_10 > 0)

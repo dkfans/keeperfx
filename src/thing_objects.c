@@ -24,6 +24,7 @@
 #include "bflib_sound.h"
 #include "map_data.h"
 #include "map_columns.h"
+#include "gui_topmsg.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -218,7 +219,7 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
   if (!i_can_allocate_free_thing_structure(1))
   {
       ERRORDBG(3,"Cannot create object model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
-      thing_create_errors++;
+      erstat_inc(ESE_NoFreeThings);
       return NULL;
   }
   LbMemorySet(&ilight, 0, sizeof(struct InitLight));

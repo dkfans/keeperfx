@@ -25,12 +25,13 @@
 
 #include "gui_draw.h"
 #include "kjm_input.h"
+#include "gui_topmsg.h"
 #include "frontend.h"
-#include "keeperfx.hpp"
 #include "thing_objects.h"
 #include "dungeon_data.h"
 #include "config_creature.h"
 #include "config_terrain.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {

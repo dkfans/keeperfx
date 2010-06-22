@@ -99,6 +99,7 @@ obj/game_merge.o \
 obj/game_saves.o \
 obj/gui_draw.o \
 obj/gui_tooltips.o \
+obj/gui_topmsg.o \
 obj/kjm_input.o \
 obj/lens_api.o \
 obj/lens_flyeye.o \

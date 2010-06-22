@@ -25,6 +25,7 @@
 #include "thing_objects.h"
 #include "thing_navigate.h"
 #include "thing_stats.h"
+#include "gui_topmsg.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -561,6 +562,7 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
     if ( !i_can_allocate_free_room_structure() )
     {
         ERRORLOG("Cannot allocate any more rooms.");
+        erstat_inc(ESE_NoFreeRooms);
         return NULL;
     }
     room = allocate_free_room_structure();

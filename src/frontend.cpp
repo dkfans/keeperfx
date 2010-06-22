@@ -7203,12 +7203,12 @@ void frontnet_session_update(void)
     if (net_session_index_active != -1)
     {
         if ((net_session_index_active >= net_number_of_sessions)
-          || (net_session[net_session_index_active]->field_0 != net_session_index_active_id))
+          || (!net_session[net_session_index_active]->joinable))
         {
           net_session_index_active = -1;
           for (i=0; i < net_number_of_sessions; i++)
           {
-            if ( net_session[i]->field_0 == net_session_index_active_id)
+            if (net_session[i]->joinable)
             {
               net_session_index_active = i;
               break;

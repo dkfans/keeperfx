@@ -73,6 +73,7 @@
 #include "magic.h"
 #include "power_hand.h"
 #include "game_merge.h"
+#include "gui_topmsg.h"
 #include "ariadne.h"
 
 int test_variable;
@@ -174,9 +175,6 @@ struct KeycodeString eastegg_jlw_codes = {
 struct KeycodeString eastegg_skeksis_codes = {
     {KC_S,KC_K,KC_E,KC_K,KC_S,KC_I,KC_S,KC_UNASSIGNED}, 7,
 };
-
-char onscreen_msg_text[255]="";
-int onscreen_msg_turns = 0;
 
 const char *sound_fname = "sound.dat";
 const char *speech_fname = "speech.dat";
@@ -652,29 +650,6 @@ DLLIMPORT extern HINSTANCE _DK_hInstance;
 #ifdef __cplusplus
 }
 #endif
-
-short show_onscreen_msg_va(int nturns, const char *fmt_str, va_list arg)
-{
-  vsprintf(onscreen_msg_text, fmt_str, arg);
-  SYNCMSG("Onscreen message: %s",onscreen_msg_text);
-  onscreen_msg_turns = nturns;
-  return 1;
-}
-
-short is_onscreen_msg_visible(void)
-{
-  return (onscreen_msg_turns > 0);
-}
-
-short show_onscreen_msg(int nturns, const char *fmt_str, ...)
-{
-    short result;
-    va_list val;
-    va_start(val, fmt_str);
-    result=show_onscreen_msg_va(nturns, fmt_str, val);
-    va_end(val);
-    return result;
-}
 
 void fade_in(void)
 {
@@ -2431,9 +2406,129 @@ short update_creature_movements(struct Thing *thing)
     return ((cctrl->pos_BB.x.val != 0) || (cctrl->pos_BB.y.val != 0) || (cctrl->pos_BB.z.val != 0));
 }
 
-struct Thing *create_thing(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4)
+struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner)
 {
-  return _DK_create_thing(pos, a1, a2, a3, a4);
+    struct ShotStats *shotstat;
+    struct InitLight ilght;
+    struct Thing *thing;
+    if ( !i_can_allocate_free_thing_structure(1) )
+    {
+        ERRORDBG(3,"Cannot create shot %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+        erstat_inc(ESE_NoFreeThings);
+        return NULL;
+    }
+    memset(&ilght, 0, sizeof(struct InitLight));
+    shotstat = &shot_stats[model];
+    thing = allocate_free_thing_structure(1);
+    thing->field_9 = game.play_gameturn;
+    thing->class_id = TCls_Shot;
+    thing->model = model;
+    memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
+    thing->field_1D = thing->index;
+    thing->owner = owner;
+    thing->field_22 = shotstat->field_D;
+    thing->field_20 = shotstat->field_F;
+    thing->field_21 = shotstat->field_10;
+    thing->field_23 = shotstat->field_11;
+    thing->field_24 = shotstat->field_12;
+    thing->field_25 ^= (thing->field_25 ^ 8 * shotstat->field_13) & 8;
+    set_thing_draw(thing, shotstat->numfield_0, 256, shotstat->numfield_2, 0, 0, 2);
+    thing->field_4F ^= (thing->field_4F ^ 0x02 * shotstat->field_6) & 0x02;
+    thing->field_4F ^= thing->field_4F ^ (thing->field_4F ^ 0x10 * shotstat->field_8) & 0x30;
+    thing->field_4F ^= (thing->field_4F ^ shotstat->field_7) & 0x01;
+    thing->field_56 = shotstat->field_9;
+    thing->field_58 = shotstat->field_B;
+    thing->field_5A = shotstat->field_9;
+    thing->field_5C = shotstat->field_B;
+    thing->word_13 = shotstat->damage;
+    thing->health = shotstat->health;
+    if (shotstat->field_50)
+    {
+        memcpy(&ilght.mappos,&thing->mappos,sizeof(struct Coord3d));
+        ilght.field_0 = shotstat->field_50;
+        ilght.field_2 = shotstat->field_52;
+        ilght.field_11 = 1;
+        ilght.field_3 = shotstat->field_53;;
+        thing->field_62 = light_create_light(&ilght);
+        if (thing->field_62 == 0) {
+          ERRORLOG("Cannot allocate dynamic light to shot");
+        }
+    }
+    place_thing_in_mapwho(thing);
+    add_thing_to_list(thing, &game.thing_lists[1]);
+    return thing;
+}
+
+struct Thing *create_cave_in(struct Coord3d *pos, unsigned short a2, unsigned short owner)
+{
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    if ( !i_can_allocate_free_thing_structure(1) )
+    {
+        ERRORDBG(3,"Cannot create cave in %d for player %d. There are too many things allocated.",(int)a2,(int)owner);
+        erstat_inc(ESE_NoFreeThings);
+        return NULL;
+    }
+    thing = allocate_free_thing_structure(1);
+    thing->class_id = TCls_CaveIn;
+    thing->model = 0;
+    thing->field_1D = thing->index;
+    memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
+    thing->owner = owner;
+    thing->field_9 = game.play_gameturn;
+    thing->word_15 = game.magic_stats[7].time;
+    thing->byte_13 = pos->x.stl.num;
+    thing->byte_14 = pos->y.stl.num;
+    thing->byte_17 = a2;
+    thing->health = game.magic_stats[7].time;
+    if (owner != game.neutral_player_num)
+    {
+        dungeon = get_dungeon(owner);
+        dungeon->field_EA0 = thing->word_15;
+    }
+    add_thing_to_list(thing, &game.thing_lists[10]);
+    place_thing_in_mapwho(thing);
+    return thing;
+}
+
+struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short model, unsigned short owner, long a4)
+{
+    struct Thing *thing;
+    //return _DK_create_thing(pos, tngclass, model, owner, a4);
+    thing = NULL;
+    switch (tngclass)
+    {
+    case TCls_Object:
+        thing = create_object(pos, model, owner, a4);
+        break;
+    case TCls_Shot:
+        thing = create_shot(pos, model, owner);
+        break;
+    case TCls_EffectElem:
+        thing = create_effect_element(pos, model, owner);
+        break;
+    case TCls_DeadCreature:
+        thing = create_dead_creature(pos, model, 1, owner, 0);
+        break;
+    case TCls_Creature:
+        thing = create_creature(pos, model, owner);
+        break;
+    case TCls_Effect:
+        thing = create_effect(pos, model, owner);
+        break;
+    case TCls_Trap:
+        thing = create_trap(pos, model, owner);
+        break;
+    case TCls_AmbientSnd:
+        thing = create_ambient_sound(pos, model, owner);
+        break;
+    case TCls_CaveIn:
+        thing = create_cave_in(pos, model, owner);
+        break;
+    default:
+        break;
+    }
+    return thing;
 }
 
 unsigned long setup_move_off_lava(struct Thing *thing)
@@ -5213,8 +5308,9 @@ struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short model, un
   struct Thing *thing;
   if ( !i_can_allocate_free_thing_structure(1) )
   {
-    ERRORLOG("Cannot create ambient sound because there are too many fucking things allocated.");
-    return NULL;
+      ERRORDBG(3,"Cannot create ambient sound %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+      erstat_inc(ESE_NoFreeThings);
+      return NULL;
   }
   thing = allocate_free_thing_structure(1);
   thing->class_id = TCls_AmbientSnd;
@@ -6030,14 +6126,14 @@ TbBool create_random_hero_creature(long x, long y, PlayerNumber owner, long max_
   thing = create_creature(&pos, i, owner);
   if (thing_is_invalid(thing))
   {
-    ERRORLOG("Cannot create hero creature type %ld at (%ld,%ld)",i,x,y);
+    ERRORLOG("Cannot create player %d hero model %ld at (%ld,%ld)",(int)owner,i,x,y);
     return false;
   }
   pos.z.val = get_thing_height_at(thing, &pos);
   if (thing_in_wall_at(thing, &pos))
   {
     delete_thing_structure(thing, 0);
-    ERRORLOG("Hero creature type %ld at (%ld,%ld) deleted because is in wall",i,x,y);
+    ERRORLOG("Hero model %ld at (%ld,%ld) deleted because is in wall",i,x,y);
     return false;
   }
   thing->mappos.x.val = pos.x.val;
@@ -6158,6 +6254,7 @@ void reinit_level_after_load(void)
   init_animating_texture_maps();
   init_gui();
   reset_gui_based_on_player_mode();
+  erstats_clear();
   player = get_my_player();
   reinit_tagged_blocks_for_player(player->id_number);
   restore_computer_player_after_load();
@@ -8637,12 +8734,6 @@ void update(void)
   update_all_players_cameras();
   update_player_sounds();
   game.field_14EA4B = 0;
-  // Display an error if any things were not created in this game turn
-  if (thing_create_errors > 0)
-  {
-      ERRORLOG("Creating %lu things failed, because there are too many allocated.",thing_create_errors);
-      thing_create_errors = 0;
-  }
   SYNCDBG(6,"Finished");
 }
 
@@ -10371,39 +10462,6 @@ TbBool keeper_wait_for_screen_focus(void)
   return false;
 }
 
-/**
- * Draws the crucial warning messages on screen.
- * Requires the screen to be locked before.
- */
-short draw_onscreen_direct_messages(void)
-{
-  unsigned int msg_pos;
-  SYNCDBG(5,"Starting");
-  // Display in-game message for debug purposes
-  if (onscreen_msg_turns > 0)
-  {
-      if ( LbScreenIsLocked() )
-        LbTextDraw(260/pixel_size, 0/pixel_size, onscreen_msg_text);
-      onscreen_msg_turns--;
-  }
-  msg_pos = 200;
-  if ((game.system_flags & GSF_NetGameNoSync) != 0)
-  {
-      ERRORLOG("OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
-      if ( LbScreenIsLocked() )
-        LbTextDraw(300/pixel_size, msg_pos/pixel_size, "OUT OF SYNC");
-      msg_pos += 20;
-  }
-  if ((game.system_flags & GSF_NetSeedNoSync) != 0)
-  {
-      ERRORLOG("SEED OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
-      if ( LbScreenIsLocked() )
-        LbTextDraw(300/pixel_size, msg_pos/pixel_size, "SEED OUT OF SYNC");
-      msg_pos += 20;
-  }
-  return 1;
-}
-
 void process_sound_heap(void)
 {
     _DK_process_sound_heap();
@@ -11210,6 +11268,7 @@ void init_level(void)
   start_rooms = &game.rooms[1];
   end_rooms = &game.rooms[ROOMS_COUNT];
 
+  erstats_clear();
   init_dungeons();
   preload_script(get_selected_level_number());
   load_map_file(get_selected_level_number());

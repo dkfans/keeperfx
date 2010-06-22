@@ -36,8 +36,9 @@
 #include "thing_navigate.h"
 #include "lens_api.h"
 #include "light_data.h"
-#include "keeperfx.hpp"
+#include "gui_topmsg.h"
 #include "frontend.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1010,7 +1011,8 @@ struct Thing *create_dead_creature(struct Coord3d *pos, unsigned short model, un
     //return _DK_create_dead_creature(pos, model, a1, owner, explevel);
     if (!i_can_allocate_free_thing_structure(1))
     {
-        ERRORLOG("Cannot create dead creature because there are too many things allocated.");
+        ERRORDBG(3,"Cannot create dead creature model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+        erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
     thing = allocate_free_thing_structure(1);
@@ -1707,7 +1709,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
       {
           project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 20);
       }
-      shot = create_thing(&pos2, 2, shot_kind, firing->owner, -1);
+      shot = create_thing(&pos2, TCls_Shot, shot_kind, firing->owner, -1);
       if (thing_is_invalid(shot))
         return;
       if (shot_kind == 12)
@@ -1721,7 +1723,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
     case 7:
       if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 768))
         project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 4);
-      shot = create_thing(&pos2, 2, shot_kind, firing->owner, -1);
+      shot = create_thing(&pos2, TCls_Shot, shot_kind, firing->owner, -1);
       if (thing_is_invalid(shot))
         return;
       draw_flame_breath(&pos1, &pos2, 96, 2);
@@ -1732,7 +1734,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
     case 13:
       for (i=0; i < 32; i++)
       {
-        tmptng = create_thing(&pos1, 2, shot_kind, firing->owner, -1);
+        tmptng = create_thing(&pos1, TCls_Shot, shot_kind, firing->owner, -1);
         if (thing_is_invalid(tmptng))
           break;
         shot = tmptng;
@@ -1750,7 +1752,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
       }
       break;
     default:
-      shot = create_thing(&pos1, 2, shot_kind, firing->owner, -1);
+      shot = create_thing(&pos1, TCls_Shot, shot_kind, firing->owner, -1);
       if (thing_is_invalid(shot))
         return;
       shot->field_52 = angle_xy;
@@ -2087,10 +2089,16 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
     struct Thing *crtng;
     long i;
     crstat = creature_stats_get(model);
-    if (!i_can_allocate_free_control_structure() || !i_can_allocate_free_thing_structure(1))
+    if (!i_can_allocate_free_thing_structure(1))
     {
-        ERRORDBG(3,"Cannot create creature breed %d for player %d. There are too many creatures allocated.",(int)model,(int)owner);
-        thing_create_errors++;
+        ERRORDBG(3,"Cannot create breed %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+        erstat_inc(ESE_NoFreeThings);
+        return NULL;
+    }
+    if (!i_can_allocate_free_control_structure())
+    {
+        ERRORDBG(3,"Cannot create breed %d for player %d. There are too many creatures allocated.",(int)model,(int)owner);
+        erstat_inc(ESE_NoFreeCreatrs);
         return NULL;
     }
     crtng = allocate_free_thing_structure(1);
