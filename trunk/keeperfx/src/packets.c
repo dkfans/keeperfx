@@ -55,6 +55,7 @@
 #include "thing_stats.h"
 #include "magic.h"
 #include "light_data.h"
+#include "gui_topmsg.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

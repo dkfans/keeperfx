@@ -27,6 +27,7 @@
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "globals.h"
+#include "gui_topmsg.h"
 #include "keeperfx.hpp"
 
 #include <string.h>

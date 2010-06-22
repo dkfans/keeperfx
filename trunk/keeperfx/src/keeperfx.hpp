@@ -1207,8 +1207,6 @@ short save_settings(void);
 void setup_engine_window(long x1, long y1, long x2, long y2);
 void store_engine_window(struct TbGraphicsWindow *ewnd,int divider);
 void load_engine_window(struct TbGraphicsWindow *ewnd);
-short show_onscreen_msg(int nturns, const char *fmt_str, ...);
-short is_onscreen_msg_visible(void);
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
 void set_engine_view(struct PlayerInfo *player, long val);
 unsigned char find_first_battle_of_mine(unsigned char idx);

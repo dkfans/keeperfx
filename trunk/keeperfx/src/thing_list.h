@@ -42,11 +42,12 @@ enum ThingClass {
     TCls_EffectElem   =  3,
     TCls_DeadCreature =  4,
     TCls_Creature     =  5,
+    TCls_Effect       =  6,
     TCls_EffectGen    =  7,
     TCls_Trap         =  8,
     TCls_Door         =  9,
     TCls_AmbientSnd   = 12,
-//    TCls_CaveIn       =  x,
+    TCls_CaveIn       = 13,
 };
 
 
