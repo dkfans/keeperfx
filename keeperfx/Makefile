@@ -80,6 +80,7 @@ obj/engine_camera.o \
 obj/engine_lenses.o \
 obj/front_landview.o \
 obj/gui_tooltips.o \
+obj/gui_topmsg.o \
 obj/thing_creature.o \
 obj/slab_data.o \
 obj/room_data.o \

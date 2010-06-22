@@ -37,6 +37,7 @@
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "gui_tooltips.h"
+#include "gui_topmsg.h"
 #include "power_hand.h"
 #include "keeperfx.hpp"
 

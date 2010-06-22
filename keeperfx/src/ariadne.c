@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "thing_navigate.h"
+#include "gui_topmsg.h"
 #include "keeperfx.hpp"
 
 #define EDGEFIT_LEN           64
@@ -251,6 +252,7 @@ unsigned long fits_thro(long tri_idx, long ormask_idx)
   if (tri_idx >= TRIANLGLES_COUNT)
   {
       ERRORLOG("triangles overflow");
+      erstat_inc(ESE_NoFreeTriangls);
       return 0;
   }
   if (ormask_idx >= EDGEOR_COUNT)
@@ -529,7 +531,95 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
 
 long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
 {
-    return _DK_triangle_route_do_bak(ttriA, ttriB, route, routecost);
+    struct Triangle *tri;
+    long ttriH1,ttriH2;
+    long mvcost,navrule;
+    long i,k,n;
+    NAVIDBG(19,"Starting");
+    //return _DK_triangle_route_do_bak(ttriA, ttriB, route, routecost);
+    tags_init();
+    if ((ix_Border < 0) || (ix_Border >= BORDER_LENGTH))
+    {
+        ERRORLOG("Border overflow");
+        ix_Border = BORDER_LENGTH-1;
+    }
+    for (i = ix_Border; i > 0; i--)
+    {
+        n = Border[i];
+        if ((n < 0) || (n >= TRIANLGLES_COUNT))
+        {
+            ERRORLOG("Tags overflow");
+            continue;
+        }
+        Tags[n] = tag_current;
+    }
+
+    heap_end = 0;
+    navitree_add(ttriB, ttriB, 1);
+    while (ttriA != Heap[1])
+    {
+        if (heap_end == 0)
+            break;
+        ttriH1 = heap_remove();
+        if ( heap_end )
+        {
+            ttriH2 = Heap[1];
+            if (Heap[1] == ttriA)
+              break;
+            heap_remove();
+        } else
+        {
+            ttriH2 = -1;
+        }
+        while ( 1 )
+        {
+            tri = &Triangles[ttriH1];
+            n = 0;
+            for (i = 0; i < 3; i++)
+            {
+              k = tri->field_6[i];
+              if (tag_current != Tags[k])
+              {
+                if ( fits_thro(ttriH1, n) )
+                {
+                    navrule = nav_rulesA2B(Triangles[ttriH1].field_C, Triangles[k].field_C);
+                    if ( navrule )
+                    {
+                        mvcost = cost_to_start(k);
+                      if (navrule == 2)
+                          mvcost *= 16;
+                      navitree_add(k,ttriH1,mvcost);
+                    }
+                }
+              }
+              n++;
+            }
+            if (ttriH2 == -1)
+              break;
+            ttriH1 = ttriH2;
+            ttriH2 = -1;
+        }
+    }
+
+    NAVIDBG(19,"Nearly finished");
+    if (heap_end == 0)
+        return -1;
+    n = ttriA;
+    k = 0;
+    while ( 1 )
+    {
+        if (k > TRIANLGLES_COUNT)
+        {
+            ERRORLOG("Navigation tree looped");
+            return 0;
+        }
+        route[k] = n;
+        if (n == ttriB)
+            break;
+        k++;
+        n = tree_dad[n];
+    }
+    return k;
 }
 
 long ma_triangle_route(long ttriA, long ttriB, long *routecost)

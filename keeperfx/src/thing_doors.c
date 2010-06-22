@@ -24,6 +24,7 @@
 #include "thing_objects.h"
 #include "thing_list.h"
 #include "ariadne.h"
+#include "gui_topmsg.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
