@@ -125,17 +125,17 @@ A: To switch resolutions during the game, press Alt+R.
    then the video mode used for higher resolution is probably
    not supported by your video card/driver. In that case,
    change the resolution config line in KEEPERFX.CFG into:
-  INGAME_RES=MODE_320_200_8 MODE_640_480_8
+  INGAME_RES=320x200x8 640x480x8
    You may also try other resolutions, but those over 640x480
    may be unstable.
 
 Q: Game stops when loading a map. LOG file says:
      Error: setup_screen_mode: Unable to setup screen resolution
-            MODE_640_400_8 (mode 10) 
+            640x400x8 (mode 10) 
 A: The problem is that your drivers can't support 640x400 mode.
    Change the resolution config lines in KEEPERFX.CFG into:
-  FRONTEND_RES=MODE_640_480_8 MODE_640_480_8 MODE_640_480_8
-  INGAME_RES=MODE_640_480_8
+  FRONTEND_RES=640x480x8 640x480x8 640x480x8
+  INGAME_RES=640x480x8
 
 Q: The game doesn't run. LOG file says:
      Error: setup_strings_data: Strings file couldn't be loaded
@@ -166,10 +166,12 @@ FRONTEND_RES
 
 INGAME_RES
   Allows you to select up to five in-game resolutions.
-  Valid modes are: MODE_320_200_8, MODE_320_240_8,
-   MODE_512_384_8, MODE_640_400_8, MODE_640_480_8,
-   MODE_800_600_8, MODE_1024_768_8, MODE_1280_1024_8,
-   MODE_1600_1200_8.
+  Resolution has the form of WIDTHxHEIGHTxBPP.
+  Standard modes are: 320x200x8, 320x240x8, 512x384x8,
+   640x400x8, 640x480x8, 800x600x8, 1024x768x8,
+   1280x1024x8, 1600x1200x8. Different modes (ie.
+   widescreen) may be used too, if only they are
+   supported by your graphics card and video driver.
   You can switch between those resolutions during the
    gameplay by pressing Alt+R. Modes over 640x480 are
    experimental, and not completely stable.

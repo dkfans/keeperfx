@@ -27,40 +27,8 @@
 #include "bflib_keybrd.h"
 
 /******************************************************************************/
-// Global variables
-struct ScreenModeInfo lbScreenModeInfo[]={
-
-    {   0,   0, 0,0,   0x0,"MODE_INVALID"},
-    { 320, 200, 8,0,   0x0,"MODE_320_200_8"},
-    { 320, 200,16,0,   0x0,"MODE_320_200_16"},
-    { 320, 200,24,0,   0x0,"MODE_320_200_24"},
-    { 320, 240, 8,0,   0x0,"MODE_320_240_8"},
-    { 320, 240,16,0,   0x0,"MODE_320_240_16"},
-    { 320, 240,24,0,   0x0,"MODE_320_240_24"},
-    { 512, 384, 8,0,   0x0,"MODE_512_384_8"},
-    { 512, 384,16,0,   0x0,"MODE_512_384_16"},
-    { 512, 384,24,0,0x0100,"MODE_512_384_24"},
-    { 640, 400, 8,0,   0x0,"MODE_640_400_8"},
-    { 640, 400,16,0,   0x0,"MODE_640_400_16"},
-    { 640, 400,24,0,0x0101,"MODE_640_400_24"},
-    { 640, 480, 8,0,   0x0,"MODE_640_480_8"},
-    { 640, 480,16,0,   0x0,"MODE_640_480_16"},
-    { 640, 480,24,0,0x0103,"MODE_640_480_24"},
-    { 800, 600, 8,0,   0x0,"MODE_800_600_8"},
-    { 800, 600,16,0,   0x0,"MODE_800_600_16"},
-    { 800, 600,24,0,0x0105,"MODE_800_600_24"},
-    {1024, 768, 8,0,   0x0,"MODE_1024_768_8"},
-    {1024, 768,16,0,   0x0,"MODE_1024_768_16"},
-    {1024, 768,24,0,0x0107,"MODE_1024_768_24"},
-    {1280,1024, 8,0,   0x0,"MODE_1280_1024_8"},
-    {1280,1024,16,0,   0x0,"MODE_1280_1024_16"},
-    {1280,1024,24,0,   0x0,"MODE_1280_1024_24"},
-    {1600,1200, 8,0,   0x0,"MODE_1600_1200_8"},
-    {1600,1200,16,0,   0x0,"MODE_1600_1200_16"},
-    {1600,1200,24,0,   0x0,"MODE_1600_1200_24"},
-    {   0,   0, 0,0,   0x0,"MODE_INVALID"},
-};
-typedef struct ScreenModeInfo TbScreenModeInfo;
+#define SCREEN_MODES_COUNT 40
+extern TbScreenModeInfo lbScreenModeInfo[SCREEN_MODES_COUNT];
 
 HRESULT lbDDRval = DD_OK;
 volatile int lbWait = 0;
@@ -721,6 +689,8 @@ bool TDDrawSdk::restore_palettes(void)
   return result;
 }
 
+/** Wait for vertical blanking interval.
+ */
 void TDDrawSdk::wait_vbi(void)
 {
   BOOL bIsInVB;
@@ -1283,12 +1253,10 @@ bool TDDrawSdk::remove_sdk_window(void)
 
 TbScreenModeInfo *TDDrawSdk::get_mode_info(unsigned short mode)
 {
-  int maxmode=sizeof(lbScreenModeInfo)/sizeof(TbScreenModeInfo);
-  if (mode < maxmode)
-    return &lbScreenModeInfo[mode];
-  return &lbScreenModeInfo[0];
+  return LbScreenGetModeInfo(mode);
 }
 
+/*
 TbScreenMode TDDrawSdk::get_mode_info_by_str(char *str)
 {
   int maxmode=sizeof(lbScreenModeInfo)/sizeof(TbScreenModeInfo);
@@ -1300,5 +1268,5 @@ TbScreenMode TDDrawSdk::get_mode_info_by_str(char *str)
   }
   return Lb_SCREEN_MODE_INVALID;
 }
-
+*/
 /******************************************************************************/

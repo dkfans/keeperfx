@@ -5868,7 +5868,7 @@ void setup_engine_window(long x, long y, long width, long height)
   player->engine_window_height = height;
 }
 
-void store_engine_window(struct TbGraphicsWindow *ewnd,int divider)
+void store_engine_window(TbGraphicsWindow *ewnd,int divider)
 {
   struct PlayerInfo *player;
   player=get_my_player();
@@ -5887,7 +5887,7 @@ void store_engine_window(struct TbGraphicsWindow *ewnd,int divider)
   }
 }
 
-void load_engine_window(struct TbGraphicsWindow *ewnd)
+void load_engine_window(TbGraphicsWindow *ewnd)
 {
   struct PlayerInfo *player;
   player=get_my_player();
@@ -9561,7 +9561,7 @@ void draw_whole_status_panel(void)
 void redraw_creature_view(void)
 {
   SYNCDBG(6,"Starting");
-  struct TbGraphicsWindow ewnd;
+  TbGraphicsWindow ewnd;
   struct PlayerInfo *player;
   struct Thing *thing;
   //_DK_redraw_creature_view(); return;
@@ -9666,7 +9666,7 @@ void redraw_isometric_view(void)
 {
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
-  struct TbGraphicsWindow ewnd;
+  TbGraphicsWindow ewnd;
   struct Coord3d pos;
   SYNCDBG(6,"Starting");
   //_DK_redraw_isometric_view(); return;
@@ -10057,8 +10057,8 @@ void update_blocks_pointed(void)
 
 void engine(struct Camera *cam)
 {
-  struct TbGraphicsWindow grwnd;
-  struct TbGraphicsWindow ewnd;
+  TbGraphicsWindow grwnd;
+  TbGraphicsWindow ewnd;
   unsigned short flg_mem;
   struct PlayerInfo *player;
 
@@ -12161,8 +12161,9 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
   short retval;
   retval=0;
   LbErrorLogSetup("/", log_file_name, 5);
-  LbSetTitle(PROGRAM_NAME);
   LbTimerInit();
+  LbScreenInitialize();
+  LbSetTitle(PROGRAM_NAME);
   LbSetIcon(1);
   srand(LbTimerClock());
 
