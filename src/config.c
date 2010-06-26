@@ -539,7 +539,7 @@ short load_configuration(void)
           for (i=0; i<3; i++)
           {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-              k = LbRecogniseVideoModeString(word_buf);
+              k = LbRegisterVideoModeString(word_buf);
             else
               k = -1;
             if (k<=0)
@@ -567,7 +567,7 @@ short load_configuration(void)
           {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = LbRecogniseVideoModeString(word_buf);
+              k = LbRegisterVideoModeString(word_buf);
               if (k > 0)
                 set_game_vidmode(i,k);
               else

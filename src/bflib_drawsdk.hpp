@@ -73,7 +73,9 @@ class TDDrawSdk : public TDDrawBaseClass {
     // Nonvirtual methods
     static HRESULT CALLBACK screen_mode_callback(LPDDSURFACEDESC lpDDSurf, LPVOID lpContext);
     static TbScreenModeInfo *get_mode_info(unsigned short mode);
+/*
     static TbScreenMode get_mode_info_by_str(char *str);
+*/
     bool setup_direct_draw(void);
     bool reset_direct_draw(void);
     bool setup_dds_double_video(void);

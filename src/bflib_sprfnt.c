@@ -644,7 +644,7 @@ long text_string_height(const char *text)
 
 TbBool LbTextDraw(int posx, int posy, const char *text)
 {
-  struct TbGraphicsWindow grwnd;
+  TbGraphicsWindow grwnd;
   long count;
   long justifyx,justifyy;
   long startx,starty;
