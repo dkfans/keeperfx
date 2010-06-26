@@ -1972,7 +1972,7 @@ unsigned short find_next_annoyed_creature(unsigned char a1, unsigned short a2)
 
 void draw_creature_view(struct Thing *thing)
 {
-  struct TbGraphicsWindow grwnd;
+  TbGraphicsWindow grwnd;
   struct PlayerInfo *player;
   long grscr_w,grscr_h;
   unsigned char *wscr_cp;

@@ -9,7 +9,7 @@
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     11 Feb 2008 - 28 Nov 2009
+ * @date     11 Feb 2008 - 26 Jun 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ extern "C" {
 
 typedef unsigned char TbPixel;
 
+/** Standard video modes, registered by LbScreenInitialize(). */
 enum ScreenMode {
     Lb_SCREEN_MODE_INVALID      = 0x00,
     Lb_SCREEN_MODE_320_200_8    = 0x01,
@@ -69,7 +70,8 @@ enum ScreenMode {
     Lb_SCREEN_MODE_1600_1200_24 = 0x1B,
 };
 
-typedef enum ScreenMode TbScreenMode;
+typedef unsigned short TbScreenMode;
+typedef long TbScreenCoord;
 
 enum TbPaletteFadeFlag {
     Lb_PALETTE_FADE_OPEN   = 0,
@@ -83,20 +85,27 @@ enum TbDrawFlags {
     Lb_TEXT_HALIGN_JUSTIFY = 0x0200,
 };
 
-struct TbGraphicsWindow {
+struct GraphicsWindow {
     long x;
     long y;
     long width;
     long height;
 };
+typedef struct GraphicsWindow TbGraphicsWindow;
 
 struct ScreenModeInfo {
-          unsigned short Width;
-          unsigned short Height;
-          unsigned short BitsPerPixel;
-          int Available;//bool
-          long VideoMode;
-          char Desc[23];
+    /** Hardware driver screen width. */
+    TbScreenCoord Width;
+    /** Hardware driver screen height. */
+    TbScreenCoord Height;
+    /** Hardware driver color depth. */
+    unsigned short BitsPerPixel;
+    /** Is the mode currently available for use. */
+    int Available;//bool
+    /** Video mode flags. */
+    long VideoFlags;
+    /** Text description of the mode. */
+    char Desc[23];
 };
 typedef struct ScreenModeInfo TbScreenModeInfo;
 
@@ -142,8 +151,8 @@ struct DisplayStruct {
         uchar DrawColour;
         uchar *Palette;
 };
-
 typedef struct DisplayStruct TbDisplayStruct;
+
 struct SSurface;
 typedef struct SSurface TSurface;
 
@@ -170,9 +179,9 @@ DLLIMPORT unsigned char _DK_to_pal[PALETTE_SIZE];
 #define to_pal _DK_to_pal
 DLLIMPORT long _DK_fade_count;
 #define fade_count _DK_fade_count
-DLLIMPORT struct TbGraphicsWindow _DK_lbTextJustifyWindow;
+DLLIMPORT TbGraphicsWindow _DK_lbTextJustifyWindow;
 #define lbTextJustifyWindow _DK_lbTextJustifyWindow
-DLLIMPORT struct TbGraphicsWindow _DK_lbTextClipWindow;
+DLLIMPORT TbGraphicsWindow _DK_lbTextClipWindow;
 #define lbTextClipWindow _DK_lbTextClipWindow
 /*
 extern unsigned char *palette;
@@ -188,32 +197,47 @@ extern volatile int lbUserQuit;
 extern volatile TbBool lbScreenInitialised;
 extern volatile TbBool lbUseSdk;
 /******************************************************************************/
+TbResult LbScreenInitialize(void);
+TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
+    unsigned char *palette, short buffers_count, TbBool wscreen_vid);
+TbResult LbScreenReset(void);
+
+TbResult LbScreenFindVideoModes(void);
+TbBool LbScreenIsModeAvailable(TbScreenMode mode);
+TbScreenMode LbRecogniseVideoModeString(const char *desc);
+TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreenCoord height,
+    unsigned short bpp, unsigned long flags);
+TbScreenMode LbRegisterVideoModeString(const char *desc);
+TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode);
+
+TbScreenCoord LbGraphicsScreenWidth(void);
+TbScreenCoord LbGraphicsScreenHeight(void);
+
 TbResult LbScreenLock(void);
 TbResult LbScreenUnlock(void);
 TbBool LbScreenIsLocked(void);
+
 TbResult LbScreenSwap(void);
 TbResult LbScreenClear(TbPixel colour);
-TbBool LbWindowsControl(void);
+TbResult LbScreenWaitVbi(void);
+
 long LbPaletteFade(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
 TbResult LbPaletteStopOpenFade(void);
-TbResult LbScreenWaitVbi(void);
-TbResult LbScreenSetup(TbScreenMode mode, unsigned int width, unsigned int height,
-    unsigned char *palette, short buffers_count, TbBool wscreen_vid);
 TbResult LbPaletteSet(unsigned char *palette);
 TbResult LbPaletteGet(unsigned char *palette);
-void LbSetIcon(unsigned short nicon);
-TbResult LbScreenReset(void);
-TbResult LbScreenStoreGraphicsWindow(struct TbGraphicsWindow *grwnd);
-TbResult LbScreenLoadGraphicsWindow(struct TbGraphicsWindow *grwnd);
-void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
-TbScreenModeInfo *LbScreenGetModeInfo(unsigned short mode);
-TbScreenMode LbRecogniseVideoModeString(char *str);
-TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height);
-TbBool LbScreenIsModeAvailable(TbScreenMode mode);
-TbBool LbIsActive(void);
 TbPixel LbPaletteFindColour(unsigned char *pal, unsigned char r, unsigned char g, unsigned char b);
-TbResult LbScreenFindVideoModes(void);
+
+TbResult LbScreenStoreGraphicsWindow(TbGraphicsWindow *grwnd);
+TbResult LbScreenLoadGraphicsWindow(TbGraphicsWindow *grwnd);
+TbResult LbScreenSetGraphicsWindow(TbScreenCoord x, TbScreenCoord y,
+    TbScreenCoord width, TbScreenCoord height);
+
 TbResult LbSetTitle(const char *title);
+TbResult LbSetIcon(unsigned short nicon);
+TbBool LbWindowsControl(void);
+TbBool LbIsActive(void);
+
+void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
 /*
 bool __fastcall LbVesaGetGran(TbScreenMode mode);
 int __fastcall LbVesaSetPage(short npage);

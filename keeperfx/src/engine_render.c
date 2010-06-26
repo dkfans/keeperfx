@@ -1931,7 +1931,7 @@ void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long 
 
 void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, long w, long h, long qx, long qy)
 {
-  struct TbGraphicsWindow ewnd;
+  TbGraphicsWindow ewnd;
   unsigned long mask;
   struct Map *map;
   long pos_x,pos_y;
@@ -2143,8 +2143,8 @@ void draw_frontview_things_on_element(struct Map *map, struct Camera *cam)
 void draw_frontview_engine(struct Camera *cam)
 {
   struct PlayerInfo *player;
-  struct TbGraphicsWindow grwnd;
-  struct TbGraphicsWindow ewnd;
+  TbGraphicsWindow grwnd;
+  TbGraphicsWindow ewnd;
   unsigned char qdrant;
   struct Map *map;
   long px,py,qx,qy;
