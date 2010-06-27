@@ -298,6 +298,7 @@ void terminate_thing_spell_effect(struct Thing *thing, long a2)
 long get_free_spell_slot(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
+    struct CastedSpellData *cspell;
     long ci,cval;
     long i,k;
     cctrl = creature_control_get_from_thing(thing);
@@ -305,13 +306,14 @@ long get_free_spell_slot(struct Thing *thing)
     ci = -1;
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
+        cspell = &cctrl->field_1D4[i];
         // If there's unused slot, return it immediately
-        if (cctrl->field_1D4[i].field_0 == 0)
+        if (cspell->spkind == 0)
         {
             return i;
         }
         // Otherwise, select the one making minimum damage
-        k = abs(cctrl->field_1D4[i].field_1);
+        k = abs(cspell->field_1);
         if (k < cval)
         {
             cval = k;
@@ -319,10 +321,12 @@ long get_free_spell_slot(struct Thing *thing)
         }
     }
     // Terminate the min damage effect and return its slot index
-    terminate_thing_spell_effect(thing, cctrl->field_1D4[ci].field_0);
+    cspell = &cctrl->field_1D4[ci];
+    terminate_thing_spell_effect(thing, cspell->spkind);
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
-        if (cctrl->field_1D4[i].field_0 == 0)
+        cspell = &cctrl->field_1D4[i];
+        if (cspell->spkind == 0)
         {
             return i;
         }
@@ -351,7 +355,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].spkind = spell_idx;
             cctrl->field_1D4[i].field_1 = splconf->duration;
             cctrl->field_AB |= 0x02;
             if ((thing->field_25 & 0x20) != 0)
@@ -366,7 +370,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-          cctrl->field_1D4[i].field_0 = spell_idx;
+          cctrl->field_1D4[i].spkind = spell_idx;
           cctrl->field_1D4[i].field_1 = game.magic_stats[12].power[spell_lev];
           n = 0;
           cctrl->spell_flags |= CSF_Armour;
@@ -401,7 +405,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].spkind = spell_idx;
             cctrl->field_1D4[i].field_1 = splconf->duration;
             cctrl->spell_flags |= CSF_Rebound;
         }
@@ -424,7 +428,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].spkind = spell_idx;
             cctrl->field_1D4[i].field_1 = game.magic_stats[13].power[spell_lev];
             cctrl->spell_flags |= CSF_Conceal;
             cctrl->field_AF = 0;
@@ -434,7 +438,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].spkind = spell_idx;
             cctrl->field_1D4[i].field_1 = splconf->duration;
             cctrl->field_AB |= 0x04;
         }
@@ -443,7 +447,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].spkind = spell_idx;
             cctrl->field_1D4[i].field_1 = game.magic_stats[11].power[spell_lev];
             cctrl->spell_flags |= CSF_Speed;
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
@@ -453,7 +457,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].spkind = spell_idx;
             cctrl->field_1D4[i].field_1 = splconf->duration;
             cctrl->spell_flags |= CSF_Slow;
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
@@ -463,7 +467,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].spkind = spell_idx;
             cctrl->field_1D4[i].field_1 = splconf->duration;
             cctrl->spell_flags |= CSF_Fly;
             thing->field_25 |= 0x20;
@@ -473,7 +477,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].spkind = spell_idx;
             cctrl->field_1D4[i].field_1 = splconf->duration;
             cctrl->spell_flags |= CSF_Sight;
         }
@@ -482,7 +486,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-          cctrl->field_1D4[i].field_0 = spell_idx;
+          cctrl->field_1D4[i].spkind = spell_idx;
           cctrl->field_1D4[i].field_1 = game.magic_stats[14].power[spell_lev];
           n = 0;
           cctrl->field_AD |= 0x01;
@@ -522,7 +526,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
             external_set_thing_state(thing, 120);
             cctrl->field_282 = 10;
             cctrl->field_AD |= 0x02;
-            cctrl->field_1D4[i].field_0 = spell_idx;
+            cctrl->field_1D4[i].spkind = spell_idx;
             cctrl->field_1D4[i].field_1 = game.magic_stats[15].power[spell_lev];
         }
         break;
@@ -616,7 +620,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell
     cctrl = creature_control_get_from_thing(thing);
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
-        if (cctrl->field_1D4[i].field_0 == spell_idx)
+        if (cctrl->field_1D4[i].spkind == spell_idx)
         {
             reapply_spell_effect_to_thing(thing, spell_idx, spell_lev, i);
             return;

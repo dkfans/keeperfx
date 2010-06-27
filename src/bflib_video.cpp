@@ -36,7 +36,7 @@ DLLIMPORT void _DK_copy_to_screen(unsigned char *srcbuf, unsigned long width, un
 // Global variables
 TbScreenModeInfo lbScreenModeInfo[SCREEN_MODES_COUNT];
 long lbScreenModeInfoNum = 0;
-/*={
+/* These are "standard" modes; they're now initiated in LbRegisterStandardVideoModes().
     {   0,   0, 0,0,   0x0,"MODE_INVALID"},
     { 320, 200, 8,0,   0x0,"MODE_320_200_8"},
     { 320, 200,16,0,   0x0,"MODE_320_200_16"},
@@ -66,7 +66,7 @@ long lbScreenModeInfoNum = 0;
     {1600,1200,16,0,   0x0,"MODE_1600_1200_16"},
     {1600,1200,24,0,   0x0,"MODE_1600_1200_24"},
     {   0,   0, 0,0,   0x0,"MODE_INVALID"},
-};*/
+*/
 
 volatile int lbUserQuit = 0;
 volatile TbBool lbScreenInitialised = false;
@@ -127,6 +127,24 @@ TbResult LbScreenClear(TbPixel colour)
 TbBool LbWindowsControl(void)
 {
   return (lbUserQuit < 1);
+}
+
+TbScreenMode LbScreenActiveMode(void)
+{
+    return lbDisplay.ScreenMode;
+}
+
+/** Color depth for the Graphics Screen.
+ *  Gives BPP of the graphics canvas buffer. This value
+ *  may differ from BPP used by Video Driver.
+ *
+ * @return Graphics canvas Bits Per Pixel, in bits.
+ */
+unsigned short LbGraphicsScreenBPP(void)
+{
+    TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+    // For DDraw, screen buffer BPP equals video mode BPP
+    return mdinfo->BitsPerPixel;
 }
 
 TbScreenCoord LbGraphicsScreenWidth(void)

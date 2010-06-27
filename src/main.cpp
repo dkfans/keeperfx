@@ -664,6 +664,12 @@ void fade_out(void)
 
 /**
  * Returns a value which decays around some epicenter, like blast damage.
+ *
+ * @param magnitude Magnitude in nearest whereabouts of the epicenter.
+ * @param decay_start Distance aftew which the magnitude starts decaying.
+ * @param decay_length Length of the decaying region.
+ * @param distance Distance at which we want to compute the value.
+ * @return Value at specified distane from epicenter.
  */
 long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance)
 {
@@ -814,6 +820,8 @@ void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4
     return;
   if (GetCurrentSoundMasterVolume() <= 0)
     return;
+  if (thing_is_invalid(thing))
+      return;
   rcpos.x.val = Receiver.pos_x;
   rcpos.y.val = Receiver.pos_y;
   rcpos.z.val = Receiver.pos_z;
@@ -5961,9 +5969,9 @@ short update_spell_overcharge(struct PlayerInfo *player, int spl_idx)
   return (i < SPELL_MAX_LEVEL);
 }
 
-long take_money_from_dungeon(short a1, long a2, unsigned char a3)
+long take_money_from_dungeon(PlayerNumber plyr_idx, long a2, unsigned char a3)
 {
-  return _DK_take_money_from_dungeon(a1, a2, a3);
+  return _DK_take_money_from_dungeon(plyr_idx, a2, a3);
 }
 
 void reset_gui_based_on_player_mode(void)

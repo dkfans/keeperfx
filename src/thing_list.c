@@ -534,6 +534,51 @@ TbBool knight_in_prison(void)
   return (creature_of_model_in_prison(6) > 0);
 }
 
+long electricity_affecting_area(struct Coord3d *pos, long immune_plyr_idx, long range, long max_damage)
+{
+  struct Thing *thing;
+  struct CreatureControl *cctrl;
+  unsigned long k;
+  long i;
+  long dist,damage,naffected;
+  naffected = 0;
+  i = game.thing_lists[0].index;
+  k = 0;
+  while (i != 0)
+  {
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
+    {
+      ERRORLOG("Jump to invalid thing detected");
+      break;
+    }
+    i = thing->next_of_class;
+    // Per-thing code
+    cctrl = creature_control_get_from_thing(thing);
+    if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
+    {
+        if (thing->owner != immune_plyr_idx)
+        {
+          if ((cctrl->spell_flags & 0x04) == 0)
+          {
+              dist = get_2d_box_distance(&thing->mappos, pos);
+              damage = get_radially_decaying_value(max_damage, range/2, range/2, dist);
+              apply_damage_to_thing_and_display_health(thing, damage, immune_plyr_idx);
+              naffected++;
+          }
+        }
+    }
+    // Per-thing code ends
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  return naffected;
+}
+
 long get_free_hero_gate_number(void)
 {
   struct Thing *thing;

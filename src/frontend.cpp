@@ -8,7 +8,7 @@
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
- * @date     10 Nov 2008 - 01 Feb 2009
+ * @date     10 Nov 2008 - 21 Apr 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -4668,14 +4668,14 @@ void frontend_load_continue_game(struct GuiButton *gbtn)
 
 TbBool fronttorture_draw(void)
 {
-  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(LbScreenActiveMode());
   struct TbSprite *spr;
   const int img_width = 640;
   const int img_height = 480;
   int w,h,m,i;
   int spx,spy;
   // Only 8bpp supported for now
-  if (mdinfo->BitsPerPixel != 8)
+  if (LbGraphicsScreenBPP() != 8)
     return false;
   w=0;
   h=0;
@@ -6688,11 +6688,11 @@ void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
   const int img_width = 640;
   const int img_height = 480;
   const unsigned char *srcbuf=frontend_background;
-  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(LbScreenActiveMode());
   int m;
   int spx,spy;
   // Only 8bpp supported for now
-  if (mdinfo->BitsPerPixel != 8)
+  if (LbGraphicsScreenBPP() != 8)
     return;
   if (rect_w == POS_AUTO)
     rect_w = mdinfo->Width-rect_x;
@@ -6730,11 +6730,11 @@ void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
     img_height = 480;
     srcbuf = hires_parchment;
   }
-  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(LbScreenActiveMode());
   int m;
   int spx,spy;
   // Only 8bpp supported for now
-  if (mdinfo->BitsPerPixel != 8)
+  if (LbGraphicsScreenBPP() != 8)
     return;
   if (rect_w == POS_AUTO)
     rect_w = mdinfo->Width-rect_x;

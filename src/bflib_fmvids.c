@@ -568,8 +568,8 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
       if (2*(long)k == animation.header.width)
       {
         wend--;
-        cbf += lbDisplay.GraphicsScreenWidth;
-        pbf += lbDisplay.GraphicsScreenWidth;
+        cbf += LbGraphicsScreenWidth();
+        pbf += LbGraphicsScreenWidth();
         continue;
       }
       if ( w > 0 )
@@ -656,8 +656,8 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
         }
       }
     }
-      cbuf += lbDisplay.GraphicsScreenWidth;
-      pbuf += lbDisplay.GraphicsScreenWidth;
+      cbuf += LbGraphicsScreenWidth();
+      pbuf += LbGraphicsScreenWidth();
   }
 
   if (animation.header.height+wend == 0)
@@ -711,8 +711,8 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
     }
     if ( wend != animation.header.width )
       break;
-    cbuf += lbDisplay.GraphicsScreenWidth;
-    pbuf += lbDisplay.GraphicsScreenWidth;
+    cbuf += LbGraphicsScreenWidth();
+    pbuf += LbGraphicsScreenWidth();
   }
 
   if (hend != 0)
@@ -731,8 +731,8 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
       }
       if ( wend != animation.header.width )
         break;
-      cbuf -= lbDisplay.GraphicsScreenWidth;
-      pbuf -= lbDisplay.GraphicsScreenWidth;
+      cbuf -= LbGraphicsScreenWidth();
+      pbuf -= LbGraphicsScreenWidth();
     }
     hdim = h - hend;
     blksize = animation.header.width * (long)hend;
@@ -830,8 +830,8 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
             }
           }
         }
-        cbuf += lbDisplay.GraphicsScreenWidth;
-        pbuf += lbDisplay.GraphicsScreenWidth;
+        cbuf += LbGraphicsScreenWidth();
+        pbuf += LbGraphicsScreenWidth();
     }
   } else
   {
@@ -1125,8 +1125,7 @@ TbBool anim_record_frame(unsigned char *screenbuf, unsigned char *palette)
 {
   if ((animation.field_0 & 0x01)==0)
     return false;
-  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
-  if (!anim_format_matches(MyScreenWidth/pixel_size,MyScreenHeight/pixel_size,mdinfo->BitsPerPixel))
+  if (!anim_format_matches(MyScreenWidth/pixel_size,MyScreenHeight/pixel_size,LbGraphicsScreenBPP()))
     return false;
   return anim_make_next_frame(screenbuf, palette);
 }
@@ -1136,8 +1135,7 @@ short anim_record(void)
     SYNCDBG(7,"Starting");
   //return _DK_anim_record();
   static char finalname[255];
-  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
-  if ( mdinfo->BitsPerPixel != 8 )
+  if (LbGraphicsScreenBPP() != 8)
   {
     ERRORLOG("Cannot record movie in non-8bit screen mode");
     return 0;

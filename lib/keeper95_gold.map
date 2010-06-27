@@ -300,6 +300,7 @@
  0001:000377E0       reset_player_mode
  0001:00037900       set_player_state
  0001:00037FF0       do_map_rotate_stuff
+ 0001:00038280       game_action
  0001:000394C0       mouse_is_over_small_map
  0001:000399A0       init_alpha_table
  0001:00039D60       LoadMcgaData
@@ -1067,6 +1068,7 @@
  0001:000C5230       get_enemy_dungeon_heart_creature_can_see
  0001:000C5340       can_thing_be_picked_up_by_player
  0001:000C5540       can_thing_be_picked_up2_by_player
+ 0001:000C5600       get_nearest_thing_for_slap
  0001:000C5750       get_nearest_thing_for_hand_or_slap
  0001:000C59A0       is_thing_passenger_controlled
  0001:000C5CD0       food_eaten_by_creature

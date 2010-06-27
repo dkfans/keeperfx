@@ -51,6 +51,7 @@ DLLIMPORT long _DK_prepare_thing_for_power_hand(unsigned short tng_idx, long ply
 DLLIMPORT void _DK_draw_mini_things_in_hand(long x, long y);
 DLLIMPORT void _DK_create_power_hand(unsigned char a1);
 DLLIMPORT struct Thing *_DK_get_nearest_thing_for_hand_or_slap(unsigned char a1, long a2, long a3);
+DLLIMPORT struct Thing *_DK_get_nearest_thing_for_slap(unsigned char plyr_idx, long x, long y);
 DLLIMPORT void _DK_process_things_in_dungeon_hand(void);
 DLLIMPORT long _DK_place_thing_in_power_hand(struct Thing *thing, long var);
 DLLIMPORT short _DK_dump_held_things_on_map(unsigned char a1, long a2, long a3, short a4);
@@ -417,6 +418,11 @@ void get_nearest_thing_for_hand_or_slap_on_map_block(long *near_distance, struct
       break;
     }
   }
+}
+
+struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y)
+{
+    return _DK_get_nearest_thing_for_slap(plyr_idx, x, y);
 }
 
 struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y)
