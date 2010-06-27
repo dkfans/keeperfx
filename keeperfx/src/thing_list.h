@@ -210,6 +210,7 @@ long count_player_list_creatures_of_model(long thing_idx, long model);
 long count_player_creatures_not_counting_to_total(long plyr_idx);
 TbBool knight_in_prison(void);
 struct Thing *find_nearest_enemy_creature(struct Thing *crtng);
+long electricity_affecting_area(struct Coord3d *pos, long immune_plyr_idx, long range, long max_damage);
 
 void update_things(void);
 

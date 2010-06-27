@@ -281,6 +281,7 @@ TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord
 TbBool create_task_magic_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num);
 TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long value);
 TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, long a2, long a3);
+long computer_able_to_use_magic(struct Computer2 *comp, long a2, long a3, long a4);
 long process_tasks(struct Computer2 *comp);
 /******************************************************************************/
 void setup_a_computer_player(unsigned short plyridx, long comp_model);

@@ -24,10 +24,14 @@
 #include "bflib_sound.h"
 
 #include "player_data.h"
+#include "player_instances.h"
 #include "dungeon_data.h"
 #include "thing_list.h"
 #include "game_merge.h"
 #include "power_specials.h"
+#include "power_hand.h"
+#include "thing_objects.h"
+#include "thing_effects.h"
 #include "thing_stats.h"
 #include "creature_control.h"
 #include "creature_states.h"
@@ -196,6 +200,37 @@ TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsign
   return can_cast;
 }
 
+TbBool pay_for_spell(PlayerNumber plyr_idx, long spkind, long splevel)
+{
+    struct Dungeon *dungeon;
+    struct MagicStats *magstat;
+    long price;
+    long i;
+    magstat = &game.magic_stats[spkind];
+    switch (spkind)
+    {
+    case 2: // Special price algorithm for "create imp" spell
+        dungeon = get_players_num_dungeon(plyr_idx);
+        i = dungeon->field_918 - dungeon->creature_sacrifice[23] + 1;
+        if (i < 1)
+          i = 1;
+        price = magstat->cost[splevel]*i/2;
+        break;
+    default:
+        price = magstat->cost[splevel];
+        break;
+    }
+    // Try to take money
+    if (take_money_from_dungeon(plyr_idx, price, 1) >= 0)
+    {
+        return true;
+    }
+    // If failed, say "you do not have enough gold"
+    if (is_my_player_number(plyr_idx))
+        output_message(87, 0, 1);
+    return false;
+}
+
 void magic_use_power_armageddon(unsigned int plridx)
 {
   SYNCDBG(6,"Starting");
@@ -247,19 +282,26 @@ void magic_use_power_disease(unsigned char a1, struct Thing *thing, long a3, lon
   _DK_magic_use_power_disease(a1, thing, a3, a4, a5);
 }
 
-void magic_use_power_destroy_walls(unsigned char a1, long a2, long a3, long a4)
+TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-  _DK_magic_use_power_destroy_walls(a1, a2, a3, a4);
+    if (!can_cast_spell_at_xy(plyr_idx, 16, stl_x, stl_y, 0))
+    {
+        if (is_my_player_number(plyr_idx))
+            play_non_3d_sample(119);
+        return Lb_OK;
+    }
+
+    _DK_magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, splevel);
+
+    return Lb_SUCCESS;
 }
 
-short magic_use_power_imp(unsigned short plyr_idx, unsigned short stl_x, unsigned short stl_y)
+short magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
     struct Dungeon *dungeon;
     struct Thing *thing;
     struct Thing *dnheart;
     struct Coord3d pos;
-    long cost;
-    long i;
     //return _DK_magic_use_power_imp(plyr_idx, x, y);
     if (!can_cast_spell_at_xy(plyr_idx, 2, stl_x, stl_y, 0)
      || !i_can_allocate_free_control_structure()
@@ -269,17 +311,11 @@ short magic_use_power_imp(unsigned short plyr_idx, unsigned short stl_x, unsigne
           play_non_3d_sample(119);
       return 1;
     }
-    dungeon = get_players_num_dungeon(plyr_idx);
-    i = dungeon->field_918 - dungeon->creature_sacrifice[23] + 1;
-    if (i < 1)
-      i = 1;
-    cost = game.magic_stats[2].cost[0]*i/2;
-    if (take_money_from_dungeon(plyr_idx, cost, 1) < 0)
+    if (!pay_for_spell(plyr_idx, 2, 0))
     {
-        if (is_my_player_number(plyr_idx))
-          output_message(87, 0, 1);
         return -1;
     }
+    dungeon = get_players_num_dungeon(plyr_idx);
     dnheart = thing_get(dungeon->dnheart_idx);
     pos.x.val = get_subtile_center_pos(stl_x);
     pos.y.val = get_subtile_center_pos(stl_y);
@@ -298,9 +334,27 @@ short magic_use_power_imp(unsigned short plyr_idx, unsigned short stl_x, unsigne
     return 1;
 }
 
-void magic_use_power_heal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
+TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-  _DK_magic_use_power_heal(a1, thing, a3, a4, a5);
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    //_DK_magic_use_power_heal(plyr_idx, thing, a3, a4, splevel);
+    crstat = creature_stats_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    // If the creature has full health, do nothing
+    if (thing->health >= compute_creature_max_health(crstat->health,cctrl->explevel))
+    {
+        return Lb_OK;
+    }
+    // If we can't afford the spell, fail
+    if (!pay_for_spell(plyr_idx, 8, splevel))
+    {
+        return Lb_FAIL;
+    }
+    // Apply spell effect
+    thing_play_sample(thing, 37, 100, 0, 3, 0, 2, 256);
+    apply_spell_effect_to_thing(thing, 7, splevel);
+    return Lb_SUCCESS;
 }
 
 void magic_use_power_conceal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
@@ -313,14 +367,114 @@ void magic_use_power_armour(unsigned char a1, struct Thing *thing, long a3, long
   _DK_magic_use_power_armour(a1, thing, a3, a4, a5);
 }
 
-void magic_use_power_speed(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
+long thing_affected_by_spell(struct Thing *thing, long spkind)
 {
-  _DK_magic_use_power_speed(a1, thing, a3, a4, a5);
+    struct CreatureControl *cctrl;
+    struct CastedSpellData *cspell;
+    long i;
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control");
+        return 0;
+    }
+    for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        cspell = &cctrl->field_1D4[i];
+        if (cspell->spkind == spkind)
+        {
+            return cspell->field_1;
+        }
+    }
+    return 0;
 }
 
-void magic_use_power_lightning(unsigned char a1, long a2, long a3, long a4)
+TbResult magic_use_power_speed(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-  _DK_magic_use_power_lightning(a1, a2, a3, a4);
+    //_DK_magic_use_power_speed(plyr_idx, thing, a3, a4, splevel);
+    if (thing_affected_by_spell(thing, 11))
+    {
+        return Lb_OK;
+    }
+    if (!pay_for_spell(plyr_idx, 11, splevel))
+    {
+        return Lb_FAIL;
+    }
+    thing_play_sample(thing, 38, 100, 0, 3, 0, 2, 256);
+    apply_spell_effect_to_thing(thing, 11, splevel);
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
+{
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    struct MagicStats *magstat;
+    struct ShotStats *shotstat;
+    struct Thing *shtng;
+    struct Thing *obtng;
+    struct Thing *efftng;
+    struct Coord3d pos;
+    long range,max_damage;
+    long i;
+    //_DK_magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel);
+    player = get_player(plyr_idx);
+    dungeon = get_dungeon(player->id_number);
+    pos.x.val = get_subtile_center_pos(stl_x);
+    pos.y.val = get_subtile_center_pos(stl_y);
+    pos.z.val = 0;
+    // make sure the spell level is correct
+    if (splevel >= MAGIC_OVERCHARGE_LEVELS)
+        splevel = MAGIC_OVERCHARGE_LEVELS-1;
+    if (splevel < 0)
+        splevel = 0;
+    // Check if we can cast that spell
+    if (!can_cast_spell_at_xy(plyr_idx, 10, stl_x, stl_y, 0))
+    {
+        // Make a rejection sound
+        if (is_my_player_number(plyr_idx))
+          play_non_3d_sample(119);
+        return Lb_OK;
+    }
+    // Pay for it
+    if (!pay_for_spell(plyr_idx, 10, splevel))
+    {
+        return Lb_FAIL;
+    }
+    // And cast it
+    shtng = create_shot(&pos, 16, plyr_idx);
+    if (!thing_is_invalid(shtng))
+    {
+        shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + 128;
+        shtng->byte_16 = 2;
+        shtng->field_19 = splevel;
+    }
+    magstat = &game.magic_stats[10];
+    shotstat = &shot_stats[16];
+    dungeon->field_EA4 = 256;
+    i = magstat->power[splevel];
+    max_damage = i * shotstat->damage;
+    range = (i << 8) / 2;
+    if (power_sight_explored(stl_x, stl_y, plyr_idx))
+        max_damage /= 4;
+    obtng = create_object(&pos, 124, plyr_idx, -1);
+    if (!thing_is_invalid(obtng))
+    {
+        obtng->byte_13 = splevel;
+        obtng->field_4F |= 0x01;
+    }
+    i = electricity_affecting_area(&pos, plyr_idx, range, max_damage);
+    SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld",i,range,max_damage);
+    if (!thing_is_invalid(shtng))
+    {
+        efftng = create_effect(&shtng->mappos, 49, shtng->owner);
+        if (!thing_is_invalid(efftng))
+        {
+            thing_play_sample(efftng, 55, 100, 0, 3, 0, 2, 256);
+        }
+    }
+    player->field_4E3 = game.play_gameturn;
+    return Lb_SUCCESS;
 }
 
 long magic_use_power_sight(unsigned char a1, long a2, long a3, long a4)
@@ -340,10 +494,49 @@ long magic_use_power_call_to_arms(unsigned char a1, long a2, long a3, long a4, l
 
 short magic_use_power_slap(unsigned short plyr_idx, unsigned short stl_x, unsigned short stl_y)
 {
-  return _DK_magic_use_power_slap(plyr_idx, stl_x, stl_y);
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    //return _DK_magic_use_power_slap(plyr_idx, stl_x, stl_y);
+    player = get_player(plyr_idx);
+    dungeon = get_dungeon(player->id_number);
+    if ((player->instance_num == 3) || (game.play_gameturn - dungeon->field_14AE <= 10))
+    {
+      return 0;
+    }
+    thing = get_nearest_thing_for_slap(plyr_idx, get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y));
+    if (thing_is_invalid(thing))
+    {
+      return 0;
+    }
+    player->field_43E = thing->index;
+    player->field_440 = thing->field_9;
+    set_player_instance(player, 3, 0);
+    dungeon->lvstats.num_slaps++;
+    return 0;
 }
 
+short magic_use_power_slap_thing(unsigned short plyr_idx, struct Thing *thing)
+{
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
 
+    player = get_player(plyr_idx);
+    dungeon = get_dungeon(player->id_number);
+    if ((player->instance_num == 3) || (game.play_gameturn - dungeon->field_14AE <= 10))
+    {
+      return 0;
+    }
+    if (thing_is_invalid(thing))
+    {
+      return 0;
+    }
+    player->field_43E = thing->index;
+    player->field_440 = thing->field_9;
+    set_player_instance(player, 3, 0);
+    dungeon->lvstats.num_slaps++;
+    return 0;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
