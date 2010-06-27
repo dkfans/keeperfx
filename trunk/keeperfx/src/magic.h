@@ -21,6 +21,8 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "map_data.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,20 +42,22 @@ struct Thing;
 void slap_creature(struct PlayerInfo *player, struct Thing *thing);
 TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsigned char stl_x, unsigned char stl_y, long a5);
 void update_power_sight_explored(struct PlayerInfo *player);
+TbBool pay_for_spell(PlayerNumber plyr_idx, long spkind, long splevel);
 
 void magic_use_power_chicken(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
 void magic_use_power_disease(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-void magic_use_power_destroy_walls(unsigned char a1, long a2, long a3, long a4);
-short magic_use_power_imp(unsigned short a1, unsigned short a2, unsigned short a3);
-void magic_use_power_heal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
+TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel);
+short magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel);
+TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel);
 void magic_use_power_conceal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
 void magic_use_power_armour(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-void magic_use_power_speed(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-void magic_use_power_lightning(unsigned char a1, long a2, long a3, long a4);
+TbResult magic_use_power_speed(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel);
+TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel);
 long magic_use_power_sight(unsigned char a1, long a2, long a3, long a4);
 void magic_use_power_cave_in(unsigned char a1, long a2, long a3, long a4);
 long magic_use_power_call_to_arms(unsigned char a1, long a2, long a3, long a4, long a5);
 short magic_use_power_slap(unsigned short plyr_idx, unsigned short stl_x, unsigned short stl_y);
+short magic_use_power_slap_thing(unsigned short plyr_idx, struct Thing *thing);
 void magic_use_power_hold_audience(unsigned char idx);
 void magic_use_power_armageddon(unsigned int plridx);
 short magic_use_power_obey(unsigned short plridx);

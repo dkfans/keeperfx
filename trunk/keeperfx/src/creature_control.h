@@ -64,7 +64,7 @@ enum CreatureSoundTypes {
 };
 
 struct CastedSpellData {
-    unsigned char field_0;
+    unsigned char spkind;
     short field_1;
     unsigned char field_3;
 };

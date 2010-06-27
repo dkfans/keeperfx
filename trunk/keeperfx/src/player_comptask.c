@@ -25,9 +25,11 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_memory.h"
+#include "bflib_sound.h"
 
 #include "config.h"
 #include "config_creature.h"
+#include "magic.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -131,6 +133,8 @@ DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long a2
 DLLIMPORT short _DK_fake_dump_held_creatures_on_map(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_fake_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT struct Thing *_DK_find_creature_to_be_placed_in_room(struct Computer2 *comp, struct Room **roomp);
+DLLIMPORT short _DK_game_action(char a1, unsigned short a2, unsigned short a3, unsigned short a4,
+ unsigned short a5, unsigned short a6, unsigned short a7);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -180,6 +184,187 @@ TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask)
       nxctask = &game.computer_task[i];
   }
   return false;
+}
+
+short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
+    unsigned short stl_x, unsigned short stl_y, unsigned short param1, unsigned short param2)
+{
+    //TODO: may hang if out of things
+    struct Dungeon *dungeon;
+    MapSlabCoord slb_x,slb_y;
+    struct Thing *thing;
+    long i,k;
+    struct SlabMap *slb;
+    struct Room *room;
+    struct Coord3d pos;
+    SYNCDBG(9,"Starting action %d",(int)gaction);
+    //return _DK_game_action(plyr_idx, gaction, a3, stl_x, stl_y, param1, param2);
+    dungeon = get_players_num_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon))
+      return 0;
+    slb_x = map_to_slab[stl_x];
+    slb_y = map_to_slab[stl_y];
+    switch (gaction)
+    {
+    case 1:
+        break;
+    case 2:
+        if (dungeon->magic_level[1] == 0)
+          break;
+        thing = thing_get(param1);
+        i = place_thing_in_power_hand(thing, plyr_idx);
+        if (i < 0)
+          return -1;
+        return 1;
+    case 3:
+        if (dungeon->magic_level[1] == 0)
+          break;
+        i = dump_held_things_on_map(plyr_idx, stl_x, stl_y, 0);
+        if (i < 0)
+          return -1;
+        return 1;
+    case 4:
+        if (dungeon->magic_level[2] == 0)
+          break;
+        i = magic_use_power_imp(plyr_idx, stl_x, stl_y);
+        return 1;
+    case 5:
+        if (dungeon->magic_level[4] == 0)
+          break;
+        i = magic_use_power_slap(plyr_idx, stl_x, stl_y);
+        return i;
+    case 6:
+        if (dungeon->magic_level[5] == 0)
+          break;
+        i = magic_use_power_sight(plyr_idx, stl_x, stl_y, a3);
+        return i;
+    case 7:
+        if (dungeon->magic_level[3] == 0)
+          break;
+        i = magic_use_power_obey(plyr_idx);
+        return 1;
+    case 8:
+        if (dungeon->magic_level[8] == 0)
+          break;
+        thing = thing_get(param1);
+        magic_use_power_heal(plyr_idx, thing, thing->mappos.x.stl.num,thing->mappos.y.stl.num, a3);
+        return 1;
+    case 9:
+        if (dungeon->magic_level[6] == 0)
+          break;
+        i = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, a3, 1);
+        return i;
+    case 10:
+        if (dungeon->magic_level[7] == 0)
+          break;
+        magic_use_power_cave_in(plyr_idx, stl_x, stl_y, a3);
+        return 1;
+    case 11:
+        turn_off_call_to_arms(plyr_idx);
+        return 1;
+    case 12:
+        dungeon->field_88C[0] = 0;
+        return 1;
+    case 13:
+    case 14:
+        slb = get_slabmap_block(slb_x, slb_y);
+        if ((slb->slab == 12) || (slb->slab == 13))
+        {
+            place_slab_type_on_map(10, stl_x, stl_y, plyr_idx, 0);
+            do_slab_efficiency_alteration(slb_x, slb_y);
+            i = 1;
+        } else
+        {
+            i = tag_blocks_for_digging_in_rectangle_around(3 * (stl_x / 3), 3 * (stl_y / 3), plyr_idx) > 0;
+        }
+        return i;
+    case 15:
+    case 16:
+        if (i_can_allocate_free_room_structure())
+        {
+            k = game.room_stats[param2].cost;
+            if (take_money_from_dungeon(plyr_idx, k, 1) < 0)
+            {
+                if (is_my_player_number(plyr_idx))
+                  output_message(87, 0, 1);
+                break;
+            }
+        }
+        room = place_room(plyr_idx, param2, stl_x, stl_y);
+        if (room_is_invalid(room))
+          break;
+        return room->index;
+    case 17:
+        dungeon->creature_tendencies = param1;
+        return 1;
+    case 18:
+        if (dungeon->trap_amount[param1] == 0)
+            break;
+        pos.x.stl.pos = 128;
+        pos.x.stl.num = 3 * (stl_x / 3) + 1;
+        pos.y.stl.pos = 128;
+        pos.y.stl.num = 3 * (stl_y / 3) + 1;
+        pos.z.val = 0;
+        pos.z.val = get_floor_height_at(&pos);
+        thing = create_trap(&pos, param1, plyr_idx);
+        if (remove_workshop_item(plyr_idx, 8, param1))
+          dungeon->lvstats.traps_used++;
+        dungeon->field_EA4 = 192;
+        if (is_my_player_number(plyr_idx))
+            play_non_3d_sample(117);
+        return 1;
+    case 19:
+        k = tag_cursor_blocks_place_door(plyr_idx, stl_x, stl_y);
+        i = packet_place_door(stl_x, stl_y, plyr_idx, param1, k);
+        return i;
+    case 20:
+        magic_use_power_lightning(plyr_idx, stl_x, stl_y, a3);
+        return 1;
+    case 21:
+        thing = thing_get(param1);
+        magic_use_power_speed(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
+        return 1;
+    case 22:
+        thing = thing_get(param1);
+        magic_use_power_armour(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
+        return 1;
+    case 23:
+        thing = thing_get(param1);
+        magic_use_power_conceal(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
+        return 1;
+    case 24:
+        magic_use_power_hold_audience(plyr_idx);
+        break;
+    case 25:
+        thing = thing_get(param1);
+        magic_use_power_disease(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
+        return 1;
+    case 26:
+        thing = thing_get(param1);
+        magic_use_power_chicken(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
+        return 1;
+    case 28:
+        if (dungeon->magic_level[4] == 0)
+          break;
+        thing = thing_get(param1);
+        i = magic_use_power_slap_thing(plyr_idx, thing);
+        return i;
+    default:
+        ERRORLOG("Unknown game action %d", (int)gaction);
+        break;
+    }
+    return 0;
+}
+
+long try_game_action(struct Computer2 *comp, char a2, unsigned short a3, unsigned short a4,
+ unsigned short a5, unsigned short a6, unsigned short a7, unsigned short a8)
+{
+  long result;
+  result = game_action(a2, a3, a4, a5, a6, a7, a8);
+  if (result > 0)
+    comp->field_10--;
+  SYNCDBG(19,"Returning %ld",result);
+  return result;
 }
 
 struct ComputerTask *get_task_in_progress(struct Computer2 *comp, long a2)
@@ -470,8 +655,31 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
 
 long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
 {
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    long i;
     SYNCDBG(9,"Starting");
-    return _DK_task_attack_magic(comp,ctask);
+    //return _DK_task_attack_magic(comp,ctask);
+    dungeon = comp->dungeon;
+    thing = thing_get(ctask->word_76);
+    if (thing_is_invalid(thing))
+    {
+        return 1;
+    }
+    i = ctask->field_7C;
+    ctask->field_7C--;
+    if ((i <= 0) || (thing->health <= 0))
+    {
+        remove_task(comp, ctask);
+        return 1;
+    }
+    if (computer_able_to_use_magic(comp, ctask->long_86, ctask->field_70, 1) != 1)
+      return 4;
+    i = try_game_action(comp, dungeon->field_E9F, ctask->field_80, ctask->field_70,
+        thing->mappos.x.stl.num, thing->mappos.y.stl.num, ctask->word_76, 0);
+    if (i <= 0)
+      return 4;
+    return 2;
 }
 
 long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctask)

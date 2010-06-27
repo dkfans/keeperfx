@@ -1144,6 +1144,7 @@
  0001:00026830       rotpers_standard
  0001:000269C0       rotpers_circular
  0001:00026B80       rotpers_fisheye
+ 0001:000C5600       get_nearest_thing_for_slap
  0001:000C5750       get_nearest_thing_for_hand_or_slap
  0001:00035F70       get_front_view_nonaction_inputs
  0001:00033C00       draw_engine_number
@@ -1783,3 +1784,4 @@
  0001:000C0A70       thing_death_gas_and_flesh_explosion
  0001:000C0B80       thing_death_smoke_explosion
  0001:000646D0       create_dead_creature
+ 0001:00038280       game_action
