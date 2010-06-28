@@ -68,6 +68,9 @@ DLLIMPORT long _DK_triangle_route_do_fwd(long a1, long a2, long *a3, long *a4);
 DLLIMPORT long _DK_triangle_route_do_bak(long a1, long a2, long *a3, long *a4);
 DLLIMPORT void _DK_ariadne_pull_out_waypoint(struct Thing *thing, struct Ariadne *arid, long a3, struct Coord3d *pos);
 DLLIMPORT long _DK_ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariadne *arid);
+DLLIMPORT long _DK_ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long a4, struct Coord3d *nextpos, unsigned char a5);
+DLLIMPORT long _DK_ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *arid);
+DLLIMPORT long _DK_ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *arid);
 DLLIMPORT void _DK_heap_down(long heapid);
 
 /******************************************************************************/
@@ -251,7 +254,7 @@ unsigned long fits_thro(long tri_idx, long ormask_idx)
 
   if (tri_idx >= TRIANLGLES_COUNT)
   {
-      ERRORLOG("triangles overflow");
+      ERRORDBG(5,"triangles overflow");
       erstat_inc(ESE_NoFreeTriangls);
       return 0;
   }
@@ -702,7 +705,7 @@ void ariadne_pull_out_waypoint(struct Thing *thing, struct Ariadne *arid, long a
 
 void ariadne_init_current_waypoint(struct Thing *thing, struct Ariadne *arid)
 {
-    ariadne_pull_out_waypoint(thing, arid, arid->field_28, &arid->field_C);
+    ariadne_pull_out_waypoint(thing, arid, arid->current_waypoint, &arid->field_C);
     arid->field_C.z.val = get_thing_height_at(thing, &arid->field_C);
     arid->field_62 = get_2d_distance(&thing->mappos, &arid->field_C);
 }
@@ -725,7 +728,7 @@ AriadneReturn ariadne_prepare_creature_route_target_reached(struct Thing *thing,
     arid->field_C.x.val = srcpos->x.val;
     arid->field_C.y.val = srcpos->y.val;
     arid->field_C.z.val = srcpos->z.val;
-    arid->field_28 = 0;
+    arid->current_waypoint = 0;
     arid->field_12.x.val = thing->mappos.x.val;
     arid->field_12.y.val = thing->mappos.y.val;
     arid->field_12.z.val = thing->mappos.z.val;
@@ -774,7 +777,7 @@ AriadneReturn ariadne_prepare_creature_route_to_target(struct Thing *thing, stru
         arid->waypoints[i].y.val = path.waypoints[k].y;
         k++;
     }
-    arid->field_28 = 0;
+    arid->current_waypoint = 0;
     arid->field_1E = a4;
     arid->field_12.x.val = thing->mappos.x.val;
     arid->field_12.y.val = thing->mappos.y.val;
@@ -809,10 +812,82 @@ AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coor
     return 0;
 }
 
-AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long a4, unsigned char a5)
+AriadneReturn ariadne_creature_get_next_waypoint(struct Thing *thing, struct Ariadne *arid)
 {
+    struct Coord3d pos;
+    // Make sure we didn't exceeded the stored waypoints count
+    if (arid->current_waypoint >= arid->stored_waypoints)
+    {
+      return 3;
+    }
+    // Note that the last condition assured us that we
+    // won't make overflow by this increase
+    arid->current_waypoint++;
+    if (arid->current_waypoint != arid->stored_waypoints)
+    {
+        // Init route to the new current waypoint
+        ariadne_init_current_waypoint(thing, arid);
+        ariadne_init_movement_to_current_waypoint(thing, arid);
+        return 0;
+    }
+    // We've reached the last waypoint
+    if (arid->stored_waypoints >= arid->total_waypoints)
+    {
+        return 1;
+    }
+    pos.x.val = arid->endpos.x.val;
+    pos.y.val = arid->endpos.y.val;
+    pos.z.val = arid->endpos.z.val;
+    return ariadne_initialise_creature_route(thing, &pos, arid->field_26, arid->field_1E);
+}
+
+TbBool ariadne_creature_reached_waypoint(struct Thing *thing, struct Ariadne *arid)
+{
+    return ariadne_creature_reached_position(thing, &arid->field_C);
+}
+/*
+long ariadne_push_position_against_wall(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2)
+{
+
+}
+
+long ariadne_creature_blocked_by_wall_at(struct Thing *thing, struct Coord3d *pos)
+{
+
+}
+
+AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, struct Ariadne *arid)
+{
+
+}
+*/
+
+AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *arid)
+{
+    return _DK_ariadne_update_state_on_line(thing, arid);
+}
+
+AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *arid)
+{
+    return _DK_ariadne_update_state_wallhug(thing, arid);
+}
+
+AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long a4, struct Coord3d *nextpos, unsigned char a5)
+{
+    return _DK_ariadne_get_next_position_for_route(thing, finalpos, a4, nextpos, a5);
+}
+
+AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *finalpos, struct Coord3d *nextpos, long a4, unsigned char a5)
+{
+    struct CreatureControl *cctrl;
     SYNCDBG(18,"Starting");
-    return _DK_creature_follow_route_to_using_gates(thing, pos1, pos2, a4, a5);
+    //return _DK_creature_follow_route_to_using_gates(thing, pos1, pos2, a4, a5);
+    if (game.field_14EA4B)
+    {
+        cctrl = creature_control_get_from_thing(thing);
+        cctrl->arid.field_23 = 1;
+    }
+    return ariadne_get_next_position_for_route(thing, finalpos, a4, nextpos, a5);
 }
 
 /**

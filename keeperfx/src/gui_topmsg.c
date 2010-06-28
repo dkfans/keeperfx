@@ -35,7 +35,7 @@ char onscreen_msg_text[255]="";
 int onscreen_msg_turns = 0;
 
 struct ErrorStatistics erstat[] = {
-    {0, 0, "Out of things"},
+    {0, 0, "Out of thing slots"},
     {0, 0, "Out of creatures"},
     {0, 0, "Out of triangles"},
     {0, 0, "Out of room slots"},
@@ -87,12 +87,19 @@ TbBool show_onscreen_msg(int nturns, const char *fmt_str, ...)
 TbBool erstat_check(void)
 {
     int stat_num,sdiff;
+    // Don't check more often than every 7 turns
+    if ((game.play_gameturn & 0x07) != 0)
+        return false;
     stat_num = last_checked_stat_num;
     sdiff = erstat[stat_num].n - erstat[stat_num].nprv;
     // Display an error if any things were not created in this game turn
     if (sdiff != 0)
     {
+#if (BFDEBUG_LEVEL > 0)
         show_onscreen_msg(game.num_fps,"%s, %ld occurrences",erstat[stat_num].msg,sdiff);
+#else
+        WARNLOG("%s, %ld occurrences",erstat[stat_num].msg,sdiff);
+#endif
         erstat[stat_num].nprv = erstat[stat_num].n;
     }
     last_checked_stat_num = (last_checked_stat_num+1) % (sizeof(erstat)/sizeof(erstat[0]));

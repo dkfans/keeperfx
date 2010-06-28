@@ -52,13 +52,19 @@ struct Ariadne { // sizeof = 102
   struct Coord3d field_12;
   unsigned char field_18[6];
   unsigned char field_1E;
-  unsigned char field_1F[7];
+  unsigned char field_1F[4];
+  unsigned char field_23;
+  unsigned char field_24[2];
   unsigned short field_26;
-  unsigned char field_28;
+    unsigned char current_waypoint;
     struct Coord2d waypoints[10];
-    unsigned char stored_waypoints;
+    unsigned char stored_waypoints; // offs = 0x51
     unsigned char total_waypoints;
-  unsigned char field_53[15];
+  unsigned char field_53[2];
+  short field_55;
+  unsigned char field_57[8];
+  unsigned char field_5F;
+  short field_60;
   unsigned long field_62;
 };
 
