@@ -1660,6 +1660,9 @@
  0001:0001A7A0       set_room_playing_ambient_sound
  0001:0007F7A0       ariadne_initialise_creature_route
  0001:0006E050       path_init8_wide
+ 0001:0007F9B0       ariadne_get_next_position_for_route
+ 0001:0007FF20       ariadne_update_state_on_line
+ 0001:00080110       ariadne_update_state_wallhug
  0001:000C2CA0       creature_can_navigate_to
  0001:00065B70       event_create_event_or_update_nearby_existing_event
  0001:000B69C0       find_nearest_room_for_thing_excluding_two_types
@@ -1785,3 +1788,5 @@
  0001:000C0B80       thing_death_smoke_explosion
  0001:000646D0       create_dead_creature
  0001:00038280       game_action
+ 0001:000CC0C0       creature_choose_random_destination_on_valid_adjacent_slab
+ 

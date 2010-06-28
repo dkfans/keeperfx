@@ -142,6 +142,11 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     return _DK_ceiling_partially_recompute_heights(sx, sy, ex, ey);
 }
 
+/*
+char point_in_map_is_solid_including_lava_check_ignoring_door(struct Coord3d *pos, struct Thing *thing)
+{
+
+}*/
 /******************************************************************************/
 #ifdef __cplusplus
 }
