@@ -40,7 +40,8 @@ DLLIMPORT long _DK_creature_turn_to_face_backwards(struct Thing *thing, struct C
 DLLIMPORT long _DK_creature_turn_to_face_angle(struct Thing *thing, long a2);
 DLLIMPORT unsigned char _DK_get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT void _DK_nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
-
+DLLIMPORT short _DK_setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char a4);
+DLLIMPORT short _DK_move_to_position(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -134,6 +135,7 @@ TbBool setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y
     struct CreatureControl *cctrl;
     struct Coord3d pos;
     SYNCDBG(18,"Starting");
+    //return _DK_setup_person_move_to_position(thing, stl_x, stl_y, a4);
     pos.x.stl.num = stl_x;
     pos.x.stl.pos = 128;
     pos.y.stl.num = stl_y;
@@ -287,7 +289,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, shor
     struct Coord3d nextpos;
     AriadneReturn follow_result;
     long i;
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18,"Starting to move thing %d into (%d,%d)",(int)thing->index,(int)pos->x.stl.num,(int)pos->y.stl.num);
     //return _DK_creature_move_to_using_gates(thing, pos, a3, a4, a5, backward);
     cctrl = creature_control_get_from_thing(thing);
     if ( backward )
@@ -296,7 +298,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, shor
       thing->field_52 = i & 0x7FF;
     }
     follow_result = creature_follow_route_to_using_gates(thing, pos, &nextpos, a3, a5);
-    SYNCDBG(18,"Route result: %d",(int)follow_result);
+    SYNCDBG(18,"Route result: %d, next pos (%d,%d)",(int)follow_result,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num);
     if ( backward )
     {
       i = (thing->field_52 + 1024);
@@ -330,8 +332,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, shor
         if ( creature_turn_to_face(thing, &nextpos) )
         {
           creature_set_speed(thing, 0);
-        }
-        else
+        } else
         {
           creature_set_speed(thing, a3);
           cctrl->field_2 |= 0x01;
@@ -351,12 +352,15 @@ short move_to_position(struct Thing *thing)
     struct StateInfo *stati;
     long move_result,state_result;
     long speed;
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18,"Starting for thing %d",(int)thing->index);
     //return _DK_move_to_position(thing);
     cctrl = creature_control_get_from_thing(thing);
     speed = cctrl->max_speed;
     if (speed >= 256)
+    {
+        WARNLOG("Walk speed clipped");
         speed = 256;
+    }
     state_result = 0;
     if (creature_instance_is_available(thing, 14)
      && creature_instance_has_reset(thing, 14)

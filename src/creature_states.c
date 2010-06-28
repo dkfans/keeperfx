@@ -231,6 +231,7 @@ DLLIMPORT long _DK_ranged_combat_move(struct Thing *thing, struct Thing *enmtng,
 DLLIMPORT long _DK_get_best_melee_offensive_weapon(struct Thing *thing, long a2);
 DLLIMPORT long _DK_melee_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4);
 DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
+DLLIMPORT short _DK_creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *thing);
 short arrive_at_alarm(struct Thing *thing);
@@ -1478,7 +1479,9 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
     long i,k,m,n;
     TbBool do_move;
     long x,y;
-    SYNCDBG(17,"Starting");
+    SYNCDBG(17,"Starting for thing %d",(long)thing->index);
+    //return _DK_creature_choose_random_destination_on_valid_adjacent_slab(thing);
+
     stl_x = thing->mappos.x.stl.num;
     stl_y = thing->mappos.y.stl.num;
 
@@ -1519,7 +1522,7 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
                   {
                       if (setup_person_move_to_position(thing, x, y, 0))
                       {
-                          SYNCDBG(8,"Moving to (%d,%d)",(int)x,(int)y);
+                          SYNCDBG(8,"Moving thing %d from (%d,%d) to (%d,%d)",(int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num,(int)x,(int)y);
                           return true;
                       }
                   }
@@ -1545,13 +1548,13 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
         {
           if (setup_person_move_to_position(thing, x, y, 0))
           {
-              SYNCDBG(8,"Moving to (%d,%d)",(int)x,(int)y);
+              SYNCDBG(8,"Moving thing %d from (%d,%d) to (%d,%d)",(int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num,(int)x,(int)y);
               return true;
           }
         }
         k = (k+1) % 9;
     }
-    SYNCDBG(8,"Moving failed");
+    SYNCDBG(8,"Moving thing %d from (%d,%d) failed",(int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
     return false;
 }
 
@@ -3151,9 +3154,13 @@ short imp_doing_nothing(struct Thing *thing)
     dungeon = get_dungeon(thing->owner);
     if (game.play_gameturn-cctrl->long_9A <= 1)
         return 1;
-    if (check_out_imp_last_did(thing) || check_out_available_imp_tasks(thing) || check_out_imp_tokes(thing))
+    if (check_out_imp_last_did(thing))
         return 1;
-    if ( creature_choose_random_destination_on_valid_adjacent_slab(thing) )
+    if (check_out_available_imp_tasks(thing))
+        return 1;
+    if (check_out_imp_tokes(thing))
+        return 1;
+    if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
     {
         thing->field_8 = CrSt_ImpDoingNothing;
         return 1;

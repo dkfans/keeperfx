@@ -561,6 +561,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     thing = get_nearest_thing_for_hand_or_slap(plyr_idx, x, y);
     if (!thing_is_invalid(thing))
     {
+      SYNCDBG(19,"Thing %d under hand at (%d,%d)",(int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
       if (player->hand_thing_idx == 0)
         create_power_hand(player->id_number);
       player->thing_under_hand = thing->index;

@@ -3136,7 +3136,10 @@ void gui_area_flash_cycle_button(struct GuiButton *gbtn)
 
 void gui_set_query(struct GuiButton *gbtn)
 {
-  _DK_gui_set_query(gbtn);
+  //_DK_gui_set_query(gbtn);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    set_players_packet_action(player, PckA_SetPlyrState, 12, 0, 0, 0);
 }
 
 void gui_area_payday_button(struct GuiButton *gbtn)

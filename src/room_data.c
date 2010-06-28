@@ -561,7 +561,7 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
   {
     if ( !i_can_allocate_free_room_structure() )
     {
-        ERRORLOG("Cannot allocate any more rooms.");
+        ERRORDBG(2,"Cannot allocate any more rooms.");
         erstat_inc(ESE_NoFreeRooms);
         return NULL;
     }
