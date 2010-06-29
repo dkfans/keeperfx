@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_math.h"
 #include "thing_navigate.h"
 #include "gui_topmsg.h"
 #include "keeperfx.hpp"
@@ -68,10 +69,13 @@ DLLIMPORT long _DK_triangle_route_do_fwd(long a1, long a2, long *a3, long *a4);
 DLLIMPORT long _DK_triangle_route_do_bak(long a1, long a2, long *a3, long *a4);
 DLLIMPORT void _DK_ariadne_pull_out_waypoint(struct Thing *thing, struct Ariadne *arid, long a3, struct Coord3d *pos);
 DLLIMPORT long _DK_ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariadne *arid);
-DLLIMPORT long _DK_ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long a4, struct Coord3d *nextpos, unsigned char a5);
-DLLIMPORT long _DK_ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *arid);
-DLLIMPORT long _DK_ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *arid);
+DLLIMPORT unsigned char _DK_ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long a4, struct Coord3d *nextpos, unsigned char a5);
+DLLIMPORT unsigned char _DK_ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *arid);
+DLLIMPORT unsigned char _DK_ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *arid);
 DLLIMPORT void _DK_heap_down(long heapid);
+DLLIMPORT long _DK_creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos);
+DLLIMPORT long _DK_ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid);
+DLLIMPORT unsigned char _DK_ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos);
 
 /******************************************************************************/
 DLLIMPORT unsigned char _DK_tag_current;
@@ -705,9 +709,9 @@ void ariadne_pull_out_waypoint(struct Thing *thing, struct Ariadne *arid, long a
 
 void ariadne_init_current_waypoint(struct Thing *thing, struct Ariadne *arid)
 {
-    ariadne_pull_out_waypoint(thing, arid, arid->current_waypoint, &arid->field_C);
-    arid->field_C.z.val = get_thing_height_at(thing, &arid->field_C);
-    arid->field_62 = get_2d_distance(&thing->mappos, &arid->field_C);
+    ariadne_pull_out_waypoint(thing, arid, arid->current_waypoint, &arid->pos_C);
+    arid->pos_C.z.val = get_thing_height_at(thing, &arid->pos_C);
+    arid->field_62 = get_2d_distance(&thing->mappos, &arid->pos_C);
 }
 
 long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariadne *arid)
@@ -725,13 +729,13 @@ AriadneReturn ariadne_prepare_creature_route_target_reached(struct Thing *thing,
     arid->endpos.z.val = dstpos->z.val;
     arid->waypoints[0].x.val = srcpos->x.val;
     arid->waypoints[0].y.val = srcpos->y.val;
-    arid->field_C.x.val = srcpos->x.val;
-    arid->field_C.y.val = srcpos->y.val;
-    arid->field_C.z.val = srcpos->z.val;
+    arid->pos_C.x.val = srcpos->x.val;
+    arid->pos_C.y.val = srcpos->y.val;
+    arid->pos_C.z.val = srcpos->z.val;
     arid->current_waypoint = 0;
-    arid->field_12.x.val = thing->mappos.x.val;
-    arid->field_12.y.val = thing->mappos.y.val;
-    arid->field_12.z.val = thing->mappos.z.val;
+    arid->pos_12.x.val = thing->mappos.x.val;
+    arid->pos_12.y.val = thing->mappos.y.val;
+    arid->pos_12.z.val = thing->mappos.z.val;
     arid->stored_waypoints = 1;
     arid->total_waypoints = 1;
     arid->field_1E = 0;
@@ -779,9 +783,9 @@ AriadneReturn ariadne_prepare_creature_route_to_target(struct Thing *thing, stru
     }
     arid->current_waypoint = 0;
     arid->field_1E = a4;
-    arid->field_12.x.val = thing->mappos.x.val;
-    arid->field_12.y.val = thing->mappos.y.val;
-    arid->field_12.z.val = thing->mappos.z.val;
+    arid->pos_12.x.val = thing->mappos.x.val;
+    arid->pos_12.y.val = thing->mappos.y.val;
+    arid->pos_12.z.val = thing->mappos.z.val;
     arid->field_26 = a3;
     return 0;
 }
@@ -843,24 +847,91 @@ AriadneReturn ariadne_creature_get_next_waypoint(struct Thing *thing, struct Ari
 
 TbBool ariadne_creature_reached_waypoint(struct Thing *thing, struct Ariadne *arid)
 {
-    return ariadne_creature_reached_position(thing, &arid->field_C);
+    return ariadne_creature_reached_position(thing, &arid->pos_C);
 }
 /*
 long ariadne_push_position_against_wall(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2)
 {
 
 }
+*/
+
+long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
+{
+    return _DK_creature_cannot_move_directly_to(thing, pos);
+}
 
 long ariadne_creature_blocked_by_wall_at(struct Thing *thing, struct Coord3d *pos)
 {
+    struct Coord3d mvpos;
+    long zmem,ret;
+    zmem = thing->mappos.z.val;
+    mvpos.x.val = pos->x.val;
+    mvpos.y.val = pos->y.val;
+    mvpos.z.val = pos->z.val;
+    mvpos.z.val = get_floor_height_under_thing_at(thing, &thing->mappos);
+    thing->mappos.z.val = mvpos.z.val;
+    ret = creature_cannot_move_directly_to(thing, &mvpos);
+    thing->mappos.z.val = zmem;
+    return ret;
+}
 
+long ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid)
+{
+    return _DK_ariadne_get_wallhug_angle(thing, arid);
+}
+
+AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos)
+{
+    return _DK_ariadne_init_wallhug(thing, arid, pos);
 }
 
 AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, struct Ariadne *arid)
 {
+    struct Coord3d pos;
+    long dist,angle;
+    long i;
 
+    if (ariadne_creature_blocked_by_wall_at(thing, &arid->pos_53))
+    {
+        pos.x.val = arid->endpos.x.val;
+        pos.y.val = arid->endpos.y.val;
+        pos.z.val = arid->endpos.z.val;
+        if (ariadne_initialise_creature_route(thing, &pos, arid->field_26, arid->field_1E) != AridRet_OK)
+        {
+            return 3;
+        }
+    }
+    dist = get_2d_distance(&thing->mappos, &arid->pos_C);
+    if (arid->field_62 > dist)
+        arid->field_62 = dist;
+    if ((thing->mappos.x.val != arid->pos_53.x.val)
+     || (thing->mappos.y.val != arid->pos_53.y.val))
+    {
+        arid->pos_12.x.val = arid->pos_53.x.val;
+        arid->pos_12.y.val = arid->pos_53.y.val;
+        arid->pos_12.z.val = arid->pos_53.z.val;
+        return 0;
+    }
+    switch (arid->manoeuvre_state)
+    {
+    case 1:
+        return ariadne_init_wallhug(thing, arid, &arid->pos_59);
+    case 2:
+        angle = ariadne_get_wallhug_angle(thing, arid);
+        arid->field_60 = angle;
+        i = arid->field_26 * LbSinL(angle);
+        arid->pos_12.x.val = thing->mappos.x.val + (i >> 16);
+        i = arid->field_26 * LbCosL(angle);
+        arid->pos_12.y.val = thing->mappos.y.val - (i >> 16);
+        arid->field_21 = 2;
+        return 0;
+    default:
+        ERRORLOG("Unknown Manoeuvre state");
+        break;
+    }
+    return 0;
 }
-*/
 
 AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *arid)
 {
@@ -874,7 +945,78 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
 
 AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long a4, struct Coord3d *nextpos, unsigned char a5)
 {
-    return _DK_ariadne_get_next_position_for_route(thing, finalpos, a4, nextpos, a5);
+    struct CreatureControl *cctrl;
+    struct Ariadne *arid;
+    long result;
+    long i;
+    //return _DK_ariadne_get_next_position_for_route(thing, finalpos, a4, nextpos, a5);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->arid.field_22 = 0;
+    arid = &cctrl->arid;
+    if ((finalpos->x.val != arid->endpos.x.val)
+     || (finalpos->y.val != arid->endpos.y.val)
+     || (arid->field_26 != a4))
+    {
+        if (ariadne_initialise_creature_route(thing, finalpos, a4, a5) != AridRet_OK)
+          return 2;
+        arid->field_26 = a4;
+        if (arid->field_22)
+        {
+          nextpos->x.val = arid->pos_12.x.val;
+          nextpos->y.val = arid->pos_12.y.val;
+          nextpos->z.val = arid->pos_12.z.val;
+          return 0;
+        }
+    }
+    if (ariadne_creature_reached_waypoint(thing,arid))
+    {
+      i = ariadne_creature_get_next_waypoint(thing,arid);
+      if (i == AridRet_Val1)
+      {
+          arid->endpos.x.val = 0;
+          arid->endpos.y.val = 0;
+          arid->endpos.z.val = 0;
+          nextpos->x.val = thing->mappos.x.val;
+          nextpos->y.val = thing->mappos.y.val;
+          nextpos->z.val = thing->mappos.z.val;
+          return 1;
+      }else
+      if (i == AridRet_OK)
+      {
+          ariadne_init_movement_to_current_waypoint(thing, arid);
+      } else
+      {
+          if (ariadne_initialise_creature_route(thing, finalpos, a4, a5) != AridRet_OK)
+            return 3;
+      }
+    }
+    switch (arid->field_21)
+    {
+    case 1:
+        result = ariadne_update_state_on_line(thing, arid);
+        nextpos->x.val = arid->pos_12.x.val;
+        nextpos->y.val = arid->pos_12.y.val;
+        nextpos->z.val = arid->pos_12.z.val;
+        break;
+    case 2:
+        result = ariadne_update_state_wallhug(thing, arid);
+        nextpos->x.val = arid->pos_12.x.val;
+        nextpos->y.val = arid->pos_12.y.val;
+        nextpos->z.val = arid->pos_12.z.val;
+        break;
+    case 3:
+        result = ariadne_update_state_manoeuvre_to_position(thing, arid);
+        nextpos->x.val = arid->pos_12.x.val;
+        nextpos->y.val = arid->pos_12.y.val;
+        nextpos->z.val = arid->pos_12.z.val;
+        break;
+    default:
+        result = AridRet_Val3;
+        break;
+    }
+    if (result != 0)
+        WARNDBG(3,"Update state %d returned %d",(int)arid->field_21,(int)result);
+    return result;
 }
 
 AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *finalpos, struct Coord3d *nextpos, long a4, unsigned char a5)
