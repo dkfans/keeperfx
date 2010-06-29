@@ -1663,6 +1663,9 @@
  0001:0007F9B0       ariadne_get_next_position_for_route
  0001:0007FF20       ariadne_update_state_on_line
  0001:00080110       ariadne_update_state_wallhug
+ 0001:000806E0       ariadne_init_wallhug
+ 0001:00080A50       ariadne_get_wallhug_angle
+ 0001:000CF000       creature_cannot_move_directly_to
  0001:000C2CA0       creature_can_navigate_to
  0001:00065B70       event_create_event_or_update_nearby_existing_event
  0001:000B69C0       find_nearest_room_for_thing_excluding_two_types
