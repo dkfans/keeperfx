@@ -647,6 +647,8 @@
  0001:0007FD80       ariadne_init_movement_to_current_waypoint
  0001:0007FF20       ariadne_update_state_on_line
  0001:00080110       ariadne_update_state_wallhug
+ 0001:000806E0       ariadne_init_wallhug
+ 0001:00080A50       ariadne_get_wallhug_angle
  0001:000816E0       ariadne_pull_out_waypoint
  0001:00081B30       draw_resurrect_creature
  0001:00081D10       select_resurrect_creature_up
@@ -1122,6 +1124,7 @@
  0001:000CE040       computer_check_for_expand_room
  0001:000CE340       computer_check_for_money
  0001:000CEB50       thing_in_wall_at
+ 0001:000CF000       creature_cannot_move_directly_to
  0001:000D1780       check_out_unconverted_spiral
  0001:000D1BB0       check_out_unprettied_spiral
  0001:000D1EA0       check_out_unprettied_or_unconverted_area

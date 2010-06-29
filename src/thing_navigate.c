@@ -358,7 +358,7 @@ short move_to_position(struct Thing *thing)
     speed = cctrl->max_speed;
     if (speed >= 256)
     {
-        WARNLOG("Walk speed clipped");
+        SYNCDBG(6,"Walk speed %d clipped",(int)speed);
         speed = 256;
     }
     state_result = 0;
