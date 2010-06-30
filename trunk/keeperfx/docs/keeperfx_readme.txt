@@ -311,6 +311,9 @@ Version: 0.37b
   Fixed crash on freeing swipe sprites at end of mission
   Fixed SEEK_THE_ENEMY job (Hellhound)
   Fixed crash when zooming in isometric (non rotable) view
+  Fixed Imps aimless walking around bug
+  Fixed invalid celebration sprite bug
+  Video modes in config file are no longer pre-defined 
 
 Version: 0.37a
   Fixed gems appearance bug
