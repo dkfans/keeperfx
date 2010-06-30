@@ -110,15 +110,15 @@ const struct NamedCommand creature_graphics_desc[] = {
   {"RELAX",              6+1},//was SMOKER
   {"PRETTYDANCE",        7+1},
   {"GOTHIT",             8+1},
-  {"POWERGRAB",          9+1},//was HANDGRAB
+  {"POWERGRAB",          9+1},// was HANDGRAB
   {"GOTSLAPPED",        10+1},// was WAVEHANDS
-  {"WAVEHANDS",         11+1},
+  {"BEHAPPY",           11+1},
   {"SLEEP",             12+1},
   {"EATCHICKEN",        13+1},
   {"TORTURE",           14+1},
   {"SCREAM",            15+1},
-  {"DROPDEAD",          16+1},
-  {"DEADSPLAT",         17+1},
+  {"DROPDEAD",          16+1},// was DEADBODY
+  {"DEADSPLAT",         17+1},// was DROPDEAD
 // These below seems to be not from CREATURE.JTY
   {"GFX18",             18+1},
   {"QUERYSYMBOL",       19+1},
@@ -412,6 +412,10 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len,const char *config_
       continue;
     }
     inst_inf = creature_instance_info_get(i);
+/* debug code - remove pending
+    JUSTLOG("[%s]",block_buf);
+    JUSTLOG("Graphics = %s",get_conf_parameter_text(creature_graphics_desc,inst_inf->graphics_idx+1));
+*/
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_instance_commands,cmd_num)
     while (pos<len)
     {
