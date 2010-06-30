@@ -1382,6 +1382,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
   nlens = cam->field_17 / pixel_size;
   getpoly = poly_pool;
   LbMemorySet(buckets, 0, sizeof(buckets));
+  LbMemorySet(poly_pool, 0, sizeof(poly_pool));
   i = lens_mode;
   if ((i < 0) || (i >= PERS_ROUTINES_COUNT))
       i = 0;
@@ -1563,7 +1564,7 @@ void create_line_segment(struct EngineCoord *start, struct EngineCoord *end, TbP
   poly->p.field_10 = color;
 }
 
-void add_unkn11_to_polypool(struct Thing *thing, long a2, long a3, long a4, long bckt_idx)
+void add_unkn11_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
 {
   struct JontySpr *poly;
   if (bckt_idx >= BUCKETS_COUNT)
@@ -1576,16 +1577,16 @@ void add_unkn11_to_polypool(struct Thing *thing, long a2, long a3, long a4, long
   poly->b.next = buckets[bckt_idx];
   poly->b.kind = 11;
   buckets[bckt_idx] = (struct BasicQ *)poly;
-  poly->field_8 = (unsigned long)thing;
+  poly->thing = thing;
   if (pixel_size > 0)
   {
-    poly->field_C = a2 / pixel_size;
-    poly->field_10 = a3 / pixel_size;
+    poly->scr_x = scr_x / pixel_size;
+    poly->scr_y = scr_y / pixel_size;
   }
   poly->field_14 = a4;
 }
 
-void add_unkn18_to_polypool(struct Thing *thing, long a2, long a3, long a4, long bckt_idx)
+void add_unkn18_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
 {
   struct JontySpr *poly;
   if (bckt_idx >= BUCKETS_COUNT)
@@ -1598,11 +1599,11 @@ void add_unkn18_to_polypool(struct Thing *thing, long a2, long a3, long a4, long
   poly->b.next = buckets[bckt_idx];
   poly->b.kind = 18;
   buckets[bckt_idx] = (struct BasicQ *)poly;
-  poly->field_8 = (unsigned long)thing;
+  poly->thing = thing;
   if (pixel_size > 0)
   {
-    poly->field_C = a2 / pixel_size;
-    poly->field_10 = a3 / pixel_size;
+    poly->scr_x = scr_x / pixel_size;
+    poly->scr_y = scr_y / pixel_size;
   }
   poly->field_14 = a4;
 }
