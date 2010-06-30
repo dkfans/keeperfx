@@ -112,7 +112,7 @@ const struct NamedCommand creature_graphics_desc[] = {
   {"GOTHIT",             8+1},
   {"POWERGRAB",          9+1},// was HANDGRAB
   {"GOTSLAPPED",        10+1},// was WAVEHANDS
-  {"BEHAPPY",           11+1},
+  {"CELEBRATE",         11+1},
   {"SLEEP",             12+1},
   {"EATCHICKEN",        13+1},
   {"TORTURE",           14+1},
