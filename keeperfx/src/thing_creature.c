@@ -1925,6 +1925,7 @@ void set_creature_instance(struct Thing *thing, long inst_idx, long a2, long a3,
     struct CreatureControl *cctrl;
     long i;
     long itime,aitime;
+    //_DK_set_creature_instance(thing, inst_idx, a2, a3, pos); return;
     if (inst_idx == 0)
         return;
     cctrl = creature_control_get_from_thing(thing);
@@ -1934,7 +1935,6 @@ void set_creature_instance(struct Thing *thing, long inst_idx, long a2, long a3,
         ERRORLOG("Negative instance");
         return;
     }
-    //_DK_set_creature_instance(thing, inst_idx, a2, a3, pos);
     if (inst_inf->force_visibility)
     {
         i = cctrl->field_AF;

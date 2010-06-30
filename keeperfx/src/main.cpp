@@ -2697,7 +2697,7 @@ long update_creature(struct Thing *thing)
   struct Map *map;
   SYNCDBG(18,"Starting");
   map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-  if ((thing->field_7 == 67) && (map->flags & 0x40))
+  if ((thing->field_7 == 67) && ((map->flags & 0x40) != 0))
   {
     kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
     return 0;

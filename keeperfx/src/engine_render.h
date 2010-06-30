@@ -208,9 +208,9 @@ struct BasicUnk10 {
 struct JontySpr {  // BasicQ type 11,18
     struct BasicQ b;
     unsigned char field_5[3];
-    long field_8;
-    long field_C;
-    long field_10;
+    struct Thing *thing;
+    long scr_x;
+    long scr_y;
     long field_14;
     unsigned char field_18;
     unsigned char field_19[3];

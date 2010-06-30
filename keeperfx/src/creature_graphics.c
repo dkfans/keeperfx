@@ -171,19 +171,27 @@ long get_lifespan_of_animation(long ani, long frameskip)
 
 unsigned long get_creature_breed_graphics(long breed, unsigned short seq_idx)
 {
-  if (seq_idx > 21)
+  if (seq_idx >= CREATURE_GRAPHICS_INSTANCES) {
+      ERRORLOG("Invalid breed %d graphics sequence %d",breed,seq_idx);
       seq_idx = 0;
-  if ((breed < 0) || (breed >= CREATURE_TYPES_COUNT))
+  }
+  if ((breed < 0) || (breed >= CREATURE_TYPES_COUNT)) {
+      ERRORLOG("Invalid breed %d graphics sequence %d",breed,seq_idx);
       breed = 0;
+  }
   return creature_graphics[breed][seq_idx];
 }
 
 void set_creature_breed_graphics(long breed, unsigned short seq_idx, unsigned long val)
 {
-    if (seq_idx > 21)
+    if (seq_idx >= CREATURE_GRAPHICS_INSTANCES) {
+        ERRORLOG("Invalid breed %d graphics sequence %d",breed,seq_idx);
         return;
-    if ((breed < 0) || (breed >= CREATURE_TYPES_COUNT))
+    }
+    if ((breed < 0) || (breed >= CREATURE_TYPES_COUNT)) {
+        ERRORLOG("Invalid breed %d graphics sequence %d",breed,seq_idx);
         return;
+    }
     creature_graphics[breed][seq_idx] = val;
 }
 
