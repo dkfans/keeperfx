@@ -660,6 +660,47 @@ unsigned short i_can_allocate_free_room_structure(void)
   return ret;
 }
 
+RoomKind slab_to_room_type(SlabType slab_type)
+{
+  switch (slab_type)
+  {
+  case SlbT_ENTRANCE:
+      return RoK_ENTRANCE;
+  case SlbT_TREASURE:
+      return RoK_TREASURE;
+  case SlbT_LIBRARY:
+      return RoK_LIBRARY;
+  case SlbT_PRISON:
+      return RoK_PRISON;
+  case SlbT_TORTURE:
+      return RoK_TORTURE;
+  case SlbT_TRAINING:
+      return RoK_TRAINING;
+  case SlbT_DUNGHEART:
+      return RoK_DUNGHEART;
+  case SlbT_WORKSHOP:
+      return RoK_WORKSHOP;
+  case SlbT_SCAVENGER:
+      return RoK_SCAVENGER;
+  case SlbT_TEMPLE:
+      return RoK_TEMPLE;
+  case SlbT_GRAVEYARD:
+      return RoK_GRAVEYARD;
+  case SlbT_GARDEN:
+      return RoK_GARDEN;
+  case SlbT_LAIR:
+      return RoK_LAIR;
+  case SlbT_BARRACKS:
+      return RoK_BARRACKS;
+  case SlbT_BRIDGE:
+      return RoK_BRIDGE;
+  case SlbT_GUARDPOST:
+      return RoK_GUARDPOST;
+  default:
+      return RoK_NONE;
+  }
+}
+
 void reinitialise_treaure_rooms(void)
 {
   struct Dungeon *dungeon;
@@ -688,6 +729,31 @@ void reinitialise_treaure_rooms(void)
       }
     }
   }
+}
+
+TbBool initialise_map_rooms(void)
+{
+  struct SlabMap *slb;
+  struct Room *room;
+  unsigned long x,y;
+  RoomKind rkind;
+  SYNCDBG(7,"Starting");
+  for (y=0; y < map_tiles_y; y++)
+    for (x=0; x < map_tiles_x; x++)
+    {
+      slb = get_slabmap_block(x, y);
+      rkind = slab_to_room_type(slb->slab);
+      if (rkind > 0)
+        room = create_room(slabmap_owner(slb), rkind, 3*x+1, 3*y+1);
+      else
+        room = NULL;
+      if (room != NULL)
+      {
+        set_room_efficiency(room);
+        set_room_capacity(room, 0);
+      }
+    }
+  return true;
 }
 
 short room_grow_food(struct Room *room)

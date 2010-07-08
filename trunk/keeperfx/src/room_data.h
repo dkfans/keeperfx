@@ -167,6 +167,7 @@ void update_room_efficiency(struct Room *room);
 long create_workshop_object_in_workshop_room(long a1, long a2, long a3);
 struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, long rkind);
 
+TbBool initialise_map_rooms(void);
 void init_room_sparks(struct Room *room);
 void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char owner, unsigned char a5);
 short delete_room_slab_when_no_free_room_structures(long a1, long a2, unsigned char a3);

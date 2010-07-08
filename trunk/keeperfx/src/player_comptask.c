@@ -30,6 +30,7 @@
 #include "config.h"
 #include "config_creature.h"
 #include "magic.h"
+#include "thing_traps.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
