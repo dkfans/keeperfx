@@ -24,9 +24,11 @@
 
 #include "thing_objects.h"
 #include "thing_doors.h"
+#include "thing_traps.h"
 #include "config_campaigns.h"
 #include "config_creature.h"
 #include "frontend.h"
+#include "room_workshop.h"
 
 #include "keeperfx.hpp"
 

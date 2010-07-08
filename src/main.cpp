@@ -60,6 +60,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_doors.h"
+#include "thing_traps.h"
 #include "slab_data.h"
 #include "room_data.h"
 #include "map_columns.h"
@@ -400,14 +401,12 @@ DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
 DLLIMPORT int _DK_can_thing_be_possessed(struct Thing *thing, long a2);
 DLLIMPORT long _DK_tag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
 DLLIMPORT void _DK_untag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
-DLLIMPORT long _DK_destroy_door(struct Thing *thing);
 DLLIMPORT short _DK_delete_room_slab(long x, long y, unsigned char gnd_slab);
 DLLIMPORT void _DK_tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT long _DK_packet_place_door(long a1, long a2, long a3, long a4, unsigned char a5);
 DLLIMPORT void _DK_delete_room_slabbed_objects(long a1);
 DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3);
 DLLIMPORT long _DK_remove_workshop_item(long a1, long a2, long a3);
-DLLIMPORT struct Thing *_DK_create_trap(struct Coord3d *pos, unsigned short a1, unsigned short a2);
 DLLIMPORT struct Room *_DK_place_room(unsigned char a1, unsigned char a2, unsigned short a3, unsigned short a4);
 DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT void _DK_tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
@@ -417,8 +416,6 @@ DLLIMPORT long _DK_remove_food_from_food_room_if_possible(struct Thing *thing);
 DLLIMPORT void _DK_process_person_moods_and_needs(struct Thing *thing);
 DLLIMPORT unsigned char _DK_can_change_from_state_to(struct Thing *thing, long a2, long a3);
 DLLIMPORT struct Thing *_DK_get_door_for_position(long pos_x, long pos_y);
-DLLIMPORT struct Thing *_DK_get_trap_for_position(long pos_x, long pos_y);
-DLLIMPORT struct Thing *_DK_get_trap_for_slab_position(long slb_x, long slb_y);
 DLLIMPORT long _DK_process_obey_leader(struct Thing *thing);
 DLLIMPORT unsigned char _DK_external_set_thing_state(struct Thing *thing, long state);
 DLLIMPORT long _DK_is_thing_passenger_controlled(struct Thing *thing);
@@ -437,8 +434,6 @@ DLLIMPORT char _DK_mouse_is_over_small_map(int, int);
 DLLIMPORT unsigned char _DK_active_battle_exists(unsigned char a1);
 DLLIMPORT unsigned char _DK_step_battles_forward(unsigned char a1);
 DLLIMPORT void _DK_go_to_my_next_room_of_type(unsigned long rkind);
-DLLIMPORT struct ActionPoint *_DK_allocate_free_action_point_structure_with_number(long apt_num);
-DLLIMPORT unsigned long _DK_action_point_get_players_within(long apt_idx);
 DLLIMPORT void _DK_instant_instance_selected(long a1);
 DLLIMPORT void _DK_initialise_map_collides(void);
 DLLIMPORT void _DK_initialise_map_health(void);
@@ -491,7 +486,6 @@ DLLIMPORT long _DK_process_creature_self_spell_casting(struct Thing *thing);
 DLLIMPORT long _DK_update_shot(struct Thing *thing);
 DLLIMPORT long _DK_update_dead_creature(struct Thing *thing);
 DLLIMPORT long _DK_update_creature(struct Thing *thing);
-DLLIMPORT long _DK_update_trap(struct Thing *thing);
 DLLIMPORT long _DK_process_door(struct Thing *thing);
 DLLIMPORT void _DK_gui_set_button_flashing(long a1, long a2);
 DLLIMPORT short _DK_send_creature_to_room(struct Thing *thing, struct Room *room);
@@ -510,9 +504,6 @@ DLLIMPORT long _DK_update_cave_in(struct Thing *thing);
 DLLIMPORT void _DK_update_thing_animation(struct Thing *thing);
 DLLIMPORT void _DK_init_messages(void);
 DLLIMPORT void _DK_battle_initialise(void);
-DLLIMPORT void _DK_add_thing_to_list(struct Thing *thing, struct StructureList *list);
-DLLIMPORT struct Thing *_DK_allocate_free_thing_structure(unsigned char a1);
-DLLIMPORT unsigned char _DK_i_can_allocate_free_thing_structure(unsigned char a1);
 DLLIMPORT void _DK_message_add(char c);
 DLLIMPORT void _DK_toggle_creature_tendencies(struct PlayerInfo *player, char val);
 DLLIMPORT void _DK_turn_off_call_to_arms(long a);
@@ -613,7 +604,6 @@ DLLIMPORT long _DK_process_player_manufacturing(int plr_idx);
 DLLIMPORT void _DK_event_process_events(void);
 DLLIMPORT void _DK_update_all_events(void);
 DLLIMPORT void _DK_process_level_script(void);
-DLLIMPORT long _DK_process_action_points(void);
 DLLIMPORT long _DK_PaletteFadePlayer(struct PlayerInfo *player);
 DLLIMPORT void _DK_message_update(void);
 DLLIMPORT long _DK_wander_point_update(struct Wander *wandr);
@@ -1046,20 +1036,6 @@ TbBool object_is_slappable(struct Thing *thing, long plyr_idx)
   return false;
 }
 
-TbBool trap_is_active(struct Thing *thing)
-{
-  return ((thing->byte_13 > 0) && (thing->long_14 <= game.play_gameturn));
-}
-
-TbBool trap_is_slappable(struct Thing *thing, long plyr_idx)
-{
-  if (thing->owner == plyr_idx)
-  {
-    return (thing->model == 1) && trap_is_active(thing);
-  }
-  return false;
-}
-
 TbBool shot_is_slappable(struct Thing *thing, long plyr_idx)
 {
   if (thing->owner == plyr_idx)
@@ -1152,16 +1128,6 @@ long remove_food_from_food_room_if_possible(struct Thing *thing)
 struct Thing *get_door_for_position(long pos_x, long pos_y)
 {
   return _DK_get_door_for_position(pos_x, pos_y);
-}
-
-struct Thing *get_trap_for_position(long pos_x, long pos_y)
-{
-  return _DK_get_trap_for_position(pos_x, pos_y);
-}
-
-struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
-{
-  return _DK_get_trap_for_slab_position(slb_x, slb_y);
 }
 
 unsigned char find_door_of_type(unsigned long a1, unsigned char a2)
@@ -3107,12 +3073,6 @@ void shuffle_unattached_things_on_slab(long a1, long a2)
 unsigned char alter_rock_style(unsigned char a1, signed char a2, signed char a3, unsigned char a4)
 {
     return _DK_alter_rock_style(a1, a2, a3, a4);
-}
-
-long update_trap(struct Thing *thing)
-{
-  SYNCDBG(18,"Starting");
-  return _DK_update_trap(thing);
 }
 
 long process_door(struct Thing *thing)
@@ -5261,56 +5221,6 @@ void maintain_my_battle_list(void)
   _DK_maintain_my_battle_list();
 }
 
-void add_thing_to_list(struct Thing *thing, struct StructureList *list)
-{
-  _DK_add_thing_to_list(thing, list);
-}
-
-struct Thing *allocate_free_thing_structure(unsigned char free_flags)
-{
-    struct Thing *thing;
-    long i;
-    TbBool check_again;
-    //return _DK_allocate_free_thing_structure(a1);
-    check_again = true;
-    while (check_again)
-    {
-        i = game.free_things[THINGS_COUNT-1];
-        if (i < THINGS_COUNT-1)
-        {
-          thing = thing_get(game.free_things[i]);
-          LbMemorySet(thing, 0, sizeof(struct Thing));
-          if (!thing_is_invalid(thing))
-          {
-              thing->field_0 |= 0x01;
-              thing->index = game.free_things[i];
-              game.free_things[THINGS_COUNT-1]++;
-          }
-          return thing;
-        }
-        check_again = false;
-        if ((free_flags & 0x01) != 0)
-        {
-          thing = thing_get(game.thing_lists[3].index);
-          if (!thing_is_invalid(thing))
-          {
-              delete_thing_structure(thing, 0);
-              check_again = true;
-          } else
-          {
-              ERRORLOG("Cannot even free up effect thing!");
-          }
-        }
-    }
-    ERRORLOG("Cannot allocate a structure!");
-    return NULL;
-}
-
-unsigned char i_can_allocate_free_thing_structure(unsigned char a1)
-{
-  return _DK_i_can_allocate_free_thing_structure(a1);
-}
-
 struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short model, unsigned short owner)
 {
   struct Thing *thing;
@@ -6286,108 +6196,6 @@ void clear_shadow_limits(void)
   memset(game.shadow_limits, 0, SHADOW_LIMITS_COUNT);
 }
 
-struct ActionPoint *action_point_get(long apt_idx)
-{
-  if ((apt_idx < 1) || (apt_idx > ACTN_POINTS_COUNT))
-    return &game.action_points[0];
-  return &game.action_points[apt_idx];
-}
-
-struct ActionPoint *action_point_get_by_number(long apt_num)
-{
-  struct ActionPoint *apt;
-  long apt_idx;
-  for (apt_idx=0; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
-  {
-    apt = &game.action_points[apt_idx];
-    if (apt->num == apt_num)
-      return apt;
-  }
-  return &game.action_points[0];
-}
-
-long action_point_number_to_index(long apt_num)
-{
-  struct ActionPoint *apt;
-  long apt_idx;
-  for (apt_idx=0; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
-  {
-    apt = &game.action_points[apt_idx];
-    if (apt->num == apt_num)
-      return apt_idx;
-  }
-  return -1;
-}
-
-TbBool action_point_is_invalid(const struct ActionPoint *apt)
-{
-  return (apt == &game.action_points[0]) || (apt == NULL);
-}
-
-TbBool action_point_exists_idx(long apt_idx)
-{
-  struct ActionPoint *apt;
-  apt = action_point_get(apt_idx);
-  if (action_point_is_invalid(apt))
-    return false;
-  return ((apt->flags & 0x01) != 0);
-}
-
-TbBool action_point_exists_number(long apt_num)
-{
-  struct ActionPoint *apt;
-  apt = action_point_get_by_number(apt_num);
-  if (action_point_is_invalid(apt))
-    return false;
-  return ((apt->flags & 0x01) != 0);
-}
-
-TbBool action_point_reset_idx(long apt_idx)
-{
-  struct ActionPoint *apt;
-  apt = action_point_get(apt_idx);
-  if (action_point_is_invalid(apt))
-    return false;
-  apt->activated = 0;
-  return ((apt->flags & 0x01) != 0);
-}
-
-/**
- * Returns an action point activation bitmask.
- * Bits which are set in the bitmask corresponds to players which have triggered action point.
- */
-unsigned long get_action_point_activated_by_players_mask(long apt_idx)
-{
-  struct ActionPoint *apt;
-  apt = action_point_get(apt_idx);
-  return apt->activated;
-}
-
-PlayerFlags action_point_get_players_within(long apt_idx)
-{
-  return _DK_action_point_get_players_within(apt_idx);
-}
-
-TbBool process_action_points(void)
-{
-  SYNCDBG(6,"Starting");
-  struct ActionPoint *apt;
-  long i;
-  for (i=1; i < ACTN_POINTS_COUNT; i++)
-  {
-    apt = &game.action_points[i];
-    if (apt->flags & 0x01)
-    {
-      if (((apt->num + game.play_gameturn) & 0x1F) == 0)
-      {
-        apt->activated = action_point_get_players_within(i);
-//if (i==1) show_onscreen_msg(2*game.num_fps, "APT PLYRS %d", (int)apt->activated);
-      }
-    }
-  }
-  return true;
-}
-
 /**
  * Sets to defaults some basic parameters which are
  * later copied into Game structure.
@@ -6481,15 +6289,6 @@ void clear_things_and_persons_data(void)
     {
       memset(&game.cctrl_data[i], 0, sizeof(struct CreatureControl));
     }
-}
-
-void clear_action_points(void)
-{
-  long i;
-  for (i=0; i < ACTN_POINTS_COUNT; i++)
-  {
-    memset(&game.action_points[i], 0, sizeof(struct ActionPoint));
-  }
 }
 
 void clear_computer(void)
@@ -6591,28 +6390,6 @@ void delete_all_thing_structures(void)
     game.free_things[i] = i+1;
   }
   game.free_things[THINGS_COUNT-1] = 0;
-}
-
-void delete_action_point_structure(struct ActionPoint *apt)
-{
-  if (apt->flags & 0x01)
-  {
-    memset(apt, 0, sizeof(struct ActionPoint));
-  }
-}
-
-void delete_all_action_point_structures(void)
-{
-  struct ActionPoint *apt;
-  long i;
-  for (i=1; i < ACTN_POINTS_COUNT; i++)
-  {
-    apt = &game.action_points[i];
-    if (apt != NULL)
-    {
-      delete_action_point_structure(apt);
-    }
-  }
 }
 
 void delete_all_structures(void)
@@ -10668,17 +10445,6 @@ void untag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3)
   _DK_untag_blocks_for_digging_in_rectangle_around(a1, a2, a3);
 }
 
-long destroy_door(struct Thing *thing)
-{
-  return _DK_destroy_door(thing);
-}
-
-TbBool destroy_trap(struct Thing *thing)
-{
-  delete_thing_structure(thing, 0);
-  return true;
-}
-
 void kill_all_room_slabs_and_contents(struct Room *room)
 {
     struct SlabMap *slb;
@@ -10898,12 +10664,6 @@ long remove_workshop_item(long a1, long a2, long a3)
   return _DK_remove_workshop_item(a1, a2, a3);
 }
 
-struct Thing *create_trap(struct Coord3d *pos, unsigned short a1, unsigned short a2)
-{
-  SYNCDBG(7,"Starting");
-  return _DK_create_trap(pos, a1, a2);
-}
-
 struct Room *place_room(unsigned char owner, unsigned char rkind, unsigned short stl_x, unsigned short stl_y)
 {
     struct Room *room;
@@ -11052,23 +10812,6 @@ short thing_create_thing(struct InitThing *itng)
   return true;
 }
 
-struct ActionPoint *allocate_free_action_point_structure_with_number(long apt_num)
-{
-  return _DK_allocate_free_action_point_structure_with_number(apt_num);
-}
-
-struct ActionPoint *actnpoint_create_actnpoint(struct InitActionPoint *iapt)
-{
-  struct ActionPoint *apt;
-  apt = allocate_free_action_point_structure_with_number(iapt->num);
-  if (action_point_is_invalid(apt))
-    return &game.action_points[0];
-  apt->mappos.x.val = iapt->mappos.x.val;
-  apt->mappos.y.val = iapt->mappos.y.val;
-  apt->range = iapt->range;
-  return apt;
-}
-
 void initialise_map_collides(void)
 {
   SYNCDBG(7,"Starting");
@@ -11079,47 +10822,6 @@ void initialise_map_health(void)
 {
   SYNCDBG(7,"Starting");
   _DK_initialise_map_health();
-}
-
-RoomKind slab_to_room_type(SlabType slab_type)
-{
-  switch (slab_type)
-  {
-  case SlbT_ENTRANCE:
-      return RoK_ENTRANCE;
-  case SlbT_TREASURE:
-      return RoK_TREASURE;
-  case SlbT_LIBRARY:
-      return RoK_LIBRARY;
-  case SlbT_PRISON:
-      return RoK_PRISON;
-  case SlbT_TORTURE:
-      return RoK_TORTURE;
-  case SlbT_TRAINING:
-      return RoK_TRAINING;
-  case SlbT_DUNGHEART:
-      return RoK_DUNGHEART;
-  case SlbT_WORKSHOP:
-      return RoK_WORKSHOP;
-  case SlbT_SCAVENGER:
-      return RoK_SCAVENGER;
-  case SlbT_TEMPLE:
-      return RoK_TEMPLE;
-  case SlbT_GRAVEYARD:
-      return RoK_GRAVEYARD;
-  case SlbT_GARDEN:
-      return RoK_GARDEN;
-  case SlbT_LAIR:
-      return RoK_LAIR;
-  case SlbT_BARRACKS:
-      return RoK_BARRACKS;
-  case SlbT_BRIDGE:
-      return RoK_BRIDGE;
-  case SlbT_GUARDPOST:
-      return RoK_GUARDPOST;
-  default:
-      return RoK_NONE;
-  }
 }
 
 long slabs_count_near(long tx,long ty,long rad,unsigned short slbtype)
@@ -11145,31 +10847,6 @@ long slabs_count_near(long tx,long ty,long rad,unsigned short slbtype)
       }
   }
   return count;
-}
-
-short initialise_map_rooms(void)
-{
-  struct SlabMap *slb;
-  struct Room *room;
-  unsigned long x,y;
-  RoomKind rkind;
-  SYNCDBG(7,"Starting");
-  for (y=0; y < map_tiles_y; y++)
-    for (x=0; x < map_tiles_x; x++)
-    {
-      slb = get_slabmap_block(x, y);
-      rkind = slab_to_room_type(slb->slab);
-      if (rkind > 0)
-        room = create_room(slabmap_owner(slb), rkind, 3*x+1, 3*y+1);
-      else
-        room = NULL;
-      if (room != NULL)
-      {
-        set_room_efficiency(room);
-        set_room_capacity(room, 0);
-      }
-    }
-  return true;
 }
 
 long ceiling_init(unsigned long a1, unsigned long a2)
@@ -11705,7 +11382,7 @@ void startup_saved_packet_game(void)
 #endif
   game.flagfield_14EA4A = 2;
   if (!(game.packet_save_head.field_C & (1 << game.numfield_149F46))
-    || (game.packet_save_head.field_D & (1 << game.numfield_149F46)) )
+    || (game.packet_save_head.field_D & (1 << game.numfield_149F46)))
     my_player_number = 0;
   else
     my_player_number = game.numfield_149F46;
@@ -11773,7 +11450,7 @@ void faststartup_network_game(void)
   player->field_2C = 1;
   startup_network_game();
   player = get_my_player();
-  player->field_6 &= 0xFDu;
+  player->field_6 &= ~0x02;
 }
 
 int setup_old_network_service(void)
@@ -11805,7 +11482,7 @@ void wait_at_frontend(void)
   // Init load/save catalogue
   initialise_load_game_slots();
   // Prepare to enter PacketLoad game
-  if ( (game.packet_load_enable) && (!game.numfield_149F47) )
+  if ((game.packet_load_enable) && (!game.numfield_149F47))
   {
     faststartup_saved_packet_game();
     return;

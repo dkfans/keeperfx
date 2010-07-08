@@ -42,6 +42,7 @@ RES      = obj/keeperfx_stdres.res
 LIBS     = obj/libkeeperfx.a  directx/lib/libddraw.a
 OBJS = \
 obj/ariadne.o \
+obj/actionpt.o \
 obj/bflib_basics.o \
 obj/bflib_cpu.o \
 obj/bflib_bufrw.o \
@@ -120,17 +121,20 @@ obj/player_instances.o \
 obj/power_hand.o \
 obj/power_specials.o \
 obj/room_data.o \
+obj/room_workshop.o \
 obj/scrcapt.o \
 obj/slab_data.o \
 obj/spworker_stack.o \
 obj/tasks_list.o \
 obj/thing_creature.o \
+obj/thing_data.o \
 obj/thing_doors.o \
 obj/thing_effects.o \
 obj/thing_list.o \
 obj/thing_navigate.o \
 obj/thing_objects.o \
 obj/thing_stats.o \
+obj/thing_traps.o \
 obj/vidmode.o \
 obj/main.o \
 $(RES)

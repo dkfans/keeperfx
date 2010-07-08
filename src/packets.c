@@ -53,6 +53,7 @@
 #include "power_specials.h"
 #include "power_hand.h"
 #include "thing_stats.h"
+#include "thing_traps.h"
 #include "magic.h"
 #include "light_data.h"
 #include "gui_topmsg.h"

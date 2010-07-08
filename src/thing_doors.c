@@ -39,6 +39,7 @@ const short door_names[] = {
 /******************************************************************************/
 DLLIMPORT void _DK_lock_door(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
+DLLIMPORT long _DK_destroy_door(struct Thing *thing);
 /******************************************************************************/
 
 
@@ -98,6 +99,11 @@ void lock_door(struct Thing *thing)
   if (!add_key_on_door(thing))
     WARNMSG("Cannot create a keyhole when locking a door.");
 */
+}
+
+long destroy_door(struct Thing *thing)
+{
+  return _DK_destroy_door(thing);
 }
 
 /******************************************************************************/
