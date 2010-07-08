@@ -63,6 +63,7 @@ obj/kjm_input.o \
 obj/packets.o \
 obj/config.o \
 obj/front_input.o \
+obj/thing_data.o \
 obj/thing_list.o \
 obj/lvl_script.o \
 obj/dungeon_data.o \
@@ -84,12 +85,14 @@ obj/gui_topmsg.o \
 obj/thing_creature.o \
 obj/slab_data.o \
 obj/room_data.o \
+obj/room_workshop.o \
 obj/creature_control.o \
 obj/creature_instances.o \
 obj/creature_graphics.o \
 obj/map_data.o \
 obj/map_events.o \
 obj/thing_doors.o \
+obj/thing_traps.o \
 obj/config_campaigns.o \
 obj/front_credits.o \
 obj/bflib_semphr.o \
@@ -116,6 +119,7 @@ obj/game_merge.o \
 obj/thing_stats.o \
 obj/thing_effects.o \
 obj/thing_navigate.o \
+obj/actionpt.o \
 obj/config_magic.o \
 obj/frontend.o \
 obj/vidmode.o \

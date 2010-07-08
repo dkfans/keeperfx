@@ -27,6 +27,7 @@
 #include "light_data.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
+#include "thing_traps.h"
 #include "config_creature.h"
 #include "creature_states.h"
 #include "keeperfx.hpp"
@@ -69,11 +70,11 @@ DLLIMPORT long _DK_thing_is_shootable_by_any_player_including_objects(struct Thi
 DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *shooter, struct Thing *thing);
 DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing);
 DLLIMPORT long _DK_thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing);
-DLLIMPORT void _DK_delete_thing_structure(struct Thing *thing, long a2);
+DLLIMPORT void _DK_add_thing_to_list(struct Thing *thing, struct StructureList *list);
 /******************************************************************************/
-void delete_thing_structure(struct Thing *thing, long a2)
+void add_thing_to_list(struct Thing *thing, struct StructureList *list)
 {
-  _DK_delete_thing_structure(thing, a2);
+  _DK_add_thing_to_list(thing, list);
 }
 
 long creature_near_filter_not_imp(const struct Thing *thing, FilterParam val)
@@ -304,35 +305,6 @@ void init_player_start(struct PlayerInfo *player)
       dungeon->dnheart_idx = thing->index;
       memcpy(&dungeon->mappos,&thing->mappos,sizeof(struct Coord3d));
       break;
-    }
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
-}
-
-void init_traps(void)
-{
-  struct Thing *thing;
-  int i,k;
-  k = 0;
-  i = game.thing_lists[7].index;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
-    {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
-    }
-    i = thing->next_of_class;
-    if (thing->byte_13 == 0)
-    {
-      thing->byte_13 = game.traps_config[thing->model].shots;
-      thing->field_4F ^= (thing->field_4F ^ (trap_stats[thing->model].field_12 << 4)) & 0x30;
     }
     k++;
     if (k > THINGS_COUNT)

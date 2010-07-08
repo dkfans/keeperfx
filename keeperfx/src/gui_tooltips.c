@@ -28,9 +28,11 @@
 #include "gui_topmsg.h"
 #include "frontend.h"
 #include "thing_objects.h"
+#include "thing_traps.h"
 #include "dungeon_data.h"
 #include "config_creature.h"
 #include "config_terrain.h"
+#include "room_workshop.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
