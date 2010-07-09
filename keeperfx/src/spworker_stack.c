@@ -247,8 +247,46 @@ long check_out_unprettied_place(struct Thing *thing)
 
 long check_out_undug_place(struct Thing *thing)
 {
+    struct CreatureControl *cctrl;
+    struct MapTask* mtask;
+    SubtlCodedCoords task_pos;
+    long task_idx;
+    long stl_x,stl_y;
+    long mv_x,mv_y;
+    long i,n;
     SYNCDBG(19,"Starting");
-    return _DK_check_out_undug_place(thing);
+    //return _DK_check_out_undug_place(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    stl_x = stl_num_decode_x(cctrl->word_8F);
+    stl_y = stl_num_decode_y(cctrl->word_8F);
+    n = ACTION_RANDOM(4);
+    for (i=0; i < 4; i++)
+    {
+        task_pos = get_subtile_number(3*(map_to_slab[stl_x]+small_around[n].delta_x) + 1,
+                                      3*(map_to_slab[stl_y]+small_around[n].delta_y) + 1);
+        task_idx = find_dig_from_task_list(thing->owner, task_pos);
+        if (task_idx != -1)
+        {
+            mv_x = 0; mv_y = 0;
+            if (check_place_to_dig_and_get_position(thing, task_pos, &mv_x, &mv_y)
+                && setup_person_move_to_position(thing, mv_x, mv_y, 0))
+            {
+                cctrl->word_91 = task_idx;
+                cctrl->word_8F = task_pos;
+                mtask = get_task_list_entry(thing->owner, cctrl->word_91);
+                if (mtask->field_0 == 2)
+                {
+                  thing->field_8 = 3;
+                } else
+                {
+                  thing->field_8 = 2;
+                }
+                return 1;
+            }
+        }
+        n = (n + 1) % 4;
+    }
+    return 0;
 }
 
 long check_out_undug_area(struct Thing *thing)
@@ -443,8 +481,6 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, unsigned short 
     return _DK_check_out_uncrowded_reinforce_position(thing, a2, a3, a4);
 }
 
-#include "config_terrain.h"
-extern struct SlabAttr slab_attrs[];
 long check_place_to_dig_and_get_position(struct Thing *thing, unsigned long stl_num, long *retstl_x, long *retstl_y)
 {
     struct SlabMap *place_slb;
@@ -1079,6 +1115,7 @@ long check_out_imp_stack(struct Thing *thing)
                 istack->field_2 = 0;
                 return -1;
             }
+            stl_x = 0; stl_y = 0;
             if (!check_place_to_dig_and_get_position(thing, istack->field_0, &stl_x, &stl_y)
               || !setup_person_move_to_position(thing, stl_x, stl_y, 0))
             {

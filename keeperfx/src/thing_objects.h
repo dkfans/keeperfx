@@ -99,6 +99,7 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx);
 
 long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount);
 struct Thing *find_gold_hoarde_at(unsigned short stl_x, unsigned short stl_y);
+struct Thing *drop_gold_pile(long value, struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }

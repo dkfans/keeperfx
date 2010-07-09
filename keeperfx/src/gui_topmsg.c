@@ -37,9 +37,10 @@ int onscreen_msg_turns = 0;
 struct ErrorStatistics erstat[] = {
     {0, 0, "Out of thing slots"},
     {0, 0, "Out of creatures"},
-    {0, 0, "Out of triangles"},
+    {0, 0, "Out of path triangles"},
     {0, 0, "Out of room slots"},
     {0, 0, "Wrong creature state"},
+    {0, 0, "Out of path points"},
 };
 int last_checked_stat_num = 0;
 /******************************************************************************/

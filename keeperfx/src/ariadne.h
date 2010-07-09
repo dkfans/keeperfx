@@ -189,8 +189,8 @@ AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coor
 AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long a4, unsigned char a5);
 void path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size);
 long get_navigation_colour(long stl_x, long stl_y);
-void border_clip_horizontal(unsigned char *imap, long a1, long a2, long a3, long a4);
-void border_clip_vertical(unsigned char *imap, long a1, long a2, long a3, long a4);
+TbBool border_clip_horizontal(unsigned char *imap, long a1, long a2, long a3, long a4);
+TbBool border_clip_vertical(unsigned char *imap, long a1, long a2, long a3, long a4);
 long link_find(long ntri, long val);
 #define edge_lock(fin_x, fin_y, bgn_x, bgn_y) edge_lock_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
 TbBool edge_lock_f(long fin_x, long fin_y, long bgn_x, long bgn_y, const char *func_name);
@@ -202,7 +202,7 @@ long fringe_get_rectangle(long *a1, long *a2, long *a3, long *a4, unsigned char 
 long delaunay_seeded(long a1, long a2, long a3, long a4);
 void border_unlock(long a1, long a2, long a3, long a4);
 void triangulation_border_start(long *a1, long *a2);
-void triangulate_area(unsigned char *imap, long sx, long sy, long ex, long ey);
+TbBool triangulate_area(unsigned char *imap, long sx, long sy, long ex, long ey);
 
 /******************************************************************************/
 #ifdef __cplusplus

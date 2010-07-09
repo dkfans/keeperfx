@@ -682,6 +682,9 @@
  0003:0009A094       heap_end
  0003:0009A0A0       tree_val
  0003:00013370       nav_rulesA2B
+ 0003:00013394       ix_Points
+ 0003:00013398       count_Points
+ 0003:0001339C       free_Points
 
  0006:00000008       gpoly_pro_enable_mode_ofs
  0006:00000010       gtblock_clip_width
@@ -1578,6 +1581,7 @@
  0001:00088100       check_place_to_pretty_excluding
  0001:000881C0       check_place_to_convert_excluding
  0001:000D1780       check_out_unconverted_spiral
+ 0001:0008CAB0       check_place_to_dig_and_get_position
  0001:0008C900       imp_will_soon_be_working_at_excluding
  0001:000D2170       check_out_undug_place
  0001:000D2490       check_out_undug_area
@@ -1729,6 +1733,9 @@
  0001:000663E0       edgelen_init
  0001:00066950       regions_connected
  0001:00067450       triangle_findSE8
+ 0001:00066E60       triangle_find8
+ 0001:00067BF0       tri_split3
+ 0001:00067FA0       tri_split2
  0001:0006C3B0       path_out_a_bit
  0001:0006C570       route_to_path
  0001:0006DA40       gate_navigator_init8
@@ -1742,7 +1749,6 @@
  0001:000343B0       wp_check_map_pos_valid
  0001:000886F0       check_for_empty_trap_for_imp_not_being_armed
  0001:0008CE70       check_out_uncrowded_reinforce_position
- 0001:0008CAB0       check_place_to_dig_and_get_position
  0001:000884B0       check_place_to_pickup_dead_body
  0001:00088760       check_place_to_pickup_gold
  0001:00088430       check_place_to_pickup_unconscious_body
@@ -1783,6 +1789,8 @@
  0001:0006AB50       triangle_route_do_bak
  0001:0007FD80       ariadne_init_movement_to_current_waypoint
  0001:000816E0       ariadne_pull_out_waypoint
+ 0001:000681C0       insert_point
+ 0001:00069460       make_edge
  0001:0006A690       heap_down
  0001:000C0C40       destroy_creature_and_create_corpse
  0001:000C08B0       thing_death_flesh_explosion
