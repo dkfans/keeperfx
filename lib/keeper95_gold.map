@@ -539,12 +539,17 @@
  0001:000663E0       edgelen_init
  0001:00066950       regions_connected
  0001:00066C60       triangulation_border_start
+ 0001:00066E60       triangle_find8
  0001:00067270       edge_find
  0001:00067450       triangle_findSE8
  0001:00067650       edge_rotateAC
+ 0001:00067BF0       tri_split3
+ 0001:00067FA0       tri_split2
+ 0001:000681C0       insert_point
  0001:000686F0       make_3or4point
  0001:00068940       delete_4point
  0001:00069000       delete_3point
+ 0001:00069460       make_edge
  0001:00069DF0       delaunay_seeded
  0001:0006A440       tri_set_rectangle
  0001:0006A690       heap_down
@@ -1240,6 +1245,9 @@
  0003:00013370       nav_rulesA2B
  0003:00013384       tri_initialised
  0003:0001338C       count_Triangles
+ 0003:00013394       ix_Points
+ 0003:00013398       count_Points
+ 0003:0001339C       free_Points
  0003:000133B0       tag_current
  0003:000133B4       edgelen_initialised
  0003:000133BC       ix_Border

@@ -699,6 +699,47 @@ struct Thing *find_gold_hoarde_at(unsigned short stl_x, unsigned short stl_y)
     return INVALID_THING;
 }
 
+TbBool add_gold_to_pile(struct Thing *thing, long value)
+{
+    long scaled_val;
+    if (thing_is_invalid(thing))
+        return false;
+    thing->long_13 += value;
+    if (thing->long_13 < 0)
+        thing->long_13 = LONG_MAX;
+    scaled_val = thing->long_13 / 2 + 150;
+    if ((scaled_val > 600) || (thing->long_13 >= game.gold_pile_maximum))
+      scaled_val = 600;
+    thing->field_46 = scaled_val;
+    return true;
+}
+
+struct Thing *create_gold_pile(struct Coord3d *pos, long plyr_idx, long value)
+{
+    struct Thing *thing;
+    thing = create_object(pos, 43, plyr_idx, -1);
+    if (thing_is_invalid(thing))
+    {
+        return INVALID_THING;
+    }
+    thing->long_13 = 0;
+    add_gold_to_pile(thing, value);
+    return thing;
+}
+
+struct Thing *drop_gold_pile(long value, struct Coord3d *pos)
+{
+    struct Thing *thing;
+    thing = smallest_gold_pile_at_xy(pos->x.stl.num, pos->y.stl.num);
+    if (thing_is_invalid(thing))
+    {
+        thing = create_gold_pile(pos, game.neutral_player_num, value);
+    } else
+    {
+        add_gold_to_pile(thing, value);
+    }
+    return thing;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

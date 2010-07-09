@@ -3130,11 +3130,84 @@ short imp_converts_dungeon(struct Thing *thing)
   return _DK_imp_converts_dungeon(thing);
 }
 
+TbBool too_much_gold_lies_around_thing(struct Thing *thing)
+{
+  return gold_pile_with_maximum_at_xy(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+}
+
 short imp_digs_mines(struct Thing *thing)
 {
-    //TODO may hang if out of navi triangles
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct MapTask* mtask;
+    struct SlabMap *slb;
+    struct Coord3d pos;
+    MapSubtlCoord stl_x,stl_y;
+    long delta_x,delta_y;
     SYNCDBG(19,"Starting");
-    return _DK_imp_digs_mines(thing);
+    // return _DK_imp_digs_mines(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    mtask = get_task_list_entry(thing->owner, cctrl->word_91);
+    stl_x = stl_num_decode_x(cctrl->word_8F);
+    stl_y = stl_num_decode_y(cctrl->word_8F);
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+
+    // Check if we've arrived at the destination
+    delta_x = abs(thing->mappos.x.stl.num - cctrl->moveto_pos.x.stl.num);
+    delta_y = abs(thing->mappos.y.stl.num - cctrl->moveto_pos.y.stl.num);
+    if ((mtask->field_1 != cctrl->word_8F) || (delta_x >= 1) || (delta_y >= 1))
+    {
+      clear_creature_instance(thing);
+      internal_set_thing_state(thing, 8);
+      return 1;
+    }
+    // If gems are marked for digging, but there is too much gold laying around, then don't dig
+    if ((slb->slab == SlbT_GEMS) && too_much_gold_lies_around_thing(thing))
+    {
+      clear_creature_instance(thing);
+      internal_set_thing_state(thing, 8);
+      return 1;
+    }
+    // Turn to the correct direction to do the task
+    pos.x.stl.num = stl_x;
+    pos.y.stl.num = stl_y;
+    pos.x.stl.pos = 128;
+    pos.y.stl.pos = 128;
+    if (creature_turn_to_face(thing, &pos))
+    {
+      return 1;
+    }
+
+    if (mtask->field_0 == 0)
+    {
+        clear_creature_instance(thing);
+        internal_set_thing_state(thing, 8);
+        return 1;
+    }
+
+    if (cctrl->field_D2 == 0)
+    {
+        set_creature_instance(thing, 30, 0, 0, 0);
+    }
+
+    if (mtask->field_0 == 2)
+    {
+        crstat = creature_stats_get_from_thing(thing);
+        // If the creature holds more gold than its able
+        if (thing->long_13 > crstat->gold_hold)
+        {
+          if (game.play_gameturn - cctrl->field_2C7 > 128)
+          {
+            if (check_out_imp_has_money_for_treasure_room(thing))
+              return 1;
+            cctrl->field_2C7 = game.play_gameturn;
+          }
+
+          drop_gold_pile(thing->long_13 - crstat->gold_hold, &thing->mappos);
+          thing->long_13 = crstat->gold_hold;
+        }
+    }
+    return 1;
 }
 
 short imp_doing_nothing(struct Thing *thing)
