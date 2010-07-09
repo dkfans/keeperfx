@@ -1047,6 +1047,50 @@ TbBool imp_already_digging_at_excluding(struct Thing *excltng, long stl_x, long 
   return false;
 }
 
+struct Thing *smallest_gold_pile_at_xy(long stl_x, long stl_y)
+{
+  const struct Map *mapblk;
+  struct Thing *thing;
+  unsigned long k;
+  struct Thing *chosen_thing;
+  long chosen_gold;
+  long i;
+  chosen_thing = INVALID_THING;
+  chosen_gold = LONG_MAX;
+  mapblk = get_map_block_at(stl_x, stl_y);
+  if (map_block_invalid(mapblk))
+      return chosen_thing;
+  k = 0;
+  i = get_mapwho_thing_index(mapblk);
+  while (i != 0)
+  {
+    thing = thing_get(i);
+    if (thing_is_invalid(thing))
+    {
+      WARNLOG("Jump out of things array");
+      break;
+    }
+    i = thing->field_2;
+    // Per thing processing block
+    if ((thing->class_id == TCls_Object) && (thing->model == 43))
+    {
+        if (thing->long_13 < chosen_gold)
+        {
+            chosen_thing = thing;
+            chosen_gold = thing->long_13;
+        }
+    }
+    // Per thing processing block ends
+    k++;
+    if (k > THINGS_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping things list");
+      break;
+    }
+  }
+  return chosen_thing;
+}
+
 TbBool gold_pile_with_maximum_at_xy(long stl_x, long stl_y)
 {
   const struct Map *mapblk;

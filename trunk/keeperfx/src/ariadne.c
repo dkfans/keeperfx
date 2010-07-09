@@ -76,6 +76,11 @@ DLLIMPORT void _DK_heap_down(long heapid);
 DLLIMPORT long _DK_creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid);
 DLLIMPORT unsigned char _DK_ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos);
+DLLIMPORT void _DK_insert_point(long pt_x, long pt_y);
+DLLIMPORT void _DK_make_edge(long start_x, long end_x, long start_y, long end_y);
+DLLIMPORT long _DK_triangle_find8(long a1, long a2);
+DLLIMPORT long _DK_tri_split2(long a1, long a2, long a3, long a4, long a5);
+DLLIMPORT void _DK_tri_split3(long a1, long a2, long a3);
 
 /******************************************************************************/
 DLLIMPORT unsigned char _DK_tag_current;
@@ -98,6 +103,12 @@ DLLIMPORT unsigned long _DK_RadiusEdgeFit[EDGEOR_COUNT][EDGEFIT_LEN];
 #define RadiusEdgeFit _DK_RadiusEdgeFit
 DLLIMPORT NavRules _DK_nav_rulesA2B;
 #define nav_rulesA2B _DK_nav_rulesA2B
+DLLIMPORT long _DK_count_Points;
+#define count_Points _DK_count_Points
+DLLIMPORT long _DK_ix_Points;
+#define ix_Points _DK_ix_Points
+DLLIMPORT long _DK_free_Points;
+#define free_Points _DK_free_Points
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -143,6 +154,10 @@ long Heap[258];
 unsigned long edgelen_initialised = 0;
 unsigned long *EdgeFit = NULL;
 unsigned long RadiusEdgeFit[EDGEOR_COUNT][EDGEFIT_LEN];
+
+long count_Points = 0;
+long ix_Points = 0;
+long free_Points = -1;
 */
 /******************************************************************************/
 long route_to_path(long a1, long a2, long a3, long a4, long *a5, long a6, struct Path *path, long *a8);
@@ -1243,18 +1258,220 @@ TbBool delete_point(long pt_tri, long pt_cor)
     return true;
 }
 
-void border_clip_horizontal(unsigned char *imap, long a1, long a2, long a3, long a4)
+long point_new(void)
 {
-    _DK_border_clip_horizontal(imap, a1, a2, a3, a4);
+  long i;
+  if (free_Points == -1)
+  {
+      i = ix_Points;
+      if ((i < 0) || (i >= POINTS_COUNT))
+      {
+          ERRORLOG("ix_Points overflow");
+          erstat_inc(ESE_NoFreePathPts);
+          return -1;
+      }
+      ix_Points++;
+  } else
+  {
+      i = free_Points;
+      if ((i < 0) || (i >= POINTS_COUNT))
+      {
+          ERRORLOG("free_Points overflow");
+          erstat_inc(ESE_NoFreePathPts);
+          return -1;
+      }
+      free_Points = Points[i].x;
+  }
+  Points[i].y = 0;
+  count_Points++;
+  return i;
 }
 
-void border_clip_vertical(unsigned char *imap, long a1, long a2, long a3, long a4)
+void tri_split3(long a1, long a2, long a3)
 {
-    _DK_border_clip_vertical(imap, a1, a2, a3, a4);
+    NAVIDBG(19,"Starting");
+    _DK_tri_split3(a1, a2, a3);
+}
+
+long tri_split2(long a1, long a2, long a3, long a4, long a5)
+{
+    return _DK_tri_split2(a1, a2, a3, a4, a5);
+}
+
+TbBool edge_split(long ntri, long ncor, long pt_x, long pt_y)
+{
+    long pt_idx;
+    long ntr2,ncr2;
+    long tri_sp1,tri_sp2;
+    NAVIDBG(19,"Starting");
+    // Create and fill new point
+    pt_idx = point_new();
+    if (pt_idx < 0)
+        return false;
+    Points[pt_idx].y = pt_y;
+    Points[pt_idx].x = pt_x;
+    // Find second ntri and ncor
+    ntr2 = Triangles[ntri].field_6[ncor];
+    ncr2 = link_find(ntr2, ntri);
+    if (ncr2 < 0)
+        return false;
+    // Do the splitting
+    tri_sp1 = tri_split2(ntri, ncor, pt_x, pt_y, pt_idx);
+    tri_sp2 = tri_split2(ntr2, ncr2, pt_x, pt_y, pt_idx);
+    Triangles[ntr2].field_6[ncr2] = tri_sp1;
+    Triangles[ntri].field_6[ncor] = tri_sp2;
+    return true;
+}
+
+long triangle_find8(long pos_x, long pos_y)
+{
+    //TODO may hang if out of points
+    NAVIDBG(9,"Starting");
+    return _DK_triangle_find8(pos_x, pos_y);
+}
+
+TbBool insert_point(long pt_x, long pt_y)
+{
+    long long areaA,areaB;
+    long tript0_x,tript1_x,tript2_x;
+    long tript0_y,tript1_y,tript2_y;
+    long ntri,pt_idx;
+    NAVIDBG(19,"Starting");
+    //_DK_insert_point(pt_x, pt_y);
+    ntri = triangle_find8(pt_x << 8, pt_y << 8);
+    if (ntri == -1)
+    {
+      ERRORLOG("triangle not found");
+      return false;
+    }
+
+    pt_idx = Triangles[ntri].field_0[0];
+    tript0_x = Points[pt_idx].x;
+    tript0_y = Points[pt_idx].y;
+    if ((tript0_x == pt_x) && (tript0_y == pt_y))
+    {
+      return true;
+    }
+    pt_idx = Triangles[ntri].field_0[1];
+    tript1_x = Points[pt_idx].x;
+    tript1_y = Points[pt_idx].y;
+    if ((tript1_x == pt_x) && (tript1_y == pt_y))
+    {
+      return true;
+    }
+    pt_idx = Triangles[ntri].field_0[2];
+    tript2_x = Points[pt_idx].x;
+    tript2_y = Points[pt_idx].y;
+    if ((tript2_x == pt_x) && (tript2_y == pt_y))
+    {
+      return true;
+    }
+
+    areaA = abs(pt_y - tript0_y);
+    areaB = abs(pt_x - tript0_x);
+    areaA *= abs(tript1_x - tript0_x);
+    areaB *= abs(tript1_y - tript0_y);
+    if (areaA == areaB)
+    {
+        return edge_split(ntri, 0, pt_x, pt_y);
+    }
+
+    areaA = abs(pt_y - tript1_y);
+    areaB = abs(pt_x - tript1_x);
+    areaA *= abs(tript2_x - tript1_x);
+    areaB *= abs(tript2_y - tript1_y);
+    if (areaA == areaB)
+    {
+        return edge_split(ntri, 1, pt_x, pt_y);
+    }
+
+    areaA = abs(pt_y - tript2_y);
+    areaB = abs(pt_x - tript2_x);
+    areaA *= abs(tript0_x - tript2_x);
+    areaB *= abs(tript0_y - tript2_y);
+    if (areaA == areaB)
+    {
+        return edge_split(ntri, 2, pt_x, pt_y);
+    }
+
+    tri_split3(ntri, pt_x, pt_y);
+    return true;
+}
+
+void make_edge(long start_x, long end_x, long start_y, long end_y)
+{
+    NAVIDBG(19,"Starting");
+    _DK_make_edge(start_x, end_x, start_y, end_y);
+}
+
+TbBool border_clip_horizontal(unsigned char *imap, long start_x, long end_x, long start_y, long end_y)
+{
+    unsigned char map_center,map_up;
+    unsigned char *mapp;
+    TbBool r;
+    long i;
+    r = true;
+    NAVIDBG(19,"Starting");
+    //_DK_border_clip_horizontal(imap, a1, a2, a3, a4);
+
+    i = start_x;
+    mapp = &imap[256 * start_y + i];
+    {
+        r &= insert_point(i, start_y);
+        map_up = *(mapp-256);
+        map_center = *(mapp);
+    }
+    for (i++; i < end_x; i++)
+    {
+        mapp = &imap[256 * start_y + i];
+        if ((*(mapp) != map_center) || (*(mapp-256) != map_up))
+        {
+            r &= insert_point(i, start_y);
+            map_up = *(mapp-256);
+            map_center = *(mapp);
+        }
+    }
+    r &= insert_point(end_x, start_y);
+    make_edge(start_x, start_y, end_x, start_y);
+    //TODO PATHFINDING on a failure, we could release all allocated points...
+    return r;
+}
+
+TbBool border_clip_vertical(unsigned char *imap, long start_x, long end_x, long start_y, long end_y)
+{
+    unsigned char map_center,map_left;
+    unsigned char *mapp;
+    TbBool r;
+    long i;
+    r = true;
+    NAVIDBG(9,"Starting");
+    //_DK_border_clip_vertical(imap, a1, a2, a3, a4);
+    i = start_y;
+    mapp = &imap[256 * i + start_x];
+    {
+        r &= insert_point(start_x, i);
+        map_left = *(mapp-1);
+        map_center = *(mapp);
+    }
+    for (i++; i < end_y; i++)
+    {
+        mapp = &imap[256 * i + start_x];
+        if ((*(mapp) != map_center) || (*(mapp-1) != map_left))
+        {
+            r &= insert_point(start_x, i);
+            map_left = *(mapp-1);
+            map_center = *(mapp);
+        }
+    }
+    r &= insert_point(start_x, end_y);
+    make_edge(start_x, start_y, start_x, end_y);
+    //TODO PATHFINDING on a failure, we could release all allocated points...
+    return r;
 }
 
 long edge_find(long a1, long a2, long a3, long a4, long *a5, long *a6)
 {
+    NAVIDBG(19,"Starting");
     return _DK_edge_find(a1, a2, a3, a4, a5, a6);
 }
 
@@ -1306,7 +1523,9 @@ TbBool edge_lock_f(long fin_x, long fin_y, long bgn_x, long bgn_y, const char *f
 
 TbBool border_lock(long start_x, long start_y, long end_x, long end_y)
 {
-    TbBool r = true;
+    TbBool r;
+    NAVIDBG(19,"Starting");
+    r = true;
     r &= edge_lock(start_x, start_y, start_x, end_y);
     r &= edge_lock(start_x, end_y, end_x, end_y);
     r &= edge_lock(end_x, end_y, end_x, start_y);
@@ -1359,6 +1578,7 @@ void border_internal_points_delete(long start_x, long start_y, long end_x, long 
     long ntri,ncor;
     unsigned long k;
     long i,n;
+    NAVIDBG(19,"Starting");
     //_DK_border_internal_points_delete(start_x, start_y, end_x, end_y);
 
     if (!edge_find(start_x, start_y, end_x, start_y, &edge_tri, &edge_cor))
@@ -1402,6 +1622,11 @@ void border_internal_points_delete(long start_x, long start_y, long end_x, long 
         ncor = MOD3[ncor+1];
         while (!outer_locked(ntri, ncor))
         {
+            if (k >= TRIANLGLES_COUNT)
+            {
+                // Message will be displayed in big loop, so not here
+                break;
+            }
             n = Triangles[ntri].field_6[ncor];
             i = link_find(n, ntri);
             if (i < 0)
@@ -1414,6 +1639,7 @@ void border_internal_points_delete(long start_x, long start_y, long end_x, long 
             region_set(ntri, 0);
             k++;
         }
+        k++;
         if (Triangles[ntri].field_6[ncor] == edge_tri)
             break;
     }
@@ -1497,15 +1723,18 @@ void triangulation_border_init(void)
       }
     }
     while ((tri_a != border_a) || (tri_b != border_b));
+    NAVIDBG(19,"Finished");
 }
 
-void triangulate_area(unsigned char *imap, long start_x, long start_y, long end_x, long end_y)
+TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long end_x, long end_y)
 {
     TbBool one_tile,not_whole_map;
     long colour;
     unsigned char ccolour;
     long rect_sx,rect_sy,rect_ex,rect_ey;
+    TbBool r;
     long i;
+    r = true;
     LastTriangulatedMap = imap;
     NAVIDBG(9,"F=%ld Area %03ld,%03ld %03ld,%03ld T=%04ld",game.play_gameturn,start_x,start_y,end_x,end_y,count_Triangles);
     //_DK_triangulate_area(imap, sx, sy, ex, ey); return;
@@ -1524,7 +1753,7 @@ void triangulate_area(unsigned char *imap, long start_x, long start_y, long end_
     }
     if ((start_x == -1) || (start_y == -1) || (end_x == start_x) || (end_y == start_y))
     {
-         return;
+         return false;
     }
     // Prepare some basic logic information
     one_tile = ((end_x - start_x == 1) && (end_y - start_y == 1));
@@ -1546,11 +1775,11 @@ void triangulate_area(unsigned char *imap, long start_x, long start_y, long end_
     }
     if ( not_whole_map )
     {
-      border_clip_horizontal(imap, start_x, end_x, start_y, 0);
-      border_clip_horizontal(imap, start_x, end_x, end_y, -1);
-      border_clip_vertical(imap, start_x, -1, start_y, end_y);
-      border_clip_vertical(imap, end_x, 0, start_y, end_y);
-      border_lock(start_x, start_y, end_x, end_y);
+      r &= border_clip_horizontal(imap, start_x, end_x, start_y, 0);
+      r &= border_clip_horizontal(imap, start_x, end_x, end_y, -1);
+      r &= border_clip_vertical(imap, start_x, -1, start_y, end_y);
+      r &= border_clip_vertical(imap, end_x, 0, start_y, end_y);
+      r &= border_lock(start_x, start_y, end_x, end_y);
       if ( !one_tile )
         border_internal_points_delete(start_x, start_y, end_x, end_y);
     } else
@@ -1595,5 +1824,6 @@ void triangulate_area(unsigned char *imap, long start_x, long start_y, long end_
     if ( not_whole_map )
       border_unlock(start_x, start_y, end_x, end_y);
     triangulation_border_init();
+    return r;
 }
 /******************************************************************************/

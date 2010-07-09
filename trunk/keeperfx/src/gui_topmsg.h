@@ -37,6 +37,7 @@ enum ErrorStatisticEntries {
     ESE_NoFreeTriangls,
     ESE_NoFreeRooms,
     ESE_BadCreatrState,
+    ESE_NoFreePathPts,
 };
 
 struct ErrorStatistics {
