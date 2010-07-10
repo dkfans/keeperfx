@@ -4,7 +4,7 @@ Dungeon Keeper Fan Expansion
 KeeperFX is an extensive mod for Dungeon Keeper.
 
 It is written by fans and not supported by original developer.
-It uses some of original Dungeon Keeper data, but many files
+It contains some of original Dungeon Keeper data, but many files
 are also modified or remade.
 
 Installation of KeeperFX CCP:

@@ -89,7 +89,7 @@ struct Path { // sizeof = 2068
 struct Triangle { // sizeof = 16
   short field_0[3];
   short field_6[3];
-  unsigned char field_C;
+  unsigned char field_C; // 255 is a special value here
   unsigned char field_D;
   unsigned short field_E;
 };
