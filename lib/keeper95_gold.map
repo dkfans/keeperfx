@@ -538,7 +538,9 @@
  0001:00066220       triangulation_initxy
  0001:000663E0       edgelen_init
  0001:00066950       regions_connected
+ 0001:00066A90       pointed_at8
  0001:00066C60       triangulation_border_start
+ 0001:00066D20       triangle_brute_find8_near
  0001:00066E60       triangle_find8
  0001:00067270       edge_find
  0001:00067450       triangle_findSE8
@@ -1244,6 +1246,7 @@
  0003:00012824       anim_counter
  0003:00013370       nav_rulesA2B
  0003:00013384       tri_initialised
+ 0003:00013388       ix_Triangles
  0003:0001338C       count_Triangles
  0003:00013394       ix_Points
  0003:00013398       count_Points
@@ -1557,6 +1560,7 @@
  0003:00055EB4       EdgeFit
  0003:000564F8       tree_Bx8
  0003:000564FC       tree_By8
+ 0003:00056500       find_cache
  0003:00056540       fringe_map
  0003:00056544       tree_Ax8
  0003:00056548       tree_Ay8

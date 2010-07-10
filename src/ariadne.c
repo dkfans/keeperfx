@@ -81,6 +81,8 @@ DLLIMPORT void _DK_make_edge(long start_x, long end_x, long start_y, long end_y)
 DLLIMPORT long _DK_triangle_find8(long a1, long a2);
 DLLIMPORT long _DK_tri_split2(long a1, long a2, long a3, long a4, long a5);
 DLLIMPORT void _DK_tri_split3(long a1, long a2, long a3);
+DLLIMPORT long _DK_pointed_at8(long pos_x, long pos_y, long *retpos_x, long *retpos_y);
+DLLIMPORT long _DK_triangle_brute_find8_near(long pos_x, long pos_y);
 
 /******************************************************************************/
 DLLIMPORT unsigned char _DK_tag_current;
@@ -109,6 +111,10 @@ DLLIMPORT long _DK_ix_Points;
 #define ix_Points _DK_ix_Points
 DLLIMPORT long _DK_free_Points;
 #define free_Points _DK_free_Points
+DLLIMPORT long _DK_find_cache[4][4];
+#define find_cache _DK_find_cache
+DLLIMPORT long _DK_ix_Triangles;
+#define ix_Triangles _DK_ix_Triangles
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -411,7 +417,7 @@ void tri_dispose(long tri_idx)
   pfree_idx = free_Triangles;
   free_Triangles = tri_idx;
   Triangles[tri_idx].field_6 = pfree_idx;
-  Triangles[tri_idx].field_C = -1;
+  Triangles[tri_idx].field_C = 255;
   count_Triangles--;
 }
 */
@@ -456,6 +462,62 @@ long cost_to_start(long tri_idx)
             mincost = newcost;
     }
     return mincost;
+}
+
+long pointed_at8(long pos_x, long pos_y, long *retpos_x, long *retpos_y)
+{
+    return _DK_pointed_at8(pos_x, pos_y, retpos_x, retpos_y);
+}
+
+long triangle_brute_find8_near(long pos_x, long pos_y)
+{
+    return _DK_triangle_brute_find8_near(pos_x, pos_y);
+}
+
+long triangle_find_cache_get(long pos_x, long pos_y)
+{
+  long cache_x,cache_y;
+  long ntri;
+  cache_x = (pos_x >> 14);
+  if (cache_x > 3)
+    cache_x = 3;
+  if (cache_x < 0)
+    cache_x = 0;
+  cache_y = (pos_y >> 14);
+  if (cache_y > 3)
+    cache_y = 3;
+  if (cache_y < 0)
+    cache_y = 0;
+
+  ntri = find_cache[cache_y][cache_x];
+  if (Triangles[ntri].field_C == 255)
+  {
+    ntri = triangle_brute_find8_near(pos_x, pos_y);
+    if ((ntri < 0) || (ntri > ix_Triangles))
+    {
+        ERRORLOG("overflow");
+        ntri = -1;
+    }
+    find_cache[cache_y][cache_x] = ntri;
+  }
+  return ntri;
+
+}
+
+void triangle_find_cache_put(long pos_x, long pos_y, long ntri)
+{
+  long cache_x,cache_y;
+  cache_x = (pos_x >> 14);
+  if (cache_x > 3)
+    cache_x = 3;
+  if (cache_x < 0)
+    cache_x = 0;
+  cache_y = (pos_y >> 14);
+  if (cache_y > 3)
+    cache_y = 3;
+  if (cache_y < 0)
+    cache_y = 0;
+  find_cache[cache_y][cache_x] = ntri;
 }
 
 long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
@@ -1063,7 +1125,6 @@ void path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, 
 {
     int creature_radius;
     long route_dist;
-    //TODO PATHFINDING hangs; probably if out of triangles
     //_DK_path_init8_wide(path, start_x, start_y, end_x, end_y, a6, nav_size);
     NAVIDBG(19,"F=%ld Path    %03ld,%03ld %03ld,%03ld", game.play_gameturn, start_x, start_y, end_x, end_y);
     if (a6 == -1)
@@ -1323,77 +1384,172 @@ TbBool edge_split(long ntri, long ncor, long pt_x, long pt_y)
     return true;
 }
 
-long triangle_find8(long pos_x, long pos_y)
+TbBool triangle_tip_equals(long ntri, long ncor, long pt_x, long pt_y)
 {
+    long tip_x,tip_y;
+    long pt_idx;
+    pt_idx = Triangles[ntri].field_0[ncor];
+    if ((pt_idx < 0) || (pt_idx >= POINTS_COUNT))
+        return false;
+    tip_x = Points[pt_idx].x;
+    tip_y = Points[pt_idx].y;
+    if ((tip_x != pt_x) || (tip_y != pt_y))
+        return false;
+    return true;
+}
+
+/** Returns if given coords can divide triangle into same areas.
+ *
+ * @param ntri Triangle index.
+ * @param ncorA First tip of the edge to be divided.
+ * @param ncorB Second tip of the edge to be divided.
+ * @param pt_x Coord X of the dividing point.
+ * @param pt_y Coord Y of the dividing point.
+ * @return True or false.
+ */
+char triangle_divide_areas_differ(long ntri, long ncorA, long ncorB, long pt_x, long pt_y)
+{
+    long long areaA,areaB;
+    long tipA_x,tipA_y;
+    long tipB_x,tipB_y;
+    long pt_idx;
+    int area_mod;
+    unsigned char area_rel;
+    char ret;
+    pt_idx = Triangles[ntri].field_0[ncorA];
+    if ((pt_idx < 0) || (pt_idx >= POINTS_COUNT))
+        return false;
+    tipA_x = Points[pt_idx].x;
+    tipA_y = Points[pt_idx].y;
+    pt_idx = Triangles[ntri].field_0[ncorB];
+    if ((pt_idx < 0) || (pt_idx >= POINTS_COUNT))
+        return false;
+    tipB_x = Points[pt_idx].x;
+    tipB_y = Points[pt_idx].y;
+    // Compute areas to compare; use rectangular area
+    areaB = (pt_y - tipA_y);
+    areaB *= (tipB_x - tipA_x);
+    areaA = (pt_x - tipA_x);
+    areaA *= (tipB_y - tipA_y);
+    area_rel = (unsigned long)areaB < (unsigned long)areaA;
+    ret = (unsigned long)areaB != (unsigned long)areaA;
+    area_mod = (areaB >> 32) - (area_rel + (areaA >> 32));
+    if ( area_mod )
+      ret = !((unsigned char)(area_mod < 0) | area_mod == 0) - (area_mod < 0);
+    return ret;
+}
+
+char triangle_divide_areas_s8differ(long ntri, long ncorA, long ncorB, long pt_x, long pt_y)
+{
+    long long areaA,areaB;
+    long tipA_x,tipA_y;
+    long tipB_x,tipB_y;
+    long pt_idx;
+    int area_mod;
+    unsigned char area_rel;
+    char ret;
+
+    pt_idx = Triangles[ntri].field_0[ncorA];
+    if ((pt_idx < 0) || (pt_idx >= POINTS_COUNT))
+        return false;
+    tipA_x = (Points[pt_idx].x << 8);
+    tipA_y = (Points[pt_idx].y << 8);
+    pt_idx = Triangles[ntri].field_0[ncorB];
+    if ((pt_idx < 0) || (pt_idx >= POINTS_COUNT))
+        return false;
+    tipB_x = (Points[pt_idx].x << 8);
+    tipB_y = (Points[pt_idx].y << 8);
+    // Compute areas to compare; use rectangular area
+    areaA =  (tipA_y - pt_y);
+    areaA *= (tipB_x - pt_x);
+    areaB =  (tipA_x - pt_x);
+    areaB *= (tipB_y - pt_y);
+    area_rel = (unsigned long)areaB < (unsigned long)areaA;
+    ret = (unsigned long)areaB != (unsigned long)areaA;
+    area_mod = (areaB >> 32) - (area_rel + (areaA >> 32));
+    if ( area_mod )
+      ret = !((unsigned char)(area_mod < 0) | area_mod == 0) - (area_mod < 0);
+    return ret;
+}
+
+long triangle_find8(long pt_x, long pt_y)
+{
+    int eqA,eqB,eqC;
+    long ntri,ncor;
+    unsigned long k;
     //TODO may hang if out of points
     NAVIDBG(9,"Starting");
-    return _DK_triangle_find8(pos_x, pos_y);
+    //return _DK_triangle_find8(pt_x, pt_y);
+    ntri = triangle_find_cache_get(pt_x, pt_y);
+    for (k=0; k < TRIANLGLES_COUNT; k++)
+    {
+      eqA = triangle_divide_areas_s8differ(ntri, 0, 1, pt_x, pt_y) > 0;
+      eqB = triangle_divide_areas_s8differ(ntri, 1, 2, pt_x, pt_y) > 0;
+      eqC = triangle_divide_areas_s8differ(ntri, 2, 0, pt_x, pt_y) > 0;
+
+      switch ( eqA + 2 * (eqB + 2 * eqC) )
+      {
+      case 1:
+          ntri = Triangles[ntri].field_6[0];
+          break;
+      case 2:
+          ntri = Triangles[ntri].field_6[1];
+          break;
+      case 3:
+          ncor = 1;
+          pointed_at8(pt_x, pt_y, &ntri, &ncor);
+          break;
+      case 4:
+          ntri = Triangles[ntri].field_6[2];
+          break;
+      case 5:
+          ncor = 0;
+          pointed_at8(pt_x, pt_y, &ntri, &ncor);
+          break;
+      case 6:
+      case 7:
+          ncor = 2;
+          pointed_at8(pt_x, pt_y, &ntri, &ncor);
+          break;
+      case 0:
+          triangle_find_cache_put(pt_x, pt_y, ntri);
+          return ntri;
+      }
+    }
+    ERRORLOG("Infinite loop detected");
+    return -1;
 }
 
 TbBool insert_point(long pt_x, long pt_y)
 {
-    long long areaA,areaB;
-    long tript0_x,tript1_x,tript2_x;
-    long tript0_y,tript1_y,tript2_y;
-    long ntri,pt_idx;
+    long ntri;
     NAVIDBG(19,"Starting");
-    //_DK_insert_point(pt_x, pt_y);
+    //_DK_insert_point(pt_x, pt_y); return true;
     ntri = triangle_find8(pt_x << 8, pt_y << 8);
-    if (ntri == -1)
+    if ((ntri < 0) || (ntri >= TRIANLGLES_COUNT))
     {
       ERRORLOG("triangle not found");
       return false;
     }
+    if (triangle_tip_equals(ntri, 0, pt_x, pt_y))
+      return true;
+    if (triangle_tip_equals(ntri, 1, pt_x, pt_y))
+      return true;
+    if (triangle_tip_equals(ntri, 2, pt_x, pt_y))
+      return true;
 
-    pt_idx = Triangles[ntri].field_0[0];
-    tript0_x = Points[pt_idx].x;
-    tript0_y = Points[pt_idx].y;
-    if ((tript0_x == pt_x) && (tript0_y == pt_y))
-    {
-      return true;
-    }
-    pt_idx = Triangles[ntri].field_0[1];
-    tript1_x = Points[pt_idx].x;
-    tript1_y = Points[pt_idx].y;
-    if ((tript1_x == pt_x) && (tript1_y == pt_y))
-    {
-      return true;
-    }
-    pt_idx = Triangles[ntri].field_0[2];
-    tript2_x = Points[pt_idx].x;
-    tript2_y = Points[pt_idx].y;
-    if ((tript2_x == pt_x) && (tript2_y == pt_y))
-    {
-      return true;
-    }
-
-    areaA = abs(pt_y - tript0_y);
-    areaB = abs(pt_x - tript0_x);
-    areaA *= abs(tript1_x - tript0_x);
-    areaB *= abs(tript1_y - tript0_y);
-    if (areaA == areaB)
+    if (!triangle_divide_areas_differ(ntri, 0, 1, pt_x, pt_y))
     {
         return edge_split(ntri, 0, pt_x, pt_y);
     }
-
-    areaA = abs(pt_y - tript1_y);
-    areaB = abs(pt_x - tript1_x);
-    areaA *= abs(tript2_x - tript1_x);
-    areaB *= abs(tript2_y - tript1_y);
-    if (areaA == areaB)
+    if (!triangle_divide_areas_differ(ntri, 1, 2, pt_x, pt_y))
     {
         return edge_split(ntri, 1, pt_x, pt_y);
     }
-
-    areaA = abs(pt_y - tript2_y);
-    areaB = abs(pt_x - tript2_x);
-    areaA *= abs(tript0_x - tript2_x);
-    areaB *= abs(tript0_y - tript2_y);
-    if (areaA == areaB)
+    if (!triangle_divide_areas_differ(ntri, 2, 0, pt_x, pt_y))
     {
         return edge_split(ntri, 2, pt_x, pt_y);
     }
-
     tri_split3(ntri, pt_x, pt_y);
     return true;
 }
@@ -1737,7 +1893,7 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
     r = true;
     LastTriangulatedMap = imap;
     NAVIDBG(9,"F=%ld Area %03ld,%03ld %03ld,%03ld T=%04ld",game.play_gameturn,start_x,start_y,end_x,end_y,count_Triangles);
-    //_DK_triangulate_area(imap, sx, sy, ex, ey); return;
+    //_DK_triangulate_area(imap, start_x, start_y, end_x, end_y); return true;
     // Switch coords to make end_x larger than start_x
     if (end_x < start_x)
     {
