@@ -662,6 +662,8 @@
  0003:000133BC       ix_Border
  0003:00013384       tri_initialised
  0003:0001338C       count_Triangles
+ 0003:00013388       ix_Triangles
+ 0003:00056500       find_cache
  0003:00056540       fringe_map
  0003:000133E4       LastTriangulatedMap
  0003:000574F0       Points
@@ -1800,4 +1802,5 @@
  0001:000646D0       create_dead_creature
  0001:00038280       game_action
  0001:000CC0C0       creature_choose_random_destination_on_valid_adjacent_slab
- 
+ 0001:00066A90       pointed_at8
+ 0001:00066D20       triangle_brute_find8_near
