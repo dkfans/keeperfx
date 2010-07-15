@@ -49,6 +49,8 @@ DLLIMPORT extern unsigned long _DK_gui_panel_sprite_data;
 #define gui_panel_sprite_data _DK_gui_panel_sprite_data
 DLLIMPORT extern unsigned long _DK_end_gui_panel_sprite_data;
 #define end_gui_panel_sprite_data _DK_end_gui_panel_sprite_data
+DLLIMPORT unsigned char _DK_colours[16][16][16];
+#define colours _DK_colours
 
 /******************************************************************************/
 void draw_bar64k(long pos_x, long pos_y, long width);

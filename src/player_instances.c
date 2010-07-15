@@ -33,6 +33,8 @@
 #include "frontend.h"
 #include "power_hand.h"
 #include "magic.h"
+#include "gui_soundmsgs.h"
+
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -1065,6 +1067,49 @@ TbBool set_selected_creature(struct PlayerInfo *player, struct Thing *thing)
   }
   ERRORLOG("Cannot select thing for information");
   return false;
+}
+
+/** Builds room for the given player at given coords.
+ * Takes money from dungeon, builds the room and updates stats.
+ * Makes proper sound messages on failure.
+ *
+ * @param stl_x Target X coord to build on.
+ * @param stl_y Target Y coord to build on.
+ * @param plyr_idx Player owning the room.
+ * @param rkind Kind of the room.
+ * @return Returns room struct, or invalid room on error.
+ */
+struct Room *player_build_room_at(long stl_x, long stl_y, long plyr_idx, long rkind)
+{
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    struct Room *room;
+    struct RoomStats *rstat;
+    player = get_player(plyr_idx);
+    dungeon = get_players_dungeon(player);
+    rstat = room_stats_get_for_kind(rkind);
+    // Check if there's a place for new room.
+    if (!i_can_allocate_free_room_structure())
+    {
+      if (is_my_player(player))
+        play_non_3d_sample(119);
+      return INVALID_ROOM;
+    }
+    if (take_money_from_dungeon(plyr_idx, rstat->cost, 1) < 0)
+    {
+      if (is_my_player(player))
+        output_message(SMsg_NotEnoughGold, 0, 1);
+      return INVALID_ROOM;
+    }
+    room = place_room(plyr_idx, rkind, stl_x, stl_y);
+    if (!room_is_invalid(room))
+    {
+      if (rkind == RoK_BRIDGE)
+        dungeon->lvstats.bridges_built++;
+      if (is_my_player(player))
+        play_non_3d_sample(77);
+    }
+    return room;
 }
 /******************************************************************************/
 #ifdef __cplusplus

@@ -38,6 +38,8 @@
 #include "light_data.h"
 #include "gui_topmsg.h"
 #include "frontend.h"
+#include "gui_soundmsgs.h"
+
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -2021,12 +2023,12 @@ void draw_creature_view(struct Thing *thing)
 
 struct Thing *get_creature_near(unsigned short pos_x, unsigned short pos_y)
 {
-  return _DK_get_creature_near(pos_x, pos_y);
+    return _DK_get_creature_near(pos_x, pos_y);
 }
 
 struct Thing *get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, FilterParam param)
 {
-  return _DK_get_creature_near_with_filter(pos_x, pos_y, filter, param);
+    return _DK_get_creature_near_with_filter(pos_x, pos_y, filter, param);
 }
 
 struct Thing *get_creature_near_for_controlling(unsigned char a1, long a2, long a3)

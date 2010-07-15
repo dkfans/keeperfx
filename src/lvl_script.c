@@ -34,6 +34,7 @@
 #include "config_lenses.h"
 #include "config_magic.hpp"
 #include "config_creature.h"
+#include "gui_soundmsgs.h"
 #include "player_instances.h"
 #include "player_data.h"
 #include "thing_effects.h"

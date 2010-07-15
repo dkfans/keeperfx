@@ -25,6 +25,8 @@
 #include "config_creature.h"
 #include "creature_instances.h"
 #include "engine_lenses.h"
+#include "gui_draw.h"
+
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

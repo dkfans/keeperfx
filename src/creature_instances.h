@@ -58,6 +58,7 @@ extern Creature_Instf_Func creature_instances_func_list[];
 struct InstanceInfo *creature_instance_info_get_ptr(long inst_idx,const char *func_name);
 void process_creature_instance(struct Thing *thing);
 TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf);
+long creature_instance_is_available(struct Thing *thing, long inum);
 /******************************************************************************/
 #ifdef __cplusplus
 }

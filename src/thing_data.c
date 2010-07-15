@@ -83,6 +83,54 @@ void delete_thing_structure(struct Thing *thing, long a2)
   _DK_delete_thing_structure(thing, a2);
 }
 
+/**
+ * Returns thing of given array index.
+ * @return Returns thing, or invalid thing pointer if not found.
+ */
+struct Thing *thing_get(long tng_idx)
+{
+  if ((tng_idx > 0) && (tng_idx < THINGS_COUNT))
+    return game.things_lookup[tng_idx];
+  if ((tng_idx < -1) || (tng_idx >= THINGS_COUNT))
+    ERRORLOG("Request of invalid thing (no %ld) intercepted",tng_idx);
+  return INVALID_THING;
+}
+
+long thing_get_index(const struct Thing *thing)
+{
+  long tng_idx;
+  tng_idx = (thing - game.things_lookup[0]);
+  if ((tng_idx > 0) && (tng_idx < THINGS_COUNT))
+    return tng_idx;
+  return 0;
+}
+
+short thing_is_invalid(const struct Thing *thing)
+{
+  return (thing <= game.things_lookup[0]) || (thing == NULL);
+}
+
+TbBool thing_exists_idx(long tng_idx)
+{
+  struct Thing *thing;
+  thing = thing_get(tng_idx);
+  if (thing_is_invalid(thing))
+    return false;
+  return ((thing->field_0 & 0x01) != 0);
+}
+
+TbBool thing_exists(const struct Thing *thing)
+{
+  if (thing_is_invalid(thing))
+    return false;
+  return ((thing->field_0 & 0x01) != 0);
+}
+
+TbBool thing_touching_floor(const struct Thing *thing)
+{
+  return (thing->field_60 == thing->mappos.z.val);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

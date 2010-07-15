@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file map_blocks.h
- *     Header file for map_blocks.c.
+/** @file gui_parchment.h
+ *     Header file for gui_parchment.c.
  * @par Purpose:
- *     Map blocks support functions.
+ *     The map parchment screen support functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     11 Mar 2010 - 12 May 2010
+ * @date     23 May 2010 - 10 Jun 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,11 +16,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_MAP_BLOCKS_H
-#define DK_MAP_BLOCKS_H
+#ifndef DK_GUI_PARCHMENT_H
+#define DK_GUI_PARCHMENT_H
 
-#include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,19 +29,23 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct Thing;
+
+/******************************************************************************/
+DLLIMPORT int _DK_parchment_loaded;
+#define parchment_loaded _DK_parchment_loaded
+DLLIMPORT unsigned char *_DK_hires_parchment;
+#define hires_parchment _DK_hires_parchment
 
 #pragma pack()
 /******************************************************************************/
-TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y);
+void draw_map_parchment(void);
+void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h);
 
-void mine_out_block(long a1, long a2, long a3);
-unsigned char dig_has_revealed_area(long a1, long a2, unsigned char a3);
-void dig_out_block(long a1, long a2, long a3);
-void check_map_explored(struct Thing *thing, long a2, long a3);
-long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
+void load_parchment_file(void);
+void reload_parchment_file(TbBool hires);
 
-long element_top_face_texture(struct Map *map);
+void redraw_parchment_view(void);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

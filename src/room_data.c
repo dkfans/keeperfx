@@ -141,9 +141,19 @@ unsigned char const slabs_to_centre_peices[] = {
 /**
  * Should contain values encoded with get_subtile_number(). */
 const unsigned short small_around_pos[] = {
-  0xFF00, 0x0001, 0x0100, 0xFFFF, 0x0000,
-  0xFF00, 0x0001, 0x0100, 0x00FF, 0xFFFF,
-  0x0FF01, 0x01FF, 0x0101
+  0xFF00, 0x0001, 0x0100, 0xFFFF,
+};
+
+struct Around const mid_around[] = {
+  { 0,  0},
+  { 0, -1},
+  { 1,  0},
+  { 0,  1},
+  {-1,  0},
+  {-1, -1},
+  { 1, -1},
+  {-1,  1},
+  { 1,  1},
 };
 
 unsigned short const room_effect_elements[] = { 55, 56, 57, 58, 0, 0 };

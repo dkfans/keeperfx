@@ -33,6 +33,7 @@
 #include "front_landview.h"
 #include "frontend.h"
 #include "gui_draw.h"
+#include "gui_parchment.h"
 #include "config.h"
 #include "lens_api.h"
 #include "keeperfx.hpp"

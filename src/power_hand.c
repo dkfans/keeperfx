@@ -57,12 +57,12 @@ DLLIMPORT long _DK_place_thing_in_power_hand(struct Thing *thing, long var);
 DLLIMPORT short _DK_dump_held_things_on_map(unsigned char a1, long a2, long a3, short a4);
 
 /******************************************************************************/
-unsigned long object_is_pickable_by_hand(struct Thing *thing, long a2)
+unsigned long object_is_pickable_by_hand(struct Thing *thing, long plyr_idx)
 {
-  return _DK_object_is_pickable_by_hand(thing, a2);
+  return _DK_object_is_pickable_by_hand(thing, plyr_idx);
 }
 
-short thing_is_pickable_by_hand(struct PlayerInfo *player,struct Thing *thing)
+TbBool thing_is_pickable_by_hand(struct PlayerInfo *player,struct Thing *thing)
 {
   if (thing_is_invalid(thing))
     return false;
@@ -183,6 +183,10 @@ struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player)
 }
 
 /** Silently removes a thing from player's power hand.
+ *
+ * @param thing
+ * @param plyr_idx
+ * @return
  */
 TbBool remove_thing_from_power_hand(struct Thing *thing, long plyr_idx)
 {
@@ -206,6 +210,10 @@ TbBool remove_thing_from_power_hand(struct Thing *thing, long plyr_idx)
 }
 
 /** Puts a thing into player's power hand.
+ *
+ * @param thing
+ * @param plyr_idx
+ * @return
  */
 TbBool dump_thing_in_power_hand(struct Thing *thing, long plyr_idx)
 {
@@ -382,7 +390,7 @@ void draw_power_hand(void)
   }
 }
 
-void get_nearest_thing_for_hand_or_slap_on_map_block(long *near_distance, struct Thing **near_thing,struct Map *mapblk, long plyr_idx, long x, long y)
+/*void get_nearest_thing_for_hand_or_slap_on_map_block(long *near_distance, struct Thing **near_thing,struct Map *mapblk, long plyr_idx, long x, long y)
 {
   struct Thing *thing;
   long i;
@@ -418,37 +426,41 @@ void get_nearest_thing_for_hand_or_slap_on_map_block(long *near_distance, struct
       break;
     }
   }
-}
+}*/
 
 struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y)
 {
     return _DK_get_nearest_thing_for_slap(plyr_idx, x, y);
 }
 
-struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y)
+long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thing, MaxFilterParam param, long maximizer)
 {
-  long near_distance;
-  struct Thing *near_thing;
-  struct Map *mapblk;
-  long sx,sy;
-  int around;
-  //return _DK_get_nearest_thing_for_hand_or_slap(plyr_idx, x, y);
-  near_distance = LONG_MAX;
-  near_thing = NULL;
-  for (around=4; around < sizeof(small_around_pos)/sizeof(small_around_pos[0]); around++)
-  {
-    sx = (x >> 8) + stl_num_decode_x(small_around_pos[around]);
-    sy = (y >> 8) + stl_num_decode_y(small_around_pos[around]);
-    mapblk = get_map_block_at(sx, sy);
-    if (!map_block_invalid(mapblk))
+    long dist_x,dist_y;
+    if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0) && (thing->field_7 != 67))
     {
-      if (map_block_revealed(mapblk, plyr_idx))
+      if (can_thing_be_picked_up_by_player(thing, param->plyr_idx) || thing_slappable(thing, param->plyr_idx))
       {
-        get_nearest_thing_for_hand_or_slap_on_map_block(&near_distance,&near_thing,mapblk, plyr_idx, x, y);
+          // note that abs() is not required because we're computing square of the values
+          dist_x = param->num1-(MapCoord)thing->mappos.x.val;
+          dist_y = param->num2-(MapCoord)thing->mappos.y.val;
+          // This function should return max value when the distance is minimal, so:
+          return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
       }
     }
-  }
-  return near_thing;
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord pos_x, MapCoord pos_y)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
+    SYNCDBG(19,"Starting");
+    filter = near_map_block_thing_filter_ready_for_hand_or_slap;
+    param.plyr_idx = plyr_idx;
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    return get_thing_near_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
 long place_thing_in_power_hand(struct Thing *thing, long var)
