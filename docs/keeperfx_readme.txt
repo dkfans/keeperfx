@@ -308,6 +308,12 @@ New and modified level script commands:
 
 Changelog:
 
+Version: 0.3.8
+  Fixed dungeon heart blinking if under mouse
+  It is now easier to target a creature for pick up
+  Fixed disappearing in-game speeches
+
+
 Version: 0.3.7b
   Fixed crash on freeing swipe sprites at end of mission
   Fixed SEEK_THE_ENEMY job (Hellhound)

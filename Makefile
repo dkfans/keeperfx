@@ -100,6 +100,8 @@ obj/game_merge.o \
 obj/game_saves.o \
 obj/gui_boxmenu.o \
 obj/gui_draw.o \
+obj/gui_frontbtns.o \
+obj/gui_frontmenu.o \
 obj/gui_parchment.o \
 obj/gui_soundmsgs.o \
 obj/gui_tooltips.o \

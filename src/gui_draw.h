@@ -34,9 +34,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#pragma pack(1)
+
 struct GuiButton;
-/******************************************************************************/
-extern char gui_textbuf[TEXT_BUFFER_LENGTH];
 /******************************************************************************/
 DLLIMPORT extern struct TbSprite *_DK_button_sprite;
 #define button_sprite _DK_button_sprite
@@ -52,6 +52,9 @@ DLLIMPORT extern unsigned long _DK_end_gui_panel_sprite_data;
 DLLIMPORT unsigned char _DK_colours[16][16][16];
 #define colours _DK_colours
 
+#pragma pack()
+/******************************************************************************/
+extern char gui_textbuf[TEXT_BUFFER_LENGTH];
 /******************************************************************************/
 void draw_bar64k(long pos_x, long pos_y, long width);
 void draw_lit_bar64k(long pos_x, long pos_y, long width);

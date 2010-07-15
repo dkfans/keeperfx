@@ -55,6 +55,8 @@
 #include "thing_traps.h"
 #include "power_hand.h"
 #include "player_instances.h"
+#include "gui_frontmenu.h"
+#include "gui_frontbtns.h"
 #include "gui_soundmsgs.h"
 
 #include <windows.h>
@@ -75,7 +77,6 @@ DLLIMPORT unsigned long _DK_validate_versions(void);
 DLLIMPORT void _DK_versions_different_error(void);
 DLLIMPORT char _DK_get_button_area_input(struct GuiButton *gbtn, int);
 DLLIMPORT void _DK_fake_button_click(long btn_idx);
-DLLIMPORT void _DK_turn_off_roaming_menus(void);
 DLLIMPORT void _DK_display_objectives(long,long,long);
 DLLIMPORT unsigned long _DK_toggle_status_menu(unsigned long);
 DLLIMPORT void _DK_frontstats_update(void);
@@ -97,20 +98,15 @@ DLLIMPORT void _DK_frontnet_session_setup(void);
 DLLIMPORT void _DK_frontnet_start_setup(void);
 DLLIMPORT void _DK_frontnet_modem_setup(void);
 DLLIMPORT void _DK_frontnet_serial_setup(void);
-DLLIMPORT void _DK_turn_off_menu(char);
-DLLIMPORT void _DK_turn_on_menu(int);//char);
 DLLIMPORT void _DK_initialise_tab_tags_and_menu(long menu_id);
-DLLIMPORT void _DK_turn_off_event_box_if_necessary(long plridx, char val);
 DLLIMPORT void _DK_frontstats_initialise(void);
 DLLIMPORT void _DK_frontend_save_continue_game(long lv_num, int a2);
 DLLIMPORT unsigned char _DK_a_menu_window_is_active(void);
-DLLIMPORT unsigned long _DK_turn_off_all_window_menus(void);
 DLLIMPORT char _DK_game_is_busy_doing_gui(void);
 DLLIMPORT char _DK_menu_is_active(char idx);
 DLLIMPORT void _DK_get_player_gui_clicks(void);
 DLLIMPORT void _DK_init_gui(void);
 DLLIMPORT void _DK_gui_area_text(struct GuiButton *gbtn);
-DLLIMPORT void _DK_turn_off_all_panel_menus(void);
 DLLIMPORT void _DK_spell_lost_first_person(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_turn_on_autopilot(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_set_autopilot(struct GuiButton *gbtn);
@@ -1452,15 +1448,6 @@ TbBool a_menu_window_is_active(void)
   return false;
 }
 
-struct GuiMenu *get_active_menu(int id)
-{
-    if (id < 0)
-        id = 0;
-    if (id >= ACTIVE_MENUS_COUNT)
-        id = 0;
-    return &active_menus[id];
-}
-
 void get_player_gui_clicks(void)
 {
   struct PlayerInfo *player;
@@ -1705,78 +1692,6 @@ void activate_event_box(long evnt_idx)
   struct PlayerInfo *player;
   player = get_my_player();
   set_players_packet_action(player, 115, evnt_idx, 0,0,0);
-}
-
-void kill_button(struct GuiButton *gbtn)
-{
-  if (gbtn != NULL)
-    set_flag_byte(&gbtn->field_0, 0x01, false);
-}
-
-void kill_button_area_input(void)
-{
-  if (input_button != NULL)
-    strcpy((char *)input_button->field_33, backup_input_field);
-  input_button = NULL;
-}
-
-void kill_menu(struct GuiMenu *gmnu)
-{
-  struct GuiButton *gbtn;
-  int i;
-  if (gmnu->field_1)
-  {
-    gmnu->field_1 = 0;
-    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
-    {
-      gbtn = &active_buttons[i];
-      if ((gbtn->field_0 & 0x01) && (gbtn->gmenu_idx == gmnu->field_14))
-        kill_button(gbtn);
-    }
-  }
-}
-
-void remove_from_menu_stack(short mnu_id)
-{
-  unsigned short i;
-  for (i=0; i<no_of_active_menus; i++)
-  {
-    if (menu_stack[i] == mnu_id)
-    {
-      while (i < no_of_active_menus-1)
-      {
-        menu_stack[i] = menu_stack[i+1];
-        i++;
-      }
-      break;
-    }
-  }
-  if (i < no_of_active_menus)
-    no_of_active_menus--;
-}
-
-void turn_off_menu(short mnu_idx)
-{
-  struct GuiMenu *gmnu;
-  long menu_num;
-  if ((mnu_idx >= 13) && (mnu_idx <= 14))
-    save_settings();
-  menu_num = menu_id_to_number(mnu_idx);
-  if (menu_num >= 0)
-  {
-    if (game_is_busy_doing_gui_string_input())
-    {
-      if (input_button->gmenu_idx == menu_num)
-        kill_button_area_input();
-    }
-    gmnu = get_active_menu(menu_num);
-    gmnu->field_1 = 3;
-    if (update_menu_fade_level(gmnu) == -1)
-    {
-      kill_menu(gmnu);
-      remove_from_menu_stack(gmnu->field_0);
-    }
-  }
 }
 
 short game_is_busy_doing_gui(void)
@@ -2784,11 +2699,6 @@ void gui_draw_tab(struct GuiButton *gbtn)
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29+1);
 }
 
-void turn_off_event_box_if_necessary(long plridx, char val)
-{
-  _DK_turn_off_event_box_if_necessary(plridx, val);
-}
-
 void frontstats_initialise(void)
 {
   _DK_frontstats_initialise();
@@ -3693,11 +3603,6 @@ void pick_up_creature_doing_activity(struct GuiButton *gbtn)
 void gui_go_to_next_creature_activity(struct GuiButton *gbtn)
 {
   _DK_gui_go_to_next_creature_activity(gbtn);
-}
-
-void turn_off_roaming_menus(void)
-{
-  _DK_turn_off_roaming_menus();
 }
 
 void gui_area_anger_button(struct GuiButton *gbtn)
@@ -5051,261 +4956,6 @@ short is_toggleable_menu(short mnu_idx)
   }
 }
 
-void add_to_menu_stack(unsigned char mnu_idx)
-{
-  short i;
-  if (no_of_active_menus >= ACTIVE_MENUS_COUNT)
-  {
-    ERRORLOG("No more room on menu stack");
-    return;
-  }
-
-  for (i=0; i<no_of_active_menus; i++)
-  {
-    if (menu_stack[i] == mnu_idx)
-    { // If already in stack, move it at end of the stack.
-      while (i < no_of_active_menus-1)
-      {
-        menu_stack[i] = menu_stack[i+1];
-        i++;
-      }
-      menu_stack[(int)no_of_active_menus-1] = mnu_idx;
-      //SYNCMSG("Menu %d moved to end of stack, at position %d.",mnu_idx,no_of_active_menus-1);
-      return;
-    }
-  }
-  // If not in stack, add at end
-  menu_stack[(unsigned char)no_of_active_menus] = mnu_idx;
-  no_of_active_menus++;
-  SYNCDBG(9,"Menu %d put on stack, at position %d.",mnu_idx,no_of_active_menus-1);
-}
-
-long first_available_menu(void)
-{
-  short i;
-  for (i=0; i<ACTIVE_MENUS_COUNT; i++)
-  {
-    if (active_menus[i].field_1 == 0)
-      return i;
-  }
-  return -1;
-}
-
-void turn_off_query_menus(void)
-{
-  turn_off_menu(31);
-  turn_off_menu(35);
-  turn_off_menu(32);
-}
-
-void setup_radio_buttons(struct GuiMenu *gmnu)
-{
-  struct GuiButton *gbtn;
-  int i;
-  for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
-  {
-    gbtn = &active_buttons[i];
-    if ((gbtn->field_33) && (gmnu->field_14 == gbtn->gmenu_idx))
-    {
-      if (gbtn->gbtype == Lb_RADIOBTN)
-      {
-        if ( *(unsigned char *)gbtn->field_33 )
-          gbtn->field_1 = 1;
-        else
-          gbtn->field_1 = 0;
-      }
-    }
-  }
-}
-
-void turn_off_all_panel_menus(void)
-{
-  int mnu_num;
-  struct GuiMenu *gmnu;
-  mnu_num = menu_id_to_number(1);
-  if (mnu_num >= 0)
-  {
-    gmnu = get_active_menu(mnu_num);
-    setup_radio_buttons(gmnu);
-  }
-  if ( menu_is_active(2) )
-  {
-    turn_off_menu(2);
-  }
-  if ( menu_is_active(3) )
-  {
-    turn_off_menu(3);
-  }
-  if ( menu_is_active(4) )
-  {
-    turn_off_menu(4);
-  }
-  if ( menu_is_active(7) )
-  {
-    turn_off_menu(7);
-  }
-  if ( menu_is_active(5) )
-  {
-    turn_off_menu(5);
-  }
-  if ( menu_is_active(31) )
-  {
-    turn_off_menu(31);
-  }
-  if ( menu_is_active(35) )
-  {
-    turn_off_menu(35);
-  }
-  if ( menu_is_active(32) )
-  {
-    turn_off_menu(32);
-  }
-  if ( menu_is_active(38) )
-  {
-    turn_off_menu(38);
-  }
-}
-
-void set_menu_mode(long mnu_idx)
-{
-  if (!menu_is_active(mnu_idx))
-  {
-    turn_off_all_panel_menus();
-    turn_on_menu(mnu_idx);
-  }
-}
-
-short turn_off_all_window_menus(void)
-{
-  short result;
-  result = false;
-  if (menu_is_active(10))
-  {
-    result = true;
-    turn_off_menu(10);
-  }
-  if (menu_is_active(11))
-  {
-    result = true;
-    set_packet_pause_toggle();
-    turn_off_menu(11);
-  }
-  if (menu_is_active(GMnu_SAVE))
-  {
-    result = true;
-    set_packet_pause_toggle();
-    turn_off_menu(GMnu_SAVE);
-  }
-  if (menu_is_active(GMnu_OPTIONS))
-  {
-    result = true;
-    turn_off_menu(GMnu_OPTIONS);
-  }
-  if (menu_is_active(GMnu_VIDEO))
-  {
-    result = true;
-    turn_off_menu(GMnu_VIDEO);
-  }
-  if (menu_is_active(GMnu_SOUND))
-  {
-    result = true;
-    turn_off_menu(GMnu_SOUND);
-  }
-  if (menu_is_active(GMnu_ERROR_BOX))
-  {
-    result = true;
-    turn_off_menu(GMnu_ERROR_BOX);
-  }
-  if (menu_is_active(GMnu_INSTANCE))
-  {
-    result = true;
-    turn_off_menu(GMnu_INSTANCE);
-  }
-  if (menu_is_active(GMnu_RESURRECT_CREATURE))
-  {
-    result = true;
-    turn_off_menu(GMnu_RESURRECT_CREATURE);
-  }
-  if (menu_is_active(GMnu_TRANSFER_CREATURE))
-  {
-    result = true;
-    turn_off_menu(GMnu_TRANSFER_CREATURE);
-  }
-  if (menu_is_active(GMnu_ARMAGEDDON))
-  {
-    result = true;
-    turn_off_menu(GMnu_ARMAGEDDON);
-  }
-  if (menu_is_active(GMnu_AUTOPILOT))
-  {
-    result = true;
-    turn_off_menu(GMnu_AUTOPILOT);
-  }
-  if (menu_is_active(GMnu_SPELL_LOST))
-  {
-    result = true;
-    turn_off_menu(GMnu_SPELL_LOST);
-  }
-  return result;
-}
-
-void turn_on_main_panel_menu(void)
-{
-  if (menu_id_to_number(GMnu_MAIN) == -1)
-  {
-    turn_on_menu(GMnu_MAIN);
-  }
-  if (info_tag != 0)
-  {
-    turn_on_menu(GMnu_QUERY);
-  } else
-  if (room_tag != 0)
-  {
-    turn_on_menu(GMnu_ROOM);
-  } else
-  if (spell_tag != 0)
-  {
-    turn_on_menu(GMnu_SPELL);
-  } else
-  if (trap_tag != 0)
-  {
-    turn_on_menu(GMnu_TRAP);
-  } else
-  if (creature_tag != 0)
-  {
-    turn_on_menu(GMnu_CREATURE);
-  }
-}
-
-short turn_off_all_bottom_menus(void)
-{
-  short result;
-  result = false;
-  if (menu_is_active(16))
-  {
-    result = true;
-    turn_off_menu(16);
-  }
-  if (menu_is_active(34))
-  {
-    result = true;
-    turn_off_menu(34);
-  }
-  if (menu_is_active(27))
-  {
-    result = true;
-    turn_off_menu(27);
-  }
-  return result;
-}
-
-void turn_off_all_menus(void)
-{
-  turn_off_all_panel_menus();
-  turn_off_all_window_menus();
-  turn_off_all_bottom_menus();
-}
-
 void update_radio_button_data(struct GuiMenu *gmnu)
 {
   struct GuiButton *gbtn;
@@ -5534,45 +5184,6 @@ char create_menu(struct GuiMenu *gmnu)
   SYNCMSG("Created menu at slot %d, pos (%d,%d) size (%d,%d)",mnu_num,
       amnu->pos_x,amnu->pos_y,amnu->width,amnu->height);
   return mnu_num;
-}
-
-void turn_on_menu(short idx)
-{
-  if (create_menu(menu_list[idx]))
-  {
-    if (menu_list[idx]->field_1F)
-      game.field_1517F6 = idx;
-  }
-}
-
-void set_menu_visible_on(long menu_id)
-{
-  long menu_num;
-  menu_num = menu_id_to_number(menu_id);
-  if (menu_num < 0)
-    return;
-  get_active_menu(menu_num)->flgfield_1D = 1;
-  int idx;
-  for (idx=0; idx<ACTIVE_BUTTONS_COUNT; idx++)
-  {
-    struct GuiButton *gbtn = &active_buttons[idx];
-    if (gbtn->field_0 & 1)
-    {
-      Gf_Btn_Callback callback;
-      callback = gbtn->field_17;
-      if ((gbtn->gmenu_idx == menu_num) && (callback != NULL))
-        callback(gbtn);
-    }
-  }
-}
-
-void set_menu_visible_off(long menu_id)
-{
-  long menu_num;
-  menu_num = menu_id_to_number(menu_id);
-  if (menu_num < 0)
-    return;
-  get_active_menu(menu_num)->flgfield_1D = 0;
 }
 
 //TODO: Remove when original toggle_status_menu() won't be used anymore.
@@ -6557,19 +6168,6 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
     }
   }
   SYNCDBG(19,"Finished");
-}
-
-long menu_id_to_number(short menu_id)
-{
-  int idx;
-  struct GuiMenu *gmnu;
-  for(idx=0; idx < ACTIVE_MENUS_COUNT; idx++)
-  {
-    gmnu = &active_menus[idx];
-    if ((gmnu->field_1 != 0) && (gmnu->field_0 == menu_id))
-      return idx;
-  }
-  return -1;
 }
 
 void update_fade_active_menus(void)

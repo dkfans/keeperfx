@@ -27,6 +27,7 @@
 #include "thing_traps.h"
 #include "config_campaigns.h"
 #include "config_creature.h"
+#include "gui_frontmenu.h"
 #include "frontend.h"
 #include "room_workshop.h"
 

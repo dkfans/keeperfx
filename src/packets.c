@@ -58,6 +58,7 @@
 #include "light_data.h"
 #include "gui_draw.h"
 #include "gui_topmsg.h"
+#include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 
 #include "keeperfx.hpp"

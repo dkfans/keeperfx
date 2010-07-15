@@ -38,6 +38,7 @@
 #include "light_data.h"
 #include "gui_topmsg.h"
 #include "frontend.h"
+#include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 
 #include "keeperfx.hpp"
@@ -1468,9 +1469,9 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
   if (player->id_number == thing->owner)
   {
     turn_off_all_window_menus();
-    turn_off_menu(31);
+    turn_off_menu(GMnu_CREATURE_QUERY1);
     turn_off_menu(35);
-    turn_off_menu(32);
+    turn_off_menu(GMnu_CREATURE_QUERY3);
     turn_on_main_panel_menu();
     set_flag_byte(&game.numfield_C,0x40,(game.numfield_C & 0x20) != 0);
   }

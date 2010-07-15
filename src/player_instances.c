@@ -33,6 +33,7 @@
 #include "frontend.h"
 #include "power_hand.h"
 #include "magic.h"
+#include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 
 #include "keeperfx.hpp"
@@ -390,8 +391,8 @@ long pinstfs_control_creature(struct PlayerInfo *player, long *n)
   {
     player->field_4C5 = 1;
     turn_off_all_window_menus();
-    turn_off_menu(31);
-    turn_off_menu(35);
+    turn_off_menu(GMnu_CREATURE_QUERY1);
+    turn_off_menu(GMnu_CREATURE_QUERY2);
     game.field_15038E = 0;
     game.flags_font |= FFlg_unk04;
   }
@@ -524,7 +525,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
     }
   }
   if (is_my_player(player))
-    turn_on_menu(31);
+    turn_on_menu(GMnu_CREATURE_QUERY1);
   return 0;
 }
 
