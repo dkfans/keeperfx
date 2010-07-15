@@ -29,7 +29,6 @@ extern "C" {
 /******************************************************************************/
 // Limits for GUI arrays
 #define ACTIVE_BUTTONS_COUNT        86
-#define ACTIVE_MENUS_COUNT           8
 #define MENU_LIST_ITEMS_COUNT       43
 #define FRONTEND_BUTTON_INFO_COUNT 110
 #define NET_MESSAGES_COUNT           8
@@ -53,49 +52,6 @@ enum DemoItem_Kind {
     DIK_LoadPacket,
     DIK_SwitchState,
     DIK_ListEnd,
-};
-
-enum GUI_Menus {
-  GMnu_MAIN               =  1,
-  GMnu_ROOM               =  2,
-  GMnu_SPELL              =  3,
-  GMnu_TRAP               =  4,
-  GMnu_CREATURE           =  5,
-  GMnu_EVENT              =  6,
-  GMnu_QUERY              =  7,
-  GMnu_OPTIONS            =  8,
-  GMnu_INSTANCE           =  9,
-  GMnu_QUIT               = 10,
-  GMnu_LOAD               = 11,
-  GMnu_SAVE               = 12,
-  GMnu_VIDEO              = 13,
-  GMnu_SOUND              = 14,
-  GMnu_ERROR_BOX          = 15,
-  GMnu_TEXT_INFO          = 16,
-  GMnu_HOLD_AUDIENCE      = 17,
-  GMnu_FEMAIN             = 18,
-  GMnu_FELOAD             = 19,
-  GMnu_FENET_SERVICE      = 20,
-  GMnu_FENET_SESSION      = 21,
-  GMnu_FENET_START        = 22,
-  GMnu_FENET_MODEM        = 23,
-  GMnu_FENET_SERIAL       = 24,
-  GMnu_FESTATISTICS       = 25,
-  GMnu_FEHIGH_SCORE_TABLE = 26,
-  GMnu_DUNGEON_SPECIAL    = 27,
-  GMnu_RESURRECT_CREATURE = 28,
-  GMnu_TRANSFER_CREATURE  = 29,
-  GMnu_ARMAGEDDON         = 30,
-  GMnu_CREATURE_QUERY1    = 31,
-  GMnu_CREATURE_QUERY3    = 32,
-  GMnu_BATTLE             = 34,
-  GMnu_CREATURE_QUERY2    = 35,
-  GMnu_FEDEFINE_KEYS      = 36,
-  GMnu_AUTOPILOT          = 37,
-  GMnu_SPELL_LOST         = 38,
-  GMnu_FEOPTION           = 39,
-  GMnu_FELEVEL_SELECT     = 40,
-  GMnu_FECAMPAIGN_SELECT  = 41,
 };
 
 enum FrontendMenuState {
@@ -215,45 +171,6 @@ DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons3[];
 DLLIMPORT struct GuiButtonInit _DK_frontend_define_keys_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_autopilot_menu_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_frontend_option_buttons[];
-DLLIMPORT struct GuiMenu _DK_main_menu;
-DLLIMPORT struct GuiMenu _DK_room_menu;
-DLLIMPORT struct GuiMenu _DK_spell_menu;
-DLLIMPORT struct GuiMenu _DK_spell_lost_menu;
-DLLIMPORT struct GuiMenu _DK_trap_menu;
-DLLIMPORT struct GuiMenu _DK_creature_menu;
-DLLIMPORT struct GuiMenu _DK_event_menu;
-DLLIMPORT struct GuiMenu _DK_options_menu;
-DLLIMPORT struct GuiMenu _DK_instance_menu;
-DLLIMPORT struct GuiMenu _DK_query_menu;
-DLLIMPORT struct GuiMenu _DK_quit_menu;
-DLLIMPORT struct GuiMenu _DK_load_menu;
-DLLIMPORT struct GuiMenu _DK_save_menu;
-DLLIMPORT struct GuiMenu _DK_video_menu;
-DLLIMPORT struct GuiMenu _DK_sound_menu;
-DLLIMPORT struct GuiMenu _DK_error_box;
-DLLIMPORT struct GuiMenu _DK_text_info_menu;
-DLLIMPORT struct GuiMenu _DK_hold_audience_menu;
-DLLIMPORT struct GuiMenu _DK_dungeon_special_menu;
-DLLIMPORT struct GuiMenu _DK_resurrect_creature_menu;
-DLLIMPORT struct GuiMenu _DK_transfer_creature_menu;
-DLLIMPORT struct GuiMenu _DK_armageddon_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_main_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_load_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_net_service_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_net_session_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_net_start_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_net_modem_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_net_serial_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_statistics_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_high_score_table_menu;
-DLLIMPORT struct GuiMenu _DK_creature_query_menu1;
-DLLIMPORT struct GuiMenu _DK_creature_query_menu2;
-DLLIMPORT struct GuiMenu _DK_creature_query_menu3;
-DLLIMPORT struct GuiMenu _DK_battle_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_define_keys_menu;
-DLLIMPORT struct GuiMenu _DK_autopilot_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_option_menu;
-DLLIMPORT struct GuiMenu *_DK_menu_list[40];
 
 DLLIMPORT char _DK_info_tag;
 #define info_tag _DK_info_tag
@@ -297,12 +214,6 @@ DLLIMPORT long _DK_net_session_scroll_offset;
 #define net_session_scroll_offset _DK_net_session_scroll_offset
 DLLIMPORT long _DK_net_player_scroll_offset;
 #define net_player_scroll_offset _DK_net_player_scroll_offset
-DLLIMPORT char _DK_no_of_active_menus;
-#define no_of_active_menus _DK_no_of_active_menus
-DLLIMPORT unsigned char _DK_menu_stack[ACTIVE_MENUS_COUNT];
-#define menu_stack _DK_menu_stack
-DLLIMPORT extern struct GuiMenu _DK_active_menus[ACTIVE_MENUS_COUNT];
-#define active_menus _DK_active_menus
 DLLIMPORT extern struct GuiButton _DK_active_buttons[ACTIVE_BUTTONS_COUNT];
 #define active_buttons _DK_active_buttons
 DLLIMPORT long _DK_frontend_mouse_over_button_start_time;
@@ -437,6 +348,12 @@ DLLIMPORT extern unsigned long _DK_fronttor_data;
 #define fronttor_data _DK_fronttor_data
 DLLIMPORT extern unsigned long _DK_fronttor_end_data;
 #define fronttor_end_data _DK_fronttor_end_data
+DLLIMPORT extern char _DK_busy_doing_gui;
+#define busy_doing_gui _DK_busy_doing_gui
+DLLIMPORT extern long _DK_gui_last_left_button_pressed_id;
+#define gui_last_left_button_pressed_id _DK_gui_last_left_button_pressed_id
+DLLIMPORT extern long _DK_gui_last_right_button_pressed_id;
+#define gui_last_right_button_pressed_id _DK_gui_last_right_button_pressed_id
 /******************************************************************************/
 // Variables - no linger imported
 extern struct GuiMenu main_menu;
@@ -886,7 +803,6 @@ void frontnet_service_maintain(struct GuiButton *gbtn);
 void frontnet_draw_service_button(struct GuiButton *gbtn);
 TbBool frontend_is_player_allied(long idx1, long idx2);
 void frontend_set_alliance(long idx1, long idx2);
-long menu_id_to_number(short menu_id);
 char update_menu_fade_level(struct GuiMenu *gmnu);
 void draw_menu_buttons(struct GuiMenu *gmnu);
 char create_menu(struct GuiMenu *mnu);
@@ -894,8 +810,6 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_C
 void draw_gui(void);
 void init_gui(void);
 void reinit_all_menus(void);
-void kill_button_area_input(void);
-void kill_menu(struct GuiMenu *gmnu);
 
 void spell_lost_first_person(struct GuiButton *gbtn);
 void gui_turn_on_autopilot(struct GuiButton *gbtn);
@@ -905,26 +819,15 @@ int frontend_set_state(long nstate);
 void frontstats_initialise(void);
 int get_startup_menu_state(void);
 void frontend_input(void);
-void turn_on_menu(short idx);
-void turn_off_menu(short mnu_idx);
-void turn_off_query_menus(void);
-void turn_off_all_menus(void);
-short turn_off_all_window_menus(void);
-short turn_off_all_bottom_menus(void);
-void turn_on_main_panel_menu(void);
-void turn_off_all_panel_menus(void);
-void set_menu_mode(long mnu_idx);
 void frontend_update(short *finish_menu);
 short frontend_draw(void);
 int frontend_font_char_width(int fnt_idx,char c);
 int frontend_font_string_width(int fnt_idx,char *str);
 short menu_is_active(short idx);
 TbBool a_menu_window_is_active(void);
-struct GuiMenu *get_active_menu(int id);
 void turn_on_event_info_panel_if_necessary(unsigned short evnt_idx);
 void get_player_gui_clicks(void);
 short game_is_busy_doing_gui(void);
-void turn_off_event_box_if_necessary(long plridx, char val);
 void set_gui_visible(short visible);
 void toggle_gui(void);
 void add_message(long plyr_idx, char *msg);

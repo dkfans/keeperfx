@@ -849,16 +849,10 @@ DLLIMPORT extern short _DK_drag_menu_x;
 #define drag_menu_x _DK_drag_menu_x
 DLLIMPORT extern short _DK_drag_menu_y;
 #define drag_menu_y _DK_drag_menu_y
-DLLIMPORT extern char _DK_busy_doing_gui;
-#define busy_doing_gui _DK_busy_doing_gui
 DLLIMPORT extern unsigned short _DK_tool_tip_time;
 #define tool_tip_time _DK_tool_tip_time
 DLLIMPORT extern unsigned short _DK_help_tip_time;
 #define help_tip_time _DK_help_tip_time
-DLLIMPORT extern long _DK_gui_last_left_button_pressed_id;
-#define gui_last_left_button_pressed_id _DK_gui_last_left_button_pressed_id
-DLLIMPORT extern long _DK_gui_last_right_button_pressed_id;
-#define gui_last_right_button_pressed_id _DK_gui_last_right_button_pressed_id
 DLLIMPORT extern unsigned char _DK_magic_to_object[24];
 #define magic_to_object _DK_magic_to_object
 DLLIMPORT extern unsigned char _DK_door_to_object[DOOR_TYPES_COUNT];
@@ -1057,7 +1051,6 @@ void ProperFadePalette(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
 void ProperForcedFadePalette(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
 void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense);
 void PaletteClearPainFromPlayer(struct PlayerInfo *player);
-short get_gui_inputs(short gameplay_on);
 void intro(void);
 void outro(void);
 

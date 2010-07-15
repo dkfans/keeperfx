@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file front_input.h
- *     Header file for front_input.c.
+/** @file gui_frontbtns.h
+ *     Header file for gui_frontbtns.c.
  * @par Purpose:
- *     Front-end user keyboard and mouse input.
+ *     gui_frontbtns functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     20 Jan 2009 - 30 Jan 2009
+ * @date     11 Mar 2010 - 12 May 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,27 +16,34 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#ifndef DK_GUI_FRONTBTNS_H
+#define DK_GUI_FRONTBTNS_H
 
-#ifndef DK_FRONTINPUT_H
-#define DK_FRONTINPUT_H
-
-#include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_guibtns.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
 
 /******************************************************************************/
-/******************************************************************************/
-void input(void);
-short get_inputs(void);
-short get_screen_capture_inputs(void);
-int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods);
-short game_is_busy_doing_gui_string_input(void);
-short get_gui_inputs(short gameplay_on);
+#ifdef __cplusplus
+#pragma pack(1)
+#endif
 
+
+#ifdef __cplusplus
+#pragma pack()
+#endif
+/******************************************************************************/
+void gui_clear_buttons_not_over_mouse(int gmbtn_idx);
+TbBool gui_button_release_inputs(int gmbtn_idx);
+TbBool gui_slider_button_inputs(int gbtn_idx);
+TbBool gui_button_click_inputs(int gmbtn_idx);
+
+void kill_button_area_input(void);
+void kill_button(struct GuiButton *gbtn);
+void setup_radio_buttons(struct GuiMenu *gmnu);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -82,6 +82,8 @@ obj/engine_lenses.o \
 obj/front_landview.o \
 obj/gui_parchment.o \
 obj/gui_boxmenu.o \
+obj/gui_frontmenu.o \
+obj/gui_frontbtns.o \
 obj/gui_tooltips.o \
 obj/gui_topmsg.o \
 obj/gui_soundmsgs.o \

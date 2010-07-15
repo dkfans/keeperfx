@@ -27,8 +27,8 @@
 #define VER_MAJOR         0
 #define VER_MINOR         3
 #define VER_RELEASE       7
-#define VER_BUILD         332
-#define VER_STRING        "0.3.7.332"
+#define VER_BUILD         373
+#define VER_STRING        "0.3.7.373"
 /* Program name, copyrights and file names */
 #define PROGRAM_NAME      "Dungeon Keeper FX"
 #define PROGRAM_FULL_NAME "Dungeon Keeper Fan eXpansion"
