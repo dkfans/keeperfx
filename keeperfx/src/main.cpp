@@ -34,6 +34,7 @@
 #include "front_input.h"
 #include "gui_draw.h"
 #include "gui_tooltips.h"
+#include "gui_parchment.h"
 #include "scrcapt.h"
 #include "vidmode.h"
 #include "kjm_input.h"
@@ -75,6 +76,8 @@
 #include "power_hand.h"
 #include "game_merge.h"
 #include "gui_topmsg.h"
+#include "gui_boxmenu.h"
+#include "gui_soundmsgs.h"
 #include "ariadne.h"
 
 int test_variable;
@@ -159,12 +162,6 @@ struct KeyToStringInit key_to_string_init[] = {
   {  0,     0},
 };
 
-unsigned short player_colors_map[] = {0, 1, 2, 3, 4, 5, 0, 0, 0, };
-
-TbPixel const player_path_colours[] = {131, 90, 163, 181,  20,   4, };
-TbPixel const player_room_colours[] = {132, 92, 164, 183,  21, 132, };
-
-unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
 long const scavenge_effect_element[] = {60, 61, 62, 63, 64, 64,};
 
 struct KeycodeString eastegg_feckoff_codes = {
@@ -213,146 +210,6 @@ const char *blood_types[] = {
     NULL,
 };
 
-Phrase phrases[] = {
-    0,  1,  2, 3,  4,   5,  6,  7,  8, 9,  10, 11, 12, 13, 14, 15,
-   16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
-   32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
-   48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
-   64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
-   80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,
-   96, 97, 98, 99,100,101,102,103,104,105,106,107,108,109,110,111,
-  112,113,114,115,116,117,118,119,120,121,122,123,124,125,
-};
-
-struct SMessage messages[] = {
-  {  0, 0, 0},
-  {  1, 1, 0},
-  {  2, 1, 0},
-  {  3, 1, 0},
-  {  4, 1, 0},
-  {  5, 1, 0},
-  {  6, 1, 0},
-  {  7, 1, 0},
-  {  8, 1, 0},
-  {  9, 1, 0},
-  { 10, 1, 0},
-  { 11, 1, 0},
-  { 12, 1, 0},
-  { 13, 1, 0},
-  { 14, 1, 0},
-  { 15, 1, 0},
-  { 16, 1, 0},
-  { 17, 1, 0},
-  { 18, 1, 0},
-  { 19, 1, 0},
-  { 20, 1, 0},
-  { 21, 1, 0},
-  { 22, 1, 0},
-  { 23, 1, 0},
-  { 24, 1, 0},
-  { 25, 1, 0},
-  { 26, 1, 0},
-  { 27, 1, 0},
-  { 28, 1, 0},
-  { 29, 1, 0},
-  { 30, 1, 0},
-  { 31, 1, 0},
-  { 32, 1, 0},
-  { 33, 1, 0},
-  { 34, 1, 0},
-  { 35, 1, 0},
-  { 36, 1, 0},
-  { 37, 1, 0},
-  { 38, 1, 0},
-  { 39, 1, 0},
-  { 40, 1, 0},
-  { 41, 1, 0},
-  { 42, 1, 0},
-  { 43, 1, 0},
-  { 44, 1, 0},
-  { 45, 1, 0},
-  { 46, 1, 0},
-  { 47, 1, 0},
-  { 48, 1, 0},
-  { 49, 1, 0},
-  { 50, 1, 0},
-  { 51, 1, 0},
-  { 52, 1, 0},
-  { 53, 1, 0},
-  { 54, 1, 0},
-  { 55, 1, 0},
-  { 56, 1, 0},
-  { 57, 1, 0},
-  { 58, 1, 0},
-  { 59, 1, 0},
-  { 60, 1, 0},
-  { 61, 1, 0},
-  { 62, 1, 0},
-  { 63, 1, 0},
-  { 64, 1, 0},
-  { 65, 1, 0},
-  { 66, 1, 0},
-  { 67, 1, 0},
-  { 68, 1, 0},
-  { 69, 1, 0},
-  { 70, 1, 0},
-  { 71, 1, 0},
-  { 72, 1, 0},
-  { 73, 1, 0},
-  { 74, 1, 0},
-  { 75, 1, 0},
-  { 76, 1, 0},
-  { 77, 1, 0},
-  { 78, 1, 0},
-  { 79, 1, 0},
-  { 80, 1, 0},
-  { 81, 1, 0},
-  { 82, 1, 0},
-  { 83, 1, 0},
-  { 84, 1, 0},
-  { 85, 1, 0},
-  { 86, 1, 0},
-  { 87, 1, 0},
-  { 88, 1, 0},
-  { 89, 1, 0},
-  { 90, 1, 0},
-  { 91, 1, 0},
-  { 92, 1, 0},
-  { 93, 1, 0},
-  { 94, 1, 0},
-  { 95, 1, 0},
-  { 96, 1, 0},
-  { 97, 1, 0},
-  { 98, 1, 0},
-  { 99, 1, 0},
-  {100, 1, 0},
-  {101, 1, 0},
-  {102, 1, 0},
-  {103, 1, 0},
-  {104, 1, 0},
-  {105, 1, 0},
-  {106, 1, 0},
-  {107, 1, 0},
-  {108, 1, 0},
-  {109, 1, 0},
-  {110, 1, 0},
-  {111, 1, 0},
-  {112, 1, 0},
-  {113, 1, 0},
-  {114, 1, 0},
-  {115, 1, 0},
-  {116, 1, 0},
-  {117, 1, 0},
-  {118, 1, 0},
-  {119, 1, 0},
-  {120, 1, 0},
-  {121, 1, 0},
-  {122, 1, 0},
-  {123, 1, 0},
-  {124, 1, 0},
-  {125, 1, 0},
-};
-
 unsigned short const player_state_to_spell[] = {
   0, 0, 0,  0,  0,  0, 6, 7, 5, 0, 18, 18, 0, 0, 0, 0,
   0,10, 0, 11, 12, 13, 8, 0, 2,16, 14, 15, 0, 3, 0, 0,
@@ -370,8 +227,6 @@ DLLIMPORT void _DK_draw_lightning(struct Coord3d *pos1, struct Coord3d *pos2, lo
 DLLIMPORT unsigned char _DK_line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2);
 DLLIMPORT int _DK_can_thing_be_picked_up_by_player(const struct Thing *thing, unsigned char plyr_idx);
 DLLIMPORT int _DK_can_thing_be_picked_up2_by_player(const struct Thing *thing, unsigned char plyr_idx);
-DLLIMPORT void _DK_draw_overhead_room_icons(long x, long y);
-DLLIMPORT void _DK_draw_overhead_things(long x, long y);
 DLLIMPORT void _DK_init_alpha_table(void);
 DLLIMPORT void _DK_external_activate_trap_shot_at_angle(struct Thing *thing, long a2);
 DLLIMPORT long _DK_parse_sound_file(long a1, unsigned char *a2, long *a3, long a4, long a4);
@@ -447,7 +302,6 @@ DLLIMPORT void _DK_draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a
 DLLIMPORT long _DK_screen_to_map(struct Camera *camera, long scrpos_x, long scrpos_y, struct Coord3d *mappos);
 DLLIMPORT void _DK_draw_swipe(void);
 DLLIMPORT void _DK_draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
-DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
 DLLIMPORT long _DK_thing_is_spellbook(struct Thing *thing);
 DLLIMPORT void _DK_check_players_won(void);
 DLLIMPORT void _DK_check_players_lost(void);
@@ -597,7 +451,6 @@ DLLIMPORT int _DK_play_smk_via_buffer(char *fname, int smkflags, int plyflags);
 DLLIMPORT int _DK_play_smk_direct(char *fname, int smkflags, int plyflags);
 DLLIMPORT void _DK_process_rooms(void);
 DLLIMPORT void _DK_process_dungeons(void);
-DLLIMPORT void _DK_process_messages(void);
 DLLIMPORT void _DK_find_nearest_rooms_for_ambient_sound(void);
 DLLIMPORT void _DK_process_player_research(int plr_idx);
 DLLIMPORT long _DK_process_player_manufacturing(int plr_idx);
@@ -620,10 +473,7 @@ DLLIMPORT void _DK_redraw_isometric_view(void);
 DLLIMPORT void _DK_redraw_frontview(void);
 DLLIMPORT long _DK_map_fade_in(long a);
 DLLIMPORT long _DK_map_fade_out(long a);
-DLLIMPORT void _DK_draw_map_parchment(void);
-DLLIMPORT void _DK_draw_2d_map(void);
 DLLIMPORT void _DK_draw_gui(void);
-DLLIMPORT void _DK_draw_zoom_box(void);
 DLLIMPORT void _DK_turn_off_query(char a);
 DLLIMPORT void _DK_post_init_level(void);
 DLLIMPORT void _DK_post_init_players(void);
@@ -1027,7 +877,7 @@ TbBool slap_object(struct Thing *thing)
   return false;
 }
 
-TbBool object_is_slappable(struct Thing *thing, long plyr_idx)
+TbBool object_is_slappable(const struct Thing *thing, long plyr_idx)
 {
   if (thing->owner == plyr_idx)
   {
@@ -1036,7 +886,7 @@ TbBool object_is_slappable(struct Thing *thing, long plyr_idx)
   return false;
 }
 
-TbBool shot_is_slappable(struct Thing *thing, long plyr_idx)
+TbBool shot_is_slappable(const struct Thing *thing, long plyr_idx)
 {
   if (thing->owner == plyr_idx)
   {
@@ -1045,7 +895,7 @@ TbBool shot_is_slappable(struct Thing *thing, long plyr_idx)
   return false;
 }
 
-TbBool creature_is_slappable(struct Thing *thing, long plyr_idx)
+TbBool creature_is_slappable(const struct Thing *thing, long plyr_idx)
 {
   struct CreatureControl *cctrl;
   struct Room *room;
@@ -1083,7 +933,7 @@ TbBool creature_is_slappable(struct Thing *thing, long plyr_idx)
   return true;
 }
 
-TbBool thing_slappable(struct Thing *thing, long plyr_idx)
+TbBool thing_slappable(const struct Thing *thing, long plyr_idx)
 {
   switch (thing->class_id)
   {
@@ -5193,7 +5043,7 @@ void input_eastegg(void)
   allow = (lbKeyOn[KC_LSHIFT] != 0);
   state = input_eastegg_keycodes(&eastegg_skeksis_cntr,allow,&eastegg_skeksis_codes);
   if (state == 3)
-    output_message(94, 0, 1); //'Your pants are definitely too tight'
+    output_message(SMsg_PantsTooTight, 0, 1);
 }
 
 void init_messages(void)
@@ -5824,15 +5674,6 @@ long can_thing_be_picked_up2_by_player(const struct Thing *thing, long plyr_idx)
 {
   //TODO: rewrite, then give it better name
   return _DK_can_thing_be_picked_up2_by_player(thing, plyr_idx);
-}
-
-long creature_instance_is_available(struct Thing *thing, long inum)
-{
-  struct CreatureControl *cctrl;
-  cctrl = creature_control_get_from_thing(thing);
-  if (creature_control_invalid(cctrl))
-    return 0;
-  return cctrl->instances[inum];
 }
 
 void remove_events_thing_is_attached_to(struct Thing *thing)
@@ -7189,7 +7030,10 @@ void set_player_as_won_level(struct PlayerInfo *player)
 {
   struct Dungeon *dungeon;
   if (player->victory_state != VicS_Undecided)
-    return;
+  {
+      WARNLOG("Player fate is already decided to %d",(int)player->victory_state);
+      return;
+  }
   if (is_my_player(player))
     frontstats_initialise();
   player->victory_state = VicS_WonLevel;
@@ -7204,9 +7048,9 @@ void set_player_as_won_level(struct PlayerInfo *player)
     if (knight_in_prison())
     {
       SYNCLOG("Knight was imprisoned. Torture tower unlocked.");
-      player->field_3 |= 0x10u;
+      player->field_3 |= 0x10;
     }
-    output_message(106, 0, 1);
+    output_message(SMsg_ConqueredRealm, 0, 1);
   }
 }
 
@@ -7227,7 +7071,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->field_AE5[3]);
   if (is_my_player(player))
   {
-    output_message(105, 0, 1);
+    output_message(SMsg_DefeatedOnRealm, 0, 1);
     turn_off_all_menus();
     clear_transfered_creature();
   }
@@ -7620,82 +7464,6 @@ void process_dungeons(void)
   process_payday();
   process_things_in_dungeon_hand();
   SYNCDBG(9,"Finished");
-}
-
-void output_message(long msg_idx, long delay, TbBool queue)
-{
-  struct SMessage *smsg;
-  long i;
-  smsg = &messages[msg_idx];
-  if (game.play_gameturn < smsg->end_time)
-    return;
-  if (!speech_sample_playing())
-  {
-    i = get_phrase_sample(get_phrase_for_message(msg_idx));
-    if (i == 0) return;
-    if (play_speech_sample(i))
-    {
-      message_playing = msg_idx;
-      smsg->end_time = game.play_gameturn + delay;
-      return;
-    }
-  }
-  if ((queue) && (msg_idx != message_playing) && (!message_already_in_queue(msg_idx)))
-  {
-    add_message_to_queue(msg_idx, delay);
-  }
-}
-
-void process_messages(void)
-{
-  SYNCDBG(17,"Starting");
-  _DK_process_messages();
-  SYNCDBG(19,"Finished");
-}
-
-TbBool message_already_in_queue(long msg_idx)
-{
-  struct MessageQueueEntry *mqentry;
-  long i;
-  for (i=0; i < MESSAGE_QUEUE_COUNT; i++)
-  {
-    mqentry = &message_queue[i];
-    if ((mqentry->state == 1) && (msg_idx == mqentry->msg_idx))
-      return true;
-  }
-  return false;
-}
-
-TbBool add_message_to_queue(long msg_idx, long a2)
-{
-  struct MessageQueueEntry *mqentry;
-  long i;
-  for (i=0; i < MESSAGE_QUEUE_COUNT; i++)
-  {
-    mqentry = &message_queue[i];
-    if (mqentry->state == 0)
-    {
-      mqentry->state = 1;
-      mqentry->msg_idx = msg_idx;
-      mqentry->field_5 = a2;
-      return true;
-    }
-  }
-  return false;
-}
-
-long get_phrase_for_message(long msg_idx)
-{
-  struct SMessage *smsg;
-  long i;
-  smsg = &messages[msg_idx];
-  i = UNSYNC_RANDOM(smsg->count);
-  return smsg->start_idx + i;
-}
-
-long get_phrase_sample(long phr_idx)
-{
-  return phrases[phr_idx];
 }
 
 /**
@@ -8456,10 +8224,10 @@ void update_player_sounds(void)
         SYNCDBG(9,"Rare message condition met, selected %d",(int)k);
         if (k == 7)
         {
-          output_message(94, 0, 1);// 'Your pants are definitely too tight'
+          output_message(SMsg_PantsTooTight, 0, 1);
         } else
         {
-          output_message(91+k, 0, 1);
+          output_message(SMsg_FunnyMessages+k, 0, 1);
         }
       }
   }
@@ -8532,156 +8300,6 @@ long map_fade_out(long a)
 {
   SYNCDBG(6,"Starting");
   return _DK_map_fade_out(a);
-}
-
-TbPixel get_overhead_mapblock_color(long stl_x,long stl_y,long plyr_idx,TbPixel background)
-{
-  struct Thing *thing;
-  struct SlabMap *slb;
-  struct Room *room;
-  struct Map *map;
-  long owner;
-  TbPixel pixval;
-  map = get_map_block_at(stl_x, stl_y);
-  slb = get_slabmap_for_subtile(stl_x,stl_y);
-  owner = slabmap_owner(slb);
-  if ((((map->flags & 0x04) != 0) || ((map->flags & 0x80) != 0))
-      && ((game.play_gameturn & 4) != 0))
-  {
-    pixval = pixmap.ghost[background + 0x1A00];
-  } else
-  if ((map->flags & 0x01) != 0)
-  {
-    pixval = pixmap.ghost[background + 0x8C00];
-  } else
-  if (!map_block_revealed(map,plyr_idx))
-  {
-    pixval = background;
-  } else
-  if ((map->flags & 0x02) != 0) // Room slab
-  {
-    room = subtile_room_get(stl_x, stl_y);
-    if (((game.play_gameturn & 1) != 0) && (room->kind == gui_room_type_highlighted))
-    {
-      pixval = 31;
-    } else
-    if (owner == game.neutral_player_num)
-    {
-      pixval = player_room_colours[game.play_gameturn & 3];
-    } else
-    {
-      pixval = player_room_colours[owner];
-    }
-  } else
-  {
-    if (slb->slab == 0)
-    {
-      pixval = 0;
-    } else
-    if ((map->flags & 0x20) != 0)
-    {
-      pixval = pixmap.ghost[background + 0x1000];
-    } else
-    if ((map->flags & 0x40) != 0) // Door slab
-    {
-      thing = get_door_for_position(stl_x, stl_y);
-      if (thing_is_invalid(thing))
-      {
-        pixval = 60;
-      } else
-      if ((game.play_gameturn & 1) && (thing->model == gui_door_type_highlighted))
-      {
-        pixval = 31;
-      } else
-      if (thing->byte_18)
-      {
-        pixval = 79;
-      } else
-      {
-        pixval = 60;
-      }
-    } else
-    if ((map->flags & 0x10) == 0)
-    {
-      if (slb->slab == 12)
-      {
-        pixval = 146;
-      } else
-      if (slb->slab == 13)
-      {
-        pixval = 85;
-      } else
-      if (owner == game.neutral_player_num)
-      {
-        pixval = 4;
-      } else
-      {
-        pixval = player_path_colours[owner];
-      }
-    } else
-    {
-      pixval = background;
-    }
-  }
-  return pixval;
-}
-
-void draw_overhead_map(long plyr_idx)
-{
-  long block_size;
-  unsigned char *dstline;
-  unsigned char *dstbuf;
-  long cntr_h,cntr_w;
-  long stl_x,stl_y;
-  long line;
-  long k;
-  block_size = 4 / pixel_size;
-  if (block_size < 1) block_size = 1;
-  line = 0;
-  stl_y = 1;
-  dstline = &lbDisplay.WScreen[150/pixel_size + lbDisplay.GraphicsScreenWidth * 56/pixel_size];
-  for (cntr_h = 85*block_size; cntr_h > 0; cntr_h--)
-  {
-    if ((line > 0) && ((line % block_size) == 0))
-    {
-      stl_y += 3;
-    }
-    dstbuf = dstline;
-    stl_x = 1;
-    for (cntr_w=85; cntr_w > 0; cntr_w--)
-    {
-      for (k = block_size; k > 0; k--)
-      {
-        *dstbuf = get_overhead_mapblock_color(stl_x,stl_y,plyr_idx,*dstbuf);
-        dstbuf++;
-      }
-      stl_x += 3;
-    }
-    dstline += lbDisplay.GraphicsScreenWidth;
-    line++;
-  }
-  lbDisplay.DrawFlags = 0;
-}
-
-void draw_overhead_room_icons(long x, long y)
-{
-  _DK_draw_overhead_room_icons(x,y);
-}
-
-void draw_overhead_things(long x, long y)
-{
-  _DK_draw_overhead_things(x,y);
-}
-
-void draw_2d_map(void)
-{
-  struct PlayerInfo *player;
-  SYNCDBG(8,"Starting");
-  //_DK_draw_2d_map();
-  player = get_my_player();
-  draw_overhead_map(player->id_number);
-  draw_overhead_things(150, 56);
-  draw_overhead_room_icons(150, 56);
 }
 
 /**
@@ -9214,9 +8832,37 @@ void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3)
   _DK_stop_creatures_around_hand(a1, a2, a3);
 }
 
-struct Thing *get_queryable_object_near(unsigned short a1, unsigned short a2, long a3)
+long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxFilterParam param, long maximizer)
 {
-  return _DK_get_queryable_object_near(a1, a2, a3);
+/* Currently this only makes Dungeon Heart blinking; maybe I'll find a purpose for it later
+    long dist_x,dist_y;
+    if ((thing->class_id == TCls_Object) && (thing->model == 5))
+    {
+      if (thing->owner == param->plyr_idx)
+      {
+          // note that abs() is not required because we're computing square of the values
+          dist_x = param->num1-(MapCoord)thing->mappos.x.val;
+          dist_y = param->num2-(MapCoord)thing->mappos.y.val;
+          // This function should return max value when the distance is minimal, so:
+          return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
+      }
+    }
+*/
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
+    SYNCDBG(19,"Starting");
+    //return _DK_get_queryable_object_near(pos_x, pos_y, plyr_idx);
+    filter = near_map_block_thing_filter_queryable_object;
+    param.plyr_idx = plyr_idx;
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    return get_thing_near_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
 void tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4)
@@ -9532,11 +9178,6 @@ void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7)
   _DK_draw_texture(a1, a2, a3, a4, a5, a6, a7);
 }
 
-long element_top_face_texture(struct Map *map)
-{
-  return _DK_element_top_face_texture(map);
-}
-
 long thing_is_spellbook(struct Thing *thing)
 {
   return _DK_thing_is_spellbook(thing);
@@ -9560,176 +9201,6 @@ struct Thing *get_crate_at_position(long x, long y)
 struct Thing *get_nearest_object_at_position(long x, long y)
 {
   return _DK_get_nearest_object_at_position(x, y);
-}
-
-void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_size,int scr_x,int scr_y)
-{
-  struct PlayerInfo *player;
-  struct SpellData *pwrdata;
-  struct Thing *thing;
-  int spos_x,spos_y;
-  TbPixel color;
-  long spridx;
-  unsigned long k;
-  long i;
-  player = get_my_player();
-  k = 0;
-  i = get_mapwho_thing_index(mapblk);
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
-    {
-      WARNLOG("Jump out of things array");
-      break;
-    }
-    i = thing->field_2;
-    if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
-    {
-      spos_x = ((subtile_size * ((long)thing->mappos.x.stl.pos)) >> 8);
-      spos_y = ((subtile_size * ((long)thing->mappos.y.stl.pos)) >> 8);
-      switch (thing->class_id)
-      {
-      case TCls_Creature:
-        spridx = get_creature_breed_graphics(thing->model,CGI_HandSymbol);
-        if ((game.play_gameturn & 0x04) != 0)
-        {
-          color = get_player_path_colour(thing->owner);
-          draw_gui_panel_sprite_occentered(scr_x+spos_x, scr_y+spos_y, spridx, color);
-        } else
-        {
-          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
-        }
-        draw_status_sprites((spos_x+scr_x)/pixel_size - 10, (spos_y+scr_y-20)/pixel_size, thing, 4096);
-        break;
-      case TCls_Trap:
-        if ((!thing->byte_18) && (player->id_number != thing->owner))
-          break;
-        spridx = trap_data[thing->model].field_A;
-        draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
-        break;
-      case TCls_Object:
-        if (thing->model == 5)
-        {
-          spridx = 512;
-          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
-        } else
-        if (object_is_gold(thing))
-        {
-          spridx = 511;
-          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
-        } else
-        if ( thing_is_special(thing) )
-        {
-          spridx = 164;
-          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
-        } else
-        if ( thing_is_spellbook(thing) )
-        {
-          pwrdata = get_power_data(book_thing_to_magic(thing));
-          spridx = pwrdata->field_B;
-          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
-        }
-        break;
-      default:
-        break;
-      }
-    }
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
-}
-
-/**
- * Draws a box near mouse with more detailed top view of map.
- * Requires screen to be locked before.
- */
-void draw_zoom_box(void)
-{
-  //_DK_draw_zoom_box(); return;
-  struct PlayerInfo *player;
-  struct Map *mapblk;
-  const int subtile_size = 8;
-  long map_tiles_x,map_tiles_y;
-  long scrtop_x,scrtop_y;
-  int map_dx,map_dy;
-  int scr_x,scr_y;
-  int map_x,map_y;
-  int k;
-
-  map_tiles_x = 13;
-  map_tiles_y = 13;
-
-  lbDisplay.DrawFlags = 0;
-  scrtop_x = GetMouseX() + 24;
-  scrtop_y = GetMouseY() + 24;
-  map_x = (3*GetMouseX()-450) / 4 - 6;
-  map_y = (3*GetMouseY()-168) / 4 - 6;
-
-  // Draw only on map area
-  if ((map_x < -map_tiles_x+4) || (map_x >= map_subtiles_x+1-map_tiles_x+6)
-   || (map_y < -map_tiles_y+4) || (map_y >= map_subtiles_x+1-map_tiles_y+6))
-    return;
-
-  scrtop_x += 4;
-  scrtop_y -= 4;
-  setup_vecs(lbDisplay.WScreen, 0, lbDisplay.GraphicsScreenWidth, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-  if (scrtop_y > MyScreenHeight-map_tiles_y*subtile_size)
-    scrtop_y = MyScreenHeight-map_tiles_y*subtile_size;
-  if (scrtop_y < 0)
-      scrtop_y = 0;
-  player = get_my_player();
-
-  scr_y = scrtop_y;
-  for (map_dy=0; map_dy < map_tiles_y; map_dy++)
-  {
-    scr_x = scrtop_x;
-    for (map_dx=0; map_dx < map_tiles_x; map_dx++)
-    {
-      mapblk = get_map_block_at(map_x+map_dx,map_y+map_dy);
-      if (map_block_revealed(mapblk, player->id_number))
-      {
-        k = element_top_face_texture(mapblk);
-        draw_texture(scr_x, scr_y, subtile_size, subtile_size, k, 0, -1);
-      } else
-      {
-        LbDrawBox(scr_x/pixel_size, scr_y/pixel_size, 8/pixel_size, 8/pixel_size, 1);
-      }
-      scr_x += subtile_size;
-    }
-    scr_y += subtile_size;
-  }
-  lbDisplay.DrawFlags |= 0x0010;
-  LbDrawBox(scrtop_x/pixel_size, scrtop_y/pixel_size,
-      (map_tiles_x*subtile_size)/pixel_size, (map_tiles_y*subtile_size)/pixel_size, 0);
-  set_flag_word(&lbDisplay.DrawFlags,0x0010,false);
-  LbScreenSetGraphicsWindow( (scrtop_x+2)/pixel_size, (scrtop_y+2)/pixel_size,
-      (map_tiles_y*subtile_size-4)/pixel_size, (map_tiles_y*subtile_size-4)/pixel_size);
-  scr_y = 0;
-  for (map_dy=0; map_dy < map_tiles_y; map_dy++)
-  {
-    scr_x = 0;
-    for (map_dx=0; map_dx < map_tiles_x; map_dx++)
-    {
-      mapblk = get_map_block_at(map_x+map_dx,map_y+map_dy);
-      if (map_block_revealed(mapblk, player->id_number))
-      {
-        draw_zoom_box_things_on_mapblk(mapblk,subtile_size,scr_x,scr_y);
-      }
-      scr_x += subtile_size;
-    }
-    scr_y += subtile_size;
-  }
-  LbScreenSetGraphicsWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-  LbSpriteDraw((scrtop_x-24)/pixel_size, (scrtop_y-20)/pixel_size, &button_sprite[194]);
-  LbSpriteDraw((scrtop_x+54)/pixel_size, (scrtop_y-20)/pixel_size, &button_sprite[195]);
-  LbSpriteDraw((scrtop_x-24)/pixel_size, (scrtop_y+50)/pixel_size, &button_sprite[196]);
-  LbSpriteDraw((scrtop_x+54)/pixel_size, (scrtop_y+50)/pixel_size, &button_sprite[197]);
-  LbScreenSetGraphicsWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
 void update_explored_flags_for_power_sight(struct PlayerInfo *player)
@@ -9903,78 +9374,6 @@ void draw_overlay_things(long zoom)
 void draw_overlay_compass(long a1, long a2)
 {
   _DK_draw_overlay_compass(a1, a2);
-}
-
-void draw_map_level_name(void)
-{
-  struct LevelInformation *lvinfo;
-  LevelNumber lvnum;
-  char *lv_name;
-  int x,y,w,h;
-  // Retrieving name
-  lv_name = NULL;
-  lvnum = get_loaded_level_number();
-  lvinfo = get_level_info(lvnum);
-  if (lvinfo != NULL)
-  {
-    if ((lvinfo->name_id > 0) && (lvinfo->name_id < STRINGS_MAX))
-      lv_name = campaign.strings[lvinfo->name_id];
-    else
-      lv_name = lvinfo->name;
-  } else
-  if (is_multiplayer_level(lvnum))
-  {
-    lv_name = level_name;
-  }
-  // Retrieving position
-  x = 0;
-  y = 0;
-  w = 640;//MyScreenWidth;
-  h = MyScreenHeight;
-  // Drawing
-  if (lv_name != NULL)
-  {
-    LbTextSetFont(winfont);
-    lbDisplay.DrawFlags = 0;
-    LbTextSetWindow(x/pixel_size, y/pixel_size, w/pixel_size, h/pixel_size);
-    LbTextDraw((w-pixel_size*LbTextStringWidth(lv_name))/2 / pixel_size, 32 / pixel_size, lv_name);
-  }
-}
-
-void load_parchment_file(void)
-{
-  if ( !parchment_loaded )
-  {
-    reload_parchment_file(lbDisplay.PhysicalScreenWidth >= 640);
-  }
-}
-
-void reload_parchment_file(short hires)
-{
-  char *fname;
-  if (hires)
-  {
-    fname=prepare_file_path(FGrp_StdData,"gmaphi.raw");
-    LbFileLoadAt(fname, hires_parchment);
-  } else
-  {
-    fname=prepare_file_path(FGrp_StdData,"gmap.raw");
-    LbFileLoadAt(fname, poly_pool);
-  }
-  parchment_loaded = 1;
-}
-
-void redraw_parchment_view(void)
-{
-  SYNCDBG(5,"Starting");
-  load_parchment_file();
-  draw_map_parchment();
-  draw_2d_map();
-  draw_gui();
-  gui_draw_all_boxes();
-  draw_zoom_box();
-  draw_map_level_name();
-  draw_tooltip();
 }
 
 void redraw_display(void)
@@ -10866,15 +10265,6 @@ long process_temple_special(struct Thing *thing)
       dungeon->field_8D5++;
     }
     return 0;
-}
-
-void clear_messages(void)
-{
-  int i;
-  for (i=0; i<MESSAGE_QUEUE_COUNT; i++)
-  {
-    memset(&message_queue[i], 0, sizeof(struct MessageQueueEntry));
-  }
 }
 
 void do_creature_swap(long ncrt_id, long crtr_id)

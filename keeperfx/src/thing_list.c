@@ -8,7 +8,7 @@
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
- * @date     12 Feb 2009 - 24 Feb 2009
+ * @date     12 Feb 2009 - 24 Feb 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -82,19 +82,56 @@ long creature_near_filter_not_imp(const struct Thing *thing, FilterParam val)
   return ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0);
 }
 
+long near_map_block_thing_filter_not_specdigger(const struct Thing *thing, MaxFilterParam param, long maximizer)
+{
+    long dist_x,dist_y;
+    if (thing->class_id == TCls_Creature)
+    {
+      if ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0)
+      {
+          // note that abs() is not required because we're computing square of the values
+          dist_x = param->num1-(MapCoord)thing->mappos.x.val;
+          dist_y = param->num2-(MapCoord)thing->mappos.y.val;
+          // This function should return max value when the distance is minimal, so:
+          return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
+      }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
 long creature_near_filter_is_enemy_of_and_not_imp(const struct Thing *thing, FilterParam plyr_idx)
 {
   if (thing->owner == plyr_idx)
     return false;
   return ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0);
 }
+
+long near_map_block_thing_filter_is_enemy_of_and_not_specdigger(const struct Thing *thing, MaxFilterParam param, long maximizer)
+{
+    long dist_x,dist_y;
+    if ((thing->class_id == TCls_Creature) && (thing->owner != param->plyr_idx))
+    {
+      if ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0)
+      {
+          // note that abs() is not required because we're computing square of the values
+          dist_x = param->num1-(MapCoord)thing->mappos.x.val;
+          dist_y = param->num2-(MapCoord)thing->mappos.y.val;
+          // This function should return max value when the distance is minimal, so:
+          return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
+      }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
 long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam plyr_idx)
 {
   struct SlabMap *slb;
   int i;
   if (thing->owner == plyr_idx)
   {
-    return 1;
+    return true;
   }
   if (thing->field_7 == 14)
     i = thing->field_8;
@@ -107,6 +144,24 @@ long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam ply
       return true;
   }
   return false;
+}
+
+long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxFilterParam param, long maximizer)
+{
+    long dist_x,dist_y;
+    if (thing->class_id == TCls_Creature)
+    {
+      if (creature_near_filter_is_owned_by(thing, param->plyr_idx))
+      {
+          // note that abs() is not required because we're computing square of the values
+          dist_x = param->num1-(MapCoord)thing->mappos.x.val;
+          dist_y = param->num2-(MapCoord)thing->mappos.y.val;
+          // This function should return max value when the distance is minimal, so:
+          return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
+      }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
 }
 
 /**
@@ -812,51 +867,96 @@ struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_
 }
 
 /**
- * Returns thing of given array index.
+ * Returns filtered creature from the map block list, starting from thing_idx.
+ * The thing which will return highest nonnegative value from given filter function
+ * will be returned.
+ * If the filter function will return LONG_MAX, the current creature will be returned
+ * immediately and no further things will be checked.
  * @return Returns thing, or invalid thing pointer if not found.
  */
-struct Thing *thing_get(long tng_idx)
+struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param, long *maximizer)
 {
-  if ((tng_idx > 0) && (tng_idx < THINGS_COUNT))
-    return game.things_lookup[tng_idx];
-  if ((tng_idx < -1) || (tng_idx >= THINGS_COUNT))
-    ERRORLOG("Request of invalid thing (no %ld) intercepted",tng_idx);
-  return INVALID_THING;
+    struct Thing *thing;
+    struct Thing *retng;
+    unsigned long k;
+    long i,n;
+    SYNCDBG(19,"Starting");
+    retng = INVALID_THING;
+    k = 0;
+    i = thing_idx;
+    while (i != 0)
+    {
+      thing = thing_get(i);
+      if (thing_is_invalid(thing))
+      {
+        ERRORLOG("Jump to invalid thing detected");
+        break;
+      }
+      i = thing->field_2;
+      // Begin per-loop code
+      n = filter(thing, param, *maximizer);
+      if (n >= *maximizer)
+      {
+          retng = thing;
+          *maximizer = n;
+          if (*maximizer == LONG_MAX)
+              break;
+      }
+      // End of per-loop code
+      k++;
+      if (k > THINGS_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping things list");
+        break;
+      }
+    }
+    return retng;
 }
 
-long thing_get_index(const struct Thing *thing)
+/**
+ * Returns filtered creature from slabs around given coordinates.
+ * Skips slabs which are not revealed to player provided in MaxFilterParam.
+ * The thing which will return highest nonnegative value from given filter function
+ * will be returned.
+ * If the filter function will return LONG_MAX, the current creature will be returned
+ * immediately and no further things will be checked.
+ * @return Returns thing, or invalid thing pointer if not found.
+ */
+struct Thing *get_thing_near_map_block_with_filter(MapCoord x, MapCoord y, Thing_Maximizer_Filter filter, MaxFilterParam param)
 {
-  long tng_idx;
-  tng_idx = (thing - game.things_lookup[0]);
-  if ((tng_idx > 0) && (tng_idx < THINGS_COUNT))
-    return tng_idx;
-  return 0;
-}
-
-short thing_is_invalid(const struct Thing *thing)
-{
-  return (thing <= game.things_lookup[0]) || (thing == NULL);
-}
-
-TbBool thing_exists_idx(long tng_idx)
-{
-  struct Thing *thing;
-  thing = thing_get(tng_idx);
-  if (thing_is_invalid(thing))
-    return false;
-  return ((thing->field_0 & 0x01) != 0);
-}
-
-TbBool thing_exists(const struct Thing *thing)
-{
-  if (thing_is_invalid(thing))
-    return false;
-  return ((thing->field_0 & 0x01) != 0);
-}
-
-TbBool thing_touching_floor(const struct Thing *thing)
-{
-  return (thing->field_60 == thing->mappos.z.val);
+    struct Thing *thing;
+    struct Thing *retng;
+    long maximizer;
+    struct Map *mapblk;
+    MapSubtlCoord sx,sy;
+    int around;
+    long i,n;
+    SYNCDBG(19,"Starting");
+    retng = INVALID_THING;
+    maximizer = 0;
+    for (around=0; around < sizeof(mid_around)/sizeof(mid_around[0]); around++)
+    {
+      sx = coord_subtile(x) + (MapSubtlCoord)mid_around[around].delta_x;
+      sy = coord_subtile(y) + (MapSubtlCoord)mid_around[around].delta_y;
+      mapblk = get_map_block_at(sx, sy);
+      if (!map_block_invalid(mapblk))
+      {
+        if (map_block_revealed(mapblk, param->plyr_idx))
+        {
+            i = get_mapwho_thing_index(mapblk);
+            n = maximizer;
+            thing = get_thing_on_map_block_with_filter(i, filter, param, &n);
+            if (!thing_is_invalid(thing) && (n >= maximizer))
+            {
+                retng = thing;
+                maximizer = n;
+                if (maximizer == LONG_MAX)
+                    break;
+            }
+        }
+      }
+    }
+    return retng;
 }
 
 void stop_all_things_playing_samples(void)
@@ -1128,6 +1228,66 @@ TbBool gold_pile_with_maximum_at_xy(long stl_x, long stl_y)
     }
   }
   return false;
+}
+
+/** Finds creature on revealed subtiles around given position, who is not special digger.
+ *
+ * @param pos_x Position to search around X coord.
+ * @param pos_y Position to search around Y coord.
+ * @param plyr_idx Player whose revealed subtiles around will be searched.
+ * @return The creature thing pointer, or invalid thing pointer if not found.
+ */
+struct Thing *get_creature_near_but_not_specdigger(MapCoord pos_x, MapCoord pos_y, long plyr_idx)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
+    SYNCDBG(19,"Starting");
+    //return get_creature_near_with_filter(x, y, creature_near_filter_not_imp, plyr_idx);
+    filter = near_map_block_thing_filter_not_specdigger;
+    param.plyr_idx = plyr_idx;
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    return get_thing_near_map_block_with_filter(pos_x, pos_y, filter, &param);
+}
+
+/** Finds creature on revealed subtiles around given position, who is not special digger and is enemy to given player.
+ *
+ * @param pos_x Position to search around X coord.
+ * @param pos_y Position to search around Y coord.
+ * @param plyr_idx Player whose revealed subtiles around will be searched.
+ * @return The creature thing pointer, or invalid thing pointer if not found.
+ */
+struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, long plyr_idx)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
+    SYNCDBG(19,"Starting");
+    //return get_creature_near_with_filter(x, y, creature_near_filter_is_enemy_of_and_not_imp, plyr_idx);
+    filter = near_map_block_thing_filter_is_enemy_of_and_not_specdigger;
+    param.plyr_idx = plyr_idx;
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    return get_thing_near_map_block_with_filter(pos_x, pos_y, filter, &param);
+}
+
+/** Finds creature on revealed subtiles around given position, who belongs to given player.
+ *
+ * @param pos_x Position to search around X coord.
+ * @param pos_y Position to search around Y coord.
+ * @param plyr_idx Player whose creature from revealed position will be returned.
+ * @return The creature thing pointer, or invalid thing pointer if not found.
+ */
+struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, long plyr_idx)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
+    SYNCDBG(19,"Starting");
+    //return get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+    filter = near_map_block_thing_filter_is_owned_by;
+    param.plyr_idx = plyr_idx;
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    return get_thing_near_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 /******************************************************************************/
 #ifdef __cplusplus

@@ -35,6 +35,8 @@
 #include "map_events.h"
 #include "power_hand.h"
 #include "gui_topmsg.h"
+#include "gui_soundmsgs.h"
+
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

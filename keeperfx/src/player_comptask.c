@@ -31,6 +31,8 @@
 #include "config_creature.h"
 #include "magic.h"
 #include "thing_traps.h"
+#include "player_instances.h"
+
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -281,17 +283,7 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
         return i;
     case 15:
     case 16:
-        if (i_can_allocate_free_room_structure())
-        {
-            k = game.room_stats[param2].cost;
-            if (take_money_from_dungeon(plyr_idx, k, 1) < 0)
-            {
-                if (is_my_player_number(plyr_idx))
-                  output_message(87, 0, 1);
-                break;
-            }
-        }
-        room = place_room(plyr_idx, param2, stl_x, stl_y);
+        room = player_build_room_at(stl_x, stl_y, plyr_idx, param2);
         if (room_is_invalid(room))
           break;
         return room->index;

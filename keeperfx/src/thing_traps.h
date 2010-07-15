@@ -72,8 +72,8 @@ TbBool destroy_trap(struct Thing *thing);
 struct Thing *create_trap(struct Coord3d *pos, unsigned short a1, unsigned short a2);
 struct Thing *get_trap_for_position(long pos_x, long pos_y);
 struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y);
-TbBool trap_is_active(struct Thing *thing);
-TbBool trap_is_slappable(struct Thing *thing, long plyr_idx);
+TbBool trap_is_active(const struct Thing *thing);
+TbBool trap_is_slappable(const struct Thing *thing, long plyr_idx);
 long update_trap(struct Thing *thing);
 void init_traps(void);
 

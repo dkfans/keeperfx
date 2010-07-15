@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "creature_control.h"
 #include "creature_states.h"
+#include "creature_instances.h"
 #include "config_creature.h"
 #include "thing_list.h"
 #include "thing_objects.h"
