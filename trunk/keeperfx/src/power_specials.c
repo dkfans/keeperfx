@@ -32,6 +32,7 @@
 #include "slab_data.h"
 #include "thing_objects.h"
 #include "frontend.h"
+#include "gui_soundmsgs.h"
 
 #include "keeperfx.hpp"
 

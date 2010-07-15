@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file creature_instances.h
- *     Header file for creature_instances.c.
+/** @file gui_parchment.h
+ *     Header file for gui_parchment.c.
  * @par Purpose:
- *     creature_instances functions.
+ *     The map parchment screen support functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     11 Mar 2010 - 12 May 2010
+ * @date     23 May 2010 - 10 Jun 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_CRTRINSTANCE_H
-#define DK_CRTRINSTANCE_H
+#ifndef DK_GUI_PARCHMENT_H
+#define DK_GUI_PARCHMENT_H
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -27,42 +27,28 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-typedef long (*Creature_Instf_Func)(struct Thing *, long *);
-
 #ifdef __cplusplus
 #pragma pack(1)
 #endif
 
-struct InstanceInfo { // sizeof = 42
-unsigned char field_0;
-  long time;
-  long fp_time;
-  long action_time;
-  long fp_action_time;
-  long reset_time;
-  long fp_reset_time;
-  unsigned char graphics_idx;
-unsigned char field_1A;
-  short force_visibility;
-unsigned char field_1D;
-    Creature_Instf_Func func_cb;
-  long field_22;
-unsigned char field_26[4];
-};
 
 #ifdef __cplusplus
 #pragma pack()
 #endif
 /******************************************************************************/
-extern const struct NamedCommand creature_instances_func_type[];
-extern Creature_Instf_Func creature_instances_func_list[];
+DLLIMPORT int _DK_parchment_loaded;
+#define parchment_loaded _DK_parchment_loaded
+DLLIMPORT unsigned char *_DK_hires_parchment;
+#define hires_parchment _DK_hires_parchment
 /******************************************************************************/
-/** Returns creature instance info structure for given instance index. */
-#define creature_instance_info_get(inst_idx) creature_instance_info_get_ptr(inst_idx,__func__)
-struct InstanceInfo *creature_instance_info_get_ptr(long inst_idx,const char *func_name);
-void process_creature_instance(struct Thing *thing);
-TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf);
-long creature_instance_is_available(struct Thing *thing, long inum);
+void draw_map_parchment(void);
+void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h);
+
+void load_parchment_file(void);
+void reload_parchment_file(TbBool hires);
+
+void redraw_parchment_view(void);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

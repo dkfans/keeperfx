@@ -31,6 +31,7 @@
 #include "room_data.h"
 #include "thing_objects.h"
 #include "map_events.h"
+#include "gui_soundmsgs.h"
 
 #include "keeperfx.hpp"
 
@@ -616,23 +617,20 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     // Check why the treasure room search failed. Maybe we don't have treasure room?
     if (dungeon->room_kind[RoK_TREASURE] == 0)
     {
-        //"You must build a treasure room, to store gold"
         if (is_my_player_number(thing->owner))
-            output_message(39, 1000, 1);
+            output_message(SMsg_TreasureRoomNeeded, 1000, 1);
         event_create_event_or_update_nearby_existing_event(0, 0, 20, thing->owner, 0);
         return 0;
     }
     // If we have it, is it unreachable, or just too small?
     if (find_room_with_spare_capacity(thing->owner, RoK_TREASURE, 1) != NULL)
     {
-        //"Some of your minions are unable to reach the treasure room"
         if (is_my_player_number(thing->owner))
-            output_message(35, 1000, 1);
+            output_message(SMsg_TreasrUnreachable, 1000, 1);
         return 0;
     }
-    //"You need a bigger treasure room"
     if (is_my_player_number(thing->owner))
-        output_message(24, 1000, 1);
+        output_message(SMsg_TreasrRoomTooSmall, 1000, 1);
     event_create_event_or_update_nearby_existing_event(0, 0, 11, thing->owner, 0);
     return 0;
 }

@@ -478,9 +478,6 @@ extern struct GuiMenu frontend_define_keys_menu;
 extern struct GuiMenu autopilot_menu;
 extern struct GuiMenu frontend_option_menu;
 extern struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT];
-extern struct GuiBoxOption gui_main_cheat_list[];
-extern struct GuiBoxOption gui_creature_cheat_option_list[];
-extern struct GuiBoxOption gui_instance_option_list[];
 
 extern struct GuiMenu *menu_list[MENU_LIST_ITEMS_COUNT];
 
@@ -863,7 +860,6 @@ void select_transfer_creature_down(struct GuiButton *gbtn);
 void maintain_transfer_creature_scroll(struct GuiButton *gbtn);
 void frontend_load_data_from_cd(void);
 void frontend_load_data_reset(void);
-void draw_map_parchment(void);
 void gui_area_null(struct GuiButton *gbtn);
 void draw_load_button(struct GuiButton *gbtn);
 void gui_activity_background(struct GuiMenu *gmnu);
@@ -872,7 +868,6 @@ void frontend_draw_large_menu_button(struct GuiButton *gbtn);
 void frontend_copy_mnu_background(struct GuiMenu *gmnu);
 void frontend_copy_background(void);
 void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h);
-void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h);
 void gui_round_glass_background(struct GuiMenu *gmnu);
 void gui_creature_query_background1(struct GuiMenu *gmnu);
 void gui_creature_query_background2(struct GuiMenu *gmnu);
@@ -948,24 +943,6 @@ TbBool toggle_creature_cheat_menu(void);
 void initialise_tab_tags(long menu_id);
 void initialise_tab_tags_and_menu(long menu_id);
 void turn_off_roaming_menus(void);
-
-void gui_draw_all_boxes(void);
-short gui_box_is_not_valid(struct GuiBox *gbox);
-struct GuiBox *gui_create_box(long x, long y, struct GuiBoxOption *optn_list);
-void gui_delete_box(struct GuiBox *gbox);
-void gui_draw_box(struct GuiBox *gbox);
-short gui_move_box(struct GuiBox *gbox, long x, long y, unsigned short fdflags);
-struct GuiBox *gui_get_highest_priority_box(void);
-struct GuiBox *gui_get_lowest_priority_box(void);
-struct GuiBox *gui_get_next_highest_priority_box(struct GuiBox *gbox);
-struct GuiBox *gui_get_next_lowest_priority_box(struct GuiBox *gbox);
-void gui_remove_box_from_list(struct GuiBox *gbox);
-void gui_insert_box_at_list_top(struct GuiBox *gbox);
-struct GuiBox *gui_get_box_point_over(long x, long y);
-struct GuiBoxOption *gui_get_box_option_point_over(struct GuiBox *gbox, long x, long y);
-short gui_process_inputs(void);
-
-
 
 /******************************************************************************/
 #ifdef __cplusplus

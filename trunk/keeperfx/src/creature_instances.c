@@ -28,6 +28,8 @@
 #include "creature_control.h"
 #include "map_blocks.h"
 #include "config_magic.hpp"
+#include "gui_soundmsgs.h"
+
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -102,6 +104,15 @@ struct InstanceInfo *creature_instance_info_get_ptr(long inst_idx,const char *fu
 TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf)
 {
     return (inst_inf < &instance_info[1]);
+}
+
+long creature_instance_is_available(struct Thing *thing, long inum)
+{
+  struct CreatureControl *cctrl;
+  cctrl = creature_control_get_from_thing(thing);
+  if (creature_control_invalid(cctrl))
+    return 0;
+  return cctrl->instances[inum];
 }
 
 void process_creature_instance(struct Thing *thing)

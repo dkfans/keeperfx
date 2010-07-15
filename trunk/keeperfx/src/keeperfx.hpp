@@ -53,9 +53,7 @@ extern "C" {
 #define NET_PLAYERS_COUNT       4
 #define NET_SERVICES_COUNT     16
 #define PACKETS_COUNT           5
-#define THINGS_COUNT         2048
 #define ROOMS_COUNT           150
-#define MESSAGE_QUEUE_COUNT     4
 #define GUI_MESSAGES_COUNT      3
 #define CREATURE_PARTYS_COUNT  16
 #define PARTY_MEMBERS_COUNT     8
@@ -139,7 +137,6 @@ enum DebugFlags {
     DFlg_unk02              =  0x02,
 };
 
-typedef unsigned long Phrase;
 struct TbLoadFiles;
 struct RoomFlag;
 struct Number;
@@ -181,12 +178,6 @@ struct GuiMessage { // sizeof = 0x45 (69)
     char text[64];
 unsigned char field_40;
 unsigned long field_41;
-};
-
-struct MessageQueueEntry { // sizeof = 9
-     unsigned char state;
-     unsigned long msg_idx;
-     unsigned long field_5;
 };
 
 struct TextScrollWindow {
@@ -306,12 +297,6 @@ struct ManfctrConfig { // sizeof=0x14
   int shots;
   int shots_delay;
   long selling_value;
-};
-
-struct SMessage {
-      long start_idx;
-      long count;
-      long end_time;
 };
 
 struct KeyToStringInit { // sizeof = 5
@@ -782,7 +767,6 @@ extern struct GuiBox *gui_box;
 extern struct GuiBox *gui_cheat_box;
 extern const char *blood_types[];
 extern int test_variable;
-extern unsigned short const player_cubes[];
 extern unsigned short const player_state_to_spell[];
 extern struct RoomInfo room_info[];
 extern const struct Around around[];
@@ -950,20 +934,14 @@ DLLIMPORT long _DK_anim_counter;
 #define anim_counter _DK_anim_counter
 DLLIMPORT unsigned char *_DK_block_ptrs[592];
 #define block_ptrs _DK_block_ptrs
-DLLIMPORT unsigned char _DK_colours[16][16][16];
-#define colours _DK_colours
 DLLIMPORT long _DK_frame_number;
 #define frame_number _DK_frame_number
 DLLIMPORT unsigned char _DK_grabbed_small_map;
 #define grabbed_small_map _DK_grabbed_small_map
 DLLIMPORT long _DK_draw_spell_cost;
 #define draw_spell_cost _DK_draw_spell_cost
-DLLIMPORT int _DK_parchment_loaded;
-#define parchment_loaded _DK_parchment_loaded
 DLLIMPORT char _DK_level_name[88];
 #define level_name _DK_level_name
-DLLIMPORT unsigned char *_DK_hires_parchment;
-#define hires_parchment _DK_hires_parchment
 DLLIMPORT int _DK_fe_computer_players;
 #define fe_computer_players _DK_fe_computer_players
 DLLIMPORT unsigned char *_DK_block_mem;
@@ -986,8 +964,6 @@ DLLIMPORT long _DK_total_lights;
 #define total_lights _DK_total_lights
 DLLIMPORT unsigned char _DK_do_lights;
 #define do_lights _DK_do_lights
-DLLIMPORT struct MessageQueueEntry _DK_message_queue[MESSAGE_QUEUE_COUNT];
-#define message_queue _DK_message_queue
 DLLIMPORT long _DK_imp_spangle_effects[];
 #define imp_spangle_effects _DK_imp_spangle_effects
 DLLIMPORT struct Thing *_DK_thing_being_displayed;
@@ -1044,8 +1020,6 @@ DLLIMPORT long _DK_net_number_of_sessions;
 #define net_number_of_sessions _DK_net_number_of_sessions
 DLLIMPORT long _DK_randomisors[512];
 #define randomisors _DK_randomisors
-DLLIMPORT unsigned long _DK_message_playing;
-#define message_playing _DK_message_playing
 DLLIMPORT unsigned char _DK_EngineSpriteDrawUsingAlpha;
 #define EngineSpriteDrawUsingAlpha _DK_EngineSpriteDrawUsingAlpha
 DLLIMPORT long _DK_sound_heap_size;
@@ -1088,11 +1062,10 @@ void intro(void);
 void outro(void);
 
 TbBool slap_object(struct Thing *thing);
-TbBool object_is_slappable(struct Thing *thing, long plyr_idx);
+TbBool object_is_slappable(const struct Thing *thing, long plyr_idx);
 unsigned char external_set_thing_state(struct Thing *thing, long state);
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2);
 long is_thing_passenger_controlled(struct Thing *thing);
-short thing_is_pickable_by_hand(struct PlayerInfo *player,struct Thing *thing);
 void remove_events_thing_is_attached_to(struct Thing *thing);
 
 int can_thing_be_queried(struct Thing *thing, long a2);
@@ -1100,7 +1073,7 @@ int can_thing_be_possessed(struct Thing *thing, long a2);
 long remove_workshop_object_from_player(long a1, long a2);
 unsigned char tag_cursor_blocks_place_trap(unsigned char a1, long a2, long a3);
 void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3);
-struct Thing *get_queryable_object_near(unsigned short a1, unsigned short a2, long a3);
+struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
 long tag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
 void untag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
 void tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4);
@@ -1120,7 +1093,6 @@ struct Room *place_room(unsigned char owner, unsigned char rkind, unsigned short
 unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
 short delete_room_slab(long x, long y, unsigned char gnd_slab);
 TbBool all_dungeons_destroyed(struct PlayerInfo *win_player);
-long creature_instance_is_available(struct Thing *thing, long inum);
 long add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount);
 void check_map_for_gold(void);
 short init_animating_texture_maps(void);
@@ -1143,8 +1115,6 @@ void process_entrance_generation(void);
 void process_things_in_dungeon_hand(void);
 void process_payday(void);
 TbBool bonus_timer_enabled(void);
-void load_parchment_file(void);
-void reload_parchment_file(short hires);
 void process_sound_heap(void);
 
 int setup_old_network_service(void);
@@ -1187,8 +1157,6 @@ struct Room *get_room_thing_is_on(struct Thing *thing);
 void init_creature_state(struct Thing *thing);
 void gui_set_button_flashing(long btn_idx, long gameturns);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
-void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
-long element_top_face_texture(struct Map *map);
 long thing_is_spellbook(struct Thing *thing);
 struct Thing *get_spellbook_at_position(long x, long y);
 struct Thing *get_special_at_position(long x, long y);
@@ -1199,7 +1167,7 @@ TbBool create_random_hero_creature(long x, long y, PlayerNumber owner, long max_
 TbBool create_hero_special_worker(long x, long y, PlayerNumber owner);
 
 void destroy_food(struct Thing *thing);
-TbBool thing_slappable(struct Thing *thing, long plyr_idx);
+TbBool thing_slappable(const struct Thing *thing, long plyr_idx);
 unsigned char active_battle_exists(unsigned char a1);
 void maintain_my_battle_list(void);
 unsigned char step_battles_forward(unsigned char a1);
@@ -1296,11 +1264,6 @@ short resign_level(struct PlayerInfo *player);
 short complete_level(struct PlayerInfo *player);
 void directly_cast_spell_on_thing(long plridx, unsigned char a2, unsigned short a3, long a4);
 int get_spell_overcharge_level(struct PlayerInfo *player);
-void output_message(long msg_idx, long delay, TbBool queue);
-TbBool message_already_in_queue(long msg_idx);
-TbBool add_message_to_queue(long msg_idx, long a2);
-long get_phrase_for_message(long msg_idx);
-long get_phrase_sample(long phr_idx);
 void set_general_information(long msg_id, long target, long x, long y);
 void set_quick_information(long msg_id, long target, long x, long y);
 void process_objective(char *msg_text, long target, long x, long y);

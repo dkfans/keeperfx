@@ -37,6 +37,7 @@
 #include "creature_states.h"
 #include "config_creature.h"
 #include "config_magic.hpp"
+#include "gui_soundmsgs.h"
 
 #include "keeperfx.hpp"
 
@@ -227,7 +228,7 @@ TbBool pay_for_spell(PlayerNumber plyr_idx, long spkind, long splevel)
     }
     // If failed, say "you do not have enough gold"
     if (is_my_player_number(plyr_idx))
-        output_message(87, 0, 1);
+        output_message(SMsg_NotEnoughGold, 0, 1);
     return false;
 }
 

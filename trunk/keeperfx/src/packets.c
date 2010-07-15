@@ -56,7 +56,10 @@
 #include "thing_traps.h"
 #include "magic.h"
 #include "light_data.h"
+#include "gui_draw.h"
 #include "gui_topmsg.h"
+#include "gui_soundmsgs.h"
+
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -277,35 +280,17 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
   struct RoomStats *rstat;
   struct Coord3d pos;
   MapCoord x,y;
-  long k;
   player = get_player(plyr_idx);
   dungeon = get_players_dungeon(player);
   rstat = room_stats_get_for_kind(rkind);
-  k = rstat->cost;
-  if (!i_can_allocate_free_room_structure())
-  {
-    if (is_my_player(player))
-      play_non_3d_sample(119);
-    return NULL;
-  }
-  if (take_money_from_dungeon(plyr_idx, k, 1) < 0)
-  {
-    if (is_my_player(player))
-      output_message(87, 0, 1);
-    return NULL;
-  }
   x = ((player->field_4A4+1) / 2) + 3*map_to_slab[stl_x];
   y = ((player->field_4A4+1) / 2) + 3*map_to_slab[stl_y];
-  room = place_room(plyr_idx, rkind, x, y);
+  room = player_build_room_at(x, y, plyr_idx, rkind);
   if (!room_is_invalid(room))
   {
-    if (rkind == RoK_BRIDGE)
-      dungeon->lvstats.bridges_built++;
     dungeon->field_EA4 = 192;
-    if (is_my_player(player))
-      play_non_3d_sample(77);
     set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
-    create_price_effect(&pos, plyr_idx, k);
+    create_price_effect(&pos, plyr_idx, rstat->cost);
   }
   return room;
 }
@@ -765,7 +750,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
               } else
               if (is_my_player(player))
               {
-                output_message(101, 500, 1);
+                output_message(SMsg_NoMoreWorkerJobs, 500, 1);
               }
             } else
             if ((player->field_455 == 3) && ((player->field_3 & 0x01) != 0))
@@ -781,7 +766,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
               } else
               if (is_my_player(player))
               {
-                output_message(101, 500, 1);
+                output_message(SMsg_NoMoreWorkerJobs, 500, 1);
               }
             }
           }
@@ -839,7 +824,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             } else
             if (is_my_player(player))
             {
-              output_message(101, 500, 1);
+              output_message(SMsg_NoMoreWorkerJobs, 500, 1);
             }
           } else
           if (player->field_454 == 3)
@@ -975,7 +960,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
       break;
   case PSt_Slap:
       val172 = 1;
-      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+      thing = get_creature_near_and_owned_by(x, y, plyr_idx);
       if (thing_is_invalid(thing))
           player->thing_under_hand = 0;
       else
@@ -988,7 +973,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
       break;
   case PSt_CtrlPassngr:
       val172 = 1;
-      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+      thing = get_creature_near_and_owned_by(x, y, plyr_idx);
       if (thing_is_invalid(thing))
           player->thing_under_hand = 0;
       else
@@ -1039,7 +1024,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
   case 12:
   case 15:
       val172 = 1;
-      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+      thing = get_creature_near_and_owned_by(x, y, plyr_idx);
       if (thing_is_invalid(thing))
           player->thing_under_hand = 0;
       else
@@ -1088,7 +1073,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
       break;
   case PSt_OrderCreatr:
       val172 = 1;
-      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+      thing = get_creature_near_and_owned_by(x, y, plyr_idx);
       if (thing_is_invalid(thing))
           player->thing_under_hand = 0;
       else
@@ -1218,7 +1203,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
       break;
   case PSt_SpeedUp:
       val172 = true;
-      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+      thing = get_creature_near_and_owned_by(x, y, plyr_idx);
       if (thing_is_invalid(thing))
       {
         player->thing_under_hand = 0;
@@ -1234,7 +1219,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
       break;
   case PSt_Armour:
       val172 = true;
-      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+      thing = get_creature_near_and_owned_by(x, y, plyr_idx);
       if (thing_is_invalid(thing))
       {
         player->thing_under_hand = 0;
@@ -1250,7 +1235,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
       break;
   case PSt_Conceal:
       val172 = true;
-      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+      thing = get_creature_near_and_owned_by(x, y, plyr_idx);
       if (thing_is_invalid(thing))
       {
         player->thing_under_hand = 0;
@@ -1266,7 +1251,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
       break;
   case PSt_Heal:
       val172 = true;
-      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
+      thing = get_creature_near_and_owned_by(x, y, plyr_idx);
       if (thing_is_invalid(thing))
       {
         player->thing_under_hand = 0;
@@ -1299,7 +1284,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
       }
       break;
   case PSt_CastDisease:
-      thing = get_creature_near_with_filter(x, y, creature_near_filter_is_enemy_of_and_not_imp, plyr_idx);
+      thing = get_creature_near_who_is_enemy_of_and_not_specdigger(x, y, plyr_idx);
       if (thing_is_invalid(thing))
       {
         player->thing_under_hand = 0;
@@ -1315,7 +1300,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
       break;
   case PSt_TurnChicken:
       val172 = true;
-      thing = get_creature_near_with_filter(x, y, creature_near_filter_not_imp, plyr_idx);
+      thing = get_creature_near_but_not_specdigger(x, y, plyr_idx);
       if (thing_is_invalid(thing))
       {
         player->thing_under_hand = 0;
@@ -2054,7 +2039,7 @@ TbBool process_players_global_packet_action(long plyr_idx)
       return 0;
   case PckA_PlyrFastMsg:
       //show_onscreen_msg(game.num_fps, "Message from player %d", plyr_idx);
-      output_message(pckt->field_6+110, 0, 1);
+      output_message(SMsg_EnemyHarassments+pckt->field_6, 0, 1);
       return 0;
   case PckA_SetComputerKind:
       set_autopilot_type(plyr_idx, pckt->field_6);

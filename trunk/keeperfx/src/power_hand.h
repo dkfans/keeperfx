@@ -41,6 +41,7 @@ struct Thing;
 void add_creature_to_sacrifice_list(long owner, long model, long explevel);
 void place_thing_in_limbo(struct Thing *thing);
 unsigned long object_is_pickable_by_hand(struct Thing *thing, long a2);
+TbBool thing_is_pickable_by_hand(struct PlayerInfo *player,struct Thing *thing);
 void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing);
 struct Thing *process_object_being_picked_up(struct Thing *thing, long a2);
 void set_power_hand_graphic(long a1, long a2, long a3);

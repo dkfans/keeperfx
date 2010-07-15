@@ -115,7 +115,6 @@ extern struct PlayerInstanceInfo player_instance_info[];
 DLLIMPORT struct PlayerInstanceInfo _DK_player_instance_info[];
 //#define player_instance_info _DK_player_instance_info
 /******************************************************************************/
-
 void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force);
 void process_player_instance(struct PlayerInfo *player);
 void process_player_instances(void);
@@ -123,6 +122,8 @@ void process_player_instances(void);
 void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 TbBool set_selected_creature(struct PlayerInfo *player, struct Thing *thing);
+
+struct Room *player_build_room_at(long stl_x, long stl_y, long plyr_idx, long rkind);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -36,9 +36,12 @@
 #include "player_instances.h"
 #include "config_creature.h"
 #include "config_terrain.h"
+#include "creature_instances.h"
+#include "gui_boxmenu.h"
 #include "gui_tooltips.h"
 #include "gui_topmsg.h"
 #include "power_hand.h"
+
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

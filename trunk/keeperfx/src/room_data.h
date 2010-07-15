@@ -124,7 +124,8 @@ DLLIMPORT extern struct RoomData _DK_room_data[];
 /******************************************************************************/
 extern unsigned short const room_effect_elements[];
 extern const short slab_around[];
-extern const unsigned short small_around_pos[13];
+extern const unsigned short small_around_pos[4];
+extern struct Around const mid_around[9];
 extern struct AroundLByte const room_spark_offset[];
 extern struct Around const small_around[];
 extern struct RoomData room_data[];

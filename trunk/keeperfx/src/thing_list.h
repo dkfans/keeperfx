@@ -91,10 +91,20 @@ long creature_near_filter_not_imp(const struct Thing *thing, FilterParam val);
 long creature_near_filter_is_enemy_of_and_not_imp(const struct Thing *thing, FilterParam val);
 long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam val);
 
+// Filters to select thing belonging to given player
 struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param);
 struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param);
+// Final routines to select thing belonging to given player
 struct Thing *get_player_list_nth_creature_of_model(long thing_idx, long model, long crtr_idx);
 struct Thing *get_random_players_creature_of_model(long plyr_idx, long model);
+
+// Filters to select thing on/near given map position
+struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param, long *maximizer);
+struct Thing *get_thing_near_map_block_with_filter(MapCoord x, MapCoord y, Thing_Maximizer_Filter filter, MaxFilterParam param);
+// Final routines to select thing on/near given map position
+struct Thing *get_creature_near_but_not_specdigger(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
+struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
+struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
 
 unsigned long update_things_sounds_in_list(struct StructureList *list);
 void stop_all_things_playing_samples(void);
@@ -117,14 +127,6 @@ void update_things(void);
 
 struct Thing *find_hero_gate_of_number(long num);
 long get_free_hero_gate_number(void);
-
-struct Thing *thing_get(long tng_idx);
-TbBool thing_exists_idx(long tng_idx);
-TbBool thing_exists(const struct Thing *thing);
-short thing_is_invalid(const struct Thing *thing);
-long thing_get_index(const struct Thing *thing);
-
-TbBool thing_touching_floor(const struct Thing *thing);
 
 long thing_is_shootable_by_any_player_including_objects(struct Thing *thing);
 long thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *shooter, struct Thing *thing);

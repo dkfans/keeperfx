@@ -20,6 +20,9 @@
 #define DK_THING_DATA_H
 
 #include "globals.h"
+#include "bflib_basics.h"
+
+#define THINGS_COUNT         2048
 
 #ifdef __cplusplus
 extern "C" {
@@ -137,6 +140,14 @@ struct Thing *allocate_free_thing_structure(unsigned char a1);
 short thing_create_thing(struct InitThing *itng);
 unsigned char i_can_allocate_free_thing_structure(unsigned char a1);
 void delete_thing_structure(struct Thing *thing, long a2);
+
+struct Thing *thing_get(long tng_idx);
+TbBool thing_exists_idx(long tng_idx);
+TbBool thing_exists(const struct Thing *thing);
+short thing_is_invalid(const struct Thing *thing);
+long thing_get_index(const struct Thing *thing);
+
+TbBool thing_touching_floor(const struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus

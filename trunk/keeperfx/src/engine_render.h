@@ -440,6 +440,7 @@ void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, lo
 
 void draw_engine_number(struct Number *num);
 void draw_engine_room_flagpole(struct RoomFlag *rflg);
+void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
 
 void update_engine_settings(struct PlayerInfo *player);
 void display_drawlist(void);

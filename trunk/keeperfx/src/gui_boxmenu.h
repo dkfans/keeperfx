@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file map_blocks.h
- *     Header file for map_blocks.c.
+/** @file gui_boxmenu.h
+ *     Header file for gui_boxmenu.c.
  * @par Purpose:
- *     Map blocks support functions.
+ *     Displaying service menu on screen.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     11 Mar 2010 - 12 May 2010
+ * @date     11 Mar 2010 - 12 Jun 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,10 +16,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_MAP_BLOCKS_H
-#define DK_MAP_BLOCKS_H
+#ifndef DK_GUI_BOXMENU_H
+#define DK_GUI_BOXMENU_H
 
-#include "bflib_basics.h"
 #include "globals.h"
 
 #ifdef __cplusplus
@@ -31,21 +30,26 @@ extern "C" {
 #pragma pack(1)
 #endif
 
-struct Thing;
 
 #ifdef __cplusplus
 #pragma pack()
 #endif
 /******************************************************************************/
-TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y);
-
-void mine_out_block(long a1, long a2, long a3);
-unsigned char dig_has_revealed_area(long a1, long a2, unsigned char a3);
-void dig_out_block(long a1, long a2, long a3);
-void check_map_explored(struct Thing *thing, long a2, long a3);
-long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
-
-long element_top_face_texture(struct Map *map);
+void gui_draw_all_boxes(void);
+short gui_box_is_not_valid(struct GuiBox *gbox);
+struct GuiBox *gui_create_box(long x, long y, struct GuiBoxOption *optn_list);
+void gui_delete_box(struct GuiBox *gbox);
+void gui_draw_box(struct GuiBox *gbox);
+short gui_move_box(struct GuiBox *gbox, long x, long y, unsigned short fdflags);
+struct GuiBox *gui_get_highest_priority_box(void);
+struct GuiBox *gui_get_lowest_priority_box(void);
+struct GuiBox *gui_get_next_highest_priority_box(struct GuiBox *gbox);
+struct GuiBox *gui_get_next_lowest_priority_box(struct GuiBox *gbox);
+void gui_remove_box_from_list(struct GuiBox *gbox);
+void gui_insert_box_at_list_top(struct GuiBox *gbox);
+struct GuiBox *gui_get_box_point_over(long x, long y);
+struct GuiBoxOption *gui_get_box_option_point_over(struct GuiBox *gbox, long x, long y);
+short gui_process_inputs(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
