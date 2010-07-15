@@ -26,6 +26,7 @@
 #include "gui_draw.h"
 #include "kjm_input.h"
 #include "gui_topmsg.h"
+#include "gui_frontmenu.h"
 #include "frontend.h"
 #include "thing_objects.h"
 #include "thing_traps.h"

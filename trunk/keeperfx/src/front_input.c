@@ -38,6 +38,8 @@
 #include "config_terrain.h"
 #include "creature_instances.h"
 #include "gui_boxmenu.h"
+#include "gui_frontmenu.h"
+#include "gui_frontbtns.h"
 #include "gui_tooltips.h"
 #include "gui_topmsg.h"
 #include "power_hand.h"
@@ -69,6 +71,7 @@ DLLIMPORT void _DK_get_dungeon_control_nonaction_inputs(void);
 DLLIMPORT void _DK_get_creature_control_nonaction_inputs(void);
 DLLIMPORT void _DK_get_map_nonaction_inputs(void);
 DLLIMPORT long _DK_get_bookmark_inputs(void);
+DLLIMPORT int _DK_get_gui_inputs(int);
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
 void get_creature_control_nonaction_inputs(void);
@@ -1479,6 +1482,126 @@ void input(void)
   SYNCDBG(7,"Finished");
 }
 
+short get_gui_inputs(short gameplay_on)
+{
+  static char over_slider_button=-1;
+  SYNCDBG(7,"Starting");
+  update_breed_activities();
+  battle_creature_over = 0;
+  gui_room_type_highlighted = -1;
+  gui_door_type_highlighted = -1;
+  gui_trap_type_highlighted = -1;
+  gui_creature_type_highlighted = -1;
+  if (gameplay_on)
+    maintain_my_battle_list();
+  if (!lbDisplay.MLeftButton)
+  {
+    drag_menu_x = -999;
+    drag_menu_y = -999;
+    int idx;
+    for (idx=0; idx < ACTIVE_BUTTONS_COUNT; idx++)
+    {
+      struct GuiButton *gbtn = &active_buttons[idx];
+      if ((gbtn->field_0 & 0x01) && (gbtn->gbtype == 6))
+          gbtn->field_1 = 0;
+    }
+  }
+  update_busy_doing_gui_on_menu();
+
+  struct PlayerInfo *player;
+  int fmmenu_idx;
+  int gmbtn_idx;
+  int gidx;
+  fmmenu_idx = first_monopoly_menu();
+  player = get_my_player();
+  gmbtn_idx = -1;
+  struct GuiButton *gbtn;
+  // Sweep through buttons
+  for (gidx=0; gidx<ACTIVE_BUTTONS_COUNT; gidx++)
+  {
+    gbtn = &active_buttons[gidx];
+    if ((gbtn->field_0 & 0x01) == 0)
+      continue;
+    if (!get_active_menu(gbtn->gmenu_idx)->flgfield_1D)
+      continue;
+    Gf_Btn_Callback callback;
+    callback = gbtn->field_17;
+    if (callback != NULL)
+      callback(gbtn);
+    if (((gbtn->field_1B & 0x4000u) != 0) || mouse_is_over_small_map(player->mouse_x,player->mouse_y))
+      continue;
+    if (check_if_mouse_is_over_button(gbtn) && (!game_is_busy_doing_gui_string_input())
+      || (gbtn->gbtype == 6) && (gbtn->field_1 != 0))
+    {
+      if ((fmmenu_idx==-1) || (gbtn->gmenu_idx == fmmenu_idx))
+      {
+        gmbtn_idx = gidx;
+        set_flag_byte(&gbtn->field_0,0x10,true);
+        busy_doing_gui = 1;
+        callback = gbtn->field_F;
+        if (callback != NULL)
+          callback(gbtn);
+        if (gbtn->gbtype == 6)
+          break;
+        if (gbtn->gbtype != Lb_SLIDER)
+          over_slider_button = -1;
+      } else
+      {
+        set_flag_byte(&gbtn->field_0,0x10,false);
+      }
+    } else
+    {
+      set_flag_byte(&gbtn->field_0,0x10,false);
+    }
+    if (gbtn->gbtype == Lb_SLIDER)
+    {
+      int mouse_x;
+      int mouse_y;
+      int btnsize;
+      mouse_x = GetMouseX();
+      btnsize = gbtn->scr_pos_x + ((gbtn->slide_val)*(((long)gbtn->width)-64) >> 8);
+      if ((mouse_x>(btnsize+22)) && (mouse_x<=(btnsize+44)))
+      {
+        mouse_y = GetMouseY();
+        if ((mouse_y>gbtn->pos_y) && (mouse_y<=(gbtn->pos_y+gbtn->height)))
+        {
+          if ( left_button_clicked )
+          {
+            left_button_clicked = 0;
+            over_slider_button = gidx;
+            do_sound_menu_click();
+          }
+        }
+      }
+    }
+  }  // end for
+
+  short result = 0;
+  if (game_is_busy_doing_gui_string_input())
+  {
+    busy_doing_gui = 1;
+    if (get_button_area_input(input_button,input_button->id_num) != 0)
+        result = 1;
+  }
+  if ((over_slider_button != -1) && (left_button_released))
+  {
+      left_button_released = 0;
+      if (gmbtn_idx!=-1)
+        active_buttons[gmbtn_idx].field_1 = 0;
+      over_slider_button = -1;
+      do_sound_menu_click();
+  }
+
+  gui_button_tooltip_update(gmbtn_idx);
+  if (gui_slider_button_inputs(over_slider_button))
+    return true;
+  result |= gui_button_click_inputs(gmbtn_idx);
+  gui_clear_buttons_not_over_mouse(gmbtn_idx);
+  result |= gui_button_release_inputs(gmbtn_idx);
+  input_gameplay_tooltips(gameplay_on);
+  SYNCDBG(8,"Finished");
+  return result;
+}
 
 /******************************************************************************/
 #ifdef __cplusplus
