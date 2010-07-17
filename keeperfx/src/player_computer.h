@@ -263,6 +263,7 @@ extern unsigned short computer_types[];
 DLLIMPORT struct ComputerProcessTypes _DK_ComputerProcessLists[14];
 //#define ComputerProcessLists _DK_ComputerProcessLists
 /******************************************************************************/
+struct ComputerProcessTypes *get_computer_process_type_template(long cpt_idx);
 void shut_down_process(struct Computer2 *comp, struct ComputerProcess *process);
 void reset_process(struct Computer2 *comp, struct ComputerProcess *process);
 /******************************************************************************/
@@ -283,6 +284,8 @@ TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long value);
 TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, long a2, long a3);
 long computer_able_to_use_magic(struct Computer2 *comp, long a2, long a3, long a4);
 long process_tasks(struct Computer2 *comp);
+long try_game_action(struct Computer2 *comp, char a2, unsigned short a3, unsigned short a4,
+ unsigned short a5, unsigned short a6, unsigned short a7, unsigned short a8);
 /******************************************************************************/
 void setup_a_computer_player(unsigned short plyridx, long comp_model);
 void process_computer_players2(void);

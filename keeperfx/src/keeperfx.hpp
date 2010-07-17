@@ -1271,8 +1271,6 @@ long set_autopilot_type(unsigned int plridx, long aptype);
 void set_player_state(struct PlayerInfo *player, short a1, long a2);
 long place_thing_in_power_hand(struct Thing *thing, long var);
 void turn_off_call_to_arms(long a);
-TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val);
-TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type);
 void instant_instance_selected(long a1);
 void centre_engine_window(void);
 void change_engine_window_relative_size(long w_delta, long h_delta);
@@ -1327,7 +1325,6 @@ long get_scavenge_effect_element(unsigned short owner);
 
 long update_shot(struct Thing *thing);
 long update_dead_creature(struct Thing *thing);
-long update_creature(struct Thing *thing);
 long process_door(struct Thing *thing);
 
 void startup_network_game(void);

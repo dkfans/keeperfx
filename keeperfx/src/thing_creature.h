@@ -109,6 +109,7 @@ void change_creature_owner(struct Thing *thing, long nowner);
 struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long job_idx, TbBool pick_check);
 struct Thing *pick_up_creature_of_breed_and_gui_job(long breed_idx, long job_idx, long owner, unsigned char pick_flags);
 
+long update_creature(struct Thing *thing);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_creature_special_digger(const struct Thing *thing);

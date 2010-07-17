@@ -44,6 +44,12 @@ extern "C" {
 
 #define INVALID_DUNGEON (&bad_dungeon)
 
+enum DungeonCreatureTendencies {
+    CrTend_None       = 0,
+    CrTend_Imprison   = 1,
+    CrTend_Flee       = 2,
+};
+
 #ifdef __cplusplus
 #pragma pack(1)
 #endif
@@ -326,6 +332,10 @@ void increase_room_area(unsigned char plyr_idx, long value);
 void decrease_room_area(unsigned char plyr_idx, long value);
 void increase_dungeon_area(unsigned char plyr_idx, long value);
 void player_add_offmap_gold(long plyr_idx, long value);
+TbBool player_has_room(long plyr_idx, RoomKind rkind);
+TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val);
+TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type);
+TbBool player_creature_tends_to(long plyr_idx, unsigned short tend_type);
 
 /******************************************************************************/
 #ifdef __cplusplus

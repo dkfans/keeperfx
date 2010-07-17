@@ -981,7 +981,7 @@ TbBool update_thing(struct Thing *thing)
 {
   Thing_Class_Func classfunc;
   struct Coord3d pos;
-  SYNCDBG(18,"Starting for thing class %d",(int)thing->class_id);
+  SYNCDBG(18,"Thing index %d, class %d",(int)thing->index,(int)thing->class_id);
   if (thing_is_invalid(thing))
       return false;
   if ((thing->field_25 & 0x40) == 0)
