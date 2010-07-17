@@ -376,7 +376,7 @@ long thing_affected_by_spell(struct Thing *thing, long spkind)
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        ERRORLOG("Invalid creature control");
+        ERRORLOG("Invalid creature control for thing %d",(int)thing->index);
         return 0;
     }
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)

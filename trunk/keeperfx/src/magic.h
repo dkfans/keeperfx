@@ -43,6 +43,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing);
 TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsigned char stl_x, unsigned char stl_y, long a5);
 void update_power_sight_explored(struct PlayerInfo *player);
 TbBool pay_for_spell(PlayerNumber plyr_idx, long spkind, long splevel);
+long thing_affected_by_spell(struct Thing *thing, long spkind);
 
 void magic_use_power_chicken(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
 void magic_use_power_disease(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);

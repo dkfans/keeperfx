@@ -311,6 +311,7 @@ Version: 0.38
   Fixed dungeon heart blinking if under mouse
   It is now easier to target a creature for pick up
   Fixed disappearing in-game speeches
+  Computer player config is reloaded on saved game loading
 
 Version: 0.37b
   Fixed crash on freeing swipe sprites at end of mission

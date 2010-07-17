@@ -37,6 +37,7 @@
 #include "lens_api.h"
 #include "light_data.h"
 #include "gui_topmsg.h"
+#include "front_simple.h"
 #include "frontend.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
@@ -1485,7 +1486,6 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
   struct CreatureControl *cctrlgrp;
   struct CreatureStats *crstat;
   struct Dungeon *dungeon;
-  struct Dungeon *killerdngn;
   long i,k;
   SYNCDBG(18,"Starting");
   //TODO check if invalid dead body can happen with original function
@@ -1577,9 +1577,8 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
   }
   if (game.field_14E496 == killertng->owner)
   {
-    killerdngn = get_players_num_dungeon(killertng->owner);
-    if ((killerdngn->creature_tendencies & 0x01) != 0)
-      ERRORLOG("How can hero have tend to imprison");
+    if (player_creature_tends_to(killertng->owner,CrTend_Imprison))
+      ERRORLOG("Hero have tend to imprison");
   }
   crstat = creature_stats_get_from_thing(killertng);
   anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, 4, 1);
@@ -1588,9 +1587,8 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
   if (dungeon != NULL)
     dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
   SYNCDBG(18,"Almost finished");
-  killerdngn = get_players_num_dungeon(killertng->owner);
-  if ((a6) || (killerdngn->room_kind[4] == 0)
-    || (killerdngn->creature_tendencies & 0x01) == 0)
+  if ((a6) || (!player_has_room(killertng->owner,RoK_PRISON))
+    || (!player_creature_tends_to(killertng->owner,CrTend_Imprison)))
   {
     if (a4 == 0)
     {
@@ -2693,6 +2691,383 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
         }
     }
     return -1;
+}
+
+struct Thing *create_footprint_sine(struct Coord3d *crtr_pos, unsigned short phase, short nfoot, unsigned short model, unsigned short owner)
+{
+  struct Coord3d pos;
+  unsigned int i;
+  pos.x.val = crtr_pos->x.val;
+  pos.y.val = crtr_pos->y.val;
+  pos.z.val = crtr_pos->z.val;
+  switch (nfoot)
+  {
+  case 1:
+      i = (phase - 512);
+      pos.x.val +=   (LbSinL(i) << 6) >> 16;
+      pos.y.val += -((LbCosL(i) << 6) >> 8) >> 8;
+      return create_thing(&pos, 3, model, owner, -1);
+  case 2:
+      i = (phase - 512);
+      pos.x.val -=   (LbSinL(i) << 6) >> 16;
+      pos.y.val -= -((LbCosL(i) << 6) >> 8) >> 8;
+      return create_thing(&pos, 3, model, owner, -1);
+  }
+  return NULL;
+}
+
+void place_bloody_footprint(struct Thing *thing)
+{
+  struct CreatureControl *cctrl;
+  short nfoot;
+  cctrl = creature_control_get_from_thing(thing);
+  if (creature_control_invalid(cctrl))
+  {
+      ERRORLOG("Invalid creature control; no action");
+      return;
+  }
+  nfoot = get_foot_creature_has_down(thing);
+  switch (creatures[thing->model%CREATURE_TYPES_COUNT].field_6)
+  {
+  case 3:
+  case 4:
+      break;
+  case 5:
+      if (nfoot)
+      {
+        if (create_thing(&thing->mappos, 3, 23, thing->owner, -1) != NULL)
+          cctrl->bloody_footsteps_turns--;
+      }
+      break;
+  default:
+      if (create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 23, thing->owner) != NULL)
+        cctrl->bloody_footsteps_turns--;
+      break;
+  }
+}
+
+short update_creature_movements(struct Thing *thing)
+{
+  struct CreatureControl *cctrl;
+  short upd_done;
+  int i;
+  SYNCDBG(18,"Starting");
+  cctrl = creature_control_get_from_thing(thing);
+  if (creature_control_invalid(cctrl))
+  {
+      ERRORLOG("Invalid creature control; no action");
+      return false;
+  }
+  upd_done = 0;
+  if (cctrl->field_AB != 0)
+  {
+    upd_done = 1;
+    cctrl->pos_BB.x.val = 0;
+    cctrl->pos_BB.y.val = 0;
+    cctrl->pos_BB.z.val = 0;
+    cctrl->field_C8 = 0;
+    set_flag_byte(&cctrl->field_2,0x01,false);
+  } else
+  {
+    if ( thing->field_0 & 0x20 )
+    {
+      if ( thing->field_25 & 0x20 )
+      {
+        if (cctrl->field_C8 != 0)
+        {
+          cctrl->pos_BB.x.val = (LbSinL(thing->field_52)>> 8)
+                * (cctrl->field_C8 * LbCosL(thing->field_54) >> 8) >> 16;
+          cctrl->pos_BB.y.val = -((LbCosL(thing->field_52) >> 8)
+                * (cctrl->field_C8 * LbCosL(thing->field_54) >> 8) >> 8) >> 8;
+          cctrl->pos_BB.z.val = cctrl->field_C8 * LbSinL(thing->field_54) >> 16;
+        }
+        if (cctrl->field_CA != 0)
+        {
+          cctrl->pos_BB.x.val +=   cctrl->field_CA * LbSinL(thing->field_52 - 512) >> 16;
+          cctrl->pos_BB.y.val += -(cctrl->field_CA * LbCosL(thing->field_52 - 512) >> 8) >> 8;
+        }
+      } else
+      {
+        if (cctrl->field_C8 != 0)
+        {
+          upd_done = 1;
+          cctrl->pos_BB.x.val =   cctrl->field_C8 * LbSinL(thing->field_52) >> 16;
+          cctrl->pos_BB.y.val = -(cctrl->field_C8 * LbCosL(thing->field_52) >> 8) >> 8;
+        }
+        if (cctrl->field_CA != 0)
+        {
+          upd_done = 1;
+          cctrl->pos_BB.x.val +=   cctrl->field_CA * LbSinL(thing->field_52 - 512) >> 16;
+          cctrl->pos_BB.y.val += -(cctrl->field_CA * LbCosL(thing->field_52 - 512) >> 8) >> 8;
+        }
+      }
+    } else
+    if (cctrl->field_2 & 0x01)
+    {
+      upd_done = 1;
+      set_flag_byte(&cctrl->field_2,0x01,false);
+    } else
+    if (cctrl->field_C8 != 0)
+    {
+      upd_done = 1;
+      cctrl->pos_BB.x.val =   cctrl->field_C8 * LbSinL(thing->field_52) >> 16;
+      cctrl->pos_BB.y.val = -(cctrl->field_C8 * LbCosL(thing->field_52) >> 8) >> 8;
+      cctrl->pos_BB.z.val = 0;
+    }
+    if (((thing->field_25 & 0x20) != 0) && ((thing->field_0 & 0x20) == 0))
+    {
+      i = get_floor_height_under_thing_at(thing, &thing->mappos) - thing->mappos.z.val + 256;
+      if (i > 0)
+      {
+        upd_done = 1;
+        if (i >= 32)
+          i = 32;
+        cctrl->pos_BB.z.val += i;
+      } else
+      if (i < 0)
+      {
+        upd_done = 1;
+        i = -i;
+        if (i >= 32)
+          i = 32;
+        cctrl->pos_BB.z.val -= i;
+      }
+    }
+  }
+  SYNCDBG(19,"Finished");
+  if (upd_done)
+    return true;
+  else
+    return ((cctrl->pos_BB.x.val != 0) || (cctrl->pos_BB.y.val != 0) || (cctrl->pos_BB.z.val != 0));
+}
+
+void process_landscape_affecting_creature(struct Thing *thing)
+{
+  struct CreatureStats *crstat;
+  struct CreatureControl *cctrl;
+  struct SlabMap *slb;
+  unsigned long navmap;
+  int stl_idx;
+  short nfoot;
+  int i;
+  SYNCDBG(18,"Starting");
+  set_flag_byte(&thing->field_25,0x01,false);
+  set_flag_byte(&thing->field_25,0x02,false);
+  set_flag_byte(&thing->field_25,0x80,false);
+  cctrl = creature_control_get_from_thing(thing);
+  if (creature_control_invalid(cctrl))
+  {
+      ERRORLOG("Invalid creature control; no action");
+      return;
+  }
+  cctrl->field_B9 = 0;
+
+  stl_idx = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+  navmap = get_navigation_map(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+  if (((navmap & 0xF) << 8) == thing->mappos.z.val)
+  {
+    i = get_top_cube_at_pos(stl_idx);
+    if ((i & 0xFFFFFFFE) == 40)
+    {
+      crstat = creature_stats_get_from_thing(thing);
+      apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, -1);
+      thing->field_25 |= 0x02;
+    } else
+    if (i == 39)
+    {
+      thing->field_25 |= 0x01;
+    }
+
+    if (thing->field_25 & 0x01)
+    {
+      nfoot = get_foot_creature_has_down(thing);
+      if (nfoot)
+      {
+        create_effect(&thing->mappos, 19, thing->owner);
+      }
+      cctrl->bloody_footsteps_turns = 0;
+    } else
+    // Bloody footprints
+    if (cctrl->bloody_footsteps_turns != 0)
+    {
+      place_bloody_footprint(thing);
+      nfoot = get_foot_creature_has_down(thing);
+      if (create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 23, thing->owner) != NULL)
+        cctrl->bloody_footsteps_turns--;
+    } else
+    // Snow footprints
+    if (game.texture_id == 2)
+    {
+      slb = get_slabmap_block(map_to_slab[thing->mappos.x.stl.num], map_to_slab[thing->mappos.y.stl.num]);
+      if (slb->slab == SlbT_PATH)
+      {
+        thing->field_25 |= 0x80u;
+        nfoot = get_foot_creature_has_down(thing);
+        create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 94, thing->owner);
+      }
+    }
+    process_creature_standing_on_corpses_at(thing, &thing->mappos);
+  }
+  if (((thing->field_0 & 0x20) == 0) && ((thing->field_25 & 0x02) != 0))
+  {
+    crstat = creature_stats_get_from_thing(thing);
+    if (crstat->hurt_by_lava)
+    {
+        if (thing->field_7 == 14)
+          i = thing->field_8;
+        else
+          i = thing->field_7;
+        if ((i != -113) && (cctrl->field_2FE + 64 < game.play_gameturn))
+        {
+            cctrl->field_2FE = game.play_gameturn;
+            if ( cleanup_current_thing_state(thing) )
+            {
+              if ( setup_move_off_lava(thing) )
+                thing->field_8 = 143;
+              else
+                set_start_state(thing);
+            }
+        }
+    }
+  }
+  SYNCDBG(19,"Finished");
+}
+
+long update_creature(struct Thing *thing)
+{
+  struct PlayerInfo *player;
+  struct CreatureControl *cctrl;
+  struct Thing *tngp;
+  struct Map *map;
+  SYNCDBG(18,"Thing index %d",(int)thing->index);
+  map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+  if ((thing->field_7 == CrSt_CreatureUnconscious) && ((map->flags & 0x40) != 0))
+  {
+    kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
+    return 0;
+  }
+  if (thing->health < 0)
+  {
+    kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
+    return 0;
+  }
+  cctrl = creature_control_get_from_thing(thing);
+  if (creature_control_invalid(cctrl))
+  {
+    WARNLOG("Killing creature with invalid control.");
+    kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
+    return 0;
+  }
+  if (game.field_150356)
+  {
+    if ((cctrl->field_2EF != 0) && (cctrl->field_2EF <= game.play_gameturn))
+    {
+        cctrl->field_2EF = 0;
+        create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
+        move_thing_in_map(thing, &game.armageddon.mappos);
+    }
+  }
+
+  if (cctrl->field_B1 > 0)
+    cctrl->field_B1--;
+  if (cctrl->byte_8B == 0)
+    cctrl->byte_8B = game.field_14EA4B;
+  if (cctrl->field_302 == 0)
+    process_creature_instance(thing);
+  update_creature_count(thing);
+  if ((thing->field_0 & 0x20) != 0)
+  {
+    if (cctrl->field_AB == 0)
+    {
+      if (cctrl->field_302 != 0)
+      {
+        cctrl->field_302--;
+      } else
+      if (process_creature_state(thing))
+      {
+        ERRORLOG("A state return type for a human controlled creature?");
+      }
+    }
+    cctrl = creature_control_get_from_thing(thing);
+    player = get_player(thing->owner);
+    if (cctrl->field_AB & 0x02)
+    {
+      if ((player->field_3 & 0x04) == 0)
+        PaletteSetPlayerPalette(player, blue_palette);
+    } else
+    {
+      if ((player->field_3 & 0x04) != 0)
+        PaletteSetPlayerPalette(player, _DK_palette);
+    }
+  } else
+  {
+    if (cctrl->field_AB == 0)
+    {
+      if (cctrl->field_302 > 0)
+      {
+        cctrl->field_302--;
+      } else
+      if (process_creature_state(thing))
+      {
+        return 0;
+      }
+    }
+  }
+
+  if (update_creature_movements(thing))
+  {
+    thing->pos_38.x.val += cctrl->pos_BB.x.val;
+    thing->pos_38.y.val += cctrl->pos_BB.y.val;
+    thing->pos_38.z.val += cctrl->pos_BB.z.val;
+  }
+  move_creature(thing);
+  if ((thing->field_0 & 0x20) != 0)
+  {
+    if ((cctrl->flgfield_1 & 0x40) == 0)
+      cctrl->field_C8 /= 2;
+    if ((cctrl->flgfield_1 & 0x80) == 0)
+      cctrl->field_CA /= 2;
+  } else
+  {
+    cctrl->field_C8 = 0;
+  }
+  process_spells_affected_by_effect_elements(thing);
+  process_landscape_affecting_creature(thing);
+  process_disease(thing);
+  move_thing_in_map(thing, &thing->mappos);
+  set_creature_graphic(thing);
+  if (cctrl->field_2B0)
+    process_keeper_spell_effect(thing);
+
+  if (thing->word_17 > 0)
+    thing->word_17--;
+
+  if (cctrl->field_7A & 0x0FFF)
+  {
+    if ( creature_is_group_leader(thing) )
+      leader_find_positions_for_followers(thing);
+  }
+
+  if (cctrl->field_6E > 0)
+  {
+    tngp = thing_get(cctrl->field_6E);
+    if (tngp->field_1 & 0x01)
+      move_thing_in_map(tngp, &thing->mappos);
+  }
+  if (update_creature_levels(thing) == -1)
+  {
+    return 0;
+  }
+  process_creature_self_spell_casting(thing);
+  cctrl->pos_BB.x.val = 0;
+  cctrl->pos_BB.y.val = 0;
+  cctrl->pos_BB.z.val = 0;
+  set_flag_byte(&cctrl->flgfield_1,0x40,false);
+  set_flag_byte(&cctrl->flgfield_1,0x80,false);
+  set_flag_byte(&cctrl->field_AD,0x04,false);
+  process_thing_spell_effects(thing);
+  SYNCDBG(19,"Finished");
+  return 1;
 }
 /******************************************************************************/
 #ifdef __cplusplus
