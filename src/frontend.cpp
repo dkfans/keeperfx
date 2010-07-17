@@ -6307,7 +6307,7 @@ void draw_gui(void)
     if (game.flash_button_gameturns != -1)
     {
       game.flash_button_gameturns--;
-      if (game.flash_button_gameturns <= 0)
+      if (game.flash_button_gameturns == -1)
         game.flash_button_index = 0;
     }
   }

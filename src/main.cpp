@@ -2135,101 +2135,6 @@ long update_dead_creature(struct Thing *thing)
   return _DK_update_dead_creature(thing);
 }
 
-short update_creature_movements(struct Thing *thing)
-{
-  struct CreatureControl *cctrl;
-  short upd_done;
-  int i;
-  SYNCDBG(18,"Starting");
-  cctrl = creature_control_get_from_thing(thing);
-  if (creature_control_invalid(cctrl))
-  {
-      ERRORLOG("Invalid creature control; no action");
-      return false;
-  }
-  upd_done = 0;
-  if (cctrl->field_AB != 0)
-  {
-    upd_done = 1;
-    cctrl->pos_BB.x.val = 0;
-    cctrl->pos_BB.y.val = 0;
-    cctrl->pos_BB.z.val = 0;
-    cctrl->field_C8 = 0;
-    set_flag_byte(&cctrl->field_2,0x01,false);
-  } else
-  {
-    if ( thing->field_0 & 0x20 )
-    {
-      if ( thing->field_25 & 0x20 )
-      {
-        if (cctrl->field_C8 != 0)
-        {
-          cctrl->pos_BB.x.val = (LbSinL(thing->field_52)>> 8)
-                * (cctrl->field_C8 * LbCosL(thing->field_54) >> 8) >> 16;
-          cctrl->pos_BB.y.val = -((LbCosL(thing->field_52) >> 8)
-                * (cctrl->field_C8 * LbCosL(thing->field_54) >> 8) >> 8) >> 8;
-          cctrl->pos_BB.z.val = cctrl->field_C8 * LbSinL(thing->field_54) >> 16;
-        }
-        if (cctrl->field_CA != 0)
-        {
-          cctrl->pos_BB.x.val +=   cctrl->field_CA * LbSinL(thing->field_52 - 512) >> 16;
-          cctrl->pos_BB.y.val += -(cctrl->field_CA * LbCosL(thing->field_52 - 512) >> 8) >> 8;
-        }
-      } else
-      {
-        if (cctrl->field_C8 != 0)
-        {
-          upd_done = 1;
-          cctrl->pos_BB.x.val =   cctrl->field_C8 * LbSinL(thing->field_52) >> 16;
-          cctrl->pos_BB.y.val = -(cctrl->field_C8 * LbCosL(thing->field_52) >> 8) >> 8;
-        }
-        if (cctrl->field_CA != 0)
-        {
-          upd_done = 1;
-          cctrl->pos_BB.x.val +=   cctrl->field_CA * LbSinL(thing->field_52 - 512) >> 16;
-          cctrl->pos_BB.y.val += -(cctrl->field_CA * LbCosL(thing->field_52 - 512) >> 8) >> 8;
-        }
-      }
-    } else
-    if (cctrl->field_2 & 0x01)
-    {
-      upd_done = 1;
-      set_flag_byte(&cctrl->field_2,0x01,false);
-    } else
-    if (cctrl->field_C8 != 0)
-    {
-      upd_done = 1;
-      cctrl->pos_BB.x.val =   cctrl->field_C8 * LbSinL(thing->field_52) >> 16;
-      cctrl->pos_BB.y.val = -(cctrl->field_C8 * LbCosL(thing->field_52) >> 8) >> 8;
-      cctrl->pos_BB.z.val = 0;
-    }
-    if (((thing->field_25 & 0x20) != 0) && ((thing->field_0 & 0x20) == 0))
-    {
-      i = get_floor_height_under_thing_at(thing, &thing->mappos) - thing->mappos.z.val + 256;
-      if (i > 0)
-      {
-        upd_done = 1;
-        if (i >= 32)
-          i = 32;
-        cctrl->pos_BB.z.val += i;
-      } else
-      if (i < 0)
-      {
-        upd_done = 1;
-        i = -i;
-        if (i >= 32)
-          i = 32;
-        cctrl->pos_BB.z.val -= i;
-      }
-    }
-  }
-  SYNCDBG(19,"Finished");
-  if (upd_done)
-    return true;
-  else
-    return ((cctrl->pos_BB.x.val != 0) || (cctrl->pos_BB.y.val != 0) || (cctrl->pos_BB.z.val != 0));
-}
-
 struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner)
 {
     struct ShotStats *shotstat;
@@ -2358,288 +2263,6 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigne
 unsigned long setup_move_off_lava(struct Thing *thing)
 {
   return _DK_setup_move_off_lava(thing);
-}
-
-struct Thing *create_footprint_sine(struct Coord3d *crtr_pos, unsigned short phase, short nfoot, unsigned short model, unsigned short owner)
-{
-  struct Coord3d pos;
-  unsigned int i;
-  pos.x.val = crtr_pos->x.val;
-  pos.y.val = crtr_pos->y.val;
-  pos.z.val = crtr_pos->z.val;
-  switch (nfoot)
-  {
-  case 1:
-      i = (phase - 512);
-      pos.x.val +=   (LbSinL(i) << 6) >> 16;
-      pos.y.val += -((LbCosL(i) << 6) >> 8) >> 8;
-      return create_thing(&pos, 3, model, owner, -1);
-  case 2:
-      i = (phase - 512);
-      pos.x.val -=   (LbSinL(i) << 6) >> 16;
-      pos.y.val -= -((LbCosL(i) << 6) >> 8) >> 8;
-      return create_thing(&pos, 3, model, owner, -1);
-  }
-  return NULL;
-}
-
-void place_bloody_footprint(struct Thing *thing)
-{
-  struct CreatureControl *cctrl;
-  short nfoot;
-  cctrl = creature_control_get_from_thing(thing);
-  if (creature_control_invalid(cctrl))
-  {
-      ERRORLOG("Invalid creature control; no action");
-      return;
-  }
-  nfoot = get_foot_creature_has_down(thing);
-  switch (creatures[thing->model%CREATURE_TYPES_COUNT].field_6)
-  {
-  case 3:
-  case 4:
-      break;
-  case 5:
-      if (nfoot)
-      {
-        if (create_thing(&thing->mappos, 3, 23, thing->owner, -1) != NULL)
-          cctrl->bloody_footsteps_turns--;
-      }
-      break;
-  default:
-      if (create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 23, thing->owner) != NULL)
-        cctrl->bloody_footsteps_turns--;
-      break;
-  }
-}
-
-void process_landscape_affecting_creature(struct Thing *thing)
-{
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
-  struct SlabMap *slb;
-  unsigned long navmap;
-  int stl_idx;
-  short nfoot;
-  int i;
-  SYNCDBG(18,"Starting");
-  set_flag_byte(&thing->field_25,0x01,false);
-  set_flag_byte(&thing->field_25,0x02,false);
-  set_flag_byte(&thing->field_25,0x80,false);
-  cctrl = creature_control_get_from_thing(thing);
-  if (creature_control_invalid(cctrl))
-  {
-      ERRORLOG("Invalid creature control; no action");
-      return;
-  }
-  cctrl->field_B9 = 0;
-
-  stl_idx = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-  navmap = get_navigation_map(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-  if (((navmap & 0xF) << 8) == thing->mappos.z.val)
-  {
-    i = get_top_cube_at_pos(stl_idx);
-    if ((i & 0xFFFFFFFE) == 40)
-    {
-      crstat = creature_stats_get_from_thing(thing);
-      apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, -1);
-      thing->field_25 |= 0x02;
-    } else
-    if (i == 39)
-    {
-      thing->field_25 |= 0x01;
-    }
-
-    if (thing->field_25 & 0x01)
-    {
-      nfoot = get_foot_creature_has_down(thing);
-      if (nfoot)
-      {
-        create_effect(&thing->mappos, 19, thing->owner);
-      }
-      cctrl->bloody_footsteps_turns = 0;
-    } else
-    // Bloody footprints
-    if (cctrl->bloody_footsteps_turns != 0)
-    {
-      place_bloody_footprint(thing);
-      nfoot = get_foot_creature_has_down(thing);
-      if (create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 23, thing->owner) != NULL)
-        cctrl->bloody_footsteps_turns--;
-    } else
-    // Snow footprints
-    if (game.texture_id == 2)
-    {
-      slb = get_slabmap_block(map_to_slab[thing->mappos.x.stl.num], map_to_slab[thing->mappos.y.stl.num]);
-      if (slb->slab == SlbT_PATH)
-      {
-        thing->field_25 |= 0x80u;
-        nfoot = get_foot_creature_has_down(thing);
-        create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 94, thing->owner);
-      }
-    }
-    process_creature_standing_on_corpses_at(thing, &thing->mappos);
-  }
-  if (((thing->field_0 & 0x20) == 0) && ((thing->field_25 & 0x02) != 0))
-  {
-    crstat = creature_stats_get_from_thing(thing);
-    if (crstat->hurt_by_lava)
-    {
-        if (thing->field_7 == 14)
-          i = thing->field_8;
-        else
-          i = thing->field_7;
-        if ((i != -113) && (cctrl->field_2FE + 64 < game.play_gameturn))
-        {
-            cctrl->field_2FE = game.play_gameturn;
-            if ( cleanup_current_thing_state(thing) )
-            {
-              if ( setup_move_off_lava(thing) )
-                thing->field_8 = 143;
-              else
-                set_start_state(thing);
-            }
-        }
-    }
-  }
-  SYNCDBG(19,"Finished");
-}
-
-long update_creature(struct Thing *thing)
-{
-  struct PlayerInfo *player;
-  struct CreatureControl *cctrl;
-  struct Thing *tngp;
-  struct Map *map;
-  SYNCDBG(18,"Starting");
-  map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-  if ((thing->field_7 == 67) && ((map->flags & 0x40) != 0))
-  {
-    kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
-    return 0;
-  }
-  if (thing->health < 0)
-  {
-    kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
-    return 0;
-  }
-  cctrl = creature_control_get_from_thing(thing);
-  if (creature_control_invalid(cctrl))
-  {
-    WARNLOG("Killing creature with invalid control.");
-    kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
-    return 0;
-  }
-  if (game.field_150356)
-  {
-    if ((cctrl->field_2EF != 0) && (cctrl->field_2EF <= game.play_gameturn))
-    {
-        cctrl->field_2EF = 0;
-        create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
-        move_thing_in_map(thing, &game.armageddon.mappos);
-    }
-  }
-
-  if (cctrl->field_B1 > 0)
-    cctrl->field_B1--;
-  if (cctrl->byte_8B == 0)
-    cctrl->byte_8B = game.field_14EA4B;
-  if (cctrl->field_302 == 0)
-    process_creature_instance(thing);
-  update_creature_count(thing);
-  if ((thing->field_0 & 0x20) != 0)
-  {
-    if (cctrl->field_AB == 0)
-    {
-      if (cctrl->field_302 != 0)
-      {
-        cctrl->field_302--;
-      } else
-      if (process_creature_state(thing))
-      {
-        ERRORLOG("A state return type for a human controlled creature?");
-      }
-    }
-    cctrl = creature_control_get_from_thing(thing);
-    player = get_player(thing->owner);
-    if (cctrl->field_AB & 0x02)
-    {
-      if ((player->field_3 & 0x04) == 0)
-        PaletteSetPlayerPalette(player, blue_palette);
-    } else
-    {
-      if ((player->field_3 & 0x04) != 0)
-        PaletteSetPlayerPalette(player, _DK_palette);
-    }
-  } else
-  {
-    if (cctrl->field_AB == 0)
-    {
-      if (cctrl->field_302 > 0)
-      {
-        cctrl->field_302--;
-      } else
-      if (process_creature_state(thing))
-      {
-        return 0;
-      }
-    }
-  }
-
-  if (update_creature_movements(thing))
-  {
-    thing->pos_38.x.val += cctrl->pos_BB.x.val;
-    thing->pos_38.y.val += cctrl->pos_BB.y.val;
-    thing->pos_38.z.val += cctrl->pos_BB.z.val;
-  }
-  move_creature(thing);
-  if ((thing->field_0 & 0x20) != 0)
-  {
-    if ((cctrl->flgfield_1 & 0x40) == 0)
-      cctrl->field_C8 /= 2;
-    if ((cctrl->flgfield_1 & 0x80) == 0)
-      cctrl->field_CA /= 2;
-  } else
-  {
-    cctrl->field_C8 = 0;
-  }
-  process_spells_affected_by_effect_elements(thing);
-  process_landscape_affecting_creature(thing);
-  process_disease(thing);
-  move_thing_in_map(thing, &thing->mappos);
-  set_creature_graphic(thing);
-  if (cctrl->field_2B0)
-    process_keeper_spell_effect(thing);
-
-  if (thing->word_17 > 0)
-    thing->word_17--;
-
-  if (cctrl->field_7A & 0x0FFF)
-  {
-    if ( creature_is_group_leader(thing) )
-      leader_find_positions_for_followers(thing);
-  }
-
-  if (cctrl->field_6E > 0)
-  {
-    tngp = thing_get(cctrl->field_6E);
-    if (tngp->field_1 & 0x01)
-      move_thing_in_map(tngp, &thing->mappos);
-  }
-  if (update_creature_levels(thing) == -1)
-  {
-    return 0;
-  }
-  process_creature_self_spell_casting(thing);
-  cctrl->pos_BB.x.val = 0;
-  cctrl->pos_BB.y.val = 0;
-  cctrl->pos_BB.z.val = 0;
-  set_flag_byte(&cctrl->flgfield_1,0x40,false);
-  set_flag_byte(&cctrl->flgfield_1,0x80,false);
-  set_flag_byte(&cctrl->field_AD,0x04,false);
-  process_thing_spell_effects(thing);
-  SYNCDBG(19,"Finished");
-  return 1;
 }
 
 long get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
@@ -5131,7 +4754,65 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
 
 void restore_computer_player_after_load(void)
 {
-  _DK_restore_computer_player_after_load();
+    struct Computer2 *comp;
+    struct PlayerInfo *player;
+    struct ComputerProcessTypes *cpt;
+    long plyr_idx;
+    long i;
+    SYNCDBG(7,"Starting");
+    //_DK_restore_computer_player_after_load();
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        player = get_player(plyr_idx);
+        comp = &game.computer[plyr_idx];
+        if (!player_exists(player))
+        {
+            LbMemorySet(comp, 0, sizeof(struct Computer2));
+            comp->dungeon = INVALID_DUNGEON;
+            continue;
+        }
+        if (player->field_2C != 1)
+        {
+            LbMemorySet(comp, 0, sizeof(struct Computer2));
+            comp->dungeon = get_players_dungeon(player);
+            continue;
+        }
+        comp->dungeon = get_players_dungeon(player);
+        cpt = get_computer_process_type_template(comp->model);
+
+        for (i=0; i < COMPUTER_PROCESSES_COUNT; i++)
+        {
+            if (cpt->processes[i] == NULL)
+                break;
+            //if (cpt->processes[i]->name == NULL)
+            //    break;
+            SYNCDBG(12,"Player %ld process %ld is \"%s\"",plyr_idx,i,cpt->processes[i]->name);
+            comp->processes[i].name = cpt->processes[i]->name;
+            comp->processes[i].parent = cpt->processes[i];
+            comp->processes[i].func_check = cpt->processes[i]->func_check;
+            comp->processes[i].func_setup = cpt->processes[i]->func_setup;
+            comp->processes[i].func_task = cpt->processes[i]->func_task;
+            comp->processes[i].func_complete = cpt->processes[i]->func_complete;
+            comp->processes[i].func_pause = cpt->processes[i]->func_pause;
+        }
+        for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
+        {
+            if (cpt->checks[i].name == NULL)
+              break;
+            SYNCDBG(12,"Player %ld check %ld is \"%s\"",plyr_idx,i,cpt->checks[i].name);
+            comp->checks[i].name = cpt->checks[i].name;
+            comp->checks[i].func = cpt->checks[i].func;
+        }
+        for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
+        {
+            if (cpt->events[i].name == NULL)
+              break;
+            comp->events[i].name = cpt->events[i].name;
+            comp->events[i].func_event = cpt->events[i].func_event;
+            comp->events[i].func_test = cpt->events[i].func_test;
+            comp->events[i].process = cpt->events[i].process;
+        }
+    }
 }
 
 short point_to_overhead_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
@@ -5665,6 +5346,7 @@ void reinit_level_after_load(void)
   end_rooms = &game.rooms[ROOMS_COUNT];
   load_texture_map_file(game.texture_id, 2);
   init_animating_texture_maps();
+  load_computer_player_config();
   init_gui();
   reset_gui_based_on_player_mode();
   erstats_clear();
@@ -6265,42 +5947,6 @@ void set_engine_view(struct PlayerInfo *player, long val)
       break;
   }
   player->field_37 = val;
-}
-
-TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type)
-{
-  struct Dungeon *dungeon;
-  dungeon = get_dungeon(player->id_number);
-  switch (tend_type)
-  {
-  case 1:
-      dungeon->creature_tendencies ^= 0x01;
-      return true;
-  case 2:
-      dungeon->creature_tendencies ^= 0x02;
-      return true;
-  default:
-      ERRORLOG("Can't toggle tendency; bad tendency type %d",(int)tend_type);
-      return false;
-  }
-}
-
-TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val)
-{
-  struct Dungeon *dungeon;
-  dungeon = get_dungeon(player->id_number);
-  switch (tend_type)
-  {
-  case 1:
-      set_flag_byte(&dungeon->creature_tendencies, 0x01, val);
-      return true;
-  case 2:
-      set_flag_byte(&dungeon->creature_tendencies, 0x02, val);
-      return true;
-  default:
-      ERRORLOG("Can't set tendency; bad tendency type %d",(int)tend_type);
-      return false;
-  }
 }
 
 void set_player_state(struct PlayerInfo *player, short nwrk_state, long a2)

@@ -140,9 +140,81 @@ void player_add_offmap_gold(long plyr_idx, long value)
 {
     struct Dungeon *dungeon;
     if (plyr_idx == game.neutral_player_num)
+    {
+        WARNLOG("Cannot give gold to neutral player %ld",plyr_idx);
         return;
+    }
     dungeon = get_dungeon(plyr_idx);
     dungeon->field_AFD += value;
     dungeon->field_AF9 += value;
+}
+
+/** Returns if given player owns a room of given kind.
+ *
+ * @param plyr_idx
+ * @param rkind
+ * @return
+ */
+TbBool player_has_room(long plyr_idx, RoomKind rkind)
+{
+    struct Dungeon *dungeon;
+    if (plyr_idx == game.neutral_player_num)
+        return false;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    return (dungeon->rkind[RoK_PRISON] > 0);
+}
+
+TbBool player_creature_tends_to(long plyr_idx, unsigned short tend_type)
+{
+    struct Dungeon *dungeon;
+    if (plyr_idx == game.neutral_player_num)
+        return false;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    switch (tend_type)
+    {
+    case CrTend_Imprison:
+        return ((dungeon->creature_tendencies & 0x01) != 0);
+    case CrTend_Flee:
+        return ((dungeon->creature_tendencies & 0x02) != 0);
+    default:
+        ERRORLOG("Bad tendency type %d",(int)tend_type);
+        return false;
+    }
+}
+
+TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type)
+{
+  struct Dungeon *dungeon;
+  dungeon = get_dungeon(player->id_number);
+  switch (tend_type)
+  {
+  case CrTend_Imprison:
+      dungeon->creature_tendencies ^= 0x01;
+      return true;
+  case CrTend_Flee:
+      dungeon->creature_tendencies ^= 0x02;
+      return true;
+  default:
+      ERRORLOG("Can't toggle tendency; bad tendency type %d",(int)tend_type);
+      return false;
+  }
+}
+
+TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val)
+{
+  struct Dungeon *dungeon;
+  dungeon = get_dungeon(player->id_number);
+  switch (tend_type)
+  {
+  case CrTend_Imprison:
+      set_flag_byte(&dungeon->creature_tendencies, 0x01, val);
+      return true;
+  case CrTend_Flee:
+      set_flag_byte(&dungeon->creature_tendencies, 0x02, val);
+      return true;
+  default:
+      ERRORLOG("Can't set tendency; bad tendency type %d",(int)tend_type);
+      return false;
+  }
 }
 /******************************************************************************/

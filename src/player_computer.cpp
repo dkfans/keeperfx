@@ -24,8 +24,11 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_memory.h"
+#include "bflib_math.h"
 
 #include "config.h"
+#include "creature_states.h"
+#include "magic.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -669,6 +672,13 @@ int get_computer_event_config_list_index_mnem(const char *mnemonic)
       return i;
   }
   return 0;
+}
+
+struct ComputerProcessTypes *get_computer_process_type_template(long cpt_idx)
+{
+    if ((cpt_idx < 0) || (cpt_idx >= COMPUTER_PROCESS_LISTS_COUNT))
+        cpt_idx = 0;
+  return &ComputerProcessLists[cpt_idx];
 }
 
 TbBool computer_type_clear_processes(struct ComputerProcessTypes *cpt)
@@ -1650,67 +1660,264 @@ long computer_completed_build_a_room(struct Computer2 *comp, struct ComputerProc
 
 long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
 {
-  return _DK_computer_checks_hates(comp, check);
+    SYNCDBG(8,"Starting");
+    return _DK_computer_checks_hates(comp, check);
 }
 
 long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
-  return _DK_computer_check_move_creatures_to_best_room(comp, check);
+    SYNCDBG(8,"Starting");
+    return _DK_computer_check_move_creatures_to_best_room(comp, check);
 }
 
 long computer_check_move_creatures_to_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
-  return _DK_computer_check_move_creatures_to_room(comp, check);
+    SYNCDBG(8,"Starting");
+    return _DK_computer_check_move_creatures_to_room(comp, check);
 }
 
 long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
-  return _DK_computer_check_no_imps(comp, check);
+    SYNCDBG(8,"Starting");
+    return _DK_computer_check_no_imps(comp, check);
 }
 
 long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * check)
 {
-  return _DK_computer_check_for_pretty(comp, check);
+    SYNCDBG(8,"Starting");
+    return _DK_computer_check_for_pretty(comp, check);
 }
 
 long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerCheck * check)
 {
-  return _DK_computer_check_for_quick_attack(comp, check);
+    SYNCDBG(8,"Starting");
+    return _DK_computer_check_for_quick_attack(comp, check);
+}
+
+struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *comp, struct Room *room)
+{
+    struct Dungeon *dungeon;
+    struct StateInfo *stati;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    long i,n;
+    dungeon = comp->dungeon;
+    i = room->field_3D;
+    k = 0;
+    while (i != 0)
+    {
+      thing = thing_get(i);
+      if (thing_is_invalid(thing))
+      {
+        ERRORLOG("Jump to invalid thing detected");
+        break;
+      }
+      cctrl = creature_control_get_from_thing(thing);
+      i = cctrl->field_2AA;
+      // Per creature code
+      if (!thing_affected_by_spell(thing, 11))
+      {
+          if (thing->field_7 == 14)
+              n = thing->field_8;
+          else
+              n = thing->field_7;
+          stati = get_thing_state_info_num(n);
+          if (stati->state_type == 1)
+          {
+              if (try_game_action(comp, dungeon->field_E9F, 21, 8, 0, 0, thing->index, 0) > 0)
+              {
+                  return thing;
+              }
+          }
+      }
+      // Per creature code ends
+      k++;
+      if (k > THINGS_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping things list");
+        break;
+      }
+    }
+    return INVALID_THING;
+}
+
+struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(struct Computer2 *comp, RoomKind rkind)
+{
+    struct Dungeon *dungeon;
+    struct Room *room;
+    struct Thing *thing;
+    long i;
+    unsigned long k;
+    if ((rkind < 1) || (rkind > ROOM_TYPES_COUNT))
+    {
+        ERRORLOG("Invalid room kind %d",(int)rkind);
+        return INVALID_THING;
+    }
+    dungeon = comp->dungeon;
+    if (dungeon_invalid(dungeon))
+    {
+        ERRORLOG("Invalid computer players dungeon");
+        return INVALID_THING;
+    }
+    i = dungeon->room_kind[rkind];
+    k = 0;
+    while (i != 0)
+    {
+      room = room_get(i);
+      if (room_is_invalid(room))
+      {
+        ERRORLOG("Jump to invalid room detected");
+        break;
+      }
+      i = room->next_of_owner;
+      // Per-room code
+      thing = computer_check_creatures_in_room_for_accelerate(comp, room);
+      if (!thing_is_invalid(thing))
+          return thing;
+      // Per-room code ends
+      k++;
+      if (k > ROOMS_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping rooms list");
+        break;
+      }
+    }
+    return INVALID_THING;
 }
 
 long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck * check)
 {
-  return _DK_computer_check_for_accelerate(comp, check);
+    static RoomKind workers_in_rooms[] = {RoK_LIBRARY,RoK_LIBRARY,RoK_WORKSHOP,RoK_TRAINING,RoK_SCAVENGER};
+    struct Thing *thing;
+    long i,n;
+    SYNCDBG(8,"Starting");
+    //return _DK_computer_check_for_accelerate(comp, check);
+    if (computer_able_to_use_magic(comp, 11, 8, 3) != 1)
+    {
+        return 4;
+    }
+    n = check->param2 % (sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
+    if (n <= 0)
+        n = ACTION_RANDOM(sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
+    for (i=0; i < sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]); i++)
+    {
+        thing = computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(comp, workers_in_rooms[n]);
+        if (!thing_is_invalid(thing))
+        {
+            SYNCDBG(8,"Cast on thing %d",(int)thing->index);
+            return 1;
+        }
+        n = (n+1) % (sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
+    }
+    return 4;
 }
 
 long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
-  return _DK_computer_check_slap_imps(comp, check);
+    SYNCDBG(8,"Starting");
+    return _DK_computer_check_slap_imps(comp, check);
 }
 
 long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck * check)
 {
-  return _DK_computer_check_enemy_entrances(comp, check);
+    SYNCDBG(8,"Starting");
+    return _DK_computer_check_enemy_entrances(comp, check);
 }
 
 long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck * check)
 {
-  return _DK_computer_check_for_place_door(comp, check);
+    SYNCDBG(8,"Starting");
+    return _DK_computer_check_for_place_door(comp, check);
 }
 
 long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck * check)
 {
-  return _DK_computer_check_neutral_places(comp, check);
+    SYNCDBG(8,"Starting");
+    return _DK_computer_check_neutral_places(comp, check);
 }
 
 long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck * check)
 {
-  return _DK_computer_check_for_place_trap(comp, check);
+    SYNCDBG(8,"Starting");
+    return _DK_computer_check_for_place_trap(comp, check);
 }
 
 long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
-  return _DK_computer_check_for_expand_room(comp, check);
+    SYNCDBG(8,"Starting");
+    return _DK_computer_check_for_expand_room(comp, check);
+}
+
+long computer_pick_trainig_or_scavenging_creatures_and_place_on_room(struct Computer2 *comp, struct Room *room, long thing_idx, long tasks_limit)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    long new_tasks,crstate;
+    unsigned long k;
+    long i;
+    new_tasks = 0;
+    // Sweep through creatures list
+    i = thing_idx;
+    k = 0;
+    while (i != 0)
+    {
+      thing = thing_get(i);
+      if (thing_is_invalid(thing))
+      {
+        ERRORLOG("Jump to invalid thing detected");
+        break;
+      }
+      cctrl = creature_control_get_from_thing(thing);
+      i = cctrl->thing_idx;
+      // Per creature code
+      if (thing->field_7 == CrSt_MoveToPosition)
+        crstate = thing->field_8;
+      else
+        crstate = thing->field_7;
+      if ((crstate == CrSt_Training) || (crstate == CrSt_Scavengering))
+      {
+        if (!create_task_move_creature_to_pos(comp, thing, room->stl_x, room->stl_y))
+          break;
+        new_tasks++;
+        if (new_tasks >= tasks_limit)
+          break;
+      }
+      // Per creature code ends
+      k++;
+      if (k > THINGS_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping things list");
+        break;
+      }
+    }
+    return new_tasks;
+}
+
+/** Picks creatures and workers from given dungeon who are doing expensive jobs, then places them on lair.
+ *
+ * @param comp Computer player who controls the target dungeon.
+ * @param tasks_limit Max amount of computer tasks to create.
+ * @return Amount of new computer tasks created.
+ */
+long computer_pick_expensive_job_creatures_and_place_on_lair(struct Computer2 *comp, long tasks_limit)
+{
+    struct Dungeon *dungeon;
+    struct Room *room;
+    long new_tasks;
+    dungeon = comp->dungeon;
+    room = room_get(dungeon->room_kind[RoK_LAIR]);
+    new_tasks = 0;
+    // If we don't have lair, then don't even bother
+    if (room_is_invalid(room))
+      return new_tasks;
+    // Sweep through creatures list
+    new_tasks += computer_pick_trainig_or_scavenging_creatures_and_place_on_room(comp, room, dungeon->creatr_list_start, tasks_limit);
+    if (new_tasks >= tasks_limit)
+        return new_tasks;
+    // Sweep through workers list
+    new_tasks += computer_pick_trainig_or_scavenging_creatures_and_place_on_room(comp, room, dungeon->worker_list_start, tasks_limit-new_tasks);
+    return new_tasks;
 }
 
 long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check)
@@ -1718,14 +1925,12 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
     long money;
     struct ComputerProcess *cproc;
     struct Dungeon *dungeon;
-    struct CreatureControl *cctrl;
-    struct Thing *thing;
-    struct Room *room;
-    long new_tasks,crstate,ret;
-    unsigned long k;
+    long ret;
     long i;
+    SYNCDBG(8,"Starting");
     //return _DK_computer_check_for_money(comp, check);
     ret = 4;
+    // Try creating digging for gold process
     money = get_computer_money_less_cost(comp);
     if ((check->param3 > money) || (check->param2 > money))
     {
@@ -1743,6 +1948,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
       }
     }
 
+    // Try selling traps and doors
     dungeon = comp->dungeon;
     if (dungeon->field_14B8 > dungeon->field_AF9)
     {
@@ -1760,82 +1966,9 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
     if (3*dungeon->field_14B8/2 <= dungeon->field_AF9)
       return ret;
 
-    room = room_get(dungeon->room_kind[14]);
-    if (room_is_invalid(room))
-      return ret;
-    new_tasks = 0;
-    // Sweep through creatures list
-    i = dungeon->creatr_list_start;
-    k = 0;
-    while (i != 0)
-    {
-      thing = thing_get(i);
-      if (thing_is_invalid(thing))
-      {
-        ERRORLOG("Jump to invalid thing detected");
-        break;
-      }
-      cctrl = creature_control_get_from_thing(thing);
-      i = cctrl->thing_idx;
-      // Per creature code
-      if (thing->field_7 == 14)
-        crstate = thing->field_8;
-      else
-        crstate = thing->field_7;
-      if (crstate == 33)
-      {
-        if (!create_task_move_creature_to_pos(comp, thing, room->stl_x, room->stl_y))
-          return ret;
-        new_tasks++;
+    // Move creatures away from rooms which costs a lot
+    if (computer_pick_expensive_job_creatures_and_place_on_lair(comp, 3) > 0)
         ret = 1;
-        if (new_tasks >= 3)
-          return ret;
-      }
-      // Per creature code ends
-      k++;
-      if (k > THINGS_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping things list");
-        break;
-      }
-    }
-    if (new_tasks >= 3)
-      return ret;
-    // Sweep through workers list
-    i = dungeon->worker_list_start;
-    k = 0;
-    while (i != 0)
-    {
-      thing = thing_get(i);
-      if (thing_is_invalid(thing))
-      {
-        ERRORLOG("Jump to invalid thing detected");
-        break;
-      }
-      cctrl = creature_control_get_from_thing(thing);
-      i = cctrl->thing_idx;
-      // Per creature code
-      if (thing->field_7 == 14)
-        crstate = thing->field_8;
-      else
-        crstate = thing->field_7;
-      if (crstate == 33)
-      {
-        if (!create_task_move_creature_to_pos(comp, thing, room->stl_x, room->stl_y))
-          return ret;
-        new_tasks++;
-        ret = 1;
-        if (new_tasks >= 3)
-          return ret;
-      }
-      // Per creature code ends
-      k++;
-      if (k > THINGS_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping things list");
-        break;
-      }
-    }
     return ret;
 }
 
@@ -2070,7 +2203,8 @@ long set_next_process(struct Computer2 *comp)
 
 void computer_check_events(struct Computer2 *comp)
 {
-  _DK_computer_check_events(comp);
+    SYNCDBG(17,"Starting");
+    _DK_computer_check_events(comp);
 }
 
 TbBool process_checks(struct Computer2 *comp)
@@ -2078,6 +2212,7 @@ TbBool process_checks(struct Computer2 *comp)
     struct ComputerCheck *ccheck;
     long delta;
     long i;
+    SYNCDBG(17,"Starting");
     //return _DK_process_checks(comp);
     for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
     {
@@ -2089,10 +2224,11 @@ TbBool process_checks(struct Computer2 *comp)
         if ((ccheck->flags & 0x01) == 0)
         {
             delta = (game.play_gameturn - ccheck->turns_last);
-            if (delta > ccheck->turns_interval)
+            if ((delta > ccheck->turns_interval) && (ccheck->func != NULL))
             {
-              ccheck->func(comp, ccheck);
-              ccheck->turns_last = game.play_gameturn;
+                SYNCDBG(18,"Executing check %ld",i);
+                ccheck->func(comp, ccheck);
+                ccheck->turns_last = game.play_gameturn;
             }
         }
     }
@@ -2104,6 +2240,7 @@ TbBool process_processes_and_task(struct Computer2 *comp)
   struct ComputerProcess *process;
   Comp_Process_Func callback;
   int i;
+  SYNCDBG(17,"Starting");
   for (i=comp->field_10; i > 0; i--)
   {
     if (comp->field_10 <= 0)
@@ -2124,7 +2261,7 @@ TbBool process_processes_and_task(struct Computer2 *comp)
         set_next_process(comp);
         break;
     case 3:
-        if (comp->field_14C4 > 0)
+        if ((comp->field_14C4 > 0) && (comp->field_14C4 <= COMPUTER_PROCESSES_COUNT))
         {
           process = &comp->processes[comp->field_14C4];
           callback = process->func_task;
@@ -2132,7 +2269,7 @@ TbBool process_processes_and_task(struct Computer2 *comp)
             callback(comp,process);
         } else
         {
-          ERRORLOG("No Process for a computer player");
+          ERRORLOG("No Process %d for a computer player",(int)comp->field_14C4);
           comp->field_0 = 1;
         }
         break;
@@ -2146,7 +2283,9 @@ void process_computer_player2(unsigned long plyr_idx)
   struct Computer2 *comp;
   SYNCDBG(7,"Starting for player %lu",plyr_idx);
   //_DK_process_computer_player2(plyr_idx);
-  comp = &game.computer[plyr_idx%PLAYERS_COUNT];
+  if (plyr_idx >= PLAYERS_COUNT)
+      return;
+  comp = &game.computer[plyr_idx];
   if ((comp->field_14 != 0) && (comp->field_2C <= game.play_gameturn))
     comp->field_10 = 1;
   else
