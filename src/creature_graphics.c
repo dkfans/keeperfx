@@ -24,6 +24,7 @@
 #include "thing_creature.h"
 #include "config_creature.h"
 #include "creature_instances.h"
+#include "creature_states.h"
 #include "engine_lenses.h"
 #include "gui_draw.h"
 
@@ -240,21 +241,16 @@ TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
     return false;
 }
 
-void set_creature_graphic(struct Thing *thing)
+void update_creature_graphic_field_4F(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
-    struct InstanceInfo *inst_inf;
-    long i;
-
-    //_DK_set_creature_graphic(thing); return;
     cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
-
+    // Clear related flags
     thing->field_4F &= ~0x01;
     thing->field_4F &= ~0x10;
     thing->field_4F &= ~0x20;
     thing->field_4F &= ~0x40;
+    // Now set only those that should be
     if (((thing->field_0 & 0x20) != 0) && is_my_player_number(thing->owner))
     {
         thing->field_4F |= 0x01;
@@ -275,18 +271,29 @@ void set_creature_graphic(struct Thing *thing)
           thing->field_4F |= 0x01;
       }
     }
+}
+
+void update_creature_graphic_anim(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct InstanceInfo *inst_inf;
+    long i;
+
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
 
     if ((thing->field_50 & 0x01) != 0)
     {
-      thing->field_50 &= 0x01;
-    }
-    if ((thing->field_7 == 96) && (cctrl->field_282 >= 0))
+      thing->field_50 &= ~0x01;
+    } else
+    if ((thing->field_7 == CrSt_CreatureHeroEntering) && (cctrl->field_282 >= 0))
     {
       thing->field_4F |= 0x01;
-    }
+    } else
     if ((cctrl->field_AD & 0x02) == 0)
     {
-        if ( cctrl->field_D2 )
+        if (cctrl->field_D2 != 0)
         {
           if (cctrl->field_D2 == 45)
           {
@@ -303,22 +310,22 @@ void set_creature_graphic(struct Thing *thing)
         {
             update_creature_anim(thing, 256, 0);
         } else
-        if (thing->field_7 == 66)
+        if (thing->field_7 == CrSt_CreatureSlapCowers)
         {
             update_creature_anim(thing, 256, 10);
         } else
-        if ((thing->field_7 == 124) || (thing->field_7 == 125))
+        if ((thing->field_7 == CrSt_CreaturePiss) || (thing->field_7 == CrSt_CreatureRoar))
         {
             update_creature_anim(thing, 128, 4);
         } else
-        if (thing->field_7 == 67)
+        if (thing->field_7 == CrSt_CreatureUnconscious)
         {
             update_creature_anim(thing, 64, 16);
             thing->field_4F |= 0x40;
         } else
-        if (thing->field_7 == 26)
+        if (thing->field_7 == CrSt_CreatureSleep)
         {
-            thing->field_4F &= 0xCF;
+            thing->field_4F &= ~0x30;
             update_creature_anim(thing, 128, 12);
         } else
         if (cctrl->field_9 == 0)
@@ -329,7 +336,7 @@ void set_creature_graphic(struct Thing *thing)
         {
             update_creature_anim(thing, 256, 0);
         } else
-        if ((cctrl->field_6E > 0) && (thing_get(cctrl->field_6E)->field_1 & 0x01))
+        if ((cctrl->field_6E != 0) && (thing_get(cctrl->field_6E)->field_1 & 0x01))
         {
             i = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
             update_creature_anim(thing, i, 2);
@@ -368,7 +375,13 @@ void set_creature_graphic(struct Thing *thing)
             }
         }
     }
+}
 
+
+void update_creature_graphic_tint(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->field_AB & 0x02) != 0)
     {
         tint_thing(thing, colours[4][4][15], 1);
@@ -401,6 +414,15 @@ void set_creature_graphic(struct Thing *thing)
             break;
         }
     }
+}
+
+void set_creature_graphic(struct Thing *thing)
+{
+    //_DK_set_creature_graphic(thing); return;
+    update_creature_graphic_field_4F(thing);
+    update_creature_graphic_anim(thing);
+    // Update tint
+    update_creature_graphic_tint(thing);
 }
 /******************************************************************************/
 #ifdef __cplusplus

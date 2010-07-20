@@ -325,7 +325,6 @@ DLLIMPORT void _DK_process_disease(struct Thing *thing);
 DLLIMPORT void _DK_process_keeper_spell_effect(struct Thing *thing);
 DLLIMPORT long _DK_creature_is_group_leader(struct Thing *thing);
 DLLIMPORT void _DK_leader_find_positions_for_followers(struct Thing *thing);
-DLLIMPORT long _DK_update_creature_levels(struct Thing *thing);
 DLLIMPORT unsigned long _DK_lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
 DLLIMPORT void _DK_affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 DLLIMPORT void _DK_god_lightning_choose_next_creature(struct Thing *thing);
@@ -339,7 +338,6 @@ DLLIMPORT void _DK_update_god_lightning_ball(struct Thing *thing);
 DLLIMPORT long _DK_process_creature_self_spell_casting(struct Thing *thing);
 DLLIMPORT long _DK_update_shot(struct Thing *thing);
 DLLIMPORT long _DK_update_dead_creature(struct Thing *thing);
-DLLIMPORT long _DK_update_creature(struct Thing *thing);
 DLLIMPORT long _DK_process_door(struct Thing *thing);
 DLLIMPORT void _DK_gui_set_button_flashing(long a1, long a2);
 DLLIMPORT short _DK_send_creature_to_room(struct Thing *thing, struct Room *room);
@@ -1606,61 +1604,6 @@ unsigned char external_set_thing_state(struct Thing *thing, long state)
 long is_thing_passenger_controlled(struct Thing *thing)
 {
   return _DK_is_thing_passenger_controlled(thing);
-}
-
-long update_creature_levels(struct Thing *thing)
-{
-  SYNCDBG(18,"Starting");
-  struct CreatureStats *crstat;
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  struct CreatureControl *cctrl;
-  struct Thing *newtng;
-  cctrl = creature_control_get_from_thing(thing);
-  if ((cctrl->field_AD & 0x40) == 0)
-    return 0;
-  cctrl->field_AD &= 0xBF;
-  if (game.neutral_player_num != thing->owner)
-  {
-    dungeon = get_dungeon(thing->owner);
-    dungeon->score -= game.creature_scores[thing->model%CREATURE_TYPES_COUNT].value[cctrl->explevel%CREATURE_MAX_LEVEL];
-  }
-  // If a creature is not on highest level, just update the level
-  if (cctrl->explevel+1 < CREATURE_MAX_LEVEL)
-  {
-    set_creature_level(thing, cctrl->explevel+1);
-    return 1;
-  }
-  // If it is highest level, maybe we should transform the creature?
-  crstat = creature_stats_get_from_thing(thing);
-  if (crstat->grow_up == 0)
-    return 0;
-  // Transforming
-  newtng = create_creature(&thing->mappos, crstat->grow_up, thing->owner);
-  if (newtng == NULL)
-  {
-    ERRORLOG("Could not create creature to transform to");
-    return 0;
-  }
-  set_creature_level(newtng, crstat->grow_up_level-1);
-  update_creature_health_to_max(newtng);
-  cctrl = creature_control_get_from_thing(thing);
-  cctrl->field_282 = 50;
-  external_set_thing_state(newtng, 127);
-  player = get_player(thing->owner);
-  // Switch control if this creature is possessed
-  if (is_thing_passenger_controlled(thing))
-  {
-    leave_creature_as_controller(player, thing);
-    control_creature_as_controller(player, newtng);
-  }
-  if (thing->index == player->field_2F)
-  {
-    player->field_2F = newtng->index;
-    player->field_31 = newtng->field_9;
-  }
-  kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
-  return -1;
 }
 
 long process_creature_self_spell_casting(struct Thing *thing)
@@ -9041,17 +8984,17 @@ unsigned long convert_td_iso(unsigned long n)
   return n;
 }
 
-void set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char start_frame, unsigned char a7)
+void set_thing_draw(struct Thing *thing, long anim, long speed, long a4, char a5, char start_frame, unsigned char a7)
 {
   unsigned long i;
-  //_DK_set_thing_draw(thing, a2, a3, a4, a5, start_frame, a7); return;
-  thing->field_44 = convert_td_iso(a2);
+  //_DK_set_thing_draw(thing, anim, speed, a4, a5, start_frame, a7); return;
+  thing->field_44 = convert_td_iso(anim);
   thing->field_50 &= 0x03;
   thing->field_50 |= (a7 << 2);
   thing->field_49 = keepersprite_frames(thing->field_44);
-  if (a3 != -1)
+  if (speed != -1)
   {
-    thing->field_3E = a3;
+    thing->field_3E = speed;
   }
   if (a4 != -1)
   {

@@ -565,6 +565,7 @@
  0001:0006B7E0       border_unlock
  0001:0006B9B0       fringe_get_rectangle
  0001:0006BB10       triangulate_area
+ 0001:0006C140       waypoint_normal
  0001:0006C3B0       path_out_a_bit
  0001:0006C570       route_to_path
  0001:0006DA40       gate_navigator_init8
@@ -1568,6 +1569,7 @@
  0003:0005BB40       fwd_path
  0003:0005C358       tree_route
  0003:0005F238       bak_path
+ 0003:0005FA50       wayPoints
  0003:00061DA4       fringe_y
  0003:000621A8       Border
  0003:00062338       tree_triA

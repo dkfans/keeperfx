@@ -799,7 +799,6 @@ long check_out_imp_stack(struct Thing *thing)
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
     struct CreatureStats *crstat;
-    struct Dungeon *secdungeon;
     struct Thing *sectng;
     struct Thing *trdtng;
     struct ImpStack *istack;
@@ -903,8 +902,8 @@ long check_out_imp_stack(struct Thing *thing)
         case 4:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
-            secdungeon = get_dungeon(dungeon->field_E9F);
-            if ((secdungeon->room_kind[4] == 0) || ((secdungeon->creature_tendencies & 0x01) == 0))
+            if (!player_has_room(dungeon->field_E9F,RoK_PRISON) ||
+                !player_creature_tends_to(dungeon->field_E9F,CrTend_Imprison))
               break;
             if (!find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, 4, 0, 1))
             {

@@ -41,6 +41,8 @@ struct ErrorStatistics erstat[] = {
     {0, 0, "Out of room slots"},
     {0, 0, "Wrong creature state"},
     {0, 0, "Out of path points"},
+    {0, 0, "Path heap failure"},
+    {0, 0, "Route tree failure"},
 };
 int last_checked_stat_num = 0;
 /******************************************************************************/
