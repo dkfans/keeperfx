@@ -97,6 +97,8 @@ DLLIMPORT void _DK_thing_death_gas_and_flesh_explosion(struct Thing *thing);
 DLLIMPORT void _DK_thing_death_smoke_explosion(struct Thing *thing);
 DLLIMPORT void _DK_thing_death_ice_explosion(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_create_dead_creature(struct Coord3d *pos, unsigned short model, unsigned short a1, unsigned short owner, long explevel);
+DLLIMPORT long _DK_update_creature_levels(struct Thing *thing);
+DLLIMPORT long _DK_update_creature(struct Thing *thing);
 /******************************************************************************/
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
@@ -1071,7 +1073,6 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1)
 {
     struct CreatureControl *cctrl;
     struct PlayerInfo *player;
-    struct Dungeon *dungeon;
     struct Thing *deadtng;
     struct Coord3d pos;
     TbBool memf1;
@@ -1091,12 +1092,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1)
     cctrl = creature_control_get_from_thing(thing);
     explevel = cctrl->explevel;
     player = NULL;
-    if (owner != game.neutral_player_num)
-    {
-        player = get_player(owner);
-        dungeon = get_players_dungeon(player);
-        dungeon->score -= (long)game.creature_scores[crmodel].value[explevel];
-    }
+    remove_creature_score_from_owner(thing);
     delete_thing_structure(thing, 0);
     deadtng = create_dead_creature(&pos, crmodel, a1, owner, explevel);
     if (thing_is_invalid(deadtng))
@@ -1108,6 +1104,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1)
     if (owner != game.neutral_player_num)
     {
         // Update thing index inside player struct
+        player = get_player(owner);
         if (player->field_2F == prev_idx)
         {
             player->field_2F = deadtng->index;
@@ -1806,7 +1803,6 @@ void set_creature_level(struct Thing *thing, long nlvl)
   //_DK_set_creature_level(thing, nlvl); return;
   struct CreatureStats *crstat;
   struct CreatureControl *cctrl;
-  struct Dungeon *dungeon;
   long old_max_health,max_health;
   int i,k;
   crstat = creature_stats_get_from_thing(thing);
@@ -1841,11 +1837,7 @@ void set_creature_level(struct Thing *thing, long nlvl)
         cctrl->instances[k] = 1;
     }
   }
-  if (thing->owner != game.neutral_player_num)
-  {
-    dungeon = get_dungeon(thing->owner);
-    dungeon->score += game.creature_scores[thing->model%CREATURE_TYPES_COUNT].value[cctrl->explevel%CREATURE_MAX_LEVEL];
-  }
+  add_creature_score_to_owner(thing);
 }
 
 void init_creature_level(struct Thing *thing, long nlev)
@@ -2163,15 +2155,7 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
     if (owner <= PLAYERS_COUNT)
       set_first_creature(crtng);
     set_start_state(crtng);
-    if (crtng->owner != game.neutral_player_num)
-    {
-        struct Dungeon *dungeon;
-        dungeon = get_dungeon(crtng->owner);
-        if (!dungeon_invalid(dungeon))
-        {
-            dungeon->score += game.creature_scores[crtng->model].value[cctrl->explevel];
-        }
-    }
+    add_creature_score_to_owner(crtng);
     crdata = creature_data_get(crtng->model);
     cctrl->field_1E8 = crdata->flags;
     return crtng;
@@ -2933,141 +2917,243 @@ void process_landscape_affecting_creature(struct Thing *thing)
   SYNCDBG(19,"Finished");
 }
 
+TbBool add_creature_score_to_owner(struct Thing *thing)
+{
+    struct Dungeon *dungeon;
+    long score;
+    if (thing->owner == game.neutral_player_num)
+        return false;
+    dungeon = get_dungeon(thing->owner);
+    if (dungeon_invalid(dungeon))
+        return false;
+    score = get_creature_thing_score(thing);
+    if (dungeon->score < LONG_MAX-score)
+        dungeon->score += score;
+    else
+        dungeon->score = LONG_MAX;
+    return true;
+}
+
+TbBool remove_creature_score_from_owner(struct Thing *thing)
+{
+    struct Dungeon *dungeon;
+    long score;
+    if (thing->owner == game.neutral_player_num)
+        return false;
+    dungeon = get_dungeon(thing->owner);
+    if (dungeon_invalid(dungeon))
+        return false;
+    score = get_creature_thing_score(thing);
+    if (dungeon->score >= score)
+        dungeon->score -= score;
+    else
+        dungeon->score = 0;
+    return true;
+}
+
+long get_creature_thing_score(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    long breed,exp;
+    cctrl = creature_control_get_from_thing(thing);
+    breed = thing->model;
+    if (breed >= CREATURE_TYPES_COUNT)
+        breed = 0;
+    if (breed < 0)
+        breed = 0;
+    exp = cctrl->explevel;
+    if (exp >= CREATURE_MAX_LEVEL)
+        exp = 0;
+    if (exp < 0)
+        exp = 0;
+    return game.creature_scores[breed].value[exp];
+}
+
+long update_creature_levels(struct Thing *thing)
+{
+    SYNCDBG(18,"Starting");
+    struct CreatureStats *crstat;
+    struct PlayerInfo *player;
+    struct CreatureControl *cctrl;
+    struct Thing *newtng;
+    cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->field_AD & 0x40) == 0)
+      return 0;
+    cctrl->field_AD &= ~0x40;
+    remove_creature_score_from_owner(thing);
+    // If a creature is not on highest level, just update the level
+    if (cctrl->explevel+1 < CREATURE_MAX_LEVEL)
+    {
+      set_creature_level(thing, cctrl->explevel+1);
+      return 1;
+    }
+    // If it is highest level, maybe we should transform the creature?
+    crstat = creature_stats_get_from_thing(thing);
+    if (crstat->grow_up == 0)
+      return 0;
+    // Transforming
+    newtng = create_creature(&thing->mappos, crstat->grow_up, thing->owner);
+    if (newtng == NULL)
+    {
+      ERRORLOG("Could not create creature to transform to");
+      return 0;
+    }
+    set_creature_level(newtng, crstat->grow_up_level-1);
+    update_creature_health_to_max(newtng);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_282 = 50;
+    external_set_thing_state(newtng, 127);
+    player = get_player(thing->owner);
+    // Switch control if this creature is possessed
+    if (is_thing_passenger_controlled(thing))
+    {
+      leave_creature_as_controller(player, thing);
+      control_creature_as_controller(player, newtng);
+    }
+    if (thing->index == player->field_2F)
+    {
+      player->field_2F = newtng->index;
+      player->field_31 = newtng->field_9;
+    }
+    kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
+    return -1;
+}
+
 long update_creature(struct Thing *thing)
 {
-  struct PlayerInfo *player;
-  struct CreatureControl *cctrl;
-  struct Thing *tngp;
-  struct Map *map;
-  SYNCDBG(18,"Thing index %d",(int)thing->index);
-  map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-  if ((thing->field_7 == CrSt_CreatureUnconscious) && ((map->flags & 0x40) != 0))
-  {
-    kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
-    return 0;
-  }
-  if (thing->health < 0)
-  {
-    kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
-    return 0;
-  }
-  cctrl = creature_control_get_from_thing(thing);
-  if (creature_control_invalid(cctrl))
-  {
-    WARNLOG("Killing creature with invalid control.");
-    kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
-    return 0;
-  }
-  if (game.field_150356)
-  {
-    if ((cctrl->field_2EF != 0) && (cctrl->field_2EF <= game.play_gameturn))
+    struct PlayerInfo *player;
+    struct CreatureControl *cctrl;
+    struct Thing *tngp;
+    struct Map *map;
+    SYNCDBG(18,"Thing index %d",(int)thing->index);
+    map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    if ((thing->field_7 == CrSt_CreatureUnconscious) && ((map->flags & 0x40) != 0))
     {
-        cctrl->field_2EF = 0;
-        create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
-        move_thing_in_map(thing, &game.armageddon.mappos);
+      kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
+      return 0;
     }
-  }
-
-  if (cctrl->field_B1 > 0)
-    cctrl->field_B1--;
-  if (cctrl->byte_8B == 0)
-    cctrl->byte_8B = game.field_14EA4B;
-  if (cctrl->field_302 == 0)
-    process_creature_instance(thing);
-  update_creature_count(thing);
-  if ((thing->field_0 & 0x20) != 0)
-  {
-    if (cctrl->field_AB == 0)
+    if (thing->health < 0)
     {
-      if (cctrl->field_302 != 0)
-      {
-        cctrl->field_302--;
-      } else
-      if (process_creature_state(thing))
-      {
-        ERRORLOG("A state return type for a human controlled creature?");
-      }
+      kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
+      return 0;
     }
     cctrl = creature_control_get_from_thing(thing);
-    player = get_player(thing->owner);
-    if (cctrl->field_AB & 0x02)
+    if (creature_control_invalid(cctrl))
     {
-      if ((player->field_3 & 0x04) == 0)
-        PaletteSetPlayerPalette(player, blue_palette);
-    } else
-    {
-      if ((player->field_3 & 0x04) != 0)
-        PaletteSetPlayerPalette(player, _DK_palette);
+      WARNLOG("Killing creature with invalid control.");
+      kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
+      return 0;
     }
-  } else
-  {
-    if (cctrl->field_AB == 0)
+    if (game.field_150356)
     {
-      if (cctrl->field_302 > 0)
+      if ((cctrl->field_2EF != 0) && (cctrl->field_2EF <= game.play_gameturn))
       {
-        cctrl->field_302--;
-      } else
-      if (process_creature_state(thing))
-      {
-        return 0;
+          cctrl->field_2EF = 0;
+          create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
+          move_thing_in_map(thing, &game.armageddon.mappos);
       }
     }
-  }
 
-  if (update_creature_movements(thing))
-  {
-    thing->pos_38.x.val += cctrl->pos_BB.x.val;
-    thing->pos_38.y.val += cctrl->pos_BB.y.val;
-    thing->pos_38.z.val += cctrl->pos_BB.z.val;
-  }
-  move_creature(thing);
-  if ((thing->field_0 & 0x20) != 0)
-  {
-    if ((cctrl->flgfield_1 & 0x40) == 0)
-      cctrl->field_C8 /= 2;
-    if ((cctrl->flgfield_1 & 0x80) == 0)
-      cctrl->field_CA /= 2;
-  } else
-  {
-    cctrl->field_C8 = 0;
-  }
-  process_spells_affected_by_effect_elements(thing);
-  process_landscape_affecting_creature(thing);
-  process_disease(thing);
-  move_thing_in_map(thing, &thing->mappos);
-  set_creature_graphic(thing);
-  if (cctrl->field_2B0)
-    process_keeper_spell_effect(thing);
+    if (cctrl->field_B1 > 0)
+      cctrl->field_B1--;
+    if (cctrl->byte_8B == 0)
+      cctrl->byte_8B = game.field_14EA4B;
+    if (cctrl->field_302 == 0)
+      process_creature_instance(thing);
+    update_creature_count(thing);
+    if ((thing->field_0 & 0x20) != 0)
+    {
+      if (cctrl->field_AB == 0)
+      {
+        if (cctrl->field_302 != 0)
+        {
+          cctrl->field_302--;
+        } else
+        if (process_creature_state(thing))
+        {
+          ERRORLOG("A state return type for a human controlled creature?");
+        }
+      }
+      cctrl = creature_control_get_from_thing(thing);
+      player = get_player(thing->owner);
+      if ((cctrl->field_AB & 0x02) != 0)
+      {
+        if ((player->field_3 & 0x04) == 0)
+          PaletteSetPlayerPalette(player, blue_palette);
+      } else
+      {
+        if ((player->field_3 & 0x04) != 0)
+          PaletteSetPlayerPalette(player, _DK_palette);
+      }
+    } else
+    {
+      if (cctrl->field_AB == 0)
+      {
+        if (cctrl->field_302 > 0)
+        {
+          cctrl->field_302--;
+        } else
+        if (process_creature_state(thing))
+        {
+          return 0;
+        }
+      }
+    }
 
-  if (thing->word_17 > 0)
-    thing->word_17--;
+    if (update_creature_movements(thing))
+    {
+      thing->pos_38.x.val += cctrl->pos_BB.x.val;
+      thing->pos_38.y.val += cctrl->pos_BB.y.val;
+      thing->pos_38.z.val += cctrl->pos_BB.z.val;
+    }
+    move_creature(thing);
+    if ((thing->field_0 & 0x20) != 0)
+    {
+      if ((cctrl->flgfield_1 & 0x40) == 0)
+        cctrl->field_C8 /= 2;
+      if ((cctrl->flgfield_1 & 0x80) == 0)
+        cctrl->field_CA /= 2;
+    } else
+    {
+      cctrl->field_C8 = 0;
+    }
+    process_spells_affected_by_effect_elements(thing);
+    process_landscape_affecting_creature(thing);
+    process_disease(thing);
+    move_thing_in_map(thing, &thing->mappos);
+    set_creature_graphic(thing);
+    if (cctrl->field_2B0)
+      process_keeper_spell_effect(thing);
 
-  if (cctrl->field_7A & 0x0FFF)
-  {
-    if ( creature_is_group_leader(thing) )
-      leader_find_positions_for_followers(thing);
-  }
+    if (thing->word_17 > 0)
+      thing->word_17--;
 
-  if (cctrl->field_6E > 0)
-  {
-    tngp = thing_get(cctrl->field_6E);
-    if (tngp->field_1 & 0x01)
-      move_thing_in_map(tngp, &thing->mappos);
-  }
-  if (update_creature_levels(thing) == -1)
-  {
-    return 0;
-  }
-  process_creature_self_spell_casting(thing);
-  cctrl->pos_BB.x.val = 0;
-  cctrl->pos_BB.y.val = 0;
-  cctrl->pos_BB.z.val = 0;
-  set_flag_byte(&cctrl->flgfield_1,0x40,false);
-  set_flag_byte(&cctrl->flgfield_1,0x80,false);
-  set_flag_byte(&cctrl->field_AD,0x04,false);
-  process_thing_spell_effects(thing);
-  SYNCDBG(19,"Finished");
-  return 1;
+    if (cctrl->field_7A & 0x0FFF)
+    {
+      if ( creature_is_group_leader(thing) )
+        leader_find_positions_for_followers(thing);
+    }
+
+    if (cctrl->field_6E > 0)
+    {
+      tngp = thing_get(cctrl->field_6E);
+      if (tngp->field_1 & 0x01)
+        move_thing_in_map(tngp, &thing->mappos);
+    }
+    if (update_creature_levels(thing) == -1)
+    {
+      return 0;
+    }
+    process_creature_self_spell_casting(thing);
+    cctrl->pos_BB.x.val = 0;
+    cctrl->pos_BB.y.val = 0;
+    cctrl->pos_BB.z.val = 0;
+    set_flag_byte(&cctrl->flgfield_1,0x40,false);
+    set_flag_byte(&cctrl->flgfield_1,0x80,false);
+    set_flag_byte(&cctrl->field_AD,0x04,false);
+    process_thing_spell_effects(thing);
+    SYNCDBG(19,"Finished");
+    return 1;
 }
 /******************************************************************************/
 #ifdef __cplusplus

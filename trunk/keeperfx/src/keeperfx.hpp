@@ -1297,7 +1297,6 @@ void process_disease(struct Thing *thing);
 void process_keeper_spell_effect(struct Thing *thing);
 long creature_is_group_leader(struct Thing *thing);
 void leader_find_positions_for_followers(struct Thing *thing);
-long update_creature_levels(struct Thing *thing);
 void explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
       long range, long max_damage, unsigned char hit_type);
 long process_creature_self_spell_casting(struct Thing *thing);

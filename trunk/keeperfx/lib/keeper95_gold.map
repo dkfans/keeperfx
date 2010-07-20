@@ -687,6 +687,7 @@
  0003:00013394       ix_Points
  0003:00013398       count_Points
  0003:0001339C       free_Points
+ 0003:0005FA50       wayPoints
 
  0006:00000008       gpoly_pro_enable_mode_ofs
  0006:00000010       gtblock_clip_width
@@ -1804,3 +1805,4 @@
  0001:000CC0C0       creature_choose_random_destination_on_valid_adjacent_slab
  0001:00066A90       pointed_at8
  0001:00066D20       triangle_brute_find8_near
+ 0001:0006C140       waypoint_normal

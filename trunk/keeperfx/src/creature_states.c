@@ -1718,7 +1718,6 @@ long creature_has_other_attackers(struct Thing *thing, long a2)
 
 TbBool creature_is_actually_scared(struct Thing *thing, struct Thing *enemy)
 {
-    struct Dungeon *dungeon;
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
     long maxhealth;
@@ -1734,8 +1733,7 @@ TbBool creature_is_actually_scared(struct Thing *thing, struct Thing *enemy)
     }
     // With "Flee" tendency on, then creatures are scared if their health
     // drops lower than  fear/256 percentage of base health
-    dungeon = get_dungeon(thing->owner);
-    if ((dungeon->creature_tendencies & 0x02) != 0)
+    if (player_creature_tends_to(thing->owner,CrTend_Flee))
     {
         cctrl = creature_control_get_from_thing(thing);
         maxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
