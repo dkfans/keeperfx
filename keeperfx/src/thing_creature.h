@@ -109,6 +109,11 @@ void change_creature_owner(struct Thing *thing, long nowner);
 struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long job_idx, TbBool pick_check);
 struct Thing *pick_up_creature_of_breed_and_gui_job(long breed_idx, long job_idx, long owner, unsigned char pick_flags);
 
+long get_creature_thing_score(struct Thing *thing);
+TbBool add_creature_score_to_owner(struct Thing *thing);
+TbBool remove_creature_score_from_owner(struct Thing *thing);
+
+long update_creature_levels(struct Thing *thing);
 long update_creature(struct Thing *thing);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);

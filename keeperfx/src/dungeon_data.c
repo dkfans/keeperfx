@@ -161,7 +161,7 @@ TbBool player_has_room(long plyr_idx, RoomKind rkind)
     if (plyr_idx == game.neutral_player_num)
         return false;
     dungeon = get_players_num_dungeon(plyr_idx);
-    return (dungeon->rkind[RoK_PRISON] > 0);
+    return (dungeon->room_kind[rkind] > 0);
 }
 
 TbBool player_creature_tends_to(long plyr_idx, unsigned short tend_type)

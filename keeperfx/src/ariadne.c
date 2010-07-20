@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "ariadne_navitree.h"
 #include "thing_navigate.h"
 #include "gui_topmsg.h"
 #include "keeperfx.hpp"
@@ -30,6 +31,8 @@
 #define EDGEOR_COUNT           4
 
 typedef long (*NavRules)(long, long);
+long navigation_map_size_x = 256;
+long navigation_map_size_y = 256;
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,7 +75,6 @@ DLLIMPORT long _DK_ariadne_init_movement_to_current_waypoint(struct Thing *thing
 DLLIMPORT unsigned char _DK_ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long a4, struct Coord3d *nextpos, unsigned char a5);
 DLLIMPORT unsigned char _DK_ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *arid);
 DLLIMPORT unsigned char _DK_ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *arid);
-DLLIMPORT void _DK_heap_down(long heapid);
 DLLIMPORT long _DK_creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid);
 DLLIMPORT unsigned char _DK_ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos);
@@ -83,20 +85,8 @@ DLLIMPORT long _DK_tri_split2(long a1, long a2, long a3, long a4, long a5);
 DLLIMPORT void _DK_tri_split3(long a1, long a2, long a3);
 DLLIMPORT long _DK_pointed_at8(long pos_x, long pos_y, long *retpos_x, long *retpos_y);
 DLLIMPORT long _DK_triangle_brute_find8_near(long pos_x, long pos_y);
-
+DLLIMPORT void _DK_waypoint_normal(long a1, long a2, long *norm_x, long *norm_y);
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_tag_current;
-#define tag_current _DK_tag_current
-DLLIMPORT unsigned char _DK_Tags[TRIANLGLES_COUNT];
-#define Tags _DK_Tags
-DLLIMPORT long _DK_tree_val[TRIANLGLES_COUNT+1];
-#define tree_val _DK_tree_val
-DLLIMPORT long _DK_tree_dad[TRIANLGLES_COUNT];
-#define tree_dad _DK_tree_dad
-DLLIMPORT long _DK_heap_end;
-#define heap_end _DK_heap_end
-DLLIMPORT long _DK_Heap[PATH_HEAP_LEN];
-#define Heap _DK_Heap
 DLLIMPORT unsigned long _DK_edgelen_initialised;
 #define edgelen_initialised _DK_edgelen_initialised
 DLLIMPORT unsigned long *_DK_EdgeFit;
@@ -115,6 +105,8 @@ DLLIMPORT long _DK_find_cache[4][4];
 #define find_cache _DK_find_cache
 DLLIMPORT long _DK_ix_Triangles;
 #define ix_Triangles _DK_ix_Triangles
+DLLIMPORT struct WayPoints _DK_wayPoints;
+#define wayPoints _DK_wayPoints
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -174,149 +166,102 @@ long triangle_findSE8(long a1, long a2);
 long ma_triangle_route(long a1, long a2, long *a3);
 void edgelen_init(void);
 unsigned long regions_connected(long tree_reg1, long tree_reg1);
+TbBool triangle_tip_equals(long ntri, long ncor, long pt_x, long pt_y);
 /******************************************************************************/
-
-void nodes_classify(void)
-{
-}
-
-void heap_init(void)
-{
-  heap_end = 0;
-}
-
-void heap_down(long heapid)
-{
-    unsigned long hpos,hnew,hend;
-    long tree_id1,tree_id2,tree_idb,tree_ids;
-    long tval_idb;
-    //_DK_heap_down(heapid); return;
-
-    Heap[heap_end+1] = 9000;
-    tree_val[9000] = LONG_MAX;
-    hend = (heap_end >> 1);
-    tree_idb = Heap[heapid];
-    tval_idb = tree_val[tree_idb];
-    hpos = heapid;
-    while (hpos <= hend)
-    {
-        hnew = (hpos << 1);
-        tree_id1 = Heap[hnew];
-        tree_id2 = Heap[hnew+1];
-        if (tree_val[tree_id2] < tree_val[tree_id1])
-            hnew++;
-        tree_ids = Heap[hnew];
-        if (tree_val[tree_ids] > tval_idb)
-          break;
-        Heap[hpos] = tree_ids;
-        hpos = hnew;
-    }
-    Heap[hpos] = tree_idb;
-}
-
-long heap_remove(void)
-{
-  long popval = Heap[1];
-  Heap[1] = Heap[heap_end];
-  heap_end--;
-  heap_down(1);
-  return popval;
-}
-
-void heap_up(long heapid)
-{
-    unsigned long nmask,pmask;
-    long i,k;
-    pmask = heapid;
-    Heap[0] = 9000;
-    tree_val[9000] = -1;
-    nmask = pmask;
-    k = Heap[pmask];
-    while ( 1 )
-    {
-        nmask >>= 1;
-        i = Heap[nmask];
-        if (tree_val[k] > tree_val[i])
-          break;
-        if (pmask == 0)
-        {
-            ERRORLOG("sabotaged navigate heap");
-            break;
-        }
-        Heap[pmask] = i;
-        pmask = nmask;
-    }
-    Heap[pmask] = k;
-}
-
-TbBool heap_add(long heapid)
-{
-    if (heap_end >= 256)
-    {
-        ERRORLOG("navigate heap overflow");
-        return false;
-    }
-    heap_end++;
-    Heap[heap_end] = heapid;
-    heap_up(heap_end);
-    return true;
-}
-
-void tree_init(void)
-{
-  long i;
-  for (i=0; i <= TRIANLGLES_COUNT; i++)
-  {
-      tree_val[i] = -2147483647;
-  }
-}
 
 unsigned long fits_thro(long tri_idx, long ormask_idx)
 {
-  static unsigned long const edgelen_ORmask[] = {60, 51, 15};
-  unsigned long eidx;
-  unsigned long emask;
+    static unsigned long const edgelen_ORmask[] = {60, 51, 15};
+    unsigned long eidx;
+    unsigned long emask;
 
-  if (tri_idx >= TRIANLGLES_COUNT)
-  {
-      ERRORDBG(5,"triangles overflow");
-      erstat_inc(ESE_NoFreeTriangls);
-      return 0;
-  }
-  if (ormask_idx >= EDGEOR_COUNT)
-  {
-      ERRORLOG("ORmask overflow");
-      return 0;
-  }
-  emask = (Triangles[tri_idx].field_E % EDGEFIT_LEN);
-  eidx = edgelen_ORmask[ormask_idx] | emask;
-  if (EdgeFit != RadiusEdgeFit[0])
-  {
-    if (EdgeFit != RadiusEdgeFit[1])
+    if (tri_idx >= TRIANLGLES_COUNT)
     {
-      if (EdgeFit != RadiusEdgeFit[2])
-      {
-        ERRORLOG("table err");
+        ERRORDBG(5,"triangles overflow");
+        erstat_inc(ESE_NoFreeTriangls);
         return 0;
+    }
+    if (ormask_idx >= EDGEOR_COUNT)
+    {
+        ERRORLOG("ORmask overflow");
+        return 0;
+    }
+    emask = (Triangles[tri_idx].field_E % EDGEFIT_LEN);
+    eidx = edgelen_ORmask[ormask_idx] | emask;
+    if (EdgeFit != RadiusEdgeFit[0])
+    {
+      if (EdgeFit != RadiusEdgeFit[1])
+      {
+        if (EdgeFit != RadiusEdgeFit[2])
+        {
+          ERRORLOG("table err");
+          return 0;
+        }
       }
     }
-  }
-  if (edgelen_initialised != 1)
-  {
-      ERRORLOG("uninit");
-      return 0;
-  }
-  if (eidx >= EDGEFIT_LEN)
-  {
-      ERRORLOG("edgebits overflow");
-      return 0;
-  }
-  return EdgeFit[eidx];
+    if (edgelen_initialised != 1)
+    {
+        ERRORLOG("uninit");
+        return 0;
+    }
+    if (eidx >= EDGEFIT_LEN)
+    {
+        ERRORLOG("edgebits overflow");
+        return 0;
+    }
+    return EdgeFit[eidx];
+}
+
+void triangulate_map(unsigned char *imap)
+{
+    triangulate_area(imap, 0, 0, navigation_map_size_x, navigation_map_size_y);
+}
+
+long navigation_rule_normal(long a1, long a2)
+{
+    long owner;
+    if ((a2 & 0x0F) - (a1 & 0x0F) > 1)
+        return 0;
+    if ((a2 & 0xF0) == 0)
+        return 1;
+    if (owner_player_navigating != -1)
+    {
+        owner = ((a2 & 0xE0) >> 5) - 1;
+      if (owner == 5)
+      {
+          owner = game.field_14E496;
+      } else
+      if (owner == 6)
+      {
+          owner = game.neutral_player_num;
+      }
+      if (owner_player_navigating == owner)
+        return 0;
+    }
+    if ((a2 & 0x10) == 0)
+        return 1;
+    if ((a1 & 0x10) != 0)
+        return 1;
+    return nav_thing_can_travel_over_lava;
 }
 
 long init_navigation(void)
 {
-  return _DK_init_navigation();
+    long stl_x,stl_y;
+    //return _DK_init_navigation();
+    memset(game.navigation_map, 0, navigation_map_size_x*navigation_map_size_y);
+    for (stl_y=0; stl_y < navigation_map_size_y; stl_y++)
+    {
+        for (stl_x=0; stl_x < navigation_map_size_x; stl_x++)
+        {
+            game.navigation_map[stl_y*navigation_map_size_x+stl_x] = get_navigation_colour(stl_x, stl_y);
+        }
+    }
+    nav_map_initialised = 1;
+    triangulate_map(IanMap);
+    nav_rulesA2B = navigation_rule_normal;
+    game.field_14EA4B = 1;
+    return 1;
 }
 
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y)
@@ -369,9 +314,48 @@ long route_to_path(long a1, long a2, long a3, long a4, long *a5, long a6, struct
     return _DK_route_to_path(a1, a2, a3, a4, a5, a6, path, a8);
 }
 
-void path_out_a_bit(struct Path *path, long *a2)
+void waypoint_normal(long a1, long a2, long *norm_x, long *norm_y)
 {
-    _DK_path_out_a_bit(path, a2);
+    _DK_waypoint_normal(a1, a2, norm_x, norm_y);
+}
+
+void path_out_a_bit(struct Path *path, long *route)
+{
+    struct PathWayPoint *ppoint;
+    long *wpoint;
+    long tip_x,tip_y;
+    long norm_x,norm_y;
+    long prev_pt,curr_pt;
+    long link_fwd,link_bak;
+    long i;
+    //_DK_path_out_a_bit(path, a2);
+    wpoint = &wayPoints.field_10[0];
+    ppoint = &path->waypoints[0];
+    for (i=0; i < path->waypoints_num-1; i++)
+    {
+        prev_pt = route[*wpoint];
+        curr_pt = route[*wpoint+1];
+        link_fwd = link_find(prev_pt, curr_pt);
+        link_bak = link_find(curr_pt, prev_pt);
+        tip_x = (ppoint->x >> 8);
+        tip_y = (ppoint->y >> 8);
+        if (triangle_tip_equals(prev_pt, link_fwd, tip_x, tip_y))
+        {
+            waypoint_normal(prev_pt, link_fwd, &norm_x, &norm_y);
+        } else
+        if (triangle_tip_equals(curr_pt, link_bak, tip_x, tip_y))
+        {
+            waypoint_normal(curr_pt, link_bak, &norm_x, &norm_y);
+        } else
+        {
+            ERRORLOG("waypoint mismatch");
+            continue;
+        }
+        ppoint->x += norm_x;
+        ppoint->y += norm_y;
+        wpoint++;
+        ppoint++;
+    }
 }
 
 void gate_navigator_init8(struct Pathway *pway, long a2, long a3, long a4, long a5, long a6, unsigned char a7)
@@ -379,24 +363,44 @@ void gate_navigator_init8(struct Pathway *pway, long a2, long a3, long a4, long 
     _DK_gate_navigator_init8(pway, a2, a3, a4, a5, a6, a7);
 }
 
-void route_through_gates(struct Pathway *pway, struct Path *path, long a3)
+void route_through_gates(struct Pathway *pway, struct Path *path, long mag)
 {
-    _DK_route_through_gates(pway, path, a3);
+    struct PathPoint *ppoint;
+    struct PathWayPoint *wpoint;
+    long i;
+    //_DK_route_through_gates(pway, path, a3);
+    if (mag > 16383)
+        mag = 16383;
+    if (mag < 0)
+        mag = 0;
+    path->field_0 = pway->field_0;
+    path->field_4 = pway->field_4;
+    path->field_8 = pway->field_8;
+    path->field_C = pway->field_C;
+    path->waypoints_num = pway->points_num;
+    ppoint = &pway->points[0];
+    wpoint = &path->waypoints[0];
+    for (i=0; i < pway->points_num-1; i++)
+    {
+        if (ppoint->field_18)
+        {
+            wpoint->x = ppoint->field_8 - (mag * (ppoint->field_8 - ppoint->field_0) >> 14);
+            wpoint->y = ppoint->field_C - (mag * (ppoint->field_C - ppoint->field_4) >> 14);
+        } else
+        {
+            wpoint->x = ppoint->field_0 + (mag * (ppoint->field_8 - ppoint->field_0) >> 14);
+            wpoint->y = ppoint->field_4 + (mag * (ppoint->field_C - ppoint->field_4) >> 14);
+        }
+        wpoint++;
+        ppoint++;
+    }
+    path->waypoints[i].x = pway->field_8;
+    path->waypoints[i].y = pway->field_C;
 }
 
 long triangle_findSE8(long a1, long a2)
 {
     return _DK_triangle_findSE8(a1, a2);
-}
-
-void tags_init(void)
-{
-    if (tag_current >= 255)
-    {
-        memset(Tags, 0, sizeof(Tags));
-        tag_current = 0;
-    }
-    tag_current++;
 }
 
 /* TODO PATHFINDING Enable when needed
@@ -422,6 +426,16 @@ void tri_dispose(long tri_idx)
 }
 */
 
+TbBool triangulation_border_tag(void)
+{
+    if (border_tags_to_current(Border, ix_Border) != ix_Border)
+    {
+        ERRORLOG("Some border Tags were outranged");
+        return false;
+    }
+    return true;
+}
+
 long dest_node(long a1, long a2)
 {
     long n;
@@ -431,16 +445,6 @@ long dest_node(long a1, long a2)
     if (!nav_rulesA2B(Triangles[a1].field_C, Triangles[n].field_C))
         return -1;
     return n;
-}
-
-TbBool navitree_add(long itm_pos, long itm_dat, long mvcost)
-{
-    long tag_pos;
-    tag_pos = tag_current;
-    tree_val[itm_pos] = mvcost;
-    Tags[itm_pos] = tag_pos;
-    tree_dad[itm_pos] = itm_dat;
-    return heap_add(itm_pos);
 }
 
 long cost_to_start(long tri_idx)
@@ -534,33 +538,28 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
         ERRORLOG("Border overflow");
         ix_Border = BORDER_LENGTH-1;
     }
-    for (i = ix_Border; i > 0; i--)
-    {
-        n = Border[i];
-        if ((n < 0) || (n >= TRIANLGLES_COUNT))
-        {
-            ERRORLOG("Tags overflow");
-            continue;
-        }
-        Tags[n] = tag_current;
-    }
+    triangulation_border_tag();
 
-    heap_end = 0;
-    navitree_add(ttriB, ttriB, 1);
-    while (ttriA != Heap[1])
+    naviheap_init();
+    if (!navitree_add(ttriB, ttriB, 1))
     {
-        if (heap_end == 0)
+        erstat_inc(ESE_BadPathHeap);
+        ERRORLOG("navigate heap overflow just after clear");
+    }
+    while (ttriA != naviheap_top())
+    {
+        if (naviheap_empty())
             break;
-        ttriH1 = heap_remove();
-        if ( heap_end )
-        {
-            ttriH2 = Heap[1];
-            if (Heap[1] == ttriA)
-              break;
-            heap_remove();
-        } else
+        ttriH1 = naviheap_remove();
+        if (naviheap_empty())
         {
             ttriH2 = -1;
+        } else
+        {
+            ttriH2 = naviheap_top();
+            if (ttriH2 == ttriA)
+              break;
+            naviheap_remove();
         }
         while ( 1 )
         {
@@ -569,7 +568,7 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
             for (i = 0; i < 3; i++)
             {
               k = tri->field_6[i];
-              if (tag_current != Tags[k])
+              if (!is_current_tag(k))
               {
                 if ( fits_thro(ttriH1, n) )
                 {
@@ -579,7 +578,11 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
                         mvcost = cost_to_start(k);
                       if (navrule == 2)
                           mvcost *= 16;
-                      navitree_add(k,ttriH1,mvcost);
+                      if (!navitree_add(k,ttriH1,mvcost))
+                      {
+                          erstat_inc(ESE_BadPathHeap);
+                          ERRORDBG(6,"navigate heap overflow");
+                      }
                     }
                 }
               }
@@ -593,24 +596,14 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
     }
 
     NAVIDBG(19,"Nearly finished");
-    if (heap_end == 0)
+    if (naviheap_empty())
         return -1;
-    n = ttriA;
-    k = 0;
-    while ( 1 )
+    i = copy_tree_to_route(ttriA, ttriB, route, TRIANLGLES_COUNT+1);
+    if (i < 0)
     {
-        if (k > TRIANLGLES_COUNT)
-        {
-            ERRORLOG("Navigation tree looped");
-            return 0;
-        }
-        route[k] = n;
-        if (n == ttriB)
-            break;
-        k++;
-        n = tree_dad[n];
+        ERRORLOG("route length overflow");
     }
-    return k;
+    return i;
 }
 
 long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
@@ -627,33 +620,28 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
         ERRORLOG("Border overflow");
         ix_Border = BORDER_LENGTH-1;
     }
-    for (i = ix_Border; i > 0; i--)
-    {
-        n = Border[i];
-        if ((n < 0) || (n >= TRIANLGLES_COUNT))
-        {
-            ERRORLOG("Tags overflow");
-            continue;
-        }
-        Tags[n] = tag_current;
-    }
+    triangulation_border_tag();
 
-    heap_end = 0;
-    navitree_add(ttriB, ttriB, 1);
-    while (ttriA != Heap[1])
+    naviheap_init();
+    if (!navitree_add(ttriB, ttriB, 1))
     {
-        if (heap_end == 0)
+        erstat_inc(ESE_BadPathHeap);
+        ERRORLOG("navigate heap overflow just after clear");
+    }
+    while (ttriA != naviheap_top())
+    {
+        if (naviheap_empty())
             break;
-        ttriH1 = heap_remove();
-        if ( heap_end )
-        {
-            ttriH2 = Heap[1];
-            if (Heap[1] == ttriA)
-              break;
-            heap_remove();
-        } else
+        ttriH1 = naviheap_remove();
+        if (naviheap_empty())
         {
             ttriH2 = -1;
+        } else
+        {
+            ttriH2 = naviheap_top();
+            if (ttriH2 == ttriA)
+              break;
+            naviheap_remove();
         }
         while ( 1 )
         {
@@ -662,7 +650,7 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
             for (i = 0; i < 3; i++)
             {
               k = tri->field_6[i];
-              if (tag_current != Tags[k])
+              if (!is_current_tag(k))
               {
                 if ( fits_thro(ttriH1, n) )
                 {
@@ -672,7 +660,11 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
                         mvcost = cost_to_start(k);
                       if (navrule == 2)
                           mvcost *= 16;
-                      navitree_add(k,ttriH1,mvcost);
+                      if (!navitree_add(k,ttriH1,mvcost))
+                      {
+                          erstat_inc(ESE_BadPathHeap);
+                          ERRORDBG(6,"navigate heap overflow");
+                      }
                     }
                 }
               }
@@ -686,24 +678,15 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
     }
 
     NAVIDBG(19,"Nearly finished");
-    if (heap_end == 0)
+    if (naviheap_empty())
         return -1;
-    n = ttriA;
-    k = 0;
-    while ( 1 )
+    i = copy_tree_to_route(ttriA, ttriB, route, TRIANLGLES_COUNT+1);
+    if (i < 0)
     {
-        if (k > TRIANLGLES_COUNT)
-        {
-            ERRORLOG("Navigation tree looped");
-            return 0;
-        }
-        route[k] = n;
-        if (n == ttriB)
-            break;
-        k++;
-        n = tree_dad[n];
+        erstat_inc(ESE_BadRouteTree);
+        ERRORDBG(6,"route length overflow");
     }
-    return k;
+    return i;
 }
 
 long ma_triangle_route(long ttriA, long ttriB, long *routecost)
@@ -1633,7 +1616,7 @@ long edge_find(long a1, long a2, long a3, long a4, long *a5, long *a6)
 
 long link_find(long ntri, long val)
 {
-    if (ntri < 0)
+    if ((ntri < 0) || (ntri >= TRIANLGLES_COUNT))
     {
         return -1;
     }

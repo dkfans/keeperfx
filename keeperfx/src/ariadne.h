@@ -26,7 +26,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define PATH_HEAP_LEN 258
 #define TREE_ROUTE_LEN 3000
 #define TRIANLGLES_COUNT 9000
 #define BORDER_LENGTH 100
@@ -99,9 +98,32 @@ struct Point { // sizeof = 18
   short y;
 };
 
+struct PathPoint { // sizeof = 28
+  long field_0;
+  long field_4;
+  long field_8;
+  long field_C;
+  long field_10;
+  long field_14;
+  long field_18;
+};
+
 struct Pathway { // sizeof = 7192
-  unsigned char field_0[7188];
-  unsigned long field_1C14;
+  long field_0;
+  long field_4;
+  long field_8;
+  long field_C;
+  struct PathPoint points[256];
+  long points_num;
+  long field_1C14;
+};
+
+struct WayPoints { // sizeof = 1040
+  long field_0;
+  long field_4;
+  long field_8;
+  long field_C;
+  long field_10[256];
 };
 
 struct RegionT { // sizeof = 3

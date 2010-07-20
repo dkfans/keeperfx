@@ -643,7 +643,7 @@ long pinstfs_unquery_creature(struct PlayerInfo *player, long *n)
   //return _DK_pinstfs_unquery_creature(player, n);
   set_player_state(player, 1, 0);
   player->field_31 = 0;
-  player->field_2F = 0;
+  clear_selected_creature(player);
   return 0;
 }
 
@@ -983,7 +983,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
   if ((thing->owner != player->id_number) || (thing->index != player->field_2F))
   {
     set_player_instance(player, 0, 1);
-    player->field_2F = 0;
+    clear_selected_creature(player);
     player->field_31 = 0;
     set_player_mode(player, 1);
     player->field_0 &= 0xF7;
@@ -994,7 +994,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     player->cameras[3].mappos.y.val = 0;
     return;
   }
-  player->field_2F = 0;
+  clear_selected_creature(player);
   player->field_31 = 0;
   set_player_mode(player, 1);
   thing->field_0 &= 0xDF;
@@ -1033,7 +1033,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   if ((thing->owner != player->id_number) || (thing->index != player->field_2F))
   {
     set_player_instance(player, 0, 1);
-    player->field_2F = 0;
+    clear_selected_creature(player);
     player->field_31 = 0;
     set_player_mode(player, 1);
     player->field_0 &= 0xF7;
@@ -1045,8 +1045,8 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
     return;
   }
   set_player_mode(player, 1);
-  thing->field_4F &= 0xFE;
-  player->field_0 &= 0xF7;
+  thing->field_4F &= ~0x01;
+  player->field_0 &= ~0x08;
   set_engine_view(player, player->field_4B5);
   i = player->acamera->orient_a;
   crstat = creature_stats_get_from_thing(thing);
@@ -1055,7 +1055,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   player->cameras[0].mappos.y.val = thing->mappos.y.val - ((LbCosL(i) * k) >> 16);
   player->cameras[3].mappos.x.val = thing->mappos.x.val + ((LbSinL(i) * k) >> 16);
   player->cameras[3].mappos.y.val = thing->mappos.y.val - ((LbCosL(i) * k) >> 16);
-  player->field_2F = 0;
+  clear_selected_creature(player);
   player->field_31 = 0;
 }
 
@@ -1068,6 +1068,12 @@ TbBool set_selected_creature(struct PlayerInfo *player, struct Thing *thing)
   }
   ERRORLOG("Cannot select thing for information");
   return false;
+}
+
+TbBool clear_selected_creature(struct PlayerInfo *player)
+{
+  player->field_2F = 0;
+  return true;
 }
 
 /** Builds room for the given player at given coords.
