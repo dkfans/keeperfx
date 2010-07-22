@@ -85,6 +85,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"LORD",             13},
   {"SPECTATOR",        14},
   {"EVIL",             15},
+  {"NEVER_CHICKENS",   16},
   {NULL,                0},
   };
 
@@ -629,6 +630,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               break;
             case 15: // EVIL
               crconf->model_flags |= MF_IsEvil;
+              n++;
+              break;
+            case 16: // NEVER_CHICKENS
+              crconf->model_flags |= MF_NeverChickens;
               n++;
               break;
             default:

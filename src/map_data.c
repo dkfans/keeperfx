@@ -60,6 +60,9 @@ int map_tiles_x = 85;
  *  Equals to tiles (slabs) count; The last slab has index map_tiles_y-1. */
 int map_tiles_y = 85;
 
+long navigation_map_size_x = 256;
+long navigation_map_size_y = 256;
+
 unsigned char *IanMap = (unsigned char *)&game.navigation_map;
 long nav_map_initialised = 0;
 /******************************************************************************/
@@ -117,7 +120,7 @@ unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
       return 0;
   if ((stl_y < 0) || (stl_y > map_subtiles_y))
       return 0;
-  return game.navigation_map[get_subtile_number(stl_x,stl_y)];
+  return game.navigation_map[navmap_tile_number(stl_x,stl_y)];
 }
 
 void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long navcolour)
@@ -126,7 +129,7 @@ void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long 
       return;
   if ((stl_y < 0) || (stl_y > map_subtiles_y))
       return;
-  game.navigation_map[get_subtile_number(stl_x,stl_y)] = navcolour;
+  game.navigation_map[navmap_tile_number(stl_x,stl_y)] = navcolour;
 }
 
 long get_ceiling_height(const struct Coord3d *pos)

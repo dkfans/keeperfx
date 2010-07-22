@@ -237,7 +237,7 @@ void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
     struct PlayerInfo *player;
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
-    long carmour, cdamage;
+    long carmor, cdamage;
     long i;
     //_DK_apply_damage_to_thing(thing, dmg, a3);
     // We're here to damage, not to heal
@@ -254,23 +254,17 @@ void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
         crstat = creature_stats_get_from_thing(thing);
         if ((cctrl->flgfield_1 & 0x04) == 0)
         {
-            // Compute armour value
-            carmour = crstat->armour;
-            if (!creature_control_invalid(cctrl))
-            {
-              if ((cctrl->spell_flags & CSF_Armour) != 0)
-                  carmour = (320 * carmour) / 256;
-            }
-            if (carmour < 0)
-            {
-                carmour = 0;
-            } else
-            if (carmour > 200)
-            {
-                carmour = 200;
-            }
+            // Compute armor value
+            carmor = compute_creature_max_armour(crstat->armour,cctrl->explevel);
+            if ((cctrl->spell_flags & CSF_Armour) != 0)
+                carmor = (320 * carmor) / 256;
+            // This limit makes armor absorb up to 80% of damage, never more
+            if (carmor > 204)
+                carmor = 204;
+            if (carmor < 0)
+                carmor = 0;
             // Now compute damage
-            cdamage = (dmg * (256 - carmour)) / 256;
+            cdamage = (dmg * (256 - carmor)) / 256;
             if (cdamage <= 0)
               cdamage = 1;
             // Apply damage to the thing

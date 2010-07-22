@@ -314,6 +314,7 @@ Version: 0.3.7c
   Fixed disappearing in-game speeches
   Computer player config is reloaded on saved game loading
   Fixed possible hang when computer player moves creatures
+  Added new creature property, "NEVER_CHICKENS"
 
 Version: 0.3.7b
   Fixed crash on freeing swipe sprites at end of mission

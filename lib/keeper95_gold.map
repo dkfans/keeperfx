@@ -537,6 +537,7 @@
  0001:00066100       update_all_events
  0001:00066220       triangulation_initxy
  0001:000663E0       edgelen_init
+ 0001:000665C0       region_alloc
  0001:00066950       regions_connected
  0001:00066A90       pointed_at8
  0001:00066C60       triangulation_border_start
@@ -568,6 +569,7 @@
  0001:0006C140       waypoint_normal
  0001:0006C3B0       path_out_a_bit
  0001:0006C570       route_to_path
+ 0001:0006CC50       gate_route_to_coords
  0001:0006DA40       gate_navigator_init8
  0001:0006DB40       route_through_gates
  0001:0006E050       path_init8_wide

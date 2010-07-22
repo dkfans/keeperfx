@@ -69,7 +69,13 @@ DLLIMPORT void _DK_magic_use_power_hold_audience(unsigned char idx);
 DLLIMPORT long _DK_power_sight_explored(long stl_x, long stl_y, unsigned char plyr_idx);
 DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
 DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char a1, unsigned char a2, unsigned char a3, unsigned char a4, long a5);
+DLLIMPORT long _DK_can_cast_spell_on_creature(long a1, struct Thing *thing, long a3);
 /******************************************************************************/
+long can_cast_spell_on_creature(long a1, struct Thing *thing, long a3)
+{
+  return _DK_can_cast_spell_on_creature(a1, thing, a3);
+}
+
 void update_power_sight_explored(struct PlayerInfo *player)
 {
   SYNCDBG(6,"Starting");
@@ -207,6 +213,12 @@ TbBool pay_for_spell(PlayerNumber plyr_idx, long spkind, long splevel)
     struct MagicStats *magstat;
     long price;
     long i;
+    if ((spkind < 0) || (spkind >= POWER_TYPES_COUNT))
+        return false;
+    if (splevel >= MAGIC_OVERCHARGE_LEVELS)
+        splevel = MAGIC_OVERCHARGE_LEVELS;
+    if (splevel < 0)
+        splevel = 0;
     magstat = &game.magic_stats[spkind];
     switch (spkind)
     {
@@ -238,9 +250,9 @@ void magic_use_power_armageddon(unsigned int plridx)
   _DK_magic_use_power_armageddon(plridx);
 }
 
-short magic_use_power_obey(unsigned short plridx)
+short magic_use_power_obey(unsigned short plyr_idx)
 {
-  return _DK_magic_use_power_obey(plridx);
+  return _DK_magic_use_power_obey(plyr_idx);
 }
 
 void turn_off_sight_of_evil(long plyr_idx)
@@ -273,9 +285,30 @@ void magic_use_power_hold_audience(unsigned char idx)
   _DK_magic_use_power_hold_audience(idx);
 }
 
-void magic_use_power_chicken(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
+TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-  _DK_magic_use_power_chicken(a1, thing, a3, a4, a5);
+    //_DK_magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, splevel);
+    if (!can_cast_spell_at_xy(plyr_idx, 15, stl_x, stl_y, 0)
+     || !can_cast_spell_on_creature(plyr_idx, thing, 15))
+    {
+        if (is_my_player_number(plyr_idx))
+            play_non_3d_sample(119);
+        return Lb_OK;
+    }
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, 27))
+        return Lb_OK;
+    // If we can't afford the spell, fail
+    if (!pay_for_spell(plyr_idx, 15, splevel))
+        return Lb_FAIL;
+    // Check if the creature kind isn't affected by that spell
+    if ((get_creature_model_flags(thing) & MF_NeverChickens) != 0)
+    {
+        return Lb_SUCCESS;
+    }
+    thing_play_sample(thing, 109, 100, 0, 3, 0, 2, 256);
+    apply_spell_effect_to_thing(thing, 27, splevel);
+    return Lb_SUCCESS;
 }
 
 void magic_use_power_disease(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
@@ -297,7 +330,7 @@ TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_
     return Lb_SUCCESS;
 }
 
-short magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Dungeon *dungeon;
     struct Thing *thing;
@@ -310,11 +343,11 @@ short magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCo
     {
       if (is_my_player_number(plyr_idx))
           play_non_3d_sample(119);
-      return 1;
+      return Lb_SUCCESS; //TODO SPELLS we should return Lb_OK here; make sure it will work the same way, then change
     }
     if (!pay_for_spell(plyr_idx, 2, 0))
     {
-        return -1;
+        return Lb_FAIL;
     }
     dungeon = get_players_num_dungeon(plyr_idx);
     dnheart = thing_get(dungeon->dnheart_idx);
@@ -332,7 +365,7 @@ short magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCo
         initialise_thing_state(thing, CrSt_ImpBirth);
         play_creature_sound(thing, 3, 2, 0);
     }
-    return 1;
+    return Lb_SUCCESS;
 }
 
 TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
@@ -358,14 +391,34 @@ TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSub
     return Lb_SUCCESS;
 }
 
-void magic_use_power_conceal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
+TbResult magic_use_power_conceal(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-  _DK_magic_use_power_conceal(a1, thing, a3, a4, a5);
+    //_DK_magic_use_power_conceal(a1, thing, a3, a4, a5);
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, 9))
+        return Lb_OK;
+    // If we can't afford the spell, fail
+    if (!pay_for_spell(plyr_idx, 13, splevel))
+        return Lb_FAIL;
+    thing_play_sample(thing, 154, 100, 0, 3, 0, 2, 256);
+    apply_spell_effect_to_thing(thing, 9, splevel);
+    return Lb_SUCCESS;
 }
 
-void magic_use_power_armour(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
+TbResult magic_use_power_armour(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-  _DK_magic_use_power_armour(a1, thing, a3, a4, a5);
+    //_DK_magic_use_power_armour(plyr_idx, thing, a3, a4, splevel);
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, 4))
+        return Lb_OK;
+    // If we can't afford the spell, fail
+    if (!pay_for_spell(plyr_idx, 12, splevel))
+    {
+        return Lb_FAIL;
+    }
+    thing_play_sample(thing, 153, 100, 0, 3, 0, 2, 256);
+    apply_spell_effect_to_thing(thing, 4, splevel);
+    return Lb_SUCCESS;
 }
 
 long thing_affected_by_spell(struct Thing *thing, long spkind)
@@ -381,7 +434,7 @@ long thing_affected_by_spell(struct Thing *thing, long spkind)
     }
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
-        cspell = &cctrl->field_1D4[i];
+        cspell = &cctrl->casted_spells[i];
         if (cspell->spkind == spkind)
         {
             return cspell->field_1;
@@ -537,6 +590,45 @@ short magic_use_power_slap_thing(unsigned short plyr_idx, struct Thing *thing)
     set_player_instance(player, 3, 0);
     dungeon->lvstats.num_slaps++;
     return 0;
+}
+
+int get_spell_overcharge_level(struct PlayerInfo *player)
+{
+  int i;
+  i = (player->field_4D2 >> 2);
+  if (i > SPELL_MAX_LEVEL)
+    return SPELL_MAX_LEVEL;
+  return i;
+}
+
+TbBool update_spell_overcharge(struct PlayerInfo *player, int spl_idx)
+{
+  struct Dungeon *dungeon;
+  struct MagicStats *mgstat;
+  int i;
+  dungeon = get_dungeon(player->id_number);
+  mgstat = &(game.magic_stats[spl_idx%POWER_TYPES_COUNT]);
+  i = (player->field_4D2+1) >> 2;
+  if (i > SPELL_MAX_LEVEL)
+    i = SPELL_MAX_LEVEL;
+  if (mgstat->cost[i] <= dungeon->field_AF9)
+  {
+    // If we have more money, increase overcharge
+    player->field_4D2++;
+  } else
+  {
+    // If we don't have money, decrease the charge
+    while (mgstat->cost[i] > dungeon->field_AF9)
+    {
+      i--;
+      if (i < 0) break;
+    }
+    if (i >= 0)
+      player->field_4D2 = (i << 2) + 1;
+    else
+      player->field_4D2 = 0;
+  }
+  return (i < SPELL_MAX_LEVEL);
 }
 /******************************************************************************/
 #ifdef __cplusplus
