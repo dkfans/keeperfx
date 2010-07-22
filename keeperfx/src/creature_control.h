@@ -28,13 +28,16 @@ extern "C" {
 #endif
 
 #define MAX_SIZEXY            768
+/** Max amount of spells casted at the creature at once. */
+#define CREATURE_MAX_SPELLS_CASTED_AT 5
+/** Max amount of creatures supported on any map. */
 #define CREATURES_COUNT       256
 /** Percentage of creature pay increase for every experience level. */
 #define CREATURE_PAY_INCREASE_ON_EXP       35
 /** Percentage of creature damage increase for every experience level. */
 #define CREATURE_DAMAGE_INCREASE_ON_EXP    20
 /** Percentage of spell range/area of effect increase for every experience level. */
-#define CREATURE_RANGE_INCREASE_ON_EXP     10
+#define CREATURE_RANGE_INCREASE_ON_EXP     6
 /** Percentage of creature health increase for every experience level. */
 #define CREATURE_HEALTH_INCREASE_ON_EXP    35
 /** Percentage of creature strength increase for every experience level. */
@@ -46,7 +49,6 @@ extern "C" {
 /** Percentage of creature parameter increase for every experience level.
  *  Used for all parameters that have no separate definition. */
 #define CREATURE_PROPERTY_INCREASE_ON_EXP 35
-#define CREATURE_MAX_SPELLS_CASTED_AT 5
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/
@@ -206,7 +208,7 @@ long field_DE[48];
   unsigned short field_1D0;
     char field_1D2;
 unsigned char field_1D3;
-  struct CastedSpellData field_1D4[CREATURE_MAX_SPELLS_CASTED_AT];
+  struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     char field_1E8;
 unsigned char field_1E9[46];
     struct Ariadne arid;

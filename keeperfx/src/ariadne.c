@@ -31,8 +31,6 @@
 #define EDGEOR_COUNT           4
 
 typedef long (*NavRules)(long, long);
-long navigation_map_size_x = 256;
-long navigation_map_size_y = 256;
 
 #ifdef __cplusplus
 extern "C" {
@@ -86,6 +84,8 @@ DLLIMPORT void _DK_tri_split3(long a1, long a2, long a3);
 DLLIMPORT long _DK_pointed_at8(long pos_x, long pos_y, long *retpos_x, long *retpos_y);
 DLLIMPORT long _DK_triangle_brute_find8_near(long pos_x, long pos_y);
 DLLIMPORT void _DK_waypoint_normal(long a1, long a2, long *norm_x, long *norm_y);
+DLLIMPORT void _DK_region_alloc(unsigned long tree_reg);
+DLLIMPORT long _DK_gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, long a6, struct Pathway *pway, long a8);
 /******************************************************************************/
 DLLIMPORT unsigned long _DK_edgelen_initialised;
 #define edgelen_initialised _DK_edgelen_initialised
@@ -142,6 +142,8 @@ unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
 
 const long MOD3[] = {0, 1, 2, 0, 1, 2};
 
+struct RegionT bad_region;
+struct Triangle bad_triangle;
 /*
 unsigned char tag_current;
 unsigned char Tags[9000];
@@ -165,7 +167,7 @@ void route_through_gates(struct Pathway *pway, struct Path *path, long a3);
 long triangle_findSE8(long a1, long a2);
 long ma_triangle_route(long a1, long a2, long *a3);
 void edgelen_init(void);
-unsigned long regions_connected(long tree_reg1, long tree_reg1);
+TbBool regions_connected(long tree_reg1, long tree_reg2);
 TbBool triangle_tip_equals(long ntri, long ncor, long pt_x, long pt_y);
 /******************************************************************************/
 
@@ -245,19 +247,24 @@ long navigation_rule_normal(long a1, long a2)
     return nav_thing_can_travel_over_lava;
 }
 
-long init_navigation(void)
+void init_navigation_map(void)
 {
     long stl_x,stl_y;
-    //return _DK_init_navigation();
     memset(game.navigation_map, 0, navigation_map_size_x*navigation_map_size_y);
     for (stl_y=0; stl_y < navigation_map_size_y; stl_y++)
     {
         for (stl_x=0; stl_x < navigation_map_size_x; stl_x++)
         {
-            game.navigation_map[stl_y*navigation_map_size_x+stl_x] = get_navigation_colour(stl_x, stl_y);
+            set_navigation_map(stl_x, stl_y, get_navigation_colour(stl_x, stl_y));
         }
     }
     nav_map_initialised = 1;
+}
+
+long init_navigation(void)
+{
+    //return _DK_init_navigation();
+    init_navigation_map();
     triangulate_map(IanMap);
     nav_rulesA2B = navigation_rule_normal;
     game.field_14EA4B = 1;
@@ -270,16 +277,7 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
     long x,y;
     //return _DK_update_navigation_triangulation(start_x, start_y, end_x, end_y);
     if (!nav_map_initialised)
-    {
-      for (y = 0; y < 255; y++)
-      {
-        for (x = 0; x < 255; x++)
-        {
-            set_navigation_map(x, y, get_navigation_colour(x, y));
-        }
-      }
-      nav_map_initialised = 1;
-    }
+        init_navigation_map();
     // Prepare parameter bounds
     if (end_x < start_x)
       start_x = end_x;
@@ -358,9 +356,35 @@ void path_out_a_bit(struct Path *path, long *route)
     }
 }
 
-void gate_navigator_init8(struct Pathway *pway, long a2, long a3, long a4, long a5, long a6, unsigned char a7)
+long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, long a6, struct Pathway *pway, long a8)
 {
-    _DK_gate_navigator_init8(pway, a2, a3, a4, a5, a6, a7);
+    return _DK_gate_route_to_coords(trAx, trAy, trBx, trBy, a5, a6, pway, a8);
+}
+
+void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long a6, unsigned char a7)
+{
+    //_DK_gate_navigator_init8(pway, trAx, trAy, trBx, trBy, a6, a7);
+    pway->field_0 = trAx;
+    pway->field_4 = trAy;
+    pway->field_8 = trBx;
+    pway->points_num = 0;
+    pway->field_C = trBy;
+    tree_routelen = -1;
+    tree_triA = triangle_findSE8(trAx, trAy);
+    tree_triB = triangle_findSE8(trBx, trBy);
+    tree_Ax8 = trAx;
+    tree_Ay8 = trAy;
+    tree_Bx8 = trBx;
+    tree_By8 = trBy;
+    tree_altA = Triangles[tree_triA].field_C;
+    tree_altB = Triangles[tree_triB].field_C;
+    if ((tree_triA != -1) && (tree_triB != -1))
+    {
+        tree_routelen = ma_triangle_route(tree_triA, tree_triB, &tree_routecost);
+        if (tree_routelen != -1) {
+            pway->points_num = gate_route_to_coords(trAx, trAy, trBx, trBy, tree_route, tree_routelen, pway, a6);
+        }
+    }
 }
 
 void route_through_gates(struct Pathway *pway, struct Path *path, long mag)
@@ -529,6 +553,7 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
     struct Triangle *tri;
     long ttriH1,ttriH2;
     long mvcost,navrule;
+    long nerrors;
     long i,k,n;
     NAVIDBG(19,"Starting");
     //return _DK_triangle_route_do_fwd(ttriA, ttriB, route, routecost);
@@ -541,11 +566,9 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
     triangulation_border_tag();
 
     naviheap_init();
+    nerrors = 0;
     if (!navitree_add(ttriB, ttriB, 1))
-    {
-        erstat_inc(ESE_BadPathHeap);
-        ERRORLOG("navigate heap overflow just after clear");
-    }
+        nerrors++;
     while (ttriA != naviheap_top())
     {
         if (naviheap_empty())
@@ -579,10 +602,7 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
                       if (navrule == 2)
                           mvcost *= 16;
                       if (!navitree_add(k,ttriH1,mvcost))
-                      {
-                          erstat_inc(ESE_BadPathHeap);
-                          ERRORDBG(6,"navigate heap overflow");
-                      }
+                          nerrors++;
                     }
                 }
               }
@@ -593,6 +613,11 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
             ttriH1 = ttriH2;
             ttriH2 = -1;
         }
+    }
+    if (nerrors != 0)
+    {
+        erstat_inc(ESE_BadPathHeap);
+        ERRORDBG(6,"navigate heap overflow, %ld points ignored",nerrors);
     }
 
     NAVIDBG(19,"Nearly finished");
@@ -611,6 +636,7 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
     struct Triangle *tri;
     long ttriH1,ttriH2;
     long mvcost,navrule;
+    long nerrors;
     long i,k,n;
     NAVIDBG(19,"Starting");
     //return _DK_triangle_route_do_bak(ttriA, ttriB, route, routecost);
@@ -623,11 +649,9 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
     triangulation_border_tag();
 
     naviheap_init();
+    nerrors = 0;
     if (!navitree_add(ttriB, ttriB, 1))
-    {
-        erstat_inc(ESE_BadPathHeap);
-        ERRORLOG("navigate heap overflow just after clear");
-    }
+        nerrors++;
     while (ttriA != naviheap_top())
     {
         if (naviheap_empty())
@@ -661,10 +685,7 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
                       if (navrule == 2)
                           mvcost *= 16;
                       if (!navitree_add(k,ttriH1,mvcost))
-                      {
-                          erstat_inc(ESE_BadPathHeap);
-                          ERRORDBG(6,"navigate heap overflow");
-                      }
+                          nerrors++;
                     }
                 }
               }
@@ -675,6 +696,11 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
             ttriH1 = ttriH2;
             ttriH2 = -1;
         }
+    }
+    if (nerrors != 0)
+    {
+        erstat_inc(ESE_BadPathHeap);
+        ERRORDBG(6,"navigate heap overflow, %ld points ignored",nerrors);
     }
 
     NAVIDBG(19,"Nearly finished");
@@ -748,9 +774,54 @@ void edgelen_init(void)
     _DK_edgelen_init();
 }
 
-unsigned long regions_connected(long tree_reg1, long tree_reg2)
+void region_alloc(unsigned long tree_reg)
 {
-    return _DK_regions_connected(tree_reg1, tree_reg2);
+    _DK_region_alloc(tree_reg); return;
+}
+
+struct RegionT *get_region(long reg_id)
+{
+    if ((reg_id < 0) || (reg_id >= REGIONS_COUNT))
+        return INVALID_REGION;
+    return &Regions[reg_id];
+}
+
+long get_triangle_region_id(long tri_id)
+{
+    long reg_id;
+    if ((tri_id < 0) || (tri_id >= TRIANLGLES_COUNT))
+        return -1;
+    return (Triangles[tri_id].field_E >> 6);
+}
+
+TbBool set_triangle_region_id(long tri_id, long reg_id)
+{
+    if ((tri_id < 0) || (tri_id >= TRIANLGLES_COUNT))
+        return false;
+    Triangles[tri_id].field_E &= 0x003F;
+    Triangles[tri_id].field_E |= (reg_id << 6);
+    return true;
+}
+
+TbBool regions_connected(long tree_reg1, long tree_reg2)
+{
+    long reg_id1,reg_id2;
+    //return _DK_regions_connected(tree_reg1, tree_reg2);
+    if ((tree_reg1 < 0) || (tree_reg1 >= TRIANLGLES_COUNT))
+        return false;
+    if ((tree_reg2 < 0) || (tree_reg2 >= TRIANLGLES_COUNT))
+        return false;
+    if (((Triangles[tree_reg1].field_C & 0x0F) == 0x0F)
+    ||  ((Triangles[tree_reg2].field_C & 0x0F) == 0x0F))
+        return false;
+    reg_id1 = get_triangle_region_id(tree_reg1);
+    reg_id2 = get_triangle_region_id(tree_reg2);
+    if (Regions[reg_id1].field_2 == 1)
+        return (reg_id2 == reg_id1);
+    if (Regions[reg_id2].field_2 == 1)
+        return (reg_id2 == reg_id1);
+    region_alloc(tree_reg1);
+    return ((Triangles[tree_reg2].field_E ^ Triangles[tree_reg1].field_E) & 0xFFC0) == 0;
 }
 
 TbBool ariadne_creature_reached_position(struct Thing *thing, struct Coord3d *pos)
@@ -1694,7 +1765,7 @@ void region_set_f(long ntri, unsigned long nreg, const char *func_name)
         return;
     }
     // Get old region
-    oreg = Triangles[ntri].field_E >> 6;
+    oreg = get_triangle_region_id(ntri);;
     // If the region changed
     if (oreg != nreg)
     {
@@ -1705,8 +1776,7 @@ void region_set_f(long ntri, unsigned long nreg, const char *func_name)
             Regions[oreg].field_2 = 0;
         }
         // And add to new one
-        Triangles[ntri].field_E &= 0x3F;
-        Triangles[ntri].field_E |= (nreg << 6);
+        set_triangle_region_id(ntri, nreg);
         Regions[nreg].field_0++;
     }
 }
