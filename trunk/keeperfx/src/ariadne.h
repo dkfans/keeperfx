@@ -204,6 +204,10 @@ DLLIMPORT struct Path _DK_bak_path;
 
 /******************************************************************************/
 extern unsigned char const actual_sizexy_to_nav_block_sizexy_table[];
+extern struct RegionT bad_region;
+#define INVALID_REGION &bad_region;
+extern struct Triangle bad_triangle;
+#define INVALID_TRIANGLE &bad_triangle;
 /******************************************************************************/
 long init_navigation(void);
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);

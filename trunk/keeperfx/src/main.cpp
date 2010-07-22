@@ -238,7 +238,6 @@ DLLIMPORT long _DK_load_cube_file(void);
 DLLIMPORT void _DK_init_colours(void);
 DLLIMPORT long _DK_init_sound_heap_two_banks(unsigned char *a1, long a2, char *a3, char *a4, long a5);
 DLLIMPORT void _DK_process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6);
-DLLIMPORT long _DK_can_cast_spell_on_creature(long a1, struct Thing *thing, long a3);
 DLLIMPORT void _DK_place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
@@ -4959,45 +4958,6 @@ void remove_events_thing_is_attached_to(struct Thing *thing)
   _DK_remove_events_thing_is_attached_to(thing);
 }
 
-int get_spell_overcharge_level(struct PlayerInfo *player)
-{
-  int i;
-  i = (player->field_4D2 >> 2);
-  if (i > SPELL_MAX_LEVEL)
-    return SPELL_MAX_LEVEL;
-  return i;
-}
-
-short update_spell_overcharge(struct PlayerInfo *player, int spl_idx)
-{
-  struct Dungeon *dungeon;
-  struct MagicStats *mgstat;
-  int i;
-  dungeon = get_dungeon(player->id_number);
-  mgstat = &(game.magic_stats[spl_idx%POWER_TYPES_COUNT]);
-  i = (player->field_4D2+1) >> 2;
-  if (i > SPELL_MAX_LEVEL)
-    i = SPELL_MAX_LEVEL;
-  if (mgstat->cost[i] <= dungeon->field_AF9)
-  {
-    // If we have more money, increase overcharge
-    player->field_4D2++;
-  } else
-  {
-    // If we don't have money, decrease the charge
-    while (mgstat->cost[i] > dungeon->field_AF9)
-    {
-      i--;
-      if (i < 0) break;
-    }
-    if (i >= 0)
-      player->field_4D2 = (i << 2) + 1;
-    else
-      player->field_4D2 = 0;
-  }
-  return (i < SPELL_MAX_LEVEL);
-}
-
 long take_money_from_dungeon(PlayerNumber plyr_idx, long a2, unsigned char a3)
 {
   return _DK_take_money_from_dungeon(plyr_idx, a2, a3);
@@ -7654,11 +7614,6 @@ void draw_sound_stuff(void)
       LbTextDraw(px[i]/pixel_size, py[i]/pixel_size, text);
     play_non_3d_sample_no_overlap(90);
   }
-}
-
-long can_cast_spell_on_creature(long a1, struct Thing *thing, long a3)
-{
-  return _DK_can_cast_spell_on_creature(a1, thing, a3);
 }
 
 void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned char stl_x, unsigned char stl_y)

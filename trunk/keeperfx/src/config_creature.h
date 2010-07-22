@@ -41,6 +41,7 @@ enum CreatureModelFlags {
     MF_IsLordOTLand   = 0x0008, // simply, Knight
     MF_IsSpectator    = 0x0010, // simply, Floating spirit
     MF_IsEvil         = 0x0020, // All evil creatures
+    MF_NeverChickens  = 0x0040, // Cannot be affected by Chicken (for Avatar)
 };
 
 enum CreatureJobFlags {
