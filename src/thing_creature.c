@@ -831,9 +831,7 @@ long process_creature_state(struct Thing *thing)
   long x,y;
   long k;
   SYNCDBG(18,"Starting");
-//TODO: rework! (causes hang if out of things)
   //return _DK_process_creature_state(thing);
-
   cctrl = creature_control_get_from_thing(thing);
   process_person_moods_and_needs(thing);
   if (creature_available_for_combat_this_turn(thing))

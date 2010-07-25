@@ -164,6 +164,45 @@ long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxFilte
     return -1;
 }
 
+long map_block_thing_filter_is_of_class_and_model_and_owned_by(const struct Thing *thing, MaxFilterParam param, long maximizer)
+{
+    if (thing->class_id == param->class_id)
+    {
+      if ((thing->model == param->model_id) || (param->model_id == -1))
+      {
+          if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
+          {
+              // Return the largest value to stop sweeping
+              return LONG_MAX;
+          }
+      }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+long map_block_creature_filter_of_model_training_and_owned_by(const struct Thing *thing, MaxFilterParam param, long maximizer)
+{
+    struct CreatureControl *cctrl;
+    if (thing->class_id == TCls_Creature)
+    {
+      if ((thing->model == param->model_id) || (param->model_id == -1))
+      {
+          if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
+          {
+              cctrl = creature_control_get_from_thing(thing);
+              if ((thing->field_7 == CrSt_Training) && (cctrl->byte_9A > 1))
+              {
+                  // Return the largest value to stop sweeping
+                  return LONG_MAX;
+              }
+          }
+      }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
 /**
  * Makes per game turn update of all things in given StructureList.
  * @param list List of things to process.
@@ -922,7 +961,7 @@ struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer
  * immediately and no further things will be checked.
  * @return Returns thing, or invalid thing pointer if not found.
  */
-struct Thing *get_thing_near_map_block_with_filter(MapCoord x, MapCoord y, Thing_Maximizer_Filter filter, MaxFilterParam param)
+struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord y, Thing_Maximizer_Filter filter, MaxFilterParam param)
 {
     struct Thing *thing;
     struct Thing *retng;
@@ -1247,7 +1286,7 @@ struct Thing *get_creature_near_but_not_specdigger(MapCoord pos_x, MapCoord pos_
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
     param.num2 = pos_y;
-    return get_thing_near_map_block_with_filter(pos_x, pos_y, filter, &param);
+    return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
 /** Finds creature on revealed subtiles around given position, who is not special digger and is enemy to given player.
@@ -1267,7 +1306,7 @@ struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
     param.num2 = pos_y;
-    return get_thing_near_map_block_with_filter(pos_x, pos_y, filter, &param);
+    return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
 /** Finds creature on revealed subtiles around given position, who belongs to given player.
@@ -1287,7 +1326,49 @@ struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, lon
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
     param.num2 = pos_y;
-    return get_thing_near_map_block_with_filter(pos_x, pos_y, filter, &param);
+    return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
+}
+
+struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
+    const struct Map *mapblk;
+    long i,n;
+    SYNCDBG(19,"Starting");
+    filter = map_block_thing_filter_is_of_class_and_model_and_owned_by;
+    param.class_id = TCls_Object;
+    param.model_id = model;
+    param.plyr_idx = plyr_idx;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+    {
+        return INVALID_THING;
+    }
+    i = get_mapwho_thing_index(mapblk);
+    n = 0;
+    return get_thing_on_map_block_with_filter(i, filter, &param, &n);
+}
+
+struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model_id, long plyr_idx)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
+    const struct Map *mapblk;
+    long i,n;
+    SYNCDBG(19,"Starting");
+    filter = map_block_creature_filter_of_model_training_and_owned_by;
+    param.class_id = TCls_Creature;
+    param.model_id = model_id;
+    param.plyr_idx = plyr_idx;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+    {
+        return INVALID_THING;
+    }
+    i = get_mapwho_thing_index(mapblk);
+    n = 0;
+    return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 /******************************************************************************/
 #ifdef __cplusplus

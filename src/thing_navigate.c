@@ -189,6 +189,34 @@ TbBool setup_person_move_close_to_position(struct Thing *thing, long x, long y, 
   return true;
 }
 
+TbBool setup_person_move_backwards_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char a4)
+{
+    struct CreatureControl *cctrl;
+    struct Coord3d pos;
+    cctrl = creature_control_get_from_thing(thing);
+    pos.x.stl.num = stl_x;
+    pos.y.stl.num = stl_y;
+    pos.x.stl.pos = 128;
+    pos.y.stl.pos = 128;
+    pos.z.val = 0;
+    pos.z.val = get_thing_height_at(thing, &pos);
+    if (thing_in_wall_at(thing, &pos) || !creature_can_navigate_to_with_storage(thing, &pos, a4))
+    {
+      return false;
+    }
+    cctrl->field_88 = a4;
+    internal_set_thing_state(thing, 71);
+    cctrl->moveto_pos.x.val = pos.x.val;
+    cctrl->moveto_pos.y.val = pos.y.val;
+    cctrl->moveto_pos.z.val = pos.z.val;
+    return true;
+}
+
+TbBool setup_person_move_backwards_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char a4)
+{
+    return setup_person_move_backwards_to_position(thing, pos->x.stl.num, pos->y.stl.num, a4);
+}
+
 TbBool creature_can_travel_over_lava(struct Thing *thing)
 {
     struct CreatureStats *crstat;
@@ -344,6 +372,11 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, shor
         SYNCDBG(18,"Forward target set");
     }
     return 0;
+}
+
+long creature_move_to(struct Thing *thing, struct Coord3d *pos, short a3, unsigned char a4, unsigned char a5)
+{
+    return creature_move_to_using_gates(thing, pos, a3, -2, a4, a5);
 }
 
 short move_to_position(struct Thing *thing)

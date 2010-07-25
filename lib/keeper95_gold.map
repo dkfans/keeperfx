@@ -910,6 +910,8 @@
  0001:000A9890       guarding
  0001:000A9940       at_training_room
  0001:000A9A80       training
+ 0001:000A9D00       setup_move_to_new_training_position
+ 0001:000A9F20       process_creature_in_training_room
  0001:000AA9C0       player_can_afford_to_train_creature
  0001:000AAA00       creature_can_be_trained
  0001:000AC500       frontend_draw_vlarge_menu_button

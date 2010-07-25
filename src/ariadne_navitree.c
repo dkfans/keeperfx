@@ -46,17 +46,46 @@ void nodes_classify(void)
 {
 }
 
+/** Initializes navigation heap for new use.
+ */
 void naviheap_init(void)
 {
-  heap_end = 0;
+    heap_end = 0;
 }
 
+/** Checks if the navigation heap is empty.
+ *
+ * @return
+ */
 TbBool naviheap_empty(void)
 {
     return (heap_end == 0);
 }
 
-long heap_item_tree_val(long heapid)
+/** Retrieves top element of the navigation heap.
+ *
+ * @return
+ */
+long naviheap_top(void)
+{
+    if (heap_end < 1)
+        return -1;
+    return Heap[1];
+}
+
+/** Retrieves given element of the navigation heap.
+ *
+ * @param heapid
+ * @return
+ */
+long naviheap_get(long heapid)
+{
+    if ((heapid < 0) || (heapid > heap_end+1))
+        return -1;
+    return Heap[heapid];
+}
+
+long naviheap_item_tree_val(long heapid)
 {
     long tree_id;
     if ((heapid < 0) || (heapid >= PATH_HEAP_LEN))
@@ -92,7 +121,7 @@ void heap_down(long heapid)
     while (hpos <= hend)
     {
         hnew = (hpos << 1);
-        if (heap_item_tree_val(hnew) < heap_item_tree_val(hnew+1))
+        if (naviheap_item_tree_val(hnew) < naviheap_item_tree_val(hnew+1))
             hnew++;
         tree_ids = Heap[hnew];
         if (tree_val[tree_ids] > tval_idb)
@@ -110,6 +139,11 @@ void heap_down(long heapid)
 long naviheap_remove(void)
 {
   long popval;
+  if (heap_end < 1)
+  {
+      erstat_inc(ESE_BadPathHeap);
+      return -1;
+  }
   popval = Heap[1];
   Heap[1] = Heap[heap_end];
   heap_end--;
@@ -155,11 +189,6 @@ TbBool naviheap_add(long heapid)
     Heap[heap_end] = heapid;
     heap_up(heap_end);
     return true;
-}
-
-long naviheap_top(void)
-{
-    return Heap[1];
 }
 
 void tree_init(void)

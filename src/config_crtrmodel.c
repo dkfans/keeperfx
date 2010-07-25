@@ -162,7 +162,7 @@ const struct NamedCommand creatmodel_jobs_commands[] = {
   {"SCAVENGERCOST",        8},
   {"RESEARCHVALUE",        9},
   {"MANUFACTUREVALUE",    10},
-  {"REALTRAINING",        11},
+  {"PARTNERTRAINING",     11},
   {NULL,                   0},
   };
 
@@ -1614,7 +1614,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
         crstat->scavenger_cost = 0;
         crstat->research_value = 0;
         crstat->manufacture_value = 0;
-        crstat->real_training = 0;
+        crstat->partner_training = 0;
     }
     // Find the block
     sprintf(block_buf,"jobs");
@@ -1778,11 +1778,11 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 11: // REALTRAINING
+        case 11: // PARTNERTRAINING
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->real_training = k;
+              crstat->partner_training = k;
               n++;
             }
             if (n < 1)

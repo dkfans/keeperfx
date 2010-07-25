@@ -8060,7 +8060,7 @@ struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long ply
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
     param.num2 = pos_y;
-    return get_thing_near_map_block_with_filter(pos_x, pos_y, filter, &param);
+    return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
 void tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4)

@@ -42,7 +42,11 @@ RES      = obj/keeperfx_stdres.res
 LIBS     = obj/libkeeperfx.a  directx/lib/libddraw.a
 OBJS = \
 obj/ariadne.o \
+obj/ariadne_edge.o \
 obj/ariadne_navitree.o \
+obj/ariadne_points.o \
+obj/ariadne_regions.o \
+obj/ariadne_tringls.o \
 obj/actionpt.o \
 obj/bflib_basics.o \
 obj/bflib_cpu.o \
