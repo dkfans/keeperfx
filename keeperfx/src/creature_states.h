@@ -253,8 +253,8 @@ TbBool creature_is_taking_salary_activity(const struct Thing *thing);
 TbBool creature_is_doing_temple_activity(const struct Thing *thing);
 TbBool creature_state_is_unset(const struct Thing *thing);
 TbBool remove_creature_from_work_room(struct Thing *thing);
-long creature_can_be_trained(struct Thing *thing);
-long player_can_afford_to_train_creature(struct Thing *thing);
+TbBool creature_can_be_trained(struct Thing *thing);
+TbBool player_can_afford_to_train_creature(struct Thing *thing);
 long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3);
 long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
 

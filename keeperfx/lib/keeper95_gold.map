@@ -1759,6 +1759,8 @@
  0001:000883A0       check_place_to_reinforce
  0001:0008D1B0       find_dig_from_task_list
  0001:000B6D80       find_nearest_room_for_thing_with_spare_item_capacity
+ 0001:000A9D00       setup_move_to_new_training_position
+ 0001:000A9F20       process_creature_in_training_room
  0001:000885F0       check_place_to_pickup_crate
  0001:0008D110       remove_from_task_list
  0001:000B1970       mine_out_block
