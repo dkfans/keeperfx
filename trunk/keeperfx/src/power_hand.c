@@ -460,7 +460,7 @@ struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
     param.num2 = pos_y;
-    return get_thing_near_map_block_with_filter(pos_x, pos_y, filter, &param);
+    return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
 long place_thing_in_power_hand(struct Thing *thing, long var)

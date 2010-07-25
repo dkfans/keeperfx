@@ -1703,17 +1703,17 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
     unsigned long k;
     long i,n;
     dungeon = comp->dungeon;
-    i = room->field_3D;
+    i = room->creatures_list;
     k = 0;
     while (i != 0)
     {
       thing = thing_get(i);
-      if (thing_is_invalid(thing))
+      cctrl = creature_control_get_from_thing(thing);
+      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
       {
-        ERRORLOG("Jump to invalid thing detected");
+        ERRORLOG("Jump to invalid creature %ld detected",i);
         break;
       }
-      cctrl = creature_control_get_from_thing(thing);
       i = cctrl->field_2AA;
       // Per creature code
       if (!thing_affected_by_spell(thing, 11))

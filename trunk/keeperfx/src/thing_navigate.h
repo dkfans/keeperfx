@@ -45,6 +45,8 @@ DLLIMPORT long _DK_nav_thing_can_travel_over_lava;
 /******************************************************************************/
 TbBool setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char a4);
 TbBool setup_person_move_close_to_position(struct Thing *thing, long x, long y, unsigned char a4);
+TbBool setup_person_move_backwards_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char a4);
+TbBool setup_person_move_backwards_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char a4);
 TbBool creature_can_travel_over_lava(struct Thing *thing);
 TbBool creature_can_navigate_to(struct Thing *thing, struct Coord3d *pos, TbBool no_owner);
 TbBool creature_can_navigate_to_with_storage(struct Thing *crtng, struct Coord3d *pos, unsigned char storage);
@@ -52,6 +54,7 @@ TbBool creature_can_get_to_dungeon(struct Thing *thing, long plyr_idx);
 struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng);
 
 long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, short a3, long a4, long a5, unsigned char a6);
+long creature_move_to(struct Thing *thing, struct Coord3d *pos, short a3, unsigned char a4, unsigned char a5);
 short move_to_position(struct Thing *thing);
 long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos);
 long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos);

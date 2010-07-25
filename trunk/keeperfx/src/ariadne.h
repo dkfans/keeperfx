@@ -27,10 +27,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define TREE_ROUTE_LEN 3000
-#define TRIANLGLES_COUNT 9000
 #define BORDER_LENGTH 100
-#define REGIONS_COUNT 300
-#define POINTS_COUNT 4500
 #define ROUTE_LENGTH 12000
 
 /******************************************************************************/
@@ -85,19 +82,6 @@ struct Path { // sizeof = 2068
     struct PathWayPoint waypoints[256];
 };
 
-struct Triangle { // sizeof = 16
-  short field_0[3];
-  short field_6[3];
-  unsigned char field_C; // 255 is a special value here
-  unsigned char field_D;
-  unsigned short field_E;
-};
-
-struct Point { // sizeof = 18
-  short x;
-  short y;
-};
-
 struct PathPoint { // sizeof = 28
   long field_0;
   long field_4;
@@ -124,11 +108,6 @@ struct WayPoints { // sizeof = 1040
   long field_8;
   long field_C;
   long field_10[256];
-};
-
-struct RegionT { // sizeof = 3
-  unsigned short field_0;
-  unsigned char field_2;
 };
 
 #ifdef __cplusplus
@@ -161,12 +140,6 @@ DLLIMPORT long _DK_tree_Bx8;
 #define tree_Bx8 _DK_tree_Bx8
 DLLIMPORT long _DK_tree_By8;
 #define tree_By8 _DK_tree_By8
-DLLIMPORT long _DK_tri_initialised;
-#define tri_initialised _DK_tri_initialised
-DLLIMPORT struct Triangle _DK_Triangles[TRIANLGLES_COUNT];
-#define Triangles _DK_Triangles
-DLLIMPORT long _DK_count_Triangles;
-#define count_Triangles _DK_count_Triangles
 DLLIMPORT unsigned char *_DK_LastTriangulatedMap;
 #define LastTriangulatedMap _DK_LastTriangulatedMap
 DLLIMPORT unsigned char *_DK_fringe_map;
@@ -189,10 +162,6 @@ DLLIMPORT long _DK_ix_Border;
 //#define count_RegionQ _DK_count_RegionQ
 DLLIMPORT long _DK_Border[BORDER_LENGTH];
 #define Border _DK_Border
-DLLIMPORT struct Point _DK_Points[POINTS_COUNT];
-#define Points _DK_Points
-DLLIMPORT struct RegionT _DK_Regions[REGIONS_COUNT];
-#define Regions _DK_Regions
 DLLIMPORT long _DK_route_fwd[ROUTE_LENGTH];
 #define route_fwd _DK_route_fwd
 DLLIMPORT long _DK_route_bak[ROUTE_LENGTH];
@@ -204,10 +173,6 @@ DLLIMPORT struct Path _DK_bak_path;
 
 /******************************************************************************/
 extern unsigned char const actual_sizexy_to_nav_block_sizexy_table[];
-extern struct RegionT bad_region;
-#define INVALID_REGION &bad_region;
-extern struct Triangle bad_triangle;
-#define INVALID_TRIANGLE &bad_triangle;
 /******************************************************************************/
 long init_navigation(void);
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
@@ -217,11 +182,8 @@ void path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, 
 long get_navigation_colour(long stl_x, long stl_y);
 TbBool border_clip_horizontal(unsigned char *imap, long a1, long a2, long a3, long a4);
 TbBool border_clip_vertical(unsigned char *imap, long a1, long a2, long a3, long a4);
-long link_find(long ntri, long val);
 #define edge_lock(fin_x, fin_y, bgn_x, bgn_y) edge_lock_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
 TbBool edge_lock_f(long fin_x, long fin_y, long bgn_x, long bgn_y, const char *func_name);
-#define region_set(ntri, nreg) region_set_f(ntri, nreg, __func__)
-void region_set_f(long ntri, unsigned long nreg, const char *func_name);
 void border_internal_points_delete(long a1, long a2, long a3, long a4);
 void tri_set_rectangle(long a1, long a2, long a3, long a4, unsigned char a5);
 long fringe_get_rectangle(long *a1, long *a2, long *a3, long *a4, unsigned char *a5);

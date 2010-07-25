@@ -234,6 +234,8 @@ DLLIMPORT long _DK_get_best_melee_offensive_weapon(struct Thing *thing, long a2)
 DLLIMPORT long _DK_melee_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4);
 DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
 DLLIMPORT short _DK_creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
+DLLIMPORT void _DK_process_creature_in_training_room(struct Thing *thing, struct Room *room);
+DLLIMPORT void _DK_setup_move_to_new_training_position(struct Thing *thing, struct Room *room, unsigned long a3);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *thing);
 short arrive_at_alarm(struct Thing *thing);
@@ -3252,16 +3254,6 @@ short imp_improves_dungeon(struct Thing *thing)
   return _DK_imp_improves_dungeon(thing);
 }
 
-long creature_can_be_trained(struct Thing *thing)
-{
-  return _DK_creature_can_be_trained(thing);
-}
-
-long player_can_afford_to_train_creature(struct Thing *thing)
-{
-  return _DK_player_can_afford_to_train_creature(thing);
-}
-
 short imp_last_did_job(struct Thing *thing)
 {
     //return _DK_imp_last_did_job(thing);
@@ -3817,10 +3809,580 @@ short torturing(struct Thing *thing)
   return _DK_torturing(thing);
 }
 
+/** Returns if the creature meets conditions to be trained.
+ *
+ * @param thing The creature thing to be tested.
+ * @return
+ */
+TbBool creature_can_be_trained(struct Thing *thing)
+{
+    struct Dungeon *dungeon;
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    //return _DK_creature_can_be_trained(thing);
+    dungeon = get_dungeon(thing->owner);
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    // Creatures without training value can't be trained
+    if (crstat->training_value == 0)
+        return false;
+    // Creatures which reached players max level can't be trained
+    if (cctrl->explevel >= dungeon->creature_max_level[thing->model])
+        return false;
+    // Creatures which reached absolute max level and have no grow up creature
+    if ((cctrl->explevel >= 9) && (crstat->grow_up == 0))
+        return false;
+    return true;
+}
+
+TbBool player_can_afford_to_train_creature(struct Thing *thing)
+{
+    struct Dungeon *dungeon;
+    struct CreatureStats *crstat;
+    //return _DK_player_can_afford_to_train_creature(thing);
+    dungeon = get_dungeon(thing->owner);
+    crstat = creature_stats_get_from_thing(thing);
+    return (dungeon->field_AF9 >= crstat->training_cost);
+}
+
+long process_work_speed_on_work_value(struct Thing *thing, long base_val)
+{
+    struct Dungeon *dungeon;
+    struct CreatureControl *cctrl;
+    long val;
+    cctrl = creature_control_get_from_thing(thing);
+    val = base_val;
+    if ((cctrl->spell_flags & CSF_Speed) != 0)
+        val = 2 * val;
+    if (cctrl->field_21)
+        val = 4 * val / 3;
+    if (thing->owner != game.neutral_player_num)
+    {
+        dungeon = get_dungeon(thing->owner);
+        if (dungeon->field_1420[thing->model])
+            val = 4 * val / 3;
+        if (dungeon->field_888)
+            val = 6 * val / 5;
+    }
+    return val;
+}
+
+TbBool check_experience_upgrade(struct Thing *thing)
+{
+    struct Dungeon *dungeon;
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    long i;
+    dungeon = get_dungeon(thing->owner);
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    i = crstat->to_level[cctrl->explevel] << 8;
+    if (cctrl->field_24 < i)
+        return false;
+    cctrl->field_24 -= i;
+    if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
+    {
+      if ((cctrl->explevel < 9) || (crstat->grow_up != 0))
+        cctrl->field_AD |= 0x40;
+    }
+    return true;
+}
+
+void setup_training_move(struct Thing *thing, SubtlCodedCoords stl_num)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->moveto_pos.x.stl.num = stl_num_decode_x(stl_num);
+    cctrl->moveto_pos.x.stl.pos = 128;
+    cctrl->moveto_pos.y.stl.num = stl_num_decode_y(stl_num);
+    cctrl->moveto_pos.y.stl.pos = 128;
+    cctrl->moveto_pos.z.val = get_thing_height_at(thing, &cctrl->moveto_pos);
+    if (thing_in_wall_at(thing, &cctrl->moveto_pos))
+    {
+        ERRORLOG("Illegal setup to (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
+        set_start_state(thing);
+    }
+}
+
+struct Thing *get_creature_in_training_room_which_could_accept_partner(struct Room *room, struct Thing *partnertng)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    long i;
+    i = room->creatures_list;
+    k = 0;
+    while (i != 0)
+    {
+      thing = thing_get(i);
+      cctrl = creature_control_get_from_thing(thing);
+      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+      {
+          ERRORLOG("Jump to invalid creature %ld detected",i);
+        break;
+      }
+      i = cctrl->field_2AA;
+      // Per creature code
+      if (thing != partnertng)
+      {
+        if (cctrl->word_9F == 0)
+        {
+          return thing;
+        }
+      }
+      // Per creature code ends
+      k++;
+      if (k > THINGS_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping creatures list");
+        break;
+      }
+    }
+    return INVALID_THING;
+}
+
+void setup_move_to_new_training_position(struct Thing *thing, struct Room *room, unsigned long a3)
+{
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct Thing *prtng;
+    struct CreatureControl *prctrl;
+    struct Coord3d pos;
+    SYNCDBG(8,"Starting");
+    //_DK_setup_move_to_new_training_position(thing, room, a3);
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    if ( a3 )
+      cctrl->byte_9E = 50;
+    if ((crstat->partner_training > 0) && (ACTION_RANDOM(100) < crstat->partner_training))
+    {
+        prtng = get_creature_in_training_room_which_could_accept_partner(room, thing);
+        if (!thing_is_invalid(prtng))
+        {
+            prctrl = creature_control_get_from_thing(thing);
+            prctrl->byte_9A = 6;
+            prctrl->byte_9B = 75;
+            prctrl->word_9F = thing->index;
+            prctrl->long_A1 = thing->field_9;
+            cctrl->byte_9A = 6;
+            cctrl->byte_9B = 75;
+            cctrl->word_9F = prtng->index;
+            cctrl->long_A1 = prtng->field_9;
+            return;
+      }
+    }
+    cctrl->byte_9A = 1;
+    if (find_random_valid_position_for_thing_in_room(thing, room, &pos))
+    {
+      cctrl->moveto_pos.x.stl.num = pos.x.stl.num;
+      cctrl->moveto_pos.x.stl.pos = 128;
+      cctrl->moveto_pos.y.stl.num = pos.y.stl.num;
+      cctrl->moveto_pos.y.stl.pos = 128;
+      cctrl->moveto_pos.z.val = get_thing_height_at(thing, &cctrl->moveto_pos);
+      if (thing_in_wall_at(thing, &cctrl->moveto_pos))
+      {
+          ERRORLOG("Illegal setup to wall at (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
+          set_start_state(thing);
+      }
+    }
+    if (cctrl->field_D2 == 0)
+    {
+      set_creature_instance(thing, 1, 1, 0, 0);
+    }
+    SYNCDBG(8,"End");
+}
+
+void setup_training_search_for_post(struct Thing *thing)
+{
+    struct Room *room;
+    struct Thing *traintng;
+    long start_slab;
+    long slb_x,slb_y;
+    long i,k;
+    room = subtile_room_get(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    // Let's start from a random slab
+    slb_x = -1;
+    slb_y = -1;
+    start_slab = ACTION_RANDOM(room->slabs_count);
+    k = start_slab;
+    i = room->slabs_list;
+    while (i != 0)
+    {
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        i = get_next_slab_number_in_room(i);
+        if (k <= 0)
+            break;
+        k--;
+    }
+    // Got random starting slab, now sweep room slabs from it
+    traintng = INVALID_THING;
+    k = room->slabs_count;
+    i = get_slab_number(slb_x,slb_y);
+    while (k > 0)
+    {
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        i = get_next_slab_number_in_room(i);
+        if (i == 0)
+          i = room->slabs_list;
+        // Per room tile code - find a training post
+        traintng = get_object_at_subtile_of_model_and_owned_by(3*slb_x+1, 3*slb_y+1, 31, thing->owner);
+        if (!thing_is_invalid(traintng))
+            break;
+        // Per room tile code ends
+        k--;
+    }
+    // Got trainer (or not...), now do the correct action
+    if (thing_is_invalid(traintng))
+    {
+        SYNCDBG(6,"Room no longer have training post, moving somewhere else.");
+        setup_move_to_new_training_position(thing, room, 1);
+    } else
+    {
+        i = get_subtile_number(traintng->mappos.x.stl.num,traintng->mappos.y.stl.num);
+        setup_training_move(thing, i);
+    }
+}
+
+long creature_retreat_from_combat(struct Thing *thing1, struct Thing *thing2, long a3, long a4)
+{
+    struct CreatureControl *cctrl1;
+    struct Coord3d pos;
+    long dist_x,dist_y;
+    long i;
+
+    cctrl1 = creature_control_get_from_thing(thing1);
+    dist_x = thing2->mappos.x.val - thing1->mappos.x.val;
+    dist_y = thing2->mappos.y.val - thing1->mappos.y.val;
+    if (a4 && ((cctrl1->field_3 & 0x18) == 0))
+    {
+        pos.x.val = thing1->mappos.x.val - dist_x;
+        pos.y.val = thing1->mappos.y.val - dist_y;
+        pos.z.val = get_thing_height_at(thing1, &pos);
+        if (creature_move_to(thing1, &pos, cctrl1->max_speed, 0, 1) != -1)
+        {
+           return 1;
+        }
+    }
+    // First try
+    pos.x.val = thing1->mappos.x.val;
+    pos.y.val = thing1->mappos.y.val;
+    if (abs(dist_y) >= abs(dist_x))
+    {
+      if (dist_y <= 0)
+        pos.y.val += 256;
+      else
+        pos.y.val -= 256;
+    } else
+    {
+      if (dist_x <= 0)
+        pos.x.val += 256;
+      else
+        pos.x.val -= 256;
+    }
+    pos.z.val = get_thing_height_at(thing1, &pos);
+
+    if (setup_person_move_backwards_to_coord(thing1, &pos, 0))
+    {
+      thing1->field_8 = a3;
+      return 1;
+    }
+    // Second try
+    pos.x.val = thing1->mappos.x.val;
+    pos.y.val = thing1->mappos.y.val;
+    if (ACTION_RANDOM(2) == 0)
+        i = 1;
+    else
+        i = -1;
+    if (abs(dist_y) >= abs(dist_x))
+      pos.x.val += 768 * i;
+    else
+      pos.y.val += 768 * i;
+    pos.z.val = get_thing_height_at(thing1, &pos);
+    if (setup_person_move_backwards_to_coord(thing1, &pos, 0))
+    {
+      thing1->field_8 = a3;
+      return 1;
+    }
+    return 1;
+}
+
+void process_creature_in_training_room(struct Thing *thing, struct Room *room)
+{
+    static const struct Around corners[] = {
+        {1, 2},
+        {0, 1},
+        {1, 0},
+        {2, 1},
+    };
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct Thing *traintng;
+    struct Thing *crtng;
+    struct CreatureControl *cctrl2;
+    struct Coord3d pos;
+    long speed,dist;
+    long i;
+    cctrl = creature_control_get_from_thing(thing);
+    SYNCDBG(18,"Starting mode %d",(int)cctrl->byte_9A);
+    //_DK_process_creature_in_training_room(thing, room); return;
+    cctrl->field_4A = 0;
+    switch (cctrl->byte_9A)
+    {
+    case 1:
+        if (cctrl->field_D2 != 0)
+            break;
+        if (cctrl->byte_9E <= 1)
+        {
+            setup_training_search_for_post(thing);
+            cctrl->byte_9E = 50;
+            break;
+        }
+        cctrl->byte_9E--;
+        speed = cctrl->max_speed;
+        if (speed >= 256)
+          speed = 256;
+        i = creature_move_to(thing, &cctrl->moveto_pos, speed, 0, 0);
+        if (i == 1)
+        {
+            // Find a training post
+            traintng = get_object_at_subtile_of_model_and_owned_by(thing->mappos.x.stl.num, thing->mappos.y.stl.num, 31, thing->owner);
+            if (thing_is_invalid(traintng))
+            {
+                setup_move_to_new_training_position(thing, room, 0);
+                break;
+            }
+            cctrl->byte_9A = 2;
+            cctrl->byte_9E = 50;
+        } else
+        if (i == -1)
+        {
+            ERRORLOG("Cannot get where we're going in the training room.");
+            set_start_state(thing);
+        }
+        break;
+    case 2:
+        for (i=0; i < 4; i++)
+        {
+            long slb_x,slb_y;
+            long stl_x,stl_y;
+            struct SlabMap *slb;
+            slb_x = map_to_slab[thing->mappos.x.stl.num] + (long)small_around[i].delta_x;
+            slb_y = map_to_slab[thing->mappos.y.stl.num] + (long)small_around[i].delta_y;
+            slb = get_slabmap_block(slb_x,slb_y);
+            if ((slb->slab != SlbT_TRAINING) || (slabmap_owner(slb) != thing->owner))
+                continue;
+              stl_x = 3*slb_x + (long)corners[i].delta_x;
+              stl_y = 3*slb_y + (long)corners[i].delta_y;
+              traintng = INVALID_THING;
+              crtng = get_creature_of_model_training_at_subtile_and_owned_by(stl_x, stl_y, -1, thing->owner);
+              if (thing_is_invalid(crtng))
+              {
+                  traintng = get_object_at_subtile_of_model_and_owned_by(stl_x, stl_y, 31, thing->owner);
+              }
+              if (!thing_is_invalid(crtng) || !thing_is_invalid(traintng))
+              {
+                  cctrl->byte_9C = 3 * map_to_slab[thing->mappos.x.stl.num] + 1;
+                  cctrl->byte_9D = 3 * map_to_slab[thing->mappos.y.stl.num] + 1;
+                  cctrl->moveto_pos.x.stl.num = stl_x;
+                  cctrl->moveto_pos.y.stl.num = stl_y;
+                  cctrl->moveto_pos.x.stl.pos = 128;
+                  cctrl->moveto_pos.y.stl.pos = 128;
+                  cctrl->moveto_pos.z.val = get_thing_height_at(thing, &cctrl->moveto_pos);
+                  if (thing_in_wall_at(thing, &cctrl->moveto_pos))
+                  {
+                    ERRORLOG("Illegal setup to (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
+                    set_start_state(thing);
+                  }
+                  cctrl->byte_9A = 3;
+                  break;
+              }
+        }
+        if (cctrl->byte_9A == 2)
+          setup_move_to_new_training_position(thing, room, 1);
+        break;
+    case 3:
+        speed = cctrl->max_speed;
+        if (speed >= 256)
+            speed = 256;
+        i = creature_move_to(thing, &cctrl->moveto_pos, speed, 0, 0);
+        if (i == 1)
+        {
+            crtng = get_creature_of_model_training_at_subtile_and_owned_by(thing->mappos.x.stl.num, thing->mappos.y.stl.num, -1, thing->owner);
+            if (!thing_is_invalid(crtng))
+            {
+                setup_move_to_new_training_position(thing, room, 1);
+                break;
+            }
+            cctrl->byte_9A = 4;
+        } else
+        if ( i == -1 )
+        {
+            ERRORLOG("Cannot get where we're going in the training room.");
+            set_start_state(thing);
+        }
+        break;
+    case 4:
+        pos.x.val = ((long)cctrl->byte_9C << 8) + 128;
+        pos.y.val = ((long)cctrl->byte_9D << 8) + 128;
+        if (creature_turn_to_face(thing, &pos) < 56)
+        {
+          cctrl->byte_9A = 5;
+          cctrl->byte_9B = 75;
+        }
+        break;
+    case 6:
+        if (cctrl->word_9F == 0)
+        {
+            setup_move_to_new_training_position(thing, room, 0);
+            return;
+        }
+        crtng = thing_get(cctrl->word_9F);
+        if ((crtng->field_9 != cctrl->long_A1) || ((crtng->field_0 & 0x01) == 0))
+        {
+            setup_move_to_new_training_position(thing, room, 0);
+            return;
+        }
+        cctrl2 = creature_control_get_from_thing(crtng);
+        if (cctrl2->word_9F != thing->index)
+        {
+            cctrl->word_9F = 0;
+            setup_move_to_new_training_position(thing, room, 0);
+            break;
+        }
+        if (subtile_room_get(crtng->mappos.x.stl.num, crtng->mappos.y.stl.num) != room)
+        {
+            cctrl->word_9F = 0;
+            cctrl2->word_9F = 0;
+            setup_move_to_new_training_position(thing, room, 0);
+            break;
+        }
+        crstat = creature_stats_get_from_thing(thing);
+        dist = get_combat_distance(thing, crtng);
+        if (dist > 284)
+        {
+            if (creature_move_to(thing, &crtng->mappos, cctrl->max_speed, 0, 0) == -1)
+            {
+              ERRORLOG("cannot navigate to training partner");
+              setup_move_to_new_training_position(thing, room, 0);
+              cctrl->word_9F = 0;
+            }
+        } else
+        if (dist >= 156)
+        {
+            if (creature_turn_to_face(thing, &crtng->mappos) < 56)
+            {
+              cctrl->byte_9B--;
+              if (cctrl->byte_9B > 0)
+              {
+                if ((cctrl->field_D2 == 0) && ((cctrl->byte_9B % 8) == 0))
+                {
+                    set_creature_instance(thing, 1, 1, 0, 0);
+                }
+              } else
+              {
+                if (cctrl->field_D2 == 0)
+                {
+                    setup_move_to_new_training_position(thing, room, 0);
+                    cctrl->word_9F = 0;
+                } else
+                {
+                    cctrl->byte_9B = 1;
+                }
+                cctrl->field_24 += (room->efficiency * crstat->training_value);
+              }
+            }
+        } else
+        {
+            creature_retreat_from_combat(thing, crtng, 33, 0);
+        }
+        break;
+    case 5:
+    default:
+        cctrl->byte_9B--;
+        if (cctrl->byte_9B > 0)
+        {
+          if ((cctrl->field_D2 == 0) && ((cctrl->byte_9B % 8) == 0))
+          {
+              set_creature_instance(thing, 1, 1, 0, 0);
+          }
+        } else
+        {
+          if (cctrl->field_D2 == 0)
+          {
+              setup_move_to_new_training_position(thing, room, 1);
+          } else
+          {
+              cctrl->byte_9B = 1;
+          }
+        }
+        break;
+    }
+    SYNCDBG(18,"End");
+}
+
 short training(struct Thing *thing)
 {
+    struct Dungeon *dungeon;
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    TbBool finish_training;
+    struct Room *room;
+    long i;
     SYNCDBG(18,"Starting");
-    return _DK_training(thing);
+    //return _DK_training(thing);
+    dungeon = get_dungeon(thing->owner);
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+
+    // Check if we should finish training
+    finish_training = false;
+    if (!creature_can_be_trained(thing))
+    {
+        finish_training = true;
+    }
+    if (!player_can_afford_to_train_creature(thing))
+    {
+        if (is_my_player_number(thing->owner))
+            output_message(89, 500, 1);
+        finish_training = true;
+    }
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room) || (room->kind != RoK_TRAINING)
+     || (cctrl->field_7E != room->index) || (room->owner != thing->owner))
+    {
+        finish_training = true;
+    }
+    if (finish_training)
+    {
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    // Pay for the training
+    cctrl->field_82++;
+    if (cctrl->field_82 >= game.train_cost_frequency)
+    {
+        cctrl->field_82 -= game.train_cost_frequency;
+        if (take_money_from_dungeon(thing->owner, crstat->training_cost, 1) < 0)
+            ERRORLOG("Cannot take money i am supposed to be able to afford from dungeon");
+        create_price_effect(&thing->mappos, thing->owner, crstat->training_cost);
+    }
+    if (cctrl->field_D2 || !check_experience_upgrade(thing))
+    {
+        i = process_work_speed_on_work_value(thing,
+            (long)room->efficiency * (long)crstat->training_value);
+        cctrl->field_24 += i;
+        dungeon->field_1179 += i;
+        process_creature_in_training_room(thing, room);
+    } else
+    {
+      if (external_set_thing_state(thing, 127))
+        cctrl->field_282 = 50;
+      dungeon->lvstats.creatures_trained++;
+    }
+    return 1;
 }
 
 short tunneller_doing_nothing(struct Thing *thing)
@@ -3877,7 +4439,7 @@ TbBool remove_creature_from_work_room(struct Thing *thing)
         secctrl->field_2AA = cctrl->field_2AA;
     } else
     {
-      room->field_3D = cctrl->field_2AA;
+      room->creatures_list = cctrl->field_2AA;
     }
     if (cctrl->field_2AA > 0)
     {

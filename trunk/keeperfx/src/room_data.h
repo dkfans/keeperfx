@@ -92,7 +92,7 @@ struct Room {
     unsigned short slabs_list;
     unsigned short field_39;
     unsigned short slabs_count;
-    unsigned short field_3D;
+    unsigned short creatures_list;
     unsigned short efficiency;
     unsigned short field_41;
     unsigned char field_43;

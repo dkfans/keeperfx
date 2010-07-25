@@ -23,6 +23,9 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "ariadne_navitree.h"
+#include "ariadne_regions.h"
+#include "ariadne_tringls.h"
+#include "ariadne_points.h"
 #include "thing_navigate.h"
 #include "gui_topmsg.h"
 #include "keeperfx.hpp"
@@ -46,7 +49,6 @@ DLLIMPORT void _DK_route_through_gates(struct Pathway *pway, struct Path *path, 
 DLLIMPORT long _DK_triangle_findSE8(long, long);
 DLLIMPORT long _DK_ma_triangle_route(long a1, long a2, long *a3);
 DLLIMPORT void _DK_edgelen_init(void);
-DLLIMPORT unsigned long _DK_regions_connected(long tree_reg1, long tree_reg1);
 DLLIMPORT long _DK_get_navigation_colour(long stl_x, long stl_y);
 DLLIMPORT void _DK_triangulate_area(unsigned char *imap, long sx, long sy, long ex, long ey);
 DLLIMPORT long _DK_init_navigation(void);
@@ -60,12 +62,10 @@ DLLIMPORT long _DK_fringe_get_rectangle(long *a1, long *a2, long *a3, long *a4, 
 DLLIMPORT long _DK_delaunay_seeded(long a1, long a2, long a3, long a4);
 DLLIMPORT void _DK_border_unlock(long a1, long a2, long a3, long a4);
 DLLIMPORT void _DK_triangulation_border_start(long *a1, long *a2);
-DLLIMPORT void _DK_triangulation_initxy(long a1, long a2, long a3, long a4);
 DLLIMPORT long _DK_edge_find(long a1, long a2, long a3, long a4, long *a5, long *a6);
 DLLIMPORT long _DK_make_3or4point(long *a1, long *a2);
 DLLIMPORT long _DK_delete_4point(long a1, long a2);
 DLLIMPORT long _DK_delete_3point(long a1, long a2);
-DLLIMPORT long _DK_edge_rotateAC(long a1, long a2);
 DLLIMPORT long _DK_triangle_route_do_fwd(long a1, long a2, long *a3, long *a4);
 DLLIMPORT long _DK_triangle_route_do_bak(long a1, long a2, long *a3, long *a4);
 DLLIMPORT void _DK_ariadne_pull_out_waypoint(struct Thing *thing, struct Ariadne *arid, long a3, struct Coord3d *pos);
@@ -84,7 +84,6 @@ DLLIMPORT void _DK_tri_split3(long a1, long a2, long a3);
 DLLIMPORT long _DK_pointed_at8(long pos_x, long pos_y, long *retpos_x, long *retpos_y);
 DLLIMPORT long _DK_triangle_brute_find8_near(long pos_x, long pos_y);
 DLLIMPORT void _DK_waypoint_normal(long a1, long a2, long *norm_x, long *norm_y);
-DLLIMPORT void _DK_region_alloc(unsigned long tree_reg);
 DLLIMPORT long _DK_gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, long a6, struct Pathway *pway, long a8);
 /******************************************************************************/
 DLLIMPORT unsigned long _DK_edgelen_initialised;
@@ -95,12 +94,6 @@ DLLIMPORT unsigned long _DK_RadiusEdgeFit[EDGEOR_COUNT][EDGEFIT_LEN];
 #define RadiusEdgeFit _DK_RadiusEdgeFit
 DLLIMPORT NavRules _DK_nav_rulesA2B;
 #define nav_rulesA2B _DK_nav_rulesA2B
-DLLIMPORT long _DK_count_Points;
-#define count_Points _DK_count_Points
-DLLIMPORT long _DK_ix_Points;
-#define ix_Points _DK_ix_Points
-DLLIMPORT long _DK_free_Points;
-#define free_Points _DK_free_Points
 DLLIMPORT long _DK_find_cache[4][4];
 #define find_cache _DK_find_cache
 DLLIMPORT long _DK_ix_Triangles;
@@ -140,10 +133,6 @@ unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
     4,
 };
 
-const long MOD3[] = {0, 1, 2, 0, 1, 2};
-
-struct RegionT bad_region;
-struct Triangle bad_triangle;
 /*
 unsigned char tag_current;
 unsigned char Tags[9000];
@@ -167,8 +156,6 @@ void route_through_gates(struct Pathway *pway, struct Path *path, long a3);
 long triangle_findSE8(long a1, long a2);
 long ma_triangle_route(long a1, long a2, long *a3);
 void edgelen_init(void);
-TbBool regions_connected(long tree_reg1, long tree_reg2);
-TbBool triangle_tip_equals(long ntri, long ncor, long pt_x, long pt_y);
 /******************************************************************************/
 
 unsigned long fits_thro(long tri_idx, long ormask_idx)
@@ -188,7 +175,7 @@ unsigned long fits_thro(long tri_idx, long ormask_idx)
         ERRORLOG("ORmask overflow");
         return 0;
     }
-    emask = (Triangles[tri_idx].field_E % EDGEFIT_LEN);
+    emask = get_triangle_edgelen(tri_idx);
     eidx = edgelen_ORmask[ormask_idx] | emask;
     if (EdgeFit != RadiusEdgeFit[0])
     {
@@ -376,8 +363,8 @@ void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx,
     tree_Ay8 = trAy;
     tree_Bx8 = trBx;
     tree_By8 = trBy;
-    tree_altA = Triangles[tree_triA].field_C;
-    tree_altB = Triangles[tree_triB].field_C;
+    tree_altA = get_triangle_field_C(tree_triA);
+    tree_altB = get_triangle_field_C(tree_triB);
     if ((tree_triA != -1) && (tree_triB != -1))
     {
         tree_routelen = ma_triangle_route(tree_triA, tree_triB, &tree_routecost);
@@ -466,7 +453,7 @@ long dest_node(long a1, long a2)
     n = Triangles[a1].field_6[a2];
     if (n < 0)
         return -1;
-    if (!nav_rulesA2B(Triangles[a1].field_C, Triangles[n].field_C))
+    if (!nav_rulesA2B(get_triangle_field_C(a1), get_triangle_field_C(n)))
         return -1;
     return n;
 }
@@ -475,16 +462,16 @@ long cost_to_start(long tri_idx)
 {
     long long len_x,len_y;
     long long mincost,newcost;
-    long pt_idx;
+    struct Point *pt;
     struct Triangle *tri;
     long i;
     mincost = 16777215;
-    tri = &Triangles[tri_idx];
+    tri = get_triangle(tri_idx);
     for (i=0; i < 3; i++)
     {
-        pt_idx = tri->field_0[i];
-        len_x = ((tree_Ax8 >> 8) - (long)(Points[pt_idx].x));
-        len_y = ((tree_Ay8 >> 8) - (long)(Points[pt_idx].y));
+        pt = point_get(tri->points[i]);
+        len_x = ((tree_Ax8 >> 8) - (long)(pt->x));
+        len_y = ((tree_Ay8 >> 8) - (long)(pt->y));
         newcost = len_x*len_x+len_y*len_y;
         if (newcost < mincost)
             mincost = newcost;
@@ -518,7 +505,7 @@ long triangle_find_cache_get(long pos_x, long pos_y)
     cache_y = 0;
 
   ntri = find_cache[cache_y][cache_x];
-  if (Triangles[ntri].field_C == 255)
+  if (get_triangle_field_C(ntri) == 255)
   {
     ntri = triangle_brute_find8_near(pos_x, pos_y);
     if ((ntri < 0) || (ntri > ix_Triangles))
@@ -586,7 +573,7 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
         }
         while ( 1 )
         {
-            tri = &Triangles[ttriH1];
+            tri = get_triangle(ttriH1);
             n = 0;
             for (i = 0; i < 3; i++)
             {
@@ -595,7 +582,7 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
               {
                 if ( fits_thro(ttriH1, n) )
                 {
-                    navrule = nav_rulesA2B(Triangles[k].field_C, Triangles[ttriH1].field_C);
+                    navrule = nav_rulesA2B(get_triangle_field_C(k), get_triangle_field_C(ttriH1));
                     if ( navrule )
                     {
                         mvcost = cost_to_start(k);
@@ -669,7 +656,7 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
         }
         while ( 1 )
         {
-            tri = &Triangles[ttriH1];
+            tri = get_triangle(ttriH1);
             n = 0;
             for (i = 0; i < 3; i++)
             {
@@ -678,7 +665,7 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
               {
                 if ( fits_thro(ttriH1, n) )
                 {
-                    navrule = nav_rulesA2B(Triangles[ttriH1].field_C, Triangles[k].field_C);
+                    navrule = nav_rulesA2B(get_triangle_field_C(ttriH1), get_triangle_field_C(k));
                     if ( navrule )
                     {
                         mvcost = cost_to_start(k);
@@ -772,56 +759,6 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
 void edgelen_init(void)
 {
     _DK_edgelen_init();
-}
-
-void region_alloc(unsigned long tree_reg)
-{
-    _DK_region_alloc(tree_reg); return;
-}
-
-struct RegionT *get_region(long reg_id)
-{
-    if ((reg_id < 0) || (reg_id >= REGIONS_COUNT))
-        return INVALID_REGION;
-    return &Regions[reg_id];
-}
-
-long get_triangle_region_id(long tri_id)
-{
-    long reg_id;
-    if ((tri_id < 0) || (tri_id >= TRIANLGLES_COUNT))
-        return -1;
-    return (Triangles[tri_id].field_E >> 6);
-}
-
-TbBool set_triangle_region_id(long tri_id, long reg_id)
-{
-    if ((tri_id < 0) || (tri_id >= TRIANLGLES_COUNT))
-        return false;
-    Triangles[tri_id].field_E &= 0x003F;
-    Triangles[tri_id].field_E |= (reg_id << 6);
-    return true;
-}
-
-TbBool regions_connected(long tree_reg1, long tree_reg2)
-{
-    long reg_id1,reg_id2;
-    //return _DK_regions_connected(tree_reg1, tree_reg2);
-    if ((tree_reg1 < 0) || (tree_reg1 >= TRIANLGLES_COUNT))
-        return false;
-    if ((tree_reg2 < 0) || (tree_reg2 >= TRIANLGLES_COUNT))
-        return false;
-    if (((Triangles[tree_reg1].field_C & 0x0F) == 0x0F)
-    ||  ((Triangles[tree_reg2].field_C & 0x0F) == 0x0F))
-        return false;
-    reg_id1 = get_triangle_region_id(tree_reg1);
-    reg_id2 = get_triangle_region_id(tree_reg2);
-    if (Regions[reg_id1].field_2 == 1)
-        return (reg_id2 == reg_id1);
-    if (Regions[reg_id2].field_2 == 1)
-        return (reg_id2 == reg_id1);
-    region_alloc(tree_reg1);
-    return ((Triangles[tree_reg2].field_E ^ Triangles[tree_reg1].field_E) & 0xFFC0) == 0;
 }
 
 TbBool ariadne_creature_reached_position(struct Thing *thing, struct Coord3d *pos)
@@ -1215,8 +1152,8 @@ void path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, 
         return;
     }
     EdgeFit = RadiusEdgeFit[creature_radius];
-    tree_altA = Triangles[tree_triA].field_C;
-    tree_altB = Triangles[tree_triB].field_C;
+    tree_altA = get_triangle_field_C(tree_triA);
+    tree_altB = get_triangle_field_C(tree_triB);
     if (a6 == -2)
     {
         tree_routelen = ma_triangle_route(tree_triA, tree_triB, &tree_routecost);
@@ -1234,67 +1171,6 @@ void path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, 
       route_through_gates(&ap_GPathway, path, a6);
     }
     NAVIDBG(19,"Finished");
-}
-
-void triangulation_initxy(long a1, long a2, long a3, long a4)
-{
-    _DK_triangulation_initxy(a1, a2, a3, a4);
-}
-
-long edge_rotateAC(long a1, long a2)
-{
-    return _DK_edge_rotateAC(a1, a2);
-}
-
-long point_loop(long pt_tri, long pt_cor)
-{
-    long ntri,ncor;
-    long i,k,n;
-    ntri = pt_tri;
-    ncor = pt_cor;
-    if (ntri < 0)
-        return -1;
-    k = 0;
-    do
-    {
-      n = Triangles[ntri].field_6[ncor];
-      i = link_find(n, ntri);
-      if (i < 0)
-          return -1;
-      ncor = MOD3[i+1];
-      ntri = n;
-      k++;
-    } while (n != pt_tri);
-    return k;
-}
-
-long reduce_point(long *pt_tri, long *pt_cor)
-{
-    long first_tri,ntri,ncor;
-    long k,i,ctri;
-    k = 0;
-    ntri = *pt_tri;
-    ncor = *pt_cor;
-    first_tri = *pt_tri;
-    do
-    {
-        ctri = Triangles[ntri].field_6[ncor];
-        if (ctri < 0)
-            return -1;
-        if (!edge_rotateAC(ntri, ncor))
-        {
-            i = link_find(ctri, ntri);
-            if (i < 0)
-                return -1;
-            ncor = MOD3[i+1];
-            ntri = ctri;
-            k++;
-        }
-    }
-    while (ctri != first_tri);
-    *pt_tri = ntri;
-    *pt_cor = ncor;
-    return k;
 }
 
 /**
@@ -1373,35 +1249,6 @@ TbBool delete_point(long pt_tri, long pt_cor)
     return true;
 }
 
-long point_new(void)
-{
-  long i;
-  if (free_Points == -1)
-  {
-      i = ix_Points;
-      if ((i < 0) || (i >= POINTS_COUNT))
-      {
-          ERRORLOG("ix_Points overflow");
-          erstat_inc(ESE_NoFreePathPts);
-          return -1;
-      }
-      ix_Points++;
-  } else
-  {
-      i = free_Points;
-      if ((i < 0) || (i >= POINTS_COUNT))
-      {
-          ERRORLOG("free_Points overflow");
-          erstat_inc(ESE_NoFreePathPts);
-          return -1;
-      }
-      free_Points = Points[i].x;
-  }
-  Points[i].y = 0;
-  count_Points++;
-  return i;
-}
-
 void tri_split3(long a1, long a2, long a3)
 {
     NAVIDBG(19,"Starting");
@@ -1423,8 +1270,7 @@ TbBool edge_split(long ntri, long ncor, long pt_x, long pt_y)
     pt_idx = point_new();
     if (pt_idx < 0)
         return false;
-    Points[pt_idx].y = pt_y;
-    Points[pt_idx].x = pt_x;
+    point_set(pt_idx, pt_x, pt_y);
     // Find second ntri and ncor
     ntr2 = Triangles[ntri].field_6[ncor];
     ncr2 = link_find(ntr2, ntri);
@@ -1435,20 +1281,6 @@ TbBool edge_split(long ntri, long ncor, long pt_x, long pt_y)
     tri_sp2 = tri_split2(ntr2, ncr2, pt_x, pt_y, pt_idx);
     Triangles[ntr2].field_6[ncr2] = tri_sp1;
     Triangles[ntri].field_6[ncor] = tri_sp2;
-    return true;
-}
-
-TbBool triangle_tip_equals(long ntri, long ncor, long pt_x, long pt_y)
-{
-    long tip_x,tip_y;
-    long pt_idx;
-    pt_idx = Triangles[ntri].field_0[ncor];
-    if ((pt_idx < 0) || (pt_idx >= POINTS_COUNT))
-        return false;
-    tip_x = Points[pt_idx].x;
-    tip_y = Points[pt_idx].y;
-    if ((tip_x != pt_x) || (tip_y != pt_y))
-        return false;
     return true;
 }
 
@@ -1466,20 +1298,16 @@ char triangle_divide_areas_differ(long ntri, long ncorA, long ncorB, long pt_x, 
     long long areaA,areaB;
     long tipA_x,tipA_y;
     long tipB_x,tipB_y;
-    long pt_idx;
+    struct Point *pt;
     int area_mod;
     unsigned char area_rel;
     char ret;
-    pt_idx = Triangles[ntri].field_0[ncorA];
-    if ((pt_idx < 0) || (pt_idx >= POINTS_COUNT))
-        return false;
-    tipA_x = Points[pt_idx].x;
-    tipA_y = Points[pt_idx].y;
-    pt_idx = Triangles[ntri].field_0[ncorB];
-    if ((pt_idx < 0) || (pt_idx >= POINTS_COUNT))
-        return false;
-    tipB_x = Points[pt_idx].x;
-    tipB_y = Points[pt_idx].y;
+    pt = get_triangle_point(ntri,ncorA);
+    tipA_x = pt->x;
+    tipA_y = pt->y;
+    pt = get_triangle_point(ntri,ncorB);
+    tipB_x = pt->x;
+    tipB_y = pt->y;
     // Compute areas to compare; use rectangular area
     areaB = (pt_y - tipA_y);
     areaB *= (tipB_x - tipA_x);
@@ -1498,21 +1326,17 @@ char triangle_divide_areas_s8differ(long ntri, long ncorA, long ncorB, long pt_x
     long long areaA,areaB;
     long tipA_x,tipA_y;
     long tipB_x,tipB_y;
-    long pt_idx;
+    struct Point *pt;
     int area_mod;
     unsigned char area_rel;
     char ret;
 
-    pt_idx = Triangles[ntri].field_0[ncorA];
-    if ((pt_idx < 0) || (pt_idx >= POINTS_COUNT))
-        return false;
-    tipA_x = (Points[pt_idx].x << 8);
-    tipA_y = (Points[pt_idx].y << 8);
-    pt_idx = Triangles[ntri].field_0[ncorB];
-    if ((pt_idx < 0) || (pt_idx >= POINTS_COUNT))
-        return false;
-    tipB_x = (Points[pt_idx].x << 8);
-    tipB_y = (Points[pt_idx].y << 8);
+    pt = get_triangle_point(ntri,ncorA);
+    tipA_x = (pt->x << 8);
+    tipA_y = (pt->y << 8);
+    pt = get_triangle_point(ntri,ncorB);
+    tipB_x = (pt->x << 8);
+    tipB_y = (pt->y << 8);
     // Compute areas to compare; use rectangular area
     areaA =  (tipA_y - pt_y);
     areaA *= (tipB_x - pt_x);
@@ -1617,7 +1441,7 @@ void make_edge(long start_x, long end_x, long start_y, long end_y)
 TbBool border_clip_horizontal(unsigned char *imap, long start_x, long end_x, long start_y, long end_y)
 {
     unsigned char map_center,map_up;
-    unsigned char *mapp;
+    unsigned char *mapp_center,*mapp_up;
     TbBool r;
     long i;
     r = true;
@@ -1625,20 +1449,24 @@ TbBool border_clip_horizontal(unsigned char *imap, long start_x, long end_x, lon
     //_DK_border_clip_horizontal(imap, a1, a2, a3, a4);
 
     i = start_x;
-    mapp = &imap[256 * start_y + i];
     {
-        r &= insert_point(i, start_y);
-        map_up = *(mapp-256);
-        map_center = *(mapp);
+        mapp_center = &imap[navmap_tile_number(i,start_y)];
+        mapp_up = &imap[navmap_tile_number(i,start_y-1)];
+        {
+            r &= insert_point(i, start_y);
+            map_up = *mapp_up;
+            map_center = *mapp_center;
+        }
     }
     for (i++; i < end_x; i++)
     {
-        mapp = &imap[256 * start_y + i];
-        if ((*(mapp) != map_center) || (*(mapp-256) != map_up))
+        mapp_center = &imap[navmap_tile_number(i,start_y)];
+        mapp_up = &imap[navmap_tile_number(i,start_y-1)];
+        if ((*mapp_center != map_center) || (*mapp_up != map_up))
         {
             r &= insert_point(i, start_y);
-            map_up = *(mapp-256);
-            map_center = *(mapp);
+            map_up = *mapp_up;
+            map_center = *mapp_center;
         }
     }
     r &= insert_point(end_x, start_y);
@@ -1650,27 +1478,31 @@ TbBool border_clip_horizontal(unsigned char *imap, long start_x, long end_x, lon
 TbBool border_clip_vertical(unsigned char *imap, long start_x, long end_x, long start_y, long end_y)
 {
     unsigned char map_center,map_left;
-    unsigned char *mapp;
+    unsigned char *mapp_center,*mapp_left;
     TbBool r;
     long i;
     r = true;
     NAVIDBG(9,"Starting");
     //_DK_border_clip_vertical(imap, a1, a2, a3, a4);
     i = start_y;
-    mapp = &imap[256 * i + start_x];
     {
-        r &= insert_point(start_x, i);
-        map_left = *(mapp-1);
-        map_center = *(mapp);
+        mapp_center = &imap[navmap_tile_number(start_x,i)];
+        mapp_left = &imap[navmap_tile_number(start_x-1,i)];
+        {
+            r &= insert_point(start_x, i);
+            map_left = *mapp_left;
+            map_center = *mapp_center;
+        }
     }
     for (i++; i < end_y; i++)
     {
-        mapp = &imap[256 * i + start_x];
-        if ((*(mapp) != map_center) || (*(mapp-1) != map_left))
+        mapp_center = &imap[navmap_tile_number(start_x,i)];
+        mapp_left = &imap[navmap_tile_number(start_x-1,i)];
+        if ((*mapp_center != map_center) || (*mapp_left != map_left))
         {
             r &= insert_point(start_x, i);
-            map_left = *(mapp-1);
-            map_center = *(mapp);
+            map_left = *mapp_left;
+            map_center = *mapp_center;
         }
     }
     r &= insert_point(start_x, end_y);
@@ -1685,33 +1517,12 @@ long edge_find(long a1, long a2, long a3, long a4, long *a5, long *a6)
     return _DK_edge_find(a1, a2, a3, a4, a5, a6);
 }
 
-long link_find(long ntri, long val)
-{
-    if ((ntri < 0) || (ntri >= TRIANLGLES_COUNT))
-    {
-        return -1;
-    }
-    if (Triangles[ntri].field_6[0] == val)
-    {
-        return 0;
-    } else
-    if (Triangles[ntri].field_6[1] == val)
-    {
-        return 1;
-    } else
-    if (Triangles[ntri].field_6[2] == val)
-    {
-        return 2;
-    } else
-    {
-        return -1;
-    }
-}
 TbBool edge_lock_f(long fin_x, long fin_y, long bgn_x, long bgn_y, const char *func_name)
 {
     long tri_n,tri_k;
     long x,y;
-    long i,k;
+    struct Point *pt;
+    long k;
     //_DK_edge_lock(fin_x, fin_y, bgn_x, bgn_y); return true;
     x = bgn_x;
     y = bgn_y;
@@ -1724,9 +1535,9 @@ TbBool edge_lock_f(long fin_x, long fin_y, long bgn_x, long bgn_y, const char *f
       }
       Triangles[tri_n].field_D |= 1 << (tri_k+3);
       k = MOD3[tri_k+1];
-      i = Triangles[tri_n].field_0[k];
-      x = Points[i].x;
-      y = Points[i].y;
+      pt = get_triangle_point(tri_n,k);
+      x = pt->x;
+      y = pt->y;
     }
     return true;
 }
@@ -1743,49 +1554,12 @@ TbBool border_lock(long start_x, long start_y, long end_x, long end_y)
     return r;
 }
 
-TbBool outer_locked(long ntri, long ncor)
-{
-    long shft,n;
-    n = Triangles[ntri].field_6[ncor];
-    shft = link_find(n, ntri);
-    if (shft < 0)
-    {
-        ERRORLOG("border edge");
-        return true;
-    }
-    return ( (Triangles[n].field_D & (1 << (shft + 3)) ) != 0);
-}
-
-void region_set_f(long ntri, unsigned long nreg, const char *func_name)
-{
-    unsigned long oreg;
-    if ((ntri < 0) || (ntri >= TRIANLGLES_COUNT) || (nreg >= REGIONS_COUNT))
-    {
-        ERRORMSG("%s: can't set triangle %ld region %lu",func_name,ntri,nreg);
-        return;
-    }
-    // Get old region
-    oreg = get_triangle_region_id(ntri);;
-    // If the region changed
-    if (oreg != nreg)
-    {
-        // Remove from old region
-        if (oreg < REGIONS_COUNT)
-        {
-            Regions[oreg].field_0--;
-            Regions[oreg].field_2 = 0;
-        }
-        // And add to new one
-        set_triangle_region_id(ntri, nreg);
-        Regions[nreg].field_0++;
-    }
-}
-
 void border_internal_points_delete(long start_x, long start_y, long end_x, long end_y)
 {
     long edge_tri,edge_cor;
     long ntri,ncor;
     unsigned long k;
+    struct Point *pt;
     long i,n;
     NAVIDBG(19,"Starting");
     //_DK_border_internal_points_delete(start_x, start_y, end_x, end_y);
@@ -1812,9 +1586,9 @@ void border_internal_points_delete(long start_x, long start_y, long end_x, long 
             break;
         }
         region_set(ntri, 0);
-        i = Triangles[ntri].field_0[MOD3[ncor+2]];
-        if ((Points[i].x != start_x) && (Points[i].x != end_x)
-         && (Points[i].y != start_y) && (Points[i].y != end_y))
+        pt = get_triangle_point(ntri,MOD3[ncor+2]);
+        if ((pt->x != start_x) && (pt->x != end_x)
+         && (pt->y != start_y) && (pt->y != end_y))
         {
             if (!delete_point(ntri, MOD3[ncor+2]))
                 break;
@@ -1888,12 +1662,12 @@ long uniform_area_colour(unsigned char *imap, long start_x, long start_y, long e
 {
     long uniform;
     long x,y;
-    uniform = imap[get_subtile_number(start_x,start_y)];
+    uniform = imap[navmap_tile_number(start_x,start_y)];
     for (y = start_y; y < end_y; y++)
     {
         for (x = start_x; x < end_x; x++)
         {
-            if (imap[get_subtile_number(x,y)] != uniform)
+            if (imap[navmap_tile_number(x,y)] != uniform)
             {
                 return -1;
             }
@@ -1977,11 +1751,7 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
         start_y = 0;
         end_y = 256;
     }
-    if (!tri_initialised)
-    {
-        tri_initialised = 1;
-        triangulation_initxy(-256, -256, 512, 512);
-    }
+    triangulation_init();
     if ( not_whole_map )
     {
       r &= border_clip_horizontal(imap, start_x, end_x, start_y, 0);
@@ -1999,7 +1769,7 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
     colour = -1;
     if ( one_tile )
     {
-        colour = imap[get_subtile_number(start_x,start_y)];
+        colour = imap[navmap_tile_number(start_x,start_y)];
     } else
     if ((not_whole_map) && (end_x - start_x <= 3) && (end_y - start_y <= 3))
     {
