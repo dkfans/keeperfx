@@ -1961,12 +1961,12 @@ short creature_in_prison(struct Thing *thing)
     set_start_state(thing);
     return Lb_OK;
   }
-  if ( (room->kind != 4) || (cctrl->field_7E != room->index) )
+  if ( (room->kind != 4) || (cctrl->work_room_id != room->index) )
   {
     set_start_state(thing);
     return Lb_OK;
   }
-  if (room->total_capacity < room->field_10)
+  if (room->total_capacity < room->workers_in)
   {
     if (is_my_player_number(room->owner))
       output_message(26, 0, 1);
@@ -2082,13 +2082,13 @@ TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long
         SYNCDBG(4,"Spell owned by player %d was placed in a room owned by player %d",(int)spelltng->owner,(int)room->owner);
         return false;
     }
-    if ((room->long_17 <= 0) || (room->field_10 <= 0))
+    if ((room->long_17 <= 0) || (room->workers_in <= 0))
     {
         ERRORLOG("Trying to remove spell from a room with no spell");
         return false;
     }
     room->long_17--;
-    room->field_10--;
+    room->workers_in--;
     remove_spell_from_player(object_to_magic[spelltng->model], room->owner);
     if (is_my_player_number(room->owner))
     {
@@ -3297,7 +3297,7 @@ short kinky_torturing(struct Thing *thing)
   cctrl = creature_control_get_from_thing(thing);
   room = get_room_thing_is_on(thing);
   if (!room_is_invalid(room))
-    if ((room->kind == RoK_TORTURE) && (cctrl->field_7E == room->index))
+    if ((room->kind == RoK_TORTURE) && (cctrl->work_room_id == room->index))
       if (game.play_gameturn-cctrl->field_82 <= crstat->torture_time)
       {
         process_kinky_function(thing);
@@ -3519,7 +3519,7 @@ long process_prison_function(struct Thing *thing)
   struct Room *room;
   //return _DK_process_prison_function(thing);
   cctrl = creature_control_get_from_thing(thing);
-  room = room_get(cctrl->field_7E);
+  room = room_get(cctrl->work_room_id);
   if ( !room_still_valid_as_type_for_thing(room, 4, thing) )
   {
     set_start_state(thing);
@@ -3921,7 +3921,7 @@ struct Thing *get_creature_in_training_room_which_could_accept_partner(struct Ro
           ERRORLOG("Jump to invalid creature %ld detected",i);
         break;
       }
-      i = cctrl->field_2AA;
+      i = cctrl->next_in_room;
       // Per creature code
       if (thing != partnertng)
       {
@@ -4350,7 +4350,7 @@ short training(struct Thing *thing)
     }
     room = get_room_thing_is_on(thing);
     if (room_is_invalid(room) || (room->kind != RoK_TRAINING)
-     || (cctrl->field_7E != room->index) || (room->owner != thing->owner))
+     || (cctrl->work_room_id != room->index) || (room->owner != thing->owner))
     {
         finish_training = true;
     }
@@ -4415,43 +4415,52 @@ TbBool remove_creature_from_work_room(struct Thing *thing)
     struct CreatureControl *secctrl;
     //return _DK_remove_creature_from_work_room(thing);
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->field_7E == 0) || ((cctrl->flgfield_1 & 0x20) == 0))
+    if ((cctrl->work_room_id == 0) || ((cctrl->flgfield_1 & 0x20) == 0))
         return false;
-    room = room_get(cctrl->field_7E);
-    if (room_is_invalid(room))
+    room = room_get(cctrl->work_room_id);
+    if (!room_is_invalid(room))
     {
-        WARNLOG("Creature had invalid room index");
-        cctrl->field_7E = 0;
+        if (room->workers_in > 0)
+        {
+          room->workers_in--;
+        } else
+        {
+          WARNLOG("Attempt to remove a creature from room type %d with no used space", (int)room->kind);
+        }
+    } else
+    {
+        WARNLOG("Creature had invalid room index %d",(int)cctrl->work_room_id);
         erstat_inc(ESE_BadCreatrState);
-        return false;
     }
-    if (room->field_10 > 0)
+    if (cctrl->prev_in_room > 0)
     {
-      room->field_10--;
+        sectng = thing_get(cctrl->prev_in_room);
+        secctrl = creature_control_get_from_thing(sectng);
+        if (!creature_control_invalid(secctrl))
+        {
+            secctrl->next_in_room = cctrl->next_in_room;
+        }
     } else
     {
-      WARNLOG("Attempt to remove a creature from room type %d with too little used space", (int)room->kind);
+        if (!room_is_invalid(room))
+        {
+            room->creatures_list = cctrl->next_in_room;
+        }
     }
-    if (cctrl->field_2AC > 0)
+    if (cctrl->next_in_room > 0)
     {
-        sectng = thing_get(cctrl->field_2AC);
-        secctrl = creature_control_get_from_thing(thing);
-        secctrl->field_2AA = cctrl->field_2AA;
-    } else
-    {
-      room->creatures_list = cctrl->field_2AA;
+        sectng = thing_get(cctrl->next_in_room);
+        secctrl = creature_control_get_from_thing(sectng);
+        if (!creature_control_invalid(secctrl))
+        {
+            secctrl->prev_in_room = cctrl->prev_in_room;
+        }
     }
-    if (cctrl->field_2AA > 0)
-    {
-        sectng = thing_get(cctrl->field_2AA);
-        secctrl = creature_control_get_from_thing(thing);
-        secctrl->field_2AC = cctrl->field_2AC;
-    }
-    cctrl->field_7C = cctrl->field_7E;
-    cctrl->field_7E = 0;
-    cctrl->flgfield_1 &= 0xDF;
-    cctrl->field_2AA = 0;
-    cctrl->field_2AC = 0;
+    cctrl->last_work_room_id = cctrl->work_room_id;
+    cctrl->work_room_id = 0;
+    cctrl->flgfield_1 &= ~0x20;
+    cctrl->next_in_room = 0;
+    cctrl->prev_in_room = 0;
     return true;
 }
 
@@ -4464,6 +4473,11 @@ TbBool initialise_thing_state(struct Thing *thing, long nState)
     thing->field_7 = nState;
     set_flag_byte(&thing->field_1, 0x10, false);
     cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Creature no %d has invalid control",(int)thing->index);
+        return false;
+    }
     cctrl->field_80 = 0;
     cctrl->field_302 = 0;
     if ((cctrl->flgfield_1 & 0x20) != 0)

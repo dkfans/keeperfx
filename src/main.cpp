@@ -852,10 +852,10 @@ void destroy_food(struct Thing *thing)
       room = get_room_thing_is_on(thing);
       if (room != NULL)
       {
-        if ((room->kind == 13) && (room->owner == thing->owner))
+        if ((room->kind == RoK_GARDEN) && (room->owner == thing->owner))
         {
-            if (room->field_10 > 0)
-              room->field_10--;
+            if (room->workers_in > 0)
+              room->workers_in--;
             thing->word_13 = game.food_life_out_of_hatchery;
         }
       }
@@ -894,11 +894,30 @@ TbBool shot_is_slappable(const struct Thing *thing, long plyr_idx)
 
 TbBool creature_is_slappable(const struct Thing *thing, long plyr_idx)
 {
-  struct CreatureControl *cctrl;
-  struct Room *room;
-  long i;
-  if (thing->owner != plyr_idx)
-  {
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    long i;
+    if (thing->owner != plyr_idx)
+    {
+      if (thing->field_7 == CrSt_MoveToPosition)
+        i = thing->field_8;
+      else
+        i = thing->field_7;
+      if ((i == CrSt_CreatureInPrison) || (i == CrSt_CreatureArrivedAtPrison)
+       || (i == CrSt_Torturing) || (i == CrSt_AtTortureRoom))
+      {
+        cctrl = creature_control_get_from_thing(thing);
+        room = room_get(cctrl->work_room_id);
+        return (room->owner == plyr_idx);
+      }
+      return false;
+    }
+    if (thing->field_7 == CrSt_MoveToPosition)
+      i = thing->field_8;
+    else
+      i = thing->field_7;
+    if ((i == 88) || (i == 92) || (i == 95))
+      return 0;
     if (thing->field_7 == 14)
       i = thing->field_8;
     else
@@ -906,28 +925,10 @@ TbBool creature_is_slappable(const struct Thing *thing, long plyr_idx)
     if ((i == 41) || (i == 40) || (i == 43) || (i == 42))
     {
       cctrl = creature_control_get_from_thing(thing);
-      room = room_get(cctrl->field_7E);
+      room = room_get(cctrl->work_room_id);
       return (room->owner == plyr_idx);
     }
-    return false;
-  }
-  if (thing->field_7 == 14)
-    i = thing->field_8;
-  else
-    i = thing->field_7;
-  if ((i == 88) || (i == 92) || (i == 95))
-    return 0;
-  if (thing->field_7 == 14)
-    i = thing->field_8;
-  else
-    i = thing->field_7;
-  if ((i == 41) || (i == 40) || (i == 43) || (i == 42))
-  {
-    cctrl = creature_control_get_from_thing(thing);
-    room = room_get(cctrl->field_7E);
-    return (room->owner == plyr_idx);
-  }
-  return true;
+    return true;
 }
 
 TbBool thing_slappable(const struct Thing *thing, long plyr_idx)

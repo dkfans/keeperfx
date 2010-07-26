@@ -1714,7 +1714,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
         ERRORLOG("Jump to invalid creature %ld detected",i);
         break;
       }
-      i = cctrl->field_2AA;
+      i = cctrl->next_in_room;
       // Per creature code
       if (!thing_affected_by_spell(thing, 11))
       {
