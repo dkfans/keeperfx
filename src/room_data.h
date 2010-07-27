@@ -53,6 +53,7 @@ enum RoomKinds {
 #pragma pack(1)
 
 #define ROOM_EFFICIENCY_MAX 256
+#define ROOM_SELL_REVENUE_PERCENT  50
 
 struct Room;
 typedef unsigned char RoomKind;

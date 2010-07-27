@@ -355,28 +355,30 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
     struct Room *room;
     struct RoomStats *rstat;
     struct Coord3d pos;
-    long i;
+    long revenue;
     room = subtile_room_get(stl_x, stl_y);
     if (room_is_invalid(room))
     {
-        ERRORLOG("No room to delete at subtile (%d,%d)",stl_x,stl_y);
+        ERRORLOG("No room to delete at subtile (%d,%d)",(int)stl_x,(int)stl_y);
         return false;
     }
     //TODO sell revenue percentage should be inside config files
-    dungeon = get_players_num_dungeon(room->owner);
     rstat = room_stats_get_for_room(room);
-    i = compute_value_percentage(rstat->cost, 50);
-    if (room->owner != game.neutral_player_num)
-      dungeon->rooms_destroyed++;
+    revenue = compute_value_percentage(rstat->cost, ROOM_SELL_REVENUE_PERCENT);
     delete_room_slab(map_to_slab[stl_x], map_to_slab[stl_y], 0);
-    dungeon->field_EA4 = 192;
+    if (room->owner != game.neutral_player_num)
+    {
+        dungeon = get_players_num_dungeon(room->owner);
+        dungeon->rooms_destroyed++;
+        dungeon->field_EA4 = 192;
+    }
     if (is_my_player_number(plyr_idx))
         play_non_3d_sample(115);
-    if (i != 0)
+    if (revenue != 0)
     {
         set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
-        create_price_effect(&pos, plyr_idx, i);
-        player_add_offmap_gold(plyr_idx, i);
+        create_price_effect(&pos, plyr_idx, revenue);
+        player_add_offmap_gold(plyr_idx, revenue);
     }
     return true;
 }
@@ -510,7 +512,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     // Trying to sell trap
     if (player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y))
     {
-        // Nothing to do here - door already sold
+        // Nothing to do here - trap already sold
     } else
     {
         WARNLOG("Nothing to do");
