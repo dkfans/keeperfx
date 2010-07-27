@@ -2291,9 +2291,8 @@ long delete_all_object_things_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, 
         {
             if (rmeffect > 0)
             {
-                pos.x.val = thing->mappos.x.val;
-                pos.y.val = thing->mappos.y.val;
-                pos.z.val = get_floor_height_at(&thing->mappos);
+                set_coords_to_slab_center(&pos,slb_x,slb_y);
+                pos.z.val = get_floor_height_at(&pos);
                 create_effect(&pos, rmeffect, thing->owner);
             }
             delete_thing_structure(thing, 0);
@@ -2343,9 +2342,8 @@ long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord sl
             {
                 if (rmeffect > 0)
                 {
-                    pos.x.val = thing->mappos.x.val;
-                    pos.y.val = thing->mappos.y.val;
-                    pos.z.val = get_floor_height_at(&thing->mappos);
+                    set_coords_to_slab_center(&pos,slb_x,slb_y);
+                    pos.z.val = get_floor_height_at(&pos);
                     create_effect(&pos, rmeffect, thing->owner);
                 }
                 delete_thing_structure(thing, 0);
@@ -2364,7 +2362,7 @@ long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord sl
     return removed_num;
 }
 
-void place_slab_type_on_map(long nslab, long stl_x, long stl_y, unsigned char owner, unsigned char a5)
+void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char owner, unsigned char a5)
 {
     SlabType previous_slab_types_around[8];
     struct SlabMap *slb;
@@ -2464,6 +2462,15 @@ void place_slab_type_on_map(long nslab, long stl_x, long stl_y, unsigned char ow
     switch (nslab)
     {
     case SlbT_EARTH:
+    case SlbT_TORCHDIRT:
+    case SlbT_ROCK:
+    case SlbT_GOLD:
+    case SlbT_GEMS:
+    case SlbT_WALLDRAPE:
+    case SlbT_WALLTORCH:
+    case SlbT_WALLWTWINS:
+    case SlbT_WALLWWOMAN:
+    case SlbT_WALLPAIRSHR:
         delete_all_object_things_from_slab(slb_x, slb_y, 0);
         break;
     case SlbT_LAVA:
@@ -9060,6 +9067,7 @@ void kill_all_room_slabs_and_contents(struct Room *room)
         slb = get_slabmap_block(slb_x, slb_y);
         kill_room_slab_and_contents(room->owner, slb_x, slb_y);
         slb->next_in_room = 0;
+        slb->room_index = 0;
         // Per room tile code ends
         k++;
         if (k > room->slabs_count)
@@ -9078,15 +9086,24 @@ void remove_slab_from_room_tiles_list(struct Room *room, long rslb_num)
     unsigned long k;
     long i;
     rslb = get_slabmap_direct(rslb_num);
+    if (slabmap_block_invalid(rslb))
+    {
+        ERRORLOG("Nonexisting slab %d.",(int)rslb_num);
+        return;
+    }
     // If the slab to remove is first in room slabs list - it's simple
+    // In this case we need to re-put a flag on first slab
     if (room->slabs_list == rslb_num)
     {
         delete_room_flag(room);
         room->slabs_list = rslb->next_in_room;
+        rslb->next_in_room = 0;
+        rslb->room_index = 0;
+        room->slabs_count--;
         create_room_flag(room);
         return;
     }
-    // If the slab to remove is not firs, we have to sweep the list
+    // If the slab to remove is not first, we have to sweep the list
     k = 0;
     i = room->slabs_list;
     while (i > 0)
@@ -9104,6 +9121,7 @@ void remove_slab_from_room_tiles_list(struct Room *room, long rslb_num)
             // When the item was found, replace its reference with next item
             slb->next_in_room = rslb->next_in_room;
             rslb->next_in_room = 0;
+            rslb->room_index = 0;
             room->slabs_count--;
             return;
         }
@@ -9116,20 +9134,36 @@ void remove_slab_from_room_tiles_list(struct Room *room, long rslb_num)
         }
     }
     WARNLOG("Slab %ld couldn't be found in room tiles list.",rslb_num);
+    rslb->next_in_room = 0;
+    rslb->room_index = 0;
+}
+
+void sell_room_slab_when_no_free_room_structures(struct Room *room, long slb_x, long slb_y, unsigned char gnd_slab)
+{
+    struct RoomStats *rstat;
+    struct Coord3d pos;
+    long revenue;
+    delete_room_slab_when_no_free_room_structures(slb_x, slb_y, gnd_slab);
+    rstat = &game.room_stats[room->kind];
+    revenue = compute_value_percentage(rstat->cost, ROOM_SELL_REVENUE_PERCENT);
+    if (revenue != 0)
+    {
+        set_coords_to_slab_center(&pos,slb_x,slb_y);
+        create_price_effect(&pos, room->owner, revenue);
+        player_add_offmap_gold(room->owner, revenue);
+    }
 }
 
 void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
 {
-    struct Dungeon *dungeon;
     struct Room *nroom;
     struct SlabMap *slb;
     struct RoomData *rdata;
-    struct RoomStats *rstat;
-    struct Coord3d pos;
     long slb_x, slb_y;
     unsigned long k;
     long i;
     SYNCDBG(7,"Starting");
+    // Clear room index in all slabs
     k = 0;
     i = room->slabs_list;
     while (i > 0)
@@ -9151,6 +9185,7 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
             break;
         }
     }
+    // Create a new room for every slab
     k = 0;
     i = room->slabs_list;
     while (i != 0)
@@ -9160,22 +9195,14 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
         i = get_next_slab_number_in_room(i);
         // Per room tile code
         nroom = create_room(room->owner, room->kind, 3*slb_x+1, 3*slb_y+1);
-        if (room_is_invalid(nroom))
+        if (room_is_invalid(nroom)) // In case of error, sell the whole thing
         {
-            delete_room_slab_when_no_free_room_structures(slb_x, slb_y, gnd_slab);
-            rstat = &game.room_stats[room->kind];
-            pos.x.val = 768 * slb_x + 128;
-            pos.y.val = 768 * slb_y + 128;
-            pos.z.val = 384;
-            create_price_effect(&pos, room->owner, rstat->cost/2);
-            dungeon = get_dungeon(room->owner);
-            dungeon->field_AFD += i;
-            dungeon->field_AF9 += i;
+            sell_room_slab_when_no_free_room_structures(room, slb_x, slb_y, gnd_slab);
         } else
         {
             nroom->efficiency = calculate_room_efficiency(nroom);
             rdata = room_data_get_for_room(nroom);
-            nroom->field_C = game.hits_per_slab * ((long)nroom->slabs_count);
+            nroom->field_C = (long)game.hits_per_slab * (long)nroom->slabs_count;
             if (rdata->ofsfield_3 != NULL)
                 rdata->ofsfield_3(nroom);
             if (rdata->ofsfield_7 != NULL)
@@ -9192,29 +9219,28 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
             break;
         }
     }
+    room->slabs_list = 0;
+    room->slabs_count = 0;
 }
 
-short delete_room_slab(long slb_x, long slb_y, unsigned char gnd_slab)
+TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char gnd_slab)
 {
     struct Room *room;
-    long slb_num;
-    struct SlabMap *slb;
-    SYNCDBG(7,"Starting on (%ld,%ld)",slb_x,slb_y);
+    SlabCodedCoords slb_num;
     //return _DK_delete_room_slab(slb_x, slb_y, gnd_slab);
-
     room = slab_room_get(slb_x,slb_y);
     if (room_is_invalid(room))
     {
         ERRORLOG("Slab (%ld,%ld) is not a room",slb_x, slb_y);
-        return 0;
+        return false;
     }
+    SYNCDBG(7,"Room on (%d,%d) had %d slabs",(int)slb_x,(int)slb_y,(int)room->slabs_count);
     decrease_room_area(room->owner, 1);
     kill_room_slab_and_contents(room->owner, slb_x, slb_y);
     if (room->slabs_count <= 1)
     {
         delete_room_flag(room);
         replace_room_slab(room, slb_x, slb_y, room->owner, gnd_slab);
-        delete_room_flag(room);
         kill_all_room_slabs_and_contents(room);
         free_room_structure(room);
         do_slab_efficiency_alteration(slb_x, slb_y);
@@ -9224,13 +9250,12 @@ short delete_room_slab(long slb_x, long slb_y, unsigned char gnd_slab)
         // Remove the slab from room tiles list
         remove_slab_from_room_tiles_list(room, slb_num);
         replace_room_slab(room, slb_x, slb_y, room->owner, gnd_slab);
+        // Create a new room from slabs left in old one
         recreate_rooms_from_room_slabs(room, gnd_slab);
         reset_creatures_rooms(room);
         free_room_structure(room);
-        slb = get_slabmap_direct(slb_num);
-        slb->next_in_room = 0;
     }
-    return 0;
+    return true;
 }
 
 void tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4)
