@@ -200,6 +200,15 @@ void tree_init(void)
   }
 }
 
+/** Copies the current tree into given route.
+ *
+ * @param tag_start_id Starting tag ID to place in the route.
+ * @param tag_end_id Ending tag ID to place in the route.
+ * @param route_pts Route array.
+ * @param route_len Length of the given route array.
+ * @return Returns amount of points filled.
+ *     If route_len is too small, points up to route_len are filled and -1 is returned.
+ */
 long copy_tree_to_route(long tag_start_id, long tag_end_id, long *route_pts, long route_len)
 {
     long ipt,itag;

@@ -540,7 +540,7 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
     struct Triangle *tri;
     long ttriH1,ttriH2;
     long mvcost,navrule;
-    long nerrors;
+    long nskipped;
     long i,k,n;
     NAVIDBG(19,"Starting");
     //return _DK_triangle_route_do_fwd(ttriA, ttriB, route, routecost);
@@ -553,9 +553,9 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
     triangulation_border_tag();
 
     naviheap_init();
-    nerrors = 0;
+    nskipped = 0;
     if (!navitree_add(ttriB, ttriB, 1))
-        nerrors++;
+        nskipped++;
     while (ttriA != naviheap_top())
     {
         if (naviheap_empty())
@@ -589,7 +589,7 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
                       if (navrule == 2)
                           mvcost *= 16;
                       if (!navitree_add(k,ttriH1,mvcost))
-                          nerrors++;
+                          nskipped++;
                     }
                 }
               }
@@ -601,10 +601,9 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
             ttriH2 = -1;
         }
     }
-    if (nerrors != 0)
+    if (nskipped != 0)
     {
-        erstat_inc(ESE_BadPathHeap);
-        ERRORDBG(6,"navigate heap overflow, %ld points ignored",nerrors);
+        NAVIDBG(6,"navigate heap full, %ld points ignored",nskipped);
     }
 
     NAVIDBG(19,"Nearly finished");
@@ -623,7 +622,7 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
     struct Triangle *tri;
     long ttriH1,ttriH2;
     long mvcost,navrule;
-    long nerrors;
+    long nskipped;
     long i,k,n;
     NAVIDBG(19,"Starting");
     //return _DK_triangle_route_do_bak(ttriA, ttriB, route, routecost);
@@ -636,9 +635,9 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
     triangulation_border_tag();
 
     naviheap_init();
-    nerrors = 0;
+    nskipped = 0;
     if (!navitree_add(ttriB, ttriB, 1))
-        nerrors++;
+        nskipped++;
     while (ttriA != naviheap_top())
     {
         if (naviheap_empty())
@@ -672,7 +671,7 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
                       if (navrule == 2)
                           mvcost *= 16;
                       if (!navitree_add(k,ttriH1,mvcost))
-                          nerrors++;
+                          nskipped++;
                     }
                 }
               }
@@ -684,10 +683,9 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
             ttriH2 = -1;
         }
     }
-    if (nerrors != 0)
+    if (nskipped != 0)
     {
-        erstat_inc(ESE_BadPathHeap);
-        ERRORDBG(6,"navigate heap overflow, %ld points ignored",nerrors);
+        NAVIDBG(6,"navigate heap full, %ld points ignored",nskipped);
     }
 
     NAVIDBG(19,"Nearly finished");
