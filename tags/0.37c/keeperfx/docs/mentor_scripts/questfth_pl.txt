@@ -1,0 +1,36 @@
+Quest for the Hero
+Land descriptions script for KeeperFX
+
+written by Ninja(PL)
+
+Manudania - Krain¹ t¹ w³adaj¹ potê¿ne smoki, lecz ich czas dobiega koñca. Rozpraw siê z nimi, mistrzu!
+
+Pobojowice - Teraz gdy zabiliœmy potê¿ne smoki, mamy sporo skóry. Mo¿emy obwieœæ nimi nasze piêkne podziemia, nieprawda¿?
+
+A-Maze-ing - W tej krainie rz¹dzi dziewiêciu Rogatych Rozpruwaczy, mieszkaj¹ w wielkim labiryncie, uwa¿aj na siebie panie. To nie bêdzie proste zadanie
+
+Kosowo - Rogaci nie byli a¿ tak trudnymi wojownikami to pokonania, œwietna robota, mój panie!
+
+Hivespawn - W tej krainie jest pe³no stworów które by siê do nas z chêciom przy³¹czy³y, lecz s¹ i takie które z chêci¹ zabi³y by nas. Musimy zdobyæ tê krainê za wszelk¹ cenê!
+
+Œmierciowo - Ci którzy nie chcieli siê do nas przy³¹czyæ zostali skazani na œmieræ w imiê szatana! Doskona³a robota, panie!
+
+Tower of Power - Krain¹ t¹ w³adaj¹ magowie œwiat³a, których broni¹ wspaniali samurajowie. Zniszczmy bramy do fortecy i zabijmy ich z zim¹ krwi¹!
+
+Wie¿a œmierci - Ta ziemia dosta³a to na co zas³u¿y³a, skazaliœmy magów na wieczne potêpienie! Teraz nie mog¹ opuœciæ tej wie¿y chodŸ s¹ martwi. Doskona³a robota panie!
+
+Dambreak - W krainie tej rz¹dzi trzech potê¿nych stra¿ników, niegdyœ zabili oni innego stra¿nika i uwiêzili jego lud w wiêzieniach. Je¿eli ich uratujesz to na pewno wst¹pi¹ w twoje szeregi.
+
+Twierdza Œmierci - Tak wiêc zosta³o zrobione to co nakaza³ nam Lucyfer! Doskona³a robota panie!
+
+Sin-king - T¹ krain¹ w³adaj¹ mê¿ni rycerze, którzy bêd¹ broniæ tej ziemi do ostatniej kropli krwi. My z chêciom upuœcimy im jej trochê!
+
+Rdza - Z zbroi wojowników zrobiliœmy wystawê po naszym lochu, gdy zbroje zaczn¹ rdzewieæ to dopiero bêdzie widok!
+
+Superblah - Nie jest dobrze sytuacja siê zmieni³a, po okolicy grasowa³ pewien wampir, który wskrzesi³ wszystkich wojowników do szkieletów. Szkielety nie oddadz¹ nam tej krainy bez ponownego boju! Zróbmy to co chc¹!
+
+Koœciowo - Z koœci martwych wojowników wysadziliœmy pod³ogi w naszym lochu, zosta³ nam jeszcze jeden cel do wygranej, to potê¿na twierdza.
+
+Stronghold - Nasz¹ ostatni¹ krain¹ do podbicia w³adaj¹ Mnisi, s¹ pod obron¹ paladynów tak wiêc zniszczmy najpierw ich a póŸniej mnichów!
+
+Krwiowo - Wrzuciliœmy cia³a mnichów do œwi¹tyni pope³niaj¹c wielkie œwiêtokractow! Teraz mo¿emy cieszyæ siê piêknym widokiem sp³ywaj¹cej lawy i krwi po œwiecie! Doskona³a robota mój panie!

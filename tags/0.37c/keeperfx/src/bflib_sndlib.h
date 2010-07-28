@@ -1,0 +1,81 @@
+/******************************************************************************/
+// Bullfrog Engine Emulation Library - for use to remake classic games like
+// Syndicate Wars, Magic Carpet or Dungeon Keeper.
+/******************************************************************************/
+/** @file bflib_sndlib.h
+ *     Header file for bflib_sndlib.c.
+ * @par Purpose:
+ *     Low-level sound and music related routines.
+ * @par Comment:
+ *     Just a header file - #defines, typedefs, function prototypes etc.
+ * @author   Tomasz Lis
+ * @date     16 Nov 2008 - 30 Dec 2008
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
+#ifndef BFLIB_SNDLIB_H
+#define BFLIB_SNDLIB_H
+
+#include "bflib_basics.h"
+
+#include "globals.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+/******************************************************************************/
+// Data structures
+
+struct HeapMgrHeader;
+struct HeapMgrHandle;
+
+
+struct SampleInfo { // sizeof = 28
+  unsigned char field_0[8];
+  unsigned char field_8;
+  unsigned char field_9[11];
+  unsigned char field_14[3];
+  unsigned char field_17;
+  unsigned long field_18;
+};
+
+/******************************************************************************/
+// Exported variables
+
+/******************************************************************************/
+// Exported functions
+
+int __stdcall FreeAudio(void);
+int __stdcall SetRedbookVolume(int volume);
+int __stdcall SetSoundMasterVolume(int volume);
+int __stdcall SetMusicMasterVolume(int volume);
+int __stdcall GetSoundInstalled(void);
+int __stdcall PlayRedbookTrack(int);
+int __stdcall MonitorStreamedSoundTrack(void);
+int __stdcall StopRedbookTrack(void);
+void * __stdcall GetSoundDriver(void);
+int __stdcall StopAllSamples(void);
+int __stdcall GetFirstSampleInfoStructure(void);
+int __stdcall LoadMusic(int);
+int __stdcall InitAudio(void *);
+int __stdcall SetupAudioOptionDefaults(void *);
+int __stdcall PlayStreamedSample(char *fname, int a2, int a3, int a4);
+int __stdcall StopStreamedSample(void);
+int __stdcall StreamedSampleFinished(void);
+int __stdcall SetStreamedSampleVolume(int);
+int __stdcall GetLastSampleInfoStructure(void);
+int __stdcall GetCurrentSoundMasterVolume(void);
+int __stdcall StopMusic(void);
+int __stdcall LoadAwe32Soundfont(const char *fname);
+int __stdcall StartMusic(int i,int v);
+int __stdcall SetSampleVolume(int a,int b,int c,int d);
+struct SampleInfo * __stdcall PlaySampleFromAddress(int a1, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, struct HeapMgrHandle *hmhandle, int a9);
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
+#endif
