@@ -1259,6 +1259,7 @@
  0003:000133B0       tag_current
  0003:000133B4       edgelen_initialised
  0003:000133BC       ix_Border
+ 0003:000133E0       ix_EdgePoints
  0003:000133E4       LastTriangulatedMap
  0003:00013A60       creature_list
  0003:00014948       quit_game
@@ -1563,6 +1564,7 @@
  0003:00053B84       do_lights
  0003:00053B88       total_lights
  0003:00055EB4       EdgeFit
+ 0003:00055EB8       EdgePoints
  0003:000564F8       tree_Bx8
  0003:000564FC       tree_By8
  0003:00056500       find_cache

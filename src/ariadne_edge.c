@@ -25,8 +25,33 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT struct EdgePoint _DK_EdgePoints[EDGE_POINTS_COUNT];
+#define EdgePoints _DK_EdgePoints
 
 /******************************************************************************/
+void edge_points_clean(void)
+{
+    ix_EdgePoints = 0;
+}
+
+long edge_point_add(long pt_x, long pt_y)
+{
+    long ept_id;
+    ept_id = ix_EdgePoints;
+    if (ept_id >= EDGE_POINTS_COUNT)
+        return -1;
+    EdgePoints[ept_id].field_0 = pt_x;
+    EdgePoints[ept_id].field_4 = pt_y;
+    ix_EdgePoints = ept_id+1;
+    return ept_id;
+}
+
+struct EdgePoint *edge_point_get(long ept_id)
+{
+    if ((ept_id < 0) || (ept_id >= EDGE_POINTS_COUNT))
+        return &EdgePoints[0];
+    return &EdgePoints[ept_id];
+}
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -76,7 +76,7 @@ void region_set_f(long ntri, unsigned long nreg, const char *func_name)
         return;
     }
     // Get old region
-    oreg = get_triangle_region_id(ntri);;
+    oreg = get_triangle_region_id(ntri);
     // If the region changed
     if (oreg != nreg)
     {
@@ -89,6 +89,16 @@ void region_set_f(long ntri, unsigned long nreg, const char *func_name)
         // And add to new one
         set_triangle_region_id(ntri, nreg);
         Regions[nreg].field_0++;
+    }
+}
+
+void region_unlock(long ntri)
+{
+    unsigned long oreg;
+    oreg = get_triangle_region_id(ntri);
+    if (oreg < REGIONS_COUNT)
+    {
+        Regions[oreg].field_2 = 0;
     }
 }
 

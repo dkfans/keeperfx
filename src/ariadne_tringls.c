@@ -105,25 +105,19 @@ TbBool triangle_tip_equals(long tri_id, long pt_cor, long pt_x, long pt_y)
 
 long link_find(long ntri, long val)
 {
+    long i;
     if ((ntri < 0) || (ntri >= TRIANLGLES_COUNT))
     {
         return -1;
     }
-    if (Triangles[ntri].field_6[0] == val)
+    for (i=0; i < 3; i++)
     {
-        return 0;
-    } else
-    if (Triangles[ntri].field_6[1] == val)
-    {
-        return 1;
-    } else
-    if (Triangles[ntri].field_6[2] == val)
-    {
-        return 2;
-    } else
-    {
-        return -1;
+        if (Triangles[ntri].field_6[i] == val)
+        {
+            return i;
+        }
     }
+    return -1;
 }
 
 TbBool outer_locked(long ntri, long ncor)

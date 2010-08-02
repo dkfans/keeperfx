@@ -117,4 +117,19 @@ unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const cha
 //  SYNCMSG("%s: at %d, random val %d", func_name, place, i);
   return i;
 }
+
+TbBool LbNumberSignsSame(long num_a, long num_b)
+{
+    int sign_a,sign_b;
+    if (num_a >= 0)
+        sign_a = (num_a != 0);
+    else
+        sign_a = -1;
+    if (num_b >= 0)
+        sign_b = (num_b != 0);
+    else
+        sign_b = -1;
+    return (sign_a == sign_b);
+}
+
 /******************************************************************************/

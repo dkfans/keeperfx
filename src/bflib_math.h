@@ -59,6 +59,7 @@ long LbCosL(long x);
 long LbSqrL(long x);
 long LbMathOperation(unsigned char opkind, long val1, long val2);
 unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
+TbBool LbNumberSignsSame(long num_a, long num_b);
 
 /******************************************************************************/
 #ifdef __cplusplus
