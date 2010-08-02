@@ -48,6 +48,7 @@ extern struct RegionT bad_region;
 TbBool regions_connected(long tree_reg1, long tree_reg2);
 #define region_set(ntri, nreg) region_set_f(ntri, nreg, __func__)
 void region_set_f(long ntri, unsigned long nreg, const char *func_name);
+void region_unlock(long ntri);
 
 /******************************************************************************/
 #ifdef __cplusplus

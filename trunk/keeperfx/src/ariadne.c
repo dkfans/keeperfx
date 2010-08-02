@@ -26,6 +26,7 @@
 #include "ariadne_regions.h"
 #include "ariadne_tringls.h"
 #include "ariadne_points.h"
+#include "ariadne_edge.h"
 #include "thing_navigate.h"
 #include "gui_topmsg.h"
 #include "keeperfx.hpp"
@@ -39,38 +40,38 @@ typedef long (*NavRules)(long, long);
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT AriadneReturn _DK_ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long a3, unsigned char a4);
-DLLIMPORT AriadneReturn _DK_creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long a4, unsigned char a5);
+DLLIMPORT AriadneReturn _DK_ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long ptstart_x, unsigned char ptstart_y);
+DLLIMPORT AriadneReturn _DK_creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long ptstart_y, unsigned char a5);
 DLLIMPORT void _DK_path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size);
-DLLIMPORT long _DK_route_to_path(long a1, long a2, long a3, long a4, long *a5, long a6, struct Path *path, long *a8);
-DLLIMPORT void _DK_path_out_a_bit(struct Path *path, long *a2);
-DLLIMPORT void _DK_gate_navigator_init8(struct Pathway *pway, long a2, long a3, long a4, long a5, long a6, unsigned char a7);
-DLLIMPORT void _DK_route_through_gates(struct Pathway *pway, struct Path *path, long a3);
+DLLIMPORT long _DK_route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *a5, long a6, struct Path *path, long *a8);
+DLLIMPORT void _DK_path_out_a_bit(struct Path *path, long *ptfind_y);
+DLLIMPORT void _DK_gate_navigator_init8(struct Pathway *pway, long ptfind_y, long ptstart_x, long ptstart_y, long a5, long a6, unsigned char a7);
+DLLIMPORT void _DK_route_through_gates(struct Pathway *pway, struct Path *path, long ptstart_x);
 DLLIMPORT long _DK_triangle_findSE8(long, long);
-DLLIMPORT long _DK_ma_triangle_route(long a1, long a2, long *a3);
+DLLIMPORT long _DK_ma_triangle_route(long ptfind_x, long ptfind_y, long *ptstart_x);
 DLLIMPORT void _DK_edgelen_init(void);
 DLLIMPORT long _DK_get_navigation_colour(long stl_x, long stl_y);
 DLLIMPORT void _DK_triangulate_area(unsigned char *imap, long sx, long sy, long ex, long ey);
 DLLIMPORT long _DK_init_navigation(void);
 DLLIMPORT long _DK_update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
-DLLIMPORT void _DK_border_clip_horizontal(unsigned char *imap, long a1, long a2, long a3, long a4);
-DLLIMPORT void _DK_border_clip_vertical(unsigned char *imap, long a1, long a2, long a3, long a4);
-DLLIMPORT void _DK_edge_lock(long a1, long a2, long a3, long a4);
-DLLIMPORT void _DK_border_internal_points_delete(long a1, long a2, long a3, long a4);
-DLLIMPORT void _DK_tri_set_rectangle(long a1, long a2, long a3, long a4, unsigned char a5);
-DLLIMPORT long _DK_fringe_get_rectangle(long *a1, long *a2, long *a3, long *a4, unsigned char *a5);
-DLLIMPORT long _DK_delaunay_seeded(long a1, long a2, long a3, long a4);
-DLLIMPORT void _DK_border_unlock(long a1, long a2, long a3, long a4);
-DLLIMPORT void _DK_triangulation_border_start(long *a1, long *a2);
-DLLIMPORT long _DK_edge_find(long a1, long a2, long a3, long a4, long *a5, long *a6);
-DLLIMPORT long _DK_make_3or4point(long *a1, long *a2);
-DLLIMPORT long _DK_delete_4point(long a1, long a2);
-DLLIMPORT long _DK_delete_3point(long a1, long a2);
-DLLIMPORT long _DK_triangle_route_do_fwd(long a1, long a2, long *a3, long *a4);
-DLLIMPORT long _DK_triangle_route_do_bak(long a1, long a2, long *a3, long *a4);
-DLLIMPORT void _DK_ariadne_pull_out_waypoint(struct Thing *thing, struct Ariadne *arid, long a3, struct Coord3d *pos);
+DLLIMPORT void _DK_border_clip_horizontal(unsigned char *imap, long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
+DLLIMPORT void _DK_border_clip_vertical(unsigned char *imap, long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
+DLLIMPORT void _DK_edge_lock(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
+DLLIMPORT void _DK_border_internal_points_delete(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
+DLLIMPORT void _DK_tri_set_rectangle(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, unsigned char a5);
+DLLIMPORT long _DK_fringe_get_rectangle(long *ptfind_x, long *ptfind_y, long *ptstart_x, long *ptstart_y, unsigned char *a5);
+DLLIMPORT long _DK_delaunay_seeded(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
+DLLIMPORT void _DK_border_unlock(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
+DLLIMPORT void _DK_triangulation_border_start(long *ptfind_x, long *ptfind_y);
+DLLIMPORT long _DK_edge_find(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *a5, long *a6);
+DLLIMPORT long _DK_make_3or4point(long *ptfind_x, long *ptfind_y);
+DLLIMPORT long _DK_delete_4point(long ptfind_x, long ptfind_y);
+DLLIMPORT long _DK_delete_3point(long ptfind_x, long ptfind_y);
+DLLIMPORT long _DK_triangle_route_do_fwd(long ptfind_x, long ptfind_y, long *ptstart_x, long *ptstart_y);
+DLLIMPORT long _DK_triangle_route_do_bak(long ptfind_x, long ptfind_y, long *ptstart_x, long *ptstart_y);
+DLLIMPORT void _DK_ariadne_pull_out_waypoint(struct Thing *thing, struct Ariadne *arid, long ptstart_x, struct Coord3d *pos);
 DLLIMPORT long _DK_ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariadne *arid);
-DLLIMPORT unsigned char _DK_ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long a4, struct Coord3d *nextpos, unsigned char a5);
+DLLIMPORT unsigned char _DK_ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long ptstart_y, struct Coord3d *nextpos, unsigned char a5);
 DLLIMPORT unsigned char _DK_ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *arid);
 DLLIMPORT unsigned char _DK_ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *arid);
 DLLIMPORT long _DK_creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos);
@@ -78,12 +79,12 @@ DLLIMPORT long _DK_ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne
 DLLIMPORT unsigned char _DK_ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos);
 DLLIMPORT void _DK_insert_point(long pt_x, long pt_y);
 DLLIMPORT void _DK_make_edge(long start_x, long end_x, long start_y, long end_y);
-DLLIMPORT long _DK_triangle_find8(long a1, long a2);
-DLLIMPORT long _DK_tri_split2(long a1, long a2, long a3, long a4, long a5);
-DLLIMPORT void _DK_tri_split3(long a1, long a2, long a3);
+DLLIMPORT long _DK_triangle_find8(long ptfind_x, long ptfind_y);
+DLLIMPORT long _DK_tri_split2(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long a5);
+DLLIMPORT void _DK_tri_split3(long ptfind_x, long ptfind_y, long ptstart_x);
 DLLIMPORT long _DK_pointed_at8(long pos_x, long pos_y, long *retpos_x, long *retpos_y);
 DLLIMPORT long _DK_triangle_brute_find8_near(long pos_x, long pos_y);
-DLLIMPORT void _DK_waypoint_normal(long a1, long a2, long *norm_x, long *norm_y);
+DLLIMPORT void _DK_waypoint_normal(long ptfind_x, long ptfind_y, long *norm_x, long *norm_y);
 DLLIMPORT long _DK_gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, long a6, struct Pathway *pway, long a8);
 /******************************************************************************/
 DLLIMPORT unsigned long _DK_edgelen_initialised;
@@ -100,6 +101,10 @@ DLLIMPORT long _DK_ix_Triangles;
 #define ix_Triangles _DK_ix_Triangles
 DLLIMPORT struct WayPoints _DK_wayPoints;
 #define wayPoints _DK_wayPoints
+DLLIMPORT long _DK_ix_delaunay;
+#define ix_delaunay _DK_ix_delaunay
+DLLIMPORT long _DK_delaunay_stack[1000];
+#define delaunay_stack _DK_delaunay_stack
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -133,6 +138,80 @@ unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
     4,
 };
 
+const unsigned long actual_sizexy_to_nav_sizexy_table[] = {
+    206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206,
+    206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206,
+    206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206,
+    206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206,
+    206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206,
+    206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206,
+    206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206,
+    206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206,
+    206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206,
+    206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206,
+    206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206,
+    206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206,
+    206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 462,
+    462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462,
+    462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462,
+    462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462,
+    462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462,
+    462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462,
+    462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462,
+    462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462,
+    462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462,
+    462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462,
+    462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462,
+    462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462,
+    462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462,
+    462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462,
+    462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462,
+    462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462,
+    462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 462, 718,
+    718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718,
+    718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718,
+    718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718,
+    718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718,
+    718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718,
+    718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718,
+    718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718,
+    718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718,
+    718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718,
+    718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718,
+    718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718,
+    718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718,
+    718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718,
+    718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718,
+    718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718,
+    718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 974,
+    974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974,
+    974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974,
+    974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974, 974,
+    974,
+};
+
+long thing_nav_block_sizexy(struct Thing *thing)
+{
+    long i;
+    i = thing->field_56;
+    if (i >= sizeof(actual_sizexy_to_nav_block_sizexy_table)/sizeof(actual_sizexy_to_nav_block_sizexy_table[0]))
+        i = sizeof(actual_sizexy_to_nav_block_sizexy_table)/sizeof(actual_sizexy_to_nav_block_sizexy_table[0])-1;
+    if (i < 0)
+        i = 0;
+    return actual_sizexy_to_nav_block_sizexy_table[i];
+}
+
+long thing_nav_sizexy(struct Thing *thing)
+{
+    long i;
+    i = thing->field_56;
+    if (i >= sizeof(actual_sizexy_to_nav_sizexy_table)/sizeof(actual_sizexy_to_nav_sizexy_table[0]))
+        i = sizeof(actual_sizexy_to_nav_sizexy_table)/sizeof(actual_sizexy_to_nav_sizexy_table[0])-1;
+    if (i < 0)
+        i = 0;
+    return actual_sizexy_to_nav_sizexy_table[i];
+}
+
 /*
 unsigned char tag_current;
 unsigned char Tags[9000];
@@ -149,12 +228,12 @@ long ix_Points = 0;
 long free_Points = -1;
 */
 /******************************************************************************/
-long route_to_path(long a1, long a2, long a3, long a4, long *a5, long a6, struct Path *path, long *a8);
-void path_out_a_bit(struct Path *path, long *a2);
-void gate_navigator_init8(struct Pathway *pway, long a2, long a3, long a4, long a5, long a6, unsigned char a7);
-void route_through_gates(struct Pathway *pway, struct Path *path, long a3);
-long triangle_findSE8(long a1, long a2);
-long ma_triangle_route(long a1, long a2, long *a3);
+long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *a5, long a6, struct Path *path, long *a8);
+void path_out_a_bit(struct Path *path, long *ptfind_y);
+void gate_navigator_init8(struct Pathway *pway, long ptfind_y, long ptstart_x, long ptstart_y, long a5, long a6, unsigned char a7);
+void route_through_gates(struct Pathway *pway, struct Path *path, long ptstart_x);
+long triangle_findSE8(long ptfind_x, long ptfind_y);
+long ma_triangle_route(long ptfind_x, long ptfind_y, long *ptstart_x);
 void edgelen_init(void);
 /******************************************************************************/
 
@@ -293,10 +372,10 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
     return true;
 }
 
-long route_to_path(long a1, long a2, long a3, long a4, long *a5, long a6, struct Path *path, long *a8)
+long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *a5, long a6, struct Path *path, long *a8)
 {
     NAVIDBG(19,"Starting");
-    return _DK_route_to_path(a1, a2, a3, a4, a5, a6, path, a8);
+    return _DK_route_to_path(ptfind_x, ptfind_y, ptstart_x, ptstart_y, a5, a6, path, a8);
 }
 
 void waypoint_normal(long a1, long a2, long *norm_x, long *norm_y)
@@ -409,9 +488,9 @@ void route_through_gates(struct Pathway *pway, struct Path *path, long mag)
     path->waypoints[i].y = pway->field_C;
 }
 
-long triangle_findSE8(long a1, long a2)
+long triangle_findSE8(long ptfind_x, long ptfind_y)
 {
-    return _DK_triangle_findSE8(a1, a2);
+    return _DK_triangle_findSE8(ptfind_x, ptfind_y);
 }
 
 /* TODO PATHFINDING Enable when needed
@@ -768,9 +847,72 @@ TbBool ariadne_creature_reached_position(struct Thing *thing, struct Coord3d *po
     return true;
 }
 
-void ariadne_pull_out_waypoint(struct Thing *thing, struct Ariadne *arid, long a3, struct Coord3d *pos)
+void ariadne_pull_out_waypoint(struct Thing *thing, struct Ariadne *arid, long wpoint_id, struct Coord3d *pos)
 {
-  _DK_ariadne_pull_out_waypoint(thing, arid, a3, pos);
+    struct Coord2d *wp;
+    long size_radius;
+    //_DK_ariadne_pull_out_waypoint(thing, arid, wpoint_id, pos); return;
+    if ((wpoint_id < 0) || (wpoint_id >= ARID_WAYPOINTS_COUNT))
+    {
+        pos->x.val = 0;
+        pos->y.val = 0;
+        return;
+    }
+    if (arid->total_waypoints-wpoint_id == 1)
+    {
+      pos->x.val = arid->waypoints[wpoint_id].x.val;
+      pos->y.val = arid->waypoints[wpoint_id].y.val;
+      return;
+    }
+    wp = &arid->waypoints[wpoint_id];
+    size_radius = (thing_nav_sizexy(thing) >> 1);
+    pos->x.val = wp->x.val + 1;
+    pos->x.stl.pos = 0;
+    pos->y.val = wp->y.val + 1;
+    pos->y.stl.pos = 0;
+
+    if (wp->x.stl.pos == 255)
+    {
+      if (wp->y.stl.pos == 255)
+      {
+          pos->x.val -= size_radius+1;
+          pos->y.val -= size_radius+1;
+      } else
+      if (wp->y.stl.pos != 0)
+      {
+          pos->x.val -= size_radius+1;
+          pos->y.val += size_radius;
+      } else
+      {
+          pos->x.val -= size_radius+1;
+      }
+    } else
+    if (wp->x.stl.pos != 0)
+    {
+        if (wp->y.stl.pos == 255)
+        {
+            pos->x.val += size_radius;
+            pos->y.val -= size_radius+1;
+        } else
+        if (wp->y.stl.pos != 0)
+        {
+            pos->x.val += size_radius;
+            pos->y.val += size_radius;
+        } else
+        {
+            pos->x.val += size_radius;
+        }
+    } else
+    {
+        if (wp->y.stl.pos == 255)
+        {
+          pos->y.val -= size_radius+1;
+        } else
+        if (wp->y.stl.pos != 0)
+        {
+            pos->y.val += size_radius;
+        }
+    }
 }
 
 void ariadne_init_current_waypoint(struct Thing *thing, struct Ariadne *arid)
@@ -780,9 +922,228 @@ void ariadne_init_current_waypoint(struct Thing *thing, struct Ariadne *arid)
     arid->field_62 = get_2d_distance(&thing->mappos, &arid->pos_C);
 }
 
+long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
+{
+    return _DK_creature_cannot_move_directly_to(thing, pos);
+}
+
+long ariadne_creature_blocked_by_wall_at(struct Thing *thing, struct Coord3d *pos)
+{
+    struct Coord3d mvpos;
+    long zmem,ret;
+    zmem = thing->mappos.z.val;
+    mvpos.x.val = pos->x.val;
+    mvpos.y.val = pos->y.val;
+    mvpos.z.val = pos->z.val;
+    mvpos.z.val = get_floor_height_under_thing_at(thing, &thing->mappos);
+    thing->mappos.z.val = mvpos.z.val;
+    ret = creature_cannot_move_directly_to(thing, &mvpos);
+    thing->mappos.z.val = zmem;
+    return ret;
+}
+
+long ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid)
+{
+    return _DK_ariadne_get_wallhug_angle(thing, arid);
+}
+
+AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos)
+{
+    return _DK_ariadne_init_wallhug(thing, arid, pos);
+}
+
+long ariadne_get_blocked_flags(struct Thing *thing, struct Coord3d *pos)
+{
+    struct Coord3d lpos;
+    unsigned long flags;
+    lpos.x.val = pos->x.val;
+    lpos.y.val = thing->mappos.y.val;
+    lpos.z.val = thing->mappos.z.val;
+    flags = 0;
+    if (ariadne_creature_blocked_by_wall_at(thing, &lpos))
+        flags |= 0x01;
+    lpos.x.val = thing->mappos.x.val;
+    lpos.y.val = pos->y.val;
+    lpos.z.val = thing->mappos.z.val;
+    if (ariadne_creature_blocked_by_wall_at(thing, &lpos))
+        flags |= 0x02;
+    if (flags == 0)
+    {
+        lpos.x.val = pos->x.val;
+        lpos.y.val = pos->y.val;
+        lpos.z.val = thing->mappos.z.val;
+        if (ariadne_creature_blocked_by_wall_at(thing, &lpos))
+          flags |= 0x04;
+    }
+    return flags;
+}
+
+long blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned long blk_flags)
+{
+    long radius;
+    struct Map *mapblk;
+    long start_x,end_x,start_y,end_y;
+    long stl_x,stl_y;
+
+    radius = thing_nav_sizexy(thing) >> 1;
+    start_x = ((long)pos->x.val - radius) / 256;
+    end_x = ((long)pos->x.val + radius) / 256;
+    start_y = ((long)pos->y.val - radius) / 256;
+    end_y = ((long)pos->y.val + radius) / 256;
+    if ((blk_flags & 0x01) != 0)
+    {
+        stl_x = end_x;
+        if (thing->mappos.x.val >= pos->x.val)
+            stl_x = start_x;
+        if (end_y >= start_y)
+        {
+            for (stl_y = start_y; stl_y <= end_y; stl_y++)
+            {
+                mapblk = get_map_block_at(stl_x, stl_y);
+                if ((mapblk->flags & 0x40) != 0)
+                    return 1;
+            }
+        }
+    }
+    if ((blk_flags & 0x02) != 0)
+    {
+        stl_y = end_y;
+        if (thing->mappos.y.val >= pos->y.val)
+              stl_y = start_y;
+        if (end_x >= start_x)
+        {
+            for (stl_x = start_x; stl_x <= end_x; stl_x++)
+            {
+                mapblk = get_map_block_at(stl_x, stl_y);
+                if ((mapblk->flags & 0x40) != 0)
+                    return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+long ariadne_push_position_against_wall(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos_out)
+{
+    struct Coord3d lpos;
+    long radius;
+    unsigned long blk_flags;
+
+    blk_flags = ariadne_get_blocked_flags(thing, pos1);
+    radius = thing_nav_sizexy(thing) >> 1;
+    lpos.x.val = pos1->x.val;
+    lpos.y.val = pos1->y.val;
+    lpos.z.val = 0;
+
+    if ((blk_flags & 0x01) != 0)
+    {
+      if (pos1->x.val >= thing->mappos.x.val)
+      {
+          lpos.x.val = thing->mappos.x.val + radius;
+          lpos.x.stl.pos = 255;
+          lpos.x.val -= radius;
+      } else
+      {
+          lpos.x.val = thing->mappos.x.val - radius;
+          lpos.x.stl.pos = 0;
+          lpos.x.val += radius;
+      }
+      lpos.z.val = get_thing_height_at(thing, &lpos);
+    }
+    if ((blk_flags & 0x02) != 0)
+    {
+      if (pos1->y.val >= thing->mappos.y.val)
+      {
+        lpos.y.val = thing->mappos.y.val + radius;
+        lpos.y.stl.pos = 255;
+        lpos.y.val -= radius;
+      } else
+      {
+        lpos.y.val = thing->mappos.y.val - radius;
+        lpos.y.stl.pos = 0;
+        lpos.y.val += radius;
+      }
+      lpos.z.val = get_thing_height_at(thing, &lpos);
+    }
+    if ((blk_flags & 0x04) != 0)
+    {
+      if (pos1->x.val >= thing->mappos.x.val)
+      {
+          lpos.x.val = thing->mappos.x.val + radius;
+          lpos.x.stl.pos = 255;
+          lpos.x.val -= radius;
+      } else
+      {
+          lpos.x.val = thing->mappos.x.val - radius;
+          lpos.x.stl.pos = 0;
+          lpos.x.val += radius;
+      }
+      if (pos1->y.val >= thing->mappos.y.val)
+      {
+          lpos.y.val = thing->mappos.y.val + radius;
+          lpos.y.stl.pos = 255;
+          lpos.y.val -= radius;
+      }
+      else
+      {
+          lpos.y.val = thing->mappos.y.val - radius;
+          lpos.y.stl.pos = 0;
+          lpos.y.val += radius;
+      }
+      lpos.z.val = get_thing_height_at(thing, &lpos);
+    }
+    pos_out->x.val = lpos.x.val;
+    pos_out->y.val = lpos.y.val;
+    pos_out->z.val = lpos.z.val;
+    return blk_flags;
+}
+
 long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariadne *arid)
 {
-    return _DK_ariadne_init_movement_to_current_waypoint(thing, arid);
+    struct Coord3d pos;
+    struct Coord3d pos3;
+    long angle;
+    long delta_x,delta_y;
+    unsigned long blk_flags;
+    //return _DK_ariadne_init_movement_to_current_waypoint(thing, arid);
+    angle = get_angle_xy_to(&thing->mappos, &arid->pos_C);
+    delta_x = ((long)arid->field_26 * LbSinL(angle)) >> 16;
+    delta_y = ((long)arid->field_26 * LbCosL(angle)) >> 16;
+    pos.x.val = (long)thing->mappos.x.val + delta_x;
+    pos.y.val = (long)thing->mappos.y.val - delta_y;
+    pos.z.val = get_thing_height_at(thing, &pos);
+    if (!ariadne_creature_blocked_by_wall_at(thing, &pos))
+    {
+        arid->field_21 = 1;
+        return 1;
+    }
+
+    blk_flags = ariadne_get_blocked_flags(thing, &pos);
+    if (blocked_by_door_at(thing, &pos, blk_flags))
+    {
+        arid->field_21 = 1;
+        return 1;
+    }
+    ariadne_push_position_against_wall(thing, &pos, &pos3);
+    if (((blk_flags & 0x01) != 0) && (thing->mappos.x.val == pos3.x.val)
+     || ((blk_flags & 0x02) != 0) && (thing->mappos.y.val == pos3.y.val))
+    {
+      ariadne_init_wallhug(thing, arid, &pos);
+      arid->field_22 = 1;
+      return 1;
+    }
+    arid->pos_53.x.val = pos3.x.val;
+    arid->pos_53.y.val = pos3.y.val;
+    arid->pos_53.z.val = pos3.z.val;
+    arid->pos_59.x.val = pos.x.val;
+    arid->pos_59.y.val = pos.y.val;
+    arid->pos_59.z.val = pos.z.val;
+    arid->pos_12.x.val = pos3.x.val;
+    arid->pos_12.y.val = pos3.y.val;
+    arid->pos_12.z.val = pos3.z.val;
+    arid->field_21 = 3;
+    arid->manoeuvre_state = 1;
+    return 1;
 }
 
 AriadneReturn ariadne_prepare_creature_route_target_reached(struct Thing *thing, struct Ariadne *arid, struct Coord3d *srcpos, struct Coord3d *dstpos)
@@ -825,7 +1186,7 @@ AriadneReturn ariadne_prepare_creature_route_to_target(struct Thing *thing, stru
         owner_player_navigating = -1;
     else
         owner_player_navigating = thing->owner;
-    nav_sizexy = actual_sizexy_to_nav_block_sizexy_table[thing->field_56%(MAX_SIZEXY+1)]-1;
+    nav_sizexy = thing_nav_block_sizexy(thing)-1;
     path_init8_wide(&path,
         arid->startpos.x.val, arid->startpos.y.val,
         arid->endpos.x.val, arid->endpos.y.val, -2, nav_sizexy);
@@ -921,36 +1282,6 @@ long ariadne_push_position_against_wall(struct Thing *thing, struct Coord3d *pos
 
 }
 */
-
-long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
-{
-    return _DK_creature_cannot_move_directly_to(thing, pos);
-}
-
-long ariadne_creature_blocked_by_wall_at(struct Thing *thing, struct Coord3d *pos)
-{
-    struct Coord3d mvpos;
-    long zmem,ret;
-    zmem = thing->mappos.z.val;
-    mvpos.x.val = pos->x.val;
-    mvpos.y.val = pos->y.val;
-    mvpos.z.val = pos->z.val;
-    mvpos.z.val = get_floor_height_under_thing_at(thing, &thing->mappos);
-    thing->mappos.z.val = mvpos.z.val;
-    ret = creature_cannot_move_directly_to(thing, &mvpos);
-    thing->mappos.z.val = zmem;
-    return ret;
-}
-
-long ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid)
-{
-    return _DK_ariadne_get_wallhug_angle(thing, arid);
-}
-
-AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos)
-{
-    return _DK_ariadne_init_wallhug(thing, arid, pos);
-}
 
 AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, struct Ariadne *arid)
 {
@@ -1509,24 +1840,111 @@ TbBool border_clip_vertical(unsigned char *imap, long start_x, long end_x, long 
     return r;
 }
 
-long edge_find(long a1, long a2, long a3, long a4, long *a5, long *a6)
+TbBool point_find(long pt_x, long pt_y, long *out_tri_idx, long *out_cor_idx)
 {
-    NAVIDBG(19,"Starting");
-    return _DK_edge_find(a1, a2, a3, a4, a5, a6);
+    struct Point *pt;
+    long tri_idx,cor_id;
+    tri_idx = triangle_find8(pt_x << 8, pt_y << 8);
+    if (tri_idx < 0)
+    {
+        return false;
+    }
+    for (cor_id=0; cor_id < 3; cor_id++)
+    {
+        pt = get_triangle_point(tri_idx,cor_id);
+        if ((pt->x == pt_x) && (pt->y == pt_y))
+        {
+          *out_tri_idx = tri_idx;
+          *out_cor_idx = cor_id;
+          return true;
+        }
+    }
+    return false;
 }
 
-TbBool edge_lock_f(long fin_x, long fin_y, long bgn_x, long bgn_y, const char *func_name)
+TbBool point_redundant(long tri_idx, long cor_idx)
+{
+    long tri_first,cor_first;
+    long tri_secnd,cor_secnd;
+    tri_first = tri_idx;
+    cor_first = cor_idx;
+    while ( 1 )
+    {
+        tri_secnd = Triangles[tri_first].field_6[cor_first];
+        if ((tri_secnd < 0) || (tri_secnd >= TRIANLGLES_COUNT))
+            break;
+        if (Triangles[tri_secnd].field_C != Triangles[tri_idx].field_C)
+          break;
+        cor_secnd = link_find(tri_secnd, tri_first);
+        if (cor_secnd < 0)
+            break;
+        cor_first = MOD3[cor_secnd+1];
+        tri_first = tri_secnd;
+        if (tri_secnd == tri_idx)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+long edge_find(long stlstart_x, long stlstart_y, long stlend_x, long stlend_y, long *a5, long *a6)
+{
+    struct Triangle *tri;
+    struct Point *pt;
+    long dst_tri_idx,dst_cor_idx;
+    long tri_idx,cor_idx,tri_id2;
+    long delta_x,delta_y;
+    long len_x,len_y;
+    long i;
+    NAVIDBG(19,"Starting");
+    //return _DK_edge_find(stlstart_x, stlstart_y, stlend_x, stlend_y, a5, a6);
+    if (!point_find(stlstart_x, stlstart_y, &dst_tri_idx, &dst_cor_idx))
+    {
+        return 0;
+    }
+    tri_idx = dst_tri_idx;
+    cor_idx = dst_cor_idx;
+    len_y = stlend_y - stlstart_y;
+    len_x = stlend_x - stlstart_x;
+    do
+    {
+        pt = get_triangle_point(tri_idx, MOD3[cor_idx+1]);
+        delta_y = (pt->y - stlstart_y);
+        delta_x = (pt->x - stlstart_x);
+        if (len_y*delta_x == len_x*delta_y)
+        {
+          if (LbNumberSignsSame(delta_x, len_x) && LbNumberSignsSame(delta_y, len_y))
+          {
+              *a5 = tri_idx;
+              *a6 = cor_idx;
+              return 1;
+          }
+        }
+        tri = get_triangle(tri_idx);
+        tri_id2 = tri->field_6[cor_idx];
+        if (tri_id2 == -1)
+          break;
+        i = link_find(tri_id2, tri_idx);
+        tri_idx = tri_id2;
+        cor_idx = MOD3[i+1];
+    }
+    while (tri_idx != dst_tri_idx);
+    return 0;
+}
+
+TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name)
 {
     long tri_n,tri_k;
     long x,y;
     struct Point *pt;
     long k;
-    //_DK_edge_lock(fin_x, fin_y, bgn_x, bgn_y); return true;
-    x = bgn_x;
-    y = bgn_y;
-    while ((x != fin_x) || (y != fin_y))
+    //_DK_edge_lock(ptend_x, ptend_y, ptstart_x, ptstart_y); return true;
+    x = ptstart_x;
+    y = ptstart_y;
+    while ((x != ptend_x) || (y != ptend_y))
     {
-      if (!edge_find(x, y, fin_x, fin_y, &tri_n, &tri_k))
+      if (!edge_find(x, y, ptend_x, ptend_y, &tri_n, &tri_k))
       {
         ERRORMSG("%s: edge not found",func_name);
         return false;
@@ -1636,24 +2054,199 @@ long fringe_get_rectangle(long *a1, long *a2, long *a3, long *a4, unsigned char 
     return _DK_fringe_get_rectangle(a1, a2, a3, a4, a5);
 }
 
+void delaunay_stack_point(long a1, long a2)
+{
+    //TODO
+}
+
+long optimise_heuristic(long a1, long a2)
+{
+    //TODO
+}
+
 long delaunay_seeded(long a1, long a2, long a3, long a4)
 {
     return _DK_delaunay_seeded(a1, a2, a3, a4);
 }
 
-void border_unlock(long a1, long a2, long a3, long a4)
+TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name)
 {
-    _DK_border_unlock(a1, a2, a3, a4);
+    struct Triangle *tri;
+    struct Point *pt;
+    long pt_x,pt_y;
+    long tri_id,cor_id;
+    long nerr;
+    pt_x = ptstart_x;
+    pt_y = ptstart_y;
+    nerr = 0;
+    while (pt_x != ptend_x || pt_y != ptend_y)
+    {
+      if (!edge_find(pt_x, pt_y, ptend_x, ptend_y, &tri_id, &cor_id))
+      {
+          ERRORMSG("%s: edge not found at (%ld,%ld)",func_name,pt_x,pt_y);
+          return false;
+      }
+      if (edge_point_add(pt_x, pt_y) < 0)
+      {
+          nerr++;
+      }
+      region_unlock(tri_id);
+      tri = get_triangle(tri_id);
+      tri->field_D &= ~(1 << (cor_id + 3));
+      pt = get_triangle_point(tri_id,MOD3[cor_id+1]);
+      pt_x = pt->x;
+      pt_y = pt->y;
+    }
+    if (nerr != 0)
+    {
+        ERRORMSG("%s: overflow for %ld edge points",func_name,nerr);
+        //ERRORLOG("edge_setlock_record:overflow");
+        return true; //TODO PATHFINDING make sure we should return true
+    }
+    return true;
 }
 
-void triangulation_border_start(long *a1, long *a2)
+void border_unlock(long a1, long a2, long a3, long a4)
 {
-    _DK_triangulation_border_start(a1, a2);
+    struct EdgePoint *ept;
+    long ept_id, tri_idx, cor_idx;
+    long nerr;
+    //_DK_border_unlock(a1, a2, a3, a4);
+    edge_points_clean();
+    edge_unlock_record_and_regions(a1, a2, a1, a4);
+    edge_unlock_record_and_regions(a1, a4, a3, a4);
+    edge_unlock_record_and_regions(a3, a4, a3, a2);
+    edge_unlock_record_and_regions(a3, a2, a1, a2);
+    if (ix_EdgePoints < 1)
+        return;
+    nerr = 0;
+    for (ept_id = ix_EdgePoints; ept_id > 0; ept_id--)
+    {
+        ept = edge_point_get(ept_id-1);
+        if (!point_find(ept->field_0, ept->field_4, &tri_idx, &cor_idx))
+        {
+            nerr++;
+            continue;
+        }
+        if (point_redundant(tri_idx, cor_idx))
+        {
+            delete_point(tri_idx, cor_idx);
+        }
+    }
+    if (nerr != 0)
+    {
+        ERRORLOG("Out of %ld edge points, %ld were not found",(long)ix_EdgePoints,nerr);
+    }
+}
+
+TbBool triangulation_border_start(long *border_a, long *border_b)
+{
+    struct Triangle *tri;
+    long tri_idx,brd_idx;
+    long i,k;
+    //_DK_triangulation_border_start(border_a, border_b);
+    // First try - border
+    for (brd_idx=0; brd_idx < ix_Border; brd_idx++)
+    {
+        tri_idx = Border[brd_idx];
+        tri = get_triangle(tri_idx);
+        if (tri->field_C != 255)
+        {
+            for (i=0; i < 3; i++)
+            {
+                k = tri->field_6[i];
+                if (k == -1)
+                {
+                    *border_a = tri_idx;
+                    *border_b = i;
+                    return true;
+                }
+            }
+        }
+    }
+    // Second try - triangles
+    for (tri_idx=0; tri_idx < ix_Triangles; tri_idx++)
+    {
+        tri = get_triangle(tri_idx);
+        if (tri->field_C != 255)
+        {
+            for (i=0; i < 3; i++)
+            {
+                k = tri->field_6[i];
+                if (k == -1)
+                {
+                    *border_a = tri_idx;
+                    *border_b = i;
+                    return true;
+                }
+            }
+        }
+    }
+    // Failure
+    ERRORLOG("not found");
+    *border_a = 0;
+    *border_b = 0;
+    return false;
+}
+
+long get_navigation_colour_for_door(long stl_x, long stl_y)
+{
+    struct Thing *doortng;
+    long owner;
+    doortng = get_door_for_position(stl_x, stl_y);
+    if (thing_is_invalid(doortng))
+    {
+        ERRORLOG("Navigation cannot find door for flagged position");
+        return 0x01;
+    }
+    if (doortng->byte_18 == 0)
+    {
+        return 0x01;
+    }
+    if (doortng->owner == game.field_14E496)
+        owner = 5;
+    else
+    if (doortng->owner == game.neutral_player_num)
+        owner = 6;
+    else
+        owner = doortng->owner;
+    if (owner > 6)
+    {
+        ERRORLOG("Navigation door has outranged player %ld",owner);
+        return 0x01;
+    }
+    return (0x20 * (owner+1)) | 0x01;
+}
+
+long get_navigation_colour_for_cube(long stl_x, long stl_y)
+{
+    struct Column *col;
+    long tcube;
+    long i;
+    col = get_column_at(stl_x, stl_y);
+    i = (col->bitfileds >> 4);
+    if (i > 15)
+      i = 15;
+    tcube = get_top_cube_at(stl_x, stl_y);
+    if (((tcube & 0xFFFFFFFE) == 40) || (tcube >= 294) && (tcube <= 302))
+      i |= 0x10;
+    return i;
 }
 
 long get_navigation_colour(long stl_x, long stl_y)
 {
-    return _DK_get_navigation_colour(stl_x, stl_y);
+    struct Map *mapblk;
+    //return _DK_get_navigation_colour(stl_x, stl_y);
+    mapblk = get_map_block_at(stl_x, stl_y);
+    if ((mapblk->flags & 0x40) != 0)
+    {
+        return get_navigation_colour_for_door(stl_x, stl_y);
+    }
+    if ((mapblk->flags & 0x10) != 0)
+    {
+        return 0x0F;
+    }
+    return get_navigation_colour_for_cube(stl_x, stl_y);
 }
 
 long uniform_area_colour(unsigned char *imap, long start_x, long start_y, long end_x, long end_y)

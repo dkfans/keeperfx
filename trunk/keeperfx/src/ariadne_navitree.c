@@ -245,7 +245,7 @@ long tree_to_route(long tag_start_id, long tag_end_id, long *route_pts)
 
 void tags_init(void)
 {
-    //TODO PATHFINDING there is 9000 tags, so why tag_current is 8-bit?
+    //Note that tag_current is a tag value, not tag index
     if (tag_current >= 255)
     {
         memset(Tags, 0, sizeof(Tags));
