@@ -21,6 +21,8 @@
 
 #include "globals.h"
 
+#define EDGE_POINTS_COUNT 200
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -30,12 +32,22 @@ extern "C" {
 #pragma pack(1)
 #endif
 
+struct EdgePoint { //sizeof = 8
+    long field_0;
+    long field_4;
+};
 
 #ifdef __cplusplus
 #pragma pack()
 #endif
 /******************************************************************************/
+DLLIMPORT long _DK_ix_EdgePoints;
+#define ix_EdgePoints _DK_ix_EdgePoints
 
+/******************************************************************************/
+void edge_points_clean(void);
+long edge_point_add(long pt_x, long pt_y);
+struct EdgePoint *edge_point_get(long ept_id);
 /******************************************************************************/
 #ifdef __cplusplus
 }

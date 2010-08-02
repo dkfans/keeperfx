@@ -29,6 +29,7 @@ extern "C" {
 #define TREE_ROUTE_LEN 3000
 #define BORDER_LENGTH 100
 #define ROUTE_LENGTH 12000
+#define ARID_WAYPOINTS_COUNT 10
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -58,7 +59,7 @@ struct Ariadne { // sizeof = 102
   unsigned char field_24[2];
   unsigned short field_26;
     unsigned char current_waypoint;
-    struct Coord2d waypoints[10];
+    struct Coord2d waypoints[ARID_WAYPOINTS_COUNT];
     unsigned char stored_waypoints; // offs = 0x51
     unsigned char total_waypoints;
   struct Coord3d pos_53;
@@ -152,8 +153,6 @@ DLLIMPORT long _DK_fringe_x1;
 #define fringe_x1 _DK_fringe_x1
 DLLIMPORT long _DK_fringe_y2;
 #define fringe_y2 _DK_fringe_y2
-//DLLIMPORT long _DK_ix_EdgePoints;
-//#define ix_EdgePoints _DK_ix_EdgePoints
 DLLIMPORT long _DK_fringe_y[256];
 #define fringe_y _DK_fringe_y
 DLLIMPORT long _DK_ix_Border;
@@ -183,13 +182,15 @@ long get_navigation_colour(long stl_x, long stl_y);
 TbBool border_clip_horizontal(unsigned char *imap, long a1, long a2, long a3, long a4);
 TbBool border_clip_vertical(unsigned char *imap, long a1, long a2, long a3, long a4);
 #define edge_lock(fin_x, fin_y, bgn_x, bgn_y) edge_lock_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
-TbBool edge_lock_f(long fin_x, long fin_y, long bgn_x, long bgn_y, const char *func_name);
+TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name);
+#define edge_unlock_record_and_regions(fin_x, fin_y, bgn_x, bgn_y) edge_unlock_record_and_regions_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
+TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name);
 void border_internal_points_delete(long a1, long a2, long a3, long a4);
 void tri_set_rectangle(long a1, long a2, long a3, long a4, unsigned char a5);
 long fringe_get_rectangle(long *a1, long *a2, long *a3, long *a4, unsigned char *a5);
 long delaunay_seeded(long a1, long a2, long a3, long a4);
 void border_unlock(long a1, long a2, long a3, long a4);
-void triangulation_border_start(long *a1, long *a2);
+TbBool triangulation_border_start(long *a1, long *a2);
 TbBool triangulate_area(unsigned char *imap, long sx, long sy, long ex, long ey);
 
 /******************************************************************************/
