@@ -5571,11 +5571,11 @@ void reset_script_timers_and_flags(void)
 void init_good_player_as(long plr_idx)
 {
   struct PlayerInfo *player;
-  game.field_14E496 = plr_idx;
+  game.hero_player_num = plr_idx;
   player = get_player(plr_idx);
   player->field_0 |= 0x01;
   player->field_0 |= 0x40;
-  player->id_number = game.field_14E496;
+  player->id_number = game.hero_player_num;
 }
 
 void store_localised_game_structure(void)
@@ -7370,9 +7370,11 @@ int clear_active_dungeons_stats(void)
 {
   struct Dungeon *dungeon;
   int i;
-  for (i=0; i<=(game.field_14E496%DUNGEONS_COUNT); i++)
+  for (i=0; i <= game.hero_player_num; i++)
   {
       dungeon = get_dungeon(i);
+      if (dungeon_invalid(dungeon))
+          break;
       memset((char *)dungeon->field_64, 0, 480 * sizeof(short));
       memset((char *)dungeon->job_breeds_count, 0, CREATURE_TYPES_COUNT*3*sizeof(unsigned short));
       memset((char *)dungeon->field_4E4, 0, CREATURE_TYPES_COUNT*3*sizeof(unsigned short));
@@ -8997,10 +8999,10 @@ void init_dungeons(void)
   struct Dungeon *dungeon;
   for (i=0; i < DUNGEONS_COUNT; i++)
   {
-    dungeon = get_dungeon(game.field_14E496);
-    dungeon->hates_player[i%DUNGEONS_COUNT] = game.fight_max_hate;
+    dungeon = get_dungeon(game.hero_player_num);
+    dungeon->hates_player[i] = game.fight_max_hate;
     dungeon = get_dungeon(i);
-    dungeon->hates_player[game.field_14E496%DUNGEONS_COUNT] = game.fight_max_hate;
+    dungeon->hates_player[game.hero_player_num%DUNGEONS_COUNT] = game.fight_max_hate;
     dungeon->field_918 = 0;
     dungeon->field_919 = 0;
     dungeon->creatr_list_start = 0;
@@ -9377,8 +9379,8 @@ short thing_create_thing(struct InitThing *itng)
   struct Thing *thing;
   if (itng->owner == 7)
   {
-    ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.field_14E496);
-    itng->owner = game.field_14E496;
+    ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.hero_player_num);
+    itng->owner = game.hero_player_num;
   } else
   if (itng->owner == 8)
   {
@@ -9584,7 +9586,7 @@ void init_level(void)
     game.field_14BB55 = 0;
   }
   light_set_lights_on(1);
-  init_dungeon_owner(game.field_14E496);
+  init_dungeon_owner(game.hero_player_num);
   game.numfield_D |= 0x04;
   LbMemoryCopy(&game.transfered_creature,&transfer_mem,sizeof(struct CreatureStorage));
   event_initialise_all();

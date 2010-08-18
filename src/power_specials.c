@@ -94,7 +94,7 @@ void multiply_creatures(struct PlayerInfo *player)
       WARNLOG("Can't create a copy of creature");
       break;
     }
-    set_creature_level(tncopy, thing->field_23);
+    set_creature_level(tncopy, cctrl->explevel);
     tncopy->health = thing->health;
     // Thing list loop body ends
     k++;
@@ -124,7 +124,7 @@ void multiply_creatures(struct PlayerInfo *player)
       WARNLOG("Can't create a copy of creature");
       break;
     }
-    set_creature_level(tncopy, thing->field_23);
+    set_creature_level(tncopy, cctrl->explevel);
     tncopy->health = thing->health;
     // Thing list loop body ends
     k++;

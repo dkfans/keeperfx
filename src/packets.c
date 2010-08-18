@@ -919,14 +919,14 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
   case PSt_MkGoodWorker:
       if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
       {
-          create_hero_special_worker(x, y, game.field_14E496);
+          create_hero_special_worker(x, y, game.hero_player_num);
           unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;
   case PSt_MkGoodCreatr:
       if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
       {
-          create_random_hero_creature(x, y, game.field_14E496, CREATURE_MAX_LEVEL);
+          create_random_hero_creature(x, y, game.hero_player_num, CREATURE_MAX_LEVEL);
           unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       break;

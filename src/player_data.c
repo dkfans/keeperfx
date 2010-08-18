@@ -117,7 +117,7 @@ void clear_players(void)
     }
     memset(&bad_player, 0, sizeof(struct PlayerInfo));
     bad_player.id_number = PLAYERS_COUNT;
-    game.field_14E496 = hero_player_number;
+    game.hero_player_num = hero_player_number;
     game.field_14E495 = 0;
     game.flagfield_14EA4A = 2;
 }

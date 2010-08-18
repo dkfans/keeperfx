@@ -1570,7 +1570,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
   {
     output_message(12, 40, 1);
   }
-  if (game.field_14E496 == killertng->owner)
+  if (game.hero_player_num == killertng->owner)
   {
     if (player_creature_tends_to(killertng->owner,CrTend_Imprison))
       ERRORLOG("Hero have tend to imprison");
@@ -2134,7 +2134,7 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
     crtng->field_9 = game.play_gameturn;
     cctrl->field_286 = 17+ACTION_RANDOM(13);
     cctrl->field_287 = ACTION_RANDOM(7);
-    if (game.field_14E496 == owner)
+    if (owner == game.hero_player_num)
     {
       cctrl->sbyte_89 = -1;
       cctrl->byte_8C = 1;
