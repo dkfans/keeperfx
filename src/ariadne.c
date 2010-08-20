@@ -750,7 +750,11 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
     long par_fwd,par_bak;
     long tx,ty;
     long i;
-    //return _DK_ma_triangle_route(ttriA, ttriB, routecost);
+    //TODO PATHFINDING rewritten code has been disabled because it has errors
+    // We need to make testing system for routing, then re-enable rewritten code
+    // and compare results with the original code.
+    return _DK_ma_triangle_route(ttriA, ttriB, routecost);
+
     // Forward route
     NAVIDBG(19,"Making forward route");
     len_fwd = triangle_route_do_fwd(ttriA, ttriB, route_fwd, routecost);

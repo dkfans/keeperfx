@@ -1395,21 +1395,23 @@ void load_packets_for_turn(long nturn)
   pckt_chksum = pckt->chksum;
   if (nturn >= game.field_149F30)
   {
-    ERRORLOG("Out of turns to load from Packet File");
-    return;
+      ERRORDBG(18,"Out of turns to load from Packet File");
+      erstat_inc(ESE_CantReadPackets);
+      return;
   }
 
   data_size = PACKET_START_POS + turn_data_size*nturn;
   if (data_size != game.packet_file_pos)
   {
-    ERRORLOG("Packet Loading Seek Offset is wrong");
-    LbFileSeek(game.packet_save_fp, data_size, Lb_FILE_SEEK_BEGINNING);
-    game.packet_file_pos = data_size;
+      ERRORLOG("Packet Loading Seek Offset is wrong");
+      LbFileSeek(game.packet_save_fp, data_size, Lb_FILE_SEEK_BEGINNING);
+      game.packet_file_pos = data_size;
   }
   if (LbFileRead(game.packet_save_fp, &pckt_buf, turn_data_size) == -1)
   {
-    ERRORLOG("Cannot read turn data from Packet File");
-    return;
+      ERRORDBG(18,"Cannot read turn data from Packet File");
+      erstat_inc(ESE_CantReadPackets);
+      return;
   }
   game.packet_file_pos += turn_data_size;
   for (i=0; i < NET_PLAYERS_COUNT; i++)

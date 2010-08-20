@@ -35,6 +35,7 @@ enum ErrorStatisticEntries {
     ESE_NoFreePathPts,
     ESE_BadPathHeap,
     ESE_BadRouteTree,
+    ESE_CantReadPackets,
 };
 
 /******************************************************************************/
