@@ -973,11 +973,6 @@ long remove_food_from_food_room_if_possible(struct Thing *thing)
   return _DK_remove_food_from_food_room_if_possible(thing);
 }
 
-struct Thing *get_door_for_position(long pos_x, long pos_y)
-{
-  return _DK_get_door_for_position(pos_x, pos_y);
-}
-
 unsigned char find_door_of_type(unsigned long a1, unsigned char a2)
 {
   return _DK_find_door_of_type(a1, a2);

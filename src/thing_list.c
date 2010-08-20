@@ -149,16 +149,30 @@ long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam ply
 long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxFilterParam param, long maximizer)
 {
     long dist_x,dist_y;
-    if (thing->class_id == TCls_Creature)
+    if (thing->class_id == param->class_id)
     {
-      if (creature_near_filter_is_owned_by(thing, param->plyr_idx))
-      {
-          // note that abs() is not required because we're computing square of the values
-          dist_x = param->num1-(MapCoord)thing->mappos.x.val;
-          dist_y = param->num2-(MapCoord)thing->mappos.y.val;
-          // This function should return max value when the distance is minimal, so:
-          return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
-      }
+        switch(param->class_id)
+        {
+        case TCls_Creature:
+            if (creature_near_filter_is_owned_by(thing, param->plyr_idx))
+            {
+                // note that abs() is not required because we're computing square of the values
+                dist_x = param->num1-(MapCoord)thing->mappos.x.val;
+                dist_y = param->num2-(MapCoord)thing->mappos.y.val;
+                // This function should return max value when the distance is minimal, so:
+                return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
+            }
+            break;
+        default:
+            if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
+            {
+                dist_x = param->num1-(MapCoord)thing->mappos.x.val;
+                dist_y = param->num2-(MapCoord)thing->mappos.y.val;
+                // This function should return max value when the distance is minimal, so:
+                return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
+            }
+            break;
+        }
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
     return -1;
@@ -1323,6 +1337,7 @@ struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, lon
     SYNCDBG(19,"Starting");
     //return get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
     filter = near_map_block_thing_filter_is_owned_by;
+    param.class_id = TCls_Creature;
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
     param.num2 = pos_y;
@@ -1341,6 +1356,31 @@ struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, M
     param.model_id = model;
     param.plyr_idx = plyr_idx;
     mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+    {
+        return INVALID_THING;
+    }
+    i = get_mapwho_thing_index(mapblk);
+    n = 0;
+    return get_thing_on_map_block_with_filter(i, filter, &param, &n);
+}
+
+struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
+    const struct Map *mapblk;
+    MapSlabCoord slb_x,slb_y;
+    long i,n;
+    SYNCDBG(19,"Starting");
+    //return _DK_get_door_for_position(pos_x, pos_y);
+    filter = map_block_thing_filter_is_of_class_and_model_and_owned_by;
+    param.class_id = TCls_Door;
+    param.model_id = -1;
+    param.plyr_idx = -1;
+    slb_x = (stl_x/3);
+    slb_y = (stl_y/3);
+    mapblk = get_map_block_at(3*slb_x+1, 3*slb_y+1);
     if (map_block_invalid(mapblk))
     {
         return INVALID_THING;

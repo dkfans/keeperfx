@@ -50,7 +50,7 @@ long triangle_find_cache_get(long pos_x, long pos_y)
     cache_y = 0;
 
   ntri = find_cache[cache_y][cache_x];
-  if (get_triangle_field_C(ntri) == 255)
+  if (get_triangle_tree_alt(ntri) == -1)
   {
     ntri = triangle_brute_find8_near(pos_x, pos_y);
     if ((ntri < 0) || (ntri > ix_Triangles))
@@ -86,7 +86,7 @@ long triangle_find8(long pt_x, long pt_y)
     long ntri,ncor;
     unsigned long k;
     //TODO may hang if out of points
-    NAVIDBG(9,"Starting");
+    NAVIDBG(19,"Starting");
     //return _DK_triangle_find8(pt_x, pt_y);
     ntri = triangle_find_cache_get(pt_x, pt_y);
     for (k=0; k < TRIANLGLES_COUNT; k++)

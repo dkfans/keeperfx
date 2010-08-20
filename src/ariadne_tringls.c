@@ -70,11 +70,15 @@ TbBool set_triangle_edgelen(long tri_id, long edgelen)
     return true;
 }
 
-long get_triangle_field_C(long tri_id)
+long get_triangle_tree_alt(long tri_id)
 {
+    long tree_alt;
     if ((tri_id < 0) || (tri_id >= TRIANLGLES_COUNT))
-        return 255;
-    return Triangles[tri_id].field_C;
+        return -1;
+    tree_alt = Triangles[tri_id].tree_alt;
+    if (tree_alt == 255)
+        return -1;
+    return tree_alt;
 }
 
 struct Triangle *get_triangle(long tri_id)

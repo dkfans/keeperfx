@@ -4577,7 +4577,7 @@ short set_start_state(struct Thing *thing)
     struct PlayerInfo *player;
     struct CreatureControl *cctrl;
     long i;
-    SYNCDBG(8,"Starting");
+    SYNCDBG(8,"Starting for model %d owner %d",(int)thing->model,(int)thing->owner);
 //    return _DK_set_start_state(thing);
     if ((thing->field_0 & 0x20) != 0)
     {
