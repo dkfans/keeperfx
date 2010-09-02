@@ -27,6 +27,7 @@
 #include "bflib_sndlib.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
+#include "bflib_inputctrl.h"
 #include "bflib_fileio.h"
 #include <windows.h>
 

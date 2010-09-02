@@ -66,7 +66,7 @@ DLLIMPORT long _DK_LbMouseOnMove(struct tagPOINT pos);
 DLLIMPORT long _DK_LbMouseOnBeginSwap(void);
 DLLIMPORT void _DK_LbMouseOnEndSwap(void);
 /******************************************************************************/
-TbResult __stdcall LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, long hot_x, long hot_y)
+TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, long hot_x, long hot_y)
 {
 #if (BFDEBUG_LEVEL > 18)
   if (mouseSprite == NULL)
@@ -81,7 +81,7 @@ TbResult __stdcall LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, l
   return Lb_SUCCESS;
 }
 
-TbResult __stdcall LbMouseSetup(struct TbSprite *mouseSprite)
+TbResult LbMouseSetup(struct TbSprite *mouseSprite)
 {
   TbResult ret;
   long x,y;
@@ -103,7 +103,7 @@ TbResult __stdcall LbMouseSetup(struct TbSprite *mouseSprite)
   return ret;
 }
 
-TbResult __stdcall LbMouseSetPointerHotspot(long hot_x, long hot_y)
+TbResult LbMouseSetPointerHotspot(long hot_x, long hot_y)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
@@ -112,7 +112,7 @@ TbResult __stdcall LbMouseSetPointerHotspot(long hot_x, long hot_y)
   return Lb_SUCCESS;
 }
 
-TbResult __stdcall LbMouseSetPosition(long x, long y)
+TbResult LbMouseSetPosition(long x, long y)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
@@ -121,7 +121,7 @@ TbResult __stdcall LbMouseSetPosition(long x, long y)
   return Lb_SUCCESS;
 }
 
-TbResult __stdcall LbMouseChangeSprite(struct TbSprite *mouseSprite)
+TbResult LbMouseChangeSprite(struct TbSprite *mouseSprite)
 {
 #if (BFDEBUG_LEVEL > 18)
   if (mouseSprite == NULL)
@@ -146,7 +146,7 @@ void GetPointerHotspot(long *hot_x, long *hot_y)
   *hot_y = hotspot->y;
 }
 
-TbResult __stdcall LbMouseIsInstalled(void)
+TbResult LbMouseIsInstalled(void)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
@@ -155,7 +155,7 @@ TbResult __stdcall LbMouseIsInstalled(void)
   return Lb_SUCCESS;
 }
 
-TbResult __stdcall LbMouseSetWindow(long x, long y, long width, long height)
+TbResult LbMouseSetWindow(long x, long y, long width, long height)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
@@ -164,7 +164,7 @@ TbResult __stdcall LbMouseSetWindow(long x, long y, long width, long height)
   return Lb_SUCCESS;
 }
 
-TbResult __stdcall LbMouseOnMove(struct tagPOINT shift)
+TbResult LbMouseOnMove(struct tagPOINT shift)
 {
   if ((!lbMouseInstalled) || (lbMouseOffline))
     return Lb_FAIL;
@@ -207,7 +207,7 @@ void MouseToScreen(struct tagPOINT *pos)
   }
 }
 
-TbResult __stdcall LbMouseSuspend(void)
+TbResult LbMouseSuspend(void)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
@@ -216,19 +216,19 @@ TbResult __stdcall LbMouseSuspend(void)
   return Lb_SUCCESS;
 }
 
-TbResult __stdcall LbMouseOnBeginSwap(void)
+TbResult LbMouseOnBeginSwap(void)
 {
   if (!winMouseHandler.PointerBeginSwap())
     return Lb_FAIL;
   return Lb_SUCCESS;
 }
 
-void __stdcall LbMouseOnEndSwap(void)
+void LbMouseOnEndSwap(void)
 {
   winMouseHandler.PointerEndSwap();
 }
 
-void __stdcall mouseControl(unsigned int action, struct tagPOINT *pos)
+void mouseControl(unsigned int action, struct tagPOINT *pos)
 {
   struct tagPOINT dstPos;
   dstPos.x = pos->x;

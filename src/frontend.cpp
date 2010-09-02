@@ -28,6 +28,7 @@
 #include "bflib_dernc.h"
 #include "bflib_datetm.h"
 #include "bflib_keybrd.h"
+#include "bflib_inputctrl.h"
 #include "bflib_sndlib.h"
 #include "bflib_mouse.h"
 #include "bflib_vidraw.h"

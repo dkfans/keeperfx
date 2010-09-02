@@ -192,7 +192,6 @@ extern char redraw_screen_flag;
 extern bool lbScreenDirectAccessActive;
 extern unsigned short lbVesaPage;
 */
-extern volatile int lbUserQuit;
 extern volatile TbBool lbScreenInitialised;
 extern volatile TbBool lbUseSdk;
 /******************************************************************************/
@@ -235,7 +234,6 @@ TbResult LbScreenSetGraphicsWindow(TbScreenCoord x, TbScreenCoord y,
 
 TbResult LbSetTitle(const char *title);
 TbResult LbSetIcon(unsigned short nicon);
-TbBool LbWindowsControl(void);
 TbBool LbIsActive(void);
 
 void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);

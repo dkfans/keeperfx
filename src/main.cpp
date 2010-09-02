@@ -11,6 +11,7 @@
 #include "bflib_memory.h"
 #include "bflib_heapmgr.h"
 #include "bflib_keybrd.h"
+#include "bflib_inputctrl.h"
 #include "bflib_datetm.h"
 #include "bflib_bufrw.h"
 #include "bflib_sprite.h"
@@ -8876,6 +8877,7 @@ void keeper_gameplay_loop(void)
       // Check if we should redraw screen in this turn
       do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
 
+      LbWindowsControl();
       update_mouse();
       input_eastegg();
       input();
@@ -10129,11 +10131,14 @@ void wait_at_frontend(void)
   long last_loop_time = LbTimerClock();
   do
   {
-    if ((!LbWindowsControl()) && ((game.system_flags & GSF_NetworkActive) == 0))
+    if (!LbWindowsControl())
     {
-      exit_keeper = 1;
-      SYNCDBG(0,"Windows Control exit condition invoked");
-      break;
+      if ((game.system_flags & GSF_NetworkActive) == 0)
+      {
+          exit_keeper = 1;
+          SYNCDBG(0,"Windows Control exit condition invoked");
+          break;
+      }
     }
     update_mouse();
     update_key_modifiers();

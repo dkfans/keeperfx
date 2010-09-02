@@ -7,7 +7,7 @@
  *     Functions to change video mode in DK way.
  * @par Comment:
  *     None.
- * @author   Tomasz Lis
+ * @author   KeeperFX Team
  * @date     05 Jan 2009 - 12 Jan 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify

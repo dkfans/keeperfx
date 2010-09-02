@@ -312,6 +312,8 @@ Version: 0.3.8
   Fixed duplicates level when using Multiply special
   Created some 64-bit math, similarly to original code
   Rewritten more of pathfinding
+  New pathfinding code has been disabled (needs debugging)
+  Dutch land introductions were added to 3 campaigns
 
 Version: 0.3.7c
   Fixed dungeon heart blinking if under mouse

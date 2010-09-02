@@ -61,6 +61,7 @@ obj/bflib_filelst.o \
 obj/bflib_fmvids.o \
 obj/bflib_guibtns.o \
 obj/bflib_heapmgr.o \
+obj/bflib_inputctrl.o \
 obj/bflib_keybrd.o \
 obj/bflib_math.o \
 obj/bflib_memory.o \
