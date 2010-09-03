@@ -26,11 +26,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+enum TbMouseAction {
+    MActn_NONE = 0,
+    MActn_MOUSEMOVE,
+    MActn_LBUTTONDOWN,
+    MActn_LBUTTONUP,
+    MActn_RBUTTONDOWN,
+    MActn_RBUTTONUP,
+    MActn_MBUTTONDOWN,
+    MActn_MBUTTONUP,
+    MActn_WHEELMOVEUP,
+    MActn_WHEELMOVEDOWN,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
 struct TbSprite;
-struct tagPOINT;
+struct TbPoint;
 
 struct mouse_buffer {
         long Valid;//bool
@@ -112,7 +126,7 @@ void GetPointerHotspot(long *hot_x, long *hot_y);
 TbResult LbMouseIsInstalled(void);
 TbResult LbMouseSetWindow(long x, long y, long width, long height);
 
-void mouseControl(unsigned int action, struct tagPOINT *pos);
+void mouseControl(unsigned int action, struct TbPoint *pos);
 TbResult LbMouseOnBeginSwap(void);
 void LbMouseOnEndSwap(void);
 

@@ -2,14 +2,14 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_inputctrl.h
- *     Header file for bflib_inputctrl.h.
+/** @file bflib_planar.h
+ *     Header file for bflib_planar.c.
  * @par Purpose:
- *     Input devices control and polling.
+ *     Basic planar integer geometry.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     16 Mar 2009 - 12 Oct 2010
+ * @date     24 Jan 2009 - 08 Mar 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,21 +17,28 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef BFLIB_INPUTCTRL_H
-#define BFLIB_INPUTCTRL_H
+#ifndef BFLIB_PLANAR_H
+#define BFLIB_PLANAR_H
 
 #include "bflib_basics.h"
-
-#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-extern volatile int lbUserQuit;
+struct TbRect {
+  long left;
+  long top;
+  long right;
+  long bottom;
+};
+
+struct TbPoint {
+  long x;
+  long y;
+};
 /******************************************************************************/
-TbBool LbWindowsControl(void);
-TbBool LbIsActive(void);
+void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBottom);
 
 /******************************************************************************/
 #ifdef __cplusplus

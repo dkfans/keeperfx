@@ -22,6 +22,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_video.h"
+#include "bflib_planar.h"
 #include "bflib_mspointer.hpp"
 
 /******************************************************************************/
@@ -34,25 +35,25 @@ class MouseStateHandler {
     bool Install(void);
     bool IsInstalled(void);
     bool Release(void);
-    struct tagPOINT *GetPosition(void);
+    struct TbPoint *GetPosition(void);
     bool SetMousePosition(long x, long y);
     bool SetPosition(long x, long y);
     struct TbSprite *GetPointer(void);
     bool SetMousePointerAndOffset(struct TbSprite *mouseSprite, long x, long y);
     bool SetMousePointer(struct TbSprite *mouseSprite);
     bool SetPointerOffset(long x, long y);
-    struct tagPOINT *GetPointerOffset(void);
+    struct TbPoint *GetPointerOffset(void);
     bool SetMouseWindow(long x, long y,long width, long height);
     bool PointerBeginSwap(void);
     bool PointerEndSwap(void);
  protected:
-    bool SetPointer(struct TbSprite *spr, struct tagPOINT *pt);
+    bool SetPointer(struct TbSprite *spr, struct TbPoint *pt);
     // Properties
     LbSemaphore semaphore;
     bool installed;
     struct TbSprite *mssprite;
-    struct tagPOINT mspos;
-    struct tagPOINT hotspot;
+    struct TbPoint mspos;
+    struct TbPoint hotspot;
     class LbI_PointerHandler pointer;
     bool swap;
     };

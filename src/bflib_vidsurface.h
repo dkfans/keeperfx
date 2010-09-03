@@ -2,14 +2,14 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_inputctrl.h
- *     Header file for bflib_inputctrl.h.
+/** @file bflib_vidsurface.h
+ *     Header file for bflib_vidsurface.c.
  * @par Purpose:
- *     Input devices control and polling.
+ *     Graphics surfaces support.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     16 Mar 2009 - 12 Oct 2010
+ * @date     10 Feb 2010 - 30 Sep 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,22 +17,34 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef BFLIB_INPUTCTRL_H
-#define BFLIB_INPUTCTRL_H
+#ifndef BFLIB_VIDSURFACE_H
+#define BFLIB_VIDSURFACE_H
 
 #include "bflib_basics.h"
-
-#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-extern volatile int lbUserQuit;
-/******************************************************************************/
-TbBool LbWindowsControl(void);
-TbBool LbIsActive(void);
+struct SDL_Surface;
+struct TbRect;
 
+struct SSurface {
+    struct SDL_Surface * surf_data;
+    unsigned long locks_count;
+    long pitch;
+};
+/******************************************************************************/
+extern SDL_Surface * lbScreenSurface;
+extern SDL_Surface * lbDrawSurface;
+/******************************************************************************/
+void LbScreenSurfaceInit(struct SSurface *surf);
+bool LbScreenSurfaceCreate(struct SSurface *surf, unsigned long w, unsigned long h);
+bool LbScreenSurfaceRelease(struct SSurface *surf);
+bool LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned long y,
+    struct TbRect *rect, unsigned long blflags);
+void *LbScreenSurfaceLock(struct SSurface *surf);
+bool LbScreenSurfaceUnlock(struct SSurface *surf);
 /******************************************************************************/
 #ifdef __cplusplus
 }

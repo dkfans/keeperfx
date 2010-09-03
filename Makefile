@@ -54,8 +54,6 @@ obj/bflib_cpu.o \
 obj/bflib_bufrw.o \
 obj/bflib_datetm.o \
 obj/bflib_dernc.o \
-obj/bflib_drawbas.o \
-obj/bflib_drawsdk.o \
 obj/bflib_fileio.o \
 obj/bflib_filelst.o \
 obj/bflib_fmvids.o \
@@ -71,6 +69,7 @@ obj/bflib_mspointer.o \
 obj/bflib_netsp.o \
 obj/bflib_netsp_ipx.o \
 obj/bflib_network.o \
+obj/bflib_planar.o \
 obj/bflib_pom.o \
 obj/bflib_render.o \
 obj/bflib_render_trig.o \
@@ -82,6 +81,7 @@ obj/bflib_sprfnt.o \
 obj/bflib_sprite.o \
 obj/bflib_video.o \
 obj/bflib_vidraw.o \
+obj/bflib_vidsurface.o \
 obj/config.o \
 obj/config_campaigns.o \
 obj/config_creature.o \
@@ -151,7 +151,8 @@ obj/vidmode.o \
 obj/main.o \
 $(RES)
 
-LINKLIB =  -L"directx/lib" -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lddraw -lSDLmain -lSDL -lSDL_net 
+# include and library directories
+LINKLIB =  -L"directx/lib" -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -lSDLmain -lSDL -lSDL_net 
 INCS =  -I"directx/include" -I"sdl/include"
 CXXINCS =  -I"directx/include" -I"sdl/include"
 
