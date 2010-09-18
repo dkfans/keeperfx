@@ -439,7 +439,9 @@ short get_global_inputs(void)
         return true;
       }
   }
-  if ((player->instance_num != 14) && (player->instance_num != 15) && (!game_is_busy_doing_gui_string_input()))
+  if ((player->instance_num != PI_MapFadeTo) &&
+      (player->instance_num != PI_MapFadeFrom) &&
+      (!game_is_busy_doing_gui_string_input()))
   {
       if ( is_game_key_pressed(30, &keycode, 0) )
       {
@@ -1472,11 +1474,11 @@ void input(void)
   if (is_game_key_pressed(27, 0, 0) != 0)
     pckt->field_10 |= 0x20;
   else
-    pckt->field_10 &= 0xDFu;
+    pckt->field_10 &= ~0x20;
   if (is_game_key_pressed(28, 0, 0) != 0)
     pckt->field_10 |= 0x40;
   else
-    pckt->field_10 &= 0xBFu;
+    pckt->field_10 &= ~0x40;
 
   get_inputs();
   SYNCDBG(7,"Finished");

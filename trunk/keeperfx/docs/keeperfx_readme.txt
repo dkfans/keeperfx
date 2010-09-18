@@ -307,6 +307,11 @@ New and modified level script commands:
 
 Changelog:
 
+Version: 0.38
+  Fixed duplicates level when using Multiply special
+  Created some 64-bit math, similarly to original code
+  Rewritten more of pathfinding
+
 Version: 0.37c
   Fixed dungeon heart blinking if under mouse
   It is now easier to target a creature for pick up
