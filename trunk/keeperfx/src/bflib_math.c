@@ -132,4 +132,16 @@ TbBool LbNumberSignsSame(long num_a, long num_b)
     return (sign_a == sign_b);
 }
 
+char LbCompareMultiplications(long mul1a, long mul1b, long mul2a, long mul2b)
+{
+  long long mul1,mul2;
+  mul1 = (long long)mul1a * (long long)mul1b;
+  mul2 = (long long)mul2a * (long long)mul2b;
+  if (mul1 > mul2)
+      return 1;
+  if (mul1 < mul2)
+      return -1;
+  return 0;
+}
+
 /******************************************************************************/

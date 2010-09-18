@@ -613,7 +613,7 @@ short field_14BB65[592];
     struct MagicStats magic_stats[POWER_TYPES_COUNT];
     struct ActionPoint action_points[ACTN_POINTS_COUNT];
 char field_14E495;
-    unsigned char field_14E496;
+    unsigned char hero_player_num;
     unsigned char neutral_player_num;
 int field_14E498;
 short field_14E49C;

@@ -4591,7 +4591,7 @@ short set_start_state(struct Thing *thing)
       initialise_thing_state(thing, 48);
       return thing->field_7;
     }
-    if (thing->owner == game.field_14E496)
+    if (thing->owner == game.hero_player_num)
     {
       i = creatures[thing->model%CREATURE_TYPES_COUNT].numfield_2;
       cleanup_current_thing_state(thing);

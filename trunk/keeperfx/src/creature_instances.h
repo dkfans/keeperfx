@@ -29,6 +29,57 @@ extern "C" {
 /******************************************************************************/
 typedef long (*Creature_Instf_Func)(struct Thing *, long *);
 
+enum CreatureInstances {
+    CrInst_NULL = 0,
+    CrInst_SWING_WEAPON_SWORD,
+    CrInst_SWING_WEAPON_FIST,
+    CrInst_ESCAPE,
+    CrInst_FIRE_ARROW,
+    CrInst_FIREBALL,
+    CrInst_FIRE_BOMB,
+    CrInst_FREEZE,
+    CrInst_ARMOUR,
+    CrInst_LIGHTNING,
+    CrInst_REBOUND, // 10
+    CrInst_HEAL,
+    CrInst_POISON_CLOUD,
+    CrInst_INVISIBILITY,
+    CrInst_TELEPORT,
+    CrInst_SPEED,
+    CrInst_SLOW,
+    CrInst_DRAIN,
+    CrInst_FEAR,
+    CrInst_MISSILE,
+    CrInst_NAVIGATING_MISSILE, // 20
+    CrInst_FLAME_BREATH,
+    CrInst_WIND,
+    CrInst_LIGHT,
+    CrInst_FLY,
+    CrInst_SIGHT,
+    CrInst_GRENADE,
+    CrInst_HAILSTORM,
+    CrInst_WORD_OF_POWER,
+    CrInst_FART,
+    CrInst_DIG, // 30
+    CrInst_PRETTY_PATH,
+    CrInst_DESTROY_AREA,
+    CrInst_TUNNEL,
+    CrInst_CELEBRATE_SHORT,
+    CrInst_REINFORCE,
+    CrInst_EAT,
+    CrInst_ATTACK_ROOM_SLAB,
+    CrInst_DAMAGE_WALL,
+    CrInst_FIRST_PERSON_DIG,
+    CrInst_CAST_SPELL_GROUP, // 40
+    CrInst_CAST_SPELL_DISEASE,
+    CrInst_CAST_SPELL_CHICKEN,
+    CrInst_CAST_SPELL_TIME_BOMB,
+    CrInst_MOAN,
+    CrInst_TORTURED,
+    CrInst_TOKING,
+    CrInst_RELAXING,
+};
+
 #ifdef __cplusplus
 #pragma pack(1)
 #endif

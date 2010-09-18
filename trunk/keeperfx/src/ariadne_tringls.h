@@ -51,6 +51,8 @@ DLLIMPORT struct Triangle _DK_Triangles[TRIANLGLES_COUNT];
 #define Triangles _DK_Triangles
 DLLIMPORT long _DK_count_Triangles;
 #define count_Triangles _DK_count_Triangles
+DLLIMPORT long _DK_ix_Triangles;
+#define ix_Triangles _DK_ix_Triangles
 /******************************************************************************/
 extern struct Triangle bad_triangle;
 #define INVALID_TRIANGLE &bad_triangle;
@@ -66,12 +68,14 @@ TbBool triangle_tip_equals(long tri_id, long pt_cor, long pt_x, long pt_y);
 struct Triangle *get_triangle(long tri_id);
 long link_find(long ntri, long val);
 TbBool outer_locked(long ntri, long ncor);
+long edge_rotateAC(long a1, long a2);
 
 long point_loop(long pt_tri, long pt_cor);
 long reduce_point(long *pt_tri, long *pt_cor);
 
 void triangulation_init(void);
 void triangulation_initxy(long a1, long a2, long a3, long a4);
+char triangle_divide_areas_s8differ(long ntri, long ncorA, long ncorB, long pt_x, long pt_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }

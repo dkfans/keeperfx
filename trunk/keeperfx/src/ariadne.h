@@ -192,6 +192,8 @@ long delaunay_seeded(long a1, long a2, long a3, long a4);
 void border_unlock(long a1, long a2, long a3, long a4);
 TbBool triangulation_border_start(long *a1, long *a2);
 TbBool triangulate_area(unsigned char *imap, long sx, long sy, long ex, long ey);
+long pointed_at8(long pos_x, long pos_y, long *retpos_x, long *retpos_y);
+long triangle_brute_find8_near(long pos_x, long pos_y);
 
 /******************************************************************************/
 #ifdef __cplusplus
