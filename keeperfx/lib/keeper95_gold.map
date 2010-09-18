@@ -690,6 +690,8 @@
  0003:0005FA50       wayPoints
  0003:000133E0       ix_EdgePoints
  0003:00055EB8       EdgePoints
+ 0003:000133C4       ix_delaunay
+ 0003:00060E00       delaunay_stack
 
  0006:00000008       gpoly_pro_enable_mode_ofs
  0006:00000010       gtblock_clip_width

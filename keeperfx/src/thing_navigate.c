@@ -379,6 +379,32 @@ long creature_move_to(struct Thing *thing, struct Coord3d *pos, short a3, unsign
     return creature_move_to_using_gates(thing, pos, a3, -2, a4, a5);
 }
 
+TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos, long walk_speed)
+{
+    struct CreatureControl *cctrl;
+    short destination_valid;
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_instance_is_available(thing, CrInst_TELEPORT)
+     && creature_instance_has_reset(thing, CrInst_TELEPORT)
+     && (cctrl->field_D2 == 0))
+    {
+        // Creature can only be teleported to a revealed location
+        destination_valid = true;
+        if ((thing->owner != game.hero_player_num) && (thing->owner != game.neutral_player_num))
+            destination_valid = subtile_revealed(pos->x.stl.num, pos->y.stl.num, thing->owner);
+        if (destination_valid)
+         {
+             // Use teleport only over large enough distances
+             if (get_2d_box_distance(&thing->mappos, pos) > (game.min_distance_for_teleport << 8))
+             {
+               set_creature_instance(thing, CrInst_TELEPORT, 1, 0, pos);
+               return true;
+             }
+         }
+    }
+    return false;
+}
+
 short move_to_position(struct Thing *thing)
 {
     Thing_State_Func callback;
@@ -392,25 +418,14 @@ short move_to_position(struct Thing *thing)
     speed = cctrl->max_speed;
     if (speed >= 256)
     {
-        SYNCDBG(6,"Walk speed %d clipped",(int)speed);
+        SYNCDBG(6,"Creature model %d walk speed %d clipped",(int)thing->model, (int)speed);
         speed = 256;
     }
-    state_result = 0;
-    if (creature_instance_is_available(thing, 14)
-     && creature_instance_has_reset(thing, 14)
-     && (cctrl->field_D2 == 0))
-    {
-      if ((thing->owner >= game.field_14E496)
-       || subtile_revealed(cctrl->moveto_pos.x.stl.num, cctrl->moveto_pos.y.stl.num, thing->owner))
-       {
-           if (get_2d_box_distance(&thing->mappos, &cctrl->moveto_pos) > (game.min_distance_for_teleport << 8))
-           {
-             set_creature_instance(thing, 14, 1, 0, &cctrl->moveto_pos);
-             return 1;
-           }
-       }
-    }
+    // Try teleporting the creature
+    if (creature_move_to_using_teleport(thing, &cctrl->moveto_pos, speed))
+        return 1;
     move_result = creature_move_to_using_gates(thing, &cctrl->moveto_pos, speed, -2, cctrl->field_88, 0);
+    state_result = 0;
     stati = get_thing_state8_info(thing);
     if (!state_info_invalid(stati))
     {

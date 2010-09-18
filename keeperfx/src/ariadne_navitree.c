@@ -20,7 +20,11 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_math.h"
 
+#include "ariadne_tringls.h"
+#include "ariadne_points.h"
+#include "ariadne_findcache.h"
 #include "gui_topmsg.h"
 
 #ifdef __cplusplus
@@ -39,6 +43,10 @@ DLLIMPORT long _DK_tree_dad[TREEITEMS_COUNT];
 #define tree_dad _DK_tree_dad
 DLLIMPORT unsigned char _DK_tag_current;
 #define tag_current _DK_tag_current
+DLLIMPORT long _DK_ix_delaunay;
+#define ix_delaunay _DK_ix_delaunay
+DLLIMPORT long _DK_delaunay_stack[DELAUNAY_COUNT];
+#define delaunay_stack _DK_delaunay_stack
 /******************************************************************************/
 DLLIMPORT void _DK_heap_down(long heapid);
 /******************************************************************************/
@@ -299,6 +307,159 @@ TbBool navitree_add(long itm_pos, long itm_dat, long mvcost)
     Tags[itm_pos] = tag_pos;
     tree_dad[itm_pos] = itm_dat;
     return naviheap_add(itm_pos);
+}
+
+void delaunay_init(void)
+{
+    ix_delaunay = 0;
+}
+
+TbBool delaunay_add(long itm_pos)
+{
+    delaunay_stack[ix_delaunay] = itm_pos;
+    ix_delaunay++;
+    Tags[itm_pos] = tag_current;
+    return true;
+}
+
+TbBool delaunay_add_triangle(long tri_idx)
+{
+    long i;
+    i = get_triangle_field_C(tri_idx);
+    if (i != -1)
+    {
+        if (!is_current_tag(tri_idx))
+        {
+            if ((i & 0x0F) != 15)
+            {
+                return delaunay_add(tri_idx);
+            }
+        }
+    }
+    return false;
+}
+
+void delaunay_stack_point(long a1, long a2)
+{
+    long tri_idx,cor_idx;
+    long dst_tri_idx,dst_cor_idx;
+    long tri_id2, i;
+
+    tri_idx = triangle_find8(a1 << 8, a2 << 8);
+    if (tri_idx == -1)
+        return;
+    delaunay_add_triangle(tri_idx);
+    for (cor_idx=0; cor_idx < 3; cor_idx++)
+    {
+        tri_id2 = Triangles[tri_idx].field_6[cor_idx];
+        if (tri_id2 != -1)
+        {
+            delaunay_add_triangle(tri_id2);
+        }
+    }
+    if (point_find(a1, a2, &dst_tri_idx, &dst_cor_idx))
+    {
+      tri_idx = dst_tri_idx;
+      cor_idx = dst_cor_idx;
+      do
+      {
+        tri_id2 = Triangles[tri_idx].field_6[cor_idx];
+        if (tri_id2 == -1)
+          break;
+        i = link_find(tri_id2, tri_idx);
+        cor_idx = MOD3[i+1];
+        tri_idx = tri_id2;
+        if (tri_idx != -1)
+        {
+            delaunay_add_triangle(tri_idx);
+        }
+      }
+      while (tri_idx != dst_tri_idx);
+    }
+}
+
+long optimise_heuristic(long tri_id1, long tri_id2)
+{
+    struct Triangle *tri1;
+    struct Triangle *tri3;
+    struct Point *pt;
+    long tri_id3,tri_lnk;
+    long Ax,Ay,Bx,By,Cx,Cy,Dx,Dy;
+
+    tri1 = get_triangle(tri_id1);
+    tri_id3 = tri1->field_6[tri_id2];
+    if (tri_id3 == -1)
+        return 0;
+    tri3 = get_triangle(tri_id3);
+    if (tri3->field_C != tri1->field_C)
+    {
+        return 0;
+    }
+    tri_lnk = link_find(tri_id3, tri_id1);
+    if ((tri1->field_D & (1 << tri_id2) == 0)
+     || (tri3->field_D & (1 << tri_lnk) == 0))
+    {
+        return 0;
+    }
+    pt = get_triangle_point(tri_id3, MOD3[tri_lnk+2]);
+    Ax = pt->x;
+    Ay = pt->y;
+    pt = get_triangle_point(tri_id1, MOD3[tri_id2+2]);
+    Bx = pt->x;
+    By = pt->y;
+    pt = get_triangle_point(tri_id1, MOD3[tri_id2+1]);
+    Cx = pt->x;
+    Cy = pt->y;
+    pt = get_triangle_point(tri_id1, MOD3[tri_id2]);
+    Dx = pt->x;
+    Dy = pt->y;
+
+    if (LbCompareMultiplications(Ay-By, Dx-Bx, Ay-By, Cx-Bx) >= 0)
+        return 0;
+
+    return ((Bx-Ax) * (Bx-Ax)) + ((By-Ay) * (By-Ay)) <
+           ((Dy-Ay) - (Cy-Ay)) * ((Dy-Ay) - (Cy-Ay)) +
+           ((Dx-Ax) - (Cx-Ax)) * ((Dx-Ax) - (Cx-Ax));
+}
+
+long delaunay_seeded(long a1, long a2, long a3, long a4)
+{
+    long tri_idx,cor_idx;
+    long tri_id2,cor_id2;
+    long count;
+    //return _DK_delaunay_seeded(a1, a2, a3, a4);
+    tags_init();
+    delaunay_init();
+    delaunay_stack_point(a1, a2);
+    delaunay_stack_point(a1, a4);
+    delaunay_stack_point(a3, a2);
+    delaunay_stack_point(a3, a4);
+    count = 0;
+    while (ix_delaunay > 0)
+    {
+        tri_idx = delaunay_stack[ix_delaunay-1];
+        ix_delaunay--;
+        for (cor_idx=0; cor_idx < 3; cor_idx++)
+        {
+            if (!optimise_heuristic(tri_idx, cor_idx))
+                continue;
+            count++;
+            edge_rotateAC(tri_idx, cor_idx);
+            if (ix_delaunay+4 >= DELAUNAY_COUNT)
+            {
+              ERRORLOG("stack full");
+              return count;
+            }
+            for (cor_id2=0; cor_id2 < 3; cor_id2++)
+            {
+                tri_id2 = Triangles[tri_idx].field_6[cor_id2];
+                if (tri_id2 == -1)
+                    continue;
+                delaunay_add_triangle(tri_id2);
+            }
+        }
+    }
+    return count;
 }
 
 /******************************************************************************/

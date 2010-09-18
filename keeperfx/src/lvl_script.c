@@ -2485,7 +2485,7 @@ struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long br
   switch (effect)
   {
   case 1:
-      if (plyr_idx == game.field_14E496)
+      if (plyr_idx == game.hero_player_num)
       {
         thing->mappos.z.val = get_ceiling_height(&thing->mappos);
         create_effect(&thing->mappos, 36, thing->owner);
@@ -2804,12 +2804,18 @@ void process_condition(struct Condition *condt)
   if (condt->plyr_idx == ALL_PLAYERS)
   {
     plr_start = 0;
-    plr_end = (game.field_14E496%PLAYERS_COUNT);
+    plr_end = game.hero_player_num;
   } else
   {
-    plr_start = (condt->plyr_idx%PLAYERS_COUNT);
+    plr_start = condt->plyr_idx;
     plr_end = plr_start+1;
   }
+  if (plr_start > PLAYERS_COUNT)
+      plr_start = PLAYERS_COUNT;
+  if (plr_start < 0)
+      plr_start = 0;
+  if (plr_end > PLAYERS_COUNT)
+      plr_end = PLAYERS_COUNT;
   if (condt->variabl_type == 19)
   {
     new_status = false;

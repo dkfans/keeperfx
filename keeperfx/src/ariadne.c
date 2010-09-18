@@ -27,6 +27,7 @@
 #include "ariadne_tringls.h"
 #include "ariadne_points.h"
 #include "ariadne_edge.h"
+#include "ariadne_findcache.h"
 #include "thing_navigate.h"
 #include "gui_topmsg.h"
 #include "keeperfx.hpp"
@@ -79,7 +80,6 @@ DLLIMPORT long _DK_ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne
 DLLIMPORT unsigned char _DK_ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos);
 DLLIMPORT void _DK_insert_point(long pt_x, long pt_y);
 DLLIMPORT void _DK_make_edge(long start_x, long end_x, long start_y, long end_y);
-DLLIMPORT long _DK_triangle_find8(long ptfind_x, long ptfind_y);
 DLLIMPORT long _DK_tri_split2(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long a5);
 DLLIMPORT void _DK_tri_split3(long ptfind_x, long ptfind_y, long ptstart_x);
 DLLIMPORT long _DK_pointed_at8(long pos_x, long pos_y, long *retpos_x, long *retpos_y);
@@ -95,16 +95,8 @@ DLLIMPORT unsigned long _DK_RadiusEdgeFit[EDGEOR_COUNT][EDGEFIT_LEN];
 #define RadiusEdgeFit _DK_RadiusEdgeFit
 DLLIMPORT NavRules _DK_nav_rulesA2B;
 #define nav_rulesA2B _DK_nav_rulesA2B
-DLLIMPORT long _DK_find_cache[4][4];
-#define find_cache _DK_find_cache
-DLLIMPORT long _DK_ix_Triangles;
-#define ix_Triangles _DK_ix_Triangles
 DLLIMPORT struct WayPoints _DK_wayPoints;
 #define wayPoints _DK_wayPoints
-DLLIMPORT long _DK_ix_delaunay;
-#define ix_delaunay _DK_ix_delaunay
-DLLIMPORT long _DK_delaunay_stack[1000];
-#define delaunay_stack _DK_delaunay_stack
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -297,7 +289,7 @@ long navigation_rule_normal(long a1, long a2)
         owner = ((a2 & 0xE0) >> 5) - 1;
       if (owner == 5)
       {
-          owner = game.field_14E496;
+          owner = game.hero_player_num;
       } else
       if (owner == 6)
       {
@@ -374,6 +366,7 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
 
 long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *a5, long a6, struct Path *path, long *a8)
 {
+    //Note: uses LbCompareMultiplications()
     NAVIDBG(19,"Starting");
     return _DK_route_to_path(ptfind_x, ptfind_y, ptstart_x, ptstart_y, a5, a6, path, a8);
 }
@@ -424,6 +417,7 @@ void path_out_a_bit(struct Path *path, long *route)
 
 long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, long a6, struct Pathway *pway, long a8)
 {
+    //Note: uses LbCompareMultiplications()
     return _DK_gate_route_to_coords(trAx, trAy, trBx, trBy, a5, a6, pway, a8);
 }
 
@@ -490,6 +484,7 @@ void route_through_gates(struct Pathway *pway, struct Path *path, long mag)
 
 long triangle_findSE8(long ptfind_x, long ptfind_y)
 {
+    //Note: uses LbCompareMultiplications()
     return _DK_triangle_findSE8(ptfind_x, ptfind_y);
 }
 
@@ -560,58 +555,13 @@ long cost_to_start(long tri_idx)
 
 long pointed_at8(long pos_x, long pos_y, long *retpos_x, long *retpos_y)
 {
+    //Note: uses LbCompareMultiplications()
     return _DK_pointed_at8(pos_x, pos_y, retpos_x, retpos_y);
 }
 
 long triangle_brute_find8_near(long pos_x, long pos_y)
 {
     return _DK_triangle_brute_find8_near(pos_x, pos_y);
-}
-
-long triangle_find_cache_get(long pos_x, long pos_y)
-{
-  long cache_x,cache_y;
-  long ntri;
-  cache_x = (pos_x >> 14);
-  if (cache_x > 3)
-    cache_x = 3;
-  if (cache_x < 0)
-    cache_x = 0;
-  cache_y = (pos_y >> 14);
-  if (cache_y > 3)
-    cache_y = 3;
-  if (cache_y < 0)
-    cache_y = 0;
-
-  ntri = find_cache[cache_y][cache_x];
-  if (get_triangle_field_C(ntri) == 255)
-  {
-    ntri = triangle_brute_find8_near(pos_x, pos_y);
-    if ((ntri < 0) || (ntri > ix_Triangles))
-    {
-        ERRORLOG("overflow");
-        ntri = -1;
-    }
-    find_cache[cache_y][cache_x] = ntri;
-  }
-  return ntri;
-
-}
-
-void triangle_find_cache_put(long pos_x, long pos_y, long ntri)
-{
-  long cache_x,cache_y;
-  cache_x = (pos_x >> 14);
-  if (cache_x > 3)
-    cache_x = 3;
-  if (cache_x < 0)
-    cache_x = 0;
-  cache_y = (pos_y >> 14);
-  if (cache_y > 3)
-    cache_y = 3;
-  if (cache_y < 0)
-    cache_y = 0;
-  find_cache[cache_y][cache_x] = ntri;
 }
 
 long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
@@ -1540,6 +1490,7 @@ long make_3or4point(long *pt_tri, long *pt_cor)
 
 long delete_4point(long a1, long a2)
 {
+    //Note: uses LbCompareMultiplications()
     return _DK_delete_4point(a1, a2);
 }
 
@@ -1620,111 +1571,21 @@ TbBool edge_split(long ntri, long ncor, long pt_x, long pt_y)
  * @param ncorB Second tip of the edge to be divided.
  * @param pt_x Coord X of the dividing point.
  * @param pt_y Coord Y of the dividing point.
- * @return True or false.
+ * @return Zero if areas do not differ; -1 or 1 otherwise.
  */
 char triangle_divide_areas_differ(long ntri, long ncorA, long ncorB, long pt_x, long pt_y)
 {
-    long long areaA,areaB;
     long tipA_x,tipA_y;
     long tipB_x,tipB_y;
     struct Point *pt;
-    int area_mod;
-    unsigned char area_rel;
-    char ret;
+
     pt = get_triangle_point(ntri,ncorA);
     tipA_x = pt->x;
     tipA_y = pt->y;
     pt = get_triangle_point(ntri,ncorB);
     tipB_x = pt->x;
     tipB_y = pt->y;
-    // Compute areas to compare; use rectangular area
-    areaB = (pt_y - tipA_y);
-    areaB *= (tipB_x - tipA_x);
-    areaA = (pt_x - tipA_x);
-    areaA *= (tipB_y - tipA_y);
-    area_rel = (unsigned long)areaB < (unsigned long)areaA;
-    ret = (unsigned long)areaB != (unsigned long)areaA;
-    area_mod = (areaB >> 32) - (area_rel + (areaA >> 32));
-    if ( area_mod )
-      ret = !((unsigned char)(area_mod < 0) | area_mod == 0) - (area_mod < 0);
-    return ret;
-}
-
-char triangle_divide_areas_s8differ(long ntri, long ncorA, long ncorB, long pt_x, long pt_y)
-{
-    long long areaA,areaB;
-    long tipA_x,tipA_y;
-    long tipB_x,tipB_y;
-    struct Point *pt;
-    int area_mod;
-    unsigned char area_rel;
-    char ret;
-
-    pt = get_triangle_point(ntri,ncorA);
-    tipA_x = (pt->x << 8);
-    tipA_y = (pt->y << 8);
-    pt = get_triangle_point(ntri,ncorB);
-    tipB_x = (pt->x << 8);
-    tipB_y = (pt->y << 8);
-    // Compute areas to compare; use rectangular area
-    areaA =  (tipA_y - pt_y);
-    areaA *= (tipB_x - pt_x);
-    areaB =  (tipA_x - pt_x);
-    areaB *= (tipB_y - pt_y);
-    area_rel = (unsigned long)areaB < (unsigned long)areaA;
-    ret = (unsigned long)areaB != (unsigned long)areaA;
-    area_mod = (areaB >> 32) - (area_rel + (areaA >> 32));
-    if ( area_mod )
-      ret = !((unsigned char)(area_mod < 0) | area_mod == 0) - (area_mod < 0);
-    return ret;
-}
-
-long triangle_find8(long pt_x, long pt_y)
-{
-    int eqA,eqB,eqC;
-    long ntri,ncor;
-    unsigned long k;
-    //TODO may hang if out of points
-    NAVIDBG(9,"Starting");
-    //return _DK_triangle_find8(pt_x, pt_y);
-    ntri = triangle_find_cache_get(pt_x, pt_y);
-    for (k=0; k < TRIANLGLES_COUNT; k++)
-    {
-      eqA = triangle_divide_areas_s8differ(ntri, 0, 1, pt_x, pt_y) > 0;
-      eqB = triangle_divide_areas_s8differ(ntri, 1, 2, pt_x, pt_y) > 0;
-      eqC = triangle_divide_areas_s8differ(ntri, 2, 0, pt_x, pt_y) > 0;
-
-      switch ( eqA + 2 * (eqB + 2 * eqC) )
-      {
-      case 1:
-          ntri = Triangles[ntri].field_6[0];
-          break;
-      case 2:
-          ntri = Triangles[ntri].field_6[1];
-          break;
-      case 3:
-          ncor = 1;
-          pointed_at8(pt_x, pt_y, &ntri, &ncor);
-          break;
-      case 4:
-          ntri = Triangles[ntri].field_6[2];
-          break;
-      case 5:
-          ncor = 0;
-          pointed_at8(pt_x, pt_y, &ntri, &ncor);
-          break;
-      case 6:
-      case 7:
-          ncor = 2;
-          pointed_at8(pt_x, pt_y, &ntri, &ncor);
-          break;
-      case 0:
-          triangle_find_cache_put(pt_x, pt_y, ntri);
-          return ntri;
-      }
-    }
-    ERRORLOG("Infinite loop detected");
-    return -1;
+    return LbCompareMultiplications(pt_y-tipA_y, tipB_x-tipA_x, pt_x-tipA_x, tipB_y-tipA_y);
 }
 
 TbBool insert_point(long pt_x, long pt_y)
@@ -1745,15 +1606,15 @@ TbBool insert_point(long pt_x, long pt_y)
     if (triangle_tip_equals(ntri, 2, pt_x, pt_y))
       return true;
 
-    if (!triangle_divide_areas_differ(ntri, 0, 1, pt_x, pt_y))
+    if (triangle_divide_areas_differ(ntri, 0, 1, pt_x, pt_y) == 0)
     {
         return edge_split(ntri, 0, pt_x, pt_y);
     }
-    if (!triangle_divide_areas_differ(ntri, 1, 2, pt_x, pt_y))
+    if (triangle_divide_areas_differ(ntri, 1, 2, pt_x, pt_y) == 0)
     {
         return edge_split(ntri, 1, pt_x, pt_y);
     }
-    if (!triangle_divide_areas_differ(ntri, 2, 0, pt_x, pt_y))
+    if (triangle_divide_areas_differ(ntri, 2, 0, pt_x, pt_y) == 0)
     {
         return edge_split(ntri, 2, pt_x, pt_y);
     }
@@ -1763,6 +1624,7 @@ TbBool insert_point(long pt_x, long pt_y)
 
 void make_edge(long start_x, long end_x, long start_y, long end_y)
 {
+    //Note: uses LbCompareMultiplications()
     NAVIDBG(19,"Starting");
     _DK_make_edge(start_x, end_x, start_y, end_y);
 }
@@ -1840,28 +1702,6 @@ TbBool border_clip_vertical(unsigned char *imap, long start_x, long end_x, long 
     return r;
 }
 
-TbBool point_find(long pt_x, long pt_y, long *out_tri_idx, long *out_cor_idx)
-{
-    struct Point *pt;
-    long tri_idx,cor_id;
-    tri_idx = triangle_find8(pt_x << 8, pt_y << 8);
-    if (tri_idx < 0)
-    {
-        return false;
-    }
-    for (cor_id=0; cor_id < 3; cor_id++)
-    {
-        pt = get_triangle_point(tri_idx,cor_id);
-        if ((pt->x == pt_x) && (pt->y == pt_y))
-        {
-          *out_tri_idx = tri_idx;
-          *out_cor_idx = cor_id;
-          return true;
-        }
-    }
-    return false;
-}
-
 TbBool point_redundant(long tri_idx, long cor_idx)
 {
     long tri_first,cor_first;
@@ -1888,8 +1728,9 @@ TbBool point_redundant(long tri_idx, long cor_idx)
     return false;
 }
 
-long edge_find(long stlstart_x, long stlstart_y, long stlend_x, long stlend_y, long *a5, long *a6)
+long edge_find(long stlstart_x, long stlstart_y, long stlend_x, long stlend_y, long *edge_tri, long *edge_cor)
 {
+    //Note: uses LbCompareMultiplications()
     struct Triangle *tri;
     struct Point *pt;
     long dst_tri_idx,dst_cor_idx;
@@ -1898,7 +1739,7 @@ long edge_find(long stlstart_x, long stlstart_y, long stlend_x, long stlend_y, l
     long len_x,len_y;
     long i;
     NAVIDBG(19,"Starting");
-    //return _DK_edge_find(stlstart_x, stlstart_y, stlend_x, stlend_y, a5, a6);
+    //return _DK_edge_find(stlstart_x, stlstart_y, stlend_x, stlend_y, edge_tri, edge_cor);
     if (!point_find(stlstart_x, stlstart_y, &dst_tri_idx, &dst_cor_idx))
     {
         return 0;
@@ -1912,14 +1753,14 @@ long edge_find(long stlstart_x, long stlstart_y, long stlend_x, long stlend_y, l
         pt = get_triangle_point(tri_idx, MOD3[cor_idx+1]);
         delta_y = (pt->y - stlstart_y);
         delta_x = (pt->x - stlstart_x);
-        if (len_y*delta_x == len_x*delta_y)
+        if (LbCompareMultiplications(len_y, delta_x, len_x, delta_y) == 0)
         {
-          if (LbNumberSignsSame(delta_x, len_x) && LbNumberSignsSame(delta_y, len_y))
-          {
-              *a5 = tri_idx;
-              *a6 = cor_idx;
-              return 1;
-          }
+            if (LbNumberSignsSame(delta_x, len_x) && LbNumberSignsSame(delta_y, len_y))
+            {
+                *edge_tri = tri_idx;
+                *edge_cor = cor_idx;
+                return 1;
+            }
         }
         tri = get_triangle(tri_idx);
         tri_id2 = tri->field_6[cor_idx];
@@ -2052,21 +1893,6 @@ void tri_set_rectangle(long a1, long a2, long a3, long a4, unsigned char a5)
 long fringe_get_rectangle(long *a1, long *a2, long *a3, long *a4, unsigned char *a5)
 {
     return _DK_fringe_get_rectangle(a1, a2, a3, a4, a5);
-}
-
-void delaunay_stack_point(long a1, long a2)
-{
-    //TODO
-}
-
-long optimise_heuristic(long a1, long a2)
-{
-    //TODO
-}
-
-long delaunay_seeded(long a1, long a2, long a3, long a4)
-{
-    return _DK_delaunay_seeded(a1, a2, a3, a4);
 }
 
 TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name)
@@ -2203,7 +2029,7 @@ long get_navigation_colour_for_door(long stl_x, long stl_y)
     {
         return 0x01;
     }
-    if (doortng->owner == game.field_14E496)
+    if (doortng->owner == game.hero_player_num)
         owner = 5;
     else
     if (doortng->owner == game.neutral_player_num)

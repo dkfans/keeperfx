@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_math.h"
 #include "ariadne_points.h"
 
 #define EDGELEN_BITS 6
@@ -157,6 +158,7 @@ long point_loop(long pt_tri, long pt_cor)
 
 long edge_rotateAC(long a1, long a2)
 {
+    //Note: uses LbCompareMultiplications()
     return _DK_edge_rotateAC(a1, a2);
 }
 
@@ -203,6 +205,20 @@ void triangulation_init(void)
     }
 }
 
+char triangle_divide_areas_s8differ(long ntri, long ncorA, long ncorB, long pt_x, long pt_y)
+{
+    long tipA_x,tipA_y;
+    long tipB_x,tipB_y;
+    struct Point *pt;
+
+    pt = get_triangle_point(ntri,ncorA);
+    tipA_x = (pt->x << 8);
+    tipA_y = (pt->y << 8);
+    pt = get_triangle_point(ntri,ncorB);
+    tipB_x = (pt->x << 8);
+    tipB_y = (pt->y << 8);
+    return LbCompareMultiplications(tipA_x-pt_x, tipB_y-pt_y, tipA_y-pt_y, tipB_x-pt_x);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
