@@ -348,11 +348,11 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
     if (sy <= 2)
       sy = 2;
     ex = end_x + 1;
-    if (ex >= 252)
-      ex = 252;
+    if (ex >= map_subtiles_x-2)
+      ex = map_subtiles_x-2;
     ey = end_y + 1;
-    if (ey >= 252)
-      ey = 252;
+    if (ey >= map_subtiles_y-2)
+      ey = map_subtiles_y-2;
     for (y = sy; y <= ey; y++)
     {
         for (x = sx; x <= ex; x++)
