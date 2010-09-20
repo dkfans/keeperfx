@@ -48,7 +48,7 @@ extern "C" {
 #define CREATURE_DEFENSE_INCREASE_ON_EXP   20
 /** Percentage of creature parameter increase for every experience level.
  *  Used for all parameters that have no separate definition. */
-#define CREATURE_PROPERTY_INCREASE_ON_EXP 35
+#define CREATURE_PROPERTY_INCREASE_ON_EXP  35
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/

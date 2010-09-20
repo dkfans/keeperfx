@@ -38,7 +38,7 @@ struct Point;
 struct Triangle { // sizeof = 16
   short points[3];
   short field_6[3];
-  unsigned char field_C; // 255 is a special value here
+  unsigned char tree_alt; // 255 is a special value here
   unsigned char field_D;
   unsigned short field_E;
 };
@@ -62,7 +62,7 @@ long get_triangle_region_id(long tri_id);
 TbBool set_triangle_region_id(long tri_id, long reg_id);
 long get_triangle_edgelen(long tri_id);
 TbBool set_triangle_edgelen(long tri_id, long edgelen);
-long get_triangle_field_C(long tri_id);
+long get_triangle_tree_alt(long tri_id);
 struct Point *get_triangle_point(long tri_id, long pt_cor);
 TbBool triangle_tip_equals(long tri_id, long pt_cor, long pt_x, long pt_y);
 struct Triangle *get_triangle(long tri_id);

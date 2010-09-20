@@ -223,7 +223,7 @@ TbBool output_message(long msg_idx, long delay, TbBool queue)
           return true;
       }
     }
-    WARNDBG(8,"Playing failed");
+    WARNDBG(8,"Playing message %ld failed",msg_idx);
     return false;
 }
 

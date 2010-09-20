@@ -1814,3 +1814,4 @@
  0001:0006C140       waypoint_normal
  0001:000665C0       region_alloc
  0001:0006CC50       gate_route_to_coords
+ 0001:00069320       fill_concave
