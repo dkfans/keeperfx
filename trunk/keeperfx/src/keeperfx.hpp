@@ -1164,7 +1164,6 @@ unsigned char active_battle_exists(unsigned char a1);
 void maintain_my_battle_list(void);
 unsigned char step_battles_forward(unsigned char a1);
 void process_person_moods_and_needs(struct Thing *thing);
-struct Thing *get_door_for_position(long pos_x, long pos_y);
 long process_obey_leader(struct Thing *thing);
 void tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
 void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);

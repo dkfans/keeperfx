@@ -325,7 +325,7 @@ TbBool delaunay_add(long itm_pos)
 TbBool delaunay_add_triangle(long tri_idx)
 {
     long i;
-    i = get_triangle_field_C(tri_idx);
+    i = get_triangle_tree_alt(tri_idx);
     if (i != -1)
     {
         if (!is_current_tag(tri_idx))
@@ -339,13 +339,13 @@ TbBool delaunay_add_triangle(long tri_idx)
     return false;
 }
 
-void delaunay_stack_point(long a1, long a2)
+void delaunay_stack_point(long pt_x, long pt_y)
 {
     long tri_idx,cor_idx;
     long dst_tri_idx,dst_cor_idx;
     long tri_id2, i;
 
-    tri_idx = triangle_find8(a1 << 8, a2 << 8);
+    tri_idx = triangle_find8(pt_x << 8, pt_y << 8);
     if (tri_idx == -1)
         return;
     delaunay_add_triangle(tri_idx);
@@ -357,7 +357,7 @@ void delaunay_stack_point(long a1, long a2)
             delaunay_add_triangle(tri_id2);
         }
     }
-    if (point_find(a1, a2, &dst_tri_idx, &dst_cor_idx))
+    if (point_find(pt_x, pt_y, &dst_tri_idx, &dst_cor_idx))
     {
       tri_idx = dst_tri_idx;
       cor_idx = dst_cor_idx;
@@ -391,7 +391,7 @@ long optimise_heuristic(long tri_id1, long tri_id2)
     if (tri_id3 == -1)
         return 0;
     tri3 = get_triangle(tri_id3);
-    if (tri3->field_C != tri1->field_C)
+    if (get_triangle_tree_alt(tri_id3) != get_triangle_tree_alt(tri_id1))
     {
         return 0;
     }
