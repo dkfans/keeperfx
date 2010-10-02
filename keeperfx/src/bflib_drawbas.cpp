@@ -19,8 +19,8 @@
 /******************************************************************************/
 #include "bflib_drawbas.hpp"
 
-#include <string.h>
-#include <stdio.h>
+#include <cstring>
+#include <cstdio>
 
 #include "bflib_basics.h"
 

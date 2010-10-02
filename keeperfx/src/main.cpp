@@ -11,6 +11,7 @@
 #include "bflib_memory.h"
 #include "bflib_heapmgr.h"
 #include "bflib_keybrd.h"
+#include "bflib_inputctrl.h"
 #include "bflib_datetm.h"
 #include "bflib_bufrw.h"
 #include "bflib_sprite.h"
@@ -230,7 +231,7 @@ DLLIMPORT int _DK_can_thing_be_picked_up_by_player(const struct Thing *thing, un
 DLLIMPORT int _DK_can_thing_be_picked_up2_by_player(const struct Thing *thing, unsigned char plyr_idx);
 DLLIMPORT void _DK_init_alpha_table(void);
 DLLIMPORT void _DK_external_activate_trap_shot_at_angle(struct Thing *thing, long a2);
-DLLIMPORT long _DK_parse_sound_file(long a1, unsigned char *a2, long *a3, long a4, long a4);
+DLLIMPORT long _DK_parse_sound_file(long a1, unsigned char *a2, long *a3, long a4, long a5);
 DLLIMPORT void _DK_explosion_affecting_area(struct Thing *thing, const struct Coord3d *pos, long a3, long a4, unsigned char a5);
 DLLIMPORT void _DK_engine_init(void);
 DLLIMPORT long _DK_load_anim_file(void);
@@ -8876,6 +8877,7 @@ void keeper_gameplay_loop(void)
       // Check if we should redraw screen in this turn
       do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
 
+      LbWindowsControl();
       update_mouse();
       input_eastegg();
       input();
@@ -10129,11 +10131,14 @@ void wait_at_frontend(void)
   long last_loop_time = LbTimerClock();
   do
   {
-    if ((!LbWindowsControl()) && ((game.system_flags & GSF_NetworkActive) == 0))
+    if (!LbWindowsControl())
     {
-      exit_keeper = 1;
-      SYNCDBG(0,"Windows Control exit condition invoked");
-      break;
+      if ((game.system_flags & GSF_NetworkActive) == 0)
+      {
+          exit_keeper = 1;
+          SYNCDBG(0,"Windows Control exit condition invoked");
+          break;
+      }
     }
     update_mouse();
     update_key_modifiers();

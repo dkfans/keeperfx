@@ -2,20 +2,20 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-// Author:  Tomasz Lis
-// Created: 12 Feb 2008
-
-// Purpose:
-//    Header file for bflib_mouse.c.
-
-// Comment:
-//   Just a header file - #defines, typedefs, function prototypes etc.
-
-//Copying and copyrights:
-//   This program is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation; either version 2 of the License, or
-//   (at your option) any later version.
+/** @file bflib_bufrw.c
+ *     Header file for bflib_mouse.c.
+ * @par Purpose:
+ *     Mouse related routines.
+ * @par Comment:
+ *   Just a header file - #defines, typedefs, function prototypes etc.
+ * @author   Tomasz Lis
+ * @date     12 Feb 2008 - 10 Oct 2010
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
 /******************************************************************************/
 #ifndef BFLIB_MOUSE_H
 #define BFLIB_MOUSE_H
@@ -106,19 +106,19 @@ struct DevInput {
 #pragma pack()
 #endif
 /******************************************************************************/
-TbResult __stdcall LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, long hot_x, long hot_y);
-TbResult __stdcall LbMouseSetup(struct TbSprite *mouseSprite);
-TbResult __stdcall LbMouseSetPointerHotspot(long hot_x, long hot_y);
-TbResult __stdcall LbMouseSetPosition(long x, long y);
-TbResult __stdcall LbMouseChangeSprite(struct TbSprite *mouseSprite);
-TbResult __stdcall LbMouseSuspend(void);
+TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, long hot_x, long hot_y);
+TbResult LbMouseSetup(struct TbSprite *mouseSprite);
+TbResult LbMouseSetPointerHotspot(long hot_x, long hot_y);
+TbResult LbMouseSetPosition(long x, long y);
+TbResult LbMouseChangeSprite(struct TbSprite *mouseSprite);
+TbResult LbMouseSuspend(void);
 void GetPointerHotspot(long *hot_x, long *hot_y);
-TbResult __stdcall LbMouseIsInstalled(void);
-TbResult __stdcall LbMouseSetWindow(long x, long y, long width, long height);
+TbResult LbMouseIsInstalled(void);
+TbResult LbMouseSetWindow(long x, long y, long width, long height);
 
-void __stdcall mouseControl(unsigned int action, struct tagPOINT *pos);
-TbResult __stdcall LbMouseOnBeginSwap(void);
-void __stdcall LbMouseOnEndSwap(void);
+void mouseControl(unsigned int action, struct tagPOINT *pos);
+TbResult LbMouseOnBeginSwap(void);
+void LbMouseOnEndSwap(void);
 
 /*
 int __fastcall LbMouseReset();

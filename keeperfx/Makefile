@@ -35,6 +35,7 @@ obj/bflib_datetm.o \
 obj/bflib_basics.o \
 obj/bflib_pom.o \
 obj/bflib_keybrd.o \
+obj/bflib_inputctrl.o \
 obj/bflib_sndlib.o \
 obj/bflib_sound.o \
 obj/bflib_fmvids.o \
