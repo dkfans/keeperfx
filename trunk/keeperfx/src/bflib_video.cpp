@@ -68,7 +68,6 @@ long lbScreenModeInfoNum = 0;
     {   0,   0, 0,0,   0x0,"MODE_INVALID"},
 */
 
-volatile int lbUserQuit = 0;
 volatile TbBool lbScreenInitialised = false;
 volatile TbBool lbUseSdk = true;
 /******************************************************************************/
@@ -122,11 +121,6 @@ TbResult LbScreenClear(TbPixel colour)
     return Lb_SUCCESS;
   else
     return Lb_FAIL;
-}
-
-TbBool LbWindowsControl(void)
-{
-  return (lbUserQuit < 1);
 }
 
 TbScreenMode LbScreenActiveMode(void)

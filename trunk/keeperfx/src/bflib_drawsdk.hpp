@@ -8,7 +8,7 @@
  *     Graphics drawing support sdk class.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Tomasz Lis
+ * @author   KeeperFX Team
  * @date     16 Nov 2008 - 21 Nov 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
