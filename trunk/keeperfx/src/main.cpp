@@ -28,7 +28,6 @@
 #include "bflib_mouse.h"
 #include "bflib_filelst.h"
 #include "bflib_network.h"
-#include "bflib_drawbas.hpp"
 
 #include "front_simple.h"
 #include "frontend.h"
@@ -10449,12 +10448,7 @@ short process_command_line(unsigned short argc, char *argv[])
 
 void close_video_context(void)
 {
-  // New way - will be the only that remain in the future
-  if (lpDDC != NULL)
-  {
-    lpDDC->reset_screen();
-    delete lpDDC; // Note that the pointer is set to NULL automatically
-  }
+  LbScreenReset();
 }
 
 int LbBullfrogMain(unsigned short argc, char *argv[])
@@ -10571,16 +10565,10 @@ void exit_handler(void)
     ERRORMSG("Application exit called.");
 }
 
-int WINAPI WinMain (HINSTANCE hThisInstance,
-                    HINSTANCE hPrevInstance,
-                    LPSTR lpszArgument,
-                    int nFunsterStil)
+int main(int argc, char *argv[])
 {
-//  return _DK_WinMain(hThisInstance,hPrevInstance,lpszArgument,nFunsterStil);
   char *text;
-  _DK_hInstance = hThisInstance;
-  lbhInstance = hThisInstance;
-  lpDDC = NULL;
+  _DK_hInstance = GetModuleHandle(NULL);
 
   get_cmdln_args(bf_argc, bf_argv);
 

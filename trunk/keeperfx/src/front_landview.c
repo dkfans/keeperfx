@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_datetm.h"
+#include "bflib_planar.h"
 #include "bflib_video.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
@@ -1100,7 +1101,7 @@ TbBool frontmap_load(void)
   return true;
 }
 
-TbBool rectangle_intersects(struct ARect *rcta, struct ARect *rctb)
+TbBool rectangle_intersects(struct TbRect *rcta, struct TbRect *rctb)
 {
   long left, top, right, bottom;
   left = rcta->left;
@@ -1120,8 +1121,8 @@ TbBool rectangle_intersects(struct ARect *rcta, struct ARect *rctb)
 
 TbBool test_hand_slap_collides(long plyr_idx)
 {
-  struct ARect rcta;
-  struct ARect rctb;
+  struct TbRect rcta;
+  struct TbRect rctb;
   struct ScreenPacket *nspck;
   if (is_my_player_number(plyr_idx))
     return false;

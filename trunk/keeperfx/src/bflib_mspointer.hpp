@@ -22,12 +22,9 @@
 
 #include "bflib_basics.h"
 #include "bflib_semphr.hpp"
-#include "bflib_video.h"
-#include "bflib_drawsdk.hpp"
+#include "bflib_planar.h"
+#include "bflib_vidsurface.h"
 
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
 /******************************************************************************/
 
 // Exported class
@@ -36,7 +33,7 @@ class LbI_PointerHandler {
     LbI_PointerHandler(void);
     ~LbI_PointerHandler(void);
     void SetHotspot(long x, long y);
-    void Initialise(struct TbSprite *spr, struct tagPOINT *, struct tagPOINT *);
+    void Initialise(struct TbSprite *spr, struct TbPoint *, struct TbPoint *);
     void Release(void);
     void NewMousePos(void);
     bool OnMove(void);
@@ -55,9 +52,9 @@ class LbI_PointerHandler {
     struct SSurface surf1;
     struct SSurface surf2;
     unsigned char sprite_data[4096];
-    struct tagPOINT *position;
-    struct tagPOINT *spr_offset;
-    struct tagRECT rect_1038;
+    struct TbPoint *position;
+    struct TbPoint *spr_offset;
+    struct TbRect rect_1038;
     long draw_pos_x;
     long draw_pos_y;
     bool field_1050;
@@ -65,11 +62,6 @@ class LbI_PointerHandler {
     struct TbSprite *sprite;
     LbSemaphore sema_rel;
     };
-
-#ifdef __cplusplus
-#pragma pack()
-#endif
-
 
 /******************************************************************************/
 

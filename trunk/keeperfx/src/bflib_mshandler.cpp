@@ -25,6 +25,7 @@
 #include "bflib_basics.h"
 #include "bflib_mouse.h"
 #include "bflib_sprite.h"
+#include <windows.h>
 
 #include "keeperfx.hpp"
 /******************************************************************************/
@@ -84,7 +85,7 @@ bool MouseStateHandler::Release(void)
   return true;
 }
 
-struct tagPOINT *MouseStateHandler::GetPosition(void)
+struct TbPoint *MouseStateHandler::GetPosition(void)
 {
   if (!this->installed)
     return NULL;
@@ -180,7 +181,7 @@ struct TbSprite *MouseStateHandler::GetPointer(void)
   return mssprite;
 }
 
-bool MouseStateHandler::SetPointer(struct TbSprite *spr, struct tagPOINT *point)
+bool MouseStateHandler::SetPointer(struct TbSprite *spr, struct TbPoint *point)
 {
   if (!this->installed)
     return false;
@@ -209,7 +210,7 @@ bool MouseStateHandler::SetPointer(struct TbSprite *spr, struct tagPOINT *point)
 
 bool MouseStateHandler::SetMousePointerAndOffset(struct TbSprite *mouseSprite, long x, long y)
 {
-  struct tagPOINT point;
+  struct TbPoint point;
   LbSemaLock semlock(&semaphore,0);
   if (!semlock.Lock(true))
     return false;
@@ -224,8 +225,7 @@ bool MouseStateHandler::SetMousePointerAndOffset(struct TbSprite *mouseSprite, l
   lbDisplay.MouseSprite = mouseSprite;
   point.x = x;
   point.y = y;
-  this->SetPointer(mouseSprite, &point);
-  return true;
+  return this->SetPointer(mouseSprite, &point);
 }
 
 bool MouseStateHandler::SetMousePointer(struct TbSprite *mouseSprite)
@@ -256,7 +256,7 @@ bool MouseStateHandler::SetPointerOffset(long x, long y)
   return true;
 }
 
-struct tagPOINT *MouseStateHandler::GetPointerOffset(void)
+struct TbPoint *MouseStateHandler::GetPointerOffset(void)
 {
   return &hotspot;
 }

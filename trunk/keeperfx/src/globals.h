@@ -209,13 +209,6 @@ struct CoordDelta3d {
     } z;
 };
 
-struct ARect {
-  long left;
-  long top;
-  long right;
-  long bottom;
-};
-
 struct Around { // sizeof = 2
   signed char delta_x;
   signed char delta_y;
