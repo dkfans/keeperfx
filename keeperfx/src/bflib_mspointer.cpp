@@ -23,8 +23,11 @@
 #include <stdio.h>
 
 #include "bflib_basics.h"
+#include "globals.h"
+#include "bflib_planar.h"
 #include "bflib_mouse.h"
 #include "bflib_sprite.h"
+#include "bflib_vidsurface.h"
 
 #include "keeperfx.hpp"
 /******************************************************************************/
@@ -34,6 +37,8 @@ struct SSurface;
 extern "C" {
 #endif
 DLLIMPORT __cdecl long _DK_PointerDraw(long x, long y, struct TbSprite *spr, unsigned char *a4, unsigned long a5);
+
+extern volatile TbBool lbInteruptMouse;
 #ifdef __cplusplus
 }
 #endif
@@ -41,13 +46,6 @@ DLLIMPORT __cdecl long _DK_PointerDraw(long x, long y, struct TbSprite *spr, uns
 // Global variables
 
 /******************************************************************************/
-void ClearSurface(struct SSurface *surf) // this was originally TSurface constructor
-{
-  surf->lpDDSurf = NULL;
-  surf->field_4 = 0;
-  surf->locks_count = 0;
-}
-
 /**
  * Draws the mouse pointer sprite on a display buffer.
  */
@@ -61,13 +59,13 @@ long PointerDraw(long x, long y, struct TbSprite *spr, TbPixel *buf, unsigned lo
 
 LbI_PointerHandler::LbI_PointerHandler(void)
 {
-  ClearSurface(&surf1);
-  ClearSurface(&surf2);
-  this->field_1050 = false;
-  this->field_1054 = false;
-  this->sprite = NULL;
-  this->position = NULL;
-  this->spr_offset = NULL;
+    LbScreenSurfaceInit(&surf1);
+    LbScreenSurfaceInit(&surf2);
+    this->field_1050 = false;
+    this->field_1054 = false;
+    this->sprite = NULL;
+    this->position = NULL;
+    this->spr_offset = NULL;
 }
 
 LbI_PointerHandler::~LbI_PointerHandler(void)
@@ -124,7 +122,7 @@ void LbI_PointerHandler::ClipHotspot(void)
   }
 }
 
-void LbI_PointerHandler::Initialise(struct TbSprite *spr, struct tagPOINT *npos, struct tagPOINT *noffset)
+void LbI_PointerHandler::Initialise(struct TbSprite *spr, struct TbPoint *npos, struct TbPoint *noffset)
 {
   void *surfbuf;
   TbPixel *buf;
@@ -132,34 +130,32 @@ void LbI_PointerHandler::Initialise(struct TbSprite *spr, struct tagPOINT *npos,
   Release();
   LbSemaLock semlock(&sema_rel,0);
   semlock.Lock(true);
-  if (lpDDC == NULL)
-    return;
   sprite = spr;
-  lpDDC->create_surface(&surf1, sprite->SWidth, sprite->SHeight);
-  lpDDC->create_surface(&surf2, sprite->SWidth, sprite->SHeight);
-  surfbuf = lpDDC->lock_surface(&surf1);
+  LbScreenSurfaceCreate(&surf1, sprite->SWidth, sprite->SHeight);
+  LbScreenSurfaceCreate(&surf2, sprite->SWidth, sprite->SHeight);
+  surfbuf = LbScreenSurfaceLock(&surf1);
   if (surfbuf == NULL)
   {
-    lpDDC->release_surface(&surf1);
-    lpDDC->release_surface(&surf2);
+      LbScreenSurfaceRelease(&surf1);
+      LbScreenSurfaceRelease(&surf2);
     sprite = NULL;
     return;
   }
   buf = (TbPixel *)surfbuf;
   for (i=0; i < sprite->SHeight; i++)
   {
-    memset(buf, 255, surf1.field_14);
-    buf += surf1.field_14;
+    memset(buf, 255, surf1.pitch);
+    buf += surf1.pitch;
   }
-  PointerDraw(0, 0, this->sprite, (TbPixel *)surfbuf, surf1.field_14);
-  lpDDC->unlock_surface(&surf1);
+  PointerDraw(0, 0, this->sprite, (TbPixel *)surfbuf, surf1.pitch);
+  LbScreenSurfaceUnlock(&surf1);
   this->position = npos;
   this->spr_offset = noffset;
   ClipHotspot();
   this->field_1050 = true;
   NewMousePos();
   this->field_1054 = false;
-  lpDDC->blt_surface(&surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, 0x10|0x02);
+  LbScreenSurfaceBlit(&surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, 0x10|0x02);
 }
 
 void LbI_PointerHandler::Draw(bool a1)
@@ -168,9 +164,7 @@ void LbI_PointerHandler::Draw(bool a1)
   flags = 0x10 | 0x08 | 0x04;
   if ( a1 )
     flags |= 0x02;
-  if (lpDDC == NULL)
-    return;
-  lpDDC->blt_surface(&this->surf1, this->draw_pos_x, this->draw_pos_y, &rect_1038, flags);
+  LbScreenSurfaceBlit(&this->surf1, this->draw_pos_x, this->draw_pos_y, &rect_1038, flags);
 }
 
 void LbI_PointerHandler::Backup(bool a1)
@@ -179,10 +173,8 @@ void LbI_PointerHandler::Backup(bool a1)
   flags = 0x10;
   if ( a1 )
     flags |= 0x02;
-  if (lpDDC == NULL)
-    return;
   this->field_1054 = false;
-  lpDDC->blt_surface(&this->surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, flags);
+  LbScreenSurfaceBlit(&this->surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, flags);
 }
 
 void LbI_PointerHandler::Undraw(bool a1)
@@ -191,9 +183,7 @@ void LbI_PointerHandler::Undraw(bool a1)
   flags = 0x10 | 0x08;
   if ( a1 )
     flags |= 0x02;
-  if (lpDDC == NULL)
-    return;
-  lpDDC->blt_surface(&this->surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, flags);
+  LbScreenSurfaceBlit(&this->surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, flags);
 }
 
 void LbI_PointerHandler::Release(void)
@@ -209,11 +199,8 @@ void LbI_PointerHandler::Release(void)
     position = NULL;
     sprite = NULL;
     spr_offset = NULL;
-    if (lpDDC != NULL)
-    {
-      lpDDC->release_surface(&surf1);
-      lpDDC->release_surface(&surf2);
-    }
+    LbScreenSurfaceRelease(&surf1);
+    LbScreenSurfaceRelease(&surf2);
   }
 }
 
@@ -221,7 +208,7 @@ void LbI_PointerHandler::NewMousePos(void)
 {
   this->draw_pos_x = position->x - spr_offset->x;
   this->draw_pos_y = position->y - spr_offset->y;
-  SetRect(&rect_1038, 0, 0, sprite->SWidth, sprite->SHeight);
+  LbSetRect(&rect_1038, 0, 0, sprite->SWidth, sprite->SHeight);
   if (this->draw_pos_x < 0)
   {
     rect_1038.left -= this->draw_pos_x;

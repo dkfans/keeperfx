@@ -36,6 +36,7 @@ obj/bflib_basics.o \
 obj/bflib_pom.o \
 obj/bflib_keybrd.o \
 obj/bflib_inputctrl.o \
+obj/bflib_vidsurface.o \
 obj/bflib_sndlib.o \
 obj/bflib_sound.o \
 obj/bflib_fmvids.o \
@@ -46,6 +47,7 @@ obj/bflib_vidraw.o \
 obj/bflib_sprfnt.o \
 obj/bflib_filelst.o \
 obj/bflib_math.o \
+obj/bflib_planar.o \
 obj/bflib_cpu.o \
 obj/bflib_render.o \
 obj/bflib_render_trig.o \
@@ -125,8 +127,6 @@ obj/power_specials.o \
 obj/power_hand.o \
 obj/map_columns.o \
 obj/map_blocks.o \
-obj/bflib_drawbas.o \
-obj/bflib_drawsdk.o \
 obj/game_merge.o \
 obj/thing_stats.o \
 obj/thing_effects.o \
@@ -138,6 +138,7 @@ obj/vidmode.o \
 $(RES)
 
 LINKOBJ  = $(OBJS)
+# include and library directories
 LINKLIB =  -L"directx/lib" -L"lib" -L"sdl/lib" -mwindows -lmingw32 -lkeeperfx -lwinmm -lddraw -lSDLmain -lSDL -lSDL_net 
 INCS =  -I"directx/include" -I"sdl/include"
 CXXINCS =  -I"directx/include" -I"sdl/include"
@@ -151,8 +152,8 @@ DBGFLAGS = -DBFDEBUG_LEVEL=0
 # compiler warning generation flags
 WARNFLAGS = -Wall -Wno-sign-compare -Wno-unused-parameter
 # disabled warnings: -Wextra -Wtype-limits
-CXXFLAGS = $(CXXINCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS)
-CFLAGS = $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS)
+CXXFLAGS = $(CXXINCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
+CFLAGS = $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
 RM = rm -f
 
 .PHONY: all all-before all-after debug clean clean-custom

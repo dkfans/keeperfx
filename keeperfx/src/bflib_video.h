@@ -85,6 +85,15 @@ enum TbDrawFlags {
     Lb_TEXT_HALIGN_JUSTIFY = 0x0200,
 };
 
+enum TbVideoModeFlags {
+    Lb_VF_DEFAULT     = 0x0000, // dummy flag
+    Lb_VF_0001        = 0x0001,
+    Lb_VF_0002        = 0x0002,
+    Lb_VF_0004        = 0x0004,
+    Lb_VF_WINDOWED    = 0x0010,
+    Lb_VF_0100        = 0x0100,
+};
+
 struct GraphicsWindow {
     long x;
     long y;
@@ -101,9 +110,9 @@ struct ScreenModeInfo {
     /** Hardware driver color depth. */
     unsigned short BitsPerPixel;
     /** Is the mode currently available for use. */
-    int Available;//bool
+    int Available;
     /** Video mode flags. */
-    long VideoFlags;
+    unsigned long VideoFlags;
     /** Text description of the mode. */
     char Desc[23];
 };
@@ -235,23 +244,8 @@ TbResult LbScreenSetGraphicsWindow(TbScreenCoord x, TbScreenCoord y,
 
 TbResult LbSetTitle(const char *title);
 TbResult LbSetIcon(unsigned short nicon);
-TbBool LbIsActive(void);
 
 void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
-/*
-bool __fastcall LbVesaGetGran(TbScreenMode mode);
-int __fastcall LbVesaSetPage(short npage);
-
-bool __fastcall LbScreenSetDoubleBuffering(bool newstate);
-int __cdecl LbScreenSwapBoxClear(int source_screen, int SourceX, int SourceY,
-  int DestinationX, int DestinationY, unsigned int width, unsigned int height,
-  unsigned char colour);
-int __cdecl LbScreenSwapClear(unsigned char colour);
-int __cdecl LbScreenSwapBox(int source_screen, int SourceX, int SourceY,
-  int DestinationX, int DestinationY, unsigned int width, unsigned int height);
-
-int __cdecl LbScreenDrawHVLineDirect(int X1, int Y1, int X2, int Y2);
-*/
 /******************************************************************************/
 #ifdef __cplusplus
 }

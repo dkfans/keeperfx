@@ -22,7 +22,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
-//#include <SDL/SDL.h>
+#include <SDL/SDL.h>
 #include <windows.h>
 
 #include "bflib_basics.h"
@@ -138,7 +138,7 @@ TbResult LbMouseChangeSprite(struct TbSprite *mouseSprite)
 
 void GetPointerHotspot(long *hot_x, long *hot_y)
 {
-  struct tagPOINT *hotspot;
+  struct TbPoint *hotspot;
   hotspot = winMouseHandler.GetPointerOffset();
   if (hotspot == NULL)
     return;
@@ -164,7 +164,7 @@ TbResult LbMouseSetWindow(long x, long y, long width, long height)
   return Lb_SUCCESS;
 }
 
-TbResult LbMouseOnMove(struct tagPOINT shift)
+TbResult LbMouseOnMove(struct TbPoint shift)
 {
   if ((!lbMouseInstalled) || (lbMouseOffline))
     return Lb_FAIL;
@@ -176,12 +176,12 @@ TbResult LbMouseOnMove(struct tagPOINT shift)
 /**
  * Converts mouse coordinates into relative shift coordinates.
  */
-void MouseToScreen(struct tagPOINT *pos)
+void MouseToScreen(struct TbPoint *pos)
 {
   static long mx = 0;
   static long my = 0;
   struct tagRECT clip;
-  struct tagPOINT orig;
+  struct TbPoint orig;
   if ( lbUseSdk )
   {
     if ( GetClipCursor(&clip) )
@@ -228,19 +228,18 @@ void LbMouseOnEndSwap(void)
   winMouseHandler.PointerEndSwap();
 }
 
-void mouseControl(unsigned int action, struct tagPOINT *pos)
+void mouseControl(unsigned int action, struct TbPoint *pos)
 {
-  struct tagPOINT dstPos;
+  struct TbPoint dstPos;
   dstPos.x = pos->x;
   dstPos.y = pos->y;
   switch ( action )
   {
-    case 512:
+  case MActn_MOUSEMOVE:
       MouseToScreen(&dstPos);
       LbMouseOnMove(dstPos);
       break;
-    case 513:
-    case 515:
+  case MActn_LBUTTONDOWN:
       lbDisplay.MLeftButton = 1;
       if ( !lbDisplay.LeftButton )
       {
@@ -252,7 +251,7 @@ void mouseControl(unsigned int action, struct tagPOINT *pos)
         lbDisplay.LeftButton = 1;
       }
       break;
-    case 514:
+  case MActn_LBUTTONUP:
       lbDisplay.MLeftButton = 0;
       if ( !lbDisplay.RLeftButton )
       {
@@ -263,8 +262,7 @@ void mouseControl(unsigned int action, struct tagPOINT *pos)
         lbDisplay.RLeftButton = 1;
       }
       break;
-    case 516:
-    case 518:
+  case MActn_RBUTTONDOWN:
       lbDisplay.MRightButton = 1;
       if ( !lbDisplay.RightButton )
       {
@@ -276,7 +274,7 @@ void mouseControl(unsigned int action, struct tagPOINT *pos)
         lbDisplay.RightButton = 1;
       }
       break;
-    case 517:
+  case MActn_RBUTTONUP:
       lbDisplay.MRightButton = 0;
       if ( !lbDisplay.RRightButton )
       {
@@ -287,8 +285,7 @@ void mouseControl(unsigned int action, struct tagPOINT *pos)
         lbDisplay.RRightButton = 1;
       }
       break;
-    case 519:
-    case 521:
+  case MActn_MBUTTONDOWN:
       lbDisplay.MMiddleButton = 1;
       if ( !lbDisplay.MiddleButton )
       {
@@ -300,7 +297,7 @@ void mouseControl(unsigned int action, struct tagPOINT *pos)
         lbDisplay.RMiddleButton = 0;
       }
       break;
-    case 520:
+  case MActn_MBUTTONUP:
       lbDisplay.MMiddleButton = 0;
       if ( !lbDisplay.RMiddleButton )
       {
@@ -310,6 +307,9 @@ void mouseControl(unsigned int action, struct tagPOINT *pos)
         lbDisplay.RMouseY = lbDisplay.MMouseY;
         lbDisplay.RMiddleButton = 1;
       }
+      break;
+  case MActn_WHEELMOVEUP:
+  case MActn_WHEELMOVEDOWN:
       break;
     default:
       break;
