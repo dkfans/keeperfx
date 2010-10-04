@@ -50,7 +50,8 @@ bool LbScreenSurfaceCreate(struct SSurface *surf,unsigned long w,unsigned long h
     if (lbDrawSurface != NULL) {
         format = lbDrawSurface->format;
     }
-    surf->surf_data = SDL_CreateRGBSurface(SDL_SRCCOLORKEY | SDL_HWSURFACE, w, h, format->BitsPerPixel,
+    //SDL_HWSURFACE
+    surf->surf_data = SDL_CreateRGBSurface(SDL_SRCCOLORKEY , w, h, format->BitsPerPixel,
         format->Rmask, format->Gmask, format->Bmask, format->Amask);
 
     if (surf->surf_data == NULL) {

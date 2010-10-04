@@ -30,7 +30,7 @@
 /******************************************************************************/
 extern volatile TbBool lbScreenInitialised;
 
-volatile TbBool lpAppActive;
+volatile TbBool lbAppActive;
 volatile int lbUserQuit = 0;
 /******************************************************************************/
 /**
@@ -158,8 +158,8 @@ static void process_event(const SDL_Event *ev)
 
     case SDL_ACTIVEEVENT:
         if (ev->active.state & SDL_APPACTIVE) {
-            lpAppActive = (ev->active.gain != 0);
-            SDL_ShowCursor(lpAppActive ? SDL_DISABLE : SDL_ENABLE);
+            lbAppActive = (ev->active.gain != 0);
+            SDL_ShowCursor(lbAppActive ? SDL_DISABLE : SDL_ENABLE);
         }
         break;
 
@@ -199,6 +199,6 @@ TbBool LbIsActive(void)
   // On error, let's assume the window is active.
     if (!lbScreenInitialised)
         return true;
-    return lpAppActive;
+    return lbAppActive;
 }
 /******************************************************************************/
