@@ -448,7 +448,8 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
 
     // Create secondary surface if necessary. Right now, only if BPP != 8.
     //TODO: utilize this for rendering in different resolution later
-    if (mdinfo->BitsPerPixel != 8) {
+    if (mdinfo->BitsPerPixel != 8)
+    {
         lbDrawSurface = SDL_CreateRGBSurface(SDL_HWSURFACE, mdinfo->Width, mdinfo->Height, 8, 0, 0, 0, 0);
         if (lbDrawSurface == NULL) {
             ERRORLOG("Can't create secondary surface");
