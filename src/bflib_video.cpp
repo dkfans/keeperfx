@@ -73,7 +73,7 @@ long lbScreenModeInfoNum = 0;
 volatile TbBool lbScreenInitialised = false;
 volatile TbBool lbUseSdk = true;
 /** Returns if the application window is active (focused on screen). */
-extern volatile TbBool lpAppActive;
+extern volatile TbBool lbAppActive;
 /** True if we have two surfaces. */
 TbBool lbHasSecondSurface;
 
@@ -328,12 +328,13 @@ static void LbRegisterStandardVideoModes(void)
 
 TbResult LbScreenInitialize(void)
 {
+    putenv("SDL_VIDEODRIVER=directx");// under Win32, windib or directx
     // Clear global variables
     lbScreenInitialised = false;
     lbScreenSurface = NULL;
     lbDrawSurface = NULL;
     lbHasSecondSurface = false;
-    lpAppActive = true;
+    lbAppActive = true;
     // Initialize SDL library
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
        ERRORLOG("SDL init: %s",SDL_GetError());
@@ -359,6 +360,16 @@ static LPCTSTR MsResourceMapping(int index)
   default:
       return NULL;
   }
+}
+
+static TbResult LbScreenActivationUpdate(void)
+{
+    SDL_Event ev;
+    ev.type = SDL_ACTIVEEVENT;
+    ev.active.state = SDL_APPACTIVE;
+    ev.active.gain = ((SDL_GetAppState() & ev.active.state) != 0);
+    SDL_PushEvent(&ev);
+    return Lb_SUCCESS;
 }
 
 TbResult LbScreenUpdateIcon(void)
@@ -415,8 +426,6 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     if (prevScreenSurf != NULL) {
     }
 
-    //set_double_buffering_video(buffers_count > 1);
-    //set_wscreen_in_video(wscreen_vid);
     if ( !LbScreenIsModeAvailable(mode) )
     {
         ERRORLOG("Screen mode %d not available",(int)mode);
@@ -428,7 +437,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     sdlFlags = 0;
     sdlFlags |= SDL_SWSURFACE;
     if (mdinfo->BitsPerPixel == 8) {
-        sdlFlags |= SDL_DOUBLEBUF;
+//        sdlFlags |= SDL_DOUBLEBUF;
         sdlFlags |= SDL_HWPALETTE;
     }
     if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
@@ -501,6 +510,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     }*/
     //SDL_WM_GrabInput(SDL_GRAB_ON);
     lbScreenInitialised = true;
+    LbScreenActivationUpdate();
     SYNCDBG(8,"Finished");
     return Lb_SUCCESS;
 }
