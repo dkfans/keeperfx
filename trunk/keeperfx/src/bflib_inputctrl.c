@@ -172,9 +172,9 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_SYSWMEVENT:
+    case SDL_VIDEORESIZE:
         break;
 
-    case SDL_VIDEORESIZE:
     case SDL_VIDEOEXPOSE:
         break;
 
