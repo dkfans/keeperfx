@@ -111,6 +111,11 @@ enum {
     ERR_LIMIT_EXCEED= -6, // static limit exceeded
 };
 
+enum DefFormat {
+    DEF_DEFAULT, //default DLLTOOL compatible .DEF
+    DEF_MSLIB, //LIB compatible .DEF (MSVC suite)
+};
+
 #ifdef __cplusplus
 #pragma pack(1)
 #endif
@@ -168,6 +173,7 @@ struct ProgramOptions {
     char *fname_rmap;
     char *module_name;
     const char *funcname_prefix;
+    char *def_format;
 };
 
 void clear_prog_options(struct ProgramOptions *opts)
@@ -179,6 +185,7 @@ void clear_prog_options(struct ProgramOptions *opts)
     opts->fname_rmap = NULL;
     opts->module_name = NULL;
     opts->funcname_prefix = "";
+    opts->def_format = NULL;
 }
 
 void free_prog_options(struct ProgramOptions *opts)
@@ -189,6 +196,7 @@ void free_prog_options(struct ProgramOptions *opts)
     free(opts->fname_def);
     free(opts->fname_rmap);
     free(opts->module_name);
+    free(opts->def_format);
 }
 
 void export_sort(struct export_entry **exp, long exp_size)
@@ -465,12 +473,13 @@ int load_command_line_options(struct ProgramOptions *opts, int argc, char *argv[
             {"def",     required_argument, 0, 'f'},
             {"prefix",  required_argument, 0, 'p'},
             {"rmap",    required_argument, 0, 'r'},
+            {"deff", required_argument, 0, 'e' },
             {NULL,      0,                 0,'\0'}
         };
         /* getopt_long stores the option index here. */
         int c;
         int option_index = 0;
-        c = getopt_long(argc, argv, "vxo:m:f:n:p:r:", long_options, &option_index);
+        c = getopt_long(argc, argv, "vxo:m:f:n:p:r:e:", long_options, &option_index);
         /* Detect the end of the options. */
         if (c == -1)
             break;
@@ -508,6 +517,9 @@ int load_command_line_options(struct ProgramOptions *opts, int argc, char *argv[
             break;
         case 'p':
             opts->funcname_prefix = optarg; // Note that it's not duplicated
+            break;
+        case 'e':
+            opts->def_format = strdup(optarg);
             break;
         case '?':
                // unrecognized option
@@ -570,7 +582,21 @@ short show_usage(char *fname)
     printf("    -r<file>,--rmap<file>    Input .RMAP file name\n");
     printf("    -f<file>,--def<file>     Output .DEF file name\n");
     printf("    -p<text>,--prefix<text>  Function names prefix\n");
+    printf("    -e<format>,--deff<format> .DEF output format.\n");
     return ERR_OK;
+}
+
+enum DefFormat get_def_format(const char * str)
+{
+    if (str == NULL) {
+        return DEF_DEFAULT;
+    }
+    else if (strcmp(str, "mslib") == 0) {
+        return DEF_MSLIB;
+    }
+    else {
+        return DEF_DEFAULT;
+    }
 }
 
 /** Reads any disk file into memory; allocates the buffer first. */
@@ -772,7 +798,7 @@ short create_map(const char *fname, const char *fname_dll, struct PEInfo *pe)
 }
 
 /** Creates .DEF file from given exports list. */
-short create_def(const char *fname, const char *fname_dll, struct PEInfo *pe)
+short create_def(const char *fname, const char *fname_dll, struct PEInfo *pe, enum DefFormat format)
 {
   long idx;
   FILE *fhndl;
@@ -796,7 +822,20 @@ short create_def(const char *fname, const char *fname_dll, struct PEInfo *pe)
       const char *name;
       name = pe->exports[idx]->dstname;
       unsigned long val = pe->exports[idx]->offs+pe->sections[(pe->exports[idx]->seg)%MAX_SECTIONS_NUM]->vaddr;
-      fprintf(fhndl,"    %-36s ; RVA=0x%08lX\n",name,val);
+
+      if (format == DEF_MSLIB) {
+          //handle symbols in .data and .cdata differently - add DATA attribute
+          if (pe->exports[idx]->seg == 2 || pe->exports[idx]->seg == 3) {
+              fprintf(fhndl,"    %s DATA ; RVA=0x%08lX\n",name,val);
+          }
+          else {
+              fprintf(fhndl,"    %s ; RVA=0x%08lX\n",name,val);
+          }
+      }
+      else {
+          //default
+          fprintf(fhndl,"    %-36s ; RVA=0x%08lX\n",name,val);
+      }
   }
   fclose(fhndl);
   printf("Written %ld names into .DEF file.\n",idx);
@@ -1921,7 +1960,7 @@ int main(int argc, char *argv[])
           free_prog_options(&opts);
           return 10;
       }
-      if (create_def(opts.fname_def,opts.fname_out,&peinfo) != ERR_OK)
+      if (create_def(opts.fname_def,opts.fname_out,&peinfo, get_def_format(opts.def_format)) != ERR_OK)
       {
           free_prog_options(&opts);
           return 10;

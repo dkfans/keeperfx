@@ -26,28 +26,31 @@ legal:
 usage:
     peresec [options] <filename>
 where <filename> should be the input PE file, and [options] are:
-    -v,--verbose             Verbose console output mode.
-                             Displays more messages and hints.
-    -x,--extract             Extract data from input file.
-                             This option completely changes function of
-                             PeRESec - instead of creating .DLL from data
-                             in .MAP and .RMAP file, it creates the .MAP
-                             and .RMAP file based on data from input file.
-    -o<file>,--output<file>  Output file name. If not specified, the name
-                             is same as input file name, but ends with .DLL.
-    -n<text>,--modname<text> Module name for export table. This name will be
-                             used as name of the DLL module stored inside
-                             export table. Its relevance is minimal; by default
-                             the input file name without extension is used.
-    -m<file>,--map<file>     Input .MAP file name. If not specified, the name
-                             is same as input file name, but ends with .MAP.
-    -r<file>,--rmap<file>    Input .RMAP file name. If not specified, relocation
-                             table is not affected by PeRESec (stays unchanged).
-    -f<file>,--def<file>     Output .DEF file name. If not specified, the name
-                             is same as input file name, but ends with .DEF.
-    -p<text>,--prefix<text>  Function names prefix. All exports from .MAP file
-                             will be preceded by this prefix before writing to
-                             export section of .DLL file.
+    -v,--verbose              Verbose console output mode.
+                              Displays more messages and hints.
+    -x,--extract              Extract data from input file.
+                              This option completely changes function of
+                              PeRESec - instead of creating .DLL from data
+                              in .MAP and .RMAP file, it creates the .MAP
+                              and .RMAP file based on data from input file.
+    -o<file>,--output<file>   Output file name. If not specified, the name
+                              is same as input file name, but ends with .DLL.
+    -n<text>,--modname<text>  Module name for export table. This name will be
+                              used as name of the DLL module stored inside
+                              export table. Its relevance is minimal; by default
+                              the input file name without extension is used.
+    -m<file>,--map<file>      Input .MAP file name. If not specified, the name
+                              is same as input file name, but ends with .MAP.
+    -r<file>,--rmap<file>     Input .RMAP file name. If not specified, relocation
+                              table is not affected by PeRESec (stays unchanged).
+    -f<file>,--def<file>      Output .DEF file name. If not specified, the name
+                              is same as input file name, but ends with .DEF.
+    -p<text>,--prefix<text>   Function names prefix. All exports from .MAP file
+                              will be preceded by this prefix before writing to
+                              export section of .DLL file.
+    -e<format>,--deff<format> Format of .DEF. By default, .DEF is compatible with
+                              DLLTOOL of GNU suite. Instead, <format> can be mslib
+                              which makes .DEF VisualStudio LIB compatible.
 
 input files (if not in "--extract" mode):
     .EXE and .MAP, optionally also .RMAP files
