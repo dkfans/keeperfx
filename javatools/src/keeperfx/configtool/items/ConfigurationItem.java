@@ -19,7 +19,7 @@ public abstract class ConfigurationItem extends JPanel {
 	public abstract void load(Configuration config);
 	public abstract void save(Configuration config);
 	
-	protected void notifyChange() {
+	protected void markChange() {
 		configChanged.setValue(true);
 	}
 }

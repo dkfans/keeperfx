@@ -1,6 +1,8 @@
 package keeperfx.configtool.items;
 
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JRadioButton;
 
@@ -8,7 +10,7 @@ import keeperfx.configtool.Configuration;
 import keeperfx.util.SmarterButtonGroup;
 import keeperfx.util.ValueObservable;
 
-public class MultiChoiceItem extends ConfigurationItem {
+public class MultiChoiceItem extends ConfigurationItem implements ActionListener {
 	private static final long serialVersionUID = -6789909728535376842L;
 	private final SmarterButtonGroup group;
 	private final String key;
@@ -32,6 +34,7 @@ public class MultiChoiceItem extends ConfigurationItem {
 	private void addChoice(String name) {
 		JRadioButton button = new JRadioButton(name);
 		button.setActionCommand(name);
+		button.addActionListener(this);
 		add(button);
 		group.add(button);
 	}
@@ -45,6 +48,11 @@ public class MultiChoiceItem extends ConfigurationItem {
 	public void save(Configuration config) {
 		String selected = group.getSelected();
 		config.setItem(key, selected == null? defaultChoice : selected);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent ev) {
+		markChange();
 	}
 
 }

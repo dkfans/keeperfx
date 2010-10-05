@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 public class Configuration {
 	private final StringBuffer data = new StringBuffer();
-	private final Pattern pattern = Pattern.compile("(.+)=(.+)");
+	private final Pattern pattern = Pattern.compile("(.+)=(.*)");
 	
 	public void loadFromStream(InputStream is) throws IOException {
 		clear();
@@ -27,11 +27,16 @@ public class Configuration {
 			
 			data.append(buf, 0, nRead);
 		}
+		
+		if (data.charAt(data.length() - 1) == 26) {
+			data.deleteCharAt(data.length() - 1);
+		}
 	}
 	
 	public void saveToStream(OutputStream os) throws IOException {
 		OutputStreamWriter writer = new OutputStreamWriter(os, "ISO-8859-1");
 		writer.write(data.toString());
+		writer.flush();
 	}
 	
 	public void setItem(String key, String value) {
@@ -39,10 +44,11 @@ public class Configuration {
 		boolean found = false;
 		
 		while (matcher.find()) {
-			if (matcher.group(1).trim().equals("key")) {
+			if (matcher.group(1).trim().equals(key)) {
 				found = true;
 				
 				data.replace(matcher.start(2), matcher.end(2), value);
+				break;
 			}
 		}
 		
