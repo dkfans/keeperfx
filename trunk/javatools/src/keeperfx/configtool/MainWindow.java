@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -49,11 +50,9 @@ public class MainWindow extends JFrame
 		"; Three frontend resolutions: failsafe, movies and menu resolution.\n" +
 		"FRONTEND_RES=640x480x8 640x480x8 640x480x8\n" +
 		"; List of in-game resolutions. ALT+R will switch between them.\n" +
-		"INGAME_RES=640x480x32 800x600x32 1280x1024x32\n" +
+		"INGAME_RES=640x480x8 800x600x8 1280x1024x8\n" +
 		"; Censorship - originally was ON only if language is german.\n" +
 		"CENSORSHIP = OFF\n";
-	
-	private final Configuration config = new Configuration();
 	
 	//(observable) states
 	private final ValueObservable<Boolean> configChanged =
@@ -66,7 +65,8 @@ public class MainWindow extends JFrame
 	private JButton exitButton;
 
 	private final ArrayList<ConfigurationItem> items = new ArrayList<ConfigurationItem>();
-
+	private final Configuration config = new Configuration();
+	
 	public MainWindow() {
 		super("KeeperFX Configuration Tool");
 		
@@ -76,7 +76,7 @@ public class MainWindow extends JFrame
 		
 		try {
 			InputStream iconStream =
-				MainWindow.class.getResourceAsStream("res/keeperfx.ico");
+				MainWindow.class.getResourceAsStream("/keeperfx.png");
 			
 			if (iconStream != null) {
 				BufferedImage icon = ImageIO.read(iconStream);
@@ -176,8 +176,12 @@ public class MainWindow extends JFrame
 	}
 
 	private void saveConfiguration() {
+		for (ConfigurationItem item : items) {
+			item.save(config);
+		}
+		
 		try {
-			config.saveToStream(System.out);
+			config.saveToStream(new FileOutputStream(CONFIG_FILE));
 			configChanged.setValue(false);
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(this,
