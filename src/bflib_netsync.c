@@ -41,6 +41,10 @@ static float self_information(const char * buffer, size_t len)
 
     nat = 0.0f;
     for (int i = 0; i < 0x100; ++i) {
+        if (counts[i] == 0) {
+            continue;
+        }
+
         float p = (float) counts[i] / len;
         nat -= log(p);
     }
@@ -70,7 +74,7 @@ static enum DeltaEncoding encode(enum DeltaEncoding encoding, char * code,
     //encoding == DELTA_SELECTBEST is implied from here
 
     //compare information content and select best
-    if (self_information(new_state, len) > self_information(code, len)) {
+    if (self_information(new_state, len) <= self_information(code, len)) {
         LbMemoryCopy(code, new_state, len); //undo
         return DELTA_NONE;
     }
