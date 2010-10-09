@@ -41,6 +41,7 @@ GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
 LIBS     = obj/libkeeperfx.a  directx/lib/libddraw.a
 OBJS = \
+obj/actionpt.o \
 obj/ariadne.o \
 obj/ariadne_edge.o \
 obj/ariadne_findcache.o \
@@ -48,10 +49,11 @@ obj/ariadne_navitree.o \
 obj/ariadne_points.o \
 obj/ariadne_regions.o \
 obj/ariadne_tringls.o \
-obj/actionpt.o \
+obj/bflib_base_tcp.o \
 obj/bflib_basics.o \
-obj/bflib_cpu.o \
 obj/bflib_bufrw.o \
+obj/bflib_client_tcp.o \
+obj/bflib_cpu.o \
 obj/bflib_datetm.o \
 obj/bflib_dernc.o \
 obj/bflib_fileio.o \
@@ -66,20 +68,25 @@ obj/bflib_memory.o \
 obj/bflib_mouse.o \
 obj/bflib_mshandler.o \
 obj/bflib_mspointer.o \
+obj/bflib_nethost_udp.o \
+obj/bflib_netlisten_udp.o \
 obj/bflib_netsp.o \
 obj/bflib_netsp_ipx.o \
+obj/bflib_netsp_tcp.o \
 obj/bflib_netsync.o \
 obj/bflib_network.o \
 obj/bflib_planar.o \
 obj/bflib_pom.o \
 obj/bflib_render.o \
-obj/bflib_render_trig.o \
 obj/bflib_render_gpoly.o \
+obj/bflib_render_trig.o \
 obj/bflib_semphr.o \
+obj/bflib_server_tcp.o \
 obj/bflib_sndlib.o \
 obj/bflib_sound.o \
 obj/bflib_sprfnt.o \
 obj/bflib_sprite.o \
+obj/bflib_threadcond.o \
 obj/bflib_video.o \
 obj/bflib_vidraw.o \
 obj/bflib_vidsurface.o \

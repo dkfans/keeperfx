@@ -24,6 +24,9 @@
 #define BFDEBUG_LEVEL 10
 #endif
 
+/* Comment out for no experimental network support */
+#define EXPERIMENTAL_NET
+
 /* Version definitions */
 #include "../obj/ver_defs.h"
 //#define VER_MAJOR         1
