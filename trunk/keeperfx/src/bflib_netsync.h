@@ -19,8 +19,8 @@
  */
 /******************************************************************************/
 
-#ifndef BFLIB_NETSYNC
-#define BFLIB_NETSYNC
+#ifndef BFLIB_NETSYNC_H
+#define BFLIB_NETSYNC_H
 
 
 #ifdef __cplusplus
@@ -40,20 +40,19 @@ typedef void (*NetsyncFixupFn)(char *destptr, char * srcptr, size_t len);
 
 //we need to write header if encoding in instruction was DELTA_SELECTBEST
 typedef char NetsyncHeader;
-#define NETSYNC_ENCODING_MASK   0x03
 
 /**
  * Network sync instruction. Contains a pointer to a block of data which must be synced.
  *
  * Collection process:
- * 1. Block header (if any) is reserved in intermediate buffer.
- * 2. Block body of len bytes are reserved in intermediate buffer. (Conceptually.)
+ * 1. Block header (if any) is reserved in new state buffer.
+ * 2. Block body of len bytes are reserved in new state buffer. (Conceptually.)
  * 3. If ptr != NULL, len bytes a copied to block body from ptr.
  * 4. If on_collect != NULL, call on_collect with destptr = block body.
  *  This allows special case code that handles e.g. pointers. It can also allow
  *  complete customization of resultant data if ptr == NULL.
  * 5. Perform specified delta encoding on block body. If DELTA_SELECTBEST, try
- *  different (select the one with least information content).
+ *  different (select the one with least self information content).
  * 6. Update block header (if any).
  * 7. Instruction has finished.
  *
@@ -65,8 +64,8 @@ struct NetsyncInstr
     char * ptr;
     size_t len;
     enum DeltaEncoding encoding; //probably best to leave at DELTA_SELECTBEST
-    NetsyncFixupFn on_collect; //called after data has been copied to intermediate buffer
-    NetsyncFixupFn on_restore; //called after data has been restored from intermediate buffer
+    NetsyncFixupFn on_collect; //called after data has been copied to new state buffer
+    NetsyncFixupFn on_restore; //called after data has been restored from new state buffer
 };
 
 /**
@@ -79,9 +78,9 @@ size_t LbNetsyncBufferSize(const struct NetsyncInstr ** instr);
 /**
  * Collects data and encodes it, for synchronization purposes.
  * @param instr The instructions (null terminated array).
- * @param out_buffer The encoded buffer.
- * @param old_state The previous state buffer.
- * @param new_state The new state buffer.
+ * @param out_buffer The encoded buffer. Send over network or whatever.
+ * @param old_state The previous state buffer. Must be NULL if there is no previous state.
+ * @param new_state The new state buffer. Save this to use as old state for next call.
  */
 void LbNetsyncCollect(const struct NetsyncInstr ** instr, char * out_buffer,
     const char * old_state, char * new_state);
@@ -89,9 +88,9 @@ void LbNetsyncCollect(const struct NetsyncInstr ** instr, char * out_buffer,
 /**
  * Restores data previously collected and encoded.
  * @param instr The instructions (null terminated array).
- * @param in_buffer The encoded buffer.
- * @param old_state The previous state buffer.
- * @param new_state The new state buffer. //TODO: better explanation
+ * @param in_buffer The encoded buffer. Received from network or wherever.
+ * @param old_state The previous state buffer. Must be NULL if there is no previous state.
+ * @param new_state The new state buffer. Save this to use as old state for next call.
  */
 void LbNetsyncRestore(const struct NetsyncInstr ** instr, const char * in_buffer,
     const char * old_state, char * new_state);
@@ -100,5 +99,5 @@ void LbNetsyncRestore(const struct NetsyncInstr ** instr, const char * in_buffer
 };
 #endif
 
-#endif //BFLIB_NETSYNC
+#endif //BFLIB_NETSYNC_H
 
