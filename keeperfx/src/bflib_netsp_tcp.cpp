@@ -163,11 +163,11 @@ TbError TCPServiceProvider::Enumerate(struct TbNetworkSessionNameEntry * session
 			TbNetworkPlayerNameEntry entry;
 			memset(&entry, 0, sizeof(entry));
 			if (i == 0) {
-				entry.isHost = isServer; //TODO NET check correctness of this... was written for old code
-				entry.isLocal = true; //I hope
+				entry.ishost = isServer; //TODO NET check correctness of this... was written for old code
+				entry.islocal = true; //I hope
 			}
 
-			memcpy(entry.name, players[i].name, NET_PLAYER_NAME_LENGTH);
+			memcpy(entry.name, players[i].name, 19);
 			entry.id = players[i].id;
 
 			playerCallback(reinterpret_cast<TbNetworkCallbackData *>(&entry), ptr);
