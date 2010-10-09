@@ -76,6 +76,8 @@ volatile TbBool lbUseSdk = true;
 extern volatile TbBool lbAppActive;
 /** True if we have two surfaces. */
 TbBool lbHasSecondSurface;
+/** True if we request the double buffering to be on in next mode switch. */
+TbBool lbDoubleBufferingRequested;
 
 char lbDrawAreaTitle[128] = "Bullfrog Shell";
 volatile TbBool lbInteruptMouse;
@@ -177,6 +179,25 @@ TbScreenCoord LbGraphicsScreenWidth(void)
 TbScreenCoord LbGraphicsScreenHeight(void)
 {
     return lbDisplay.GraphicsScreenHeight;
+}
+
+/** Resolution in width of the current video mode.
+ *  Note that it's not always "physical" size,
+ *  and it definitely can't be used as pitch/scanline
+ *  (size of data for one line) in the graphics buffer.
+ *
+ *  But it is the width that will be visible on screen.
+ *
+ * @return
+ */
+TbScreenCoord LbScreenWidth(void)
+{
+    return lbDisplay.PhysicalScreenWidth;
+}
+
+TbScreenCoord LbScreenHeight(void)
+{
+    return lbDisplay.PhysicalScreenHeight;
 }
 
 void LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long fade_steps)
@@ -334,6 +355,7 @@ TbResult LbScreenInitialize(void)
     lbScreenSurface = NULL;
     lbDrawSurface = NULL;
     lbHasSecondSurface = false;
+    lbDoubleBufferingRequested = false;
     lbAppActive = true;
     // Initialize SDL library
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -437,8 +459,10 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     sdlFlags = 0;
     sdlFlags |= SDL_SWSURFACE;
     if (mdinfo->BitsPerPixel == 8) {
-//        sdlFlags |= SDL_DOUBLEBUF;
         sdlFlags |= SDL_HWPALETTE;
+    }
+    if (lbDoubleBufferingRequested) {
+        sdlFlags |= SDL_DOUBLEBUF;
     }
     if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
         sdlFlags |= SDL_FULLSCREEN;
@@ -478,7 +502,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     lbDisplay.WScreen = NULL;
     LbScreenSetGraphicsWindow(0, 0, mdinfo->Width, mdinfo->Height);
 
-    SYNCDBG(8,"Mode setup succeeded");
+    SYNCLOG("Mode %dx%dx%d setup succeeded",(int)lbScreenSurface->w,(int)lbScreenSurface->h,(int)lbScreenSurface->format->BitsPerPixel);
     if (palette != NULL)
       LbPaletteSet(palette);
     lbDisplay.PhysicalScreen = NULL;
@@ -515,28 +539,58 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     return Lb_SUCCESS;
 }
 
+/** Clears the 8-bit video palette with black.
+ *
+ * @param palette Pointer to the palette colors data.
+ * @return Lb_SUCCESS, or error code.
+ */
+TbResult LbPaletteDataClear(unsigned char *palette)
+{
+    memset(palette, 0, PALETTE_SIZE);
+    return Lb_SUCCESS;
+}
+
+/** Sets the 8-bit video palette.
+ *
+ * @param palette Pointer to the palette colors data.
+ * @return Lb_SUCCESS, or error code.
+ */
 TbResult LbPaletteSet(unsigned char *palette)
 {
     SDL_Color * destColors;
     const unsigned char * srcColors;
     unsigned long i;
+    TbResult ret;
     SYNCDBG(12,"Starting");
     if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
       return Lb_FAIL;
     destColors = (SDL_Color *) malloc(sizeof(SDL_Color) * PALETTE_COLORS);
     srcColors = palette;
+    if ((destColors == NULL) || (srcColors == NULL))
+      return Lb_FAIL;
+    ret = Lb_SUCCESS;
     for (i = 0; i < PALETTE_COLORS; i++) {
         destColors[i].r = (srcColors[0] << 2);
         destColors[i].g = (srcColors[1] << 2);
         destColors[i].b = (srcColors[2] << 2);
         srcColors += 3;
     }
-    SDL_SetPalette(lbDrawSurface, SDL_LOGPAL | SDL_PHYSPAL, destColors, 0, PALETTE_COLORS);
+    //if (SDL_SetPalette(lbDrawSurface, SDL_LOGPAL | SDL_PHYSPAL,
+    if (SDL_SetColors(lbDrawSurface,
+        destColors, 0, PALETTE_COLORS) != 1) {
+        SYNCDBG(8,"SDL SetPalette failed.");
+        ret = Lb_FAIL;
+    }
     free(destColors);
     lbDisplay.Palette = palette;
-    return Lb_SUCCESS;
+    return ret;
 }
 
+/** Retrieves the 8-bit video palette.
+ *
+ * @param palette Pointer to target palette colors buffer.
+ * @return Lb_SUCCESS, or error code.
+ */
 TbResult LbPaletteGet(unsigned char *palette)
 {
     const SDL_Color * srcColors;
@@ -597,7 +651,7 @@ TbResult LbScreenReset(void)
     return Lb_SUCCESS;
 }
 
-/*
+/**
  * Stores the current graphics window coords into TbGraphicsWindow structure.
  * Intended to use with LbScreenLoadGraphicsWindow() when changing the window
  * temporary.
@@ -611,7 +665,7 @@ TbResult LbScreenStoreGraphicsWindow(TbGraphicsWindow *grwnd)
   return Lb_SUCCESS;
 }
 
-/*
+/**
  * Sets the current graphics window coords from those in TbGraphicsWindow structure.
  * Use it only with TbGraphicsWindow which was filled using function
  * LbScreenStoreGraphicsWindow(), because the values are not checked for sanity!
@@ -696,6 +750,34 @@ TbBool LbScreenIsModeAvailable(TbScreenMode mode)
   return mdinfo->Available;
 }
 
+/** Allows to change recommended state of double buffering function.
+ *  Double buffering is a technique where two graphics surfaces are used,
+ *  and every screen redraw (flip) switches the primary and secondary surface.
+ *  This may produce smoother motion on some platforms, but it forces
+ *  the screen to be redrawn completely after each switch - if only
+ *  changed areas were to be updated, they would have to be updated on both
+ *  surfaces.
+ *
+ * @param state Recommended state of Double Buffering in next video mode switch.
+ * @return Lb_SUCCESS if the request has been noted and stored.
+ */
+TbResult LbScreenSetDoubleBuffering(TbBool state)
+{
+    lbDoubleBufferingRequested = state;
+    return Lb_SUCCESS;
+}
+
+/** Retrieves actual state of the Double Buffering function.
+ *  Note that if the function was requested, it still doesn't necessarily
+ *  mean it was activated.
+ *
+ * @return True if the function is currently active, false otherwise.
+ */
+TbBool LbScreenIsDoubleBufferred(void)
+{
+    return ((lbScreenSurface->flags & SDL_DOUBLEBUF) != 0);
+}
+
 TbScreenMode LbRecogniseVideoModeString(const char *desc)
 {
     int mode;
@@ -763,11 +845,6 @@ TbScreenMode LbRegisterVideoModeString(const char *desc)
 TbPixel LbPaletteFindColour(unsigned char *pal, unsigned char r, unsigned char g, unsigned char b)
 {
   return _DK_LbPaletteFindColour(pal, r, g, b);
-}
-
-void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags)
-{
-  _DK_copy_to_screen(srcbuf, width, height, flags);
 }
 /******************************************************************************/
 #ifdef __cplusplus

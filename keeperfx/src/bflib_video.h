@@ -29,13 +29,14 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-#define PALETTE_SIZE 768
 #define PALETTE_COLORS 256
+#define PALETTE_SIZE (3*PALETTE_COLORS)
 
 #ifdef __cplusplus
 #pragma pack(1)
 #endif
 
+/** Pixel definition - represents value of one point on the graphics screen. */
 typedef unsigned char TbPixel;
 
 /** Standard video modes, registered by LbScreenInitialize(). */
@@ -125,13 +126,23 @@ struct DisplayStruct {
         uchar *FadeTable;
         uchar *GraphicsWindowPtr;
         struct TbSprite *MouseSprite;
+        /** Resolution in width of the current video mode.
+         *  Note that it's not always "physical" size. */
         long PhysicalScreenWidth;
+        /** Resolution in height of the current video mode.
+        *  Note that it's not always "physical" size. */
         long PhysicalScreenHeight;
+        /** Width of the screen buffer (WScreen X pitch). */
         long GraphicsScreenWidth;
+        /** Height of the screen buffer (WScreen Y pitch). */
         long GraphicsScreenHeight;
+        /** Current graphics window beginning X coordinate. */
         long GraphicsWindowX;
+        /** Current graphics window beginning Y coordinate. */
         long GraphicsWindowY;
+        /** Current graphics window width (size in X axis). */
         long GraphicsWindowWidth;
+        /** Current graphics window height (size in Y axis). */
         long GraphicsWindowHeight;
         long MouseWindowX;
         long MouseWindowY;
@@ -206,6 +217,8 @@ extern volatile TbBool lbScreenInitialised;
 extern volatile TbBool lbUseSdk;
 /******************************************************************************/
 TbResult LbScreenInitialize(void);
+TbResult LbScreenSetDoubleBuffering(TbBool state);
+TbBool LbScreenIsDoubleBufferred(void);
 TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid);
 TbResult LbScreenReset(void);
@@ -219,6 +232,8 @@ TbScreenMode LbRegisterVideoModeString(const char *desc);
 TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode);
 
 TbScreenMode LbScreenActiveMode(void);
+TbScreenCoord LbScreenWidth(void);
+TbScreenCoord LbScreenHeight(void);
 unsigned short LbGraphicsScreenBPP(void);
 TbScreenCoord LbGraphicsScreenWidth(void);
 TbScreenCoord LbGraphicsScreenHeight(void);
@@ -236,6 +251,7 @@ TbResult LbPaletteStopOpenFade(void);
 TbResult LbPaletteSet(unsigned char *palette);
 TbResult LbPaletteGet(unsigned char *palette);
 TbPixel LbPaletteFindColour(unsigned char *pal, unsigned char r, unsigned char g, unsigned char b);
+TbResult LbPaletteDataClear(unsigned char *palette);
 
 TbResult LbScreenStoreGraphicsWindow(TbGraphicsWindow *grwnd);
 TbResult LbScreenLoadGraphicsWindow(TbGraphicsWindow *grwnd);
@@ -244,8 +260,6 @@ TbResult LbScreenSetGraphicsWindow(TbScreenCoord x, TbScreenCoord y,
 
 TbResult LbSetTitle(const char *title);
 TbResult LbSetIcon(unsigned short nicon);
-
-void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
 /******************************************************************************/
 #ifdef __cplusplus
 }

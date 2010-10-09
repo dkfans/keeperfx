@@ -27,6 +27,14 @@
 extern "C" {
 #endif
 /******************************************************************************/
+enum SmackerPlayFlags {
+    SMK_NoStopOnUserInput  = 0x02,
+    SMK_PixelDoubleLine    = 0x04,
+    SMK_InterlaceLine      = 0x08,
+    SMK_WriteStatusFile    = 0x40,
+    SMK_PixelDoubleWidth   = 0x80,
+};
+
 // Type definitions
 struct SmackTag {
   unsigned long Version;           // SMK2 only right now
@@ -144,6 +152,8 @@ long field_324;
     struct AnimFLIChunk subchunk;
 char field_3C4[12];
 };
+
+typedef void (*SmackDrawCallback)(unsigned char *frame_data, long width, long height);
 
 #ifdef __cplusplus
 #pragma pack()

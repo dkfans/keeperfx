@@ -695,13 +695,13 @@ short setup_screen_mode(unsigned short nmode)
       }
       if ((lbDisplay.ScreenMode != nmode) || (was_minimal_res))
       {
-        if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 2, 0) != 1)
-        {
-          ERRORLOG("Unable to setup screen resolution %s (mode %d)",
-              mdinfo->Desc,(int)nmode);
-          force_video_mode_reset = true;
-          return 0;
-        }
+          if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 2, 0) != 1)
+          {
+            ERRORLOG("Unable to setup screen resolution %s (mode %d)",
+                mdinfo->Desc,(int)nmode);
+            force_video_mode_reset = true;
+            return 0;
+          }
       }
       load_pointer_file(0);
   } else
@@ -716,13 +716,13 @@ short setup_screen_mode(unsigned short nmode)
       }
       if ((lbDisplay.ScreenMode != nmode) || (was_minimal_res))
       {
-        if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 1, 0) != 1)
-        {
-          ERRORLOG("Unable to setup screen resolution %s (mode %d)",
-              mdinfo->Desc,(int)nmode);
-          force_video_mode_reset = true;
-          return 0;
-        }
+          if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 1, 0) != 1)
+          {
+            ERRORLOG("Unable to setup screen resolution %s (mode %d)",
+                mdinfo->Desc,(int)nmode);
+            force_video_mode_reset = true;
+            return 0;
+          }
       }
       load_pointer_file(1);
   }
@@ -843,13 +843,13 @@ short setup_screen_mode_minimal(unsigned short nmode)
       }
       if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
       {
-        if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 2, 0) != 1)
-        {
-          ERRORLOG("Unable to setup screen resolution %s (mode %d)",
-              mdinfo->Desc,(int)nmode);
-          force_video_mode_reset = true;
-          return 0;
-        }
+          if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 2, 0) != 1)
+          {
+            ERRORLOG("Unable to setup screen resolution %s (mode %d)",
+                mdinfo->Desc,(int)nmode);
+            force_video_mode_reset = true;
+            return 0;
+          }
       }
   } else
   {
@@ -865,13 +865,13 @@ short setup_screen_mode_minimal(unsigned short nmode)
       frontend_load_data_reset();
       if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
       {
-       if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 1, 0) != 1)
-       {
-          ERRORLOG("Unable to setup screen resolution %s (mode %d)",
-              mdinfo->Desc,(int)nmode);
-          force_video_mode_reset = true;
-          return 0;
-       }
+          if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 1, 0) != 1)
+          {
+             ERRORLOG("Unable to setup screen resolution %s (mode %d)",
+                 mdinfo->Desc,(int)nmode);
+             force_video_mode_reset = true;
+             return 0;
+          }
       }
   }
   LbScreenClear(0);
@@ -887,7 +887,7 @@ TbBool setup_screen_mode_zero(unsigned short nmode)
   TbScreenModeInfo *mdinfo;
   SYNCDBG(4,"Setting up mode %d",(int)nmode);
   mdinfo = LbScreenGetModeInfo(nmode);
-  memset(_DK_palette, 0, PALETTE_SIZE);
+  LbPaletteDataClear(_DK_palette);
   if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 2, 0) != 1)
   {
       ERRORLOG("Unable to setup screen resolution %s (mode %d)",

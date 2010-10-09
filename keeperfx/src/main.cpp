@@ -4488,12 +4488,13 @@ short setup_game(void)
   // loading and no CD screens can run in both 320x2?0 and 640x4?0.
   if ( result && (!game.no_intro) )
   {
-    int mode_ok = LbScreenSetup(get_movies_vidmode(), 320, 200, _DK_palette, 2, 0);
-    if (mode_ok != 1)
-    {
-      ERRORLOG("Can't enter movies screen mode to play intro");
-      result=0;
-    }
+      LbPaletteDataClear(_DK_palette);
+      int mode_ok = LbScreenSetup(get_movies_vidmode(), 320, 200, _DK_palette, 2, 0);
+      if (mode_ok != 1)
+      {
+        ERRORLOG("Can't enter movies screen mode to play intro");
+        result=0;
+      }
   }
 
   if ( result )
@@ -10460,6 +10461,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
   LbScreenInitialize();
   LbSetTitle(PROGRAM_NAME);
   LbSetIcon(1);
+  LbScreenSetDoubleBuffering(true);
   srand(LbTimerClock());
 
   retval=process_command_line(argc,argv);
