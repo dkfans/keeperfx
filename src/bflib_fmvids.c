@@ -48,7 +48,7 @@ extern "C" {
 
 /******************************************************************************/
 // Global variables
-void *smack_draw_callback=NULL;
+SmackDrawCallback smack_draw_callback = NULL;
 unsigned char smk_palette[768];
 
 DLLIMPORT long _DK_anim_stop(void);
@@ -59,7 +59,8 @@ DLLIMPORT long _DK_anim_make_FLI_COLOUR256(unsigned char *palette);
 DLLIMPORT long _DK_anim_make_FLI_BRUN(unsigned char *screenbuf);
 DLLIMPORT long _DK_anim_make_FLI_SS2(unsigned char *src, unsigned char *dst);
 DLLIMPORT long _DK_anim_make_FLI_LC(unsigned char *src, unsigned char *dst);
-
+/******************************************************************************/
+void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
 /******************************************************************************/
 // Functions
 typedef char (WINAPI *FARPROCP_C)(void *);
@@ -183,6 +184,166 @@ void SmackSimulate(unsigned long sim)
     ((FARPROCU_V)proc)(sim);
 }
 
+void copy_to_screen_pxquad(unsigned char *srcbuf, unsigned char *dstbuf, long width, long dst_shift)
+{
+    unsigned long i,k;
+    unsigned long n,w,s;
+    unsigned long *dst;
+    unsigned long *src;
+    src = (unsigned long *)srcbuf;
+    dst = (unsigned long *)dstbuf;
+    w = ((unsigned long)width) >> 2;
+    s = dst_shift >> 2;
+    do
+    {
+        i = (*src) & 0xFF;
+        k = (*src >> 8) & 0xFF;
+        n = (k << 24) + (k << 16) + (i << 8) + i;
+        dst[0] = n;
+        dst[s] = n;
+        i = (*src >> 16) & 0xFF;
+        k = (*src >> 24) & 0xFF;
+        n = (k << 24) + (k << 16) + (i << 8) + i;
+        dst[1] = n;
+        dst[s+1] = n;
+        src++;
+        dst += 2;
+        w--;
+    }
+    while (w > 0);
+}
+
+void copy_to_screen_pxdblh(unsigned char *srcbuf, unsigned char *dstbuf, long width, long dst_shift)
+{
+    unsigned long n,w,s;
+    unsigned long *dst;
+    unsigned long *src;
+    src = (unsigned long *)srcbuf;
+    dst = (unsigned long *)dstbuf;
+    w = ((unsigned long)width) >> 2;
+    s = dst_shift >> 2;
+    do
+    {
+        n = *src;
+        dst[0] = n;
+        dst[s] = n;
+        src++;
+        dst++;
+        w--;
+    }
+    while (w > 0);
+}
+
+void copy_to_screen_pxdblw(unsigned char *srcbuf, unsigned char *dstbuf, long width)
+{
+    unsigned long i,k;
+    unsigned long n,w;
+    unsigned long *dst;
+    unsigned long *src;
+    src = (unsigned long *)srcbuf;
+    dst = (unsigned long *)dstbuf;
+    w = ((unsigned long)width) >> 2;
+    do
+    {
+        i = (*src) & 0xFF;
+        k = (*src >> 8) & 0xFF;
+        n = (k << 24) + (k << 16) + (i << 8) + i;
+        dst[0] = n;
+        i = (*src >> 16) & 0xFF;
+        k = (*src >> 24) & 0xFF;
+        n = (k << 24) + (k << 16) + (i << 8) + i;
+        dst[1] = n;
+        src++;
+        dst += 2;
+        w--;
+    }
+    while (w > 0);
+}
+
+void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags)
+{
+    unsigned char *dstbuf;
+    long buf_center;
+    long w,h;
+    //_DK_copy_to_screen(srcbuf, width, height, flags);
+    if ( ((flags & SMK_PixelDoubleLine) != 0) || ((flags & SMK_InterlaceLine) != 0) )
+    {
+        buf_center = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - 2 * height) >> 1);
+    } else
+    {
+        buf_center = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - height) >> 1);
+    }
+    w = width;
+    if ((flags & SMK_PixelDoubleWidth) != 0)
+      w = 2 * width;
+    dstbuf = &lbDisplay.WScreen[buf_center + ((LbScreenWidth() - w) >> 1)];
+    if ((flags & SMK_PixelDoubleLine) != 0)
+    {
+      if ((flags & SMK_PixelDoubleWidth) != 0)
+      {
+          for (h=height; h > 0; h--)
+          {
+              copy_to_screen_pxquad(srcbuf, dstbuf, width, lbDisplay.GraphicsScreenWidth);
+              dstbuf += 2 * lbDisplay.GraphicsScreenWidth;
+              srcbuf += width;
+          }
+      } else
+      {
+          for (h=height; h > 0; h--)
+          {
+              copy_to_screen_pxdblh(srcbuf, dstbuf, width, lbDisplay.GraphicsScreenWidth);
+              dstbuf += 2 * lbDisplay.GraphicsScreenWidth;
+              srcbuf += width;
+          }
+      }
+    } else
+    {
+      if ((flags & SMK_PixelDoubleWidth) != 0)
+      {
+        if ((flags & SMK_InterlaceLine) != 0)
+        {
+            for (h=height; h > 0; h--)
+            {
+                copy_to_screen_pxdblw(srcbuf, dstbuf, width);
+                dstbuf += 2 * lbDisplay.GraphicsScreenWidth;
+                srcbuf += width;
+            }
+        } else
+        {
+            for (h=height; h > 0; h--)
+            {
+                copy_to_screen_pxdblw(srcbuf, dstbuf, width);
+              dstbuf += lbDisplay.GraphicsScreenWidth;
+              srcbuf += width;
+            }
+        }
+      }
+      else
+      {
+        if ((flags & SMK_InterlaceLine) != 0)
+        {
+            for (h=height; h > 0; h--)
+            {
+              memcpy(dstbuf, srcbuf, width);
+              dstbuf += 2 * lbDisplay.GraphicsScreenWidth;
+              srcbuf += width;
+            }
+        } else
+        {
+            for (h=height; h > 0; h--)
+            {
+              memcpy(dstbuf, srcbuf, width);
+              dstbuf += lbDisplay.GraphicsScreenWidth;
+              srcbuf += width;
+            }
+        }
+      }
+    }
+    if (smack_draw_callback != NULL) {
+      smack_draw_callback(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, lbDisplay.GraphicsScreenHeight);
+    }
+}
+
 short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
 {
   SYNCDBG(7,"Starting");
@@ -198,7 +359,7 @@ short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
     return 0;
   unsigned long nframe = 1;
   unsigned char *buf = (unsigned char *)LbMemoryAlloc(smktag->Width*smktag->Height);
-  if (buf==NULL)
+  if (buf == NULL)
   {
     SmackClose(smktag);
     return 0;
@@ -239,8 +400,8 @@ short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
             SmackClose(smktag);
             return 2;
         }
-        if (((plyflags & 0x02)==0) && (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_RETURN]
-            || lbKeyOn[KC_SPACE] || lbDisplay.LeftButton) )
+        if (((plyflags & SMK_NoStopOnUserInput) == 0) && (lbKeyOn[KC_ESCAPE]
+            || lbKeyOn[KC_RETURN] || lbKeyOn[KC_SPACE] || lbDisplay.LeftButton) )
         {
             SmackClose(smktag);
             LbMemoryFree(buf);
@@ -315,8 +476,9 @@ short play_smk_direct(char *fname, int smkflags, int plyflags)
             SmackClose(smktag);
             return 2;
         }
-        if (((plyflags & 0x02)==0) && (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_RETURN]
-            || lbKeyOn[KC_SPACE] || lbDisplay.LeftButton) )
+        if (((plyflags & SMK_NoStopOnUserInput) == 0) &&
+            (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_RETURN] || lbKeyOn[KC_SPACE]
+              || lbDisplay.LeftButton) )
         {
             SmackClose(smktag);
             return 2;
@@ -324,7 +486,7 @@ short play_smk_direct(char *fname, int smkflags, int plyflags)
       } while ( SmackWait(smktag) );
       ++nframe;
   }
-  if ( plyflags & 0x40 )
+  if ((plyflags & SMK_WriteStatusFile) != 0)
   {
       struct SmackSumTag smksum;
       SmackSummary(smktag, &smksum);
@@ -384,7 +546,9 @@ short play_smk_(char *fname, int smkflags, int plyflags)
 {
   short result;
   lbDisplay.LeftButton = 0;
-  if ( (smack_draw_callback) || (plyflags & 0x8C) )
+  if ( (smack_draw_callback != NULL) || ((plyflags & SMK_PixelDoubleWidth) != 0)
+      || ((plyflags & SMK_InterlaceLine) != 0) || ((plyflags & SMK_PixelDoubleLine) != 0)
+      || (LbScreenIsDoubleBufferred()) )
     result = play_smk_via_buffer(fname, smkflags, plyflags);
   else
     result = play_smk_direct(fname, smkflags, plyflags);

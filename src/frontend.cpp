@@ -4490,7 +4490,6 @@ void frontend_load_continue_game(struct GuiButton *gbtn)
 
 TbBool fronttorture_draw(void)
 {
-  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(LbScreenActiveMode());
   struct TbSprite *spr;
   const int img_width = 640;
   const int img_height = 480;
@@ -4510,7 +4509,7 @@ TbBool fronttorture_draw(void)
   //TODO: temporarely set to top left corner because input function is not rewritten
   spx = 0;//(mdinfo->Width-m*img_width)>>1;
   spy = 0;//(mdinfo->Height-m*img_height)>>1;
-  copy_raw8_image_buffer(lbDisplay.WScreen,mdinfo->Width,mdinfo->Height,
+  copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
       spx,spy,torture_background,img_width,img_height,m);
 
   for (i=0; i < torture_doors_available; i++)
@@ -6108,7 +6107,7 @@ void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
   spx = rect_x + ((rect_w-m*img_width)>>1);
   spy = rect_y + ((rect_h-m*img_height)>>1);
   // Do the drawing
-  copy_raw8_image_buffer(lbDisplay.WScreen,mdinfo->Width,mdinfo->Height,
+  copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
       spx,spy,srcbuf,img_width,img_height,m);
 }
 
