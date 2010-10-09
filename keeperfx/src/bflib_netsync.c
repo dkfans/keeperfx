@@ -10,7 +10,7 @@
  * @par Comment:
  *     None.
  * @author   The KeeperFX Team
- * @date     10 April 2010 - ?
+ * @date     09 October 2010 - ?
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -75,10 +75,12 @@ static enum DeltaEncoding encode(enum DeltaEncoding encoding, char * code,
 
     //compare information content and select best
     if (self_information(new_state, len) <= self_information(code, len)) {
+        NETDBG(6, "No delta selected");
         LbMemoryCopy(code, new_state, len); //undo
         return DELTA_NONE;
     }
 
+    NETDBG(6, "Delta to previous state selected");
     return DELTA_PREVSTATE;
 }
 
@@ -91,6 +93,7 @@ static void decode(enum DeltaEncoding encoding, const char * code,
         LbMemoryCopy(new_state, code, len);
     }
     else {
+        //delta decode
         for (i = 0; i < len; ++i) {
             new_state[i] = code[i] + old_state[i];
         }
@@ -120,7 +123,8 @@ void LbNetsyncCollect(const struct NetsyncInstr ** instr, char * out_buffer,
     const char * old_state, char * new_state)
 {
     unsigned i;
-    NetsyncHeader * header;
+    NetsyncHeader * header = NULL;
+    enum DeltaEncoding enc;
 
     NETDBG(5, "Collecting data for synchronization");
 
@@ -133,27 +137,93 @@ void LbNetsyncCollect(const struct NetsyncInstr ** instr, char * out_buffer,
 
         //reserve header
         if (instr[i]->encoding == DELTA_SELECTBEST) {
-            header = new_state;
-            new_state += sizeof (*header);
+            header = (NetsyncHeader*) out_buffer;
+            out_buffer  += sizeof (*header);
+            old_state   += sizeof (*header);
+            new_state   += sizeof (*header);
         }
 
-        //copy body
+        //copy body to new state
         if (instr[i]->ptr != NULL) {
             LbMemoryCopy(new_state, instr[i]->ptr, instr[i]->len);
         }
 
-        //call on_collect
+        //call on_collect to alter new state
         if (instr[i]->on_collect != NULL) {
             instr[i]->on_collect(new_state, instr[i]->ptr, instr[i]->len);
         }
 
-        //TODO: work here
+        //do (any) encoding
+        if (old_state == NULL) {
+            enc = encode(DELTA_NONE, out_buffer, NULL, new_state, instr[i]->len);
+        }
+        else {
+            enc = encode(instr[i]->encoding, out_buffer, old_state, new_state, instr[i]->len);
+        }
+
+        //save new encoding in header (if necessary)
+        if (instr[i]->encoding == DELTA_SELECTBEST) {
+            *header = (NetsyncHeader) enc;
+        }
+
+        //adjust pointers for next instruction
+        out_buffer  += instr[i]->len;
+        old_state   += instr[i]->len;
+        new_state   += instr[i]->len;
     }
 }
 
 void LbNetsyncRestore(const struct NetsyncInstr ** instr, const char * in_buffer,
     const char * old_state, char * new_state)
 {
+    unsigned i;
+    NetsyncHeader header = 0; //removing unit warning
+    enum DeltaEncoding enc;
+
+    NETDBG(5, "Restoring data for synchronization");
+
+    for (i = 0; instr[i] != NULL; ++i) {
+        if (instr[i]->len == 0) {
+            continue;
+        }
+
+        NETDBG(6, "Restoring data item %u", i);
+
+        //get header
+        if (instr[i]->encoding == DELTA_SELECTBEST) {
+            header = *(NetsyncHeader*) in_buffer;
+            in_buffer   += sizeof (header);
+            old_state   += sizeof (header);
+            new_state   += sizeof (header);
+        }
+
+        //determine coding used
+        if (old_state == NULL) {
+            enc = DELTA_NONE;
+        }
+        else {
+            enc = instr[i]->encoding;
+            enc = enc == DELTA_SELECTBEST? (enum DeltaEncoding) header : enc;
+        }
+
+        //do (any) decoding
+        decode(enc, in_buffer, old_state, new_state, instr[i]->len);
+
+        //copy new state to body
+        if (instr[i]->ptr != NULL) {
+            LbMemoryCopy(instr[i]->ptr, new_state, instr[i]->len);
+        }
+
+        //call on_restore to alter body
+        if (instr[i]->on_restore != NULL) {
+            instr[i]->on_restore(instr[i]->ptr, new_state, instr[i]->len);
+        }
+
+        //adjust pointers for next instruction
+        in_buffer   += instr[i]->len;
+        old_state   += instr[i]->len;
+        new_state   += instr[i]->len;
+    }
 }
 
 #ifdef __cplusplus
