@@ -116,7 +116,7 @@ void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
   if (spy<0) spy=0;
 */
   // Do the drawing
-  copy_raw8_image_buffer(lbDisplay.WScreen,mdinfo->Width,mdinfo->Height,
+  copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
       spx,spy,srcbuf,img_width,img_height,m);
   // Burning candle flames
   LbSpriteDraw(spx+(36/pixel_size),(spy+0/pixel_size), &button_sprite[198+(game.play_gameturn & 3)]);

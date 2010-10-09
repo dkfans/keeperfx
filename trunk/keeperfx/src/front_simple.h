@@ -64,18 +64,18 @@ DLLIMPORT extern unsigned char *_DK_palette;
 DLLIMPORT extern unsigned char *_DK_scratch;
 #define scratch _DK_scratch
 /******************************************************************************/
-short copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int nlines,const int spx,const int spy,const unsigned char *src_buf,const int src_width,const int src_height,const int m);
-short copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_width,const int img_height);
+TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int nlines,const int spx,const int spy,const unsigned char *src_buf,const int src_width,const int src_height,const int m);
+TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_width,const int img_height);
 TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int height,TbClockMSec tmdelay);
 /******************************************************************************/
-short draw_clear_screen(void);
-short init_actv_bitmap_screen(int stype);
-short free_actv_bitmap_screen(void);
-short draw_actv_bitmap_screen(void);
-short show_actv_bitmap_screen(TbClockMSec tmdelay);
+TbBool draw_clear_screen(void);
+TbBool init_actv_bitmap_screen(int stype);
+TbBool free_actv_bitmap_screen(void);
+TbBool draw_actv_bitmap_screen(void);
+TbBool show_actv_bitmap_screen(TbClockMSec tmdelay);
 /******************************************************************************/
 
-short display_loading_screen(void);
+TbBool display_loading_screen(void);
 TbBool wait_for_cd_to_be_available(void);
 TbBool display_centered_message(long showTime, char *text);
 /******************************************************************************/

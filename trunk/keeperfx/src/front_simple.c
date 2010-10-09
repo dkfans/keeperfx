@@ -64,11 +64,22 @@ struct ActiveBitmap nocd_bmp;
 /******************************************************************************/
 unsigned char palette_buf[PALETTE_SIZE];
 /******************************************************************************/
-/**
- * Copies the given RAW image at center of screen buffer.
- * @return Returns true on success.
+/** Copies the given RAW image at center of screen buffer.
+ *
+ * @param dst_buf Destination screen buffer.
+ * @param scanline Amount of bytes making up one line in screen buffer.
+ * @param nlines Amount of lines in screen buffer.
+ * @param spx Starting position in screen buffer.
+ * @param spy Starting position in screen buffer.
+ * @param src_buf Source image buffer.
+ * @param src_width Source image width.
+ * @param src_height Source image height.
+ * @param m Multiplication factor. Set it to 1 for 1:1 draw of the image.
+ *     Factor of 2 would mean every pixel is repeated in both dimensions and drawn 2*2 times.
+ * @return Gives true on success.
  */
-short copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int nlines,const int spx,const int spy,const unsigned char *src_buf,const int src_width,const int src_height,const int m)
+TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int nlines,const int spx,const int spy,
+    const unsigned char *src_buf,const int src_width,const int src_height,const int m)
 {
   int w,h,i,k;
   unsigned char *dst;
@@ -117,7 +128,7 @@ short copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int
  * buffers to make the image visible.
  * @return Returns true on success.
  */
-short copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_width,const int img_height)
+TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_width,const int img_height)
 {
   int w,h,m;
   int spx,spy;
@@ -130,15 +141,15 @@ short copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_wi
   {
     w+=img_width;
     h+=img_height;
-    if (w > LbGraphicsScreenWidth()) break;
-    if (h > LbGraphicsScreenHeight()) break;
+    if (w > LbScreenWidth()) break;
+    if (h > LbScreenHeight()) break;
   }
   // The image width can't be larger than video resolution
   if (m<1)
   {
-    if (w > LbGraphicsScreenWidth())
+    if (w > LbScreenWidth())
     {
-      SYNCMSG("The %dx%d image does not fit on %dx%d screen, skipped.", img_width, img_height,(int)LbGraphicsScreenWidth(),(int)LbGraphicsScreenHeight());
+      SYNCMSG("The %dx%d image does not fit on %dx%d screen, skipped.", img_width, img_height,(int)LbScreenWidth(),(int)LbScreenHeight());
       return false;
     }
     m=1;
@@ -147,8 +158,8 @@ short copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_wi
   if (LbScreenLock() != Lb_SUCCESS)
     return false;
   // Starting point coords
-  spx = (LbGraphicsScreenWidth()-m*img_width)>>1;
-  spy = (LbGraphicsScreenHeight()-m*img_height)>>1;
+  spx = (LbScreenWidth()-m*img_width)>>1;
+  spy = (LbScreenHeight()-m*img_height)>>1;
   copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
       spx,spy,buf,img_width,img_height,m);
   perform_any_screen_capturing();
@@ -215,7 +226,7 @@ short free_bitmap_screen(struct ActiveBitmap *actv_bmp)
  * Initializes bitmap screen. Loads all files and sets variables.
  * @return Returns true on success.
  */
-short init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
+TbBool init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
 {
   struct RawBitmap *rbmp;
   unsigned char *buf;
@@ -255,31 +266,33 @@ short init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
   return true;
 }
 
-/**
- * Draws active bitmap on screen.
+/** Draws active bitmap on screen.
+ *
+ * @param actv_bmp The active bitmap structure to be drawn.
  * @return Returns true on success.
  */
-short draw_bitmap_screen(struct ActiveBitmap *actv_bmp)
+TbBool draw_bitmap_screen(struct ActiveBitmap *actv_bmp)
 {
-  if (actv_bmp->pal_data == NULL)
-    return false;
-  LbPaletteSet(actv_bmp->pal_data);
-  if (actv_bmp->raw_data == NULL)
-    return false;
-  copy_raw8_image_to_screen_center(actv_bmp->raw_data,actv_bmp->width,actv_bmp->height);
-  return true;
+    if (actv_bmp->pal_data == NULL)
+      return false;
+    LbPaletteSet(actv_bmp->pal_data);
+    if (actv_bmp->raw_data == NULL)
+      return false;
+    copy_raw8_image_to_screen_center(actv_bmp->raw_data,actv_bmp->width,actv_bmp->height);
+    return true;
 }
 
-/**
- * Draws active bitmap on screen, without setting palette.
+/** Draws active bitmap on screen, without setting palette.
+ *
+ * @param actv_bmp The active bitmap structure to be re-drawn.
  * @return Returns true on success.
  */
 short redraw_bitmap_screen(struct ActiveBitmap *actv_bmp)
 {
-  if (actv_bmp->raw_data == NULL)
-    return false;
-  copy_raw8_image_to_screen_center(actv_bmp->raw_data,actv_bmp->width,actv_bmp->height);
-  return true;
+    if (actv_bmp->raw_data == NULL)
+      return false;
+    copy_raw8_image_to_screen_center(actv_bmp->raw_data,actv_bmp->width,actv_bmp->height);
+    return true;
 }
 
 /**
@@ -288,40 +301,42 @@ short redraw_bitmap_screen(struct ActiveBitmap *actv_bmp)
  */
 short show_bitmap_screen(struct ActiveBitmap *actv_bmp,TbClockMSec tmdelay)
 {
-  if (actv_bmp->pal_data == NULL)
-    return false;
-  if (actv_bmp->raw_data == NULL)
-    return false;
-  show_rawimage_screen(actv_bmp->raw_data,actv_bmp->pal_data,actv_bmp->width,actv_bmp->height,tmdelay);
-  return true;
+    if (actv_bmp->pal_data == NULL)
+      return false;
+    if (actv_bmp->raw_data == NULL)
+      return false;
+    show_rawimage_screen(actv_bmp->raw_data,actv_bmp->pal_data,actv_bmp->width,actv_bmp->height,tmdelay);
+    return true;
 }
 
 /**
  * Clears the screen and its palette.
  * @return Returns true on success.
  */
-short draw_clear_screen(void)
+TbBool draw_clear_screen(void)
 {
-  LbMemorySet(palette_buf, 0, PALETTE_SIZE);
-  LbPaletteSet(palette_buf);
-  LbScreenClear(0);
-  LbScreenSwap();
-  return true;
+    LbPaletteDataClear(palette_buf);
+    LbPaletteSet(palette_buf);
+    LbScreenClear(0);
+    LbScreenSwap();
+    return true;
 }
 
-/**
- * Initializes bitmap screen on static struct. Loads all files and sets variables.
+/** Initializes bitmap screen on static struct.
+ *  Loads all files and sets variables.
+ *
+ * @param stype Bitmap screen type selector.
  * @return Returns true on success.
  */
-short init_actv_bitmap_screen(int stype)
+TbBool init_actv_bitmap_screen(int stype)
 {
-  return init_bitmap_screen(&astd_bmp,stype);
+    return init_bitmap_screen(&astd_bmp,stype);
 }
 
 /**
  * Frees static active bitmap struct.
  */
-short free_actv_bitmap_screen(void)
+TbBool free_actv_bitmap_screen(void)
 {
   return free_bitmap_screen(&astd_bmp);
 }
@@ -330,7 +345,7 @@ short free_actv_bitmap_screen(void)
  * Draws active bitmap on screen using static struct.
  * @return Returns true on success.
  */
-short draw_actv_bitmap_screen(void)
+TbBool draw_actv_bitmap_screen(void)
 {
   return draw_bitmap_screen(&astd_bmp);
 }
@@ -339,7 +354,7 @@ short draw_actv_bitmap_screen(void)
  * Shows active bitmap screen from static struct for specific time.
  * @return Returns true on success.
  */
-short show_actv_bitmap_screen(TbClockMSec tmdelay)
+TbBool show_actv_bitmap_screen(TbClockMSec tmdelay)
 {
   return show_bitmap_screen(&astd_bmp,tmdelay);
 }
@@ -349,22 +364,22 @@ short show_actv_bitmap_screen(TbClockMSec tmdelay)
  * Will work properly only on any resolutions.
  * @return Returns true on success.
  */
-short display_loading_screen(void)
+TbBool display_loading_screen(void)
 {
-  short done;
-  draw_clear_screen();
-  if (!wait_for_cd_to_be_available())
-    return false;
-  done = init_bitmap_screen(&astd_bmp,RBmp_WaitLoading);
-  if (done)
-  {
-    redraw_bitmap_screen(&astd_bmp);
-    LbPaletteStopOpenFade();
-    ProperForcedFadePalette(astd_bmp.pal_data, 8, Lb_PALETTE_FADE_CLOSED);
-  }
-  if (done)
-    free_bitmap_screen(&astd_bmp);
-  return done;
+    TbBool done;
+    draw_clear_screen();
+    if (!wait_for_cd_to_be_available())
+      return false;
+    done = init_bitmap_screen(&astd_bmp,RBmp_WaitLoading);
+    if (done)
+    {
+      redraw_bitmap_screen(&astd_bmp);
+      LbPaletteStopOpenFade();
+      ProperForcedFadePalette(astd_bmp.pal_data, 8, Lb_PALETTE_FADE_CLOSED);
+    }
+    if (done)
+      free_bitmap_screen(&astd_bmp);
+    return done;
 }
 
 TbBool wait_for_cd_to_be_available(void)
