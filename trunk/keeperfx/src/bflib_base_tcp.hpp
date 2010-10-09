@@ -21,8 +21,8 @@
 #ifndef BFLIB_BASE_TCP_HPP
 #define BFLIB_BASE_TCP_HPP
 
-#include <SDL_net.h>
-#include <SDL_thread.h>
+#include <SDL/SDL_net.h>
+#include <SDL/SDL_thread.h>
 
 #include "bflib_basics.h"
 

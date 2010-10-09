@@ -28,6 +28,8 @@ RES    = obj/keeperfx_stdres.res
 LIBS   = lib/libkeeperfx.a
 OBJS   = \
 obj/main.o \
+obj/bflib_base_tcp.o \
+obj/bflib_client_tcp.o \
 obj/bflib_dernc.o \
 obj/bflib_fileio.o \
 obj/bflib_memory.o \
@@ -36,6 +38,7 @@ obj/bflib_basics.o \
 obj/bflib_pom.o \
 obj/bflib_keybrd.o \
 obj/bflib_inputctrl.o \
+obj/bflib_server_tcp.o \
 obj/bflib_vidsurface.o \
 obj/bflib_sndlib.o \
 obj/bflib_sound.o \
@@ -53,13 +56,17 @@ obj/bflib_render.o \
 obj/bflib_render_trig.o \
 obj/bflib_render_gpoly.o \
 obj/bflib_heapmgr.o \
+obj/bflib_nethost_udp.o \
+obj/bflib_netlisten_udp.o \
 obj/bflib_netsp.o \
 obj/bflib_netsp_ipx.o \
+obj/bflib_netsp_tcp.o \
 obj/bflib_netsync.o \
 obj/bflib_mshandler.o \
 obj/bflib_mspointer.o \
 obj/bflib_mouse.o \
 obj/bflib_network.o \
+obj/bflib_threadcond.o \
 obj/bflib_video.o \
 obj/scrcapt.o \
 obj/gui_draw.o \

@@ -48,10 +48,10 @@ enum TbNetworkService {
 
 
 struct ClientDataEntry {
-  unsigned long field_0;
-  unsigned long field_4;
+  unsigned long plyrid;
+  unsigned long isactive;
   unsigned long field_8;
-  char field_C[32];
+  char name[32];
 };
 
 struct ConfigInfo { // sizeof = 130
@@ -88,7 +88,7 @@ struct ModemResponse {
 };
 
 struct TbNetworkPlayerInfo {
-char field_0[32];
+char name[32];
 long active;
 };
 
@@ -103,19 +103,19 @@ struct TbNetworkPlayerName {
 };
 
 struct TbNetworkPlayerNameEntry {
-  unsigned char field_0;
-  unsigned long field_1;
-  unsigned long field_5;
+  unsigned char id;
+  unsigned long islocal;
+  unsigned long ishost;
   unsigned long field_9;
-  char field_D[19];
+  char name[19];
   unsigned char field_20[20];
   unsigned char field_34[4];
 };
 
 //TODO: find out what this struct really is, and how long is it
 struct SystemUserMsg {
-  unsigned char field_0;
-  char field_1[8];
+  unsigned char type;
+  ClientDataEntry client_data_table[CLIENT_TABLE_LEN];
 };
 
 struct UnidirectionalDataMessage {
