@@ -68,12 +68,16 @@ obj/bflib_mouse.o \
 obj/bflib_network.o \
 obj/bflib_threadcond.o \
 obj/bflib_video.o \
+obj/bflib_semphr.o \
 obj/scrcapt.o \
 obj/gui_draw.o \
 obj/kjm_input.o \
 obj/packets.o \
+obj/net_sync.o \
+obj/net_game.o \
 obj/config.o \
 obj/front_input.o \
+obj/front_network.o \
 obj/thing_data.o \
 obj/thing_list.o \
 obj/lvl_script.o \
@@ -111,7 +115,6 @@ obj/thing_doors.o \
 obj/thing_traps.o \
 obj/config_campaigns.o \
 obj/front_credits.o \
-obj/bflib_semphr.o \
 obj/config_terrain.o \
 obj/config_rules.o \
 obj/config_lenses.o \

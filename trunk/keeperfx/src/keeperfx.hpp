@@ -41,6 +41,7 @@
 #include "room_data.h"
 #include "config.h"
 #include "config_magic.hpp"
+#include "net_game.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,9 +51,6 @@ extern "C" {
 #define LEGAL_HEIGHT 480
 
 #define PLAYERS_EXT_COUNT       6
-#define NET_PLAYERS_COUNT       4
-#define NET_SERVICES_COUNT     16
-#define PACKETS_COUNT           5
 #define ROOMS_COUNT           150
 #define GUI_MESSAGES_COUNT      3
 #define CREATURE_PARTYS_COUNT  16
@@ -302,27 +300,6 @@ struct ManfctrConfig { // sizeof=0x14
 struct KeyToStringInit { // sizeof = 5
   unsigned char chr;
   long str_idx;
-};
-
-struct Boing {
-  unsigned char field_0;
-  unsigned char field_1;
-  unsigned char field_2;
-  unsigned char field_3;
-  unsigned char field_4;
-  unsigned char field_5;
-  unsigned char field_6;
-  unsigned short field_7;
-  unsigned short field_9;
-  unsigned long field_B;
-  unsigned long field_F;
-  unsigned long field_13;
-  unsigned long field_17;
-  unsigned long field_1B;
-  unsigned long field_1F;
-  unsigned long field_23;
-  unsigned long field_27;
-  unsigned long field_2B;
 };
 
 struct Event { // sizeof=0x15
@@ -815,8 +792,6 @@ DLLIMPORT extern long _DK_frontstory_text_no;
 #define frontstory_text_no _DK_frontstory_text_no
 DLLIMPORT extern int _DK_FatalError;
 #define FatalError _DK_FatalError
-DLLIMPORT extern int _DK_net_service_index_selected;
-#define net_service_index_selected _DK_net_service_index_selected
 DLLIMPORT extern unsigned char _DK_fade_palette_in;
 #define fade_palette_in _DK_fade_palette_in
 DLLIMPORT extern long _DK_old_mouse_over_button;
@@ -881,30 +856,6 @@ DLLIMPORT extern long _DK_top_pointed_at_frac_x;
 #define top_pointed_at_frac_x _DK_top_pointed_at_frac_x
 DLLIMPORT extern long _DK_top_pointed_at_frac_y;
 #define top_pointed_at_frac_y _DK_top_pointed_at_frac_y
-DLLIMPORT struct _GUID _DK_net_guid;
-#define net_guid _DK_net_guid
-DLLIMPORT struct TbNetworkPlayerInfo _DK_net_player_info[NET_PLAYERS_COUNT];
-#define net_player_info _DK_net_player_info
-DLLIMPORT struct TbNetworkPlayerName _DK_net_player[NET_PLAYERS_COUNT];
-#define net_player _DK_net_player
-DLLIMPORT struct SerialInitData _DK_net_serial_data;
-#define net_serial_data _DK_net_serial_data
-DLLIMPORT struct SerialInitData _DK_net_modem_data;
-#define net_modem_data _DK_net_modem_data
-DLLIMPORT char _DK_tmp_net_player_name[24];
-#define tmp_net_player_name _DK_tmp_net_player_name
-DLLIMPORT char _DK_tmp_net_phone_number[24];
-#define tmp_net_phone_number _DK_tmp_net_phone_number
-DLLIMPORT char _DK_tmp_net_modem_init[20];
-#define tmp_net_modem_init _DK_tmp_net_modem_init
-DLLIMPORT char _DK_tmp_net_modem_dial[20];
-#define tmp_net_modem_dial _DK_tmp_net_modem_dial
-DLLIMPORT char _DK_tmp_net_modem_hangup[20];
-#define tmp_net_modem_hangup _DK_tmp_net_modem_hangup
-DLLIMPORT char _DK_tmp_net_modem_answer[20];
-#define tmp_net_modem_answer _DK_tmp_net_modem_answer
-DLLIMPORT int _DK_fe_network_active;
-#define fe_network_active _DK_fe_network_active
 DLLIMPORT char _DK_video_shadows;
 #define video_shadows _DK_video_shadows
 DLLIMPORT char _DK_video_view_distance_level;
@@ -918,12 +869,6 @@ DLLIMPORT long _DK_fe_mouse_sensitivity;
 #define fe_mouse_sensitivity _DK_fe_mouse_sensitivity
 DLLIMPORT long _DK_activity_list[24];
 #define activity_list _DK_activity_list
-DLLIMPORT char _DK_net_service[16][64];
-#define net_service _DK_net_service
-DLLIMPORT int _DK_noOfEnumeratedDPlayServices;
-#define noOfEnumeratedDPlayServices _DK_noOfEnumeratedDPlayServices
-DLLIMPORT struct _GUID _DK_clientGuidTable[];
-#define clientGuidTable _DK_clientGuidTable
 DLLIMPORT long _DK_anim_counter;
 #define anim_counter _DK_anim_counter
 DLLIMPORT unsigned char *_DK_block_ptrs[592];
@@ -1000,18 +945,6 @@ DLLIMPORT short _DK_td_iso[TD_ISO_POINTS];
 #define td_iso _DK_td_iso
 DLLIMPORT short _DK_iso_td[TD_ISO_POINTS];
 #define iso_td _DK_iso_td
-DLLIMPORT struct TbModemDev _DK_modem_dev;
-#define modem_dev _DK_modem_dev
-DLLIMPORT struct ConfigInfo _DK_net_config_info;
-#define net_config_info _DK_net_config_info
-DLLIMPORT char _DK_net_player_name[20];
-#define net_player_name _DK_net_player_name
-DLLIMPORT long _DK_net_session_index_active;
-#define net_session_index_active _DK_net_session_index_active
-DLLIMPORT struct TbNetworkSessionNameEntry *_DK_net_session[32];
-#define net_session _DK_net_session
-DLLIMPORT long _DK_net_number_of_sessions;
-#define net_number_of_sessions _DK_net_number_of_sessions
 DLLIMPORT long _DK_randomisors[512];
 #define randomisors _DK_randomisors
 DLLIMPORT unsigned char _DK_EngineSpriteDrawUsingAlpha;
@@ -1043,10 +976,6 @@ void game_loop(void);
 short reset_game(void);
 void update(void);
 
-short setup_network_service(int srvidx);
-long modem_initialise_callback(void);
-long modem_connect_callback(void);
-void process_network_error(long errcode);
 void ProperFadePalette(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
 void ProperForcedFadePalette(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
 void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense);
@@ -1109,7 +1038,6 @@ void process_payday(void);
 TbBool bonus_timer_enabled(void);
 void process_sound_heap(void);
 
-int setup_old_network_service(void);
 short toggle_computer_player(int idx);
 short save_settings(void);
 void setup_engine_window(long x1, long y1, long x2, long y2);
@@ -1234,6 +1162,7 @@ unsigned long convert_td_iso(unsigned long n);
 void reset_player_mode(struct PlayerInfo *player, unsigned short nmode);
 void init_keeper_map_exploration(struct PlayerInfo *player);
 void init_player_cameras(struct PlayerInfo *player);
+void init_player(struct PlayerInfo *player, short no_explore);
 void init_lookups(void);
 void pannel_map_update(long x, long y, long w, long h);
 void place_single_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, unsigned char a4);
@@ -1243,10 +1172,8 @@ short play_smacker_file(char *filename, int nstate);
 void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4, unsigned char a5, unsigned char a6, long a7, long a8);
 void turn_off_query(short a);
 TbBool set_gamma(char corrlvl, TbBool do_set);
-void resync_game(void);
 void level_lost_go_first_person(long plridx);
 long battle_move_player_towards_battle(struct PlayerInfo *player, long var);
-void  toggle_ally_with_player(long plyridx, unsigned int allyidx);
 short winning_player_quitting(struct PlayerInfo *player, long *plyr_count);
 TbBool move_campaign_to_next_level(void);
 TbBool move_campaign_to_prev_level(void);
