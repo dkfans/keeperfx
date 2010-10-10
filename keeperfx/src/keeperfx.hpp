@@ -62,7 +62,6 @@ extern "C" {
 #define THING_CLASSES_COUNT    10
 #define MANUFACTURED_ITEMS_LIMIT 199
 #define GAME_KEYS_COUNT        32
-#define GAMMA_LEVELS_COUNT      5
 #define LENSES_COUNT           15
 #define MINMAXS_COUNT          64
 #define SHADOW_LIMITS_COUNT  2048
@@ -794,10 +793,6 @@ DLLIMPORT extern int _DK_FatalError;
 #define FatalError _DK_FatalError
 DLLIMPORT extern unsigned char _DK_fade_palette_in;
 #define fade_palette_in _DK_fade_palette_in
-DLLIMPORT extern long _DK_old_mouse_over_button;
-#define old_mouse_over_button _DK_old_mouse_over_button
-DLLIMPORT extern long _DK_frontend_mouse_over_button;
-#define frontend_mouse_over_button _DK_frontend_mouse_over_button
 DLLIMPORT extern struct TbLoadFiles _DK_frontstory_load_files[4];
 #define frontstory_load_files _DK_frontstory_load_files
 DLLIMPORT extern struct TbLoadFiles _DK_netmap_flag_load_files[7];
@@ -856,17 +851,6 @@ DLLIMPORT extern long _DK_top_pointed_at_frac_x;
 #define top_pointed_at_frac_x _DK_top_pointed_at_frac_x
 DLLIMPORT extern long _DK_top_pointed_at_frac_y;
 #define top_pointed_at_frac_y _DK_top_pointed_at_frac_y
-DLLIMPORT char _DK_video_shadows;
-#define video_shadows _DK_video_shadows
-DLLIMPORT char _DK_video_view_distance_level;
-#define video_view_distance_level _DK_video_view_distance_level
-DLLIMPORT char _DK_video_cluedo_mode;
-DLLIMPORT long _DK_sound_level;
-#define sound_level _DK_sound_level
-DLLIMPORT long _DK_music_level;
-#define music_level _DK_music_level
-DLLIMPORT long _DK_fe_mouse_sensitivity;
-#define fe_mouse_sensitivity _DK_fe_mouse_sensitivity
 DLLIMPORT long _DK_activity_list[24];
 #define activity_list _DK_activity_list
 DLLIMPORT long _DK_anim_counter;
@@ -881,8 +865,6 @@ DLLIMPORT long _DK_draw_spell_cost;
 #define draw_spell_cost _DK_draw_spell_cost
 DLLIMPORT char _DK_level_name[88];
 #define level_name _DK_level_name
-DLLIMPORT int _DK_fe_computer_players;
-#define fe_computer_players _DK_fe_computer_players
 DLLIMPORT unsigned char *_DK_block_mem;
 #define block_mem _DK_block_mem
 DLLIMPORT struct Room *_DK_start_rooms;
