@@ -1,15 +1,14 @@
 /******************************************************************************/
-// Bullfrog Engine Emulation Library - for use to remake classic games like
-// Syndicate Wars, Magic Carpet or Dungeon Keeper.
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file bflib_planar.c
- *     Basic planar integer geometry.
+/** @file net_sync.h
+ *     Header file for net_sync.c.
  * @par Purpose:
- *     Simple geometry transformations unification.
+ *     Network game synchronization for Dungeon Keeper.
  * @par Comment:
- *     None.
- * @author   Tomasz Lis
- * @date     24 Jan 2009 - 08 Mar 2009
+ *     Just a header file - #defines, typedefs, function prototypes etc.
+ * @author   KeeperFX Team
+ * @date     11 Mar 2010 - 09 Oct 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,25 +16,31 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "bflib_planar.h"
+#ifndef DK_NETSYNC_H
+#define DK_NETSYNC_H
 
-#include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /******************************************************************************/
-void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBottom)
-{
-    if (rect == NULL)
-        return;
-    rect->left = xLeft;
-    rect->top = yTop;
-    rect->right = xRight;
-    rect->bottom = yBottom;
-}
+#ifdef __cplusplus
+#pragma pack(1)
+#endif
+
+
+#ifdef __cplusplus
+#pragma pack()
+#endif
+/******************************************************************************/
+void resync_game(void);
+short perform_checksum_verification(void);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
+#endif
 #endif

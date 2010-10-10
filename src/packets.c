@@ -34,6 +34,7 @@
 #include "kjm_input.h"
 #include "front_simple.h"
 #include "front_landview.h"
+#include "front_network.h"
 #include "frontend.h"
 #include "vidmode.h"
 #include "config.h"
@@ -60,6 +61,8 @@
 #include "gui_topmsg.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
+#include "net_game.h"
+#include "net_sync.h"
 
 #include "keeperfx.hpp"
 
@@ -2355,7 +2358,7 @@ void process_packets(void)
     j=0;
     for (i=0; i<4; i++)
     {
-      if (net_player_info[i].active != 0)
+      if (network_player_active(i))
         j++;
     }
     if ( !game.packet_load_enable || game.numfield_149F47 )
@@ -2369,7 +2372,7 @@ void process_packets(void)
     k=0;
     for (i=0; i<4; i++)
     {
-      if (net_player_info[i].active != 0)
+      if (network_player_active(i))
         k++;
     }
     if (j != k)
@@ -2377,7 +2380,7 @@ void process_packets(void)
       for (i=0; i<4; i++)
       {
         player = get_player(i);
-        if (net_player_info[player->packet_num%NET_PLAYERS_COUNT].active == 0)
+        if (network_player_active(player->packet_num))
         {
           player->field_0 |= 0x40;
           toggle_computer_player(i);

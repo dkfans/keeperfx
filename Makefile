@@ -109,6 +109,7 @@ obj/engine_render.o \
 obj/front_credits.o \
 obj/front_input.o \
 obj/front_landview.o \
+obj/front_network.o \
 obj/front_simple.o \
 obj/frontend.o \
 obj/game_merge.o \
@@ -133,6 +134,8 @@ obj/map_blocks.o \
 obj/map_columns.o \
 obj/map_data.o \
 obj/map_events.o \
+obj/net_sync.o \
+obj/net_game.o \
 obj/packets.o \
 obj/player_comptask.o \
 obj/player_computer.o \

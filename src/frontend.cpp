@@ -51,6 +51,7 @@
 #include "engine_render.h"
 #include "front_landview.h"
 #include "front_credits.h"
+#include "front_network.h"
 #include "lvl_filesdk1.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
@@ -67,12 +68,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_frontnet_service_update(void);
-DLLIMPORT void _DK_frontnet_session_update(void);
-DLLIMPORT void _DK_frontnet_start_update(void);
-DLLIMPORT void _DK_frontnet_modem_update(void);
-DLLIMPORT void _DK_frontnet_serial_update(void);
-//DLLIMPORT void * __cdecl _DK_frontnet_session_join(GuiButton); (may be incorrect)
 DLLIMPORT void _DK_add_message(long plyr_idx, char *msg);
 DLLIMPORT unsigned long _DK_validate_versions(void);
 DLLIMPORT void _DK_versions_different_error(void);
@@ -94,11 +89,6 @@ DLLIMPORT void _DK_frontnet_serial_reset(void);
 DLLIMPORT void _DK_frontnet_modem_reset(void);
 DLLIMPORT void _DK_fronttorture_unload(void);
 DLLIMPORT void _DK_fronttorture_load(void);
-DLLIMPORT void _DK_frontnet_service_setup(void);
-DLLIMPORT void _DK_frontnet_session_setup(void);
-DLLIMPORT void _DK_frontnet_start_setup(void);
-DLLIMPORT void _DK_frontnet_modem_setup(void);
-DLLIMPORT void _DK_frontnet_serial_setup(void);
 DLLIMPORT void _DK_initialise_tab_tags_and_menu(long menu_id);
 DLLIMPORT void _DK_frontstats_initialise(void);
 DLLIMPORT void _DK_frontend_save_continue_game(long lv_num, int a2);
@@ -1378,18 +1368,6 @@ const unsigned long alliance_grid[4][4] = {
   {0x04, 0x10, 0x20, 0x00,},
 };
 
-const char *keeper_netconf_file = "fxconfig.net";
-
-const struct ConfigInfo default_net_config_info = {
-    -1, {4, 3, 4, 3, 4, 3, 4, 3, }, -1,
-    "ATZ",
-    "ATDT",
-    "ATH",
-    "ATS0=1",
-    "",
-    "",
-};
-
 #if (BFDEBUG_LEVEL > 0)
 // Declarations for font testing screen (debug version only)
 struct TbSprite *testfont[TESTFONTS_COUNT];
@@ -1573,7 +1551,7 @@ TbBool validate_versions(void)
 
 void versions_different_error(void)
 {
-  struct TbNetworkPlayerName *plyr_nam;
+  const char *plyr_nam;
   struct ScreenPacket *nspckt;
   char text[MESSAGE_TEXT_LEN];
   char *str;
@@ -1589,11 +1567,11 @@ void versions_different_error(void)
   // Preparing message
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
-    plyr_nam = &net_player[i];
+    plyr_nam = network_player_name(i);
     nspckt = &net_screen_packet[i];
     if ((nspckt->field_4 & 0x01) != 0)
     {
-      str = buf_sprintf("%s(%d.%02d) ", plyr_nam->name, nspckt->field_6, nspckt->field_8);
+      str = buf_sprintf("%s(%d.%02d) ", plyr_nam, nspckt->field_6, nspckt->field_8);
       strncat(text, str, MESSAGE_TEXT_LEN-strlen(text));
       text[MESSAGE_TEXT_LEN-1] = '\0';
     }
@@ -2238,7 +2216,7 @@ long frontnet_number_of_players_in_session(void)
   nplyr = 0;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
-    if (net_player_info[i].active != 0)
+    if (network_player_active(i))
       nplyr++;
   }
   return nplyr;
@@ -2505,132 +2483,6 @@ void fronttorture_load(void)
     LbMouseChangeSpriteAndHotspot(0, 0, 0);
   }
   torture_left_button = 0;
-}
-
-void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, void *a2)
-{
-  if (net_number_of_services >= NET_SERVICES_COUNT)
-  {
-    ERRORLOG("Too many services in enumeration");
-    return;
-  }
-  if (strcasecmp("SERIAL", netcdat->svc_name) == 0)
-  {
-    strcpy(net_service[net_number_of_services], gui_strings[874]);
-    net_number_of_services++;
-  } else
-  if (strcasecmp("MODEM", netcdat->svc_name) == 0)
-  {
-    strcpy(net_service[net_number_of_services], gui_strings[875]);
-    net_number_of_services++;
-  } else
-  if (strcasecmp("IPX", netcdat->svc_name) == 0)
-  {
-    strcpy(net_service[net_number_of_services], gui_strings[876]);
-    net_number_of_services++;
-  } else
-  if (strcasecmp("TCP", netcdat->svc_name) == 0)
-  {
-    strcpy(net_service[net_number_of_services], "TCP/IP");
-    net_number_of_services++;
-  } else
-  {
-    ERRORLOG("Unrecognised Network Service");
-  }
-}
-
-void __stdcall enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
-{
-  if (net_number_of_enum_players >= 4)
-  {
-    ERRORLOG("Too many players in enumeration");
-    return;
-  }
-  strncpy(net_player[net_number_of_enum_players].name, netcdat->field_C, sizeof(struct TbNetworkPlayerName));
-  net_number_of_enum_players++;
-}
-
-void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
-{
-  if (net_number_of_sessions >= 32)
-  {
-    ERRORLOG("Too many sessions in enumeration");
-    return;
-  }
-  if (net_service_index_selected == 0)
-  {
-    net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
-    net_number_of_sessions++;
-  } else
-  if (net_service_index_selected != 1)
-  {
-    net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
-    net_number_of_sessions++;
-  } else
-  if (net_number_of_sessions == 0)
-  {
-    net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
-    strcpy(&netcdat->svc_name[8],gui_strings[875]);
-    net_number_of_sessions++;
-  }
-}
-
-void net_load_config_file(void)
-{
-  TbFileHandle handle;
-  char *fname;
-  // Try to load the config file
-  fname = prepare_file_path(FGrp_Save,keeper_netconf_file);
-  handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-  if (handle != -1)
-  {
-    if (LbFileRead(handle, &net_config_info, sizeof(net_config_info)) == sizeof(net_config_info))
-    {
-      LbFileClose(handle);
-      return;
-    }
-    LbFileClose(handle);
-  }
-  // If can't load, then use default config
-  LbMemoryCopy(&net_config_info, &default_net_config_info, sizeof(net_config_info));
-  LbStringCopy(net_config_info.str_u2, gui_strings[404], 20);
-}
-
-void frontnet_service_setup(void)
-{
-  net_number_of_services = 0;
-  LbMemorySet(net_service, 0, sizeof(net_service));
-  // Create list of available services
-  if (LbNetwork_EnumerateServices(enum_services_callback, NULL))
-    ERRORLOG("LbNetwork_EnumerateServices() failed");
-  // Create skirmish option if it should be enabled
-  if ((game.system_flags & GSF_AllowOnePlayer) != 0)
-  {
-    LbStringCopy(net_service[net_number_of_services], gui_strings[870], 64);
-    net_number_of_services++;
-  }
-  frontnet_init_level_descriptions();
-  net_load_config_file();
-}
-
-void frontnet_session_setup(void)
-{
-  _DK_frontnet_session_setup();
-}
-
-void frontnet_start_setup(void)
-{
-  _DK_frontnet_start_setup();
-}
-
-void frontnet_modem_setup(void)
-{
-  _DK_frontnet_modem_setup();
-}
-
-void frontnet_serial_setup(void)
-{
-  _DK_frontnet_serial_setup();
 }
 
 void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn)
@@ -3817,43 +3669,12 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
   _DK_frontnet_draw_net_session_players(gbtn);
 }
 
-void display_attempting_to_join_message(void)
-{
-  if (LbScreenLock() == Lb_SUCCESS)
-  {
-    draw_text_box(gui_strings[868]); // "Attempting To Join"
-    LbScreenUnlock();
-  }
-  LbScreenSwap();
-}
-
 void frontnet_session_join(struct GuiButton *gbtn)
 {
-  unsigned long plyr_num;
-  void *conn_options;
-  switch (net_service_index_selected)
-  {
-  case 1:
-    modem_dev.field_0 = 0;
-    modem_dev.field_4 = 0;
-    strcpy(modem_dev.field_58, net_config_info.str_join);
-    modem_dev.field_AC = modem_initialise_callback;
-    modem_dev.field_B0 = modem_connect_callback;
-    conn_options = &modem_dev;
-    break;
-  default:
-    display_attempting_to_join_message();
-    conn_options = NULL;
-    break;
-  }
-  if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, conn_options) )
-  {
-    if (net_service_index_selected == 1)
-      process_network_error(modem_dev.field_A8);
-    else
-      process_network_error(-802);
-    return;
-  }
+  long plyr_num;
+  plyr_num = network_session_join();
+  if (plyr_num < 0)
+      return;
   frontend_set_player_number(plyr_num);
   frontend_set_state(FeSt_NET_START);
 }
@@ -6512,152 +6333,6 @@ void gui_set_autopilot(struct GuiButton *gbtn)
 void display_objectives(long plyr_idx,long x,long y)
 {
   _DK_display_objectives(plyr_idx,x,y);
-}
-
-void frontnet_service_update(void)
-{
-  _DK_frontnet_service_update();
-}
-
-void frontnet_session_update(void)
-{
-//  _DK_frontnet_session_update();
-  static long last_enum_players = 0;
-  static long last_enum_sessions = 0;
-  long i;
-
-  if (LbTimerClock() >= last_enum_sessions)
-  {
-    net_number_of_sessions = 0;
-    memset(net_session, 0, sizeof(net_session));
-    if ( LbNetwork_EnumerateSessions(enum_sessions_callback, 0) )
-      ERRORLOG("LbNetwork_EnumerateSessions() failed");
-    last_enum_sessions = LbTimerClock();
-
-    if (net_number_of_sessions == 0)
-    {
-      net_session_index_active = -1;
-      net_session_index_active_id = -1;
-    } else
-    if (net_session_index_active != -1)
-    {
-        if ((net_session_index_active >= net_number_of_sessions)
-          || (!net_session[net_session_index_active]->joinable))
-        {
-          net_session_index_active = -1;
-          for (i=0; i < net_number_of_sessions; i++)
-          {
-            if (net_session[i]->joinable)
-            {
-              net_session_index_active = i;
-              break;
-            }
-          }
-        }
-        if (net_session_index_active == -1)
-          net_session_index_active_id = -1;
-    }
-  }
-
-  if ((net_number_of_sessions == 0) || (net_session_scroll_offset < 0))
-  {
-    net_session_scroll_offset = 0;
-  } else
-  if (net_session_scroll_offset > net_number_of_sessions-1)
-  {
-    net_session_scroll_offset = net_number_of_sessions-1;
-  }
-
-  if (net_session_index_active == -1)
-  {
-    net_number_of_enum_players = 0;
-  } else
-  if (LbTimerClock() >= last_enum_players)
-  {
-    net_number_of_enum_players = 0;
-    memset(net_player, 0, sizeof(net_player));
-    if ( LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0) )
-    {
-      net_session_index_active = -1;
-      net_session_index_active_id = -1;
-      return;
-    }
-    last_enum_players = LbTimerClock();
-  }
-
-  if (net_number_of_enum_players == 0)
-  {
-    net_player_scroll_offset = 0;
-  } else
-  if (net_player_scroll_offset < 0)
-  {
-    net_player_scroll_offset = 0;
-  } else
-  if (net_player_scroll_offset > net_number_of_enum_players-1)
-  {
-    net_player_scroll_offset = net_number_of_enum_players-1;
-  }
-}
-
-void frontnet_modem_update(void)
-{
-  _DK_frontnet_modem_update();
-}
-
-void frontnet_serial_update(void)
-{
-  _DK_frontnet_serial_update();
-}
-
-void frontnet_rewite_net_messages(void)
-{
-  struct NetMessage lmsg[NET_MESSAGES_COUNT];
-  struct NetMessage *nmsg;
-  long i,k;
-  k = 0;
-  i = net_number_of_messages;
-  for (i=0; i < NET_MESSAGES_COUNT; i++)
-    LbMemorySet(&lmsg[i], '\0', sizeof(struct NetMessage));
-  for (i=0; i < net_number_of_messages; i++)
-  {
-    nmsg = &net_message[i];
-    if (net_player_info[nmsg->plyr_idx].active)
-    {
-      memcpy(&lmsg[k], nmsg, sizeof(struct NetMessage));
-      k++;
-    }
-  }
-  net_number_of_messages = k;
-  for (i=0; i < NET_MESSAGES_COUNT; i++)
-    memcpy(&net_message[i], &lmsg[i], sizeof(struct NetMessage));
-}
-
-void frontnet_start_update(void)
-{
-  static TbClockMSec player_last_time = 0;
-  SYNCDBG(18,"Starting");
-  if (LbTimerClock() >= player_last_time+200)
-  {
-    net_number_of_enum_players = 0;
-    LbMemorySet(net_player, 0, sizeof(net_player));
-    if ( LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0) )
-    {
-      ERRORLOG("LbNetwork_EnumeratePlayers() failed");
-      return;
-    }
-    player_last_time = LbTimerClock();
-  }
-  if ((net_number_of_messages <= 0) || (net_message_scroll_offset < 0))
-  {
-    net_message_scroll_offset = 0;
-  } else
-  if (net_message_scroll_offset > net_number_of_messages-1)
-  {
-    net_message_scroll_offset = net_number_of_messages-1;
-  }
-  process_frontend_packets();
-  frontnet_rewite_net_messages();
-  return;
 }
 
 void frontstats_update(void)

@@ -40,6 +40,7 @@
 #include "light_data.h"
 #include "lvl_filesdk1.h"
 #include "front_simple.h"
+#include "front_network.h"
 #include "frontend.h"
 #include "kjm_input.h"
 #include "vidmode.h"
@@ -1252,7 +1253,7 @@ void update_velocity(void)
 void draw_netmap_players_hands(void)
 {
   struct ScreenPacket *nspck;
-  struct TbNetworkPlayerName *plyr_nam;
+  const char *plyr_nam;
   struct TbSprite *spr;
   TbPixel colr;
   long x,y,w,h;
@@ -1260,7 +1261,7 @@ void draw_netmap_players_hands(void)
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
       nspck = &net_screen_packet[i];
-      plyr_nam = &net_player[i];
+      plyr_nam = network_player_name(i);
       colr = net_player_colours[i];
       if ((nspck->field_4 & 0x01) != 0)
       {
@@ -1295,7 +1296,7 @@ void draw_netmap_players_hands(void)
         x += nspck->field_6 - map_info.scrshift_x - 18;
         y += nspck->field_8 - map_info.scrshift_y - 25;
         LbSpriteDraw(x, y, spr);
-        w = LbTextStringWidth(plyr_nam->name);
+        w = LbTextStringWidth(plyr_nam);
         if (w > 0)
         {
           lbDisplay.DrawFlags = 0;
@@ -1303,7 +1304,7 @@ void draw_netmap_players_hands(void)
           y += 32;
           x += 32;
           LbDrawBox(x-4, y, w+8, h, colr);
-          LbTextDraw(x, y, plyr_nam->name);
+          LbTextDraw(x, y, plyr_nam);
         }
       }
   }

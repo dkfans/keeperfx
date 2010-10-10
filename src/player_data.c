@@ -122,4 +122,10 @@ void clear_players(void)
     game.flagfield_14EA4A = 2;
 }
 
+void  toggle_ally_with_player(long plyridx, unsigned int allyidx)
+{
+  struct PlayerInfo *player;
+  player = get_player(plyridx);
+  player->allied_players ^= (1 << allyidx);
+}
 /******************************************************************************/
