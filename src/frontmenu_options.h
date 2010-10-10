@@ -1,0 +1,79 @@
+/******************************************************************************/
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
+/******************************************************************************/
+/** @file frontmenu_options.h
+ *     Header file for frontmenu_options.c.
+ * @par Purpose:
+ *     GUI menus for game options.
+ * @par Comment:
+ *     Just a header file - #defines, typedefs, function prototypes etc.
+ * @author   KeeperFX Team
+ * @date     05 Jan 2009 - 09 Oct 2010
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
+#ifndef DK_FRONTMENU_OPTS_H
+#define DK_FRONTMENU_OPTS_H
+
+#include "globals.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+/******************************************************************************/
+#define GAMMA_LEVELS_COUNT      5
+
+#ifdef __cplusplus
+#pragma pack(1)
+#endif
+
+struct GuiMenu;
+struct GuiButton;
+
+#ifdef __cplusplus
+#pragma pack()
+#endif
+/******************************************************************************/
+extern struct GuiMenu frontend_define_keys_menu;
+extern struct GuiMenu frontend_option_menu;
+extern struct GuiMenu video_menu;
+extern struct GuiMenu sound_menu;
+/******************************************************************************/
+DLLIMPORT long _DK_fe_mouse_sensitivity;
+#define fe_mouse_sensitivity _DK_fe_mouse_sensitivity
+DLLIMPORT long _DK_sound_level;
+#define sound_level _DK_sound_level
+DLLIMPORT long _DK_music_level;
+#define music_level _DK_music_level
+DLLIMPORT char _DK_video_cluedo_mode;
+DLLIMPORT char _DK_video_shadows;
+#define video_shadows _DK_video_shadows
+DLLIMPORT char _DK_video_view_distance_level;
+#define video_view_distance_level _DK_video_view_distance_level
+/******************************************************************************/
+void frontend_define_key_up(struct GuiButton *gbtn);
+void frontend_define_key_down(struct GuiButton *gbtn);
+void frontend_define_key(struct GuiButton *gbtn);
+void frontend_define_key_up_maintain(struct GuiButton *gbtn);
+void frontend_define_key_down_maintain(struct GuiButton *gbtn);
+void frontend_define_key_maintain(struct GuiButton *gbtn);
+void frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn);
+void frontend_draw_define_key(struct GuiButton *gbtn);
+void gui_video_shadows(struct GuiButton *gbtn);
+void gui_video_view_distance_level(struct GuiButton *gbtn);
+void gui_video_rotate_mode(struct GuiButton *gbtn);
+void gui_video_cluedo_mode(struct GuiButton *gbtn);
+void gui_video_gamma_correction(struct GuiButton *gbtn);
+void gui_set_sound_volume(struct GuiButton *gbtn);
+void gui_set_music_volume(struct GuiButton *gbtn);
+void gui_video_cluedo_maintain(struct GuiButton *gbtn);
+
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
+#endif
