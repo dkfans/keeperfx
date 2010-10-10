@@ -9772,7 +9772,7 @@ void wait_at_frontend(void)
   if (exit_keeper)
   {
     player = get_my_player();
-    player->field_6 &= 0xFDu;
+    player->field_6 &= ~0x02;
     return;
   }
   reenter_video_mode();

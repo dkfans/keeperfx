@@ -36,7 +36,6 @@ extern "C" {
 // Sprite limits
 #define PANEL_SPRITES_COUNT 514
 #define FRONTEND_FONTS_COUNT 4
-#define TORTURE_DOORS_COUNT 9
 // Positioning constants for menus
 #define POS_AUTO -9999
 #define POS_MOUSMID -999
@@ -102,31 +101,10 @@ struct StatsData { // sizeof = 12
   void *field_8;
 };
 
-struct DoorSoundState { // sizeof = 8
-  long field_0;
-  long field_4;
-};
-
-struct DoorDesc { // sizeof = 44
-  long field_0;
-  long field_4;
-  long pos_x;
-  long pos_y;
-  long width;
-  long height;
-  struct TbSprite *sprites;
-  struct TbSprite *sprites_end;
-  unsigned long data;
-  unsigned char *data_end;
-  long field_28;
-};
-
 struct NetMessage { // sizeof = 0x41
   unsigned char plyr_idx;
   char text[NET_MESSAGE_LEN];
 };
-
-typedef long TortureState;
 
 #ifdef __cplusplus
 #pragma pack()
@@ -320,34 +298,6 @@ DLLIMPORT extern long _DK_packet_left_button_click_space_count[6];
 DLLIMPORT extern char _DK_frontend_alliances;
 #define frontend_alliances _DK_frontend_alliances
 
-DLLIMPORT extern long _DK_torture_left_button;
-#define torture_left_button _DK_torture_left_button
-DLLIMPORT extern long _DK_torture_sprite_direction;
-#define torture_sprite_direction _DK_torture_sprite_direction
-DLLIMPORT extern long _DK_torture_end_sprite;
-#define torture_end_sprite _DK_torture_end_sprite
-DLLIMPORT extern long _DK_torture_sprite_frame;
-#define torture_sprite_frame _DK_torture_sprite_frame
-DLLIMPORT extern long _DK_torture_door_selected;
-#define torture_door_selected _DK_torture_door_selected
-DLLIMPORT extern struct DoorSoundState _DK_door_sound_state[TORTURE_DOORS_COUNT];
-#define door_sound_state _DK_door_sound_state
-DLLIMPORT extern struct DoorDesc _DK_doors[TORTURE_DOORS_COUNT];
-#define doors _DK_doors
-DLLIMPORT extern TortureState _DK_torture_state;
-#define torture_state _DK_torture_state
-DLLIMPORT extern unsigned char *_DK_torture_background;
-#define torture_background _DK_torture_background
-DLLIMPORT extern unsigned char *_DK_torture_palette;
-#define torture_palette _DK_torture_palette
-DLLIMPORT extern struct TbSprite *_DK_fronttor_sprites;
-#define fronttor_sprites _DK_fronttor_sprites
-DLLIMPORT extern struct TbSprite *_DK_fronttor_end_sprites;
-#define fronttor_end_sprites _DK_fronttor_end_sprites
-DLLIMPORT extern unsigned long _DK_fronttor_data;
-#define fronttor_data _DK_fronttor_data
-DLLIMPORT extern unsigned long _DK_fronttor_end_data;
-#define fronttor_end_data _DK_fronttor_end_data
 DLLIMPORT extern char _DK_busy_doing_gui;
 #define busy_doing_gui _DK_busy_doing_gui
 DLLIMPORT extern long _DK_gui_last_left_button_pressed_id;
@@ -373,17 +323,9 @@ extern struct GuiMenu options_menu;
 extern struct GuiMenu instance_menu;
 extern struct GuiMenu query_menu;
 extern struct GuiMenu quit_menu;
-extern struct GuiMenu load_menu;
-extern struct GuiMenu save_menu;
 extern struct GuiMenu error_box;
 extern struct GuiMenu text_info_menu;
-extern struct GuiMenu hold_audience_menu;
-extern struct GuiMenu dungeon_special_menu;
-extern struct GuiMenu resurrect_creature_menu;
-extern struct GuiMenu transfer_creature_menu;
-extern struct GuiMenu armageddon_menu;
 extern struct GuiMenu frontend_main_menu;
-extern struct GuiMenu frontend_load_menu;
 extern struct GuiMenu frontend_statistics_menu;
 extern struct GuiMenu frontend_high_score_table_menu;
 extern struct GuiMenu creature_query_menu1;
@@ -408,6 +350,7 @@ extern unsigned char *testfont_palette[3];
 
 // Reworked functions
 
+void create_error_box(unsigned short msg_idx);
 short check_if_mouse_is_over_button(struct GuiButton *gbtn);
 void gui_area_text(struct GuiButton *gbtn);
 char get_button_area_input(struct GuiButton *gbtn, int a2);
@@ -428,15 +371,10 @@ void maintain_loadsave(struct GuiButton *gbtn);
 void maintain_prison_bar(struct GuiButton *gbtn);
 void maintain_room_and_creature_button(struct GuiButton *gbtn);
 void maintain_ally(struct GuiButton *gbtn);
-void gui_load_game_maintain(struct GuiButton *gbtn);
 void gui_video_cluedo_maintain(struct GuiButton *gbtn);
 void maintain_zoom_to_event(struct GuiButton *gbtn);
 void maintain_scroll_up(struct GuiButton *gbtn);
 void maintain_scroll_down(struct GuiButton *gbtn);
-void maintain_resurrect_creature_select(struct GuiButton *gbtn);
-void maintain_resurrect_creature_scroll(struct GuiButton *gbtn);
-void maintain_transfer_creature_select(struct GuiButton *gbtn);
-void maintain_transfer_creature_scroll(struct GuiButton *gbtn);
 void frontend_continue_game_maintain(struct GuiButton *gbtn);
 void frontend_main_menu_load_game_maintain(struct GuiButton *gbtn);
 void frontend_main_menu_netservice_maintain(struct GuiButton *gbtn);
@@ -496,7 +434,6 @@ void gui_toggle_ally(struct GuiButton *gbtn);
 void maintain_ally(struct GuiButton *gbtn);
 void gui_quit_game(struct GuiButton *gbtn);
 void gui_area_ally(struct GuiButton *gbtn);
-void gui_save_game(struct GuiButton *gbtn);
 void gui_area_slider(struct GuiButton *gbtn);
 void gui_area_smiley_anger_button(struct GuiButton *gbtn);
 void gui_area_experience_button(struct GuiButton *gbtn);
@@ -505,13 +442,10 @@ void maintain_instance(struct GuiButton *gbtn);
 void gui_area_stat_button(struct GuiButton *gbtn);
 void frontend_draw_icon(struct GuiButton *gbtn);
 void frontend_draw_slider(struct GuiButton *gbtn);
-void frontend_set_mouse_sensitivity(struct GuiButton *gbtn);
 void frontend_draw_small_slider(struct GuiButton *gbtn);
 void frontend_draw_scroll_box_tab(struct GuiButton *gbtn);
 void frontend_draw_scroll_box(struct GuiButton *gbtn);
 void frontend_draw_slider_button(struct GuiButton *gbtn);
-void frontend_invert_mouse(struct GuiButton *gbtn);
-void frontend_draw_invert_mouse(struct GuiButton *gbtn);
 void frontstats_draw_main_stats(struct GuiButton *gbtn);
 void frontstats_draw_scrolling_stats(struct GuiButton *gbtn);
 void frontstats_leave(struct GuiButton *gbtn);
@@ -558,21 +492,12 @@ void gui_round_glass_background(struct GuiMenu *gmnu);
 void gui_creature_query_background1(struct GuiMenu *gmnu);
 void gui_creature_query_background2(struct GuiMenu *gmnu);
 void reset_scroll_window(struct GuiMenu *gmnu);
-void init_load_menu(struct GuiMenu *gmnu);
-void init_save_menu(struct GuiMenu *gmnu);
-void init_video_menu(struct GuiMenu *gmnu);
-void init_audio_menu(struct GuiMenu *gmnu);
 int frontend_load_data(void);
 void frontend_draw_scroll_tab(struct GuiButton *gbtn, long a2, long a3, long a4);
 TbBool frontend_should_all_players_quit(void);
-void fronttorture_unload(void);
-void fronttorture_load(void);
 void frontstats_set_timer(void);
 TbBool frontend_high_score_table_input(void);
-void fronttorture_input(void);
-TbBool fronttorture_draw(void);
 void frontstats_update(void);
-void fronttorture_update(void);
 void frontend_init_options_menu(struct GuiMenu *gmnu);
 void frontend_draw_large_menu_button(struct GuiButton *gbtn);
 void frontend_draw_text(struct GuiButton *gbtn);
@@ -584,8 +509,6 @@ void frontend_draw_small_menu_button(struct GuiButton *gbtn);
 void frontend_toggle_computer_players(struct GuiButton *gbtn);
 void frontend_draw_computer_players(struct GuiButton *gbtn);
 void set_packet_start(struct GuiButton *gbtn);
-void gui_load_game(struct GuiButton *gbtn);
-void gui_load_game_maintain(struct GuiButton *gbtn);
 void gui_area_scroll_window(struct GuiButton *gbtn);
 void gui_go_to_event(struct GuiButton *gbtn);
 void maintain_zoom_to_event(struct GuiButton *gbtn);
@@ -595,8 +518,6 @@ void gui_scroll_text_down(struct GuiButton *gbtn);
 void maintain_scroll_up(struct GuiButton *gbtn);
 void maintain_scroll_down(struct GuiButton *gbtn);
 void gui_scroll_text_down(struct GuiButton *gbtn);
-void choose_hold_audience(struct GuiButton *gbtn);
-void choose_armageddon(struct GuiButton *gbtn);
 void frontend_draw_levels_scroll_tab(struct GuiButton *gbtn);
 void frontend_draw_level_select_button(struct GuiButton *gbtn);
 void frontend_level_select(struct GuiButton *gbtn);
@@ -605,14 +526,6 @@ void frontend_level_select_down(struct GuiButton *gbtn);
 void frontend_level_select_up_maintain(struct GuiButton *gbtn);
 void frontend_level_select_down_maintain(struct GuiButton *gbtn);
 void frontend_level_select_maintain(struct GuiButton *gbtn);
-void frontend_load_game_up(struct GuiButton *gbtn);
-void frontend_load_game_down(struct GuiButton *gbtn);
-void frontend_load_game_up_maintain(struct GuiButton *gbtn);
-void frontend_load_game_down_maintain(struct GuiButton *gbtn);
-void frontend_load_game_maintain(struct GuiButton *gbtn);
-void frontend_draw_games_scroll_tab(struct GuiButton *gbtn);
-void frontend_load_game(struct GuiButton *gbtn);
-void frontend_draw_load_game_button(struct GuiButton *gbtn);
 void frontend_ldcampaign_change_state(struct GuiButton *gbtn);
 void frontend_netservice_change_state(struct GuiButton *gbtn);
 void frontend_start_new_game(struct GuiButton *gbtn);
@@ -630,22 +543,9 @@ void gui_setup_friend_over(struct GuiButton *gbtn);
 void gui_area_friendly_battlers(struct GuiButton *gbtn);
 void gui_setup_enemy_over(struct GuiButton *gbtn);
 void gui_area_enemy_battlers(struct GuiButton *gbtn);
-void select_resurrect_creature(struct GuiButton *gbtn);
-void maintain_resurrect_creature_select(struct GuiButton *gbtn);
-void draw_resurrect_creature(struct GuiButton *gbtn);
-void select_resurrect_creature_up(struct GuiButton *gbtn);
-void select_resurrect_creature_down(struct GuiButton *gbtn);
-void maintain_resurrect_creature_scroll(struct GuiButton *gbtn);
-void select_transfer_creature(struct GuiButton *gbtn);
-void draw_transfer_creature(struct GuiButton *gbtn);
-void maintain_transfer_creature_select(struct GuiButton *gbtn);
-void select_transfer_creature_up(struct GuiButton *gbtn);
-void select_transfer_creature_down(struct GuiButton *gbtn);
-void maintain_transfer_creature_scroll(struct GuiButton *gbtn);
 void frontend_load_data_from_cd(void);
 void frontend_load_data_reset(void);
 void gui_area_null(struct GuiButton *gbtn);
-void draw_load_button(struct GuiButton *gbtn);
 void gui_activity_background(struct GuiMenu *gmnu);
 void gui_pretty_background(struct GuiMenu *gmnu);
 void frontend_draw_large_menu_button(struct GuiButton *gbtn);
