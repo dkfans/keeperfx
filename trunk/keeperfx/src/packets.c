@@ -35,6 +35,7 @@
 #include "front_simple.h"
 #include "front_landview.h"
 #include "front_network.h"
+#include "frontmenu_net.h"
 #include "frontend.h"
 #include "vidmode.h"
 #include "config.h"

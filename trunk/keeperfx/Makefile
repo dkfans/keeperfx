@@ -95,6 +95,8 @@ obj/engine_render.o \
 obj/engine_camera.o \
 obj/engine_lenses.o \
 obj/front_landview.o \
+obj/frontmenu_net.o \
+obj/frontmenu_options.o \
 obj/gui_parchment.o \
 obj/gui_boxmenu.o \
 obj/gui_frontmenu.o \
