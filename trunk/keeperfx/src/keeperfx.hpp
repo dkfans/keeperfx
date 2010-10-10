@@ -777,8 +777,6 @@ DLLIMPORT extern unsigned char _DK_exit_keeper;
 #define exit_keeper _DK_exit_keeper
 DLLIMPORT extern unsigned char _DK_quit_game;
 #define quit_game _DK_quit_game
-DLLIMPORT extern int _DK_number_of_saved_games;
-#define number_of_saved_games _DK_number_of_saved_games
 DLLIMPORT extern unsigned char _DK_frontend_palette[768];
 #define frontend_palette _DK_frontend_palette
 DLLIMPORT extern int _DK_continue_game_option_available;

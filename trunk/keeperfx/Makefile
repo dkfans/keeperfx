@@ -97,6 +97,8 @@ obj/engine_lenses.o \
 obj/front_landview.o \
 obj/frontmenu_net.o \
 obj/frontmenu_options.o \
+obj/frontmenu_saves.o \
+obj/frontmenu_specials.o \
 obj/gui_parchment.o \
 obj/gui_boxmenu.o \
 obj/gui_frontmenu.o \
@@ -117,6 +119,7 @@ obj/thing_doors.o \
 obj/thing_traps.o \
 obj/config_campaigns.o \
 obj/front_credits.o \
+obj/front_torture.o \
 obj/config_terrain.o \
 obj/config_rules.o \
 obj/config_lenses.o \

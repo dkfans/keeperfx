@@ -63,15 +63,19 @@ void frontend_define_key_down_maintain(struct GuiButton *gbtn);
 void frontend_define_key_maintain(struct GuiButton *gbtn);
 void frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn);
 void frontend_draw_define_key(struct GuiButton *gbtn);
+void frontend_set_mouse_sensitivity(struct GuiButton *gbtn);
+void frontend_invert_mouse(struct GuiButton *gbtn);
+void frontend_draw_invert_mouse(struct GuiButton *gbtn);
 void gui_video_shadows(struct GuiButton *gbtn);
 void gui_video_view_distance_level(struct GuiButton *gbtn);
 void gui_video_rotate_mode(struct GuiButton *gbtn);
 void gui_video_cluedo_mode(struct GuiButton *gbtn);
 void gui_video_gamma_correction(struct GuiButton *gbtn);
+void gui_video_cluedo_maintain(struct GuiButton *gbtn);
 void gui_set_sound_volume(struct GuiButton *gbtn);
 void gui_set_music_volume(struct GuiButton *gbtn);
-void gui_video_cluedo_maintain(struct GuiButton *gbtn);
-
+void init_video_menu(struct GuiMenu *gmnu);
+void init_audio_menu(struct GuiMenu *gmnu);
 /******************************************************************************/
 #ifdef __cplusplus
 }
