@@ -50,9 +50,12 @@
 #include "engine_render.h"
 #include "front_landview.h"
 #include "front_credits.h"
+#include "front_torture.h"
 #include "front_network.h"
 #include "frontmenu_net.h"
 #include "frontmenu_options.h"
+#include "frontmenu_specials.h"
+#include "frontmenu_saves.h"
 #include "lvl_filesdk1.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
@@ -80,16 +83,10 @@ DLLIMPORT void _DK_fake_button_click(long btn_idx);
 DLLIMPORT void _DK_display_objectives(long,long,long);
 DLLIMPORT unsigned long _DK_toggle_status_menu(unsigned long);
 DLLIMPORT void _DK_frontstats_update(void);
-DLLIMPORT void _DK_fronttorture_update(void);
-DLLIMPORT void _DK_frontcredits_draw(void);
-DLLIMPORT void _DK_fronttorture_draw(void);
 DLLIMPORT void _DK_frontend_high_score_table_input(void);
-DLLIMPORT void _DK_fronttorture_input(void);
 DLLIMPORT void _DK_frontstats_set_timer(void);
 DLLIMPORT int _DK_frontend_load_data(void);
 DLLIMPORT void _DK_frontend_set_player_number(long plr_num);
-DLLIMPORT void _DK_fronttorture_unload(void);
-DLLIMPORT void _DK_fronttorture_load(void);
 DLLIMPORT void _DK_initialise_tab_tags_and_menu(long menu_id);
 DLLIMPORT void _DK_frontstats_initialise(void);
 DLLIMPORT void _DK_frontend_save_continue_game(long lv_num, int a2);
@@ -104,7 +101,6 @@ DLLIMPORT void _DK_gui_turn_on_autopilot(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_set_autopilot(struct GuiButton *gbtn);
 DLLIMPORT char _DK_update_menu_fade_level(struct GuiMenu *gmnu);
 DLLIMPORT void _DK_draw_menu_buttons(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_draw_load_button(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_null(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_draw_button(struct GuiButton *gbtn, long a2, const char *text, long a4);
 DLLIMPORT char _DK_create_menu(struct GuiMenu *mnu);
@@ -169,7 +165,6 @@ DLLIMPORT void _DK_gui_toggle_ally(struct GuiButton *gbtn);
 DLLIMPORT void _DK_maintain_ally(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_quit_game(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_ally(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_save_game(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_slider(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_smiley_anger_button(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_experience_button(struct GuiButton *gbtn);
@@ -178,10 +173,7 @@ DLLIMPORT void _DK_maintain_instance(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_stat_button(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_draw_icon(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_draw_slider(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_set_mouse_sensitivity(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_draw_small_slider(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_invert_mouse(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_invert_mouse(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontstats_draw_main_stats(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontstats_draw_scrolling_stats(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontstats_leave(struct GuiButton *gbtn);
@@ -217,10 +209,6 @@ DLLIMPORT void _DK_gui_round_glass_background(struct GuiMenu *gmnu);
 DLLIMPORT void _DK_gui_creature_query_background1(struct GuiMenu *gmnu);
 DLLIMPORT void _DK_gui_creature_query_background2(struct GuiMenu *gmnu);
 DLLIMPORT void _DK_reset_scroll_window(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_init_load_menu(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_init_save_menu(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_init_video_menu(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_init_audio_menu(struct GuiMenu *gmnu);
 DLLIMPORT void _DK_frontend_init_options_menu(struct GuiMenu *gmnu);
 DLLIMPORT void _DK_frontend_draw_large_menu_button(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_draw_text(struct GuiButton *gbtn);
@@ -232,8 +220,6 @@ DLLIMPORT void _DK_frontend_draw_small_menu_button(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_toggle_computer_players(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_draw_computer_players(struct GuiButton *gbtn);
 DLLIMPORT void _DK_set_packet_start(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_load_game(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_load_game_maintain(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_scroll_window(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_go_to_event(struct GuiButton *gbtn);
 DLLIMPORT void _DK_maintain_zoom_to_event(struct GuiButton *gbtn);
@@ -243,16 +229,6 @@ DLLIMPORT void _DK_gui_scroll_text_down(struct GuiButton *gbtn);
 DLLIMPORT void _DK_maintain_scroll_up(struct GuiButton *gbtn);
 DLLIMPORT void _DK_maintain_scroll_down(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_scroll_text_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_choose_hold_audience(struct GuiButton *gbtn);
-DLLIMPORT void _DK_choose_armageddon(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_games_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_load_game_button(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_start_new_game(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_load_continue_game(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_continue_game_maintain(struct GuiButton *gbtn);
@@ -267,18 +243,6 @@ DLLIMPORT void _DK_gui_setup_friend_over(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_friendly_battlers(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_setup_enemy_over(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_enemy_battlers(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_resurrect_creature(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_resurrect_creature_select(struct GuiButton *gbtn);
-DLLIMPORT void _DK_draw_resurrect_creature(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_resurrect_creature_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_resurrect_creature_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_resurrect_creature_scroll(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_transfer_creature(struct GuiButton *gbtn);
-DLLIMPORT void _DK_draw_transfer_creature(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_transfer_creature_select(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_transfer_creature_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_transfer_creature_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_transfer_creature_scroll(struct GuiButton *gbtn);
 /******************************************************************************/
 #define BID_INFO_TAB      1
 #define BID_ROOM_TAB      2
@@ -478,32 +442,6 @@ struct GuiButtonInit quit_menu_buttons[] = {
   {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit load_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, 719,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, 1, gui_load_game,      NULL,        NULL,               0, 999,  58, 999,  58,300, 32, draw_load_button,                  1, 201,  0,{(long)&input_string[0]}, 0, 0, gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, gui_load_game,      NULL,        NULL,               1, 999,  90, 999,  90,300, 32, draw_load_button,                  1, 201,  0,{(long)&input_string[1]}, 0, 0, gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, gui_load_game,      NULL,        NULL,               2, 999, 122, 999, 122,300, 32, draw_load_button,                  1, 201,  0,{(long)&input_string[2]}, 0, 0, gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, gui_load_game,      NULL,        NULL,               3, 999, 154, 999, 154,300, 32, draw_load_button,                  1, 201,  0,{(long)&input_string[3]}, 0, 0, gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, gui_load_game,      NULL,        NULL,               4, 999, 186, 999, 186,300, 32, draw_load_button,                  1, 201,  0,{(long)&input_string[4]}, 0, 0, gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, gui_load_game,      NULL,        NULL,               5, 999, 218, 999, 218,300, 32, draw_load_button,                  1, 201,  0,{(long)&input_string[5]}, 0, 0, gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, gui_load_game,      NULL,        NULL,               6, 999, 250, 999, 250,300, 32, draw_load_button,                  1, 201,  0,{(long)&input_string[6]}, 0, 0, gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, gui_load_game,      NULL,        NULL,               7, 999, 282, 999, 282,300, 32, draw_load_button,                  1, 201,  0,{(long)&input_string[7]}, 0, 0, gui_load_game_maintain },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
-};
-
-struct GuiButtonInit save_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, 720,  0,       {0},            0, 0, NULL },
-  { 5, -2,-1,-1, 1, gui_save_game,      NULL,        NULL,               0, 999,  58, 999,  58,300, 32, gui_area_text,                     1, 201,  0,{(long)&input_string[0]},15, 0, NULL },
-  { 5, -2,-1,-1, 1, gui_save_game,      NULL,        NULL,               1, 999,  90, 999,  90,300, 32, gui_area_text,                     1, 201,  0,{(long)&input_string[1]},15, 0, NULL },
-  { 5, -2,-1,-1, 1, gui_save_game,      NULL,        NULL,               2, 999, 122, 999, 122,300, 32, gui_area_text,                     1, 201,  0,{(long)&input_string[2]},15, 0, NULL },
-  { 5, -2,-1,-1, 1, gui_save_game,      NULL,        NULL,               3, 999, 154, 999, 154,300, 32, gui_area_text,                     1, 201,  0,{(long)&input_string[3]},15, 0, NULL },
-  { 5, -2,-1,-1, 1, gui_save_game,      NULL,        NULL,               4, 999, 186, 999, 186,300, 32, gui_area_text,                     1, 201,  0,{(long)&input_string[4]},15, 0, NULL },
-  { 5, -2,-1,-1, 1, gui_save_game,      NULL,        NULL,               5, 999, 218, 999, 218,300, 32, gui_area_text,                     1, 201,  0,{(long)&input_string[5]},15, 0, NULL },
-  { 5, -2,-1,-1, 1, gui_save_game,      NULL,        NULL,               6, 999, 250, 999, 250,300, 32, gui_area_text,                     1, 201,  0,{(long)&input_string[6]},15, 0, NULL },
-  { 5, -2,-1,-1, 1, gui_save_game,      NULL,        NULL,               7, 999, 282, 999, 282,300, 32, gui_area_text,                     1, 201,  0,{(long)&input_string[7]},15, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
-};
-
 struct GuiButtonInit error_box_buttons[] = {
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, 670,  0,       {0},            0, 0, NULL },
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,   0, 999,   0,155,155, gui_area_text,                     0, 201,  0,{(long)&gui_error_text},0, 0, NULL },
@@ -543,52 +481,6 @@ struct GuiButtonInit battle_buttons[] = {
   {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit resurrect_creature_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,200, 32, gui_area_text,                     1, 428,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, 0, select_resurrect_creature,NULL,  NULL,               0, 999,  62, 999,  62,250, 26, draw_resurrect_creature,           0, 201,  0,       {0},            0, 0, maintain_resurrect_creature_select },
-  { 0,  0, 0, 0, 0, select_resurrect_creature,NULL,  NULL,               1, 999,  90, 999,  90,250, 26, draw_resurrect_creature,           0, 201,  0,       {0},            0, 0, maintain_resurrect_creature_select },
-  { 0,  0, 0, 0, 0, select_resurrect_creature,NULL,  NULL,               2, 999, 118, 999, 118,250, 26, draw_resurrect_creature,           0, 201,  0,       {0},            0, 0, maintain_resurrect_creature_select },
-  { 0,  0, 0, 0, 0, select_resurrect_creature,NULL,  NULL,               3, 999, 146, 999, 146,250, 26, draw_resurrect_creature,           0, 201,  0,       {0},            0, 0, maintain_resurrect_creature_select },
-  { 0,  0, 0, 0, 0, select_resurrect_creature,NULL,  NULL,               4, 999, 174, 999, 174,250, 26, draw_resurrect_creature,           0, 201,  0,       {0},            0, 0, maintain_resurrect_creature_select },
-  { 0,  0, 0, 0, 0, select_resurrect_creature,NULL,  NULL,               5, 999, 202, 999, 202,250, 26, draw_resurrect_creature,           0, 201,  0,       {0},            0, 0, maintain_resurrect_creature_select },
-  { 1,  0, 0, 0, 0, select_resurrect_creature_up,NULL,NULL,              1, 305,  62, 305,  62, 22, 24, gui_area_new_normal_button,      278, 201,  0,       {0},            0, 0, maintain_resurrect_creature_scroll },
-  { 1,  0, 0, 0, 0, select_resurrect_creature_down,NULL,NULL,            2, 305, 204, 305, 204, 22, 24, gui_area_new_normal_button,      280, 201,  0,       {0},            0, 0, maintain_resurrect_creature_scroll },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0, 999, 258, 999, 258,100, 32, gui_area_text,                     1, 403,  0,       {0},            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
-};
-
-struct GuiButtonInit transfer_creature_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,200, 32, gui_area_text,                     1, 429,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, 0, select_transfer_creature,NULL,   NULL,               0, 999,  62, 999,  62,250, 26, draw_transfer_creature,            0, 201,  0,       {0},            0, 0, maintain_transfer_creature_select },
-  { 0,  0, 0, 0, 0, select_transfer_creature,NULL,   NULL,               1, 999,  90, 999,  90,250, 26, draw_transfer_creature,            1, 201,  0,       {0},            0, 0, maintain_transfer_creature_select },
-  { 0,  0, 0, 0, 0, select_transfer_creature,NULL,   NULL,               2, 999, 118, 999, 118,250, 26, draw_transfer_creature,            2, 201,  0,       {0},            0, 0, maintain_transfer_creature_select },
-  { 0,  0, 0, 0, 0, select_transfer_creature,NULL,   NULL,               3, 999, 146, 999, 146,250, 26, draw_transfer_creature,            3, 201,  0,       {0},            0, 0, maintain_transfer_creature_select },
-  { 0,  0, 0, 0, 0, select_transfer_creature,NULL,   NULL,               4, 999, 174, 999, 174,250, 26, draw_transfer_creature,            4, 201,  0,       {0},            0, 0, maintain_transfer_creature_select },
-  { 0,  0, 0, 0, 0, select_transfer_creature,NULL,   NULL,               5, 999, 202, 999, 202,250, 26, draw_transfer_creature,            5, 201,  0,       {0},            0, 0, maintain_transfer_creature_select },
-  { 1,  0, 0, 0, 0, select_transfer_creature_up,NULL,NULL,               1, 305,  62, 305,  62, 22, 24, gui_area_new_normal_button,      278, 201,  0,       {0},            0, 0, maintain_transfer_creature_scroll },
-  { 1,  0, 0, 0, 0, select_transfer_creature_down,NULL,NULL,             2, 305, 204, 305, 204, 22, 24, gui_area_new_normal_button,      280, 201,  0,       {0},            0, 0, maintain_transfer_creature_scroll },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0, 999, 258, 999, 258,100, 32, gui_area_text,                     1, 403,  0,       {0},            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
-};
-
-struct GuiButtonInit hold_audience_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, 634,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0,  38,  24,  40,  58, 46, 32, gui_area_normal_button,           46, 201,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, 1, choose_hold_audience,NULL,       NULL,               0, 116,  24, 118,  58, 46, 32, gui_area_normal_button,           48, 201,  0,       {0},            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
-};
-
-struct GuiButtonInit armageddon_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, 646,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0,  38,  24,  40,  58, 46, 32, gui_area_normal_button,           46, 201,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, 1, choose_armageddon,  NULL,        NULL,               0, 116,  24, 118,  58, 46, 32, gui_area_normal_button,           48, 201,  0,       {0},            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
-};
-
-struct GuiButtonInit dungeon_special_buttons[] = {
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
-};
-
 struct GuiButtonInit frontend_main_menu_buttons[] = {
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  26, 999,  26,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {1},            0, 0, NULL },
   { 0,  0, 0, 0, 0, frontend_start_new_game,NULL,frontend_over_button,   3, 999,  92, 999,  92,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {2},            0, 0, NULL },
@@ -614,25 +506,6 @@ struct GuiButtonInit frontend_main_menu_buttons[] = {
   {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
 };
 */
-#define frontend_load_menu_items_visible  6
-struct GuiButtonInit frontend_load_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {7},            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  82, 124,  82, 124,220, 26, frontnet_draw_scroll_box_tab,      0, 201,  0,      {28},            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  82, 150,  82, 150,450,180, frontnet_draw_scroll_box,          0, 201,  0,      {26},            0, 0, NULL },
-  { 1,  0, 0, 0, 0, frontend_load_game_up,NULL,frontend_over_button,     0, 532, 149, 532, 149, 26, 14, frontnet_draw_slider_button,       0, 201,  0,      {17},            0, 0, frontend_load_game_up_maintain },
-  { 1,  0, 0, 0, 0, frontend_load_game_down,NULL,frontend_over_button,   0, 532, 317, 532, 317, 26, 14, frontnet_draw_slider_button,       0, 201,  0,      {18},            0, 0, frontend_load_game_down_maintain },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 536, 163, 536, 163, 10,154, frontend_draw_games_scroll_tab,    0, 201,  0,      {40},            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 102, 125, 102, 125,220, 26, frontend_draw_text,                0, 201,  0,      {30},            0, 0, NULL },
-  { 0,  0, 0, 0, 0, frontend_load_game,NULL,frontend_over_button,        0,  95, 157,  95, 157,424, 26, frontend_draw_load_game_button,    0, 201,  0,      {45},            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, frontend_load_game,NULL,frontend_over_button,        0,  95, 185,  95, 185,424, 26, frontend_draw_load_game_button,    0, 201,  0,      {46},            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, frontend_load_game,NULL,frontend_over_button,        0,  95, 213,  95, 213,424, 26, frontend_draw_load_game_button,    0, 201,  0,      {47},            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, frontend_load_game,NULL,frontend_over_button,        0,  95, 241,  95, 241,424, 26, frontend_draw_load_game_button,    0, 201,  0,      {48},            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, frontend_load_game,NULL,frontend_over_button,        0,  95, 269,  95, 269,424, 26, frontend_draw_load_game_button,    0, 201,  0,      {49},            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, frontend_load_game,NULL,frontend_over_button,        0,  95, 297,  95, 297,424, 26, frontend_draw_load_game_button,    0, 201,  0,      {50},            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, frontend_change_state,NULL,frontend_over_button,     1, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {6},            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
-};
-
 struct GuiButtonInit frontend_statistics_buttons[] = {
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, 201,  0,      {84},            0, 0, NULL },
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  90, 999,  90,450,158, frontstats_draw_main_stats,        0, 201,  0,       {0},            0, 0, NULL },
@@ -762,29 +635,13 @@ struct GuiMenu query_menu =
  { 7, 0, 1, query_menu_buttons,                          0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
 struct GuiMenu quit_menu =
  { 10, 0, 1, quit_menu_buttons,          POS_GAMECTR,POS_GAMECTR,264, 116, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
-struct GuiMenu load_menu =
- { 11, 0, 4, load_menu_buttons,          POS_GAMECTR,POS_GAMECTR,436, 350, gui_pretty_background,       0, NULL,    init_load_menu,          0, 1, 0,};
-struct GuiMenu save_menu =
- { 12, 0, 4, save_menu_buttons,          POS_GAMECTR,POS_GAMECTR,436, 350, gui_pretty_background,       0, NULL,    init_save_menu,          0, 1, 0,};
 struct GuiMenu error_box =
  { 15, 0, 1, error_box_buttons,          POS_GAMECTR,POS_GAMECTR,280, 180, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 struct GuiMenu text_info_menu =
 // { 16, 0, 4, text_info_buttons,                        160, 316, 480,  86, gui_round_glass_background,  0, NULL,    reset_scroll_window,     0, 0, 0,};
  { 16, 0, 4, text_info_buttons,                  160, POS_SCRBTM,480,  86, gui_round_glass_background,  0, NULL,    reset_scroll_window,     0, 0, 0,};
-struct GuiMenu hold_audience_menu =
- { 17, 0, 4, hold_audience_buttons,      POS_GAMECTR,POS_GAMECTR,200, 116, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
-struct GuiMenu dungeon_special_menu =
- { 27, 0, 4, dungeon_special_buttons,            160, POS_SCRBTM,480, 86, gui_round_glass_background,  0, NULL,    NULL,                    0, 0, 0,};
-struct GuiMenu resurrect_creature_menu =
- { 28, 0, 4, resurrect_creature_buttons, POS_GAMECTR,POS_GAMECTR,350, 300, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
-struct GuiMenu transfer_creature_menu =
- { 29, 0, 4, transfer_creature_buttons,  POS_GAMECTR,POS_GAMECTR,350, 300, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
-struct GuiMenu armageddon_menu =
- { 30, 0, 4, armageddon_buttons,         POS_GAMECTR,POS_GAMECTR,200, 116, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 struct GuiMenu frontend_main_menu =
  { 18, 0, 1, frontend_main_menu_buttons,          0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
-struct GuiMenu frontend_load_menu =
- { 19, 0, 1, frontend_load_menu_buttons,          0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_statistics_menu =
  { 25, 0, 1, frontend_statistics_buttons,         0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_high_score_table_menu =
@@ -1010,26 +867,6 @@ struct DoorDesc doors[] = {
 };
 */
 
-struct TbLoadFiles torture_load_files[] = {
-  {"ldata/fronttor.tab", (unsigned char **)&fronttor_sprites, (unsigned char **)&fronttor_end_sprites, 0, 0, 0},
-  {"ldata/fronttor.dat", (unsigned char **)&fronttor_data,    (unsigned char **)&fronttor_end_data,    0, 0, 0},
-  {"",                    NULL,                                NULL,                                   0, 0, 0},
-};
-
-struct TbSetupSprite setup_torture_sprites[] = {
-  {&doors[0].sprites, &doors[0].sprites_end, &doors[0].data},
-  {&doors[1].sprites, &doors[1].sprites_end, &doors[1].data},
-  {&doors[2].sprites, &doors[2].sprites_end, &doors[2].data},
-  {&doors[3].sprites, &doors[3].sprites_end, &doors[3].data},
-  {&doors[4].sprites, &doors[4].sprites_end, &doors[4].data},
-  {&doors[5].sprites, &doors[5].sprites_end, &doors[5].data},
-  {&doors[6].sprites, &doors[6].sprites_end, &doors[6].data},
-  {&doors[7].sprites, &doors[7].sprites_end, &doors[7].data},
-  {&doors[8].sprites, &doors[8].sprites_end, &doors[8].data},
-  {&fronttor_sprites, &fronttor_end_sprites, &fronttor_data},
-  {NULL,              NULL,                  NULL,}
-};
-
 const struct DemoItem demo_item[] = {
     {DIK_SwitchState, (char *)13},
 /*
@@ -1055,9 +892,6 @@ unsigned long testfont_data[TESTFONTS_COUNT];
 unsigned char *testfont_palette[3];
 long num_chars_in_font = 128;
 #endif
-
-long torture_doors_available = TORTURE_DOORS_COUNT;
-
 
 int status_panel_width = 140;
 
@@ -1381,25 +1215,6 @@ void frontend_copy_mnu_background(struct GuiMenu *gmnu)
   frontend_copy_background_at(gmnu->pos_x,gmnu->pos_y,gmnu->width,gmnu->height);
 }
 
-void draw_load_button(struct GuiButton *gbtn)
-{
-  if (gbtn == NULL) return;
-  gbtn->height = 32;
-  if ((gbtn->field_1) || (gbtn->field_2))
-  {
-    draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
-    draw_lit_bar64k(gbtn->scr_pos_x - 6, gbtn->scr_pos_y - 6, gbtn->width + 6);
-  } else
-  {
-    draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
-  }
-  if (gbtn->field_33 != NULL)
-  {
-    sprintf(gui_textbuf, "%s", (const char *)gbtn->field_33);
-    draw_button_string(gbtn, gui_textbuf);
-  }
-}
-
 int frontend_font_char_width(int fnt_idx,char c)
 {
   struct TbSprite *fnt;
@@ -1545,53 +1360,6 @@ void gui_creature_query_background2(struct GuiMenu *gmnu)
 void reset_scroll_window(struct GuiMenu *gmnu)
 {
   _DK_reset_scroll_window(gmnu);
-}
-
-void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
-{
-    struct CatalogueEntry *centry;
-    long slot_num;
-    char *text;
-    SYNCDBG(6,"Starting");
-    for (slot_num=0; slot_num < SAVE_SLOTS_COUNT; slot_num++)
-    {
-        centry = &game_catalg[slot_num];
-        if ((centry->flags & CEF_InUse) != 0)
-          text = centry->textname;
-        else
-          text = gui_strings[342]; // UNUSED
-        strncpy(input_string[slot_num], text, SAVE_TEXTNAME_LEN);
-    }
-}
-
-void init_load_menu(struct GuiMenu *gmnu)
-{
-  struct PlayerInfo *player;
-  SYNCDBG(6,"Starting");
-  player = get_my_player();
-  set_players_packet_action(player, 82, 1, 1, 0, 0);
-  load_game_save_catalogue();
-  update_loadsave_input_strings(save_game_catalogue);
-}
-
-void init_save_menu(struct GuiMenu *gmnu)
-{
-  struct PlayerInfo *player;
-  SYNCDBG(6,"Starting");
-  player = get_my_player();
-  set_players_packet_action(player, 82, 1, 1, 0, 0);
-  load_game_save_catalogue();
-  update_loadsave_input_strings(save_game_catalogue);
-}
-
-void init_video_menu(struct GuiMenu *gmnu)
-{
-  _DK_init_video_menu(gmnu);
-}
-
-void init_audio_menu(struct GuiMenu *gmnu)
-{
-  _DK_init_audio_menu(gmnu);
 }
 
 void maintain_event_button(struct GuiButton *gbtn)
@@ -1787,18 +1555,6 @@ void maintain_ally(struct GuiButton *gbtn)
   _DK_maintain_ally(gbtn);
 }
 
-void gui_load_game_maintain(struct GuiButton *gbtn)
-{
-  long slot_num;
-  struct CatalogueEntry *centry;
-  if (gbtn != NULL)
-      slot_num = gbtn->field_1B;
-  else
-      slot_num = 0;
-  centry = &save_game_catalogue[slot_num];
-  set_flag_byte(&gbtn->field_0, 0x08, ((centry->flags & CEF_InUse) != 0));
-}
-
 void fake_button_click(long btn_idx)
 {
   _DK_fake_button_click(btn_idx);
@@ -1831,26 +1587,6 @@ void maintain_scroll_down(struct GuiButton *gbtn)
   _DK_maintain_scroll_down(gbtn);
 }
 
-void maintain_resurrect_creature_select(struct GuiButton *gbtn)
-{
-  _DK_maintain_resurrect_creature_select(gbtn);
-}
-
-void maintain_resurrect_creature_scroll(struct GuiButton *gbtn)
-{
-  _DK_maintain_resurrect_creature_scroll(gbtn);
-}
-
-void maintain_transfer_creature_select(struct GuiButton *gbtn)
-{
-  _DK_maintain_transfer_creature_select(gbtn);
-}
-
-void maintain_transfer_creature_scroll(struct GuiButton *gbtn)
-{
-  _DK_maintain_transfer_creature_scroll(gbtn);
-}
-
 void frontend_continue_game_maintain(struct GuiButton *gbtn)
 {
   set_flag_byte(&gbtn->field_0, 0x08, (continue_game_option_available != 0));
@@ -1869,16 +1605,6 @@ void frontend_main_menu_netservice_maintain(struct GuiButton *gbtn)
 void frontend_main_menu_highscores_maintain(struct GuiButton *gbtn)
 {
   set_flag_byte(&gbtn->field_0, 0x08, true);
-}
-
-void frontend_load_game_up_maintain(struct GuiButton *gbtn)
-{
-  set_flag_byte(&gbtn->field_0, 0x08, (load_game_scroll_offset != 0));
-}
-
-void frontend_load_game_down_maintain(struct GuiButton *gbtn)
-{
-  set_flag_byte(&gbtn->field_0, 0x08, (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1));
 }
 
 TbBool frontend_should_all_players_quit(void)
@@ -1908,137 +1634,6 @@ void frontend_set_alliance(long idx1, long idx2)
 int frontend_load_data(void)
 {
   return _DK_frontend_load_data();
-}
-
-void torture_play_sound(long door_id, TbBool state)
-{
-  if ((door_id < 0) || (door_id >= TORTURE_DOORS_COUNT))
-    return;
-  if (state)
-  {
-    play_sample_using_heap(0, doors[door_id].field_28, 0, 64, 100, -1, 2, 0);
-    door_sound_state[door_id].field_0 = 0;
-    door_sound_state[door_id].field_4 = 16;
-  }
-  else
-  {
-    door_sound_state[door_id].field_4 = -16;
-  }
-}
-
-long torture_door_over_point(long x,long y)
-{
-  struct DoorDesc *door;
-  long i;
-  for (i=0; i < torture_doors_available; i++)
-  {
-    door = &doors[i];
-    if ((x >= door->pos_x) && (x < door->pos_x+door->width))
-      if ((y >= door->pos_y) && (y < door->pos_y+door->height))
-        return i;
-  }
-  return -1;
-}
-
-void fronttorture_unload(void)
-{
-  LbDataFreeAll(torture_load_files);
-  memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
-  StopAllSamples();
-  // Clearing the space used for torture graphics
-  clear_light_system();
-  clear_computer();
-  clear_things_and_persons_data();
-  clear_mapmap();
-  clear_slabs();
-  clear_rooms();
-  clear_dungeons();
-}
-
-void fronttorture_load(void)
-{
-  struct PlayerInfo *player;
-  char *fname;
-  unsigned char *ptr;
-  long i,k;
-  wait_for_cd_to_be_available();
-  frontend_load_data_from_cd();
-  memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
-  ptr = block_mem;
-  // Load RAW/PAL background
-  fname = prepare_file_path(FGrp_LoData,"torture.raw");
-  torture_background = ptr;
-  i = LbFileLoadAt(fname, ptr);
-  ptr += i;
-  fname = prepare_file_path(FGrp_LoData,"torture.pal");
-  torture_palette = ptr;
-  i = LbFileLoadAt(fname, ptr);
-  ptr += i;
-
-  // Load DAT/TAB sprites for doors
-  k = 0;
-  {
-    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
-    i = LbFileLoadAt(fname, ptr);
-    doors[k].data = (unsigned long)ptr;
-    ptr += i;
-    doors[k].data_end = ptr;
-
-    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
-    i = LbFileLoadAt(fname, ptr);
-    doors[k].sprites = (struct TbSprite *)ptr;
-    ptr += i;
-    doors[k].sprites_end =(struct TbSprite *) ptr;
-  }
-  ptr = &game.land_map_start;
-  for (k=1; k < 8; k++)
-  {
-    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
-    i = LbFileLoadAt(fname, ptr);
-    doors[k].data = (unsigned long)ptr;
-    ptr += i;
-    doors[k].data_end = ptr;
-    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
-    i = LbFileLoadAt(fname, ptr);
-    doors[k].sprites = (struct TbSprite *)ptr;
-    ptr += i;
-    doors[k].sprites_end = (struct TbSprite *)ptr;
-  }
-  ptr = poly_pool;
-  k = 8;
-  {
-    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
-    i = LbFileLoadAt(fname, ptr);
-    doors[k].data = (unsigned long)ptr;
-    ptr += i;
-    doors[k].data_end = ptr;
-    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
-    i = LbFileLoadAt(fname, ptr);
-    doors[k].sprites = (struct TbSprite *)ptr;
-    ptr += i;
-    doors[k].sprites_end = (struct TbSprite *)ptr;
-  }
-
-  if ( LbDataLoadAll(torture_load_files) )
-    ERRORLOG("Unable to load torture load files");
-  LbSpriteSetupAll(setup_torture_sprites);
-  frontend_load_data_reset();
-  memcpy(&frontend_palette, torture_palette, PALETTE_SIZE);
-  torture_state = 0;
-  torture_door_selected = -1;
-  torture_end_sprite = -1;
-  torture_sprite_direction = 0;
-  memset(door_sound_state, 0, 0x48u);
-
-  player = get_my_player();
-  if (player->victory_state == VicS_WonLevel)
-  {
-    LbMouseChangeSpriteAndHotspot(&fronttor_sprites[1], 0, 0);
-  } else
-  {
-    LbMouseChangeSpriteAndHotspot(0, 0, 0);
-  }
-  torture_left_button = 0;
 }
 
 void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn)
@@ -2401,27 +1996,6 @@ void gui_area_ally(struct GuiButton *gbtn)
   _DK_gui_area_ally(gbtn);
 }
 
-void gui_save_game(struct GuiButton *gbtn)
-{
-  struct PlayerInfo *player;
-  long slot_num;
-  player = get_my_player();
-  if (strcasecmp((char *)gbtn->field_33, gui_strings[342]) != 0) // "UNUSED"
-  {
-      slot_num = gbtn->field_1B%SAVE_SLOTS_COUNT;
-      fill_game_catalogue_entry(slot_num,(char *)gbtn->field_33);
-      if (save_game(slot_num))
-      {
-        output_message(103, 0, 1);
-      } else
-      {
-        ERRORLOG("Error in save!");
-        create_error_box(536);
-      }
-  }
-  set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
-}
-
 void gui_area_slider(struct GuiButton *gbtn)
 {
   _DK_gui_area_slider(gbtn);
@@ -2596,24 +2170,9 @@ void frontend_draw_slider(struct GuiButton *gbtn)
   _DK_frontend_draw_slider(gbtn);
 }
 
-void frontend_set_mouse_sensitivity(struct GuiButton *gbtn)
-{
-  _DK_frontend_set_mouse_sensitivity(gbtn);
-}
-
 void frontend_draw_small_slider(struct GuiButton *gbtn)
 {
   _DK_frontend_draw_small_slider(gbtn);
-}
-
-void frontend_invert_mouse(struct GuiButton *gbtn)
-{
-  _DK_frontend_invert_mouse(gbtn);
-}
-
-void frontend_draw_invert_mouse(struct GuiButton *gbtn)
-{
-  _DK_frontend_draw_invert_mouse(gbtn);
 }
 
 void frontstats_draw_main_stats(struct GuiButton *gbtn)
@@ -3064,19 +2623,6 @@ void set_packet_start(struct GuiButton *gbtn)
   _DK_set_packet_start(gbtn);
 }
 
-void gui_load_game(struct GuiButton *gbtn)
-{
-  struct PlayerInfo *player;
-  player=get_my_player();
-  if (!load_game(gbtn->field_1B))
-  {
-      ERRORLOG("Error in load!");
-      quit_game = 1;
-      return;
-  }
-  set_players_packet_action(player, 22, 0, 0, 0, 0);
-}
-
 void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
 {
   struct TextScrollWindow *scrollwnd;
@@ -3192,93 +2738,9 @@ void gui_scroll_text_down(struct GuiButton *gbtn)
   _DK_gui_scroll_text_down(gbtn);
 }
 
-void choose_hold_audience(struct GuiButton *gbtn)
-{
-  _DK_choose_hold_audience(gbtn);
-}
-
-void choose_armageddon(struct GuiButton *gbtn)
-{
-  _DK_choose_armageddon(gbtn);
-}
-
-void frontend_load_game_up(struct GuiButton *gbtn)
-{
-  if (load_game_scroll_offset > 0)
-    load_game_scroll_offset--;
-}
-
-void frontend_load_game_down(struct GuiButton *gbtn)
-{
-  if (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1)
-    load_game_scroll_offset++;
-}
-
-void frontend_draw_games_scroll_tab(struct GuiButton *gbtn)
-{
-  frontend_draw_scroll_tab(gbtn, load_game_scroll_offset, frontend_load_menu_items_visible-2, number_of_saved_games);
-}
-
 void frontend_draw_levels_scroll_tab(struct GuiButton *gbtn)
 {
   frontend_draw_scroll_tab(gbtn, select_level_scroll_offset, frontend_select_level_items_visible-2, number_of_freeplay_levels);
-}
-
-int frontend_load_game_button_to_index(struct GuiButton *gbtn)
-{
-  struct CatalogueEntry *centry;
-  long gbidx;
-  int i,k;
-  gbidx = (unsigned long)gbtn->field_33;
-  k = -1;
-  for (i=gbidx+load_game_scroll_offset-45; i >= 0; i--)
-  {
-    do
-    {
-      k++;
-      if (k >= SAVE_SLOTS_COUNT)
-        return -1;
-      centry = &save_game_catalogue[k];
-    } while ((centry->flags & CEF_InUse) == 0);
-  }
-  return k;
-}
-
-void frontend_load_game(struct GuiButton *gbtn)
-{
-  int i;
-  i = frontend_load_game_button_to_index(gbtn);
-  if (i < 0)
-    return;
-  game.numfield_15 = i;
-  if (is_save_game_loadable(i))
-  {
-    frontend_set_state(FeSt_LOAD_GAME);
-  } else
-  {
-    save_catalogue_slot_disable(i);
-    if (!initialise_load_game_slots())
-      frontend_set_state(FeSt_MAIN_MENU);
-  }
-}
-
-void frontend_draw_load_game_button(struct GuiButton *gbtn)
-{
-  int nfont;
-  long gbidx;
-  int i,h;
-  gbidx = (unsigned long)gbtn->field_33;
-  nfont = frontend_button_info[gbidx%FRONTEND_BUTTON_INFO_COUNT].field_2;
-  if ((gbidx != 0) && (frontend_mouse_over_button == gbidx))
-      nfont = 2;
-  lbDisplay.DrawFlags = 0x20;
-  LbTextSetFont(frontend_font[nfont]);
-  h = LbTextLineHeight();
-  LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, h);
-  i = frontend_load_game_button_to_index(gbtn);
-  if (i < 0)
-    return;
-  LbTextDraw(0, 0, save_game_catalogue[i].textname);
 }
 
 /**
@@ -3419,44 +2881,6 @@ void frontend_load_continue_game(struct GuiButton *gbtn)
   frontend_set_state(FeSt_LAND_VIEW);
 }
 
-TbBool fronttorture_draw(void)
-{
-  struct TbSprite *spr;
-  const int img_width = 640;
-  const int img_height = 480;
-  int w,h,m,i;
-  int spx,spy;
-  // Only 8bpp supported for now
-  if (LbGraphicsScreenBPP() != 8)
-    return false;
-  w=0;
-  h=0;
-  m=1;
-  {
-    w+=img_width;
-    h+=img_height;
-  }
-  // Starting point coords
-  //TODO: temporarely set to top left corner because input function is not rewritten
-  spx = 0;//(mdinfo->Width-m*img_width)>>1;
-  spy = 0;//(mdinfo->Height-m*img_height)>>1;
-  copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-      spx,spy,torture_background,img_width,img_height,m);
-
-  for (i=0; i < torture_doors_available; i++)
-  {
-    if (i == torture_door_selected)
-    {
-      spr = &doors[i].sprites[torture_sprite_frame];
-    } else
-    {
-      spr = &doors[i].sprites[1];
-    }
-    LbSpriteDraw(spx+doors[i].field_0, spy+doors[i].field_4, spr);
-  }
-  return true;
-}
-
 void gui_previous_battle(struct GuiButton *gbtn)
 {
   _DK_gui_previous_battle(gbtn);
@@ -3495,181 +2919,6 @@ void gui_setup_enemy_over(struct GuiButton *gbtn)
 void gui_area_enemy_battlers(struct GuiButton *gbtn)
 {
   _DK_gui_area_enemy_battlers(gbtn);
-}
-
-void select_resurrect_creature(struct GuiButton *gbtn)
-{
-  _DK_select_resurrect_creature(gbtn);
-}
-
-void draw_resurrect_creature(struct GuiButton *gbtn)
-{
-  _DK_draw_resurrect_creature(gbtn);
-}
-
-void select_resurrect_creature_up(struct GuiButton *gbtn)
-{
-  _DK_select_resurrect_creature_up(gbtn);
-}
-
-void select_resurrect_creature_down(struct GuiButton *gbtn)
-{
-  _DK_select_resurrect_creature_down(gbtn);
-}
-
-void select_transfer_creature(struct GuiButton *gbtn)
-{
-  _DK_select_transfer_creature(gbtn);
-}
-
-void draw_transfer_creature(struct GuiButton *gbtn)
-{
-  _DK_draw_transfer_creature(gbtn);
-}
-
-void select_transfer_creature_up(struct GuiButton *gbtn)
-{
-  _DK_select_transfer_creature_up(gbtn);
-}
-
-void select_transfer_creature_down(struct GuiButton *gbtn)
-{
-  _DK_select_transfer_creature_down(gbtn);
-}
-
-void fronttorture_input(void)
-{
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  long x,y;
-  long plyr_idx,door_id;
-  clear_packets();
-  player = get_my_player();
-  pckt = get_packet(my_player_number);
-  // Get inputs and create packet
-  if (player->victory_state == 1)
-  {
-    if (left_button_clicked)
-    {
-      torture_left_button = 1;
-      left_button_clicked = 0;
-    }
-    if ((lbKeyOn[KC_SPACE]) || (lbKeyOn[KC_RETURN]) || (lbKeyOn[KC_ESCAPE]))
-    {
-      lbKeyOn[KC_SPACE] = 0;
-      lbKeyOn[KC_RETURN] = 0;
-      lbKeyOn[KC_ESCAPE] = 0;
-      pckt->action |= 0x01;
-    }
-    if (torture_left_button)
-      pckt->action |= 0x02;
-    if (left_button_held)
-      pckt->action |= 0x04;
-    pckt->field_6 = GetMouseX();
-    pckt->field_8 = GetMouseY();
-  }
-  // Exchange packet with other players
-  if ((game.system_flags & GSF_NetworkActive) != 0)
-  {
-    if (LbNetwork_Exchange(pckt))
-      ERRORLOG("LbNetwork_Exchange failed");
-  }
-  // Determine the controlling player and get his mouse coords
-  for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-  {
-    player = get_player(plyr_idx);
-    pckt = get_packet(plyr_idx);
-    if ((pckt->action != 0) && (player->victory_state == 1))
-      break;
-  }
-  if (plyr_idx < PLAYERS_COUNT)
-  {
-    x = pckt->field_6;
-    y = pckt->field_8;
-  } else
-  {
-    plyr_idx = my_player_number;
-    player = get_player(plyr_idx);
-    pckt = get_packet(plyr_idx);
-    x = 0;
-    y = 0;
-  }
-  if ((pckt->action & 0x01) != 0)
-  {
-    frontend_set_state(FeSt_LEVEL_STATS);
-    if ((game.system_flags & GSF_NetworkActive) != 0)
-      LbNetwork_Stop();
-    return;
-  }
-  // Get active door
-  door_id = torture_door_over_point(x,y);
-  if ((torture_door_selected != -1) && (torture_door_selected != door_id))
-    door_id = -1;
-  // Make the action
-  if (door_id == -1)
-    torture_left_button = 0;
-  switch (torture_state)
-  {
-  case 0:
-      if (door_id != -1)
-      {
-        torture_state = 1;
-        torture_sprite_direction = 1;
-        torture_door_selected = door_id;
-        torture_sprite_frame = 3;
-        torture_end_sprite = 7;
-      }
-      break;
-  case 1:
-      if (torture_sprite_frame == torture_end_sprite)
-      {
-        if (door_id == -1)
-        {
-          torture_state = 2;
-          torture_sprite_frame = 8;
-          torture_end_sprite = 4;
-          torture_sprite_direction = -1;
-        } else
-        if ((pckt->action & 6) != 0)
-        {
-          torture_state = 3;
-          torture_left_button = 0;
-          torture_sprite_frame = 7;
-          torture_end_sprite = 11;
-          torture_sprite_direction = 1;
-          torture_play_sound(torture_door_selected, true);
-        }
-      }
-      break;
-  case 2:
-      if (torture_sprite_frame == torture_end_sprite)
-      {
-        torture_state = 0;
-        torture_door_selected = -1;
-      }
-      break;
-  case 3:
-      if (torture_sprite_frame == torture_end_sprite)
-      {
-        if (((pckt->action & 0x04) == 0) || (door_id == -1))
-        {
-          torture_state = 4;
-          torture_sprite_frame = 12;
-          torture_end_sprite = 8;
-          torture_sprite_direction = -1;
-          torture_play_sound(torture_door_selected, false);
-        }
-      }
-      break;
-  case 4:
-      if (torture_sprite_frame == torture_end_sprite)
-      {
-        torture_state = 1;
-        torture_sprite_frame = 7;
-        torture_end_sprite = 7;
-      }
-      break;
-  }
 }
 
 void frontend_load_game_maintain(struct GuiButton *gbtn)
@@ -5391,11 +4640,6 @@ void frontstats_update(void)
       play_description_speech(lvnum,0);
       frontstats_timer = 0;
     }
-}
-
-void fronttorture_update(void)
-{
-  _DK_fronttorture_update();
 }
 
 void frontend_update(short *finish_menu)

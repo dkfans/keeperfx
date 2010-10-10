@@ -111,9 +111,12 @@ obj/front_input.o \
 obj/front_landview.o \
 obj/front_network.o \
 obj/front_simple.o \
+obj/front_torture.o \
 obj/frontend.o \
 obj/frontmenu_net.o \
 obj/frontmenu_options.o \
+obj/frontmenu_saves.o \
+obj/frontmenu_specials.o \
 obj/game_merge.o \
 obj/game_saves.o \
 obj/gui_boxmenu.o \

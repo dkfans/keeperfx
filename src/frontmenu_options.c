@@ -21,6 +21,8 @@
 #include "bflib_basics.h"
 
 #include "bflib_guibtns.h"
+#include "bflib_sprite.h"
+#include "bflib_sprfnt.h"
 #include "player_data.h"
 #include "frontend.h"
 #include "packets.h"
@@ -43,9 +45,14 @@ DLLIMPORT void _DK_gui_video_view_distance_level(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_video_rotate_mode(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_video_cluedo_mode(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_video_gamma_correction(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_video_cluedo_maintain(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_set_sound_volume(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_set_music_volume(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_video_cluedo_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_set_mouse_sensitivity(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_invert_mouse(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_invert_mouse(struct GuiButton *gbtn);
+DLLIMPORT void _DK_init_video_menu(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_init_audio_menu(struct GuiMenu *gmnu);
 /******************************************************************************/
 struct GuiButtonInit frontend_define_keys_buttons[] = {
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, 201,  0,      {92},            0, 0, NULL },
@@ -197,6 +204,31 @@ void gui_set_music_volume(struct GuiButton *gbtn)
 void gui_video_cluedo_maintain(struct GuiButton *gbtn)
 {
   _DK_gui_video_cluedo_maintain(gbtn);
+}
+
+void frontend_set_mouse_sensitivity(struct GuiButton *gbtn)
+{
+  _DK_frontend_set_mouse_sensitivity(gbtn);
+}
+
+void frontend_invert_mouse(struct GuiButton *gbtn)
+{
+  _DK_frontend_invert_mouse(gbtn);
+}
+
+void frontend_draw_invert_mouse(struct GuiButton *gbtn)
+{
+  _DK_frontend_draw_invert_mouse(gbtn);
+}
+
+void init_video_menu(struct GuiMenu *gmnu)
+{
+  _DK_init_video_menu(gmnu);
+}
+
+void init_audio_menu(struct GuiMenu *gmnu)
+{
+  _DK_init_audio_menu(gmnu);
 }
 /******************************************************************************/
 #ifdef __cplusplus
