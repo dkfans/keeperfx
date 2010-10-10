@@ -2,15 +2,15 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_video.cpp
+/** @file bflib_video.c
  *     Video support library for 8-bit graphics.
  * @par Purpose:
  *     Allows displaying on graphics device - graphic canvas setup and locking
  *     functions.
  * @par Comment:
- *     None yet.
+ *     This is SDL-based implementation of the video routines.
  * @author   Tomasz Lis
- * @date     11 Feb 2008 - 28 Nov 2009
+ * @date     11 Feb 2008 - 10 Oct 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -36,43 +36,15 @@ DLLIMPORT int _DK_LbPaletteFindColour(unsigned char *pal, unsigned char r, unsig
 DLLIMPORT void _DK_copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
 /******************************************************************************/
 // Global variables
+/** List of registered video modes. */
 TbScreenModeInfo lbScreenModeInfo[SCREEN_MODES_COUNT];
+/** Count of used entries in registered video modes list. */
 long lbScreenModeInfoNum = 0;
-/* These are "standard" modes; they're now initiated in LbRegisterStandardVideoModes().
-    {   0,   0, 0,0,   0x0,"MODE_INVALID"},
-    { 320, 200, 8,0,   0x0,"MODE_320_200_8"},
-    { 320, 200,16,0,   0x0,"MODE_320_200_16"},
-    { 320, 200,24,0,   0x0,"MODE_320_200_24"},
-    { 320, 240, 8,0,   0x0,"MODE_320_240_8"},
-    { 320, 240,16,0,   0x0,"MODE_320_240_16"},
-    { 320, 240,24,0,   0x0,"MODE_320_240_24"},
-    { 512, 384, 8,0,   0x0,"MODE_512_384_8"},
-    { 512, 384,16,0,   0x0,"MODE_512_384_16"},
-    { 512, 384,24,0,0x0100,"MODE_512_384_24"},
-    { 640, 400, 8,0,   0x0,"MODE_640_400_8"},
-    { 640, 400,16,0,   0x0,"MODE_640_400_16"},
-    { 640, 400,24,0,0x0101,"MODE_640_400_24"},
-    { 640, 480, 8,0,   0x0,"MODE_640_480_8"},
-    { 640, 480,16,0,   0x0,"MODE_640_480_16"},
-    { 640, 480,24,0,0x0103,"MODE_640_480_24"},
-    { 800, 600, 8,0,   0x0,"MODE_800_600_8"},
-    { 800, 600,16,0,   0x0,"MODE_800_600_16"},
-    { 800, 600,24,0,0x0105,"MODE_800_600_24"},
-    {1024, 768, 8,0,   0x0,"MODE_1024_768_8"},
-    {1024, 768,16,0,   0x0,"MODE_1024_768_16"},
-    {1024, 768,24,0,0x0107,"MODE_1024_768_24"},
-    {1280,1024, 8,0,   0x0,"MODE_1280_1024_8"},
-    {1280,1024,16,0,   0x0,"MODE_1280_1024_16"},
-    {1280,1024,24,0,   0x0,"MODE_1280_1024_24"},
-    {1600,1200, 8,0,   0x0,"MODE_1600_1200_8"},
-    {1600,1200,16,0,   0x0,"MODE_1600_1200_16"},
-    {1600,1200,24,0,   0x0,"MODE_1600_1200_24"},
-    {   0,   0, 0,0,   0x0,"MODE_INVALID"},
-*/
 
+/** Informs if Video Screen subsystem initialization was done. */
 volatile TbBool lbScreenInitialised = false;
 volatile TbBool lbUseSdk = true;
-/** Returns if the application window is active (focused on screen). */
+/** Informs if the application window is active (focused on screen). */
 extern volatile TbBool lbAppActive;
 /** True if we have two surfaces. */
 TbBool lbHasSecondSurface;
@@ -88,6 +60,16 @@ void *LbExeReferenceNumber(void)
   return NULL;
 }
 
+/** Locks the graphics screen.
+ *  This function gives access to the WScreen pointer, which contains buffer
+ *  of size GraphicsScreenWidth x GraphicsScreenHeight.
+ *  It also allows accessing GraphicsWindowPtr buffer, of size
+ *  GraphicsWindowWidth x GraphicsWindowHeight, but with pitch (scanline length)
+ *   same as graphics screen (which is GraphicsScreenWidth).
+ *
+ * @return Lb_SUCCESS if the lock was successful.
+ * @see LbScreenUnlock()
+ */
 TbResult LbScreenLock(void)
 {
     SYNCDBG(12,"Starting");
@@ -153,6 +135,10 @@ TbResult LbScreenClear(TbPixel colour)
   return Lb_SUCCESS;
 }
 
+/** Returns the currently active screen mode.
+ *
+ * @return Screen mode index.
+ */
 TbScreenMode LbScreenActiveMode(void)
 {
     return lbDisplay.ScreenMode;
@@ -271,7 +257,7 @@ long LbPaletteFade(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag f
 
 /** Wait for vertical blanking interval.
  *
- * @return
+ * @return Lb_SUCCESS if wait successful.
  */
 TbResult LbScreenWaitVbi(void)
 {

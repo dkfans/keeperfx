@@ -80,6 +80,7 @@
 #include "gui_boxmenu.h"
 #include "gui_soundmsgs.h"
 #include "ariadne.h"
+#include "net_game.h"
 
 int test_variable;
 
@@ -182,8 +183,6 @@ char sound_dir[64] = "SOUND";
 short default_loc_player = 0;
 unsigned long gold_per_hoarde = 2000;
 struct StartupParameters start_params;
-/** Structure used for storing 'localised parameters' when resyncing net game*/
-struct Boing boing;
 
 //long const imp_spangle_effects[] = {
 
@@ -367,8 +366,6 @@ DLLIMPORT void _DK_directly_cast_spell_on_thing(unsigned char plridx, unsigned c
 DLLIMPORT void _DK_lose_level(struct PlayerInfo *player);
 DLLIMPORT long _DK_battle_move_player_towards_battle(struct PlayerInfo *player, long var);
 DLLIMPORT void _DK_level_lost_go_first_person(long plridx);
-DLLIMPORT void _DK_process_network_error(long);
-DLLIMPORT void _DK_resync_game(void);
 DLLIMPORT void __cdecl _DK_set_gamma(char, int);
 DLLIMPORT void _DK_complete_level(struct PlayerInfo *player);
 DLLIMPORT void _DK_free_swipe_graphic(void);
@@ -385,7 +382,6 @@ DLLIMPORT void _DK_draw_overlay_things(long zoom);
 DLLIMPORT void _DK_draw_overlay_compass(long a1, long a2);
 DLLIMPORT unsigned char _DK_find_first_battle_of_mine(unsigned char idx);
 DLLIMPORT void _DK_set_engine_view(struct PlayerInfo *player, long a2);
-DLLIMPORT void _DK_startup_network_game(void);
 DLLIMPORT void _DK_reinit_level_after_load(void);
 DLLIMPORT void _DK_reinit_tagged_blocks_for_player(unsigned char idx);
 DLLIMPORT void _DK_reset_gui_based_on_player_mode(void);
@@ -437,7 +433,6 @@ DLLIMPORT void _DK_frontend_set_state(long);
 DLLIMPORT void _DK_demo(void);
 DLLIMPORT void _DK_draw_gui(void);
 DLLIMPORT void _DK_save_settings(void);
-DLLIMPORT int _DK_setup_network_service(int srvidx);
 DLLIMPORT int _DK_process_3d_sounds(void);
 DLLIMPORT int _DK_LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
 DLLIMPORT struct Thing *_DK_get_crate_at_position(long x, long y);
@@ -482,6 +477,7 @@ DLLIMPORT void _DK_place_single_slab_type_on_map(long a1, unsigned char a2, unsi
 DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long a2);
 DLLIMPORT unsigned char _DK_alter_rock_style(unsigned char a1, signed char a2, signed char a3, unsigned char a4);
 DLLIMPORT long _DK_wp_check_map_pos_valid(struct Wander *wandr, long a1);
+DLLIMPORT void _DK_startup_network_game(void);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 #ifdef __cplusplus
@@ -1383,38 +1379,6 @@ void clear_creature_pool(void)
 void clear_slab_dig(long a1, long a2, char a3)
 {
   _DK_clear_slab_dig(a1, a2, a3);
-}
-
-long modem_initialise_callback(void)
-{
-  if (is_key_pressed(KC_ESCAPE, KM_DONTCARE))
-  {
-    clear_key_pressed(KC_ESCAPE);
-    return -7;
-  }
-  if (LbScreenLock() == Lb_SUCCESS)
-  {
-    draw_text_box(gui_strings[531]); // Initialising Modem
-    LbScreenUnlock();
-  }
-  LbScreenSwap();
-  return 0;
-}
-
-long modem_connect_callback(void)
-{
-  if (is_key_pressed(KC_ESCAPE, KM_DONTCARE))
-  {
-    clear_key_pressed(KC_ESCAPE);
-    return -7;
-  }
-  if (LbScreenLock() == Lb_SUCCESS)
-  {
-    draw_text_box(gui_strings[532]); // Connecting Modem
-    LbScreenUnlock();
-  }
-  LbScreenSwap();
-  return 0;
 }
 
 void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag flg)
@@ -2616,91 +2580,6 @@ short play_smacker_file(char *filename, int nstate)
   if (nstate > -2)
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
   return result;
-}
-
-void process_network_error(long errcode)
-{
-  char *text;
-  switch (errcode)
-  {
-  case 4:
-      text = gui_strings[535];
-      break;
-  case 5:
-      text = gui_strings[536];
-      break;
-  case 6:
-      text = gui_strings[537];
-      break;
-  case 7:
-      text = gui_strings[538];
-      break;
-  case -1:
-      text = gui_strings[539];
-      break;
-  case -2:
-      text = gui_strings[540];
-      break;
-  case -800:
-      text = gui_strings[541];
-      break;
-  case -801:
-      text = gui_strings[542];
-      break;
-  case -802:
-      text = gui_strings[543];
-      break;
-  default:
-      ERRORLOG("Unknown modem error code %ld",errcode);
-      return;
-  }
-  display_centered_message(3000, text);
-}
-
-short setup_network_service(int srvidx)
-{
-  struct SerialInitData *init_data;
-  long maxplayrs;
-
-  switch (srvidx)
-  {
-  case 0:
-      maxplayrs = 2;
-      init_data = &_DK_net_serial_data;
-      set_flag_byte(&game.flags_font,FFlg_unk10,true);
-      SYNCMSG("Initializing %d-players serial network",maxplayrs);
-      break;
-  case 1:
-      maxplayrs = 2;
-      init_data = &_DK_net_modem_data;
-      set_flag_byte(&game.flags_font,FFlg_unk10,true);
-      SYNCMSG("Initializing %d-players modem network",maxplayrs);
-      break;
-  case 2:
-      maxplayrs = 4;
-      init_data = NULL;
-      set_flag_byte(&game.flags_font,FFlg_unk10,false);
-      SYNCMSG("Initializing %d-players IPX network",maxplayrs);
-      break;
-  default:
-      maxplayrs = 4;
-      init_data = NULL;
-      set_flag_byte(&game.flags_font,FFlg_unk10,false);
-      SYNCMSG("Initializing %d-players type %d network",maxplayrs,srvidx);
-      break;
-  }
-  memset(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
-  if ( LbNetwork_Init(srvidx, _DK_net_guid, maxplayrs, &net_screen_packet, 0xCu, &net_player_info[0], init_data) )
-  {
-    if (srvidx != 0)
-      process_network_error(-800);
-    return 0;
-  }
-  net_service_index_selected = srvidx;
-  if ((game.flags_font & FFlg_unk10) != 0)
-    LbNetwork_ChangeExchangeTimeout(10);
-  frontend_set_state(FeSt_NET_SESSION);
-  return 1;
 }
 
 void init_censorship(void)
@@ -5574,147 +5453,6 @@ void init_good_player_as(long plr_idx)
   player->id_number = game.hero_player_num;
 }
 
-void store_localised_game_structure(void)
-{
-  boing.field_0 = game.field_1517F6;
-  boing.field_1 = game.comp_player_aggressive;
-  boing.field_2 = game.comp_player_defensive;
-  boing.field_3 = game.comp_player_construct;
-  boing.field_4 = game.comp_player_creatrsonly;
-  boing.field_5 = game.creatures_tend_1;
-  boing.field_6 = game.creatures_tend_2;
-  boing.field_7 = game.hand_over_subtile_x;
-  boing.field_9 = game.hand_over_subtile_y;
-  boing.field_B = game.field_151801;
-  boing.field_F = game.field_151805;
-  boing.field_13 = game.field_151809;
-  boing.field_17 = game.chosen_spell_type;
-  boing.field_1B = game.chosen_spell_look;
-  boing.field_1F = game.chosen_spell_tooltip;
-  boing.field_23 = game.numfield_151819;
-  boing.field_27 = game.numfield_15181D;
-  boing.field_2B = game.numfield_151821;
-
-}
-
-void recall_localised_game_structure(void)
-{
-    game.field_1517F6 = boing.field_0;
-    game.comp_player_aggressive = boing.field_1;
-    game.comp_player_defensive = boing.field_2;
-    game.comp_player_construct = boing.field_3;
-    game.comp_player_creatrsonly = boing.field_4;
-    game.creatures_tend_1 = boing.field_5;
-    game.creatures_tend_2 = boing.field_6;
-    game.hand_over_subtile_x = boing.field_7;
-    game.hand_over_subtile_y = boing.field_9;
-    game.field_151801 = boing.field_B;
-    game.field_151805 = boing.field_F;
-    game.field_151809 = boing.field_13;
-    game.chosen_spell_type = boing.field_17;
-    game.chosen_spell_look = boing.field_1B;
-    game.chosen_spell_tooltip = boing.field_1F;
-    game.numfield_151819 = boing.field_23;
-    game.numfield_15181D = boing.field_27;
-    game.numfield_151821 = boing.field_2B;
-}
-
-long get_resync_sender(void)
-{
-  struct PlayerInfo *player;
-  int i;
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
-  {
-    player = get_player(i);
-    if (player_exists(player) && ((player->field_0 & 0x40) == 0))
-      return i;
-  }
-  return -1;
-}
-
-void draw_out_of_sync_box(long a1, long a2, long box_width)
-{
-  long min_width,max_width;
-  long ornate_width,ornate_height;
-  long x,y;
-  long text_x,text_y,text_h;
-  min_width = 2*a1;
-  max_width = 2*a2;
-  if (min_width > max_width)
-  {
-    min_width = max_width;
-  }
-  if (min_width < 0)
-  {
-    min_width = 0;
-  }
-  if (LbScreenLock() == Lb_SUCCESS)
-  {
-    ornate_width = 200;
-    ornate_height = 100;
-    x = box_width + (MyScreenWidth-box_width-ornate_width) / 2;
-    y = (MyScreenHeight-ornate_height) / 2;
-    draw_ornate_slab64k(x, y, ornate_width, ornate_height);
-    LbTextSetFont(winfont);
-    lbDisplay.DrawFlags = 0x100;
-    LbTextSetWindow(x/pixel_size, y/pixel_size, ornate_width/pixel_size, ornate_height/pixel_size);
-    text_h = LbTextHeight("Wq");
-    text_x = x-max_width+100;
-    text_y = y+58;
-    LbTextDraw(0/pixel_size, (50-pixel_size*text_h)/pixel_size, gui_strings[869]);
-    LbDrawBox(text_x/pixel_size, text_y/pixel_size, 2*max_width/pixel_size, 16/pixel_size, 0);
-    LbDrawBox(text_x/pixel_size, text_y/pixel_size, 2*min_width/pixel_size, 16/pixel_size, 133);
-    LbScreenUnlock();
-    LbScreenSwap();
-  }
-}
-
-TbBool send_resync_game(void)
-{
-  TbFileHandle fh;
-  char *fname;
-  fname = prepare_file_path(FGrp_Save,"resync.dat");
-  fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
-  if (fh == -1)
-  {
-    ERRORLOG("Can't open resync file.");
-    return false;
-  }
-     //TODO NET write the resync function
-  LbFileClose(fh);
-  return false;
-}
-
-TbBool receive_resync_game(void)
-{
-     //TODO NET write the resync function
-  return false;
-}
-
-void resync_game(void)
-{
-  struct PlayerInfo *player;
-  int i;
-  SYNCDBG(2,"Starting");
-  //return _DK_resync_game();
-  player = get_my_player();
-  draw_out_of_sync_box(0, 32, player->engine_window_x);
-  reset_eye_lenses();
-  store_localised_game_structure();
-  i = get_resync_sender();
-  if (is_my_player_number(i))
-  {
-    send_resync_game();
-  } else
-  {
-    receive_resync_game();
-  }
-  recall_localised_game_structure();
-  reinit_level_after_load();
-  set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-  set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
-}
-
 void message_add(char c)
 {
   _DK_message_add(c);
@@ -6392,13 +6130,6 @@ void init_lookups(void)
     game.columns_lookup[i] = &game.columns[i];
   }
   game.columns_end = &game.columns[COLUMNS_COUNT];
-}
-
-void  toggle_ally_with_player(long plyridx, unsigned int allyidx)
-{
-  struct PlayerInfo *player;
-  player = get_player(plyridx);
-  player->allied_players ^= (1 << allyidx);
 }
 
 void set_mouse_light(struct PlayerInfo *player)
@@ -9807,124 +9538,6 @@ short init_animating_texture_maps(void)
   return update_animating_texture_maps();
 }
 
-void setup_alliances(void)
-{
-  int i;
-  struct PlayerInfo *player;
-  for (i=0; i<PLAYERS_COUNT; i++)
-  {
-      player = get_player(i);
-      if ( (!is_my_player_number(i)) && (player_exists(player)) )
-      {
-          if (frontend_is_player_allied(my_player_number, i))
-          {
-            toggle_ally_with_player(my_player_number, i);
-            toggle_ally_with_player(i, my_player_number);
-          }
-      }
-  }
-}
-
-/**
- * Exchanges verification packets between all players.
- * @return Returns true if all players return same checksum.
- */
-short perform_checksum_verification()
-{
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  struct Thing *thing;
-  unsigned long checksum_mem;
-  short result;
-  int i;
-  player = get_my_player();
-  result = true;
-  checksum_mem = 0;
-  for (i=1; i<THINGS_COUNT; i++)
-  {
-      thing = game.things_lookup[i];
-      if (thing_is_invalid(thing))
-        continue;
-      if ((thing->field_0 & 0x01) != 0)
-      {
-        checksum_mem += thing->mappos.z.val + thing->mappos.y.val + thing->mappos.x.val;
-      }
-  }
-  clear_packets();
-  pckt = get_packet(my_player_number);
-  set_packet_action(pckt, 12, 0, 0, 0, 0);
-  pckt->chksum = checksum_mem + game.action_rand_seed;
-  if (LbNetwork_Exchange(pckt))
-  {
-    ERRORLOG("Network exchange failed on level checksum verification");
-    result = false;
-  }
-  if ( checksums_different() )
-  {
-    ERRORLOG("Level checksums different for network players");
-    result = false;
-  }
-  return result;
-}
-
-short setup_select_player_number(void)
-{
-  struct PlayerInfo *player;
-  short is_set;
-  int i,k;
-  is_set = 0;
-  k = 0;
-  SYNCDBG(6,"Starting");
-  for (i=0; i<NET_PLAYERS_COUNT; i++)
-  {
-      player = get_player(i);
-      if ( net_player_info[i].active )
-      {
-        player->packet_num = i;
-        if ((!is_set) && (my_player_number == i))
-        {
-          is_set = 1;
-          my_player_number = k;
-        }
-        k++;
-      }
-  }
-  return is_set;
-}
-
-void setup_exchange_player_number(void)
-{
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  int i,k;
-  SYNCDBG(6,"Starting");
-  clear_packets();
-  player = get_my_player();
-  pckt = get_packet_direct(my_player_number);
-  set_packet_action(pckt, 10, player->field_2C, settings.field_3, 0, 0);
-  if (LbNetwork_Exchange(pckt))
-      ERRORLOG("Network Exchange failed");
-  k = 0;
-  for (i=0; i<NET_PLAYERS_COUNT; i++)
-  {
-      pckt = get_packet_direct(i);
-      if ((net_player_info[i].active) && (pckt->action == 10))
-      {
-          player = get_player(k);
-          player->id_number = k;
-          player->field_0 |= 0x01;
-          if (pckt->field_8 < 1)
-            player->field_4B5 = 2;
-          else
-            player->field_4B5 = 5;
-          player->field_2C = pckt->field_6;
-          init_player(player, 0);
-          strncpy(player->field_15,net_player[i].name,sizeof(struct TbNetworkPlayerName));
-          k++;
-      }
-  }
-}
-
 void init_players_local_game(void)
 {
   struct PlayerInfo *player;
@@ -9937,34 +9550,6 @@ void init_players_local_game(void)
   else
     player->field_4B5 = 5;
   init_player(player, 0);
-}
-
-void init_players_network_game(void)
-{
-  SYNCDBG(4,"Starting");
-  if (LbNetwork_ChangeExchangeBuffer(game.packets, sizeof(struct Packet)))
-      ERRORLOG("Unable to reinitialise ExchangeBuffer");
-  setup_select_player_number();
-  setup_exchange_player_number();
-  perform_checksum_verification();
-  setup_alliances();
-}
-
-void setup_count_players(void)
-{
-  int i;
-  if (game.flagfield_14EA4A == 2)
-  {
-    game.field_14E495 = 1;
-  } else
-  {
-    game.field_14E495 = 0;
-    for (i=0; i<NET_PLAYERS_COUNT; i++)
-    {
-      if (net_player_info[i].active)
-        game.field_14E495++;
-    }
-  }
 }
 
 void startup_saved_packet_game(void)
@@ -10064,11 +9649,6 @@ void faststartup_network_game(void)
   startup_network_game();
   player = get_my_player();
   player->field_6 &= ~0x02;
-}
-
-int setup_old_network_service(void)
-{
-    return setup_network_service(net_service_index_selected);
 }
 
 void wait_at_frontend(void)

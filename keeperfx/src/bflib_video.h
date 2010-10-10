@@ -3,7 +3,7 @@
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
 /** @file bflib_video.h
- *     Header file for bflib_video.cpp.
+ *     Header file for bflib_video.c.
  * @par Purpose:
  *     Video support library for 8-bit graphics.
  * @par Comment:
@@ -120,11 +120,17 @@ struct ScreenModeInfo {
 typedef struct ScreenModeInfo TbScreenModeInfo;
 
 struct DisplayStruct {
+        /** Pointer to physical screen buffer, if locked. */
         uchar *PhysicalScreen;
+        /** Pointer to graphics screen buffer, if locked. */
         uchar *WScreen;
+        /** Pointer to glass map, used for 8-bit video transparency. */
         uchar *GlassMap;
+        /** Pointer to fade table, used for 8-bit video fading. */
         uchar *FadeTable;
+        /** Pointer to graphics window buffer, if locked. */
         uchar *GraphicsWindowPtr;
+        /** Sprite used as mouse cursor. */
         struct TbSprite *MouseSprite;
         /** Resolution in width of the current video mode.
          *  Note that it's not always "physical" size. */
@@ -144,19 +150,26 @@ struct DisplayStruct {
         long GraphicsWindowWidth;
         /** Current graphics window height (size in Y axis). */
         long GraphicsWindowHeight;
+        /** Current mouse clipping window start X coordinate. */
         long MouseWindowX;
+        /** Current mouse clipping window start Y coordinate. */
         long MouseWindowY;
+        /** Current mouse clipping window width (in pixels). */
         long MouseWindowWidth;
+        /** Current mouse clipping window height (in pixels). */
         long MouseWindowHeight;
         long MouseX;
         long MouseY;
         long MMouseX;
         long MMouseY;
+        /** Mouse position during button release, X coordinate. */
         long RMouseX;
+        /** Mouse position during button release, Y coordinate. */
         long RMouseY;
         ushort DrawFlags;
         ushort OldVideoMode;
         ushort ScreenMode;
+        /** VESA set-up flag, used only with VBE video modes. */
         uchar VesaIsSetUp;
         uchar LeftButton;
         uchar RightButton;
@@ -168,7 +181,9 @@ struct DisplayStruct {
         uchar RMiddleButton;
         uchar RRightButton;
         uchar FadeStep;
+        /** Selected drawing colour index. */
         uchar DrawColour;
+        /** Currently active colour palette. */
         uchar *Palette;
 };
 typedef struct DisplayStruct TbDisplayStruct;
