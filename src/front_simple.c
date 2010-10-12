@@ -315,7 +315,7 @@ short show_bitmap_screen(struct ActiveBitmap *actv_bmp,TbClockMSec tmdelay)
  */
 TbBool draw_clear_screen(void)
 {
-    LbPaletteDataClear(palette_buf);
+    LbPaletteDataFillBlack(palette_buf);
     LbPaletteSet(palette_buf);
     LbScreenClear(0);
     LbScreenSwap();

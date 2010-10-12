@@ -887,7 +887,7 @@ TbBool setup_screen_mode_zero(unsigned short nmode)
   TbScreenModeInfo *mdinfo;
   SYNCDBG(4,"Setting up mode %d",(int)nmode);
   mdinfo = LbScreenGetModeInfo(nmode);
-  LbPaletteDataClear(_DK_palette);
+  LbPaletteDataFillBlack(_DK_palette);
   if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 2, 0) != 1)
   {
       ERRORLOG("Unable to setup screen resolution %s (mode %d)",

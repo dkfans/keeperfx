@@ -47,9 +47,13 @@ volatile TbBool lbUseSdk = true;
 /** Informs if the application window is active (focused on screen). */
 extern volatile TbBool lbAppActive;
 /** True if we have two surfaces. */
-TbBool lbHasSecondSurface;
+volatile TbBool lbHasSecondSurface;
 /** True if we request the double buffering to be on in next mode switch. */
 TbBool lbDoubleBufferingRequested;
+/** Colour palette buffer, to be used inside lbDisplay. */
+unsigned char lbPalette[PALETTE_SIZE];
+/** Driver-specific colour palette buffer. */
+SDL_Color lbPaletteColors[PALETTE_COLORS];
 
 char lbDrawAreaTitle[128] = "Bullfrog Shell";
 volatile TbBool lbInteruptMouse;
@@ -216,40 +220,40 @@ long LbPaletteFade(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag f
 {
     if (flg == Lb_PALETTE_FADE_CLOSED)
     {
-      // Finish the fading fast
-      LbPaletteGet(from_pal);
-      if (pal == NULL)
-      {
-        pal = to_pal;
-        memset(to_pal, 0, PALETTE_SIZE);
-      }
-      fade_count = 0;
-      do
-      {
-        LbPaletteFadeStep(from_pal,pal,fade_steps);
-        fade_count++;
-      }
-      while (fade_count <= fade_steps);
-      fade_started = false;
-      return fade_count;
+        // Finish the fading fast
+        LbPaletteGet(from_pal);
+        if (pal == NULL)
+        {
+          pal = to_pal;
+          LbPaletteDataFillBlack(to_pal);
+        }
+        fade_count = 0;
+        do
+        {
+          LbPaletteFadeStep(from_pal,pal,fade_steps);
+          fade_count++;
+        }
+        while (fade_count <= fade_steps);
+        fade_started = false;
+        return fade_count;
     }
     if (fade_started)
     {
-      fade_count++;
-      if (fade_count >= fade_steps)
-        fade_started = false;
-      if (pal == NULL)
-        pal = to_pal;
+        fade_count++;
+        if (fade_count >= fade_steps)
+          fade_started = false;
+        if (pal == NULL)
+          pal = to_pal;
     } else
     {
-      fade_count = 0;
-      fade_started = true;
-      LbPaletteGet(from_pal);
-      if (pal == NULL)
-      {
-        memset(to_pal, 0, PALETTE_SIZE);
-        pal = to_pal;
-      }
+        fade_count = 0;
+        fade_started = true;
+        LbPaletteGet(from_pal);
+        if (pal == NULL)
+        {
+            LbPaletteDataFillBlack(to_pal);
+            pal = to_pal;
+        }
     }
     LbPaletteFadeStep(from_pal,pal,fade_steps);
     return fade_count;
@@ -469,7 +473,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     //TODO: utilize this for rendering in different resolution later
     if (mdinfo->BitsPerPixel != 8)
     {
-        lbDrawSurface = SDL_CreateRGBSurface(SDL_HWSURFACE, mdinfo->Width, mdinfo->Height, 8, 0, 0, 0, 0);
+        lbDrawSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, mdinfo->Width, mdinfo->Height, 8, 0, 0, 0, 0);
         if (lbDrawSurface == NULL) {
             ERRORLOG("Can't create secondary surface");
             LbScreenReset();
@@ -480,26 +484,19 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
 
     lbDisplay.DrawFlags = 0;
     lbDisplay.DrawColour = 0;
-    lbDisplay.GraphicsScreenWidth = mdinfo->Width;
-    lbDisplay.GraphicsScreenHeight = mdinfo->Height;
     lbDisplay.PhysicalScreenWidth = mdinfo->Width;
     lbDisplay.PhysicalScreenHeight = mdinfo->Height;
     lbDisplay.ScreenMode = mode;
+    lbDisplay.PhysicalScreen = NULL;
+    // The graphics screen size will be later updated to screen pitch by LbScreenLock()
+    lbDisplay.GraphicsScreenWidth = mdinfo->Width;
+    lbDisplay.GraphicsScreenHeight = mdinfo->Height;
     lbDisplay.WScreen = NULL;
-    LbScreenSetGraphicsWindow(0, 0, mdinfo->Width, mdinfo->Height);
+    lbDisplay.GraphicsWindowPtr = NULL;
 
     SYNCLOG("Mode %dx%dx%d setup succeeded",(int)lbScreenSurface->w,(int)lbScreenSurface->h,(int)lbScreenSurface->format->BitsPerPixel);
     if (palette != NULL)
-      LbPaletteSet(palette);
-    lbDisplay.PhysicalScreen = NULL;
-    lbDisplay.GraphicsWindowPtr = NULL;
-    lbDisplay.ScreenMode = mode;
-    lbDisplay.GraphicsScreenHeight = mdinfo->Height;
-    lbDisplay.GraphicsScreenWidth = mdinfo->Width;
-    lbDisplay.PhysicalScreenWidth = mdinfo->Width;
-    lbDisplay.PhysicalScreenHeight = mdinfo->Height;
-    lbDisplay.DrawColour = 0;
-    lbDisplay.DrawFlags = 0;
+        LbPaletteSet(palette);
     LbScreenSetGraphicsWindow(0, 0, mdinfo->Width, mdinfo->Height);
     LbTextSetWindow(0, 0, mdinfo->Width, mdinfo->Height);
     SYNCDBG(8,"Done filling display properties struct");
@@ -525,14 +522,25 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     return Lb_SUCCESS;
 }
 
-/** Clears the 8-bit video palette with black.
+/** Clears the 8-bit video palette with black colour.
  *
  * @param palette Pointer to the palette colors data.
  * @return Lb_SUCCESS, or error code.
  */
-TbResult LbPaletteDataClear(unsigned char *palette)
+TbResult LbPaletteDataFillBlack(unsigned char *palette)
 {
     memset(palette, 0, PALETTE_SIZE);
+    return Lb_SUCCESS;
+}
+
+/** Clears the 8-bit video palette with white colour.
+ *
+ * @param palette Pointer to the palette colors data.
+ * @return Lb_SUCCESS, or error code.
+ */
+TbResult LbPaletteDataFillWhite(unsigned char *palette)
+{
+    memset(palette, 0x3F, PALETTE_SIZE);
     return Lb_SUCCESS;
 }
 
@@ -543,6 +551,7 @@ TbResult LbPaletteDataClear(unsigned char *palette)
  */
 TbResult LbPaletteSet(unsigned char *palette)
 {
+    unsigned char * bufColors;
     SDL_Color * destColors;
     const unsigned char * srcColors;
     unsigned long i;
@@ -550,25 +559,32 @@ TbResult LbPaletteSet(unsigned char *palette)
     SYNCDBG(12,"Starting");
     if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
       return Lb_FAIL;
-    destColors = (SDL_Color *) malloc(sizeof(SDL_Color) * PALETTE_COLORS);
+    //destColors = (SDL_Color *) malloc(sizeof(SDL_Color) * PALETTE_COLORS);
+    destColors = lbPaletteColors;
     srcColors = palette;
+    bufColors = lbPalette;
     if ((destColors == NULL) || (srcColors == NULL))
       return Lb_FAIL;
     ret = Lb_SUCCESS;
     for (i = 0; i < PALETTE_COLORS; i++) {
-        destColors[i].r = (srcColors[0] << 2);
-        destColors[i].g = (srcColors[1] << 2);
-        destColors[i].b = (srcColors[2] << 2);
+        // note that bufColors and srcColors could be the same pointer
+        bufColors[0] = srcColors[0] & 0x3F;
+        bufColors[1] = srcColors[1] & 0x3F;
+        bufColors[2] = srcColors[2] & 0x3F;
+        destColors[i].r = (bufColors[0] << 2);
+        destColors[i].g = (bufColors[1] << 2);
+        destColors[i].b = (bufColors[2] << 2);
         srcColors += 3;
+        bufColors += 3;
     }
     //if (SDL_SetPalette(lbDrawSurface, SDL_LOGPAL | SDL_PHYSPAL,
     if (SDL_SetColors(lbDrawSurface,
-        destColors, 0, PALETTE_COLORS) != 1) {
+        lbPaletteColors, 0, PALETTE_COLORS) != 1) {
         SYNCDBG(8,"SDL SetPalette failed.");
         ret = Lb_FAIL;
     }
-    free(destColors);
-    lbDisplay.Palette = palette;
+    //free(destColors);
+    lbDisplay.Palette = lbPalette;
     return ret;
 }
 
@@ -579,20 +595,34 @@ TbResult LbPaletteSet(unsigned char *palette)
  */
 TbResult LbPaletteGet(unsigned char *palette)
 {
-    const SDL_Color * srcColors;
-    unsigned char * destColors;
-    unsigned long i;
     SYNCDBG(12,"Starting");
     if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
       return Lb_FAIL;
+    if (lbDisplay.Palette == NULL)
+        return Lb_FAIL;
+    memcpy(palette,lbDisplay.Palette,PALETTE_SIZE);
+/*  // Getting the palette in SDL way may sometimes lead to problems.
+    // Instead, we will remember palette which was set the last time.
+    //
+    const SDL_Color * srcColors;
+    unsigned char * destColors;
+    unsigned long i;
+    unsigned long colours_num;
+    colours_num = lbDrawSurface->format->palette->ncolors;
+    if (colours_num > PALETTE_COLORS) {
+        colours_num = PALETTE_COLORS;
+    } else
+    if (colours_num < PALETTE_COLORS) {
+        memset(palette,0,PALETTE_SIZE);
+    }
     srcColors = lbDrawSurface->format->palette->colors;
     destColors = palette;
-    for (i = 0; i < PALETTE_COLORS; i++) {
+    for (i = 0; i < colours_num; i++) {
         destColors[0] = (srcColors[i].r >> 2);
         destColors[1] = (srcColors[i].g >> 2);
         destColors[2] = (srcColors[i].b >> 2);
         destColors += 3;
-    }
+    }*/
     return Lb_SUCCESS;
 }
 

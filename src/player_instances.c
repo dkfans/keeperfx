@@ -654,7 +654,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
   struct Thing *thing;
   struct Coord3d mappos;
   //return _DK_pinstfs_zoom_to_heart(player, n);
-  memset(zoom_to_heart_palette, 0x3F, sizeof(zoom_to_heart_palette));
+  LbPaletteDataFillWhite(zoom_to_heart_palette);
   light_turn_light_off(player->field_460);
   dungeon = get_players_dungeon(player);
   thing = thing_get(dungeon->dnheart_idx);

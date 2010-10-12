@@ -182,7 +182,8 @@ struct DisplayStruct {
         uchar FadeStep;
         /** Selected drawing colour index. */
         uchar DrawColour;
-        /** Currently active colour palette. */
+        /** Currently active colour palette.
+         *  LbPaletteGet() should be used to retrieve a copy of the palette. */
         uchar *Palette;
 };
 typedef struct DisplayStruct TbDisplayStruct;
@@ -229,6 +230,7 @@ extern unsigned short lbVesaPage;
 */
 extern volatile TbBool lbScreenInitialised;
 extern volatile TbBool lbUseSdk;
+extern unsigned char lbPalette[PALETTE_SIZE];
 /******************************************************************************/
 TbResult LbScreenInitialize(void);
 TbResult LbScreenSetDoubleBuffering(TbBool state);
@@ -265,7 +267,8 @@ TbResult LbPaletteStopOpenFade(void);
 TbResult LbPaletteSet(unsigned char *palette);
 TbResult LbPaletteGet(unsigned char *palette);
 TbPixel LbPaletteFindColour(unsigned char *pal, unsigned char r, unsigned char g, unsigned char b);
-TbResult LbPaletteDataClear(unsigned char *palette);
+TbResult LbPaletteDataFillBlack(unsigned char *palette);
+TbResult LbPaletteDataFillWhite(unsigned char *palette);
 
 TbResult LbScreenStoreGraphicsWindow(TbGraphicsWindow *grwnd);
 TbResult LbScreenLoadGraphicsWindow(TbGraphicsWindow *grwnd);
