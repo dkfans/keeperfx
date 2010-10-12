@@ -4367,7 +4367,7 @@ short setup_game(void)
   // loading and no CD screens can run in both 320x2?0 and 640x4?0.
   if ( result && (!game.no_intro) )
   {
-      LbPaletteDataClear(_DK_palette);
+      LbPaletteDataFillBlack(_DK_palette);
       int mode_ok = LbScreenSetup(get_movies_vidmode(), 320, 200, _DK_palette, 2, 0);
       if (mode_ok != 1)
       {

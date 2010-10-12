@@ -23,12 +23,16 @@
 #include "bflib_basics.h"
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
+#include "bflib_video.h"
+#include "bflib_vidsurface.h"
 #include "bflib_planar.h"
 #include <SDL/SDL.h>
 #include <windows.h>
 
 /******************************************************************************/
 extern volatile TbBool lbScreenInitialised;
+extern volatile TbBool lbHasSecondSurface;
+extern SDL_Color lbPaletteColors[PALETTE_COLORS];
 
 volatile TbBool lbAppActive;
 volatile int lbUserQuit = 0;
@@ -160,6 +164,10 @@ static void process_event(const SDL_Event *ev)
         if (ev->active.state & SDL_APPACTIVE) {
             lbAppActive = (ev->active.gain != 0);
             SDL_ShowCursor(lbAppActive ? SDL_DISABLE : SDL_ENABLE);
+        }
+        if ((lbAppActive) && (!lbHasSecondSurface) && (lbDisplay.Palette != NULL)) {
+            // Below is the faster version of LbPaletteSet(lbDisplay.Palette);
+            SDL_SetColors(lbDrawSurface,lbPaletteColors, 0, PALETTE_COLORS);
         }
         break;
 
