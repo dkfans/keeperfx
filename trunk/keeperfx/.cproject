@@ -120,7 +120,6 @@
 <buildTargets>
 <target name="release" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 <buildCommand>mingw32-make</buildCommand>
-<buildArguments/>
 <buildTarget>all</buildTarget>
 <stopOnError>true</stopOnError>
 <useDefaultCommand>true</useDefaultCommand>
@@ -128,7 +127,6 @@
 </target>
 <target name="debug" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 <buildCommand>mingw32-make</buildCommand>
-<buildArguments/>
 <buildTarget>debug</buildTarget>
 <stopOnError>true</stopOnError>
 <useDefaultCommand>true</useDefaultCommand>
@@ -136,8 +134,15 @@
 </target>
 <target name="clean" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 <buildCommand>mingw32-make</buildCommand>
-<buildArguments/>
 <buildTarget>clean</buildTarget>
+<stopOnError>true</stopOnError>
+<useDefaultCommand>true</useDefaultCommand>
+<runAllBuilders>true</runAllBuilders>
+</target>
+<target name="docs" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+<buildCommand>mingw32-make</buildCommand>
+<buildArguments/>
+<buildTarget>docs</buildTarget>
 <stopOnError>true</stopOnError>
 <useDefaultCommand>true</useDefaultCommand>
 <runAllBuilders>true</runAllBuilders>
@@ -263,7 +268,6 @@
 <buildTargets>
 <target name="release" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 <buildCommand>mingw32-make</buildCommand>
-<buildArguments/>
 <buildTarget>all</buildTarget>
 <stopOnError>true</stopOnError>
 <useDefaultCommand>true</useDefaultCommand>
@@ -271,7 +275,6 @@
 </target>
 <target name="debug" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 <buildCommand>mingw32-make</buildCommand>
-<buildArguments/>
 <buildTarget>debug</buildTarget>
 <stopOnError>true</stopOnError>
 <useDefaultCommand>true</useDefaultCommand>
@@ -279,8 +282,15 @@
 </target>
 <target name="clean" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 <buildCommand>mingw32-make</buildCommand>
-<buildArguments/>
 <buildTarget>clean</buildTarget>
+<stopOnError>true</stopOnError>
+<useDefaultCommand>true</useDefaultCommand>
+<runAllBuilders>true</runAllBuilders>
+</target>
+<target name="docs" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+<buildCommand>mingw32-make</buildCommand>
+<buildArguments/>
+<buildTarget>docs</buildTarget>
 <stopOnError>true</stopOnError>
 <useDefaultCommand>true</useDefaultCommand>
 <runAllBuilders>true</runAllBuilders>

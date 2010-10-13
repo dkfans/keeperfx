@@ -22,8 +22,11 @@ CC   = gcc
 WINDRES = windres
 DLLTOOL = dlltool
 EXETODLL = peresec/bin/peresec.exe
+RM = rm -f
+DOXYTOOL = doxygen
 BIN    = bin/keeperfx.exe
 DBGBIN = bin/keeperfx_dbg.exe
+GENSRC = obj/ver_defs.h
 RES    = obj/keeperfx_stdres.res
 LIBS   = lib/libkeeperfx.a
 OBJS   = \
@@ -154,6 +157,9 @@ obj/vidmode.o \
 $(RES)
 
 LINKOBJ  = $(OBJS)
+# load program version
+include version.mk
+VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(VER_BUILD)
 # include and library directories
 LINKLIB =  -L"directx/lib" -L"lib" -L"sdl/lib" -mwindows -lmingw32 -lkeeperfx -lwinmm -lddraw -lSDLmain -lSDL -lSDL_net 
 INCS =  -I"directx/include" -I"sdl/include"
@@ -170,21 +176,25 @@ WARNFLAGS = -Wall -Wno-sign-compare -Wno-unused-parameter
 # disabled warnings: -Wextra -Wtype-limits
 CXXFLAGS = $(CXXINCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
 CFLAGS = $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
-RM = rm -f
 
-.PHONY: all all-before all-after debug clean clean-custom
+.PHONY: all all-before all-after debug docs docsdox clean clean-custom
 
 all: all-before $(BIN) all-after
 
 debug: DBGFLAGS = -DBFDEBUG_LEVEL=10
 debug: all-before $(DBGBIN) all-after
 
+docs: docsdox
+
+docsdox: docs/doxygen.conf
+	VERSION=$(VER_STRING) $(DOXYTOOL) docs/doxygen.conf
+
 clean: clean-custom
-	-${RM} $(OBJS) $(BIN) $(DBGBIN) $(LIBS)
+	-$(RM) $(OBJS) $(BIN) $(DBGBIN) $(LIBS)
 	$(MAKE) clean -C peresec
 	-@echo ' '
 
-$(BIN) $(DBGBIN): $(OBJS) $(LIBS)
+$(BIN) $(DBGBIN): $(GENSRC) $(OBJS) $(LIBS)
 	@echo 'Building target: $@'
 	$(CPP) $(LINKOBJ) -o "$@" $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS)
 	@echo 'Finished building target: $@'
@@ -222,6 +232,13 @@ obj/%.o: src/%.c
 #	$(CC) $(CFLAGS) -o"$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
+
+obj/ver_defs.h: version.mk
+	@echo '#define VER_MAJOR         $(VER_MAJOR)' > "$@"
+	@echo '#define VER_MINOR         $(VER_MINOR)' >> "$@"
+	@echo '#define VER_RELEASE       $(VER_RELEASE)' >> "$@"
+	@echo '#define VER_BUILD         $(VER_BUILD)' >> "$@"
+	@echo '#define VER_STRING        "$(VER_STRING)"' >> "$@"
 
 lib/libkeeperfx.a: bin/keeperfx.dll lib/keeperfx.def
 	@echo 'Generating gcc library archive for: $<'
