@@ -28,11 +28,13 @@ CC    = $(CROSS_COMPILE)gcc
 WINDRES  = $(CROSS_COMPILE)windres
 DLLTOOL  = $(CROSS_COMPILE)dlltool
 EXETODLL = tools/peresec/bin/peresec$(CROSS_EXEEXT)
+DOXYTOOL = doxygen
 RM       = rm -f
 MV       = mv -f
 CP       = cp -f
 MKDIR    = mkdir -p
 ECHO     = @echo
+
 # Names of target binary files
 BIN      = bin/keeperfx$(EXEEXT)
 HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
@@ -253,6 +255,11 @@ std-before: libexterns
 
 hvlog-before: libexterns
 	$(MKDIR) obj/hvlog bin
+
+docs: docsdox
+
+docsdox: docs/doxygen.conf
+	VERSION=$(VER_STRING) $(DOXYTOOL) docs/doxygen.conf
 
 deep-clean: deep-clean-tools deep-clean-libexterns deep-clean-package
 
