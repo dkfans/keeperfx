@@ -237,7 +237,7 @@ TbError ServiceProvider::Initialise(struct ReceiveCallbacks *nCallbacks, void *a
 TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
 {
   unsigned char messageType;
-  unsigned long p1,p2,p3;
+  unsigned long dataLen,seqNbr,p3;
   void *imsg;
   char str[32];
   long i;
@@ -246,7 +246,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
     WARNLOG("not initialized");
     return Lb_FAIL;
   }
-  DecodeMessageStub(buf,&p1,&messageType,&p2);
+  DecodeMessageStub(buf,&dataLen,&messageType,&seqNbr);
   if (plr_id != this->localPlayerId)
   {
     i = (messageType != 0) && (messageType != 5) && (messageType != 6) && (messageType != 8);
@@ -265,10 +265,10 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
         WARNLOG("NIL target for userDataMsgCallbackProc");
         break;
       }
-      imsg = recvCallbacks->multiPlayer(this->localPlayerId, p1+4, p2, this->field_D78);
+      imsg = recvCallbacks->multiPlayer(this->localPlayerId, dataLen+4, seqNbr, this->field_D78);
       if (imsg == NULL)
         break;
-      memcpy(imsg, buf, p1+4);
+      memcpy(imsg, buf, dataLen+4);
       break;
   case NETMSGTYPE_ADD:
       memcpy(&p3, (uchar *)buf+4, sizeof(unsigned long));
@@ -282,13 +282,13 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       break;
   case NETMSGTYPE_DELETE:
       this->CheckForDeletedHost(buf);
-      memcpy(&p1, (uchar *)buf+4, 4);
-      this->DeletePlayer(p1);
+      memcpy(&dataLen, (uchar *)buf+4, 4);
+      this->DeletePlayer(dataLen);
       if (recvCallbacks->deleteMsg == NULL)
       {
         break;
       }
-      recvCallbacks->deleteMsg(p1, this->field_D78);
+      recvCallbacks->deleteMsg(dataLen, this->field_D78);
       break;
   case NETMSGTYPE_PROBABLYHOST:
       break;
@@ -298,7 +298,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
         WARNLOG("NIL target for systemUserMsgCallbackProc");
         break;
       }
-      recvCallbacks->systemUserMsg(this->localPlayerId, (char *)buf+4, p1, this->field_D78);
+      recvCallbacks->systemUserMsg(this->localPlayerId, (char *)buf+4, dataLen, this->field_D78);
       break;
   case NETMSGTYPE_MPREQEXDATA:
       memcpy(&p3, (uchar *)buf+4, sizeof(unsigned long));
@@ -306,7 +306,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       {
         break;
       }
-      recvCallbacks->mpReqExDataMsg(p3, p2, this->field_D78);
+      recvCallbacks->mpReqExDataMsg(p3, seqNbr, this->field_D78);
       break;
   case NETMSGTYPE_MPREQCOMPEXDATA:
       memcpy(&p3, (uchar *)buf+4, sizeof(unsigned long));
@@ -314,7 +314,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       {
         break;
       }
-      recvCallbacks->mpReqCompsExDataMsg(p3, p2, this->field_D78);
+      recvCallbacks->mpReqCompsExDataMsg(p3, seqNbr, this->field_D78);
       break;
   case NETMSGTYPE_UNKNOWN:
       // This callback seems to never be used
@@ -335,7 +335,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
 TbError ServiceProvider::Receive(unsigned long flags)
 {
     unsigned long playerId;
-    unsigned long decode_20bits,decode_4bits;
+    unsigned long dataLen,seqNbr;
     unsigned char messageType;
     unsigned long id;
     TbBool keepExchanging;
@@ -369,7 +369,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
 
       somePtr = NULL;
 
-      DecodeMessageStub(msgBuffer, &decode_20bits, &messageType, &decode_4bits);
+      DecodeMessageStub(msgBuffer, &dataLen, &messageType, &seqNbr);
       if (flags & 0x08)
         flags = 0xFF;
 
@@ -379,7 +379,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
           if (flags & 1) {
               somePtr = 0;
               if (recvCallbacks->multiPlayer) {
-                  somePtr = recvCallbacks->multiPlayer(playerId, decode_20bits + 4, decode_4bits, field_D78);
+                  somePtr = recvCallbacks->multiPlayer(playerId, dataLen + 4, seqNbr, field_D78);
               }
               else {
                   NETMSG("NIL target for userDataMsgCallbackProc"); //rename
@@ -505,7 +505,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
 
           memcpy(&tmpInt1, msgBuffer + 4, sizeof(tmpInt1));
           if (recvCallbacks->mpReqExDataMsg) {
-              recvCallbacks->mpReqExDataMsg(tmpInt1, decode_4bits, field_D78);
+              recvCallbacks->mpReqExDataMsg(tmpInt1, seqNbr, field_D78);
           }
 
           break;
@@ -522,14 +522,14 @@ TbError ServiceProvider::Receive(unsigned long flags)
 
           memcpy(&tmpInt1, msgBuffer + 4, sizeof(tmpInt1));
           if (recvCallbacks->mpReqCompsExDataMsg) {
-              recvCallbacks->mpReqCompsExDataMsg(tmpInt1, decode_4bits, field_D78);
+              recvCallbacks->mpReqCompsExDataMsg(tmpInt1, seqNbr, field_D78);
           }
 
           break;
       case NETMSGTYPE_UNIDIRECTIONAL:
           if (flags & 0x40) {
               if (recvCallbacks->unidirectionalMsg) {
-                  somePtr = recvCallbacks->unidirectionalMsg(playerId, decode_20bits + 4, field_D78);
+                  somePtr = recvCallbacks->unidirectionalMsg(playerId, dataLen + 4, field_D78);
               }
               else {
                   NETMSG("NIL target for unidirectionalMsgCallbackProc");
@@ -557,7 +557,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
               break;
           }
 
-          msgLen = decode_20bits + 4;
+          msgLen = dataLen + 4;
           somePtr = LbMemoryAlloc(msgLen); //TODO: check that this is freed somewhere...
           ReadMessage(&playerId, somePtr, &msgLen);
           recvCallbacks->field_24(playerId, somePtr);
