@@ -124,6 +124,90 @@ struct UnidirectionalDataMessage dataMessage;
 struct UnidirectionalRTSMessage rtsMessage;
 /******************************************************************************/
 
+// New network code data definitions start here ===============================
+
+#define MAX_N_USERS 16
+
+typedef int NetUserId;
+
+#define SERVER_ID   0
+
+enum NetUserProgress
+{
+	USER_UNUSED,			//array slot unused
+    USER_CONNECTED,			//connected user on slot
+    USER_LOGGEDIN,          //sent name and password and was accepted
+    USER_SYNCEDUSERS,       //user now got his id and all other players' info; life is good
+};
+
+struct NetUser
+{
+    NetUserId               id; //same as array index. server always 0
+    char                    name[32];
+	enum NetUserProgress	progress;
+};
+
+struct NetFrame
+{
+    struct NetFrame *       next;
+    char *                  buffer;
+    size_t                  size;
+    unsigned                seq_nbr;
+};
+
+enum NetMessageType
+{
+    NETMSG_LOGIN,           //to server: username and pass, from server: assigned id
+    NETMSG_USERUPDATE,      //changed player from server
+    NETMSG_FRAME,           //to server: ACK of frame + packets, from server: the frame itself
+    NETMSG_LAGWARNING,      //from server: notice that some client is lagging
+};
+
+/**
+ * In memory structure for network messages.
+ * Cannot be memcpy:d directly to stream - contains pointers.
+ */
+struct NetMessage
+{
+    enum NetMessageType         type;
+    union NetMessageBody
+    {
+        struct
+        {
+            char *                  username;
+            char *                  password;
+        }                       login_request;
+
+        NetUserId               user; //in login response or lag warning
+        NetUser                 user_update;
+        struct NetFrame         frame;
+    } body;
+};
+
+struct NetSP
+{
+    void (*afunctionptr)(void);
+    //TODO: figure out what functions are needed for service abstraction
+};
+
+/**
+ * Contains the entire network state.
+ */
+struct NetState
+{
+    TbBool                  inited; //did we initialize this object?
+    struct NetSP *          sp; //pointer to service provider in use
+    unsigned                n_users; //nbr of actual users (!= USER_UNUSED) on server
+    struct NetUser          users[MAX_N_USERS];
+    struct NetFrame *       exchg_queue; //exchange queue from server
+    char *                  password; //password that should be entered or was entered
+    NetUserId               my_id; //id for user representing this machine
+};
+
+static struct NetState netstate;
+
+// New network code data definitions end here =================================
+
 /*
  * The following two functions are not exported from this module.
  *
