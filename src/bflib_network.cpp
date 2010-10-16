@@ -26,6 +26,11 @@
 #include "bflib_netsp_ipx.hpp"
 #include "bflib_netsp_tcp.hpp"
 #include "globals.h"
+#include <assert.h>
+#include <ctype.h>
+
+#include "net_game.h" //TODO: get rid of this later by refactoring
+#include "packets.h" //TODO: get rid of this later by refactoring
 
 #ifdef __cplusplus
 extern "C" {
@@ -131,7 +136,7 @@ enum NetUserProgress
 	USER_UNUSED,			//array slot unused
     USER_CONNECTED,			//connected user on slot
     USER_LOGGEDIN,          //sent name and password and was accepted
-    USER_SYNCEDUSERS,       //user now got his id and all other players' info; life is good
+    USER_INSYNC,       //user now got his id and all other players' info; life is good
 
     USER_SERVER             //none of the above states are applicable because this is server
 };
@@ -160,8 +165,8 @@ enum NetMessageType
 };
 
 /**
- * In memory structure for network messages.
- * Cannot be memcpy:d directly to stream - contains pointers.
+ * Structure for network messages for illustrational purposes.
+ * I don't actually load into this structure as it takes too much effort with C.
  */
 struct NetMessage
 {
@@ -170,8 +175,8 @@ struct NetMessage
     {
         struct
         {
-            char                username[32];
             char                password[32];
+            char                username[32];
         }                       login_request;
 
         NetUserId               user;       //in login response or lag warning
@@ -189,12 +194,16 @@ struct NetState
     unsigned                n_users;        //nbr of actual users (!= USER_UNUSED) on server
     struct NetUser          users[MAX_N_USERS];
     struct NetFrame *       exchg_queue;    //exchange queue from server
-    char *                  password;       //password for server
+    char                    password[32];   //password for server
     NetUserId               my_id;          //id for user representing this machine
     unsigned                seq_nbr;        //sequence number of next frame to be issued
+    char                    msg_buffer[(sizeof(NetFrame) + sizeof(struct Packet)) * PACKETS_COUNT]; //completely estimated for now
+    char                    msg_buffer_null; //theoretical safe guard vs non-terminated strings
 };
 
 static struct NetState netstate;
+
+static struct TbNetworkSessionNameEntry test_session;
 
 // New network code data definitions end here =================================
 
@@ -211,6 +220,134 @@ TbError LbNetwork_Shutdown(void)
   return _DK_LbNetwork_Shutdown();
 }
 */
+
+static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
+{
+    size_t len;
+
+    NETDBG(7, "Handling login request");
+
+    if (netstate.users[source].progress != USER_CONNECTED) {
+        NETMSG("Peer was not in connected state");
+        //TODO: implement drop
+        return;
+    }
+
+    if (netstate.password != NULL && strncmp(ptr, netstate.password,
+            sizeof(netstate.password)) != 0) {
+        NETMSG("Peer chose wrong password");
+        //TODO: implement drop
+        return;
+    }
+
+    len = LbStringLength(ptr) + 1;
+    ptr += len;
+    if (len > sizeof(netstate.password)) {
+        NETDBG(6, "Connected peer attempted to flood password");
+        //TODO: implement drop
+        return;
+    }
+
+    LbStringCopy(netstate.users[source].name, ptr, sizeof(netstate.users[source].name));
+    if (!isalnum(netstate.users[source].name[0])) {
+        //TODO: drop player for bad name
+        //also replace isalnum with something that considers foreign non-ASCII chars
+        NETDBG(6, "Connected peer had bad name");
+        //TODO: implement drop
+        return;
+    }
+
+    //presume login successful from here
+    NETMSG("User %s successfully logged in", netstate.users[source].name);
+    netstate.users[source].progress = USER_LOGGEDIN;
+
+    //send reply
+    ptr = netstate.msg_buffer;
+    ptr += 1; //skip header byte which should still be ok
+    LbMemoryCopy(ptr, &source, 1); //assumes LE
+    ptr += 1;
+    netstate.sp->sendmsg_single(source, netstate.msg_buffer, ptr - netstate.msg_buffer);
+}
+
+static void HandleLoginReply(NetUserId source, char * ptr, char * end)
+{
+    NETDBG(7, "Handling login reply");
+
+    netstate.my_id = (NetUserId) *ptr;
+}
+
+static void HandleMessage(NetUserId source)
+{
+    //this is a very bad way to do network message parsing, but it is what C offers
+    //(I could also load into it memory by some complicated system with data description
+    //auxiliary structures which I don't got time to code nor do the requirements
+    //justify it)
+
+    char * buffer_ptr;
+    char * buffer_end;
+    size_t buffer_size;
+    enum NetMessageType type;
+
+    NETDBG(7, "Handling message from %u", source);
+
+    buffer_ptr = netstate.msg_buffer;
+    buffer_size = sizeof(netstate.msg_buffer);
+    buffer_end = buffer_ptr + buffer_size;
+
+    //type
+    type = (enum NetMessageType) *buffer_ptr;
+    buffer_ptr += 1;
+
+    switch (type) {
+    case NETMSG_LOGIN:
+        if (netstate.my_id == SERVER_ID) {
+            HandleLoginRequest(source, buffer_ptr, buffer_end);
+        }
+        else {
+            HandleLoginReply(source, buffer_ptr, buffer_end);
+        }
+        break;
+    case NETMSG_USERUPDATE:
+        break;
+    case NETMSG_FRAME:
+        break;
+    case NETMSG_LAGWARNING:
+        break;
+    }
+}
+
+static void ReadAndHandleMessage(NetUserId source)
+{
+    size_t rcount;
+
+    rcount = netstate.sp->readmsg(source, netstate.msg_buffer,
+        sizeof(netstate.msg_buffer));
+
+    if (rcount > 0) {
+        HandleMessage(source);
+    }
+    else {
+        NETLOG("Problem reading message from %u", source);
+    }
+}
+
+static void SendLoginRequest(const char * name, const char * password)
+{
+    char * buffer_ptr;
+
+    buffer_ptr = netstate.msg_buffer;
+    *buffer_ptr = NETMSG_LOGIN;
+    buffer_ptr += 1;
+
+    strcpy(buffer_ptr, name); //don't want to bother saving length ahead
+    buffer_ptr += LbStringLength(name) + 1;
+
+    strcpy(buffer_ptr, password);
+    buffer_ptr += LbStringLength(password) + 1;
+
+    netstate.sp->sendmsg_single(SERVER_ID, netstate.msg_buffer,
+        buffer_ptr - netstate.msg_buffer);
+}
 
 TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct SerialInitData *init_data)
 {
@@ -391,7 +528,15 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
         return Lb_FAIL;
     }
 
-    //TODO: await login reply & assigned player number here
+    netstate.my_id = 23456;
+
+    SendLoginRequest(plyr_name, netstate.password);
+    ReadAndHandleMessage(SERVER_ID);
+
+    if (netstate.my_id == 23456) {
+        NETMSG("Network login unsuccessful");
+        return Lb_FAIL;
+    }
 
     *plyr_num = netstate.my_id;
 
@@ -446,7 +591,8 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
 
     netstate.n_users = 1;
     netstate.my_id = SERVER_ID;
-    strcpy(netstate.users[netstate.my_id].name, plyr_name);
+    LbStringCopy(netstate.users[netstate.my_id].name, plyr_name,
+        sizeof(netstate.users[netstate.my_id].name));
     netstate.users[netstate.my_id].progress = USER_SERVER;
 
     *plyr_num = netstate.my_id;
@@ -457,7 +603,7 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
 
 TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long buf_size)
 {
-  void *cbuf;
+  /*void *cbuf;
   long comps_size;
   //return _DK_LbNetwork_ChangeExchangeBuffer(buf, buf_size);
   exchangeBuffer = buf;
@@ -487,7 +633,7 @@ TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long buf_size)
   LbMemoryCopy(cbuf, compositeBuffer, compositeBufferSize);
   LbMemoryFree(compositeBuffer);
   compositeBuffer = cbuf;
-  compositeBufferSize = comps_size;
+  compositeBufferSize = comps_size;*/
   return Lb_OK;
 }
 
@@ -560,6 +706,7 @@ static TbBool OnNewUser(NetUserId * assigned_id)
         if (netstate.users[i].progress == USER_UNUSED) {
             *assigned_id = i;
             netstate.users[i].progress = USER_CONNECTED;
+            NETLOG("Assigning new user to ID %u", i);
             return 1;
         }
     }
@@ -569,7 +716,10 @@ static TbBool OnNewUser(NetUserId * assigned_id)
 
 TbError LbNetwork_Exchange(void *buf)
 {
-  NETDBG(7, "Starting");
+    size_t size;
+    NetUserId id;
+
+    NETDBG(7, "Starting");
   //return _DK_LbNetwork_Exchange(buf);
   /*spPtr->update();
   if (LbNetwork_StartExchange(buf) != Lb_OK)
@@ -582,6 +732,33 @@ TbError LbNetwork_Exchange(void *buf)
     WARNLOG("Failure when Completing Exchange");
     return Lb_FAIL;
   }*/
+
+  if (netstate.my_id == SERVER_ID) {
+      for (id = 0; id < MAX_N_USERS; ++id) {
+          if (id == netstate.my_id) {
+              continue;
+          }
+
+          if (netstate.users[id].progress == USER_UNUSED) {
+              continue;
+          }
+
+          if (netstate.users[id].progress == USER_INSYNC) {
+              //different
+          }
+          else {
+              //process as many messages as possible
+              while ((size = netstate.sp->msgready(id)) != 0) {
+                  ReadAndHandleMessage(id);
+              }
+          }
+      }
+  }
+  else {
+      while ((size = netstate.sp->msgready(SERVER_ID)) != 0) {
+          ReadAndHandleMessage(SERVER_ID);
+      }
+  }
 
   netstate.sp->update(OnNewUser);
 
@@ -708,7 +885,14 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
     WARNLOG("Failure on Enumerate");
     return ret;
   }*/
-  return Lb_OK;
+
+
+    test_session.in_use = true;
+    test_session.joinable = true;
+    net_copy_name_string(test_session.text, "localhost:5555", SESSION_NAME_MAX_LEN);
+    callback((TbNetworkCallbackData *) &test_session, ptr);
+
+    return Lb_OK;
 }
 
 TbError LbNetwork_StartExchange(void *buf)
