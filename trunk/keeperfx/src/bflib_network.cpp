@@ -126,18 +126,14 @@ struct UnidirectionalRTSMessage rtsMessage;
 
 // New network code data definitions start here ===============================
 
-#define MAX_N_USERS 16
-
-typedef int NetUserId;
-
-#define SERVER_ID   0
-
 enum NetUserProgress
 {
 	USER_UNUSED,			//array slot unused
     USER_CONNECTED,			//connected user on slot
     USER_LOGGEDIN,          //sent name and password and was accepted
     USER_SYNCEDUSERS,       //user now got his id and all other players' info; life is good
+
+    USER_SERVER             //none of the above states are applicable because this is server
 };
 
 struct NetUser
@@ -174,20 +170,14 @@ struct NetMessage
     {
         struct
         {
-            char *                  username;
-            char *                  password;
+            char                username[32];
+            char                password[32];
         }                       login_request;
 
-        NetUserId               user; //in login response or lag warning
+        NetUserId               user;       //in login response or lag warning
         NetUser                 user_update;
         struct NetFrame         frame;
     } body;
-};
-
-struct NetSP
-{
-    void (*afunctionptr)(void);
-    //TODO: figure out what functions are needed for service abstraction
 };
 
 /**
@@ -195,13 +185,13 @@ struct NetSP
  */
 struct NetState
 {
-    TbBool                  inited; //did we initialize this object?
-    struct NetSP *          sp; //pointer to service provider in use
-    unsigned                n_users; //nbr of actual users (!= USER_UNUSED) on server
+    const struct NetSP *    sp;             //pointer to service provider in use
+    unsigned                n_users;        //nbr of actual users (!= USER_UNUSED) on server
     struct NetUser          users[MAX_N_USERS];
-    struct NetFrame *       exchg_queue; //exchange queue from server
-    char *                  password; //password that should be entered or was entered
-    NetUserId               my_id; //id for user representing this machine
+    struct NetFrame *       exchg_queue;    //exchange queue from server
+    char *                  password;       //password for server
+    NetUserId               my_id;          //id for user representing this machine
+    unsigned                seq_nbr;        //sequence number of next frame to be issued
 };
 
 static struct NetState netstate;
@@ -225,7 +215,11 @@ TbError LbNetwork_Shutdown(void)
 TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct SerialInitData *init_data)
 {
   TbError res;
-  //return _DK_LbNetwork_Init(srvcp,guid,maxplayrs,exchng_buf,exchng_size,locplayr,init_data);
+  NetUserId usr;
+
+  res = Lb_FAIL;
+
+  /*//return _DK_LbNetwork_Init(srvcp,guid,maxplayrs,exchng_buf,exchng_size,locplayr,init_data);
   exchangeSize = exchng_size;
   maximumPlayers = maxplayrs;
   //thread_data_mem = _wint_thread_data;
@@ -256,11 +250,18 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
     return Lb_FAIL;
   }
   ClearClientData();
-  GetPlayerInfo();
+  GetPlayerInfo();*/
+
+  //clear network object and init it to neutral config
+  LbMemorySet(&netstate, 0, sizeof(netstate));
+  for (usr = 0; usr < MAX_N_USERS; ++usr) {
+      netstate.users[usr].id = usr;
+  }
+
   // Initialising the service provider object
   switch (srvcIndex)
   {
-  case NS_Serial:
+  /*case NS_Serial:
       NETMSG("Selecting Serial SP");
       if (GenericSerialInit(guid,init_data) == Lb_OK)
       {
@@ -292,29 +293,37 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
         WARNLOG("Failure on IPX Initialization");
         res = Lb_FAIL;
       }
-      break;
+      break;*/
   case NS_TCP_IP:
-      NETMSG("Selecting TCP/IP SP");
+      /*NETMSG("Selecting TCP/IP SP");
       if (GenericTCPInit(guid) == Lb_OK) {
           res = Lb_OK;
       }
       else {
           WARNLOG("Failure on TCP/IP Initialization");
           res = Lb_FAIL;
-      }
+      }*/
+
+      netstate.sp = &tcpSP;
+
       break;
   default:
       WARNLOG("The serviceIndex value of %d is out of range", srvcIndex);
       res = Lb_FAIL;
       break;
   }
+
+  if (netstate.sp) {
+      res = netstate.sp->init();
+  }
+
   //_wint_thread_data = thread_data_mem;
   return res;
 }
 
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, unsigned long *plyr_num, void *optns)
 {
-  TbError ret;
+  /*TbError ret;
   TbClockMSec tmStart;
   //return _DK_LbNetwork_Join(nsname, plyr_name, plyr_num);
   ret = Lb_FAIL;
@@ -371,14 +380,28 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
   {
     WARNLOG("Cannot get player info");
     return ret;
-  }
-  return Lb_OK;
+  }*/
+
+    if (!netstate.sp) {
+        ERRORLOG("No network SP selected");
+        return Lb_FAIL;
+    }
+
+    if (netstate.sp->join(nsname->text, optns) == Lb_FAIL) {
+        return Lb_FAIL;
+    }
+
+    //TODO: await login reply & assigned player number here
+
+    *plyr_num = netstate.my_id;
+
+    return Lb_OK;
 }
 
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns)
 {
   //return _DK_LbNetwork_Create(nsname_str, plyr_name, plyr_num);
-  if (spPtr == NULL)
+  /*if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
     return Lb_FAIL;
@@ -410,9 +433,26 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
   {
     WARNLOG("Cannot get player info");
     return Lb_FAIL;
-  }
-  LbNetwork_EnableNewPlayers(true);
-  return Lb_OK;
+  }*/
+
+    if (!netstate.sp) {
+        ERRORLOG("No network SP selected");
+        return Lb_FAIL;
+    }
+
+    if (netstate.sp->host(":5555", optns) == Lb_FAIL) {
+        return Lb_FAIL;
+    }
+
+    netstate.n_users = 1;
+    netstate.my_id = SERVER_ID;
+    strcpy(netstate.users[netstate.my_id].name, plyr_name);
+    netstate.users[netstate.my_id].progress = USER_SERVER;
+
+    *plyr_num = netstate.my_id;
+
+    LbNetwork_EnableNewPlayers(true);
+    return Lb_OK;
 }
 
 TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long buf_size)
@@ -458,7 +498,9 @@ void LbNetwork_ChangeExchangeTimeout(unsigned long tmout)
 
 TbError LbNetwork_Stop(void)
 {
-  //return _DK_LbNetwork_Stop();
+    NetFrame * frame, * nextframe;
+
+  /*//return _DK_LbNetwork_Stop();
   if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -491,15 +533,45 @@ TbError LbNetwork_Stop(void)
   hostId = 0;
   runningTwoPlayerModel = 0;
   ClearClientData();
-  exchangeTimeout = 0;
-  return Lb_OK;
+  exchangeTimeout = 0;*/
+
+    if (netstate.sp) {
+        netstate.sp->exit();
+    }
+
+    frame = netstate.exchg_queue;
+    while (frame != NULL) {
+        nextframe = frame->next;
+        LbMemoryFree(frame->buffer);
+        LbMemoryFree(frame);
+        frame = nextframe;
+    }
+
+    LbMemorySet(&netstate, 0, sizeof(netstate));
+
+    return Lb_OK;
+}
+
+static TbBool OnNewUser(NetUserId * assigned_id)
+{
+    NetUserId i;
+
+    for (i = 0; i < MAX_N_USERS; ++i) {
+        if (netstate.users[i].progress == USER_UNUSED) {
+            *assigned_id = i;
+            netstate.users[i].progress = USER_CONNECTED;
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 TbError LbNetwork_Exchange(void *buf)
 {
   NETDBG(7, "Starting");
   //return _DK_LbNetwork_Exchange(buf);
-  spPtr->update();
+  /*spPtr->update();
   if (LbNetwork_StartExchange(buf) != Lb_OK)
   {
     WARNLOG("Failure when Starting Exchange");
@@ -509,7 +581,10 @@ TbError LbNetwork_Exchange(void *buf)
   {
     WARNLOG("Failure when Completing Exchange");
     return Lb_FAIL;
-  }
+  }*/
+
+  netstate.sp->update(OnNewUser);
+
   return Lb_OK;
 }
 
@@ -535,7 +610,11 @@ TbError LbNetwork_EnableNewPlayers(TbBool allow)
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
 {
 //  TbBool local_init;
+
   struct TbNetworkCallbackData netcdat;
+
+  SYNCDBG(7, "Starting");
+
   //return _DK_LbNetwork_EnumerateServices(callback, ptr);
 /*
   local_init = false;
@@ -578,7 +657,12 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
  */
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *buf)
 {
-  char ret;
+    TbNetworkCallbackData data;
+    NetUserId id;
+
+    SYNCDBG(9, "Starting");
+
+  /*char ret;
   //return _DK_LbNetwork_EnumeratePlayers(sesn, callback, a2);
   if (spPtr == NULL)
   {
@@ -590,15 +674,30 @@ TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNet
   {
     WARNLOG("Failure on Enumerate");
     return ret;
-  }
-  return Lb_OK;
+  }*/
+
+    //for now assume this our session.
+
+    for (id = 0; id < MAX_N_USERS; ++id) {
+        if (netstate.users[id].progress != USER_UNUSED &&
+                netstate.users[id].progress != USER_CONNECTED) { //no point in showing user if there's no name
+            LbMemorySet(&data, 0, sizeof(data));
+            strncpy(data.plyr_name, netstate.users[id].name,
+                sizeof(data.plyr_name));
+            callback(&data, buf);
+        }
+    }
+
+    return Lb_OK;
 }
 
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
 {
-  char ret;
+    SYNCDBG(9, "Starting");
+
+  //char ret;
   //return _DK_LbNetwork_EnumerateSessions(callback, ptr);
-  if (spPtr == NULL)
+  /*if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
     return Lb_FAIL;
@@ -608,7 +707,7 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
   {
     WARNLOG("Failure on Enumerate");
     return ret;
-  }
+  }*/
   return Lb_OK;
 }
 

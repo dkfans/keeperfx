@@ -35,6 +35,95 @@ extern "C" {
 #pragma pack(1)
 #endif
 
+// New Declarations Here ======================================================
+
+#define MAX_N_USERS 16
+#define MAX_N_PEERS (MAX_N_USERS - 1)
+#define SERVER_ID   0
+
+typedef int NetUserId;
+
+typedef TbBool (*NetNewUserCallback)(NetUserId * assigned_id);
+
+struct NetSP //new version
+{
+    /**
+     * Inits this service provider.
+     * @return Lb_FAIL or Lb_OK
+     */
+    TbError (*init)(void);
+
+    /**
+     * Closes down all activities and cleans up this service provider.
+     */
+    void    (*exit)(void);
+
+    /**
+     * Sets this service provider up as a host for a new network game.
+     * @param session String representing the network game to be hosted.
+     *  This could be a hostname:port pair for TCP for instance.
+     * @param options
+     * @return Lb_FAIL or Lb_OK
+     */
+    TbError (*host)(const char * session, void * options); //leaving void * for now, analyze meaning later
+
+    /**
+     * Sets this service provider as a client for an existing network game.
+     * @param session String representing the network game to be hosted.
+     *  This could be a hostname:port pair for TCP for instance.
+     * @param options
+     * @return Lb_FAIL or Lb_OK
+     */
+    TbError (*join)(const char * session, void * options);
+
+    /**
+     * Checks for new connections.
+     * @param new_user Call back if a new user has connected.
+     */
+    void    (*update)(NetNewUserCallback new_user);
+
+    /**
+     * Sends a message buffer to a certain user.
+     * @param destination Destination user.
+     * @param buffer
+     * @param size Must be > 0
+     */
+    void    (*sendmsg_single)(NetUserId destination, const char * buffer, size_t size);
+
+    /**
+     * Sends a message buffer to all remote users.
+     * @param buffer
+     * @param size Must be > 0
+     */
+    void    (*sendmsg_all)(const char * buffer, size_t size);
+
+    /**
+     * Asks if a message has finished reception and get be read through readmsg.
+     * May block under some circumstances but shouldn't unless it can be presumed
+     * a whole message is on the way.
+     * TODO: this definition is due to how SDL Net handles sockets.. see if it can
+     *  be improved - ideally this function shouldn't block at all
+     * @param source The source user.
+     * @return The size of the message waiting if there is a message, otherwise 0.
+     */
+    size_t  (*msgready)(NetUserId source);
+
+    /**
+     * Completely reads a message. Blocks until entire message has been read.
+     * Will not block if msgready has returned > 0.
+     * @param source The source user.
+     * @param buffer
+     * @param max_size The maximum size of the message to be received.
+     * @return The actual size of the message received, <= max_size. If 0, an
+     *  error occurred.
+     */
+    size_t  (*readmsg)(NetUserId source, char * buffer, size_t max_size);
+};
+
+extern const struct NetSP tcpSP;
+
+// New Declarations End Here ==================================================
+
 struct TbNetworkSessionNameEntry;
 
 typedef long (*Net_Callback_Func)(void);
@@ -45,7 +134,6 @@ enum TbNetworkService {
     NS_IPX,
     NS_TCP_IP,
 };
-
 
 struct ClientDataEntry {
   unsigned long plyrid;
@@ -94,7 +182,7 @@ long active;
 
 struct TbNetworkCallbackData {
   char svc_name[12];
-  char field_C[20];
+  char plyr_name[20];
   char field_20[32];
 };
 
