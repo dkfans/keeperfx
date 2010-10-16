@@ -69,6 +69,7 @@ obj/bflib_mshandler.o \
 obj/bflib_mspointer.o \
 obj/bflib_mouse.o \
 obj/bflib_network.o \
+obj/bflib_tcpsp.o \
 obj/bflib_threadcond.o \
 obj/bflib_video.o \
 obj/bflib_semphr.o \

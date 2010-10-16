@@ -208,7 +208,7 @@ void __stdcall enum_players_callback(struct TbNetworkCallbackData *netcdat, void
     ERRORLOG("Too many players in enumeration");
     return;
   }
-  strncpy(net_player[net_number_of_enum_players].name, netcdat->field_C, sizeof(struct TbNetworkPlayerName));
+  strncpy(net_player[net_number_of_enum_players].name, netcdat->plyr_name, sizeof(struct TbNetworkPlayerName));
   net_number_of_enum_players++;
 }
 
