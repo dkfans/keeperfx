@@ -88,6 +88,7 @@ obj/bflib_sndlib.o \
 obj/bflib_sound.o \
 obj/bflib_sprfnt.o \
 obj/bflib_sprite.o \
+obj/bflib_tcpsp.o \
 obj/bflib_threadcond.o \
 obj/bflib_video.o \
 obj/bflib_vidraw.o \
