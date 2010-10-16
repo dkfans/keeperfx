@@ -136,7 +136,6 @@ enum NetUserProgress
 	USER_UNUSED,			//array slot unused
     USER_CONNECTED,			//connected user on slot
     USER_LOGGEDIN,          //sent name and password and was accepted
-    USER_INSYNC,       //user now got his id and all other players' info; life is good
 
     USER_SERVER             //none of the above states are applicable because this is server
 };
@@ -221,11 +220,55 @@ TbError LbNetwork_Shutdown(void)
 }
 */
 
+static void SendLoginRequest(const char * name, const char * password)
+{
+    char * buffer_ptr;
+
+    NETMSG("Loggin in as %s", name);
+
+    buffer_ptr = netstate.msg_buffer;
+    *buffer_ptr = NETMSG_LOGIN;
+    buffer_ptr += 1;
+
+    strcpy(buffer_ptr, password);
+    buffer_ptr += LbStringLength(password) + 1;
+
+    strcpy(buffer_ptr, name); //don't want to bother saving length ahead
+    buffer_ptr += LbStringLength(name) + 1;
+
+    netstate.sp->sendmsg_single(SERVER_ID, netstate.msg_buffer,
+        buffer_ptr - netstate.msg_buffer);
+}
+
+static void SendUserUpdate(NetUserId dest, NetUserId updated_user)
+{
+    char * ptr;
+
+    ptr = netstate.msg_buffer;
+
+    *ptr = NETMSG_USERUPDATE;
+    ptr += 1;
+
+    *ptr = updated_user;
+    ptr += 1;
+
+    *ptr = netstate.users[updated_user].progress;
+    ptr += 1;
+
+    LbStringCopy(ptr, netstate.users[updated_user].name,
+        sizeof(netstate.users[updated_user].name));
+    ptr += LbStringLength(netstate.users[updated_user].name) + 1;
+
+    netstate.sp->sendmsg_single(dest, netstate.msg_buffer,
+            ptr - netstate.msg_buffer);
+}
+
 static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
 {
     size_t len;
+    NetUserId id;
 
-    NETDBG(7, "Handling login request");
+    NETDBG(7, "Starting");
 
     if (netstate.users[source].progress != USER_CONNECTED) {
         NETMSG("Peer was not in connected state");
@@ -233,7 +276,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
         return;
     }
 
-    if (netstate.password != NULL && strncmp(ptr, netstate.password,
+    if (netstate.password[0] != 0 && strncmp(ptr, netstate.password,
             sizeof(netstate.password)) != 0) {
         NETMSG("Peer chose wrong password");
         //TODO: implement drop
@@ -252,7 +295,8 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     if (!isalnum(netstate.users[source].name[0])) {
         //TODO: drop player for bad name
         //also replace isalnum with something that considers foreign non-ASCII chars
-        NETDBG(6, "Connected peer had bad name");
+        NETDBG(6, "Connected peer had bad name starting with %c",
+            netstate.users[source].name[0]);
         //TODO: implement drop
         return;
     }
@@ -267,13 +311,44 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     LbMemoryCopy(ptr, &source, 1); //assumes LE
     ptr += 1;
     netstate.sp->sendmsg_single(source, netstate.msg_buffer, ptr - netstate.msg_buffer);
+
+    //send user updates
+    ptr = netstate.msg_buffer;
+    for (id = 0; id < MAX_N_USERS; ++id) {
+        if (netstate.users[id].progress == USER_UNUSED) {
+            continue;
+        }
+
+        SendUserUpdate(source, id);
+
+        if (id == netstate.my_id || id == source) {
+            continue;
+        }
+
+        SendUserUpdate(id, source);
+    }
 }
 
 static void HandleLoginReply(NetUserId source, char * ptr, char * end)
 {
-    NETDBG(7, "Handling login reply");
+    NETDBG(7, "Starting");
 
     netstate.my_id = (NetUserId) *ptr;
+}
+
+static void HandleUserUpdate(NetUserId source, char * ptr, char * end)
+{
+    NetUserId id;
+
+    NETDBG(7, "Starting");
+
+    id = (NetUserId) *ptr;
+    ptr += 1;
+
+    netstate.users[id].progress = (enum NetUserProgress) *ptr;
+    ptr += 1;
+
+    LbStringCopy(netstate.users[id].name, ptr, sizeof(netstate.users[id].name));
 }
 
 static void HandleMessage(NetUserId source)
@@ -308,6 +383,9 @@ static void HandleMessage(NetUserId source)
         }
         break;
     case NETMSG_USERUPDATE:
+        if (netstate.my_id != SERVER_ID) {
+            HandleUserUpdate(source, buffer_ptr, buffer_end);
+        }
         break;
     case NETMSG_FRAME:
         break;
@@ -329,24 +407,6 @@ static void ReadAndHandleMessage(NetUserId source)
     else {
         NETLOG("Problem reading message from %u", source);
     }
-}
-
-static void SendLoginRequest(const char * name, const char * password)
-{
-    char * buffer_ptr;
-
-    buffer_ptr = netstate.msg_buffer;
-    *buffer_ptr = NETMSG_LOGIN;
-    buffer_ptr += 1;
-
-    strcpy(buffer_ptr, name); //don't want to bother saving length ahead
-    buffer_ptr += LbStringLength(name) + 1;
-
-    strcpy(buffer_ptr, password);
-    buffer_ptr += LbStringLength(password) + 1;
-
-    netstate.sp->sendmsg_single(SERVER_ID, netstate.msg_buffer,
-        buffer_ptr - netstate.msg_buffer);
 }
 
 TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct SerialInitData *init_data)
@@ -743,7 +803,7 @@ TbError LbNetwork_Exchange(void *buf)
               continue;
           }
 
-          if (netstate.users[id].progress == USER_INSYNC) {
+          if (netstate.users[id].progress == USER_LOGGEDIN) {
               //different
           }
           else {
@@ -859,7 +919,7 @@ TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNet
         if (netstate.users[id].progress != USER_UNUSED &&
                 netstate.users[id].progress != USER_CONNECTED) { //no point in showing user if there's no name
             LbMemorySet(&data, 0, sizeof(data));
-            strncpy(data.plyr_name, netstate.users[id].name,
+            LbStringCopy(data.plyr_name, netstate.users[id].name,
                 sizeof(data.plyr_name));
             callback(&data, buf);
         }
