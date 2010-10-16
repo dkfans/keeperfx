@@ -36,7 +36,7 @@ struct Msg
 {
     enum MsgReadState state;
     size_t msg_size;
-    size_t bytes_left;
+    //size_t bytes_left; //not necessary with SDL_net
     char * buffer;
     size_t buffer_size;
 };
@@ -126,12 +126,18 @@ static struct Msg * find_peer_message(NetUserId id)
 
 static TbError send_buffer(TCPsocket socket, const char * buffer, size_t size)
 {
+    int retval;
+
+    assert(buffer);
+
     if (socket == NULL) {
         return Lb_FAIL;
     }
 
-    if (SDLNet_TCP_Send(socket, &size, 4) < 4 || //presumes little endian
-            SDLNet_TCP_Send(socket, buffer, size) < size) {
+    NETDBG(9, "Trying to send %u bytes", size);
+
+    if ((retval = SDLNet_TCP_Send(socket, buffer, size)) != size) {
+        NETLOG("Failure to send to socket: %d", retval);
         return Lb_FAIL;
     }
 
@@ -140,15 +146,16 @@ static TbError send_buffer(TCPsocket socket, const char * buffer, size_t size)
 
 static void reset_msg(struct Msg * msg)
 {
+    NETDBG(9, "Starting");
     msg->state = READ_HEADER;
-    msg->bytes_left = 4;
     msg->msg_size = 0;
 }
 
 static void inflate_msg(struct Msg * msg)
 {
+    NETDBG(9, "Inflating to %u bytes", msg->msg_size);
+
     msg->state = READ_BODY;
-    msg->bytes_left = msg->msg_size;
 
     if (msg->msg_size > msg->buffer_size) {
         msg->buffer_size = msg->msg_size;
@@ -156,14 +163,18 @@ static void inflate_msg(struct Msg * msg)
     }
 }
 
-static TbError read_stage(TCPsocket socket, struct Msg * msg)
+static TbError read_stage(TCPsocket socket, char * buffer, size_t size)
 {
-    assert(socket);
-    assert(msg);
+    int retval;
 
-    if (SDLNet_TCP_Recv(socket, (msg->state == READ_HEADER? (char*) &msg->msg_size : msg->buffer)
-            + msg->msg_size - msg->bytes_left, msg->bytes_left) != msg->bytes_left) {
+    assert(socket);
+    assert(buffer);
+
+    NETDBG(9, "Trying to read %u bytes", size);
+
+    if ((retval = SDLNet_TCP_Recv(socket, buffer, size)) != size) {
         //TODO: handle disconnects
+        NETLOG("Failure to read from socket: %d", retval);
         return Lb_FAIL;
     }
 
@@ -172,7 +183,11 @@ static TbError read_stage(TCPsocket socket, struct Msg * msg)
 
 static TbError read_full(TCPsocket socket, struct Msg * msg)
 {
-    if (socket == NULL || msg == NULL) {
+    NETDBG(8, "Starting");
+
+    assert(msg);
+
+    if (socket == NULL) {
         return Lb_FAIL;
     }
 
@@ -180,26 +195,35 @@ static TbError read_full(TCPsocket socket, struct Msg * msg)
         reset_msg(msg);
     }
 
-    if (read_stage(socket, msg) == Lb_FAIL) {
-        return Lb_FAIL;
+    if (msg->state == READ_HEADER) {
+        if (read_stage(socket, (char*) &msg->msg_size, 4) == Lb_FAIL) {
+            return Lb_FAIL;
+        }
+
+        inflate_msg(msg);
     }
 
-    if (msg->state == READ_HEADER) {
-        inflate_msg(msg);
-        if (read_stage(socket, msg) == Lb_FAIL) {
+    if (msg->state == READ_BODY) {
+        if (read_stage(socket, msg->buffer, msg->msg_size) == Lb_FAIL) {
             return Lb_FAIL;
         }
     }
 
     assert(msg->state == READ_BODY);
     msg->state = READ_FINISHED;
+
+    NETDBG(8, "Read of %u bytes finished", msg->msg_size);
 
     return Lb_OK;
 }
 
 static TbError read_partial(TCPsocket socket, struct Msg * msg)
 {
-    if (socket == NULL || msg == NULL) {
+    NETDBG(8, "Starting");
+
+    assert(msg);
+
+    if (socket == NULL) {
         return Lb_FAIL;
     }
 
@@ -207,30 +231,34 @@ static TbError read_partial(TCPsocket socket, struct Msg * msg)
         reset_msg(msg);
     }
 
-    SDLNet_CheckSockets(spstate.socketset, 0);
-    if (!SDLNet_SocketReady(socket)) {
-        return Lb_OK;
-    }
-
-    if (read_stage(socket, msg) == Lb_FAIL) {
-        return Lb_FAIL;
-    }
-
     if (msg->state == READ_HEADER) {
-        inflate_msg(msg);
-
         SDLNet_CheckSockets(spstate.socketset, 0);
         if (!SDLNet_SocketReady(socket)) {
             return Lb_OK;
         }
 
-        if (read_stage(socket, msg) == Lb_FAIL) {
+        if (read_stage(socket, (char*) &msg->msg_size, 4) == Lb_FAIL) {
+            return Lb_FAIL;
+        }
+
+        inflate_msg(msg);
+    }
+
+    if (msg->state == READ_BODY) {
+        SDLNet_CheckSockets(spstate.socketset, 0);
+        if (!SDLNet_SocketReady(socket)) {
+            return Lb_OK;
+        }
+
+        if (read_stage(socket, msg->buffer, msg->msg_size) == Lb_FAIL) {
             return Lb_FAIL;
         }
     }
 
     assert(msg->state == READ_BODY);
     msg->state = READ_FINISHED;
+
+    NETDBG(8, "Read of %u bytes finished", msg->msg_size);
 
     return Lb_OK;
 }
@@ -323,17 +351,19 @@ static TbError tcpSP_join(const char * session, void * options)
         ++portstr;
     }
 
-    SDLNet_ResolveHost(&addr, session, atoi(portstr));
-    LbMemoryFree(hostname);
+    SDLNet_ResolveHost(&addr, hostname, atoi(portstr));
 
     spstate.socket = SDLNet_TCP_Open(&addr);
     if (spstate.socket == NULL) {
+        LbMemoryFree(hostname);
         NETMSG("Failed to initialize TCP client socket to host %s and port %s", hostname, portstr);
         return Lb_FAIL;
     }
+    LbMemoryFree(hostname);
 
     spstate.socketset = SDLNet_AllocSocketSet(1);
     SDLNet_TCP_AddSocket(spstate.socketset, spstate.socket);
+    reset_msg(&spstate.servermsg);
     spstate.ishost = 0;
 
     return Lb_OK;
@@ -363,6 +393,7 @@ static void tcpSP_update(NetNewUserCallback new_user)
             spstate.peers[index].id = id;
             spstate.peers[index].socket = new_socket;
             SDLNet_TCP_AddSocket(spstate.socketset, new_socket);
+            reset_msg(&spstate.peers[index].msg);
         }
         else {
             SDLNet_TCP_Close(new_socket);
@@ -375,8 +406,10 @@ static void tcpSP_sendmsg_single(NetUserId destination, const char * buffer, siz
 {
     assert(buffer);
     assert(size > 0);
+
     NETDBG(9, "Starting for buffer of %u bytes", size);
 
+    send_buffer(find_peer_socket(destination), (const char*) &size, 4);
     send_buffer(find_peer_socket(destination), buffer, size); //TODO: deal with errors
 }
 
@@ -392,10 +425,12 @@ static void tcpSP_sendmsg_all(const char * buffer, size_t size)
 
     if (spstate.ishost) {
         for (i = 0; i < MAX_N_PEERS; ++i) {
+            send_buffer(spstate.peers[i].socket, (const char*) &size, 4);
             send_buffer(spstate.peers[i].socket, buffer, size);
         }
     }
     else {
+        send_buffer(spstate.socket, (const char*) &size, 4);
         send_buffer(spstate.socket, buffer, size);
     }
 }
