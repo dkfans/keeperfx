@@ -39,12 +39,12 @@ extern SDL_Surface * lbScreenSurface;
 extern SDL_Surface * lbDrawSurface;
 /******************************************************************************/
 void LbScreenSurfaceInit(struct SSurface *surf);
-bool LbScreenSurfaceCreate(struct SSurface *surf, unsigned long w, unsigned long h);
-bool LbScreenSurfaceRelease(struct SSurface *surf);
-bool LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned long y,
+TbResult LbScreenSurfaceCreate(struct SSurface *surf, unsigned long w, unsigned long h);
+TbResult LbScreenSurfaceRelease(struct SSurface *surf);
+TbResult LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned long y,
     struct TbRect *rect, unsigned long blflags);
 void *LbScreenSurfaceLock(struct SSurface *surf);
-bool LbScreenSurfaceUnlock(struct SSurface *surf);
+TbResult LbScreenSurfaceUnlock(struct SSurface *surf);
 /******************************************************************************/
 #ifdef __cplusplus
 }

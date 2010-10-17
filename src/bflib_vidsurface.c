@@ -43,7 +43,7 @@ void LbScreenSurfaceInit(struct SSurface *surf)
   surf->locks_count = 0;
 }
 
-bool LbScreenSurfaceCreate(struct SSurface *surf,unsigned long w,unsigned long h)
+TbResult LbScreenSurfaceCreate(struct SSurface *surf,unsigned long w,unsigned long h)
 {
     const SDL_PixelFormat * format = NULL;
 
@@ -56,32 +56,32 @@ bool LbScreenSurfaceCreate(struct SSurface *surf,unsigned long w,unsigned long h
 
     if (surf->surf_data == NULL) {
         ERRORLOG("Failed to create surface.");
-        return false;
+        return Lb_FAIL;
     }
     surf->locks_count = 0;
     surf->pitch = surf->surf_data->pitch;
 
     //moved color key control to blt_surface()
 
-    return true;
+    return Lb_SUCCESS;
 }
 
-bool LbScreenSurfaceRelease(struct SSurface *surf)
+TbResult LbScreenSurfaceRelease(struct SSurface *surf)
 {
   if (surf->surf_data == NULL) {
-    return false;
+    return Lb_FAIL;
   }
 
   SDL_FreeSurface(surf->surf_data);
   surf->surf_data = NULL;
 
-  return true;
+  return Lb_SUCCESS;
 }
 
-bool LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned long y,
+TbResult LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned long y,
     struct TbRect *rect, unsigned long blflags)
 {
-  // Convert to SDL rectangles:
+  // Convert to SDL rectangles
 
   SDL_Rect srcRect;
   SDL_Rect destRect;
@@ -96,7 +96,7 @@ bool LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned long y
   destRect.w = srcRect.w;
   destRect.h = srcRect.h;
 
-  // Set blit parameters:
+  // Set blit parameters
 
   if ((blflags & 0x02) != 0) {
     //TODO: see how/if to handle this, I interpret this as "blit directly to primary rather than back"
@@ -143,7 +143,7 @@ bool LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned long y
     surf->surf_data->format->palette = paletteBackup;
   }
 
-  return true;
+  return Lb_SUCCESS;
 }
 
 void *LbScreenSurfaceLock(struct SSurface *surf)
@@ -162,20 +162,19 @@ void *LbScreenSurfaceLock(struct SSurface *surf)
   return surf->surf_data->pixels;
 }
 
-bool LbScreenSurfaceUnlock(struct SSurface *surf)
+TbResult LbScreenSurfaceUnlock(struct SSurface *surf)
 {
   if (surf->locks_count == 0)
   {
-    return true;
+    return Lb_SUCCESS;
   }
-  surf->locks_count = 0;
   if (surf->surf_data == NULL)
   {
-    return false;
+    return Lb_FAIL;
   }
   SDL_UnlockSurface(surf->surf_data);
   surf->locks_count--;
-  return true;
+  return Lb_SUCCESS;
 }
 /******************************************************************************/
 #ifdef __cplusplus
