@@ -235,11 +235,12 @@ obj/%.o: src/%.c
 	@echo ' '
 
 obj/ver_defs.h: version.mk
-	@echo #define VER_MAJOR         $(VER_MAJOR) > "$@"
-	@echo #define VER_MINOR         $(VER_MINOR) >> "$@"
-	@echo #define VER_RELEASE       $(VER_RELEASE) >> "$@"
-	@echo #define VER_BUILD         $(VER_BUILD) >> "$@"
-	@echo #define VER_STRING        "$(VER_STRING)" >> "$@"
+	@touch "$@"
+	@echo "#define VER_MAJOR         $(VER_MAJOR)" >> "$@"
+	@echo "#define VER_MINOR         $(VER_MINOR)" >> "$@"
+	@echo "#define VER_RELEASE       $(VER_RELEASE)" >> "$@"
+	@echo "#define VER_BUILD         $(VER_BUILD)" >> "$@"
+	@echo "#define VER_STRING        \"$(VER_STRING)\"" >> "$@"
 
 lib/libkeeperfx.a: bin/keeperfx.dll lib/keeperfx.def
 	@echo 'Generating gcc library archive for: $<'

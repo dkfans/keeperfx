@@ -409,14 +409,13 @@ TbBool wait_for_cd_to_be_available(void)
       for (i=0; i < 10; i++)
       {
         redraw_bitmap_screen(&nocd_bmp);
-        while ( (!LbIsActive()) && (!exit_keeper) && (!quit_game) )
+        do
         {
-          if (!LbWindowsControl())
-          {
-            exit_keeper = 1;
-            break;
-          }
-        }
+            if (!LbWindowsControl())
+                exit_keeper = 1;
+            if ((exit_keeper) || (quit_game))
+              break;
+        } while (!LbIsActive());
         if (is_key_pressed(KC_Q,KM_DONTCARE) || is_key_pressed(KC_X,KM_DONTCARE))
         {
           ERRORLOG("User requested quit, giving up");
@@ -467,19 +466,16 @@ TbBool display_centered_message(long showTime, char *text)
       }
       LbScreenSwap();
       // Check if the window is active
-      while (!LbIsActive())
+      do
       {
-        if (!LbWindowsControl())
-        {
-          finish = true;
-          break;
-        }
-        if (exit_keeper)
-        {
-          finish = true;
-          break;
-        }
-      }
+          if (!LbWindowsControl())
+              exit_keeper = 1;
+          if ((exit_keeper) || (quit_game))
+          {
+              finish = true;
+              break;
+          }
+      } while (!LbIsActive());
       // Process inputs
       update_mouse();
       update_key_modifiers();

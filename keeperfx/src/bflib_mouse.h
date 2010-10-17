@@ -134,17 +134,17 @@ TbResult LbMouseOnBeginSwap(void);
 void LbMouseOnEndSwap(void);
 
 /*
-int __fastcall LbMouseReset();
-int __fastcall LbMousePlace(void);
-int __fastcall LbMouseRemove(void);
+int LbMouseReset();
+int LbMousePlace(void);
+int LbMouseRemove(void);
 
-int __fastcall screen_place(void);
-int __fastcall screen_remove(unsigned long force);
-bool __fastcall adjust_point(long *x, long *y);
-char __fastcall mouse_in_rect(short x1, short x2, short y1, short y2);
+int screen_place(void);
+int screen_remove(unsigned long force);
+bool adjust_point(long *x, long *y);
+char mouse_in_rect(short x1, short x2, short y1, short y2);
 bool mouse_setup_range(void);
-void __fastcall LbProcessMouseMove(struct SDL_MouseMotionEvent *motion);
-void __fastcall LbProcessMouseClick(struct SDL_MouseButtonEvent *button);
+void LbProcessMouseMove(struct SDL_MouseMotionEvent *motion);
+void LbProcessMouseClick(struct SDL_MouseButtonEvent *button);
 */
 /******************************************************************************/
 #ifdef __cplusplus
