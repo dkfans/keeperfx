@@ -42,6 +42,8 @@ struct TbNetworkSessionNameEntry;
 #pragma pack()
 #endif
 /******************************************************************************/
+DLLIMPORT struct TbNetworkPlayerInfo _DK_net_player_info[NET_PLAYERS_COUNT];
+#define net_player_info _DK_net_player_info
 DLLIMPORT struct TbNetworkSessionNameEntry *_DK_net_session[32];
 #define net_session _DK_net_session
 DLLIMPORT long _DK_net_number_of_sessions;

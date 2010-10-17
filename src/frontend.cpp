@@ -1254,7 +1254,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     spridx = large_button_sprite_anims[((timeGetTime()-frontend_mouse_over_button_start_time)/100) & 7];
   } else
   {
-    fntidx = frontend_button_info[fbinfo_idx%FRONTEND_BUTTON_INFO_COUNT].field_2;
+    fntidx = frontend_button_info[fbinfo_idx%FRONTEND_BUTTON_INFO_COUNT].font_index;
     spridx = 14;
   }
   x = gbtn->scr_pos_x;
@@ -2583,7 +2583,7 @@ void frontend_draw_text(struct GuiButton *gbtn)
   if ((i != 0) && (frontend_mouse_over_button == i))
     LbTextSetFont(frontend_font[2]);
   else
-    LbTextSetFont(frontend_font[febtn_data->field_2]);
+    LbTextSetFont(frontend_font[febtn_data->font_index]);
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
   LbTextDraw(0, 0, gui_strings[febtn_data->capstr_idx%STRINGS_MAX]);
 }
@@ -4648,7 +4648,7 @@ void frontend_update(short *finish_menu)
     switch ( frontend_menu_state )
     {
       case FeSt_MAIN_MENU:
-        frontend_button_info[8].field_2 = (continue_game_option_available?1:3);
+        frontend_button_info[8].font_index = (continue_game_option_available?1:3);
         //this uses original timing function for compatibility with frontend_set_state()
         if ( abs(LbTimerClock()-time_last_played_demo) > MNU_DEMO_IDLE_TIME )
           frontend_set_state(FeSt_DEMO);

@@ -20,6 +20,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "bflib_datetm.h"
 #include "bflib_guibtns.h"
 #include "front_network.h"
 #include "bflib_netsp.hpp"
@@ -468,7 +469,7 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
   sessionIndex = net_session_scroll_offset + btnIndex - 45;
   if ((sessionIndex < 0) || (sessionIndex >= net_number_of_sessions))
       return;
-  fontIndex = frontend_button_info[btnIndex%FRONTEND_BUTTON_INFO_COUNT].field_2;
+  fontIndex = frontend_button_info[btnIndex%FRONTEND_BUTTON_INFO_COUNT].font_index;
   if ((btnIndex > 0) && (frontend_mouse_over_button == btnIndex)) {
       fontIndex = 2;
   }
@@ -619,12 +620,115 @@ void frontnet_draw_messages_scroll_tab(struct GuiButton *gbtn)
 
 void frontnet_draw_current_message(struct GuiButton *gbtn)
 {
-  _DK_frontnet_draw_current_message(gbtn);
+  //_DK_frontnet_draw_current_message(gbtn);
+
+  struct TbSprite * sprite;
+  int draw_x;
+  int i;
+  unsigned char height;
+  const char * format_string;
+  char * text_to_print;
+  int button_info_font_index;
+  char text[2048];
+
+  static int last_time = 0;
+  static unsigned print_with_underscore = 1; //might in fact be a global, see original function, either way doesn't matter too much
+
+  if ( LbTimerClock() >= last_time + 100 )
+  {
+    //weird code (why print with underscore after a certain time?)
+    print_with_underscore = print_with_underscore < 1;
+    last_time = LbTimerClock();
+  }
+
+  if ( print_with_underscore )
+  {
+    text_to_print = game.players[my_player_number].strfield_463;
+    format_string = "%s_";
+  }
+  else
+  {
+    text_to_print = game.players[my_player_number].strfield_463;
+    format_string = "%s";
+  }
+
+  snprintf(text, sizeof(text), format_string, text_to_print);
+  sprite = &frontend_sprite[55];
+  draw_x = gbtn->scr_pos_x;
+  button_info_font_index = frontend_button_info[(unsigned) gbtn->field_33].font_index;
+  for (i = 6; i > 0; --i)
+  {
+    LbSpriteDraw(draw_x, gbtn->scr_pos_y, sprite);
+    draw_x += sprite->SWidth;
+    ++sprite;
+  }
+
+  if ( text ) //hmm why?
+  {
+    lbDisplay.DrawFlags = 0;
+    lbFontPtr = frontend_font[button_info_font_index];
+    if ( frontend_font[button_info_font_index] )
+      height = frontend_font[button_info_font_index][1].SHeight;
+    else
+      height = 0;
+    LbTextSetWindow(gbtn->scr_pos_x + 13, gbtn->scr_pos_y, gbtn->width - 26, height);
+    LbTextDraw(0, 0, text);
+  }
 }
 
 void frontnet_draw_messages(struct GuiButton *gbtn)
 {
-  _DK_frontnet_draw_messages(gbtn);
+  //_DK_frontnet_draw_messages(gbtn);
+
+  struct TbSprite *font;
+  int y;
+  int font_index;
+  struct NetMessage *message_ptr;
+  int num_active;
+  unsigned char font_height;
+  struct TbSprite *player_sprite;
+  long long height_diff;
+  int scroll_offset;
+  int i;
+
+  y = 0;
+  scroll_offset = net_message_scroll_offset;
+  font_index = frontend_button_info[(unsigned) gbtn->field_33].font_index;
+  lbDisplay.DrawFlags = 0;
+  font = frontend_font[font_index];
+  lbFontPtr = frontend_font[font_index];
+  if ( gbtn->height )
+  {
+    message_ptr = &net_message[net_message_scroll_offset];
+    do
+    {
+      *(short *) font = scroll_offset; //check this, seems weird
+      if ( scroll_offset >= net_number_of_messages )
+        break;
+      num_active = 0;
+      for (i = message_ptr->plyr_idx; i > 0; --i)
+      {
+        if ( net_player_info[i].active)
+          ++num_active;
+      }
+
+      player_sprite = &frontend_sprite[num_active + 21];
+      font_height = 0;
+      if ( lbFontPtr )
+        font_height = lbFontPtr[1].SHeight;
+
+      height_diff = font_height - player_sprite->SHeight;
+      LbSpriteDraw(gbtn->scr_pos_x, y + gbtn->scr_pos_y + (((unsigned)height_diff - (unsigned) (height_diff >> 32)) >> 1), player_sprite);
+
+      LbTextSetWindow(gbtn->scr_pos_x, y + gbtn->scr_pos_y, gbtn->width, font_height);
+      LbTextDraw(player_sprite->SWidth, 0, message_ptr->text);
+
+      ++message_ptr;
+      y += font_height;
+      ++scroll_offset;
+    }
+    while ( y < gbtn->height );
+  }
 }
 
 void frontnet_return_to_session_menu(struct GuiButton *gbtn)
@@ -803,7 +907,7 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
   if (srvidx >= net_number_of_services)
     return;
   // Select font to draw
-  fntidx = frontend_button_info[fbinfo_idx%FRONTEND_BUTTON_INFO_COUNT].field_2;
+  fntidx = frontend_button_info[fbinfo_idx%FRONTEND_BUTTON_INFO_COUNT].font_index;
   if ((fbinfo_idx != 0) && (frontend_mouse_over_button == fbinfo_idx))
       fntidx = 2;
   LbTextSetFont(frontend_font[fntidx]);
