@@ -178,7 +178,7 @@ struct ToolTipBox {
 
 struct FrontEndButtonData {
         unsigned short capstr_idx;
-        unsigned char field_2;
+        unsigned char font_index;
 };
 
 struct EventTypeInfo { //sizeof=0x10
