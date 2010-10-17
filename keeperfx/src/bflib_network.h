@@ -104,9 +104,11 @@ struct NetSP //new version
      * TODO: this definition is due to how SDL Net handles sockets.. see if it can
      *  be improved - ideally this function shouldn't block at all
      * @param source The source user.
+     * @param timeout If non-zero, this method will wait this number of milliseconds
+     *  for a message to arrive before returning.
      * @return The size of the message waiting if there is a message, otherwise 0.
      */
-    size_t  (*msgready)(NetUserId source);
+    size_t  (*msgready)(NetUserId source, unsigned timeout);
 
     /**
      * Completely reads a message. Blocks until entire message has been read.

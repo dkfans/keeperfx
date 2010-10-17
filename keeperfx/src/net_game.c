@@ -232,6 +232,7 @@ long network_session_join(void)
         process_network_error(-802);
       return -1;
     }
+    init_players_network_game();
     return plyr_num;
 }
 /******************************************************************************/
