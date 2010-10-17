@@ -66,7 +66,7 @@ static TbError  tcpSP_join(const char * session, void * options);
 static void     tcpSP_update(NetNewUserCallback new_user);
 static void     tcpSP_sendmsg_single(NetUserId destination, const char * buffer, size_t size);
 static void     tcpSP_sendmsg_all(const char * buffer, size_t size);
-static size_t   tcpSP_msgready(NetUserId source);
+static size_t   tcpSP_msgready(NetUserId source, unsigned timeout);
 static size_t   tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size);
 
 const struct NetSP tcpSP =
@@ -217,7 +217,7 @@ static TbError read_full(TCPsocket socket, struct Msg * msg)
     return Lb_OK;
 }
 
-static TbError read_partial(TCPsocket socket, struct Msg * msg)
+static TbError read_partial(TCPsocket socket, struct Msg * msg, unsigned timeout)
 {
     NETDBG(8, "Starting");
 
@@ -232,7 +232,7 @@ static TbError read_partial(TCPsocket socket, struct Msg * msg)
     }
 
     if (msg->state == READ_HEADER) {
-        SDLNet_CheckSockets(spstate.socketset, 0);
+        SDLNet_CheckSockets(spstate.socketset, timeout);
         if (!SDLNet_SocketReady(socket)) {
             return Lb_OK;
         }
@@ -245,7 +245,7 @@ static TbError read_partial(TCPsocket socket, struct Msg * msg)
     }
 
     if (msg->state == READ_BODY) {
-        SDLNet_CheckSockets(spstate.socketset, 0);
+        SDLNet_CheckSockets(spstate.socketset, timeout);
         if (!SDLNet_SocketReady(socket)) {
             return Lb_OK;
         }
@@ -435,7 +435,7 @@ static void tcpSP_sendmsg_all(const char * buffer, size_t size)
     }
 }
 
-static size_t tcpSP_msgready(NetUserId source)
+static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
 {
     Msg * msg;
 
@@ -451,7 +451,7 @@ static size_t tcpSP_msgready(NetUserId source)
         return msg->msg_size;
     }
 
-    if (read_partial(find_peer_socket(source), msg) == Lb_FAIL) {
+    if (read_partial(find_peer_socket(source), msg, timeout) == Lb_FAIL) {
         //TODO: handle disconnect or do it in read_partial
         return 0;
     }
