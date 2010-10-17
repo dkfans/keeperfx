@@ -38,8 +38,6 @@ DLLIMPORT int _DK_setup_network_service(int srvidx);
 /******************************************************************************/
 DLLIMPORT struct _GUID _DK_net_guid;
 #define net_guid _DK_net_guid
-DLLIMPORT struct TbNetworkPlayerInfo _DK_net_player_info[NET_PLAYERS_COUNT];
-#define net_player_info _DK_net_player_info
 DLLIMPORT int _DK_noOfEnumeratedDPlayServices;
 #define noOfEnumeratedDPlayServices _DK_noOfEnumeratedDPlayServices
 DLLIMPORT struct _GUID _DK_clientGuidTable[];

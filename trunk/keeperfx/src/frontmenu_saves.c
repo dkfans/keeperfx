@@ -228,7 +228,7 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
   long gbidx;
   int i,h;
   gbidx = (unsigned long)gbtn->field_33;
-  nfont = frontend_button_info[gbidx%FRONTEND_BUTTON_INFO_COUNT].field_2;
+  nfont = frontend_button_info[gbidx%FRONTEND_BUTTON_INFO_COUNT].font_index;
   if ((gbidx != 0) && (frontend_mouse_over_button == gbidx))
       nfont = 2;
   lbDisplay.DrawFlags = 0x20;
