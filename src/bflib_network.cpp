@@ -298,7 +298,7 @@ static void SendClientFrame(const char * frame_buffer, int seq_nbr) //seq_nbr be
         ptr - netstate.msg_buffer);
 }
 
-static unsigned CountLoggedInUsers(void)
+static unsigned CountLoggedInClients(void)
 {
     NetUserId id;
     unsigned count;
@@ -324,10 +324,10 @@ static void SendServerFrame(void)
     *(int *) ptr = netstate.seq_nbr;
     ptr += 4;
 
-    *ptr = CountLoggedInUsers();
+    *ptr = CountLoggedInClients() + 1;
     ptr += 1;
 
-    size = CountLoggedInUsers() * netstate.user_frame_size;
+    size = (CountLoggedInClients() + 1) * netstate.user_frame_size;
     LbMemoryCopy(ptr, netstate.exchg_buffer, size);
     ptr += size;
 
@@ -398,6 +398,11 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
 
         SendUserUpdate(id, source);
     }
+
+    //send up the stuff the other parts of the game expect
+    //TODO: try to get rid of this because it makes understanding code much more complicated
+    localPlayerInfoPtr[source].active = 1;
+    strcpy(localPlayerInfoPtr[source].name, netstate.users[source].name);
 }
 
 static void HandleLoginReply(char * ptr, char * end)
@@ -420,26 +425,31 @@ static void HandleUserUpdate(NetUserId source, char * ptr, char * end)
     ptr += 1;
 
     LbStringCopy(netstate.users[id].name, ptr, sizeof(netstate.users[id].name));
+
+    //send up the stuff the other parts of the game expect
+    //TODO: try to get rid of this because it makes understanding code much more complicated
+    localPlayerInfoPtr[id].active = 1;
+    strcpy(localPlayerInfoPtr[id].name, netstate.users[id].name);
 }
 
 static void HandleClientFrame(NetUserId source, char * ptr, char * end)
 {
-    int ack;
-
     NETDBG(7, "Starting");
 
-    ack = *(int *) ptr;
-    if (ack != netstate.users[source].ack + 1) {
-        NETMSG("Client %u ACK out of order", source);
-        //TODO: drop or re-sync
-        return;
-    }
-
-    netstate.users[source].ack = ack;
+    netstate.users[source].ack = *(int *) ptr;
     ptr += 4;
 
     LbMemoryCopy(&netstate.exchg_buffer[source * netstate.user_frame_size],
         ptr, netstate.user_frame_size);
+    ptr += netstate.user_frame_size;
+
+    if (ptr >= end) {
+        //TODO: handle bad frame
+        NETMSG("Bad frame size from client %u", source);
+        return;
+    }
+
+    NETDBG(9, "Handled client frame of %u bytes", netstate.user_frame_size);
 }
 
 static void HandleServerFrame(char * ptr, char * end)
@@ -472,6 +482,8 @@ static void HandleServerFrame(char * ptr, char * end)
     frame->seq_nbr = seq_nbr;
 
     LbMemoryCopy(frame->buffer, ptr, frame->size);
+
+    NETDBG(9, "Handled server frame of %u bytes", frame->size);
 }
 
 static void HandleMessage(NetUserId source)
@@ -547,6 +559,8 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
   NetUserId usr;
 
   res = Lb_FAIL;
+
+  localPlayerInfoPtr = locplayr; //TODO: try to get rid of dependency on external player list, makes things 2x more complicated
 
   /*//return _DK_LbNetwork_Init(srvcp,guid,maxplayrs,exchng_buf,exchng_size,locplayr,init_data);
   exchangeSize = exchng_size;
@@ -956,6 +970,14 @@ static void ConsumeServerFrame(void)
     NetFrame * frame;
 
     frame = netstate.exchg_queue;
+    NETDBG(8, "Consuming Server frame %d of size %u", frame->seq_nbr, frame->size);
+
+    for (int i = 0; i < frame->size / netstate.user_frame_size; ++i) {
+        struct Packet * p = &((Packet *) frame->buffer)[i];
+        NETMSG("Packet action: %u", p->action);
+    }
+
+
     netstate.exchg_queue = frame->next;
     netstate.seq_nbr = frame->seq_nbr;
     LbMemoryCopy(netstate.exchg_buffer, frame->buffer, frame->size);
@@ -993,7 +1015,7 @@ TbError LbNetwork_Exchange(void *buf)
             }
 
             if (netstate.users[id].progress == USER_LOGGEDIN) {
-                if (netstate.seq_nbr > SCHEDULED_LAG_IN_FRAMES) { //scheduled lag in TCP stream
+                if (netstate.seq_nbr >= SCHEDULED_LAG_IN_FRAMES) { //scheduled lag in TCP stream
                     //TODO: take time to detect a lagger which can then be announced
                     ProcessMessagesUntilNextFrame(id, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
                 }
@@ -1020,6 +1042,8 @@ TbError LbNetwork_Exchange(void *buf)
             return Lb_FAIL;
         }
 
+        struct Packet * testpacket = (Packet *) buf;
+        if (testpacket->action) NETMSG("Will send action %d", testpacket->action);
         SendClientFrame((char *) buf, netstate.exchg_queue->seq_nbr);
         ConsumeServerFrame(); //most likely overwrites what is sent in SendClientFrame
     }
@@ -1227,18 +1251,17 @@ void __stdcall GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, 
 
 TbError GetPlayerInfo(void)
 {
-  struct ClientDataEntry  *clidat;
   struct TbNetworkPlayerInfo *lpinfo;
   long i;
   NETLOG("Starting");
-  for (i=0; i < maximumPlayers; i++)
+  for (i=0; i < netstate.max_players; i++)
   {
-    clidat = &clientDataTable[i];
     lpinfo = &localPlayerInfoPtr[i];
-    if ( clidat->isactive )
+    if ( netstate.users[i].progress == USER_SERVER ||
+            netstate.users[i].progress == USER_LOGGEDIN )
     {
       lpinfo->active = 1;
-      strncpy(lpinfo->name, clidat->name, 32);
+      LbStringCopy(lpinfo->name, netstate.users[i].name, 32);
     } else
     {
       lpinfo->active = 0;
