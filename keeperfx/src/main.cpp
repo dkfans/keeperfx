@@ -9631,6 +9631,7 @@ void startup_network_game(void)
   post_init_players();
   post_init_packets();
   set_selected_level_number(0);
+  LbNetwork_EnableLag(1);
 }
 
 void faststartup_network_game(void)

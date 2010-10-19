@@ -407,7 +407,7 @@ static void tcpSP_sendmsg_single(NetUserId destination, const char * buffer, siz
     assert(buffer);
     assert(size > 0);
 
-    NETDBG(9, "Starting for buffer of %u bytes", size);
+    NETDBG(9, "Starting for buffer of %u bytes to user %u", size, destination);
 
     send_buffer(find_peer_socket(destination), (const char*) &size, 4);
     send_buffer(find_peer_socket(destination), buffer, size); //TODO: deal with errors
@@ -440,7 +440,7 @@ static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
     Msg * msg;
 
     assert(source < MAX_N_PEERS);
-    NETDBG(9, "Starting");
+    NETDBG(9, "Starting message ready check for user %u", source);
 
     msg = find_peer_message(source);
     if (!msg) {
@@ -471,7 +471,7 @@ static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
     assert(source < MAX_N_PEERS);
     assert(buffer);
     assert(max_size > 0);
-    NETDBG(9, "Starting");
+    NETDBG(9, "Starting read from user %u", source);
 
     msg = find_peer_message(source);
     if (!msg) {
