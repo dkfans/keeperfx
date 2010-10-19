@@ -557,7 +557,6 @@ void frontnet_session_create(struct GuiButton *gbtn)
       process_network_error(-801);
     return;
   }
-  init_players_network_game();
   frontend_set_player_number(plyr_num);
   fe_computer_players = 0;
   frontend_set_state(FeSt_NET_START);
