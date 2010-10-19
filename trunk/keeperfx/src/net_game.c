@@ -76,7 +76,8 @@ short setup_network_service(int srvidx)
       break;
   }
   memset(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
-  if ( LbNetwork_Init(srvidx, _DK_net_guid, maxplayrs, &net_screen_packet, 0xCu, &net_player_info[0], init_data) )
+  if ( LbNetwork_Init(srvidx, _DK_net_guid, maxplayrs, &net_screen_packet,
+      sizeof(struct ScreenPacket), &net_player_info[0], init_data) )
   {
     if (srvidx != 0)
       process_network_error(-800);
@@ -230,7 +231,6 @@ long network_session_join(void)
         process_network_error(-802);
       return -1;
     }
-    init_players_network_game();
     return plyr_num;
 }
 /******************************************************************************/
