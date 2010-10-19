@@ -10007,6 +10007,10 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           set_flag_byte(&start_params.debug_flags,DFlg_ShotsDamage,true);
       } else
+      if (strcasecmp(parstr, "sessions") == 0) {
+          narg++;
+          LbNetwork_InitSessionsFromCmdLine(pr2str);
+      } else
       if (strcasecmp(parstr,"alex") == 0)
       {
          set_flag_byte(&start_params.flags_font,FFlg_AlexCheat,true);
