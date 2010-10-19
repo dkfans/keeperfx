@@ -145,6 +145,7 @@ struct UnidirectionalRTSMessage rtsMessage;
  */
 #define SCHEDULED_LAG_IN_FRAMES 12
 
+#define SESSION_COUNT 32 //not arbitrary, it's what code calling EnumerateSessions expects
 
 enum NetUserProgress
 {
@@ -214,14 +215,16 @@ struct NetState
     unsigned                max_players;        //max players that will actually be used
     size_t                  user_frame_size;    //sizeof(Packet) most probably
     char *                  exchg_buffer;
-    TbBool                  enable_lag;          //enable scheduled lag mode in exchange (in the best case this would always be true but other parts of code expects perfect sync for now)
+    TbBool                  enable_lag;         //enable scheduled lag mode in exchange (in the best case this would always be true but other parts of code expects perfect sync for now)
     char                    msg_buffer[(sizeof(NetFrame) + sizeof(struct Packet)) * PACKETS_COUNT + 1]; //completely estimated for now
-    char                    msg_buffer_null; //theoretical safe guard vs non-terminated strings
+    char                    msg_buffer_null;    //theoretical safe guard vs non-terminated strings
 };
 
+//the "new" code contained in this struct
 static struct NetState netstate;
 
-static struct TbNetworkSessionNameEntry test_session;
+//sessions placed here for now, would be smarter to store dynamically
+static struct TbNetworkSessionNameEntry sessions[SESSION_COUNT]; //using original because enumerate expects static life time
 
 // New network code data definitions end here =================================
 
@@ -570,6 +573,45 @@ static void VerifyBufferSize(void)
         ERRORLOG("Too small message buffer size: %u bytes required, %u bytes available. Will ABORT: Force programmer to fix error",
             required_msg_buffer_size, sizeof(netstate.msg_buffer));
         abort(); //no point in continuing, code bug
+    }
+}
+
+static void AddSession(const char * str, size_t len)
+{
+    unsigned i;
+
+    for (i = 0; i < SESSION_COUNT; ++i) {
+        if (sessions[i].in_use) {
+            continue;
+        }
+
+        sessions[i].in_use = 1;
+        sessions[i].joinable = 1; //actually we don't know, but keep for now
+        net_copy_name_string(sessions[i].text, str, min(SESSION_NAME_MAX_LEN, len + 1));
+
+        break;
+    }
+}
+
+void LbNetwork_InitSessionsFromCmdLine(const char * str)
+{
+    const char * start, * end;
+
+    NETMSG("Initializing sessions from command line: %s", str);
+
+    start = end = str;
+
+    while (*end != '\0') {
+        if (start != end && (*end == ',' || *end == ';')) {
+            AddSession(start, end - start);
+            start = end + 1;
+        }
+
+        ++end;
+    }
+
+    if (start != end) {
+        AddSession(start, end - start);
     }
 }
 
@@ -1206,6 +1248,8 @@ TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNet
 
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
 {
+    unsigned i;
+
     SYNCDBG(9, "Starting");
 
   //char ret;
@@ -1222,11 +1266,13 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
     return ret;
   }*/
 
+    for (i = 0; i < SESSION_COUNT; ++i) {
+        if (!sessions[i].in_use) {
+            continue;
+        }
 
-    test_session.in_use = true;
-    test_session.joinable = true;
-    net_copy_name_string(test_session.text, "localhost:5555", SESSION_NAME_MAX_LEN);
-    callback((TbNetworkCallbackData *) &test_session, ptr);
+        callback((TbNetworkCallbackData *) &sessions[i], ptr);
+    }
 
     return Lb_OK;
 }
