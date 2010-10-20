@@ -1221,7 +1221,7 @@ long update_shot(struct Thing *thing);
 long update_dead_creature(struct Thing *thing);
 long process_door(struct Thing *thing);
 
-void startup_network_game(void);
+void startup_network_game(TbBool local);
 void startup_saved_packet_game(void);
 void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);

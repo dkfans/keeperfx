@@ -1050,6 +1050,9 @@ void versions_different_error(void)
   char text[MESSAGE_TEXT_LEN];
   char *str;
   int i;
+
+  NETMSG("Error: Players have different versions of DK");
+
   if (LbNetwork_Stop())
   {
     ERRORLOG("LbNetwork_Stop() failed");
