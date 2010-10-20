@@ -2335,13 +2335,29 @@ void close_packet_file(void)
   }
 }
 
+void dump_memory_to_file(const char * fname, const char * buf, size_t len)
+{
+    FILE *file;
+    file = fopen(fname, "w");
+    fwrite(buf, 1, len, file);
+    fflush(file);
+    fclose(file);
+}
+
 void write_debug_packets(void)
 {
-  FILE *file;
-  file = fopen("keeperd.pck", "w");
-  fwrite(game.packets, 1, sizeof(struct Packet)*PACKETS_COUNT, file);
-  fflush(file);
-  fclose(file);
+    //note, changed this to be more general and to handle multiplayer where there can
+    //be several players writing to same directory if testing on local machine
+    char filename[32];
+    snprintf(filename, sizeof(filename), "%s%u.%s", "keeperd", my_player_number, "pck");
+    dump_memory_to_file(filename, (char*) game.packets, sizeof(game.packets));
+}
+
+void write_debug_screenpackets(void)
+{
+    char filename[32];
+    snprintf(filename, sizeof(filename), "%s%u.%s", "keeperd", my_player_number, "spck");
+    dump_memory_to_file(filename, (char*) net_screen_packet, sizeof(net_screen_packet));
 }
 
 void process_packets(void)
@@ -2413,7 +2429,9 @@ void process_packets(void)
   if ((game.packet_save_enable) && (game.packet_fopened))
     save_packets();
 //Debug code, to find packet errors
-//write_debug_packets();
+#if BFDEBUG_LEVEL > 0
+  write_debug_packets();
+#endif
   // Process the packets
   for (i=0; i<PACKETS_COUNT; i++)
   {
@@ -2486,6 +2504,9 @@ void process_frontend_packets(void)
       }
     }
   }
+#if BFDEBUG_LEVEL > 0
+  write_debug_screenpackets();
+#endif
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
     nspckt = &net_screen_packet[i];
