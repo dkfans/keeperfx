@@ -9606,7 +9606,7 @@ void faststartup_saved_packet_game(void)
   set_flag_byte(&game.numfield_C,0x40,false);
 }
 
-void startup_network_game(void)
+void startup_network_game(TbBool local)
 {
   SYNCDBG(0,"Starting up network game.");
   //_DK_startup_network_game(); return;
@@ -9618,11 +9618,14 @@ void startup_network_game(void)
   init_level();
   player = get_my_player();
   player->field_2C = flgmem;
-  if (game.flagfield_14EA4A == 2)
+  //if (game.flagfield_14EA4A == 2) //was wrong because init_level sets this to 2. global variables are evil (though perhaps that's why they were chosen for DK? ;-))
+  if (local)
   {
+    game.flagfield_14EA4A = 2;
     init_players_local_game();
   } else
   {
+    game.flagfield_14EA4A = 5;
     init_players_network_game();
   }
   if (fe_computer_players)
@@ -9631,7 +9634,7 @@ void startup_network_game(void)
   post_init_players();
   post_init_packets();
   set_selected_level_number(0);
-  LbNetwork_EnableLag(1);
+  //LbNetwork_EnableLag(1);
 }
 
 void faststartup_network_game(void)
@@ -9647,7 +9650,7 @@ void faststartup_network_game(void)
   }
   player = get_my_player();
   player->field_2C = 1;
-  startup_network_game();
+  startup_network_game(true);
   player = get_my_player();
   player->field_6 &= ~0x02;
 }
@@ -9788,14 +9791,14 @@ void wait_at_frontend(void)
         set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
         player = get_my_player();
         player->field_2C = 1;
-        startup_network_game();
+        startup_network_game(true);
         break;
   case 8:
         set_flag_byte(&game.system_flags,GSF_NetworkActive,true);
         game.flagfield_14EA4A = 5;
         player = get_my_player();
         player->field_2C = 1;
-        startup_network_game();
+        startup_network_game(false);
         break;
   case 10:
         flgmem = game.numfield_15;
