@@ -455,7 +455,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         sdlFlags |= SDL_DOUBLEBUF;
     }
     if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
-        //sdlFlags |= SDL_FULLSCREEN;
+        sdlFlags |= SDL_FULLSCREEN;
     }
 
     // Set SDL video mode (also creates window).

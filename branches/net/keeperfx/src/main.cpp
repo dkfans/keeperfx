@@ -9348,6 +9348,9 @@ void init_level(void)
 
 void pannel_map_update(long x, long y, long w, long h)
 {
+    SYNCDBG(7,"Starting");
+    _DK_pannel_map_update(x, y, w, h);
+
     /*int current_x;
     char map_tile_flags;
     int weird_slab_result;
@@ -9360,9 +9363,6 @@ void pannel_map_update(long x, long y, long w, long h)
     char *panel_map_ptr;
     int slab_index;
     int player_id_mask;
-
-    SYNCDBG(7,"Starting");
-    //_DK_pannel_map_update(x, y, w, h);
 
     assert(x >= 0);
     assert(y >= 0);

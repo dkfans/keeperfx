@@ -133,12 +133,6 @@ obj/lens_mist.o \
 obj/lens_flyeye.o \
 obj/lens_api.o \
 obj/light_data.o \
-obj/ariadne_navitree.o \
-obj/ariadne_regions.o \
-obj/ariadne_tringls.o \
-obj/ariadne_edge.o \
-obj/ariadne_points.o \
-obj/ariadne_findcache.o \
 obj/ariadne.o \
 obj/creature_states.o \
 obj/thing_objects.o \
