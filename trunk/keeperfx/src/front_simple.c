@@ -185,9 +185,9 @@ TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int 
     {
         LbWindowsControl();
         copy_raw8_image_to_screen_center(raw, width, height);
-        if (is_key_pressed(KC_SPACE, KM_DONTCARE)
-         || is_key_pressed(KC_ESCAPE, KM_DONTCARE)
-         || is_key_pressed(KC_RETURN, KM_DONTCARE)
+        if (is_key_pressed(KC_SPACE, KMod_DONTCARE)
+         || is_key_pressed(KC_ESCAPE, KMod_DONTCARE)
+         || is_key_pressed(KC_RETURN, KMod_DONTCARE)
          || is_mouse_pressed_lrbutton())
         {
             clear_key_pressed(KC_SPACE);
@@ -416,7 +416,7 @@ TbBool wait_for_cd_to_be_available(void)
             if ((exit_keeper) || (quit_game))
               break;
         } while (!LbIsActive());
-        if (is_key_pressed(KC_Q,KM_DONTCARE) || is_key_pressed(KC_X,KM_DONTCARE))
+        if (is_key_pressed(KC_Q,KMod_DONTCARE) || is_key_pressed(KC_X,KMod_DONTCARE))
         {
           ERRORLOG("User requested quit, giving up");
           clear_key_pressed(KC_Q);
@@ -479,7 +479,7 @@ TbBool display_centered_message(long showTime, char *text)
       // Process inputs
       update_mouse();
       update_key_modifiers();
-      if (is_key_pressed(KC_Q,KM_DONTCARE) || is_key_pressed(KC_X,KM_DONTCARE))
+      if (is_key_pressed(KC_Q,KMod_DONTCARE) || is_key_pressed(KC_X,KMod_DONTCARE))
       {
         ERRORLOG("User requested quit, giving up");
         clear_key_pressed(KC_Q);
@@ -488,7 +488,7 @@ TbBool display_centered_message(long showTime, char *text)
         finish = true;
         break;
       }
-      if (is_key_pressed(KC_ESCAPE,KM_DONTCARE) || is_key_pressed(KC_RETURN,KM_DONTCARE) || is_key_pressed(KC_SPACE,KM_DONTCARE))
+      if (is_key_pressed(KC_ESCAPE,KMod_DONTCARE) || is_key_pressed(KC_RETURN,KMod_DONTCARE) || is_key_pressed(KC_SPACE,KMod_DONTCARE))
       {
         clear_key_pressed(KC_ESCAPE);
         clear_key_pressed(KC_RETURN);
