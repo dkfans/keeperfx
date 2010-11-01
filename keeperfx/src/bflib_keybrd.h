@@ -26,9 +26,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-    //PC Keyboard scan codes
-    enum KeyCodes
-    {
+    /** PC Keyboard scan codes.
+     *  These are used as internal key codes in the Bullfrog engine. */
+    enum KeyCodes {
         KC_UNASSIGNED  = 0x00,
         KC_ESCAPE      = 0x01,
         KC_1           = 0x02,
@@ -42,7 +42,7 @@ extern "C" {
         KC_9           = 0x0A,
         KC_0           = 0x0B,
         KC_MINUS       = 0x0C,    // - on main keyboard
-        KC_EQUALS      = 0x0D,
+        KC_EQUALS      = 0x0D,    // = on main keyboard
         KC_BACK        = 0x0E,    // backspace
         KC_TAB         = 0x0F,
         KC_Q           = 0x10,
@@ -69,8 +69,8 @@ extern "C" {
         KC_K           = 0x25,
         KC_L           = 0x26,
         KC_SEMICOLON   = 0x27,
-        KC_APOSTROPHE  = 0x28,
-        KC_GRAVE       = 0x29,    // accent
+        KC_APOSTROPHE  = 0x28,    // quote "'"
+        KC_GRAVE       = 0x29,    // accent "`"
         KC_LSHIFT      = 0x2A,
         KC_BACKSLASH   = 0x2B,
         KC_Z           = 0x2C,
@@ -167,16 +167,22 @@ extern "C" {
         KC_WAKE        = 0xE3,    // System Wake
     };
 
-    enum KeyModifiers
-    {
-        KM_NONE        = 0x00,
-        KM_SHIFT       = 0x01,
-        KM_CONTROL     = 0x02,
-        KM_ALT         = 0x04,
+    enum KeyAction {
+        KActn_NONE = 0,
+        KActn_KEYDOWN,
+        KActn_KEYUP,
     };
-#define KM_DONTCARE -1
+
+    enum KeyModifiers {
+        KMod_NONE        = 0x00,
+        KMod_SHIFT       = 0x10,
+        KMod_CONTROL     = 0x20,
+        KMod_ALT         = 0x40,
+    };
+#define KMod_DONTCARE -1
 
 typedef unsigned char TbKeyCode;
+typedef short TbKeyMods;
 
 DLLIMPORT extern unsigned char _DK_lbKeyOn[256];
 #define lbKeyOn _DK_lbKeyOn
@@ -209,6 +215,7 @@ short LbIKeyboardOpen(void);
 short LbIKeyboardClose(void);
 void LbKeyboardSetLanguage(int lngnum);
 short LbKeyCodeValid(TbKeyCode key);
+void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers);
 long __stdcall KeyboardProc(int, unsigned int, long);
 /******************************************************************************/
 #ifdef __cplusplus

@@ -1379,7 +1379,7 @@ void frontmap_input(void)
   {
     zoom_done = true;
   }
-  if (is_key_pressed(KC_ESCAPE, KM_DONTCARE))
+  if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
   {
     clear_key_pressed(KC_ESCAPE);
     frontend_set_state(FeSt_MAIN_MENU);
@@ -1389,7 +1389,7 @@ void frontmap_input(void)
   if (zoom_done)
   {
     check_mouse_scroll();
-    if (is_key_pressed(KC_F11, KM_CONTROL))
+    if (is_key_pressed(KC_F11, KMod_CONTROL))
     {
       if ((game.flags_font & FFlg_AlexCheat) != 0)
       {
@@ -1398,7 +1398,7 @@ void frontmap_input(void)
         return;
       }
     }
-    if (is_key_pressed(KC_F10, KM_CONTROL))
+    if (is_key_pressed(KC_F10, KMod_CONTROL))
     {
       if ((game.flags_font & FFlg_AlexCheat) != 0)
       {
@@ -1410,7 +1410,7 @@ void frontmap_input(void)
         return;
       }
     }
-    if (is_key_pressed(KC_F9, KM_CONTROL))
+    if (is_key_pressed(KC_F9, KMod_CONTROL))
     {
       if ((game.flags_font & FFlg_AlexCheat) != 0)
       {

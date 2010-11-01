@@ -1393,9 +1393,9 @@ void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFl
         last_loop_time = LbTimerClock();
         while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
-          if (!is_key_pressed(KC_SPACE,KM_DONTCARE) &&
-              !is_key_pressed(KC_ESCAPE,KM_DONTCARE) &&
-              !is_key_pressed(KC_RETURN,KM_DONTCARE) &&
+          if (!is_key_pressed(KC_SPACE,KMod_DONTCARE) &&
+              !is_key_pressed(KC_ESCAPE,KMod_DONTCARE) &&
+              !is_key_pressed(KC_RETURN,KMod_DONTCARE) &&
               !is_mouse_pressed_lrbutton())
           {
             last_loop_time += 25;
@@ -4209,22 +4209,22 @@ void setup_default_settings(void)
   const struct GameSettings default_settings = {
    0, 4, 3, 0, 1, 0, 127, 90, 1, 0, 1,
    {
-    {KC_UP, KM_NONE},       {KC_DOWN, KM_NONE},
-    {KC_LEFT, KM_NONE},     {KC_RIGHT, KM_NONE},
-    {KC_LCONTROL, KM_NONE}, {KC_LSHIFT, KM_NONE},
-    {KC_DELETE, KM_NONE},   {KC_PGDOWN, KM_NONE},
-    {KC_HOME, KM_NONE},     {KC_END, KM_NONE},
-    {KC_T, KM_NONE},        {KC_L, KM_NONE},
-    {KC_L, KM_SHIFT},       {KC_P, KM_SHIFT},
-    {KC_T, KM_ALT},         {KC_T, KM_SHIFT},
-    {KC_H, KM_NONE},        {KC_W, KM_NONE},
-    {KC_S, KM_NONE},        {KC_T, KM_CONTROL},
-    {KC_G, KM_NONE},        {KC_B, KM_NONE},
-    {KC_H, KM_SHIFT},       {KC_G, KM_SHIFT},
-    {KC_B, KM_SHIFT},       {KC_F, KM_NONE},
-    {KC_A, KM_NONE},        {KC_LSHIFT, KM_NONE},
-    {KC_NUMPAD0, KM_NONE},  {KC_BACK, KM_NONE},
-    {KC_P, KM_NONE},        {KC_M, KM_NONE},
+    {KC_UP, KMod_NONE},       {KC_DOWN, KMod_NONE},
+    {KC_LEFT, KMod_NONE},     {KC_RIGHT, KMod_NONE},
+    {KC_LCONTROL, KMod_NONE}, {KC_LSHIFT, KMod_NONE},
+    {KC_DELETE, KMod_NONE},   {KC_PGDOWN, KMod_NONE},
+    {KC_HOME, KMod_NONE},     {KC_END, KMod_NONE},
+    {KC_T, KMod_NONE},        {KC_L, KMod_NONE},
+    {KC_L, KMod_SHIFT},       {KC_P, KMod_SHIFT},
+    {KC_T, KMod_ALT},         {KC_T, KMod_SHIFT},
+    {KC_H, KMod_NONE},        {KC_W, KMod_NONE},
+    {KC_S, KMod_NONE},        {KC_T, KMod_CONTROL},
+    {KC_G, KMod_NONE},        {KC_B, KMod_NONE},
+    {KC_H, KMod_SHIFT},       {KC_G, KMod_SHIFT},
+    {KC_B, KMod_SHIFT},       {KC_F, KMod_NONE},
+    {KC_A, KMod_NONE},        {KC_LSHIFT, KMod_NONE},
+    {KC_NUMPAD0, KMod_NONE},  {KC_BACK, KMod_NONE},
+    {KC_P, KMod_NONE},        {KC_M, KMod_NONE},
    }, 1, 0, 6};
   LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
   cpu_detect(&cpu_info);

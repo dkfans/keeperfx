@@ -72,7 +72,7 @@ const struct ConfigInfo default_net_config_info = {
 /******************************************************************************/
 long modem_initialise_callback(void)
 {
-  if (is_key_pressed(KC_ESCAPE, KM_DONTCARE))
+  if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
   {
     clear_key_pressed(KC_ESCAPE);
     return -7;
@@ -88,7 +88,7 @@ long modem_initialise_callback(void)
 
 long modem_connect_callback(void)
 {
-  if (is_key_pressed(KC_ESCAPE, KM_DONTCARE))
+  if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
   {
     clear_key_pressed(KC_ESCAPE);
     return -7;
