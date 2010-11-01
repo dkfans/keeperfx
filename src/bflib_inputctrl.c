@@ -29,6 +29,9 @@
 #include <SDL/SDL.h>
 #include <windows.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /******************************************************************************/
 extern volatile TbBool lbScreenInitialised;
 extern volatile TbBool lbHasSecondSurface;
@@ -36,6 +39,7 @@ extern SDL_Color lbPaletteColors[PALETTE_COLORS];
 
 volatile TbBool lbAppActive;
 volatile int lbUserQuit = 0;
+TbKeyCode keymap_sdl_to_bf[SDLK_LAST-SDLK_FIRST];
 /******************************************************************************/
 /**
  * Converts an SDL mouse button event type and the corresponding mouse button to a Win32 API message.
@@ -67,69 +71,171 @@ static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseB
     return MActn_NONE;
 }
 
-/**
- * Temporary function that emulates the value of the extension bit in WM_KEYUP/WM_KEYDOWN
- * until KeyboardProc can be written.
- * @param sym
- * @return
- */
-static bool has_ext_bit(SDLKey sym)
+void prepare_keys_mapping(void)
 {
-    switch (sym) {
-    case SDLK_RALT:
-    case SDLK_RCTRL:
-    case SDLK_INSERT:
-    case SDLK_HOME:
-    case SDLK_END:
-    case SDLK_DELETE:
-    case SDLK_PAGEUP:
-    case SDLK_PAGEDOWN:
-    case SDLK_UP:
-    case SDLK_DOWN:
-    case SDLK_LEFT:
-    case SDLK_RIGHT:
-    case SDLK_KP_DIVIDE:
-    case SDLK_KP_ENTER:
-        return true;
-    default:
-        return false;
-    }
+    int i;
+    for (i = 0; i < sizeof(keymap_sdl_to_bf)/sizeof(TbKeyCode); i++)
+        keymap_sdl_to_bf[i] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_a-SDLK_FIRST] = KC_A;
+    keymap_sdl_to_bf[SDLK_b-SDLK_FIRST] = KC_B;
+    keymap_sdl_to_bf[SDLK_c-SDLK_FIRST] = KC_C;
+    keymap_sdl_to_bf[SDLK_d-SDLK_FIRST] = KC_D;
+    keymap_sdl_to_bf[SDLK_e-SDLK_FIRST] = KC_E;
+    keymap_sdl_to_bf[SDLK_f-SDLK_FIRST] = KC_F;
+    keymap_sdl_to_bf[SDLK_g-SDLK_FIRST] = KC_G;
+    keymap_sdl_to_bf[SDLK_h-SDLK_FIRST] = KC_H;
+    keymap_sdl_to_bf[SDLK_i-SDLK_FIRST] = KC_I;
+    keymap_sdl_to_bf[SDLK_j-SDLK_FIRST] = KC_J;
+    keymap_sdl_to_bf[SDLK_k-SDLK_FIRST] = KC_K;
+    keymap_sdl_to_bf[SDLK_l-SDLK_FIRST] = KC_L;
+    keymap_sdl_to_bf[SDLK_m-SDLK_FIRST] = KC_M;
+    keymap_sdl_to_bf[SDLK_n-SDLK_FIRST] = KC_N;
+    keymap_sdl_to_bf[SDLK_o-SDLK_FIRST] = KC_O;
+    keymap_sdl_to_bf[SDLK_p-SDLK_FIRST] = KC_P;
+    keymap_sdl_to_bf[SDLK_q-SDLK_FIRST] = KC_Q;
+    keymap_sdl_to_bf[SDLK_r-SDLK_FIRST] = KC_R;
+    keymap_sdl_to_bf[SDLK_s-SDLK_FIRST] = KC_S;
+    keymap_sdl_to_bf[SDLK_t-SDLK_FIRST] = KC_T;
+    keymap_sdl_to_bf[SDLK_u-SDLK_FIRST] = KC_U;
+    keymap_sdl_to_bf[SDLK_v-SDLK_FIRST] = KC_V;
+    keymap_sdl_to_bf[SDLK_w-SDLK_FIRST] = KC_W;
+    keymap_sdl_to_bf[SDLK_x-SDLK_FIRST] = KC_X;
+    keymap_sdl_to_bf[SDLK_y-SDLK_FIRST] = KC_Y;
+    keymap_sdl_to_bf[SDLK_z-SDLK_FIRST] = KC_Z;
+    keymap_sdl_to_bf[SDLK_F1-SDLK_FIRST] = KC_F1;
+    keymap_sdl_to_bf[SDLK_F2-SDLK_FIRST] = KC_F2;
+    keymap_sdl_to_bf[SDLK_F3-SDLK_FIRST] = KC_F3;
+    keymap_sdl_to_bf[SDLK_F4-SDLK_FIRST] = KC_F4;
+    keymap_sdl_to_bf[SDLK_F5-SDLK_FIRST] = KC_F5;
+    keymap_sdl_to_bf[SDLK_F6-SDLK_FIRST] = KC_F6;
+    keymap_sdl_to_bf[SDLK_F7-SDLK_FIRST] = KC_F7;
+    keymap_sdl_to_bf[SDLK_F8-SDLK_FIRST] = KC_F8;
+    keymap_sdl_to_bf[SDLK_F9-SDLK_FIRST] = KC_F9;
+    keymap_sdl_to_bf[SDLK_F10-SDLK_FIRST] = KC_F10;
+    keymap_sdl_to_bf[SDLK_F11-SDLK_FIRST] = KC_F11;
+    keymap_sdl_to_bf[SDLK_F12-SDLK_FIRST] = KC_F12;
+    keymap_sdl_to_bf[SDLK_F13-SDLK_FIRST] = KC_F13;
+    keymap_sdl_to_bf[SDLK_F14-SDLK_FIRST] = KC_F14;
+    keymap_sdl_to_bf[SDLK_F15-SDLK_FIRST] = KC_F15;
+    keymap_sdl_to_bf[SDLK_BACKSPACE-SDLK_FIRST] = KC_BACK;
+    keymap_sdl_to_bf[SDLK_TAB-SDLK_FIRST] = KC_TAB;
+    keymap_sdl_to_bf[SDLK_CLEAR-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_RETURN-SDLK_FIRST] = KC_RETURN;
+    keymap_sdl_to_bf[SDLK_PAUSE-SDLK_FIRST] = KC_PAUSE;
+    keymap_sdl_to_bf[SDLK_ESCAPE-SDLK_FIRST] = KC_ESCAPE;
+    keymap_sdl_to_bf[SDLK_SPACE-SDLK_FIRST] = KC_SPACE;
+    keymap_sdl_to_bf[SDLK_EXCLAIM-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_QUOTEDBL-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_HASH-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_DOLLAR-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_AMPERSAND-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_QUOTE-SDLK_FIRST] = KC_APOSTROPHE;
+    keymap_sdl_to_bf[SDLK_LEFTPAREN-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_RIGHTPAREN-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_ASTERISK-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_PLUS-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_COMMA-SDLK_FIRST] = KC_COMMA;
+    keymap_sdl_to_bf[SDLK_MINUS-SDLK_FIRST] = KC_MINUS;
+    keymap_sdl_to_bf[SDLK_PERIOD-SDLK_FIRST] = KC_PERIOD;
+    keymap_sdl_to_bf[SDLK_SLASH-SDLK_FIRST] = KC_SLASH;
+    keymap_sdl_to_bf[SDLK_0-SDLK_FIRST] = KC_0;
+    keymap_sdl_to_bf[SDLK_1-SDLK_FIRST] = KC_1;
+    keymap_sdl_to_bf[SDLK_2-SDLK_FIRST] = KC_2;
+    keymap_sdl_to_bf[SDLK_3-SDLK_FIRST] = KC_3;
+    keymap_sdl_to_bf[SDLK_4-SDLK_FIRST] = KC_4;
+    keymap_sdl_to_bf[SDLK_5-SDLK_FIRST] = KC_5;
+    keymap_sdl_to_bf[SDLK_6-SDLK_FIRST] = KC_6;
+    keymap_sdl_to_bf[SDLK_7-SDLK_FIRST] = KC_7;
+    keymap_sdl_to_bf[SDLK_8-SDLK_FIRST] = KC_8;
+    keymap_sdl_to_bf[SDLK_9-SDLK_FIRST] = KC_9;
+    keymap_sdl_to_bf[SDLK_COLON-SDLK_FIRST] = KC_COLON;
+    keymap_sdl_to_bf[SDLK_SEMICOLON-SDLK_FIRST] = KC_SEMICOLON;
+    keymap_sdl_to_bf[SDLK_LESS-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_EQUALS-SDLK_FIRST] = KC_EQUALS;
+    keymap_sdl_to_bf[SDLK_GREATER-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_QUESTION-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_AT-SDLK_FIRST] = KC_AT;
+    keymap_sdl_to_bf[SDLK_LEFTBRACKET-SDLK_FIRST] = KC_LBRACKET;
+    keymap_sdl_to_bf[SDLK_BACKSLASH-SDLK_FIRST] = KC_BACKSLASH;
+    keymap_sdl_to_bf[SDLK_RIGHTBRACKET-SDLK_FIRST] = KC_RBRACKET;
+    keymap_sdl_to_bf[SDLK_CARET-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_UNDERSCORE-SDLK_FIRST] = KC_UNDERLINE;
+    keymap_sdl_to_bf[SDLK_BACKQUOTE-SDLK_FIRST] = KC_GRAVE;
+    keymap_sdl_to_bf[SDLK_DELETE-SDLK_FIRST] = KC_DELETE;
+    keymap_sdl_to_bf[SDLK_KP0-SDLK_FIRST] = KC_NUMPAD0;
+    keymap_sdl_to_bf[SDLK_KP1-SDLK_FIRST] = KC_NUMPAD1;
+    keymap_sdl_to_bf[SDLK_KP2-SDLK_FIRST] = KC_NUMPAD2;
+    keymap_sdl_to_bf[SDLK_KP3-SDLK_FIRST] = KC_NUMPAD3;
+    keymap_sdl_to_bf[SDLK_KP4-SDLK_FIRST] = KC_NUMPAD4;
+    keymap_sdl_to_bf[SDLK_KP5-SDLK_FIRST] = KC_NUMPAD5;
+    keymap_sdl_to_bf[SDLK_KP6-SDLK_FIRST] = KC_NUMPAD6;
+    keymap_sdl_to_bf[SDLK_KP7-SDLK_FIRST] = KC_NUMPAD7;
+    keymap_sdl_to_bf[SDLK_KP8-SDLK_FIRST] = KC_NUMPAD8;
+    keymap_sdl_to_bf[SDLK_KP9-SDLK_FIRST] = KC_NUMPAD9;
+    keymap_sdl_to_bf[SDLK_KP_PERIOD-SDLK_FIRST] = KC_DECIMAL;
+    keymap_sdl_to_bf[SDLK_KP_DIVIDE-SDLK_FIRST] = KC_DIVIDE;
+    keymap_sdl_to_bf[SDLK_KP_MULTIPLY-SDLK_FIRST] = KC_MULTIPLY;
+    keymap_sdl_to_bf[SDLK_KP_MINUS-SDLK_FIRST] = KC_SUBTRACT;
+    keymap_sdl_to_bf[SDLK_KP_PLUS-SDLK_FIRST] = KC_ADD;
+    keymap_sdl_to_bf[SDLK_KP_ENTER-SDLK_FIRST] = KC_NUMPADENTER;
+    keymap_sdl_to_bf[SDLK_KP_EQUALS-SDLK_FIRST] = KC_NUMPADEQUALS;
+    keymap_sdl_to_bf[SDLK_UP-SDLK_FIRST] = KC_UP;
+    keymap_sdl_to_bf[SDLK_DOWN-SDLK_FIRST] = KC_DOWN;
+    keymap_sdl_to_bf[SDLK_RIGHT-SDLK_FIRST] = KC_RIGHT;
+    keymap_sdl_to_bf[SDLK_LEFT-SDLK_FIRST] = KC_LEFT;
+    keymap_sdl_to_bf[SDLK_INSERT-SDLK_FIRST] = KC_INSERT;
+    keymap_sdl_to_bf[SDLK_HOME-SDLK_FIRST] = KC_HOME;
+    keymap_sdl_to_bf[SDLK_END-SDLK_FIRST] = KC_END;
+    keymap_sdl_to_bf[SDLK_PAGEUP-SDLK_FIRST] = KC_PGUP;
+    keymap_sdl_to_bf[SDLK_PAGEDOWN-SDLK_FIRST] = KC_PGDOWN;
+    keymap_sdl_to_bf[SDLK_NUMLOCK-SDLK_FIRST] = KC_NUMLOCK;
+    keymap_sdl_to_bf[SDLK_CAPSLOCK-SDLK_FIRST] = KC_CAPITAL;
+    keymap_sdl_to_bf[SDLK_SCROLLOCK-SDLK_FIRST] = KC_SCROLL;
+    keymap_sdl_to_bf[SDLK_RSHIFT-SDLK_FIRST] = KC_RSHIFT;
+    keymap_sdl_to_bf[SDLK_LSHIFT-SDLK_FIRST] = KC_LSHIFT;
+    keymap_sdl_to_bf[SDLK_RCTRL-SDLK_FIRST] = KC_RCONTROL;
+    keymap_sdl_to_bf[SDLK_LCTRL-SDLK_FIRST] = KC_LCONTROL;
+    keymap_sdl_to_bf[SDLK_RALT-SDLK_FIRST] = KC_RALT;
+    keymap_sdl_to_bf[SDLK_LALT-SDLK_FIRST] = KC_LALT;
+    keymap_sdl_to_bf[SDLK_RMETA-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_LMETA-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_LSUPER-SDLK_FIRST] = KC_LWIN;
+    keymap_sdl_to_bf[SDLK_RSUPER-SDLK_FIRST] = KC_RWIN;
+    keymap_sdl_to_bf[SDLK_MODE-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_COMPOSE-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_HELP-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_PRINT-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_SYSREQ-SDLK_FIRST] = KC_SYSRQ;
+    keymap_sdl_to_bf[SDLK_BREAK-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_MENU-SDLK_FIRST] = KC_APPS;
+    keymap_sdl_to_bf[SDLK_POWER-SDLK_FIRST] = KC_POWER;
+    keymap_sdl_to_bf[SDLK_EURO-SDLK_FIRST] = KC_UNASSIGNED;
+    keymap_sdl_to_bf[SDLK_UNDO-SDLK_FIRST] = KC_UNASSIGNED;
 }
 
-/**
- * Converts an SDL_KeyboardEvent to an LPARAM parameter as per Win32 API, because that's
- * what DK's KeyboardProc expects.
- * @param ev
- * @return
- */
-static LPARAM make_lparam_from_sdl_key_event(const SDL_KeyboardEvent *ev)
+static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
 {
-    LPARAM lParam;
+    /*
+    key->keysym.scancode;         < hardware specific scancode
+    key->keysym.sym;         < SDL virtual keysym
+    key->keysym.unicode;         < translated character
+    */
+    int keycode = key->keysym.sym - SDLK_FIRST;
+    if ((keycode >= 0) && (keycode < sizeof(keymap_sdl_to_bf)))
+        return keymap_sdl_to_bf[keycode];
+    return KC_UNASSIGNED;
+}
 
-    //bit 31: key up or down?
-    lParam = ev->type == SDL_KEYUP? 0x80000000 : 0;
-
-    //TODO: detect if key already was down (bit 30 of LPARAM)
-
-    //bit 29: state of alt key(s)
-    if (ev->keysym.mod & KMOD_ALT) {
-        lParam |= 0x20000000;
-    }
-
-    //bits 25-28 reserved, leave 0
-
-    //bit 24: extension bit
-    if (has_ext_bit(ev->keysym.sym)) {
-        lParam |= 0x1000000;
-    }
-
-    //bits 16-23: scancode
-    lParam |= ev->keysym.scancode << 16;
-
-    //bits 0-15: repeat count, always let this be 1 due to SDL semantics
-    lParam |= 1;
-
-    return lParam;
+static int keyboard_mods_mapping(const SDL_KeyboardEvent * key)
+{
+    /*
+    key->keysym.mod
+        (KMOD_LCTRL|KMOD_RCTRL)
+        (KMOD_LSHIFT|KMOD_RSHIFT)
+        (KMOD_LALT|KMOD_RALT)
+        (KMOD_LMETA|KMOD_RMETA)
+    */
+    return KMod_DONTCARE;
 }
 
 static void process_event(const SDL_Event *ev)
@@ -141,8 +247,15 @@ static void process_event(const SDL_Event *ev)
     switch (ev->type)
     {
     case SDL_KEYDOWN:
+        x = keyboard_keys_mapping(&ev->key);
+        if (x != KC_UNASSIGNED)
+            keyboardControl(KActn_KEYDOWN,x,keyboard_mods_mapping(&ev->key));
+        break;
+
     case SDL_KEYUP:
-        KeyboardProc(0, 0, make_lparam_from_sdl_key_event(&ev->key));
+        x = keyboard_keys_mapping(&ev->key);
+        if (x != KC_UNASSIGNED)
+            keyboardControl(KActn_KEYUP,x,keyboard_mods_mapping(&ev->key));
         break;
 
     case SDL_MOUSEMOTION:
@@ -210,3 +323,6 @@ TbBool LbIsActive(void)
     return lbAppActive;
 }
 /******************************************************************************/
+#ifdef __cplusplus
+}
+#endif

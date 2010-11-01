@@ -179,7 +179,7 @@ void update_mouse(void)
  */
 short is_key_pressed(long key, long kmodif)
 {
-  if ((kmodif == KM_DONTCARE) || (kmodif == key_modifiers))
+  if ((kmodif == KMod_DONTCARE) || (kmodif == key_modifiers))
     return lbKeyOn[key];
   return 0;
 }
@@ -191,7 +191,7 @@ unsigned short key_to_ascii(long key, long kmodif)
 {
   if ((key<0) || (key>=128))
     return 0;
-  if (kmodif & KM_SHIFT)
+  if (kmodif & KMod_SHIFT)
     return lbInkeyToAsciiShift[key];
   return lbInkeyToAscii[key];
 }
@@ -215,11 +215,11 @@ void update_key_modifiers(void)
 {
   unsigned short key_mods=0;
   if ( lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT] )
-    key_mods |= KM_SHIFT;
+    key_mods |= KMod_SHIFT;
   if ( lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL] )
-    key_mods |= KM_CONTROL;
+    key_mods |= KMod_CONTROL;
   if ( lbKeyOn[KC_LALT] || lbKeyOn[KC_RALT] )
-    key_mods |= KM_ALT;
+    key_mods |= KMod_ALT;
   key_modifiers = key_mods;
 }
 

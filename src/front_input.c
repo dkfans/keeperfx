@@ -107,15 +107,15 @@ int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
     {
       case KC_LSHIFT:
       case KC_RSHIFT:
-        result = key_modifiers & KM_SHIFT;
+        result = key_modifiers & KMod_SHIFT;
         break;
       case KC_LCONTROL:
       case KC_RCONTROL:
-        result = key_modifiers & KM_CONTROL;
+        result = key_modifiers & KMod_CONTROL;
         break;
       case KC_LALT:
       case KC_RALT:
-        result = key_modifiers & KM_ALT;
+        result = key_modifiers & KMod_ALT;
         break;
       default:
         result = lbKeyOn[i];
@@ -139,7 +139,7 @@ short get_players_message_inputs(void)
   struct PlayerInfo *player;
   int msg_width;
   player = get_my_player();
-  if (is_key_pressed(KC_RETURN,KM_NONE))
+  if (is_key_pressed(KC_RETURN,KMod_NONE))
   {
       set_players_packet_action(player, PckA_PlyrMsgEnd, 0, 0, 0, 0);
       clear_key_pressed(KC_RETURN);
@@ -147,7 +147,7 @@ short get_players_message_inputs(void)
   }
   lbFontPtr = winfont;
   msg_width = pixel_size * LbTextStringWidth(player->strfield_463);
-  if ( (is_key_pressed(KC_BACK,KM_DONTCARE)) || (msg_width < 450) )
+  if ( (is_key_pressed(KC_BACK,KMod_DONTCARE)) || (msg_width < 450) )
   {
       set_players_packet_action(player,PckA_PlyrMsgChar,lbInkey,key_modifiers,0,0);
       clear_key_pressed(lbInkey);
@@ -162,7 +162,7 @@ short get_players_message_inputs(void)
  */
 short get_screen_capture_inputs(void)
 {
-  if (is_key_pressed(KC_M,KM_SHIFT))
+  if (is_key_pressed(KC_M,KMod_SHIFT))
   {
       if ((game.system_flags & GSF_CaptureMovie) != 0)
         movie_record_stop();
@@ -170,7 +170,7 @@ short get_screen_capture_inputs(void)
         movie_record_start();
       clear_key_pressed(KC_M);
   }
-  if (is_key_pressed(KC_C,KM_SHIFT))
+  if (is_key_pressed(KC_C,KMod_SHIFT))
   {
       set_flag_byte(&game.system_flags,GSF_CaptureSShot,true);
       clear_key_pressed(KC_C);
@@ -192,7 +192,7 @@ void clip_frame_skip(void)
  */
 short get_speed_control_inputs(void)
 {
-  if (is_key_pressed(KC_ADD,KM_CONTROL))
+  if (is_key_pressed(KC_ADD,KMod_CONTROL))
   {
       if (game.frame_skip < 2)
         game.frame_skip ++;
@@ -205,7 +205,7 @@ short get_speed_control_inputs(void)
       show_onscreen_msg(game.num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
       clear_key_pressed(KC_ADD);
   }
-  if (is_key_pressed(KC_SUBTRACT,KM_CONTROL))
+  if (is_key_pressed(KC_SUBTRACT,KMod_CONTROL))
   {
       if (game.frame_skip <= 2)
         game.frame_skip --;
@@ -235,7 +235,7 @@ short get_packet_load_game_control_inputs(void)
     exit_keeper = 1;
     return true;
   }
-  if (is_key_pressed(KC_T,KM_ALT))
+  if (is_key_pressed(KC_T,KMod_ALT))
   {
     clear_key_pressed(KC_T);
     close_packet_file();
@@ -300,7 +300,7 @@ short get_bookmark_inputs(void)
     bmark = &game.bookmark[i];
     kcode = KC_1+i;
     // Store bookmark check
-    if (is_key_pressed(kcode, KM_CONTROL))
+    if (is_key_pressed(kcode, KMod_CONTROL))
     {
       clear_key_pressed(kcode);
       if (player->acamera != NULL)
@@ -313,7 +313,7 @@ short get_bookmark_inputs(void)
       return true;
     }
     // Load bookmark check
-    if (is_key_pressed(kcode, KM_SHIFT))
+    if (is_key_pressed(kcode, KMod_SHIFT))
     {
       clear_key_pressed(kcode);
       if ((bmark->flags & 0x01) != 0)
@@ -352,7 +352,7 @@ short get_minimap_control_inputs(void)
   short packet_made;
   player = get_my_player();
   packet_made = false;
-  if (is_key_pressed(KC_SUBTRACT,KM_NONE))
+  if (is_key_pressed(KC_SUBTRACT,KMod_NONE))
   {
       if ( player->minimap_zoom < 0x0800 )
       {
@@ -362,7 +362,7 @@ short get_minimap_control_inputs(void)
       clear_key_pressed(KC_SUBTRACT);
       if (packet_made) return true;
   }
-  if (is_key_pressed(KC_ADD,KM_NONE))
+  if (is_key_pressed(KC_ADD,KMod_NONE))
   {
       if ( player->minimap_zoom > 0x0080 )
       {
@@ -385,7 +385,7 @@ short get_screen_control_inputs(void)
   player = get_my_player();
   short packet_made;
   packet_made = false;
-  if (is_key_pressed(KC_R,KM_ALT))
+  if (is_key_pressed(KC_R,KMod_ALT))
   {
       set_players_packet_action(player, PckA_SwitchScrnRes, 0, 0, 0, 0);
       packet_made = true;
@@ -410,7 +410,7 @@ short get_global_inputs(void)
   if ((player->view_type == PVT_DungeonTop)
   && ((game.system_flags & GSF_NetworkActive) != 0))
   {
-      if (is_key_pressed(KC_RETURN,KM_NONE))
+      if (is_key_pressed(KC_RETURN,KMod_NONE))
       {
         set_players_packet_action(player, PckA_PlyrMsgBegin, 0, 0, 0, 0);
         clear_key_pressed(KC_RETURN);
@@ -418,7 +418,7 @@ short get_global_inputs(void)
       }
   }
   // Code for debugging purposes
-  if ( is_key_pressed(KC_D,KM_ALT) )
+  if ( is_key_pressed(KC_D,KMod_ALT) )
   {
     JUSTMSG("REPORT for gameturn %d",game.play_gameturn);
     // Timing report
@@ -432,7 +432,7 @@ short get_global_inputs(void)
   int idx;
   for (idx=KC_F1;idx<=KC_F8;idx++)
   {
-      if ( is_key_pressed(idx,KM_ALT) )
+      if ( is_key_pressed(idx,KMod_ALT) )
       {
         set_players_packet_action(player, PckA_PlyrFastMsg, idx-KC_F1, 0, 0, 0);
         clear_key_pressed(idx);
@@ -460,7 +460,7 @@ short get_global_inputs(void)
       return true;
   if (get_screen_capture_inputs())
       return true;
-  if (is_key_pressed(KC_SPACE,KM_NONE))
+  if (is_key_pressed(KC_SPACE,KMod_NONE))
   {
       if (player->victory_state != VicS_Undecided)
       {
@@ -490,7 +490,7 @@ TbBool get_level_lost_inputs(void)
   }
   if ((game.system_flags & GSF_NetworkActive) != 0)
   {
-    if (is_key_pressed(KC_RETURN,KM_NONE))
+    if (is_key_pressed(KC_RETURN,KMod_NONE))
     {
       set_players_packet_action(player, 13, 0,0,0,0);
       clear_key_pressed(KC_RETURN);
@@ -505,7 +505,7 @@ TbBool get_level_lost_inputs(void)
       return true;
   if (get_screen_capture_inputs())
       return true;
-  if (is_key_pressed(KC_SPACE,KM_NONE))
+  if (is_key_pressed(KC_SPACE,KMod_NONE))
   {
     set_players_packet_action(player, PckA_FinishGame, 0,0,0,0);
     clear_key_pressed(KC_SPACE);
@@ -537,7 +537,7 @@ TbBool get_level_lost_inputs(void)
   } else
   if (player->view_type == PVT_DungeonTop)
   {
-    if (is_key_pressed(KC_TAB,KM_DONTCARE))
+    if (is_key_pressed(KC_TAB,KMod_DONTCARE))
     {
         if ((player->field_37 == 2) || (player->field_37 == 5))
         {
@@ -568,7 +568,7 @@ TbBool get_level_lost_inputs(void)
       }
     }
   }
-  if (is_key_pressed(KC_ESCAPE,KM_DONTCARE))
+  if (is_key_pressed(KC_ESCAPE,KMod_DONTCARE))
   {
     clear_key_pressed(KC_ESCAPE);
     if ( a_menu_window_is_active() )
@@ -641,27 +641,27 @@ TbBool get_level_lost_inputs(void)
 
 short get_status_panel_keyboard_action_inputs(void)
 {
-  if (is_key_pressed(KC_1, KM_NONE))
+  if (is_key_pressed(KC_1, KMod_NONE))
   {
     clear_key_pressed(KC_1);
     fake_button_click(1);
   }
-  if (is_key_pressed(KC_2, KM_NONE))
+  if (is_key_pressed(KC_2, KMod_NONE))
   {
     clear_key_pressed(KC_2);
     fake_button_click(2);
   }
-  if (is_key_pressed(KC_3, KM_NONE))
+  if (is_key_pressed(KC_3, KMod_NONE))
   {
     clear_key_pressed(KC_3);
     fake_button_click(3);
   }
-  if (is_key_pressed(KC_4, KM_NONE))
+  if (is_key_pressed(KC_4, KMod_NONE))
   {
     clear_key_pressed(KC_4);
     fake_button_click(4);
   }
-  if (is_key_pressed(KC_5, KM_NONE))
+  if (is_key_pressed(KC_5, KMod_NONE))
   {
     clear_key_pressed(KC_5);
     fake_button_click(5);
@@ -686,23 +686,23 @@ long get_dungeon_control_action_inputs(void)
   if (get_bookmark_inputs())
     return 1;
 
-  if (is_key_pressed(KC_F8, KM_DONTCARE))
+  if (is_key_pressed(KC_F8, KMod_DONTCARE))
   {
     clear_key_pressed(KC_F8);
     toggle_tooltips();
   }
-  if (is_key_pressed(KC_NUMPADENTER,KM_NONE))
+  if (is_key_pressed(KC_NUMPADENTER,KMod_NONE))
   {
     if (toggle_main_cheat_menu())
       clear_key_pressed(KC_NUMPADENTER);
   }
-  if (is_key_pressed(KC_F12,KM_DONTCARE))
+  if (is_key_pressed(KC_F12,KMod_DONTCARE))
   {
       // Note that we're using "close", not "toggle". Menu can't be opened here.
       if (close_creature_cheat_menu())
         clear_key_pressed(KC_F12);
   }
-  if (is_key_pressed(KC_TAB, KM_DONTCARE))
+  if (is_key_pressed(KC_TAB, KMod_DONTCARE))
   {
     if ((player->field_37 == 2) || (player->field_37 == 5))
     {
@@ -735,7 +735,7 @@ long get_dungeon_control_action_inputs(void)
     }
     return 1;
   }
-  if (is_key_pressed(KC_F, KM_ALT))
+  if (is_key_pressed(KC_F, KMod_ALT))
   {
     clear_key_pressed(KC_F);
     toggle_hero_health_flowers();
@@ -766,7 +766,7 @@ short get_creature_passenger_action_inputs(void)
     set_players_packet_action(player, PckA_PasngrCtrlExit, player->field_2F,0,0,0);
     return true;
   }
-  if (is_key_pressed(KC_TAB,KM_NONE))
+  if (is_key_pressed(KC_TAB,KMod_NONE))
   {
     clear_key_pressed(KC_TAB);
     toggle_gui_overlay_map();
@@ -784,12 +784,12 @@ short get_creature_control_action_inputs(void)
     return 1;
   if ( ((game.numfield_C & 0x01)==0) || (game.numfield_C & 0x80) )
     get_gui_inputs(1);
-  if (is_key_pressed(KC_NUMPADENTER,KM_DONTCARE))
+  if (is_key_pressed(KC_NUMPADENTER,KMod_DONTCARE))
   {
       if (toggle_instance_cheat_menu())
         clear_key_pressed(KC_NUMPADENTER);
   }
-  if (is_key_pressed(KC_F12,KM_DONTCARE))
+  if (is_key_pressed(KC_F12,KMod_DONTCARE))
   {
       if (toggle_creature_cheat_menu())
         clear_key_pressed(KC_F12);
@@ -812,7 +812,7 @@ short get_creature_control_action_inputs(void)
       set_players_packet_action(player, 33, player->field_2F,0,0,0);
     }
   }
-  if ( is_key_pressed(KC_TAB,KM_NONE) )
+  if ( is_key_pressed(KC_TAB,KMod_NONE) )
   {
     clear_key_pressed(KC_TAB);
     toggle_gui();
@@ -822,7 +822,7 @@ short get_creature_control_action_inputs(void)
   {
     for (keycode=KC_1;keycode<=KC_0;keycode++)
     {
-      if ( is_key_pressed(keycode,KM_NONE) )
+      if ( is_key_pressed(keycode,KMod_NONE) )
       {
         clear_key_pressed(keycode);
         numkey = keycode-2;
@@ -927,12 +927,12 @@ short get_map_action_inputs(void)
   {
     if (get_players_packet_action(player) != PckA_None)
       return true;
-    if (is_key_pressed(KC_F8,KM_NONE))
+    if (is_key_pressed(KC_F8,KMod_NONE))
     {
       clear_key_pressed(KC_F8);
       toggle_tooltips();
     }
-    if (is_key_pressed(KC_NUMPADENTER,KM_NONE))
+    if (is_key_pressed(KC_NUMPADENTER,KMod_NONE))
     {
       if (toggle_main_cheat_menu())
         clear_key_pressed(KC_NUMPADENTER);
@@ -1240,9 +1240,9 @@ short get_packet_load_game_inputs(void)
  */
 TbBool get_packet_load_demo_inputs(void)
 {
-  if (is_key_pressed(KC_SPACE,KM_DONTCARE) ||
-      is_key_pressed(KC_ESCAPE,KM_DONTCARE) ||
-      is_key_pressed(KC_RETURN,KM_DONTCARE) ||
+  if (is_key_pressed(KC_SPACE,KMod_DONTCARE) ||
+      is_key_pressed(KC_ESCAPE,KMod_DONTCARE) ||
+      is_key_pressed(KC_RETURN,KMod_DONTCARE) ||
       (lbKeyOn[KC_LALT] && lbKeyOn[KC_X]) ||
       left_button_clicked)
   {

@@ -4099,7 +4099,7 @@ short end_input(void)
 
 short get_frontend_global_inputs(void)
 {
-  if (is_key_pressed(KC_X, KM_ALT))
+  if (is_key_pressed(KC_X, KMod_ALT))
   {
     clear_key_pressed(KC_X);
     exit_keeper = true;

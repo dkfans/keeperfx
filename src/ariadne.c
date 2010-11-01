@@ -336,7 +336,8 @@ long navigation_rule_normal(long treeA, long treeB)
 
 long init_navigation(void)
 {
-    //return _DK_init_navigation();
+    //TODO PATHFINDING rewritten code has been disabled because it has errors (2/3)
+    return _DK_init_navigation();
     init_navigation_map();
     triangulate_map(IanMap);
     nav_rulesA2B = navigation_rule_normal;
@@ -348,7 +349,8 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
 {
     long sx,sy,ex,ey;
     long x,y;
-    //return _DK_update_navigation_triangulation(start_x, start_y, end_x, end_y);
+    //TODO PATHFINDING rewritten code has been disabled because it has errors (3/3)
+    return _DK_update_navigation_triangulation(start_x, start_y, end_x, end_y);
     if (!nav_map_initialised)
         init_navigation_map();
     // Prepare parameter bounds
@@ -750,7 +752,7 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
     long par_fwd,par_bak;
     long tx,ty;
     long i;
-    //TODO PATHFINDING rewritten code has been disabled because it has errors
+    //TODO PATHFINDING rewritten code has been disabled because it has errors (1/3)
     // We need to make testing system for routing, then re-enable rewritten code
     // and compare results with the original code.
     return _DK_ma_triangle_route(ttriA, ttriB, routecost);

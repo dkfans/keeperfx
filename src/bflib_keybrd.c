@@ -83,6 +83,8 @@ char lbInkeyToAsciiShift[] = {
 };
 
 /******************************************************************************/
+extern void prepare_keys_mapping(void);
+/******************************************************************************/
 DLLIMPORT long __stdcall _DK_KeyboardProc(int a1, unsigned int a2, long a3);
 /******************************************************************************/
 short LbIKeyboardClose(void)
@@ -92,7 +94,8 @@ short LbIKeyboardClose(void)
 
 short LbIKeyboardOpen(void)
 {
-  return 1;
+    prepare_keys_mapping();
+    return 1;
 }
 
 void LbKeyboardSetLanguage(int lngnum)
@@ -107,6 +110,73 @@ short LbKeyCodeValid(TbKeyCode key)
   if (key > KC_WAKE) // last key in enumeration - update if enumeration is changed
     return false;
   return true;
+}
+
+void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers)
+{
+    // Set the key code action value
+    switch ( action )
+    {
+    case KActn_KEYDOWN:
+        lbKeyOn[code] = 1;
+        lbInkey = code;
+        break;
+    case KActn_KEYUP:
+    default:
+        lbKeyOn[code] = 0;
+        lbExtendedKeyPress = 0;
+        break;
+    }
+    // Check for undetected/incorrectly maintained modifiers
+    if (modifiers != KMod_DONTCARE)
+    {
+        // If modifiers were supplied, make sure they are correctly set in lbKeyOn[]
+        if (modifiers & KMod_SHIFT)
+        {
+            if (!lbKeyOn[KC_RSHIFT] && !lbKeyOn[KC_LSHIFT])
+                lbKeyOn[KC_LSHIFT] = 1;
+        } else
+        {
+            lbKeyOn[KC_LSHIFT] = 0;
+            lbKeyOn[KC_RSHIFT] = 0;
+        }
+        if (modifiers & KMod_CONTROL)
+        {
+            if (!lbKeyOn[KC_RCONTROL] && !lbKeyOn[KC_LCONTROL])
+                lbKeyOn[KC_LCONTROL] = 1;
+        } else
+        {
+            lbKeyOn[KC_LCONTROL] = 0;
+            lbKeyOn[KC_RCONTROL] = 0;
+        }
+        if (modifiers & KMod_ALT)
+        {
+            if (!lbKeyOn[KC_RALT] && !lbKeyOn[KC_LALT])
+                lbKeyOn[KC_LALT] = 1;
+        } else
+        {
+            lbKeyOn[KC_LALT] = 0;
+            lbKeyOn[KC_RALT] = 0;
+        }
+    }
+    // Update modifiers flags
+    lbInkeyFlags = 0;
+    if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
+        lbInkeyFlags |= KMod_SHIFT;
+    if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
+        lbInkeyFlags |= KMod_CONTROL;
+    if (lbKeyOn[KC_LALT] || lbKeyOn[KC_RALT])
+        lbInkeyFlags |= KMod_ALT;
+    if (lbKeyOn[code] != 0)
+        lbKeyOn[code] |= lbInkeyFlags;
+    if (lbInkey < 0x80)
+    {
+        if (lbIInkey == 0)
+        {
+            lbIInkey = lbInkey;
+            lbIInkeyFlags = lbInkeyFlags;
+        }
+    }
 }
 
 long __stdcall KeyboardProc(int a1, unsigned int a2, long code)
