@@ -137,7 +137,7 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_w
     return false;
   w=0;
   h=0;
-  for (m=0;m<5;m++)
+  for (m=0; m < 5; m++)
   {
     w+=img_width;
     h+=img_height;
@@ -145,7 +145,7 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_w
     if (h > LbScreenHeight()) break;
   }
   // The image width can't be larger than video resolution
-  if (m<1)
+  if (m < 1)
   {
     if (w > LbScreenWidth())
     {

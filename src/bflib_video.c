@@ -44,6 +44,9 @@ long lbScreenModeInfoNum = 0;
 /** Informs if Video Screen subsystem initialization was done. */
 volatile TbBool lbScreenInitialised = false;
 volatile TbBool lbUseSdk = true;
+/** Bytes per pixel expected by the engine.
+ * On any try of entering different video BPP, this mode will be emulated. */
+unsigned short lbEngineBPP = 8;
 /** Informs if the application window is active (focused on screen). */
 extern volatile TbBool lbAppActive;
 /** True if we have two surfaces. */
@@ -156,9 +159,14 @@ TbScreenMode LbScreenActiveMode(void)
  */
 unsigned short LbGraphicsScreenBPP(void)
 {
-    TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
-    // For DDraw, screen buffer BPP equals video mode BPP
-    return mdinfo->BitsPerPixel;
+    if (lbDrawSurface != NULL) {
+        return lbDrawSurface->format->BitsPerPixel;
+    }
+    // On error, return 0
+    return 0;
+    // Old way - returns video BPP, not graphics BPP
+    // TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+    // return mdinfo->BitsPerPixel;
 }
 
 TbScreenCoord LbGraphicsScreenWidth(void)
@@ -275,7 +283,7 @@ static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode)
   int closestBPP;
   mdinfo = LbScreenGetModeInfo(mode);
   sdlFlags = 0;
-  if (mdinfo->BitsPerPixel == 8) {
+  if (mdinfo->BitsPerPixel == lbEngineBPP) {
       sdlFlags |= SDL_HWPALETTE | SDL_DOUBLEBUF;
   }
   if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
@@ -290,6 +298,7 @@ TbResult LbScreenFindVideoModes(void)
 {
   int i,avail_num;
   avail_num = 0;
+  lbScreenModeInfo[0].Available = false;
   for (i=1; i < lbScreenModeInfoNum; i++)
   {
       if (LbHwCheckIsModeAvailable(i)) {
@@ -308,33 +317,33 @@ static void LbRegisterStandardVideoModes(void)
 {
     lbScreenModeInfoNum = 0;
     LbRegisterVideoMode("INVALID",       0,    0,  0, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("320x200x8",   320,  200,  8, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("320x200x16",  320,  200, 16, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("320x200x24",  320,  200, 24, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("320x240x8",   320,  240,  8, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("320x240x16",  320,  240, 16, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("320x240x24",  320,  240, 24, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("512x384x8",   512,  384,  8, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("512x384x16",  512,  384, 16, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("512x384x24",  512,  384, 24, Lb_VF_0100);
-    LbRegisterVideoMode("640x400x8",   640,  400,  8, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("640x400x16",  640,  400, 16, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("640x400x24",  640,  400, 24, Lb_VF_0100|Lb_VF_0001);
-    LbRegisterVideoMode("640x480x8",   640,  480,  8, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("640x480x16",  640,  480, 16, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("640x480x24",  640,  480, 24, Lb_VF_0100|Lb_VF_0001|Lb_VF_0002);
-    LbRegisterVideoMode("800x600x8",   800,  600,  8, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("800x600x16",  800,  600, 16, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("800x600x24",  800,  600, 24, Lb_VF_0100|Lb_VF_0001|Lb_VF_0004);
-    LbRegisterVideoMode("1024x768x8", 1024,  768,  8, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("1024x768x16",1024,  768, 16, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("1024x768x24",1024,  768, 24, Lb_VF_0100|Lb_VF_0001|Lb_VF_0002|Lb_VF_0004);
-    LbRegisterVideoMode("1280x1024x8", 1280,1024,  8, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("1280x1024x16",1280,1024, 16, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("1280x1024x24",1280,1024, 24, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("1600x1200x8", 1600,1200,  8, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("1600x1200x16",1600,1200, 16, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("1600x1200x24",1600,1200, 24, Lb_VF_DEFAULT);
+    LbRegisterVideoMode("320x200x8",   320,  200,  8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("320x200x16",  320,  200, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("320x200x24",  320,  200, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("320x240x8",   320,  240,  8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("320x240x16",  320,  240, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("320x240x24",  320,  240, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("512x384x8",   512,  384,  8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("512x384x16",  512,  384, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("512x384x24",  512,  384, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("640x400x8",   640,  400,  8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("640x400x16",  640,  400, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("640x400x24",  640,  400, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("640x480x8",   640,  480,  8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("640x480x16",  640,  480, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("640x480x24",  640,  480, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("800x600x8",   800,  600,  8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("800x600x16",  800,  600, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("800x600x24",  800,  600, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("1024x768x8", 1024,  768,  8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("1024x768x16",1024,  768, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("1024x768x24",1024,  768, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("1280x1024x8", 1280,1024,  8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("1280x1024x16",1280,1024, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("1280x1024x24",1280,1024, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("1600x1200x8", 1600,1200,  8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("1600x1200x16",1600,1200, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("1600x1200x24",1600,1200, 24, Lb_VF_RGBCOLOR);
 }
 
 TbResult LbScreenInitialize(void)
@@ -438,17 +447,19 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     if (prevScreenSurf != NULL) {
     }
 
+    mdinfo = LbScreenGetModeInfo(mode);
     if ( !LbScreenIsModeAvailable(mode) )
     {
-        ERRORLOG("Screen mode %d not available",(int)mode);
+        ERRORLOG("%s resolution %dx%d (mode %d) not available",
+            (mdinfo->VideoFlags&Lb_VF_WINDOWED)?"Windowed":"Full screen",
+            (int)mdinfo->Width,(int)mdinfo->Height,(int)mode);
         return Lb_FAIL;
     }
-    mdinfo = LbScreenGetModeInfo(mode);
 
     // SDL video mode flags
     sdlFlags = 0;
     sdlFlags |= SDL_SWSURFACE;
-    if (mdinfo->BitsPerPixel == 8) {
+    if (mdinfo->BitsPerPixel == lbEngineBPP) {
         sdlFlags |= SDL_HWPALETTE;
     }
     if (lbDoubleBufferingRequested) {
@@ -469,11 +480,10 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     SDL_WM_SetCaption(lbDrawAreaTitle, lbDrawAreaTitle);
     LbScreenUpdateIcon();
 
-    // Create secondary surface if necessary. Right now, only if BPP != 8.
-    //TODO: utilize this for rendering in different resolution later
-    if (mdinfo->BitsPerPixel != 8)
+    // Create secondary surface if necessary, that is if BPP != lbEngineBPP.
+    if (mdinfo->BitsPerPixel != lbEngineBPP)
     {
-        lbDrawSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, mdinfo->Width, mdinfo->Height, 8, 0, 0, 0, 0);
+        lbDrawSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, mdinfo->Width, mdinfo->Height, lbEngineBPP, 0, 0, 0, 0);
         if (lbDrawSurface == NULL) {
             ERRORLOG("Can't create secondary surface");
             LbScreenReset();
@@ -848,12 +858,30 @@ TbScreenMode LbRegisterVideoModeString(const char *desc)
     int bpp;
     unsigned long flags;
     int ret;
-    width = 0; height = 0; bpp = 0; flags = 0;
-    ret = sscanf(desc," %d x %d x %d", &width, &height, &bpp);
+    {
+        width = 0; height = 0; bpp = 0; flags = Lb_VF_DEFAULT;
+        ret = sscanf(desc," %d x %d x %d", &width, &height, &bpp);
+    }
+    if (ret != 3)
+    {
+        // pattern not matched - maybe it's windowed mode
+        width = 0; height = 0; bpp = 0; flags = Lb_VF_DEFAULT;
+        ret = sscanf(desc," %d x %d w %d", &width, &height, &bpp);
+        flags |= Lb_VF_WINDOWED;
+    }
     if (ret != 3)
     {
         // Cannot recognize parameters in mode
         return Lb_SCREEN_MODE_INVALID;
+    }
+    if (bpp < 9) {
+        flags |= Lb_VF_PALETTE;
+    } else
+    if ((bpp == 24) || (bpp = 32)) {
+        flags |= Lb_VF_RGBCOLOR;
+    } else
+    {
+        flags |= Lb_VF_TRUCOLOR;
     }
     return LbRegisterVideoMode(desc, width, height, bpp, flags);
 }
