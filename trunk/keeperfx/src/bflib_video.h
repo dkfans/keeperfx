@@ -88,11 +88,10 @@ enum TbDrawFlags {
 
 enum TbVideoModeFlags {
     Lb_VF_DEFAULT     = 0x0000, // dummy flag
-    Lb_VF_0001        = 0x0001,
-    Lb_VF_0002        = 0x0002,
-    Lb_VF_0004        = 0x0004,
+    Lb_VF_RGBCOLOR    = 0x0001,
+    Lb_VF_TRUCOLOR    = 0x0002,
+    Lb_VF_PALETTE     = 0x0004,
     Lb_VF_WINDOWED    = 0x0010,
-    Lb_VF_0100        = 0x0100,
 };
 
 struct GraphicsWindow {

@@ -30,6 +30,21 @@ Note that some campaigns may not support your language.
 In this case, default language will be used inside this
 campaign.
 
+Available screen resolutions:
+
+To change available screen modes, edit "keeperfx.cfg".
+Screen mode can be in a form WIDTHxHEIGHTxBPP which defines
+ fullscreen mode, or WIDTHxHEIGHTwBPP, which defines windowed
+ mode. When defining windowed mode, the BPP should be equal to
+ the colour depth on your desktop. It is not recommended to
+ mix fullscreen and windowed modes in one config file. 
+There are two lines which define resolutions: 'FRONTEND_RES='
+ should have exactly 3 parameters and is used in the menu,
+ while 'INGAME_RES=' can have 1-5 parameters, which define
+ list of resolutions to switch between in the actual game.
+Most stable modes are 640x400 and 640x480. Higher resolutions
+ may be sometimes unstable, especially in possession.
+
 Running KeeperFX:
 
 To start the game, run "keeperfx.exe". If you want to report
@@ -147,12 +162,22 @@ Q: Mouse stops/teleports/moves incorrectly during the game.
 A: Try the '-altinput' command line switch.
 
 Q: I get a message 'Cannot initialize' when I try to enter network game.
-A: There's no fix; use stanard DK with IPX fix for multiplayer.
+A: There's no fix; use standard DK with IPX fix for multiplayer.
 
-Q: There are no special eye effects when I posses Beetle, Fly,
+Q: There are no special eye effects when I possess Beetle, Fly,
     Dragon, Tentacle etc.!
-A: Lense effect only work if the game detects over 16MB RAM.
+A: Lens effect only work if the game detects over 16MB RAM.
    Also, make sure that "fxdata/lenses.cfg" is present and not damaged.
+
+Q: After some time of gameplay, many in-game elements stops working.
+    Creature spells and some keeper spells (ie. Create Imp spell) ain't
+    working. Same with placing traps/doors, and creating gold piles.
+A: The game has a limit for amount of 'things' - these 'things' are
+    all the objects that generate sprites (graphic representations as
+    an image). They are limited to 2047, and if all slots are taken,
+    it's no longer possible to create spell shots, gold piles or doors.
+    Creatures have additional limit - even if there are still free
+    'thing' slots, they are limited to 255.
 
 Q: I've found a cheat menu, but it doesn't work!
 A: The three cheat menus are only partially functional.
