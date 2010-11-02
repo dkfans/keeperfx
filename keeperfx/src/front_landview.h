@@ -123,6 +123,7 @@ DLLIMPORT extern struct ScreenPacket _DK_net_screen_packet[4];
 DLLIMPORT extern long _DK_players_currently_in_session;
 #define players_currently_in_session _DK_players_currently_in_session
 /******************************************************************************/
+extern long map_window_len;
 /******************************************************************************/
 void frontnetmap_unload(void);
 TbBool frontnetmap_load(void);
