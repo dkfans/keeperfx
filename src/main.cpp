@@ -218,6 +218,8 @@ unsigned short const player_state_to_spell[] = {
 //static
 TbClockMSec last_loop_time=0;
 
+TbBool lbAdvancedFade = true;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -1384,7 +1386,7 @@ void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFl
     {
         LbPaletteFade(pal, fade_steps, flg);
     } else*/
-    if (lbUseSdk)
+    if (lbAdvancedFade)
     {
         TbClockMSec last_loop_time;
         last_loop_time = LbTimerClock();
@@ -1417,7 +1419,7 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
         LbPaletteFade(pal, fade_steps, flg);
         return;
     }
-    if (lbUseSdk)
+    if (lbAdvancedFade)
     {
         TbClockMSec last_loop_time;
         last_loop_time = LbTimerClock();
@@ -9974,7 +9976,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if ( strcasecmp(parstr,"altinput") == 0 )
       {
-        lbUseSdk = false;
+          lbMouseAutoReset = true;
       } else
       if (strcasecmp(parstr,"packetload") == 0)
       {

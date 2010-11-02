@@ -44,6 +44,7 @@ class MouseStateHandler {
     bool SetPointerOffset(long x, long y);
     struct TbPoint *GetPointerOffset(void);
     bool SetMouseWindow(long x, long y,long width, long height);
+    bool GetMouseWindow(struct TbRect *windowRect);
     bool PointerBeginSwap(void);
     bool PointerEndSwap(void);
  protected:
@@ -59,7 +60,7 @@ class MouseStateHandler {
     };
 
 /******************************************************************************/
-extern class MouseStateHandler winMouseHandler;
+extern class MouseStateHandler pointerHandler;
 extern int volatile lbMouseInstalled;
 extern int volatile lbMouseOffline;
 /******************************************************************************/
