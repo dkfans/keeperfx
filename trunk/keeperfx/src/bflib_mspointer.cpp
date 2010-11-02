@@ -44,6 +44,7 @@ extern volatile TbBool lbInteruptMouse;
 #endif
 /******************************************************************************/
 // Global variables
+volatile TbBool lbPointerAdvancedDraw;
 
 /******************************************************************************/
 /**
@@ -234,7 +235,7 @@ bool LbI_PointerHandler::OnMove(void)
   LbSemaLock semlock(&sema_rel,0);
   if (!semlock.Lock(true))
     return false;
-  if (lbUseSdk && lbInteruptMouse)
+  if (lbPointerAdvancedDraw && lbInteruptMouse)
   {
       Undraw(true);
       NewMousePos();
@@ -269,7 +270,7 @@ void LbI_PointerHandler::OnBeginSwap(void)
   LbSemaLock semlock(&sema_rel,0);
   if (!semlock.Lock(true))
     return;
-  if ( lbUseSdk )
+  if ( lbPointerAdvancedDraw )
   {
     Backup(false);
     Draw(false);
@@ -285,7 +286,7 @@ void LbI_PointerHandler::OnBeginSwap(void)
 void LbI_PointerHandler::OnEndSwap(void)
 {
   LbSemaLock semlock(&sema_rel,1);
-  if ( lbUseSdk )
+  if ( lbPointerAdvancedDraw )
   {
     Undraw(false);
     this->field_1054 = true;
