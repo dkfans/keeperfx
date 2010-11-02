@@ -120,6 +120,7 @@ DLLIMPORT extern long _DK_players_currently_in_session;
 
 #pragma pack()
 /******************************************************************************/
+extern long map_window_len;
 /******************************************************************************/
 void frontnetmap_unload(void);
 TbBool frontnetmap_load(void);

@@ -51,6 +51,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#define WINDOW_Y_SIZE 720
 TbPixel net_player_colours[] = { 251, 58, 182, 11};
 const long hand_limp_xoffset[] = { 32,  31,  30,  29,  28,  27,  26,  24,  22,  19,  15,  9, };
 const long hand_limp_yoffset[] = {-11, -10,  -9,  -8,  -7,  -6,  -5,  -4,  -3,  -2,  -1,  0, };
@@ -60,6 +61,7 @@ long limp_hand_x = 0;
 long limp_hand_y = 0;
 LevelNumber mouse_over_lvnum;
 LevelNumber playing_speech_lvnum;
+long map_window_len = 0;
 /******************************************************************************/
 DLLIMPORT long _DK_frontnetmap_update(void);
 DLLIMPORT void _DK_frontnetmap_draw(void);
@@ -83,20 +85,21 @@ void draw_map_screen(void)
   unsigned char *dstbuf;
   unsigned char *srcbuf;
   long i;
-  long w;
+  long w,h;
   SYNCDBG(18,"Starting");
   dstbuf = lbDisplay.WScreen;
   w = lbDisplay.PhysicalScreenWidth;
   if (map_info.scrshift_x+w > MAP_SCREEN_WIDTH)
     w = MAP_SCREEN_WIDTH-map_info.scrshift_x;
+  h = LbGraphicsScreenHeight();
   srcbuf = &map_screen[MAP_SCREEN_WIDTH*map_info.scrshift_y + map_info.scrshift_x];
-  for (i=0; i < lbDisplay.PhysicalScreenHeight; i++)
+  for (i=0; i < h; i++)
   {
     if (map_info.scrshift_y+i >= MAP_SCREEN_HEIGHT)
       break;
     memcpy(dstbuf, srcbuf, w);
     srcbuf += MAP_SCREEN_WIDTH;
-    dstbuf += lbDisplay.GraphicsScreenWidth;
+    dstbuf += LbGraphicsScreenWidth();
   }
 }
 
@@ -578,24 +581,27 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
   long x,y;
   src_delta = 256 - zoom;
   // Restricting coordinates - to make sure we won't go outside of the buffer
-  if (map_x >= (MAP_SCREEN_WIDTH-(lbDisplay.GraphicsScreenWidth>>1)))
-    map_x = (MAP_SCREEN_WIDTH-(lbDisplay.GraphicsScreenWidth>>1)-1);
-  if (map_x < (lbDisplay.GraphicsScreenWidth>>1))
-    map_x = (lbDisplay.GraphicsScreenWidth>>1);
-  if (map_y >= (MAP_SCREEN_HEIGHT-(lbDisplay.GraphicsScreenHeight>>1)))
-    map_y = (MAP_SCREEN_HEIGHT-(lbDisplay.GraphicsScreenHeight>>1)-1);
-  if (map_y < (lbDisplay.GraphicsScreenHeight>>1))
-    map_y = (lbDisplay.GraphicsScreenHeight>>1);
+  // Let's use scr_x,scr_y as temp values
+  scr_x = ((lbDisplay.GraphicsScreenWidth*src_delta)>>9);
+  scr_y = ((lbDisplay.GraphicsScreenHeight*src_delta)>>9);
+  if (map_x >= (MAP_SCREEN_WIDTH-scr_x))
+    map_x = (MAP_SCREEN_WIDTH-scr_x-1);
+  if (map_x < scr_x)
+    map_x = scr_x;
+  if (map_y >= (MAP_SCREEN_HEIGHT-scr_y))
+    map_y = (MAP_SCREEN_HEIGHT-scr_y-1);
+  if (map_y < scr_y)
+    map_y = scr_y;
   // Initializing variables used for all quadres of screen
   scr_x = map_x - map_info.scrshift_x;
-  if (scr_x > lbDisplay.GraphicsScreenWidth) scr_x = lbDisplay.GraphicsScreenWidth;
+  if (scr_x > lbDisplay.PhysicalScreenWidth) scr_x = lbDisplay.PhysicalScreenWidth;
   if (scr_x < 0) scr_x = 0;
   scr_y = map_y - map_info.scrshift_y;
-  if (scr_y > lbDisplay.GraphicsScreenHeight) scr_y = lbDisplay.GraphicsScreenHeight;
+  if (scr_y > lbDisplay.PhysicalScreenHeight) scr_y = lbDisplay.PhysicalScreenHeight;
   if (scr_y < 0) scr_y = 0;
   src_buf = &map_screen[MAP_SCREEN_WIDTH * map_y + map_x];
-  dst_buf = &lbDisplay.WScreen[lbDisplay.GraphicsScreenWidth * scr_y + scr_x];
   dst_scanln = lbDisplay.GraphicsScreenWidth;
+  dst_buf = &lbDisplay.WScreen[dst_scanln * scr_y + scr_x];
   // Drawing first quadre
   bpos_y = 0;
   dst = dst_buf;
@@ -669,18 +675,21 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
 void compressed_window_draw(void)
 {
   unsigned char *src;
+  unsigned char *src_end;
   unsigned char *dst;
   long xshift,yshift;
   int wcopy;
   int wdata;
   int wskip;
   long w,h;
+  SYNCDBG(18,"Starting");
 
+  src_end = &map_window[map_window_len];
   xshift = map_info.scrshift_x / 2;
   yshift = map_info.scrshift_y / 2;
   for (h=0; h < lbDisplay.GraphicsScreenHeight; h++)
   {
-    dst = lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth * h;
+    dst = &lbDisplay.WScreen[lbDisplay.GraphicsScreenWidth * h];
     src = &map_window[window_y_offset[yshift + h]];
     w = 0;
     while (w < xshift)
@@ -735,6 +744,9 @@ void compressed_window_draw(void)
         if (wcopy < 0)
           wcopy = 0;
       }
+      if (src+wcopy > src_end) {
+          return;
+      }
       memcpy(dst, src, wcopy);
       src += wdata;
       dst += wdata;
@@ -758,6 +770,7 @@ void unload_map_and_window(void)
   clear_rooms();
   clear_dungeons();
   LbMemoryCopy(frontend_palette, frontend_backup_palette, PALETTE_SIZE);
+  map_window_len = 0;
 }
 
 TbBool load_map_and_window(LevelNumber lvnum)
@@ -819,13 +832,20 @@ TbBool load_map_and_window(LevelNumber lvnum)
   memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
   fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
   wait_for_cd_to_be_available();
-  if (LbFileLoadAt(fname, block_mem) < 1)
+  map_window_len = LbFileLoadAt(fname, block_mem);
+  if (map_window_len < WINDOW_Y_SIZE*sizeof(long))
   {
     ERRORLOG("Unable to load Land Map Window");
     unload_map_and_window();
     return false;
   }
-  window_y_offset = (long *)block_mem;
+  // Prepare pointer to offsets array; WINDOW_Y_SIZE entries
+  window_y_offset = (long *)&block_mem[0];
+  // Prepare pointer to window data
+  map_window = &block_mem[WINDOW_Y_SIZE*sizeof(long)];
+  // Update length, so that it corresponds to map_window pointer
+  map_window_len -= WINDOW_Y_SIZE*sizeof(long);
+  // Load palette
   fname = prepare_file_fmtpath(FGrp_LandView,"%s.pal",land_view);
   wait_for_cd_to_be_available();
   if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
@@ -834,7 +854,6 @@ TbBool load_map_and_window(LevelNumber lvnum)
     unload_map_and_window();
     return false;
   }
-  map_window = (unsigned char *)(window_y_offset + 720);
   SYNCDBG(9,"Finished");
   return true;
 }
