@@ -235,8 +235,7 @@ obj/%.o: src/%.c
 	@echo ' '
 
 obj/ver_defs.h: version.mk
-	@touch "$@"
-	@echo "#define VER_MAJOR         $(VER_MAJOR)" >> "$@"
+	@echo "#define VER_MAJOR         $(VER_MAJOR)" > "$@"
 	@echo "#define VER_MINOR         $(VER_MINOR)" >> "$@"
 	@echo "#define VER_RELEASE       $(VER_RELEASE)" >> "$@"
 	@echo "#define VER_BUILD         $(VER_BUILD)" >> "$@"

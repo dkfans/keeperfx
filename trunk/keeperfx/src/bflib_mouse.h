@@ -119,7 +119,7 @@ struct DevInput {
 #pragma pack()
 #endif
 /******************************************************************************/
-extern TbBool lbMouseAutoReset;
+extern volatile TbBool lbMouseAutoReset;
 /******************************************************************************/
 TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, long hot_x, long hot_y);
 TbResult LbMouseSetup(struct TbSprite *mouseSprite);
@@ -130,24 +130,11 @@ TbResult LbMouseSuspend(void);
 void GetPointerHotspot(long *hot_x, long *hot_y);
 TbResult LbMouseIsInstalled(void);
 TbResult LbMouseSetWindow(long x, long y, long width, long height);
+TbResult LbMouseChangeMoveRatio(long ratio_x, long ratio_y);
 
 void mouseControl(unsigned int action, struct TbPoint *pos);
 TbResult LbMouseOnBeginSwap(void);
-void LbMouseOnEndSwap(void);
-
-/*
-int LbMouseReset();
-int LbMousePlace(void);
-int LbMouseRemove(void);
-
-int screen_place(void);
-int screen_remove(unsigned long force);
-bool adjust_point(long *x, long *y);
-char mouse_in_rect(short x1, short x2, short y1, short y2);
-bool mouse_setup_range(void);
-void LbProcessMouseMove(struct SDL_MouseMotionEvent *motion);
-void LbProcessMouseClick(struct SDL_MouseButtonEvent *button);
-*/
+TbResult LbMouseOnEndSwap(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
