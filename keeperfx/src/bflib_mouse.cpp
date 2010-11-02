@@ -2,14 +2,14 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_mouse.c
+/** @file bflib_mouse.cpp
  *     Mouse related routines.
  * @par Purpose:
- *     Mouse and mouse cursor support.
+ *     Pointer position, movement and cursor support.
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
- * @date     12 Feb 2008 - 18 Jan 2009
+ * @date     12 Feb 2008 - 26 Oct 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -33,8 +33,6 @@
 #include "bflib_vidraw.h"
 #include "bflib_mshandler.hpp"
 
-//#include "keeperfx.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -53,35 +51,24 @@ long volatile mouse_dy;
 unsigned long mouse_pos_change_saved;
 struct DevInput joy;
 */
+volatile TbBool lbMouseAutoReset = false;
 /******************************************************************************/
-DLLIMPORT int _DK_LbMouseChangeSpriteAndHotspot(struct TbSprite *spr, int a, int b);
-DLLIMPORT int _DK_LbMouseSetup(struct TbSprite *MouseSprite);
-DLLIMPORT int _DK_LbMouseSetPointerHotspot(int x, int y);
-DLLIMPORT int _DK_LbMouseSetPosition(int x, int y);
-DLLIMPORT int _DK_LbMouseChangeSprite(struct TbSprite *MouseSprite);
-DLLIMPORT int _DK_LbMouseSuspend(void);
-DLLIMPORT int _DK_LbMouseIsInstalled(void);
-DLLIMPORT int _DK_LbMouseSetWindow(int x, int y, int width, int height);
-DLLIMPORT long _DK_LbMouseOnMove(struct tagPOINT pos);
-DLLIMPORT long _DK_LbMouseOnBeginSwap(void);
-DLLIMPORT void _DK_LbMouseOnEndSwap(void);
-/******************************************************************************/
-TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, long hot_x, long hot_y)
+TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *pointerSprite, long hot_x, long hot_y)
 {
 #if (BFDEBUG_LEVEL > 18)
-  if (mouseSprite == NULL)
+  if (pointerSprite == NULL)
     SYNCLOG("Setting to %s","NONE");
   else
-    SYNCLOG("Setting to %dx%d, data at %p",(int)mouseSprite->SWidth,(int)mouseSprite->SHeight,mouseSprite);
+    SYNCLOG("Setting to %dx%d, data at %p",(int)pointerSprite->SWidth,(int)pointerSprite->SHeight,pointerSprite);
 #endif
   if (!lbMouseInstalled)
     return Lb_FAIL;
-  if (!winMouseHandler.SetMousePointerAndOffset(mouseSprite, hot_x, hot_y))
+  if (!pointerHandler.SetMousePointerAndOffset(pointerSprite, hot_x, hot_y))
     return Lb_FAIL;
   return Lb_SUCCESS;
 }
 
-TbResult LbMouseSetup(struct TbSprite *mouseSprite)
+TbResult LbMouseSetup(struct TbSprite *pointerSprite)
 {
   TbResult ret;
   long x,y;
@@ -89,14 +76,14 @@ TbResult LbMouseSetup(struct TbSprite *mouseSprite)
     LbMouseSuspend();
   y = (lbDisplay.MouseWindowHeight + lbDisplay.MouseWindowY) / 2;
   x = (lbDisplay.MouseWindowWidth + lbDisplay.MouseWindowX) / 2;
-  winMouseHandler.Install();
+  pointerHandler.Install();
   lbMouseOffline = true;
   lbMouseInstalled = true;
-  LbMouseSetWindow(0,0,lbDisplay.PhysicalScreenWidth,lbDisplay.PhysicalScreenHeight);
+  LbMouseSetWindow(0,0,LbGraphicsScreenWidth(),LbGraphicsScreenHeight());
   ret = Lb_SUCCESS;
   if (LbMouseSetPosition(x,y) != Lb_SUCCESS)
     ret = Lb_FAIL;
-  if (LbMouseChangeSprite(mouseSprite) != Lb_SUCCESS)
+  if (LbMouseChangeSprite(pointerSprite) != Lb_SUCCESS)
     ret = Lb_FAIL;
   lbMouseInstalled = (ret == Lb_SUCCESS);
   lbMouseOffline = false;
@@ -107,7 +94,7 @@ TbResult LbMouseSetPointerHotspot(long hot_x, long hot_y)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
-  if (!winMouseHandler.SetPointerOffset(hot_x, hot_y))
+  if (!pointerHandler.SetPointerOffset(hot_x, hot_y))
     return Lb_FAIL;
   return Lb_SUCCESS;
 }
@@ -116,22 +103,22 @@ TbResult LbMouseSetPosition(long x, long y)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
-  if (!winMouseHandler.SetMousePosition(x, y))
+  if (!pointerHandler.SetMousePosition(x, y))
     return Lb_FAIL;
   return Lb_SUCCESS;
 }
 
-TbResult LbMouseChangeSprite(struct TbSprite *mouseSprite)
+TbResult LbMouseChangeSprite(struct TbSprite *pointerSprite)
 {
 #if (BFDEBUG_LEVEL > 18)
-  if (mouseSprite == NULL)
+  if (pointerSprite == NULL)
     SYNCLOG("Setting to %s","NONE");
   else
-    SYNCLOG("Setting to %dx%d, data at %p",(int)mouseSprite->SWidth,(int)mouseSprite->SHeight,mouseSprite);
+    SYNCLOG("Setting to %dx%d, data at %p",(int)pointerSprite->SWidth,(int)pointerSprite->SHeight,pointerSprite);
 #endif
   if (!lbMouseInstalled)
     return Lb_FAIL;
-  if (!winMouseHandler.SetMousePointer(mouseSprite))
+  if (!pointerHandler.SetMousePointer(pointerSprite))
     return Lb_FAIL;
   return Lb_SUCCESS;
 }
@@ -139,7 +126,7 @@ TbResult LbMouseChangeSprite(struct TbSprite *mouseSprite)
 void GetPointerHotspot(long *hot_x, long *hot_y)
 {
   struct TbPoint *hotspot;
-  hotspot = winMouseHandler.GetPointerOffset();
+  hotspot = pointerHandler.GetPointerOffset();
   if (hotspot == NULL)
     return;
   *hot_x = hotspot->x;
@@ -150,7 +137,7 @@ TbResult LbMouseIsInstalled(void)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
-  if (!winMouseHandler.IsInstalled())
+  if (!pointerHandler.IsInstalled())
     return Lb_FAIL;
   return Lb_SUCCESS;
 }
@@ -159,7 +146,7 @@ TbResult LbMouseSetWindow(long x, long y, long width, long height)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
-  if (!winMouseHandler.SetMouseWindow(x, y, width, height))
+  if (!pointerHandler.SetMouseWindow(x, y, width, height))
     return Lb_FAIL;
   return Lb_SUCCESS;
 }
@@ -168,7 +155,7 @@ TbResult LbMouseOnMove(struct TbPoint shift)
 {
   if ((!lbMouseInstalled) || (lbMouseOffline))
     return Lb_FAIL;
-  if (!winMouseHandler.SetMousePosition(lbDisplay.MMouseX+shift.x, lbDisplay.MMouseY+shift.y))
+  if (!pointerHandler.SetMousePosition(lbDisplay.MMouseX+shift.x, lbDisplay.MMouseY+shift.y))
     return Lb_FAIL;
   return Lb_SUCCESS;
 }
@@ -180,12 +167,12 @@ void MouseToScreen(struct TbPoint *pos)
 {
   static long mx = 0;
   static long my = 0;
-  struct tagRECT clip;
+  struct TbRect clip;
   struct TbPoint orig;
-  if ( lbUseSdk )
+  if ( lbMouseAutoReset )
   {
-    if ( GetClipCursor(&clip) )
-    {
+      if (!pointerHandler.GetMouseWindow(&clip))
+          return;
       orig.x = pos->x;
       orig.y = pos->y;
       pos->x -= mx;
@@ -197,9 +184,8 @@ void MouseToScreen(struct TbPoint *pos)
       {
         mx = (clip.right-clip.left)/2 + clip.left;
         my = (clip.bottom-clip.top)/2 + clip.top;
-        SetCursorPos(mx, my);
+        SDL_WarpMouse(mx, my);
       }
-    }
   } else
   {
     pos->x -= lbDisplay.MMouseX;
@@ -211,21 +197,21 @@ TbResult LbMouseSuspend(void)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
-  if (!winMouseHandler.Release())
+  if (!pointerHandler.Release())
     return Lb_FAIL;
   return Lb_SUCCESS;
 }
 
 TbResult LbMouseOnBeginSwap(void)
 {
-  if (!winMouseHandler.PointerBeginSwap())
+  if (!pointerHandler.PointerBeginSwap())
     return Lb_FAIL;
   return Lb_SUCCESS;
 }
 
 void LbMouseOnEndSwap(void)
 {
-  winMouseHandler.PointerEndSwap();
+  pointerHandler.PointerEndSwap();
 }
 
 void mouseControl(unsigned int action, struct TbPoint *pos)

@@ -32,7 +32,7 @@
 // Global variables
 int volatile lbMouseInstalled = false;
 int volatile lbMouseOffline = false;
-class MouseStateHandler winMouseHandler;
+class MouseStateHandler pointerHandler;
 
 /******************************************************************************/
 /**
@@ -171,6 +171,18 @@ bool MouseStateHandler::SetMouseWindow(long x, long y,long width, long height)
   lbDisplay.MouseWindowHeight = height;
   adjust_point(&lbDisplay.MMouseX, &lbDisplay.MMouseY);
   adjust_point(&lbDisplay.MouseX, &lbDisplay.MouseY);
+  return true;
+}
+
+bool MouseStateHandler::GetMouseWindow(struct TbRect *windowRect)
+{
+  LbSemaLock semlock(&semaphore,0);
+  if (!semlock.Lock(true))
+    return false;
+  windowRect->left = lbDisplay.MouseWindowX;
+  windowRect->top = lbDisplay.MouseWindowY;
+  windowRect->right = lbDisplay.MouseWindowX+lbDisplay.MouseWindowWidth;
+  windowRect->bottom = lbDisplay.MouseWindowY+lbDisplay.MouseWindowHeight;
   return true;
 }
 

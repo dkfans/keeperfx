@@ -43,7 +43,6 @@ long lbScreenModeInfoNum = 0;
 
 /** Informs if Video Screen subsystem initialization was done. */
 volatile TbBool lbScreenInitialised = false;
-volatile TbBool lbUseSdk = true;
 /** Bytes per pixel expected by the engine.
  * On any try of entering different video BPP, this mode will be emulated. */
 unsigned short lbEngineBPP = 8;
