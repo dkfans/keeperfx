@@ -687,7 +687,7 @@ void compressed_window_draw(void)
   src_end = &map_window[map_window_len];
   xshift = map_info.scrshift_x / 2;
   yshift = map_info.scrshift_y / 2;
-  for (h=0; h < lbDisplay.GraphicsScreenHeight; h++)
+  for (h=0; h < lbDisplay.PhysicalScreenHeight; h++)
   {
     dst = &lbDisplay.WScreen[lbDisplay.GraphicsScreenWidth * h];
     src = &map_window[window_y_offset[yshift + h]];

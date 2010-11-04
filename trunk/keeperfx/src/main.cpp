@@ -9981,6 +9981,11 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           lbMouseAutoReset = true;
       } else
+      if ( strcasecmp(parstr,"vidriver") == 0 )
+      {
+          LbScreenHardwareConfig(pr2str,8);
+          narg++;
+      } else
       if (strcasecmp(parstr,"packetload") == 0)
       {
          if (start_params.packet_save_enable)
@@ -10047,22 +10052,23 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
   short retval;
   retval=0;
   LbErrorLogSetup("/", log_file_name, 5);
-  LbTimerInit();
-  LbScreenInitialize();
-  LbSetTitle(PROGRAM_NAME);
-  LbSetIcon(1);
-  LbScreenSetDoubleBuffering(true);
-  srand(LbTimerClock());
+  LbScreenHardwareConfig("directx",8);
 
   retval=process_command_line(argc,argv);
   if ( retval < 1 )
   {
       static const char *msg_text="Command line parameters analysis failed.\n";
       error_dialog_fatal(__func__, 1, msg_text);
-      close_video_context();
       LbErrorLogClose();
       return 0;
   }
+
+  LbTimerInit();
+  LbScreenInitialize();
+  LbSetTitle(PROGRAM_NAME);
+  LbSetIcon(1);
+  LbScreenSetDoubleBuffering(true);
+  srand(LbTimerClock());
 
   retval = setup_game();
   if (retval)

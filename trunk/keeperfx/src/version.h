@@ -16,8 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef KEEPERFX_VERSIONS_H
-#define KEEPERFX_VERSIONS_H
+#ifndef KEEPERFX_VERSION_H
+#define KEEPERFX_VERSION_H
 
 #ifndef BFDEBUG_LEVEL
 /* Debug level is scaled 0..10, default=1; usually defined in Makefile. */
@@ -45,5 +45,5 @@
 #define PRODUCT_VERSION    VER_STRING
 #define DEFAULT_LOG_FILENAME INTERNAL_NAME".log"
 
-#endif /*KEEPERFX_VERSIONS_H*/
+#endif /*KEEPERFX_VERSION_H*/
 /******************************************************************************/
