@@ -615,105 +615,118 @@ inline int LbSpriteDrawSolid(const char *sp,short sprWd,short sprHt,unsigned cha
 
 inline int LbSpriteDrawFastCpy(const char *sp,short sprWd,short sprHt,unsigned char *r,int nextRowDelta,short left,bool mirror)
 {
-    int x1;
+    short x1;
     unsigned char *nextRow;
     long htIndex;
     nextRow = &(r[nextRowDelta]);
-    x1 = sprWd;
     htIndex = sprHt;
+    // For all lines of the sprite
     while (1)
     {
-        if ( left != 0 )
+        x1 = sprWd;
+        char schr;
+        unsigned char drawOut;
+        // Cut the left side of the sprite, if needed
+        if (left != 0)
         {
-          unsigned char drawOut=0;
-          short lpos = left;
-          do {
-            char schr = *sp;
-            while ( schr>0 )
+            short lpos = left;
+            while (lpos > 0)
             {
-              if ( schr > lpos )
-              {
-                drawOut = *sp - lpos;
-                if ( drawOut > sprWd )
-                  drawOut = sprWd;
-                memcpy( r, (sp+1+lpos), drawOut);
-                r += drawOut;
-                sp += *sp + 1;
-                x1 -= drawOut;
-                break;
-              } else
-              {
-                lpos -= *sp;
-                sp += *sp + 1;
-                if ( !lpos )
+                schr = *sp;
+                // Value > 0 means count of filled characters, < 0 means skipped characters
+                // Equal to 0 means EOL
+                if (schr == 0)
+                {
+                  x1 = 0;
                   break;
-              }
+                }
+                if (schr < 0)
+                {
+                    if (-schr > lpos)
+                    {
+                        drawOut = -schr - lpos;
+                        if (drawOut > x1)
+                          drawOut = x1;
+                        sp++;
+                        r += drawOut;
+                        x1 -= drawOut;
+                        lpos = 0;
+                    } else
+                    {
+                        lpos += schr;
+                        sp++;
+                    }
+                } else
+                //if (schr > 0)
+                {
+                    if (schr > lpos)
+                    // If we have more characters than we want to skip
+                    {
+                        // Draw the part that exceeds value of 'left'
+                        drawOut = schr - lpos;
+                        if (drawOut > x1)
+                          drawOut = x1;
+                        memcpy( r, sp+(lpos+1), drawOut);
+                        // Update positions and break the skipping loop
+                        sp += (*sp) + 1;
+                        r += drawOut;
+                        x1 -= drawOut;
+                        lpos = 0;
+                    } else
+                    // If we have less than we want to skip
+                    {
+                        lpos -= schr;
+                        sp += (*sp) + 1;
+                    }
+                }
+            }
+        }
+        // Draw the visible part of a sprite
+        while (x1 > 0)
+        {
+            schr = *sp;
+            if (schr == 0)
+            { // EOL, breaking line loop
+                break;
+            }
+            if (schr < 0)
+            { // Skipping some pixels
+                x1 += schr;
+                r -= *sp;
+                sp++;
+            } else
+            //if ( schr > 0 )
+            { // Drawing some pixels
+                drawOut = schr;
+                if (drawOut >= x1)
+                    drawOut = x1;
+                memcpy(r, sp+1, drawOut);
+                x1 -= schr;
+                r += schr;
+                sp += (*sp) + 1;
+            }
+        } //end while
+        htIndex--;
+        if (htIndex==0)
+          return 1;
+        if (x1 <= 0)
+        {
+          do {
+            schr=*sp;
+            while (schr > 0)
+            {
+              sp += schr+1;
               schr = *sp;
             }
-
-            if ( schr == 0 )
-            {
-              x1 = *sp;
-              break;
-            }
-            if ( *sp < -lpos )
-            {
-              drawOut = -*sp - lpos;
-              if ( drawOut > sprWd )
-                drawOut = sprWd;
-              sp++;
-               r += drawOut;
-              x1 -= drawOut;
-              break;
-            }
-            lpos += *sp;
             sp++;
-          } while (lpos != 0);
+          } while (schr);
+        } else
+        {
+          sp++;
         }
 
-      while (x1 > 0)
-      {
-        char schr = *sp;
-        if (schr == 0)
-          break;
-        if ( schr < 0 )
-        {
-          x1 += schr;
-          r -= *sp;
-          sp++;
-        } else
-        //if ( schr > 0 )
-        {
-          if ( schr >= x1 )
-            schr = x1;
-          memcpy(r, sp+1, schr);
-          x1 -= *sp;
-          r += *sp;
-          sp += (*sp)+1;
-        }
-      } //end while
-      htIndex--;
-      if (htIndex==0)
-        return 1;
-      if ( x1 <= 0 )
-      {
-        char schr;
-        do {
-          schr=*sp;
-          while ( schr>0 )
-          {
-            sp+=schr+1;
-            schr=*sp;
-          }
-          sp++;
-        } while ( schr );
-      } else
-      {
-        sp++;
-      }
-      r = nextRow;
-      nextRow += nextRowDelta;
-      x1 = sprWd;
+        r = nextRow;
+        nextRow += nextRowDelta;
     } //end while
     return 1;
 }
@@ -722,7 +735,7 @@ int LbSpriteDraw(long x, long y, const struct TbSprite *spr)
 {
     //TODO SPRITES Fix, then enable the rewritten code. Works incorrectly if image starts before left corner of the screen.
     SYNCDBG(19,"At (%ld,%ld)",x,y);
-    return _DK_LbSpriteDraw(x, y, spr);
+    //return _DK_LbSpriteDraw(x, y, spr);
     if (spr == NULL)
     {
         SYNCDBG(19,"NULL sprite");
@@ -733,9 +746,9 @@ int LbSpriteDraw(long x, long y, const struct TbSprite *spr)
         SYNCDBG(19,"Zero size sprite (%d,%d)",spr->SWidth,spr->SHeight);
         return 1;
     }
-    if ( (lbDisplay.GraphicsWindowWidth==0) || (lbDisplay.GraphicsWindowHeight==0) )
+    if ((lbDisplay.GraphicsWindowWidth == 0) || (lbDisplay.GraphicsWindowHeight == 0))
     {
-        SYNCDBG(19,"Invalid graphics window");
+        SYNCDBG(19,"Invalid graphics window dimensions");
         return 1;
     }
     x += lbDisplay.GraphicsWindowX;
