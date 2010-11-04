@@ -45,13 +45,16 @@ long lbScreenModeInfoNum = 0;
 volatile TbBool lbScreenInitialised = false;
 /** Bytes per pixel expected by the engine.
  * On any try of entering different video BPP, this mode will be emulated. */
-unsigned short lbEngineBPP = 8;
+volatile unsigned short lbEngineBPP = 8;
 /** Informs if the application window is active (focused on screen). */
 extern volatile TbBool lbAppActive;
 /** True if we have two surfaces. */
 volatile TbBool lbHasSecondSurface;
 /** True if we request the double buffering to be on in next mode switch. */
 TbBool lbDoubleBufferingRequested;
+/** Name of the video driver to be used. Must be set before LbScreenInitialize().
+ * Under Win32 and with SDL, choises are windib or directx. */
+char lbVideoDriver[16];
 /** Colour palette buffer, to be used inside lbDisplay. */
 unsigned char lbPalette[PALETTE_SIZE];
 /** Driver-specific colour palette buffer. */
@@ -347,7 +350,7 @@ static void LbRegisterStandardVideoModes(void)
 
 TbResult LbScreenInitialize(void)
 {
-    putenv("SDL_VIDEODRIVER=directx");// under Win32, windib or directx
+    char buf[32];
     // Clear global variables
     lbScreenInitialised = false;
     lbScreenSurface = NULL;
@@ -355,6 +358,11 @@ TbResult LbScreenInitialize(void)
     lbHasSecondSurface = false;
     lbDoubleBufferingRequested = false;
     lbAppActive = true;
+    // SDL environment variables
+    if (lbVideoDriver[0] != '\0') {
+        sprintf(buf,"SDL_VIDEODRIVER=%s",lbVideoDriver);
+        putenv(buf);
+    }
     // Initialize SDL library
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
        ERRORLOG("SDL init: %s",SDL_GetError());
@@ -645,6 +653,19 @@ TbResult LbSetIcon(unsigned short nicon)
 {
   lbIconIndex = nicon;
   return Lb_SUCCESS;
+}
+
+TbResult LbScreenHardwareConfig(const char *driver, short engine_bpp)
+{
+    if (driver != NULL)
+    {
+        if (strlen(driver) > sizeof(lbVideoDriver)-1)
+            return Lb_FAIL;
+        strcpy(lbVideoDriver,driver);
+    }
+    if (engine_bpp != 0)
+        lbEngineBPP = engine_bpp;
+    return Lb_SUCCESS;
 }
 
 TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode)

@@ -231,6 +231,7 @@ extern volatile TbBool lbScreenInitialised;
 extern volatile TbBool lbUseSdk;
 extern unsigned char lbPalette[PALETTE_SIZE];
 /******************************************************************************/
+TbResult LbScreenHardwareConfig(const char *driver, short engine_bpp);
 TbResult LbScreenInitialize(void);
 TbResult LbScreenSetDoubleBuffering(TbBool state);
 TbBool LbScreenIsDoubleBufferred(void);
