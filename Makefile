@@ -106,6 +106,7 @@ obj/creature_graphics.o \
 obj/creature_instances.o \
 obj/creature_states.o \
 obj/dungeon_data.o \
+obj/engine_arrays.o \
 obj/engine_camera.o \
 obj/engine_lenses.o \
 obj/engine_render.o \
@@ -142,6 +143,7 @@ obj/map_blocks.o \
 obj/map_columns.o \
 obj/map_data.o \
 obj/map_events.o \
+obj/map_utils.o \
 obj/net_sync.o \
 obj/net_game.o \
 obj/packets.o \
@@ -154,6 +156,7 @@ obj/power_specials.o \
 obj/room_data.o \
 obj/room_workshop.o \
 obj/scrcapt.o \
+obj/sounds.o \
 obj/slab_data.o \
 obj/spworker_stack.o \
 obj/tasks_list.o \
@@ -166,6 +169,7 @@ obj/thing_navigate.o \
 obj/thing_objects.o \
 obj/thing_stats.o \
 obj/thing_traps.o \
+obj/vidfade.o \
 obj/vidmode.o \
 obj/main.o \
 $(RES)

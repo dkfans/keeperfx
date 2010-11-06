@@ -27,11 +27,24 @@
 #include "config_creature.h"
 #include "player_data.h"
 #include "config_magic.hpp"
+#include "vidfade.h"
+
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+/******************************************************************************/
+const char *blood_types[] = {
+    "ARh+",
+    "O",
+    "MoO+",
+    "BA",
+    "PoE",
+    "BO",
+    "IkI",
+    NULL,
+};
 /******************************************************************************/
 DLLIMPORT void _DK_apply_damage_to_thing(struct Thing *thing, long a2, char a3);
 

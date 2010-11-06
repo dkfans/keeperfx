@@ -29,6 +29,7 @@
 #include "map_blocks.h"
 #include "config_magic.hpp"
 #include "gui_soundmsgs.h"
+#include "sounds.h"
 
 #include "keeperfx.hpp"
 

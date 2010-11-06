@@ -37,6 +37,8 @@
 #include "kjm_input.h"
 #include "front_simple.h"
 #include "frontend.h"
+#include "vidfade.h"
+
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

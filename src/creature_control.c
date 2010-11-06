@@ -27,6 +27,7 @@
 #include "frontend.h"
 #include "lens_api.h"
 #include "light_data.h"
+#include "sounds.h"
 
 #include "keeperfx.hpp"
 

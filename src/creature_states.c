@@ -36,6 +36,7 @@
 #include "power_hand.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
+#include "sounds.h"
 
 #include "keeperfx.hpp"
 

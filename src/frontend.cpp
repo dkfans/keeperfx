@@ -64,8 +64,9 @@
 #include "gui_frontmenu.h"
 #include "gui_frontbtns.h"
 #include "gui_soundmsgs.h"
+#include "vidfade.h"
 
-#include <windows.h>
+#include <windows.h> // needed for timeGetTime() -- should be later removed
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

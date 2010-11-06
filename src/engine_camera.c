@@ -39,7 +39,7 @@ DLLIMPORT long _DK_get_2d_distance(const struct Coord3d *pos1, const struct Coor
 DLLIMPORT void _DK_project_point_to_wall_on_angle(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4, long a5, long a6);
 DLLIMPORT void _DK_angles_to_vector(short angle_xy, short angle_yz, long dist, struct ComponentVector *cvect);
 /******************************************************************************/
-long get_3d_box_distance(struct Coord3d *pos1, struct Coord3d *pos2)
+long get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
   long dx;
   long dy;
@@ -54,6 +54,15 @@ long get_3d_box_distance(struct Coord3d *pos1, struct Coord3d *pos2)
   return dy;
 }
 
+long get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
+{
+  long dx,dy;
+  dy = abs(pos1->y.val - pos2->y.val);
+  dx = abs(pos1->x.val - pos2->x.val);
+  if (dy <= dx)
+    return dx;
+  return dy;
+}
 void angles_to_vector(short angle_xy, short angle_yz, long dist, struct ComponentVector *cvect)
 {
   _DK_angles_to_vector(angle_xy, angle_yz, dist, cvect); return;

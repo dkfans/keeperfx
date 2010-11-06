@@ -35,6 +35,8 @@ struct Thing;
 
 #pragma pack()
 /******************************************************************************/
+extern const char *blood_types[];
+/******************************************************************************/
 long compute_creature_max_pay(long base_pay,unsigned short crlevel);
 long compute_creature_max_health(long base_health,unsigned short crlevel);
 long compute_creature_attack_damage(long base_param,long luck,unsigned short crlevel);
