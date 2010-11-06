@@ -80,6 +80,9 @@ enum TbPaletteFadeFlag {
 };
 
 enum TbDrawFlags {
+    Lb_SPRITE_ONECOLOUR    = 0x0001,
+    Lb_SPRITE_TRANSPAR4    = 0x0004,
+    Lb_SPRITE_TRANSPAR8    = 0x0008,
     Lb_TEXT_HALIGN_LEFT    = 0x0020,
     Lb_TEXT_HALIGN_RIGHT   = 0x0080,
     Lb_TEXT_HALIGN_CENTER  = 0x0100,
