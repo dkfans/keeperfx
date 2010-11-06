@@ -189,6 +189,7 @@ DLLIMPORT void _DK_kill_room_slab_and_contents(unsigned char a1, unsigned char a
 DLLIMPORT void _DK_free_room_structure(struct Room *room);
 DLLIMPORT void _DK_reset_creatures_rooms(struct Room *room);
 DLLIMPORT void _DK_replace_room_slab(struct Room *room, long a2, long a3, unsigned char a4, unsigned char a5);
+DLLIMPORT struct Room *_DK_place_room(unsigned char a1, unsigned char a2, unsigned short a3, unsigned short a4);
 DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char a2, char a3, unsigned char a4);
 /******************************************************************************/
 struct Room *room_get(long room_idx)
@@ -1259,6 +1260,61 @@ void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y
             increase_dungeon_area(owner, 1);
         }
     }
+}
+
+struct Room *place_room(unsigned char owner, unsigned char rkind, unsigned short stl_x, unsigned short stl_y)
+{
+    struct Room *room;
+    struct RoomData *rdata;
+    struct Dungeon *dungeon;
+    struct SlabMap *slb;
+    long slb_x, slb_y;
+    long i;
+    //return _DK_place_room(owner, rkind, stl_x, stl_y);
+    game.field_14EA4B = 1;
+    if (subtile_coords_invalid(stl_x, stl_y))
+        return INVALID_ROOM;
+    slb_x = map_to_slab[stl_x];
+    slb_y = map_to_slab[stl_y];
+    slb = get_slabmap_block(slb_x,slb_y);
+    if (slb->room_index > 0)
+    {
+      delete_room_slab(slb_x, slb_y, 0);
+    } else
+    {
+        decrease_dungeon_area(owner, 1);
+        increase_room_area(owner, 1);
+    }
+
+    room = create_room(owner, rkind, stl_x, stl_y);
+    if (room_is_invalid(room))
+        return INVALID_ROOM;
+    // Make sure we have first subtile
+    stl_x = slab_starting_subtile(stl_x);
+    stl_y = slab_starting_subtile(stl_y);
+    // Update slab type on map
+    rdata = room_data_get_for_room(room);
+    i = get_slab_number(slb_x, slb_y);
+    if ((rkind == RoK_GUARDPOST) || (rkind == RoK_BRIDGE))
+    {
+      delete_room_slabbed_objects(i);
+      place_animating_slab_type_on_map(rdata->numfield_0, 0, stl_x, stl_y, owner);
+    } else
+    {
+      delete_room_slabbed_objects(i);
+      place_slab_type_on_map(rdata->numfield_0, stl_x, stl_y, owner, 0);
+    }
+    SYNCDBG(7,"Updating efficiency");
+    do_slab_efficiency_alteration(slb_x, slb_y);
+    update_room_efficiency(room);
+    set_room_capacity(room,0);
+    if (owner != game.neutral_player_num)
+    {
+        dungeon = get_dungeon(owner);
+        dungeon->lvstats.rooms_constructed++;
+    }
+    pannel_map_update(stl_x, stl_y, 3, 3);
+    return room;
 }
 
 struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char a2, char a3, unsigned char a4)

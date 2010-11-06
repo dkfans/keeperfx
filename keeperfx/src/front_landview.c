@@ -44,6 +44,7 @@
 #include "frontend.h"
 #include "kjm_input.h"
 #include "vidmode.h"
+#include "vidfade.h"
 
 #include "keeperfx.hpp"
 

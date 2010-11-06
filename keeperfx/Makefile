@@ -98,6 +98,7 @@ obj/game_saves.o \
 obj/engine_render.o \
 obj/engine_camera.o \
 obj/engine_lenses.o \
+obj/engine_arrays.o \
 obj/front_landview.o \
 obj/frontmenu_net.o \
 obj/frontmenu_options.o \
@@ -119,6 +120,7 @@ obj/creature_instances.o \
 obj/creature_graphics.o \
 obj/map_data.o \
 obj/map_events.o \
+obj/map_utils.o \
 obj/thing_doors.o \
 obj/thing_traps.o \
 obj/config_campaigns.o \
@@ -154,7 +156,9 @@ obj/thing_navigate.o \
 obj/actionpt.o \
 obj/config_magic.o \
 obj/frontend.o \
+obj/sounds.o \
 obj/vidmode.o \
+obj/vidfade.o \
 $(RES)
 
 LINKOBJ  = $(OBJS)
