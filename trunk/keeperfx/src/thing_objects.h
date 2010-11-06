@@ -77,6 +77,9 @@ struct Objects *get_objects_data_for_thing(struct Thing *thing);
 struct Objects *get_objects_data(unsigned int tmodel);
 unsigned int get_workshop_object_class_for_thing(struct Thing *thing);
 unsigned int get_workshop_object_class(unsigned int tmodel);
+struct Thing *get_spellbook_at_position(long x, long y);
+struct Thing *get_special_at_position(long x, long y);
+struct Thing *get_crate_at_position(long x, long y);
 
 int box_thing_to_special(const struct Thing *thing);
 int book_thing_to_magic(const struct Thing *thing);
@@ -92,6 +95,7 @@ TbBool object_is_mature_food(const struct Thing *thing);
 TbBool object_is_gold(const struct Thing *thing);
 TbBool object_is_gold_pile(const struct Thing *thing);
 TbBool thing_is_gold_hoarde(struct Thing *thing);
+long thing_is_spellbook(struct Thing *thing);
 
 long update_object(struct Thing *thing);
 

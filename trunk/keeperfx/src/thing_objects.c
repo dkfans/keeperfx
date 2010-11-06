@@ -25,6 +25,8 @@
 #include "map_data.h"
 #include "map_columns.h"
 #include "gui_topmsg.h"
+#include "sounds.h"
+
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -206,6 +208,10 @@ DLLIMPORT long _DK_object_is_gold_pile(struct Thing *thing);
 DLLIMPORT long _DK_object_is_gold(struct Thing *thing);
 DLLIMPORT long _DK_remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount);
 DLLIMPORT struct Thing *_DK_create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
+DLLIMPORT long _DK_thing_is_spellbook(struct Thing *thing);
+DLLIMPORT struct Thing *_DK_get_crate_at_position(long x, long y);
+DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
+DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
 /******************************************************************************/
 struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4)
 {
@@ -441,6 +447,26 @@ TbBool object_is_gold_pile(const struct Thing *thing)
     default:
         return false;
   }
+}
+
+long thing_is_spellbook(struct Thing *thing)
+{
+  return _DK_thing_is_spellbook(thing);
+}
+
+struct Thing *get_spellbook_at_position(long x, long y)
+{
+  return _DK_get_spellbook_at_position(x, y);
+}
+
+struct Thing *get_special_at_position(long x, long y)
+{
+  return _DK_get_special_at_position(x, y);
+}
+
+struct Thing *get_crate_at_position(long x, long y)
+{
+  return _DK_get_crate_at_position(x, y);
 }
 
 long food_moves(struct Thing *thing)

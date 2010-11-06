@@ -33,6 +33,7 @@
 #include "kjm_input.h"
 #include "scrcapt.h"
 #include "gui_draw.h"
+#include "vidfade.h"
 
 #include "keeperfx.hpp"
 

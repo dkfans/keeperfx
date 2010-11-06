@@ -27,6 +27,7 @@
 
 #include "engine_lenses.h"
 #include "engine_camera.h"
+#include "engine_arrays.h"
 #include "kjm_input.h"
 #include "front_simple.h"
 #include "vidmode.h"

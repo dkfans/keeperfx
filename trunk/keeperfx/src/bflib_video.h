@@ -132,14 +132,20 @@ struct DisplayStruct {
         /** Sprite used as mouse cursor. */
         struct TbSprite *MouseSprite;
         /** Resolution in width of the current video mode.
-         *  Note that it's not always "physical" size. */
+         *  Note that it's not always "physical" size.
+         *  It is the part of screen buffer which is being drawn
+         *  on physical screen (WScreen X drawing size). */
         long PhysicalScreenWidth;
         /** Resolution in height of the current video mode.
-        *  Note that it's not always "physical" size. */
+         *  Note that it's not always "physical" size.
+         *  It is the part of screen buffer which is being drawn
+         *  on physical screen (WScreen Y drawing size). */
         long PhysicalScreenHeight;
-        /** Width of the screen buffer (WScreen X pitch). */
+        /** Width of the screen buffer (WScreen X pitch).
+         *  Note that only part of this width may be drawn on real screen. */
         long GraphicsScreenWidth;
-        /** Height of the screen buffer (WScreen Y pitch). */
+        /** Height of the screen buffer (WScreen Y pitch).
+        *  Note that only part of this height may be drawn on real screen. */
         long GraphicsScreenHeight;
         /** Current graphics window beginning X coordinate. */
         long GraphicsWindowX;

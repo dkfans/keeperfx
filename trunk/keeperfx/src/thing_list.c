@@ -30,6 +30,7 @@
 #include "thing_traps.h"
 #include "config_creature.h"
 #include "creature_states.h"
+#include "engine_camera.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -71,6 +72,7 @@ DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_including_objects
 DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing);
 DLLIMPORT long _DK_thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing);
 DLLIMPORT void _DK_add_thing_to_list(struct Thing *thing, struct StructureList *list);
+DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long x, long y);
 /******************************************************************************/
 void add_thing_to_list(struct Thing *thing, struct StructureList *list)
 {
@@ -1409,6 +1411,11 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
     i = get_mapwho_thing_index(mapblk);
     n = 0;
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
+}
+
+struct Thing *get_nearest_object_at_position(MapSubtlCoord x, MapSubtlCoord y)
+{
+  return _DK_get_nearest_object_at_position(x, y);
 }
 /******************************************************************************/
 #ifdef __cplusplus

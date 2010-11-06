@@ -2,7 +2,7 @@
 // Dungeon Keeper fan extension.
 /******************************************************************************/
 /** @file keeperfx.hpp
- *     Header file for config.c.
+ *     Header file for main.cpp.
  * @par Purpose:
  *     Header file. Defines exported routines from keeperfx.dll.
  * @par Comment:
@@ -42,6 +42,7 @@
 #include "config.h"
 #include "config_magic.hpp"
 #include "net_game.h"
+#include "sounds.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -89,7 +90,6 @@ extern "C" {
 // Camera constants; max zoom is when everything is large
 #define CAMERA_ZOOM_MIN     4100
 #define CAMERA_ZOOM_MAX    12000
-#define TD_ISO_POINTS        982
 // Strings length
 #define CAMPAIGN_FNAME_LEN    64
 
@@ -355,52 +355,6 @@ struct GameSettings { // sizeof = 0x52 (82)
     unsigned char field_50;
     unsigned char field_51;
     };
-
-struct SoundSettings {
-  char *sound_data_path;
-  char *music_data_path;
-  char *dir3;
-  unsigned short sound_type;
-  unsigned short field_E;
-  unsigned char max_number_of_samples;
-  unsigned char stereo;
-  unsigned char field_12;
-  unsigned char danger_music;
-  unsigned char no_load_sounds;
-  unsigned char no_load_music;
-  unsigned char field_16;
-  unsigned char sound_system;
-  unsigned char field_18;
-  unsigned char redbook_enable;
-};
-
-struct SoundBankHead { // sizeof = 18
-  unsigned char field_0[14];
-  unsigned long field_E;
-};
-
-struct SoundBankSample { // sizeof = 32
-  unsigned char field_0[18];
-  unsigned long field_12;
-  unsigned long field_16;
-  unsigned long field_1A;
-  unsigned char field_1E;
-  unsigned char field_1F;
-};
-
-struct SoundBankEntry { // sizeof = 16
-  unsigned long field_0;
-  unsigned long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
-};
-
-struct UnkSndSampleStr { // sizeof = 16
-  unsigned long field_0;
-  unsigned long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
-};
 
 struct TunnellerTrigger { // sizeof = 18
   unsigned char flags;
@@ -741,7 +695,6 @@ extern TbClockMSec last_loop_time;
 extern short default_loc_player;
 extern struct GuiBox *gui_box;
 extern struct GuiBox *gui_cheat_box;
-extern const char *blood_types[];
 extern int test_variable;
 extern unsigned short const player_state_to_spell[];
 extern struct RoomInfo room_info[];
@@ -777,8 +730,6 @@ DLLIMPORT extern unsigned char _DK_exit_keeper;
 #define exit_keeper _DK_exit_keeper
 DLLIMPORT extern unsigned char _DK_quit_game;
 #define quit_game _DK_quit_game
-DLLIMPORT extern unsigned char _DK_frontend_palette[768];
-#define frontend_palette _DK_frontend_palette
 DLLIMPORT extern int _DK_continue_game_option_available;
 #define continue_game_option_available _DK_continue_game_option_available
 DLLIMPORT extern long _DK_last_mouse_x;
@@ -789,8 +740,6 @@ DLLIMPORT extern long _DK_frontstory_text_no;
 #define frontstory_text_no _DK_frontstory_text_no
 DLLIMPORT extern int _DK_FatalError;
 #define FatalError _DK_FatalError
-DLLIMPORT extern unsigned char _DK_fade_palette_in;
-#define fade_palette_in _DK_fade_palette_in
 DLLIMPORT extern struct TbLoadFiles _DK_frontstory_load_files[4];
 #define frontstory_load_files _DK_frontstory_load_files
 DLLIMPORT extern struct TbLoadFiles _DK_netmap_flag_load_files[7];
@@ -921,12 +870,6 @@ DLLIMPORT unsigned char _DK_zoom_to_heart_palette[768];
 #define zoom_to_heart_palette _DK_zoom_to_heart_palette
 DLLIMPORT struct MapOffset _DK_spiral_step[SPIRAL_STEPS_COUNT];
 #define spiral_step _DK_spiral_step
-DLLIMPORT short _DK_td_iso[TD_ISO_POINTS];
-#define td_iso _DK_td_iso
-DLLIMPORT short _DK_iso_td[TD_ISO_POINTS];
-#define iso_td _DK_iso_td
-DLLIMPORT long _DK_randomisors[512];
-#define randomisors _DK_randomisors
 DLLIMPORT unsigned char _DK_EngineSpriteDrawUsingAlpha;
 #define EngineSpriteDrawUsingAlpha _DK_EngineSpriteDrawUsingAlpha
 DLLIMPORT long _DK_sound_heap_size;
@@ -956,10 +899,6 @@ void game_loop(void);
 short reset_game(void);
 void update(void);
 
-void ProperFadePalette(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
-void ProperForcedFadePalette(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
-void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense);
-void PaletteClearPainFromPlayer(struct PlayerInfo *player);
 void intro(void);
 void outro(void);
 
@@ -990,7 +929,6 @@ unsigned char sight_of_evil_expand_check(void);
 unsigned char call_to_arms_expand_check(void);
 unsigned char general_expand_check(void);
 TbBool add_spell_to_player(long spl_idx, long plyr_idx);
-struct Room *place_room(unsigned char owner, unsigned char rkind, unsigned short stl_x, unsigned short stl_y);
 unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
 TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char gnd_slab);
 TbBool all_dungeons_destroyed(struct PlayerInfo *win_player);
@@ -1016,7 +954,6 @@ void process_entrance_generation(void);
 void process_things_in_dungeon_hand(void);
 void process_payday(void);
 TbBool bonus_timer_enabled(void);
-void process_sound_heap(void);
 
 short toggle_computer_player(int idx);
 short save_settings(void);
@@ -1057,11 +994,6 @@ struct Room *get_room_thing_is_on(struct Thing *thing);
 void init_creature_state(struct Thing *thing);
 void gui_set_button_flashing(long btn_idx, long gameturns);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
-long thing_is_spellbook(struct Thing *thing);
-struct Thing *get_spellbook_at_position(long x, long y);
-struct Thing *get_special_at_position(long x, long y);
-struct Thing *get_crate_at_position(long x, long y);
-struct Thing *get_nearest_object_at_position(long x, long y);
 TbBool create_random_evil_creature(long x, long y, PlayerNumber owner, long max_lv);
 TbBool create_random_hero_creature(long x, long y, PlayerNumber owner, long max_lv);
 TbBool create_hero_special_worker(long x, long y, PlayerNumber owner);
@@ -1126,7 +1058,6 @@ void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 void update_breed_activities(void);
 void set_level_objective(char *msg_text);
 void find_map_location_coords(long location, long *x, long *y, const char *func_name);
-long get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
 TbBool any_player_close_enough_to_see(struct Coord3d *pos);
 unsigned char line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2);
 long can_thing_be_picked_up_by_player(const struct Thing *thing, long plyr_idx);
@@ -1149,7 +1080,6 @@ void place_single_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, 
 void shuffle_unattached_things_on_slab(long a1, long a2);
 unsigned char alter_rock_style(unsigned char a1, signed char a2, signed char a3, unsigned char a4);
 short play_smacker_file(char *filename, int nstate);
-void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4, unsigned char a5, unsigned char a6, long a7, long a8);
 void turn_off_query(short a);
 TbBool set_gamma(char corrlvl, TbBool do_set);
 void level_lost_go_first_person(long plridx);
@@ -1234,8 +1164,6 @@ void startup_network_game(TbBool local);
 void startup_saved_packet_game(void);
 void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);
-void fade_in(void);
-void fade_out(void);
 long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance);
 
 #ifdef __cplusplus

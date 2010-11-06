@@ -359,19 +359,7 @@ TbBool save_game_save_catalogue(void)
 {
   return game_save_catalogue(save_game_catalogue,SAVE_SLOTS_COUNT);
 }
-/*
-short load_game_catalogue(struct CatalogueEntry *game_catalg)
-{
-  char *fname;
-  fname = prepare_file_path(FGrp_Save,save_catalogue_filename);
-  if (LbFileLoadAt(fname, game_catalg) == -1)
-  {
-    memset(game_catalg, 0, SAVE_SLOTS_COUNT*sizeof(struct CatalogueEntry));
-    return false;
-  }
-  return true;
-}
-*/
+
 TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,long slot_num)
 {
     struct CatalogueEntry *centry;
