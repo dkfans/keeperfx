@@ -59,6 +59,7 @@ extern struct PolyPoint polyscans[POLY_SCANS_COUNT];
 // Rename pending for these entries
 extern unsigned char *LOC_poly_screen;
 extern unsigned char *LOC_vec_map;
+extern unsigned char *LOC_vec_screen;
 extern unsigned long LOC_vec_screen_width;
 extern unsigned long LOC_vec_window_width;
 extern unsigned long LOC_vec_window_height;
@@ -68,6 +69,8 @@ void draw_quad(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Poly
 /******************************************************************************/
 void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
 void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
+/******************************************************************************/
+void gpoly_enable_pentium_pro(TbBool state);
 /******************************************************************************/
 #ifdef __cplusplus
 }
