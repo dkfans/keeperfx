@@ -41,7 +41,7 @@ HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 # Names of intermediate build products
 GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
-LIBS     = obj/libkeeperfx.a  directx/lib/libddraw.a
+LIBS     = obj/libkeeperfx.a
 OBJS = \
 obj/actionpt.o \
 obj/ariadne.o \
@@ -56,6 +56,7 @@ obj/bflib_basics.o \
 obj/bflib_bufrw.o \
 obj/bflib_client_tcp.o \
 obj/bflib_cpu.o \
+obj/bflib_crash.o \
 obj/bflib_datetm.o \
 obj/bflib_dernc.o \
 obj/bflib_fileio.o \
@@ -175,9 +176,9 @@ obj/main.o \
 $(RES)
 
 # include and library directories
-LINKLIB =  -L"directx/lib" -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -lSDLmain -lSDL -lSDL_net 
-INCS =  -I"directx/include" -I"sdl/include"
-CXXINCS =  -I"directx/include" -I"sdl/include"
+LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -limagehlp -lSDLmain -lSDL -lSDL_net 
+INCS =  -I"sdl/include"
+CXXINCS =  -I"sdl/include"
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
