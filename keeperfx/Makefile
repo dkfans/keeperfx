@@ -55,6 +55,7 @@ obj/bflib_filelst.o \
 obj/bflib_math.o \
 obj/bflib_planar.o \
 obj/bflib_cpu.o \
+obj/bflib_crash.o \
 obj/bflib_render.o \
 obj/bflib_render_trig.o \
 obj/bflib_render_gpoly.o \
@@ -166,7 +167,7 @@ LINKOBJ  = $(OBJS)
 include version.mk
 VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(VER_BUILD)
 # include and library directories
-LINKLIB =  -L"directx/lib" -L"lib" -L"sdl/lib" -mwindows -lmingw32 -lkeeperfx -lwinmm -lddraw -lSDLmain -lSDL -lSDL_net 
+LINKLIB =  -L"directx/lib" -L"lib" -L"sdl/lib" -mwindows -lmingw32 -lkeeperfx -lwinmm -limagehlp -lSDLmain -lSDL -lSDL_net 
 INCS =  -I"directx/include" -I"sdl/include"
 CXXINCS =  -I"directx/include" -I"sdl/include"
 

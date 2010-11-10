@@ -84,15 +84,6 @@ unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
 unsigned long render_problems;
 long render_prob_kind;
 /******************************************************************************/
-void gpoly_enable_pentium_pro(TbBool state)
-{
-  SYNCMSG("Pentium Pro polygon rendering %s",state?"on":"off");
-  if (state)
-    gpoly_pro_enable_mode_ofs = (1<<6);
-  else
-    gpoly_pro_enable_mode_ofs = 0;
-}
-
 long compute_cells_away(void)
 {
   long xmin,ymin,xmax,ymax;

@@ -21,6 +21,7 @@
 #include "bflib_sndlib.h"
 #include "bflib_fmvids.h"
 #include "bflib_cpu.h"
+#include "bflib_crash.h"
 #include "bflib_video.h"
 #include "bflib_vidraw.h"
 #include "bflib_guibtns.h"
@@ -3046,6 +3047,10 @@ short setup_game(void)
   // Start the sound system
   if (!init_sound())
     WARNMSG("Sound system disabled.");
+  // Note: for some reason, signal handlers must be installed AFTER
+  // init_sound(). This will probably change when we'll move sound
+  // to SDL - then we'll put that line earlier, before setup_game().
+  LbErrorParachuteInstall();
 
   // View second splash screen
   result = init_actv_bitmap_screen(RBmp_SplashFx);
@@ -8440,11 +8445,6 @@ short process_command_line(unsigned short argc, char *argv[])
   return (bad_param==0);
 }
 
-void close_video_context(void)
-{
-  LbScreenReset();
-}
-
 int LbBullfrogMain(unsigned short argc, char *argv[])
 {
   short retval;
@@ -8469,6 +8469,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
   srand(LbTimerClock());
 
   retval = setup_game();
+  int *ptr = NULL;
+  *ptr = 666;
   if (retval)
   {
     if ((install_info.lang_id == 16) || (install_info.lang_id == 17) ||
@@ -8497,7 +8499,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
       game_loop();
   }
   reset_game();
-  close_video_context();
+  LbScreenReset();
   if ( !retval )
   {
       static const char *msg_text="Setting up game failed.\n";
@@ -8554,11 +8556,6 @@ void get_cmdln_args(unsigned short &argc, char *argv[])
           }
       }
   }
-}
-
-void exit_handler(void)
-{
-    ERRORMSG("Application exit called.");
 }
 
 int main(int argc, char *argv[])
@@ -8623,7 +8620,6 @@ int main(int argc, char *argv[])
   }
 #endif
 
-  atexit(exit_handler);
   try {
   LbBullfrogMain(bf_argc, bf_argv);
   } catch (...)

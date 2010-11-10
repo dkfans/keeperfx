@@ -409,8 +409,6 @@ DLLIMPORT unsigned char _DK_engine_player_number;
 #define engine_player_number _DK_engine_player_number
 DLLIMPORT unsigned char _DK_player_bit;
 #define player_bit _DK_player_bit
-DLLIMPORT long _DK_gpoly_pro_enable_mode_ofs;
-#define gpoly_pro_enable_mode_ofs _DK_gpoly_pro_enable_mode_ofs
 DLLIMPORT long _DK_UseFastBlockDraw;
 #define UseFastBlockDraw _DK_UseFastBlockDraw
 DLLIMPORT unsigned char *_DK_gtblock_screen_addr;
@@ -446,7 +444,6 @@ void update_engine_settings(struct PlayerInfo *player);
 void display_drawlist(void);
 void draw_view(struct Camera *cam, unsigned char a2);
 void draw_frontview_engine(struct Camera *cam);
-void gpoly_enable_pentium_pro(TbBool state);
 /******************************************************************************/
 #ifdef __cplusplus
 }
