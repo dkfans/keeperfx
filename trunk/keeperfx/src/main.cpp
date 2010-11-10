@@ -8469,8 +8469,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
   srand(LbTimerClock());
 
   retval = setup_game();
-  int *ptr = NULL;
-  *ptr = 666;
   if (retval)
   {
     if ((install_info.lang_id == 16) || (install_info.lang_id == 17) ||
