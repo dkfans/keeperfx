@@ -41,6 +41,21 @@ struct PolyPoint { // sizeof = 20
   long field_C;
   long field_10;
 };
+
+struct GtBlock { // sizeof = 48
+  unsigned char *field_0;
+  unsigned long field_4;
+  unsigned long field_8;
+  unsigned long field_C;
+  unsigned long field_10;
+  unsigned long field_14;
+  unsigned long field_18;
+  unsigned long field_1C;
+  unsigned long field_20;
+  unsigned long field_24;
+  unsigned long field_28;
+  unsigned long field_2C;
+};
 #ifdef __cplusplus
 #pragma pack()
 #endif
@@ -67,10 +82,13 @@ extern unsigned long LOC_vec_window_height;
 void draw_triangle(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
 void draw_quad(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c, struct PolyPoint *point_d);
 /******************************************************************************/
-void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
-void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
-/******************************************************************************/
 void gpoly_enable_pentium_pro(TbBool state);
+void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
+/******************************************************************************/
+void gtblock_set_clipping_window(unsigned char *screen_addr, long clip_width, long clip_height, long screen_width);
+void gtblock_draw(struct GtBlock *gtb);
+/******************************************************************************/
+void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -136,6 +136,9 @@ static LONG CALLBACK ctrl_handler_w32(LPEXCEPTION_POINTERS info)
     case EXCEPTION_ACCESS_VIOLATION:
         LbErrorLog("Attempt to %s invalid memory address.\n",info->ExceptionRecord->ExceptionInformation?"write":"read");
         break;
+    case EXCEPTION_INT_DIVIDE_BY_ZERO:
+        LbErrorLog("Attempt of integer division by zero.\n");
+        break;
     default:
         LbErrorLog("Failure code %x received.\n",info->ExceptionRecord->ExceptionCode);
         break;
