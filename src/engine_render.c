@@ -31,6 +31,7 @@
 #include "engine_arrays.h"
 #include "kjm_input.h"
 #include "front_simple.h"
+#include "frontend.h"
 #include "vidmode.h"
 #include "keeperfx.hpp"
 
@@ -221,7 +222,43 @@ TbBool is_free_space_in_poly_pool(int nitems)
 
 void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx)
 {
-  _DK_rotpers_parallel_3(epos, matx);
+    struct PlayerInfo *player;
+    long factor_w,factor_h;
+    long scale;
+    long inp_x,inp_y,inp_z;
+    long out_x,out_y;
+    //_DK_rotpers_parallel_3(epos, matx);
+    player = get_my_player();
+    scale = player->acamera->field_17 / pixel_size;
+    inp_x = epos->x;
+    inp_y = epos->y;
+    inp_z = epos->z;
+    out_x = (inp_z * matx->r0[2] + (inp_y + matx->r0[0]) * (inp_x + matx->r0[1]) - matx->r0[3] - inp_x * inp_y) >> 14;
+    epos->x = out_x;
+    out_y = (inp_z * matx->r1[2] + (inp_y + matx->r1[0]) * (inp_x + matx->r1[1]) - matx->r1[3] - inp_x * inp_y) >> 14;
+    epos->y = out_y;
+    epos->z = (inp_z * matx->r2[2] + (inp_y + matx->r2[0]) * (inp_x + matx->r2[1]) - matx->r2[3] - inp_x * inp_y) >> 14;
+    factor_w = view_width_over_2 + (scale * out_x >> 16);
+    epos->field_0 = factor_w;
+    factor_h = view_height_over_2 - (scale * out_y >> 16);
+    epos->field_4 = factor_h;
+    if (factor_w < 0)
+    {
+        epos->field_8 |= 0x0008u;
+    } else
+    if (vec_window_width <= factor_w)
+    {
+        epos->field_8 |= 0x0010u;
+    }
+    if (factor_h < 0)
+    {
+        epos->field_8 |= 0x0020u;
+    } else
+    if (factor_h >= vec_window_height)
+    {
+        epos->field_8 |= 0x0040u;
+    }
+    epos->field_8 |= 0x0400u;
 }
 
 void rotate_base_axis(struct M33 *matx, short a2, unsigned char a3)
@@ -256,10 +293,9 @@ void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, lo
 
 void do_perspective_rotation(long x, long y, long z)
 {
-  struct PlayerInfo *player;
-  struct EngineCoord epos;
-
-  player = get_my_player();
+    struct PlayerInfo *player;
+    struct EngineCoord epos;
+    player = get_my_player();
     epos.x = -x;
     epos.y = 0;
     epos.z = y;
@@ -349,7 +385,36 @@ void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *spr)
 
 void draw_engine_number(struct Number *num)
 {
-    _DK_draw_engine_number(num);
+    struct PlayerInfo *player;
+    unsigned short flg_mem;
+    struct TbSprite *spr;
+    long val,ndigits;
+    long w,h,pos_x;
+    //_DK_draw_engine_number(num);
+    flg_mem = lbDisplay.DrawFlags;
+    player = get_my_player();
+    lbDisplay.DrawFlags &= 0xFFFEu;
+    w = button_sprite[71].SWidth;
+    h = button_sprite[71].SHeight;
+    if ((player->acamera->field_6 == 2) || (player->acamera->field_6 == 5))
+    {
+        // Count digits to be displayed
+        ndigits=0;
+        for (val = num->lvl; val > 0; val /= 10)
+            ndigits++;
+        if (ndigits > 0)
+        {
+            // Show the digits
+            pos_x = w*(ndigits-1)/2 + num->x;
+            for (val = num->lvl; val > 0; val /= 10)
+            {
+                spr = &button_sprite[(val%10) + 71];
+                LbSpriteDrawScaled(pos_x, num->y - h, spr, w, h);
+                pos_x -= w;
+            }
+        }
+    }
+    lbDisplay.DrawFlags = flg_mem;
 }
 
 void draw_engine_room_flagpole(struct RoomFlag *rflg)
@@ -364,7 +429,9 @@ void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4)
 
 void draw_iso_only_fastview_mapwho(struct Camera *cam, struct JontySpr *spr)
 {
-    _DK_draw_iso_only_fastview_mapwho(cam, spr);
+    //_DK_draw_iso_only_fastview_mapwho(cam, spr);
+    if (cam->field_6 == 5)
+      draw_fastview_mapwho(cam, spr);
 }
 
 void draw_engine_room_flag_top(struct RoomFlag *rflg)

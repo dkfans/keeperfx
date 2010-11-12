@@ -1800,9 +1800,12 @@
  0003:00273CB0       from_pal
  0003:00273FB0       fade_count
  0003:00273FB8       to_pal
+ 0003:002742B8       lbSpriteReMapPtr
  0003:002753D8       maximumPlayers
  0005:000001F0       draw_gpoly
  0005:00007AE0       trig
+ 0005:0000F9B0       LbSpriteDrawUsingScalingData
+ 0005:000118E8       LbSpriteSetScalingData
  0005:00011C10       LbSpriteDraw
  0006:00000008       gpoly_pro_enable_mode_ofs
  0006:00000010       gtblock_clip_width

@@ -102,7 +102,6 @@ void gtblock_set_clipping_window(unsigned char *screen_addr, long clip_width, lo
 /******************************************************************************/
 void gtblock_draw(struct GtBlock *gtb)
 {
-    //!!!!!!!!!!!
     LOC_gtblock_screen_addr = gtblock_screen_addr;
     LOC_gtblock_clip_width = gtblock_clip_width;
     LOC_gtblock_clip_height = gtblock_clip_height;
@@ -229,8 +228,6 @@ loc_7866D0:         #F5\n \
     js  locret1\n \
     movl    $8,%%edx\n \
     orl %%edx,0x40+var_28(%%esp)\n \
-    .byte   0x2E\n \
-    movl    %%eax,%%eax\n \
 \n \
 loc_7866FC:         #142\n \
     pushl   %%eax\n \
@@ -245,7 +242,7 @@ loc_7866FC:         #142\n \
     jmp     *gtblock_switch01(,%%eax,4)\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_786730:         #182\n \
+gtb_case_04:         #182\n \
     pushl   %%ecx\n \
     pushl   %%esi\n \
     pushl   %%ebx\n \
@@ -548,13 +545,11 @@ loc_786741:         #1A6\n \
     addl    0x44+var_3C(%%esp),%%ebx\n \
     addl    _LOC_gtblock_screen_width,%%esi\n \
     decl    %%ecx\n \
-    jnz loc_786730\n \
+    jnz gtb_case_04\n \
     jmp locret2\n \
 # ---------------------------------------------------------------------------\n \
-\
 \n \
-loc_786980:         #182\n \
-# gtblock_draw_+624j\n \
+gtb_case_05:         #182\n \
 \
     pushl   %%ecx\n \
     pushl   %%esi\n \
@@ -860,14 +855,11 @@ loc_786991:         #3F6\n \
     addl    0x44+var_3C(%%esp),%%ebx\n \
     addl    _LOC_gtblock_screen_width,%%esi\n \
     decl    %%ecx\n \
-    jnz loc_786980\n \
+    jnz gtb_case_05\n \
     jmp locret2\n \
 # ---------------------------------------------------------------------------\n \
-\
 \n \
-loc_786BD0:         #182\n \
-# gtblock_draw_+874j\n \
-\
+gtb_case_06:         #182\n \
     pushl   %%ecx\n \
     pushl   %%esi\n \
     pushl   %%ebx\n \
@@ -1172,14 +1164,10 @@ loc_786BE1:         #646\n \
     addl    0x44+var_3C(%%esp),%%ebx\n \
     addl    _LOC_gtblock_screen_width,%%esi\n \
     decl    %%ecx\n \
-    jnz loc_786BD0\n \
+    jnz gtb_case_06\n \
     jmp locret2\n \
 # ---------------------------------------------------------------------------\n \
-\
-\n \
-loc_786E20:         #182\n \
-# gtblock_draw_+AC2j\n \
-\
+gtb_case_07:         #182\n \
     pushl   %%ecx\n \
     pushl   %%esi\n \
     pushl   %%ebx\n \
@@ -1484,12 +1472,10 @@ loc_786E31:         #896\n \
     addl    0x44+var_3C(%%esp),%%ebx\n \
     addl    _LOC_gtblock_screen_width,%%esi\n \
     decl    %%ecx\n \
-    jnz loc_786E20\n \
+    jnz gtb_case_07\n \
     jmp locret2\n \
 # ---------------------------------------------------------------------------\n \
-\
-\n \
-loc_787070:         #182\n \
+gtb_case_00:         #182\n \
     pushl   %%ecx\n \
     pushl   %%esi\n \
     pushl   %%ebx\n \
@@ -1652,14 +1638,11 @@ loc_787081:         #AE6\n \
     addl    0x44+var_3C(%%esp),%%ebx\n \
     addl    _LOC_gtblock_screen_width,%%esi\n \
     decl    %%ecx\n \
-    jnz loc_787070\n \
+    jnz gtb_case_00\n \
     jmp locret2\n \
 # ---------------------------------------------------------------------------\n \
-    .byte   0x8B    # <\n \
-    .byte   0x0C0   # Ŕ\n \
-# ---------------------------------------------------------------------------\n \
 \n \
-loc_7871B0:         #182\n \
+gtb_case_01:         #182\n \
 # gtblock_draw_+D50j\n \
 \
     pushl   %%ecx\n \
@@ -1826,12 +1809,10 @@ loc_7871C1:         #C26\n \
     addl    0x44+var_3C(%%esp),%%ebx\n \
     addl    _LOC_gtblock_screen_width,%%esi\n \
     decl    %%ecx\n \
-    jnz loc_7871B0\n \
+    jnz gtb_case_01\n \
     jmp locret2\n \
 # ---------------------------------------------------------------------------\n \
-\
-\n \
-loc_787300:         #182\n \
+gtb_case_02:         #182\n \
 # gtblock_draw_+EA0j\n \
 \
     pushl   %%ecx\n \
@@ -1998,12 +1979,10 @@ loc_787311:         #D76\n \
     addl    0x44+var_3C(%%esp),%%ebx\n \
     addl    _LOC_gtblock_screen_width,%%esi\n \
     decl    %%ecx\n \
-    jnz loc_787300\n \
+    jnz gtb_case_02\n \
     jmp locret2\n \
 # ---------------------------------------------------------------------------\n \
-\
-\n \
-loc_787450:         #182\n \
+gtb_case_03:         #182\n \
     pushl   %%ecx\n \
     pushl   %%esi\n \
     pushl   %%ebx\n \
@@ -2168,11 +2147,9 @@ loc_787461:         #EC6\n \
     addl    0x44+var_3C(%%esp),%%ebx\n \
     addl    _LOC_gtblock_screen_width,%%esi\n \
     decl    %%ecx\n \
-    jnz loc_787450\n \
+    jnz gtb_case_03\n \
     jmp locret2\n \
 # ---------------------------------------------------------------------------\n \
-\
-\n \
 loc_787590:         #182\n \
     pushl   %%ecx\n \
     pushl   %%esi\n \
@@ -2186,8 +2163,6 @@ loc_787590:         #182\n \
 \n \
 loc_7875A1:         #1006\n \
     movl    0x54+var_44(%%esp),%%ecx\n \
-    .byte   0x2E\n \
-    movl    %%eax,%%eax\n \
 \n \
 loc_7875A8:         #1024j\n \
     movl    %%ebp,%%edx\n \
@@ -2216,14 +2191,14 @@ loc_7875A8:         #1024j\n \
     jmp locret2\n \
 # ---------------------------------------------------------------------------\n \
 gtblock_switch01:\n \
-    .int    loc_787070\n \
-    .int    loc_7871B0\n \
-    .int    loc_787300\n \
-    .int    loc_787450\n \
-    .int    loc_786730\n \
-    .int    loc_786980\n \
-    .int    loc_786BD0\n \
-    .int    loc_786E20\n \
+    .int    gtb_case_00\n \
+    .int    gtb_case_01\n \
+    .int    gtb_case_02\n \
+    .int    gtb_case_03\n \
+    .int    gtb_case_04\n \
+    .int    gtb_case_05\n \
+    .int    gtb_case_06\n \
+    .int    gtb_case_07\n \
     .int    loc_787590\n \
     .int    loc_787590\n \
     .int    loc_787590\n \

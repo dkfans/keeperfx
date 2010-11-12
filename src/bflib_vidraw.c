@@ -48,6 +48,8 @@ struct TbSpriteDrawData {
 DLLIMPORT int _DK_LbSpriteDraw(long x, long y, const struct TbSprite *spr);
 DLLIMPORT int _DK_LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,unsigned char *map);
 DLLIMPORT int _DK_LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour);
+DLLIMPORT int _DK_LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *sprite);
+DLLIMPORT void _DK_LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight);
 /******************************************************************************/
 /*
 bool sprscale_enlarge;
@@ -1672,6 +1674,140 @@ TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const
         return LbSpriteDrawFCOneColour(spd.sp,spd.Wd,spd.Ht,spd.r,colour,spd.nextRowDelta,spd.startShift,spd.mirror);
 }
 
+void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight)
+{
+    _DK_LbSpriteSetScalingData(x, y, swidth, sheight, dwidth, dheight); return;
+/*    sprscale_enlarge = true;
+    if ( (dwidth<=swidth) && (dheight<=sheight) )
+        sprscale_enlarge = false;
+    long gwidth = lbDisplay.GraphicsWindowWidth;
+    long gheight = lbDisplay.GraphicsWindowHeight;
+    long *pwidth;
+    long cwidth;
+    if ( (x < 0) || ((dwidth+x) >= gwidth) )
+    {
+      pwidth = sprscale_wbuf;
+      long factor = (dwidth<<16)/swidth;
+      long tmp = (factor >> 1) + (x << 16);
+      cwidth = tmp >> 16;
+      if ( cwidth < 0 )
+        cwidth = 0;
+      if ( cwidth >= gwidth )
+        cwidth = gwidth;
+      long w = swidth;
+      do {
+        pwidth[0] = cwidth;
+        tmp += factor;
+        long cwidth2 = tmp>>16;
+        if ( cwidth2 < 0 )
+          cwidth2 = 0;
+        if ( cwidth2 >= gwidth )
+          cwidth2 = gwidth;
+        long wdiff = cwidth2 - cwidth;
+        pwidth[1] = wdiff;
+        cwidth += wdiff;
+        pwidth += 2;
+        w--;
+      } while (w>0);
+    } else
+    {
+      pwidth = sprscale_wbuf;
+      long factor = (dwidth<<16)/swidth;
+      long tmp = (factor >> 1) + (x << 16);
+      cwidth = tmp >> 16;
+      long w=swidth;
+      while ( 1 )
+      {
+        int i=0;
+        for (i=0;i<16;i+=2)
+        {
+          pwidth[i] = cwidth;
+          tmp += factor;
+          pwidth[i+1] = (tmp>>16) - cwidth;
+          cwidth = (tmp>>16);
+          w--;
+          if (w<=0)
+            break;
+        }
+        if (w<=0)
+          break;
+        pwidth += 16;
+      }
+    }
+    long *pheight;
+    long cheight;
+    //Note: the condition in "if" is suspicious
+    if ( ((long)pwidth<0) || ((long)pwidth + cwidth) >= gheight )
+    {
+      long factor = (dheight<<16)/sheight;
+      pheight = sprscale_hbuf;
+      long h = sheight;
+      long tmp = (factor>>1) + (y<<16);
+      cheight = tmp>>16;
+      if ( cheight < 0 )
+        cheight = 0;
+      if ( cheight >= gheight )
+        cheight = gheight;
+      do
+      {
+        pheight[0] = cheight;
+        tmp += factor;
+        long cheight2 = tmp>>16;
+        if ( cheight2 < 0 )
+          cheight2 = 0;
+        if ( cheight2 >= gheight )
+          cheight2 = gheight;
+        long hdiff = cheight2 - cheight;
+        pheight[1] = hdiff;
+        cheight += hdiff;
+        pheight += 2;
+        h--;
+      }
+      while (h>0);
+    }
+    else
+    {
+      pheight = sprscale_hbuf;
+      long factor = (dheight<<16)/sheight;
+      long tmp = (factor>>1) + (y<<16);
+      cheight = tmp >> 16;
+      long h = sheight;
+      while ( 1 )
+      {
+        int i=0;
+        for (i=0;i<16;i+=2)
+        {
+          pheight[i] = cheight;
+          tmp += factor;
+          pheight[i+1] = (tmp>>16) - cheight;
+          cheight = (tmp>>16);
+          h--;
+          if (h<=0)
+            break;
+        }
+        if (h<=0)
+          break;
+        pheight += 16;
+      }
+    }*/
+}
+
+TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *sprite)
+{
+  return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+}
+
+TbResult LbSpriteDrawScaled(long xpos, long ypos, struct TbSprite *sprite, long dest_width, long dest_height)
+{
+    SYNCDBG(19,"At (%ld,%ld) size (%ld,%ld)",xpos,ypos,dest_width,dest_height);
+    if ((dest_width <= 0) || (dest_height <= 0))
+      return 1;
+    if ((lbDisplay.DrawFlags & 0x0800) != 0)
+        lbSpriteReMapPtr = lbDisplay.FadeTable + ((lbDisplay.FadeStep & 0x3F) << 8);
+    LbSpriteSetScalingData(xpos, ypos, sprite->SWidth, sprite->SHeight, dest_width, dest_height);
+    return LbSpriteDrawUsingScalingData(0,0,sprite);
+}
+
 void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
         unsigned int line_len, unsigned int width, unsigned int height)
 {
@@ -1707,136 +1843,6 @@ unsigned short __fastcall is_it_clockwise(struct EnginePoint *point1,
   vy = point2->Y - point1->Y;
   wy = point3->Y - point2->Y;
   return (wy * vx - wx * vy) > 0;
-}
-
-void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight)
-{
-  sprscale_enlarge = true;
-  if ( (dwidth<=swidth) && (dheight<=sheight) )
-      sprscale_enlarge = false;
-  long gwidth = lbDisplay.GraphicsWindowWidth;
-  long gheight = lbDisplay.GraphicsWindowHeight;
-  long *pwidth;
-  long cwidth;
-  if ( (x < 0) || ((dwidth+x) >= gwidth) )
-  {
-    pwidth = sprscale_wbuf;
-    long factor = (dwidth<<16)/swidth;
-    long tmp = (factor >> 1) + (x << 16);
-    cwidth = tmp >> 16;
-    if ( cwidth < 0 )
-      cwidth = 0;
-    if ( cwidth >= gwidth )
-      cwidth = gwidth;
-    long w = swidth;
-    do {
-      pwidth[0] = cwidth;
-      tmp += factor;
-      long cwidth2 = tmp>>16;
-      if ( cwidth2 < 0 )
-        cwidth2 = 0;
-      if ( cwidth2 >= gwidth )
-        cwidth2 = gwidth;
-      long wdiff = cwidth2 - cwidth;
-      pwidth[1] = wdiff;
-      cwidth += wdiff;
-      pwidth += 2;
-      w--;
-    } while (w>0);
-  } else
-  {
-    pwidth = sprscale_wbuf;
-    long factor = (dwidth<<16)/swidth;
-    long tmp = (factor >> 1) + (x << 16);
-    cwidth = tmp >> 16;
-    long w=swidth;
-    while ( 1 )
-    {
-      int i=0;
-      for (i=0;i<16;i+=2)
-      {
-        pwidth[i] = cwidth;
-        tmp += factor;
-        pwidth[i+1] = (tmp>>16) - cwidth;
-        cwidth = (tmp>>16);
-        w--;
-        if (w<=0)
-          break;
-      }
-      if (w<=0)
-        break;
-      pwidth += 16;
-    }
-  }
-  long *pheight;
-  long cheight;
-  //Note: the condition in "if" is suspicious
-  if ( ((long)pwidth<0) || ((long)pwidth + cwidth) >= gheight )
-  {
-    long factor = (dheight<<16)/sheight;
-    pheight = sprscale_hbuf;
-    long h = sheight;
-    long tmp = (factor>>1) + (y<<16);
-    cheight = tmp>>16;
-    if ( cheight < 0 )
-      cheight = 0;
-    if ( cheight >= gheight )
-      cheight = gheight;
-    do
-    {
-      pheight[0] = cheight;
-      tmp += factor;
-      long cheight2 = tmp>>16;
-      if ( cheight2 < 0 )
-        cheight2 = 0;
-      if ( cheight2 >= gheight )
-        cheight2 = gheight;
-      long hdiff = cheight2 - cheight;
-      pheight[1] = hdiff;
-      cheight += hdiff;
-      pheight += 2;
-      h--;
-    }
-    while (h>0);
-  }
-  else
-  {
-    pheight = sprscale_hbuf;
-    long factor = (dheight<<16)/sheight;
-    long tmp = (factor>>1) + (y<<16);
-    cheight = tmp >> 16;
-    long h = sheight;
-    while ( 1 )
-    {
-      int i=0;
-      for (i=0;i<16;i+=2)
-      {
-        pheight[i] = cheight;
-        tmp += factor;
-        pheight[i+1] = (tmp>>16) - cheight;
-        cheight = (tmp>>16);
-        h--;
-        if (h<=0)
-          break;
-      }
-      if (h<=0)
-        break;
-      pheight += 16;
-    }
-  }
-}
-
-int __fastcall LbSpriteDrawScaled(long xpos, long ypos, struct TbSprite *sprite, long dest_width, long dest_height)
-{
-#ifdef __DEBUG
-    LbSyncLog("LbSpriteDrawScaled: Requested to draw at (%ld,%ld) sprite of size (%ld,%ld).\n",
-            xpos,ypos,dest_width,dest_height);
-#endif
-  if ( (dest_width <= 0) || (dest_height <= 0) )
-    return 1;
-  lbSpriteReMapPtr = lbDisplay.FadeTable + ((lbDisplay.FadeStep & 0x3F) << 8);
-  LbSpriteSetScalingData(xpos, ypos, sprite->SWidth, sprite->SHeight, dest_width, dest_height);
-  return LbSpriteDrawUsingScalingData(0,0,sprite);
 }
 
 void __fastcall draw_b_line(long x1, long y1, long x2, long y2, TbPixel colour)
