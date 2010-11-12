@@ -59,6 +59,7 @@ obj/bflib_crash.o \
 obj/bflib_render.o \
 obj/bflib_render_trig.o \
 obj/bflib_render_gpoly.o \
+obj/bflib_render_gtblock.o \
 obj/bflib_heapmgr.o \
 obj/bflib_nethost_udp.o \
 obj/bflib_netlisten_udp.o \
