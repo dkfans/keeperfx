@@ -177,6 +177,8 @@ DLLIMPORT unsigned char *_DK_dither_map;
 #define dither_map _DK_dither_map
 DLLIMPORT unsigned char *_DK_dither_end;
 #define dither_end _DK_dither_end
+DLLIMPORT unsigned char *_DK_lbSpriteReMapPtr;
+#define lbSpriteReMapPtr _DK_lbSpriteReMapPtr
 /******************************************************************************/
 //Routines to be moved into bflib_vipurp
 /*
@@ -204,10 +206,9 @@ void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
 
 TbResult LbSpriteDraw(long x, long y, const struct TbSprite *spr);
 TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour);
+TbResult LbSpriteDrawScaled(long xpos, long ypos, struct TbSprite *sprite, long dest_width, long dest_height);
 /*
 int __fastcall LbDrawBoxCoords(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour);
-
-int __fastcall LbSpriteDrawScaled(long xpos, long ypos, struct TbSprite *sprite, long dest_width, long dest_height);
 char __fastcall LbDrawLine(long x1, long y1, long x2, long y2, TbPixel colour);
 void __fastcall LbDrawTriangle(long x1, long y1, long x2, long y2, long x3, long y3, TbPixel colour);
 */
