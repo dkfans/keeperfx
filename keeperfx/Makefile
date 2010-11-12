@@ -225,6 +225,12 @@ obj/bflib_render_gpoly.o: src/bflib_render_gpoly.c
 	@echo 'Finished building: $<'
 	@echo ' '
 
+obj/bflib_render_gtblock.o: src/bflib_render_gtblock.c
+	@echo 'Building file: $<'
+	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
 obj/bflib_render.o: src/bflib_render.c
 	@echo 'Building file: $<'
 	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
