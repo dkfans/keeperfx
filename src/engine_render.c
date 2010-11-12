@@ -24,6 +24,7 @@
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
+#include "bflib_render.h"
 
 #include "engine_lenses.h"
 #include "engine_camera.h"
@@ -79,6 +80,14 @@ long const y_step2[] = { 0, 1, 0,-1};
 long const orient_table_xflip[] =  {0, 0, 1, 1};
 long const orient_table_yflip[] =  {0, 1, 1, 0};
 long const orient_table_rotate[] = {0, 1, 0, 1};
+long const orient_to_mapU1[] = { 0, 0x1F0000, 0x1F0000, 0 };
+long const orient_to_mapU2[] = { 0x1F0000, 0x1F0000, 0, 0 };
+long const orient_to_mapU3[] = { 0x1F0000, 0, 0, 0x1F0000 };
+long const orient_to_mapU4[] = { 0, 0, 0x1F0000, 0x1F0000 };
+long const orient_to_mapV1[] = { 0, 0, 0x1F0000, 0x1F0000 };
+long const orient_to_mapV2[] = { 0, 0x1F0000, 0x1F0000, 0 };
+long const orient_to_mapV3[] = {  0x1F0000, 0x1F0000, 0x0, 0x0 };
+long const orient_to_mapV4[] = { 0x1F0000, 0x0, 0x0, 0x1F0000 };
 unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
 //unsigned char temp_cluedo_mode;
 unsigned long render_problems;
@@ -1171,11 +1180,10 @@ void display_drawlist(void)
       struct BasicUnk12 *unk12;
       struct BasicUnk13 *unk13;
       struct BasicUnk14 *unk14;
-      struct BasicUnk15 *unk15;
+      struct TexturedQuad *txquad;
       struct Number *number;
       struct RoomFlag *roomFlg;
-    } poly;
-    struct BasicQ **bucket;
+    } item;
     long bucket_num;
     struct PolyPoint point_a,point_b,point_c;
     SYNCDBG(9,"Starting");
@@ -1184,144 +1192,143 @@ void display_drawlist(void)
     render_ghost = pixmap.ghost;
     render_problems = 0;
     thing_pointed_at = 0;
-    for (bucket_num = BUCKETS_COUNT-1; bucket_num > 0; bucket_num--)
+    for (bucket_num = BUCKETS_COUNT-1; bucket_num >= 0; bucket_num--)
     {
-      bucket = &buckets[bucket_num];
-      for (poly.b = *bucket; poly.b != NULL; poly.b = poly.b->next)
+      for (item.b = buckets[bucket_num]; item.b != NULL; item.b = item.b->next)
       {
-        //JUSTLOG("%d",(int)poly.b->kind);
-        switch ( poly.b->kind )
+        //JUSTLOG("%d",(int)item.b->kind);
+        switch ( item.b->kind )
         {
         case 0:
           vec_mode = 5;
-          vec_map = block_ptrs[poly.unk00->block];
-          draw_gpoly(&poly.unk00->p1, &poly.unk00->p2, &poly.unk00->p3);
+          vec_map = block_ptrs[item.unk00->block];
+          draw_gpoly(&item.unk00->p1, &item.unk00->p2, &item.unk00->p3);
           break;
         case 1:
           vec_mode = 7;
-          vec_colour = ((poly.unk01->p3.field_10 + poly.unk01->p2.field_10 + poly.unk01->p1.field_10)/3) >> 16;
-          vec_map = block_ptrs[poly.unk01->block];
-          trig(&poly.unk01->p1, &poly.unk01->p2, &poly.unk01->p3);
+          vec_colour = ((item.unk01->p3.field_10 + item.unk01->p2.field_10 + item.unk01->p1.field_10)/3) >> 16;
+          vec_map = block_ptrs[item.unk01->block];
+          trig(&item.unk01->p1, &item.unk01->p2, &item.unk01->p3);
           break;
         case 2:
           vec_mode = 0;
-          vec_colour = poly.unk02->colour;
-          point_a.field_0 = poly.unk02->x1;
-          point_a.field_4 = poly.unk02->y1;
-          point_b.field_0 = poly.unk02->x2;
-          point_b.field_4 = poly.unk02->y2;
-          point_c.field_0 = poly.unk02->x3;
-          point_c.field_4 = poly.unk02->y3;
+          vec_colour = item.unk02->colour;
+          point_a.field_0 = item.unk02->x1;
+          point_a.field_4 = item.unk02->y1;
+          point_b.field_0 = item.unk02->x2;
+          point_b.field_4 = item.unk02->y2;
+          point_c.field_0 = item.unk02->x3;
+          point_c.field_4 = item.unk02->y3;
           draw_gpoly(&point_a, &point_b, &point_c);
           break;
         case 3:
           vec_mode = 4;
-          vec_colour = poly.unk03->colour;
-          point_a.field_0 = poly.unk03->x1;
-          point_a.field_4 = poly.unk03->y1;
-          point_b.field_0 = poly.unk03->x2;
-          point_b.field_4 = poly.unk03->y2;
-          point_c.field_0 = poly.unk03->x3;
-          point_c.field_4 = poly.unk03->y3;
-          point_a.field_10 = poly.unk03->vf1 << 16;
-          point_b.field_10 = poly.unk03->vf2 << 16;
-          point_c.field_10 = poly.unk03->vf3 << 16;
+          vec_colour = item.unk03->colour;
+          point_a.field_0 = item.unk03->x1;
+          point_a.field_4 = item.unk03->y1;
+          point_b.field_0 = item.unk03->x2;
+          point_b.field_4 = item.unk03->y2;
+          point_c.field_0 = item.unk03->x3;
+          point_c.field_4 = item.unk03->y3;
+          point_a.field_10 = item.unk03->vf1 << 16;
+          point_b.field_10 = item.unk03->vf2 << 16;
+          point_c.field_10 = item.unk03->vf3 << 16;
           draw_gpoly(&point_a, &point_b, &point_c);
           break;
         case 4:
           vec_mode = 2;
-          point_a.field_0 = poly.unk04->x1;
-          point_a.field_4 = poly.unk04->y1;
-          point_b.field_0 = poly.unk04->x2;
-          point_b.field_4 = poly.unk04->y2;
-          point_c.field_0 = poly.unk04->x3;
-          point_c.field_4 = poly.unk04->y3;
-          point_a.field_8 = poly.unk04->uf1 << 16;
-          point_a.field_C = poly.unk04->vf1 << 16;
-          point_b.field_8 = poly.unk04->uf2 << 16;
-          point_b.field_C = poly.unk04->vf2 << 16;
-          point_c.field_8 = poly.unk04->uf3 << 16;
-          point_c.field_C = poly.unk04->vf3 << 16;
+          point_a.field_0 = item.unk04->x1;
+          point_a.field_4 = item.unk04->y1;
+          point_b.field_0 = item.unk04->x2;
+          point_b.field_4 = item.unk04->y2;
+          point_c.field_0 = item.unk04->x3;
+          point_c.field_4 = item.unk04->y3;
+          point_a.field_8 = item.unk04->uf1 << 16;
+          point_a.field_C = item.unk04->vf1 << 16;
+          point_b.field_8 = item.unk04->uf2 << 16;
+          point_b.field_C = item.unk04->vf2 << 16;
+          point_c.field_8 = item.unk04->uf3 << 16;
+          point_c.field_C = item.unk04->vf3 << 16;
           trig(&point_a, &point_b, &point_c);
           break;
         case 5:
           vec_mode = 5;
-          point_a.field_0 = poly.unk05->x1;
-          point_a.field_4 = poly.unk05->y1;
-          point_b.field_0 = poly.unk05->x2;
-          point_b.field_4 = poly.unk05->y2;
-          point_c.field_0 = poly.unk05->x3;
-          point_c.field_4 = poly.unk05->y3;
-          point_a.field_8 = poly.unk05->uf1 << 16;
-          point_a.field_C = poly.unk05->vf1 << 16;
-          point_b.field_8 = poly.unk05->uf2 << 16;
-          point_b.field_C = poly.unk05->vf2 << 16;
-          point_c.field_8 = poly.unk05->uf3 << 16;
-          point_c.field_C = poly.unk05->vf3 << 16;
-          point_a.field_10 = poly.unk05->wf1 << 16;
-          point_b.field_10 = poly.unk05->wf2 << 16;
-          point_c.field_10 = poly.unk05->wf3 << 16;
+          point_a.field_0 = item.unk05->x1;
+          point_a.field_4 = item.unk05->y1;
+          point_b.field_0 = item.unk05->x2;
+          point_b.field_4 = item.unk05->y2;
+          point_c.field_0 = item.unk05->x3;
+          point_c.field_4 = item.unk05->y3;
+          point_a.field_8 = item.unk05->uf1 << 16;
+          point_a.field_C = item.unk05->vf1 << 16;
+          point_b.field_8 = item.unk05->uf2 << 16;
+          point_b.field_C = item.unk05->vf2 << 16;
+          point_c.field_8 = item.unk05->uf3 << 16;
+          point_c.field_C = item.unk05->vf3 << 16;
+          point_a.field_10 = item.unk05->wf1 << 16;
+          point_b.field_10 = item.unk05->wf2 << 16;
+          point_c.field_10 = item.unk05->wf3 << 16;
           draw_gpoly(&point_a, &point_b, &point_c);
           break;
         case 6:
           vec_mode = 3;
-          point_a.field_0 = poly.unk06->x1;
-          point_a.field_4 = poly.unk06->y1;
-          point_b.field_0 = poly.unk06->x2;
-          point_b.field_4 = poly.unk06->y2;
-          point_c.field_0 = poly.unk06->x3;
-          point_c.field_4 = poly.unk06->y3;
-          point_a.field_8 = poly.unk06->uf1 << 16;
-          point_a.field_C = poly.unk06->vf1 << 16;
-          point_b.field_8 = poly.unk06->uf2 << 16;
-          point_b.field_C = poly.unk06->vf2 << 16;
-          point_c.field_8 = poly.unk06->uf3 << 16;
-          point_c.field_C = poly.unk06->vf3 << 16;
+          point_a.field_0 = item.unk06->x1;
+          point_a.field_4 = item.unk06->y1;
+          point_b.field_0 = item.unk06->x2;
+          point_b.field_4 = item.unk06->y2;
+          point_c.field_0 = item.unk06->x3;
+          point_c.field_4 = item.unk06->y3;
+          point_a.field_8 = item.unk06->uf1 << 16;
+          point_a.field_C = item.unk06->vf1 << 16;
+          point_b.field_8 = item.unk06->uf2 << 16;
+          point_b.field_C = item.unk06->vf2 << 16;
+          point_c.field_8 = item.unk06->uf3 << 16;
+          point_c.field_C = item.unk06->vf3 << 16;
           trig(&point_a, &point_b, &point_c);
           break;
         case 7:
           vec_mode = 6;
-          point_a.field_0 = poly.unk07->x1;
-          point_a.field_4 = poly.unk07->y1;
-          point_b.field_0 = poly.unk07->x2;
-          point_b.field_4 = poly.unk07->y2;
-          point_c.field_0 = poly.unk07->x3;
-          point_c.field_4 = poly.unk07->y3;
-          point_a.field_8 = poly.unk07->uf1 << 16;
-          point_a.field_C = poly.unk07->vf1 << 16;
-          point_b.field_8 = poly.unk07->uf2 << 16;
-          point_b.field_C = poly.unk07->vf2 << 16;
-          point_c.field_8 = poly.unk07->uf3 << 16;
-          point_c.field_C = poly.unk07->vf3 << 16;
-          point_a.field_10 = poly.unk07->wf1 << 16;
-          point_b.field_10 = poly.unk07->wf2 << 16;
-          point_c.field_10 = poly.unk07->wf3 << 16;
+          point_a.field_0 = item.unk07->x1;
+          point_a.field_4 = item.unk07->y1;
+          point_b.field_0 = item.unk07->x2;
+          point_b.field_4 = item.unk07->y2;
+          point_c.field_0 = item.unk07->x3;
+          point_c.field_4 = item.unk07->y3;
+          point_a.field_8 = item.unk07->uf1 << 16;
+          point_a.field_C = item.unk07->vf1 << 16;
+          point_b.field_8 = item.unk07->uf2 << 16;
+          point_b.field_C = item.unk07->vf2 << 16;
+          point_c.field_8 = item.unk07->uf3 << 16;
+          point_c.field_C = item.unk07->vf3 << 16;
+          point_a.field_10 = item.unk07->wf1 << 16;
+          point_b.field_10 = item.unk07->wf2 << 16;
+          point_c.field_10 = item.unk07->wf3 << 16;
           trig(&point_a, &point_b, &point_c);
           break;
         case 8:
-          draw_map_who(poly.rotSpr);
+          draw_map_who(item.rotSpr);
           break;
         case 9:
-          draw_unkn09(poly.unk09);
+          draw_unkn09(item.unk09);
           break;
         case 10:
           vec_mode = 0;
-          vec_colour = poly.unk10->field_6;
-          draw_gpoly(&poly.unk10->p1, &poly.unk10->p2, &poly.unk10->p3);
+          vec_colour = item.unk10->field_6;
+          draw_gpoly(&item.unk10->p1, &item.unk10->p2, &item.unk10->p3);
           break;
         case 11:
-          draw_jonty_mapwho(poly.jonSpr);
+          draw_jonty_mapwho(item.jonSpr);
           break;
         case 12:
-          draw_keepsprite_unscaled_in_buffer(poly.unk12->field_5C, poly.unk12->field_58, poly.unk12->field_5E, scratch);
+          draw_keepsprite_unscaled_in_buffer(item.unk12->field_5C, item.unk12->field_58, item.unk12->field_5E, scratch);
           vec_map = scratch;
           vec_mode = 10;
-          vec_colour = poly.unk12->p1.field_10;
-          trig(&poly.unk12->p1, &poly.unk12->p2, &poly.unk12->p3);
-          trig(&poly.unk12->p1, &poly.unk12->p3, &poly.unk12->p4);
+          vec_colour = item.unk12->p1.field_10;
+          trig(&item.unk12->p1, &item.unk12->p2, &item.unk12->p3);
+          trig(&item.unk12->p1, &item.unk12->p3, &item.unk12->p4);
           break;
         case 13:
-          draw_clipped_line(poly.unk13->p.field_0,poly.unk13->p.field_4,poly.unk13->p.field_8,poly.unk13->p.field_C,poly.unk13->p.field_10);
+          draw_clipped_line(item.unk13->p.field_0,item.unk13->p.field_4,item.unk13->p.field_8,item.unk13->p.field_C,item.unk13->p.field_10);
           break;
         case 14:
           player = get_my_player();
@@ -1329,14 +1336,14 @@ void display_drawlist(void)
           if (cam != NULL)
           {
             if ((cam->field_6 == 2) || (cam->field_6 == 5))
-              draw_status_sprites(poly.unk14->field_C, poly.unk14->field_10, poly.unk14->thing, cam->field_17/pixel_size);
+              draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, cam->field_17/pixel_size);
           }
           break;
         case 16:
-          draw_engine_number(poly.number);
+          draw_engine_number(item.number);
           break;
         case 17:
-          draw_engine_room_flagpole(poly.roomFlg);
+          draw_engine_room_flagpole(item.roomFlg);
           break;
         case 18:
           player = get_my_player();
@@ -1344,15 +1351,15 @@ void display_drawlist(void)
           if (cam != NULL)
           {
             if (cam->field_6 == 2)
-              draw_jonty_mapwho(poly.jonSpr);
+              draw_jonty_mapwho(item.jonSpr);
           }
           break;
         case 19:
-          draw_engine_room_flag_top(poly.roomFlg);
+          draw_engine_room_flag_top(item.roomFlg);
           break;
         default:
           render_problems++;
-          render_prob_kind = poly.b->kind;
+          render_prob_kind = item.b->kind;
           break;
         }
       }
@@ -1363,139 +1370,279 @@ void display_drawlist(void)
 
 void draw_view(struct Camera *cam, unsigned char a2)
 {
-  long nlens;
-  long x,y,z;
-  long xcell,ycell;
-  long i;
-  long aposc,bposc;
-  struct EngineCol *ec;
-  struct MinMax *mm;
-  SYNCDBG(9,"Starting");
-  nlens = cam->field_17 / pixel_size;
-  getpoly = poly_pool;
-  LbMemorySet(buckets, 0, sizeof(buckets));
-  LbMemorySet(poly_pool, 0, sizeof(poly_pool));
-  i = lens_mode;
-  if ((i < 0) || (i >= PERS_ROUTINES_COUNT))
-      i = 0;
-  perspective = perspective_routines[i];
-  rotpers = rotpers_routines[i];
-  update_fade_limits(cells_away);
-  init_coords_and_rotation(&object_origin,&camera_matrix);
-  rotate_base_axis(&camera_matrix, cam->orient_a, 2);
-  update_normal_shade(&camera_matrix);
-  rotate_base_axis(&camera_matrix, -cam->orient_b, 1);
-  rotate_base_axis(&camera_matrix, -cam->orient_c, 3);
-  map_angle = cam->orient_a;
-  map_roll = cam->orient_c;
-  map_tilt = -cam->orient_b;
-  x = cam->mappos.x.val;
-  y = cam->mappos.y.val;
-  z = cam->mappos.z.val;
-  frame_wibble_generate();
-  view_alt = z;
-  if (lens_mode != 0)
-  {
-    cells_away = max_i_can_see;
+    long nlens;
+    long x,y,z;
+    long xcell,ycell;
+    long i;
+    long aposc,bposc;
+    struct EngineCol *ec;
+    struct MinMax *mm;
+    SYNCDBG(9,"Starting");
+    nlens = cam->field_17 / pixel_size;
+    getpoly = poly_pool;
+    LbMemorySet(buckets, 0, sizeof(buckets));
+    LbMemorySet(poly_pool, 0, sizeof(poly_pool));
+    i = lens_mode;
+    if ((i < 0) || (i >= PERS_ROUTINES_COUNT))
+        i = 0;
+    perspective = perspective_routines[i];
+    rotpers = rotpers_routines[i];
     update_fade_limits(cells_away);
-    fade_range = (fade_max - fade_min) >> 8;
-    setup_rotate_stuff(x, y, z, fade_max, fade_min, lens, map_angle, map_roll);
-  } else
-  {
-    fade_min = 1000000;
-    setup_rotate_stuff(x, y, z, fade_max, fade_min, nlens, map_angle, map_roll);
-    do_perspective_rotation(x, y, z);
-    cells_away = compute_cells_away();
-  }
-  xcell = (x >> 8);
-  aposc = -(x & 0xFF);
-  bposc = (cells_away << 8) + (y & 0xFF);
-  ycell = (y >> 8) - (cells_away+1);
-  find_gamut();
-  fiddle_gamut(xcell, ycell + (cells_away+1));
-  apos = aposc;
-  bpos = bposc;
-  back_ec = &ecs1[0];
-  front_ec = &ecs2[0];
-  i = 31-cells_away;
-  if (i < 0)
-      i = 0;
-  mm = &minmaxs[i];
-  if (lens_mode != 0)
-  {
-    fill_in_points_perspective(xcell, ycell, mm);
-  } else
-  if (settings.video_cluedo_mode)
-  {
-    fill_in_points_cluedo(xcell, ycell, mm);
-  } else
-  {
-    fill_in_points_isometric(xcell, ycell, mm);
-  }
-  for (i = 2*cells_away-1; i > 0; i--)
-  {
-      ycell++;
-      bposc -= 256;
-      mm++;
-      ec = front_ec;
-      front_ec = back_ec;
-      back_ec = ec;
-      apos = aposc;
-      bpos = bposc;
-      if (lens_mode != 0)
-      {
-        fill_in_points_perspective(xcell, ycell, mm);
-        if (mm->min < mm->max)
+    init_coords_and_rotation(&object_origin,&camera_matrix);
+    rotate_base_axis(&camera_matrix, cam->orient_a, 2);
+    update_normal_shade(&camera_matrix);
+    rotate_base_axis(&camera_matrix, -cam->orient_b, 1);
+    rotate_base_axis(&camera_matrix, -cam->orient_c, 3);
+    map_angle = cam->orient_a;
+    map_roll = cam->orient_c;
+    map_tilt = -cam->orient_b;
+    x = cam->mappos.x.val;
+    y = cam->mappos.y.val;
+    z = cam->mappos.z.val;
+    frame_wibble_generate();
+    view_alt = z;
+    if (lens_mode != 0)
+    {
+      cells_away = max_i_can_see;
+      update_fade_limits(cells_away);
+      fade_range = (fade_max - fade_min) >> 8;
+      setup_rotate_stuff(x, y, z, fade_max, fade_min, lens, map_angle, map_roll);
+    } else
+    {
+      fade_min = 1000000;
+      setup_rotate_stuff(x, y, z, fade_max, fade_min, nlens, map_angle, map_roll);
+      do_perspective_rotation(x, y, z);
+      cells_away = compute_cells_away();
+    }
+    xcell = (x >> 8);
+    aposc = -(x & 0xFF);
+    bposc = (cells_away << 8) + (y & 0xFF);
+    ycell = (y >> 8) - (cells_away+1);
+    find_gamut();
+    fiddle_gamut(xcell, ycell + (cells_away+1));
+    apos = aposc;
+    bpos = bposc;
+    back_ec = &ecs1[0];
+    front_ec = &ecs2[0];
+    i = 31-cells_away;
+    if (i < 0)
+        i = 0;
+    mm = &minmaxs[i];
+    if (lens_mode != 0)
+    {
+      fill_in_points_perspective(xcell, ycell, mm);
+    } else
+    if (settings.video_cluedo_mode)
+    {
+      fill_in_points_cluedo(xcell, ycell, mm);
+    } else
+    {
+      fill_in_points_isometric(xcell, ycell, mm);
+    }
+    for (i = 2*cells_away-1; i > 0; i--)
+    {
+        ycell++;
+        bposc -= 256;
+        mm++;
+        ec = front_ec;
+        front_ec = back_ec;
+        back_ec = ec;
+        apos = aposc;
+        bpos = bposc;
+        if (lens_mode != 0)
         {
-          apos = aposc;
-          bpos = bposc;
-          do_a_plane_of_engine_columns_perspective(xcell, ycell, mm->min, mm->max);
-        }
-      } else
-      if ( settings.video_cluedo_mode )
-      {
-        fill_in_points_cluedo(xcell, ycell, mm);
-        if (mm->min < mm->max)
+          fill_in_points_perspective(xcell, ycell, mm);
+          if (mm->min < mm->max)
+          {
+            apos = aposc;
+            bpos = bposc;
+            do_a_plane_of_engine_columns_perspective(xcell, ycell, mm->min, mm->max);
+          }
+        } else
+        if ( settings.video_cluedo_mode )
         {
-          apos = aposc;
-          bpos = bposc;
-          do_a_plane_of_engine_columns_cluedo(xcell, ycell, mm->min, mm->max);
-        }
-      } else
-      {
-        fill_in_points_isometric(xcell, ycell, mm);
-        if (mm->min < mm->max)
+          fill_in_points_cluedo(xcell, ycell, mm);
+          if (mm->min < mm->max)
+          {
+            apos = aposc;
+            bpos = bposc;
+            do_a_plane_of_engine_columns_cluedo(xcell, ycell, mm->min, mm->max);
+          }
+        } else
         {
-          apos = aposc;
-          bpos = bposc;
-          do_a_plane_of_engine_columns_isometric(xcell, ycell, mm->min, mm->max);
+          fill_in_points_isometric(xcell, ycell, mm);
+          if (mm->min < mm->max)
+          {
+            apos = aposc;
+            bpos = bposc;
+            do_a_plane_of_engine_columns_isometric(xcell, ycell, mm->min, mm->max);
+          }
         }
-      }
-  }
-  if (map_volume_box.visible)
-    create_map_volume_box(x, y, z);
-  display_drawlist();
-  map_volume_box.visible = 0;
-  SYNCDBG(9,"Finished");
+    }
+    if (map_volume_box.visible)
+      create_map_volume_box(x, y, z);
+    display_drawlist();
+    map_volume_box.visible = 0;
+    SYNCDBG(9,"Finished");
 }
 
 void clear_fast_bucket_list(void)
 {
-  getpoly = poly_pool;
-  LbMemorySet(buckets, 0, sizeof(buckets));
+    getpoly = poly_pool;
+    LbMemorySet(buckets, 0, sizeof(buckets));
+}
+
+void draw_texturedquad_block(struct TexturedQuad *txquad)
+{
+    if (!UseFastBlockDraw)
+    {
+        struct PolyPoint point_a;
+        struct PolyPoint point_b;
+        struct PolyPoint point_c;
+        struct PolyPoint point_d;
+        vec_mode = 5;
+        switch (txquad->field_2A)
+        {
+        case 0:
+            vec_map = block_ptrs[578];
+            break;
+        case 1:
+            vec_map = block_ptrs[579];
+            break;
+        case 3:
+        default:
+            vec_map = block_ptrs[txquad->field_6];
+            break;
+        }
+        point_a.field_0 = (txquad->field_A >> 8) / pixel_size;
+        point_a.field_4 = (txquad->field_E >> 8) / pixel_size;
+        point_a.field_8 = orient_to_mapU1[txquad->field_5];
+        point_a.field_C = orient_to_mapV1[txquad->field_5];
+        point_a.field_10 = txquad->field_1A;
+        point_d.field_0 = ((txquad->field_12 + txquad->field_A) >> 8) / pixel_size;
+        point_d.field_4 = (txquad->field_E >> 8) / pixel_size;
+        point_d.field_8 = orient_to_mapU2[txquad->field_5];
+        point_d.field_C = orient_to_mapV2[txquad->field_5];
+        point_d.field_10 = txquad->field_1E;
+        point_b.field_0 = ((txquad->field_12 + txquad->field_A) >> 8) / pixel_size;
+        point_b.field_4 = ((txquad->field_16 + txquad->field_E) >> 8) / pixel_size;
+        point_b.field_8 = orient_to_mapU3[txquad->field_5];
+        point_b.field_C = orient_to_mapV3[txquad->field_5];
+        point_b.field_10 = txquad->field_22;
+        point_c.field_0 = (txquad->field_A >> 8) / pixel_size;
+        point_c.field_4 = ((txquad->field_16 + txquad->field_E) >> 8) / pixel_size;
+        point_c.field_8 = orient_to_mapU4[txquad->field_5];
+        point_c.field_C = orient_to_mapV4[txquad->field_5];
+        point_c.field_10 = txquad->field_26;
+        draw_gpoly(&point_a, &point_d, &point_b);
+        draw_gpoly(&point_a, &point_b, &point_c);
+    } else
+    {
+        struct GtBlock gtb;
+        switch (txquad->field_2A)
+        {
+        case 0:
+            gtb.field_0 = block_ptrs[578];
+            break;
+        case 1:
+            gtb.field_0 = block_ptrs[579];
+            break;
+        case 3:
+            gtb.field_0 = block_ptrs[txquad->field_6];
+            break;
+        default:
+            gtb.field_0 = block_ptrs[txquad->field_6];
+            goto LABEL_19;
+            break;
+        }
+        gtb.field_C = txquad->field_1A >> 16;
+        gtb.field_10 = txquad->field_1E >> 16;
+        gtb.field_18 = txquad->field_22 >> 16;
+        gtb.field_14 = txquad->field_26 >> 16;
+LABEL_19:
+        gtb.field_4 = (txquad->field_A >> 8) / pixel_size;
+        gtb.field_8 = (txquad->field_E >> 8) / pixel_size;
+        gtb.field_1C = orient_table_xflip[txquad->field_5];
+        gtb.field_20 = orient_table_yflip[txquad->field_5];
+        gtb.field_24 = orient_table_rotate[txquad->field_5];
+        gtb.field_28 = (txquad->field_12 >> 8) / pixel_size >> 5;
+        gtb.field_2C = (txquad->field_16 >> 8) / pixel_size >> 4;
+        gtblock_draw(&gtb);
+    }
 }
 
 void display_fast_drawlist(struct Camera *cam)
 {
-  _DK_display_fast_drawlist(cam);
-}
-
-void gtblock_set_clipping_window(unsigned char *addr, long cwidth, long cheight, long scrwidth)
-{
-  gtblock_screen_addr = addr;
-  gtblock_clip_width = cwidth;
-  gtblock_clip_height = cheight;
-  gtblock_screen_width = scrwidth;
+    int bucket_num;
+    union {
+      struct BasicQ *b;
+      struct BasicUnk00 *unk00;
+      struct BasicUnk01 *unk01;
+      struct BasicUnk02 *unk02;
+      struct BasicUnk03 *unk03;
+      struct BasicUnk04 *unk04;
+      struct BasicUnk05 *unk05;
+      struct BasicUnk06 *unk06;
+      struct BasicUnk07 *unk07;
+      struct RotoSpr *rotSpr;
+      struct BasicUnk09 *unk09;
+      struct BasicUnk10 *unk10;
+      struct JontySpr *jonSpr;
+      struct BasicUnk12 *unk12;
+      struct BasicUnk13 *unk13;
+      struct BasicUnk14 *unk14;
+      struct TexturedQuad *txquad;
+      struct Number *number;
+      struct RoomFlag *roomFlg;
+    } item;
+    //TODO enable rewritten code when gtblock_draw() is ready
+    _DK_display_fast_drawlist(cam); return;
+    render_fade_tables = pixmap.fade_tables;
+    render_ghost = pixmap.ghost;
+    render_problems = 0;
+    thing_pointed_at = 0;
+    for (bucket_num = BUCKETS_COUNT-1; bucket_num >= 0; bucket_num--)
+    {
+        for (item.b = buckets[bucket_num]; item.b != NULL; item.b = item.b->next)
+        {
+            switch (item.b->kind)
+            {
+            case 11:
+                draw_fastview_mapwho(cam, item.jonSpr);
+                break;
+            case 13:
+                draw_clipped_line(item.unk13->p.field_0,item.unk13->p.field_4,item.unk13->p.field_8,item.unk13->p.field_C,item.unk13->p.field_10);
+                break;
+            case 14:
+                if (pixel_size == 1)
+                    draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, 12288);
+                else
+                    draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, 4096);
+                break;
+            case 15:
+                draw_texturedquad_block(item.txquad);
+                break;
+            case 16:
+                draw_engine_number(item.number);
+                break;
+            case 17:
+                draw_engine_room_flagpole(item.roomFlg);
+                break;
+            case 18:
+                draw_iso_only_fastview_mapwho(cam, item.jonSpr);
+                break;
+            case 19:
+                draw_engine_room_flag_top(item.roomFlg);
+                break;
+            default:
+                render_problems++;
+                render_prob_kind = item.b->kind;
+                break;
+            }
+        }
+    } // end for(bucket_num...
+    if (render_problems > 0)
+      WARNLOG("Encoured %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
 }
 
 long convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z)
