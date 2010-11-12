@@ -304,6 +304,12 @@ $(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(LIBS) hvlog-before
 	-$(ECHO) 'Finished building target: $@'
 	-$(ECHO) ' '
 
+obj/std/bflib_render_gtblock.o obj/hvlog/bflib_render_gtblock.o: src/bflib_render_gtblock.c
+	@echo 'Building file: $<'
+	$(CC) $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(DBGFLAGS) $(INCFLAGS) -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
 obj/std/%.o obj/hvlog/%.o: src/%.cpp $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"

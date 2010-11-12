@@ -1595,8 +1595,7 @@ void display_fast_drawlist(struct Camera *cam)
       struct Number *number;
       struct RoomFlag *roomFlg;
     } item;
-    //TODO enable rewritten code when gtblock_draw() is ready
-    _DK_display_fast_drawlist(cam); return;
+    //_DK_display_fast_drawlist(cam); return;
     render_fade_tables = pixmap.fade_tables;
     render_ghost = pixmap.ghost;
     render_problems = 0;
