@@ -91,6 +91,7 @@ void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, lo
 void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, long a5);
 void set_creature_level(struct Thing *thing, long nlvl);
 void init_creature_level(struct Thing *thing, long nlev);
+long get_creature_speed(struct Thing *thing);
 long creature_instance_has_reset(struct Thing *thing, long a2);
 long get_human_controlled_creature_target(struct Thing *thing, long a2);
 void set_creature_instance(struct Thing *thing, long a1, long a2, long a3, struct Coord3d *pos);
