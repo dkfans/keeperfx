@@ -139,7 +139,6 @@ const char *creature_code_name(long crmodel);
 /******************************************************************************/
 TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/
-long calculate_correct_creature_maxspeed(const struct Thing *thing);
 unsigned short get_creature_model_flags(const struct Thing *thing);
 TbBool set_creature_available(long plyr_idx, long crtr_model, long can_be_avail, long force_avail);
 long get_players_special_digger_breed(long plyr_idx);

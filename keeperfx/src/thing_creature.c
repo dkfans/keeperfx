@@ -1853,6 +1853,21 @@ void init_creature_level(struct Thing *thing, long nlev)
     thing->health = cctrl->max_health;
 }
 
+long get_creature_speed(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    long speed;
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+        return 0;
+    speed = cctrl->max_speed;
+    if (speed < 0)
+        speed = 0;
+    if (speed > 256)
+        speed = 256;
+    return speed;
+}
+
 long creature_instance_has_reset(struct Thing *thing, long a2)
 {
   return _DK_creature_instance_has_reset(thing, a2);

@@ -1350,7 +1350,24 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
 
 TbBigChecksum get_packet_save_checksum(void)
 {
-  return _DK_get_packet_save_checksum();
+    TbBigChecksum sum;
+    struct Thing *tng;
+    long tng_idx;
+    //return _DK_get_packet_save_checksum();
+    sum = 0;
+    for (tng_idx=0; tng_idx < THINGS_COUNT; tng_idx++)
+    {
+        tng = thing_get(tng_idx);
+        if ((tng->field_0 & 0x01) != 0)
+        {
+          if (tng->class_id != 12)
+          {
+              sum += (ulong)tng->mappos.x.val + (ulong)tng->mappos.y.val + (ulong)tng->mappos.z.val
+                   + (ulong)tng->field_52 + (ulong)tng->owner;
+          }
+        }
+    }
+    return sum;
 }
 
 void open_new_packet_file_for_save(void)
@@ -2118,11 +2135,18 @@ void process_players_map_packet_control(long plyr_idx)
   SYNCDBG(8,"Finished");
 }
 
-void process_map_packet_clicks(long idx)
+void process_map_packet_clicks(long plyr_idx)
 {
-  SYNCDBG(7,"Starting");
-  _DK_process_map_packet_clicks(idx);
-  SYNCDBG(8,"Finished");
+    SYNCDBG(7,"Starting");
+    //_DK_process_map_packet_clicks(plyr_idx); return;
+    struct Packet *pckt;
+    packet_left_button_double_clicked[plyr_idx] = 0;
+    pckt = get_packet(plyr_idx);
+    if ((pckt->control_flags & 0x4000) == 0)
+    {
+        update_double_click_detection(plyr_idx);
+    }
+    SYNCDBG(8,"Finished");
 }
 
 void process_players_packet(long idx)
@@ -2211,8 +2235,127 @@ TbBool process_players_dungeon_control_packet_action(long idx)
 
 void process_players_creature_control_packet_control(long idx)
 {
-  SYNCDBG(6,"Starting");
-  _DK_process_players_creature_control_packet_control(idx);
+    struct PlayerInfo *player;
+    struct Packet *pckt;
+    struct Thing *cctng;
+    struct CreatureControl *ccctrl;
+    struct InstanceInfo *inst_inf;
+    struct CreatureStats *crstat;
+    long speed_limit;
+    long angle_limit,angle;
+    long i,k,n;
+
+    SYNCDBG(6,"Starting");
+    //_DK_process_players_creature_control_packet_control(idx); return;
+    player = get_player(idx);
+    pckt = get_packet_direct(player->packet_num);
+    cctng = thing_get(player->field_2F);
+    if (cctng->class_id != TCls_Creature)
+        return;
+    ccctrl = creature_control_get_from_thing(cctng);
+    if (cctng->health < 0)
+        return;
+    if ((ccctrl->field_AB != 0) || (cctng->field_7 == 67))
+        return;
+    speed_limit = get_creature_speed(cctng);
+    if ((pckt->control_flags & 0x04) != 0)
+    {
+        if (!creature_control_invalid(ccctrl))
+        {
+            ccctrl->field_C8 = compute_controlled_speed_increase(ccctrl->field_C8, speed_limit);
+            ccctrl->flgfield_1 |= 0x40u;
+        } else
+        {
+            ERRORLOG("No thing selected");
+        }
+    }
+    if ((pckt->control_flags & 0x08) != 0)
+    {
+        if (!creature_control_invalid(ccctrl))
+        {
+            ccctrl->field_C8 = compute_controlled_speed_decrease(ccctrl->field_C8, speed_limit);
+            ccctrl->flgfield_1 |= 0x40u;
+        } else
+        {
+            ERRORLOG("No thing selected");
+        }
+    }
+    if ((pckt->control_flags & 0x10) != 0)
+    {
+        if (!creature_control_invalid(ccctrl))
+        {
+            ccctrl->field_CA = compute_controlled_speed_increase(ccctrl->field_CA, speed_limit);
+            ccctrl->flgfield_1 |= 0x80u;
+        }
+    }
+    if ((pckt->control_flags & 0x20) != 0)
+    {
+        if (!creature_control_invalid(ccctrl))
+        {
+            ccctrl->field_CA = compute_controlled_speed_decrease(ccctrl->field_CA, speed_limit);
+            ccctrl->flgfield_1 |= 0x80u;
+        }
+    }
+
+    if ((pckt->control_flags & 0x1000) != 0)
+    {
+        if (ccctrl->field_D2 == 0)
+        {
+            if (creature_instance_is_available(cctng, ccctrl->field_1E8))
+            {
+                if (creature_instance_has_reset(cctng, ccctrl->field_1E8))
+                {
+                    i = ccctrl->field_1E8;
+                    inst_inf = creature_instance_info_get(i);
+                    n = get_human_controlled_creature_target(cctng, inst_inf->field_1D);
+                    set_creature_instance(cctng, i, 1, n, 0);
+                }
+            }
+        }
+    }
+    if ((pckt->control_flags & 0x0400) != 0)
+    {
+        i = ccctrl->field_1E8;
+        inst_inf = creature_instance_info_get(i);
+        if (inst_inf->field_1A)
+        {
+            k = ccctrl->field_D2;
+            if ((k == 0) || (k == i))
+            {
+              n = get_human_controlled_creature_target(cctng, inst_inf->field_1D);
+              set_creature_instance(cctng, i, 1, n, 0);
+            }
+        }
+    }
+
+    crstat = creature_stats_get(cctng->model);
+    i = pckt->pos_y;
+    if (i < 5)
+      i = 5;
+    if (i > 250)
+      i = 250;
+    k = i - 127;
+    angle = (pckt->pos_x - 127) / player->field_14;
+    if (angle != 0)
+    {
+      if (angle < -32)
+          angle = -32;
+      else
+      if (angle > 32)
+          angle = 32;
+      ccctrl->field_6C += 56 * angle / 32;
+    }
+    angle_limit = crstat->max_angle_change;
+    angle = ccctrl->field_6C;
+    if (angle < -angle_limit)
+        angle = -angle_limit;
+    else
+    if (angle > angle_limit)
+        angle = angle_limit;
+    cctng->field_52 = (cctng->field_52 + angle) & 0x7FF;
+    cctng->field_54 = (227 * k / 127) & 0x7FF;
+    ccctrl->field_CC = 170 * angle / crstat->max_angle_change;
+    ccctrl->field_6C = 4 * angle / 8;
 }
 
 void process_players_creature_control_packet_action(long idx)

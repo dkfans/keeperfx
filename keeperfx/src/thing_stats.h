@@ -52,8 +52,11 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel);
 long compute_creature_max_unaffected(long base_param,unsigned short crlevel);
 #define compute_creature_max_luck compute_creature_max_unaffected
 #define compute_creature_max_armour compute_creature_max_unaffected
+long compute_controlled_speed_increase(long prev_speed, long speed_limit);
+long compute_controlled_speed_decrease(long prev_speed, long speed_limit);
 long compute_value_percentage(long base_val, short npercent);
 long compute_value_8bpercentage(long base_val, short npercent);
+long calculate_correct_creature_maxspeed(const struct Thing *thing);
 
 TbBool update_creature_health_to_max(struct Thing *thing);
 void apply_damage_to_thing(struct Thing *thing, long a2, char a3);
