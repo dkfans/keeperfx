@@ -4061,7 +4061,7 @@ long creature_retreat_from_combat(struct Thing *thing1, struct Thing *thing2, lo
         pos.x.val = thing1->mappos.x.val - dist_x;
         pos.y.val = thing1->mappos.y.val - dist_y;
         pos.z.val = get_thing_height_at(thing1, &pos);
-        if (creature_move_to(thing1, &pos, cctrl1->max_speed, 0, 1) != -1)
+        if (creature_move_to(thing1, &pos, get_creature_speed(thing1), 0, 1) != -1)
         {
            return 1;
         }
@@ -4141,9 +4141,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             break;
         }
         cctrl->byte_9E--;
-        speed = cctrl->max_speed;
-        if (speed >= 256)
-          speed = 256;
+        speed = get_creature_speed(thing);
         i = creature_move_to(thing, &cctrl->moveto_pos, speed, 0, 0);
         if (i == 1)
         {
@@ -4204,9 +4202,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
           setup_move_to_new_training_position(thing, room, 1);
         break;
     case 3:
-        speed = cctrl->max_speed;
-        if (speed >= 256)
-            speed = 256;
+        speed = get_creature_speed(thing);
         i = creature_move_to(thing, &cctrl->moveto_pos, speed, 0, 0);
         if (i == 1)
         {
@@ -4263,7 +4259,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         dist = get_combat_distance(thing, crtng);
         if (dist > 284)
         {
-            if (creature_move_to(thing, &crtng->mappos, cctrl->max_speed, 0, 0) == -1)
+            if (creature_move_to(thing, &crtng->mappos, get_creature_speed(thing), 0, 0) == -1)
             {
               ERRORLOG("cannot navigate to training partner");
               setup_move_to_new_training_position(thing, room, 0);

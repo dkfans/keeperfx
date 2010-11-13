@@ -614,32 +614,6 @@ TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags)
   return result;
 }
 
-long calculate_correct_creature_maxspeed(const struct Thing *thing)
-{
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
-  struct Dungeon *dungeon;
-  long speed;
-  cctrl = creature_control_get_from_thing(thing);
-  crstat = creature_stats_get_from_thing(thing);
-  speed = crstat->base_speed;
-  if (cctrl->field_21)
-    speed *= 2;
-  if ((cctrl->spell_flags & CSF_Speed) != 0)
-    speed *= 2;
-  if ((cctrl->spell_flags & CSF_Slow) != 0)
-    speed /= 2;
-  if (game.neutral_player_num != thing->owner)
-  {
-    dungeon = get_dungeon(thing->owner);
-    if (dungeon->field_1420[thing->model])
-      speed = 5 * speed / 4;
-    if (dungeon->field_888)
-      speed = 5 * speed / 4;
-  }
-  return speed;
-}
-
 unsigned short get_creature_model_flags(const struct Thing *thing)
 {
   return crtr_conf.model[thing->model%CREATURE_TYPES_MAX].model_flags;

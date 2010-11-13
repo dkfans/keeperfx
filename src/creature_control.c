@@ -24,6 +24,7 @@
 #include "bflib_sound.h"
 #include "config_creature.h"
 #include "creature_states.h"
+#include "thing_stats.h"
 #include "frontend.h"
 #include "lens_api.h"
 #include "light_data.h"

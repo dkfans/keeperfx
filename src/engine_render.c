@@ -1259,7 +1259,7 @@ void display_drawlist(void)
     render_ghost = pixmap.ghost;
     render_problems = 0;
     thing_pointed_at = 0;
-    for (bucket_num = BUCKETS_COUNT-1; bucket_num >= 0; bucket_num--)
+    for (bucket_num = BUCKETS_COUNT-1; bucket_num > 0; bucket_num--)
     {
       for (item.b = buckets[bucket_num]; item.b != NULL; item.b = item.b->next)
       {

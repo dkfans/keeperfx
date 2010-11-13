@@ -50,11 +50,9 @@ DLLIMPORT short _DK_move_to_position(struct Thing *thing);
 /******************************************************************************/
 TbBool creature_can_navigate_to_with_storage(struct Thing *crtng, struct Coord3d *pos, unsigned char storage)
 {
-    struct CreatureControl *cctrl;
     AriadneReturn ret;
     SYNCDBG(18,"Starting");
-    cctrl = creature_control_get_from_thing(crtng);
-    ret = ariadne_initialise_creature_route(crtng, pos, cctrl->max_speed, storage);
+    ret = ariadne_initialise_creature_route(crtng, pos, get_creature_speed(crtng), storage);
     SYNCDBG(18,"Ariadne returned %d",(int)ret);
     return (ret == AridRet_OK);
 }
@@ -415,12 +413,7 @@ short move_to_position(struct Thing *thing)
     SYNCDBG(18,"Starting for thing %d",(int)thing->index);
     //return _DK_move_to_position(thing);
     cctrl = creature_control_get_from_thing(thing);
-    speed = cctrl->max_speed;
-    if (speed >= 256)
-    {
-        SYNCDBG(6,"Creature model %d walk speed %d clipped",(int)thing->model, (int)speed);
-        speed = 256;
-    }
+    speed = get_creature_speed(thing);
     // Try teleporting the creature
     if (creature_move_to_using_teleport(thing, &cctrl->moveto_pos, speed))
         return 1;

@@ -27,6 +27,7 @@
 #include "creature_states.h"
 #include "creature_graphics.h"
 #include "config_creature.h"
+#include "thing_stats.h"
 #include "light_data.h"
 #include "thing_effects.h"
 #include "front_simple.h"
