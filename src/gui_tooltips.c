@@ -141,7 +141,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   player = get_my_player();
   // Find a special to show tooltip for
   thing = thing_get(player->thing_under_hand);
-  if (thing_is_invalid(thing) || !thing_is_special(thing))
+  if (thing_is_invalid(thing) || !thing_is_special_box(thing))
     thing = get_special_at_position(pos->x.stl.num, pos->y.stl.num);
   if (thing != NULL)
   {
@@ -379,7 +379,7 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
   struct Coord3d mappos;
   struct PlayerInfo *player;
   TbBool shown;
-  SYNCDBG(7,"Starting");
+  SYNCDBG(17,"Starting");
   shown = false;
   player = get_my_player();
   if ((gameplay_on) && (tool_tip_time == 0) && (!busy_doing_gui))

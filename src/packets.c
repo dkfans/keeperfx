@@ -2266,7 +2266,7 @@ void process_players_creature_control_packet_control(long idx)
             ccctrl->flgfield_1 |= 0x40u;
         } else
         {
-            ERRORLOG("No thing selected");
+            ERRORLOG("No creature to increase speed");
         }
     }
     if ((pckt->control_flags & 0x08) != 0)
@@ -2277,7 +2277,7 @@ void process_players_creature_control_packet_control(long idx)
             ccctrl->flgfield_1 |= 0x40u;
         } else
         {
-            ERRORLOG("No thing selected");
+            ERRORLOG("No creature to decrease speed");
         }
     }
     if ((pckt->control_flags & 0x10) != 0)
@@ -2286,6 +2286,9 @@ void process_players_creature_control_packet_control(long idx)
         {
             ccctrl->field_CA = compute_controlled_speed_increase(ccctrl->field_CA, speed_limit);
             ccctrl->flgfield_1 |= 0x80u;
+        } else
+        {
+            ERRORLOG("No creature to increase speed");
         }
     }
     if ((pckt->control_flags & 0x20) != 0)
@@ -2294,6 +2297,9 @@ void process_players_creature_control_packet_control(long idx)
         {
             ccctrl->field_CA = compute_controlled_speed_decrease(ccctrl->field_CA, speed_limit);
             ccctrl->flgfield_1 |= 0x80u;
+        } else
+        {
+            ERRORLOG("No creature to decrease speed");
         }
     }
 
@@ -2327,11 +2333,11 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
-
     crstat = creature_stats_get(cctng->model);
     i = pckt->pos_y;
     if (i < 5)
       i = 5;
+    else
     if (i > 250)
       i = 250;
     k = i - 127;

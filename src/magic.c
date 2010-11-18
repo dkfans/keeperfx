@@ -79,7 +79,7 @@ long can_cast_spell_on_creature(long a1, struct Thing *thing, long a3)
 
 void update_power_sight_explored(struct PlayerInfo *player)
 {
-  SYNCDBG(6,"Starting");
+  SYNCDBG(16,"Starting");
   _DK_update_power_sight_explored(player);
 }
 

@@ -167,6 +167,18 @@ unsigned char keepersprite_frames(unsigned short n)
   return creature_table[i].field_9;
 }
 
+unsigned char keepersprite_rotable(unsigned short n)
+{
+  unsigned long i;
+  if (n >= CREATURE_FRAMELIST_LENGTH)
+  {
+      ERRORLOG("Frame %d out of range",(int)n);
+      n = 0;
+  }
+  i = creature_list[n];
+  return creature_table[i].field_8;
+}
+
 long get_lifespan_of_animation(long ani, long frameskip)
 {
     return (keepersprite_frames(ani) << 8) / frameskip;

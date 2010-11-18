@@ -938,7 +938,7 @@ void process_player_instance(struct PlayerInfo *player)
 {
   struct PlayerInstanceInfo *inst_info;
   InstncInfo_Func callback;
-  SYNCDBG(6,"Starting for instance %d",player->instance_num);
+  SYNCDBG(16,"Starting for instance %d",player->instance_num);
   //_DK_process_player_instance(player); return;
   if (player->instance_num > 0)
   {

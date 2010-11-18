@@ -374,7 +374,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
           spridx = 511;
           draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
         } else
-        if ( thing_is_special(thing) )
+        if ( thing_is_special_box(thing) )
         {
           spridx = 164;
           draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);

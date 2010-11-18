@@ -1473,7 +1473,15 @@
  0003:00030318       tmp_net_phone_number
  0003:00030348       zoom_to_heart_palette
  0003:00030648       key_to_string
+ 0003:00030A48       spr_map_angle
+ 0003:00030A4C       lfade_max
+ 0003:00030A50       lfade_min
+ 0003:00030A54       thelens
+ 0003:00030A60       thing_being_displayed_is_creature
+ 0003:00030A68       fade_mmm
+ 0003:00030A70       red_pal
  0003:00030B70       thing_pointed_at
+ 0003:00030B78       white_pal
  0003:00030C80       thing_being_displayed
  0003:00030C84       EngineSpriteDrawUsingAlpha
  0003:00030C88       door_sound_state
