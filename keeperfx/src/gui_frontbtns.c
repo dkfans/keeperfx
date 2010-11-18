@@ -53,7 +53,7 @@ void gui_clear_buttons_not_over_mouse(int gmbtn_idx)
 TbBool gui_button_release_inputs(int gmbtn_idx)
 {
   struct GuiButton *gbtn;
-  SYNCDBG(7,"Starting");
+  SYNCDBG(17,"Starting");
   if (gmbtn_idx < 0)
     return false;
   Gf_Btn_Callback callback;

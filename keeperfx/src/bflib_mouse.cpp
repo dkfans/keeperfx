@@ -51,7 +51,7 @@ long volatile mouse_dy;
 unsigned long mouse_pos_change_saved;
 struct DevInput joy;
 */
-volatile TbBool lbMouseAutoReset = false;
+volatile TbBool lbMouseAutoReset = true;
 /******************************************************************************/
 TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *pointerSprite, long hot_x, long hot_y)
 {

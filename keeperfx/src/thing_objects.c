@@ -377,17 +377,17 @@ int box_thing_to_door_or_trap(const struct Thing *thing)
   return object_to_door_or_trap[thing->model];
 }
 
-TbBool thing_is_special(const struct Thing *thing)
+TbBool thing_is_special_box(const struct Thing *thing)
 {
     return (box_thing_to_special(thing) > 0);
 }
 
-TbBool thing_is_door_or_trap(const struct Thing *thing)
+TbBool thing_is_door_or_trap_box(const struct Thing *thing)
 {
     return (box_thing_to_door_or_trap(thing) > 0);
 }
 
-TbBool thing_is_trap(const struct Thing *thing)
+TbBool thing_is_trap_box(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return false;

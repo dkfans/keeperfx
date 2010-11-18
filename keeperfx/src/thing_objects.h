@@ -85,10 +85,10 @@ int box_thing_to_special(const struct Thing *thing);
 int book_thing_to_magic(const struct Thing *thing);
 int box_thing_to_door_or_trap(const struct Thing *thing);
 
-TbBool thing_is_special(const struct Thing *thing);
-#define is_dungeon_special thing_is_special
-TbBool thing_is_door_or_trap(const struct Thing *thing);
-TbBool thing_is_trap(const struct Thing *thing);
+TbBool thing_is_special_box(const struct Thing *thing);
+#define is_dungeon_special thing_is_special_box
+TbBool thing_is_door_or_trap_box(const struct Thing *thing);
+TbBool thing_is_trap_box(const struct Thing *thing);
 TbBool thing_is_dungeon_heart(const struct Thing *thing);
 TbBool thing_is_mature_food(const struct Thing *thing);
 TbBool object_is_mature_food(const struct Thing *thing);

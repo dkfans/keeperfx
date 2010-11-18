@@ -834,8 +834,6 @@ DLLIMPORT unsigned char _DK_do_lights;
 #define do_lights _DK_do_lights
 DLLIMPORT long _DK_imp_spangle_effects[];
 #define imp_spangle_effects _DK_imp_spangle_effects
-DLLIMPORT struct Thing *_DK_thing_being_displayed;
-#define thing_being_displayed _DK_thing_being_displayed
 DLLIMPORT struct Thing *_DK_thing_pointed_at;
 #define thing_pointed_at _DK_thing_pointed_at
 DLLIMPORT struct Map *_DK_me_pointed_at;
@@ -1050,9 +1048,7 @@ void draw_overlay_compass(long a1, long a2);
 void draw_mini_things_in_hand(long x, long y);
 void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6);
 TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos);
-void draw_jonty_mapwho(struct JontySpr *jspr);
 struct Thing *find_base_thing_on_mapwho(unsigned char oclass, unsigned short okind, unsigned short x, unsigned short y);
-void draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);
 TbBool mouse_is_over_small_map(long x, long y);
 void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 void update_breed_activities(void);

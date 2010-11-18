@@ -68,7 +68,8 @@ struct CreaturePickedUpOffset // sizeof = 8
 };
 
 struct KeeperSprite { // sizeof = 16
-  unsigned char field_0[9];
+  unsigned char field_0[8];
+  unsigned char field_8;
   unsigned char field_9;
   unsigned char field_A[4];
   unsigned char field_E[2];
@@ -85,6 +86,7 @@ struct KeeperSprite { // sizeof = 16
 struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing);
 
 unsigned char keepersprite_frames(unsigned short n);
+unsigned char keepersprite_rotable(unsigned short n);
 long get_lifespan_of_animation(long ani, long frameskip);
 unsigned long get_creature_anim(struct Thing *thing, unsigned short frame);
 unsigned long get_creature_breed_graphics(long breed, unsigned short frame);

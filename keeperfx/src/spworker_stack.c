@@ -433,7 +433,7 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
     // Thing list loop body
     if (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT)
       break;
-    if ( thing_is_door_or_trap(thing) )
+    if ( thing_is_door_or_trap_box(thing) )
     {
       if ((thing->field_1 & 0x01) == 0)
       {
@@ -1007,7 +1007,7 @@ long check_out_imp_stack(struct Thing *thing)
                     get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
                     14, thing->owner, sectng->index);
             } else
-            if (thing_is_special(sectng))
+            if (thing_is_special_box(sectng))
             {
                 event_create_event_or_update_nearby_existing_event(
                     get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
@@ -1029,7 +1029,7 @@ long check_out_imp_stack(struct Thing *thing)
                 istack->field_2 = 0;
                 break;
             }
-            if (!thing_is_trap(sectng))
+            if (!thing_is_trap_box(sectng))
             {
                 break;
             }
