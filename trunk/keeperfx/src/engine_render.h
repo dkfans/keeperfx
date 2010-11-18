@@ -419,6 +419,24 @@ DLLIMPORT long _DK_gtblock_clip_height;
 #define gtblock_clip_height _DK_gtblock_clip_height
 DLLIMPORT long _DK_gtblock_screen_width;
 #define gtblock_screen_width _DK_gtblock_screen_width
+DLLIMPORT unsigned char _DK_white_pal[256];
+#define white_pal _DK_white_pal
+DLLIMPORT unsigned char _DK_red_pal[256];
+#define red_pal _DK_red_pal
+DLLIMPORT long _DK_thelens;
+#define thelens _DK_thelens
+DLLIMPORT long _DK_fade_mmm;
+#define fade_mmm _DK_fade_mmm
+DLLIMPORT long _DK_spr_map_angle;
+#define spr_map_angle _DK_spr_map_angle
+DLLIMPORT long _DK_lfade_max;
+#define lfade_max _DK_lfade_max
+DLLIMPORT long _DK_lfade_min;
+#define lfade_min _DK_lfade_min
+DLLIMPORT struct Thing *_DK_thing_being_displayed;
+#define thing_being_displayed _DK_thing_being_displayed
+DLLIMPORT unsigned char _DK_thing_being_displayed_is_creature;
+#define thing_being_displayed_is_creature _DK_thing_being_displayed_is_creature
 /******************************************************************************/
 //extern unsigned char temp_cluedo_mode;
 /******************************************************************************/
@@ -439,6 +457,8 @@ void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, lo
 void draw_engine_number(struct Number *num);
 void draw_engine_room_flagpole(struct RoomFlag *rflg);
 void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
+void draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);
+void draw_jonty_mapwho(struct JontySpr *jspr);
 
 void update_engine_settings(struct PlayerInfo *player);
 void display_drawlist(void);

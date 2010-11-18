@@ -21,6 +21,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
+#include "bflib_math.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
@@ -29,6 +30,7 @@
 #include "engine_lenses.h"
 #include "engine_camera.h"
 #include "engine_arrays.h"
+#include "creature_graphics.h"
 #include "kjm_input.h"
 #include "front_simple.h"
 #include "frontend.h"
@@ -49,6 +51,8 @@ DLLIMPORT void _DK_draw_engine_room_flag_top(struct RoomFlag *rflg);
 DLLIMPORT void _DK_draw_stripey_line(long a1, long a2, long a3, long a4, unsigned char a5);
 DLLIMPORT void _DK_draw_map_who(struct RotoSpr *spr);
 DLLIMPORT void _DK_draw_element(struct Map *map, long a2, long a3, long a4, long a5, long a6, long a7, unsigned char a8, long *a9);
+DLLIMPORT void _DK_draw_jonty_mapwho(struct JontySpr *jspr);
+DLLIMPORT void _DK_draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);
 DLLIMPORT long _DK_convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z);
 DLLIMPORT void _DK_display_fast_drawlist(struct Camera *cam);
 DLLIMPORT void _DK_draw_frontview_engine(struct Camera *cam);
@@ -2133,6 +2137,230 @@ void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long 
         }
     }
 
+}
+
+unsigned short get_thing_shade(struct Thing *thing)
+{
+    MapSubtlCoord stl_x,stl_y;
+    long lgh[2][2]; // the dimensions are lgh[y][x]
+    long shval;
+    stl_x = thing->mappos.x.stl.num;
+    stl_y = thing->mappos.y.stl.num;
+    lgh[0][0] = get_subtile_lightness(stl_x,  stl_y);
+    lgh[0][1] = get_subtile_lightness(stl_x+1,stl_y);
+    lgh[1][0] = get_subtile_lightness(stl_x,  stl_y+1);
+    lgh[1][1] = get_subtile_lightness(stl_x+1,stl_y+1);
+    shval = (thing->mappos.x.stl.pos
+        * (lgh[0][1] + (thing->mappos.y.stl.pos * (lgh[1][1] - lgh[0][1]) >> 8)
+        - (lgh[0][0] + (thing->mappos.y.stl.pos * (lgh[1][0] - lgh[0][0]) >> 8))) >> 8)
+        + (lgh[0][0] + (thing->mappos.y.stl.pos * (lgh[1][0] - lgh[0][0]) >> 8));
+    if (shval < 8192)
+        shval += 2048;
+    if (shval > 8192)
+        shval = 8192;
+    return shval;
+}
+
+void process_keeper_speedup_sprite(struct JontySpr *jspr, long angle, long transp)
+{
+    struct PlayerInfo *player;
+    struct Thing *thing;
+    long transp2;
+    unsigned short graph_id2;
+    unsigned long nframe2;
+    long add_x,add_y;
+    thing = jspr->thing;
+    player = get_my_player();
+    switch (thing->model)
+    {
+    case 28:
+        graph_id2 = 112;
+        if (player->view_type == 1)
+        {
+          add_x = transp >> 3;
+          add_y = (transp >> 2) - transp;
+        } else
+        {
+          add_x = transp * LbSinL(angle) >> 20;
+          add_y = -(LbCosL(angle) * (transp + (transp >> 1))) >> 16;
+        }
+        transp2 = transp / 2;
+        break;
+    case 2:
+        graph_id2 = 113;
+        if (player->view_type == 1)
+        {
+            add_x = 0;
+            add_y = 3 * transp >> 3;
+        } else
+        {
+            add_x = (transp * LbSinL(angle)) >> 20;
+            add_y = (transp * LbCosL(angle)) >> 20;
+        }
+        transp2 = 2 * transp / 3;
+        break;
+    default:
+        graph_id2 = 113;
+        if (player->view_type == 1)
+        {
+            add_x = (transp >> 2) / 3;
+            add_y = (transp >> 1) / 3;
+        } else
+        {
+            add_x = transp * LbSinL(angle) >> 20;
+            add_y = (-(LbCosL(angle) * (transp + (transp >> 1))) >> 16) / 3;
+        }
+        transp2 = transp / 3;
+        break;
+    }
+    EngineSpriteDrawUsingAlpha = 0;
+    nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(graph_id2);
+    process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, transp);
+    EngineSpriteDrawUsingAlpha = 1;
+    process_keeper_sprite(jspr->scr_x+add_x, jspr->scr_y+add_y, graph_id2, angle, nframe2, transp2);
+}
+
+void draw_jonty_mapwho(struct JontySpr *jspr)
+{
+    unsigned short flg_mem;
+    unsigned char alpha_mem;
+    struct PlayerInfo *player;
+    struct Thing *thing;
+    long angle,transp;
+    //_DK_draw_jonty_mapwho(jspr); return;
+    flg_mem = lbDisplay.DrawFlags;
+    alpha_mem = EngineSpriteDrawUsingAlpha;
+    thing = jspr->thing;
+    player = get_my_player();
+    if (keepersprite_rotable(thing->field_44))
+      angle = thing->field_52 - spr_map_angle;
+    else
+      angle = thing->field_52;
+    {
+        long shade,shade_factor,fade;
+        long i;
+        if (lens_mode == 0)
+        {
+            fade = 65536;
+            if ((thing->field_4F & 0x02) != 0)
+                shade = get_thing_shade(thing);
+            else
+                shade = 8192;
+        } else
+        if (jspr->field_14 <= lfade_min)
+        {
+            fade = jspr->field_14;
+            if ((thing->field_4F & 0x02) != 0)
+                shade = 8192;
+            else
+                shade = get_thing_shade(thing);
+        } else
+        if (jspr->field_14 < lfade_max)
+        {
+            fade = jspr->field_14;
+            if ((thing->field_4F & 0x02) == 0)
+                i = get_thing_shade(thing);
+            else
+                i = 8192;
+            shade = i * (long long)(lfade_max - fade) / fade_mmm;
+        } else
+        {
+            fade = jspr->field_14;
+            shade = 0;
+        }
+        shade_factor = shade >> 8;
+        transp = thelens * thing->field_46 / fade;
+        if ((thing->field_4F & 0xC) != 0)
+        {
+            lbDisplay.DrawFlags |= 0x0800u;
+            lbSpriteReMapPtr = &pixmap.ghost[256 * thing->field_51];
+        } else
+        if (shade_factor == 32)
+        {
+            lbDisplay.DrawFlags &= ~0x0800u;
+        } else
+        {
+            lbDisplay.DrawFlags |= 0x0800u;
+            lbSpriteReMapPtr = &pixmap.fade_tables[256 * shade_factor];
+        }
+    }
+
+    EngineSpriteDrawUsingAlpha = 0;
+    switch (thing->field_4F & 0x30)
+    {
+    case 0x10:
+        lbDisplay.DrawFlags |= 0x0008u;
+        lbDisplay.DrawFlags &= ~0x0800u;
+        break;
+    case 0x20:
+        lbDisplay.DrawFlags |= 0x0004u;
+        lbDisplay.DrawFlags &= ~0x0800u;
+        break;
+    case 0x30:
+        EngineSpriteDrawUsingAlpha = 1;
+        break;
+    }
+
+    if ((thing->class_id == TCls_Creature)
+     || (thing->class_id == TCls_Object)
+     || (thing->class_id == TCls_DeadCreature))
+    {
+        if ((player->thing_under_hand == thing->index) && (game.play_gameturn & 2))
+        {
+          if (player->acamera->field_6 == 2)
+          {
+              lbDisplay.DrawFlags |= 0x0800u;
+              lbSpriteReMapPtr = white_pal;
+          }
+        } else
+        if ((thing->field_4F & 0x80) != 0)
+        {
+            lbDisplay.DrawFlags |= 0x0800u;
+            lbSpriteReMapPtr = red_pal;
+            thing->field_4F &= ~0x80u;
+        }
+        thing_being_displayed_is_creature = 1;
+        thing_being_displayed = thing;
+    } else
+    {
+        thing_being_displayed_is_creature = 0;
+        thing_being_displayed = NULL;
+    }
+
+    if (thing->field_44 >= CREATURE_FRAMELIST_LENGTH)
+    {
+        ERRORLOG("Invalid graphic Id %d from model %d, class %d", thing->field_44, thing->model, thing->class_id);
+    } else
+    {
+        switch (thing->class_id)
+        {
+        case TCls_Object:
+            if ((thing->model == 2) || (thing->model == 4) || (thing->model == 28))
+            {
+                process_keeper_speedup_sprite(jspr, angle, transp);
+                break;
+            }
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, transp);
+            break;
+        case TCls_Trap:
+            if ((thing->model != 1) && (player->id_number != thing->owner) && (thing->byte_18 == 0))
+            {
+                break;
+            }
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, transp);
+            break;
+        default:
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, transp);
+            break;
+        }
+    }
+    lbDisplay.DrawFlags = flg_mem;
+    EngineSpriteDrawUsingAlpha = alpha_mem;
+}
+
+void draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4)
+{
+  _DK_draw_keepsprite_unscaled_in_buffer(a1, a2, a3, a4);
 }
 
 void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, long w, long h, long qx, long qy)

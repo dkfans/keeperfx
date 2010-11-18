@@ -424,6 +424,14 @@
  0003:00031590       me_distance
  0003:00011508       max_i_can_see
  0003:00030B70       thing_pointed_at
+ 0003:00030A48       spr_map_angle
+ 0003:00030A4C       lfade_max
+ 0003:00030A50       lfade_min
+ 0003:00030A54       thelens
+ 0003:00030A60       thing_being_displayed_is_creature
+ 0003:00030A68       fade_mmm
+ 0003:00030A70       red_pal
+ 0003:00030B78       white_pal
  0003:00030C80       thing_being_displayed
  0003:00243A0C       getpoly
  0003:00243A10       buckets

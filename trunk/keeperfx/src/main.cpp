@@ -282,8 +282,6 @@ DLLIMPORT long _DK_add_gold_to_hoarde(struct Thing *thing, struct Room *room, lo
 DLLIMPORT void _DK_clear_mapwho(void);
 DLLIMPORT void _DK_clear_map(void);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
-DLLIMPORT void _DK_draw_jonty_mapwho(struct JontySpr *jspr);
-DLLIMPORT void _DK_draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);
 DLLIMPORT long _DK_screen_to_map(struct Camera *camera, long scrpos_x, long scrpos_y, struct Coord3d *mappos);
 DLLIMPORT void _DK_draw_swipe(void);
 DLLIMPORT void _DK_draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
@@ -516,16 +514,6 @@ void view_zoom_camera_out(struct Camera *cam, long a2, long a3)
 long get_camera_zoom(struct Camera *camera)
 {
   return _DK_get_camera_zoom(camera);
-}
-
-void draw_jonty_mapwho(struct JontySpr *jspr)
-{
-  _DK_draw_jonty_mapwho(jspr);
-}
-
-void draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4)
-{
-  _DK_draw_keepsprite_unscaled_in_buffer(a1, a2, a3, a4);
 }
 
 long get_smaller_memory_amount(long amount)
@@ -6180,7 +6168,7 @@ void message_draw(void)
 
 void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6)
 {
-  _DK_process_keeper_sprite(x, y, a3, a4, a5, a6);
+    _DK_process_keeper_sprite(x, y, a3, a4, a5, a6);
 }
 
 void draw_swipe(void)
@@ -8382,7 +8370,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if ( strcasecmp(parstr,"altinput") == 0 )
       {
-          lbMouseAutoReset = true;
+          lbMouseAutoReset = false;
       } else
       if ( strcasecmp(parstr,"vidriver") == 0 )
       {

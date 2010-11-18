@@ -100,10 +100,14 @@ Command line options:
   Same thing, but for lights.
 -vidsmooth
   Smoothes the 3D view using 1-pixel bilinear blur.
+  This consumes more CPU, and the effect is merely visible,
+  so blurring is disabled by default.
 -altinput
-  Uses alternate input method. This changes the way of
-  using mouse, keyboard and video driver. May be helpful
-  if original method isn't working right (ie. mouse stops).
+  Uses alternate mouse input method. This changes the way of
+  computing mouse position; with this option, position is not
+  reset to screen center every time movement is detected.
+  May be helpful if original method isn't working right
+  (ie. mouse stops).
 -packetsave <filename>
   Writes a packet file (replay file) when playing.
   After using this option, you must start a new level
