@@ -28,6 +28,8 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_traps.h"
+#include "thing_shots.h"
+#include "thing_creature.h"
 #include "config_creature.h"
 #include "creature_states.h"
 #include "engine_camera.h"
@@ -39,7 +41,7 @@ extern "C" {
 
 /******************************************************************************/
 Thing_Class_Func class_functions[] = {
-  NULL,
+  NULL,//TCls_Empty
   update_object,
   update_shot,
   update_effect_element,
@@ -48,11 +50,11 @@ Thing_Class_Func class_functions[] = {
   update_effect,
   process_effect_generator,
   update_trap,
-  process_door,
+  process_door,//TCls_Door
   NULL,
   NULL,
   NULL,
-  NULL,
+  NULL,//TCls_CaveIn
   NULL,
   NULL,
   NULL,
@@ -1065,7 +1067,10 @@ TbBool update_thing(struct Thing *thing)
       set_flag_byte(&thing->field_1, 0x08, false);
     }
   }
-  classfunc = class_functions[thing->class_id%THING_CLASSES_COUNT];
+  if (thing->class_id < sizeof(class_functions)/sizeof(class_functions[0]))
+      classfunc = class_functions[thing->class_id];
+  else
+      classfunc = NULL;
   if (classfunc == NULL)
       return false;
   if (classfunc(thing) < 0)
@@ -1416,6 +1421,23 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
 struct Thing *get_nearest_object_at_position(MapSubtlCoord x, MapSubtlCoord y)
 {
   return _DK_get_nearest_object_at_position(x, y);
+}
+
+TbBool thing_slappable(const struct Thing *thing, long plyr_idx)
+{
+  switch (thing->class_id)
+  {
+  case TCls_Object:
+      return object_is_slappable(thing, plyr_idx);
+  case TCls_Shot:
+      return shot_is_slappable(thing, plyr_idx);
+  case TCls_Creature:
+      return creature_is_slappable(thing, plyr_idx);
+  case TCls_Trap:
+      return trap_is_slappable(thing, plyr_idx);
+  default:
+      return false;
+  }
 }
 /******************************************************************************/
 #ifdef __cplusplus
