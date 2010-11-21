@@ -997,7 +997,6 @@ TbBool create_random_hero_creature(long x, long y, PlayerNumber owner, long max_
 TbBool create_hero_special_worker(long x, long y, PlayerNumber owner);
 
 void destroy_food(struct Thing *thing);
-TbBool thing_slappable(const struct Thing *thing, long plyr_idx);
 unsigned char active_battle_exists(unsigned char a1);
 void maintain_my_battle_list(void);
 unsigned char step_battles_forward(unsigned char a1);
@@ -1046,7 +1045,6 @@ void pannel_map_draw(long x, long y, long zoom);
 void draw_overlay_things(long zoom);
 void draw_overlay_compass(long a1, long a2);
 void draw_mini_things_in_hand(long x, long y);
-void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6);
 TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos);
 struct Thing *find_base_thing_on_mapwho(unsigned char oclass, unsigned short okind, unsigned short x, unsigned short y);
 TbBool mouse_is_over_small_map(long x, long y);
@@ -1058,6 +1056,15 @@ TbBool any_player_close_enough_to_see(struct Coord3d *pos);
 unsigned char line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2);
 long can_thing_be_picked_up_by_player(const struct Thing *thing, long plyr_idx);
 long can_thing_be_picked_up2_by_player(const struct Thing *thing, long plyr_idx);
+void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
+void affect_nearby_stuff_with_vortex(struct Thing *thing);
+void affect_nearby_friends_with_alarm(struct Thing *thing);
+long apply_wallhug_force_to_boulder(struct Thing *thing);
+void lightning_modify_palette(struct Thing *thing);
+void god_lightning_choose_next_creature(struct Thing *thing);
+void draw_god_lightning(struct Thing *thing);
+unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
+void update_god_lightning_ball(struct Thing *thing);
 
 unsigned long seed_check_random(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
 void setup_heap_manager(void);
@@ -1133,7 +1140,6 @@ long process_creature_self_spell_casting(struct Thing *thing);
 struct Thing *create_thing(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
 struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2);
 long remove_food_from_food_room_if_possible(struct Thing *thing);
-struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner);
 unsigned long setup_move_off_lava(struct Thing *thing);
 struct Room *player_has_room_of_type(long plr_idx, long roomkind);
 void set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char a6, unsigned char a7);
@@ -1152,7 +1158,6 @@ short do_right_map_click(long start_x, long start_y, long curr_x, long curr_y, l
 TbPixel get_player_path_colour(unsigned short owner);
 long get_scavenge_effect_element(unsigned short owner);
 
-long update_shot(struct Thing *thing);
 long update_dead_creature(struct Thing *thing);
 long process_door(struct Thing *thing);
 

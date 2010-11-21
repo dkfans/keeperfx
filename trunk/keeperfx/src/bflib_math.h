@@ -57,6 +57,7 @@ enum MathOperator {
 long LbSinL(long x);
 long LbCosL(long x);
 long LbSqrL(long x);
+long LbArcTan(long x,long n);
 long LbMathOperation(unsigned char opkind, long val1, long val2);
 unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
 TbBool LbNumberSignsSame(long num_a, long num_b);

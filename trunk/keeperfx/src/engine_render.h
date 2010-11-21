@@ -454,6 +454,7 @@ void fill_in_points_isometric(long a1, long a2, struct MinMax *mm);
 void frame_wibble_generate(void);
 void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8);
 
+void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6);
 void draw_engine_number(struct Number *num);
 void draw_engine_room_flagpole(struct RoomFlag *rflg);
 void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);

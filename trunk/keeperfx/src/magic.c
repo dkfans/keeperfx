@@ -33,6 +33,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_stats.h"
+#include "thing_shots.h"
 #include "creature_control.h"
 #include "creature_states.h"
 #include "config_creature.h"

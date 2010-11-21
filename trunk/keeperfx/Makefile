@@ -125,6 +125,7 @@ obj/map_events.o \
 obj/map_utils.o \
 obj/thing_doors.o \
 obj/thing_traps.o \
+obj/thing_shots.o \
 obj/config_campaigns.o \
 obj/front_credits.o \
 obj/front_torture.o \

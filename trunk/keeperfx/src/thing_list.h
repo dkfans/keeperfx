@@ -143,6 +143,8 @@ struct Thing *smallest_gold_pile_at_xy(long stl_x, long stl_y);
 TbBool update_thing(struct Thing *thing);
 TbBigChecksum get_thing_checksum(struct Thing *thing);
 short update_thing_sound(struct Thing *thing);
+
+TbBool thing_slappable(const struct Thing *thing, long plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

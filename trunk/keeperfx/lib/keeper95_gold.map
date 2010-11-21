@@ -703,6 +703,8 @@
  0003:000133C4       ix_delaunay
  0003:00060E00       delaunay_stack
  0003:002742B8       lbSpriteReMapPtr
+ 0003:00009180       effect_element_stats
+ 0003:00000098       proportions
 
  0006:00000008       gpoly_pro_enable_mode_ofs
  0006:00000010       gtblock_clip_width
@@ -1826,3 +1828,6 @@
  0001:000665C0       region_alloc
  0001:0006CC50       gate_route_to_coords
  0001:00069320       fill_concave
+ 0001:00064A80       change_effect_element_into_another
+ 0001:000CB390       move_effect_element
+ 
