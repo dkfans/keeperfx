@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT unsigned long _DK_regions_connected(long tree_reg1, long tree_reg1);
+DLLIMPORT unsigned long _DK_regions_connected(long tree_reg1, long tree_reg2);
 DLLIMPORT void _DK_region_alloc(unsigned long tree_reg);
 /******************************************************************************/
 DLLIMPORT struct RegionT _DK_Regions[REGIONS_COUNT];
