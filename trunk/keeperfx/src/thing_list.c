@@ -74,11 +74,17 @@ DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_including_objects
 DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing);
 DLLIMPORT long _DK_thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing);
 DLLIMPORT void _DK_add_thing_to_list(struct Thing *thing, struct StructureList *list);
+DLLIMPORT void _DK_remove_thing_from_list(struct Thing *thing, struct StructureList *slist);
 DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long x, long y);
 /******************************************************************************/
 void add_thing_to_list(struct Thing *thing, struct StructureList *list)
 {
   _DK_add_thing_to_list(thing, list);
+}
+
+void remove_thing_from_list(struct Thing *thing, struct StructureList *slist)
+{
+    _DK_remove_thing_from_list(thing, slist);
 }
 
 long creature_near_filter_not_imp(const struct Thing *thing, FilterParam val)

@@ -86,6 +86,7 @@ extern Thing_Class_Func class_functions[];
 extern unsigned long thing_create_errors;
 /******************************************************************************/
 void add_thing_to_list(struct Thing *thing, struct StructureList *list);
+void remove_thing_from_list(struct Thing *thing, struct StructureList *slist);
 
 long creature_near_filter_not_imp(const struct Thing *thing, FilterParam val);
 long creature_near_filter_is_enemy_of_and_not_imp(const struct Thing *thing, FilterParam val);

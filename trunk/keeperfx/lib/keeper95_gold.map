@@ -1063,9 +1063,11 @@
  0001:0005B590       allocate_free_thing_structure
  0001:0005B6F0       allocate_free_action_point_structure_with_number
  0001:0005B970       add_thing_to_list
+ 0001:0005B9D0       remove_thing_from_list
  0001:000658D0       event_initialise_all
  0001:00078330       battle_initialise
  0001:000A82E0       init_messages
+ 0001:000A2840       creature_remove_lair_from_room
  0001:00057D20       update_creatures_not_in_list
  0001:0005ABC0       update_cave_in
  0001:000B2FC0       get_thing_checksum
