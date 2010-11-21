@@ -34,6 +34,7 @@
 #include "front_input.h"
 #include "frontend.h"
 #include "gui_draw.h"
+#include "engine_render.h"
 #include "sounds.h"
 
 #include "keeperfx.hpp"

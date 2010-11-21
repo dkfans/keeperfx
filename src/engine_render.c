@@ -71,6 +71,7 @@ DLLIMPORT void _DK_fiddle_gamut(long a1, long a2);
 DLLIMPORT void _DK_create_map_volume_box(long a1, long a2, long a3);
 DLLIMPORT void _DK_frame_wibble_generate(void);
 DLLIMPORT void _DK_setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8);
+DLLIMPORT void _DK_process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6);
 /******************************************************************************/
 unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
@@ -1775,24 +1776,24 @@ void create_line_segment(struct EngineCoord *start, struct EngineCoord *end, TbP
 
 void add_unkn11_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
 {
-  struct JontySpr *poly;
-  if (bckt_idx >= BUCKETS_COUNT)
-    bckt_idx = BUCKETS_COUNT-1;
-  else
-  if (bckt_idx < 0)
-    bckt_idx = 0;
-  poly = (struct JontySpr *)getpoly;
-  getpoly += sizeof(struct JontySpr);
-  poly->b.next = buckets[bckt_idx];
-  poly->b.kind = 11;
-  buckets[bckt_idx] = (struct BasicQ *)poly;
-  poly->thing = thing;
-  if (pixel_size > 0)
-  {
-    poly->scr_x = scr_x / pixel_size;
-    poly->scr_y = scr_y / pixel_size;
-  }
-  poly->field_14 = a4;
+    struct JontySpr *poly;
+    if (bckt_idx >= BUCKETS_COUNT)
+        bckt_idx = BUCKETS_COUNT-1;
+    else
+    if (bckt_idx < 0)
+        bckt_idx = 0;
+    poly = (struct JontySpr *)getpoly;
+    getpoly += sizeof(struct JontySpr);
+    poly->b.next = buckets[bckt_idx];
+    poly->b.kind = 11;
+    buckets[bckt_idx] = (struct BasicQ *)poly;
+    poly->thing = thing;
+    if (pixel_size > 0)
+    {
+        poly->scr_x = scr_x / pixel_size;
+        poly->scr_y = scr_y / pixel_size;
+    }
+    poly->field_14 = a4;
 }
 
 void add_unkn18_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
@@ -2159,6 +2160,12 @@ unsigned short get_thing_shade(struct Thing *thing)
     if (shval > 8192)
         shval = 8192;
     return shval;
+}
+
+void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6)
+{
+    //SYNCDBG(7,"At (%d,%d) opts %d %d %d %d",(int)x,(int)y,(int)a3,(int)a4,(int)a5,(int)a6);
+    _DK_process_keeper_sprite(x, y, a3, a4, a5, a6);
 }
 
 void process_keeper_speedup_sprite(struct JontySpr *jspr, long angle, long transp)

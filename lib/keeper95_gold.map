@@ -523,6 +523,7 @@
  0001:00064520       create_door
  0001:000646D0       create_dead_creature
  0001:00064880       create_effect_generator
+ 0001:00064A80       change_effect_element_into_another
  0001:00064C80       reinit_tagged_blocks_for_player
  0001:00064DE0       check_and_auto_fix_stats
  0001:00065630       setup_eye_lens
@@ -1112,6 +1113,7 @@
  0001:000CAB80       move_creature
  0001:000CAF40       move_shot
  0001:000CB220       move_object
+ 0001:000CB390       move_effect_element
  0001:000CB760       move_effect
  0001:000CB8F0       creature_move_to_using_gates
  0001:000CBC00       move_to_position
@@ -1171,6 +1173,7 @@
  0001:000FD5D0       copy_to_screen
  0002:00000D50       imp_spangle_effects
  0003:00000060       frame_number
+ 0003:00000098       proportions
  0003:00001838       net_guid
  0003:00001888       net_config_info
  0003:00002190       BuildAllRooms3x3
@@ -1205,6 +1208,7 @@
  0003:00008438       creature_data
  0003:000084D8       shot_stats
  0003:000090B0       status_panel
+ 0003:00009180       effect_element_stats
  0003:0000AFE0       creatures
  0003:0000B1E0       objects
  0003:0000BD80       states
