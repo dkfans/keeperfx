@@ -474,6 +474,7 @@
  0001:0005B740       delete_thing_structure
  0001:0005B8C0       delete_room_structure
  0001:0005B970       add_thing_to_list
+ 0001:0005B9D0       remove_thing_from_list
  0001:0005BA90       imp_birth
  0001:0005BB20       imp_toking
  0001:0005BBF0       imp_arrives_at_dig_or_mine
@@ -873,6 +874,7 @@
  0001:000A2100       person_sulk_head_for_lair
  0001:000A21D0       person_sulk_at_lair
  0001:000A2320       person_sulking
+ 0001:000A2840       creature_remove_lair_from_room
  0001:000A3220       creature_at_changed_lair
  0001:000A32F0       frontmap_load
  0001:000A4670       frontnetmap_update

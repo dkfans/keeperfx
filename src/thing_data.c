@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_sound.h"
 #include "bflib_memory.h"
 
 #include "keeperfx.hpp"
@@ -31,6 +32,7 @@ extern "C" {
 DLLIMPORT void _DK_delete_thing_structure(struct Thing *thing, long a2);
 DLLIMPORT struct Thing *_DK_allocate_free_thing_structure(unsigned char a1);
 DLLIMPORT unsigned char _DK_i_can_allocate_free_thing_structure(unsigned char a1);
+DLLIMPORT unsigned char _DK_creature_remove_lair_from_room(struct Thing *thing, struct Room *room);
 
 /******************************************************************************/
 struct Thing *allocate_free_thing_structure(unsigned char free_flags)
@@ -78,9 +80,86 @@ unsigned char i_can_allocate_free_thing_structure(unsigned char a1)
   return _DK_i_can_allocate_free_thing_structure(a1);
 }
 
+unsigned char creature_remove_lair_from_room(struct Thing *thing, struct Room *room)
+{
+    return _DK_creature_remove_lair_from_room(thing, room);
+}
+
 void delete_thing_structure(struct Thing *thing, long a2)
 {
-  _DK_delete_thing_structure(thing, a2);
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    long emitter_id;
+    struct StructureList *slist;
+    //_DK_delete_thing_structure(thing, a2); return;
+    cctrl = creature_control_get_from_thing(thing);
+    if ((thing->field_0 & 0x08) != 0)
+      remove_first_creature(thing);
+    if (!a2)
+    {
+      if (thing->field_62)
+        light_delete_light(thing->field_62);
+    }
+    if (!creature_control_invalid(cctrl))
+    {
+      if ( !a2 )
+      {
+        room = room_get(cctrl->field_68);
+        if (!room_is_invalid(room))
+            creature_remove_lair_from_room(thing, room);
+        if ((cctrl->field_7A & 0xFFF) != 0)
+            remove_creature_from_group(thing);
+      }
+      delete_control_structure(cctrl);
+    }
+    emitter_id = thing->field_66;
+    if (emitter_id != 0)
+      S3DDestroySoundEmitterAndSamples(emitter_id);
+    switch (thing->class_id)
+    {
+    case 1:
+        slist = &game.thing_lists[2];
+        break;
+    case 2:
+        slist = &game.thing_lists[1];
+        break;
+    case 3:
+        slist = &game.thing_lists[3];
+        break;
+    case 4:
+        slist = &game.thing_lists[4];
+        break;
+    case 5:
+        slist = &game.thing_lists[0];
+        break;
+    case 6:
+        slist = &game.thing_lists[5];
+        break;
+    case 7:
+        slist = &game.thing_lists[6];
+        break;
+    case 8:
+        slist = &game.thing_lists[7];
+        break;
+    case 9:
+        slist = &game.thing_lists[8];
+        break;
+    case 12:
+        slist = &game.thing_lists[9];
+        break;
+    case 13:
+        slist = &game.thing_lists[10];
+        break;
+    default:
+        slist = NULL;
+        break;
+    }
+    if (slist != NULL)
+        remove_thing_from_list(thing, slist);
+    remove_thing_from_mapwho(thing);
+    game.free_things[THINGS_COUNT-1]--;
+    game.free_things[game.free_things[THINGS_COUNT-1]] = thing->index;
+    LbMemorySet(thing, 0, sizeof(struct Thing));
 }
 
 /**
