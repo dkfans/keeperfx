@@ -1255,6 +1255,8 @@
  0003:00011C64       scrolling_offset
  0003:00011CB0       scrolling_stats_data
  0003:00012630       MaxSoundDistance
+ 0003:000126B4       ScrWidth
+ 0003:000126B8       ScrHeight
  0003:00012824       anim_counter
  0003:00013370       nav_rulesA2B
  0003:00013384       tri_initialised
@@ -1576,6 +1578,7 @@
  0003:00053B18       MaxNoSounds
  0003:00053B1C       LineOfSightFunction
  0003:00053B20       deadzone_radius
+ 0003:00053B48       ScanBuffer
  0003:00053B80       optimised_lights
  0003:00053B84       do_lights
  0003:00053B88       total_lights

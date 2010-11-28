@@ -28,6 +28,11 @@
 extern "C" {
 #endif
 
+/** Enums for thing->field_0 bit fields. */
+enum ThingFlags0 {
+    TF_IsInMapWho = 0x02,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 

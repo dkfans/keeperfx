@@ -45,6 +45,8 @@ struct LensConfig {
     short mist_ghost;
     char mist_file[DISKPATH_SIZE];
     short displace_kind;
+    short displace_magnitude;
+    short displace_period;
 };
 
 struct LensesConfig {

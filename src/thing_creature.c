@@ -98,6 +98,7 @@ DLLIMPORT void _DK_thing_death_gas_and_flesh_explosion(struct Thing *thing);
 DLLIMPORT void _DK_thing_death_smoke_explosion(struct Thing *thing);
 DLLIMPORT void _DK_thing_death_ice_explosion(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_create_dead_creature(struct Coord3d *pos, unsigned short model, unsigned short a1, unsigned short owner, long explevel);
+DLLIMPORT long _DK_creature_is_group_leader(struct Thing *thing);
 DLLIMPORT long _DK_update_creature_levels(struct Thing *thing);
 DLLIMPORT long _DK_update_creature(struct Thing *thing);
 /******************************************************************************/
@@ -1986,7 +1987,6 @@ void draw_creature_view(struct Thing *thing)
 {
   TbGraphicsWindow grwnd;
   struct PlayerInfo *player;
-  long grscr_w,grscr_h;
   unsigned char *wscr_cp;
   unsigned char *scrmem;
   //_DK_draw_creature_view(thing); return;
@@ -2003,8 +2003,6 @@ void draw_creature_view(struct Thing *thing)
   scrmem = eye_lens_spare_screen_memory;
   // Store previous graphics settings
   wscr_cp = lbDisplay.WScreen;
-  grscr_w = lbDisplay.GraphicsScreenWidth;
-  grscr_h = lbDisplay.GraphicsScreenHeight;
   LbScreenStoreGraphicsWindow(&grwnd);
   // Prepare new settings
   LbMemorySet(scrmem, 0, eye_lens_width*eye_lens_height*sizeof(TbPixel));
@@ -2017,12 +2015,10 @@ void draw_creature_view(struct Thing *thing)
   engine(&player->cameras[1]);
   // Restore original graphics settings
   lbDisplay.WScreen = wscr_cp;
-  lbDisplay.GraphicsScreenWidth = grscr_w;
-  lbDisplay.GraphicsScreenHeight = grscr_h;
   LbScreenLoadGraphicsWindow(&grwnd);
   // Draw the buffer on real screen
   setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-  draw_lens_effect(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, scrmem, MyScreenWidth/pixel_size,
+  draw_lens_effect(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, scrmem, eye_lens_width,
       MyScreenWidth/pixel_size, MyScreenHeight/pixel_size, game.numfield_1B);
 }
 
@@ -2041,9 +2037,28 @@ struct Thing *get_creature_near_for_controlling(unsigned char a1, long a2, long 
   return _DK_get_creature_near_for_controlling(a1, a2, a3);
 }
 
+struct Thing *get_group_leader(struct Thing *thing)
+{
+  struct CreatureControl *cctrl;
+  struct Thing *leader;
+  cctrl = creature_control_get_from_thing(thing);
+  leader = thing_get(cctrl->field_7A & 0xFFF);
+  return leader;
+}
+
+TbBool creature_is_group_leader(struct Thing *thing)
+{
+    struct Thing *leader;
+    //return _DK_creature_is_group_leader(thing);
+    leader = get_group_leader(thing);
+    if (thing_is_invalid(leader))
+        return false;
+    return (leader == thing);
+}
+
 long remove_creature_from_group(struct Thing *thing)
 {
-  return _DK_remove_creature_from_group(thing);
+    return _DK_remove_creature_from_group(thing);
 }
 
 long add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2)
@@ -2053,12 +2068,78 @@ long add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2)
 
 void set_first_creature(struct Thing *thing)
 {
-  _DK_set_first_creature(thing);
+    _DK_set_first_creature(thing);
 }
 
 void remove_first_creature(struct Thing *thing)
 {
-  _DK_remove_first_creature(thing);
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    struct CreatureControl *secctrl;
+    struct Thing *sectng;
+    //_DK_remove_first_creature(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    if ((thing->field_0 & 0x08) == 0)
+    {
+        ERRORLOG("Thing %d is not in Peter list",(int)thing->index);
+        return;
+    }
+    if (game.neutral_player_num == thing->owner)
+    {
+      sectng = thing_get(cctrl->field_1D);
+      if (!thing_is_invalid(sectng)) {
+          secctrl = creature_control_get_from_thing(sectng);
+          secctrl->thing_idx = cctrl->thing_idx;
+      } else {
+          game.field_14EA46 = cctrl->thing_idx;
+      }
+      sectng = thing_get(cctrl->thing_idx);
+      if (!thing_is_invalid(sectng)) {
+          secctrl = creature_control_get_from_thing(sectng);
+          secctrl->field_1D = cctrl->field_1D;
+      }
+    } else
+    if ((thing->model != get_players_special_digger_breed(thing->owner))
+        || (game.hero_player_num == thing->owner))
+    {
+        dungeon = get_dungeon(thing->owner);
+        sectng = thing_get(cctrl->field_1D);
+        if (!thing_is_invalid(sectng)) {
+            secctrl = creature_control_get_from_thing(sectng);
+            secctrl->thing_idx = cctrl->thing_idx;
+        } else {
+            dungeon->creatr_list_start = cctrl->thing_idx;
+        }
+        sectng = thing_get(cctrl->thing_idx);
+        if (!thing_is_invalid(sectng)) {
+            secctrl = creature_control_get_from_thing(sectng);
+            secctrl->field_1D = cctrl->field_1D;
+        }
+        if ((cctrl->field_2 & 0x02) == 0)
+        {
+          dungeon->field_919--;
+          dungeon->field_91A[thing->model]--;
+        }
+    } else
+    {
+        dungeon = get_dungeon(thing->owner);
+        sectng = thing_get(cctrl->field_1D);
+        if (!thing_is_invalid(sectng)) {
+            secctrl = creature_control_get_from_thing(sectng);
+            secctrl->thing_idx = cctrl->thing_idx;
+        } else {
+            dungeon->worker_list_start = cctrl->thing_idx;
+        }
+        sectng = thing_get(cctrl->thing_idx);
+        if (!thing_is_invalid(sectng)) {
+            secctrl = creature_control_get_from_thing(sectng);
+            secctrl->field_1D = cctrl->field_1D;
+        }
+        dungeon->field_918--;
+    }
+    cctrl->field_1D = 0;
+    cctrl->thing_idx = 0;
+    thing->field_0 &= ~0x08u;
 }
 
 TbBool thing_is_creature(const struct Thing *thing)
