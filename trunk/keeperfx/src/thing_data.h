@@ -33,6 +33,11 @@ extern "C" {
 #pragma pack(1)
 #endif
 
+/** Enums for thing->field_0 bit fields. */
+enum ThingFlags0 {
+    TF_IsInMapWho = 0x02,
+};
+
 struct InitThing { // sizeof=0x15
     struct Coord3d mappos;
     unsigned char oclass;

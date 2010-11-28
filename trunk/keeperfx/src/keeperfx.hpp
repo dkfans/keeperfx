@@ -838,8 +838,6 @@ DLLIMPORT struct Thing *_DK_thing_pointed_at;
 #define thing_pointed_at _DK_thing_pointed_at
 DLLIMPORT struct Map *_DK_me_pointed_at;
 #define me_pointed_at _DK_me_pointed_at
-DLLIMPORT struct CScan *_DK_ScanBuffer;
-#define ScanBuffer _DK_ScanBuffer
 DLLIMPORT long _DK_my_mouse_x;
 #define my_mouse_x _DK_my_mouse_x
 DLLIMPORT long _DK_my_mouse_y;
@@ -1005,7 +1003,6 @@ long process_obey_leader(struct Thing *thing);
 void tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
 void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
 void draw_spell_cursor(unsigned char a1, unsigned short a2, unsigned char stl_x, unsigned char stl_y);
-struct Thing *get_group_leader(struct Thing *thing);
 short make_group_member_leader(struct Thing *leadtng);
 short zoom_to_next_annoyed_creature(void);
 short zoom_to_fight(unsigned char a1);
@@ -1132,7 +1129,6 @@ void apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char
 long get_foot_creature_has_down(struct Thing *thing);
 void process_disease(struct Thing *thing);
 void process_keeper_spell_effect(struct Thing *thing);
-long creature_is_group_leader(struct Thing *thing);
 void leader_find_positions_for_followers(struct Thing *thing);
 void explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
       long range, long max_damage, unsigned char hit_type);

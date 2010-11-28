@@ -46,7 +46,7 @@ void initialise_eye_lenses(void);
 void setup_eye_lens(long nlens);
 void reinitialise_eye_lens(long nlens);
 void reset_eye_lenses(void);
-void draw_lens_effect(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf, long srcwidth, long width, long height, long effect);
+void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height, long effect);
 /******************************************************************************/
 #ifdef __cplusplus
 }
