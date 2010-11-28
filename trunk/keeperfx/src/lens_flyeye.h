@@ -29,12 +29,13 @@ extern "C" {
 #pragma pack(1)
 #endif
 
+#define CSCAN_STRIPS 26
+
 struct CScan { // sizeof = 108
   long strips_num;
-  short strip_len[25];
-  char field_36;
-  char strip_x[26];
-  char strip_y[27];
+  unsigned short strip_len[CSCAN_STRIPS];
+  char strip_w[CSCAN_STRIPS];
+  char strip_h[CSCAN_STRIPS];
 };
 
 DLLIMPORT struct CScan *_DK_ScanBuffer;
