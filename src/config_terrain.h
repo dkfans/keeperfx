@@ -32,9 +32,7 @@ extern "C" {
 #define TERRAIN_ITEMS_MAX 256
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct SlabAttr {
     unsigned short tooltip_idx;
@@ -52,9 +50,7 @@ struct SlabAttr {
     unsigned char field_15;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 
 struct SlabsConfig {

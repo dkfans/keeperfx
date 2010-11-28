@@ -29,19 +29,13 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
-
-
-#ifdef __cplusplus
-#pragma pack()
-#endif
 
 /******************************************************************************/
 DLLIMPORT long _DK_randomisors[512];
 #define randomisors _DK_randomisors
 
+#pragma pack()
 /******************************************************************************/
 unsigned long convert_td_iso(unsigned long n);
 

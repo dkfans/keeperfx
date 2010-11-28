@@ -28,17 +28,11 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
 
-
-
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 /******************************************************************************/
 struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner);

@@ -24,25 +24,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define CSCAN_STRIPS 26
+
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct CScan { // sizeof = 108
   long strips_num;
-  short strip_len[25];
-  char field_36;
-  char strip_x[26];
-  char strip_y[27];
+  unsigned short strip_len[CSCAN_STRIPS];
+  char strip_w[CSCAN_STRIPS];
+  char strip_h[CSCAN_STRIPS];
 };
 
 DLLIMPORT struct CScan *_DK_ScanBuffer;
 #define ScanBuffer _DK_ScanBuffer
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 void flyeye_blitsec(unsigned char *srcbuf, long srcpitch, unsigned char *dstbuf, long dstpitch, long start_h, long end_h);
 void flyeye_setup(long width, long height);

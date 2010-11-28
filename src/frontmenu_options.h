@@ -27,21 +27,12 @@ extern "C" {
 /******************************************************************************/
 #define GAMMA_LEVELS_COUNT      5
 
-#ifdef __cplusplus
+/******************************************************************************/
 #pragma pack(1)
-#endif
 
 struct GuiMenu;
 struct GuiButton;
 
-#ifdef __cplusplus
-#pragma pack()
-#endif
-/******************************************************************************/
-extern struct GuiMenu frontend_define_keys_menu;
-extern struct GuiMenu frontend_option_menu;
-extern struct GuiMenu video_menu;
-extern struct GuiMenu sound_menu;
 /******************************************************************************/
 DLLIMPORT long _DK_fe_mouse_sensitivity;
 #define fe_mouse_sensitivity _DK_fe_mouse_sensitivity
@@ -54,6 +45,13 @@ DLLIMPORT char _DK_video_shadows;
 #define video_shadows _DK_video_shadows
 DLLIMPORT char _DK_video_view_distance_level;
 #define video_view_distance_level _DK_video_view_distance_level
+
+#pragma pack()
+/******************************************************************************/
+extern struct GuiMenu frontend_define_keys_menu;
+extern struct GuiMenu frontend_option_menu;
+extern struct GuiMenu video_menu;
+extern struct GuiMenu sound_menu;
 /******************************************************************************/
 void frontend_define_key_up(struct GuiButton *gbtn);
 void frontend_define_key_down(struct GuiButton *gbtn);

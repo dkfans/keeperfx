@@ -28,9 +28,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
 struct TbColorTables;
@@ -41,9 +39,7 @@ DLLIMPORT extern unsigned char _DK_fade_palette_in;
 DLLIMPORT extern unsigned char _DK_frontend_palette[768];
 #define frontend_palette _DK_frontend_palette
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 void fade_in(void);
 void fade_out(void);

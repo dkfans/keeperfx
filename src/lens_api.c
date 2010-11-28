@@ -43,7 +43,7 @@ DLLIMPORT void _DK_initialise_eye_lenses(void);
 DLLIMPORT void _DK_setup_eye_lens(long nlens);
 /******************************************************************************/
 void init_lens(unsigned long *lens_mem, int width, int height, int pitch, int nlens, int mag, int period);
-void draw_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int scanln);
+void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int scanln);
 /******************************************************************************/
 
 void init_lens(unsigned long *lens_mem, int width, int height, int pitch, int nlens, int mag, int period)
@@ -102,7 +102,7 @@ void init_lens(unsigned long *lens_mem, int width, int height, int pitch, int nl
         }
         break;
     case 2:
-        flmag = mag * 256.0;
+        flmag = mag * (double)mag;
         flwidth = width;
         flheight = height;
         center_h = flheight * 0.5;
@@ -284,7 +284,7 @@ void reinitialise_eye_lens(long nlens)
   SYNCDBG(18,"Finished");
 }
 
-void draw_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int dstpitch)
+void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int dstpitch)
 {
     //_DK_draw_lens(dstbuf, srcbuf, lens_mem, width, height, dstpitch); return;
     int w,h;
@@ -342,8 +342,8 @@ void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbu
         {
         case 1:
         case 2:
-            draw_lens(dstbuf, srcbuf, eye_lens_memory,
-                  MyScreenWidth/pixel_size, height, dstpitch);
+            draw_displacement_lens(dstbuf, srcbuf, eye_lens_memory,
+                width, height, dstpitch);
             copied = true;
             break;
         case 3:

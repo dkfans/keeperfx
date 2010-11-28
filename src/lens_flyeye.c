@@ -49,6 +49,7 @@ void BlitScan(struct CScan *scan, long h)
 {
   unsigned char *dst;
   unsigned char *src;
+  long shift_w,shift_h;
   long w,end_w;
   long i;
   for(i=0; i < scan->strips_num; i++)
@@ -58,9 +59,15 @@ void BlitScan(struct CScan *scan, long h)
           end_w = ScrWidth;
       else
           end_w = scan->strip_len[i+1];
+      shift_w = (long)scan->strip_w[i] + w;
+      shift_h = (long)scan->strip_h[i] + h;
       dst = &lens_Screen[h * lens_ScreenPitch + w];
-      src = &lens_Source[(scan->strip_y[i] + h) * lens_SourcePitch + (scan->strip_x[i] + w)];
-      //JUSTLOG("DST(%d,%d) SRC(%d,%d) LEN %d",(dst-lens_Screen)%lens_ScreenPitch,(dst-lens_Screen)/lens_ScreenPitch,(src-lens_Source)%lens_SourcePitch,(src-lens_Source)/lens_SourcePitch,end_w - w);
+      src = &lens_Source[shift_h * lens_SourcePitch + shift_w];
+      //some debug code
+      //if ((shift_w > lens_ScreenPitch) || (shift_h > 400) || (end_w - w < 0) || (shift_w + end_w - w > lens_ScreenPitch)) {
+      //    ERRORLOG("POS(%d,%d) DST(%d,%d) SRC(%d,%d) LEN %d",w,h,(dst-lens_Screen)%lens_ScreenPitch,(dst-lens_Screen)/lens_ScreenPitch,(src-lens_Source)%lens_SourcePitch,(src-lens_Source)/lens_SourcePitch,end_w - w);
+      //    break;
+      //}
       memcpy(dst, src, end_w - w);
   }
 }

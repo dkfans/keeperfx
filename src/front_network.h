@@ -27,14 +27,8 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
-
-#ifdef __cplusplus
-#pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT int _DK_fe_network_active;
 #define fe_network_active _DK_fe_network_active
@@ -52,6 +46,8 @@ DLLIMPORT char _DK_tmp_net_modem_hangup[20];
 #define tmp_net_modem_hangup _DK_tmp_net_modem_hangup
 DLLIMPORT char _DK_tmp_net_modem_answer[20];
 #define tmp_net_modem_answer _DK_tmp_net_modem_answer
+
+#pragma pack()
 /******************************************************************************/
 long modem_initialise_callback(void);
 long modem_connect_callback(void);

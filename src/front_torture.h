@@ -28,9 +28,7 @@ extern "C" {
 
 #define TORTURE_DOORS_COUNT 9
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct DoorSoundState { // sizeof = 8
   long field_0;
@@ -53,9 +51,7 @@ struct DoorDesc { // sizeof = 44
 
 typedef long TortureState;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 void fronttorture_unload(void);
 void fronttorture_load(void);

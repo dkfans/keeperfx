@@ -25,16 +25,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct GuiMenu;
 struct GuiButton;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 extern struct GuiMenu frontend_net_service_menu;
 extern struct GuiMenu frontend_net_session_menu;

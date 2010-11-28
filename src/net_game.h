@@ -32,15 +32,10 @@ extern "C" {
 #define PACKETS_COUNT           5
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct TbNetworkSessionNameEntry;
 
-#ifdef __cplusplus
-#pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT struct TbNetworkPlayerInfo _DK_net_player_info[NET_PLAYERS_COUNT];
 #define net_player_info _DK_net_player_info
@@ -64,6 +59,8 @@ DLLIMPORT struct SerialInitData _DK_net_modem_data;
 #define net_modem_data _DK_net_modem_data
 DLLIMPORT struct TbModemDev _DK_modem_dev;
 #define modem_dev _DK_modem_dev
+
+#pragma pack()
 /******************************************************************************/
 short setup_network_service(int srvidx);
 int setup_old_network_service(void);

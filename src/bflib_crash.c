@@ -134,7 +134,21 @@ static LONG CALLBACK ctrl_handler_w32(LPEXCEPTION_POINTERS info)
 {
     switch (info->ExceptionRecord->ExceptionCode) {
     case EXCEPTION_ACCESS_VIOLATION:
-        LbErrorLog("Attempt to %s invalid memory address.\n",info->ExceptionRecord->ExceptionInformation?"write":"read");
+        switch (info->ExceptionRecord->ExceptionInformation[0])
+        {
+        case 0:
+            LbErrorLog("Attempt to read from inaccessible memory address.\n");
+            break;
+        case 1:
+            LbErrorLog("Attempt to write to inaccessible memory address.\n");
+            break;
+        case 8:
+            LbErrorLog("User-mode data execution prevention (DEP) violation.\n");
+            break;
+        default:
+            LbErrorLog("Memory access voilation, code %d.\n",(int)info->ExceptionRecord->ExceptionInformation[0]);
+            break;
+        }
         break;
     case EXCEPTION_INT_DIVIDE_BY_ZERO:
         LbErrorLog("Attempt of integer division by zero.\n");

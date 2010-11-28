@@ -27,9 +27,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct EffectElementStats { // sizeof = 79
   unsigned char field_0;
@@ -85,9 +83,7 @@ struct Proportion { // sizeof = 2052
   unsigned long field_0[513];
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 struct Thing *create_effect(const struct Coord3d *pos, unsigned short a2, unsigned char a3);
 struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
