@@ -81,7 +81,8 @@ struct CreatureControl {
     unsigned char field_4;
     long field_5;
     short field_9;
-char field_B[20];
+char field_B[18];
+    unsigned short field_1D;
     unsigned short thing_idx;
 unsigned short field_21;
     unsigned char explevel;

@@ -142,6 +142,8 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
     lenscfg->mist_lightness = 0;
     lenscfg->mist_ghost = 0;
     lenscfg->displace_kind = 0;
+    lenscfg->displace_magnitude = 0;
+    lenscfg->displace_period = 1;
     LbMemorySet(lenscfg->palette, 0, PALETTE_SIZE*sizeof(TbPixel));
     lenscfg->flags = 0;
     if (i < lenses_conf.lenses_count)
@@ -228,7 +230,25 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
                 n++;
             }
           }
-          if (n < 1)
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if ((k >= 0) && (k < 512))
+            {
+                lenscfg->displace_magnitude = k;
+                n++;
+            }
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if ((k > 0) && (k < 512))
+            {
+                lenscfg->displace_period = k;
+                n++;
+            }
+          }
+          if (n < 3)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);

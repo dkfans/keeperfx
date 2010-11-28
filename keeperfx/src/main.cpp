@@ -305,7 +305,6 @@ DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *thing,
 DLLIMPORT long _DK_get_foot_creature_has_down(struct Thing *thing);
 DLLIMPORT void _DK_process_disease(struct Thing *thing);
 DLLIMPORT void _DK_process_keeper_spell_effect(struct Thing *thing);
-DLLIMPORT long _DK_creature_is_group_leader(struct Thing *thing);
 DLLIMPORT void _DK_leader_find_positions_for_followers(struct Thing *thing);
 DLLIMPORT unsigned long _DK_lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
 DLLIMPORT void _DK_affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
@@ -834,17 +833,6 @@ long process_obey_leader(struct Thing *thing)
   return _DK_process_obey_leader(thing);
 }
 
-struct Thing *get_group_leader(struct Thing *thing)
-{
-  struct CreatureControl *cctrl;
-  long i;
-  cctrl = creature_control_get_from_thing(thing);
-  i = cctrl->field_7A;// & 0xFFF;
-  if ((i > 0) && (i < THINGS_COUNT))
-    return game.things_lookup[i];
-  return NULL;
-}
-
 TbBool player_is_friendly_or_defeated(int plyr_idx, int win_plyr_idx)
 {
   struct PlayerInfo *player;
@@ -1278,11 +1266,6 @@ unsigned char general_expand_check(void)
   struct PlayerInfo *player;
   player = get_my_player();
   return (player->field_4D2 != 0);
-}
-
-long creature_is_group_leader(struct Thing *thing)
-{
-  return _DK_creature_is_group_leader(thing);
 }
 
 void leader_find_positions_for_followers(struct Thing *thing)
@@ -4843,9 +4826,9 @@ void remove_thing_from_mapwho(struct Thing *thing)
 {
   struct Map *map;
   struct Thing *mwtng;
-  SYNCDBG(8,"Starting");
+  SYNCDBG(18,"Starting");
   //_DK_remove_thing_from_mapwho(thing);
-  if ((thing->field_0 & 0x02) == 0)
+  if ((thing->field_0 & TF_IsInMapWho) == 0)
     return;
   if (thing->field_4 > 0)
   {
@@ -4863,7 +4846,7 @@ void remove_thing_from_mapwho(struct Thing *thing)
   }
   thing->field_2 = 0;
   thing->field_4 = 0;
-  thing->field_0 &= 0xFD;
+  thing->field_0 &= ~TF_IsInMapWho;
 }
 
 void place_thing_in_mapwho(struct Thing *thing)
