@@ -2333,7 +2333,7 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
-    crstat = creature_stats_get(cctng->model);
+    crstat = creature_stats_get_from_thing(cctng);
     i = pckt->pos_y;
     if (i < 5)
       i = 5;

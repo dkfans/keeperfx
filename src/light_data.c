@@ -46,6 +46,69 @@ DLLIMPORT void _DK_light_stat_light_map_clear_area(long x1, long y1, long x2, lo
 DLLIMPORT void _DK_light_signal_update_in_area(long sx, long sy, long ex, long ey);
 
 /******************************************************************************/
+struct Light *light_allocate_light(void)
+{
+    struct Light *lgt;
+    long i;
+    for (i=1; i < LIGHTS_COUNT; i++)
+    {
+        lgt = &game.lights[i];
+        if ((lgt->field_0 & 0x01) == 0)
+        {
+            lgt->field_0 |= 0x01;
+            lgt->index = i;
+            return lgt;
+        }
+    }
+    return NULL;
+}
+
+void light_free_light(struct Light *lgt)
+{
+    memset(lgt, 0, sizeof(struct Light));
+}
+
+TbBool light_is_invalid(struct Light *lgt)
+{
+    if (lgt == NULL)
+        return true;
+    if ((lgt < &game.lights[1]) || (lgt > &game.lights[LIGHTS_COUNT-1]))
+        return true;
+    return false;
+}
+
+struct ShadowCache *light_allocate_shadow_cache(void)
+{
+    struct ShadowCache *shdc;
+    long i;
+    for (i=1; i < SHADOWS_COUNT; i++)
+    {
+        shdc = &game.shadow_cache[i];
+        if ((shdc->field_0 & 0x01) == 0)
+        {
+            shdc->field_0 |= 0x01;
+            return shdc;
+        }
+    }
+    return NULL;
+}
+
+TbBool light_shadow_cache_invalid(struct ShadowCache *shdc)
+{
+    if (shdc == NULL)
+        return true;
+    if ((shdc < &game.shadow_cache[1]) || (shdc > &game.shadow_cache[SHADOWS_COUNT-1]))
+        return true;
+    return false;
+}
+
+long light_shadow_cache_index(struct ShadowCache *shdc)
+{
+    if (light_shadow_cache_invalid(shdc))
+        return 0;
+    return (shdc - &game.shadow_cache[0]) / sizeof(struct ShadowCache);
+}
+
 TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list)
 {
   if ((lgt->field_1 & 0x01) != 0)
@@ -56,13 +119,79 @@ TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list)
   list->count++;
   lgt->field_1 |= 0x01;
   lgt->field_26 = list->index;
-  list->index = lgt->field_E;
+  list->index = lgt->index;
   return true;
 }
 
 long light_create_light(struct InitLight *ilght)
 {
-  return _DK_light_create_light(ilght);
+    struct Light *lgt;
+    struct ShadowCache *shdc;
+    //return _DK_light_create_light(ilght);
+    lgt = light_allocate_light();
+    if (light_is_invalid(lgt))
+        return 0;
+    if (ilght->field_11 != 0)
+    {
+        shdc = light_allocate_shadow_cache();
+        if (light_shadow_cache_invalid(shdc))
+        {
+            ERRORLOG("Cannot allocate cache for dynamic light");
+            light_free_light(lgt);
+            return 0;
+        }
+        light_total_dynamic_lights++;
+        lgt->field_10 = light_shadow_cache_index(shdc);
+        light_add_light_to_list(lgt, &game.thing_lists[12]);
+    } else
+    {
+        light_total_stat_lights++;
+        light_add_light_to_list(lgt, &game.thing_lists[11]);
+        stat_light_needs_updating = 1;
+    }
+    lgt->field_0 |= 0x02;
+    lgt->field_0 |= 0x08;
+    lgt->mappos.x.val = ilght->mappos.x.val;
+    lgt->mappos.y.val = ilght->mappos.y.val;
+    lgt->mappos.z.val = ilght->mappos.z.val;
+    lgt->field_16 = ilght->field_0;
+    lgt->field_2 = ilght->field_2;
+    lgt->field_1 = 2 * ilght->field_3 ^ (2 * ilght->field_3 ^ lgt->field_1) & 0x01;
+    lgt->field_0 ^= (lgt->field_0 ^ 0x04 * ilght->field_11) & 0x04;
+    lgt->field_1A = ilght->field_8;
+    lgt->field_18 = ilght->field_4;
+    lgt->field_12 = ilght->field_12;
+    return lgt->index;
+}
+
+long light_get_total_dynamic_lights(void)
+{
+    return light_total_dynamic_lights;
+}
+
+long light_get_total_stat_lights(void)
+{
+    return light_total_stat_lights;
+}
+
+long light_get_rendered_dynamic_lights(void)
+{
+    return light_rendered_dynamic_lights;
+}
+
+long light_get_rendered_optimised_dynamic_lights(void)
+{
+    return light_rendered_optimised_dynamic_lights;
+}
+
+long light_get_updated_stat_lights(void)
+{
+    return light_updated_stat_lights;
+}
+
+long light_get_out_of_date_stat_lights(void)
+{
+    return light_out_of_date_stat_lights;
 }
 
 void light_set_light_never_cache(long idx)
@@ -120,16 +249,16 @@ void light_turn_light_off(long idx)
     return;
   }
   // Area bounds
-  y2 = lgt->field_2B + lgt->field_5;
+  y2 = lgt->mappos.y.stl.num + lgt->field_5;
   if (y2 >= map_subtiles_y)
     y2 = map_subtiles_y;
-  x2 = lgt->field_29 + lgt->field_5;
+  x2 = lgt->mappos.x.stl.num + lgt->field_5;
   if (x2 >= map_subtiles_x)
     x2 = map_subtiles_x;
-  y1 = lgt->field_2B - lgt->field_5;
+  y1 = lgt->mappos.y.stl.num - lgt->field_5;
   if (y1 <= 0)
     y1 = 0;
-  x1 = lgt->field_29 - lgt->field_5;
+  x1 = lgt->mappos.x.stl.num - lgt->field_5;
   if (x1 <= 0)
     x1 = 0;
   if ((x2 <= x1) || (y2 <= y1))
@@ -217,8 +346,8 @@ void light_initialise(void)
   for (i=0; i < LIGHTS_COUNT; i++)
   {
     lgt = &game.lights[i];
-    if (lgt->field_0 & 0x01)
-      light_delete_light(lgt->field_E);
+    if ((lgt->field_0 & 0x01) != 0)
+      light_delete_light(lgt->index);
   }
   if (!game.field_4614E)
   {

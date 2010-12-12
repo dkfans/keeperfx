@@ -194,9 +194,9 @@ TbBool output_message(long msg_idx, long delay, TbBool queue)
     long i;
     SYNCDBG(5,"Message %ld, delay %ld, queue %s",msg_idx, delay, queue?"on":"off");
     smsg = &messages[msg_idx];
-    if (game.play_gameturn < smsg->end_time)
+    if ((long)game.play_gameturn < smsg->end_time)
     {
-        SYNCDBG(8,"Delay didn't passed, skipping");
+        SYNCDBG(8,"Delay to turn %ld didn't passed, skipping",(long)smsg->end_time);
         return false;
     }
     if (!speech_sample_playing())

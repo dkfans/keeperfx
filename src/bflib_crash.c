@@ -126,7 +126,7 @@ _backtrace(int depth , LPCONTEXT context)
             else
                 module_name = module_name_raw;
         }
-        LbJustLog("  in %s at %04x:%08x\n", module_name, context->SegCs, frame.AddrPC.Offset);
+        LbJustLog("  in %s at %04x:%08x, base %08x\n", module_name, context->SegCs, frame.AddrPC.Offset, module_base);
     }
 }
 

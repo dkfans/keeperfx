@@ -311,6 +311,15 @@ TbBool parse_magic_spell_blocks(char *buf,long len)
     }
   }
   arr_size = magic_conf.spell_types_count;
+  for (i=0; i < arr_size; i++)
+  {
+      splconf = &game.spells_config[i];
+      splconf->duration = 0;
+      magicinf = get_magic_info(i);
+      magicinf->area_hit_type = 0;
+      magicinf->area_range = 0;
+      magicinf->area_damage = 0;
+  }
   // Load the file
   for (i=0; i < arr_size; i++)
   {

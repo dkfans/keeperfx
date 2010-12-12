@@ -1641,7 +1641,7 @@ long calculate_shot_damage(struct Thing *thing,long shot_kind)
   return compute_creature_attack_damage(shotstat->damage, crstat->luck, cctrl->explevel);
 }
 
-void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short shot_kind, char a2, unsigned char a3)
+void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short shot_kind, char a2, unsigned char hit_type)
 {
   struct CreatureControl *cctrl;
   struct CreatureStats *crstat;
@@ -1655,7 +1655,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
   long damage;
   long target_idx,i;
   TbBool flag1;
-  //_DK_creature_fire_shot(firing,target, a1, a2, a3); return;
+  //_DK_creature_fire_shot(firing,target,shot_kind,a2,a3); return;
   cctrl = creature_control_get_from_thing(firing);
   crstat = creature_stats_get_from_thing(firing);
   shotstat = &shot_stats[shot_kind];
@@ -1706,8 +1706,8 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
   }
   switch ( shot_kind )
   {
-    case 4:
-    case 12:
+  case 4:
+  case 12:
       if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 5120))
       {
           project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 20);
@@ -1723,7 +1723,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
       shot->word_14 = shotstat->damage;
       shot->field_1D = firing->index;
       break;
-    case 7:
+  case 7:
       if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 768))
         project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 4);
       shot = create_thing(&pos2, TCls_Shot, shot_kind, firing->owner, -1);
@@ -1734,27 +1734,27 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
       shot->word_14 = shotstat->damage;
       shot->field_1D = firing->index;
       break;
-    case 13:
+  case 13:
       for (i=0; i < 32; i++)
       {
-        tmptng = create_thing(&pos1, TCls_Shot, shot_kind, firing->owner, -1);
-        if (thing_is_invalid(tmptng))
-          break;
-        shot = tmptng;
-        shot->byte_16 = a3;
-        shot->field_52 = (angle_xy + ACTION_RANDOM(101) - 50) & 0x7FF;
-        shot->field_54 = (angle_yz + ACTION_RANDOM(101) - 50) & 0x7FF;
-        angles_to_vector(shot->field_52, shot->field_54, shotstat->speed, &cvect);
-        shot->pos_32.x.val += cvect.x;
-        shot->pos_32.y.val += cvect.y;
-        shot->pos_32.z.val += cvect.z;
-        shot->field_1 |= 0x04;
-        shot->word_14 = damage;
-        shot->health = shotstat->health;
-        shot->field_1D = firing->index;
+          tmptng = create_thing(&pos1, TCls_Shot, shot_kind, firing->owner, -1);
+          if (thing_is_invalid(tmptng))
+            break;
+          shot = tmptng;
+          shot->byte_16 = hit_type;
+          shot->field_52 = (angle_xy + ACTION_RANDOM(101) - 50) & 0x7FF;
+          shot->field_54 = (angle_yz + ACTION_RANDOM(101) - 50) & 0x7FF;
+          angles_to_vector(shot->field_52, shot->field_54, shotstat->speed, &cvect);
+          shot->pos_32.x.val += cvect.x;
+          shot->pos_32.y.val += cvect.y;
+          shot->pos_32.z.val += cvect.z;
+          shot->field_1 |= 0x04;
+          shot->word_14 = damage;
+          shot->health = shotstat->health;
+          shot->field_1D = firing->index;
       }
       break;
-    default:
+  default:
       shot = create_thing(&pos1, TCls_Shot, shot_kind, firing->owner, -1);
       if (thing_is_invalid(shot))
         return;
@@ -1784,7 +1784,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
       WARNLOG("Shot of type %d carries %d damage",(int)shot_kind,(int)damage);
     }
 #endif
-    shot->byte_16 = a3;
+    shot->byte_16 = hit_type;
     if (shotstat->firing_sound > 0)
     {
       thing_play_sample(firing, shotstat->firing_sound + UNSYNC_RANDOM(shotstat->firing_sound_variants),
@@ -2785,12 +2785,12 @@ struct Thing *create_footprint_sine(struct Coord3d *crtr_pos, unsigned short pha
       i = (phase - 512);
       pos.x.val +=   (LbSinL(i) << 6) >> 16;
       pos.y.val += -((LbCosL(i) << 6) >> 8) >> 8;
-      return create_thing(&pos, 3, model, owner, -1);
+      return create_thing(&pos, TCls_EffectElem, model, owner, -1);
   case 2:
       i = (phase - 512);
       pos.x.val -=   (LbSinL(i) << 6) >> 16;
       pos.y.val -= -((LbCosL(i) << 6) >> 8) >> 8;
-      return create_thing(&pos, 3, model, owner, -1);
+      return create_thing(&pos, TCls_EffectElem, model, owner, -1);
   }
   return NULL;
 }
@@ -2814,7 +2814,7 @@ void place_bloody_footprint(struct Thing *thing)
   case 5:
       if (nfoot)
       {
-        if (create_thing(&thing->mappos, 3, 23, thing->owner, -1) != NULL)
+        if (create_thing(&thing->mappos, TCls_EffectElem, 23, thing->owner, -1) != NULL)
           cctrl->bloody_footsteps_turns--;
       }
       break;

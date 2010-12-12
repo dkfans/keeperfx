@@ -23,6 +23,8 @@
 #include "globals.h"
 #include "room_workshop.h"
 
+#define HIT_TYPES_COUNT 9
+
 #ifdef __cplusplus
 extern "C" {
 #endif

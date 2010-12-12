@@ -1443,7 +1443,13 @@
  0003:00028350       lbUseSdk
  0003:0002888C       network_initialized
  0003:0002EF60       animation
- 0003:0002F34C       stat_light_needs_updating
+ 0003:0002F330       light_out_of_date_stat_lights
+ 0003:0002F334       light_rendered_dynamic_lights
+ 0003:0002F338       light_updated_stat_lights
+ 0003:0002F33C       light_rendered_optimised_dynamic_lights
+ 0003:0002F340       stat_light_needs_updating
+ 0003:0002F344       light_total_dynamic_lights
+ 0003:0002F348       light_total_stat_lights
  0003:0002F350       light_bitmask
  0003:0002F3D0       frontend_alliances
  0003:0002F3D8       net_player

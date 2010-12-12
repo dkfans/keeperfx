@@ -470,7 +470,8 @@ void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color)
 
 void draw_map_who(struct RotoSpr *spr)
 {
-    _DK_draw_map_who(spr);
+    //_DK_draw_map_who(spr);
+    // empty
 }
 
 void draw_unkn09(struct BasicUnk09 *unk09)

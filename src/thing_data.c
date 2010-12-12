@@ -191,18 +191,20 @@ short thing_is_invalid(const struct Thing *thing)
 
 TbBool thing_exists_idx(long tng_idx)
 {
-  struct Thing *thing;
-  thing = thing_get(tng_idx);
-  if (thing_is_invalid(thing))
-    return false;
-  return ((thing->field_0 & 0x01) != 0);
+  return thing_exists(thing_get(tng_idx));
 }
 
 TbBool thing_exists(const struct Thing *thing)
 {
   if (thing_is_invalid(thing))
-    return false;
-  return ((thing->field_0 & 0x01) != 0);
+      return false;
+  if ((thing->field_0 & 0x01) == 0)
+      return false;
+#if (BFDEBUG_LEVEL > 0)
+  if (thing->index != (thing-thing_get(0)))
+    WARNLOG("Incorrectly indexed thing (%d) at pos %d",(int)thing->index,(int)(thing-thing_get(0)));
+#endif
+  return true;
 }
 
 TbBool thing_touching_floor(const struct Thing *thing)
