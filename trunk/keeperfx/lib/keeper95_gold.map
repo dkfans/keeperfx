@@ -548,7 +548,13 @@
  0003:000027C0       ComputerSightOfEvilScare
  0003:00002808       ComputerAttack1
  0003:00002850       ComputerSafeAttack
- 0003:0002F34C       stat_light_needs_updating
+ 0003:0002F330       light_out_of_date_stat_lights
+ 0003:0002F334       light_rendered_dynamic_lights
+ 0003:0002F338       light_updated_stat_lights
+ 0003:0002F33C       light_rendered_optimised_dynamic_lights
+ 0003:0002F340       stat_light_needs_updating
+ 0003:0002F344       light_total_dynamic_lights
+ 0003:0002F348       light_total_stat_lights
  0003:0002F350       light_bitmask
  0003:00273CB0       from_pal
  0003:00273FB0       fade_count

@@ -1428,45 +1428,45 @@ void draw_lightning(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4
  */
 TbBool explosion_can_affect_thing(struct Thing *thing, long hit_type, long explode_owner)
 {
-  if (thing_is_invalid(thing))
-  {
-    WARNLOG("Invalid thing tries to interact with explosion");
-    return false;
-  }
-  switch (hit_type)
-  {
-  case 1:
-      if ((thing->class_id != TCls_Creature) && (thing->class_id != TCls_Object))
+    if (thing_is_invalid(thing))
+    {
+        WARNLOG("Invalid thing tries to interact with explosion");
         return false;
-      return true;
-  case 2:
-      if (thing->class_id != TCls_Creature)
-        return false;
-      return true;
-  case 3:
-      if ((thing->class_id != TCls_Creature) && (thing->class_id != TCls_Object))
-        return false;
-      if (thing->owner == explode_owner)
-        return false;
-      return true;
-  case 4:
-      if (thing->class_id != TCls_Creature)
-        return false;
-      if (thing->owner == explode_owner)
-        return false;
-      return true;
-  case 7:
-      if (thing->class_id == TCls_Object)
+    }
+    switch (hit_type)
+    {
+    case 1:
+        if ((thing->class_id != TCls_Creature) && (thing->class_id != TCls_Object))
+          return false;
         return true;
-      if (thing_is_dungeon_heart(thing))
+    case 2:
+        if (thing->class_id != TCls_Creature)
+            return false;
         return true;
-      return false;
-  case 8:
-      return true;
-  default:
-      WARNLOG("Illegal hit thing type for explosion");
-      return true;
-  }
+    case 3:
+        if ((thing->class_id != TCls_Creature) && (thing->class_id != TCls_Object))
+            return false;
+        if (thing->owner == explode_owner)
+            return false;
+        return true;
+    case 4:
+        if (thing->class_id != TCls_Creature)
+            return false;
+        if (thing->owner == explode_owner)
+            return false;
+        return true;
+    case 7:
+        if (thing->class_id != TCls_Object)
+            return false;
+        if (!thing_is_dungeon_heart(thing))
+            return false;
+        return true;
+    case 8:
+        return true;
+    default:
+        WARNLOG("Illegal hit thing type %d for explosion",(int)hit_type);
+        return true;
+    }
 }
 
 void explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos, long max_dist, long max_damage, long owner)
@@ -1482,19 +1482,19 @@ void explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const
       move_dist = ((max_dist - distance) << 8) / max_dist;
       if (tngdst->class_id == TCls_Creature)
       {
-        // damage = (max_dist - distance) * 300 * max_damage / 256 / max_dist + 1;
-        damage = get_radially_decaying_value(max_damage,max_dist/4,max_dist,distance)+1;
-        apply_damage_to_thing_and_display_health(tngdst, damage, owner);
+          // damage = (max_dist - distance) * 300 * max_damage / 256 / max_dist + 1;
+          damage = get_radially_decaying_value(max_damage,max_dist/4,max_dist,distance)+1;
+          apply_damage_to_thing_and_display_health(tngdst, damage, owner);
       }
       // If the thing isn't dying, move it
       if ((tngdst->class_id != TCls_Creature) || (tngdst->health >= 0))
       {
-        tngdst->pos_32.x.val +=   move_dist * LbSinL(move_angle) >> 16;
-        tngdst->pos_32.y.val += -(move_dist * LbCosL(move_angle) >> 8) >> 8;
-        tngdst->field_1 |= 0x04;
+          tngdst->pos_32.x.val +=   move_dist * LbSinL(move_angle) >> 16;
+          tngdst->pos_32.y.val += -(move_dist * LbCosL(move_angle) >> 8) >> 8;
+          tngdst->field_1 |= 0x04;
       } else
       {
-        kill_creature(tngdst, tngsrc, -1, 0, 1, 0);
+          kill_creature(tngdst, tngsrc, -1, 0, 1, 0);
       }
     }
   }
@@ -1521,16 +1521,16 @@ void explosion_affecting_mapblk(struct Thing *tngsrc, const struct Map *mapblk, 
       break;
     }
     i = thing->field_2;
-    // Should never happen - only invalid thing may have index of 0
-    if (thing->index == 0)
+    // Should never happen - only existing thing shall be in list
+    if (!thing_exists(thing))
     {
-      WARNLOG("Found zero indexed thing at pos %d",thing-thing_get(0));
+      WARNLOG("Jump to nonexisting thing");
       break;
     }
     // Per thing processing block
     if (explosion_can_affect_thing(thing, hit_type, owner))
     {
-      explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, owner);
+        explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, owner);
     }
     // Per thing processing block ends
     k++;
@@ -1551,6 +1551,11 @@ void explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
   long stl_x,stl_y;
   long max_dist;
   //_DK_explosion_affecting_area(tngsrc, pos, range, max_damage, hit_type); return;
+  if ((hit_type < 1) || (hit_type >= HIT_TYPES_COUNT))
+  {
+      ERRORLOG("Thing class %d model %d tries to affect area range %d with invalid hit type %d",(int)tngsrc->class_id,(int)tngsrc->model,(int)range,(int)hit_type);
+      hit_type = 1;
+  }
   max_dist = (range << 8);
   if (pos->x.stl.num > range)
     start_x = pos->x.stl.num - range;
@@ -1574,8 +1579,8 @@ void explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
   {
     for (stl_x = start_x; stl_x <= end_x; stl_x++)
     {
-      mapblk = get_map_block_at(stl_x, stl_y);
-      explosion_affecting_mapblk(tngsrc, mapblk, pos, max_dist, max_damage, hit_type);
+        mapblk = get_map_block_at(stl_x, stl_y);
+        explosion_affecting_mapblk(tngsrc, mapblk, pos, max_dist, max_damage, hit_type);
     }
   }
 }

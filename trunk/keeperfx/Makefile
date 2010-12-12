@@ -177,6 +177,8 @@ CXXINCS =  -I"directx/include" -I"sdl/include"
 DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" 
 # code optimization flags
 OPTFLAGS = -march=pentium -O3
+# linker flags
+LINKFLAGS = -Wl,-Map,"$(@:%.exe=%.map)"
 # debugging flags
 DBGFLAGS = -DBFDEBUG_LEVEL=0 
 # compiler warning generation flags
@@ -204,7 +206,7 @@ clean: clean-custom
 
 $(BIN) $(DBGBIN): $(GENSRC) $(OBJS) $(LIBS)
 	@echo 'Building target: $@'
-	$(CPP) $(LINKOBJ) -o "$@" $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS)
+	$(CPP) $(LINKOBJ) -o "$@" $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

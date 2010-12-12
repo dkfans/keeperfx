@@ -72,6 +72,7 @@ extern "C" {
 #define SLABSET_COUNT        1304
 #define SLABOBJS_COUNT        512
 #define BOOKMARKS_COUNT         5
+#define SHADOWS_COUNT          40
 // Amount of instances; it's 17, 18 or 19
 #define PLAYER_INSTANCES_COUNT 19
 #define PLAYER_STATES_COUNT    32
@@ -264,7 +265,8 @@ struct UnkStruc7 { // sizeof = 17
 };
 
 struct ShadowCache { // sizeof = 129
-  unsigned char field_0[128];
+  unsigned char field_0;
+  unsigned char field_1[127];
   unsigned char field_80;
 };
 
@@ -462,7 +464,7 @@ unsigned char land_map_start;
     struct UnkStruc6 field_1DD41[1024];
     unsigned char shadow_limits[SHADOW_LIMITS_COUNT];
     struct Light lights[LIGHTS_COUNT];
-    struct ShadowCache shadow_cache[40];
+    struct ShadowCache shadow_cache[SHADOWS_COUNT];
     unsigned short stat_light_map[256*256];
 long field_46149;
 char field_4614D;
@@ -1133,7 +1135,7 @@ void leader_find_positions_for_followers(struct Thing *thing);
 void explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
       long range, long max_damage, unsigned char hit_type);
 long process_creature_self_spell_casting(struct Thing *thing);
-struct Thing *create_thing(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
+struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short model, unsigned short owner, long a4);
 struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2);
 long remove_food_from_food_room_if_possible(struct Thing *thing);
 unsigned long setup_move_off_lava(struct Thing *thing);

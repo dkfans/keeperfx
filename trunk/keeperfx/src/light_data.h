@@ -38,36 +38,52 @@ struct StructureList;
 struct Light { // sizeof = 46
   unsigned char field_0;
   unsigned char field_1;
-  unsigned char field_2[3];
+  unsigned char field_2;
+  unsigned char field_3[2];
   unsigned char field_5;
   unsigned char field_6;
   unsigned short field_7;
   unsigned char field_9[5];
-  unsigned short field_E;
-  unsigned char field_10[22];
+  unsigned short index;
+  unsigned short field_10;
+  long field_12;
+  unsigned short field_16;
+  short field_18;
+  short field_1A;
+  unsigned char field_1C[10];
   unsigned short field_26;
-  unsigned char field_28;
-  unsigned char field_29;
-  unsigned char field_2A;
-  unsigned char field_2B;
-  unsigned short field_2C;
+  struct Coord3d mappos;
 };
 
 struct InitLight { // sizeof=0x14
 short field_0;
 unsigned char field_2;
 unsigned char field_3;
-unsigned char field_4[6];
+short field_4;
+unsigned char field_6[2];
+short field_8;
     struct Coord3d mappos;
 unsigned char field_10;
-unsigned char field_11;
-unsigned char field_12[2];
+    unsigned char field_11;
+short field_12;
 };
 /******************************************************************************/
 DLLIMPORT long _DK_light_bitmask[32];
 #define light_bitmask _DK_light_bitmask
 DLLIMPORT long _DK_stat_light_needs_updating;
 #define stat_light_needs_updating _DK_stat_light_needs_updating
+DLLIMPORT long _DK_light_total_dynamic_lights;
+#define light_total_dynamic_lights _DK_light_total_dynamic_lights
+DLLIMPORT long _DK_light_total_stat_lights;
+#define light_total_stat_lights _DK_light_total_stat_lights
+DLLIMPORT long _DK_light_rendered_dynamic_lights;
+#define light_rendered_dynamic_lights _DK_light_rendered_dynamic_lights
+DLLIMPORT long _DK_light_rendered_optimised_dynamic_lights;
+#define light_rendered_optimised_dynamic_lights _DK_light_rendered_optimised_dynamic_lights
+DLLIMPORT long _DK_light_updated_stat_lights;
+#define light_updated_stat_lights _DK_light_updated_stat_lights
+DLLIMPORT long _DK_light_out_of_date_stat_lights;
+#define light_out_of_date_stat_lights _DK_light_out_of_date_stat_lights
 /******************************************************************************/
 #ifdef __cplusplus
 #pragma pack()
@@ -90,6 +106,7 @@ void light_set_light_position(long lgt_id, struct Coord3d *pos);
 void light_set_lights_on(char state);
 void light_set_light_minimum_size_to_cache(long a1, long a2, long a3);
 void light_signal_update_in_area(long sx, long sy, long ex, long ey);
+long light_get_total_dynamic_lights(void);
 
 /******************************************************************************/
 #ifdef __cplusplus
