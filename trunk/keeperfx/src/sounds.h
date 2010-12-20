@@ -85,6 +85,7 @@ struct UnkSndSampleStr { // sizeof = 16
 /******************************************************************************/
 TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *snd_fname, char *spc_fname, long a5);
 TbBool init_sound(void);
+void randomize_sound_font(void);
 
 void update_player_sounds(void);
 void process_3d_sounds(void);

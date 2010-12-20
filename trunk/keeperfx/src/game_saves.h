@@ -36,6 +36,17 @@ enum SaveGameChunks {
      SGC_GameAdd      = 0x44444147, //"GADD"
 };
 
+enum PacketFileChunks {
+     PFC_PacketHeader = 0x52444850, //"PHDR"
+     PFC_PacketData   = 0x544B4350, //"PCKT"
+};
+
+enum GameLoadStatus {
+    GLoad_Failed = 0,
+    GLoad_SavedGame,
+    GLoad_PacketStart,
+    GLoad_PacketContinue,
+};
 /******************************************************************************/
 #ifdef __cplusplus
 #pragma pack(1)
@@ -81,11 +92,12 @@ TbBool save_game(long slot_idx);
 TbBool initialise_load_game_slots(void);
 int count_valid_saved_games(void);
 TbBool is_save_game_loadable(long slot_num);
+int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry);
 /******************************************************************************/
 TbBool save_catalogue_slot_disable(unsigned int slot_idx);
 TbBool save_game_save_catalogue(void);
 TbBool load_game_save_catalogue(void);
-TbBool fill_game_catalogue_entry(long slot_num,const char *textname);
+TbBool fill_game_catalogue_slot(long slot_num,const char *textname);
 /******************************************************************************/
 TbBool set_transfered_creature(long plyr_idx, long model, long explevel);
 void clear_transfered_creature(void);

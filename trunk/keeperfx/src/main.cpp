@@ -2893,7 +2893,10 @@ void input_eastegg(void)
 
 void init_messages(void)
 {
-  _DK_init_messages();
+    //_DK_init_messages();
+    clear_messages();
+    // Set end turn
+    init_messages_turns(0);
 }
 
 void zero_messages(void)
@@ -3248,9 +3251,56 @@ void reset_gui_based_on_player_mode(void)
   _DK_reset_gui_based_on_player_mode();
 }
 
+TbBool ambient_sound_prepare(void)
+{
+    struct Thing *thing;
+    struct Coord3d pos;
+    memset(&pos,0,sizeof(struct Coord3d)); // ambient sound position
+    thing = create_ambient_sound(&pos, 1, game.neutral_player_num);
+    if (thing_is_invalid(thing))
+    {
+        game.ambient_sound_thing_idx = 0;
+        ERRORLOG("Could not create ambient sound object");
+        return false;
+    }
+    game.ambient_sound_thing_idx = thing->index;
+    return true;
+}
+
+TbBool ambient_sound_stop(void)
+{
+    struct Thing *thing;
+    thing = thing_get(game.ambient_sound_thing_idx);
+    if (thing_is_invalid(thing))
+    {
+        return false;
+    }
+    if (thing->field_66 != 0)
+    {
+        S3DDestroySoundEmitterAndSamples(thing->field_66);
+        thing->field_66 = 0;
+    }
+    return true;
+}
+
 void sound_reinit_after_load(void)
 {
-  _DK_sound_reinit_after_load();
+    //_DK_sound_reinit_after_load();
+    stop_all_things_playing_samples();
+    if (SpeechEmitter != 0)
+    {
+        S3DDestroySoundEmitterAndSamples(SpeechEmitter);
+        SpeechEmitter = 0;
+    }
+    if (Non3DEmitter != 0)
+    {
+        S3DDestroySoundEmitterAndSamples(Non3DEmitter);
+        Non3DEmitter = 0;
+    }
+    ambient_sound_stop();
+    StartMusic(1, 127);
+    init_messages();
+    randomize_sound_font();
 }
 
 void reinit_tagged_blocks_for_player(unsigned char idx)
@@ -3570,7 +3620,7 @@ TbBool set_default_startup_parameters(void)
   start_params.num_fps = 20;
   start_params.one_player = 1;
   set_flag_byte(&start_params.flags_cd,MFlg_IsDemoMode,false);
-  set_flag_byte(&start_params.flags_cd,0x40,true);
+  set_flag_byte(&start_params.flags_cd,MFlg_unk40,true);
   return true;
 }
 
@@ -7361,13 +7411,10 @@ void init_dungeon_owner(unsigned short owner)
 void init_level(void)
 {
   SYNCDBG(6,"Starting");
-  struct Thing *thing;
-  struct Coord3d pos;
   struct CreatureStorage transfer_mem;
   //_DK_init_level(); return;
 
   LbMemoryCopy(&transfer_mem,&game.transfered_creature,sizeof(struct CreatureStorage));
-  memset(&pos,0,sizeof(struct Coord3d)); // ambient sound position
   game.flags_gui = 0;
   game.action_rand_seed = 1;
   free_swipe_graphic();
@@ -7406,11 +7453,7 @@ void init_level(void)
   LbMemoryCopy(&game.transfered_creature,&transfer_mem,sizeof(struct CreatureStorage));
   event_initialise_all();
   battle_initialise();
-  thing = create_ambient_sound(&pos, 1, game.neutral_player_num);
-  if (thing != NULL)
-    game.field_14E906 = thing->index;
-  else
-    ERRORLOG("Could not create ambient sound object");
+  ambient_sound_prepare();
   zero_messages();
   game.field_150356 = 0;
   game.field_15035A = 0;
@@ -7457,25 +7500,10 @@ void set_chosen_spell_none(void)
 
 void init_player_music(struct PlayerInfo *player)
 {
-  LevelNumber lvnum;
-  lvnum = get_loaded_level_number();
-  game.audiotrack = ((lvnum - 1) % -4) + 3;
-  StopMusic();
-  switch (UNSYNC_RANDOM(3))
-  {
-  case 0:
-      if (LoadAwe32Soundfont("bullfrog"))
-        StartMusic(1, 127);
-      break;
-  case 1:
-      if (LoadAwe32Soundfont("atmos1"))
-        StartMusic(1, 127);
-      break;
-  case 2:
-      if (LoadAwe32Soundfont("atmos2"))
-        StartMusic(1, 127);
-      break;
-  }
+    LevelNumber lvnum;
+    lvnum = get_loaded_level_number();
+    game.audiotrack = ((lvnum - 1) % -4) + 3;
+    randomize_sound_font();
 }
 
 void init_player(struct PlayerInfo *player, short no_explore)
@@ -7627,119 +7655,119 @@ short init_animating_texture_maps(void)
 
 void init_players_local_game(void)
 {
-  struct PlayerInfo *player;
-  SYNCDBG(4,"Starting");
-  player = get_my_player();
-  player->id_number = my_player_number;
-  player->field_0 |= 0x01;
-  if (settings.field_3 < 1u)
-    player->field_4B5 = 2;
-  else
-    player->field_4B5 = 5;
-  init_player(player, 0);
+    struct PlayerInfo *player;
+    SYNCDBG(4,"Starting");
+    player = get_my_player();
+    player->id_number = my_player_number;
+    player->field_0 |= 0x01;
+    if (settings.field_3 < 1u)
+      player->field_4B5 = 2;
+    else
+      player->field_4B5 = 5;
+    init_player(player, 0);
 }
 
 void startup_saved_packet_game(void)
 {
-  //_DK_startup_saved_packet_game(); return;
-  clear_packets();
-  open_packet_file_for_load(game.packet_fname);
-  if (!change_campaign(""))
-  {
-    ERRORLOG("Unable to load campaign associated with packet file");
-  }
-  set_selected_level_number(game.packet_save_head.level_num);
-  lbDisplay.DrawColour = colours[15][15][15];
-  game.pckt_gameturn = 0;
+    //_DK_startup_saved_packet_game(); return;
+    clear_packets();
+    open_packet_file_for_load(game.packet_fname);
+    if (!change_campaign(""))
+    {
+      ERRORLOG("Unable to load campaign associated with packet file");
+    }
+    set_selected_level_number(game.packet_save_head.level_num);
+    lbDisplay.DrawColour = colours[15][15][15];
+    game.pckt_gameturn = 0;
 #if (BFDEBUG_LEVEL > 0)
-  SYNCDBG(0,"Initialising level %d", (int)get_selected_level_number());
-  SYNCMSG("Packet Loading Active (File contains %d turns)", game.field_149F30);
-  if ( game.packet_checksum )
-    SYNCMSG("Packet Checksum Active");
-  SYNCMSG("Fast Forward through %d game turns", game.turns_fastforward);
-  if (game.numfield_149F42 != -1)
-    SYNCMSG("Packet Quit at %d", game.numfield_149F42);
-  if (game.packet_load_enable)
-  {
-    if (game.numfield_149F3E != game.numfield_149F3A)
-      SYNCMSG("Logging things, game turns %d -> %d", game.numfield_149F3A, game.numfield_149F3E);
-  }
+    SYNCDBG(0,"Initialising level %d", (int)get_selected_level_number());
+    SYNCMSG("Packet Loading Active (File contains %d turns)", game.turns_stored);
+    if ( game.packet_checksum )
+      SYNCMSG("Packet Checksum Active");
+    SYNCMSG("Fast Forward through %d game turns", game.turns_fastforward);
+    if (game.numfield_149F42 != -1)
+      SYNCMSG("Packet Quit at %d", game.numfield_149F42);
+    if (game.packet_load_enable)
+    {
+      if (game.numfield_149F3E != game.numfield_149F3A)
+        SYNCMSG("Logging things, game turns %d -> %d", game.numfield_149F3A, game.numfield_149F3E);
+    }
 #endif
-  game.flagfield_14EA4A = 2;
-  if (!(game.packet_save_head.field_C & (1 << game.numfield_149F46))
-    || (game.packet_save_head.field_D & (1 << game.numfield_149F46)))
-    my_player_number = 0;
-  else
-    my_player_number = game.numfield_149F46;
-  init_level();
-  init_players();
-  if (game.field_14E495 == 1)
     game.flagfield_14EA4A = 2;
-  if (game.field_149F30 < game.turns_fastforward)
-    game.turns_fastforward = game.field_149F30;
-  post_init_level();
-  post_init_players();
-  set_selected_level_number(0);
+    if (!(game.packet_save_head.field_C & (1 << game.numfield_149F46))
+      || (game.packet_save_head.field_D & (1 << game.numfield_149F46)))
+      my_player_number = 0;
+    else
+      my_player_number = game.numfield_149F46;
+    init_level();
+    init_players();
+    if (game.field_14E495 == 1)
+      game.flagfield_14EA4A = 2;
+    if (game.turns_stored < game.turns_fastforward)
+      game.turns_fastforward = game.turns_stored;
+    post_init_level();
+    post_init_players();
+    set_selected_level_number(0);
 }
 
 void faststartup_saved_packet_game(void)
 {
-  struct PlayerInfo *player;
-  reenter_video_mode();
-  startup_saved_packet_game();
-  player = get_my_player();
-  player->field_6 &= 0xFDu;
-  set_gui_visible(false);
-  set_flag_byte(&game.numfield_C,0x40,false);
+    struct PlayerInfo *player;
+    reenter_video_mode();
+    startup_saved_packet_game();
+    player = get_my_player();
+    player->field_6 &= 0xFDu;
+    set_gui_visible(false);
+    set_flag_byte(&game.numfield_C,0x40,false);
 }
 
 void startup_network_game(TbBool local)
 {
-  SYNCDBG(0,"Starting up network game.");
-  //_DK_startup_network_game(); return;
-  unsigned int flgmem;
-  struct PlayerInfo *player;
-  setup_count_players();
-  player = get_my_player();
-  flgmem = player->field_2C;
-  init_level();
-  player = get_my_player();
-  player->field_2C = flgmem;
-  //if (game.flagfield_14EA4A == 2) //was wrong because init_level sets this to 2. global variables are evil (though perhaps that's why they were chosen for DK? ;-))
-  if (local)
-  {
-    game.flagfield_14EA4A = 2;
-    init_players_local_game();
-  } else
-  {
-    game.flagfield_14EA4A = 5;
-    init_players_network_game();
-  }
-  if (fe_computer_players)
-    setup_computer_players();
-  post_init_level();
-  post_init_players();
-  post_init_packets();
-  set_selected_level_number(0);
-  //LbNetwork_EnableLag(1);
+    SYNCDBG(0,"Starting up network game.");
+    //_DK_startup_network_game(); return;
+    unsigned int flgmem;
+    struct PlayerInfo *player;
+    setup_count_players();
+    player = get_my_player();
+    flgmem = player->field_2C;
+    init_level();
+    player = get_my_player();
+    player->field_2C = flgmem;
+    //if (game.flagfield_14EA4A == 2) //was wrong because init_level sets this to 2. global variables are evil (though perhaps that's why they were chosen for DK? ;-))
+    if (local)
+    {
+      game.flagfield_14EA4A = 2;
+      init_players_local_game();
+    } else
+    {
+      game.flagfield_14EA4A = 5;
+      init_players_network_game();
+    }
+    if (fe_computer_players)
+      setup_computer_players();
+    post_init_level();
+    post_init_players();
+    post_init_packets();
+    set_selected_level_number(0);
+    //LbNetwork_EnableLag(1);
 }
 
 void faststartup_network_game(void)
 {
-  struct PlayerInfo *player;
-  reenter_video_mode();
-  my_player_number = default_loc_player;
-  game.flagfield_14EA4A = 2;
-  if (!is_campaign_loaded())
-  {
-    if (!change_campaign(""))
-      ERRORLOG("Unable to load campaign");
-  }
-  player = get_my_player();
-  player->field_2C = 1;
-  startup_network_game(true);
-  player = get_my_player();
-  player->field_6 &= ~0x02;
+    struct PlayerInfo *player;
+    reenter_video_mode();
+    my_player_number = default_loc_player;
+    game.flagfield_14EA4A = 2;
+    if (!is_campaign_loaded())
+    {
+      if (!change_campaign(""))
+        ERRORLOG("Unable to load campaign");
+    }
+    player = get_my_player();
+    player->field_2C = 1;
+    startup_network_game(true);
+    player = get_my_player();
+    player->field_6 &= ~0x02;
 }
 
 void wait_at_frontend(void)

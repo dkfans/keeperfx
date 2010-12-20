@@ -31,6 +31,8 @@ extern "C" {
 #pragma pack(1)
 #endif
 
+#define THING_CLASSES_COUNT 14
+
 struct PlayerInfo;
 struct Thing;
 struct CompoundFilterParam;

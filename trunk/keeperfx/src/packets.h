@@ -139,9 +139,9 @@ void set_player_packet_checksum(long plyr_idx,TbBigChecksum sum);
 short checksums_different(void);
 void post_init_packets(void);
 
-void open_new_packet_file_for_save(void);
+TbBool open_new_packet_file_for_save(void);
 void load_packets_for_turn(long nturn);
-void open_packet_file_for_load(char *fname);
+TbBool open_packet_file_for_load(char *fname);
 short save_packets(void);
 void close_packet_file(void);
 /******************************************************************************/

@@ -63,6 +63,14 @@ enum CreatureJobFlags {
     Job_EXPLORE          = 0x4000,
 };
 
+enum CreatureDeathKind {
+    Death_Normal           = 1,
+    Death_FleshExplode     = 2,
+    Death_GasFleshExplode  = 3,
+    Death_SmokeExplode     = 4,
+    Death_IceExplode       = 5,
+};
+
 /******************************************************************************/
 #ifdef __cplusplus
 #pragma pack(1)
@@ -83,10 +91,11 @@ struct CreatureData {
 struct Creatures { // sizeof = 16
   unsigned short numfield_0;
   unsigned short numfield_2;
-  unsigned char field_4[2];
+  unsigned char natural_death_kind;
+  unsigned char field_5;
   unsigned char field_6;
   unsigned char field_7;
-  unsigned char field_8;
+  unsigned char swipe_idx;
   short field_9;
   short field_B;
   short field_D;
@@ -124,6 +133,7 @@ extern const struct NamedCommand creature_graphics_desc[];
 extern struct CreatureConfig crtr_conf;
 /******************************************************************************/
 extern struct CreatureData creature_data[];
+//extern struct Creatures creatures[];
 /******************************************************************************/
 DLLIMPORT struct Creatures _DK_creatures[CREATURE_TYPES_COUNT];
 #define creatures _DK_creatures
