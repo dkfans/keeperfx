@@ -64,12 +64,21 @@ enum TbPacketAction {
 
 enum TbPacketControl {
         PCtr_None           = 0x0000,
+        PCtr_ViewRotateCW   = 0x0001,
+        PCtr_ViewRotateCCW  = 0x0002,
+        PCtr_MoveUp         = 0x0004,
+        PCtr_MoveDown       = 0x0008,
+        PCtr_MoveLeft       = 0x0010,
+        PCtr_MoveRight      = 0x0020,
+        PCtr_ViewZoomIn     = 0x0040,
+        PCtr_ViewZoomOut    = 0x0080,
         PCtr_LBtnClick      = 0x0100,
         PCtr_RBtnClick      = 0x0200,
         PCtr_LBtnHeld       = 0x0400,
         PCtr_RBtnHeld       = 0x0800,
         PCtr_LBtnRelease    = 0x1000,
         PCtr_RBtnRelease    = 0x2000,
+        PCtr_Unknown4000    = 0x4000,
         PCtr_MapCoordsValid = 0x8000,
 };
 

@@ -26,6 +26,7 @@
 #include "config_creature.h"
 #include "thing_list.h"
 #include "thing_objects.h"
+#include "thing_stats.h"
 #include "dungeon_data.h"
 #include "ariadne.h"
 #include "keeperfx.hpp"
@@ -142,12 +143,12 @@ TbBool setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y
     pos.z.val = get_thing_height_at(thing, &pos);
     if (thing_in_wall_at(thing, &pos))
     {
-        SYNCDBG(16,"Creature model %d would be trapped in wall at (%ld,%ld)",(int)thing->model,stl_x,stl_y);
+        SYNCDBG(16,"The %s would be trapped in wall at (%ld,%ld)",thing_model_name(thing),stl_x,stl_y);
         return false;
     }
     if (!creature_can_navigate_to_with_storage(thing, &pos, a4))
     {
-        SYNCDBG(19,"Creature cannot reach subtile (%ld,%ld)",stl_x,stl_y);
+        SYNCDBG(19,"The %s cannot reach subtile (%ld,%ld)",thing_model_name(thing),stl_x,stl_y);
         return false;
     }
     cctrl = creature_control_get_from_thing(thing);
@@ -292,22 +293,22 @@ long creature_turn_to_face_angle(struct Thing *thing, long a2)
   return _DK_creature_turn_to_face_angle(thing, a2);
 }
 
-void creature_set_speed(struct Thing *thing, short speed)
+void creature_set_speed(struct Thing *thing, long speed)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     if (speed < -256)
     {
-        cctrl->field_C8 = -256;
+        cctrl->move_speed = -256;
     } else
     if (speed > 256)
     {
-        cctrl->field_C8 = 256;
+        cctrl->move_speed = 256;
     } else
     {
-        cctrl->field_C8 = speed;
+        cctrl->move_speed = speed;
     }
-    cctrl->flgfield_1 |= 0x40;
+    cctrl->flgfield_1 |= CCFlg_Unknown40;
 }
 
 long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, short a3, long a4, long a5, unsigned char backward)

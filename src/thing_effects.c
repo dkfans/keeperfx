@@ -23,6 +23,7 @@
 #include "bflib_sound.h"
 #include "thing_objects.h"
 #include "thing_list.h"
+#include "thing_stats.h"
 #include "front_simple.h"
 #include "gui_topmsg.h"
 #include "keeperfx.hpp"
@@ -892,7 +893,7 @@ long update_effect(struct Thing *thing)
 {
   struct InitEffect *effnfo;
   struct Thing *subtng;
-  SYNCDBG(18,"Starting for model %d",(int)thing->model);
+  SYNCDBG(18,"Starting for %s",thing_model_name(thing));
   //return _DK_update_effect(thing);
   subtng = NULL;
   effnfo = &effect_info[thing->model];

@@ -151,6 +151,13 @@ void frontend_define_key_down(struct GuiButton *gbtn)
 void frontend_define_key(struct GuiButton *gbtn)
 {
   _DK_frontend_define_key(gbtn);
+/*
+  long key_id;
+  key_id = define_key_scroll_offset - ((long)gbtn->field_33) - 1;
+  defining_a_key = 1;
+  defining_a_key_id = key_id;
+  lbInkey = 0;
+*/
 }
 
 void frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn)

@@ -103,6 +103,20 @@ TbBool creature_control_invalid(const struct CreatureControl *cctrl)
   return (cctrl <= game.persons.cctrl_lookup[0]) || (cctrl == NULL);
 }
 
+TbBool creature_control_exists(const struct CreatureControl *cctrl)
+{
+  if (creature_control_invalid(cctrl))
+      return false;
+  if ((cctrl->flgfield_1 & CCFlg_Exists) == 0)
+      return false;
+  return true;
+}
+
+TbBool creature_control_exists_in_thing(const struct Thing *thing)
+{
+    return creature_control_exists(creature_control_get_from_thing(thing));
+}
+
 long i_can_allocate_free_control_structure(void)
 {
   struct CreatureControl *cctrl;
@@ -112,7 +126,7 @@ long i_can_allocate_free_control_structure(void)
     cctrl = game.persons.cctrl_lookup[i];
     if (!creature_control_invalid(cctrl))
     {
-        if ((cctrl->flgfield_1 & 0x01) == 0)
+        if ((cctrl->flgfield_1 & CCFlg_Exists) == 0)
             return i;
     }
   }
@@ -128,10 +142,10 @@ struct CreatureControl *allocate_free_control_structure(void)
     cctrl = game.persons.cctrl_lookup[i];
     if (!creature_control_invalid(cctrl))
     {
-        if ((cctrl->flgfield_1 & 0x01) == 0)
+        if ((cctrl->flgfield_1 & CCFlg_Exists) == 0)
         {
             LbMemorySet(cctrl, 0, sizeof(struct CreatureControl));
-            cctrl->flgfield_1 |= 0x01;
+            cctrl->flgfield_1 |= CCFlg_Exists;
             cctrl->index = i;
             return cctrl;
         }
@@ -154,7 +168,7 @@ void delete_all_control_structures(void)
       cctrl = creature_control_get(i);
       if (cctrl != NULL)
       {
-        if ((cctrl->flgfield_1 & 0x01) != 0)
+        if ((cctrl->flgfield_1 & CCFlg_Exists) != 0)
           delete_control_structure(cctrl);
       }
     }

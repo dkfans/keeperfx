@@ -890,7 +890,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
   SYNCDBG(6,"Starting for state %d",(int)player->work_state);
   player->field_4A4 = 1;
   packet_left_button_double_clicked[plyr_idx] = 0;
-  if ((pckt->control_flags & 0x4000) != 0)
+  if ((pckt->control_flags & PCtr_Unknown4000) != 0)
     return false;
   ret = true;
 
@@ -1373,10 +1373,10 @@ TbBigChecksum get_packet_save_checksum(void)
 TbBool open_new_packet_file_for_save(void)
 {
     struct PlayerInfo *player;
-    struct FileChunkHeader hdr;
-    long chunks_done;
+    struct CatalogueEntry centry;
     int i;
     // Filling the header
+    SYNCMSG("Starting packet saving, turn %lu",(unsigned long)game.play_gameturn);
     game.packet_save_head.field_0 = 0;
     game.packet_save_head.level_num = get_loaded_level_number();
     game.packet_save_head.field_8 = 0;
@@ -1401,23 +1401,8 @@ TbBool open_new_packet_file_for_save(void)
         game.packet_fopened = 0;
         return false;
     }
-    chunks_done = 0;
-    { // Packet file header
-        hdr.id = PFC_PacketHeader;
-        hdr.ver = 0;
-        hdr.len = sizeof(struct PacketSaveHead);
-        if (LbFileWrite(game.packet_save_fp, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
-        if (LbFileWrite(game.packet_save_fp, &game.packet_save_head, sizeof(struct PacketSaveHead)) == sizeof(struct PacketSaveHead))
-            chunks_done |= 0x0001;
-    }
-    { // Packet file data start indicator
-        hdr.id = PFC_PacketData;
-        hdr.ver = 0;
-        hdr.len = 0;
-        if (LbFileWrite(game.packet_save_fp, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
-            chunks_done |= 0x0002;
-    }
-    if (chunks_done != 0x0003)
+    fill_game_catalogue_entry(&centry,"Packet file");
+    if (!save_packet_chunks(game.packet_save_fp,&centry))
     {
         WARNMSG("Cannot write to packet file, \"%s\".",game.packet_fname);
         LbFileClose(game.packet_save_fp);
@@ -1587,15 +1572,15 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
   if (pckt->field_10 & 0x01)
     inter_val *= 3;
 
-  if (pckt->control_flags & 0x04)
+  if (pckt->control_flags & PCtr_MoveUp)
     view_set_camera_y_inertia(cam, -inter_val/4, -inter_val);
-  if (pckt->control_flags & 0x08)
+  if (pckt->control_flags & PCtr_MoveDown)
     view_set_camera_y_inertia(cam, inter_val/4, inter_val);
-  if (pckt->control_flags & 0x10)
+  if (pckt->control_flags & PCtr_MoveLeft)
     view_set_camera_x_inertia(cam, -inter_val/4, -inter_val);
-  if (pckt->control_flags & 0x20)
+  if (pckt->control_flags & PCtr_MoveRight)
     view_set_camera_x_inertia(cam, inter_val/4, inter_val);
-  if (pckt->control_flags & 0x02)
+  if (pckt->control_flags & PCtr_ViewRotateCCW)
   {
     switch (cam->field_6)
     {
@@ -1607,7 +1592,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         break;
     }
   }
-  if (pckt->control_flags & 0x01)
+  if (pckt->control_flags & PCtr_ViewRotateCW)
   {
     switch (cam->field_6)
     {
@@ -1621,7 +1606,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
   }
   zoom_min = scale_camera_zoom_to_screen(CAMERA_ZOOM_MIN);
   zoom_max = scale_camera_zoom_to_screen(CAMERA_ZOOM_MAX);
-  if (pckt->control_flags & 0x40)
+  if (pckt->control_flags & PCtr_ViewZoomIn)
   {
     switch (cam->field_6)
     {
@@ -1634,7 +1619,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         break;
     }
   }
-  if (pckt->control_flags & 0x80)
+  if (pckt->control_flags & PCtr_ViewZoomOut)
   {
     switch (cam->field_6)
     {
@@ -2154,7 +2139,7 @@ void process_map_packet_clicks(long plyr_idx)
     struct Packet *pckt;
     packet_left_button_double_clicked[plyr_idx] = 0;
     pckt = get_packet(plyr_idx);
-    if ((pckt->control_flags & 0x4000) == 0)
+    if ((pckt->control_flags & PCtr_Unknown4000) == 0)
     {
         update_double_click_detection(plyr_idx);
     }
@@ -2270,52 +2255,52 @@ void process_players_creature_control_packet_control(long idx)
     if ((ccctrl->field_AB != 0) || (cctng->field_7 == 67))
         return;
     speed_limit = get_creature_speed(cctng);
-    if ((pckt->control_flags & 0x04) != 0)
+    if ((pckt->control_flags & PCtr_MoveUp) != 0)
     {
         if (!creature_control_invalid(ccctrl))
         {
-            ccctrl->field_C8 = compute_controlled_speed_increase(ccctrl->field_C8, speed_limit);
-            ccctrl->flgfield_1 |= 0x40u;
+            ccctrl->move_speed = compute_controlled_speed_increase(ccctrl->move_speed, speed_limit);
+            ccctrl->flgfield_1 |= CCFlg_Unknown40;
         } else
         {
             ERRORLOG("No creature to increase speed");
         }
     }
-    if ((pckt->control_flags & 0x08) != 0)
+    if ((pckt->control_flags & PCtr_MoveDown) != 0)
     {
         if (!creature_control_invalid(ccctrl))
         {
-            ccctrl->field_C8 = compute_controlled_speed_decrease(ccctrl->field_C8, speed_limit);
-            ccctrl->flgfield_1 |= 0x40u;
+            ccctrl->move_speed = compute_controlled_speed_decrease(ccctrl->move_speed, speed_limit);
+            ccctrl->flgfield_1 |= CCFlg_Unknown40;
         } else
         {
             ERRORLOG("No creature to decrease speed");
         }
     }
-    if ((pckt->control_flags & 0x10) != 0)
+    if ((pckt->control_flags & PCtr_MoveLeft) != 0)
     {
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->field_CA = compute_controlled_speed_increase(ccctrl->field_CA, speed_limit);
-            ccctrl->flgfield_1 |= 0x80u;
+            ccctrl->flgfield_1 |= CCFlg_Unknown80;
         } else
         {
             ERRORLOG("No creature to increase speed");
         }
     }
-    if ((pckt->control_flags & 0x20) != 0)
+    if ((pckt->control_flags & PCtr_MoveRight) != 0)
     {
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->field_CA = compute_controlled_speed_decrease(ccctrl->field_CA, speed_limit);
-            ccctrl->flgfield_1 |= 0x80u;
+            ccctrl->flgfield_1 |= CCFlg_Unknown80;
         } else
         {
             ERRORLOG("No creature to decrease speed");
         }
     }
 
-    if ((pckt->control_flags & 0x1000) != 0)
+    if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
     {
         if (ccctrl->field_D2 == 0)
         {
@@ -2331,7 +2316,7 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
-    if ((pckt->control_flags & 0x0400) != 0)
+    if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
     {
         i = ccctrl->field_1E8;
         inst_inf = creature_instance_info_get(i);

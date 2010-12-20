@@ -223,7 +223,7 @@ struct CreatureData *creature_data_get_from_thing(const struct Thing *thing)
 const char *creature_code_name(long crmodel)
 {
     const char *name;
-    return get_conf_parameter_text(creature_desc,crmodel);
+    name = get_conf_parameter_text(creature_desc,crmodel);
     if (name[0] != '\0')
         return name;
     return "INVALID";

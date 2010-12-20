@@ -236,8 +236,8 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
   }
   if (!thing_can_be_controlled_as_passenger(thing))
   {
-    ERRORLOG("Thing of class %d and model %d can't be controlled as passenger",
-        (int)thing->class_id,(int)thing->model);
+    ERRORLOG("The %s can't be controlled as passenger",
+        thing_model_name(thing));
     return false;
   }
   if (is_my_player(player))
@@ -271,7 +271,7 @@ void load_swipe_graphic_for_creature(struct Thing *thing)
     struct TbLoadFiles *t_lfile;
     int swpe_idx;
     int i;
-    SYNCDBG(6,"Starting for model %d",(int)thing->model);
+    SYNCDBG(6,"Starting for %s",thing_model_name(thing));
     //_DK_load_swipe_graphic_for_creature(thing);
 
     i = creatures[thing->model%CREATURE_TYPES_COUNT].swipe_idx;
@@ -290,7 +290,7 @@ void load_swipe_graphic_for_creature(struct Thing *thing)
     if ( LbDataLoadAll(swipe_load_file) )
     {
         free_swipe_graphic();
-        ERRORLOG("Unable to load swipe graphics for creature model %d",(int)thing->model);
+        ERRORLOG("Unable to load swipe graphics for %s",thing_model_name(thing));
         return;
     }
     LbSpriteSetupAll(swipe_setup_sprites);
@@ -884,7 +884,7 @@ long process_creature_state(struct Thing *thing)
   }
   if ((cctrl->field_3 & 0x10) == 0)
   {
-    if ((cctrl->field_1D0) && ((cctrl->flgfield_1 & 0x02) == 0))
+    if ((cctrl->field_1D0) && ((cctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
     {
         if ( can_change_from_state_to(thing, thing->field_7, CrSt_CreatureDoorCombat) )
         {
@@ -1377,7 +1377,7 @@ void creature_death_as_nature_intended(struct Thing *thing)
         thing_death_ice_explosion(thing);
         break;
     default:
-        WARNLOG("Unexpected creature model %d death cause %d",(int)thing->model,(int)i);
+        WARNLOG("Unexpected %s death cause %d",thing_model_name(thing),(int)i);
         break;
     }
 }
@@ -1637,8 +1637,8 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
   clear_creature_instance(thing);
   thing->field_7 = CrSt_CreatureUnconscious;
   cctrl = creature_control_get_from_thing(thing);
-  cctrl->flgfield_1 |= 0x04;
-  cctrl->flgfield_1 |= 0x02;
+  cctrl->flgfield_1 |= CCFlg_Immortal;
+  cctrl->flgfield_1 |= CCFlg_NoCompControl;
   cctrl->field_280 = 2000;
   thing->health = 1;
   return true;
@@ -2878,7 +2878,7 @@ short update_creature_movements(struct Thing *thing)
     cctrl->pos_BB.x.val = 0;
     cctrl->pos_BB.y.val = 0;
     cctrl->pos_BB.z.val = 0;
-    cctrl->field_C8 = 0;
+    cctrl->move_speed = 0;
     set_flag_byte(&cctrl->field_2,0x01,false);
   } else
   {
@@ -2886,13 +2886,13 @@ short update_creature_movements(struct Thing *thing)
     {
       if ( thing->field_25 & 0x20 )
       {
-        if (cctrl->field_C8 != 0)
+        if (cctrl->move_speed != 0)
         {
           cctrl->pos_BB.x.val = (LbSinL(thing->field_52)>> 8)
-                * (cctrl->field_C8 * LbCosL(thing->field_54) >> 8) >> 16;
+                * (cctrl->move_speed * LbCosL(thing->field_54) >> 8) >> 16;
           cctrl->pos_BB.y.val = -((LbCosL(thing->field_52) >> 8)
-                * (cctrl->field_C8 * LbCosL(thing->field_54) >> 8) >> 8) >> 8;
-          cctrl->pos_BB.z.val = cctrl->field_C8 * LbSinL(thing->field_54) >> 16;
+                * (cctrl->move_speed * LbCosL(thing->field_54) >> 8) >> 8) >> 8;
+          cctrl->pos_BB.z.val = cctrl->move_speed * LbSinL(thing->field_54) >> 16;
         }
         if (cctrl->field_CA != 0)
         {
@@ -2901,11 +2901,11 @@ short update_creature_movements(struct Thing *thing)
         }
       } else
       {
-        if (cctrl->field_C8 != 0)
+        if (cctrl->move_speed != 0)
         {
           upd_done = 1;
-          cctrl->pos_BB.x.val =   cctrl->field_C8 * LbSinL(thing->field_52) >> 16;
-          cctrl->pos_BB.y.val = -(cctrl->field_C8 * LbCosL(thing->field_52) >> 8) >> 8;
+          cctrl->pos_BB.x.val =   cctrl->move_speed * LbSinL(thing->field_52) >> 16;
+          cctrl->pos_BB.y.val = -(cctrl->move_speed * LbCosL(thing->field_52) >> 8) >> 8;
         }
         if (cctrl->field_CA != 0)
         {
@@ -2920,11 +2920,11 @@ short update_creature_movements(struct Thing *thing)
       upd_done = 1;
       set_flag_byte(&cctrl->field_2,0x01,false);
     } else
-    if (cctrl->field_C8 != 0)
+    if (cctrl->move_speed != 0)
     {
       upd_done = 1;
-      cctrl->pos_BB.x.val =   cctrl->field_C8 * LbSinL(thing->field_52) >> 16;
-      cctrl->pos_BB.y.val = -(cctrl->field_C8 * LbCosL(thing->field_52) >> 8) >> 8;
+      cctrl->pos_BB.x.val =   cctrl->move_speed * LbSinL(thing->field_52) >> 16;
+      cctrl->pos_BB.y.val = -(cctrl->move_speed * LbCosL(thing->field_52) >> 8) >> 8;
       cctrl->pos_BB.z.val = 0;
     }
     if (((thing->field_25 & 0x20) != 0) && ((thing->field_0 & 0x20) == 0))
@@ -3238,13 +3238,13 @@ long update_creature(struct Thing *thing)
     move_creature(thing);
     if ((thing->field_0 & 0x20) != 0)
     {
-      if ((cctrl->flgfield_1 & 0x40) == 0)
-        cctrl->field_C8 /= 2;
-      if ((cctrl->flgfield_1 & 0x80) == 0)
+      if ((cctrl->flgfield_1 & CCFlg_Unknown40) == 0)
+        cctrl->move_speed /= 2;
+      if ((cctrl->flgfield_1 & CCFlg_Unknown80) == 0)
         cctrl->field_CA /= 2;
     } else
     {
-      cctrl->field_C8 = 0;
+      cctrl->move_speed = 0;
     }
     process_spells_affected_by_effect_elements(thing);
     process_landscape_affecting_creature(thing);
@@ -3277,8 +3277,8 @@ long update_creature(struct Thing *thing)
     cctrl->pos_BB.x.val = 0;
     cctrl->pos_BB.y.val = 0;
     cctrl->pos_BB.z.val = 0;
-    set_flag_byte(&cctrl->flgfield_1,0x40,false);
-    set_flag_byte(&cctrl->flgfield_1,0x80,false);
+    set_flag_byte(&cctrl->flgfield_1,CCFlg_Unknown40,false);
+    set_flag_byte(&cctrl->flgfield_1,CCFlg_Unknown80,false);
     set_flag_byte(&cctrl->field_AD,0x04,false);
     process_thing_spell_effects(thing);
     SYNCDBG(19,"Finished");

@@ -97,7 +97,7 @@ TbBool save_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
         hdr.len = sizeof(struct CatalogueEntry);
         if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
         if (LbFileWrite(fhandle, centry, sizeof(struct CatalogueEntry)) == sizeof(struct CatalogueEntry))
-            chunks_done |= 0x0001;
+            chunks_done |= SGF_InfoBlock;
     }
     { // Game data chunk
         hdr.id = SGC_GameOrig;
@@ -105,7 +105,7 @@ TbBool save_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
         hdr.len = sizeof(struct Game);
         if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
         if (LbFileWrite(fhandle, &game, sizeof(struct Game)) == sizeof(struct Game))
-            chunks_done |= 0x0002;
+            chunks_done |= SGF_GameOrig;
     }
     { // GameAdd data chunk
         hdr.id = SGC_GameAdd;
@@ -113,9 +113,62 @@ TbBool save_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
         hdr.len = sizeof(struct GameAdd);
         if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
         if (LbFileWrite(fhandle, &gameadd, sizeof(struct GameAdd)) == sizeof(struct GameAdd))
-            chunks_done |= 0x0004;
+            chunks_done |= SGF_GameAdd;
     }
-    if (chunks_done != 0x0007)
+    if (chunks_done != SGF_SavedGame)
+        return false;
+    return true;
+}
+
+TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
+{
+    struct FileChunkHeader hdr;
+    long chunks_done;
+    chunks_done = 0;
+    { // Packet file header
+        hdr.id = SGC_PacketHeader;
+        hdr.ver = 0;
+        hdr.len = sizeof(struct PacketSaveHead);
+        if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
+        if (LbFileWrite(fhandle, &game.packet_save_head, sizeof(struct PacketSaveHead)) == sizeof(struct PacketSaveHead))
+            chunks_done |= SGF_PacketHeader;
+    }
+    // If it's not start of a level, save progress data too
+    if (game.play_gameturn != 0)
+    {
+        { // Info chunk
+            hdr.id = SGC_InfoBlock;
+            hdr.ver = 0;
+            hdr.len = sizeof(struct CatalogueEntry);
+            if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
+            if (LbFileWrite(fhandle, centry, sizeof(struct CatalogueEntry)) == sizeof(struct CatalogueEntry))
+                chunks_done |= SGF_InfoBlock;
+        }
+        { // Game data chunk
+            hdr.id = SGC_GameOrig;
+            hdr.ver = 0;
+            hdr.len = sizeof(struct Game);
+            if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
+            if (LbFileWrite(fhandle, &game, sizeof(struct Game)) == sizeof(struct Game))
+                chunks_done |= SGF_GameOrig;
+        }
+        { // GameAdd data chunk
+            hdr.id = SGC_GameAdd;
+            hdr.ver = 0;
+            hdr.len = sizeof(struct GameAdd);
+            if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
+            if (LbFileWrite(fhandle, &gameadd, sizeof(struct GameAdd)) == sizeof(struct GameAdd))
+                chunks_done |= SGF_GameAdd;
+        }
+    }
+    { // Packet file data start indicator
+        hdr.id = SGC_PacketData;
+        hdr.ver = 0;
+        hdr.len = 0;
+        if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
+            chunks_done |= SGF_PacketData;
+    }
+    if ((chunks_done != SGF_PacketStart) && (chunks_done != SGF_PacketContinue))
         return false;
     return true;
 }
@@ -134,7 +187,7 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
         case SGC_InfoBlock:
             if (load_catalogue_entry(fhandle,&hdr,centry))
             {
-                chunks_done |= 0x0001;
+                chunks_done |= SGF_InfoBlock;
                 if (!change_campaign(centry->campaign_fname))
                 {
                   ERRORLOG("Unable to load campaign");
@@ -151,7 +204,7 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                 break;
             }
             if (LbFileRead(fhandle, &gameadd, sizeof(struct GameAdd)) == sizeof(struct GameAdd))
-                chunks_done |= 0x0004;
+                chunks_done |= SGF_GameAdd;
             break;
         case SGC_GameOrig:
             if (hdr.len != sizeof(struct Game))
@@ -161,29 +214,30 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                 break;
             }
             if (LbFileRead(fhandle, &game, sizeof(struct Game)) == sizeof(struct Game))
-                chunks_done |= 0x0002;
+                chunks_done |= SGF_GameOrig;
             break;
-        case PFC_PacketHeader:
+        case SGC_PacketHeader:
             if (hdr.len != sizeof(struct PacketSaveHead))
             {
                 if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
                     LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
                 break;
             }
-            if (LbFileRead(fhandle, &game.packet_save_head, sizeof(struct PacketSaveHead)) == sizeof(struct PacketSaveHead))
-                chunks_done |= 0x0100;
+            if (LbFileRead(fhandle, &game.packet_save_head, sizeof(struct PacketSaveHead))
+                == sizeof(struct PacketSaveHead))
+                chunks_done |= SGF_PacketHeader;
             break;
-        case PFC_PacketData:
+        case SGC_PacketData:
             if (hdr.len != 0)
             {
                 if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
                     LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
                 break;
             }
-            chunks_done |= 0x0200;
-            if ((chunks_done & 0x0307) == 0x0307)
+            chunks_done |= SGF_PacketData;
+            if ((chunks_done & SGF_PacketContinue) == SGF_PacketContinue)
                 return GLoad_PacketContinue;
-            if ((chunks_done & 0x0300) == 0x0300)
+            if ((chunks_done & SGF_PacketStart) == SGF_PacketStart)
                 return GLoad_PacketStart;
             return GLoad_Failed;
         default:
@@ -191,7 +245,7 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
             break;
         }
     }
-    if ((chunks_done & 0x0007) == 0x0007)
+    if ((chunks_done & SGF_SavedGame) == SGF_SavedGame)
         return GLoad_SavedGame;
     return GLoad_Failed;
 }
