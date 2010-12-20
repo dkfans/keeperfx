@@ -942,6 +942,30 @@ TbBool make_available_all_researchable_rooms(long plyr_idx)
   return true;
 }
 
+/**
+ * Returns Code Name (name to use in script file) of given door model.
+ */
+const char *door_code_name(long tngmodel)
+{
+    const char *name;
+    name = get_conf_parameter_text(door_desc,tngmodel);
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
+
+/**
+ * Returns Code Name (name to use in script file) of given trap model.
+ */
+const char *trap_code_name(long tngmodel)
+{
+    const char *name;
+    name = get_conf_parameter_text(trap_desc,tngmodel);
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -65,6 +65,17 @@ enum CreatureSoundTypes {
     CrSnd_HandPick     = 5,
 };
 
+enum CreatureControlFlags {
+    CCFlg_Exists        = 0x01,
+    CCFlg_NoCompControl = 0x02,
+    CCFlg_Immortal      = 0x04,
+    CCFlg_Unknown08  = 0x08,
+    CCFlg_Unknown10  = 0x10,
+    CCFlg_IsInRoomList  = 0x20,
+    CCFlg_Unknown40  = 0x40,
+    CCFlg_Unknown80  = 0x80,
+};
+
 struct CastedSpellData {
     unsigned char spkind;
     short field_1;
@@ -213,7 +224,7 @@ unsigned short field_B9;
     short field_C2;
     short max_speed;
     short max_health;
-    short field_C8;
+    short move_speed;
     short field_CA;
     short field_CC;
     unsigned long field_CE;
@@ -397,6 +408,8 @@ extern struct CreatureSounds creature_sounds[];
 struct CreatureControl *creature_control_get(long cctrl_idx);
 struct CreatureControl *creature_control_get_from_thing(const struct Thing *thing);
 TbBool creature_control_invalid(const struct CreatureControl *cctrl);
+TbBool creature_control_exists(const struct CreatureControl *cctrl);
+TbBool creature_control_exists_in_thing(const struct Thing *thing);
 void clear_creature_instance(struct Thing *thing);
 long i_can_allocate_free_control_structure(void);
 struct CreatureControl *allocate_free_control_structure(void);

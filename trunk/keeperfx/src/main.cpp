@@ -1553,7 +1553,7 @@ void explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
   //_DK_explosion_affecting_area(tngsrc, pos, range, max_damage, hit_type); return;
   if ((hit_type < 1) || (hit_type >= HIT_TYPES_COUNT))
   {
-      ERRORLOG("Thing class %d model %d tries to affect area range %d with invalid hit type %d",(int)tngsrc->class_id,(int)tngsrc->model,(int)range,(int)hit_type);
+      ERRORLOG("The %s tries to affect area range %d with invalid hit type %d",thing_model_name(tngsrc),(int)range,(int)hit_type);
       hit_type = 1;
   }
   max_dist = (range << 8);
@@ -1956,7 +1956,7 @@ long process_door(struct Thing *thing)
 
 void update_thing_animation(struct Thing *thing)
 {
-  SYNCDBG(18,"Starting for thing class %d model %d",(int)thing->class_id,(int)thing->model);
+  SYNCDBG(18,"Starting for %s",thing_model_name(thing));
   int i;
   struct CreatureControl *cctrl;
   if (thing->class_id == TCls_Creature)
@@ -4202,7 +4202,7 @@ void level_lost_go_first_person(long plyr_idx)
     return;
   }
   cctrl = creature_control_get_from_thing(thing);
-  cctrl->flgfield_1 |= 0x02;
+  cctrl->flgfield_1 |= CCFlg_NoCompControl;
   SYNCDBG(8,"Finished");
 }
 

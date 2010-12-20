@@ -84,6 +84,9 @@ TbBool make_available_all_researchable_rooms(long plyr_idx);
 TbBool make_all_rooms_researchable(long plyr_idx);
 TbBool is_room_available(long plyr_idx, long room_idx);
 /******************************************************************************/
+const char *door_code_name(long tngmodel);
+const char *trap_code_name(long tngmodel);
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
