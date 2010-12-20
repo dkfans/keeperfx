@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_sound.h"
+#include "thing_stats.h"
 #include "map_data.h"
 #include "map_columns.h"
 #include "gui_topmsg.h"
@@ -610,7 +611,7 @@ long update_object(struct Thing *thing)
   Thing_State_Func upcallback;
   Thing_State_Func stcallback;
   struct Objects *objdat;
-  SYNCDBG(18,"Starting for model %d",(int)thing->model);
+  SYNCDBG(18,"Starting for %s",thing_model_name(thing));
   //return _DK_update_object(thing);
 
   upcallback = NULL;

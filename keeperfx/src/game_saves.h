@@ -34,16 +34,25 @@ enum SaveGameChunks {
      SGC_InfoBlock    = 0x4F464E49, //"INFO"
      SGC_GameOrig     = 0x53444C4F, //"OLDS"
      SGC_GameAdd      = 0x44444147, //"GADD"
+     SGC_PacketHeader = 0x52444850, //"PHDR"
+     SGC_PacketData   = 0x544B4350, //"PCKT"
 };
 
-enum PacketFileChunks {
-     PFC_PacketHeader = 0x52444850, //"PHDR"
-     PFC_PacketData   = 0x544B4350, //"PCKT"
+enum SaveGameChunkFlags {
+     SGF_InfoBlock    = 0x0001,
+     SGF_GameOrig     = 0x0002,
+     SGF_GameAdd      = 0x0004,
+     SGF_PacketHeader = 0x0100,
+     SGF_PacketData   = 0x0200,
 };
+#define SGF_SavedGame      (SGF_InfoBlock|SGF_GameOrig|SGF_GameAdd)
+#define SGF_PacketStart    (SGF_PacketHeader|SGF_PacketData)
+#define SGF_PacketContinue (SGF_PacketHeader|SGF_PacketData|SGF_InfoBlock|SGF_GameOrig|SGF_GameAdd)
 
 enum GameLoadStatus {
     GLoad_Failed = 0,
     GLoad_SavedGame,
+    GLoad_ContinueGame,
     GLoad_PacketStart,
     GLoad_PacketContinue,
 };
@@ -87,12 +96,16 @@ extern long const VersionMajor;
 extern long const VersionMinor;
 extern struct CatalogueEntry save_game_catalogue[];
 /******************************************************************************/
+int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry);
+TbBool fill_game_catalogue_entry(struct CatalogueEntry *centry,const char *textname);
+TbBool save_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry);
+TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry);
+/******************************************************************************/
 TbBool load_game(long slot_idx);
 TbBool save_game(long slot_idx);
 TbBool initialise_load_game_slots(void);
 int count_valid_saved_games(void);
 TbBool is_save_game_loadable(long slot_num);
-int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry);
 /******************************************************************************/
 TbBool save_catalogue_slot_disable(unsigned int slot_idx);
 TbBool save_game_save_catalogue(void);

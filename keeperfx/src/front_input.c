@@ -952,7 +952,7 @@ void get_isometric_view_nonaction_inputs(void)
 {
   struct PlayerInfo *player;
   struct Packet *pckt;
-  int speed_pressed,rotate_pressed;
+  int rotate_pressed,speed_pressed;
   TbBool no_mods;
   long mx,my;
   //_DK_get_isometric_view_nonaction_inputs(); return;
@@ -960,21 +960,21 @@ void get_isometric_view_nonaction_inputs(void)
   pckt = get_packet(my_player_number);
   mx = my_mouse_x;
   my = my_mouse_y;
-  speed_pressed = is_game_key_pressed(4, NULL, true);
-  rotate_pressed = is_game_key_pressed(5, NULL, true);
+  rotate_pressed = is_game_key_pressed(4, NULL, true);
+  speed_pressed = is_game_key_pressed(5, NULL, true);
   if ((player->field_0 & 0x10) != 0)
     return;
-  if (rotate_pressed != 0)
+  if (speed_pressed != 0)
     pckt->field_10 |= 0x01;
   no_mods = false;
-  if ((speed_pressed != 0) || (rotate_pressed != 0))
+  if ((rotate_pressed != 0) || (speed_pressed != 0))
     no_mods = true;
 
   if (mx <= 4)
   {
     if ( is_game_key_pressed(2, NULL, false) )
     {
-      if (!speed_pressed)
+      if (!rotate_pressed)
         pckt->field_10 |= 0x01;
     }
     set_packet_control(pckt, 0x010);
@@ -983,7 +983,7 @@ void get_isometric_view_nonaction_inputs(void)
   {
     if ( is_game_key_pressed(3, NULL, false) )
     {
-      if (!speed_pressed)
+      if (!rotate_pressed)
         pckt->field_10 |= 0x01;
     }
     set_packet_control(pckt, 0x020);
@@ -992,48 +992,49 @@ void get_isometric_view_nonaction_inputs(void)
   {
     if ( is_game_key_pressed(0, NULL, false) )
     {
-      if (!speed_pressed)
+      if (!rotate_pressed)
         pckt->field_10 |= 0x01;
     }
-    set_packet_control(pckt, 0x04);
+    set_packet_control(pckt, PCtr_MoveUp);
   }
   if (my >= MyScreenHeight-4)
   {
     if ( is_game_key_pressed(1, NULL, false) )
     {
-      if (!speed_pressed)
+      if (!rotate_pressed)
         pckt->field_10 |= 0x01;
     }
-    set_packet_control(pckt, 0x08);
+    set_packet_control(pckt, PCtr_MoveDown);
   }
-  if ( speed_pressed )
+
+  if ( rotate_pressed )
   {
     if ( is_game_key_pressed(2, NULL, no_mods) )
-      set_packet_control(pckt, 0x01);
+        set_packet_control(pckt, PCtr_ViewRotateCW);
     if ( is_game_key_pressed(3, NULL, no_mods) )
-      set_packet_control(pckt, 0x02);
+        set_packet_control(pckt, PCtr_ViewRotateCCW);
     if ( is_game_key_pressed(0, NULL, no_mods) )
-      set_packet_control(pckt, 0x40);
+        set_packet_control(pckt, PCtr_ViewZoomIn);
     if ( is_game_key_pressed(1, NULL, no_mods) )
-      set_packet_control(pckt, 0x80);
+        set_packet_control(pckt, PCtr_ViewZoomOut);
   } else
   {
     if ( is_game_key_pressed(6, NULL, false) )
-      set_packet_control(pckt, 0x01);
+        set_packet_control(pckt, PCtr_ViewRotateCW);
     if ( is_game_key_pressed(7, NULL, false) )
-      set_packet_control(pckt, 0x02);
+        set_packet_control(pckt, PCtr_ViewRotateCCW);
     if ( is_game_key_pressed(8, NULL, false) )
-      set_packet_control(pckt, 0x40);
+        set_packet_control(pckt, PCtr_ViewZoomIn);
     if ( is_game_key_pressed(9, NULL, false) )
-      set_packet_control(pckt, 0x80);
+        set_packet_control(pckt, PCtr_ViewZoomOut);
     if ( is_game_key_pressed(2, NULL, no_mods) )
-      set_packet_control(pckt, 0x10);
+        set_packet_control(pckt, PCtr_MoveLeft);
     if ( is_game_key_pressed(3, NULL, no_mods) )
-      set_packet_control(pckt, 0x20);
+        set_packet_control(pckt, PCtr_MoveRight);
     if ( is_game_key_pressed(0, NULL, no_mods) )
-      set_packet_control(pckt, 0x04);
+        set_packet_control(pckt, PCtr_MoveUp);
     if ( is_game_key_pressed(1, NULL, no_mods) )
-      set_packet_control(pckt, 0x08);
+        set_packet_control(pckt, PCtr_MoveDown);
   }
 }
 
@@ -1041,34 +1042,34 @@ void get_overhead_view_nonaction_inputs(void)
 {
   struct PlayerInfo *player;
   struct Packet *pckt;
-  int speed_pressed,rotate_pressed;
+  int rotate_pressed,speed_pressed;
   long mx,my;
   SYNCDBG(19,"Starting");
   player=get_my_player();
   pckt = get_packet(my_player_number);
   my = my_mouse_y;
   mx = my_mouse_x;
-  speed_pressed = is_game_key_pressed(4, NULL, true);
-  rotate_pressed = is_game_key_pressed(5, NULL, true);
+  rotate_pressed = is_game_key_pressed(4, NULL, true);
+  speed_pressed = is_game_key_pressed(5, NULL, true);
   if ((player->field_0 & 0x10) == 0)
   {
-    if (rotate_pressed)
-      pckt->field_10 |= 0x01;
     if (speed_pressed)
+      pckt->field_10 |= 0x01;
+    if (rotate_pressed)
     {
-      if ( is_game_key_pressed(0, NULL, rotate_pressed!=0) )
-        set_packet_control(pckt, 0x40);
-      if ( is_game_key_pressed(1, NULL, rotate_pressed!=0) )
-        set_packet_control(pckt, 0x80);
+      if ( is_game_key_pressed(0, NULL, speed_pressed!=0) )
+        set_packet_control(pckt, PCtr_ViewZoomIn);
+      if ( is_game_key_pressed(1, NULL, speed_pressed!=0) )
+        set_packet_control(pckt, PCtr_ViewZoomOut);
     }
     if (my <= 4)
-      set_packet_control(pckt, 0x04);
+      set_packet_control(pckt, PCtr_MoveUp);
     if (my >= MyScreenHeight-4)
-      set_packet_control(pckt, 0x08);
+      set_packet_control(pckt, PCtr_MoveDown);
     if (mx <= 4)
-      set_packet_control(pckt, 0x10);
+      set_packet_control(pckt, PCtr_MoveLeft);
     if (mx >= MyScreenWidth-4)
-      set_packet_control(pckt, 0x20);
+      set_packet_control(pckt, PCtr_MoveRight);
   }
 }
 

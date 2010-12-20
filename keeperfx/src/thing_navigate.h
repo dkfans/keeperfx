@@ -59,7 +59,7 @@ short move_to_position(struct Thing *thing);
 long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos);
 long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos);
 long creature_turn_to_face_angle(struct Thing *thing, long a2);
-void creature_set_speed(struct Thing *thing, short speed);
+void creature_set_speed(struct Thing *thing, long speed);
 
 /******************************************************************************/
 #ifdef __cplusplus

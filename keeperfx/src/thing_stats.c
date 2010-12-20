@@ -25,6 +25,7 @@
 #include "thing_list.h"
 #include "creature_control.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "player_data.h"
 #include "config_magic.hpp"
 #include "vidfade.h"
@@ -45,11 +46,60 @@ const char *blood_types[] = {
     "IkI",
     NULL,
 };
+
+const char *thing_classes[] = {
+    "EMPTY",
+    "OBJECT",
+    "SHOT",
+    "EFFECTELEM",
+    "CREATUREBODY",
+    "CREATURE",
+    "EFFECT",
+    "EFFECTGEN",
+    "TRAP",
+    "DOOR",
+    "UNKNOWN10",
+    "UNKNOWN11",
+    "AMBIENTSND",
+    "CAVEIN",
+    "UNKNOWN14",
+};
 /******************************************************************************/
 DLLIMPORT void _DK_apply_damage_to_thing(struct Thing *thing, long a2, char a3);
 
 /******************************************************************************/
-/*
+const char *thing_class_code_name(long class_id)
+{
+    if ((class_id < 0) || (class_id >= sizeof(thing_classes)/sizeof(thing_classes[0])))
+        return "INVALID";
+    return thing_classes[class_id];
+}
+
+const char *thing_model_name(struct Thing *thing)
+{
+    static char name_buffer[32];
+    switch (thing->class_id)
+    {
+    case TCls_Creature:
+        snprintf(name_buffer,sizeof(name_buffer),"creature %s",creature_code_name(thing->model));
+        break;
+    case TCls_DeadCreature:
+        snprintf(name_buffer,sizeof(name_buffer),"dead %s",creature_code_name(thing->model));
+        break;
+    case TCls_Trap:
+        snprintf(name_buffer,sizeof(name_buffer),"%s trap",trap_code_name(thing->model));
+        break;
+    case TCls_Door:
+        snprintf(name_buffer,sizeof(name_buffer),"%s door",door_code_name(thing->model));
+        break;
+    default:
+        snprintf(name_buffer,sizeof(name_buffer),"%s model %d",thing_class_code_name(thing->class_id),(int)thing->model);
+        break;
+    }
+    return name_buffer;
+}
+
+/**
  * Computes max health of a creature on given level.
  */
 long compute_creature_max_health(long base_health,unsigned short crlevel)
@@ -321,7 +371,7 @@ void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
     case TCls_Creature:
         cctrl = creature_control_get_from_thing(thing);
         crstat = creature_stats_get_from_thing(thing);
-        if ((cctrl->flgfield_1 & 0x04) == 0)
+        if ((cctrl->flgfield_1 & CCFlg_Immortal) == 0)
         {
             // Compute armor value
             carmor = compute_creature_max_armour(crstat->armour,cctrl->explevel);

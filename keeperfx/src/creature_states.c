@@ -1891,7 +1891,7 @@ short creature_in_combat(struct Thing *thing)
     {
         if (!external_set_thing_state(thing, CrSt_CreatureCombatFlee))
         {
-            ERRORLOG("Cannot get thing no %d, model %d, in flee",(int)thing->index,(int)thing->model);
+            ERRORLOG("Cannot get thing no %d, %s, into flee",(int)thing->index,thing_model_name(thing));
             return 0;
         }
         cctrl->field_28E = game.play_gameturn;
@@ -2767,7 +2767,7 @@ short good_attack_room(struct Thing *thing)
     // Debug code to find incorrect states
     if (thing->owner != hero_player_number)
     {
-        ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+        ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
         return false;
     }
@@ -2779,7 +2779,7 @@ short good_back_at_start(struct Thing *thing)
     // Debug code to find incorrect states
     if (thing->owner != hero_player_number)
     {
-        ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+        ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
         return false;
     }
@@ -2820,7 +2820,7 @@ short good_doing_nothing(struct Thing *thing)
     // Debug code to find incorrect states
     if (thing->owner != hero_player_number)
     {
-        ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+        ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
         return false;
     }
@@ -2845,7 +2845,7 @@ short good_doing_nothing(struct Thing *thing)
       player = get_player(i);
       if (player_invalid(player))
       {
-          ERRORLOG("Invalid target player in thing no %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+          ERRORLOG("Invalid target player in thing no %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
           cctrl->sbyte_89 = -1;
           return false;
       }
@@ -2976,7 +2976,7 @@ short good_drops_gold(struct Thing *thing)
     // Debug code to find incorrect states
     if (thing->owner != hero_player_number)
     {
-        ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+        ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
         erstat_inc(ESE_BadCreatrState);
         return false;
@@ -3005,7 +3005,7 @@ short good_leave_through_exit_door(struct Thing *thing)
     // Debug code to find incorrect states
     if (thing->owner != hero_player_number)
     {
-        ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+        ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
         erstat_inc(ESE_BadCreatrState);
         return false;
@@ -3030,7 +3030,7 @@ short good_returns_to_start(struct Thing *thing)
     // Debug code to find incorrect states
     if (thing->owner != hero_player_number)
     {
-        ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+        ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
         erstat_inc(ESE_BadCreatrState);
         return false;
@@ -3045,7 +3045,7 @@ short good_wait_in_exit_door(struct Thing *thing)
     // Debug code to find incorrect states
     if (thing->owner != hero_player_number)
     {
-        ERRORLOG("Non hero thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+        ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
         erstat_inc(ESE_BadCreatrState);
         return false;
@@ -3221,7 +3221,7 @@ short imp_doing_nothing(struct Thing *thing)
     //return _DK_imp_doing_nothing(thing);
     if (!thing_is_creature_special_digger(thing))
     {
-        ERRORLOG("Non digger thing %ld model %ld owner %ld - reset",(long)thing->index,(long)thing->model,(long)thing->owner);
+        ERRORLOG("Non digger thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
         erstat_inc(ESE_BadCreatrState);
         return 0;
@@ -3601,7 +3601,7 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
     {
         if (tng2 != tng1)
         {
-            if (((cctrl2->flgfield_1 & 0x01) != 0) && ((cctrl2->flgfield_1 & 0x02) == 0)
+            if ((creature_control_exists(cctrl2)) && ((cctrl2->flgfield_1 & CCFlg_NoCompControl) == 0)
             && ((tng2->field_0 & 0x10) == 0) && ((tng2->field_1 & 0x02) == 0))
             {
                 crstat1 = creature_stats_get_from_thing(tng1);
@@ -3796,7 +3796,7 @@ short state_cleanup_unable_to_fight(struct Thing *thing)
     struct CreatureControl *cctrl;
     //return _DK_state_cleanup_unable_to_fight(thing);
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->flgfield_1 &= 0xFD;
+    cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
     return 1;
 }
 
@@ -4412,7 +4412,7 @@ TbBool remove_creature_from_work_room(struct Thing *thing)
     struct CreatureControl *secctrl;
     //return _DK_remove_creature_from_work_room(thing);
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->work_room_id == 0) || ((cctrl->flgfield_1 & 0x20) == 0))
+    if ((cctrl->work_room_id == 0) || ((cctrl->flgfield_1 & CCFlg_IsInRoomList) == 0))
         return false;
     room = room_get(cctrl->work_room_id);
     if (!room_is_invalid(room))
@@ -4455,7 +4455,7 @@ TbBool remove_creature_from_work_room(struct Thing *thing)
     }
     cctrl->last_work_room_id = cctrl->work_room_id;
     cctrl->work_room_id = 0;
-    cctrl->flgfield_1 &= ~0x20;
+    cctrl->flgfield_1 &= ~CCFlg_IsInRoomList;
     cctrl->next_in_room = 0;
     cctrl->prev_in_room = 0;
     return true;
@@ -4477,9 +4477,9 @@ TbBool initialise_thing_state(struct Thing *thing, long nState)
     }
     cctrl->field_80 = 0;
     cctrl->field_302 = 0;
-    if ((cctrl->flgfield_1 & 0x20) != 0)
+    if ((cctrl->flgfield_1 & CCFlg_IsInRoomList) != 0)
     {
-        WARNLOG("Thing model %d stays in room list even after cleanup",(int)thing->model);
+        WARNLOG("The %s stays in room list even after cleanup",thing_model_name(thing));
         remove_creature_from_work_room(thing);
     }
     return true;
@@ -4574,7 +4574,7 @@ short set_start_state(struct Thing *thing)
     struct PlayerInfo *player;
     struct CreatureControl *cctrl;
     long i;
-    SYNCDBG(8,"Starting for model %d owner %d",(int)thing->model,(int)thing->owner);
+    SYNCDBG(8,"Starting for %s, owner %d",thing_model_name(thing),(int)thing->owner);
 //    return _DK_set_start_state(thing);
     if ((thing->field_0 & 0x20) != 0)
     {

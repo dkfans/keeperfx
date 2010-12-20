@@ -667,7 +667,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
   if (!thing_is_invalid(thing))
   {
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->flgfield_1 |= 0x02;
+    cctrl->flgfield_1 |= CCFlg_NoCompControl;
     player->field_0 |= 0x10;
     player->field_0 |= 0x80;
     game.numfield_D |= 0x08;
