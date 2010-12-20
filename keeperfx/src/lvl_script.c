@@ -2337,7 +2337,7 @@ short load_script(long lvnum)
   text_line_number = 1;
   game.bonus_time = 0;
   set_flag_byte(&game.flags_gui,GGUI_CountdownTimer,false);
-  game.flags_cd |= 0x08;
+  game.flags_cd |= MFlg_DeadBackToPool;
   reset_creature_max_levels();
   reset_script_timers_and_flags();
   if (game.numfield_C & 0x08)
@@ -3121,7 +3121,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       toggle_ally_with_player(val3, val2);
       break;
   case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
-      set_flag_byte(&game.flags_cd, 0x08, val2);
+      set_flag_byte(&game.flags_cd, MFlg_DeadBackToPool, val2);
       break;
   case Cmd_BONUS_LEVEL_TIME:
       game.bonus_time = val2;

@@ -400,6 +400,26 @@ TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *
   return true;
 }
 
+void randomize_sound_font(void)
+{
+    StopMusic();
+    switch (UNSYNC_RANDOM(3))
+    {
+    case 0:
+        if (LoadAwe32Soundfont("bullfrog"))
+          StartMusic(1, 127);
+        break;
+    case 1:
+        if (LoadAwe32Soundfont("atmos1"))
+          StartMusic(1, 127);
+        break;
+    case 2:
+        if (LoadAwe32Soundfont("atmos2"))
+          StartMusic(1, 127);
+        break;
+    }
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

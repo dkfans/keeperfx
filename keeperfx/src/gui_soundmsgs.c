@@ -36,6 +36,7 @@ DLLIMPORT struct MessageQueueEntry _DK_message_queue[MESSAGE_QUEUE_COUNT];
 #define message_queue _DK_message_queue
 DLLIMPORT unsigned long _DK_message_playing;
 #define message_playing _DK_message_playing
+DLLIMPORT struct SMessage _DK_messages[126];
 /******************************************************************************/
 Phrase phrases[] = {
     0,  1,  2, 3,  4,   5,  6,  7,  8, 9,  10, 11, 12, 13, 14, 15,
@@ -194,7 +195,7 @@ TbBool output_message(long msg_idx, long delay, TbBool queue)
     long i;
     SYNCDBG(5,"Message %ld, delay %ld, queue %s",msg_idx, delay, queue?"on":"off");
     smsg = &messages[msg_idx];
-    if ((long)game.play_gameturn < smsg->end_time)
+    if (!message_can_be_played(msg_idx))
     {
         SYNCDBG(8,"Delay to turn %ld didn't passed, skipping",(long)smsg->end_time);
         return false;
@@ -210,7 +211,7 @@ TbBool output_message(long msg_idx, long delay, TbBool queue)
       if (play_speech_sample(i))
       {
           message_playing = msg_idx;
-          smsg->end_time = game.play_gameturn + delay;
+          smsg->end_time = (long)game.play_gameturn + delay;
           SYNCDBG(8,"Playing prepared");
           return true;
       }
@@ -232,6 +233,13 @@ void process_messages(void)
   SYNCDBG(17,"Starting");
   _DK_process_messages();
   SYNCDBG(19,"Finished");
+}
+
+TbBool message_can_be_played(long msg_idx)
+{
+    if ( (msg_idx < 0) || (msg_idx >= sizeof(messages)/sizeof(messages[0])) )
+        return false;
+    return ((long)game.play_gameturn >= messages[msg_idx].end_time);
 }
 
 TbBool message_already_in_queue(long msg_idx)
@@ -288,18 +296,34 @@ long get_phrase_sample(long phr_idx)
 
 void clear_messages(void)
 {
-  int i;
-  for (i=0; i < MESSAGE_QUEUE_COUNT; i++)
-  {
-    memset(&message_queue[i], 0, sizeof(struct MessageQueueEntry));
-  }
-  // Set end turn to 0 for all messages
-  for (i=0; i < sizeof(messages)/sizeof(messages[0]); i++)
-  {
-      messages[i].end_time = 0;
-  }
+    int i;
+    for (i=0; i < MESSAGE_QUEUE_COUNT; i++)
+    {
+      memset(&message_queue[i], 0, sizeof(struct MessageQueueEntry));
+    }
+    // Set end turn to 0 for all messages
+    for (i=0; i < sizeof(messages)/sizeof(messages[0]); i++)
+    {
+        messages[i].end_time = 0;
+    }
+    // Remove when won't be needed anymore
+    for (i=0; i < sizeof(_DK_messages)/sizeof(_DK_messages[0]); i++)
+    {
+        _DK_messages[i].end_time = 0;
+    }
 }
 
+void init_messages_turns(long delay)
+{
+    struct SMessage *smsg;
+    int i;
+    // Set end turn for all messages
+    for (i=0; i < sizeof(messages)/sizeof(messages[0]); i++)
+    {
+        smsg = &messages[i];
+        smsg->end_time = game.play_gameturn + delay;
+    }
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

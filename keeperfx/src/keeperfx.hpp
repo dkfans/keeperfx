@@ -60,7 +60,6 @@ extern "C" {
 #define TUNNELLER_TRIGGERS_COUNT 16
 #define WIN_CONDITIONS_COUNT    4
 #define CONDITIONS_COUNT       48
-#define THING_CLASSES_COUNT    10
 #define MANUFACTURED_ITEMS_LIMIT 199
 #define GAME_KEYS_COUNT        32
 #define LENSES_COUNT           15
@@ -112,7 +111,7 @@ enum ModeFlags {
     MFlg_IsDemoMode         =  0x01,
     MFlg_EyeLensReady       =  0x02,
     MFlg_unk04              =  0x04,
-    MFlg_unk08              =  0x08,
+    MFlg_DeadBackToPool     =  0x08,
     MFlg_NoMusic            =  0x10,
     MFlg_unk20              =  0x20,
     MFlg_unk40              =  0x40,
@@ -500,7 +499,7 @@ unsigned int field_149E7C;
     TbFileHandle packet_save_fp;
 unsigned int packet_file_pos;
     struct PacketSaveHead packet_save_head;
-unsigned int field_149F30;
+unsigned int turns_stored;
 unsigned int turns_fastforward;
 unsigned char numfield_149F38;
     unsigned char packet_checksum;
@@ -553,7 +552,7 @@ short field_14E49E;
 int field_14E4A0;
 short field_14E4A4;
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
-unsigned short field_14E906;
+    unsigned short ambient_sound_thing_idx;
     unsigned short block_health[9];
     unsigned short minimum_gold;
     unsigned short max_gold_lookup;

@@ -1360,46 +1360,73 @@ TbBigChecksum get_packet_save_checksum(void)
         tng = thing_get(tng_idx);
         if ((tng->field_0 & 0x01) != 0)
         {
-          if (tng->class_id != 12)
-          {
-              sum += (ulong)tng->mappos.x.val + (ulong)tng->mappos.y.val + (ulong)tng->mappos.z.val
-                   + (ulong)tng->field_52 + (ulong)tng->owner;
-          }
+            if (tng->class_id != TCls_AmbientSnd)
+            {
+                sum += (ulong)tng->mappos.x.val + (ulong)tng->mappos.y.val + (ulong)tng->mappos.z.val
+                     + (ulong)tng->field_52 + (ulong)tng->owner;
+            }
         }
     }
     return sum;
 }
 
-void open_new_packet_file_for_save(void)
+TbBool open_new_packet_file_for_save(void)
 {
-  struct PlayerInfo *player;
-  int i;
-  // Filling the header
-  game.packet_save_head.field_0 = 0;
-  game.packet_save_head.level_num = get_loaded_level_number();
-  game.packet_save_head.field_8 = 0;
-  game.packet_save_head.field_C = 0;
-  game.packet_save_head.field_D = 0;
-  game.packet_save_head.chksum = game.packet_checksum;
-  for (i=0; i<PLAYERS_COUNT; i++)
-  {
-    player = get_player(i);
-    if (player_exists(player))
+    struct PlayerInfo *player;
+    struct FileChunkHeader hdr;
+    long chunks_done;
+    int i;
+    // Filling the header
+    game.packet_save_head.field_0 = 0;
+    game.packet_save_head.level_num = get_loaded_level_number();
+    game.packet_save_head.field_8 = 0;
+    game.packet_save_head.field_C = 0;
+    game.packet_save_head.field_D = 0;
+    game.packet_save_head.chksum = game.packet_checksum;
+    for (i=0; i<PLAYERS_COUNT; i++)
     {
-      game.packet_save_head.field_C |= (1 << i) & 0xff;
-      if ((player->field_0 & 0x40) != 0)
-        game.packet_save_head.field_D |= (1 << i) & 0xff;
+        player = get_player(i);
+        if (player_exists(player))
+        {
+            game.packet_save_head.field_C |= (1 << i) & 0xff;
+            if ((player->field_0 & 0x40) != 0)
+              game.packet_save_head.field_D |= (1 << i) & 0xff;
+        }
     }
-  }
-  LbFileDelete(game.packet_fname);
-  game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_NEW);
-  if (game.packet_save_fp == -1)
-  {
-    ERRORLOG("Cannot open keeper packet file for save");
-    return;
-  }
-  game.packet_fopened = 1;
-  LbFileWrite(game.packet_save_fp, &game.packet_save_head, sizeof(struct PacketSaveHead));
+    LbFileDelete(game.packet_fname);
+    game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_NEW);
+    if (game.packet_save_fp == -1)
+    {
+        ERRORLOG("Cannot open keeper packet file for save, \"%s\".",game.packet_fname);
+        game.packet_fopened = 0;
+        return false;
+    }
+    chunks_done = 0;
+    { // Packet file header
+        hdr.id = PFC_PacketHeader;
+        hdr.ver = 0;
+        hdr.len = sizeof(struct PacketSaveHead);
+        if (LbFileWrite(game.packet_save_fp, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
+        if (LbFileWrite(game.packet_save_fp, &game.packet_save_head, sizeof(struct PacketSaveHead)) == sizeof(struct PacketSaveHead))
+            chunks_done |= 0x0001;
+    }
+    { // Packet file data start indicator
+        hdr.id = PFC_PacketData;
+        hdr.ver = 0;
+        hdr.len = 0;
+        if (LbFileWrite(game.packet_save_fp, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
+            chunks_done |= 0x0002;
+    }
+    if (chunks_done != 0x0003)
+    {
+        WARNMSG("Cannot write to packet file, \"%s\".",game.packet_fname);
+        LbFileClose(game.packet_save_fp);
+        game.packet_fopened = 0;
+        game.packet_save_fp = -1;
+        return false;
+    }
+    game.packet_fopened = 1;
+    return true;
 }
 
 void load_packets_for_turn(long nturn)
@@ -1407,27 +1434,19 @@ void load_packets_for_turn(long nturn)
   struct Packet *pckt;
   TbChecksum pckt_chksum;
   TbBigChecksum tot_chksum;
-  long data_size;
   short done;
   long i;
   const int turn_data_size = PACKET_TURN_SIZE;
   unsigned char pckt_buf[PACKET_TURN_SIZE+4];
   pckt = get_packet(my_player_number);
   pckt_chksum = pckt->chksum;
-  if (nturn >= game.field_149F30)
+  if (nturn >= game.turns_stored)
   {
       ERRORDBG(18,"Out of turns to load from Packet File");
       erstat_inc(ESE_CantReadPackets);
       return;
   }
 
-  data_size = PACKET_START_POS + turn_data_size*nturn;
-  if (data_size != game.packet_file_pos)
-  {
-      ERRORLOG("Packet Loading Seek Offset is wrong");
-      LbFileSeek(game.packet_save_fp, data_size, Lb_FILE_SEEK_BEGINNING);
-      game.packet_file_pos = data_size;
-  }
   if (LbFileRead(game.packet_save_fp, &pckt_buf, turn_data_size) == -1)
   {
       ERRORDBG(18,"Cannot read turn data from Packet File");
@@ -1452,14 +1471,7 @@ void load_packets_for_turn(long nturn)
             break;
           }
         }
-        data_size += turn_data_size;
         game.pckt_gameturn++;
-        if (data_size != game.packet_file_pos)
-        {
-          ERRORLOG("Packet Saving Seek Offset is wrong");
-          LbFileSeek(game.packet_save_fp, data_size, Lb_FILE_SEEK_BEGINNING);
-          game.packet_file_pos = data_size;
-        }
         if (LbFileRead(game.packet_save_fp, &pckt_buf, turn_data_size) == -1)
         {
           ERRORLOG("Cannot read turn data from Packet File");
@@ -2410,29 +2422,42 @@ void process_players_creature_control_packet_action(long idx)
   }
 }
 
-void open_packet_file_for_load(char *fname)
+TbBool open_packet_file_for_load(char *fname)
 {
-  strcpy(game.packet_fname, fname);
-  game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_READ_ONLY);
-  if (game.packet_save_fp == -1)
-  {
-    ERRORLOG("Cannot open keeper packet file for load");
-    return;
-  }
-  LbFileRead(game.packet_save_fp, &game.packet_save_head, sizeof(struct PacketSaveHead));
-  game.packet_file_pos = PACKET_START_POS;
-  game.field_149F30 = (LbFileLengthRnc(fname) - PACKET_START_POS) / PACKET_TURN_SIZE;
-  if ((game.packet_checksum) && (!game.packet_save_head.chksum))
-  {
-      WARNMSG("PacketSave checksum not available, checking disabled.");
-      game.packet_checksum = false;
-  }
-  if (game.numfield_149F3A == -1)
-  {
-    game.numfield_149F3A = 0;
-    game.numfield_149F3E = game.field_149F30 + 1;
-  }
-  game.packet_fopened = 1;
+    struct CatalogueEntry centry;
+    int i;
+    strcpy(game.packet_fname, fname);
+    game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_READ_ONLY);
+    if (game.packet_save_fp == -1)
+    {
+        ERRORLOG("Cannot open keeper packet file for load");
+        game.packet_fopened = 0;
+        return false;
+    }
+    memset(&centry, 0, sizeof(struct CatalogueEntry));
+    i = load_game_chunks(game.packet_save_fp,&centry);
+    if ((i != GLoad_PacketStart) && (i != GLoad_PacketContinue))
+    {
+        LbFileClose(game.packet_save_fp);
+        game.packet_save_fp = -1;
+        game.packet_fopened = 0;
+        WARNMSG("Couldn't correctly read packet file \"%s\" header.",fname);
+        return false;
+    }
+    game.packet_file_pos = LbFilePosition(game.packet_save_fp);
+    game.turns_stored = (LbFileLengthHandle(game.packet_save_fp) - game.packet_file_pos) / PACKET_TURN_SIZE;
+    if ((game.packet_checksum) && (!game.packet_save_head.chksum))
+    {
+        WARNMSG("PacketSave checksum not available, checking disabled.");
+        game.packet_checksum = false;
+    }
+    if (game.numfield_149F3A == -1)
+    {
+        game.numfield_149F3A = 0;
+        game.numfield_149F3E = game.turns_stored + 1;
+    }
+    game.packet_fopened = 1;
+    return true;
 }
 
 void post_init_packets(void)
@@ -2476,12 +2501,12 @@ short save_packets(void)
 
 void close_packet_file(void)
 {
-  if ( game.packet_fopened )
-  {
-    LbFileClose(game.packet_save_fp);
-    game.packet_fopened = 0;
-    game.packet_save_fp = 0;
-  }
+    if ( game.packet_fopened )
+    {
+        LbFileClose(game.packet_save_fp);
+        game.packet_fopened = 0;
+        game.packet_save_fp = -1;
+    }
 }
 
 void dump_memory_to_file(const char * fname, const char * buf, size_t len)

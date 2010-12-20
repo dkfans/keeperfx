@@ -71,7 +71,9 @@ TbBool message_already_in_queue(long msg_idx);
 TbBool add_message_to_queue(long msg_idx, long delay);
 long get_phrase_for_message(long msg_idx);
 long get_phrase_sample(long phr_idx);
+TbBool message_can_be_played(long msg_idx);
 void clear_messages(void);
+void init_messages_turns(long delay);
 void process_messages(void);
 /******************************************************************************/
 #ifdef __cplusplus

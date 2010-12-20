@@ -203,6 +203,8 @@ TbBool thing_exists(const struct Thing *thing)
 #if (BFDEBUG_LEVEL > 0)
   if (thing->index != (thing-thing_get(0)))
     WARNLOG("Incorrectly indexed thing (%d) at pos %d",(int)thing->index,(int)(thing-thing_get(0)));
+  if ((thing->class_id < 1) || (thing->class_id >= THING_CLASSES_COUNT))
+    WARNLOG("Thing %d is of invalid class %d",(int)thing->index,(int)thing->class_id);
 #endif
   return true;
 }
