@@ -112,7 +112,11 @@ int LbDriveChange(const unsigned int drive)
   return result;
 }
 
-//Returns if a given drive exists
+/** Returns if a given drive exists.
+ *
+ * @param drive
+ * @return
+ */
 int LbDriveExists(const unsigned int drive)
 {
   int result;
@@ -139,10 +143,14 @@ int LbDriveExists(const unsigned int drive)
   return result;
 }
 
-//Changes the current directory on the specified drive to the specified path.
-//If no drive is specified in path then the current drive is assumed.
-//The path can be either relative to the current directory
-// on the specified drive or it can be an absolute path name.
+/** Changes the current directory on the specified drive to the specified path.
+ *  If no drive is specified in path then the current drive is assumed.
+ *  The path can be either relative to the current directory
+ *  on the specified drive or it can be an absolute path name.
+ *
+ * @param path
+ * @return
+ */
 int LbDirectoryChange(const char *path)
 {
   int result;

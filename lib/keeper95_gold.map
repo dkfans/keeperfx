@@ -1413,6 +1413,7 @@
  0003:0001F214       using_two_banks
  0003:0001F218       sound_file
  0003:0001F21C       sound_file2
+ 0003:0001F470       messages
  0003:00020670       frontend_menu_state
  0003:00020678       frontend_button_info
  0003:000207B4       high_score_entry_input_active

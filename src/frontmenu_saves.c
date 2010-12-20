@@ -174,7 +174,7 @@ void gui_save_game(struct GuiButton *gbtn)
   if (strcasecmp((char *)gbtn->field_33, gui_strings[342]) != 0) // "UNUSED"
   {
       slot_num = gbtn->field_1B%SAVE_SLOTS_COUNT;
-      fill_game_catalogue_entry(slot_num,(char *)gbtn->field_33);
+      fill_game_catalogue_slot(slot_num,(char *)gbtn->field_33);
       if (save_game(slot_num))
       {
         output_message(103, 0, 1);

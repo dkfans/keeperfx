@@ -26,12 +26,7 @@
 extern "C" {
 #endif
 
-/******************************************************************************/
-#pragma pack(1)
-
-struct PlayerInfo;
-struct Thing;
-struct CompoundFilterParam;
+#define THING_CLASSES_COUNT 14
 
 enum ThingClass {
     TCls_Empty        =  0,
@@ -48,6 +43,12 @@ enum ThingClass {
     TCls_CaveIn       = 13,
 };
 
+/******************************************************************************/
+#pragma pack(1)
+
+struct PlayerInfo;
+struct Thing;
+struct CompoundFilterParam;
 
 typedef long FilterParam;
 typedef struct CompoundFilterParam * MaxFilterParam;

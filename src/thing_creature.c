@@ -51,6 +51,40 @@ extern "C" {
 /******************************************************************************/
 int creature_swap_idx[CREATURE_TYPES_COUNT];
 
+struct Creatures creatures_NEW[] = {
+  { 0,  0, 0, 0, 0, 0, 0, 0, 0, 0x0000, 1},
+  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 2, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 2, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 4, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 4, 0, 0, 0x0180, 1},
+  { 1, 77, 1, 0, 1, 0, 2, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 4, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 5, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 3, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 4, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0226, 1},
+  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0100, 1},
+  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0080, 1},
+  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 4, 0, 0, 0x0180, 0},
+  { 1, 77, 1, 0, 1, 0, 1, 0, 0, 0x0100, 1},
+  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0080, 1},
+  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
+  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0100, 1},
+  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0100, 1},
+  {17, 34, 1, 0, 1, 1, 1, 0, 0, 0x0100, 1},
+  {17, 34, 1, 0, 1, 0, 3, 0, 0, 0x0100, 1},
+  {17, 34, 1, 0, 1, 0, 2, 0, 0, 0x0180, 1},
+  { 0,  0, 1, 0, 1, 0, 1, 0, 0, 0x0000, 1},
+};
 /******************************************************************************/
 DLLIMPORT struct Thing *_DK_find_my_next_creature_of_breed_and_job(long breed_idx, long job_idx, long a3);
 DLLIMPORT void _DK_anger_set_creature_anger_all_types(struct Thing *thing, long a2);
@@ -240,7 +274,7 @@ void load_swipe_graphic_for_creature(struct Thing *thing)
     SYNCDBG(6,"Starting for model %d",(int)thing->model);
     //_DK_load_swipe_graphic_for_creature(thing);
 
-    i = creatures[thing->model%CREATURE_TYPES_COUNT].field_8;
+    i = creatures[thing->model%CREATURE_TYPES_COUNT].swipe_idx;
     if ((i == 0) || (game.field_1516FF == i))
         return;
     free_swipe_graphic();
@@ -1324,26 +1358,26 @@ void thing_death_ice_explosion(struct Thing *thing)
 void creature_death_as_nature_intended(struct Thing *thing)
 {
     long i;
-    i = creatures[thing->model%CREATURE_TYPES_COUNT].field_4[0];
+    i = creatures[thing->model%CREATURE_TYPES_COUNT].natural_death_kind;
     switch (i)
     {
-    case 1:
+    case Death_Normal:
         thing_death_normal(thing);
         break;
-    case 2:
+    case Death_FleshExplode:
         thing_death_flesh_explosion(thing);
         break;
-    case 3:
+    case Death_GasFleshExplode:
         thing_death_gas_and_flesh_explosion(thing);
         break;
-    case 4:
+    case Death_SmokeExplode:
         thing_death_smoke_explosion(thing);
         break;
-    case 5:
+    case Death_IceExplode:
         thing_death_ice_explosion(thing);
         break;
     default:
-        WARNLOG("Unexpected creature death cause %ld",i);
+        WARNLOG("Unexpected creature model %d death cause %d",(int)thing->model,(int)i);
         break;
     }
 }
@@ -1389,14 +1423,14 @@ unsigned long remove_thing_from_field1D_in_list(struct StructureList *list,long 
   return n;
 }
 
-void cause_creature_death(struct Thing *thing, unsigned char a2)
+void cause_creature_death(struct Thing *thing, unsigned char no_effects)
 {
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
     long crmodel;
     TbBool simple_death;
 
-    //_DK_cause_creature_death(thing, a2); return;
+    //_DK_cause_creature_death(thing, no_effects); return;
 
     cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
@@ -1405,9 +1439,9 @@ void cause_creature_death(struct Thing *thing, unsigned char a2)
 
     crmodel = thing->model;
     crstat = creature_stats_get_from_thing(thing);
-    if ( a2 )
+    if ((no_effects) || (!thing_exists(thing)))
     {
-        if ((game.flags_cd & 0x08) != 0)
+        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
         delete_thing_structure(thing, 0);
         return;
@@ -1427,24 +1461,24 @@ void cause_creature_death(struct Thing *thing, unsigned char a2)
 
     if (simple_death)
     {
-        if ((game.flags_cd & 0x08) != 0)
+        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
         creature_death_as_nature_intended(thing);
     } else
     if ((cctrl->field_AB & 0x02) != 0)
     {
-        if ((game.flags_cd & 0x08) != 0)
+        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
         thing_death_ice_explosion(thing);
     } else
     if ((cctrl->field_1D3 == 2) || (cctrl->field_1D3 == 24))
     {
-        if ((game.flags_cd & 0x08) != 0)
+        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
         thing_death_flesh_explosion(thing);
     } else
     {
-        if ((game.flags_cd & 0x08) != 0)
+        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
         creature_death_as_nature_intended(thing);
     }
