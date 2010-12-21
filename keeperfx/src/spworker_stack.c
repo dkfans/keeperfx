@@ -1033,7 +1033,7 @@ long check_out_imp_stack(struct Thing *thing)
             {
                 break;
             }
-            trdtng = check_for_empty_trap_for_imp_not_being_armed(thing, object_to_door_or_trap[sectng->model]);
+            trdtng = check_for_empty_trap_for_imp_not_being_armed(thing, box_thing_to_door_or_trap(sectng));
             if (thing_is_invalid(trdtng))
             {
                 break;

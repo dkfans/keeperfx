@@ -175,7 +175,6 @@
  0003:0000FD90       object_to_door_or_trap
  0003:0000FE18       workshop_object_class
  0003:0001E5F0       specials_text
- 0003:0000E6E0       door_names
  0003:00008438       creature_data
  0003:0000B1E0       objects
  0003:000115CC       eastegg_skeksis_cntr

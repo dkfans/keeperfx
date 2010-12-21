@@ -192,6 +192,18 @@ Thing_Class_Func object_update_functions[] = {
     NULL,
 };
 
+unsigned char object_to_door_or_trap[] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2,
+    3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+};
+
 /******************************************************************************/
 DLLIMPORT long _DK_move_object(struct Thing *thing);
 DLLIMPORT long _DK_update_object(struct Thing *thing);
@@ -373,7 +385,8 @@ int box_thing_to_door_or_trap(const struct Thing *thing)
 {
   if (thing_is_invalid(thing))
     return 0;
-  if ((thing->class_id != TCls_Object) || (thing->model >= OBJECT_TYPES_COUNT))
+  if ((thing->class_id != TCls_Object) ||
+      (thing->model >= sizeof(object_to_door_or_trap)/sizeof(object_to_door_or_trap[0])))
     return 0;
   return object_to_door_or_trap[thing->model];
 }

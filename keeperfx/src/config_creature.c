@@ -574,12 +574,12 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len,const char *config_
 
 TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags)
 {
-  static const char config_textname[] = "Creature Type config";
+  static const char config_textname[] = "Creature Types config";
   char *fname;
   char *buf;
   long len;
   TbBool result;
-  SYNCDBG(0,"Reading %s file \"%s\".",config_textname,conf_fname);
+  SYNCDBG(0,"%s %s file \"%s\".",((flags & CTLd_KindListOnly) == 0)?"Reading":"Parsing",config_textname,conf_fname);
   fname = prepare_file_path(FGrp_FxData,conf_fname);
   len = LbFileLengthRnc(fname);
   if (len < 2)

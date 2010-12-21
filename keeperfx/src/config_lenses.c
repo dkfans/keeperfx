@@ -137,7 +137,7 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
   for (i=0; i < arr_size; i++)
   {
     lenscfg = &lenses_conf.lenses[i];
-    LbMemorySet(lenscfg->name, 0, COMMAND_WORD_LEN);
+    LbMemorySet(lenscfg->code_name, 0, COMMAND_WORD_LEN);
     LbMemorySet(lenscfg->mist_file, 0, DISKPATH_SIZE);
     lenscfg->mist_lightness = 0;
     lenscfg->mist_ghost = 0;
@@ -148,7 +148,7 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
     lenscfg->flags = 0;
     if (i < lenses_conf.lenses_count)
     {
-      lenses_desc[i].name = lenscfg->name;
+      lenses_desc[i].name = lenscfg->code_name;
       lenses_desc[i].num = i;
     } else
     {
@@ -180,7 +180,7 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
       switch (cmd_num)
       {
       case 1: // NAME
-          if (get_conf_parameter_single(buf,&pos,len,lenscfg->name,COMMAND_WORD_LEN) <= 0)
+          if (get_conf_parameter_single(buf,&pos,len,lenscfg->code_name,COMMAND_WORD_LEN) <= 0)
           {
             CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
