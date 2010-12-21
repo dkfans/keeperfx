@@ -39,10 +39,10 @@ extern "C" {
 #define CAMPAIGN_CREDITS_COUNT      360
 
 enum CampaignLoadFlags {
-    CLd_Standard      =  0x00,
-    CLd_ListOnly      =  0x01,
-    CLd_AcceptPartial =  0x02,
-    CLd_IgnoreErrors  =  0x04,
+    CpLd_Standard      =  0x00,
+    CpLd_ListOnly      =  0x01,
+    CpLd_AcceptPartial =  0x02,
+    CpLd_IgnoreErrors  =  0x04,
 };
 
 enum CreditsItemKind {

@@ -2,7 +2,7 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file config_terrain.c
- *     Slabs, rooms, traps and doors configuration loading functions.
+ *     Slabs and rooms configuration loading functions.
  * @par Purpose:
  *     Support of configuration files for terrain elements.
  * @par Comment:
@@ -38,8 +38,6 @@ const char keeper_terrain_file[]="terrain.cfg";
 const struct NamedCommand terrain_common_commands[] = {
   {"SLABSCOUNT",      1},
   {"ROOMSCOUNT",      2},
-  {"TRAPSCOUNT",      3},
-  {"DOORSCOUNT",      4},
   {NULL,              0},
   };
 
@@ -52,25 +50,6 @@ const struct NamedCommand terrain_room_commands[] = {
   {"NAME",            1},
   {"COST",            2},
   {"HEALTH",          3},
-  {NULL,              0},
-  };
-
-const struct NamedCommand terrain_door_commands[] = {
-  {"NAME",            1},
-  {"MANUFACTURELEVEL",2},
-  {"MANUFACTUREREQUIRED",3},
-  {"SELLINGVALUE",    4},
-  {"HEALTH",          5},
-  {NULL,              0},
-  };
-
-const struct NamedCommand terrain_trap_commands[] = {
-  {"NAME",            1},
-  {"MANUFACTURELEVEL",2},
-  {"MANUFACTUREREQUIRED",3},
-  {"SHOTS",           4},
-  {"TIMEBETWEENSHOTS",5},
-  {"SELLINGVALUE",    6},
   {NULL,              0},
   };
 
@@ -91,8 +70,6 @@ const struct NamedCommand terrain_health_commands[] = {
 struct SlabsConfig slab_conf;
 struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
 struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
-struct NamedCommand trap_desc[TERRAIN_ITEMS_MAX];
-struct NamedCommand door_desc[TERRAIN_ITEMS_MAX];
 
 //TODO identify all slab attributes and store them in config file
 struct SlabAttr slab_attrs[] = {
@@ -181,8 +158,6 @@ TbBool parse_terrain_common_blocks(char *buf,long len,const char *config_textnam
   // Initialize block data
   slab_conf.slab_types_count = 1;
   slab_conf.room_types_count = 1;
-  slab_conf.trap_types_count = 1;
-  slab_conf.door_types_count = 1;
   // Find the block
   sprintf(block_buf,"common");
   pos = 0;
@@ -225,38 +200,6 @@ TbBool parse_terrain_common_blocks(char *buf,long len,const char *config_textnam
             if ((k > 0) && (k <= TERRAIN_ITEMS_MAX))
             {
               slab_conf.room_types_count = k;
-              n++;
-            }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 3: // TRAPSCOUNT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if ((k > 0) && (k <= TERRAIN_ITEMS_MAX))
-            {
-              slab_conf.trap_types_count = k;
-              n++;
-            }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 4: // DOORSCOUNT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if ((k > 0) && (k <= TERRAIN_ITEMS_MAX))
-            {
-              slab_conf.door_types_count = k;
               n++;
             }
           }
@@ -507,276 +450,6 @@ TbBool parse_terrain_room_blocks(char *buf,long len,const char *config_textname)
   return true;
 }
 
-TbBool parse_terrain_trap_blocks(char *buf,long len,const char *config_textname)
-{
-  struct ManfctrConfig *mconf;
-  long pos;
-  int i,k,n;
-  int cmd_num;
-  // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
-  // Initialize the traps array
-  int arr_size = sizeof(slab_conf.trap_names)/sizeof(slab_conf.trap_names[0]);
-  for (i=0; i < arr_size; i++)
-  {
-    LbMemorySet(slab_conf.trap_names[i].text, 0, COMMAND_WORD_LEN);
-    if (i < slab_conf.trap_types_count)
-    {
-      trap_desc[i].name = slab_conf.trap_names[i].text;
-      trap_desc[i].num = i;
-    } else
-    {
-      trap_desc[i].name = NULL;
-      trap_desc[i].num = 0;
-    }
-  }
-  arr_size = slab_conf.trap_types_count;
-  for (i=0; i < arr_size; i++)
-  {
-    mconf = &game.traps_config[i];
-    mconf->manufct_level = 0;
-    mconf->manufct_required = 0;
-    mconf->shots = 0;
-    mconf->shots_delay = 0;
-    mconf->selling_value = 0;
-  }
-  // Load the file
-  for (i=0; i < arr_size; i++)
-  {
-    sprintf(block_buf,"trap%d",i);
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
-    if (k < 0)
-    {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      continue;
-    }
-    mconf = &game.traps_config[i];
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_trap_commands,cmd_num)
-    while (pos<len)
-    {
-      // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,terrain_trap_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      n = 0;
-      switch (cmd_num)
-      {
-      case 1: // NAME
-          if (get_conf_parameter_single(buf,&pos,len,slab_conf.trap_names[i].text,COMMAND_WORD_LEN) <= 0)
-          {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            break;
-          }
-          break;
-      case 2: // MANUFACTURELEVEL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            mconf->manufct_level = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 3: // MANUFACTUREREQUIRED
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            mconf->manufct_required = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 4: // SHOTS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            mconf->shots = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 5: // TIMEBETWEENSHOTS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            mconf->shots_delay = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 6: // SELLINGVALUE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            mconf->selling_value = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-  }
-  return true;
-}
-
-TbBool parse_terrain_door_blocks(char *buf,long len,const char *config_textname)
-{
-  struct ManfctrConfig *mconf;
-  long pos;
-  int i,k,n;
-  int cmd_num;
-  // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
-  // Initialize the doors array
-  int arr_size = sizeof(slab_conf.door_names)/sizeof(slab_conf.door_names[0]);
-  for (i=0; i < arr_size; i++)
-  {
-    LbMemorySet(slab_conf.door_names[i].text, 0, COMMAND_WORD_LEN);
-    if (i < slab_conf.door_types_count)
-    {
-      door_desc[i].name = slab_conf.door_names[i].text;
-      door_desc[i].num = i;
-    } else
-    {
-      door_desc[i].name = NULL;
-      door_desc[i].num = 0;
-    }
-  }
-  arr_size = slab_conf.door_types_count;
-  // Load the file
-  for (i=1; i < arr_size; i++)
-  {
-    sprintf(block_buf,"door%d",i);
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
-    if (k < 0)
-    {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      continue;
-    }
-    mconf = &game.doors_config[i];
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_door_commands,cmd_num)
-    while (pos<len)
-    {
-      // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,terrain_door_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      n = 0;
-      switch (cmd_num)
-      {
-      case 1: // NAME
-          if (get_conf_parameter_single(buf,&pos,len,slab_conf.door_names[i].text,COMMAND_WORD_LEN) <= 0)
-          {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            break;
-          }
-          break;
-      case 2: // MANUFACTURELEVEL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            mconf->manufct_level = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-
-      case 3: // MANUFACTUREREQUIRED
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            mconf->manufct_required = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 4: // SELLINGVALUE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            mconf->selling_value = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 5: // HEALTH
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            door_stats[i][0].health = k;
-            door_stats[i][1].health = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-  }
-  return true;
-}
-
 TbBool load_terrain_config(const char *conf_fname,unsigned short flags)
 {
   static const char config_textname[] = "Terrain config";
@@ -820,18 +493,6 @@ TbBool load_terrain_config(const char *conf_fname,unsigned short flags)
     result = parse_terrain_room_blocks(buf, len, config_textname);
     if (!result)
       WARNMSG("Parsing %s file \"%s\" room blocks failed.",config_textname,conf_fname);
-  }
-  if (result)
-  {
-    result = parse_terrain_trap_blocks(buf, len, config_textname);
-    if (!result)
-      WARNMSG("Parsing %s file \"%s\" trap blocks failed.",config_textname,conf_fname);
-  }
-  if (result)
-  {
-    result = parse_terrain_door_blocks(buf, len, config_textname);
-    if (!result)
-      WARNMSG("Parsing %s file \"%s\" door blocks failed.",config_textname,conf_fname);
   }
   //Freeing and exiting
   LbMemoryFree(buf);
@@ -941,31 +602,6 @@ TbBool make_available_all_researchable_rooms(long plyr_idx)
   }
   return true;
 }
-
-/**
- * Returns Code Name (name to use in script file) of given door model.
- */
-const char *door_code_name(long tngmodel)
-{
-    const char *name;
-    name = get_conf_parameter_text(door_desc,tngmodel);
-    if (name[0] != '\0')
-        return name;
-    return "INVALID";
-}
-
-/**
- * Returns Code Name (name to use in script file) of given trap model.
- */
-const char *trap_code_name(long tngmodel)
-{
-    const char *name;
-    name = get_conf_parameter_text(trap_desc,tngmodel);
-    if (name[0] != '\0')
-        return name;
-    return "INVALID";
-}
-
 /******************************************************************************/
 #ifdef __cplusplus
 }

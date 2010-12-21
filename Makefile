@@ -103,6 +103,7 @@ obj/config_lenses.o \
 obj/config_magic.o \
 obj/config_rules.o \
 obj/config_terrain.o \
+obj/config_trapdoor.o \
 obj/creature_control.o \
 obj/creature_graphics.o \
 obj/creature_instances.o \

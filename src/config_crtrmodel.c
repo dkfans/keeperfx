@@ -671,13 +671,17 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       skip_conf_to_next_line(buf,&pos,len);
   }
 #undef COMMAND_TEXT
-  // If the creature is a special digger, then update an attribute in CreatureConfig struct
+  // If the creature is a special breed, then update an attribute in CreatureConfig struct
   if ((crconf->model_flags & MF_IsSpecDigger) != 0)
   {
       if ((crconf->model_flags & MF_IsEvil) != 0)
           crtr_conf.special_digger_evil = crtr_model;
       else
           crtr_conf.special_digger_good = crtr_model;
+  }
+  if ((crconf->model_flags & MF_IsSpectator) != 0)
+  {
+      crtr_conf.spectator_breed = crtr_model;
   }
 //  if (crstat->humanoid_creature) SYNCMSG("Creature is humanoid.");
   return true;

@@ -926,7 +926,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
   clear_campaign(campgn);
   LbStringCopy(campgn->fname,cmpgn_fname,DISKPATH_SIZE);
   LbStringCopy(campgn->name,cmpgn_fname,DISKPATH_SIZE);
-  SYNCDBG(0,"%s campaign file \"%s\".",((flags & CLd_ListOnly) == 0)?"Reading":"Parsing",cmpgn_fname);
+  SYNCDBG(0,"%s campaign file \"%s\".",((flags & CpLd_ListOnly) == 0)?"Reading":"Parsing",cmpgn_fname);
   fname = prepare_file_path(FGrp_Campgn,cmpgn_fname);
   len = LbFileLengthRnc(fname);
   if (len < 2)
@@ -951,19 +951,19 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
     if (!result)
       WARNMSG("Parsing campaign file \"%s\" common blocks failed.",cmpgn_fname);
   }
-  if ((result) && ((flags & CLd_ListOnly) == 0))
+  if ((result) && ((flags & CpLd_ListOnly) == 0))
   {
     result = parse_campaign_strings_blocks(campgn, buf, len);
     if (!result)
       WARNMSG("Parsing campaign file \"%s\" strings block failed.",cmpgn_fname);
   }
-  if ((result) && ((flags & CLd_ListOnly) == 0))
+  if ((result) && ((flags & CpLd_ListOnly) == 0))
   {
     result = parse_campaign_speech_blocks(campgn, buf, len);
     if (!result)
       WARNMSG("Parsing campaign file \"%s\" speech block failed.",cmpgn_fname);
   }
-  if ((result) && ((flags & CLd_ListOnly) == 0))
+  if ((result) && ((flags & CpLd_ListOnly) == 0))
   {
     result = parse_campaign_map_blocks(campgn, buf, len);
     if (!result)
@@ -971,7 +971,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
   }
   //Freeing and exiting
   LbMemoryFree(buf);
-  if ((flags & CLd_ListOnly) == 0)
+  if ((flags & CpLd_ListOnly) == 0)
   {
     setup_campaign_strings_data(campgn);
     setup_campaign_credits_data(campgn);
@@ -988,9 +988,9 @@ TbBool change_campaign(const char *cmpgn_fname)
     return true;
   free_campaign(&campaign);
   if ((cmpgn_fname != NULL) && (cmpgn_fname[0] != '\0'))
-    result = load_campaign(cmpgn_fname,&campaign,CLd_Standard);
+    result = load_campaign(cmpgn_fname,&campaign,CpLd_Standard);
   else
-    result = load_campaign(keeper_campaign_file,&campaign,CLd_Standard);
+    result = load_campaign(keeper_campaign_file,&campaign,CpLd_Standard);
   load_or_create_high_score_table();
   return result;
 }
@@ -1070,7 +1070,7 @@ TbBool load_campaign_to_list(const char *cmpgn_fname,struct CampaignsList *clist
   if (clist->items_num >= clist->items_count)
     return false;
   campgn = &clist->items[clist->items_num];
-  if (load_campaign(cmpgn_fname,campgn,CLd_ListOnly))
+  if (load_campaign(cmpgn_fname,campgn,CpLd_ListOnly))
   {
     clist->items_num++;
     return true;

@@ -30,6 +30,7 @@
 #include "front_simple.h"
 #include "config.h"
 #include "config_terrain.h"
+#include "config_trapdoor.h"
 #include "config_rules.h"
 #include "config_lenses.h"
 #include "config_magic.hpp"
