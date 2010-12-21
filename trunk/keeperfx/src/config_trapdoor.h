@@ -68,8 +68,8 @@ extern struct NamedCommand trap_desc[TRAPDOOR_ITEMS_MAX];
 extern struct NamedCommand door_desc[TRAPDOOR_ITEMS_MAX];
 /******************************************************************************/
 TbBool load_trapdoor_config(const char *conf_fname,unsigned short flags);
-struct TrapConfigStats *get_trap_stats(int tngmodel);
-struct DoorConfigStats *get_door_stats(int tngmodel);
+struct TrapConfigStats *get_trap_model_stats(int tngmodel);
+struct DoorConfigStats *get_door_model_stats(int tngmodel);
 const char *door_code_name(int tngmodel);
 const char *trap_code_name(int tngmodel);
 /******************************************************************************/

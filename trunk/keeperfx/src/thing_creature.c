@@ -1428,10 +1428,7 @@ void cause_creature_death(struct Thing *thing, unsigned char no_effects)
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
     long crmodel;
-    TbBool simple_death;
-
     //_DK_cause_creature_death(thing, no_effects); return;
-
     cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
     throw_out_gold(thing);
@@ -1452,14 +1449,7 @@ void cause_creature_death(struct Thing *thing, unsigned char no_effects)
         creature_rebirth_at_lair(thing);
         return;
     }
-
-    //TODO check if this condition is right
-    if (censorship_enabled())
-        simple_death = crstat->bleeds;
-    else
-        simple_death = (crstat->bleeds) && ((get_creature_model_flags(thing) & MF_IsEvil) != 0);
-
-    if (simple_death)
+    if (creature_model_bleeds(thing->model))
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
@@ -3012,7 +3002,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
     if (game.texture_id == 2)
     {
       slb = get_slabmap_block(map_to_slab[thing->mappos.x.stl.num], map_to_slab[thing->mappos.y.stl.num]);
-      if (slb->slab == SlbT_PATH)
+      if (slb->kind == SlbT_PATH)
       {
         thing->field_25 |= 0x80u;
         nfoot = get_foot_creature_has_down(thing);

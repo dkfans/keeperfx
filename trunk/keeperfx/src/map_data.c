@@ -440,7 +440,7 @@ TbBool subtile_is_sellable_room(long plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
     slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_owner(slb) != plyr_idx)
         return false;
-    if ((slb->slab == SlbT_ENTRANCE) || (slb->slab == SlbT_DUNGHEART))
+    if ((slb->kind == SlbT_ENTRANCE) || (slb->kind == SlbT_DUNGHEART))
         return false;
     return true;
 }

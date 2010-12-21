@@ -230,7 +230,7 @@ DLLIMPORT struct ImpStack _DK_reinforce_stack[];
 #define reinforce_stack _DK_reinforce_stack
 extern const CombatState combat_state[];
 /******************************************************************************/
-TbBool creature_model_bleeds(unsigned long model);
+TbBool creature_model_bleeds(unsigned long crmodel);
 TbBool can_change_from_state_to(struct Thing *thing, long curr_state, long next_state);
 TbBool internal_set_thing_state(struct Thing *thing, long nState);
 TbBool initialise_thing_state(struct Thing *thing, long nState);
