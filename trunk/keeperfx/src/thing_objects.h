@@ -70,7 +70,6 @@ DLLIMPORT extern unsigned char _DK_object_to_magic[OBJECT_TYPES_COUNT];
 DLLIMPORT extern unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
 #define workshop_object_class _DK_workshop_object_class
 DLLIMPORT extern unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
-#define object_to_door_or_trap _DK_object_to_door_or_trap
 /******************************************************************************/
 struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
 struct Objects *get_objects_data_for_thing(struct Thing *thing);

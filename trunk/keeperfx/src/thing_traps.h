@@ -38,9 +38,9 @@ struct TrapData {
       long field_0;
       long field_4;
       short field_8;
-      short field_A;
-      unsigned short name_stridx;
-      short field_E;
+      short parchment_spridx;
+      unsigned short name_stridx_DONTUSE; // use TrapConfigStats instead
+      unsigned short tooltip_stridx_DONTUSE; // use TrapConfigStats instead
 };
 
 struct TrapStats {  // sizeof=54

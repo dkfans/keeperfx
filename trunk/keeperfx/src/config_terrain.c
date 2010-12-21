@@ -43,6 +43,7 @@ const struct NamedCommand terrain_common_commands[] = {
 
 const struct NamedCommand terrain_slab_commands[] = {
   {"NAME",            1},
+  {"TOOLTIPTEXTID",   2},
   {NULL,              0},
   };
 
@@ -73,17 +74,17 @@ struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
 
 //TODO identify all slab attributes and store them in config file
 struct SlabAttr slab_attrs[] = {
-  {324, 4, 0, 48, 0, 0, 0,  0, 1, 0, 0, 0, 0}, // [0]
+  {324, 4, 0, 48, 0, 0, 0,  0, 1, 0, 0, 0, 0}, // [0] HARD
   {326, 4, 1, 17, 0, 0, 0,  0, 1, 0, 0, 1, 0},
   {325, 4, 0, 24, 0, 0, 1,  0, 1, 0, 0, 1, 0},
   {325, 4, 0, 24, 0, 0, 1,  0, 1, 0, 0, 1, 0},
   {329, 4, 2, 48, 0, 0, 3,  0, 1, 0, 0, 1, 0},
-  {329, 4, 2, 48, 0, 0, 3,  0, 1, 0, 0, 1, 0},
+  {329, 4, 2, 48, 0, 0, 3,  0, 1, 0, 0, 1, 0}, // [5]
   {329, 4, 2, 48, 0, 0, 3,  0, 1, 0, 0, 1, 0},
   {329, 4, 2, 48, 0, 0, 3,  0, 1, 0, 0, 1, 0},
   {329, 4, 2, 48, 0, 0, 3,  0, 1, 0, 0, 1, 0},
   {330, 4, 2, 24, 0, 0, 3,  0, 1, 0, 0, 1, 0},
-  {331, 0, 2,  0, 0, 0, 0,  1, 1, 1, 0, 0, 0}, // [10]
+  {331, 0, 2,  0, 0, 0, 0,  1, 1, 1, 0, 0, 0}, // [10] PATH
   {332, 0, 3,  0, 0, 0, 2,  2, 1, 1, 0, 0, 0},
   {327, 0, 2,  0, 0, 1, 0,  3, 1, 0, 0, 0, 1},
   {328, 0, 2,  0, 0, 2, 0,  4, 1, 1, 0, 0, 2},
@@ -226,6 +227,7 @@ TbBool parse_terrain_common_blocks(char *buf,long len,const char *config_textnam
 
 TbBool parse_terrain_slab_blocks(char *buf,long len,const char *config_textname)
 {
+    struct SlabAttr *slbattr;
   long pos;
   int i,k,n;
   int cmd_num;
@@ -233,7 +235,8 @@ TbBool parse_terrain_slab_blocks(char *buf,long len,const char *config_textname)
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Initialize the array
-  int arr_size = sizeof(slab_conf.slab_names)/sizeof(slab_conf.slab_names[0]);
+  int arr_size;
+  arr_size = sizeof(slab_conf.slab_names)/sizeof(slab_conf.slab_names[0]);
   for (i=0; i < arr_size; i++)
   {
     LbMemorySet(slab_conf.slab_names[i].text, 0, COMMAND_WORD_LEN);
@@ -247,6 +250,12 @@ TbBool parse_terrain_slab_blocks(char *buf,long len,const char *config_textname)
       slab_desc[i].num = 0;
     }
   }
+  arr_size = sizeof(slab_attrs)/sizeof(slab_attrs[0]);
+  for (i=0; i < arr_size; i++)
+  {
+      slbattr = get_slab_kind_attrs(i);
+      slbattr->tooltip_idx = 201;
+  }
   arr_size = slab_conf.slab_types_count;
   // Load the file
   for (i=0; i < arr_size; i++)
@@ -259,6 +268,7 @@ TbBool parse_terrain_slab_blocks(char *buf,long len,const char *config_textname)
       WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
       continue;
     }
+    slbattr = get_slab_kind_attrs(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_slab_commands,cmd_num)
     while (pos<len)
     {
@@ -276,6 +286,23 @@ TbBool parse_terrain_slab_blocks(char *buf,long len,const char *config_textname)
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
             break;
           }
+          break;
+      case 2: // TOOLTIPTEXTID
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+                slbattr->tooltip_idx = k;
+                n++;
+            }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
           break;
       case 0: // comment
           break;

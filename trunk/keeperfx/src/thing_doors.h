@@ -40,11 +40,8 @@ struct DoorStats { // sizeof = 8
 };
 
 /******************************************************************************/
-extern const short door_names[];
-/******************************************************************************/
 DLLIMPORT extern struct DoorStats _DK_door_stats[5][2];
 #define door_stats _DK_door_stats
-DLLIMPORT extern unsigned short _DK_door_names[DOOR_TYPES_COUNT];
 /******************************************************************************/
 #ifdef __cplusplus
 #pragma pack()

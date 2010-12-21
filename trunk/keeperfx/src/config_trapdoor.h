@@ -45,12 +45,22 @@ enum TrapDoorLoadFlags {
 #pragma pack()
 #endif
 /******************************************************************************/
+struct DoorConfigStats {
+    char code_name[COMMAND_WORD_LEN];
+    long name_stridx;
+};
+
+struct TrapConfigStats {
+    char code_name[COMMAND_WORD_LEN];
+    long name_stridx;
+    long tooltip_stridx;
+};
 
 struct TrapDoorConfig {
     long trap_types_count;
-    struct CommandWord trap_names[TRAPDOOR_ITEMS_MAX];
+    struct TrapConfigStats trap_cfgstats[TRAPDOOR_ITEMS_MAX];
     long door_types_count;
-    struct CommandWord door_names[TRAPDOOR_ITEMS_MAX];
+    struct DoorConfigStats door_cfgstats[TRAPDOOR_ITEMS_MAX];
 };
 /******************************************************************************/
 extern const char keeper_trapdoor_file[];
@@ -58,8 +68,10 @@ extern struct NamedCommand trap_desc[TRAPDOOR_ITEMS_MAX];
 extern struct NamedCommand door_desc[TRAPDOOR_ITEMS_MAX];
 /******************************************************************************/
 TbBool load_trapdoor_config(const char *conf_fname,unsigned short flags);
-const char *door_code_name(long tngmodel);
-const char *trap_code_name(long tngmodel);
+struct TrapConfigStats *get_trap_stats(int tngmodel);
+struct DoorConfigStats *get_door_stats(int tngmodel);
+const char *door_code_name(int tngmodel);
+const char *trap_code_name(int tngmodel);
 /******************************************************************************/
 #ifdef __cplusplus
 }
