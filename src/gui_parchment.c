@@ -171,7 +171,7 @@ TbPixel get_overhead_mapblock_color(long stl_x,long stl_y,long plyr_idx,TbPixel 
     }
   } else
   {
-    if (slb->slab == 0)
+    if (slb->kind == SlbT_ROCK)
     {
       pixval = 0;
     } else
@@ -200,11 +200,11 @@ TbPixel get_overhead_mapblock_color(long stl_x,long stl_y,long plyr_idx,TbPixel 
     } else
     if ((map->flags & 0x10) == 0)
     {
-      if (slb->slab == 12)
+      if (slb->kind == SlbT_LAVA)
       {
         pixval = 146;
       } else
-      if (slb->slab == 13)
+      if (slb->kind == SlbT_WATER)
       {
         pixval = 85;
       } else

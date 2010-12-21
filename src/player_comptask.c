@@ -271,7 +271,7 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
     case 13:
     case 14:
         slb = get_slabmap_block(slb_x, slb_y);
-        if ((slb->slab == 12) || (slb->slab == 13))
+        if ((slb->kind == SlbT_LAVA) || (slb->kind == SlbT_WATER))
         {
             place_slab_type_on_map(10, stl_x, stl_y, plyr_idx, 0);
             do_slab_efficiency_alteration(slb_x, slb_y);

@@ -535,7 +535,7 @@ long check_place_to_dig_and_get_position(struct Thing *thing, unsigned long stl_
               }
               if (valid_dig_position(thing->owner, stl_x, stl_y))
               {
-                    if ((place_slb->slab != SlbT_GEMS) || !gold_pile_with_maximum_at_xy(stl_x, stl_y))
+                    if ((place_slb->kind != SlbT_GEMS) || !gold_pile_with_maximum_at_xy(stl_x, stl_y))
                       if (!imp_already_digging_at_excluding(thing, stl_x, stl_y))
                         if (!imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
                         {

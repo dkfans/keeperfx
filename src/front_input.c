@@ -1107,7 +1107,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   slab_y = map_to_slab[y];
   slb = get_slabmap_block(slab_x, slab_y);
   slbattr = get_slab_attrs(slb);
-  if (slab_type_is_door(slb->slab) && (slabmap_owner(slb) == player->id_number))
+  if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number))
   {
     *context = 2;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;

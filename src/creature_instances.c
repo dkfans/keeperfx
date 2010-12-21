@@ -238,14 +238,14 @@ long instf_dig(struct Thing *thing, long *param)
         dig_damage = game.default_imp_dig_damage;
     if (slb->field_4 > dig_damage)
     {
-        if (slb->slab != 52)
+        if (slb->kind != SlbT_GEMS)
           slb->field_4 -= dig_damage;
         thing_play_sample(thing, 63 + UNSYNC_RANDOM(6), 100, 0, 3, 0, 2, 256);
         create_effect(&thing->mappos, 25, thing->owner);
         if (taskkind == 2)
         {
           gold = (dig_damage * (long)game.gold_per_gold_block) / game.block_health[1];
-          if (slb->slab == 52)
+          if (slb->kind == SlbT_GEMS)
           {
             gold /= 6;
             if (gold <= 1)

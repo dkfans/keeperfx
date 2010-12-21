@@ -582,6 +582,7 @@
  0001:0006EF80       process_computer_players2
  0001:0006F070       process_computer_player2
  0001:0006F1A0       set_autopilot_type
+ 0001:0006F340       reveal_players_map_to_player
  0001:0006F7E0       at_torture_room
  0001:0006F8D0       process_torture_visuals
  0001:0006FC10       process_torture_function

@@ -106,8 +106,8 @@ const char *thing_model_name(struct Thing *thing)
 long compute_creature_max_health(long base_health,unsigned short crlevel)
 {
   long max_health;
-  if (base_health <= 0)
-    return 0;
+  if (base_health < -100000)
+    base_health = -100000;
   if (base_health > 100000)
     base_health = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)

@@ -76,7 +76,7 @@ struct PlayerInfo;
 typedef unsigned char SlabType;
 
 struct SlabMap {
-      SlabType slab;
+      SlabType kind;
       short next_in_room;
       unsigned char room_index;
       unsigned char field_4;
@@ -104,8 +104,9 @@ SlabCodedCoords get_slab_number(MapSlabCoord slb_x, MapSlabCoord slb_y);
 long slb_num_decode_x(SlabCodedCoords slb_num);
 long slb_num_decode_y(SlabCodedCoords slb_num);
 
-TbBool slab_type_is_door(SlabType slbtype);
-TbBool slab_type_is_animated(SlabType slbtype);
+TbBool slab_kind_is_door(SlabType slbkind);
+TbBool slab_kind_is_nonmagic_door(SlabType slbkind);
+TbBool slab_kind_is_animated(SlabType slbkind);
 
 struct SlabMap *get_slabmap_block(MapSlabCoord slab_x, MapSlabCoord slab_y);
 struct SlabMap *get_slabmap_for_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);

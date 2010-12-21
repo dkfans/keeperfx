@@ -1050,7 +1050,7 @@ short initialise_map_wlb_auto(void)
     for (x=0; x < map_tiles_x; x++)
     {
       slb = get_slabmap_block(x,y);
-      if (slb->slab == SlbT_BRIDGE)
+      if (slb->kind == SlbT_BRIDGE)
       {
         if (slabs_count_near(x,y,1,SlbT_LAVA) > slabs_count_near(x,y,1,SlbT_WATER))
           n = SlbT_LAVA;
@@ -1059,7 +1059,7 @@ short initialise_map_wlb_auto(void)
         nbridge++;
       } else
       {
-        n = slb->slab;
+        n = slb->kind;
       }
       slbattr = get_slab_kind_attrs(n);
       n = (slbattr->field_15 << 3);
@@ -1093,9 +1093,9 @@ short load_map_wlb_file(unsigned long lv_num)
       n = slb->field_5 ^ ((slb->field_5 ^ n) & 0x18);
       slb->field_5 = n;
       n &= 0x18;
-      if ((n != 16) || (slb->slab != SlbT_WATER))
-        if ((n != 8) || (slb->slab != SlbT_LAVA))
-          if (((n == 16) || (n == 8)) && (slb->slab != SlbT_BRIDGE))
+      if ((n != 16) || (slb->kind != SlbT_WATER))
+        if ((n != 8) || (slb->kind != SlbT_LAVA))
+          if (((n == 16) || (n == 8)) && (slb->kind != SlbT_BRIDGE))
           {
               nfixes++;
               slb->field_5 &= 0xE7u;
@@ -1145,7 +1145,7 @@ short load_map_slab_file(unsigned long lv_num)
         WARNMSG("Slab Type %d exceeds limit of %d",n,SLAB_TYPES_COUNT);
         n = SlbT_ROCK;
       }
-      slb->slab = n;
+      slb->kind = n;
       i += 2;
     }
   LbMemoryFree(buf);

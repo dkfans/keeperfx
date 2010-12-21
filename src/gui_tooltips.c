@@ -124,7 +124,7 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
     update_gui_tooltip_target(thing);
     if ((help_tip_time > 20) || (player->work_state == 12))
     {
-        trapst = get_trap_stats(thing->model);
+        trapst = get_trap_model_stats(thing->model);
         set_gui_tooltip_box(4,trapst->name_stridx);
     } else
     {
@@ -169,12 +169,12 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
     if (get_workshop_object_class_for_thing(thing) == 8)
     {
         struct TrapConfigStats *trapst;
-        trapst = get_trap_stats(box_thing_to_door_or_trap(thing));
+        trapst = get_trap_model_stats(box_thing_to_door_or_trap(thing));
         i = trapst->name_stridx;
     } else
     {
         struct DoorConfigStats *doorst;
-        doorst = get_door_stats(box_thing_to_door_or_trap(thing));
+        doorst = get_door_model_stats(box_thing_to_door_or_trap(thing));
         i = doorst->name_stridx;
     }
     set_gui_tooltip_box(5,i);
@@ -226,7 +226,7 @@ short setup_land_tooltips(struct Coord3d *pos)
   if (!settings.tooltips_on)
     return false;
   slb = get_slabmap_for_subtile(pos->x.stl.num, pos->y.stl.num);
-  skind = slb->slab;
+  skind = slb->kind;
   slbattr = get_slab_kind_attrs(skind);
   if (slbattr->tooltip_idx == 201)
     return false;

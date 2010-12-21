@@ -67,14 +67,14 @@ struct TrapDoorConfig trapdoor_conf;
 struct NamedCommand trap_desc[TRAPDOOR_ITEMS_MAX];
 struct NamedCommand door_desc[TRAPDOOR_ITEMS_MAX];
 /******************************************************************************/
-struct TrapConfigStats *get_trap_stats(int tngmodel)
+struct TrapConfigStats *get_trap_model_stats(int tngmodel)
 {
     if ((tngmodel < 0) || (tngmodel >= trapdoor_conf.trap_types_count))
         return &trapdoor_conf.trap_cfgstats[0];
     return &trapdoor_conf.trap_cfgstats[tngmodel];
 }
 
-struct DoorConfigStats *get_door_stats(int tngmodel)
+struct DoorConfigStats *get_door_model_stats(int tngmodel)
 {
     if ((tngmodel < 0) || (tngmodel >= trapdoor_conf.door_types_count))
         return &trapdoor_conf.door_cfgstats[0];

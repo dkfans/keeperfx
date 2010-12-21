@@ -195,12 +195,19 @@ TbBool slab_is_safe_land(long plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
   return false;
 }
 
-TbBool slab_type_is_door(SlabType slbtype)
+TbBool slab_kind_is_door(SlabType slbkind)
 {
-    if ((slbtype >= SlbT_DOORWOOD1) && (slbtype <= SlbT_DOORMAGIC2))
+    if ((slbkind >= SlbT_DOORWOOD1) && (slbkind <= SlbT_DOORMAGIC2))
     {
         return true;
     }
+    return false;
+}
+
+TbBool slab_kind_is_nonmagic_door(SlabType slbkind)
+{
+    if ((slbkind >= SlbT_DOORWOOD1) && (slbkind <= SlbT_DOORIRON2))
+        return true;
     return false;
 }
 
@@ -208,12 +215,12 @@ TbBool slab_is_door(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
   struct SlabMap *slb;
   slb = get_slabmap_block(slb_x, slb_y);
-  return slab_type_is_door(slb->slab);
+  return slab_kind_is_door(slb->kind);
 }
 
-TbBool slab_type_is_animated(SlabType slbtype)
+TbBool slab_kind_is_animated(SlabType slbkind)
 {
-  if (slab_type_is_door(slbtype))
+  if (slab_kind_is_door(slbkind))
       return true;
   return false;
 }
@@ -230,7 +237,7 @@ void clear_slabs(void)
     {
       slb = &game.slabmap[y*map_tiles_x + x];
       memset(slb, 0, sizeof(struct SlabMap));
-      slb->slab = SlbT_ROCK;
+      slb->kind = SlbT_ROCK;
     }
 }
 
