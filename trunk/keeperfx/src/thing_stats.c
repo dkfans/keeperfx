@@ -26,6 +26,7 @@
 #include "creature_control.h"
 #include "config_creature.h"
 #include "config_terrain.h"
+#include "config_trapdoor.h"
 #include "player_data.h"
 #include "config_magic.hpp"
 #include "vidfade.h"

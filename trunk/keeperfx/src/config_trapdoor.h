@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file config_lenses.h
- *     Header file for config_lenses.c.
+/** @file config_trapdoor.h
+ *     Header file for config_trapdoor.c.
  * @par Purpose:
- *     Support of configuration files for eye lenses.
+ *     Traps and doors configuration loading functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     25 May 2009 - 26 Jul 2009
+ * @date     25 May 2009 - 21 Dec 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,12 +16,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_CFGLENS_H
-#define DK_CFGLENS_H
+#ifndef DK_CFGTRAPDOOR_H
+#define DK_CFGTRAPDOOR_H
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_video.h"
 
 #include "config.h"
 
@@ -29,41 +28,38 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define LENS_ITEMS_MAX 32
 
-enum LensLoadFlags {
-    LnLd_Standard      =  0x00,
+#define TRAPDOOR_ITEMS_MAX 256
+
+enum TrapDoorLoadFlags {
+    TDLd_Standard      =  0x00,
 };
 
-enum LensConfigFlags {
-    LCF_HasMist     = 0x01,
-    LCF_HasDisplace = 0x02,
-    LCF_HasPalette  = 0x04,
-};
+/******************************************************************************/
+#ifdef __cplusplus
+#pragma pack(1)
+#endif
 
-struct LensConfig {
-    char name[COMMAND_WORD_LEN];
-    unsigned char flags;
-    TbPixel palette[PALETTE_SIZE];
-    short mist_lightness;
-    short mist_ghost;
-    char mist_file[DISKPATH_SIZE];
-    short displace_kind;
-    short displace_magnitude;
-    short displace_period;
-};
 
-struct LensesConfig {
-    long lenses_count;
-    struct LensConfig lenses[LENS_ITEMS_MAX];
+#ifdef __cplusplus
+#pragma pack()
+#endif
+/******************************************************************************/
+
+struct TrapDoorConfig {
+    long trap_types_count;
+    struct CommandWord trap_names[TRAPDOOR_ITEMS_MAX];
+    long door_types_count;
+    struct CommandWord door_names[TRAPDOOR_ITEMS_MAX];
 };
 /******************************************************************************/
-extern const char keeper_lenses_file[];
-extern struct LensesConfig lenses_conf;
-extern struct NamedCommand lenses_desc[LENS_ITEMS_MAX];
+extern const char keeper_trapdoor_file[];
+extern struct NamedCommand trap_desc[TRAPDOOR_ITEMS_MAX];
+extern struct NamedCommand door_desc[TRAPDOOR_ITEMS_MAX];
 /******************************************************************************/
-TbBool load_lenses_config(const char *conf_fname,unsigned short flags);
-struct LensConfig *get_lens_config(long lens_idx);
+TbBool load_trapdoor_config(const char *conf_fname,unsigned short flags);
+const char *door_code_name(long tngmodel);
+const char *trap_code_name(long tngmodel);
 /******************************************************************************/
 #ifdef __cplusplus
 }

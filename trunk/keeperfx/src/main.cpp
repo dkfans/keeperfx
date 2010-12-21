@@ -44,6 +44,7 @@
 #include "config.h"
 #include "config_campaigns.h"
 #include "config_terrain.h"
+#include "config_trapdoor.h"
 #include "config_rules.h"
 #include "config_lenses.h"
 #include "config_magic.hpp"
@@ -3314,13 +3315,17 @@ TbBool load_stats_files(void)
   TbBool result;
   result = true;
   clear_research_for_all_players();
+  if (!load_creaturetypes_config(keeper_creaturetp_file,CTLd_KindListOnly))
+    result = false;
   if (!load_terrain_config(keeper_terrain_file,0))
     result = false;
-  if (!load_lenses_config(keeper_lenses_file,0))
+  if (!load_trapdoor_config(keeper_trapdoor_file,TDLd_Standard))
+    result = false;
+  if (!load_lenses_config(keeper_lenses_file,LnLd_Standard))
     result = false;
   if (!load_magic_config(keeper_magic_file,0))
     result = false;
-  if (!load_creaturetypes_config(keeper_creaturetp_file,0))
+  if (!load_creaturetypes_config(keeper_creaturetp_file,CTLd_Standard))
     result = false;
   // note that rules file requires definitions of magic and creature types
   if (!load_rules_config(keeper_rules_file,0))
@@ -4190,15 +4195,17 @@ void level_lost_go_first_person(long plyr_idx)
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   struct Thing *thing;
+  long spectator_breed;
   SYNCDBG(6,"Starting for player %ld\n",plyr_idx);
   //_DK_level_lost_go_first_person(plridx);
   player = get_player(plyr_idx);
   dungeon = get_dungeon(player->id_number);
+  spectator_breed = get_players_spectator_breed(plyr_idx);
   player->field_4B6 = get_camera_zoom(player->acamera);
-  thing = create_and_control_creature_as_controller(player, 31, &dungeon->mappos);
+  thing = create_and_control_creature_as_controller(player, spectator_breed, &dungeon->mappos);
   if (thing_is_invalid(thing))
   {
-    ERRORLOG("Unable to create floating spirit");
+    ERRORLOG("Unable to create spectator creature");
     return;
   }
   cctrl = creature_control_get_from_thing(thing);
@@ -7350,10 +7357,10 @@ long process_temple_special(struct Thing *thing)
     dungeon = get_dungeon(thing->owner);
     if (object_is_mature_food(thing))
     {
-      dungeon->chickens_sacrificed++;
+        dungeon->chickens_sacrificed++;
     } else
     {
-      dungeon->field_8D5++;
+        dungeon->field_8D5++;
     }
     return 0;
 }
@@ -7368,13 +7375,13 @@ TbBool swap_creature(long ncrt_id, long crtr_id)
 {
   if ((crtr_id < 0) || (crtr_id >= CREATURE_TYPES_COUNT))
   {
-    ERRORLOG("Creature index %d is invalid", crtr_id);
-    return false;
+      ERRORLOG("Creature index %d is invalid", crtr_id);
+      return false;
   }
   if (creature_swap_idx[crtr_id] > 0)
   {
-    ERRORLOG("Creature of index %d already swapped", crtr_id);
-    return false;
+      ERRORLOG("Creature of index %d already swapped", crtr_id);
+      return false;
   }
   do_creature_swap(ncrt_id, crtr_id);
   return true;
@@ -7382,94 +7389,93 @@ TbBool swap_creature(long ncrt_id, long crtr_id)
 
 void init_dungeon_owner(unsigned short owner)
 {
-  struct Dungeon *dungeon;
-  struct Thing *thing;
-  int i,k;
-  k = 0;
-  i = game.thing_lists[2].index;
-  while (i>0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
-      break;
-    i = thing->next_of_class;
-    if ((game.objects_config[thing->model].field_6) && (thing->owner == owner))
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    int i,k;
+    k = 0;
+    i = game.thing_lists[2].index;
+    while (i>0)
     {
-      dungeon = get_dungeon(owner);
-      dungeon->dnheart_idx = thing->index;
-      break;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+          break;
+        i = thing->next_of_class;
+        if ((game.objects_config[thing->model].field_6) && (thing->owner == owner))
+        {
+          dungeon = get_dungeon(owner);
+          dungeon->dnheart_idx = thing->index;
+          break;
+        }
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
     }
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
 }
 
 void init_level(void)
 {
-  SYNCDBG(6,"Starting");
-  struct CreatureStorage transfer_mem;
-  //_DK_init_level(); return;
+    SYNCDBG(6,"Starting");
+    struct CreatureStorage transfer_mem;
+    //_DK_init_level(); return;
+    LbMemoryCopy(&transfer_mem,&game.transfered_creature,sizeof(struct CreatureStorage));
+    game.flags_gui = 0;
+    game.action_rand_seed = 1;
+    free_swipe_graphic();
+    game.field_1516FF = -1;
+    game.play_gameturn = 0;
+    clear_game();
+    reset_heap_manager();
+    lens_mode = 0;
+    setup_heap_manager();
+    load_computer_player_config();
+    init_good_player_as(hero_player_number);
 
-  LbMemoryCopy(&transfer_mem,&game.transfered_creature,sizeof(struct CreatureStorage));
-  game.flags_gui = 0;
-  game.action_rand_seed = 1;
-  free_swipe_graphic();
-  game.field_1516FF = -1;
-  game.play_gameturn = 0;
-  clear_game();
-  reset_heap_manager();
-  lens_mode = 0;
-  setup_heap_manager();
-  load_computer_player_config();
-  init_good_player_as(hero_player_number);
+    light_set_lights_on(1);
+    start_rooms = &game.rooms[1];
+    end_rooms = &game.rooms[ROOMS_COUNT];
 
-  light_set_lights_on(1);
-  start_rooms = &game.rooms[1];
-  end_rooms = &game.rooms[ROOMS_COUNT];
+    erstats_clear();
+    init_dungeons();
+    preload_script(get_selected_level_number());
+    load_map_file(get_selected_level_number());
 
-  erstats_clear();
-  init_dungeons();
-  preload_script(get_selected_level_number());
-  load_map_file(get_selected_level_number());
-
-  init_navigation();
-  clear_messages();
-  LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
-  // Initialize unsynchnonized random seed (the value may be different
-  // on computers in MP, as it shouldn't affect game actions)
-  game.unsync_rand_seed = (unsigned long)LbTimeSec();
-  if (!SoundDisabled)
-  {
-    game.field_14BB54 = (UNSYNC_RANDOM(67) % 3 + 1);
-    game.field_14BB55 = 0;
-  }
-  light_set_lights_on(1);
-  init_dungeon_owner(game.hero_player_num);
-  game.numfield_D |= 0x04;
-  LbMemoryCopy(&game.transfered_creature,&transfer_mem,sizeof(struct CreatureStorage));
-  event_initialise_all();
-  battle_initialise();
-  ambient_sound_prepare();
-  zero_messages();
-  game.field_150356 = 0;
-  game.field_15035A = 0;
-  init_messages();
-  game.creatures_tend_1 = 0;
-  game.creatures_tend_2 = 0;
-  game.field_15033A = 0;
-  game.field_151801 = 0;
-  game.field_151805 = 0;
-  game.field_151809 = 0;
-  game.chosen_spell_type = 0;
-  game.chosen_spell_look = 0;
-  game.chosen_spell_tooltip = 0;
-  game.numfield_151819 = 0;
-  game.numfield_15181D = 0;
-  game.numfield_151821 = 0;
+    init_navigation();
+    clear_messages();
+    LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
+    // Initialize unsynchnonized random seed (the value may be different
+    // on computers in MP, as it shouldn't affect game actions)
+    game.unsync_rand_seed = (unsigned long)LbTimeSec();
+    if (!SoundDisabled)
+    {
+        game.field_14BB54 = (UNSYNC_RANDOM(67) % 3 + 1);
+        game.field_14BB55 = 0;
+    }
+    light_set_lights_on(1);
+    init_dungeon_owner(game.hero_player_num);
+    game.numfield_D |= 0x04;
+    LbMemoryCopy(&game.transfered_creature,&transfer_mem,sizeof(struct CreatureStorage));
+    event_initialise_all();
+    battle_initialise();
+    ambient_sound_prepare();
+    zero_messages();
+    game.field_150356 = 0;
+    game.field_15035A = 0;
+    init_messages();
+    game.creatures_tend_1 = 0;
+    game.creatures_tend_2 = 0;
+    game.field_15033A = 0;
+    game.field_151801 = 0;
+    game.field_151805 = 0;
+    game.field_151809 = 0;
+    game.chosen_spell_type = 0;
+    game.chosen_spell_look = 0;
+    game.chosen_spell_tooltip = 0;
+    game.numfield_151819 = 0;
+    game.numfield_15181D = 0;
+    game.numfield_151821 = 0;
 }
 
 void pannel_map_update(long x, long y, long w, long h)
@@ -7480,22 +7486,22 @@ void pannel_map_update(long x, long y, long w, long h)
 
 void set_chosen_spell(long sptype, long sptooltip)
 {
-  struct SpellData *pwrdata;
-  pwrdata = get_power_data(sptype);
-  if (power_data_is_invalid(pwrdata))
-    sptype = 0;
-  SYNCDBG(6,"Setting to %ld",sptype);
-  game.chosen_spell_type = sptype;
-  game.chosen_spell_look = pwrdata->field_9;
-  game.chosen_spell_tooltip = sptooltip;
+    struct SpellData *pwrdata;
+    pwrdata = get_power_data(sptype);
+    if (power_data_is_invalid(pwrdata))
+      sptype = 0;
+    SYNCDBG(6,"Setting to %ld",sptype);
+    game.chosen_spell_type = sptype;
+    game.chosen_spell_look = pwrdata->field_9;
+    game.chosen_spell_tooltip = sptooltip;
 }
 
 void set_chosen_spell_none(void)
 {
-  SYNCDBG(6,"Setting to %d",0);
-  game.chosen_spell_type = 0;
-  game.chosen_spell_look = 0;
-  game.chosen_spell_tooltip = 0;
+    SYNCDBG(6,"Setting to %d",0);
+    game.chosen_spell_type = 0;
+    game.chosen_spell_look = 0;
+    game.chosen_spell_tooltip = 0;
 }
 
 void init_player_music(struct PlayerInfo *player)
@@ -7508,149 +7514,149 @@ void init_player_music(struct PlayerInfo *player)
 
 void init_player(struct PlayerInfo *player, short no_explore)
 {
-  SYNCDBG(5,"Starting");
-  //_DK_init_player(player, no_explore); return;
-  player->mouse_x = 10;
-  player->mouse_y = 12;
-  player->minimap_zoom = 256;
-  player->field_4D1 = player->id_number;
-  setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-  player->field_456 = 1;
-  player->work_state = 1;
-  player->field_14 = 2;
-  player->palette = _DK_palette;
-  if (is_my_player(player))
-  {
-    set_flag_byte(&game.numfield_C,0x40,true);
-    set_gui_visible(true);
-    init_gui();
-    turn_on_menu(GMnu_MAIN);
-    turn_on_menu(GMnu_ROOM);
-  }
-  switch (game.flagfield_14EA4A)
-  {
-  case 2:
-    init_player_as_single_keeper(player);
-    init_player_start(player);
-    reset_player_mode(player, 1);
-    if ( !no_explore )
-      init_keeper_map_exploration(player);
-    break;
-  case 5:
-    if (player->field_2C != 1)
+    SYNCDBG(5,"Starting");
+    //_DK_init_player(player, no_explore); return;
+    player->mouse_x = 10;
+    player->mouse_y = 12;
+    player->minimap_zoom = 256;
+    player->field_4D1 = player->id_number;
+    setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+    player->field_456 = 1;
+    player->work_state = 1;
+    player->field_14 = 2;
+    player->palette = _DK_palette;
+    if (is_my_player(player))
     {
-      ERRORLOG("Non Keeper in Keeper game");
-      break;
+        set_flag_byte(&game.numfield_C,0x40,true);
+        set_gui_visible(true);
+        init_gui();
+        turn_on_menu(GMnu_MAIN);
+        turn_on_menu(GMnu_ROOM);
     }
-    init_player_as_single_keeper(player);
-    init_player_start(player);
-    reset_player_mode(player, 1);
-    init_keeper_map_exploration(player);
-    break;
-  default:
-    ERRORLOG("How do I set up this player?");
-    break;
-  }
-  init_player_cameras(player);
-  pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
-  player->strfield_463[0] = '\0';
-  if (is_my_player(player))
-  {
-    init_player_music(player);
-  }
-  player->allied_players = (1 << player->id_number);
-  player->field_10 = 0;
+    switch (game.flagfield_14EA4A)
+    {
+    case 2:
+        init_player_as_single_keeper(player);
+        init_player_start(player);
+        reset_player_mode(player, 1);
+        if ( !no_explore )
+          init_keeper_map_exploration(player);
+        break;
+    case 5:
+        if (player->field_2C != 1)
+        {
+          ERRORLOG("Non Keeper in Keeper game");
+          break;
+        }
+        init_player_as_single_keeper(player);
+        init_player_start(player);
+        reset_player_mode(player, 1);
+        init_keeper_map_exploration(player);
+        break;
+    default:
+        ERRORLOG("How do I set up this player?");
+        break;
+    }
+    init_player_cameras(player);
+    pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
+    player->strfield_463[0] = '\0';
+    if (is_my_player(player))
+    {
+        init_player_music(player);
+    }
+    player->allied_players = (1 << player->id_number);
+    player->field_10 = 0;
 }
 
 void init_players(void)
 {
-  struct PlayerInfo *player;
-  int i;
-  for (i=0;i<PLAYERS_COUNT;i++)
-  {
-    player = get_player(i);
-    player->field_0 ^= (player->field_0 ^ ((game.packet_save_head.field_C & (1 << i)) >> i)) & 1;
-    if (player_exists(player))
+    struct PlayerInfo *player;
+    int i;
+    for (i=0;i<PLAYERS_COUNT;i++)
     {
-      player->id_number = i;
-      player->field_0 ^= (player->field_0 ^ (((game.packet_save_head.field_D & (1 << i)) >> i) << 6)) & 0x40;
-      if ((player->field_0 & 0x40) == 0)
-      {
-        game.field_14E495++;
-        player->field_2C = 1;
-        game.flagfield_14EA4A = 5;
-        init_player(player, 0);
-      }
+        player = get_player(i);
+        player->field_0 ^= (player->field_0 ^ ((game.packet_save_head.field_C & (1 << i)) >> i)) & 1;
+        if (player_exists(player))
+        {
+            player->id_number = i;
+            player->field_0 ^= (player->field_0 ^ (((game.packet_save_head.field_D & (1 << i)) >> i) << 6)) & 0x40;
+            if ((player->field_0 & 0x40) == 0)
+            {
+              game.field_14E495++;
+              player->field_2C = 1;
+              game.flagfield_14EA4A = 5;
+              init_player(player, 0);
+            }
+        }
     }
-  }
 }
 
 TbBool create_transferred_creature_on_level(void)
 {
-  struct PlayerInfo *player;
-  struct Thing *thing;
-  struct Dungeon *dungeon;
-  struct Coord3d *pos;
-  if (game.transfered_creature.model > 0)
-  {
-    player = get_my_player();
-    dungeon = get_dungeon(player->id_number);
-    thing = thing_get(dungeon->dnheart_idx);
-    pos = &(thing->mappos);
-    thing = create_creature(pos, game.transfered_creature.model, 5);
-    if (thing_is_invalid(thing))
-      return false;
-    init_creature_level(thing, game.transfered_creature.explevel);
-    clear_transfered_creature();
-    return true;
-  }
-  return false;
+    struct PlayerInfo *player;
+    struct Thing *thing;
+    struct Dungeon *dungeon;
+    struct Coord3d *pos;
+    if (game.transfered_creature.model > 0)
+    {
+        player = get_my_player();
+        dungeon = get_dungeon(player->id_number);
+        thing = thing_get(dungeon->dnheart_idx);
+        pos = &(thing->mappos);
+        thing = create_creature(pos, game.transfered_creature.model, 5);
+        if (thing_is_invalid(thing))
+          return false;
+        init_creature_level(thing, game.transfered_creature.explevel);
+        clear_transfered_creature();
+        return true;
+    }
+    return false;
 }
 
 void post_init_level(void)
 {
-  SYNCDBG(8,"Starting");
-  struct Dungeon *dungeon;
-  //_DK_post_init_level(); return;
-  if (game.packet_save_enable)
-    open_new_packet_file_for_save();
-  calculate_dungeon_area_scores();
-  init_animating_texture_maps();
-  int i,k;
-  for (i=0; i < DUNGEONS_COUNT; i++)
-  {
-      dungeon = get_dungeon(i);
-      for (k=0; k < CREATURE_TYPES_COUNT; k++)
-      {
-        dungeon->creature_max_level[k] = 10;
-      }
-  }
-  clear_creature_pool();
-  setup_computer_players2();
-  load_stats_files();
-  check_and_auto_fix_stats();
-  load_script(get_loaded_level_number());
-  init_dungeons_research();
-  create_transferred_creature_on_level();
-  update_dungeon_scores();
-  update_dungeon_generation_speeds();
-  init_traps();
-  init_all_creature_states();
-  init_keepers_map_exploration();
-  SYNCDBG(9,"Finished");
+    SYNCDBG(8,"Starting");
+    struct Dungeon *dungeon;
+    //_DK_post_init_level(); return;
+    if (game.packet_save_enable)
+        open_new_packet_file_for_save();
+    calculate_dungeon_area_scores();
+    init_animating_texture_maps();
+    int i,k;
+    for (i=0; i < DUNGEONS_COUNT; i++)
+    {
+        dungeon = get_dungeon(i);
+        for (k=0; k < CREATURE_TYPES_COUNT; k++)
+        {
+          dungeon->creature_max_level[k] = 10;
+        }
+    }
+    clear_creature_pool();
+    setup_computer_players2();
+    load_stats_files();
+    check_and_auto_fix_stats();
+    load_script(get_loaded_level_number());
+    init_dungeons_research();
+    create_transferred_creature_on_level();
+    update_dungeon_scores();
+    update_dungeon_generation_speeds();
+    init_traps();
+    init_all_creature_states();
+    init_keepers_map_exploration();
+    SYNCDBG(9,"Finished");
 }
 
 void post_init_players(void)
 {
-  _DK_post_init_players(); return;
+    _DK_post_init_players(); return;
 }
 
 short init_animating_texture_maps(void)
 {
-  SYNCDBG(8,"Starting");
-  //_DK_init_animating_texture_maps(); return;
-  anim_counter = 7;
-  return update_animating_texture_maps();
+    SYNCDBG(8,"Starting");
+    //_DK_init_animating_texture_maps(); return;
+    anim_counter = 7;
+    return update_animating_texture_maps();
 }
 
 void init_players_local_game(void)
