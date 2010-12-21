@@ -28,6 +28,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
+enum CreatureModelLoadFlags {
+    CMLd_Standard      =  0x00,
+    CMLd_ListOnly      =  0x01,
+    CMLd_AcceptPartial =  0x02,
+    CMLd_IgnoreErrors  =  0x04,
+};
 
 /******************************************************************************/
 TbBool load_creaturemodel_config(long crtr_model,unsigned short flags);

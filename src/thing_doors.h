@@ -40,11 +40,8 @@ struct DoorStats { // sizeof = 8
 /******************************************************************************/
 DLLIMPORT extern struct DoorStats _DK_door_stats[5][2];
 #define door_stats _DK_door_stats
-DLLIMPORT extern unsigned short _DK_door_names[DOOR_TYPES_COUNT];
 
 #pragma pack()
-/******************************************************************************/
-extern const short door_names[];
 /******************************************************************************/
 struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
 void lock_door(struct Thing *thing);

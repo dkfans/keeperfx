@@ -360,7 +360,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
       case TCls_Trap:
         if ((!thing->byte_18) && (player->id_number != thing->owner))
           break;
-        spridx = trap_data[thing->model].field_A;
+        spridx = trap_data[thing->model].parchment_spridx;
         draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
         break;
       case TCls_Object:

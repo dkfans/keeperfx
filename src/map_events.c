@@ -27,6 +27,7 @@
 #include "thing_traps.h"
 #include "config_campaigns.h"
 #include "config_creature.h"
+#include "config_trapdoor.h"
 #include "gui_frontmenu.h"
 #include "frontend.h"
 #include "room_workshop.h"
@@ -180,6 +181,8 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
 {
   struct Dungeon *dungeon;
   struct CreatureData *crdata;
+  struct DoorConfigStats *doorst;
+  struct TrapConfigStats *trapst;
   struct RoomData *rdata;
   struct Event *event;
   struct Thing *thing;
@@ -257,14 +260,16 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         break;
     case 8:
         other_off = 1;
-        i = trap_data[event->target % MANUFCTR_TYPES_COUNT].name_stridx;
+        trapst = get_trap_stats(event->target);
+        i = trapst->name_stridx;
         text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
     case 9:
         other_off = 1;
-        i = door_names[event->target % DOOR_TYPES_COUNT];
+        doorst = get_door_stats(event->target);
+        i = doorst->name_stridx;
         text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
@@ -352,7 +357,8 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         thing = thing_get(event->target);
         if (thing_is_invalid(thing))
           break;
-        i = trap_data[box_thing_to_door_or_trap(thing)].name_stridx;
+        trapst = get_trap_stats(box_thing_to_door_or_trap(thing));
+        i = trapst->name_stridx;
         text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
@@ -362,7 +368,8 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         thing = thing_get(event->target);
         if (thing_is_invalid(thing))
           break;
-        i = door_names[box_thing_to_door_or_trap(thing)];
+        doorst = get_door_stats(box_thing_to_door_or_trap(thing));
+        i = doorst->name_stridx;
         text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
         strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);

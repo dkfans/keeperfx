@@ -1219,7 +1219,6 @@
  0003:0000E270       spell_data
  0003:0000E4A8       room_data
  0003:0000E630       trap_data
- 0003:0000E6E0       door_names
  0003:0000E6F0       instance_info
  0003:0000EED0       spell_info
  0003:0000F160       player_instance_info

@@ -63,7 +63,6 @@ DLLIMPORT extern unsigned char _DK_object_to_magic[OBJECT_TYPES_COUNT];
 DLLIMPORT extern unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
 #define workshop_object_class _DK_workshop_object_class
 DLLIMPORT extern unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
-#define object_to_door_or_trap _DK_object_to_door_or_trap
 
 #pragma pack()
 /******************************************************************************/

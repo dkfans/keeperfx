@@ -42,7 +42,7 @@ enum LensConfigFlags {
 };
 
 struct LensConfig {
-    char name[COMMAND_WORD_LEN];
+    char code_name[COMMAND_WORD_LEN];
     unsigned char flags;
     TbPixel palette[PALETTE_SIZE];
     short mist_lightness;

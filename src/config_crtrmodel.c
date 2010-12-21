@@ -180,7 +180,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   // Initialize block data
   crstat = creature_stats_get(crtr_model);
   crconf = &crtr_conf.model[crtr_model];
-  if ((flags & CLd_AcceptPartial) == 0)
+  if ((flags & CMLd_AcceptPartial) == 0)
   {
       crstat->health = 1;
       crstat->heal_requirement = 1;
@@ -224,7 +224,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-      if ((flags & CLd_AcceptPartial) == 0)
+      if ((flags & CMLd_AcceptPartial) == 0)
           WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
       return false;
   }
@@ -698,7 +698,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
   char word_buf[COMMAND_WORD_LEN];
   // Initialize block data
   crstat = creature_stats_get(crtr_model);
-  if ((flags & CLd_AcceptPartial) == 0)
+  if ((flags & CMLd_AcceptPartial) == 0)
   {
       for (n=0; n < 3; n++)
       {
@@ -715,7 +715,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-      if ((flags & CLd_AcceptPartial) == 0)
+      if ((flags & CMLd_AcceptPartial) == 0)
           WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
       return false;
   }
@@ -828,7 +828,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
     char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
     crstat = creature_stats_get(crtr_model);
-    if ((flags & CLd_AcceptPartial) == 0)
+    if ((flags & CMLd_AcceptPartial) == 0)
     {
         crstat->annoy_eat_food = 0;
         crstat->annoy_will_not_do_job = 0;
@@ -861,7 +861,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-        if ((flags & CLd_AcceptPartial) == 0)
+        if ((flags & CMLd_AcceptPartial) == 0)
             WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
         return false;
     }
@@ -1217,7 +1217,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
     char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
     crstat = creature_stats_get(crtr_model);
-    if ((flags & CLd_AcceptPartial) == 0)
+    if ((flags & CMLd_AcceptPartial) == 0)
     {
         crstat->hearing = 0;
         crstat->eye_height = 0;
@@ -1231,7 +1231,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-        if ((flags & CLd_AcceptPartial) == 0)
+        if ((flags & CMLd_AcceptPartial) == 0)
             WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
         return false;
     }
@@ -1339,7 +1339,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
     char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
     crstat = creature_stats_get(crtr_model);
-    if ((flags & CLd_AcceptPartial) == 0)
+    if ((flags & CMLd_AcceptPartial) == 0)
     {
         crstat->walking_anim_speed = 1;
         crstat->visual_range = 1;
@@ -1350,7 +1350,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-        if ((flags & CLd_AcceptPartial) == 0)
+        if ((flags & CMLd_AcceptPartial) == 0)
             WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
         return false;
     }
@@ -1416,7 +1416,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
     char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
     crstat = creature_stats_get(crtr_model);
-    if ((flags & CLd_AcceptPartial) == 0)
+    if ((flags & CMLd_AcceptPartial) == 0)
     {
         for (n=0; n < 10; n++)
         {
@@ -1437,7 +1437,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-        if ((flags & CLd_AcceptPartial) == 0)
+        if ((flags & CMLd_AcceptPartial) == 0)
             WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
         return false;
     }
@@ -1606,7 +1606,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
     char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
     crstat = creature_stats_get(crtr_model);
-    if ((flags & CLd_AcceptPartial) == 0)
+    if ((flags & CMLd_AcceptPartial) == 0)
     {
         crstat->job_primary = 0;
         crstat->job_secondary = 0;
@@ -1626,7 +1626,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-        if ((flags & CLd_AcceptPartial) == 0)
+        if ((flags & CMLd_AcceptPartial) == 0)
             WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
         return false;
     }
@@ -1819,7 +1819,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // If the file can't be partial, then initialize block data
-  if ((flags & CLd_AcceptPartial) == 0)
+  if ((flags & CMLd_AcceptPartial) == 0)
   {
       for (n = 0; n < CREATURE_GRAPHICS_INSTANCES; n++)
       {
@@ -1832,7 +1832,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-      if ((flags & CLd_AcceptPartial) == 0)
+      if ((flags & CMLd_AcceptPartial) == 0)
           WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
       return false;
   }
@@ -1884,13 +1884,13 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *fname,unsigned
     len = LbFileLengthRnc(fname);
     if (len < 2)
     {
-        if ((flags & CLd_IgnoreErrors) == 0)
+        if ((flags & CMLd_IgnoreErrors) == 0)
             WARNMSG("%s file \"%s.cfg\" doesn't exist or is too small.",config_textname,fname);
         return false;
     }
     if (len > 65536)
     {
-        if ((flags & CLd_IgnoreErrors) == 0)
+        if ((flags & CMLd_IgnoreErrors) == 0)
             WARNMSG("%s file \"%s.cfg\" is too large.",config_textname,fname);
         return false;
     }
@@ -1900,7 +1900,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *fname,unsigned
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     result = (len > 0);
-    if ((flags & CLd_AcceptPartial) == 0)
+    if ((flags & CMLd_AcceptPartial) == 0)
     {
       struct CreatureStats *crstat;
       crstat = creature_stats_get(crtr_model);
@@ -1909,7 +1909,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *fname,unsigned
     if (result)
     {
       result = parse_creaturemodel_attributes_blocks(crtr_model, buf, len, config_textname, flags);
-      if ((flags & CLd_AcceptPartial) != 0)
+      if ((flags & CMLd_AcceptPartial) != 0)
           result = true;
       if (!result)
           WARNMSG("Parsing %s file \"%s.cfg\" attributes blocks failed.",config_textname,fname);
@@ -1917,7 +1917,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *fname,unsigned
     if (result)
     {
       result = parse_creaturemodel_attraction_blocks(crtr_model, buf, len, config_textname, flags);
-      if ((flags & CLd_AcceptPartial) != 0)
+      if ((flags & CMLd_AcceptPartial) != 0)
           result = true;
       if (!result)
           WARNMSG("Parsing %s file \"%s.cfg\" attraction blocks failed.",config_textname,fname);
@@ -1925,7 +1925,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *fname,unsigned
     if (result)
     {
       result = parse_creaturemodel_annoyance_blocks(crtr_model, buf, len, config_textname, flags);
-      if ((flags & CLd_AcceptPartial) != 0)
+      if ((flags & CMLd_AcceptPartial) != 0)
           result = true;
       if (!result)
           WARNMSG("Parsing %s file \"%s.cfg\" annoyance blocks failed.",config_textname,fname);
@@ -1933,7 +1933,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *fname,unsigned
     if (result)
     {
       result = parse_creaturemodel_senses_blocks(crtr_model, buf, len, config_textname, flags);
-      if ((flags & CLd_AcceptPartial) != 0)
+      if ((flags & CMLd_AcceptPartial) != 0)
           result = true;
       if (!result)
           WARNMSG("Parsing %s file \"%s.cfg\" senses blocks failed.",config_textname,fname);
@@ -1941,7 +1941,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *fname,unsigned
     if (result)
     {
       result = parse_creaturemodel_appearance_blocks(crtr_model, buf, len, config_textname, flags);
-      if ((flags & CLd_AcceptPartial) != 0)
+      if ((flags & CMLd_AcceptPartial) != 0)
           result = true;
       if (!result)
           WARNMSG("Parsing %s file \"%s.cfg\" appearance blocks failed.",config_textname,fname);
@@ -1949,7 +1949,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *fname,unsigned
     if (result)
     {
       result = parse_creaturemodel_experience_blocks(crtr_model, buf, len, config_textname, flags);
-      if ((flags & CLd_AcceptPartial) != 0)
+      if ((flags & CMLd_AcceptPartial) != 0)
           result = true;
       if (!result)
           WARNMSG("Parsing %s file \"%s.cfg\" experience blocks failed.",config_textname,fname);
@@ -1957,7 +1957,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *fname,unsigned
     if (result)
     {
       result = parse_creaturemodel_jobs_blocks(crtr_model, buf, len, config_textname, flags);
-      if ((flags & CLd_AcceptPartial) != 0)
+      if ((flags & CMLd_AcceptPartial) != 0)
           result = true;
       if (!result)
           WARNMSG("Parsing %s file \"%s.cfg\" jobs blocks failed.",config_textname,fname);
@@ -1965,7 +1965,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *fname,unsigned
     if (result)
     {
       result = parse_creaturemodel_sprites_blocks(crtr_model, buf, len, config_textname, flags);
-      if ((flags & CLd_AcceptPartial) != 0)
+      if ((flags & CMLd_AcceptPartial) != 0)
           result = true;
       if (!result)
           WARNMSG("Parsing %s file \"%s.cfg\" sprites blocks failed.",config_textname,fname);
@@ -1994,7 +1994,7 @@ TbBool load_creaturemodel_config(long crtr_model,unsigned short flags)
     if (fname[0] != '\0')
     {
         SYNCDBG(0,"Reading campaign \"%s.cfg\".",conf_fnstr);
-        load_creaturemodel_config_file(crtr_model,fname,flags|CLd_AcceptPartial|CLd_IgnoreErrors);
+        load_creaturemodel_config_file(crtr_model,fname,flags|CMLd_AcceptPartial|CMLd_IgnoreErrors);
     }
     return ret;
 }
