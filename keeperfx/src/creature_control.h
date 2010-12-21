@@ -204,8 +204,16 @@ unsigned char field_96[4];
     };
   };
     unsigned char field_A5;
-    unsigned char field_A6;
-    unsigned char field_A7[2];
+  union {
+  struct {
+      unsigned char byte_A6;
+      unsigned char byte_A7;
+    };
+  struct {
+      short word_A6;
+    };
+  };
+    unsigned char field_A8;
     unsigned char field_A9;
     unsigned char field_AA;
     unsigned char field_AB;

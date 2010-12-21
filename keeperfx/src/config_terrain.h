@@ -56,27 +56,42 @@ struct SlabAttr {
 #pragma pack()
 #endif
 /******************************************************************************/
+struct SlabConfigStats {
+    char code_name[COMMAND_WORD_LEN];
+    long tooltip_stridx;
+};
+
+struct RoomConfigStats {
+    char code_name[COMMAND_WORD_LEN];
+    long tooltip_stridx;
+    long creature_creation_model;
+};
 
 struct SlabsConfig {
     long slab_types_count;
-    struct CommandWord slab_names[TERRAIN_ITEMS_MAX];
+    struct SlabConfigStats slab_cfgstats[TERRAIN_ITEMS_MAX];
     long room_types_count;
-    struct CommandWord room_names[TERRAIN_ITEMS_MAX];
+    struct RoomConfigStats room_cfgstats[TERRAIN_ITEMS_MAX];
 };
 /******************************************************************************/
 extern const char keeper_terrain_file[];
 extern struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
 extern struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
 /******************************************************************************/
+TbBool load_terrain_config(const char *conf_fname,unsigned short flags);
+/******************************************************************************/
 struct SlabAttr *get_slab_kind_attrs(long slab_kind);
 struct SlabAttr *get_slab_attrs(struct SlabMap *slb);
+struct SlabConfigStats *get_slab_kind_stats(int slab_kind);
+struct SlabConfigStats *get_slab_stats(struct SlabMap *slb);
 /******************************************************************************/
-TbBool load_terrain_config(const char *conf_fname,unsigned short flags);
+struct RoomConfigStats *get_room_kind_stats(int room_kind);
 TbBool make_all_rooms_free(void);
 TbBool set_room_available(long plyr_idx, long room_idx, long resrch, long avail);
 TbBool make_available_all_researchable_rooms(long plyr_idx);
 TbBool make_all_rooms_researchable(long plyr_idx);
 TbBool is_room_available(long plyr_idx, long room_idx);
+long get_room_create_creature_model(long room_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

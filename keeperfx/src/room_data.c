@@ -753,7 +753,7 @@ TbBool initialise_map_rooms(void)
     for (x=0; x < map_tiles_x; x++)
     {
       slb = get_slabmap_block(x, y);
-      rkind = slab_to_room_type(slb->slab);
+      rkind = slab_to_room_type(slb->kind);
       if (rkind > 0)
         room = create_room(slabmap_owner(slb), rkind, 3*x+1, 3*y+1);
       else

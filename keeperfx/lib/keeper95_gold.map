@@ -1840,5 +1840,5 @@
  0001:0006CC50       gate_route_to_coords
  0001:00069320       fill_concave
  0001:00064A80       change_effect_element_into_another
+ 0001:0006F340       reveal_players_map_to_player
  0001:000CB390       move_effect_element
- 

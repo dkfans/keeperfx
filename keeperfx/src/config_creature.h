@@ -158,7 +158,6 @@ TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags);
 unsigned short get_creature_model_flags(const struct Thing *thing);
 TbBool set_creature_available(long plyr_idx, long crtr_model, long can_be_avail, long force_avail);
 long get_players_special_digger_breed(long plyr_idx);
-long get_room_creation_breed(long room_idx);
 long get_players_spectator_breed(long plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus

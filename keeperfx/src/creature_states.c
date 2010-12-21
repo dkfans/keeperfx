@@ -237,6 +237,7 @@ DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *thing, stru
 DLLIMPORT short _DK_creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
 DLLIMPORT void _DK_process_creature_in_training_room(struct Thing *thing, struct Room *room);
 DLLIMPORT void _DK_setup_move_to_new_training_position(struct Thing *thing, struct Room *room, unsigned long a3);
+DLLIMPORT long _DK_reveal_players_map_to_player(struct Thing *thing, long a2);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *thing);
 short arrive_at_alarm(struct Thing *thing);
@@ -758,13 +759,18 @@ TbBool state_info_invalid(struct StateInfo *stati)
   return false;
 }
 
-TbBool creature_model_bleeds(unsigned long model)
+TbBool creature_model_bleeds(unsigned long crmodel)
 {
   struct CreatureStats *crstat;
-  crstat = creature_stats_get(model);
+  struct CreatureModelConfig *crconf;
+  crstat = creature_stats_get(crmodel);
   if ( censorship_enabled() )
   {
-    return (crstat->bleeds) && ((model < 1) || (model > 13));
+      // If censorship is on, only evil creatures can have blood
+      if (!crstat->bleeds)
+          return false;
+      crconf = &crtr_conf.model[crmodel];
+      return ((crconf->model_flags & MF_IsEvil) != 0);
   }
   return crstat->bleeds;
 }
@@ -1534,7 +1540,7 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
               }
               k = (k+1) % 9;
             }
-            if (slb->slab != SlbT_LAVA)
+            if (slb->kind != SlbT_LAVA)
             {
                 SYNCDBG(8,"Found non lava around");
                 return false;
@@ -1897,8 +1903,8 @@ short creature_in_combat(struct Thing *thing)
         cctrl->field_28E = game.play_gameturn;
         return 0;
     }
-    if (cctrl->field_A6 < sizeof(combat_state)/sizeof(combat_state[0]))
-        combat_func = combat_state[cctrl->field_A6];
+    if (cctrl->byte_A6 < sizeof(combat_state)/sizeof(combat_state[0]))
+        combat_func = combat_state[cctrl->byte_A6];
     else
         combat_func = NULL;
     if (combat_func != NULL)
@@ -1906,7 +1912,7 @@ short creature_in_combat(struct Thing *thing)
         combat_func(thing);
         return 1;
     }
-    ERRORLOG("No valid fight state %d in thing no %d",(int)cctrl->field_A6,(int)thing->index);
+    ERRORLOG("No valid fight state %d in thing no %d",(int)cctrl->byte_A6,(int)thing->index);
     set_start_state(thing);
     return 0;
 }
@@ -1962,7 +1968,7 @@ short creature_in_prison(struct Thing *thing)
     set_start_state(thing);
     return Lb_OK;
   }
-  if ( (room->kind != 4) || (cctrl->work_room_id != room->index) )
+  if ( (room->kind != RoK_PRISON) || (cctrl->work_room_id != room->index) )
   {
     set_start_state(thing);
     return Lb_OK;
@@ -2203,7 +2209,7 @@ short creature_scavenged_disappear(struct Thing *thing)
     stl_x = stl_num_decode_x(i);
     stl_y = stl_num_decode_y(i);
     room = subtile_room_get(stl_x, stl_y);
-    if (room_is_invalid(room) || (room->kind != 9))
+    if (room_is_invalid(room) || (room->kind != RoK_SCAVENGER))
     {
       ERRORLOG("Scavenger room disappeared.");
       kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
@@ -3165,7 +3171,7 @@ short imp_digs_mines(struct Thing *thing)
       return 1;
     }
     // If gems are marked for digging, but there is too much gold laying around, then don't dig
-    if ((slb->slab == SlbT_GEMS) && too_much_gold_lies_around_thing(thing))
+    if ((slb->kind == SlbT_GEMS) && too_much_gold_lies_around_thing(thing))
     {
       clear_creature_instance(thing);
       internal_set_thing_state(thing, 8);
@@ -3419,19 +3425,19 @@ void prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thing)
   struct CreatureStats *crstat;
   struct CreatureControl *cctrl;
   struct Thing *crthing;
-  long breed;
+  long crmodel;
   cctrl = creature_control_get_from_thing(thing);
   crstat = creature_stats_get_from_thing(thing);
-  breed = get_room_creation_breed(RoK_PRISON); // That normally returns skeleton breed
-  crthing = create_creature(&thing->mappos, breed, room->owner);
+  crmodel = get_room_create_creature_model(room->kind); // That normally returns skeleton breed
+  crthing = create_creature(&thing->mappos, crmodel, room->owner);
   if (thing_is_invalid(crthing))
   {
-    ERRORLOG("Couldn't create creature model %ld in prison", breed);
-    return;
+      ERRORLOG("Couldn't create creature model %ld in prison", crmodel);
+      return;
   }
   init_creature_level(crthing, cctrl->explevel);
   set_start_state(crthing);
-  if ( creature_model_bleeds(thing->model) )
+  if (creature_model_bleeds(thing->model))
     create_effect_around_thing(thing, 10);
   kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
   dungeon = get_dungeon(room->owner);
@@ -3556,9 +3562,107 @@ long process_temple_function(struct Thing *thing)
   return _DK_process_temple_function(thing);
 }
 
+void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    struct Thing *newthing;
+    int crmodel;
+    crmodel = get_room_create_creature_model(room->kind);
+    newthing = create_creature(&thing->mappos, crmodel, room->owner);
+    if (thing_is_invalid(newthing))
+    {
+        ERRORLOG("Couldn't create creature model %d in torture room",crmodel);
+        return;
+    }
+    cctrl = creature_control_get_from_thing(thing);
+    init_creature_level(newthing, cctrl->explevel);
+    if (creature_model_bleeds(thing->model))
+      create_effect_around_thing(newthing, 10);
+    set_start_state(newthing);
+    kill_creature(thing, INVALID_THING, -1, 1, 1, 0);
+    dungeon = get_dungeon(room->owner);
+    if (!dungeon_invalid(dungeon))
+        dungeon->lvstats.ghosts_raised++;
+    if (is_my_player_number(room->owner))
+        output_message(56, 0, 1);
+}
+
+void convert_tortured_creature_owner(struct Thing *thing, long new_owner)
+{
+    struct Dungeon *dungeon;
+    if (is_my_player_number(new_owner))
+    {
+        output_message(54, 0, 1);
+    } else
+    if (is_my_player_number(thing->owner))
+    {
+        output_message(63, 0, 1);
+    }
+    change_creature_owner(thing, new_owner);
+    anger_set_creature_anger_all_types(thing, 0);
+    dungeon = get_dungeon(new_owner);
+    if (!dungeon_invalid(dungeon))
+        dungeon->lvstats.creatures_converted++;
+}
+
+long reveal_players_map_to_player(struct Thing *thing, long a2)
+{
+    return _DK_reveal_players_map_to_player(thing, a2);
+}
+
 long process_torture_function(struct Thing *thing)
 {
-  return _DK_process_torture_function(thing);
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct Room *room;
+    long i;
+    //return _DK_process_torture_function(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    room = room_get(cctrl->work_room_id);
+    if ( !room_still_valid_as_type_for_thing(room,5,thing) )
+    {
+        set_start_state(thing);
+        return 1;
+    }
+    anger_apply_anger_to_creature(thing, crstat->annoy_in_torture, 4, 1);
+    if ((long)game.play_gameturn >= cctrl->field_82 + game.turns_per_torture_health_loss)
+    {
+        i = compute_creature_max_health(game.torture_health_loss,cctrl->explevel);
+        remove_health_from_thing_and_display_health(thing, i);
+        cctrl->field_82 = (long)game.play_gameturn;
+    }
+    if ((thing->health < 0) && (game.ghost_convert_chance > 0))
+    {
+        if (ACTION_RANDOM(game.ghost_convert_chance) == 0)
+        {
+            convert_creature_to_ghost(room, thing);
+            return -1;
+        }
+    }
+    if (room->owner == thing->owner)
+        return 0;
+
+    i = ((long)game.play_gameturn - cctrl->long_9A) * room->efficiency >> 8;
+
+    if ((cctrl->spell_flags & 0x02) != 0)
+      i = (4 * i) / 3;
+    if (cctrl->field_21 != 0)
+      i = (5 * i) / 4;
+    if ((i < crstat->torture_time) || (cctrl->word_A6 == 0))
+        return 0;
+    i = (long)game.play_gameturn - crstat->torture_time - cctrl->long_9A;
+    if (ACTION_RANDOM(100) >= i/64 + 1)
+        return 0;
+    if (ACTION_RANDOM(3) == 0)
+    {
+        convert_tortured_creature_owner(thing, room->owner);
+        return 1;
+    }
+    cctrl->long_9A = game.play_gameturn - crstat->torture_time / 2;
+    reveal_players_map_to_player(thing, room->owner);
+    return 0;
 }
 
 short researching(struct Thing *thing)
@@ -4170,7 +4274,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             slb_x = map_to_slab[thing->mappos.x.stl.num] + (long)small_around[i].delta_x;
             slb_y = map_to_slab[thing->mappos.y.stl.num] + (long)small_around[i].delta_y;
             slb = get_slabmap_block(slb_x,slb_y);
-            if ((slb->slab != SlbT_TRAINING) || (slabmap_owner(slb) != thing->owner))
+            if ((slb->kind != SlbT_TRAINING) || (slabmap_owner(slb) != thing->owner))
                 continue;
               stl_x = 3*slb_x + (long)corners[i].delta_x;
               stl_y = 3*slb_y + (long)corners[i].delta_y;

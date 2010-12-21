@@ -1701,14 +1701,14 @@ unsigned short torch_flags_for_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     {
         sslb1 = get_slabmap_block(slb_x,slb_y+1);
         sslb2 = get_slabmap_block(slb_x,slb_y-1);
-        if ((sslb1->slab == SlbT_CLAIMED) || (sslb2->slab == SlbT_CLAIMED))
+        if ((sslb1->kind == SlbT_CLAIMED) || (sslb2->kind == SlbT_CLAIMED))
             tflag |= 0x01;
     }
     if ((slb_y % 5) == 0)
     {
         sslb1 = get_slabmap_block(slb_x+1,slb_y);
         sslb2 = get_slabmap_block(slb_x-1,slb_y);
-        if ((sslb1->slab == SlbT_CLAIMED) || (sslb2->slab == SlbT_CLAIMED))
+        if ((sslb1->kind == SlbT_CLAIMED) || (sslb2->kind == SlbT_CLAIMED))
             tflag |= 0x02;
     }
     return tflag;
@@ -1830,7 +1830,7 @@ void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord s
         return;
     slb_x = map_to_slab[stl_x];
     slb_y = map_to_slab[stl_y];
-    if (slab_type_is_animated(nslab))
+    if (slab_kind_is_animated(nslab))
     {
         ERRORLOG("Placing animating slab %d as standard slab",(int)nslab);
     }
@@ -1844,12 +1844,12 @@ void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord s
             previous_slab_types_around[i] = SlbT_ROCK;
             continue;
         }
-        previous_slab_types_around[i] = slb->slab;
+        previous_slab_types_around[i] = slb->kind;
     }
 
     skind = alter_rock_style(nslab, slb_x, slb_y, owner);
     slb = get_slabmap_block(slb_x,slb_y);
-    slb->slab = skind;
+    slb->kind = skind;
 
     set_whole_slab_owner(slb_x, slb_y, owner);
     place_single_slab_type_on_map(skind, slb_x, slb_y, owner);
@@ -1865,12 +1865,12 @@ void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord s
           slb = get_slabmap_block(spos_x,spos_y);
           if (slabmap_block_invalid(slb))
               continue;
-          if (slb->slab == SlbT_EARTH)
+          if (slb->kind == SlbT_EARTH)
           {
               if (torch_flags_for_slab(spos_x, spos_y) == 0)
-                  slb->slab = SlbT_EARTH;
+                  slb->kind = SlbT_EARTH;
               else
-                  slb->slab = SlbT_TORCHDIRT;
+                  slb->kind = SlbT_TORCHDIRT;
           }
       }
     } else
@@ -1882,9 +1882,9 @@ void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord s
           slb = get_slabmap_block(spos_x,spos_y);
           if (slabmap_block_invalid(slb))
               continue;
-          if (!slab_type_is_animated(slb->slab))
+          if (!slab_kind_is_animated(slb->kind))
           {
-              slb->slab = alter_rock_style(slb->slab, spos_x, spos_y, owner);
+              slb->kind = alter_rock_style(slb->kind, spos_x, spos_y, owner);
           }
       }
     }
@@ -1898,13 +1898,13 @@ void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord s
         slb = get_slabmap_block(spos_x,spos_y);
         if (slabmap_block_invalid(slb))
             continue;
-        if ((previous_slab_types_around[i] != slb->slab)
-          || (slb->slab != SlbT_GOLD) && (slb->slab != SlbT_ROCK)
+        if ((previous_slab_types_around[i] != slb->kind)
+          || (slb->kind != SlbT_GOLD) && (slb->kind != SlbT_ROCK)
           || (game.flagfield_14EA4A == 1))
         {
-            slbattr = get_slab_kind_attrs(slb->slab);
+            slbattr = get_slab_kind_attrs(slb->kind);
             if (slbattr->field_F != 5)
-                place_single_slab_type_on_map(slb->slab, spos_x, spos_y, slabmap_owner(slb));
+                place_single_slab_type_on_map(slb->kind, spos_x, spos_y, slabmap_owner(slb));
         }
     }
 
@@ -6072,7 +6072,7 @@ short can_dig_here(long stl_x, long stl_y, long plyr_idx)
     return false;
   if (!subtile_revealed(stl_x, stl_y, plyr_idx))
     return true;
-  if ((slb->slab >= 42) && (slb->slab <= 47))
+  if (slab_kind_is_nonmagic_door(slb->kind))
   {
       if (slabmap_owner(slb) == plyr_idx)
         return false;
@@ -7321,7 +7321,7 @@ void initialise_map_health(void)
   _DK_initialise_map_health();
 }
 
-long slabs_count_near(long tx,long ty,long rad,unsigned short slbtype)
+long slabs_count_near(long tx,long ty,long rad,unsigned short slbkind)
 {
   long dx,dy;
   long x,y;
@@ -7338,7 +7338,7 @@ long slabs_count_near(long tx,long ty,long rad,unsigned short slbtype)
         if ((x>=0) && (x<map_tiles_x))
         {
           slb = get_slabmap_block(x, y);
-          if (slb->slab == slbtype)
+          if (slb->kind == slbkind)
             count++;
         }
       }

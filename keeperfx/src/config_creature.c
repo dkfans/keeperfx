@@ -670,27 +670,6 @@ long get_players_spectator_breed(long plyr_idx)
     }
     return breed;
 }
-
-long get_room_creation_breed(long room_idx)
-{
-    long breed;
-    switch (room_idx)
-    {
-    case RoK_TORTURE:
-        breed = 28; // Ghost
-        break;
-    case RoK_GRAVEYARD:
-        breed = 25; // Vampire
-        break;
-    case RoK_PRISON:
-        breed = 15; // Skeleton
-        break;
-    default:
-        breed = 0;
-        break;
-    }
-    return breed;
-}
 /******************************************************************************/
 #ifdef __cplusplus
 }
