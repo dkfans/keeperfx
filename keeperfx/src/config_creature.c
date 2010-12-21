@@ -107,18 +107,18 @@ const struct NamedCommand creature_graphics_desc[] = {
   {"ATTACK",             3+1},
   {"DIG",                4+1},
   {"SMOKE",              5+1},
-  {"RELAX",              6+1},//was SMOKER
+  {"RELAX",              6+1},
   {"PRETTYDANCE",        7+1},
   {"GOTHIT",             8+1},
-  {"POWERGRAB",          9+1},// was HANDGRAB
-  {"GOTSLAPPED",        10+1},// was WAVEHANDS
+  {"POWERGRAB",          9+1},
+  {"GOTSLAPPED",        10+1},
   {"CELEBRATE",         11+1},
   {"SLEEP",             12+1},
   {"EATCHICKEN",        13+1},
   {"TORTURE",           14+1},
   {"SCREAM",            15+1},
-  {"DROPDEAD",          16+1},// was DEADBODY
-  {"DEADSPLAT",         17+1},// was DROPDEAD
+  {"DROPDEAD",          16+1},
+  {"DEADSPLAT",         17+1},
 // These below seems to be not from CREATURE.JTY
   {"GFX18",             18+1},
   {"QUERYSYMBOL",       19+1},
@@ -245,6 +245,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf,long len,const char *config_t
   crtr_conf.attackpref_count = 1;
   crtr_conf.special_digger_good = 0;
   crtr_conf.special_digger_evil = 0;
+  crtr_conf.spectator_breed = 0;
   k = sizeof(crtr_conf.model)/sizeof(crtr_conf.model[0]);
   for (i=0; i < k; i++)
   {
@@ -603,7 +604,7 @@ TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags)
     if (!result)
       WARNMSG("Parsing %s file \"%s\" common blocks failed.",config_textname,conf_fname);
   }
-  if (result)
+  if ((result) && ((flags & CTLd_KindListOnly) == 0))
   {
     result = parse_creaturetype_instance_blocks(buf, len, config_textname);
     if (!result)
@@ -654,6 +655,18 @@ long get_players_special_digger_breed(long plyr_idx)
             WARNLOG("Keepers have no digger breed!");
             breed = crtr_conf.special_digger_good;
         }
+    }
+    return breed;
+}
+
+long get_players_spectator_breed(long plyr_idx)
+{
+    long breed;
+    breed = crtr_conf.spectator_breed;
+    if (breed == 0)
+    {
+        WARNLOG("There is no spectator breed!");
+        breed = crtr_conf.special_digger_good;
     }
     return breed;
 }

@@ -62,17 +62,11 @@ struct SlabsConfig {
     struct CommandWord slab_names[TERRAIN_ITEMS_MAX];
     long room_types_count;
     struct CommandWord room_names[TERRAIN_ITEMS_MAX];
-    long trap_types_count;
-    struct CommandWord trap_names[TERRAIN_ITEMS_MAX];
-    long door_types_count;
-    struct CommandWord door_names[TERRAIN_ITEMS_MAX];
 };
 /******************************************************************************/
 extern const char keeper_terrain_file[];
 extern struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
 extern struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
-extern struct NamedCommand trap_desc[TERRAIN_ITEMS_MAX];
-extern struct NamedCommand door_desc[TERRAIN_ITEMS_MAX];
 /******************************************************************************/
 struct SlabAttr *get_slab_kind_attrs(long slab_kind);
 struct SlabAttr *get_slab_attrs(struct SlabMap *slb);
@@ -83,9 +77,6 @@ TbBool set_room_available(long plyr_idx, long room_idx, long resrch, long avail)
 TbBool make_available_all_researchable_rooms(long plyr_idx);
 TbBool make_all_rooms_researchable(long plyr_idx);
 TbBool is_room_available(long plyr_idx, long room_idx);
-/******************************************************************************/
-const char *door_code_name(long tngmodel);
-const char *trap_code_name(long tngmodel);
 /******************************************************************************/
 #ifdef __cplusplus
 }
