@@ -2640,18 +2640,18 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   scrollwnd = (struct TextScrollWindow *)gbtn->field_33;
   if (scrollwnd == NULL)
   {
-    ERRORLOG("Cannot have a TEXT_SCROLLING box type without a pointer to a TextScrollWindow");
-    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);
-    return;
+      ERRORLOG("Cannot have a TEXT_SCROLLING box type without a pointer to a TextScrollWindow");
+      LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);
+      return;
   }
   area_height = gbtn->height;
   scrollwnd->window_height = area_height;
   text_height = scrollwnd->text_height;
   if (text_height == 0)
   {
-    text_height = text_string_height(text);
-    SYNCDBG(18,"Computed message height %ld for \"%s\"",text_height,text);
-    scrollwnd->text_height = text_height;
+      text_height = text_string_height(text);
+      SYNCDBG(18,"Computed message height %ld for \"%s\"",text_height,text);
+      scrollwnd->text_height = text_height;
   }
   SYNCDBG(18,"Message h=%ld Area h=%d",text_height,area_height);
   // If the text is smaller that the area we have for it - just place it at center

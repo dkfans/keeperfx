@@ -708,7 +708,7 @@ TbBool LbTextDraw(int posx, int posy, const char *text)
         count = 0;
       } else
 
-      if (chr == '\r')
+      if (chr == '\n')
       {
         x = LbGetJustifiedCharPosX(startx, posx, 0, 1, lbDisplay.DrawFlags);
         y = LbGetJustifiedCharPosY(starty, h, h, lbDisplay.DrawFlags);
