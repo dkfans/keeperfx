@@ -4,7 +4,7 @@ import keeperfx.configtool.ConfigurationBuffer;
 
 public class KeeperFXCommandLine extends ConfigurationBuffer {
 	public KeeperFXCommandLine() {
-		super("(-\\S*)(\\S&&[^-]+)?", "US-ASCII");
+		super("(-[\\S&&[^-]]+)\\s?([\\S&&[^-]]+)?", "US-ASCII");
 	}
 
 	@Override
@@ -15,7 +15,7 @@ public class KeeperFXCommandLine extends ConfigurationBuffer {
 		
 		data.append(key);
 		if (value != null) {
-			data.append('=');
+			data.append(' ');
 			data.append(value);
 		}
 	}

@@ -1,6 +1,7 @@
 package keeperfx.launcher;
 
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -13,6 +14,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
@@ -23,6 +25,7 @@ import keeperfx.configtool.ConfigurationBuffer;
 import keeperfx.configtool.KeeperFXConfigTool;
 import keeperfx.launcher.items.CommandLineItem;
 import keeperfx.launcher.items.FlagSetItem;
+import keeperfx.launcher.items.ValueItem;
 
 public class MainWindow extends JFrame implements ActionListener, DocumentListener,
 		CommandLineChanged {
@@ -37,6 +40,7 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 
 	private final ArrayList<CommandLineItem> items = new ArrayList<CommandLineItem>();
 	private final ConfigurationBuffer configBuffer = new KeeperFXCommandLine();
+	private boolean disableOnDocumentChange;
 
 	private boolean debugExecutable;
 
@@ -93,18 +97,26 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 				"lightconvert",
 		};
 		
-		addCommandLineItem(new FlagSetItem(this, "Flags:", 2, flags, flagKeys));
+		addCommandLineItem(new FlagSetItem(this, "Flags:", 2, flags, flagKeys), centerPanel);
+		addCommandLineItem(new ValueItem(this, "Frames/Second (Game Speed):", "fps"), centerPanel);
+		
+		JPanel fieldPanel = new JPanel(new GridLayout(2, 2));
+		centerPanel.add(fieldPanel);
+		addCommandLineItem(new ValueItem(this, "Start Level:", "level"), fieldPanel);
+		addCommandLineItem(new ValueItem(this, "Human Player:", "human"), fieldPanel);
+		addCommandLineItem(new ValueItem(this, "Packet File to Save:", "packetsave"), fieldPanel);
+		addCommandLineItem(new ValueItem(this, "Packet File to Load:", "packetload"), fieldPanel);
 	}
 
 	private void initComponents() {
 		setLayout(new BorderLayout());
 		
 		JPanel northPanel = new JPanel();
+		northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.X_AXIS));
 		northPanel.setBorder(BorderFactory.createTitledBorder("Command Line:"));
 		add(northPanel, BorderLayout.NORTH);
 		
 		commandLineField = new JTextField();
-		commandLineField.setColumns(25);
 		commandLineField.addActionListener(this);
 		commandLineField.getDocument().addDocumentListener(this);
 		northPanel.add(commandLineField);
@@ -116,8 +128,8 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 		initSouthPanel();
 	}
 	
-	private void addCommandLineItem(CommandLineItem item) {
-		centerPanel.add(item);
+	private void addCommandLineItem(CommandLineItem item, JPanel panel) {
+		panel.add(item);
 		items.add(item);
 	}
 
@@ -140,7 +152,10 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 
 	@Override
 	public void actionPerformed(ActionEvent ev) {
-		if (ev.getSource() == editConfigButton) {
+		if (ev.getSource() == launchButton) {
+			launch();
+		}
+		else if (ev.getSource() == editConfigButton) {
 			KeeperFXConfigTool.main(null);
 		}
 		else if (ev.getSource() == exitButton) {
@@ -151,6 +166,28 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 		}
 	}
 	
+	private void launch() {
+		String command;
+		if (debugExecutable) {
+			command = "keeperfx_dbg.exe";
+		}
+		else {
+			command = "keeperfx.exe";
+		}
+		
+		command += ' ';
+		command += commandLineField.getText();
+		command = command.trim();
+		
+		try {
+			Runtime.getRuntime().exec(command);
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(this, "Could not execute command '" + command + "'" +
+					"\nProbably executable could not be found (is this application running from KeeperFX directory?)",
+					"Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
 	private void parseCommandLine() {
 		configBuffer.replace(commandLineField.getText());
 		
@@ -165,21 +202,27 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 			item.save(configBuffer);
 		}
 		
+		disableOnDocumentChange = true;
 		commandLineField.setText(configBuffer.toString().trim());
+		disableOnDocumentChange = false;
 	}
 
 	@Override
-	public void changedUpdate(DocumentEvent e) {
+	public void changedUpdate(DocumentEvent ev) {
 	}
 
 	@Override
-	public void insertUpdate(DocumentEvent e) {
-		parseCommandLine();
+	public void insertUpdate(DocumentEvent ev) {
+		if (!disableOnDocumentChange) {
+			parseCommandLine();
+		}
 	}
 
 	@Override
-	public void removeUpdate(DocumentEvent e) {
-		parseCommandLine();
+	public void removeUpdate(DocumentEvent ev) {
+		if (!disableOnDocumentChange) {
+			parseCommandLine();
+		}
 	}
 
 	@Override

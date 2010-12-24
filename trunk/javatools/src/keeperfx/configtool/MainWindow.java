@@ -211,7 +211,8 @@ public class MainWindow extends JFrame
 		configBuffer.replace(DEFAULT_CONFIG);
 		
 		JOptionPane.showMessageDialog(this, CONFIG_FILE.getName() +
-				" was not found, initialized to default configuration");
+				" was not found, initializing to default configuration",
+				"Notice", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	@Override
