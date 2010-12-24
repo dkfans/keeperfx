@@ -6,7 +6,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JRadioButton;
 
-import keeperfx.configtool.Configuration;
+import keeperfx.configtool.ConfigurationBuffer;
 import keeperfx.util.SmarterButtonGroup;
 import keeperfx.util.ValueObservable;
 
@@ -40,12 +40,12 @@ public class MultiChoiceItem extends ConfigurationItem implements ActionListener
 	}
 
 	@Override
-	public void load(Configuration config) {
+	public void load(ConfigurationBuffer config) {
 		group.selectOne(config.getItem(key, defaultChoice));
 	}
 
 	@Override
-	public void save(Configuration config) {
+	public void save(ConfigurationBuffer config) {
 		String selected = group.getSelected();
 		config.setItem(key, selected == null? defaultChoice : selected);
 	}

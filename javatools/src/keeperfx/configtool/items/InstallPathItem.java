@@ -6,7 +6,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JTextField;
 
-import keeperfx.configtool.Configuration;
+import keeperfx.configtool.ConfigurationBuffer;
 import keeperfx.util.ValueObservable;
 
 public class InstallPathItem extends ConfigurationItem implements ActionListener {
@@ -23,12 +23,12 @@ public class InstallPathItem extends ConfigurationItem implements ActionListener
 	}
 
 	@Override
-	public void load(Configuration config) {
+	public void load(ConfigurationBuffer config) {
 		field.setText(config.getItem("INSTALL_PATH", "./"));
 	}
 
 	@Override
-	public void save(Configuration config) {
+	public void save(ConfigurationBuffer config) {
 		config.setItem("INSTALL_PATH", field.getText());
 	}
 

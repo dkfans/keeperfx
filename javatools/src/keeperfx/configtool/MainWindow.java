@@ -35,6 +35,7 @@ import keeperfx.util.ValueObservable;
 public class MainWindow extends JFrame
 		implements WindowListener, ActionListener, Observer {
 	private static final long serialVersionUID = 5350739374145972591L;
+	
 	private static final File CONFIG_FILE = new File("keeperfx.cfg");
 	private String DEFAULT_CONFIG =
 		"; Path to the DK files. Usually leaving it as \"./\" will work.\n" +
@@ -65,7 +66,7 @@ public class MainWindow extends JFrame
 	private JButton exitButton;
 
 	private final ArrayList<ConfigurationItem> items = new ArrayList<ConfigurationItem>();
-	private final Configuration config = new Configuration();
+	private final ConfigurationBuffer configBuffer = new KeeperFXConfiguration();
 	
 	public MainWindow() {
 		super("KeeperFX Configuration Tool");
@@ -177,11 +178,11 @@ public class MainWindow extends JFrame
 
 	private void saveConfiguration() {
 		for (ConfigurationItem item : items) {
-			item.save(config);
+			item.save(configBuffer);
 		}
 		
 		try {
-			config.saveToStream(new FileOutputStream(CONFIG_FILE));
+			configBuffer.saveToStream(new FileOutputStream(CONFIG_FILE));
 			configChanged.setValue(false);
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(this,
@@ -192,7 +193,7 @@ public class MainWindow extends JFrame
 	
 	private void loadConfiguration() {
 		try {
-			config.loadFromStream(new FileInputStream(CONFIG_FILE));
+			configBuffer.loadFromStream(new FileInputStream(CONFIG_FILE));
 		} catch (FileNotFoundException e) {
 			initDefaultConfiguration();
 		} catch (IOException e) {
@@ -200,14 +201,14 @@ public class MainWindow extends JFrame
 		}
 		
 		for (ConfigurationItem item : items) {
-			item.load(config);
+			item.load(configBuffer);
 		}
 		
 		configChanged.setValue(false);
 	}
 
 	private void initDefaultConfiguration() {
-		config.replace(DEFAULT_CONFIG);
+		configBuffer.replace(DEFAULT_CONFIG);
 		
 		JOptionPane.showMessageDialog(this, CONFIG_FILE.getName() +
 				" was not found, initialized to default configuration");

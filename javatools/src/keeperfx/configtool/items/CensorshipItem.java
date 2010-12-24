@@ -5,7 +5,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 
-import keeperfx.configtool.Configuration;
+import keeperfx.configtool.ConfigurationBuffer;
 import keeperfx.util.ValueObservable;
 
 public class CensorshipItem extends ConfigurationItem implements ActionListener {
@@ -21,12 +21,12 @@ public class CensorshipItem extends ConfigurationItem implements ActionListener 
 	}
 
 	@Override
-	public void load(Configuration config) {
+	public void load(ConfigurationBuffer config) {
 		checkbox.setSelected(config.getItem("CENSORSHIP", "OFF").equals("ON"));
 	}
 
 	@Override
-	public void save(Configuration config) {
+	public void save(ConfigurationBuffer config) {
 		config.setItem("CENSORSHIP", checkbox.isSelected()? "ON" : "OFF");
 	}
 

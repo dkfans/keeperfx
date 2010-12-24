@@ -13,7 +13,7 @@ import java.util.TreeSet;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 
-import keeperfx.configtool.Configuration;
+import keeperfx.configtool.ConfigurationBuffer;
 import keeperfx.util.ValueObservable;
 
 public class ResolutionItem extends ConfigurationItem
@@ -45,7 +45,7 @@ public class ResolutionItem extends ConfigurationItem
 	}
 
 	@Override
-	public void load(Configuration config) {
+	public void load(ConfigurationBuffer config) {
 		StringTokenizer tokenizer = new StringTokenizer(config.getItem(key, ""));
 		String resolution = null;
 		try {
@@ -95,7 +95,7 @@ public class ResolutionItem extends ConfigurationItem
 	}
 
 	@Override
-	public void save(Configuration config) {
+	public void save(ConfigurationBuffer config) {
 		String oldVal = config.getItem(key, "");
 		String[] oldFields = oldVal.split("\\s+");
 		String[] newFields = new String[Math.max(oldFields.length, MIN_N_FIELDS)];
