@@ -75,7 +75,14 @@ public abstract class ConfigurationBuffer {
 				found = true;
 				
 				if (value != null) {
-					data.replace(matcher.start(2), matcher.end(2), value);
+					if (matcher.end(2) < 0) {
+						//key without value when we expect value - delete it and start from scratch
+						data.delete(matcher.start(1), Math.max(matcher.end(1), matcher.end(1)));
+						found = false;
+					}
+					else {
+						data.replace(matcher.start(2), matcher.end(2), value);
+					}
 				}
 				break;
 			}
@@ -105,7 +112,12 @@ public abstract class ConfigurationBuffer {
 		
 		while (matcher.find()) {
 			if (matcher.group(1).trim().equals(key)) {
-				return matcher.group(2).trim();
+				String value = matcher.group(2);
+				if (value != null) {
+					value = value.trim();
+				}
+				
+				return value;
 			}
 		}
 		
