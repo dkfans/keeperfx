@@ -3,7 +3,7 @@ package keeperfx.configtool.items;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
-import keeperfx.configtool.Configuration;
+import keeperfx.configtool.ConfigurationBuffer;
 import keeperfx.util.ValueObservable;
 
 public abstract class ConfigurationItem extends JPanel {
@@ -16,8 +16,8 @@ public abstract class ConfigurationItem extends JPanel {
 		setBorder(BorderFactory.createTitledBorder(label));
 	}
 	
-	public abstract void load(Configuration config);
-	public abstract void save(Configuration config);
+	public abstract void load(ConfigurationBuffer config);
+	public abstract void save(ConfigurationBuffer config);
 	
 	protected void markChange() {
 		configChanged.setValue(true);
