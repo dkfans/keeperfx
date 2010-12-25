@@ -40,11 +40,14 @@ DLLIMPORT long _DK_update_shot(struct Thing *thing);
 /******************************************************************************/
 TbBool shot_is_slappable(const struct Thing *thing, long plyr_idx)
 {
-  if (thing->owner == plyr_idx)
-  {
-    return (thing->model == 15) || (thing->model == 20);
-  }
-  return false;
+    struct ShotConfigStats *shotst;
+    if (thing->owner == plyr_idx)
+    {
+        // Normally, thing models 15 and 20 are slappable. But this is up to config file.
+        shotst = get_shot_model_stats(thing->model);
+        return ((shotst->model_flags & ShMF_Slappable) != 0);
+    }
+    return false;
 }
 
 long move_shot(struct Thing *thing)

@@ -54,6 +54,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"HEALTH",          2},
   {"DAMAGE",          3},
   {"SPEED",           4},
+  {"PROPERTIES",      5},
   {NULL,              0},
   };
 
@@ -63,6 +64,11 @@ const struct NamedCommand magic_power_commands[] = {
   {"COST",            3},
   {"TIME",            4},
   {NULL,              0},
+  };
+
+const struct NamedCommand shotmodel_properties_commands[] = {
+  {"SLAPPABLE",         1},
+  {NULL,                0},
   };
 
 struct SpellInfo spell_info[] = {
@@ -189,6 +195,27 @@ TbBool spell_is_stupid(int sptype)
   return (pwrdata->field_0 <= 0);
 }
 
+struct SpellConfigStats *get_spell_model_stats(int spmodel)
+{
+    if ((spmodel < 0) || (spmodel >= magic_conf.spell_types_count))
+        return &magic_conf.spell_cfgstats[0];
+    return &magic_conf.spell_cfgstats[spmodel];
+}
+
+struct ShotConfigStats *get_shot_model_stats(int tngmodel)
+{
+    if ((tngmodel < 0) || (tngmodel >= magic_conf.shot_types_count))
+        return &magic_conf.shot_cfgstats[0];
+    return &magic_conf.shot_cfgstats[tngmodel];
+}
+
+struct PowerConfigStats *get_power_model_stats(int pwmodel)
+{
+    if ((pwmodel < 0) || (pwmodel >= magic_conf.power_types_count))
+        return &magic_conf.power_cfgstats[0];
+    return &magic_conf.power_cfgstats[pwmodel];
+}
+
 TbBool parse_magic_common_blocks(char *buf,long len)
 {
   static const char config_textname[] = "Magic config";
@@ -287,6 +314,7 @@ TbBool parse_magic_common_blocks(char *buf,long len)
 TbBool parse_magic_spell_blocks(char *buf,long len)
 {
   static const char config_textname[] = "Magic config";
+  struct SpellConfigStats *spellst;
   struct SpellConfig *splconf;
   struct SpellInfo *magicinf;
   long pos;
@@ -296,19 +324,20 @@ TbBool parse_magic_spell_blocks(char *buf,long len)
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Initialize the array
-  int arr_size = sizeof(magic_conf.spell_names)/sizeof(magic_conf.spell_names[0]);
+  int arr_size = sizeof(magic_conf.spell_cfgstats)/sizeof(magic_conf.spell_cfgstats[0]);
   for (i=0; i < arr_size; i++)
   {
-    LbMemorySet(magic_conf.spell_names[i].text, 0, COMMAND_WORD_LEN);
-    if (i < magic_conf.spell_types_count)
-    {
-      spell_desc[i].name = magic_conf.spell_names[i].text;
-      spell_desc[i].num = i;
-    } else
-    {
-      spell_desc[i].name = NULL;
-      spell_desc[i].num = 0;
-    }
+      spellst = get_spell_model_stats(i);
+      LbMemorySet(spellst->code_name, 0, COMMAND_WORD_LEN);
+      if (i < magic_conf.spell_types_count)
+      {
+        spell_desc[i].name = spellst->code_name;
+        spell_desc[i].num = i;
+      } else
+      {
+        spell_desc[i].name = NULL;
+        spell_desc[i].num = 0;
+      }
   }
   arr_size = magic_conf.spell_types_count;
   for (i=0; i < arr_size; i++)
@@ -333,6 +362,7 @@ TbBool parse_magic_spell_blocks(char *buf,long len)
     }
     splconf = &game.spells_config[i];
     magicinf = get_magic_info(i);
+    spellst = get_spell_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_spell_commands,cmd_num)
     while (pos<len)
     {
@@ -344,7 +374,7 @@ TbBool parse_magic_spell_blocks(char *buf,long len)
       switch (cmd_num)
       {
       case 1: // NAME
-          if (get_conf_parameter_single(buf,&pos,len,magic_conf.spell_names[i].text,COMMAND_WORD_LEN) <= 0)
+          if (get_conf_parameter_single(buf,&pos,len,spellst->code_name,COMMAND_WORD_LEN) <= 0)
           {
             CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
@@ -409,6 +439,7 @@ TbBool parse_magic_spell_blocks(char *buf,long len)
 TbBool parse_magic_shot_blocks(char *buf,long len)
 {
   static const char config_textname[] = "Magic config";
+  struct ShotConfigStats *shotst;
   struct ShotStats *shotstat;
   long pos;
   int i,k,n;
@@ -417,19 +448,20 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Initialize the array
-  int arr_size = sizeof(magic_conf.shot_names)/sizeof(magic_conf.shot_names[0]);
+  int arr_size = sizeof(magic_conf.shot_cfgstats)/sizeof(magic_conf.shot_cfgstats[0]);
   for (i=0; i < arr_size; i++)
   {
-    LbMemorySet(magic_conf.shot_names[i].text, 0, COMMAND_WORD_LEN);
-    if (i < magic_conf.shot_types_count)
-    {
-      shot_desc[i].name = magic_conf.shot_names[i].text;
-      shot_desc[i].num = i;
-    } else
-    {
-      shot_desc[i].name = NULL;
-      shot_desc[i].num = 0;
-    }
+      shotst = get_shot_model_stats(i);
+      LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
+      if (i < magic_conf.shot_types_count)
+      {
+        shot_desc[i].name = shotst->code_name;
+        shot_desc[i].num = i;
+      } else
+      {
+        shot_desc[i].name = NULL;
+        shot_desc[i].num = 0;
+      }
   }
   arr_size = magic_conf.shot_types_count;
   // Load the file
@@ -444,6 +476,7 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
       continue;
     }
     shotstat = &shot_stats[i];
+    shotst = get_shot_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_shot_commands,cmd_num)
     while (pos<len)
     {
@@ -455,7 +488,7 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
       switch (cmd_num)
       {
       case 1: // NAME
-          if (get_conf_parameter_single(buf,&pos,len,magic_conf.shot_names[i].text,COMMAND_WORD_LEN) <= 0)
+          if (get_conf_parameter_single(buf,&pos,len,shotst->code_name,COMMAND_WORD_LEN) <= 0)
           {
             CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
@@ -502,6 +535,24 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
+      case 5: // PROPERTIES
+          shotst->model_flags = 0;
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = get_id(shotmodel_properties_commands, word_buf);
+            switch (k)
+            {
+            case 1: // SLAPPABLE
+                shotst->model_flags |= ShMF_Slappable;
+                n++;
+                break;
+            default:
+                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                break;
+            }
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -521,6 +572,7 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
 TbBool parse_magic_power_blocks(char *buf,long len)
 {
   static const char config_textname[] = "Magic config";
+  struct PowerConfigStats *powerst;
   struct MagicStats *magstat;
   long pos;
   int i,k,n;
@@ -529,19 +581,20 @@ TbBool parse_magic_power_blocks(char *buf,long len)
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Initialize the array
-  int arr_size = sizeof(magic_conf.power_names)/sizeof(magic_conf.power_names[0]);
+  int arr_size = sizeof(magic_conf.power_cfgstats)/sizeof(magic_conf.power_cfgstats[0]);
   for (i=0; i < arr_size; i++)
   {
-    LbMemorySet(magic_conf.power_names[i].text, 0, COMMAND_WORD_LEN);
-    if (i < magic_conf.power_types_count)
-    {
-      power_desc[i].name = magic_conf.power_names[i].text;
-      power_desc[i].num = i;
-    } else
-    {
-      power_desc[i].name = NULL;
-      power_desc[i].num = 0;
-    }
+      powerst = get_power_model_stats(i);
+      LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
+      if (i < magic_conf.power_types_count)
+      {
+        power_desc[i].name = powerst->code_name;
+        power_desc[i].num = i;
+      } else
+      {
+        power_desc[i].name = NULL;
+        power_desc[i].num = 0;
+      }
   }
   arr_size = magic_conf.power_types_count;
   // Load the file
@@ -556,6 +609,7 @@ TbBool parse_magic_power_blocks(char *buf,long len)
       continue;
     }
     magstat = &game.magic_stats[i];
+    powerst = get_power_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_power_commands,cmd_num)
     while (pos<len)
     {
@@ -567,7 +621,7 @@ TbBool parse_magic_power_blocks(char *buf,long len)
       switch (cmd_num)
       {
       case 1: // NAME
-          if (get_conf_parameter_single(buf,&pos,len,magic_conf.power_names[i].text,COMMAND_WORD_LEN) <= 0)
+          if (get_conf_parameter_single(buf,&pos,len,powerst->code_name,COMMAND_WORD_LEN) <= 0)
           {
             CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
