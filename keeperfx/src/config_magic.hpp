@@ -81,6 +81,7 @@ enum CreatureSpellFlags {
 enum ShotModelFlags {
     /** Set if the shot can be slapped with hand of evil of owning player. */
     ShMF_Slappable  = 0x0001,
+    ShMF_Navigable  = 0x0002,
 };
 
 struct SpellConfigStats {
@@ -241,9 +242,12 @@ long get_power_index_for_work_state(long work_state);
 struct SpellConfigStats *get_spell_model_stats(int spmodel);
 struct ShotConfigStats *get_shot_model_stats(int tngmodel);
 struct PowerConfigStats *get_power_model_stats(int pwmodel);
+const char *spell_code_name(int spmodel);
+const char *shot_code_name(int tngmodel);
+const char *power_code_name(int pwmodel);
 /******************************************************************************/
 TbBool load_magic_config(const char *conf_fname,unsigned short flags);
-TbBool make_all_powers_free(void);
+TbBool make_all_powers_cost_free(void);
 TbBool make_all_powers_researchable(long plyr_idx);
 TbBool set_power_available(long plyr_idx, long spl_idx, long resrch, long avail);
 TbBool is_power_available(long plyr_idx, long spl_idx);

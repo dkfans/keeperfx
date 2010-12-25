@@ -25,6 +25,7 @@
 #include "thing_data.h"
 #include "thing_effects.h"
 #include "front_simple.h"
+#include "thing_stats.h"
 #include "gui_topmsg.h"
 #include "creature_states.h"
 
@@ -48,6 +49,14 @@ TbBool shot_is_slappable(const struct Thing *thing, long plyr_idx)
         return ((shotst->model_flags & ShMF_Slappable) != 0);
     }
     return false;
+}
+
+TbBool shot_model_is_navigable(long tngmodel)
+{
+    // Normally, only shot model 6 is navigable
+    struct ShotConfigStats *shotst;
+    shotst = get_shot_model_stats(tngmodel);
+    return ((shotst->model_flags & ShMF_Navigable) != 0);
 }
 
 long move_shot(struct Thing *thing)
@@ -265,11 +274,11 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
         ilght.field_3 = shotstat->field_53;
         thing->field_62 = light_create_light(&ilght);
         if (thing->field_62 == 0) {
-          WARNLOG("Cannot allocate dynamic light to shot");
+          WARNLOG("Cannot allocate dynamic light to %s.",thing_model_name(thing));
         }
     }
     place_thing_in_mapwho(thing);
-    add_thing_to_list(thing, &game.thing_lists[1]);
+    add_thing_to_its_class_list(thing);
     return thing;
 }
 

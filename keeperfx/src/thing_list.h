@@ -52,6 +52,19 @@ enum ThingClass {
     TCls_CaveIn       = 13,
 };
 
+enum ThingListIndex {
+    TngList_Creatures    =  0,
+    TngList_Shots        =  1,
+    TngList_Objects      =  2,
+    TngList_EffectElems  =  3,
+    TngList_DeadCreatrs  =  4,
+    TngList_Effects      =  5,
+    TngList_EffectGens   =  6,
+    TngList_Traps        =  7,
+    TngList_Doors        =  8,
+    TngList_AmbientSnds  =  9,
+    TngList_CaveIns      = 10,
+};
 
 typedef long FilterParam;
 typedef struct CompoundFilterParam * MaxFilterParam;
@@ -89,6 +102,8 @@ extern unsigned long thing_create_errors;
 /******************************************************************************/
 void add_thing_to_list(struct Thing *thing, struct StructureList *list);
 void remove_thing_from_list(struct Thing *thing, struct StructureList *slist);
+void remove_thing_from_its_class_list(struct Thing *thing);
+void add_thing_to_its_class_list(struct Thing *thing);
 
 long creature_near_filter_not_imp(const struct Thing *thing, FilterParam val);
 long creature_near_filter_is_enemy_of_and_not_imp(const struct Thing *thing, FilterParam val);
