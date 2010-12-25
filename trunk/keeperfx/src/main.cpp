@@ -1619,7 +1619,7 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short a2, unsigned sh
         dungeon = get_dungeon(owner);
         dungeon->field_EA0 = thing->word_15;
     }
-    add_thing_to_list(thing, &game.thing_lists[10]);
+    add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
     return thing;
 }
@@ -2936,7 +2936,7 @@ struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short model, un
   memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
   thing->owner = owner;
   thing->field_4F |= 0x01;
-  add_thing_to_list(thing, &game.thing_lists[9]);
+  add_thing_to_its_class_list(thing);
   return thing;
 }
 

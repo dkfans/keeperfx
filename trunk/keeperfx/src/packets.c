@@ -1888,7 +1888,7 @@ TbBool process_players_global_packet_action(long plyr_idx)
   case PckA_CheatAllFree:
       make_all_creatures_free();
       make_all_rooms_free();
-      make_all_powers_free();
+      make_all_powers_cost_free();
       //TODO: remake from beta
 /*
       if (word_5E674A != 0)

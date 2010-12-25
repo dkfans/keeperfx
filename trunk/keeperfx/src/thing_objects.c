@@ -326,7 +326,7 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
     default:
       break;
   }
-  add_thing_to_list(thing, &game.thing_lists[2]);
+  add_thing_to_its_class_list(thing);
   place_thing_in_mapwho(thing);
   return thing;
 }

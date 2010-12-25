@@ -68,6 +68,7 @@ const struct NamedCommand magic_power_commands[] = {
 
 const struct NamedCommand shotmodel_properties_commands[] = {
   {"SLAPPABLE",         1},
+  {"NAVIGABLE",         2},
   {NULL,                0},
   };
 
@@ -546,6 +547,10 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
                 shotst->model_flags |= ShMF_Slappable;
                 n++;
                 break;
+            case 2: // NAVIGABLE
+                shotst->model_flags |= ShMF_Navigable;
+                n++;
+                break;
             default:
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -750,9 +755,45 @@ TbBool load_magic_config(const char *conf_fname,unsigned short flags)
 }
 
 /**
+ * Returns Code Name (name to use in script file) of given spell model.
+ */
+const char *spell_code_name(int spmodel)
+{
+    const char *name;
+    name = get_conf_parameter_text(spell_desc,spmodel);
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
+
+/**
+ * Returns Code Name (name to use in script file) of given shot model.
+ */
+const char *shot_code_name(int tngmodel)
+{
+    const char *name;
+    name = get_conf_parameter_text(shot_desc,tngmodel);
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
+
+/**
+ * Returns Code Name (name to use in script file) of given keepers power model.
+ */
+const char *power_code_name(int pwmodel)
+{
+    const char *name;
+    name = get_conf_parameter_text(power_desc,pwmodel);
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
+
+/**
  * Zeroes all the costs for all spells.
  */
-TbBool make_all_powers_free(void)
+TbBool make_all_powers_cost_free(void)
 {
   struct MagicStats *magstat;
   long i,n;

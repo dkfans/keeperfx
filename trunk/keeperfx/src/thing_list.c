@@ -87,6 +87,61 @@ void remove_thing_from_list(struct Thing *thing, struct StructureList *slist)
     _DK_remove_thing_from_list(thing, slist);
 }
 
+struct StructureList *get_list_for_thing_class(long class_id)
+{
+    switch (class_id)
+    {
+    case TCls_Object:
+        return &game.thing_lists[TngList_Objects];
+    case TCls_Shot:
+        return &game.thing_lists[TngList_Shots];
+    case TCls_EffectElem:
+        return &game.thing_lists[TngList_EffectElems];
+    case TCls_DeadCreature:
+        return &game.thing_lists[TngList_DeadCreatrs];
+    case TCls_Creature:
+        return &game.thing_lists[TngList_Creatures];
+    case TCls_Effect:
+        return &game.thing_lists[TngList_Effects];
+    case TCls_EffectGen:
+        return &game.thing_lists[TngList_EffectGens];
+    case TCls_Trap:
+        return &game.thing_lists[TngList_Traps];
+    case TCls_Door:
+        return &game.thing_lists[TngList_Doors];
+    case TCls_AmbientSnd:
+        return &game.thing_lists[TngList_AmbientSnds];
+    case TCls_CaveIn:
+        return &game.thing_lists[TngList_CaveIns];
+    default:
+        return NULL;
+    }
+}
+
+/** Removes the given thing from a linked list which contains all things of the same class.
+ *
+ * @param thing The thing to be unlinked from list chain.
+ */
+void remove_thing_from_its_class_list(struct Thing *thing)
+{
+    struct StructureList *slist;
+    slist = get_list_for_thing_class(thing->class_id);
+    if (slist != NULL)
+        remove_thing_from_list(thing, slist);
+}
+
+/** Adds the given thing to a linked list which contains all things of the same class.
+ *
+ * @param thing The thing to be linked with list chain.
+ */
+void add_thing_to_its_class_list(struct Thing *thing)
+{
+    struct StructureList *slist;
+    slist = get_list_for_thing_class(thing->class_id);
+    if (slist != NULL)
+        add_thing_to_list(thing, slist);
+}
+
 long creature_near_filter_not_imp(const struct Thing *thing, FilterParam val)
 {
   return ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0);
