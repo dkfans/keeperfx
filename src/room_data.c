@@ -449,13 +449,13 @@ void delete_room_structure(struct Room *room)
 
 void delete_all_room_structures(void)
 {
-  struct Room *room;
-  long i;
-  for (i=1; i < ROOMS_COUNT; i++)
-  {
-    room = &game.rooms[i];
-    delete_room_structure(room);
-  }
+    struct Room *room;
+    long i;
+    for (i=1; i < ROOMS_COUNT; i++)
+    {
+        room = &game.rooms[i];
+        delete_room_structure(room);
+    }
 }
 
 struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, unsigned char rkind)

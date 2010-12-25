@@ -34,6 +34,7 @@
 #include "thing_effects.h"
 #include "thing_objects.h"
 #include "thing_navigate.h"
+#include "thing_shots.h"
 #include "lens_api.h"
 #include "light_data.h"
 #include "gui_topmsg.h"
@@ -1082,7 +1083,7 @@ struct Thing *create_dead_creature(struct Coord3d *pos, unsigned short model, un
     thing->field_9 = game.play_gameturn;
     if (creatures[model].field_7)
       thing->field_4F |= 0x30;
-    add_thing_to_list(thing, &game.thing_lists[4]);
+    add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
     switch (a1)
     {
@@ -1503,135 +1504,134 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
 TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_plyr_idx,
       unsigned char a4, TbBool died_in_battle, unsigned char a6)
 {
-  struct CreatureControl *cctrl;
-  struct CreatureControl *cctrlgrp;
-  struct CreatureStats *crstat;
-  struct Dungeon *dungeon;
-  long i,k;
-  SYNCDBG(18,"Starting");
-  //TODO check if invalid dead body can happen with original function
-  //return _DK_kill_creature(thing, killertng, killer_plyr_idx, a4, died_in_battle, a6);
-  dungeon = NULL;
-  cctrl = creature_control_get_from_thing(thing);
-  cleanup_current_thing_state(thing);
-  remove_all_traces_of_combat(thing);
-  if ((cctrl->field_7A & 0xFFF) != 0)
-    remove_creature_from_group(thing);
-  if (thing->owner != game.neutral_player_num)
-    dungeon = get_players_num_dungeon(thing->owner);
-  if (!thing_is_invalid(killertng))
-  {
-      if (killertng->owner == game.neutral_player_num)
-          died_in_battle = 0;
-  }
-  if (killer_plyr_idx == game.neutral_player_num)
-    died_in_battle = 0;
-  remove_events_thing_is_attached_to(thing);
-  if (dungeon != NULL)
-  {
-    update_dead_creatures_list(dungeon, thing);
-    if (died_in_battle)
+    struct CreatureControl *cctrl;
+    struct CreatureControl *cctrlgrp;
+    struct CreatureStats *crstat;
+    struct Dungeon *dungeon;
+    long i,k;
+    SYNCDBG(18,"Starting");
+    //return _DK_kill_creature(thing, killertng, killer_plyr_idx, a4, died_in_battle, a6);
+    dungeon = NULL;
+    cctrl = creature_control_get_from_thing(thing);
+    cleanup_current_thing_state(thing);
+    remove_all_traces_of_combat(thing);
+    if ((cctrl->field_7A & 0xFFF) != 0)
+      remove_creature_from_group(thing);
+    if (thing->owner != game.neutral_player_num)
+      dungeon = get_players_num_dungeon(thing->owner);
+    if (!thing_is_invalid(killertng))
     {
-      dungeon->battles_lost++;
+        if (killertng->owner == game.neutral_player_num)
+            died_in_battle = 0;
     }
-  }
+    if (killer_plyr_idx == game.neutral_player_num)
+      died_in_battle = 0;
+    remove_events_thing_is_attached_to(thing);
+    if (dungeon != NULL)
+    {
+      update_dead_creatures_list(dungeon, thing);
+      if (died_in_battle)
+      {
+        dungeon->battles_lost++;
+      }
+    }
 
-  if (!creature_control_invalid(cctrl))
-  {
-    if ((cctrl->spell_flags & CSF_Armour) != 0)
+    if (!creature_control_invalid(cctrl))
     {
-      set_flag_byte(&cctrl->spell_flags, CSF_Armour, false);
-      for (i=0; i < 3; i++)
+      if ((cctrl->spell_flags & CSF_Armour) != 0)
       {
-        k = cctrl->field_2B3[i];
-        if (k != 0)
+        set_flag_byte(&cctrl->spell_flags, CSF_Armour, false);
+        for (i=0; i < 3; i++)
         {
-          thing = thing_get(k);
-          delete_thing_structure(thing, 0);
-          cctrl->field_2B3[i] = 0;
+          k = cctrl->field_2B3[i];
+          if (k != 0)
+          {
+            thing = thing_get(k);
+            delete_thing_structure(thing, 0);
+            cctrl->field_2B3[i] = 0;
+          }
+        }
+      }
+      if ((cctrl->field_AD & 0x01) != 0)
+      {
+        cctrl->field_AD &= 0xFE;
+        for (i=0; i < 3; i++)
+        {
+          k = cctrl->field_2B9[i];
+          if (k != 0)
+          {
+            thing = thing_get(k);
+            delete_thing_structure(thing, 0);
+            cctrl->field_2B9[i] = 0;
+          }
         }
       }
     }
-    if ((cctrl->field_AD & 0x01) != 0)
+    update_kills_counters(thing, killertng, killer_plyr_idx, died_in_battle);
+    if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) || (killer_plyr_idx == game.neutral_player_num) || (dungeon == NULL))
     {
-      cctrl->field_AD &= 0xFE;
-      for (i=0; i < 3; i++)
+      if ((a4) && ((thing->field_0 & 0x20) != 0))
       {
-        k = cctrl->field_2B9[i];
-        if (k != 0)
-        {
-          thing = thing_get(k);
-          delete_thing_structure(thing, 0);
-          cctrl->field_2B9[i] = 0;
-        }
+        prepare_to_controlled_creature_death(thing);
       }
-    }
-  }
-  update_kills_counters(thing, killertng, killer_plyr_idx, died_in_battle);
-  if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) || (killer_plyr_idx == game.neutral_player_num) || (dungeon == NULL))
-  {
-    if ((a4) && ((thing->field_0 & 0x20) != 0))
-    {
-      prepare_to_controlled_creature_death(thing);
-    }
-    cause_creature_death(thing, a4);
-    return true;
-  }
-  // Now we are sure that killertng and dungeon pointers are correct
-  if (thing->owner == killertng->owner)
-  {
-    if ((get_creature_model_flags(thing) & MF_IsDiptera) && (get_creature_model_flags(killertng) & MF_IsArachnid))
-    {
-      dungeon->lvstats.flies_killed_by_spiders++;
-    }
-  }
-  cctrlgrp = creature_control_get_from_thing(killertng);
-  if (!creature_control_invalid(cctrlgrp))
-    cctrlgrp->field_C2++;
-  if (is_my_player_number(thing->owner))
-  {
-    output_message(11, 40, 1);
-  } else
-  if (is_my_player_number(killertng->owner))
-  {
-    output_message(12, 40, 1);
-  }
-  if (game.hero_player_num == killertng->owner)
-  {
-    if (player_creature_tends_to(killertng->owner,CrTend_Imprison))
-      ERRORLOG("Hero have tend to imprison");
-  }
-  crstat = creature_stats_get_from_thing(killertng);
-  anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, 4, 1);
-  if (!creature_control_invalid(cctrlgrp) && died_in_battle)
-    cctrlgrp->byte_9A++;
-  if (dungeon != NULL)
-    dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
-  SYNCDBG(18,"Almost finished");
-  if ((a6) || (!player_has_room(killertng->owner,RoK_PRISON))
-    || (!player_creature_tends_to(killertng->owner,CrTend_Imprison)))
-  {
-    if (a4 == 0)
-    {
       cause_creature_death(thing, a4);
       return true;
     }
-  }
-  if (a4)
-  {
-    if ((thing->field_0 & 0x20) != 0)
-      prepare_to_controlled_creature_death(thing);
-    cause_creature_death(thing, a4);
+    // Now we are sure that killertng and dungeon pointers are correct
+    if (thing->owner == killertng->owner)
+    {
+      if ((get_creature_model_flags(thing) & MF_IsDiptera) && (get_creature_model_flags(killertng) & MF_IsArachnid))
+      {
+        dungeon->lvstats.flies_killed_by_spiders++;
+      }
+    }
+    cctrlgrp = creature_control_get_from_thing(killertng);
+    if (!creature_control_invalid(cctrlgrp))
+      cctrlgrp->field_C2++;
+    if (is_my_player_number(thing->owner))
+    {
+      output_message(11, 40, 1);
+    } else
+    if (is_my_player_number(killertng->owner))
+    {
+      output_message(12, 40, 1);
+    }
+    if (game.hero_player_num == killertng->owner)
+    {
+      if (player_creature_tends_to(killertng->owner,CrTend_Imprison))
+        ERRORLOG("Hero have tend to imprison");
+    }
+    crstat = creature_stats_get_from_thing(killertng);
+    anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, 4, 1);
+    if (!creature_control_invalid(cctrlgrp) && died_in_battle)
+      cctrlgrp->byte_9A++;
+    if (dungeon != NULL)
+      dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
+    SYNCDBG(18,"Almost finished");
+    if ((a6) || (!player_has_room(killertng->owner,RoK_PRISON))
+      || (!player_creature_tends_to(killertng->owner,CrTend_Imprison)))
+    {
+      if (a4 == 0)
+      {
+        cause_creature_death(thing, a4);
+        return true;
+      }
+    }
+    if (a4)
+    {
+      if ((thing->field_0 & 0x20) != 0)
+        prepare_to_controlled_creature_death(thing);
+      cause_creature_death(thing, a4);
+      return true;
+    }
+    clear_creature_instance(thing);
+    thing->field_7 = CrSt_CreatureUnconscious;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->flgfield_1 |= CCFlg_Immortal;
+    cctrl->flgfield_1 |= CCFlg_NoCompControl;
+    cctrl->field_280 = 2000;
+    thing->health = 1;
     return true;
-  }
-  clear_creature_instance(thing);
-  thing->field_7 = CrSt_CreatureUnconscious;
-  cctrl = creature_control_get_from_thing(thing);
-  cctrl->flgfield_1 |= CCFlg_Immortal;
-  cctrl->flgfield_1 |= CCFlg_NoCompControl;
-  cctrl->field_280 = 2000;
-  thing->health = 1;
-  return true;
 }
 
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos)
@@ -1667,159 +1667,159 @@ long calculate_shot_damage(struct Thing *thing,long shot_kind)
 
 void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short shot_kind, char a2, unsigned char hit_type)
 {
-  struct CreatureControl *cctrl;
-  struct CreatureStats *crstat;
-  struct ShotStats *shotstat;
-  struct Coord3d pos1;
-  struct Coord3d pos2;
-  struct ComponentVector cvect;
-  struct Thing *shot;
-  struct Thing *tmptng;
-  short angle_xy,angle_yz;
-  long damage;
-  long target_idx,i;
-  TbBool flag1;
-  //_DK_creature_fire_shot(firing,target,shot_kind,a2,a3); return;
-  cctrl = creature_control_get_from_thing(firing);
-  crstat = creature_stats_get_from_thing(firing);
-  shotstat = &shot_stats[shot_kind];
-  flag1 = false;
-  // Prepare source position
-  pos1.x.val = firing->mappos.x.val;
-  pos1.y.val = firing->mappos.y.val;
-  pos1.z.val = firing->mappos.z.val;
-  pos1.x.val += (cctrl->field_2C1 * LbSinL(firing->field_52+512) >> 16);
-  pos1.y.val -= (cctrl->field_2C1 * LbCosL(firing->field_52+512) >> 8) >> 8;
-  pos1.x.val += (cctrl->field_2C3 * LbSinL(firing->field_52) >> 16);
-  pos1.y.val -= (cctrl->field_2C3 * LbCosL(firing->field_52) >> 8) >> 8;
-  pos1.z.val += (cctrl->field_2C5);
-  // Compute launch angles
-  if (thing_is_invalid(target))
-  {
-    angle_xy = firing->field_52;
-    angle_yz = firing->field_54;
-  } else
-  {
-    pos2.x.val = target->mappos.x.val;
-    pos2.y.val = target->mappos.y.val;
-    pos2.z.val = target->mappos.z.val;
-    pos2.z.val += (target->field_58 >> 1);
-    if (( shotstat->field_48 ) && (target->class_id != 9))
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct ShotStats *shotstat;
+    struct Coord3d pos1;
+    struct Coord3d pos2;
+    struct ComponentVector cvect;
+    struct Thing *shot;
+    struct Thing *tmptng;
+    short angle_xy,angle_yz;
+    long damage;
+    long target_idx,i;
+    TbBool flag1;
+    //_DK_creature_fire_shot(firing,target,shot_kind,a2,a3); return;
+    cctrl = creature_control_get_from_thing(firing);
+    crstat = creature_stats_get_from_thing(firing);
+    shotstat = &shot_stats[shot_kind];
+    flag1 = false;
+    // Prepare source position
+    pos1.x.val = firing->mappos.x.val;
+    pos1.y.val = firing->mappos.y.val;
+    pos1.z.val = firing->mappos.z.val;
+    pos1.x.val += (cctrl->field_2C1 * LbSinL(firing->field_52+512) >> 16);
+    pos1.y.val -= (cctrl->field_2C1 * LbCosL(firing->field_52+512) >> 8) >> 8;
+    pos1.x.val += (cctrl->field_2C3 * LbSinL(firing->field_52) >> 16);
+    pos1.y.val -= (cctrl->field_2C3 * LbCosL(firing->field_52) >> 8) >> 8;
+    pos1.z.val += (cctrl->field_2C5);
+    // Compute launch angles
+    if (thing_is_invalid(target))
     {
-      flag1 = true;
-      pos1.z.val = pos2.z.val;
+      angle_xy = firing->field_52;
+      angle_yz = firing->field_54;
+    } else
+    {
+      pos2.x.val = target->mappos.x.val;
+      pos2.y.val = target->mappos.y.val;
+      pos2.z.val = target->mappos.z.val;
+      pos2.z.val += (target->field_58 >> 1);
+      if (( shotstat->field_48 ) && (target->class_id != TCls_Door))
+      {
+        flag1 = true;
+        pos1.z.val = pos2.z.val;
+      }
+      angle_xy = get_angle_xy_to(&pos1, &pos2);
+      angle_yz = get_angle_yz_to(&pos1, &pos2);
     }
-    angle_xy = get_angle_xy_to(&pos1, &pos2);
-    angle_yz = get_angle_yz_to(&pos1, &pos2);
-  }
-  // Compute shot damage
-  if ( shotstat->field_48 )
-  {
-    damage = calculate_melee_damage(firing);
-  } else
-  {
-    damage = calculate_shot_damage(firing,shot_kind);
-  }
-  shot = NULL;
-  target_idx = 0;
-  // Set target index for navigating shots
-  if (shot_kind == 6)
-  {
-    if (!thing_is_invalid(target))
-      target_idx = target->index;
-  }
-  switch ( shot_kind )
-  {
-  case 4:
-  case 12:
-      if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 5120))
-      {
-          project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 20);
-      }
-      shot = create_thing(&pos2, TCls_Shot, shot_kind, firing->owner, -1);
-      if (thing_is_invalid(shot))
-        return;
-      if (shot_kind == 12)
-        draw_lightning(&pos1, &pos2, 96, 93);
-      else
-        draw_lightning(&pos1, &pos2, 96, 60);
-      shot->health = shotstat->health;
-      shot->word_14 = shotstat->damage;
-      shot->field_1D = firing->index;
-      break;
-  case 7:
-      if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 768))
-        project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 4);
-      shot = create_thing(&pos2, TCls_Shot, shot_kind, firing->owner, -1);
-      if (thing_is_invalid(shot))
-        return;
-      draw_flame_breath(&pos1, &pos2, 96, 2);
-      shot->health = shotstat->health;
-      shot->word_14 = shotstat->damage;
-      shot->field_1D = firing->index;
-      break;
-  case 13:
-      for (i=0; i < 32; i++)
-      {
-          tmptng = create_thing(&pos1, TCls_Shot, shot_kind, firing->owner, -1);
-          if (thing_is_invalid(tmptng))
-            break;
-          shot = tmptng;
-          shot->byte_16 = hit_type;
-          shot->field_52 = (angle_xy + ACTION_RANDOM(101) - 50) & 0x7FF;
-          shot->field_54 = (angle_yz + ACTION_RANDOM(101) - 50) & 0x7FF;
-          angles_to_vector(shot->field_52, shot->field_54, shotstat->speed, &cvect);
-          shot->pos_32.x.val += cvect.x;
-          shot->pos_32.y.val += cvect.y;
-          shot->pos_32.z.val += cvect.z;
-          shot->field_1 |= 0x04;
-          shot->word_14 = damage;
-          shot->health = shotstat->health;
-          shot->field_1D = firing->index;
-      }
-      break;
-  default:
-      shot = create_thing(&pos1, TCls_Shot, shot_kind, firing->owner, -1);
-      if (thing_is_invalid(shot))
-        return;
-      shot->field_52 = angle_xy;
-      shot->field_54 = angle_yz;
-      angles_to_vector(shot->field_52, shot->field_54, shotstat->speed, &cvect);
-      shot->pos_32.x.val += cvect.x;
-      shot->pos_32.y.val += cvect.y;
-      shot->pos_32.z.val += cvect.z;
-      shot->field_1 |= 0x04;
-      shot->word_14 = damage;
-      shot->health = shotstat->health;
-      shot->field_1D = firing->index;
-      shot->word_17 = target_idx;
-      shot->byte_13 = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
-      break;
-  }
-  if (!thing_is_invalid(shot))
-  {
+    // Compute shot damage
+    if ( shotstat->field_48 )
+    {
+      damage = calculate_melee_damage(firing);
+    } else
+    {
+      damage = calculate_shot_damage(firing,shot_kind);
+    }
+    shot = NULL;
+    target_idx = 0;
+    // Set target index for navigating shots
+    if (shot_model_is_navigable(shot_kind))
+    {
+      if (!thing_is_invalid(target))
+        target_idx = target->index;
+    }
+    switch ( shot_kind )
+    {
+    case 4:
+    case 12:
+        if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 5120))
+        {
+            project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 20);
+        }
+        shot = create_thing(&pos2, TCls_Shot, shot_kind, firing->owner, -1);
+        if (thing_is_invalid(shot))
+          return;
+        if (shot_kind == 12)
+          draw_lightning(&pos1, &pos2, 96, 93);
+        else
+          draw_lightning(&pos1, &pos2, 96, 60);
+        shot->health = shotstat->health;
+        shot->word_14 = shotstat->damage;
+        shot->field_1D = firing->index;
+        break;
+    case 7:
+        if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 768))
+          project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 4);
+        shot = create_thing(&pos2, TCls_Shot, shot_kind, firing->owner, -1);
+        if (thing_is_invalid(shot))
+          return;
+        draw_flame_breath(&pos1, &pos2, 96, 2);
+        shot->health = shotstat->health;
+        shot->word_14 = shotstat->damage;
+        shot->field_1D = firing->index;
+        break;
+    case 13:
+        for (i=0; i < 32; i++)
+        {
+            tmptng = create_thing(&pos1, TCls_Shot, shot_kind, firing->owner, -1);
+            if (thing_is_invalid(tmptng))
+              break;
+            shot = tmptng;
+            shot->byte_16 = hit_type;
+            shot->field_52 = (angle_xy + ACTION_RANDOM(101) - 50) & 0x7FF;
+            shot->field_54 = (angle_yz + ACTION_RANDOM(101) - 50) & 0x7FF;
+            angles_to_vector(shot->field_52, shot->field_54, shotstat->speed, &cvect);
+            shot->pos_32.x.val += cvect.x;
+            shot->pos_32.y.val += cvect.y;
+            shot->pos_32.z.val += cvect.z;
+            shot->field_1 |= 0x04;
+            shot->word_14 = damage;
+            shot->health = shotstat->health;
+            shot->field_1D = firing->index;
+        }
+        break;
+    default:
+        shot = create_thing(&pos1, TCls_Shot, shot_kind, firing->owner, -1);
+        if (thing_is_invalid(shot))
+          return;
+        shot->field_52 = angle_xy;
+        shot->field_54 = angle_yz;
+        angles_to_vector(shot->field_52, shot->field_54, shotstat->speed, &cvect);
+        shot->pos_32.x.val += cvect.x;
+        shot->pos_32.y.val += cvect.y;
+        shot->pos_32.z.val += cvect.z;
+        shot->field_1 |= 0x04;
+        shot->word_14 = damage;
+        shot->health = shotstat->health;
+        shot->field_1D = firing->index;
+        shot->word_17 = target_idx;
+        shot->byte_13 = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
+        break;
+    }
+    if (!thing_is_invalid(shot))
+    {
 #if (BFDEBUG_LEVEL > 0)
-    damage = shot->word_14;
-    // Special debug code that shows amount of damage the shot will make
-    if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
-        create_price_effect(&pos1, my_player_number, damage);
-    if ((damage < 0) || (damage > 2000))
-    {
-      WARNLOG("Shot of type %d carries %d damage",(int)shot_kind,(int)damage);
-    }
+      damage = shot->word_14;
+      // Special debug code that shows amount of damage the shot will make
+      if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
+          create_price_effect(&pos1, my_player_number, damage);
+      if ((damage < 0) || (damage > 2000))
+      {
+        WARNLOG("Shot of type %d carries %d damage",(int)shot_kind,(int)damage);
+      }
 #endif
-    shot->byte_16 = hit_type;
-    if (shotstat->firing_sound > 0)
-    {
-      thing_play_sample(firing, shotstat->firing_sound + UNSYNC_RANDOM(shotstat->firing_sound_variants),
-          100, 0, 3, 0, 3, 256);
+      shot->byte_16 = hit_type;
+      if (shotstat->firing_sound > 0)
+      {
+        thing_play_sample(firing, shotstat->firing_sound + UNSYNC_RANDOM(shotstat->firing_sound_variants),
+            100, 0, 3, 0, 3, 256);
+      }
+      if (shotstat->shot_sound > 0)
+      {
+        thing_play_sample(shot, shotstat->shot_sound, 100, 0, 3, 0, shotstat->field_20, 256);
+      }
+      set_flag_byte(&shot->field_25,0x10,flag1);
     }
-    if (shotstat->shot_sound > 0)
-    {
-      thing_play_sample(shot, shotstat->shot_sound, 100, 0, 3, 0, shotstat->field_20, 256);
-    }
-    set_flag_byte(&shot->field_25,0x10,flag1);
-  }
 }
 
 void set_creature_level(struct Thing *thing, long nlvl)
@@ -2269,7 +2269,7 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
       crtng->field_25 |= 0x20;
     set_creature_level(crtng, 0);
     crtng->health = cctrl->max_health;
-    add_thing_to_list(crtng, &game.thing_lists[0]);
+    add_thing_to_its_class_list(crtng);
     place_thing_in_mapwho(crtng);
     if (owner <= PLAYERS_COUNT)
       set_first_creature(crtng);

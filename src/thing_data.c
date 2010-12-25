@@ -90,7 +90,6 @@ void delete_thing_structure(struct Thing *thing, long a2)
     struct CreatureControl *cctrl;
     struct Room *room;
     long emitter_id;
-    struct StructureList *slist;
     //_DK_delete_thing_structure(thing, a2); return;
     cctrl = creature_control_get_from_thing(thing);
     if ((thing->field_0 & 0x08) != 0)
@@ -115,47 +114,7 @@ void delete_thing_structure(struct Thing *thing, long a2)
     emitter_id = thing->field_66;
     if (emitter_id != 0)
       S3DDestroySoundEmitterAndSamples(emitter_id);
-    switch (thing->class_id)
-    {
-    case 1:
-        slist = &game.thing_lists[2];
-        break;
-    case 2:
-        slist = &game.thing_lists[1];
-        break;
-    case 3:
-        slist = &game.thing_lists[3];
-        break;
-    case 4:
-        slist = &game.thing_lists[4];
-        break;
-    case 5:
-        slist = &game.thing_lists[0];
-        break;
-    case 6:
-        slist = &game.thing_lists[5];
-        break;
-    case 7:
-        slist = &game.thing_lists[6];
-        break;
-    case 8:
-        slist = &game.thing_lists[7];
-        break;
-    case 9:
-        slist = &game.thing_lists[8];
-        break;
-    case 12:
-        slist = &game.thing_lists[9];
-        break;
-    case 13:
-        slist = &game.thing_lists[10];
-        break;
-    default:
-        slist = NULL;
-        break;
-    }
-    if (slist != NULL)
-        remove_thing_from_list(thing, slist);
+    remove_thing_from_its_class_list(thing);
     remove_thing_from_mapwho(thing);
     game.free_things[THINGS_COUNT-1]--;
     game.free_things[game.free_things[THINGS_COUNT-1]] = thing->index;

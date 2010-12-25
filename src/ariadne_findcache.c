@@ -85,7 +85,7 @@ long triangle_find8(long pt_x, long pt_y)
     int eqA,eqB,eqC;
     long ntri,ncor;
     unsigned long k;
-    //TODO may hang if out of points
+    //TODO PATHFINDING may hang if out of points
     NAVIDBG(19,"Starting");
     //return _DK_triangle_find8(pt_x, pt_y);
     ntri = triangle_find_cache_get(pt_x, pt_y);

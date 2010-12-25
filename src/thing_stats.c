@@ -93,6 +93,9 @@ const char *thing_model_name(struct Thing *thing)
     case TCls_Door:
         snprintf(name_buffer,sizeof(name_buffer),"%s door",door_code_name(thing->model));
         break;
+    case TCls_Shot:
+        snprintf(name_buffer,sizeof(name_buffer),"%s shot",shot_code_name(thing->model));
+        break;
     default:
         snprintf(name_buffer,sizeof(name_buffer),"%s model %d",thing_class_code_name(thing->class_id),(int)thing->model);
         break;
