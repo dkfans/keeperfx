@@ -54,8 +54,8 @@ struct Thing {
     unsigned short field_2;
     unsigned short field_4;
     unsigned char owner;
-    unsigned char field_7;
-    unsigned char field_8;
+    unsigned char active_state;
+    unsigned char continue_state;
     long field_9;
     struct Coord3d mappos;
     union {

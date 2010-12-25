@@ -277,3 +277,4 @@
  0003:000A6E98       dog_palette
  0003:000EBEC8       vampire_palette
  0003:0000E6E0       door_names
+ 0001:000BF510       can_change_from_state_to

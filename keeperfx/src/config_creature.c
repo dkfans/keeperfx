@@ -617,7 +617,9 @@ TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags)
 
 unsigned short get_creature_model_flags(const struct Thing *thing)
 {
-  return crtr_conf.model[thing->model%CREATURE_TYPES_MAX].model_flags;
+    if ((thing->model < 1) || (thing->model >= CREATURE_TYPES_COUNT))
+      return 0;
+  return crtr_conf.model[thing->model].model_flags;
 }
 
 /**
