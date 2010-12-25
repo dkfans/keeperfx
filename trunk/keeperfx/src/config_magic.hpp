@@ -76,13 +76,33 @@ enum CreatureSpellFlags {
     CSF_Sight   = 0x40,
 };
 
+/** Contains properties of a shot model, to be stored in ShotConfigStats.
+ */
+enum ShotModelFlags {
+    /** Set if the shot can be slapped with hand of evil of owning player. */
+    ShMF_Slappable  = 0x0001,
+};
+
+struct SpellConfigStats {
+    char code_name[COMMAND_WORD_LEN];
+};
+
+struct ShotConfigStats {
+    char code_name[COMMAND_WORD_LEN];
+    unsigned long model_flags;
+};
+
+struct PowerConfigStats {
+    char code_name[COMMAND_WORD_LEN];
+};
+
 struct MagicConfig {
     long spell_types_count;
-    struct CommandWord spell_names[MAGIC_ITEMS_MAX];
+    struct SpellConfigStats spell_cfgstats[MAGIC_ITEMS_MAX];
     long shot_types_count;
-    struct CommandWord shot_names[MAGIC_ITEMS_MAX];
+    struct ShotConfigStats shot_cfgstats[MAGIC_ITEMS_MAX];
     long power_types_count;
-    struct CommandWord power_names[MAGIC_ITEMS_MAX];
+    struct PowerConfigStats power_cfgstats[MAGIC_ITEMS_MAX];
 };
 
 #ifdef __cplusplus
@@ -218,6 +238,9 @@ long get_power_description_strindex(int pwr_idx);
 TbBool power_data_is_invalid(const struct SpellData *pwrdata);
 TbBool spell_is_stupid(int sptype);
 long get_power_index_for_work_state(long work_state);
+struct SpellConfigStats *get_spell_model_stats(int spmodel);
+struct ShotConfigStats *get_shot_model_stats(int tngmodel);
+struct PowerConfigStats *get_power_model_stats(int pwmodel);
 /******************************************************************************/
 TbBool load_magic_config(const char *conf_fname,unsigned short flags);
 TbBool make_all_powers_free(void);
