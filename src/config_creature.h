@@ -80,7 +80,7 @@ enum CreatureTypesLoadFlags {
 struct Thing;
 
 struct Creatures { // sizeof = 16
-  unsigned short numfield_0;
+  unsigned short start_state;
   unsigned short numfield_2;
   unsigned char natural_death_kind;
   unsigned char field_5;

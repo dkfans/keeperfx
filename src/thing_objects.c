@@ -281,7 +281,7 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
   set_flag_byte(&thing->field_4F, 0x01, objdat->field_3 & 0x01);
   set_flag_byte(&thing->field_4F, 0x10, objdat->field_F & 0x01);
   set_flag_byte(&thing->field_4F, 0x20, objdat->field_F & 0x02);
-  thing->field_7 = objdat->field_0;
+  thing->active_state = objdat->field_0;
   if (objconf->light != 0)
   {
     LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
@@ -504,7 +504,7 @@ void update_dungeon_heart_beat(struct Thing *thing)
   long long k;
   const long base_heart_beat_rate = 2304;
   static long bounce = 0;
-  if (thing->field_7 != 3)
+  if (thing->active_state != 3)
   {
     i = (char)thing->byte_14;
     thing->field_3E = 0;
@@ -638,10 +638,10 @@ long update_object(struct Thing *thing)
       return -1;
   }
   stcallback = NULL;
-  if (thing->field_7 < sizeof(object_state_functions)/sizeof(object_state_functions[0]))
-      stcallback = object_state_functions[thing->field_7];
+  if (thing->active_state < sizeof(object_state_functions)/sizeof(object_state_functions[0]))
+      stcallback = object_state_functions[thing->active_state];
   else
-      ERRORLOG("Object state %d exceeds state_functions dimensions",(int)thing->field_7);
+      ERRORLOG("Object state %d exceeds state_functions dimensions",(int)thing->active_state);
   if (stcallback != NULL)
   {
       SYNCDBG(18,"Updating state");

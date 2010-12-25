@@ -1045,7 +1045,6 @@
  0001:000BF280       cleanup_current_thing_state
  0001:000BF2E0       external_set_thing_state
  0001:000BF400       initialise_thing_state
- 0001:000BF510       can_change_from_state_to
  0001:000BF650       new_slab_tunneller_check_for_breaches
  0001:000BF7A0       state_cleanup_dragging_body
  0001:000BF7E0       state_cleanup_in_room

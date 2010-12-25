@@ -76,7 +76,7 @@ const char *thing_class_code_name(long class_id)
     return thing_classes[class_id];
 }
 
-const char *thing_model_name(struct Thing *thing)
+const char *thing_model_name(const struct Thing *thing)
 {
     static char name_buffer[32];
     switch (thing->class_id)

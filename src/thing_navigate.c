@@ -273,7 +273,7 @@ TbBool creature_can_get_to_dungeon(struct Thing *thing, long plyr_idx)
         //WARNLOG("Cannot navigate to player without heart");
         return false;
     }
-    if (heartng->field_7 == 3)
+    if (heartng->active_state == 3)
         return false;
     return  creature_can_navigate_to(thing, &heartng->mappos, 0);
 }
@@ -420,7 +420,7 @@ short move_to_position(struct Thing *thing)
         return 1;
     move_result = creature_move_to_using_gates(thing, &cctrl->moveto_pos, speed, -2, cctrl->field_88, 0);
     state_result = 0;
-    stati = get_thing_state8_info(thing);
+    stati = get_thing_continue_state_info(thing);
     if (!state_info_invalid(stati))
     {
       callback = stati->ofsfield_C;
@@ -434,8 +434,8 @@ short move_to_position(struct Thing *thing)
     {
       if (move_result == 1)
       {
-        internal_set_thing_state(thing, thing->field_8);
-        thing->field_8 = CrSt_Unused;
+        internal_set_thing_state(thing, thing->continue_state);
+        thing->continue_state = CrSt_Unused;
         return 1;
       }
       if (move_result == -1)

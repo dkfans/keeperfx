@@ -37,6 +37,7 @@
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "creature_instances.h"
+#include "creature_states.h"
 #include "gui_boxmenu.h"
 #include "gui_frontmenu.h"
 #include "gui_frontbtns.h"
@@ -803,7 +804,7 @@ short get_creature_control_action_inputs(void)
       struct Thing *thing;
       thing = thing_get(player->field_2F);
       if ( (player->field_31 != thing->field_9) || ((thing->field_0 & 0x01) == 0)
-         || (thing->field_7 == 67) )
+         || (thing->active_state == CrSt_CreatureUnconscious) )
         make_packet = true;
     }
     if (make_packet)

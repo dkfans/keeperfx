@@ -25,12 +25,26 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+enum SpecialDiggerTask {
+    DigTsk_None = 0,
+    DigTsk_ImproveDungeon,
+    DigTsk_ConvertDungeon,
+    DigTsk_ReinforceWall,
+    DigTsk_PickUpUnconscious,
+    DigTsk_PickUpCorpse,
+    DigTsk_PicksUpSpellBook,
+    DigTsk_PicksUpTrapBox,
+    DigTsk_PicksUpTrapForWorkshop,
+    DigTsk_DigOrMine,
+    DigTsk_PicksUpGoldPile, // 10
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
 struct Dungeon;
 struct Thing;
-
 
 #pragma pack()
 /******************************************************************************/

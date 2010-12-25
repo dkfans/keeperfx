@@ -303,7 +303,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       cctrl = creature_control_get_from_thing(thing);
       if ((cctrl->field_AB & 0x02) != 0)
       {
-        kill_creature(thing, 0, thing->owner, 0, 0, 0);
+          kill_creature(thing, 0, thing->owner, 0, 0, 0);
       } else
       {
           slap_creature(player, thing);
@@ -312,7 +312,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           pos.z.val = thing->mappos.z.val + (thing->field_58 >> 1);
           crstat = creature_stats_get_from_thing(thing);
           if ( creature_model_bleeds(thing->model) )
-            create_effect(&pos, 6, thing->owner);
+              create_effect(&pos, 6, thing->owner);
           thing_play_sample(thing, 75, 100, 0, 3, 0, 3, 256);
           cam = player->acamera;
           if (cam != NULL)
@@ -322,18 +322,18 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           }
       }
       break;
-  case 2:
+  case TCls_Shot:
       if (thing->model == 15)
       {
-        thing->field_52 = player->acamera->orient_a;
-        thing->health -= game.boulder_reduce_health_slap;
+          thing->field_52 = player->acamera->orient_a;
+          thing->health -= game.boulder_reduce_health_slap;
       } else
       if (thing->model == 20)
       {
-        thing->field_52 = player->acamera->orient_a;
+          thing->field_52 = player->acamera->orient_a;
       }
       break;
-  case 8:
+  case TCls_Trap:
       if (thing->model == 1)
         external_activate_trap_shot_at_angle(thing, player->acamera->orient_a);
       break;

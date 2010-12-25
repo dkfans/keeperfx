@@ -111,14 +111,14 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
   cctrl->field_21 = game.magic_stats[4].time;
   if (i == 0)
     cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-  if (thing->field_7 != 66)
+  if (thing->active_state != CrSt_CreatureSlapCowers)
   {
     clear_creature_instance(thing);
-    cctrl->field_27D = thing->field_7;
-    cctrl->field_27E = thing->field_8;
-    if (thing->field_7 == 26)
+    cctrl->field_27D = thing->active_state;
+    cctrl->field_27E = thing->continue_state;
+    if (creature_is_sleeping(thing))
       anger_apply_anger_to_creature(thing, crstat->annoy_woken_up, 4, 1);
-    external_set_thing_state(thing, 66);
+    external_set_thing_state(thing, CrSt_CreatureSlapCowers);
   }
   cctrl->field_B1 = 6;
   cctrl->field_27F = 18;

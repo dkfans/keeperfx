@@ -299,7 +299,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     {
       thing->field_50 &= ~0x01;
     } else
-    if ((thing->field_7 == CrSt_CreatureHeroEntering) && (cctrl->field_282 >= 0))
+    if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->field_282 >= 0))
     {
       thing->field_4F |= 0x01;
     } else
@@ -322,20 +322,20 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_anim(thing, 256, 0);
         } else
-        if (thing->field_7 == CrSt_CreatureSlapCowers)
+        if (thing->active_state == CrSt_CreatureSlapCowers)
         {
             update_creature_anim(thing, 256, 10);
         } else
-        if ((thing->field_7 == CrSt_CreaturePiss) || (thing->field_7 == CrSt_CreatureRoar))
+        if ((thing->active_state == CrSt_CreaturePiss) || (thing->active_state == CrSt_CreatureRoar))
         {
             update_creature_anim(thing, 128, 4);
         } else
-        if (thing->field_7 == CrSt_CreatureUnconscious)
+        if (thing->active_state == CrSt_CreatureUnconscious)
         {
             update_creature_anim(thing, 64, 16);
             thing->field_4F |= 0x40;
         } else
-        if (thing->field_7 == CrSt_CreatureSleep)
+        if (thing->active_state == CrSt_CreatureSleep)
         {
             thing->field_4F &= ~0x30;
             update_creature_anim(thing, 128, 12);

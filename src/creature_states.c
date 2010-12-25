@@ -722,18 +722,18 @@ long const state_type_to_gui_state[] = {
 };
 
 /******************************************************************************/
-struct StateInfo *get_thing_state7_info(struct Thing *thing)
+struct StateInfo *get_thing_active_state_info(struct Thing *thing)
 {
-  if (thing->field_7 >= CREATURE_STATES_COUNT)
+  if (thing->active_state >= CREATURE_STATES_COUNT)
     return &states[0];
-  return &states[thing->field_7];
+  return &states[thing->active_state];
 }
 
-struct StateInfo *get_thing_state8_info(struct Thing *thing)
+struct StateInfo *get_thing_continue_state_info(struct Thing *thing)
 {
-  if (thing->field_8 >= CREATURE_STATES_COUNT)
+  if (thing->continue_state >= CREATURE_STATES_COUNT)
     return &states[0];
-  return &states[thing->field_8];
+  return &states[thing->continue_state];
 }
 
 struct StateInfo *get_thing_state_info_num(long state_id)
@@ -743,12 +743,21 @@ struct StateInfo *get_thing_state_info_num(long state_id)
   return &states[state_id];
 }
 
+long get_creature_real_state(const struct Thing *thing)
+{
+    long i;
+    i = thing->active_state;
+    if (i == CrSt_MoveToPosition)
+        i = thing->continue_state;
+    return i;
+}
+
 struct StateInfo *get_creature_state_with_task_completion(struct Thing *thing)
 {
   struct StateInfo *stati;
-  stati = get_thing_state7_info(thing);
+  stati = get_thing_active_state_info(thing);
   if (stati->state_type == 6)
-      stati = get_thing_state8_info(thing);
+      stati = get_thing_continue_state_info(thing);
   return stati;
 }
 
@@ -784,26 +793,26 @@ long get_creature_state_type(const struct Thing *thing)
 {
   long state_type;
   long state;
-  state = thing->field_7;
+  state = thing->active_state;
   if ( (state > 0) && (state < sizeof(states)/sizeof(states[0])) )
   {
       state_type = states[state].state_type;
   } else
   {
       state_type = states[0].state_type;
-      WARNLOG("Creature state[0]=%ld is out of range.",state);
+      WARNLOG("Creature active state %ld is out of range.",state);
   }
   if (state_type == 6)
   {
-    state = thing->field_8;
-    if ( (state > 0) && (state < sizeof(states)/sizeof(states[0])) )
-    {
-        state_type = states[state].state_type;
-    } else
-    {
-        state_type = states[0].state_type;
-        WARNLOG("Creature state[1]=%ld is out of range.",state);
-    }
+      state = thing->continue_state;
+      if ( (state > 0) && (state < sizeof(states)/sizeof(states[0])) )
+      {
+          state_type = states[state].state_type;
+      } else
+      {
+          state_type = states[0].state_type;
+          WARNLOG("Creature continue state %ld is out of range.",state);
+      }
   }
   return state_type;
 }
@@ -821,23 +830,23 @@ long get_creature_gui_job(const struct Thing *thing)
     state_type = get_creature_state_type(thing);
     if ( (state_type >= 0) && (state_type < sizeof(state_type_to_gui_state)/sizeof(state_type_to_gui_state[0])) )
     {
-      return state_type_to_gui_state[state_type];
+        return state_type_to_gui_state[state_type];
     } else
     {
-      WARNLOG("Creature of breed %d has invalid state type(%ld)!",(int)thing->model,state_type);
-      erstat_inc(ESE_BadCreatrState);
-      return state_type_to_gui_state[0];
+        WARNLOG("The %s has invalid state type(%ld)!",thing_model_name(thing),state_type);
+        erstat_inc(ESE_BadCreatrState);
+        return state_type_to_gui_state[0];
     }
 }
 
 TbBool creature_is_doing_lair_activity(const struct Thing *thing)
 {
     long i;
-    i = thing->field_7;
+    i = thing->active_state;
     if (i == CrSt_CreatureSleep)
         return true;
     if (i == CrSt_MoveToPosition)
-        i = thing->field_8;
+        i = thing->continue_state;
     if ((i == CrSt_CreatureGoingHomeToSleep) || (i == CrSt_AtLairToSleep)
       || (i == CrSt_CreatureChooseRoomForLairSite) || (i == CrSt_CreatureAtNewLair) || (i == CrSt_CreatureWantsAHome)
       || (i == CrSt_CreatureChangeLair) || (i == CrSt_CreatureAtChangedLair))
@@ -848,10 +857,63 @@ TbBool creature_is_doing_lair_activity(const struct Thing *thing)
 TbBool creature_is_being_dropped(const struct Thing *thing)
 {
     long i;
-    i = thing->field_7;
+    i = thing->active_state;
     if (i == CrSt_MoveToPosition)
-        i = thing->field_8;
+        i = thing->continue_state;
     if (i == CrSt_CreatureBeingDropped)
+        return true;
+    return false;
+}
+
+TbBool creature_is_being_tortured(const struct Thing *thing)
+{
+    long i;
+    i = thing->active_state;
+    if (i == CrSt_MoveToPosition)
+        i = thing->continue_state;
+    if ((i == CrSt_Torturing) || (i == CrSt_AtTortureRoom))
+        return true;
+    return false;
+}
+
+TbBool creature_is_being_sacrificed(const struct Thing *thing)
+{
+    long i;
+    i = thing->active_state;
+    if (i == CrSt_MoveToPosition)
+        i = thing->continue_state;
+    if ((i == CrSt_CreatureSacrifice) || (i == CrSt_CreatureBeingSacrificed))
+        return true;
+    return false;
+}
+
+TbBool creature_is_kept_in_prison(const struct Thing *thing)
+{
+    long i;
+    i = thing->active_state;
+    if (i == CrSt_MoveToPosition)
+        i = thing->continue_state;
+    if ((i == CrSt_CreatureInPrison) || (i == CrSt_CreatureArrivedAtPrison))
+        return true;
+    return false;
+}
+
+TbBool creature_is_being_summoned(const struct Thing *thing)
+{
+    long i;
+    i = thing->active_state;
+    if (i == CrSt_MoveToPosition)
+        i = thing->continue_state;
+    if ((i == CrSt_CreatureBeingSummoned))
+        return true;
+    return false;
+}
+
+TbBool creature_is_sleeping(const struct Thing *thing)
+{
+    long i;
+    i = thing->active_state;
+    if ((i == CrSt_CreatureSleep))
         return true;
     return false;
 }
@@ -859,10 +921,10 @@ TbBool creature_is_being_dropped(const struct Thing *thing)
 TbBool creature_is_doing_dungeon_improvements(const struct Thing *thing)
 {
     long i;
-    i = thing->field_7;
+    i = thing->active_state;
     if (i == CrSt_MoveToPosition)
-        i = thing->field_8;
-    if (states[i].state_type == CrSt_ImpImprovesDungeon)
+        i = thing->continue_state;
+    if (states[i].state_type == 10)
         return true;
     return false;
 }
@@ -870,11 +932,11 @@ TbBool creature_is_doing_dungeon_improvements(const struct Thing *thing)
 TbBool creature_is_doing_garden_activity(const struct Thing *thing)
 {
     long i;
-    i = thing->field_7;
+    i = thing->active_state;
     if (i == CrSt_CreatureEat)
         return true;
     if (i == CrSt_MoveToPosition)
-        i = thing->field_8;
+        i = thing->continue_state;
     if ((i == CrSt_CreatureToGarden) || (i == CrSt_CreatureArrivedAtGarden))
         return true;
     return false;
@@ -883,11 +945,11 @@ TbBool creature_is_doing_garden_activity(const struct Thing *thing)
 TbBool creature_is_taking_salary_activity(const struct Thing *thing)
 {
     long i;
-    i = thing->field_7;
+    i = thing->active_state;
     if (i == CrSt_CreatureWantsSalary)
         return true;
     if (i == CrSt_MoveToPosition)
-        i = thing->field_8;
+        i = thing->continue_state;
     if (i == CrSt_CreatureTakeSalary)
         return true;
     return false;
@@ -896,9 +958,9 @@ TbBool creature_is_taking_salary_activity(const struct Thing *thing)
 TbBool creature_is_doing_temple_activity(const struct Thing *thing)
 {
     long i;
-    i = thing->field_7;
+    i = thing->active_state;
     if (i == CrSt_MoveToPosition)
-        i = thing->field_8;
+        i = thing->continue_state;
     if ((i == CrSt_AtTemple) || (i == CrSt_PrayingInTemple))
         return true;
     return false;
@@ -907,9 +969,9 @@ TbBool creature_is_doing_temple_activity(const struct Thing *thing)
 TbBool creature_state_is_unset(const struct Thing *thing)
 {
     long i;
-    i = thing->field_7;
+    i = thing->active_state;
     if (i == CrSt_MoveToPosition)
-        i = thing->field_8;
+        i = thing->continue_state;
     if (states[i].state_type == 0)
         return true;
     return false;
@@ -1574,7 +1636,7 @@ short creature_dormant(struct Thing *thing)
     //return _DK_creature_dormant(thing);
     if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
     {
-      thing->field_8 = CrSt_CreatureDormant;
+      thing->continue_state = CrSt_CreatureDormant;
       return 1;
     }
     return 0;
@@ -1606,7 +1668,7 @@ short creature_eat(struct Thing *thing)
   //return _DK_creature_eat(thing);
   cctrl = creature_control_get_from_thing(thing);
   if (cctrl->field_D2 != 36)
-    internal_set_thing_state(thing, thing->field_8);
+    internal_set_thing_state(thing, thing->continue_state);
   return true;
 }
 
@@ -1949,7 +2011,7 @@ long process_prison_visuals(struct Thing *thing, struct Room *room)
   }
   if ( setup_prison_move(thing, room) )
   {
-    thing->field_8 = CrSt_CreatureInPrison;
+    thing->continue_state = CrSt_CreatureInPrison;
     return Lb_SUCCESS;
   }
   return Lb_OK;
@@ -2141,7 +2203,7 @@ short creature_picks_up_spell_object(struct Thing *thing)
     {
         SYNCDBG(8,"Cannot move to (%d,%d)",(int)pos.x.stl.num, (int)pos.y.stl.num);
     }
-    thing->field_8 = CrSt_CreatureDropsSpellObjectInLibrary;
+    thing->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
     return 1;
 }
 
@@ -2321,7 +2383,7 @@ short creature_search_for_gold_to_steal_in_room(struct Thing *thing)
     {
         SYNCDBG(8,"Cannot move to gold at (%d,%d)",(int)gldtng->mappos.x.stl.num, (int)gldtng->mappos.y.stl.num);
     }
-    thing->field_8 = CrSt_CreatureStealGold;
+    thing->continue_state = CrSt_CreatureStealGold;
     return 1;
 }
 
@@ -2350,7 +2412,7 @@ short creature_search_for_spell_to_steal_in_room(struct Thing *thing)
     {
         SYNCDBG(8,"Cannot move to spell at (%d,%d)",(int)spltng->mappos.x.stl.num, (int)spltng->mappos.y.stl.num);
     }
-    thing->field_8 = CrSt_CreatureStealSpell;
+    thing->continue_state = CrSt_CreatureStealSpell;
     return 1;
 }
 
@@ -2503,7 +2565,7 @@ TbBool good_setup_wander_to_exit(struct Thing *thing)
         WARNLOG("Hero of breed %d can't move to exit gate at (%d,%d).",(int)thing->model,(int)gatetng->mappos.x.stl.num, (int)gatetng->mappos.y.stl.num);
         return false;
     }
-    thing->field_8 = CrSt_GoodLeaveThroughExitDoor;
+    thing->continue_state = CrSt_GoodLeaveThroughExitDoor;
     return true;
 }
 
@@ -2548,7 +2610,7 @@ TbBool good_setup_attack_rooms(struct Thing *thing, long dngn_id)
     if (is_my_player_number(room->owner))
       output_message(15, 400, 1);
     cctrl = creature_control_get_from_thing(thing);
-    thing->field_8 = CrSt_GoodAttackRoom1;
+    thing->continue_state = CrSt_GoodAttackRoom1;
     cctrl->field_80 = room->index;
     return true;
 }
@@ -2570,7 +2632,7 @@ TbBool good_setup_loot_treasure_room(struct Thing *thing, long dngn_id)
         return false;
     }
     cctrl = creature_control_get_from_thing(thing);
-    thing->field_8 = CrSt_CreatureSearchForGoldToStealInRoom2;
+    thing->continue_state = CrSt_CreatureSearchForGoldToStealInRoom2;
     cctrl->field_80 = room->index;
     return true;
 }
@@ -2591,7 +2653,7 @@ TbBool good_setup_loot_research_room(struct Thing *thing, long dngn_id)
         return false;
     }
     cctrl = creature_control_get_from_thing(thing);
-    thing->field_8 = CrSt_CreatureSearchForSpellToStealInRoom;
+    thing->continue_state = CrSt_CreatureSearchForSpellToStealInRoom;
     cctrl->field_80 = room->index;
     return true;
 }
@@ -2665,7 +2727,7 @@ TbBool good_setup_wander_to_creature(struct Thing *wanderer, long dngn_id)
               } else
               if ( setup_person_move_to_position(wanderer, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0) )
               {
-                  thing->field_8 = CrSt_GoodDoingNothing;
+                  thing->continue_state = CrSt_GoodDoingNothing;
                   return true;
               }
           }
@@ -2751,7 +2813,7 @@ TbBool good_setup_wander_to_imp(struct Thing *wanderer, long dngn_id)
               } else
               if ( setup_person_move_to_position(wanderer, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0) )
               {
-                  thing->field_8 = CrSt_GoodDoingNothing;
+                  thing->continue_state = CrSt_GoodDoingNothing;
                   return true;
               }
           }
@@ -2842,7 +2904,7 @@ short good_doing_nothing(struct Thing *thing)
     if (cctrl->field_5 > (long)game.play_gameturn)
     {
       if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
-        thing->field_8 = CrSt_GoodDoingNothing;
+        thing->continue_state = CrSt_GoodDoingNothing;
       return true;
     }
     i = cctrl->sbyte_89;
@@ -2862,7 +2924,7 @@ short good_doing_nothing(struct Thing *thing)
         {
           if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
           {
-            thing->field_8 = CrSt_GoodDoingNothing;
+            thing->continue_state = CrSt_GoodDoingNothing;
             return false;
           }
         } else
@@ -2898,7 +2960,7 @@ short good_doing_nothing(struct Thing *thing)
         SYNCDBG(4,"No enemy dungeon to perform task");
         if ( creature_choose_random_destination_on_valid_adjacent_slab(thing) )
         {
-          thing->field_8 = CrSt_GoodDoingNothing;
+          thing->continue_state = CrSt_GoodDoingNothing;
           return true;
         }
         cctrl->field_5 = game.play_gameturn + 16;
@@ -3244,7 +3306,7 @@ short imp_doing_nothing(struct Thing *thing)
         return 1;
     if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
     {
-        thing->field_8 = CrSt_ImpDoingNothing;
+        thing->continue_state = CrSt_ImpDoingNothing;
         return 1;
     }
     dungeon->lvstats.promises_broken++;
@@ -3833,14 +3895,14 @@ short seek_the_enemy(struct Thing *thing)
               {
                   if (setup_person_move_close_to_position(thing, enemytng->mappos.x.stl.num, enemytng->mappos.y.stl.num, 0) )
                   {
-                    thing->field_8 = CrSt_SeekTheEnemy;
+                    thing->continue_state = CrSt_SeekTheEnemy;
                     cctrl->field_282 = game.play_gameturn;
                     return 1;
                   }
               }
               if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
               {
-                  thing->field_8 = CrSt_SeekTheEnemy;
+                  thing->continue_state = CrSt_SeekTheEnemy;
                   cctrl->field_282 = game.play_gameturn;
               }
             }
@@ -3850,7 +3912,7 @@ short seek_the_enemy(struct Thing *thing)
         {
             if (setup_person_move_close_to_position(thing, enemytng->mappos.x.stl.num, enemytng->mappos.y.stl.num, 0))
             {
-              thing->field_8 = CrSt_SeekTheEnemy;
+              thing->continue_state = CrSt_SeekTheEnemy;
             }
         }
     }
@@ -3859,7 +3921,7 @@ short seek_the_enemy(struct Thing *thing)
     {
         if ( creature_choose_random_destination_on_valid_adjacent_slab(thing) )
         {
-            thing->field_8 = CrSt_SeekTheEnemy;
+            thing->continue_state = CrSt_SeekTheEnemy;
             return 1;
         }
     } else
@@ -3867,7 +3929,7 @@ short seek_the_enemy(struct Thing *thing)
     {
         if ( setup_person_move_to_position(thing, pos.x.val >> 8, pos.y.val >> 8, 0) )
         {
-            thing->field_8 = CrSt_SeekTheEnemy;
+            thing->continue_state = CrSt_SeekTheEnemy;
         }
         return 1;
     }
@@ -4190,7 +4252,7 @@ long creature_retreat_from_combat(struct Thing *thing1, struct Thing *thing2, lo
 
     if (setup_person_move_backwards_to_coord(thing1, &pos, 0))
     {
-      thing1->field_8 = a3;
+      thing1->continue_state = a3;
       return 1;
     }
     // Second try
@@ -4207,7 +4269,7 @@ long creature_retreat_from_combat(struct Thing *thing1, struct Thing *thing2, lo
     pos.z.val = get_thing_height_at(thing1, &pos);
     if (setup_person_move_backwards_to_coord(thing1, &pos, 0))
     {
-      thing1->field_8 = a3;
+      thing1->continue_state = a3;
       return 1;
     }
     return 1;
@@ -4499,9 +4561,9 @@ short tunnelling(struct Thing *thing)
 TbBool internal_set_thing_state(struct Thing *thing, long nState)
 {
   struct CreatureControl *cctrl;
-  thing->field_7 = nState;
+  thing->active_state = nState;
   set_flag_byte(&thing->field_1, 0x10, false);
-  thing->field_8 = CrSt_Unused;
+  thing->continue_state = CrSt_Unused;
   cctrl = creature_control_get_from_thing(thing);
   cctrl->field_302 = 0;
   clear_creature_instance(thing);
@@ -4570,8 +4632,8 @@ TbBool initialise_thing_state(struct Thing *thing, long nState)
     struct CreatureControl *cctrl;
     //return _DK_initialise_thing_state(thing, nState);
     cleanup_current_thing_state(thing);
-    thing->field_8 = CrSt_Unused;
-    thing->field_7 = nState;
+    thing->continue_state = CrSt_Unused;
+    thing->active_state = nState;
     set_flag_byte(&thing->field_1, 0x10, false);
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
@@ -4608,10 +4670,9 @@ TbBool can_change_from_state_to(struct Thing *thing, long curr_state, long next_
 {
     struct StateInfo *next_stati;
     struct StateInfo *curr_stati;
-    //return _DK_can_change_from_state_to(thing, curr_state, next_state);
     curr_stati = get_thing_state_info_num(curr_state);
     if (curr_stati->state_type == 6)
-      curr_stati = get_thing_state_info_num(thing->field_8);
+      curr_stati = get_thing_state_info_num(thing->continue_state);
     next_stati = get_thing_state_info_num(next_state);
     if ((curr_stati->field_20) && (!next_stati->field_16))
         return false;
@@ -4683,37 +4744,37 @@ short set_start_state(struct Thing *thing)
     if ((thing->field_0 & 0x20) != 0)
     {
       cleanup_current_thing_state(thing);
-      initialise_thing_state(thing, 122);
-      return thing->field_7;
+      initialise_thing_state(thing, CrSt_ManualControl);
+      return thing->active_state;
     }
     if (thing->owner == game.neutral_player_num)
     {
       cleanup_current_thing_state(thing);
-      initialise_thing_state(thing, 48);
-      return thing->field_7;
+      initialise_thing_state(thing, CrSt_CreatureDormant);
+      return thing->active_state;
     }
     if (thing->owner == game.hero_player_num)
     {
       i = creatures[thing->model%CREATURE_TYPES_COUNT].numfield_2;
       cleanup_current_thing_state(thing);
       initialise_thing_state(thing, i);
-      return thing->field_7;
+      return thing->active_state;
     }
     player = get_player(thing->owner);
     if (player->victory_state == 2)
     {
       cleanup_current_thing_state(thing);
-      initialise_thing_state(thing, 139);
-      return thing->field_7;
+      initialise_thing_state(thing, CrSt_CreatureLeavesOrDies);
+      return thing->active_state;
     }
     cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->field_AD & 0x02) != 0)
     {
       cleanup_current_thing_state(thing);
-      initialise_thing_state(thing, 133);
-      return thing->field_7;
+      initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
+      return thing->active_state;
     }
-    initialise_thing_state(thing, creatures[thing->model%CREATURE_TYPES_COUNT].numfield_0);
-    return thing->field_7;
+    initialise_thing_state(thing, creatures[thing->model%CREATURE_TYPES_COUNT].start_state);
+    return thing->active_state;
 }
 /******************************************************************************/

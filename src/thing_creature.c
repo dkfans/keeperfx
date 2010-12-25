@@ -861,104 +861,107 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *crthing)
 
 long process_creature_state(struct Thing *thing)
 {
-  struct CreatureControl *cctrl;
-  struct CreatureStats *crstat;
-  struct StateInfo *stati;
-  struct Thing *tgthing;
-  long x,y;
-  long k;
-  SYNCDBG(18,"Starting");
-  //return _DK_process_creature_state(thing);
-  cctrl = creature_control_get_from_thing(thing);
-  process_person_moods_and_needs(thing);
-  if (creature_available_for_combat_this_turn(thing))
-  {
-    if (!creature_look_for_combat(thing))
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct StateInfo *stati;
+    struct Thing *tgthing;
+    unsigned long model_flags;
+    long x,y;
+    long k;
+    SYNCDBG(18,"Starting");
+    //return _DK_process_creature_state(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    model_flags = get_creature_model_flags(thing);
+    process_person_moods_and_needs(thing);
+    if (creature_available_for_combat_this_turn(thing))
     {
-      if ((!cctrl->field_3) && (thing->model != 23))
+      if (!creature_look_for_combat(thing))
       {
-        tgthing = get_enemy_dungeon_heart_creature_can_see(thing);
-        if (!thing_is_invalid(tgthing))
-          set_creature_object_combat(thing, tgthing);
+        if ((!cctrl->field_3) && ((model_flags & MF_IsSpecDigger) == 0))
+        {
+          tgthing = get_enemy_dungeon_heart_creature_can_see(thing);
+          if (!thing_is_invalid(tgthing))
+            set_creature_object_combat(thing, tgthing);
+        }
       }
     }
-  }
-  if ((cctrl->field_3 & 0x10) == 0)
-  {
-    if ((cctrl->field_1D0) && ((cctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
+    if ((cctrl->field_3 & 0x10) == 0)
     {
-        if ( can_change_from_state_to(thing, thing->field_7, CrSt_CreatureDoorCombat) )
-        {
-          x = stl_num_decode_x(cctrl->field_1D0);
-          y = stl_num_decode_y(cctrl->field_1D0);
-          tgthing = get_door_for_position(x,y);
-          if (!thing_is_invalid(tgthing))
-          {
-            if (thing->owner != tgthing->owner)
-              set_creature_door_combat(thing, tgthing);
-          }
-        }
-    }
-  }
-  cctrl->field_1D0 = 0;
-  if ((cctrl->field_7A & 0xFFF) != 0)
-  {
-    if (!creature_is_group_leader(thing))
-      process_obey_leader(thing);
-  }
-  if ((thing->field_7 < 1) || (thing->field_7 >= CREATURE_STATES_COUNT))
-  {
-    ERRORLOG("Creature has illegal state[1], T=%d, M=%d, S=%d, TCS=%d, reset", (int)thing->index, (int)thing->model, (int)thing->field_7, (int)thing->field_8);
-    set_start_state(thing);
-  }
-  if (((thing->field_25 & 0x20) == 0) && (thing->model != 23))
-  {
-    tgthing = find_interesting_object_laying_around_thing(thing);
-    if (!thing_is_invalid(tgthing))
-    {
-      if (tgthing->model == 43)
+      if ((cctrl->field_1D0) && ((cctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
       {
-        crstat = creature_stats_get_from_thing(thing);
-        if (tgthing->long_13 > 0)
-        {
-          if (thing->long_13 < crstat->gold_hold)
+          if ( can_change_from_state_to(thing, thing->active_state, CrSt_CreatureDoorCombat) )
           {
-            if (crstat->gold_hold < tgthing->long_13 + thing->long_13)
+            x = stl_num_decode_x(cctrl->field_1D0);
+            y = stl_num_decode_y(cctrl->field_1D0);
+            tgthing = get_door_for_position(x,y);
+            if (!thing_is_invalid(tgthing))
             {
-              k = crstat->gold_hold - thing->long_13;
-              thing->long_13 += k;
-              tgthing->long_13 -= k;
-            } else
-            {
-              thing->long_13 += tgthing->long_13;
-              delete_thing_structure(tgthing, 0);
+              if (thing->owner != tgthing->owner)
+                set_creature_door_combat(thing, tgthing);
             }
           }
-        } else
-        {
-          ERRORLOG("GoldPile with no gold!");
-          delete_thing_structure(tgthing, 0);
-        }
-        anger_apply_anger_to_creature(thing, crstat->annoy_got_wage, 1, 1);
-      } else
-      if (tgthing->model == 10)
-      {
-        if (!is_thing_passenger_controlled(tgthing))
-          food_eaten_by_creature(tgthing, thing);
       }
     }
-  }
-  // Enable this to know which function hangs on update_creature.
-  //TODO: rewrite state subfunctions so they won't hang
-  //if (game.play_gameturn > 3500)
-  SYNCDBG(18,"Executing state %d",(int)thing->field_7);
-  stati = get_thing_state7_info(thing);
-  if (stati->ofsfield_0 == NULL)
-    return false;
-  if (stati->ofsfield_0(thing) != -1)
-    return false;
-  SYNCDBG(18,"Finished");
-  return true;
+    cctrl->field_1D0 = 0;
+    if ((cctrl->field_7A & 0xFFF) != 0)
+    {
+      if (!creature_is_group_leader(thing))
+        process_obey_leader(thing);
+    }
+    if ((thing->active_state < 1) || (thing->active_state >= CREATURE_STATES_COUNT))
+    {
+      ERRORLOG("The %s has illegal state[1], T=%d, S=%d, TCS=%d, reset", thing_model_name(thing), (int)thing->index, (int)thing->active_state, (int)thing->continue_state);
+      set_start_state(thing);
+    }
+    // Creatures that are not special diggers will pick up any nearby gold or food
+    if (((thing->field_25 & 0x20) == 0) && ((model_flags & MF_IsSpecDigger) == 0))
+    {
+      tgthing = find_interesting_object_laying_around_thing(thing);
+      if (!thing_is_invalid(tgthing))
+      {
+        if (tgthing->model == 43)
+        {
+          crstat = creature_stats_get_from_thing(thing);
+          if (tgthing->long_13 > 0)
+          {
+            if (thing->long_13 < crstat->gold_hold)
+            {
+              if (crstat->gold_hold < tgthing->long_13 + thing->long_13)
+              {
+                k = crstat->gold_hold - thing->long_13;
+                thing->long_13 += k;
+                tgthing->long_13 -= k;
+              } else
+              {
+                thing->long_13 += tgthing->long_13;
+                delete_thing_structure(tgthing, 0);
+              }
+            }
+          } else
+          {
+            ERRORLOG("GoldPile with no gold!");
+            delete_thing_structure(tgthing, 0);
+          }
+          anger_apply_anger_to_creature(thing, crstat->annoy_got_wage, 1, 1);
+        } else
+        if (tgthing->model == 10)
+        {
+          if (!is_thing_passenger_controlled(tgthing))
+            food_eaten_by_creature(tgthing, thing);
+        }
+      }
+    }
+    // Enable this to know which function hangs on update_creature.
+    //TODO: rewrite state subfunctions so they won't hang
+    //if (game.play_gameturn > 3500)
+    SYNCDBG(18,"Executing state %d",(int)thing->active_state);
+    stati = get_thing_active_state_info(thing);
+    if (stati->ofsfield_0 == NULL)
+      return false;
+    if (stati->ofsfield_0(thing) != -1)
+      return false;
+    SYNCDBG(18,"Finished");
+    return true;
 }
 
 TbBool update_dead_creatures_list(struct Dungeon *dungeon, struct Thing *thing)
@@ -1088,12 +1091,12 @@ struct Thing *create_dead_creature(struct Coord3d *pos, unsigned short model, un
     switch (a1)
     {
     case 2:
-        thing->field_7 = 2;
+        thing->active_state = CrSt_ImpArrivesAtDigOrMine1;
         k = get_creature_anim(thing, 17);
         set_thing_draw(thing, k, 256, 300, 0, 0, 2);
         break;
     default:
-        thing->field_7 = 1;
+        thing->active_state = CrSt_ImpDoingNothing;
         k = get_creature_anim(thing, 15);
         set_thing_draw(thing, k, 128, 300, 0, 0, 2);
         thing->health = 3 * get_lifespan_of_animation(thing->field_44, thing->field_3E);
@@ -1625,7 +1628,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
       return true;
     }
     clear_creature_instance(thing);
-    thing->field_7 = CrSt_CreatureUnconscious;
+    thing->active_state = CrSt_CreatureUnconscious;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->flgfield_1 |= CCFlg_Immortal;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
@@ -2324,7 +2327,7 @@ long player_list_creature_filter_most_experienced_and_pickable1(const struct Thi
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
       && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0)
-      && (thing->field_7 != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
+      && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
       if (can_thing_be_picked_up_by_player(thing, param->plyr_idx))
       {
@@ -2354,7 +2357,7 @@ long player_list_creature_filter_most_experienced_and_pickable2(const struct Thi
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
       && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0)
-      && (thing->field_7 != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
+      && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
       if (can_thing_be_picked_up2_by_player(thing, param->plyr_idx))
       {
@@ -2384,7 +2387,7 @@ long player_list_creature_filter_least_experienced_and_pickable1(const struct Th
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
       && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0)
-      && (thing->field_7 != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
+      && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
       if (can_thing_be_picked_up_by_player(thing, param->plyr_idx))
       {
@@ -2414,7 +2417,7 @@ long player_list_creature_filter_least_experienced_and_pickable2(const struct Th
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
       && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0)
-      && (thing->field_7 != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
+      && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
       if (can_thing_be_picked_up2_by_player(thing, param->plyr_idx))
       {
@@ -2442,7 +2445,7 @@ long player_list_creature_filter_of_gui_job_and_pickable1(const struct Thing *th
       && ((param->model_id == -1) || (thing->model == param->model_id))
       && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0)
       && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1)) // job_idx
-      && (thing->field_7 != CrSt_CreatureUnconscious) )
+      && (thing->active_state != CrSt_CreatureUnconscious) )
     {
       if (can_thing_be_picked_up_by_player(thing, param->plyr_idx))
       {
@@ -2472,7 +2475,7 @@ long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *th
       && ((param->model_id == -1) || (thing->model == param->model_id))
       && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0)
       && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
-      && (thing->field_7 != CrSt_CreatureUnconscious) )
+      && (thing->active_state != CrSt_CreatureUnconscious) )
     {
       if (can_thing_be_picked_up2_by_player(thing, param->plyr_idx))
       {
@@ -2587,7 +2590,7 @@ struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long jo
       {
         if ( ((thing->field_0 & 0x01) != 0) && (thing->class_id == TCls_Creature)
           && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0)
-          && (thing->field_7 != CrSt_CreatureUnconscious) && is_my_player_number(thing->owner) )
+          && (thing->active_state != CrSt_CreatureUnconscious) && is_my_player_number(thing->owner) )
         {
           dungeon->selected_creatures_of_model[breed_idx] = 0;
           thing = NULL;
@@ -2606,7 +2609,7 @@ struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long jo
       {
         if ( ((thing->field_0 & 0x01) != 0) && (thing->class_id == TCls_Creature)
           && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0)
-          && (thing->field_7 != CrSt_CreatureUnconscious) && is_my_player_number(thing->owner)
+          && (thing->active_state != CrSt_CreatureUnconscious) && is_my_player_number(thing->owner)
           && (get_creature_gui_job(thing) == job_idx) )
         {
             cctrl = creature_control_get_from_thing(thing);
@@ -3016,19 +3019,19 @@ void process_landscape_affecting_creature(struct Thing *thing)
     crstat = creature_stats_get_from_thing(thing);
     if (crstat->hurt_by_lava)
     {
-        if (thing->field_7 == 14)
-          i = thing->field_8;
+        if (thing->active_state == CrSt_MoveToPosition)
+          i = thing->continue_state;
         else
-          i = thing->field_7;
-        if ((i != -113) && (cctrl->field_2FE + 64 < game.play_gameturn))
+          i = thing->active_state;
+        if ((i != CrSt_CreatureEscapingDeath) && (cctrl->field_2FE + 64 < game.play_gameturn))
         {
             cctrl->field_2FE = game.play_gameturn;
             if ( cleanup_current_thing_state(thing) )
             {
               if ( setup_move_off_lava(thing) )
-                thing->field_8 = 143;
+                  thing->continue_state = CrSt_CreatureEscapingDeath;
               else
-                set_start_state(thing);
+                  set_start_state(thing);
             }
         }
     }
@@ -3146,7 +3149,7 @@ long update_creature(struct Thing *thing)
     struct Map *map;
     SYNCDBG(18,"Thing index %d",(int)thing->index);
     map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    if ((thing->field_7 == CrSt_CreatureUnconscious) && ((map->flags & 0x40) != 0))
+    if ((thing->active_state == CrSt_CreatureUnconscious) && ((map->flags & 0x40) != 0))
     {
       kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
       return 0;
@@ -3279,15 +3282,9 @@ TbBool creature_is_slappable(const struct Thing *thing, long plyr_idx)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
-    long i;
     if (thing->owner != plyr_idx)
     {
-      if (thing->field_7 == CrSt_MoveToPosition)
-        i = thing->field_8;
-      else
-        i = thing->field_7;
-      if ((i == CrSt_CreatureInPrison) || (i == CrSt_CreatureArrivedAtPrison)
-       || (i == CrSt_Torturing) || (i == CrSt_AtTortureRoom))
+      if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
       {
         cctrl = creature_control_get_from_thing(thing);
         room = room_get(cctrl->work_room_id);
@@ -3295,17 +3292,9 @@ TbBool creature_is_slappable(const struct Thing *thing, long plyr_idx)
       }
       return false;
     }
-    if (thing->field_7 == CrSt_MoveToPosition)
-      i = thing->field_8;
-    else
-      i = thing->field_7;
-    if ((i == 88) || (i == 92) || (i == 95))
+    if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing))
       return 0;
-    if (thing->field_7 == 14)
-      i = thing->field_8;
-    else
-      i = thing->field_7;
-    if ((i == 41) || (i == 40) || (i == 43) || (i == 42))
+    if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
     {
       cctrl = creature_control_get_from_thing(thing);
       room = room_get(cctrl->work_room_id);

@@ -193,20 +193,15 @@ long near_map_block_thing_filter_is_enemy_of_and_not_specdigger(const struct Thi
 long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam plyr_idx)
 {
   struct SlabMap *slb;
-  int i;
   if (thing->owner == plyr_idx)
   {
     return true;
   }
-  if (thing->field_7 == 14)
-    i = thing->field_8;
-  else
-    i = thing->field_7;
-  if ((i == 41) || (i == 40) || (i == 43) || (i == 42))
+  if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
   {
-    slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    if (slabmap_owner(slb) == plyr_idx)
-      return true;
+      slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+      if (slabmap_owner(slb) == plyr_idx)
+          return true;
   }
   return false;
 }
@@ -270,7 +265,7 @@ long map_block_creature_filter_of_model_training_and_owned_by(const struct Thing
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {
               cctrl = creature_control_get_from_thing(thing);
-              if ((thing->field_7 == CrSt_Training) && (cctrl->byte_9A > 1))
+              if ((thing->active_state == CrSt_Training) && (cctrl->byte_9A > 1))
               {
                   // Return the largest value to stop sweeping
                   return LONG_MAX;
@@ -642,7 +637,7 @@ struct Thing *find_nearest_enemy_creature(struct Thing *crtng)
 long creature_of_model_in_prison(int model)
 {
   struct Thing *thing;
-  long i,k,n;
+  long i,k;
   i = game.thing_lists[0].index;
   k = 0;
   while (i != 0)
@@ -650,25 +645,22 @@ long creature_of_model_in_prison(int model)
     thing = thing_get(i);
     if (thing_is_invalid(thing))
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
+        ERRORLOG("Jump to invalid thing detected");
+        break;
     }
     i = thing->next_of_class;
     // Thing list loop body
     if (thing->model == model)
     {
-      n = thing->field_7;
-      if (n == CrSt_MoveToPosition)
-        n = thing->field_8;
-      if ((n == CrSt_CreatureInPrison) || (n == CrSt_CreatureArrivedAtPrison))
+      if (creature_is_kept_in_prison(thing))
         return i;
     }
     // Thing list loop body ends
     k++;
     if (k > THINGS_COUNT)
     {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
+        ERRORLOG("Infinite loop detected when sweeping things list");
+        break;
     }
   }
   return 0;
@@ -825,7 +817,7 @@ long count_player_creatures_not_counting_to_total(long plyr_idx)
   struct CreatureControl *cctrl;
   struct Thing *thing;
   unsigned long k;
-  long i,n;
+  long i;
   int count;
   dungeon = get_players_num_dungeon(plyr_idx);
   count = 0;
@@ -841,10 +833,7 @@ long count_player_creatures_not_counting_to_total(long plyr_idx)
     }
     cctrl = creature_control_get_from_thing(thing);
     i = cctrl->thing_idx;
-    n = thing->field_7;
-    if (n == CrSt_MoveToPosition)
-      n = thing->field_8;
-    if ((n == CrSt_CreatureInPrison) || (n == CrSt_CreatureArrivedAtPrison))
+    if (creature_is_kept_in_prison(thing))
       count++;
     k++;
     if (k > THINGS_COUNT)
@@ -1251,7 +1240,7 @@ TbBool imp_already_digging_at_excluding(struct Thing *excltng, long stl_x, long 
     {
         if ( ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0) )
         {
-            if ((thing->field_7 == CrSt_ImpDigsMines1) || (thing->field_7 == CrSt_ImpDigsMines2))
+            if ((thing->active_state == CrSt_ImpDigsMines1) || (thing->active_state == CrSt_ImpDigsMines2))
             {
                 return true;
             }
