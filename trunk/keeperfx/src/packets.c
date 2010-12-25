@@ -1093,8 +1093,8 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           {
             thing = thing_get(player->field_2F);
             if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
-                WARNLOG("Person move order failed");
-            thing->field_8 = 122;
+                WARNLOG("Move %s order failed",thing_model_name(thing));
+            thing->continue_state = CrSt_ManualControl;
           }
         } else
         {
@@ -1102,7 +1102,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           if (!thing_is_invalid(thing))
           {
             player->field_2F = thing->index;
-            initialise_thing_state(thing, 122);
+            initialise_thing_state(thing, CrSt_ManualControl);
             cctrl = creature_control_get_from_thing(thing);
             i = cctrl->field_7A;// & 0xFFF;
             if (i > 0)
@@ -2252,7 +2252,7 @@ void process_players_creature_control_packet_control(long idx)
     ccctrl = creature_control_get_from_thing(cctng);
     if (cctng->health < 0)
         return;
-    if ((ccctrl->field_AB != 0) || (cctng->field_7 == 67))
+    if ((ccctrl->field_AB != 0) || (cctng->active_state == CrSt_CreatureUnconscious))
         return;
     speed_limit = get_creature_speed(cctng);
     if ((pckt->control_flags & PCtr_MoveUp) != 0)

@@ -41,7 +41,7 @@ struct Thing;
 /******************************************************************************/
 extern const char *blood_types[];
 /******************************************************************************/
-const char *thing_model_name(struct Thing *thing);
+const char *thing_model_name(const struct Thing *thing);
 const char *thing_class_code_name(long class_id);
 /******************************************************************************/
 long compute_creature_max_pay(long base_pay,unsigned short crlevel);

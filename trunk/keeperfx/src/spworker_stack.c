@@ -79,7 +79,7 @@ TbBool add_to_imp_stack_using_pos(long stl_num, long task_type, struct Dungeon *
     istack = &dungeon->imp_stack[dungeon->imp_stack_length];
     dungeon->imp_stack_length++;
     istack->field_0 = stl_num;
-    istack->field_2 = task_type;
+    istack->task_id = task_type;
     return (dungeon->imp_stack_length < IMP_TASK_MAX_COUNT);
 }
 
@@ -118,7 +118,7 @@ TbBool check_out_unprettied_spot(struct Thing *thing, long slb_x, long slb_y)
           {
               if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
               {
-                  thing->field_8 = 9;
+                  thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
                   return true;
               }
           }
@@ -210,7 +210,7 @@ TbBool check_out_unconverted_place(struct Thing *thing)
     {
         if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
         {
-            thing->field_8 = CrSt_ImpArrivesAtConvertDungeon;
+            thing->continue_state = CrSt_ImpArrivesAtConvertDungeon;
             return true;
         }
     }
@@ -235,7 +235,7 @@ long check_out_unprettied_place(struct Thing *thing)
   {
       if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
       {
-          thing->field_8 = CrSt_ImpArrivesAtImproveDungeon;
+          thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
           return true;
       }
   }
@@ -277,10 +277,10 @@ long check_out_undug_place(struct Thing *thing)
                 mtask = get_task_list_entry(thing->owner, cctrl->word_91);
                 if (mtask->field_0 == 2)
                 {
-                  thing->field_8 = 3;
+                  thing->continue_state = CrSt_ImpArrivesAtDigOrMine2;
                 } else
                 {
-                  thing->field_8 = 2;
+                  thing->continue_state = CrSt_ImpArrivesAtDigOrMine1;
                 }
                 return 1;
             }
@@ -316,7 +316,7 @@ long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
         {
           if ( block_has_diggable_side(dungeon->field_E9F, map_to_slab[stl_x], map_to_slab[stl_y]) )
           {
-            add_to_imp_stack_using_pos(mtask->field_1, 9, dungeon);
+            add_to_imp_stack_using_pos(mtask->field_1, DigTsk_DigOrMine, dungeon);
             num--;
             nused++;
           }
@@ -342,7 +342,7 @@ void setup_imp_stack(struct Dungeon *dungeon)
   long i;
   for (i = 0; i < dungeon->imp_stack_length; i++)
   {
-    dungeon->imp_stack[i].field_2 = 0;
+    dungeon->imp_stack[i].task_id = DigTsk_None;
   }
   dungeon->imp_stack_update_turn = game.play_gameturn;
   dungeon->imp_stack_length = 0;
@@ -446,7 +446,7 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
             if (room_is_invalid(room) || (room->kind != RoK_WORKSHOP))
             {
               stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-              add_to_imp_stack_using_pos(stl_num, 8, dungeon);
+              add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpTrapForWorkshop, dungeon);
             }
           }
         }
@@ -466,15 +466,15 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
 
 void add_reinforce_to_imp_stack(struct Dungeon *dungeon)
 {
-  struct ImpStack *rfstack;
-  long i;
-  for (i=0; i < r_stackpos; i++)
-  {
-    if (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT)
-      break;
-    rfstack = &reinforce_stack[i];
-    add_to_imp_stack_using_pos(rfstack->field_0, rfstack->field_2, dungeon);
-  }
+    struct ImpStack *rfstack;
+    long i;
+    for (i=0; i < r_stackpos; i++)
+    {
+        if (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT)
+          break;
+        rfstack = &reinforce_stack[i];
+        add_to_imp_stack_using_pos(rfstack->field_0, rfstack->task_id, dungeon);
+    }
 }
 
 long check_out_uncrowded_reinforce_position(struct Thing *thing, unsigned short a2, long *a3, long *a4)
@@ -608,7 +608,7 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     {
         if (setup_head_for_empty_treasure_space(thing, room))
         {
-          thing->field_8 = CrSt_ImpDropsGold;
+          thing->continue_state = CrSt_ImpDropsGold;
           return 1;
         }
         return 0;
@@ -663,7 +663,7 @@ long check_out_imp_tokes(struct Thing *thing)
     if (i != 0)
       return 0;
     internal_set_thing_state(thing, 69);
-    thing->field_8 = CrSt_ImpDoingNothing;
+    thing->continue_state = CrSt_ImpDoingNothing;
     cctrl->field_282 = 200;
     return 1;
 }
@@ -742,7 +742,7 @@ long check_out_imp_last_did(struct Thing *thing)
       {
         if ( setup_random_head_for_room(thing, room, 0) )
         {
-          thing->field_8 = CrSt_AtTrainingRoom;
+          thing->continue_state = CrSt_AtTrainingRoom;
           cctrl->field_80 = room->index;
           return true;
         }
@@ -823,15 +823,15 @@ long check_out_imp_stack(struct Thing *thing)
     {
         istack = &dungeon->imp_stack[cctrl->field_95];
         cctrl->field_95++;
-        SYNCDBG(18,"Checking task %d",(int)istack->field_2);
-        switch (istack->field_2)
+        SYNCDBG(18,"Checking task %d",(int)istack->task_id);
+        switch (istack->task_id)
         {
-        case 1:
+        case DigTsk_ImproveDungeon:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
             if ( !check_place_to_pretty_excluding(thing, map_to_slab[stl_x], map_to_slab[stl_y]) )
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 break;
             }
             if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
@@ -840,19 +840,19 @@ long check_out_imp_stack(struct Thing *thing)
             }
             if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
-            thing->field_8 = 9;
+            thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
             cctrl->byte_94 = 2;
             return 1;
 
-        case 2:
+        case DigTsk_ConvertDungeon:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
             if (!check_place_to_convert_excluding(thing, map_to_slab[stl_x], map_to_slab[stl_y]))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 break;
             }
             if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
@@ -861,14 +861,14 @@ long check_out_imp_stack(struct Thing *thing)
             }
             if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
-            thing->field_8 = 73;
+            thing->continue_state = CrSt_ImpArrivesAtConvertDungeon;
             cctrl->byte_94 = 2;
             return 1;
 
-        case 3:
+        case DigTsk_ReinforceWall:
             if (game.play_gameturn - cctrl->field_2C7 > 128)
             {
               cctrl->field_95--;
@@ -880,26 +880,26 @@ long check_out_imp_stack(struct Thing *thing)
             stl_y = stl_num_decode_y(istack->field_0);
             if (check_place_to_reinforce(thing, map_to_slab[stl_x], map_to_slab[stl_y]) <= 0)
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 break;
             }
             if (!check_out_uncrowded_reinforce_position(thing, istack->field_0, &stl_x, &stl_y))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
             if (!setup_person_move_to_position(thing, stl_x, stl_y, 0) )
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
-            thing->field_8 = 97;
+            thing->continue_state = CrSt_ImpArrivesAtReinforce;
             cctrl->byte_93 = 0;
             cctrl->word_8D = istack->field_0;
             cctrl->byte_94 = 3;
             return 1;
 
-        case 4:
+        case DigTsk_PickUpUnconscious:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
             if (!player_has_room(dungeon->field_E9F,RoK_PRISON) ||
@@ -912,30 +912,30 @@ long check_out_imp_stack(struct Thing *thing)
                 if (!find_room_with_spare_capacity(thing->owner, 4, 1))
                   output_message(26, 1000, 1);
               }
-              istack->field_2 = 0;
+              istack->task_id = DigTsk_None;
               return -1;
             }
             sectng = check_place_to_pickup_unconscious_body(thing, stl_x, stl_y);
             if (thing_is_invalid(sectng))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
             if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
             if (!setup_person_move_to_position(thing, stl_x, stl_y, 0) )
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
-            thing->field_8 = 68;
+            thing->continue_state = CrSt_CreaturePickUpUnconsciousBody;
             cctrl->field_74 = sectng->index;
             return 1;
 
-        case 5:
+        case DigTsk_PickUpCorpse:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
             if (dungeon->room_kind[11] == 0)
@@ -947,30 +947,30 @@ long check_out_imp_stack(struct Thing *thing)
                 if (!find_room_with_spare_capacity(thing->owner, 11, 1))
                   output_message(32, 1000, 1);
               }
-              istack->field_2 = 0;
+              istack->task_id = DigTsk_None;
               return -1;
             }
             sectng = check_place_to_pickup_dead_body(thing, stl_x, stl_y);
             if (thing_is_invalid(sectng))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
             if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
             if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
-            thing->field_8 = 102;
+            thing->continue_state = CrSt_CreaturePicksUpCorpse;
             cctrl->field_72 = sectng->index;
             return 1;
 
-        case 6:
+        case DigTsk_PicksUpSpellBook:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
             if (dungeon->room_kind[3] == 0)
@@ -982,23 +982,23 @@ long check_out_imp_stack(struct Thing *thing)
                   if (!find_room_with_spare_room_item_capacity(thing->owner, 3))
                     output_message(25, 1000, 1);
                 }
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
             sectng = check_place_to_pickup_spell(thing, stl_x, stl_y);
             if (thing_is_invalid(sectng))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
             if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
             if (!setup_person_move_to_position(thing, stl_x, stl_y, 0) )
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
             if (thing_is_spellbook(sectng))
@@ -1016,17 +1016,17 @@ long check_out_imp_stack(struct Thing *thing)
             {
                 WARNLOG("Strange pickup (model %d) - no event",(int)sectng->model);
             }
-            thing->field_8 = 100;
+            thing->continue_state = CrSt_CreaturePicksUpSpellObject;
             cctrl->field_72 = sectng->index;
             return 1;
 
-        case 7:
+        case DigTsk_PicksUpTrapBox:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
             sectng = check_place_to_pickup_crate(thing, stl_x, stl_y);
             if (thing_is_invalid(sectng))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 break;
             }
             if (!thing_is_trap_box(sectng))
@@ -1044,15 +1044,15 @@ long check_out_imp_stack(struct Thing *thing)
             }
             if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
             {
-              istack->field_2 = 0;
+              istack->task_id = DigTsk_None;
               return -1;
             }
-            thing->field_8 = 11;
+            thing->continue_state = CrSt_CreaturePicksUpTrapObject;
             cctrl->field_72 = sectng->index;
             cctrl->field_70 = trdtng->index;
             return 1;
 
-        case 8:
+        case DigTsk_PicksUpTrapForWorkshop:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
             if (dungeon->room_kind[8] == 0)
@@ -1066,23 +1066,23 @@ long check_out_imp_stack(struct Thing *thing)
                 if (!find_room_with_spare_room_item_capacity(thing->owner, 8))
                   output_message(29, 1000, 1);
               }
-              istack->field_2 = 0;
+              istack->task_id = DigTsk_None;
               return -1;
             }
             sectng = check_place_to_pickup_crate(thing, stl_x, stl_y);
             if (thing_is_invalid(sectng))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
             if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
             if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
             i = workshop_object_class[sectng->model];
@@ -1101,22 +1101,22 @@ long check_out_imp_stack(struct Thing *thing)
             {
                 WARNLOG("Strange pickup (class %d) - no event",(int)i);
             }
-            thing->field_8 = 13;
+            thing->continue_state = CrSt_CreaturePicksUpTrapForWorkshop;
             cctrl->field_72 = sectng->index;
             return 1;
 
-        case 9:
+        case DigTsk_DigOrMine:
             i = find_dig_from_task_list(thing->owner, istack->field_0);
             if (i == -1)
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
             stl_x = 0; stl_y = 0;
             if (!check_place_to_dig_and_get_position(thing, istack->field_0, &stl_x, &stl_y)
               || !setup_person_move_to_position(thing, stl_x, stl_y, 0))
             {
-              istack->field_2 = 0;
+              istack->task_id = DigTsk_None;
               return -1;
             }
             cctrl->word_91 = i;
@@ -1125,14 +1125,14 @@ long check_out_imp_stack(struct Thing *thing)
             task = get_dungeon_task_list_entry(dungeon, i);
             if (task->field_0 == 2)
             {
-              thing->field_8 = 3;
+              thing->continue_state = CrSt_ImpArrivesAtDigOrMine2;
             } else
             {
-              thing->field_8 = 2;
+              thing->continue_state = CrSt_ImpArrivesAtDigOrMine1;
             }
             return 1;
 
-        case 10:
+        case DigTsk_PicksUpGoldPile:
             crstat = creature_stats_get_from_thing(thing);
             if (crstat->gold_hold <= thing->long_13)
             {
@@ -1147,7 +1147,7 @@ long check_out_imp_stack(struct Thing *thing)
             stl_y = stl_num_decode_y(istack->field_0);
             if (!check_place_to_pickup_gold(thing, stl_x, stl_y))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 break;
             }
             if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
@@ -1156,17 +1156,17 @@ long check_out_imp_stack(struct Thing *thing)
             }
             if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
             {
-                istack->field_2 = 0;
+                istack->task_id = DigTsk_None;
                 return -1;
             }
-            thing->field_8 = 70;
+            thing->continue_state = CrSt_ImpPicksUpGoldPile;
             return 1;
 
-        case 0:
+        case DigTsk_None:
             break;
         default:
-            ERRORLOG("Invalid stack type, %d",(int)istack->field_2);
-            istack->field_2 = 0;
+            ERRORLOG("Invalid stack type, %d",(int)istack->task_id);
+            istack->task_id = DigTsk_None;
             break;
         }
     }

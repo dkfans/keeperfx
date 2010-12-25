@@ -1718,10 +1718,10 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
       // Per creature code
       if (!thing_affected_by_spell(thing, 11))
       {
-          if (thing->field_7 == 14)
-              n = thing->field_8;
+          if (thing->active_state == CrSt_MoveToPosition)
+              n = thing->continue_state;
           else
-              n = thing->field_7;
+              n = thing->active_state;
           stati = get_thing_state_info_num(n);
           if (stati->state_type == 1)
           {
@@ -1871,10 +1871,10 @@ long computer_pick_trainig_or_scavenging_creatures_and_place_on_room(struct Comp
       cctrl = creature_control_get_from_thing(thing);
       i = cctrl->thing_idx;
       // Per creature code
-      if (thing->field_7 == CrSt_MoveToPosition)
-        crstate = thing->field_8;
+      if (thing->active_state == CrSt_MoveToPosition)
+        crstate = thing->continue_state;
       else
-        crstate = thing->field_7;
+        crstate = thing->active_state;
       if ((crstate == CrSt_Training) || (crstate == CrSt_Scavengering))
       {
         if (!create_task_move_creature_to_pos(comp, thing, room->stl_x, room->stl_y))

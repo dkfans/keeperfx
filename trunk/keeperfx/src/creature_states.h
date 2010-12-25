@@ -22,7 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
-#define CREATURE_STATES_COUNT 147
+/** Count of creature states, originally 147. */
+#define CREATURE_STATES_COUNT CrSt_ListEnd
 
 #ifdef __cplusplus
 extern "C" {
@@ -96,7 +97,7 @@ enum CreatureStates {
     CrSt_Null57,
     CrSt_Null58,
     CrSt_CreatureKillCreatures,
-    CrSt_Null,//[60]
+    CrSt_Null60,//[60]
     CrSt_PersonSulking,
     CrSt_Null62,
     CrSt_Null63,
@@ -158,7 +159,7 @@ enum CreatureStates {
     CrSt_CreaturePersuade,
     CrSt_CreatureChangeToChicken,//[120]
     CrSt_CreatureChangeFromChicken,
-    CrSt_Null122,
+    CrSt_ManualControl,
     CrSt_CreatureCannotFindAnythingToDo,
     CrSt_CreaturePiss,
     CrSt_CreatureRoar,
@@ -183,6 +184,7 @@ enum CreatureStates {
     CrSt_CreaturePresentToDungeonHeart,
     CrSt_CreatureSearchForSpellToStealInRoom,
     CrSt_CreatureStealSpell,
+    CrSt_ListEnd,
 };
 
 typedef void (*CombatState)(struct Thing *);
@@ -235,18 +237,28 @@ TbBool can_change_from_state_to(struct Thing *thing, long curr_state, long next_
 TbBool internal_set_thing_state(struct Thing *thing, long nState);
 TbBool initialise_thing_state(struct Thing *thing, long nState);
 TbBool cleanup_current_thing_state(struct Thing *thing);
-struct StateInfo *get_thing_state7_info(struct Thing *thing);
-struct StateInfo *get_thing_state8_info(struct Thing *thing);
+struct StateInfo *get_thing_active_state_info(struct Thing *thing);
+struct StateInfo *get_thing_continue_state_info(struct Thing *thing);
 struct StateInfo *get_thing_state_info_num(long state_id);
 struct StateInfo *get_creature_state_with_task_completion(struct Thing *thing);
 TbBool state_info_invalid(struct StateInfo *stati);
 void create_effect_around_thing(struct Thing *thing, long eff_kind);
+long get_creature_real_state(const struct Thing *thing);
 long get_creature_state_type(const struct Thing *thing);
 long get_creature_gui_job(const struct Thing *thing);
 short set_start_state(struct Thing *thing);
 
+long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3);
+long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
+
+/******************************************************************************/
 TbBool creature_is_doing_lair_activity(const struct Thing *thing);
 TbBool creature_is_being_dropped(const struct Thing *thing);
+TbBool creature_is_being_tortured(const struct Thing *thing);
+TbBool creature_is_being_sacrificed(const struct Thing *thing);
+TbBool creature_is_kept_in_prison(const struct Thing *thing);
+TbBool creature_is_being_summoned(const struct Thing *thing);
+TbBool creature_is_sleeping(const struct Thing *thing);
 TbBool creature_is_doing_dungeon_improvements(const struct Thing *thing);
 TbBool creature_is_doing_garden_activity(const struct Thing *thing);
 TbBool creature_is_taking_salary_activity(const struct Thing *thing);
@@ -255,10 +267,6 @@ TbBool creature_state_is_unset(const struct Thing *thing);
 TbBool remove_creature_from_work_room(struct Thing *thing);
 TbBool creature_can_be_trained(struct Thing *thing);
 TbBool player_can_afford_to_train_creature(struct Thing *thing);
-long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3);
-long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
-
-/******************************************************************************/
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2);
 TbBool anger_is_creature_livid(const struct Thing *thing);
 TbBool anger_is_creature_angry(const struct Thing *thing);

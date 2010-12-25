@@ -56,7 +56,7 @@ enum DungeonCreatureTendencies {
 
 struct ImpStack { // sizeof = 4
       unsigned short field_0;
-      unsigned short field_2;
+      unsigned short task_id;
 };
 
 struct LevelStats { // sizeof = 392

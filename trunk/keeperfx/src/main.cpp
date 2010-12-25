@@ -256,7 +256,6 @@ DLLIMPORT void _DK_tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, lo
 DLLIMPORT struct Thing *_DK_create_gold_for_hand_grab(struct Thing *thing, long a2);
 DLLIMPORT long _DK_remove_food_from_food_room_if_possible(struct Thing *thing);
 DLLIMPORT void _DK_process_person_moods_and_needs(struct Thing *thing);
-DLLIMPORT unsigned char _DK_can_change_from_state_to(struct Thing *thing, long a2, long a3);
 DLLIMPORT struct Thing *_DK_get_door_for_position(long pos_x, long pos_y);
 DLLIMPORT long _DK_process_obey_leader(struct Thing *thing);
 DLLIMPORT unsigned char _DK_external_set_thing_state(struct Thing *thing, long state);
@@ -624,22 +623,22 @@ long get_scavenge_effect_element(unsigned short owner)
 
 void setup_block_mem(void)
 {
-  unsigned char **dst;
-  unsigned char *src;
-  unsigned long i,k,n;
-  dst = block_ptrs;
-  n = 0;
-  for (i=0; i < 68; i++)
-  {
-    src = block_mem + n;
-    for (k=0; k < 8; k++)
+    unsigned char **dst;
+    unsigned char *src;
+    unsigned long i,k,n;
+    dst = block_ptrs;
+    n = 0;
+    for (i=0; i < 68; i++)
     {
-      *dst = src;
-      src += 32;
-      dst++;
+      src = block_mem + n;
+      for (k=0; k < 8; k++)
+      {
+        *dst = src;
+        src += 32;
+        dst++;
+      }
+      n += 8192;
     }
-    n += 8192;
-  }
 }
 
 void init_alpha_table(void)
@@ -789,7 +788,7 @@ void process_armageddon(void)
     player = get_player(game.field_15035E);
     dungeon = get_dungeon(player->id_number);
     thing = thing_get(dungeon->dnheart_idx);
-    if ((player->victory_state == 2) || thing_is_invalid(thing) || (thing->field_7 == 3))
+    if ((player->victory_state == 2) || thing_is_invalid(thing) || (thing->active_state == CrSt_ImpArrivesAtDigOrMine2))
         game.field_150356 = 0;
   } else
   if (game.armageddon.count_down+game.field_150356 == game.play_gameturn)
@@ -941,51 +940,51 @@ void init_dungeons_research(void)
 
 TbBool remove_all_research_from_player(long plyr_idx)
 {
-  struct Dungeon *dungeon;
-  dungeon = get_dungeon(plyr_idx);
-  dungeon->research_num = 0;
-  dungeon->research_override = 1;
-  return true;
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(plyr_idx);
+    dungeon->research_num = 0;
+    dungeon->research_override = 1;
+    return true;
 }
 
 TbBool research_overriden_for_player(long plyr_idx)
 {
-  struct Dungeon *dungeon;
-  dungeon = get_dungeon(plyr_idx);
-  return (dungeon->research_override != 0);
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(plyr_idx);
+    return (dungeon->research_override != 0);
 }
 
 TbBool clear_research_for_all_players(void)
 {
-  struct Dungeon *dungeon;
-  int plyr_idx;
-  for (plyr_idx=0; plyr_idx < DUNGEONS_COUNT; plyr_idx++)
-  {
-    dungeon = get_dungeon(plyr_idx);
-    dungeon->research_num = 0;
-    dungeon->research_override = 0;
-  }
-  return true;
+    struct Dungeon *dungeon;
+    int plyr_idx;
+    for (plyr_idx=0; plyr_idx < DUNGEONS_COUNT; plyr_idx++)
+    {
+      dungeon = get_dungeon(plyr_idx);
+      dungeon->research_num = 0;
+      dungeon->research_override = 0;
+    }
+    return true;
 }
 
 TbBool add_research_to_player(long plyr_idx, long rtyp, long rkind, long amount)
 {
-  struct Dungeon *dungeon;
-  struct ResearchVal *resrch;
-  long i;
-  dungeon = get_dungeon(plyr_idx);
-  i = dungeon->research_num;
-  if (i >= DUNGEON_RESEARCH_COUNT)
-  {
-    ERRORLOG("Too much research (%d items) for player %d", i, plyr_idx);
-    return false;
-  }
-  resrch = &dungeon->research[i];
-  resrch->rtyp = rtyp;
-  resrch->rkind = rkind;
-  resrch->req_amount = amount;
-  dungeon->research_num++;
-  return true;
+    struct Dungeon *dungeon;
+    struct ResearchVal *resrch;
+    long i;
+    dungeon = get_dungeon(plyr_idx);
+    i = dungeon->research_num;
+    if (i >= DUNGEON_RESEARCH_COUNT)
+    {
+      ERRORLOG("Too much research (%d items) for player %d", i, plyr_idx);
+      return false;
+    }
+    resrch = &dungeon->research[i];
+    resrch->rtyp = rtyp;
+    resrch->rkind = rkind;
+    resrch->req_amount = amount;
+    dungeon->research_num++;
+    return true;
 }
 
 TbBool add_research_to_all_players(long rtyp, long rkind, long amount)
@@ -1225,48 +1224,48 @@ void process_keeper_spell_effect(struct Thing *thing)
 
 TbBool add_spell_to_player(long spl_idx, long plyr_idx)
 {
-  struct Dungeon *dungeon;
-  long i;
-  if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT))
-  {
-    ERRORLOG("Can't add incorrect spell %ld to player %ld",spl_idx, plyr_idx);
-    return false;
-  }
-  dungeon = get_dungeon(plyr_idx);
-  i = dungeon->magic_level[spl_idx];
-  if (i >= 255)
-  {
-    ERRORLOG("Spell %ld has bad magic_level=%ld for player %ld",spl_idx, i, plyr_idx);
-    return false;
-  }
-  dungeon->magic_level[spl_idx] = i+1;
-  dungeon->magic_resrchable[spl_idx] = 1;
-  return true;
+    struct Dungeon *dungeon;
+    long i;
+    if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT))
+    {
+      ERRORLOG("Can't add incorrect spell %ld to player %ld",spl_idx, plyr_idx);
+      return false;
+    }
+    dungeon = get_dungeon(plyr_idx);
+    i = dungeon->magic_level[spl_idx];
+    if (i >= 255)
+    {
+      ERRORLOG("Spell %ld has bad magic_level=%ld for player %ld",spl_idx, i, plyr_idx);
+      return false;
+    }
+    dungeon->magic_level[spl_idx] = i+1;
+    dungeon->magic_resrchable[spl_idx] = 1;
+    return true;
 }
 
 unsigned char sight_of_evil_expand_check(void)
 {
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  player = get_my_player();
-  dungeon = get_dungeon(player->id_number);
-  return (player->field_4D2 != 0) && (dungeon->field_5D8 == 0);
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    player = get_my_player();
+    dungeon = get_dungeon(player->id_number);
+    return (player->field_4D2 != 0) && (dungeon->field_5D8 == 0);
 }
 
 unsigned char call_to_arms_expand_check(void)
 {
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  player = get_my_player();
-  dungeon = get_dungeon(player->id_number);
-  return (player->field_4D2 != 0) && (dungeon->field_884 == 0);
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    player = get_my_player();
+    dungeon = get_dungeon(player->id_number);
+    return (player->field_4D2 != 0) && (dungeon->field_884 == 0);
 }
 
 unsigned char general_expand_check(void)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-  return (player->field_4D2 != 0);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    return (player->field_4D2 != 0);
 }
 
 void leader_find_positions_for_followers(struct Thing *thing)
@@ -1326,44 +1325,44 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
 
 void lightning_modify_palette(struct Thing *thing)
 {
-  struct PlayerInfo *myplyr;
-  // _DK_lightning_modify_palette(thing);
-  myplyr = get_my_player();
+    struct PlayerInfo *myplyr;
+    // _DK_lightning_modify_palette(thing);
+    myplyr = get_my_player();
 
-  if (thing->health == 0)
-  {
-    PaletteSetPlayerPalette(myplyr, _DK_palette);
-    myplyr->field_3 &= 0xF7u;
-    return;
-  }
-  if (myplyr->acamera == NULL)
-  {
-      WARNLOG("No active camera");
+    if (thing->health == 0)
+    {
+      PaletteSetPlayerPalette(myplyr, _DK_palette);
+      myplyr->field_3 &= 0xF7u;
       return;
-  }
-  if (((thing->health % 8) != 7) && (thing->health != 1) && (ACTION_RANDOM(4) != 0))
-  {
-    if ((myplyr->field_3 & 0x08) != 0)
+    }
+    if (myplyr->acamera == NULL)
     {
-      if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
+        WARNLOG("No active camera");
+        return;
+    }
+    if (((thing->health % 8) != 7) && (thing->health != 1) && (ACTION_RANDOM(4) != 0))
+    {
+      if ((myplyr->field_3 & 0x08) != 0)
       {
-          PaletteSetPlayerPalette(myplyr, _DK_palette);
-          myplyr->field_3 &= 0xF7u;
+        if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
+        {
+            PaletteSetPlayerPalette(myplyr, _DK_palette);
+            myplyr->field_3 &= 0xF7u;
+        }
+      }
+      return;
+    }
+    if ((myplyr->field_37 != 6) && (myplyr->field_37 != 7) && (myplyr->field_37 != 3))
+    {
+      if ((myplyr->field_3 & 0x08) == 0)
+      {
+        if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
+        {
+          PaletteSetPlayerPalette(myplyr, lightning_palette);
+          myplyr->field_3 |= 0x08;
+        }
       }
     }
-    return;
-  }
-  if ((myplyr->field_37 != 6) && (myplyr->field_37 != 7) && (myplyr->field_37 != 3))
-  {
-    if ((myplyr->field_3 & 0x08) == 0)
-    {
-      if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
-      {
-        PaletteSetPlayerPalette(myplyr, lightning_palette);
-        myplyr->field_3 |= 0x08;
-      }
-    }
-  }
 }
 
 void update_god_lightning_ball(struct Thing *thing)
@@ -1472,118 +1471,118 @@ TbBool explosion_can_affect_thing(struct Thing *thing, long hit_type, long explo
 
 void explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos, long max_dist, long max_damage, long owner)
 {
-  long move_dist,move_angle;
-  long distance,damage;
-  if ( line_of_sight_3d(pos, &tngdst->mappos) )
-  {
-    move_angle = get_angle_xy_to(pos, &tngdst->mappos);
-    distance = get_2d_distance(pos, &tngdst->mappos);
-    if ( distance < max_dist )
+    long move_dist,move_angle;
+    long distance,damage;
+    if ( line_of_sight_3d(pos, &tngdst->mappos) )
     {
-      move_dist = ((max_dist - distance) << 8) / max_dist;
-      if (tngdst->class_id == TCls_Creature)
+      move_angle = get_angle_xy_to(pos, &tngdst->mappos);
+      distance = get_2d_distance(pos, &tngdst->mappos);
+      if ( distance < max_dist )
       {
-          // damage = (max_dist - distance) * 300 * max_damage / 256 / max_dist + 1;
-          damage = get_radially_decaying_value(max_damage,max_dist/4,max_dist,distance)+1;
-          apply_damage_to_thing_and_display_health(tngdst, damage, owner);
-      }
-      // If the thing isn't dying, move it
-      if ((tngdst->class_id != TCls_Creature) || (tngdst->health >= 0))
-      {
-          tngdst->pos_32.x.val +=   move_dist * LbSinL(move_angle) >> 16;
-          tngdst->pos_32.y.val += -(move_dist * LbCosL(move_angle) >> 8) >> 8;
-          tngdst->field_1 |= 0x04;
-      } else
-      {
-          kill_creature(tngdst, tngsrc, -1, 0, 1, 0);
+        move_dist = ((max_dist - distance) << 8) / max_dist;
+        if (tngdst->class_id == TCls_Creature)
+        {
+            // damage = (max_dist - distance) * 300 * max_damage / 256 / max_dist + 1;
+            damage = get_radially_decaying_value(max_damage,max_dist/4,max_dist,distance)+1;
+            apply_damage_to_thing_and_display_health(tngdst, damage, owner);
+        }
+        // If the thing isn't dying, move it
+        if ((tngdst->class_id != TCls_Creature) || (tngdst->health >= 0))
+        {
+            tngdst->pos_32.x.val +=   move_dist * LbSinL(move_angle) >> 16;
+            tngdst->pos_32.y.val += -(move_dist * LbCosL(move_angle) >> 8) >> 8;
+            tngdst->field_1 |= 0x04;
+        } else
+        {
+            kill_creature(tngdst, tngsrc, -1, 0, 1, 0);
+        }
       }
     }
-  }
 }
 
 void explosion_affecting_mapblk(struct Thing *tngsrc, const struct Map *mapblk, const struct Coord3d *pos, long max_dist, long max_damage, unsigned char hit_type)
 {
-  struct Thing *thing;
-  long owner;
-  unsigned long k;
-  long i;
-  if (!thing_is_invalid(tngsrc))
-    owner = tngsrc->owner;
-  else
-    owner = -1;
-  k = 0;
-  i = get_mapwho_thing_index(mapblk);
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct Thing *thing;
+    long owner;
+    unsigned long k;
+    long i;
+    if (!thing_is_invalid(tngsrc))
+        owner = tngsrc->owner;
+    else
+        owner = -1;
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
     {
-      WARNLOG("Jump out of things array");
-      break;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            WARNLOG("Jump out of things array");
+            break;
+        }
+        i = thing->field_2;
+        // Should never happen - only existing thing shall be in list
+        if (!thing_exists(thing))
+        {
+            WARNLOG("Jump to nonexisting thing");
+            break;
+        }
+        // Per thing processing block
+        if (explosion_can_affect_thing(thing, hit_type, owner))
+        {
+            explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, owner);
+        }
+        // Per thing processing block ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
     }
-    i = thing->field_2;
-    // Should never happen - only existing thing shall be in list
-    if (!thing_exists(thing))
-    {
-      WARNLOG("Jump to nonexisting thing");
-      break;
-    }
-    // Per thing processing block
-    if (explosion_can_affect_thing(thing, hit_type, owner))
-    {
-        explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, owner);
-    }
-    // Per thing processing block ends
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
 }
 
 void explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
       long range, long max_damage, unsigned char hit_type)
 {
-  const struct Map *mapblk;
-  long start_x,start_y;
-  long end_x,end_y;
-  long stl_x,stl_y;
-  long max_dist;
-  //_DK_explosion_affecting_area(tngsrc, pos, range, max_damage, hit_type); return;
-  if ((hit_type < 1) || (hit_type >= HIT_TYPES_COUNT))
-  {
-      ERRORLOG("The %s tries to affect area range %d with invalid hit type %d",thing_model_name(tngsrc),(int)range,(int)hit_type);
-      hit_type = 1;
-  }
-  max_dist = (range << 8);
-  if (pos->x.stl.num > range)
-    start_x = pos->x.stl.num - range;
-  else
-    start_x = 0;
-  if (pos->y.stl.num > range)
-    start_y = pos->y.stl.num - range;
-  else
-    start_y = 0;
-  end_x = range + pos->x.stl.num;
-  if (end_x >= map_subtiles_x)
-    end_x = map_subtiles_x;
-  end_y = range + pos->y.stl.num;
-  if (end_y > map_subtiles_y)
-    end_y = map_subtiles_y;
-#if (BFDEBUG_LEVEL > 0)
-  if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
-    create_price_effect(pos, my_player_number, max_damage);
-#endif
-  for (stl_y = start_y; stl_y <= end_y; stl_y++)
-  {
-    for (stl_x = start_x; stl_x <= end_x; stl_x++)
+    const struct Map *mapblk;
+    long start_x,start_y;
+    long end_x,end_y;
+    long stl_x,stl_y;
+    long max_dist;
+    //_DK_explosion_affecting_area(tngsrc, pos, range, max_damage, hit_type); return;
+    if ((hit_type < 1) || (hit_type >= HIT_TYPES_COUNT))
     {
-        mapblk = get_map_block_at(stl_x, stl_y);
-        explosion_affecting_mapblk(tngsrc, mapblk, pos, max_dist, max_damage, hit_type);
+        ERRORLOG("The %s tries to affect area range %d with invalid hit type %d",thing_model_name(tngsrc),(int)range,(int)hit_type);
+        hit_type = 1;
     }
-  }
+    max_dist = (range << 8);
+    if (pos->x.stl.num > range)
+      start_x = pos->x.stl.num - range;
+    else
+      start_x = 0;
+    if (pos->y.stl.num > range)
+      start_y = pos->y.stl.num - range;
+    else
+      start_y = 0;
+    end_x = range + pos->x.stl.num;
+    if (end_x >= map_subtiles_x)
+      end_x = map_subtiles_x;
+    end_y = range + pos->y.stl.num;
+    if (end_y > map_subtiles_y)
+      end_y = map_subtiles_y;
+#if (BFDEBUG_LEVEL > 0)
+    if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
+        create_price_effect(pos, my_player_number, max_damage);
+#endif
+    for (stl_y = start_y; stl_y <= end_y; stl_y++)
+    {
+        for (stl_x = start_x; stl_x <= end_x; stl_x++)
+        {
+            mapblk = get_map_block_at(stl_x, stl_y);
+            explosion_affecting_mapblk(tngsrc, mapblk, pos, max_dist, max_damage, hit_type);
+        }
+    }
 }
 
 long update_dead_creature(struct Thing *thing)
@@ -1671,20 +1670,20 @@ unsigned long setup_move_off_lava(struct Thing *thing)
 
 TbBool any_player_close_enough_to_see(struct Coord3d *pos)
 {
-  struct PlayerInfo *player;
-  int i;
-  for (i=0; i < PLAYERS_COUNT; i++)
-  {
-    player = get_player(i);
-    if ( (player_exists(player)) && ((player->field_0 & 0x40) == 0))
+    struct PlayerInfo *player;
+    int i;
+    for (i=0; i < PLAYERS_COUNT; i++)
     {
-      if (player->acamera == NULL)
-        continue;
-      if (get_2d_box_distance(&player->acamera->mappos, pos) <= 6144)
-        return true;
+      player = get_player(i);
+      if ( (player_exists(player)) && ((player->field_0 & 0x40) == 0))
+      {
+        if (player->acamera == NULL)
+          continue;
+        if (get_2d_box_distance(&player->acamera->mappos, pos) <= 6144)
+          return true;
+      }
     }
-  }
-  return false;
+    return false;
 }
 
 void do_slab_efficiency_alteration(unsigned char a1, unsigned char a2)
@@ -1753,8 +1752,8 @@ long delete_all_object_things_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, 
         k++;
         if (k > THINGS_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping things list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
         }
       }
     }
@@ -1781,8 +1780,8 @@ long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord sl
         thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
-          WARNLOG("Jump out of things array");
-          break;
+            WARNLOG("Jump out of things array");
+            break;
         }
         i = thing->field_2;
         // Per thing code
@@ -1805,8 +1804,8 @@ long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord sl
         k++;
         if (k > THINGS_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping things list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
         }
       }
     }
@@ -1951,65 +1950,65 @@ unsigned char alter_rock_style(unsigned char a1, signed char a2, signed char a3,
 
 long process_door(struct Thing *thing)
 {
-  SYNCDBG(18,"Starting");
-  return _DK_process_door(thing);
+    SYNCDBG(18,"Starting");
+    return _DK_process_door(thing);
 }
 
 void update_thing_animation(struct Thing *thing)
 {
-  SYNCDBG(18,"Starting for %s",thing_model_name(thing));
-  int i;
-  struct CreatureControl *cctrl;
-  if (thing->class_id == TCls_Creature)
-  {
-    cctrl = creature_control_get_from_thing(thing);
-    if (!creature_control_invalid(cctrl))
-      cctrl->field_CE = thing->field_40;
-  }
-  if ((thing->field_3E != 0) && (thing->field_49 != 0))
-  {
-      thing->field_40 += thing->field_3E;
-      i = (thing->field_49 << 8);
-      if (i <= 0) i = 256;
-      while (thing->field_40  < 0)
-      {
-        thing->field_40 += i;
-      }
-      if (thing->field_40 > i-1)
-      {
-        if (thing->field_4F & 0x40)
-        {
-          thing->field_3E = 0;
-          thing->field_40 = i-1;
-        } else
-        {
-          thing->field_40 %= i;
-        }
-      }
-      thing->field_48 = (thing->field_40 >> 8) & 0xFF;
-  }
-  if (thing->field_4A != 0)
-  {
-    thing->field_46 += thing->field_4A;
-    if (thing->field_46 > thing->field_4B)
+    SYNCDBG(18,"Starting for %s",thing_model_name(thing));
+    int i;
+    struct CreatureControl *cctrl;
+    if (thing->class_id == TCls_Creature)
     {
-      if (thing->field_46 >= thing->field_4D)
+      cctrl = creature_control_get_from_thing(thing);
+      if (!creature_control_invalid(cctrl))
+        cctrl->field_CE = thing->field_40;
+    }
+    if ((thing->field_3E != 0) && (thing->field_49 != 0))
+    {
+        thing->field_40 += thing->field_3E;
+        i = (thing->field_49 << 8);
+        if (i <= 0) i = 256;
+        while (thing->field_40  < 0)
+        {
+          thing->field_40 += i;
+        }
+        if (thing->field_40 > i-1)
+        {
+          if (thing->field_4F & 0x40)
+          {
+            thing->field_3E = 0;
+            thing->field_40 = i-1;
+          } else
+          {
+            thing->field_40 %= i;
+          }
+        }
+        thing->field_48 = (thing->field_40 >> 8) & 0xFF;
+    }
+    if (thing->field_4A != 0)
+    {
+      thing->field_46 += thing->field_4A;
+      if (thing->field_46 > thing->field_4B)
       {
-        thing->field_46 = thing->field_4D;
-        if (thing->field_50 & 0x02)
+        if (thing->field_46 >= thing->field_4D)
+        {
+          thing->field_46 = thing->field_4D;
+          if (thing->field_50 & 0x02)
+            thing->field_4A = -thing->field_4A;
+          else
+            thing->field_4A = 0;
+        }
+      } else
+      {
+        thing->field_46 = thing->field_4B;
+        if ((thing->field_50 & 0x02) != 0)
           thing->field_4A = -thing->field_4A;
         else
           thing->field_4A = 0;
       }
-    } else
-    {
-      thing->field_46 = thing->field_4B;
-      if ((thing->field_50 & 0x02) != 0)
-        thing->field_4A = -thing->field_4A;
-      else
-        thing->field_4A = 0;
     }
-  }
 }
 
 /**
@@ -2106,14 +2105,14 @@ void init_colours(void)
  */
 void init_key_to_strings(void)
 {
-  struct KeyToStringInit *ktsi;
-  long k;
-  memset(key_to_string, 0, sizeof(key_to_string));
-  for (ktsi = &key_to_string_init[0]; ktsi->chr != 0; ktsi++)
-  {
-    k = ktsi->chr;
-    key_to_string[k] = ktsi->str_idx;
-  }
+    struct KeyToStringInit *ktsi;
+    long k;
+    memset(key_to_string, 0, sizeof(key_to_string));
+    for (ktsi = &key_to_string_init[0]; ktsi->chr != 0; ktsi++)
+    {
+      k = ktsi->chr;
+      key_to_string[k] = ktsi->str_idx;
+    }
 }
 
 TbBool setup_heaps(void)
@@ -2598,53 +2597,53 @@ short ceiling_set_info(long height_max, long height_min, long step)
 
 void setup_default_settings(void)
 {
-  // CPU status variable
-  struct CPU_INFO cpu_info;
-  const struct GameSettings default_settings = {
-   0, 4, 3, 0, 1, 0, 127, 90, 1, 0, 1,
-   {
-    {KC_UP, KMod_NONE},       {KC_DOWN, KMod_NONE},
-    {KC_LEFT, KMod_NONE},     {KC_RIGHT, KMod_NONE},
-    {KC_LCONTROL, KMod_NONE}, {KC_LSHIFT, KMod_NONE},
-    {KC_DELETE, KMod_NONE},   {KC_PGDOWN, KMod_NONE},
-    {KC_HOME, KMod_NONE},     {KC_END, KMod_NONE},
-    {KC_T, KMod_NONE},        {KC_L, KMod_NONE},
-    {KC_L, KMod_SHIFT},       {KC_P, KMod_SHIFT},
-    {KC_T, KMod_ALT},         {KC_T, KMod_SHIFT},
-    {KC_H, KMod_NONE},        {KC_W, KMod_NONE},
-    {KC_S, KMod_NONE},        {KC_T, KMod_CONTROL},
-    {KC_G, KMod_NONE},        {KC_B, KMod_NONE},
-    {KC_H, KMod_SHIFT},       {KC_G, KMod_SHIFT},
-    {KC_B, KMod_SHIFT},       {KC_F, KMod_NONE},
-    {KC_A, KMod_NONE},        {KC_LSHIFT, KMod_NONE},
-    {KC_NUMPAD0, KMod_NONE},  {KC_BACK, KMod_NONE},
-    {KC_P, KMod_NONE},        {KC_M, KMod_NONE},
-   }, 1, 0, 6};
-  LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
-  cpu_detect(&cpu_info);
-  settings.video_scrnmode = get_next_vidmode(Lb_SCREEN_MODE_INVALID);
-  if ((cpu_get_family(&cpu_info) > CPUID_FAMILY_PENTIUM) && (is_feature_on(Ft_HiResVideo)))
-  {
-    SYNCDBG(6,"Updating to hires video mode");
-    settings.video_scrnmode = get_next_vidmode(settings.video_scrnmode);
-  }
+    // CPU status variable
+    struct CPU_INFO cpu_info;
+    const struct GameSettings default_settings = {
+     0, 4, 3, 0, 1, 0, 127, 90, 1, 0, 1,
+     {
+      {KC_UP, KMod_NONE},       {KC_DOWN, KMod_NONE},
+      {KC_LEFT, KMod_NONE},     {KC_RIGHT, KMod_NONE},
+      {KC_LCONTROL, KMod_NONE}, {KC_LSHIFT, KMod_NONE},
+      {KC_DELETE, KMod_NONE},   {KC_PGDOWN, KMod_NONE},
+      {KC_HOME, KMod_NONE},     {KC_END, KMod_NONE},
+      {KC_T, KMod_NONE},        {KC_L, KMod_NONE},
+      {KC_L, KMod_SHIFT},       {KC_P, KMod_SHIFT},
+      {KC_T, KMod_ALT},         {KC_T, KMod_SHIFT},
+      {KC_H, KMod_NONE},        {KC_W, KMod_NONE},
+      {KC_S, KMod_NONE},        {KC_T, KMod_CONTROL},
+      {KC_G, KMod_NONE},        {KC_B, KMod_NONE},
+      {KC_H, KMod_SHIFT},       {KC_G, KMod_SHIFT},
+      {KC_B, KMod_SHIFT},       {KC_F, KMod_NONE},
+      {KC_A, KMod_NONE},        {KC_LSHIFT, KMod_NONE},
+      {KC_NUMPAD0, KMod_NONE},  {KC_BACK, KMod_NONE},
+      {KC_P, KMod_NONE},        {KC_M, KMod_NONE},
+     }, 1, 0, 6};
+    LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
+    cpu_detect(&cpu_info);
+    settings.video_scrnmode = get_next_vidmode(Lb_SCREEN_MODE_INVALID);
+    if ((cpu_get_family(&cpu_info) > CPUID_FAMILY_PENTIUM) && (is_feature_on(Ft_HiResVideo)))
+    {
+        SYNCDBG(6,"Updating to hires video mode");
+        settings.video_scrnmode = get_next_vidmode(settings.video_scrnmode);
+    }
 }
 
 TbBool load_settings(void)
 {
-  SYNCDBG(6,"Starting");
-  char *fname;
-  long len;
-  fname = prepare_file_path(FGrp_Save,"settings.dat");
-  len = LbFileLengthRnc(fname);
-  if (len == sizeof(struct GameSettings))
-  {
-    if (LbFileLoadAt(fname, &settings) == sizeof(struct GameSettings))
-      return true;
-  }
-  setup_default_settings();
-  LbFileSaveAt(fname, &settings, sizeof(struct GameSettings));
-  return false;
+    SYNCDBG(6,"Starting");
+    char *fname;
+    long len;
+    fname = prepare_file_path(FGrp_Save,"settings.dat");
+    len = LbFileLengthRnc(fname);
+    if (len == sizeof(struct GameSettings))
+    {
+      if (LbFileLoadAt(fname, &settings) == sizeof(struct GameSettings))
+          return true;
+    }
+    setup_default_settings();
+    LbFileSaveAt(fname, &settings, sizeof(struct GameSettings));
+    return false;
 }
 
 /**
@@ -2652,25 +2651,25 @@ TbBool load_settings(void)
  */
 TbBool initial_setup(void)
 {
-  SYNCDBG(6,"Starting");
-  // setting this will force video mode change, even if previous one is same
-  MinimalResolutionSetup = true;
-  if (LbDataLoadAll(game_load_files))
-  {
-    ERRORLOG("Unable to load game_load_files");
-    return false;
-  }
-  // was LoadMcgaData, but minimal should be enough at this point.
-  if ( !LoadMcgaDataMinimal() )
-  {
-    ERRORLOG("Loading MCGA files failed");
-    return false;
-  }
-  load_pointer_file(0);
-  update_screen_mode_data(320, 200);
-  clear_game();
-  lbDisplay.DrawFlags |= 0x4000u;
-  return true;
+    SYNCDBG(6,"Starting");
+    // setting this will force video mode change, even if previous one is same
+    MinimalResolutionSetup = true;
+    if (LbDataLoadAll(game_load_files))
+    {
+      ERRORLOG("Unable to load game_load_files");
+      return false;
+    }
+    // was LoadMcgaData, but minimal should be enough at this point.
+    if ( !LoadMcgaDataMinimal() )
+    {
+      ERRORLOG("Loading MCGA files failed");
+      return false;
+    }
+    load_pointer_file(0);
+    update_screen_mode_data(320, 200);
+    clear_game();
+    lbDisplay.DrawFlags |= 0x4000u;
+    return true;
 }
 
 /**
@@ -2836,60 +2835,60 @@ short setup_game(void)
 
 unsigned short input_eastegg_keycodes(unsigned char *counter,short allow,struct KeycodeString const *codes)
 {
-  TbKeyCode currkey;
-  unsigned short result;
-  if (!allow)
-  {
-    (*counter) = 0;
-    return 0;
-  }
-  result = 0;
-  if ((*counter) < codes->length)
-  {
-    currkey = codes->keys[(*counter)];
-    if (lbKeyOn[currkey])
+    TbKeyCode currkey;
+    unsigned short result;
+    if (!allow)
     {
-      (*counter)++;
-      result = 1;
-      if ((*counter) > 2)
+      (*counter) = 0;
+      return 0;
+    }
+    result = 0;
+    if ((*counter) < codes->length)
+    {
+      currkey = codes->keys[(*counter)];
+      if (lbKeyOn[currkey])
       {
-        clear_key_pressed(currkey);
-        result = 2;
+        (*counter)++;
+        result = 1;
+        if ((*counter) > 2)
+        {
+          clear_key_pressed(currkey);
+          result = 2;
+        }
       }
     }
-  }
-  if ((*counter) == codes->length)
-  {
-    if (result > 0)
-      result = 3;
-    else
-      result = 4;
-  }
-  return result;
+    if ((*counter) == codes->length)
+    {
+      if (result > 0)
+        result = 3;
+      else
+        result = 4;
+    }
+    return result;
 }
 
 void input_eastegg(void)
 {
-  short allow;
-  unsigned short state;
-  // Maintain the FECKOFF cheat
-  allow = (lbKeyOn[KC_LSHIFT] != 0);
-  state = input_eastegg_keycodes(&game.eastegg01_cntr,allow,&eastegg_feckoff_codes);
-  if ((state == 2) || (state == 3))
-    play_non_3d_sample(60);
-  // Maintain the JLW cheat
-  if ((game.flags_font & FFlg_AlexCheat) != 0)
-  {
-    allow = (lbKeyOn[KC_LSHIFT]) && (lbKeyOn[KC_RSHIFT]);
-    state = input_eastegg_keycodes(&game.eastegg02_cntr,allow,&eastegg_jlw_codes);
-    if ((state == 1) || (state == 2)  || (state == 3))
-      play_non_3d_sample(159);
-  }
-  // Maintain the SKEKSIS cheat
-  allow = (lbKeyOn[KC_LSHIFT] != 0);
-  state = input_eastegg_keycodes(&eastegg_skeksis_cntr,allow,&eastegg_skeksis_codes);
-  if (state == 3)
-    output_message(SMsg_PantsTooTight, 0, 1);
+    short allow;
+    unsigned short state;
+    // Maintain the FECKOFF cheat
+    allow = (lbKeyOn[KC_LSHIFT] != 0);
+    state = input_eastegg_keycodes(&game.eastegg01_cntr,allow,&eastegg_feckoff_codes);
+    if ((state == 2) || (state == 3))
+      play_non_3d_sample(60);
+    // Maintain the JLW cheat
+    if ((game.flags_font & FFlg_AlexCheat) != 0)
+    {
+      allow = (lbKeyOn[KC_LSHIFT]) && (lbKeyOn[KC_RSHIFT]);
+      state = input_eastegg_keycodes(&game.eastegg02_cntr,allow,&eastegg_jlw_codes);
+      if ((state == 1) || (state == 2)  || (state == 3))
+        play_non_3d_sample(159);
+    }
+    // Maintain the SKEKSIS cheat
+    allow = (lbKeyOn[KC_LSHIFT] != 0);
+    state = input_eastegg_keycodes(&eastegg_skeksis_cntr,allow,&eastegg_skeksis_codes);
+    if (state == 3)
+      output_message(SMsg_PantsTooTight, 0, 1);
 }
 
 void init_messages(void)
@@ -2902,12 +2901,12 @@ void init_messages(void)
 
 void zero_messages(void)
 {
-  int i;
-  game.active_messages_count = 0;
-  for (i=0; i<3; i++)
-  {
-    memset(&game.messages[i], 0, sizeof(struct GuiMessage));
-  }
+    int i;
+    game.active_messages_count = 0;
+    for (i=0; i<3; i++)
+    {
+      memset(&game.messages[i], 0, sizeof(struct GuiMessage));
+    }
 }
 
 void battle_initialise(void)
@@ -2922,60 +2921,60 @@ void maintain_my_battle_list(void)
 
 struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short model, unsigned short owner)
 {
-  struct Thing *thing;
-  if ( !i_can_allocate_free_thing_structure(1) )
-  {
-      ERRORDBG(3,"Cannot create ambient sound %d for player %d. There are too many things allocated.",(int)model,(int)owner);
-      erstat_inc(ESE_NoFreeThings);
-      return NULL;
-  }
-  thing = allocate_free_thing_structure(1);
-  thing->class_id = TCls_AmbientSnd;
-  thing->model = model;
-  thing->field_1D = thing->index;
-  memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
-  thing->owner = owner;
-  thing->field_4F |= 0x01;
-  add_thing_to_its_class_list(thing);
-  return thing;
+    struct Thing *thing;
+    if ( !i_can_allocate_free_thing_structure(1) )
+    {
+        ERRORDBG(3,"Cannot create ambient sound %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+        erstat_inc(ESE_NoFreeThings);
+        return NULL;
+    }
+    thing = allocate_free_thing_structure(1);
+    thing->class_id = TCls_AmbientSnd;
+    thing->model = model;
+    thing->field_1D = thing->index;
+    memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
+    thing->owner = owner;
+    thing->field_4F |= 0x01;
+    add_thing_to_its_class_list(thing);
+    return thing;
 }
 
 TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-  *map_x = 0;
-  *map_y = 0;
-  if ( (pointer_x >= 0) && (pointer_y >= 0)
-    && (pointer_x < (player->engine_window_width/pixel_size))
-    && (pointer_y < (player->engine_window_height/pixel_size)) )
-  {
-    int i;
-    i = player->work_state;
-    if ( ((i == 1) && (player->field_454)) || (i == PSt_BuildRoom) ||
-      (i == PSt_PlaceDoor) || (i == 16) || (i == PSt_SightOfEvil) || (i == PSt_Sell) )
+    struct PlayerInfo *player;
+    player = get_my_player();
+    *map_x = 0;
+    *map_y = 0;
+    if ( (pointer_x >= 0) && (pointer_y >= 0)
+      && (pointer_x < (player->engine_window_width/pixel_size))
+      && (pointer_y < (player->engine_window_height/pixel_size)) )
     {
-          *map_x = ( top_pointed_at_x << 8) + top_pointed_at_frac_x;
-          *map_y = ( top_pointed_at_y << 8) + top_pointed_at_frac_y;
-    } else
-    {
-          *map_x = (block_pointed_at_x << 8) + pointed_at_frac_x;
-          *map_y = (block_pointed_at_y << 8) + pointed_at_frac_y;
+      int i;
+      i = player->work_state;
+      if ( ((i == 1) && (player->field_454)) || (i == PSt_BuildRoom) ||
+        (i == PSt_PlaceDoor) || (i == 16) || (i == PSt_SightOfEvil) || (i == PSt_Sell) )
+      {
+            *map_x = ( top_pointed_at_x << 8) + top_pointed_at_frac_x;
+            *map_y = ( top_pointed_at_y << 8) + top_pointed_at_frac_y;
+      } else
+      {
+            *map_x = (block_pointed_at_x << 8) + pointed_at_frac_x;
+            *map_y = (block_pointed_at_y << 8) + pointed_at_frac_y;
+      }
+      // Clipping coordinates
+      if (*map_y < 0)
+        *map_y = 0;
+      else
+      if (*map_y > ((map_subtiles_y<<8)-1))
+        *map_y = ((map_subtiles_y<<8)-1);
+      if (*map_x < 0)
+        *map_x = 0;
+      else
+      if (*map_x > ((map_subtiles_x<<8)-1))
+        *map_x = ((map_subtiles_x<<8)-1);
+      return true;
     }
-    // Clipping coordinates
-    if (*map_y < 0)
-      *map_y = 0;
-    else
-    if (*map_y > ((map_subtiles_y<<8)-1))
-      *map_y = ((map_subtiles_y<<8)-1);
-    if (*map_x < 0)
-      *map_x = 0;
-    else
-    if (*map_x > ((map_subtiles_x<<8)-1))
-      *map_x = ((map_subtiles_x<<8)-1);
-    return true;
-  }
-  return false;
+    return false;
 }
 
 void restore_computer_player_after_load(void)
@@ -3218,12 +3217,12 @@ void store_engine_window(TbGraphicsWindow *ewnd,int divider)
 
 void load_engine_window(TbGraphicsWindow *ewnd)
 {
-  struct PlayerInfo *player;
-  player=get_my_player();
-  player->engine_window_x = ewnd->x;
-  player->engine_window_y = ewnd->y;
-  player->engine_window_width = ewnd->width;
-  player->engine_window_height = ewnd->height;
+    struct PlayerInfo *player;
+    player=get_my_player();
+    player->engine_window_x = ewnd->x;
+    player->engine_window_y = ewnd->y;
+    player->engine_window_width = ewnd->width;
+    player->engine_window_height = ewnd->height;
 }
 
 long can_thing_be_picked_up_by_player(const struct Thing *thing, long plyr_idx)
@@ -3311,43 +3310,43 @@ void reinit_tagged_blocks_for_player(unsigned char idx)
 
 TbBool load_stats_files(void)
 {
-  int i;
-  TbBool result;
-  result = true;
-  clear_research_for_all_players();
-  if (!load_creaturetypes_config(keeper_creaturetp_file,CTLd_KindListOnly))
-    result = false;
-  if (!load_terrain_config(keeper_terrain_file,0))
-    result = false;
-  if (!load_trapdoor_config(keeper_trapdoor_file,TDLd_Standard))
-    result = false;
-  if (!load_lenses_config(keeper_lenses_file,LnLd_Standard))
-    result = false;
-  if (!load_magic_config(keeper_magic_file,0))
-    result = false;
-  if (!load_creaturetypes_config(keeper_creaturetp_file,CTLd_Standard))
-    result = false;
-  // note that rules file requires definitions of magic and creature types
-  if (!load_rules_config(keeper_rules_file,0))
-    result = false;
-  for (i=0; i < crtr_conf.model_count; i++)
-  {
-    if (!load_creaturemodel_config(i+1,0))
+    int i;
+    TbBool result;
+    result = true;
+    clear_research_for_all_players();
+    if (!load_creaturetypes_config(keeper_creaturetp_file,CTLd_KindListOnly))
       result = false;
-  }
-  game.field_149E7B = game.tile_strength;
-//LbFileSaveAt("!stat11", &game, sizeof(struct Game));
-//LbFileSaveAt("!stat12", &shot_stats, sizeof(shot_stats));
-//LbFileSaveAt("!stat13", &instance_info, sizeof(instance_info));
-  SYNCDBG(3,"Finished");
-  return result;
+    if (!load_terrain_config(keeper_terrain_file,0))
+      result = false;
+    if (!load_trapdoor_config(keeper_trapdoor_file,TDLd_Standard))
+      result = false;
+    if (!load_lenses_config(keeper_lenses_file,LnLd_Standard))
+      result = false;
+    if (!load_magic_config(keeper_magic_file,0))
+      result = false;
+    if (!load_creaturetypes_config(keeper_creaturetp_file,CTLd_Standard))
+      result = false;
+    // note that rules file requires definitions of magic and creature types
+    if (!load_rules_config(keeper_rules_file,0))
+      result = false;
+    for (i=0; i < crtr_conf.model_count; i++)
+    {
+      if (!load_creaturemodel_config(i+1,0))
+        result = false;
+    }
+    game.field_149E7B = game.tile_strength;
+//  LbFileSaveAt("!stat11", &game, sizeof(struct Game));
+//  LbFileSaveAt("!stat12", &shot_stats, sizeof(shot_stats));
+//  LbFileSaveAt("!stat13", &instance_info, sizeof(instance_info));
+    SYNCDBG(3,"Finished");
+    return result;
 }
 
 
 void check_and_auto_fix_stats(void)
 {
     SYNCDBG(8,"Starting");
-  _DK_check_and_auto_fix_stats();
+    _DK_check_and_auto_fix_stats();
     SYNCDBG(9,"Finished");
 }
 
@@ -3368,24 +3367,24 @@ void calculate_dungeon_area_scores(void)
 
 void check_map_for_gold(void)
 {
-  SYNCDBG(8,"Starting");
-  _DK_check_map_for_gold();
+    SYNCDBG(8,"Starting");
+    _DK_check_map_for_gold();
 }
 
 void gui_set_button_flashing(long btn_idx, long gameturns)
 {
-  game.flash_button_index = btn_idx;
-  game.flash_button_gameturns = gameturns;
+    game.flash_button_index = btn_idx;
+    game.flash_button_gameturns = gameturns;
 }
 
 long get_next_research_item(struct Dungeon *dungeon)
 {
-  return _DK_get_next_research_item(dungeon);
+    return _DK_get_next_research_item(dungeon);
 }
 
 void instant_instance_selected(long a1)
 {
-  _DK_instant_instance_selected(a1);
+    _DK_instant_instance_selected(a1);
 }
 
 unsigned char active_battle_exists(unsigned char a1)
@@ -3400,50 +3399,50 @@ unsigned char step_battles_forward(unsigned char a1)
 
 short zoom_to_fight(unsigned char a1)
 {
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  player = get_my_player();
-  if (active_battle_exists(a1))
-  {
-    dungeon = get_players_num_dungeon(my_player_number);
-    set_players_packet_action(player, 104, dungeon->field_1174, 0, 0, 0);
-    step_battles_forward(a1);
-    return true;
-  }
-  return false;
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    player = get_my_player();
+    if (active_battle_exists(a1))
+    {
+        dungeon = get_players_num_dungeon(my_player_number);
+        set_players_packet_action(player, 104, dungeon->field_1174, 0, 0, 0);
+        step_battles_forward(a1);
+        return true;
+    }
+    return false;
 }
 
 TbBool create_random_evil_creature(long x, long y, PlayerNumber owner, long max_lv)
 {
-  struct Thing *thing;
-  struct Coord3d pos;
-  long i;
-  i = ACTION_RANDOM(17) + 14;
-  pos.x.val = x;
-  pos.y.val = y;
-  pos.z.val = 0;
-  thing = create_creature(&pos, i, owner);
-  if (thing_is_invalid(thing))
-  {
-    ERRORLOG("Cannot create evil creature type %ld at (%ld,%ld)",i,x,y);
-    return false;
-  }
-  pos.z.val = get_thing_height_at(thing, &pos);
-  if (thing_in_wall_at(thing, &pos))
-  {
-    delete_thing_structure(thing, 0);
-    ERRORLOG("Evil creature type %ld at (%ld,%ld) deleted because is in wall",i,x,y);
-    return false;
-  }
-  thing->mappos.x.val = pos.x.val;
-  thing->mappos.y.val = pos.y.val;
-  thing->mappos.z.val = pos.z.val;
-  remove_first_creature(thing);
-  set_first_creature(thing);
-  set_start_state(thing);
-  i = ACTION_RANDOM(max_lv);
-  set_creature_level(thing, i);
-  return true;
+    struct Thing *thing;
+    struct Coord3d pos;
+    long i;
+    i = ACTION_RANDOM(17) + 14;
+    pos.x.val = x;
+    pos.y.val = y;
+    pos.z.val = 0;
+    thing = create_creature(&pos, i, owner);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Cannot create evil creature type %ld at (%ld,%ld)",i,x,y);
+        return false;
+    }
+    pos.z.val = get_thing_height_at(thing, &pos);
+    if (thing_in_wall_at(thing, &pos))
+    {
+        delete_thing_structure(thing, 0);
+        ERRORLOG("Evil creature type %ld at (%ld,%ld) deleted because is in wall",i,x,y);
+        return false;
+    }
+    thing->mappos.x.val = pos.x.val;
+    thing->mappos.y.val = pos.y.val;
+    thing->mappos.z.val = pos.z.val;
+    remove_first_creature(thing);
+    set_first_creature(thing);
+    set_start_state(thing);
+    i = ACTION_RANDOM(max_lv);
+    set_creature_level(thing, i);
+    return true;
 }
 
 TbBool create_random_hero_creature(long x, long y, PlayerNumber owner, long max_lv)
@@ -3458,15 +3457,15 @@ TbBool create_random_hero_creature(long x, long y, PlayerNumber owner, long max_
   thing = create_creature(&pos, i, owner);
   if (thing_is_invalid(thing))
   {
-    ERRORLOG("Cannot create player %d hero model %ld at (%ld,%ld)",(int)owner,i,x,y);
-    return false;
+      ERRORLOG("Cannot create player %d hero model %ld at (%ld,%ld)",(int)owner,i,x,y);
+      return false;
   }
   pos.z.val = get_thing_height_at(thing, &pos);
   if (thing_in_wall_at(thing, &pos))
   {
-    delete_thing_structure(thing, 0);
-    ERRORLOG("Hero model %ld at (%ld,%ld) deleted because is in wall",i,x,y);
-    return false;
+      delete_thing_structure(thing, 0);
+      ERRORLOG("Hero model %ld at (%ld,%ld) deleted because is in wall",i,x,y);
+      return false;
   }
   thing->mappos.x.val = pos.x.val;
   thing->mappos.y.val = pos.y.val;
@@ -3596,19 +3595,19 @@ void reinit_level_after_load(void)
 
 void create_shadow_limits(long start, long end)
 {
-  if (start <= end)
-  {
-    memset(&game.shadow_limits[start], 1, end-start);
-  } else
-  {
-    memset(&game.shadow_limits[start], 1, SHADOW_LIMITS_COUNT-1-start);
-    memset(&game.shadow_limits[0], 1, end);
-  }
+    if (start <= end)
+    {
+        memset(&game.shadow_limits[start], 1, end-start);
+    } else
+    {
+        memset(&game.shadow_limits[start], 1, SHADOW_LIMITS_COUNT-1-start);
+        memset(&game.shadow_limits[0], 1, end);
+    }
 }
 
 void clear_shadow_limits(void)
 {
-  memset(game.shadow_limits, 0, SHADOW_LIMITS_COUNT);
+    memset(game.shadow_limits, 0, SHADOW_LIMITS_COUNT);
 }
 
 /**
@@ -3617,16 +3616,16 @@ void clear_shadow_limits(void)
  */
 TbBool set_default_startup_parameters(void)
 {
-  memset(&start_params, 0, sizeof(struct StartupParameters));
-  start_params.packet_checksum = 1;
-  set_flag_byte(&start_params.flags_font,FFlg_unk01,false);
-  // Set levels to 0, as we may not have the campaign loaded yet
-  start_params.selected_level_number = 0;
-  start_params.num_fps = 20;
-  start_params.one_player = 1;
-  set_flag_byte(&start_params.flags_cd,MFlg_IsDemoMode,false);
-  set_flag_byte(&start_params.flags_cd,MFlg_unk40,true);
-  return true;
+    memset(&start_params, 0, sizeof(struct StartupParameters));
+    start_params.packet_checksum = 1;
+    set_flag_byte(&start_params.flags_font,FFlg_unk01,false);
+    // Set levels to 0, as we may not have the campaign loaded yet
+    start_params.selected_level_number = 0;
+    start_params.num_fps = 20;
+    start_params.one_player = 1;
+    set_flag_byte(&start_params.flags_cd,MFlg_IsDemoMode,false);
+    set_flag_byte(&start_params.flags_cd,MFlg_unk40,true);
+    return true;
 }
 
 /**
@@ -3635,57 +3634,57 @@ TbBool set_default_startup_parameters(void)
  */
 void clear_complete_game(void)
 {
-  memset(&game, 0, sizeof(struct Game));
-  game.numfield_149F42 = -1;
-  game.numfield_149F46 = 0;
-  game.packet_checksum = start_params.packet_checksum;
-  game.numfield_1503A2 = -1;
-  game.flags_font = start_params.flags_font;
-  game.numfield_149F47 = 0;
-  // Set levels to 0, as we may not have the campaign loaded yet
-  set_continue_level_number(first_singleplayer_level());
-  if ((start_params.numfield_C & 0x02) != 0)
-    set_selected_level_number(start_params.selected_level_number);
-  else
-    set_selected_level_number(first_singleplayer_level());
-  game.num_fps = start_params.num_fps;
-  game.flags_cd = start_params.flags_cd;
-  game.no_intro = start_params.no_intro;
-  set_flag_byte(&game.system_flags,GSF_AllowOnePlayer,start_params.one_player);
-//  game.one_player = start_params.one_player;
-  game.numfield_C = start_params.numfield_C;
-  strncpy(game.packet_fname,start_params.packet_fname,150);
-  game.packet_save_enable = start_params.packet_save_enable;
-  game.packet_load_enable = start_params.packet_load_enable;
-  my_player_number = default_loc_player;
+    memset(&game, 0, sizeof(struct Game));
+    game.numfield_149F42 = -1;
+    game.numfield_149F46 = 0;
+    game.packet_checksum = start_params.packet_checksum;
+    game.numfield_1503A2 = -1;
+    game.flags_font = start_params.flags_font;
+    game.numfield_149F47 = 0;
+    // Set levels to 0, as we may not have the campaign loaded yet
+    set_continue_level_number(first_singleplayer_level());
+    if ((start_params.numfield_C & 0x02) != 0)
+      set_selected_level_number(start_params.selected_level_number);
+    else
+      set_selected_level_number(first_singleplayer_level());
+    game.num_fps = start_params.num_fps;
+    game.flags_cd = start_params.flags_cd;
+    game.no_intro = start_params.no_intro;
+    set_flag_byte(&game.system_flags,GSF_AllowOnePlayer,start_params.one_player);
+  //  game.one_player = start_params.one_player;
+    game.numfield_C = start_params.numfield_C;
+    strncpy(game.packet_fname,start_params.packet_fname,150);
+    game.packet_save_enable = start_params.packet_save_enable;
+    game.packet_load_enable = start_params.packet_load_enable;
+    my_player_number = default_loc_player;
 }
 
 void clear_slabsets(void)
 {
-  struct SlabSet *sset;
-  struct SlabObj *sobj;
-  int i;
-  for (i=0; i < SLABSET_COUNT; i++)
-  {
-    sset = &game.slabset[i];
-    memset(sset, 0, sizeof(struct SlabSet));
-    game.slabobjs_idx[i] = -1;
-  }
-  game.slabset_num = SLABSET_COUNT;
-  game.slabobjs_num = 0;
-  for (i=0; i < SLABOBJS_COUNT; i++)
-  {
-    sobj = &game.slabobjs[i];
-    memset(sobj, 0, sizeof(struct SlabObj));
-  }
+    struct SlabSet *sset;
+    struct SlabObj *sobj;
+    int i;
+    for (i=0; i < SLABSET_COUNT; i++)
+    {
+        sset = &game.slabset[i];
+        memset(sset, 0, sizeof(struct SlabSet));
+        game.slabobjs_idx[i] = -1;
+    }
+    game.slabset_num = SLABSET_COUNT;
+    game.slabobjs_num = 0;
+    for (i=0; i < SLABOBJS_COUNT; i++)
+    {
+        sobj = &game.slabobjs[i];
+        memset(sobj, 0, sizeof(struct SlabObj));
+    }
 }
 
 void clear_map(void)
 {
-  clear_mapmap();
-  clear_slabs();
-  clear_columns();
-  clear_slabsets();
+    clear_mapmap();
+    clear_slabs();
+    clear_columns();
+    clear_slabsets();
 }
 
 void clear_things_and_persons_data(void)
@@ -3708,20 +3707,20 @@ void clear_things_and_persons_data(void)
 
 void clear_computer(void)
 {
-  long i;
-  SYNCDBG(8,"Starting");
-  for (i=0; i < COMPUTER_TASKS_COUNT; i++)
-  {
-    memset(&game.computer_task[i], 0, sizeof(struct ComputerTask));
-  }
-  for (i=0; i < GOLD_LOOKUP_COUNT; i++)
-  {
-    memset(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
-  }
-  for (i=0; i < PLAYERS_COUNT; i++)
-  {
-    memset(&game.computer[i], 0, sizeof(struct Computer2));
-  }
+    long i;
+    SYNCDBG(8,"Starting");
+    for (i=0; i < COMPUTER_TASKS_COUNT; i++)
+    {
+      memset(&game.computer_task[i], 0, sizeof(struct ComputerTask));
+    }
+    for (i=0; i < GOLD_LOOKUP_COUNT; i++)
+    {
+      memset(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
+    }
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+      memset(&game.computer[i], 0, sizeof(struct Computer2));
+    }
 }
 
 void clear_rooms(void)
@@ -3735,187 +3734,187 @@ void clear_rooms(void)
 
 void clear_events(void)
 {
-  int i;
-  for (i=0; i < EVENTS_COUNT; i++)
-  {
-    memset(&game.event[i], 0, sizeof(struct Event));
-  }
-  memset(&game.evntbox_scroll_window, 0, sizeof(struct TextScrollWindow));
-  memset(&game.evntbox_text_buffer, 0, MESSAGE_TEXT_LEN);
-  memset(&game.evntbox_text_objective, 0, MESSAGE_TEXT_LEN);
-  for (i=0; i < 5; i++)
-  {
-    memset(&game.bookmark[i], 0, sizeof(struct Bookmark));
-  }
+    int i;
+    for (i=0; i < EVENTS_COUNT; i++)
+    {
+      memset(&game.event[i], 0, sizeof(struct Event));
+    }
+    memset(&game.evntbox_scroll_window, 0, sizeof(struct TextScrollWindow));
+    memset(&game.evntbox_text_buffer, 0, MESSAGE_TEXT_LEN);
+    memset(&game.evntbox_text_objective, 0, MESSAGE_TEXT_LEN);
+    for (i=0; i < 5; i++)
+    {
+      memset(&game.bookmark[i], 0, sizeof(struct Bookmark));
+    }
 }
 
 void init_keepers_map_exploration(void)
 {
-  struct PlayerInfo *player;
-  int i;
-  for (i=0; i < PLAYERS_COUNT; i++)
-  {
-    player = get_player(i);
-    if (player_exists(player) && (player->field_2C == 1))
+    struct PlayerInfo *player;
+    int i;
+    for (i=0; i < PLAYERS_COUNT; i++)
     {
-        if ((player->field_0 & 0x40) != 0)
-          init_keeper_map_exploration(player);
+      player = get_player(i);
+      if (player_exists(player) && (player->field_2C == 1))
+      {
+          if ((player->field_0 & 0x40) != 0)
+            init_keeper_map_exploration(player);
+      }
     }
-  }
 }
 
 void clear_players_for_save(void)
 {
-  struct PlayerInfo *player;
-  unsigned short id_mem,mem2,memflg;
-  struct Camera cammem;
-  int i;
-  for (i=0; i < PLAYERS_COUNT; i++)
-  {
-    player = get_player(i);
-    id_mem = player->id_number;
-    mem2 = player->field_2C;
-    memflg = player->field_0;
-    LbMemoryCopy(&cammem,&player->cameras[1],sizeof(struct Camera));
-    memset(player, 0, sizeof(struct PlayerInfo));
-    player->id_number = id_mem;
-    player->field_2C = mem2;
-    set_flag_byte(&player->field_0,0x01,((memflg & 0x01) != 0));
-    set_flag_byte(&player->field_0,0x40,((memflg & 0x40) != 0));
-    LbMemoryCopy(&player->cameras[1],&cammem,sizeof(struct Camera));
-    player->acamera = &player->cameras[1];
-  }
+    struct PlayerInfo *player;
+    unsigned short id_mem,mem2,memflg;
+    struct Camera cammem;
+    int i;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+      player = get_player(i);
+      id_mem = player->id_number;
+      mem2 = player->field_2C;
+      memflg = player->field_0;
+      LbMemoryCopy(&cammem,&player->cameras[1],sizeof(struct Camera));
+      memset(player, 0, sizeof(struct PlayerInfo));
+      player->id_number = id_mem;
+      player->field_2C = mem2;
+      set_flag_byte(&player->field_0,0x01,((memflg & 0x01) != 0));
+      set_flag_byte(&player->field_0,0x40,((memflg & 0x40) != 0));
+      LbMemoryCopy(&player->cameras[1],&cammem,sizeof(struct Camera));
+      player->acamera = &player->cameras[1];
+    }
 }
 
 void delete_all_thing_structures(void)
 {
-  long i;
-  struct Thing *thing;
-  for (i=1; i < THINGS_COUNT; i++)
-  {
-    thing = game.things_lookup[i];
-    if (thing != NULL)
+    long i;
+    struct Thing *thing;
+    for (i=1; i < THINGS_COUNT; i++)
     {
-      if (thing->field_0 & 0x01)
-        delete_thing_structure(thing, 1);
+      thing = game.things_lookup[i];
+      if (thing != NULL)
+      {
+        if (thing->field_0 & 0x01)
+          delete_thing_structure(thing, 1);
+      }
     }
-  }
-  for (i=0; i < THINGS_COUNT-1; i++)
-  {
-    game.free_things[i] = i+1;
-  }
-  game.free_things[THINGS_COUNT-1] = 0;
+    for (i=0; i < THINGS_COUNT-1; i++)
+    {
+      game.free_things[i] = i+1;
+    }
+    game.free_things[THINGS_COUNT-1] = 0;
 }
 
 void delete_all_structures(void)
 {
-  SYNCDBG(6,"Starting");
-  delete_all_thing_structures();
-  delete_all_control_structures();
-  delete_all_room_structures();
-  delete_all_action_point_structures();
-  light_initialise();
+    SYNCDBG(6,"Starting");
+    delete_all_thing_structures();
+    delete_all_control_structures();
+    delete_all_room_structures();
+    delete_all_action_point_structures();
+    light_initialise();
 }
 
 void clear_game_for_summary(void)
 {
-  SYNCDBG(6,"Starting");
-  delete_all_structures();
-  clear_shadow_limits();
-  clear_stat_light_map();
-  clear_mapwho();
-  game.field_14E938 = 0;
-  game.action_rand_seed = 0;
-  set_flag_byte(&game.numfield_C,0x04,false);
-  clear_columns();
-  clear_action_points();
-  clear_players();
-  clear_dungeons();
+    SYNCDBG(6,"Starting");
+    delete_all_structures();
+    clear_shadow_limits();
+    clear_stat_light_map();
+    clear_mapwho();
+    game.field_14E938 = 0;
+    game.action_rand_seed = 0;
+    set_flag_byte(&game.numfield_C,0x04,false);
+    clear_columns();
+    clear_action_points();
+    clear_players();
+    clear_dungeons();
 }
 
 void clear_game(void)
 {
-  SYNCDBG(6,"Starting");
-  clear_game_for_summary();
-  game.audiotrack = 0;
-  clear_map();
-  clear_computer();
-  clear_script();
-  clear_events();
-  clear_things_and_persons_data();
-  ceiling_set_info(12, 4, 1);
-  init_animating_texture_maps();
+    SYNCDBG(6,"Starting");
+    clear_game_for_summary();
+    game.audiotrack = 0;
+    clear_map();
+    clear_computer();
+    clear_script();
+    clear_events();
+    clear_things_and_persons_data();
+    ceiling_set_info(12, 4, 1);
+    init_animating_texture_maps();
 }
 
 void clear_game_for_save(void)
 {
-  delete_all_structures();
-  light_initialise();
-  clear_mapwho();
-  game.field_14E938 = 0;
-  game.action_rand_seed = 0;
-  set_flag_byte(&game.numfield_C,0x04,false);
-  clear_columns();
-  clear_players_for_save();
-  clear_dungeons();
+    delete_all_structures();
+    light_initialise();
+    clear_mapwho();
+    game.field_14E938 = 0;
+    game.action_rand_seed = 0;
+    set_flag_byte(&game.numfield_C,0x04,false);
+    clear_columns();
+    clear_players_for_save();
+    clear_dungeons();
 }
 
 void reset_creature_max_levels(void)
 {
-  struct Dungeon *dungeon;
-  int i,k;
-  for (i=0; i < DUNGEONS_COUNT; i++)
-  {
-    for (k=1; k < CREATURE_TYPES_COUNT; k++)
+    struct Dungeon *dungeon;
+    int i,k;
+    for (i=0; i < DUNGEONS_COUNT; i++)
     {
-      dungeon = get_dungeon(i);
-      dungeon->creature_max_level[k] = CREATURE_MAX_LEVEL+1;
+        for (k=1; k < CREATURE_TYPES_COUNT; k++)
+        {
+            dungeon = get_dungeon(i);
+            dungeon->creature_max_level[k] = CREATURE_MAX_LEVEL+1;
+        }
     }
-  }
 }
 
 void reset_script_timers_and_flags(void)
 {
-  struct Dungeon *dungeon;
-  int i,k;
-  for (i=0; i < DUNGEONS_COUNT; i++)
-  {
-    dungeon = get_dungeon(i);
-    dungeon->magic_resrchable[18] = 1;
-    dungeon->magic_level[18] = 1;
-    for (k=0; k<TURN_TIMERS_COUNT; k++)
+    struct Dungeon *dungeon;
+    int i,k;
+    for (i=0; i < DUNGEONS_COUNT; i++)
     {
-      memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
-      dungeon->turn_timers[k].state = 0;
+      dungeon = get_dungeon(i);
+      dungeon->magic_resrchable[18] = 1;
+      dungeon->magic_level[18] = 1;
+      for (k=0; k<TURN_TIMERS_COUNT; k++)
+      {
+        memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
+        dungeon->turn_timers[k].state = 0;
+      }
+      for (k=0; k<SCRIPT_FLAGS_COUNT; k++)
+      {
+        dungeon->script_flags[k] = 0;
+      }
     }
-    for (k=0; k<SCRIPT_FLAGS_COUNT; k++)
-    {
-      dungeon->script_flags[k] = 0;
-    }
-  }
 }
 
 void init_good_player_as(long plr_idx)
 {
-  struct PlayerInfo *player;
-  game.hero_player_num = plr_idx;
-  player = get_player(plr_idx);
-  player->field_0 |= 0x01;
-  player->field_0 |= 0x40;
-  player->id_number = game.hero_player_num;
+    struct PlayerInfo *player;
+    game.hero_player_num = plr_idx;
+    player = get_player(plr_idx);
+    player->field_0 |= 0x01;
+    player->field_0 |= 0x40;
+    player->id_number = game.hero_player_num;
 }
 
 void message_add(char c)
 {
-  _DK_message_add(c);
+    _DK_message_add(c);
 }
 
 void change_engine_window_relative_size(long w_delta, long h_delta)
 {
-  struct PlayerInfo *myplyr;
-  myplyr=get_my_player();
-  setup_engine_window(myplyr->engine_window_x, myplyr->engine_window_y,
-    myplyr->engine_window_width+w_delta, myplyr->engine_window_height+h_delta);
+    struct PlayerInfo *myplyr;
+    myplyr=get_my_player();
+    setup_engine_window(myplyr->engine_window_x, myplyr->engine_window_y,
+        myplyr->engine_window_width+w_delta, myplyr->engine_window_height+h_delta);
 }
 
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
@@ -3931,80 +3930,80 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
     }
     if ((player->field_7 == 0) || (pal != player->palette) && (pal == player->field_7))
     {
-      player->palette = pal;
-      player->field_4C1 = 0;
-      player->field_4C5 = 0;
-      if (is_my_player(player))
-      {
-        LbScreenWaitVbi();
-        LbPaletteSet(pal);
-      }
+        player->palette = pal;
+        player->field_4C1 = 0;
+        player->field_4C5 = 0;
+        if (is_my_player(player))
+        {
+            LbScreenWaitVbi();
+            LbPaletteSet(pal);
+        }
     }
 }
 
 TbBool set_gamma(char corrlvl, TbBool do_set)
 {
-  char *fname;
-  TbBool result = true;
-  if (corrlvl < 0)
-    corrlvl = 0;
-  else
-  if (corrlvl > 4)
-    corrlvl = 4;
-  settings.gamma_correction = corrlvl;
-  fname=prepare_file_fmtpath(FGrp_StdData,"pal%05d.dat",settings.gamma_correction);
-  if (!LbFileExists(fname))
-  {
-    WARNMSG("Palette file \"%s\" doesn't exist.", fname);
-    result = false;
-  }
-  if (result)
-  {
-    result = (LbFileLoadAt(fname, _DK_palette) != -1);
-  }
-  if ((result) && (do_set))
-  {
-    struct PlayerInfo *myplyr;
-    myplyr=get_my_player();
-    PaletteSetPlayerPalette(myplyr, _DK_palette);
-  }
-  if (!result)
-    ERRORLOG("Can't load palette file.");
-  return result;
+    char *fname;
+    TbBool result = true;
+    if (corrlvl < 0)
+      corrlvl = 0;
+    else
+    if (corrlvl > 4)
+      corrlvl = 4;
+    settings.gamma_correction = corrlvl;
+    fname=prepare_file_fmtpath(FGrp_StdData,"pal%05d.dat",settings.gamma_correction);
+    if (!LbFileExists(fname))
+    {
+      WARNMSG("Palette file \"%s\" doesn't exist.", fname);
+      result = false;
+    }
+    if (result)
+    {
+      result = (LbFileLoadAt(fname, _DK_palette) != -1);
+    }
+    if ((result) && (do_set))
+    {
+      struct PlayerInfo *myplyr;
+      myplyr=get_my_player();
+      PaletteSetPlayerPalette(myplyr, _DK_palette);
+    }
+    if (!result)
+      ERRORLOG("Can't load palette file.");
+    return result;
 }
 
 void centre_engine_window(void)
 {
-  long x1,y1;
-  struct PlayerInfo *player=get_my_player();
-  if ((game.numfield_C & 0x20) != 0)
-    x1 = (MyScreenWidth-player->engine_window_width-status_panel_width) / 2 + status_panel_width;
-  else
-    x1 = (MyScreenWidth-player->engine_window_width) / 2;
-  y1 = (MyScreenHeight-player->engine_window_height) / 2;
-  setup_engine_window(x1, y1, player->engine_window_width, player->engine_window_height);
+    long x1,y1;
+    struct PlayerInfo *player=get_my_player();
+    if ((game.numfield_C & 0x20) != 0)
+      x1 = (MyScreenWidth-player->engine_window_width-status_panel_width) / 2 + status_panel_width;
+    else
+      x1 = (MyScreenWidth-player->engine_window_width) / 2;
+    y1 = (MyScreenHeight-player->engine_window_height) / 2;
+    setup_engine_window(x1, y1, player->engine_window_width, player->engine_window_height);
 }
 
 long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long a6)
 {
-  return 1;
+    return 1;
 }
 
 void set_sprite_view_3d(void)
 {
-  _DK_set_sprite_view_3d();
+    _DK_set_sprite_view_3d();
 }
 
 void set_sprite_view_isometric(void)
 {
-  _DK_set_sprite_view_isometric();
+    _DK_set_sprite_view_isometric();
 }
 
 void set_engine_view(struct PlayerInfo *player, long val)
 {
-  //_DK_set_engine_view(player, val);
-  switch ( val )
-  {
+    //_DK_set_engine_view(player, val);
+    switch ( val )
+    {
     case 1:
       player->acamera = &player->cameras[1];
       if (!is_my_player(player))
@@ -4042,8 +4041,8 @@ void set_engine_view(struct PlayerInfo *player, long val)
       break;
     default:
       break;
-  }
-  player->field_37 = val;
+    }
+    player->field_37 = val;
 }
 
 void set_player_state(struct PlayerInfo *player, short nwrk_state, long a2)
@@ -4778,7 +4777,7 @@ void check_players_lost(void)
       {
           dungeon = get_players_dungeon(player);
           thing = thing_get(dungeon->dnheart_idx);
-          if ((thing_is_invalid(thing) || (thing->field_7 == 3)) && (player->victory_state == VicS_Undecided))
+          if ((thing_is_invalid(thing) || (thing->active_state == CrSt_ImpArrivesAtDigOrMine2)) && (player->victory_state == VicS_Undecided))
           {
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);
@@ -6085,50 +6084,52 @@ short can_dig_here(long stl_x, long stl_y, long plyr_idx)
 
 long thing_in_wall_at(struct Thing *thing, struct Coord3d *pos)
 {
-  return _DK_thing_in_wall_at(thing, pos);
+    return _DK_thing_in_wall_at(thing, pos);
 }
 
 short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx)
 {
-  struct Coord3d pos;
-  if (!can_drop_thing_here(x, y, dngn_idx, thing->model == 23))
-    return false;
-  pos.x.val = (x << 8) + 128;
-  pos.y.val = (y << 8) + 128;
-  pos.z.val = get_thing_height_at(thing, &pos);
-  return !thing_in_wall_at(thing, &pos);
+    struct Coord3d pos;
+    TbBool is_digger;
+    is_digger = thing_is_creature_special_digger(thing);
+    if (!can_drop_thing_here(x, y, dngn_idx, is_digger))
+      return false;
+    pos.x.val = (x << 8) + 128;
+    pos.y.val = (y << 8) + 128;
+    pos.z.val = get_thing_height_at(thing, &pos);
+    return !thing_in_wall_at(thing, &pos);
 }
 
 short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my, long zoom)
 {
-  long x,y;
-  SYNCDBG(17,"Starting");
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  struct Thing *thing;
-  do_map_rotate_stuff(curr_mx-start_x-58, curr_my-start_y-58, &x, &y, zoom);
-  game.hand_over_subtile_x = x;
-  game.hand_over_subtile_y = y;
-  player = get_my_player();
-  dungeon = get_dungeon(player->id_number);
-  thing = get_first_thing_in_power_hand(player);
-  if (!thing_is_invalid(thing))
-  {
-    if (can_place_thing_here(thing, x, y, player->id_number))
-      game.small_map_state = 1;
-  }
-  if (right_button_clicked)
-    right_button_clicked = 0;
-  if (right_button_released)
-  {
-    right_button_released = 0;
-    if (subtile_has_slab(x, y))
+    long x,y;
+    SYNCDBG(17,"Starting");
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    do_map_rotate_stuff(curr_mx-start_x-58, curr_my-start_y-58, &x, &y, zoom);
+    game.hand_over_subtile_x = x;
+    game.hand_over_subtile_y = y;
+    player = get_my_player();
+    dungeon = get_dungeon(player->id_number);
+    thing = get_first_thing_in_power_hand(player);
+    if (!thing_is_invalid(thing))
     {
-      set_players_packet_action(player, PckA_DumpHeldThings, x, y, 0, 0);
-      return 1;
+        if (can_place_thing_here(thing, x, y, player->id_number))
+          game.small_map_state = 1;
     }
-  }
-  return 0;
+    if (right_button_clicked)
+      right_button_clicked = 0;
+    if (right_button_released)
+    {
+        right_button_released = 0;
+        if (subtile_has_slab(x, y))
+        {
+          set_players_packet_action(player, PckA_DumpHeldThings, x, y, 0, 0);
+          return 1;
+        }
+    }
+    return 0;
 }
 
 /**
@@ -6139,216 +6140,216 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
  */
 TbBool mouse_is_over_small_map(long x, long y)
 {
-  long cmx,cmy;
-  long px,py;
-  cmx = GetMouseX();
-  cmy = GetMouseY();
-  px = (cmx-(x+SMALL_MAP_RADIUS));
-  py = (cmy-(y+SMALL_MAP_RADIUS));
-  return (LbSqrL(px*px + py*py) < SMALL_MAP_RADIUS);
+    long cmx,cmy;
+    long px,py;
+    cmx = GetMouseX();
+    cmy = GetMouseY();
+    px = (cmx-(x+SMALL_MAP_RADIUS));
+    py = (cmy-(y+SMALL_MAP_RADIUS));
+    return (LbSqrL(px*px + py*py) < SMALL_MAP_RADIUS);
 }
 
 void draw_whole_status_panel(void)
 {
-  struct Dungeon *dungeon;
-  struct PlayerInfo *player;
-  long mmzoom;
-  player = get_my_player();
-  dungeon = get_players_num_dungeon(my_player_number);
-  lbDisplay.DrawColour = colours[15][15][15];
-  lbDisplay.DrawFlags = 0;
-  DrawBigSprite(0, 0, &status_panel, gui_panel_sprites);
-  draw_gold_total(player->id_number, 60, 134, dungeon->field_AF9);
-  if (pixel_size < 3)
-      mmzoom = (player->minimap_zoom) / (3-pixel_size);
-  else
-      mmzoom = player->minimap_zoom;
-  pannel_map_draw(player->mouse_x, player->mouse_y, mmzoom);
-  draw_overlay_things(mmzoom);
+    struct Dungeon *dungeon;
+    struct PlayerInfo *player;
+    long mmzoom;
+    player = get_my_player();
+    dungeon = get_players_num_dungeon(my_player_number);
+    lbDisplay.DrawColour = colours[15][15][15];
+    lbDisplay.DrawFlags = 0;
+    DrawBigSprite(0, 0, &status_panel, gui_panel_sprites);
+    draw_gold_total(player->id_number, 60, 134, dungeon->field_AF9);
+    if (pixel_size < 3)
+        mmzoom = (player->minimap_zoom) / (3-pixel_size);
+    else
+        mmzoom = player->minimap_zoom;
+    pannel_map_draw(player->mouse_x, player->mouse_y, mmzoom);
+    draw_overlay_things(mmzoom);
 }
 
 void redraw_creature_view(void)
 {
-  SYNCDBG(6,"Starting");
-  TbGraphicsWindow ewnd;
-  struct PlayerInfo *player;
-  struct Thing *thing;
-  //_DK_redraw_creature_view(); return;
-  player = get_my_player();
-  if (player->field_45F != 2)
-    player->field_45F = 2;
-  update_explored_flags_for_power_sight(player);
-  thing = thing_get(player->field_2F);
-  if (!thing_is_invalid(thing))
-    draw_creature_view(thing);
-  if (smooth_on)
-  {
-    store_engine_window(&ewnd,pixel_size);
-    smooth_screen_area(lbDisplay.WScreen, ewnd.x, ewnd.y,
-        ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
-  }
-  remove_explored_flags_for_power_sight(player);
-  draw_swipe();
-  if ((game.numfield_C & 0x20) != 0)
-    draw_whole_status_panel();
-  draw_gui();
-  if ((game.numfield_C & 0x20) != 0)
-    draw_overlay_compass(player->mouse_x, player->mouse_y);
-  message_draw();
-  gui_draw_all_boxes();
-  draw_tooltip();
+    SYNCDBG(6,"Starting");
+    TbGraphicsWindow ewnd;
+    struct PlayerInfo *player;
+    struct Thing *thing;
+    //_DK_redraw_creature_view(); return;
+    player = get_my_player();
+    if (player->field_45F != 2)
+      player->field_45F = 2;
+    update_explored_flags_for_power_sight(player);
+    thing = thing_get(player->field_2F);
+    if (!thing_is_invalid(thing))
+      draw_creature_view(thing);
+    if (smooth_on)
+    {
+      store_engine_window(&ewnd,pixel_size);
+      smooth_screen_area(lbDisplay.WScreen, ewnd.x, ewnd.y,
+          ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
+    }
+    remove_explored_flags_for_power_sight(player);
+    draw_swipe();
+    if ((game.numfield_C & 0x20) != 0)
+      draw_whole_status_panel();
+    draw_gui();
+    if ((game.numfield_C & 0x20) != 0)
+      draw_overlay_compass(player->mouse_x, player->mouse_y);
+    message_draw();
+    gui_draw_all_boxes();
+    draw_tooltip();
 }
 
 void smooth_screen_area(unsigned char *scrbuf, long x, long y, long w, long h, long scanln)
 {
-  SYNCDBG(7,"Starting");
-  long i,k;
-  unsigned char *buf;
-  unsigned char *lnbuf;
-  unsigned int ghpos;
-  lnbuf = scrbuf + scanln*y + x;
-  for (i = h-y-1; i>0; i--)
-  {
-    buf = lnbuf;
-    for (k = w-x-1; k>0; k--)
+    SYNCDBG(7,"Starting");
+    long i,k;
+    unsigned char *buf;
+    unsigned char *lnbuf;
+    unsigned int ghpos;
+    lnbuf = scrbuf + scanln*y + x;
+    for (i = h-y-1; i>0; i--)
     {
-        ghpos = (buf[0] << 8) + buf[1];
-        ghpos = (buf[scanln] << 8) + pixmap.ghost[ghpos];
-        buf[0] = ghpos;
-        buf++;
+      buf = lnbuf;
+      for (k = w-x-1; k>0; k--)
+      {
+          ghpos = (buf[0] << 8) + buf[1];
+          ghpos = (buf[scanln] << 8) + pixmap.ghost[ghpos];
+          buf[0] = ghpos;
+          buf++;
+      }
+      lnbuf += scanln;
     }
-    lnbuf += scanln;
-  }
 }
 
 void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y)
 {
-  player->cameras[2].mappos.x.val = pos_x;
-  player->cameras[3].mappos.x.val = pos_x;
-  player->cameras[0].mappos.x.val = pos_x;
-  player->cameras[2].mappos.y.val = pos_y;
-  player->cameras[3].mappos.y.val = pos_y;
-  player->cameras[0].mappos.y.val = pos_y;
+    player->cameras[2].mappos.x.val = pos_x;
+    player->cameras[3].mappos.x.val = pos_x;
+    player->cameras[0].mappos.x.val = pos_x;
+    player->cameras[2].mappos.y.val = pos_y;
+    player->cameras[3].mappos.y.val = pos_y;
+    player->cameras[0].mappos.y.val = pos_y;
 }
 
 void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
 {
-  long x,y;
-  x = player->acamera->mappos.x.val;
-  y = player->acamera->mappos.y.val;
-  if (dungeon->field_EA0)
-  {
-    x += UNSYNC_RANDOM(80) - 40;
-    y += UNSYNC_RANDOM(80) - 40;
-  }
-  if (dungeon->field_EA4)
-  {
-    x += ( (dungeon->field_EA4 * LbSinL(player->acamera->orient_a) >> 8) >> 8);
-    y += (-(dungeon->field_EA4 * LbCosL(player->acamera->orient_a) >> 8) >> 8);
-  }
-  if ((dungeon->field_EA0) || (dungeon->field_EA4))
-  {
-    // bounding position
-    if (x < 0)
+    long x,y;
+    x = player->acamera->mappos.x.val;
+    y = player->acamera->mappos.y.val;
+    if (dungeon->field_EA0)
     {
-      x = 0;
-    } else
-    if (x > 65535)
-    {
-      x = 65535;
+      x += UNSYNC_RANDOM(80) - 40;
+      y += UNSYNC_RANDOM(80) - 40;
     }
-    if (y < 0)
+    if (dungeon->field_EA4)
     {
-      y = 0;
-    } else
-    if (y > 65535)
-    {
-      y = 65535;
+      x += ( (dungeon->field_EA4 * LbSinL(player->acamera->orient_a) >> 8) >> 8);
+      y += (-(dungeon->field_EA4 * LbCosL(player->acamera->orient_a) >> 8) >> 8);
     }
-    // setting deviated position
-    player->acamera->mappos.x.val = x;
-    player->acamera->mappos.y.val = y;
-  }
+    if ((dungeon->field_EA0) || (dungeon->field_EA4))
+    {
+      // bounding position
+      if (x < 0)
+      {
+        x = 0;
+      } else
+      if (x > 65535)
+      {
+        x = 65535;
+      }
+      if (y < 0)
+      {
+        y = 0;
+      } else
+      if (y > 65535)
+      {
+        y = 65535;
+      }
+      // setting deviated position
+      player->acamera->mappos.x.val = x;
+      player->acamera->mappos.y.val = y;
+    }
 }
 
 void redraw_isometric_view(void)
 {
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  TbGraphicsWindow ewnd;
-  struct Coord3d pos;
-  SYNCDBG(6,"Starting");
-  //_DK_redraw_isometric_view(); return;
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    TbGraphicsWindow ewnd;
+    struct Coord3d pos;
+    SYNCDBG(6,"Starting");
+    //_DK_redraw_isometric_view(); return;
 
-  player = get_my_player();
-  memcpy(&pos,&player->acamera->mappos,sizeof(struct Coord3d));
-  if (player->field_45F != 1)
-    player->field_45F = 1;
-  dungeon = get_players_num_dungeon(my_player_number);
-  // Camera position modifications
-  make_camera_deviations(player,dungeon);
-  update_explored_flags_for_power_sight(player);
-  if ((game.flags_font & FFlg_unk08) != 0)
-  {
-    store_engine_window(&ewnd,1);
-    setup_engine_window(ewnd.x, ewnd.y, ewnd.width >> 1, ewnd.height >> 1);
-  }
-  engine(&player->cameras[0]);
-  if ((game.flags_font & FFlg_unk08) != 0)
-  {
-    load_engine_window(&ewnd);
-  }
-  if (smooth_on)
-  {
-    store_engine_window(&ewnd,pixel_size);
-    smooth_screen_area(lbDisplay.WScreen, ewnd.x, ewnd.y,
-        ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
-  }
-  remove_explored_flags_for_power_sight(player);
-  if ((game.numfield_C & 0x20) != 0)
-    draw_whole_status_panel();
-  draw_gui();
-  if ((game.numfield_C & 0x20) != 0)
-    draw_overlay_compass(player->mouse_x, player->mouse_y);
-  message_draw();
-  gui_draw_all_boxes();
-  draw_power_hand();
-  draw_tooltip();
-  memcpy(&player->acamera->mappos,&pos,sizeof(struct Coord3d));
-  SYNCDBG(8,"Finished");
+    player = get_my_player();
+    memcpy(&pos,&player->acamera->mappos,sizeof(struct Coord3d));
+    if (player->field_45F != 1)
+      player->field_45F = 1;
+    dungeon = get_players_num_dungeon(my_player_number);
+    // Camera position modifications
+    make_camera_deviations(player,dungeon);
+    update_explored_flags_for_power_sight(player);
+    if ((game.flags_font & FFlg_unk08) != 0)
+    {
+      store_engine_window(&ewnd,1);
+      setup_engine_window(ewnd.x, ewnd.y, ewnd.width >> 1, ewnd.height >> 1);
+    }
+    engine(&player->cameras[0]);
+    if ((game.flags_font & FFlg_unk08) != 0)
+    {
+      load_engine_window(&ewnd);
+    }
+    if (smooth_on)
+    {
+      store_engine_window(&ewnd,pixel_size);
+      smooth_screen_area(lbDisplay.WScreen, ewnd.x, ewnd.y,
+          ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
+    }
+    remove_explored_flags_for_power_sight(player);
+    if ((game.numfield_C & 0x20) != 0)
+      draw_whole_status_panel();
+    draw_gui();
+    if ((game.numfield_C & 0x20) != 0)
+      draw_overlay_compass(player->mouse_x, player->mouse_y);
+    message_draw();
+    gui_draw_all_boxes();
+    draw_power_hand();
+    draw_tooltip();
+    memcpy(&player->acamera->mappos,&pos,sizeof(struct Coord3d));
+    SYNCDBG(8,"Finished");
 }
 
 void redraw_frontview(void)
 {
-  SYNCDBG(6,"Starting");
-  //_DK_redraw_frontview();
-  struct PlayerInfo *player;
-  long w,h;
-  player = get_my_player();
-  update_explored_flags_for_power_sight(player);
-  if ((game.flags_font & FFlg_unk08) != 0)
-  {
-    w = player->engine_window_width;
-    h = player->engine_window_height;
-    setup_engine_window(player->engine_window_x, player->engine_window_y, w, h >> 1);
-  } else
-  {
-    w = 0;
-    h = 0;
-  }
-  draw_frontview_engine(&player->cameras[3]);
-  if ((game.flags_font & FFlg_unk08) != 0)
-    setup_engine_window(player->engine_window_x, player->engine_window_y, w, h);
-  remove_explored_flags_for_power_sight(player);
-  if ((game.numfield_C & 0x20) != 0)
-    draw_whole_status_panel();
-  draw_gui();
-  if ((game.numfield_C & 0x20) != 0)
-    draw_overlay_compass(player->mouse_x, player->mouse_y);
-  message_draw();
-  draw_power_hand();
-  draw_tooltip();
-  gui_draw_all_boxes();
+    SYNCDBG(6,"Starting");
+    //_DK_redraw_frontview();
+    struct PlayerInfo *player;
+    long w,h;
+    player = get_my_player();
+    update_explored_flags_for_power_sight(player);
+    if ((game.flags_font & FFlg_unk08) != 0)
+    {
+      w = player->engine_window_width;
+      h = player->engine_window_height;
+      setup_engine_window(player->engine_window_x, player->engine_window_y, w, h >> 1);
+    } else
+    {
+      w = 0;
+      h = 0;
+    }
+    draw_frontview_engine(&player->cameras[3]);
+    if ((game.flags_font & FFlg_unk08) != 0)
+      setup_engine_window(player->engine_window_x, player->engine_window_y, w, h);
+    remove_explored_flags_for_power_sight(player);
+    if ((game.numfield_C & 0x20) != 0)
+      draw_whole_status_panel();
+    draw_gui();
+    if ((game.numfield_C & 0x20) != 0)
+      draw_overlay_compass(player->mouse_x, player->mouse_y);
+    message_draw();
+    draw_power_hand();
+    draw_tooltip();
+    gui_draw_all_boxes();
 }
 
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7)
@@ -6358,144 +6359,144 @@ void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7)
 
 void update_explored_flags_for_power_sight(struct PlayerInfo *player)
 {
-  SYNCDBG(9,"Starting");
-  _DK_update_explored_flags_for_power_sight(player);
+    SYNCDBG(9,"Starting");
+    _DK_update_explored_flags_for_power_sight(player);
 }
 
 void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 {
-  struct Map *map;
-  short visible;
-  unsigned int mask;
-  long k;
+    struct Map *map;
+    short visible;
+    unsigned int mask;
+    long k;
 
-  if (i > 0)
-  {
-    map = get_map_block_at(x,y);
-    visible = map_block_revealed_bit(map, player_bit);
-    if ((!visible) || ((map->data & 0x7FF) > 0))
+    if (i > 0)
     {
-      if (visible)
-        k = map->data & 0x7FF;
-      else
-        k = game.field_149E77;
-      mask = game.columns[k].solidmask;
-      if ((temp_cluedo_mode) && (mask != 0))
+      map = get_map_block_at(x,y);
+      visible = map_block_revealed_bit(map, player_bit);
+      if ((!visible) || ((map->data & 0x7FF) > 0))
       {
         if (visible)
           k = map->data & 0x7FF;
         else
           k = game.field_149E77;
-        if (game.columns[k].solidmask >= 8)
+        mask = game.columns[k].solidmask;
+        if ((temp_cluedo_mode) && (mask != 0))
         {
-          if ((!visible) || ((get_navigation_map(x,y) & 0x80) == 0) && ((map->flags & 0x02) == 0))
-            mask &= 3;
+          if (visible)
+            k = map->data & 0x7FF;
+          else
+            k = game.field_149E77;
+          if (game.columns[k].solidmask >= 8)
+          {
+            if ((!visible) || ((get_navigation_map(x,y) & 0x80) == 0) && ((map->flags & 0x02) == 0))
+              mask &= 3;
+          }
+        }
+        if (mask & (1 << (i-1)))
+        {
+          pointed_at_frac_x = x_frac;
+          pointed_at_frac_y = y_frac;
+          block_pointed_at_x = x;
+          block_pointed_at_y = y;
+          me_pointed_at = map;
+        }
+        if (((!temp_cluedo_mode) && (i == 5)) || ((temp_cluedo_mode) && (i == 2)))
+        {
+          top_pointed_at_frac_x = x_frac;
+          top_pointed_at_frac_y = y_frac;
+          top_pointed_at_x = x;
+          top_pointed_at_y = y;
         }
       }
-      if (mask & (1 << (i-1)))
-      {
-        pointed_at_frac_x = x_frac;
-        pointed_at_frac_y = y_frac;
+    } else
+    {
+        map = get_map_block_at(x,y);
+        floor_pointed_at_x = x;
+        floor_pointed_at_y = y;
         block_pointed_at_x = x;
         block_pointed_at_y = y;
+        pointed_at_frac_x = x_frac;
+        pointed_at_frac_y = y_frac;
         me_pointed_at = map;
-      }
-      if (((!temp_cluedo_mode) && (i == 5)) || ((temp_cluedo_mode) && (i == 2)))
-      {
-        top_pointed_at_frac_x = x_frac;
-        top_pointed_at_frac_y = y_frac;
-        top_pointed_at_x = x;
-        top_pointed_at_y = y;
-      }
     }
-  } else
-  {
-      map = get_map_block_at(x,y);
-      floor_pointed_at_x = x;
-      floor_pointed_at_y = y;
-      block_pointed_at_x = x;
-      block_pointed_at_y = y;
-      pointed_at_frac_x = x_frac;
-      pointed_at_frac_y = y_frac;
-      me_pointed_at = map;
-  }
 }
 
 void update_blocks_pointed(void)
 {
-  long x,y;
-  long x_frac,y_frac;
-  long hori_ptr_y,vert_ptr_y;
-  long hori_hdelta_y,vert_hdelta_y;
-  long hori_ptr_x,vert_ptr_x;
-  long hvdiv_x,hvdiv_y;
-  long k;
-  int i;
-  if ((!vert_offset[1]) && (!hori_offset[1]))
-  {
-      block_pointed_at_x = 0;
-      block_pointed_at_y = 0;
-      me_pointed_at = INVALID_MAP_BLOCK;//get_map_block_at(0,0);
-  } else
-  {
-      hori_ptr_y = (long)hori_offset[0] * (pointer_y - y_init_off);
-      vert_ptr_y = (long)vert_offset[0] * (pointer_y - y_init_off);
-      hori_hdelta_y = (long)hori_offset[0] * ((long)high_offset[1] >> 8);
-      vert_hdelta_y = (long)vert_offset[0] * ((long)high_offset[1] >> 8);
-      vert_ptr_x = (long)(vert_offset[1] * (pointer_x - x_init_off)) >> 1;
-      hori_ptr_x = (long)(hori_offset[1] * (pointer_x - x_init_off)) >> 1;
-      hvdiv_x = (long)(hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1]) >> 11;
-      hvdiv_y = (long)(vert_offset[0] * hori_offset[1] - hori_offset[0] * vert_offset[1]) >> 11;
-      for (i=0; i < 8; i++)
-      {
-        k = (vert_ptr_x - (vert_ptr_y >> 1)) / hvdiv_x;
-        x_frac = (k & 3) << 6;
-        x = k >> 2;
-        k = (hori_ptr_x - (hori_ptr_y >> 1)) / hvdiv_y;
-        y_frac = (k & 3) << 6;
-        y = k >> 2;
-        if ((x >= 0) && (x < map_subtiles_x) && (y >= 0) && (y < map_subtiles_y))
+    long x,y;
+    long x_frac,y_frac;
+    long hori_ptr_y,vert_ptr_y;
+    long hori_hdelta_y,vert_hdelta_y;
+    long hori_ptr_x,vert_ptr_x;
+    long hvdiv_x,hvdiv_y;
+    long k;
+    int i;
+    if ((!vert_offset[1]) && (!hori_offset[1]))
+    {
+        block_pointed_at_x = 0;
+        block_pointed_at_y = 0;
+        me_pointed_at = INVALID_MAP_BLOCK;//get_map_block_at(0,0);
+    } else
+    {
+        hori_ptr_y = (long)hori_offset[0] * (pointer_y - y_init_off);
+        vert_ptr_y = (long)vert_offset[0] * (pointer_y - y_init_off);
+        hori_hdelta_y = (long)hori_offset[0] * ((long)high_offset[1] >> 8);
+        vert_hdelta_y = (long)vert_offset[0] * ((long)high_offset[1] >> 8);
+        vert_ptr_x = (long)(vert_offset[1] * (pointer_x - x_init_off)) >> 1;
+        hori_ptr_x = (long)(hori_offset[1] * (pointer_x - x_init_off)) >> 1;
+        hvdiv_x = (long)(hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1]) >> 11;
+        hvdiv_y = (long)(vert_offset[0] * hori_offset[1] - hori_offset[0] * vert_offset[1]) >> 11;
+        for (i=0; i < 8; i++)
         {
-          update_block_pointed(i,x,x_frac,y,y_frac);
+          k = (vert_ptr_x - (vert_ptr_y >> 1)) / hvdiv_x;
+          x_frac = (k & 3) << 6;
+          x = k >> 2;
+          k = (hori_ptr_x - (hori_ptr_y >> 1)) / hvdiv_y;
+          y_frac = (k & 3) << 6;
+          y = k >> 2;
+          if ((x >= 0) && (x < map_subtiles_x) && (y >= 0) && (y < map_subtiles_y))
+          {
+            update_block_pointed(i,x,x_frac,y,y_frac);
+          }
+          hori_ptr_y -= hori_hdelta_y;
+          vert_ptr_y -= vert_hdelta_y;
         }
-        hori_ptr_y -= hori_hdelta_y;
-        vert_ptr_y -= vert_hdelta_y;
-      }
-  }
+    }
 }
 
 void engine(struct Camera *cam)
 {
-  TbGraphicsWindow grwnd;
-  TbGraphicsWindow ewnd;
-  unsigned short flg_mem;
-  struct PlayerInfo *player;
+    TbGraphicsWindow grwnd;
+    TbGraphicsWindow ewnd;
+    unsigned short flg_mem;
+    struct PlayerInfo *player;
 
-  SYNCDBG(9,"Starting");
-  //_DK_engine(cam); return;
+    SYNCDBG(9,"Starting");
+    //_DK_engine(cam); return;
 
-  player = get_my_player();
-  flg_mem = lbDisplay.DrawFlags;
-  update_engine_settings(player);
-  mx = cam->mappos.x.val;
-  my = cam->mappos.y.val;
-  mz = cam->mappos.z.val;
-  pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
-  pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
-  lens = (cam->field_13 * ((long)MyScreenWidth))/pixel_size / 320;
-  if (lens_mode == 0)
-    update_blocks_pointed();
-  LbScreenStoreGraphicsWindow(&grwnd);
-  store_engine_window(&ewnd,pixel_size);
-  view_height_over_2 = ewnd.height/2;
-  view_width_over_2 = ewnd.width/2;
-  LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
-  setup_vecs(lbDisplay.GraphicsWindowPtr, 0, lbDisplay.GraphicsScreenWidth,
-      ewnd.width, ewnd.height);
-  draw_view(cam, 0);
-  lbDisplay.DrawFlags = flg_mem;
-  thing_being_displayed = 0;
-  LbScreenLoadGraphicsWindow(&grwnd);
+    player = get_my_player();
+    flg_mem = lbDisplay.DrawFlags;
+    update_engine_settings(player);
+    mx = cam->mappos.x.val;
+    my = cam->mappos.y.val;
+    mz = cam->mappos.z.val;
+    pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
+    pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
+    lens = (cam->field_13 * ((long)MyScreenWidth))/pixel_size / 320;
+    if (lens_mode == 0)
+      update_blocks_pointed();
+    LbScreenStoreGraphicsWindow(&grwnd);
+    store_engine_window(&ewnd,pixel_size);
+    view_height_over_2 = ewnd.height/2;
+    view_width_over_2 = ewnd.width/2;
+    LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
+    setup_vecs(lbDisplay.GraphicsWindowPtr, 0, lbDisplay.GraphicsScreenWidth,
+        ewnd.width, ewnd.height);
+    draw_view(cam, 0);
+    lbDisplay.DrawFlags = flg_mem;
+    thing_being_displayed = 0;
+    LbScreenLoadGraphicsWindow(&grwnd);
 }
 
 void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
@@ -6531,163 +6532,163 @@ void draw_overlay_compass(long a1, long a2)
 
 void redraw_display(void)
 {
-  //_DK_redraw_display();return;
-  char *text;
-  struct PlayerInfo *player;
-  SYNCDBG(5,"Starting");
-  player = get_my_player();
-  set_flag_byte(&player->field_6,0x01,false);
-  if (game.flagfield_14EA4A == 1)
-    return;
-  if (game.small_map_state == 2)
-    set_pointer_graphic_none();
-  else
-    process_pointer_graphic();
-  switch (player->field_37)
-  {
-  case 0:
-      break;
-  case 1:
-      redraw_creature_view();
-      parchment_loaded = 0;
-      break;
-  case 2:
-      redraw_isometric_view();
-      parchment_loaded = 0;
-      break;
-  case 3:
-      redraw_parchment_view();
-      break;
-  case 5:
-      redraw_frontview();
-      parchment_loaded = 0;
-      break;
-  case 6:
-      parchment_loaded = 0;
-      player->field_4BD = map_fade_in(player->field_4BD);
-      break;
-  case 7:
-      parchment_loaded = 0;
-      player->field_4BD = map_fade_out(player->field_4BD);
-      break;
-  default:
-      ERRORLOG("Unsupported drawing state, %d",(int)player->field_37);
-      break;
-  }
-  //LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-  LbTextSetFont(winfont);
-  lbDisplay.DrawFlags &= 0xFFBFu;
-  LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-  if ((player->field_0 & 0x04) != 0)
-  {
-      text = buf_sprintf( ">%s_", player->strfield_463);
-      LbTextDraw(148/pixel_size, 8/pixel_size, text);
-  }
-  if ( draw_spell_cost )
-  {
-      long pos_x,pos_y;
-      unsigned short drwflags_mem;
-      drwflags_mem = lbDisplay.DrawFlags;
-      LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-      lbDisplay.DrawFlags = 0;
-      LbTextSetFont(winfont);
-      text = buf_sprintf("%d", draw_spell_cost);
-      pos_y = GetMouseY() - pixel_size*LbTextStringHeight(text)/2 - 2;
-      pos_x = GetMouseX() - pixel_size*LbTextStringWidth(text)/2;
-      LbTextDraw(pos_x/pixel_size, pos_y/pixel_size, text);
-      lbDisplay.DrawFlags = drwflags_mem;
-      draw_spell_cost = 0;
-  }
-  if (bonus_timer_enabled())
-    draw_bonus_timer();
-  if (((game.numfield_C & 0x01) != 0) && ((game.numfield_C & 0x80) == 0))
-  {
-        LbTextSetFont(winfont);
-        text = gui_strings[320]; // "Paused"
-        long pos_x,pos_y;
-        long w,h;
-        int i;
-        i = LbTextCharWidth(' ');
-        w = pixel_size * (LbTextStringWidth(text) + 2*i);
-        i = player->field_37;
-        if ((i == 2) || (i == 5) || (i == 1))
-          pos_x = player->engine_window_x + (MyScreenWidth-w-player->engine_window_x)/2;
-        else
-          pos_x = (MyScreenWidth-w)/2;
-        pos_y=16;
-        i = LbTextLineHeight();
-        lbDisplay.DrawFlags = 0x0100;
-        h = pixel_size*i + pixel_size*i/2;
-        LbTextSetWindow(pos_x/pixel_size, pos_y/pixel_size, w/pixel_size, h/pixel_size);
-        draw_slab64k(pos_x, pos_y, w, h);
-        LbTextDraw(0/pixel_size, 0/pixel_size, text);
-        LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-  }
-  if (game.field_150356 != 0)
-  {
-    long pos_x,pos_y;
-    long w,h;
-    int i;
-    if (game.armageddon.count_down+game.field_150356 <= game.play_gameturn)
+    //_DK_redraw_display();return;
+    char *text;
+    struct PlayerInfo *player;
+    SYNCDBG(5,"Starting");
+    player = get_my_player();
+    set_flag_byte(&player->field_6,0x01,false);
+    if (game.flagfield_14EA4A == 1)
+      return;
+    if (game.small_map_state == 2)
+      set_pointer_graphic_none();
+    else
+      process_pointer_graphic();
+    switch (player->field_37)
     {
-      i = 0;
-      if ( game.field_15035A - game.armageddon.duration <= game.play_gameturn )
-        i = game.field_15035A - game.play_gameturn;
-    } else
-    {
-      i = game.play_gameturn - game.field_150356 - game.armageddon.count_down;
+    case 0:
+        break;
+    case 1:
+        redraw_creature_view();
+        parchment_loaded = 0;
+        break;
+    case 2:
+        redraw_isometric_view();
+        parchment_loaded = 0;
+        break;
+    case 3:
+        redraw_parchment_view();
+        break;
+    case 5:
+        redraw_frontview();
+        parchment_loaded = 0;
+        break;
+    case 6:
+        parchment_loaded = 0;
+        player->field_4BD = map_fade_in(player->field_4BD);
+        break;
+    case 7:
+        parchment_loaded = 0;
+        player->field_4BD = map_fade_out(player->field_4BD);
+        break;
+    default:
+        ERRORLOG("Unsupported drawing state, %d",(int)player->field_37);
+        break;
     }
+    //LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     LbTextSetFont(winfont);
-    text = buf_sprintf(" %s %03d", gui_strings[646], i/2); // Armageddon message
-    i = LbTextCharWidth(' ');
-    w = pixel_size*LbTextStringWidth(text) + 6*i;
-    pos_x = MyScreenWidth - w - 16;
-    pos_y = 16;
-    i = LbTextLineHeight();
-    lbDisplay.DrawFlags = 0x0100;
-    h = pixel_size*i + pixel_size*i/2;
-    LbTextSetWindow(pos_x/pixel_size, pos_y/pixel_size, w/pixel_size, h/pixel_size);
-    draw_slab64k(pos_x, pos_y, w, h);
-    LbTextDraw(0/pixel_size, 0/pixel_size, text);
-    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-  }
-  draw_sound_stuff();
-//show_onscreen_msg(8, "Physical(%d,%d) Graphics(%d,%d) Lens(%d,%d)", (int)lbDisplay.PhysicalScreenWidth, (int)lbDisplay.PhysicalScreenHeight, (int)lbDisplay.GraphicsScreenWidth, (int)lbDisplay.GraphicsScreenHeight, (int)eye_lens_width, (int)eye_lens_height);
-  SYNCDBG(7,"Finished");
+    lbDisplay.DrawFlags &= 0xFFBFu;
+    LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
+    if ((player->field_0 & 0x04) != 0)
+    {
+        text = buf_sprintf( ">%s_", player->strfield_463);
+        LbTextDraw(148/pixel_size, 8/pixel_size, text);
+    }
+    if ( draw_spell_cost )
+    {
+        long pos_x,pos_y;
+        unsigned short drwflags_mem;
+        drwflags_mem = lbDisplay.DrawFlags;
+        LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
+        lbDisplay.DrawFlags = 0;
+        LbTextSetFont(winfont);
+        text = buf_sprintf("%d", draw_spell_cost);
+        pos_y = GetMouseY() - pixel_size*LbTextStringHeight(text)/2 - 2;
+        pos_x = GetMouseX() - pixel_size*LbTextStringWidth(text)/2;
+        LbTextDraw(pos_x/pixel_size, pos_y/pixel_size, text);
+        lbDisplay.DrawFlags = drwflags_mem;
+        draw_spell_cost = 0;
+    }
+    if (bonus_timer_enabled())
+      draw_bonus_timer();
+    if (((game.numfield_C & 0x01) != 0) && ((game.numfield_C & 0x80) == 0))
+    {
+          LbTextSetFont(winfont);
+          text = gui_strings[320]; // "Paused"
+          long pos_x,pos_y;
+          long w,h;
+          int i;
+          i = LbTextCharWidth(' ');
+          w = pixel_size * (LbTextStringWidth(text) + 2*i);
+          i = player->field_37;
+          if ((i == 2) || (i == 5) || (i == 1))
+            pos_x = player->engine_window_x + (MyScreenWidth-w-player->engine_window_x)/2;
+          else
+            pos_x = (MyScreenWidth-w)/2;
+          pos_y=16;
+          i = LbTextLineHeight();
+          lbDisplay.DrawFlags = 0x0100;
+          h = pixel_size*i + pixel_size*i/2;
+          LbTextSetWindow(pos_x/pixel_size, pos_y/pixel_size, w/pixel_size, h/pixel_size);
+          draw_slab64k(pos_x, pos_y, w, h);
+          LbTextDraw(0/pixel_size, 0/pixel_size, text);
+          LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+    }
+    if (game.field_150356 != 0)
+    {
+      long pos_x,pos_y;
+      long w,h;
+      int i;
+      if (game.armageddon.count_down+game.field_150356 <= game.play_gameturn)
+      {
+        i = 0;
+        if ( game.field_15035A - game.armageddon.duration <= game.play_gameturn )
+          i = game.field_15035A - game.play_gameturn;
+      } else
+      {
+        i = game.play_gameturn - game.field_150356 - game.armageddon.count_down;
+      }
+      LbTextSetFont(winfont);
+      text = buf_sprintf(" %s %03d", gui_strings[646], i/2); // Armageddon message
+      i = LbTextCharWidth(' ');
+      w = pixel_size*LbTextStringWidth(text) + 6*i;
+      pos_x = MyScreenWidth - w - 16;
+      pos_y = 16;
+      i = LbTextLineHeight();
+      lbDisplay.DrawFlags = 0x0100;
+      h = pixel_size*i + pixel_size*i/2;
+      LbTextSetWindow(pos_x/pixel_size, pos_y/pixel_size, w/pixel_size, h/pixel_size);
+      draw_slab64k(pos_x, pos_y, w, h);
+      LbTextDraw(0/pixel_size, 0/pixel_size, text);
+      LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+    }
+    draw_sound_stuff();
+  //show_onscreen_msg(8, "Physical(%d,%d) Graphics(%d,%d) Lens(%d,%d)", (int)lbDisplay.PhysicalScreenWidth, (int)lbDisplay.PhysicalScreenHeight, (int)lbDisplay.GraphicsScreenWidth, (int)lbDisplay.GraphicsScreenHeight, (int)eye_lens_width, (int)eye_lens_height);
+    SYNCDBG(7,"Finished");
 }
 
 void find_frame_rate(void)
 {
-  static TbClockMSec prev_time2=0;
-  static TbClockMSec cntr_time2=0;
-  unsigned long curr_time;
-  curr_time = LbTimerClock();
-  cntr_time2++;
-  if (curr_time-prev_time2 >= 1000)
-  {
-    double time_fdelta = 1000.0*((double)(cntr_time2))/(curr_time-prev_time2);
-    prev_time2 = curr_time;
-    game.time_delta = (unsigned long)(time_fdelta*256.0);
-    cntr_time2 = 0;
-  }
+    static TbClockMSec prev_time2=0;
+    static TbClockMSec cntr_time2=0;
+    unsigned long curr_time;
+    curr_time = LbTimerClock();
+    cntr_time2++;
+    if (curr_time-prev_time2 >= 1000)
+    {
+        double time_fdelta = 1000.0*((double)(cntr_time2))/(curr_time-prev_time2);
+        prev_time2 = curr_time;
+        game.time_delta = (unsigned long)(time_fdelta*256.0);
+        cntr_time2 = 0;
+    }
 }
 
 void packet_load_find_frame_rate(unsigned long incr)
 {
-  static TbClockMSec start_time=0;
-  static TbClockMSec extra_frames=0;
-  TbClockMSec curr_time;
-  curr_time = LbTimerClock();
-  if ((curr_time-start_time) < 5000)
-  {
-    extra_frames += incr;
-  } else
-  {
-    double time_fdelta = 1000.0*((double)(extra_frames+incr))/(curr_time-start_time);
-    start_time = curr_time;
-    game.time_delta = (unsigned long)(time_fdelta*256.0);
-    extra_frames = 0;
-  }
+    static TbClockMSec start_time=0;
+    static TbClockMSec extra_frames=0;
+    TbClockMSec curr_time;
+    curr_time = LbTimerClock();
+    if ((curr_time-start_time) < 5000)
+    {
+        extra_frames += incr;
+    } else
+    {
+        double time_fdelta = 1000.0*((double)(extra_frames+incr))/(curr_time-start_time);
+        start_time = curr_time;
+        game.time_delta = (unsigned long)(time_fdelta*256.0);
+        extra_frames = 0;
+    }
 }
 
 /**
@@ -6695,21 +6696,21 @@ void packet_load_find_frame_rate(unsigned long incr)
  */
 short display_should_be_updated_this_turn(void)
 {
-  if ((game.numfield_C & 0x01) != 0)
-    return true;
-  if ( (game.turns_fastforward==0) && (!game.numfield_149F38) )
-  {
-    find_frame_rate();
-    if ( (game.frame_skip == 0) || ((game.play_gameturn % game.frame_skip) == 0))
+    if ((game.numfield_C & 0x01) != 0)
       return true;
-  } else
-  if ( ((game.play_gameturn & 0x3F)==0) ||
-       ((game.numfield_149F38) && ((game.play_gameturn & 7)==0)) )
-  {
-    packet_load_find_frame_rate(64);
-    return true;
-  }
-  return false;
+    if ( (game.turns_fastforward==0) && (!game.numfield_149F38) )
+    {
+      find_frame_rate();
+      if ( (game.frame_skip == 0) || ((game.play_gameturn % game.frame_skip) == 0))
+        return true;
+    } else
+    if ( ((game.play_gameturn & 0x3F)==0) ||
+         ((game.numfield_149F38) && ((game.play_gameturn & 7)==0)) )
+    {
+      packet_load_find_frame_rate(64);
+      return true;
+    }
+    return false;
 }
 
 /**
@@ -6741,23 +6742,23 @@ TbBool keeper_screen_swap(void)
  */
 TbBool keeper_wait_for_next_turn(void)
 {
-  if (game.numfield_D & 0x10)
-  {
-      // No idea when such situation occurs
-      TbClockMSec sleep_end = last_loop_time + 1000;
-      LbSleepUntil(sleep_end);
-      last_loop_time = LbTimerClock();
-      return true;
-  }
-  if (game.frame_skip == 0)
-  {
-      // Standard delaying system
-      TbClockMSec sleep_end = last_loop_time + 1000/game.num_fps;
-      LbSleepUntil(sleep_end);
-      last_loop_time = LbTimerClock();
-      return true;
-  }
-  return false;
+    if ((game.numfield_D & 0x10) != 0)
+    {
+        // No idea when such situation occurs
+        TbClockMSec sleep_end = last_loop_time + 1000;
+        LbSleepUntil(sleep_end);
+        last_loop_time = LbTimerClock();
+        return true;
+    }
+    if (game.frame_skip == 0)
+    {
+        // Standard delaying system
+        TbClockMSec sleep_end = last_loop_time + 1000/game.num_fps;
+        LbSleepUntil(sleep_end);
+        last_loop_time = LbTimerClock();
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -6782,21 +6783,23 @@ TbBool keeper_screen_redraw(void)
 
 TbBool keeper_wait_for_screen_focus(void)
 {
-  do {
-    if ( !LbWindowsControl() )
-    {
-      if ((game.system_flags & GSF_NetworkActive) == 0)
-      {
-        exit_keeper = 1;
-        break;
-      }
-      SYNCLOG("Alex's point reached");
-    }
-    if (((game.system_flags & GSF_NetworkActive) != 0) || (LbIsActive()))
-      return true;
-    LbSleepFor(50);
-  } while ((!exit_keeper) && (!quit_game));
-  return false;
+    do {
+        if ( !LbWindowsControl() )
+        {
+          if ((game.system_flags & GSF_NetworkActive) == 0)
+          {
+            exit_keeper = 1;
+            break;
+          }
+          SYNCLOG("Alex's point reached");
+        }
+        if (LbIsActive())
+          return true;
+        if ((game.system_flags & GSF_NetworkActive) != 0)
+          return true;
+        LbSleepFor(50);
+    } while ((!exit_keeper) && (!quit_game));
+    return false;
 }
 
 void keeper_gameplay_loop(void)
@@ -6857,7 +6860,7 @@ void keeper_gameplay_loop(void)
       if (game.numfield_149F42 == game.play_gameturn)
         exit_keeper = 1;
   } // end while
-  SYNCDBG(0,"Gameplay loop finished after %u turns",game.play_gameturn);
+  SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
 }
 
 void intro(void)
