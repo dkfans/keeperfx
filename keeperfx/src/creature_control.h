@@ -167,6 +167,7 @@ unsigned char field_96[4];
     unsigned char byte_A2;
     unsigned char byte_A3;
     unsigned char byte_A4;
+    unsigned char byte_A5;
     };
   struct {
     short word_9A;
@@ -174,25 +175,25 @@ unsigned char field_96[4];
     short word_9E;
     short word_A0;
     short word_A2;
-    unsigned char byte_A4_cp2;
+    short word_A4;
     };
   struct {
     short word_9A_cp2;
     long long_9C;
     long long_A0;
-    unsigned char byte_A4_cp3;
+    short word_A4_cp2;
     };
   struct {
     long long_9A;
     long long_9E;
-    short word_A2_cp2;
-    unsigned char byte_A4_cp4;
+    long long_A2;
     };
   struct {
     unsigned char byte_9A_cp2;
     long long_9B;
     short word_9F_cp2;
     long long_A1;
+    unsigned char byte_A5_cp2;
     };
   struct {
     unsigned char byte_9A_cp3;
@@ -201,9 +202,9 @@ unsigned char field_96[4];
     short word_9F;
     short word_A1;
     short word_A3;
+    unsigned char byte_A5_cp3;
     };
   };
-    unsigned char field_A5;
   union {
   struct {
       unsigned char byte_A6;

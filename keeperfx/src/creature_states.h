@@ -250,6 +250,7 @@ short set_start_state(struct Thing *thing);
 
 long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3);
 long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
+TbBool update_speed_of_player_creatures_of_model(long plyr_idx, long crmodel);
 
 /******************************************************************************/
 TbBool creature_is_doing_lair_activity(const struct Thing *thing);
@@ -263,6 +264,9 @@ TbBool creature_is_doing_dungeon_improvements(const struct Thing *thing);
 TbBool creature_is_doing_garden_activity(const struct Thing *thing);
 TbBool creature_is_taking_salary_activity(const struct Thing *thing);
 TbBool creature_is_doing_temple_activity(const struct Thing *thing);
+TbBool creature_is_training(const struct Thing *thing);
+TbBool creature_is_scavengering(const struct Thing *thing);
+TbBool creature_is_escaping_death(const struct Thing *thing);
 TbBool creature_state_is_unset(const struct Thing *thing);
 TbBool remove_creature_from_work_room(struct Thing *thing);
 TbBool creature_can_be_trained(struct Thing *thing);

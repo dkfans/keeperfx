@@ -1841,3 +1841,6 @@
  0001:00064A80       change_effect_element_into_another
  0001:0006F340       reveal_players_map_to_player
  0001:000CB390       move_effect_element
+ 0001:000B9C80       person_get_somewhere_adjacent_in_room
+ 0001:0008F850       creature_can_have_combat_with_creature
+ 0001:0008DB70       set_creature_combat_state
