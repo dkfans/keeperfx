@@ -1853,7 +1853,7 @@ long computer_pick_trainig_or_scavenging_creatures_and_place_on_room(struct Comp
 {
     struct CreatureControl *cctrl;
     struct Thing *thing;
-    long new_tasks,crstate;
+    long new_tasks;
     unsigned long k;
     long i;
     new_tasks = 0;
@@ -1871,11 +1871,7 @@ long computer_pick_trainig_or_scavenging_creatures_and_place_on_room(struct Comp
       cctrl = creature_control_get_from_thing(thing);
       i = cctrl->thing_idx;
       // Per creature code
-      if (thing->active_state == CrSt_MoveToPosition)
-        crstate = thing->continue_state;
-      else
-        crstate = thing->active_state;
-      if ((crstate == CrSt_Training) || (crstate == CrSt_Scavengering))
+      if (creature_is_training(thing) || creature_is_scavengering(thing)) // originally, only CrSt_Training and CrSt_Scavengering were accepted
       {
         if (!create_task_move_creature_to_pos(comp, thing, room->stl_x, room->stl_y))
           break;

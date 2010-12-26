@@ -729,11 +729,13 @@
  0001:0008CE70       check_out_uncrowded_reinforce_position
  0001:0008D110       remove_from_task_list
  0001:0008D1B0       find_dig_from_task_list
+ 0001:0008DB70       set_creature_combat_state
  0001:0008DF40       creature_look_for_combat
  0001:0008E500       remove_all_traces_of_combat
  0001:0008E760       get_best_ranged_offensive_weapon
  0001:0008E970       get_best_melee_offensive_weapon
  0001:0008F460       creature_available_for_combat_this_turn
+ 0001:0008F850       creature_can_have_combat_with_creature
  0001:0008FAF0       check_for_valid_combat
  0001:0008FB60       combat_type_is_choice_of_creature
  0001:0008FC40       creature_is_most_suitable_for_combat
@@ -1006,6 +1008,7 @@
  0001:000B90A0       find_first_valid_position_for_thing_in_room
  0001:000B9380       find_random_valid_position_for_thing_in_room_avoiding_object
  0001:000B9A40       remove_creature_from_work_room
+ 0001:000B9C80       person_get_somewhere_adjacent_in_room
  0001:000BA0A0       setup_prison_move
  0001:000BA1C0       count_gold_slabs_with_efficiency
  0001:000BA220       count_gold_hoardes_in_room

@@ -333,9 +333,9 @@ void anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, lon
   _DK_anger_apply_anger_to_creature(thing, anger, a2, a3);
 }
 
-void terminate_thing_spell_effect(struct Thing *thing, long a2)
+void terminate_thing_spell_effect(struct Thing *thing, long spkind)
 {
-    _DK_terminate_thing_spell_effect(thing, a2);
+    _DK_terminate_thing_spell_effect(thing, spkind);
 }
 
 long get_free_spell_slot(struct Thing *thing)
@@ -2947,14 +2947,73 @@ short update_creature_movements(struct Thing *thing)
     return ((cctrl->pos_BB.x.val != 0) || (cctrl->pos_BB.y.val != 0) || (cctrl->pos_BB.z.val != 0));
 }
 
+void check_for_creature_escape_from_lava(struct Thing *thing)
+{
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    if (((thing->field_0 & 0x20) == 0) && ((thing->field_25 & 0x02) != 0))
+    {
+      crstat = creature_stats_get_from_thing(thing);
+      if (crstat->hurt_by_lava)
+      {
+          cctrl = creature_control_get_from_thing(thing);
+          if ((!creature_is_escaping_death(thing)) && (cctrl->field_2FE + 64 < game.play_gameturn))
+          {
+              cctrl->field_2FE = game.play_gameturn;
+              if ( cleanup_current_thing_state(thing) )
+              {
+                if ( setup_move_off_lava(thing) )
+                    thing->continue_state = CrSt_CreatureEscapingDeath;
+                else
+                    set_start_state(thing);
+              }
+          }
+      }
+    }
+}
+
+void process_creature_leave_footsteps(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    struct SlabMap *slb;
+    short nfoot;
+    cctrl = creature_control_get_from_thing(thing);
+    if ((thing->field_25 & 0x01) != 0)
+    {
+        nfoot = get_foot_creature_has_down(thing);
+        if (nfoot)
+        {
+          create_effect(&thing->mappos, 19, thing->owner);
+        }
+        cctrl->bloody_footsteps_turns = 0;
+    } else
+    // Bloody footprints
+    if (cctrl->bloody_footsteps_turns != 0)
+    {
+        place_bloody_footprint(thing);
+        nfoot = get_foot_creature_has_down(thing);
+        if (create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 23, thing->owner) != NULL)
+          cctrl->bloody_footsteps_turns--;
+    } else
+    // Snow footprints
+    if (game.texture_id == 2)
+    {
+        slb = get_slabmap_block(map_to_slab[thing->mappos.x.stl.num], map_to_slab[thing->mappos.y.stl.num]);
+        if (slb->kind == SlbT_PATH)
+        {
+          thing->field_25 |= 0x80u;
+          nfoot = get_foot_creature_has_down(thing);
+          create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 94, thing->owner);
+        }
+    }
+}
+
 void process_landscape_affecting_creature(struct Thing *thing)
 {
   struct CreatureStats *crstat;
   struct CreatureControl *cctrl;
-  struct SlabMap *slb;
   unsigned long navmap;
   int stl_idx;
-  short nfoot;
   int i;
   SYNCDBG(18,"Starting");
   set_flag_byte(&thing->field_25,0x01,false);
@@ -2983,59 +3042,10 @@ void process_landscape_affecting_creature(struct Thing *thing)
     {
       thing->field_25 |= 0x01;
     }
-
-    if (thing->field_25 & 0x01)
-    {
-      nfoot = get_foot_creature_has_down(thing);
-      if (nfoot)
-      {
-        create_effect(&thing->mappos, 19, thing->owner);
-      }
-      cctrl->bloody_footsteps_turns = 0;
-    } else
-    // Bloody footprints
-    if (cctrl->bloody_footsteps_turns != 0)
-    {
-      place_bloody_footprint(thing);
-      nfoot = get_foot_creature_has_down(thing);
-      if (create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 23, thing->owner) != NULL)
-        cctrl->bloody_footsteps_turns--;
-    } else
-    // Snow footprints
-    if (game.texture_id == 2)
-    {
-      slb = get_slabmap_block(map_to_slab[thing->mappos.x.stl.num], map_to_slab[thing->mappos.y.stl.num]);
-      if (slb->kind == SlbT_PATH)
-      {
-        thing->field_25 |= 0x80u;
-        nfoot = get_foot_creature_has_down(thing);
-        create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 94, thing->owner);
-      }
-    }
+    process_creature_leave_footsteps(thing);
     process_creature_standing_on_corpses_at(thing, &thing->mappos);
   }
-  if (((thing->field_0 & 0x20) == 0) && ((thing->field_25 & 0x02) != 0))
-  {
-    crstat = creature_stats_get_from_thing(thing);
-    if (crstat->hurt_by_lava)
-    {
-        if (thing->active_state == CrSt_MoveToPosition)
-          i = thing->continue_state;
-        else
-          i = thing->active_state;
-        if ((i != CrSt_CreatureEscapingDeath) && (cctrl->field_2FE + 64 < game.play_gameturn))
-        {
-            cctrl->field_2FE = game.play_gameturn;
-            if ( cleanup_current_thing_state(thing) )
-            {
-              if ( setup_move_off_lava(thing) )
-                  thing->continue_state = CrSt_CreatureEscapingDeath;
-              else
-                  set_start_state(thing);
-            }
-        }
-    }
-  }
+  check_for_creature_escape_from_lava(thing);
   SYNCDBG(19,"Finished");
 }
 
