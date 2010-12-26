@@ -137,8 +137,20 @@ const struct NamedCommand creatmodel_senses_commands[] = {
 const struct NamedCommand creatmodel_appearance_commands[] = {
   {"WALKINGANIMSPEED",     1},
   {"VISUALRANGE",          2},
+  {"POSSESSSWIPEINDEX",    3},
+  {"NATURALDEATHKIND",     4},
   {NULL,                   0},
   };
+
+const struct NamedCommand creature_deathkind_desc[] = {
+    {"NORMAL",          Death_Normal},
+    {"FLESHEXPLODE",    Death_FleshExplode},
+    {"GASFLESHEXPLODE", Death_GasFleshExplode},
+    {"SMOKEEXPLODE",    Death_SmokeExplode},
+    {"ICEEXPLODE",      Death_IceExplode},
+    {NULL,              0},
+    };
+
 
 const struct NamedCommand creatmodel_experience_commands[] = {
   {"POWERS",               1},
@@ -1343,6 +1355,8 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
     {
         crstat->walking_anim_speed = 1;
         crstat->visual_range = 1;
+        creatures[crtr_model].swipe_idx = 0;
+        creatures[crtr_model].natural_death_kind = Death_Normal;
     }
     // Find the block
     sprintf(block_buf,"appearance");
@@ -1388,6 +1402,38 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 3: // SWIPEINDEX
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    creatures[crtr_model].swipe_idx = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 4: // NATURALDEATHKIND
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = get_id(creature_deathkind_desc, word_buf);
+                if (k > 0)
+                {
+                    creatures[crtr_model].natural_death_kind = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 0: // comment
@@ -1993,9 +2039,13 @@ TbBool load_creaturemodel_config(long crtr_model,unsigned short flags)
     fname = prepare_file_fmtpath(FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
     if (fname[0] != '\0')
     {
-        SYNCDBG(0,"Reading campaign \"%s.cfg\".",conf_fnstr);
+        SYNCDBG(0,"Reading campaign specific \"%s.cfg\".",conf_fnstr);
         load_creaturemodel_config_file(crtr_model,fname,flags|CMLd_AcceptPartial|CMLd_IgnoreErrors);
     }
+/* DEBUG code - remove pending
+    JUSTLOG("PossessSwipeIndex = %d",(int)creatures[crtr_model].swipe_idx);
+    JUSTLOG("NaturalDeathKind = %s",get_conf_parameter_text(creature_deathkind_desc,creatures[crtr_model].natural_death_kind));
+*/
     return ret;
 }
 
