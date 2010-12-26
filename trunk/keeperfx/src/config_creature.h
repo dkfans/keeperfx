@@ -64,11 +64,12 @@ enum CreatureJobFlags {
 };
 
 enum CreatureDeathKind {
-    Death_Normal           = 1,
-    Death_FleshExplode     = 2,
-    Death_GasFleshExplode  = 3,
-    Death_SmokeExplode     = 4,
-    Death_IceExplode       = 5,
+    Death_Unset = 0,
+    Death_Normal,
+    Death_FleshExplode,
+    Death_GasFleshExplode,
+    Death_SmokeExplode,
+    Death_IceExplode,
 };
 
 enum CreatureTypesLoadFlags {
