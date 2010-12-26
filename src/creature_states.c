@@ -398,6 +398,7 @@ short creature_steal_spell(struct Thing *thing);
 void creature_in_combat_wait(struct Thing *thing);
 void creature_in_ranged_combat(struct Thing *thing);
 void creature_in_melee_combat(struct Thing *thing);
+TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -979,17 +980,134 @@ TbBool creature_state_is_unset(const struct Thing *thing)
 
 short already_at_call_to_arms(struct Thing *thing)
 {
-  return _DK_already_at_call_to_arms(thing);
+    //return _DK_already_at_call_to_arms(thing);
+    internal_set_thing_state(thing, CrSt_ArriveAtCallToArms);
+    return true;
 }
 
 short arrive_at_alarm(struct Thing *thing)
 {
-  return _DK_arrive_at_alarm(thing);
+    struct CreatureControl *cctrl;
+    //return _DK_arrive_at_alarm(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->field_2FA < (unsigned long)game.play_gameturn)
+    {
+        set_start_state(thing);
+        return true;
+    }
+    if (ACTION_RANDOM(4) == 0)
+    {
+        if ( setup_person_move_close_to_position(thing, cctrl->field_2F8, cctrl->field_2F9, 0) )
+        {
+            thing->continue_state = CrSt_ArriveAtAlarm;
+            return true;
+        }
+    }
+    if ( creature_choose_random_destination_on_valid_adjacent_slab(thing) )
+    {
+        thing->continue_state = CrSt_ArriveAtAlarm;
+        return true;
+    }
+    return true;
+}
+
+struct Thing *check_for_door_to_fight(struct Thing *thing)
+{
+    struct Thing *doortng;
+    long m,n;
+    m = ACTION_RANDOM(4);
+    for (n=0; n < 4; n++)
+    {
+        long slb_x,slb_y;
+        slb_x = map_to_slab[thing->mappos.x.stl.num] + (long)small_around[m].delta_x;
+        slb_y = map_to_slab[thing->mappos.y.stl.num] + (long)small_around[m].delta_y;
+        doortng = get_door_for_position(3*slb_x+1, 3*slb_y+1);
+        if (!thing_is_invalid(doortng))
+        {
+          if (thing->owner != doortng->owner)
+              return doortng;
+        }
+        m = (m+1) % 4;
+    }
+    return NULL;
+}
+
+long setup_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3)
+{
+    struct Coord3d pos;
+    if ( !find_first_valid_position_for_thing_in_room(thing, room, &pos) )
+        return false;
+    return setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, a3);
+}
+
+long attempt_to_destroy_enemy_room(struct Thing *thing, unsigned char stl_x, unsigned char stl_y)
+{
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    struct Coord3d pos;
+    room = subtile_room_get(stl_x, stl_y);
+    if (room_is_invalid(room))
+        return false;
+    if (thing->owner == room->owner)
+        return false;
+    if ((room->kind == RoK_DUNGHEART) || (room->kind == RoK_ENTRANCE) || (room->kind == RoK_BRIDGE))
+        return false;
+    if ( !find_first_valid_position_for_thing_in_room(thing, room, &pos) )
+        return false;
+    if ( !creature_can_navigate_to_with_storage(thing, &pos, 1) )
+        return false;
+
+    if ( !setup_head_for_room(thing, room, 1) )
+    {
+        ERRORLOG("Cannot do this 'destroy room' stuff");
+        return false;
+    }
+    event_create_event_or_update_nearby_existing_event(subtile_coord_center(room->stl_x),
+        subtile_coord_center(room->stl_y), 19, room->owner, 0);
+    if (is_my_player_number(room->owner))
+        output_message(15, 400, 1);
+    thing->continue_state = CrSt_CreatureAttackRooms;
+    cctrl = creature_control_get_from_thing(thing);
+    if (!creature_control_invalid(cctrl))
+        cctrl->field_80 = room->index;
+    return true;
 }
 
 short arrive_at_call_to_arms(struct Thing *thing)
 {
-  return _DK_arrive_at_call_to_arms(thing);
+    struct Dungeon *dungeon;
+    struct Thing *doortng;
+    //return _DK_arrive_at_call_to_arms(thing);
+    dungeon = get_dungeon(thing->owner);
+
+    if (dungeon->field_884 == 0)
+    {
+        set_start_state(thing);
+        return true;
+    }
+    doortng = check_for_door_to_fight(thing);
+    if (!thing_is_invalid(thing))
+    {
+        set_creature_door_combat(thing, doortng);
+        return 2;//UGH??????? probably only because 2=true, too
+    }
+    if ( !attempt_to_destroy_enemy_room(thing, dungeon->field_881, dungeon->field_882) )
+    {
+      if (ACTION_RANDOM(7) == 0)
+      {
+          if ( setup_person_move_close_to_position(thing, dungeon->field_881, dungeon->field_882, 0) )
+          {
+              thing->continue_state = CrSt_AlreadyAtCallToArms;
+              return true;
+          }
+      }
+      if ( creature_choose_random_destination_on_valid_adjacent_slab(thing) )
+      {
+        thing->continue_state = CrSt_AlreadyAtCallToArms;
+        return true;
+      }
+    }
+    return true;
 }
 
 short at_barrack_room(struct Thing *thing)
@@ -4755,17 +4873,17 @@ short set_start_state(struct Thing *thing)
     }
     if (thing->owner == game.hero_player_num)
     {
-      i = creatures[thing->model%CREATURE_TYPES_COUNT].numfield_2;
-      cleanup_current_thing_state(thing);
-      initialise_thing_state(thing, i);
-      return thing->active_state;
+        i = creatures[thing->model%CREATURE_TYPES_COUNT].numfield_2;
+        cleanup_current_thing_state(thing);
+        initialise_thing_state(thing, i);
+        return thing->active_state;
     }
     player = get_player(thing->owner);
     if (player->victory_state == 2)
     {
-      cleanup_current_thing_state(thing);
-      initialise_thing_state(thing, CrSt_CreatureLeavesOrDies);
-      return thing->active_state;
+        cleanup_current_thing_state(thing);
+        initialise_thing_state(thing, CrSt_CreatureLeavesOrDies);
+        return thing->active_state;
     }
     cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->field_AD & 0x02) != 0)

@@ -974,7 +974,7 @@ struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long
     return max_spare_room;
 }
 
-unsigned char find_first_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos)
+TbBool find_first_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos)
 {
     return _DK_find_first_valid_position_for_thing_in_room(thing, room, pos);
 }
