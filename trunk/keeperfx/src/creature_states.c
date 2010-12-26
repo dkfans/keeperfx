@@ -45,6 +45,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define CREATURE_GUI_STATES_COUNT 3
+/* Please note that functions returning 'short' are not ment to return true/false only! */
 /******************************************************************************/
 DLLIMPORT short _DK_already_at_call_to_arms(struct Thing *thing);
 DLLIMPORT short _DK_arrive_at_alarm(struct Thing *thing);
@@ -238,6 +239,9 @@ DLLIMPORT short _DK_creature_choose_random_destination_on_valid_adjacent_slab(st
 DLLIMPORT void _DK_process_creature_in_training_room(struct Thing *thing, struct Room *room);
 DLLIMPORT void _DK_setup_move_to_new_training_position(struct Thing *thing, struct Room *room, unsigned long a3);
 DLLIMPORT long _DK_reveal_players_map_to_player(struct Thing *thing, long a2);
+DLLIMPORT long _DK_person_get_somewhere_adjacent_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
+DLLIMPORT long _DK_creature_can_have_combat_with_creature(struct Thing *fighter1, struct Thing *fighter2, long a2, long a4, long a5);
+DLLIMPORT void _DK_set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, long a3);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *thing);
 short arrive_at_alarm(struct Thing *thing);
@@ -399,6 +403,8 @@ void creature_in_combat_wait(struct Thing *thing);
 void creature_in_ranged_combat(struct Thing *thing);
 void creature_in_melee_combat(struct Thing *thing);
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
+TbBool add_creature_to_work_room(struct Thing *crtng, struct Room *room);
+TbBool add_creature_to_torture_room(struct Thing *crtng, struct Room *room);
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -943,6 +949,39 @@ TbBool creature_is_doing_garden_activity(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_training(const struct Thing *thing)
+{
+    long i;
+    i = thing->active_state;
+    if (i == CrSt_MoveToPosition)
+        i = thing->continue_state;
+    if ((i == CrSt_Training) || (i == CrSt_AtTrainingRoom))
+        return true;
+    return false;
+}
+
+TbBool creature_is_scavengering(const struct Thing *thing)
+{
+    long i;
+    i = thing->active_state;
+    if (i == CrSt_MoveToPosition)
+        i = thing->continue_state;
+    if ((i == CrSt_Scavengering) || (i == CrSt_AtScavengerRoom))
+        return true;
+    return false;
+}
+
+TbBool creature_is_escaping_death(const struct Thing *thing)
+{
+    long i;
+    i = thing->active_state;
+    if (i == CrSt_MoveToPosition)
+        i = thing->continue_state;
+    if ((i == CrSt_CreatureEscapingDeath))
+        return true;
+    return false;
+}
+
 TbBool creature_is_taking_salary_activity(const struct Thing *thing)
 {
     long i;
@@ -982,7 +1021,7 @@ short already_at_call_to_arms(struct Thing *thing)
 {
     //return _DK_already_at_call_to_arms(thing);
     internal_set_thing_state(thing, CrSt_ArriveAtCallToArms);
-    return true;
+    return 1;
 }
 
 short arrive_at_alarm(struct Thing *thing)
@@ -993,22 +1032,22 @@ short arrive_at_alarm(struct Thing *thing)
     if (cctrl->field_2FA < (unsigned long)game.play_gameturn)
     {
         set_start_state(thing);
-        return true;
+        return 1;
     }
     if (ACTION_RANDOM(4) == 0)
     {
         if ( setup_person_move_close_to_position(thing, cctrl->field_2F8, cctrl->field_2F9, 0) )
         {
             thing->continue_state = CrSt_ArriveAtAlarm;
-            return true;
+            return 1;
         }
     }
     if ( creature_choose_random_destination_on_valid_adjacent_slab(thing) )
     {
         thing->continue_state = CrSt_ArriveAtAlarm;
-        return true;
+        return 1;
     }
-    return true;
+    return 1;
 }
 
 struct Thing *check_for_door_to_fight(struct Thing *thing)
@@ -1040,7 +1079,7 @@ long setup_head_for_room(struct Thing *thing, struct Room *room, unsigned char a
     return setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, a3);
 }
 
-long attempt_to_destroy_enemy_room(struct Thing *thing, unsigned char stl_x, unsigned char stl_y)
+TbBool attempt_to_destroy_enemy_room(struct Thing *thing, unsigned char stl_x, unsigned char stl_y)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
@@ -1083,13 +1122,13 @@ short arrive_at_call_to_arms(struct Thing *thing)
     if (dungeon->field_884 == 0)
     {
         set_start_state(thing);
-        return true;
+        return 1;
     }
     doortng = check_for_door_to_fight(thing);
     if (!thing_is_invalid(thing))
     {
         set_creature_door_combat(thing, doortng);
-        return 2;//UGH??????? probably only because 2=true, too
+        return 2;
     }
     if ( !attempt_to_destroy_enemy_room(thing, dungeon->field_881, dungeon->field_882) )
     {
@@ -1098,36 +1137,309 @@ short arrive_at_call_to_arms(struct Thing *thing)
           if ( setup_person_move_close_to_position(thing, dungeon->field_881, dungeon->field_882, 0) )
           {
               thing->continue_state = CrSt_AlreadyAtCallToArms;
-              return true;
+              return 1;
           }
       }
       if ( creature_choose_random_destination_on_valid_adjacent_slab(thing) )
       {
         thing->continue_state = CrSt_AlreadyAtCallToArms;
-        return true;
+        return 1;
       }
     }
-    return true;
+    return 1;
 }
 
 short at_barrack_room(struct Thing *thing)
 {
-  return _DK_at_barrack_room(thing);
+    struct Room *room;
+    struct CreatureControl *cctrl;
+    //return _DK_at_barrack_room(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_80 = 0;
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room))
+    {
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    if ((room->kind != RoK_BARRACKS) || (room->owner != thing->owner))
+    {
+        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    if (!add_creature_to_work_room(thing, room))
+    {
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    internal_set_thing_state(thing, CrSt_Barracking);
+    return 1;
+}
+
+long person_get_somewhere_adjacent_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos)
+{
+    return _DK_person_get_somewhere_adjacent_in_room(thing, room, pos);
 }
 
 short at_guard_post_room(struct Thing *thing)
 {
-  return _DK_at_guard_post_room(thing);
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    //return _DK_at_guard_post_room(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_80 = 0;
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room))
+    {
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    if ((room->kind != RoK_GUARDPOST) || (room->owner != thing->owner))
+    {
+        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    if ( !add_creature_to_work_room(thing, room) )
+    {
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    internal_set_thing_state(thing, CrSt_Guarding);
+    if ( !person_get_somewhere_adjacent_in_room(thing, room, &cctrl->moveto_pos) )
+    {
+        cctrl->moveto_pos.x.val = thing->mappos.x.val;
+        cctrl->moveto_pos.y.val = thing->mappos.y.val;
+        cctrl->moveto_pos.z.val = thing->mappos.z.val;
+    }
+    return 1;
 }
 
 short at_kinky_torture_room(struct Thing *thing)
 {
-  return _DK_at_kinky_torture_room(thing);
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    //return _DK_at_kinky_torture_room(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_80 = 0;
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if ((room->kind != RoK_TORTURE) || (room->owner != thing->owner))
+    {
+        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        set_start_state(thing);
+        return 0;
+    }
+    if ( !add_creature_to_work_room(thing, room) )
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    add_creature_to_torture_room(thing, room);
+    cctrl->word_A6 = 0;
+    cctrl->field_82 = game.play_gameturn;
+    cctrl->long_9A = game.play_gameturn;
+    cctrl->long_9E = game.play_gameturn;
+    cctrl->field_A8 = 1;
+    cctrl->long_A2 = game.play_gameturn;
+    internal_set_thing_state(thing, CrSt_KinkyTorturing);
+    return 1;
+}
+
+long creature_will_sleep(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *lairtng;
+    long dist_x,dist_y;
+    cctrl = creature_control_get_from_thing(thing);
+    lairtng = thing_get(cctrl->lairtng_idx);
+    if (thing_is_invalid(lairtng))
+        return false;
+    dist_x = (long)thing->mappos.x.stl.num - (long)lairtng->mappos.x.stl.num;
+    dist_y = (long)thing->mappos.y.stl.num - (long)lairtng->mappos.y.stl.num;
+    return (abs(dist_x) < 1) && (abs(dist_y) < 1);
+}
+
+long get_combat_distance(struct Thing *thing, struct Thing *enemy)
+{
+    long dist,avgc;
+    dist = get_2d_box_distance(&thing->mappos, &enemy->mappos);
+    avgc = (enemy->field_56 + thing->field_56) / 2;
+    if (dist < avgc)
+        return 0;
+    return dist - avgc;
+}
+
+long creature_can_have_combat_with_creature(struct Thing *fighter1, struct Thing *fighter2, long a2, long a4, long a5)
+{
+    return _DK_creature_can_have_combat_with_creature(fighter1, fighter2, a2, a4, a5);
+}
+
+void set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, long a3)
+{
+    _DK_set_creature_combat_state(fighter1, fighter2, a3);
+}
+
+long set_creature_in_combat_to_the_death(struct Thing *fighter1, struct Thing *fighter2, long a3)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(fighter1);
+    if (cctrl->field_3 != 0)
+    {
+        ERRORLOG("Creature in combat already - adding till death");
+        return false;
+    }
+    if (external_set_thing_state(fighter1, CrSt_CreatureInCombat))
+    {
+        set_creature_combat_state(fighter1, fighter2, a3);
+        cctrl->field_AA = 0;
+        cctrl->field_A9 = 1;
+    }
+    return true;
+}
+
+long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *room,long crmodel, struct Thing **enemytng)
+{
+    struct Dungeon *dungeon;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    long dist,combat_factor;
+    unsigned long k;
+    int i;
+    SYNCDBG(8,"Starting");
+    dungeon = get_players_num_dungeon(fighter->owner);
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+      thing = thing_get(i);
+      cctrl = creature_control_get_from_thing(thing);
+      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+      {
+        ERRORLOG("Jump to invalid creature detected");
+        break;
+      }
+      i = cctrl->thing_idx;
+      // Thing list loop body
+      if ( (thing->model == crmodel) && (cctrl->field_3 == 0) )
+      {
+          if ( ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0) )
+          {
+              if ((thing != fighter) && (get_room_thing_is_on(thing) == room))
+              {
+                  dist = get_combat_distance(fighter, thing);
+                  combat_factor = creature_can_have_combat_with_creature(fighter, thing, dist, 0, 0);
+                  if (combat_factor > 0)
+                  {
+                      *enemytng = thing;
+                      return combat_factor;
+                  }
+              }
+          }
+      }
+      // Thing list loop body ends
+      k++;
+      if (k > CREATURES_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping creatures list");
+        break;
+      }
+    }
+    SYNCDBG(19,"Finished");
+    *enemytng = INVALID_THING;
+    return 0;
+}
+
+long process_lair_enemy(struct Thing *thing, struct Room *room)
+{
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct Thing *enemytng;
+    long combat_factor;
+    cctrl = creature_control_get_from_thing(thing);
+    // Shouldn't be possible. But just for sure.
+    if (room_is_invalid(room))
+    {
+        return 0;
+    }
+    // If the room changed during creature's journey, end
+    if ((room->kind != RoK_LAIR) || (room->owner != thing->owner) || (room->index != cctrl->field_68))
+    {
+        return 0;
+    }
+    crstat = creature_stats_get_from_thing(thing);
+    // End if the creature has no lair enemy
+    if (crstat->lair_enemy == 0)
+    {
+        return 0;
+    }
+    // Search for enemies no often than every 64 turns
+    if ((game.play_gameturn + thing->index) & 0x3F != 0)
+    {
+        return 0;
+    }
+    combat_factor = find_fellow_creature_to_fight_in_room(thing,room,crstat->lair_enemy,&enemytng);
+    if (combat_factor < 1)
+        return 0;
+    set_creature_in_combat_to_the_death(thing, enemytng, combat_factor);
+    return 1;
 }
 
 short at_lair_to_sleep(struct Thing *thing)
 {
-  return _DK_at_lair_to_sleep(thing);
+    struct CreatureControl *cctrl;
+    struct Thing *lairtng;
+    struct Room *room;
+    //return _DK_at_lair_to_sleep(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    lairtng = thing_get(cctrl->lairtng_idx);
+    cctrl->field_80 = 0;
+    if (thing_is_invalid(lairtng) || (cctrl->field_21 == 0))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if (!creature_will_sleep(thing))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if ((room->kind != RoK_LAIR) || (room->owner != thing->owner))
+    {
+        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        set_start_state(thing);
+        return 0;
+    }
+    if ((cctrl->field_68 == room->index))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if ( !creature_turn_to_face_angle(thing, lairtng->field_52) )
+    {
+      internal_set_thing_state(thing, 26);
+      cctrl->field_82 = 200;
+      thing->field_25 &= ~0x20;
+    }
+    process_lair_enemy(thing, room);
+    return 1;
 }
 
 short at_research_room(struct Thing *thing)
@@ -1145,9 +1457,101 @@ short at_temple(struct Thing *thing)
   return _DK_at_temple(thing);
 }
 
+TbBool add_creature_to_work_room(struct Thing *crtng, struct Room *room)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *nxtng;
+    struct CreatureControl *nxctrl;
+    cctrl = creature_control_get_from_thing(crtng);
+    if (cctrl->work_room_id != 0)
+    {
+        WARNLOG("Attempt to add creature to room kind %d when he is a member of kind %d",
+            (int)room->kind, (int)room_get(cctrl->work_room_id)->kind);
+        remove_creature_from_work_room(crtng);
+    }
+    if ((cctrl->flgfield_1 & 0x20) != 0)
+    {
+        ERRORLOG("Attempt to add creature to a room when he is in the list of another");
+        return 0;
+    }
+    if (room->total_capacity < room->workers_in + 1)
+        return 0;
+    room->workers_in++;
+    cctrl->work_room_id = room->index;
+    cctrl->prev_in_room = 0;
+    if (room->creatures_list != 0)
+    {
+        nxtng = thing_get(room->creatures_list);
+        nxctrl = creature_control_get_from_thing(nxtng);
+    } else
+    {
+        nxctrl = INVALID_CRTR_CONTROL;
+    }
+    if (!creature_control_invalid(nxctrl))
+    {
+        cctrl->next_in_room = room->creatures_list;
+        nxctrl->prev_in_room = crtng->index;
+    } else
+    {
+        cctrl->next_in_room = 0;
+    }
+    room->creatures_list = crtng->index;
+    cctrl->flgfield_1 |= 0x20;
+    return 1;
+}
+
+TbBool add_creature_to_torture_room(struct Thing *crtng, struct Room *room)
+{
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    cctrl = creature_control_get_from_thing(crtng);
+    if (crtng->field_62 != 0)
+        light_delete_light(crtng->field_62);
+    if ((cctrl->spell_flags & 0x02) != 0)
+        terminate_thing_spell_effect(crtng, 11);
+    if ((cctrl->spell_flags & 0x20) != 0)
+        terminate_thing_spell_effect(crtng, 9);
+    dungeon = get_dungeon(room->owner);
+    dungeon->lvstats.creatures_tortured++;
+    if (dungeon->tortured_creatures[crtng->model] == 0)
+    {
+        // Torturing changes speed of creatures of that kind, so let's update
+        update_speed_of_player_creatures_of_model(room->owner, crtng->model);
+    }
+    dungeon->tortured_creatures[crtng->model]++;
+    return true;
+}
+
 short at_torture_room(struct Thing *thing)
 {
-  return _DK_at_torture_room(thing);
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    //return _DK_at_torture_room(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_80 = 0;
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room) || (room->kind != RoK_TORTURE))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if ( !add_creature_to_work_room(thing, room) )
+    {
+        if (is_my_player_number(room->owner))
+            output_message(27, 0, 1);
+        set_start_state(thing);
+        return 0;
+    }
+    add_creature_to_torture_room(thing, room);
+    cctrl->flgfield_1 |= 0x02;
+    cctrl->word_A6 = 0;
+    cctrl->field_82 = game.play_gameturn;
+    cctrl->long_9A = game.play_gameturn;
+    cctrl->long_9E = game.play_gameturn;
+    cctrl->field_A8 = 1;
+    cctrl->long_A2 = game.play_gameturn;
+    internal_set_thing_state(thing, CrSt_Torturing);
+    return 1;
 }
 
 short at_training_room(struct Thing *thing)
@@ -1167,22 +1571,39 @@ short barracking(struct Thing *thing)
 
 short cleanup_combat(struct Thing *thing)
 {
-  return _DK_cleanup_combat(thing);
+    //return _DK_cleanup_combat(thing);
+    remove_all_traces_of_combat(thing);
+    return 0;
 }
 
 short cleanup_door_combat(struct Thing *thing)
 {
-  return _DK_cleanup_door_combat(thing);
+    struct CreatureControl *cctrl;
+    //return _DK_cleanup_door_combat(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_3 &= ~0x10;
+    cctrl->word_A2 = 0;
+    return 1;
+
 }
 
 short cleanup_hold_audience(struct Thing *thing)
 {
-  return _DK_cleanup_hold_audience(thing);
+    struct CreatureControl *cctrl;
+    //return _DK_cleanup_hold_audience(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+    return 0;
 }
 
 short cleanup_object_combat(struct Thing *thing)
 {
-  return _DK_cleanup_object_combat(thing);
+    struct CreatureControl *cctrl;
+    //return _DK_cleanup_object_combat(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_3 &= ~0x08;
+    cctrl->word_A2 = 0;
+    return 1;
 }
 
 short cleanup_prison(struct Thing *thing)
@@ -1320,6 +1741,44 @@ TbBool make_all_players_creatures_angry(long plyr_idx)
     i = cctrl->thing_idx;
     // Thing list loop body
     anger_make_creature_angry(thing, 4);
+    // Thing list loop body ends
+    k++;
+    if (k > CREATURES_COUNT)
+    {
+      ERRORLOG("Infinite loop detected when sweeping creatures list");
+      break;
+    }
+  }
+  SYNCDBG(19,"Finished");
+  return true;
+}
+
+TbBool update_speed_of_player_creatures_of_model(long plyr_idx, long crmodel)
+{
+  struct Dungeon *dungeon;
+  struct CreatureControl *cctrl;
+  struct Thing *thing;
+  unsigned long k;
+  int i;
+  SYNCDBG(8,"Starting");
+  dungeon = get_players_num_dungeon(plyr_idx);
+  k = 0;
+  i = dungeon->creatr_list_start;
+  while (i != 0)
+  {
+    thing = thing_get(i);
+    cctrl = creature_control_get_from_thing(thing);
+    if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+    {
+      ERRORLOG("Jump to invalid creature detected");
+      break;
+    }
+    i = cctrl->thing_idx;
+    // Thing list loop body
+    if (thing->model == crmodel)
+    {
+        cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+    }
     // Thing list loop body ends
     k++;
     if (k > CREATURES_COUNT)
@@ -1787,7 +2246,7 @@ short creature_eat(struct Thing *thing)
   cctrl = creature_control_get_from_thing(thing);
   if (cctrl->field_D2 != 36)
     internal_set_thing_state(thing, thing->continue_state);
-  return true;
+  return 1;
 }
 
 short creature_eating_at_garden(struct Thing *thing)
@@ -1853,16 +2312,6 @@ long combat_enemy_exists(struct Thing *thing, struct Thing *enemy)
         return 0;
     }
     return 1;
-}
-
-long get_combat_distance(struct Thing *thing, struct Thing *enemy)
-{
-    long dist,avgc;
-    dist = get_2d_box_distance(&thing->mappos, &enemy->mappos);
-    avgc = (enemy->field_56 + thing->field_56) / 2;
-    if (dist < avgc)
-        return 0;
-    return dist - avgc;
 }
 
 long creature_is_most_suitable_for_combat(struct Thing *thing, struct Thing *enmtng)
@@ -2145,13 +2594,13 @@ short creature_in_prison(struct Thing *thing)
   room = get_room_thing_is_on(thing);
   if (room_is_invalid(room))
   {
-    set_start_state(thing);
-    return Lb_OK;
+      set_start_state(thing);
+      return Lb_OK;
   }
   if ( (room->kind != RoK_PRISON) || (cctrl->work_room_id != room->index) )
   {
-    set_start_state(thing);
-    return Lb_OK;
+      set_start_state(thing);
+      return Lb_OK;
   }
   if (room->total_capacity < room->workers_in)
   {
@@ -3008,22 +3457,22 @@ short good_doing_nothing(struct Thing *thing)
     {
         ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
-        return false;
+        return 0;
     }
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Invalid creature control; no action");
-        return false;
+        return 0;
     }
     nturns = game.play_gameturn - cctrl->long_9A;
     if (nturns <= 1)
-      return true;
+      return 1;
     if (cctrl->field_5 > (long)game.play_gameturn)
     {
       if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
         thing->continue_state = CrSt_GoodDoingNothing;
-      return true;
+      return 1;
     }
     i = cctrl->sbyte_89;
     if (i != -1)
@@ -3033,7 +3482,7 @@ short good_doing_nothing(struct Thing *thing)
       {
           ERRORLOG("Invalid target player in thing no %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
           cctrl->sbyte_89 = -1;
-          return false;
+          return 0;
       }
       if (player->victory_state != 2)
       {
@@ -3043,7 +3492,7 @@ short good_doing_nothing(struct Thing *thing)
           if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
           {
             thing->continue_state = CrSt_GoodDoingNothing;
-            return false;
+            return 0;
           }
         } else
         {
@@ -3079,11 +3528,11 @@ short good_doing_nothing(struct Thing *thing)
         if ( creature_choose_random_destination_on_valid_adjacent_slab(thing) )
         {
           thing->continue_state = CrSt_GoodDoingNothing;
-          return true;
+          return 1;
         }
         cctrl->field_5 = game.play_gameturn + 16;
       }
-      return true;
+      return 1;
     }
     SYNCDBG(8,"Performing task %d",(int)cctrl->field_4);
     switch (cctrl->field_4)
@@ -3091,7 +3540,7 @@ short good_doing_nothing(struct Thing *thing)
     case 1: // ATTACK_ROOMS
         if (good_setup_attack_rooms(thing, i))
         {
-            return true;
+            return 1;
         }
         WARNLOG("Can't attack player %d rooms, switching to attack heart", (int)i);
         cctrl->field_4 = 3;
@@ -3099,7 +3548,7 @@ short good_doing_nothing(struct Thing *thing)
     case 3: // ATTACK_DUNGEON_HEART
         if (good_setup_wander_to_dungeon_heart(thing, i))
         {
-            return true;
+            return 1;
         }
         ERRORLOG("Cannot wander to player %d heart", (int)i);
         return false;
@@ -3153,7 +3602,7 @@ short good_doing_nothing(struct Thing *thing)
         }
         WARNLOG("Can't attack player %d creature, switching to attack heart", (int)cctrl->sbyte_89);
         cctrl->field_4 = 3;
-        return false;
+        return 0;
     }
 }
 
@@ -3165,7 +3614,7 @@ short good_drops_gold(struct Thing *thing)
         ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
         erstat_inc(ESE_BadCreatrState);
-        return false;
+        return 0;
     }
     return _DK_good_drops_gold(thing);
 }
@@ -3219,7 +3668,7 @@ short good_returns_to_start(struct Thing *thing)
         ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
         erstat_inc(ESE_BadCreatrState);
-        return false;
+        return 0;
     }
     return _DK_good_returns_to_start(thing);
 }
@@ -3234,7 +3683,7 @@ short good_wait_in_exit_door(struct Thing *thing)
         ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
         erstat_inc(ESE_BadCreatrState);
-        return false;
+        return 0;
     }
     //return _DK_good_wait_in_exit_door(thing);
     cctrl = creature_control_get_from_thing(thing);
@@ -3446,11 +3895,11 @@ short imp_last_did_job(struct Thing *thing)
     //return _DK_imp_last_did_job(thing);
     if (check_out_imp_last_did(thing))
     {
-        return true;
+        return 1;
     } else
     {
         set_start_state(thing);
-        return false;
+        return 0;
     }
 }
 
@@ -3489,10 +3938,10 @@ short kinky_torturing(struct Thing *thing)
       {
         process_kinky_function(thing);
         process_torture_visuals(thing, room, 110);
-        return true;
+        return 1;
       }
   set_start_state(thing);
-  return false;
+  return 0;
 }
 
 short mad_killing_psycho(struct Thing *thing)
@@ -4144,7 +4593,7 @@ long process_work_speed_on_work_value(struct Thing *thing, long base_val)
     if (thing->owner != game.neutral_player_num)
     {
         dungeon = get_dungeon(thing->owner);
-        if (dungeon->field_1420[thing->model])
+        if (dungeon->tortured_creatures[thing->model] > 0)
             val = 4 * val / 3;
         if (dungeon->field_888)
             val = 6 * val / 5;

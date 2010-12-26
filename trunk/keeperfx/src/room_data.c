@@ -1169,7 +1169,7 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
         cctrl = creature_control_get_from_thing(thing);
         crstat = creature_stats_get_from_thing(thing);
         dungeon = get_dungeon(thing->owner);
-        if (dungeon->field_1420[thing->model] )
+        if (dungeon->tortured_creatures[thing->model] )
         {
           pay = compute_creature_max_pay(crstat->pay,cctrl->explevel) / 2;
         } else
