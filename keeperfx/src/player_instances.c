@@ -212,7 +212,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
   switch (dsttng->class_id)
   {
   case TCls_Creature:
-      if (!external_set_thing_state(dsttng, 38))
+      if (!external_set_thing_state(dsttng, CrSt_InPowerHand))
         return 0;
       cctrl = creature_control_get_from_thing(dsttng);
       if (cctrl->field_AD & 0x02)

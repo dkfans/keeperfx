@@ -373,9 +373,9 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, shor
     return 0;
 }
 
-long creature_move_to(struct Thing *thing, struct Coord3d *pos, short a3, unsigned char a4, unsigned char a5)
+long creature_move_to(struct Thing *thing, struct Coord3d *pos, short speed, unsigned char a4, unsigned char a5)
 {
-    return creature_move_to_using_gates(thing, pos, a3, -2, a4, a5);
+    return creature_move_to_using_gates(thing, pos, speed, -2, a4, a5);
 }
 
 TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos, long walk_speed)
