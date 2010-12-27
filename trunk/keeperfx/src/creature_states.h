@@ -75,7 +75,7 @@ enum CreatureStates {
     CrSt_GoodReturnsToStart,
     CrSt_GoodBackAtStart,
     CrSt_GoodDropsGold,
-    CrSt_Null38,
+    CrSt_InPowerHand,
     CrSt_ArriveAtCallToArms,
     CrSt_CreatureArrivedAtPrison,//[40]
     CrSt_CreatureInPrison,
@@ -185,6 +185,16 @@ enum CreatureStates {
     CrSt_CreatureSearchForSpellToStealInRoom,
     CrSt_CreatureStealSpell,
     CrSt_ListEnd,
+};
+
+enum CreatureTrainingModes {
+    CrTrMd_Unused = 0,
+    CrTrMd_Value1,
+    CrTrMd_Value2,
+    CrTrMd_Value3,
+    CrTrMd_Value4,
+    CrTrMd_Value5,
+    CrTrMd_PartnerTraining,
 };
 
 typedef void (*CombatState)(struct Thing *);

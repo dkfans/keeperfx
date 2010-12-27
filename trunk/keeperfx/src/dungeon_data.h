@@ -209,7 +209,7 @@ struct Dungeon {
     int field_884;
     int field_888;
     int field_88C[10];
-    int field_8B4[8];
+    unsigned char creatures_praying[CREATURE_TYPES_COUNT];
     unsigned char chickens_sacrificed;
     unsigned char field_8D5;
     unsigned char creature_sacrifice[CREATURE_TYPES_COUNT];

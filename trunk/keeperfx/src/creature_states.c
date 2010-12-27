@@ -1434,7 +1434,7 @@ short at_lair_to_sleep(struct Thing *thing)
     }
     if ( !creature_turn_to_face_angle(thing, lairtng->field_52) )
     {
-      internal_set_thing_state(thing, 26);
+      internal_set_thing_state(thing, CrSt_CreatureSleep);
       cctrl->field_82 = 200;
       thing->field_25 &= ~0x20;
     }
@@ -1444,17 +1444,132 @@ short at_lair_to_sleep(struct Thing *thing)
 
 short at_research_room(struct Thing *thing)
 {
-  return _DK_at_research_room(thing);
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct Dungeon *dungeon;
+    struct Room *room;
+    //return _DK_at_research_room(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_80 = 0;
+    if (thing->owner == game.neutral_player_num)
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    crstat = creature_stats_get_from_thing(thing);
+    dungeon = get_dungeon(thing->owner);
+    if ((crstat->research_value <= 0) || (dungeon->field_F78 < 0))
+    {
+        if ((thing->owner != game.neutral_player_num) && (dungeon->field_F78 < 0))
+        {
+            if (is_my_player_number(dungeon->field_E9F))
+                output_message(46, 500, 1);
+        }
+        set_start_state(thing);
+        return 0;
+    }
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if ((room->kind != RoK_LIBRARY) || (room->owner != thing->owner))
+    {
+        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        set_start_state(thing);
+        return 0;
+    }
+    if (!add_creature_to_work_room(thing, room))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if ( !setup_random_head_for_room(thing, room, 0) )
+    {
+        ERRORLOG("The %s can not move in research room", thing_model_name(thing));
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    thing->continue_state = CrSt_Researching;
+    cctrl->field_82 = 0;
+    cctrl->byte_9A = 3;
+    return 1;
 }
 
 short at_scavenger_room(struct Thing *thing)
 {
-  return _DK_at_scavenger_room(thing);
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct Dungeon *dungeon;
+    struct Room *room;
+    //return _DK_at_scavenger_room(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if ((room->kind != RoK_SCAVENGER) || (room->owner != thing->owner))
+    {
+        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        set_start_state(thing);
+        return 0;
+    }
+    crstat = creature_stats_get_from_thing(thing);
+    dungeon = get_dungeon(thing->owner);
+    if (crstat->scavenger_cost >= dungeon->field_AF9)
+    {
+        if (is_my_player_number(thing->owner))
+            output_message(88, 500, 1);
+        set_start_state(thing);
+        return 0;
+    }
+    if ( !add_creature_to_work_room(thing, room) )
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    internal_set_thing_state(thing, CrSt_Scavengering);
+    cctrl->field_82 = 0;
+    return 1;
 }
 
 short at_temple(struct Thing *thing)
 {
-  return _DK_at_temple(thing);
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    struct Room *room;
+    //return _DK_at_temple(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_80 = 0;
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if ((room->kind != RoK_TEMPLE) || (room->owner != thing->owner))
+    {
+        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        set_start_state(thing);
+        return 0;
+    }
+    dungeon = get_dungeon(thing->owner);
+    if ( !add_creature_to_work_room(thing, room) )
+    {
+        if (is_my_player_number(thing->owner))
+            output_message(31, 0, 1);
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    internal_set_thing_state(thing, CrSt_PrayingInTemple);
+    dungeon->creatures_praying[thing->model]++;
+    cctrl->field_82 = 0;
+    return 1;
 }
 
 TbBool add_creature_to_work_room(struct Thing *crtng, struct Room *room)
@@ -4688,24 +4803,26 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
     crstat = creature_stats_get_from_thing(thing);
     if ( a3 )
       cctrl->byte_9E = 50;
+    // Try partner training
     if ((crstat->partner_training > 0) && (ACTION_RANDOM(100) < crstat->partner_training))
     {
         prtng = get_creature_in_training_room_which_could_accept_partner(room, thing);
         if (!thing_is_invalid(prtng))
         {
             prctrl = creature_control_get_from_thing(thing);
-            prctrl->byte_9A = 6;
+            prctrl->byte_9A = CrTrMd_PartnerTraining;
             prctrl->byte_9B = 75;
             prctrl->word_9F = thing->index;
             prctrl->long_A1 = thing->field_9;
-            cctrl->byte_9A = 6;
+            cctrl->byte_9A = CrTrMd_PartnerTraining;
             cctrl->byte_9B = 75;
             cctrl->word_9F = prtng->index;
             cctrl->long_A1 = prtng->field_9;
             return;
       }
     }
-    cctrl->byte_9A = 1;
+    // No partner - train at some random position
+    cctrl->byte_9A = CrTrMd_Value1;
     if (find_random_valid_position_for_thing_in_room(thing, room, &pos))
     {
       cctrl->moveto_pos.x.stl.num = pos.x.stl.num;
@@ -4864,7 +4981,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
     cctrl->field_4A = 0;
     switch (cctrl->byte_9A)
     {
-    case 1:
+    case CrTrMd_Value1:
         if (cctrl->field_D2 != 0)
             break;
         if (cctrl->byte_9E <= 1)
@@ -4885,7 +5002,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
                 setup_move_to_new_training_position(thing, room, 0);
                 break;
             }
-            cctrl->byte_9A = 2;
+            cctrl->byte_9A = CrTrMd_Value2;
             cctrl->byte_9E = 50;
         } else
         if (i == -1)
@@ -4894,7 +5011,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             set_start_state(thing);
         }
         break;
-    case 2:
+    case CrTrMd_Value2:
         for (i=0; i < 4; i++)
         {
             long slb_x,slb_y;
@@ -4905,64 +5022,64 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             slb = get_slabmap_block(slb_x,slb_y);
             if ((slb->kind != SlbT_TRAINING) || (slabmap_owner(slb) != thing->owner))
                 continue;
-              stl_x = 3*slb_x + (long)corners[i].delta_x;
-              stl_y = 3*slb_y + (long)corners[i].delta_y;
-              traintng = INVALID_THING;
-              crtng = get_creature_of_model_training_at_subtile_and_owned_by(stl_x, stl_y, -1, thing->owner);
-              if (thing_is_invalid(crtng))
-              {
-                  traintng = get_object_at_subtile_of_model_and_owned_by(stl_x, stl_y, 31, thing->owner);
-              }
-              if (!thing_is_invalid(crtng) || !thing_is_invalid(traintng))
-              {
-                  cctrl->byte_9C = 3 * map_to_slab[thing->mappos.x.stl.num] + 1;
-                  cctrl->byte_9D = 3 * map_to_slab[thing->mappos.y.stl.num] + 1;
-                  cctrl->moveto_pos.x.stl.num = stl_x;
-                  cctrl->moveto_pos.y.stl.num = stl_y;
-                  cctrl->moveto_pos.x.stl.pos = 128;
-                  cctrl->moveto_pos.y.stl.pos = 128;
-                  cctrl->moveto_pos.z.val = get_thing_height_at(thing, &cctrl->moveto_pos);
-                  if (thing_in_wall_at(thing, &cctrl->moveto_pos))
-                  {
-                    ERRORLOG("Illegal setup to (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
-                    set_start_state(thing);
-                  }
-                  cctrl->byte_9A = 3;
-                  break;
-              }
+            stl_x = 3*slb_x + (long)corners[i].delta_x;
+            stl_y = 3*slb_y + (long)corners[i].delta_y;
+            traintng = INVALID_THING;
+            crtng = get_creature_of_model_training_at_subtile_and_owned_by(stl_x, stl_y, -1, thing->owner, thing->index);
+            if (thing_is_invalid(crtng))
+            {
+                traintng = get_object_at_subtile_of_model_and_owned_by(3*slb_x+1, 3*slb_y+1, 31, thing->owner);
+            }
+            if (!thing_is_invalid(traintng))
+            {
+                cctrl->byte_9C = 3 * map_to_slab[thing->mappos.x.stl.num] + 1;
+                cctrl->byte_9D = 3 * map_to_slab[thing->mappos.y.stl.num] + 1;
+                cctrl->moveto_pos.x.stl.num = stl_x;
+                cctrl->moveto_pos.y.stl.num = stl_y;
+                cctrl->moveto_pos.x.stl.pos = 128;
+                cctrl->moveto_pos.y.stl.pos = 128;
+                cctrl->moveto_pos.z.val = get_thing_height_at(thing, &cctrl->moveto_pos);
+                if (thing_in_wall_at(thing, &cctrl->moveto_pos))
+                {
+                  ERRORLOG("Illegal setup to (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
+                  set_start_state(thing);
+                }
+                cctrl->byte_9A = CrTrMd_Value3;
+                break;
+            }
         }
-        if (cctrl->byte_9A == 2)
+        if (cctrl->byte_9A == CrTrMd_Value2)
           setup_move_to_new_training_position(thing, room, 1);
         break;
-    case 3:
+    case CrTrMd_Value3:
         speed = get_creature_speed(thing);
         i = creature_move_to(thing, &cctrl->moveto_pos, speed, 0, 0);
         if (i == 1)
         {
-            crtng = get_creature_of_model_training_at_subtile_and_owned_by(thing->mappos.x.stl.num, thing->mappos.y.stl.num, -1, thing->owner);
+            crtng = get_creature_of_model_training_at_subtile_and_owned_by(thing->mappos.x.stl.num, thing->mappos.y.stl.num, -1, thing->owner, thing->index);
             if (!thing_is_invalid(crtng))
             {
                 setup_move_to_new_training_position(thing, room, 1);
                 break;
             }
-            cctrl->byte_9A = 4;
+            cctrl->byte_9A = CrTrMd_Value4;
         } else
-        if ( i == -1 )
+        if (i == -1)
         {
             ERRORLOG("Cannot get where we're going in the training room.");
             set_start_state(thing);
         }
         break;
-    case 4:
+    case CrTrMd_Value4:
         pos.x.val = ((long)cctrl->byte_9C << 8) + 128;
         pos.y.val = ((long)cctrl->byte_9D << 8) + 128;
         if (creature_turn_to_face(thing, &pos) < 56)
         {
-          cctrl->byte_9A = 5;
+          cctrl->byte_9A = CrTrMd_Value5;
           cctrl->byte_9B = 75;
         }
         break;
-    case 6:
+    case CrTrMd_PartnerTraining:
         if (cctrl->word_9F == 0)
         {
             setup_move_to_new_training_position(thing, room, 0);
@@ -4994,7 +5111,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         {
             if (creature_move_to(thing, &crtng->mappos, get_creature_speed(thing), 0, 0) == -1)
             {
-              ERRORLOG("cannot navigate to training partner");
+              ERRORLOG("Cannot navigate to training partner");
               setup_move_to_new_training_position(thing, room, 0);
               cctrl->word_9F = 0;
             }
@@ -5028,7 +5145,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             creature_retreat_from_combat(thing, crtng, 33, 0);
         }
         break;
-    case 5:
+    case CrTrMd_Value5:
     default:
         cctrl->byte_9B--;
         if (cctrl->byte_9B > 0)
@@ -5065,7 +5182,6 @@ short training(struct Thing *thing)
     dungeon = get_dungeon(thing->owner);
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
-
     // Check if we should finish training
     finish_training = false;
     if (!creature_can_be_trained(thing))
@@ -5078,6 +5194,7 @@ short training(struct Thing *thing)
             output_message(89, 500, 1);
         finish_training = true;
     }
+    // Check if we're in correct room
     room = get_room_thing_is_on(thing);
     if (room_is_invalid(room) || (room->kind != RoK_TRAINING)
      || (cctrl->work_room_id != room->index) || (room->owner != thing->owner))
@@ -5096,7 +5213,7 @@ short training(struct Thing *thing)
     {
         cctrl->field_82 -= game.train_cost_frequency;
         if (take_money_from_dungeon(thing->owner, crstat->training_cost, 1) < 0)
-            ERRORLOG("Cannot take money i am supposed to be able to afford from dungeon");
+            ERRORLOG("Cannot take %d gold from dungeon %d",(int)crstat->training_cost,(int)thing->owner);
         create_price_effect(&thing->mappos, thing->owner, crstat->training_cost);
     }
     if (cctrl->field_D2 || !check_experience_upgrade(thing))
@@ -5108,7 +5225,7 @@ short training(struct Thing *thing)
         process_creature_in_training_room(thing, room);
     } else
     {
-      if (external_set_thing_state(thing, 127))
+      if (external_set_thing_state(thing, CrSt_CreatureBeHappy))
         cctrl->field_282 = 50;
       dungeon->lvstats.creatures_trained++;
     }
