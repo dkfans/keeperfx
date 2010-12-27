@@ -316,7 +316,7 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
       break;
     }
   }
-  SYNCDBG(19,"Finished");
+  SYNCDBG(19,"Finished, %d items, checksum %06lX",(int)k,(unsigned long)sum);
   return sum;
 }
 
@@ -330,7 +330,7 @@ unsigned long update_cave_in_things(void)
   unsigned long k;
   int i;
   k = 0;
-  i = game.thing_lists[10].index;
+  i = game.thing_lists[TngList_CaveIns].index;
   while (i != 0)
   {
     thing = thing_get(i);
@@ -391,7 +391,7 @@ unsigned long update_creatures_not_in_list(void)
   SYNCDBG(18,"Starting");
   //_DK_update_creatures_not_in_list();
   k = 0;
-  i = game.thing_lists[0].index;
+  i = game.thing_lists[TngList_Creatures].index;
   while (i != 0)
   {
     thing = thing_get(i);
@@ -433,17 +433,17 @@ void update_things(void)
   total_lights = 0;
   do_lights = game.field_4614D;
   sum = 0;
-  sum += update_things_in_list(&game.thing_lists[0]);
+  sum += update_things_in_list(&game.thing_lists[TngList_Creatures]);
   update_creatures_not_in_list();
-  sum += update_things_in_list(&game.thing_lists[7]);
-  sum += update_things_in_list(&game.thing_lists[1]);
-  sum += update_things_in_list(&game.thing_lists[2]);
-  sum += update_things_in_list(&game.thing_lists[5]);
-  sum += update_things_in_list(&game.thing_lists[3]);
-  sum += update_things_in_list(&game.thing_lists[4]);
-  sum += update_things_in_list(&game.thing_lists[6]);
-  sum += update_things_in_list(&game.thing_lists[8]);
-  update_things_sounds_in_list(&game.thing_lists[9]);
+  sum += update_things_in_list(&game.thing_lists[TngList_Traps]);
+  sum += update_things_in_list(&game.thing_lists[TngList_Shots]);
+  sum += update_things_in_list(&game.thing_lists[TngList_Objects]);
+  sum += update_things_in_list(&game.thing_lists[TngList_Effects]);
+  sum += update_things_in_list(&game.thing_lists[TngList_EffectElems]);
+  sum += update_things_in_list(&game.thing_lists[TngList_DeadCreatrs]);
+  sum += update_things_in_list(&game.thing_lists[TngList_EffectGens]);
+  sum += update_things_in_list(&game.thing_lists[TngList_Doors]);
+  update_things_sounds_in_list(&game.thing_lists[TngList_AmbientSnds]);
   update_cave_in_things();
   sum += compute_players_checksum();
   sum += game.action_rand_seed;
@@ -457,7 +457,7 @@ void init_player_start(struct PlayerInfo *player)
   struct Thing *thing;
   int i,k;
   k = 0;
-  i = game.thing_lists[2].index;
+  i = game.thing_lists[TngList_Objects].index;
   while (i != 0)
   {
     thing = thing_get(i);
@@ -491,7 +491,7 @@ void setup_computer_player(int plr_idx)
   SYNCDBG(5,"Starting for player %d",plr_idx);
   player = get_player(plr_idx);
   k = 0;
-  i = game.thing_lists[2].index;
+  i = game.thing_lists[TngList_Objects].index;
   while (i != 0)
   {
     thing = thing_get(i);
@@ -534,7 +534,7 @@ void init_all_creature_states(void)
   struct Thing *thing;
   int i,k;
   k = 0;
-  i = game.thing_lists[0].index;
+  i = game.thing_lists[TngList_Creatures].index;
   while (i != 0)
   {
     thing = thing_get(i);
@@ -563,7 +563,7 @@ struct Thing *find_hero_gate_of_number(long num)
   struct Thing *thing;
   unsigned long k;
   long i;
-  i = game.thing_lists[2].index;
+  i = game.thing_lists[TngList_Objects].index;
   k = 0;
   while (i != 0)
   {
@@ -599,7 +599,7 @@ struct Thing *find_nearest_enemy_creature(struct Thing *crtng)
   long neardist,dist;
   neardist = LONG_MAX;
   neartng = NULL;
-  i = game.thing_lists[0].index;
+  i = game.thing_lists[TngList_Creatures].index;
   k = 0;
   while (i != 0)
   {
@@ -638,7 +638,7 @@ long creature_of_model_in_prison(int model)
 {
   struct Thing *thing;
   long i,k;
-  i = game.thing_lists[0].index;
+  i = game.thing_lists[TngList_Creatures].index;
   k = 0;
   while (i != 0)
   {
@@ -679,7 +679,7 @@ long electricity_affecting_area(struct Coord3d *pos, long immune_plyr_idx, long 
   long i;
   long dist,damage,naffected;
   naffected = 0;
-  i = game.thing_lists[0].index;
+  i = game.thing_lists[TngList_Creatures].index;
   k = 0;
   while (i != 0)
   {

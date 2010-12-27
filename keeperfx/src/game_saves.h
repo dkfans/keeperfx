@@ -46,7 +46,7 @@ enum SaveGameChunkFlags {
      SGF_PacketData   = 0x0200,
 };
 #define SGF_SavedGame      (SGF_InfoBlock|SGF_GameOrig|SGF_GameAdd)
-#define SGF_PacketStart    (SGF_PacketHeader|SGF_PacketData)
+#define SGF_PacketStart    (SGF_PacketHeader|SGF_PacketData|SGF_InfoBlock)
 #define SGF_PacketContinue (SGF_PacketHeader|SGF_PacketData|SGF_InfoBlock|SGF_GameOrig|SGF_GameAdd)
 
 enum GameLoadStatus {

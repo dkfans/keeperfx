@@ -133,17 +133,17 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
         if (LbFileWrite(fhandle, &game.packet_save_head, sizeof(struct PacketSaveHead)) == sizeof(struct PacketSaveHead))
             chunks_done |= SGF_PacketHeader;
     }
+    { // Info chunk
+        hdr.id = SGC_InfoBlock;
+        hdr.ver = 0;
+        hdr.len = sizeof(struct CatalogueEntry);
+        if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
+        if (LbFileWrite(fhandle, centry, sizeof(struct CatalogueEntry)) == sizeof(struct CatalogueEntry))
+            chunks_done |= SGF_InfoBlock;
+    }
     // If it's not start of a level, save progress data too
     if (game.play_gameturn != 0)
     {
-        { // Info chunk
-            hdr.id = SGC_InfoBlock;
-            hdr.ver = 0;
-            hdr.len = sizeof(struct CatalogueEntry);
-            if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
-            if (LbFileWrite(fhandle, centry, sizeof(struct CatalogueEntry)) == sizeof(struct CatalogueEntry))
-                chunks_done |= SGF_InfoBlock;
-        }
         { // Game data chunk
             hdr.id = SGC_GameOrig;
             hdr.ver = 0;

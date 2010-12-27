@@ -150,7 +150,7 @@ void post_init_packets(void);
 
 TbBool open_new_packet_file_for_save(void);
 void load_packets_for_turn(long nturn);
-TbBool open_packet_file_for_load(char *fname);
+TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry);
 short save_packets(void);
 void close_packet_file(void);
 /******************************************************************************/
