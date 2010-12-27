@@ -566,7 +566,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            external_set_thing_state(thing, 120);
+            external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
             cctrl->field_282 = 10;
             cctrl->field_AD |= 0x02;
             cctrl->casted_spells[i].spkind = spell_idx;
@@ -642,7 +642,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         cctrl->field_B2[4] = thing->owner;
         break;
     case SplK_Chicken:
-        external_set_thing_state(thing, 120);
+        external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
         cctrl->field_282 = 10;
         cctrl->casted_spells[idx].field_1 = game.magic_stats[15].power[spell_lev];
         break;
@@ -3134,7 +3134,7 @@ long update_creature_levels(struct Thing *thing)
     update_creature_health_to_max(newtng);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->field_282 = 50;
-    external_set_thing_state(newtng, 127);
+    external_set_thing_state(newtng, CrSt_CreatureBeHappy);
     player = get_player(thing->owner);
     // Switch control if this creature is possessed
     if (is_thing_passenger_controlled(thing))

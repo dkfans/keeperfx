@@ -264,11 +264,14 @@ long map_block_creature_filter_of_model_training_and_owned_by(const struct Thing
       {
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {
-              cctrl = creature_control_get_from_thing(thing);
-              if ((thing->active_state == CrSt_Training) && (cctrl->byte_9A > 1))
+              if (((int)thing->index != param->num1) || (param->num1 == -1))
               {
-                  // Return the largest value to stop sweeping
-                  return LONG_MAX;
+                  cctrl = creature_control_get_from_thing(thing);
+                  if ((thing->active_state == CrSt_Training) && (cctrl->byte_9A > 1))
+                  {
+                      // Return the largest value to stop sweeping
+                      return LONG_MAX;
+                  }
               }
           }
       }
@@ -1447,7 +1450,7 @@ struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 
-struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model_id, long plyr_idx)
+struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model_id, long plyr_idx, long skip_thing_id)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundFilterParam param;
@@ -1458,6 +1461,7 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
     param.class_id = TCls_Creature;
     param.model_id = model_id;
     param.plyr_idx = plyr_idx;
+    param.num1 = skip_thing_id;
     mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
     {
