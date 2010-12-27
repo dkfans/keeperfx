@@ -78,6 +78,8 @@ TbBool send_resync_game(void)
 {
   TbFileHandle fh;
   char *fname;
+
+  //TODO NET: see if it is necessary to dump to file... probably superfluous
   fname = prepare_file_path(FGrp_Save,"resync.dat");
   fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
   if (fh == -1)
@@ -85,15 +87,18 @@ TbBool send_resync_game(void)
     ERRORLOG("Can't open resync file.");
     return false;
   }
-     //TODO NET write the resync function
+
+  LbFileWrite(fh, &game, sizeof(game));
   LbFileClose(fh);
-  return false;
+
+  NETLOG("Initiating re-synchronization of network game");
+  return LbNetwork_Resync(&game, sizeof(game));
 }
 
 TbBool receive_resync_game(void)
 {
-     //TODO NET write the resync function
-  return false;
+  NETLOG("Initiating re-synchronization of network game");
+  return LbNetwork_Resync(&game, sizeof(game));
 }
 
 void store_localised_game_structure(void)

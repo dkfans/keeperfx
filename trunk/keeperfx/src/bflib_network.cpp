@@ -8,7 +8,7 @@
  *     Network support routines.
  * @par Comment:
  *     None.
- * @author   Tomasz Lis
+ * @author   KeeperFX Team
  * @date     11 Apr 2009 - 13 May 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
@@ -177,7 +177,8 @@ enum NetMessageType
     NETMSG_LOGIN,           //to server: username and pass, from server: assigned id
     NETMSG_USERUPDATE,      //changed player from server
     NETMSG_FRAME,           //to server: ACK of frame + packets, from server: the frame itself
-    NETMSG_LAGWARNING,      //from server: notice that some client is lagging
+    NETMSG_LAGWARNING,      //from server: notice that some client is lagging¨
+    NETMSG_RESYNC,          //from server: re-synchronization is occurring
 };
 
 /**
@@ -1141,6 +1142,40 @@ TbError LbNetwork_Exchange(void *buf)
     netstate.sp->update(OnNewUser);
 
     return Lb_OK;
+}
+
+TbBool LbNetwork_Resync(void * buf, size_t len)
+{
+    char * full_buf;
+    int i;
+
+    full_buf = (char *) malloc(len + 1);
+
+    if (netstate.users[netstate.my_id].progress == USER_SERVER) {
+        full_buf[0] = NETMSG_RESYNC;
+        memcpy(full_buf + 1, buf, len);
+
+        for (i = 0; i < MAX_N_USERS; ++i) {
+            if (netstate.users[i].progress != USER_LOGGEDIN) {
+                continue;
+            }
+
+            netstate.sp->sendmsg_single(netstate.users[i].id, full_buf, len + 1);
+        }
+    }
+    else {
+        //discard all frames until next resync frame
+        do {
+            if (netstate.sp->readmsg(SERVER_ID, full_buf, len + 1) < 1) {
+                NETLOG("Bad reception of resync message");
+                return false;
+            }
+        } while (full_buf[0] != NETMSG_RESYNC);
+
+        memcpy(buf, full_buf + 1, len);
+    }
+
+    return true;
 }
 
 TbError LbNetwork_EnableNewPlayers(TbBool allow)
