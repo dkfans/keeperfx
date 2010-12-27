@@ -88,7 +88,6 @@ DLLIMPORT void _DK_open_packet_file_for_load(char *fname);
 DLLIMPORT void _DK_set_packet_action(struct Packet *pckt,unsigned char,short,short,short,short);
 
 /******************************************************************************/
-#define PACKET_START_POS (sizeof(struct PacketSaveHead))
 #define PACKET_TURN_SIZE (NET_PLAYERS_COUNT*sizeof(struct Packet) + sizeof(TbBigChecksum))
 struct Packet bad_packet;
 /******************************************************************************/
@@ -200,24 +199,35 @@ short set_packet_pause_toggle(void)
   return true;
 }
 
-TbBigChecksum compute_players_checksum(void)
+TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
 {
-  struct PlayerInfo *player;
-  struct Coord3d *mappos;
-  int i;
-  TbBigChecksum sum;
-  sum = 0;
-  for (i=0; i<PLAYERS_COUNT; i++)
-  {
-    player = get_player(i);
-    if (player_exists(player) && ((player->field_0 & 0x40) == 0) && (player->acamera != NULL))
+    struct Coord3d *mappos;
+    TbBigChecksum sum;
+    sum = 0;
+    if (((player->field_0 & 0x40) == 0) && (player->acamera != NULL))
     {
         mappos = &(player->acamera->mappos);
         sum += player->field_4B1 + player->instance_num
                    + mappos->x.val + mappos->z.val + mappos->y.val;
     }
-  }
-  return sum;
+    return sum;
+}
+
+TbBigChecksum compute_players_checksum(void)
+{
+    struct PlayerInfo *player;
+    int i;
+    TbBigChecksum sum;
+    sum = 0;
+    for (i=0; i<PLAYERS_COUNT; i++)
+    {
+      player = get_player(i);
+      if (player_exists(player))
+      {
+          sum += compute_player_checksum(player);
+      }
+    }
+    return sum;
 }
 
 void set_player_packet_checksum(long plyr_idx,TbBigChecksum sum)
@@ -2407,10 +2417,10 @@ void process_players_creature_control_packet_action(long idx)
   }
 }
 
-TbBool open_packet_file_for_load(char *fname)
+TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
 {
-    struct CatalogueEntry centry;
     int i;
+    LbMemorySet(centry, 0, sizeof(struct CatalogueEntry));
     strcpy(game.packet_fname, fname);
     game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_READ_ONLY);
     if (game.packet_save_fp == -1)
@@ -2419,8 +2429,7 @@ TbBool open_packet_file_for_load(char *fname)
         game.packet_fopened = 0;
         return false;
     }
-    memset(&centry, 0, sizeof(struct CatalogueEntry));
-    i = load_game_chunks(game.packet_save_fp,&centry);
+    i = load_game_chunks(game.packet_save_fp,centry);
     if ((i != GLoad_PacketStart) && (i != GLoad_PacketContinue))
     {
         LbFileClose(game.packet_save_fp);
@@ -2436,10 +2445,10 @@ TbBool open_packet_file_for_load(char *fname)
         WARNMSG("PacketSave checksum not available, checking disabled.");
         game.packet_checksum = false;
     }
-    if (game.numfield_149F3A == -1)
+    if (game.log_things_start_turn == -1)
     {
-        game.numfield_149F3A = 0;
-        game.numfield_149F3E = game.turns_stored + 1;
+        game.log_things_start_turn = 0;
+        game.log_things_end_turn = game.turns_stored + 1;
     }
     game.packet_fopened = 1;
     return true;
@@ -2447,41 +2456,43 @@ TbBool open_packet_file_for_load(char *fname)
 
 void post_init_packets(void)
 {
-  if ((game.packet_load_enable) && (game.numfield_149F47))
-  {
-      open_packet_file_for_load(game.packet_fname);
-      game.pckt_gameturn = 0;
-  }
-  clear_packets();
+    struct CatalogueEntry centry;
+    SYNCDBG(6,"Starting");
+    if ((game.packet_load_enable) && (game.numfield_149F47))
+    {
+        open_packet_file_for_load(game.packet_fname,&centry);
+        game.pckt_gameturn = 0;
+    }
+    clear_packets();
 }
 
 short save_packets(void)
 {
-  const int turn_data_size = PACKET_TURN_SIZE;
-  unsigned char pckt_buf[PACKET_TURN_SIZE+4];
-  TbBigChecksum chksum;
-  int i;
-  SYNCDBG(6,"Starting");
-  if (game.packet_checksum)
-    chksum = get_packet_save_checksum();
-  else
-    chksum = 0;
-  LbFileSeek(game.packet_save_fp, 0, Lb_FILE_SEEK_END);
-  // Prepare data in the buffer
-  for (i=0; i<NET_PLAYERS_COUNT; i++)
-    LbMemoryCopy(&pckt_buf[i*sizeof(struct Packet)], &game.packets[i], sizeof(struct Packet));
-  LbMemoryCopy(&pckt_buf[NET_PLAYERS_COUNT*sizeof(struct Packet)], &chksum, sizeof(TbBigChecksum));
-  // Write buffer into file
-  if (LbFileWrite(game.packet_save_fp, &pckt_buf, turn_data_size) != turn_data_size)
-  {
-    ERRORLOG("Packet file write error");
-  }
-  if ( !LbFileFlush(game.packet_save_fp) )
-  {
-    ERRORLOG("Unable to flush PacketSave File");
-    return false;
-  }
-  return true;
+    const int turn_data_size = PACKET_TURN_SIZE;
+    unsigned char pckt_buf[PACKET_TURN_SIZE+4];
+    TbBigChecksum chksum;
+    int i;
+    SYNCDBG(6,"Starting");
+    if (game.packet_checksum)
+      chksum = get_packet_save_checksum();
+    else
+      chksum = 0;
+    LbFileSeek(game.packet_save_fp, 0, Lb_FILE_SEEK_END);
+    // Prepare data in the buffer
+    for (i=0; i<NET_PLAYERS_COUNT; i++)
+        LbMemoryCopy(&pckt_buf[i*sizeof(struct Packet)], &game.packets[i], sizeof(struct Packet));
+    LbMemoryCopy(&pckt_buf[NET_PLAYERS_COUNT*sizeof(struct Packet)], &chksum, sizeof(TbBigChecksum));
+    // Write buffer into file
+    if (LbFileWrite(game.packet_save_fp, &pckt_buf, turn_data_size) != turn_data_size)
+    {
+      ERRORLOG("Packet file write error");
+    }
+    if ( !LbFileFlush(game.packet_save_fp) )
+    {
+      ERRORLOG("Unable to flush PacketSave File");
+      return false;
+    }
+    return true;
 }
 
 void close_packet_file(void)

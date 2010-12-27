@@ -7678,12 +7678,13 @@ void init_players_local_game(void)
 
 void startup_saved_packet_game(void)
 {
+    struct CatalogueEntry centry;
     //_DK_startup_saved_packet_game(); return;
     clear_packets();
-    open_packet_file_for_load(game.packet_fname);
-    if (!change_campaign(""))
+    open_packet_file_for_load(game.packet_fname,&centry);
+    if (!change_campaign(centry.campaign_fname))
     {
-      ERRORLOG("Unable to load campaign associated with packet file");
+        ERRORLOG("Unable to load campaign associated with packet file");
     }
     set_selected_level_number(game.packet_save_head.level_num);
     lbDisplay.DrawColour = colours[15][15][15];
@@ -7698,8 +7699,8 @@ void startup_saved_packet_game(void)
       SYNCMSG("Packet Quit at %d", game.numfield_149F42);
     if (game.packet_load_enable)
     {
-      if (game.numfield_149F3E != game.numfield_149F3A)
-        SYNCMSG("Logging things, game turns %d -> %d", game.numfield_149F3A, game.numfield_149F3E);
+      if (game.log_things_end_turn != game.log_things_start_turn)
+        SYNCMSG("Logging things, game turns %d -> %d", game.log_things_start_turn, game.log_things_end_turn);
     }
 #endif
     game.flagfield_14EA4A = 2;
@@ -8002,6 +8003,8 @@ void game_loop(void)
     random_seed += game.play_gameturn;
     reset_eye_lenses();
     close_packet_file();
+    game.packet_load_enable = false;
+    game.packet_save_enable = false;
   } // end while
   // Stop the movie recording if it's on
   if ((game.system_flags & GSF_CaptureMovie) != 0)
