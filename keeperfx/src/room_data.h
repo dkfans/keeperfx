@@ -132,6 +132,7 @@ extern struct Around const small_around[];
 extern struct RoomData room_data[];
 extern struct Around const my_around_eight[];
 extern short const around_map[];
+#define AROUND_MAP_LENGTH 9
 /******************************************************************************/
 struct Room *room_get(long room_idx);
 struct Room *subtile_room_get(long stl_x, long stl_y);

@@ -466,7 +466,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
     struct MagicStats *magstat;
-    struct ShotStats *shotstat;
+    struct ShotConfigStats *shotst;
     struct Thing *shtng;
     struct Thing *obtng;
     struct Thing *efftng;
@@ -506,10 +506,10 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         shtng->field_19 = splevel;
     }
     magstat = &game.magic_stats[10];
-    shotstat = &shot_stats[16];
+    shotst = get_shot_model_stats(16);
     dungeon->field_EA4 = 256;
     i = magstat->power[splevel];
-    max_damage = i * shotstat->damage;
+    max_damage = i * shotst->old->damage;
     range = (i << 8) / 2;
     if (power_sight_explored(stl_x, stl_y, plyr_idx))
         max_damage /= 4;

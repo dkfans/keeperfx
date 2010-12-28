@@ -51,6 +51,7 @@ struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char 
 void lock_door(struct Thing *thing);
 void unlock_door(struct Thing *thing);
 long destroy_door(struct Thing *thing);
+long process_door(struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus

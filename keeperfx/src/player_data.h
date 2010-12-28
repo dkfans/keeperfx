@@ -157,6 +157,7 @@ TbBool is_my_player(struct PlayerInfo *player);
 TbBool is_my_player_number(PlayerNumber plyr_num);
 TbBool player_allied_with(const struct PlayerInfo *player, long ally_idx);
 TbBool players_are_enemies(long plyr1_idx, long plyr2_idx);
+TbBool players_are_mutual_allies(long plyr1_idx, long plyr2_idx);
 void  toggle_ally_with_player(long plyridx, unsigned int allyidx);
 
 void clear_players(void);

@@ -328,7 +328,7 @@ int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct 
     if ((*pos) >= buflen) return 0;
   }
   i = 0;
-  while (commands[i].num > 0)
+  while (commands[i].name != NULL)
   {
       par_len = strlen(commands[i].name);
       if (strnicmp(&buf[(*pos)], commands[i].name, par_len) == 0)
@@ -353,7 +353,7 @@ const char *get_conf_parameter_text(const struct NamedCommand commands[],int num
 {
   long i;
   i = 0;
-  while (commands[i].num > 0)
+  while (commands[i].name != NULL)
   {
       //SYNCLOG("\"%s\", %d %d",commands[i].name,commands[i].num,num);
       if (commands[i].num == num)

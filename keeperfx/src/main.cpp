@@ -317,7 +317,6 @@ DLLIMPORT void _DK_lightning_modify_palette(struct Thing *thing);
 DLLIMPORT void _DK_update_god_lightning_ball(struct Thing *thing);
 DLLIMPORT long _DK_process_creature_self_spell_casting(struct Thing *thing);
 DLLIMPORT long _DK_update_dead_creature(struct Thing *thing);
-DLLIMPORT long _DK_process_door(struct Thing *thing);
 DLLIMPORT void _DK_gui_set_button_flashing(long a1, long a2);
 DLLIMPORT short _DK_send_creature_to_room(struct Thing *thing, struct Room *room);
 DLLIMPORT struct Room *_DK_get_room_thing_is_on(struct Thing *thing);
@@ -1369,7 +1368,7 @@ void update_god_lightning_ball(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     struct Thing *target;
-    struct ShotStats *shotstat;
+    struct ShotConfigStats *shotst;
     long i;
 //    _DK_update_god_lightning_ball(thing);
     if (thing->health <= 0)
@@ -1393,8 +1392,8 @@ void update_god_lightning_ball(struct Thing *thing)
         target = thing_get(thing->word_17);
         if (thing_is_invalid(target))
             break;
-        shotstat = &shot_stats[24];
-        apply_damage_to_thing_and_display_health(target, shotstat->damage, thing->owner);
+        shotst = get_shot_model_stats(24);
+        apply_damage_to_thing_and_display_health(target, shotst->old->damage, thing->owner);
         if (target->health < 0)
         {
             cctrl = creature_control_get_from_thing(target);
@@ -1946,12 +1945,6 @@ void shuffle_unattached_things_on_slab(long a1, long a2)
 unsigned char alter_rock_style(unsigned char a1, signed char a2, signed char a3, unsigned char a4)
 {
     return _DK_alter_rock_style(a1, a2, a3, a4);
-}
-
-long process_door(struct Thing *thing)
-{
-    SYNCDBG(18,"Starting");
-    return _DK_process_door(thing);
 }
 
 void update_thing_animation(struct Thing *thing)
