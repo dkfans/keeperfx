@@ -91,6 +91,7 @@ struct SpellConfigStats {
 struct ShotConfigStats {
     char code_name[COMMAND_WORD_LEN];
     unsigned long model_flags;
+    struct ShotStats *old;
 };
 
 struct PowerConfigStats {

@@ -441,7 +441,6 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
 {
   static const char config_textname[] = "Magic config";
   struct ShotConfigStats *shotst;
-  struct ShotStats *shotstat;
   long pos;
   int i,k,n;
   int cmd_num;
@@ -454,6 +453,8 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
   {
       shotst = get_shot_model_stats(i);
       LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
+      shotst->model_flags = 0;
+      shotst->old = &shot_stats[i];
       if (i < magic_conf.shot_types_count)
       {
         shot_desc[i].name = shotst->code_name;
@@ -476,7 +477,6 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
       WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
       continue;
     }
-    shotstat = &shot_stats[i];
     shotst = get_shot_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_shot_commands,cmd_num)
     while (pos<len)
@@ -501,7 +501,7 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            shotstat->health = k;
+            shotst->old->health = k;
             n++;
           }
           if (n < 1)
@@ -514,7 +514,7 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            shotstat->damage = k;
+            shotst->old->damage = k;
             n++;
           }
           if (n < 1)
@@ -527,7 +527,7 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            shotstat->speed = k;
+            shotst->old->speed = k;
             n++;
           }
           if (n < 1)

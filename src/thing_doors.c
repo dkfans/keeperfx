@@ -23,6 +23,8 @@
 
 #include "thing_objects.h"
 #include "thing_list.h"
+#include "thing_stats.h"
+#include "config_terrain.h"
 #include "ariadne.h"
 #include "gui_topmsg.h"
 #include "keeperfx.hpp"
@@ -31,6 +33,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+char const build_door_angle[] = {-1, -1, -1, -1, -1, 0, -1, 0, -1, -1, 1, 1, -1, 0, 1, -1 };
 /* Obsolete - use DoorConfigStats instead
 const short door_names[] = {
     201, 590, 591, 592, 593, 0,
@@ -40,6 +43,8 @@ const short door_names[] = {
 DLLIMPORT void _DK_lock_door(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
 DLLIMPORT long _DK_destroy_door(struct Thing *thing);
+DLLIMPORT long _DK_process_door(struct Thing *thing);
+DLLIMPORT long _DK_check_door_should_open(struct Thing *thing);
 /******************************************************************************/
 
 
@@ -104,6 +109,160 @@ void lock_door(struct Thing *thing)
 long destroy_door(struct Thing *thing)
 {
   return _DK_destroy_door(thing);
+}
+
+TbBool door_can_stand(struct Thing *thing)
+{
+    struct SlabMap *slb;
+    struct SlabAttr *slbattr;
+    unsigned int wall_flags;
+    long slb_x,slb_y;
+    int i;
+    wall_flags = 0;
+    for (i = 0; i < 4; i++)
+    {
+        wall_flags *= 2;
+        slb_x = map_to_slab[thing->mappos.x.stl.num] + (int)small_around[i].delta_x;
+        slb_y = map_to_slab[thing->mappos.y.stl.num] + (int)small_around[i].delta_y;
+        slb = get_slabmap_block(slb_x,slb_y);
+        slbattr = get_slab_attrs(slb);
+      if ((slbattr->field_F == 3) || (slb->kind == SlbT_ROCK) || (slb->kind == SlbT_EARTH) || (slb->kind == SlbT_TORCHDIRT)
+          || (slb->kind == SlbT_GOLD) || (slb->kind == SlbT_GEMS))
+        wall_flags |= 0x01;
+    }
+    // The array needs to have 2^4 = 16 values
+    return (build_door_angle[wall_flags] != -1);
+}
+
+TbBool check_door_should_open(struct Thing *thing)
+{
+    struct Thing *openertng;
+    //return _DK_check_door_should_open(thing);
+    // If doors are locked, never should open
+    if (thing->byte_18 != 0)
+    {
+        return false;
+    }
+    openertng = get_creature_near_and_owned_by_or_allied_with(thing->mappos.x.val, thing->mappos.y.val, thing->owner);
+    if (thing_is_invalid(openertng))
+    {
+        return false;
+    }
+    return true;
+}
+
+long process_door_open(struct Thing *thing)
+{
+    // If doors are locked, delay to closing = 0
+    if (thing->byte_18)
+        thing->byte_15 = 0;
+    if ( check_door_should_open(thing) )
+    {
+        thing->byte_15 = 10;
+        return 0;
+    }
+    if (thing->byte_15 > 0)
+    {
+        thing->byte_15--;
+        return 0;
+    }
+    thing->active_state = 4;
+    thing_play_sample(thing, 92, 100, 0, 3, 0, 2, 256);
+    return 1;
+}
+
+long process_door_closed(struct Thing *thing)
+{
+    if ( !check_door_should_open(thing) )
+      return 0;
+    thing->active_state = 3;
+    thing_play_sample(thing, 91, 100, 0, 3, 0, 2, 256);
+    return 1;
+}
+
+long process_door_opening(struct Thing *thing)
+{
+    int new_h,old_h,delta_h;
+    int slbparam;
+    old_h = (thing->word_16 / 256);
+    delta_h = door_stats[thing->model][thing->word_13].field_6;
+    slbparam = door_stats[thing->model][thing->word_13].field_0;
+    if (thing->word_16+delta_h < 768)
+    {
+        thing->word_16 += delta_h;
+    } else
+    {
+        thing->active_state = 1;
+        thing->byte_15 = 10;
+        thing->word_16 = 768;
+    }
+    new_h = (thing->word_16 / 256);
+    if (new_h != old_h)
+      place_animating_slab_type_on_map(slbparam, new_h, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner);
+    return 1;
+}
+
+long process_door_closing(struct Thing *thing)
+{
+    int new_h,old_h,delta_h;
+    int slbparam;
+    old_h = (thing->word_16 / 256);
+    delta_h = door_stats[thing->model][thing->word_13].field_6;
+    slbparam = door_stats[thing->model][thing->word_13].field_0;
+    if ( check_door_should_open(thing) )
+    {
+        thing->active_state = 3;
+        thing_play_sample(thing, 91, 100, 0, 3, 0, 2, 256);
+    }
+    if (thing->word_16 > delta_h)
+    {
+        thing->word_16 -= delta_h;
+    } else
+    {
+        thing->active_state = 2;
+        thing->word_16 = 0;
+    }
+    new_h = (thing->word_16 / 256);
+    if (new_h != old_h)
+      place_animating_slab_type_on_map(slbparam, new_h, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner);
+    return 1;
+}
+
+long process_door(struct Thing *thing)
+{
+    SYNCDBG(18,"Starting");
+    //return _DK_process_door(thing);
+    if ( !door_can_stand(thing) || (thing->health < 0) )
+    {
+        thing->health = -1;
+        destroy_door(thing);
+        return 0;
+    }
+    if ((thing->word_13 > 1) || (thing->word_13 < 0))
+    {
+        ERRORLOG("Invalid %s (index %d) orientation %d",thing_model_name(thing),(int)thing->index,(int)thing->word_13);
+        thing->word_13 &= 1;
+    }
+    switch ( thing->active_state )
+    {
+    case 1:
+        process_door_open(thing);
+        break;
+    case 2:
+        process_door_closed(thing);
+        break;
+    case 3:
+        process_door_opening(thing);
+        break;
+    case 4:
+        process_door_closing(thing);
+        break;
+    default:
+        ERRORLOG("Invalid %s state %d",thing_model_name(thing),(int)thing->active_state);
+        thing->active_state = 4;
+        break;
+    }
+    return 1;
 }
 
 /******************************************************************************/

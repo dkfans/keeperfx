@@ -320,7 +320,9 @@ long set_creature_object_combat(struct Thing *crthing, struct Thing *obthing)
 
 void set_creature_door_combat(struct Thing *crthing, struct Thing *obthing)
 {
-  _DK_set_creature_door_combat(crthing, obthing);
+    SYNCDBG(18,"Starting");
+    _DK_set_creature_door_combat(crthing, obthing);
+    SYNCDBG(19,"Finished");
 }
 
 void food_eaten_by_creature(struct Thing *crthing, struct Thing *obthing)
@@ -1657,22 +1659,22 @@ long calculate_melee_damage(struct Thing *thing)
 /**
  * Calculates damage made by a creature using specific shot type.
  */
-long calculate_shot_damage(struct Thing *thing,long shot_kind)
+long calculate_shot_damage(struct Thing *thing,long shot_model)
 {
   struct CreatureControl *cctrl;
   struct CreatureStats *crstat;
-  struct ShotStats *shotstat;
-  shotstat = &shot_stats[shot_kind];
+  struct ShotConfigStats *shotst;
+  shotst = get_shot_model_stats(shot_model);
   cctrl = creature_control_get_from_thing(thing);
   crstat = creature_stats_get_from_thing(thing);
-  return compute_creature_attack_damage(shotstat->damage, crstat->luck, cctrl->explevel);
+  return compute_creature_attack_damage(shotst->old->damage, crstat->luck, cctrl->explevel);
 }
 
-void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short shot_kind, char a2, unsigned char hit_type)
+void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short shot_model, char a2, unsigned char hit_type)
 {
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
-    struct ShotStats *shotstat;
+    struct ShotConfigStats *shotst;
     struct Coord3d pos1;
     struct Coord3d pos2;
     struct ComponentVector cvect;
@@ -1682,10 +1684,10 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
     long damage;
     long target_idx,i;
     TbBool flag1;
-    //_DK_creature_fire_shot(firing,target,shot_kind,a2,a3); return;
+    //_DK_creature_fire_shot(firing,target,shot_model,a2,a3); return;
     cctrl = creature_control_get_from_thing(firing);
     crstat = creature_stats_get_from_thing(firing);
-    shotstat = &shot_stats[shot_kind];
+    shotst = get_shot_model_stats(shot_model);
     flag1 = false;
     // Prepare source position
     pos1.x.val = firing->mappos.x.val;
@@ -1707,7 +1709,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
       pos2.y.val = target->mappos.y.val;
       pos2.z.val = target->mappos.z.val;
       pos2.z.val += (target->field_58 >> 1);
-      if (( shotstat->field_48 ) && (target->class_id != TCls_Door))
+      if (( shotst->old->field_48 ) && (target->class_id != TCls_Door))
       {
         flag1 = true;
         pos1.z.val = pos2.z.val;
@@ -1716,22 +1718,22 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
       angle_yz = get_angle_yz_to(&pos1, &pos2);
     }
     // Compute shot damage
-    if ( shotstat->field_48 )
+    if ( shotst->old->field_48 )
     {
       damage = calculate_melee_damage(firing);
     } else
     {
-      damage = calculate_shot_damage(firing,shot_kind);
+      damage = calculate_shot_damage(firing,shot_model);
     }
     shot = NULL;
     target_idx = 0;
     // Set target index for navigating shots
-    if (shot_model_is_navigable(shot_kind))
+    if (shot_model_is_navigable(shot_model))
     {
       if (!thing_is_invalid(target))
         target_idx = target->index;
     }
-    switch ( shot_kind )
+    switch ( shot_model )
     {
     case 4:
     case 12:
@@ -1739,61 +1741,61 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
         {
             project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 20);
         }
-        shot = create_thing(&pos2, TCls_Shot, shot_kind, firing->owner, -1);
+        shot = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shot))
           return;
-        if (shot_kind == 12)
+        if (shot_model == 12)
           draw_lightning(&pos1, &pos2, 96, 93);
         else
           draw_lightning(&pos1, &pos2, 96, 60);
-        shot->health = shotstat->health;
-        shot->word_14 = shotstat->damage;
+        shot->health = shotst->old->health;
+        shot->word_14 = shotst->old->damage;
         shot->field_1D = firing->index;
         break;
     case 7:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 768))
           project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 4);
-        shot = create_thing(&pos2, TCls_Shot, shot_kind, firing->owner, -1);
+        shot = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shot))
           return;
         draw_flame_breath(&pos1, &pos2, 96, 2);
-        shot->health = shotstat->health;
-        shot->word_14 = shotstat->damage;
+        shot->health = shotst->old->health;
+        shot->word_14 = shotst->old->damage;
         shot->field_1D = firing->index;
         break;
     case 13:
         for (i=0; i < 32; i++)
         {
-            tmptng = create_thing(&pos1, TCls_Shot, shot_kind, firing->owner, -1);
+            tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
             if (thing_is_invalid(tmptng))
               break;
             shot = tmptng;
             shot->byte_16 = hit_type;
             shot->field_52 = (angle_xy + ACTION_RANDOM(101) - 50) & 0x7FF;
             shot->field_54 = (angle_yz + ACTION_RANDOM(101) - 50) & 0x7FF;
-            angles_to_vector(shot->field_52, shot->field_54, shotstat->speed, &cvect);
+            angles_to_vector(shot->field_52, shot->field_54, shotst->old->speed, &cvect);
             shot->pos_32.x.val += cvect.x;
             shot->pos_32.y.val += cvect.y;
             shot->pos_32.z.val += cvect.z;
             shot->field_1 |= 0x04;
             shot->word_14 = damage;
-            shot->health = shotstat->health;
+            shot->health = shotst->old->health;
             shot->field_1D = firing->index;
         }
         break;
     default:
-        shot = create_thing(&pos1, TCls_Shot, shot_kind, firing->owner, -1);
+        shot = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shot))
           return;
         shot->field_52 = angle_xy;
         shot->field_54 = angle_yz;
-        angles_to_vector(shot->field_52, shot->field_54, shotstat->speed, &cvect);
+        angles_to_vector(shot->field_52, shot->field_54, shotst->old->speed, &cvect);
         shot->pos_32.x.val += cvect.x;
         shot->pos_32.y.val += cvect.y;
         shot->pos_32.z.val += cvect.z;
         shot->field_1 |= 0x04;
         shot->word_14 = damage;
-        shot->health = shotstat->health;
+        shot->health = shotst->old->health;
         shot->field_1D = firing->index;
         shot->word_17 = target_idx;
         shot->byte_13 = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
@@ -1808,18 +1810,18 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
           create_price_effect(&pos1, my_player_number, damage);
       if ((damage < 0) || (damage > 2000))
       {
-        WARNLOG("Shot of type %d carries %d damage",(int)shot_kind,(int)damage);
+        WARNLOG("Shot of type %d carries %d damage",(int)shot_model,(int)damage);
       }
 #endif
       shot->byte_16 = hit_type;
-      if (shotstat->firing_sound > 0)
+      if (shotst->old->firing_sound > 0)
       {
-        thing_play_sample(firing, shotstat->firing_sound + UNSYNC_RANDOM(shotstat->firing_sound_variants),
+        thing_play_sample(firing, shotst->old->firing_sound + UNSYNC_RANDOM(shotst->old->firing_sound_variants),
             100, 0, 3, 0, 3, 256);
       }
-      if (shotstat->shot_sound > 0)
+      if (shotst->old->shot_sound > 0)
       {
-        thing_play_sample(shot, shotstat->shot_sound, 100, 0, 3, 0, shotstat->field_20, 256);
+        thing_play_sample(shot, shotst->old->shot_sound, 100, 0, 3, 0, shotst->old->field_20, 256);
       }
       set_flag_byte(&shot->field_25,0x10,flag1);
     }

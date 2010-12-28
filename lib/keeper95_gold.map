@@ -632,6 +632,7 @@
  0001:00076FA0       DrawBigSprite
  0001:000770F0       process_door
  0001:00077200       destroy_door
+ 0001:00077600       check_door_should_open
  0001:000777A0       get_door_for_position
  0001:00077D20       lock_door
  0001:00077FA0       find_door_of_type

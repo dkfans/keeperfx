@@ -389,16 +389,16 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len,const char *config_
   arr_size = sizeof(crtr_conf.instance_names)/sizeof(crtr_conf.instance_names[0]);
   for (i=0; i < arr_size; i++)
   {
-    LbMemorySet(crtr_conf.instance_names[i].text, 0, COMMAND_WORD_LEN);
-    if (i < crtr_conf.instance_count)
-    {
-      instance_desc[i].name = crtr_conf.instance_names[i].text;
-      instance_desc[i].num = i;
-    } else
-    {
-      instance_desc[i].name = NULL;
-      instance_desc[i].num = 0;
-    }
+      LbMemorySet(crtr_conf.instance_names[i].text, 0, COMMAND_WORD_LEN);
+      if (i < crtr_conf.instance_count)
+      {
+          instance_desc[i].name = crtr_conf.instance_names[i].text;
+          instance_desc[i].num = i;
+      } else
+      {
+          instance_desc[i].name = NULL;
+          instance_desc[i].num = 0;
+      }
   }
   arr_size = crtr_conf.instance_count;
   // Load the file blocks

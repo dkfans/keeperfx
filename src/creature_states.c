@@ -1116,16 +1116,16 @@ short arrive_at_call_to_arms(struct Thing *thing)
 {
     struct Dungeon *dungeon;
     struct Thing *doortng;
+    SYNCDBG(18,"Starting");
     //return _DK_arrive_at_call_to_arms(thing);
     dungeon = get_dungeon(thing->owner);
-
     if (dungeon->field_884 == 0)
     {
         set_start_state(thing);
         return 1;
     }
     doortng = check_for_door_to_fight(thing);
-    if (!thing_is_invalid(thing))
+    if (!thing_is_invalid(doortng))
     {
         set_creature_door_combat(thing, doortng);
         return 2;
@@ -1669,14 +1669,123 @@ short at_torture_room(struct Thing *thing)
     return 1;
 }
 
-short at_training_room(struct Thing *thing)
+TbBool setup_workshop_move(struct Thing *thing, SubtlCodedCoords stl_num)
 {
-  return _DK_at_training_room(thing);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->moveto_pos.x.stl.num = stl_num_decode_x(stl_num);
+    cctrl->moveto_pos.x.stl.pos = 128;
+    cctrl->moveto_pos.y.stl.num = stl_num_decode_y(stl_num);
+    cctrl->moveto_pos.y.stl.pos = 128;
+    cctrl->moveto_pos.z.val = get_thing_height_at(thing, &cctrl->moveto_pos);
+    if ( thing_in_wall_at(thing, &cctrl->moveto_pos) )
+    {
+        ERRORLOG("Illegal setup to subtile (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
+        set_start_state(thing);
+        return false;
+    }
+    return true;
+}
+
+SubtlCodedCoords find_position_around_in_room(struct Coord3d *pos, long owner, long rkind)
+{
+    SubtlCodedCoords stl_num;
+    SubtlCodedCoords accepted_stl_num;
+    long m,n;
+    long dist;
+    m = ACTION_RANDOM(AROUND_MAP_LENGTH);
+    for (n = 0; n < AROUND_MAP_LENGTH; n++)
+    {
+        accepted_stl_num = 0;
+        stl_num = get_subtile_number(pos->x.stl.num,pos->y.stl.num);
+        // Skip the position equal to current position
+        if (around_map[m] == 0)
+        {
+            m = (m + 1) % AROUND_MAP_LENGTH;
+            continue;
+        }
+        // Move radially from of the current position; stop if a room tile
+        // of incorrect kind or owner is encoured
+        for (dist = 0; dist < 8; dist++)
+        {
+            struct Room *room;
+            struct Map *mapblk;
+            struct SlabMap *slb;
+            MapSubtlCoord stl_x,stl_y;
+            stl_num += around_map[m];
+            mapblk = get_map_block_at_pos(stl_num);
+            if ( ((mapblk->flags & 0x02) != 0) && ((mapblk->flags & 0x10) != 0) )
+                break;
+            stl_x = stl_num_decode_x(stl_num);
+            stl_y = stl_num_decode_y(stl_num);
+            slb = get_slabmap_block(map_to_slab[stl_x],map_to_slab[stl_y]);
+            if (slabmap_owner(slb) != owner)
+                break;
+            room = room_get(slb->room_index);
+            if (room->kind != rkind)
+                break;
+            if (dist > 1)
+            {
+                // Accept, but don't just break the loop. Wait for larger distance.
+                accepted_stl_num = stl_num;
+            }
+        }
+        if (accepted_stl_num > 0)
+            return accepted_stl_num;
+          m = (m + 1) % AROUND_MAP_LENGTH;
+    }
+    return 0;
+}
+
+TbBool setup_move_to_new_workshop_position(struct Thing *thing, struct Room *room, unsigned long a3)
+{
+    struct CreatureControl *cctrl;
+    SubtlCodedCoords stl_num;
+    cctrl = creature_control_get_from_thing(thing);
+    if ( a3 )
+        cctrl->byte_9E = 50;
+    cctrl->byte_9A = 1;
+    stl_num = find_position_around_in_room(&thing->mappos, thing->owner, RoK_WORKSHOP);
+    if (stl_num <= 0)
+    {
+        WARNLOG("Couldn't find position around in workshop of %d slabs",(int)room->slabs_count);
+        return false;
+    }
+    return setup_workshop_move(thing,stl_num);
 }
 
 short at_workshop_room(struct Thing *thing)
 {
-  return _DK_at_workshop_room(thing);
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    //return _DK_at_workshop_room(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_80 = 0;
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if ((room->kind != RoK_WORKSHOP) || (room->owner != thing->owner))
+    {
+        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        set_start_state(thing);
+        return 0;
+    }
+    if (room->total_capacity <= room->workers_in)
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if ( !add_creature_to_work_room(thing, room) )
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    internal_set_thing_state(thing, CrSt_Manufacturing);
+    setup_move_to_new_workshop_position(thing, room, 1);
+    return 1;
 }
 
 short barracking(struct Thing *thing)
@@ -4669,12 +4778,12 @@ TbBool creature_can_be_trained(struct Thing *thing)
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
     //return _DK_creature_can_be_trained(thing);
-    dungeon = get_dungeon(thing->owner);
-    cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
     // Creatures without training value can't be trained
-    if (crstat->training_value == 0)
+    if (crstat->training_value <= 0)
         return false;
+    dungeon = get_dungeon(thing->owner);
+    cctrl = creature_control_get_from_thing(thing);
     // Creatures which reached players max level can't be trained
     if (cctrl->explevel >= dungeon->creature_max_level[thing->model])
         return false;
@@ -4729,7 +4838,7 @@ TbBool check_experience_upgrade(struct Thing *thing)
     if (cctrl->field_24 < i)
         return false;
     cctrl->field_24 -= i;
-    if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
+    if (cctrl->explevel < dungeon->creature_max_level[thing->model])
     {
       if ((cctrl->explevel < 9) || (crstat->grow_up != 0))
         cctrl->field_AD |= 0x40;
@@ -5167,6 +5276,52 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         break;
     }
     SYNCDBG(18,"End");
+}
+
+short at_training_room(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct Dungeon *dungeon;
+    struct Room *room;
+    //return _DK_at_training_room(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_80 = 0;
+    if ( !creature_can_be_trained(thing) )
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    crstat = creature_stats_get_from_thing(thing);
+    dungeon = get_dungeon(thing->owner);
+    if (dungeon->field_AF9 < crstat->training_cost)
+    {
+        if (is_my_player_number(thing->owner))
+            output_message(89, 500, 1);
+        set_start_state(thing);
+        return 0;
+    }
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if ((room->kind != RoK_TRAINING) || (room->owner != thing->owner))
+    {
+        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        set_start_state(thing);
+        return 0;
+    }
+    if ( !add_creature_to_work_room(thing, room) )
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    internal_set_thing_state(thing, CrSt_Training);
+    setup_move_to_new_training_position(thing, room, 1);
+    cctrl->field_82 = 0;
+    return 1;
 }
 
 short training(struct Thing *thing)

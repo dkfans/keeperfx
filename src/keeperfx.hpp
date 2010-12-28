@@ -1147,7 +1147,6 @@ TbPixel get_player_path_colour(unsigned short owner);
 long get_scavenge_effect_element(unsigned short owner);
 
 long update_dead_creature(struct Thing *thing);
-long process_door(struct Thing *thing);
 
 void startup_network_game(TbBool local);
 void startup_saved_packet_game(void);
