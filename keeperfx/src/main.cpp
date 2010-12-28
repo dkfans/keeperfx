@@ -89,6 +89,10 @@
 #include "sounds.h"
 #include "vidfade.h"
 
+#ifdef KEEPERSPEECH_EXPERIMENTAL
+#include "KeeperSpeech.h"
+#endif
+
 int test_variable;
 
 // Max length of the command line
@@ -2675,9 +2679,12 @@ TbBool initial_setup(void)
  */
 short setup_game(void)
 {
-  // CPU status variable
-  struct CPU_INFO cpu_info;
+
+  int ret;
+  struct CPU_INFO cpu_info; // CPU status variable
   char *fname;
+  short result;
+
   // Do only a very basic setup
   cpu_detect(&cpu_info);
   SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
@@ -2701,8 +2708,6 @@ short setup_game(void)
       ERRORLOG("Error on allocation/loading of legal_load_files.");
       return 0;
   }
-
-  short result;
 
   // View the legal screen
 
@@ -2823,6 +2828,17 @@ short setup_game(void)
       init_lookups();
       result = 1;
   }
+
+#ifdef KEEPERSPEECH_EXPERIMENTAL
+  SYNCLOG("Initializing Speech module");
+  if (result) {
+      ret = KeeperSpeechInit();
+      if (ret) {
+          ERRORLOG("Failed to initialize Speech module: %s", KeeperSpeechErrorMessage(ret));
+      }
+  }
+#endif
+
   return result;
 }
 
@@ -8008,6 +8024,9 @@ short reset_game(void)
 {
   SYNCDBG(6,"Starting");
   _DK_IsRunningUnmark();
+#ifdef KEEPERSPEECH_EXPERIMENTAL
+  KeeperSpeechExit();
+#endif
   LbMouseSuspend();
   LbIKeyboardClose();
   LbScreenReset();
