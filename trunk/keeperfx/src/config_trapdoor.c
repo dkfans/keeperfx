@@ -178,12 +178,12 @@ TbBool parse_trapdoor_trap_blocks(char *buf,long len,const char *config_textname
       trapst->tooltip_stridx = 201;
       if (i < trapdoor_conf.trap_types_count)
       {
-        trap_desc[i].name = trapst->code_name;
-        trap_desc[i].num = i;
+          trap_desc[i].name = trapst->code_name;
+          trap_desc[i].num = i;
       } else
       {
-        trap_desc[i].name = NULL;
-        trap_desc[i].num = 0;
+          trap_desc[i].name = NULL;
+          trap_desc[i].num = 0;
       }
   }
   arr_size = trapdoor_conf.trap_types_count;

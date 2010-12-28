@@ -95,6 +95,26 @@ TbBool players_are_enemies(long plyr1_idx, long plyr2_idx)
     return ((player1->allied_players & (1<<plyr2_idx)) == 0);
 }
 
+TbBool players_are_mutual_allies(long plyr1_idx, long plyr2_idx)
+{
+    struct PlayerInfo *player1,*player2;
+    // Player is always his own ally
+    if (plyr1_idx == plyr2_idx)
+        return true;
+    // And neutral player can't be allied
+    if ((plyr1_idx == game.neutral_player_num) || (plyr2_idx == game.neutral_player_num))
+        return false;
+    player1 = get_player(plyr1_idx);
+    player2 = get_player(plyr2_idx);
+    // Inactive or invalid players are not allies
+    if (!player_exists(player1))
+        return false;
+    if (!player_exists(player2))
+        return false;
+    return ((player1->allied_players & (1<<plyr2_idx)) != 0)
+        && ((player2->allied_players & (1<<plyr1_idx)) != 0);
+}
+
 TbBool player_allied_with(const struct PlayerInfo *player, long ally_idx)
 {
     if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))

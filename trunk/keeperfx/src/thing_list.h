@@ -115,14 +115,15 @@ struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_
 // Final routines to select thing belonging to given player
 struct Thing *get_player_list_nth_creature_of_model(long thing_idx, long model, long crtr_idx);
 struct Thing *get_random_players_creature_of_model(long plyr_idx, long model);
-
 // Filters to select thing on/near given map position
 struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param, long *maximizer);
 struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord y, Thing_Maximizer_Filter filter, MaxFilterParam param);
+struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxFilterParam param);
 // Final routines to select thing on/near given map position
 struct Thing *get_creature_near_but_not_specdigger(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
 struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
 struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
+struct Thing *get_creature_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
 struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model_id, long plyr_idx, long skip_thing_id);
 struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx);
 struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);

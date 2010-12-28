@@ -238,18 +238,35 @@ long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxFilte
     return -1;
 }
 
+long map_block_thing_filter_is_of_class_and_model_and_owned_by_or_allied_with(const struct Thing *thing, MaxFilterParam param, long maximizer)
+{
+    if (thing->class_id == param->class_id)
+    {
+        if ((param->model_id == -1) || (thing->model == param->model_id))
+        {
+            if ((param->plyr_idx == -1) || players_are_mutual_allies(thing->owner,param->plyr_idx))
+            {
+                // Return the largest value to stop sweeping
+                return LONG_MAX;
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
 long map_block_thing_filter_is_of_class_and_model_and_owned_by(const struct Thing *thing, MaxFilterParam param, long maximizer)
 {
     if (thing->class_id == param->class_id)
     {
-      if ((thing->model == param->model_id) || (param->model_id == -1))
-      {
-          if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
-          {
-              // Return the largest value to stop sweeping
-              return LONG_MAX;
-          }
-      }
+        if ((param->model_id == -1) || (thing->model == param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                // Return the largest value to stop sweeping
+                return LONG_MAX;
+            }
+        }
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
     return -1;
@@ -1069,6 +1086,51 @@ struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord
     return retng;
 }
 
+/**
+ * Returns filtered creature from slabs around given coordinates.
+ * Uses "spiral" checking of surrounding subtiles, up to given number of subtiles.
+ * The thing which will return highest nonnegative value from given filter function
+ * will be returned.
+ * If the filter function will return LONG_MAX, the current creature will be returned
+ * immediately and no further things will be checked.
+ * @return Returns thing, or invalid thing pointer if not found.
+ */
+struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxFilterParam param)
+{
+    struct MapOffset *sstep;
+    struct Thing *thing;
+    struct Thing *retng;
+    long maximizer;
+    struct Map *mapblk;
+    MapSubtlCoord sx,sy;
+    int around;
+    long i,n;
+    SYNCDBG(19,"Starting");
+    retng = INVALID_THING;
+    maximizer = 0;
+    for (around=0; around < spiral_len; around++)
+    {
+      sstep = &spiral_step[around];
+      sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
+      sy = coord_subtile(y) + (MapSubtlCoord)sstep->v;
+      mapblk = get_map_block_at(sx, sy);
+      if (!map_block_invalid(mapblk))
+      {
+          i = get_mapwho_thing_index(mapblk);
+          n = maximizer;
+          thing = get_thing_on_map_block_with_filter(i, filter, param, &n);
+          if (!thing_is_invalid(thing) && (n >= maximizer))
+          {
+              retng = thing;
+              maximizer = n;
+              if (maximizer == LONG_MAX)
+                  break;
+          }
+      }
+    }
+    return retng;
+}
+
 void stop_all_things_playing_samples(void)
 {
   struct Thing *thing;
@@ -1402,6 +1464,27 @@ struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, lon
     param.num1 = pos_x;
     param.num2 = pos_y;
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
+}
+
+/** Finds creature on all subtiles around given position, who belongs to given player or allied one.
+ *
+ * @param pos_x Position to search around X coord.
+ * @param pos_y Position to search around Y coord.
+ * @param plyr_idx Player whose creature or allied creature will be returned.
+ * @return The creature thing pointer, or invalid thing pointer if not found.
+ */
+struct Thing *get_creature_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long plyr_idx)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
+    SYNCDBG(19,"Starting");
+    filter = map_block_thing_filter_is_of_class_and_model_and_owned_by_or_allied_with;
+    param.class_id = TCls_Creature;
+    param.model_id = -1;
+    param.plyr_idx = plyr_idx;
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, 32, filter, &param);
 }
 
 struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx)
