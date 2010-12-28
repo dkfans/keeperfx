@@ -27,8 +27,36 @@ enum Reason
 	REASON_LOAD_GRAMMAR,
 };
 
+static void handleRecognition(ISpPhrase * p)
+{
+	SPPHRASE * phrase;
+	HRESULT res;
+
+	res = p->GetPhrase(&phrase);
+	if (FAILED(res)) {
+		return;
+	}
+
+	//empty code simply displaying how I intend to parse rules
+	switch (phrase->Rule.ulId) {
+	case VID_Navigation:
+		switch (phrase->pProperties->vValue.ulVal) {
+		case VID_Counter:
+			break;
+		}
+	}
+
+	CoTaskMemFree(phrase);
+}
+
 static void __stdcall recognitionCallback(WPARAM wParam, LPARAM lParam)
 {
+	CSpEvent ev;
+	while (ev.GetFrom(state.recog) == S_OK) {
+		if (ev.eEventId == SPEI_RECOGNITION) {
+			handleRecognition(ev.RecoResult());
+		}
+	}
 }
 
 KEEPERSPEECH_API int __cdecl KeeperSpeechInit(void)
