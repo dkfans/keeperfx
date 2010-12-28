@@ -14,9 +14,42 @@
 extern "C" {
 #endif
 
+typedef struct
+{
+	enum
+	{
+		//while playing
+		KEEPERSPEECH_INFO, //info tab
+		KEEPERSPEECH_ROOMS, //room tab
+		KEEPERSPEECH_SPELLS, //spell tab
+		KEEPERSPEECH_TRAPS, //trap tab
+		KEEPERSPEECH_CREATURES, //creature tab
+		KEEPERSPEECH_SELECT_ROOM,
+		KEEPERSPEECH_SELECT_SPELL,
+		KEEPERSPEECH_SELECT_TRAP,
+		KEEPERSPEECH_SELECT_SELL,
+		KEEPERSPEECH_SELECT_INFO,
+		KEEPERSPEECH_FLEE, //do our creatures flee at low HP?
+		KEEPERSPEECH_PRISONERS, //shall we take prisoners?
+		KEEPERSPEECH_PICKUP, //with hand at current location
+		KEEPERSPEECH_DROP, //with hand
+		KEEPERSPEECH_SLAP, //with hand
+		KEEPERSPEECH_PICKUP_IDLE, //idle creature at any loc
+		KEEPERSPEECH_PICKUP_WORKING, //working creature at any loc
+		KEEPERSPEECH_PICKUP_FIGHTING, //fighting creature at any loc
+		KEEPERSPEECH_PICKUP_ANY, //any creature at any loc
+		KEEPERSPEECH_CHAT, //open chat
+		KEEPERSPEECH_ESCAPE, //stop whatever we're doing when it makes sense
+		KEEPERSPEECH_MENU, //open menu
+	} type;
+
+	int param1;
+} KEEPERSPEECH_EVENT;
+
 KEEPERSPEECH_API int			KeeperSpeechInit(void);
 KEEPERSPEECH_API const char *	KeeperSpeechErrorMessage(int reason);
 KEEPERSPEECH_API void			KeeperSpeechExit(void);
+KEEPERSPEECH_API int			KeeperSpeechPopEvent(KEEPERSPEECH_EVENT * ev);
 
 #ifdef __cplusplus
 };
