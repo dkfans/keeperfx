@@ -229,6 +229,25 @@ const char *creature_code_name(long crmodel)
     return "INVALID";
 }
 
+/**
+ * Returns the creature associated with a given model name.
+ * Linear lookup time so don't use in tight loop.
+ * @param name
+ * @return
+ */
+long creature_model_id(const char * name)
+{
+    int i;
+
+    for (i = 0; i < crtr_conf.model_count; ++i) {
+        if (strncmp(name, crtr_conf.model[i].name, COMMAND_WORD_LEN) == 0) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
 TbBool parse_creaturetypes_common_blocks(char *buf,long len,const char *config_textname)
 {
   long pos;
