@@ -48,8 +48,8 @@ typedef struct
 	KEEPERSPEECH_EVENT_TYPE type;
 	union {
 		struct {
-			int creature_type;
-		} pickup;
+			const char * model_name;
+		} creature;
 	} u;
 } KEEPERSPEECH_EVENT;
 

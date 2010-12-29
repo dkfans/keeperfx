@@ -6821,6 +6821,9 @@ void keeper_gameplay_loop(void)
   if ((game.numfield_C & 0x02) != 0)
     initialise_eye_lenses();
   SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
+#ifdef KEEPERSPEECH_EXPERIMENTAL
+  KeeperSpeechClearEvents();
+#endif
   //the main gameplay loop starts
   while ((!quit_game) && (!exit_keeper))
   {
