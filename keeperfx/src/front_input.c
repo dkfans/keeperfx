@@ -47,6 +47,10 @@
 
 #include "keeperfx.hpp"
 
+#ifdef KEEPERSPEECH_EXPERIMENTAL
+#include "KeeperSpeech.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -54,6 +58,10 @@ extern "C" {
 
 unsigned short const zoom_key_room_order[] =
     {2, 3, 14, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 15, 0,};
+
+#ifdef KEEPERSPEECH_EXPERIMENTAL
+KEEPERSPEECH_EVENT last_speech_event;
+#endif
 
 /******************************************************************************/
 DLLIMPORT void _DK_input(void);
@@ -862,17 +870,53 @@ void get_packet_control_mouse_clicks(void)
 {
   struct PlayerInfo *player;
   SYNCDBG(8,"Starting");
+  static int slapping = 0;
+  static int picking_up = 0;
   if ((game.numfield_C & 0x01) == 0)
   {
     player = get_my_player();
-    if (left_button_held)
+
+    if ( left_button_held || picking_up == 1)
     {
       set_players_packet_control(player, PCtr_LBtnHeld);
+      picking_up = 2;
     }
-    if ( right_button_held )
+
+    if ( right_button_held || slapping == 1 )
     {
       set_players_packet_control(player, PCtr_RBtnHeld);
+      slapping = 2;
     }
+
+#ifdef KEEPERSPEECH_EXPERIMENTAL
+    if ( left_button_clicked ||
+        last_speech_event.type == KS_PICKUP)
+    {
+      set_players_packet_control(player, PCtr_LBtnClick);
+
+      if (last_speech_event.type == KS_PICKUP) {
+        picking_up = 1;
+      }
+      else {
+        picking_up = 0; //good idea to cancel current pick up, mouse takes precedence
+      }
+    }
+
+    if ( right_button_clicked ||
+        last_speech_event.type == KS_SLAP ||
+        last_speech_event.type == KS_DROP ) //TODO: implement speech distinction between dropping and slapping
+    {
+      set_players_packet_control(player, PCtr_RBtnClick);
+
+      if ( last_speech_event.type == KS_SLAP ||
+          last_speech_event.type == KS_DROP ) {
+        slapping = 1;
+      }
+      else {
+        slapping = 0; //good idea to cancel current slap
+      }
+    }
+#else
     if ( left_button_clicked )
     {
       set_players_packet_control(player, PCtr_LBtnClick);
@@ -881,13 +925,25 @@ void get_packet_control_mouse_clicks(void)
     {
       set_players_packet_control(player, PCtr_RBtnClick);
     }
-    if ( left_button_released )
+#endif
+
+    if ( left_button_released || picking_up == 3)
     {
       set_players_packet_control(player, PCtr_LBtnRelease);
+      picking_up = 0;
     }
-    if ( right_button_released )
+
+    if ( right_button_released || slapping == 3 )
     {
       set_players_packet_control(player, PCtr_RBtnRelease);
+      slapping = 0;
+    }
+
+    if (slapping == 2) {
+        slapping = 3;
+    }
+    if (picking_up == 2) {
+        picking_up = 3;
     }
   }
 }
@@ -1467,6 +1523,11 @@ void input(void)
 {
   SYNCDBG(4,"Starting");
   update_key_modifiers();
+#ifdef KEEPERSPEECH_EXPERIMENTAL
+  if (KeeperSpeechPopEvent(&last_speech_event)) {
+    last_speech_event.type = KS_UNUSED;
+  }
+#endif
   if ((game_is_busy_doing_gui_string_input()) && (lbInkey>0))
   {
     lbKeyOn[lbInkey] = 0;

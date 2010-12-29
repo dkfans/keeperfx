@@ -65,14 +65,18 @@
 
   <RULE ID="VID_PickUp" TOPLEVEL="ACTIVE">
     <L>
+      <P>Acquire</P>
       <P>Get
         <O>Up</O>
       </P>
-      <P>Pick
+      <P>Obtain</P>
+      <P>Pick <!-- Hmm Too much like "Page Up" standard... Consider removing despite name of rule.-->
         <O>Up</O>
       </P>
       <P>Raise</P>
-      <P>Take</P>
+      <P>Take
+        <O>Up</O>
+      </P>
       <P>Up</P>
     </L>
   </RULE>
