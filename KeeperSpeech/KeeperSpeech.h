@@ -14,42 +14,50 @@
 extern "C" {
 #endif
 
+typedef enum
+{
+	KS_UNUSED = 0,
+
+	//while playing
+	KS_VIEW_INFO, //info tab
+	KS_VIEW_ROOMS, //room tab
+	KS_VIEW_SPELLS, //spell tab
+	KS_VIEW_TRAPS, //trap tab
+	KS_CREATURES, //creature tab
+	KS_SELECT_ROOM,
+	KS_SELECT_SPELL,
+	KS_SELECT_TRAP,
+	KS_SELECT_SELL,
+	KS_SELECT_INFO,
+	KS_FLEE, //do our creatures flee at low HP?
+	KS_PRISONERS, //shall we take prisoners?
+	KS_PICKUP, //with hand at current location
+	KS_DROP, //with hand
+	KS_SLAP, //with hand
+	KS_PICKUP_IDLE, //idle creature at any loc
+	KS_PICKUP_WORKING, //working creature at any loc
+	KS_PICKUP_FIGHTING, //fighting creature at any loc
+	KS_PICKUP_ANY, //any creature at any loc
+	KS_CHAT, //open chat
+	KS_ESCAPE, //stop whatever we're doing when it makes sense
+	KS_MENU, //open menu
+} KEEPERSPEECH_EVENT_TYPE;
+
 typedef struct
 {
-	enum
-	{
-		//while playing
-		KEEPERSPEECH_INFO, //info tab
-		KEEPERSPEECH_ROOMS, //room tab
-		KEEPERSPEECH_SPELLS, //spell tab
-		KEEPERSPEECH_TRAPS, //trap tab
-		KEEPERSPEECH_CREATURES, //creature tab
-		KEEPERSPEECH_SELECT_ROOM,
-		KEEPERSPEECH_SELECT_SPELL,
-		KEEPERSPEECH_SELECT_TRAP,
-		KEEPERSPEECH_SELECT_SELL,
-		KEEPERSPEECH_SELECT_INFO,
-		KEEPERSPEECH_FLEE, //do our creatures flee at low HP?
-		KEEPERSPEECH_PRISONERS, //shall we take prisoners?
-		KEEPERSPEECH_PICKUP, //with hand at current location
-		KEEPERSPEECH_DROP, //with hand
-		KEEPERSPEECH_SLAP, //with hand
-		KEEPERSPEECH_PICKUP_IDLE, //idle creature at any loc
-		KEEPERSPEECH_PICKUP_WORKING, //working creature at any loc
-		KEEPERSPEECH_PICKUP_FIGHTING, //fighting creature at any loc
-		KEEPERSPEECH_PICKUP_ANY, //any creature at any loc
-		KEEPERSPEECH_CHAT, //open chat
-		KEEPERSPEECH_ESCAPE, //stop whatever we're doing when it makes sense
-		KEEPERSPEECH_MENU, //open menu
-	} type;
-
-	int param1;
+	KEEPERSPEECH_EVENT_TYPE type;
+	union {
+		struct {
+			int creature_type;
+		} pickup;
+	} u;
 } KEEPERSPEECH_EVENT;
 
 KEEPERSPEECH_API int			KeeperSpeechInit(void);
 KEEPERSPEECH_API const char *	KeeperSpeechErrorMessage(int reason);
 KEEPERSPEECH_API void			KeeperSpeechExit(void);
 KEEPERSPEECH_API int			KeeperSpeechPopEvent(KEEPERSPEECH_EVENT * ev);
+KEEPERSPEECH_API void			KeeperSpeechClearEvents(void);
 
 #ifdef __cplusplus
 };

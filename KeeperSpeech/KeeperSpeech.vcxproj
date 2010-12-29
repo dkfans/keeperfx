@@ -79,6 +79,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="KeeperCommands.xml" />
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
