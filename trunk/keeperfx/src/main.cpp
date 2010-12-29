@@ -7789,6 +7789,7 @@ void faststartup_network_game(void)
     player->field_6 &= ~0x02;
 }
 
+#ifdef KEEPERSPEECH_EXPERIMENTAL
 static void keeperSpeechEventTest(void)
 {
     KEEPERSPEECH_EVENT ev;
@@ -7797,6 +7798,7 @@ static void keeperSpeechEventTest(void)
         SYNCLOG("Speech event %i received", ev.type);
     }
 }
+#endif
 
 void wait_at_frontend(void)
 {
