@@ -7792,17 +7792,6 @@ void faststartup_network_game(void)
     player->field_6 &= ~0x02;
 }
 
-#ifdef KEEPERSPEECH_EXPERIMENTAL
-static void keeperSpeechEventTest(void)
-{
-    KEEPERSPEECH_EVENT ev;
-    SYNCLOG("Checking for speech events");
-    while (KeeperSpeechPopEvent(&ev) == 0) {
-        SYNCLOG("Speech event %i received", ev.type);
-    }
-}
-#endif
-
 void wait_at_frontend(void)
 {
   struct PlayerInfo *player;
@@ -7913,10 +7902,6 @@ void wait_at_frontend(void)
       LbSleepUntil(last_loop_time + 30);
     }
     last_loop_time = LbTimerClock();
-
-#ifdef KEEPERSPEECH_EXPERIMENTAL
-    keeperSpeechEventTest();
-#endif
   } while (!finish_menu);
 
   LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
