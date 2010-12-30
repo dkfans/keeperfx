@@ -37,7 +37,7 @@ typedef enum
 	KS_PICKUP_IDLE, //idle creature at any loc
 	KS_PICKUP_WORKING, //working creature at any loc
 	KS_PICKUP_FIGHTING, //fighting creature at any loc
-	KS_PICKUP_ANY, //any creature at any loc
+	KS_PICKUP_ANY,
 	KS_CHAT, //open chat
 	KS_ESCAPE, //stop whatever we're doing when it makes sense
 	KS_MENU, //open menu
@@ -48,7 +48,7 @@ typedef struct
 	KEEPERSPEECH_EVENT_TYPE type;
 	union {
 		struct {
-			const char * model_name;
+			char model_name[32];
 		} creature;
 	} u;
 } KEEPERSPEECH_EVENT;

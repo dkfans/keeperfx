@@ -904,7 +904,7 @@ void get_packet_control_mouse_clicks(void)
 
     if ( right_button_clicked ||
         last_speech_event.type == KS_SLAP ||
-        last_speech_event.type == KS_DROP ) //TODO: implement speech distinction between dropping and slapping
+        last_speech_event.type == KS_DROP ) //TODO: implement speech distinction between dropping and slapping (and mining/anything else)
     {
       set_players_packet_control(player, PCtr_RBtnClick);
 
@@ -1388,6 +1388,53 @@ void get_creature_control_nonaction_inputs(void)
   }
 }
 
+#ifdef KEEPERSPEECH_EXPERIMENTAL
+static void speech_pickup_of_gui_job(int job_idx)
+{
+    int kind;
+    unsigned char pick_flags;
+
+    SYNCDBG(0, "Picking up creature of breed %s for job of type %i",
+        last_speech_event.u.creature.model_name, job_idx);
+    kind = creature_model_id(last_speech_event.u.creature.model_name);
+    if (kind < 0) {
+        SYNCDBG(0, "No such creature");
+        return;
+    }
+
+    pick_flags = TPF_PickableCheck;
+    if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
+        pick_flags |= TPF_ReverseOrder;
+    pick_up_creature_of_breed_and_gui_job(kind, (job_idx & 0x03), my_player_number, pick_flags);
+}
+
+/**
+ * Processes speech inputs that can be handled separately without interfacing with
+ * mouse/keyboard code.
+ */
+static void get_dungeon_speech_inputs(void)
+{
+    SYNCDBG(8,"Starting");
+
+    switch (last_speech_event.type) {
+    case KS_PICKUP_IDLE:
+        speech_pickup_of_gui_job(0);
+        break;
+    case KS_PICKUP_WORKING:
+        speech_pickup_of_gui_job(1);
+        break;
+    case KS_PICKUP_FIGHTING:
+        speech_pickup_of_gui_job(2);
+        break;
+    case KS_PICKUP_ANY:
+        speech_pickup_of_gui_job(-1);
+        break;
+    default:
+        break; //don't care
+    }
+}
+#endif
+
 short get_inputs(void)
 {
   struct PlayerInfo *player;
@@ -1463,6 +1510,9 @@ short get_inputs(void)
       get_dungeon_control_nonaction_inputs();
       get_player_gui_clicks();
       get_packet_control_mouse_clicks();
+#ifdef KEEPERSPEECH_EXPERIMENTAL
+      get_dungeon_speech_inputs();
+#endif
       return inp_handled;
   case PVT_CreatureContrl:
       if (!inp_handled)

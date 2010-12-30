@@ -34,34 +34,64 @@ enum Reason
 	REASON_ACTIVATE_GRAMMAR,
 };
 
-static void pushEvent(KEEPERSPEECH_EVENT_TYPE type)
+static KEEPERSPEECH_EVENT * pushEvent(KEEPERSPEECH_EVENT_TYPE type)
 {
 	KEEPERSPEECH_EVENT * ev = &state.events[state.next_event];
 	state.next_event = (state.next_event + 1) % MAX_EVENTS;
 
 	memset(ev, 0, sizeof(*ev));
 	ev->type = type;
+
+	return ev;
+}
+
+static void toKeeperString(LPCWSTR old_str, char * new_str, size_t max_len)
+{
+	/*WideCharToMultiByte(CP_ACP, WC_DEFAULTCHAR, old_str, -1,
+			new_str, max_len, "X", NULL);*/
+	int i;
+
+	if (old_str == NULL) {
+		*new_str = 0;
+		return;
+	}
+
+	for (i = 0; i < (int) max_len - 1 && old_str[i]; ++i) {
+		if (old_str[i] > 127) {
+			new_str[i] = '?';
+		}
+		else {
+			new_str[i] = (char ) old_str[i];
+		}
+	}
+
+	new_str[i] = 0;
+}
+
+static void scanForCreatureProperty(const SPPHRASEPROPERTY * prop, char * str, size_t max_len)
+{
+	for (; prop != NULL; prop = prop->pNextSibling) {
+		if (prop->ulId == VID_Creature) {
+			toKeeperString(prop->pszValue, str, max_len);
+			return;
+		}
+	}
 }
 
 static void handleRecognition(ISpPhrase * p)
 {
 	SPPHRASE * phrase;
+	
 	HRESULT res;
+	KEEPERSPEECH_EVENT * ev;
 
 	res = p->GetPhrase(&phrase);
 	if (FAILED(res)) {
 		return;
 	}
 
-	//empty code simply displaying how I intend to parse rules
+	//parsing results below
 	switch (phrase->Rule.ulId) {
-	case VID_Navigation: //example
-		switch (phrase->pProperties->vValue.ulVal) {
-		case VID_Counter:
-			break;
-		}
-		break;
-		
 	case VID_Slap:
 		pushEvent(KS_SLAP);
 		break;
@@ -70,6 +100,22 @@ static void handleRecognition(ISpPhrase * p)
 		break;
 	case VID_Drop:
 		pushEvent(KS_DROP);
+		break;
+	case VID_PickUpIdle:
+		ev = pushEvent(KS_PICKUP_IDLE);
+		scanForCreatureProperty(phrase->pProperties, ev->u.creature.model_name, sizeof(ev->u.creature.model_name));
+		break;
+	case VID_PickUpWorking:
+		ev = pushEvent(KS_PICKUP_WORKING);
+		scanForCreatureProperty(phrase->pProperties, ev->u.creature.model_name, sizeof(ev->u.creature.model_name));
+		break;
+	case VID_PickUpFighting:
+		ev = pushEvent(KS_PICKUP_FIGHTING);
+		scanForCreatureProperty(phrase->pProperties, ev->u.creature.model_name, sizeof(ev->u.creature.model_name));
+		break;
+	case VID_PickUpAny:
+		ev = pushEvent(KS_PICKUP_ANY);
+		scanForCreatureProperty(phrase->pProperties, ev->u.creature.model_name, sizeof(ev->u.creature.model_name));
 		break;
 	}
 

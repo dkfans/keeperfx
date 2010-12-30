@@ -4,6 +4,13 @@
     <ID NAME="VID_Slap" VAL="1000"/>
     <ID NAME="VID_PickUp" VAL="1001"/>
     <ID NAME="VID_Drop" VAL="1002"/>
+    <ID NAME="VID_Creature" VAL="1003"/>
+    <ID NAME="VID_PickUpIdle" VAL="1004"/>
+    <ID NAME="VID_PickUpWorking" VAL="1005"/>
+    <ID NAME="VID_PickUpFighting" VAL="1006"/>
+    <ID NAME="VID_PickUpPrefix" VAL="1007"/>
+    <ID NAME="VID_PickUpAny" VAL="1008"/>
+    <ID NAME="VID_OptSingularArticle" VAL="1009"/>
   
     <!-- Example IDs below, keeping them for a while so I can write code more smoothly.-->
     <ID NAME="VID_Counter" VAL="1"/>
@@ -65,18 +72,7 @@
 
   <RULE ID="VID_PickUp" TOPLEVEL="ACTIVE">
     <L>
-      <P>Acquire</P>
-      <P>Get
-        <O>Up</O>
-      </P>
-      <P>Obtain</P>
-      <P>Pick <!-- Hmm Too much like "Page Up" standard... Consider removing despite name of rule.-->
-        <O>Up</O>
-      </P>
-      <P>Raise</P>
-      <P>Take
-        <O>Up</O>
-      </P>
+      <RULEREF REFID="VID_PickUpPrefix"/>
       <P>Up</P>
     </L>
   </RULE>
@@ -84,11 +80,13 @@
   <RULE ID="VID_Drop" TOPLEVEL="ACTIVE">
     <L>
       <P>Down</P>
-      <P>Drop
+      <P>
+        <P>Drop</P>
         <O>Down</O>
       </P>
       <P>Free</P>
-      <P>Let
+      <P>
+        <P>Let</P>
         <O>
           <L>
             <P>Down</P>
@@ -99,6 +97,164 @@
       <P>Lower</P>
       <P>Release</P>
     </L>
+  </RULE>
+
+  <RULE ID="VID_Creature">
+    <L PROPID="VID_Creature">
+      <P VALSTR="ARCHER">Archer</P>
+      <P VALSTR="ARCHER">Bowman</P>
+      <P VALSTR="AVATAR">Avatar</P>
+      <P VALSTR="BARBARIAN">Barbarian</P>
+      <P VALSTR="BARBARIAN">Brute</P>
+      <P VALSTR="BILE_DEMON">
+        <P>Bile</P>
+        <O>Demon</O>
+      </P>
+      <P VALSTR="BUG">Beetle</P>
+      <P VALSTR="BUG">Bug</P>
+      <P VALSTR="DARK_MISTRESS">
+        <O>Dark</O>
+        <L>
+          <P>Lady</P>
+          <P>Mistress</P>
+        </L>
+      </P>
+      <P VALSTR="DEMONSPAWN">Demonspawn</P>
+      <P VALSTR="DEMONSPAWN">Dragonspawn</P>
+      <P VALSTR="DEMONSPAWN">Lizard</P>
+      <P VALSTR="DRAGON">Dragon</P>
+      <P VALSTR="DRAGON">Serpent</P>
+      <P VALSTR="DWARFA">Dwarf</P>
+      <P VALSTR="DWARFA">Midget</P>
+      <P VALSTR="FAIRY">Fairy</P>
+      <P VALSTR="FLY">Fly</P>
+      <P VALSTR="GHOST">Ghost</P>
+      <P VALSTR="GHOST">Spirit</P>
+      <P VALSTR="GHOST">Wraith</P>
+      <P VALSTR="GIANT">Giant</P>
+      <P VALSTR="HELL_HOUND">
+        <O>Hell</O>
+        <P>Hound</P>
+      </P>
+      <P VALSTR="HORNY">
+        <O>Horned</O>
+        <P>Reaper</P>
+      </P>
+      <P VALSTR="HORNY">Horny</P>
+      <P VALSTR="IMP">Imp</P>
+      <P VALSTR="KNIGHT">Knight</P>
+      <P VALSTR="KNIGHT">Lord</P>
+      <P VALSTR="MONK">Monk</P>
+      <P VALSTR="MONK">Priest</P>
+      <P VALSTR="ORC">Orc</P>
+      <P VALSTR="SAMURAI">Ninja</P>
+      <P VALSTR="SAMURAI">Samurai</P>
+      <P VALSTR="SKELETON">Skeleton</P>
+      <P VALSTR="SORCEROR">
+        <O>Evil</O>
+        <P>Mage</P></P>
+      <P VALSTR="SORCEROR">Sorceror</P>
+      <P VALSTR="SPIDER">Arachnid</P>
+      <P VALSTR="SPIDER">Spider</P>
+      <P VALSTR="TENTACLE">Tentacle</P>
+      <P VALSTR="THIEF">Robber</P>
+      <P VALSTR="THIEF">Thief</P>
+      <P VALSTR="TROLL">Goblin</P>
+      <P VALSTR="TROLL">Troll</P>
+      <P VALSTR="TUNNELLER">Tunneller</P>
+      <P VALSTR="VAMPIRE">Vampire</P>
+      <P VALSTR="WITCH">Bitch</P>
+      <P VALSTR="WITCH">Witch</P>
+      <P VALSTR="WIZARD">Good Mage</P>
+      <P VALSTR="WIZARD">Wizard</P>
+    </L>
+  </RULE>
+  
+  <RULE ID="VID_PickUpIdle" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_PickUpPrefix"/>
+    <RULEREF REFID="VID_OptSingularArticle"/>
+    <L>
+      <P>Idle</P>
+      <P>Inactive</P>
+      <P>Lazy</P>
+      <P>Sleeping</P>
+      <P>Unemployed</P>
+    </L>
+    <RULEREF REFID="VID_Creature"/>
+  </RULE>
+
+  <RULE ID="VID_PickUpWorking" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_PickUpPrefix"/>
+    <RULEREF REFID="VID_OptSingularArticle"/>
+    <L>
+      <P>Active</P>
+      <P>Employed</P>
+      <P>Working</P>
+    </L>
+    <RULEREF REFID="VID_Creature"/>
+  </RULE>
+
+  <RULE ID="VID_PickUpFighting" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_PickUpPrefix"/>
+    <RULEREF REFID="VID_OptSingularArticle"/>
+    <L>
+      <P>
+        <L>
+          <P>Fighting</P>
+          <P>Battling</P>
+          <P>Warring</P>
+        </L>
+        <RULEREF REFID="VID_Creature"/>
+      </P>
+      <P>
+        <RULEREF REFID="VID_Creature"/>
+        <P>in</P>
+        <O>a</O>
+        <L>
+          <P>Battle</P>
+          <P>Combat</P>
+          <P>Fight</P>
+        </L>
+      </P>
+    </L>
+  </RULE>
+
+  <RULE ID="VID_PickUpPrefix">
+    <L>
+      <P>Acquire</P>
+      <P>
+        <P>Get</P>
+        <O>Up</O>
+      </P>
+      <P>Obtain</P>
+      <P>
+        <P>Pick</P>
+        <!-- Hmm Too much like "Page Up" standard... Consider removing despite name of rule.-->
+        <O>Up</O>
+      </P>
+      <P>Raise</P>
+      <P>
+        <P>Take</P>
+        <O>Up</O>
+      </P>
+    </L>
+  </RULE>
+
+  <RULE ID="VID_PickUpAny" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_PickUpPrefix"/>
+    <RULEREF REFID="VID_OptSingularArticle"/>
+    <RULEREF REFID="VID_Creature"/>
+  </RULE>
+
+  <RULE ID="VID_OptSingularArticle">
+    <O>
+      <L>
+        <P>a</P>
+        <P>an</P>
+        <P>any</P>
+        <P>one</P>
+      </L>
+    </O>
   </RULE>
 
     <!-- Example rules below, keeping them for a while so I can write code more smoothly.-->
