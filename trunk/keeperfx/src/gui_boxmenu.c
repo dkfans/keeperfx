@@ -692,8 +692,8 @@ void gui_draw_box(struct GuiBox *gbox)
       if (!goptn->field_26)
         lbDisplay.DrawColour = colours[0][0][0];
       else
-      if ((gbox == gbox_over) && (goptn == goptn_over) && (gbox != dragging_box.gbox) ||
-           (gbox != NULL) && (goptn->active != 0))
+      if ( ((gbox == gbox_over) && (goptn == goptn_over) && (gbox != dragging_box.gbox)) ||
+           ((gbox != NULL) && (goptn->active != 0)) )
         lbDisplay.DrawColour = colours[15][15][15];
       else
         lbDisplay.DrawColour = colours[9][9][9];

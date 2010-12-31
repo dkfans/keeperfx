@@ -206,7 +206,7 @@ void command_add_party_to_level(char *plrname, char *prtname, char *dst_place, l
 void command_add_creature_to_level(char *plrname, char *crtr_name, char *dst_place, long ncopies, long crtr_level, long carried_gold);
 void command_if(char *plrname, char *varib_name, char *operatr, long value);
 void command_add_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4);
-void command_display_information(long msg_num, char *where, long x, long y);
+void command_display_information(long msg_num, const char *where, long x, long y);
 void command_research(char *plrname, char *trg_type, char *trg_name, unsigned long val);
 void command_if_action_point(long apt_idx, char *plrname);
 void command_add_tunneller_to_level(char *plrname, char *dst_place, char *objectv, long target, unsigned char crtr_level, unsigned long carried_gold);

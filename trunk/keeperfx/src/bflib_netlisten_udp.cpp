@@ -172,7 +172,7 @@ void UDP_NetListener::addHost(const IPaddress & addr)
 	bool alreadyExists = false;
 	for (SessionVector::iterator it = sessions.begin(), end = unusedIt; it != end; ++it) {
 		if (it->used) {
-			if (it->addr.host = addr.host && it->addr.port == addr.port) {
+			if ((it->addr.host == addr.host) && (it->addr.port == addr.port)) {
 				alreadyExists = true;
 				unusedIt = it;
 				break;
@@ -203,7 +203,7 @@ void UDP_NetListener::removeHost(const IPaddress & addr)
 	SDL_LockMutex(sessionsMutex);
 
 	for (SessionVector::iterator it = sessions.begin(), end = sessions.end(); it != end; ++it) {
-		if (it->addr.host = addr.host && it->addr.port == addr.port) {
+		if ((it->addr.host == addr.host) && (it->addr.port == addr.port)) {
 			it->removable = true;
 			break;
 		}

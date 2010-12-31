@@ -24,7 +24,7 @@
 
 /** Issue a single request to CPUID.
  *  Fits 'intel features', for instance note that even if only "eax" and "edx"
- *  are of interrest, other registers will be modified by the operation,
+ *  are of interest, other registers will be modified by the operation,
  *  so we need to tell the compiler about it.
  */
 static inline void cpuid(int code, unsigned long *a, unsigned long *d) {
@@ -33,11 +33,9 @@ static inline void cpuid(int code, unsigned long *a, unsigned long *d) {
 
 /** Issue a complete request, storing general registers output in an array.
  */
-static inline int cpuid_string(int code, unsigned long where[4]) {
-  int highest;
+static inline void cpuid_string(int code, unsigned long where[4]) {
   asm volatile("cpuid":"=a"(*where),"=b"(*(where+1)),
                "=c"(*(where+2)),"=d"(*(where+3)):"0"(code));
-  return highest;
 }
 /******************************************************************************/
 

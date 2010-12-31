@@ -164,7 +164,7 @@ void load_or_create_high_score_table(void);
 TbBool load_high_score_table(void);
 TbBool save_high_score_table(void);
 TbBool create_empty_high_score_table(void);
-int add_high_score_entry(unsigned long score, LevelNumber lvnum, char *name);
+int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *name);
 unsigned long get_level_highest_score(LevelNumber lvnum);
 /******************************************************************************/
 short is_bonus_level(LevelNumber lvnum);
@@ -223,8 +223,8 @@ int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,lo
 int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen);
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
-long get_id(const struct NamedCommand *desc, char *itmname);
-long get_rid(const struct NamedCommand *desc, char *itmname);
+long get_id(const struct NamedCommand *desc, const char *itmname);
+long get_rid(const struct NamedCommand *desc, const char *itmname);
 /******************************************************************************/
 #ifdef __cplusplus
 }

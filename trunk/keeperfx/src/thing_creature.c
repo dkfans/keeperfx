@@ -641,7 +641,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         break;
     case SplK_Disease:
         cctrl->casted_spells[idx].field_1 = game.magic_stats[14].power[spell_lev];
-        cctrl->field_B2[4] = thing->owner;
+        cctrl->field_B6 = thing->owner;
         break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);

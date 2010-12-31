@@ -1385,7 +1385,7 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
         return 0;
     }
     // Search for enemies no often than every 64 turns
-    if ((game.play_gameturn + thing->index) & 0x3F != 0)
+    if (((game.play_gameturn + thing->index) & 0x3F) != 0)
     {
         return 0;
     }
@@ -4554,7 +4554,7 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
 
     tmptng = thing_get(cctrl1->word_A2);
     if  ( (cctrl1->field_AD & 0x10) || (cctrl2->field_AD & 0x10)
-        || (cctrl1->field_3) && (tmptng == tng2))
+        || ((cctrl1->field_3) && (tmptng == tng2)) )
     {
         if (tng2 != tng1)
         {

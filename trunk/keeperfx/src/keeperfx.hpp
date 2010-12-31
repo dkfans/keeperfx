@@ -482,9 +482,7 @@ int field_46153;
     struct Room rooms[ROOMS_COUNT];
     struct Dungeon dungeon[DUNGEONS_COUNT];
 char field_149E05;
-    struct StructureList thing_lists[11];
-unsigned int field_149E5E;
-unsigned int field_149E62;
+    struct StructureList thing_lists[13];
 unsigned int field_149E66;
 unsigned int field_149E6A;
     int field_149E6E; // signed

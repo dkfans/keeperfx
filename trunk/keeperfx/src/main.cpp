@@ -1901,7 +1901,7 @@ void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord s
         if (slabmap_block_invalid(slb))
             continue;
         if ((previous_slab_types_around[i] != slb->kind)
-          || (slb->kind != SlbT_GOLD) && (slb->kind != SlbT_ROCK)
+          || ((slb->kind != SlbT_GOLD) && (slb->kind != SlbT_ROCK))
           || (game.flagfield_14EA4A == 1))
         {
             slbattr = get_slab_kind_attrs(slb->kind);
@@ -2679,8 +2679,6 @@ TbBool initial_setup(void)
  */
 short setup_game(void)
 {
-
-  int ret;
   struct CPU_INFO cpu_info; // CPU status variable
   char *fname;
   short result;
@@ -3937,7 +3935,7 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
     {
       player->field_3 &= 0xFB;
     }
-    if ((player->field_7 == 0) || (pal != player->palette) && (pal == player->field_7))
+    if ( (player->field_7 == 0) || ((pal != player->palette) && (pal == player->field_7)) )
     {
         player->palette = pal;
         player->field_4C1 = 0;
@@ -6292,6 +6290,7 @@ void redraw_isometric_view(void)
 
     player = get_my_player();
     memcpy(&pos,&player->acamera->mappos,sizeof(struct Coord3d));
+    memset(&ewnd,0,sizeof(TbGraphicsWindow));
     if (player->field_45F != 1)
       player->field_45F = 1;
     dungeon = get_players_num_dungeon(my_player_number);
@@ -6398,7 +6397,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
             k = game.field_149E77;
           if (game.columns[k].solidmask >= 8)
           {
-            if ((!visible) || ((get_navigation_map(x,y) & 0x80) == 0) && ((map->flags & 0x02) == 0))
+            if ( (!visible) || (((get_navigation_map(x,y) & 0x80) == 0) && ((map->flags & 0x02) == 0)) )
               mask &= 3;
           }
         }
