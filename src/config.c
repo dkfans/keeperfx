@@ -393,7 +393,7 @@ const char *get_language_lwrstr(int lang_id)
  * one word, ended with "\0".
  * If not found, returns -1.
  */
-long get_id(const struct NamedCommand *desc, char *itmname)
+long get_id(const struct NamedCommand *desc, const char *itmname)
 {
   long i;
   //return _DK_get_id(desc, itmname);
@@ -413,7 +413,7 @@ long get_id(const struct NamedCommand *desc, char *itmname)
  * one word, ended with "\0".
  * If not found, returns -1.
  */
-long get_rid(const struct NamedCommand *desc, char *itmname)
+long get_rid(const struct NamedCommand *desc, const char *itmname)
 {
   long i;
   //return _DK_get_id(desc, itmname);
@@ -988,7 +988,7 @@ TbBool create_empty_high_score_table(void)
 /**
  * Adds new entry to high score table. Returns its index.
  */
-int add_high_score_entry(unsigned long score, LevelNumber lvnum, char *name)
+int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *name)
 {
   int idx;
   // If the table is not initiated - return

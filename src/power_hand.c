@@ -312,7 +312,7 @@ void draw_power_hand(void)
   if (player->work_state != 5)
   {
     if ( (player->work_state != 1)
-      || (player->field_455 != 3) && ((player->work_state != 1) || (player->field_455) || (player->field_454 != 3)) )
+      || ((player->field_455 != 3) && ((player->work_state != 1) || (player->field_455) || (player->field_454 != 3))) )
     {
       if ((player->instance_num != 1) && (player->instance_num != 2))
       {

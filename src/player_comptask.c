@@ -571,6 +571,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     long i;
     SYNCDBG(9,"Starting");
     //return _DK_task_move_creature_to_room(comp,ctask);
+    room = INVALID_ROOM;
     thing = thing_get(comp->field_14C8);
     if (!thing_is_invalid(thing))
     {

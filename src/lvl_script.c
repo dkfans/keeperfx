@@ -652,7 +652,7 @@ unsigned short get_map_location_plyridx(TbMapLocation location)
 }
 
 #define get_map_location_id(locname, location) get_map_location_id_f(locname, location, __func__, text_line_number)
-TbBool get_map_location_id_f(char *locname, TbMapLocation *location, const char *func_name, long ln_num)
+TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const char *func_name, long ln_num)
 {
   struct Thing *thing;
   long i;
@@ -1067,7 +1067,7 @@ void command_add_value(unsigned long var_index, unsigned long val1, long val2, l
   value->condit_idx = script_current_condition;
 }
 
-void command_display_information(long msg_num, char *where, long x, long y)
+void command_display_information(long msg_num, const char *where, long x, long y)
 {
   TbMapLocation location;
   if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
@@ -1846,7 +1846,7 @@ void command_quick_objective(int idx, char *msgtext, char *where, long x, long y
   command_add_value(Cmd_QUICK_OBJECTIVE, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
 }
 
-void command_quick_information(int idx, char *msgtext, char *where, long x, long y)
+void command_quick_information(int idx, char *msgtext, const char *where, long x, long y)
 {
   TbMapLocation location;
   if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))

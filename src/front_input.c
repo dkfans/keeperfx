@@ -1645,8 +1645,8 @@ short get_gui_inputs(short gameplay_on)
       callback(gbtn);
     if (((gbtn->field_1B & 0x4000u) != 0) || mouse_is_over_small_map(player->mouse_x,player->mouse_y))
       continue;
-    if (check_if_mouse_is_over_button(gbtn) && (!game_is_busy_doing_gui_string_input())
-      || (gbtn->gbtype == 6) && (gbtn->field_1 != 0))
+    if ( (check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input())
+      || ((gbtn->gbtype == 6) && (gbtn->field_1 != 0)) )
     {
       if ((fmmenu_idx==-1) || (gbtn->gmenu_idx == fmmenu_idx))
       {

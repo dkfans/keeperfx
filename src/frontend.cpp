@@ -2809,11 +2809,11 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
 
 void frontend_start_new_game(struct GuiButton *gbtn)
 {
-  char *cmpgn_fname;
+  const char *cmpgn_fname;
   SYNCDBG(6,"Clicked");
   // Check if we can just start the game without campaign selection screen
   if (campaigns_list.items_num < 1)
-    cmpgn_fname = "";
+    cmpgn_fname = lbEmptyString;
   else
   if (campaigns_list.items_num == 1)
     cmpgn_fname = campaigns_list.items[0].fname;
@@ -4261,7 +4261,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
     callback = gbtn->field_13;
     if ((callback != NULL) && (gbtn->field_0 & 0x04) && (gbtn->field_0 & 0x01) && (gbtn->gmenu_idx == gmnu->field_14))
     {
-      if ((gbtn->field_1 == 0) && (gbtn->field_2 == 0) || (gbtn->gbtype == Lb_SLIDER) || (callback == gui_area_null))
+      if ( ((gbtn->field_1 == 0) && (gbtn->field_2 == 0)) || (gbtn->gbtype == Lb_SLIDER) || (callback == gui_area_null) )
         callback(gbtn);
     }
   }
