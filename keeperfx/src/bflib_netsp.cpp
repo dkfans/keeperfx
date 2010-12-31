@@ -246,6 +246,8 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
     WARNLOG("not initialized");
     return Lb_FAIL;
   }
+  messageType = 0;
+  seqNbr = 0;
   DecodeMessageStub(buf,&dataLen,&messageType,&seqNbr);
   if (plr_id != this->localPlayerId)
   {
@@ -737,7 +739,7 @@ void ServiceProvider::EncodeAddPlayerMsg(unsigned char *enc_buf, unsigned long i
     return;
   }
   len = strlen(msg_str) + 5;
-  *(unsigned long *)out = len & 0xFFFFF | 0x1000000;
+  *(unsigned long *)out = (len & 0xFFFFF) | 0x1000000;
   out += sizeof(unsigned long);
   memcpy(out, &id, sizeof(unsigned long));
   out += sizeof(unsigned long);
@@ -862,6 +864,7 @@ TbError ServiceProvider::BroadcastSystemMessage(void *enc_msg)
   unsigned char *inp;
   long i;
   inp = (unsigned char *)enc_msg;
+  messageType = 0;
   this->DecodeMessageStub(inp, NULL, &messageType, NULL);
   inp += sizeof(unsigned long);
   if ( (messageType < 1) || ((messageType > 1) && (messageType != 2)) )

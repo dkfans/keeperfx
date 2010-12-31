@@ -1096,12 +1096,12 @@ long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariad
         return 1;
     }
     ariadne_push_position_against_wall(thing, &pos, &pos3);
-    if (((blk_flags & 0x01) != 0) && (thing->mappos.x.val == pos3.x.val)
-     || ((blk_flags & 0x02) != 0) && (thing->mappos.y.val == pos3.y.val))
+    if ( (((blk_flags & 0x01) != 0) && (thing->mappos.x.val == pos3.x.val))
+      || (((blk_flags & 0x02) != 0) && (thing->mappos.y.val == pos3.y.val)) )
     {
-      ariadne_init_wallhug(thing, arid, &pos);
-      arid->field_22 = 1;
-      return 1;
+        ariadne_init_wallhug(thing, arid, &pos);
+        arid->field_22 = 1;
+        return 1;
     }
     arid->pos_53.x.val = pos3.x.val;
     arid->pos_53.y.val = pos3.y.val;
@@ -2187,7 +2187,7 @@ long get_navigation_colour_for_cube(long stl_x, long stl_y)
     if (i > 15)
       i = 15;
     tcube = get_top_cube_at(stl_x, stl_y);
-    if (((tcube & 0xFFFFFFFE) == 40) || (tcube >= 294) && (tcube <= 302))
+    if (((tcube & 0xFFFFFFFE) == 40) || ((tcube >= 294) && (tcube <= 302)))
       i |= 0x10;
     return i;
 }

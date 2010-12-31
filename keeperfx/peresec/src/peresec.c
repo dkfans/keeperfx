@@ -125,7 +125,7 @@ struct section_entry {
     unsigned long vsize;
     unsigned long raddr; // RAW address
     unsigned long rsize;
-    unsigned char name[MAX_SECTION_NAME_LEN+1];
+    char name[MAX_SECTION_NAME_LEN+1];
 };
 
 struct export_entry {
@@ -1115,7 +1115,7 @@ short read_sections_list(unsigned char *buf, long filesize, struct PEInfo *pe)
         sec = pe->sections[idx+1];
         data = buf + section_headers_raw_pos + idx*PE_SIZEOF_SECTHDR_ENTRY;
         // Read section name
-        strncpy(sec->name, data, MAX_SECTION_NAME_LEN);
+        strncpy(sec->name, (char *)data, MAX_SECTION_NAME_LEN);
         sec->name[MAX_SECTION_NAME_LEN]='\0';
         data += MAX_SECTION_NAME_LEN;
         // Read addresses and sizes
@@ -1206,7 +1206,7 @@ short add_pe_section_header_to_buf(unsigned char **buf, long *filesize, struct s
     // Clear the new section
     memset(data, '\0', PE_SIZEOF_SECTHDR_ENTRY);
     // Write section name
-    strncpy(data, new_sec->name, MAX_SECTION_NAME_LEN);
+    strncpy((char *)data, new_sec->name, MAX_SECTION_NAME_LEN);
     data += MAX_SECTION_NAME_LEN;
     // Write addresses and sizes
     write_int32_le_buf(data,new_sec->vsize); data += 4; // virtual size
