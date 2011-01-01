@@ -27,7 +27,7 @@ typedef enum
 	KS_VIEW_ROOMS, //room tab
 	KS_VIEW_POWERS, //spell tab
 	KS_VIEW_TRAPS, //trap tab
-	KS_CREATURES, //creature tab
+	KS_VIEW_CREATURES, //creature tab
 	KS_SELECT_ROOM,
 	KS_SELECT_POWER,
 	KS_SELECT_TRAP,
