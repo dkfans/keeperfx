@@ -241,7 +241,7 @@ long creature_model_id(const char * name)
 
     for (i = 0; i < crtr_conf.model_count; ++i) {
         if (strncmp(name, crtr_conf.model[i].name, COMMAND_WORD_LEN) == 0) {
-            return i;
+            return i + 1;
         }
     }
 

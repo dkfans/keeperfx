@@ -11,56 +11,14 @@
     <ID NAME="VID_PickUpPrefix" VAL="1007"/>
     <ID NAME="VID_PickUpAny" VAL="1008"/>
     <ID NAME="VID_OptSingularArticle" VAL="1009"/>
-  
-    <!-- Example IDs below, keeping them for a while so I can write code more smoothly.-->
-    <ID NAME="VID_Counter" VAL="1"/>
-    <ID NAME="VID_Office" VAL="2"/>
-    <ID NAME="VID_Iced" VAL="8"/>
-    <ID NAME="VID_Decaf" VAL="9"/>
-    <ID NAME="VID_Single" VAL="10"/>
-    <ID NAME="VID_Double" VAL="11"/>
-    <ID NAME="VID_Triple" VAL="12"/>
-    <ID NAME="VID_Quad" VAL="13"/>
-    <ID NAME="VID_Short" VAL="14"/>
-    <ID NAME="VID_Tall" VAL="15"/>
-    <ID NAME="VID_Grande" VAL="16"/>
-    <ID NAME="VID_Hazelnut" VAL="17"/>
-    <ID NAME="VID_Irish" VAL="18"/>
-    <ID NAME="VID_Almond" VAL="19"/>
-    <ID NAME="VID_Peppermint" VAL="20"/>
-    <ID NAME="VID_Nonfat" VAL="21"/>
-    <ID NAME="VID_Twoper" VAL="22"/>
-    <ID NAME="VID_Whole" VAL="23"/>
-    <ID NAME="VID_Latte" VAL="24"/>
-    <ID NAME="VID_Mocha" VAL="25"/>
-    <ID NAME="VID_Espresso" VAL="26"/>
-    <ID NAME="VID_Americano" VAL="27"/>
-    <ID NAME="VID_Cappuch" VAL="28"/>
-    <ID NAME="VID_Employees" VAL="29"/>
-    <ID NAME="VID_MalesOnly" VAL="30"/>
-    <ID NAME="VID_FemalesOnly" VAL="31"/>
-    <ID NAME="VID_Both" VAL="32"/>
-    <ID NAME="VID_ShopName" VAL="36"/>
-    <ID NAME="VID_Place" VAL="253"/>
-    <ID NAME="VID_Navigation" VAL="254"/>
-    <ID NAME="VID_EspressoDrinks" VAL="255"/>
-    <ID NAME="VID_IcedOrNot" VAL="256"/>
-    <ID NAME="VID_DecafOrNot" VAL="257"/>
-    <ID NAME="VID_Shots" VAL="258"/>
-    <ID NAME="VID_Syrup" VAL="259"/>
-    <ID NAME="VID_Milk" VAL="260"/>
-    <ID NAME="VID_Size" VAL="261"/>
-    <ID NAME="VID_DrinkType" VAL="262"/>
-    <ID NAME="VID_OrderList" VAL="263"/>
-    <ID NAME="VID_Manage" VAL="264"/>
-    <ID NAME="VID_ThingsToManage" VAL="265"/>
-    <ID NAME="VID_HearTheVoice" VAL="266"/>
-    <ID NAME="VID_OtherRules" VAL="267"/>
-    <ID NAME="VID_Rename" VAL="268"/>
+    <ID NAME="VID_SelectRoom" VAL="1010"/>
+    <ID NAME="VID_Room" VAL="1011"/>
+    <ID NAME="VID_HandChoose" VAL="1012"/>
+    <ID NAME="VID_HandAction" VAL="1013"/>
   </DEFINE>
 
   <!-- Keeper rules below: -->
-  <RULE ID="VID_Slap" TOPLEVEL="ACTIVE">
+  <RULE ID="VID_Slap"> <!-- TOPLEVEL="ACTIVE" removed until re-enabled -->
     <L>
       <P>Beat</P>
       <P>Hit</P>
@@ -70,14 +28,14 @@
     </L>
   </RULE>
 
-  <RULE ID="VID_PickUp" TOPLEVEL="ACTIVE">
+  <RULE ID="VID_PickUp"><!-- TOPLEVEL="ACTIVE" removed until re-enabled -->
     <L>
       <RULEREF REFID="VID_PickUpPrefix"/>
       <P>Up</P>
     </L>
   </RULE>
 
-  <RULE ID="VID_Drop" TOPLEVEL="ACTIVE">
+  <RULE ID="VID_Drop"> <!-- TOPLEVEL="ACTIVE" removed until re-enabled -->
     <L>
       <P>Down</P>
       <P>
@@ -105,7 +63,6 @@
       <P VALSTR="ARCHER">Bowman</P>
       <P VALSTR="AVATAR">Avatar</P>
       <P VALSTR="BARBARIAN">Barbarian</P>
-      <P VALSTR="BARBARIAN">Brute</P>
       <P VALSTR="BILE_DEMON">
         <P>Bile</P>
         <O>Demon</O>
@@ -154,7 +111,6 @@
         <O>Evil</O>
         <P>Mage</P></P>
       <P VALSTR="SORCEROR">Sorceror</P>
-      <P VALSTR="SPIDER">Arachnid</P>
       <P VALSTR="SPIDER">Spider</P>
       <P VALSTR="TENTACLE">Tentacle</P>
       <P VALSTR="THIEF">Robber</P>
@@ -257,130 +213,76 @@
     </O>
   </RULE>
 
-    <!-- Example rules below, keeping them for a while so I can write code more smoothly.-->
-  <RULE ID="VID_Rename" TOPLEVEL="ACTIVE">
-      <P PROPNAME="Named SAPI Coffee Shop to"> Rename the coffee shop to *+ </P>
-  </RULE>
-  <RULE ID="VID_EspressoDrinks" TOPLEVEL="ACTIVE">
-      <O>
-          <L>
-              <P>May I have</P>
-              <P>Can I have</P>
-              <P>Can I get</P>
-              <P>Please get me</P>
-              <P>Get me</P>
-              <P>I'd like</P>
-              <P>I would like</P>
-              <P>...</P>
-          </L>
-      </O>
-      <O>a</O>
-	<P MIN="1" MAX="7">
-		  <RULEREF REFID="VID_OrderList"/>
-	</P>
-      <O>...</O>
-  </RULE>
-  <RULE ID="VID_Navigation" TOPLEVEL="ACTIVE">
-      <O>Please</O>
-      <P>
-          <L>
-              <P>Enter</P>
-              <P>Go to</P>
-          </L>
-      </P>
-      <O>the</O>
-      <RULEREF REFID="VID_Place" /> 
-  </RULE>
-  <RULE ID="VID_Manage" TOPLEVEL="ACTIVE">
-      <O>Please</O>
-      <P>Manage</P>
-      <O>the</O>
-      <RULEREF REFID="VID_ThingsToManage" /> 
-  </RULE>
-  <RULE ID="VID_HearTheVoice" TOPLEVEL="ACTIVE">
-      <P>Hear Them Speak</P>
-  </RULE>
-  <RULE ID="VID_OtherRules" TOPLEVEL="ACTIVE">
-      <L PROPID="VID_OtherRules">
-          <P VAL="VID_MalesOnly">?Show Males Only</P>
-          <P VAL="VID_FemalesOnly">?Show Females Only</P>
-          <P VAL="VID_Both">?Show Both Genders</P>
-      </L>
-  </RULE>
-  <RULE ID="VID_Place" >
-      <L PROPID="VID_Place">
-          <P VAL="VID_Counter">counter</P>
-          <P VAL="VID_Counter">shop</P>
-          <P VAL="VID_Counter">store</P>
-          <P VAL="VID_Office">office</P>
-      </L>
-  </RULE>
-  <RULE ID="VID_IcedOrNot" >
-      <L PROPID="VID_IcedOrNot">
-          <P VAL="VID_Iced">Iced</P>
-      </L>
-  </RULE>
-  <RULE ID="VID_DecafOrNot" >
-      <L PROPID="VID_DecafOrNot">
-          <P VAL="VID_Decaf">Decaf</P>
-          <P VAL="VID_Decaf">Decaffeinated</P>
-      </L>
-  </RULE>
-  <RULE ID="VID_Shots" >
-      <L PROPID="VID_Shots">
-          <P VAL="VID_Single">Single</P>
-          <P VAL="VID_Double">Double</P>
-          <P VAL="VID_Triple">Triple</P>
-          <P VAL="VID_Quad">Quad</P>
-      </L>
-  </RULE>
-  <RULE ID="VID_Size" >
-      <L PROPID="VID_Size">
-          <P VAL="VID_Short">Short</P>
-          <P VAL="VID_Tall">Tall</P>
-          <P VAL="VID_Grande">Grande</P>
-      </L>
-  </RULE>
-  <RULE ID="VID_Syrup" >
-      <L PROPID="VID_Syrup">
-          <P VAL="VID_Hazelnut">Hazelnut</P>
-          <P VAL="VID_Irish">Irish Cream</P>
-          <P VAL="VID_Almond">Almond</P>
-          <P VAL="VID_Peppermint">Peppermint</P>
-      </L>
-  </RULE>
-  <RULE ID="VID_Milk" >
-      <L PROPID="VID_Milk">
-          <P VAL="VID_Nonfat">Nonfat</P>
-          <P VAL="VID_Twoper">Two Percent</P>
-          <P VAL="VID_Whole">Whole</P>
-      </L>
-  </RULE>
-  <RULE ID="VID_DrinkType" >
-      <L PROPID="VID_DrinkType">
-          <P VAL="VID_Latte">Latte</P>
-          <P VAL="VID_Mocha">Mocha</P>
-          <P VAL="VID_Espresso">Espresso</P>
-          <P VAL="VID_Americano">Americano</P>
-          <P VAL="VID_Cappuch">Cappuccino</P>
-      </L>
-  </RULE>
-  <RULE ID="VID_OrderList" >
+  <RULE ID="VID_SelectRoom" TOPLEVEL="ACTIVE">
+    <O>
       <L>
-          <RULEREF REFID="VID_IcedOrNot" PROPID="VID_IcedOrNot"/> 
-          <RULEREF REFID="VID_DecafOrNot" PROPID="VID_DecafOrNot"/> 
-          <RULEREF REFID="VID_Shots" PROPID="VID_Shots"/> 
-          <RULEREF REFID="VID_Syrup" PROPID="VID_Syrup"/> 
-          <RULEREF REFID="VID_Milk" PROPID="VID_Milk"/> 
-          <RULEREF REFID="VID_Size" PROPID="VID_Size"/> 
-          <RULEREF REFID="VID_DrinkType" PROPID="VID_DrinkType"/> 
+        <P>Select</P>
+        <P>Choose</P>
+        <P>Build</P>
+        <P>Make</P>
       </L>
+    </O>
+    <RULEREF REFID="VID_Room"/>
   </RULE>
-  <RULE ID="VID_ThingsToManage" >
-      <L PROPID="VID_ThingsToManage">
-          <P VAL="VID_Employees">employees</P>
-          <P VAL="VID_ShopName">-shop +name</P>
-          <P VAL="VID_ShopName">-store +name</P>
-      </L>
+
+  <RULE ID="VID_Room"> <!-- Returns room type as enum RoomKinds value found in room_data.h -->
+    <L PROPID="VID_Room">
+      <P VAL="2">Treasure</P>
+      <P VAL="2">Treasury</P>
+      <P VAL="3">Library</P>
+      <P VAL="4">Jail</P>
+      <P VAL="4">Prison</P>
+      <P VAL="5">
+        <P>Torture</P>
+        <O>Chamber</O>
+      </P>
+      <P VAL="6">Train</P>
+      <P VAL="6">Training</P>
+      <P VAL="8">Factory</P>
+      <P VAL="8">Workshop</P>
+      <P VAL="9">Scavenge</P>
+      <P VAL="9">Scavenger</P>
+      <P VAL="9">Scavenging</P>
+      <P VAL="10">Shrine</P>
+      <P VAL="10">Temple</P>
+      <P VAL="11">Cemetery</P>
+      <P VAL="11">Grave</P>
+      <P VAL="11">Graveyard</P>
+      <P VAL="12">Barrack</P>
+      <P VAL="12">Barracks</P>
+      <P VAL="13">Hatch</P>
+      <P VAL="13">Hatcherý</P>
+      <P VAL="14">Lair</P>
+      <P VAL="15">Bridge</P>
+      <P VAL="16">
+        <L>
+          <P>Guard</P>
+          <P>Guarding</P>
+        </L>
+        <O>Post</O>
+      </P>
+    </L>
+    
+    <O>Room</O>
+  </RULE>
+
+  <RULE ID="VID_HandChoose" TOPLEVEL="ACTIVE">
+    <L>
+      <P>Up</P>
+      <P>
+        <P>Left</P>
+        <O>Click</O>
+      </P>
+    </L>
+  </RULE>
+
+  <RULE ID="VID_HandAction" TOPLEVEL="ACTIVE">
+    <L>
+      <P>Down</P>
+      <P>
+        <P>Right</P>
+        <O>Click</O>
+      </P>
+    </L>
   </RULE>
 </GRAMMAR>
