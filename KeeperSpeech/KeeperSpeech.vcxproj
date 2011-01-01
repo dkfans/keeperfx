@@ -79,7 +79,9 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="KeeperCommands.xml" />
+    <None Include="KeeperCommands.xml">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>

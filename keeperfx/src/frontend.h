@@ -474,6 +474,7 @@ void pick_up_creature_doing_activity(struct GuiButton *gbtn);
 void gui_go_to_next_creature_activity(struct GuiButton *gbtn);
 void gui_area_anger_button(struct GuiButton *gbtn);
 void maintain_activity_row(struct GuiButton *gbtn);
+void choose_room(int kind);
 
 // Campaign selection screen
 void frontend_campaign_select_up(struct GuiButton *gbtn);

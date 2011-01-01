@@ -6,7 +6,7 @@
 #include "KeeperSpeech.h"
 #include "resource.h"
 
-#define MAX_EVENTS	16
+#define MAX_EVENTS	4 //probably could be 1 and it wouldn't matter much... since DK can only issue 1 packet/(player*frame)
 
 extern HMODULE hModule;
 
@@ -68,14 +68,29 @@ static void toKeeperString(LPCWSTR old_str, char * new_str, size_t max_len)
 	new_str[i] = 0;
 }
 
-static void scanForCreatureProperty(const SPPHRASEPROPERTY * prop, char * str, size_t max_len)
+static const SPPHRASEPROPERTY * scanForProperty(const SPPHRASEPROPERTY * root, ULONG id_to_find)
 {
-	for (; prop != NULL; prop = prop->pNextSibling) {
-		if (prop->ulId == VID_Creature) {
-			toKeeperString(prop->pszValue, str, max_len);
-			return;
+	const SPPHRASEPROPERTY * prop;
+
+	for (prop = root; prop != NULL; prop = prop->pNextSibling) {
+		if (prop->ulId == id_to_find) {
+			return prop;
 		}
 	}
+
+	return NULL;
+}
+
+static void parseCreatureId(const SPPHRASEPROPERTY * prop, char * str, size_t max_len)
+{
+	prop = scanForProperty(prop, VID_Creature);
+	toKeeperString(prop->pszValue, str, max_len);
+}
+
+static int parseRoomId(const SPPHRASEPROPERTY * prop)
+{
+	prop = scanForProperty(prop, VID_Room);
+	return prop->vValue.lVal;
 }
 
 static void handleRecognition(ISpPhrase * p)
@@ -92,7 +107,7 @@ static void handleRecognition(ISpPhrase * p)
 
 	//parsing results below
 	switch (phrase->Rule.ulId) {
-	case VID_Slap:
+	/*case VID_Slap:
 		pushEvent(KS_SLAP);
 		break;
 	case VID_PickUp:
@@ -100,22 +115,32 @@ static void handleRecognition(ISpPhrase * p)
 		break;
 	case VID_Drop:
 		pushEvent(KS_DROP);
+		break;*/
+	case VID_HandChoose:
+		pushEvent(KS_HAND_CHOOSE);
+		break;
+	case VID_HandAction:
+		pushEvent(KS_HAND_ACTION); //no more dirty jokes plz
 		break;
 	case VID_PickUpIdle:
 		ev = pushEvent(KS_PICKUP_IDLE);
-		scanForCreatureProperty(phrase->pProperties, ev->u.creature.model_name, sizeof(ev->u.creature.model_name));
+		parseCreatureId(phrase->pProperties, ev->u.creature.model_name, sizeof(ev->u.creature.model_name));
 		break;
 	case VID_PickUpWorking:
 		ev = pushEvent(KS_PICKUP_WORKING);
-		scanForCreatureProperty(phrase->pProperties, ev->u.creature.model_name, sizeof(ev->u.creature.model_name));
+		parseCreatureId(phrase->pProperties, ev->u.creature.model_name, sizeof(ev->u.creature.model_name));
 		break;
 	case VID_PickUpFighting:
 		ev = pushEvent(KS_PICKUP_FIGHTING);
-		scanForCreatureProperty(phrase->pProperties, ev->u.creature.model_name, sizeof(ev->u.creature.model_name));
+		parseCreatureId(phrase->pProperties, ev->u.creature.model_name, sizeof(ev->u.creature.model_name));
 		break;
 	case VID_PickUpAny:
 		ev = pushEvent(KS_PICKUP_ANY);
-		scanForCreatureProperty(phrase->pProperties, ev->u.creature.model_name, sizeof(ev->u.creature.model_name));
+		parseCreatureId(phrase->pProperties, ev->u.creature.model_name, sizeof(ev->u.creature.model_name));
+		break;
+	case VID_SelectRoom:
+		ev = pushEvent(KS_SELECT_ROOM);
+		ev->u.room.id = parseRoomId(phrase->pProperties);
 		break;
 	}
 
