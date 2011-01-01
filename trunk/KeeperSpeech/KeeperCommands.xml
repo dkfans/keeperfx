@@ -17,6 +17,13 @@
     <ID NAME="VID_HandAction" VAL="1013"/>
     <ID NAME="VID_SelectPower" VAL="1014"/>
     <ID NAME="VID_Power" VAL="1015"/>
+    <ID NAME="VID_ViewInfo" VAL="1016"/>
+    <ID NAME="VID_ViewRooms" VAL="1017"/>
+    <ID NAME="VID_ViewPowers" VAL="1018"/>
+    <ID NAME="VID_ViewTraps" VAL="1019"/>
+    <ID NAME="VID_ViewCreatures" VAL="1020"/>
+    <ID NAME="VID_ViewPrefix" VAL="1021"/>
+    <ID NAME="VID_ViewSuffix" VAL="1022"/>
   </DEFINE>
 
   <!-- Keeper rules below: -->
@@ -315,6 +322,7 @@
       <P VALSTR="POWER_OBEY">
         <L>
           <P>Enslave</P>
+          <P>Must Obey</P>
           <P>Obey</P>
         </L>
       </P>
@@ -384,6 +392,7 @@
           <P>Speed</P>
           <P>Speed Up</P>
         </L>
+        <O>Monster</O> <!-- Due to name of spell. -->
       </P>
       <P VALSTR="POWER_PROTECT">
         <L>
@@ -392,6 +401,7 @@
           <P>Defend</P>
           <P>Protect</P>
         </L>
+        <O>Monster</O> <!-- Due to name of spell. -->
       </P>
       <P VALSTR="POWER_CONCEAL">
         <L>
@@ -400,6 +410,7 @@
           <P>Invisibility</P>
           <P>Invisible</P>
         </L>
+        <O>Monster</O> <!-- Due to name of spell. -->
       </P>
       <P VALSTR="POWER_DISEASE">
         <L>
@@ -461,6 +472,88 @@
         <P>Magic</P>
         <P>Power</P>
         <P>Spell</P>
+      </L>
+    </O>
+  </RULE>
+
+  <RULE ID="VID_ViewInfo" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_ViewPrefix"/>
+    <O>
+      <L>
+        <P>Dungeon</P>
+        <P>General</P>
+      </L>
+    </O>
+    <L>
+      <P>Info</P>
+      <P>Information</P>
+    </L>
+    <RULEREF REFID="VID_ViewSuffix"/>
+  </RULE>
+
+  <RULE ID="VID_ViewRooms" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_ViewPrefix"/>
+    <L>
+      <P>Room</P>
+      <P>Rooms</P>
+    </L>
+    <RULEREF REFID="VID_ViewSuffix"/>
+  </RULE>
+
+  <RULE ID="VID_ViewPowers" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_ViewPrefix"/>
+    <L>
+      <P>Magic</P>
+      <P>Power</P>
+      <P>Powers</P>
+      <P>Spell</P>
+      <P>Spells</P>
+    </L>
+    <RULEREF REFID="VID_ViewSuffix"/>
+  </RULE>
+
+  <RULE ID="VID_ViewTraps" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_ViewPrefix"/>
+    <L>
+      <P>Door</P>
+      <P>Doors</P>
+      <P>Trap</P>
+      <P>Traps</P>
+      <P>Workshop Items</P>
+    </L>
+    <RULEREF REFID="VID_ViewSuffix"/>
+  </RULE>
+
+  <RULE ID="VID_ViewCreatures" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_ViewPrefix"/>
+    <L>
+      <P>Creature</P>
+      <P>Creatures</P>
+      <P>Minion</P>
+      <P>Minions</P>
+      <P>Monster</P>
+      <P>Monsters</P>
+    </L>
+    <RULEREF REFID="VID_ViewSuffix"/>
+  </RULE>
+
+  <RULE ID="VID_ViewPrefix">
+    <O>
+      <L>
+        <P>Display</P>
+        <P>Show</P>
+        <P>View</P>
+      </L>
+    </O>
+  </RULE>
+
+  <RULE ID="VID_ViewSuffix">
+    <O>
+      <L>
+        <P>Menu</P>
+        <P>Page</P>
+        <P>Tab</P>
+        <P>View</P>
       </L>
     </O>
   </RULE>

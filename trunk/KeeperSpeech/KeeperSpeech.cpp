@@ -128,6 +128,21 @@ static void handleRecognition(ISpPhrase * p)
 	case VID_HandAction:
 		pushEvent(KS_HAND_ACTION); //no more dirty jokes plz
 		break;
+	case VID_ViewInfo:
+		pushEvent(KS_VIEW_INFO);
+		break;
+	case VID_ViewRooms:
+		pushEvent(KS_VIEW_ROOMS);
+		break;
+	case VID_ViewPowers:
+		pushEvent(KS_VIEW_POWERS);
+		break;
+	case VID_ViewTraps:
+		pushEvent(KS_VIEW_TRAPS);
+		break;
+	case VID_ViewCreatures:
+		pushEvent(KS_VIEW_CREATURES);
+		break;
 	case VID_PickUpIdle:
 		ev = pushEvent(KS_PICKUP_IDLE);
 		parseCreatureId(phrase->pProperties, ev->u.creature.model_name, sizeof(ev->u.creature.model_name));

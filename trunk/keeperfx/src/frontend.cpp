@@ -245,11 +245,6 @@ DLLIMPORT void _DK_gui_area_friendly_battlers(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_setup_enemy_over(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_enemy_battlers(struct GuiButton *gbtn);
 /******************************************************************************/
-#define BID_INFO_TAB      1
-#define BID_ROOM_TAB      2
-#define BID_SPELL_TAB     3
-#define BID_TRAP_TAB      4
-#define BID_CREATR_TAB    5
 
 int select_level_scroll_offset = 0;
 int number_of_freeplay_levels = 0;
