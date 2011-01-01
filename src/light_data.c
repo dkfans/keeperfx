@@ -127,6 +127,7 @@ long light_create_light(struct InitLight *ilght)
 {
     struct Light *lgt;
     struct ShadowCache *shdc;
+    unsigned long k;
     //return _DK_light_create_light(ilght);
     lgt = light_allocate_light();
     if (light_is_invalid(lgt))
@@ -156,7 +157,8 @@ long light_create_light(struct InitLight *ilght)
     lgt->mappos.z.val = ilght->mappos.z.val;
     lgt->field_16 = ilght->field_0;
     lgt->field_2 = ilght->field_2;
-    lgt->field_1 = 2 * ilght->field_3 ^ (2 * ilght->field_3 ^ lgt->field_1) & 0x01;
+    k = 2 * ilght->field_3;
+    lgt->field_1 = k ^ ((k ^ lgt->field_1) & 0x01);
     lgt->field_0 ^= (lgt->field_0 ^ 0x04 * ilght->field_11) & 0x04;
     lgt->field_1A = ilght->field_8;
     lgt->field_18 = ilght->field_4;

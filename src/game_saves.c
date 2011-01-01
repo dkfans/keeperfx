@@ -603,16 +603,16 @@ short load_continue_game(void)
 
   if (!read_continue_game_part(buf,0,14))
   {
-    WARNLOG("Can't read continue game file head");
-    return false;
+      WARNLOG("Can't read continue game file head");
+      return false;
   }
   i = (char *)&game.campaign_fname[0] - (char *)&game;
   read_continue_game_part((unsigned char *)cmpgn_fname,i,CAMPAIGN_FNAME_LEN);
   cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
   if (!change_campaign(cmpgn_fname))
   {
-    ERRORLOG("Unable to load campaign");
-    return false;
+      ERRORLOG("Unable to load campaign");
+      return false;
   }
   lvnum = ((struct Game *)buf)->continue_level_number;
   if (!is_singleplayer_like_level(lvnum))

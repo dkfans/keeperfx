@@ -55,6 +55,8 @@ enum ThingListIndex {
     TngList_Doors        =  8,
     TngList_AmbientSnds  =  9,
     TngList_CaveIns      = 10,
+    TngList_unk11        = 11,
+    TngList_unk12        = 12,
 };
 
 /******************************************************************************/
