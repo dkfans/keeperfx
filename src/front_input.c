@@ -870,50 +870,48 @@ void get_packet_control_mouse_clicks(void)
 {
   struct PlayerInfo *player;
   SYNCDBG(8,"Starting");
-  static int slapping = 0;
-  static int picking_up = 0;
+
+  static int synthetic_left = 0; //arbitrary state machine, not deserving own enum
+  static int synthetic_right = 0;
+
   if ((game.numfield_C & 0x01) == 0)
   {
     player = get_my_player();
 
-    if ( left_button_held || picking_up == 1)
+    if ( left_button_held || synthetic_left == 1)
     {
       set_players_packet_control(player, PCtr_LBtnHeld);
-      picking_up = 2;
+      synthetic_left = 2;
     }
 
-    if ( right_button_held || slapping == 1 )
+    if ( right_button_held || synthetic_right == 1 )
     {
       set_players_packet_control(player, PCtr_RBtnHeld);
-      slapping = 2;
+      synthetic_right = 2;
     }
 
 #ifdef KEEPERSPEECH_EXPERIMENTAL
-    if ( left_button_clicked ||
-        last_speech_event.type == KS_PICKUP)
+    if ( left_button_clicked || last_speech_event.type == KS_HAND_CHOOSE )
     {
       set_players_packet_control(player, PCtr_LBtnClick);
 
-      if (last_speech_event.type == KS_PICKUP) {
-        picking_up = 1;
+      if ( last_speech_event.type == KS_HAND_CHOOSE ) {
+        synthetic_left = 1;
       }
       else {
-        picking_up = 0; //good idea to cancel current pick up, mouse takes precedence
+        synthetic_left = 0; //good idea to cancel current pick up, mouse takes precedence
       }
     }
 
-    if ( right_button_clicked ||
-        last_speech_event.type == KS_SLAP ||
-        last_speech_event.type == KS_DROP ) //TODO: implement speech distinction between dropping and slapping (and mining/anything else)
+    if ( right_button_clicked || last_speech_event.type == KS_HAND_ACTION )
     {
       set_players_packet_control(player, PCtr_RBtnClick);
 
-      if ( last_speech_event.type == KS_SLAP ||
-          last_speech_event.type == KS_DROP ) {
-        slapping = 1;
+      if ( last_speech_event.type == KS_HAND_ACTION ) {
+        synthetic_right = 1;
       }
       else {
-        slapping = 0; //good idea to cancel current slap
+        synthetic_right = 0; //good idea to cancel current slap
       }
     }
 #else
@@ -927,23 +925,23 @@ void get_packet_control_mouse_clicks(void)
     }
 #endif
 
-    if ( left_button_released || picking_up == 3)
+    if ( left_button_released || synthetic_left == 3)
     {
       set_players_packet_control(player, PCtr_LBtnRelease);
-      picking_up = 0;
+      synthetic_left = 0;
     }
 
-    if ( right_button_released || slapping == 3 )
+    if ( right_button_released || synthetic_right == 3 )
     {
       set_players_packet_control(player, PCtr_RBtnRelease);
-      slapping = 0;
+      synthetic_right = 0;
     }
 
-    if (slapping == 2) {
-        slapping = 3;
+    if (synthetic_right == 2) {
+        synthetic_right = 3;
     }
-    if (picking_up == 2) {
-        picking_up = 3;
+    if (synthetic_left == 2) {
+        synthetic_left = 3;
     }
   }
 }
@@ -1427,7 +1425,10 @@ static void get_dungeon_speech_inputs(void)
         speech_pickup_of_gui_job(2);
         break;
     case KS_PICKUP_ANY:
-        speech_pickup_of_gui_job(-1);
+        //TODO: implement when pick_up_next_creature has been reverse engineered
+        break;
+    case KS_SELECT_ROOM:
+        choose_room(last_speech_event.u.room.id);
         break;
     default:
         break; //don't care

@@ -1746,15 +1746,19 @@ void gui_area_event_button(struct GuiButton *gbtn)
   }
 }
 
-void gui_choose_room(struct GuiButton *gbtn)
+void choose_room(int kind)
 {
   struct PlayerInfo *player;
-  long i;
   player = get_my_player();
-  i = (long)gbtn->field_33;
-  set_players_packet_action(player, PckA_SetPlyrState, PSt_BuildRoom, i, 0, 0);
-  game.field_151801 = i;
-  game.field_151805 = room_info[i].field_0;
+  set_players_packet_action(player, PckA_SetPlyrState, PSt_BuildRoom, kind, 0, 0);
+  game.field_151801 = kind;
+  game.field_151805 = room_info[kind].field_0;
+}
+
+void gui_choose_room(struct GuiButton *gbtn)
+{
+  //NOTE by Petter: factored out original gui_choose_room into choose_room and this
+  choose_room((enum RoomKinds)(long) gbtn->field_33);
   game.field_151809 = gbtn->tooltip_id;
 }
 
