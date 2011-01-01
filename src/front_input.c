@@ -1443,6 +1443,21 @@ static void get_dungeon_speech_inputs(void)
             choose_spell(id, 2); //TODO: see what happens with tool tip
         }
         break;
+    case KS_VIEW_INFO:
+        //set_menu_mode(BID_INFO_TAB); //TODO: not working for some reason, debug
+        break;
+    case KS_VIEW_ROOMS:
+        set_menu_mode(BID_ROOM_TAB);
+        break;
+    case KS_VIEW_POWERS:
+        set_menu_mode(BID_SPELL_TAB);
+        break;
+    case KS_VIEW_TRAPS:
+        set_menu_mode(BID_TRAP_TAB);
+        break;
+    case KS_VIEW_CREATURES:
+        set_menu_mode(BID_CREATR_TAB);
+        break;
     default:
         break; //don't care
     }

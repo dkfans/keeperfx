@@ -46,6 +46,13 @@ extern "C" {
 // After that much milliseconds in main menu, demo is started
 #define MNU_DEMO_IDLE_TIME 30000
 /******************************************************************************/
+
+#define BID_INFO_TAB      1
+#define BID_ROOM_TAB      2
+#define BID_SPELL_TAB     3
+#define BID_TRAP_TAB      4
+#define BID_CREATR_TAB    5
+
 enum DemoItem_Kind {
     DIK_PlaySmkVideo,
     DIK_LoadPacket,
