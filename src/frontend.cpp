@@ -1746,20 +1746,20 @@ void gui_area_event_button(struct GuiButton *gbtn)
   }
 }
 
-void choose_room(int kind)
+void choose_room(int kind, int tooltip_id)
 {
   struct PlayerInfo *player;
   player = get_my_player();
   set_players_packet_action(player, PckA_SetPlyrState, PSt_BuildRoom, kind, 0, 0);
   game.field_151801 = kind;
   game.field_151805 = room_info[kind].field_0;
+  game.field_151809 = tooltip_id;
 }
 
 void gui_choose_room(struct GuiButton *gbtn)
 {
   //NOTE by Petter: factored out original gui_choose_room into choose_room and this
-  choose_room((enum RoomKinds)(long) gbtn->field_33);
-  game.field_151809 = gbtn->tooltip_id;
+  choose_room((enum RoomKinds)(long) gbtn->field_33, gbtn->tooltip_id);
 }
 
 void gui_go_to_next_room(struct GuiButton *gbtn)
@@ -1823,20 +1823,68 @@ TbBool set_players_packet_change_spell(struct PlayerInfo *player,int sptype)
 }
 
 /**
+ * Sets a new chosen special spell (Armageddon or Hold Audience).
+ */
+void choose_special_spell(int kind, int tooltip_id)
+{
+    struct Dungeon *dungeon;
+    struct SpellData *pwrdata;
+
+    if (kind != 9 && kind != 19) {
+        WARNLOG("Bad spell kind");
+        return;
+    }
+
+    dungeon = get_players_num_dungeon(my_player_number);
+    set_chosen_spell(kind, tooltip_id);
+
+    if (dungeon->field_AF9 >= game.magic_stats[kind].cost[0]) {
+        pwrdata = get_power_data(kind);
+        play_non_3d_sample(pwrdata->field_11); // Play the spell speech
+        switch (kind)
+        {
+        case 19:
+            turn_on_menu(GMnu_ARMAGEDDON);
+            break;
+        case 9:
+            turn_on_menu(GMnu_HOLD_AUDIENCE);
+            break;
+        }
+    }
+}
+
+/**
+ * Sets a new chosen spell.
+ * Fills packet with the spell disable action.
+ */
+void choose_spell(int kind, int tooltip_id)
+{
+    struct PlayerInfo *player;
+
+    if (kind == 9 || kind == 19) {
+        choose_special_spell(kind, tooltip_id);
+        return;
+    }
+
+    player = get_my_player();
+
+    // Disable previous spell
+    if (!set_players_packet_change_spell(player, kind)) {
+        WARNLOG("Inconsistency when switching spell %d to %d",
+            (int) game.chosen_spell_type, kind);
+    }
+
+    set_chosen_spell(kind, tooltip_id);
+}
+
+/**
  * Sets a new chosen spell.
  * Fills packet with the spell disable action.
  */
 void gui_choose_spell(struct GuiButton *gbtn)
 {
-  struct PlayerInfo *player;
-  long i;
-//  _DK_gui_choose_spell(gbtn); return;
-  player = get_my_player();
-  i = (long)gbtn->field_33;
-  // Disable previous spell
-  if (!set_players_packet_change_spell(player,i))
-    WARNLOG("Inconsistency when switching spell %d to %d",(int)game.chosen_spell_type,i);
-  set_chosen_spell(i,gbtn->tooltip_id);
+    //NOTE by Petter: factored out original gui_choose_spell code to choose_spell
+    choose_spell(((int) gbtn->field_33) % POWER_TYPES_COUNT, gbtn->tooltip_id);
 }
 
 void gui_go_to_next_spell(struct GuiButton *gbtn)
@@ -1851,26 +1899,9 @@ void gui_area_spell_button(struct GuiButton *gbtn)
 
 void gui_choose_special_spell(struct GuiButton *gbtn)
 {
-  struct Dungeon *dungeon;
-  struct SpellData *pwrdata;
-  long idx;
-  dungeon = get_players_num_dungeon(my_player_number);
-  idx = (long)gbtn->field_33 % POWER_TYPES_COUNT;
-  set_chosen_spell(idx, gbtn->tooltip_id);
-  if (dungeon->field_AF9 >= game.magic_stats[idx].cost[0])
-  {
-    pwrdata = get_power_data(idx);
-    play_non_3d_sample(pwrdata->field_11); // Play the spell speech
-    switch (idx)
-    {
-    case 19:
-        turn_on_menu(GMnu_ARMAGEDDON);
-        break;
-    case 9:
-        turn_on_menu(GMnu_HOLD_AUDIENCE);
-        break;
-    }
-  }
+    //NOTE by Petter: factored out original gui_choose_special_spell code to choose_special_spell
+    //TODO: equivalent to gui_choose_spell now... try merge
+    choose_spell(((int) gbtn->field_33) % POWER_TYPES_COUNT, gbtn->tooltip_id);
 }
 
 void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long first_elem, long last_elem)

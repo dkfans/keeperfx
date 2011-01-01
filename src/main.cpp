@@ -2826,6 +2826,7 @@ short setup_game(void)
 
 #ifdef KEEPERSPEECH_EXPERIMENTAL
   if (result) {
+      int ret;
       SYNCLOG("Initializing Speech module");
       ret = KeeperSpeechInit();
       if (ret) {
