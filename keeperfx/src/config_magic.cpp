@@ -791,6 +791,26 @@ const char *power_code_name(int pwmodel)
 }
 
 /**
+ * Returns the power model identifier for a given code name (found in script file).
+ * Linear running time.
+ * @param code_name
+ * @return A positive integer for the power model if found, otherwise -1
+ */
+int power_model_id(const char * code_name)
+{
+    int i;
+
+    for (i = 0; i < magic_conf.power_types_count; ++i) {
+        if (strncmp(magic_conf.power_cfgstats[i].code_name, code_name,
+                COMMAND_WORD_LEN) == 0) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+/**
  * Zeroes all the costs for all spells.
  */
 TbBool make_all_powers_cost_free(void)

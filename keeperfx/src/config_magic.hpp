@@ -246,6 +246,7 @@ struct PowerConfigStats *get_power_model_stats(int pwmodel);
 const char *spell_code_name(int spmodel);
 const char *shot_code_name(int tngmodel);
 const char *power_code_name(int pwmodel);
+int power_model_id(const char * code_name);
 /******************************************************************************/
 TbBool load_magic_config(const char *conf_fname,unsigned short flags);
 TbBool make_all_powers_cost_free(void);

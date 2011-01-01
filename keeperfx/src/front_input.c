@@ -1412,6 +1412,9 @@ static void speech_pickup_of_gui_job(int job_idx)
  */
 static void get_dungeon_speech_inputs(void)
 {
+    int id;
+    struct RoomConfigStats * room_stats;
+
     SYNCDBG(8,"Starting");
 
     switch (last_speech_event.type) {
@@ -1428,7 +1431,17 @@ static void get_dungeon_speech_inputs(void)
         //TODO: implement when pick_up_next_creature has been reverse engineered
         break;
     case KS_SELECT_ROOM:
-        choose_room(last_speech_event.u.room.id);
+        room_stats = get_room_kind_stats(last_speech_event.u.room.id);
+        choose_room(last_speech_event.u.room.id, room_stats->tooltip_stridx);
+        break;
+    case KS_SELECT_POWER:
+        id = power_model_id(last_speech_event.u.power.model_name);
+        if (id < 0) {
+            WARNLOG("Bad power string %s", last_speech_event.u.power.model_name);
+        }
+        else {
+            choose_spell(id, 2); //TODO: see what happens with tool tip
+        }
         break;
     default:
         break; //don't care

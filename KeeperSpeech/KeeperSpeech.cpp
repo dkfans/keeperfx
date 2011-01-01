@@ -93,6 +93,12 @@ static int parseRoomId(const SPPHRASEPROPERTY * prop)
 	return prop->vValue.lVal;
 }
 
+static void parsePowerId(const SPPHRASEPROPERTY * prop, char * str, size_t max_len)
+{
+	prop = scanForProperty(prop, VID_Power);
+	toKeeperString(prop->pszValue, str, max_len);
+}
+
 static void handleRecognition(ISpPhrase * p)
 {
 	SPPHRASE * phrase;
@@ -141,6 +147,10 @@ static void handleRecognition(ISpPhrase * p)
 	case VID_SelectRoom:
 		ev = pushEvent(KS_SELECT_ROOM);
 		ev->u.room.id = parseRoomId(phrase->pProperties);
+		break;
+	case VID_SelectPower:
+		ev = pushEvent(KS_SELECT_POWER);
+		parsePowerId(phrase->pProperties, ev->u.power.model_name, sizeof(ev->u.power.model_name));
 		break;
 	}
 

@@ -15,6 +15,8 @@
     <ID NAME="VID_Room" VAL="1011"/>
     <ID NAME="VID_HandChoose" VAL="1012"/>
     <ID NAME="VID_HandAction" VAL="1013"/>
+    <ID NAME="VID_SelectPower" VAL="1014"/>
+    <ID NAME="VID_Power" VAL="1015"/>
   </DEFINE>
 
   <!-- Keeper rules below: -->
@@ -216,10 +218,10 @@
   <RULE ID="VID_SelectRoom" TOPLEVEL="ACTIVE">
     <O>
       <L>
-        <P>Select</P>
-        <P>Choose</P>
         <P>Build</P>
+        <P>Choose</P>
         <P>Make</P>
+        <P>Select</P>
       </L>
     </O>
     <RULEREF REFID="VID_Room"/>
@@ -284,5 +286,182 @@
         <O>Click</O>
       </P>
     </L>
+  </RULE>
+
+  <RULE ID="VID_SelectPower" TOPLEVEL="ACTIVE">
+    <O>
+      <L>
+        <P>Cast</P>
+        <P>Choose</P>
+        <P>Invoke</P>
+        <P>Make</P>
+        <P>Select</P>
+        <P>Use</P>
+      </L>
+    </O>
+    <RULEREF REFID="VID_Power"/>
+  </RULE>
+
+  <RULE ID="VID_Power">
+    <L PROPID="VID_Power">
+      <P VALSTR="POWER_IMP">
+        <L>
+          <P>Create Imp</P>
+          <P>Imp</P>
+          <P>Spawn</P>
+          <P>Spawn Imp</P>
+        </L>
+      </P>
+      <P VALSTR="POWER_OBEY">
+        <L>
+          <P>Enslave</P>
+          <P>Obey</P>
+        </L>
+      </P>
+      <P VALSTR="POWER_SIGHT">
+        <L>
+          <P>Evil Sight</P>
+          <P>Far Sight</P>
+          <P>Sight</P>
+          <P>Sight of Evil</P>
+        </L>
+      </P>
+      <P VALSTR="POWER_CALL_TO_ARMS">
+        <L>
+          <P>Alarm</P>
+          <P>Call to Arms</P>
+          <P>Raise Alarm</P>
+          <P>to Arms</P>
+        </L>
+      </P>
+      <P VALSTR="POWER_CAVE_IN">
+        <L>
+          <P>Bring Down</P>
+          <P>Call Down</P>
+          <P>Cave Down</P>
+          <P>Cave In</P>
+        </L>
+        
+        <O>
+          <L>
+            <P>Ceiling</P>
+            <P>Roof</P>
+          </L>
+        </O>
+      </P>
+      <P VALSTR="POWER_HEAL_CREATURE">
+        <L>
+          <P>Cure</P>
+          <P>Heal</P>
+          <P>Heal Creature</P>
+          <P>Health</P>
+          <P>Miracle</P>
+          <P>Restore Health</P>
+        </L>
+      </P>
+      <P VALSTR="POWER_HOLD_AUDIENCE">
+        <O>Hold</O>
+        <L>
+          <P>Audience</P>
+          <P>Meeting</P>
+        </L>
+      </P>
+      <P VALSTR="POWER_LIGHTNING">
+        <L>
+          <P>Lightning</P>
+          <P>Thunder</P>
+        </L>
+        <O>
+          <L>
+            <P>Bolt</P>
+            <P>Strike</P>
+          </L>
+        </O>
+      </P>
+      <P VALSTR="POWER_SPEED">
+        <L>
+          <P>Accelerate</P>
+          <P>Speed</P>
+          <P>Speed Up</P>
+        </L>
+      </P>
+      <P VALSTR="POWER_PROTECT">
+        <L>
+          <P>Armor</P>
+          <P>Armour</P>
+          <P>Defend</P>
+          <P>Protect</P>
+        </L>
+      </P>
+      <P VALSTR="POWER_CONCEAL">
+        <L>
+          <P>Conceal</P>
+          <P>Hide</P>
+          <P>Invisibility</P>
+          <P>Invisible</P>
+        </L>
+      </P>
+      <P VALSTR="POWER_DISEASE">
+        <L>
+          <P>Cancer</P>
+          <P>Curse</P>
+          <P>Ebola</P>
+          <P>Ill</P>
+          <P>Illness</P>
+          <P>Malaria</P>
+          <P>Sick</P>
+          <P>Sickness</P>
+          <P>Syphilis</P>
+        </L>
+      </P>
+      <P VALSTR="POWER_CHICKEN">Chicken</P>
+      <P VALSTR="POWER_DESTROY_WALLS">
+        <L>
+          <P>Break</P>
+          <P>Bring Down</P>
+          <P>Crush</P>
+          <P>Destroy</P>
+        </L>
+        <O>Dungeon</O>
+        <O>
+          <L>
+            <P>Wall</P>
+            <P>Walls</P>
+          </L>
+        </O>
+      </P>
+      <P VALSTR="POWER_POSSESS">
+        <L>
+          <P>Bewitch</P>
+          <P>Enter</P>
+          <P>Possess</P>
+        </L>
+        <O>
+          <L>
+            <P>Body</P>
+            <P>Creature</P>
+            <P>Mind</P>
+            <P>Soul</P>
+            <P>Spirit</P>
+          </L>
+        </O>
+      </P>
+      <P VALSTR="POWER_ARMAGEDDON">
+        <L>
+          <P>Armageddon</P>
+          <P>End of the World</P>
+          <P>Ragnarrok</P>
+          <P>The Final Battle</P>
+        </L>
+      </P>
+    </L>
+
+    <O>
+      <L>
+        <P>Magic</P>
+        <P>Power</P>
+        <P>Spell</P>
+      </L>
+    </O>
   </RULE>
 </GRAMMAR>

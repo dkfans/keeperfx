@@ -25,11 +25,11 @@ typedef enum
 	//while playing
 	KS_VIEW_INFO, //info tab
 	KS_VIEW_ROOMS, //room tab
-	KS_VIEW_SPELLS, //spell tab
+	KS_VIEW_POWERS, //spell tab
 	KS_VIEW_TRAPS, //trap tab
 	KS_CREATURES, //creature tab
 	KS_SELECT_ROOM,
-	KS_SELECT_SPELL,
+	KS_SELECT_POWER,
 	KS_SELECT_TRAP,
 	KS_SELECT_SELL,
 	KS_SELECT_INFO,
@@ -63,6 +63,11 @@ typedef struct
 		{
 			int id;
 		} room;
+
+		struct
+		{
+			char model_name[32];
+		} power;
 	} u;
 } KEEPERSPEECH_EVENT;
 
