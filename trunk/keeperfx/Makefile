@@ -183,7 +183,7 @@ LINKFLAGS = -Wl,-Map,"$(@:%.exe=%.map)"
 # debugging flags
 DBGFLAGS = -DBFDEBUG_LEVEL=0 
 # compiler warning generation flags
-WARNFLAGS = -Wall -Wno-sign-compare -Wno-unused-parameter
+WARNFLAGS = -Wall -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing
 # disabled warnings: -Wextra -Wtype-limits
 CXXFLAGS = $(CXXINCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
 CFLAGS = $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
@@ -269,12 +269,12 @@ bin/keeperfx.dll lib/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $
 	@echo 'Finished creating: $@'
 	@echo ' '
 
-$(EXETODLL): peresec/src/peresec.c
+$(EXETODLL): peresec/src/peresec.c peresec/Makefile
 	$(MAKE) -C peresec
 
 obj/%.res: res/%.rc
 	@echo 'Building resource: $<'
-	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff 
+	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff
 	@echo 'Finished building: $<'
 	@echo ' '
 #******************************************************************************

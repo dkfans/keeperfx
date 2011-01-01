@@ -257,7 +257,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->field_25 ^= (thing->field_25 ^ 8 * shotst->old->field_13) & 8;
     set_thing_draw(thing, shotst->old->numfield_0, 256, shotst->old->numfield_2, 0, 0, 2);
     thing->field_4F ^= (thing->field_4F ^ 0x02 * shotst->old->field_6) & 0x02;
-    thing->field_4F ^= thing->field_4F ^ (thing->field_4F ^ 0x10 * shotst->old->field_8) & 0x30;
+    thing->field_4F ^= thing->field_4F ^ ((thing->field_4F ^ 0x10 * shotst->old->field_8) & 0x30);
     thing->field_4F ^= (thing->field_4F ^ shotst->old->field_7) & 0x01;
     thing->field_56 = shotst->old->field_9;
     thing->field_58 = shotst->old->field_B;
