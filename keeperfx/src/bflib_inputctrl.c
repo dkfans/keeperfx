@@ -277,8 +277,9 @@ static void process_event(const SDL_Event *ev)
         if (ev->active.state & SDL_APPACTIVE) {
             lbAppActive = (ev->active.gain != 0);
             SDL_ShowCursor(lbAppActive ? SDL_DISABLE : SDL_ENABLE);
+            SDL_WM_GrabInput(lbAppActive ? SDL_GRAB_ON : SDL_GRAB_OFF);
         }
-        if ((lbAppActive) && (!lbHasSecondSurface) && (lbDisplay.Palette != NULL)) {
+        if ((lbAppActive) && (lbDisplay.Palette != NULL)) {
             // Below is the faster version of LbPaletteSet(lbDisplay.Palette);
             SDL_SetColors(lbDrawSurface,lbPaletteColors, 0, PALETTE_COLORS);
         }
@@ -289,7 +290,7 @@ static void process_event(const SDL_Event *ev)
     case SDL_JOYHATMOTION:
     case SDL_JOYBUTTONDOWN:
     case SDL_JOYBUTTONUP:
-        //TODO [input] make joypad support
+        //TODO INPUT make joypad support
         break;
 
     case SDL_SYSWMEVENT:

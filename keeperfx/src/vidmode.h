@@ -74,7 +74,7 @@ void set_movies_vidmode(unsigned short nmode);
 void set_frontend_vidmode(unsigned short nmode);
 char *get_vidmode_name(unsigned short mode);
 
-short setup_screen_mode(unsigned short nmode);
+TbBool setup_screen_mode(unsigned short nmode);
 short setup_screen_mode_minimal(unsigned short nmode);
 TbBool setup_screen_mode_zero(unsigned short nmode);
 

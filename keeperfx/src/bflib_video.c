@@ -112,18 +112,22 @@ TbResult LbScreenUnlock(void)
 TbResult LbScreenSwap(void)
 {
     TbResult ret;
+    int blresult;
     SYNCDBG(12,"Starting");
     ret = LbMouseOnBeginSwap();
     // Put the data from Draw Surface onto Screen Surface
     if ((ret == Lb_SUCCESS) && (lbHasSecondSurface)) {
-        if (SDL_BlitSurface(lbDrawSurface, NULL, lbScreenSurface, NULL) == -1) {
+        blresult = SDL_BlitSurface(lbDrawSurface, NULL, lbScreenSurface, NULL);
+        if (blresult < 0) {
             ERRORLOG("Blit failed: %s",SDL_GetError());
             ret = Lb_FAIL;
         }
     }
     // Flip the image displayed on Screen Surface
     if (ret == Lb_SUCCESS) {
-        if (SDL_Flip(lbScreenSurface) < 0) { //calls SDL_UpdateRect for entire screen if not double buffered
+        // calls SDL_UpdateRect for entire screen if not double buffered
+        blresult = SDL_Flip(lbScreenSurface);
+        if (blresult < 0) {
             ERRORLOG("Flip failed: %s",SDL_GetError());
             ret = Lb_FAIL;
         }
@@ -513,7 +517,9 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
 
     SYNCLOG("Mode %dx%dx%d setup succeeded",(int)lbScreenSurface->w,(int)lbScreenSurface->h,(int)lbScreenSurface->format->BitsPerPixel);
     if (palette != NULL)
+    {
         LbPaletteSet(palette);
+    }
     LbScreenSetGraphicsWindow(0, 0, mdinfo->Width, mdinfo->Height);
     LbTextSetWindow(0, 0, mdinfo->Width, mdinfo->Height);
     SYNCDBG(8,"Done filling display properties struct");
