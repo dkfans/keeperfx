@@ -84,6 +84,7 @@ struct SlabAttr *get_slab_kind_attrs(long slab_kind);
 struct SlabAttr *get_slab_attrs(struct SlabMap *slb);
 struct SlabConfigStats *get_slab_kind_stats(int slab_kind);
 struct SlabConfigStats *get_slab_stats(struct SlabMap *slb);
+const char *room_code_name(long rkind);
 /******************************************************************************/
 struct RoomConfigStats *get_room_kind_stats(int room_kind);
 TbBool make_all_rooms_free(void);

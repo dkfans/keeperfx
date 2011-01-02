@@ -117,6 +117,7 @@ obj/thing_creature.o \
 obj/slab_data.o \
 obj/room_data.o \
 obj/room_workshop.o \
+obj/room_jobs.o \
 obj/creature_control.o \
 obj/creature_instances.o \
 obj/creature_graphics.o \

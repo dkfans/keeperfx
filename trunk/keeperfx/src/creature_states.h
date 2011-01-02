@@ -260,7 +260,6 @@ short set_start_state(struct Thing *thing);
 
 long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3);
 long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
-TbBool update_speed_of_player_creatures_of_model(long plyr_idx, long crmodel);
 
 /******************************************************************************/
 TbBool creature_is_doing_lair_activity(const struct Thing *thing);
