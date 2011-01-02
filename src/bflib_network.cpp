@@ -543,6 +543,8 @@ static void HandleMessage(NetUserId source)
         break;
     case NETMSG_LAGWARNING:
         break;
+    default:
+        break;
     }
 }
 

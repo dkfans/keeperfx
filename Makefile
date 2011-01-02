@@ -157,6 +157,7 @@ obj/player_instances.o \
 obj/power_hand.o \
 obj/power_specials.o \
 obj/room_data.o \
+obj/room_jobs.o \
 obj/room_workshop.o \
 obj/scrcapt.o \
 obj/sounds.o \

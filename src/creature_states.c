@@ -30,6 +30,7 @@
 #include "thing_effects.h"
 #include "thing_navigate.h"
 #include "room_data.h"
+#include "room_jobs.h"
 #include "tasks_list.h"
 #include "spworker_stack.h"
 #include "map_events.h"
@@ -220,7 +221,6 @@ DLLIMPORT long _DK_setup_prison_move(struct Thing *thing, struct Room *room);
 DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5);
 DLLIMPORT long _DK_good_setup_loot_treasure_room(struct Thing *thing, long dngn_id);
 DLLIMPORT unsigned char _DK_initialise_thing_state(struct Thing *thing, long a2);
-DLLIMPORT unsigned char _DK_remove_creature_from_work_room(struct Thing *thing);
 DLLIMPORT long _DK_cleanup_current_thing_state(struct Thing *thing);
 DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 DLLIMPORT void _DK_creature_in_combat_wait(struct Thing *thing);
@@ -403,8 +403,6 @@ void creature_in_combat_wait(struct Thing *thing);
 void creature_in_ranged_combat(struct Thing *thing);
 void creature_in_melee_combat(struct Thing *thing);
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
-TbBool add_creature_to_work_room(struct Thing *crtng, struct Room *room);
-TbBool add_creature_to_torture_room(struct Thing *crtng, struct Room *room);
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -1572,71 +1570,6 @@ short at_temple(struct Thing *thing)
     return 1;
 }
 
-TbBool add_creature_to_work_room(struct Thing *crtng, struct Room *room)
-{
-    struct CreatureControl *cctrl;
-    struct Thing *nxtng;
-    struct CreatureControl *nxctrl;
-    cctrl = creature_control_get_from_thing(crtng);
-    if (cctrl->work_room_id != 0)
-    {
-        WARNLOG("Attempt to add creature to room kind %d when he is a member of kind %d",
-            (int)room->kind, (int)room_get(cctrl->work_room_id)->kind);
-        remove_creature_from_work_room(crtng);
-    }
-    if ((cctrl->flgfield_1 & 0x20) != 0)
-    {
-        ERRORLOG("Attempt to add creature to a room when he is in the list of another");
-        return 0;
-    }
-    if (room->total_capacity < room->workers_in + 1)
-        return 0;
-    room->workers_in++;
-    cctrl->work_room_id = room->index;
-    cctrl->prev_in_room = 0;
-    if (room->creatures_list != 0)
-    {
-        nxtng = thing_get(room->creatures_list);
-        nxctrl = creature_control_get_from_thing(nxtng);
-    } else
-    {
-        nxctrl = INVALID_CRTR_CONTROL;
-    }
-    if (!creature_control_invalid(nxctrl))
-    {
-        cctrl->next_in_room = room->creatures_list;
-        nxctrl->prev_in_room = crtng->index;
-    } else
-    {
-        cctrl->next_in_room = 0;
-    }
-    room->creatures_list = crtng->index;
-    cctrl->flgfield_1 |= 0x20;
-    return 1;
-}
-
-TbBool add_creature_to_torture_room(struct Thing *crtng, struct Room *room)
-{
-    struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
-    cctrl = creature_control_get_from_thing(crtng);
-    if (crtng->field_62 != 0)
-        light_delete_light(crtng->field_62);
-    if ((cctrl->spell_flags & 0x02) != 0)
-        terminate_thing_spell_effect(crtng, 11);
-    if ((cctrl->spell_flags & 0x20) != 0)
-        terminate_thing_spell_effect(crtng, 9);
-    dungeon = get_dungeon(room->owner);
-    dungeon->lvstats.creatures_tortured++;
-    if (dungeon->tortured_creatures[crtng->model] == 0)
-    {
-        // Torturing changes speed of creatures of that kind, so let's update
-        update_speed_of_player_creatures_of_model(room->owner, crtng->model);
-    }
-    dungeon->tortured_creatures[crtng->model]++;
-    return true;
-}
-
 short at_torture_room(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -1965,44 +1898,6 @@ TbBool make_all_players_creatures_angry(long plyr_idx)
     i = cctrl->thing_idx;
     // Thing list loop body
     anger_make_creature_angry(thing, 4);
-    // Thing list loop body ends
-    k++;
-    if (k > CREATURES_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping creatures list");
-      break;
-    }
-  }
-  SYNCDBG(19,"Finished");
-  return true;
-}
-
-TbBool update_speed_of_player_creatures_of_model(long plyr_idx, long crmodel)
-{
-  struct Dungeon *dungeon;
-  struct CreatureControl *cctrl;
-  struct Thing *thing;
-  unsigned long k;
-  int i;
-  SYNCDBG(8,"Starting");
-  dungeon = get_players_num_dungeon(plyr_idx);
-  k = 0;
-  i = dungeon->creatr_list_start;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    cctrl = creature_control_get_from_thing(thing);
-    if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-    {
-      ERRORLOG("Jump to invalid creature detected");
-      break;
-    }
-    i = cctrl->thing_idx;
-    // Thing list loop body
-    if (thing->model == crmodel)
-    {
-        cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-    }
     // Thing list loop body ends
     k++;
     if (k > CREATURES_COUNT)
@@ -5407,63 +5302,6 @@ TbBool internal_set_thing_state(struct Thing *thing, long nState)
   cctrl->field_302 = 0;
   clear_creature_instance(thing);
   return true;
-}
-
-TbBool remove_creature_from_work_room(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    struct Room *room;
-    struct Thing *sectng;
-    struct CreatureControl *secctrl;
-    //return _DK_remove_creature_from_work_room(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->work_room_id == 0) || ((cctrl->flgfield_1 & CCFlg_IsInRoomList) == 0))
-        return false;
-    room = room_get(cctrl->work_room_id);
-    if (!room_is_invalid(room))
-    {
-        if (room->workers_in > 0)
-        {
-          room->workers_in--;
-        } else
-        {
-          WARNLOG("Attempt to remove a creature from room type %d with no used space", (int)room->kind);
-        }
-    } else
-    {
-        WARNLOG("Creature had invalid room index %d",(int)cctrl->work_room_id);
-        erstat_inc(ESE_BadCreatrState);
-    }
-    if (cctrl->prev_in_room > 0)
-    {
-        sectng = thing_get(cctrl->prev_in_room);
-        secctrl = creature_control_get_from_thing(sectng);
-        if (!creature_control_invalid(secctrl))
-        {
-            secctrl->next_in_room = cctrl->next_in_room;
-        }
-    } else
-    {
-        if (!room_is_invalid(room))
-        {
-            room->creatures_list = cctrl->next_in_room;
-        }
-    }
-    if (cctrl->next_in_room > 0)
-    {
-        sectng = thing_get(cctrl->next_in_room);
-        secctrl = creature_control_get_from_thing(sectng);
-        if (!creature_control_invalid(secctrl))
-        {
-            secctrl->prev_in_room = cctrl->prev_in_room;
-        }
-    }
-    cctrl->last_work_room_id = cctrl->work_room_id;
-    cctrl->work_room_id = 0;
-    cctrl->flgfield_1 &= ~CCFlg_IsInRoomList;
-    cctrl->next_in_room = 0;
-    cctrl->prev_in_room = 0;
-    return true;
 }
 
 TbBool initialise_thing_state(struct Thing *thing, long nState)

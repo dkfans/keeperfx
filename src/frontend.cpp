@@ -3296,7 +3296,7 @@ char create_menu(struct GuiMenu *gmnu)
 
   amnu->numfield_2 = gmnu->numfield_2;
   if (amnu->numfield_2 < 1)
-    ERRORLOG("Oi! There is a fade time less than 1. Idiot.");
+    ERRORLOG("Fade time %d is less than 1.",(int)amnu->numfield_2);
   amnu->ptrfield_4 = gmnu->ptrfield_4;
   amnu->width = gmnu->width;
   amnu->height = gmnu->height;
