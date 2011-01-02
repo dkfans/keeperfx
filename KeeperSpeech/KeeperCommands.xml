@@ -66,162 +66,137 @@
     </L>
   </RULE>
 
-  <RULE ID="VID_Creature">
-    <L PROPID="VID_Creature">
-      <P VALSTR="ARCHER">Archer</P>
-      <P VALSTR="ARCHER">Bowman</P>
-      <P VALSTR="AVATAR">Avatar</P>
-      <P VALSTR="BARBARIAN">Barbarian</P>
-      <P VALSTR="BILE_DEMON">
-        <P>Bile</P>
-        <O>Demon</O>
+  <!--*
+  @title Performing a "left click" via voice with Hand
+  @description This command is performed just as if you had clicked the left mouse button.
+  -->
+  <RULE ID="VID_HandChoose" TOPLEVEL="ACTIVE">
+    <L>
+      <P>Up</P>
+      <P>
+        <P>Left</P>
+        <O>Click</O>
       </P>
-      <P VALSTR="BUG">Beetle</P>
-      <P VALSTR="BUG">Bug</P>
-      <P VALSTR="DARK_MISTRESS">
-        <O>Dark</O>
-        <L>
-          <P>Lady</P>
-          <P>Mistress</P>
-        </L>
+    </L>
+  </RULE>
+
+  <!--*
+  @title Performing a "right click" via voice with Hand
+  @description This command is performed just as if you had clicked the right mouse button.
+  -->
+  <RULE ID="VID_HandAction" TOPLEVEL="ACTIVE">
+    <L>
+      <P>Down</P>
+      <P>
+        <P>Right</P>
+        <O>Click</O>
       </P>
-      <P VALSTR="DEMONSPAWN">Demonspawn</P>
-      <P VALSTR="DEMONSPAWN">Dragonspawn</P>
-      <P VALSTR="DEMONSPAWN">Lizard</P>
-      <P VALSTR="DRAGON">Dragon</P>
-      <P VALSTR="DRAGON">Serpent</P>
-      <P VALSTR="DWARFA">Dwarf</P>
-      <P VALSTR="DWARFA">Midget</P>
-      <P VALSTR="FAIRY">Fairy</P>
-      <P VALSTR="FLY">Fly</P>
-      <P VALSTR="GHOST">Ghost</P>
-      <P VALSTR="GHOST">Spirit</P>
-      <P VALSTR="GHOST">Wraith</P>
-      <P VALSTR="GIANT">Giant</P>
-      <P VALSTR="HELL_HOUND">
-        <O>Hell</O>
-        <P>Hound</P>
-      </P>
-      <P VALSTR="HORNY">
-        <O>Horned</O>
-        <P>Reaper</P>
-      </P>
-      <P VALSTR="HORNY">Horny</P>
-      <P VALSTR="IMP">Imp</P>
-      <P VALSTR="KNIGHT">Knight</P>
-      <P VALSTR="KNIGHT">Lord</P>
-      <P VALSTR="MONK">Monk</P>
-      <P VALSTR="MONK">Priest</P>
-      <P VALSTR="ORC">Orc</P>
-      <P VALSTR="SAMURAI">Ninja</P>
-      <P VALSTR="SAMURAI">Samurai</P>
-      <P VALSTR="SKELETON">Skeleton</P>
-      <P VALSTR="SORCEROR">
-        <O>Evil</O>
-        <P>Mage</P></P>
-      <P VALSTR="SORCEROR">Sorceror</P>
-      <P VALSTR="SPIDER">Spider</P>
-      <P VALSTR="TENTACLE">Tentacle</P>
-      <P VALSTR="THIEF">Robber</P>
-      <P VALSTR="THIEF">Thief</P>
-      <P VALSTR="TROLL">Goblin</P>
-      <P VALSTR="TROLL">Troll</P>
-      <P VALSTR="TUNNELLER">Tunneller</P>
-      <P VALSTR="VAMPIRE">Vampire</P>
-      <P VALSTR="WITCH">Bitch</P>
-      <P VALSTR="WITCH">Witch</P>
-      <P VALSTR="WIZARD">Good Mage</P>
-      <P VALSTR="WIZARD">Wizard</P>
     </L>
   </RULE>
   
-  <RULE ID="VID_PickUpIdle" TOPLEVEL="ACTIVE">
-    <RULEREF REFID="VID_PickUpPrefix"/>
-    <RULEREF REFID="VID_OptSingularArticle"/>
-    <L>
-      <P>Idle</P>
-      <P>Inactive</P>
-      <P>Lazy</P>
-      <P>Sleeping</P>
-      <P>Unemployed</P>
-    </L>
-    <RULEREF REFID="VID_Creature"/>
-  </RULE>
-
-  <RULE ID="VID_PickUpWorking" TOPLEVEL="ACTIVE">
-    <RULEREF REFID="VID_PickUpPrefix"/>
-    <RULEREF REFID="VID_OptSingularArticle"/>
-    <L>
-      <P>Active</P>
-      <P>Employed</P>
-      <P>Working</P>
-    </L>
-    <RULEREF REFID="VID_Creature"/>
-  </RULE>
-
-  <RULE ID="VID_PickUpFighting" TOPLEVEL="ACTIVE">
-    <RULEREF REFID="VID_PickUpPrefix"/>
-    <RULEREF REFID="VID_OptSingularArticle"/>
-    <L>
-      <P>
-        <L>
-          <P>Fighting</P>
-          <P>Battling</P>
-          <P>Warring</P>
-        </L>
-        <RULEREF REFID="VID_Creature"/>
-      </P>
-      <P>
-        <RULEREF REFID="VID_Creature"/>
-        <P>in</P>
-        <O>a</O>
-        <L>
-          <P>Battle</P>
-          <P>Combat</P>
-          <P>Fight</P>
-        </L>
-      </P>
-    </L>
-  </RULE>
-
-  <RULE ID="VID_PickUpPrefix">
-    <L>
-      <P>Acquire</P>
-      <P>
-        <P>Get</P>
-        <O>Up</O>
-      </P>
-      <P>Obtain</P>
-      <P>
-        <P>Pick</P>
-        <!-- Hmm Too much like "Page Up" standard... Consider removing despite name of rule.-->
-        <O>Up</O>
-      </P>
-      <P>Raise</P>
-      <P>
-        <P>Take</P>
-        <O>Up</O>
-      </P>
-    </L>
-  </RULE>
-
-  <RULE ID="VID_PickUpAny" TOPLEVEL="ACTIVE">
-    <RULEREF REFID="VID_PickUpPrefix"/>
-    <RULEREF REFID="VID_OptSingularArticle"/>
-    <RULEREF REFID="VID_Creature"/>
-  </RULE>
-
-  <RULE ID="VID_OptSingularArticle">
+  <!--*
+  @title Viewing dungeon info (opening Info panel)
+  -->
+  <RULE ID="VID_ViewInfo" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_ViewPrefix"/>
     <O>
       <L>
-        <P>a</P>
-        <P>an</P>
-        <P>any</P>
-        <P>one</P>
+        <P>Dungeon</P>
+        <P>General</P>
+      </L>
+    </O>
+    <L>
+      <P>Info</P>
+      <P>Information</P>
+    </L>
+    <RULEREF REFID="VID_ViewSuffix"/>
+  </RULE>
+
+  <!--*
+  @title Viewing rooms (opening Room panel)
+  -->
+  <RULE ID="VID_ViewRooms" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_ViewPrefix"/>
+    <L>
+      <P>Room</P>
+      <P>Rooms</P>
+    </L>
+    <RULEREF REFID="VID_ViewSuffix"/>
+  </RULE>
+
+  <!--*
+  @title Viewing spells/magic powers (opening Spell panel)
+  -->
+  <RULE ID="VID_ViewPowers" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_ViewPrefix"/>
+    <L>
+      <P>Magic</P>
+      <P>Power</P>
+      <P>Powers</P>
+      <P>Spell</P>
+      <P>Spells</P>
+    </L>
+    <RULEREF REFID="VID_ViewSuffix"/>
+  </RULE>
+
+  <!--*
+  @title Viewing traps and doors (opening Trap & Door panel)
+  -->
+  <RULE ID="VID_ViewTraps" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_ViewPrefix"/>
+    <L>
+      <P>Door</P>
+      <P>Doors</P>
+      <P>Trap</P>
+      <P>Traps</P>
+      <P>Workshop Items</P>
+    </L>
+    <RULEREF REFID="VID_ViewSuffix"/>
+  </RULE>
+
+  <!--*
+  @title Viewing creatures (opening Monster panel)
+  -->
+  <RULE ID="VID_ViewCreatures" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_ViewPrefix"/>
+    <L>
+      <P>Creature</P>
+      <P>Creatures</P>
+      <P>Minion</P>
+      <P>Minions</P>
+      <P>Monster</P>
+      <P>Monsters</P>
+    </L>
+    <RULEREF REFID="VID_ViewSuffix"/>
+  </RULE>
+
+  <RULE ID="VID_ViewPrefix">
+    <O>
+      <L>
+        <P>Display</P>
+        <P>Show</P>
+        <P>View</P>
       </L>
     </O>
   </RULE>
 
+  <RULE ID="VID_ViewSuffix">
+    <O>
+      <L>
+        <P>Menu</P>
+        <P>Page</P>
+        <P>Pane</P>
+        <P>Panel</P>
+        <P>Tab</P>
+        <P>View</P>
+      </L>
+    </O>
+  </RULE>
+  
+  <!--*
+  @title Selecting a room
+  @description Use this command to select a room type to be built.
+  -->
   <RULE ID="VID_SelectRoom" TOPLEVEL="ACTIVE">
     <O>
       <L>
@@ -275,26 +250,10 @@
     <O>Room</O>
   </RULE>
 
-  <RULE ID="VID_HandChoose" TOPLEVEL="ACTIVE">
-    <L>
-      <P>Up</P>
-      <P>
-        <P>Left</P>
-        <O>Click</O>
-      </P>
-    </L>
-  </RULE>
-
-  <RULE ID="VID_HandAction" TOPLEVEL="ACTIVE">
-    <L>
-      <P>Down</P>
-      <P>
-        <P>Right</P>
-        <O>Click</O>
-      </P>
-    </L>
-  </RULE>
-
+  <!--*
+  @title Selecting a spell/magic power
+  @description Use this command to select a spell or power, which can then be used. (Like from spell panel.)
+  -->
   <RULE ID="VID_SelectPower" TOPLEVEL="ACTIVE">
     <O>
       <L>
@@ -475,85 +434,175 @@
       </L>
     </O>
   </RULE>
+  
+  <RULE ID="VID_Creature">
+    <L PROPID="VID_Creature">
+      <P VALSTR="ARCHER">Archer</P>
+      <P VALSTR="ARCHER">Bowman</P>
+      <P VALSTR="AVATAR">Avatar</P>
+      <P VALSTR="BARBARIAN">Barbarian</P>
+      <P VALSTR="BILE_DEMON">
+        <P>Bile</P>
+        <O>Demon</O>
+      </P>
+      <P VALSTR="BUG">Beetle</P>
+      <P VALSTR="BUG">Bug</P>
+      <P VALSTR="DARK_MISTRESS">
+        <O>Dark</O>
+        <L>
+          <P>Lady</P>
+          <P>Mistress</P>
+        </L>
+      </P>
+      <P VALSTR="DEMONSPAWN">Demonspawn</P>
+      <P VALSTR="DEMONSPAWN">Dragonspawn</P>
+      <P VALSTR="DEMONSPAWN">Lizard</P>
+      <P VALSTR="DRAGON">Dragon</P>
+      <P VALSTR="DRAGON">Serpent</P>
+      <P VALSTR="DWARFA">Dwarf</P>
+      <P VALSTR="DWARFA">Midget</P>
+      <P VALSTR="FAIRY">Fairy</P>
+      <P VALSTR="FLY">Fly</P>
+      <P VALSTR="GHOST">Ghost</P>
+      <P VALSTR="GHOST">Spirit</P>
+      <P VALSTR="GHOST">Wraith</P>
+      <P VALSTR="GIANT">Giant</P>
+      <P VALSTR="HELL_HOUND">
+        <O>Hell</O>
+        <P>Hound</P>
+      </P>
+      <P VALSTR="HORNY">
+        <O>Horned</O>
+        <P>Reaper</P>
+      </P>
+      <P VALSTR="HORNY">Horny</P>
+      <P VALSTR="IMP">Imp</P>
+      <P VALSTR="KNIGHT">Knight</P>
+      <P VALSTR="KNIGHT">Lord</P>
+      <P VALSTR="MONK">Monk</P>
+      <P VALSTR="MONK">Priest</P>
+      <P VALSTR="ORC">Orc</P>
+      <P VALSTR="SAMURAI">Ninja</P>
+      <P VALSTR="SAMURAI">Samurai</P>
+      <P VALSTR="SKELETON">Skeleton</P>
+      <P VALSTR="SORCEROR">
+        <O>Evil</O>
+        <P>Mage</P></P>
+      <P VALSTR="SORCEROR">Sorceror</P>
+      <P VALSTR="SPIDER">Spider</P>
+      <P VALSTR="TENTACLE">Tentacle</P>
+      <P VALSTR="THIEF">Robber</P>
+      <P VALSTR="THIEF">Thief</P>
+      <P VALSTR="TROLL">Goblin</P>
+      <P VALSTR="TROLL">Troll</P>
+      <P VALSTR="TUNNELLER">Tunneller</P>
+      <P VALSTR="VAMPIRE">Vampire</P>
+      <P VALSTR="WITCH">Bitch</P>
+      <P VALSTR="WITCH">Witch</P>
+      <P VALSTR="WIZARD">Good Mage</P>
+      <P VALSTR="WIZARD">Wizard</P>
+    </L>
+  </RULE>
+  
+  <!--*
+  @title Picking up an idle creature
+  @description Use this command to pick up an idle creature of a certain kind (like on the creature panel).
+  -->
+  <RULE ID="VID_PickUpIdle" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_PickUpPrefix"/>
+    <RULEREF REFID="VID_OptSingularArticle"/>
+    <L>
+      <P>Idle</P>
+      <P>Inactive</P>
+      <P>Lazy</P>
+      <P>Sleeping</P>
+      <P>Unemployed</P>
+    </L>
+    <RULEREF REFID="VID_Creature"/>
+  </RULE>
 
-  <RULE ID="VID_ViewInfo" TOPLEVEL="ACTIVE">
-    <RULEREF REFID="VID_ViewPrefix"/>
+  <!--*
+  @title Picking up a working creature
+  @description Use this command to pick up a working creature of a certain kind (like on the creature panel).
+  -->
+  <RULE ID="VID_PickUpWorking" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_PickUpPrefix"/>
+    <RULEREF REFID="VID_OptSingularArticle"/>
+    <L>
+      <P>Active</P>
+      <P>Employed</P>
+      <P>Working</P>
+    </L>
+    <RULEREF REFID="VID_Creature"/>
+  </RULE>
+
+  <!--*
+  @title Picking up a fighting creature
+  @description Use this command to pick up a fighting creature of a certain kind (like on the creature panel).
+  -->
+  <RULE ID="VID_PickUpFighting" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_PickUpPrefix"/>
+    <RULEREF REFID="VID_OptSingularArticle"/>
+    <L>
+      <P>
+        <L>
+          <P>Fighting</P>
+          <P>Battling</P>
+          <P>Warring</P>
+        </L>
+        <RULEREF REFID="VID_Creature"/>
+      </P>
+      <P>
+        <RULEREF REFID="VID_Creature"/>
+        <P>in</P>
+        <O>a</O>
+        <L>
+          <P>Battle</P>
+          <P>Combat</P>
+          <P>Fight</P>
+        </L>
+      </P>
+    </L>
+  </RULE>
+
+  <RULE ID="VID_PickUpPrefix">
+    <L>
+      <P>Acquire</P>
+      <P>
+        <P>Get</P>
+        <O>Up</O>
+      </P>
+      <P>Obtain</P>
+      <P>
+        <P>Pick</P>
+        <!-- Hmm Too much like "Page Up" standard... Consider removing despite name of rule.-->
+        <O>Up</O>
+      </P>
+      <P>Raise</P>
+      <P>
+        <P>Take</P>
+        <O>Up</O>
+      </P>
+    </L>
+  </RULE>
+
+  <!--*
+  @title Picking up a creature
+  @description Use this command to pick up a creature of a certain kind (like on the creature panel), regardless of its current activity.
+  -->
+  <RULE ID="VID_PickUpAny" TOPLEVEL="ACTIVE">
+    <RULEREF REFID="VID_PickUpPrefix"/>
+    <RULEREF REFID="VID_OptSingularArticle"/>
+    <RULEREF REFID="VID_Creature"/>
+  </RULE>
+
+  <RULE ID="VID_OptSingularArticle">
     <O>
       <L>
-        <P>Dungeon</P>
-        <P>General</P>
-      </L>
-    </O>
-    <L>
-      <P>Info</P>
-      <P>Information</P>
-    </L>
-    <RULEREF REFID="VID_ViewSuffix"/>
-  </RULE>
-
-  <RULE ID="VID_ViewRooms" TOPLEVEL="ACTIVE">
-    <RULEREF REFID="VID_ViewPrefix"/>
-    <L>
-      <P>Room</P>
-      <P>Rooms</P>
-    </L>
-    <RULEREF REFID="VID_ViewSuffix"/>
-  </RULE>
-
-  <RULE ID="VID_ViewPowers" TOPLEVEL="ACTIVE">
-    <RULEREF REFID="VID_ViewPrefix"/>
-    <L>
-      <P>Magic</P>
-      <P>Power</P>
-      <P>Powers</P>
-      <P>Spell</P>
-      <P>Spells</P>
-    </L>
-    <RULEREF REFID="VID_ViewSuffix"/>
-  </RULE>
-
-  <RULE ID="VID_ViewTraps" TOPLEVEL="ACTIVE">
-    <RULEREF REFID="VID_ViewPrefix"/>
-    <L>
-      <P>Door</P>
-      <P>Doors</P>
-      <P>Trap</P>
-      <P>Traps</P>
-      <P>Workshop Items</P>
-    </L>
-    <RULEREF REFID="VID_ViewSuffix"/>
-  </RULE>
-
-  <RULE ID="VID_ViewCreatures" TOPLEVEL="ACTIVE">
-    <RULEREF REFID="VID_ViewPrefix"/>
-    <L>
-      <P>Creature</P>
-      <P>Creatures</P>
-      <P>Minion</P>
-      <P>Minions</P>
-      <P>Monster</P>
-      <P>Monsters</P>
-    </L>
-    <RULEREF REFID="VID_ViewSuffix"/>
-  </RULE>
-
-  <RULE ID="VID_ViewPrefix">
-    <O>
-      <L>
-        <P>Display</P>
-        <P>Show</P>
-        <P>View</P>
-      </L>
-    </O>
-  </RULE>
-
-  <RULE ID="VID_ViewSuffix">
-    <O>
-      <L>
-        <P>Menu</P>
-        <P>Page</P>
-        <P>Tab</P>
-        <P>View</P>
+        <P>a</P>
+        <P>an</P>
+        <P>any</P>
+        <P>one</P>
       </L>
     </O>
   </RULE>
