@@ -13,14 +13,15 @@ import keeperfx.speechdocgen.node.RuleNode;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class GrammarHandler extends DefaultHandler {
+public class GrammarHandler extends DefaultHandler implements LexicalHandler {
 	private final ArrayList<GrammarNode> grammars;
 	
 	//parse state
 	private final Stack<ArrayNode> stack;
-	private boolean insideTag;
+	private String latestDocComment = "";
 
 	public GrammarHandler() {
 		grammars = new ArrayList<GrammarNode>();
@@ -39,7 +40,6 @@ public class GrammarHandler extends DefaultHandler {
 	@Override
 	public void endDocument() {
 		assert(stack.isEmpty());
-		assert(!insideTag);
 	}
 
 	@Override
@@ -63,6 +63,8 @@ public class GrammarHandler extends DefaultHandler {
 		else if (localName.equals("GRAMMAR")) {
 			handleGrammar(attributes);
 		}
+		
+		latestDocComment = "";
 	}
 	
 	@Override
@@ -87,19 +89,7 @@ public class GrammarHandler extends DefaultHandler {
 					continue;
 				}
 				
-				if (insideTag) {
-					if (ch[i] == '>') {
-						insideTag = false;
-					}
-				}
-				else {
-					if (ch[i] == '<') {
-						insideTag = true;
-					}
-					else {
-						stack.lastElement().addCrudeXmlData(ch[i]);
-					}
-				}
+				stack.lastElement().addCrudeXmlData(ch[i]);
 			}
 		}
 	}
@@ -124,7 +114,7 @@ public class GrammarHandler extends DefaultHandler {
 	private void handleRule(Attributes attributes) {
 		String id = attributes.getValue("", "ID");
 		boolean topLevel = "ACTIVE".equals(attributes.getValue("", "TOPLEVEL"));
-		pushNode(new RuleNode(id, topLevel));
+		pushNode(new RuleNode(id, topLevel, latestDocComment));
 	}
 	
 	private void handleGrammar(Attributes attributes) {
@@ -140,4 +130,29 @@ public class GrammarHandler extends DefaultHandler {
 		stack.lastElement().add(n);
 		stack.push(n);
 	}
+
+	@Override
+	public void comment(char[] ch, int offset, int count) throws SAXException {
+		if (ch[offset] == '*') {
+			latestDocComment = new String(ch, offset, count);
+		}
+	}
+
+	@Override
+	public void endCDATA() throws SAXException {}
+
+	@Override
+	public void endDTD() throws SAXException {}
+
+	@Override
+	public void endEntity(String arg0) throws SAXException {}
+
+	@Override
+	public void startCDATA() throws SAXException {}
+
+	@Override
+	public void startDTD(String arg0, String arg1, String arg2) {}
+
+	@Override
+	public void startEntity(String arg0) throws SAXException {}
 }

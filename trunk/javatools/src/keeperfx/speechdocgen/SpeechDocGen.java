@@ -31,6 +31,7 @@ public class SpeechDocGen {
 		GrammarHandler handler = new GrammarHandler();
 		reader.setContentHandler(handler);
 		reader.setErrorHandler(handler);
+		reader.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
 		
 		for (int i = 1; i < args.length; ++i) {
 			InputSource inputSource = new InputSource(args[i]);
