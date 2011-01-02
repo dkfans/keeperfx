@@ -611,7 +611,7 @@ char *get_vidmode_name(unsigned short mode)
   return   mdinfo->Desc;
 }
 
-short setup_screen_mode(unsigned short nmode)
+TbBool setup_screen_mode(unsigned short nmode)
 {
   TbScreenModeInfo *mdinfo;
   //return _DK_setup_screen_mode(nmode);
@@ -624,7 +624,7 @@ short setup_screen_mode(unsigned short nmode)
     if ((nmode == lbDisplay.ScreenMode) && (!MinimalResolutionSetup))
     {
       SYNCDBG(6,"Mode %d already active, no changes.",(int)nmode);
-      return 1;
+      return true;
     }
   }
   lens_mem = game.numfield_1B;
@@ -682,7 +682,7 @@ short setup_screen_mode(unsigned short nmode)
   {
       ERRORLOG("Unhandled Screen Mode %d, setup failed",(int)nmode);
       force_video_mode_reset = true;
-      return 0;
+      return false;
   } else
   if (mdinfo->Height < 400)
   {
@@ -691,7 +691,7 @@ short setup_screen_mode(unsigned short nmode)
       {
         ERRORLOG("Loading Mcga files failed");
         force_video_mode_reset = true;
-        return 0;
+        return false;
       }
       if ((lbDisplay.ScreenMode != nmode) || (was_minimal_res))
       {
@@ -700,7 +700,7 @@ short setup_screen_mode(unsigned short nmode)
             ERRORLOG("Unable to setup screen resolution %s (mode %d)",
                 mdinfo->Desc,(int)nmode);
             force_video_mode_reset = true;
-            return 0;
+            return false;
           }
       }
       load_pointer_file(0);
@@ -712,7 +712,7 @@ short setup_screen_mode(unsigned short nmode)
       {
         ERRORLOG("Unable to load VRes256 data files");
         force_video_mode_reset = true;
-        return 0;
+        return false;
       }
       if ((lbDisplay.ScreenMode != nmode) || (was_minimal_res))
       {
@@ -721,7 +721,7 @@ short setup_screen_mode(unsigned short nmode)
             ERRORLOG("Unable to setup screen resolution %s (mode %d)",
                 mdinfo->Desc,(int)nmode);
             force_video_mode_reset = true;
-            return 0;
+            return false;
           }
       }
       load_pointer_file(1);
@@ -737,13 +737,13 @@ short setup_screen_mode(unsigned short nmode)
   if (!setup_heap_memory())
   {
     force_video_mode_reset = true;
-    return 0;
+    return false;
   }
   setup_heap_manager();
   game.numfield_C &= 0xFFFB;
   force_video_mode_reset = false;
   SYNCDBG(8,"Finished");
-  return 1;
+  return true;
 }
 
 TbBool update_screen_mode_data(long width, long height)
@@ -939,15 +939,13 @@ TbScreenMode switch_to_next_video_mode(void)
       scrmode = get_failsafe_vidmode();
       if ( !setup_screen_mode(scrmode) )
       {
-        _DK_FatalError = 1;
+        FatalError = 1;
         exit_keeper = 1;
         return Lb_SCREEN_MODE_INVALID;
       }
       settings.video_scrnmode = scrmode;
   }
   SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
-  LbScreenClear(0);
-  LbScreenSwap();
   save_settings();
   if (game.numfield_C & 0x20)
     setup_engine_window(140, 0, MyScreenWidth, MyScreenHeight);
