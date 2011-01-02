@@ -69,7 +69,7 @@ TbResult LbScreenSurfaceCreate(struct SSurface *surf,unsigned long w,unsigned lo
 TbResult LbScreenSurfaceRelease(struct SSurface *surf)
 {
   if (surf->surf_data == NULL) {
-    return Lb_FAIL;
+      return Lb_FAIL;
   }
 
   SDL_FreeSurface(surf->surf_data);
@@ -81,100 +81,103 @@ TbResult LbScreenSurfaceRelease(struct SSurface *surf)
 TbResult LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned long y,
     struct TbRect *rect, unsigned long blflags)
 {
-  // Convert to SDL rectangles
+    // Convert TbRect to SDL rectangles
+    SDL_Rect srcRect;
+    SDL_Rect destRect;
 
-  SDL_Rect srcRect;
-  SDL_Rect destRect;
+    srcRect.x = rect->left;
+    srcRect.y = rect->top;
+    srcRect.w = rect->right - rect->left;
+    srcRect.h = rect->bottom - rect->top;
 
-  srcRect.x = rect->left;
-  srcRect.y = rect->top;
-  srcRect.w = rect->right - rect->left;
-  srcRect.h = rect->bottom - rect->top;
+    destRect.x = x;
+    destRect.y = y;
+    destRect.w = srcRect.w;
+    destRect.h = srcRect.h;
 
-  destRect.x = x;
-  destRect.y = y;
-  destRect.w = srcRect.w;
-  destRect.h = srcRect.h;
+    // Set blit parameters
 
-  // Set blit parameters
+    if ((blflags & 0x02) != 0) {
+      //TODO: see how/if to handle this, I interpret this as "blit directly to primary rather than back"
+      //secSurf = surface3;
+      //I think it can simply be deleted as not even the mouse pointer code is using it and there's no way
+      //to access front buffer in SDL
+    }
 
-  if ((blflags & 0x02) != 0) {
-    //TODO: see how/if to handle this, I interpret this as "blit directly to primary rather than back"
-    //secSurf = surface3;
-    //I think it can simply be deleted as not even the mouse pointer code is using it and there's no way
-    //to access front buffer in SDL
-  }
-  if ((blflags & 0x04) != 0) {
-      //enable color key
-      SDL_SetColorKey(surf->surf_data, SDL_SRCCOLORKEY, 255);
-  }
-  else {
-      //disable color key
-      SDL_SetColorKey(surf->surf_data, 0, 255);
-  }
-  if ((blflags & 0x10) != 0) {
-      //TODO: see if this can/should be handled
-      //probably it can just be deleted
-      //dwTrans |= DDBLTFAST_WAIT;
-  }
+    if ((blflags & 0x04) != 0) {
+        //enable color key
+        SDL_SetColorKey(surf->surf_data, SDL_SRCCOLORKEY, 255);
+    }
+    else {
+        //disable color key
+        SDL_SetColorKey(surf->surf_data, 0, 255);
+    }
 
-  // Blit:
+    if ((blflags & 0x10) != 0) {
+        //TODO: see if this can/should be handled
+        //probably it can just be deleted
+        //dwTrans |= DDBLTFAST_WAIT;
+    }
 
-  //unfortunately we must fool SDL because it has a per-surface palette for 8 bit surfaces, DK does not
-  //set the palette of any off-screen surfaces, so temporarily change palette
-  SDL_Palette * paletteBackup = NULL;
-  if (surf->surf_data->format->BitsPerPixel == 8) {
-      paletteBackup = surf->surf_data->format->palette;
-      surf->surf_data->format->palette = lbDrawSurface->format->palette;
-  }
+    // SDL has a per-surface palette for 8 bit surfaces. But the engine assumes palette
+    // to be required only for screen surface. To make off-screen surface working,
+    // we must manually set the palette for it. So temporarily change palette.
+    SDL_Palette * paletteBackup = NULL;
+    if (surf->surf_data->format->BitsPerPixel == 8) {
+        paletteBackup = surf->surf_data->format->palette;
+        surf->surf_data->format->palette = lbDrawSurface->format->palette;
+    }
 
-  //the blit
-  if ((blflags & 0x08) != 0) {
-    //surface to screen
-    SDL_BlitSurface(surf->surf_data, &srcRect, lbDrawSurface, &destRect);
-  }
-  else {
-    //screen to surface
-    SDL_BlitSurface(lbDrawSurface, &destRect, surf->surf_data, &srcRect);
-  }
+    int blresult;
+    //the blit
+    if ((blflags & 0x08) != 0) {
+        //surface to screen
+        blresult = SDL_BlitSurface(surf->surf_data, &srcRect, lbDrawSurface, &destRect);
+    }
+    else {
+        //screen to surface
+        blresult = SDL_BlitSurface(lbDrawSurface, &destRect, surf->surf_data, &srcRect);
+    }
 
-  //restore palette
-  if (surf->surf_data->format->BitsPerPixel == 8) {
-    surf->surf_data->format->palette = paletteBackup;
-  }
+    //restore palette
+    if (surf->surf_data->format->BitsPerPixel == 8) {
+        surf->surf_data->format->palette = paletteBackup;
+    }
 
-  return Lb_SUCCESS;
+    if (blresult == -1) {
+        ERRORLOG("Blit failed: %s",SDL_GetError());
+        return Lb_FAIL;
+    }
+    return Lb_SUCCESS;
 }
 
 void *LbScreenSurfaceLock(struct SSurface *surf)
 {
-  if (surf->surf_data == NULL) {
-    return NULL;
-  }
+    if (surf->surf_data == NULL) {
+        return NULL;
+    }
 
-  if (SDL_LockSurface(surf->surf_data) < 0) {
-      ERRORLOG("Failed to lock surface");
-      return NULL;
-  }
+    if (SDL_LockSurface(surf->surf_data) < 0) {
+        ERRORLOG("Failed to lock surface");
+        return NULL;
+    }
 
-  surf->locks_count++;
-  surf->pitch = surf->surf_data->pitch;
-  return surf->surf_data->pixels;
+    surf->locks_count++;
+    surf->pitch = surf->surf_data->pitch;
+    return surf->surf_data->pixels;
 }
 
 TbResult LbScreenSurfaceUnlock(struct SSurface *surf)
 {
-  if (surf->locks_count == 0)
-  {
+    if (surf->locks_count == 0) {
+        return Lb_SUCCESS;
+    }
+    if (surf->surf_data == NULL) {
+        return Lb_FAIL;
+    }
+    SDL_UnlockSurface(surf->surf_data);
+    surf->locks_count--;
     return Lb_SUCCESS;
-  }
-  if (surf->surf_data == NULL)
-  {
-    return Lb_FAIL;
-  }
-  SDL_UnlockSurface(surf->surf_data);
-  surf->locks_count--;
-  return Lb_SUCCESS;
 }
 /******************************************************************************/
 #ifdef __cplusplus
