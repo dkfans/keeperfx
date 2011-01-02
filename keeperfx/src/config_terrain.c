@@ -171,6 +171,18 @@ struct RoomConfigStats *get_room_kind_stats(int room_kind)
     return &slab_conf.room_cfgstats[room_kind];
 }
 
+/**
+ * Returns Code Name (name to use in script file) of given room kind.
+ */
+const char *room_code_name(long rkind)
+{
+    const char *name;
+    name = get_conf_parameter_text(room_desc,rkind);
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
+
 TbBool parse_terrain_common_blocks(char *buf,long len,const char *config_textname)
 {
   long pos;

@@ -25,6 +25,7 @@
 #include "thing_objects.h"
 #include "thing_navigate.h"
 #include "thing_stats.h"
+#include "room_jobs.h"
 #include "gui_topmsg.h"
 #include "keeperfx.hpp"
 
@@ -460,8 +461,113 @@ void delete_all_room_structures(void)
 
 struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, unsigned char rkind)
 {
-  // TODO: rework! may lead to hang on map borders
-  return _DK_link_adjacent_rooms_of_type(owner, x, y, rkind);
+    struct Thing *thing;
+    SlabCodedCoords central_slbnum;
+    struct SlabMap *slb;
+    struct RoomData *rdata;
+    struct Room *linkroom;
+    struct Room *room;
+    long stl_x,stl_y;
+    long i,n;
+    unsigned long k;
+    // TODO: rework! may lead to hang on map borders
+    //return _DK_link_adjacent_rooms_of_type(owner, x, y, rkind);
+    central_slbnum = get_slab_number(map_to_slab[x],map_to_slab[y]);
+    // Localize the room to be merged with other rooms
+    linkroom = INVALID_ROOM;
+    for (n = 0; n < 4; n++)
+    {
+        stl_x = x + 3 * (long)small_around[n].delta_x;
+        stl_y = y + 3 * (long)small_around[n].delta_y;
+        room = subtile_room_get(stl_x,stl_y);
+        if ( !room_is_invalid(room) )
+        {
+          if ( (room->owner == owner) && (room->kind == rkind) )
+          {
+              // Add the central slab to room which was found
+              room->total_capacity = 0;
+              slb = get_slabmap_direct(room->field_39);
+              slb->next_in_room = central_slbnum;
+              slb = get_slabmap_direct(central_slbnum);
+              slb->next_in_room = 0;
+              room->field_39 = central_slbnum;
+              linkroom = room;
+              break;
+          }
+        }
+    }
+    if ( room_is_invalid(linkroom) )
+    {
+        return NULL;
+    }
+    for (n++; n < 4; n++)
+    {
+        stl_x = x + 3 * (long)small_around[n].delta_x;
+        stl_y = y + 3 * (long)small_around[n].delta_y;
+        room = subtile_room_get(stl_x,stl_y);
+        if ( !room_is_invalid(room) )
+        {
+          if ( (room->owner == owner) && (room->kind == rkind) )
+          {
+              if (room != linkroom)
+              {
+                  slb = get_slabmap_direct(linkroom->field_39);
+                  slb->next_in_room = room->slabs_list;
+                  linkroom->field_39 = room->field_39;
+                  linkroom->slabs_count = 0;
+                  k = 0;
+                  i = room->slabs_list;
+                  while (i != 0)
+                  {
+                      // Per room tile code
+                      linkroom->slabs_count++;
+                      slb->room_index = linkroom->index;
+                      // Per room tile code ends
+                      i = get_next_slab_number_in_room(i);
+                      k++;
+                      if (k > room->slabs_count)
+                      {
+                        ERRORLOG("Room slabs list length exceeded when sweeping");
+                        break;
+                      }
+                  }
+                  rdata = room_data_get_for_kind(linkroom->kind);
+                  if (rdata != NULL)
+                      rdata->ofsfield_3(linkroom);
+                  k = 0;
+                  while (room->creatures_list != 0)
+                  {
+                      thing = thing_get(room->creatures_list);
+                      if (thing_is_invalid(thing))
+                      {
+                          ERRORLOG("Jump to invalid creature %d detected",(int)room->creatures_list);
+                          break;
+                      }
+                      // Per creature code
+                      remove_creature_from_specific_room(thing, room);
+                      add_creature_to_work_room(thing, linkroom);
+                      // Per creature code ends
+                      k++;
+                      if (k > THINGS_COUNT)
+                      {
+                          ERRORLOG("Infinite loop detected when sweeping creatures list");
+                          break;
+                      }
+                  }
+                  stl_x = 3 * slb_num_decode_x(room->slabs_list) + 1;
+                  stl_y = 3 * slb_num_decode_y(room->slabs_list) + 1;
+                  if ((room->kind != RoK_DUNGHEART) && (room->kind != RoK_ENTRANCE))
+                  {
+                      thing = find_base_thing_on_mapwho(1, 25, stl_x, stl_y);
+                      if (thing_is_invalid(thing))
+                          delete_thing_structure(thing, 0);
+                  }
+                  free_room_structure(room);
+              }
+          }
+        }
+    }
+    return linkroom;
 }
 
 void count_room_slabs(struct Room *room)
@@ -555,21 +661,42 @@ void update_room_ensign_position(struct Room *room)
     ERRORLOG("Cannot find position to place an ensign.");
 }
 
-struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned short x, unsigned short y)
+TbBool add_room_to_players_list(struct Room *room, long plyr_idx)
 {
-  struct Dungeon *dungeon;
-  struct SlabMap *slb;
-  struct Room *room,*nxroom;
-  long slb_x,slb_y;
-  long i;
-  SYNCDBG(7,"Starting");
-  // room = _DK_create_room(owner, rkind, x, y); return room;
-  room = link_adjacent_rooms_of_type(owner, x, y, rkind);
-  if (room != NULL)
-  {
-      count_room_slabs(room);
-  } else
-  {
+    struct Dungeon *dungeon;
+    struct Room *nxroom;
+    long nxroom_id;
+    if (plyr_idx == game.neutral_player_num)
+        return false;
+    if (room->kind >= ROOM_TYPES_COUNT)
+    {
+        ERRORLOG("Room no %d has invalid kind",(int)room->index);
+        return false;
+    }
+    // note that we can't get_players_num_dungeon() because players
+    // may be uninitialized yet when this is called.
+    dungeon = get_dungeon(plyr_idx);
+    nxroom_id = dungeon->room_kind[room->kind];
+    nxroom = room_get(nxroom_id);
+    if (room_is_invalid(nxroom))
+    {
+        room->next_of_owner = 0;
+    } else
+    {
+        room->next_of_owner = nxroom_id;
+        nxroom->prev_of_owner = room->index;
+    }
+    dungeon->room_kind[room->kind] = room->index;
+    dungeon->room_slabs_count[room->kind]++;
+    return true;
+}
+
+struct Room *prepare_new_room(unsigned char owner, unsigned char rkind, unsigned short x, unsigned short y)
+{
+    struct SlabMap *slb;
+    struct Room *room,*nxroom;
+    long slb_x,slb_y;
+    long i;
     if ( !i_can_allocate_free_room_structure() )
     {
         ERRORDBG(2,"Cannot allocate any more rooms.");
@@ -579,28 +706,18 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
     room = allocate_free_room_structure();
     room->owner = owner;
     room->kind = rkind;
-    if (rkind == 1)
+    if (rkind == RoK_ENTRANCE)
     {
-      if ((game.field_14E938 > 0) && (game.field_14E938 < ROOMS_COUNT))
+      if ((game.entrance_room_id > 0) && (game.entrance_room_id < ROOMS_COUNT))
       {
-        room->word_19 = game.field_14E938;
-        nxroom = room_get(game.field_14E938);
+        room->word_19 = game.entrance_room_id;
+        nxroom = room_get(game.entrance_room_id);
         nxroom->word_17 = room->index;
       }
-      game.field_14E938 = room->index;
+      game.entrance_room_id = room->index;
       game.field_14E93A++;
     }
-    if (owner != game.neutral_player_num)
-    {
-        // note that we can't get_players_num_dungeon() because players
-        // may be uninitialized yet when this is called.
-        dungeon = get_dungeon(owner);
-        i = dungeon->room_kind[room->kind%ROOM_TYPES_COUNT];
-        room->next_of_owner = i;
-        game.rooms[i].prev_of_owner = room->index;
-        dungeon->room_kind[room->kind%ROOM_TYPES_COUNT] = room->index;
-        dungeon->room_slabs_count[room->kind%ROOM_TYPES_COUNT]++;
-    }
+    add_room_to_players_list(room, owner);
     slb_x = map_to_slab[x%(map_subtiles_x+1)];
     slb_y = map_to_slab[y%(map_subtiles_y+1)];
     i = get_slab_number(slb_x, slb_y);
@@ -608,8 +725,26 @@ struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned shor
     room->field_39 = i;
     slb = get_slabmap_direct(i);
     slb->next_in_room = 0;
-    count_room_slabs(room);
-    create_room_flag(room);
+    return room;
+}
+
+struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned short x, unsigned short y)
+{
+  struct Room *room;
+  SYNCDBG(7,"Starting");
+  // room = _DK_create_room(owner, rkind, x, y); return room;
+  // Try linking the new room slab to existing room
+  room = link_adjacent_rooms_of_type(owner, x, y, rkind);
+  if (room_is_invalid(room))
+  {
+      room = prepare_new_room(owner, rkind, x, y);
+      if (room_is_invalid(room))
+          return INVALID_ROOM;
+      count_room_slabs(room);
+      create_room_flag(room);
+  } else
+  {
+      count_room_slabs(room);
   }
   update_room_ensign_position(room);
   SYNCDBG(7,"Done");

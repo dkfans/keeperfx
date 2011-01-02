@@ -3831,7 +3831,7 @@ void clear_game_for_summary(void)
     clear_shadow_limits();
     clear_stat_light_map();
     clear_mapwho();
-    game.field_14E938 = 0;
+    game.entrance_room_id = 0;
     game.action_rand_seed = 0;
     set_flag_byte(&game.numfield_C,0x04,false);
     clear_columns();
@@ -3859,7 +3859,7 @@ void clear_game_for_save(void)
     delete_all_structures();
     light_initialise();
     clear_mapwho();
-    game.field_14E938 = 0;
+    game.entrance_room_id = 0;
     game.action_rand_seed = 0;
     set_flag_byte(&game.numfield_C,0x04,false);
     clear_columns();

@@ -29,6 +29,7 @@
 #include "thing_effects.h"
 #include "thing_traps.h"
 #include "thing_shots.h"
+#include "thing_stats.h"
 #include "thing_creature.h"
 #include "config_creature.h"
 #include "creature_states.h"
@@ -1364,6 +1365,44 @@ struct Thing *smallest_gold_pile_at_xy(long stl_x, long stl_y)
     }
   }
   return chosen_thing;
+}
+
+TbBool update_speed_of_player_creatures_of_model(long plyr_idx, long crmodel)
+{
+  struct Dungeon *dungeon;
+  struct CreatureControl *cctrl;
+  struct Thing *thing;
+  unsigned long k;
+  int i;
+  SYNCDBG(8,"Starting");
+  dungeon = get_players_num_dungeon(plyr_idx);
+  k = 0;
+  i = dungeon->creatr_list_start;
+  while (i != 0)
+  {
+      thing = thing_get(i);
+      cctrl = creature_control_get_from_thing(thing);
+      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+      {
+        ERRORLOG("Jump to invalid creature detected");
+        break;
+      }
+      i = cctrl->thing_idx;
+      // Thing list loop body
+      if (thing->model == crmodel)
+      {
+          cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+      }
+      // Thing list loop body ends
+      k++;
+      if (k > CREATURES_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping creatures list");
+        break;
+      }
+  }
+  SYNCDBG(19,"Finished");
+  return true;
 }
 
 TbBool gold_pile_with_maximum_at_xy(long stl_x, long stl_y)

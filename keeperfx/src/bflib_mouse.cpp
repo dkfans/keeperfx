@@ -299,6 +299,7 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
       break;
   case MActn_WHEELMOVEUP:
   case MActn_WHEELMOVEDOWN:
+      //TODO INPUT make storing (and later using) mouse scroll events
       break;
     default:
       break;
