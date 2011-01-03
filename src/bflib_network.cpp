@@ -30,6 +30,7 @@
 #include <ctype.h>
 
 //TODO: get rid of the following headers later by refactoring, they're here for testing primarily
+#include "frontend.h"
 #include "net_game.h"
 #include "packets.h"
 #include "front_landview.h"
@@ -79,6 +80,7 @@ void TwoPlayerReqExDataMsgCallback(unsigned long, unsigned long, void *);
 void *TwoPlayerCallback(unsigned long, unsigned long, unsigned long, void *);
 TbError LbNetwork_StartExchange(void *buf);
 TbError LbNetwork_CompleteExchange(void *buf);
+static void OnDroppedUser(NetUserId id, enum NetDropReason reason);
 /******************************************************************************/
 struct ReceiveCallbacks receiveCallbacks = {
   AddMsgCallback,
@@ -149,7 +151,7 @@ struct UnidirectionalRTSMessage rtsMessage;
 
 enum NetUserProgress
 {
-	USER_UNUSED,			//array slot unused
+	USER_UNUSED = 0,		//array slot unused
     USER_CONNECTED,			//connected user on slot
     USER_LOGGEDIN,          //sent name and password and was accepted
 
@@ -185,9 +187,9 @@ enum NetMessageType
  * Structure for network messages for illustrational purposes.
  * I don't actually load into this structure as it takes too much effort with C.
  */
-struct NetMessage
+struct NetworkMessageExample
 {
-    enum NetMessageType         type;
+    char         type; //enum NetMessageType
     union NetMessageBody
     {
         struct
@@ -219,6 +221,7 @@ struct NetState
     TbBool                  enable_lag;         //enable scheduled lag mode in exchange (in the best case this would always be true but other parts of code expects perfect sync for now)
     char                    msg_buffer[(sizeof(NetFrame) + sizeof(struct Packet)) * PACKETS_COUNT + 1]; //completely estimated for now
     char                    msg_buffer_null;    //theoretical safe guard vs non-terminated strings
+    TbBool                  locked;             //if set, no players may join
 };
 
 //the "new" code contained in this struct
@@ -410,7 +413,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
         SendUserUpdate(id, source);
     }
 
-    //send up the stuff the other parts of the game expect
+    //set up the stuff the other parts of the game expect
     //TODO: try to get rid of this because it makes understanding code much more complicated
     localPlayerInfoPtr[source].active = 1;
     strcpy(localPlayerInfoPtr[source].name, netstate.users[source].name);
@@ -727,7 +730,7 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
   }
 
   if (netstate.sp) {
-      res = netstate.sp->init(NULL); //TODO: supply drop callback
+      res = netstate.sp->init(OnDroppedUser); //TODO: supply drop callback
   }
 
   //_wint_thread_data = thread_data_mem;
@@ -992,6 +995,10 @@ static TbBool OnNewUser(NetUserId * assigned_id)
 {
     NetUserId i;
 
+    if (netstate.locked) {
+        return 0;
+    }
+
     for (i = 0; i < MAX_N_USERS; ++i) {
         if (netstate.users[i].progress == USER_UNUSED) {
             *assigned_id = i;
@@ -1005,16 +1012,51 @@ static TbBool OnNewUser(NetUserId * assigned_id)
     return 0;
 }
 
+static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
+{
+    return; //TODO: remove
+    if (netstate.my_id == id) {
+        NETMSG("Warning: Trying to drop local user. There's a bug in code somewhere, probably server trying to send message to itself.");
+        return;
+    }
+
+    //return;
+    if (reason == NETDROP_ERROR) {
+        NETMSG("Connection error with user %i %s", id, netstate.users[id].name);
+    }
+    else if (reason == NETDROP_MANUAL) {
+        NETMSG("Dropped user %i %s", id, netstate.users[id].name);
+    }
+
+
+    if (netstate.my_id == SERVER_ID) {
+        LbMemorySet(&netstate.users[id], 0, sizeof(netstate.users[id]));
+        netstate.users[id].id = id; //repair effect by LbMemorySet
+
+        //TODO: send message
+
+        //set up the stuff the other parts of the game expect
+        //TODO: try to get rid of this because it makes understanding code much more complicated
+        localPlayerInfoPtr[id].active = 0;
+        LbMemorySet(localPlayerInfoPtr[id].name, 0, sizeof(localPlayerInfoPtr[id].name));
+    }
+    else {
+        NETMSG("Returning to session screen after connection loss");
+        LbNetwork_Stop();
+        frontend_set_state(FeSt_NET_SESSION);
+    }
+}
+
 static void ProcessMessagesUntilNextFrame(NetUserId id, unsigned timeout)
 {
     //read all messages up to next frame
     while (timeout == 0 || netstate.sp->msgready(id, timeout) != 0) {
         if (ProcessMessage(id) == Lb_FAIL) {
-            //TODO: potentially do something more, depends on where we throw out dropped users
             break;
         }
 
-        if (netstate.msg_buffer[0] == NETMSG_FRAME) {
+        if (    netstate.msg_buffer[0] == NETMSG_FRAME ||
+                netstate.msg_buffer[0] == NETMSG_RESYNC) {
             //TODO: fix this, relies on buffer being unchanged if handling NETMSG_FRAME
             return;
         }
@@ -1038,12 +1080,6 @@ static void ConsumeServerFrame(void)
 
     frame = netstate.exchg_queue;
     NETDBG(8, "Consuming Server frame %d of size %u", frame->seq_nbr, frame->size);
-
-    for (int i = 0; i < frame->size / netstate.user_frame_size; ++i) {
-        struct Packet * p = &((Packet *) frame->buffer)[i];
-        NETMSG("Packet action: %u", p->action);
-    }
-
 
     netstate.exchg_queue = frame->next;
     netstate.seq_nbr = frame->seq_nbr;
@@ -1098,7 +1134,7 @@ TbError LbNetwork_Exchange(void *buf)
             }
         }
     }
-    else {
+    else { //client
         if (netstate.enable_lag) {
             ProcessPendingMessages(SERVER_ID);
 
@@ -1108,30 +1144,18 @@ TbError LbNetwork_Exchange(void *buf)
             }
 
             if (netstate.exchg_queue == NULL) {
-                NETMSG("No frame on queue, connection lost");
+                //connection lost
                 return Lb_FAIL;
             }
 
             SendClientFrame((char *) buf, netstate.exchg_queue->seq_nbr);
         }
-
-        //TESTING
-        if (netstate.user_frame_size == sizeof(struct ScreenPacket)) {
-            struct ScreenPacket * testpacket = (struct ScreenPacket *) buf;
-            NETMSG("Will send screen packet %d", testpacket->field_4);
-        }
-        else if (netstate.user_frame_size == sizeof(struct Packet)) {
-            struct Packet * testpacket = (struct Packet *) buf;
-            if (testpacket->action) NETMSG("Will send packet action %d", testpacket->action);
-        }
-        //!TESTING
-
-        if (!netstate.enable_lag) {
+        else {
             SendClientFrame((char *) buf, netstate.seq_nbr);
             ProcessMessagesUntilNextFrame(SERVER_ID, 0);
 
             if (netstate.exchg_queue == NULL) {
-                NETMSG("No frame on queue, connection lost");
+                //connection lost
                 return Lb_FAIL;
             }
         }
@@ -1151,11 +1175,14 @@ TbBool LbNetwork_Resync(void * buf, size_t len)
     char * full_buf;
     int i;
 
-    full_buf = (char *) malloc(len + 1);
+    return 1; //TODO: remove
+    NETLOG("Starting");
+
+    full_buf = (char *) LbMemoryAlloc(len + 1);
 
     if (netstate.users[netstate.my_id].progress == USER_SERVER) {
         full_buf[0] = NETMSG_RESYNC;
-        memcpy(full_buf + 1, buf, len);
+        LbMemoryCopy(full_buf + 1, buf, len);
 
         for (i = 0; i < MAX_N_USERS; ++i) {
             if (netstate.users[i].progress != USER_LOGGEDIN) {
@@ -1174,8 +1201,10 @@ TbBool LbNetwork_Resync(void * buf, size_t len)
             }
         } while (full_buf[0] != NETMSG_RESYNC);
 
-        memcpy(buf, full_buf + 1, len);
+        LbMemoryCopy(buf, full_buf + 1, len);
     }
+
+    LbMemoryFree(full_buf);
 
     return true;
 }
@@ -1183,7 +1212,7 @@ TbBool LbNetwork_Resync(void * buf, size_t len)
 TbError LbNetwork_EnableNewPlayers(TbBool allow)
 {
   //return _DK_LbNetwork_EnableNewPlayers(allow);
-  if (spPtr == NULL)
+  /*if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
     return Lb_FAIL;
@@ -1196,7 +1225,29 @@ TbError LbNetwork_EnableNewPlayers(TbBool allow)
   {
     NETMSG("New players are NOT allowed to join");
     return spPtr->EnableNewPlayers(false);
-  }
+  }*/
+
+    int i;
+
+    if (!netstate.locked && !allow) {
+        //throw out partially connected players
+        for (i = 0; MAX_N_USERS; ++i) {
+            if (netstate.users[i].progress == USER_CONNECTED) {
+                netstate.sp->drop_user(netstate.users[i].id);
+            }
+        }
+    }
+
+    netstate.locked = !allow;
+
+    if (netstate.locked) {
+        NETMSG("New players are NOT allowed to join");
+    }
+    else {
+        NETMSG("New players ARE allowed to join");
+    }
+
+    return Lb_OK;
 }
 
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
@@ -1235,10 +1286,8 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
   callback(&netcdat, ptr);
   strcpy(netcdat.svc_name, "IPX");
   callback(&netcdat, ptr);
-#ifdef EXPERIMENTAL_NET
   strcpy(netcdat.svc_name, "TCP");
   callback(&netcdat, ptr);
-#endif
   NETMSG("Enumerate Services called");
   return Lb_OK;
 }
