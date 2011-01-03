@@ -473,7 +473,7 @@ int load_command_line_options(struct ProgramOptions *opts, int argc, char *argv[
             {"def",     required_argument, 0, 'f'},
             {"prefix",  required_argument, 0, 'p'},
             {"rmap",    required_argument, 0, 'r'},
-            {"deff", required_argument, 0, 'e' },
+            {"deff",    required_argument, 0, 'e'},
             {NULL,      0,                 0,'\0'}
         };
         /* getopt_long stores the option index here. */
@@ -609,7 +609,7 @@ long read_file_to_memory(const char *fname, unsigned char **buf_ptr)
     fp = fopen(fname,"rb");
     if (fp == NULL)
     {
-        printf("Can't open '%s' file!\n",fname);
+        printf("Can't create file '%s'!\n",fname);
         return ERR_CANT_OPEN;
     }
     // Get file size
@@ -644,7 +644,7 @@ short write_file_from_memory(const char *fname, unsigned char **buf_ptr, long le
     fp = fopen(fname,"wb");
     if (fp == NULL)
     {
-        printf("Can't open '%s' file!\n",fname);
+        printf("Can't open '%s' for writing!\n",fname);
         if (verbose)
             printf("Check if it's not read-only, and you have rights to write it.\n");
         return ERR_CANT_OPEN;
@@ -678,7 +678,7 @@ long read_map(const char *fname, struct export_entry **exports)
   fhndl = fopen(fname,"rb");
   if (fhndl == NULL)
   {
-    printf("Can't open '%s' file!\n",fname);
+    printf("Can't open '%s' for reading!\n",fname);
     if (verbose)
         printf("Check if file name is correct, and you have rights to read it.\n");
     free(lnbuf);
@@ -861,7 +861,7 @@ long read_rmap(const char *fname, struct relocation_entry *relocations)
   fhndl = fopen(fname,"rb");
   if (fhndl == NULL)
   {
-    printf("Can't open file '%s'!\n",fname);
+    printf("Can't open '%s' for reading!\n",fname);
     if (verbose)
         printf("Check if file name is correct, and you have rights to read it.\n");
     free(lnbuf);free(rdbuf);
@@ -1330,6 +1330,7 @@ short read_relocations_section(unsigned char *buf, long filesize, struct PEInfo 
 short read_exports_section(unsigned char *buf, long filesize, struct PEInfo *pe)
 {
     long idx;
+    unsigned char *data;
 
     pe->exports_num = 0;
     // Find the export section
@@ -1347,9 +1348,60 @@ short read_exports_section(unsigned char *buf, long filesize, struct PEInfo *pe)
     if (verbose)
         printf("Section size is %ld bytes (%08lXh).\n",(long)exp_sec->rsize,(long)exp_sec->rsize);
 
-    //TODO PeRESec: Should read exports from .DLL, not from .MAP!
-    //pe->exports_num = read_map(opts.fname_map,pe->exports);
-    printf("This function is NOT SUPPORTED (yet)!\n");
+    long functs_num,names_num;
+    unsigned long address_table_raw_pos;
+    unsigned long fnnames_table_raw_pos;
+    long          arr_raw_to_rva         = exp_sec->vaddr-exp_sec->raddr;
+    // Reading section header
+    data = buf + exp_sec->raddr;
+    {
+        // export flags
+        data += 4;
+        // export table creation date and version
+        data += 8;
+        // module name address
+        data += 4;
+        // ordinal base
+        data += 4;
+        // number of functions
+        functs_num = read_int32_le_buf(data); data += 4;
+        // number of names
+        names_num = read_int32_le_buf(data); data += 4;
+        // address of functions
+        address_table_raw_pos = read_int32_le_buf(data) - arr_raw_to_rva; data += 4;
+        // address of names
+        fnnames_table_raw_pos = read_int32_le_buf(data) - arr_raw_to_rva; data += 4;
+        // address of ordinals
+        data += 4;
+    }
+    data = buf + address_table_raw_pos;
+    for (idx=0; idx < functs_num; idx++)
+    {
+        pe->exports[idx] = malloc(sizeof(struct export_entry));
+        if (pe->exports[idx] == NULL)
+        {
+            printf("Memory allocation error!\n");
+            abort();
+            return ERR_NO_MEMORY;
+        }
+        pe->exports[idx]->seg = 0;
+        pe->exports[idx]->offs = 0;
+        pe->exports[idx]->srcname[0] = '\0';
+        pe->exports[idx]->dstname[0] = '\0';
+        pe->exports[idx]->nmoffs=0;
+        //TODO PeRESec: Read export function addresses from .DLL!
+        //pe->exports[idx]->offs = read_int32_le_buf(data) - pe->sections[(pe->exports[idx]->seg)%MAX_SECTIONS_NUM]->vaddr;
+        data += 4;
+    }
+    pe->exports_num = idx;
+    if (verbose)
+        printf("Got %ld function addresses from .DLL.\n",idx);
+
+    for (idx=0; idx < names_num; idx++)
+    {
+        //TODO PeRESec: Read export function names from .DLL!
+    }
+    printf("Reading export section from PE is NOT SUPPORTED (yet)!\n");
 
     if (verbose)
         printf("Got %ld exports from .DLL file.\n",(long)pe->exports_num);
@@ -1827,53 +1879,14 @@ int main(int argc, char *argv[])
     unsigned char *dll_data;
     long dll_size;
     int idx;
-    for (idx=0;idx<MAX_EXPORTS;idx++)
-        peinfo.exports[idx]=NULL;
+    for (idx=0; idx < MAX_EXPORTS; idx++)
+        peinfo.exports[idx] = NULL;
     if ((opts.fname_inp == NULL) || (opts.fname_map == NULL) || (opts.fname_def == NULL)
      || (opts.fname_out == NULL) || (opts.module_name == NULL))
     {
         printf("Memory allocation error!\n");
         abort();
     }
-  // Reading functions
-  peinfo.exports_num = read_map(opts.fname_map,peinfo.exports);
-  if (peinfo.exports_num < 0)
-  {
-      free_prog_options(&opts);
-      return 1;
-  }
-  // Creating destination names from input names
-  export_fill_dstnames(peinfo.exports,peinfo.exports_num,opts.funcname_prefix);
-  // Sorting functions
-  export_sort(peinfo.exports,peinfo.exports_num);
-  if (verbose)
-      printf("Entries are now sorted in memory.\n");
-  // Checking if there are no entries with same names
-  int dupidx;
-  dupidx = find_dupename(peinfo.exports,peinfo.exports_num);
-  if (dupidx >= 0)
-  {
-      if (verbose)
-          printf("Duplicate entry name found!\n");
-      printf("Entry \"%s\" duplicates. Aborting.\n",peinfo.exports[dupidx]->dstname);
-      if (verbose)
-          printf("Remove duplicated entry from .MAP file to fix this.\n");
-      free_prog_options(&opts);
-      return 7;
-  }
-  // Checking if there are no entries with same offsets
-  dupidx = find_dupeoffs(peinfo.exports,peinfo.exports_num);
-  if (dupidx >= 0)
-  {
-      if (verbose)
-          printf("Duplicate entry offset found!\n");
-      printf("Offset 0x%08lX duplicates. Aborting.\n",peinfo.exports[dupidx]->offs);
-      if (verbose)
-          printf("Remove duplicated entry from .MAP file to fix this.\n");
-      free_prog_options(&opts);
-      return 8;
-  }
-
   //Loading the PE file to be updated
   dll_size = read_file_to_memory(opts.fname_inp,&dll_data);
   if (dll_size < 0)
@@ -1892,20 +1905,24 @@ int main(int argc, char *argv[])
   if (extract)
   {
       // Writing relocations into .rmap file
+      int fail_code = 0;
       if(opts.fname_rmap != NULL)
       {
           if (read_relocations_section(dll_data, dll_size, &peinfo) != ERR_OK)
           {
-              free_prog_options(&opts);
-              free(dll_data);
-              return 9;
-          }
+              printf("Preparing data for Relocations Map file failed.\n");
+              fail_code = 9;
+          } else
           if (create_rmap(opts.fname_rmap,opts.fname_out,&peinfo) != ERR_OK)
           {
-              free_prog_options(&opts);
-              free(dll_data);
-              return 10;
+              printf("Creating Relocations Map file failed.\n");
+              fail_code = 10;
           }
+      } else
+      {
+          printf("No Relocations Map file creation requested.\n");
+          if (verbose)
+              printf("To create relocation file from existing PE data, use -r<file> option.\n");
       }
       // Writing exports into .map file
       if (read_exports_section(dll_data, dll_size, &peinfo) == ERR_OK)
@@ -1914,15 +1931,61 @@ int main(int argc, char *argv[])
           {
               if (create_map(opts.fname_map,opts.fname_out,&peinfo) != ERR_OK)
               {
-                  free_prog_options(&opts);
-                  free(dll_data);
-                  return 10;
+                  printf("Creating Exports Map file failed.\n");
+                  fail_code = 11;
               }
           }
       }
       free(dll_data);
+      if (fail_code != 0)
+      {
+          free_prog_options(&opts);
+          return fail_code;
+      }
   } else
+  // Extract mode off - we want to create the DLL
   {
+      // Reading functions
+      peinfo.exports_num = read_map(opts.fname_map,peinfo.exports);
+      if (peinfo.exports_num < 0)
+      {
+          free_prog_options(&opts);
+          free(dll_data);
+          return 1;
+      }
+      // Creating destination names from input names
+      export_fill_dstnames(peinfo.exports,peinfo.exports_num,opts.funcname_prefix);
+      // Sorting functions
+      export_sort(peinfo.exports,peinfo.exports_num);
+      if (verbose)
+          printf("Entries are now sorted in memory.\n");
+      // Checking if there are no entries with same names
+      int dupidx;
+      dupidx = find_dupename(peinfo.exports,peinfo.exports_num);
+      if (dupidx >= 0)
+      {
+          if (verbose)
+              printf("Duplicate entry name found!\n");
+          printf("Entry \"%s\" duplicates. Aborting.\n",peinfo.exports[dupidx]->dstname);
+          if (verbose)
+              printf("Remove duplicated entry from .MAP file to fix this.\n");
+          free_prog_options(&opts);
+          free(dll_data);
+          return 7;
+      }
+      // Checking if there are no entries with same offsets
+      dupidx = find_dupeoffs(peinfo.exports,peinfo.exports_num);
+      if (dupidx >= 0)
+      {
+          if (verbose)
+              printf("Duplicate entry offset found!\n");
+          printf("Offset 0x%08lX duplicates. Aborting.\n",peinfo.exports[dupidx]->offs);
+          if (verbose)
+              printf("Remove duplicated entry from .MAP file to fix this.\n");
+          free_prog_options(&opts);
+          free(dll_data);
+          return 8;
+      }
       //Setting "is a DLL" flag in characteristics in memory image of the file
       //We're not un-setting "is executable" flag - DLLs seem to have it always set, too.
       if (pe_file_characteristics_flag_set(dll_data,dll_size,&peinfo, 0x2000, 0x0000) != ERR_OK)
