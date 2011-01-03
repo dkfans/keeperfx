@@ -527,8 +527,8 @@ struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, un
                       k++;
                       if (k > room->slabs_count)
                       {
-                        ERRORLOG("Room slabs list length exceeded when sweeping");
-                        break;
+                          ERRORLOG("Room slabs list length exceeded when sweeping");
+                          break;
                       }
                   }
                   rdata = room_data_get_for_kind(linkroom->kind);
