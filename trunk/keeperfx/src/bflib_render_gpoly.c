@@ -333,6 +333,18 @@ DLLIMPORT long _DK_gpoly_pro_enable_mode_ofs;
 long gpoly_mode;
 long exceeds_window;
 long factor_ca,factor_ba,factor_cb,factor_chk;
+// More variables - made global temporarly to ease assembly rewriting
+struct PolyPoint *gploc_point_a,*gploc_point_b,*gploc_point_c;
+long gploc_1A4,gploc_1A0;
+short gploc_word01,gploc_word02,gploc_word03;
+long gploc_198,gploc_194,gploc_18C,gploc_188,gploc_180;
+long gploc_pt_ay,gploc_pt_ax,gploc_pt_shax,gploc_170,gploc_16C,gploc_168;
+long gploc_pt_by,gploc_pt_bx,gploc_pt_shbx,gploc_158,gploc_154,gploc_150;
+long gploc_pt_cy,gploc_pt_cx,gploc_pt_shcx,gploc_140,gploc_13C,gploc_138;
+long gploc_12C,gploc_128,gploc_104,gploc_FC,gploc_F8,gploc_F4,gploc_E4,gploc_E0;
+long gploc_D8,gploc_D4,gploc_CC,gploc_C8,gploc_C4,gploc_C0,gploc_BC,gploc_B8,gploc_B4,gploc_B0,gploc_AC,gploc_A7,gploc_A8,gploc_A4,gploc_A0,gploc_9C;
+long gploc_98,gploc_94,gploc_90,gploc_8C,gploc_88,gploc_84,gploc_80,gploc_7C,gploc_78,gploc_74,gploc_68,gploc_64,gploc_60;
+long gploc_5C,gploc_58,gploc_54,gploc_50,gploc_4C,gploc_48,gploc_44,gploc_34,gploc_30,gploc_2C,gploc_28;
 /******************************************************************************/
 void gpoly_enable_pentium_pro(TbBool state)
 {
@@ -475,126 +487,43 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
         len_y = (point_b->field_4 - point_a->field_4);
         factor_chk = len_y * factor_ca + len_x;
     }
+    gploc_point_a = point_a;
+    gploc_point_b = point_b;
+    gploc_point_c = point_c;
 
     asm volatile (" \
-# These are DWORDs\n \
-point_a  =  -0x1BC\n \
-point_b  =  -0x1B8\n \
-point_c  =  -0x1B4\n \
-var_1A4  =  -0x1A4\n \
-var_1A0  =  -0x1A0\n \
-var_19F  =  -0x19F\n \
-var_19C  =  -0x19C\n \
-var_198  =  -0x198\n \
-var_194  =  -0x194\n \
-var_190  =  -0x190\n \
-var_18C  =  -0x18C\n \
-var_188  =  -0x188\n \
-var_184  =  -0x184\n \
-var_180  =  -0x180\n \
-pt_ay  =  -0x17C\n \
-pt_ax  =  -0x178\n \
-pt_shax  =  -0x174\n \
-var_170  =  -0x170\n \
-var_16C  =  -0x16C\n \
-var_168  =  -0x168\n \
-pt_by  =  -0x164\n \
-pt_bx  =  -0x160\n \
-pt_shbx  =  -0x15C\n \
-var_158  =  -0x158\n \
-var_154  =  -0x154\n \
-var_150  =  -0x150\n \
-pt_cy  =  -0x14C\n \
-pt_cx  =  -0x148\n \
-pt_shcx  =  -0x144\n \
-var_140  =  -0x140\n \
-var_13C  =  -0x13C\n \
-var_138  =  -0x138\n \
-var_12C  =  -0x12C\n \
-var_128  =  -0x128\n \
-var_104  =  -0x104\n \
-var_FC  =  -0x0FC\n \
-var_F8  =  -0x0F8\n \
-var_F4  =  -0x0F4\n \
-var_E4  =  -0x0E4\n \
-var_E0  =  -0x0E0\n \
-var_D8  =  -0x0D8\n \
-var_D4  =  -0x0D4\n \
-var_CC  =  -0x0CC\n \
-var_C8  =  -0x0C8\n \
-var_C4  =  -0x0C4\n \
-var_C0  =  -0x0C0\n \
-var_BC  =  -0x0BC\n \
-var_B8  =  -0x0B8\n \
-# These are BYTEs\n \
-var_B4  =  -0x0B4\n \
-var_B0  =  -0x0B0\n \
-var_AC  =  -0x0AC\n \
-var_A7  =  -0x0A7\n \
-var_A8  =  -0x0A8\n \
-# These are DWORDs\n \
-var_A4  =  -0x0A4\n \
-var_A0  =  -0x0A0\n \
-var_9C  =  -0x9C\n \
-var_98  =  -0x98\n \
-var_94  =  -0x94\n \
-var_90  =  -0x90\n \
-var_8C  =  -0x8C\n \
-var_88  =  -0x88\n \
-var_84  =  -0x84\n \
-var_80  =  -0x80\n \
-var_7C  =  -0x7C\n \
-var_78  =  -0x78\n \
-var_74  =  -0x74\n \
-var_68  =  -0x68\n \
-var_64  =  -0x64\n \
-var_60  =  -0x60\n \
-var_5C  =  -0x5C\n \
-var_58  =  -0x58\n \
-var_54  =  -0x54\n \
-var_50  =  -0x50\n \
-var_4C  =  -0x4C\n \
-var_48  =  -0x48\n \
-var_44  =  -0x44\n \
-var_34  =  -0x34\n \
-var_30  =  -0x30\n \
-var_2C  =  -0x2C\n \
-# These are BYTEs\n \
-var_28  =  -0x28\n \
-\n \
     pusha   \n \
-    subl    $0x1A0,%%esp\n \
-    movl    %0,0x1C0+point_a(%%esp)\n \
-    movl    %1,0x1C0+point_b(%%esp)\n \
-    movl    %2,0x1C0+point_c(%%esp)\n \
+    movl    _gploc_point_a,%%eax\n \
+    movl    _gploc_point_b,%%edx\n \
+    movl    _gploc_point_c,%%ebx\n \
 \n \
     movl    (%%eax),%%ecx\n \
     movl    4(%%eax),%%ebp\n \
-    movl    %%ecx,0x1C0+pt_ax(%%esp)\n \
-    movl    %%ebp,0x1C0+pt_ay(%%esp)\n \
+    movl    %%ecx,_gploc_pt_ax\n \
+    movl    %%ebp,_gploc_pt_ay\n \
     shll    $0x10,%%ecx\n \
-    movl    %%ecx,0x1C0+pt_shax(%%esp)\n \
+    movl    %%ecx,_gploc_pt_shax\n \
     movl    (%%edx),%%ecx\n \
     movl    4(%%edx),%%ebp\n \
-    movl    %%ecx,0x1C0+pt_bx(%%esp)\n \
-    movl    %%ebp,0x1C0+pt_by(%%esp)\n \
+    movl    %%ecx,_gploc_pt_bx\n \
+    movl    %%ebp,_gploc_pt_by\n \
     shll    $0x10,%%ecx\n \
-    movl    %%ecx,0x1C0+pt_shbx(%%esp)\n \
+    movl    %%ecx,_gploc_pt_shbx\n \
     movl    (%%ebx),%%ecx\n \
     movl    4(%%ebx),%%ebp\n \
-    movl    %%ecx,0x1C0+pt_cx(%%esp)\n \
-    movl    %%ebp,0x1C0+pt_cy(%%esp)\n \
+    movl    %%ecx,_gploc_pt_cx\n \
+    movl    %%ebp,_gploc_pt_cy\n \
     shll    $0x10,%%ecx\n \
-    movl    %%ecx,0x1C0+pt_shcx(%%esp)\n \
+    movl    %%ecx,_gploc_pt_shcx\n \
     movl    0x10(%%eax),%%edi\n \
     movl    0x10(%%edx),%%ebp\n \
     movl    0x10(%%ebx),%%ecx\n \
     shrl    $0x10,%%edi\n \
     shrl    $0x10,%%ebp\n \
     shrl    $0x10,%%ecx\n \
-    movl    %%edi,0x1C0+var_170(%%esp)\n \
-    movl    %%ebp,0x1C0+var_158(%%esp)\n \
-    movl    %%ecx,0x1C0+var_140(%%esp)\n \
+    movl    %%edi,_gploc_170\n \
+    movl    %%ebp,_gploc_158\n \
+    movl    %%ecx,_gploc_140\n \
     movl    8(%%eax),%%edi\n \
     movl    0x0C(%%eax),%%ebp\n \
     movl    8(%%edx),%%ecx\n \
@@ -603,35 +532,55 @@ var_28  =  -0x28\n \
     shrl    $0x10,%%ebp\n \
     shrl    $0x10,%%ecx\n \
     shrl    $0x10,%%esi\n \
-    movl    %%edi,0x1C0+var_16C(%%esp)\n \
-    movl    %%ebp,0x1C0+var_168(%%esp)\n \
-    movl    %%ecx,0x1C0+var_154(%%esp)\n \
-    movl    %%esi,0x1C0+var_150(%%esp)\n \
+    movl    %%edi,_gploc_16C\n \
+    movl    %%ebp,_gploc_168\n \
+    movl    %%ecx,_gploc_154\n \
+    movl    %%esi,_gploc_150\n \
     movl    8(%%ebx),%%ecx\n \
     movl    0x0C(%%ebx),%%esi\n \
     shrl    $0x10,%%ecx\n \
     shrl    $0x10,%%esi\n \
-    movl    %%ecx,0x1C0+var_13C(%%esp)\n \
-    movl    %%esi,0x1C0+var_138(%%esp)\n \
-\n \
-    movl    _gpoly_mode,%%ecx\n \
-    jmp     *off_783E30(,%%ecx,4)\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_04F5:         # 3CAC\n \
-    movl    0x1C0+pt_bx(%%esp),%%esi\n \
+    movl    %%ecx,_gploc_13C\n \
+    movl    %%esi,_gploc_138\n \
+    popa    \n \
+"
+         : // no outputs
+         : // no arguments
+         : "memory", "cc");
+
+    switch (gpoly_mode)
+    {
+    case 27:
+    case 29:
+    case 31:
+    case 32:
+    case 33:
+    case 34:
+    case 37:
+    case 38:
+    case 91:
+    case 93:
+    case 95:
+    case 96:
+    case 97:
+    case 98:
+    case 101:
+    case 102:
+        asm volatile (" \
+    pusha   \n \
+    movl    _gploc_pt_bx,%%esi\n \
     movl    _factor_chk,%%edi\n \
     orl %%edi,%%edi\n \
     subl    $0,%%esi\n \
     addl    $0,%%esi\n \
-    movl    0x1C0+pt_ax(%%esp),%%eax\n \
+    movl    _gploc_pt_ax,%%eax\n \
     subl    %%eax,%%esi\n \
-    movl    0x1C0+pt_cx(%%esp),%%edi\n \
+    movl    _gploc_pt_cx,%%edi\n \
     subl    %%eax,%%edi\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    0x1C0+pt_by(%%esp),%%ebx\n \
+    movl    _gploc_pt_ay,%%eax\n \
+    movl    _gploc_pt_by,%%ebx\n \
     subl    %%eax,%%ebx\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
+    movl    _gploc_pt_cy,%%ecx\n \
     subl    %%eax,%%ecx\n \
     movl    %%ecx,%%eax\n \
     imull   %%esi,%%ecx\n \
@@ -650,16 +599,16 @@ gpo_loc_0532:         # 33C\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ebx\n \
     movl    %%eax,%%ebp\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    0x1C0+pt_cy(%%esp),%%esi\n \
+    movl    _gploc_pt_ay,%%eax\n \
+    movl    _gploc_pt_cy,%%esi\n \
     subl    %%eax,%%esi\n \
-    movl    0x1C0+pt_by(%%esp),%%edi\n \
+    movl    _gploc_pt_by,%%edi\n \
     subl    %%eax,%%edi\n \
     movl    %%ebp,%%eax\n \
-    movl    0x1C0+var_16C(%%esp),%%edx\n \
-    movl    0x1C0+var_13C(%%esp),%%ebx\n \
+    movl    _gploc_16C,%%edx\n \
+    movl    _gploc_13C,%%ebx\n \
     subl    %%edx,%%ebx\n \
-    movl    0x1C0+var_154(%%esp),%%ecx\n \
+    movl    _gploc_154,%%ecx\n \
     subl    %%edx,%%ecx\n \
     imull   %%esi,%%ecx\n \
     imull   %%edi,%%ebx\n \
@@ -673,12 +622,12 @@ gpo_loc_0532:         # 33C\n \
     incl    %%eax\n \
 \n \
 gpo_loc_057F:         # 38C\n \
-    movl    %%eax,0x1C0+var_B0(%%esp)\n \
+    movl    %%eax,_gploc_B0\n \
     movl    %%ebp,%%eax\n \
-    movl    0x1C0+var_168(%%esp),%%edx\n \
-    movl    0x1C0+var_138(%%esp),%%ebx\n \
+    movl    _gploc_168,%%edx\n \
+    movl    _gploc_138,%%ebx\n \
     subl    %%edx,%%ebx\n \
-    movl    0x1C0+var_150(%%esp),%%ecx\n \
+    movl    _gploc_150,%%ecx\n \
     subl    %%edx,%%ecx\n \
     imull   %%esi,%%ecx\n \
     imull   %%edi,%%ebx\n \
@@ -692,21 +641,21 @@ gpo_loc_057F:         # 38C\n \
     incl    %%eax\n \
 \n \
 gpo_loc_05AF:         # 3BC\n \
-    movl    %%eax,0x1C0+var_AC(%%esp)\n \
+    movl    %%eax,_gploc_AC\n \
     jmp gpo_loc_05C8\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_05B8:         # 34\n \
     xorl    %%eax,%%eax\n \
-    movl    %%eax,0x1C0+var_B0(%%esp)\n \
-    movl    %%eax,0x1C0+var_AC(%%esp)\n \
+    movl    %%eax,_gploc_B0\n \
+    movl    %%eax,_gploc_AC\n \
 \n \
 gpo_loc_05C8:         # 3C6\n \
     movl    _factor_chk,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_0715\n \
-    movl    0x1C0+pt_by(%%esp),%%ecx\n \
-    subl    0x1C0+pt_ay(%%esp),%%ecx\n \
+    movl    _gploc_pt_by,%%ecx\n \
+    subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_05ED\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -720,8 +669,8 @@ gpo_loc_05ED:         # 3F2\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_05FB:         # 3FB\n \
-    movl    0x1C0+var_154(%%esp),%%eax\n \
-    subl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    _gploc_154,%%eax\n \
+    subl    _gploc_16C,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -730,9 +679,9 @@ gpo_loc_05FB:         # 3FB\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0610:         # 41D\n \
-    movl    %%eax,0x1C0+var_194(%%esp)\n \
-    movl    0x1C0+var_150(%%esp),%%eax\n \
-    subl    0x1C0+var_168(%%esp),%%eax\n \
+    movl    %%eax,_gploc_194\n \
+    movl    _gploc_150,%%eax\n \
+    subl    _gploc_168,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -741,9 +690,9 @@ gpo_loc_0610:         # 41D\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0629:         # 436\n \
-    movl    %%eax,0x1C0+var_188(%%esp)\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
-    subl    0x1C0+pt_by(%%esp),%%ecx\n \
+    movl    %%eax,_gploc_188\n \
+    movl    _gploc_pt_cy,%%ecx\n \
+    subl    _gploc_pt_by,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_0646\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -757,8 +706,8 @@ gpo_loc_0646:         # 44B\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_0654:         # 45\n \
-    movl    0x1C0+var_13C(%%esp),%%eax\n \
-    subl    0x1C0+var_154(%%esp),%%eax\n \
+    movl    _gploc_13C,%%eax\n \
+    subl    _gploc_154,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -767,9 +716,9 @@ gpo_loc_0654:         # 45\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0669:         # 476\n \
-    movl    %%eax,0x1C0+var_198(%%esp)\n \
-    movl    0x1C0+var_138(%%esp),%%eax\n \
-    subl    0x1C0+var_150(%%esp),%%eax\n \
+    movl    %%eax,_gploc_198\n \
+    movl    _gploc_138,%%eax\n \
+    subl    _gploc_150,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -778,49 +727,49 @@ gpo_loc_0669:         # 476\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0682:         # 48\n \
-    movl    %%eax,0x1C0+var_18C(%%esp)\n \
-    movl    0x1C0+point_a(%%esp),%%eax\n \
-    movl    0x1C0+var_B0(%%esp),%%ebx\n \
+    movl    %%eax,_gploc_18C\n \
+    movl    _gploc_point_a,%%eax\n \
+    movl    _gploc_B0,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_194(%%esp)\n \
-    movl    0x1C0+point_a(%%esp),%%eax\n \
-    movl    0x1C0+var_AC(%%esp),%%ebx\n \
+    subl    %%eax,_gploc_194\n \
+    movl    _gploc_point_a,%%eax\n \
+    movl    _gploc_AC,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_188(%%esp)\n \
-    movl    0x1C0+point_a(%%esp),%%eax\n \
-    movl    0x1C0+var_A8(%%esp),%%ebx\n \
+    subl    %%eax,_gploc_188\n \
+    movl    _gploc_point_a,%%eax\n \
+    movl    _gploc_A8,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+point_c(%%esp)\n \
-    movl    0x1C0+point_b(%%esp),%%eax\n \
-    movl    0x1C0+var_B0(%%esp),%%ebx\n \
+    subl    %%eax,_gploc_point_c\n \
+    movl    _gploc_point_b,%%eax\n \
+    movl    _gploc_B0,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_198(%%esp)\n \
-    movl    0x1C0+point_b(%%esp),%%eax\n \
-    movl    0x1C0+var_AC(%%esp),%%ebx\n \
+    subl    %%eax,_gploc_198\n \
+    movl    _gploc_point_b,%%eax\n \
+    movl    _gploc_AC,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_18C(%%esp)\n \
-    movl    0x1C0+point_b(%%esp),%%eax\n \
-    movl    0x1C0+var_A8(%%esp),%%ebx\n \
+    subl    %%eax,_gploc_18C\n \
+    movl    _gploc_point_b,%%eax\n \
+    movl    _gploc_A8,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_1A0(%%esp)\n \
+    subl    %%eax,_gploc_1A0\n \
     jmp gpo_loc_07B0\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_0715:         # 3DE\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
-    subl    0x1C0+pt_ay(%%esp),%%ecx\n \
+    movl    _gploc_pt_cy,%%ecx\n \
+    subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_072E\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -834,8 +783,8 @@ gpo_loc_072E:         # 533\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_073C:         # 53C\n \
-    movl    0x1C0+var_13C(%%esp),%%eax\n \
-    subl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    _gploc_13C,%%eax\n \
+    subl    _gploc_16C,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -844,9 +793,9 @@ gpo_loc_073C:         # 53C\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0751:         # 55E\n \
-    movl    %%eax,0x1C0+var_194(%%esp)\n \
-    movl    0x1C0+var_138(%%esp),%%eax\n \
-    subl    0x1C0+var_168(%%esp),%%eax\n \
+    movl    %%eax,_gploc_194\n \
+    movl    _gploc_138,%%eax\n \
+    subl    _gploc_168,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -855,150 +804,163 @@ gpo_loc_0751:         # 55E\n \
     incl    %%eax\n \
 \n \
 gpo_loc_076A:         # 577\n \
-    movl    %%eax,0x1C0+var_188(%%esp)\n \
+    movl    %%eax,_gploc_188\n \
     movl    _factor_ca,%%eax\n \
-    movl    0x1C0+var_B0(%%esp),%%ebx\n \
+    movl    _gploc_B0,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_194(%%esp)\n \
+    subl    %%eax,_gploc_194\n \
     movl    _factor_ca,%%eax\n \
-    movl    0x1C0+var_AC(%%esp),%%ebx\n \
+    movl    _gploc_AC,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_188(%%esp)\n \
+    subl    %%eax,_gploc_188\n \
     movl    _factor_ca,%%eax\n \
-    movl    0x1C0+var_A8(%%esp),%%ebx\n \
+    movl    _gploc_A8,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+point_c(%%esp)\n \
+    subl    %%eax,_gploc_point_c\n \
 \n \
 gpo_loc_07B0:         # 520\n \
-    movl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    _gploc_16C,%%eax\n \
     shll    $0x10,%%eax\n \
-    addl    0x1C0+var_B0(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_54(%%esp)\n \
-    movl    0x1C0+var_168(%%esp),%%eax\n \
+    addl    _gploc_B0,%%eax\n \
+    movl    %%eax,_gploc_54\n \
+    movl    _gploc_168,%%eax\n \
     shll    $0x10,%%eax\n \
-    addl    0x1C0+var_AC(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_50(%%esp)\n \
-    movl    0x1C0+var_154(%%esp),%%eax\n \
+    addl    _gploc_AC,%%eax\n \
+    movl    %%eax,_gploc_50\n \
+    movl    _gploc_154,%%eax\n \
     shll    $0x10,%%eax\n \
-    addl    0x1C0+var_B0(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_48(%%esp)\n \
-    movl    0x1C0+var_150(%%esp),%%eax\n \
+    addl    _gploc_B0,%%eax\n \
+    movl    %%eax,_gploc_48\n \
+    movl    _gploc_150,%%eax\n \
     shll    $0x10,%%eax\n \
-    addl    0x1C0+var_AC(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_44(%%esp)\n \
-    movl    0x1C0+var_B0(%%esp),%%eax\n \
+    addl    _gploc_AC,%%eax\n \
+    movl    %%eax,_gploc_44\n \
+    movl    _gploc_B0,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movl    %%eax,0x1C0+var_BC(%%esp)\n \
-    movl    %%edx,0x1C0+var_B8(%%esp)\n \
-    movl    0x1C0+var_AC(%%esp),%%eax\n \
+    movl    %%eax,_gploc_BC\n \
+    movl    %%edx,_gploc_B8\n \
+    movl    _gploc_AC,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    0x1C0+var_AC(%%esp),%%edx\n \
+    movl    _gploc_AC,%%edx\n \
     sarl    $0x10,%%edx\n \
-    movb    0x1C0+var_B8(%%esp),%%al\n \
+    movb    _gploc_B8,%%al\n \
     orb %%al,%%al\n \
     jns gpo_loc_0848\n \
     subl    $0x100,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_0848:         # 64E\n \
-    movl    %%eax,0x1C0+var_B8(%%esp)\n \
-    movl    %%edx,0x1C0+var_B4(%%esp)\n \
-    movl    0x1C0+var_194(%%esp),%%eax\n \
+    movl    %%eax,_gploc_B8\n \
+    movl    %%edx,_gploc_B4\n \
+    movl    _gploc_194,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movl    %%eax,0x1C0+var_A4(%%esp)\n \
-    movl    %%edx,0x1C0+var_A0(%%esp)\n \
-    movl    0x1C0+var_188(%%esp),%%eax\n \
+    movl    %%eax,_gploc_A4\n \
+    movl    %%edx,_gploc_A0\n \
+    movl    _gploc_188,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    0x1C0+var_188(%%esp),%%edx\n \
+    movl    _gploc_188,%%edx\n \
     sarl    $0x10,%%edx\n \
-    movb    0x1C0+var_A0(%%esp),%%al\n \
+    movb    _gploc_A0,%%al\n \
     orb %%al,%%al\n \
     jns gpo_loc_0891\n \
     subl    $0x100,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_0891:         # 697\n \
-    movl    %%eax,0x1C0+var_A0(%%esp)\n \
-    movl    %%edx,0x1C0+var_9C(%%esp)\n \
-    movl    0x1C0+var_54(%%esp),%%ecx\n \
-    movl    0x1C0+var_50(%%esp),%%edx\n \
+    movl    %%eax,_gploc_A0\n \
+    movl    %%edx,_gploc_9C\n \
+    movl    _gploc_54,%%ecx\n \
+    movl    _gploc_50,%%edx\n \
     movl    %%ecx,%%eax\n \
     shll    $0x10,%%ecx\n \
     shrl    $0x10,%%eax\n \
-    movl    %%ecx,0x1C0+var_8C(%%esp)\n \
+    movl    %%ecx,_gploc_8C\n \
     movl    %%edx,%%ecx\n \
     shll    $0x10,%%ecx\n \
     shll    $8,%%edx\n \
     shrl    $0x18,%%edx\n \
     shll    $8,%%edx\n \
     movb    %%al,%%cl\n \
-    movl    %%ecx,0x1C0+var_88(%%esp)\n \
-    movl    %%edx,0x1C0+var_84(%%esp)\n \
+    movl    %%ecx,_gploc_88\n \
+    movl    %%edx,_gploc_84\n \
     movl    _factor_chk,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_096A\n \
-    movl    0x1C0+var_198(%%esp),%%eax\n \
+    movl    _gploc_198,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movl    %%eax,0x1C0+var_98(%%esp)\n \
-    movl    %%edx,0x1C0+var_94(%%esp)\n \
-    movl    0x1C0+var_18C(%%esp),%%eax\n \
+    movl    %%eax,_gploc_98\n \
+    movl    %%edx,_gploc_94\n \
+    movl    _gploc_18C,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    0x1C0+var_18C(%%esp),%%edx\n \
+    movl    _gploc_18C,%%edx\n \
     sarl    $0x10,%%edx\n \
-    movb    0x1C0+var_94(%%esp),%%al\n \
+    movb    _gploc_94,%%al\n \
     orb %%al,%%al\n \
     jns gpo_loc_0921\n \
     subl    $0x100,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_0921:         # 727\n \
-    movl    %%eax,0x1C0+var_94(%%esp)\n \
-    movl    %%edx,0x1C0+var_90(%%esp)\n \
-    movl    0x1C0+var_48(%%esp),%%ecx\n \
-    movl    0x1C0+var_44(%%esp),%%edx\n \
+    movl    %%eax,_gploc_94\n \
+    movl    %%edx,_gploc_90\n \
+    movl    _gploc_48,%%ecx\n \
+    movl    _gploc_44,%%edx\n \
     movl    %%ecx,%%eax\n \
     shll    $0x10,%%ecx\n \
     shrl    $0x10,%%eax\n \
-    movl    %%ecx,0x1C0+var_80(%%esp)\n \
+    movl    %%ecx,_gploc_80\n \
     movl    %%edx,%%ecx\n \
     shll    $0x10,%%ecx\n \
     shll    $8,%%edx\n \
     shrl    $0x18,%%edx\n \
     shll    $8,%%edx\n \
     movb    %%al,%%cl\n \
-    movl    %%ecx,0x1C0+var_7C(%%esp)\n \
-    movl    %%edx,0x1C0+var_78(%%esp)\n \
+    movl    %%ecx,_gploc_7C\n \
+    movl    %%edx,_gploc_78\n \
 \n \
 gpo_loc_096A:         # 6F0\n \
-    jmp gpo_case_break\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_096F:         # 3CB0\n \
-    movl    0x1C0+pt_bx(%%esp),%%esi\n \
+    popa    \n \
+" : : : "memory", "cc");
+        break;
+    case 28:
+    case 30:
+    case 35:
+    case 36:
+    case 39:
+    case 40:
+    case 92:
+    case 94:
+    case 99:
+    case 100:
+    case 103:
+    case 104:
+        asm volatile (" \
+    pusha   \n \
+    movl    _gploc_pt_bx,%%esi\n \
     movl    _factor_chk,%%edi\n \
     orl %%edi,%%edi\n \
     subl    $0,%%esi\n \
     addl    $0,%%esi\n \
-    movl    0x1C0+pt_ax(%%esp),%%eax\n \
+    movl    _gploc_pt_ax,%%eax\n \
     subl    %%eax,%%esi\n \
-    movl    0x1C0+pt_cx(%%esp),%%edi\n \
+    movl    _gploc_pt_cx,%%edi\n \
     subl    %%eax,%%edi\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    0x1C0+pt_by(%%esp),%%ebx\n \
+    movl    _gploc_pt_ay,%%eax\n \
+    movl    _gploc_pt_by,%%ebx\n \
     subl    %%eax,%%ebx\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
+    movl    _gploc_pt_cy,%%ecx\n \
     subl    %%eax,%%ecx\n \
     movl    %%ecx,%%eax\n \
     imull   %%esi,%%ecx\n \
@@ -1017,16 +979,16 @@ gpo_loc_09AC:         # 7B6\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ebx\n \
     movl    %%eax,%%ebp\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    0x1C0+pt_cy(%%esp),%%esi\n \
+    movl    _gploc_pt_ay,%%eax\n \
+    movl    _gploc_pt_cy,%%esi\n \
     subl    %%eax,%%esi\n \
-    movl    0x1C0+pt_by(%%esp),%%edi\n \
+    movl    _gploc_pt_by,%%edi\n \
     subl    %%eax,%%edi\n \
     movl    %%ebp,%%eax\n \
-    movl    0x1C0+var_170(%%esp),%%edx\n \
-    movl    0x1C0+var_140(%%esp),%%ebx\n \
+    movl    _gploc_170,%%edx\n \
+    movl    _gploc_140,%%ebx\n \
     subl    %%edx,%%ebx\n \
-    movl    0x1C0+var_158(%%esp),%%ecx\n \
+    movl    _gploc_158,%%ecx\n \
     subl    %%edx,%%ecx\n \
     imull   %%esi,%%ecx\n \
     imull   %%edi,%%ebx\n \
@@ -1040,12 +1002,12 @@ gpo_loc_09AC:         # 7B6\n \
     incl    %%eax\n \
 \n \
 gpo_loc_09FD:         # 80A\n \
-    movl    %%eax,0x1C0+var_A8(%%esp)\n \
+    movl    %%eax,_gploc_A8\n \
     movl    %%ebp,%%eax\n \
-    movl    0x1C0+var_16C(%%esp),%%edx\n \
-    movl    0x1C0+var_13C(%%esp),%%ebx\n \
+    movl    _gploc_16C,%%edx\n \
+    movl    _gploc_13C,%%ebx\n \
     subl    %%edx,%%ebx\n \
-    movl    0x1C0+var_154(%%esp),%%ecx\n \
+    movl    _gploc_154,%%ecx\n \
     subl    %%edx,%%ecx\n \
     imull   %%esi,%%ecx\n \
     imull   %%edi,%%ebx\n \
@@ -1059,12 +1021,12 @@ gpo_loc_09FD:         # 80A\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0A2D:         # 83A\n \
-    movl    %%eax,0x1C0+var_B0(%%esp)\n \
+    movl    %%eax,_gploc_B0\n \
     movl    %%ebp,%%eax\n \
-    movl    0x1C0+var_168(%%esp),%%edx\n \
-    movl    0x1C0+var_138(%%esp),%%ebx\n \
+    movl    _gploc_168,%%edx\n \
+    movl    _gploc_138,%%ebx\n \
     subl    %%edx,%%ebx\n \
-    movl    0x1C0+var_150(%%esp),%%ecx\n \
+    movl    _gploc_150,%%ecx\n \
     subl    %%edx,%%ecx\n \
     imull   %%esi,%%ecx\n \
     imull   %%edi,%%ebx\n \
@@ -1078,22 +1040,22 @@ gpo_loc_0A2D:         # 83A\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0A5D:         # 86A\n \
-    movl    %%eax,0x1C0+var_AC(%%esp)\n \
+    movl    %%eax,_gploc_AC\n \
     jmp gpo_loc_0A7D\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_0A66:         # 7C3\n \
     xorl    %%eax,%%eax\n \
-    movl    %%eax,0x1C0+var_A8(%%esp)\n \
-    movl    %%eax,0x1C0+var_B0(%%esp)\n \
-    movl    %%eax,0x1C0+var_AC(%%esp)\n \
+    movl    %%eax,_gploc_A8\n \
+    movl    %%eax,_gploc_B0\n \
+    movl    %%eax,_gploc_AC\n \
 \n \
 gpo_loc_0A7D:         # 87\n \
     movl    _factor_chk,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_0BFC\n \
-    movl    0x1C0+pt_by(%%esp),%%ecx\n \
-    subl    0x1C0+pt_ay(%%esp),%%ecx\n \
+    movl    _gploc_pt_by,%%ecx\n \
+    subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_0AA2\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1107,8 +1069,8 @@ gpo_loc_0AA2:         # 8A7\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_0AB0:         # 8B0\n \
-    movl    0x1C0+var_158(%%esp),%%eax\n \
-    subl    0x1C0+var_170(%%esp),%%eax\n \
+    movl    _gploc_158,%%eax\n \
+    subl    _gploc_170,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1117,9 +1079,9 @@ gpo_loc_0AB0:         # 8B0\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0AC5:         # 8D2\n \
-    movl    %%eax,0x1C0+point_c(%%esp)\n \
-    movl    0x1C0+var_154(%%esp),%%eax\n \
-    subl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    %%eax,_gploc_point_c\n \
+    movl    _gploc_154,%%eax\n \
+    subl    _gploc_16C,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1128,9 +1090,9 @@ gpo_loc_0AC5:         # 8D2\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0ADE:         # 8EB\n \
-    movl    %%eax,0x1C0+var_194(%%esp)\n \
-    movl    0x1C0+var_150(%%esp),%%eax\n \
-    subl    0x1C0+var_168(%%esp),%%eax\n \
+    movl    %%eax,_gploc_194\n \
+    movl    _gploc_150,%%eax\n \
+    subl    _gploc_168,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1139,9 +1101,9 @@ gpo_loc_0ADE:         # 8EB\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0AF7:         # 90\n \
-    movl    %%eax,0x1C0+var_188(%%esp)\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
-    subl    0x1C0+pt_by(%%esp),%%ecx\n \
+    movl    %%eax,_gploc_188\n \
+    movl    _gploc_pt_cy,%%ecx\n \
+    subl    _gploc_pt_by,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_0B14\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1155,8 +1117,8 @@ gpo_loc_0B14:         # 91\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_0B22:         # 922\n \
-    movl    0x1C0+var_140(%%esp),%%eax\n \
-    subl    0x1C0+var_158(%%esp),%%eax\n \
+    movl    _gploc_140,%%eax\n \
+    subl    _gploc_158,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1165,9 +1127,9 @@ gpo_loc_0B22:         # 922\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0B37:         # 94\n \
-    movl    %%eax,0x1C0+var_1A0(%%esp)\n \
-    movl    0x1C0+var_13C(%%esp),%%eax\n \
-    subl    0x1C0+var_154(%%esp),%%eax\n \
+    movl    %%eax,_gploc_1A0\n \
+    movl    _gploc_13C,%%eax\n \
+    subl    _gploc_154,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1176,9 +1138,9 @@ gpo_loc_0B37:         # 94\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0B50:         # 95D\n \
-    movl    %%eax,0x1C0+var_198(%%esp)\n \
-    movl    0x1C0+var_138(%%esp),%%eax\n \
-    subl    0x1C0+var_150(%%esp),%%eax\n \
+    movl    %%eax,_gploc_198\n \
+    movl    _gploc_138,%%eax\n \
+    subl    _gploc_150,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1187,49 +1149,49 @@ gpo_loc_0B50:         # 95D\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0B69:         # 976\n \
-    movl    %%eax,0x1C0+var_18C(%%esp)\n \
-    movl    0x1C0+point_a(%%esp),%%eax\n \
-    movl    0x1C0+var_B0(%%esp),%%ebx\n \
+    movl    %%eax,_gploc_18C\n \
+    movl    _gploc_point_a,%%eax\n \
+    movl    _gploc_B0,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_194(%%esp)\n \
-    movl    0x1C0+point_a(%%esp),%%eax\n \
-    movl    0x1C0+var_AC(%%esp),%%ebx\n \
+    subl    %%eax,_gploc_194\n \
+    movl    _gploc_point_a,%%eax\n \
+    movl    _gploc_AC,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_188(%%esp)\n \
-    movl    0x1C0+point_a(%%esp),%%eax\n \
-    movl    0x1C0+var_A8(%%esp),%%ebx\n \
+    subl    %%eax,_gploc_188\n \
+    movl    _gploc_point_a,%%eax\n \
+    movl    _gploc_A8,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+point_c(%%esp)\n \
-    movl    0x1C0+point_b(%%esp),%%eax\n \
-    movl    0x1C0+var_B0(%%esp),%%ebx\n \
+    subl    %%eax,_gploc_point_c\n \
+    movl    _gploc_point_b,%%eax\n \
+    movl    _gploc_B0,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_198(%%esp)\n \
-    movl    0x1C0+point_b(%%esp),%%eax\n \
-    movl    0x1C0+var_AC(%%esp),%%ebx\n \
+    subl    %%eax,_gploc_198\n \
+    movl    _gploc_point_b,%%eax\n \
+    movl    _gploc_AC,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_18C(%%esp)\n \
-    movl    0x1C0+point_b(%%esp),%%eax\n \
-    movl    0x1C0+var_A8(%%esp),%%ebx\n \
+    subl    %%eax,_gploc_18C\n \
+    movl    _gploc_point_b,%%eax\n \
+    movl    _gploc_A8,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_1A0(%%esp)\n \
+    subl    %%eax,_gploc_1A0\n \
     jmp gpo_loc_0CB0\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_0BFC:         # 893\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
-    subl    0x1C0+pt_ay(%%esp),%%ecx\n \
+    movl    _gploc_pt_cy,%%ecx\n \
+    subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_0C15\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1243,8 +1205,8 @@ gpo_loc_0C15:         # A1A\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_0C23:         # A23\n \
-    movl    0x1C0+var_140(%%esp),%%eax\n \
-    subl    0x1C0+var_170(%%esp),%%eax\n \
+    movl    _gploc_140,%%eax\n \
+    subl    _gploc_170,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1253,9 +1215,9 @@ gpo_loc_0C23:         # A23\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0C38:         # A45\n \
-    movl    %%eax,0x1C0+point_c(%%esp)\n \
-    movl    0x1C0+var_13C(%%esp),%%eax\n \
-    subl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    %%eax,_gploc_point_c\n \
+    movl    _gploc_13C,%%eax\n \
+    subl    _gploc_16C,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1264,9 +1226,9 @@ gpo_loc_0C38:         # A45\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0C51:         # A5E\n \
-    movl    %%eax,0x1C0+var_194(%%esp)\n \
-    movl    0x1C0+var_138(%%esp),%%eax\n \
-    subl    0x1C0+var_168(%%esp),%%eax\n \
+    movl    %%eax,_gploc_194\n \
+    movl    _gploc_138,%%eax\n \
+    subl    _gploc_168,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1275,216 +1237,222 @@ gpo_loc_0C51:         # A5E\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0C6A:         # A77\n \
-    movl    %%eax,0x1C0+var_188(%%esp)\n \
+    movl    %%eax,_gploc_188\n \
     movl    _factor_ca,%%eax\n \
-    movl    0x1C0+var_B0(%%esp),%%ebx\n \
+    movl    _gploc_B0,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_194(%%esp)\n \
+    subl    %%eax,_gploc_194\n \
     movl    _factor_ca,%%eax\n \
-    movl    0x1C0+var_AC(%%esp),%%ebx\n \
+    movl    _gploc_AC,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_188(%%esp)\n \
+    subl    %%eax,_gploc_188\n \
     movl    _factor_ca,%%eax\n \
-    movl    0x1C0+var_A8(%%esp),%%ebx\n \
+    movl    _gploc_A8,%%ebx\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+point_c(%%esp)\n \
+    subl    %%eax,_gploc_point_c\n \
 \n \
 gpo_loc_0CB0:         # A07\n \
-    movl    0x1C0+var_170(%%esp),%%eax\n \
+    movl    _gploc_170,%%eax\n \
     shll    $0x10,%%eax\n \
-    addl    0x1C0+var_A8(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_58(%%esp)\n \
-    movl    0x1C0+var_16C(%%esp),%%eax\n \
+    addl    _gploc_A8,%%eax\n \
+    movl    %%eax,_gploc_58\n \
+    movl    _gploc_16C,%%eax\n \
     shll    $0x10,%%eax\n \
-    addl    0x1C0+var_B0(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_54(%%esp)\n \
-    movl    0x1C0+var_168(%%esp),%%eax\n \
+    addl    _gploc_B0,%%eax\n \
+    movl    %%eax,_gploc_54\n \
+    movl    _gploc_168,%%eax\n \
     shll    $0x10,%%eax\n \
-    addl    0x1C0+var_AC(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_50(%%esp)\n \
-    movl    0x1C0+var_158(%%esp),%%eax\n \
+    addl    _gploc_AC,%%eax\n \
+    movl    %%eax,_gploc_50\n \
+    movl    _gploc_158,%%eax\n \
     shll    $0x10,%%eax\n \
-    addl    0x1C0+var_A8(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_4C(%%esp)\n \
-    movl    0x1C0+var_154(%%esp),%%eax\n \
+    addl    _gploc_A8,%%eax\n \
+    movl    %%eax,_gploc_4C\n \
+    movl    _gploc_154,%%eax\n \
     shll    $0x10,%%eax\n \
-    addl    0x1C0+var_B0(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_48(%%esp)\n \
-    movl    0x1C0+var_150(%%esp),%%eax\n \
+    addl    _gploc_B0,%%eax\n \
+    movl    %%eax,_gploc_48\n \
+    movl    _gploc_150,%%eax\n \
     shll    $0x10,%%eax\n \
-    addl    0x1C0+var_AC(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_44(%%esp)\n \
-    movl    0x1C0+var_B0(%%esp),%%eax\n \
+    addl    _gploc_AC,%%eax\n \
+    movl    %%eax,_gploc_44\n \
+    movl    _gploc_B0,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movw    0x1C0+var_A7(%%esp),%%ax\n \
+    movw    _gploc_word03,%%ax\n \
     orw %%ax,%%ax\n \
     jns gpo_loc_0D52\n \
     subl    $0x10000,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_0D52:         # B58\n \
-    movl    %%eax,0x1C0+var_BC(%%esp)\n \
-    movl    %%edx,0x1C0+var_B8(%%esp)\n \
-    movl    0x1C0+var_AC(%%esp),%%eax\n \
+    movl    %%eax,_gploc_BC\n \
+    movl    %%edx,_gploc_B8\n \
+    movl    _gploc_AC,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    0x1C0+var_AC(%%esp),%%edx\n \
+    movl    _gploc_AC,%%edx\n \
     sarl    $0x10,%%edx\n \
-    movb    0x1C0+var_B8(%%esp),%%al\n \
+    movb    _gploc_B8,%%al\n \
     orb %%al,%%al\n \
     jns gpo_loc_0D87\n \
     subl    $0x100,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_0D87:         # B8D\n \
-    movl    %%eax,0x1C0+var_B8(%%esp)\n \
-    movl    %%edx,0x1C0+var_B4(%%esp)\n \
-    movl    0x1C0+var_B0(%%esp),%%eax\n \
+    movl    %%eax,_gploc_B8\n \
+    movl    %%edx,_gploc_B4\n \
+    movl    _gploc_B0,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movw    0x1C0+var_A7(%%esp),%%ax\n \
+    movw    _gploc_word03,%%ax\n \
     orw %%ax,%%ax\n \
     jns gpo_loc_0DB9\n \
     subl    $0x0FFFF,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_0DB9:         # BB\n \
-    movl    %%eax,0x1C0+var_5C(%%esp)\n \
-    movl    %%edx,0x1C0+var_2C(%%esp)\n \
-    movl    0x1C0+var_AC(%%esp),%%eax\n \
+    movl    %%eax,_gploc_5C\n \
+    movl    %%edx,_gploc_2C\n \
+    movl    _gploc_AC,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    0x1C0+var_AC(%%esp),%%edx\n \
+    movl    _gploc_AC,%%edx\n \
     sarl    $0x10,%%edx\n \
-    movb    0x1C0+var_2C(%%esp),%%al\n \
+    movb    _gploc_2C,%%al\n \
     orb %%al,%%al\n \
     jns gpo_loc_0DEE\n \
     subl    $0x100,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_0DEE:         # BF\n \
-    movl    %%eax,0x1C0+var_2C(%%esp)\n \
-    movl    %%edx,0x1C0+var_28(%%esp)\n \
-    movl    0x1C0+var_194(%%esp),%%eax\n \
+    movl    %%eax,_gploc_2C\n \
+    movl    %%edx,_gploc_28\n \
+    movl    _gploc_194,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movw    0x1C0+point_c+1(%%esp),%%ax\n \
+    movw    _gploc_word01,%%ax\n \
     orw %%ax,%%ax\n \
     jns gpo_loc_0E1A\n \
     subl    $0x10000,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_0E1A:         # C20\n \
-    movl    %%eax,0x1C0+var_A4(%%esp)\n \
-    movl    %%edx,0x1C0+var_A0(%%esp)\n \
-    movl    0x1C0+var_188(%%esp),%%eax\n \
+    movl    %%eax,_gploc_A4\n \
+    movl    %%edx,_gploc_A0\n \
+    movl    _gploc_188,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    0x1C0+var_188(%%esp),%%edx\n \
+    movl    _gploc_188,%%edx\n \
     sarl    $0x10,%%edx\n \
-    movb    0x1C0+var_A0(%%esp),%%al\n \
+    movb    _gploc_A0,%%al\n \
     orb %%al,%%al\n \
     jns gpo_loc_0E49\n \
     subl    $0x100,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_0E49:         # C4\n \
-    movl    %%eax,0x1C0+var_A0(%%esp)\n \
-    movl    %%edx,0x1C0+var_9C(%%esp)\n \
-    movl    0x1C0+var_58(%%esp),%%ebx\n \
-    movl    0x1C0+var_54(%%esp),%%ecx\n \
-    movl    0x1C0+var_50(%%esp),%%edx\n \
-    movb    %%bl,0x1C0+var_84(%%esp)\n \
+    movl    %%eax,_gploc_A0\n \
+    movl    %%edx,_gploc_9C\n \
+    movl    _gploc_58,%%ebx\n \
+    movl    _gploc_54,%%ecx\n \
+    movl    _gploc_50,%%edx\n \
+    movb    %%bl,_gploc_84\n \
     shrl    $8,%%ebx\n \
     movl    %%ecx,%%eax\n \
     shll    $0x10,%%ecx\n \
     shrl    $0x10,%%eax\n \
     movw    %%bx,%%cx\n \
-    movl    %%ecx,0x1C0+var_8C(%%esp)\n \
+    movl    %%ecx,_gploc_8C\n \
     movl    %%edx,%%ecx\n \
     shll    $0x10,%%ecx\n \
     shll    $8,%%edx\n \
     shrl    $0x18,%%edx\n \
     shll    $8,%%edx\n \
     movb    %%al,%%cl\n \
-    movl    %%ecx,0x1C0+var_88(%%esp)\n \
-    movb    0x1C0+var_84(%%esp),%%dl\n \
-    movl    %%edx,0x1C0+var_84(%%esp)\n \
+    movl    %%ecx,_gploc_88\n \
+    movb    _gploc_84,%%dl\n \
+    movl    %%edx,_gploc_84\n \
     movl    _factor_chk,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_0F6A\n \
-    movl    0x1C0+var_198(%%esp),%%eax\n \
+    movl    _gploc_198,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movw    0x1C0+var_19F(%%esp),%%ax\n \
+    movw    _gploc_word02,%%ax\n \
     orw %%ax,%%ax\n \
     jns gpo_loc_0ED7\n \
     subl    $0x10000,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_0ED7:         # CDD\n \
-    movl    %%eax,0x1C0+var_98(%%esp)\n \
-    movl    %%edx,0x1C0+var_94(%%esp)\n \
-    movl    0x1C0+var_18C(%%esp),%%eax\n \
+    movl    %%eax,_gploc_98\n \
+    movl    %%edx,_gploc_94\n \
+    movl    _gploc_18C,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    0x1C0+var_18C(%%esp),%%edx\n \
+    movl    _gploc_18C,%%edx\n \
     sarl    $0x10,%%edx\n \
-    movb    0x1C0+var_94(%%esp),%%al\n \
+    movb    _gploc_94,%%al\n \
     orb %%al,%%al\n \
     jns gpo_loc_0F06\n \
     subl    $0x100,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_0F06:         # D0C\n \
-    movl    %%eax,0x1C0+var_94(%%esp)\n \
-    movl    %%edx,0x1C0+var_90(%%esp)\n \
-    movl    0x1C0+var_4C(%%esp),%%ebx\n \
-    movl    0x1C0+var_48(%%esp),%%ecx\n \
-    movl    0x1C0+var_44(%%esp),%%edx\n \
-    movb    %%bl,0x1C0+var_78(%%esp)\n \
+    movl    %%eax,_gploc_94\n \
+    movl    %%edx,_gploc_90\n \
+    movl    _gploc_4C,%%ebx\n \
+    movl    _gploc_48,%%ecx\n \
+    movl    _gploc_44,%%edx\n \
+    movb    %%bl,_gploc_78\n \
     shrl    $8,%%ebx\n \
     movl    %%ecx,%%eax\n \
     shll    $0x10,%%ecx\n \
     shrl    $0x10,%%eax\n \
     movw    %%bx,%%cx\n \
-    movl    %%ecx,0x1C0+var_80(%%esp)\n \
+    movl    %%ecx,_gploc_80\n \
     movl    %%edx,%%ecx\n \
     shll    $0x10,%%ecx\n \
     shll    $8,%%edx\n \
     shrl    $0x18,%%edx\n \
     shll    $8,%%edx\n \
     movb    %%al,%%cl\n \
-    movl    %%ecx,0x1C0+var_7C(%%esp)\n \
-    movb    0x1C0+var_78(%%esp),%%dl\n \
-    movl    %%edx,0x1C0+var_78(%%esp)\n \
+    movl    %%ecx,_gploc_7C\n \
+    movb    _gploc_78,%%dl\n \
+    movl    %%edx,_gploc_78\n \
 \n \
 gpo_loc_0F6A:         # CC3\n \
-    jmp gpo_case_break\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_case_4:         # 3C50\n \
-# draw_gpoly_+3C80 ...\n \
-    movl    0x1C0+pt_bx(%%esp),%%esi\n \
+    popa    \n \
+" : : : "memory", "cc");
+        break;
+    case 4:
+    case 16:
+    case 17:
+    case 68:
+    case 80:
+    case 81:
+        asm volatile (" \
+    pusha   \n \
+    movl    _gploc_pt_bx,%%esi\n \
     movl    _factor_chk,%%edi\n \
     orl %%edi,%%edi\n \
     subl    $0,%%esi\n \
     addl    $0,%%esi\n \
-    movl    0x1C0+pt_ax(%%esp),%%eax\n \
+    movl    _gploc_pt_ax,%%eax\n \
     subl    %%eax,%%esi\n \
-    movl    0x1C0+pt_cx(%%esp),%%edi\n \
+    movl    _gploc_pt_cx,%%edi\n \
     subl    %%eax,%%edi\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    0x1C0+pt_by(%%esp),%%ebx\n \
+    movl    _gploc_pt_ay,%%eax\n \
+    movl    _gploc_pt_by,%%ebx\n \
     subl    %%eax,%%ebx\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
+    movl    _gploc_pt_cy,%%ecx\n \
     subl    %%eax,%%ecx\n \
     movl    %%ecx,%%eax\n \
     imull   %%esi,%%ecx\n \
@@ -1503,16 +1471,16 @@ gpo_loc_0FAC:         # DB6\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ebx\n \
     movl    %%eax,%%ebp\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    0x1C0+pt_cy(%%esp),%%esi\n \
+    movl    _gploc_pt_ay,%%eax\n \
+    movl    _gploc_pt_cy,%%esi\n \
     subl    %%eax,%%esi\n \
-    movl    0x1C0+pt_by(%%esp),%%edi\n \
+    movl    _gploc_pt_by,%%edi\n \
     subl    %%eax,%%edi\n \
     movl    %%ebp,%%eax\n \
-    movl    0x1C0+var_170(%%esp),%%edx\n \
-    movl    0x1C0+var_140(%%esp),%%ebx\n \
+    movl    _gploc_170,%%edx\n \
+    movl    _gploc_140,%%ebx\n \
     subl    %%edx,%%ebx\n \
-    movl    0x1C0+var_158(%%esp),%%ecx\n \
+    movl    _gploc_158,%%ecx\n \
     subl    %%edx,%%ecx\n \
     imull   %%esi,%%ecx\n \
     imull   %%edi,%%ebx\n \
@@ -1526,20 +1494,20 @@ gpo_loc_0FAC:         # DB6\n \
     incl    %%eax\n \
 \n \
 gpo_loc_0FF9:         # E06\n \
-    movl    %%eax,0x1C0+var_A8(%%esp)\n \
+    movl    %%eax,_gploc_A8\n \
     jmp gpo_loc_100B\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_1002:         # DC3\n \
     xorl    %%eax,%%eax\n \
-    movl    %%eax,0x1C0+var_A8(%%esp)\n \
+    movl    %%eax,_gploc_A8\n \
 \n \
 gpo_loc_100B:         # E10\n \
     movl    _factor_chk,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_1099\n \
-    movl    0x1C0+pt_by(%%esp),%%ecx\n \
-    subl    0x1C0+pt_ay(%%esp),%%ecx\n \
+    movl    _gploc_pt_by,%%ecx\n \
+    subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_1030\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1553,8 +1521,8 @@ gpo_loc_1030:         # E35\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_103E:         # E3E\n \
-    movl    0x1C0+var_158(%%esp),%%eax\n \
-    subl    0x1C0+var_170(%%esp),%%eax\n \
+    movl    _gploc_158,%%eax\n \
+    subl    _gploc_170,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1563,9 +1531,9 @@ gpo_loc_103E:         # E3E\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1053:         # E60\n \
-    movl    %%eax,0x1C0+point_c(%%esp)\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
-    subl    0x1C0+pt_by(%%esp),%%ecx\n \
+    movl    %%eax,_gploc_point_c\n \
+    movl    _gploc_pt_cy,%%ecx\n \
+    subl    _gploc_pt_by,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_1070\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1579,8 +1547,8 @@ gpo_loc_1070:         # E75\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_107E:         # E7E\n \
-    movl    0x1C0+var_140(%%esp),%%eax\n \
-    subl    0x1C0+var_158(%%esp),%%eax\n \
+    movl    _gploc_140,%%eax\n \
+    subl    _gploc_158,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1589,13 +1557,13 @@ gpo_loc_107E:         # E7E\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1093:         # EA0\n \
-    movl    %%eax,0x1C0+var_1A0(%%esp)\n \
+    movl    %%eax,_gploc_1A0\n \
     jmp gpo_loc_10D9\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_1099:         # E2\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
-    subl    0x1C0+pt_ay(%%esp),%%ecx\n \
+    movl    _gploc_pt_cy,%%ecx\n \
+    subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_10B2\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1609,8 +1577,8 @@ gpo_loc_10B2:         # EB7\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_10C0:         # EC0\n \
-    movl    0x1C0+var_140(%%esp),%%eax\n \
-    subl    0x1C0+var_170(%%esp),%%eax\n \
+    movl    _gploc_140,%%eax\n \
+    subl    _gploc_170,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1619,33 +1587,47 @@ gpo_loc_10C0:         # EC0\n \
     incl    %%eax\n \
 \n \
 gpo_loc_10D5:         # EE2\n \
-    movl    %%eax,0x1C0+point_c(%%esp)\n \
+    movl    %%eax,_gploc_point_c\n \
 \n \
 gpo_loc_10D9:         # EA7\n \
-    movl    0x1C0+var_170(%%esp),%%eax\n \
+    movl    _gploc_170,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_58(%%esp)\n \
-    movl    0x1C0+var_158(%%esp),%%eax\n \
+    movl    %%eax,_gploc_58\n \
+    movl    _gploc_158,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_4C(%%esp)\n \
-    jmp gpo_case_break\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_case_3:         # 3C4C\n \
-# draw_gpoly_+3C70 ...\n \
-    movl    0x1C0+pt_bx(%%esp),%%esi\n \
+    movl    %%eax,_gploc_4C\n \
+    popa    \n \
+" : : : "memory", "cc");
+        break;
+    case 3:
+    case 12:
+    case 13:
+    case 18:
+    case 19:
+    case 22:
+    case 23:
+    case 67:
+    case 76:
+    case 77:
+    case 82:
+    case 83:
+    case 86:
+    case 87:
+        asm volatile (" \
+    pusha   \n \
+    movl    _gploc_pt_bx,%%esi\n \
     movl    _factor_chk,%%edi\n \
     orl %%edi,%%edi\n \
     subl    $0,%%esi\n \
     addl    $0,%%esi\n \
-    movl    0x1C0+pt_ax(%%esp),%%eax\n \
+    movl    _gploc_pt_ax,%%eax\n \
     subl    %%eax,%%esi\n \
-    movl    0x1C0+pt_cx(%%esp),%%edi\n \
+    movl    _gploc_pt_cx,%%edi\n \
     subl    %%eax,%%edi\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    0x1C0+pt_by(%%esp),%%ebx\n \
+    movl    _gploc_pt_ay,%%eax\n \
+    movl    _gploc_pt_by,%%ebx\n \
     subl    %%eax,%%ebx\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
+    movl    _gploc_pt_cy,%%ecx\n \
     subl    %%eax,%%ecx\n \
     movl    %%ecx,%%eax\n \
     imull   %%esi,%%ecx\n \
@@ -1664,16 +1646,16 @@ gpo_loc_1137:         # F4\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ebx\n \
     movl    %%eax,%%ebp\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    0x1C0+pt_cy(%%esp),%%esi\n \
+    movl    _gploc_pt_ay,%%eax\n \
+    movl    _gploc_pt_cy,%%esi\n \
     subl    %%eax,%%esi\n \
-    movl    0x1C0+pt_by(%%esp),%%edi\n \
+    movl    _gploc_pt_by,%%edi\n \
     subl    %%eax,%%edi\n \
     movl    %%ebp,%%eax\n \
-    movl    0x1C0+var_16C(%%esp),%%edx\n \
-    movl    0x1C0+var_13C(%%esp),%%ebx\n \
+    movl    _gploc_16C,%%edx\n \
+    movl    _gploc_13C,%%ebx\n \
     subl    %%edx,%%ebx\n \
-    movl    0x1C0+var_154(%%esp),%%ecx\n \
+    movl    _gploc_154,%%ecx\n \
     subl    %%edx,%%ecx\n \
     imull   %%esi,%%ecx\n \
     imull   %%edi,%%ebx\n \
@@ -1687,12 +1669,12 @@ gpo_loc_1137:         # F4\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1184:         # F9\n \
-    movl    %%eax,0x1C0+var_B0(%%esp)\n \
+    movl    %%eax,_gploc_B0\n \
     movl    %%ebp,%%eax\n \
-    movl    0x1C0+var_168(%%esp),%%edx\n \
-    movl    0x1C0+var_138(%%esp),%%ebx\n \
+    movl    _gploc_168,%%edx\n \
+    movl    _gploc_138,%%ebx\n \
     subl    %%edx,%%ebx\n \
-    movl    0x1C0+var_150(%%esp),%%ecx\n \
+    movl    _gploc_150,%%ecx\n \
     subl    %%edx,%%ecx\n \
     imull   %%esi,%%ecx\n \
     imull   %%edi,%%ebx\n \
@@ -1706,21 +1688,21 @@ gpo_loc_1184:         # F9\n \
     incl    %%eax\n \
 \n \
 gpo_loc_11B4:         # FC\n \
-    movl    %%eax,0x1C0+var_AC(%%esp)\n \
+    movl    %%eax,_gploc_AC\n \
     jmp gpo_loc_11CD\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_11BD:         # F4E\n \
     xorl    %%eax,%%eax\n \
-    movl    %%eax,0x1C0+var_B0(%%esp)\n \
-    movl    %%eax,0x1C0+var_AC(%%esp)\n \
+    movl    %%eax,_gploc_B0\n \
+    movl    %%eax,_gploc_AC\n \
 \n \
 gpo_loc_11CD:         # FCB\n \
     movl    _factor_chk,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_128D\n \
-    movl    0x1C0+pt_by(%%esp),%%ecx\n \
-    subl    0x1C0+pt_ay(%%esp),%%ecx\n \
+    movl    _gploc_pt_by,%%ecx\n \
+    subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_11F2\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1734,8 +1716,8 @@ gpo_loc_11F2:         # FF7\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_1200:         # 1000\n \
-    movl    0x1C0+var_154(%%esp),%%eax\n \
-    subl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    _gploc_154,%%eax\n \
+    subl    _gploc_16C,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1744,9 +1726,9 @@ gpo_loc_1200:         # 1000\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1215:         # 1022\n \
-    movl    %%eax,0x1C0+var_194(%%esp)\n \
-    movl    0x1C0+var_150(%%esp),%%eax\n \
-    subl    0x1C0+var_168(%%esp),%%eax\n \
+    movl    %%eax,_gploc_194\n \
+    movl    _gploc_150,%%eax\n \
+    subl    _gploc_168,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1755,9 +1737,9 @@ gpo_loc_1215:         # 1022\n \
     incl    %%eax\n \
 \n \
 gpo_loc_122E:         # 103B\n \
-    movl    %%eax,0x1C0+var_188(%%esp)\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
-    subl    0x1C0+pt_by(%%esp),%%ecx\n \
+    movl    %%eax,_gploc_188\n \
+    movl    _gploc_pt_cy,%%ecx\n \
+    subl    _gploc_pt_by,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_124B\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1771,8 +1753,8 @@ gpo_loc_124B:         # 1050\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_1259:         # 105\n \
-    movl    0x1C0+var_13C(%%esp),%%eax\n \
-    subl    0x1C0+var_154(%%esp),%%eax\n \
+    movl    _gploc_13C,%%eax\n \
+    subl    _gploc_154,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1781,9 +1763,9 @@ gpo_loc_1259:         # 105\n \
     incl    %%eax\n \
 \n \
 gpo_loc_126E:         # 107B\n \
-    movl    %%eax,0x1C0+var_198(%%esp)\n \
-    movl    0x1C0+var_138(%%esp),%%eax\n \
-    subl    0x1C0+var_150(%%esp),%%eax\n \
+    movl    %%eax,_gploc_198\n \
+    movl    _gploc_138,%%eax\n \
+    subl    _gploc_150,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1792,13 +1774,13 @@ gpo_loc_126E:         # 107B\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1287:         # 109\n \
-    movl    %%eax,0x1C0+var_18C(%%esp)\n \
+    movl    %%eax,_gploc_18C\n \
     jmp gpo_loc_12E6\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_128D:         # FE3\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
-    subl    0x1C0+pt_ay(%%esp),%%ecx\n \
+    movl    _gploc_pt_cy,%%ecx\n \
+    subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_12A6\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1812,8 +1794,8 @@ gpo_loc_12A6:         # 10AB\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_12B4:         # 10B\n \
-    movl    0x1C0+var_13C(%%esp),%%eax\n \
-    subl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    _gploc_13C,%%eax\n \
+    subl    _gploc_16C,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1822,9 +1804,9 @@ gpo_loc_12B4:         # 10B\n \
     incl    %%eax\n \
 \n \
 gpo_loc_12C9:         # 10D6\n \
-    movl    %%eax,0x1C0+var_194(%%esp)\n \
-    movl    0x1C0+var_138(%%esp),%%eax\n \
-    subl    0x1C0+var_168(%%esp),%%eax\n \
+    movl    %%eax,_gploc_194\n \
+    movl    _gploc_138,%%eax\n \
+    subl    _gploc_168,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -1833,129 +1815,131 @@ gpo_loc_12C9:         # 10D6\n \
     incl    %%eax\n \
 \n \
 gpo_loc_12E2:         # 10E\n \
-    movl    %%eax,0x1C0+var_188(%%esp)\n \
+    movl    %%eax,_gploc_188\n \
 \n \
 gpo_loc_12E6:         # 109B\n \
-    movl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    _gploc_16C,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_54(%%esp)\n \
-    movl    0x1C0+var_168(%%esp),%%eax\n \
+    movl    %%eax,_gploc_54\n \
+    movl    _gploc_168,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_50(%%esp)\n \
-    movl    0x1C0+var_154(%%esp),%%eax\n \
+    movl    %%eax,_gploc_50\n \
+    movl    _gploc_154,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_48(%%esp)\n \
-    movl    0x1C0+var_150(%%esp),%%eax\n \
+    movl    %%eax,_gploc_48\n \
+    movl    _gploc_150,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_44(%%esp)\n \
-    movl    0x1C0+var_B0(%%esp),%%eax\n \
+    movl    %%eax,_gploc_44\n \
+    movl    _gploc_B0,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movl    %%eax,0x1C0+var_BC(%%esp)\n \
-    movl    %%edx,0x1C0+var_B8(%%esp)\n \
-    movl    0x1C0+var_AC(%%esp),%%eax\n \
+    movl    %%eax,_gploc_BC\n \
+    movl    %%edx,_gploc_B8\n \
+    movl    _gploc_AC,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    0x1C0+var_AC(%%esp),%%edx\n \
+    movl    _gploc_AC,%%edx\n \
     sarl    $0x10,%%edx\n \
-    movb    0x1C0+var_B8(%%esp),%%al\n \
+    movb    _gploc_B8,%%al\n \
     orb %%al,%%al\n \
     jns gpo_loc_1362\n \
     subl    $0x100,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_1362:         # 1168\n \
-    movl    %%eax,0x1C0+var_B8(%%esp)\n \
-    movl    %%edx,0x1C0+var_B4(%%esp)\n \
-    movl    0x1C0+var_194(%%esp),%%eax\n \
+    movl    %%eax,_gploc_B8\n \
+    movl    %%edx,_gploc_B4\n \
+    movl    _gploc_194,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movl    %%eax,0x1C0+var_A4(%%esp)\n \
-    movl    %%edx,0x1C0+var_A0(%%esp)\n \
-    movl    0x1C0+var_188(%%esp),%%eax\n \
+    movl    %%eax,_gploc_A4\n \
+    movl    %%edx,_gploc_A0\n \
+    movl    _gploc_188,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    0x1C0+var_188(%%esp),%%edx\n \
+    movl    _gploc_188,%%edx\n \
     sarl    $0x10,%%edx\n \
-    movb    0x1C0+var_A0(%%esp),%%al\n \
+    movb    _gploc_A0,%%al\n \
     orb %%al,%%al\n \
     jns gpo_loc_13AB\n \
     subl    $0x100,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_13AB:         # 11B\n \
-    movl    %%eax,0x1C0+var_A0(%%esp)\n \
-    movl    %%edx,0x1C0+var_9C(%%esp)\n \
-    movl    0x1C0+var_54(%%esp),%%ecx\n \
-    movl    0x1C0+var_50(%%esp),%%edx\n \
+    movl    %%eax,_gploc_A0\n \
+    movl    %%edx,_gploc_9C\n \
+    movl    _gploc_54,%%ecx\n \
+    movl    _gploc_50,%%edx\n \
     movl    %%ecx,%%eax\n \
     shll    $0x10,%%ecx\n \
     shrl    $0x10,%%eax\n \
-    movl    %%ecx,0x1C0+var_8C(%%esp)\n \
+    movl    %%ecx,_gploc_8C\n \
     movl    %%edx,%%ecx\n \
     shll    $0x10,%%ecx\n \
     shll    $8,%%edx\n \
     shrl    $0x18,%%edx\n \
     shll    $8,%%edx\n \
     movb    %%al,%%cl\n \
-    movl    %%ecx,0x1C0+var_88(%%esp)\n \
-    movl    %%edx,0x1C0+var_84(%%esp)\n \
+    movl    %%ecx,_gploc_88\n \
+    movl    %%edx,_gploc_84\n \
     movl    _factor_chk,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_1484\n \
-    movl    0x1C0+var_198(%%esp),%%eax\n \
+    movl    _gploc_198,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movl    %%eax,0x1C0+var_98(%%esp)\n \
-    movl    %%edx,0x1C0+var_94(%%esp)\n \
-    movl    0x1C0+var_18C(%%esp),%%eax\n \
+    movl    %%eax,_gploc_98\n \
+    movl    %%edx,_gploc_94\n \
+    movl    _gploc_18C,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    0x1C0+var_18C(%%esp),%%edx\n \
+    movl    _gploc_18C,%%edx\n \
     sarl    $0x10,%%edx\n \
-    movb    0x1C0+var_94(%%esp),%%al\n \
+    movb    _gploc_94,%%al\n \
     orb %%al,%%al\n \
     jns gpo_loc_143B\n \
     subl    $0x100,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_143B:         # 124\n \
-    movl    %%eax,0x1C0+var_94(%%esp)\n \
-    movl    %%edx,0x1C0+var_90(%%esp)\n \
-    movl    0x1C0+var_48(%%esp),%%ecx\n \
-    movl    0x1C0+var_44(%%esp),%%edx\n \
+    movl    %%eax,_gploc_94\n \
+    movl    %%edx,_gploc_90\n \
+    movl    _gploc_48,%%ecx\n \
+    movl    _gploc_44,%%edx\n \
     movl    %%ecx,%%eax\n \
     shll    $0x10,%%ecx\n \
     shrl    $0x10,%%eax\n \
-    movl    %%ecx,0x1C0+var_80(%%esp)\n \
+    movl    %%ecx,_gploc_80\n \
     movl    %%edx,%%ecx\n \
     shll    $0x10,%%ecx\n \
     shll    $8,%%edx\n \
     shrl    $0x18,%%edx\n \
     shll    $8,%%edx\n \
     movb    %%al,%%cl\n \
-    movl    %%ecx,0x1C0+var_7C(%%esp)\n \
-    movl    %%edx,0x1C0+var_78(%%esp)\n \
+    movl    %%ecx,_gploc_7C\n \
+    movl    %%edx,_gploc_78\n \
 \n \
 gpo_loc_1484:         # 120A\n \
-    jmp gpo_case_break\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_case_2:         # 3C48\n \
-# draw_gpoly_+3D48\n \
-    movl    0x1C0+pt_bx(%%esp),%%esi\n \
+    popa    \n \
+" : : : "memory", "cc");
+        break;
+    case 2:
+    case 66:
+        asm volatile (" \
+    pusha   \n \
+    movl    _gploc_pt_bx,%%esi\n \
     movl    _factor_chk,%%edi\n \
     orl %%edi,%%edi\n \
     subl    $0,%%esi\n \
     addl    $0,%%esi\n \
-    movl    0x1C0+pt_ax(%%esp),%%eax\n \
+    movl    _gploc_pt_ax,%%eax\n \
     subl    %%eax,%%esi\n \
-    movl    0x1C0+pt_cx(%%esp),%%edi\n \
+    movl    _gploc_pt_cx,%%edi\n \
     subl    %%eax,%%edi\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    0x1C0+pt_by(%%esp),%%ebx\n \
+    movl    _gploc_pt_ay,%%eax\n \
+    movl    _gploc_pt_by,%%ebx\n \
     subl    %%eax,%%ebx\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
+    movl    _gploc_pt_cy,%%ecx\n \
     subl    %%eax,%%ecx\n \
     movl    %%ecx,%%eax\n \
     imull   %%esi,%%ecx\n \
@@ -1974,16 +1958,16 @@ gpo_loc_14C6:         # 12D0\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ebx\n \
     movl    %%eax,%%ebp\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    0x1C0+pt_cy(%%esp),%%esi\n \
+    movl    _gploc_pt_ay,%%eax\n \
+    movl    _gploc_pt_cy,%%esi\n \
     subl    %%eax,%%esi\n \
-    movl    0x1C0+pt_by(%%esp),%%edi\n \
+    movl    _gploc_pt_by,%%edi\n \
     subl    %%eax,%%edi\n \
     movl    %%ebp,%%eax\n \
-    movl    0x1C0+var_16C(%%esp),%%edx\n \
-    movl    0x1C0+var_13C(%%esp),%%ebx\n \
+    movl    _gploc_16C,%%edx\n \
+    movl    _gploc_13C,%%ebx\n \
     subl    %%edx,%%ebx\n \
-    movl    0x1C0+var_154(%%esp),%%ecx\n \
+    movl    _gploc_154,%%ecx\n \
     subl    %%edx,%%ecx\n \
     imull   %%esi,%%ecx\n \
     imull   %%edi,%%ebx\n \
@@ -1997,12 +1981,12 @@ gpo_loc_14C6:         # 12D0\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1513:         # 1320\n \
-    movl    %%eax,0x1C0+var_B0(%%esp)\n \
+    movl    %%eax,_gploc_B0\n \
     movl    %%ebp,%%eax\n \
-    movl    0x1C0+var_168(%%esp),%%edx\n \
-    movl    0x1C0+var_138(%%esp),%%ebx\n \
+    movl    _gploc_168,%%edx\n \
+    movl    _gploc_138,%%ebx\n \
     subl    %%edx,%%ebx\n \
-    movl    0x1C0+var_150(%%esp),%%ecx\n \
+    movl    _gploc_150,%%ecx\n \
     subl    %%edx,%%ecx\n \
     imull   %%esi,%%ecx\n \
     imull   %%edi,%%ebx\n \
@@ -2016,21 +2000,21 @@ gpo_loc_1513:         # 1320\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1543:         # 1350\n \
-    movl    %%eax,0x1C0+var_AC(%%esp)\n \
+    movl    %%eax,_gploc_AC\n \
     jmp gpo_loc_155C\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_154C:         # 12DD\n \
     xorl    %%eax,%%eax\n \
-    movl    %%eax,0x1C0+var_B0(%%esp)\n \
-    movl    %%eax,0x1C0+var_AC(%%esp)\n \
+    movl    %%eax,_gploc_B0\n \
+    movl    %%eax,_gploc_AC\n \
 \n \
 gpo_loc_155C:         # 135A\n \
     movl    _factor_chk,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_161C\n \
-    movl    0x1C0+pt_by(%%esp),%%ecx\n \
-    subl    0x1C0+pt_ay(%%esp),%%ecx\n \
+    movl    _gploc_pt_by,%%ecx\n \
+    subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_1581\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -2044,8 +2028,8 @@ gpo_loc_1581:         # 1386\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_158F:         # 138\n \
-    movl    0x1C0+var_154(%%esp),%%eax\n \
-    subl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    _gploc_154,%%eax\n \
+    subl    _gploc_16C,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2054,9 +2038,9 @@ gpo_loc_158F:         # 138\n \
     incl    %%eax\n \
 \n \
 gpo_loc_15A4:         # 13B\n \
-    movl    %%eax,0x1C0+var_194(%%esp)\n \
-    movl    0x1C0+var_150(%%esp),%%eax\n \
-    subl    0x1C0+var_168(%%esp),%%eax\n \
+    movl    %%eax,_gploc_194\n \
+    movl    _gploc_150,%%eax\n \
+    subl    _gploc_168,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2065,9 +2049,9 @@ gpo_loc_15A4:         # 13B\n \
     incl    %%eax\n \
 \n \
 gpo_loc_15BD:         # 13CA\n \
-    movl    %%eax,0x1C0+var_188(%%esp)\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
-    subl    0x1C0+pt_by(%%esp),%%ecx\n \
+    movl    %%eax,_gploc_188\n \
+    movl    _gploc_pt_cy,%%ecx\n \
+    subl    _gploc_pt_by,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_15DA\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -2081,8 +2065,8 @@ gpo_loc_15DA:         # 13D\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_15E8:         # 13E8\n \
-    movl    0x1C0+var_13C(%%esp),%%eax\n \
-    subl    0x1C0+var_154(%%esp),%%eax\n \
+    movl    _gploc_13C,%%eax\n \
+    subl    _gploc_154,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2091,9 +2075,9 @@ gpo_loc_15E8:         # 13E8\n \
     incl    %%eax\n \
 \n \
 gpo_loc_15FD:         # 140A\n \
-    movl    %%eax,0x1C0+var_198(%%esp)\n \
-    movl    0x1C0+var_138(%%esp),%%eax\n \
-    subl    0x1C0+var_150(%%esp),%%eax\n \
+    movl    %%eax,_gploc_198\n \
+    movl    _gploc_138,%%eax\n \
+    subl    _gploc_150,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2102,13 +2086,13 @@ gpo_loc_15FD:         # 140A\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1616:         # 1423\n \
-    movl    %%eax,0x1C0+var_18C(%%esp)\n \
+    movl    %%eax,_gploc_18C\n \
     jmp gpo_loc_1675\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_161C:         # 1372\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
-    subl    0x1C0+pt_ay(%%esp),%%ecx\n \
+    movl    _gploc_pt_cy,%%ecx\n \
+    subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_1635\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -2122,8 +2106,8 @@ gpo_loc_1635:         # 143A\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_1643:         # 1443\n \
-    movl    0x1C0+var_13C(%%esp),%%eax\n \
-    subl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    _gploc_13C,%%eax\n \
+    subl    _gploc_16C,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2132,9 +2116,9 @@ gpo_loc_1643:         # 1443\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1658:         # 1465\n \
-    movl    %%eax,0x1C0+var_194(%%esp)\n \
-    movl    0x1C0+var_138(%%esp),%%eax\n \
-    subl    0x1C0+var_168(%%esp),%%eax\n \
+    movl    %%eax,_gploc_194\n \
+    movl    _gploc_138,%%eax\n \
+    subl    _gploc_168,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2143,26 +2127,26 @@ gpo_loc_1658:         # 1465\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1671:         # 147E\n \
-    movl    %%eax,0x1C0+var_188(%%esp)\n \
+    movl    %%eax,_gploc_188\n \
 \n \
 gpo_loc_1675:         # 142A\n \
-    movl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    _gploc_16C,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_54(%%esp)\n \
-    movl    0x1C0+var_168(%%esp),%%eax\n \
+    movl    %%eax,_gploc_54\n \
+    movl    _gploc_168,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_50(%%esp)\n \
-    movl    0x1C0+var_154(%%esp),%%eax\n \
+    movl    %%eax,_gploc_50\n \
+    movl    _gploc_154,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_48(%%esp)\n \
-    movl    0x1C0+var_150(%%esp),%%eax\n \
+    movl    %%eax,_gploc_48\n \
+    movl    _gploc_150,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_44(%%esp)\n \
-    movl    0x1C0+var_AC(%%esp),%%eax\n \
+    movl    %%eax,_gploc_44\n \
+    movl    _gploc_AC,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_BC(%%esp)\n \
-    movl    0x1C0+var_B0(%%esp),%%eax\n \
+    movl    %%eax,_gploc_BC\n \
+    movl    _gploc_B0,%%eax\n \
     orl %%edx,%%edx\n \
     jns gpo_loc_16CC\n \
     decl    %%eax\n \
@@ -2172,12 +2156,12 @@ gpo_loc_16CC:         # 14D\n \
     shrl    $0x10,%%edx\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
-    movl    %%edx,0x1C0+var_B8(%%esp)\n \
-    movl    0x1C0+var_188(%%esp),%%eax\n \
+    movl    %%edx,_gploc_B8\n \
+    movl    _gploc_188,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_A4(%%esp)\n \
-    movl    0x1C0+var_194(%%esp),%%eax\n \
+    movl    %%eax,_gploc_A4\n \
+    movl    _gploc_194,%%eax\n \
     orl %%edx,%%edx\n \
     jns gpo_loc_16FA\n \
     decl    %%eax\n \
@@ -2187,25 +2171,25 @@ gpo_loc_16FA:         # 1507\n \
     shrl    $0x10,%%edx\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
-    movl    %%edx,0x1C0+var_A0(%%esp)\n \
-    movl    0x1C0+var_50(%%esp),%%eax\n \
+    movl    %%edx,_gploc_A0\n \
+    movl    _gploc_50,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_8C(%%esp)\n \
-    movl    0x1C0+var_54(%%esp),%%eax\n \
+    movl    %%eax,_gploc_8C\n \
+    movl    _gploc_54,%%eax\n \
     shll    $8,%%eax\n \
     shrl    $0x10,%%edx\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
-    movl    %%edx,0x1C0+var_88(%%esp)\n \
+    movl    %%edx,_gploc_88\n \
     movl    _factor_chk,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_17A3\n \
-    movl    0x1C0+var_18C(%%esp),%%eax\n \
+    movl    _gploc_18C,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_98(%%esp)\n \
-    movl    0x1C0+var_198(%%esp),%%eax\n \
+    movl    %%eax,_gploc_98\n \
+    movl    _gploc_198,%%eax\n \
     orl %%edx,%%edx\n \
     jns gpo_loc_175F\n \
     decl    %%eax\n \
@@ -2215,37 +2199,48 @@ gpo_loc_175F:         # 156C\n \
     shrl    $0x10,%%edx\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
-    movl    %%edx,0x1C0+var_94(%%esp)\n \
-    movl    0x1C0+var_44(%%esp),%%eax\n \
+    movl    %%edx,_gploc_94\n \
+    movl    _gploc_44,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_80(%%esp)\n \
-    movl    0x1C0+var_48(%%esp),%%eax\n \
+    movl    %%eax,_gploc_80\n \
+    movl    _gploc_48,%%eax\n \
     shll    $8,%%eax\n \
     shrl    $0x10,%%edx\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
-    movl    %%edx,0x1C0+var_7C(%%esp)\n \
+    movl    %%edx,_gploc_7C\n \
 \n \
 gpo_loc_17A3:         # 155\n \
-    jmp gpo_case_break\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_case_5:         # 3C54\n \
-# draw_gpoly_+3C58 ...\n \
-    movl    0x1C0+pt_bx(%%esp),%%esi\n \
+    popa    \n \
+" : : : "memory", "cc");
+        break;
+    case 5:
+    case 6:
+    case 20:
+    case 21:
+    case 24:
+    case 25:
+    case 70:
+    case 84:
+    case 85:
+    case 88:
+    case 89:
+        asm volatile (" \
+    pusha   \n \
+    movl    _gploc_pt_bx,%%esi\n \
     movl    _factor_chk,%%edi\n \
     orl %%edi,%%edi\n \
     subl    $0,%%esi\n \
     addl    $0,%%esi\n \
-    movl    0x1C0+pt_ax(%%esp),%%eax\n \
+    movl    _gploc_pt_ax,%%eax\n \
     subl    %%eax,%%esi\n \
-    movl    0x1C0+pt_cx(%%esp),%%edi\n \
+    movl    _gploc_pt_cx,%%edi\n \
     subl    %%eax,%%edi\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    0x1C0+pt_by(%%esp),%%ebx\n \
+    movl    _gploc_pt_ay,%%eax\n \
+    movl    _gploc_pt_by,%%ebx\n \
     subl    %%eax,%%ebx\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
+    movl    _gploc_pt_cy,%%ecx\n \
     subl    %%eax,%%ecx\n \
     movl    %%ecx,%%eax\n \
     imull   %%esi,%%ecx\n \
@@ -2264,16 +2259,16 @@ gpo_loc_17E5:         # 15E\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ebx\n \
     movl    %%eax,%%ebp\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    0x1C0+pt_cy(%%esp),%%esi\n \
+    movl    _gploc_pt_ay,%%eax\n \
+    movl    _gploc_pt_cy,%%esi\n \
     subl    %%eax,%%esi\n \
-    movl    0x1C0+pt_by(%%esp),%%edi\n \
+    movl    _gploc_pt_by,%%edi\n \
     subl    %%eax,%%edi\n \
     movl    %%ebp,%%eax\n \
-    movl    0x1C0+var_170(%%esp),%%edx\n \
-    movl    0x1C0+var_140(%%esp),%%ebx\n \
+    movl    _gploc_170,%%edx\n \
+    movl    _gploc_140,%%ebx\n \
     subl    %%edx,%%ebx\n \
-    movl    0x1C0+var_158(%%esp),%%ecx\n \
+    movl    _gploc_158,%%ecx\n \
     subl    %%edx,%%ecx\n \
     imull   %%esi,%%ecx\n \
     imull   %%edi,%%ebx\n \
@@ -2287,12 +2282,12 @@ gpo_loc_17E5:         # 15E\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1836:         # 1643\n \
-    movl    %%eax,0x1C0+var_A8(%%esp)\n \
+    movl    %%eax,_gploc_A8\n \
     movl    %%ebp,%%eax\n \
-    movl    0x1C0+var_16C(%%esp),%%edx\n \
-    movl    0x1C0+var_13C(%%esp),%%ebx\n \
+    movl    _gploc_16C,%%edx\n \
+    movl    _gploc_13C,%%ebx\n \
     subl    %%edx,%%ebx\n \
-    movl    0x1C0+var_154(%%esp),%%ecx\n \
+    movl    _gploc_154,%%ecx\n \
     subl    %%edx,%%ecx\n \
     imull   %%esi,%%ecx\n \
     imull   %%edi,%%ebx\n \
@@ -2306,12 +2301,12 @@ gpo_loc_1836:         # 1643\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1866:         # 1673\n \
-    movl    %%eax,0x1C0+var_B0(%%esp)\n \
+    movl    %%eax,_gploc_B0\n \
     movl    %%ebp,%%eax\n \
-    movl    0x1C0+var_168(%%esp),%%edx\n \
-    movl    0x1C0+var_138(%%esp),%%ebx\n \
+    movl    _gploc_168,%%edx\n \
+    movl    _gploc_138,%%ebx\n \
     subl    %%edx,%%ebx\n \
-    movl    0x1C0+var_150(%%esp),%%ecx\n \
+    movl    _gploc_150,%%ecx\n \
     subl    %%edx,%%ecx\n \
     imull   %%esi,%%ecx\n \
     imull   %%edi,%%ebx\n \
@@ -2325,22 +2320,22 @@ gpo_loc_1866:         # 1673\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1896:         # 16A3\n \
-    movl    %%eax,0x1C0+var_AC(%%esp)\n \
+    movl    %%eax,_gploc_AC\n \
     jmp gpo_loc_18B6\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_189F:         # 15FC\n \
     xorl    %%eax,%%eax\n \
-    movl    %%eax,0x1C0+var_A8(%%esp)\n \
-    movl    %%eax,0x1C0+var_B0(%%esp)\n \
-    movl    %%eax,0x1C0+var_AC(%%esp)\n \
+    movl    %%eax,_gploc_A8\n \
+    movl    %%eax,_gploc_B0\n \
+    movl    %%eax,_gploc_AC\n \
 \n \
 gpo_loc_18B6:         # 16AD\n \
     movl    _factor_chk,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_19A8\n \
-    movl    0x1C0+pt_by(%%esp),%%ecx\n \
-    subl    0x1C0+pt_ay(%%esp),%%ecx\n \
+    movl    _gploc_pt_by,%%ecx\n \
+    subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_18DB\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -2354,8 +2349,8 @@ gpo_loc_18DB:         # 16E0\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_18E9:         # 16E\n \
-    movl    0x1C0+var_158(%%esp),%%eax\n \
-    subl    0x1C0+var_170(%%esp),%%eax\n \
+    movl    _gploc_158,%%eax\n \
+    subl    _gploc_170,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2364,9 +2359,9 @@ gpo_loc_18E9:         # 16E\n \
     incl    %%eax\n \
 \n \
 gpo_loc_18FE:         # 170B\n \
-    movl    %%eax,0x1C0+point_c(%%esp)\n \
-    movl    0x1C0+var_154(%%esp),%%eax\n \
-    subl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    %%eax,_gploc_point_c\n \
+    movl    _gploc_154,%%eax\n \
+    subl    _gploc_16C,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2375,9 +2370,9 @@ gpo_loc_18FE:         # 170B\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1917:         # 172\n \
-    movl    %%eax,0x1C0+var_194(%%esp)\n \
-    movl    0x1C0+var_150(%%esp),%%eax\n \
-    subl    0x1C0+var_168(%%esp),%%eax\n \
+    movl    %%eax,_gploc_194\n \
+    movl    _gploc_150,%%eax\n \
+    subl    _gploc_168,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2386,9 +2381,9 @@ gpo_loc_1917:         # 172\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1930:         # 173D\n \
-    movl    %%eax,0x1C0+var_188(%%esp)\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
-    subl    0x1C0+pt_by(%%esp),%%ecx\n \
+    movl    %%eax,_gploc_188\n \
+    movl    _gploc_pt_cy,%%ecx\n \
+    subl    _gploc_pt_by,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_194D\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -2402,8 +2397,8 @@ gpo_loc_194D:         # 1752\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_195B:         # 175B\n \
-    movl    0x1C0+var_140(%%esp),%%eax\n \
-    subl    0x1C0+var_158(%%esp),%%eax\n \
+    movl    _gploc_140,%%eax\n \
+    subl    _gploc_158,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2412,9 +2407,9 @@ gpo_loc_195B:         # 175B\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1970:         # 177D\n \
-    movl    %%eax,0x1C0+var_1A0(%%esp)\n \
-    movl    0x1C0+var_13C(%%esp),%%eax\n \
-    subl    0x1C0+var_154(%%esp),%%eax\n \
+    movl    %%eax,_gploc_1A0\n \
+    movl    _gploc_13C,%%eax\n \
+    subl    _gploc_154,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2423,9 +2418,9 @@ gpo_loc_1970:         # 177D\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1989:         # 1796\n \
-    movl    %%eax,0x1C0+var_198(%%esp)\n \
-    movl    0x1C0+var_138(%%esp),%%eax\n \
-    subl    0x1C0+var_150(%%esp),%%eax\n \
+    movl    %%eax,_gploc_198\n \
+    movl    _gploc_138,%%eax\n \
+    subl    _gploc_150,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2434,13 +2429,13 @@ gpo_loc_1989:         # 1796\n \
     incl    %%eax\n \
 \n \
 gpo_loc_19A2:         # 17A\n \
-    movl    %%eax,0x1C0+var_18C(%%esp)\n \
+    movl    %%eax,_gploc_18C\n \
     jmp gpo_loc_1A1A\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_19A8:         # 16CC\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
-    subl    0x1C0+pt_ay(%%esp),%%ecx\n \
+    movl    _gploc_pt_cy,%%ecx\n \
+    subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_19C1\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -2454,8 +2449,8 @@ gpo_loc_19C1:         # 17C6\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_19CF:         # 17C\n \
-    movl    0x1C0+var_140(%%esp),%%eax\n \
-    subl    0x1C0+var_170(%%esp),%%eax\n \
+    movl    _gploc_140,%%eax\n \
+    subl    _gploc_170,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2464,9 +2459,9 @@ gpo_loc_19CF:         # 17C\n \
     incl    %%eax\n \
 \n \
 gpo_loc_19E4:         # 17F\n \
-    movl    %%eax,0x1C0+point_c(%%esp)\n \
-    movl    0x1C0+var_13C(%%esp),%%eax\n \
-    subl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    %%eax,_gploc_point_c\n \
+    movl    _gploc_13C,%%eax\n \
+    subl    _gploc_16C,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2475,9 +2470,9 @@ gpo_loc_19E4:         # 17F\n \
     incl    %%eax\n \
 \n \
 gpo_loc_19FD:         # 180A\n \
-    movl    %%eax,0x1C0+var_194(%%esp)\n \
-    movl    0x1C0+var_138(%%esp),%%eax\n \
-    subl    0x1C0+var_168(%%esp),%%eax\n \
+    movl    %%eax,_gploc_194\n \
+    movl    _gploc_138,%%eax\n \
+    subl    _gploc_168,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2486,191 +2481,193 @@ gpo_loc_19FD:         # 180A\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1A16:         # 1823\n \
-    movl    %%eax,0x1C0+var_188(%%esp)\n \
+    movl    %%eax,_gploc_188\n \
 \n \
 gpo_loc_1A1A:         # 17B6\n \
-    movl    0x1C0+var_170(%%esp),%%eax\n \
+    movl    _gploc_170,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_58(%%esp)\n \
-    movl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    %%eax,_gploc_58\n \
+    movl    _gploc_16C,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_54(%%esp)\n \
-    movl    0x1C0+var_168(%%esp),%%eax\n \
+    movl    %%eax,_gploc_54\n \
+    movl    _gploc_168,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_50(%%esp)\n \
-    movl    0x1C0+var_158(%%esp),%%eax\n \
+    movl    %%eax,_gploc_50\n \
+    movl    _gploc_158,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_4C(%%esp)\n \
-    movl    0x1C0+var_154(%%esp),%%eax\n \
+    movl    %%eax,_gploc_4C\n \
+    movl    _gploc_154,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_48(%%esp)\n \
-    movl    0x1C0+var_150(%%esp),%%eax\n \
+    movl    %%eax,_gploc_48\n \
+    movl    _gploc_150,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_44(%%esp)\n \
-    movl    0x1C0+var_B0(%%esp),%%eax\n \
+    movl    %%eax,_gploc_44\n \
+    movl    _gploc_B0,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movw    0x1C0+var_A7(%%esp),%%ax\n \
+    movw    _gploc_word03,%%ax\n \
     orw %%ax,%%ax\n \
     jns gpo_loc_1A92\n \
     subl    $0x10000,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_1A92:         # 1898\n \
-    movl    %%eax,0x1C0+var_BC(%%esp)\n \
-    movl    %%edx,0x1C0+var_B8(%%esp)\n \
-    movl    0x1C0+var_AC(%%esp),%%eax\n \
+    movl    %%eax,_gploc_BC\n \
+    movl    %%edx,_gploc_B8\n \
+    movl    _gploc_AC,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    0x1C0+var_AC(%%esp),%%edx\n \
+    movl    _gploc_AC,%%edx\n \
     sarl    $0x10,%%edx\n \
-    movb    0x1C0+var_B8(%%esp),%%al\n \
+    movb    _gploc_B8,%%al\n \
     orb %%al,%%al\n \
     jns gpo_loc_1AC7\n \
     subl    $0x100,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_1AC7:         # 18CD\n \
-    movl    %%eax,0x1C0+var_B8(%%esp)\n \
-    movl    %%edx,0x1C0+var_B4(%%esp)\n \
-    movl    0x1C0+var_B0(%%esp),%%eax\n \
+    movl    %%eax,_gploc_B8\n \
+    movl    %%edx,_gploc_B4\n \
+    movl    _gploc_B0,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movw    0x1C0+var_A7(%%esp),%%ax\n \
+    movw    _gploc_word03,%%ax\n \
     orw %%ax,%%ax\n \
     jns gpo_loc_1AF9\n \
     subl    $0x0FFFF,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_1AF9:         # 18F\n \
-    movl    %%eax,0x1C0+var_5C(%%esp)\n \
-    movl    %%edx,0x1C0+var_2C(%%esp)\n \
-    movl    0x1C0+var_AC(%%esp),%%eax\n \
+    movl    %%eax,_gploc_5C\n \
+    movl    %%edx,_gploc_2C\n \
+    movl    _gploc_AC,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    0x1C0+var_AC(%%esp),%%edx\n \
+    movl    _gploc_AC,%%edx\n \
     sarl    $0x10,%%edx\n \
-    movb    0x1C0+var_2C(%%esp),%%al\n \
+    movb    _gploc_2C,%%al\n \
     orb %%al,%%al\n \
     jns gpo_loc_1B2E\n \
     subl    $0x100,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_1B2E:         # 193\n \
-    movl    %%eax,0x1C0+var_2C(%%esp)\n \
-    movl    %%edx,0x1C0+var_28(%%esp)\n \
-    movl    0x1C0+var_194(%%esp),%%eax\n \
+    movl    %%eax,_gploc_2C\n \
+    movl    %%edx,_gploc_28\n \
+    movl    _gploc_194,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movw    0x1C0+point_c+1(%%esp),%%ax\n \
+    movw    _gploc_word01,%%ax\n \
     orw %%ax,%%ax\n \
     jns gpo_loc_1B5A\n \
     subl    $0x10000,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_1B5A:         # 1960\n \
-    movl    %%eax,0x1C0+var_A4(%%esp)\n \
-    movl    %%edx,0x1C0+var_A0(%%esp)\n \
-    movl    0x1C0+var_188(%%esp),%%eax\n \
+    movl    %%eax,_gploc_A4\n \
+    movl    %%edx,_gploc_A0\n \
+    movl    _gploc_188,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    0x1C0+var_188(%%esp),%%edx\n \
+    movl    _gploc_188,%%edx\n \
     sarl    $0x10,%%edx\n \
-    movb    0x1C0+var_A0(%%esp),%%al\n \
+    movb    _gploc_A0,%%al\n \
     orb %%al,%%al\n \
     jns gpo_loc_1B89\n \
     subl    $0x100,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_1B89:         # 198\n \
-    movl    %%eax,0x1C0+var_A0(%%esp)\n \
-    movl    %%edx,0x1C0+var_9C(%%esp)\n \
-    movl    0x1C0+var_58(%%esp),%%ebx\n \
-    movl    0x1C0+var_54(%%esp),%%ecx\n \
-    movl    0x1C0+var_50(%%esp),%%edx\n \
-    movb    %%bl,0x1C0+var_84(%%esp)\n \
+    movl    %%eax,_gploc_A0\n \
+    movl    %%edx,_gploc_9C\n \
+    movl    _gploc_58,%%ebx\n \
+    movl    _gploc_54,%%ecx\n \
+    movl    _gploc_50,%%edx\n \
+    movb    %%bl,_gploc_84\n \
     shrl    $8,%%ebx\n \
     movl    %%ecx,%%eax\n \
     shll    $0x10,%%ecx\n \
     shrl    $0x10,%%eax\n \
     movw    %%bx,%%cx\n \
-    movl    %%ecx,0x1C0+var_8C(%%esp)\n \
+    movl    %%ecx,_gploc_8C\n \
     movl    %%edx,%%ecx\n \
     shll    $0x10,%%ecx\n \
     shll    $8,%%edx\n \
     shrl    $0x18,%%edx\n \
     shll    $8,%%edx\n \
     movb    %%al,%%cl\n \
-    movl    %%ecx,0x1C0+var_88(%%esp)\n \
-    movb    0x1C0+var_84(%%esp),%%dl\n \
-    movl    %%edx,0x1C0+var_84(%%esp)\n \
+    movl    %%ecx,_gploc_88\n \
+    movb    _gploc_84,%%dl\n \
+    movl    %%edx,_gploc_84\n \
     movl    _factor_chk,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_1CAA\n \
-    movl    0x1C0+var_198(%%esp),%%eax\n \
+    movl    _gploc_198,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movw    0x1C0+var_19F(%%esp),%%ax\n \
+    movw    _gploc_word02,%%ax\n \
     orw %%ax,%%ax\n \
     jns gpo_loc_1C17\n \
     subl    $0x10000,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_1C17:         # 1A1D\n \
-    movl    %%eax,0x1C0+var_98(%%esp)\n \
-    movl    %%edx,0x1C0+var_94(%%esp)\n \
-    movl    0x1C0+var_18C(%%esp),%%eax\n \
+    movl    %%eax,_gploc_98\n \
+    movl    %%edx,_gploc_94\n \
+    movl    _gploc_18C,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    0x1C0+var_18C(%%esp),%%edx\n \
+    movl    _gploc_18C,%%edx\n \
     sarl    $0x10,%%edx\n \
-    movb    0x1C0+var_94(%%esp),%%al\n \
+    movb    _gploc_94,%%al\n \
     orb %%al,%%al\n \
     jns gpo_loc_1C46\n \
     subl    $0x100,%%eax\n \
     sbbb    $0,%%dl\n \
 \n \
 gpo_loc_1C46:         # 1A4C\n \
-    movl    %%eax,0x1C0+var_94(%%esp)\n \
-    movl    %%edx,0x1C0+var_90(%%esp)\n \
-    movl    0x1C0+var_4C(%%esp),%%ebx\n \
-    movl    0x1C0+var_48(%%esp),%%ecx\n \
-    movl    0x1C0+var_44(%%esp),%%edx\n \
-    movb    %%bl,0x1C0+var_78(%%esp)\n \
+    movl    %%eax,_gploc_94\n \
+    movl    %%edx,_gploc_90\n \
+    movl    _gploc_4C,%%ebx\n \
+    movl    _gploc_48,%%ecx\n \
+    movl    _gploc_44,%%edx\n \
+    movb    %%bl,_gploc_78\n \
     shrl    $8,%%ebx\n \
     movl    %%ecx,%%eax\n \
     shll    $0x10,%%ecx\n \
     shrl    $0x10,%%eax\n \
     movw    %%bx,%%cx\n \
-    movl    %%ecx,0x1C0+var_80(%%esp)\n \
+    movl    %%ecx,_gploc_80\n \
     movl    %%edx,%%ecx\n \
     shll    $0x10,%%ecx\n \
     shll    $8,%%edx\n \
     shrl    $0x18,%%edx\n \
     shll    $8,%%edx\n \
     movb    %%al,%%cl\n \
-    movl    %%ecx,0x1C0+var_7C(%%esp)\n \
-    movb    0x1C0+var_78(%%esp),%%dl\n \
-    movl    %%edx,0x1C0+var_78(%%esp)\n \
+    movl    %%ecx,_gploc_7C\n \
+    movb    _gploc_78,%%dl\n \
+    movl    %%edx,_gploc_78\n \
 \n \
 gpo_loc_1CAA:\n \
-    jmp gpo_case_break\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1CAF:         # 3D54\n \
-    movl    0x1C0+pt_bx(%%esp),%%esi\n \
+    popa    \n \
+" : : : "memory", "cc");
+        break;
+    case 69:
+        asm volatile (" \
+    pusha   \n \
+    movl    _gploc_pt_bx,%%esi\n \
     movl    _factor_chk,%%edi\n \
     orl     %%edi,%%edi\n \
     subl    $0x0,%%esi\n \
     addl    $0x0,%%esi\n \
-    movl    0x1C0+pt_ax(%%esp),%%eax\n \
+    movl    _gploc_pt_ax,%%eax\n \
     subl    %%eax,%%esi\n \
-    movl    0x1C0+pt_cx(%%esp),%%edi\n \
+    movl    _gploc_pt_cx,%%edi\n \
     subl    %%eax,%%edi\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    0x1C0+pt_by(%%esp),%%ebx\n \
+    movl    _gploc_pt_ay,%%eax\n \
+    movl    _gploc_pt_by,%%ebx\n \
     subl    %%eax,%%ebx\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
+    movl    _gploc_pt_cy,%%ecx\n \
     subl    %%eax,%%ecx\n \
     movl    %%ecx,%%eax\n \
     imull   %%esi,%%ecx\n \
@@ -2689,16 +2686,16 @@ gpo_loc_1CEC:         # 1AF6\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ebx\n \
     movl    %%eax,%%ebp\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    0x1C0+pt_cy(%%esp),%%esi\n \
+    movl    _gploc_pt_ay,%%eax\n \
+    movl    _gploc_pt_cy,%%esi\n \
     subl    %%eax,%%esi\n \
-    movl    0x1C0+pt_by(%%esp),%%edi\n \
+    movl    _gploc_pt_by,%%edi\n \
     subl    %%eax,%%edi\n \
     movl    %%ebp,%%eax\n \
-    movl    0x1C0+var_170(%%esp),%%edx\n \
-    movl    0x1C0+var_140(%%esp),%%ebx\n \
+    movl    _gploc_170,%%edx\n \
+    movl    _gploc_140,%%ebx\n \
     subl    %%edx,%%ebx\n \
-    movl    0x1C0+var_158(%%esp),%%ecx\n \
+    movl    _gploc_158,%%ecx\n \
     subl    %%edx,%%ecx\n \
     imull   %%esi,%%ecx\n \
     imull   %%edi,%%ebx\n \
@@ -2712,12 +2709,12 @@ gpo_loc_1CEC:         # 1AF6\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1D3D:         # 1B4A\n \
-    movl    %%eax,0x1C0+var_A8(%%esp)\n \
+    movl    %%eax,_gploc_A8\n \
     movl    %%ebp,%%eax\n \
-    movl    0x1C0+var_16C(%%esp),%%edx\n \
-    movl    0x1C0+var_13C(%%esp),%%ebx\n \
+    movl    _gploc_16C,%%edx\n \
+    movl    _gploc_13C,%%ebx\n \
     subl    %%edx,%%ebx\n \
-    movl    0x1C0+var_154(%%esp),%%ecx\n \
+    movl    _gploc_154,%%ecx\n \
     subl    %%edx,%%ecx\n \
     imull   %%esi,%%ecx\n \
     imull   %%edi,%%ebx\n \
@@ -2731,12 +2728,12 @@ gpo_loc_1D3D:         # 1B4A\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1D6D:         # 1B7A\n \
-    movl    %%eax,0x1C0+var_B0(%%esp)\n \
+    movl    %%eax,_gploc_B0\n \
     movl    %%ebp,%%eax\n \
-    movl    0x1C0+var_168(%%esp),%%edx\n \
-    movl    0x1C0+var_138(%%esp),%%ebx\n \
+    movl    _gploc_168,%%edx\n \
+    movl    _gploc_138,%%ebx\n \
     subl    %%edx,%%ebx\n \
-    movl    0x1C0+var_150(%%esp),%%ecx\n \
+    movl    _gploc_150,%%ecx\n \
     subl    %%edx,%%ecx\n \
     imull   %%esi,%%ecx\n \
     imull   %%edi,%%ebx\n \
@@ -2750,22 +2747,22 @@ gpo_loc_1D6D:         # 1B7A\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1D9D:         # 1BAA\n \
-    movl    %%eax,0x1C0+var_AC(%%esp)\n \
+    movl    %%eax,_gploc_AC\n \
     jmp gpo_loc_1DBD\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_1DA6:         # 1B03\n \
     xorl    %%eax,%%eax\n \
-    movl    %%eax,0x1C0+var_A8(%%esp)\n \
-    movl    %%eax,0x1C0+var_B0(%%esp)\n \
-    movl    %%eax,0x1C0+var_AC(%%esp)\n \
+    movl    %%eax,_gploc_A8\n \
+    movl    %%eax,_gploc_B0\n \
+    movl    %%eax,_gploc_AC\n \
 \n \
 gpo_loc_1DBD:\n \
     movl    _factor_chk,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_1EAF\n \
-    movl    0x1C0+pt_by(%%esp),%%ecx\n \
-    subl    0x1C0+pt_ay(%%esp),%%ecx\n \
+    movl    _gploc_pt_by,%%ecx\n \
+    subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_1DE2\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -2779,8 +2776,8 @@ gpo_loc_1DE2:         # 1BE7\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_1DF0:         # 1BF0\n \
-    movl    0x1C0+var_158(%%esp),%%eax\n \
-    subl    0x1C0+var_170(%%esp),%%eax\n \
+    movl    _gploc_158,%%eax\n \
+    subl    _gploc_170,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2789,9 +2786,9 @@ gpo_loc_1DF0:         # 1BF0\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1E05:         # 1C12\n \
-    movl    %%eax,0x1C0+point_c(%%esp)\n \
-    movl    0x1C0+var_154(%%esp),%%eax\n \
-    subl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    %%eax,_gploc_point_c\n \
+    movl    _gploc_154,%%eax\n \
+    subl    _gploc_16C,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2800,9 +2797,9 @@ gpo_loc_1E05:         # 1C12\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1E1E:         # 1C2B\n \
-    movl    %%eax,0x1C0+var_194(%%esp)\n \
-    movl    0x1C0+var_150(%%esp),%%eax\n \
-    subl    0x1C0+var_168(%%esp),%%eax\n \
+    movl    %%eax,_gploc_194\n \
+    movl    _gploc_150,%%eax\n \
+    subl    _gploc_168,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2811,9 +2808,9 @@ gpo_loc_1E1E:         # 1C2B\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1E37:         # 1C4\n \
-    movl    %%eax,0x1C0+var_188(%%esp)\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
-    subl    0x1C0+pt_by(%%esp),%%ecx\n \
+    movl    %%eax,_gploc_188\n \
+    movl    _gploc_pt_cy,%%ecx\n \
+    subl    _gploc_pt_by,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_1E54\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -2827,8 +2824,8 @@ gpo_loc_1E54:         # 1C5\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_1E62:         # 1C62\n \
-    movl    0x1C0+var_140(%%esp),%%eax\n \
-    subl    0x1C0+var_158(%%esp),%%eax\n \
+    movl    _gploc_140,%%eax\n \
+    subl    _gploc_158,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2837,9 +2834,9 @@ gpo_loc_1E62:         # 1C62\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1E77:         # 1C8\n \
-    movl    %%eax,0x1C0+var_1A0(%%esp)\n \
-    movl    0x1C0+var_13C(%%esp),%%eax\n \
-    subl    0x1C0+var_154(%%esp),%%eax\n \
+    movl    %%eax,_gploc_1A0\n \
+    movl    _gploc_13C,%%eax\n \
+    subl    _gploc_154,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2848,9 +2845,9 @@ gpo_loc_1E77:         # 1C8\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1E90:         # 1C9D\n \
-    movl    %%eax,0x1C0+var_198(%%esp)\n \
-    movl    0x1C0+var_138(%%esp),%%eax\n \
-    subl    0x1C0+var_150(%%esp),%%eax\n \
+    movl    %%eax,_gploc_198\n \
+    movl    _gploc_138,%%eax\n \
+    subl    _gploc_150,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2859,13 +2856,13 @@ gpo_loc_1E90:         # 1C9D\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1EA9:         # 1CB6\n \
-    movl    %%eax,0x1C0+var_18C(%%esp)\n \
+    movl    %%eax,_gploc_18C\n \
     jmp gpo_loc_1F21\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_1EAF:         # 1BD3\n \
-    movl    0x1C0+pt_cy(%%esp),%%ecx\n \
-    subl    0x1C0+pt_ay(%%esp),%%ecx\n \
+    movl    _gploc_pt_cy,%%ecx\n \
+    subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_1EC8\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -2879,8 +2876,8 @@ gpo_loc_1EC8:         # 1CCD\n \
     movl    %%eax,%%ebx\n \
 \n \
 gpo_loc_1ED6:         # 1CD6\n \
-    movl    0x1C0+var_140(%%esp),%%eax\n \
-    subl    0x1C0+var_170(%%esp),%%eax\n \
+    movl    _gploc_140,%%eax\n \
+    subl    _gploc_170,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2889,9 +2886,9 @@ gpo_loc_1ED6:         # 1CD6\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1EEB:         # 1CF8\n \
-    movl    %%eax,0x1C0+point_c(%%esp)\n \
-    movl    0x1C0+var_13C(%%esp),%%eax\n \
-    subl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    %%eax,_gploc_point_c\n \
+    movl    _gploc_13C,%%eax\n \
+    subl    _gploc_16C,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2900,9 +2897,9 @@ gpo_loc_1EEB:         # 1CF8\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1F04:         # 1D1\n \
-    movl    %%eax,0x1C0+var_194(%%esp)\n \
-    movl    0x1C0+var_138(%%esp),%%eax\n \
-    subl    0x1C0+var_168(%%esp),%%eax\n \
+    movl    %%eax,_gploc_194\n \
+    movl    _gploc_138,%%eax\n \
+    subl    _gploc_168,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
@@ -2911,35 +2908,35 @@ gpo_loc_1F04:         # 1D1\n \
     incl    %%eax\n \
 \n \
 gpo_loc_1F1D:         # 1D2A\n \
-    movl    %%eax,0x1C0+var_188(%%esp)\n \
+    movl    %%eax,_gploc_188\n \
 \n \
 gpo_loc_1F21:         # 1CBD\n \
-    movl    0x1C0+var_170(%%esp),%%eax\n \
+    movl    _gploc_170,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_58(%%esp)\n \
-    movl    0x1C0+var_16C(%%esp),%%eax\n \
+    movl    %%eax,_gploc_58\n \
+    movl    _gploc_16C,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_54(%%esp)\n \
-    movl    0x1C0+var_168(%%esp),%%eax\n \
+    movl    %%eax,_gploc_54\n \
+    movl    _gploc_168,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_50(%%esp)\n \
-    movl    0x1C0+var_158(%%esp),%%eax\n \
+    movl    %%eax,_gploc_50\n \
+    movl    _gploc_158,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_4C(%%esp)\n \
-    movl    0x1C0+var_154(%%esp),%%eax\n \
+    movl    %%eax,_gploc_4C\n \
+    movl    _gploc_154,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_48(%%esp)\n \
-    movl    0x1C0+var_150(%%esp),%%eax\n \
+    movl    %%eax,_gploc_48\n \
+    movl    _gploc_150,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,0x1C0+var_44(%%esp)\n \
-    movl    0x1C0+var_AC(%%esp),%%eax\n \
+    movl    %%eax,_gploc_44\n \
+    movl    _gploc_AC,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movl    0x1C0+var_A8(%%esp),%%ebx\n \
+    movl    _gploc_A8,%%ebx\n \
     shll    $0x18,%%ebx\n \
-    movl    %%ebx,0x1C0+var_30(%%esp)\n \
-    movl    0x1C0+var_A8(%%esp),%%ebx\n \
+    movl    %%ebx,_gploc_30\n \
+    movl    _gploc_A8,%%ebx\n \
     sarl    $8,%%ebx\n \
     orl %%ebx,%%ebx\n \
     jns gpo_loc_1FB1\n \
@@ -2950,8 +2947,8 @@ gpo_loc_1F21:         # 1CBD\n \
 gpo_loc_1FB1:         # 1DB\n \
     addl    %%ebx,%%eax\n \
     adcl    $0,%%edx\n \
-    movl    %%eax,0x1C0+var_BC(%%esp)\n \
-    movl    0x1C0+var_B0(%%esp),%%eax\n \
+    movl    %%eax,_gploc_BC\n \
+    movl    _gploc_B0,%%eax\n \
     orl %%edx,%%edx\n \
     jns gpo_loc_1FC9\n \
     decl    %%eax\n \
@@ -2960,12 +2957,12 @@ gpo_loc_1FC9:         # 1DD6\n \
     shll    $8,%%eax\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
-    movl    %%edx,0x1C0+var_B8(%%esp)\n \
-    movl    0x1C0+var_AC(%%esp),%%eax\n \
+    movl    %%edx,_gploc_B8\n \
+    movl    _gploc_AC,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movl    0x1C0+var_A8(%%esp),%%ebx\n \
+    movl    _gploc_A8,%%ebx\n \
     sarl    $8,%%ebx\n \
     orl %%ebx,%%ebx\n \
     jns gpo_loc_2006\n \
@@ -2976,8 +2973,8 @@ gpo_loc_1FC9:         # 1DD6\n \
 gpo_loc_2006:         # 1E06\n \
     addl    %%ebx,%%eax\n \
     adcl    $0,%%edx\n \
-    movl    %%eax,0x1C0+var_5C(%%esp)\n \
-    movl    0x1C0+var_B0(%%esp),%%eax\n \
+    movl    %%eax,_gploc_5C\n \
+    movl    _gploc_B0,%%eax\n \
     orl %%edx,%%edx\n \
     jns gpo_loc_201E\n \
     decl    %%eax\n \
@@ -2986,15 +2983,15 @@ gpo_loc_201E:         # 1E2B\n \
     shll    $8,%%eax\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
-    movl    %%edx,0x1C0+var_2C(%%esp)\n \
-    movl    0x1C0+var_188(%%esp),%%eax\n \
+    movl    %%edx,_gploc_2C\n \
+    movl    _gploc_188,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movl    0x1C0+point_c(%%esp),%%ebx\n \
+    movl    _gploc_point_c,%%ebx\n \
     shll    $0x18,%%ebx\n \
-    movl    %%ebx,0x1C0+var_68(%%esp)\n \
-    movl    0x1C0+point_c(%%esp),%%ebx\n \
+    movl    %%ebx,_gploc_68\n \
+    movl    _gploc_point_c,%%ebx\n \
     sarl    $8,%%ebx\n \
     orl %%ebx,%%ebx\n \
     jns gpo_loc_2063\n \
@@ -3005,8 +3002,8 @@ gpo_loc_201E:         # 1E2B\n \
 gpo_loc_2063:         # 1E63\n \
     addl    %%ebx,%%eax\n \
     adcl    $0,%%edx\n \
-    movl    %%eax,0x1C0+var_A4(%%esp)\n \
-    movl    0x1C0+var_194(%%esp),%%eax\n \
+    movl    %%eax,_gploc_A4\n \
+    movl    _gploc_194,%%eax\n \
     orl %%edx,%%edx\n \
     jns gpo_loc_2078\n \
     decl    %%eax\n \
@@ -3015,31 +3012,31 @@ gpo_loc_2078:         # 1E85\n \
     shll    $8,%%eax\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
-    movl    %%edx,0x1C0+var_A0(%%esp)\n \
-    movl    0x1C0+var_50(%%esp),%%eax\n \
+    movl    %%edx,_gploc_A0\n \
+    movl    _gploc_50,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
-    movl    0x1C0+var_58(%%esp),%%ebx\n \
+    movl    _gploc_58,%%ebx\n \
     shrl    $8,%%ebx\n \
     orl %%ebx,%%eax\n \
-    movl    %%eax,0x1C0+var_8C(%%esp)\n \
-    movl    0x1C0+var_54(%%esp),%%eax\n \
+    movl    %%eax,_gploc_8C\n \
+    movl    _gploc_54,%%eax\n \
     shll    $8,%%eax\n \
     shrl    $0x10,%%edx\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
-    movl    %%edx,0x1C0+var_88(%%esp)\n \
+    movl    %%edx,_gploc_88\n \
     movl    _factor_chk,%%esi\n \
     orl %%esi,%%esi\n \
-    js  gpo_case_break\n \
-    movl    0x1C0+var_18C(%%esp),%%eax\n \
+    js  gpo_case69_break\n \
+    movl    _gploc_18C,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     sarl    $0x10,%%edx\n \
-    movl    0x1C0+var_1A0(%%esp),%%ebx\n \
+    movl    _gploc_1A0,%%ebx\n \
     shll    $0x18,%%ebx\n \
-    movl    %%ebx,0x1C0+var_64(%%esp)\n \
-    movl    0x1C0+var_1A0(%%esp),%%ebx\n \
+    movl    %%ebx,_gploc_64\n \
+    movl    _gploc_1A0,%%ebx\n \
     sarl    $8,%%ebx\n \
     orl %%ebx,%%ebx\n \
     jns gpo_loc_2104\n \
@@ -3050,8 +3047,8 @@ gpo_loc_2078:         # 1E85\n \
 gpo_loc_2104:         # 1F0\n \
     addl    %%ebx,%%eax\n \
     adcl    $0,%%edx\n \
-    movl    %%eax,0x1C0+var_98(%%esp)\n \
-    movl    0x1C0+var_198(%%esp),%%eax\n \
+    movl    %%eax,_gploc_98\n \
+    movl    _gploc_198,%%eax\n \
     orl %%edx,%%edx\n \
     jns gpo_loc_2119\n \
     decl    %%eax\n \
@@ -3060,28 +3057,53 @@ gpo_loc_2119:         # 1F26\n \
     shll    $8,%%eax\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
-    movl    %%edx,0x1C0+var_94(%%esp)\n \
-    movl    0x1C0+var_44(%%esp),%%eax\n \
+    movl    %%edx,_gploc_94\n \
+    movl    _gploc_44,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
-    movl    0x1C0+var_4C(%%esp),%%ebx\n \
+    movl    _gploc_4C,%%ebx\n \
     shrl    $8,%%ebx\n \
     orl %%ebx,%%eax\n \
-    movl    %%eax,0x1C0+var_80(%%esp)\n \
-    movl    0x1C0+var_48(%%esp),%%eax\n \
+    movl    %%eax,_gploc_80\n \
+    movl    _gploc_48,%%eax\n \
     shll    $8,%%eax\n \
     shrl    $0x10,%%edx\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
-    movl    %%edx,0x1C0+var_7C(%%esp)\n \
+    movl    %%edx,_gploc_7C\n \
 \n \
-\n \
-\n \
-\n \
-\n \
-\n \
-\n \
-gpo_case_break:\n \
+gpo_case69_break:\n \
+    popa    \n \
+" : : : "memory", "cc");
+        break;
+    case 43:
+    case 44:
+    case 45:
+    case 46:
+    case 47:
+    case 48:
+    case 49:
+    case 50:
+    case 51:
+    case 52:
+    case 53:
+    case 54:
+    case 55:
+    case 56:
+    case 57:
+    case 58:
+    case 59:
+    case 60:
+    case 61:
+    case 62:
+    case 63:
+      return;
+    }
+
+    // End of first switch - now the second
+
+    asm volatile (" \
+    pusha   \n \
     movl    _gpoly_mode,%%ecx\n \
     jmp   *off_783C80(,%%ecx,4)\n \
 # ---------------------------------------------------------------------------\n \
@@ -3091,61 +3113,61 @@ gpm_case_5:         # 3AA4\n \
     orl %%eax,%%eax\n \
     jnz loc_782740\n \
     movl    _LOC_vec_screen_width,%%ecx\n \
-    movl    %%ecx,0x1C0+var_104(%%esp)\n \
+    movl    %%ecx,_gploc_104\n \
     movl    $2,%%ecx\n \
-    movl    %%ecx,0x1C0+var_180(%%esp)\n \
-    movl    0x1C0+var_1A4(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_60(%%esp)\n \
-    movl    0x1C0+var_A4(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_CC(%%esp)\n \
-    movl    0x1C0+var_A0(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C4(%%esp)\n \
-    movl    0x1C0+var_9C(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C8(%%esp)\n \
+    movl    %%ecx,_gploc_180\n \
+    movl    _gploc_1A4,%%eax\n \
+    movl    %%eax,_gploc_60\n \
+    movl    _gploc_A4,%%eax\n \
+    movl    %%eax,_gploc_CC\n \
+    movl    _gploc_A0,%%eax\n \
+    movl    %%eax,_gploc_C4\n \
+    movl    _gploc_9C,%%eax\n \
+    movl    %%eax,_gploc_C8\n \
     movl    _factor_chk,%%eax\n \
     orl %%eax,%%eax\n \
     js  loc_782209\n \
     movl    _factor_ba,%%eax\n \
-    movl    %%eax,0x1C0+var_12C(%%esp)\n \
+    movl    %%eax,_gploc_12C\n \
     movl    _factor_ca,%%eax\n \
-    movl    %%eax,0x1C0+var_128(%%esp)\n \
+    movl    %%eax,_gploc_128\n \
     jmp loc_78221E\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_782209:         # 2000\n \
     movl    _factor_ca,%%eax\n \
-    movl    %%eax,0x1C0+var_12C(%%esp)\n \
+    movl    %%eax,_gploc_12C\n \
     movl    _factor_ba,%%eax\n \
-    movl    %%eax,0x1C0+var_128(%%esp)\n \
+    movl    %%eax,_gploc_128\n \
 \n \
 loc_78221E:         # 2017\n \
-    movl    0x1C0+var_8C(%%esp),%%ecx\n \
-    movl    0x1C0+var_88(%%esp),%%edx\n \
-    movl    0x1C0+var_84(%%esp),%%ebx\n \
-    movl    0x1C0+pt_ay(%%esp),%%esi\n \
+    movl    _gploc_8C,%%ecx\n \
+    movl    _gploc_88,%%edx\n \
+    movl    _gploc_84,%%ebx\n \
+    movl    _gploc_pt_ay,%%esi\n \
     movl    _LOC_vec_screen_width,%%edi\n \
     imull   %%esi,%%edi\n \
     addl    _LOC_vec_screen,%%edi\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
+    movl    _gploc_pt_ay,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jg  locret1\n \
-    movl    0x1C0+pt_by(%%esp),%%eax\n \
+    movl    _gploc_pt_by,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_782267\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_782267:         # 2070\n \
-    subl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C0(%%esp)\n \
-    movl    0x1C0+pt_ax(%%esp),%%esi\n \
-    movl    %%esi,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+pt_shax(%%esp),%%eax\n \
+    subl    _gploc_pt_ay,%%eax\n \
+    movl    %%eax,_gploc_C0\n \
+    movl    _gploc_pt_ax,%%esi\n \
+    movl    %%esi,_gploc_74\n \
+    movl    _gploc_pt_shax,%%eax\n \
     movl    %%eax,%%ebp\n \
     jz  loc_782618\n \
-    movl    0x1C0+pt_ay(%%esp),%%esi\n \
+    movl    _gploc_pt_ay,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_782590\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_74,%%esi\n \
     jmp loc_782520\n \
 # ---------------------------------------------------------------------------\n \
 \n \
@@ -3154,12 +3176,12 @@ loc_7822A1:         # 22BB\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,(%%edi)\n \
 \n \
 loc_7822C0:         # 3E2C\n \
@@ -3167,12 +3189,12 @@ loc_7822C0:         # 3E2C\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,1(%%edi)\n \
 \n \
 loc_7822E0:         # 3E28\n \
@@ -3180,12 +3202,12 @@ loc_7822E0:         # 3E28\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,2(%%edi)\n \
 \n \
 loc_782300:         # 3E24\n \
@@ -3193,12 +3215,12 @@ loc_782300:         # 3E24\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,3(%%edi)\n \
 \n \
 loc_782320:         # 3E20\n \
@@ -3206,12 +3228,12 @@ loc_782320:         # 3E20\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,4(%%edi)\n \
 \n \
 loc_782340:         # 3E1C\n \
@@ -3219,12 +3241,12 @@ loc_782340:         # 3E1C\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,5(%%edi)\n \
 \n \
 loc_782360:         # 3E18\n \
@@ -3232,12 +3254,12 @@ loc_782360:         # 3E18\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,6(%%edi)\n \
 \n \
 loc_782380:         # 3E14\n \
@@ -3245,12 +3267,12 @@ loc_782380:         # 3E14\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,7(%%edi)\n \
 \n \
 loc_7823A0:         # 3E10\n \
@@ -3258,12 +3280,12 @@ loc_7823A0:         # 3E10\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,8(%%edi)\n \
 \n \
 loc_7823C0:         # 3E0C\n \
@@ -3271,12 +3293,12 @@ loc_7823C0:         # 3E0C\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,9(%%edi)\n \
 \n \
 loc_7823E0:         # 3E08\n \
@@ -3284,12 +3306,12 @@ loc_7823E0:         # 3E08\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,0x0A(%%edi)\n \
 \n \
 loc_782400:         # 3E04\n \
@@ -3297,12 +3319,12 @@ loc_782400:         # 3E04\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,0x0B(%%edi)\n \
 \n \
 loc_782420:         # 3E00\n \
@@ -3310,12 +3332,12 @@ loc_782420:         # 3E00\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,0x0C(%%edi)\n \
 \n \
 loc_782440:         # 3DFC\n \
@@ -3323,12 +3345,12 @@ loc_782440:         # 3DFC\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,0x0D(%%edi)\n \
 \n \
 loc_782460:         # 3DF8\n \
@@ -3336,12 +3358,12 @@ loc_782460:         # 3DF8\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,0x0E(%%edi)\n \
 \n \
 loc_782480:         # 3DF4\n \
@@ -3349,45 +3371,45 @@ loc_782480:         # 3DF4\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,0x0F(%%edi)\n \
     addl    $0x10,%%edi\n \
-    subl $0x10,0x1C0+var_D4(%%esp)\n \
+    subl $0x10,_gploc_D4\n \
     jg  loc_7822A1\n \
 \n \
 loc_7824B1:         # 236B\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
-    movl    0x1C0+var_F8(%%esp),%%ebp\n \
-    movl    0x1C0+var_F4(%%esp),%%edi\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
-    addl    0x1C0+var_12C(%%esp),%%eax\n \
-    addl    0x1C0+var_128(%%esp),%%ebp\n \
-    movl    0x1C0+var_E0(%%esp),%%ecx\n \
-    movl    0x1C0+var_E4(%%esp),%%ebx\n \
-    movl    0x1C0+var_D8(%%esp),%%edx\n \
-    addb    0x1C0+var_60(%%esp),%%bl\n \
-    adcl    0x1C0+var_CC(%%esp),%%ecx\n \
-    adcl    0x1C0+var_C4(%%esp),%%edx\n \
-    adcb    0x1C0+var_C8(%%esp),%%bh\n \
-    addl    0x1C0+var_104(%%esp),%%edi\n \
-    decl 0x1C0+var_C0(%%esp)\n \
+    movl    _gploc_FC,%%eax\n \
+    movl    _gploc_F8,%%ebp\n \
+    movl    _gploc_F4,%%edi\n \
+    movl    _gploc_74,%%esi\n \
+    addl    _gploc_12C,%%eax\n \
+    addl    _gploc_128,%%ebp\n \
+    movl    _gploc_E0,%%ecx\n \
+    movl    _gploc_E4,%%ebx\n \
+    movl    _gploc_D8,%%edx\n \
+    addb    _gploc_60,%%bl\n \
+    adcl    _gploc_CC,%%ecx\n \
+    adcl    _gploc_C4,%%edx\n \
+    adcb    _gploc_C8,%%bh\n \
+    addl    _gploc_104,%%edi\n \
+    decl _gploc_C0\n \
     jz  loc_782618\n \
 \n \
 loc_782520:         # 20AC\n \
 # draw_gpoly_+2414 ...\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
-    movl    %%ebp,0x1C0+var_F8(%%esp)\n \
-    movl    %%edi,0x1C0+var_F4(%%esp)\n \
+    movl    %%eax,_gploc_FC\n \
+    movl    %%ebp,_gploc_F8\n \
+    movl    %%edi,_gploc_F4\n \
     sarl    $0x10,%%eax\n \
-    movl    0x1C0+var_F4(%%esp),%%edi\n \
-    movl    %%ecx,0x1C0+var_E0(%%esp)\n \
-    movl    %%ebx,0x1C0+var_E4(%%esp)\n \
-    movl    %%edx,0x1C0+var_D8(%%esp)\n \
+    movl    _gploc_F4,%%edi\n \
+    movl    %%ecx,_gploc_E0\n \
+    movl    %%ebx,_gploc_E4\n \
+    movl    %%edx,_gploc_D8\n \
     sarl    $0x10,%%ebp\n \
     addl    %%eax,%%edi\n \
     subl    %%eax,%%ebp\n \
@@ -3395,157 +3417,157 @@ loc_782520:         # 20AC\n \
     movl    %%ebp,%%eax\n \
     andl    $0x0F,%%eax\n \
     addl    _gpoly_countdown(,%%eax,4),%%edi\n \
-    movl    %%ebp,0x1C0+var_D4(%%esp)\n \
-    movl    0x1C0+var_5C(%%esp),%%ebp\n \
+    movl    %%ebp,_gploc_D4\n \
+    movl    _gploc_5C,%%ebp\n \
     movl    _LOC_vec_map,%%esi\n \
     jmp   *off_783FE0(,%%eax,4)\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_782590:         # 209\n \
-    addb    0x1C0+var_60(%%esp),%%bl\n \
-    adcl    0x1C0+var_CC(%%esp),%%ecx\n \
-    adcl    0x1C0+var_C4(%%esp),%%edx\n \
-    adcb    0x1C0+var_C8(%%esp),%%bh\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
+    addb    _gploc_60,%%bl\n \
+    adcl    _gploc_CC,%%ecx\n \
+    adcl    _gploc_C4,%%edx\n \
+    adcb    _gploc_C8,%%bh\n \
+    movl    %%eax,_gploc_FC\n \
     sarl    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
-    addl    0x1C0+var_12C(%%esp),%%eax\n \
-    addl    0x1C0+var_128(%%esp),%%ebp\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
+    subl    %%eax,_gploc_74\n \
+    movl    _gploc_FC,%%eax\n \
+    addl    _gploc_12C,%%eax\n \
+    addl    _gploc_128,%%ebp\n \
+    movl    %%eax,_gploc_FC\n \
     sarl    $0x10,%%eax\n \
-    addl    %%eax,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
-    addl    0x1C0+var_104(%%esp),%%edi\n \
-    decl 0x1C0+var_C0(%%esp)\n \
+    addl    %%eax,_gploc_74\n \
+    movl    _gploc_FC,%%eax\n \
+    addl    _gploc_104,%%edi\n \
+    decl _gploc_C0\n \
     jz  loc_782610\n \
     incl    %%esi\n \
     js  loc_782590\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_74,%%esi\n \
     jmp loc_782520\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_782610:         # 2408\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_74,%%esi\n \
     nop \n \
 \n \
 loc_782618:         # 2093\n \
-    decl 0x1C0+var_180(%%esp)\n \
+    decl _gploc_180\n \
     jz  locret1\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
+    movl    %%eax,_gploc_FC\n \
     movl    _factor_chk,%%eax\n \
     orl %%eax,%%eax\n \
     js  loc_7826D0\n \
     movl    _factor_cb,%%eax\n \
-    movl    %%eax,0x1C0+var_12C(%%esp)\n \
-    movl    0x1C0+var_1A0(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_60(%%esp)\n \
-    movl    0x1C0+var_98(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_CC(%%esp)\n \
-    movl    0x1C0+var_94(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C4(%%esp)\n \
-    movl    0x1C0+var_90(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C8(%%esp)\n \
-    movl    0x1C0+var_80(%%esp),%%ecx\n \
-    movl    0x1C0+var_7C(%%esp),%%edx\n \
-    movl    0x1C0+var_78(%%esp),%%ebx\n \
-    movl    0x1C0+pt_cy(%%esp),%%eax\n \
+    movl    %%eax,_gploc_12C\n \
+    movl    _gploc_1A0,%%eax\n \
+    movl    %%eax,_gploc_60\n \
+    movl    _gploc_98,%%eax\n \
+    movl    %%eax,_gploc_CC\n \
+    movl    _gploc_94,%%eax\n \
+    movl    %%eax,_gploc_C4\n \
+    movl    _gploc_90,%%eax\n \
+    movl    %%eax,_gploc_C8\n \
+    movl    _gploc_80,%%ecx\n \
+    movl    _gploc_7C,%%edx\n \
+    movl    _gploc_78,%%ebx\n \
+    movl    _gploc_pt_cy,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_78269B\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_78269B:         # 24A\n \
-    subl    0x1C0+pt_by(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C0(%%esp)\n \
-    movl    0x1C0+pt_bx(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+pt_shbx(%%esp),%%eax\n \
+    subl    _gploc_pt_by,%%eax\n \
+    movl    %%eax,_gploc_C0\n \
+    movl    _gploc_pt_bx,%%eax\n \
+    movl    %%eax,_gploc_74\n \
+    movl    _gploc_pt_shbx,%%eax\n \
     jle locret1\n \
-    movl    0x1C0+pt_by(%%esp),%%esi\n \
+    movl    _gploc_pt_by,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_782590\n \
-    movl    0x1C0+pt_bx(%%esp),%%esi\n \
+    movl    _gploc_pt_bx,%%esi\n \
     jmp loc_782520\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_7826D0:         # 243\n \
     movl    _factor_cb,%%ebp\n \
-    movl    %%ebp,0x1C0+var_128(%%esp)\n \
-    movl    0x1C0+pt_shbx(%%esp),%%ebp\n \
-    movl    0x1C0+pt_cy(%%esp),%%eax\n \
+    movl    %%ebp,_gploc_128\n \
+    movl    _gploc_pt_shbx,%%ebp\n \
+    movl    _gploc_pt_cy,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_7826F0\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_7826F0:         # 24F\n \
-    subl    0x1C0+pt_by(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C0(%%esp)\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
+    subl    _gploc_pt_by,%%eax\n \
+    movl    %%eax,_gploc_C0\n \
+    movl    _gploc_FC,%%eax\n \
     jle locret1\n \
-    movl    %%esi,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+pt_by(%%esp),%%esi\n \
+    movl    %%esi,_gploc_74\n \
+    movl    _gploc_pt_by,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_782590\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_74,%%esi\n \
     jmp loc_782520\n \
 # ---------------------------------------------------------------------------\n \
 loc_782740:         # 1FA\n \
     movl    _LOC_vec_screen_width,%%ecx\n \
-    movl    %%ecx,0x1C0+var_104(%%esp)\n \
+    movl    %%ecx,_gploc_104\n \
     movl    $2,%%ecx\n \
-    movl    %%ecx,0x1C0+var_180(%%esp)\n \
-    movl    0x1C0+var_1A4(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_60(%%esp)\n \
-    movl    0x1C0+var_A4(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_CC(%%esp)\n \
-    movl    0x1C0+var_A0(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C4(%%esp)\n \
-    movl    0x1C0+var_9C(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C8(%%esp)\n \
+    movl    %%ecx,_gploc_180\n \
+    movl    _gploc_1A4,%%eax\n \
+    movl    %%eax,_gploc_60\n \
+    movl    _gploc_A4,%%eax\n \
+    movl    %%eax,_gploc_CC\n \
+    movl    _gploc_A0,%%eax\n \
+    movl    %%eax,_gploc_C4\n \
+    movl    _gploc_9C,%%eax\n \
+    movl    %%eax,_gploc_C8\n \
     movl    _factor_chk,%%eax\n \
     orl %%eax,%%eax\n \
     js  loc_7827AA\n \
     movl    _factor_ba,%%eax\n \
-    movl    %%eax,0x1C0+var_12C(%%esp)\n \
+    movl    %%eax,_gploc_12C\n \
     movl    _factor_ca,%%eax\n \
-    movl    %%eax,0x1C0+var_128(%%esp)\n \
+    movl    %%eax,_gploc_128\n \
     jmp loc_7827BF\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_7827AA:         # 25A\n \
     movl    _factor_ca,%%eax\n \
-    movl    %%eax,0x1C0+var_12C(%%esp)\n \
+    movl    %%eax,_gploc_12C\n \
     movl    _factor_ba,%%eax\n \
-    movl    %%eax,0x1C0+var_128(%%esp)\n \
+    movl    %%eax,_gploc_128\n \
 \n \
 loc_7827BF:         # 25B8\n \
-    movl    0x1C0+var_8C(%%esp),%%ecx\n \
-    movl    0x1C0+var_88(%%esp),%%edx\n \
-    movl    0x1C0+var_84(%%esp),%%ebx\n \
-    movl    0x1C0+pt_ay(%%esp),%%esi\n \
+    movl    _gploc_8C,%%ecx\n \
+    movl    _gploc_88,%%edx\n \
+    movl    _gploc_84,%%ebx\n \
+    movl    _gploc_pt_ay,%%esi\n \
     movl    _LOC_vec_screen_width,%%edi\n \
     imull   %%esi,%%edi\n \
     addl    _LOC_vec_screen,%%edi\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
+    movl    _gploc_pt_ay,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jg  locret1\n \
-    movl    0x1C0+pt_by(%%esp),%%eax\n \
+    movl    _gploc_pt_by,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_782808\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_782808:         # 261\n \
-    subl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C0(%%esp)\n \
-    movl    0x1C0+pt_ax(%%esp),%%esi\n \
-    movl    %%esi,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+pt_shax(%%esp),%%eax\n \
+    subl    _gploc_pt_ay,%%eax\n \
+    movl    %%eax,_gploc_C0\n \
+    movl    _gploc_pt_ax,%%esi\n \
+    movl    %%esi,_gploc_74\n \
+    movl    _gploc_pt_shax,%%eax\n \
     movl    %%eax,%%ebp\n \
     jz  loc_782CD8\n \
-    movl    0x1C0+pt_ay(%%esp),%%esi\n \
+    movl    _gploc_pt_ay,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_782C50\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_74,%%esi\n \
     jmp loc_782AE0\n \
 # ---------------------------------------------------------------------------\n \
 \n \
@@ -3555,12 +3577,12 @@ loc_782842:         # 285C\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,(%%edi)\n \
 \n \
 loc_782861:         # 3E6C\n \
@@ -3568,12 +3590,12 @@ loc_782861:         # 3E6C\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,1(%%edi)\n \
 \n \
 loc_782881:         # 3E68\n \
@@ -3581,12 +3603,12 @@ loc_782881:         # 3E68\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,2(%%edi)\n \
 \n \
 loc_7828A1:         # 3E64\n \
@@ -3594,12 +3616,12 @@ loc_7828A1:         # 3E64\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,3(%%edi)\n \
 \n \
 loc_7828C1:         # 3E60\n \
@@ -3607,12 +3629,12 @@ loc_7828C1:         # 3E60\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,4(%%edi)\n \
 \n \
 loc_7828E1:         # 3E5C\n \
@@ -3620,12 +3642,12 @@ loc_7828E1:         # 3E5C\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,5(%%edi)\n \
 \n \
 loc_782901:         # 3E58\n \
@@ -3633,12 +3655,12 @@ loc_782901:         # 3E58\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,6(%%edi)\n \
 \n \
 loc_782921:         # 3E54\n \
@@ -3646,12 +3668,12 @@ loc_782921:         # 3E54\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,7(%%edi)\n \
 \n \
 loc_782941:         # 3E50\n \
@@ -3659,12 +3681,12 @@ loc_782941:         # 3E50\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,8(%%edi)\n \
 \n \
 loc_782961:         # 3E4C\n \
@@ -3672,12 +3694,12 @@ loc_782961:         # 3E4C\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,9(%%edi)\n \
 \n \
 loc_782981:         # 3E48\n \
@@ -3685,12 +3707,12 @@ loc_782981:         # 3E48\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,0x0A(%%edi)\n \
 \n \
 loc_7829A1:         # 3E44\n \
@@ -3698,12 +3720,12 @@ loc_7829A1:         # 3E44\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,0x0B(%%edi)\n \
 \n \
 loc_7829C1:         # 3E40\n \
@@ -3711,12 +3733,12 @@ loc_7829C1:         # 3E40\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,0x0C(%%edi)\n \
 \n \
 loc_7829E1:         # 3E3C\n \
@@ -3724,12 +3746,12 @@ loc_7829E1:         # 3E3C\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,0x0D(%%edi)\n \
 \n \
 loc_782A01:         # 3E38\n \
@@ -3737,12 +3759,12 @@ loc_782A01:         # 3E38\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,0x0E(%%edi)\n \
 \n \
 loc_782A21:         # 3E34\n \
@@ -3750,46 +3772,46 @@ loc_782A21:         # 3E34\n \
     movb    %%dl,%%bl\n \
     addl    %%ebp,%%ecx\n \
     movb    (%%ebx,%%esi),%%al\n \
-    adcl    0x1C0+var_2C(%%esp),%%edx\n \
+    adcl    _gploc_2C,%%edx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%al\n \
     popl    %%ebx\n \
-    adcb    0x1C0+var_28(%%esp),%%bh\n \
+    adcb    _gploc_28,%%bh\n \
     movb    %%al,0x0F(%%edi)\n \
     addl    $0x10,%%edi\n \
-    subl $0x10,0x1C0+var_D4(%%esp)\n \
+    subl $0x10,_gploc_D4\n \
     jg  loc_782842\n \
 \n \
 loc_782A52:         # 294E\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
-    movl    0x1C0+var_F8(%%esp),%%ebp\n \
-    movl    0x1C0+var_F4(%%esp),%%edi\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_FC,%%eax\n \
+    movl    _gploc_F8,%%ebp\n \
+    movl    _gploc_F4,%%edi\n \
+    movl    _gploc_74,%%esi\n \
     sarl    $0x10,%%eax\n \
     subl    %%eax,%%esi\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
-    addl    0x1C0+var_12C(%%esp),%%eax\n \
-    addl    0x1C0+var_128(%%esp),%%ebp\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
+    movl    _gploc_FC,%%eax\n \
+    addl    _gploc_12C,%%eax\n \
+    addl    _gploc_128,%%ebp\n \
+    movl    %%eax,_gploc_FC\n \
     sarl    $0x10,%%eax\n \
     addl    %%eax,%%esi\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
-    movl    0x1C0+var_E0(%%esp),%%ecx\n \
-    movl    0x1C0+var_E4(%%esp),%%ebx\n \
-    movl    0x1C0+var_D8(%%esp),%%edx\n \
-    addb    0x1C0+var_60(%%esp),%%bl\n \
-    adcl    0x1C0+var_CC(%%esp),%%ecx\n \
-    adcl    0x1C0+var_C4(%%esp),%%edx\n \
-    adcb    0x1C0+var_C8(%%esp),%%bh\n \
-    addl    0x1C0+var_104(%%esp),%%edi\n \
-    decl 0x1C0+var_C0(%%esp)\n \
+    movl    _gploc_FC,%%eax\n \
+    movl    _gploc_E0,%%ecx\n \
+    movl    _gploc_E4,%%ebx\n \
+    movl    _gploc_D8,%%edx\n \
+    addb    _gploc_60,%%bl\n \
+    adcl    _gploc_CC,%%ecx\n \
+    adcl    _gploc_C4,%%edx\n \
+    adcb    _gploc_C8,%%bh\n \
+    addl    _gploc_104,%%edi\n \
+    decl _gploc_C0\n \
     jz  loc_782CD8\n \
 \n \
 loc_782AE0:         # 264D\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
-    movl    %%ebp,0x1C0+var_F8(%%esp)\n \
-    movl    %%edi,0x1C0+var_F4(%%esp)\n \
+    movl    %%eax,_gploc_FC\n \
+    movl    %%ebp,_gploc_F8\n \
+    movl    %%edi,_gploc_F4\n \
     sarl    $0x10,%%eax\n \
     js  loc_782BD0\n \
     cmpl    %%esi,%%eax\n \
@@ -3797,11 +3819,11 @@ loc_782AE0:         # 264D\n \
     jl  loc_782BA0\n \
 \n \
 loc_782B08:         # 299F\n \
-    movl    %%esi,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+var_F4(%%esp),%%edi\n \
-    movl    %%ecx,0x1C0+var_E0(%%esp)\n \
-    movl    %%ebx,0x1C0+var_E4(%%esp)\n \
-    movl    %%edx,0x1C0+var_D8(%%esp)\n \
+    movl    %%esi,_gploc_74\n \
+    movl    _gploc_F4,%%edi\n \
+    movl    %%ecx,_gploc_E0\n \
+    movl    %%ebx,_gploc_E4\n \
+    movl    %%edx,_gploc_D8\n \
     sarl    $0x10,%%ebp\n \
     cmpl    _LOC_vec_window_width,%%ebp\n \
     jg  loc_782C40\n \
@@ -3813,17 +3835,17 @@ loc_782B3A:         # 2A56\n \
     movl    %%ebp,%%eax\n \
     andl    $0x0F,%%eax\n \
     addl    _gpoly_countdown(,%%eax,4),%%edi\n \
-    movl    %%ebp,0x1C0+var_D4(%%esp)\n \
-    movl    0x1C0+var_5C(%%esp),%%ebp\n \
+    movl    %%ebp,_gploc_D4\n \
+    movl    _gploc_5C,%%ebp\n \
     movl    _LOC_vec_map,%%esi\n \
     jmp   *off_784020(,%%eax,4)\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_782B70:         # 2910\n \
-    addb    0x1C0+var_A8(%%esp),%%bl\n \
-    adcl    0x1C0+var_BC(%%esp),%%ecx\n \
-    adcl    0x1C0+var_B8(%%esp),%%edx\n \
-    adcb    0x1C0+var_B4(%%esp),%%bh\n \
+    addb    _gploc_A8,%%bl\n \
+    adcl    _gploc_BC,%%ecx\n \
+    adcl    _gploc_B8,%%edx\n \
+    adcb    _gploc_B4,%%bh\n \
     incl    %%esi\n \
     cmpl    %%esi,%%eax\n \
     jle loc_782B08\n \
@@ -3831,10 +3853,10 @@ loc_782B70:         # 2910\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_782BA0:         # 2912\n \
-    subb    0x1C0+var_A8(%%esp),%%bl\n \
-    sbbl    0x1C0+var_BC(%%esp),%%ecx\n \
-    sbbl    0x1C0+var_B8(%%esp),%%edx\n \
-    sbbb    0x1C0+var_B4(%%esp),%%bh\n \
+    subb    _gploc_A8,%%bl\n \
+    sbbl    _gploc_BC,%%ecx\n \
+    sbbl    _gploc_B8,%%edx\n \
+    sbbb    _gploc_B4,%%bh\n \
     decl    %%esi\n \
     cmpl    %%esi,%%eax\n \
     jge loc_782B08\n \
@@ -3849,20 +3871,20 @@ loc_782BD0:         # 2908\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_782BE0:         # 29E8\n \
-    addb    0x1C0+var_A8(%%esp),%%bl\n \
-    adcl    0x1C0+var_BC(%%esp),%%ecx\n \
-    adcl    0x1C0+var_B8(%%esp),%%edx\n \
-    adcb    0x1C0+var_B4(%%esp),%%bh\n \
+    addb    _gploc_A8,%%bl\n \
+    adcl    _gploc_BC,%%ecx\n \
+    adcl    _gploc_B8,%%edx\n \
+    adcb    _gploc_B4,%%bh\n \
     incl    %%esi\n \
     jz  loc_782B08\n \
     jmp loc_782BE0\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_782C10:         # 29EA\n \
-    subb    0x1C0+var_A8(%%esp),%%bl\n \
-    sbbl    0x1C0+var_BC(%%esp),%%ecx\n \
-    sbbl    0x1C0+var_B8(%%esp),%%edx\n \
-    sbbb    0x1C0+var_B4(%%esp),%%bh\n \
+    subb    _gploc_A8,%%bl\n \
+    sbbl    _gploc_BC,%%ecx\n \
+    sbbl    _gploc_B8,%%edx\n \
+    sbbb    _gploc_B4,%%bh\n \
     decl    %%esi\n \
     jz  loc_782B08\n \
     jmp loc_782C10\n \
@@ -3874,92 +3896,92 @@ loc_782C40:         # 294\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_782C50:         # 2640\n \
-    addb    0x1C0+var_60(%%esp),%%bl\n \
-    adcl    0x1C0+var_CC(%%esp),%%ecx\n \
-    adcl    0x1C0+var_C4(%%esp),%%edx\n \
-    adcb    0x1C0+var_C8(%%esp),%%bh\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
+    addb    _gploc_60,%%bl\n \
+    adcl    _gploc_CC,%%ecx\n \
+    adcl    _gploc_C4,%%edx\n \
+    adcb    _gploc_C8,%%bh\n \
+    movl    %%eax,_gploc_FC\n \
     sarl    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
-    addl    0x1C0+var_12C(%%esp),%%eax\n \
-    addl    0x1C0+var_128(%%esp),%%ebp\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
+    subl    %%eax,_gploc_74\n \
+    movl    _gploc_FC,%%eax\n \
+    addl    _gploc_12C,%%eax\n \
+    addl    _gploc_128,%%ebp\n \
+    movl    %%eax,_gploc_FC\n \
     sarl    $0x10,%%eax\n \
-    addl    %%eax,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
-    addl    0x1C0+var_104(%%esp),%%edi\n \
-    decl 0x1C0+var_C0(%%esp)\n \
+    addl    %%eax,_gploc_74\n \
+    movl    _gploc_FC,%%eax\n \
+    addl    _gploc_104,%%edi\n \
+    decl _gploc_C0\n \
     jz  loc_782CD0\n \
     incl    %%esi\n \
     js  loc_782C50\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_74,%%esi\n \
     jmp loc_782AE0\n \
 # ---------------------------------------------------------------------------\n \
 \
 \n \
 loc_782CD0:         # 2AC8\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_74,%%esi\n \
     nop \n \
 \n \
 loc_782CD8:         # 263\n \
-    decl 0x1C0+var_180(%%esp)\n \
+    decl _gploc_180\n \
     jz  locret1\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
+    movl    %%eax,_gploc_FC\n \
     movl    _factor_chk,%%eax\n \
     orl %%eax,%%eax\n \
     js  loc_782D90\n \
     movl    _factor_cb,%%eax\n \
-    movl    %%eax,0x1C0+var_12C(%%esp)\n \
-    movl    0x1C0+var_1A0(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_60(%%esp)\n \
-    movl    0x1C0+var_98(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_CC(%%esp)\n \
-    movl    0x1C0+var_94(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C4(%%esp)\n \
-    movl    0x1C0+var_90(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C8(%%esp)\n \
-    movl    0x1C0+var_80(%%esp),%%ecx\n \
-    movl    0x1C0+var_7C(%%esp),%%edx\n \
-    movl    0x1C0+var_78(%%esp),%%ebx\n \
-    movl    0x1C0+pt_cy(%%esp),%%eax\n \
+    movl    %%eax,_gploc_12C\n \
+    movl    _gploc_1A0,%%eax\n \
+    movl    %%eax,_gploc_60\n \
+    movl    _gploc_98,%%eax\n \
+    movl    %%eax,_gploc_CC\n \
+    movl    _gploc_94,%%eax\n \
+    movl    %%eax,_gploc_C4\n \
+    movl    _gploc_90,%%eax\n \
+    movl    %%eax,_gploc_C8\n \
+    movl    _gploc_80,%%ecx\n \
+    movl    _gploc_7C,%%edx\n \
+    movl    _gploc_78,%%ebx\n \
+    movl    _gploc_pt_cy,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_782D5B\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_782D5B:         # 2B6\n \
-    subl    0x1C0+pt_by(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C0(%%esp)\n \
-    movl    0x1C0+pt_bx(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+pt_shbx(%%esp),%%eax\n \
+    subl    _gploc_pt_by,%%eax\n \
+    movl    %%eax,_gploc_C0\n \
+    movl    _gploc_pt_bx,%%eax\n \
+    movl    %%eax,_gploc_74\n \
+    movl    _gploc_pt_shbx,%%eax\n \
     jle locret1\n \
-    movl    0x1C0+pt_by(%%esp),%%esi\n \
+    movl    _gploc_pt_by,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_782C50\n \
-    movl    0x1C0+pt_bx(%%esp),%%esi\n \
+    movl    _gploc_pt_bx,%%esi\n \
     jmp loc_782AE0\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_782D90:         # 2AF\n \
     movl    _factor_cb,%%ebp\n \
-    movl    %%ebp,0x1C0+var_128(%%esp)\n \
-    movl    0x1C0+pt_shbx(%%esp),%%ebp\n \
-    movl    0x1C0+pt_cy(%%esp),%%eax\n \
+    movl    %%ebp,_gploc_128\n \
+    movl    _gploc_pt_shbx,%%ebp\n \
+    movl    _gploc_pt_cy,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_782DB0\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_782DB0:         # 2BB\n \
-    subl    0x1C0+pt_by(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C0(%%esp)\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
+    subl    _gploc_pt_by,%%eax\n \
+    movl    %%eax,_gploc_C0\n \
+    movl    _gploc_FC,%%eax\n \
     jle locret1\n \
-    movl    %%esi,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+pt_by(%%esp),%%esi\n \
+    movl    %%esi,_gploc_74\n \
+    movl    _gploc_pt_by,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_782C50\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_74,%%esi\n \
     jmp loc_782AE0\n \
 # ---------------------------------------------------------------------------\n \
 gpm_case_69:            # 3BA4\n \
@@ -3967,59 +3989,59 @@ gpm_case_69:            # 3BA4\n \
     orl %%eax,%%eax\n \
     jnz loc_783450\n \
     movl    _LOC_vec_screen_width,%%ecx\n \
-    movl    %%ecx,0x1C0+var_104(%%esp)\n \
+    movl    %%ecx,_gploc_104\n \
     movl    $2,%%ecx\n \
-    movl    %%ecx,0x1C0+var_180(%%esp)\n \
-    movl    0x1C0+var_68(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_60(%%esp)\n \
-    movl    0x1C0+var_A4(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_CC(%%esp)\n \
-    movl    0x1C0+var_A0(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C4(%%esp)\n \
+    movl    %%ecx,_gploc_180\n \
+    movl    _gploc_68,%%eax\n \
+    movl    %%eax,_gploc_60\n \
+    movl    _gploc_A4,%%eax\n \
+    movl    %%eax,_gploc_CC\n \
+    movl    _gploc_A0,%%eax\n \
+    movl    %%eax,_gploc_C4\n \
     movl    _factor_chk,%%eax\n \
     orl %%eax,%%eax\n \
     js  loc_782E6E\n \
     movl    _factor_ba,%%eax\n \
-    movl    %%eax,0x1C0+var_12C(%%esp)\n \
+    movl    %%eax,_gploc_12C\n \
     movl    _factor_ca,%%eax\n \
-    movl    %%eax,0x1C0+var_128(%%esp)\n \
+    movl    %%eax,_gploc_128\n \
     jmp loc_782E83\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_782E6E:         # 2C65\n \
     movl    _factor_ca,%%eax\n \
-    movl    %%eax,0x1C0+var_12C(%%esp)\n \
+    movl    %%eax,_gploc_12C\n \
     movl    _factor_ba,%%eax\n \
-    movl    %%eax,0x1C0+var_128(%%esp)\n \
+    movl    %%eax,_gploc_128\n \
 \n \
 loc_782E83:         # 2C7C\n \
     xorl    %%ecx,%%ecx\n \
-    movl    0x1C0+var_8C(%%esp),%%edx\n \
-    movl    0x1C0+var_88(%%esp),%%ebx\n \
-    movl    0x1C0+pt_ay(%%esp),%%esi\n \
+    movl    _gploc_8C,%%edx\n \
+    movl    _gploc_88,%%ebx\n \
+    movl    _gploc_pt_ay,%%esi\n \
     movl    _LOC_vec_screen_width,%%edi\n \
     imull   %%esi,%%edi\n \
     addl    _LOC_vec_screen,%%edi\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
+    movl    _gploc_pt_ay,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jg  locret1\n \
-    movl    0x1C0+pt_by(%%esp),%%eax\n \
+    movl    _gploc_pt_by,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_782EC7\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_782EC7:         # 2CD0\n \
-    subl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C0(%%esp)\n \
-    movl    0x1C0+pt_ax(%%esp),%%esi\n \
-    movl    %%esi,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+pt_shax(%%esp),%%eax\n \
+    subl    _gploc_pt_ay,%%eax\n \
+    movl    %%eax,_gploc_C0\n \
+    movl    _gploc_pt_ax,%%esi\n \
+    movl    %%esi,_gploc_74\n \
+    movl    _gploc_pt_shax,%%eax\n \
     movl    %%eax,%%ebp\n \
     jz  loc_783338\n \
-    movl    0x1C0+pt_ay(%%esp),%%esi\n \
+    movl    _gploc_pt_ay,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_7832B0\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_74,%%esi\n \
     jmp loc_783239\n \
 # ---------------------------------------------------------------------------\n \
 \n \
@@ -4038,7 +4060,7 @@ loc_782F01:         # 2FDB\n \
     movb    %%al,(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_782F2C:         # 3EAC\n \
@@ -4056,7 +4078,7 @@ loc_782F2C:         # 3EAC\n \
     movb    %%al,1(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_782F58:         # 3EA8\n \
@@ -4074,7 +4096,7 @@ loc_782F58:         # 3EA8\n \
     movb    %%al,2(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_782F84:         # 3EA4\n \
@@ -4092,7 +4114,7 @@ loc_782F84:         # 3EA4\n \
     movb    %%al,3(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_782FB0:         # 3EA0\n \
@@ -4110,7 +4132,7 @@ loc_782FB0:         # 3EA0\n \
     movb    %%al,4(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_782FDC:         # 3E9C\n \
@@ -4128,7 +4150,7 @@ loc_782FDC:         # 3E9C\n \
     movb    %%al,5(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_783008:         # 3E98\n \
@@ -4146,7 +4168,7 @@ loc_783008:         # 3E98\n \
     movb    %%al,6(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_783034:         # 3E94\n \
@@ -4164,7 +4186,7 @@ loc_783034:         # 3E94\n \
     movb    %%al,7(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_783060:         # 3E90\n \
@@ -4182,7 +4204,7 @@ loc_783060:         # 3E90\n \
     movb    %%al,8(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_78308C:         # 3E8C\n \
@@ -4200,7 +4222,7 @@ loc_78308C:         # 3E8C\n \
     movb    %%al,9(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_7830B8:         # 3E88\n \
@@ -4218,7 +4240,7 @@ loc_7830B8:         # 3E88\n \
     movb    %%al,0x0A(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_7830E4:         # 3E84\n \
@@ -4236,7 +4258,7 @@ loc_7830E4:         # 3E84\n \
     movb    %%al,0x0B(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_783110:         # 3E80\n \
@@ -4254,7 +4276,7 @@ loc_783110:         # 3E80\n \
     movb    %%al,0x0C(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_78313C:         # 3E7C\n \
@@ -4272,7 +4294,7 @@ loc_78313C:         # 3E7C\n \
     movb    %%al,0x0D(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_783168:         # 3E78\n \
@@ -4290,7 +4312,7 @@ loc_783168:         # 3E78\n \
     movb    %%al,0x0E(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_783194:         # 3E74\n \
@@ -4308,38 +4330,38 @@ loc_783194:         # 3E74\n \
     movb    %%al,0x0F(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
     addl    $0x10,%%edi\n \
-    subl $0x10,0x1C0+var_D4(%%esp)\n \
+    subl $0x10,_gploc_D4\n \
     jg  loc_782F01\n \
 \n \
 loc_7831D1:         # 3084\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
-    movl    0x1C0+var_F8(%%esp),%%ebp\n \
-    movl    0x1C0+var_F4(%%esp),%%edi\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
-    addl    0x1C0+var_12C(%%esp),%%eax\n \
-    addl    0x1C0+var_128(%%esp),%%ebp\n \
-    movl    0x1C0+var_34(%%esp),%%ecx\n \
-    movl    0x1C0+var_D8(%%esp),%%edx\n \
-    movl    0x1C0+var_E4(%%esp),%%ebx\n \
-    addl    0x1C0+var_60(%%esp),%%ecx\n \
-    adcl    0x1C0+var_CC(%%esp),%%edx\n \
-    adcl    0x1C0+var_C4(%%esp),%%ebx\n \
-    addl    0x1C0+var_104(%%esp),%%edi\n \
-    decl 0x1C0+var_C0(%%esp)\n \
+    movl    _gploc_FC,%%eax\n \
+    movl    _gploc_F8,%%ebp\n \
+    movl    _gploc_F4,%%edi\n \
+    movl    _gploc_74,%%esi\n \
+    addl    _gploc_12C,%%eax\n \
+    addl    _gploc_128,%%ebp\n \
+    movl    _gploc_34,%%ecx\n \
+    movl    _gploc_D8,%%edx\n \
+    movl    _gploc_E4,%%ebx\n \
+    addl    _gploc_60,%%ecx\n \
+    adcl    _gploc_CC,%%edx\n \
+    adcl    _gploc_C4,%%ebx\n \
+    addl    _gploc_104,%%edi\n \
+    decl _gploc_C0\n \
     jz  loc_783338\n \
 \n \
 loc_783239:         # 2D0C\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
-    movl    %%ebp,0x1C0+var_F8(%%esp)\n \
-    movl    %%edi,0x1C0+var_F4(%%esp)\n \
+    movl    %%eax,_gploc_FC\n \
+    movl    %%ebp,_gploc_F8\n \
+    movl    %%edi,_gploc_F4\n \
     sarl    $0x10,%%eax\n \
-    movl    0x1C0+var_F4(%%esp),%%edi\n \
-    movl    %%ecx,0x1C0+var_34(%%esp)\n \
-    movl    %%edx,0x1C0+var_D8(%%esp)\n \
-    movl    %%ebx,0x1C0+var_E4(%%esp)\n \
+    movl    _gploc_F4,%%edi\n \
+    movl    %%ecx,_gploc_34\n \
+    movl    %%edx,_gploc_D8\n \
+    movl    %%ebx,_gploc_E4\n \
     sarl    $0x10,%%ebp\n \
     addl    %%eax,%%edi\n \
     subl    %%eax,%%ebp\n \
@@ -4347,157 +4369,157 @@ loc_783239:         # 2D0C\n \
     movl    %%ebp,%%eax\n \
     andl    $0x0F,%%eax\n \
     addl    _gpoly_countdown(,%%eax,4),%%edi\n \
-    movl    %%ebp,0x1C0+var_D4(%%esp)\n \
+    movl    %%ebp,_gploc_D4\n \
     movl    $0x0FF0000FF,%%ecx\n \
     andl    %%ebx,%%ecx\n \
     roll    $8,%%ecx\n \
     movl    _LOC_vec_map,%%esi\n \
-    movl    0x1C0+var_5C(%%esp),%%ebp\n \
+    movl    _gploc_5C,%%ebp\n \
     jmp   *off_784060(,%%eax,4)\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_7832B0:         # 2CF\n \
-    addl    0x1C0+var_60(%%esp),%%ecx\n \
-    adcl    0x1C0+var_CC(%%esp),%%edx\n \
-    adcl    0x1C0+var_C4(%%esp),%%ebx\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
+    addl    _gploc_60,%%ecx\n \
+    adcl    _gploc_CC,%%edx\n \
+    adcl    _gploc_C4,%%ebx\n \
+    movl    %%eax,_gploc_FC\n \
     sarl    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
-    addl    0x1C0+var_12C(%%esp),%%eax\n \
-    addl    0x1C0+var_128(%%esp),%%ebp\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
+    subl    %%eax,_gploc_74\n \
+    movl    _gploc_FC,%%eax\n \
+    addl    _gploc_12C,%%eax\n \
+    addl    _gploc_128,%%ebp\n \
+    movl    %%eax,_gploc_FC\n \
     sarl    $0x10,%%eax\n \
-    addl    %%eax,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
-    addl    0x1C0+var_104(%%esp),%%edi\n \
-    decl 0x1C0+var_C0(%%esp)\n \
+    addl    %%eax,_gploc_74\n \
+    movl    _gploc_FC,%%eax\n \
+    addl    _gploc_104,%%edi\n \
+    decl _gploc_C0\n \
     jz  loc_783330\n \
     incl    %%esi\n \
     js  loc_7832B0\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_74,%%esi\n \
     jmp loc_783239\n \
 # ---------------------------------------------------------------------------\n \
 \
 \n \
 loc_783330:         # 312\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_74,%%esi\n \
     nop \n \
 \n \
 loc_783338:         # 2CF3\n \
-    decl 0x1C0+var_180(%%esp)\n \
+    decl _gploc_180\n \
     jz  locret1\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
+    movl    %%eax,_gploc_FC\n \
     movl    _factor_chk,%%eax\n \
     orl %%eax,%%eax\n \
     js  loc_7833E0\n \
     movl    _factor_cb,%%eax\n \
-    movl    %%eax,0x1C0+var_12C(%%esp)\n \
-    movl    0x1C0+var_64(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_60(%%esp)\n \
-    movl    0x1C0+var_98(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_CC(%%esp)\n \
-    movl    0x1C0+var_94(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C4(%%esp)\n \
+    movl    %%eax,_gploc_12C\n \
+    movl    _gploc_64,%%eax\n \
+    movl    %%eax,_gploc_60\n \
+    movl    _gploc_98,%%eax\n \
+    movl    %%eax,_gploc_CC\n \
+    movl    _gploc_94,%%eax\n \
+    movl    %%eax,_gploc_C4\n \
     xorl    %%ecx,%%ecx\n \
-    movl    0x1C0+var_80(%%esp),%%edx\n \
-    movl    0x1C0+var_7C(%%esp),%%ebx\n \
-    movl    0x1C0+pt_cy(%%esp),%%eax\n \
+    movl    _gploc_80,%%edx\n \
+    movl    _gploc_7C,%%ebx\n \
+    movl    _gploc_pt_cy,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_7833AB\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_7833AB:         # 31B\n \
-    subl    0x1C0+pt_by(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C0(%%esp)\n \
-    movl    0x1C0+pt_bx(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+pt_shbx(%%esp),%%eax\n \
+    subl    _gploc_pt_by,%%eax\n \
+    movl    %%eax,_gploc_C0\n \
+    movl    _gploc_pt_bx,%%eax\n \
+    movl    %%eax,_gploc_74\n \
+    movl    _gploc_pt_shbx,%%eax\n \
     jle locret1\n \
-    movl    0x1C0+pt_by(%%esp),%%esi\n \
+    movl    _gploc_pt_by,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_7832B0\n \
-    movl    0x1C0+pt_bx(%%esp),%%esi\n \
+    movl    _gploc_pt_bx,%%esi\n \
     jmp loc_783239\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_7833E0:         # 315\n \
     movl    _factor_cb,%%ebp\n \
-    movl    %%ebp,0x1C0+var_128(%%esp)\n \
-    movl    0x1C0+pt_shbx(%%esp),%%ebp\n \
-    movl    0x1C0+pt_cy(%%esp),%%eax\n \
+    movl    %%ebp,_gploc_128\n \
+    movl    _gploc_pt_shbx,%%ebp\n \
+    movl    _gploc_pt_cy,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_783400\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_783400:         # 320\n \
-    subl    0x1C0+pt_by(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C0(%%esp)\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
+    subl    _gploc_pt_by,%%eax\n \
+    movl    %%eax,_gploc_C0\n \
+    movl    _gploc_FC,%%eax\n \
     jle locret1\n \
-    movl    %%esi,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+pt_by(%%esp),%%esi\n \
+    movl    %%esi,_gploc_74\n \
+    movl    _gploc_pt_by,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_7832B0\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_74,%%esi\n \
     jmp loc_783239\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_783450:         # 2C1\n \
     movl    _LOC_vec_screen_width,%%ecx\n \
-    movl    %%ecx,0x1C0+var_104(%%esp)\n \
+    movl    %%ecx,_gploc_104\n \
     movl    $2,%%ecx\n \
-    movl    %%ecx,0x1C0+var_180(%%esp)\n \
-    movl    0x1C0+var_68(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_60(%%esp)\n \
-    movl    0x1C0+var_A4(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_CC(%%esp)\n \
-    movl    0x1C0+var_A0(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C4(%%esp)\n \
+    movl    %%ecx,_gploc_180\n \
+    movl    _gploc_68,%%eax\n \
+    movl    %%eax,_gploc_60\n \
+    movl    _gploc_A4,%%eax\n \
+    movl    %%eax,_gploc_CC\n \
+    movl    _gploc_A0,%%eax\n \
+    movl    %%eax,_gploc_C4\n \
     movl    _factor_chk,%%eax\n \
     orl %%eax,%%eax\n \
     js  loc_7834AF\n \
     movl    _factor_ba,%%eax\n \
-    movl    %%eax,0x1C0+var_12C(%%esp)\n \
+    movl    %%eax,_gploc_12C\n \
     movl    _factor_ca,%%eax\n \
-    movl    %%eax,0x1C0+var_128(%%esp)\n \
+    movl    %%eax,_gploc_128\n \
     jmp loc_7834C4\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_7834AF:         # 32A6\n \
     movl    _factor_ca,%%eax\n \
-    movl    %%eax,0x1C0+var_12C(%%esp)\n \
+    movl    %%eax,_gploc_12C\n \
     movl    _factor_ba,%%eax\n \
-    movl    %%eax,0x1C0+var_128(%%esp)\n \
+    movl    %%eax,_gploc_128\n \
 \n \
 loc_7834C4:         # 32BD\n \
     xorl    %%ecx,%%ecx\n \
-    movl    0x1C0+var_8C(%%esp),%%edx\n \
-    movl    0x1C0+var_88(%%esp),%%ebx\n \
-    movl    0x1C0+pt_ay(%%esp),%%esi\n \
+    movl    _gploc_8C,%%edx\n \
+    movl    _gploc_88,%%ebx\n \
+    movl    _gploc_pt_ay,%%esi\n \
     movl    _LOC_vec_screen_width,%%edi\n \
     imull   %%esi,%%edi\n \
     addl    _LOC_vec_screen,%%edi\n \
-    movl    0x1C0+pt_ay(%%esp),%%eax\n \
+    movl    _gploc_pt_ay,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jg  locret1\n \
-    movl    0x1C0+pt_by(%%esp),%%eax\n \
+    movl    _gploc_pt_by,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_783508\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_783508:         # 331\n \
-    subl    0x1C0+pt_ay(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C0(%%esp)\n \
-    movl    0x1C0+pt_ax(%%esp),%%esi\n \
-    movl    %%esi,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+pt_shax(%%esp),%%eax\n \
+    subl    _gploc_pt_ay,%%eax\n \
+    movl    %%eax,_gploc_C0\n \
+    movl    _gploc_pt_ax,%%esi\n \
+    movl    %%esi,_gploc_74\n \
+    movl    _gploc_pt_shax,%%eax\n \
     movl    %%eax,%%ebp\n \
     jz  loc_783A68\n \
-    movl    0x1C0+pt_ay(%%esp),%%esi\n \
+    movl    _gploc_pt_ay,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_7839E0\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_74,%%esi\n \
     jmp loc_783899\n \
 # ---------------------------------------------------------------------------\n \
 \n \
@@ -4516,7 +4538,7 @@ loc_783542:         # 361C\n \
     movb    %%al,(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_78356D:         # 3EEC\n \
@@ -4534,7 +4556,7 @@ loc_78356D:         # 3EEC\n \
     movb    %%al,1(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_783599:         # 3EE8\n \
@@ -4552,7 +4574,7 @@ loc_783599:         # 3EE8\n \
     movb    %%al,2(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_7835C5:         # 3EE4\n \
@@ -4570,7 +4592,7 @@ loc_7835C5:         # 3EE4\n \
     movb    %%al,3(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_7835F1:         # 3EE0\n \
@@ -4588,7 +4610,7 @@ loc_7835F1:         # 3EE0\n \
     movb    %%al,4(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_78361D:         # 3EDC\n \
@@ -4606,7 +4628,7 @@ loc_78361D:         # 3EDC\n \
     movb    %%al,5(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_783649:         # 3ED8\n \
@@ -4624,7 +4646,7 @@ loc_783649:         # 3ED8\n \
     movb    %%al,6(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_783675:         # 3ED4\n \
@@ -4642,7 +4664,7 @@ loc_783675:         # 3ED4\n \
     movb    %%al,7(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_7836A1:         # 3ED0\n \
@@ -4660,7 +4682,7 @@ loc_7836A1:         # 3ED0\n \
     movb    %%al,8(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_7836CD:         # 3ECC\n \
@@ -4678,7 +4700,7 @@ loc_7836CD:         # 3ECC\n \
     movb    %%al,9(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_7836F9:         # 3EC8\n \
@@ -4696,7 +4718,7 @@ loc_7836F9:         # 3EC8\n \
     movb    %%al,0x0A(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_783725:         # 3EC4\n \
@@ -4714,7 +4736,7 @@ loc_783725:         # 3EC4\n \
     movb    %%al,0x0B(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_783751:         # 3EC0\n \
@@ -4732,7 +4754,7 @@ loc_783751:         # 3EC0\n \
     movb    %%al,0x0C(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_78377D:         # 3EBC\n \
@@ -4750,7 +4772,7 @@ loc_78377D:         # 3EBC\n \
     movb    %%al,0x0D(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_7837A9:         # 3EB8\n \
@@ -4768,7 +4790,7 @@ loc_7837A9:         # 3EB8\n \
     movb    %%al,0x0E(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
 loc_7837D5:         # 3EB4\n \
@@ -4786,40 +4808,40 @@ loc_7837D5:         # 3EB4\n \
     movb    %%al,0x0F(%%edi)\n \
     andl    %%ebx,%%ecx\n \
     addl    %%ebp,%%edx\n \
-    adcl    0x1C0+var_2C(%%esp),%%ebx\n \
+    adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
     addl    $0x10,%%edi\n \
-    subl    $0x10,0x1C0+var_D4(%%esp)\n \
+    subl    $0x10,_gploc_D4\n \
     jg  loc_783542\n \
 \n \
 loc_783812:         # 370B\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
-    movl    0x1C0+var_F8(%%esp),%%ebp\n \
-    movl    0x1C0+var_F4(%%esp),%%edi\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_FC,%%eax\n \
+    movl    _gploc_F8,%%ebp\n \
+    movl    _gploc_F4,%%edi\n \
+    movl    _gploc_74,%%esi\n \
     sarl    $0x10,%%eax\n \
     subl    %%eax,%%esi\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
-    addl    0x1C0+var_12C(%%esp),%%eax\n \
-    addl    0x1C0+var_128(%%esp),%%ebp\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
+    movl    _gploc_FC,%%eax\n \
+    addl    _gploc_12C,%%eax\n \
+    addl    _gploc_128,%%ebp\n \
+    movl    %%eax,_gploc_FC\n \
     sarl    $0x10,%%eax\n \
     addl    %%eax,%%esi\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
-    movl    0x1C0+var_34(%%esp),%%ecx\n \
-    movl    0x1C0+var_D8(%%esp),%%edx\n \
-    movl    0x1C0+var_E4(%%esp),%%ebx\n \
-    addl    0x1C0+var_60(%%esp),%%ecx\n \
-    adcl    0x1C0+var_CC(%%esp),%%edx\n \
-    adcl    0x1C0+var_C4(%%esp),%%ebx\n \
-    addl    0x1C0+var_104(%%esp),%%edi\n \
-    decl 0x1C0+var_C0(%%esp)\n \
+    movl    _gploc_FC,%%eax\n \
+    movl    _gploc_34,%%ecx\n \
+    movl    _gploc_D8,%%edx\n \
+    movl    _gploc_E4,%%ebx\n \
+    addl    _gploc_60,%%ecx\n \
+    adcl    _gploc_CC,%%edx\n \
+    adcl    _gploc_C4,%%ebx\n \
+    addl    _gploc_104,%%edi\n \
+    decl _gploc_C0\n \
     jz  loc_783A68\n \
 \n \
 loc_783899:         # 334D\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
-    movl    %%ebp,0x1C0+var_F8(%%esp)\n \
-    movl    %%edi,0x1C0+var_F4(%%esp)\n \
+    movl    %%eax,_gploc_FC\n \
+    movl    %%ebp,_gploc_F8\n \
+    movl    %%edi,_gploc_F4\n \
     sarl    $0x10,%%eax\n \
     js  loc_783980\n \
     cmpl    %%esi,%%eax\n \
@@ -4827,11 +4849,11 @@ loc_783899:         # 334D\n \
     jl  loc_783960\n \
 \n \
 loc_7838C5:         # 3768\n \
-    movl    %%esi,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+var_F4(%%esp),%%edi\n \
-    movl    %%ecx,0x1C0+var_34(%%esp)\n \
-    movl    %%edx,0x1C0+var_D8(%%esp)\n \
-    movl    %%ebx,0x1C0+var_E4(%%esp)\n \
+    movl    %%esi,_gploc_74\n \
+    movl    _gploc_F4,%%edi\n \
+    movl    %%ecx,_gploc_34\n \
+    movl    %%edx,_gploc_D8\n \
+    movl    %%ebx,_gploc_E4\n \
     sarl    $0x10,%%ebp\n \
     cmpl    _LOC_vec_window_width,%%ebp\n \
     jg  loc_7839D0\n \
@@ -4843,19 +4865,19 @@ loc_7838F7:         # 37E6\n \
     movl    %%ebp,%%eax\n \
     andl    $0x0F,%%eax\n \
     addl    _gpoly_countdown(,%%eax,4),%%edi\n \
-    movl    %%ebp,0x1C0+var_D4(%%esp)\n \
+    movl    %%ebp,_gploc_D4\n \
     movl    $0x0FF0000FF,%%ecx\n \
     andl    %%ebx,%%ecx\n \
     roll    $8,%%ecx\n \
     movl    _LOC_vec_map,%%esi\n \
-    movl    0x1C0+var_5C(%%esp),%%ebp\n \
+    movl    _gploc_5C,%%ebp\n \
     jmp     *off_7840A0(,%%eax,4)\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_783940:         # 36C\n \
-    addl    0x1C0+var_30(%%esp),%%ecx\n \
-    adcl    0x1C0+var_BC(%%esp),%%edx\n \
-    adcl    0x1C0+var_B8(%%esp),%%ebx\n \
+    addl    _gploc_30,%%ecx\n \
+    adcl    _gploc_BC,%%edx\n \
+    adcl    _gploc_B8,%%ebx\n \
     incl    %%esi\n \
     cmpl    %%esi,%%eax\n \
     jle loc_7838C5\n \
@@ -4863,9 +4885,9 @@ loc_783940:         # 36C\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_783960:         # 36C\n \
-    subl    0x1C0+var_30(%%esp),%%ecx\n \
-    sbbl    0x1C0+var_BC(%%esp),%%edx\n \
-    sbbl    0x1C0+var_B8(%%esp),%%ebx\n \
+    subl    _gploc_30,%%ecx\n \
+    sbbl    _gploc_BC,%%edx\n \
+    sbbl    _gploc_B8,%%ebx\n \
     decl    %%esi\n \
     cmpl    %%esi,%%eax\n \
     jge loc_7838C5\n \
@@ -4880,18 +4902,18 @@ loc_783980:         # 36C\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_783990:         # 3798\n \
-    addl    0x1C0+var_30(%%esp),%%ecx\n \
-    adcl    0x1C0+var_BC(%%esp),%%edx\n \
-    adcl    0x1C0+var_B8(%%esp),%%ebx\n \
+    addl    _gploc_30,%%ecx\n \
+    adcl    _gploc_BC,%%edx\n \
+    adcl    _gploc_B8,%%ebx\n \
     incl    %%esi\n \
     jz  loc_7838C5\n \
     jmp loc_783990\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_7839B0:         # 379A\n \
-    subl    0x1C0+var_30(%%esp),%%ecx\n \
-    sbbl    0x1C0+var_BC(%%esp),%%edx\n \
-    sbbl    0x1C0+var_B8(%%esp),%%ebx\n \
+    subl    _gploc_30,%%ecx\n \
+    sbbl    _gploc_BC,%%edx\n \
+    sbbl    _gploc_B8,%%ebx\n \
     decl    %%esi\n \
     jz  loc_7838C5\n \
     jmp loc_7839B0\n \
@@ -4903,89 +4925,89 @@ loc_7839D0:         # 370\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_7839E0:         # 3340\n \
-    addl    0x1C0+var_60(%%esp),%%ecx\n \
-    adcl    0x1C0+var_CC(%%esp),%%edx\n \
-    adcl    0x1C0+var_C4(%%esp),%%ebx\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
+    addl    _gploc_60,%%ecx\n \
+    adcl    _gploc_CC,%%edx\n \
+    adcl    _gploc_C4,%%ebx\n \
+    movl    %%eax,_gploc_FC\n \
     sarl    $0x10,%%eax\n \
-    subl    %%eax,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
-    addl    0x1C0+var_12C(%%esp),%%eax\n \
-    addl    0x1C0+var_128(%%esp),%%ebp\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
+    subl    %%eax,_gploc_74\n \
+    movl    _gploc_FC,%%eax\n \
+    addl    _gploc_12C,%%eax\n \
+    addl    _gploc_128,%%ebp\n \
+    movl    %%eax,_gploc_FC\n \
     sarl    $0x10,%%eax\n \
-    addl    %%eax,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
-    addl    0x1C0+var_104(%%esp),%%edi\n \
-    decl 0x1C0+var_C0(%%esp)\n \
+    addl    %%eax,_gploc_74\n \
+    movl    _gploc_FC,%%eax\n \
+    addl    _gploc_104,%%edi\n \
+    decl _gploc_C0\n \
     jz  loc_783A60\n \
     incl    %%esi\n \
     js  loc_7839E0\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_74,%%esi\n \
     jmp loc_783899\n \
 # ---------------------------------------------------------------------------\n \
 \
 \n \
 loc_783A60:         # 385\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_74,%%esi\n \
     nop \n \
 \n \
 loc_783A68:         # 333\n \
-    decl 0x1C0+var_180(%%esp)\n \
+    decl _gploc_180\n \
     jz  locret1\n \
-    movl    %%eax,0x1C0+var_FC(%%esp)\n \
+    movl    %%eax,_gploc_FC\n \
     movl    _factor_chk,%%eax\n \
     orl %%eax,%%eax\n \
     js  loc_783B10\n \
     movl    _factor_cb,%%eax\n \
-    movl    %%eax,0x1C0+var_12C(%%esp)\n \
-    movl    0x1C0+var_64(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_60(%%esp)\n \
-    movl    0x1C0+var_98(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_CC(%%esp)\n \
-    movl    0x1C0+var_94(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C4(%%esp)\n \
+    movl    %%eax,_gploc_12C\n \
+    movl    _gploc_64,%%eax\n \
+    movl    %%eax,_gploc_60\n \
+    movl    _gploc_98,%%eax\n \
+    movl    %%eax,_gploc_CC\n \
+    movl    _gploc_94,%%eax\n \
+    movl    %%eax,_gploc_C4\n \
     xorl    %%ecx,%%ecx\n \
-    movl    0x1C0+var_80(%%esp),%%edx\n \
-    movl    0x1C0+var_7C(%%esp),%%ebx\n \
-    movl    0x1C0+pt_cy(%%esp),%%eax\n \
+    movl    _gploc_80,%%edx\n \
+    movl    _gploc_7C,%%ebx\n \
+    movl    _gploc_pt_cy,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_783ADB\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_783ADB:         # 38E\n \
-    subl    0x1C0+pt_by(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C0(%%esp)\n \
-    movl    0x1C0+pt_bx(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+pt_shbx(%%esp),%%eax\n \
+    subl    _gploc_pt_by,%%eax\n \
+    movl    %%eax,_gploc_C0\n \
+    movl    _gploc_pt_bx,%%eax\n \
+    movl    %%eax,_gploc_74\n \
+    movl    _gploc_pt_shbx,%%eax\n \
     jle locret1\n \
-    movl    0x1C0+pt_by(%%esp),%%esi\n \
+    movl    _gploc_pt_by,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_7839E0\n \
-    movl    0x1C0+pt_bx(%%esp),%%esi\n \
+    movl    _gploc_pt_bx,%%esi\n \
     jmp loc_783899\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_783B10:         # 388\n \
     movl    _factor_cb,%%ebp\n \
-    movl    %%ebp,0x1C0+var_128(%%esp)\n \
-    movl    0x1C0+pt_shbx(%%esp),%%ebp\n \
-    movl    0x1C0+pt_cy(%%esp),%%eax\n \
+    movl    %%ebp,_gploc_128\n \
+    movl    _gploc_pt_shbx,%%ebp\n \
+    movl    _gploc_pt_cy,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_783B30\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_783B30:         # 393\n \
-    subl    0x1C0+pt_by(%%esp),%%eax\n \
-    movl    %%eax,0x1C0+var_C0(%%esp)\n \
-    movl    0x1C0+var_FC(%%esp),%%eax\n \
+    subl    _gploc_pt_by,%%eax\n \
+    movl    %%eax,_gploc_C0\n \
+    movl    _gploc_FC,%%eax\n \
     jle locret1\n \
-    movl    %%esi,0x1C0+var_74(%%esp)\n \
-    movl    0x1C0+pt_by(%%esp),%%esi\n \
+    movl    %%esi,_gploc_74\n \
+    movl    _gploc_pt_by,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_7839E0\n \
-    movl    0x1C0+var_74(%%esp),%%esi\n \
+    movl    _gploc_74,%%esi\n \
     jmp loc_783899\n \
 # ---------------------------------------------------------------------------\n \
 off_783C80:\n \
@@ -5097,114 +5119,6 @@ off_783C80:\n \
     .int    locret1\n \
     .int    locret1\n \
 \n \
-off_783E30:\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_2\n \
-    .int    gpo_case_3\n \
-    .int    gpo_case_4\n \
-    .int    gpo_case_5\n \
-    .int    gpo_case_5\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_3\n \
-    .int    gpo_case_3\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_4\n \
-    .int    gpo_case_4\n \
-    .int    gpo_case_3\n \
-    .int    gpo_case_3\n \
-    .int    gpo_case_5\n \
-    .int    gpo_case_5\n \
-    .int    gpo_case_3\n \
-    .int    gpo_case_3\n \
-    .int    gpo_case_5\n \
-    .int    gpo_case_5\n \
-    .int    gpo_case_break\n \
-    .int    gpo_loc_04F5\n \
-    .int    gpo_loc_096F\n \
-    .int    gpo_loc_04F5\n \
-    .int    gpo_loc_096F\n \
-    .int    gpo_loc_04F5\n \
-    .int    gpo_loc_04F5\n \
-    .int    gpo_loc_04F5\n \
-    .int    gpo_loc_04F5\n \
-    .int    gpo_loc_096F\n \
-    .int    gpo_loc_096F\n \
-    .int    gpo_loc_04F5\n \
-    .int    gpo_loc_04F5\n \
-    .int    gpo_loc_096F\n \
-    .int    gpo_loc_096F\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_break\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    locret1\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_2\n \
-    .int    gpo_case_3\n \
-    .int    gpo_case_4\n \
-    .int    gpo_loc_1CAF\n \
-    .int    gpo_case_5\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_3\n \
-    .int    gpo_case_3\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_4\n \
-    .int    gpo_case_4\n \
-    .int    gpo_case_3\n \
-    .int    gpo_case_3\n \
-    .int    gpo_case_5\n \
-    .int    gpo_case_5\n \
-    .int    gpo_case_3\n \
-    .int    gpo_case_3\n \
-    .int    gpo_case_5\n \
-    .int    gpo_case_5\n \
-    .int    gpo_case_break\n \
-    .int    gpo_loc_04F5\n \
-    .int    gpo_loc_096F\n \
-    .int    gpo_loc_04F5\n \
-    .int    gpo_loc_096F\n \
-    .int    gpo_loc_04F5\n \
-    .int    gpo_loc_04F5\n \
-    .int    gpo_loc_04F5\n \
-    .int    gpo_loc_04F5\n \
-    .int    gpo_loc_096F\n \
-    .int    gpo_loc_096F\n \
-    .int    gpo_loc_04F5\n \
-    .int    gpo_loc_04F5\n \
-    .int    gpo_loc_096F\n \
-    .int    gpo_loc_096F\n \
-    .int    gpo_case_break\n \
-    .int    gpo_case_break\n \
 \n \
 off_783FE0:\n \
     .int    loc_7822A1\n \
@@ -5279,11 +5193,10 @@ off_7840A0:\n \
     .int    loc_78356D\n \
 # ---------------------------------------------------------------------------\n \
 locret1:\n \
-    addl    $0x1A0,%%esp\n \
     popa    \n \
 "
          : // no outputs
-         : "a" (point_a), "d" (point_b), "b" (point_c)
+         : // arguments now off "a" (point_a), "d" (point_b), "b" (point_c)
          : "memory", "cc");
 }
 /******************************************************************************/
