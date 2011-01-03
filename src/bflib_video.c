@@ -404,6 +404,12 @@ static TbResult LbScreenActivationUpdate(void)
     return Lb_SUCCESS;
 }
 
+/** Updates icon of the application.
+ *  Icon index is stored in lbIconIndex global variable; this function maps
+ *  the index into OS-specific resource and applies it to engine process.
+ *
+ * @return If icon was updated, Lb_SUCCESS is returned.
+ */
 TbResult LbScreenUpdateIcon(void)
 {
     //TODO replace with portable version
