@@ -168,13 +168,13 @@ static TbError send_buffer(TCPsocket socket, const char * buffer, size_t size)
     assert(buffer);
 
     if (socket == NULL) {
-        return Lb_FAIL;
+        return Lb_OK;
     }
 
     NETDBG(9, "Trying to send %u bytes", size);
 
     if ((retval = SDLNet_TCP_Send(socket, buffer, size)) != size) {
-        NETLOG("Failure to send to socket: %d", retval);
+        NETMSG("Failure to send to socket: %d", retval);
         return Lb_FAIL;
     }
 
@@ -204,13 +204,13 @@ static TbError read_stage(TCPsocket socket, char * buffer, size_t size)
 {
     int retval;
 
-    assert(socket);
     assert(buffer);
+    assert(socket);
 
     NETDBG(9, "Trying to read %u bytes", size);
 
     if ((retval = SDLNet_TCP_Recv(socket, buffer, size)) != size) {
-        NETLOG("Failure to read from socket: %d", retval);
+        NETMSG("Failure to read from socket: %d", retval);
         return Lb_FAIL;
     }
 
@@ -224,7 +224,7 @@ static TbError read_full(TCPsocket socket, struct Msg * msg)
     assert(msg);
 
     if (socket == NULL) {
-        return Lb_FAIL;
+        return Lb_OK;
     }
 
     if (msg->state == READ_FINISHED) {
@@ -260,7 +260,7 @@ static TbError read_partial(TCPsocket socket, struct Msg * msg, unsigned timeout
     assert(msg);
 
     if (socket == NULL) {
-        return Lb_FAIL;
+        return Lb_OK;
     }
 
     if (msg->state == READ_FINISHED) {
@@ -563,6 +563,7 @@ static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
 static void tcpSP_drop_user(NetUserId id)
 {
     if (clear_peer(id) && spstate.drop_callback) {
+        NETLOG("Dropped user %i", id);
         spstate.drop_callback(id, NETDROP_MANUAL);
     }
 }
