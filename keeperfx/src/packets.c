@@ -2598,10 +2598,10 @@ void process_packets(void)
   // Write packets into file, if requested
   if ((game.packet_save_enable) && (game.packet_fopened))
     save_packets();
-//Debug code, to find packet errors
+/*Debug code, to find packet errors
 #if BFDEBUG_LEVEL > 0
   write_debug_packets();
-#endif
+#endif*/
   // Process the packets
   for (i=0; i<PACKETS_COUNT; i++)
   {

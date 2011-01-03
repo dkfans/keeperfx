@@ -145,7 +145,8 @@ TbResult LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned lo
     }
 
     if (blresult == -1) {
-        ERRORLOG("Blit failed: %s",SDL_GetError());
+        //Blitting mouse cursor will occasionally fail, so there's no point in logging this
+        ERRORDBG(11,"Blit failed: %s",SDL_GetError());
         return Lb_FAIL;
     }
     return Lb_SUCCESS;
