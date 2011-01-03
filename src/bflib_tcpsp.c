@@ -55,11 +55,12 @@ struct SPState
     TCPsocket           socket; //server socket or client peer
     SDLNet_SocketSet    socketset;
     struct Peer         peers[MAX_N_PEERS];
+    NetDropCallback     drop_callback;
 };
 
 static SPState spstate;
 
-static TbError  tcpSP_init(void);
+static TbError  tcpSP_init(NetDropCallback drop_callback);
 static void     tcpSP_exit(void);
 static TbError  tcpSP_host(const char * session, void * options);
 static TbError  tcpSP_join(const char * session, void * options);
@@ -68,6 +69,7 @@ static void     tcpSP_sendmsg_single(NetUserId destination, const char * buffer,
 static void     tcpSP_sendmsg_all(const char * buffer, size_t size);
 static size_t   tcpSP_msgready(NetUserId source, unsigned timeout);
 static size_t   tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size);
+static void     tcpSP_drop_user(NetUserId id);
 
 const struct NetSP tcpSP =
 {
@@ -79,8 +81,43 @@ const struct NetSP tcpSP =
     tcpSP_sendmsg_single,
     tcpSP_sendmsg_all,
     tcpSP_msgready,
-    tcpSP_readmsg
+    tcpSP_readmsg,
+    tcpSP_drop_user,
 };
+
+static TbBool clear_peer(NetUserId id)
+{
+    unsigned i;
+
+    if (spstate.ishost) {
+        for (i = 0; i < MAX_N_PEERS; ++i) {
+            if (spstate.peers[i].id == id) {
+                if (spstate.peers[i].socket != NULL) {
+                    SDLNet_TCP_DelSocket(spstate.socketset, spstate.peers[i].socket);
+                    SDLNet_TCP_Close(spstate.peers[i].socket);
+                }
+
+                LbMemoryFree(spstate.peers[i].msg.buffer);
+                LbMemorySet(&spstate.peers[i], 0, sizeof(spstate.peers[i]));
+
+                return 1;
+            }
+        }
+
+        return 0;
+    }
+    else {
+        if (spstate.socket != NULL) {
+            SDLNet_TCP_Close(spstate.socket);
+            spstate.socket = NULL; //assume disconnected
+        }
+
+        LbMemoryFree(spstate.servermsg.buffer);
+        LbMemorySet(&spstate.servermsg, 0, sizeof(spstate.servermsg));
+
+        return 1;
+    }
+}
 
 static TCPsocket find_peer_socket(NetUserId id)
 {
@@ -173,7 +210,6 @@ static TbError read_stage(TCPsocket socket, char * buffer, size_t size)
     NETDBG(9, "Trying to read %u bytes", size);
 
     if ((retval = SDLNet_TCP_Recv(socket, buffer, size)) != size) {
-        //TODO: handle disconnects
         NETLOG("Failure to read from socket: %d", retval);
         return Lb_FAIL;
     }
@@ -263,7 +299,7 @@ static TbError read_partial(TCPsocket socket, struct Msg * msg, unsigned timeout
     return Lb_OK;
 }
 
-static TbError tcpSP_init(void)
+static TbError tcpSP_init(NetDropCallback drop_callback)
 {
     NETDBG(3, "Starting");
 
@@ -272,6 +308,8 @@ static TbError tcpSP_init(void)
     if (SDLNet_Init() < 0) {
         return Lb_FAIL;
     }
+
+    spstate.drop_callback = drop_callback;
 
     return Lb_OK;
 }
@@ -409,29 +447,45 @@ static void tcpSP_sendmsg_single(NetUserId destination, const char * buffer, siz
 
     NETDBG(9, "Starting for buffer of %u bytes to user %u", size, destination);
 
-    send_buffer(find_peer_socket(destination), (const char*) &size, 4);
-    send_buffer(find_peer_socket(destination), buffer, size); //TODO: deal with errors
+    if (    send_buffer(find_peer_socket(destination), (const char*) &size, 4) == Lb_FAIL ||
+            send_buffer(find_peer_socket(destination), buffer, size) == Lb_FAIL) {
+        clear_peer(destination);
+        if (spstate.drop_callback) {
+            spstate.drop_callback(destination, NETDROP_ERROR);
+        }
+    }
 }
 
 static void tcpSP_sendmsg_all(const char * buffer, size_t size)
 {
     unsigned i;
+    NetUserId id;
 
     assert(buffer);
     assert(size > 0);
     NETDBG(9, "Starting for buffer of %u bytes", size);
 
-    //TODO: deal with connection errors
-
     if (spstate.ishost) {
         for (i = 0; i < MAX_N_PEERS; ++i) {
-            send_buffer(spstate.peers[i].socket, (const char*) &size, 4);
-            send_buffer(spstate.peers[i].socket, buffer, size);
+            if (    send_buffer(spstate.peers[i].socket, (const char*) &size, 4) == Lb_FAIL ||
+                    send_buffer(spstate.peers[i].socket, buffer, size) == Lb_FAIL) {
+
+                id = spstate.peers[i].id;
+                clear_peer(id);
+                if (spstate.drop_callback) {
+                    spstate.drop_callback(id, NETDROP_ERROR);
+                }
+            }
         }
     }
     else {
-        send_buffer(spstate.socket, (const char*) &size, 4);
-        send_buffer(spstate.socket, buffer, size);
+        if (    send_buffer(spstate.socket, (const char*) &size, 4) == Lb_FAIL ||
+                send_buffer(spstate.socket, buffer, size) == Lb_FAIL) {
+            clear_peer(SERVER_ID);
+            if (spstate.drop_callback) {
+                spstate.drop_callback(SERVER_ID, NETDROP_ERROR);
+            }
+        }
     }
 }
 
@@ -452,7 +506,11 @@ static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
     }
 
     if (read_partial(find_peer_socket(source), msg, timeout) == Lb_FAIL) {
-        //TODO: handle disconnect or do it in read_partial
+        clear_peer(source);
+        if (spstate.drop_callback) {
+            spstate.drop_callback(source, NETDROP_ERROR);
+        }
+
         return 0;
     }
 
@@ -486,7 +544,11 @@ static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
     }
 
     if (read_full(find_peer_socket(source), msg) == Lb_FAIL) {
-        //TODO: handle disconnect or do it in read_partial
+        clear_peer(source);
+        if (spstate.drop_callback) {
+            spstate.drop_callback(source, NETDROP_ERROR);
+        }
+
         return 0;
     }
 
@@ -496,4 +558,11 @@ static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
     LbMemoryCopy(buffer, msg->buffer, size);
     reset_msg(msg);
     return size;
+}
+
+static void tcpSP_drop_user(NetUserId id)
+{
+    if (clear_peer(id) && spstate.drop_callback) {
+        spstate.drop_callback(id, NETDROP_MANUAL);
+    }
 }
