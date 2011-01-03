@@ -43,7 +43,14 @@ extern "C" {
 
 typedef int NetUserId;
 
-typedef TbBool (*NetNewUserCallback)(NetUserId * assigned_id);
+enum NetDropReason
+{
+    NETDROP_MANUAL, //via drop_user()
+    NETDROP_ERROR //connection error
+};
+
+typedef TbBool  (*NetNewUserCallback)(NetUserId * assigned_id);
+typedef void    (*NetDropCallback)(NetUserId id, enum NetDropReason reason);
 
 struct NetSP //new version
 {
@@ -51,7 +58,7 @@ struct NetSP //new version
      * Inits this service provider.
      * @return Lb_FAIL or Lb_OK
      */
-    TbError (*init)(void);
+    TbError (*init)(NetDropCallback drop_callback);
 
     /**
      * Closes down all activities and cleans up this service provider.
@@ -120,6 +127,12 @@ struct NetSP //new version
      *  error occurred.
      */
     size_t  (*readmsg)(NetUserId source, char * buffer, size_t max_size);
+
+    /**
+     * Disconnects a user.
+     * @param id User to be dropped.
+     */
+    void (*drop_user)(NetUserId id);
 };
 
 extern const struct NetSP tcpSP;

@@ -727,7 +727,7 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
   }
 
   if (netstate.sp) {
-      res = netstate.sp->init();
+      res = netstate.sp->init(NULL); //TODO: supply drop callback
   }
 
   //_wint_thread_data = thread_data_mem;
