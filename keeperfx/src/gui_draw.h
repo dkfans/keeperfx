@@ -29,6 +29,13 @@
 // Sprites
 // note - this is temporary value; not correct
 #define GUI_PANEL_SPRITES_COUNT      9000
+// Positioning constants for menus
+#define POS_AUTO -9999
+#define POS_MOUSMID -999
+#define POS_MOUSPRV -998
+#define POS_SCRCTR  -997
+#define POS_SCRBTM  -996
+#define POS_GAMECTR  999
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,8 +58,12 @@ DLLIMPORT extern unsigned long _DK_end_gui_panel_sprite_data;
 #define end_gui_panel_sprite_data _DK_end_gui_panel_sprite_data
 DLLIMPORT unsigned char _DK_colours[16][16][16];
 #define colours _DK_colours
+DLLIMPORT extern unsigned char *_DK_frontend_background;
+#define frontend_background _DK_frontend_background
 
 /******************************************************************************/
+int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h);
+
 void draw_bar64k(long pos_x, long pos_y, long width);
 void draw_lit_bar64k(long pos_x, long pos_y, long width);
 void draw_slab64k(long pos_x, long pos_y, long width, long height);
@@ -65,6 +76,8 @@ void draw_gui_panel_sprite_rmleft(long x, long y, long spridx, unsigned long rem
 void draw_gui_panel_sprite_ocleft(long x, long y, long spridx, TbPixel color);
 void draw_gui_panel_sprite_centered(long x, long y, long spridx);
 void draw_gui_panel_sprite_occentered(long x, long y, long spridx, TbPixel color);
+
+void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h);
 /******************************************************************************/
 #ifdef __cplusplus
 }

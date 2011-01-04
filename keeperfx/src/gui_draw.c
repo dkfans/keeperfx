@@ -27,6 +27,8 @@
 #include "bflib_sprfnt.h"
 #include "bflib_guibtns.h"
 
+#include "front_simple.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -40,6 +42,28 @@ DLLIMPORT void _DK_draw_ornate_slab64k(long pos_x, long pos_y, long width, long 
 /******************************************************************************/
 
 /******************************************************************************/
+
+int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)
+{
+  int w,h,m;
+  w = 0;
+  h = 0;
+  for (m=0; m < 5; m++)
+  {
+    w += img_w;
+    h += img_h;
+    if (w > rect_w) break;
+    if (h > rect_h) break;
+  }
+  // The image width can't be larger than video resolution
+  if (m < 1)
+  {
+    if (w > lbDisplay.PhysicalScreenWidth)
+      return 0;
+    m = 1;
+  }
+  return m;
+}
 
 void draw_bar64k(long pos_x, long pos_y, long width)
 {
@@ -180,6 +204,37 @@ void draw_gui_panel_sprite_occentered(long x, long y, long spridx, TbPixel color
   x -= ((spr->SWidth*(long)pixel_size) >> 1);
   y -= ((spr->SHeight*(long)pixel_size) >> 1);
   LbSpriteDrawOneColour(x/pixel_size, y/pixel_size, spr, color);
+}
+
+void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
+{
+  const int img_width = 640;
+  const int img_height = 480;
+  const unsigned char *srcbuf=frontend_background;
+  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(LbScreenActiveMode());
+  int m;
+  int spx,spy;
+  // Only 8bpp supported for now
+  if (LbGraphicsScreenBPP() != 8)
+    return;
+  if (rect_w == POS_AUTO)
+    rect_w = mdinfo->Width-rect_x;
+  if (rect_h == POS_AUTO)
+    rect_h = mdinfo->Height-rect_y;
+  if (rect_w<0) rect_w=0;
+  if (rect_h<0) rect_h=0;
+  m = get_bitmap_max_scale(img_width, img_height, rect_w, rect_h);
+  if (m < 1)
+  {
+    SYNCMSG("The %dx%d frontend image does not fit in %dx%d window, skipped.", img_width, img_height,rect_w,rect_h);
+    return;
+  }
+  // Starting point coords
+  spx = rect_x + ((rect_w-m*img_width)>>1);
+  spy = rect_y + ((rect_h-m*img_height)>>1);
+  // Do the drawing
+  copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
+      spx,spy,srcbuf,img_width,img_height,m);
 }
 
 /******************************************************************************/
