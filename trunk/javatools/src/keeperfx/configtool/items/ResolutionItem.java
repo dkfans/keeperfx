@@ -21,15 +21,17 @@ public class ResolutionItem extends ConfigurationItem
 	private static final long serialVersionUID = 4260855099314334744L;
 	private static final int MIN_N_FIELDS = 3;
 	
+	private final DisplayModeFilter filter;
 	private final String key;
 	private final int valueIndex;
 	private final JComboBox combobox;
 	private String oldResolution;
 
 	public ResolutionItem(ValueObservable<Boolean> configChanged,
-			String label, String key, int valueIndex) {
+			String label, String key, int valueIndex, DisplayModeFilter filter) {
 		super(configChanged, label);
 
+		this.filter = filter;
 		this.key = key;
 		this.valueIndex = valueIndex;
 		
@@ -70,8 +72,14 @@ public class ResolutionItem extends ConfigurationItem
 		TreeSet<DisplayMode> mergedModes = new TreeSet<DisplayMode>(this);
 		
 		for (DisplayMode mode : displayModes) {
-			mergedModes.add(mode);
+			if (filter == null || filter.allowDisplayMode(mode)) {
+				mergedModes.add(mode);
+			}
 		}
+		
+		mergedModes.add(new DisplayMode(320, 240, 8, DisplayMode.REFRESH_RATE_UNKNOWN));
+		mergedModes.add(new DisplayMode(640, 480, 8, DisplayMode.REFRESH_RATE_UNKNOWN));
+		
 		for (DisplayMode mode : mergedModes) {
 			combobox.addItem(modeString(mode));
 		}

@@ -1,6 +1,7 @@
 package keeperfx.configtool;
 
 import java.awt.BorderLayout;
+import java.awt.DisplayMode;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -26,6 +27,7 @@ import javax.swing.WindowConstants;
 
 import keeperfx.configtool.items.CensorshipItem;
 import keeperfx.configtool.items.ConfigurationItem;
+import keeperfx.configtool.items.DisplayModeFilter;
 import keeperfx.configtool.items.InstallPathItem;
 import keeperfx.configtool.items.MultiChoiceItem;
 import keeperfx.configtool.items.ResolutionItem;
@@ -68,6 +70,25 @@ public class MainWindow extends JFrame
 	private final ArrayList<ConfigurationItem> items = new ArrayList<ConfigurationItem>();
 	private final ConfigurationBuffer configBuffer = new KeeperFXConfiguration();
 	
+	private final DisplayModeFilter limitedResolutionFilter = new DisplayModeFilter() {
+		@Override
+		public boolean allowDisplayMode(DisplayMode mode) {
+			if (mode.getBitDepth() != 8) {
+				return false;
+			}
+			
+			if (mode.getWidth() >= 300 && mode.getWidth() <= 320 && mode.getHeight() <= 240) {
+				return true;
+			}
+			
+			if (mode.getWidth() >= 600 && mode.getWidth() <= 640 && mode.getHeight() <= 480) {
+				return true;
+			}
+			
+			return false;
+		}
+	};
+	
 	public MainWindow() {
 		super("KeeperFX Configuration Tool");
 		
@@ -97,13 +118,13 @@ public class MainWindow extends JFrame
 
 	private void initConfigItems() {
 		addConfigItem(new ResolutionItem(configChanged,
-				"(Primary) In-Game Resolution:", "INGAME_RES", 0));
+				"(Primary) In-Game Resolution:", "INGAME_RES", 0, null));
 		addConfigItem(new ResolutionItem(configChanged,
-				"Menu Resolution:", "FRONTEND_RES", 2));
+				"Menu Resolution:", "FRONTEND_RES", 2, limitedResolutionFilter));
 		addConfigItem(new ResolutionItem(configChanged,
-				"Movie Resolution:", "FRONTEND_RES", 1));
+				"Movie Resolution:", "FRONTEND_RES", 1, limitedResolutionFilter));
 		addConfigItem(new ResolutionItem(configChanged,
-				"Fail-Safe Resolution:", "FRONTEND_RES", 0));
+				"Fail-Safe Resolution:", "FRONTEND_RES", 0, limitedResolutionFilter));
 		addConfigItem(new MultiChoiceItem(configChanged, "Screenshot Format:",
 				"SCREENSHOT", 2, new String[] { "BMP", "HSI" }));
 		addConfigItem(new MultiChoiceItem(configChanged, "Language:",
