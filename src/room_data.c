@@ -33,6 +33,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT void _DK_delete_room_structure(struct Room *room);
+/******************************************************************************/
 void count_slabs(struct Room *room);
 void count_gold_slabs_with_efficiency(struct Room *room);
 void count_gold_hoardes_in_room(struct Room *room);
@@ -422,30 +424,40 @@ void count_lair_occupants(struct Room *room)
 
 void delete_room_structure(struct Room *room)
 {
-  //_DK_delete_room_structure(room); return;
-  struct Dungeon *dungeon;
-  unsigned short *wptr;
-  if (room == NULL)
-    return;
-  if (room->field_0 & 0x01)
-  {
-    if (game.neutral_player_num != room->owner)
+    struct Dungeon *dungeon;
+    struct Room *secroom;
+    unsigned short *wptr;
+    //_DK_delete_room_structure(room); return;
+    if (room_is_invalid(room))
     {
-        dungeon = get_players_num_dungeon(room->owner);
-        wptr = &dungeon->room_kind[room->kind];
-        if (room->index == *wptr)
-        {
-          *wptr = room->next_of_owner;
-          game.rooms[room->next_of_owner].prev_of_owner = 0;
-        }
-        else
-        {
-          game.rooms[room->next_of_owner].prev_of_owner = room->prev_of_owner;
-          game.rooms[room->prev_of_owner].next_of_owner = room->next_of_owner;
-        }
+        WARNLOG("Attempt to delete invalid room");
+        return;
     }
-    memset(room, 0, sizeof(struct Room));
-  }
+    if ((room->field_0 & 0x01) != 0)
+    {
+      if (room->owner != game.neutral_player_num)
+      {
+          dungeon = get_players_num_dungeon(room->owner);
+          wptr = &dungeon->room_kind[room->kind];
+          if (room->index == *wptr)
+          {
+              *wptr = room->next_of_owner;
+              secroom = room_get(room->next_of_owner);
+              if (!room_is_invalid(secroom))
+                  secroom->prev_of_owner = 0;
+          }
+          else
+          {
+              secroom = room_get(room->next_of_owner);
+              if (!room_is_invalid(secroom))
+                  secroom->prev_of_owner = room->prev_of_owner;
+              secroom = room_get(room->prev_of_owner);
+              if (!room_is_invalid(secroom))
+                  secroom->next_of_owner = room->next_of_owner;
+          }
+      }
+      memset(room, 0, sizeof(struct Room));
+    }
 }
 
 void delete_all_room_structures(void)

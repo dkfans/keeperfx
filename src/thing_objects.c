@@ -546,7 +546,6 @@ long object_update_dungeon_heart(struct Thing *thing)
   long long k;
   SYNCDBG(18,"Starting");
   //return _DK_object_update_dungeon_heart(thing);
-  dungeon = get_players_num_dungeon(thing->owner);
   if ((thing->health > 0) && (game.dungeon_heart_heal_time != 0))
   {
     if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)
@@ -566,13 +565,17 @@ long object_update_dungeon_heart(struct Thing *thing)
     thing->field_46 = i * (long)objects_data[5].field_D >> 8;
     thing->field_56 = i * (long)objects_data[5].field_9 >> 8;
   } else
-  if (dungeon->field_1060[0] == 0)
+  if (thing->owner != game.neutral_player_num)
   {
-      LbMemorySet(dungeon->field_1060, 0, sizeof(dungeon->field_1060));
-      dungeon->field_1060[0] = 1;
-      dungeon->pos_1065.x.val = thing->mappos.x.val;
-      dungeon->pos_1065.y.val = thing->mappos.y.val;
-      dungeon->pos_1065.z.val = thing->mappos.z.val;
+      dungeon = get_players_num_dungeon(thing->owner);
+      if (dungeon->field_1060[0] == 0)
+      {
+          LbMemorySet(dungeon->field_1060, 0, sizeof(dungeon->field_1060));
+          dungeon->field_1060[0] = 1;
+          dungeon->pos_1065.x.val = thing->mappos.x.val;
+          dungeon->pos_1065.y.val = thing->mappos.y.val;
+          dungeon->pos_1065.z.val = thing->mappos.z.val;
+      }
   }
   process_dungeon_destroy(thing);
   SYNCDBG(18,"Beat update");

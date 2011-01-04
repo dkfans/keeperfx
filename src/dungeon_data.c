@@ -34,7 +34,7 @@ struct Dungeon *get_players_num_dungeon_ptr(long plyr_idx,const char *func_name)
     plyr_num = player->id_number;
     if (player_invalid(player) || (plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
     {
-        ERRORMSG("%s: Tried to get nonexisting dungeon %ld!",func_name,(long)plyr_num);
+        ERRORMSG("%s: Tried to get players %ld nonexisting dungeon %ld!",func_name,(long)plyr_idx,(long)plyr_num);
         return INVALID_DUNGEON;
     }
     if (plyr_num != player->id_number)
