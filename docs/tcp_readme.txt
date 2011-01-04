@@ -28,8 +28,8 @@ Known issues with TCP/IP:
 - Everyone else crashes if host exits.
 - Host is auto-computered if anyone leaves. (WTF!?)
 - Having a player leave without anyone rejoining creates a 'hole' in player
-    list, which will make game unplayable.
-- Session player list does not update on selected game.
+    list, which will make the game unplayable.
+- Session player list does not update when a session is selected.
 - Will be laggy like heck on anything but a LAN or near LAN-grade connection
     probably.
 - Only old four byte IP-addresses are supported at the moment, as far as I
@@ -37,8 +37,8 @@ Known issues with TCP/IP:
 
   
 These issues shall hopefully be resolved one by one in coming versions. I
-apologize for these issues, but I don't have a good test environment nor is
+apologize for them, but I don't have a good test environment nor is
 the game code particularly easy to work with. Help me by reporting reasons for
-out-of-sync in particular, or issues things not on the above list.
+out-of-sync in particular, or other issues not on the above list.
 
-- Petter H, aka. P_Hansson
+- Petter H, aka P Hansson ;-)
