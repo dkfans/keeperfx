@@ -2,7 +2,7 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file lens_flyeye.h
- *     Header file for lens_flyeye.c.
+ *     Header file for lens_flyeye.cpp.
  * @par Purpose:
  *     lens_flyeye functions.
  * @par Comment:
