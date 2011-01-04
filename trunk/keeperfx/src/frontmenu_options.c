@@ -24,6 +24,8 @@
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "player_data.h"
+#include "gui_draw.h"
+#include "gui_frontbtns.h"
 #include "frontend.h"
 #include "packets.h"
 #include "keeperfx.hpp"

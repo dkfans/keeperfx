@@ -795,8 +795,6 @@ DLLIMPORT extern long _DK_top_pointed_at_frac_x;
 #define top_pointed_at_frac_x _DK_top_pointed_at_frac_x
 DLLIMPORT extern long _DK_top_pointed_at_frac_y;
 #define top_pointed_at_frac_y _DK_top_pointed_at_frac_y
-DLLIMPORT long _DK_activity_list[24];
-#define activity_list _DK_activity_list
 DLLIMPORT long _DK_anim_counter;
 #define anim_counter _DK_anim_counter
 DLLIMPORT unsigned char *_DK_block_ptrs[592];

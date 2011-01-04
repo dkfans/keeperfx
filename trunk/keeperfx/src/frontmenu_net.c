@@ -28,6 +28,7 @@
 #include "bflib_vidraw.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
+#include "gui_frontbtns.h"
 #include "frontend.h"
 #include "net_game.h"
 #include "game_merge.h"

@@ -21,8 +21,24 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_guibtns.h"
+#include "bflib_vidraw.h"
+#include "bflib_sprite.h"
+#include "bflib_sprfnt.h"
+#include "bflib_datetm.h"
 #include "kjm_input.h"
+#include "gui_draw.h"
+#include "gui_frontmenu.h"
 #include "frontend.h"
+
+// needed for timeGetTime() -- should be later removed
+#if defined(WIN32)
+//instead of #include <windows.h>
+#include <stdarg.h>
+#include <windef.h>
+#include <winbase.h>
+#include <mmsystem.h>
+#endif
+
 
 #include "keeperfx.hpp"
 
@@ -30,7 +46,25 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT void _DK_gui_pretty_background(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_gui_round_glass_background(struct GuiMenu *gmnu);
 
+DLLIMPORT void _DK_gui_area_new_normal_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_draw_tab(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_new_null_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_new_no_anim_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_no_anim_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_normal_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_button(struct GuiButton *gbtn, long a2, const char *text, long a4);
+DLLIMPORT void _DK_frontend_draw_large_menu_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_draw_vlarge_menu_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_reset_scroll_window(struct GuiMenu *gmnu);
+DLLIMPORT void _DK_gui_area_null(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_set_menu_mode(struct GuiButton *gbtn);
+DLLIMPORT void _DK_gui_area_flash_cycle_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_scroll_box_tab(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_scroll_box(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontnet_draw_slider_button(struct GuiButton *gbtn);
 /******************************************************************************/
 void gui_clear_buttons_not_over_mouse(int gmbtn_idx)
 {
@@ -237,6 +271,207 @@ void setup_radio_buttons(struct GuiMenu *gmnu)
       }
     }
   }
+}
+
+void frontend_copy_mnu_background(struct GuiMenu *gmnu)
+{
+  SYNCDBG(9,"Starting");
+  frontend_copy_background_at(gmnu->pos_x,gmnu->pos_y,gmnu->width,gmnu->height);
+}
+
+void frontend_copy_background(void)
+{
+  frontend_copy_background_at(0,0,POS_AUTO,POS_AUTO);
+}
+
+void gui_round_glass_background(struct GuiMenu *gmnu)
+{
+  SYNCDBG(19,"Starting");
+  _DK_gui_round_glass_background(gmnu);
+}
+
+void gui_pretty_background(struct GuiMenu *gmnu)
+{
+  SYNCDBG(9,"Starting");
+  _DK_gui_pretty_background(gmnu);
+}
+
+void gui_area_new_normal_button(struct GuiButton *gbtn)
+{
+  SYNCDBG(10,"Starting");
+  _DK_gui_area_new_normal_button(gbtn);
+  SYNCDBG(12,"Finished");
+}
+
+void gui_draw_tab(struct GuiButton *gbtn)
+{
+  if (gbtn->gbtype == Lb_CYCLEBTN)
+    ERRORLOG("Cycle button cannot use this draw function!");
+  if ((gbtn->field_1) || (gbtn->field_2))
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
+  else
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29+1);
+}
+
+void gui_area_new_null_button(struct GuiButton *gbtn)
+{
+  _DK_gui_area_new_null_button(gbtn);
+}
+
+void gui_area_new_no_anim_button(struct GuiButton *gbtn)
+{
+  SYNCDBG(10,"Starting");
+  _DK_gui_area_new_no_anim_button(gbtn);
+  SYNCDBG(12,"Finished");
+}
+
+void gui_area_no_anim_button(struct GuiButton *gbtn)
+{
+  _DK_gui_area_no_anim_button(gbtn);
+}
+
+void gui_area_normal_button(struct GuiButton *gbtn)
+{
+  _DK_gui_area_normal_button(gbtn);
+}
+
+void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const char *text, unsigned int drw_flags)
+{
+  static const long large_button_sprite_anims[] =
+      { 2, 5, 8, 11, 14, 11, 8, 5, };
+  unsigned int fbinfo_idx;
+  unsigned int spridx;
+  int fntidx;
+  long x,y;
+  int h;
+  SYNCDBG(9,"Drawing type %d, text \"%s\"",(int)btntype,text);
+  fbinfo_idx = (unsigned int)gbtn->field_33;
+  if ((gbtn->field_0 & 0x08) == 0)
+  {
+    fntidx = 3;
+    spridx = 14;
+  } else
+  if ((fbinfo_idx>0) && (frontend_mouse_over_button == fbinfo_idx))
+  {
+    fntidx = 2;
+    spridx = large_button_sprite_anims[((timeGetTime()-frontend_mouse_over_button_start_time)/100) & 7];
+  } else
+  {
+    fntidx = frontend_button_info[fbinfo_idx%FRONTEND_BUTTON_INFO_COUNT].font_index;
+    spridx = 14;
+  }
+  x = gbtn->scr_pos_x;
+  y = gbtn->scr_pos_y;
+  switch (btntype)
+  {
+   case 1:
+      LbSpriteDraw(x, y, &frontend_sprite[spridx]);
+      x += frontend_sprite[spridx].SWidth;
+      LbSpriteDraw(x, y, &frontend_sprite[spridx+1]);
+      x += frontend_sprite[spridx+1].SWidth;
+      break;
+  case 2:
+      LbSpriteDraw(x, y, &frontend_sprite[spridx]);
+      x += frontend_sprite[spridx].SWidth;
+      LbSpriteDraw(x, y, &frontend_sprite[spridx+1]);
+      x += frontend_sprite[spridx+1].SWidth;
+      LbSpriteDraw(x, y, &frontend_sprite[spridx+1]);
+      x += frontend_sprite[spridx+1].SWidth;
+      break;
+  default:
+      LbSpriteDraw(x, y, &frontend_sprite[spridx]);
+      x += frontend_sprite[spridx].SWidth;
+      break;
+  }
+  LbSpriteDraw(x, y, &frontend_sprite[spridx+2]);
+  if (text != NULL)
+  {
+    lbDisplay.DrawFlags = drw_flags;
+    LbTextSetFont(frontend_font[fntidx]);
+    h = LbTextHeight(text);
+    x = gbtn->scr_pos_x + ((40) >> 1);
+    y = gbtn->scr_pos_y + ((frontend_sprite[spridx].SHeight-h) >> 1);
+    LbTextSetWindow(x, y, gbtn->width-40, h);
+    LbTextDraw(0, 0, text);
+  }
+}
+
+void frontend_draw_large_menu_button(struct GuiButton *gbtn)
+{
+  unsigned long btninfo_idx;
+  char *text;
+  int idx;
+  btninfo_idx = (unsigned long)gbtn->field_33;
+  if (btninfo_idx < FRONTEND_BUTTON_INFO_COUNT)
+    idx = frontend_button_info[btninfo_idx].capstr_idx;
+  else
+    idx = -1;
+  if ((idx >= 0) && (idx < STRINGS_MAX))
+    text = gui_strings[idx];
+  else
+    text = NULL;
+  frontend_draw_button(gbtn, 1, text, 0x0100);
+}
+
+void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn)
+{
+  unsigned int btninfo_idx;
+  const char *text;
+  int idx;
+  //_DK_frontend_draw_vlarge_menu_button(gbtn);
+  btninfo_idx = (unsigned long)gbtn->field_33;
+  if (btninfo_idx < FRONTEND_BUTTON_INFO_COUNT)
+    idx = frontend_button_info[btninfo_idx].capstr_idx;
+  else
+    idx = -1;
+  if ((idx >= 0) && (idx < STRINGS_MAX))
+    text = gui_strings[idx];
+  else
+    text = NULL;
+  frontend_draw_button(gbtn, 2, text, 0x0100);
+}
+
+void frontend_draw_scroll_box_tab(struct GuiButton *gbtn)
+{
+  _DK_frontnet_draw_scroll_box_tab(gbtn);
+}
+
+void frontend_draw_scroll_box(struct GuiButton *gbtn)
+{
+  _DK_frontnet_draw_scroll_box(gbtn);
+}
+
+void frontend_draw_slider_button(struct GuiButton *gbtn)
+{
+  _DK_frontnet_draw_slider_button(gbtn);
+}
+
+void gui_area_null(struct GuiButton *gbtn)
+{
+  if ((gbtn->field_0 & 0x08) != 0)
+  {
+    LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
+      &button_sprite[gbtn->field_29]);
+  } else
+  {
+    LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
+      &button_sprite[gbtn->field_29]);
+  }
+}
+
+void reset_scroll_window(struct GuiMenu *gmnu)
+{
+  _DK_reset_scroll_window(gmnu);
+}
+
+void gui_set_menu_mode(struct GuiButton *gbtn)
+{
+  set_menu_mode(gbtn->field_1B);
+}
+
+void gui_area_flash_cycle_button(struct GuiButton *gbtn)
+{
+  _DK_gui_area_flash_cycle_button(gbtn);
 }
 
 /******************************************************************************/

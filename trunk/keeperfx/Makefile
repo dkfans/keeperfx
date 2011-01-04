@@ -106,6 +106,8 @@ obj/frontmenu_net.o \
 obj/frontmenu_options.o \
 obj/frontmenu_saves.o \
 obj/frontmenu_specials.o \
+obj/frontmenu_ingame_tabs.o \
+obj/frontmenu_ingame_evnt.o \
 obj/gui_parchment.o \
 obj/gui_boxmenu.o \
 obj/gui_frontmenu.o \
