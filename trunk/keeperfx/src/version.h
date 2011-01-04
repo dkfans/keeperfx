@@ -23,7 +23,6 @@
 /* Debug level is scaled 0..10, default=1; usually defined in Makefile. */
 #define BFDEBUG_LEVEL     0
 #endif
-#define EXPERIMENTAL_NET //uncomment if no experimental network support
 /* Version definitions */
 #include "../obj/ver_defs.h"
 //#define VER_MAJOR         1
