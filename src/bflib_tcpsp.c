@@ -444,6 +444,7 @@ static void tcpSP_sendmsg_single(NetUserId destination, const char * buffer, siz
 {
     assert(buffer);
     assert(size > 0);
+    assert(!(spstate.ishost && destination == SERVER_ID));
 
     NETDBG(9, "Starting for buffer of %u bytes to user %u", size, destination);
 
@@ -467,6 +468,10 @@ static void tcpSP_sendmsg_all(const char * buffer, size_t size)
 
     if (spstate.ishost) {
         for (i = 0; i < MAX_N_PEERS; ++i) {
+            if (spstate.peers[i].socket == NULL) {
+                continue;
+            }
+
             if (    send_buffer(spstate.peers[i].socket, (const char*) &size, 4) == Lb_FAIL ||
                     send_buffer(spstate.peers[i].socket, buffer, size) == Lb_FAIL) {
 
@@ -493,7 +498,6 @@ static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
 {
     Msg * msg;
 
-    assert(source < MAX_N_PEERS);
     NETDBG(9, "Starting message ready check for user %u", source);
 
     msg = find_peer_message(source);
@@ -526,7 +530,6 @@ static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
     Msg * msg;
     size_t size;
 
-    assert(source < MAX_N_PEERS);
     assert(buffer);
     assert(max_size > 0);
     NETDBG(9, "Starting read from user %u", source);
@@ -563,7 +566,6 @@ static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
 static void tcpSP_drop_user(NetUserId id)
 {
     if (clear_peer(id) && spstate.drop_callback) {
-        NETLOG("Dropped user %i", id);
         spstate.drop_callback(id, NETDROP_MANUAL);
     }
 }

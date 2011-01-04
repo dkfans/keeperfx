@@ -81,6 +81,7 @@ void *TwoPlayerCallback(unsigned long, unsigned long, unsigned long, void *);
 TbError LbNetwork_StartExchange(void *buf);
 TbError LbNetwork_CompleteExchange(void *buf);
 static void OnDroppedUser(NetUserId id, enum NetDropReason reason);
+static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout);
 /******************************************************************************/
 struct ReceiveCallbacks receiveCallbacks = {
   AddMsgCallback,
@@ -138,7 +139,8 @@ struct UnidirectionalRTSMessage rtsMessage;
 /**
  * Max wait for a client before we declare client messed up.
  */
-#define WAIT_FOR_CLIENT_TIMEOUT_IN_MS   5000
+#define WAIT_FOR_CLIENT_TIMEOUT_IN_MS   10000
+#define WAIT_FOR_SERVER_TIMEOUT_IN_MS   WAIT_FOR_CLIENT_TIMEOUT_IN_MS
 
 /**
  * If queued frames on client exceed > SCHEDULED_LAG_IN_FRAMES/2 game speed should
@@ -245,6 +247,20 @@ TbError LbNetwork_Shutdown(void)
   return _DK_LbNetwork_Shutdown();
 }
 */
+
+//debug function to find out reason for mutating peer ids
+static TbBool UserIdentifiersValid(void)
+{
+    NetUserId i;
+    for (i = 0; i < MAX_N_USERS; ++i) {
+        if (netstate.users[i].id != i) {
+            NETMSG("Bad peer ID on index %i", i);
+            return 0;
+        }
+    }
+
+    return 1;
+}
 
 static void SendLoginRequest(const char * name, const char * password)
 {
@@ -372,7 +388,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     ptr += len;
     if (len > sizeof(netstate.password)) {
         NETDBG(6, "Connected peer attempted to flood password");
-        //TODO: implement drop
+        netstate.sp->drop_user(source);
         return;
     }
 
@@ -382,7 +398,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
         //also replace isalnum with something that considers foreign non-ASCII chars
         NETDBG(6, "Connected peer had bad name starting with %c",
             netstate.users[source].name[0]);
-        //TODO: implement drop
+        netstate.sp->drop_user(source);
         return;
     }
 
@@ -433,6 +449,10 @@ static void HandleUserUpdate(NetUserId source, char * ptr, char * end)
     NETDBG(7, "Starting");
 
     id = (NetUserId) *ptr;
+    if (id < 0 && id >= MAX_N_USERS) {
+        NETLOG("Critical error: Out of range user ID %i received from server, could be used for buffer overflow attack", id);
+        abort();
+    }
     ptr += 1;
 
     netstate.users[id].progress = (enum NetUserProgress) *ptr;
@@ -442,7 +462,7 @@ static void HandleUserUpdate(NetUserId source, char * ptr, char * end)
 
     //send up the stuff the other parts of the game expect
     //TODO: try to get rid of this because it makes understanding code much more complicated
-    localPlayerInfoPtr[id].active = 1;
+    localPlayerInfoPtr[id].active = netstate.users[id].progress != USER_UNUSED;
     strcpy(localPlayerInfoPtr[id].name, netstate.users[id].name);
 }
 
@@ -810,6 +830,11 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
     netstate.my_id = 23456;
 
     SendLoginRequest(plyr_name, netstate.password);
+    ProcessMessagesUntilNextLoginReply(WAIT_FOR_SERVER_TIMEOUT_IN_MS);
+    if (netstate.msg_buffer[0] != NETMSG_LOGIN) {
+        NETMSG("Network login rejected");
+        return Lb_FAIL;
+    }
     ProcessMessage(SERVER_ID);
 
     if (netstate.my_id == 23456) {
@@ -1014,7 +1039,11 @@ static TbBool OnNewUser(NetUserId * assigned_id)
 
 static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
 {
-    return; //TODO: remove
+    int i;
+
+    assert(id >= 0);
+    assert(id < MAX_N_USERS);
+
     if (netstate.my_id == id) {
         NETMSG("Warning: Trying to drop local user. There's a bug in code somewhere, probably server trying to send message to itself.");
         return;
@@ -1033,7 +1062,13 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
         LbMemorySet(&netstate.users[id], 0, sizeof(netstate.users[id]));
         netstate.users[id].id = id; //repair effect by LbMemorySet
 
-        //TODO: send message
+        for (i = 0; i < MAX_N_USERS; ++i) {
+            if (i == netstate.my_id) {
+                continue;
+            }
+
+            SendUserUpdate(i, id);
+        }
 
         //set up the stuff the other parts of the game expect
         //TODO: try to get rid of this because it makes understanding code much more complicated
@@ -1041,24 +1076,52 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
         LbMemorySet(localPlayerInfoPtr[id].name, 0, sizeof(localPlayerInfoPtr[id].name));
     }
     else {
-        NETMSG("Returning to session screen after connection loss");
+        NETMSG("Quitting after connection loss");
         LbNetwork_Stop();
-        frontend_set_state(FeSt_NET_SESSION);
     }
 }
 
 static void ProcessMessagesUntilNextFrame(NetUserId id, unsigned timeout)
 {
+    /*TbClockMSec start;
+    start = LbTimerClock();*/
+
     //read all messages up to next frame
-    while (timeout == 0 || netstate.sp->msgready(id, timeout) != 0) {
+    while (timeout == 0 || netstate.sp->msgready(id,
+            timeout /*- (min(LbTimerClock() - start, max(timeout - 1, 0)))*/) != 0) {
         if (ProcessMessage(id) == Lb_FAIL) {
             break;
         }
 
         if (    netstate.msg_buffer[0] == NETMSG_FRAME ||
                 netstate.msg_buffer[0] == NETMSG_RESYNC) {
-            //TODO: fix this, relies on buffer being unchanged if handling NETMSG_FRAME
-            return;
+            break;
+        }
+
+        /*if (LbTimerClock() - start > timeout) {
+            break;
+        }*/
+    }
+}
+
+static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout)
+{
+    TbClockMSec start;
+    start = LbTimerClock();
+
+    //read all messages up to next frame
+    while (timeout == 0 || netstate.sp->msgready(SERVER_ID,
+            timeout - (min(LbTimerClock() - start, max(timeout - 1, 0)))) != 0) {
+        if (ProcessMessage(SERVER_ID) == Lb_FAIL) {
+            break;
+        }
+
+        if (netstate.msg_buffer[0] == NETMSG_LOGIN) {
+            break;
+        }
+
+        if (LbTimerClock() - start > timeout) {
+            break;
         }
     }
 }
@@ -1068,7 +1131,6 @@ static void ProcessPendingMessages(NetUserId id)
     //process as many messages as possible
     while (netstate.sp->msgready(id, 0) != 0) {
         if (ProcessMessage(id) == Lb_FAIL) {
-            //TODO: potentially do something more, depends on where we throw out dropped users
             return;
         }
     }
@@ -1105,6 +1167,7 @@ TbError LbNetwork_Exchange(void *buf)
     WARNLOG("Failure when Completing Exchange");
     return Lb_FAIL;
   }*/
+    assert(UserIdentifiersValid());
 
     if (netstate.users[netstate.my_id].progress == USER_SERVER) {
         //server needs to be careful about how it reads messages
@@ -1150,7 +1213,8 @@ TbError LbNetwork_Exchange(void *buf)
 
             SendClientFrame((char *) buf, netstate.exchg_queue->seq_nbr);
         }
-        else {
+
+        if (!netstate.enable_lag) {
             SendClientFrame((char *) buf, netstate.seq_nbr);
             ProcessMessagesUntilNextFrame(SERVER_ID, 0);
 
@@ -1167,6 +1231,10 @@ TbError LbNetwork_Exchange(void *buf)
 
     netstate.sp->update(OnNewUser);
 
+    assert(UserIdentifiersValid());
+
+    NETDBG(7, "Ending");
+
     return Lb_OK;
 }
 
@@ -1175,7 +1243,6 @@ TbBool LbNetwork_Resync(void * buf, size_t len)
     char * full_buf;
     int i;
 
-    return 1; //TODO: remove
     NETLOG("Starting");
 
     full_buf = (char *) LbMemoryAlloc(len + 1);
@@ -1231,7 +1298,7 @@ TbError LbNetwork_EnableNewPlayers(TbBool allow)
 
     if (!netstate.locked && !allow) {
         //throw out partially connected players
-        for (i = 0; MAX_N_USERS; ++i) {
+        for (i = 0; i < MAX_N_USERS; ++i) {
             if (netstate.users[i].progress == USER_CONNECTED) {
                 netstate.sp->drop_user(netstate.users[i].id);
             }
