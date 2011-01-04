@@ -166,7 +166,13 @@ Q: Mouse stops/teleports/moves incorrectly during the game.
 A: Try the '-altinput' command line switch.
 
 Q: I get a message 'Cannot initialize' when I try to enter network game.
-A: There's no fix; use standard DK with IPX fix for multiplayer.
+A: KeeperFX does not support serial cable, modem and IPX multiplayer.
+   Use standard, retail version of DK if you wish to play serial or
+   modem game. Use standard DK with IPX fix (or DK Gold) if you wish
+   to play IPX game. KeeperFX supports only TCP/IP protocol. 
+
+Q: I'm having problems with TCP/IP multiplayer.
+A: See 'tcp_readme.txt' for more information about multiplayer.
 
 Q: There are no special eye effects when I possess Beetle, Fly,
     Dragon, Tentacle etc.!
@@ -182,6 +188,14 @@ A: The game has a limit for amount of 'things' - these 'things' are
     it's no longer possible to create spell shots, gold piles or doors.
     Creatures have additional limit - even if there are still free
     'thing' slots, they are limited to 255.
+
+Q: What's the difference between 'keeperfx.exe' and 'keeperfx_dbg.exe'?
+A: These files are identical except of one thing: 'keeperfx_dbg.exe'
+    writes A LOT of messages into 'keeperfx.log', allowing to trace
+    any bugs and problems during the game. Because of the amount of data
+    being written, the debug version, 'keeperfx_dbg.exe', is a few times
+    slower than standard version, 'keeperfx.exe'. If you're not planning
+    to report any bugs, you should use 'keeperfx.exe'.
 
 Q: I've found a cheat menu, but it doesn't work!
 A: The three cheat menus are only partially functional.

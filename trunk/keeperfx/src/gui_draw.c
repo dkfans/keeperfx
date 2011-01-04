@@ -24,6 +24,8 @@
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
+#include "bflib_sprfnt.h"
+#include "bflib_guibtns.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -93,9 +95,37 @@ void draw_ornate_slab64k(long pos_x, long pos_y, long width, long height)
   _DK_draw_ornate_slab64k(pos_x, pos_y, width, height);
 }
 
-void draw_button_string(struct GuiButton *gbtn, const char *text)
+/** Draws a string on GUI button.
+ *  Note that the source text buffer may be damaged by this function.
+ * @param gbtn Button to draw text on.
+ * @param text Text to be displayed. The buffer may be changed by this function.
+ *     It should have at least TEXT_BUFFER_LENGTH in size.
+ */
+void draw_button_string(struct GuiButton *gbtn, char *text)
 {
-  _DK_draw_button_string(gbtn, text);
+    unsigned long flgmem;
+    static unsigned char cursor_type = 0;
+    //_DK_draw_button_string(gbtn, text);
+    flgmem = lbDisplay.DrawFlags;
+    if ((gbtn->gbtype == 5) && (gbtn == input_button))
+    {
+        const char *cursor_str;
+        cursor_type++;
+        if ((cursor_type & 0x02) != 0)
+          cursor_str = " ";
+        else
+          cursor_str = "_";
+        LbStringConcat(text,cursor_str,TEXT_BUFFER_LENGTH);
+    }
+    LbTextSetJustifyWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, gbtn->width/pixel_size);
+    LbTextSetClipWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
+        gbtn->width/pixel_size, gbtn->height/pixel_size);
+    lbDisplay.DrawFlags = 0x0100;
+    LbTextDraw(4/pixel_size, ((gbtn->height - text_string_height(text))/2 - 4)/pixel_size, text);
+    LbTextSetJustifyWindow(0/pixel_size, 0/pixel_size, 640/pixel_size);
+    LbTextSetClipWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+    lbDisplay.DrawFlags = flgmem;
 }
 
 int draw_text_box(char *text)
