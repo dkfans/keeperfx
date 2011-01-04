@@ -2865,7 +2865,7 @@ short creature_picks_up_spell_object(struct Thing *thing)
     //return _DK_creature_picks_up_spell_object(thing);
     cctrl = creature_control_get_from_thing(thing);
     spelltng = thing_get(cctrl->field_72);
-    if (((spelltng->field_1 & 0x01) != 0) || thing_is_invalid(thing)
+    if ( thing_is_invalid(spelltng) || ((spelltng->field_1 & 0x01) != 0)
       || (get_2d_box_distance(&thing->mappos, &spelltng->mappos) >= 512))
     {
       set_start_state(thing);
@@ -2873,7 +2873,7 @@ short creature_picks_up_spell_object(struct Thing *thing)
     }
     enmroom = subtile_room_get(spelltng->mappos.x.stl.num,spelltng->mappos.y.stl.num);
     ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, 3, 0, 1);
-    if (room_is_invalid(ownroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, ownroom, &pos))
+    if ( room_is_invalid(ownroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, ownroom, &pos) )
     {
         WARNLOG("Player %d can't pick spell - doesn't have proper library to store it",(int)thing->owner);
         set_start_state(thing);
@@ -2895,7 +2895,37 @@ short creature_picks_up_spell_object(struct Thing *thing)
 
 short creature_picks_up_trap_for_workshop(struct Thing *thing)
 {
-  return _DK_creature_picks_up_trap_for_workshop(thing);
+    struct CreatureControl *cctrl;
+    struct Thing *cratetng;
+    struct Room *dstroom;
+    struct Coord3d pos;
+    //return _DK_creature_picks_up_trap_for_workshop(thing);
+    // Get the crate thing
+    cctrl = creature_control_get_from_thing(thing);
+    cratetng = thing_get(cctrl->field_72);
+    // Check if everything is right
+    if ( thing_is_invalid(cratetng) || ((cratetng->field_1 & 0x01) != 0)
+      || (get_2d_box_distance(&thing->mappos, &cratetng->mappos) >= 512) )
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    // Find room to drag the crate to
+    dstroom = find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, 8, 0);
+    if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, dstroom, &pos) )
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    // Initialize dragging
+    if ( !setup_person_move_backwards_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0) )
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    creature_drag_object(thing, cratetng);
+    thing->continue_state = CrSt_CreatureDropsCrateInWorkshop;
+    return 1;
 }
 
 short creature_picks_up_trap_object(struct Thing *thing)
