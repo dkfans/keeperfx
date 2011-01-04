@@ -25,7 +25,7 @@
 #endif
 
 /* Comment out for no experimental network support */
-#define EXPERIMENTAL_NET
+//#define EXPERIMENTAL_NET
 
 /* Version definitions */
 #include "../obj/ver_defs.h"
