@@ -37,7 +37,7 @@ extern "C" {
 
 // New Declarations Here ======================================================
 
-#define MAX_N_USERS 16
+#define MAX_N_USERS 4
 #define MAX_N_PEERS (MAX_N_USERS - 1)
 #define SERVER_ID   0
 
