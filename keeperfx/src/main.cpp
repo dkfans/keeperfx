@@ -270,7 +270,6 @@ DLLIMPORT void _DK_init_keeper(void);
 DLLIMPORT void _DK_check_map_for_gold(void);
 DLLIMPORT void _DK_set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char a6, unsigned char a7);
 DLLIMPORT struct Thing *_DK_find_base_thing_on_mapwho(unsigned char oclass, unsigned short model, unsigned short x, unsigned short y);
-DLLIMPORT void _DK_delete_room_structure(struct Room *room);
 DLLIMPORT unsigned long _DK_can_drop_thing_here(long x, long y, long a3, unsigned long a4);
 DLLIMPORT long _DK_thing_in_wall_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT void _DK_do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
@@ -841,16 +840,18 @@ TbBool player_is_friendly_or_defeated(int plyr_idx, int win_plyr_idx)
   struct PlayerInfo *player;
   struct PlayerInfo *win_player;
   struct Dungeon *dungeon;
+  // Handle neutral player at first, because we can't get PlayerInfo nor Dungeon for it
+  if ((win_plyr_idx == game.neutral_player_num) || (plyr_idx == game.neutral_player_num))
+      return true;
   player = get_player(plyr_idx);
   win_player = get_player(win_plyr_idx);
   if (player_exists(player))
   {
-      if ((win_plyr_idx == game.neutral_player_num) || (plyr_idx == game.neutral_player_num)     || (!player_allied_with(win_player, plyr_idx))
-       || (game.neutral_player_num == plyr_idx)     || (win_plyr_idx == game.neutral_player_num) || (!player_allied_with(player, win_plyr_idx)))
+      if ( (!player_allied_with(win_player, plyr_idx)) || (!player_allied_with(player, win_plyr_idx)) )
       {
-        dungeon = get_dungeon(plyr_idx);
-        if (dungeon->dnheart_idx > 0)
-          return false;
+          dungeon = get_dungeon(plyr_idx);
+          if (dungeon->dnheart_idx > 0)
+            return false;
       }
   }
   return true;
