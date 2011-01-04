@@ -24,6 +24,7 @@
 #include "bflib_sprfnt.h"
 #include "bflib_vidraw.h"
 #include "bflib_keybrd.h"
+#include "gui_frontbtns.h"
 #include "frontend.h"
 #include "config_campaigns.h"
 

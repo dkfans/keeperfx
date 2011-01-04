@@ -25,6 +25,7 @@
 #include "bflib_sprfnt.h"
 #include "game_saves.h"
 #include "gui_draw.h"
+#include "gui_frontbtns.h"
 #include "gui_soundmsgs.h"
 #include "player_data.h"
 #include "packets.h"

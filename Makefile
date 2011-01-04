@@ -120,6 +120,8 @@ obj/front_network.o \
 obj/front_simple.o \
 obj/front_torture.o \
 obj/frontend.o \
+obj/frontmenu_ingame_tabs.o \
+obj/frontmenu_ingame_evnt.o \
 obj/frontmenu_net.o \
 obj/frontmenu_options.o \
 obj/frontmenu_saves.o \

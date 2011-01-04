@@ -21,6 +21,8 @@
 #include "bflib_basics.h"
 
 #include "bflib_guibtns.h"
+#include "gui_draw.h"
+#include "gui_frontbtns.h"
 #include "frontend.h"
 
 #ifdef __cplusplus

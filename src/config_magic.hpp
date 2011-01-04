@@ -76,6 +76,39 @@ enum CreatureSpellFlags {
     CSF_Sight   = 0x40,
 };
 
+enum PowerKind {
+    PwrK_None = 0,
+    PwrK_Unkn01,
+    PwrK_Unkn02,
+    PwrK_Unkn03,
+    PwrK_Unkn04,
+    PwrK_Unkn05, // 5
+    PwrK_Unkn06,
+    PwrK_Unkn07,
+    PwrK_Unkn08,
+    PwrK_HOLD_AUDIENCE,
+    PwrK_Unkn10, // 10
+    PwrK_Unkn11,
+    PwrK_Unkn12,
+    PwrK_Unkn13,
+    PwrK_Unkn14,
+    PwrK_Unkn15, // 15
+    PwrK_Unkn16,
+    PwrK_Unkn17,
+    PwrK_Unkn18,
+    PwrK_ARMAGEDDON,
+    PwrK_Unkn20, // 20
+    PwrK_Unkn21,
+    PwrK_Unkn22,
+    PwrK_Unkn23,
+    PwrK_Unkn24,
+    PwrK_Unkn25, // 25
+    PwrK_Unkn26,
+    PwrK_Unkn27,
+    PwrK_Unkn28,
+    PwrK_Unkn29,
+};
+
 /** Contains properties of a shot model, to be stored in ShotConfigStats.
  */
 enum ShotModelFlags {
