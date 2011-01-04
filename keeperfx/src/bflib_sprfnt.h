@@ -93,6 +93,8 @@ TbBool LbTextDraw(int posx, int posy, const char *text);
 int LbTextHeight(const char *text);
 int LbTextLineHeight(void);
 int LbTextSetWindow(int posx, int posy, int width, int height);
+TbResult LbTextSetJustifyWindow(int pos_x, int pos_y, int width);
+TbResult LbTextSetClipWindow(int x1, int y1, int x2, int y2);
 TbBool LbTextSetFont(const struct TbSprite *font);
 int LbTextStringWidth(const char *str);
 int LbTextStringHeight(const char *str);

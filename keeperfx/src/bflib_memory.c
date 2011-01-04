@@ -137,8 +137,11 @@ void * LbMemoryCopy(void *in_dst, const void *in_src, ulong len)
   return memcpy(in_dst,in_src,len);
 }
 
-//Appends characters of source to destination, plus a terminating null-character.
-// Prevents string in dst of getting bigger than maxlen characters.
+/**
+ *
+ * Appends characters of source to destination, plus a terminating null-character.
+ * Prevents string in dst of getting bigger than maxlen characters.
+ */
 void * LbStringConcat(char *dst, const char *src, const ulong dst_buflen)
 {
   int max_num=dst_buflen-strlen(dst);

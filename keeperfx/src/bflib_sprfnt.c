@@ -1070,6 +1070,69 @@ TbBool LbAlignMethodSet(unsigned short fdflags)
   return false;
 }
 
+TbResult LbTextSetJustifyWindow(int pos_x, int pos_y, int width)
+{
+    lbTextJustifyWindow.x = pos_x;
+    lbTextJustifyWindow.y = pos_y;
+    lbTextJustifyWindow.width = width;
+    /* Note: DON'T USE lbTextJustifyWindow_window_ptr in KeeperFX!
+    if (lbDisplay.WScreen != NULL)
+    {
+        lbTextJustifyWindow_window_ptr = lbDisplay.WScreen + pos_x + lbDisplay.GraphicsScreenWidth * pos_y;
+    } else
+    {
+        lbTextJustifyWindow_window_ptr = NULL;
+    }*/
+    return Lb_SUCCESS;
+}
+
+TbResult LbTextSetClipWindow(int pos_x, int pos_y, int width, int height)
+{
+    int start_x,start_y;
+    int end_x,end_y;
+    int i;
+    start_x = pos_x;
+    start_y = pos_y;
+    end_x = pos_x + width;
+    end_y = pos_y + height;
+    if (pos_x > end_x)
+    {
+      i = pos_x ^ end_x;
+      start_x = i ^ pos_x;
+      end_x = i ^ pos_x ^ i;
+    }
+    if ( pos_y > end_y )
+    {
+      i = pos_y ^ end_y;
+      start_y = i ^ pos_y;
+      end_y = i ^ pos_y ^ i;
+    }
+    if ( start_x < 0 )
+        start_x = 0;
+    if ( end_x < 0 )
+      end_x = 0;
+    if ( start_y < 0 )
+        start_y = 0;
+    if ( end_y < 0 )
+      end_y = 0;
+    if (start_x > lbDisplay.GraphicsScreenWidth)
+        start_x = lbDisplay.GraphicsScreenWidth;
+    if (end_x > lbDisplay.GraphicsScreenWidth)
+      end_x = lbDisplay.GraphicsScreenWidth;
+    if (start_y > lbDisplay.GraphicsScreenHeight)
+        start_y = lbDisplay.GraphicsScreenHeight;
+    if (end_y > lbDisplay.GraphicsScreenHeight)
+      end_y = lbDisplay.GraphicsScreenHeight;
+    lbTextClipWindow.x = start_x;
+    lbTextClipWindow.y = start_y;
+    lbTextClipWindow.width = end_x - start_x;
+    lbTextClipWindow.height = end_y - start_y;
+    /* Note: DON'T USE lbTextClipWindow_window_ptr in KeeperFX!
+    lbTextClipWindow_window_ptr = lbDisplay.WScreen + pos_x + lbDisplay.GraphicsScreenWidth * pos_y;
+    */
+    return Lb_SUCCESS;
+}
+
 /**
  * Returns X coordinate for a text character on screen.
  * Takes into account the current text window and justification settings.

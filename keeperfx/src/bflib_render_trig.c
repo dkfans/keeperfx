@@ -224,7 +224,7 @@ var_8C    =    -0x8C\n \
     jmp     ll_start\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_787B05:            # CODE XREF: trig_+17\n \
+loc_787B05:            # 17\n \
     #C: if (ordpt_a->field_4 == ordpt_c->field_4)\n \
     cmpl    %%edx,%%eax\n \
     jz      loc_788DF4\n \
@@ -239,13 +239,13 @@ loc_787B05:            # CODE XREF: trig_+17\n \
     jmp     rl_start\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_787B26:            # CODE XREF: trig_+3B\n \
+loc_787B26:            # 3B\n \
     xchgl   %%edi,%%esi\n \
     xchgl   %%ecx,%%edi\n \
     jmp     ll_start\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_787B2C:            # CODE XREF: trig_+1B\n \
+loc_787B2C:            # 1B\n \
     #C: if (ordpt_a->field_0 <= ordpt_c->field_0)\n \
     movl    (%%esi),%%eax\n \
     cmpl    (%%ecx),%%eax\n \
@@ -255,7 +255,7 @@ loc_787B2C:            # CODE XREF: trig_+1B\n \
     jmp     ft_start\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_787B3F:            # CODE XREF: trig_+15\n \
+loc_787B3F:            # 15\n \
     #C: if (ordpt_a->field_4 == ordpt_c->field_4)\n \
     cmpl    %%edx,%%eax\n \
     jz      finished\n \
@@ -270,7 +270,7 @@ loc_787B3F:            # CODE XREF: trig_+15\n \
     jmp     fb_start\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_787B5C:            # CODE XREF: trig_+67\n \
+loc_787B5C:            # 67\n \
     movl    (%%edi),%%eax\n \
     #C: if (ordpt_b->field_0 <= ordpt_a->field_0)\n \
     cmpl    (%%esi),%%eax\n \
@@ -278,7 +278,7 @@ loc_787B5C:            # CODE XREF: trig_+67\n \
     jmp     ft_start\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_787B6B:            # CODE XREF: trig_+9C\n \
+loc_787B6B:            # 9C\n \
     #C: if (ordpt_b->field_0 <= ordpt_a->field_0)\n \
     movl    (%%edi),%%eax\n \
     cmpl    (%%ecx),%%eax\n \
@@ -286,7 +286,7 @@ loc_787B6B:            # CODE XREF: trig_+9C\n \
     jmp     fb_start\n \
 # =============================== LL SWITCH =================================\n \
 \n \
-loc_787B7A:            # CODE XREF: trig_+1D\n \
+loc_787B7A:            # 1D\n \
     #C: if (ordpt_b->field_4 == ordpt_c->field_4)\n \
     cmpl    %%edx,%%ebx\n \
     jz      loc_787B6B\n \
@@ -304,7 +304,7 @@ ll_start:\n \
     jmp     ll_loc01\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-ll_loc02:            # CODE XREF: trig_+AD\n \
+ll_loc02:            # AD\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jge     finished\n \
     movl    %%eax,%%ebx\n \
@@ -313,7 +313,7 @@ ll_loc02:            # CODE XREF: trig_+AD\n \
     movl    %%ebx,0x8C+var_8C(%%esp)\n \
     movb    $0,0x8C+flag_26(%%esp)\n \
 \n \
-ll_loc01:            # CODE XREF: trig_+BD\n \
+ll_loc01:            # BD\n \
     movl    4(%%ecx),%%ebx\n \
     cmpl    _LOC_vec_window_height,%%ebx\n \
     setnle    0x8C+var_24(%%esp)\n \
@@ -428,7 +428,7 @@ ll_md05:            # DATA XREF: trig_+17B trig_+17F ...\n \
     idivl    %%ebx\n \
     movl    %%eax,0x8C+var_50(%%esp)\n \
 \n \
-loc_787D2E:            # CODE XREF: trig_+1FA\n \
+loc_787D2E:            # 1FA\n \
     movl    8(%%ecx),%%eax\n \
     subl    8(%%esi),%%eax\n \
     cltd    \n \
@@ -496,12 +496,12 @@ loc_787D2E:            # CODE XREF: trig_+1FA\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
     movl    %%edi,0x8C+var_6C(%%esp)\n \
 \n \
-loc_787E1C:            # CODE XREF: trig_+32C\n \
+loc_787E1C:            # 32C\n \
     leal    _polyscans,%%edi\n \
     jmp     loc_787EF3\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_787E27:            # CODE XREF: trig_+2AE\n \
+loc_787E27:            # 2AE\n \
     movl    0x8C+var_44(%%esp),%%edi\n \
     subl    %%edi,0x8C+var_78(%%esp)\n \
     imull    0x8C+delta_a(%%esp),%%edi\n \
@@ -528,16 +528,16 @@ loc_787E27:            # CODE XREF: trig_+2AE\n \
     jmp     loc_787E8D\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_787E80:            # CODE XREF: trig_+398\n \
+loc_787E80:            # 398\n \
     subl    0x8C+var_78(%%esp),%%edi\n \
     setle    0x8C+var_25(%%esp)\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
 \n \
-loc_787E8D:            # CODE XREF: trig_+39E\n \
+loc_787E8D:            # 39E\n \
     jmp     loc_787EBE\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_787E8F:            # CODE XREF: trig_+290\n \
+loc_787E8F:            # 290\n \
     cmpb   $0,0x8C+var_24(%%esp)\n \
     jz     loc_787EBE\n \
     movl    _LOC_vec_window_height,%%edi\n \
@@ -549,7 +549,7 @@ loc_787E8F:            # CODE XREF: trig_+290\n \
     jmp     loc_787EBE\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_787EB1:            # CODE XREF: trig_+3C9\n \
+loc_787EB1:            # 3C9\n \
     subl    0x8C+var_78(%%esp),%%edi\n \
     setle    0x8C+var_25(%%esp)\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
@@ -557,7 +557,7 @@ loc_787EB1:            # CODE XREF: trig_+3C9\n \
 loc_787EBE:\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_787EC4:            # CODE XREF: trig_+40D\n \
+loc_787EC4:            # 40D\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -573,13 +573,13 @@ loc_787EC4:            # CODE XREF: trig_+40D\n \
     jnz     loc_787EC4\n \
     movl    0x8C+var_70(%%esp),%%ebx\n \
 \n \
-loc_787EF3:            # CODE XREF: trig_+342\n \
+loc_787EF3:            # 342\n \
     cmpb   $0,0x8C+var_25(%%esp)\n \
     jz     loc_787F08\n \
     jmp    render_mode\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_787F08:            # CODE XREF: trig_+418 trig_+451\n \
+loc_787F08:            # 418 trig_+451\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -631,7 +631,7 @@ ll_md02:            # DATA XREF: trig_+16F trig_+173 ...\n \
     idivl    %%ebx\n \
     movl    %%eax,0x8C+var_5C(%%esp)\n \
 \n \
-loc_787FA1:            # CODE XREF: trig_+488\n \
+loc_787FA1:            # 488\n \
     movl    8(%%ecx),%%eax\n \
     subl    8(%%esi),%%eax\n \
     cltd    \n \
@@ -687,12 +687,12 @@ loc_787FA1:            # CODE XREF: trig_+488\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
     movl    %%edi,0x8C+var_6C(%%esp)\n \
 \n \
-loc_788063:            # CODE XREF: trig_+573\n \
+loc_788063:            # 573\n \
     leal    _polyscans,%%edi\n \
     jmp     loc_788128\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78806E:            # CODE XREF: trig_+50F\n \
+loc_78806E:            # 50F\n \
     movl    0x8C+var_44(%%esp),%%edi\n \
     subl    %%edi,0x8C+var_78(%%esp)\n \
     imull    0x8C+delta_a(%%esp),%%edi\n \
@@ -716,16 +716,16 @@ loc_78806E:            # CODE XREF: trig_+50F\n \
     jmp     loc_7880C9\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7880BC:            # CODE XREF: trig_+5D4\n \
+loc_7880BC:            # 5D4\n \
     subl    0x8C+var_78(%%esp),%%edi\n \
     setle    0x8C+var_25(%%esp)\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
 \n \
-loc_7880C9:            # CODE XREF: trig_+5DA\n \
+loc_7880C9:            # 5DA\n \
     jmp     loc_7880FA\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7880CB:            # CODE XREF: trig_+4F1\n \
+loc_7880CB:            # 4F1\n \
     cmpb   $0,0x8C+var_24(%%esp)\n \
     jz     loc_7880FA\n \
     movl    _LOC_vec_window_height,%%edi\n \
@@ -737,7 +737,7 @@ loc_7880CB:            # CODE XREF: trig_+4F1\n \
     jmp     loc_7880FA\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7880ED:            # CODE XREF: trig_+605\n \
+loc_7880ED:            # 605\n \
     subl    0x8C+var_78(%%esp),%%edi\n \
     setle    0x8C+var_25(%%esp)\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
@@ -745,7 +745,7 @@ loc_7880ED:            # CODE XREF: trig_+605\n \
 loc_7880FA:\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_788100:            # CODE XREF: trig_+642\n \
+loc_788100:            # 642\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -759,13 +759,13 @@ loc_788100:            # CODE XREF: trig_+642\n \
     jnz     loc_788100\n \
     movl    0x8C+var_70(%%esp),%%ebx\n \
 \n \
-loc_788128:            # CODE XREF: trig_+589\n \
+loc_788128:            # 589\n \
     cmpb   $0,0x8C+var_25(%%esp)\n \
     jz     loc_78813D\n \
     jmp render_mode\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78813D:            # CODE XREF: trig_+64D trig_+67F\n \
+loc_78813D:            # 64D trig_+67F\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -806,7 +806,7 @@ ll_md01:            # DATA XREF: trig_+16B trig_+177 ...\n \
     idivl    %%ebx\n \
     movl    %%eax,0x8C+var_50(%%esp)\n \
 \n \
-loc_7881B4:            # CODE XREF: trig_+6B6\n \
+loc_7881B4:            # 6B6\n \
     movl    0x10(%%ecx),%%eax\n \
     subl    0x10(%%esi),%%eax\n \
     cltd    \n \
@@ -850,14 +850,14 @@ loc_7881B4:            # CODE XREF: trig_+6B6\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
     movl    %%edi,0x8C+var_6C(%%esp)\n \
 \n \
-loc_78824E:            # CODE XREF: trig_+75E\n \
+loc_78824E:            # 75E\n \
     leal    _polyscans,%%edi\n \
     cmpb    $0,0x8C+var_25(%%esp)\n \
     jz      loc_788316\n \
     jmp     render_mode\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788259:            # CODE XREF: trig_+710\n \
+loc_788259:            # 710\n \
     movl    0x8C+var_44(%%esp),%%edi\n \
     subl    %%edi,0x8C+var_78(%%esp)\n \
     imull    0x8C+delta_a(%%esp),%%edi\n \
@@ -878,16 +878,16 @@ loc_788259:            # CODE XREF: trig_+710\n \
     jmp     loc_7882A9\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78829C:            # CODE XREF: trig_+7B4\n \
+loc_78829C:            # 7B4\n \
     subl    0x8C+var_78(%%esp),%%edi\n \
     setle    0x8C+var_25(%%esp)\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
 \n \
-loc_7882A9:            # CODE XREF: trig_+7BA\n \
+loc_7882A9:            # 7BA\n \
     jmp     loc_7882DA\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7882AB:            # CODE XREF: trig_+6F2\n \
+loc_7882AB:            # 6F2\n \
     cmpb   $0,0x8C+var_24(%%esp)\n \
     jz     loc_7882DA\n \
     movl    _LOC_vec_window_height,%%edi\n \
@@ -899,7 +899,7 @@ loc_7882AB:            # CODE XREF: trig_+6F2\n \
     jmp     loc_7882DA\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7882CD:            # CODE XREF: trig_+7E5\n \
+loc_7882CD:            # 7E5\n \
     subl    0x8C+var_78(%%esp),%%edi\n \
     setle    0x8C+var_25(%%esp)\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
@@ -907,7 +907,7 @@ loc_7882CD:            # CODE XREF: trig_+7E5\n \
 loc_7882DA:\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_7882E0:            # CODE XREF: trig_+81B\n \
+loc_7882E0:            # 81B\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -923,7 +923,7 @@ loc_7882E0:            # CODE XREF: trig_+81B\n \
     jmp render_mode\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788316:            # CODE XREF: trig_+826 trig_+851\n \
+loc_788316:            # 826 trig_+851\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -968,14 +968,14 @@ ll_md00:            # DATA XREF: trig_:ll_jt trig_+19F ...\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
     movl    %%edi,0x8C+var_6C(%%esp)\n \
 \n \
-loc_7883B3:            # CODE XREF: trig_+8C3\n \
+loc_7883B3:            # 8C3\n \
     leal    _polyscans,%%edi\n \
     cmpb   $0,0x8C+var_25(%%esp)\n \
     jz     loc_788469\n \
     jmp render_mode\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7883BE:            # CODE XREF: trig_+88B\n \
+loc_7883BE:            # 88B\n \
     movl    0x8C+var_44(%%esp),%%edi\n \
     subl    %%edi,0x8C+var_78(%%esp)\n \
     imull    0x8C+delta_a(%%esp),%%edi\n \
@@ -993,16 +993,16 @@ loc_7883BE:            # CODE XREF: trig_+88B\n \
     jmp     loc_788403\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7883F6:            # CODE XREF: trig_+90E\n \
+loc_7883F6:            # 90E\n \
     subl    0x8C+var_78(%%esp),%%edi\n \
     setle    0x8C+var_25(%%esp)\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
 \n \
-loc_788403:            # CODE XREF: trig_+914\n \
+loc_788403:            # 914\n \
     jmp     loc_788434\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788405:            # CODE XREF: trig_+86D\n \
+loc_788405:            # 86D\n \
     cmpb   $0,0x8C+var_24(%%esp)\n \
     jz     loc_788434\n \
     movl    _LOC_vec_window_height,%%edi\n \
@@ -1014,7 +1014,7 @@ loc_788405:            # CODE XREF: trig_+86D\n \
     jmp     loc_788434\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788427:            # CODE XREF: trig_+93F\n \
+loc_788427:            # 93F\n \
     subl    0x8C+var_78(%%esp),%%edi\n \
     setle    0x8C+var_25(%%esp)\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
@@ -1022,7 +1022,7 @@ loc_788427:            # CODE XREF: trig_+93F\n \
 loc_788434:\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_78843A:            # CODE XREF: trig_+96E\n \
+loc_78843A:            # 96E\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -1036,7 +1036,7 @@ loc_78843A:            # CODE XREF: trig_+96E\n \
     jmp render_mode\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788469:            # CODE XREF: trig_+979 trig_+99D\n \
+loc_788469:            # 979 trig_+99D\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -1047,11 +1047,11 @@ loc_788469:            # CODE XREF: trig_+979 trig_+99D\n \
     jmp render_mode\n \
 # =============================== RL SWITCH =================================\n \
 \n \
-loc_78848D:            # CODE XREF: trig_+2D\n \
+loc_78848D:            # 2D\n \
     xchgl    %%edi,%%esi\n \
     xchgl    %%ecx,%%edi\n \
 \n \
-rl_start:            # CODE XREF: trig_+41    trig_+9E\n \
+rl_start:            # 41    trig_+9E\n \
     movl    4(%%esi),%%eax\n \
     movl    %%eax,0x8C+var_38(%%esp)\n \
     orl    %%eax,%%eax\n \
@@ -1062,7 +1062,7 @@ rl_start:            # CODE XREF: trig_+41    trig_+9E\n \
     jmp     rl_loc01\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-rl_loc02:            # CODE XREF: trig_+9BA\n \
+rl_loc02:            # 9BA\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jge     finished\n \
     movl    %%eax,%%ebx\n \
@@ -1071,7 +1071,7 @@ rl_loc02:            # CODE XREF: trig_+9BA\n \
     movl    %%ebx,0x8C+var_8C(%%esp)\n \
     movb   $0,0x8C+flag_26(%%esp)\n \
 \n \
-rl_loc01:            # CODE XREF: trig_+9CA\n \
+rl_loc01:            # 9CA\n \
     movl    4(%%ecx),%%ebx\n \
     cmpl    _LOC_vec_window_height,%%ebx\n \
     setnle    0x8C+var_25(%%esp)\n \
@@ -1185,7 +1185,7 @@ rl_md05:            # DATA XREF: trig_:rl_jt\n \
     cltd    \n \
     idivl    %%ebx\n \
 \n \
-loc_788637:            # CODE XREF: trig_+B07\n \
+loc_788637:            # B07\n \
     movl    %%eax,0x8C+var_50(%%esp)\n \
     movl    8(%%ecx),%%eax\n \
     subl    8(%%esi),%%eax\n \
@@ -1269,12 +1269,12 @@ loc_788637:            # CODE XREF: trig_+B07\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
     movl    %%edi,0x8C+var_6C(%%esp)\n \
 \n \
-loc_788756:            # CODE XREF: trig_+C66\n \
+loc_788756:            # C66\n \
     leal    _polyscans,%%edi\n \
     jmp     loc_78882D\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788761:            # CODE XREF: trig_+BE8\n \
+loc_788761:            # BE8\n \
     movl    0x8C+var_44(%%esp),%%edi\n \
     subl    %%edi,0x8C+var_7C(%%esp)\n \
     imull    0x8C+delta_a(%%esp),%%edi\n \
@@ -1301,16 +1301,16 @@ loc_788761:            # CODE XREF: trig_+BE8\n \
     jmp     loc_7887C7\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7887BA:            # CODE XREF: trig_+CD2\n \
+loc_7887BA:            # CD2\n \
     subl    0x8C+var_7C(%%esp),%%edi\n \
     setle    0x8C+var_25(%%esp)\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
 \n \
-loc_7887C7:            # CODE XREF: trig_+CD8\n \
+loc_7887C7:            # CD8\n \
     jmp     loc_7887F8\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7887C9:            # CODE XREF: trig_+BCA\n \
+loc_7887C9:            # BCA\n \
     cmpb   $0,0x8C+var_24(%%esp)\n \
     jz     loc_7887F8\n \
     movl    _LOC_vec_window_height,%%edi\n \
@@ -1322,16 +1322,16 @@ loc_7887C9:            # CODE XREF: trig_+BCA\n \
     jmp     loc_7887F8\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7887EB:            # CODE XREF: trig_+D03\n \
+loc_7887EB:            # D03\n \
     subl    0x8C+var_7C(%%esp),%%edi\n \
     setle    0x8C+var_25(%%esp)\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
 \n \
-loc_7887F8:            # CODE XREF: trig_+CC1\n \
+loc_7887F8:            # CC1\n \
 # trig_:loc_7887C7 ...\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_7887FE:            # CODE XREF: trig_+D47\n \
+loc_7887FE:            # D47\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -1347,13 +1347,13 @@ loc_7887FE:            # CODE XREF: trig_+D47\n \
     jnz     loc_7887FE\n \
     movl    0x8C+var_70(%%esp),%%eax\n \
 \n \
-loc_78882D:            # CODE XREF: trig_+C7C\n \
+loc_78882D:            # C7C\n \
     cmpb   $0,0x8C+var_25(%%esp)\n \
     jz     loc_788842\n \
     jmp render_mode\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788842:            # CODE XREF: trig_+D52 trig_+D8B\n \
+loc_788842:            # D52 trig_+D8B\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+var_80(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -1405,7 +1405,7 @@ rl_md02:            # DATA XREF: trig_:rl_jt\n \
     idivl    %%ebx\n \
     movl    %%eax,0x8C+var_5C(%%esp)\n \
 \n \
-loc_7888DB:            # CODE XREF: trig_+DC2\n \
+loc_7888DB:            # DC2\n \
     movl    8(%%ecx),%%eax\n \
     subl    8(%%esi),%%eax\n \
     cltd    \n \
@@ -1471,12 +1471,12 @@ loc_7888DB:            # CODE XREF: trig_+DC2\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
     movl    %%edi,0x8C+var_6C(%%esp)\n \
 \n \
-loc_7889BB:            # CODE XREF: trig_+ECB\n \
+loc_7889BB:            # ECB\n \
     leal    _polyscans,%%edi\n \
     jmp     loc_788A80\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7889C6:            # CODE XREF: trig_+E67\n \
+loc_7889C6:            # E67\n \
     movl    0x8C+var_44(%%esp),%%edi\n \
     subl    %%edi,0x8C+var_7C(%%esp)\n \
     imull    0x8C+delta_a(%%esp),%%edi\n \
@@ -1500,16 +1500,16 @@ loc_7889C6:            # CODE XREF: trig_+E67\n \
     jmp     loc_788A21\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788A14:            # CODE XREF: trig_+F2C\n \
+loc_788A14:            # F2C\n \
     subl    0x8C+var_7C(%%esp),%%edi\n \
     setle    0x8C+var_25(%%esp)\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
 \n \
-loc_788A21:            # CODE XREF: trig_+F32\n \
+loc_788A21:            # F32\n \
     jmp     loc_788A52\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788A23:            # CODE XREF: trig_+E49\n \
+loc_788A23:            # E49\n \
     cmpb   $0,0x8C+var_24(%%esp)\n \
     jz     loc_788A52\n \
     movl    _LOC_vec_window_height,%%edi\n \
@@ -1521,16 +1521,16 @@ loc_788A23:            # CODE XREF: trig_+E49\n \
     jmp     loc_788A52\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788A45:            # CODE XREF: trig_+F5D\n \
+loc_788A45:            # F5D\n \
     subl    0x8C+var_7C(%%esp),%%edi\n \
     setle    0x8C+var_25(%%esp)\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
 \n \
-loc_788A52:            # CODE XREF: trig_+F1B\n \
+loc_788A52:            # F1B\n \
 # trig_:loc_788A21 ...\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_788A58:            # CODE XREF: trig_+F9A\n \
+loc_788A58:            # F9A\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -1544,13 +1544,13 @@ loc_788A58:            # CODE XREF: trig_+F9A\n \
     jnz     loc_788A58\n \
     movl    0x8C+var_70(%%esp),%%eax\n \
 \n \
-loc_788A80:            # CODE XREF: trig_+EE1\n \
+loc_788A80:            # EE1\n \
     cmpb   $0,0x8C+var_25(%%esp)\n \
     jz     loc_788A95\n \
     jmp    render_mode\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788A95:            # CODE XREF: trig_+FA5 trig_+FD7\n \
+loc_788A95:            # FA5 trig_+FD7\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+var_80(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -1591,7 +1591,7 @@ rl_md01:            # DATA XREF: trig_:rl_jt\n \
     idivl    %%ebx\n \
     movl    %%eax,0x8C+var_50(%%esp)\n \
 \n \
-loc_788B0C:            # CODE XREF: trig_+100E\n \
+loc_788B0C:            # 100E\n \
     movl    0x10(%%ecx),%%eax\n \
     subl    0x10(%%esi),%%eax\n \
     cltd    \n \
@@ -1640,12 +1640,12 @@ loc_788B0C:            # CODE XREF: trig_+100E\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
     movl    %%edi,0x8C+var_6C(%%esp)\n \
 \n \
-loc_788BB5:            # CODE XREF: trig_+10C5\n \
+loc_788BB5:            # 10C5\n \
     leal    _polyscans,%%edi\n \
     jmp     loc_788C68\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788BC0:            # CODE XREF: trig_+1077\n \
+loc_788BC0:            # 1077\n \
     movl    0x8C+var_44(%%esp),%%edi\n \
     subl    %%edi,0x8C+var_7C(%%esp)\n \
     imull    0x8C+delta_a(%%esp),%%edi\n \
@@ -1666,16 +1666,16 @@ loc_788BC0:            # CODE XREF: trig_+1077\n \
     jmp     loc_788C10\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788C03:            # CODE XREF: trig_+111B\n \
+loc_788C03:            # 111B\n \
     subl    0x8C+var_7C(%%esp),%%edi\n \
     setle    0x8C+var_25(%%esp)\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
 \n \
-loc_788C10:            # CODE XREF: trig_+1121\n \
+loc_788C10:            # 1121\n \
     jmp     loc_788C41\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788C12:            # CODE XREF: trig_+1059\n \
+loc_788C12:            # 1059\n \
     cmpb   $0,0x8C+var_24(%%esp)\n \
     jz     loc_788C41\n \
     movl    _LOC_vec_window_height,%%edi\n \
@@ -1687,16 +1687,16 @@ loc_788C12:            # CODE XREF: trig_+1059\n \
     jmp     loc_788C41\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788C34:            # CODE XREF: trig_+114C\n \
+loc_788C34:            # 114C\n \
     subl    0x8C+var_7C(%%esp),%%edi\n \
     setle    0x8C+var_25(%%esp)\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
 \n \
-loc_788C41:            # CODE XREF: trig_+110A\n \
+loc_788C41:            # 110A\n \
 # trig_:loc_788C10 ...\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_788C47:            # CODE XREF: trig_+1182\n \
+loc_788C47:            # 1182\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -1708,13 +1708,13 @@ loc_788C47:            # CODE XREF: trig_+1182\n \
     jnz     loc_788C47\n \
     movl    0x8C+var_70(%%esp),%%eax\n \
 \n \
-loc_788C68:            # CODE XREF: trig_+10DB\n \
+loc_788C68:            # 10DB\n \
     cmpb   $0,0x8C+var_25(%%esp)\n \
     jz     loc_788C7D\n \
     jmp    render_mode\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788C7D:            # CODE XREF: trig_+118D trig_+11B8\n \
+loc_788C7D:            # 118D trig_+11B8\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+var_80(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -1759,12 +1759,12 @@ rl_md00:            # DATA XREF: trig_:rl_jt\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
     movl    %%edi,0x8C+var_6C(%%esp)\n \
 \n \
-loc_788D1A:            # CODE XREF: trig_+122A\n \
+loc_788D1A:            # 122A\n \
     leal    _polyscans,%%edi\n \
     jmp     loc_788DBB\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788D25:            # CODE XREF: trig_+11F2\n \
+loc_788D25:            # 11F2\n \
     movl    0x8C+var_44(%%esp),%%edi\n \
     subl    %%edi,0x8C+var_7C(%%esp)\n \
     imull    0x8C+delta_a(%%esp),%%edi\n \
@@ -1782,16 +1782,16 @@ loc_788D25:            # CODE XREF: trig_+11F2\n \
     jmp     loc_788D6A\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788D5D:            # CODE XREF: trig_+1275\n \
+loc_788D5D:            # 1275\n \
     subl    0x8C+var_7C(%%esp),%%edi\n \
     setle    0x8C+var_25(%%esp)\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
 \n \
-loc_788D6A:            # CODE XREF: trig_+127B\n \
+loc_788D6A:            # 127B\n \
     jmp     loc_788D9B\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788D6C:            # CODE XREF: trig_+11D4\n \
+loc_788D6C:            # 11D4\n \
     cmpb   $0,0x8C+var_24(%%esp)\n \
     jz     loc_788D9B\n \
     movl    _LOC_vec_window_height,%%edi\n \
@@ -1803,16 +1803,16 @@ loc_788D6C:            # CODE XREF: trig_+11D4\n \
     jmp     loc_788D9B\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788D8E:            # CODE XREF: trig_+12A6\n \
+loc_788D8E:            # 12A6\n \
     subl    0x8C+var_7C(%%esp),%%edi\n \
     setle    0x8C+var_25(%%esp)\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
 \n \
-loc_788D9B:            # CODE XREF: trig_+1264\n \
+loc_788D9B:            # 1264\n \
 # trig_:loc_788D6A ...\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_788DA1:            # CODE XREF: trig_+12D5\n \
+loc_788DA1:            # 12D5\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -1822,13 +1822,13 @@ loc_788DA1:            # CODE XREF: trig_+12D5\n \
     jnz     loc_788DA1\n \
     movl    0x8C+var_70(%%esp),%%eax\n \
 \n \
-loc_788DBB:            # CODE XREF: trig_+1240\n \
+loc_788DBB:            # 1240\n \
     cmpb   $0,0x8C+var_25(%%esp)\n \
     jz     loc_788DD0\n \
     jmp    render_mode\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788DD0:            # CODE XREF: trig_+12E0 trig_+1304\n \
+loc_788DD0:            # 12E0 trig_+1304\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+var_80(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -1839,14 +1839,14 @@ loc_788DD0:            # CODE XREF: trig_+12E0 trig_+1304\n \
     jmp    render_mode\n \
 # =============================== FB SWITCH =================================\n \
 \n \
-loc_788DF4:            # CODE XREF: trig_+27\n \
+loc_788DF4:            # 27\n \
     movl    (%%ecx),%%eax\n \
     cmpl    (%%esi),%%eax\n \
     jle     finished\n \
     xchgl    %%edi,%%esi\n \
     xchgl    %%ecx,%%edi\n \
 \n \
-fb_start:            # CODE XREF: trig_+77    trig_+95\n \
+fb_start:            # 77    trig_+95\n \
     movl    4(%%esi),%%eax\n \
     movl    %%eax,0x8C+var_38(%%esp)\n \
     orl    %%eax,%%eax\n \
@@ -1857,7 +1857,7 @@ fb_start:            # CODE XREF: trig_+77    trig_+95\n \
     jmp     fb_loc01\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-fb_loc02:            # CODE XREF: trig_+132B\n \
+fb_loc02:            # 132B\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jge     finished\n \
     movl    %%eax,%%ebx\n \
@@ -1866,7 +1866,7 @@ fb_loc02:            # CODE XREF: trig_+132B\n \
     movl    %%ebx,0x8C+var_8C(%%esp)\n \
     movb   $0,0x8C+flag_26(%%esp)\n \
 \n \
-fb_loc01:            # CODE XREF: trig_+133B\n \
+fb_loc01:            # 133B\n \
     movl    4(%%ecx),%%ebx\n \
     cmpl    _LOC_vec_window_height,%%ebx\n \
     setnle    0x8C+var_25(%%esp)\n \
@@ -1987,7 +1987,7 @@ fb_md05:            # DATA XREF: trig_:fb_jt\n \
     jmp     loc_788FD8\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788FBF:            # CODE XREF: trig_+147B\n \
+loc_788FBF:            # 147B\n \
     cmpb   $0,0x8C+var_25(%%esp)\n \
     jz     loc_788FD8\n \
     movl    _LOC_vec_window_height,%%edi\n \
@@ -1995,10 +1995,10 @@ loc_788FBF:            # CODE XREF: trig_+147B\n \
     movl    %%edi,0x8C+var_6C(%%esp)\n \
     movl    %%edi,0x8C+var_7C(%%esp)\n \
 \n \
-loc_788FD8:            # CODE XREF: trig_+14CD trig_+14DD ...\n \
+loc_788FD8:            # 14CD trig_+14DD ...\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_788FDE:            # CODE XREF: trig_+1527\n \
+loc_788FDE:            # 1527\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -2073,7 +2073,7 @@ fb_md02:            # DATA XREF: trig_:fb_jt\n \
     jmp     loc_7890E2\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7890C9:            # CODE XREF: trig_+1585\n \
+loc_7890C9:            # 1585\n \
     cmpb   $0,0x8C+var_25(%%esp)\n \
     jz     loc_7890E2\n \
     movl    _LOC_vec_window_height,%%edi\n \
@@ -2081,10 +2081,10 @@ loc_7890C9:            # CODE XREF: trig_+1585\n \
     movl    %%edi,0x8C+var_6C(%%esp)\n \
     movl    %%edi,0x8C+var_7C(%%esp)\n \
 \n \
-loc_7890E2:            # CODE XREF: trig_+15D7 trig_+15E7 ...\n \
+loc_7890E2:            # 15D7 trig_+15E7 ...\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_7890E8:            # CODE XREF: trig_+162A\n \
+loc_7890E8:            # 162A\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -2140,7 +2140,7 @@ fb_md01:            # DATA XREF: trig_:fb_jt\n \
     jmp     loc_7891B0\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_789197:            # CODE XREF: trig_+1669\n \
+loc_789197:            # 1669\n \
     cmpb   $0,0x8C+var_25(%%esp)\n \
     jz     loc_7891B0\n \
     movl    _LOC_vec_window_height,%%edi\n \
@@ -2148,10 +2148,10 @@ loc_789197:            # CODE XREF: trig_+1669\n \
     movl    %%edi,0x8C+var_6C(%%esp)\n \
     movl    %%edi,0x8C+var_7C(%%esp)\n \
 \n \
-loc_7891B0:            # CODE XREF: trig_+16A5 trig_+16B5 ...\n \
+loc_7891B0:            # 16A5 trig_+16B5 ...\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_7891B6:            # CODE XREF: trig_+16F1\n \
+loc_7891B6:            # 16F1\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -2189,7 +2189,7 @@ fb_md00:            # DATA XREF: trig_:fb_jt\n \
     jmp     loc_789249\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_789230:            # CODE XREF: trig_+170D\n \
+loc_789230:            # 170D\n \
     cmpb   $0,0x8C+var_25(%%esp)\n \
     jz     loc_789249\n \
     movl    _LOC_vec_window_height,%%edi\n \
@@ -2197,10 +2197,10 @@ loc_789230:            # CODE XREF: trig_+170D\n \
     movl    %%edi,0x8C+var_6C(%%esp)\n \
     movl    %%edi,0x8C+var_7C(%%esp)\n \
 \n \
-loc_789249:            # CODE XREF: trig_+173E trig_+174E ...\n \
+loc_789249:            # 173E trig_+174E ...\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_78924F:            # CODE XREF: trig_+1783\n \
+loc_78924F:            # 1783\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -2211,14 +2211,14 @@ loc_78924F:            # CODE XREF: trig_+1783\n \
     jmp    render_mode\n \
 # =============================== FT SWITCH =================================\n \
 \n \
-loc_789273:            # CODE XREF: trig_+35\n \
+loc_789273:            # 35\n \
     movl    (%%ecx),%%eax\n \
     cmpl    (%%edi),%%eax\n \
     jle     finished\n \
     xchgl    %%edi,%%esi\n \
     xchgl    %%ecx,%%edi\n \
 \n \
-ft_start:            # CODE XREF: trig_+5A    trig_+86\n \
+ft_start:            # 5A    trig_+86\n \
     movl    4(%%esi),%%eax\n \
     movl    %%eax,0x8C+var_38(%%esp)\n \
     orl    %%eax,%%eax\n \
@@ -2228,7 +2228,7 @@ ft_start:            # CODE XREF: trig_+5A    trig_+86\n \
     movb   $1,0x8C+flag_26(%%esp)\n \
     jmp     ft_loc01\n \
 \n \
-ft_loc02:            # CODE XREF: trig_+17AA\n \
+ft_loc02:            # 17AA\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jge     finished\n \
     movl    %%eax,%%ebx\n \
@@ -2237,7 +2237,7 @@ ft_loc02:            # CODE XREF: trig_+17AA\n \
     movl    %%ebx,0x8C+var_8C(%%esp)\n \
     movb   $0,0x8C+flag_26(%%esp)\n \
 \n \
-ft_loc01:            # CODE XREF: trig_+17BA\n \
+ft_loc01:            # 17BA\n \
     movl    4(%%ecx),%%ebx\n \
     cmpl    _LOC_vec_window_height,%%ebx\n \
     setnle    0x8C+var_25(%%esp)\n \
@@ -2359,7 +2359,7 @@ ft_md05:            # DATA XREF: trig_+1835 trig_+1839 ...\n \
     jmp     loc_78945A\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_789441:            # CODE XREF: trig_+18FD\n \
+loc_789441:            # 18FD\n \
     cmpb   $0,0x8C+var_25(%%esp)\n \
     jz     loc_78945A\n \
     movl    _LOC_vec_window_height,%%edi\n \
@@ -2367,10 +2367,10 @@ loc_789441:            # CODE XREF: trig_+18FD\n \
     movl    %%edi,0x8C+var_6C(%%esp)\n \
     movl    %%edi,0x8C+var_7C(%%esp)\n \
 \n \
-loc_78945A:            # CODE XREF: trig_+194F trig_+195F ...\n \
+loc_78945A:            # 194F trig_+195F ...\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_789460:            # CODE XREF: trig_+19A9\n \
+loc_789460:            # 19A9\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -2443,7 +2443,7 @@ ft_md02:            # DATA XREF: trig_+1829 trig_+182D ...\n \
     jmp     loc_78955C\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_789543:            # CODE XREF: trig_+1A0A\n \
+loc_789543:            # 1A0A\n \
     cmpb   $0,0x8C+var_25(%%esp)\n \
     jz     loc_78955C\n \
     movl    _LOC_vec_window_height,%%edi\n \
@@ -2451,10 +2451,10 @@ loc_789543:            # CODE XREF: trig_+1A0A\n \
     movl    %%edi,0x8C+var_6C(%%esp)\n \
     movl    %%edi,0x8C+var_7C(%%esp)\n \
 \n \
-loc_78955C:            # CODE XREF: trig_+1A51 trig_+1A61 ...\n \
+loc_78955C:            # 1A51 trig_+1A61 ...\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_789562:            # CODE XREF: trig_+1AA4\n \
+loc_789562:            # 1AA4\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -2511,7 +2511,7 @@ ft_md01:            # DATA XREF: trig_+1825 trig_+1831 ...\n \
     jmp     loc_78962D\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_789614:            # CODE XREF: trig_+1AE6\n \
+loc_789614:            # 1AE6\n \
     cmpb   $0,0x8C+var_25(%%esp)\n \
     jz     loc_78962D\n \
     movl    _LOC_vec_window_height,%%edi\n \
@@ -2519,10 +2519,10 @@ loc_789614:            # CODE XREF: trig_+1AE6\n \
     movl    %%edi,0x8C+var_6C(%%esp)\n \
     movl    %%edi,0x8C+var_7C(%%esp)\n \
 \n \
-loc_78962D:            # CODE XREF: trig_+1B22 trig_+1B32 ...\n \
+loc_78962D:            # 1B22 trig_+1B32 ...\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_789633:            # CODE XREF: trig_+1B6E\n \
+loc_789633:            # 1B6E\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -2561,7 +2561,7 @@ ft_md00:            # DATA XREF: trig_:ft_jt trig_+1859    ...\n \
     jmp     loc_7896C9\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7896B0:            # CODE XREF: trig_+1B8D\n \
+loc_7896B0:            # 1B8D\n \
     cmpb   $0,0x8C+var_25(%%esp)\n \
     jz     loc_7896C9\n \
     movl    _LOC_vec_window_height,%%edi\n \
@@ -2569,10 +2569,10 @@ loc_7896B0:            # CODE XREF: trig_+1B8D\n \
     movl    %%edi,0x8C+var_6C(%%esp)\n \
     movl    %%edi,0x8C+var_7C(%%esp)\n \
 \n \
-loc_7896C9:            # CODE XREF: trig_+1BBE trig_+1BCE ...\n \
+loc_7896C9:            # 1BBE trig_+1BCE ...\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_7896CF:            # CODE XREF: trig_+1C03\n \
+loc_7896CF:            # 1C03\n \
     movl    %%eax,(%%edi)\n \
     addl    0x8C+delta_a(%%esp),%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -2632,7 +2632,7 @@ render_md00:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78977C:            # CODE XREF: trig_+1CF0\n \
+loc_78977C:            # 1CF0\n \
     movw    2(%%esi),%%bx\n \
     movzwl  6(%%esi),%%ecx\n \
     addl    _LOC_vec_screen_width,%%edx\n \
@@ -2644,35 +2644,35 @@ loc_78977C:            # CODE XREF: trig_+1CF0\n \
     jle     loc_7897A2\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_7897A2:            # CODE XREF: trig_+1CBA\n \
+loc_7897A2:            # 1CBA\n \
     movl    %%edx,%%edi\n \
     jmp     loc_7897BC\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7897A6:            # CODE XREF: trig_+1CAD\n \
+loc_7897A6:            # 1CAD\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_7897B4\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_7897B4:            # CODE XREF: trig_+1CCC\n \
+loc_7897B4:            # 1CCC\n \
     subw    %%bx,%%cx\n \
     jle     loc_7897C9\n \
     leal    (%%ebx,%%edx),%%edi\n \
 \n \
-loc_7897BC:            # CODE XREF: trig_+1CC4\n \
+loc_7897BC:            # 1CC4\n \
     shrl    $1,%%ecx\n \
     jnb     loc_7897C1\n \
     stosb    \n \
 \n \
-loc_7897C1:            # CODE XREF: trig_+1CDE\n \
+loc_7897C1:            # 1CDE\n \
     shrl    $1,%%ecx\n \
     jnb     loc_7897C7\n \
     stosw    \n \
 \n \
-loc_7897C7:            # CODE XREF: trig_+1CE3\n \
+loc_7897C7:            # 1CE3\n \
     rep    stosl\n \
 \n \
-loc_7897C9:            # CODE XREF: trig_+1CB2 trig_+1CD7\n \
+loc_7897C9:            # 1CB2 trig_+1CD7\n \
     addl    $0x14,%%esi\n \
     decl    0x8C+var_6C(%%esp)\n \
     jnz     loc_78977C\n \
@@ -2684,7 +2684,7 @@ render_md01:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_7897E1:            # CODE XREF: trig_+1EA8\n \
+loc_7897E1:            # 1EA8\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -2705,18 +2705,18 @@ loc_7897E1:            # CODE XREF: trig_+1EA8\n \
     jle     loc_789829\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_789829:            # CODE XREF: trig_+1D41\n \
+loc_789829:            # 1D41\n \
     movzwl    %%ax,%%eax\n \
     movb    _vec_colour,%%al\n \
     jmp     loc_78985A\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_789833:            # CODE XREF: trig_+1D18\n \
+loc_789833:            # 1D18\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_789841\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_789841:            # CODE XREF: trig_+1D59\n \
+loc_789841:            # 1D59\n \
     subw    %%ax,%%cx\n \
     jle     loc_789981\n \
     addl    %%eax,%%edi\n \
@@ -2724,7 +2724,7 @@ loc_789841:            # CODE XREF: trig_+1D59\n \
     movw    0x10(%%esi),%%bx\n \
     movb    0x12(%%esi),%%ah\n \
 \n \
-loc_78985A:            # CODE XREF: trig_+1D51 trig_+1E9C\n \
+loc_78985A:            # 1D51 trig_+1E9C\n \
     movb    %%ah,(%%edi)\n \
     addw    0x8C+var_50(%%esp),%%bx\n \
     adcb    0x8C+2+var_50(%%esp),%%ah\n \
@@ -2809,14 +2809,14 @@ loc_78985A:            # CODE XREF: trig_+1D51 trig_+1E9C\n \
     jmp     loc_78985A\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_789981:            # CODE XREF: trig_+1D1D trig_+1D64 ...\n \
+loc_789981:            # 1D1D trig_+1D64 ...\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_7897E1\n \
     jmp finished\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-render_md02:            # CODE XREF: trig_+2D92\n \
+render_md02:            # 2D92\n \
 # DATA XREF: trig_:_render_table\n \
     leal    _polyscans,%%esi\n \
     movl    0x8C+var_5C(%%esp),%%eax\n \
@@ -2826,7 +2826,7 @@ render_md02:            # CODE XREF: trig_+2D92\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_7899AA:            # CODE XREF: trig_+2144\n \
+loc_7899AA:            # 2144\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -2852,17 +2852,17 @@ loc_7899AA:            # CODE XREF: trig_+2144\n \
     jle     loc_7899FF\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_7899FF:            # CODE XREF: trig_+1F17\n \
+loc_7899FF:            # 1F17\n \
     movzwl    %%ax,%%eax\n \
     jmp     loc_789A2C\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_789A04:            # CODE XREF: trig_+1EE1\n \
+loc_789A04:            # 1EE1\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_789A12\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_789A12:            # CODE XREF: trig_+1F2A\n \
+loc_789A12:            # 1F2A\n \
     subw    %%ax,%%cx\n \
     jle     loc_789C1D\n \
     addl    %%eax,%%edi\n \
@@ -2872,11 +2872,11 @@ loc_789A12:            # CODE XREF: trig_+1F2A\n \
     movw    8(%%esi),%%dx\n \
     movb    0x0A(%%esi),%%bl\n \
 \n \
-loc_789A2C:            # CODE XREF: trig_+1F22\n \
+loc_789A2C:            # 1F22\n \
     movl    %%esi,0x8C+var_30(%%esp)\n \
     movl    _LOC_vec_map,%%esi\n \
 \n \
-loc_789A36:            # CODE XREF: trig_+2134\n \
+loc_789A36:            # 2134\n \
     movb    (%%ebx,%%esi),%%al\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
@@ -3009,10 +3009,10 @@ loc_789A36:            # CODE XREF: trig_+2134\n \
     jmp     loc_789A36\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_789C19:            # CODE XREF: trig_+1F6E trig_+1F8D ...\n \
+loc_789C19:            # 1F6E trig_+1F8D ...\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
 \n \
-loc_789C1D:            # CODE XREF: trig_+1EE6 trig_+1F35\n \
+loc_789C1D:            # 1EE6 trig_+1F35\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_7899AA\n \
@@ -3028,7 +3028,7 @@ render_md03:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_789C46:            # CODE XREF: trig_+2424\n \
+loc_789C46:            # 2424\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -3054,17 +3054,17 @@ loc_789C46:            # CODE XREF: trig_+2424\n \
     jle     loc_789C9B\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_789C9B:            # CODE XREF: trig_+21B3\n \
+loc_789C9B:            # 21B3\n \
     movzwl    %%ax,%%eax\n \
     jmp     loc_789CC8\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_789CA0:            # CODE XREF: trig_+217D\n \
+loc_789CA0:            # 217D\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_789CAE\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_789CAE:            # CODE XREF: trig_+21C6\n \
+loc_789CAE:            # 21C6\n \
     subw    %%ax,%%cx\n \
     jle     loc_789EFD\n \
     addl    %%eax,%%edi\n \
@@ -3074,17 +3074,17 @@ loc_789CAE:            # CODE XREF: trig_+21C6\n \
     movw    8(%%esi),%%dx\n \
     movb    0x0A(%%esi),%%bl\n \
 \n \
-loc_789CC8:            # CODE XREF: trig_+21BE\n \
+loc_789CC8:            # 21BE\n \
     movl    %%esi,0x8C+var_30(%%esp)\n \
     movl    _LOC_vec_map,%%esi\n \
 \n \
-loc_789CD2:            # CODE XREF: trig_+2414\n \
+loc_789CD2:            # 2414\n \
     movb    (%%ebx,%%esi),%%al\n \
     orb    %%al,%%al\n \
     jz     loc_789CDB\n \
     movb    %%al,(%%edi)\n \
 \n \
-loc_789CDB:            # CODE XREF: trig_+21F7\n \
+loc_789CDB:            # 21F7\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3096,7 +3096,7 @@ loc_789CDB:            # CODE XREF: trig_+21F7\n \
     jz     loc_789CFE\n \
     movb    %%al,1(%%edi)\n \
 \n \
-loc_789CFE:            # CODE XREF: trig_+2219\n \
+loc_789CFE:            # 2219\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3108,7 +3108,7 @@ loc_789CFE:            # CODE XREF: trig_+2219\n \
     jz     loc_789D21\n \
     movb    %%al,2(%%edi)\n \
 \n \
-loc_789D21:            # CODE XREF: trig_+223C\n \
+loc_789D21:            # 223C\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3120,7 +3120,7 @@ loc_789D21:            # CODE XREF: trig_+223C\n \
     jz     loc_789D44\n \
     movb    %%al,3(%%edi)\n \
 \n \
-loc_789D44:            # CODE XREF: trig_+225F\n \
+loc_789D44:            # 225F\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3132,7 +3132,7 @@ loc_789D44:            # CODE XREF: trig_+225F\n \
     jz     loc_789D67\n \
     movb    %%al,4(%%edi)\n \
 \n \
-loc_789D67:            # CODE XREF: trig_+2282\n \
+loc_789D67:            # 2282\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3144,7 +3144,7 @@ loc_789D67:            # CODE XREF: trig_+2282\n \
     jz     loc_789D8A\n \
     movb    %%al,5(%%edi)\n \
 \n \
-loc_789D8A:            # CODE XREF: trig_+22A5\n \
+loc_789D8A:            # 22A5\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3156,7 +3156,7 @@ loc_789D8A:            # CODE XREF: trig_+22A5\n \
     jz     loc_789DAD\n \
     movb    %%al,6(%%edi)\n \
 \n \
-loc_789DAD:            # CODE XREF: trig_+22C8\n \
+loc_789DAD:            # 22C8\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3168,7 +3168,7 @@ loc_789DAD:            # CODE XREF: trig_+22C8\n \
     jz     loc_789DD0\n \
     movb    %%al,7(%%edi)\n \
 \n \
-loc_789DD0:            # CODE XREF: trig_+22EB\n \
+loc_789DD0:            # 22EB\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3180,7 +3180,7 @@ loc_789DD0:            # CODE XREF: trig_+22EB\n \
     jz     loc_789DF3\n \
     movb    %%al,8(%%edi)\n \
 \n \
-loc_789DF3:            # CODE XREF: trig_+230E\n \
+loc_789DF3:            # 230E\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3192,7 +3192,7 @@ loc_789DF3:            # CODE XREF: trig_+230E\n \
     jz     loc_789E16\n \
     movb    %%al,9(%%edi)\n \
 \n \
-loc_789E16:            # CODE XREF: trig_+2331\n \
+loc_789E16:            # 2331\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3204,7 +3204,7 @@ loc_789E16:            # CODE XREF: trig_+2331\n \
     jz     loc_789E39\n \
     movb    %%al,0x0A(%%edi)\n \
 \n \
-loc_789E39:            # CODE XREF: trig_+2354\n \
+loc_789E39:            # 2354\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3216,7 +3216,7 @@ loc_789E39:            # CODE XREF: trig_+2354\n \
     jz     loc_789E5C\n \
     movb    %%al,0x0B(%%edi)\n \
 \n \
-loc_789E5C:            # CODE XREF: trig_+2377\n \
+loc_789E5C:            # 2377\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3228,7 +3228,7 @@ loc_789E5C:            # CODE XREF: trig_+2377\n \
     jz     loc_789E7F\n \
     movb    %%al,0x0C(%%edi)\n \
 \n \
-loc_789E7F:            # CODE XREF: trig_+239A\n \
+loc_789E7F:            # 239A\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3240,7 +3240,7 @@ loc_789E7F:            # CODE XREF: trig_+239A\n \
     jz     loc_789E9E\n \
     movb    %%al,0x0D(%%edi)\n \
 \n \
-loc_789E9E:            # CODE XREF: trig_+23B9\n \
+loc_789E9E:            # 23B9\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3252,7 +3252,7 @@ loc_789E9E:            # CODE XREF: trig_+23B9\n \
     jz     loc_789EBD\n \
     movb    %%al,0x0E(%%edi)\n \
 \n \
-loc_789EBD:            # CODE XREF: trig_+23D8\n \
+loc_789EBD:            # 23D8\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3264,7 +3264,7 @@ loc_789EBD:            # CODE XREF: trig_+23D8\n \
     jz     loc_789EDC\n \
     movb    %%al,0x0F(%%edi)\n \
 \n \
-loc_789EDC:            # CODE XREF: trig_+23F7\n \
+loc_789EDC:            # 23F7\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3275,10 +3275,10 @@ loc_789EDC:            # CODE XREF: trig_+23F7\n \
     jmp     loc_789CD2\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_789EF9:            # CODE XREF: trig_+220E trig_+2231 ...\n \
+loc_789EF9:            # 220E trig_+2231 ...\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
 \n \
-loc_789EFD:            # CODE XREF: trig_+2182 trig_+21D1\n \
+loc_789EFD:            # 2182 trig_+21D1\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_789C46\n \
@@ -3290,7 +3290,7 @@ render_md04:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_789F19:            # CODE XREF: trig_+2648\n \
+loc_789F19:            # 2648\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -3311,18 +3311,18 @@ loc_789F19:            # CODE XREF: trig_+2648\n \
     jle     loc_789F61\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_789F61:            # CODE XREF: trig_+2479\n \
+loc_789F61:            # 2479\n \
     movzwl    %%ax,%%eax\n \
     movb    _vec_colour,%%al\n \
     jmp     loc_789F92\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_789F6B:            # CODE XREF: trig_+2450\n \
+loc_789F6B:            # 2450\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_789F79\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_789F79:            # CODE XREF: trig_+2491\n \
+loc_789F79:            # 2491\n \
     subw    %%ax,%%cx\n \
     jle     loc_78A121\n \
     addl    %%eax,%%edi\n \
@@ -3330,7 +3330,7 @@ loc_789F79:            # CODE XREF: trig_+2491\n \
     movw    0x10(%%esi),%%bx\n \
     movb    0x12(%%esi),%%ah\n \
 \n \
-loc_789F92:            # CODE XREF: trig_+2489 trig_+263C\n \
+loc_789F92:            # 2489 trig_+263C\n \
     addw    0x8C+var_50(%%esp),%%bx\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
@@ -3479,7 +3479,7 @@ loc_789F92:            # CODE XREF: trig_+2489 trig_+263C\n \
     jmp     loc_789F92\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78A121:            # CODE XREF: trig_+2455 trig_+249C ...\n \
+loc_78A121:            # 2455 trig_+249C ...\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_789F19\n \
@@ -3510,7 +3510,7 @@ render_md05:\n \
     movl    %%edx,0x8C+var_3C(%%esp)\n \
     movb    %%bl,0x8C+var_28(%%esp)\n \
 \n \
-loc_78A1A9:            # CODE XREF: trig_+299F\n \
+loc_78A1A9:            # 299F\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
     addl    $0x14,0x8C+var_30(%%esp)\n \
     movl    (%%esi),%%eax\n \
@@ -3545,16 +3545,16 @@ loc_78A1A9:            # CODE XREF: trig_+299F\n \
     jle     loc_78A215\n \
     movl    _LOC_vec_window_width,%%ebp\n \
 \n \
-loc_78A215:            # CODE XREF: trig_+272D\n \
+loc_78A215:            # 272D\n \
     jmp     loc_78A24A\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78A217:            # CODE XREF: trig_+26EB\n \
+loc_78A217:            # 26EB\n \
     cmpl    _LOC_vec_window_width,%%ebp\n \
     jle     loc_78A225\n \
     movl    _LOC_vec_window_width,%%ebp\n \
 \n \
-loc_78A225:            # CODE XREF: trig_+273D\n \
+loc_78A225:            # 273D\n \
     subl    %%eax,%%ebp\n \
     jle     loc_78A47B\n \
     addl    %%eax,%%edi\n \
@@ -3808,7 +3808,7 @@ gt_md01:            # DATA XREF: trig_:gt_jt\n \
     subl    $0x10,%%ebp\n \
     jg      gt_md00\n \
 \n \
-loc_78A47B:            # CODE XREF: trig_+26EF trig_+2747\n \
+loc_78A47B:            # 26EF trig_+2747\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78A1A9\n \
     jmp finished\n \
@@ -3827,7 +3827,7 @@ render_md06:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78A4B0:            # CODE XREF: trig_+2D80\n \
+loc_78A4B0:            # 2D80\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
     addl    $0x14,0x8C+var_30(%%esp)\n \
     movw    2(%%esi),%%ax\n \
@@ -3863,16 +3863,16 @@ loc_78A4B0:            # CODE XREF: trig_+2D80\n \
     jle     loc_78A528\n \
     movw    _LOC_vec_window_width,%%cx\n \
 \n \
-loc_78A528:            # CODE XREF: trig_+2A3F\n \
+loc_78A528:            # 2A3F\n \
     jmp     loc_78A560\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78A52A:            # CODE XREF: trig_+29F0\n \
+loc_78A52A:            # 29F0\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78A538\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78A538:            # CODE XREF: trig_+2A50\n \
+loc_78A538:            # 2A50\n \
     subw    %%ax,%%cx\n \
     jle     loc_78A85C\n \
     addl    %%eax,%%edi\n \
@@ -3912,7 +3912,7 @@ mgt_jt:            # DATA XREF: trig_+2A93\n \
     .int    mgt_md14\n \
     .int    mgt_md15\n \
 \n \
-mgt_md00:            # CODE XREF: trig_+2D76\n \
+mgt_md00:            # 2D76\n \
 # DATA XREF: trig_:mgt_jt\n \
     movb    (%%ebx,%%ebp),%%al\n \
     orb    %%al,%%al\n \
@@ -3923,7 +3923,7 @@ mgt_md00:            # CODE XREF: trig_+2D76\n \
     popl    %%ebx\n \
     movb    %%al,(%%edi)\n \
 \n \
-loc_78A5CF:            # CODE XREF: trig_+2AE5\n \
+loc_78A5CF:            # 2AE5\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -3941,7 +3941,7 @@ mgt_md15:            # DATA XREF: trig_:mgt_jt\n \
     popl    %%ebx\n \
     movb    %%al,1(%%edi)\n \
 \n \
-loc_78A5F8:            # CODE XREF: trig_+2B0D\n \
+loc_78A5F8:            # 2B0D\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3959,7 +3959,7 @@ mgt_md14:            # DATA XREF: trig_:mgt_jt\n \
     popl    %%ebx\n \
     movb    %%al,2(%%edi)\n \
 \n \
-loc_78A621:            # CODE XREF: trig_+2B36\n \
+loc_78A621:            # 2B36\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3977,7 +3977,7 @@ mgt_md13:            # DATA XREF: trig_:mgt_jt\n \
     popl    %%ebx\n \
     movb    %%al,3(%%edi)\n \
 \n \
-loc_78A64A:            # CODE XREF: trig_+2B5F\n \
+loc_78A64A:            # 2B5F\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -3995,7 +3995,7 @@ mgt_md12:            # DATA XREF: trig_:mgt_jt\n \
     popl    %%ebx\n \
     movb    %%al,4(%%edi)\n \
 \n \
-loc_78A673:            # CODE XREF: trig_+2B88\n \
+loc_78A673:            # 2B88\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -4013,7 +4013,7 @@ mgt_md11:            # DATA XREF: trig_:mgt_jt\n \
     popl    %%ebx\n \
     movb    %%al,5(%%edi)\n \
 \n \
-loc_78A69C:            # CODE XREF: trig_+2BB1\n \
+loc_78A69C:            # 2BB1\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -4031,7 +4031,7 @@ mgt_md10:            # DATA XREF: trig_:mgt_jt\n \
     popl    %%ebx\n \
     movb    %%al,6(%%edi)\n \
 \n \
-loc_78A6C5:            # CODE XREF: trig_+2BDA\n \
+loc_78A6C5:            # 2BDA\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -4049,7 +4049,7 @@ mgt_md09:            # DATA XREF: trig_:mgt_jt\n \
     popl    %%ebx\n \
     movb    %%al,7(%%edi)\n \
 \n \
-loc_78A6EE:            # CODE XREF: trig_+2C03\n \
+loc_78A6EE:            # 2C03\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -4067,7 +4067,7 @@ mgt_md08:            # DATA XREF: trig_:mgt_jt\n \
     popl    %%ebx\n \
     movb    %%al,8(%%edi)\n \
 \n \
-loc_78A717:            # CODE XREF: trig_+2C2C\n \
+loc_78A717:            # 2C2C\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl    0x8C+var_40(%%esp),%%edx\n \
@@ -4085,7 +4085,7 @@ mgt_md07:            # DATA XREF: trig_:mgt_jt\n \
     popl    %%ebx\n \
     movb    %%al,9(%%edi)\n \
 \n \
-loc_78A740:            # CODE XREF: trig_+2C55\n \
+loc_78A740:            # 2C55\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -4103,7 +4103,7 @@ mgt_md06:            # DATA XREF: trig_:mgt_jt\n \
     popl    %%ebx\n \
     movb    %%al,0x0A(%%edi)\n \
 \n \
-loc_78A769:            # CODE XREF: trig_+2C7E\n \
+loc_78A769:            # 2C7E\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -4121,7 +4121,7 @@ mgt_md05:            # DATA XREF: trig_:mgt_jt\n \
     popl    %%ebx\n \
     movb    %%al,0x0B(%%edi)\n \
 \n \
-loc_78A792:            # CODE XREF: trig_+2CA7\n \
+loc_78A792:            # 2CA7\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -4139,7 +4139,7 @@ mgt_md04:            # DATA XREF: trig_:mgt_jt\n \
     popl    %%ebx\n \
     movb    %%al,0x0C(%%edi)\n \
 \n \
-loc_78A7BB:            # CODE XREF: trig_+2CD0\n \
+loc_78A7BB:            # 2CD0\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -4157,7 +4157,7 @@ mgt_md03:            # DATA XREF: trig_:mgt_jt\n \
     popl    %%ebx\n \
     movb    %%al,0x0D(%%edi)\n \
 \n \
-loc_78A7E4:            # CODE XREF: trig_+2CF9\n \
+loc_78A7E4:            # 2CF9\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -4175,7 +4175,7 @@ mgt_md02:            # DATA XREF: trig_:mgt_jt\n \
     popl    %%ebx\n \
     movb    %%al,0x0E(%%edi)\n \
 \n \
-loc_78A80D:            # CODE XREF: trig_+2D22\n \
+loc_78A80D:            # 2D22\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -4193,7 +4193,7 @@ mgt_md01:            # DATA XREF: trig_:mgt_jt\n \
     popl    %%ebx\n \
     movb    %%al,0x0F(%%edi)\n \
 \n \
-loc_78A836:            # CODE XREF: trig_+2D4B\n \
+loc_78A836:            # 2D4B\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -4204,7 +4204,7 @@ loc_78A836:            # CODE XREF: trig_+2D4B\n \
     subw    $0x10,%%cx\n \
     jg      mgt_md00\n \
 \n \
-loc_78A85C:            # CODE XREF: trig_+29F5 trig_+2A5B\n \
+loc_78A85C:            # 29F5 trig_+2A5B\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78A4B0\n \
     jmp finished\n \
@@ -4221,7 +4221,7 @@ render_md07:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78A88F:            # CODE XREF: trig_+3093\n \
+loc_78A88F:            # 3093\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -4247,17 +4247,17 @@ loc_78A88F:            # CODE XREF: trig_+3093\n \
     jle     loc_78A8E4\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78A8E4:            # CODE XREF: trig_+2DFC\n \
+loc_78A8E4:            # 2DFC\n \
     movzwl    %%ax,%%eax\n \
     jmp     loc_78A911\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78A8E9:            # CODE XREF: trig_+2DC6\n \
+loc_78A8E9:            # 2DC6\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78A8F7\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78A8F7:            # CODE XREF: trig_+2E0F\n \
+loc_78A8F7:            # 2E0F\n \
     subw    %%ax,%%cx\n \
     jle     loc_78AB6C\n \
     addl    %%eax,%%edi\n \
@@ -4267,12 +4267,12 @@ loc_78A8F7:            # CODE XREF: trig_+2E0F\n \
     movw    8(%%esi),%%dx\n \
     movb    0x0A(%%esi),%%bl\n \
 \n \
-loc_78A911:            # CODE XREF: trig_+2E07\n \
+loc_78A911:            # 2E07\n \
     movl    %%esi,0x8C+var_30(%%esp)\n \
     movl    _LOC_vec_map,%%esi\n \
     movb    _vec_colour,%%ah\n \
 \n \
-loc_78A921:            # CODE XREF: trig_+3083\n \
+loc_78A921:            # 3083\n \
     movb    (%%ebx,%%esi),%%al\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
@@ -4469,10 +4469,10 @@ loc_78A921:            # CODE XREF: trig_+3083\n \
     jmp     loc_78A921\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78AB68:            # CODE XREF: trig_+2E5F trig_+2E84 ...\n \
+loc_78AB68:            # 2E5F trig_+2E84 ...\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
 \n \
-loc_78AB6C:            # CODE XREF: trig_+2DCB trig_+2E1A\n \
+loc_78AB6C:            # 2DCB trig_+2E1A\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78A88F\n \
@@ -4488,7 +4488,7 @@ render_md08:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78AB95:            # CODE XREF: trig_+33D9\n \
+loc_78AB95:            # 33D9\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -4514,17 +4514,17 @@ loc_78AB95:            # CODE XREF: trig_+33D9\n \
     jle     loc_78ABEA\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78ABEA:            # CODE XREF: trig_+3102\n \
+loc_78ABEA:            # 3102\n \
     movzwl    %%ax,%%eax\n \
     jmp     loc_78AC17\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78ABEF:            # CODE XREF: trig_+30CC\n \
+loc_78ABEF:            # 30CC\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78ABFD\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78ABFD:            # CODE XREF: trig_+3115\n \
+loc_78ABFD:            # 3115\n \
     subw    %%ax,%%cx\n \
     jle     loc_78AEB2\n \
     addl    %%eax,%%edi\n \
@@ -4534,12 +4534,12 @@ loc_78ABFD:            # CODE XREF: trig_+3115\n \
     movw    8(%%esi),%%dx\n \
     movb    0x0A(%%esi),%%bl\n \
 \n \
-loc_78AC17:            # CODE XREF: trig_+310D\n \
+loc_78AC17:            # 310D\n \
     movl    %%esi,0x8C+var_30(%%esp)\n \
     movl    _LOC_vec_map,%%esi\n \
     movb    _vec_colour,%%ah\n \
 \n \
-loc_78AC27:            # CODE XREF: trig_+33C9\n \
+loc_78AC27:            # 33C9\n \
     movb    (%%ebx,%%esi),%%al\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
@@ -4551,7 +4551,7 @@ loc_78AC27:            # CODE XREF: trig_+33C9\n \
     popl    %%edx\n \
     movb    %%al,(%%edi)\n \
 \n \
-loc_78AC3F:            # CODE XREF: trig_+3155\n \
+loc_78AC3F:            # 3155\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4567,7 +4567,7 @@ loc_78AC3F:            # CODE XREF: trig_+3155\n \
     popl    %%edx\n \
     movb    %%al,1(%%edi)\n \
 \n \
-loc_78AC68:            # CODE XREF: trig_+317D\n \
+loc_78AC68:            # 317D\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4583,7 +4583,7 @@ loc_78AC68:            # CODE XREF: trig_+317D\n \
     popl    %%edx\n \
     movb    %%al,2(%%edi)\n \
 \n \
-loc_78AC91:            # CODE XREF: trig_+31A6\n \
+loc_78AC91:            # 31A6\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4599,7 +4599,7 @@ loc_78AC91:            # CODE XREF: trig_+31A6\n \
     popl    %%edx\n \
     movb    %%al,3(%%edi)\n \
 \n \
-loc_78ACBA:            # CODE XREF: trig_+31CF\n \
+loc_78ACBA:            # 31CF\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4615,7 +4615,7 @@ loc_78ACBA:            # CODE XREF: trig_+31CF\n \
     popl    %%edx\n \
     movb    %%al,4(%%edi)\n \
 \n \
-loc_78ACE3:            # CODE XREF: trig_+31F8\n \
+loc_78ACE3:            # 31F8\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4631,7 +4631,7 @@ loc_78ACE3:            # CODE XREF: trig_+31F8\n \
     popl    %%edx\n \
     movb    %%al,5(%%edi)\n \
 \n \
-loc_78AD0C:            # CODE XREF: trig_+3221\n \
+loc_78AD0C:            # 3221\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4647,7 +4647,7 @@ loc_78AD0C:            # CODE XREF: trig_+3221\n \
     popl    %%edx\n \
     movb    %%al,6(%%edi)\n \
 \n \
-loc_78AD35:            # CODE XREF: trig_+324A\n \
+loc_78AD35:            # 324A\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4663,7 +4663,7 @@ loc_78AD35:            # CODE XREF: trig_+324A\n \
     popl    %%edx\n \
     movb    %%al,7(%%edi)\n \
 \n \
-loc_78AD5E:            # CODE XREF: trig_+3273\n \
+loc_78AD5E:            # 3273\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4679,7 +4679,7 @@ loc_78AD5E:            # CODE XREF: trig_+3273\n \
     popl    %%edx\n \
     movb    %%al,8(%%edi)\n \
 \n \
-loc_78AD87:            # CODE XREF: trig_+329C\n \
+loc_78AD87:            # 329C\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4695,7 +4695,7 @@ loc_78AD87:            # CODE XREF: trig_+329C\n \
     popl    %%edx\n \
     movb    %%al,9(%%edi)\n \
 \n \
-loc_78ADB0:            # CODE XREF: trig_+32C5\n \
+loc_78ADB0:            # 32C5\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4711,7 +4711,7 @@ loc_78ADB0:            # CODE XREF: trig_+32C5\n \
     popl    %%edx\n \
     movb    %%al,0x0A(%%edi)\n \
 \n \
-loc_78ADD9:            # CODE XREF: trig_+32EE\n \
+loc_78ADD9:            # 32EE\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4727,7 +4727,7 @@ loc_78ADD9:            # CODE XREF: trig_+32EE\n \
     popl    %%edx\n \
     movb    %%al,0x0B(%%edi)\n \
 \n \
-loc_78AE02:            # CODE XREF: trig_+3317\n \
+loc_78AE02:            # 3317\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4743,7 +4743,7 @@ loc_78AE02:            # CODE XREF: trig_+3317\n \
     popl    %%edx\n \
     movb    %%al,0x0C(%%edi)\n \
 \n \
-loc_78AE2B:            # CODE XREF: trig_+3340\n \
+loc_78AE2B:            # 3340\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4759,7 +4759,7 @@ loc_78AE2B:            # CODE XREF: trig_+3340\n \
     popl    %%edx\n \
     movb    %%al,0x0D(%%edi)\n \
 \n \
-loc_78AE50:            # CODE XREF: trig_+3365\n \
+loc_78AE50:            # 3365\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4775,7 +4775,7 @@ loc_78AE50:            # CODE XREF: trig_+3365\n \
     popl    %%edx\n \
     movb    %%al,0x0E(%%edi)\n \
 \n \
-loc_78AE75:            # CODE XREF: trig_+338A\n \
+loc_78AE75:            # 338A\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4791,7 +4791,7 @@ loc_78AE75:            # CODE XREF: trig_+338A\n \
     popl    %%edx\n \
     movb    %%al,0x0F(%%edi)\n \
 \n \
-loc_78AE9A:            # CODE XREF: trig_+33AF\n \
+loc_78AE9A:            # 33AF\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4800,10 +4800,10 @@ loc_78AE9A:            # CODE XREF: trig_+33AF\n \
     jmp     loc_78AC27\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78AEAE:            # CODE XREF: trig_+3169 trig_+3192 ...\n \
+loc_78AEAE:            # 3169 trig_+3192 ...\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
 \n \
-loc_78AEB2:            # CODE XREF: trig_+30D1 trig_+3120\n \
+loc_78AEB2:            # 30D1 trig_+3120\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78AB95\n \
@@ -4819,7 +4819,7 @@ render_md09:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78AEDB:            # CODE XREF: trig_+374C\n \
+loc_78AEDB:            # 374C\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -4845,17 +4845,17 @@ loc_78AEDB:            # CODE XREF: trig_+374C\n \
     jle     loc_78AF30\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78AF30:            # CODE XREF: trig_+3448\n \
+loc_78AF30:            # 3448\n \
     movzwl    %%ax,%%eax\n \
     jmp     loc_78AF5D\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78AF35:            # CODE XREF: trig_+3412\n \
+loc_78AF35:            # 3412\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78AF43\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78AF43:            # CODE XREF: trig_+345B\n \
+loc_78AF43:            # 345B\n \
     subw    %%ax,%%cx\n \
     jle     loc_78B225\n \
     addl    %%eax,%%edi\n \
@@ -4865,11 +4865,11 @@ loc_78AF43:            # CODE XREF: trig_+345B\n \
     movw    8(%%esi),%%dx\n \
     movb    0x0A(%%esi),%%bl\n \
 \n \
-loc_78AF5D:            # CODE XREF: trig_+3453\n \
+loc_78AF5D:            # 3453\n \
     movl    %%esi,0x8C+var_30(%%esp)\n \
     movl    _LOC_vec_map,%%esi\n \
 \n \
-loc_78AF67:            # CODE XREF: trig_+373C\n \
+loc_78AF67:            # 373C\n \
     movb    (%%ebx,%%esi),%%ah\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
@@ -4882,7 +4882,7 @@ loc_78AF67:            # CODE XREF: trig_+373C\n \
     popl    %%edx\n \
     movb    %%al,(%%edi)\n \
 \n \
-loc_78AF81:            # CODE XREF: trig_+3495\n \
+loc_78AF81:            # 3495\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4899,7 +4899,7 @@ loc_78AF81:            # CODE XREF: trig_+3495\n \
     popl    %%edx\n \
     movb    %%al,1(%%edi)\n \
 \n \
-loc_78AFAD:            # CODE XREF: trig_+34BF\n \
+loc_78AFAD:            # 34BF\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4916,7 +4916,7 @@ loc_78AFAD:            # CODE XREF: trig_+34BF\n \
     popl    %%edx\n \
     movb    %%al,2(%%edi)\n \
 \n \
-loc_78AFD9:            # CODE XREF: trig_+34EB\n \
+loc_78AFD9:            # 34EB\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4933,7 +4933,7 @@ loc_78AFD9:            # CODE XREF: trig_+34EB\n \
     popl    %%edx\n \
     movb    %%al,3(%%edi)\n \
 \n \
-loc_78B005:            # CODE XREF: trig_+3517\n \
+loc_78B005:            # 3517\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4950,7 +4950,7 @@ loc_78B005:            # CODE XREF: trig_+3517\n \
     popl    %%edx\n \
     movb    %%al,4(%%edi)\n \
 \n \
-loc_78B031:            # CODE XREF: trig_+3543\n \
+loc_78B031:            # 3543\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4967,7 +4967,7 @@ loc_78B031:            # CODE XREF: trig_+3543\n \
     popl    %%edx\n \
     movb    %%al,5(%%edi)\n \
 \n \
-loc_78B05D:            # CODE XREF: trig_+356F\n \
+loc_78B05D:            # 356F\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -4984,7 +4984,7 @@ loc_78B05D:            # CODE XREF: trig_+356F\n \
     popl    %%edx\n \
     movb    %%al,6(%%edi)\n \
 \n \
-loc_78B089:            # CODE XREF: trig_+359B\n \
+loc_78B089:            # 359B\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -5001,7 +5001,7 @@ loc_78B089:            # CODE XREF: trig_+359B\n \
     popl    %%edx\n \
     movb    %%al,7(%%edi)\n \
 \n \
-loc_78B0B5:            # CODE XREF: trig_+35C7\n \
+loc_78B0B5:            # 35C7\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -5018,7 +5018,7 @@ loc_78B0B5:            # CODE XREF: trig_+35C7\n \
     popl    %%edx\n \
     movb    %%al,8(%%edi)\n \
 \n \
-loc_78B0E1:            # CODE XREF: trig_+35F3\n \
+loc_78B0E1:            # 35F3\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -5035,7 +5035,7 @@ loc_78B0E1:            # CODE XREF: trig_+35F3\n \
     popl    %%edx\n \
     movb    %%al,9(%%edi)\n \
 \n \
-loc_78B10D:            # CODE XREF: trig_+361F\n \
+loc_78B10D:            # 361F\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -5052,7 +5052,7 @@ loc_78B10D:            # CODE XREF: trig_+361F\n \
     popl    %%edx\n \
     movb    %%al,0x0A(%%edi)\n \
 \n \
-loc_78B139:            # CODE XREF: trig_+364B\n \
+loc_78B139:            # 364B\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -5069,7 +5069,7 @@ loc_78B139:            # CODE XREF: trig_+364B\n \
     popl    %%edx\n \
     movb    %%al,0x0B(%%edi)\n \
 \n \
-loc_78B165:            # CODE XREF: trig_+3677\n \
+loc_78B165:            # 3677\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -5086,7 +5086,7 @@ loc_78B165:            # CODE XREF: trig_+3677\n \
     popl    %%edx\n \
     movb    %%al,0x0C(%%edi)\n \
 \n \
-loc_78B191:            # CODE XREF: trig_+36A3\n \
+loc_78B191:            # 36A3\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -5103,7 +5103,7 @@ loc_78B191:            # CODE XREF: trig_+36A3\n \
     popl    %%edx\n \
     movb    %%al,0x0D(%%edi)\n \
 \n \
-loc_78B1BD:            # CODE XREF: trig_+36CF\n \
+loc_78B1BD:            # 36CF\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -5120,7 +5120,7 @@ loc_78B1BD:            # CODE XREF: trig_+36CF\n \
     popl    %%edx\n \
     movb    %%al,0x0E(%%edi)\n \
 \n \
-loc_78B1E5:            # CODE XREF: trig_+36F7\n \
+loc_78B1E5:            # 36F7\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -5137,7 +5137,7 @@ loc_78B1E5:            # CODE XREF: trig_+36F7\n \
     popl    %%edx\n \
     movb    %%al,0x0F(%%edi)\n \
 \n \
-loc_78B20D:            # CODE XREF: trig_+371F\n \
+loc_78B20D:            # 371F\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
     adcb    0x8C+2+var_5C(%%esp),%%bh\n \
     decw    %%cx\n \
@@ -5146,10 +5146,10 @@ loc_78B20D:            # CODE XREF: trig_+371F\n \
     jmp     loc_78AF67\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78B221:            # CODE XREF: trig_+34AB trig_+34D7 ...\n \
+loc_78B221:            # 34AB trig_+34D7 ...\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
 \n \
-loc_78B225:            # CODE XREF: trig_+3417 trig_+3466\n \
+loc_78B225:            # 3417 trig_+3466\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78AEDB\n \
@@ -5165,7 +5165,7 @@ render_md10:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78B24E:            # CODE XREF: trig_+3AC5\n \
+loc_78B24E:            # 3AC5\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -5191,17 +5191,17 @@ loc_78B24E:            # CODE XREF: trig_+3AC5\n \
     jle     loc_78B2A3\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78B2A3:            # CODE XREF: trig_+37BB\n \
+loc_78B2A3:            # 37BB\n \
     movzwl    %%ax,%%eax\n \
     jmp     loc_78B2D0\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78B2A8:            # CODE XREF: trig_+3785\n \
+loc_78B2A8:            # 3785\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78B2B6\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78B2B6:            # CODE XREF: trig_+37CE\n \
+loc_78B2B6:            # 37CE\n \
     subw    %%ax,%%cx\n \
     jle     loc_78B59E\n \
     addl    %%eax,%%edi\n \
@@ -5211,12 +5211,12 @@ loc_78B2B6:            # CODE XREF: trig_+37CE\n \
     movw    8(%%esi),%%dx\n \
     movb    0x0A(%%esi),%%bl\n \
 \n \
-loc_78B2D0:            # CODE XREF: trig_+37C6\n \
+loc_78B2D0:            # 37C6\n \
     movb    _vec_colour,%%ah\n \
     movl    %%esi,0x8C+var_30(%%esp)\n \
     movl    _LOC_vec_map,%%esi\n \
 \n \
-loc_78B2E0:            # CODE XREF: trig_+3AB5\n \
+loc_78B2E0:            # 3AB5\n \
     movb    (%%ebx,%%esi),%%al\n \
     orb    %%al,%%al\n \
     jz     loc_78B2F1\n \
@@ -5228,7 +5228,7 @@ loc_78B2E0:            # CODE XREF: trig_+3AB5\n \
     popl    %%ebx\n \
     movb    %%al,(%%edi)\n \
 \n \
-loc_78B2F1:            # CODE XREF: trig_+3805\n \
+loc_78B2F1:            # 3805\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -5245,7 +5245,7 @@ loc_78B2F1:            # CODE XREF: trig_+3805\n \
     popl    %%edx\n \
     movb    %%al,1(%%edi)\n \
 \n \
-loc_78B31D:            # CODE XREF: trig_+382F\n \
+loc_78B31D:            # 382F\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -5262,7 +5262,7 @@ loc_78B31D:            # CODE XREF: trig_+382F\n \
     popl    %%edx\n \
     movb    %%al,2(%%edi)\n \
 \n \
-loc_78B349:            # CODE XREF: trig_+385B\n \
+loc_78B349:            # 385B\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -5279,7 +5279,7 @@ loc_78B349:            # CODE XREF: trig_+385B\n \
     popl    %%edx\n \
     movb    %%al,3(%%edi)\n \
 \n \
-loc_78B375:            # CODE XREF: trig_+3887\n \
+loc_78B375:            # 3887\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -5296,7 +5296,7 @@ loc_78B375:            # CODE XREF: trig_+3887\n \
     popl    %%edx\n \
     movb    %%al,4(%%edi)\n \
 \n \
-loc_78B3A1:            # CODE XREF: trig_+38B3\n \
+loc_78B3A1:            # 38B3\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -5313,7 +5313,7 @@ loc_78B3A1:            # CODE XREF: trig_+38B3\n \
     popl    %%edx\n \
     movb    %%al,5(%%edi)\n \
 \n \
-loc_78B3CD:            # CODE XREF: trig_+38DF\n \
+loc_78B3CD:            # 38DF\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -5330,7 +5330,7 @@ loc_78B3CD:            # CODE XREF: trig_+38DF\n \
     popl    %%edx\n \
     movb    %%al,6(%%edi)\n \
 \n \
-loc_78B3F9:            # CODE XREF: trig_+390B\n \
+loc_78B3F9:            # 390B\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -5347,7 +5347,7 @@ loc_78B3F9:            # CODE XREF: trig_+390B\n \
     popl    %%edx\n \
     movb    %%al,7(%%edi)\n \
 \n \
-loc_78B425:            # CODE XREF: trig_+3937\n \
+loc_78B425:            # 3937\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -5364,7 +5364,7 @@ loc_78B425:            # CODE XREF: trig_+3937\n \
     popl    %%edx\n \
     movb    %%al,8(%%edi)\n \
 \n \
-loc_78B451:            # CODE XREF: trig_+3963\n \
+loc_78B451:            # 3963\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -5381,7 +5381,7 @@ loc_78B451:            # CODE XREF: trig_+3963\n \
     popl    %%edx\n \
     movb    %%al,9(%%edi)\n \
 \n \
-loc_78B47D:            # CODE XREF: trig_+398F\n \
+loc_78B47D:            # 398F\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -5398,7 +5398,7 @@ loc_78B47D:            # CODE XREF: trig_+398F\n \
     popl    %%edx\n \
     movb    %%al,0x0A(%%edi)\n \
 \n \
-loc_78B4A9:            # CODE XREF: trig_+39BB\n \
+loc_78B4A9:            # 39BB\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -5415,7 +5415,7 @@ loc_78B4A9:            # CODE XREF: trig_+39BB\n \
     popl    %%edx\n \
     movb    %%al,0x0B(%%edi)\n \
 \n \
-loc_78B4D5:            # CODE XREF: trig_+39E7\n \
+loc_78B4D5:            # 39E7\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -5432,7 +5432,7 @@ loc_78B4D5:            # CODE XREF: trig_+39E7\n \
     popl    %%edx\n \
     movb    %%al,0x0C(%%edi)\n \
 \n \
-loc_78B501:            # CODE XREF: trig_+3A13\n \
+loc_78B501:            # 3A13\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -5449,7 +5449,7 @@ loc_78B501:            # CODE XREF: trig_+3A13\n \
     popl    %%edx\n \
     movb    %%al,0x0D(%%edi)\n \
 \n \
-loc_78B52D:            # CODE XREF: trig_+3A3F\n \
+loc_78B52D:            # 3A3F\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -5466,7 +5466,7 @@ loc_78B52D:            # CODE XREF: trig_+3A3F\n \
     popl    %%edx\n \
     movb    %%al,0x0E(%%edi)\n \
 \n \
-loc_78B555:            # CODE XREF: trig_+3A67\n \
+loc_78B555:            # 3A67\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -5483,7 +5483,7 @@ loc_78B555:            # CODE XREF: trig_+3A67\n \
     popl    %%edx\n \
     movb    %%al,0x0F(%%edi)\n \
 \n \
-loc_78B57D:            # CODE XREF: trig_+3A8F\n \
+loc_78B57D:            # 3A8F\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -5494,10 +5494,10 @@ loc_78B57D:            # CODE XREF: trig_+3A8F\n \
     jmp     loc_78B2E0\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78B59A:            # CODE XREF: trig_+3824 trig_+3850 ...\n \
+loc_78B59A:            # 3824 trig_+3850 ...\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
 \n \
-loc_78B59E:            # CODE XREF: trig_+378A trig_+37D9\n \
+loc_78B59E:            # 378A trig_+37D9\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78B24E\n \
@@ -5513,7 +5513,7 @@ render_md12:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78B5C7:            # CODE XREF: trig_+3DCA\n \
+loc_78B5C7:            # 3DCA\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -5539,17 +5539,17 @@ loc_78B5C7:            # CODE XREF: trig_+3DCA\n \
     jle     loc_78B61C\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78B61C:            # CODE XREF: trig_+3B34\n \
+loc_78B61C:            # 3B34\n \
     movzwl    %%ax,%%eax\n \
     jmp     loc_78B649\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78B621:            # CODE XREF: trig_+3AFE\n \
+loc_78B621:            # 3AFE\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78B62F\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78B62F:            # CODE XREF: trig_+3B47\n \
+loc_78B62F:            # 3B47\n \
     subw    %%ax,%%cx\n \
     jle     loc_78B8A3\n \
     addl    %%eax,%%edi\n \
@@ -5559,12 +5559,12 @@ loc_78B62F:            # CODE XREF: trig_+3B47\n \
     movw    8(%%esi),%%dx\n \
     movb    0x0A(%%esi),%%bl\n \
 \n \
-loc_78B649:            # CODE XREF: trig_+3B3F\n \
+loc_78B649:            # 3B3F\n \
     movl    %%esi,0x8C+var_30(%%esp)\n \
     movl    _LOC_vec_map,%%esi\n \
     movb    _vec_colour,%%al\n \
 \n \
-loc_78B658:            # CODE XREF: trig_+3DBA\n \
+loc_78B658:            # 3DBA\n \
     movb    (%%ebx,%%esi),%%ah\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
@@ -5761,10 +5761,10 @@ loc_78B658:            # CODE XREF: trig_+3DBA\n \
     jmp     loc_78B658\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78B89F:            # CODE XREF: trig_+3B96 trig_+3BBB ...\n \
+loc_78B89F:            # 3B96 trig_+3BBB ...\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
 \n \
-loc_78B8A3:            # CODE XREF: trig_+3B03 trig_+3B52\n \
+loc_78B8A3:            # 3B03 trig_+3B52\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78B5C7\n \
@@ -5780,7 +5780,7 @@ render_md13:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78B8CC:            # CODE XREF: trig_+40D0\n \
+loc_78B8CC:            # 40D0\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -5806,17 +5806,17 @@ loc_78B8CC:            # CODE XREF: trig_+40D0\n \
     jle     loc_78B921\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78B921:            # CODE XREF: trig_+3E39\n \
+loc_78B921:            # 3E39\n \
     movzwl    %%ax,%%eax\n \
     jmp     loc_78B94E\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78B926:            # CODE XREF: trig_+3E03\n \
+loc_78B926:            # 3E03\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78B934\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78B934:            # CODE XREF: trig_+3E4C\n \
+loc_78B934:            # 3E4C\n \
     subw    %%ax,%%cx\n \
     jle     loc_78BBA9\n \
     addl    %%eax,%%edi\n \
@@ -5826,12 +5826,12 @@ loc_78B934:            # CODE XREF: trig_+3E4C\n \
     movw    8(%%esi),%%dx\n \
     movb    0x0A(%%esi),%%bl\n \
 \n \
-loc_78B94E:            # CODE XREF: trig_+3E44\n \
+loc_78B94E:            # 3E44\n \
     movl    %%esi,0x8C+var_30(%%esp)\n \
     movl    _LOC_vec_map,%%esi\n \
     movb    _vec_colour,%%ah\n \
 \n \
-loc_78B95E:            # CODE XREF: trig_+40C0\n \
+loc_78B95E:            # 40C0\n \
     movb    (%%ebx,%%esi),%%al\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
@@ -6028,10 +6028,10 @@ loc_78B95E:            # CODE XREF: trig_+40C0\n \
     jmp     loc_78B95E\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78BBA5:            # CODE XREF: trig_+3E9C trig_+3EC1 ...\n \
+loc_78BBA5:            # 3E9C trig_+3EC1 ...\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
 \n \
-loc_78BBA9:            # CODE XREF: trig_+3E08 trig_+3E57\n \
+loc_78BBA9:            # 3E08 trig_+3E57\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78B8CC\n \
@@ -6046,7 +6046,7 @@ render_md14:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78BBD0:            # CODE XREF: trig_+4265\n \
+loc_78BBD0:            # 4265\n \
     movw    2(%%esi),%%bx\n \
     movzwl   6(%%esi),%%ecx\n \
     addl   _LOC_vec_screen_width,%%edx\n \
@@ -6058,22 +6058,22 @@ loc_78BBD0:            # CODE XREF: trig_+4265\n \
     jle     loc_78BBFA\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78BBFA:            # CODE XREF: trig_+4112\n \
+loc_78BBFA:            # 4112\n \
     movl    %%edx,%%edi\n \
     jmp     loc_78BC18\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78BBFE:            # CODE XREF: trig_+4101\n \
+loc_78BBFE:            # 4101\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78BC0C\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78BC0C:            # CODE XREF: trig_+4124\n \
+loc_78BC0C:            # 4124\n \
     subw    %%bx,%%cx\n \
     jle     loc_78BD3E\n \
     leal    (%%ebx,%%edx),%%edi\n \
 \n \
-loc_78BC18:            # CODE XREF: trig_+411C trig_+4259\n \
+loc_78BC18:            # 411C trig_+4259\n \
     movb    (%%edi),%%al\n \
     pushl   %%ebx\n \
     movl    _render_ghost,%%ebx\n \
@@ -6206,7 +6206,7 @@ loc_78BC18:            # CODE XREF: trig_+411C trig_+4259\n \
     jmp     loc_78BC18\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78BD3E:            # CODE XREF: trig_+4106 trig_+412F ...\n \
+loc_78BD3E:            # 4106 trig_+412F ...\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78BBD0\n \
@@ -6220,7 +6220,7 @@ render_md15:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78BD64:            # CODE XREF: trig_+43F9\n \
+loc_78BD64:            # 43F9\n \
     movw    2(%%esi),%%bx\n \
     movzwl   6(%%esi),%%ecx\n \
     addl   _LOC_vec_screen_width,%%edx\n \
@@ -6232,22 +6232,22 @@ loc_78BD64:            # CODE XREF: trig_+43F9\n \
     jle     loc_78BD8E\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78BD8E:            # CODE XREF: trig_+42A6\n \
+loc_78BD8E:            # 42A6\n \
     movl    %%edx,%%edi\n \
     jmp     loc_78BDAC\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78BD92:            # CODE XREF: trig_+4295\n \
+loc_78BD92:            # 4295\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78BDA0\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78BDA0:            # CODE XREF: trig_+42B8\n \
+loc_78BDA0:            # 42B8\n \
     subw    %%bx,%%cx\n \
     jle     loc_78BED2\n \
     leal    (%%ebx,%%edx),%%edi\n \
 \n \
-loc_78BDAC:            # CODE XREF: trig_+42B0 trig_+43ED\n \
+loc_78BDAC:            # 42B0 trig_+43ED\n \
     movb    (%%edi),%%ah\n \
     pushl   %%ebx\n \
     movl    _render_ghost,%%ebx\n \
@@ -6380,7 +6380,7 @@ loc_78BDAC:            # CODE XREF: trig_+42B0 trig_+43ED\n \
     jmp     loc_78BDAC\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78BED2:            # CODE XREF: trig_+429A trig_+42C3 ...\n \
+loc_78BED2:            # 429A trig_+42C3 ...\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78BD64\n \
@@ -6391,7 +6391,7 @@ render_md16:\n \
     leal    _polyscans,%%esi\n \
     xor    %%edx,%%edx\n \
 \n \
-loc_78BEEC:            # CODE XREF: trig_+46B2\n \
+loc_78BEEC:            # 46B2\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -6412,18 +6412,18 @@ loc_78BEEC:            # CODE XREF: trig_+46B2\n \
     jle     loc_78BF34\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78BF34:            # CODE XREF: trig_+444C\n \
+loc_78BF34:            # 444C\n \
     movzwl    %%ax,%%eax\n \
     movb    _vec_colour,%%al\n \
     jmp     loc_78BF65\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78BF3E:            # CODE XREF: trig_+4423\n \
+loc_78BF3E:            # 4423\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78BF4C\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78BF4C:            # CODE XREF: trig_+4464\n \
+loc_78BF4C:            # 4464\n \
     subw    %%ax,%%cx\n \
     jle     loc_78C18B\n \
     addl    %%eax,%%edi\n \
@@ -6431,7 +6431,7 @@ loc_78BF4C:            # CODE XREF: trig_+4464\n \
     movw    0x10(%%esi),%%bx\n \
     movb    0x12(%%esi),%%ah\n \
 \n \
-loc_78BF65:            # CODE XREF: trig_+445C trig_+46A6\n \
+loc_78BF65:            # 445C trig_+46A6\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%dh\n \
@@ -6660,7 +6660,7 @@ loc_78BF65:            # CODE XREF: trig_+445C trig_+46A6\n \
     jmp     loc_78BF65\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78C18B:            # CODE XREF: trig_+4428 trig_+446F ...\n \
+loc_78C18B:            # 4428 trig_+446F ...\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78BEEC\n \
@@ -6671,7 +6671,7 @@ render_md17:\n \
     leal    _polyscans,%%esi\n \
     xor    %%edx,%%edx\n \
 \n \
-loc_78C1A5:            # CODE XREF: trig_+496B\n \
+loc_78C1A5:            # 496B\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -6692,18 +6692,18 @@ loc_78C1A5:            # CODE XREF: trig_+496B\n \
     jle     loc_78C1ED\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78C1ED:            # CODE XREF: trig_+4705\n \
+loc_78C1ED:            # 4705\n \
     movzwl    %%ax,%%eax\n \
     movb    _vec_colour,%%al\n \
     jmp     loc_78C21E\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78C1F7:            # CODE XREF: trig_+46DC\n \
+loc_78C1F7:            # 46DC\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78C205\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78C205:            # CODE XREF: trig_+471D\n \
+loc_78C205:            # 471D\n \
     subw    %%ax,%%cx\n \
     jle     loc_78C444\n \
     addl    %%eax,%%edi\n \
@@ -6711,7 +6711,7 @@ loc_78C205:            # CODE XREF: trig_+471D\n \
     movw    0x10(%%esi),%%bx\n \
     movb    0x12(%%esi),%%ah\n \
 \n \
-loc_78C21E:            # CODE XREF: trig_+4715 trig_+495F\n \
+loc_78C21E:            # 4715 trig_+495F\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
     movb    (%%ebx,%%eax),%%dl\n \
@@ -6940,7 +6940,7 @@ loc_78C21E:            # CODE XREF: trig_+4715 trig_+495F\n \
     jmp     loc_78C21E\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78C444:            # CODE XREF: trig_+46E1 trig_+4728 ...\n \
+loc_78C444:            # 46E1 trig_+4728 ...\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78C1A5\n \
@@ -6956,7 +6956,7 @@ render_md18:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78C46D:            # CODE XREF: trig_+4C9A\n \
+loc_78C46D:            # 4C9A\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -6982,17 +6982,17 @@ loc_78C46D:            # CODE XREF: trig_+4C9A\n \
     jle     loc_78C4C2\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78C4C2:            # CODE XREF: trig_+49DA\n \
+loc_78C4C2:            # 49DA\n \
     movzwl    %%ax,%%eax\n \
     jmp     loc_78C4EF\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78C4C7:            # CODE XREF: trig_+49A4\n \
+loc_78C4C7:            # 49A4\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78C4D5\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78C4D5:            # CODE XREF: trig_+49ED\n \
+loc_78C4D5:            # 49ED\n \
     subw    %%ax,%%cx\n \
     jle     loc_78C773\n \
     addl    %%eax,%%edi\n \
@@ -7002,11 +7002,11 @@ loc_78C4D5:            # CODE XREF: trig_+49ED\n \
     movw    8(%%esi),%%dx\n \
     movb    0x0A(%%esi),%%bl\n \
 \n \
-loc_78C4EF:            # CODE XREF: trig_+49E5\n \
+loc_78C4EF:            # 49E5\n \
     movl    %%esi,0x8C+var_30(%%esp)\n \
     movl    _LOC_vec_map,%%esi\n \
 \n \
-loc_78C4F9:            # CODE XREF: trig_+4C8A\n \
+loc_78C4F9:            # 4C8A\n \
     movb    (%%ebx,%%esi),%%ah\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     movb    (%%edi),%%al\n \
@@ -7219,10 +7219,10 @@ loc_78C4F9:            # CODE XREF: trig_+4C8A\n \
     jmp     loc_78C4F9\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78C76F:            # CODE XREF: trig_+4A39 trig_+4A61 ...\n \
+loc_78C76F:            # 4A39 trig_+4A61 ...\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
 \n \
-loc_78C773:            # CODE XREF: trig_+49A9 trig_+49F8\n \
+loc_78C773:            # 49A9 trig_+49F8\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78C46D\n \
@@ -7238,7 +7238,7 @@ render_md19:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78C79C:            # CODE XREF: trig_+4FC9\n \
+loc_78C79C:            # 4FC9\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -7264,17 +7264,17 @@ loc_78C79C:            # CODE XREF: trig_+4FC9\n \
     jle     loc_78C7F1\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78C7F1:            # CODE XREF: trig_+4D09\n \
+loc_78C7F1:            # 4D09\n \
     movzwl    %%ax,%%eax\n \
     jmp     loc_78C81E\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78C7F6:            # CODE XREF: trig_+4CD3\n \
+loc_78C7F6:            # 4CD3\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78C804\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78C804:            # CODE XREF: trig_+4D1C\n \
+loc_78C804:            # 4D1C\n \
     subw    %%ax,%%cx\n \
     jle     loc_78CAA2\n \
     addl    %%eax,%%edi\n \
@@ -7284,11 +7284,11 @@ loc_78C804:            # CODE XREF: trig_+4D1C\n \
     movw    8(%%esi),%%dx\n \
     movb    0x0A(%%esi),%%bl\n \
 \n \
-loc_78C81E:            # CODE XREF: trig_+4D14\n \
+loc_78C81E:            # 4D14\n \
     movl    %%esi,0x8C+var_30(%%esp)\n \
     movl    _LOC_vec_map,%%esi\n \
 \n \
-loc_78C828:            # CODE XREF: trig_+4FB9\n \
+loc_78C828:            # 4FB9\n \
     movb    (%%ebx,%%esi),%%al\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     movb    (%%edi),%%ah\n \
@@ -7501,10 +7501,10 @@ loc_78C828:            # CODE XREF: trig_+4FB9\n \
     jmp     loc_78C828\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78CA9E:            # CODE XREF: trig_+4D68 trig_+4D90 ...\n \
+loc_78CA9E:            # 4D68 trig_+4D90 ...\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
 \n \
-loc_78CAA2:            # CODE XREF: trig_+4CD8 trig_+4D27\n \
+loc_78CAA2:            # 4CD8 trig_+4D27\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78C79C\n \
@@ -7523,7 +7523,7 @@ render_md20:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78CAD6:            # CODE XREF: trig_+5442\n \
+loc_78CAD6:            # 5442\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -7537,7 +7537,7 @@ loc_78CAD6:            # CODE XREF: trig_+5442\n \
     jle     loc_78CB06\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78CB06:            # CODE XREF: trig_+501E\n \
+loc_78CB06:            # 501E\n \
     movl    %%ecx,0x8C+var_34(%%esp)\n \
     negw    %%ax\n \
     movzwl    %%ax,%%eax\n \
@@ -7559,12 +7559,12 @@ loc_78CB06:            # CODE XREF: trig_+501E\n \
     jmp     loc_78CB73\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78CB41:            # CODE XREF: trig_+500D\n \
+loc_78CB41:            # 500D\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78CB4F\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78CB4F:            # CODE XREF: trig_+5067\n \
+loc_78CB4F:            # 5067\n \
     subw    %%ax,%%cx\n \
     jle     loc_78CF1B\n \
     addl    %%eax,%%edi\n \
@@ -7577,11 +7577,11 @@ loc_78CB4F:            # CODE XREF: trig_+5067\n \
     movl    0x10(%%esi),%%ecx\n \
     roll    $0x10,%%ecx\n \
 \n \
-loc_78CB73:            # CODE XREF: trig_+505F\n \
+loc_78CB73:            # 505F\n \
     movl    %%esi,0x8C+var_30(%%esp)\n \
     movl    _LOC_vec_map,%%esi\n \
 \n \
-loc_78CB7D:            # CODE XREF: trig_+5432\n \
+loc_78CB7D:            # 5432\n \
     movb    (%%ebx,%%esi),%%al\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     movb    %%cl,%%ah\n \
@@ -7906,10 +7906,10 @@ loc_78CB7D:            # CODE XREF: trig_+5432\n \
     jmp     loc_78CB7D\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78CF17:            # CODE XREF: trig_+50CF trig_+5109 ...\n \
+loc_78CF17:            # 50CF trig_+5109 ...\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
 \n \
-loc_78CF1B:            # CODE XREF: trig_+5012 trig_+5072\n \
+loc_78CF1B:            # 5012 trig_+5072\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78CAD6\n \
@@ -7928,7 +7928,7 @@ render_md21:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78CF4F:            # CODE XREF: trig_+58BB\n \
+loc_78CF4F:            # 58BB\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -7942,7 +7942,7 @@ loc_78CF4F:            # CODE XREF: trig_+58BB\n \
     jle     loc_78CF7F\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78CF7F:            # CODE XREF: trig_+5497\n \
+loc_78CF7F:            # 5497\n \
     movl    %%ecx,0x8C+var_34(%%esp)\n \
     negw    %%ax\n \
     movzwl    %%ax,%%eax\n \
@@ -7964,12 +7964,12 @@ loc_78CF7F:            # CODE XREF: trig_+5497\n \
     jmp     loc_78CFEC\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78CFBA:            # CODE XREF: trig_+5486\n \
+loc_78CFBA:            # 5486\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78CFC8\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78CFC8:            # CODE XREF: trig_+54E0\n \
+loc_78CFC8:            # 54E0\n \
     subw    %%ax,%%cx\n \
     jle     loc_78D394\n \
     addl    %%eax,%%edi\n \
@@ -7982,11 +7982,11 @@ loc_78CFC8:            # CODE XREF: trig_+54E0\n \
     movl    0x10(%%esi),%%ecx\n \
     roll    $0x10,%%ecx\n \
 \n \
-loc_78CFEC:            # CODE XREF: trig_+54D8\n \
+loc_78CFEC:            # 54D8\n \
     movl    %%esi,0x8C+var_30(%%esp)\n \
     movl    _LOC_vec_map,%%esi\n \
 \n \
-loc_78CFF6:            # CODE XREF: trig_+58AB\n \
+loc_78CFF6:            # 58AB\n \
     movb    (%%ebx,%%esi),%%al\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     movb    %%cl,%%ah\n \
@@ -8311,10 +8311,10 @@ loc_78CFF6:            # CODE XREF: trig_+58AB\n \
     jmp     loc_78CFF6\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78D390:            # CODE XREF: trig_+5548 trig_+5582 ...\n \
+loc_78D390:            # 5548 trig_+5582 ...\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
 \n \
-loc_78D394:            # CODE XREF: trig_+548B trig_+54EB\n \
+loc_78D394:            # 548B trig_+54EB\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78CF4F\n \
@@ -8330,7 +8330,7 @@ render_md22:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78D3BD:            # CODE XREF: trig_+5C2E\n \
+loc_78D3BD:            # 5C2E\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -8356,17 +8356,17 @@ loc_78D3BD:            # CODE XREF: trig_+5C2E\n \
     jle     loc_78D412\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78D412:            # CODE XREF: trig_+592A\n \
+loc_78D412:            # 592A\n \
     movzwl    %%ax,%%eax\n \
     jmp     loc_78D43F\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78D417:            # CODE XREF: trig_+58F4\n \
+loc_78D417:            # 58F4\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78D425\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78D425:            # CODE XREF: trig_+593D\n \
+loc_78D425:            # 593D\n \
     subw    %%ax,%%cx\n \
     jle     loc_78D707\n \
     addl    %%eax,%%edi\n \
@@ -8376,11 +8376,11 @@ loc_78D425:            # CODE XREF: trig_+593D\n \
     movw    8(%%esi),%%dx\n \
     movb    0x0A(%%esi),%%bl\n \
 \n \
-loc_78D43F:            # CODE XREF: trig_+5935\n \
+loc_78D43F:            # 5935\n \
     movl    %%esi,0x8C+var_30(%%esp)\n \
     movl    _LOC_vec_map,%%esi\n \
 \n \
-loc_78D449:            # CODE XREF: trig_+5C1E\n \
+loc_78D449:            # 5C1E\n \
     movb    (%%ebx,%%esi),%%ah\n \
     orb    %%ah,%%ah\n \
     jz     loc_78D45A\n \
@@ -8391,7 +8391,7 @@ loc_78D449:            # CODE XREF: trig_+5C1E\n \
     popl    %%ebx\n \
     movb    %%al,(%%edi)\n \
 \n \
-loc_78D45A:            # CODE XREF: trig_+596E\n \
+loc_78D45A:            # 596E\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8408,7 +8408,7 @@ loc_78D45A:            # CODE XREF: trig_+596E\n \
     popl    %%ebx\n \
     movb    %%al,1(%%edi)\n \
 \n \
-loc_78D486:            # CODE XREF: trig_+5998\n \
+loc_78D486:            # 5998\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8425,7 +8425,7 @@ loc_78D486:            # CODE XREF: trig_+5998\n \
     popl    %%ebx\n \
     movb    %%al,2(%%edi)\n \
 \n \
-loc_78D4B2:            # CODE XREF: trig_+59C4\n \
+loc_78D4B2:            # 59C4\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8442,7 +8442,7 @@ loc_78D4B2:            # CODE XREF: trig_+59C4\n \
     popl    %%ebx\n \
     movb    %%al,3(%%edi)\n \
 \n \
-loc_78D4DE:            # CODE XREF: trig_+59F0\n \
+loc_78D4DE:            # 59F0\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8459,7 +8459,7 @@ loc_78D4DE:            # CODE XREF: trig_+59F0\n \
     popl    %%ebx\n \
     movb    %%al,4(%%edi)\n \
 \n \
-loc_78D50A:            # CODE XREF: trig_+5A1C\n \
+loc_78D50A:            # 5A1C\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8476,7 +8476,7 @@ loc_78D50A:            # CODE XREF: trig_+5A1C\n \
     popl    %%ebx\n \
     movb    %%al,5(%%edi)\n \
 \n \
-loc_78D536:            # CODE XREF: trig_+5A48\n \
+loc_78D536:            # 5A48\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8493,7 +8493,7 @@ loc_78D536:            # CODE XREF: trig_+5A48\n \
     popl    %%ebx\n \
     movb    %%al,6(%%edi)\n \
 \n \
-loc_78D562:            # CODE XREF: trig_+5A74\n \
+loc_78D562:            # 5A74\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8510,7 +8510,7 @@ loc_78D562:            # CODE XREF: trig_+5A74\n \
     popl    %%ebx\n \
     movb    %%al,7(%%edi)\n \
 \n \
-loc_78D58E:            # CODE XREF: trig_+5AA0\n \
+loc_78D58E:            # 5AA0\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8527,7 +8527,7 @@ loc_78D58E:            # CODE XREF: trig_+5AA0\n \
     popl    %%ebx\n \
     movb    %%al,8(%%edi)\n \
 \n \
-loc_78D5BA:            # CODE XREF: trig_+5ACC\n \
+loc_78D5BA:            # 5ACC\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8544,7 +8544,7 @@ loc_78D5BA:            # CODE XREF: trig_+5ACC\n \
     popl    %%ebx\n \
     movb    %%al,9(%%edi)\n \
 \n \
-loc_78D5E6:            # CODE XREF: trig_+5AF8\n \
+loc_78D5E6:            # 5AF8\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8561,7 +8561,7 @@ loc_78D5E6:            # CODE XREF: trig_+5AF8\n \
     popl    %%ebx\n \
     movb    %%al,0x0A(%%edi)\n \
 \n \
-loc_78D612:            # CODE XREF: trig_+5B24\n \
+loc_78D612:            # 5B24\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8578,7 +8578,7 @@ loc_78D612:            # CODE XREF: trig_+5B24\n \
     popl    %%ebx\n \
     movb    %%al,0x0B(%%edi)\n \
 \n \
-loc_78D63E:            # CODE XREF: trig_+5B50\n \
+loc_78D63E:            # 5B50\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8595,7 +8595,7 @@ loc_78D63E:            # CODE XREF: trig_+5B50\n \
     popl    %%ebx\n \
     movb    %%al,0x0C(%%edi)\n \
 \n \
-loc_78D66A:            # CODE XREF: trig_+5B7C\n \
+loc_78D66A:            # 5B7C\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8612,7 +8612,7 @@ loc_78D66A:            # CODE XREF: trig_+5B7C\n \
     popl    %%ebx\n \
     movb    %%al,0x0D(%%edi)\n \
 \n \
-loc_78D696:            # CODE XREF: trig_+5BA8\n \
+loc_78D696:            # 5BA8\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8629,7 +8629,7 @@ loc_78D696:            # CODE XREF: trig_+5BA8\n \
     popl    %%ebx\n \
     movb    %%al,0x0E(%%edi)\n \
 \n \
-loc_78D6BE:            # CODE XREF: trig_+5BD0\n \
+loc_78D6BE:            # 5BD0\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8646,7 +8646,7 @@ loc_78D6BE:            # CODE XREF: trig_+5BD0\n \
     popl    %%ebx\n \
     movb    %%al,0x0F(%%edi)\n \
 \n \
-loc_78D6E6:            # CODE XREF: trig_+5BF8\n \
+loc_78D6E6:            # 5BF8\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8657,10 +8657,10 @@ loc_78D6E6:            # CODE XREF: trig_+5BF8\n \
     jmp     loc_78D449\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78D703:            # CODE XREF: trig_+598D trig_+59B9 ...\n \
+loc_78D703:            # 598D trig_+59B9 ...\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
 \n \
-loc_78D707:            # CODE XREF: trig_+58F9 trig_+5948\n \
+loc_78D707:            # 58F9 trig_+5948\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78D3BD\n \
@@ -8676,7 +8676,7 @@ render_md23:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78D730:            # CODE XREF: trig_+5FA1\n \
+loc_78D730:            # 5FA1\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -8702,17 +8702,17 @@ loc_78D730:            # CODE XREF: trig_+5FA1\n \
     jle     loc_78D785\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78D785:            # CODE XREF: trig_+5C9D\n \
+loc_78D785:            # 5C9D\n \
     movzwl    %%ax,%%eax\n \
     jmp     loc_78D7B2\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78D78A:            # CODE XREF: trig_+5C67\n \
+loc_78D78A:            # 5C67\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78D798\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78D798:            # CODE XREF: trig_+5CB0\n \
+loc_78D798:            # 5CB0\n \
     subw    %%ax,%%cx\n \
     jle     loc_78DA7A\n \
     addl    %%eax,%%edi\n \
@@ -8722,11 +8722,11 @@ loc_78D798:            # CODE XREF: trig_+5CB0\n \
     movw    8(%%esi),%%dx\n \
     movb    0x0A(%%esi),%%bl\n \
 \n \
-loc_78D7B2:            # CODE XREF: trig_+5CA8\n \
+loc_78D7B2:            # 5CA8\n \
     movl    %%esi,0x8C+var_30(%%esp)\n \
     movl    _LOC_vec_map,%%esi\n \
 \n \
-loc_78D7BC:            # CODE XREF: trig_+5F91\n \
+loc_78D7BC:            # 5F91\n \
     movb    (%%ebx,%%esi),%%al\n \
     orb    %%al,%%al\n \
     jz     loc_78D7CD\n \
@@ -8737,7 +8737,7 @@ loc_78D7BC:            # CODE XREF: trig_+5F91\n \
     popl    %%ebx\n \
     movb    %%al,(%%edi)\n \
 \n \
-loc_78D7CD:            # CODE XREF: trig_+5CE1\n \
+loc_78D7CD:            # 5CE1\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8754,7 +8754,7 @@ loc_78D7CD:            # CODE XREF: trig_+5CE1\n \
     popl    %%ebx\n \
     movb    %%al,1(%%edi)\n \
 \n \
-loc_78D7F9:            # CODE XREF: trig_+5D0B\n \
+loc_78D7F9:            # 5D0B\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8771,7 +8771,7 @@ loc_78D7F9:            # CODE XREF: trig_+5D0B\n \
     popl    %%ebx\n \
     movb    %%al,2(%%edi)\n \
 \n \
-loc_78D825:            # CODE XREF: trig_+5D37\n \
+loc_78D825:            # 5D37\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8788,7 +8788,7 @@ loc_78D825:            # CODE XREF: trig_+5D37\n \
     popl    %%ebx\n \
     movb    %%al,3(%%edi)\n \
 \n \
-loc_78D851:            # CODE XREF: trig_+5D63\n \
+loc_78D851:            # 5D63\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8805,7 +8805,7 @@ loc_78D851:            # CODE XREF: trig_+5D63\n \
     popl    %%ebx\n \
     movb    %%al,4(%%edi)\n \
 \n \
-loc_78D87D:            # CODE XREF: trig_+5D8F\n \
+loc_78D87D:            # 5D8F\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8822,7 +8822,7 @@ loc_78D87D:            # CODE XREF: trig_+5D8F\n \
     popl    %%ebx\n \
     movb    %%al,5(%%edi)\n \
 \n \
-loc_78D8A9:            # CODE XREF: trig_+5DBB\n \
+loc_78D8A9:            # 5DBB\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8839,7 +8839,7 @@ loc_78D8A9:            # CODE XREF: trig_+5DBB\n \
     popl    %%ebx\n \
     movb    %%al,6(%%edi)\n \
 \n \
-loc_78D8D5:            # CODE XREF: trig_+5DE7\n \
+loc_78D8D5:            # 5DE7\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8856,7 +8856,7 @@ loc_78D8D5:            # CODE XREF: trig_+5DE7\n \
     popl    %%ebx\n \
     movb    %%al,7(%%edi)\n \
 \n \
-loc_78D901:            # CODE XREF: trig_+5E13\n \
+loc_78D901:            # 5E13\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8873,7 +8873,7 @@ loc_78D901:            # CODE XREF: trig_+5E13\n \
     popl    %%ebx\n \
     movb    %%al,8(%%edi)\n \
 \n \
-loc_78D92D:            # CODE XREF: trig_+5E3F\n \
+loc_78D92D:            # 5E3F\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8890,7 +8890,7 @@ loc_78D92D:            # CODE XREF: trig_+5E3F\n \
     popl    %%ebx\n \
     movb    %%al,9(%%edi)\n \
 \n \
-loc_78D959:            # CODE XREF: trig_+5E6B\n \
+loc_78D959:            # 5E6B\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8907,7 +8907,7 @@ loc_78D959:            # CODE XREF: trig_+5E6B\n \
     popl    %%ebx\n \
     movb    %%al,0x0A(%%edi)\n \
 \n \
-loc_78D985:            # CODE XREF: trig_+5E97\n \
+loc_78D985:            # 5E97\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8924,7 +8924,7 @@ loc_78D985:            # CODE XREF: trig_+5E97\n \
     popl    %%ebx\n \
     movb    %%al,0x0B(%%edi)\n \
 \n \
-loc_78D9B1:            # CODE XREF: trig_+5EC3\n \
+loc_78D9B1:            # 5EC3\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8941,7 +8941,7 @@ loc_78D9B1:            # CODE XREF: trig_+5EC3\n \
     popl    %%ebx\n \
     movb    %%al,0x0C(%%edi)\n \
 \n \
-loc_78D9DD:            # CODE XREF: trig_+5EEF\n \
+loc_78D9DD:            # 5EEF\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8958,7 +8958,7 @@ loc_78D9DD:            # CODE XREF: trig_+5EEF\n \
     popl    %%ebx\n \
     movb    %%al,0x0D(%%edi)\n \
 \n \
-loc_78DA09:            # CODE XREF: trig_+5F1B\n \
+loc_78DA09:            # 5F1B\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8975,7 +8975,7 @@ loc_78DA09:            # CODE XREF: trig_+5F1B\n \
     popl    %%ebx\n \
     movb    %%al,0x0E(%%edi)\n \
 \n \
-loc_78DA31:            # CODE XREF: trig_+5F43\n \
+loc_78DA31:            # 5F43\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -8992,7 +8992,7 @@ loc_78DA31:            # CODE XREF: trig_+5F43\n \
     popl    %%ebx\n \
     movb    %%al,0x0F(%%edi)\n \
 \n \
-loc_78DA59:            # CODE XREF: trig_+5F6B\n \
+loc_78DA59:            # 5F6B\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9003,10 +9003,10 @@ loc_78DA59:            # CODE XREF: trig_+5F6B\n \
     jmp     loc_78D7BC\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78DA76:            # CODE XREF: trig_+5D00 trig_+5D2C ...\n \
+loc_78DA76:            # 5D00 trig_+5D2C ...\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
 \n \
-loc_78DA7A:            # CODE XREF: trig_+5C6C trig_+5CBB\n \
+loc_78DA7A:            # 5C6C trig_+5CBB\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78D730\n \
@@ -9025,7 +9025,7 @@ render_md24:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78DAAE:            # CODE XREF: trig_+645A\n \
+loc_78DAAE:            # 645A\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -9039,7 +9039,7 @@ loc_78DAAE:            # CODE XREF: trig_+645A\n \
     jle     loc_78DADE\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78DADE:            # CODE XREF: trig_+5FF6\n \
+loc_78DADE:            # 5FF6\n \
     movl    %%ecx,0x8C+var_34(%%esp)\n \
     negw    %%ax\n \
     movzwl    %%ax,%%eax\n \
@@ -9061,12 +9061,12 @@ loc_78DADE:            # CODE XREF: trig_+5FF6\n \
     jmp     loc_78DB4B\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78DB19:            # CODE XREF: trig_+5FE5\n \
+loc_78DB19:            # 5FE5\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78DB27\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78DB27:            # CODE XREF: trig_+603F\n \
+loc_78DB27:            # 603F\n \
     subw    %%ax,%%cx\n \
     jle     loc_78DF33\n \
     addl    %%eax,%%edi\n \
@@ -9079,11 +9079,11 @@ loc_78DB27:            # CODE XREF: trig_+603F\n \
     movl    0x10(%%esi),%%ecx\n \
     roll    $0x10,%%ecx\n \
 \n \
-loc_78DB4B:            # CODE XREF: trig_+6037\n \
+loc_78DB4B:            # 6037\n \
     movl    %%esi,0x8C+var_30(%%esp)\n \
     movl    _LOC_vec_map,%%esi\n \
 \n \
-loc_78DB55:            # CODE XREF: trig_+644A\n \
+loc_78DB55:            # 644A\n \
     movb    (%%ebx,%%esi),%%al\n \
     orb    %%al,%%al\n \
     jz     loc_78DB6E\n \
@@ -9099,7 +9099,7 @@ loc_78DB55:            # CODE XREF: trig_+644A\n \
     popl    %%ebx\n \
     movb    %%al,(%%edi)\n \
 \n \
-loc_78DB6E:            # CODE XREF: trig_+607A\n \
+loc_78DB6E:            # 607A\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9123,7 +9123,7 @@ loc_78DB6E:            # CODE XREF: trig_+607A\n \
     popl    %%ebx\n \
     movb    %%al,1(%%edi)\n \
 \n \
-loc_78DBAC:            # CODE XREF: trig_+60B6\n \
+loc_78DBAC:            # 60B6\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9147,7 +9147,7 @@ loc_78DBAC:            # CODE XREF: trig_+60B6\n \
     popl    %%ebx\n \
     movb    %%al,2(%%edi)\n \
 \n \
-loc_78DBEA:            # CODE XREF: trig_+60F4\n \
+loc_78DBEA:            # 60F4\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9171,7 +9171,7 @@ loc_78DBEA:            # CODE XREF: trig_+60F4\n \
     popl    %%ebx\n \
     movb    %%al,3(%%edi)\n \
 \n \
-loc_78DC28:            # CODE XREF: trig_+6132\n \
+loc_78DC28:            # 6132\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9195,7 +9195,7 @@ loc_78DC28:            # CODE XREF: trig_+6132\n \
     popl    %%ebx\n \
     movb    %%al,4(%%edi)\n \
 \n \
-loc_78DC66:            # CODE XREF: trig_+6170\n \
+loc_78DC66:            # 6170\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9219,7 +9219,7 @@ loc_78DC66:            # CODE XREF: trig_+6170\n \
     popl    %%ebx\n \
     movb    %%al,5(%%edi)\n \
 \n \
-loc_78DCA4:            # CODE XREF: trig_+61AE\n \
+loc_78DCA4:            # 61AE\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9243,7 +9243,7 @@ loc_78DCA4:            # CODE XREF: trig_+61AE\n \
     popl    %%ebx\n \
     movb    %%al,6(%%edi)\n \
 \n \
-loc_78DCE2:            # CODE XREF: trig_+61EC\n \
+loc_78DCE2:            # 61EC\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9267,7 +9267,7 @@ loc_78DCE2:            # CODE XREF: trig_+61EC\n \
     popl    %%ebx\n \
     movb    %%al,7(%%edi)\n \
 \n \
-loc_78DD20:            # CODE XREF: trig_+622A\n \
+loc_78DD20:            # 622A\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9291,7 +9291,7 @@ loc_78DD20:            # CODE XREF: trig_+622A\n \
     popl    %%ebx\n \
     movb    %%al,8(%%edi)\n \
 \n \
-loc_78DD5E:            # CODE XREF: trig_+6268\n \
+loc_78DD5E:            # 6268\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9315,7 +9315,7 @@ loc_78DD5E:            # CODE XREF: trig_+6268\n \
     popl    %%ebx\n \
     movb    %%al,9(%%edi)\n \
 \n \
-loc_78DD9C:            # CODE XREF: trig_+62A6\n \
+loc_78DD9C:            # 62A6\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9339,7 +9339,7 @@ loc_78DD9C:            # CODE XREF: trig_+62A6\n \
     popl    %%ebx\n \
     movb    %%al,0x0A(%%edi)\n \
 \n \
-loc_78DDDA:            # CODE XREF: trig_+62E4\n \
+loc_78DDDA:            # 62E4\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9363,7 +9363,7 @@ loc_78DDDA:            # CODE XREF: trig_+62E4\n \
     popl    %%ebx\n \
     movb    %%al,0x0B(%%edi)\n \
 \n \
-loc_78DE18:            # CODE XREF: trig_+6322\n \
+loc_78DE18:            # 6322\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9387,7 +9387,7 @@ loc_78DE18:            # CODE XREF: trig_+6322\n \
     popl    %%ebx\n \
     movb    %%al,0x0C(%%edi)\n \
 \n \
-loc_78DE56:            # CODE XREF: trig_+6360\n \
+loc_78DE56:            # 6360\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9411,7 +9411,7 @@ loc_78DE56:            # CODE XREF: trig_+6360\n \
     popl    %%ebx\n \
     movb    %%al,0x0D(%%edi)\n \
 \n \
-loc_78DE94:            # CODE XREF: trig_+639E\n \
+loc_78DE94:            # 639E\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9435,7 +9435,7 @@ loc_78DE94:            # CODE XREF: trig_+639E\n \
     popl    %%ebx\n \
     movb    %%al,0x0E(%%edi)\n \
 \n \
-loc_78DECE:            # CODE XREF: trig_+63D8\n \
+loc_78DECE:            # 63D8\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9459,7 +9459,7 @@ loc_78DECE:            # CODE XREF: trig_+63D8\n \
     popl    %%ebx\n \
     movb    %%al,0x0F(%%edi)\n \
 \n \
-loc_78DF08:            # CODE XREF: trig_+6412\n \
+loc_78DF08:            # 6412\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9472,10 +9472,10 @@ loc_78DF08:            # CODE XREF: trig_+6412\n \
     jmp     loc_78DB55\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78DF2F:            # CODE XREF: trig_+60AB trig_+60E9 ...\n \
+loc_78DF2F:            # 60AB trig_+60E9 ...\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
 \n \
-loc_78DF33:            # CODE XREF: trig_+5FEA trig_+604A\n \
+loc_78DF33:            # 5FEA trig_+604A\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78DAAE\n \
@@ -9494,7 +9494,7 @@ render_md25:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78DF67:            # CODE XREF: trig_+6913\n \
+loc_78DF67:            # 6913\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x8C+var_8C(%%esp),%%edi\n \
@@ -9508,7 +9508,7 @@ loc_78DF67:            # CODE XREF: trig_+6913\n \
     jle     loc_78DF97\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78DF97:            # CODE XREF: trig_+64AF\n \
+loc_78DF97:            # 64AF\n \
     movl    %%ecx,0x8C+var_34(%%esp)\n \
     negw    %%ax\n \
     movzwl    %%ax,%%eax\n \
@@ -9530,12 +9530,12 @@ loc_78DF97:            # CODE XREF: trig_+64AF\n \
     jmp     loc_78E004\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78DFD2:            # CODE XREF: trig_+649E\n \
+loc_78DFD2:            # 649E\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_78DFE0\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_78DFE0:            # CODE XREF: trig_+64F8\n \
+loc_78DFE0:            # 64F8\n \
     subw    %%ax,%%cx\n \
     jle     loc_78E3EC\n \
     addl    %%eax,%%edi\n \
@@ -9548,11 +9548,11 @@ loc_78DFE0:            # CODE XREF: trig_+64F8\n \
     movl    0x10(%%esi),%%ecx\n \
     roll    $0x10,%%ecx\n \
 \n \
-loc_78E004:            # CODE XREF: trig_+64F0\n \
+loc_78E004:            # 64F0\n \
     movl    %%esi,0x8C+var_30(%%esp)\n \
     movl    _LOC_vec_map,%%esi\n \
 \n \
-loc_78E00E:            # CODE XREF: trig_+6903\n \
+loc_78E00E:            # 6903\n \
     movb    (%%ebx,%%esi),%%al\n \
     orb    %%al,%%al\n \
     jz     loc_78E027\n \
@@ -9568,7 +9568,7 @@ loc_78E00E:            # CODE XREF: trig_+6903\n \
     popl    %%ebx\n \
     movb    %%al,(%%edi)\n \
 \n \
-loc_78E027:            # CODE XREF: trig_+6533\n \
+loc_78E027:            # 6533\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9592,7 +9592,7 @@ loc_78E027:            # CODE XREF: trig_+6533\n \
     popl    %%ebx\n \
     movb    %%al,1(%%edi)\n \
 \n \
-loc_78E065:            # CODE XREF: trig_+656F\n \
+loc_78E065:            # 656F\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9616,7 +9616,7 @@ loc_78E065:            # CODE XREF: trig_+656F\n \
     popl    %%ebx\n \
     movb    %%al,2(%%edi)\n \
 \n \
-loc_78E0A3:            # CODE XREF: trig_+65AD\n \
+loc_78E0A3:            # 65AD\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9640,7 +9640,7 @@ loc_78E0A3:            # CODE XREF: trig_+65AD\n \
     popl    %%ebx\n \
     movb    %%al,3(%%edi)\n \
 \n \
-loc_78E0E1:            # CODE XREF: trig_+65EB\n \
+loc_78E0E1:            # 65EB\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9664,7 +9664,7 @@ loc_78E0E1:            # CODE XREF: trig_+65EB\n \
     popl    %%ebx\n \
     movb    %%al,4(%%edi)\n \
 \n \
-loc_78E11F:            # CODE XREF: trig_+6629\n \
+loc_78E11F:            # 6629\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9688,7 +9688,7 @@ loc_78E11F:            # CODE XREF: trig_+6629\n \
     popl    %%ebx\n \
     movb    %%al,5(%%edi)\n \
 \n \
-loc_78E15D:            # CODE XREF: trig_+6667\n \
+loc_78E15D:            # 6667\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9712,7 +9712,7 @@ loc_78E15D:            # CODE XREF: trig_+6667\n \
     popl    %%ebx\n \
     movb    %%al,6(%%edi)\n \
 \n \
-loc_78E19B:            # CODE XREF: trig_+66A5\n \
+loc_78E19B:            # 66A5\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9736,7 +9736,7 @@ loc_78E19B:            # CODE XREF: trig_+66A5\n \
     popl    %%ebx\n \
     movb    %%al,7(%%edi)\n \
 \n \
-loc_78E1D9:            # CODE XREF: trig_+66E3\n \
+loc_78E1D9:            # 66E3\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9760,7 +9760,7 @@ loc_78E1D9:            # CODE XREF: trig_+66E3\n \
     popl    %%ebx\n \
     movb    %%al,8(%%edi)\n \
 \n \
-loc_78E217:            # CODE XREF: trig_+6721\n \
+loc_78E217:            # 6721\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9784,7 +9784,7 @@ loc_78E217:            # CODE XREF: trig_+6721\n \
     popl    %%ebx\n \
     movb    %%al,9(%%edi)\n \
 \n \
-loc_78E255:            # CODE XREF: trig_+675F\n \
+loc_78E255:            # 675F\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9808,7 +9808,7 @@ loc_78E255:            # CODE XREF: trig_+675F\n \
     popl    %%ebx\n \
     movb    %%al,0x0A(%%edi)\n \
 \n \
-loc_78E293:            # CODE XREF: trig_+679D\n \
+loc_78E293:            # 679D\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9832,7 +9832,7 @@ loc_78E293:            # CODE XREF: trig_+679D\n \
     popl    %%ebx\n \
     movb    %%al,0x0B(%%edi)\n \
 \n \
-loc_78E2D1:            # CODE XREF: trig_+67DB\n \
+loc_78E2D1:            # 67DB\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9856,7 +9856,7 @@ loc_78E2D1:            # CODE XREF: trig_+67DB\n \
     popl    %%ebx\n \
     movb    %%al,0x0C(%%edi)\n \
 \n \
-loc_78E30F:            # CODE XREF: trig_+6819\n \
+loc_78E30F:            # 6819\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9880,7 +9880,7 @@ loc_78E30F:            # CODE XREF: trig_+6819\n \
     popl    %%ebx\n \
     movb    %%al,0x0D(%%edi)\n \
 \n \
-loc_78E34D:            # CODE XREF: trig_+6857\n \
+loc_78E34D:            # 6857\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9904,7 +9904,7 @@ loc_78E34D:            # CODE XREF: trig_+6857\n \
     popl    %%ebx\n \
     movb    %%al,0x0E(%%edi)\n \
 \n \
-loc_78E387:            # CODE XREF: trig_+6891\n \
+loc_78E387:            # 6891\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9928,7 +9928,7 @@ loc_78E387:            # CODE XREF: trig_+6891\n \
     popl    %%ebx\n \
     movb    %%al,0x0F(%%edi)\n \
 \n \
-loc_78E3C1:            # CODE XREF: trig_+68CB\n \
+loc_78E3C1:            # 68CB\n \
     addw    0x8C+var_68(%%esp),%%dx\n \
     adcb    0x8C+2+var_68(%%esp),%%bl\n \
     addl   0x8C+var_40(%%esp),%%edx\n \
@@ -9941,10 +9941,10 @@ loc_78E3C1:            # CODE XREF: trig_+68CB\n \
     jmp     loc_78E00E\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78E3E8:            # CODE XREF: trig_+6564 trig_+65A2 ...\n \
+loc_78E3E8:            # 6564 trig_+65A2 ...\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
 \n \
-loc_78E3EC:            # CODE XREF: trig_+64A3 trig_+6503\n \
+loc_78E3EC:            # 64A3 trig_+6503\n \
     addl    $0x14,%%esi\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78DF67\n \
@@ -9969,7 +9969,7 @@ render_md26:\n \
     movl   %%edx,0x8C+var_3C(%%esp)\n \
     movb    %%bl,0x8C+var_28(%%esp)\n \
 \n \
-loc_78E434:            # CODE XREF: trig_+6CAF trig_+6F98\n \
+loc_78E434:            # 6CAF trig_+6F98\n \
     movl    0x8C+var_30(%%esp),%%esi\n \
     addl   $0x14,0x8C+var_30(%%esp)\n \
     movl    (%%esi),%%eax\n \
@@ -10004,16 +10004,16 @@ loc_78E434:            # CODE XREF: trig_+6CAF trig_+6F98\n \
     jle     loc_78E4A0\n \
     movl    _LOC_vec_window_width,%%ebp\n \
 \n \
-loc_78E4A0:            # CODE XREF: trig_+69B8\n \
+loc_78E4A0:            # 69B8\n \
     jmp     loc_78E4D5\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78E4A2:            # CODE XREF: trig_+6976\n \
+loc_78E4A2:            # 6976\n \
     cmpl    _LOC_vec_window_width,%%ebp\n \
     jle     loc_78E4B0\n \
     movl    _LOC_vec_window_width,%%ebp\n \
 \n \
-loc_78E4B0:            # CODE XREF: trig_+69C8\n \
+loc_78E4B0:            # 69C8\n \
     subl    %%eax,%%ebp\n \
     jle     loc_78E78B\n \
     addl    %%eax,%%edi\n \
@@ -10066,7 +10066,7 @@ t12_md00:\n \
     cmpb    $0x0C,%%al\n \
     jbe     loc_78E7B5\n \
 \n \
-loc_78E55B:            # CODE XREF: trig_+6CCF\n \
+loc_78E55B:            # 6CCF\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10083,7 +10083,7 @@ t12_md15:            # DATA XREF: trig_:t12_jt\n \
     cmpb    $0x0C,%%al\n \
     jbe     loc_78E7E0\n \
 \n \
-loc_78E57E:            # CODE XREF: trig_+6CFA\n \
+loc_78E57E:            # 6CFA\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10100,7 +10100,7 @@ t12_md14:            # DATA XREF: trig_:t12_jt\n \
     cmpb    $0x0C,%%al\n \
     jbe     loc_78E80D\n \
 \n \
-loc_78E5A2:            # CODE XREF: trig_+6D27\n \
+loc_78E5A2:            # 6D27\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10117,7 +10117,7 @@ t12_md13:            # DATA XREF: trig_:t12_jt\n \
     cmpb    $0x0C,%%al\n \
     jbe     loc_78E83A\n \
 \n \
-loc_78E5C6:            # CODE XREF: trig_+6D54\n \
+loc_78E5C6:            # 6D54\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10134,7 +10134,7 @@ t12_md12:            # DATA XREF: trig_:t12_jt\n \
     cmpb    $0x0C,%%al\n \
     jbe     loc_78E867\n \
 \n \
-loc_78E5EA:            # CODE XREF: trig_+6D81\n \
+loc_78E5EA:            # 6D81\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10151,7 +10151,7 @@ t12_md11:            # DATA XREF: trig_:t12_jt\n \
     cmpb    $0x0C,%%al\n \
     jbe     loc_78E894\n \
 \n \
-loc_78E60E:            # CODE XREF: trig_+6DAE\n \
+loc_78E60E:            # 6DAE\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10168,7 +10168,7 @@ t12_md10:            # DATA XREF: trig_:t12_jt\n \
     cmpb    $0x0C,%%al\n \
     jbe     loc_78E8C1\n \
 \n \
-loc_78E632:            # CODE XREF: trig_+6DDB\n \
+loc_78E632:            # 6DDB\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10185,7 +10185,7 @@ t12_md09:            # DATA XREF: trig_:t12_jt\n \
     cmpb    $0x0C,%%al\n \
     jbe     loc_78E8EE\n \
 \n \
-loc_78E656:            # CODE XREF: trig_+6E08\n \
+loc_78E656:            # 6E08\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10202,7 +10202,7 @@ t12_md08:            # DATA XREF: trig_:t12_jt\n \
     cmpb    $0x0C,%%al\n \
     jbe     loc_78E91B\n \
 \n \
-loc_78E67A:            # CODE XREF: trig_+6E35\n \
+loc_78E67A:            # 6E35\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10219,7 +10219,7 @@ t12_md07:            # DATA XREF: trig_:t12_jt\n \
     cmpb    $0x0C,%%al\n \
     jbe     loc_78E948\n \
 \n \
-loc_78E69E:            # CODE XREF: trig_+6E62\n \
+loc_78E69E:            # 6E62\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10236,7 +10236,7 @@ t12_md06:            # DATA XREF: trig_:t12_jt\n \
     cmpb    $0x0C,%%al\n \
     jbe     loc_78E975\n \
 \n \
-loc_78E6C2:            # CODE XREF: trig_+6E8F\n \
+loc_78E6C2:            # 6E8F\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10253,7 +10253,7 @@ t12_md05:            # DATA XREF: trig_:t12_jt\n \
     cmpb    $0x0C,%%al\n \
     jbe     loc_78E9A2\n \
 \n \
-loc_78E6E6:            # CODE XREF: trig_+6EBC\n \
+loc_78E6E6:            # 6EBC\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10270,7 +10270,7 @@ t12_md04:            # DATA XREF: trig_:t12_jt\n \
     cmpb    $0x0C,%%al\n \
     jbe     loc_78E9CF\n \
 \n \
-loc_78E70A:            # CODE XREF: trig_+6EE9\n \
+loc_78E70A:            # 6EE9\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10287,7 +10287,7 @@ t12_md03:            # DATA XREF: trig_:t12_jt\n \
     cmpb    $0x0C,%%al\n \
     jbe     loc_78E9FC\n \
 \n \
-loc_78E72E:            # CODE XREF: trig_+6F16\n \
+loc_78E72E:            # 6F16\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10304,7 +10304,7 @@ t12_md02:            # DATA XREF: trig_:t12_jt\n \
     cmpb    $0x0C,%%al\n \
     jbe     loc_78EA29\n \
 \n \
-loc_78E752:            # CODE XREF: trig_+6F43\n \
+loc_78E752:            # 6F43\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10321,7 +10321,7 @@ t12_md01:            # DATA XREF: trig_:t12_jt\n \
     cmpb    $0x0C,%%al\n \
     jbe     loc_78EA56\n \
 \n \
-loc_78E776:            # CODE XREF: trig_+6F70\n \
+loc_78E776:            # 6F70\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10331,13 +10331,13 @@ loc_78E776:            # CODE XREF: trig_+6F70\n \
     subl    $0x10,%%ebp\n \
     jg      t12_md00\n \
 \n \
-loc_78E78B:            # CODE XREF: trig_+697A trig_+69D2\n \
+loc_78E78B:            # 697A trig_+69D2\n \
     decl   0x8C+var_6C(%%esp)\n \
     jnz     loc_78E434\n \
     jmp finished\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78E79A:            # CODE XREF: trig_+6F8E\n \
+loc_78E79A:            # 6F8E\n \
     movb    %%ch,%%ah\n \
     movb    %%dl,%%bl\n \
     addl    0x8C+var_40(%%esp),%%ecx\n \
@@ -10347,7 +10347,7 @@ loc_78E79A:            # CODE XREF: trig_+6F8E\n \
     cmpb    $0x0C,%%al\n \
     ja     loc_78E55B\n \
 \n \
-loc_78E7B5:            # CODE XREF: trig_+6A75\n \
+loc_78E7B5:            # 6A75\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10367,7 +10367,7 @@ loc_78E7B5:            # CODE XREF: trig_+6A75\n \
     cmpb    $0x0C,%%al\n \
     ja     loc_78E57E\n \
 \n \
-loc_78E7E0:            # CODE XREF: trig_+6A98\n \
+loc_78E7E0:            # 6A98\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10387,7 +10387,7 @@ loc_78E7E0:            # CODE XREF: trig_+6A98\n \
     cmpb    $0x0C,%%al\n \
     ja     loc_78E5A2\n \
 \n \
-loc_78E80D:            # CODE XREF: trig_+6ABC\n \
+loc_78E80D:            # 6ABC\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10407,7 +10407,7 @@ loc_78E80D:            # CODE XREF: trig_+6ABC\n \
     cmpb    $0x0C,%%al\n \
     ja     loc_78E5C6\n \
 \n \
-loc_78E83A:            # CODE XREF: trig_+6AE0\n \
+loc_78E83A:            # 6AE0\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10427,7 +10427,7 @@ loc_78E83A:            # CODE XREF: trig_+6AE0\n \
     cmpb    $0x0C,%%al\n \
     ja     loc_78E5EA\n \
 \n \
-loc_78E867:            # CODE XREF: trig_+6B04\n \
+loc_78E867:            # 6B04\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10447,7 +10447,7 @@ loc_78E867:            # CODE XREF: trig_+6B04\n \
     cmpb    $0x0C,%%al\n \
     ja     loc_78E60E\n \
 \n \
-loc_78E894:            # CODE XREF: trig_+6B28\n \
+loc_78E894:            # 6B28\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10467,7 +10467,7 @@ loc_78E894:            # CODE XREF: trig_+6B28\n \
     cmpb    $0x0C,%%al\n \
     ja     loc_78E632\n \
 \n \
-loc_78E8C1:            # CODE XREF: trig_+6B4C\n \
+loc_78E8C1:            # 6B4C\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10487,7 +10487,7 @@ loc_78E8C1:            # CODE XREF: trig_+6B4C\n \
     cmpb    $0x0C,%%al\n \
     ja     loc_78E656\n \
 \n \
-loc_78E8EE:            # CODE XREF: trig_+6B70\n \
+loc_78E8EE:            # 6B70\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10507,7 +10507,7 @@ loc_78E8EE:            # CODE XREF: trig_+6B70\n \
     cmpb    $0x0C,%%al\n \
     ja     loc_78E67A\n \
 \n \
-loc_78E91B:            # CODE XREF: trig_+6B94\n \
+loc_78E91B:            # 6B94\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10527,7 +10527,7 @@ loc_78E91B:            # CODE XREF: trig_+6B94\n \
     cmpb    $0x0C,%%al\n \
     ja     loc_78E69E\n \
 \n \
-loc_78E948:            # CODE XREF: trig_+6BB8\n \
+loc_78E948:            # 6BB8\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10547,7 +10547,7 @@ loc_78E948:            # CODE XREF: trig_+6BB8\n \
     cmpb    $0x0C,%%al\n \
     ja     loc_78E6C2\n \
 \n \
-loc_78E975:            # CODE XREF: trig_+6BDC\n \
+loc_78E975:            # 6BDC\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10567,7 +10567,7 @@ loc_78E975:            # CODE XREF: trig_+6BDC\n \
     cmpb    $0x0C,%%al\n \
     ja     loc_78E6E6\n \
 \n \
-loc_78E9A2:            # CODE XREF: trig_+6C00\n \
+loc_78E9A2:            # 6C00\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10587,7 +10587,7 @@ loc_78E9A2:            # CODE XREF: trig_+6C00\n \
     cmpb    $0x0C,%%al\n \
     ja     loc_78E70A\n \
 \n \
-loc_78E9CF:            # CODE XREF: trig_+6C24\n \
+loc_78E9CF:            # 6C24\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10607,7 +10607,7 @@ loc_78E9CF:            # CODE XREF: trig_+6C24\n \
     cmpb    $0x0C,%%al\n \
     ja     loc_78E72E\n \
 \n \
-loc_78E9FC:            # CODE XREF: trig_+6C48\n \
+loc_78E9FC:            # 6C48\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10627,7 +10627,7 @@ loc_78E9FC:            # CODE XREF: trig_+6C48\n \
     cmpb    $0x0C,%%al\n \
     ja     loc_78E752\n \
 \n \
-loc_78EA29:            # CODE XREF: trig_+6C6C\n \
+loc_78EA29:            # 6C6C\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
@@ -10647,7 +10647,7 @@ loc_78EA29:            # CODE XREF: trig_+6C6C\n \
     cmpb    $0x0C,%%al\n \
     ja     loc_78E776\n \
 \n \
-loc_78EA56:            # CODE XREF: trig_+6C90\n \
+loc_78EA56:            # 6C90\n \
     pushl   %%edx\n \
     movl    _render_fade_tables,%%edx\n \
     movb    (%%eax,%%edx),%%al\n \
