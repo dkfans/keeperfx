@@ -2585,7 +2585,40 @@ void gui_area_anger_button(struct GuiButton *gbtn)
 
 void gui_area_text(struct GuiButton *gbtn)
 {
-  _DK_gui_area_text(gbtn);
+    //_DK_gui_area_text(gbtn);
+    if ((gbtn->field_0 & 0x08) == 0)
+        return;
+    switch (gbtn->field_29)
+    {
+    case 1:
+        gbtn->height = 32;
+        if ( gbtn->field_1 || gbtn->field_2 )
+        {
+            draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
+            draw_lit_bar64k(gbtn->scr_pos_x - 6, gbtn->scr_pos_y - 6, gbtn->width + 6);
+        } else
+        {
+            draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
+        }
+        break;
+    case 2:
+        gbtn->height = 32;
+        draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
+        break;
+    }
+    if (gbtn->tooltip_id != 201)
+    {
+        if ((gbtn->tooltip_id >= 0) && (gbtn->tooltip_id < STRINGS_MAX))
+        {
+            snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", gui_strings[gbtn->tooltip_id]);
+            draw_button_string(gbtn, gui_textbuf);
+        }
+    } else
+    if (gbtn->field_33 != NULL)
+    {
+        snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", gbtn->field_33);
+        draw_button_string(gbtn, gui_textbuf);
+    }
 }
 
 void frontend_init_options_menu(struct GuiMenu *gmnu)
