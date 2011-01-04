@@ -360,6 +360,7 @@ Version: 0.38
   New graphic modes - windowed mode is now supported
   Rewritten more of creature state machine
   Added more options to CFG files
+  Experimental TCP/IP multiplayer support
 
 Version: 0.37c
   Fixed dungeon heart blinking if under mouse
