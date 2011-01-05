@@ -140,8 +140,8 @@ TbResult LbScreenSwap(void)
 TbResult LbScreenClear(TbPixel colour)
 {
     SYNCDBG(12,"Starting");
-    if (!lbScreenInitialised)
-        return Lb_FAIL;
+    if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
+      return Lb_FAIL;
     if (SDL_FillRect(lbDrawSurface, NULL, colour) < 0) {
         ERRORLOG("Error while clearing screen.");
         return Lb_FAIL;
@@ -461,6 +461,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         SDL_FreeSurface(lbDrawSurface);
     }
     lbDrawSurface = NULL;
+    lbScreenInitialised = false;
 
     if (prevScreenSurf != NULL) {
     }
@@ -553,6 +554,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
 }
 
 /** Clears the 8-bit video palette with black colour.
+ * Only writes values to given palette bufer - does no screen operations.
  *
  * @param palette Pointer to the palette colors data.
  * @return Lb_SUCCESS, or error code.
