@@ -21,6 +21,7 @@
 
 #include "bflib_math.h"
 #include "creature_states.h"
+#include "creature_states_combt.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "config_creature.h"

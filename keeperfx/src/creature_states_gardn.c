@@ -39,8 +39,38 @@
 extern "C" {
 #endif
 /******************************************************************************/
-
+DLLIMPORT short _DK_creature_arrived_at_garden(struct Thing *thing);
+DLLIMPORT short _DK_creature_eat(struct Thing *thing);
+DLLIMPORT short _DK_creature_eating_at_garden(struct Thing *thing);
+DLLIMPORT short _DK_creature_to_garden(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
+/******************************************************************************/
+short creature_arrived_at_garden(struct Thing *thing)
+{
+  return _DK_creature_arrived_at_garden(thing);
+}
+
+short creature_eat(struct Thing *thing)
+{
+  struct CreatureControl *cctrl;
+  //return _DK_creature_eat(thing);
+  cctrl = creature_control_get_from_thing(thing);
+  if (cctrl->field_D2 != 36)
+    internal_set_thing_state(thing, thing->continue_state);
+  return 1;
+}
+
+short creature_eating_at_garden(struct Thing *thing)
+{
+  return _DK_creature_eating_at_garden(thing);
+}
+
+short creature_to_garden(struct Thing *thing)
+{
+  return _DK_creature_to_garden(thing);
+}
+
+/******************************************************************************/

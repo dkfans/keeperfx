@@ -198,8 +198,6 @@ enum CreatureTrainingModes {
     CrTrMd_PartnerTraining,
 };
 
-typedef void (*CombatState)(struct Thing *);
-
 struct StateInfo { // sizeof = 41
   short (*ofsfield_0)(struct Thing *);
   short (*ofsfield_4)(struct Thing *);
@@ -241,7 +239,6 @@ DLLIMPORT long _DK_r_stackpos;
 #define r_stackpos _DK_r_stackpos
 DLLIMPORT struct ImpStack _DK_reinforce_stack[];
 #define reinforce_stack _DK_reinforce_stack
-extern const CombatState combat_state[];
 /******************************************************************************/
 TbBool creature_model_bleeds(unsigned long crmodel);
 TbBool can_change_from_state_to(struct Thing *thing, long curr_state, long next_state);
@@ -263,12 +260,11 @@ long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned
 long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
 
 TbBool check_experience_upgrade(struct Thing *thing);
-long creature_retreat_from_combat(struct Thing *thing1, struct Thing *thing2, long a3, long a4);
 void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng);
-long get_combat_distance(struct Thing *thing, struct Thing *enemy);
+void creature_drag_object(struct Thing *thing, struct Thing *dragtng);
 long process_work_speed_on_work_value(struct Thing *thing, long base_val);
-long set_creature_in_combat_to_the_death(struct Thing *fighter1, struct Thing *fighter2, long a3);
-long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *room,long crmodel, struct Thing **enemytng);
+unsigned char find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, struct Room *room, struct Coord3d *pos);
+TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long new_owner);
 SubtlCodedCoords find_position_around_in_room(struct Coord3d *pos, long owner, long rkind);
 void remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
 long slab_by_players_land(long plyr_idx, long slb_x, long slb_y);
@@ -278,6 +274,7 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
 struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5);
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing);
+TbBool anger_make_creature_angry(struct Thing *thing, long reason);
 /******************************************************************************/
 TbBool creature_is_doing_lair_activity(const struct Thing *thing);
 TbBool creature_is_being_dropped(const struct Thing *thing);

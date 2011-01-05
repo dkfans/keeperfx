@@ -51,6 +51,10 @@
 #include "creature_states_tortr.h"
 #include "creature_states_train.h"
 #include "creature_states_wrshp.h"
+#include "creature_states_combt.h"
+#include "creature_states_guard.h"
+#include "creature_states_pray.h"
+#include "creature_states_tresr.h"
 
 #include "keeperfx.hpp"
 
@@ -66,79 +70,41 @@ DLLIMPORT short _DK_arrive_at_alarm(struct Thing *thing);
 DLLIMPORT short _DK_arrive_at_call_to_arms(struct Thing *thing);
 DLLIMPORT short _DK_at_barrack_room(struct Thing *thing);
 DLLIMPORT short _DK_at_guard_post_room(struct Thing *thing);
-DLLIMPORT short _DK_at_research_room(struct Thing *thing);
-DLLIMPORT short _DK_at_scavenger_room(struct Thing *thing);
-DLLIMPORT short _DK_at_temple(struct Thing *thing);
 DLLIMPORT short _DK_barracking(struct Thing *thing);
-DLLIMPORT short _DK_cleanup_combat(struct Thing *thing);
-DLLIMPORT short _DK_cleanup_door_combat(struct Thing *thing);
 DLLIMPORT short _DK_cleanup_hold_audience(struct Thing *thing);
-DLLIMPORT short _DK_cleanup_object_combat(struct Thing *thing);
-DLLIMPORT short _DK_cleanup_sacrifice(struct Thing *thing);
-DLLIMPORT short _DK_cleanup_seek_the_enemy(struct Thing *thing);
 DLLIMPORT short _DK_creature_arms_trap(struct Thing *thing);
-DLLIMPORT short _DK_creature_arrived_at_garden(struct Thing *thing);
-DLLIMPORT short _DK_creature_attack_rooms(struct Thing *thing);
-DLLIMPORT short _DK_creature_attempt_to_damage_walls(struct Thing *thing);
-DLLIMPORT short _DK_creature_be_happy(struct Thing *thing);
 DLLIMPORT short _DK_creature_being_dropped(struct Thing *thing);
-DLLIMPORT short _DK_creature_being_sacrificed(struct Thing *thing);
-DLLIMPORT short _DK_creature_being_scavenged(struct Thing *thing);
-DLLIMPORT short _DK_creature_being_summoned(struct Thing *thing);
 DLLIMPORT short _DK_creature_cannot_find_anything_to_do(struct Thing *thing);
 DLLIMPORT short _DK_creature_change_from_chicken(struct Thing *thing);
 DLLIMPORT short _DK_creature_change_to_chicken(struct Thing *thing);
-DLLIMPORT short _DK_creature_combat_flee(struct Thing *thing);
-DLLIMPORT short _DK_creature_damage_walls(struct Thing *thing);
 DLLIMPORT short _DK_creature_doing_nothing(struct Thing *thing);
-DLLIMPORT short _DK_creature_door_combat(struct Thing *thing);
 DLLIMPORT short _DK_creature_dormant(struct Thing *thing);
-DLLIMPORT short _DK_creature_drops_corpse_in_graveyard(struct Thing *thing);
-DLLIMPORT short _DK_creature_drops_crate_in_workshop(struct Thing *thing);
-DLLIMPORT short _DK_creature_drops_spell_object_in_library(struct Thing *thing);
-DLLIMPORT short _DK_creature_eat(struct Thing *thing);
-DLLIMPORT short _DK_creature_eating_at_garden(struct Thing *thing);
 DLLIMPORT short _DK_creature_escaping_death(struct Thing *thing);
 DLLIMPORT short _DK_creature_evacuate_room(struct Thing *thing);
 DLLIMPORT short _DK_creature_explore_dungeon(struct Thing *thing);
 DLLIMPORT short _DK_creature_fired(struct Thing *thing);
 DLLIMPORT short _DK_creature_follow_leader(struct Thing *thing);
 DLLIMPORT short _DK_creature_hero_entering(struct Thing *thing);
-DLLIMPORT short _DK_creature_in_combat(struct Thing *thing);
 DLLIMPORT short _DK_creature_in_hold_audience(struct Thing *thing);
 DLLIMPORT short _DK_creature_kill_creatures(struct Thing *thing);
 DLLIMPORT short _DK_creature_leaves(struct Thing *thing);
 DLLIMPORT short _DK_creature_leaves_or_dies(struct Thing *thing);
 DLLIMPORT short _DK_creature_leaving_dungeon(struct Thing *thing);
-DLLIMPORT short _DK_creature_moan(struct Thing *thing);
-DLLIMPORT short _DK_creature_object_combat(struct Thing *thing);
 DLLIMPORT short _DK_creature_persuade(struct Thing *thing);
-DLLIMPORT short _DK_creature_pick_up_unconscious_body(struct Thing *thing);
-DLLIMPORT short _DK_creature_picks_up_corpse(struct Thing *thing);
-DLLIMPORT short _DK_creature_picks_up_spell_object(struct Thing *thing);
-DLLIMPORT short _DK_creature_picks_up_trap_for_workshop(struct Thing *thing);
-DLLIMPORT short _DK_creature_picks_up_trap_object(struct Thing *thing);
-DLLIMPORT short _DK_creature_piss(struct Thing *thing);
 DLLIMPORT short _DK_creature_present_to_dungeon_heart(struct Thing *thing);
 DLLIMPORT short _DK_creature_pretend_chicken_move(struct Thing *thing);
 DLLIMPORT short _DK_creature_pretend_chicken_setup_move(struct Thing *thing);
-DLLIMPORT short _DK_creature_roar(struct Thing *thing);
-DLLIMPORT short _DK_creature_sacrifice(struct Thing *thing);
-DLLIMPORT short _DK_creature_scavenged_disappear(struct Thing *thing);
-DLLIMPORT short _DK_creature_scavenged_reappear(struct Thing *thing);
 DLLIMPORT short _DK_creature_search_for_gold_to_steal_in_room(struct Thing *thing);
 DLLIMPORT short _DK_creature_set_work_room_based_on_position(struct Thing *thing);
 DLLIMPORT short _DK_creature_slap_cowers(struct Thing *thing);
 DLLIMPORT short _DK_creature_steal_gold(struct Thing *thing);
 DLLIMPORT short _DK_creature_take_salary(struct Thing *thing);
-DLLIMPORT short _DK_creature_to_garden(struct Thing *thing);
 DLLIMPORT short _DK_creature_unconscious(struct Thing *thing);
 DLLIMPORT short _DK_creature_vandalise_rooms(struct Thing *thing);
 DLLIMPORT short _DK_creature_wait_at_treasure_room_door(struct Thing *thing);
 DLLIMPORT short _DK_creature_wants_a_home(struct Thing *thing);
 DLLIMPORT short _DK_creature_wants_salary(struct Thing *thing);
 DLLIMPORT short _DK_guarding(struct Thing *thing);
-DLLIMPORT short _DK_mad_killing_psycho(struct Thing *thing);
 DLLIMPORT short _DK_move_backwards_to_position(struct Thing *thing);
 DLLIMPORT long _DK_move_check_attack_any_door(struct Thing *thing);
 DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *thing);
@@ -154,28 +120,15 @@ DLLIMPORT short _DK_patrolling(struct Thing *thing);
 DLLIMPORT short _DK_person_sulk_at_lair(struct Thing *thing);
 DLLIMPORT short _DK_person_sulk_head_for_lair(struct Thing *thing);
 DLLIMPORT short _DK_person_sulking(struct Thing *thing);
-DLLIMPORT short _DK_praying_in_temple(struct Thing *thing);
-DLLIMPORT long _DK_process_research_function(struct Thing *thing);
-DLLIMPORT long _DK_process_scavenge_function(struct Thing *thing);
-DLLIMPORT long _DK_process_temple_function(struct Thing *thing);
-DLLIMPORT short _DK_researching(struct Thing *thing);
-DLLIMPORT short _DK_scavengering(struct Thing *thing);
 DLLIMPORT short _DK_seek_the_enemy(struct Thing *thing);
 DLLIMPORT short _DK_state_cleanup_dragging_body(struct Thing *thing);
 DLLIMPORT short _DK_state_cleanup_dragging_object(struct Thing *thing);
 DLLIMPORT short _DK_state_cleanup_in_room(struct Thing *thing);
-DLLIMPORT short _DK_state_cleanup_in_temple(struct Thing *thing);
 DLLIMPORT short _DK_state_cleanup_unable_to_fight(struct Thing *thing);
 DLLIMPORT short _DK_state_cleanup_unconscious(struct Thing *thing);
 DLLIMPORT short _DK_tunneller_doing_nothing(struct Thing *thing);
 DLLIMPORT short _DK_tunnelling(struct Thing *thing);
 DLLIMPORT long _DK_setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3);
-DLLIMPORT long _DK_process_sacrifice_award(struct Coord3d *pos, long model, long plyr_idx);
-DLLIMPORT long _DK_make_all_players_creatures_angry(long plyr_idx);
-DLLIMPORT long _DK_force_complete_current_manufacturing(long plyr_idx);
-DLLIMPORT void _DK_apply_spell_effect_to_players_creatures(long a1, long a2, long a3);
-DLLIMPORT void _DK_kill_all_players_chickens(long plyr_idx);
-DLLIMPORT void _DK_force_complete_current_research(long plyr_idx);
 DLLIMPORT void _DK_anger_set_creature_anger(struct Thing *thing, long a1, long a2);
 DLLIMPORT void _DK_create_effect_around_thing(struct Thing *thing, long eff_kind);
 DLLIMPORT void _DK_remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
@@ -184,101 +137,50 @@ DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_excluding_two_types(struc
 DLLIMPORT unsigned char _DK_initialise_thing_state(struct Thing *thing, long a2);
 DLLIMPORT long _DK_cleanup_current_thing_state(struct Thing *thing);
 DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, struct Room *room, struct Coord3d *pos);
-DLLIMPORT void _DK_creature_in_combat_wait(struct Thing *thing);
-DLLIMPORT void _DK_creature_in_ranged_combat(struct Thing *thing);
-DLLIMPORT void _DK_creature_in_melee_combat(struct Thing *thing);
-DLLIMPORT long _DK_creature_has_other_attackers(struct Thing *thing, long a2);
-DLLIMPORT long _DK_creature_is_most_suitable_for_combat(struct Thing *thing, struct Thing *enmtng);
-DLLIMPORT long _DK_check_for_valid_combat(struct Thing *thing, struct Thing *enmtng);
-DLLIMPORT long _DK_combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp);
-DLLIMPORT long _DK_get_best_ranged_offensive_weapon(struct Thing *thing, long a2);
-DLLIMPORT long _DK_ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4);
-DLLIMPORT long _DK_get_best_melee_offensive_weapon(struct Thing *thing, long a2);
-DLLIMPORT long _DK_melee_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4);
 DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
 DLLIMPORT short _DK_creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
 DLLIMPORT long _DK_person_get_somewhere_adjacent_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
-DLLIMPORT long _DK_creature_can_have_combat_with_creature(struct Thing *fighter1, struct Thing *fighter2, long a2, long a4, long a5);
-DLLIMPORT void _DK_set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, long a3);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *thing);
 short arrive_at_alarm(struct Thing *thing);
 short arrive_at_call_to_arms(struct Thing *thing);
 short at_barrack_room(struct Thing *thing);
 short at_guard_post_room(struct Thing *thing);
-short at_research_room(struct Thing *thing);
-short at_scavenger_room(struct Thing *thing);
-short at_temple(struct Thing *thing);
 short barracking(struct Thing *thing);
-short cleanup_combat(struct Thing *thing);
-short cleanup_door_combat(struct Thing *thing);
 short cleanup_hold_audience(struct Thing *thing);
-short cleanup_object_combat(struct Thing *thing);
-short cleanup_sacrifice(struct Thing *thing);
-short cleanup_seek_the_enemy(struct Thing *thing);
 short creature_arms_trap(struct Thing *thing);
-short creature_arrived_at_garden(struct Thing *thing);
-short creature_attack_rooms(struct Thing *thing);
-short creature_attempt_to_damage_walls(struct Thing *thing);
-short creature_be_happy(struct Thing *thing);
 short creature_being_dropped(struct Thing *thing);
-short creature_being_sacrificed(struct Thing *thing);
-short creature_being_scavenged(struct Thing *thing);
-short creature_being_summoned(struct Thing *thing);
 short creature_cannot_find_anything_to_do(struct Thing *thing);
 short creature_change_from_chicken(struct Thing *thing);
 short creature_change_to_chicken(struct Thing *thing);
-short creature_combat_flee(struct Thing *thing);
-short creature_damage_walls(struct Thing *thing);
 short creature_doing_nothing(struct Thing *thing);
-short creature_door_combat(struct Thing *thing);
 short creature_dormant(struct Thing *thing);
-short creature_drops_corpse_in_graveyard(struct Thing *thing);
-short creature_drops_crate_in_workshop(struct Thing *thing);
-short creature_drops_spell_object_in_library(struct Thing *thing);
-short creature_eat(struct Thing *thing);
-short creature_eating_at_garden(struct Thing *thing);
 short creature_escaping_death(struct Thing *thing);
 short creature_evacuate_room(struct Thing *thing);
 short creature_explore_dungeon(struct Thing *thing);
 short creature_fired(struct Thing *thing);
 short creature_follow_leader(struct Thing *thing);
 short creature_hero_entering(struct Thing *thing);
-short creature_in_combat(struct Thing *thing);
 short creature_in_hold_audience(struct Thing *thing);
 short creature_kill_creatures(struct Thing *thing);
 short creature_leaves(struct Thing *thing);
 short creature_leaves_or_dies(struct Thing *thing);
 short creature_leaving_dungeon(struct Thing *thing);
-short creature_moan(struct Thing *thing);
-short creature_object_combat(struct Thing *thing);
 short creature_persuade(struct Thing *thing);
-short creature_pick_up_unconscious_body(struct Thing *thing);
-short creature_picks_up_corpse(struct Thing *thing);
-short creature_picks_up_spell_object(struct Thing *thing);
-short creature_picks_up_trap_for_workshop(struct Thing *thing);
-short creature_picks_up_trap_object(struct Thing *thing);
-short creature_piss(struct Thing *thing);
 short creature_present_to_dungeon_heart(struct Thing *thing);
 short creature_pretend_chicken_move(struct Thing *thing);
 short creature_pretend_chicken_setup_move(struct Thing *thing);
-short creature_roar(struct Thing *thing);
-short creature_sacrifice(struct Thing *thing);
-short creature_scavenged_disappear(struct Thing *thing);
-short creature_scavenged_reappear(struct Thing *thing);
 short creature_search_for_gold_to_steal_in_room(struct Thing *thing);
 short creature_set_work_room_based_on_position(struct Thing *thing);
 short creature_slap_cowers(struct Thing *thing);
 short creature_steal_gold(struct Thing *thing);
 short creature_take_salary(struct Thing *thing);
-short creature_to_garden(struct Thing *thing);
 short creature_unconscious(struct Thing *thing);
 short creature_vandalise_rooms(struct Thing *thing);
 short creature_wait_at_treasure_room_door(struct Thing *thing);
 short creature_wants_a_home(struct Thing *thing);
 short creature_wants_salary(struct Thing *thing);
 short guarding(struct Thing *thing);
-short mad_killing_psycho(struct Thing *thing);
 short move_backwards_to_position(struct Thing *thing);
 long move_check_attack_any_door(struct Thing *thing);
 long move_check_can_damage_wall(struct Thing *thing);
@@ -294,26 +196,16 @@ short patrolling(struct Thing *thing);
 short person_sulk_at_lair(struct Thing *thing);
 short person_sulk_head_for_lair(struct Thing *thing);
 short person_sulking(struct Thing *thing);
-short praying_in_temple(struct Thing *thing);
-long process_research_function(struct Thing *thing);
-long process_scavenge_function(struct Thing *thing);
-long process_temple_function(struct Thing *thing);
-short researching(struct Thing *thing);
-short scavengering(struct Thing *thing);
 short seek_the_enemy(struct Thing *thing);
 short state_cleanup_dragging_body(struct Thing *thing);
 short state_cleanup_dragging_object(struct Thing *thing);
 short state_cleanup_in_room(struct Thing *thing);
-short state_cleanup_in_temple(struct Thing *thing);
 short state_cleanup_unable_to_fight(struct Thing *thing);
 short state_cleanup_unconscious(struct Thing *thing);
 short tunneller_doing_nothing(struct Thing *thing);
 short tunnelling(struct Thing *thing);
 short creature_search_for_spell_to_steal_in_room(struct Thing *thing);
 short creature_steal_spell(struct Thing *thing);
-void creature_in_combat_wait(struct Thing *thing);
-void creature_in_ranged_combat(struct Thing *thing);
-void creature_in_melee_combat(struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -620,13 +512,6 @@ struct StateInfo states[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
 
-const CombatState combat_state[] = {
-    NULL,
-    creature_in_combat_wait,
-    creature_in_ranged_combat,
-    creature_in_melee_combat,
-};
-
 /** GUI States of creatures - from "Creatures" Tab in UI.
  * There are three states:
  * - 0: Idle.
@@ -895,17 +780,6 @@ TbBool creature_is_taking_salary_activity(const struct Thing *thing)
     return false;
 }
 
-TbBool creature_is_doing_temple_activity(const struct Thing *thing)
-{
-    long i;
-    i = thing->active_state;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
-    if ((i == CrSt_AtTemple) || (i == CrSt_PrayingInTemple))
-        return true;
-    return false;
-}
-
 TbBool creature_state_is_unset(const struct Thing *thing)
 {
     long i;
@@ -1122,226 +996,6 @@ short at_guard_post_room(struct Thing *thing)
     return 1;
 }
 
-long get_combat_distance(struct Thing *thing, struct Thing *enemy)
-{
-    long dist,avgc;
-    dist = get_2d_box_distance(&thing->mappos, &enemy->mappos);
-    avgc = (enemy->field_56 + thing->field_56) / 2;
-    if (dist < avgc)
-        return 0;
-    return dist - avgc;
-}
-
-long creature_can_have_combat_with_creature(struct Thing *fighter1, struct Thing *fighter2, long a2, long a4, long a5)
-{
-    return _DK_creature_can_have_combat_with_creature(fighter1, fighter2, a2, a4, a5);
-}
-
-void set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, long a3)
-{
-    _DK_set_creature_combat_state(fighter1, fighter2, a3);
-}
-
-long set_creature_in_combat_to_the_death(struct Thing *fighter1, struct Thing *fighter2, long a3)
-{
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(fighter1);
-    if (cctrl->field_3 != 0)
-    {
-        ERRORLOG("Creature in combat already - adding till death");
-        return false;
-    }
-    if (external_set_thing_state(fighter1, CrSt_CreatureInCombat))
-    {
-        set_creature_combat_state(fighter1, fighter2, a3);
-        cctrl->field_AA = 0;
-        cctrl->field_A9 = 1;
-    }
-    return true;
-}
-
-long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *room,long crmodel, struct Thing **enemytng)
-{
-    struct Dungeon *dungeon;
-    struct CreatureControl *cctrl;
-    struct Thing *thing;
-    long dist,combat_factor;
-    unsigned long k;
-    int i;
-    SYNCDBG(8,"Starting");
-    dungeon = get_players_num_dungeon(fighter->owner);
-    k = 0;
-    i = dungeon->creatr_list_start;
-    while (i != 0)
-    {
-      thing = thing_get(i);
-      cctrl = creature_control_get_from_thing(thing);
-      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-      {
-        ERRORLOG("Jump to invalid creature detected");
-        break;
-      }
-      i = cctrl->thing_idx;
-      // Thing list loop body
-      if ( (thing->model == crmodel) && (cctrl->field_3 == 0) )
-      {
-          if ( ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0) )
-          {
-              if ((thing != fighter) && (get_room_thing_is_on(thing) == room))
-              {
-                  dist = get_combat_distance(fighter, thing);
-                  combat_factor = creature_can_have_combat_with_creature(fighter, thing, dist, 0, 0);
-                  if (combat_factor > 0)
-                  {
-                      *enemytng = thing;
-                      return combat_factor;
-                  }
-              }
-          }
-      }
-      // Thing list loop body ends
-      k++;
-      if (k > CREATURES_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping creatures list");
-        break;
-      }
-    }
-    SYNCDBG(19,"Finished");
-    *enemytng = INVALID_THING;
-    return 0;
-}
-
-short at_research_room(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
-    struct Dungeon *dungeon;
-    struct Room *room;
-    //return _DK_at_research_room(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_80 = 0;
-    if (thing->owner == game.neutral_player_num)
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    crstat = creature_stats_get_from_thing(thing);
-    dungeon = get_dungeon(thing->owner);
-    if ((crstat->research_value <= 0) || (dungeon->field_F78 < 0))
-    {
-        if ((thing->owner != game.neutral_player_num) && (dungeon->field_F78 < 0))
-        {
-            if (is_my_player_number(dungeon->field_E9F))
-                output_message(46, 500, 1);
-        }
-        set_start_state(thing);
-        return 0;
-    }
-    room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room))
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    if ((room->kind != RoK_LIBRARY) || (room->owner != thing->owner))
-    {
-        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
-        set_start_state(thing);
-        return 0;
-    }
-    if (!add_creature_to_work_room(thing, room))
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    if ( !setup_random_head_for_room(thing, room, 0) )
-    {
-        ERRORLOG("The %s can not move in research room", thing_model_name(thing));
-        remove_creature_from_work_room(thing);
-        set_start_state(thing);
-        return 0;
-    }
-    thing->continue_state = CrSt_Researching;
-    cctrl->field_82 = 0;
-    cctrl->byte_9A = 3;
-    return 1;
-}
-
-short at_scavenger_room(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
-    struct Dungeon *dungeon;
-    struct Room *room;
-    //return _DK_at_scavenger_room(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room))
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    if ((room->kind != RoK_SCAVENGER) || (room->owner != thing->owner))
-    {
-        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
-        set_start_state(thing);
-        return 0;
-    }
-    crstat = creature_stats_get_from_thing(thing);
-    dungeon = get_dungeon(thing->owner);
-    if (crstat->scavenger_cost >= dungeon->field_AF9)
-    {
-        if (is_my_player_number(thing->owner))
-            output_message(88, 500, 1);
-        set_start_state(thing);
-        return 0;
-    }
-    if ( !add_creature_to_work_room(thing, room) )
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    internal_set_thing_state(thing, CrSt_Scavengering);
-    cctrl->field_82 = 0;
-    return 1;
-}
-
-short at_temple(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
-    struct Room *room;
-    //return _DK_at_temple(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_80 = 0;
-    room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room))
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    if ((room->kind != RoK_TEMPLE) || (room->owner != thing->owner))
-    {
-        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
-        set_start_state(thing);
-        return 0;
-    }
-    dungeon = get_dungeon(thing->owner);
-    if ( !add_creature_to_work_room(thing, room) )
-    {
-        if (is_my_player_number(thing->owner))
-            output_message(31, 0, 1);
-        remove_creature_from_work_room(thing);
-        set_start_state(thing);
-        return 0;
-    }
-    internal_set_thing_state(thing, CrSt_PrayingInTemple);
-    dungeon->creatures_praying[thing->model]++;
-    cctrl->field_82 = 0;
-    return 1;
-}
-
 SubtlCodedCoords find_position_around_in_room(struct Coord3d *pos, long owner, long rkind)
 {
     SubtlCodedCoords stl_num;
@@ -1397,24 +1051,6 @@ short barracking(struct Thing *thing)
   return _DK_barracking(thing);
 }
 
-short cleanup_combat(struct Thing *thing)
-{
-    //return _DK_cleanup_combat(thing);
-    remove_all_traces_of_combat(thing);
-    return 0;
-}
-
-short cleanup_door_combat(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    //return _DK_cleanup_door_combat(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_3 &= ~0x10;
-    cctrl->word_A2 = 0;
-    return 1;
-
-}
-
 short cleanup_hold_audience(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -1422,21 +1058,6 @@ short cleanup_hold_audience(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
     return 0;
-}
-
-short cleanup_object_combat(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    //return _DK_cleanup_object_combat(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_3 &= ~0x08;
-    cctrl->word_A2 = 0;
-    return 1;
-}
-
-short cleanup_sacrifice(struct Thing *thing)
-{
-  return _DK_cleanup_sacrifice(thing);
 }
 
 short cleanup_seek_the_enemy(struct Thing *thing)
@@ -1468,7 +1089,7 @@ short creature_arms_trap(struct Thing *thing)
     }
     postng = get_trap_at_subtile_of_model_and_owned_by(thing->mappos.x.stl.num, thing->mappos.y.stl.num, traptng->model, thing->owner);
     // Note that this means there can be only one trap of given kind at a subtile.
-    // Otherwise it won't be possible to rearm it, as the condition below will fail.
+    // Otherwise it won't be possible to re-arm it, as the condition below will fail.
     if ( (postng != traptng) || (traptng->byte_13 > 0) )
     {
         ERRORLOG("The %s has moved or been already rearmed",thing_model_name(traptng));
@@ -1482,26 +1103,6 @@ short creature_arms_trap(struct Thing *thing)
     delete_thing_structure(cratetng, 0);
     set_start_state(thing);
     return 1;
-}
-
-short creature_arrived_at_garden(struct Thing *thing)
-{
-  return _DK_creature_arrived_at_garden(thing);
-}
-
-short creature_attack_rooms(struct Thing *thing)
-{
-  return _DK_creature_attack_rooms(thing);
-}
-
-short creature_attempt_to_damage_walls(struct Thing *thing)
-{
-  return _DK_creature_attempt_to_damage_walls(thing);
-}
-
-short creature_be_happy(struct Thing *thing)
-{
-  return _DK_creature_be_happy(thing);
 }
 
 short creature_being_dropped(struct Thing *thing)
@@ -1545,322 +1146,6 @@ TbBool anger_make_creature_angry(struct Thing *thing, long reason)
   return true;
 }
 
-TbBool make_all_players_creatures_angry(long plyr_idx)
-{
-  struct Dungeon *dungeon;
-  struct CreatureControl *cctrl;
-  struct Thing *thing;
-  unsigned long k;
-  int i;
-  SYNCDBG(8,"Starting");
-  //return _DK_make_all_players_creatures_angry(plyr_idx);
-  dungeon = get_players_num_dungeon(plyr_idx);
-  k = 0;
-  i = dungeon->creatr_list_start;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    cctrl = creature_control_get_from_thing(thing);
-    if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-    {
-      ERRORLOG("Jump to invalid creature detected");
-      break;
-    }
-    i = cctrl->thing_idx;
-    // Thing list loop body
-    anger_make_creature_angry(thing, 4);
-    // Thing list loop body ends
-    k++;
-    if (k > CREATURES_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping creatures list");
-      break;
-    }
-  }
-  SYNCDBG(19,"Finished");
-  return true;
-}
-
-long force_complete_current_manufacturing(long plyr_idx)
-{
-  return _DK_force_complete_current_manufacturing(plyr_idx);
-}
-
-void apply_spell_effect_to_players_creatures(long plyr_idx, long spl_idx, long overchrg)
-{
-  _DK_apply_spell_effect_to_players_creatures(plyr_idx, spl_idx, overchrg);
-}
-
-void kill_all_players_chickens(long plyr_idx)
-{
-  _DK_kill_all_players_chickens(plyr_idx);
-}
-
-void force_complete_current_research(long plyr_idx)
-{
-  _DK_force_complete_current_research(plyr_idx);
-}
-
-TbBool summon_creature(long model, struct Coord3d *pos, long owner, long explevel)
-{
-  struct CreatureControl *cctrl;
-  struct Thing *thing;
-  SYNCDBG(4,"Creating model %ld for player %ld",model,owner);
-  thing = create_creature(pos, model, owner);
-  if (thing_is_invalid(thing))
-  {
-    ERRORLOG("Could not create creature");
-    return false;
-  }
-  init_creature_level(thing, explevel);
-  internal_set_thing_state(thing, 95);
-  thing->field_25 |= 0x04;
-  cctrl = creature_control_get_from_thing(thing);
-  cctrl->word_9C = 48;
-  return true;
-}
-
-long create_sacrifice_unique_award(struct Coord3d *pos, long plyr_idx, long sacfunc, long explevel)
-{
-  struct Dungeon *dungeon;
-  dungeon = get_players_num_dungeon(plyr_idx);
-  switch (sacfunc)
-  {
-  case UnqF_MkAllAngry:
-      make_all_players_creatures_angry(plyr_idx);
-      return SacR_Punished;
-  case UnqF_ComplResrch:
-      force_complete_current_research(plyr_idx);
-      return SacR_Awarded;
-  case UnqF_ComplManufc:
-      force_complete_current_manufacturing(plyr_idx);
-      return SacR_Awarded;
-  case UnqF_KillChickns:
-      kill_all_players_chickens(plyr_idx);
-      return SacR_Punished;
-  case UnqF_CheaperImp:
-      // No processing needed - just don't clear the amount of sacrificed imps.
-      return SacR_Pleased;
-  default:
-      ERRORLOG("Unsupported unique secrifice award!");
-      return SacR_AngryWarn;
-  }
-}
-
-long creature_sacrifice_average_explevel(struct Dungeon *dungeon, struct SacrificeRecipe *sac)
-{
-  long num;
-  long exp;
-  long i;
-  long model;
-  num = 0;
-  exp = 0;
-  for (i=0; i < MAX_SACRIFICE_VICTIMS; i++)
-  {
-    model = sac->victims[i];
-    // Do not count the same model twice
-    if (i > 0)
-    {
-      if (model == sac->victims[i-1])
-        break;
-    }
-    num += dungeon->creature_sacrifice[model];
-    exp += dungeon->creature_sacrifice_exp[model];
-  }
-  if (num < 1) num = 1;
-  exp = (exp/num);
-  if (exp < 0) return 0;
-  return exp;
-}
-
-void creature_sacrifice_reset(struct Dungeon *dungeon, struct SacrificeRecipe *sac)
-{
-  long i;
-  long model;
-  // Some models may be set more than once; dut we don't really care...
-  for (i=0; i < MAX_SACRIFICE_VICTIMS; i++)
-  {
-    model = sac->victims[i];
-    dungeon->creature_sacrifice[model] = 0;
-    dungeon->creature_sacrifice_exp[model] = 0;
-  }
-}
-
-long sacrifice_victim_model_count(struct SacrificeRecipe *sac, long model)
-{
-  long i;
-  long k;
-  k = 0;
-  for (i=0; i < MAX_SACRIFICE_VICTIMS; i++)
-  {
-    if (sac->victims[i] == model) k++;
-  }
-  return k;
-}
-
-TbBool sacrifice_victim_conditions_met(struct Dungeon *dungeon, struct SacrificeRecipe *sac)
-{
-  long i,required;
-  long model;
-  // Some models may be checked more than once; dut we don't really care...
-  for (i=0; i < MAX_SACRIFICE_VICTIMS; i++)
-  {
-    model = sac->victims[i];
-    if (model < 1) continue;
-    required = sacrifice_victim_model_count(sac, model);
-    SYNCDBG(6,"Model %d exists %d times",(int)model,(int)required);
-    if (dungeon->creature_sacrifice[model] < required)
-      return false;
-  }
-  return true;
-}
-
-long process_sacrifice_award(struct Coord3d *pos, long model, long plyr_idx)
-{
-  struct SacrificeRecipe *sac;
-  struct Dungeon *dungeon;
-  long explevel;
-  long ret;
-  //return _DK_process_sacrifice_award(pos, model, plyr_idx);
-  dungeon = get_players_num_dungeon(plyr_idx);
-  if (dungeon_invalid(dungeon))
-  {
-    ERRORLOG("Player %d cannot sacrifice creatures.",plyr_idx);
-    return 0;
-  }
-  ret = SacR_DontCare;
-  sac = &gameadd.sacrifice_recipes[0];
-  do {
-    // Check if the just sacrificed creature is in the sacrifice
-    if (sacrifice_victim_model_count(sac,model) > 0)
-    {
-      // Set the return value in case of partial sacrifice recipe
-      if (ret != SacR_Pleased)
-      {
-        switch (sac->action)
-        {
-        case SacA_MkGoodHero:
-        case SacA_NegSpellAll:
-        case SacA_NegUniqFunc:
-          ret = SacR_AngryWarn;
-          break;
-        default:
-          ret = SacR_Pleased;
-          break;
-        }
-      }
-      SYNCDBG(8,"Creature %d used in sacrifice %d",(int)model,(int)(sac-&gameadd.sacrifice_recipes[0]));
-      // Check if the complete sacrifice condition is met
-      if (sacrifice_victim_conditions_met(dungeon, sac))
-      {
-        SYNCDBG(6,"Sacrifice recipe %d condition met, action %d for player %d",(int)(sac-&gameadd.sacrifice_recipes[0]),(int)sac->action,(int)plyr_idx);
-        explevel = creature_sacrifice_average_explevel(dungeon, sac);
-        switch (sac->action)
-        {
-        case SacA_MkCreature:
-            if (explevel >= CREATURE_MAX_LEVEL) explevel = CREATURE_MAX_LEVEL-1;
-            if ( summon_creature(sac->param, pos, plyr_idx, explevel) )
-              dungeon->lvstats.creatures_from_sacrifice++;
-            ret = SacR_Awarded;
-            break;
-        case SacA_MkGoodHero:
-            if (explevel >= CREATURE_MAX_LEVEL) explevel = CREATURE_MAX_LEVEL-1;
-            if ( summon_creature(sac->param, pos, 4, explevel) )
-              dungeon->lvstats.creatures_from_sacrifice++;
-            ret = SacR_Punished;
-            break;
-        case SacA_NegSpellAll:
-            if (explevel > SPELL_MAX_LEVEL) explevel = SPELL_MAX_LEVEL;
-            apply_spell_effect_to_players_creatures(plyr_idx, sac->param, explevel);
-            ret = SacR_Punished;
-            break;
-        case SacA_PosSpellAll:
-            if (explevel > SPELL_MAX_LEVEL) explevel = SPELL_MAX_LEVEL;
-            apply_spell_effect_to_players_creatures(plyr_idx, sac->param, explevel);
-            ret = SacR_Awarded;
-            break;
-        case SacA_NegUniqFunc:
-        case SacA_PosUniqFunc:
-            ret = create_sacrifice_unique_award(pos, plyr_idx, sac->param, explevel);
-            break;
-        default:
-            ERRORLOG("Unsupported sacrifice action %d!",(int)sac->action);
-            ret = SacR_Pleased;
-            break;
-        }
-        if ((ret != SacR_Pleased) && (ret != SacR_AngryWarn))
-          creature_sacrifice_reset(dungeon, sac);
-        return ret;
-      }
-    }
-    sac++;
-  } while (sac->action != SacA_None);
-  return ret;
-}
-
-short creature_being_sacrificed(struct Thing *thing)
-{
-  struct CreatureControl *cctrl;
-  struct SlabMap *slb;
-  struct Coord3d pos;
-  long owner,model,award;
-  SYNCDBG(6,"Starting");
-  //return _DK_creature_being_sacrificed(thing);
-
-  cctrl = creature_control_get_from_thing(thing);
-  cctrl->word_9A--;
-  if (cctrl->word_9A > 0)
-  {
-    award = creature_turn_to_face_angle(thing, thing->field_52 + 256);
-    thing->field_25 &= 0xDFu;
-    return 0;
-  }
-  slb = get_slabmap_for_subtile(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-  owner = slabmap_owner(slb);
-  add_creature_to_sacrifice_list(owner, thing->model, cctrl->explevel);
-  pos.x.val = thing->mappos.x.val;
-  pos.y.val = thing->mappos.y.val;
-  pos.z.val = thing->mappos.z.val;
-  model = thing->model;
-  kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
-  award = process_sacrifice_award(&pos, model, owner);
-  if (is_my_player_number(owner))
-  {
-    switch (award)
-    {
-    case SacR_AngryWarn:
-        output_message(68, 0, 1);
-        break;
-    case SacR_DontCare:
-        output_message(67, 0, 1);
-        break;
-    case SacR_Pleased:
-        output_message(65, 0, 1);
-        break;
-    case SacR_Awarded:
-        output_message(66, 0, 1);
-        break;
-    case SacR_Punished:
-        output_message(69, 0, 1);
-        break;
-    default:
-        ERRORLOG("Invalid sacrifice return");
-        break;
-    }
-  }
-  return -1;
-}
-
-short creature_being_scavenged(struct Thing *thing)
-{
-  return _DK_creature_being_scavenged(thing);
-}
-
-short creature_being_summoned(struct Thing *thing)
-{
-  return _DK_creature_being_summoned(thing);
-}
-
 short creature_cannot_find_anything_to_do(struct Thing *thing)
 {
   return _DK_creature_cannot_find_anything_to_do(thing);
@@ -1876,24 +1161,29 @@ short creature_change_to_chicken(struct Thing *thing)
   return _DK_creature_change_to_chicken(thing);
 }
 
-short creature_combat_flee(struct Thing *thing)
-{
-  return _DK_creature_combat_flee(thing);
-}
-
-short creature_damage_walls(struct Thing *thing)
-{
-  return _DK_creature_damage_walls(thing);
-}
-
 short creature_doing_nothing(struct Thing *thing)
 {
   return _DK_creature_doing_nothing(thing);
 }
 
-short creature_door_combat(struct Thing *thing)
+void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng)
 {
-  return _DK_creature_door_combat(thing);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(crtng);
+    if (cctrl->field_6E == 0)
+    {
+        ERRORLOG("The %s isn't dragging anything",thing_model_name(crtng));
+    } else
+    if (dragtng->index != cctrl->field_6E)
+    {
+        ERRORLOG("The %s isn't dragging %s",thing_model_name(crtng),thing_model_name(dragtng));
+    }
+    cctrl->field_6E = 0;
+    dragtng->field_0 &= ~0x80;
+    dragtng->field_1 &= ~0x01;
+    move_thing_in_map(dragtng, &crtng->mappos);
+    if (dragtng->field_62 != 0)
+        light_turn_light_on(dragtng->field_62);
 }
 
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing)
@@ -1999,88 +1289,6 @@ short creature_dormant(struct Thing *thing)
     return 0;
 }
 
-short creature_drops_corpse_in_graveyard(struct Thing *thing)
-{
-  return _DK_creature_drops_corpse_in_graveyard(thing);
-}
-
-void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng)
-{
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(crtng);
-    if (cctrl->field_6E == 0)
-    {
-        ERRORLOG("The %s isn't dragging anything",thing_model_name(crtng));
-    } else
-    if (dragtng->index != cctrl->field_6E)
-    {
-        ERRORLOG("The %s isn't dragging %s",thing_model_name(crtng),thing_model_name(dragtng));
-    }
-    cctrl->field_6E = 0;
-    dragtng->field_0 &= ~0x80;
-    dragtng->field_1 &= ~0x01;
-    move_thing_in_map(dragtng, &crtng->mappos);
-    if (dragtng->field_62 != 0)
-        light_turn_light_on(dragtng->field_62);
-}
-
-short creature_drops_crate_in_workshop(struct Thing *thing)
-{
-    struct Thing *cratetng;
-    struct CreatureControl *cctrl;
-    struct Room *room;
-    //return _DK_creature_drops_crate_in_workshop(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    cratetng = thing_get(cctrl->field_6E);
-    // Check if chate is ok
-    if ( !thing_exists(cratetng) )
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    // Check if we're on correct room
-    room = get_room_thing_is_on(thing);
-    if ( room_is_invalid(room) )
-    {
-        set_start_state(thing);
-        return 0;
-    }
-
-    if ( (room->kind != RoK_WORKSHOP) || (room->owner != thing->owner)
-        || (room->used_capacity >= room->total_capacity) )
-    {
-      set_start_state(thing);
-      return 0;
-    }
-    creature_drop_dragged_object(thing, cratetng);
-    cratetng->owner = thing->owner;
-    add_workshop_object_to_workshop(room);
-    add_workshop_item(room->owner, get_workshop_object_class_for_thing(cratetng),
-        box_thing_to_door_or_trap(cratetng));
-    set_start_state(thing);
-    return 1;
-}
-
-short creature_drops_spell_object_in_library(struct Thing *thing)
-{
-  return _DK_creature_drops_spell_object_in_library(thing);
-}
-
-short creature_eat(struct Thing *thing)
-{
-  struct CreatureControl *cctrl;
-  //return _DK_creature_eat(thing);
-  cctrl = creature_control_get_from_thing(thing);
-  if (cctrl->field_D2 != 36)
-    internal_set_thing_state(thing, thing->continue_state);
-  return 1;
-}
-
-short creature_eating_at_garden(struct Thing *thing)
-{
-  return _DK_creature_eating_at_garden(thing);
-}
-
 short creature_escaping_death(struct Thing *thing)
 {
   return _DK_creature_escaping_death(thing);
@@ -2111,258 +1319,6 @@ short creature_hero_entering(struct Thing *thing)
   return _DK_creature_hero_entering(thing);
 }
 
-long combat_enemy_exists(struct Thing *thing, struct Thing *enemy)
-{
-    struct CreatureControl *cctrl;
-    struct CreatureControl *enmcctrl;
-    cctrl = creature_control_get_from_thing(thing);
-    if (((enemy->field_0 & 0x01) == 0) || (cctrl->long_9E != enemy->field_9))
-    {
-        SYNCDBG(8,"Enemy creature doesn't exist");
-        return 0;
-    }
-    enmcctrl = creature_control_get_from_thing(enemy);
-    if (creature_control_invalid(enmcctrl) && (enemy->class_id != TCls_Object) && (enemy->class_id != TCls_Door))
-    {
-        ERRORLOG("No control structure - C%d M%d GT%ld CA%d", (int)enemy->class_id,
-            (int)enemy->model, (long)game.play_gameturn, (int)thing->field_9);
-        return 0;
-    }
-    return 1;
-}
-
-long creature_is_most_suitable_for_combat(struct Thing *thing, struct Thing *enmtng)
-{
-    return _DK_creature_is_most_suitable_for_combat(thing, enmtng);
-}
-
-long check_for_valid_combat(struct Thing *thing, struct Thing *enmtng)
-{
-    return _DK_check_for_valid_combat(thing, enmtng);
-}
-
-long combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp)
-{
-    return _DK_combat_type_is_choice_of_creature(thing, cmbtyp);
-}
-
-long get_best_ranged_offensive_weapon(struct Thing *thing, long a2)
-{
-    return _DK_get_best_ranged_offensive_weapon(thing, a2);
-}
-
-long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4)
-{
-    return _DK_ranged_combat_move(thing, enmtng, a3, a4);
-}
-
-long get_best_melee_offensive_weapon(struct Thing *thing, long a2)
-{
-    return _DK_get_best_melee_offensive_weapon(thing, a2);
-}
-
-long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4)
-{
-    return _DK_melee_combat_move(thing, enmtng, a3, a4);
-}
-
-long creature_has_other_attackers(struct Thing *thing, long a2)
-{
-    return _DK_creature_has_other_attackers(thing, a2);
-}
-
-TbBool creature_is_actually_scared(struct Thing *thing, struct Thing *enemy)
-{
-    struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
-    long maxhealth;
-    crstat = creature_stats_get_from_thing(thing);
-    // Creature with fear 255 are scared of everything other that their own model
-    if (crstat->fear == 255)
-    {
-        if (enemy->model != thing->model)
-          return true;
-        if (creature_has_other_attackers(thing, thing->model))
-          return true;
-        return false;
-    }
-    // With "Flee" tendency on, then creatures are scared if their health
-    // drops lower than  fear/256 percentage of base health
-    if (player_creature_tends_to(thing->owner,CrTend_Flee))
-    {
-        cctrl = creature_control_get_from_thing(thing);
-        maxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
-        if ((crstat->fear * maxhealth) / 256 >= thing->health)
-        {
-            if (thing->owner != game.neutral_player_num)
-            {
-                SYNCDBG(8,"Creature is scared due to tendencies");
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-TbBool creature_scared(struct Thing *thing, struct Thing *enemy)
-{
-    struct CreatureControl *cctrl;
-    if (thing_is_invalid(enemy))
-    {
-        ERRORLOG("Thing %d enemy is invalid",(int)thing->index);
-        return false;
-    }
-    cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->field_A9)
-    {
-        return false;
-    }
-    return creature_is_actually_scared(thing, enemy);
-}
-
-TbBool creature_in_flee_zone(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    long dist;
-    cctrl = creature_control_get_from_thing(thing);
-    if (creature_control_invalid(cctrl))
-    {
-        ERRORLOG("Creature no %d has invalid control",(int)thing->index);
-        return false;
-    }
-    dist = get_2d_box_distance(&thing->mappos, &cctrl->pos_288);
-    //TODO CREATURE_AI put flee_zone_radius into config file
-    return (dist < 1536);
-}
-
-TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enemy)
-{
-    //get_combat_distance(thing, enemy);
-    if (!creature_scared(thing, enemy))
-    {
-        return false;
-    }
-    if (creature_in_flee_zone(thing))
-    {
-        return false;
-    }
-    return true;
-}
-
-void creature_in_combat_wait(struct Thing *thing)
-{
-    _DK_creature_in_combat_wait(thing);
-}
-
-void creature_in_ranged_combat(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    struct Thing *enmtng;
-    long dist, cmbtyp, weapon;
-    //_DK_creature_in_ranged_combat(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    enmtng = thing_get(cctrl->word_A2);
-    if (!creature_is_most_suitable_for_combat(thing, enmtng))
-    {
-        set_start_state(thing);
-        return;
-    }
-    cmbtyp = check_for_valid_combat(thing, enmtng);
-    if (!combat_type_is_choice_of_creature(thing, cmbtyp))
-    {
-        set_start_state(thing);
-        return;
-    }
-    dist = get_combat_distance(thing, enmtng);
-    weapon = get_best_ranged_offensive_weapon(thing, dist);
-    if (weapon == 0)
-    {
-        set_start_state(thing);
-        return;
-    }
-    if (!ranged_combat_move(thing, enmtng, dist, 49))
-    {
-        return;
-    }
-    if (weapon > 0)
-    {
-        set_creature_instance(thing, weapon, 1, enmtng->index, 0);
-    }
-}
-
-void creature_in_melee_combat(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    struct Thing *enmtng;
-    long dist, cmbtyp, weapon;
-    //_DK_creature_in_melee_combat(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    enmtng = thing_get(cctrl->word_A2);
-    if (!creature_is_most_suitable_for_combat(thing, enmtng))
-    {
-        set_start_state(thing);
-        return;
-    }
-    cmbtyp = check_for_valid_combat(thing, enmtng);
-    if (!combat_type_is_choice_of_creature(thing, cmbtyp))
-    {
-        set_start_state(thing);
-        return;
-    }
-    dist = get_combat_distance(thing, enmtng);
-    weapon = get_best_melee_offensive_weapon(thing, dist);
-    if (weapon == 0)
-    {
-        set_start_state(thing);
-        return;
-    }
-    if (!melee_combat_move(thing, enmtng, dist, 49))
-    {
-        return;
-    }
-    if (weapon > 0)
-    {
-        set_creature_instance(thing, weapon, 1, enmtng->index, 0);
-    }
-}
-
-short creature_in_combat(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    struct Thing *enmtng;
-    CombatState combat_func;
-    //return _DK_creature_in_combat(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    enmtng = thing_get(cctrl->word_A2);
-    if (!combat_enemy_exists(thing, enmtng))
-    {
-      set_start_state(thing);
-      return 0;
-    }
-    if (creature_too_scared_for_combat(thing, enmtng))
-    {
-        if (!external_set_thing_state(thing, CrSt_CreatureCombatFlee))
-        {
-            ERRORLOG("Cannot get thing no %d, %s, into flee",(int)thing->index,thing_model_name(thing));
-            return 0;
-        }
-        cctrl->field_28E = game.play_gameturn;
-        return 0;
-    }
-    if (cctrl->byte_A6 < sizeof(combat_state)/sizeof(combat_state[0]))
-        combat_func = combat_state[cctrl->byte_A6];
-    else
-        combat_func = NULL;
-    if (combat_func != NULL)
-    {
-        combat_func(thing);
-        return 1;
-    }
-    ERRORLOG("No valid fight state %d in thing no %d",(int)cctrl->byte_A6,(int)thing->index);
-    set_start_state(thing);
-    return 0;
-}
-
 short creature_in_hold_audience(struct Thing *thing)
 {
   return _DK_creature_in_hold_audience(thing);
@@ -2388,29 +1344,9 @@ short creature_leaving_dungeon(struct Thing *thing)
   return _DK_creature_leaving_dungeon(thing);
 }
 
-short creature_moan(struct Thing *thing)
-{
-  return _DK_creature_moan(thing);
-}
-
-short creature_object_combat(struct Thing *thing)
-{
-  return _DK_creature_object_combat(thing);
-}
-
 short creature_persuade(struct Thing *thing)
 {
   return _DK_creature_persuade(thing);
-}
-
-short creature_pick_up_unconscious_body(struct Thing *thing)
-{
-  return _DK_creature_pick_up_unconscious_body(thing);
-}
-
-short creature_picks_up_corpse(struct Thing *thing)
-{
-  return _DK_creature_picks_up_corpse(thing);
 }
 
 void creature_drag_object(struct Thing *thing, struct Thing *dragtng)
@@ -2490,88 +1426,6 @@ TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long
     return true;
 }
 
-short creature_picks_up_spell_object(struct Thing *thing)
-{
-    struct Room *enmroom, *ownroom;
-    struct CreatureControl *cctrl;
-    struct Thing *spelltng;
-    struct Coord3d pos;
-    //return _DK_creature_picks_up_spell_object(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    spelltng = thing_get(cctrl->field_72);
-    if ( thing_is_invalid(spelltng) || ((spelltng->field_1 & 0x01) != 0)
-      || (get_2d_box_distance(&thing->mappos, &spelltng->mappos) >= 512))
-    {
-      set_start_state(thing);
-      return 0;
-    }
-    enmroom = subtile_room_get(spelltng->mappos.x.stl.num,spelltng->mappos.y.stl.num);
-    ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, 3, 0, 1);
-    if ( room_is_invalid(ownroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, ownroom, &pos) )
-    {
-        WARNLOG("Player %d can't pick spell - doesn't have proper library to store it",(int)thing->owner);
-        set_start_state(thing);
-        return 0;
-    }
-    // Check if we're stealing the spell from a library
-    if (!room_is_invalid(enmroom))
-    {
-        remove_spell_from_library(enmroom, spelltng, thing->owner);
-    }
-    creature_drag_object(thing, spelltng);
-    if (!setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0))
-    {
-        SYNCDBG(8,"Cannot move to (%d,%d)",(int)pos.x.stl.num, (int)pos.y.stl.num);
-    }
-    thing->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
-    return 1;
-}
-
-short creature_picks_up_trap_for_workshop(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    struct Thing *cratetng;
-    struct Room *dstroom;
-    struct Coord3d pos;
-    //return _DK_creature_picks_up_trap_for_workshop(thing);
-    // Get the crate thing
-    cctrl = creature_control_get_from_thing(thing);
-    cratetng = thing_get(cctrl->field_72);
-    // Check if everything is right
-    if ( thing_is_invalid(cratetng) || ((cratetng->field_1 & 0x01) != 0)
-      || (get_2d_box_distance(&thing->mappos, &cratetng->mappos) >= 512) )
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    // Find room to drag the crate to
-    dstroom = find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, 8, 0);
-    if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, dstroom, &pos) )
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    // Initialize dragging
-    if ( !setup_person_move_backwards_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0) )
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    creature_drag_object(thing, cratetng);
-    thing->continue_state = CrSt_CreatureDropsCrateInWorkshop;
-    return 1;
-}
-
-short creature_picks_up_trap_object(struct Thing *thing)
-{
-  return _DK_creature_picks_up_trap_object(thing);
-}
-
-short creature_piss(struct Thing *thing)
-{
-  return _DK_creature_piss(thing);
-}
-
 short creature_present_to_dungeon_heart(struct Thing *thing)
 {
   return _DK_creature_present_to_dungeon_heart(thing);
@@ -2585,71 +1439,6 @@ short creature_pretend_chicken_move(struct Thing *thing)
 short creature_pretend_chicken_setup_move(struct Thing *thing)
 {
   return _DK_creature_pretend_chicken_setup_move(thing);
-}
-
-short creature_roar(struct Thing *thing)
-{
-  return _DK_creature_roar(thing);
-}
-
-short creature_sacrifice(struct Thing *thing)
-{
-  return _DK_creature_sacrifice(thing);
-}
-
-short creature_scavenged_disappear(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
-    struct Room *room;
-    struct Coord3d pos;
-    long stl_x, stl_y;
-    long i;
-    //return _DK_creature_scavenged_disappear(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    cctrl->byte_9A--;
-    if (cctrl->byte_9A > 0)
-    {
-      if ((cctrl->byte_9A == 7) && (cctrl->byte_9B < PLAYERS_COUNT))
-      {
-        create_effect(&thing->mappos, get_scavenge_effect_element(cctrl->byte_9B), thing->owner);
-      }
-      return 0;
-    }
-    // We don't really have to convert coordinates into numbers and back to XY.
-    i = get_subtile_number(cctrl->byte_9D, cctrl->byte_9E);
-    stl_x = stl_num_decode_x(i);
-    stl_y = stl_num_decode_y(i);
-    room = subtile_room_get(stl_x, stl_y);
-    if (room_is_invalid(room) || (room->kind != RoK_SCAVENGER))
-    {
-      ERRORLOG("Scavenger room disappeared.");
-      kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
-      return -1;
-    }
-    if (find_random_valid_position_for_thing_in_room(thing, room, &pos))
-    {
-      move_thing_in_map(thing, &pos);
-      anger_set_creature_anger_all_types(thing, 0);
-      dungeon = get_dungeon(cctrl->byte_9B);
-      dungeon->field_98B++;
-      if (is_my_player_number(thing->owner))
-        output_message(62, 0, 1);
-      cctrl->byte_9C = thing->owner;
-      change_creature_owner(thing, cctrl->byte_9B);
-      internal_set_thing_state(thing, 94);
-      return 0;
-    } else
-    {
-      ERRORLOG("No valid position inside scavenger room.");
-      kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
-      return -1;
-    }
-}
-
-short creature_scavenged_reappear(struct Thing *thing)
-{
-  return _DK_creature_scavenged_reappear(thing);
 }
 
 struct Thing *find_gold_hoarde_in_room_for_creature(struct Thing *thing, struct Room *room)
@@ -2835,11 +1624,6 @@ short creature_take_salary(struct Thing *thing)
   return _DK_creature_take_salary(thing);
 }
 
-short creature_to_garden(struct Thing *thing)
-{
-  return _DK_creature_to_garden(thing);
-}
-
 short creature_unconscious(struct Thing *thing)
 {
   return _DK_creature_unconscious(thing);
@@ -2897,11 +1681,6 @@ void remove_thing_from_creature_controlled_limbo(struct Thing *thing)
 short guarding(struct Thing *thing)
 {
   return _DK_guarding(thing);
-}
-
-short mad_killing_psycho(struct Thing *thing)
-{
-  return _DK_mad_killing_psycho(thing);
 }
 
 short move_backwards_to_position(struct Thing *thing)
@@ -2974,11 +1753,6 @@ short person_sulking(struct Thing *thing)
   return _DK_person_sulking(thing);
 }
 
-short praying_in_temple(struct Thing *thing)
-{
-  return _DK_praying_in_temple(thing);
-}
-
 long room_still_valid_as_type_for_thing(struct Room *room, long rkind, struct Thing *thing)
 {
   return ((room->field_0 & 0x01) != 0) && (room->kind == rkind);
@@ -3013,31 +1787,6 @@ TbBool process_creature_hunger(struct Thing *thing)
   if ((game.play_gameturn % game.turns_per_hunger_health_loss) == 0)
     remove_health_from_thing_and_display_health(thing, game.hunger_health_loss);
   return true;
-}
-
-long process_research_function(struct Thing *thing)
-{
-  return _DK_process_research_function(thing);
-}
-
-long process_scavenge_function(struct Thing *thing)
-{
-  return _DK_process_scavenge_function(thing);
-}
-
-long process_temple_function(struct Thing *thing)
-{
-  return _DK_process_temple_function(thing);
-}
-
-short researching(struct Thing *thing)
-{
-  return _DK_researching(thing);
-}
-
-short scavengering(struct Thing *thing)
-{
-  return _DK_scavengering(thing);
 }
 
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2)
@@ -3255,11 +2004,6 @@ short state_cleanup_in_room(struct Thing *thing)
   return _DK_state_cleanup_in_room(thing);
 }
 
-short state_cleanup_in_temple(struct Thing *thing)
-{
-  return _DK_state_cleanup_in_temple(thing);
-}
-
 short state_cleanup_unable_to_fight(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -3315,69 +2059,6 @@ TbBool check_experience_upgrade(struct Thing *thing)
         cctrl->field_AD |= 0x40;
     }
     return true;
-}
-
-long creature_retreat_from_combat(struct Thing *thing1, struct Thing *thing2, long a3, long a4)
-{
-    struct CreatureControl *cctrl1;
-    struct Coord3d pos;
-    long dist_x,dist_y;
-    long i;
-
-    cctrl1 = creature_control_get_from_thing(thing1);
-    dist_x = thing2->mappos.x.val - thing1->mappos.x.val;
-    dist_y = thing2->mappos.y.val - thing1->mappos.y.val;
-    if (a4 && ((cctrl1->field_3 & 0x18) == 0))
-    {
-        pos.x.val = thing1->mappos.x.val - dist_x;
-        pos.y.val = thing1->mappos.y.val - dist_y;
-        pos.z.val = get_thing_height_at(thing1, &pos);
-        if (creature_move_to(thing1, &pos, get_creature_speed(thing1), 0, 1) != -1)
-        {
-           return 1;
-        }
-    }
-    // First try
-    pos.x.val = thing1->mappos.x.val;
-    pos.y.val = thing1->mappos.y.val;
-    if (abs(dist_y) >= abs(dist_x))
-    {
-      if (dist_y <= 0)
-        pos.y.val += 256;
-      else
-        pos.y.val -= 256;
-    } else
-    {
-      if (dist_x <= 0)
-        pos.x.val += 256;
-      else
-        pos.x.val -= 256;
-    }
-    pos.z.val = get_thing_height_at(thing1, &pos);
-
-    if (setup_person_move_backwards_to_coord(thing1, &pos, 0))
-    {
-      thing1->continue_state = a3;
-      return 1;
-    }
-    // Second try
-    pos.x.val = thing1->mappos.x.val;
-    pos.y.val = thing1->mappos.y.val;
-    if (ACTION_RANDOM(2) == 0)
-        i = 1;
-    else
-        i = -1;
-    if (abs(dist_y) >= abs(dist_x))
-      pos.x.val += 768 * i;
-    else
-      pos.y.val += 768 * i;
-    pos.z.val = get_thing_height_at(thing1, &pos);
-    if (setup_person_move_backwards_to_coord(thing1, &pos, 0))
-    {
-      thing1->continue_state = a3;
-      return 1;
-    }
-    return 1;
 }
 
 short tunneller_doing_nothing(struct Thing *thing)

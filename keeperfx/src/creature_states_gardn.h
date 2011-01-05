@@ -37,7 +37,10 @@ struct Thing;
 #pragma pack()
 #endif
 /******************************************************************************/
-
+short creature_arrived_at_garden(struct Thing *thing);
+short creature_eat(struct Thing *thing);
+short creature_eating_at_garden(struct Thing *thing);
+short creature_to_garden(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

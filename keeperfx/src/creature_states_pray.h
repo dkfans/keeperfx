@@ -1,10 +1,10 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file creature_states_scavn.h
- *     Header file for creature_states_scavn.c.
+/** @file creature_states_pray.h
+ *     Header file for creature_states_pray.c.
  * @par Purpose:
- *     Creature state machine functions for their job in various rooms.
+ *     Creature state machine functions related to temple.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
@@ -16,8 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_CRTRSTATESCAVN_H
-#define DK_CRTRSTATESCAVN_H
+#ifndef DK_CRTRSTATEPRAY_H
+#define DK_CRTRSTATEPRAY_H
 
 #include "bflib_basics.h"
 #include "globals.h"
@@ -37,12 +37,15 @@ struct Thing;
 #pragma pack()
 #endif
 /******************************************************************************/
-short at_scavenger_room(struct Thing *thing);
-short creature_being_scavenged(struct Thing *thing);
-short creature_scavenged_disappear(struct Thing *thing);
-short creature_scavenged_reappear(struct Thing *thing);
-long process_scavenge_function(struct Thing *thing);
-short scavengering(struct Thing *thing);
+short at_temple(struct Thing *thing);
+short praying_in_temple(struct Thing *thing);
+long process_temple_function(struct Thing *thing);
+short state_cleanup_in_temple(struct Thing *thing);
+
+short cleanup_sacrifice(struct Thing *thing);
+short creature_being_sacrificed(struct Thing *thing);
+short creature_sacrifice(struct Thing *thing);
+short creature_being_summoned(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

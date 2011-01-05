@@ -37,7 +37,10 @@ struct Thing;
 #pragma pack()
 #endif
 /******************************************************************************/
-
+short at_research_room(struct Thing *thing);
+long process_research_function(struct Thing *thing);
+short researching(struct Thing *thing);
+void force_complete_current_research(long plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }
