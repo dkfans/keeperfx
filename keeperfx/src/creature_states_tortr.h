@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file room_workshop.h
- *     Header file for room_workshop.c.
+/** @file creature_states_tortr.h
+ *     Header file for creature_states_tortr.c.
  * @par Purpose:
- *     Workshop room maintain functions.
+ *     Creature state machine functions for their job in various rooms.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     17 Jun 2010 - 07 Jul 2010
+ * @date     23 Sep 2009 - 05 Jan 2011
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,33 +16,35 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_ROOM_WORKSHOP_H
-#define DK_ROOM_WORKSHOP_H
+#ifndef DK_CRTRSTATETORTR_H
+#define DK_CRTRSTATETORTR_H
 
-#include "globals.h"
 #include "bflib_basics.h"
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/** Count of possible manufacture types */
-#define MANUFCTR_TYPES_COUNT  11
 
 /******************************************************************************/
 #ifdef __cplusplus
 #pragma pack(1)
 #endif
 
-struct Room;
+struct Thing;
 
 #ifdef __cplusplus
 #pragma pack()
 #endif
 /******************************************************************************/
-TbBool add_workshop_object_to_workshop(struct Room *room);
-TbBool add_workshop_item(long plyr_idx, long wrkitm_class, long wrkitm_kind);
+short at_kinky_torture_room(struct Thing *thing);
+short kinky_torturing(struct Thing *thing);
+long process_kinky_function(struct Thing *thing);
 
+short at_torture_room(struct Thing *thing);
+short torturing(struct Thing *thing);
+long process_torture_function(struct Thing *thing);
+short cleanup_torturing(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

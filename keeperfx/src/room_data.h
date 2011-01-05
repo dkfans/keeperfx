@@ -79,7 +79,7 @@ struct Room {
     unsigned short kind;
     unsigned short field_C;
     short total_capacity;
-    unsigned short workers_in;
+    unsigned short used_capacity;
     unsigned char field_12;
     unsigned char field_13[4];
     union {

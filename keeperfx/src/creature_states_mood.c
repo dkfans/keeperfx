@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file room_workshop.h
- *     Header file for room_workshop.c.
+/** @file creature_states_mood.c
+ *     Creature state machine functions related to their mood.
  * @par Purpose:
- *     Workshop room maintain functions.
+ *     Defines elements of states[] array, containing valid creature states.
  * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
+ *     None.
  * @author   Tomasz Lis
- * @date     17 Jun 2010 - 07 Jul 2010
+ * @date     23 Sep 2009 - 05 Jan 2011
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,35 +16,31 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_ROOM_WORKSHOP_H
-#define DK_ROOM_WORKSHOP_H
-
+#include "creature_states_mood.h"
 #include "globals.h"
-#include "bflib_basics.h"
+
+#include "bflib_math.h"
+#include "creature_states.h"
+#include "thing_list.h"
+#include "creature_control.h"
+#include "config_creature.h"
+#include "config_rules.h"
+#include "config_terrain.h"
+#include "thing_stats.h"
+#include "thing_objects.h"
+#include "thing_effects.h"
+#include "thing_navigate.h"
+#include "room_data.h"
+#include "room_jobs.h"
+
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/** Count of possible manufacture types */
-#define MANUFCTR_TYPES_COUNT  11
-
 /******************************************************************************/
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
-
-struct Room;
-
-#ifdef __cplusplus
-#pragma pack()
-#endif
-/******************************************************************************/
-TbBool add_workshop_object_to_workshop(struct Room *room);
-TbBool add_workshop_item(long plyr_idx, long wrkitm_class, long wrkitm_kind);
 
 /******************************************************************************/
 #ifdef __cplusplus
 }
-#endif
 #endif

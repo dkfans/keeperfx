@@ -35,6 +35,7 @@ extern "C" {
 #endif
 
 struct Thing;
+struct Room;
 
 enum CreatureStates {
     CrSt_Unused = 0,
@@ -261,6 +262,17 @@ short set_start_state(struct Thing *thing);
 long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3);
 long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
 
+TbBool check_experience_upgrade(struct Thing *thing);
+long creature_retreat_from_combat(struct Thing *thing1, struct Thing *thing2, long a3, long a4);
+long get_combat_distance(struct Thing *thing, struct Thing *enemy);
+long process_work_speed_on_work_value(struct Thing *thing, long base_val);
+long set_creature_in_combat_to_the_death(struct Thing *fighter1, struct Thing *fighter2, long a3);
+long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *room,long crmodel, struct Thing **enemytng);
+SubtlCodedCoords find_position_around_in_room(struct Coord3d *pos, long owner, long rkind);
+void remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
+long slab_by_players_land(long plyr_idx, long slb_x, long slb_y);
+TbBool process_creature_hunger(struct Thing *thing);
+long room_still_valid_as_type_for_thing(struct Room *room, long rkind, struct Thing *thing);
 /******************************************************************************/
 TbBool creature_is_doing_lair_activity(const struct Thing *thing);
 TbBool creature_is_being_dropped(const struct Thing *thing);
@@ -278,8 +290,6 @@ TbBool creature_is_scavengering(const struct Thing *thing);
 TbBool creature_is_escaping_death(const struct Thing *thing);
 TbBool creature_state_is_unset(const struct Thing *thing);
 TbBool remove_creature_from_work_room(struct Thing *thing);
-TbBool creature_can_be_trained(struct Thing *thing);
-TbBool player_can_afford_to_train_creature(struct Thing *thing);
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2);
 TbBool anger_is_creature_livid(const struct Thing *thing);
 TbBool anger_is_creature_angry(const struct Thing *thing);
