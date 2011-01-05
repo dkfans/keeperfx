@@ -610,7 +610,11 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
   ilght.field_11 = 1;
   idx = light_create_light(&ilght);
   player->field_460 = idx;
-  light_set_light_never_cache(idx);
+  if (idx != 0) {
+      light_set_light_never_cache(idx);
+  } else {
+      WARNLOG("Cannot allocate light to player %d.",(int)player->id_number);
+  }
 }
 
 TbPixel get_player_path_colour(unsigned short owner)

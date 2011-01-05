@@ -160,6 +160,10 @@ obj/creature_states_tortr.o \
 obj/creature_states_train.o \
 obj/creature_states_wrshp.o \
 obj/creature_states_spdig.o \
+obj/creature_states_combt.o \
+obj/creature_states_guard.o \
+obj/creature_states_pray.o \
+obj/creature_states_tresr.o \
 obj/creature_states.o \
 obj/thing_objects.o \
 obj/magic.o \
@@ -193,7 +197,7 @@ DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 # code optimization flags
 OPTFLAGS = -march=pentium -O3
 # linker flags
-LINKFLAGS = -Wl,-Map,"$(@:%.exe=%.map)" -Wl,--enable-auto-import
+LDFLAGS = -static-libgcc -Wl,-Map,"$(@:%.exe=%.map)" -Wl,--enable-auto-import
 # debugging flags
 DBGFLAGS = -DBFDEBUG_LEVEL=0 
 # compiler warning generation flags
@@ -221,7 +225,7 @@ clean: clean-custom
 
 $(BIN) $(DBGBIN): $(GENSRC) $(OBJS) $(LIBS)
 	@echo 'Building target: $@'
-	$(CPP) $(LINKOBJ) -o "$@" $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
+	$(CPP) $(LINKOBJ) -o "$@" $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LDFLAGS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

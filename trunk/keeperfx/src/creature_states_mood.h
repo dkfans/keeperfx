@@ -37,6 +37,11 @@ struct Thing;
 #pragma pack()
 #endif
 /******************************************************************************/
+short creature_moan(struct Thing *thing);
+short creature_roar(struct Thing *thing);
+short creature_be_happy(struct Thing *thing);
+short creature_piss(struct Thing *thing);
+short mad_killing_psycho(struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus

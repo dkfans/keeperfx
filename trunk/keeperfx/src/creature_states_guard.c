@@ -1,12 +1,12 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file creature_states_scavn.h
- *     Header file for creature_states_scavn.c.
+/** @file creature_states_guard.c
+ *     Creature state machine functions related to guard post.
  * @par Purpose:
- *     Creature state machine functions for their job in various rooms.
+ *     Defines elements of states[] array, containing valid creature states.
  * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
+ *     None.
  * @author   Tomasz Lis
  * @date     23 Sep 2009 - 05 Jan 2011
  * @par  Copying and copyrights:
@@ -16,35 +16,32 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_CRTRSTATESCAVN_H
-#define DK_CRTRSTATESCAVN_H
-
-#include "bflib_basics.h"
+#include "creature_states_guard.h"
 #include "globals.h"
+
+#include "bflib_math.h"
+#include "creature_states.h"
+#include "thing_list.h"
+#include "creature_control.h"
+#include "config_creature.h"
+#include "config_rules.h"
+#include "config_terrain.h"
+#include "thing_stats.h"
+#include "thing_objects.h"
+#include "thing_effects.h"
+#include "thing_navigate.h"
+#include "room_data.h"
+#include "room_jobs.h"
+
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /******************************************************************************/
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
-
-struct Thing;
-
-#ifdef __cplusplus
-#pragma pack()
-#endif
-/******************************************************************************/
-short at_scavenger_room(struct Thing *thing);
-short creature_being_scavenged(struct Thing *thing);
-short creature_scavenged_disappear(struct Thing *thing);
-short creature_scavenged_reappear(struct Thing *thing);
-long process_scavenge_function(struct Thing *thing);
-short scavengering(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
-#endif
+/******************************************************************************/
+/******************************************************************************/
