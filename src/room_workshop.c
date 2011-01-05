@@ -20,6 +20,9 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "room_data.h"
+#include "player_data.h"
+#include "dungeon_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,6 +30,37 @@ extern "C" {
 /******************************************************************************/
 
 /******************************************************************************/
+TbBool add_workshop_object_to_workshop(struct Room *room)
+{
+    if (room->used_capacity >= room->total_capacity)
+    {
+        return false;
+    }
+    room->used_capacity++;
+    room->long_17++;
+    return true;
+}
+
+TbBool add_workshop_item(long plyr_idx, long wrkitm_class, long wrkitm_kind)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    switch (wrkitm_class)
+    {
+    case 8:
+        dungeon->trap_amount[wrkitm_kind]++;
+        dungeon->trap_placeable[wrkitm_kind] = 1;
+        break;
+    case 9:
+        dungeon->door_amount[wrkitm_kind]++;
+        dungeon->door_placeable[wrkitm_kind] = 1;
+        break;
+    default:
+        ERRORLOG("Illegal item class");
+        return false;
+    }
+    return true;
+}
 
 /******************************************************************************/
 #ifdef __cplusplus

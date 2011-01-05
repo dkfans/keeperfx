@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file frontmenu_ingame_evnt.h
- *     Header file for frontmenu_ingame_evnt.c.
+/** @file creature_states_gardn.c
+ *     Creature state machine functions for their job in various rooms.
  * @par Purpose:
- *     In-game events GUI, visible during gameplay at bottom.
+ *     Defines elements of states[] array, containing valid creature states.
  * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   KeeperFX Team
- * @date     05 Jan 2009 - 03 Jan 2011
+ *     None.
+ * @author   Tomasz Lis
+ * @date     23 Sep 2009 - 05 Jan 2011
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,32 +16,31 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_FRONTMENU_INGAMEVNT_H
-#define DK_FRONTMENU_INGAMEVNT_H
-
+#include "creature_states_gardn.h"
 #include "globals.h"
+
+#include "bflib_math.h"
+#include "creature_states.h"
+#include "thing_list.h"
+#include "creature_control.h"
+#include "config_creature.h"
+#include "config_rules.h"
+#include "config_terrain.h"
+#include "thing_stats.h"
+#include "thing_objects.h"
+#include "thing_effects.h"
+#include "thing_navigate.h"
+#include "room_data.h"
+#include "room_jobs.h"
+
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-#pragma pack(1)
 
-struct GuiMenu;
-struct GuiButton;
-
-/******************************************************************************/
-DLLIMPORT struct GuiButtonInit _DK_text_info_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_battle_buttons[];
-
-#pragma pack()
-/******************************************************************************/
-void gui_open_event(struct GuiButton *gbtn);
-void gui_kill_event(struct GuiButton *gbtn);
-void turn_on_event_info_panel_if_necessary(unsigned short evnt_idx);
-void activate_event_box(long evnt_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }
-#endif
 #endif

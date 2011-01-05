@@ -20,6 +20,7 @@
 #define DK_ROOM_WORKSHOP_H
 
 #include "globals.h"
+#include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,6 +35,8 @@ extern "C" {
 
 #pragma pack()
 /******************************************************************************/
+TbBool add_workshop_object_to_workshop(struct Room *room);
+TbBool add_workshop_item(long plyr_idx, long wrkitm_class, long wrkitm_kind);
 
 /******************************************************************************/
 #ifdef __cplusplus

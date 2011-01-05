@@ -108,6 +108,17 @@ obj/creature_control.o \
 obj/creature_graphics.o \
 obj/creature_instances.o \
 obj/creature_states.o \
+obj/creature_states_gardn.o \
+obj/creature_states_hero.o \
+obj/creature_states_lair.o \
+obj/creature_states_mood.o \
+obj/creature_states_prisn.o \
+obj/creature_states_rsrch.o \
+obj/creature_states_scavn.o \
+obj/creature_states_spdig.o \
+obj/creature_states_tortr.o \
+obj/creature_states_train.o \
+obj/creature_states_wrshp.o \
 obj/dungeon_data.o \
 obj/engine_arrays.o \
 obj/engine_camera.o \

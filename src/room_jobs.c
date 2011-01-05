@@ -77,9 +77,9 @@ TbBool add_creature_to_work_room(struct Thing *crtng, struct Room *room)
         ERRORLOG("Attempt to add creature to a room when he is in the list of another");
         return false;
     }
-    if (room->total_capacity < room->workers_in + 1)
+    if (room->total_capacity < room->used_capacity + 1)
         return false;
-    room->workers_in++;
+    room->used_capacity++;
     cctrl->work_room_id = room->index;
     cctrl->prev_in_room = 0;
     if (room->creatures_list != 0)
@@ -114,8 +114,8 @@ TbBool remove_creature_from_specific_room(struct Thing *crtng, struct Room *room
         ERRORLOG("Attempt to remove a creature from room, but it isn't in any");
         return false;
     }
-    if (room->workers_in > 0) {
-        room->workers_in--;
+    if (room->used_capacity > 0) {
+        room->used_capacity--;
     } else {
         WARNLOG("Attempt to remove a creature from room %s with too little used space", room_code_name(room->kind));
     }
