@@ -1,10 +1,10 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file creature_states_gardn.h
- *     Header file for creature_states_gardn.c.
+/** @file creature_states_guard.h
+ *     Header file for creature_states_guard.c.
  * @par Purpose:
- *     Creature state machine functions for their job in various rooms.
+ *     Creature state machine functions related to guard post.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
@@ -16,8 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_CRTRSTATEGARDN_H
-#define DK_CRTRSTATEGARDN_H
+#ifndef DK_CRTRSTATEGUARD_H
+#define DK_CRTRSTATEGUARD_H
 
 #include "bflib_basics.h"
 #include "globals.h"
@@ -33,10 +33,7 @@ struct Thing;
 
 #pragma pack()
 /******************************************************************************/
-short creature_arrived_at_garden(struct Thing *thing);
-short creature_eat(struct Thing *thing);
-short creature_eating_at_garden(struct Thing *thing);
-short creature_to_garden(struct Thing *thing);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

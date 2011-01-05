@@ -33,7 +33,12 @@ struct Thing;
 
 #pragma pack()
 /******************************************************************************/
-
+short at_scavenger_room(struct Thing *thing);
+short creature_being_scavenged(struct Thing *thing);
+short creature_scavenged_disappear(struct Thing *thing);
+short creature_scavenged_reappear(struct Thing *thing);
+long process_scavenge_function(struct Thing *thing);
+short scavengering(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -544,8 +544,10 @@ struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, un
                       }
                   }
                   rdata = room_data_get_for_kind(linkroom->kind);
-                  if (rdata != NULL)
+                  if (rdata->ofsfield_3 != NULL)
+                  {
                       rdata->ofsfield_3(linkroom);
+                  }
                   k = 0;
                   while (room->creatures_list != 0)
                   {
@@ -571,7 +573,7 @@ struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, un
                   if ((room->kind != RoK_DUNGHEART) && (room->kind != RoK_ENTRANCE))
                   {
                       thing = find_base_thing_on_mapwho(1, 25, stl_x, stl_y);
-                      if (thing_is_invalid(thing))
+                      if (!thing_is_invalid(thing))
                           delete_thing_structure(thing, 0);
                   }
                   free_room_structure(room);

@@ -274,7 +274,8 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
         ilght.field_3 = shotst->old->field_53;
         thing->field_62 = light_create_light(&ilght);
         if (thing->field_62 == 0) {
-          WARNLOG("Cannot allocate dynamic light to %s.",thing_model_name(thing));
+            // Being out of free lights is quite common - so info instead of warning here
+            SYNCDBG(8,"Cannot allocate dynamic light to %s.",thing_model_name(thing));
         }
     }
     place_thing_in_mapwho(thing);

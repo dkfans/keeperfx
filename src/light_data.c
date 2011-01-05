@@ -137,7 +137,7 @@ long light_create_light(struct InitLight *ilght)
         shdc = light_allocate_shadow_cache();
         if (light_shadow_cache_invalid(shdc))
         {
-            ERRORLOG("Cannot allocate cache for dynamic light");
+            ERRORDBG(11,"Cannot allocate cache for dynamic light");
             light_free_light(lgt);
             return 0;
         }

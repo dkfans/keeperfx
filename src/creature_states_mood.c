@@ -39,8 +39,39 @@
 extern "C" {
 #endif
 /******************************************************************************/
-
+DLLIMPORT short _DK_creature_moan(struct Thing *thing);
+DLLIMPORT short _DK_creature_roar(struct Thing *thing);
+DLLIMPORT short _DK_creature_be_happy(struct Thing *thing);
+DLLIMPORT short _DK_creature_piss(struct Thing *thing);
+DLLIMPORT short _DK_mad_killing_psycho(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
+/******************************************************************************/
+short creature_moan(struct Thing *thing)
+{
+  return _DK_creature_moan(thing);
+}
+
+short creature_roar(struct Thing *thing)
+{
+  return _DK_creature_roar(thing);
+}
+
+short creature_be_happy(struct Thing *thing)
+{
+  return _DK_creature_be_happy(thing);
+}
+
+short creature_piss(struct Thing *thing)
+{
+  return _DK_creature_piss(thing);
+}
+
+short mad_killing_psycho(struct Thing *thing)
+{
+  return _DK_mad_killing_psycho(thing);
+}
+
+/******************************************************************************/

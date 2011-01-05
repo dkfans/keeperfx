@@ -1,12 +1,12 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file creature_states_gardn.h
- *     Header file for creature_states_gardn.c.
+/** @file creature_states_guard.c
+ *     Creature state machine functions related to guard post.
  * @par Purpose:
- *     Creature state machine functions for their job in various rooms.
+ *     Defines elements of states[] array, containing valid creature states.
  * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
+ *     None.
  * @author   Tomasz Lis
  * @date     23 Sep 2009 - 05 Jan 2011
  * @par  Copying and copyrights:
@@ -16,29 +16,32 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_CRTRSTATEGARDN_H
-#define DK_CRTRSTATEGARDN_H
-
-#include "bflib_basics.h"
+#include "creature_states_guard.h"
 #include "globals.h"
+
+#include "bflib_math.h"
+#include "creature_states.h"
+#include "thing_list.h"
+#include "creature_control.h"
+#include "config_creature.h"
+#include "config_rules.h"
+#include "config_terrain.h"
+#include "thing_stats.h"
+#include "thing_objects.h"
+#include "thing_effects.h"
+#include "thing_navigate.h"
+#include "room_data.h"
+#include "room_jobs.h"
+
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /******************************************************************************/
-#pragma pack(1)
-
-struct Thing;
-
-#pragma pack()
-/******************************************************************************/
-short creature_arrived_at_garden(struct Thing *thing);
-short creature_eat(struct Thing *thing);
-short creature_eating_at_garden(struct Thing *thing);
-short creature_to_garden(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
-#endif
+/******************************************************************************/
+/******************************************************************************/

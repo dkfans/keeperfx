@@ -1214,7 +1214,10 @@ long load_static_light_file(unsigned long lv_num)
   for (k=0; k < total; k++)
   {
     LbMemoryCopy(&ilght, &buf[i], sizeof(struct InitLight));
-    light_create_light(&ilght);
+    if (light_create_light(&ilght) == 0)
+    {
+        WARNLOG("Couldn't allocate static light %d",(int)k);
+    }
     i += sizeof(struct InitLight);
   }
   LbMemoryFree(buf);

@@ -290,8 +290,9 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
     ilight.field_3 = objconf->field_C[0];
     ilight.field_11 = objconf->field_1A;
     thing->field_62 = light_create_light(&ilight);
-    if (thing->field_62 == 0)
-      ERRORLOG("Cannot allocate light to object model %d",(int)model);
+    if (thing->field_62 == 0) {
+        WARNLOG("Cannot allocate light to %s.",thing_model_name(thing));
+    }
   }
   switch (thing->model)
   {
