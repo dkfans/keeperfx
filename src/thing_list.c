@@ -1526,6 +1526,7 @@ struct Thing *get_creature_near_and_owned_by_or_allied_with(MapCoord pos_x, MapC
     return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, 32, filter, &param);
 }
 
+// use this (or make similar one) instead of find_base_thing_on_mapwho_at_pos()
 struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx)
 {
     Thing_Maximizer_Filter filter;
@@ -1535,6 +1536,27 @@ struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, M
     SYNCDBG(19,"Starting");
     filter = map_block_thing_filter_is_of_class_and_model_and_owned_by;
     param.class_id = TCls_Object;
+    param.model_id = model;
+    param.plyr_idx = plyr_idx;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+    {
+        return INVALID_THING;
+    }
+    i = get_mapwho_thing_index(mapblk);
+    n = 0;
+    return get_thing_on_map_block_with_filter(i, filter, &param, &n);
+}
+
+struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
+    const struct Map *mapblk;
+    long i,n;
+    SYNCDBG(19,"Starting");
+    filter = map_block_thing_filter_is_of_class_and_model_and_owned_by;
+    param.class_id = TCls_Trap;
     param.model_id = model;
     param.plyr_idx = plyr_idx;
     mapblk = get_map_block_at(stl_x, stl_y);

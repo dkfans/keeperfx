@@ -128,7 +128,8 @@ TbResult LbScreenSwap(void)
         // calls SDL_UpdateRect for entire screen if not double buffered
         blresult = SDL_Flip(lbScreenSurface);
         if (blresult < 0) {
-            ERRORLOG("Flip failed: %s",SDL_GetError());
+            // In some cases this situation seems to be quite common
+            ERRORDBG(11,"Flip failed: %s",SDL_GetError());
             ret = Lb_FAIL;
         }
     }
