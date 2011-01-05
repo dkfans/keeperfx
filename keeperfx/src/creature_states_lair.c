@@ -140,7 +140,7 @@ short at_lair_to_sleep(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     lairtng = thing_get(cctrl->lairtng_idx);
     cctrl->field_80 = 0;
-    if (thing_is_invalid(lairtng) || (cctrl->field_21 == 0))
+    if (thing_is_invalid(lairtng) || (cctrl->field_21 != 0))
     {
         set_start_state(thing);
         return 0;
@@ -162,16 +162,16 @@ short at_lair_to_sleep(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if ((cctrl->field_68 == room->index))
+    if ((cctrl->field_68 != room->index))
     {
         set_start_state(thing);
         return 0;
     }
     if ( !creature_turn_to_face_angle(thing, lairtng->field_52) )
     {
-      internal_set_thing_state(thing, CrSt_CreatureSleep);
-      cctrl->field_82 = 200;
-      thing->field_25 &= ~0x20;
+        internal_set_thing_state(thing, CrSt_CreatureSleep);
+        cctrl->field_82 = 200;
+        thing->field_25 &= ~0x20;
     }
     process_lair_enemy(thing, room);
     return 1;
