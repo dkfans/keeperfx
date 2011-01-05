@@ -710,8 +710,8 @@ void destroy_food(struct Thing *thing)
       {
         if ((room->kind == RoK_GARDEN) && (room->owner == thing->owner))
         {
-            if (room->workers_in > 0)
-              room->workers_in--;
+            if (room->used_capacity > 0)
+              room->used_capacity--;
             thing->word_13 = game.food_life_out_of_hatchery;
         }
       }

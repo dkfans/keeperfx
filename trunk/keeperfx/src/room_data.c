@@ -1060,7 +1060,7 @@ struct Room *find_room_with_spare_capacity_starting_with(long room_idx, long spa
         }
         i = room->next_of_owner;
         // Per-room code
-        if (room->workers_in + spare <= room->total_capacity)
+        if (room->used_capacity + spare <= room->total_capacity)
         {
             return room;
         }
@@ -1098,9 +1098,9 @@ struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long
         }
         i = room->next_of_owner;
         // Per-room code
-        if (room->total_capacity > room->workers_in)
+        if (room->total_capacity > room->used_capacity)
         {
-          delta = room->total_capacity - room->workers_in;
+          delta = room->total_capacity - room->used_capacity;
           loc_total_spare_cap += delta;
           if (max_spare_cap < delta)
           {
@@ -1155,7 +1155,7 @@ struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing
         // Compute simplified distance - without use of mul or div
         distance = abs(thing->mappos.x.stl.num - room->stl_x)
                  + abs(thing->mappos.y.stl.num - room->stl_y);
-        if ((neardistance > distance) && (room->workers_in + spare <= room->total_capacity))
+        if ((neardistance > distance) && (room->used_capacity + spare <= room->total_capacity))
         {
             if (find_first_valid_position_for_thing_in_room(thing, room, &pos))
             {
@@ -1212,7 +1212,7 @@ long count_rooms_creature_can_navigate_to(struct Thing *thing, unsigned char own
         pos.x.val = get_subtile_center_pos(room->stl_x);
         pos.y.val = get_subtile_center_pos(room->stl_y);
         pos.z.val = 256;
-        if ((room->workers_in > 0) && creature_can_navigate_to(thing, &pos, nav_no_owner))
+        if ((room->used_capacity > 0) && creature_can_navigate_to(thing, &pos, nav_no_owner))
         {
             count++;
         }
@@ -1265,7 +1265,7 @@ struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsi
         pos.x.val = get_subtile_center_pos(room->stl_x);
         pos.y.val = get_subtile_center_pos(room->stl_y);
         pos.z.val = 256;
-        if ((room->workers_in > 0) && creature_can_navigate_to(thing, &pos, nav_no_owner))
+        if ((room->used_capacity > 0) && creature_can_navigate_to(thing, &pos, nav_no_owner))
         {
             if (selected > 0)
             {

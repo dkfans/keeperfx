@@ -23,6 +23,7 @@
 #include "bflib_math.h"
 
 #include "creature_states.h"
+#include "creature_states_train.h"
 #include "map_blocks.h"
 #include "dungeon_data.h"
 #include "tasks_list.h"

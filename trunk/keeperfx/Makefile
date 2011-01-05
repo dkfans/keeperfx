@@ -149,6 +149,17 @@ obj/ariadne_edge.o \
 obj/ariadne_points.o \
 obj/ariadne_findcache.o \
 obj/ariadne.o \
+obj/creature_states_hero.o \
+obj/creature_states_mood.o \
+obj/creature_states_gardn.o \
+obj/creature_states_lair.o \
+obj/creature_states_prisn.o \
+obj/creature_states_rsrch.o \
+obj/creature_states_scavn.o \
+obj/creature_states_tortr.o \
+obj/creature_states_train.o \
+obj/creature_states_wrshp.o \
+obj/creature_states_spdig.o \
 obj/creature_states.o \
 obj/thing_objects.o \
 obj/magic.o \
