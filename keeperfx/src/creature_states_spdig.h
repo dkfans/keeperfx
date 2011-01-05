@@ -37,7 +37,20 @@ struct Thing;
 #pragma pack()
 #endif
 /******************************************************************************/
-
+short imp_arrives_at_convert_dungeon(struct Thing *thing);
+short imp_arrives_at_dig_or_mine(struct Thing *thing);
+short imp_arrives_at_improve_dungeon(struct Thing *thing);
+short imp_arrives_at_reinforce(struct Thing *thing);
+short imp_birth(struct Thing *thing);
+short imp_converts_dungeon(struct Thing *thing);
+short imp_digs_mines(struct Thing *thing);
+short imp_doing_nothing(struct Thing *thing);
+short imp_drops_gold(struct Thing *thing);
+short imp_improves_dungeon(struct Thing *thing);
+short imp_last_did_job(struct Thing *thing);
+short imp_picks_up_gold_pile(struct Thing *thing);
+short imp_reinforces(struct Thing *thing);
+short imp_toking(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

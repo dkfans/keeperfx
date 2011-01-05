@@ -264,6 +264,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
 
 TbBool check_experience_upgrade(struct Thing *thing);
 long creature_retreat_from_combat(struct Thing *thing1, struct Thing *thing2, long a3, long a4);
+void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng);
 long get_combat_distance(struct Thing *thing, struct Thing *enemy);
 long process_work_speed_on_work_value(struct Thing *thing, long base_val);
 long set_creature_in_combat_to_the_death(struct Thing *fighter1, struct Thing *fighter2, long a3);
@@ -273,6 +274,10 @@ void remove_health_from_thing_and_display_health(struct Thing *thing, long delta
 long slab_by_players_land(long plyr_idx, long slb_x, long slb_y);
 TbBool process_creature_hunger(struct Thing *thing);
 long room_still_valid_as_type_for_thing(struct Room *room, long rkind, struct Thing *thing);
+TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
+struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5);
+void place_thing_in_creature_controlled_limbo(struct Thing *thing);
+void remove_thing_from_creature_controlled_limbo(struct Thing *thing);
 /******************************************************************************/
 TbBool creature_is_doing_lair_activity(const struct Thing *thing);
 TbBool creature_is_being_dropped(const struct Thing *thing);
