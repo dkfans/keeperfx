@@ -559,6 +559,46 @@ const char *trap_code_name(int tngmodel)
     return "INVALID";
 }
 
+/**
+ * Returns the door model identifier for a given code name (found in script file).
+ * Linear running time.
+ * @param code_name
+ * @return A positive integer for the door model if found, otherwise -1
+ */
+int door_model_id(const char * code_name)
+{
+    int i;
+
+    for (i = 0; i < trapdoor_conf.door_types_count; ++i) {
+        if (strncmp(trapdoor_conf.door_cfgstats[i].code_name, code_name,
+                COMMAND_WORD_LEN) == 0) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+/**
+ * Returns the trap model identifier for a given code name (found in script file).
+ * Linear running time.
+ * @param code_name
+ * @return A positive integer for the trap model if found, otherwise -1
+ */
+int trap_model_id(const char * code_name)
+{
+    int i;
+
+    for (i = 0; i < trapdoor_conf.trap_types_count; ++i) {
+        if (strncmp(trapdoor_conf.trap_cfgstats[i].code_name, code_name,
+                COMMAND_WORD_LEN) == 0) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

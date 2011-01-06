@@ -51,6 +51,7 @@ typedef enum
 	KS_SELECT_ROOM,
 	KS_SELECT_POWER,
 	KS_SELECT_TRAP,
+	KS_SELECT_DOOR,
 	KS_SELECT_SELL,
 	KS_SELECT_INFO,
 	KS_FLEE, //do our creatures flee at low HP?
@@ -88,6 +89,11 @@ typedef struct
 		{
 			char model_name[32];
 		} power;
+
+		struct
+		{
+			char model_name[32];
+		} trapdoor;
 	} u;
 } KEEPERSPEECH_EVENT;
 
