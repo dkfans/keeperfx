@@ -363,6 +363,7 @@ TbResult LbScreenInitialize(void)
     lbHasSecondSurface = false;
     lbDoubleBufferingRequested = false;
     lbAppActive = true;
+    LbMouseChangeMoveRatio(256, 256);
     // SDL environment variables
     if (lbVideoDriver[0] != '\0') {
         sprintf(buf,"SDL_VIDEODRIVER=%s",lbVideoDriver);

@@ -1312,33 +1312,31 @@ void get_creature_control_nonaction_inputs(void)
   thing = thing_get(player->field_2F);
   pckt->pos_x = 127;
   pckt->pos_y = 127;
-//  if (lbDisplay.ScreenMode == 13)
-//    ms_y += 40;
   if ((player->field_0 & 0x08) != 0)
     return;
   while (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
     LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, y/pixel_size);
   // Set pos_x and pos_y
-  if (settings.field_50)
+  if (settings.first_person_move_invert)
     pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
   else
     pckt->pos_y = 255 * y / MyScreenHeight;
   pckt->pos_x = 255 * x / MyScreenWidth;
   // Update the position based on current settings
-  i = settings.field_51+1;
+  i = settings.first_person_move_sensitivity + 1;
   x = pckt->pos_x - 127;
   y = pckt->pos_y - 127;
   if (i < 6)
   {
-    k = 5 - settings.field_51;
-    pckt->pos_x = x/k + 127;
-    pckt->pos_y = y/k + 127;
+      k = 5 - settings.first_person_move_sensitivity;
+      pckt->pos_x = x/k + 127;
+      pckt->pos_y = y/k + 127;
   } else
   if (i > 6)
   {
-    k = settings.field_51 - 5;
-    pckt->pos_x = k*x + 127;
-    pckt->pos_y = k*y + 127;
+      k = settings.first_person_move_sensitivity - 5;
+      pckt->pos_x = k*x + 127;
+      pckt->pos_y = k*y + 127;
   }
   // Bound posx and pos_y
   if (pckt->pos_x > map_subtiles_x)

@@ -54,12 +54,6 @@ long GetMouseY(void)
   //return _DK_GetMouseY();
   long result;
   result = lbDisplay.MMouseY * (long)pixel_size;
-/*  if ((lbDisplay.ScreenMode == 13) && (!MinimalResolutionSetup))
-  {
-      result -= 40;
-      if (result < 0)
-        result = 0;
-  }*/
   return result;
 }
 

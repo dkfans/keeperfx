@@ -176,21 +176,23 @@ void MouseToScreen(struct TbPoint *pos)
           return;
       orig.x = pos->x;
       orig.y = pos->y;
-      pos->x -= mx;
-      pos->y -= my;
+      pos->x = ((pos->x - mx) * (long)lbDisplay.MouseMoveRatio)/256;
+      pos->y = ((pos->y - my) * (long)lbDisplay.MouseMoveRatio)/256;
       mx = orig.x;
       my = orig.y;
       if ((mx < clip.left + 50) || (mx > clip.right - 50)
        || (my < clip.top + 50) || (my > clip.bottom - 50))
       {
-        mx = (clip.right-clip.left)/2 + clip.left;
-        my = (clip.bottom-clip.top)/2 + clip.top;
-        SDL_WarpMouse(mx, my);
+          mx = (clip.right-clip.left)/2 + clip.left;
+          my = (clip.bottom-clip.top)/2 + clip.top;
+          SDL_WarpMouse(mx, my);
       }
   } else
   {
-    pos->x -= lbDisplay.MMouseX;
-    pos->y -= lbDisplay.MMouseY;
+      mx = lbDisplay.MMouseX;
+      my = lbDisplay.MMouseY;
+      pos->x = ((pos->x - mx) * (long)lbDisplay.MouseMoveRatio)/256;
+      pos->y = ((pos->y - my) * (long)lbDisplay.MouseMoveRatio)/256;
   }
 }
 
@@ -306,14 +308,25 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
   }
 }
 
+/**
+ * Changes mouse movement ratio.
+ * Note that this function can be run even before mouse setup. Still, the factor
+ *  will be reset during the installation - so use it after LbMouseSetup().
+ *
+ * @param ratio_x Movement ratio in X direction; 256 means unchanged ratio from OS.
+ * @param ratio_y Movement ratio in Y direction; 256 means unchanged ratio from OS.
+ * @return Lb_SUCCESS if the ratio values were of correct range and have been set.
+ */
 TbResult LbMouseChangeMoveRatio(long ratio_x, long ratio_y)
 {
-    if ( !lbMouseInstalled )
+    if ((ratio_x < -8192) || (ratio_x > 8192) || (ratio_x == 0))
         return Lb_FAIL;
-    if ((ratio_x < 1) || (ratio_x > 63))
+    if ((ratio_y < -8192) || (ratio_y > 8192) || (ratio_y == 0))
         return Lb_FAIL;
-    if ((ratio_y < 1) || (ratio_y > 63))
-        return Lb_FAIL;
+    SYNCLOG("New ratio %ldx%ld",ratio_x, ratio_y);
+    // Currently we don't have two ratio factors, so let's store an average
+    lbDisplay.MouseMoveRatio = (ratio_x + ratio_y)/2;
+    //TODO INPUT Separate mouse ratios in X and Y direction when lbDisplay from DLL will no longer be used.
     //minfo.XMoveRatio = ratio_x;
     //minfo.YMoveRatio = ratio_y;
     return Lb_SUCCESS;

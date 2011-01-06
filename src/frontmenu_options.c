@@ -217,12 +217,16 @@ void gui_video_cluedo_maintain(struct GuiButton *gbtn)
 
 void frontend_set_mouse_sensitivity(struct GuiButton *gbtn)
 {
-  _DK_frontend_set_mouse_sensitivity(gbtn);
+    //_DK_frontend_set_mouse_sensitivity(gbtn);
+    settings.first_person_move_sensitivity = fe_mouse_sensitivity;
+    save_settings();
 }
 
 void frontend_invert_mouse(struct GuiButton *gbtn)
 {
-  _DK_frontend_invert_mouse(gbtn);
+    //_DK_frontend_invert_mouse(gbtn);
+    settings.first_person_move_invert = !settings.first_person_move_invert;
+    save_settings();
 }
 
 void frontend_draw_invert_mouse(struct GuiButton *gbtn)
