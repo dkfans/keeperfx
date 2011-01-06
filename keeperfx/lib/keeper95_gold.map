@@ -729,7 +729,6 @@
  0001:0001E590       redraw_display
  0001:000001F0       cumulative_screen_shot
  0001:00034720       set_game_key
- 0001:00079140       GetMouseY
  0001:0000B050       frontnet_start_input
  0001:000AE530       play_smacker_file
  0001:000AEC30       draw_text_box

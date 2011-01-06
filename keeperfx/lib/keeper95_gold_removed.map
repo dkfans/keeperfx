@@ -9,6 +9,7 @@
  0001:000655D0       reset_eye_lenses
  0001:00065460       initialise_eye_lenses
  0001:000AC540       frontend_draw_large_menu_button
+ 0001:00079140       GetMouseY
  0001:00092A40       init_load_menu
  0001:00092AD0       init_save_menu
  0001:00092EC0       maintain_event_button

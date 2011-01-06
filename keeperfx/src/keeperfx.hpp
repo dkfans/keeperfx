@@ -353,8 +353,8 @@ struct GameSettings { // sizeof = 0x52 (82)
     int video_scrnmode;
     struct GameKey kbkeys[GAME_KEYS_COUNT];
     unsigned char tooltips_on;
-    unsigned char field_50;
-    unsigned char field_51;
+    unsigned char first_person_move_invert;
+    unsigned char first_person_move_sensitivity;
     };
 
 struct TunnellerTrigger { // sizeof = 18
