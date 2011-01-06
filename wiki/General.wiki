@@ -63,5 +63,4 @@ a few hours of play it will have several hundreds megabytes.
 This is why you should use standard "keeperfx.exe" if you're
 not planning reporting any errors.
 
-Both versions will recognize all command line options described
-below.
+Both versions will recognize all [CommandLineOptions command line options].
