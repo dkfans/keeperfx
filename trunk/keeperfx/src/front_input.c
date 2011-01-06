@@ -37,6 +37,7 @@
 #include "player_instances.h"
 #include "config_creature.h"
 #include "config_terrain.h"
+#include "config_trapdoor.h"
 #include "creature_instances.h"
 #include "creature_states.h"
 #include "gui_boxmenu.h"
@@ -1423,6 +1424,25 @@ static void get_dungeon_speech_inputs(void)
         }
         else {
             choose_spell(id, 2); //TODO: see what happens with tool tip
+        }
+        break;
+    case KS_SELECT_TRAP:
+        id = trap_model_id(last_speech_event.u.trapdoor.model_name);
+        if (id < 0) {
+            WARNLOG("Bad trap string %s", last_speech_event.u.trapdoor.model_name);
+        }
+        else {
+            //TODO: implement when gui_choose_trap has been refactored
+            //choose_trap(id, ...);
+        }
+    case KS_SELECT_DOOR:
+        id = door_model_id(last_speech_event.u.trapdoor.model_name);
+        if (id < 0) {
+            WARNLOG("Bad door string %s", last_speech_event.u.trapdoor.model_name);
+        }
+        else {
+            //TODO: implement when gui_choose_door has been refactored
+            //choose_door(id, ...);
         }
         break;
     case KS_VIEW_INFO:

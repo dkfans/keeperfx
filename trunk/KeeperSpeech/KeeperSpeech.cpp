@@ -85,6 +85,18 @@ static void parsePowerId(const SPPHRASEPROPERTY * prop, char * str, size_t max_l
 	toKeeperString(prop->pszValue, str, max_len);
 }
 
+static void parseTrapId(const SPPHRASEPROPERTY * prop, char * str, size_t max_len)
+{
+	prop = scanForProperty(prop, VID_Trap);
+	toKeeperString(prop->pszValue, str, max_len);
+}
+
+static void parseDoorId(const SPPHRASEPROPERTY * prop, char * str, size_t max_len)
+{
+	prop = scanForProperty(prop, VID_Door);
+	toKeeperString(prop->pszValue, str, max_len);
+}
+
 static void handleRecognition(ISpPhrase * p)
 {
 	SPPHRASE * phrase;
@@ -152,6 +164,14 @@ static void handleRecognition(ISpPhrase * p)
 	case VID_SelectPower:
 		ev = pushEvent(KS_SELECT_POWER);
 		parsePowerId(phrase->pProperties, ev->u.power.model_name, sizeof(ev->u.power.model_name));
+		break;
+	case VID_SelectTrap:
+		ev = pushEvent(KS_SELECT_TRAP);
+		parseTrapId(phrase->pProperties, ev->u.trapdoor.model_name, sizeof(ev->u.trapdoor.model_name));
+		break;
+	case VID_SelectDoor:
+		ev = pushEvent(KS_SELECT_DOOR);
+		parseDoorId(phrase->pProperties, ev->u.trapdoor.model_name, sizeof(ev->u.trapdoor.model_name));
 		break;
 	}
 
@@ -230,16 +250,16 @@ KEEPERSPEECH_API KEEPERSPEECH_REASON __cdecl KeeperSpeechInit(void)
 KEEPERSPEECH_API const char * __cdecl KeeperSpeechErrorMessage(KEEPERSPEECH_REASON reason)
 {
 	switch (reason) {
-	case KSR_OK:						return "Not an error";
+	case KSR_OK:					return "Not an error";
 	case KSR_CREATE_ENGINE:			return "Error creating engine";
 	case KSR_CREATE_RECOG_CONTEXT:	return "Error creating recognition context";
-	case KSR_SET_NOTIFY:				return "Error setting notification callback";
+	case KSR_SET_NOTIFY:			return "Error setting notification callback";
 	case KSR_SET_INTEREST:			return "Error setting what recognition events interest us";
-	case KSR_CREATE_GRAMMAR:			return "Error creating grammar";
+	case KSR_CREATE_GRAMMAR:		return "Error creating grammar";
 	case KSR_LOAD_GRAMMAR:			return "Error loading grammar";
 	case KSR_NOMOREEVENTS:			return "No more events in queue";
 	case KSR_ACTIVATE_GRAMMAR:		return "Error activating grammar rules";
-	default:							return "Unknown error";
+	default:						return "Unknown error";
 	}
 }
 

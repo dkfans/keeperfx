@@ -72,6 +72,8 @@ struct TrapConfigStats *get_trap_model_stats(int tngmodel);
 struct DoorConfigStats *get_door_model_stats(int tngmodel);
 const char *door_code_name(int tngmodel);
 const char *trap_code_name(int tngmodel);
+int door_model_id(const char * code_name);
+int trap_model_id(const char * code_name);
 /******************************************************************************/
 #ifdef __cplusplus
 }

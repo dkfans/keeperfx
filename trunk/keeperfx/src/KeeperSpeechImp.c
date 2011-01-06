@@ -54,6 +54,8 @@ KEEPERSPEECH_REASON KeeperSpeechInit(void)
     fpKeeperSpeechInit init;
     KEEPERSPEECH_REASON reason;
 
+    init = NULL;
+
 #ifdef WIN32
     if (ks_lib) {
         return KSR_ALREADY_INIT;
@@ -70,16 +72,20 @@ KEEPERSPEECH_REASON KeeperSpeechInit(void)
     ks_fn.pop_event = (fpKeeperSpeechPopEvent) GetProcAddress(ks_lib, "KeeperSpeechPopEvent");
     ks_fn.clear_events = (fpKeeperSpeechClearEvents) GetProcAddress(ks_lib, "KeeperSpeechClearEvents");
 
+    //check for critical functions
     if (!init ||
         !ks_fn.error_message ||
-        !ks_fn.exit ||
-        !ks_fn.pop_event ||
-        !ks_fn.clear_events) {
+        !ks_fn.exit) {
 
         clean_up();
         return KSR_NO_LIB_INSTALLED;
     }
 #endif
+
+    //check in case of unimplemented platform
+    if (!init) {
+        return KSR_NO_LIB_INSTALLED;
+    }
 
     reason = init();
     if (reason != KSR_OK) {
