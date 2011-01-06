@@ -1,0 +1,84 @@
+#summary New and Modified Level Script Commands
+
+= Introduction =
+
+Level script commands that have a new or different meaning to Keeper FX can be found here.
+
+= Details =
+
+ADD_GOLD_TO_PLAYER
+  Allows to add some off-map gold as a reward to a player.
+  Example: ADD_GOLD_TO_PLAYER(PLAYER0,5000)
+BONUS_LEVEL_TIME
+  Sets time to be displayed on "bonus timer" - on-screen
+  time field, used mostly for bonus levels.
+  Like in original DK, this command accepts one parameter
+  - number of game turns to start the countdown from.
+  But now this command can be used to show bonus timer in
+  any level. Setting game turns to 0 will hide the timer.
+  Example: BONUS_LEVEL_TIME(12000)
+DISPLAY_OBJECTIVE
+  The 2nd parameter can now have the following values:
+  - 'PLAYERx' - zoom to player's dungeon heart
+  - positive integer - zoom to Action Point of given number
+  - negative integer - zoom to Hero Gate of given number
+  - 'ALL_PLAYERS' - zoom button will be inactive
+LEVEL_VERSION
+  Lets the game know if the level was designed specially for
+  KeeperFX. To use new script commands, you must start the
+  script with LEVEL_VERSION(1). Without it, the new commands
+  will not work properly.
+PLAY_MESSAGE
+  Allows to play any SOUND or SPEECH from the game.
+  Example: PLAY_MESSAGE(PLAYER0,SPEECH,107)
+QUICK_INFORMATION
+  These works same as in Deeper Dungeons, but allows message
+  length up to 1024 characters. There are 50 quick message
+  slots.
+QUICK_OBJECTIVE
+  Same as in DD, but allows longer messages and more control
+  over zoom button (like in DISPLAY_OBJECTIVE).
+QUICK_INFORMATION_WITH_POS
+QUICK_OBJECTIVE_WITH_POS
+  Accepts additional XY coordinates of the zoom place.
+SET_CREATURE_TENDENCIES
+  Allows to set tendencies: IMPRISON and FLEE, for a player's
+  creatures. Example: SET_CREATURE_TENDENCIES(PLAYER2,FLEE,1)
+  Note that a player must have prison when IMPRISON command
+  is trigered; otherwise it won't make any change.
+REVEAL_MAP_RECT
+  Reveals rectangular map area for given player. Requires
+  coordinates of area center point, and rectangle dimensions.
+  Numbers are scaled in subtiles (range is 1..254).
+  Example: REVEAL_MAP_RECT(PLAYER0,132,96,13,11)
+REVEAL_MAP_LOCATION
+  Reveals square area of subtiles around given location.
+  Location meaning is identical to the one in DISPLAY_OBJECTIVE.
+  For example, to reveal Hero Gate no.1:
+  REVEAL_MAP_LOCATION(PLAYER0,-1,11)
+RESEARCH
+  Changes amount of research points needed to discover an item
+  in library. It doesn't affect research order, only amount
+  of points. If the item never was in research list, it's added
+  at end. Example: RESEARCH(PLAYER1,MAGIC,POWER_CHICKEN,10000)
+RESEARCH_ORDER
+  When this command is first called, the research list for
+  specified players is cleared. Using it you may create
+  a research list from beginning. Note that if you won't place
+  an item on the list, it will not be possible to research it.
+  So if you're using this command, you must add all items
+  available on the level to the research list. Example:
+   RESEARCH_ORDER(ALL_PLAYERS,ROOM,SCAVENGER,50000)
+   [...] - more RESEARCH_ORDER commands should follow.
+RANDOM
+  It's not a command, but may be used instead of most parameters.
+  If used instead of a number, then should look like:
+  RANDOM(min,max)
+  but may also be used instead of any other value. Examples:
+    MAX_CREATURES(PLAYER0,RANDOM(12,19))
+    ADD_CREATURE_TO_POOL(RANDOM,20)
+  Note that when used instead of player name, RANDOM may return
+  ALL_PLAYERS. Also, the command shouldn't be used in multiplayer
+  maps, as it will lead to synchronization problems.
+  Value represented by RANDOM is selected at start of a map,
+  and never changes during the gameplay.
