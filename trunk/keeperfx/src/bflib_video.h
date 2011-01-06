@@ -166,16 +166,20 @@ struct DisplayStruct {
         long MouseWindowWidth;
         /** Current mouse clipping window height (in pixels). */
         long MouseWindowHeight;
+        /** Mouse position during button "down" event, X coordinate. */
         long MouseX;
+        /** Mouse position during button "down" event, Y coordinate. */
         long MouseY;
+        /** Mouse position during move, X coordinate. */
         long MMouseX;
+        /** Mouse position during move, Y coordinate. */
         long MMouseY;
         /** Mouse position during button release, X coordinate. */
         long RMouseX;
         /** Mouse position during button release, Y coordinate. */
         long RMouseY;
         ushort DrawFlags;
-        ushort OldVideoMode;
+        short MouseMoveRatio; // was ushort OldVideoMode; but wasn't needed
         ushort ScreenMode;
         /** VESA set-up flag, used only with VBE video modes. */
         uchar VesaIsSetUp;

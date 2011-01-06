@@ -28,6 +28,7 @@
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_datetm.h"
+#include "bflib_mouse.h"
 
 #include "config_campaigns.h"
 #include "front_simple.h"
@@ -69,15 +70,16 @@ const struct NamedCommand scrshot_type[] = {
   };
 
 const struct NamedCommand conf_commands[] = {
-  {"INSTALL_PATH",  1},
-  {"INSTALL_TYPE",  2},
-  {"LANGUAGE",      3},
-  {"KEYBOARD",      4},
-  {"SCREENSHOT",    5},
-  {"FRONTEND_RES",  6},
-  {"INGAME_RES",    7},
-  {"CENSORSHIP",    8},
-  {NULL,            0},
+  {"INSTALL_PATH",        1},
+  {"INSTALL_TYPE",        2},
+  {"LANGUAGE",            3},
+  {"KEYBOARD",            4},
+  {"SCREENSHOT",          5},
+  {"FRONTEND_RES",        6},
+  {"INGAME_RES",          7},
+  {"CENSORSHIP",          8},
+  {"POINTER_SENSITIVITY", 9},
+  {NULL,                  0},
   };
 
 const struct NamedCommand logicval_type[] = {
@@ -591,7 +593,20 @@ short load_configuration(void)
             break;
           }
           if (i == 1)
-            features_enabled |= Ft_Censorship;
+              features_enabled |= Ft_Censorship;
+          else
+              features_enabled &= ~Ft_Censorship;
+          break;
+      case 9: // POINTER_SENSITIVITY
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i > 0) && (i <= 1000))
+              LbMouseChangeMoveRatio(i*256/100, i*256/100);
+          else
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
           break;
       case 0: // comment
           break;
