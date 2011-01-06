@@ -1,0 +1,67 @@
+#summary General Information on Keeper FX
+#labels Featured
+
+= Introduction =
+
+KeeperFX is an extensive mod for Dungeon Keeper.
+
+It is written by fans and not supported by original developer.
+It contains some of original Dungeon Keeper data, but many files
+are also modified or remade.
+
+= Installation of KeeperFX CCP =
+
+KeeperFX CCP contains all the files necessary to play the game.
+Decompress it anywhere, and it's ready to run. If you wish
+to change language, edit "keeperfx.cfg" and set its shortcut
+in the 'LANGUAGE=' line. Run "keeperfx.exe" to start the game.
+If something doesn't work, see the 'troubleshooting' section.
+
+Please note that there are two types of releases: complete
+version and patch. You need a complete version to play the game;
+a patch is only an additional feature, which you can use by
+overwriting some files from complete version with new ones.
+
+= Available languages =
+
+The following languages are currently functional:
+ ENG ITA FRE SPA DUT GER POL SWE
+The following languages are partially functional:
+ RUS CHI CHT JAP
+Note that some campaigns may not support your language.
+In this case, default language will be used inside this
+campaign.
+
+= Available screen resolutions =
+
+To change available screen modes, edit "keeperfx.cfg".
+Screen mode can be in a form WIDTHxHEIGHTxBPP which defines
+fullscreen mode, or WIDTHxHEIGHTwBPP, which defines windowed
+mode. When defining windowed mode, the BPP should be equal to
+the colour depth on your desktop. It is not recommended to
+mix fullscreen and windowed modes in one config file. 
+There are two lines which define resolutions: 'FRONTEND_RES='
+should have exactly 3 parameters and is used in the menu,
+while 'INGAME_RES=' can have 1-5 parameters, which define
+list of resolutions to switch between in the actual game.
+Most stable modes are 640x400 and 640x480. Higher resolutions
+may be sometimes unstable, especially in possession.
+
+= Running KeeperFX =
+
+To start the game, run "keeperfx.exe". If you want to report
+any errors you encounter, you may run "keeperfx_dbg.exe"
+instead. This will run a "debug version", which writes a lot of
+information into "keeperfx.log". In case of the game hanging
+on suddenly disappearing, you may send a last few lines of the
+generated LOG to the author with your description of the bug.
+
+Note that "keeperfx_dbg.exe" requires a lot more CPU than
+standard version, and may be slow even on new computers.
+Also, the generated LOG file may be very large, and after
+a few hours of play it will have several hundreds megabytes.
+This is why you should use standard "keeperfx.exe" if you're
+not planning reporting any errors.
+
+Both versions will recognize all command line options described
+below.
