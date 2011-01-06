@@ -1,0 +1,68 @@
+#summary Command Line Options for Keeper FX
+
+= Introduction =
+
+This page displays the command line options available in the most recent release of Keeper FX.
+
+= Details =
+
+-nointro
+  The intro sequence won't play at startup.
+-nocd
+  The CD Sound tracks won't play.
+-1player
+  Allows playing multiplayer maps in skirmish mode.
+  This is normally ON, so the option has no effect.
+-nosound or -s
+  Disables all the sounds.
+-fps _num_
+  Changes the game speed; default _num_ is 20.
+-usersfont
+  Disable the AWE32/64 SoundFonts (.SBK files).
+-alex
+  Used to show the 'JLW' easter egg. And not only that.
+-level _num_
+  Brings you directly to level number _num_.
+  After the level is finished, quits the game.
+  Note that level number must be 1..65534.
+-human _num_
+  Changes human player to _num_. This option will
+  work properly only in skirmish mode. Single player
+  levels must be specially designed for this option
+  to work. Also, the selected player must have
+  heart on the map.
+-q
+  Works like '-level 1'.
+-columnconvert
+  I assume it converts the columns data. Watch out with
+  this one or you may be unable to play the game again.
+-lightconvert
+  Same thing, but for lights.
+-vidsmooth
+  Smoothes the 3D view using 1-pixel bilinear blur.
+  This consumes more CPU, and the effect is merely visible,
+  so blurring is disabled by default.
+-altinput
+  Uses alternate mouse input method. This changes the way of
+  computing mouse position; with this option, position is not
+  reset to screen center every time movement is detected.
+  May be helpful if original method isn't working right
+  (ie. mouse stops).
+-packetsave _filename_
+  Writes a packet file (replay file) when playing.
+  After using this option, you must start a new level
+  (or use '-level' parameter). Saved replay will work
+  properly as long as you won't change any of the game
+  files. Even a minor change in map or configuration
+  may make the replay invalid.
+-packetload _filename_
+  Loads a previously created packet file. Starts the
+  level for which packet file was created, and continues
+  the gameplay. You may exit this mode by pressing
+  Alt+X, or take over the control by pressing ALT+T.
+  Note that this option is experimental, and packet files
+  may sometimes not work as intended.
+-sessions _hostname1:port;hostname2:port;etc_
+  Adds sessions to the TCP/IP session list. _hostname_
+  is either a DNS name or an IPv4 address (the latter ought
+  to be far more common).
