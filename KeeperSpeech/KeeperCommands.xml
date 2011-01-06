@@ -1,6 +1,7 @@
 <GRAMMAR LANGID="409">
   <DEFINE>
     <!-- Keeper IDs below: -->
+    
     <ID NAME="VID_Slap" VAL="1000"/>
     <ID NAME="VID_PickUp" VAL="1001"/>
     <ID NAME="VID_Drop" VAL="1002"/>
@@ -24,9 +25,14 @@
     <ID NAME="VID_ViewCreatures" VAL="1020"/>
     <ID NAME="VID_ViewPrefix" VAL="1021"/>
     <ID NAME="VID_ViewSuffix" VAL="1022"/>
+    <ID NAME="VID_Trap" VAL="1023"/>
+    <ID NAME="VID_SelectTrap" VAL="1024"/>
+    <ID NAME="VID_Door" VAL="1025"/>
+    <ID NAME="VID_SelectDoor" VAL="1026"/>
   </DEFINE>
 
   <!-- Keeper rules below: -->
+  
   <RULE ID="VID_Slap"> <!-- TOPLEVEL="ACTIVE" removed until re-enabled -->
     <L>
       <P>Beat</P>
@@ -433,6 +439,127 @@
         <P>Spell</P>
       </L>
     </O>
+  </RULE>
+
+  <!--*
+  @title Selecting a trap
+  @description Use this command to select a trap type to be placed.
+  -->
+  <RULE ID="VID_SelectTrap" TOPLEVEL="ACTIVE">
+    <O>
+      <L>
+        <P>Choose</P>
+        <P>Place</P>
+        <P>Put</P>
+        <P>Select</P>
+      </L>
+    </O>
+    <RULEREF REFID="VID_Trap"/>
+  </RULE>
+
+  <!--*
+  @title Selecting a door
+  @description Use this command to select a door type to be placed.
+  -->
+  <RULE ID="VID_SelectDoor" TOPLEVEL="ACTIVE">
+    <O>
+      <L>
+        <P>Choose</P>
+        <P>Place</P>
+        <P>Put</P>
+        <P>Select</P>
+      </L>
+    </O>
+    <RULEREF REFID="VID_Door"/>
+  </RULE>
+
+  <RULE ID="VID_Trap">
+    <L PROPID="VID_Trap">
+      <P VALSTR="BOULDER">
+        <L>
+          <P>Boulder</P>
+          <P>
+            <O>Rolling</O>
+            <P>Stone</P>
+          </P>
+          <P>Rock</P>
+        </L>
+      </P>
+      <P VALSTR="ALARM">
+        <L>
+          <P>Alarm</P>
+          <P>Guard</P>
+          <P>Trigger</P>
+        </L>
+      </P>
+      <P VALSTR="POISON_GAS">
+        <L>
+          <P>Bile</P>
+          <P>Gas</P>
+          <P>Poison</P>
+          <P>Poison Gas</P>
+        </L>
+      </P>
+      <P VALSTR="LIGHTNING">
+        <L>
+          <P>Electric</P>
+          <P>Lightning</P>
+          <P>Thunder</P>
+        </L>
+      </P>
+      <P VALSTR="WORD_OF_POWER">
+        <L>
+          <P>Magic</P>
+          <P>Power</P>
+          <P>Word</P>
+          <P>Word of Power</P>
+        </L>
+      </P>
+      <P VALSTR="LAVA">
+        <L>
+          <P>Lava</P>
+          <P>Magma</P>
+        </L>
+      </P>
+    </L>
+    <P>Trap</P>
+  </RULE>
+
+  <RULE ID="VID_Door">
+    <L PROPID="VID_Door">
+      <P VALSTR="WOOD">
+        <L>
+          <P>Wood</P>
+          <P>Wooden</P>
+        </L>
+      </P>
+      <P VALSTR="BRACED">
+        <L>
+          <P>Braced</P>
+          <P>Improved</P>
+          <P>Strengthened</P>
+        </L>
+      </P>
+      <P VALSTR="STEEL">
+        <L>
+          <P>Iron</P>
+          <P>Metal</P>
+          <P>Steel</P>
+        </L>
+      </P>
+      <P VALSTR="MAGIC">
+        <L>
+          <P>Bespelled</P>
+          <P>Magic</P>
+          <P>Spirit</P>
+        </L>
+      </P>
+    </L>
+
+    <L>
+      <P>Door</P>
+      <P>Gate</P>
+    </L>
   </RULE>
   
   <RULE ID="VID_Creature">
