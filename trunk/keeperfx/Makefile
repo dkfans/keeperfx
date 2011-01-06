@@ -181,6 +181,7 @@ obj/frontend.o \
 obj/sounds.o \
 obj/vidmode.o \
 obj/vidfade.o \
+obj/KeeperSpeechImp.o \
 $(RES)
 
 LINKOBJ  = $(OBJS)

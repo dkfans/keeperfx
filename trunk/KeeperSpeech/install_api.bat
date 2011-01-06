@@ -1,2 +1,2 @@
-copy KeeperSpeech.h ..\keeperfx\include
-copy Release\KeeperSpeech.lib ..\keeperfx\lib
+copy KeeperSpeech.h ..\keeperfx\src
+REM copy Release\KeeperSpeech.lib ..\keeperfx\lib

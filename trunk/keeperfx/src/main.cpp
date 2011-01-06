@@ -88,10 +88,7 @@
 #include "net_game.h"
 #include "sounds.h"
 #include "vidfade.h"
-
-#ifdef KEEPERSPEECH_EXPERIMENTAL
 #include "KeeperSpeech.h"
-#endif
 
 int test_variable;
 
@@ -2716,6 +2713,7 @@ short setup_game(void)
 
   if (!setup_screen_mode_zero(get_frontend_vidmode()))
   {
+      ERRORLOG("Unable to set display mode for legal screen");
       return 0;
   }
 
@@ -2832,16 +2830,13 @@ short setup_game(void)
       result = 1;
   }
 
-#ifdef KEEPERSPEECH_EXPERIMENTAL
   if (result) {
-      int ret;
-      SYNCLOG("Initializing Speech module");
-      ret = KeeperSpeechInit();
-      if (ret) {
-          ERRORLOG("Failed to initialize Speech module: %s", KeeperSpeechErrorMessage(ret));
+      KEEPERSPEECH_REASON reason = KeeperSpeechInit();
+      if (reason) {
+          ERRORLOG("Failed to initialize Speech module: %s",
+              KeeperSpeechErrorMessage(reason));
       }
   }
-#endif
 
   return result;
 }
@@ -6826,9 +6821,9 @@ void keeper_gameplay_loop(void)
   if ((game.numfield_C & 0x02) != 0)
     initialise_eye_lenses();
   SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
-#ifdef KEEPERSPEECH_EXPERIMENTAL
+
   KeeperSpeechClearEvents();
-#endif
+
   //the main gameplay loop starts
   while ((!quit_game) && (!exit_keeper))
   {
@@ -8032,9 +8027,9 @@ short reset_game(void)
 {
   SYNCDBG(6,"Starting");
   _DK_IsRunningUnmark();
-#ifdef KEEPERSPEECH_EXPERIMENTAL
+
   KeeperSpeechExit();
-#endif
+
   LbMouseSuspend();
   LbIKeyboardClose();
   LbScreenReset();

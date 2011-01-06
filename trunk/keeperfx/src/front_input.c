@@ -32,6 +32,7 @@
 
 #include "kjm_input.h"
 #include "frontend.h"
+#include "frontmenu_ingame_tabs.h"
 #include "scrcapt.h"
 #include "player_instances.h"
 #include "config_creature.h"
@@ -46,10 +47,7 @@
 #include "power_hand.h"
 
 #include "keeperfx.hpp"
-
-#ifdef KEEPERSPEECH_EXPERIMENTAL
 #include "KeeperSpeech.h"
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,9 +57,7 @@ extern "C" {
 unsigned short const zoom_key_room_order[] =
     {2, 3, 14, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 15, 0,};
 
-#ifdef KEEPERSPEECH_EXPERIMENTAL
 KEEPERSPEECH_EVENT last_speech_event;
-#endif
 
 /******************************************************************************/
 DLLIMPORT void _DK_input(void);
@@ -890,7 +886,6 @@ void get_packet_control_mouse_clicks(void)
       synthetic_right = 2;
     }
 
-#ifdef KEEPERSPEECH_EXPERIMENTAL
     if ( left_button_clicked || last_speech_event.type == KS_HAND_CHOOSE )
     {
       set_players_packet_control(player, PCtr_LBtnClick);
@@ -914,16 +909,6 @@ void get_packet_control_mouse_clicks(void)
         synthetic_right = 0; //good idea to cancel current slap
       }
     }
-#else
-    if ( left_button_clicked )
-    {
-      set_players_packet_control(player, PCtr_LBtnClick);
-    }
-    if ( right_button_clicked )
-    {
-      set_players_packet_control(player, PCtr_RBtnClick);
-    }
-#endif
 
     if ( left_button_released || synthetic_left == 3)
     {
@@ -1386,7 +1371,6 @@ void get_creature_control_nonaction_inputs(void)
   }
 }
 
-#ifdef KEEPERSPEECH_EXPERIMENTAL
 static void speech_pickup_of_gui_job(int job_idx)
 {
     int kind;
@@ -1432,7 +1416,7 @@ static void get_dungeon_speech_inputs(void)
         break;
     case KS_SELECT_ROOM:
         room_stats = get_room_kind_stats(last_speech_event.u.room.id);
-        choose_room(last_speech_event.u.room.id, room_stats->tooltip_stridx);
+        activate_room_build_mode(last_speech_event.u.room.id, room_stats->tooltip_stridx);
         break;
     case KS_SELECT_POWER:
         id = power_model_id(last_speech_event.u.power.model_name);
@@ -1462,7 +1446,6 @@ static void get_dungeon_speech_inputs(void)
         break; //don't care
     }
 }
-#endif
 
 short get_inputs(void)
 {
@@ -1539,9 +1522,7 @@ short get_inputs(void)
       get_dungeon_control_nonaction_inputs();
       get_player_gui_clicks();
       get_packet_control_mouse_clicks();
-#ifdef KEEPERSPEECH_EXPERIMENTAL
       get_dungeon_speech_inputs();
-#endif
       return inp_handled;
   case PVT_CreatureContrl:
       if (!inp_handled)
@@ -1602,11 +1583,11 @@ void input(void)
 {
   SYNCDBG(4,"Starting");
   update_key_modifiers();
-#ifdef KEEPERSPEECH_EXPERIMENTAL
+
   if (KeeperSpeechPopEvent(&last_speech_event)) {
     last_speech_event.type = KS_UNUSED;
   }
-#endif
+
   if ((game_is_busy_doing_gui_string_input()) && (lbInkey>0))
   {
     lbKeyOn[lbInkey] = 0;
