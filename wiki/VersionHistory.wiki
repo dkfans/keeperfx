@@ -1,0 +1,270 @@
+#summary History of Keeper FX releases
+
+= Changelog =
+
+Version: 0.38
+  * Switched video support library to SDL
+  * Fixed duplicates level when using Multiply special
+  * Created some 64-bit math, similarly to original code
+  * New pathfinding code has been disabled (needs debugging)
+  * Dutch land introductions were added to 3 campaigns
+  * New graphic modes - any colour depth is now supported
+  * New graphic modes - windowed mode is now supported
+  * Rewritten more of creature state machine
+  * Added more options to CFG files
+  * Experimental TCP/IP multiplayer support
+
+Version: 0.37c
+  * Fixed dungeon heart blinking if under mouse
+  * It is now easier to target a creature for pick up
+  * Fixed disappearing in-game speeches
+  * Computer player config is reloaded on saved game loading
+  * Fixed possible hang when computer player moves creatures
+  * Added new creature property, "NEVER_CHICKENS"
+  * Rewritten more of pathfinding
+  * Rewritten creature training code
+  * Renamed and rescaled "PartnerTraining" (was "RealTraining")
+  * Fixed linked list storing creatures who work in a room
+  * Updated room selling code
+
+Version: 0.37b
+  * Fixed crash on freeing swipe sprites at end of mission
+  * Fixed SEEK_THE_ENEMY job (Hellhound)
+  * Fixed crash when zooming in isometric (non rotable) view
+  * Fixed Imps aimless walking around bug
+  * Fixed invalid celebration sprite bug
+  * Video modes in config file are no longer pre-defined 
+
+Version: 0.37a
+  * Fixed gems appearance bug
+  * Fixed selling bug
+  * Fixed per-campaign creatures config bug
+
+Version: 0.37
+  * Rewritten computer tasks list
+  * Added palette stealing protection to video driver
+  * Rewritten some of creature fighting code
+  * Rewritten enemy seeking code for heroes
+  * Fixed green volume box height in clueo (low walls) mode
+  * Rewritten gold stealing code
+  * Remade some creature spells code
+  * Remade some of imps AI code
+  * Remade and fixed some of Ariadne pathfinding system
+  * Campaign list is now sorted
+  * Imp tasks selection rewritten
+  * Creature sprite indexes are now in .CFG files
+  * Campaigns can now have their own creature config files
+
+Version: 0.36
+  * Rewritten some of room sound playing
+  * Modified saved games format (old saves won't work anymore)
+  * Saved game can now be loaded even if loading campaign file fails
+  * Improved handling of player index errors
+  * Improved BONUS_LEVEL_TIME() script command
+  * Remade part of creature states system
+
+Version: 0.35
+  * Rewritten shot throwing code (for both melee combat and spells)
+  * Rewritten some of Dungeon Heart behaviour
+  * Programming IDE switched to Eclipse for C++
+  * New Makefile and project structure - easier to recompile
+  * Rewritten and fixed Word of Power damage code
+  * Rewritten missing function for new way of storing bonus levels
+  * Rewritten more of eye lenses code, updated lenses config file
+  * Eye lenses now supported in all resolutions
+  * Rewritten part of scavenging code
+  * Rewritten part of the polygon rendering code
+
+Version: 0.34
+  * Some fixups in CPU Identification code
+  * Fixed Imps sacrifice code
+  * Text drawing functions remade
+  * Fixed CTRL+Arrows keys support
+  * Fixed transfer creature bug
+  * New way of storing bonus levels availability
+  * Fixed spell cursors when playing player > 0
+  * Fixed sacrifices when playing player > 0
+  * Asian languages support reached alpha stage
+  * Shift+M key now works in high scores screen
+  * Fixed incorrect memory write on creature suicide
+
+Version: 0.33
+  * Rewritten creature killing code
+  * Improved creature config files
+  * Tooltip drawing code improved
+  * Remade another part of network support
+  * Improved logging system
+  * Creature states are now defined outside DLL
+  * Fixed checking for gold bug (gold digging by computer)
+  * Changed Video and Mouse driver - EXPERIMENTAL
+  * Added '-altinput' command line parameter
+  * Rewritten digging and claiming effects
+  * Rewritten part of imp tasks management
+  * Rewritten and extended creature sacrifice recipes
+  * Censorship no longer bounded to german language
+
+Version: 0.32
+  * Added CPU identification
+  * Rewritten part of spell casting code
+  * Rewritten some of 'Transfer creature' code
+  * Rewritten some possession-related code
+  * RANDOM can now be used instead of most values in script
+  * Remade part of 'player instances' code
+  * More cheat options, like 'Everything is free', now works
+  * Created .LOF Level Overview Files, levels.txt no longer used
+  * Started replacing network support
+
+Version: 0.31
+  * Fixed disappearing creatures in zoom box
+  * Updated zoom level for various resolutions
+  * Rewritten even more of Hand Of Evil support
+  * Rewritten heap support for sound and speech samples
+  * Replaced CREATURE.TXT with multiple .CFG files.
+  * Rewritten network GUI functions
+  * Changed RESEARCH and added RESEARCH_ORDER commands
+
+Version: 0.30
+  * Fixed Hand Of Evil support code
+  * Added range to 'REVEAL_MAP_LOCATION'
+  * Campaign files improved (file locations, options)
+  * Some more unification in accessing array elements
+  * Rewritten some network support functions
+  * Rewritten credits screen, added credits file
+
+Version: 0.29
+  * Added new script command, 'REVEAL_MAP_RECT'
+  * Added new script command, 'REVEAL_MAP_LOCATION'
+  * Hand of Evil code has been rewritten
+  * Fixed memory leak in keeper AI module
+  * Fixed problem with 'IF_AVAILABLE' command
+  * Added support of multiple campaigns (not tested)
+
+Version: 0.28b
+  * Rewritten more of script support, warnings added
+  * Added new script command, 'PLAY_MESSAGE'
+  * Added new script command, 'ADD_GOLD_TO_PLAYER'
+  * Added new script command, 'SET_CREATURE_TENDENCIES'
+  * Finished work on QUICK script commands support
+  * Fixed spells visibility in zoom box of map view
+  * DISPLAY_INFORMATION now requires two parameters (added zoom location)
+  * QUICK_INFORMATION now requires three parameters (added zoom location)
+  * When selling multiple traps on same tile, total cost is displayed
+  * Text file is now selected based on language setting in "keeperfx.cfg"
+  * Fixed room selling (v0.28a)
+  * Fixed wage and luck value displayed in creature info panel (v0.28a)
+  * Fixed typing mistake in hero party objectives (v0.28b)
+  * Fixed ALL_DUNGEONS_DESTROYED implementation error (v0.28b)
+
+Version: 0.27a
+  * Rewritten most of the world view screen
+  * Allowed map numbers over 255
+  * Fixed mistake in function create_room
+  * All levels are available when whole campaign is passed
+  * Campaign configuration file improved
+  * LIF files support adopted from Deeper Dungeons
+  * Free level selection screen adopted from Deeper Dungeons
+  * New High Scores support code
+  * Strings (text.dat) replaced with those from DD (dd1text.dat)
+  * Script command QUICK_OBJECTIVE is now supported
+  * Compiled under new MinGW environment
+  * Some functions of Cheat Mode are now functional
+  * Continue file creation code unified and improved
+  * Started work on support of QUICK_INFORMATION command
+  * Fixed mistake in trap manufacture code (v0.27a)
+
+Version: 0.26
+  * Rewritten minimap control code, fixed for 640x480
+  * Smarter WLB flags regeneration
+  * Rewritten part of 'player instances' code
+  * Better memory cleaning after a level is finished
+  * Bonus levels are preserved in 'Continue game'
+  * Transferred creature is preserved (for one use only)
+  * Fixed disappearing menu content problem
+  * Fixed ending statistics when finishing loaded game
+  * Computer player config file created
+
+Version: 0.25
+  * Fixed information button blinking
+  * Rewritten part of the rendering engine
+  * Fixed mouse cursor shift and scrolling at 640x480
+  * Added options to save and load replay (packet file)
+  * Alt+X can now be used to quit the game
+  * Files created by the game are no longer read-only
+  * Rewritten loading of map files
+
+Version: 0.24
+  * Rewritten level script analysis
+  * Added warning and error messages on script loading
+  * Allowed longer messages in script
+  * Patched DISPLAY_INFORMATION_WITH_POS
+  * Fixed problem with CFG file location
+  * Rewritten 'landscape affecting creature'
+  * Added comments to CFG file
+
+Version: 0.23a
+  * Fixed time counter sound in bonus levels
+  * Fixed bad memory read in creatures tab code
+  * Created a campaign file which stores level numbers
+  * More error-safe config file support
+  * More inputs left when lost (screnshot, minimap zoom, etc.)
+  * Renamed campaign file to load properly (the .23a release)
+
+Version: 0.22
+  * Reworked more of the packets processing system
+  * Prepared screen resolution ring
+  * Fixed problem with floating spirit on lost level
+  * Screenshots now work not only in game, but also in menu
+  * Improved quality of in-game map screen
+  * Fixed a 'sudden speedup' problem when playing > 50 minutes
+
+Version: 0.21
+  * Video compression improved for high resolution
+  * Added command line option to change player in skirmish
+  * Added function of writing screenshots in BMP format
+  * Reworked part of the packets processing system
+  * Config file separated from original DK
+
+Version: 0.20
+  * Message will show if a command line option is wrong
+  * Updated delay function to not use 'hlt' command
+  * Fixed object tooltips to show when mouse is on something
+  * Fixed load slots counting error from v0.19
+  * Rewritten GUI initialization arrays
+  * Rewritten and fixed movie recording
+  * Allowed to record movie in high resolution
+
+Version: 0.19
+  * Rewritten GUI events system
+  * Rewritten some easter eggs
+  * Fixed music support problem from v0.18
+  * Game will try to continue if can't enter low-res mode
+  * Compiled using new version of GCC
+
+Version: 0.18
+  * Rewritten frontend state control and menu speed
+  * Added high resolution loading screen
+  * Renewed video playing code and fading
+
+Version: 0.17
+  * Rewritten main loop and game speed control
+  * Fixed screen object destructor
+  * Rewritten part of mouse support
+  * Made exit possibility when playing with '-level' option
+
+Version: 0.16
+  * Finished logging module and log file creation
+
+Version: 0.15
+  * Reworked the main initiation function
+  * Added introduction screen by Madkill
+
+Version: 0.14
+  * Added some command line options from Beta
+  * Reworked moon phase calculation
+
+Version: 0.13
+  * LbBullfrogMain() reworked
+  * Command line parameters reworked and fixed a bit
+
+Version: 0.11
+  * Managed to make the DLL working (at last!)
