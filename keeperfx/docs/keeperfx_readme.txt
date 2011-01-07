@@ -356,6 +356,8 @@ Version: 0.38a
   Fixed problem with creatures standing next to lair
   Fixed error in the new rooms merging algorithm
   Linked with MinGW libraries as static
+  Fixed problem with no price when selling traps
+  Changed tunneler "relax" sprite to the one with sleeping
 
 Version: 0.38
   Switched video support library to SDL
