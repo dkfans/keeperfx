@@ -24,6 +24,11 @@
 #define BFDEBUG_LEVEL 10
 #endif
 
+#ifndef DEBUG_NETWORK_PACKETS
+/* Network packets debugging. */
+#define DEBUG_NETWORK_PACKETS 0
+#endif
+
 /* Comment out for no experimental network support */
 //#define EXPERIMENTAL_NET
 

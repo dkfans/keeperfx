@@ -619,7 +619,7 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     if (dungeon->room_kind[RoK_TREASURE] == 0)
     {
         if (is_my_player_number(thing->owner))
-            output_message(SMsg_TreasureRoomNeeded, 1000, 1);
+            output_message(SMsg_RoomTreasrNeeded, 1000, 1);
         event_create_event_or_update_nearby_existing_event(0, 0, 20, thing->owner, 0);
         return 0;
     }
@@ -627,11 +627,11 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     if (find_room_with_spare_capacity(thing->owner, RoK_TREASURE, 1) != NULL)
     {
         if (is_my_player_number(thing->owner))
-            output_message(SMsg_TreasrUnreachable, 1000, 1);
+            output_message(SMsg_NoRouteToTreasury, 1000, 1);
         return 0;
     }
     if (is_my_player_number(thing->owner))
-        output_message(SMsg_TreasrRoomTooSmall, 1000, 1);
+        output_message(SMsg_TreasuryTooSmall, 1000, 1);
     event_create_event_or_update_nearby_existing_event(0, 0, 11, thing->owner, 0);
     return 0;
 }

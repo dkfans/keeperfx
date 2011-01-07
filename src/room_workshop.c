@@ -41,6 +41,18 @@ TbBool add_workshop_object_to_workshop(struct Room *room)
     return true;
 }
 
+TbBool remove_workshop_object_from_workshop(struct Room *room)
+{
+    if ( (room->used_capacity <= 0) || (room->long_17 <= 0) )
+    {
+        ERRORLOG("Invalid workshop content");
+        return false;
+    }
+    room->used_capacity--;
+    room->long_17--;
+    return true;
+}
+
 TbBool add_workshop_item(long plyr_idx, long wrkitm_class, long wrkitm_kind)
 {
     struct Dungeon *dungeon;

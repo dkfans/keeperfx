@@ -351,6 +351,13 @@ New and modified level script commands:
 
 Changelog:
 
+Version: 0.3.8a
+  Added mouse sensitivity modification option
+  Fixed crash on invalid movies video mode
+  Fixed problem with creatures standing next to lair
+  Fixed error in the new rooms merging algorithm
+  Linked with MinGW libraries as static
+
 Version: 0.3.8
   Switched video support library to SDL
   Fixed duplicates level when using Multiply special

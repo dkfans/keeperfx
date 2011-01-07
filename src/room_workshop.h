@@ -36,6 +36,7 @@ extern "C" {
 #pragma pack()
 /******************************************************************************/
 TbBool add_workshop_object_to_workshop(struct Room *room);
+TbBool remove_workshop_object_from_workshop(struct Room *room);
 TbBool add_workshop_item(long plyr_idx, long wrkitm_class, long wrkitm_kind);
 
 /******************************************************************************/

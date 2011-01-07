@@ -1107,7 +1107,7 @@ struct Room *player_build_room_at(long stl_x, long stl_y, long plyr_idx, long rk
     if (take_money_from_dungeon(plyr_idx, rstat->cost, 1) < 0)
     {
       if (is_my_player(player))
-        output_message(SMsg_NotEnoughGold, 0, 1);
+        output_message(SMsg_GoldNotEnough, 0, 1);
       return INVALID_ROOM;
     }
     room = place_room(plyr_idx, rkind, stl_x, stl_y);

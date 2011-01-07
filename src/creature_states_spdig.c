@@ -76,10 +76,10 @@ short imp_arrives_at_convert_dungeon(struct Thing *thing)
            map_to_slab[thing->mappos.x.stl.num],
            map_to_slab[thing->mappos.y.stl.num]) )
     {
-      internal_set_thing_state(thing, 74);
+      internal_set_thing_state(thing, CrSt_ImpConvertsDungeon);
     } else
     {
-      internal_set_thing_state(thing, 8);
+      internal_set_thing_state(thing, CrSt_ImpLastDidJob);
     }
     return 1;
 }
@@ -96,10 +96,10 @@ short imp_arrives_at_improve_dungeon(struct Thing *thing)
           map_to_slab[thing->mappos.x.stl.num],
           map_to_slab[thing->mappos.y.stl.num]) )
   {
-    internal_set_thing_state(thing, 10);
+    internal_set_thing_state(thing, CrSt_ImpImprovesDungeon);
   } else
   {
-    internal_set_thing_state(thing, 8);
+    internal_set_thing_state(thing, CrSt_ImpLastDidJob);
   }
   return 1;
 }
@@ -147,14 +147,14 @@ short imp_digs_mines(struct Thing *thing)
     if ((mtask->field_1 != cctrl->word_8F) || (delta_x >= 1) || (delta_y >= 1))
     {
       clear_creature_instance(thing);
-      internal_set_thing_state(thing, 8);
+      internal_set_thing_state(thing, CrSt_ImpLastDidJob);
       return 1;
     }
     // If gems are marked for digging, but there is too much gold laying around, then don't dig
     if ((slb->kind == SlbT_GEMS) && too_much_gold_lies_around_thing(thing))
     {
       clear_creature_instance(thing);
-      internal_set_thing_state(thing, 8);
+      internal_set_thing_state(thing, CrSt_ImpLastDidJob);
       return 1;
     }
     // Turn to the correct direction to do the task
@@ -170,7 +170,7 @@ short imp_digs_mines(struct Thing *thing)
     if (mtask->field_0 == 0)
     {
         clear_creature_instance(thing);
-        internal_set_thing_state(thing, 8);
+        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
         return 1;
     }
 
@@ -291,8 +291,8 @@ short creature_picks_up_spell_object(struct Thing *thing)
     if ( thing_is_invalid(spelltng) || ((spelltng->field_1 & 0x01) != 0)
       || (get_2d_box_distance(&thing->mappos, &spelltng->mappos) >= 512))
     {
-      set_start_state(thing);
-      return 0;
+        set_start_state(thing);
+        return 0;
     }
     enmroom = subtile_room_get(spelltng->mappos.x.stl.num,spelltng->mappos.y.stl.num);
     ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, 3, 0, 1);
@@ -351,9 +351,58 @@ short creature_picks_up_trap_for_workshop(struct Thing *thing)
     return 1;
 }
 
+/** Being in workshop, pick up a trap crate to be dragged to a trap that needs re-arming.
+ *
+ * @param thing Special worker creature.
+ * @return
+ */
 short creature_picks_up_trap_object(struct Thing *thing)
 {
-  return _DK_creature_picks_up_trap_object(thing);
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    struct Thing *cratetng;
+    struct Thing *traptng;
+    //return _DK_creature_picks_up_trap_object(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cratetng = thing_get(cctrl->field_72);
+    room = get_room_thing_is_on(cratetng);
+    traptng = thing_get(cctrl->field_70);
+    if ( !thing_exists(cratetng) || !thing_exists(traptng) )
+    {
+        cctrl->field_70 = 0;
+        set_start_state(thing);
+        return 0;
+    }
+    if ( ((cratetng->field_1 & 0x01) != 0)
+      || (get_2d_box_distance(&thing->mappos, &cratetng->mappos) >= 512)
+      || (traptng->class_id != TCls_Trap) || (box_thing_to_door_or_trap(cratetng) != traptng->model))
+    {
+        cctrl->field_70 = 0;
+        set_start_state(thing);
+        return 0;
+    }
+    if ( !setup_person_move_backwards_to_position(thing, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, 0) )
+    {
+        cctrl->field_70 = 0;
+        set_start_state(thing);
+        return 0;
+    }
+    if (!room_is_invalid(room))
+    {
+        if ( (room->kind == RoK_WORKSHOP) && (room->owner == cratetng->owner) )
+        {
+            remove_workshop_object_from_workshop(room);
+            if (cratetng->owner < 5)
+            {
+                remove_workshop_item(cratetng->owner,
+                    get_workshop_object_class_for_thing(cratetng),
+                    box_thing_to_door_or_trap(cratetng));
+            }
+        }
+    }
+    creature_drag_object(thing, cratetng);
+    thing->continue_state = CrSt_CreatureArmsTrap;
+    return 1;
 }
 
 short creature_drops_corpse_in_graveyard(struct Thing *thing)
@@ -369,7 +418,7 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     //return _DK_creature_drops_crate_in_workshop(thing);
     cctrl = creature_control_get_from_thing(thing);
     cratetng = thing_get(cctrl->field_6E);
-    // Check if chate is ok
+    // Check if crate is ok
     if ( !thing_exists(cratetng) )
     {
         set_start_state(thing);
@@ -386,8 +435,8 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     if ( (room->kind != RoK_WORKSHOP) || (room->owner != thing->owner)
         || (room->used_capacity >= room->total_capacity) )
     {
-      set_start_state(thing);
-      return 0;
+        set_start_state(thing);
+        return 0;
     }
     creature_drop_dragged_object(thing, cratetng);
     cratetng->owner = thing->owner;
