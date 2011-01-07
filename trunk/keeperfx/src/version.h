@@ -23,6 +23,10 @@
 /* Debug level is scaled 0..10, default=1; usually defined in Makefile. */
 #define BFDEBUG_LEVEL     0
 #endif
+#ifndef DEBUG_NETWORK_PACKETS
+/* Network packets debugging. */
+#define DEBUG_NETWORK_PACKETS 0
+#endif
 /* Version definitions */
 #include "../obj/ver_defs.h"
 //#define VER_MAJOR         1

@@ -205,7 +205,7 @@ short state_cleanup_unconscious(struct Thing *thing);
 short tunneller_doing_nothing(struct Thing *thing);
 short tunnelling(struct Thing *thing);
 short creature_search_for_spell_to_steal_in_room(struct Thing *thing);
-short creature_steal_spell(struct Thing *thing);
+short creature_pick_up_spell_to_steal(struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -505,7 +505,7 @@ struct StateInfo states[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0, 1},
   {creature_search_for_spell_to_steal_in_room, NULL, NULL, move_check_attack_any_door,
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 55, 1, 0, 1},
-  {creature_steal_spell, NULL, NULL, move_check_attack_any_door,
+  {creature_pick_up_spell_to_steal, NULL, NULL, move_check_attack_any_door,
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 55, 1, 0, 1},
   // Some redundant NULLs
   {NULL, NULL, NULL, NULL,
@@ -1528,9 +1528,11 @@ short creature_search_for_gold_to_steal_in_room(struct Thing *thing)
 
 short creature_search_for_spell_to_steal_in_room(struct Thing *thing)
 {
+    struct CreatureControl *cctrl;
     struct SlabMap *slb;
     struct Room *room;
     struct Thing *spltng;
+    cctrl = creature_control_get_from_thing(thing);
     slb = get_slabmap_for_subtile(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
     room = room_get(slb->room_index);
     if (room_is_invalid(room) || (room->kind != RoK_LIBRARY))
@@ -1547,6 +1549,7 @@ short creature_search_for_spell_to_steal_in_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
+    cctrl->field_72 = spltng->index;
     if (!setup_person_move_to_position(thing, spltng->mappos.x.stl.num, spltng->mappos.y.stl.num, 0))
     {
         SYNCDBG(8,"Cannot move to spell at (%d,%d)",(int)spltng->mappos.x.stl.num, (int)spltng->mappos.y.stl.num);
@@ -1600,23 +1603,41 @@ short creature_steal_gold(struct Thing *thing)
     return 0;
 }
 
-short creature_steal_spell(struct Thing *thing)
+short creature_pick_up_spell_to_steal(struct Thing *thing)
 {
-    struct CreatureStats *crstat;
     struct Room *room;
-    //return _DK_creature_steal_gold(thing);
-    crstat = creature_stats_get_from_thing(thing);
-    room = subtile_room_get(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    if (room_is_invalid(room) || (room->kind != RoK_LIBRARY))
+    struct CreatureControl *cctrl;
+    struct Thing *spelltng;
+    struct Coord3d pos;
+    cctrl = creature_control_get_from_thing(thing);
+    spelltng = thing_get(cctrl->field_72);
+    if ( thing_is_invalid(spelltng) || ((spelltng->field_1 & 0x01) != 0)
+      || (get_2d_box_distance(&thing->mappos, &spelltng->mappos) >= 512))
     {
-        WARNLOG("Cannot steal spell - not on library at (%d,%d)",(int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num);
         set_start_state(thing);
         return 0;
     }
+    room = subtile_room_get(spelltng->mappos.x.stl.num,spelltng->mappos.y.stl.num);
+    // Check if we're stealing the spell from a library
+    if (!room_is_invalid(room))
+    {
+        remove_spell_from_library(room, spelltng, thing->owner);
+    }
+    pos.x.val = 0;
+    pos.y.val = 0;
     //TODO STEAL_SPELLS write the spell stealing code
     SYNCLOG("Stealing spells not implemented - reset");
     set_start_state(thing);
     return 0;
+/*
+    creature_drag_object(thing, spelltng);
+    if (!setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0))
+    {
+        SYNCDBG(8,"Cannot move to (%d,%d)",(int)pos.x.stl.num, (int)pos.y.stl.num);
+    }
+    thing->continue_state = CrSt_XXX;
+    return 1;
+*/
 }
 
 short creature_take_salary(struct Thing *thing)
