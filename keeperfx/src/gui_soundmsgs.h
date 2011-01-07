@@ -34,18 +34,128 @@ extern "C" {
 #define MESSAGE_QUEUE_COUNT     4
 
 enum TbSpeechMessages {
-        SMsg_None               =    0,
-        SMsg_TreasrRoomTooSmall =   24,  //'You need a bigger treasure room'
-        SMsg_TreasrUnreachable  =   35,  //'Some of your minions are unable to reach the treasure room'
-        SMsg_TreasureRoomNeeded =   39,  //'You must build a treasure room, to store gold'
-        SMsg_NotEnoughGold      =   87,  //'You do not have enough gold'
-        SMsg_PantsTooTight      =   94,  //'Your pants are definitely too tight'
-        SMsg_DefeatedOnRealm    =  105,  //'You have been defeated'
-        SMsg_NoMoreWorkerJobs   =  101,  //'You cannot give your Imps any more jobs'
-        SMsg_GameLoaded         =  102,  //'Game loaded'
-        SMsg_ConqueredRealm     =  106,  //'Your have conquered this realm'
+        SMsg_None = 0,
+        SMsg_CreatrAngryAnyReson,
+        SMsg_CreatrAngryNoLair,
+        SMsg_CreatrAngryNotPayed,
+        SMsg_CreatrAngryNoFood,
+        SMsg_CreatrDestroyRooms,
+        SMsg_CreatureLeaving,
+        SMsg_WallsBreach,
+        SMsg_HeartUnderAttack,
+        SMsg_BattleDefeat,
+        SMsg_BattleVictory, // 10
+        SMsg_BattleDeath,
+        SMsg_BattleWon,
+        SMsg_CreatureDefending,
+        SMsg_CreatureAttacking,
+        SMsg_EnemyDestroyRooms,
+        SMsg_EnemyClaimGround,
+        SMsg_EnemyRoomTakeOver,
+        SMsg_NewRoomTakenOver,
+        SMsg_LordOfLandComming,
+        SMsg_FingthingFriends, // 20
+        SMsg_BattleOver,
+        SMsg_GardenTooSmall,
+        SMsg_LairTooSmall,
+        SMsg_TreasuryTooSmall,    //'You need a bigger treasure room'
+        SMsg_LibraryTooSmall,
+        SMsg_PrisonTooSmall,
+        SMsg_TortureTooSmall,
+        SMsg_TrainingTooSmall,
+        SMsg_WorkshopTooSmall,
+        SMsg_ScavengeTooSmall, // 30
+        SMsg_TempleTooSmall,
+        SMsg_GraveyardTooSmall,
+        SMsg_BarracksTooSmall,
+        SMsg_NoRouteToGarden,
+        SMsg_NoRouteToTreasury,    //'Some of your minions are unable to reach the treasure room'
+        SMsg_NoRouteToLair,
+        SMsg_EntranceClaimed,
+        SMsg_EntranceLost,
+        SMsg_RoomTreasrNeeded,    //'You must build a treasure room, to store gold'
+        SMsg_RoomLairNeeded, // 40
+        SMsg_RoomGardenNeeded,
+        SMsg_ResearchedRoom,
+        SMsg_ResearchedSpell,
+        SMsg_ManufacturedDoor,
+        SMsg_ManufacturedTrap,
+        SMsg_NoMoreReseach,
+        SMsg_SpellbookTaken,
+        SMsg_TrapTaken,
+        SMsg_DoorTaken,
+        SMsg_SpellbookStolen, // 50
+        SMsg_TrapStolen,
+        SMsg_DoorStolen,
+        SMsg_TortureInformation,
+        SMsg_TortureConverted,
+        SMsg_PrisonMadeSkeleton,
+        SMsg_TortureMadeGhost,
+        SMsg_PrisonersEscaping,
+        SMsg_GraveyardMadeVampire,
+        SMsg_CreatrFreedPrison,
+        SMsg_PrisonersStarving, // 60
+        SMsg_CreatureScanvenged,
+        SMsg_MinionScanvenged,
+        SMsg_CreatureJoinedEnemy,
+        SMsg_CreatureRevealInfo,
+        SMsg_SacrificeGood,
+        SMsg_SacrificeReward,
+        SMsg_SacrificeNeutral,
+        SMsg_SacrificeBad,
+        SMsg_SacrificePunish,
+        SMsg_SacrificeWishing, // 70
+        SMsg_DiscoveredSpecial,
+        SMsg_DiscoveredSpell,
+        SMsg_DiscoveredDoor,
+        SMsg_DiscoveredTrap,
+        SMsg_CreaturesJoinedYou,
+        SMsg_DugIntoNewArea,
+        SMsg_SpecRevealMap,
+        SMsg_SpecResurrect,
+        SMsg_SpecTransfer,
+        SMsg_CommonAcknowledge, // 80
+        SMsg_SpecHeroStolen,
+        SMsg_SpecCreatrDoubled,
+        SMsg_SpecIncLevel,
+        SMsg_SpecWallsFortify,
+        SMsg_SpecHiddenWorld,
+        SMsg_GoldLow,
+        SMsg_GoldNotEnough,     //'You do not have enough gold'
+        SMsg_NoGoldToScavenge,
+        SMsg_NoGoldToTrain,
+        SMsg_Payday, // 90
+        SMsg_FullOfPies,
+        SMsg_SurrealHappen,
+        SMsg_StrangeAccent,
+        SMsg_PantsTooTight,    //'Your pants are definitely too tight'
+        SMsg_CraveChocolate,
+        SMsg_SmellAgain,
+        SMsg_Hello,
+        SMsg_Glaagh,
+        SMsg_Achew,
+        SMsg_Chgreche,        // 100
+        SMsg_WorkerJobsLimit, //'You cannot give your Imps any more jobs'
+        SMsg_GameLoaded,      //'Game loaded'
+        SMsg_GameSaved,
+        SMsg_DefeatedKeeper,
+        SMsg_LevelFailed,     //'You have been defeated'
+        SMsg_LevelWon,        //'Your have conquered this realm'
+        SMsg_SenceAvatar,     //'I sense the presence of the Avatar'
+        SMsg_AvatarBodyVanish,
+        SMsg_GameFinalVictory,
+/*
+        SMsg_TreasrRoomTooSmall =   24,
+        SMsg_TreasrUnreachable  =   35,
+        SMsg_TreasureRoomNeeded =   39,
+        SMsg_NotEnoughGold      =   87,
+        SMsg_PantsTooTight      =   94,
+        SMsg_DefeatedOnRealm    =  105,
+        SMsg_NoMoreWorkerJobs   =  101,
+        SMsg_GameLoaded         =  102,
+        SMsg_ConqueredRealm     =  106,*/
 };
-#define SMsg_FunnyMessages      91  // Starts a list of 10 funny quotes
+#define SMsg_FunnyMessages      SMsg_FullOfPies  // Starts a list of 10 funny quotes
 #define SMsg_EnemyHarassments  110  // Starts a list of harassments
 
 typedef unsigned long Phrase;

@@ -433,6 +433,7 @@ TbBool player_sell_trap_at_subtile(long plyr_idx, long stl_x, long stl_y)
     MapCoord x,y;
     struct Coord3d pos;
     long i,k;
+    long sell_value;
     thing = get_trap_for_slab_position(map_to_slab[stl_x], map_to_slab[stl_y]);
     if (thing_is_invalid(thing))
     {
@@ -441,28 +442,31 @@ TbBool player_sell_trap_at_subtile(long plyr_idx, long stl_x, long stl_y)
     dungeon = get_players_num_dungeon(thing->owner);
     x = 3*map_to_slab[stl_x];
     y = 3*map_to_slab[stl_y];
-    pos.x.val = x;
-    pos.y.val = y;
-    pos.z.val = 128;
-    i = 0;
+    sell_value = 0;
     for (k=0; k < AROUND_TILES_COUNT; k++)
     {
-      thing = get_trap_for_position(x+around[k].delta_x+1, y+around[k].delta_y+1);
-      if (!thing_is_invalid(thing))
-      {
-        if (thing->byte_13 == 0)
-          remove_workshop_object_from_player(thing->owner, trap_to_object[thing->model%TRAP_TYPES_COUNT]);
-        i += game.traps_config[thing->model].selling_value;
-        destroy_trap(thing);
-      }
+        thing = get_trap_for_position(x+around[k].delta_x+1, y+around[k].delta_y+1);
+        if (!thing_is_invalid(thing))
+        {
+            i = game.traps_config[thing->model].selling_value;
+            if (thing->byte_13 == 0) {
+                remove_workshop_object_from_player(thing->owner, trap_to_object[thing->model%TRAP_TYPES_COUNT]);
+            }
+            sell_value += i;
+            destroy_trap(thing);
+        }
     }
     if (is_my_player_number(plyr_idx))
-      play_non_3d_sample(115);
+        play_non_3d_sample(115);
     dungeon->field_EA4 = 192;
-    if (i != 0)
+    if (sell_value != 0)
     {
-      create_price_effect(&pos, plyr_idx, i);
-      player_add_offmap_gold(plyr_idx,i);
+        set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
+        create_price_effect(&pos, plyr_idx, sell_value);
+        player_add_offmap_gold(plyr_idx,sell_value);
+    } else
+    {
+        WARNLOG("Sold traps at (%ld,%ld) which didn't cost anything",stl_x,stl_y);
     }
     return true;
 }
@@ -767,7 +771,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
               } else
               if (is_my_player(player))
               {
-                output_message(SMsg_NoMoreWorkerJobs, 500, 1);
+                output_message(SMsg_WorkerJobsLimit, 500, 1);
               }
             } else
             if ((player->field_455 == 3) && ((player->field_3 & 0x01) != 0))
@@ -783,7 +787,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
               } else
               if (is_my_player(player))
               {
-                output_message(SMsg_NoMoreWorkerJobs, 500, 1);
+                output_message(SMsg_WorkerJobsLimit, 500, 1);
               }
             }
           }
@@ -841,7 +845,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             } else
             if (is_my_player(player))
             {
-              output_message(SMsg_NoMoreWorkerJobs, 500, 1);
+              output_message(SMsg_WorkerJobsLimit, 500, 1);
             }
           } else
           if (player->field_454 == 3)
@@ -2598,10 +2602,10 @@ void process_packets(void)
   // Write packets into file, if requested
   if ((game.packet_save_enable) && (game.packet_fopened))
     save_packets();
-/*Debug code, to find packet errors
-#if BFDEBUG_LEVEL > 0
+//Debug code, to find packet errors
+#if DEBUG_NETWORK_PACKETS
   write_debug_packets();
-#endif*/
+#endif
   // Process the packets
   for (i=0; i<PACKETS_COUNT; i++)
   {
@@ -2674,7 +2678,7 @@ void process_frontend_packets(void)
       }
     }
   }
-#if BFDEBUG_LEVEL > 0
+#if DEBUG_NETWORK_PACKETS
   write_debug_screenpackets();
 #endif
   for (i=0; i < NET_PLAYERS_COUNT; i++)

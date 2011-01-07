@@ -4456,7 +4456,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
       SYNCLOG("Knight was imprisoned. Torture tower unlocked.");
       player->field_3 |= 0x10;
     }
-    output_message(SMsg_ConqueredRealm, 0, 1);
+    output_message(SMsg_LevelWon, 0, 1);
   }
 }
 
@@ -4477,7 +4477,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->field_AE5[3]);
   if (is_my_player(player))
   {
-    output_message(SMsg_DefeatedOnRealm, 0, 1);
+    output_message(SMsg_LevelFailed, 0, 1);
     turn_off_all_menus();
     clear_transfered_creature();
   }
