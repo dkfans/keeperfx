@@ -403,10 +403,10 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
     event_reset_scroll_window();
     if (other_off)
     {
-      turn_off_menu(34);
-      turn_off_menu(27);
-      turn_off_menu(28);
-      turn_off_menu(29);
+        turn_off_menu(GMnu_BATTLE);
+        turn_off_menu(GMnu_DUNGEON_SPECIAL);
+        turn_off_menu(GMnu_RESURRECT_CREATURE);
+        turn_off_menu(GMnu_TRANSFER_CREATURE);
     }
   }
   SYNCDBG(8,"Finished");

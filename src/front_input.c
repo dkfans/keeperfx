@@ -594,7 +594,7 @@ TbBool get_level_lost_inputs(void)
         {
           initialise_tab_tags_and_menu(3);
           turn_off_all_panel_menus();
-          turn_on_menu(38);
+          turn_on_menu(GMnu_SPELL_LOST);
         }
       }
       inp_done = get_gui_inputs(GMnu_MAIN);
@@ -1223,7 +1223,7 @@ void get_dungeon_control_nonaction_inputs(void)
   if (lbKeyOn[KC_LALT] && lbKeyOn[KC_X])
   {
     clear_key_pressed(KC_X);
-    turn_on_menu(10);
+    turn_on_menu(GMnu_QUIT);
   }
   switch (player->field_37)
   {

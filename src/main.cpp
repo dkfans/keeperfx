@@ -2944,6 +2944,27 @@ struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short model, un
     return thing;
 }
 
+/** Returns if cursor for given player is at top of the dungeon in 3D view.
+ *  Cursor placed at top of dungeon is marked by green/red "volume box";
+ *   if there's no volume box, cursor should be of the fileld behind it
+ *   (the exact field in a line of view through cursor). If cursor is at top
+ *   of view, then pointed map field is a bit lower than the line of view
+ *   through cursor.
+ *
+ * @param player
+ * @return
+ */
+TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
+{
+    int i;
+    i = player->work_state;
+    if ( (i == PSt_BuildRoom) || (i == PSt_PlaceDoor) || (i == PSt_PlaceTrap) || (i == PSt_SightOfEvil) || (i == PSt_Sell) )
+        return true;
+    if ( (i == PSt_CtrlDungeon) && (player->field_454 != 0) && (player->thing_under_hand == 0) )
+        return true;
+    return false;
+}
+
 TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
 {
     struct PlayerInfo *player;
@@ -2954,30 +2975,27 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
       && (pointer_x < (player->engine_window_width/pixel_size))
       && (pointer_y < (player->engine_window_height/pixel_size)) )
     {
-      int i;
-      i = player->work_state;
-      if ( ((i == 1) && (player->field_454)) || (i == PSt_BuildRoom) ||
-        (i == PSt_PlaceDoor) || (i == 16) || (i == PSt_SightOfEvil) || (i == PSt_Sell) )
-      {
-            *map_x = ( top_pointed_at_x << 8) + top_pointed_at_frac_x;
-            *map_y = ( top_pointed_at_y << 8) + top_pointed_at_frac_y;
-      } else
-      {
-            *map_x = (block_pointed_at_x << 8) + pointed_at_frac_x;
-            *map_y = (block_pointed_at_y << 8) + pointed_at_frac_y;
-      }
-      // Clipping coordinates
-      if (*map_y < 0)
-        *map_y = 0;
-      else
-      if (*map_y > ((map_subtiles_y<<8)-1))
-        *map_y = ((map_subtiles_y<<8)-1);
-      if (*map_x < 0)
-        *map_x = 0;
-      else
-      if (*map_x > ((map_subtiles_x<<8)-1))
-        *map_x = ((map_subtiles_x<<8)-1);
-      return true;
+        if ( players_cursor_is_at_top_of_view(player) )
+        {
+              *map_x = ( top_pointed_at_x << 8) + top_pointed_at_frac_x;
+              *map_y = ( top_pointed_at_y << 8) + top_pointed_at_frac_y;
+        } else
+        {
+              *map_x = (block_pointed_at_x << 8) + pointed_at_frac_x;
+              *map_y = (block_pointed_at_y << 8) + pointed_at_frac_y;
+        }
+        // Clipping coordinates
+        if (*map_y < 0)
+          *map_y = 0;
+        else
+        if (*map_y > ((map_subtiles_y<<8)-1))
+          *map_y = ((map_subtiles_y<<8)-1);
+        if (*map_x < 0)
+          *map_x = 0;
+        else
+        if (*map_x > ((map_subtiles_x<<8)-1))
+          *map_x = ((map_subtiles_x<<8)-1);
+        return true;
     }
     return false;
 }
@@ -4063,7 +4081,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long a2)
     case PSt_BuildRoom:
         player->field_4A3 = a2;
         break;
-    case 16:
+    case PSt_PlaceTrap:
         player->field_4A5 = a2;
         break;
     case PSt_PlaceDoor:
@@ -4076,20 +4094,20 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long a2)
   player->work_state = nwrk_state;
   if (is_my_player(player))
     game.field_14E92E = 0;
-  if ((player->work_state != 12) && (player->work_state != 15)
-     && (player->work_state != 11) && (player->work_state != 10))
+  if ((player->work_state != PSt_Unknown12) && (player->work_state != PSt_Unknown15)
+     && (player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_CtrlPassngr))
   {
     player->field_2F = 0;
   }
   switch (player->work_state)
   {
-  case 1:
+  case PSt_CtrlDungeon:
       player->field_4A4 = 1;
       break;
   case PSt_BuildRoom:
       player->field_4A3 = a2;
       break;
-  case 5:
+  case PSt_Unknown5:
       create_power_hand(player->id_number);
       break;
   case PSt_Slap:
@@ -4106,7 +4124,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long a2)
       set_power_hand_graphic(player->id_number, 785, 256);
       place_thing_in_limbo(thing);
       break;
-  case 16:
+  case PSt_PlaceTrap:
       player->field_4A5 = a2;
       break;
   case PSt_PlaceDoor:
@@ -4448,10 +4466,10 @@ void set_player_as_won_level(struct PlayerInfo *player)
     player->field_4EB = game.play_gameturn + 300;
   if (is_my_player(player))
   {
-    if (knight_in_prison())
+    if (lord_of_the_land_in_prison_or_tortured())
     {
-      SYNCLOG("Knight was imprisoned. Torture tower unlocked.");
-      player->field_3 |= 0x10;
+        SYNCLOG("Lord Of The Land kept captive. Torture tower unlocked.");
+        player->field_3 |= 0x10;
     }
     output_message(SMsg_LevelWon, 0, 1);
   }
@@ -5713,7 +5731,7 @@ void process_pointer_graphic(void)
       } else
       switch (player->work_state)
       {
-      case 1:
+      case PSt_CtrlDungeon:
           if (player->field_455)
             i = player->field_455;
           else
@@ -5808,7 +5826,7 @@ void process_pointer_graphic(void)
               break;
           }
           return;
-      case 5:
+      case PSt_Unknown5:
       case PSt_Slap:
           set_pointer_graphic(0);
           break;
@@ -5828,11 +5846,11 @@ void process_pointer_graphic(void)
       case PSt_TurnChicken:
           draw_spell_cursor(player->work_state, 0, game.pos_14C006.x.stl.num, game.pos_14C006.y.stl.num);
           break;
-      case 12:
-      case 15:
+      case PSt_Unknown12:
+      case PSt_Unknown15:
           set_pointer_graphic(4);
           break;
-      case 16:
+      case PSt_PlaceTrap:
           switch (player->field_4A5)
           {
           case 1:
@@ -7534,7 +7552,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->field_4D1 = player->id_number;
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
     player->field_456 = 1;
-    player->work_state = 1;
+    player->work_state = PSt_CtrlDungeon;
     player->field_14 = 2;
     player->palette = _DK_palette;
     if (is_my_player(player))

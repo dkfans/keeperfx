@@ -1042,8 +1042,8 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
       }
       break;
-  case 12:
-  case 15:
+  case PSt_Unknown12:
+  case PSt_Unknown15:
       val172 = 1;
       thing = get_creature_near_and_owned_by(x, y, plyr_idx);
       if (thing_is_invalid(thing))
@@ -1068,7 +1068,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           unset_packet_control(pckt, PCtr_LBtnRelease);
         }
       }
-      if (player->work_state == 15)
+      if (player->work_state == PSt_Unknown15)
       {
         thing = thing_get(player->field_2F);
         if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
@@ -1963,42 +1963,42 @@ TbBool process_players_global_packet_action(long plyr_idx)
       process_pause_packet(pckt->field_6, pckt->field_8);
       return 1;
   case 83:
-      if (player->work_state == 15)
+      if (player->work_state == PSt_Unknown15)
         turn_off_query(plyr_idx);
       event_move_player_towards_event(player, pckt->field_6);
       return 0;
   case 84:
-      if (player->work_state == 15)
+      if (player->work_state == PSt_Unknown15)
         turn_off_query(plyr_idx);
       room = room_get(pckt->field_6);
       player->field_E4 = room->stl_x << 8;
       player->field_E6 = room->stl_y << 8;
       set_player_instance(player, 16, 0);
-      if (player->work_state == 2)
+      if (player->work_state == PSt_BuildRoom)
         set_player_state(player, 2, room->kind);
       return 0;
   case 85:
-      if (player->work_state == 15)
+      if (player->work_state == PSt_Unknown15)
         turn_off_query(plyr_idx);
       thing = thing_get(pckt->field_6);
       player->field_E4 = thing->mappos.x.val;
       player->field_E6 = thing->mappos.y.val;
       set_player_instance(player, 16, 0);
-      if ((player->work_state == 16) || (player->work_state == 18))
+      if ((player->work_state == PSt_PlaceTrap) || (player->work_state == PSt_PlaceDoor))
         set_player_state(player, 16, thing->model);
       return 0;
   case 86:
-      if (player->work_state == 15)
+      if (player->work_state == PSt_Unknown15)
         turn_off_query(plyr_idx);
       thing = thing_get(pckt->field_6);
       player->field_E4 = thing->mappos.x.val;
       player->field_E6 = thing->mappos.y.val;
       set_player_instance(player, 16, 0);
-      if ((player->work_state == 16) || (player->work_state == 18))
+      if ((player->work_state == PSt_PlaceTrap) || (player->work_state == PSt_PlaceDoor))
         set_player_state(player, 18, thing->model);
       return 0;
   case 87:
-      if (player->work_state == 15)
+      if (player->work_state == PSt_Unknown15)
         turn_off_query(plyr_idx);
       player->field_E4 = pckt->field_6;
       player->field_E6 = pckt->field_8;
@@ -2037,12 +2037,12 @@ TbBool process_players_global_packet_action(long plyr_idx)
       turn_off_query(plyr_idx);
       return 0;
   case 104:
-      if (player->work_state == 15)
+      if (player->work_state == PSt_Unknown15)
         turn_off_query(plyr_idx);
       battle_move_player_towards_battle(player, pckt->field_6);
       return 0;
   case 106:
-      if (player->work_state == 15)
+      if (player->work_state == PSt_Unknown15)
         turn_off_query(plyr_idx);
       dungeon = get_players_num_dungeon(plyr_idx);
       switch (pckt->field_6)

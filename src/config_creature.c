@@ -593,45 +593,45 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len,const char *config_
 
 TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags)
 {
-  static const char config_textname[] = "Creature Types config";
-  char *fname;
-  char *buf;
-  long len;
-  TbBool result;
-  SYNCDBG(0,"%s %s file \"%s\".",((flags & CTLd_KindListOnly) == 0)?"Reading":"Parsing",config_textname,conf_fname);
-  fname = prepare_file_path(FGrp_FxData,conf_fname);
-  len = LbFileLengthRnc(fname);
-  if (len < 2)
-  {
-    WARNMSG("%s file \"%s\" doesn't exist or is too small.",config_textname,conf_fname);
-    return false;
-  }
-  if (len > 65536)
-  {
-    WARNMSG("%s file \"%s\" is too large.",config_textname,conf_fname);
-    return false;
-  }
-  buf = (char *)LbMemoryAlloc(len+256);
-  if (buf == NULL)
-    return false;
-  // Loading file data
-  len = LbFileLoadAt(fname, buf);
-  result = (len > 0);
-  if (result)
-  {
-    result = parse_creaturetypes_common_blocks(buf, len, config_textname);
-    if (!result)
-      WARNMSG("Parsing %s file \"%s\" common blocks failed.",config_textname,conf_fname);
-  }
-  if ((result) && ((flags & CTLd_KindListOnly) == 0))
-  {
-    result = parse_creaturetype_instance_blocks(buf, len, config_textname);
-    if (!result)
-      WARNMSG("Parsing %s file \"%s\" instance blocks failed.",config_textname,conf_fname);
-  }
-  //Freeing and exiting
-  LbMemoryFree(buf);
-  return result;
+    static const char config_textname[] = "Creature Types config";
+    char *fname;
+    char *buf;
+    long len;
+    TbBool result;
+    SYNCDBG(0,"%s %s file \"%s\".",((flags & CTLd_KindListOnly) == 0)?"Reading":"Parsing",config_textname,conf_fname);
+    fname = prepare_file_path(FGrp_FxData,conf_fname);
+    len = LbFileLengthRnc(fname);
+    if (len < 2)
+    {
+        WARNMSG("%s file \"%s\" doesn't exist or is too small.",config_textname,conf_fname);
+        return false;
+    }
+    if (len > 65536)
+    {
+        WARNMSG("%s file \"%s\" is too large.",config_textname,conf_fname);
+        return false;
+    }
+    buf = (char *)LbMemoryAlloc(len+256);
+    if (buf == NULL)
+        return false;
+    // Loading file data
+    len = LbFileLoadAt(fname, buf);
+    result = (len > 0);
+    if (result)
+    {
+        result = parse_creaturetypes_common_blocks(buf, len, config_textname);
+        if (!result)
+          WARNMSG("Parsing %s file \"%s\" common blocks failed.",config_textname,conf_fname);
+    }
+    if ((result) && ((flags & CTLd_KindListOnly) == 0))
+    {
+        result = parse_creaturetype_instance_blocks(buf, len, config_textname);
+        if (!result)
+          WARNMSG("Parsing %s file \"%s\" instance blocks failed.",config_textname,conf_fname);
+    }
+    //Freeing and exiting
+    LbMemoryFree(buf);
+    return result;
 }
 
 unsigned short get_creature_model_flags(const struct Thing *thing)

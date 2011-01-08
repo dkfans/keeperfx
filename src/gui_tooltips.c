@@ -106,8 +106,8 @@ inline void clear_gui_tooltip_target(void)
 
 inline void clear_gui_tooltip_button(void)
 {
-  tool_tip_time = 0;
-  tool_tip_box.gbutton = NULL;
+    tool_tip_time = 0;
+    tool_tip_box.gbutton = NULL;
 }
 
 TbBool setup_trap_tooltips(struct Coord3d *pos)
@@ -116,11 +116,13 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
     struct Thing *thing;
     struct PlayerInfo *player;
     SYNCDBG(18,"Starting");
-    thing = get_trap_for_slab_position(map_to_slab[pos->x.stl.num],map_to_slab[pos->y.stl.num]);;
+    // Traps searching is restricted to one subtile - otherwise we could lose tooltips for other objects.
+    thing = get_trap_at_subtile_of_model_and_owned_by(pos->x.stl.num, pos->y.stl.num, -1, -1);
+    //thing = get_trap_for_slab_position(map_to_slab[pos->x.stl.num],map_to_slab[pos->y.stl.num]);;
     if (thing_is_invalid(thing)) return false;
     player = get_my_player();
     if ((thing->byte_18 == 0) && (player->id_number != thing->owner))
-      return false;
+        return false;
     update_gui_tooltip_target(thing);
     if ((help_tip_time > 20) || (player->work_state == 12))
     {
@@ -144,17 +146,18 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   player = get_my_player();
   // Find a special to show tooltip for
   thing = thing_get(player->thing_under_hand);
-  if (thing_is_invalid(thing) || !thing_is_special_box(thing))
-    thing = get_special_at_position(pos->x.stl.num, pos->y.stl.num);
-  if (thing != NULL)
+  if (thing_is_invalid(thing) || !thing_is_special_box(thing)) {
+      thing = get_special_at_position(pos->x.stl.num, pos->y.stl.num);
+  }
+  if (!thing_is_invalid(thing))
   {
-    update_gui_tooltip_target(thing);
-    set_gui_tooltip_box(5,specials_text[box_thing_to_special(thing)]);
-    return true;
+      update_gui_tooltip_target(thing);
+      set_gui_tooltip_box(5,specials_text[box_thing_to_special(thing)]);
+      return true;
   }
   // Find a spellbook to show tooltip for
   thing = get_spellbook_at_position(pos->x.stl.num, pos->y.stl.num);
-  if (thing != NULL)
+  if (!thing_is_invalid(thing))
   {
     update_gui_tooltip_target(thing);
     i = book_thing_to_magic(thing);
@@ -163,10 +166,10 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   }
   // Find a workshop crate to show tooltip for
   thing = get_crate_at_position(pos->x.stl.num, pos->y.stl.num);
-  if (thing != NULL)
+  if (!thing_is_invalid(thing))
   {
     update_gui_tooltip_target(thing);
-    if (get_workshop_object_class_for_thing(thing) == 8)
+    if (get_workshop_object_class_for_thing(thing) == TCls_Trap)
     {
         struct TrapConfigStats *trapst;
         trapst = get_trap_model_stats(box_thing_to_door_or_trap(thing));
@@ -184,7 +187,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
     return false;
   // Find a hero gate/creature lair to show tooltip for
   thing = get_nearest_object_at_position(pos->x.stl.num, pos->y.stl.num);
-  if (thing != NULL)
+  if (!thing_is_invalid(thing))
   {
     if (thing->model == 49)
     {
@@ -386,32 +389,32 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
 
 TbBool input_gameplay_tooltips(TbBool gameplay_on)
 {
-  struct Coord3d mappos;
-  struct PlayerInfo *player;
-  TbBool shown;
-  SYNCDBG(17,"Starting");
-  shown = false;
-  player = get_my_player();
-  if ((gameplay_on) && (tool_tip_time == 0) && (!busy_doing_gui))
-  {
-    if (player->acamera == NULL)
+    struct Coord3d mappos;
+    struct PlayerInfo *player;
+    TbBool shown;
+    SYNCDBG(17,"Starting");
+    shown = false;
+    player = get_my_player();
+    if ((gameplay_on) && (tool_tip_time == 0) && (!busy_doing_gui))
     {
-      ERRORLOG("No active camera");
-      return false;
+        if (player->acamera == NULL)
+        {
+            ERRORLOG("No active camera");
+            return false;
+        }
+        if (screen_to_map(player->acamera,GetMouseX(),GetMouseY(),&mappos))
+        {
+            if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->id_number))
+            {
+                if (player->field_37 != 1)
+                    shown = setup_scrolling_tooltips(&mappos);
+            }
+        }
     }
-    if (screen_to_map(player->acamera,GetMouseX(),GetMouseY(),&mappos))
-    {
-      if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->id_number))
-      {
-        if (player->field_37 != 1)
-          shown = setup_scrolling_tooltips(&mappos);
-      }
-    }
-  }
-  if (((tool_tip_box.flags & TTip_Visible) == 0) || ((tool_tip_box.flags & TTip_NeedReset) != 0))
-    reset_scrolling_tooltip();
-  SYNCDBG(19,"Finished");
-  return shown;
+    if (((tool_tip_box.flags & TTip_Visible) == 0) || ((tool_tip_box.flags & TTip_NeedReset) != 0))
+        reset_scrolling_tooltip();
+    SYNCDBG(19,"Finished");
+    return shown;
 }
 
 void toggle_tooltips(void)

@@ -61,7 +61,8 @@ struct Thing *get_trap_for_position(long pos_x, long pos_y)
 
 struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-  return _DK_get_trap_for_slab_position(slb_x, slb_y);
+    //return _DK_get_trap_for_slab_position(slb_x, slb_y);
+    return get_trap_around_of_model_and_owned_by(subtile_coord_center(3*slb_x+1), subtile_coord_center(3*slb_y+1), -1, -1);
 }
 
 long update_trap(struct Thing *thing)
