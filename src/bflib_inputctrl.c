@@ -27,7 +27,6 @@
 #include "bflib_vidsurface.h"
 #include "bflib_planar.h"
 #include <SDL/SDL.h>
-#include <windows.h>
 
 #ifdef __cplusplus
 extern "C" {
