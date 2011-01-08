@@ -586,17 +586,17 @@ void get_player_gui_clicks(void)
   default:
       if (right_button_released)
       {
-        if ((player->work_state != 5) || power_hand_is_empty(player))
+        if ((player->work_state != PSt_Unknown5) || power_hand_is_empty(player))
         {
           if ( !turn_off_all_window_menus() )
           {
-            if (player->work_state == 12)
+            if (player->work_state == PSt_Unknown12)
             {
               turn_off_query_menus();
               set_players_packet_action(player, PckA_SetPlyrState, 1, 0, 0, 0);
               right_button_released = 0;
             } else
-            if ((player->work_state != 15) && (player->work_state != 1))
+            if ((player->work_state != PSt_Unknown15) && (player->work_state != PSt_CtrlDungeon))
             {
               set_players_packet_action(player, PckA_SetPlyrState, 1, 0, 0, 0);
               right_button_released = 0;

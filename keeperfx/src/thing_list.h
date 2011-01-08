@@ -108,7 +108,7 @@ void remove_thing_from_its_class_list(struct Thing *thing);
 void add_thing_to_its_class_list(struct Thing *thing);
 
 long creature_near_filter_not_imp(const struct Thing *thing, FilterParam val);
-long creature_near_filter_is_enemy_of_and_not_imp(const struct Thing *thing, FilterParam val);
+long creature_near_filter_is_enemy_of_and_not_specdigger(const struct Thing *thing, FilterParam val);
 long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam val);
 
 // Filters to select thing belonging to given player
@@ -129,6 +129,7 @@ struct Thing *get_creature_near_and_owned_by_or_allied_with(MapCoord pos_x, MapC
 struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model_id, long plyr_idx, long skip_thing_id);
 struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx);
 struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx);
+struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos_y, long model, long plyr_idx);
 struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *get_nearest_object_at_position(MapSubtlCoord x, MapSubtlCoord y);
 
@@ -145,7 +146,7 @@ long creature_of_model_in_prison(int model);
 long count_player_creatures_of_model(long plyr_idx, long model);
 long count_player_list_creatures_of_model(long thing_idx, long model);
 long count_player_creatures_not_counting_to_total(long plyr_idx);
-TbBool knight_in_prison(void);
+TbBool lord_of_the_land_in_prison_or_tortured(void);
 struct Thing *find_nearest_enemy_creature(struct Thing *crtng);
 long electricity_affecting_area(struct Coord3d *pos, long immune_plyr_idx, long range, long max_damage);
 

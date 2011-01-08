@@ -166,7 +166,7 @@ long near_map_block_thing_filter_not_specdigger(const struct Thing *thing, MaxFi
     return -1;
 }
 
-long creature_near_filter_is_enemy_of_and_not_imp(const struct Thing *thing, FilterParam plyr_idx)
+long creature_near_filter_is_enemy_of_and_not_specdigger(const struct Thing *thing, FilterParam plyr_idx)
 {
   if (thing->owner == plyr_idx)
     return false;
@@ -655,7 +655,7 @@ struct Thing *find_nearest_enemy_creature(struct Thing *crtng)
   return neartng;
 }
 
-long creature_of_model_in_prison(int model)
+long creature_of_model_in_prison_or_tortured(int model)
 {
   struct Thing *thing;
   long i,k;
@@ -673,8 +673,8 @@ long creature_of_model_in_prison(int model)
     // Thing list loop body
     if (thing->model == model)
     {
-      if (creature_is_kept_in_prison(thing))
-        return i;
+      if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
+          return i;
     }
     // Thing list loop body ends
     k++;
@@ -687,67 +687,78 @@ long creature_of_model_in_prison(int model)
   return 0;
 }
 
-TbBool knight_in_prison(void)
+TbBool lord_of_the_land_in_prison_or_tortured(void)
 {
-  return (creature_of_model_in_prison(6) > 0);
+    struct CreatureModelConfig *crconf;
+    long crtr_model;
+    for (crtr_model=0; crtr_model < crtr_conf.model_count; crtr_model++)
+    {
+        crconf = &crtr_conf.model[crtr_model];
+        if ((crconf->model_flags & MF_IsLordOTLand) != 0)
+        {
+            if (creature_of_model_in_prison_or_tortured(crtr_model) > 0)
+                return true;
+        }
+    }
+    return false;
 }
 
 long electricity_affecting_area(struct Coord3d *pos, long immune_plyr_idx, long range, long max_damage)
 {
-  struct Thing *thing;
-  struct CreatureControl *cctrl;
-  unsigned long k;
-  long i;
-  long dist,damage,naffected;
-  naffected = 0;
-  i = game.thing_lists[TngList_Creatures].index;
-  k = 0;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct Thing *thing;
+    struct CreatureControl *cctrl;
+    unsigned long k;
+    long i;
+    long dist,damage,naffected;
+    naffected = 0;
+    i = game.thing_lists[TngList_Creatures].index;
+    k = 0;
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
-    }
-    i = thing->next_of_class;
-    // Per-thing code
-    cctrl = creature_control_get_from_thing(thing);
-    if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
-    {
-        if (thing->owner != immune_plyr_idx)
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
         {
-          if ((cctrl->spell_flags & 0x04) == 0)
-          {
-              dist = get_2d_box_distance(&thing->mappos, pos);
-              damage = get_radially_decaying_value(max_damage, range/2, range/2, dist);
-              apply_damage_to_thing_and_display_health(thing, damage, immune_plyr_idx);
-              naffected++;
-          }
+          ERRORLOG("Jump to invalid thing detected");
+          break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        cctrl = creature_control_get_from_thing(thing);
+        if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
+        {
+            if (thing->owner != immune_plyr_idx)
+            {
+              if ((cctrl->spell_flags & 0x04) == 0)
+              {
+                  dist = get_2d_box_distance(&thing->mappos, pos);
+                  damage = get_radially_decaying_value(max_damage, range/2, range/2, dist);
+                  apply_damage_to_thing_and_display_health(thing, damage, immune_plyr_idx);
+                  naffected++;
+              }
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
         }
     }
-    // Per-thing code ends
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
-  return naffected;
+    return naffected;
 }
 
 long get_free_hero_gate_number(void)
 {
-  struct Thing *thing;
-  long n;
-  for (n=1; n < 256; n++)
-  {
-    thing = find_hero_gate_of_number(n);
-    if (thing_is_invalid(thing))
-      return n;
-  }
-  return 0;
+    struct Thing *thing;
+    long n;
+    for (n=1; n < 256; n++)
+    {
+        thing = find_hero_gate_of_number(n);
+        if (thing_is_invalid(thing))
+          return n;
+    }
+    return 0;
 }
 
 /** Counts creatures of given model belonging to given player.
@@ -758,9 +769,9 @@ long get_free_hero_gate_number(void)
  */
 long count_player_creatures_of_model(long plyr_idx, long model)
 {
-  struct Dungeon *dungeon;
-  dungeon = get_players_num_dungeon(plyr_idx);
-  return count_player_list_creatures_of_model(dungeon->creatr_list_start, model);
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    return count_player_list_creatures_of_model(dungeon->creatr_list_start, model);
 }
 
 long count_player_list_creatures_of_model(long thing_idx, long model)
@@ -1476,7 +1487,7 @@ struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_
     Thing_Maximizer_Filter filter;
     struct CompoundFilterParam param;
     SYNCDBG(19,"Starting");
-    //return get_creature_near_with_filter(x, y, creature_near_filter_is_enemy_of_and_not_imp, plyr_idx);
+    //return get_creature_near_with_filter(x, y, creature_near_filter_is_enemy_of_and_not_specdigger, plyr_idx);
     filter = near_map_block_thing_filter_is_enemy_of_and_not_specdigger;
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
@@ -1567,6 +1578,27 @@ struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, Map
     i = get_mapwho_thing_index(mapblk);
     n = 0;
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
+}
+
+/** Finds trap on all subtiles around given one, which belongs to given player and is of given model.
+ *
+ * @param pos_x Position to search around X coord.
+ * @param pos_y Position to search around Y coord.
+ * @param plyr_idx Player whose creature or allied creature will be returned.
+ * @return The creature thing pointer, or invalid thing pointer if not found.
+ */
+struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos_y, long model, long plyr_idx)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
+    SYNCDBG(19,"Starting");
+    filter = map_block_thing_filter_is_of_class_and_model_and_owned_by;
+    param.class_id = TCls_Trap;
+    param.model_id = model;
+    param.plyr_idx = plyr_idx;
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, 9, filter, &param);
 }
 
 struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
