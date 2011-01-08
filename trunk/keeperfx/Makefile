@@ -198,7 +198,7 @@ DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 # code optimization flags
 OPTFLAGS = -march=pentium -O3
 # linker flags
-LDFLAGS = -static-libgcc -Wl,-Map,"$(@:%.exe=%.map)" -Wl,--enable-auto-import
+LDFLAGS = -static-libgcc -static-libstdc++ -Wl,-Map,"$(@:%.exe=%.map)" -Wl,--enable-auto-import
 # debugging flags
 DBGFLAGS = -DBFDEBUG_LEVEL=0 
 # compiler warning generation flags

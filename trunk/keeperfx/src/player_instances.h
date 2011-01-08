@@ -56,32 +56,35 @@ enum PlayerInstanceNum {
 };
 
 enum PlayerStates {
-    PSt_None                =   0,
-    PSt_CtrlDungeon         =   1,
-    PSt_BuildRoom           =   2,
-    PSt_MkGoodWorker        =   3,
-    PSt_MkGoodCreatr        =   4,
-    PSt_CallToArms          =   6,
-    PSt_CaveIn              =   7,
-    PSt_SightOfEvil         =   8,
-    PSt_Slap                =   9,
-    PSt_CtrlPassngr         =  10,
-    PSt_CtrlDirect          =  11,
-    PSt_OrderCreatr         =  13,
-    PSt_MkBadCreatr         =  14,
-    PSt_PlaceTrap           =  16,
-    PSt_Lightning           =  17,
-    PSt_PlaceDoor           =  18,
-    PSt_SpeedUp             =  19,
-    PSt_Armour              =  20,
-    PSt_Conceal             =  21,
-    PSt_Heal                =  22,
-    PSt_Sell                =  23,
-    PSt_CreateDigger        =  24,
-    PSt_DestroyWalls        =  25,
-    PSt_CastDisease         =  26,
-    PSt_TurnChicken         =  27,
-    PSt_MkGoldPot           =  28,
+    PSt_None = 0,
+    PSt_CtrlDungeon,
+    PSt_BuildRoom,
+    PSt_MkGoodWorker,
+    PSt_MkGoodCreatr,
+    PSt_Unknown5, // 5
+    PSt_CallToArms,
+    PSt_CaveIn,
+    PSt_SightOfEvil,
+    PSt_Slap,
+    PSt_CtrlPassngr, // 10
+    PSt_CtrlDirect,
+    PSt_Unknown12,
+    PSt_OrderCreatr,
+    PSt_MkBadCreatr,
+    PSt_Unknown15, // 15
+    PSt_PlaceTrap,
+    PSt_Lightning,
+    PSt_PlaceDoor,
+    PSt_SpeedUp,
+    PSt_Armour, // 20
+    PSt_Conceal,
+    PSt_Heal,
+    PSt_Sell,
+    PSt_CreateDigger,
+    PSt_DestroyWalls,
+    PSt_CastDisease,
+    PSt_TurnChicken,
+    PSt_MkGoldPot, // 28
 };
 
 /******************************************************************************/
