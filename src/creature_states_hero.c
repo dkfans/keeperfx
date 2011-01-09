@@ -7,7 +7,7 @@
  *     Defines elements of states[] array, containing valid creature states.
  * @par Comment:
  *     None.
- * @author   Tomasz Lis
+ * @author   KeeperFX Team
  * @date     23 Sep 2009 - 05 Jan 2011
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
@@ -437,7 +437,7 @@ short good_doing_nothing(struct Thing *thing)
           cctrl->sbyte_89 = -1;
           return 0;
       }
-      if (player->victory_state != 2)
+      if (player->victory_state != VicS_LostLevel)
       {
         nturns = game.play_gameturn - cctrl->long_91;
         if (nturns <= 400)

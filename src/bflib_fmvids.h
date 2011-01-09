@@ -8,7 +8,7 @@
  *     Full Motion Videos (Smacker,FLIC) decode & play library.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Tomasz Lis
+ * @author   KeeperFX Team
  * @date     27 Nov 2008 - 30 Dec 2008
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify

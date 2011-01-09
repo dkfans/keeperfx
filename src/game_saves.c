@@ -51,10 +51,9 @@ long const VersionMinor = 12;
 
 const char *continue_game_filename="fx1contn.sav";
 const char *saved_game_filename="fx1g%04d.sav";
-const char *save_catalogue_filename="fx1save.cat";
 const char *packet_filename="fx1rp%04d.pck";
 
-struct CatalogueEntry save_game_catalogue[SAVE_SLOTS_COUNT];
+struct CatalogueEntry save_game_catalogue[TOTAL_SAVE_SLOTS_COUNT];
 /******************************************************************************/
 TbBool is_primitive_save_version(long filesize)
 {
@@ -397,7 +396,7 @@ int count_valid_saved_games(void)
   struct CatalogueEntry *centry;
   int i;
   number_of_saved_games = 0;
-  for (i=0; i < SAVE_SLOTS_COUNT; i++)
+  for (i=0; i < TOTAL_SAVE_SLOTS_COUNT; i++)
   {
     centry = &save_game_catalogue[i];
     if ((centry->flags & CEF_InUse) != 0)
@@ -425,7 +424,7 @@ TbBool fill_game_catalogue_entry(struct CatalogueEntry *centry,const char *textn
 TbBool fill_game_catalogue_slot(long slot_num,const char *textname)
 {
     struct CatalogueEntry *centry;
-    if ((slot_num < 0) || (slot_num >= SAVE_SLOTS_COUNT))
+    if ((slot_num < 0) || (slot_num >= TOTAL_SAVE_SLOTS_COUNT))
     {
         ERRORLOG("Outranged slot index %d",(int)slot_num);
         return false;
@@ -436,20 +435,16 @@ TbBool fill_game_catalogue_slot(long slot_num,const char *textname)
 
 TbBool game_save_catalogue(struct CatalogueEntry *game_catalg,int nentries)
 {
-/*  Saved games descriptions are no longer stored in catalogue file - so writing is disabled.
-    char *fname;
-    fname = prepare_file_path(FGrp_Save,save_catalogue_filename);
-    return (LbFileSaveAt(fname, game_catalg, nentries*sizeof(struct CatalogueEntry)) != -1);
-*/
+  //Saved games descriptions are no longer stored in catalogue file - so writing is disabled.
     return true;
 }
 
 TbBool game_catalogue_slot_disable(struct CatalogueEntry *game_catalg,unsigned int slot_idx)
 {
-  if (slot_idx >= SAVE_SLOTS_COUNT)
+  if (slot_idx >= TOTAL_SAVE_SLOTS_COUNT)
     return false;
   set_flag_word(&game_catalg[slot_idx].flags, CEF_InUse, false);
-  game_save_catalogue(game_catalg,SAVE_SLOTS_COUNT);
+  game_save_catalogue(game_catalg,TOTAL_SAVE_SLOTS_COUNT);
   return true;
 }
 
@@ -460,7 +455,7 @@ TbBool save_catalogue_slot_disable(unsigned int slot_idx)
 
 TbBool save_game_save_catalogue(void)
 {
-  return game_save_catalogue(save_game_catalogue,SAVE_SLOTS_COUNT);
+  return game_save_catalogue(save_game_catalogue,TOTAL_SAVE_SLOTS_COUNT);
 }
 
 TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct CatalogueEntry *centry)
@@ -492,7 +487,7 @@ TbBool load_game_save_catalogue(void)
     long saves_found;
     //return load_game_catalogue(save_game_catalogue);
     saves_found = 0;
-    for (slot_num=0; slot_num < SAVE_SLOTS_COUNT; slot_num++)
+    for (slot_num=0; slot_num < TOTAL_SAVE_SLOTS_COUNT; slot_num++)
     {
         centry = &save_game_catalogue[slot_num];
         memset(centry, 0, sizeof(struct CatalogueEntry));

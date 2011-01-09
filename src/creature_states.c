@@ -2145,16 +2145,16 @@ short set_start_state(struct Thing *thing)
     }
     if (thing->owner == game.hero_player_num)
     {
-        i = creatures[thing->model%CREATURE_TYPES_COUNT].numfield_2;
+        i = creatures[thing->model%CREATURE_TYPES_COUNT].good_start_state;
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, i);
         return thing->active_state;
     }
     player = get_player(thing->owner);
-    if (player->victory_state == 2)
+    if (player->victory_state == VicS_LostLevel)
     {
         cleanup_current_thing_state(thing);
-        initialise_thing_state(thing, CrSt_CreatureLeavesOrDies);
+        initialise_thing_state(thing, CrSt_LeavesBecauseOwnerLost);
         return thing->active_state;
     }
     cctrl = creature_control_get_from_thing(thing);
@@ -2164,7 +2164,7 @@ short set_start_state(struct Thing *thing)
       initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
       return thing->active_state;
     }
-    initialise_thing_state(thing, creatures[thing->model%CREATURE_TYPES_COUNT].start_state);
+    initialise_thing_state(thing, creatures[thing->model%CREATURE_TYPES_COUNT].evil_start_state);
     return thing->active_state;
 }
 /******************************************************************************/

@@ -533,9 +533,66 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     return Lb_SUCCESS;
 }
 
-long magic_use_power_sight(unsigned char a1, long a2, long a3, long a4)
+long magic_use_power_sight(unsigned char plyr_idx, long stl_x, long stl_y, long splevel)
 {
-  return _DK_magic_use_power_sight(a1, a2, a3, a4);
+    struct MagicStats *magstat;
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    struct Coord3d pos;
+    long cit,cdt,cgt,cdlimit;
+    long i;
+    //return _DK_magic_use_power_sight(plyr_idx, stl_x, stl_y, splevel);
+    dungeon = get_dungeon(plyr_idx);
+    magstat = &game.magic_stats[5];
+    if ( dungeon->field_5D8 )
+    {
+        cdt = game.play_gameturn - dungeon->field_5D4;
+        cdlimit = magstat->power[dungeon->field_5DA] >> 4;
+        if (cdt < 0) {
+            cdt = 0;
+        } else
+        if (cdt > cdlimit) {
+            cdt = cdlimit;
+        }
+        cit = power_sight_close_instance_time[dungeon->field_5DA];
+        cgt = game.play_gameturn - magstat->power[dungeon->field_5DA];
+        i = cdlimit / cit;
+        if (i > 0) {
+            dungeon->field_5D4 = cgt + cdt/i - cit;
+        } else {
+            dungeon->field_5D4 = cgt;
+        }
+        thing = thing_get(dungeon->field_5D8);
+        if (cgt < (long)thing->field_9)
+        {
+            dungeon->computer_enabled |= 0x04;
+            dungeon->sight_casted_stl_x = stl_x;
+            dungeon->sight_casted_stl_y = stl_y;
+        }
+        return 0;
+    }
+
+    if (take_money_from_dungeon(plyr_idx, magstat->cost[splevel], 1) < 0)
+    {
+        if (is_my_player_number(plyr_idx))
+            output_message(87, 0, 1);
+        return 0;
+    }
+    pos.x.val = (stl_x << 8) + 128;
+    pos.y.val = (stl_y << 8) + 128;
+    pos.z.val = (5 << 8) + 128;
+    thing = create_object(&pos, 123, plyr_idx, -1);
+    if (!thing_is_invalid(thing))
+    {
+        dungeon->field_5D4 = game.play_gameturn;
+        thing->health = 2;
+        dungeon->field_5DA = splevel;
+        dungeon->field_5D8 = thing->index;
+        memset(&dungeon->field_5DD, 0, sizeof(struct UnknSOEStruct));
+        thing->field_4F |= 0x01;
+        thing_play_sample(thing, 51, 100, -1, 3, 0, 3, 256);
+    }
+    return 1;
 }
 
 void magic_use_power_cave_in(unsigned char a1, long a2, long a3, long a4)

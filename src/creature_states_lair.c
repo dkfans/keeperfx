@@ -7,7 +7,7 @@
  *     Defines elements of states[] array, containing valid creature states.
  * @par Comment:
  *     None.
- * @author   Tomasz Lis
+ * @author   KeeperFX Team
  * @date     23 Sep 2009 - 05 Jan 2011
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
