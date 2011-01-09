@@ -49,6 +49,7 @@ DLLIMPORT short _DK_good_leave_through_exit_door(struct Thing *thing);
 DLLIMPORT short _DK_good_returns_to_start(struct Thing *thing);
 DLLIMPORT short _DK_good_wait_in_exit_door(struct Thing *thing);
 DLLIMPORT long _DK_good_setup_loot_treasure_room(struct Thing *thing, long dngn_id);
+DLLIMPORT short _DK_creature_hero_entering(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -649,6 +650,11 @@ short good_wait_in_exit_door(struct Thing *thing)
         kill_creature(thing, 0, -1, 1, 0, 0);
     }
     return 0;
+}
+
+short creature_hero_entering(struct Thing *thing)
+{
+  return _DK_creature_hero_entering(thing);
 }
 
 /******************************************************************************/
