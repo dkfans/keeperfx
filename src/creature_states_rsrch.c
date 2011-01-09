@@ -68,9 +68,9 @@ short at_research_room(struct Thing *thing)
     dungeon = get_dungeon(thing->owner);
     if ((crstat->research_value <= 0) || (dungeon->field_F78 < 0))
     {
-        if ((thing->owner != game.neutral_player_num) && (dungeon->field_F78 < 0))
+        if ( (thing->owner != game.neutral_player_num) && (dungeon->field_F78 < 0) )
         {
-            if (is_my_player_number(dungeon->field_E9F))
+            if ( is_my_player_number(dungeon->field_E9F) )
                 output_message(46, 500, 1);
         }
         set_start_state(thing);
@@ -164,6 +164,7 @@ long get_next_research_item(struct Dungeon *dungeon)
             }
             break;
         case RsCat_Creature:
+            WARNLOG("Creature research skipped - not implemented");
             break;
         case RsCat_None:
             break;
@@ -217,7 +218,113 @@ long process_research_function(struct Thing *thing)
 
 short researching(struct Thing *thing)
 {
-  return _DK_researching(thing);
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct Dungeon *dungeon;
+    struct Room *room;
+    long i;
+    //return _DK_researching(thing);
+    dungeon = get_dungeon(thing->owner);
+    cctrl = creature_control_get_from_thing(thing);
+    if (thing->owner == game.neutral_player_num)
+    {
+        ERRORLOG("Neutral %s can't do research",thing_model_name(thing));
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    crstat = creature_stats_get_from_thing(thing);
+    if ( (crstat->research_value == 0) || (dungeon->field_F78 < 0) )
+    {
+        if ( (thing->owner != game.neutral_player_num) && (dungeon->field_F78 < 0) )
+        {
+            if ( is_my_player_number(dungeon->field_E9F) )
+                output_message(46, 500, 1);
+        }
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    // Get and verify working room
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room))
+    {
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    if ( (room->kind != RoK_LIBRARY) || (room->owner != thing->owner) || (cctrl->work_room_id != room->index) )
+    {
+        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    if (room->used_capacity > room->total_capacity)
+    {
+      if ( is_my_player_number(room->owner) )
+          output_message(25, 0, 1);
+      remove_creature_from_work_room(thing);
+      set_start_state(thing);
+      return 0;
+    }
+    process_research_function(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    if ( (game.play_gameturn - dungeon->field_AE5[0] < 50)
+      && ((game.play_gameturn + thing->index) & 0x03) == 0)
+    {
+      external_set_thing_state(thing, 127);
+      cctrl->field_282 = 50;
+      cctrl->long_9A = 0;
+      return 1;
+    }
+    if ( cctrl->field_D2 )
+      return 1;
+    cctrl->field_82++;
+    // Shall we do some "Standing and thinking"
+    if (cctrl->field_82 <= 128)
+    {
+      if (cctrl->byte_9A == 3)
+      {
+          // Do some random thinking
+          if ((cctrl->field_82 % 16) == 0)
+          {
+              i = ACTION_RANDOM(1024) - 512;
+              cctrl->long_9B = ((long)thing->field_52 + i) & 0x7FF;
+              cctrl->byte_9A = 4;
+          }
+      } else
+      {
+          // Look at different direction while thinking
+          if ( creature_turn_to_face_angle(thing, cctrl->long_9B) < 56 )
+          {
+              cctrl->byte_9A = 3;
+          }
+      }
+      return 1;
+    }
+    // Finished "Standing and thinking" - make "new idea" effect and go to next position
+    if ( !setup_random_head_for_room(thing, room, 0) )
+    {
+        ERRORLOG("Cannot move %s in research room", thing_model_name(thing));
+        set_start_state(thing);
+        return 1;
+    }
+    thing->continue_state = CrSt_Researching;
+    cctrl->field_82 = 0;
+    cctrl->byte_9A = 3;
+    if (cctrl->explevel < 3)
+    {
+        create_effect(&thing->mappos, 54, thing->owner);
+    } else
+    if (cctrl->explevel < 6)
+    {
+        create_effect(&thing->mappos, 55, thing->owner);
+    } else
+    {
+        create_effect(&thing->mappos, 56, thing->owner);
+    }
+    return 1;
 }
 
 /******************************************************************************/
