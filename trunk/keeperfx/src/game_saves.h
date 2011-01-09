@@ -26,9 +26,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define SAVE_SLOTS_COUNT       8
-#define SAVE_TEXTNAME_LEN     15
-#define PLAYER_NAME_LENGTH    64
+#define CAMPAIGN_SAVE_SLOTS_COUNT 8
+#define TOTAL_SAVE_SLOTS_COUNT    8
+#define SAVE_TEXTNAME_LEN        15
+#define PLAYER_NAME_LENGTH       64
 
 enum SaveGameChunks {
      SGC_InfoBlock    = 0x4F464E49, //"INFO"

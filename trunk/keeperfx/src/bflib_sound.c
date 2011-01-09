@@ -8,7 +8,7 @@
  *     Sound and music routines to use in games.
  * @par Comment:
  *     None.
- * @author   Tomasz Lis
+ * @author   KeeperFX Team
  * @date     16 Nov 2008 - 30 Dec 2008
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify

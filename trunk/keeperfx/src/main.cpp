@@ -791,7 +791,7 @@ void process_armageddon(void)
     player = get_player(game.field_15035E);
     dungeon = get_dungeon(player->id_number);
     thing = thing_get(dungeon->dnheart_idx);
-    if ((player->victory_state == 2) || thing_is_invalid(thing) || (thing->active_state == CrSt_ImpArrivesAtDigOrMine2))
+    if ((player->victory_state == VicS_LostLevel) || thing_is_invalid(thing) || (thing->active_state == CrSt_ImpArrivesAtDigOrMine2))
         game.field_150356 = 0;
   } else
   if (game.armageddon.count_down+game.field_150356 == game.play_gameturn)

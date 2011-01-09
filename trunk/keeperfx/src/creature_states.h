@@ -86,7 +86,7 @@ enum CreatureStates {
     CrSt_Manufacturing,
     CrSt_AtScavengerRoom,
     CrSt_Scavengering,
-    CrSt_CreatureDormant,
+    CrSt_CreatureDormant, // For neutral creatures, moving around without purpose
     CrSt_CreatureInCombat,
     CrSt_CreatureLeavingDungeon,//[50]
     CrSt_CreatureLeaves,
@@ -177,7 +177,7 @@ enum CreatureStates {
     CrSt_CreatureFreezePrisonors,
     CrSt_CreatureExploreDungeon,
     CrSt_CreatureEatingAtGarden,
-    CrSt_CreatureLeavesOrDies,
+    CrSt_LeavesBecauseOwnerLost,
     CrSt_CreatureMoan,//[140]
     CrSt_CreatureSetWorkRoomBasedOnPosition,
     CrSt_CreatureBeingScavenged,

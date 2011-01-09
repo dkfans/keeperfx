@@ -1084,7 +1084,7 @@ void command_set_generate_speed(long game_turns)
 {
   if (game_turns <= 0)
   {
-    SCRPTERRLOG("Genaration speed must be positive number");
+    SCRPTERRLOG("Generation speed must be positive number");
     return;
   }
   command_add_value(Cmd_SET_GENERATE_SPEED, 0, game_turns, 0, 0);

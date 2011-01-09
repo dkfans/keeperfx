@@ -95,8 +95,8 @@ struct CreatureData {
 };
 
 struct Creatures { // sizeof = 16
-  unsigned short start_state;
-  unsigned short numfield_2;
+  unsigned short evil_start_state;
+  unsigned short good_start_state;
   unsigned char natural_death_kind;
   unsigned char field_5;
   unsigned char field_6;

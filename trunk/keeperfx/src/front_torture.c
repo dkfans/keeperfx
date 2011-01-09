@@ -282,7 +282,7 @@ void fronttorture_input(void)
   player = get_my_player();
   pckt = get_packet(my_player_number);
   // Get inputs and create packet
-  if (player->victory_state == 1)
+  if (player->victory_state == VicS_WonLevel)
   {
     if (left_button_clicked)
     {
@@ -314,7 +314,7 @@ void fronttorture_input(void)
   {
     player = get_player(plyr_idx);
     pckt = get_packet(plyr_idx);
-    if ((pckt->action != 0) && (player->victory_state == 1))
+    if ((pckt->action != 0) && (player->victory_state == VicS_WonLevel))
       break;
   }
   if (plyr_idx < PLAYERS_COUNT)
