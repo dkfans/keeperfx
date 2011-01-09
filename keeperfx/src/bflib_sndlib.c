@@ -9,7 +9,7 @@
  * @par Comment:
  *     Windows version os Bullfrog Engine uses Miles Sound System, wrapped
  *     with WSND7R.DLL. This library contains definitions of the exported functions.
- * @author   Tomasz Lis
+ * @author   KeeperFX Team
  * @date     16 Nov 2008 - 30 Dec 2008
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify

@@ -115,7 +115,7 @@ int frontend_load_game_button_to_index(struct GuiButton *gbtn)
     do
     {
       k++;
-      if (k >= SAVE_SLOTS_COUNT)
+      if (k >= TOTAL_SAVE_SLOTS_COUNT)
         return -1;
       centry = &save_game_catalogue[k];
     } while ((centry->flags & CEF_InUse) == 0);
@@ -174,7 +174,7 @@ void gui_save_game(struct GuiButton *gbtn)
   player = get_my_player();
   if (strcasecmp((char *)gbtn->field_33, gui_strings[342]) != 0) // "UNUSED"
   {
-      slot_num = gbtn->field_1B%SAVE_SLOTS_COUNT;
+      slot_num = gbtn->field_1B%TOTAL_SAVE_SLOTS_COUNT;
       fill_game_catalogue_slot(slot_num,(char *)gbtn->field_33);
       if (save_game(slot_num))
       {
@@ -194,7 +194,7 @@ void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
     long slot_num;
     char *text;
     SYNCDBG(6,"Starting");
-    for (slot_num=0; slot_num < SAVE_SLOTS_COUNT; slot_num++)
+    for (slot_num=0; slot_num < TOTAL_SAVE_SLOTS_COUNT; slot_num++)
     {
         centry = &game_catalg[slot_num];
         if ((centry->flags & CEF_InUse) != 0)

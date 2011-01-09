@@ -178,6 +178,10 @@ struct TurnTimer { // sizeof = 5
   unsigned char state;
 };
 
+struct UnknSOEStruct { // sizeof = 676
+  unsigned char field_0[676];
+};
+
 #define SIZEOF_Dungeon 0x1508
 struct Dungeon {
     unsigned short dnheart_idx;
@@ -209,7 +213,9 @@ struct Dungeon {
     int field_5D4;
     short field_5D8;
     unsigned char field_5DA;
-    unsigned char field_5DB[678];
+    unsigned char sight_casted_stl_x;
+    unsigned char sight_casted_stl_y;
+    struct UnknSOEStruct field_5DD;
     unsigned char field_881;
     unsigned char field_882;
     unsigned char field_883;
