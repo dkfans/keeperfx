@@ -44,6 +44,7 @@ DLLIMPORT short _DK_at_research_room(struct Thing *thing);
 DLLIMPORT long _DK_process_research_function(struct Thing *thing);
 DLLIMPORT short _DK_researching(struct Thing *thing);
 DLLIMPORT void _DK_force_complete_current_research(long plyr_idx);
+DLLIMPORT long _DK_get_next_research_item(struct Dungeon *dungeon);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -105,9 +106,108 @@ short at_research_room(struct Thing *thing)
     return 1;
 }
 
-void force_complete_current_research(long plyr_idx)
+TbBool research_needed(struct ResearchVal *rsrchval, struct Dungeon *dungeon)
 {
-  _DK_force_complete_current_research(plyr_idx);
+    if (dungeon->research_num == 0)
+        return -1;
+    switch (rsrchval->rtyp)
+    {
+   case RsCat_Power:
+        if ( (dungeon->magic_resrchable[rsrchval->rkind]) && (dungeon->magic_level[rsrchval->rkind] == 0) )
+        {
+            return true;
+        }
+        break;
+    case RsCat_Room:
+        if ( (dungeon->room_resrchable[rsrchval->rkind]) && (dungeon->room_buildable[rsrchval->rkind] == 0) )
+        {
+            return true;
+        }
+        break;
+    case RsCat_Creature:
+        if ( (dungeon->creature_allowed[rsrchval->rkind]) && (dungeon->creature_enabled[rsrchval->rkind] == 0) )
+        {
+            return true;
+        }
+        break;
+    case RsCat_None:
+        break;
+    default:
+        ERRORLOG("Illegal research type %d while processing player research",(int)rsrchval->rtyp);
+        break;
+    }
+    return false;
+}
+
+long get_next_research_item(struct Dungeon *dungeon)
+{
+    struct ResearchVal *rsrchval;
+    long resnum;
+    //return _DK_get_next_research_item(dungeon);
+    if (dungeon->research_num == 0)
+        return -1;
+    for (resnum = 0; resnum < dungeon->research_num; resnum++)
+    {
+        rsrchval = &dungeon->research[resnum];
+        switch (rsrchval->rtyp)
+        {
+       case RsCat_Power:
+            if ( (dungeon->magic_resrchable[rsrchval->rkind]) && (dungeon->magic_level[rsrchval->rkind] == 0) )
+            {
+                return resnum;
+            }
+            break;
+        case RsCat_Room:
+            if ( (dungeon->room_resrchable[rsrchval->rkind]) && (dungeon->room_buildable[rsrchval->rkind] == 0) )
+            {
+                return resnum;
+            }
+            break;
+        case RsCat_Creature:
+            break;
+        case RsCat_None:
+            break;
+        default:
+            ERRORLOG("Illegal research type %d while getting next research item",(int)rsrchval->rtyp);
+            break;
+        }
+    }
+    return -1;
+}
+
+struct ResearchVal *get_players_current_research_val(long plyr_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(plyr_idx);
+    if ((dungeon->field_F78 < 0) || (dungeon->field_F78 >= DUNGEON_RESEARCH_COUNT))
+        return NULL;
+    return &dungeon->research[dungeon->field_F78];
+}
+
+TbBool force_complete_current_research(long plyr_idx)
+{
+    struct Dungeon *dungeon;
+    struct ResearchVal *rsrchval;
+    long resnum;
+    //_DK_force_complete_current_research(plyr_idx);
+    dungeon = get_dungeon(plyr_idx);
+    rsrchval = get_players_current_research_val(plyr_idx);
+    if (rsrchval != NULL)
+    {
+        if ( research_needed(rsrchval, dungeon) ) {
+            dungeon->field_1193 = rsrchval->req_amount << 8;
+            return true;
+        }
+    }
+    resnum = get_next_research_item(dungeon);
+    dungeon->field_F78 = resnum;
+    rsrchval = get_players_current_research_val(plyr_idx);
+    if (rsrchval != NULL)
+    {
+        dungeon->field_1193 = rsrchval->req_amount << 8;
+        return true;
+    }
+    return false;
 }
 
 long process_research_function(struct Thing *thing)

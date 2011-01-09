@@ -39,9 +39,53 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT short _DK_at_guard_post_room(struct Thing *thing);
+DLLIMPORT short _DK_guarding(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
+short at_guard_post_room(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    //return _DK_at_guard_post_room(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_80 = 0;
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room))
+    {
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    if ((room->kind != RoK_GUARDPOST) || (room->owner != thing->owner))
+    {
+        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    if ( !add_creature_to_work_room(thing, room) )
+    {
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    internal_set_thing_state(thing, CrSt_Guarding);
+    if ( !person_get_somewhere_adjacent_in_room(thing, room, &cctrl->moveto_pos) )
+    {
+        cctrl->moveto_pos.x.val = thing->mappos.x.val;
+        cctrl->moveto_pos.y.val = thing->mappos.y.val;
+        cctrl->moveto_pos.z.val = thing->mappos.z.val;
+    }
+    return 1;
+}
+
+short guarding(struct Thing *thing)
+{
+  return _DK_guarding(thing);
+}
+
 /******************************************************************************/

@@ -69,10 +69,8 @@ DLLIMPORT short _DK_already_at_call_to_arms(struct Thing *thing);
 DLLIMPORT short _DK_arrive_at_alarm(struct Thing *thing);
 DLLIMPORT short _DK_arrive_at_call_to_arms(struct Thing *thing);
 DLLIMPORT short _DK_at_barrack_room(struct Thing *thing);
-DLLIMPORT short _DK_at_guard_post_room(struct Thing *thing);
 DLLIMPORT short _DK_barracking(struct Thing *thing);
 DLLIMPORT short _DK_cleanup_hold_audience(struct Thing *thing);
-DLLIMPORT short _DK_creature_arms_trap(struct Thing *thing);
 DLLIMPORT short _DK_creature_being_dropped(struct Thing *thing);
 DLLIMPORT short _DK_creature_cannot_find_anything_to_do(struct Thing *thing);
 DLLIMPORT short _DK_creature_change_from_chicken(struct Thing *thing);
@@ -84,7 +82,6 @@ DLLIMPORT short _DK_creature_evacuate_room(struct Thing *thing);
 DLLIMPORT short _DK_creature_explore_dungeon(struct Thing *thing);
 DLLIMPORT short _DK_creature_fired(struct Thing *thing);
 DLLIMPORT short _DK_creature_follow_leader(struct Thing *thing);
-DLLIMPORT short _DK_creature_hero_entering(struct Thing *thing);
 DLLIMPORT short _DK_creature_in_hold_audience(struct Thing *thing);
 DLLIMPORT short _DK_creature_kill_creatures(struct Thing *thing);
 DLLIMPORT short _DK_creature_leaves(struct Thing *thing);
@@ -104,7 +101,6 @@ DLLIMPORT short _DK_creature_vandalise_rooms(struct Thing *thing);
 DLLIMPORT short _DK_creature_wait_at_treasure_room_door(struct Thing *thing);
 DLLIMPORT short _DK_creature_wants_a_home(struct Thing *thing);
 DLLIMPORT short _DK_creature_wants_salary(struct Thing *thing);
-DLLIMPORT short _DK_guarding(struct Thing *thing);
 DLLIMPORT short _DK_move_backwards_to_position(struct Thing *thing);
 DLLIMPORT long _DK_move_check_attack_any_door(struct Thing *thing);
 DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *thing);
@@ -145,10 +141,8 @@ short already_at_call_to_arms(struct Thing *thing);
 short arrive_at_alarm(struct Thing *thing);
 short arrive_at_call_to_arms(struct Thing *thing);
 short at_barrack_room(struct Thing *thing);
-short at_guard_post_room(struct Thing *thing);
 short barracking(struct Thing *thing);
 short cleanup_hold_audience(struct Thing *thing);
-short creature_arms_trap(struct Thing *thing);
 short creature_being_dropped(struct Thing *thing);
 short creature_cannot_find_anything_to_do(struct Thing *thing);
 short creature_change_from_chicken(struct Thing *thing);
@@ -160,7 +154,6 @@ short creature_evacuate_room(struct Thing *thing);
 short creature_explore_dungeon(struct Thing *thing);
 short creature_fired(struct Thing *thing);
 short creature_follow_leader(struct Thing *thing);
-short creature_hero_entering(struct Thing *thing);
 short creature_in_hold_audience(struct Thing *thing);
 short creature_kill_creatures(struct Thing *thing);
 short creature_leaves(struct Thing *thing);
@@ -180,7 +173,6 @@ short creature_vandalise_rooms(struct Thing *thing);
 short creature_wait_at_treasure_room_door(struct Thing *thing);
 short creature_wants_a_home(struct Thing *thing);
 short creature_wants_salary(struct Thing *thing);
-short guarding(struct Thing *thing);
 short move_backwards_to_position(struct Thing *thing);
 long move_check_attack_any_door(struct Thing *thing);
 long move_check_can_damage_wall(struct Thing *thing);
@@ -959,43 +951,6 @@ long person_get_somewhere_adjacent_in_room(struct Thing *thing, struct Room *roo
     return _DK_person_get_somewhere_adjacent_in_room(thing, room, pos);
 }
 
-short at_guard_post_room(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    struct Room *room;
-    //return _DK_at_guard_post_room(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_80 = 0;
-    room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room))
-    {
-        remove_creature_from_work_room(thing);
-        set_start_state(thing);
-        return 0;
-    }
-    if ((room->kind != RoK_GUARDPOST) || (room->owner != thing->owner))
-    {
-        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
-        remove_creature_from_work_room(thing);
-        set_start_state(thing);
-        return 0;
-    }
-    if ( !add_creature_to_work_room(thing, room) )
-    {
-        remove_creature_from_work_room(thing);
-        set_start_state(thing);
-        return 0;
-    }
-    internal_set_thing_state(thing, CrSt_Guarding);
-    if ( !person_get_somewhere_adjacent_in_room(thing, room, &cctrl->moveto_pos) )
-    {
-        cctrl->moveto_pos.x.val = thing->mappos.x.val;
-        cctrl->moveto_pos.y.val = thing->mappos.y.val;
-        cctrl->moveto_pos.z.val = thing->mappos.z.val;
-    }
-    return 1;
-}
-
 SubtlCodedCoords find_position_around_in_room(struct Coord3d *pos, long owner, long rkind)
 {
     SubtlCodedCoords stl_num;
@@ -1067,41 +1022,6 @@ short cleanup_seek_the_enemy(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     cctrl->word_9A = 0;
     cctrl->long_9C = 0;
-    return 1;
-}
-
-short creature_arms_trap(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
-    struct Thing *traptng;
-    struct Thing *postng;
-    struct Thing *cratetng;
-    //return _DK_creature_arms_trap(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    dungeon = get_dungeon(thing->owner);
-    cratetng = thing_get(cctrl->field_6E);
-    traptng = thing_get(cctrl->field_70);
-    if ( !thing_exists(cratetng) || !thing_exists(traptng) )
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    postng = get_trap_at_subtile_of_model_and_owned_by(thing->mappos.x.stl.num, thing->mappos.y.stl.num, traptng->model, thing->owner);
-    // Note that this means there can be only one trap of given kind at a subtile.
-    // Otherwise it won't be possible to re-arm it, as the condition below will fail.
-    if ( (postng != traptng) || (traptng->byte_13 > 0) )
-    {
-        ERRORLOG("The %s has moved or been already rearmed",thing_model_name(traptng));
-        set_start_state(thing);
-        return 0;
-    }
-    traptng->byte_13 = game.traps_config[traptng->model].shots;
-    traptng->field_4F ^= (traptng->field_4F ^ (trap_stats[traptng->model].field_12 << 4)) & 0x30;
-    dungeon->lvstats.traps_armed++;
-    creature_drop_dragged_object(thing, cratetng);
-    delete_thing_structure(cratetng, 0);
-    set_start_state(thing);
     return 1;
 }
 
@@ -1312,11 +1232,6 @@ short creature_fired(struct Thing *thing)
 short creature_follow_leader(struct Thing *thing)
 {
   return _DK_creature_follow_leader(thing);
-}
-
-short creature_hero_entering(struct Thing *thing)
-{
-  return _DK_creature_hero_entering(thing);
 }
 
 short creature_in_hold_audience(struct Thing *thing)
@@ -1574,7 +1489,7 @@ short creature_steal_gold(struct Thing *thing)
     struct CreatureStats *crstat;
     struct Room *room;
     struct Thing *hrdtng;
-    long amount;
+    long max_amount,amount;
     //return _DK_creature_steal_gold(thing);
     crstat = creature_stats_get_from_thing(thing);
     room = subtile_room_get(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
@@ -1591,14 +1506,17 @@ short creature_steal_gold(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if (crstat->gold_hold-thing->long_13 > 0)
+    max_amount = crstat->gold_hold - thing->long_13;
+    if (max_amount <= 0)
     {
-        // Success! we are able to steal some gold!
-        amount = remove_gold_from_hoarde(hrdtng, room, crstat->gold_hold-thing->long_13);
-        thing->long_13 += amount;
-        create_price_effect(&thing->mappos, thing->owner, amount);
-        SYNCDBG(6,"Stolen %ld gold from hoarde at (%d,%d)",amount,(int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num);
+        set_start_state(thing);
+        return 0;
     }
+    // Success! we are able to steal some gold!
+    amount = remove_gold_from_hoarde(hrdtng, room, max_amount);
+    thing->long_13 += amount;
+    create_price_effect(&thing->mappos, thing->owner, amount);
+    SYNCDBG(6,"Stolen %ld gold from hoarde at (%d,%d)",amount,(int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num);
     set_start_state(thing);
     return 0;
 }
@@ -1635,7 +1553,7 @@ short creature_pick_up_spell_to_steal(struct Thing *thing)
     {
         SYNCDBG(8,"Cannot move to (%d,%d)",(int)pos.x.stl.num, (int)pos.y.stl.num);
     }
-    thing->continue_state = CrSt_XXX;
+    thing->continue_state = CrSt_GoodReturnsToStart;
     return 1;
 */
 }
@@ -1697,11 +1615,6 @@ void remove_thing_from_creature_controlled_limbo(struct Thing *thing)
     thing->field_1 &= 0xFD;
     thing->field_4F &= 0xFE;
     place_thing_in_mapwho(thing);
-}
-
-short guarding(struct Thing *thing)
-{
-  return _DK_guarding(thing);
 }
 
 short move_backwards_to_position(struct Thing *thing)

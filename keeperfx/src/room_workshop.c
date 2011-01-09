@@ -59,16 +59,16 @@ TbBool add_workshop_item(long plyr_idx, long wrkitm_class, long wrkitm_kind)
     dungeon = get_players_num_dungeon(plyr_idx);
     switch (wrkitm_class)
     {
-    case 8:
+    case TCls_Trap:
         dungeon->trap_amount[wrkitm_kind]++;
         dungeon->trap_placeable[wrkitm_kind] = 1;
         break;
-    case 9:
+    case TCls_Door:
         dungeon->door_amount[wrkitm_kind]++;
         dungeon->door_placeable[wrkitm_kind] = 1;
         break;
     default:
-        ERRORLOG("Illegal item class");
+        ERRORLOG("Illegal item class %d",(int)wrkitm_class);
         return false;
     }
     return true;
