@@ -76,6 +76,7 @@
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
+#include "creature_states_rsrch.h"
 #include "lens_api.h"
 #include "light_data.h"
 #include "magic.h"
@@ -325,7 +326,6 @@ DLLIMPORT void _DK_check_and_auto_fix_stats(void);
 DLLIMPORT long _DK_update_dungeon_scores(void);
 DLLIMPORT long _DK_update_dungeon_generation_speeds(void);
 DLLIMPORT void _DK_calculate_dungeon_area_scores(void);
-DLLIMPORT long _DK_get_next_research_item(struct Dungeon *dungeon);
 DLLIMPORT void _DK_delete_all_structures(void);
 DLLIMPORT void _DK_clear_mapwho(void);
 DLLIMPORT void _DK_clear_game(void);
@@ -3401,11 +3401,6 @@ void gui_set_button_flashing(long btn_idx, long gameturns)
 {
     game.flash_button_index = btn_idx;
     game.flash_button_gameturns = gameturns;
-}
-
-long get_next_research_item(struct Dungeon *dungeon)
-{
-    return _DK_get_next_research_item(dungeon);
 }
 
 void instant_instance_selected(long a1)

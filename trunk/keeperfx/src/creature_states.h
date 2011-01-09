@@ -275,6 +275,7 @@ struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing);
 TbBool anger_make_creature_angry(struct Thing *thing, long reason);
+long person_get_somewhere_adjacent_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 /******************************************************************************/
 TbBool creature_is_doing_lair_activity(const struct Thing *thing);
 TbBool creature_is_being_dropped(const struct Thing *thing);

@@ -50,6 +50,13 @@ enum DungeonCreatureTendencies {
     CrTend_Flee       = 2,
 };
 
+enum DungeonResearchCategory {
+    RsCat_None        = 0,
+    RsCat_Power       = 1,
+    RsCat_Room        = 2,
+    RsCat_Creature    = 3,
+};
+
 #ifdef __cplusplus
 #pragma pack(1)
 #endif

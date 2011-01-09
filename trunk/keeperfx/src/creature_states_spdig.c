@@ -30,6 +30,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
+#include "thing_traps.h"
 #include "room_data.h"
 #include "room_jobs.h"
 #include "room_workshop.h"
@@ -64,6 +65,7 @@ DLLIMPORT short _DK_creature_picks_up_trap_object(struct Thing *thing);
 DLLIMPORT short _DK_creature_drops_corpse_in_graveyard(struct Thing *thing);
 DLLIMPORT short _DK_creature_drops_crate_in_workshop(struct Thing *thing);
 DLLIMPORT short _DK_creature_drops_spell_object_in_library(struct Thing *thing);
+DLLIMPORT short _DK_creature_arms_trap(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -450,6 +452,41 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
 short creature_drops_spell_object_in_library(struct Thing *thing)
 {
   return _DK_creature_drops_spell_object_in_library(thing);
+}
+
+short creature_arms_trap(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    struct Thing *traptng;
+    struct Thing *postng;
+    struct Thing *cratetng;
+    //return _DK_creature_arms_trap(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    dungeon = get_dungeon(thing->owner);
+    cratetng = thing_get(cctrl->field_6E);
+    traptng = thing_get(cctrl->field_70);
+    if ( !thing_exists(cratetng) || !thing_exists(traptng) )
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    postng = get_trap_at_subtile_of_model_and_owned_by(thing->mappos.x.stl.num, thing->mappos.y.stl.num, traptng->model, thing->owner);
+    // Note that this means there can be only one trap of given kind at a subtile.
+    // Otherwise it won't be possible to re-arm it, as the condition below will fail.
+    if ( (postng != traptng) || (traptng->byte_13 > 0) )
+    {
+        ERRORLOG("The %s has moved or been already rearmed",thing_model_name(traptng));
+        set_start_state(thing);
+        return 0;
+    }
+    traptng->byte_13 = game.traps_config[traptng->model].shots;
+    traptng->field_4F ^= (traptng->field_4F ^ (trap_stats[traptng->model].field_12 << 4)) & 0x30;
+    dungeon->lvstats.traps_armed++;
+    creature_drop_dragged_object(thing, cratetng);
+    delete_thing_structure(cratetng, 0);
+    set_start_state(thing);
+    return 1;
 }
 
 /******************************************************************************/

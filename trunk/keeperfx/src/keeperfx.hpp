@@ -979,7 +979,6 @@ void check_and_auto_fix_stats(void);
 long update_dungeon_scores(void);
 long update_dungeon_generation_speeds(void);
 void calculate_dungeon_area_scores(void);
-long get_next_research_item(struct Dungeon *dungeon);
 short send_creature_to_room(struct Thing *thing, struct Room *room);
 struct Room *get_room_thing_is_on(struct Thing *thing);
 void init_creature_state(struct Thing *thing);
