@@ -108,7 +108,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     }
   }
   i = cctrl->field_21;
-  cctrl->field_21 = game.magic_stats[4].time;
+  cctrl->field_21 = game.magic_stats[PwrK_SLAP].time;
   if (i == 0)
     cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
   if (thing->active_state != CrSt_CreatureSlapCowers)
@@ -265,7 +265,7 @@ void turn_off_sight_of_evil(long plyr_idx)
   long i,imax,k,n;
   //_DK_turn_off_sight_of_evil(plyr_idx);
   dungeon = get_players_num_dungeon(plyr_idx);
-  mgstat = &(game.magic_stats[5]);
+  mgstat = &(game.magic_stats[PwrK_SIGHT]);
   spl_lev = dungeon->field_5DA;
   if (spl_lev > SPELL_MAX_LEVEL)
       spl_lev = SPELL_MAX_LEVEL;
@@ -505,7 +505,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         shtng->byte_16 = 2;
         shtng->field_19 = splevel;
     }
-    magstat = &game.magic_stats[10];
+    magstat = &game.magic_stats[PwrK_LIGHTNING];
     shotst = get_shot_model_stats(16);
     dungeon->field_EA4 = 256;
     i = magstat->power[splevel];
@@ -543,7 +543,7 @@ long magic_use_power_sight(unsigned char plyr_idx, long stl_x, long stl_y, long 
     long i;
     //return _DK_magic_use_power_sight(plyr_idx, stl_x, stl_y, splevel);
     dungeon = get_dungeon(plyr_idx);
-    magstat = &game.magic_stats[5];
+    magstat = &game.magic_stats[PwrK_SIGHT];
     if ( dungeon->field_5D8 )
     {
         cdt = game.play_gameturn - dungeon->field_5D4;
@@ -665,8 +665,10 @@ TbBool update_spell_overcharge(struct PlayerInfo *player, int spl_idx)
   struct Dungeon *dungeon;
   struct MagicStats *mgstat;
   int i;
+  if ((spl_idx < 0) || (spl_idx >= POWER_TYPES_COUNT))
+      return false;
   dungeon = get_dungeon(player->id_number);
-  mgstat = &(game.magic_stats[spl_idx%POWER_TYPES_COUNT]);
+  mgstat = &(game.magic_stats[spl_idx]);
   i = (player->field_4D2+1) >> 2;
   if (i > SPELL_MAX_LEVEL)
     i = SPELL_MAX_LEVEL;

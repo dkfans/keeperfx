@@ -960,7 +960,7 @@ void choose_special_spell(int kind, int tooltip_id)
     struct Dungeon *dungeon;
     struct SpellData *pwrdata;
 
-    if ((kind != PwrK_HOLD_AUDIENCE) && (kind != PwrK_ARMAGEDDON)) {
+    if ((kind != PwrK_HOLDAUDNC) && (kind != PwrK_ARMAGEDDON)) {
         WARNLOG("Bad power kind");
         return;
     }
@@ -976,7 +976,7 @@ void choose_special_spell(int kind, int tooltip_id)
         case PwrK_ARMAGEDDON:
             turn_on_menu(GMnu_ARMAGEDDON);
             break;
-        case PwrK_HOLD_AUDIENCE:
+        case PwrK_HOLDAUDNC:
             turn_on_menu(GMnu_HOLD_AUDIENCE);
             break;
         }
@@ -991,7 +991,7 @@ void choose_spell(int kind, int tooltip_id)
 {
     struct PlayerInfo *player;
 
-    if ((kind == PwrK_HOLD_AUDIENCE) || (kind == PwrK_ARMAGEDDON)) {
+    if ((kind == PwrK_HOLDAUDNC) || (kind == PwrK_ARMAGEDDON)) {
         choose_special_spell(kind, tooltip_id);
         return;
     }
