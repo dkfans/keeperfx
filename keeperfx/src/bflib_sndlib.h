@@ -28,21 +28,31 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#ifdef __cplusplus
+#pragma pack(1)
+#endif
+
 // Data structures
 
 struct HeapMgrHeader;
 struct HeapMgrHandle;
 
 
-struct SampleInfo { // sizeof = 28
-  unsigned char field_0[8];
+struct SampleInfo { // sizeof = 29
+    long field_0;
+  unsigned char field_4[4];
   unsigned char field_8;
-  unsigned char field_9[11];
+  unsigned char field_9[9];
+    unsigned short field_12;
   unsigned char field_14[3];
   unsigned char field_17;
   unsigned long field_18;
+  unsigned char field_1C;
 };
 
+#ifdef __cplusplus
+#pragma pack()
+#endif
 /******************************************************************************/
 // Exported variables
 
@@ -59,15 +69,16 @@ int __stdcall MonitorStreamedSoundTrack(void);
 int __stdcall StopRedbookTrack(void);
 void * __stdcall GetSoundDriver(void);
 int __stdcall StopAllSamples(void);
-int __stdcall GetFirstSampleInfoStructure(void);
+struct SampleInfo * __stdcall GetFirstSampleInfoStructure(void);
 int __stdcall LoadMusic(int);
 int __stdcall InitAudio(void *);
 int __stdcall SetupAudioOptionDefaults(void *);
 int __stdcall PlayStreamedSample(char *fname, int a2, int a3, int a4);
+int __stdcall IsSamplePlaying(int a1, int a2, int a3);
 int __stdcall StopStreamedSample(void);
 int __stdcall StreamedSampleFinished(void);
 int __stdcall SetStreamedSampleVolume(int);
-int __stdcall GetLastSampleInfoStructure(void);
+struct SampleInfo * __stdcall GetLastSampleInfoStructure(void);
 int __stdcall GetCurrentSoundMasterVolume(void);
 int __stdcall StopMusic(void);
 int __stdcall LoadAwe32Soundfont(const char *fname);

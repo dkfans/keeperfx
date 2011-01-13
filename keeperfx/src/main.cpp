@@ -6832,7 +6832,7 @@ void keeper_gameplay_loop(void)
   player = get_my_player();
   PaletteSetPlayerPalette(player, _DK_palette);
   if ((game.numfield_C & 0x02) != 0)
-    initialise_eye_lenses();
+      initialise_eye_lenses();
   SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
 
   KeeperSpeechClearEvents();
@@ -6843,7 +6843,7 @@ void keeper_gameplay_loop(void)
       if ((game.flags_font & FFlg_unk10) != 0)
       {
         if (game.play_gameturn == 4)
-          LbNetwork_ChangeExchangeTimeout(0);
+            LbNetwork_ChangeExchangeTimeout(0);
       }
 
       // Check if we should redraw screen in this turn
@@ -6856,34 +6856,36 @@ void keeper_gameplay_loop(void)
       update();
 
       if ( do_draw )
-        keeper_screen_redraw();
+          keeper_screen_redraw();
       keeper_wait_for_screen_focus();
       // Direct information/error messages
       if (LbScreenLock() == Lb_SUCCESS)
       {
-        if ( do_draw )
-          perform_any_screen_capturing();
-        draw_onscreen_direct_messages();
-        LbScreenUnlock();
+          if ( do_draw )
+              perform_any_screen_capturing();
+          draw_onscreen_direct_messages();
+          LbScreenUnlock();
       }
 
       // Music and sound control
       if ( !SoundDisabled )
-        if ((game.turns_fastforward==0) && (!game.numfield_149F38))
-        {
-            MonitorStreamedSoundTrack();
-            process_sound_heap();
-        }
+      {
+          if ( (game.turns_fastforward ==0 ) && (!game.numfield_149F38) )
+          {
+              MonitorStreamedSoundTrack();
+              process_sound_heap();
+          }
+      }
 
       // Move the graphics window to center of screen buffer and swap screen
       if ( do_draw )
-        keeper_screen_swap();
+          keeper_screen_swap();
 
       // Make delay if the machine is too fast
-      if ((!game.packet_load_enable) || (game.turns_fastforward == 0))
-        keeper_wait_for_next_turn();
+      if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) )
+          keeper_wait_for_next_turn();
       if (game.numfield_149F42 == game.play_gameturn)
-        exit_keeper = 1;
+          exit_keeper = 1;
   } // end while
   SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
 }
