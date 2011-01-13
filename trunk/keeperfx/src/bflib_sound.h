@@ -41,38 +41,44 @@ struct HeapMgrHandle;
 
 typedef long (*S3D_LineOfSight_Func)(long, long, long, long, long, long);
 
+struct SoundCoord3d {
+    short val_x;
+    short val_y;
+    short val_z;
+};
+
 struct SoundEmitter {
     unsigned char flags;
     unsigned char field_1;
-    short field_2;
-    short pos_x;
-    short pos_y;
-    short pos_z;
+    short index;
+    struct SoundCoord3d pos;
     unsigned char field_A[10];
     unsigned char field_14;
     unsigned char field_15;
 };
 
 struct SoundReceiver { // sizeof = 17
-  short pos_x;
-  short pos_y;
-  short pos_z;
-  unsigned short field_6;
-  unsigned short field_8;
-  unsigned short field_A;
-  long field_C;
-  char field_10;
+    struct SoundCoord3d pos;
+    unsigned short orient_a;
+    unsigned short orient_b;
+    unsigned short orient_c;
+    unsigned long flags;
+    unsigned char sensivity;
 };
 
 struct S3DSample { // sizeof = 37
   unsigned long field_0;
-  unsigned long field_4;
+  unsigned long time_turn;
   unsigned short field_8;
   unsigned char field_A;
-  unsigned char field_B[10];
+  unsigned short field_B;
+  unsigned short field_D;
+  unsigned short field_F;
+  void *field_11;
   struct SoundEmitter *emit_ptr;
   unsigned char field_19[4];
-  unsigned char field_1D[2];
+  char field_1D; // signed
+  unsigned char field_1E;
   unsigned char field_1F;
   unsigned char field_20;
   unsigned long field_21;
@@ -131,20 +137,22 @@ DLLIMPORT long _DK_deadzone_radius;
 // Exported functions
 long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);
 long S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c);
+void S3DSetSoundReceiverFlags(unsigned long nflags);
+void S3DSetSoundReceiverSensitivity(unsigned short nsensivity);
 long S3DDestroySoundEmitter(long eidx);
-long S3DEmitterHasFinishedPlaying(long eidx);
-long S3DMoveSoundEmitterTo(long eidx, long x, long y, long z);
+TbBool S3DEmitterHasFinishedPlaying(long eidx);
+TbBool S3DMoveSoundEmitterTo(long eidx, long x, long y, long z);
 long S3DInit(void);
 long S3DSetNumberOfSounds(long nMaxSounds);
 long S3DSetMaximumSoundDistance(long nDistance);
 TbBool S3DAddSampleToEmitterPri(long emidx, long a2, long a3, long a4, long a5, long a6, char a7, long a8, long a9);
 long S3DCreateSoundEmitterPri(long x, long y, long z, long a4, long a5, long a6, long a7, long a8, long a9, long a10);
-long S3DEmitterIsAllocated(long eidx);
+TbBool S3DEmitterIsAllocated(long eidx);
 long S3DEmitterIsPlayingAnySample(long eidx);
 TbBool S3DEmitterIsPlayingSample(long emitr, long smpl_idx, long a2);
 TbBool S3DDestroySoundEmitterAndSamples(long eidx);
 void S3DSetLineOfSightFunction(S3D_LineOfSight_Func);
-void S3DSetDeadzoneRadius(long radius);
+void S3DSetDeadzoneRadius(long dzradius);
 long S3DGetDeadzoneRadius(void);
 
 void play_non_3d_sample(long sample_idx);
@@ -157,6 +165,7 @@ long speech_sample_playing(void);
 long play_speech_sample(long smpl_idx);
 void close_sound_heap(void);
 long stop_emitter_samples(struct SoundEmitter *emit);
+TbBool process_sound_emitters(void);
 
 /******************************************************************************/
 #ifdef __cplusplus

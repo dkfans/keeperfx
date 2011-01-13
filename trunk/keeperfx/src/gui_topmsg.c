@@ -116,31 +116,32 @@ TbBool erstat_check(void)
  */
 TbBool draw_onscreen_direct_messages(void)
 {
-  unsigned int msg_pos;
-  SYNCDBG(5,"Starting");
-  // Display in-game message for debug purposes
-  if ((onscreen_msg_turns > 0) || erstat_check())
-  {
-      if ( LbScreenIsLocked() )
-        LbTextDraw(260/pixel_size, 0/pixel_size, onscreen_msg_text);
-      onscreen_msg_turns--;
-  }
-  msg_pos = 200;
-  if ((game.system_flags & GSF_NetGameNoSync) != 0)
-  {
-      ERRORLOG("OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
-      if ( LbScreenIsLocked() )
-        LbTextDraw(260/pixel_size, msg_pos/pixel_size, "OUT OF SYNC");
-      msg_pos += 20;
-  }
-  if ((game.system_flags & GSF_NetSeedNoSync) != 0)
-  {
-      ERRORLOG("SEED OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
-      if ( LbScreenIsLocked() )
-        LbTextDraw(260/pixel_size, msg_pos/pixel_size, "SEED OUT OF SYNC");
-      msg_pos += 20;
-  }
-  return true;
+    unsigned int msg_pos;
+    SYNCDBG(5,"Starting");
+    // Display in-game message for debug purposes
+    if ((onscreen_msg_turns > 0) || erstat_check())
+    {
+        if ( LbScreenIsLocked() )
+          LbTextDraw(260/pixel_size, 0/pixel_size, onscreen_msg_text);
+        onscreen_msg_turns--;
+    }
+    msg_pos = 200;
+    if ((game.system_flags & GSF_NetGameNoSync) != 0)
+    {
+        ERRORLOG("OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
+        if ( LbScreenIsLocked() )
+          LbTextDraw(260/pixel_size, msg_pos/pixel_size, "OUT OF SYNC");
+        msg_pos += 20;
+    }
+    if ((game.system_flags & GSF_NetSeedNoSync) != 0)
+    {
+        ERRORLOG("SEED OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
+        if ( LbScreenIsLocked() )
+          LbTextDraw(260/pixel_size, msg_pos/pixel_size, "SEED OUT OF SYNC");
+        msg_pos += 20;
+    }
+    SYNCDBG(18,"Finished");
+    return true;
 }
 /******************************************************************************/
 #ifdef __cplusplus
