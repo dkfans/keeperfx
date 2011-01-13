@@ -35,6 +35,7 @@ extern "C" {
 
 typedef int (WINAPI *FARPROCI)(int);
 typedef int (WINAPI *FARPROCII)(int,int);
+typedef int (WINAPI *FARPROCIII)(int,int,int);
 typedef int (WINAPI *FARPROCS)(const char *);
 typedef int (WINAPI *FARPROCP)(const void *);
 typedef int (WINAPI *FARPROCSIII)(const char *,int,int,int);
@@ -156,7 +157,7 @@ int __stdcall StopAllSamples(void)
     return proc();
 }
 
-int __stdcall GetFirstSampleInfoStructure(void)
+struct SampleInfo * __stdcall GetFirstSampleInfoStructure(void)
 {
     HMODULE hModule;
     hModule=GetModuleHandle("WSND7R");
@@ -164,7 +165,7 @@ int __stdcall GetFirstSampleInfoStructure(void)
     proc=GetProcAddress(hModule,"_GetFirstSampleInfoStructure@0");
     if (proc==NULL)
     { ERRORLOG("Can't get address of GetFirstSampleInfoStructure function; skipped."); return 0; }
-    return proc();
+    return (struct SampleInfo *)proc();
 }
 
 int __stdcall LoadMusic(int i)
@@ -211,6 +212,17 @@ int __stdcall PlayStreamedSample(char *fname, int a2, int a3, int a4)
     return ((FARPROCSIII)proc)(fname, a2, a3, a4);
 }
 
+int __stdcall IsSamplePlaying(int a1, int a2, int a3)
+{
+    HMODULE hModule;
+    hModule=GetModuleHandle("WSND7R");
+    FARPROC proc;
+    proc=GetProcAddress(hModule,"_IsSamplePlaying@12");
+    if (proc==NULL)
+    { ERRORLOG("Can't get address of IsSamplePlaying function; skipped."); return 0; }
+    return (unsigned char)((FARPROCIII)proc)(a1, a2, a3);
+}
+
 int __stdcall StopStreamedSample(void)
 {
     HMODULE hModule;
@@ -244,7 +256,7 @@ int __stdcall SetStreamedSampleVolume(int volume)
     return ((FARPROCI)proc)(volume);
 }
 
-int __stdcall GetLastSampleInfoStructure(void)
+struct SampleInfo * __stdcall GetLastSampleInfoStructure(void)
 {
     HMODULE hModule;
     hModule=GetModuleHandle("WSND7R");
@@ -252,7 +264,7 @@ int __stdcall GetLastSampleInfoStructure(void)
     proc=GetProcAddress(hModule,"_GetLastSampleInfoStructure@0");
     if (proc==NULL)
     { ERRORLOG("Can't get address of GetLastSampleInfoStructure function; skipped."); return 0; }
-    return proc();
+    return (struct SampleInfo *)proc();
 }
 
 int __stdcall GetCurrentSoundMasterVolume(void)

@@ -57,9 +57,9 @@ void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4
     return;
   if (thing_is_invalid(thing))
       return;
-  rcpos.x.val = Receiver.pos_x;
-  rcpos.y.val = Receiver.pos_y;
-  rcpos.z.val = Receiver.pos_z;
+  rcpos.x.val = Receiver.pos.val_x;
+  rcpos.y.val = Receiver.pos.val_y;
+  rcpos.z.val = Receiver.pos.val_z;
   if (get_3d_box_distance(&rcpos, &thing->mappos) < MaxSoundDistance)
   {
     i = thing->field_66;
@@ -194,13 +194,105 @@ void update_player_sounds(void)
 
 void process_3d_sounds(void)
 {
+    //struct S3DSample *sample;
+    //long i;
     SYNCDBG(9,"Starting");
-    _DK_process_3d_sounds();
+    _DK_process_3d_sounds();return;
+/*
+    increment_sample_times();
+    for (i=0; i < MaxNoSounds; i++)
+    {
+        sample = &SampleList[i];
+        if (sample->field_1F != 0)
+        {
+            if (sample->field_11 == 0)
+            {
+                ERRORLOG("Attempt to query invalid sample");
+                continue;
+            }
+            if ( (unsigned __int8)IsSamplePlaying(0, 0, *(_DWORD *)sample->field_11) )
+            {
+              *(_BYTE *)(sample->field_11 + 23) |= 2u;
+            }
+            else
+            {
+              *(_BYTE *)(sample->field_11 + 23) &= ~0x02;
+              sample->field_1F = 0;
+            }
+            if ( sample->emit_ptr )
+            {
+              if ( (sample->field_F == 0)
+                || (!(sample->emit_ptr->field_1 & 0x08))
+                && get_sound_distance(sample->emit_ptr->pos, &Receiver.pos) > MaxSoundDistance )
+                kick_out_sample(i);
+            }
+        }
+    }
+*/
+    process_sound_emitters();
 }
 
 void process_sound_heap(void)
 {
-    _DK_process_sound_heap();
+    struct SampleInfo *smpinfo;
+    struct SampleInfo *smpinfo_last;
+    struct SampleTable *satab;
+    struct HeapMgrHandle *hmhndl;
+    long i;
+    SYNCDBG(9,"Starting");
+    //_DK_process_sound_heap();return;
+    for (i = 0; i < samples_in_bank; i++)
+    {
+        satab = &sample_table[i];
+        hmhndl = satab->hmhandle;
+        if (hmhndl != NULL) {
+            hmhndl->field_8 &= ~0x0004;
+            hmhndl->field_8 &= ~0x0002;
+        }
+    }
+    if (using_two_banks)
+    {
+        for (i = 0; i < samples_in_bank2; i++)
+        {
+            satab = &sample_table2[i];
+            hmhndl = satab->hmhandle;
+            if (hmhndl != NULL) {
+                hmhndl->field_8 &= ~0x0004;
+                hmhndl->field_8 &= ~0x0002;
+            }
+        }
+    }
+    smpinfo_last = GetLastSampleInfoStructure();
+    for (smpinfo = GetFirstSampleInfoStructure(); smpinfo <= smpinfo_last; smpinfo++)
+    {
+      if ( (smpinfo->field_0 != 0) && ((smpinfo->field_17 & 0x01) != 0) )
+      {
+          if ( IsSamplePlaying(0, 0, smpinfo->field_0) )
+          {
+            if ( (using_two_banks) && ((smpinfo->field_17 & 0x04) != 0) )
+            {
+                satab = &sample_table2[smpinfo->field_12];
+                hmhndl = satab->hmhandle;
+                if (hmhndl != NULL) {
+                    hmhndl->field_8 |= 0x0004;
+                    hmhndl->field_8 |= 0x0002;
+                }
+            } else
+            {
+                satab = &sample_table[smpinfo->field_12];
+                hmhndl = satab->hmhandle;
+                if (hmhndl != NULL) {
+                    hmhndl->field_8 |= 0x0004;
+                    hmhndl->field_8 |= 0x0002;
+                }
+            }
+          } else
+          {
+              smpinfo->field_17 &= ~0x01;
+              smpinfo->field_17 &= ~0x04;
+          }
+      }
+    }
 }
 
 long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, long buf_len, long a5)
