@@ -315,11 +315,11 @@ long creature_look_for_combat(struct Thing *thing)
 
 struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing)
 {
-    struct PlayerInfo * info;
+    struct PlayerInfo *player;
     struct Dungeon * dungeon;
-    struct Thing * heart;
+    struct Thing * heartng;
     int dist;
-    int player_nbr;
+    int enemy_idx;
 
     SYNCDBG(17, "Starting");
 
@@ -327,20 +327,18 @@ struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing)
 
     assert(DUNGEONS_COUNT == PLAYERS_COUNT);
 
-    for (player_nbr = 0; player_nbr < DUNGEONS_COUNT; ++player_nbr) {
-        dungeon = &game.dungeon[player_nbr];
-        info = &game.players[player_nbr];
-
-        if (info->field_0 & 1 && thing->owner != player_nbr && dungeon->dnheart_idx) {
-            if (player_nbr == game.neutral_player_num ||
-                thing->owner == game.neutral_player_num ||
-                !(info->allied_players & (1 << thing->owner)) ||
-                !(game.players[thing->owner].allied_players & (1 << player_nbr)))
+    for (enemy_idx = 0; enemy_idx < DUNGEONS_COUNT; enemy_idx++)
+    {
+        if ( players_are_enemies(thing->owner, enemy_idx) )
+        {
+            player = get_player(enemy_idx);
+            dungeon = get_players_dungeon(player);
+            heartng = thing_get(dungeon->dnheart_idx);
+            if (player_exists(player) && (!thing_is_invalid(heartng)))
             {
-                heart = game.things_lookup[dungeon->dnheart_idx];
-                dist = get_combat_distance(thing, heart);
-                if (creature_can_see_combat_path(thing, heart, dist)) {
-                    return heart;
+                dist = get_combat_distance(thing, heartng);
+                if (creature_can_see_combat_path(thing, heartng, dist)) {
+                    return heartng;
                 }
             }
         }

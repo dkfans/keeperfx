@@ -76,6 +76,13 @@ TbBool player_exists(struct PlayerInfo *player)
     return ((player->field_0 & 0x01) != 0);
 }
 
+/**
+ * Informs if player plyr1_idx considers player plyr2_idx as enemy.
+ * Note that if the players are not enemies, it doesn't necessarily mean they're friends.
+ * @param plyr1_idx Index of the player who asks for an enemy.
+ * @param plyr2_idx Index of the player who could be enemy.
+ * @return True if the players are enemies; false otherwise.
+ */
 TbBool players_are_enemies(long plyr1_idx, long plyr2_idx)
 {
     struct PlayerInfo *player1,*player2;
@@ -92,9 +99,17 @@ TbBool players_are_enemies(long plyr1_idx, long plyr2_idx)
         return false;
     if (!player_exists(player2))
         return false;
+    // And if they're valid, living players - get result from alliances table
     return ((player1->allied_players & (1<<plyr2_idx)) == 0);
 }
 
+/**
+ * Informs if players plyr1_idx and plyr2_idx are mutual allies.
+ * If the players are not mutual allies, one side can still consider they're friends.
+ * @param plyr1_idx Index of the first player.
+ * @param plyr2_idx Index of the second player.
+ * @return True if the players are mutual allies; false otherwise.
+ */
 TbBool players_are_mutual_allies(long plyr1_idx, long plyr2_idx)
 {
     struct PlayerInfo *player1,*player2;
