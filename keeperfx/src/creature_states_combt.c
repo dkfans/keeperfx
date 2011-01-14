@@ -56,13 +56,14 @@ DLLIMPORT void _DK_creature_in_melee_combat(struct Thing *thing);
 DLLIMPORT long _DK_creature_is_most_suitable_for_combat(struct Thing *thing, struct Thing *enmtng);
 DLLIMPORT long _DK_check_for_valid_combat(struct Thing *thing, struct Thing *enmtng);
 DLLIMPORT long _DK_combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp);
-DLLIMPORT long _DK_ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4);
-DLLIMPORT long _DK_melee_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4);
-DLLIMPORT long _DK_creature_can_have_combat_with_creature(struct Thing *fighter1, struct Thing *fighter2, long a2, long a4, long a5);
-DLLIMPORT void _DK_set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, long a3);
-DLLIMPORT long _DK_creature_has_other_attackers(struct Thing *thing, long a2);
-DLLIMPORT long _DK_get_best_ranged_offensive_weapon(struct Thing *thing, long a2);
-DLLIMPORT long _DK_get_best_melee_offensive_weapon(struct Thing *thing, long a2);
+DLLIMPORT long _DK_ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long dist, long a4);
+DLLIMPORT long _DK_melee_combat_move(struct Thing *thing, struct Thing *enmtng, long dist, long a4);
+DLLIMPORT long _DK_creature_can_have_combat_with_creature(struct Thing *fighter1, struct Thing *fighter2, long enemy, long a4, long a5);
+DLLIMPORT void _DK_set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, long dist);
+DLLIMPORT long _DK_creature_has_other_attackers(struct Thing *thing, long enemy);
+DLLIMPORT long _DK_get_best_ranged_offensive_weapon(struct Thing *thing, long enemy);
+DLLIMPORT long _DK_get_best_melee_offensive_weapon(struct Thing *thing, long enemy);
+DLLIMPORT long _DK_jonty_creature_can_see_thing_including_lava_check(struct Thing * creature, struct Thing * thing);
 /******************************************************************************/
 const CombatState combat_state[] = {
     NULL,
@@ -76,6 +77,21 @@ const CombatState combat_state[] = {
 }
 #endif
 /******************************************************************************/
+
+long jonty_creature_can_see_thing_including_lava_check(struct Thing * creature, struct Thing * thing)
+{
+    return _DK_jonty_creature_can_see_thing_including_lava_check(creature, thing);
+}
+
+long creature_can_see_combat_path(struct Thing * creature, struct Thing * enemy, long dist)
+{
+    if (game.creature_stats[creature->model].visual_range << 8 >= dist) {
+        return jonty_creature_can_see_thing_including_lava_check(creature, enemy);
+    }
+
+    return 0;
+}
+
 long get_combat_distance(struct Thing *thing, struct Thing *enemy)
 {
     long dist,avgc;
