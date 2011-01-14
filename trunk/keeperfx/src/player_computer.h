@@ -127,16 +127,16 @@ struct ComputerCheck { // sizeof = 32
 
 struct ComputerEvent { // sizeof = 44
   char *name;
-  unsigned long field_4;
+  unsigned long type;
   unsigned long field_8;
   Comp_Event_Func func_event;
   Comp_EvntTest_Func func_test;
-  long field_14;
+  long test_interval;
   struct ComputerProcess *process;
   long param1;
   long param2;
   long param3;
-  long param4;
+  long param4; //hypothesis of use: event last checked time
 };
 
 struct ComputerProcessTypes { // sizeof = 1124
