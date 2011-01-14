@@ -1178,7 +1178,7 @@ short parse_computer_player_event_blocks(char *buf,long len)
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            event->field_4 = k;
+            event->type = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -1190,7 +1190,7 @@ short parse_computer_player_event_blocks(char *buf,long len)
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            event->field_14 = k;
+            event->test_interval = k;
             n++;
           }
           if (n < 3)
@@ -1296,7 +1296,7 @@ short write_computer_player_event_to_log(struct ComputerEvent *event)
   JUSTMSG("[eventXX]");
   JUSTMSG("Name = %s",event->name);
   JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %d %d %d",event->field_4,event->field_8,event->field_14);
+  JUSTMSG("Values = %d %d %d",event->type,event->field_8,event->test_interval);
   JUSTMSG("Functions = %x %x",event->func_event,event->func_test);
   JUSTMSG("Params = %d %d %d %d",event->param1,event->param2,event->param3,event->param4);
   return true;
@@ -2199,8 +2199,55 @@ long set_next_process(struct Computer2 *comp)
 
 void computer_check_events(struct Computer2 *comp)
 {
+    struct Dungeon * dungeon;
+    struct Event * event;
+    struct ComputerEvent * comp_event;
+
+    //_DK_computer_check_events(comp);
+
     SYNCDBG(17,"Starting");
-    _DK_computer_check_events(comp);
+
+    dungeon = comp->dungeon;
+    comp_event = (struct ComputerEvent *) (&comp[1].field_11C2 + 304);
+
+    if (!comp_event) {
+        return;
+    }
+
+    do {
+        if ((unsigned) comp_event >= (unsigned) comp[2].checks) {
+            break;
+        }
+
+        if (comp_event->type) {
+            if (comp_event->type >= 1 && comp_event->type <= 4) {
+                if (comp_event->param4 + comp_event->test_interval <= game.play_gameturn) {
+                    comp_event->func_test(comp, comp_event);
+                    comp_event->param4 = game.play_gameturn;
+                }
+            }
+            else {
+                ERRORLOG("Unhandled event type!");
+            }
+        }
+        else {
+            event = game.event;
+            do {
+                if (
+                        event->field_0 & 1 &&
+                        event->owner == (unsigned char) dungeon->lvstats.allow_save_score &&
+                        event->kind == comp_event->field_8 &&
+                        comp_event->func_event(comp, comp_event, event) == 1)
+                {
+                    comp_event->param4 = game.play_gameturn;
+                }
+
+                ++event;
+            } while ((unsigned) event < (unsigned) &game.field_14A804);
+        }
+
+        ++comp_event;
+    } while (comp_event->name);
 }
 
 TbBool process_checks(struct Computer2 *comp)
