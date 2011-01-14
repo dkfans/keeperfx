@@ -70,7 +70,7 @@ short at_research_room(struct Thing *thing)
     {
         if ( (thing->owner != game.neutral_player_num) && (dungeon->field_F78 < 0) )
         {
-            if ( is_my_player_number(dungeon->field_E9F) )
+            if ( is_my_player_number(dungeon->owner) )
                 output_message(46, 500, 1);
         }
         set_start_state(thing);
@@ -238,7 +238,7 @@ short researching(struct Thing *thing)
     {
         if ( (thing->owner != game.neutral_player_num) && (dungeon->field_F78 < 0) )
         {
-            if ( is_my_player_number(dungeon->field_E9F) )
+            if ( is_my_player_number(dungeon->owner) )
                 output_message(46, 500, 1);
         }
         remove_creature_from_work_room(thing);

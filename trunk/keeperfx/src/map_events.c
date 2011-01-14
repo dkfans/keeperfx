@@ -154,7 +154,7 @@ void event_add_to_event_list(struct Event *event, struct Dungeon *dungeon)
     k = dungeon->field_13A7[i];
     if (k == 0)
     {
-      if (dungeon->field_E9F != event->owner)
+      if (dungeon->owner != event->owner)
       {
         ERRORLOG("Illegal my_event player allocation");
       }

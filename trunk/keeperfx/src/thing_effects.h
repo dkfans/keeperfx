@@ -81,10 +81,6 @@ struct EffectElementStats { // sizeof = 79
   unsigned char field_4E;
 };
 
-struct Proportion { // sizeof = 2052
-  unsigned long field_0[513];
-};
-
 #ifdef __cplusplus
 #pragma pack()
 #endif

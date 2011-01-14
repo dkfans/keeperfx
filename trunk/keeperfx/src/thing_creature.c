@@ -2700,7 +2700,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     SYNCDBG(19,"Starting");
     comp = (struct Computer2 *)(param->ptr1);
     dungeon = comp->dungeon;
-    if (!can_thing_be_picked_up_by_player(thing, dungeon->field_E9F))
+    if (!can_thing_be_picked_up_by_player(thing, dungeon->owner))
         return -1;
     if (creature_is_being_dropped(thing))
         return -1;

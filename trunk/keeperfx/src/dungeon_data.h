@@ -261,7 +261,7 @@ struct Dungeon {
     struct MapTask task_list[MAPTASKS_COUNT];
     int field_E8F;
     int field_E93[3];
-    unsigned char field_E9F;
+    unsigned char owner;
     int field_EA0;
     int field_EA4;
     long score;

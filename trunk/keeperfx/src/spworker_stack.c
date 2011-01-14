@@ -313,9 +313,9 @@ long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
         mtask = get_dungeon_task_list_entry(dungeon, i);
         stl_x = stl_num_decode_x(mtask->field_1);
         stl_y = stl_num_decode_y(mtask->field_1);
-        if ( subtile_revealed(stl_x, stl_y, dungeon->field_E9F) )
+        if ( subtile_revealed(stl_x, stl_y, dungeon->owner) )
         {
-          if ( block_has_diggable_side(dungeon->field_E9F, map_to_slab[stl_x], map_to_slab[stl_y]) )
+          if ( block_has_diggable_side(dungeon->owner, map_to_slab[stl_x], map_to_slab[stl_y]) )
           {
             add_to_imp_stack_using_pos(mtask->field_1, DigTsk_DigOrMine, dungeon);
             num--;
@@ -390,7 +390,7 @@ TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num)
     // Thing list loop body
     if ((num <= 0) || (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT))
       break;
-    if ((!thing->byte_13) && (thing->owner == dungeon->field_E9F))
+    if ((!thing->byte_13) && (thing->owner == dungeon->owner))
     {
       if ( add_object_for_trap_to_imp_stack(dungeon, thing) )
         num--;
@@ -417,7 +417,7 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
   int i;
   SYNCDBG(18,"Starting");
   // Checking if the workshop exists
-  room = find_room_with_spare_room_item_capacity(dungeon->field_E9F, RoK_WORKSHOP);
+  room = find_room_with_spare_room_item_capacity(dungeon->owner, RoK_WORKSHOP);
   if ( (dungeon->room_kind[RoK_WORKSHOP] <= 0) || room_is_invalid(room) )
     return false;
   k = 0;
@@ -438,10 +438,10 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
     {
       if ((thing->field_1 & 0x01) == 0)
       {
-        if ((thing->owner == dungeon->field_E9F) || (thing->owner == game.neutral_player_num))
+        if ((thing->owner == dungeon->owner) || (thing->owner == game.neutral_player_num))
         {
           slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-          if (slabmap_owner(slb) == dungeon->field_E9F)
+          if (slabmap_owner(slb) == dungeon->owner)
           {
             room = get_room_thing_is_on(thing);
             if (room_is_invalid(room) || (room->kind != RoK_WORKSHOP))
@@ -903,8 +903,8 @@ long check_out_imp_stack(struct Thing *thing)
         case DigTsk_PickUpUnconscious:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
-            if (!player_has_room(dungeon->field_E9F,RoK_PRISON) ||
-                !player_creature_tends_to(dungeon->field_E9F,CrTend_Imprison))
+            if (!player_has_room(dungeon->owner,RoK_PRISON) ||
+                !player_creature_tends_to(dungeon->owner,CrTend_Imprison))
               break;
             if (!find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, 4, 0, 1))
             {

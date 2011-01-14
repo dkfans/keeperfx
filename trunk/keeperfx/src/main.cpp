@@ -5056,7 +5056,7 @@ void kill_oldest_my_event(struct Dungeon *dungeon)
     }
   }
   if (old_idx >= 0)
-    event_delete_event(dungeon->field_E9F, old_idx);
+    event_delete_event(dungeon->owner, old_idx);
   maintain_my_event_list(dungeon);
 }
 
@@ -6964,7 +6964,7 @@ void init_dungeons(void)
     dungeon->field_919 = 0;
     dungeon->creatr_list_start = 0;
     dungeon->worker_list_start = 0;
-    dungeon->field_E9F = i;
+    dungeon->owner = i;
     dungeon->max_creatures = game.default_max_crtrs_gen_entrance;
     dungeon->dead_creatures_count = 0;
     dungeon->dead_creature_idx = 0;
