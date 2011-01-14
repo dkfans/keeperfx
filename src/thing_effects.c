@@ -48,8 +48,6 @@ DLLIMPORT void _DK_change_effect_element_into_another(struct Thing *thing, long 
 /******************************************************************************/
 extern struct EffectElementStats _DK_effect_element_stats[95];
 //#define effect_element_stats _DK_effect_element_stats
-extern struct Proportion _DK_proportions[2];
-#define proportions _DK_proportions
 /******************************************************************************/
 struct EffectElementStats effect_element_stats[] = {
    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -566,23 +564,7 @@ long update_effect_element(struct Thing *thing)
       return 1;
     abs_x = abs(thing->pos_2C.x.val);
     abs_y = abs(thing->pos_2C.y.val);
-    if (abs_x <= abs_y)
-    {
-      if (abs_y != 0) {
-          i = abs_y * proportions[1].field_0[2 * (abs_x << 8) / abs_y];
-          prop_factor = i >> 13;
-      } else {
-          prop_factor = 0;
-      }
-    } else
-    {
-        if (abs_x != 0) {
-            i = abs_x * proportions[1].field_0[2 * (abs_y << 8) / abs_x];
-            prop_factor = i >> 13;
-        } else {
-            prop_factor = 0;
-        }
-    }
+    prop_factor = LbProportion(abs_x, abs_y);
     i = ((LbArcTan(thing->pos_2C.z.val, prop_factor) & 0x7FF) - 512) & 0x7FF;
     if (i > 1024)
       i -= 1024;

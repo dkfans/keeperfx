@@ -79,10 +79,6 @@ struct EffectElementStats { // sizeof = 79
   unsigned char field_4E;
 };
 
-struct Proportion { // sizeof = 2052
-  unsigned long field_0[513];
-};
-
 #pragma pack()
 /******************************************************************************/
 struct Thing *create_effect(const struct Coord3d *pos, unsigned short a2, unsigned char a3);

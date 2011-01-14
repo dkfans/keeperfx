@@ -213,4 +213,25 @@ char LbCompareMultiplications(long mul1a, long mul1b, long mul2a, long mul2b)
   return 0;
 }
 
+/**
+ *  Optimized function for computing proportion.
+ * @param a
+ * @param b
+ * @return
+ */
+long LbProportion(long a, long b)
+{
+    long long tmpval;
+    if (a > b) {
+        tmpval = a * proportions[(b << 8)/a + 256].field_4;
+    } else
+    {
+        if (b == 0) {
+            return 0; // Just to avoid dividing by 0
+        }
+        tmpval = b * proportions[(a << 8)/b + 256].field_4;
+    }
+    return (tmpval >> 13);
+}
+
 /******************************************************************************/

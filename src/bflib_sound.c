@@ -36,11 +36,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_stop_sample_using_heap(unsigned long a1, short a2, unsigned char a3);
-DLLIMPORT long _DK_start_emitter_playing(struct SoundEmitter *emit, long a2, long a3, long a4, long a5, long a6, long a7, long a8, long a9);
+DLLIMPORT void _DK_stop_sample_using_heap(unsigned long a1, short a2, unsigned char pan);
+DLLIMPORT long _DK_start_emitter_playing(struct SoundEmitter *emit, long a2, long pan, long volume, long pitch, long a6, long a7, long a8, long a9);
 DLLIMPORT void _DK_close_sound_heap(void);
 DLLIMPORT void _DK_play_non_3d_sample(long sidx);
-DLLIMPORT struct SampleInfo *_DK_play_sample_using_heap(unsigned long a1, short a2, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, unsigned char a8);
+DLLIMPORT struct SampleInfo *_DK_play_sample_using_heap(unsigned long a1, short a2, unsigned long pan, unsigned long volume, unsigned long pitch, char a6, unsigned char a7, unsigned char a8);
 DLLIMPORT long _DK_S3DAddSampleToEmitterPri(long, long, long, long, long, long, char, long, long);
 DLLIMPORT long _DK_S3DCreateSoundEmitterPri(long, long, long, long, long, long, long, long, long, long);
 DLLIMPORT long _DK_S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);
@@ -59,12 +59,13 @@ long NoSoundEmitters = SOUND_EMITTERS_MAX;
 // Internal routines
 long allocate_free_sound_emitter(void);
 void delete_sound_emitter(long idx);
-long start_emitter_playing(struct SoundEmitter *emit, long a2, long a3, long a4, long a5, long a6, long a7, long a8, long a9);
+long start_emitter_playing(struct SoundEmitter *emit, long a2, long pan, long volume, long pitch, long a6, long a7, long a8, long a9);
 void init_sample_list(void);
 void delete_all_sound_emitters(void);
 long get_emitter_id(struct SoundEmitter *emit);
 long get_sample_id(struct S3DSample *sample);
 void kick_out_sample(short smpl_id);
+TbBool emitter_is_playing(struct SoundEmitter *emit);
 /******************************************************************************/
 // Functions
 
@@ -337,30 +338,6 @@ short sound_emitter_in_use(long eidx)
     return S3DEmitterIsAllocated(eidx);
 }
 
-TbBool process_sound_emitters(void)
-{
-    struct SoundEmitter *emit;
-    long i;
-    for (i=1; i < NoSoundEmitters; i++)
-    {
-        emit = S3DGetSoundEmitter(i);
-        if ( ((emit->flags & 0x01) != 0) && ((emit->flags & 0x02) != 0) )
-        {
-/*TODO: finish
-            if ( emitter_is_playing(emit) )
-            {
-                get_emitter_pan_volume_pitch(&Receiver, emit, &a3, &a4, &a5);
-                set_emitter_pan_volume_pitch(emit);
-            } else
-            {
-                emit->flags ^= 0x02;
-            }
-*/
-        }
-    }
-    return true;
-}
-
 long get_sound_distance(struct SoundCoord3d *pos1, struct SoundCoord3d *pos2)
 {
     long dist_x,dist_y,dist_z;
@@ -370,7 +347,179 @@ long get_sound_distance(struct SoundCoord3d *pos1, struct SoundCoord3d *pos2)
     return LbSqrL( dist_y*dist_y + dist_x*dist_x + dist_z*dist_z );
 }
 
-long emitter_is_playing(struct SoundEmitter *emit)
+long get_emitter_distance(struct SoundReceiver *recv, struct SoundEmitter *emit)
+{
+    long dist;
+    dist = get_sound_distance(&recv->pos, &emit->pos);
+    if (dist > MaxSoundDistance-1)
+    {
+        dist = MaxSoundDistance - 1;
+    }
+    if (dist < 0)
+    {
+        dist = 0;
+    }
+    return dist;
+}
+
+long get_emitter_sight(struct SoundReceiver *recv, struct SoundEmitter *emit)
+{
+    return LineOfSightFunction(recv->pos.val_x, recv->pos.val_y, recv->pos.val_z, emit->pos.val_x, emit->pos.val_y, emit->pos.val_z);
+}
+
+long get_angle_sign(long angle_a, long angle_b)
+{
+    long diff;
+    diff = abs((angle_a & 0x7FF) - (angle_b & 0x7FF));
+    if (diff > 1024)
+        diff = (2048 - diff);
+    return diff;
+}
+
+long get_angle_difference(long angle_a, long angle_b)
+{
+    long diff;
+    diff = (angle_b & 0x7FF) - (angle_a & 0x7FF);
+    if (diff == 0)
+        return 0;
+    if (abs(diff) > 1024)
+    {
+      if (diff >= 0)
+          diff -= 2048;
+      else
+          diff += 2048;
+    }
+    if (diff == 0)
+        return 0;
+    return diff / abs(diff);
+}
+
+long get_emitter_pan(struct SoundReceiver *recv, struct SoundEmitter *emit)
+{
+    long diff_x,diff_y;
+    long angle_a, angle_b;
+    long adiff,asign;
+    long radius,pan;
+    long i;
+    if ((recv->flags & 0x01) != 0) {
+      return 64;
+    }
+    diff_x = emit->pos.val_x - recv->pos.val_x;
+    diff_y = emit->pos.val_y - recv->pos.val_y;
+    // Faster way of doing simple thing: radius = sqrt(dist_x*dist_y);
+    radius = LbProportion(abs(diff_x), abs(diff_y));
+    if (radius < deadzone_radius) {
+      return 64;
+    }
+    angle_b = LbArcTan(diff_x, diff_y) & 0x7FF;
+    angle_a = recv->orient_a;
+    adiff = get_angle_difference(angle_a, angle_b);
+    asign = get_angle_sign(angle_a, angle_b);
+    i = (radius - deadzone_radius) * LbSinL(asign*adiff) >> 16;
+    pan = (i << 6) / (MaxSoundDistance - deadzone_radius) + 64;
+    if (pan > 127)
+        pan = 127;
+    if (pan < 0)
+        pan = 0;
+    return pan;
+}
+
+long get_emitter_pitch_from_doppler(struct SoundReceiver *recv, struct SoundEmitter *emit)
+{
+    long dist_x,dist_y,dist_z;
+    long delta;
+    long i;
+    dist_x = abs(emit->pos.val_x - recv->pos.val_x);
+    dist_y = abs(emit->pos.val_y - recv->pos.val_y);
+    dist_z = abs(emit->pos.val_z - recv->pos.val_z);
+    delta = dist_x + dist_y + dist_z - emit->field_10;
+    if (delta > 256)
+        delta = 256;
+    if (delta < 0)
+        delta = 0;
+    if (delta <= 0)
+      emit->field_15 = 100;
+    else
+      emit->field_15 = -20 * delta / 256 + 100;
+    if (emit->field_14 != emit->field_15)
+    {
+        i = emit->field_15 - emit->field_14;
+        emit->field_14 += (abs(i) >> 1);
+    }
+    emit->field_10 = dist_x + dist_y + dist_z;
+    //texty += 16; // I have no idea what is this.. garbage.
+    return emit->field_14;
+}
+
+
+long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitter *emit, long *pan, long *volume, long *pitch)
+{
+    TbBool on_sight;
+    long dist;
+    long i,n;
+    if ((emit->field_1 & 0x08) != 0)
+    {
+        *volume = 127;
+        *pan = 64;
+        *pitch = 100;
+        return 1;
+    }
+    dist = get_emitter_distance(recv, emit);
+    if ((emit->field_1 & 0x04) != 0) {
+        on_sight = 1;
+    } else {
+        on_sight = get_emitter_sight(recv, emit);
+    }
+    i = (dist - deadzone_radius);
+    if (i < 0) i = 0;
+    n = Receiver.sensivity * (127 - 127 * i / (MaxSoundDistance - deadzone_radius)) >> 6;
+    if (on_sight) {
+        *volume = n;
+    } else {
+        *volume = n >> 1;
+    }
+    if (i >= 128) {
+        *pan = get_emitter_pan(recv, emit);
+    } else {
+        *pan = 64;
+    }
+    if ((emit->flags & 0x04) != 0) {
+        *pitch = get_emitter_pitch_from_doppler(recv, emit);
+    } else {
+        *pitch = 100;
+    }
+    return 1;
+}
+
+long set_emitter_pan_volume_pitch(struct SoundEmitter *emit, long pan, long volume, long pitch)
+{
+    //TODO!!!
+}
+
+TbBool process_sound_emitters(void)
+{
+    struct SoundEmitter *emit;
+    long pan, volume, pitch;
+    long i;
+    for (i=1; i < NoSoundEmitters; i++)
+    {
+        emit = S3DGetSoundEmitter(i);
+        if ( ((emit->flags & 0x01) != 0) && ((emit->flags & 0x02) != 0) )
+        {
+            if ( emitter_is_playing(emit) )
+            {
+                get_emitter_pan_volume_pitch(&Receiver, emit, &pan, &volume, &pitch);
+                set_emitter_pan_volume_pitch(emit, pan, volume, pitch);
+            } else
+            {
+                emit->flags ^= 0x02;
+            }
+        }
+    }
+    return true;
+}
+
+TbBool emitter_is_playing(struct SoundEmitter *emit)
 {
     struct S3DSample *sample;
     long i;
@@ -384,16 +533,6 @@ long emitter_is_playing(struct SoundEmitter *emit)
 }
 
 /*long get_angle_difference(long a1, long a2)
-{
-
-}*/
-
-/*long get_emitter_pan(struct SoundReceiver *recv, struct SoundEmitter *emit)
-{
-
-}*/
-
-/*long get_emitter_pitch_from_doppler(struct SoundReceiver *recv, struct SoundEmitter *emit)
 {
 
 }*/
@@ -788,10 +927,10 @@ long play_speech_sample(long smpl_idx)
     return true;
 }
 
-long start_emitter_playing(struct SoundEmitter *emit, long a2, long a3, long a4, long a5, long a6, long a7, long a8, long a9)
+long start_emitter_playing(struct SoundEmitter *emit, long a2, long pan, long volume, long pitch, long a6, long a7, long a8, long a9)
 {
     //TODO rewrite
-    return _DK_start_emitter_playing(emit, a2, a3, a4, a5, a6, a7, a8, a9);
+    return _DK_start_emitter_playing(emit, a2, pan, volume, pitch, a6, a7, a8, a9);
 }
 
 /******************************************************************************/

@@ -1725,7 +1725,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
           stati = get_thing_state_info_num(n);
           if (stati->state_type == 1)
           {
-              if (try_game_action(comp, dungeon->field_E9F, 21, 8, 0, 0, thing->index, 0) > 0)
+              if (try_game_action(comp, dungeon->owner, 21, 8, 0, 0, thing->index, 0) > 0)
               {
                   return thing;
               }
@@ -2218,7 +2218,7 @@ void computer_check_events(struct Computer2 *comp)
             {
                 event = &game.event[n];
                 if ( ((event->field_0 & 0x01) != 0) &&
-                      (event->owner == dungeon->field_E9F) &&
+                      (event->owner == dungeon->owner) &&
                       (event->kind == cevent->field_8) )
                 {
                     if (cevent->func_event(comp, cevent, event) == 1)
