@@ -16,6 +16,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
+#include <assert.h>
+
 #include "thing_creature.h"
 #include "globals.h"
 
@@ -27,6 +30,7 @@
 #include "engine_lenses.h"
 #include "config_creature.h"
 #include "creature_states.h"
+#include "creature_states_combt.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
 #include "config_lenses.h"
@@ -49,6 +53,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /******************************************************************************/
 int creature_swap_idx[CREATURE_TYPES_COUNT];
 
@@ -310,7 +315,39 @@ long creature_look_for_combat(struct Thing *thing)
 
 struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing)
 {
-  return _DK_get_enemy_dungeon_heart_creature_can_see(thing);
+    struct PlayerInfo * info;
+    struct Dungeon * dungeon;
+    struct Thing * heart;
+    int dist;
+    int player_nbr;
+
+    SYNCDBG(17, "Starting");
+
+    //return _DK_get_enemy_dungeon_heart_creature_can_see(thing);
+
+    assert(DUNGEONS_COUNT == PLAYERS_COUNT);
+
+    for (player_nbr = 0; player_nbr < DUNGEONS_COUNT; ++player_nbr) {
+        dungeon = &game.dungeon[player_nbr];
+        info = &game.players[player_nbr];
+        heart = NULL;
+
+        if (info->field_0 & 1 && thing->owner != player_nbr && dungeon->dnheart_idx) {
+            if (player_nbr == game.neutral_player_num ||
+                thing->owner == game.neutral_player_num ||
+                !(info->allied_players & (1 << thing->owner)) ||
+                !(game.players[thing->owner].allied_players & (1 << player_nbr)))
+            {
+                heart = game.things_lookup[dungeon->dnheart_idx];
+                dist = get_combat_distance(thing, heart);
+                if (creature_can_see_combat_path(thing, heart, dist)) {
+                    break;
+                }
+            }
+        }
+    }
+
+    return heart;
 }
 
 long set_creature_object_combat(struct Thing *crthing, struct Thing *obthing)

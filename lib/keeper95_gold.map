@@ -657,6 +657,7 @@
  0001:0007F2C0       creature_turn_to_face
  0001:0007F370       creature_turn_to_face_backwards
  0001:0007F430       creature_turn_to_face_angle
+ 0001:0007F5A0       jonty_creature_can_see_thing_including_lava_check
  0001:0007F7A0       ariadne_initialise_creature_route
  0001:0007F9B0       ariadne_get_next_position_for_route
  0001:0007FD80       ariadne_init_movement_to_current_waypoint
