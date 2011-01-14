@@ -669,7 +669,7 @@ long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     if (computer_able_to_use_magic(comp, ctask->long_86, ctask->field_70, 1) != 1)
       return 4;
-    i = try_game_action(comp, dungeon->field_E9F, ctask->field_80, ctask->field_70,
+    i = try_game_action(comp, dungeon->owner, ctask->field_80, ctask->field_70,
         thing->mappos.x.stl.num, thing->mappos.y.stl.num, ctask->word_76, 0);
     if (i <= 0)
       return 4;
@@ -712,9 +712,9 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 {
                   item_sold = true;
                   value = game.doors_config[model].selling_value;
-                  if (remove_workshop_item(dungeon->field_E9F, 9, model))
+                  if (remove_workshop_item(dungeon->owner, 9, model))
                   {
-                    remove_workshop_object_from_player(dungeon->field_E9F, door_to_object[model]);
+                    remove_workshop_object_from_player(dungeon->owner, door_to_object[model]);
                   }
                   SYNCDBG(9,"Door model %ld sold for %ld gold",model,value);
                 }
@@ -730,9 +730,9 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 {
                   item_sold = true;
                   value = game.traps_config[model].selling_value;
-                  if (remove_workshop_item(dungeon->field_E9F, 8, model))
+                  if (remove_workshop_item(dungeon->owner, 8, model))
                   {
-                    remove_workshop_object_from_player(dungeon->field_E9F, trap_to_object[model]);
+                    remove_workshop_object_from_player(dungeon->owner, trap_to_object[model]);
                   }
                   SYNCDBG(9,"Trap model %ld sold for %ld gold",model,value);
                 }

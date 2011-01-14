@@ -52,7 +52,8 @@ struct SoundEmitter {
     unsigned char field_1;
     short index;
     struct SoundCoord3d pos;
-    unsigned char field_A[10];
+    unsigned char field_A[6];
+    long field_10;
     unsigned char field_14;
     unsigned char field_15;
 };
