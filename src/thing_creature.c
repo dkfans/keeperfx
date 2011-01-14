@@ -330,7 +330,6 @@ struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing)
     for (player_nbr = 0; player_nbr < DUNGEONS_COUNT; ++player_nbr) {
         dungeon = &game.dungeon[player_nbr];
         info = &game.players[player_nbr];
-        heart = NULL;
 
         if (info->field_0 & 1 && thing->owner != player_nbr && dungeon->dnheart_idx) {
             if (player_nbr == game.neutral_player_num ||
@@ -341,13 +340,13 @@ struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing)
                 heart = game.things_lookup[dungeon->dnheart_idx];
                 dist = get_combat_distance(thing, heart);
                 if (creature_can_see_combat_path(thing, heart, dist)) {
-                    break;
+                    return heart;
                 }
             }
         }
     }
 
-    return heart;
+    return NULL;
 }
 
 long set_creature_object_combat(struct Thing *crthing, struct Thing *obthing)
