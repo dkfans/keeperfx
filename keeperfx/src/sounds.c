@@ -194,41 +194,10 @@ void update_player_sounds(void)
 
 void process_3d_sounds(void)
 {
-    //struct S3DSample *sample;
-    //long i;
     SYNCDBG(9,"Starting");
-    _DK_process_3d_sounds();return;
-/*
+    //_DK_process_3d_sounds();return;
     increment_sample_times();
-    for (i=0; i < MaxNoSounds; i++)
-    {
-        sample = &SampleList[i];
-        if (sample->field_1F != 0)
-        {
-            if (sample->field_11 == 0)
-            {
-                ERRORLOG("Attempt to query invalid sample");
-                continue;
-            }
-            if ( (unsigned __int8)IsSamplePlaying(0, 0, *(_DWORD *)sample->field_11) )
-            {
-              *(_BYTE *)(sample->field_11 + 23) |= 2u;
-            }
-            else
-            {
-              *(_BYTE *)(sample->field_11 + 23) &= ~0x02;
-              sample->field_1F = 0;
-            }
-            if ( sample->emit_ptr )
-            {
-              if ( (sample->field_F == 0)
-                || (!(sample->emit_ptr->field_1 & 0x08))
-                && get_sound_distance(sample->emit_ptr->pos, &Receiver.pos) > MaxSoundDistance )
-                kick_out_sample(i);
-            }
-        }
-    }
-*/
+    process_sound_samples();
     process_sound_emitters();
 }
 

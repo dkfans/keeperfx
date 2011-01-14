@@ -75,7 +75,7 @@ struct S3DSample { // sizeof = 37
   unsigned short field_B;
   unsigned short field_D;
   unsigned short field_F;
-  void *field_11;
+  struct SampleInfo *smpinfo;
   struct SoundEmitter *emit_ptr;
   unsigned char field_19[4];
   char field_1D; // signed
@@ -167,6 +167,8 @@ long play_speech_sample(long smpl_idx);
 void close_sound_heap(void);
 long stop_emitter_samples(struct SoundEmitter *emit);
 TbBool process_sound_emitters(void);
+void increment_sample_times(void);
+TbBool process_sound_samples(void);
 
 /******************************************************************************/
 #ifdef __cplusplus
