@@ -1128,7 +1128,7 @@ short parse_computer_player_check_blocks(char *buf,long len)
 
 short parse_computer_player_event_blocks(char *buf,long len)
 {
-  struct ComputerEvent *event;
+  struct ComputerEvent *cevent;
   long pos;
   int i,k,n;
   int cmd_num;
@@ -1139,10 +1139,10 @@ short parse_computer_player_event_blocks(char *buf,long len)
   const int arr_size = sizeof(computer_event_config_list)/sizeof(computer_event_config_list[0]);
   for (i=0; i < arr_size; i++)
   {
-    event = &computer_events[i];
+    cevent = &computer_events[i];
     computer_event_config_list[i].name[0] = '\0';
-    computer_event_config_list[i].event = event;
-    event->name = computer_event_names[i];
+    computer_event_config_list[i].event = cevent;
+    cevent->name = computer_event_names[i];
     LbMemorySet(computer_event_names[i], 0, LINEMSG_SIZE);
   }
   strcpy(computer_event_names[0],"INCORRECT EVENT");
@@ -1157,7 +1157,7 @@ short parse_computer_player_event_blocks(char *buf,long len)
       WARNMSG("Block [%s] not found in Computer Player file.",block_buf);
       continue;
     }
-    event = computer_event_config_list[i].event;
+    cevent = computer_event_config_list[i].event;
     while (pos<len)
     {
       // Finding command number in this line
@@ -1168,7 +1168,7 @@ short parse_computer_player_event_blocks(char *buf,long len)
       switch (cmd_num)
       {
       case 1: // NAME
-          if (get_conf_parameter_whole(buf,&pos,len,event->name,LINEMSG_SIZE) <= 0)
+          if (get_conf_parameter_whole(buf,&pos,len,cevent->name,LINEMSG_SIZE) <= 0)
           {
             WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","NAME",block_buf);
             break;
@@ -1178,19 +1178,19 @@ short parse_computer_player_event_blocks(char *buf,long len)
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            event->type = k;
+            cevent->cetype = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            event->field_8 = k;
+            cevent->field_8 = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            event->test_interval = k;
+            cevent->test_interval = k;
             n++;
           }
           if (n < 3)
@@ -1202,13 +1202,13 @@ short parse_computer_player_event_blocks(char *buf,long len)
           k = recognize_conf_parameter(buf,&pos,len,computer_event_func_type);
           if (k > 0)
           {
-              event->func_event = computer_event_func_list[k];
+              cevent->func_event = computer_event_func_list[k];
               n++;
           }
           k = recognize_conf_parameter(buf,&pos,len,computer_event_test_func_type);
           if (k > 0)
           {
-              event->func_test = computer_event_test_func_list[k];
+              cevent->func_test = computer_event_test_func_list[k];
               n++;
           }
           if (n < 2)
@@ -1222,7 +1222,7 @@ short parse_computer_player_event_blocks(char *buf,long len)
             k = get_computer_process_config_list_index_mnem(word_buf);
             if (k > 0)
             {
-              event->process = computer_process_config_list[k].process;
+              cevent->process = computer_process_config_list[k].process;
             } else
             {
               WARNMSG("Couldn't recognize \"%s\" parameter \"%s\" in Computer file.","PROCESS",word_buf);
@@ -1233,25 +1233,25 @@ short parse_computer_player_event_blocks(char *buf,long len)
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            event->param1 = k;
+            cevent->param1 = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            event->param2 = k;
+            cevent->param2 = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            event->param3 = k;
+            cevent->param3 = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            event->param4 = k;
+            cevent->last_test_gameturn = k;
             n++;
           }
           if (n < 4)
@@ -1296,9 +1296,9 @@ short write_computer_player_event_to_log(struct ComputerEvent *event)
   JUSTMSG("[eventXX]");
   JUSTMSG("Name = %s",event->name);
   JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %d %d %d",event->type,event->field_8,event->test_interval);
+  JUSTMSG("Values = %d %d %d",event->cetype,event->field_8,event->test_interval);
   JUSTMSG("Functions = %x %x",event->func_event,event->func_test);
-  JUSTMSG("Params = %d %d %d %d",event->param1,event->param2,event->param3,event->param4);
+  JUSTMSG("Params = %d %d %d %d",event->param1,event->param2,event->param3,event->last_test_gameturn);
   return true;
 }
 
@@ -2200,54 +2200,48 @@ long set_next_process(struct Computer2 *comp)
 void computer_check_events(struct Computer2 *comp)
 {
     struct Dungeon * dungeon;
+    struct ComputerEvent * cevent;
     struct Event * event;
-    struct ComputerEvent * comp_event;
-
-    //_DK_computer_check_events(comp);
-
+    long i,n;
     SYNCDBG(17,"Starting");
-
+    //_DK_computer_check_events(comp);
     dungeon = comp->dungeon;
-    comp_event = (struct ComputerEvent *) (&comp[1].field_11C2 + 304);
-
-    if (!comp_event) {
-        return;
-    }
-
-    do {
-        if ((unsigned) comp_event >= (unsigned) comp[2].checks) {
+    for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
+    {
+        cevent = &comp->events[i];
+        if (cevent->name == NULL)
+            break;
+        switch (cevent->cetype)
+        {
+        case 0:
+            for (n=0; n < EVENTS_COUNT; n++)
+            {
+                event = &game.event[n];
+                if ( ((event->field_0 & 0x01) != 0) &&
+                      (event->owner == dungeon->field_E9F) &&
+                      (event->kind == cevent->field_8) )
+                {
+                    if (cevent->func_event(comp, cevent, event) == 1)
+                        cevent->last_test_gameturn = game.play_gameturn;
+                }
+            }
+            break;
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+            if ((cevent->last_test_gameturn + cevent->test_interval) <= (long)game.play_gameturn)
+            {
+                if (cevent->func_test(comp,cevent) == 1)
+                    ; // nothing done with this "if" - hmm... could be intentional, or not.
+                cevent->last_test_gameturn = game.play_gameturn;
+            }
+            break;
+        default:
+            ERRORLOG("Unhandled Computer Event Type %d",(int)cevent->cetype);
             break;
         }
-
-        if (comp_event->type) {
-            if (comp_event->type >= 1 && comp_event->type <= 4) {
-                if (comp_event->param4 + comp_event->test_interval <= game.play_gameturn) {
-                    comp_event->func_test(comp, comp_event);
-                    comp_event->param4 = game.play_gameturn;
-                }
-            }
-            else {
-                ERRORLOG("Unhandled event type!");
-            }
-        }
-        else {
-            event = game.event;
-            do {
-                if (
-                        event->field_0 & 1 &&
-                        event->owner == (unsigned char) dungeon->lvstats.allow_save_score &&
-                        event->kind == comp_event->field_8 &&
-                        comp_event->func_event(comp, comp_event, event) == 1)
-                {
-                    comp_event->param4 = game.play_gameturn;
-                }
-
-                ++event;
-            } while ((unsigned) event < (unsigned) &game.field_14A804);
-        }
-
-        ++comp_event;
-    } while (comp_event->name);
+    }
 }
 
 TbBool process_checks(struct Computer2 *comp)
