@@ -84,6 +84,8 @@ int __stdcall StopMusic(void);
 int __stdcall LoadAwe32Soundfont(const char *fname);
 int __stdcall StartMusic(int i,int v);
 int __stdcall SetSampleVolume(int a,int b,int c,int d);
+int __stdcall SetSamplePan(int a,int b,int c,int d);
+int __stdcall SetSamplePitch(int a,int b,int c,int d);
 struct SampleInfo * __stdcall PlaySampleFromAddress(int a1, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, struct HeapMgrHandle *hmhandle, int a9);
 /******************************************************************************/
 #ifdef __cplusplus

@@ -493,7 +493,23 @@ long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitte
 
 long set_emitter_pan_volume_pitch(struct SoundEmitter *emit, long pan, long volume, long pitch)
 {
-    //TODO!!!
+    struct S3DSample *sample;
+    long i;
+    for (i=0; i < MaxNoSounds; i++)
+    {
+        sample = &SampleList[i];
+        if ((sample->field_1F != 0) && (sample->emit_ptr == emit))
+        {
+            if ((sample->field_1E & 0x02) == 0) {
+              SetSampleVolume(get_emitter_id(emit), sample->field_8, volume * (long)sample->field_21 / 256, 0);
+              SetSamplePan(get_emitter_id(emit), sample->field_8, pan, 0);
+            }
+            if ((sample->field_1E & 0x01) == 0) {
+              SetSamplePitch(get_emitter_id(emit), sample->field_8, pitch * (long)sample->field_B / 100, 0);
+            }
+        }
+    }
+    return 1;
 }
 
 TbBool process_sound_emitters(void)
@@ -864,6 +880,40 @@ void stop_sample_using_heap(unsigned long a1, short a2, unsigned char a3)
     //TODO rewrite
     _DK_stop_sample_using_heap(a1, a2, a3);
 }
+
+TbBool process_sound_samples(void)
+{
+    struct S3DSample *sample;
+    long i;
+    for (i=0; i < MaxNoSounds; i++)
+    {
+        sample = &SampleList[i];
+        if (sample->field_1F != 0)
+        {
+            if (sample->smpinfo == NULL)
+            {
+                ERRORLOG("Attempt to query invalid sample");
+                continue;
+            }
+            if ( IsSamplePlaying(0, 0, sample->smpinfo->field_0) )
+            {
+                sample->smpinfo->field_17 |= 0x02;
+            } else
+            {
+                sample->smpinfo->field_17 &= ~0x02;
+                sample->field_1F = 0;
+            }
+            if ( sample->emit_ptr )
+            {
+              if ( (sample->field_F == 0) ||
+                 ( ((sample->emit_ptr->field_1 & 0x08) == 0) && (get_sound_distance(&sample->emit_ptr->pos, &Receiver.pos) > MaxSoundDistance) ) )
+                kick_out_sample(i);
+            }
+        }
+    }
+    return true;
+}
+
 
 long speech_sample_playing(void)
 {

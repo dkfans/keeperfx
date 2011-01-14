@@ -322,6 +322,28 @@ int __stdcall SetSampleVolume(int a,int b,int c,int d)
     return ((FARPROCIIII)proc)(a,b,c,d);
 }
 
+int __stdcall SetSamplePan(int a,int b,int c,int d)
+{
+    HMODULE hModule;
+    hModule=GetModuleHandle("WSND7R");
+    FARPROC proc;
+    proc=GetProcAddress(hModule,"_SetSamplePan@16");
+    if (proc==NULL)
+    { ERRORLOG("Can't get address of SetSamplePan function; skipped."); return 0; }
+    return ((FARPROCIIII)proc)(a,b,c,d);
+}
+
+int __stdcall SetSamplePitch(int a,int b,int c,int d)
+{
+    HMODULE hModule;
+    hModule=GetModuleHandle("WSND7R");
+    FARPROC proc;
+    proc=GetProcAddress(hModule,"_SetSamplePitch@16");
+    if (proc==NULL)
+    { ERRORLOG("Can't get address of SetSamplePitch function; skipped."); return 0; }
+    return ((FARPROCIIII)proc)(a,b,c,d);
+}
+
 struct SampleInfo * __stdcall PlaySampleFromAddress(int a1, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, struct HeapMgrHandle *hmhandle, int a9)
 {
     HMODULE hModule;
