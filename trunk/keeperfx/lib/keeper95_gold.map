@@ -1844,3 +1844,4 @@
  0001:0008F850       creature_can_have_combat_with_creature
  0001:0008DB70       set_creature_combat_state
  0001:00077600       check_door_should_open
+ 0001:0007F5A0       jonty_creature_can_see_thing_including_lava_check

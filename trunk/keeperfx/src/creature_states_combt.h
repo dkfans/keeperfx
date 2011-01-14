@@ -57,6 +57,7 @@ short creature_damage_walls(struct Thing *thing);
 short creature_attempt_to_damage_walls(struct Thing *thing);
 
 long creature_retreat_from_combat(struct Thing *thing1, struct Thing *thing2, long a3, long a4);
+long creature_can_see_combat_path(struct Thing * a, struct Thing * b, long c);
 long get_combat_distance(struct Thing *thing, struct Thing *enemy);
 long set_creature_in_combat_to_the_death(struct Thing *fighter1, struct Thing *fighter2, long a3);
 long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *room,long crmodel, struct Thing **enemytng);
