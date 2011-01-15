@@ -77,7 +77,7 @@ struct S3DSample { // sizeof = 37
   unsigned short field_F;
   struct SampleInfo *smpinfo;
   struct SoundEmitter *emit_ptr;
-  unsigned char field_19[4];
+  long emit_idx;
   char field_1D; // signed
   unsigned char field_1E;
   unsigned char field_1F;
