@@ -331,7 +331,12 @@ TbBool output_message(long msg_idx, long delay, TbBool queue)
           return true;
       }
     }
-    if ((queue) && (msg_idx != message_playing) && (!message_already_in_queue(msg_idx)))
+    if ( (msg_idx == message_playing) || (message_already_in_queue(msg_idx)) )
+    {
+        SYNCDBG(8,"Message %ld is already in queue",msg_idx);
+        return false;
+    }
+    if (queue)
     {
       if (add_message_to_queue(msg_idx, delay))
       {
