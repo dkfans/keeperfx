@@ -359,6 +359,7 @@ short is_toggleable_menu(short mnu_idx);
 void activate_room_build_mode(int rkind, int tooltip_id);
 void choose_spell(int kind, int tooltip_id);
 void choose_special_spell(int kind, int tooltip_id);
+void choose_workshop_item(int kind, int tooltip_id);
 
 // Campaign selection screen
 void frontend_campaign_select_up(struct GuiButton *gbtn);

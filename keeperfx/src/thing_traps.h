@@ -76,7 +76,7 @@ TbBool trap_is_active(const struct Thing *thing);
 TbBool trap_is_slappable(const struct Thing *thing, long plyr_idx);
 long update_trap(struct Thing *thing);
 void init_traps(void);
-
+int get_trap_data_index(int wrkshop_class, int wrkshop_kind);
 
 /******************************************************************************/
 #ifdef __cplusplus

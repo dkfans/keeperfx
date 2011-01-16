@@ -533,7 +533,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
 void gui_choose_spell(struct GuiButton *gbtn)
 {
     //NOTE by Petter: factored out original gui_choose_spell code to choose_spell
-    choose_spell(((int) gbtn->field_33) % POWER_TYPES_COUNT, gbtn->tooltip_id);
+    choose_spell((int) gbtn->field_33, gbtn->tooltip_id);
 }
 
 void gui_go_to_next_spell(struct GuiButton *gbtn)
@@ -558,9 +558,32 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
   _DK_gui_area_big_spell_button(gbtn);
 }
 
+/**
+ * Choose a trap or a door.
+ * @param kind An index into trap_data array, beware as this is different from models.
+ * @param tooltip_id The tooltip string to display.
+ */
+void choose_workshop_item(int kind, int tooltip_id)
+{
+    PlayerInfo * player;
+
+    kind = kind % MANUFCTR_TYPES_COUNT;
+
+    player = get_my_player();
+    set_players_packet_action(player, 36, trap_data[kind].field_0,
+        trap_data[kind].field_4, 0, 0);
+
+    game.numfield_151819 = kind;
+    game.numfield_15181D = trap_data[kind].field_8;
+    game.numfield_151821 = tooltip_id;
+}
+
 void gui_choose_trap(struct GuiButton *gbtn)
 {
-  _DK_gui_choose_trap(gbtn);
+    //_DK_gui_choose_trap(gbtn);
+
+    //Note by Petter: factored out gui_choose_trap to choose_workshop_item (better name as well)
+    choose_workshop_item((int) gbtn->field_33, gbtn->tooltip_id);
 }
 
 void gui_go_to_next_trap(struct GuiButton *gbtn)
@@ -738,7 +761,24 @@ void gui_area_room_button(struct GuiButton *gbtn)
 
 void pick_up_next_creature(struct GuiButton *gbtn)
 {
-  _DK_pick_up_next_creature(gbtn);
+    int kind;
+    int i;
+    unsigned pick_flags;
+
+    //_DK_pick_up_next_creature(gbtn);
+
+    i = gbtn->field_1B;
+    if (i > 0) {
+        kind = breed_activities[(i + top_of_breed_list) % CREATURE_TYPES_COUNT];
+    }
+    else {
+        kind = 23;
+    }
+
+    pick_flags = TPF_PickableCheck;
+    if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
+        pick_flags |= TPF_ReverseOrder;
+    pick_up_creature_of_breed_and_gui_job(kind, -1, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_creature(struct GuiButton *gbtn)

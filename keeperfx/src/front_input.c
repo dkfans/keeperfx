@@ -46,6 +46,7 @@
 #include "gui_tooltips.h"
 #include "gui_topmsg.h"
 #include "power_hand.h"
+#include "thing_traps.h"
 
 #include "keeperfx.hpp"
 #include "KeeperSpeech.h"
@@ -1375,7 +1376,7 @@ static void speech_pickup_of_gui_job(int job_idx)
     int kind;
     unsigned char pick_flags;
 
-    SYNCDBG(0, "Picking up creature of breed %s for job of type %i",
+    SYNCDBG(7, "Picking up creature of breed %s for job of type %i",
         last_speech_event.u.creature.model_name, job_idx);
     kind = creature_model_id(last_speech_event.u.creature.model_name);
     if (kind < 0) {
@@ -1386,7 +1387,7 @@ static void speech_pickup_of_gui_job(int job_idx)
     pick_flags = TPF_PickableCheck;
     if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
         pick_flags |= TPF_ReverseOrder;
-    pick_up_creature_of_breed_and_gui_job(kind, (job_idx & 0x03), my_player_number, pick_flags);
+    pick_up_creature_of_breed_and_gui_job(kind, job_idx, my_player_number, pick_flags);
 }
 
 /**
@@ -1411,7 +1412,7 @@ static void get_dungeon_speech_inputs(void)
         speech_pickup_of_gui_job(2);
         break;
     case KS_PICKUP_ANY:
-        //TODO: implement when pick_up_next_creature has been reverse engineered
+        speech_pickup_of_gui_job(-1);
         break;
     case KS_SELECT_ROOM:
         room_stats = get_room_kind_stats(last_speech_event.u.room.id);
@@ -1431,22 +1432,27 @@ static void get_dungeon_speech_inputs(void)
         if (id < 0) {
             WARNLOG("Bad trap string %s", last_speech_event.u.trapdoor.model_name);
         }
-        else {
-            //TODO: implement when gui_choose_trap has been refactored
-            //choose_trap(id, ...);
+        else if ((id = get_trap_data_index(TCls_Trap, id)) >= 0) {
+            choose_workshop_item(id, 2); //TODO: see what happens with tool tip
         }
+        else {
+            WARNLOG("Trap %s is not in trap data array", last_speech_event.u.trapdoor.model_name);
+        }
+        break;
     case KS_SELECT_DOOR:
         id = door_model_id(last_speech_event.u.trapdoor.model_name);
         if (id < 0) {
             WARNLOG("Bad door string %s", last_speech_event.u.trapdoor.model_name);
         }
+        else if ((id = get_trap_data_index(TCls_Door, id)) >= 0) {
+            choose_workshop_item(id, 2); //TODO: see what happens with tool tip
+        }
         else {
-            //TODO: implement when gui_choose_door has been refactored
-            //choose_door(id, ...);
+            WARNLOG("Door %s is not in trap data array", last_speech_event.u.trapdoor.model_name);
         }
         break;
     case KS_VIEW_INFO:
-        //set_menu_mode(BID_INFO_TAB); //TODO: not working for some reason, debug
+        set_menu_mode(BID_INFO_TAB); //TODO: not working for some reason, debug
         break;
     case KS_VIEW_ROOMS:
         set_menu_mode(BID_ROOM_TAB);
