@@ -991,6 +991,8 @@ void choose_spell(int kind, int tooltip_id)
 {
     struct PlayerInfo *player;
 
+    kind = kind % POWER_TYPES_COUNT;
+
     if ((kind == PwrK_HOLDAUDNC) || (kind == PwrK_ARMAGEDDON)) {
         choose_special_spell(kind, tooltip_id);
         return;
