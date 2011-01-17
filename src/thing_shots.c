@@ -38,6 +38,11 @@ extern "C" {
 DLLIMPORT long _DK_move_shot(struct Thing *thing);
 DLLIMPORT long _DK_update_shot(struct Thing *thing);
 
+DLLIMPORT struct Thing *_DK_get_thing_collided_with_at_satisfying_filter(struct Thing *thing, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5);
+DLLIMPORT struct Thing *_DK_get_shot_collided_with_same_type(struct Thing *thing, struct Coord3d *nxpos);
+DLLIMPORT long _DK_shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos);
+DLLIMPORT long _DK_shot_hit_door_at(struct Thing *thing, struct Coord3d *pos);
+DLLIMPORT long _DK_shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos);
 /******************************************************************************/
 TbBool shot_is_slappable(const struct Thing *thing, long plyr_idx)
 {
@@ -59,9 +64,242 @@ TbBool shot_model_is_navigable(long tngmodel)
     return ((shotst->model_flags & ShMF_Navigable) != 0);
 }
 
+TbBool detonate_shot(struct Thing *thing)
+{
+    struct PlayerInfo *myplyr;
+    struct Thing *shooter;
+    SYNCDBG(18,"Starting for model %d",(int)thing->model);
+    shooter = INVALID_THING;
+    myplyr = get_my_player();
+    if (thing->index != thing->field_1D)
+        shooter = thing_get(thing->field_1D);
+    switch ( thing->model )
+    {
+    case 4:
+    case 16:
+    case 24:
+        PaletteSetPlayerPalette(myplyr, _DK_palette);
+        break;
+    case 11:
+        create_effect(&thing->mappos, 50, thing->owner);
+        create_effect(&thing->mappos,  9, thing->owner);
+        explosion_affecting_area(shooter, &thing->mappos, 8, 256, thing->byte_16);
+        break;
+    case 15:
+        create_effect_around_thing(thing, 26);
+        break;
+    default:
+        break;
+    }
+    delete_thing_structure(thing, 0);
+    return true;
+}
+
+/** Retrieves planned next position for given thing, without collision detection.
+ *  Just adds thing velocity to current position. Nothing fancy.
+ * @param pos
+ * @param thing
+ */
+void get_thing_next_position(struct Coord3d *pos, const struct Thing *thing)
+{
+    long delta_x,delta_y,delta_z;
+    pos->x.val = thing->mappos.x.val;
+    pos->y.val = thing->mappos.y.val;
+    pos->z.val = thing->mappos.z.val;
+    delta_z = thing->velocity.z.val;
+    delta_x = thing->velocity.x.val;
+    delta_y = thing->velocity.y.val;
+    if (delta_x > 256)
+      delta_x = 256;
+    if (delta_x < -256)
+      delta_x = -256;
+    if (delta_y > 256)
+        delta_y = 256;
+    if (delta_y < -256)
+      delta_y = -256;
+    if (delta_z > 256)
+        delta_z = 256;
+    if (delta_z < -256)
+        delta_z = -256;
+    pos->x.val += delta_x;
+    pos->y.val += delta_y;
+    pos->z.val += delta_z;
+}
+
+struct Thing *get_shot_collided_with_same_type(struct Thing *thing, struct Coord3d *nxpos)
+{
+    return _DK_get_shot_collided_with_same_type(thing, nxpos);
+}
+
+long shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos)
+{
+    return _DK_shot_hit_wall_at(thing, pos);
+}
+
+long shot_hit_door_at(struct Thing *thing, struct Coord3d *pos)
+{
+    return _DK_shot_hit_door_at(thing, pos);
+}
+
+long shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
+{
+    long i;
+    /*if ((game.play_gameturn > 11310)) {
+        SYNCLOG("index %d, model %d hit%d A",(int)shotng->index,(int)shotng->model,(int)shotng->byte_16);
+        things_stats_debug_dump();//!!!!
+    }*/
+    i = _DK_shot_hit_shootable_thing_at(shotng, target, pos);
+    /*if ((game.play_gameturn > 11310)) {
+        SYNCLOG("index %d, model %d hit%d B",(int)shotng->index,(int)shotng->model,(int)shotng->byte_16);
+        things_stats_debug_dump();//!!!!
+    }*/
+    return i;
+}
+
+long collide_filter_thing_is_shootable_by_any_player_including_objects(struct Thing *thing, struct Thing *coltng, long a3, long a4)
+{
+    return thing_is_shootable_by_any_player_including_objects(thing);
+}
+
+long collide_filter_thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing, struct Thing *coltng, long a3, long a4)
+{
+    return thing_is_shootable_by_any_player_excluding_objects(thing);
+}
+
+long collide_filter_thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *thing, struct Thing *coltng, long a3, long a4)
+{
+    return thing_is_shootable_by_any_player_except_own_including_objects(coltng, thing);
+}
+
+long collide_filter_thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *thing, struct Thing *coltng, long a3, long a4)
+{
+    return thing_is_shootable_by_any_player_except_own_excluding_objects(coltng, thing);
+}
+
+long collide_filter_thing_is_shootable_dungeon_heart_only(struct Thing *thing, struct Thing *coltng, long a3, long a4)
+{
+    return (thing->class_id == 1) && (thing->model == 5) && (coltng->owner != thing->owner);
+}
+
+struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5)
+{
+    return _DK_get_thing_collided_with_at_satisfying_filter(thing, pos, filter, a4, a5);
+}
+
+TbBool shot_hit_something_while_moving(struct Thing *thing, struct Coord3d *nxpos)
+{
+    struct ShotConfigStats *shotst;
+    struct Thing *target;
+    target = INVALID_THING;
+    shotst = get_shot_model_stats(thing->model);
+    switch ( thing->byte_16 )
+    {
+    case 8:
+        if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+            return true;
+        break;
+    case 1:
+        target = get_thing_collided_with_at_satisfying_filter(thing, nxpos, collide_filter_thing_is_shootable_by_any_player_including_objects, 0, 0);
+        if ( thing_is_invalid(target) )
+            break;
+        if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+            return true;
+        break;
+    case 2:
+        target = get_thing_collided_with_at_satisfying_filter(thing, nxpos, collide_filter_thing_is_shootable_by_any_player_excluding_objects, 0, 0);
+        if ( thing_is_invalid(target) )
+            break;
+        if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+            return true;
+        break;
+    case 3:
+        target = get_thing_collided_with_at_satisfying_filter(thing, nxpos, collide_filter_thing_is_shootable_by_any_player_except_own_including_objects, 0, 0);
+        if ( thing_is_invalid(target) )
+            break;
+        if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+            return true;
+        break;
+    case 4:
+        target = get_thing_collided_with_at_satisfying_filter(thing, nxpos, collide_filter_thing_is_shootable_by_any_player_except_own_excluding_objects, 0, 0);
+        if ( thing_is_invalid(target) )
+            break;
+        if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+            return true;
+        break;
+    case 7:
+        target = get_thing_collided_with_at_satisfying_filter(thing, nxpos, collide_filter_thing_is_shootable_dungeon_heart_only, 0, 0);
+        if ( thing_is_invalid(target) )
+            break;
+        if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+            return true;
+        break;
+    case 9:
+        target = get_thing_collided_with_at_satisfying_filter(thing, nxpos, collide_filter_thing_is_shootable_by_any_player_including_objects, 0, 0);
+        if ( !thing_is_invalid(target) )
+        {
+            if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+              return true;
+            break;
+        }
+        target = get_shot_collided_with_same_type(thing, nxpos);
+        if ( !thing_is_invalid(target) )
+        {
+            thing->health = -1;
+            thing->health = -1;
+            return true;
+        }
+        if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+            return true;
+        break;
+    default:
+        ERRORLOG("Shot has no hit thing type");
+        if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+            return true;
+        break;
+    }
+    return false;
+}
+
 long move_shot(struct Thing *thing)
 {
-  return _DK_move_shot(thing);
+    //return _DK_move_shot(thing);
+    struct ShotConfigStats *shotst;
+    struct Coord3d filpos;
+
+    get_thing_next_position(&filpos, thing);
+    shotst = get_shot_model_stats(thing->model);
+    if ( !shotst->old->field_28 )
+    {
+        if ( shot_hit_something_while_moving(thing, &filpos) ) {
+            return 0;
+        }
+    }
+    if ((thing->field_25 & 0x10) != 0)
+    {
+      if ( (shotst->old->field_48) && thing_in_wall_at(thing, &filpos) && shot_hit_door_at(thing, &filpos) ) {
+          return 0;
+      }
+    } else
+    {
+      if ( thing_in_wall_at(thing, &filpos) && shot_hit_wall_at(thing, &filpos) ) {
+          return 0;
+      }
+    }
+    if ( (thing->mappos.x.stl.num != filpos.x.stl.num) || (thing->mappos.y.stl.num != filpos.y.stl.num) )
+    {
+        remove_thing_from_mapwho(thing);
+        thing->mappos.x.val = filpos.x.val;
+        thing->mappos.y.val = filpos.y.val;
+        thing->mappos.z.val = filpos.z.val;
+        place_thing_in_mapwho(thing);
+    } else
+    {
+        thing->mappos.x.val = filpos.x.val;
+        thing->mappos.y.val = filpos.y.val;
+        thing->mappos.z.val = filpos.z.val;
+    }
+    thing->field_60 = get_thing_height_at(thing, &thing->mappos);
+    return 1;
 }
 
 long update_shot(struct Thing *thing)
@@ -70,21 +308,17 @@ long update_shot(struct Thing *thing)
     struct PlayerInfo *myplyr;
     struct PlayerInfo *player;
     struct Thing *target;
-    struct Thing *shooter;
     struct Coord3d pos1;
     struct Coord3d pos2;
     struct CoordDelta3d dtpos;
     struct ComponentVector cvect;
     long i;
     TbBool hit;
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18,"Starting for model %d",(int)thing->model);
     //return _DK_update_shot(thing);
-    shooter = NULL;
     hit = false;
     shotst = get_shot_model_stats(thing->model);
     myplyr = get_my_player();
-    if (thing->index != thing->field_1D)
-        shooter = thing_get(thing->field_1D);
     if (shotst->old->shot_sound != 0)
     {
         if (!S3DEmitterIsPlayingSample(thing->field_66, shotst->old->shot_sound, 0))
@@ -205,28 +439,15 @@ long update_shot(struct Thing *thing)
             break;
         }
     }
-    if (!hit)
-      return move_shot(thing);
-    switch ( thing->model )
-    {
-    case 4:
-    case 16:
-    case 24:
-        PaletteSetPlayerPalette(myplyr, _DK_palette);
-        break;
-    case 11:
-        create_effect(&thing->mappos, 50, thing->owner);
-        create_effect(&thing->mappos,  9, thing->owner);
-        explosion_affecting_area(shooter, &thing->mappos, 8, 256, thing->byte_16);
-        break;
-    case 15:
-        create_effect_around_thing(thing, 26);
-        break;
-    default:
-        break;
+    if (!thing_exists(thing)) {
+        WARNLOG("Thing disappeared during update");
+        return 0;
     }
-    delete_thing_structure(thing, 0);
-    return 0;
+    if (hit) {
+        detonate_shot(thing);
+        return 0;
+    }
+    return move_shot(thing);
 }
 
 struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner)
@@ -234,15 +455,16 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     struct ShotConfigStats *shotst;
     struct InitLight ilght;
     struct Thing *thing;
-    if ( !i_can_allocate_free_thing_structure(1) )
+    if ( !i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots) )
     {
         ERRORDBG(3,"Cannot create shot %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
+        //things_stats_debug_dump();
         return NULL;
     }
     memset(&ilght, 0, sizeof(struct InitLight));
     shotst = get_shot_model_stats(model);
-    thing = allocate_free_thing_structure(1);
+    thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
     thing->field_9 = game.play_gameturn;
     thing->class_id = TCls_Shot;
     thing->model = model;

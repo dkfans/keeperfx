@@ -179,7 +179,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     if (!control_creature_as_passenger(player, thing))
       return false;
     cam = player->acamera;
-    crstat = creature_stats_get(23);
+    crstat = creature_stats_get(get_players_special_digger_breed(player->id_number));
     cam->mappos.z.val += crstat->eye_height;
     return true;
   }
@@ -1094,13 +1094,13 @@ struct Thing *create_dead_creature(struct Coord3d *pos, unsigned short model, un
     struct Thing *thing;
     unsigned long k;
     //return _DK_create_dead_creature(pos, model, a1, owner, explevel);
-    if (!i_can_allocate_free_thing_structure(1))
+    if (!i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create dead creature model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    thing = allocate_free_thing_structure(1);
+    thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
     thing->class_id = 4;
     thing->model = model;
     thing->field_1D = thing->index;
@@ -2245,7 +2245,7 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
     struct Thing *crtng;
     long i;
     crstat = creature_stats_get(model);
-    if (!i_can_allocate_free_thing_structure(1))
+    if (!i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create breed %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -2257,7 +2257,7 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
         erstat_inc(ESE_NoFreeCreatrs);
         return NULL;
     }
-    crtng = allocate_free_thing_structure(1);
+    crtng = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
     cctrl = allocate_free_control_structure();
     crtng->ccontrol_idx = cctrl->index;
     crtng->class_id = 5;
@@ -3270,9 +3270,9 @@ long update_creature(struct Thing *thing)
 
     if (update_creature_movements(thing))
     {
-      thing->pos_38.x.val += cctrl->pos_BB.x.val;
-      thing->pos_38.y.val += cctrl->pos_BB.y.val;
-      thing->pos_38.z.val += cctrl->pos_BB.z.val;
+      thing->velocity.x.val += cctrl->pos_BB.x.val;
+      thing->velocity.y.val += cctrl->pos_BB.y.val;
+      thing->velocity.z.val += cctrl->pos_BB.z.val;
     }
     move_creature(thing);
     if ((thing->field_0 & 0x20) != 0)

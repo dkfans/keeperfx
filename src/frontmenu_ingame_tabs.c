@@ -793,10 +793,10 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     i = gbtn->field_1B;
     // Get index from pointer
     job_idx = ((long *)gbtn->field_33 - &activity_list[0]);
-    if (i > 0)
-        kind = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
+    if ( (i > 0) && (top_of_breed_list+i < CREATURE_TYPES_COUNT) )
+        kind = breed_activities[top_of_breed_list+i];
     else
-        kind = 23;
+        kind = get_players_special_digger_breed(my_player_number);
     // Now draw the button
     struct Dungeon *dungeon;
     int spridx;

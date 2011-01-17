@@ -2663,7 +2663,7 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
       dungeon = get_dungeon(plyr_idx);
       return dungeon->field_AF5;
   case SVar_CREATURE_NUM:
-      if (validx == 23)
+      if (validx == get_players_special_digger_breed(plyr_idx))
       {
         dungeon = get_dungeon(plyr_idx);
         return dungeon->field_918;

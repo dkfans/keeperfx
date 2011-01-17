@@ -327,10 +327,10 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
   } else
   if (i == 733)
   {
-    if (gbtn->field_1B > 0)
-      k = breed_activities[(top_of_breed_list+gbtn->field_1B)%CREATURE_TYPES_COUNT];
+    if ( (gbtn->field_1B > 0) && (top_of_breed_list+gbtn->field_1B < CREATURE_TYPES_COUNT) )
+      k = breed_activities[top_of_breed_list+gbtn->field_1B];
     else
-      k = 23;
+      k = get_players_special_digger_breed(my_player_number);
     crdata = creature_data_get(k);
     sprintf(tool_tip_box.text, "%-6s: %s", gui_strings[crdata->namestr_idx], text);
   } else

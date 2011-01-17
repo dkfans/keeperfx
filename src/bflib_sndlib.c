@@ -311,6 +311,17 @@ int __stdcall StartMusic(int i,int v)
     return ((FARPROCII)proc)(i,v);
 }
 
+int __stdcall StopSample(int a,int b)
+{
+    HMODULE hModule;
+    hModule=GetModuleHandle("WSND7R");
+    FARPROC proc;
+    proc=GetProcAddress(hModule,"_StopSample@8");
+    if (proc==NULL)
+    { ERRORLOG("Can't get address of StopSample function; skipped."); return 0; }
+    return ((FARPROCII)proc)(a,b);
+}
+
 int __stdcall SetSampleVolume(int a,int b,int c,int d)
 {
     HMODULE hModule;

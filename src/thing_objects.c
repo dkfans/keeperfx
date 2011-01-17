@@ -235,14 +235,14 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
   long i,k;
   //thing = _DK_create_object(pos, model, owner, a4);
 
-  if (!i_can_allocate_free_thing_structure(1))
+  if (!i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots))
   {
       ERRORDBG(3,"Cannot create object model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
       erstat_inc(ESE_NoFreeThings);
       return NULL;
   }
   LbMemorySet(&ilight, 0, sizeof(struct InitLight));
-  thing = allocate_free_thing_structure(1);
+  thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
   thing->class_id = TCls_Object;
   thing->model = model;
   if (a4 == -1)

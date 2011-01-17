@@ -276,7 +276,7 @@ long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, lo
   long fsize;
   long i,k;
 
-  // TODO: use rewritten version when sound routines are rewritten
+  // TODO SOUND use rewritten version when sound routines are rewritten
   return _DK_parse_sound_file(fileh, buf, nsamples, buf_len, a5);
 
   switch ( a5 )
@@ -391,7 +391,7 @@ TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *
   long buf_len;
   unsigned char *buf;
   SYNCDBG(8,"Starting");
-  // TODO: use rewritten version when sound routines are rewritten
+  // TODO SOUND use rewritten version when sound routines are rewritten
   i = _DK_init_sound_heap_two_banks(heap_mem, heap_size, snd_fname, spc_fname, a5);
   SYNCMSG("Sound samples in banks: %d,%d",(int)samples_in_bank,(int)samples_in_bank2);
   return (i != 0);
