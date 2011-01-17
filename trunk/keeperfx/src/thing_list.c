@@ -324,10 +324,11 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
     i = thing->next_of_class;
     if ((thing->field_0 & 0x40) == 0)
     {
-        if ((thing->field_0 & 0x10) != 0)
-          update_thing_animation(thing);
-        else
-          update_thing(thing);
+        if ((thing->field_0 & 0x10) != 0) {
+            update_thing_animation(thing);
+        } else {
+            update_thing(thing);
+        }
     }
     sum += get_thing_checksum(thing);
     k++;
@@ -1180,14 +1181,14 @@ TbBool update_thing(struct Thing *thing)
       thing->pos_32.z.val = 0;
       set_flag_byte(&thing->field_1, 0x04, false);
     }
-    thing->pos_38.x.val = thing->pos_2C.x.val;
-    thing->pos_38.y.val = thing->pos_2C.y.val;
-    thing->pos_38.z.val = thing->pos_2C.z.val;
+    thing->velocity.x.val = thing->pos_2C.x.val;
+    thing->velocity.y.val = thing->pos_2C.y.val;
+    thing->velocity.z.val = thing->pos_2C.z.val;
     if ((thing->field_1 & 0x08) != 0)
     {
-      thing->pos_38.x.val += thing->pos_26.x.val;
-      thing->pos_38.y.val += thing->pos_26.y.val;
-      thing->pos_38.z.val += thing->pos_26.z.val;
+      thing->velocity.x.val += thing->pos_26.x.val;
+      thing->velocity.y.val += thing->pos_26.y.val;
+      thing->velocity.z.val += thing->pos_26.z.val;
       thing->pos_26.x.val = 0;
       thing->pos_26.y.val = 0;
       thing->pos_26.z.val = 0;

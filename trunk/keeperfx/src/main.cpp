@@ -1600,13 +1600,13 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short a2, unsigned sh
 {
     struct Dungeon *dungeon;
     struct Thing *thing;
-    if ( !i_can_allocate_free_thing_structure(1) )
+    if ( !i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots) )
     {
         ERRORDBG(3,"Cannot create cave in %d for player %d. There are too many things allocated.",(int)a2,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return NULL;
     }
-    thing = allocate_free_thing_structure(1);
+    thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
     thing->class_id = TCls_CaveIn;
     thing->model = 0;
     thing->field_1D = thing->index;
@@ -2930,13 +2930,13 @@ void maintain_my_battle_list(void)
 struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short model, unsigned short owner)
 {
     struct Thing *thing;
-    if ( !i_can_allocate_free_thing_structure(1) )
+    if ( !i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots) )
     {
         ERRORDBG(3,"Cannot create ambient sound %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return NULL;
     }
-    thing = allocate_free_thing_structure(1);
+    thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
     thing->class_id = TCls_AmbientSnd;
     thing->model = model;
     thing->field_1D = thing->index;

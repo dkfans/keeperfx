@@ -75,6 +75,7 @@ typedef long (*Thing_State_Func)(struct Thing *);
 typedef long (*Thing_Class_Func)(struct Thing *);
 typedef long (*Thing_Filter)(const struct Thing *, FilterParam);
 typedef long (*Thing_Maximizer_Filter)(const struct Thing *, MaxFilterParam, long);
+typedef long (*Thing_Collide_Func)(struct Thing *, struct Thing *, long, long);
 
 struct CompoundFilterParam {
      long plyr_idx;

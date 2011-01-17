@@ -83,6 +83,7 @@ int __stdcall GetCurrentSoundMasterVolume(void);
 int __stdcall StopMusic(void);
 int __stdcall LoadAwe32Soundfont(const char *fname);
 int __stdcall StartMusic(int i,int v);
+int __stdcall StopSample(int a,int b);
 int __stdcall SetSampleVolume(int a,int b,int c,int d);
 int __stdcall SetSamplePan(int a,int b,int c,int d);
 int __stdcall SetSamplePitch(int a,int b,int c,int d);

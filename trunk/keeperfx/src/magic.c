@@ -341,7 +341,7 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     //return _DK_magic_use_power_imp(plyr_idx, x, y);
     if (!can_cast_spell_at_xy(plyr_idx, 2, stl_x, stl_y, 0)
      || !i_can_allocate_free_control_structure()
-     || !i_can_allocate_free_thing_structure(1))
+     || !i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots))
     {
       if (is_my_player_number(plyr_idx))
           play_non_3d_sample(119);

@@ -35,7 +35,14 @@ extern "C" {
 
 /** Enums for thing->field_0 bit fields. */
 enum ThingFlags0 {
+    TF_Exists     = 0x01,
     TF_IsInMapWho = 0x02,
+};
+
+enum ThingAllocFlags {
+    TAF_Default             = 0x00,
+    TAF_FreeEffectIfNoSlots = 0x01,
+    TAF_LogFailures         = 0x80,
 };
 
 struct InitThing { // sizeof=0x15
@@ -106,7 +113,7 @@ unsigned char field_25;
     struct CoordDelta3d pos_26;
     struct CoordDelta3d pos_2C;
     struct CoordDelta3d pos_32;
-    struct CoordDelta3d pos_38;
+    struct CoordDelta3d velocity;
 unsigned short field_3E;
     long field_40;
 unsigned short field_44;
@@ -143,7 +150,7 @@ unsigned short field_60;
 /******************************************************************************/
 struct Thing *allocate_free_thing_structure(unsigned char a1);
 short thing_create_thing(struct InitThing *itng);
-unsigned char i_can_allocate_free_thing_structure(unsigned char a1);
+TbBool i_can_allocate_free_thing_structure(unsigned char allocflags);
 void delete_thing_structure(struct Thing *thing, long a2);
 
 struct Thing *thing_get(long tng_idx);

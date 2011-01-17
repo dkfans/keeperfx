@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_sound.h"
 #include "bflib_memory.h"
+#include "thing_stats.h"
 
 #include "keeperfx.hpp"
 
@@ -35,7 +36,7 @@ DLLIMPORT unsigned char _DK_i_can_allocate_free_thing_structure(unsigned char a1
 DLLIMPORT unsigned char _DK_creature_remove_lair_from_room(struct Thing *thing, struct Room *room);
 
 /******************************************************************************/
-struct Thing *allocate_free_thing_structure(unsigned char free_flags)
+struct Thing *allocate_free_thing_structure(unsigned char allocflags)
 {
     struct Thing *thing;
     long i;
@@ -47,37 +48,53 @@ struct Thing *allocate_free_thing_structure(unsigned char free_flags)
         i = game.free_things[THINGS_COUNT-1];
         if (i < THINGS_COUNT-1)
         {
-          thing = thing_get(game.free_things[i]);
-          LbMemorySet(thing, 0, sizeof(struct Thing));
-          if (!thing_is_invalid(thing))
-          {
-              thing->field_0 |= 0x01;
-              thing->index = game.free_things[i];
-              game.free_things[THINGS_COUNT-1]++;
-          }
-          return thing;
+            thing = thing_get(game.free_things[i]);
+            LbMemorySet(thing, 0, sizeof(struct Thing));
+            if (!thing_is_invalid(thing))
+            {
+                thing->field_0 |= TF_Exists;
+                thing->index = game.free_things[i];
+                game.free_things[THINGS_COUNT-1]++;
+            }
+            return thing;
         }
         check_again = false;
-        if ((free_flags & 0x01) != 0)
+        if ((allocflags & TAF_FreeEffectIfNoSlots) != 0)
         {
-          thing = thing_get(game.thing_lists[3].index);
-          if (!thing_is_invalid(thing))
-          {
-              delete_thing_structure(thing, 0);
-              check_again = true;
-          } else
-          {
-              ERRORLOG("Cannot even free up effect thing!");
-          }
+            thing = thing_get(game.thing_lists[TngList_EffectElems].index);
+            if (!thing_is_invalid(thing))
+            {
+                delete_thing_structure(thing, 0);
+                check_again = true;
+            } else
+            {
+                ERRORLOG("Cannot even free up effect element thing!");
+            }
         }
     }
     ERRORLOG("Cannot allocate a structure!");
     return NULL;
 }
 
-unsigned char i_can_allocate_free_thing_structure(unsigned char a1)
+TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
 {
-  return _DK_i_can_allocate_free_thing_structure(a1);
+  //return _DK_i_can_allocate_free_thing_structure(allocflags);
+  // Check if there are free slots
+  if (game.free_things[THINGS_COUNT-1] < THINGS_COUNT-1)
+      return true;
+  // Check if there are effect slots that could be freed
+  if ((allocflags & TAF_FreeEffectIfNoSlots) != 0)
+  {
+      if (game.thing_lists[TngList_EffectElems].index > 0)
+          return true;
+  }
+  // Couldn't find free slot - fail
+  if ((allocflags & TAF_LogFailures) != 0)
+  {
+      ERRORLOG("Cannot allocate thing structure.");
+      things_stats_debug_dump();
+  }
+  return false;
 }
 
 unsigned char creature_remove_lair_from_room(struct Thing *thing, struct Room *room)
@@ -157,7 +174,7 @@ TbBool thing_exists(const struct Thing *thing)
 {
   if (thing_is_invalid(thing))
       return false;
-  if ((thing->field_0 & 0x01) == 0)
+  if ((thing->field_0 & TF_Exists) == 0)
       return false;
 #if (BFDEBUG_LEVEL > 0)
   if (thing->index != (thing-thing_get(0)))
