@@ -103,6 +103,69 @@ const char *thing_model_name(const struct Thing *thing)
     return name_buffer;
 }
 
+void things_stats_debug_dump(void)
+{
+    struct Thing * thing;
+    int count[THING_CLASSES_COUNT];
+    int realcnt[THING_CLASSES_COUNT];
+    int total,rltotal;
+    int i;
+    for (i=0; i < THING_CLASSES_COUNT; i++) {
+        count[i] = 0;
+        realcnt[i] = 0;
+    }
+    count[TCls_Object] = game.thing_lists[TngList_Objects].count;
+    count[TCls_Shot] = game.thing_lists[TngList_Shots].count;
+    count[TCls_EffectElem] = game.thing_lists[TngList_EffectElems].count;
+    count[TCls_DeadCreature] = game.thing_lists[TngList_DeadCreatrs].count;
+    count[TCls_Creature] = game.thing_lists[TngList_Creatures].count;
+    count[TCls_Effect] = game.thing_lists[TngList_Effects].count;
+    count[TCls_EffectGen] = game.thing_lists[TngList_EffectGens].count;
+    count[TCls_Trap] = game.thing_lists[TngList_Traps].count;
+    count[TCls_Door] = game.thing_lists[TngList_Doors].count;
+    count[TCls_AmbientSnd] = game.thing_lists[TngList_AmbientSnds].count;
+    count[TCls_CaveIn] = game.thing_lists[TngList_CaveIns].count;
+    total = 0;
+    for (i=0; i < THING_CLASSES_COUNT; i++) {
+        total += count[i];
+    }
+    JUSTLOG("Stats: Creats%d, Objs%d, Bods%d, Trps%d, Drs%d, Shts%d, Effs%d, EffEls%d Othrs%d Total%d",
+        count[TCls_Creature],
+        count[TCls_Object],
+        count[TCls_DeadCreature],
+        count[TCls_Trap],
+        count[TCls_Door],
+        count[TCls_Shot],
+        count[TCls_Effect],
+        count[TCls_EffectElem],
+        count[TCls_EffectGen] +  count[TCls_AmbientSnd] + count[TCls_CaveIn],
+        total
+        );
+    for (i=1; i < THINGS_COUNT; i++) {
+        thing = thing_get(i);
+        if (thing_exists(thing))
+            realcnt[thing->class_id]++;
+    }
+    rltotal = 0;
+    for (i=0; i < THING_CLASSES_COUNT; i++) {
+        rltotal += realcnt[i];
+    }
+    if (rltotal != total) {
+        JUSTLOG("Real:  Creats%d, Objs%d, Bods%d, Trps%d, Drs%d, Shts%d, Effs%d, EffEls%d Othrs%d Total%d",
+            realcnt[TCls_Creature],
+            realcnt[TCls_Object],
+            realcnt[TCls_DeadCreature],
+            realcnt[TCls_Trap],
+            realcnt[TCls_Door],
+            realcnt[TCls_Shot],
+            realcnt[TCls_Effect],
+            realcnt[TCls_EffectElem],
+            realcnt[TCls_EffectGen] +  realcnt[TCls_AmbientSnd] + realcnt[TCls_CaveIn],
+            rltotal
+            );
+    }
+}
+
 /**
  * Computes max health of a creature on given level.
  */

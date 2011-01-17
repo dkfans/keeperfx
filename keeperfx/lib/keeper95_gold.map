@@ -1845,3 +1845,8 @@
  0001:0008DB70       set_creature_combat_state
  0001:00077600       check_door_should_open
  0001:0007F5A0       jonty_creature_can_see_thing_including_lava_check
+ 0001:000D0700       get_shot_collided_with_same_type
+ 0001:000D0890       get_thing_collided_with_at_satisfying_filter
+ 0001:000907E0       shot_hit_shootable_thing_at
+ 0001:00091720       shot_hit_wall_at
+ 0001:00091C90       shot_hit_door_at

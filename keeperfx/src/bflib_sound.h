@@ -88,7 +88,7 @@ struct S3DSample { // sizeof = 37
 struct SampleTable { // sizeof = 16
   unsigned long field_0;
   unsigned long field_4;
-  unsigned long field_8;
+  unsigned long sfxid;
   struct HeapMgrHandle *hmhandle;
 };
 

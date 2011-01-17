@@ -43,6 +43,7 @@ extern const char *blood_types[];
 /******************************************************************************/
 const char *thing_model_name(const struct Thing *thing);
 const char *thing_class_code_name(long class_id);
+void things_stats_debug_dump(void);
 /******************************************************************************/
 long compute_creature_max_pay(long base_pay,unsigned short crlevel);
 long compute_creature_max_health(long base_health,unsigned short crlevel);

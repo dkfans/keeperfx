@@ -36,11 +36,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_stop_sample_using_heap(unsigned long fild8, short a2, unsigned char pan);
-DLLIMPORT long _DK_start_emitter_playing(struct SoundEmitter *emit, long a2, long pan, long volume, long pitch, long a6, long a7, long a8, long a9);
+DLLIMPORT void _DK_stop_sample_using_heap(unsigned long fild8, short smptbl_idx, unsigned char pan);
+DLLIMPORT long _DK_start_emitter_playing(struct SoundEmitter *emit, long smptbl_idx, long pan, long volume, long pitch, long a6, long a7, long a8, long a9);
 DLLIMPORT void _DK_close_sound_heap(void);
 DLLIMPORT void _DK_play_non_3d_sample(long sidx);
-DLLIMPORT struct SampleInfo *_DK_play_sample_using_heap(unsigned long fild8, short a2, unsigned long pan, unsigned long volume, unsigned long pitch, char a6, unsigned char a7, unsigned char a8);
+DLLIMPORT struct SampleInfo *_DK_play_sample_using_heap(unsigned long fild8, short smptbl_idx, unsigned long pan, unsigned long volume, unsigned long pitch, char a6, unsigned char a7, unsigned char a8);
 DLLIMPORT long _DK_S3DAddSampleToEmitterPri(long, long, long, long, long, long, char, long, long);
 DLLIMPORT long _DK_S3DCreateSoundEmitterPri(long, long, long, long, long, long, long, long, long, long);
 DLLIMPORT long _DK_S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);
@@ -59,7 +59,7 @@ long NoSoundEmitters = SOUND_EMITTERS_MAX;
 // Internal routines
 long allocate_free_sound_emitter(void);
 void delete_sound_emitter(long idx);
-long start_emitter_playing(struct SoundEmitter *emit, long a2, long pan, long volume, long pitch, long a6, long a7, long a8, long a9);
+long start_emitter_playing(struct SoundEmitter *emit, long smptbl_idx, long pan, long volume, long pitch, long a6, long a7, long a8, long a9);
 void init_sample_list(void);
 void delete_all_sound_emitters(void);
 long get_emitter_id(struct SoundEmitter *emit);
@@ -752,17 +752,17 @@ long get_sample_sfxid(long smptbl_idx, unsigned char bank_id)
     if ( using_two_banks )
     {
         if (bank_id != 0)
-          return sample_table2[smptbl_idx].field_8;
-    }
-    else
+          return sample_table2[smptbl_idx].sfxid;
+        return sample_table[smptbl_idx].sfxid;
+    } else
     {
         if (bank_id != 0)
         {
           ERRORLOG("Trying to use two sound banks when only one has been set up");
           return 0;
         }
+        return sample_table[smptbl_idx].sfxid;
     }
-    return sample_table[smptbl_idx].field_8;
 }
 
 void kick_out_sample(short smpl_id)
@@ -796,7 +796,7 @@ struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, l
 {
     struct SampleTable *smp_table;
     struct HeapMgrHandle *hmhandle;
-    long i;
+    long smptbl_idx;
     if ((!using_two_banks) && (bank_id > 0))
     {
         ERRORLOG("Trying to use two sound banks when only one has been set up");
@@ -810,15 +810,15 @@ struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, l
             hmhandle = heapmgr_add_item(sndheap, smpl_len);
             if (hmhandle != NULL)
               break;
-            i = heapmgr_free_oldest(sndheap);
-            if (i < 0)
+            smptbl_idx = heapmgr_free_oldest(sndheap);
+            if (smptbl_idx < 0)
               break;
-            if (i < samples_in_bank)
+            if (smptbl_idx < samples_in_bank)
             {
-              smp_table = &sample_table[i];
+              smp_table = &sample_table[smptbl_idx];
             } else
             {
-              smp_table = &sample_table2[i-samples_in_bank];
+              smp_table = &sample_table2[smptbl_idx-samples_in_bank];
             }
             smp_table->hmhandle = hmhandle;
         }
@@ -880,7 +880,7 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, short smpl_idx, unsi
       return NULL;
     }
     heapmgr_make_newest(sndheap, smp_table->hmhandle);
-    smpinfo = PlaySampleFromAddress(a1, smpl_idx, a3, a4, a5, a6, a7, smp_table->hmhandle, smp_table->field_8);
+    smpinfo = PlaySampleFromAddress(a1, smpl_idx, a3, a4, a5, a6, a7, smp_table->hmhandle, smp_table->sfxid);
     if (smpinfo == NULL)
     {
       ERRORLOG("Can't start playing sample %d",smpl_idx);
@@ -893,10 +893,54 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, short smpl_idx, unsi
     return smpinfo;
 }
 
-void stop_sample_using_heap(unsigned long a1, short a2, unsigned char a3)
+void stop_sample_using_heap(unsigned long a1, short smptbl_idx, unsigned char bank_id)
 {
-    //TODO SOUND rewrite
-    _DK_stop_sample_using_heap(a1, a2, a3);
+    struct SampleInfo *smpinfo;
+    struct SampleInfo *smpinfo_last;
+    struct SampleTable *satab;
+    struct HeapMgrHandle *hmhndl;
+    SYNCDBG(19,"Starting");
+    //_DK_stop_sample_using_heap(a1, a2, bank_id);
+    if ( !using_two_banks )
+    {
+        if (bank_id > 0) {
+            ERRORLOG("Trying to use two sound banks when only one has been set up");
+        }
+    }
+    StopSample(a1, smptbl_idx);
+    smpinfo_last = GetLastSampleInfoStructure();
+    for (smpinfo = GetFirstSampleInfoStructure(); smpinfo <= smpinfo_last; smpinfo++)
+    {
+        if (smpinfo->field_12 == smptbl_idx)
+        {
+            if ( (smpinfo->field_0 != 0) && ((smpinfo->field_17 & 0x01) != 0) )
+            {
+                if ( (bank_id == 0) || ((smpinfo->field_17 & 0x04) != 0) )
+                {
+                    if ( IsSamplePlaying(0, 0, smpinfo->field_0) ) {
+                        if (bank_id != 0)
+                        {
+                            satab = &sample_table2[smptbl_idx];
+                            hmhndl = satab->hmhandle;
+                            if (hmhndl != NULL) {
+                                hmhndl->field_8 &= ~0x0004;
+                                hmhndl->field_8 &= ~0x0002;
+                            }
+                        } else
+                        {
+                            satab = &sample_table[smptbl_idx];
+                            hmhndl = satab->hmhandle;
+                            if (hmhndl != NULL) {
+                                hmhndl->field_8 &= ~0x0004;
+                                hmhndl->field_8 &= ~0x0002;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
 }
 
 TbBool process_sound_samples(void)
@@ -1001,7 +1045,6 @@ long start_emitter_playing(struct SoundEmitter *emit, long smptbl_idx, long bank
     struct SampleInfo *smpinfo;
     long pan, volume, pitch;
     long smpl_idx;
-    //TODO SOUND rewrite
     //return _DK_start_emitter_playing(emit, smptbl_idx, bank_idx, fildB, loudness, fild1D, ctype, a8, fild0);
     get_emitter_pan_volume_pitch(&Receiver, emit, &pan, &volume, &pitch);
     smpl_idx = find_slot(smptbl_idx, bank_idx, emit, ctype, fild0);
