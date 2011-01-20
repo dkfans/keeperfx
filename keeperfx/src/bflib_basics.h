@@ -134,6 +134,7 @@ int LbWarnLog(const char *format, ...);
 int LbSyncLog(const char *format, ...);
 int LbNetLog(const char *format, ...);
 int LbJustLog(const char *format, ...);
+int LbAiLog(const char *format, ...);
 int LbNaviLog(const char *format, ...);
 int LbScriptLog(unsigned long line,const char *format, ...);
 int LbConfigLog(unsigned long line,const char *format, ...);
