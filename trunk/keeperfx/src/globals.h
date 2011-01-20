@@ -130,6 +130,9 @@ extern "C" {
   #define SCRIPTDBG(dblv,format,args...) {\
     if (BFDEBUG_LEVEL > dblv)\
       LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ## args); }
+  #define AIDBG(dblv,format,args...) {\
+    if (BFDEBUG_LEVEL > dblv)\
+      LbAiLog("%s: " format "\n", __func__ , ## args); }
 #else
   #define SYNCDBG(dblv,format,args...)
   #define WARNDBG(dblv,format,args...)
@@ -137,6 +140,7 @@ extern "C" {
   #define NAVIDBG(dblv,format,args...)
   #define NETDBG(dblv,format,args...)
   #define SCRIPTDBG(dblv,format,args...)
+  #define AIDBG(dblv,format,args...)
 #endif
 
 #ifdef __cplusplus
