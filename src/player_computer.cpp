@@ -30,6 +30,7 @@
 #include "creature_states.h"
 #include "magic.h"
 #include "keeperfx.hpp"
+#include "skirmish_ai.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -2389,11 +2390,15 @@ void process_computer_players2(void)
     {
       if (player->field_2C == 1)
       {
+#ifdef PETTER_AI
+        SAI_run_for_player(i);
+#else
         process_computer_player2(i);
         if (computer_player_demands_gold_check(i))
         {
           needs_gold_check = true;
         }
+#endif
       }
     }
   }
@@ -2426,7 +2431,11 @@ void setup_computer_players2(void)
     {
       if (player->field_2C == 1)
       {
+#ifdef PETTER_AI
+        SAI_reset_for_player(i);
+#else
         setup_a_computer_player(i, 7);
+#endif
       }
     }
   }
