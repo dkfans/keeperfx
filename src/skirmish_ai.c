@@ -33,7 +33,10 @@
 #define MAX_KEEPERS             4
 #define MAX_ROOM_COUNT          100
 #define MAX_DIG                 200
+
 #define PLAN_REFRESH_INTERVAL   250
+#define PLAN_FRAME_BUDGET       10000
+#define PLAN_INIT_BUDGET        1000000 //when initializing AI
 
 #define ROOMFLAG_USED           0x1
 #define ROOMFLAG_BEING_DUG      0x2
@@ -94,7 +97,6 @@ struct SAI_PlayerState
     struct SAI_Activity activities[ACTIVITY_COUNT];
     enum SAI_ActivityTypeAndPriority curr_activity;
     struct SAI_Room rooms[MAX_ROOM_COUNT];
-    int last_plan_turn;
     int plan_size;
     int plan_index;
     struct SAI_PlanDecision * plan;
@@ -248,17 +250,20 @@ static void think_about_workshop_items(struct SAI_PlayerState * plyrstate)
 static void process_plan(struct SAI_PlayerState * plyrstate)
 {
     AIDBG(3, "Starting");
-    AIDBG(5, "Last plan turn: %i", plyrstate->last_plan_turn);
-    AIDBG(5, "This turn: %i", plyrstate->turn);
 
-    if (    plyrstate->turn == 0 ||
-            plyrstate->last_plan_turn + PLAN_REFRESH_INTERVAL < plyrstate->turn) {
+    if (plyrstate->turn == 0) {
+        SAI_begin_plan(plyrstate->index, SAI_PLAN_LEAST_RISKY);
+        SAI_process_plan(plyrstate->index, PLAN_INIT_BUDGET);
+    }
+
+    if (plyrstate->turn % PLAN_REFRESH_INTERVAL == 0) { //no else if - logic interleaves with previous if
         free(plyrstate->plan);
-        plyrstate->plan = NULL;
         plyrstate->plan_index = 0;
-        plyrstate->last_plan_turn = plyrstate->turn;
-
-        SAI_make_plan(plyrstate->index, &plyrstate->plan, &plyrstate->plan_size);
+        SAI_end_plan(plyrstate->index, &plyrstate->plan, &plyrstate->plan_size);
+        SAI_begin_plan(plyrstate->index, SAI_PLAN_LEAST_RISKY);
+    }
+    else {
+        SAI_process_plan(plyrstate->index, PLAN_FRAME_BUDGET);
     }
 }
 
@@ -404,6 +409,7 @@ void SAI_reset_for_player(int plyr)
     }
 
     free(plyrstate->plan);
+    SAI_destroy_plan(plyr);
 
     memset(plyrstate, 0, sizeof(*plyrstate));
 

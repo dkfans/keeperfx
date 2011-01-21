@@ -24,6 +24,12 @@
 extern "C" {
 #endif
 
+enum SAI_PlanType
+{
+    SAI_PLAN_LEAST_RISKY,
+    SAI_PLAN_MOST_REWARDING
+};
+
 enum SAI_PlanDecisionType
 {
     SAI_PLAN_WAIT, //auxiliary node that means that we should wait as long as required for preconditions of children to become true
@@ -33,6 +39,16 @@ enum SAI_PlanDecisionType
     SAI_PLAN_HIDE, //try to delay the inevitable by avoiding digging outside dungeon
     SAI_PLAN_ASSAULT, //attack dungeon heart of opponent
     SAI_PLAN_ARMAGEDDON, //another kind of assault ;-)
+    SAI_PLAN_CREATURE_PRIORITIZE,
+};
+
+enum SAI_CreaturePriority
+{
+    SAI_CP_TRAIN, //Default
+    SAI_CP_SAVE_MONEY,
+    SAI_CP_RESEARCH,
+    SAI_CP_MANUFACTURE,
+    SAI_CP_SCAVENGE
 };
 
 struct SAI_PlanDecision
@@ -41,16 +57,41 @@ struct SAI_PlanDecision
     union
     {
         int kind;
+        enum SAI_CreaturePriority cp;
     } param;
 };
 
 
 /**
- *
+ * Prepare for a new planning round by initializing the player's planner.
  * @param plyr Player to make a plan for.
- * @param next_decision
+ * @param type Type of plan desired.
  */
-void SAI_make_plan(int plyr, struct SAI_PlanDecision ** decisions, int * num_decisions);
+void SAI_begin_plan(int plyr, enum SAI_PlanType type);
+
+/**
+ *
+ * @param plyr Player's plan to process.
+ * @param node_budget Max nodes that may be processed this frame.
+ */
+void SAI_process_plan(int plyr, int node_budget);
+
+/**
+ * Stops processing, retrieves best plan, and cleans up (destroy_plan not
+ * necessary after).
+ * @param plyr Player to retrieve plan of.
+ * @param decisions Pointer to pointer that will point to decision array.
+ * @param num_decisions Number of decisions in plan.
+ */
+void SAI_end_plan(int plyr, struct SAI_PlanDecision ** decisions, int * num_decisions);
+
+/**
+ * Destroys a player plan. Can be called even if begin_plan wasn't called.
+ * end_plan cannot be called after.
+ * @param plyr Player whose plan to destroy.
+ */
+void SAI_destroy_plan(int plyr);
+
 
 #ifdef __cplusplus
 }
