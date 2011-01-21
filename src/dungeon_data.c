@@ -146,7 +146,7 @@ void player_add_offmap_gold(long plyr_idx, long value)
     }
     dungeon = get_dungeon(plyr_idx);
     dungeon->field_AFD += value;
-    dungeon->field_AF9 += value;
+    dungeon->money += value;
 }
 
 /** Returns if given player owns a room of given kind.

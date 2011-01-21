@@ -188,7 +188,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
   if (thing_is_invalid(thing))
     return NULL;
   dungeon = get_dungeon(thing->owner);
-  dungeon->field_919--;
+  dungeon->num_active_crtrs--;
   dungeon->field_91A[thing->model]--;
   if (is_my_player(player))
   {

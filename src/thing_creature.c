@@ -2180,7 +2180,7 @@ void remove_first_creature(struct Thing *thing)
         }
         if ((cctrl->field_2 & 0x02) == 0)
         {
-          dungeon->field_919--;
+          dungeon->num_active_crtrs--;
           dungeon->field_91A[thing->model]--;
         }
     } else
@@ -2198,7 +2198,7 @@ void remove_first_creature(struct Thing *thing)
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->field_1D = cctrl->field_1D;
         }
-        dungeon->field_918--;
+        dungeon->num_workers--;
     }
     cctrl->field_1D = 0;
     cctrl->thing_idx = 0;
