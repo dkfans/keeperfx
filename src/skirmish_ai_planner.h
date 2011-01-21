@@ -77,8 +77,8 @@ void SAI_begin_plan(int plyr, enum SAI_PlanType type);
 void SAI_process_plan(int plyr, int node_budget);
 
 /**
- * Stops processing, retrieves best plan, and cleans up (destroy_plan not
- * necessary after).
+ * Stops processing, retrieves best plan, and puts used nodes into a reuse cache.
+ * destroy can be called afterwards but that will flush cached nodes.
  * @param plyr Player to retrieve plan of.
  * @param decisions Pointer to pointer that will point to decision array.
  * @param num_decisions Number of decisions in plan.

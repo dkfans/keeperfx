@@ -3,7 +3,7 @@
 /******************************************************************************/
 /** @file skirmish_ai_planner.cpp
  *     Planner/state tree explorer for new AI. Highly experimental, I don't yet
- *     know how til will perform. ;-)
+ *     know how it will perform. ;-)
  *     Is .cpp although use of C++ is minimized and can be replaced later.
  * @par Purpose:
  *     Experimental computer player intended to play multiplayer maps better.
@@ -30,7 +30,7 @@
 #include <stdlib.h>
 
 //start of C++ dependencies
-#include <list>
+#include <algorithm>
 #include <set>
 //end of C++ dependencies
 
@@ -75,6 +75,8 @@ struct NodeState
 
 struct Node
 {
+    struct Node * next; //to keep track of nodes allocated
+
     int id; //required because we can't use pointer as final compare key (order must be deterministic on multiple machines)
     struct Node * parent;
     struct SAI_PlanDecision decision;
@@ -92,11 +94,10 @@ struct Environment
     unsigned rooms_researchable; //bitmask; so we can use bool ops with rooms_built/rooms_available bitmasks
 };
 
-static int search_compare(const Node * lhs, const Node * rhs);
+static bool search_compare(const Node * lhs, const Node * rhs);
 
-typedef int (*NodeCompareFunc)(const Node * lhs, const Node * rhs);
+typedef bool (*NodeCompareFunc)(const Node * lhs, const Node * rhs);
 typedef std::set<Node *, NodeCompareFunc> NodeSet;
-typedef std::list<Node *> NodeList;
 
 struct Planner
 {
@@ -108,10 +109,15 @@ struct Planner
 
     //rewrite using some C library later if C++ dependency becomes an issue
     NodeSet open;
-    NodeList closed;
+
+    struct Node * freelist_head;
+    struct Node * freelist_tail;
+    struct Node * livelist_head;
+    struct Node * livelist_tail;
 
     Planner(int plyr_idx, NodeCompareFunc cmp) : my_plyr_idx(plyr_idx),
-        next_node_id(0), env(), open(cmp), closed() {
+        next_node_id(0), env(), open(cmp),
+        freelist_head(), freelist_tail(), livelist_head() {
     }
 };
 
@@ -184,28 +190,28 @@ static int node_heuristic(const struct Node * node)
     return score;
 }
 
-static int search_compare(const Node * lhs, const Node * rhs)
+static bool search_compare(const Node * lhs, const Node * rhs)
 {
     int diff;
 
-    diff = node_score(rhs) + node_heuristic(rhs) -
-        (node_score(lhs) + node_heuristic(lhs));
+    diff = node_score(lhs) + node_heuristic(lhs) -
+        (node_score(rhs) + node_heuristic(rhs));
     if (diff != 0) {
-        return diff;
+        return diff < 0;
     }
 
-    return rhs->id - lhs->id; //for multi-machine determinism
+    return (lhs->id - rhs->id) < 0; //for multi-machine determinism
 }
 
-static int score_compare(const Node * lhs, const Node * rhs)
+static bool score_compare(const Node * lhs, const Node * rhs)
 {
     int diff;
-    diff = node_score(rhs) - node_score(lhs);
+    diff = node_score(lhs) - node_score(rhs);
     if (diff != 0) {
-        return diff;
+        return diff < 0;
     }
 
-    return rhs->id - lhs->id;
+    return (lhs->id - rhs->id) < 0;
 }
 
 void state_time_simulation(struct NodeState * node, int time)
@@ -374,7 +380,24 @@ static Node * new_node(enum SAI_PlanDecisionType type, struct Node * parent, int
 {
     struct Node * node;
 
-    node = (Node *) calloc(1, sizeof(*node));
+    if (planner->freelist_head) {
+        node = planner->freelist_head;
+        planner->freelist_head = node->next;
+
+        if (!planner->freelist_head) {
+            planner->freelist_tail = NULL;
+        }
+    }
+    else {
+        node = (Node *) malloc(sizeof(*node));
+    }
+
+    node->next = planner->livelist_head;
+    planner->livelist_head = node;
+    if (!planner->livelist_tail) {
+        planner->livelist_tail = node;
+    }
+
     node->decision.type = type;
     node->id = planner->next_node_id++;
     node->parent = parent;
@@ -385,6 +408,9 @@ static Node * new_node(enum SAI_PlanDecisionType type, struct Node * parent, int
         if (time > 0) {
             state_time_simulation(&node->state, time);
         }
+    }
+    else {
+        memset(&node->state, 0, sizeof(node->state));
     }
 
     return node;
@@ -557,7 +583,7 @@ void SAI_begin_plan(int plyr, enum SAI_PlanType type)
     set_planning_player(plyr);
 
     assert(planner->open.empty());
-    assert(planner->closed.empty());
+    assert(planner->livelist_head == NULL);
 
     planner->next_node_id = 0;
     planner->plan_type = type;
@@ -580,7 +606,7 @@ void SAI_process_plan(int plyr, int node_budget)
             planner->next_node_id - node_count_at_start < node_budget) {
         node = *planner->open.begin();
         planner->open.erase(planner->open.begin());
-        planner->closed.push_back(node);
+        //node does not get lost here, it is still on planner livelist
         visit_node(node);
     }
 }
@@ -593,7 +619,6 @@ void SAI_end_plan(int plyr, struct SAI_PlanDecision ** decisions, int * num_deci
     int i;
     int score;
     int best_score;
-    NodeSet score_order(score_compare);
 
     AIDBG(3, "Starting, %i nodes will be considered", planner->next_node_id);
     set_planning_player(plyr);
@@ -601,8 +626,10 @@ void SAI_end_plan(int plyr, struct SAI_PlanDecision ** decisions, int * num_deci
     *num_decisions = 0;
     *decisions = NULL;
     best_leaf = NULL;
+    assert(!planner->open.empty());
 
     //find best leaf (according to type of plan)
+    NodeSet score_order(score_compare);
     score_order.insert(planner->open.begin(), planner->open.end());
 
     if (planner->plan_type == SAI_PLAN_MOST_REWARDING) {
@@ -654,27 +681,42 @@ void SAI_end_plan(int plyr, struct SAI_PlanDecision ** decisions, int * num_deci
         }
     }
 
-    SAI_destroy_plan(plyr);
+
+    planner->open.clear();
+
+    //transfer nodes to freelist
+    if (planner->freelist_tail) {
+        planner->freelist_tail->next = planner->livelist_head;
+    }
+    else {
+        planner->freelist_head = planner->livelist_head;
+        planner->freelist_tail = planner->livelist_tail;
+    }
+
+    planner->livelist_head = NULL;
+    planner->livelist_tail = NULL;
 }
 
 void SAI_destroy_plan(int plyr)
 {
-    NodeSet::iterator setIt;
-    NodeList::iterator listIt;
+    struct Node * node;
 
     AIDBG(3, "Starting");
     set_planning_player(plyr);
 
-    //TODO AI: cache allocated nodes instead, significant amount of CPU spent allocating/deallocating nodes
-
-    //clean up
-    for (listIt = planner->closed.begin(); listIt != planner->closed.end(); ++listIt) {
-        free(*listIt);
-    }
-    for (setIt = planner->open.begin(); setIt != planner->open.end(); ++setIt) {
-        free(*setIt);
-    }
-
     planner->open.clear();
-    planner->closed.clear();
+
+    //destroy nodes
+    while (planner->freelist_head) {
+        node = planner->freelist_head;
+        planner->freelist_head = planner->freelist_head->next;
+        free(node);
+    }
+    while (planner->livelist_head) {
+        node = planner->livelist_head;
+        planner->livelist_head = planner->livelist_head->next;
+        free(node);
+    }
+    planner->freelist_tail = NULL;
+    planner->livelist_tail = NULL;
 }
