@@ -814,7 +814,7 @@ void process_armageddon(void)
       if ( (player_exists(player)) && (player->field_2C == 1) )
       {
         dungeon = get_dungeon(player->id_number);
-        if ( (player->victory_state == VicS_Undecided) && (dungeon->field_919 == 0))
+        if ( (player->victory_state == VicS_Undecided) && (dungeon->num_active_crtrs == 0))
         {
           event_kill_all_players_events(i);
           set_player_as_lost_level(player);
@@ -3394,7 +3394,167 @@ void calculate_dungeon_area_scores(void)
 void check_map_for_gold(void)
 {
     SYNCDBG(8,"Starting");
-    _DK_check_map_for_gold();
+    //_DK_check_map_for_gold();
+
+    //feel free to finish this - I can't decipher enough to make it worthwhile
+    /*unsigned char *after_slabs_in_scratch; // edi@1
+    signed int v4; // eax@11
+    unsigned int v5; // edx@11
+    int slab_idx2; // ecx@12
+    unsigned char v7; // bl@14
+    unsigned char v8; // bl@16
+    unsigned char v9; // bl@18
+    unsigned char v10; // bl@20
+    signed int v11; // edx@25
+    signed int v12; // ebx@25
+    char *v13; // ebp@25
+    signed int v14; // ecx@27
+    char *v15; // edx@34
+    signed int v16; // ecx@34
+    unsigned char *after_slabs_in_scratch2; // [sp+10h] [bp-34h]@11
+    signed int gold_index; // [sp+10h] [bp-34h]@25
+    int next_y; // [sp+18h] [bp-2Ch]@11
+    unsigned int v20; // [sp+1Ch] [bp-28h]@11
+    int v21; // [sp+1Ch] [bp-28h]@25
+    signed int next_x; // [sp+20h] [bp-24h]@11
+    signed int x; // [sp+24h] [bp-20h]@8
+    signed int v24; // [sp+28h] [bp-1Ch]@11
+    int v25; // [sp+2Ch] [bp-18h]@11
+    signed int slab_idx; // [sp+30h] [bp-14h]@7
+    signed int gold_count; // [sp+34h] [bp-10h]@7
+    signed int v28; // [sp+38h] [bp-Ch]@11
+    signed int v29; // [sp+3Ch] [bp-8h]@11
+    int y; // [sp+40h] [bp-4h]@7
+    int i;
+
+    for (i = 0; i < 85 * 85; ++i) {
+        scratch[i] = game.slabmap[i].kind != 1 && game.slabmap[i].kind != 52;
+    }
+
+    memset(game.gold_lookup, 0, sizeof(game.gold_lookup));
+    scratch = scratch;
+
+    after_slabs_in_scratch = scratch + 85 * 85;
+    gold_count = 0;
+    for (y = 0; y < 85; ++y) {
+        for (x = 0; x < 85; ++x) {
+            slab_idx = y * 85 + x;
+
+            if ( !(scratch[slab_idx] & 1) && !(scratch[slab_idx] & 2) ) {
+                v5 = 0;
+                next_x = x;
+                next_y = y;
+                v4 = 0;
+                v29 = 0;
+                v28 = 0;
+                v20 = 0;
+                v25 = 0;
+                v24 = 0;
+                scratch[slab_idx] |= 2u;
+                after_slabs_in_scratch2 = after_slabs_in_scratch;
+                do {
+                    v4 += next_x;
+                    ++v28;
+                    v29 += next_y;
+                    slab_idx2 = 85 * next_y + next_x;
+                    if ( game.slabmap[slab_idx2].kind == 52 ) {
+                        ++v25;
+                    }
+                    else {
+                        ++v24;
+                        v7 = scratch[slab_idx2 - 1];
+                        if ( !(v7 & 3) ) {
+                            ++v5;
+                            scratch[slab_idx2 - 1] = v7 | 2;
+                            after_slabs_in_scratch[2 * v5 - 2] = next_x - 1;
+                            after_slabs_in_scratch[2 * v5 - 1] = next_y;
+                        }
+                        v8 = scratch[slab_idx2 + 1];
+                        if ( !(v8 & 3) ) {
+                            ++v5;
+                            scratch[slab_idx2 + 1] = v8 | 2;
+                            after_slabs_in_scratch[2 * v5 - 2] = next_x + 1;
+                            after_slabs_in_scratch[2 * v5 - 1] = next_y;
+                        }
+                        v9 = scratch[slab_idx2 - 85];
+                        if ( !(v9 & 3) ) {
+                            ++v5;
+                            scratch[slab_idx2 - 85] = v9 | 2;
+                            after_slabs_in_scratch[2 * v5 - 2] = next_x;
+                            after_slabs_in_scratch[2 * v5 - 1] = next_y - 1;
+                        }
+                        v10 = scratch[slab_idx2 + 85];
+                        if ( !(v10 & 3) ) {
+                            ++v5;
+                            scratch[slab_idx2 + 85] = v10 | 2;
+                            after_slabs_in_scratch[2 * v5 - 2] = next_x;
+                            after_slabs_in_scratch[2 * v5 - 1] = next_y + 1;
+                        }
+                    }
+                    next_x = (char)*after_slabs_in_scratch2;
+                    next_y = (char)after_slabs_in_scratch2[1];
+                    after_slabs_in_scratch2 += 2;
+                    ++v20;
+                }
+                while ( v5 >= v20 );
+                if ( gold_count < GOLD_LOOKUP_COUNT ) {
+                    gold_index = gold_count++;
+                }
+                else {
+                    if ( v25 ) {
+                        v12 = v24;
+                        v11 = 0;
+                        v13 = (char *)&game.gold_lookup[0].field_10;
+                        v21 = v25;
+                        gold_index = -1;
+                        while ( 1 ) {
+                            if ( *(unsigned *)v13 == v21 ) {
+                                v14 = *((unsigned short *)v13 - 3);
+                                if ( v14 < v12 ) {
+                                    v12 = *((unsigned short *)v13 - 3);
+LABEL_31:
+                                    gold_index = v11;
+                                    goto LABEL_32;
+                                }
+                            }
+                            else {
+                                if ( *(unsigned *)v13 < v21 ) {
+                                    v21 = *(unsigned *)v13;
+                                    v12 = *((unsigned short *)v13 - 3);
+                                    goto LABEL_31;
+                                }
+                            }
+LABEL_32:
+                            v13 += 28;
+                            ++v11;
+                            if ( (unsigned int)v13 >= (unsigned int)&game.block_health[7] )
+                                goto LABEL_41;
+                        }
+                    }
+                    v16 = 0;
+                    v15 = (char *)&game.gold_lookup[0].field_10;
+                    gold_index = -1;
+                    while ( *(unsigned *)v15 || *((unsigned short *)v15 - 3) >= v24 ) {
+                        v15 += 28;
+                        ++v16;
+                        if ( (unsigned int)v15 >= (unsigned int)&game.block_health[7] )
+                            goto LABEL_41;
+                    }
+                    gold_index = v16;
+                }
+LABEL_41:
+                if ( gold_index != -1 ) {
+                    game.gold_lookup[gold_index].field_0 |= 1u;
+                    game.gold_lookup[gold_index].field_6 = 3 * v4 / v28 + 1;
+                    game.gold_lookup[gold_index].field_8 = 3 * v29 / v28 + 1;
+                    game.gold_lookup[gold_index].field_A = v24;
+                    game.gold_lookup[gold_index].field_C = 0;
+                    game.gold_lookup[gold_index].field_E = v24;
+                    game.gold_lookup[gold_index].field_10 = v25;
+                }
+            }
+        }
+    }*/
 }
 
 void gui_set_button_flashing(long btn_idx, long gameturns)
@@ -4857,9 +5017,9 @@ void count_dungeon_stuff(void)
     player = get_player(i);
     if (player_exists(player))
     {
-      game.field_14E4A0 += dungeon->field_AF9;
-      game.field_14E4A4 += dungeon->field_918;
-      game.field_14E49E += dungeon->field_919;
+      game.field_14E4A0 += dungeon->money;
+      game.field_14E4A4 += dungeon->num_workers;
+      game.field_14E49E += dungeon->num_active_crtrs;
     }
   }
 }
@@ -6180,7 +6340,7 @@ void draw_whole_status_panel(void)
     lbDisplay.DrawColour = colours[15][15][15];
     lbDisplay.DrawFlags = 0;
     DrawBigSprite(0, 0, &status_panel, gui_panel_sprites);
-    draw_gold_total(player->id_number, 60, 134, dungeon->field_AF9);
+    draw_gold_total(player->id_number, 60, 134, dungeon->money);
     if (pixel_size < 3)
         mmzoom = (player->minimap_zoom) / (3-pixel_size);
     else
@@ -6960,8 +7120,8 @@ void init_dungeons(void)
     dungeon->hates_player[i] = game.fight_max_hate;
     dungeon = get_dungeon(i);
     dungeon->hates_player[game.hero_player_num%DUNGEONS_COUNT] = game.fight_max_hate;
-    dungeon->field_918 = 0;
-    dungeon->field_919 = 0;
+    dungeon->num_workers = 0;
+    dungeon->num_active_crtrs = 0;
     dungeon->creatr_list_start = 0;
     dungeon->worker_list_start = 0;
     dungeon->owner = i;

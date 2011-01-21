@@ -1947,7 +1947,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
 
     // Try selling traps and doors
     dungeon = comp->dungeon;
-    if (dungeon->field_14B8 > dungeon->field_AF9)
+    if (dungeon->field_14B8 > dungeon->money)
     {
       if (dungeon->room_kind[8] != 0)
       {
@@ -1960,7 +1960,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
       }
     }
-    if (3*dungeon->field_14B8/2 <= dungeon->field_AF9)
+    if (3*dungeon->field_14B8/2 <= dungeon->money)
       return ret;
 
     // Move creatures away from rooms which costs a lot

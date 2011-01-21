@@ -391,7 +391,7 @@ TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, long r
             return false;
         return true;
     case RoK_TRAINING:
-        if (2 * dungeon->field_14B8 >= dungeon->field_AF9)
+        if (2 * dungeon->field_14B8 >= dungeon->money)
             return false;
         return true;
     case RoK_WORKSHOP:
@@ -691,7 +691,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
         ERRORLOG("Invalid dungeon in computer player.");
         return 0;
     }
-    if ((ctask->field_7C >= ctask->long_76) && (ctask->field_80 >= dungeon->field_AF9))
+    if ((ctask->field_7C >= ctask->long_76) && (ctask->field_80 >= dungeon->money))
     {
         i = 0;
         value = 0;
@@ -751,7 +751,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 {
                   ctask->long_76 += value;
                   dungeon->field_AFD += value;
-                  dungeon->field_AF9 += value;
+                  dungeon->money += value;
                   return 1;
                 }
                 remove_task(comp, ctask);
