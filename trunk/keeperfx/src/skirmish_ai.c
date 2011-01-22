@@ -195,7 +195,8 @@ static void think_about_dungeon_development(struct SAI_PlayerState * plyrstate)
     if (should_dig_for_room(plyrstate, &dig_params, &room)) {
         if (dig_params.count <= actions_left(plyrstate, ACTIVITY_DIG_AREAS)) {
             for (i = 0; i < dig_params.count; ++i) {
-                action = SAI_mark_dig_action(dig_params.pos[i].x, dig_params.pos[i].y);
+                action = SAI_mark_dig_action(plyrstate->index,
+                    dig_params.pos[i].x, dig_params.pos[i].y);
                 queue_action(plyrstate, ACTIVITY_DIG_AREAS, action);
             }
 
@@ -207,7 +208,8 @@ static void think_about_dungeon_development(struct SAI_PlayerState * plyrstate)
         if (room->w * room->h <= actions_left(plyrstate, ACTIVITY_BUILD_ROOMS)) {
             for (i = 0; i < room->w; ++i) {
                 for (j = 0; j < room->h; ++j) {
-                    action = SAI_build_room_action(room->x + i, room->y + j, room->kind);
+                    action = SAI_build_room_action(plyrstate->index,
+                        room->x + i, room->y + j, room->kind);
                     queue_action(plyrstate, ACTIVITY_BUILD_ROOMS, action);
                 }
             }

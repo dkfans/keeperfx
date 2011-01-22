@@ -19,101 +19,71 @@
 
 #include "skirmish_ai_actions.h"
 
+#include "player_computer.h"
+
+#include <assert.h>
 #include <stdlib.h>
 
-enum FuncReason
+#define TO_CENTER_STL(x)    (x * 3 + 1)
+
+struct _SAI_Action
 {
-    ON_PROCESS,
-    ON_DESTROY,
-    QUERY_IS_FINISHED,
-    QUERY_CAN_FINISH
-};
+    SAI_Action next; //list
+    unsigned char done; //non-zero if action is finished
+    unsigned char failed; //tracks number of failures, up to 255
 
-enum SAI_ActionType
-{
-    //ACTION_MOVE_CREATURE, //pick up and drop
-    ACTION_MARK_DIG,
-    ACTION_BUILD_ROOM,
-
-    ACTION_COUNT //counter
-};
-
-struct SAI_ActionHeader
-{
-    enum SAI_ActionType type;
-    SAI_Action next;
-    int time;
-};
-
-typedef int (*ActionFunc)(enum FuncReason reason, SAI_Action action);
-
-struct MarkDigAction
-{
-    struct SAI_ActionHeader header;
-    int x;
-    int y;
-};
-
-struct BuildRoomAction
-{
-    struct SAI_ActionHeader header;
-    int x;
-    int y;
-    int kind;
-};
-
-
-static ActionFunc action_funcs[ACTION_COUNT] =
-{
-
+    //the following correspond the arguments of game_action()
+    unsigned short gaction; //2nd
+    unsigned short a3; //3rd etc.
+    unsigned short stl_x;
+    unsigned short stl_y;
+    unsigned short param1;
+    unsigned short param2;
+    char plyr_idx; //1st
 };
 
 
 int SAI_is_action_done(SAI_Action action)
 {
-    struct SAI_ActionHeader * header;
-
-    header = (struct SAI_ActionHeader *) action;
-    return action_funcs[header->type](QUERY_IS_FINISHED, action);
+    return action->done;
 }
 
 int SAI_is_action_stuck(SAI_Action action)
 {
-    struct SAI_ActionHeader * header;
-
-    header = (struct SAI_ActionHeader *) action;
-    return !action_funcs[header->type](QUERY_CAN_FINISH, action);
+    return action->failed;
 }
 
 void SAI_process_action(SAI_Action action, int player)
 {
-    struct SAI_ActionHeader * header;
+    short ret;
 
-    header = (struct SAI_ActionHeader *) action;
-    action_funcs[header->type](ON_PROCESS, action);
+    assert(!action->done);
+
+    ret = game_action(action->plyr_idx, action->gaction, action->a3,
+        action->stl_x, action->stl_y, action->param1, action->param2);
+
+    if (ret) {
+        action->done = 1;
+    }
+    else if (action->failed < 0xff) {
+        action->failed += 1;
+    }
 }
 
 SAI_Action SAI_get_next_action(SAI_Action action)
 {
-    struct SAI_ActionHeader * header;
-
-    header = (struct SAI_ActionHeader *) action;
-
-    return header->next;
+    return action->next;
 }
 
 void SAI_append_action(SAI_Action * head, SAI_Action tail)
 {
-    struct SAI_ActionHeader * header;
-
     if (*head) {
-        header = (struct SAI_ActionHeader *) *head;
         for (;;) {
-            if (header->next) {
-                header = (struct SAI_ActionHeader *) header->next;
+            if ((*head)->next) {
+                *head = (*head)->next;
             }
             else {
-                header->next = tail;
+                (*head)->next = tail;
                 break;
             }
         }
@@ -125,32 +95,30 @@ void SAI_append_action(SAI_Action * head, SAI_Action tail)
 
 void SAI_destroy_action(SAI_Action action)
 {
-    struct SAI_ActionHeader * header;
-
-    if (action) {
-        header = (struct SAI_ActionHeader *) action;
-        action_funcs[header->type](ON_DESTROY, action);
-        free(action);
-    }
+    free(action);
 }
 
-SAI_Action SAI_mark_dig_action(int x, int y)
+SAI_Action SAI_mark_dig_action(int plyr, int x, int y)
 {
-    struct MarkDigAction * action;
-    action = (struct MarkDigAction *) malloc(sizeof(*action));
-    action->x = x;
-    action->y = y;
+    SAI_Action action;
+    action = (SAI_Action) calloc(1, sizeof(*action));
+    action->gaction = 14;
+    action->plyr_idx = plyr;
+    action->stl_x = TO_CENTER_STL(x);
+    action->stl_y = TO_CENTER_STL(y);
 
     return action;
 }
 
-SAI_Action SAI_build_room_action(int x, int y, int kind)
+SAI_Action SAI_build_room_action(int plyr, int x, int y, int kind)
 {
-    struct BuildRoomAction * action;
-    action = (struct BuildRoomAction *) malloc(sizeof(*action));
-    action->x = x;
-    action->y = y;
-    action->kind = kind;
+    SAI_Action action;
+    action = (SAI_Action) calloc(1, sizeof(*action));
+    action->gaction = 15;
+    action->plyr_idx = plyr;
+    action->stl_x = TO_CENTER_STL(x);
+    action->stl_y = TO_CENTER_STL(y);
+    action->param2 = kind;
 
     return action;
 }

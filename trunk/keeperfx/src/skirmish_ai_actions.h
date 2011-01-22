@@ -25,7 +25,7 @@ extern "C" {
 #endif
 
 
-typedef void * SAI_Action;
+typedef struct _SAI_Action * SAI_Action;
 
 
 /**
@@ -69,9 +69,9 @@ void SAI_append_action(SAI_Action * head, SAI_Action tail);
  */
 void SAI_destroy_action(SAI_Action action);
 
-SAI_Action SAI_mark_dig_action(int x, int y);
 
-SAI_Action SAI_build_room_action(int x, int y, int kind);
+SAI_Action SAI_mark_dig_action(int plyr, int x, int y);
+SAI_Action SAI_build_room_action(int plyr, int x, int y, int kind);
 
 
 #ifdef __cplusplus
