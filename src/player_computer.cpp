@@ -2380,6 +2380,9 @@ void process_computer_players2(void)
   int i;
   //_DK_process_computer_players2();
   needs_gold_check = false;
+#ifdef PETTER_AI
+  SAI_run_shared();
+#endif
   for (i=0; i < PLAYERS_COUNT; i++)
   {
     player = get_player(i);
@@ -2424,6 +2427,9 @@ void setup_computer_players2(void)
   {
     LbMemorySet(&game.computer_task[i], 0, sizeof(struct ComputerTask));
   }
+#ifdef PETTER_AI
+  SAI_init_for_map();
+#endif
   for (i=0; i < PLAYERS_COUNT; i++)
   {
     player = get_player(i);
@@ -2432,7 +2438,7 @@ void setup_computer_players2(void)
       if (player->field_2C == 1)
       {
 #ifdef PETTER_AI
-        SAI_reset_for_player(i);
+        SAI_init_for_player(i);
 #else
         setup_a_computer_player(i, 7);
 #endif

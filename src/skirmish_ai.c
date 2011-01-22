@@ -20,6 +20,7 @@
 #include "skirmish_ai.h"
 
 #include "skirmish_ai_actions.h"
+#include "skirmish_ai_map.h"
 #include "skirmish_ai_planner.h"
 
 #include "bflib_basics.h"
@@ -30,7 +31,6 @@
 #include <stdlib.h>
 
 
-#define MAX_KEEPERS             4
 #define MAX_ROOM_COUNT          100
 #define MAX_DIG                 200
 
@@ -92,7 +92,11 @@ struct SAI_PlayerState
     //player info
     //dungeon
 
-    //ai stuff
+    //ai settings
+    enum SAI_PlanType plan_type;
+    enum SAI_Skill skill;
+
+    //ai state
     int turn;
     struct SAI_Activity activities[ACTIVITY_COUNT];
     enum SAI_ActivityTypeAndPriority curr_activity;
@@ -104,7 +108,7 @@ struct SAI_PlayerState
 
 struct SAI_State
 {
-    struct SAI_PlayerState players[MAX_KEEPERS];
+    struct SAI_PlayerState players[SAI_MAX_KEEPERS];
 };
 
 
@@ -254,7 +258,7 @@ static void process_plan(struct SAI_PlayerState * plyrstate)
     AIDBG(3, "Starting");
 
     if (plyrstate->turn == 0) {
-        SAI_begin_plan(plyrstate->index, SAI_PLAN_LEAST_RISKY);
+        SAI_begin_plan(plyrstate->index, plyrstate->plan_type);
         SAI_process_plan(plyrstate->index, PLAN_INIT_BUDGET);
     }
 
@@ -262,7 +266,7 @@ static void process_plan(struct SAI_PlayerState * plyrstate)
         free(plyrstate->plan);
         plyrstate->plan_index = 0;
         SAI_end_plan(plyrstate->index, &plyrstate->plan, &plyrstate->plan_size);
-        SAI_begin_plan(plyrstate->index, SAI_PLAN_LEAST_RISKY);
+        SAI_begin_plan(plyrstate->index, plyrstate->plan_type);
     }
     else {
         SAI_process_plan(plyrstate->index, PLAN_FRAME_BUDGET);
@@ -390,17 +394,26 @@ static void run_activity(struct SAI_PlayerState * plyrstate)
     }
 }
 
-void SAI_reset_for_player(int plyr)
+static struct SAI_PlayerState * player_state(int plyr)
+{
+    assert(plyr >= 0);
+    assert(plyr < SAI_MAX_KEEPERS);
+    return &state.players[plyr];
+}
+
+void SAI_init_for_map(void)
+{
+    SAI_init_map_analysis();
+}
+
+void SAI_destroy_for_player(int plyr)
 {
     struct SAI_PlayerState * plyrstate;
     SAI_Action action;
     int i;
 
     SYNCDBG(3, "Starting");
-
-    assert(plyr >= 0);
-    assert(plyr < MAX_KEEPERS);
-    plyrstate = &state.players[plyr];
+    plyrstate = player_state(plyr);
 
     for (i = 0; i < ACTIVITY_COUNT; ++i) {
         while (plyrstate->activities[i].action_list) {
@@ -414,8 +427,40 @@ void SAI_reset_for_player(int plyr)
     SAI_destroy_plan(plyr);
 
     memset(plyrstate, 0, sizeof(*plyrstate));
+}
 
+void SAI_init_for_player(int plyr)
+{
+    struct SAI_PlayerState * plyrstate;
+
+    SAI_destroy_for_player(plyr);
+
+    SYNCDBG(3, "Starting");
+    plyrstate = player_state(plyr);
     plyrstate->index = plyr;
+}
+
+void SAI_set_player_skill(int plyr, enum SAI_Skill skill)
+{
+    struct SAI_PlayerState * plyrstate;
+
+    SYNCDBG(4, "Starting");
+    plyrstate = player_state(plyr);
+    plyrstate->skill = skill;
+}
+
+void SAI_set_player_plan_strategy(int plyr, enum SAI_PlanType strat)
+{
+    struct SAI_PlayerState * plyrstate;
+
+    SYNCDBG(4, "Starting");
+    plyrstate = player_state(plyr);
+    plyrstate->plan_type = strat;
+}
+
+void SAI_run_shared(void)
+{
+    SAI_run_map_analysis();
 }
 
 void SAI_run_for_player(int plyr)
@@ -423,10 +468,7 @@ void SAI_run_for_player(int plyr)
     struct SAI_PlayerState * plyrstate;
 
     SYNCDBG(3, "Starting");
-
-    assert(plyr >= 0);
-    assert(plyr < MAX_KEEPERS);
-    plyrstate = &state.players[plyr];
+    plyrstate = player_state(plyr);
 
     choose_next_activity(plyrstate);
     think(plyrstate);

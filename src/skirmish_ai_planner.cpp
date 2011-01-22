@@ -34,7 +34,8 @@
 #include <set>
 //end of C++ dependencies
 
-#define MAX_KEEPERS         4
+using namespace std; //we try to be transparent to C
+
 
 #define PRIORITY_CHANGE_TIME_PER_CREATURE   5 //TODO AI: relate this param to action time to move a creature
 
@@ -46,14 +47,6 @@
 #define SCORE_ATTACK_MULTIPLIER 100
 #define SCORE_GOLD_DIVIDER      256
 
-//for some reason neither min or max were defined despite including headers that define them...
-#ifndef min
-#define min(a, b) (a < b? a : b)
-#endif
-
-#ifndef max
-#define max(a, b) (a > b? a : b)
-#endif
 
 struct NodePlayerState
 {
@@ -69,7 +62,7 @@ struct NodePlayerState
 struct NodeState
 {
     int time;
-    struct NodePlayerState players[MAX_KEEPERS];
+    struct NodePlayerState players[SAI_MAX_KEEPERS];
     unsigned char pool[CREATURE_TYPES_COUNT];
     unsigned rooms_built; //bitmask; for planning player (at least one room of kind built)
     unsigned rooms_available; //bitmask; for planning player (room kind is researched)
@@ -93,11 +86,9 @@ struct PlayerEnvironment
 
 struct Environment
 {
-    struct PlayerEnvironment players[MAX_KEEPERS];
+    struct PlayerEnvironment players[SAI_MAX_KEEPERS];
     unsigned rooms_researchable; //bitmask; so we can use bool ops with rooms_built/rooms_available bitmasks
 };
-
-static bool search_compare(const Node * lhs, const Node * rhs);
 
 typedef bool (*NodeCompareFunc)(const Node * lhs, const Node * rhs);
 typedef std::set<Node *, NodeCompareFunc> NodeSet;
@@ -112,23 +103,28 @@ struct Planner
 
     //rewrite using some C library later if C++ dependency becomes an issue
     NodeSet open;
+    NodeSet leaves;
 
     struct Node * freelist_head;
     struct Node * freelist_tail;
     struct Node * livelist_head;
     struct Node * livelist_tail;
 
-    Planner(int plyr_idx, NodeCompareFunc cmp) : my_idx(plyr_idx),
-        next_node_id(0), env(), open(cmp),
+    Planner(int plyr_idx, NodeCompareFunc open_compare,
+            NodeCompareFunc leaf_compare) : my_idx(plyr_idx),
+        next_node_id(0), env(), open(open_compare), leaves(leaf_compare),
         freelist_head(), freelist_tail(), livelist_head() {
     }
 };
 
-static struct Planner planners[MAX_KEEPERS] = {
-    Planner(0, search_compare),
-    Planner(1, search_compare),
-    Planner(2, search_compare),
-    Planner(3, search_compare),
+static bool search_compare(const Node * lhs, const Node * rhs);
+static bool score_compare(const Node * lhs, const Node * rhs);
+
+static struct Planner planners[SAI_MAX_KEEPERS] = {
+    Planner(0, search_compare, score_compare),
+    Planner(1, search_compare, score_compare),
+    Planner(2, search_compare, score_compare),
+    Planner(3, search_compare, score_compare),
 };
 
 static struct Planner * planner;
@@ -177,7 +173,7 @@ static int calc_attack_balance(const struct NodeState * state)
     my_attack = calc_attack_power(state, planner->my_idx);
 
     best_enemy_attack = 0;
-    for (i = 0; i < MAX_KEEPERS; ++i) {
+    for (i = 0; i < SAI_MAX_KEEPERS; ++i) {
         if (i != planner->my_idx && player_exists(get_player(i))) {
             best_enemy_attack = max(best_enemy_attack, calc_attack_power(state, i));
         }
@@ -220,10 +216,10 @@ static bool search_compare(const Node * lhs, const Node * rhs)
     diff = node_score(lhs) + node_heuristic(lhs) -
         (node_score(rhs) + node_heuristic(rhs));
     if (diff != 0) {
-        return diff < 0;
+        return diff > 0;
     }
 
-    return (lhs->id - rhs->id) < 0; //for multi-machine determinism
+    return lhs->id < rhs->id; //for multi-machine determinism
 }
 
 static bool score_compare(const Node * lhs, const Node * rhs)
@@ -231,10 +227,10 @@ static bool score_compare(const Node * lhs, const Node * rhs)
     int diff;
     diff = node_score(lhs) - node_score(rhs);
     if (diff != 0) {
-        return diff < 0;
+        return diff > 0;
     }
 
-    return (lhs->id - rhs->id) < 0;
+    return lhs->id < rhs->id;
 }
 
 void state_time_simulation(struct NodeState * node, int time)
@@ -286,7 +282,7 @@ static void prepare_creature_pool_state(struct NodeState * state)
     int i;
 
     for (i = 0; i < CREATURE_TYPES_COUNT; ++i) {
-        state->pool[i] = (unsigned char) min(0xFF, game.pool.crtr_kind[i]);
+        state->pool[i] = (unsigned char) min(0xFF, (int) game.pool.crtr_kind[i]);
     }
 }
 
@@ -393,7 +389,7 @@ static void prepare_environment(struct Environment * state)
     }
 
     //all players
-    for (i = 0; i < MAX_KEEPERS; ++i) {
+    for (i = 0; i < SAI_MAX_KEEPERS; ++i) {
         if (player_exists(get_player(i))) {
             prepare_player_environment(&state->players[i], i);
         }
@@ -465,7 +461,7 @@ static void insert_root_node(void)
     prepare_creature_pool_state(&root->state);
     prepare_planning_player_state(&root->state);
 
-    for (i = 0; i < MAX_KEEPERS; ++i) {
+    for (i = 0; i < SAI_MAX_KEEPERS; ++i) {
         if (player_exists(get_player(i))) {
             prepare_player_state(&root->state.players[i], i);
         }
@@ -530,8 +526,11 @@ static void visit_node(struct Node * node)
     int i;
     int can_build;
     int can_wait_to_research;
+    int nodes_at_start;
 
     //AIDBG(6, "Visiting node of type %i", node->decision.type);
+
+    nodes_at_start = planner->next_node_id;
 
     //Generate children:
 
@@ -552,7 +551,8 @@ static void visit_node(struct Node * node)
     }
 
     //3 setting creature work priorities
-    if (node->decision.type != SAI_PLAN_CREATURE_PRIORITIZE) {
+    if (node->decision.type != SAI_PLAN_CREATURE_PRIORITIZE &&
+            node->decision.type != SAI_PLAN_WAIT) {
         if (node->state.creature_prio != SAI_CP_SAVE_MONEY) {
             insert_creature_prioritize_node(node, SAI_CP_SAVE_MONEY);
         }
@@ -572,6 +572,11 @@ static void visit_node(struct Node * node)
                 node->state.rooms_built & (1 << RoK_SCAVENGER)) {
             insert_creature_prioritize_node(node, SAI_CP_SCAVENGE);
         }
+    }
+
+    //See if this is a terminal:
+    if (planner->next_node_id == nodes_at_start) {
+        planner->leaves.insert(node);
     }
 }
 
@@ -616,7 +621,7 @@ static int eval_least_score_on_path(const Node * leaf)
 static void set_planning_player(int plyr)
 {
     assert(plyr >= 0);
-    assert(plyr < MAX_KEEPERS);
+    assert(plyr < SAI_MAX_KEEPERS);
     planner = &planners[plyr];
 }
 
@@ -626,6 +631,7 @@ void SAI_begin_plan(int plyr, enum SAI_PlanType type)
     set_planning_player(plyr);
 
     assert(planner->open.empty());
+    assert(planner->leaves.empty());
     assert(planner->livelist_head == NULL);
 
     planner->next_node_id = 0;
@@ -663,28 +669,30 @@ void SAI_end_plan(int plyr, struct SAI_PlanDecision ** decisions, int * num_deci
     int score;
     int best_score;
 
-    AIDBG(3, "Starting, %i nodes will be considered", planner->next_node_id);
+    AIDBG(3, "Starting for %i nodes, %i leaves still on open list, as well as %i terminated leaves",
+        planner->next_node_id, planner->open.size(), planner->leaves.size());
     set_planning_player(plyr);
 
     *num_decisions = 0;
     *decisions = NULL;
     best_leaf = NULL;
-    assert(!planner->open.empty());
+
+    //merge terminal leaves and unexplored nodes into single leaf set ordered by score
+    planner->leaves.insert(planner->open.begin(), planner->open.end()); //nodes are mostly sorted already
+    planner->open.clear();
+    assert(!planner->leaves.empty());
 
     //find best leaf (according to type of plan)
-    NodeSet score_order(score_compare);
-    score_order.insert(planner->open.begin(), planner->open.end()); //nodes are mostly sorted already
-
     if (planner->plan_type == SAI_PLAN_MOST_REWARDING) {
-        AIDBG(4, "Looking for most rewarding plan in %i leaves", planner->open.size());
-        best_leaf = *score_order.begin();
+        AIDBG(4, "Looking for most rewarding plan in %i leaves", planner->leaves.size());
+        best_leaf = *planner->leaves.begin();
     }
     else if (planner->plan_type == SAI_PLAN_LEAST_RISKY) {
-        AIDBG(4, "Looking for least risky plan in %i leaves", planner->open.size());
-        best_leaf = *score_order.begin();
+        AIDBG(4, "Looking for least risky plan in %i leaves", planner->leaves.size());
+        best_leaf = *planner->leaves.begin();
         best_score = eval_least_score_on_path(best_leaf);
 
-        for (it = ++score_order.begin(); it != score_order.end(); ++it) {
+        for (it = ++planner->leaves.begin(); it != planner->leaves.end(); ++it) {
             node = *it;
 
             if (node_score(node) <= best_score) {
@@ -724,8 +732,7 @@ void SAI_end_plan(int plyr, struct SAI_PlanDecision ** decisions, int * num_deci
         }
     }
 
-
-    planner->open.clear();
+    planner->leaves.clear();
 
     //transfer nodes to freelist
     if (planner->freelist_tail) {
@@ -748,6 +755,7 @@ void SAI_destroy_plan(int plyr)
     set_planning_player(plyr);
 
     planner->open.clear();
+    planner->leaves.clear();
 
     //destroy nodes
     while (planner->freelist_head) {
