@@ -43,6 +43,9 @@
 #define FLAG_BATTLE_ACCESSIBLE  0x4 //we can try to provoke a battle because we are in immediate contact
 #define FLAG_LIQUID_BLOCKED     0x8 //their dungeon is unreachable from us until we get bridge
 
+#define SCORE_ATTACK_MULTIPLIER 100
+#define SCORE_GOLD_DIVIDER      256
+
 //for some reason neither min or max were defined despite including headers that define them...
 #ifndef min
 #define min(a, b) (a < b? a : b)
@@ -101,7 +104,7 @@ typedef std::set<Node *, NodeCompareFunc> NodeSet;
 
 struct Planner
 {
-    int my_plyr_idx; //for convenience when looking through pointer
+    int my_idx; //for convenience when looking through pointer
     int next_node_id;
     enum SAI_PlanType plan_type;
     struct Environment env; //precompiled variables not changing on search (for efficiency)
@@ -115,7 +118,7 @@ struct Planner
     struct Node * livelist_head;
     struct Node * livelist_tail;
 
-    Planner(int plyr_idx, NodeCompareFunc cmp) : my_plyr_idx(plyr_idx),
+    Planner(int plyr_idx, NodeCompareFunc cmp) : my_idx(plyr_idx),
         next_node_id(0), env(), open(cmp),
         freelist_head(), freelist_tail(), livelist_head() {
     }
@@ -140,6 +143,23 @@ static const char plan_names[][32] = {
     "Prioritize"
 };
 
+static const int number_of_room_tiles_for_usable_room[ROOM_TYPES_COUNT + 1] = //unsure about last one
+{
+    //very approximative for now; for non-tech rooms (rooms that have varying number of
+    //tiles depending on need) I will need to reprogram with better approximation later
+    0, 0, 16, 25, 16, 12, 25, 0, 25, 16, 9, 16, 9, 25, 25, 1, 1
+};
+
+
+static NodePlayerState * my_player_state(Node * node)
+{
+    return &node->state.players[planner->my_idx];
+}
+
+static const NodePlayerState * my_player_cstate(const Node * node)
+{
+    return &node->state.players[planner->my_idx];
+}
 
 static int calc_attack_power(const struct NodeState * state, int plyr_idx)
 {
@@ -154,11 +174,11 @@ static int calc_attack_balance(const struct NodeState * state)
     int my_attack;
     int best_enemy_attack;
 
-    my_attack = calc_attack_power(state, planner->my_plyr_idx);
+    my_attack = calc_attack_power(state, planner->my_idx);
 
     best_enemy_attack = 0;
     for (i = 0; i < MAX_KEEPERS; ++i) {
-        if (i != planner->my_plyr_idx && player_exists(get_player(i))) {
+        if (i != planner->my_idx && player_exists(get_player(i))) {
             best_enemy_attack = max(best_enemy_attack, calc_attack_power(state, i));
         }
     }
@@ -171,7 +191,8 @@ static int node_score(const struct Node * node)
     int score;
     score = 0;
 
-    score += calc_attack_balance(&node->state) * 100;
+    score += calc_attack_balance(&node->state) * SCORE_ATTACK_MULTIPLIER;
+    score += my_player_cstate(node)->gold / SCORE_GOLD_DIVIDER;
 
     return score;
 }
@@ -182,6 +203,8 @@ static int node_heuristic(const struct Node * node)
     score = 0;
 
     score -= node->state.time;
+    score -= my_player_cstate(node)->gold / SCORE_GOLD_DIVIDER; //cancels out score;
+        //prevents AI prioritizing saving over spending in search node selection (which causes way too many boring nodes to get evaluated)
 
     if (node->decision.type == SAI_PLAN_WAIT) {
         score -= 1; //give preference to non-wait nodes
@@ -228,6 +251,19 @@ static int count_workers(struct NodePlayerState * state, int plyr_idx)
     return state->creatures[get_players_special_digger_breed(plyr_idx)];
 }
 
+/**
+ * Calculates how much money is required to build a room that is *usable*
+ * (from our perspective).
+ * @param kind
+ * @return
+ */
+static int get_usable_room_cost(RoomKind kind)
+{
+    //simple approximation of cost * tiles_constant for now
+    return room_stats_get_for_kind(kind)->cost *
+        number_of_room_tiles_for_usable_room[kind];
+}
+
 static int count_non_workers(struct NodePlayerState * state, int plyr_idx)
 {
     int count, i;
@@ -261,7 +297,7 @@ static void prepare_planning_player_state(struct NodeState * state)
     struct Dungeon * dungeon;
     struct Room * room;
 
-    plyr = get_player(planner->my_plyr_idx);
+    plyr = get_player(planner->my_idx);
     dungeon = get_players_dungeon(plyr);
 
     //look up rooms
@@ -278,7 +314,7 @@ static void prepare_planning_player_state(struct NodeState * state)
             }
         }
 
-        if (is_room_available(planner->my_plyr_idx, i)) {
+        if (is_room_available(planner->my_idx, i)) {
             state->rooms_available |= 1 << i;
         }
     }
@@ -312,7 +348,7 @@ static void prepare_player_state(struct NodePlayerState * state, int plyr_idx)
     plyr = get_player(plyr_idx);
     dungeon = get_players_dungeon(plyr);
 
-    //state->gold = dungeon-> //TODO AI: reverse draw_gold_total or check_map_for_gold to find out how to calc total gold
+    state->gold = dungeon->money;
 
     //look up creatures
     for (i = dungeon->creatr_list_start; i != 0; i = cctrl->next_in_group) {
@@ -346,7 +382,7 @@ static void prepare_environment(struct Environment * state)
     struct PlayerInfo * plyr;
     struct Dungeon * dungeon;
 
-    plyr = get_player(planner->my_plyr_idx);
+    plyr = get_player(planner->my_idx);
     dungeon = get_players_dungeon(plyr);
 
     //look up rooms
@@ -448,18 +484,26 @@ static void insert_wait_node(struct Node * parent)
     planner->open.insert(wait);
 }
 
-static void insert_build_room_node(struct Node * parent, int kind)
+static void insert_build_room_node(struct Node * parent, RoomKind kind)
 {
     struct Node * build;
     int time;
+    int cost;
+
+    cost = get_usable_room_cost(kind);
+    if (my_player_state(parent)->gold < cost) {
+        return;
+    }
 
     time = estimate_room_build_time(kind);
     if (parent->decision.type == SAI_PLAN_WAIT) {
         time += estimate_room_research_time(kind, &parent->state);
     }
 
-    build = new_node(SAI_PLAN_BUILD_ROOM, parent, time);
+    build = new_node(SAI_PLAN_BUILD_ROOM, parent, 0);
     build->decision.param.kind = kind;
+    my_player_state(build)->gold -= cost;
+    state_time_simulation(&build->state, time);
     build->state.rooms_built |= (1 << kind);
 
     planner->open.insert(build);
@@ -472,8 +516,7 @@ static void insert_creature_prioritize_node(struct Node * parent,
     int time;
     int nbr;
 
-    nbr = count_non_workers(&parent->state.players[planner->my_plyr_idx],
-            planner->my_plyr_idx);
+    nbr = count_non_workers(my_player_state(parent), planner->my_idx);
     time = PRIORITY_CHANGE_TIME_PER_CREATURE * nbr;
 
     prio = new_node(SAI_PLAN_CREATURE_PRIORITIZE, parent, time);
@@ -630,14 +673,14 @@ void SAI_end_plan(int plyr, struct SAI_PlanDecision ** decisions, int * num_deci
 
     //find best leaf (according to type of plan)
     NodeSet score_order(score_compare);
-    score_order.insert(planner->open.begin(), planner->open.end());
+    score_order.insert(planner->open.begin(), planner->open.end()); //nodes are mostly sorted already
 
     if (planner->plan_type == SAI_PLAN_MOST_REWARDING) {
-        AIDBG(4, "Looking for most rewarding plan", planner->open.size());
+        AIDBG(4, "Looking for most rewarding plan in %i leaves", planner->open.size());
         best_leaf = *score_order.begin();
     }
     else if (planner->plan_type == SAI_PLAN_LEAST_RISKY) {
-        AIDBG(4, "Looking for least risky plan", planner->open.size());
+        AIDBG(4, "Looking for least risky plan in %i leaves", planner->open.size());
         best_leaf = *score_order.begin();
         best_score = eval_least_score_on_path(best_leaf);
 
@@ -645,10 +688,10 @@ void SAI_end_plan(int plyr, struct SAI_PlanDecision ** decisions, int * num_deci
             node = *it;
 
             if (node_score(node) <= best_score) {
-                break; //we can't get a better score now (recall the set is ordered to lower scores)
+                break; //we can't possibly get a better score on any more paths due to set ordering
             }
 
-            score = eval_least_score_on_path(node);
+            score = eval_least_score_on_path(node); //TODO AI: consider per node to remove redundant computation which occurs by this loop; it freezes game for 2 s in debug
             if (score > best_score) {
                 best_leaf = node;
                 best_score = score;
