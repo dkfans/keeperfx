@@ -20,15 +20,12 @@
 #ifndef SKIRMISH_AI_PLANNER_H
 #define SKIRMISH_AI_PLANNER_H
 
+#include "skirmish_ai.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-enum SAI_PlanType
-{
-    SAI_PLAN_LEAST_RISKY,
-    SAI_PLAN_MOST_REWARDING
-};
 
 enum SAI_PlanDecisionType
 {
