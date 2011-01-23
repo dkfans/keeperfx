@@ -22,9 +22,11 @@
 #include "skirmish_ai_actions.h"
 #include "skirmish_ai_map.h"
 #include "skirmish_ai_planner.h"
+#include "skirmish_ai_rooms.h"
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "room_data.h"
 
 #include <assert.h>
 #include <memory.h>
@@ -38,16 +40,12 @@
 #define PLAN_FRAME_BUDGET       10000
 #define PLAN_INIT_BUDGET        1000000 //when initializing AI
 
-#define ROOMFLAG_USED           0x1
-#define ROOMFLAG_BEING_DUG      0x2
-#define ROOMFLAG_BEING_BUILT    0x4
-
 
 enum SAI_ActivityTypeAndPriority
 {
     ACTIVITY_MANAGE_CREATURES,
     ACTIVITY_DIG_AREAS,
-    ACTIVITY_BUILD_ROOMS,
+    ACTIVITY_MODIFY_ROOMS,
     ACTIVITY_MANAGE_WORKSHOP_ITEMS,
     ACTIVITY_MAGIC_ATTACK,
     ACTIVITY_MANAGE_DUNGEON_SPECIALS,
@@ -72,17 +70,6 @@ struct SAI_ActivityInfo
     int max_actions;
     int min_length; //when must we change to higher priority activity that wants processing?
     int max_length; //when must we change to lower priority activity that wants processing?
-};
-
-struct SAI_Room
-{
-    unsigned char id;
-    unsigned char kind;
-    unsigned short flags;
-    unsigned char x;
-    unsigned char y;
-    unsigned char w;
-    unsigned char h;
 };
 
 struct SAI_PlayerState
@@ -172,18 +159,13 @@ static void think_about_conquest(struct SAI_PlayerState * plyrstate)
 
 }
 
-static int wants_room(struct SAI_PlayerState * plyrstate)
-{
-    return 0;
-}
-
 static int should_dig_for_room(struct SAI_PlayerState * plyrstate,
     struct DigParams * dig_params, struct SAI_Room ** room)
 {
     return 0;
 }
 
-static int should_build_room(struct SAI_PlayerState * plyrstate,
+static int should_modify_room(struct SAI_PlayerState * plyrstate,
     struct SAI_Room ** room_params)
 {
     return 0;
@@ -204,21 +186,21 @@ static void think_about_dungeon_development(struct SAI_PlayerState * plyrstate)
                 queue_action(plyrstate, ACTIVITY_DIG_AREAS, action);
             }
 
-            room->flags |= ROOMFLAG_BEING_DUG;
+            room->state = SAI_ROOM_BEING_DUG;
         }
     }
 
-    if (should_build_room(plyrstate, &room)) {
-        if (room->w * room->h <= actions_left(plyrstate, ACTIVITY_BUILD_ROOMS)) {
+    if (should_modify_room(plyrstate, &room)) {
+        if (room->w * room->h <= actions_left(plyrstate, ACTIVITY_MODIFY_ROOMS)) {
             for (i = 0; i < room->w; ++i) {
                 for (j = 0; j < room->h; ++j) {
                     action = SAI_build_room_action(plyrstate->index,
                         room->x + i, room->y + j, room->kind);
-                    queue_action(plyrstate, ACTIVITY_BUILD_ROOMS, action);
+                    queue_action(plyrstate, ACTIVITY_MODIFY_ROOMS, action);
                 }
             }
 
-            room->flags |= ROOMFLAG_BEING_BUILT;
+            room->state = SAI_ROOM_BEING_BUILT;
         }
     }
 }
@@ -280,7 +262,7 @@ static void process_plan(struct SAI_PlayerState * plyrstate)
 static void think(struct SAI_PlayerState * plyrstate)
 {
     process_plan(plyrstate);
-    /*think_about_battles(plyrstate);
+    think_about_battles(plyrstate);
     think_about_conquest(plyrstate);
     think_about_dungeon_development(plyrstate);
     think_about_dungeon_specials(plyrstate);
@@ -288,7 +270,7 @@ static void think(struct SAI_PlayerState * plyrstate)
     think_about_enemy_creatures(plyrstate);
     think_about_own_creatures(plyrstate);
     think_about_sacrifice(plyrstate);
-    think_about_workshop_items(plyrstate);*/
+    think_about_workshop_items(plyrstate);
 }
 
 
@@ -404,6 +386,7 @@ static struct SAI_PlayerState * player_state(int plyr)
 void SAI_init_for_map(void)
 {
     SAI_init_map_analysis();
+    SAI_run_map_analysis(); //required for room layout
 }
 
 void SAI_destroy_for_player(int plyr)
@@ -438,6 +421,8 @@ void SAI_init_for_player(int plyr)
     SYNCDBG(3, "Starting");
     plyrstate = player_state(plyr);
     plyrstate->index = plyr;
+
+    SAI_init_room_layout_for_player(plyr);
 }
 
 void SAI_set_player_skill(int plyr, enum SAI_Skill skill)
