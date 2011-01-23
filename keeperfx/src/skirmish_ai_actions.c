@@ -50,7 +50,7 @@ int SAI_is_action_done(SAI_Action action)
 
 int SAI_is_action_stuck(SAI_Action action)
 {
-    return action->failed;
+    return !action->done && action->failed;
 }
 
 void SAI_process_action(SAI_Action action, int player)

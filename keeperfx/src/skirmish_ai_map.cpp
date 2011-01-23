@@ -4,7 +4,8 @@
 /** @file skirmish_ai_map.c
  *     Skirmish AI map analysis routines.
  * @par Purpose:
- *     Map traversal algorithms; results stored here.
+ *     Player independent map analysis functions and data structures to store
+ *     results of said analysis.
  * @par Comment:
  *     None.
  * @author   KeeperFX Team
@@ -51,7 +52,7 @@ struct
 } static map_analysis;
 
 
-struct SAI_TileAnalysis null_tile = { 9999, 9999, 9999 };
+static struct SAI_TileAnalysis null_tile = { 9999, 9999, 9999 };
 
 
 static struct SAI_TileAnalysis * get_tile(int x, int y)
@@ -209,8 +210,8 @@ static void try_add_player_trace_node(int reset_on_friendly, NodeSet * open,
 }
 
 /**
- * Has two modes of operation: reset_on_friendly will set distance to 0 whenever friendly
- * territory is processed. This effectively records distance of a player's reach.
+ * Has two modes of operation: reset_on_friendly records distance of a player's reach.
+ * This is done by setting node distance to 0 whenever friendly territory is processed.
  * !reset_on_friendly records distance to dungeon heart.
  * @param reset_on_friendly Operation mode.
  * @param plyr_idx
