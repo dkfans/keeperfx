@@ -125,7 +125,7 @@ TbBool good_setup_attack_rooms(struct Thing *thing, long dngn_id)
         return false;
     }
     event_create_event_or_update_nearby_existing_event(
-        get_subtile_center_pos(room->stl_x), get_subtile_center_pos(room->stl_y),
+        get_subtile_center_pos(room->central_stl_x), get_subtile_center_pos(room->central_stl_y),
         19, room->owner, 0);
     if (is_my_player_number(room->owner))
       output_message(15, 400, 1);
@@ -146,7 +146,7 @@ TbBool good_setup_loot_treasure_room(struct Thing *thing, long dngn_id)
         SYNCDBG(6,"No accessible player %ld treasure room found",dngn_id);
         return false;
     }
-    if (!setup_person_move_to_position(thing, room->stl_x, room->stl_y, 0))
+    if (!setup_person_move_to_position(thing, room->central_stl_x, room->central_stl_y, 0))
     {
         WARNLOG("Cannot setup move to player %ld treasure room",dngn_id);
         return false;
@@ -167,7 +167,7 @@ TbBool good_setup_loot_research_room(struct Thing *thing, long dngn_id)
         SYNCDBG(6,"No accessible player %ld library found",dngn_id);
         return false;
     }
-    if (!setup_person_move_to_position(thing, room->stl_x, room->stl_y, 0))
+    if (!setup_person_move_to_position(thing, room->central_stl_x, room->central_stl_y, 0))
     {
         WARNLOG("Cannot setup move to player %ld library",dngn_id);
         return false;

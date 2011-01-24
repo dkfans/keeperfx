@@ -26,6 +26,7 @@
 #include "thing_navigate.h"
 #include "thing_stats.h"
 #include "room_jobs.h"
+#include "config_terrain.h"
 #include "gui_topmsg.h"
 #include "keeperfx.hpp"
 
@@ -568,14 +569,7 @@ struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, un
                           break;
                       }
                   }
-                  stl_x = 3 * slb_num_decode_x(room->slabs_list) + 1;
-                  stl_y = 3 * slb_num_decode_y(room->slabs_list) + 1;
-                  if ((room->kind != RoK_DUNGHEART) && (room->kind != RoK_ENTRANCE))
-                  {
-                      thing = find_base_thing_on_mapwho(1, 25, stl_x, stl_y);
-                      if (!thing_is_invalid(thing))
-                          delete_thing_structure(thing, 0);
-                  }
+                  delete_room_flag(room);
                   free_room_structure(room);
               }
           }
@@ -617,12 +611,17 @@ void count_room_slabs(struct Room *room)
     }
 }
 
-void update_room_ensign_position(struct Room *room)
+/** Returns coordinates of slab at mass centre of given room.
+ *  Note that the slab returned may not be pat of the room - it is possible
+ *   that the room is just surrounding the spot.
+ * @param mass_x
+ * @param mass_y
+ * @param room
+ */
+void get_room_mass_centre_coords(long *mass_x, long *mass_y, const struct Room *room)
 {
-    struct MapOffset *sstep;
     struct SlabMap *slb;
     unsigned long tot_x,tot_y;
-    long cx,cy;
     long slb_x,slb_y;
     unsigned long k;
     long i;
@@ -652,26 +651,45 @@ void update_room_ensign_position(struct Room *room)
             break;
         }
     }
-    if (room->slabs_count > 1)
-    {
-      tot_x /= room->slabs_count;
-      tot_y /= room->slabs_count;
+    if (room->slabs_count > 1) {
+        *mass_x = tot_x / room->slabs_count;
+        *mass_y = tot_y / room->slabs_count;
+    } else
+    if (room->slabs_count > 0) {
+        *mass_x = tot_x;
+        *mass_y = tot_y;
+    } else {
+        *mass_x = map_tiles_x / 2;
+        *mass_y = map_tiles_y / 2;
     }
+}
+
+
+void update_room_central_tile_position(struct Room *room)
+{
+    struct MapOffset *sstep;
+    struct SlabMap *slb;
+    long mass_x,mass_y;
+    long cx,cy;
+    long i;
+    get_room_mass_centre_coords(&mass_x, &mass_y, room);
     for (i=0; i < 256; i++)
     {
-      sstep = &spiral_step[i];
-      cx = 3 * (tot_x + sstep->h) + 1;
-      cy = 3 * (tot_y + sstep->v) + 1;
-      slb_x = map_to_slab[cx%(map_subtiles_x+1)];
-      slb_y = map_to_slab[cy%(map_subtiles_y+1)];
-      slb = get_slabmap_block(slb_x,slb_y);
-      if (&game.rooms[slb->room_index] == room)
-      {
-        room->stl_x = cx;
-        room->stl_y = cy;
-        return;
-      }
+        sstep = &spiral_step[i];
+        cx = 3 * (mass_x + (long)sstep->h) + 1;
+        cy = 3 * (mass_y + (long)sstep->v) + 1;
+        slb = get_slabmap_for_subtile(cx,cy);
+        if (slabmap_block_invalid(slb))
+            continue;
+        if (slb->room_index == room->index)
+        {
+            room->central_stl_x = cx;
+            room->central_stl_y = cy;
+            return;
+        }
     }
+    room->central_stl_x = map_tiles_x / 2;
+    room->central_stl_y = map_tiles_y / 2;
     ERRORLOG("Cannot find position to place an ensign.");
 }
 
@@ -744,53 +762,55 @@ struct Room *prepare_new_room(unsigned char owner, unsigned char rkind, unsigned
 
 struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned short x, unsigned short y)
 {
-  struct Room *room;
-  SYNCDBG(7,"Starting");
-  // room = _DK_create_room(owner, rkind, x, y); return room;
-  // Try linking the new room slab to existing room
-  room = link_adjacent_rooms_of_type(owner, x, y, rkind);
-  if (room_is_invalid(room))
-  {
-      room = prepare_new_room(owner, rkind, x, y);
-      if (room_is_invalid(room))
-          return INVALID_ROOM;
-      count_room_slabs(room);
-      create_room_flag(room);
-  } else
-  {
-      count_room_slabs(room);
-  }
-  update_room_ensign_position(room);
-  SYNCDBG(7,"Done");
-  return room;
+    struct Room *room;
+    SYNCDBG(7,"Starting");
+    // room = _DK_create_room(owner, rkind, x, y); return room;
+    // Try linking the new room slab to existing room
+    room = link_adjacent_rooms_of_type(owner, x, y, rkind);
+    if (room_is_invalid(room))
+    {
+        room = prepare_new_room(owner, rkind, x, y);
+        if (room_is_invalid(room))
+            return INVALID_ROOM;
+        count_room_slabs(room);
+        update_room_central_tile_position(room);
+        create_room_flag(room);
+    } else
+    {
+        count_room_slabs(room);
+        update_room_central_tile_position(room);
+    }
+    SYNCDBG(7,"Done");
+    return room;
 }
 
 void create_room_flag(struct Room *room)
 {
-  struct Thing *thing;
-  struct Coord3d pos;
-  long x,y;
-  //_DK_create_room_flag(room);
-  x = 3 * slb_num_decode_x(room->slabs_list) + 1;
-  y = 3 * slb_num_decode_y(room->slabs_list) + 1;
-  if ((room->kind != RoK_DUNGHEART) && (room->kind != RoK_ENTRANCE)
-     && (room->kind != RoK_GUARDPOST) && (room->kind != RoK_BRIDGE))
-  {
-    pos.z.val = 2 << 8;
-    pos.x.val = x << 8;
-    pos.y.val = y << 8;
-    thing = find_base_thing_on_mapwho(1, 25, x, y);
-    if (thing == NULL)
+    struct Thing *thing;
+    struct Coord3d pos;
+    long x,y;
+    //_DK_create_room_flag(room);
+    x = 3 * slb_num_decode_x(room->slabs_list) + 1;
+    y = 3 * slb_num_decode_y(room->slabs_list) + 1;
+    SYNCDBG(7,"Starting for %s at (%ld,%ld)",room_code_name(room->kind),x,y);
+    if ( (room->kind != RoK_DUNGHEART) && (room->kind != RoK_ENTRANCE)
+      && (room->kind != RoK_GUARDPOST) && (room->kind != RoK_BRIDGE) )
     {
-      thing = create_object(&pos, 25, room->owner, -1);
+        pos.z.val = 2 << 8;
+        pos.x.val = x << 8;
+        pos.y.val = y << 8;
+        thing = find_base_thing_on_mapwho(TCls_Object, 25, x, y);
+        if (thing_is_invalid(thing))
+        {
+            thing = create_object(&pos, 25, room->owner, -1);
+        }
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Cannot create room flag");
+            return;
+        }
+        thing->word_13 = room->index;
     }
-    if (thing == NULL)
-    {
-      ERRORLOG("Cannot create room_flag");
-      return;
-    }
-    thing->word_13 = room->index;
-  }
 }
 
 void delete_room_flag(struct Room *room)
@@ -1155,8 +1175,8 @@ struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing
         i = room->next_of_owner;
         // Per-room code
         // Compute simplified distance - without use of mul or div
-        distance = abs(thing->mappos.x.stl.num - room->stl_x)
-                 + abs(thing->mappos.y.stl.num - room->stl_y);
+        distance = abs(thing->mappos.x.stl.num - room->central_stl_x)
+                 + abs(thing->mappos.y.stl.num - room->central_stl_y);
         if ((neardistance > distance) && (room->used_capacity + spare <= room->total_capacity))
         {
             if (find_first_valid_position_for_thing_in_room(thing, room, &pos))
@@ -1211,8 +1231,8 @@ long count_rooms_creature_can_navigate_to(struct Thing *thing, unsigned char own
         }
         i = room->next_of_owner;
         // Per-room code
-        pos.x.val = get_subtile_center_pos(room->stl_x);
-        pos.y.val = get_subtile_center_pos(room->stl_y);
+        pos.x.val = get_subtile_center_pos(room->central_stl_x);
+        pos.y.val = get_subtile_center_pos(room->central_stl_y);
         pos.z.val = 256;
         if ((room->used_capacity > 0) && creature_can_navigate_to(thing, &pos, nav_no_owner))
         {
@@ -1264,8 +1284,8 @@ struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsi
         }
         i = room->next_of_owner;
         // Per-room code
-        pos.x.val = get_subtile_center_pos(room->stl_x);
-        pos.y.val = get_subtile_center_pos(room->stl_y);
+        pos.x.val = get_subtile_center_pos(room->central_stl_x);
+        pos.y.val = get_subtile_center_pos(room->central_stl_y);
         pos.z.val = 256;
         if ((room->used_capacity > 0) && creature_can_navigate_to(thing, &pos, nav_no_owner))
         {
@@ -1328,8 +1348,8 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
         if (room->long_17 > pay)
           continue;
     }
-    dist =  abs(thing->mappos.y.stl.num - room->stl_y);
-    dist += abs(thing->mappos.x.stl.num - room->stl_x);
+    dist =  abs(thing->mappos.y.stl.num - room->central_stl_y);
+    dist += abs(thing->mappos.x.stl.num - room->central_stl_x);
     if (retdist > dist)
     {
       retdist = dist;

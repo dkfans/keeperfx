@@ -74,8 +74,8 @@ struct Room {
     unsigned char owner;
     short prev_of_owner;
     short next_of_owner;
-    unsigned char stl_x;
-    unsigned char stl_y;
+    unsigned char central_stl_x;
+    unsigned char central_stl_y;
     unsigned short kind;
     unsigned short field_C;
     short total_capacity;

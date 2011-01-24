@@ -215,19 +215,19 @@ long compute_creature_max_sparameter(long base_param,unsigned short crlevel)
 }
 
 /**
- * Computes defence of a creature on given level.
+ * Computes defense of a creature on given level.
  */
-long compute_creature_max_defence(long base_param,unsigned short crlevel)
+long compute_creature_max_defense(long base_param,unsigned short crlevel)
 {
-  long max_param;
-  if (base_param <= 0)
-    return 0;
-  if (base_param > 10000)
-    base_param = 10000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_DEFENSE_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
-  return saturate_set_unsigned(max_param, 8);
+    long max_param;
+    if (base_param <= 0)
+      return 0;
+    if (base_param > 10000)
+      base_param = 10000;
+    if (crlevel >= CREATURE_MAX_LEVEL)
+      crlevel = CREATURE_MAX_LEVEL-1;
+    max_param = base_param + (CREATURE_DEFENSE_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
+    return saturate_set_unsigned(max_param, 8);
 }
 
 /**

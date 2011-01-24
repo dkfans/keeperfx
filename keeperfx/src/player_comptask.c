@@ -576,8 +576,8 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     if (!thing_is_invalid(thing))
     {
       room = room_get(ctask->word_80);
-      pos.x.val = room->stl_x << 8;
-      pos.y.val = room->stl_y << 8;
+      pos.x.val = room->central_stl_x << 8;
+      pos.y.val = room->central_stl_y << 8;
       pos.z.val = 256;
       if (fake_dump_held_creatures_on_map(comp, thing, &pos) > 0)
         return 2;
@@ -599,8 +599,8 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         //TODO CREATURE_AI don't place creatures at center of a temple/portal if we don't want to get rid of them
         //TODO CREATURE_AI make sure to place creatures at "active" portal tile if we do want them to leave
         ctask->word_80 = room->index;
-        pos.x.val = room->stl_x << 8;
-        pos.y.val = room->stl_y << 8;
+        pos.x.val = room->central_stl_x << 8;
+        pos.y.val = room->central_stl_y << 8;
         pos.z.val = 256;
         if ( fake_place_thing_in_power_hand(comp, thing, &pos) )
           return 2;

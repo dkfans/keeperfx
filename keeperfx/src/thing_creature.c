@@ -144,11 +144,13 @@ DLLIMPORT long _DK_update_creature(struct Thing *thing);
 /******************************************************************************/
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
-  if (thing->class_id == TCls_Creature)
-    return true;
-  if (thing->class_id == TCls_DeadCreature)
-    return true;
-  return false;
+    if (!thing_exists(thing))
+        return false;
+    if (thing->class_id == TCls_Creature)
+        return true;
+    if (thing->class_id == TCls_DeadCreature)
+        return true;
+    return false;
 }
 
 TbBool thing_can_be_controlled_as_passenger(struct Thing *thing)

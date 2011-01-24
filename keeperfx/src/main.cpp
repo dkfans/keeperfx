@@ -1094,7 +1094,7 @@ void init_creature_scores(void)
   {
     crstat = creature_stats_get(i);
     score = compute_creature_max_health(crstat->health,CREATURE_MAX_LEVEL-1)
-        + compute_creature_max_defence(crstat->defence,CREATURE_MAX_LEVEL-1)
+        + compute_creature_max_defense(crstat->defense,CREATURE_MAX_LEVEL-1)
         + compute_creature_max_dexterity(crstat->dexterity,CREATURE_MAX_LEVEL-1)
         + compute_creature_max_armour(crstat->armour,CREATURE_MAX_LEVEL-1)
         + compute_creature_max_strength(crstat->strength,CREATURE_MAX_LEVEL-1);
@@ -1119,7 +1119,7 @@ void init_creature_scores(void)
     for (k=0; k < CREATURE_MAX_LEVEL; k++)
     {
       score = compute_creature_max_health(crstat->health,k)
-          + compute_creature_max_defence(crstat->defence,k)
+          + compute_creature_max_defense(crstat->defense,k)
           + compute_creature_max_dexterity(crstat->dexterity,k)
           + compute_creature_max_armour(crstat->armour,k)
           + compute_creature_max_strength(crstat->strength,k);
@@ -1206,8 +1206,26 @@ void apply_damage_to_thing_and_display_health(struct Thing *thing, long dmg, cha
     //_DK_apply_damage_to_thing_and_display_health(thing, a1, a2);
     if (dmg > 0)
     {
-      apply_damage_to_thing(thing, dmg, a3);
-      thing->word_17 = 8;
+        apply_damage_to_thing(thing, dmg, a3);
+        thing->word_17 = 8;
+    }
+}
+
+void give_shooter_drained_health(struct Thing *shooter, long health_delta)
+{
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    long max_health,health;
+    if ( !thing_exists(shooter) )
+        return;
+    crstat = creature_stats_get_from_thing(shooter);
+    cctrl = creature_control_get_from_thing(shooter);
+    max_health = compute_creature_max_health(crstat->health, cctrl->explevel);
+    health = shooter->health + health_delta;
+    if (health < max_health) {
+        shooter->health = health;
+    } else {
+        shooter->health = max_health;
     }
 }
 
@@ -4928,7 +4946,7 @@ void process_rooms(void)
     if (room->kind == RoK_GARDEN)
       room_grow_food(room);
     pckt = get_packet(my_player_number);
-    pckt->chksum += (room->slabs_count & 0xFF) + room->stl_x + room->stl_y;
+    pckt->chksum += (room->slabs_count & 0xFF) + room->central_stl_x + room->central_stl_y;
     if (((game.numfield_D & 0x40) == 0) || (room->kind == RoK_DUNGHEART))
       continue;
     process_room_surrounding_flames(room);
@@ -7491,7 +7509,7 @@ short thing_create_thing(struct InitThing *itng)
       ERRORLOG("Invalid class %d, thing discarded", (int)itng->oclass);
       return false;
   }
-  if (thing == NULL)
+  if (thing_is_invalid(thing))
   {
     ERRORLOG("Couldn't create thing of class %d, model %d", (int)itng->oclass, (int)itng->model);
     return false;
