@@ -73,6 +73,20 @@ enum SAI_PlanType
     SAI_PLAN_MOST_REWARDING
 };
 
+struct SAI_Point
+{
+    signed char x;
+    signed char y;
+};
+
+struct SAI_Rect
+{
+    signed char l; //left
+    signed char t; //top
+    signed char r; //right, always >= left
+    signed char b; //bottom, always >= top
+};
+
 
 /**
  * Initializes everything that can be initialized statically after a map change.

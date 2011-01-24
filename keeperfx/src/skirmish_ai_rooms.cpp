@@ -34,15 +34,12 @@
 using namespace std; //we try to be transparent to C
 
 
-#define SAI_MAX_ROOMS   1000
-
 struct PlayerRooms {
     int my_idx; //player
 
     //layout data
     struct SAI_Room array[SAI_MAX_ROOMS];
-    int count;
-    int last_used;
+    struct SAI_Room * state_lists[SAI_ROOM_STATE_COUNT];
     int markers[SAI_MAP_WIDTH * SAI_MAP_HEIGHT];
 
     //settings
@@ -59,11 +56,41 @@ static struct PlayerRooms * rooms_for_player(int plyr_idx)
     return &player_rooms[plyr_idx];
 }
 
+static void set_room_state(struct PlayerRooms * rooms, struct SAI_Room * room,
+    enum SAI_RoomState new_state)
+{
+    AIDBG(5, "Starting");
+    assert(new_state >= 0);
+    assert(new_state < SAI_ROOM_STATE_COUNT);
+
+    //remove from old state list
+    if (rooms->state_lists[room->state] == room) {
+        rooms->state_lists[room->state] = room->next_of_state;
+    }
+    if (room->next_of_state) {
+        room->next_of_state->prev_of_state = room->prev_of_state;
+    }
+    if (room->prev_of_state) {
+        room->prev_of_state->next_of_state = room->next_of_state;
+    }
+
+    //add to new state list
+    room->state = new_state;
+    room->prev_of_state = NULL;
+    room->next_of_state = rooms->state_lists[room->state];
+    rooms->state_lists[room->state] = room;
+
+    if (room->next_of_state) {
+        room->next_of_state->prev_of_state = room;
+    }
+}
+
 static void find_room_extents(const struct Room * room, struct SAI_Rect * rect)
 {
     int i;
     signed char x, y;
 
+    AIDBG(5, "Starting");
     assert(room->slabs_list != 0);
 
     i = room->slabs_list;
@@ -80,46 +107,33 @@ static void find_room_extents(const struct Room * room, struct SAI_Rect * rect)
         rect->b = max(rect->b, y);
         i = get_next_slab_number_in_room(i);
     }
+
+    assert(rect->l >= 0);
+    assert(rect->t >= 0);
+    assert(rect->r < SAI_MAP_WIDTH);
+    assert(rect->b < SAI_MAP_HEIGHT);
 }
 
-static void return_room_to_unused(struct PlayerRooms * rooms, int id)
+static struct SAI_Room * obtain_unused_room(struct PlayerRooms * rooms)
 {
-    if (rooms->array[id].state != SAI_ROOM_UNUSED) {
-        rooms->array[id].state = SAI_ROOM_UNUSED;
-        assert(rooms->count > 0);
-        rooms->count -= 1;
-    }
-}
+    struct SAI_Room * room;
 
-static int obtain_unused_room_id(struct PlayerRooms * rooms)
-{
-    int i;
-
-    if (rooms->count >= SAI_MAX_ROOMS) {
+    if (rooms->state_lists[SAI_ROOM_UNUSED] == NULL) {
         ERRORLOG("Out of rooms for AI player %i", rooms->my_idx);
-        return -1;
+        return NULL;
     }
 
-    i = rooms->last_used; //probably taken, but next iteration we find an empty one
-    do {
-        if (rooms->array[i].state == SAI_ROOM_UNUSED) {
-            rooms->array[i].state = SAI_ROOM_USED;
-            rooms->last_used = i;
-            rooms->count += 1;
-            rooms->array[i].id = i;
-            return i;
-        }
-        i = (i + 1) % SAI_MAX_ROOMS;
-    } while (i != rooms->last_used);
+    room = rooms->state_lists[SAI_ROOM_UNUSED];
 
-    ERRORLOG("Bad room number");
-    return -1;
+    return room;
 }
 
 static int any_rooms_marked_on_rect(const struct PlayerRooms * rooms,
     struct SAI_Rect rect)
 {
     int x, y;
+
+    AIDBG(11, "Starting");
 
     for (y = rect.t; y <= rect.b; ++y) {
         for (x = rect.l; x <= rect.r; ++x) {
@@ -163,25 +177,21 @@ static int cant_layout_room_in_rect(int plyr, struct SAI_Rect rect)
 
 static int room_misses_slabs(const struct SAI_Room * plan, const struct Room * room)
 {
-    int w, h;
-    w = plan->rect.r - plan->rect.l + 1;
-    h = plan->rect.b - plan->rect.t + 1;
-
-    return room->slabs_count < w * h;
+    return room->slabs_count < SAI_rect_width(plan->rect) * SAI_rect_height(plan->rect);
 }
 
 static int room_too_small(const struct SAI_Room * room)
 {
-    int w, h;
-    w = room->rect.r - room->rect.l + 1;
-    h = room->rect.b - room->rect.t + 1;
-
-    return w < 3 || h < 3; //for now: possibly context dependent later
+    return  SAI_rect_width(room->rect) < 3 ||
+            SAI_rect_height(room->rect) < 3; //for now: possibly context dependent later
 }
 
 static void mark_room(struct PlayerRooms * rooms, const struct SAI_Room * room)
 {
     int x, y;
+
+    AIDBG(5, "Starting for room with rect %i, %i, %i, %i",
+        room->rect.l, room->rect.t, room->rect.r, room->rect.b);
 
     for (y = room->rect.t; y <= room->rect.b; ++y) {
         for (x = room->rect.l; x <= room->rect.r; ++x) {
@@ -192,31 +202,35 @@ static void mark_room(struct PlayerRooms * rooms, const struct SAI_Room * room)
 
 static void eval_players_room(int plyr, struct Room * room)
 {
-    int id;
     struct SAI_Room * r;
     struct PlayerRooms * rooms;
 
+    if (room->slabs_list == 0) {
+        return; //for some reason this occurs
+    }
+
+    AIDBG(4, "Starting");
     rooms = rooms_for_player(plyr);
 
-    id = obtain_unused_room_id(rooms);
-    if (id < 0) {
+    r = obtain_unused_room(rooms);
+    if (r == NULL) {
         return;
     }
 
-    r = &rooms->array[id];
     r->kind = (enum RoomKinds) room->kind;
     find_room_extents(room, &r->rect);
 
     if (any_rooms_marked_on_rect(rooms, r->rect)) {
-        r->state = SAI_ROOM_BAD; //don't want to handle overlap due to added complexity
+        //don't want to handle overlap due to added complexity
+        set_room_state(rooms, r, SAI_ROOM_BAD);
         //don't mark on map; other rooms must keep precedence
     }
     else if (room_misses_slabs(r, room) || room_too_small(r)) {
-        r->state = SAI_ROOM_INCOMPLETE;
+        set_room_state(rooms, r, SAI_ROOM_INCOMPLETE);
         mark_room(rooms, r);
     }
     else {
-        r->state = SAI_ROOM_ACTIVE;
+        set_room_state(rooms, r, SAI_ROOM_ACTIVE);
         mark_room(rooms, r);
     }
 }
@@ -226,11 +240,24 @@ static void clear_player_rooms(int plyr_idx)
     int i;
     struct PlayerRooms * rooms;
 
+    AIDBG(3, "Starting");
     rooms = rooms_for_player(plyr_idx);
 
     rooms->my_idx = plyr_idx;
-    rooms->count = 0;
     memset(&rooms->array, 0, sizeof(rooms->array));
+    memset(&rooms->state_lists, 0, sizeof(rooms->state_lists));
+
+    for (i = 0; i < SAI_MAX_ROOMS; ++i) {
+        rooms->array[i].id = i;
+        rooms->array[i].state = SAI_ROOM_UNUSED;
+        rooms->array[i].next_of_state = &rooms->array[i+1];
+        rooms->array[i].prev_of_state = &rooms->array[i-1];
+    }
+
+    rooms->array[0].prev_of_state = NULL;
+    rooms->array[SAI_MAX_ROOMS - 1].next_of_state = NULL;
+    rooms->state_lists[SAI_ROOM_UNUSED] = &rooms->array[0];
+
     for (i = 0; i < SAI_MAP_WIDTH * SAI_MAP_HEIGHT; ++i) {
         rooms->markers[i] = -1;
     }
@@ -244,10 +271,10 @@ static void evaluate_rooms_of_player(int plyr_idx)
     struct Room * room;
     struct PlayerRooms * rooms;
 
+    AIDBG(3, "Starting");
     rooms = rooms_for_player(plyr_idx);
     plyr = get_player(plyr_idx);
     dungeon = get_players_dungeon(plyr);
-
 
     for (i = 0; i < ROOM_TYPES_COUNT; ++i) {
         for (j = dungeon->room_kind[i]; j != 0; j = room->next_of_owner) {
@@ -255,13 +282,13 @@ static void evaluate_rooms_of_player(int plyr_idx)
             if (!room_is_invalid(room)) {
                 eval_players_room(plyr_idx, room);
 
-                if (rooms->count >= SAI_MAX_ROOMS) {
+                if (rooms->state_lists[SAI_ROOM_UNUSED] == NULL) {
                     break;
                 }
             }
         }
 
-        if (rooms->count >= SAI_MAX_ROOMS) {
+        if (rooms->state_lists[SAI_ROOM_UNUSED] == NULL) {
             break;
         }
     }
@@ -277,33 +304,32 @@ static int try_extend_in_direction(struct PlayerRooms * rooms,
 {
     int x, y, r;
     int x2, y2;
-    int id;
     struct SAI_Rect rect;
     struct SAI_Room * room;
 
-    id = obtain_unused_room_id(rooms);
-    if (id < 0) {
+    AIDBG(4, "Starting");
+    room = obtain_unused_room(rooms);
+    if (room == NULL) {
         return 0;
     }
-    room = &rooms->array[id];
 
     if (dir_x == 0) {
         x = (src_room->rect.l + src_room->rect.r) / 2;
     } else if (dir_x < 0) {
-        x = src_room->rect.l;
+        x = src_room->rect.l - 1;
     }
     else {
-        x = src_room->rect.r;
+        x = src_room->rect.r + 1;
     }
 
     if (dir_y == 0) {
         y = (src_room->rect.t + src_room->rect.b) / 2;
     }
     else if (dir_y < 0) {
-        y = src_room->rect.t;
+        y = src_room->rect.t - 1;
     }
     else {
-        y = src_room->rect.b;
+        y = src_room->rect.b + 1;
     }
 
     for (r = 7; r >= 5; --r) { //+2 radius for walls, so this is 5x5 to 3x3 in practice
@@ -333,15 +359,20 @@ static int try_extend_in_direction(struct PlayerRooms * rooms,
         rect.r = min((int) rect.r, SAI_MAP_WIDTH - 1);
         rect.b = min((int) rect.b, SAI_MAP_HEIGHT - 1);
 
+        AIDBG(11, "Rect after adjustment is %i, %i, %i, %i", rect.l, rect.t, rect.r, rect.b);
+
         if (rect.r - rect.l < 4 || rect.b - rect.t < 4) {
+            AIDBG(11, "Room to small after r = %i", r);
             continue;
         }
 
         if (any_rooms_marked_on_rect(rooms, rect)) {
+            AIDBG(11, "Rooms already in vicinity at r = %i", r);
             continue;
         }
 
         if (cant_layout_room_in_rect(rooms->my_idx, rect)) {
+            AIDBG(11, "Terrain is bad for r = %i", r);
             continue;
         }
 
@@ -352,11 +383,14 @@ static int try_extend_in_direction(struct PlayerRooms * rooms,
         rect.b -= 1;
 
         memcpy(&room->rect, &rect, sizeof(rect));
-        room->state = SAI_ROOM_UNDUG;
+        set_room_state(rooms, room, SAI_ROOM_UNDUG);
+        mark_room(rooms, room);
+
+        AIDBG(6, "Managed to extend plan in direction (%i, %i) with radius %i",
+            dir_x, dir_y, r);
         return 1;
     }
 
-    return_room_to_unused(rooms, id);
     return 0;
 }
 
@@ -369,10 +403,11 @@ static int extend_layout(struct PlayerRooms * rooms)
     change = 0;
 
     //looks for rooms close to existing ones (preferable - efficient packing)
-    for (i = 0; i < SAI_MAX_ROOMS && rooms->count < SAI_MAX_ROOMS; ++i) {
+    for (i = 0; i < SAI_MAX_ROOMS && rooms->state_lists[SAI_ROOM_UNUSED]; ++i) {
         room = &rooms->array[i];
 
-        if (room->state != SAI_ROOM_UNUSED) {
+        if (    room->state != SAI_ROOM_UNUSED &&
+                room->state != SAI_ROOM_BAD) {
             //TODO AI: shuffle direction to make it appear random? right now, west will
             //always be preferred
             change = try_extend_in_direction(rooms, room, -1, 0) || change;
@@ -382,7 +417,7 @@ static int extend_layout(struct PlayerRooms * rooms)
         }
     }
 
-    if (!change && rooms->count < SAI_MAX_ROOMS) {
+    if (!change && rooms->state_lists[SAI_ROOM_UNUSED]) {
         //TODO AI: look for farther rooms
     }
 
@@ -392,24 +427,25 @@ static int extend_layout(struct PlayerRooms * rooms)
 static int look_for_room_of_size(struct PlayerRooms * rooms, enum RoomKinds kind,
     int min_size, int max_size, SAI_RoomState state)
 {
-    int i;
-    int w, h;
     int size;
     SAI_Room * room;
 
-    for (i = 0; i < SAI_MAX_ROOMS; ++i) {
-        room = &rooms->array[i];
-        if (room->state != state || room->kind != RoK_NONE) {
+    AIDBG(5, "Starting");
+
+    for (room = rooms->state_lists[state]; room != NULL; room = room->next_of_state) {
+        if (room->kind != RoK_NONE) {
+            AIDBG(8, "Room already had kind %i assigned", room->kind);
             continue;
         }
 
-        w = room->rect.r - room->rect.l + 1;
-        h = room->rect.b - room->rect.t + 1;
-        size = w * h;
+        size = SAI_rect_width(room->rect) * SAI_rect_height(room->rect);
 
         if (size >= min_size && size <= max_size) {
-            return i;
+            AIDBG(8, "Room picked with size %i", size);
+            return room->id;
         }
+
+        AIDBG(8, "Size %i not in desired range [%i, %i]", size, min_size, max_size);
     }
 
     return -1;
@@ -417,6 +453,8 @@ static int look_for_room_of_size(struct PlayerRooms * rooms, enum RoomKinds kind
 
 void SAI_init_room_layout_for_player(int plyr)
 {
+    AIDBG(3, "Starting");
+
     clear_player_rooms(plyr);
     evaluate_rooms_of_player(plyr);
     evaluate_empty_space_in_player_reach(plyr);
@@ -436,21 +474,29 @@ void SAI_set_room_layout_safety(int plyr, int path_safety_dist,
 int SAI_request_room(int plyr, enum RoomKinds kind, int min_size, int max_size)
 {
     int id;
+    int res;
     struct PlayerRooms * rooms;
+
+    AIDBG(4, "Starting for room kind %i, %i <= size <= %i", (int) kind, min_size,
+        max_size);
 
     rooms = rooms_for_player(plyr);
     id = -1;
 
-    id = max(id, look_for_room_of_size(rooms, kind,
-        min_size, max_size, SAI_ROOM_EMPTY));
+    res = look_for_room_of_size(rooms, kind, min_size, max_size, SAI_ROOM_EMPTY);
+    id = max(id, res);
 
     while (id < 0) {
-        id = max(id, look_for_room_of_size(rooms, kind,
-            min_size, max_size, SAI_ROOM_UNDUG));
+        res = look_for_room_of_size(rooms, kind, min_size, max_size, SAI_ROOM_UNDUG);
+        id = max(id, res);
 
         if (id < 0 && !extend_layout(rooms)) {
             break;
         }
+    }
+
+    if (id >= 0) {
+        rooms->array[id].kind = kind;
     }
 
     return id;
@@ -458,6 +504,7 @@ int SAI_request_room(int plyr, enum RoomKinds kind, int min_size, int max_size)
 
 int SAI_request_path_to_room(int plyr, int id, struct SAI_Point ** coords)
 {
+    *coords = NULL;
     return 0;
 }
 
@@ -465,6 +512,7 @@ int SAI_request_path_to_gold_area(int plyr, int gold_area_idx,
     struct SAI_Point ** coords)
 {
     //TODO AI: implement
+    *coords = NULL;
     return 0;
 }
 
@@ -472,10 +520,11 @@ int SAI_request_path_to_position(int plyr, struct SAI_Point pos,
     struct SAI_Point ** coords)
 {
     //TODO AI: implement when required
+    *coords = NULL;
     return 0;
 }
 
-const struct SAI_Room * SAI_get_room(int plyr, int id)
+struct SAI_Room * SAI_get_room(int plyr, int id)
 {
     struct PlayerRooms * rooms;
     if (id < 0 || id >= SAI_MAX_ROOMS) {
@@ -498,7 +547,8 @@ void SAI_set_room_kind(int plyr, int room_id, enum RoomKinds kind)
     struct PlayerRooms * rooms;
     struct SAI_Room * room;
 
-    assert(room_id >= 0 && room_id < SAI_MAX_ROOMS);
+    assert(room_id >= 0);
+    assert(room_id < SAI_MAX_ROOMS);
     rooms = rooms_for_player(plyr);
     room = &rooms->array[room_id];
     assert(room->state == SAI_ROOM_EMPTY || room->state == SAI_ROOM_UNDUG);
@@ -506,3 +556,41 @@ void SAI_set_room_kind(int plyr, int room_id, enum RoomKinds kind)
 
     room->kind = kind;
 }
+
+struct SAI_Room * SAI_get_rooms_of_state(int plyr, enum SAI_RoomState state)
+{
+    struct PlayerRooms * rooms;
+
+    assert(state >= 0);
+    assert(state < SAI_ROOM_STATE_COUNT);
+    rooms = rooms_for_player(plyr);
+
+    return rooms->state_lists[state];
+}
+
+void SAI_set_room_state(int plyr, int room_id, enum SAI_RoomState new_state)
+{
+    struct PlayerRooms * rooms;
+    assert(room_id >= 0);
+    assert(room_id < SAI_MAX_ROOMS);
+
+    rooms = rooms_for_player(plyr);
+    set_room_state(rooms, &rooms->array[room_id], new_state);
+}
+
+int SAI_rect_width(struct SAI_Rect rect)
+{
+    int w;
+    w = rect.r - rect.l + 1;
+    assert(w >= 1);
+    return w;
+}
+
+int SAI_rect_height(struct SAI_Rect rect)
+{
+    int h;
+    h = rect.b - rect.t + 1;
+    assert(h >= 1);
+    return h;
+}
+

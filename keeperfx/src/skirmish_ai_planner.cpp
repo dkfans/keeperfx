@@ -20,6 +20,8 @@
 /******************************************************************************/
 
 #include "skirmish_ai_planner.h"
+#include "skirmish_ai_rooms.h"
+#include "skirmish_ai_values.h"
 
 #include "config_creature.h"
 #include "config_terrain.h"
@@ -139,13 +141,6 @@ static const char plan_names[][32] = {
     "Prioritize"
 };
 
-static const int number_of_room_tiles_for_usable_room[ROOM_TYPES_COUNT + 1] = //unsure about last one
-{
-    //very approximative for now; for non-tech rooms (rooms that have varying number of
-    //tiles depending on need) I will need to reprogram with better approximation later
-    0, 0, 16, 25, 16, 12, 25, 0, 25, 16, 9, 16, 9, 25, 25, 1, 1
-};
-
 
 static NodePlayerState * my_player_state(Node * node)
 {
@@ -169,13 +164,15 @@ static int calc_attack_balance(const struct NodeState * state)
     int i;
     int my_attack;
     int best_enemy_attack;
+    int power;
 
     my_attack = calc_attack_power(state, planner->my_idx);
 
     best_enemy_attack = 0;
     for (i = 0; i < SAI_MAX_KEEPERS; ++i) {
         if (i != planner->my_idx && player_exists(get_player(i))) {
-            best_enemy_attack = max(best_enemy_attack, calc_attack_power(state, i));
+            power = calc_attack_power(state, i);
+            best_enemy_attack = max(best_enemy_attack, power);
         }
     }
 
@@ -237,11 +234,6 @@ void state_time_simulation(struct NodeState * node, int time)
 {
 }
 
-static int is_room_usable(struct Room * room)
-{
-    return 1; //TODO AI: implement. should check capacity or some such
-}
-
 static int count_workers(struct NodePlayerState * state, int plyr_idx)
 {
     return state->creatures[get_players_special_digger_breed(plyr_idx)];
@@ -253,11 +245,11 @@ static int count_workers(struct NodePlayerState * state, int plyr_idx)
  * @param kind
  * @return
  */
-static int get_usable_room_cost(RoomKind kind)
+static int get_usable_room_cost(enum RoomKinds kind)
 {
     //simple approximation of cost * tiles_constant for now
     return room_stats_get_for_kind(kind)->cost *
-        number_of_room_tiles_for_usable_room[kind];
+        SAI_tiles_for_next_room_of_kind(planner->my_idx, kind);
 }
 
 static int count_non_workers(struct NodePlayerState * state, int plyr_idx)
@@ -288,30 +280,21 @@ static void prepare_creature_pool_state(struct NodeState * state)
 
 static void prepare_planning_player_state(struct NodeState * state)
 {
-    int i, j;
-    struct PlayerInfo * plyr;
-    struct Dungeon * dungeon;
-    struct Room * room;
+    int i;
+    struct SAI_Room * room;
 
-    plyr = get_player(planner->my_idx);
-    dungeon = get_players_dungeon(plyr);
-
-    //look up rooms
+    //look up room availability
     for (i = 0; i < ROOM_TYPES_COUNT; ++i) {
-        for (j = dungeon->room_kind[i]; j != 0; j = room->next_of_owner) {
-            room = room_get(i);
-            if (room_is_invalid(room)) {
-                continue;
-            }
-
-            if (is_room_usable(room)) {
-                state->rooms_built |= 1 << i;
-                break;
-            }
-        }
-
         if (is_room_available(planner->my_idx, i)) {
             state->rooms_available |= 1 << i;
+        }
+    }
+
+    //see what rooms are built / will be built
+    for (i = 0; i < SAI_MAX_ROOMS; ++i) { //ok since only done once per frame
+        room = SAI_get_room(planner->my_idx, i);
+        if (room != NULL && room->state != SAI_ROOM_UNUSED) {
+            state->rooms_built |= 1 << room->kind;
         }
     }
 }
@@ -480,7 +463,7 @@ static void insert_wait_node(struct Node * parent)
     planner->open.insert(wait);
 }
 
-static void insert_build_room_node(struct Node * parent, RoomKind kind)
+static void insert_build_room_node(struct Node * parent, enum RoomKinds kind)
 {
     struct Node * build;
     int time;
@@ -546,7 +529,7 @@ static void visit_node(struct Node * node)
     can_build = ~node->state.rooms_built & (node->state.rooms_available | can_wait_to_research);
     for (i = 0; i < ROOM_TYPES_COUNT; ++i) {
         if (can_build & (1 << i)) {
-            insert_build_room_node(node, i);
+            insert_build_room_node(node, (enum RoomKinds) i);
         }
     }
 
@@ -607,11 +590,13 @@ static const char * decision_param_string(struct SAI_PlanDecision * decision)
 static int eval_least_score_on_path(const Node * leaf)
 {
     int least;
+    int score;
 
     least = INT_MAX;
 
     do {
-        least = min(least, node_score(leaf));
+        score = node_score(leaf);
+        least = min(least, score);
         leaf = leaf->parent;
     } while (leaf);
 
