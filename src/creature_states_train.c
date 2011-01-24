@@ -59,23 +59,14 @@ DLLIMPORT void _DK_setup_move_to_new_training_position(struct Thing *thing, stru
  */
 TbBool creature_can_be_trained(struct Thing *thing)
 {
-    struct Dungeon *dungeon;
     struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
     //return _DK_creature_can_be_trained(thing);
     crstat = creature_stats_get_from_thing(thing);
     // Creatures without training value can't be trained
     if (crstat->training_value <= 0)
         return false;
-    dungeon = get_dungeon(thing->owner);
-    cctrl = creature_control_get_from_thing(thing);
-    // Creatures which reached players max level can't be trained
-    if (cctrl->explevel >= dungeon->creature_max_level[thing->model])
-        return false;
-    // Creatures which reached absolute max level and have no grow up creature
-    if ((cctrl->explevel >= 9) && (crstat->grow_up == 0))
-        return false;
-    return true;
+    // If its model can train, check if this one can gain more experience
+    return creature_can_gain_experience(thing);
 }
 
 TbBool player_can_afford_to_train_creature(struct Thing *thing)
@@ -425,7 +416,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
                 {
                     cctrl->byte_9B = 1;
                 }
-                cctrl->field_24 += (room->efficiency * crstat->training_value);
+                cctrl->exp_points += (room->efficiency * crstat->training_value);
               }
             }
         } else
@@ -554,14 +545,15 @@ short training(struct Thing *thing)
     {
         i = process_work_speed_on_work_value(thing,
             (long)room->efficiency * (long)crstat->training_value);
-        cctrl->field_24 += i;
+        cctrl->exp_points += i;
         dungeon->field_1179 += i;
         process_creature_in_training_room(thing, room);
     } else
     {
-      if (external_set_thing_state(thing, CrSt_CreatureBeHappy))
-        cctrl->field_282 = 50;
-      dungeon->lvstats.creatures_trained++;
+        if (external_set_thing_state(thing, CrSt_CreatureBeHappy)) {
+            cctrl->field_282 = 50;
+        }
+        dungeon->lvstats.creatures_trained++;
     }
     return 1;
 }

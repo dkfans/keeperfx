@@ -491,12 +491,12 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
   thing = thing_get(player->field_43E);
   if (thing_is_invalid(thing))
     thing = NULL;
-  if (thing != NULL)
+  if (!thing_is_invalid(thing))
   {
     if (!control_creature_as_controller(player, thing))
-      thing = NULL;
+        thing = NULL;
   }
-  if (thing == NULL)
+  if (thing_is_invalid(thing))
   {
     set_camera_zoom(player->acamera, player->field_4B6);
     if (is_my_player(player))

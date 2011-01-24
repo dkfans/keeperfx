@@ -867,8 +867,8 @@ TbBool attempt_to_destroy_enemy_room(struct Thing *thing, unsigned char stl_x, u
         ERRORLOG("Cannot do this 'destroy room' stuff");
         return false;
     }
-    event_create_event_or_update_nearby_existing_event(subtile_coord_center(room->stl_x),
-        subtile_coord_center(room->stl_y), 19, room->owner, 0);
+    event_create_event_or_update_nearby_existing_event(subtile_coord_center(room->central_stl_x),
+        subtile_coord_center(room->central_stl_y), 19, room->owner, 0);
     if (is_my_player_number(room->owner))
         output_message(15, 400, 1);
     thing->continue_state = CrSt_CreatureAttackRooms;
@@ -1984,9 +1984,9 @@ TbBool check_experience_upgrade(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
     i = crstat->to_level[cctrl->explevel] << 8;
-    if (cctrl->field_24 < i)
+    if (cctrl->exp_points < i)
         return false;
-    cctrl->field_24 -= i;
+    cctrl->exp_points -= i;
     if (cctrl->explevel < dungeon->creature_max_level[thing->model])
     {
       if ((cctrl->explevel < 9) || (crstat->grow_up != 0))

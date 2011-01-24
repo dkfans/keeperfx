@@ -370,6 +370,22 @@ void reset_creature_eye_lens(struct Thing *thing)
   }
 }
 
+TbBool creature_can_gain_experience(struct Thing *thing)
+{
+    struct Dungeon *dungeon;
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    dungeon = get_dungeon(thing->owner);
+    cctrl = creature_control_get_from_thing(thing);
+    // Creatures which reached players max level can't be trained
+    if (cctrl->explevel >= dungeon->creature_max_level[thing->model])
+        return false;
+    // Creatures which reached absolute max level and have no grow up creature
+    if ((cctrl->explevel >= (CREATURE_MAX_LEVEL-1)) && (crstat->grow_up == 0))
+        return false;
+    return true;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

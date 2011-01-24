@@ -1971,8 +1971,8 @@ TbBool process_players_global_packet_action(long plyr_idx)
       if (player->work_state == PSt_Unknown15)
         turn_off_query(plyr_idx);
       room = room_get(pckt->field_6);
-      player->field_E4 = room->stl_x << 8;
-      player->field_E6 = room->stl_y << 8;
+      player->field_E4 = room->central_stl_x << 8;
+      player->field_E6 = room->central_stl_y << 8;
       set_player_instance(player, 16, 0);
       if (player->work_state == PSt_BuildRoom)
         set_player_state(player, 2, room->kind);
