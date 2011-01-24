@@ -23,6 +23,7 @@
 #include "skirmish_ai_map.h"
 #include "skirmish_ai_planner.h"
 #include "skirmish_ai_rooms.h"
+#include "skirmish_ai_values.h"
 
 #include "bflib_basics.h"
 #include "globals.h"
@@ -98,18 +99,6 @@ struct SAI_State
     struct SAI_PlayerState players[SAI_MAX_KEEPERS];
 };
 
-
-struct DigParams
-{
-    int count;
-
-    struct
-    {
-        int x;
-        int y;
-    } pos[MAX_DIG];
-};
-
 static const SAI_ActivityInfo activity_info[ACTIVITY_COUNT] =
 {
     { 20,       10, 50 },
@@ -165,42 +154,92 @@ static int should_dig_for_room(struct SAI_PlayerState * plyrstate,
     return 0;
 }
 
-static int should_modify_room(struct SAI_PlayerState * plyrstate,
-    struct SAI_Room ** room_params)
+static void think_about_digging_for_rooms(struct SAI_PlayerState * plyrstate)
 {
-    return 0;
-}
-
-static void think_about_dungeon_development(struct SAI_PlayerState * plyrstate)
-{
-    int i, j;
+    int x, y;
+    int w, h;
+    int i;
     SAI_Action action;
-    struct DigParams dig_params;
     struct SAI_Room * room;
+    struct SAI_Point * dig_coords;
+    int count;
+    int required;
+    int available;
 
-    if (should_dig_for_room(plyrstate, &dig_params, &room)) {
-        if (dig_params.count <= actions_left(plyrstate, ACTIVITY_DIG_AREAS)) {
-            for (i = 0; i < dig_params.count; ++i) {
+    AIDBG(4, "Starting");
+
+    //dig new rooms
+    for (room = SAI_get_rooms_of_state(plyrstate->index, SAI_ROOM_UNDUG);
+            room != NULL; room = room->next_of_state) {
+        if (room->kind == RoK_NONE) {
+            continue;
+        }
+
+        count = SAI_request_path_to_room(plyrstate->index, room->id, &dig_coords);
+        w = SAI_rect_width(room->rect);
+        h = SAI_rect_height(room->rect);
+
+        required = count + w * h;
+        available = actions_left(plyrstate, ACTIVITY_DIG_AREAS);
+        if (required <= available) {
+            AIDBG(6, "Deciding to dig using %i actions", required);
+
+            for (i = 0; i < count; ++i) {
                 action = SAI_mark_dig_action(plyrstate->index,
-                    dig_params.pos[i].x, dig_params.pos[i].y);
+                    dig_coords[i].x, dig_coords[i].y);
                 queue_action(plyrstate, ACTIVITY_DIG_AREAS, action);
             }
 
-            room->state = SAI_ROOM_BEING_DUG;
+            for (y = room->rect.t; y <= room->rect.b; ++y) {
+                for (x = room->rect.l; x <= room->rect.r; ++x) {
+                    action = SAI_mark_dig_action(plyrstate->index, x, y);
+                    queue_action(plyrstate, ACTIVITY_DIG_AREAS, action);
+                }
+            }
+
+            SAI_set_room_state(plyrstate->index, room->id, SAI_ROOM_BEING_DUG);
         }
+        else {
+            AIDBG(6, "Deciding to wait with dig: %i actions required, actions available: %i",
+                required, available);
+        }
+
+        free(dig_coords);
     }
 
-    if (should_modify_room(plyrstate, &room)) {
-        if (room->w * room->h <= actions_left(plyrstate, ACTIVITY_MODIFY_ROOMS)) {
-            for (i = 0; i < room->w; ++i) {
-                for (j = 0; j < room->h; ++j) {
+    //check for finished digs
+    for (room = SAI_get_rooms_of_state(plyrstate->index, SAI_ROOM_BEING_DUG);
+            room != NULL; room = room->next_of_state) {
+        w = SAI_rect_width(room->rect);
+        h = SAI_rect_height(room->rect);
+        AIDBG(3, "Size: %i, Dug Tiles: %i", w * h, SAI_count_open_tiles_in_rect(room->rect));
+        if (w * h == SAI_count_open_tiles_in_rect(room->rect)) {
+            SAI_set_room_state(plyrstate->index, room->id, SAI_ROOM_EMPTY);
+        }
+    }
+}
+
+static void think_about_modifying_rooms(struct SAI_PlayerState * plyrstate)
+{
+    int x, y;
+    int w, h;
+    SAI_Action action;
+    struct SAI_Room * room;
+
+    for (room = SAI_get_rooms_of_state(plyrstate->index, SAI_ROOM_EMPTY);
+            room != NULL; room = room->next_of_state) {
+        w = SAI_rect_width(room->rect);
+        h = SAI_rect_height(room->rect);
+        if (w * h <= actions_left(plyrstate, ACTIVITY_MODIFY_ROOMS)) {
+            for (y = room->rect.t; y <= room->rect.b; ++y) {
+                for (x = room->rect.l; x <= room->rect.r; ++x) {
                     action = SAI_build_room_action(plyrstate->index,
-                        room->x + i, room->y + j, room->kind);
+                        x, y, room->kind);
                     queue_action(plyrstate, ACTIVITY_MODIFY_ROOMS, action);
                 }
             }
 
-            room->state = SAI_ROOM_BEING_BUILT;
+            SAI_set_room_state(plyrstate->index, room->id, SAI_ROOM_BEING_BUILT);
         }
     }
 }
@@ -235,6 +274,41 @@ static void think_about_workshop_items(struct SAI_PlayerState * plyrstate)
 
 }
 
+/**
+ * Processes an AI decision (part of plan).
+ * @param plyrstate
+ * @param item
+ * @return Non-zero if the item could be processed.
+ */
+static int try_process_plan_item(struct SAI_PlayerState * plyrstate,
+    struct SAI_PlanDecision * item)
+{
+    enum RoomKinds room_kind;
+    int tiles;
+
+    AIDBG(4, "Starting for plan item of type %i", (int) item->type);
+
+    switch (item->type) {
+    case SAI_PLAN_BUILD_ROOM:
+        room_kind = (enum RoomKinds) item->param.kind;
+        tiles = SAI_tiles_for_next_room_of_kind(plyrstate->index, room_kind);
+        //TODO AI: more sophisticated room sizing scheme?
+        if (SAI_request_room(plyrstate->index, room_kind, tiles, tiles) >= 0) {
+            return 1;
+        }
+        break;
+    default:
+        break;
+    }
+
+    return 0;
+}
+
+/**
+ * Processes the next plan (and swaps it if finished);
+ *  then processes the current plan item in queue.
+ * @param plyrstate
+ */
 static void process_plan(struct SAI_PlayerState * plyrstate)
 {
     AIDBG(3, "Starting");
@@ -253,6 +327,12 @@ static void process_plan(struct SAI_PlayerState * plyrstate)
     else {
         SAI_process_plan(plyrstate->index, PLAN_FRAME_BUDGET);
     }
+
+    if (plyrstate->plan_index < plyrstate->plan_size) {
+        if (try_process_plan_item(plyrstate, plyrstate->plan + plyrstate->plan_index)) {
+            plyrstate->plan_index += 1;
+        }
+    }
 }
 
 /**
@@ -264,7 +344,8 @@ static void think(struct SAI_PlayerState * plyrstate)
     process_plan(plyrstate);
     think_about_battles(plyrstate);
     think_about_conquest(plyrstate);
-    think_about_dungeon_development(plyrstate);
+    think_about_digging_for_rooms(plyrstate);
+    think_about_modifying_rooms(plyrstate);
     think_about_dungeon_specials(plyrstate);
     think_about_economy(plyrstate);
     think_about_enemy_creatures(plyrstate);

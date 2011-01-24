@@ -74,6 +74,13 @@ const struct SAI_GoldArea * SAI_get_gold_areas(int * count);
  */
 const struct SAI_TileAnalysis * SAI_get_tile_analysis(int x, int y);
 
+/**
+ * Counts the number of 'open' (not wall, not rock, not earth) tiles in a rectangle.
+ * @param rect
+ * @return
+ */
+int SAI_count_open_tiles_in_rect(struct SAI_Rect rect);
+
 
 #ifdef __cplusplus
 }
