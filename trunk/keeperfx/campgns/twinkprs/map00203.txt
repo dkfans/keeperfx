@@ -207,6 +207,7 @@ IF(PLAYER0,TOTAL_CREATURES > 0)
     MAGIC_AVAILABLE(PLAYER0,POWER_IMP,1,1)
 ENDIF
 
+REM When reached the 5x5 room behind orcs (top right of the map)
 IF_ACTION_POINT(1,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY16,1,2)
 ENDIF
@@ -215,23 +216,28 @@ IF_ACTION_POINT(4,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY16,4,6)
 ENDIF
 
+REM When reached the second room behind orcs (top right; the one with 2 strips of lava)
 IF_ACTION_POINT(28,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY10,5,3)
 ENDIF
 
+REM When reached the corridor behind door under the first entrance
 IF_ACTION_POINT(29,PLAYER0)
     ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,ARCHER,6,4,3,500)
 ENDIF
 
+REM When reached the lava-L room, at right of the two specials room (after AP29 corridor) 
 IF_ACTION_POINT(7,PLAYER0)
     ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DWARFA,7,4,4,500)
     ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,WIZARD,8,6,6,500)
 ENDIF
 
+REM When reached the AP9 room behind right door of lava-L room
 IF_ACTION_POINT(9,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY16,9,2)
 ENDIF
 
+REM When reached the AP10 room behind top door of AP9 room (the one connected to treasure room)
 IF_ACTION_POINT(10,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY14,10,1)
     SET_TIMER(PLAYER_GOOD,TIMER2)
@@ -331,15 +337,18 @@ IF(PLAYER0,BRIDGE >= 1)
     ENDIF
 ENDIF
 
+REM When reached the AP20 treasure room, at center of the map
 IF_ACTION_POINT(20,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY9,20,4)
 ENDIF
 
+REM When reached corridor that leads to AP20 treasure room
 IF_ACTION_POINT(21,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY7,21,3)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY10,22,4)
 ENDIF
 
+REM When reached HG7 room, which is separated from hero heart only by one more room (AP27 room)
 IF_ACTION_POINT(23,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY12,23,2)
     ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY2,30,DUNGEON_HEART,0,9,500)
@@ -352,6 +361,7 @@ IF_ACTION_POINT(26,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY2,24,2)
 ENDIF
 
+REM When reached the AP27 room that leads directly to hero dungeon heart
 IF_ACTION_POINT(27,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY3,27,2)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY8,-1,2)
@@ -366,6 +376,12 @@ IF_ACTION_POINT(27,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY1,-8,1)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY2,-8,2)
 ENDIF
+
+REM AP5 is at top right, in the corner behind lava
+REM AP2 and HG2 are at center, in a room with "increase level" near first entrance
+REM AP6 is under first entrance, in a way between "make safe" and "resurrect creature"
+REM AP8 is in the same room as AP7 (at right of the two specials room) but behind lava
+REM AP22 is on the 5x2 guard post next to 2 horizontal lava strips
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
     IF(PLAYER_GOOD,TOTAL_CREATURES < 1)
