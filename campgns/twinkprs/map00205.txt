@@ -1,8 +1,17 @@
-REM ********************************************
-REM
-REM Script for Level Invisible インビジブル
-REM
-REM ********************************************
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for Level Invisible (繧､繝ｳ繝薙ず繝悶Ν)
+REM  Campaign: Twin Keepers
+REM  Authors:  Original author unknown
+REM            KeeperFX CCP Team
+REM  Date:     05 Aug 2005 - 20 Jan 2011
+REM  Copying and copyrights:
+REM    This program is free software; you can redistribute it and/or modify
+REM    it under the terms of the GNU General Public License as published by
+REM    the Free Software Foundation; either version 2 of the License, or
+REM    (at your option) any later version.
+REM ****************************************************************************
 
 START_MONEY(PLAYER0,0)
 
