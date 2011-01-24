@@ -1,0 +1,41 @@
+REM ********************************************
+REM
+REM Script for Level 214
+REM
+REM ********************************************
+
+
+
+IF(PLAYER0,GAME_TURN > 20)
+    DISPLAY_OBJECTIVE(100,ALL_PLAYERS)
+REM    QUICK_OBJECTIVE(1,"This is it, do or die. Use the Avatar to kill the evil at it's source. Killing this will wipe out all evil! YOU CAN DO IT!",PLAYER0)
+ENDIF
+
+
+IF(PLAYER0,AVATAR == 0)
+    ADD_CREATURE_TO_LEVEL(PLAYER0,AVATAR,2,1,10,0)
+ENDIF
+
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+    WIN_GAME
+    DISPLAY_OBJECTIVE(101,ALL_PLAYERS)
+REM    QUICK_OBJECTIVE(2,"You have defeated evil forever and your name will live on for centuries!",PLAYER0)
+ENDIF
+
+
+CREATE_PARTY(IMPS)
+    ADD_TO_PARTY(IMPS,IMP,10,1,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(IMPS,IMP,10,1,ATTACK_ENEMIES,0)
+
+SET_TIMER(PLAYER0,TIMER1)
+
+IF(PLAYER_GOOD,HORNY == 0)
+    IF(PLAYER0,TIMER1 >= 50)
+        IF(PLAYER_GOOD,TOTAL_CREATURES < 60)
+            NEXT_COMMAND_REUSABLE
+            ADD_PARTY_TO_LEVEL(PLAYER_GOOD,IMPS,1,5)
+            NEXT_COMMAND_REUSABLE
+            SET_TIMER(PLAYER0,TIMER1)
+        ENDIF
+    ENDIF
+ENDIF
