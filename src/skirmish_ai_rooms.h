@@ -20,30 +20,19 @@
 #ifndef SKIRMISH_AI_ROOMS_H
 #define SKIRMISH_AI_ROOMS_H
 
+#include "skirmish_ai.h"
 #include "room_data.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct SAI_Point
-{
-    signed char x;
-    signed char y;
-};
+#define SAI_MAX_ROOMS   500
 
-struct SAI_Rect
-{
-    signed char l; //left
-    signed char t; //top
-    signed char r; //right
-    signed char b; //bottom
-};
 
 enum SAI_RoomState
 {
     SAI_ROOM_UNUSED, //no other data is valid
-    SAI_ROOM_USED, //checked out
     SAI_ROOM_UNDUG, //not (intentionally) dug - room kind determines if anything is planned for room
     SAI_ROOM_EMPTY, //is dug but nothing built, room kind determines if anything planned
     SAI_ROOM_ACTIVE, //room has been built and is a part of dungeon
@@ -52,6 +41,8 @@ enum SAI_RoomState
     SAI_ROOM_BEING_BUILT, //room is being built
     SAI_ROOM_BEING_DUG, //room is being dug
     SAI_ROOM_BEING_SOLD, //room has been built (in parts or what not) but is being sold
+
+    SAI_ROOM_STATE_COUNT //counter
 };
 
 struct SAI_Room
@@ -59,6 +50,8 @@ struct SAI_Room
     int id;
     enum RoomKinds kind;
     enum SAI_RoomState state;
+    struct SAI_Room * prev_of_state;
+    struct SAI_Room * next_of_state;
     SAI_Rect rect;
 };
 
@@ -121,8 +114,8 @@ int SAI_request_room(int plyr, enum RoomKinds kind, int min_size, int max_size);
  * in order to access a room.
  * @param plyr Index of player.
  * @param id Index of room we want to dig to.
- * @param coords Output coordinate array. Last element will have negative coords.
- * @return Non-zero if successful and coordinate array contains at least one element.
+ * @param coords Output coordinate array. Must be free()d after use by caller.
+ * @return Number of coords. 0 if no path exists.
  */
 int SAI_request_path_to_room(int plyr, int id, struct SAI_Point ** coords);
 
@@ -130,8 +123,8 @@ int SAI_request_path_to_room(int plyr, int id, struct SAI_Point ** coords);
  * Requests an access path to a gold area.
  * @param plyr Index of player.
  * @param gold_area_idx Index of targeted gold area.
- * @param coords Output coordinate array. Last element wil have negative coords.
- * @return Non-zero if successful and coordinate array contains at least one element.
+ * @param coords Output coordinate array. Must be free()d after use by caller.
+ * @return Number of coords. 0 if no path exists.
  */
 int SAI_request_path_to_gold_area(int plyr, int gold_area_idx,
     struct SAI_Point ** coords);
@@ -140,20 +133,22 @@ int SAI_request_path_to_gold_area(int plyr, int gold_area_idx,
  * Reuqest an access path to a certain position.
  * @param plyr Index of player.
  * @param pos Targeted position.
- * @param coords Output coordinate array. Last element wil have negative coords.
- * @return Non-zero if successful and coordinate array contains at least one element.
+ * @param coords Output coordinate array. Must be free()d after use by caller.
+ * @return Number of coords. 0 if no path exists.
  */
 int SAI_request_path_to_position(int plyr, SAI_Point pos,
     struct SAI_Point ** coords);
 
 /**
- * Gets an AI room. Read-only by purpose, state transition should be handled by
- * calling appropriate functions which can error check states.
+ * Gets an AI room.
+ * Don't modify pointed objects manually, use SAI_.. functions in this module
+ * to do it; state transition are best handled by appropriate functions which
+ * can error check states.
  * @param plyr Index of player.
- * @param id Identifier of used room.
+ * @param id Identifier of used room. Must be >= 0 and < SAI_MAX_ROOMS.
  * @return A pointer to the room if the id was valid, otherwise NULL.
  */
-const struct SAI_Room * SAI_get_room(int plyr, int id);
+struct SAI_Room * SAI_get_room(int plyr, int id);
 
 /**
  * Sets the kind of a room. It is assert()ed if in a valid state.
@@ -162,6 +157,38 @@ const struct SAI_Room * SAI_get_room(int plyr, int id);
  * @param kind Kind of room to set to.
  */
 void SAI_set_room_kind(int plyr, int room_id, enum RoomKinds kind);
+
+/**
+ * Gets the head of a list of rooms by state.
+ * Don't modify pointed objects manually, use SAI_.. functions in this module
+ * to do it.
+ * @param plyr Index of player.
+ * @param state State of the rooms in the list to be returned.
+ * @return
+ */
+struct SAI_Room * SAI_get_rooms_of_state(int plyr, enum SAI_RoomState state);
+
+/**
+ * Sets the state of an AI room and updates corresponding lists.
+ * @param plyr Index of player.
+ * @param room_id Index of room.
+ * @param new_state New state of room.
+ */
+void SAI_set_room_state(int plyr, int room_id, enum SAI_RoomState new_state);
+
+/**
+ * Calculates width of rectangle. The width is always at least 1, due to definition.
+ * @param rect
+ * @return
+ */
+int SAI_rect_width(struct SAI_Rect rect);
+
+/**
+ * Calculates height of rectangle. The height is always at least 1, due to definition.
+ * @param rect
+ * @return
+ */
+int SAI_rect_height(struct SAI_Rect rect);
 
 
 #ifdef __cplusplus

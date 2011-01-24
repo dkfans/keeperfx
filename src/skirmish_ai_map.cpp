@@ -404,3 +404,37 @@ const struct SAI_TileAnalysis * SAI_get_tile_analysis(int x, int y)
     return &map_analysis.tiles[y * SAI_MAP_WIDTH + x];
 }
 
+int SAI_count_open_tiles_in_rect(struct SAI_Rect rect)
+{
+    int x, y;
+    int count;
+    struct SlabMap * slab;
+
+    assert(rect.l >= 0 && rect.t >= 0 &&
+        rect.r < SAI_MAP_WIDTH && rect.b < SAI_MAP_HEIGHT);
+
+    count = 0;
+    for (y = rect.t; y <= rect.b; ++y) {
+        for (x = rect.l; x <= rect.r; ++x) {
+            slab = get_slabmap_block(x, y);
+            switch (slab->kind) {
+            case SlbT_ROCK:
+            case SlbT_GOLD:
+            case SlbT_EARTH:
+            case SlbT_TORCHDIRT:
+            case SlbT_WALLDRAPE:
+            case SlbT_WALLTORCH:
+            case SlbT_WALLWTWINS:
+            case SlbT_WALLWWOMAN:
+            case SlbT_WALLPAIRSHR:
+            case SlbT_GEMS:
+                break;
+            default:
+                count += 1;
+            }
+        }
+    }
+
+    return count;
+}
+
