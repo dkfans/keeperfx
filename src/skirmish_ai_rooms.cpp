@@ -82,6 +82,15 @@ static void find_room_extents(const struct Room * room, struct SAI_Rect * rect)
     }
 }
 
+static void return_room_to_unused(struct PlayerRooms * rooms, int id)
+{
+    if (rooms->array[id].state != SAI_ROOM_UNUSED) {
+        rooms->array[id].state = SAI_ROOM_UNUSED;
+        assert(rooms->count > 0);
+        rooms->count -= 1;
+    }
+}
+
 static int obtain_unused_room_id(struct PlayerRooms * rooms)
 {
     int i;
@@ -94,6 +103,7 @@ static int obtain_unused_room_id(struct PlayerRooms * rooms)
     i = rooms->last_used; //probably taken, but next iteration we find an empty one
     do {
         if (rooms->array[i].state == SAI_ROOM_UNUSED) {
+            rooms->array[i].state = SAI_ROOM_USED;
             rooms->last_used = i;
             rooms->count += 1;
             rooms->array[i].id = i;
@@ -107,13 +117,42 @@ static int obtain_unused_room_id(struct PlayerRooms * rooms)
 }
 
 static int any_rooms_marked_on_rect(const struct PlayerRooms * rooms,
-    struct SAI_Rect * rect)
+    struct SAI_Rect rect)
 {
     int x, y;
 
-    for (y = rect->t; y <= rect->b; ++y) {
-        for (x = rect->l; x <= rect->r; ++x) {
+    for (y = rect.t; y <= rect.b; ++y) {
+        for (x = rect.l; x <= rect.r; ++x) {
             if (rooms->markers[y * SAI_MAP_WIDTH + x] >= 0) {
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+static int cant_layout_room_in_rect(int plyr, struct SAI_Rect rect)
+{
+    int x;
+    int y;
+    struct SlabMap * slab;
+
+    for (y = rect.t; y <= rect.b; ++y) {
+        for (x = rect.l; x <= rect.r; ++x) {
+            slab = get_slabmap_block(x, y);
+            switch (slab->kind) {
+            case SlbT_CLAIMED:
+            case SlbT_PATH:
+            case SlbT_EARTH:
+            case SlbT_TORCHDIRT:
+            case SlbT_WALLDRAPE: //TODO AI: check owner for some of these
+            case SlbT_WALLTORCH:
+            case SlbT_WALLWTWINS:
+            case SlbT_WALLWWOMAN:
+            case SlbT_WALLPAIRSHR:
+                break;
+            default:
                 return 1;
             }
         }
@@ -168,7 +207,7 @@ static void eval_players_room(int plyr, struct Room * room)
     r->kind = (enum RoomKinds) room->kind;
     find_room_extents(room, &r->rect);
 
-    if (any_rooms_marked_on_rect(rooms, &r->rect)) {
+    if (any_rooms_marked_on_rect(rooms, r->rect)) {
         r->state = SAI_ROOM_BAD; //don't want to handle overlap due to added complexity
         //don't mark on map; other rooms must keep precedence
     }
@@ -233,9 +272,121 @@ static void evaluate_empty_space_in_player_reach(int plyr)
 
 }
 
+static int try_extend_in_direction(struct PlayerRooms * rooms,
+    const struct SAI_Room * src_room, int dir_x, int dir_y)
+{
+    int x, y, r;
+    int x2, y2;
+    int id;
+    struct SAI_Rect rect;
+    struct SAI_Room * room;
+
+    id = obtain_unused_room_id(rooms);
+    if (id < 0) {
+        return 0;
+    }
+    room = &rooms->array[id];
+
+    if (dir_x == 0) {
+        x = (src_room->rect.l + src_room->rect.r) / 2;
+    } else if (dir_x < 0) {
+        x = src_room->rect.l;
+    }
+    else {
+        x = src_room->rect.r;
+    }
+
+    if (dir_y == 0) {
+        y = (src_room->rect.t + src_room->rect.b) / 2;
+    }
+    else if (dir_y < 0) {
+        y = src_room->rect.t;
+    }
+    else {
+        y = src_room->rect.b;
+    }
+
+    for (r = 7; r >= 5; --r) { //+2 radius for walls, so this is 5x5 to 3x3 in practice
+        x2 = x + dir_x * (r - 1);
+        y2 = y + dir_y * (r - 1);
+
+        if (x == x2) {
+            rect.l = x - r / 2;
+            rect.r = rect.l + r - 1;
+        }
+        else {
+            rect.l = min(x, x2);
+            rect.r = max(x, x2);
+        }
+
+        if (y == y2) {
+            rect.t = y - r / 2;
+            rect.b = rect.t + r - 1;
+        }
+        else {
+            rect.t = min(y, y2);
+            rect.b = max(y, y2);
+        }
+
+        rect.l = max((int) rect.l, 0);
+        rect.t = max((int) rect.t, 0);
+        rect.r = min((int) rect.r, SAI_MAP_WIDTH - 1);
+        rect.b = min((int) rect.b, SAI_MAP_HEIGHT - 1);
+
+        if (rect.r - rect.l < 4 || rect.b - rect.t < 4) {
+            continue;
+        }
+
+        if (any_rooms_marked_on_rect(rooms, rect)) {
+            continue;
+        }
+
+        if (cant_layout_room_in_rect(rooms->my_idx, rect)) {
+            continue;
+        }
+
+        //remove walls from rect as final adjustment
+        rect.l += 1;
+        rect.t += 1;
+        rect.r -= 1;
+        rect.b -= 1;
+
+        memcpy(&room->rect, &rect, sizeof(rect));
+        room->state = SAI_ROOM_UNDUG;
+        return 1;
+    }
+
+    return_room_to_unused(rooms, id);
+    return 0;
+}
+
 static int extend_layout(struct PlayerRooms * rooms)
 {
-    return 0;
+    int i;
+    int change;
+    struct SAI_Room * room;
+
+    change = 0;
+
+    //looks for rooms close to existing ones (preferable - efficient packing)
+    for (i = 0; i < SAI_MAX_ROOMS && rooms->count < SAI_MAX_ROOMS; ++i) {
+        room = &rooms->array[i];
+
+        if (room->state != SAI_ROOM_UNUSED) {
+            //TODO AI: shuffle direction to make it appear random? right now, west will
+            //always be preferred
+            change = try_extend_in_direction(rooms, room, -1, 0) || change;
+            change = try_extend_in_direction(rooms, room, 0, 1) || change;
+            change = try_extend_in_direction(rooms, room, 1, 0) || change;
+            change = try_extend_in_direction(rooms, room, 0, -1) || change;
+        }
+    }
+
+    if (!change && rooms->count < SAI_MAX_ROOMS) {
+        //TODO AI: look for farther rooms
+    }
+
+    return change;
 }
 
 static int look_for_room_of_size(struct PlayerRooms * rooms, enum RoomKinds kind,

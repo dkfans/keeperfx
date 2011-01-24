@@ -43,7 +43,8 @@ struct SAI_Rect
 enum SAI_RoomState
 {
     SAI_ROOM_UNUSED, //no other data is valid
-    SAI_ROOM_UNDUG, //not dug - room kind determines if anything is planned for room
+    SAI_ROOM_USED, //checked out
+    SAI_ROOM_UNDUG, //not (intentionally) dug - room kind determines if anything is planned for room
     SAI_ROOM_EMPTY, //is dug but nothing built, room kind determines if anything planned
     SAI_ROOM_ACTIVE, //room has been built and is a part of dungeon
     SAI_ROOM_INCOMPLETE, //room is in incompleted state (AI probably didn't build it)
