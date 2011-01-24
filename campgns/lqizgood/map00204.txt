@@ -1,0 +1,55 @@
+REM ********************************************
+REM
+REM Script for Level 204
+REM
+REM ********************************************
+
+SET_GENERATE_SPEED(400)
+
+MAX_CREATURES(PLAYER0,10)
+
+START_MONEY(ALL_PLAYERS,15000)
+
+ADD_CREATURE_TO_POOL(TUNNELLER,20)
+ADD_CREATURE_TO_POOL(DWARFA,20)
+
+CREATURE_AVAILABLE(PLAYER0,DWARFA,1,1)
+CREATURE_AVAILABLE(PLAYER0,TUNNELLER,1,1)
+
+ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+
+IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
+    WIN_GAME
+ENDIF
+
+IF(PLAYER0,GAME_TURN > 10)
+    DISPLAY_OBJECTIVE(1,ALL_PLAYERS)
+    REM QUICK_OBJECTIVE(1,"Welcome to the Good Guys campaign. It is your job to utterly destroy the Evil keepers",PLAYER0)
+ENDIF
+
+IF(PLAYER0,GAME_TURN > 150)
+    DISPLAY_INFORMATION(2,ALL_PLAYERS)
+REM    QUICK_INFORMATION(2,"Gather up some gold, and forces, as rumour has it an evil keeper is gathering forces in the south! Nip him in the bud!")
+ENDIF
+
+IF_ACTION_POINT(1,PLAYER0)
+    DISPLAY_INFORMATION(3,ALL_PLAYERS)
+REM    QUICK_INFORMATION(3,"You have found a holy monk, ready to attack the enemy, but you got there first! Take him to the next level, he will be very useful")
+ENDIF
+
+IF(PLAYER0,DWARFA > 0)
+    DISPLAY_INFORMATION(4,ALL_PLAYERS)
+REM    QUICK_INFORMATION(4,"Ah, a Dwarf has joined you, they are weak alone, but in a pack, can cause serious damage")
+ENDIF
+
+
+IF(PLAYER0,TUNNELLER > 0)
+    DISPLAY_INFORMATION(5,ALL_PLAYERS)
+REM    QUICK_INFORMATION(5,"You have recruited a Tunneller! They are like imps, but stronger. They are, however less efficient because they need food, sleep and gold")
+ENDIF
