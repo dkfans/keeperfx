@@ -1120,6 +1120,7 @@ void setup_stuff(void);
 long ceiling_init(unsigned long a1, unsigned long a2);
 void process_dungeon_destroy(struct Thing *thing);
 void apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char a2);
+void give_shooter_drained_health(struct Thing *shooter, long health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_disease(struct Thing *thing);
 void process_keeper_spell_effect(struct Thing *thing);

@@ -918,7 +918,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
   draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 459);
   player = get_my_player();
   thing = thing_get(player->field_2F);
-  if (thing == NULL)
+  if (!thing_exists(thing))
     return;
   if (thing->class_id == TCls_Creature)
   {
@@ -951,7 +951,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
         text = buf_sprintf("%ld", i);
         break;
     case 5: // defence
-        i = compute_creature_max_defence(crstat->defence,cctrl->explevel);
+        i = compute_creature_max_defense(crstat->defense,cctrl->explevel);
         text = buf_sprintf("%ld", i);
         break;
     case 6: // time in dungeon

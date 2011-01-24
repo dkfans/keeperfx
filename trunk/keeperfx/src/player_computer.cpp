@@ -1874,7 +1874,7 @@ long computer_pick_trainig_or_scavenging_creatures_and_place_on_room(struct Comp
       // Per creature code
       if (creature_is_training(thing) || creature_is_scavengering(thing)) // originally, only CrSt_Training and CrSt_Scavengering were accepted
       {
-        if (!create_task_move_creature_to_pos(comp, thing, room->stl_x, room->stl_y))
+        if (!create_task_move_creature_to_pos(comp, thing, room->central_stl_x, room->central_stl_y))
           break;
         new_tasks++;
         if (new_tasks >= tasks_limit)

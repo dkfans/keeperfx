@@ -26,6 +26,7 @@
 #include "thing_effects.h"
 #include "front_simple.h"
 #include "thing_stats.h"
+#include "config_creature.h"
 #include "gui_topmsg.h"
 #include "creature_states.h"
 
@@ -43,6 +44,9 @@ DLLIMPORT struct Thing *_DK_get_shot_collided_with_same_type(struct Thing *thing
 DLLIMPORT long _DK_shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_shot_hit_door_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos);
+DLLIMPORT long _DK_shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos);
+DLLIMPORT void _DK_create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target);
+DLLIMPORT long _DK_check_hit_when_attacking_door(struct Thing *thing);
 /******************************************************************************/
 TbBool shot_is_slappable(const struct Thing *thing, long plyr_idx)
 {
@@ -139,6 +143,166 @@ long shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos)
 long shot_hit_door_at(struct Thing *thing, struct Coord3d *pos)
 {
     return _DK_shot_hit_door_at(thing, pos);
+}
+
+TbBool apply_shot_experience(struct Thing *shooter, struct Thing *target, long shot_model)
+{
+    struct CreatureStats *tgcrstat;
+    struct ShotConfigStats *shotst;
+    struct CreatureControl *tgcctrl;
+    struct CreatureControl *shcctrl;
+    long exp_mag,exp_factor,exp_gained;
+    if (!creature_can_gain_experience(shooter))
+        return false;
+    shcctrl = creature_control_get_from_thing(shooter);
+    tgcctrl = creature_control_get_from_thing(target);
+    tgcrstat = creature_stats_get_from_thing(target);
+    exp_factor = tgcrstat->exp_for_hitting;
+    shotst = get_shot_model_stats(shot_model);
+    exp_mag = shotst->old->experience_given_to_shooter;
+    exp_gained = (exp_mag * (exp_factor + 12 * exp_factor * (long)tgcctrl->explevel / 100) << 8) / 256;
+    shcctrl->prev_exp_points = shcctrl->exp_points;
+    shcctrl->exp_points += exp_gained;
+    if ( check_experience_upgrade(shooter) ) {
+        external_set_thing_state(shooter, CrSt_CreatureBeHappy);
+    }
+    return true;
+}
+
+long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
+{
+    return _DK_shot_hit_object_at(shotng, target, pos);
+}
+
+long get_damage_of_melee_shot(struct Thing *shotng, struct Thing *target)
+{
+    struct CreatureStats *tgcrstat;
+    struct CreatureControl *tgcctrl;
+    long crdefense,hitchance;
+    tgcrstat = creature_stats_get_from_thing(target);
+    tgcctrl = creature_control_get_from_thing(target);
+    crdefense = compute_creature_max_defense(tgcrstat->defense,tgcctrl->explevel);
+    hitchance = ((long)shotng->byte_13 - crdefense) / 2;
+    if (hitchance < -96) {
+        hitchance = -96;
+    } else
+    if (hitchance > 96) {
+        hitchance = 96;
+    }
+    if (ACTION_RANDOM(256) < (128+hitchance))
+      return shotng->word_14;
+    return 0;
+}
+
+void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target)
+{
+    _DK_create_relevant_effect_for_shot_hitting_thing(shotng, target); return;
+}
+
+long check_hit_when_attacking_door(struct Thing *thing)
+{
+    return _DK_check_hit_when_attacking_door(thing);
+}
+
+long get_no_creatures_in_group(struct Thing *grptng)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *ctng;
+    long i;
+    unsigned long k;
+    cctrl = creature_control_get_from_thing(grptng);
+    i = cctrl->field_7A & 0xFFF;
+    if (i == 0) {
+        // No group - just one creature
+        return 1;
+    }
+    k = 0;
+    while (i > 0)
+    {
+        ctng = thing_get(i);
+        cctrl = creature_control_get_from_thing(ctng);
+        if (creature_control_invalid(cctrl))
+            break;
+        i = cctrl->next_in_group;
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures group");
+            break;
+        }
+    }
+    return k;
+}
+
+TbBool shot_kill_creature(struct Thing *shotng, struct Thing *target)
+{
+    struct CreatureControl *cctrl;
+    struct ShotConfigStats *shotst;
+    cctrl = creature_control_get_from_thing(target);
+    target->health = -1;
+    cctrl->field_1D3 = shotng->model;
+    if (shotng->field_1D == shotng->index) {
+        kill_creature(target, INVALID_THING, shotng->owner, 0, 1, 0);
+    } else {
+        shotst = get_shot_model_stats(shotng->model);
+        kill_creature(target, thing_get(shotng->field_1D), shotng->owner, 0, 1, shotst->old->numfield_4D);
+    }
+    return true;
+}
+
+long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
+{
+    struct Thing *shooter;
+    struct ShotConfigStats *shotst;
+    struct CreatureStats *tgcrstat;
+    struct CreatureControl *tgcctrl;
+    long damage,throw_strength;
+    shotst = get_shot_model_stats(shotng->model);
+    throw_strength = shotng->field_20;
+    if (target->health < 0)
+        return 0;
+    shooter = INVALID_THING;
+    if (shotng->field_1D != shotng->index)
+        shooter = thing_get(shotng->field_1D);
+    tgcrstat = creature_stats_get_from_thing(target);
+    tgcctrl = creature_control_get_from_thing(target);
+    damage = get_damage_of_melee_shot(shotng, target);
+    if (damage != 0)
+    {
+      if (shotst->old->field_22 > 0)
+      {
+          thing_play_sample(target, shotst->old->field_22, 0x64u, 0, 3, 0, 2, 256);
+          play_creature_sound(target, 1, 3, 0);
+      }
+      if (!thing_is_invalid(shooter)) {
+          apply_damage_to_thing_and_display_health(target, shotng->word_14, shooter->owner);
+      } else {
+          apply_damage_to_thing_and_display_health(target, shotng->word_14, -1);
+      }
+      if (shotst->old->field_24 != 0) {
+          tgcctrl->field_B1 = shotst->old->field_24;
+      }
+      if ( shotst->old->field_2A )
+      {
+        target->pos_32.x.val += (throw_strength * (long)shotng->velocity.x.val) / 16;
+        target->pos_32.y.val += (throw_strength * (long)shotng->velocity.y.val) / 16;
+        target->field_1 |= 0x04;
+      }
+      create_relevant_effect_for_shot_hitting_thing(shotng, target);
+      if ( target->health >= 0 )
+      {
+        if (target->owner != shotng->owner) {
+            check_hit_when_attacking_door(target);
+        }
+      } else
+      {
+          shot_kill_creature(shotng,target);
+      }
+    }
+    if (shotst->old->field_18) {
+        delete_thing_structure(shotng, 0);
+    }
+    return 1;
 }
 
 long shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)

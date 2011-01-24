@@ -51,7 +51,7 @@ long compute_creature_attack_damage(long base_param,long luck,unsigned short crl
 long compute_creature_attack_range(long base_param,long luck,unsigned short crlevel);
 long compute_creature_max_sparameter(long base_param,unsigned short crlevel);
 long compute_creature_max_dexterity(long base_param,unsigned short crlevel);
-long compute_creature_max_defence(long base_param,unsigned short crlevel);
+long compute_creature_max_defense(long base_param,unsigned short crlevel);
 long compute_creature_max_strength(long base_param,unsigned short crlevel);
 long compute_creature_max_unaffected(long base_param,unsigned short crlevel);
 #define compute_creature_max_luck compute_creature_max_unaffected

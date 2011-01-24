@@ -586,7 +586,7 @@ TbBool magic_use_power_hand(long plyr_idx, unsigned short a2, unsigned short a3,
   {
       thing = NULL;
   }
-  if (thing == NULL)
+  if (thing_is_invalid(thing))
   {
       if (player->thing_under_hand > 0)
           thing = thing_get(player->thing_under_hand);

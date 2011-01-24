@@ -1850,3 +1850,6 @@
  0001:000907E0       shot_hit_shootable_thing_at
  0001:00091720       shot_hit_wall_at
  0001:00091C90       shot_hit_door_at
+ 0001:00091050       shot_hit_object_at
+ 0001:00092000       create_relevant_effect_for_shot_hitting_thing
+ 0001:000768A0       check_hit_when_attacking_door

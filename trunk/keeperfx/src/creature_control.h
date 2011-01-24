@@ -97,8 +97,9 @@ char field_B[18];
     unsigned short thing_idx;
 unsigned short field_21;
     unsigned char explevel;
-    long field_24;
-unsigned char field_28[5];
+    long exp_points;
+    long prev_exp_points;
+unsigned char field_2C;
     struct Coord3d moveto_pos;
 unsigned char field_33[6];
     long field_39;
@@ -305,7 +306,7 @@ struct CreatureStats { // sizeof = 230
   unsigned char armour;
   unsigned char dexterity;
   unsigned char fear;
-  unsigned char defence;
+  unsigned char defense;
   unsigned char luck;
   unsigned char recovery;
   unsigned short hunger_rate;
@@ -432,6 +433,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
 TbBool disband_creatures_group(struct Thing *thing);
 void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4);
 void reset_creature_eye_lens(struct Thing *thing);
+TbBool creature_can_gain_experience(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
