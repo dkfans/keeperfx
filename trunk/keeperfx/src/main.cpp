@@ -7444,8 +7444,8 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     room = get_room_thing_is_on(thing);
     if (room == NULL)
     {
-      delete_thing_structure(thing, 0);
-      return false;
+        delete_thing_structure(thing, 0);
+        return false;
     }
     n = (gold_per_hoarde/5)*(((long)thing->model)-51);
     thing->owner = room->owner;
@@ -7476,43 +7476,66 @@ short thing_create_thing(struct InitThing *itng)
   {
   case TCls_Object:
       thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
-      if (thing != NULL)
+      if (!thing_is_invalid(thing))
       {
-        if (itng->model == 49)
-          thing->byte_13 = itng->params[1];
-        check_and_asimilate_thing_by_room(thing);
-        // make sure we don't have invalid pointer
-        thing = INVALID_THING;
+          if (itng->model == 49)
+              thing->byte_13 = itng->params[1];
+          check_and_asimilate_thing_by_room(thing);
+          // make sure we don't have invalid pointer
+          thing = INVALID_THING;
+      } else
+      {
+          ERRORLOG("Couldn't create object model %d", (int)itng->model);
+          return false;
       }
       break;
   case TCls_Creature:
       thing = create_creature(&itng->mappos, itng->model, itng->owner);
-      if (thing != NULL)
+      if (!thing_is_invalid(thing))
       {
         init_creature_level(thing, itng->params[1]);
+      } else
+      {
+          ERRORLOG("Couldn't create creature model %d", (int)itng->model);
+          return false;
       }
       break;
   case TCls_EffectGen:
       thing = create_effect_generator(&itng->mappos, itng->model, itng->range, itng->owner, itng->index);
+      if (thing_is_invalid(thing))
+      {
+          ERRORLOG("Couldn't create effect generator model %d", (int)itng->model);
+          return false;
+      }
       break;
   case TCls_Trap:
       thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
+      if (thing_is_invalid(thing))
+      {
+          ERRORLOG("Couldn't create trap model %d", (int)itng->model);
+          return false;
+      }
       break;
   case TCls_Door:
       thing = create_door(&itng->mappos, itng->model, itng->params[0], itng->owner, itng->params[1]);
+      if (thing_is_invalid(thing))
+      {
+          ERRORLOG("Couldn't create door model %d", (int)itng->model);
+          return false;
+      }
       break;
   case 10:
   case 11:
       thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
+      if (thing_is_invalid(thing))
+      {
+          ERRORLOG("Couldn't create thing class %d model %d", (int)itng->oclass, (int)itng->model);
+          return false;
+      }
       break;
   default:
       ERRORLOG("Invalid class %d, thing discarded", (int)itng->oclass);
       return false;
-  }
-  if (thing_is_invalid(thing))
-  {
-    ERRORLOG("Couldn't create thing of class %d, model %d", (int)itng->oclass, (int)itng->model);
-    return false;
   }
   return true;
 }
