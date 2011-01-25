@@ -87,19 +87,16 @@ void SAI_init_room_layout_for_player(int plyr);
  * Sets parameters for how the room layout routines should behave in presence of
  * enemy keepers.
  * @param plyr Index of player.
- * @param path_safety_dist Minimum distance to enemy when digging paths. Should be
- * less than room_safety_dist for correct behavior.
- * @param room_safety_dist Minimum distance to enemy when digging rooms or approaching
- * neutral rooms.
  * @param wall_break How to approach the possibility of walling off.
  */
-void SAI_set_room_layout_safety(int plyr, int path_safety_dist,
-    int room_safety_dist, enum SAI_WallBreakOptions wall_break);
+void SAI_set_room_layout_safety(int plyr, enum SAI_WallBreakOptions wall_break);
 
 /**
  * Requests that player should have a room assigned for a certain purpose.
  * Will either return a dug (but empty) room, an undug room, or a neutral room which
  * the player is expected to dig to.
+ * The room which is returned will have had its room kind assigned automatically,
+ * and this function does cause state changes in module.
  * @param plyr Index of player.
  * @param kind Type of room.
  * @param min_size Interpreted or ignored depending on room kind.
@@ -110,33 +107,36 @@ void SAI_set_room_layout_safety(int plyr, int path_safety_dist,
 int SAI_request_room(int plyr, enum RoomKinds kind, int min_size, int max_size);
 
 /**
- * Requests an access path (or possibly more depending on room kind) that can be dug
+ * Finds an access path (or possibly more depending on room kind) that can be dug
  * in order to access a room.
+ * Does not change state of the room module in any way.
  * @param plyr Index of player.
  * @param id Index of room we want to dig to.
  * @param coords Output coordinate array. Must be free()d after use by caller.
  * @return Number of coords. 0 if no path exists.
  */
-int SAI_request_path_to_room(int plyr, int id, struct SAI_Point ** coords);
+int SAI_find_path_to_room(int plyr, int id, struct SAI_Point ** coords);
 
 /**
- * Requests an access path to a gold area.
+ * Finds an access path to a gold area.
+ * Does not change state of the room module in any way.
  * @param plyr Index of player.
  * @param gold_area_idx Index of targeted gold area.
  * @param coords Output coordinate array. Must be free()d after use by caller.
  * @return Number of coords. 0 if no path exists.
  */
-int SAI_request_path_to_gold_area(int plyr, int gold_area_idx,
+int SAI_find_path_to_gold_area(int plyr, int gold_area_idx,
     struct SAI_Point ** coords);
 
 /**
- * Reuqest an access path to a certain position.
+ * Finds an access path to a certain position.
+ * Does not change state of the room module in any way.
  * @param plyr Index of player.
  * @param pos Targeted position.
  * @param coords Output coordinate array. Must be free()d after use by caller.
  * @return Number of coords. 0 if no path exists.
  */
-int SAI_request_path_to_position(int plyr, SAI_Point pos,
+int SAI_find_path_to_position(int plyr, SAI_Point pos,
     struct SAI_Point ** coords);
 
 /**
@@ -189,6 +189,21 @@ int SAI_rect_width(struct SAI_Rect rect);
  * @return
  */
 int SAI_rect_height(struct SAI_Rect rect);
+
+/**
+ * Finds the center point (approximative with rounding error) of a rectangle.
+ * @param rect
+ * @return The center point.
+ */
+struct SAI_Point SAI_rect_center(struct SAI_Rect rect);
+
+/**
+ * Checks if a point is in a rectangle.
+ * @param p
+ * @param rect
+ * @return Non-zero if point is in rectangle.
+ */
+int SAI_point_in_rect(struct SAI_Point p, struct SAI_Rect rect);
 
 
 #ifdef __cplusplus
