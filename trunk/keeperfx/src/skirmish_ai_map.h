@@ -33,6 +33,7 @@ extern "C" {
 struct SAI_GoldArea
 {
     int gold_left;
+    struct SAI_Rect extents;
     short area_idx;
     short temp; //used for init calculations
     short diamond_sides;
@@ -80,6 +81,13 @@ const struct SAI_TileAnalysis * SAI_get_tile_analysis(int x, int y);
  * @return
  */
 int SAI_count_open_tiles_in_rect(struct SAI_Rect rect);
+
+/**
+ * Gets position of dungeon heart for a player (convenience method).
+ * @param plyr
+ * @return
+ */
+struct SAI_Point SAI_get_dungeon_heart_position(int plyr);
 
 
 #ifdef __cplusplus

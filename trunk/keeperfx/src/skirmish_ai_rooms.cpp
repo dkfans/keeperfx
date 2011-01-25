@@ -23,6 +23,7 @@
 #include "skirmish_ai.h"
 #include "skirmish_ai_map.h"
 
+#include "config_terrain.h"
 #include "keeperfx.hpp"
 
 #include <assert.h>
@@ -34,6 +35,8 @@
 using namespace std; //we try to be transparent to C
 
 
+#define PATH_COST_BASE_UNIT     100
+
 struct PlayerRooms {
     int my_idx; //player
 
@@ -43,10 +46,44 @@ struct PlayerRooms {
     int markers[SAI_MAP_WIDTH * SAI_MAP_HEIGHT];
 
     //settings
-    int path_safety_dist;
-    int room_safety_dist;
     enum SAI_WallBreakOptions wall_break_mode;
 } static player_rooms[SAI_MAX_KEEPERS];
+
+typedef int (*PathFunc)(struct SAI_Point pos, void * args);
+typedef bool (*PathNodeCompare)(const struct PathNode * lhs, const struct PathNode * rhs);
+
+struct PathNode
+{
+    struct PathNode * parent;
+    int cost_sum;
+    int heuristic;
+    struct SAI_Point pos;
+    int should_dig;
+};
+
+typedef std::set<PathNode *, PathNodeCompare> PathNodeSet;
+
+struct Pathfinder
+{
+    PathFunc goal_func;
+    PathFunc cost_func;
+    PathFunc heuristic_func;
+    PathFunc should_dig_func;
+    void * args;
+    PathNodeSet open;
+    PathNodeSet closed;
+
+    //no choice but have C++ constructor for this context
+    Pathfinder(PathNodeCompare open_cmp, PathNodeCompare closed_cmp) :
+        open(open_cmp), closed(closed_cmp) { }
+};
+
+struct RoomPathArgs
+{
+    struct PlayerRooms * rooms;
+    struct SAI_Room * room;
+    struct SAI_Point search_pos;
+};
 
 
 static struct PlayerRooms * rooms_for_player(int plyr_idx)
@@ -146,27 +183,52 @@ static int any_rooms_marked_on_rect(const struct PlayerRooms * rooms,
     return 0;
 }
 
+static int plannable_tile(int x, int y)
+{
+    struct SlabMap * slab;
+
+    slab = get_slabmap_block(x, y);
+    switch (slab->kind) {
+    case SlbT_CLAIMED:
+    case SlbT_PATH:
+    case SlbT_EARTH:
+    case SlbT_TORCHDIRT:
+    case SlbT_WALLDRAPE:
+    case SlbT_WALLTORCH:
+    case SlbT_WALLWTWINS:
+    case SlbT_WALLWWOMAN:
+    case SlbT_WALLPAIRSHR:
+    case SlbT_GOLD:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+static int pathable_tile(int x, int y, int allow_bridge)
+{
+    struct SlabMap * slab;
+
+    slab = get_slabmap_block(x, y);
+    switch (slab->kind) {
+    case SlbT_ROCK:
+        return 0;
+    case SlbT_WATER:
+    case SlbT_LAVA:
+        return allow_bridge;
+    default:
+        return 1;
+    }
+}
+
 static int cant_layout_room_in_rect(int plyr, struct SAI_Rect rect)
 {
-    int x;
-    int y;
-    struct SlabMap * slab;
+    int x, y;
 
     for (y = rect.t; y <= rect.b; ++y) {
         for (x = rect.l; x <= rect.r; ++x) {
-            slab = get_slabmap_block(x, y);
-            switch (slab->kind) {
-            case SlbT_CLAIMED:
-            case SlbT_PATH:
-            case SlbT_EARTH:
-            case SlbT_TORCHDIRT:
-            case SlbT_WALLDRAPE: //TODO AI: check owner for some of these
-            case SlbT_WALLTORCH:
-            case SlbT_WALLWTWINS:
-            case SlbT_WALLWWOMAN:
-            case SlbT_WALLPAIRSHR:
-                break;
-            default:
+            //TODO AI: check owner for some of these
+            if (!plannable_tile(x, y)) {
                 return 1;
             }
         }
@@ -451,6 +513,205 @@ static int look_for_room_of_size(struct PlayerRooms * rooms, enum RoomKinds kind
     return -1;
 }
 
+static bool path_node_position_compare(const struct PathNode * lhs,
+    const struct PathNode * rhs)
+{
+    if (lhs->pos.x == rhs->pos.x) {
+        return lhs->pos.y < rhs->pos.y;
+    }
+
+    return lhs->pos.x < rhs->pos.x;
+}
+
+static bool path_node_score_compare(const struct PathNode * lhs,
+    const struct PathNode * rhs)
+{
+    int lhs_score, rhs_score;
+    lhs_score = lhs->cost_sum + lhs->heuristic;
+    rhs_score = rhs->cost_sum + rhs->heuristic;
+
+    if (lhs_score == rhs_score) {
+        return path_node_position_compare(lhs, rhs);
+    }
+
+    return lhs_score < rhs_score;
+}
+
+static void try_insert_node(struct SAI_Point pos, struct PathNode * parent,
+    struct Pathfinder * pf)
+{
+    struct PathNode node;
+    struct PathNode * heap_node;
+    int cost;
+
+    if (pos.x < 0 || pos.y < 0 || pos.x >= SAI_MAP_WIDTH || pos.y >= SAI_MAP_HEIGHT) {
+        return;
+    }
+
+    cost = pf->cost_func(pos, pf->args);
+    if (cost < 0) {
+        return;
+    }
+
+    node.pos = pos;
+    if (pf->closed.find(&node) != pf->closed.end()) { //only compares pos AFAIK
+        return;
+    }
+
+    node.heuristic = pf->heuristic_func(pos, pf->args);
+    node.parent = parent;
+    node.should_dig = pf->should_dig_func(pos, pf->args);
+
+    if (parent) {
+        node.cost_sum = parent->cost_sum + cost;
+    }
+    else {
+        node.cost_sum = 0;
+    }
+
+    //create copy of node on heap
+    heap_node = (struct PathNode *) malloc(sizeof(*heap_node));
+    memcpy(heap_node, &node, sizeof(*heap_node));
+
+    //insert heap copy
+    pf->open.insert(heap_node);
+    pf->closed.insert(heap_node);
+
+    AIDBG(15, "Inserted node for position %i, %i", pos.x, pos.y);
+}
+
+static int find_path(struct SAI_Point start, struct SAI_Point ** coords,
+    PathFunc goal_func, PathFunc cost_func, PathFunc heuristic_func,
+    PathFunc should_dig_func, void * args)
+{
+    struct SAI_Point pos;
+    struct PathNode * node, * goal;
+    PathNodeSet::iterator it;
+    int i;
+    int path_len;
+    struct Pathfinder pf(path_node_score_compare, path_node_position_compare);
+
+    AIDBG(5, "Starting");
+
+    *coords = NULL;
+
+    pf.args = args;
+    pf.cost_func = cost_func;
+    pf.goal_func = goal_func;
+    pf.heuristic_func = heuristic_func;
+    pf.should_dig_func = should_dig_func;
+
+    try_insert_node(start, NULL, &pf);
+
+    path_len = 0;
+    while (!pf.open.empty()) {
+        node = *pf.open.begin();
+        pf.open.erase(pf.open.begin());
+
+        if (goal_func(node->pos, args)) {
+            path_len = 1;
+            break;
+        }
+
+        pos = node->pos;
+        pos.x += 1;
+        try_insert_node(pos, node, &pf);
+        pos = node->pos;
+        pos.x -= 1;
+        try_insert_node(pos, node, &pf);
+        pos = node->pos;
+        pos.y += 1;
+        try_insert_node(pos, node, &pf);
+        pos = node->pos;
+        pos.y -= 1;
+        try_insert_node(pos, node, &pf);
+    }
+
+    if (path_len == 1) {
+        path_len = 0;
+        for (goal = node; node->parent != NULL; node = node->parent) {
+            if (node->should_dig) {
+                path_len += 1;
+            }
+        }
+
+        *coords = (struct SAI_Point *) malloc(sizeof(**coords) * path_len);
+        i = 0;
+        for (node = goal; node->parent != NULL; node = node->parent) {
+            if (node->should_dig) {
+                (*coords)[i++] = node->pos;
+            }
+        }
+
+        AIDBG(6, "Path consisting of %i tiles found", path_len);
+    }
+    else {
+        AIDBG(6, "No path found");
+    }
+
+    AIDBG(6, "%i nodes inspected", pf.closed.size());
+    for (it = pf.closed.begin(); it != pf.closed.end(); ++it) {
+        free(*it);
+    }
+
+    return path_len;
+}
+
+static int room_path_should_dig(struct SAI_Point pos, struct RoomPathArgs * args)
+{
+    return 1; //TODO AI: implement
+}
+
+static int room_path_goal(struct SAI_Point pos, struct RoomPathArgs * args)
+{
+    return SAI_point_in_rect(pos, args->room->rect);
+}
+
+static int room_path_cost(struct SAI_Point pos, struct RoomPathArgs * args)
+{
+    int cost;
+    int i;
+    int dist, proximity;
+    const struct SAI_TileAnalysis * tile;
+
+    if (!pathable_tile(pos.x, pos.y, is_room_available(args->rooms->my_idx, RoK_BRIDGE))) {
+        return -1;
+    }
+
+    cost = PATH_COST_BASE_UNIT;
+
+    //TODO: check ownership, if we own tile, it is reasonable to give only lowest cost
+
+    if (args->rooms->wall_break_mode != SAI_WB_PREFER) {
+        //find distance of closest enemy
+        dist = SAI_MAP_WIDTH + SAI_MAP_HEIGHT;
+        tile = SAI_get_tile_analysis(pos.x, pos.y);
+        for (i = 0; i < SAI_MAX_KEEPERS; ++i) {
+            if (i != args->rooms->my_idx && tile->player_dists[i] > 0) {
+                dist = min(dist, (int) tile->player_dists[i]);
+            }
+        }
+
+        proximity = SAI_MAP_WIDTH + SAI_MAP_HEIGHT - dist;
+        if (args->rooms->wall_break_mode == SAI_WB_AVOID) {
+            cost += 3 * proximity / 2;
+        }
+        else {
+            cost += proximity / 2;
+        }
+    }
+
+    AIDBG(16, "Returning cost %i", cost);
+    return cost;
+}
+
+static int room_path_heuristic(struct SAI_Point pos, struct RoomPathArgs * args)
+{
+    //manhattan heuristic
+    return (abs((int) pos.x - args->search_pos.x) +
+        abs((int) pos.y - args->search_pos.y)) * PATH_COST_BASE_UNIT;
+}
+
 void SAI_init_room_layout_for_player(int plyr)
 {
     AIDBG(3, "Starting");
@@ -460,14 +721,11 @@ void SAI_init_room_layout_for_player(int plyr)
     evaluate_empty_space_in_player_reach(plyr);
 }
 
-void SAI_set_room_layout_safety(int plyr, int path_safety_dist,
-    int room_safety_dist, enum SAI_WallBreakOptions wall_break)
+void SAI_set_room_layout_safety(int plyr, enum SAI_WallBreakOptions wall_break)
 {
     struct PlayerRooms * rooms;
 
     rooms = rooms_for_player(plyr);
-    rooms->path_safety_dist = path_safety_dist;
-    rooms->room_safety_dist = room_safety_dist;
     rooms->wall_break_mode = wall_break;
 }
 
@@ -502,13 +760,28 @@ int SAI_request_room(int plyr, enum RoomKinds kind, int min_size, int max_size)
     return id;
 }
 
-int SAI_request_path_to_room(int plyr, int id, struct SAI_Point ** coords)
+int SAI_find_path_to_room(int plyr, int room_id, struct SAI_Point ** coords)
 {
-    *coords = NULL;
-    return 0;
+    struct PlayerRooms * rooms;
+    struct RoomPathArgs args;
+    struct SAI_Point start;
+
+    assert(room_id >= 0);
+    assert(room_id < SAI_MAX_ROOMS);
+    rooms = rooms_for_player(plyr);
+
+    args.rooms = rooms;
+    args.room = &rooms->array[room_id];
+    args.search_pos = SAI_rect_center(args.room->rect);
+    start = SAI_get_dungeon_heart_position(plyr);
+
+    AIDBG(5, "Will try to find path from %i, %i to room at %i, %i",
+        start.x, start.y, args.room->rect.l, args.room->rect.t);
+    return find_path(start, coords, (PathFunc) room_path_goal, (PathFunc) room_path_cost,
+        (PathFunc) room_path_heuristic, (PathFunc) room_path_should_dig, &args);
 }
 
-int SAI_request_path_to_gold_area(int plyr, int gold_area_idx,
+int SAI_find_path_to_gold_area(int plyr, int gold_area_idx,
     struct SAI_Point ** coords)
 {
     //TODO AI: implement
@@ -516,7 +789,7 @@ int SAI_request_path_to_gold_area(int plyr, int gold_area_idx,
     return 0;
 }
 
-int SAI_request_path_to_position(int plyr, struct SAI_Point pos,
+int SAI_find_path_to_position(int plyr, struct SAI_Point pos,
     struct SAI_Point ** coords)
 {
     //TODO AI: implement when required
@@ -592,5 +865,18 @@ int SAI_rect_height(struct SAI_Rect rect)
     h = rect.b - rect.t + 1;
     assert(h >= 1);
     return h;
+}
+
+struct SAI_Point SAI_rect_center(struct SAI_Rect rect)
+{
+    struct SAI_Point center;
+    center.x = ((int) rect.l + rect.r) / 2;
+    center.y = ((int) rect.t + rect.b) / 2;
+    return center;
+}
+
+int SAI_point_in_rect(struct SAI_Point p, struct SAI_Rect rect)
+{
+    return p.x >= rect.l && p.x <= rect.r && p.y >= rect.t && p.y <= rect.b;
 }
 

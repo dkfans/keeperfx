@@ -175,7 +175,7 @@ static void think_about_digging_for_rooms(struct SAI_PlayerState * plyrstate)
             continue;
         }
 
-        count = SAI_request_path_to_room(plyrstate->index, room->id, &dig_coords);
+        count = SAI_find_path_to_room(plyrstate->index, room->id, &dig_coords);
         w = SAI_rect_width(room->rect);
         h = SAI_rect_height(room->rect);
 
@@ -365,6 +365,8 @@ static void switch_activity(struct SAI_PlayerState * plyrstate,
 {
     struct SAI_Activity * act;
 
+    AIDBG(4, "Switching to activity %i", (int) activity);
+
     //stop current
     act = &plyrstate->activities[plyrstate->curr_activity];
     act->turn_ended = plyrstate->turn;
@@ -402,6 +404,8 @@ static void choose_next_activity(struct SAI_PlayerState * plyrstate)
     struct SAI_Activity * act;
     const struct SAI_ActivityInfo * act_info;
 
+    AIDBG(3, "Starting");
+
     act = &plyrstate->activities[plyrstate->curr_activity];
     if (act->curr_action) {
         return; //must finish
@@ -419,6 +423,10 @@ static void choose_next_activity(struct SAI_PlayerState * plyrstate)
     for (i = ACTIVITY_COUNT - 1; i >= lowest_switchable; --i) {
         if (i == plyrstate->curr_activity) {
             continue; //shouldn't switch to self
+        }
+
+        if (!plyrstate->activities[i].action_list) {
+            continue; //no point switching to empty activity
         }
 
         if (best < 0 || schedule_score((enum SAI_ActivityTypeAndPriority) best, plyrstate) <
@@ -439,6 +447,8 @@ static void choose_next_activity(struct SAI_PlayerState * plyrstate)
 static void run_activity(struct SAI_PlayerState * plyrstate)
 {
     struct SAI_Activity * act;
+
+    AIDBG(3, "Starting for activity of type %i", (int) plyrstate->curr_activity);
 
     act = &plyrstate->activities[plyrstate->curr_activity];
     if (!act->curr_action && act->action_list) {
