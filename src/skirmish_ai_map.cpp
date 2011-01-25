@@ -35,8 +35,7 @@ using namespace std; //we try to be transparent to C
 
 struct MapNode
 {
-    short x;
-    short y;
+    struct SAI_Point pos;
     short dist;
 };
 
@@ -65,14 +64,15 @@ static struct SAI_TileAnalysis * get_tile(int x, int y)
 }
 
 /**
- * Traces an area of gold and gems across vertical/horizontal/diagonal edges.
+ * Traces an area of gold and gems across vertically/horizontally.
  * @param idx
  * @param x
  * @param y
+ * @param extents Extents of gold area to update.
  * @return Counts how "important" the trace is (for prioritizing what gold areas to
  * save in gold area array later).
  */
-static int gold_trace(short idx, short x, short y)
+static int gold_trace(short idx, signed char x, signed char y, struct SAI_Rect * extents)
 {
     struct SAI_TileAnalysis * tile;
     struct SlabMap * slab;
@@ -88,16 +88,17 @@ static int gold_trace(short idx, short x, short y)
         return 0;
     }
 
+    extents->l = min(extents->l, x);
+    extents->t = min(extents->t, y);
+    extents->r = max(extents->r, x);
+    extents->b = max(extents->b, y);
     tile->gold_area_idx = idx;
+
     sum = slab->kind == SlbT_GOLD? 1 : 25;
-    sum += gold_trace(idx, x - 1, y);
-    sum += gold_trace(idx, x - 1, y - 1);
-    sum += gold_trace(idx, x, y - 1);
-    sum += gold_trace(idx, x + 1, y - 1);
-    sum += gold_trace(idx, x + 1, y);
-    sum += gold_trace(idx, x + 1, y + 1);
-    sum += gold_trace(idx, x, y + 1);
-    sum += gold_trace(idx, x - 1, y + 1);
+    sum += gold_trace(idx, x - 1, y, extents);
+    sum += gold_trace(idx, x, y - 1, extents);
+    sum += gold_trace(idx, x + 1, y, extents);
+    sum += gold_trace(idx, x, y + 1, extents);
 
     return sum;
 }
@@ -110,7 +111,7 @@ static int gold_trace(short idx, short x, short y)
  * @param x
  * @param y
  */
-static void connect_trace(short idx, short x, short y)
+static void connect_trace(short idx, signed char x, signed char y)
 {
     struct SAI_TileAnalysis * tile;
     struct SlabMap * slab;
@@ -138,7 +139,7 @@ static void connect_trace(short idx, short x, short y)
  * @param x
  * @param y
  */
-static void open_trace(short idx, short x, short y)
+static void open_trace(short idx, signed char x, signed char y)
 {
     struct SAI_TileAnalysis * tile;
     struct SlabMap * slab;
@@ -167,7 +168,7 @@ static bool search_compare(const MapNode * lhs, const MapNode * rhs)
 }
 
 static void try_add_player_trace_node(int reset_on_friendly, NodeSet * open,
-    short plyr_idx, short x, short y, short dist)
+    short plyr_idx, signed char x, signed char y, short dist)
 {
     struct SAI_TileAnalysis * tile;
     struct SlabMap * slab;
@@ -202,8 +203,8 @@ static void try_add_player_trace_node(int reset_on_friendly, NodeSet * open,
     }
 
     node = (struct MapNode *) malloc(sizeof(*node));
-    node->x = x;
-    node->y = y;
+    node->pos.x = x;
+    node->pos.y = y;
     node->dist = dist;
 
     open->insert(node);
@@ -232,13 +233,13 @@ static void player_trace(int reset_on_friendly, short plyr_idx, short x, short y
         open.erase(open.begin());
 
         try_add_player_trace_node(reset_on_friendly, &open,
-            plyr_idx, node->x - 1, node->y, node->dist + 1);
+            plyr_idx, node->pos.x - 1, node->pos.y, node->dist + 1);
         try_add_player_trace_node(reset_on_friendly, &open,
-            plyr_idx, node->x, node->y - 1, node->dist + 1);
+            plyr_idx, node->pos.x, node->pos.y - 1, node->dist + 1);
         try_add_player_trace_node(reset_on_friendly, &open,
-            plyr_idx, node->x + 1, node->y, node->dist + 1);
+            plyr_idx, node->pos.x + 1, node->pos.y, node->dist + 1);
         try_add_player_trace_node(reset_on_friendly, &open,
-            plyr_idx, node->x, node->y + 1, node->dist + 1);
+            plyr_idx, node->pos.x, node->pos.y + 1, node->dist + 1);
 
         free(node);
     }
@@ -262,6 +263,7 @@ void SAI_init_map_analysis(void)
     int found;
     struct SlabMap * slab;
     struct SAI_TileAnalysis * tile;
+    struct SAI_GoldArea * gold_area;
     short gold_area_count;
     short open_area_count;
     short connected_area_count;
@@ -293,8 +295,12 @@ void SAI_init_map_analysis(void)
 
             if ((slab->kind == SlbT_GOLD || slab->kind == SlbT_GEMS) &&
                     tile->gold_area_idx < 0) {
-                gold_areas[gold_area_count].area_idx = gold_area_count;
-                gold_areas[gold_area_count].temp = gold_trace(gold_area_count, x, y);
+                gold_area = &gold_areas[gold_area_count];
+
+                gold_area->extents.l = gold_area->extents.r = x;
+                gold_area->extents.t = gold_area->extents.b = y;
+                gold_area->area_idx = gold_area_count;
+                gold_area->temp = gold_trace(gold_area_count, x, y, &gold_area->extents);
                 gold_area_count += 1;
             }
 
@@ -311,7 +317,7 @@ void SAI_init_map_analysis(void)
         }
     }
 
-    //filter gold areas
+    //filter gold areas (to fit to limited number - hopefully we can ignore 1x1 blocks and similar)
     qsort(gold_areas, gold_area_count, sizeof(*gold_areas),
         (int (*)(const void *, const void *)) gold_area_comparator);
     map_analysis.num_gold_areas = min(SAI_MAX_GOLD_AREAS, (int) gold_area_count);
@@ -350,8 +356,7 @@ void SAI_run_map_analysis(void)
 {
     int i, j;
     struct PlayerInfo * plyr;
-    struct Thing * heart;
-    struct Dungeon * dungeon;
+    struct SAI_Point pos;
 
     AIDBG(3, "Starting");
 
@@ -378,14 +383,9 @@ void SAI_run_map_analysis(void)
             continue;
         }
 
-        dungeon = get_players_dungeon(plyr);
-        heart = thing_get(dungeon->dnheart_idx);
-        if (thing_is_invalid(heart)) {
-            continue;
-        }
-
-        player_trace(0, i, heart->mappos.x.stl.num / 3, heart->mappos.y.stl.num / 3);
-        player_trace(1, i, heart->mappos.x.stl.num / 3, heart->mappos.y.stl.num / 3);
+        pos = SAI_get_dungeon_heart_position(i);
+        player_trace(0, i, pos.x, pos.y);
+        player_trace(1, i, pos.x, pos.y);
     }
 }
 
@@ -436,5 +436,27 @@ int SAI_count_open_tiles_in_rect(struct SAI_Rect rect)
     }
 
     return count;
+}
+
+struct SAI_Point SAI_get_dungeon_heart_position(int plyr)
+{
+    struct Thing * heart;
+    struct Dungeon * dungeon;
+    struct SAI_Point pos;
+
+    assert(player_exists(get_player(plyr)));
+
+    dungeon = get_players_dungeon(get_player(plyr));
+    heart = thing_get(dungeon->dnheart_idx);
+    if (thing_is_invalid(heart)) {
+        pos.x = 0;
+        pos.y = 0;
+        return pos;
+    }
+
+    pos.x = heart->mappos.x.stl.num / 3;
+    pos.y = heart->mappos.y.stl.num / 3;
+
+    return pos;
 }
 

@@ -58,6 +58,7 @@ void SAI_process_action(SAI_Action action, int player)
     short ret;
 
     assert(!action->done);
+    AIDBG(4, "Starting");
 
     ret = game_action(action->plyr_idx, action->gaction, action->a3,
         action->stl_x, action->stl_y, action->param1, action->param2);
@@ -67,6 +68,7 @@ void SAI_process_action(SAI_Action action, int player)
     }
     else if (action->failed < 0xff) {
         action->failed += 1;
+        action->done = 1; //TODO AI: we need to evaluate what to do in case of error, for now just go through
     }
 }
 
@@ -77,16 +79,12 @@ SAI_Action SAI_get_next_action(SAI_Action action)
 
 void SAI_append_action(SAI_Action * head, SAI_Action tail)
 {
+    SAI_Action action;
+
     if (*head) {
-        for (;;) {
-            if ((*head)->next) {
-                *head = (*head)->next;
-            }
-            else {
-                (*head)->next = tail;
-                break;
-            }
-        }
+        for (action = *head; action->next != NULL; action = action->next);
+
+        action->next = tail;
     }
     else {
         *head = tail;
