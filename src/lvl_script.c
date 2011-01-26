@@ -949,27 +949,27 @@ void command_add_creature_to_level(char *plrname, char *crtr_name, char *locname
 
 void command_add_condition(long plr_id, long opertr_id, long varib_type, long varib_id, long value)
 {
-  struct Condition *condt;
-  condt = &game.script.conditions[game.script.conditions_num];
-  condt->condit_idx = script_current_condition;
-  condt->plyr_idx = plr_id;
-  condt->variabl_type = varib_type;
-  condt->variabl_idx = varib_id;
-  condt->operation = opertr_id;
-  condt->rvalue = value;
-  if (condition_stack_pos >= CONDITIONS_COUNT)
-  {
+    struct Condition *condt;
+    condt = &game.script.conditions[game.script.conditions_num];
+    condt->condit_idx = script_current_condition;
+    condt->plyr_idx = plr_id;
+    condt->variabl_type = varib_type;
+    condt->variabl_idx = varib_id;
+    condt->operation = opertr_id;
+    condt->rvalue = value;
+    if (condition_stack_pos >= CONDITIONS_COUNT)
+    {
+        game.script.conditions_num++;
+        SCRPTWRNLOG("Conditions too deep in script");
+        return;
+    }
+    if (script_current_condition >= 0)
+    {
+        condition_stack[condition_stack_pos] = script_current_condition;
+        condition_stack_pos++;
+    }
+    script_current_condition = game.script.conditions_num;
     game.script.conditions_num++;
-    SCRPTWRNLOG("Conditions too deep in script");
-    return;
-  }
-  if (script_current_condition >= 0)
-  {
-    condition_stack[condition_stack_pos] = script_current_condition;
-    condition_stack_pos++;
-  }
-  script_current_condition = game.script.conditions_num;
-  game.script.conditions_num++;
 }
 
 void command_if(char *plrname, char *varib_name, char *operatr, long value)
@@ -2000,7 +2000,7 @@ long script_scan_line(char *line,TbBool preloaded)
   }
   line_end = false;
   LbMemorySet(scline, 0, sizeof(struct ScriptLine));
-  if (next_command_reusable)
+  if (next_command_reusable > 0)
     next_command_reusable--;
   cmd_desc = get_next_word(&line, scline->tcmnd, &line_end);
   if (cmd_desc == NULL)
@@ -2280,6 +2280,7 @@ short preload_script(long lvnum)
   long script_len;
   SYNCDBG(7,"Starting");
   script_current_condition = -1;
+  next_command_reusable = 0;
   text_line_number = 1;
   level_file_version = DEFAULT_LEVEL_VERSION;
   clear_quick_messages();
@@ -2335,6 +2336,7 @@ short load_script(long lvnum)
   gui_set_button_flashing(0, 0);
   clear_script();
   script_current_condition = -1;
+  next_command_reusable = 0;
   text_line_number = 1;
   game.bonus_time = 0;
   set_flag_byte(&game.flags_gui,GGUI_CountdownTimer,false);

@@ -18,14 +18,15 @@ START_MONEY(PLAYER0,10000)
 SET_GENERATE_SPEED(100)
 
 REM Waves selection flag state machine (PLAYER0,FLAG0):
-REM   state 0 - starting waves; when an entrance is claimed, waves are beginning
+REM   state 0 - fate undecided
+REM   state 1 - starting waves; when an entrance is claimed, waves are beginning
 REM        there are 5 waves with last one repeating infinitely, plus continuous fairies wave
 REM   state can be changed to "1" by claiming guard post
-REM   state 1 - temporary silence; no timer-controlled waves are triggered
+REM   state 2 - temporary silence; no timer-controlled waves are triggered
 REM   state can be changed to "2" by claiming second entrance
-REM   state 2 - continuously spawn thieves
+REM   state 3 - continuously spawn thieves
 REM   state can be changed to "3" if proximity of hero heart is reached
-REM   state 3 - final hero partys sequence
+REM   state 4 - final hero partys sequence
 SET_FLAG(PLAYER0,FLAG0,0)
 
 REM The timers (PLAYER_GOOD,TIMER0), (PLAYER_GOOD,TIMER1) and (PLAYER_GOOD,TIMER2) are used for state machine states
@@ -36,19 +37,39 @@ MAX_CREATURES(PLAYER0,0)
 
 ADD_CREATURE_TO_POOL(BUG,20)
 ADD_CREATURE_TO_POOL(TROLL,20)
-ADD_CREATURE_TO_POOL(DRAGON,20)
-ADD_CREATURE_TO_POOL(DEMONSPAWN,20)
+ADD_CREATURE_TO_POOL(DRAGON,7)
+ADD_CREATURE_TO_POOL(DEMONSPAWN,15)
 ADD_CREATURE_TO_POOL(SORCEROR,20)
-ADD_CREATURE_TO_POOL(BILE_DEMON,20)
+ADD_CREATURE_TO_POOL(BILE_DEMON,7)
 ADD_CREATURE_TO_POOL(SPIDER,20)
 ADD_CREATURE_TO_POOL(ORC,20)
-ADD_CREATURE_TO_POOL(TENTACLE,20)
-ADD_CREATURE_TO_POOL(HELL_HOUND,20)
+ADD_CREATURE_TO_POOL(TENTACLE,15)
+ADD_CREATURE_TO_POOL(HELL_HOUND,15)
 
 ROOM_AVAILABLE(PLAYER0,TREASURE,1,1)
 ROOM_AVAILABLE(PLAYER0,LAIR,1,1)
 ROOM_AVAILABLE(PLAYER0,GARDEN,1,1)
 ROOM_AVAILABLE(PLAYER0,TRAINING,1,1)
+
+REM Library will be only available in one case, so research availability may be placed here
+MAGIC_AVAILABLE(PLAYER0,POWER_HOLD_AUDIENCE,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_HEAL_CREATURE,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_SPEED,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_PROTECT,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_CONCEAL,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_CHICKEN,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_DISEASE,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_LIGHTNING,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_CAVE_IN,1,0)
+
+REM Workshop will be only available in one case, so manufacture availability may be placed here
+DOOR_AVAILABLE(PLAYER0,BRACED,1,0)
+DOOR_AVAILABLE(PLAYER0,STEEL,1,0)
+TRAP_AVAILABLE(PLAYER0,ALARM,1,0)
+TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,0)
+TRAP_AVAILABLE(PLAYER0,LIGHTNING,1,0)
+TRAP_AVAILABLE(PLAYER0,WORD_OF_POWER,1,0)
+TRAP_AVAILABLE(PLAYER0,BOULDER,1,0)
 
 CREATE_PARTY(STRONGEST_PARTY)
     ADD_TO_PARTY(STRONGEST_PARTY,AVATAR,8,500,ATTACK_DUNGEON_HEART,0)
@@ -110,11 +131,11 @@ CREATE_PARTY(SPELL_THIEVES)
     ADD_TO_PARTY(SPELL_THIEVES,THIEF,1,1000,STEAL_SPELLS,0)
 
 CREATE_PARTY(PARTY12)
-    ADD_TO_PARTY(PARTY12,SAMURAI,10,500,ATTACK_DUNGEON_HEART,0)
-    ADD_TO_PARTY(PARTY12,DWARFA,10,500,ATTACK_DUNGEON_HEART,0)
-    ADD_TO_PARTY(PARTY12,WIZARD,10,500,ATTACK_DUNGEON_HEART,0)
-    ADD_TO_PARTY(PARTY12,ARCHER,10,500,ATTACK_DUNGEON_HEART,0)
-    ADD_TO_PARTY(PARTY12,ARCHER,10,500,ATTACK_DUNGEON_HEART,0)
+    ADD_TO_PARTY(PARTY12,SAMURAI,6,500,ATTACK_DUNGEON_HEART,0)
+    ADD_TO_PARTY(PARTY12,DWARFA,8,500,ATTACK_DUNGEON_HEART,0)
+    ADD_TO_PARTY(PARTY12,WIZARD,7,500,ATTACK_DUNGEON_HEART,0)
+    ADD_TO_PARTY(PARTY12,ARCHER,8,500,ATTACK_DUNGEON_HEART,0)
+    ADD_TO_PARTY(PARTY12,ARCHER,8,500,ATTACK_DUNGEON_HEART,0)
 
 CREATE_PARTY(GOLD_THIEVES)
     ADD_TO_PARTY(GOLD_THIEVES,THIEF,6,500,STEAL_GOLD,0)
@@ -139,85 +160,215 @@ CREATE_PARTY(WEAK_PARTY1)
     ADD_TO_PARTY(WEAK_PARTY1,BARBARIAN,4,500,ATTACK_DUNGEON_HEART,0)
     ADD_TO_PARTY(WEAK_PARTY1,SAMURAI,2,500,ATTACK_DUNGEON_HEART,0)
 
-QUICK_OBJECTIVE(​1,"Circle circle of the dead, tell me who I'm gonna get. Having troll is making traps, as the workshop knack he has. Wizard brings a bunch of spells, that's what bookworms always have. Orc will attract better army, which could do some serious harming.",PLAYER0)
+QUICK_OBJECTIVE(​1,"Circle circle of the dead, tell me who I'm gonna get. Having troll is making traps, as the workshop knack he has. Warlock brings a bunch of spells, that's what bookworms always have. Orc will attract better army, which could do some serious harming.",PLAYER0)
 
-REM When player claimed first entrance
-IF(PLAYER0,ENTRANCE >= 1)
-
-    REM The FLAG0 is already set to 0, so just initing timer
-    SET_TIMER(PLAYER_GOOD,TIMER0)
-
-    IF(PLAYER0,ORC >= 1)
-        MAX_CREATURES(PLAYER0,30)
-        
-        CREATURE_AVAILABLE(PLAYER0,TENTACLE,1,1)
-        CREATURE_AVAILABLE(PLAYER0,ORC,1,1)
-        CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,1)
-        CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,1)
-        CREATURE_AVAILABLE(PLAYER0,SPIDER,1,1)
-        CREATURE_AVAILABLE(PLAYER0,BUG,1,1)
-        CREATURE_AVAILABLE(PLAYER0,DRAGON,1,1)
-        CREATURE_AVAILABLE(PLAYER0,HELL_HOUND,1,1)
-        
-        ROOM_AVAILABLE(PLAYER0,BARRACKS,1,1)
-        ROOM_AVAILABLE(PLAYER0,PRISON,1,1)
-        ROOM_AVAILABLE(PLAYER0,TEMPLE,1,1)
-        ROOM_AVAILABLE(PLAYER0,GRAVEYARD,1,1)
-        ROOM_AVAILABLE(PLAYER0,SCAVENGER,1,1)
-        
-        MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,1)
-
-        QUICK_OBJECTIVE(2,"The fate has been decided, evil master. Your primary weapon is brute force, you'll be also able to imprison enemies, and use the unholy temple.. if you know how. Use your creatures well, as you cannot back them with traps or spells. Also, watch your gold reserve. The heroes have already noticed you and are preparing for a crusade.",PLAYER0)
-    ENDIF
-    
-    IF(PLAYER0,SORCEROR >= 1)
-        MAX_CREATURES(PLAYER0,10)
-        
-        CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,1)
-        
-        SET_TIMER(PLAYER_GOOD,TIMER4)
-        
-        ROOM_AVAILABLE(PLAYER0,RESEARCH,1,1)
-        
-        MAGIC_AVAILABLE(PLAYER0,POWER_OBEY,1,0)
-        MAGIC_AVAILABLE(PLAYER0,POWER_HOLD_AUDIENCE,1,0)
-        MAGIC_AVAILABLE(PLAYER0,POWER_HEAL_CREATURE,1,0)
-        MAGIC_AVAILABLE(PLAYER0,POWER_SPEED,1,0)
-        MAGIC_AVAILABLE(PLAYER0,POWER_PROTECT,1,0)
-        MAGIC_AVAILABLE(PLAYER0,POWER_CONCEAL,1,0)
-        MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,0)
-        MAGIC_AVAILABLE(PLAYER0,POWER_CHICKEN,1,0)
-        MAGIC_AVAILABLE(PLAYER0,POWER_DISEASE,1,0)
-        MAGIC_AVAILABLE(PLAYER0,POWER_LIGHTNING,1,0)
-        MAGIC_AVAILABLE(PLAYER0,POWER_CAVE_IN,1,0)
-
-        QUICK_OBJECTIVE(3,"The fate has been decided, evil master. Your primary weapon is magic, you'll be able to use lots of powerful spells. Use your powers well, as you cannot back them with traps or lots of creatures. The heroes have already noticed you and are preparing for a crusade.",PLAYER0)
-    ENDIF
-    
-    IF(PLAYER0,TROLL >= 1)
-        MAX_CREATURES(PLAYER0,10)
-        
-        CREATURE_AVAILABLE(PLAYER0,TROLL,1,1)
-        
-        ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,1)
-        
-        DOOR_AVAILABLE(PLAYER0,WOOD,1,0)
-        DOOR_AVAILABLE(PLAYER0,BRACED,1,0)
-        DOOR_AVAILABLE(PLAYER0,STEEL,1,0)
-        DOOR_AVAILABLE(PLAYER0,MAGIC,1,0)
-        TRAP_AVAILABLE(PLAYER0,ALARM,1,0)
-        TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,0)
-        TRAP_AVAILABLE(PLAYER0,LIGHTNING,1,0)
-        TRAP_AVAILABLE(PLAYER0,WORD_OF_POWER,1,0)
-        TRAP_AVAILABLE(PLAYER0,BOULDER,1,0)
-
-        QUICK_OBJECTIVE(4,"The fate has been decided, evil master. Your primary weapon is manufacture, you'll be able to build devastating traps. Use these devices well, as you cannot back them with spells or lots of creatures. The heroes have already noticed you and are preparing for a crusade.",PLAYER0)
-    ENDIF
-
-ENDIF
-
+REM when clicked the initial 'steal hero' box
 IF(PLAYER0,TOTAL_CREATURES > 0)
     MAGIC_AVAILABLE(PLAYER0,POWER_IMP,1,1)
+    TUTORIAL_FLASH_BUTTON(​21,-1)
+ENDIF
+
+REM Guard posts are quite far inside hero compound
+IF(PLAYER0,GUARD_POST >= 1)
+    IF(PLAYER0,FLAG0 <= 2)
+        SET_FLAG(PLAYER0,FLAG0,2)
+        QUICK_OBJECTIVE(5,"Taking over the guard post seem to made the heroes retreat. But the truth is, they gained reinforcement and are just waiting for your first move. You may use some time of relative silence, so don't proceed further through their fortifications until you're ready.",PLAYER0)
+    ENDIF
+ENDIF
+
+REM When player claimed more than one entrance
+IF(PLAYER0,ENTRANCE >= 10)
+    SET_TIMER(PLAYER_GOOD,TIMER0)
+    SET_FLAG(PLAYER0,FLAG0,3)
+    QUICK_OBJECTIVE(6,"Heroes have decided to start final phase of the siege with some initial attacks. Be prepared! And remember, the main force is still waiting on the surface, so prepare for something even bigger!",PLAYER_GOOD)
+ENDIF
+
+REM When reached the AP27 room that leads directly to hero dungeon heart
+IF_ACTION_POINT(27,PLAYER0)
+    SET_TIMER(PLAYER_GOOD,TIMER0)
+    SET_FLAG(PLAYER0,FLAG0,4)
+    QUICK_OBJECTIVE(10,"Beware, the main hero army is coming! I hope you're prepared for this, as otherwise it may be very short fight. Destroy the heart tainted by their rightfulness!.",PLAYER_GOOD)
+ENDIF
+
+REM There may be delay of some turns before all the above conditions are checked,
+REM and the order of execution isn't known; that's why we're using "<= 1" instead of "== 0"
+IF(PLAYER0,FLAG0 <= 1)
+    REM When player claimed first entrance
+    IF(PLAYER0,ENTRANCE >= 1)
+
+        SET_TIMER(PLAYER_GOOD,TIMER0)
+        SET_FLAG(PLAYER0,FLAG0,1)
+
+        IF(PLAYER0,ORC >= 1)
+            MAX_CREATURES(PLAYER0,30)
+            
+            CREATURE_AVAILABLE(PLAYER0,TENTACLE,1,1)
+            CREATURE_AVAILABLE(PLAYER0,ORC,1,1)
+            CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,1)
+            CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,1)
+            CREATURE_AVAILABLE(PLAYER0,SPIDER,1,1)
+            CREATURE_AVAILABLE(PLAYER0,BUG,1,1)
+            CREATURE_AVAILABLE(PLAYER0,DRAGON,1,1)
+            CREATURE_AVAILABLE(PLAYER0,HELL_HOUND,1,1)
+        
+            ROOM_AVAILABLE(PLAYER0,BARRACKS,1,1)
+            ROOM_AVAILABLE(PLAYER0,PRISON,1,1)
+            ROOM_AVAILABLE(PLAYER0,TEMPLE,1,1)
+            ROOM_AVAILABLE(PLAYER0,GRAVEYARD,1,1)
+            ROOM_AVAILABLE(PLAYER0,SCAVENGER,1,1)
+        
+            MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,1)
+
+            QUICK_OBJECTIVE(2,"The fate has been decided, evil master. Your primary weapon is brute force, you'll be also able to imprison enemies, and use the unholy temple.. if you know how. Use your creatures well, as you cannot back them with traps or spells. Also, watch your gold reserve. The heroes have already noticed you and are preparing for a crusade.",PLAYER0)
+        ENDIF
+    
+        IF(PLAYER0,SORCEROR >= 1)
+            MAX_CREATURES(PLAYER0,15)
+        
+            CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,1)
+            CREATURE_AVAILABLE(PLAYER0,DRAGON,1,1)
+        
+            SET_TIMER(PLAYER_GOOD,TIMER4)
+        
+            ROOM_AVAILABLE(PLAYER0,RESEARCH,1,1)
+            
+            MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,0)
+            MAGIC_AVAILABLE(PLAYER0,POWER_OBEY,1,0)
+
+            DOOR_AVAILABLE(PLAYER0,MAGIC,1,15)
+
+            QUICK_OBJECTIVE(3,"The fate has been decided, evil master. Your primary weapon is magic, you'll be able to use lots of powerful spells. Use your powers well, as you cannot back them with traps or lots of creatures. The heroes have already noticed you and are preparing for a crusade.",PLAYER0)
+        ENDIF
+    
+        IF(PLAYER0,TROLL >= 1)
+            MAX_CREATURES(PLAYER0,15)
+        
+            CREATURE_AVAILABLE(PLAYER0,TROLL,1,1)
+        
+            ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,1)
+
+            MAGIC_AVAILABLE(PLAYER0,POWER_OBEY,1,1)
+
+            DOOR_AVAILABLE(PLAYER0,MAGIC,1,0)
+        
+            QUICK_OBJECTIVE(4,"The fate has been decided, evil master. Your primary weapon is manufacture, you'll be able to build devastating traps. Use these devices well, as you cannot back them with spells or lots of creatures. The heroes have already noticed you and are preparing for a crusade.",PLAYER0)
+        ENDIF
+
+    ENDIF
+ENDIF
+
+IF(PLAYER0,FLAG0 == 1)
+    REM Continuous wave during state "1"
+    IF(PLAYER_GOOD,TIMER0 >= 8000)
+        NEXT_COMMAND_REUSABLE
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,FAIRY,2,3,4,500)
+        NEXT_COMMAND_REUSABLE
+        SET_TIMER(PLAYER_GOOD,TIMER0)
+        REM Also init TIMER1, but only once
+        SET_TIMER(PLAYER_GOOD,TIMER1)
+    ENDIF
+    REM Main waves sequence during state "1"
+    IF(PLAYER_GOOD,TIMER1 >= 2000)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DWARFA,-3,4,2,500)
+    ENDIF
+    IF(PLAYER_GOOD,TIMER1 >= 5000)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,ARCHER,-3,4,4,500)
+    ENDIF
+    IF(PLAYER_GOOD,TIMER1 >= 8000)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WEAK_PARTY1,-3,1)
+    ENDIF
+    IF(PLAYER_GOOD,TIMER1 >= 14000)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WEAK_PARTY1,-3,2)
+        SET_TIMER(PLAYER_GOOD,TIMER2)
+    ENDIF
+    REM Repeating waves when state "1" sequence is finished
+    IF(PLAYER_GOOD,TIMER2 >= 8000)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY14,-3,1)
+        NEXT_COMMAND_REUSABLE
+        SET_TIMER(PLAYER_GOOD,TIMER2)
+    ENDIF
+ENDIF
+
+IF(PLAYER0,FLAG0 == 3)
+    REM Continuous wave during state "3"
+    IF(PLAYER_GOOD,TIMER0 >= 10000)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY12,-4,1)
+        NEXT_COMMAND_REUSABLE
+        SET_TIMER(PLAYER_GOOD,TIMER0)
+    ENDIF
+    REM Main waves sequence during state "3"... actually it's not even a sequence
+    REM We're re-using TIMER0 instead of using another TIMER to save script resources
+    IF(PLAYER_GOOD,TIMER0 >= 800)
+        ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,WEAK_PARTY1,17,DUNGEON_HEART,0,8,500)
+    ENDIF
+ENDIF
+
+IF(PLAYER0,FLAG0 == 4)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY3,27,2)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY9,-7,2)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,RANGED_PARTY2,-8,2)
+    ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY4,-5,DUNGEON_HEART,0,9,500)
+    ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY10,-6,DUNGEON_HEART,0,9,500)
+    IF(PLAYER_GOOD,TIMER0 >= 800)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY8,-1,1)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY7,2,1)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY6,-3,1)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY5,-4,1)
+    ENDIF
+    IF(PLAYER_GOOD,TIMER0 >= 2000)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,STRONGEST_PARTY,-8,1)
+    ENDIF
+    IF(PLAYER_GOOD,TIMER0 >= 1400)
+        IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
+            IF(PLAYER_GOOD,TOTAL_CREATURES < 1)
+                WIN_GAME
+            ENDIF
+        ENDIF
+    ENDIF
+ENDIF
+
+REM AP5 is at top right, in the corner behind lava
+REM AP2 and HG2 are at center, in a room with "increase level" near first entrance
+REM AP6 is under first entrance, in a way between "make safe" and "resurrect creature"
+REM AP8 is in the same room as AP7 (at right of the two specials room) but behind lava
+REM AP22 is on the 5x2 guard post next to 2 horizontal lava strips
+REM AP16 it at center of the bottom right room with 3x3 guard post surrounded with lava
+
+REM When reached the AP10 room behind top door of AP9 room (the one connected to treasure room)
+IF_ACTION_POINT(10,PLAYER0)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY14,10,1)
+    SET_TIMER(PLAYER_GOOD,TIMER4)
+    IF(PLAYER0,TROLL >= 1)
+        ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,GOLD_THIEVES,-1,DUNGEON_HEART,0,9,500)
+    ENDIF
+ENDIF
+
+REM The TIMER4 is triggered when AP10 room (the one connected to hero treasure room) is reached
+IF(PLAYER_GOOD,TIMER4 >= 5000)
+    IF(PLAYER0,SORCEROR < 1)
+        NEXT_COMMAND_REUSABLE
+        ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,GOLD_THIEVES,-1,DUNGEON_HEART,0,10,500)
+    ENDIF
+    IF(PLAYER0,SORCEROR >= 1)
+        ADD_TUNNELLER_TO_LEVEL(PLAYER_GOOD,-1,DUNGEON_HEART,0,1,1000)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,SPELL_THIEVES,-1,5)
+    ENDIF
+    NEXT_COMMAND_REUSABLE
+    SET_TIMER(PLAYER_GOOD,TIMER4)
+ENDIF
+
+REM Liberated a bridge from heroes
+IF(PLAYER0,BRIDGE >= 1)
+    ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
+    IF(PLAYER_GOOD,TIMER3 >= 7500)
+        NEXT_COMMAND_REUSABLE
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,FAIRY,3,5,9,500)
+        NEXT_COMMAND_REUSABLE
+        SET_TIMER(PLAYER_GOOD,TIMER3)
+    ENDIF
 ENDIF
 
 REM When reached the 5x5 room behind orcs (top right of the map)
@@ -250,105 +401,19 @@ IF_ACTION_POINT(9,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WEAK_PARTY1,9,2)
 ENDIF
 
-REM When reached the AP10 room behind top door of AP9 room (the one connected to treasure room)
-IF_ACTION_POINT(10,PLAYER0)
-    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY14,10,1)
-    SET_TIMER(PLAYER_GOOD,TIMER4)
-    IF(PLAYER0,TROLL >= 1)
-        ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,GOLD_THIEVES,-1,DUNGEON_HEART,0,9,500)
-    ENDIF
-ENDIF
-
 IF_ACTION_POINT(11,PLAYER0)
     ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,BARBARIAN,11,4,6,500)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY15,12,2)
 ENDIF
 
 IF_ACTION_POINT(13,PLAYER0)
-    ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,MONK,14,6,10,500)
+    ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,MONK,14,6,7,500)
 ENDIF
 
 REM When reached the bottom right room with 3x3 guard post surrounded with lava
 IF_ACTION_POINT(15,PLAYER0)
     ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,GIANT,15,8,7,500)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY10,16,3)
-ENDIF
-
-REM Guard posts are quite far inside hero compound
-IF(PLAYER0,GUARD_POST >= 1)
-    SET_FLAG(PLAYER0,FLAG0,1)
-    QUICK_OBJECTIVE(5,"Taking over the guard post seem to made the heroes retreat. But the truth is, they gained reinforcement and are just waiting for your first move. You may use some time of relative silence, so don't proceed further through their fortifications until you're ready.",PLAYER0)
-ENDIF
-
-REM When player claimed more than one entrance
-IF(PLAYER0,ENTRANCE >= 10)
-    SET_TIMER(PLAYER_GOOD,TIMER0)
-    SET_FLAG(PLAYER0,FLAG0,2)
-ENDIF
-
-IF(PLAYER0,FLAG0 == 0)
-    REM Continuous wave during state "0"
-    IF(PLAYER_GOOD,TIMER0 >= 8000)
-        NEXT_COMMAND_REUSABLE
-        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,FAIRY,2,3,4,500)
-        NEXT_COMMAND_REUSABLE
-        SET_TIMER(PLAYER_GOOD,TIMER0)
-        REM Also init TIMER1, but only once
-        SET_TIMER(PLAYER_GOOD,TIMER1)
-    ENDIF
-    REM Main waves sequence during state "0"
-    IF(PLAYER_GOOD,TIMER1 >= 2000)
-        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DWARFA,-3,4,2,500)
-    ENDIF
-    IF(PLAYER_GOOD,TIMER1 >= 5000)
-        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,ARCHER,-3,4,4,500)
-    ENDIF
-    IF(PLAYER_GOOD,TIMER1 >= 8000)
-        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WEAK_PARTY1,-3,1)
-    ENDIF
-    IF(PLAYER_GOOD,TIMER1 >= 14000)
-        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WEAK_PARTY1,-3,2)
-        SET_TIMER(PLAYER_GOOD,TIMER2)
-    ENDIF
-    REM Repeating waves when state "0" sequence is finished
-    IF(PLAYER_GOOD,TIMER2 >= 8000)
-        NEXT_COMMAND_REUSABLE
-        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY14,-3,1)
-        NEXT_COMMAND_REUSABLE
-        SET_TIMER(PLAYER_GOOD,TIMER2)
-    ENDIF
-ENDIF
-
-IF(PLAYER0,FLAG0 == 2)
-    REM Continuous wave during state "2"
-    IF(PLAYER_GOOD,TIMER0 >= 10000)
-        NEXT_COMMAND_REUSABLE
-        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY12,-4,1)
-        NEXT_COMMAND_REUSABLE
-        SET_TIMER(PLAYER_GOOD,TIMER0)
-    ENDIF
-    REM Main waves sequence during state "2"... actually it's not even a sequence
-    REM We're re-using TIMER0 instead of using another TIMER to save script resources
-    IF(PLAYER_GOOD,TIMER0 >= 800)
-        ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,WEAK_PARTY1,17,DUNGEON_HEART,0,8,500)
-    ENDIF
-ENDIF
-
-IF(PLAYER0,FLAG0 == 3)
-    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY3,27,2)
-    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY9,-7,2)
-    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,RANGED_PARTY2,-8,2)
-    ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY4,-5,DUNGEON_HEART,0,9,500)
-    ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY10,-6,DUNGEON_HEART,0,9,500)
-    IF(PLAYER_GOOD,TIMER0 >= 600)
-        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY8,-1,1)
-        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY7,2,1)
-        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY6,-3,1)
-        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY5,-4,1)
-    ENDIF
-    IF(PLAYER_GOOD,TIMER0 >= 1200)
-        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,STRONGEST_PARTY,-8,1)
-    ENDIF
 ENDIF
 
 IF_ACTION_POINT(18,PLAYER0)
@@ -358,16 +423,6 @@ ENDIF
 IF_ACTION_POINT(19,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY6,19,3)
     SET_TIMER(PLAYER_GOOD,TIMER3)
-ENDIF
-
-IF(PLAYER0,BRIDGE >= 1)
-    ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
-    IF(PLAYER_GOOD,TIMER3 >= 7500)
-        NEXT_COMMAND_REUSABLE
-        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,FAIRY,3,5,9,500)
-        NEXT_COMMAND_REUSABLE
-        SET_TIMER(PLAYER_GOOD,TIMER3)
-    ENDIF
 ENDIF
 
 REM When reached the AP20 treasure room, at center of the map
@@ -391,39 +446,4 @@ ENDIF
 IF_ACTION_POINT(26,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY4,26,2)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,RANGED_PARTY2,24,2)
-ENDIF
-
-REM When reached the AP27 room that leads directly to hero dungeon heart
-IF_ACTION_POINT(27,PLAYER0)
-    SET_TIMER(PLAYER_GOOD,TIMER0)
-    SET_FLAG(PLAYER0,FLAG0,3)
-    QUICK_OBJECTIVE(6,"Beware, the main hero army is coming! I hope you're prepared for this, as otherwise it may be very short fight. Destroy the heart tainted by their rightfulness!.",PLAYER0)
-ENDIF
-
-REM The TIMER4 is triggered when AP10 room (the one connected to hero treasure room) is reached
-IF(PLAYER_GOOD,TIMER4 >= 5000)
-    IF(PLAYER0,SORCEROR < 1)
-        NEXT_COMMAND_REUSABLE
-        ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,GOLD_THIEVES,-1,DUNGEON_HEART,0,10,500)
-    ENDIF
-    IF(PLAYER0,SORCEROR >= 1)
-        ADD_TUNNELLER_TO_LEVEL(PLAYER_GOOD,-1,DUNGEON_HEART,0,1,1000)
-        NEXT_COMMAND_REUSABLE
-        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,SPELL_THIEVES,-1,5)
-    ENDIF
-    NEXT_COMMAND_REUSABLE
-    SET_TIMER(PLAYER_GOOD,TIMER4)
-ENDIF
-
-REM AP5 is at top right, in the corner behind lava
-REM AP2 and HG2 are at center, in a room with "increase level" near first entrance
-REM AP6 is under first entrance, in a way between "make safe" and "resurrect creature"
-REM AP8 is in the same room as AP7 (at right of the two specials room) but behind lava
-REM AP22 is on the 5x2 guard post next to 2 horizontal lava strips
-REM AP16 it at center of the bottom right room with 3x3 guard post surrounded with lava
-
-IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
-    IF(PLAYER_GOOD,TOTAL_CREATURES < 1)
-        WIN_GAME
-    ENDIF
 ENDIF
