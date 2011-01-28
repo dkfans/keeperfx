@@ -50,6 +50,8 @@ struct SAI_TileAnalysis
     short heart_dists[SAI_MAX_KEEPERS]; //distance to dungeon hearts
 };
 
+typedef int (*SAI_TileFunc)(int x, int y, struct SlabMap * slab, void * data);
+
 /**
  * Initializes map analysis for the current map state.
  */
@@ -76,11 +78,11 @@ const struct SAI_GoldArea * SAI_get_gold_areas(int * count);
 const struct SAI_TileAnalysis * SAI_get_tile_analysis(int x, int y);
 
 /**
- * Counts the number of 'open' (not wall, not rock, not earth) tiles in a rectangle.
+ * Call a function for all tiles in a rectangle.
  * @param rect
- * @return
+ * @param func Tile function.
  */
-int SAI_count_open_tiles_in_rect(struct SAI_Rect rect);
+void SAI_tiles_in_rect(struct SAI_Rect rect, SAI_TileFunc func, void * data);
 
 /**
  * Gets position of dungeon heart for a player (convenience method).

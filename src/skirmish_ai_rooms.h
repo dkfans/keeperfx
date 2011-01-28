@@ -29,6 +29,9 @@ extern "C" {
 
 #define SAI_MAX_ROOMS   500
 
+#define SAI_ROOM_FLAG_EXTENDED  0x1
+#define SAI_ROOM_FLAG_TEMP      0x2 //for algorithms requiring temp marker bit
+
 
 enum SAI_RoomState
 {
@@ -36,7 +39,7 @@ enum SAI_RoomState
     SAI_ROOM_UNDUG, //not (intentionally) dug - room kind determines if anything is planned for room
     SAI_ROOM_EMPTY, //is dug but nothing built, room kind determines if anything planned
     SAI_ROOM_ACTIVE, //room has been built and is a part of dungeon
-    SAI_ROOM_INCOMPLETE, //room is in incompleted state (AI probably didn't build it)
+    SAI_ROOM_INCOMPLETE, //room is incomplete; meaning it does not fill up entire possible space
     SAI_ROOM_BAD, //bad room layout, SELL ASAP and move to SAI_ROOM_UNUSED
     SAI_ROOM_BEING_BUILT, //room is being built
     SAI_ROOM_BEING_DUG, //room is being dug
@@ -48,6 +51,8 @@ enum SAI_RoomState
 struct SAI_Room
 {
     int id;
+    int num_tiles_in_use; //tiles planned
+    unsigned flags;
     enum RoomKinds kind;
     enum SAI_RoomState state;
     struct SAI_Room * prev_of_state;
@@ -99,12 +104,11 @@ void SAI_set_room_layout_safety(int plyr, enum SAI_WallBreakOptions wall_break);
  * and this function does cause state changes in module.
  * @param plyr Index of player.
  * @param kind Type of room.
- * @param min_size Interpreted or ignored depending on room kind.
- * @param max_size Interpreted or ignored depending on room kind.
+ * @param size Minimal size of room; returned room may be larger.
  * @return If >= 0, the index of room. If it was not possibly to fulfill request,
  * returns -1.
  */
-int SAI_request_room(int plyr, enum RoomKinds kind, int min_size, int max_size);
+int SAI_request_room(int plyr, enum RoomKinds kind, int size);
 
 /**
  * Finds an access path (or possibly more depending on room kind) that can be dug
@@ -157,6 +161,15 @@ struct SAI_Room * SAI_get_room(int plyr, int id);
  * @param kind Kind of room to set to.
  */
 void SAI_set_room_kind(int plyr, int room_id, enum RoomKinds kind);
+
+/**
+ * Sets the number of tiles the AI actually intends can be used (can be less than
+ * width * height).
+ * @param plyr Index of player.
+ * @param room_id Index of room.
+ * @param tiles_used Kind of room to set to.
+ */
+void SAI_set_tiles_in_use(int plyr, int room_id, int tiles_used);
 
 /**
  * Gets the head of a list of rooms by state.
