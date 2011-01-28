@@ -8,11 +8,7 @@ Points are separated in categories, and are further subdivided into implementabl
 Bugs (things that should work by now that don't):
 -------------------------------------------------------------------------------
 
-- Room layout/pathing doesn't manage to deal with empty earth (no rooms being dug when I check). See what causes this and correct.
-- Rooms get built on unclaimed land.
-- Rooms get built without consideration of availability.
-- Not sure here but potentially rooms can be built without having enough money, as well. Hard to detect since planner does check for money.
-
+(All fixed for now, more will come)
 
 Early game:
 -------------------------------------------------------------------------------
@@ -57,6 +53,8 @@ Various minor issues:
 -------------------------------------------------------------------------------
 
 Prevent from building certain rooms through planning via a simple bit mask AND, if not creature kind is attracted to them.
+
+Check that enough imps are available before considering to build rooms in parallel.
 
 
 Architectural issues:

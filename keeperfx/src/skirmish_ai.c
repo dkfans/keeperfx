@@ -26,10 +26,13 @@
 #include "skirmish_ai_values.h"
 
 #include "bflib_basics.h"
+#include "config_terrain.h"
 #include "globals.h"
 #include "room_data.h"
+#include "slab_data.h"
 
 #include <assert.h>
+#include <math.h>
 #include <memory.h>
 #include <stdlib.h>
 
@@ -148,10 +151,24 @@ static void think_about_conquest(struct SAI_PlayerState * plyrstate)
 
 }
 
-static int should_dig_for_room(struct SAI_PlayerState * plyrstate,
-    struct DigParams * dig_params, struct SAI_Room ** room)
+static void owned_dug_tile_counter(int x, int y, struct SlabMap * slab, int * count)
 {
-    return 0;
+    switch (slab->kind) {
+    case SlbT_ROCK:
+    case SlbT_GOLD:
+    case SlbT_EARTH:
+    case SlbT_TORCHDIRT:
+    case SlbT_WALLDRAPE:
+    case SlbT_WALLTORCH:
+    case SlbT_WALLWTWINS:
+    case SlbT_WALLWWOMAN:
+    case SlbT_WALLPAIRSHR:
+    case SlbT_GEMS:
+    case SlbT_PATH:
+        break;
+    default:
+        *count += 1;
+    }
 }
 
 static void think_about_digging_for_rooms(struct SAI_PlayerState * plyrstate)
@@ -165,6 +182,7 @@ static void think_about_digging_for_rooms(struct SAI_PlayerState * plyrstate)
     int count;
     int required;
     int available;
+    int num_tiles_done;
 
     AIDBG(4, "Starting");
 
@@ -212,8 +230,11 @@ static void think_about_digging_for_rooms(struct SAI_PlayerState * plyrstate)
             room != NULL; room = room->next_of_state) {
         w = SAI_rect_width(room->rect);
         h = SAI_rect_height(room->rect);
-        AIDBG(3, "Size: %i, Dug Tiles: %i", w * h, SAI_count_open_tiles_in_rect(room->rect));
-        if (w * h == SAI_count_open_tiles_in_rect(room->rect)) {
+        num_tiles_done = 0;
+        SAI_tiles_in_rect(room->rect,
+            (SAI_TileFunc) owned_dug_tile_counter, &num_tiles_done);
+
+        if (w * h == num_tiles_done) {
             SAI_set_room_state(plyrstate->index, room->id, SAI_ROOM_EMPTY);
         }
     }
@@ -223,19 +244,37 @@ static void think_about_modifying_rooms(struct SAI_PlayerState * plyrstate)
 {
     int x, y;
     int w, h;
+    int real_width;
+    int real_height;
+    int count;
     SAI_Action action;
     struct SAI_Room * room;
 
     for (room = SAI_get_rooms_of_state(plyrstate->index, SAI_ROOM_EMPTY);
             room != NULL; room = room->next_of_state) {
-        w = SAI_rect_width(room->rect);
-        h = SAI_rect_height(room->rect);
-        if (w * h <= actions_left(plyrstate, ACTIVITY_MODIFY_ROOMS)) {
-            for (y = room->rect.t; y <= room->rect.b; ++y) {
-                for (x = room->rect.l; x <= room->rect.r; ++x) {
+        if (room->num_tiles_in_use <= actions_left(plyrstate, ACTIVITY_MODIFY_ROOMS)) {
+            count = 0;
+            real_width = SAI_rect_width(room->rect);
+            real_height = SAI_rect_height(room->rect);
+            w = h = (int) sqrt(room->num_tiles_in_use);
+            w = min(w, real_width);
+            h = min(h, real_height);
+            if (w * h < room->num_tiles_in_use && w < real_width) {
+                w += 1;
+            }
+            if (w * h < room->num_tiles_in_use) {
+                h += 1;
+            }
+
+            assert(w * h >= room->num_tiles_in_use); //in case I'm mistaken...
+
+            for (y = room->rect.t; y < room->rect.t + h && count < room->num_tiles_in_use; ++y) {
+                for (x = room->rect.l; x < room->rect.l + w && count < room->num_tiles_in_use; ++x) {
                     action = SAI_build_room_action(plyrstate->index,
                         x, y, room->kind);
                     queue_action(plyrstate, ACTIVITY_MODIFY_ROOMS, action);
+
+                    count += 1;
                 }
             }
 
@@ -275,25 +314,35 @@ static void think_about_workshop_items(struct SAI_PlayerState * plyrstate)
 }
 
 /**
- * Processes an AI decision (part of plan).
+ * Processes an AI plan decision (part of plan).
  * @param plyrstate
- * @param item
+ * @param item Current plan item.
+ * @param parent "Parent" of current item, i.e. earlier plan item.
  * @return Non-zero if the item could be processed.
  */
 static int try_process_plan_item(struct SAI_PlayerState * plyrstate,
-    struct SAI_PlanDecision * item)
+    struct SAI_PlanDecision * item, struct SAI_PlanDecision * parent)
 {
     enum RoomKinds room_kind;
+    int id;
     int tiles;
 
     AIDBG(4, "Starting for plan item of type %i", (int) item->type);
 
     switch (item->type) {
+    case SAI_PLAN_WAIT:
+        return 1;
     case SAI_PLAN_BUILD_ROOM:
         room_kind = (enum RoomKinds) item->param.kind;
+        if (!is_room_available(plyrstate->index, room_kind)) {
+            //goto next item if parent node was auxiliary wait
+            return parent == NULL || parent->type != SAI_PLAN_WAIT;
+        }
+
         tiles = SAI_tiles_for_next_room_of_kind(plyrstate->index, room_kind);
         //TODO AI: more sophisticated room sizing scheme?
-        if (SAI_request_room(plyrstate->index, room_kind, tiles, tiles) >= 0) {
+        id = SAI_request_room(plyrstate->index, room_kind, tiles);
+        if (id >= 0) {
             return 1;
         }
         break;
@@ -311,6 +360,8 @@ static int try_process_plan_item(struct SAI_PlayerState * plyrstate,
  */
 static void process_plan(struct SAI_PlayerState * plyrstate)
 {
+    struct SAI_PlanDecision * parent;
+
     AIDBG(3, "Starting");
 
     if (plyrstate->turn == 0) {
@@ -329,7 +380,10 @@ static void process_plan(struct SAI_PlayerState * plyrstate)
     }
 
     if (plyrstate->plan_index < plyrstate->plan_size) {
-        if (try_process_plan_item(plyrstate, plyrstate->plan + plyrstate->plan_index)) {
+        parent = plyrstate->plan_index <= 0? NULL :
+            plyrstate->plan + plyrstate->plan_index - 1;
+        if (try_process_plan_item(plyrstate, plyrstate->plan + plyrstate->plan_index,
+                parent)) {
             plyrstate->plan_index += 1;
         }
     }
