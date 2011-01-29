@@ -106,6 +106,7 @@ obj/config_terrain.o \
 obj/config_trapdoor.o \
 obj/creature_control.o \
 obj/creature_graphics.o \
+obj/creature_groups.o \
 obj/creature_instances.o \
 obj/creature_states.o \
 obj/creature_states_combt.o \

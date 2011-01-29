@@ -41,6 +41,7 @@
 #include "thing_effects.h"
 #include "thing_stats.h"
 #include "creature_states.h"
+#include "creature_groups.h"
 #include "lvl_filesdk1.h"
 #include "game_merge.h"
 #include "dungeon_data.h"
@@ -318,8 +319,6 @@ DLLIMPORT long _DK_script_support_send_tunneller_to_action_point(struct Thing *t
 DLLIMPORT long _DK_script_support_send_tunneller_to_dungeon(struct Thing *thing, unsigned char a2);
 DLLIMPORT long _DK_script_support_send_tunneller_to_dungeon_heart(struct Thing *thing, unsigned char a2);
 DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing);
-DLLIMPORT long _DK_get_highest_experience_level_in_group(struct Thing *thing);
-DLLIMPORT long _DK_add_creature_to_group(struct Thing *crthing, struct Thing *grthing);
 /******************************************************************************/
 /**
  * Reads word from 'line' into 'param'. Sets if 'line_end' was reached.
@@ -734,20 +733,11 @@ TbBool script_support_setup_player_as_computer_keeper(unsigned short plyridx, lo
 
 void command_create_party(char *prtname)
 {
-  struct Party *party;
-  if (game.script.creature_partys_num >= CREATURE_PARTYS_COUNT)
-  {
-    SCRPTERRLOG("Too many partys in script");
-    return;
-  }
-  if (script_current_condition != -1)
-  {
-    SCRPTWRNLOG("Party '%s' defined inside conditional statement",prtname);
-  }
-  party = (&game.script.creature_partys[game.script.creature_partys_num]);
-  strncpy(party->prtname, prtname, sizeof(party->prtname));
-  party->members_num = 0;
-  game.script.creature_partys_num++;
+    if (script_current_condition != -1)
+    {
+        SCRPTWRNLOG("Party '%s' defined inside conditional statement",prtname);
+    }
+    create_party(prtname);
 }
 
 long pop_condition(void)
@@ -768,80 +758,32 @@ long pop_condition(void)
   return script_current_condition;
 }
 
-struct Party *get_party_of_name(char *prtname)
-{
-  struct Party *party;
-  int i;
-  for (i=0; i < game.script.creature_partys_num; i++)
-  {
-    party = &game.script.creature_partys[i];
-    if (stricmp(party->prtname, prtname) == 0)
-      return party;
-  }
-  return NULL;
-}
-
-int get_party_index_of_name(char *prtname)
-{
-  struct Party *party;
-  int i;
-  for (i=0; i < game.script.creature_partys_num; i++)
-  {
-    party = &game.script.creature_partys[i];
-    if (stricmp(party->prtname, prtname) == 0)
-      return i;
-  }
-  return -1;
-}
-
 void command_add_to_party(char *prtname, char *crtr_name, long crtr_level, long carried_gold, char *objectv, long countdown)
 {
-  struct Party *party;
-  struct PartyMember *member;
-  long crtr_id, objctv_id;
-  if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
-  {
-    SCRPTERRLOG("Invalid Creature Level parameter; %ld not in range (%d,%d)",crtr_level,1,CREATURE_MAX_LEVEL);
-    return;
-  }
-  crtr_id = get_rid(creature_desc, crtr_name);
-  if (crtr_id == -1)
-  {
-    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
-    return;
-  }
-  objctv_id = get_rid(hero_objective_desc, objectv);
-  if (objctv_id == -1)
-  {
-    SCRPTERRLOG("Unknown party member objective, '%s'", objectv);
-    return;
-  }
-  party = get_party_of_name(prtname);
-  if (party == NULL)
-  {
-    SCRPTERRLOG("Party of requested name, '%s', is not defined", prtname);
-    return;
-  }
-  if (party->members_num >= PARTY_MEMBERS_COUNT)
-  {
-    SCRPTERRLOG("Too many creatures in party '%s' (limit is %d members)",
-        prtname, PARTY_MEMBERS_COUNT);
-    return;
-  }
-//SCRPTLOG("Party '%s' member kind %d, level %d",prtname,crtr_id,crtr_level);
-  if (script_current_condition != -1)
-  {
-    SCRPTWRNLOG("Party '%s' member added inside conditional statement",prtname);
-  }
-  member = &(party->members[party->members_num]);
-  set_flag_byte(&(member->flags), TrgF_DISABLED, false);
-  member->crtr_kind = crtr_id;
-  member->carried_gold = carried_gold;
-  member->crtr_level = crtr_level-1;
-  member->field_6F = 1;
-  member->objectv = objctv_id;
-  member->countdown = countdown;
-  party->members_num++;
+    long crtr_id, objctv_id;
+    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+    {
+      SCRPTERRLOG("Invalid Creature Level parameter; %ld not in range (%d,%d)",crtr_level,1,CREATURE_MAX_LEVEL);
+      return;
+    }
+    crtr_id = get_rid(creature_desc, crtr_name);
+    if (crtr_id == -1)
+    {
+      SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+      return;
+    }
+    objctv_id = get_rid(hero_objective_desc, objectv);
+    if (objctv_id == -1)
+    {
+      SCRPTERRLOG("Unknown party member objective, '%s'", objectv);
+      return;
+    }
+  //SCRPTLOG("Party '%s' member kind %d, level %d",prtname,crtr_id,crtr_level);
+    if (script_current_condition != -1)
+    {
+      SCRPTWRNLOG("Party '%s' member added inside conditional statement",prtname);
+    }
+    add_member_to_party_name(prtname, crtr_id, crtr_level, carried_gold, objctv_id, countdown);
 }
 
 void command_tutorial_flash_button(long btn_id, long duration)
@@ -1212,17 +1154,17 @@ void command_trap_available(char *plrname, char *trapname, unsigned long can_bui
  */
 void command_research(char *plrname, char *trg_type, char *trg_name, unsigned long val)
 {
-  long plr_id;
-  int plr_start, plr_end;
-  long item_type,item_id;
-  plr_id = get_players_range(plrname, &plr_start, &plr_end);
-  if (plr_id < 0)
-    return;
-  item_type = get_rid(research_desc, trg_type);
-  item_id = get_research_id(item_type, trg_name, __func__);
-  if (item_id < 0)
-    return;
-  command_add_value(Cmd_RESEARCH, plr_id, item_type, item_id, val);
+    long plr_id;
+    int plr_start, plr_end;
+    long item_type,item_id;
+    plr_id = get_players_range(plrname, &plr_start, &plr_end);
+    if (plr_id < 0)
+      return;
+    item_type = get_rid(research_desc, trg_type);
+    item_id = get_research_id(item_type, trg_name, __func__);
+    if (item_id < 0)
+      return;
+    command_add_value(Cmd_RESEARCH, plr_id, item_type, item_id, val);
 }
 
 /**
@@ -1231,92 +1173,92 @@ void command_research(char *plrname, char *trg_type, char *trg_name, unsigned lo
  */
 void command_research_order(char *plrname, char *trg_type, char *trg_name, unsigned long val)
 {
-  struct Dungeon *dungeon;
-  long plr_id;
-  int plr_start, plr_end;
-  long item_type,item_id;
-  long i;
-  plr_id = get_players_range(plrname, &plr_start, &plr_end);
-  if (plr_id < 0)
-    return;
-  for (i=plr_start; i < plr_end; i++)
-  {
-    dungeon = get_dungeon(i);
-    if (dungeon->research_num >= 34)
-    {
-      SCRPTERRLOG("Too many RESEARCH ITEMS, for player %d", i);
+    struct Dungeon *dungeon;
+    long plr_id;
+    int plr_start, plr_end;
+    long item_type,item_id;
+    long i;
+    plr_id = get_players_range(plrname, &plr_start, &plr_end);
+    if (plr_id < 0)
       return;
+    for (i=plr_start; i < plr_end; i++)
+    {
+      dungeon = get_dungeon(i);
+      if (dungeon->research_num >= 34)
+      {
+        SCRPTERRLOG("Too many RESEARCH ITEMS, for player %d", i);
+        return;
+      }
     }
-  }
-  item_type = get_rid(research_desc, trg_type);
-  item_id = get_research_id(item_type, trg_name, __func__);
-  if (item_id < 0)
-    return;
-  command_add_value(Cmd_RESEARCH_ORDER, plr_id, item_type, item_id, val);
+    item_type = get_rid(research_desc, trg_type);
+    item_id = get_research_id(item_type, trg_name, __func__);
+    if (item_id < 0)
+      return;
+    command_add_value(Cmd_RESEARCH_ORDER, plr_id, item_type, item_id, val);
 }
 
 void command_if_action_point(long apt_num, char *plrname)
 {
-  long plr_id;
-  long apt_id;
-  if (game.script.conditions_num >= CONDITIONS_COUNT)
-  {
-    SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
-    return;
-  }
-  // Check the Action Point
-  apt_id = action_point_number_to_index(apt_num);
-  if (!action_point_exists_idx(apt_id))
-  {
-    SCRPTERRLOG("Nonexisting Action Point, no %d", apt_num);
-    return;
-  }
-  // Recognize player
-  if (!get_player_id(plrname, &plr_id))
-    return;
-  command_add_condition(plr_id, 0, 19, apt_id, 0);
+    long plr_id;
+    long apt_id;
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
+    {
+        SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
+        return;
+    }
+    // Check the Action Point
+    apt_id = action_point_number_to_index(apt_num);
+    if (!action_point_exists_idx(apt_id))
+    {
+        SCRPTERRLOG("Nonexisting Action Point, no %d", apt_num);
+        return;
+    }
+    // Recognize player
+    if (!get_player_id(plrname, &plr_id))
+        return;
+    command_add_condition(plr_id, 0, 19, apt_id, 0);
 }
 
 void command_computer_player(char *plrname, long comp_model)
 {
-  long plr_id;
-  if (!get_player_id(plrname, &plr_id))
-    return;
-  if (script_current_condition != -1)
-  {
-    SCRPTWRNLOG("Computer player setup inside conditional block");
-  }
-  script_support_setup_player_as_computer_keeper(plr_id, comp_model);
+    long plr_id;
+    if (!get_player_id(plrname, &plr_id))
+      return;
+    if (script_current_condition != -1)
+    {
+      SCRPTWRNLOG("Computer player setup inside conditional block");
+    }
+    script_support_setup_player_as_computer_keeper(plr_id, comp_model);
 }
 
 void command_set_timer(char *plrname, char *timrname)
 {
-  long plr_id,timr_id;
-  if (!get_player_id(plrname, &plr_id))
-    return;
-  timr_id = get_rid(timer_desc, timrname);
-  if (timr_id == -1)
-  {
-    SCRPTERRLOG("Unknown timer, '%s'", timrname);
-    return;
-  }
-  command_add_value(Cmd_SET_TIMER, plr_id, timr_id, 0, 0);
+    long plr_id,timr_id;
+    if (!get_player_id(plrname, &plr_id))
+        return;
+    timr_id = get_rid(timer_desc, timrname);
+    if (timr_id == -1)
+    {
+        SCRPTERRLOG("Unknown timer, '%s'", timrname);
+        return;
+    }
+    command_add_value(Cmd_SET_TIMER, plr_id, timr_id, 0, 0);
 }
 
 void command_win_game(void)
 {
-  if (script_current_condition == -1)
-  {
-    SCRPTERRLOG("Command WIN GAME found with no condition");
-    return;
-  }
-  if (game.script.win_conditions_num >= WIN_CONDITIONS_COUNT)
-  {
-    SCRPTERRLOG("Too many WIN GAME conditions in script");
-    return;
-  }
-  game.script.win_conditions[game.script.win_conditions_num] = script_current_condition;
-  game.script.win_conditions_num++;
+    if (script_current_condition == -1)
+    {
+        SCRPTERRLOG("Command WIN GAME found with no condition");
+        return;
+    }
+    if (game.script.win_conditions_num >= WIN_CONDITIONS_COUNT)
+    {
+        SCRPTERRLOG("Too many WIN GAME conditions in script");
+        return;
+    }
+    game.script.win_conditions[game.script.win_conditions_num] = script_current_condition;
+    game.script.win_conditions_num++;
 }
 
 void command_lose_game(void)
@@ -2588,16 +2530,6 @@ struct Thing *script_create_new_creature(unsigned char plyr_idx, long breed, lon
   thing->long_13 = carried_gold;
   init_creature_level(thing, crtr_level);
   return thing;
-}
-
-long get_highest_experience_level_in_group(struct Thing *thing)
-{
-  return _DK_get_highest_experience_level_in_group(thing);
-}
-
-long add_creature_to_group(struct Thing *crthing, struct Thing *grthing)
-{
-  return _DK_add_creature_to_group(crthing, grthing);
 }
 
 void script_process_new_tunneller_party(unsigned char plyr_idx, long prty_id, long location, unsigned char heading, long target, unsigned char crtr_level, unsigned long carried_gold)

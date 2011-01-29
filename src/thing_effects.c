@@ -657,13 +657,13 @@ void effect_generate_effect_elements(const struct Thing *thing)
             k = abs(effnfo->accel_xy_max - effnfo->accel_xy_min);
             if (k <= 1) k = 1;
             mag = effnfo->accel_xy_min + ACTION_RANDOM(k);
-            elemtng->pos_32.x.val += (mag*LbSinL(arg)) >> 16;
-            elemtng->pos_32.y.val -= (mag*LbCosL(arg)) >> 16;
+            elemtng->acceleration.x.val += (mag*LbSinL(arg)) >> 16;
+            elemtng->acceleration.y.val -= (mag*LbCosL(arg)) >> 16;
             // Setting Z acceleration
             k = abs(effnfo->accel_z_max - effnfo->accel_z_min);
             if (k <= 1) k = 1;
             mag = effnfo->accel_z_min + ACTION_RANDOM(k);
-            elemtng->pos_32.z.val += (mag*LbSinL(argZ)) >> 16;
+            elemtng->acceleration.z.val += (mag*LbSinL(argZ)) >> 16;
             elemtng->field_1 |= 0x04;
           }
         }

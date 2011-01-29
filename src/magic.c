@@ -359,9 +359,9 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     thing = create_creature(&pos, get_players_special_digger_breed(plyr_idx), plyr_idx);
     if (!thing_is_invalid(thing))
     {
-        thing->pos_32.x.val += ACTION_RANDOM(161) - 80;
-        thing->pos_32.y.val += ACTION_RANDOM(161) - 80;
-        thing->pos_32.z.val += 160;
+        thing->acceleration.x.val += ACTION_RANDOM(161) - 80;
+        thing->acceleration.y.val += ACTION_RANDOM(161) - 80;
+        thing->acceleration.z.val += 160;
         thing->field_1 |= 0x04;
         thing->field_52 = 0;
         initialise_thing_state(thing, CrSt_ImpBirth);
