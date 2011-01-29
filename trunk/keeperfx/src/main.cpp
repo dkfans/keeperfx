@@ -212,6 +212,13 @@ unsigned short const player_state_to_spell[] = {
   0,10, 0, 11, 12, 13, 8, 0, 2,16, 14, 15, 0, 3, 0, 0,
 };
 
+unsigned char const attract_score[CREATURE_TYPES_COUNT] = {
+    0, 12, 11, 6, 7, 7, 14, 16,     //0
+    6, 6, 12, 5, 6, 13, 14, 10,     //8
+    11, 13, 10, 3, 14, 12, 13, 2,   //16
+    6, 14, 8, 10, 5, 10, 10, 0      //24
+};
+
 //static
 TbClockMSec last_loop_time=0;
 
@@ -449,6 +456,9 @@ DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long a2);
 DLLIMPORT unsigned char _DK_alter_rock_style(unsigned char a1, signed char a2, signed char a3, unsigned char a4);
 DLLIMPORT long _DK_wp_check_map_pos_valid(struct Wander *wandr, long a1);
 DLLIMPORT void _DK_startup_network_game(void);
+DLLIMPORT struct Room * _DK_pick_random_room(PlayerNumber plyr_idx, enum RoomKinds kind);
+DLLIMPORT int _DK_create_creature_at_entrance(struct Room * room, unsigned short crtr_kind);
+DLLIMPORT int _DK_calculate_free_lair_space(struct Dungeon * dungeon);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 #ifdef __cplusplus
@@ -5008,10 +5018,293 @@ TbBool generation_due_in_game(void)
  return ( (game.play_gameturn-game.entrance_last_generate_turn) >= game.generate_speed );
 }
 
+TbBool generation_due_for_dungeon(struct Dungeon * dungeon)
+{
+    SYNCDBG(9,"Starting");
+    return (!game.field_150356 ||
+        game.armageddon.count_down + game.field_150356 > game.play_gameturn)
+        && dungeon->field_AE1 != -1
+        && game.play_gameturn - dungeon->field_ADD >= dungeon->field_AE1;
+}
+
+TbBool generation_available_to_dungeon(struct Dungeon * dungeon)
+{
+    SYNCDBG(9,"Starting");
+    return dungeon->room_kind[RoK_ENTRANCE] != 0 &&
+        (int) dungeon->num_active_crtrs < dungeon->max_creatures;
+}
+
+int calculate_attractive_room_quantity(enum RoomKinds room_kind, int plyr_idx, int crtr_kind)
+{
+    int result;
+    int used_capacity;
+    struct Room * room;
+    int total_capacity;
+    int used_fraction;
+    int slabs_count;
+    struct Dungeon * dungeon;
+    int i;
+
+    dungeon = get_dungeon(plyr_idx);
+    slabs_count = get_room_slabs_count(plyr_idx, room_kind);
+
+    result = 0;
+    switch (room_kind) {
+    case RoK_NONE:
+    case RoK_DUNGHEART:
+    case RoK_LAIR:
+    case RoK_BRIDGE:
+        return -dungeon->field_91A[crtr_kind];
+    case RoK_ENTRANCE:
+    case RoK_LIBRARY:
+    case RoK_PRISON:
+    case RoK_TORTURE:
+    case RoK_TRAINING:
+    case RoK_SCAVENGER:
+    case RoK_TEMPLE:
+    case RoK_GRAVEYARD:
+    case RoK_BARRACKS:
+    case RoK_GUARDPOST:
+        return slabs_count / 3 - dungeon->field_91A[crtr_kind];
+    case RoK_TREASURE:
+        total_capacity = 0;
+        used_capacity = 0;
+        for (i = dungeon->room_kind[room_kind]; i != 0; i = room->next_of_owner) {
+            room = room_get(i);
+            used_capacity += room->used_capacity;
+            total_capacity += room->total_capacity;
+        }
+
+        if (total_capacity > 0) {
+            used_fraction = used_capacity * 256 / total_capacity;
+        }
+        else {
+            used_fraction = 0;
+        }
+
+        return slabs_count * used_fraction / 256 / 3;
+    case RoK_WORKSHOP:
+    case RoK_GARDEN:
+        return slabs_count / 4 - dungeon->field_91A[crtr_kind];
+    default:
+        return 0;
+    }
+}
+
+int calculate_excess_attraction_for_creature(int crtr_kind, int plyr_idx)
+{
+    struct CreatureStats * stats;
+    enum RoomKinds room_kind;
+
+    SYNCDBG(11, "Starting");
+
+    stats = creature_stats_get(crtr_kind);
+    room_kind = (enum RoomKinds) stats->entrance_rooms[0];
+
+    return calculate_attractive_room_quantity(room_kind,
+        plyr_idx, crtr_kind);
+}
+
+int creature_will_generate_for_dungeon(struct Dungeon * dungeon, int crtr_kind)
+{
+    enum RoomKinds room_kind;
+    struct CreatureStats * stats;
+    int i;
+    int slabs_count;
+
+    SYNCDBG(11, "Starting for creature kind %s", creature_code_name(crtr_kind));
+
+    if (game.pool.crtr_kind[crtr_kind] == 0) {
+        return 0;
+    }
+
+    if (!dungeon->creature_enabled[crtr_kind]) {
+        return 0;
+    }
+
+    stats = creature_stats_get(crtr_kind);
+
+    for (i = 0; i < 3; ++i) {
+        room_kind = (enum RoomKinds) stats->entrance_rooms[i];
+
+        if (room_kind != RoK_NONE) {
+            slabs_count = get_room_slabs_count(dungeon->owner, room_kind);
+
+            if (slabs_count < stats->entrance_slabs_req[i]) {
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
+
+
+int calculate_creature_to_generate_for_dungeon(struct Dungeon * dungeon)
+{
+    int i;
+    int cum_freq; //cumulative frequency
+    int gen_count;
+    int crtr_freq[CREATURE_TYPES_COUNT];
+    int rnd;
+    int score;
+
+    SYNCDBG(9,"Starting");
+
+    cum_freq = 0;
+    gen_count = 0;
+    for (i = 1; i < CREATURE_TYPES_COUNT; ++i) {
+        if (creature_will_generate_for_dungeon(dungeon, i)) {
+            gen_count += 1;
+
+            score = attract_score[i] + calculate_excess_attraction_for_creature(i,
+                dungeon->owner);
+            if (score < 1) {
+                score = 1;
+            }
+
+            cum_freq += score;
+            crtr_freq[i] = cum_freq;
+        }
+        else {
+            crtr_freq[i] = 0;
+        }
+    }
+
+    if (gen_count > 0) {
+        if (cum_freq > 0) {
+            rnd = ACTION_RANDOM(cum_freq);
+
+            i = 1;
+            while (rnd >= crtr_freq[i]) {
+                ++i;
+                if (i >= CREATURE_TYPES_COUNT) {
+                    ERRORLOG("HOW DID I GET THIS FAR!");
+                    return 0;
+                }
+            }
+
+            return i;
+        }
+        else {
+            ERRORLOG("CREATURE AVAILABLE BUT NO CREATURE SCORES - XLS?");
+        }
+    }
+
+    return 0;
+}
+
+struct Room * pick_random_room(PlayerNumber plyr_idx, enum RoomKinds kind)
+{
+    return _DK_pick_random_room(plyr_idx, kind);
+}
+
+int create_creature_at_entrance(struct Room * room, unsigned short crtr_kind)
+{
+    return _DK_create_creature_at_entrance(room, crtr_kind);
+}
+
+void generate_creature_at_random_entrance(struct Dungeon * dungeon, int crtr_kind)
+{
+    struct Room * room;
+
+    SYNCDBG(9,"Starting");
+
+    room = pick_random_room(dungeon->owner, RoK_ENTRANCE);
+    if (room != NULL) {
+        if (create_creature_at_entrance(room, crtr_kind) &&
+                game.pool.crtr_kind[crtr_kind] > 0) {
+            game.pool.crtr_kind[crtr_kind] -= 1;
+        }
+    }
+    else {
+        ERRORLOG("COULD NOT GET A RANDOM ENTRANCE");
+    }
+}
+
+int calculate_free_lair_space(struct Dungeon * dungeon)
+{
+    SYNCDBG(9,"Starting");
+    return _DK_calculate_free_lair_space(dungeon);
+}
+
+void generate_creature_for_dungeon(struct Dungeon * dungeon)
+{
+    int kind;
+    int lair_space;
+
+    SYNCDBG(9,"Starting");
+
+    kind = calculate_creature_to_generate_for_dungeon(dungeon);
+
+    if (kind > 0) {
+        lair_space = calculate_free_lair_space(dungeon);
+        if (game.creature_stats[kind].pay > dungeon->money) {
+            if (my_player_number == dungeon->owner) {
+                output_message(SMsg_GoldLow, 500, 1);
+            }
+        }
+        else if (lair_space > 0) {
+            generate_creature_at_random_entrance(dungeon, kind);
+        }
+        else if (lair_space == 0) {
+            generate_creature_at_random_entrance(dungeon, kind);
+
+            if (my_player_number == dungeon->owner) {
+                if (dungeon->room_kind[RoK_LAIR] != 0) {
+                    output_message(SMsg_LairTooSmall, 500, 1);
+                }
+                else {
+                    output_message(SMsg_RoomLairNeeded, 500, 1);
+                }
+            }
+
+            if (dungeon->room_kind[RoK_LAIR] != 0) {
+                event_create_event_or_update_nearby_existing_event(0, 0, 17, dungeon->owner, 0);
+            }
+        }
+    }
+}
+
 void process_entrance_generation(void)
 {
-  SYNCDBG(8,"Starting");
-  _DK_process_entrance_generation();
+    struct PlayerInfo *plyr;
+    int i;
+    struct Dungeon *dungeon;
+    unsigned v1;
+
+    SYNCDBG(8,"Starting");
+    //_DK_process_entrance_generation();
+
+    if (generation_due_in_game()) {
+        if (!game.field_150356) {
+            update_dungeon_scores();
+            update_dungeon_generation_speeds();
+            game.field_14E930[1] = game.play_gameturn;
+        }
+    }
+
+    for (i = 0; i < PLAYERS_COUNT; ++i) {
+        plyr = get_player(i);
+        if (!player_exists(plyr)) {
+            continue;
+        }
+
+        dungeon = get_players_dungeon(plyr);
+
+        if (plyr->field_0 & 1 && plyr->field_2C == 1 && plyr->victory_state != 2) {
+            v1 = dungeon->field_AE1;
+            if (generation_due_for_dungeon(dungeon)) {
+                if (generation_available_to_dungeon(dungeon)) {
+                    generate_creature_for_dungeon(dungeon);
+                }
+
+                dungeon->field_ADD = game.play_gameturn;
+            }
+
+            *(unsigned *)(dungeon->field_1460 + 0x25) = 0;
+        }
+    }
 }
 
 void process_payday(void)
