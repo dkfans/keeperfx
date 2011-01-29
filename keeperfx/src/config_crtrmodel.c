@@ -86,6 +86,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"SPECTATOR",        14},
   {"EVIL",             15},
   {"NEVER_CHICKENS",   16},
+  {"IMMUNE_TO_BOULDER",17},
   {NULL,                0},
   };
 
@@ -648,6 +649,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               crconf->model_flags |= MF_NeverChickens;
               n++;
               break;
+            case 17: // IMMUNE_TO_BOULDER
+                crconf->model_flags |= MF_ImmuneToBoulder;
+                n++;
+                break;
             default:
               CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);

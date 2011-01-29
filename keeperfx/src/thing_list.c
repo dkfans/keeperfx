@@ -1173,12 +1173,12 @@ TbBool update_thing(struct Thing *thing)
   {
     if ((thing->field_1 & 0x04) != 0)
     {
-      thing->pos_2C.x.val += thing->pos_32.x.val;
-      thing->pos_2C.y.val += thing->pos_32.y.val;
-      thing->pos_2C.z.val += thing->pos_32.z.val;
-      thing->pos_32.x.val = 0;
-      thing->pos_32.y.val = 0;
-      thing->pos_32.z.val = 0;
+      thing->pos_2C.x.val += thing->acceleration.x.val;
+      thing->pos_2C.y.val += thing->acceleration.y.val;
+      thing->pos_2C.z.val += thing->acceleration.z.val;
+      thing->acceleration.x.val = 0;
+      thing->acceleration.y.val = 0;
+      thing->acceleration.z.val = 0;
       set_flag_byte(&thing->field_1, 0x04, false);
     }
     thing->velocity.x.val = thing->pos_2C.x.val;
@@ -1214,7 +1214,7 @@ TbBool update_thing(struct Thing *thing)
           thing->pos_2C.y.val = thing->pos_2C.y.val * (long)(256 - thing->field_24) / 256;
         if ((thing->field_25 & 0x20) == 0)
         {
-          thing->pos_32.z.val -= thing->field_20;
+          thing->acceleration.z.val -= thing->field_20;
           thing->field_1 |= 0x04;
         }
       } else

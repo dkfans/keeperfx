@@ -1512,8 +1512,8 @@ void explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const
         // If the thing isn't dying, move it
         if ((tngdst->class_id != TCls_Creature) || (tngdst->health >= 0))
         {
-            tngdst->pos_32.x.val +=   move_dist * LbSinL(move_angle) >> 16;
-            tngdst->pos_32.y.val += -(move_dist * LbCosL(move_angle) >> 8) >> 8;
+            tngdst->acceleration.x.val +=   move_dist * LbSinL(move_angle) >> 16;
+            tngdst->acceleration.y.val += -(move_dist * LbCosL(move_angle) >> 8) >> 8;
             tngdst->field_1 |= 0x04;
         } else
         {

@@ -42,6 +42,7 @@ enum CreatureModelFlags {
     MF_IsSpectator    = 0x0010, // simply, Floating spirit
     MF_IsEvil         = 0x0020, // All evil creatures
     MF_NeverChickens  = 0x0040, // Cannot be affected by Chicken (for Avatar)
+    MF_ImmuneToBoulder= 0x0080, // Boulder traps are destroyed at the moment they touch the creature
 };
 
 enum CreatureJobFlags {

@@ -473,9 +473,9 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
               ntng->field_52 = thing->field_52;
               ntng->field_54 = thing->field_54;
               angles_to_vector(ntng->field_52, ntng->field_54, 32, &cvect);
-              ntng->pos_32.x.val += cvect.x;
-              ntng->pos_32.y.val += cvect.y;
-              ntng->pos_32.z.val += cvect.z;
+              ntng->acceleration.x.val += cvect.x;
+              ntng->acceleration.y.val += cvect.y;
+              ntng->acceleration.z.val += cvect.z;
               ntng->field_1 |= 0x04;
             }
             n += ANGLE_TRIGL_PERIOD/3;
@@ -591,9 +591,9 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
               ntng->field_52 = thing->field_52;
               ntng->field_54 = thing->field_54;
               angles_to_vector(ntng->field_52, ntng->field_54, 32, &cvect);
-              ntng->pos_32.x.val += cvect.x;
-              ntng->pos_32.y.val += cvect.y;
-              ntng->pos_32.z.val += cvect.z;
+              ntng->acceleration.x.val += cvect.x;
+              ntng->acceleration.y.val += cvect.y;
+              ntng->acceleration.z.val += cvect.z;
               ntng->field_1 |= 0x04;
             }
             n += ANGLE_TRIGL_PERIOD/3;
@@ -1233,9 +1233,9 @@ void throw_out_gold(struct Thing *thing)
     radius = ACTION_RANDOM(128);
     x = (radius * LbSinL(angle)) / 256;
     y = (radius * LbCosL(angle)) / 256;
-    gldtng->pos_32.x.val += x/256;
-    gldtng->pos_32.y.val -= y/256;
-    gldtng->pos_32.z.val += ACTION_RANDOM(64) + 96;
+    gldtng->acceleration.x.val += x/256;
+    gldtng->acceleration.y.val -= y/256;
+    gldtng->acceleration.z.val += ACTION_RANDOM(64) + 96;
     gldtng->field_1 |= 0x04;
     if (i < 400)
         delta = i;
@@ -1543,7 +1543,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
 }
 
 TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_plyr_idx,
-      unsigned char a4, TbBool died_in_battle, unsigned char a6)
+      unsigned char a4, TbBool died_in_battle, TbBool disallow_unconscious)
 {
     struct CreatureControl *cctrl;
     struct CreatureControl *cctrlgrp;
@@ -1551,7 +1551,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     struct Dungeon *dungeon;
     long i,k;
     SYNCDBG(18,"Starting");
-    //return _DK_kill_creature(thing, killertng, killer_plyr_idx, a4, died_in_battle, a6);
+    //return _DK_kill_creature(thing, killertng, killer_plyr_idx, a4, died_in_battle, disallow_unconscious);
     dungeon = NULL;
     cctrl = creature_control_get_from_thing(thing);
     cleanup_current_thing_state(thing);
@@ -1649,7 +1649,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     if (dungeon != NULL)
       dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
     SYNCDBG(18,"Almost finished");
-    if ((a6) || (!player_has_room(killertng->owner,RoK_PRISON))
+    if ((disallow_unconscious) || (!player_has_room(killertng->owner,RoK_PRISON))
       || (!player_creature_tends_to(killertng->owner,CrTend_Imprison)))
     {
       if (a4 == 0)
@@ -1810,9 +1810,9 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
             shot->field_52 = (angle_xy + ACTION_RANDOM(101) - 50) & 0x7FF;
             shot->field_54 = (angle_yz + ACTION_RANDOM(101) - 50) & 0x7FF;
             angles_to_vector(shot->field_52, shot->field_54, shotst->old->speed, &cvect);
-            shot->pos_32.x.val += cvect.x;
-            shot->pos_32.y.val += cvect.y;
-            shot->pos_32.z.val += cvect.z;
+            shot->acceleration.x.val += cvect.x;
+            shot->acceleration.y.val += cvect.y;
+            shot->acceleration.z.val += cvect.z;
             shot->field_1 |= 0x04;
             shot->word_14 = damage;
             shot->health = shotst->old->health;
@@ -1826,9 +1826,9 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
         shot->field_52 = angle_xy;
         shot->field_54 = angle_yz;
         angles_to_vector(shot->field_52, shot->field_54, shotst->old->speed, &cvect);
-        shot->pos_32.x.val += cvect.x;
-        shot->pos_32.y.val += cvect.y;
-        shot->pos_32.z.val += cvect.z;
+        shot->acceleration.x.val += cvect.x;
+        shot->acceleration.y.val += cvect.y;
+        shot->acceleration.z.val += cvect.z;
         shot->field_1 |= 0x04;
         shot->word_14 = damage;
         shot->health = shotst->old->health;

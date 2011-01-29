@@ -112,7 +112,7 @@ unsigned char field_22;
 unsigned char field_25;
     struct CoordDelta3d pos_26;
     struct CoordDelta3d pos_2C;
-    struct CoordDelta3d pos_32;
+    struct CoordDelta3d acceleration;
     struct CoordDelta3d velocity;
 unsigned short field_3E;
     long field_40;
