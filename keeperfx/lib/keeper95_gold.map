@@ -1149,6 +1149,9 @@
  0001:000A7270       process_things_in_dungeon_hand
  0001:00043260       process_dungeon_devastation_effects
  0001:0007E9D0       process_entrance_generation
+ 0001:0007E910       calculate_free_lair_space
+ 0001:000B7030       pick_random_room
+ 0001:000723A0       create_creature_at_entrance
  0001:00043BB0       object_is_gold
  0001:00044A20       thing_is_spellbook
  0001:0005ECF0       element_top_face_texture
@@ -1853,3 +1856,4 @@
  0001:00091050       shot_hit_object_at
  0001:00092000       create_relevant_effect_for_shot_hitting_thing
  0001:000768A0       check_hit_when_attacking_door
+
