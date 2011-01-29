@@ -145,12 +145,6 @@ enum MapLocationTypes {
     MLoc_THING                         =  7,
 };
 
-enum TriggerFlags {
-    TrgF_NONE                          =  0x00,
-    TrgF_REUSABLE                      =  0x01,
-    TrgF_DISABLED                      =  0x02,
-};
-
 #ifdef __cplusplus
 #pragma pack(1)
 #endif
@@ -241,8 +235,6 @@ long script_support_send_tunneller_to_dungeon(struct Thing *thing, unsigned char
 long script_support_send_tunneller_to_dungeon_heart(struct Thing *thing, unsigned char a2);
 long script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing);
 struct Thing *script_create_new_creature(unsigned char plyr_idx, long kind, long location, long carried_gold, long crtr_level);
-long get_highest_experience_level_in_group(struct Thing *thing);
-long add_creature_to_group(struct Thing *crthing, struct Thing *grthing);
 TbBool process_activation_status(struct Condition *condt);
 long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char a3);
 TbBool get_condition_status(unsigned char opkind, long val1, long val2);

@@ -82,7 +82,7 @@ void anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, lon
 void apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev);
 long move_creature(struct Thing *thing);
 TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3,
-      unsigned char a4, TbBool died_in_battle, unsigned char a6);
+      unsigned char a4, TbBool died_in_battle, TbBool disallow_unconscious);
 void update_creature_count(struct Thing *thing);
 long process_creature_state(struct Thing *thing);
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
