@@ -593,6 +593,7 @@
  0001:00070300       kinky_torturing
  0001:00070CA0       process_person_moods_and_needs
  0001:00071090       resync_game
+ 0001:000723A0       create_creature_at_entrance
  0001:00072570       creature_leaving_dungeon
  0001:000725F0       creature_leaves
  0001:00072700       creature_leaves_or_dies
@@ -652,6 +653,7 @@
  0001:0007B7F0       init_navigation
  0001:0007B860       creature_follow_route_to_using_gates
  0001:0007B8B0       get_navigation_colour
+ 0001:0007E910       calculate_free_lair_space
  0001:0007E9D0       process_entrance_generation
  0001:0007ED90       update_dungeon_scores
  0001:0007F050       update_dungeon_generation_speeds
@@ -1005,6 +1007,7 @@
  0001:000B6D10       find_room_with_spare_room_item_capacity
  0001:000B6D80       find_nearest_room_for_thing_with_spare_item_capacity
  0001:000B6EF0       find_room_with_spare_capacity
+ 0001:000B7030       pick_random_room
  0001:000B7120       create_room
  0001:000B7440       place_room
  0001:000B7820       set_room_capacity
