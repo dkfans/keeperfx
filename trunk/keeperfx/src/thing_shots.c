@@ -48,6 +48,10 @@ DLLIMPORT long _DK_shot_hit_shootable_thing_at(struct Thing *shotng, struct Thin
 DLLIMPORT long _DK_shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos);
 DLLIMPORT void _DK_create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target);
 DLLIMPORT long _DK_check_hit_when_attacking_door(struct Thing *thing);
+DLLIMPORT long _DK_get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos);
+DLLIMPORT void _DK_process_dig_shot_hit_wall(struct Thing *thing, long a2);
+DLLIMPORT void _DK_slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
+DLLIMPORT void _DK_bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
 /******************************************************************************/
 TbBool shot_is_slappable(const struct Thing *thing, long plyr_idx)
 {
@@ -141,9 +145,167 @@ struct Thing *get_shot_collided_with_same_type(struct Thing *thing, struct Coord
     return _DK_get_shot_collided_with_same_type(thing, nxpos);
 }
 
+long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
+{
+    return _DK_get_thing_blocked_flags_at(thing, pos);
+}
+
+void process_dig_shot_hit_wall(struct Thing *thing, long a2)
+{
+    _DK_process_dig_shot_hit_wall(thing, a2); return;
+}
+
+void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3)
+{
+    _DK_slide_thing_against_wall_at(thing, pos, a3); return;
+}
+
+void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long a3)
+{
+    _DK_bounce_thing_off_wall_at(thing, pos, a3); return;
+}
+
+struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long eff_kind, long snd_idx, long snd_range)
+{
+    struct Thing *efftng;
+    long i;
+    efftng = INVALID_THING;
+    if (eff_kind > 0) {
+        efftng = create_effect(effpos, eff_kind, effowner);
+    }
+    if (snd_idx > 0)
+    {
+        if (!thing_is_invalid(efftng))
+        {
+            i = snd_idx;
+            if (snd_range > 1)
+                i += UNSYNC_RANDOM(snd_range);
+            thing_play_sample(efftng, i, 100, 0, 3, 0, 2, 256);
+        }
+    }
+    return efftng;
+}
+
 long shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos)
 {
-    return _DK_shot_hit_wall_at(thing, pos);
+    struct ShotConfigStats *shotst;
+    struct Thing *shooter;
+    struct Thing *doortng;
+    struct Thing *efftng;
+    unsigned long blocked_flags;
+    long cube_id;
+    TbBool shot_explodes;
+    long i;
+    //return _DK_shot_hit_wall_at(thing, pos);
+
+    efftng = INVALID_THING;
+    shooter = INVALID_THING;
+    shot_explodes = 0;
+    shotst = get_shot_model_stats(thing->model);
+    if (thing->index != thing->field_1D) {
+        shooter = thing_get(thing->field_1D);
+    }
+    blocked_flags = get_thing_blocked_flags_at(thing, pos);
+    if ( shotst->old->field_49 ) {
+        process_dig_shot_hit_wall(thing, blocked_flags);
+    }
+
+    if ((blocked_flags & 0x04) != 0)
+    {
+        cube_id = get_top_cube_at(pos->x.stl.num, pos->y.stl.num);
+        doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
+        if (!thing_is_invalid(doortng))
+        {
+            efftng = create_shot_hit_effect(&thing->mappos, thing->owner, shotst->old->field_31, shotst->old->field_33, shotst->old->field_35);
+            if ( shotst->old->field_36 )
+              shot_explodes = 1;
+            if ( !game.objects_config[door_to_object[doortng->model]].field_7 || shotst->old->field_4C )
+            {
+              apply_damage_to_thing(doortng, thing->word_14, -1);
+            }
+            else
+            {
+              i = 32 * thing->word_14 / 256;
+              if (i <= 1)
+                  i = 1;
+              apply_damage_to_thing(doortng, i, -1);
+            }
+        } else
+        if (cube_id == 39)
+        {
+            efftng = create_shot_hit_effect(&thing->mappos, thing->owner, shotst->old->field_37, shotst->old->field_39, 1);
+            if ( shotst->old->field_3B ) {
+                shot_explodes = 1;
+            }
+        } else
+        if ( (cube_id == 40) || (cube_id == 41) )
+        {
+            efftng = create_shot_hit_effect(&thing->mappos, thing->owner, shotst->old->field_3C, shotst->old->field_3E, 1);
+            if ( shotst->old->field_40 ) {
+                shot_explodes = 1;
+            }
+        } else
+        {
+            efftng = create_shot_hit_effect(&thing->mappos, thing->owner, shotst->old->field_2B, shotst->old->field_2D, shotst->old->field_2F);
+            if ( shotst->old->field_30 ) {
+                shot_explodes = 1;
+            }
+        }
+    }
+
+    if ( !shot_explodes )
+    {
+        if ((blocked_flags & 0x03) != 0)
+        {
+if ((game.play_gameturn > 17200)) {//34970
+SYNCDBG(1,"C class %d, model %d",(int)thing->class_id,(int)thing->model);
+things_stats_debug_dump();
+}
+
+            doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
+            if (!thing_is_invalid(doortng))
+            {
+                efftng = create_shot_hit_effect(&thing->mappos, thing->owner, shotst->old->field_31, shotst->old->field_33, shotst->old->field_35);
+                if (shotst->old->field_36)
+                    shot_explodes = 1;
+                if ( !game.objects_config[door_to_object[doortng->model]].field_7 || shotst->old->field_4C )
+                {
+                    apply_damage_to_thing(doortng, thing->word_14, -1);
+                } else
+                {
+                    i = 32 * thing->word_14 / 256;
+                    if (i <= 1)
+                      i = 1;
+                    apply_damage_to_thing(doortng, i, -1);
+                }
+            } else
+            {
+                efftng = create_shot_hit_effect(&thing->mappos, thing->owner, shotst->old->field_2B, shotst->old->field_2D, shotst->old->field_2F);
+                if ( shotst->old->field_30 )
+                  shot_explodes = 1;
+            }
+
+        }
+    }
+    if (!thing_is_invalid(efftng)) {
+        efftng->byte_16 = shotst->old->field_4A;
+    }
+    if ( shot_explodes )
+    {
+        if ( shotst->old->field_41 ) {
+            explosion_affecting_area(shooter, pos, shotst->old->field_41, shotst->old->field_43, shotst->old->field_4A);
+        }
+        delete_thing_structure(thing, 0);
+        return 1;
+    }
+    if (shotst->old->field_D <= 0)
+    {
+        slide_thing_against_wall_at(thing, pos, blocked_flags);
+    } else
+    {
+        bounce_thing_off_wall_at(thing, pos, blocked_flags);
+    }
+    return 0;
 }
 
 long shot_hit_door_at(struct Thing *thing, struct Coord3d *pos)
@@ -634,13 +796,17 @@ long move_shot(struct Thing *thing)
     }
     if ((thing->field_25 & 0x10) != 0)
     {
-      if ( (shotst->old->field_48) && thing_in_wall_at(thing, &filpos) && shot_hit_door_at(thing, &filpos) ) {
-          return 0;
+      if ( (shotst->old->field_48) && thing_in_wall_at(thing, &filpos) ) {
+          if ( shot_hit_door_at(thing, &filpos) ) {
+              return 0;
+          }
       }
     } else
     {
-      if ( thing_in_wall_at(thing, &filpos) && shot_hit_wall_at(thing, &filpos) ) {
-          return 0;
+      if ( thing_in_wall_at(thing, &filpos) ) {
+          if ( shot_hit_wall_at(thing, &filpos) ) {
+              return 0;
+          }
       }
     }
     if ( (thing->mappos.x.stl.num != filpos.x.stl.num) || (thing->mappos.y.stl.num != filpos.y.stl.num) )
@@ -672,7 +838,7 @@ long update_shot(struct Thing *thing)
     struct ComponentVector cvect;
     long i;
     TbBool hit;
-    SYNCDBG(18,"Starting for model %d",(int)thing->model);
+    SYNCDBG(18,"Starting for index %d, model %d",(int)thing->index,(int)thing->model);
     //return _DK_update_shot(thing);
     hit = false;
     shotst = get_shot_model_stats(thing->model);
@@ -691,7 +857,7 @@ long update_shot(struct Thing *thing)
     {
         switch ( thing->model )
         {
-        case 2:
+        case ShM_Firebomb:
             for (i = 2; i > 0; i--)
             {
               pos1.x.val = thing->mappos.x.val - ACTION_RANDOM(127) + 63;
@@ -700,7 +866,7 @@ long update_shot(struct Thing *thing)
               create_thing(&pos1, TCls_EffectElem, 1, thing->owner, -1);
             }
             break;
-        case 4:
+        case ShM_Lightning:
             if ( lightning_is_close_to_player(myplyr, &thing->mappos) )
             {
               if (is_my_player_number(thing->owner))
@@ -714,7 +880,7 @@ long update_shot(struct Thing *thing)
               }
             }
             break;
-        case 6:
+        case ShM_NaviMissile:
             target = thing_get(thing->word_17);
             if ((thing_exists(target)) && (target->class_id == TCls_Creature))
             {
@@ -747,7 +913,7 @@ long update_shot(struct Thing *thing)
                 thing->field_1 |= 0x04;
             }
             break;
-        case 8:
+        case ShM_Wind:
             for (i = 10; i > 0; i--)
             {
               pos1.x.val = thing->mappos.x.val - ACTION_RANDOM(1023) + 511;
@@ -757,28 +923,28 @@ long update_shot(struct Thing *thing)
             }
             affect_nearby_enemy_creatures_with_wind(thing);
             break;
-        case 11:
+        case ShM_Grenade:
             thing->field_52 = (thing->field_52 + 113) & 0x7FF;
             break;
-        case 15:
-        case 20:
+        case ShM_Boulder:
+        case ShM_SolidBoulder:
             if ( apply_wallhug_force_to_boulder(thing) )
               hit = true;
             break;
-        case 16:
+        case ShM_GodLightning:
             draw_god_lightning(thing);
             lightning_modify_palette(thing);
             break;
-        case 18:
+        case ShM_Vortex:
             affect_nearby_stuff_with_vortex(thing);
             break;
-        case 19:
+        case ShM_Alarm:
             affect_nearby_friends_with_alarm(thing);
             break;
-        case 24:
+        case ShM_GodLightBall:
             update_god_lightning_ball(thing);
             break;
-        case 29:
+        case ShM_TrapLightning:
             if (((game.play_gameturn - thing->field_9) % 16) == 0)
             {
               thing->field_19 = 5;
@@ -852,8 +1018,8 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
         ilght.field_2 = shotst->old->field_52;
         ilght.field_11 = 1;
         ilght.field_3 = shotst->old->field_53;
-        thing->field_62 = light_create_light(&ilght);
-        if (thing->field_62 == 0) {
+        thing->light_id = light_create_light(&ilght);
+        if (thing->light_id == 0) {
             // Being out of free lights is quite common - so info instead of warning here
             SYNCDBG(8,"Cannot allocate dynamic light to %s.",thing_model_name(thing));
         }

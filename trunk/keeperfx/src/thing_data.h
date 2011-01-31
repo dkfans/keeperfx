@@ -134,7 +134,7 @@ unsigned short field_58;
     unsigned short field_5C;
     short health; //signed
 unsigned short field_60;
-    unsigned short field_62;
+    unsigned short light_id;
     short ccontrol_idx;
     unsigned char field_66;
     short next_of_class;

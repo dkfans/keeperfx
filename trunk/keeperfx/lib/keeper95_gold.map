@@ -1856,4 +1856,7 @@
  0001:00091050       shot_hit_object_at
  0001:00092000       create_relevant_effect_for_shot_hitting_thing
  0001:000768A0       check_hit_when_attacking_door
-
+ 0001:0004FEA0       get_thing_blocked_flags_at
+ 0001:00050060       slide_thing_against_wall_at
+ 0001:00050430       bounce_thing_off_wall_at
+ 0001:00091310       process_dig_shot_hit_wall

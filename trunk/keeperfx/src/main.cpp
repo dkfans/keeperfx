@@ -5011,11 +5011,15 @@ void process_dungeon_devastation_effects(void)
   _DK_process_dungeon_devastation_effects();
 }
 
+/** Checks if an entrance shall now generate next creature.
+ *
+ * @return Gives true if an entrance shall generate, false otherwise.
+ */
 TbBool generation_due_in_game(void)
 {
-  if (game.generate_speed <= 0)
-    return true;
- return ( (game.play_gameturn-game.entrance_last_generate_turn) >= game.generate_speed );
+    if (game.generate_speed <= 0)
+        return true;
+    return ( (game.play_gameturn-game.entrance_last_generate_turn) >= game.generate_speed );
 }
 
 TbBool generation_due_for_dungeon(struct Dungeon * dungeon)

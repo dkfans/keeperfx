@@ -35,8 +35,16 @@ extern "C" {
 /******************************************************************************/
 struct StructureList;
 
+enum ShadowCacheFlags {
+    ShCF_Allocated = 0x01,
+};
+
+enum LightFlags {
+    LgtF_Allocated = 0x01,
+};
+
 struct Light { // sizeof = 46
-  unsigned char field_0;
+  unsigned char flags;
   unsigned char field_1;
   unsigned char field_2;
   unsigned char field_3[2];

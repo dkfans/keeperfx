@@ -204,22 +204,20 @@ struct Party { // sizeof = 208
 };
 
 struct InitEffect { // sizeof = 39
-  short numfield_0;
+  short start_health;
   unsigned char generation_type;
   short accel_xy_min;
   short accel_xy_max;
   short accel_z_min;
   short accel_z_max;
   unsigned char field_B;
-  unsigned char field_C[2];
+  short field_C;
   unsigned char kind_min;
   unsigned char kind_max;
   unsigned char area_affect_type;
   unsigned char field_11;
-  unsigned char field_12[6];
-  unsigned char field_18[8];
-  unsigned char field_20[4];
-  unsigned char field_24[3];
+  struct InitLight ilght;
+  unsigned char field_26;
 };
 
 struct MapOffset {
@@ -264,7 +262,7 @@ struct UnkStruc7 { // sizeof = 17
 };
 
 struct ShadowCache { // sizeof = 129
-  unsigned char field_0;
+  unsigned char flags;
   unsigned char field_1[127];
   unsigned char field_80;
 };

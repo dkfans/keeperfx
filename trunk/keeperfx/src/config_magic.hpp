@@ -150,8 +150,7 @@ struct ShotStats // sizeof = 101
   unsigned char field_8;
   short field_9;
   short field_B;
-  unsigned char field_D;
-  unsigned char field_E;
+  short field_D;
   unsigned char field_F;
   unsigned char field_10;
   unsigned char field_11;
