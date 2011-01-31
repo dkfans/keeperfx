@@ -214,10 +214,10 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
   ilght.field_3 = 1;
   ilght.field_11 = 1;
   ilght.field_0 = 2560;
-  thing->field_62 = light_create_light(&ilght);
-  if (thing->field_62 != 0)
+  thing->light_id = light_create_light(&ilght);
+  if (thing->light_id != 0)
   {
-    light_set_light_never_cache(thing->field_62);
+    light_set_light_never_cache(thing->light_id);
   } else
   {
     ERRORLOG("Cannot allocate light to new hero");
@@ -381,6 +381,7 @@ TbBool creature_can_gain_experience(struct Thing *thing)
     if (cctrl->explevel >= dungeon->creature_max_level[thing->model])
         return false;
     // Creatures which reached absolute max level and have no grow up creature
+    crstat = creature_stats_get_from_thing(thing);
     if ((cctrl->explevel >= (CREATURE_MAX_LEVEL-1)) && (crstat->grow_up == 0))
         return false;
     return true;

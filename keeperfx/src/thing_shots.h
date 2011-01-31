@@ -36,7 +36,38 @@ extern "C" {
 
 struct Thing;
 
-
+enum ShotModels {
+    ShM_Null = 0,
+    ShM_Fireball,
+    ShM_Firebomb,
+    ShM_Freeze,
+    ShM_Lightning,
+    ShM_PoisonCloud, // 5
+    ShM_NaviMissile,
+    ShM_FlameBreathe,
+    ShM_Wind,
+    ShM_Missile,
+    ShM_Slow, // 10
+    ShM_Grenade,
+    ShM_Drain,
+    ShM_Hail_storm,
+    ShM_Arrow,
+    ShM_Boulder, // 15
+    ShM_GodLightning,
+    ShM_Spike,
+    ShM_Vortex,
+    ShM_Alarm,
+    ShM_SolidBoulder, // 20
+    ShM_SwingSword,
+    ShM_SwingFist,
+    ShM_Dig,
+    ShM_GodLightBall,
+    ShM_Group, // 25
+    ShM_Disease,
+    ShM_Chicken,
+    ShM_TimeBomb,
+    ShM_TrapLightning, // 29
+};
 
 #ifdef __cplusplus
 #pragma pack()

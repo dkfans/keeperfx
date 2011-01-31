@@ -113,8 +113,8 @@ void delete_thing_structure(struct Thing *thing, long a2)
       remove_first_creature(thing);
     if (!a2)
     {
-      if (thing->field_62)
-        light_delete_light(thing->field_62);
+      if (thing->light_id)
+        light_delete_light(thing->light_id);
     }
     if (!creature_control_invalid(cctrl))
     {
