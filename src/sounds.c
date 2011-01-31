@@ -49,30 +49,30 @@ DLLIMPORT int _DK_process_3d_sounds(void);
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4, unsigned char a5, unsigned char a6, long a7, long a8)
 {
-  struct Coord3d rcpos;
-  long i;
-  if (SoundDisabled)
-    return;
-  if (GetCurrentSoundMasterVolume() <= 0)
-    return;
-  if (thing_is_invalid(thing))
-      return;
-  rcpos.x.val = Receiver.pos.val_x;
-  rcpos.y.val = Receiver.pos.val_y;
-  rcpos.z.val = Receiver.pos.val_z;
-  if (get_3d_box_distance(&rcpos, &thing->mappos) < MaxSoundDistance)
-  {
-    i = thing->field_66;
-    if (i > 0)
+    struct Coord3d rcpos;
+    long i;
+    if (SoundDisabled)
+        return;
+    if (GetCurrentSoundMasterVolume() <= 0)
+        return;
+    if (thing_is_invalid(thing))
+        return;
+    rcpos.x.val = Receiver.pos.val_x;
+    rcpos.y.val = Receiver.pos.val_y;
+    rcpos.z.val = Receiver.pos.val_z;
+    if (get_3d_box_distance(&rcpos, &thing->mappos) < MaxSoundDistance)
     {
-      S3DAddSampleToEmitterPri(i, a2, 0, a3, a8, a4, a5, a6 | 0x01, a7);
-    } else
-    {
-      i = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
-         a2, 0, a3, a8, a4, a6 | 0x01, a7);
-     thing->field_66 = i;
+        i = thing->field_66;
+        if (i > 0)
+        {
+            S3DAddSampleToEmitterPri(i, a2, 0, a3, a8, a4, a5, a6 | 0x01, a7);
+        } else
+        {
+            i = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
+               a2, 0, a3, a8, a4, a6 | 0x01, a7);
+           thing->field_66 = i;
+        }
     }
-  }
 }
 
 void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)

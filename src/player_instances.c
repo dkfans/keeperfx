@@ -1020,10 +1020,10 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     else
       disband_creatures_group(thing);
   }
-  if (thing->field_62 != 0)
+  if (thing->light_id != 0)
   {
-    light_delete_light(thing->field_62);
-    thing->field_62 = 0;
+    light_delete_light(thing->light_id);
+    thing->light_id = 0;
   }
 }
 

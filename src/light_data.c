@@ -53,9 +53,9 @@ struct Light *light_allocate_light(void)
     for (i=1; i < LIGHTS_COUNT; i++)
     {
         lgt = &game.lights[i];
-        if ((lgt->field_0 & 0x01) == 0)
+        if ((lgt->flags & LgtF_Allocated) == 0)
         {
-            lgt->field_0 |= 0x01;
+            lgt->flags |= LgtF_Allocated;
             lgt->index = i;
             return lgt;
         }
@@ -84,9 +84,9 @@ struct ShadowCache *light_allocate_shadow_cache(void)
     for (i=1; i < SHADOWS_COUNT; i++)
     {
         shdc = &game.shadow_cache[i];
-        if ((shdc->field_0 & 0x01) == 0)
+        if ((shdc->flags & ShCF_Allocated) == 0)
         {
-            shdc->field_0 |= 0x01;
+            shdc->flags |= ShCF_Allocated;
             return shdc;
         }
     }
@@ -130,8 +130,9 @@ long light_create_light(struct InitLight *ilght)
     unsigned long k;
     //return _DK_light_create_light(ilght);
     lgt = light_allocate_light();
-    if (light_is_invalid(lgt))
+    if (light_is_invalid(lgt)) {
         return 0;
+    }
     if (ilght->field_11 != 0)
     {
         shdc = light_allocate_shadow_cache();
@@ -150,8 +151,8 @@ long light_create_light(struct InitLight *ilght)
         light_add_light_to_list(lgt, &game.thing_lists[11]);
         stat_light_needs_updating = 1;
     }
-    lgt->field_0 |= 0x02;
-    lgt->field_0 |= 0x08;
+    lgt->flags |= 0x02;
+    lgt->flags |= 0x08;
     lgt->mappos.x.val = ilght->mappos.x.val;
     lgt->mappos.y.val = ilght->mappos.y.val;
     lgt->mappos.z.val = ilght->mappos.z.val;
@@ -159,7 +160,7 @@ long light_create_light(struct InitLight *ilght)
     lgt->field_2 = ilght->field_2;
     k = 2 * ilght->field_3;
     lgt->field_1 = k ^ ((k ^ lgt->field_1) & 0x01);
-    lgt->field_0 ^= (lgt->field_0 ^ 0x04 * ilght->field_11) & 0x04;
+    lgt->flags ^= (lgt->flags ^ 0x04 * ilght->field_11) & 0x04;
     lgt->field_1A = ilght->field_8;
     lgt->field_18 = ilght->field_4;
     lgt->field_12 = ilght->field_12;
@@ -237,15 +238,15 @@ void light_turn_light_off(long idx)
     return;
   }
   lgt = &game.lights[idx];
-  if ((lgt->field_0 & 0x01) == 0)
+  if ((lgt->flags & LgtF_Allocated) == 0)
   {
     ERRORLOG("Attempt to turn off unallocated light structure");
     return;
   }
-  if ((lgt->field_0 & 0x02) == 0)
+  if ((lgt->flags & 0x02) == 0)
     return;
-  lgt->field_0 &= 0xFD;
-  if ((lgt->field_0 & 0x04) != 0)
+  lgt->flags &= 0xFD;
+  if ((lgt->flags & 0x04) != 0)
   {
     light_remove_light_from_list(lgt, &game.thing_lists[12]);
     return;
@@ -280,23 +281,23 @@ void light_turn_light_on(long idx)
     return;
   }
   lgt = &game.lights[idx];
-  if ((lgt->field_0 & 0x01) == 0)
+  if ((lgt->flags & LgtF_Allocated) == 0)
   {
     ERRORLOG("Attempt to turn on unallocated light structure");
     return;
   }
-  if ((lgt->field_0 & 0x02) != 0)
+  if ((lgt->flags & 0x02) != 0)
     return;
-  lgt->field_0 |= 0x02;
-  if ((lgt->field_0 & 0x04) == 0)
+  lgt->flags |= 0x02;
+  if ((lgt->flags & 0x04) == 0)
   {
     light_add_light_to_list(lgt, &game.thing_lists[11]);
     stat_light_needs_updating = 1;
-    lgt->field_0 |= 0x08;
+    lgt->flags |= 0x08;
   } else
   {
     light_add_light_to_list(lgt, &game.thing_lists[12]);
-    lgt->field_0 |= 0x08;
+    lgt->flags |= 0x08;
   }
 }
 
@@ -343,23 +344,22 @@ void light_initialise_lighting_tables(void)
 
 void light_initialise(void)
 {
-  struct Light *lgt;
-  int i;
-  for (i=0; i < LIGHTS_COUNT; i++)
-  {
-    lgt = &game.lights[i];
-    if ((lgt->field_0 & 0x01) != 0)
-      light_delete_light(lgt->index);
-  }
-  if (!game.field_4614E)
-  {
-    light_initialise_lighting_tables();
-    for (i=0; i < 32; i++)
+    struct Light *lgt;
+    int i;
+    for (i=0; i < LIGHTS_COUNT; i++)
     {
-      light_bitmask[i] = 1 << (31-i);
+        lgt = &game.lights[i];
+        if ((lgt->flags & LgtF_Allocated) != 0)
+            light_delete_light(lgt->index);
     }
-    game.field_4614E = 1;
-  }
+    if (!game.field_4614E)
+    {
+        light_initialise_lighting_tables();
+        for (i=0; i < 32; i++) {
+            light_bitmask[i] = 1 << (31-i);
+        }
+        game.field_4614E = 1;
+    }
 }
 
 void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
@@ -369,18 +369,18 @@ void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
 
 void light_set_lights_on(char state)
 {
-  if (state)
-  {
-    game.field_46149 = 10;
-    game.field_4614D = 1;
-  } else
-  {
-    game.field_46149 = 32;
-    game.field_4614D = 0;
-  }
-  // Enable lights on all but bounding subtiles
-  light_stat_light_map_clear_area(0, 0, map_subtiles_x, map_subtiles_y);
-  light_signal_stat_light_update_in_area(1, 1, map_subtiles_x, map_subtiles_y);
+    if (state)
+    {
+        game.field_46149 = 10;
+        game.field_4614D = 1;
+    } else
+    {
+        game.field_46149 = 32;
+        game.field_4614D = 0;
+    }
+    // Enable lights on all but bounding subtiles
+    light_stat_light_map_clear_area(0, 0, map_subtiles_x, map_subtiles_y);
+    light_signal_stat_light_update_in_area(1, 1, map_subtiles_x, map_subtiles_y);
 }
 
 void light_render_area(int startx, int starty, int endx, int endy)
@@ -390,51 +390,51 @@ void light_render_area(int startx, int starty, int endx, int endy)
 
 void update_light_render_area(void)
 {
-  int subtile_x,subtile_y;
-  int delta_x,delta_y;
-  int startx,endx,starty,endy;
-  struct PlayerInfo *player;
-  SYNCDBG(6,"Starting");
-  player=get_my_player();
-  if (player->field_37 >= 1)
-    if ((player->field_37 <= 2) || (player->field_37 == 5))
+    int subtile_x,subtile_y;
+    int delta_x,delta_y;
+    int startx,endx,starty,endy;
+    struct PlayerInfo *player;
+    SYNCDBG(6,"Starting");
+    player=get_my_player();
+    if (player->field_37 >= 1)
+      if ((player->field_37 <= 2) || (player->field_37 == 5))
+      {
+          game.field_14BB5D = LIGHT_MAX_RANGE;
+          game.field_14BB59 = LIGHT_MAX_RANGE;
+      }
+    delta_x=abs(game.field_14BB59);
+    delta_y=abs(game.field_14BB5D);
+    // Prepare the area constraits
+    if (player->acamera != NULL)
     {
-        game.field_14BB5D = LIGHT_MAX_RANGE;
-        game.field_14BB59 = LIGHT_MAX_RANGE;
+      subtile_y = player->acamera->mappos.y.stl.num;
+      subtile_x = player->acamera->mappos.x.stl.num;
+    } else
+    {
+      subtile_y = 0;
+      subtile_x = 0;
     }
-  delta_x=abs(game.field_14BB59);
-  delta_y=abs(game.field_14BB5D);
-  // Prepare the area constraits
-  if (player->acamera != NULL)
-  {
-    subtile_y = player->acamera->mappos.y.stl.num;
-    subtile_x = player->acamera->mappos.x.stl.num;
-  } else
-  {
-    subtile_y = 0;
-    subtile_x = 0;
-  }
 //SYNCMSG("LghtRng %d,%d CamTil %d,%d",game.field_14BB59,game.field_14BB5D,tile_x,tile_y);
-  if (subtile_y > delta_y)
-  {
-    starty = subtile_y - delta_y;
-    if (starty > map_subtiles_y) starty = map_subtiles_y;
-  } else
-    starty = 0;
-  if (subtile_x > delta_x)
-  {
-    startx = subtile_x - delta_x;
-    if (startx > map_subtiles_x) startx = map_subtiles_x;
-  } else
-    startx = 0;
-  endy = subtile_y + delta_y;
-  if (endy < starty) endy = starty;
-  if (endy > map_subtiles_y) endy = map_subtiles_y;
-  endx = subtile_x + delta_x;
-  if (endx < startx) endx = startx;
-  if (endx > map_subtiles_x) endx = map_subtiles_x;
-  // Set the area
-  light_render_area(startx, starty, endx, endy);
+    if (subtile_y > delta_y)
+    {
+      starty = subtile_y - delta_y;
+      if (starty > map_subtiles_y) starty = map_subtiles_y;
+    } else
+      starty = 0;
+    if (subtile_x > delta_x)
+    {
+      startx = subtile_x - delta_x;
+      if (startx > map_subtiles_x) startx = map_subtiles_x;
+    } else
+      startx = 0;
+    endy = subtile_y + delta_y;
+    if (endy < starty) endy = starty;
+    if (endy > map_subtiles_y) endy = map_subtiles_y;
+    endx = subtile_x + delta_x;
+    if (endx < startx) endx = startx;
+    if (endx > map_subtiles_x) endx = map_subtiles_x;
+    // Set the area
+    light_render_area(startx, starty, endx, endy);
 }
 
 void light_set_light_minimum_size_to_cache(long a1, long a2, long a3)

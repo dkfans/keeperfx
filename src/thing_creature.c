@@ -218,9 +218,9 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
   ilght.field_2 = 36;
   ilght.field_0 = 2560;
   ilght.field_11 = 1;
-  thing->field_62 = light_create_light(&ilght);
-  light_set_light_never_cache(thing->field_62);
-  if (thing->field_62 == 0)
+  thing->light_id = light_create_light(&ilght);
+  light_set_light_never_cache(thing->light_id);
+  if (thing->light_id == 0)
     ERRORLOG("Cannot allocate light to new controlled thing");
   if (is_my_player_number(thing->owner))
   {

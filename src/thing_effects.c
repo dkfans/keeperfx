@@ -619,12 +619,12 @@ TbBool effect_can_affect_thing(struct Thing *efftng, struct Thing *thing)
 void update_effect_light_intensity(struct Thing *thing)
 {
   long i;
-  if (thing->field_62 != 0)
+  if (thing->light_id != 0)
   {
       if (thing->health < 4)
       {
-        i = light_get_light_intensity(thing->field_62);
-        light_set_light_intensity(thing->field_62, (3*i)/4);
+        i = light_get_light_intensity(thing->light_id);
+        light_set_light_intensity(thing->light_id, (3*i)/4);
       }
   }
 }
@@ -673,7 +673,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         for (i=0; i < effnfo->field_B; i++)
         {
             n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
-            mag = effnfo->numfield_0 - thing->health;
+            mag = effnfo->start_health - thing->health;
             arg = (mag << 7) + k/effnfo->field_B;
             pos.x.val = thing->mappos.x.val + ((16*mag*LbSinL(arg)) >> 16);
             pos.y.val = thing->mappos.y.val - ((16*mag*LbCosL(arg)) >> 16);
@@ -699,8 +699,8 @@ void effect_generate_effect_elements(const struct Thing *thing)
   case 4:
         if (thing->model != 48)
           break;
-        i = effnfo->numfield_0 / 2;
-        if (thing->health == effnfo->numfield_0)
+        i = effnfo->start_health / 2;
+        if (thing->health == effnfo->start_health)
         {
           memset(temp_pal, 63, PALETTE_SIZE);
         } else
@@ -735,14 +735,54 @@ long process_effect_generator(struct Thing *thing)
   return _DK_process_effect_generator(thing);
 }
 
-struct Thing *create_effect(const struct Coord3d *pos, unsigned short a2, unsigned char a3)
+struct Thing *create_effect(const struct Coord3d *pos, unsigned short effmodel, unsigned char owner)
 {
-  return _DK_create_effect(pos, a2, a3);
+    struct Thing *thing;
+    struct InitEffect *ieffect;
+    //return _DK_create_effect(pos, effmodel, owner);
+    ieffect = &effect_info[effmodel];
+    if (!i_can_allocate_free_thing_structure(1)) {
+        return NULL;//INVALID_THING;
+    }
+    thing = allocate_free_thing_structure(1);
+    thing->field_9 = game.play_gameturn;
+    thing->class_id = TCls_Effect;
+    thing->model = effmodel;
+    thing->mappos.x.val = pos->x.val;
+    thing->mappos.y.val = pos->y.val;
+    thing->mappos.z.val = pos->z.val;
+    thing->field_2 = 0;
+    thing->owner = owner;
+    thing->field_1D = thing->index;
+    thing->field_20 = 0;
+    thing->field_23 = 0;
+    thing->field_24 = 0;
+    thing->field_4F |= 0x01;
+    thing->health = ieffect->start_health;
+    if (ieffect->ilght.field_0 != 0)
+    {
+        struct InitLight ilght;
+        memcpy(&ilght, &ieffect->ilght, sizeof(struct InitLight));
+        ilght.field_11 = 1;
+        ilght.mappos.x.val = thing->mappos.x.val;
+        ilght.mappos.y.val = thing->mappos.y.val;
+        ilght.mappos.z.val = thing->mappos.z.val;
+        thing->light_id = light_create_light(&ilght);
+        if (thing->light_id == 0) {
+            // Note that there's an error here in original DK, and it makes unusable Thing entries if cannot allocate light.
+            WARNLOG("Cannot allocate light to %s.",thing_model_name(thing));
+        }
+    }
+    add_thing_to_its_class_list(thing);
+    place_thing_in_mapwho(thing);
+    if (ieffect->field_C != 0)
+      thing_play_sample(thing, ieffect->field_C, 100, 0, 3, 0, 3, 256);
+    return thing;
 }
 
 void create_special_used_effect(const struct Coord3d *pos, long plyr_idx)
 {
-  create_effect(pos, 67, plyr_idx);
+    create_effect(pos, 67, plyr_idx);
 }
 
 TbBool destroy_effect_generator(struct Thing *thing)

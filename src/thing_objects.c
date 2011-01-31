@@ -289,8 +289,8 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
     ilight.field_2 = objconf->field_B;
     ilight.field_3 = objconf->field_C[0];
     ilight.field_11 = objconf->field_1A;
-    thing->field_62 = light_create_light(&ilight);
-    if (thing->field_62 == 0) {
+    thing->light_id = light_create_light(&ilight);
+    if (thing->light_id == 0) {
         WARNLOG("Cannot allocate light to %s.",thing_model_name(thing));
     }
   }
@@ -301,7 +301,7 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
       break;
     case 5:
       thing->byte_14 = 1;
-      light_set_light_minimum_size_to_cache(thing->field_62, 0, 56);
+      light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
       break;
     case 6:
       thing->long_13 = game.pot_of_gold_holds;
@@ -511,18 +511,18 @@ void update_dungeon_heart_beat(struct Thing *thing)
     thing->field_3E = 0;
     k = 384 * (long)(game.objects_config[5].health - thing->health) / game.objects_config[5].health;
     k = base_heart_beat_rate / (k + 128);
-    light_set_light_intensity(thing->field_62, light_get_light_intensity(thing->field_62) + (i*36/k));
+    light_set_light_intensity(thing->light_id, light_get_light_intensity(thing->light_id) + (i*36/k));
     thing->field_40 += (i*base_heart_beat_rate/k);
     if (thing->field_40 < 0)
     {
       thing->field_40 = 0;
-      light_set_light_intensity(thing->field_62, 20);
+      light_set_light_intensity(thing->light_id, 20);
       thing->byte_14 = 1;
     }
     if (thing->field_40 > base_heart_beat_rate-1)
     {
       thing->field_40 = base_heart_beat_rate-1;
-      light_set_light_intensity(thing->field_62, 56);
+      light_set_light_intensity(thing->light_id, 56);
       thing->byte_14 = (unsigned char)-1;
       if ( bounce )
       {
@@ -625,62 +625,66 @@ long move_object(struct Thing *thing)
 
 long update_object(struct Thing *thing)
 {
-  Thing_State_Func upcallback;
-  Thing_State_Func stcallback;
-  struct Objects *objdat;
-  SYNCDBG(18,"Starting for %s",thing_model_name(thing));
-  //return _DK_update_object(thing);
+    Thing_State_Func upcallback;
+    Thing_State_Func stcallback;
+    struct Objects *objdat;
+    SYNCDBG(18,"Starting for %s",thing_model_name(thing));
+    //return _DK_update_object(thing);
 
-  upcallback = NULL;
-  if (thing->model < sizeof(object_update_functions)/sizeof(object_update_functions[0]))
-      upcallback = object_update_functions[thing->model];
-  else
-      ERRORLOG("Object model %d exceeds update_functions dimensions",(int)thing->model);
-  if (upcallback != NULL)
-  {
-    if (upcallback(thing) <= 0)
-      return -1;
-  }
-  stcallback = NULL;
-  if (thing->active_state < sizeof(object_state_functions)/sizeof(object_state_functions[0]))
-      stcallback = object_state_functions[thing->active_state];
-  else
-      ERRORLOG("Object state %d exceeds state_functions dimensions",(int)thing->active_state);
-  if (stcallback != NULL)
-  {
-      SYNCDBG(18,"Updating state");
-      if (stcallback(thing) <= 0)
-        return -1;
-  }
-  SYNCDBG(18,"Updating position");
-  thing->field_25 &= 0xFE;
-  thing->field_25 &= 0xFD;
-  if ( ((thing->field_25 & 0x40) == 0) && thing_touching_floor(thing) )
-  {
-    if ( map_pos_is_lava(thing->mappos.x.stl.num, thing->mappos.y.stl.num) )
-    {
-      thing->field_25 |= 0x02;
-      objdat = get_objects_data_for_thing(thing);
-      if ( (objdat->field_12) && ((thing->field_1 & 0x01) == 0) && ((thing->field_0 & 0x80) == 0) )
-      {
-            if (thing->model == 10)
-            {
-              destroy_food(thing);
-            } else
-            {
-              delete_thing_structure(thing, 0);
-            }
-            return -1;
-      }
-    } else
-    if (get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num) == 39)
-    {
-      thing->field_25 |= 0x01;
+    upcallback = NULL;
+    if (thing->model < sizeof(object_update_functions)/sizeof(object_update_functions[0])) {
+        upcallback = object_update_functions[thing->model];
+    } else {
+        ERRORLOG("Object model %d exceeds update_functions dimensions",(int)thing->model);
     }
-  }
-  if ((thing->field_25 & 0x40) != 0)
-    return 1;
-  return move_object(thing);
+    if (upcallback != NULL)
+    {
+        if (upcallback(thing) <= 0) {
+            return -1;
+        }
+    }
+    stcallback = NULL;
+    if (thing->active_state < sizeof(object_state_functions)/sizeof(object_state_functions[0])) {
+        stcallback = object_state_functions[thing->active_state];
+    } else {
+        ERRORLOG("Object state %d exceeds state_functions dimensions",(int)thing->active_state);
+    }
+    if (stcallback != NULL)
+    {
+        SYNCDBG(18,"Updating state");
+        if (stcallback(thing) <= 0) {
+            return -1;
+        }
+    }
+    SYNCDBG(18,"Updating position");
+    thing->field_25 &= ~0x01;
+    thing->field_25 &= ~0x02;
+    if ( ((thing->field_25 & 0x40) == 0) && thing_touching_floor(thing) )
+    {
+      if ( map_pos_is_lava(thing->mappos.x.stl.num, thing->mappos.y.stl.num) )
+      {
+        thing->field_25 |= 0x02;
+        objdat = get_objects_data_for_thing(thing);
+        if ( (objdat->field_12) && ((thing->field_1 & 0x01) == 0) && ((thing->field_0 & 0x80) == 0) )
+        {
+              if (thing->model == 10)
+              {
+                  destroy_food(thing);
+              } else
+              {
+                  delete_thing_structure(thing, 0);
+              }
+              return -1;
+        }
+      } else
+      if (get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num) == 39)
+      {
+        thing->field_25 |= 0x01;
+      }
+    }
+    if ((thing->field_25 & 0x40) != 0)
+        return 1;
+    return move_object(thing);
 }
 
 struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx)

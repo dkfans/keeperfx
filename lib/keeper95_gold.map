@@ -404,6 +404,9 @@
  0001:0004EDF0       check_call_to_arms
  0001:0004EEA0       get_task_in_progress
  0001:0004F4A0       find_creature_to_be_placed_in_room
+ 0001:0004FEA0       get_thing_blocked_flags_at
+ 0001:00050060       slide_thing_against_wall_at
+ 0001:00050430       bounce_thing_off_wall_at
  0001:00050870       S3DInit
  0001:00050910       S3DSetMaximumSoundDistance
  0001:00050970       S3DCreateSoundEmitterPri
@@ -748,6 +751,7 @@
  0001:00090120       creature_fire_shot
  0001:000907E0       shot_hit_shootable_thing_at
  0001:00091050       shot_hit_object_at
+ 0001:00091310       process_dig_shot_hit_wall
  0001:00091720       shot_hit_wall_at
  0001:00091C90       shot_hit_door_at
  0001:00092000       create_relevant_effect_for_shot_hitting_thing

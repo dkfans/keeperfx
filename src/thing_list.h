@@ -39,6 +39,8 @@ enum ThingClass {
     TCls_EffectGen    =  7,
     TCls_Trap         =  8,
     TCls_Door         =  9,
+    TCls_Unkn10       = 10,
+    TCls_Unkn11       = 11,
     TCls_AmbientSnd   = 12,
     TCls_CaveIn       = 13,
 };

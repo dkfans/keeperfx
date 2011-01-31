@@ -103,7 +103,7 @@ const char *thing_model_name(const struct Thing *thing)
     return name_buffer;
 }
 
-void things_stats_debug_dump(void)
+TbBool things_stats_debug_dump(void)
 {
     struct Thing * thing;
     int count[THING_CLASSES_COUNT];
@@ -163,7 +163,9 @@ void things_stats_debug_dump(void)
             realcnt[TCls_EffectGen] +  realcnt[TCls_AmbientSnd] + realcnt[TCls_CaveIn],
             rltotal
             );
+        return true;
     }
+    return false;
 }
 
 /**

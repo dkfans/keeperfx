@@ -21,12 +21,20 @@
 
 #include "globals.h"
 
-#define LIGHT_MAX_RANGE        30
-#define LIGHTS_COUNT          400
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define LIGHT_MAX_RANGE        30
+#define LIGHTS_COUNT          400
+
+enum ShadowCacheFlags {
+    ShCF_Allocated = 0x01,
+};
+
+enum LightFlags {
+    LgtF_Allocated = 0x01,
+};
 
 /******************************************************************************/
 #pragma pack(1)
@@ -34,7 +42,7 @@ extern "C" {
 struct StructureList;
 
 struct Light { // sizeof = 46
-  unsigned char field_0;
+  unsigned char flags;
   unsigned char field_1;
   unsigned char field_2;
   unsigned char field_3[2];
