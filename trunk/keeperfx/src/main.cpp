@@ -5017,7 +5017,7 @@ void process_dungeon_devastation_effects(void)
  */
 TbBool generation_due_in_game(void)
 {
-    if (game.generate_speed <= 0)
+    if (game.generate_speed == -1)
         return true;
     return ( (game.play_gameturn-game.entrance_last_generate_turn) >= game.generate_speed );
 }
@@ -5025,17 +5025,21 @@ TbBool generation_due_in_game(void)
 TbBool generation_due_for_dungeon(struct Dungeon * dungeon)
 {
     SYNCDBG(9,"Starting");
-    return (!game.field_150356 ||
-        game.armageddon.count_down + game.field_150356 > game.play_gameturn)
-        && dungeon->field_AE1 != -1
-        && game.play_gameturn - dungeon->field_ADD >= dungeon->field_AE1;
+    if ( (game.field_150356 == 0) || (game.armageddon.count_down + game.field_150356 > game.play_gameturn) )
+    {
+        if ( (dungeon->field_AE1 != -1) && (game.play_gameturn - dungeon->field_ADD >= dungeon->field_AE1) ) {
+            return true;
+        }
+    }
+    return false;
 }
 
 TbBool generation_available_to_dungeon(struct Dungeon * dungeon)
 {
     SYNCDBG(9,"Starting");
-    return dungeon->room_kind[RoK_ENTRANCE] != 0 &&
-        (int) dungeon->num_active_crtrs < dungeon->max_creatures;
+    if (dungeon->room_kind[RoK_ENTRANCE] <= 0)
+        return false;
+    return ((long)dungeon->num_active_crtrs < (long)dungeon->max_creatures);
 }
 
 int calculate_attractive_room_quantity(enum RoomKinds room_kind, int plyr_idx, int crtr_kind)
@@ -5243,8 +5247,8 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
 
     if (kind > 0) {
         lair_space = calculate_free_lair_space(dungeon);
-        if (game.creature_stats[kind].pay > dungeon->money) {
-            if (my_player_number == dungeon->owner) {
+        if ((long)game.creature_stats[kind].pay > dungeon->money) {
+            if (is_my_player_number(dungeon->owner)) {
                 output_message(SMsg_GoldLow, 500, 1);
             }
         }
@@ -5254,8 +5258,8 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
         else if (lair_space == 0) {
             generate_creature_at_random_entrance(dungeon, kind);
 
-            if (my_player_number == dungeon->owner) {
-                if (dungeon->room_kind[RoK_LAIR] != 0) {
+            if (is_my_player_number(dungeon->owner)) {
+                if (dungeon->room_kind[RoK_LAIR] > 0) {
                     output_message(SMsg_LairTooSmall, 500, 1);
                 }
                 else {
@@ -5263,7 +5267,7 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
                 }
             }
 
-            if (dungeon->room_kind[RoK_LAIR] != 0) {
+            if (dungeon->room_kind[RoK_LAIR] > 0) {
                 event_create_event_or_update_nearby_existing_event(0, 0, 17, dungeon->owner, 0);
             }
         }
@@ -5273,40 +5277,37 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
 void process_entrance_generation(void)
 {
     struct PlayerInfo *plyr;
-    int i;
     struct Dungeon *dungeon;
-    unsigned v1;
-
+    long i;
     SYNCDBG(8,"Starting");
     //_DK_process_entrance_generation();
 
-    if (generation_due_in_game()) {
-        if (!game.field_150356) {
+    if (generation_due_in_game())
+    {
+        if (game.field_150356 == 0) {
             update_dungeon_scores();
             update_dungeon_generation_speeds();
-            game.field_14E930[1] = game.play_gameturn;
+            game.entrance_last_generate_turn = game.play_gameturn;
         }
     }
 
-    for (i = 0; i < PLAYERS_COUNT; ++i) {
+    for (i = 0; i < PLAYERS_COUNT; i++)
+    {
         plyr = get_player(i);
         if (!player_exists(plyr)) {
             continue;
         }
-
-        dungeon = get_players_dungeon(plyr);
-
-        if (plyr->field_0 & 1 && plyr->field_2C == 1 && plyr->victory_state != 2) {
-            v1 = dungeon->field_AE1;
-            if (generation_due_for_dungeon(dungeon)) {
+        if ((plyr->field_2C == 1) && (plyr->victory_state != VicS_LostLevel) )
+        {
+            dungeon = get_players_dungeon(plyr);
+            if (generation_due_for_dungeon(dungeon))
+            {
                 if (generation_available_to_dungeon(dungeon)) {
                     generate_creature_for_dungeon(dungeon);
                 }
-
                 dungeon->field_ADD = game.play_gameturn;
             }
-
-            *(unsigned *)(dungeon->field_1460 + 0x25) = 0;
+            dungeon->field_1485 = 0;
         }
     }
 }
