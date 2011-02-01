@@ -310,7 +310,8 @@ long field_1193;
     unsigned char field_13A7[EVENT_BUTTONS_COUNT+1];
     long field_13B4[EVENT_KIND_COUNT]; // warning: missing 4 bytes!
 unsigned short tortured_creatures[32];
-unsigned char field_1460[41];
+unsigned char field_1460[37];
+    long field_1485;
 unsigned char field_1489[32];
 int field_14A9;
 unsigned char research_override; // could be easily changed into flags..
