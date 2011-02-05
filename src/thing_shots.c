@@ -257,11 +257,6 @@ long shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos)
     {
         if ((blocked_flags & 0x03) != 0)
         {
-if ((game.play_gameturn > 17200)) {//34970
-SYNCDBG(1,"C class %d, model %d",(int)thing->class_id,(int)thing->model);
-things_stats_debug_dump();
-}
-
             doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
             if (!thing_is_invalid(doortng))
             {
@@ -517,10 +512,6 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
     struct Coord3d pos2;
     long i,n,amp;
     //return _DK_shot_hit_shootable_thing_at(shotng, target, pos);
-/*    if ((game.play_gameturn > 11310)) {//34970
-        SYNCLOG("index %d, model %d hit%d A",(int)shotng->index,(int)shotng->model,(int)shotng->byte_16);
-        things_stats_debug_dump();//!!!!
-    }*/
     amp = shotng->field_20;
     shotst = get_shot_model_stats(shotng->model);
     shooter = INVALID_THING;
@@ -845,7 +836,7 @@ long update_shot(struct Thing *thing)
     myplyr = get_my_player();
     if (shotst->old->shot_sound != 0)
     {
-        if (!S3DEmitterIsPlayingSample(thing->field_66, shotst->old->shot_sound, 0))
+        if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, shotst->old->shot_sound, 0))
             thing_play_sample(thing, shotst->old->shot_sound, 100, 0, 3, 0, 2, 256);
     }
     if (shotst->old->field_47)
@@ -872,7 +863,7 @@ long update_shot(struct Thing *thing)
               if (is_my_player_number(thing->owner))
               {
                   player = get_player(thing->owner);
-                  if ((thing->field_1D != 0) && (myplyr->field_2F == thing->field_1D))
+                  if ((thing->field_1D != 0) && (myplyr->controlled_thing_idx == thing->field_1D))
                   {
                       PaletteSetPlayerPalette(player, lightning_palette);
                       myplyr->field_3 |= 0x08;
@@ -983,10 +974,8 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     {
         ERRORDBG(3,"Cannot create shot %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
-        //things_stats_debug_dump();
         return NULL;
     }
-    memset(&ilght, 0, sizeof(struct InitLight));
     shotst = get_shot_model_stats(model);
     thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
     thing->field_9 = game.play_gameturn;
@@ -1013,10 +1002,11 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->health = shotst->old->health;
     if (shotst->old->field_50)
     {
+        memset(&ilght, 0, sizeof(struct InitLight));
         memcpy(&ilght.mappos,&thing->mappos,sizeof(struct Coord3d));
         ilght.field_0 = shotst->old->field_50;
         ilght.field_2 = shotst->old->field_52;
-        ilght.field_11 = 1;
+        ilght.is_dynamic = 1;
         ilght.field_3 = shotst->old->field_53;
         thing->light_id = light_create_light(&ilght);
         if (thing->light_id == 0) {

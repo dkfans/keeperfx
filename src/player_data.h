@@ -39,8 +39,6 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-typedef long PlayerNumber;
-
 struct Wander // sizeof = 424
 {
   unsigned long field_0;
@@ -72,7 +70,7 @@ unsigned char field_14;
     unsigned char id_number;
     unsigned char field_2C;
     unsigned char field_2D[2];
-    short field_2F;
+    short controlled_thing_idx;
     long field_31;
     short thing_under_hand;
     unsigned char field_37;

@@ -561,7 +561,7 @@ void get_player_gui_clicks(void)
   case 3:
       if (right_button_released)
       {
-        thing = thing_get(player->field_2F);
+        thing = thing_get(player->controlled_thing_idx);
         if (thing->class_id == TCls_Creature)
         {
           if (a_menu_window_is_active())

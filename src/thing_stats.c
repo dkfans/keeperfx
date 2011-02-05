@@ -463,7 +463,7 @@ void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
             if (thing->owner != game.neutral_player_num)
             {
                 player = get_player(thing->owner);
-                if (thing_get(player->field_2F) == thing)
+                if (thing_get(player->controlled_thing_idx) == thing)
                 {
                   i = (10 * cdamage) / compute_creature_max_health(crstat->health,cctrl->explevel);
                   if (i > 10)

@@ -195,6 +195,7 @@ DLLIMPORT void _DK_reset_creatures_rooms(struct Room *room);
 DLLIMPORT void _DK_replace_room_slab(struct Room *room, long a2, long a3, unsigned char a4, unsigned char a5);
 DLLIMPORT struct Room *_DK_place_room(unsigned char a1, unsigned char a2, unsigned short a3, unsigned short a4);
 DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char a2, char a3, unsigned char a4);
+DLLIMPORT struct Room * _DK_pick_random_room(PlayerNumber plyr_idx, int kind);
 /******************************************************************************/
 struct Room *room_get(long room_idx)
 {
@@ -270,40 +271,79 @@ long get_room_look_through(RoomKind rkind)
   return -1;
 }
 
-long get_room_slabs_count(long plyr_idx, unsigned short rkind)
+long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind)
 {
-  struct Dungeon *dungeon;
-  struct Room *room;
-  unsigned long k;
-  long i;
-  long count;
-  dungeon = get_players_num_dungeon(plyr_idx);
-  count = 0;
-  i = dungeon->room_kind[rkind];
-  k = 0;
-  while (i != 0)
-  {
-    room = room_get(i);
-    if (room_is_invalid(room))
+    struct Dungeon *dungeon;
+    struct Room *room;
+    unsigned long k;
+    long i;
+    long count;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    count = 0;
+    i = dungeon->room_kind[rkind];
+    k = 0;
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid room detected");
-      break;
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        count += room->slabs_count;
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
     }
-    i = room->next_of_owner;
-    // Per-room code
-    count += room->slabs_count;
-    // Per-room code ends
-    k++;
-    if (k > ROOMS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping rooms list");
-      break;
-    }
-  }
-  return count;
+    return count;
 }
 
-long get_player_rooms_count(long plyr_idx, unsigned short rkind)
+long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_kind)
+{
+    struct Dungeon * dungeon;
+    struct Room * room;
+    int used_capacity;
+    int total_capacity;
+    long i;
+    unsigned long k;
+    dungeon = get_dungeon(plyr_idx);
+    total_capacity = 0;
+    used_capacity = 0;
+    i = dungeon->room_kind[room_kind];
+    k = 0;
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        used_capacity += room->used_capacity;
+        total_capacity += room->total_capacity;
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
+    }
+    if (total_capacity <= 0) {
+        return 0;
+    }
+    return (used_capacity * 256) / total_capacity;
+}
+
+long get_player_rooms_count(PlayerNumber plyr_idx, RoomKind rkind)
 {
   struct Dungeon *dungeon;
   struct Room *room;
@@ -472,7 +512,7 @@ void delete_all_room_structures(void)
     }
 }
 
-struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, unsigned char rkind)
+struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, RoomKind rkind)
 {
     struct Thing *thing;
     SlabCodedCoords central_slbnum;
@@ -1310,7 +1350,7 @@ struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsi
 
 //TODO CREATURE_AI try to make sure the creature will do proper activity in the room.
 //TODO CREATURE_AI try to select lair far away from CTA and enemies
-struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, long rkind)
+struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, RoomKind rkind)
 {
   struct Room *room;
   struct Room *retroom;
@@ -1431,7 +1471,7 @@ void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y
     }
 }
 
-struct Room *place_room(unsigned char owner, unsigned char rkind, unsigned short stl_x, unsigned short stl_y)
+struct Room *place_room(unsigned char owner, RoomKind rkind, unsigned short stl_x, unsigned short stl_y)
 {
     struct Room *room;
     struct RoomData *rdata;
@@ -1489,6 +1529,11 @@ struct Room *place_room(unsigned char owner, unsigned char rkind, unsigned short
 struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char a2, char a3, unsigned char a4)
 {
     return _DK_find_nearest_room_for_thing_with_spare_item_capacity(thing, a2, a3, a4);
+}
+
+struct Room * pick_random_room(PlayerNumber plyr_idx, RoomKind rkind)
+{
+    return _DK_pick_random_room(plyr_idx, rkind);
 }
 /******************************************************************************/
 #ifdef __cplusplus

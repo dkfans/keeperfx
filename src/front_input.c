@@ -614,24 +614,24 @@ TbBool get_level_lost_inputs(void)
       }
       break;
     case PVT_CreatureContrl:
-      thing = thing_get(player->field_2F);
+      thing = thing_get(player->controlled_thing_idx);
       if (thing->class_id == TCls_Creature)
       {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->field_2 & 0x02) == 0)
         {
-          set_players_packet_action(player, 33, player->field_2F,0,0,0);
+          set_players_packet_action(player, 33, player->controlled_thing_idx,0,0,0);
           inp_done = true;
         }
       } else
       {
-        set_players_packet_action(player, 33, player->field_2F,0,0,0);
+        set_players_packet_action(player, 33, player->controlled_thing_idx,0,0,0);
         inp_done = true;
       }
       break;
     case PVT_CreaturePasngr:
-      set_players_packet_action(player, 32, player->field_2F,0,0,0);
+      set_players_packet_action(player, 32, player->controlled_thing_idx,0,0,0);
       break;
     case PVT_MapScreen:
       if ( menu_is_active(GMnu_SPELL_LOST) )
@@ -759,18 +759,18 @@ short get_creature_passenger_action_inputs(void)
     return 1;
   if ( ((game.numfield_C & 0x01) == 0) || ((game.numfield_C & 0x80) != 0))
       get_gui_inputs(1);
-  if ( !player->field_2F )
+  if ( !player->controlled_thing_idx )
     return false;
   if (right_button_released)
   {
-    set_players_packet_action(player, PckA_PasngrCtrlExit, player->field_2F,0,0,0);
+    set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
     return true;
   }
   struct Thing *thing;
-  thing = thing_get(player->field_2F);
+  thing = thing_get(player->controlled_thing_idx);
   if ((player->field_31 != thing->field_9) || ((thing->field_0 & 1)==0) )
   {
-    set_players_packet_action(player, PckA_PasngrCtrlExit, player->field_2F,0,0,0);
+    set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
     return true;
   }
   if (is_key_pressed(KC_TAB,KMod_NONE))
@@ -802,13 +802,13 @@ short get_creature_control_action_inputs(void)
         clear_key_pressed(KC_F12);
   }
 
-  if ( player->field_2F )
+  if ( player->controlled_thing_idx )
   {
     short make_packet = right_button_released;
     if (!make_packet)
     {
       struct Thing *thing;
-      thing = thing_get(player->field_2F);
+      thing = thing_get(player->controlled_thing_idx);
       if ( (player->field_31 != thing->field_9) || ((thing->field_0 & 0x01) == 0)
          || (thing->active_state == CrSt_CreatureUnconscious) )
         make_packet = true;
@@ -816,7 +816,7 @@ short get_creature_control_action_inputs(void)
     if (make_packet)
     {
       right_button_released = 0;
-      set_players_packet_action(player, 33, player->field_2F,0,0,0);
+      set_players_packet_action(player, 33, player->controlled_thing_idx,0,0,0);
     }
   }
   if ( is_key_pressed(KC_TAB,KMod_NONE) )
@@ -847,7 +847,7 @@ short get_creature_control_action_inputs(void)
     {
       struct CreatureStats *crstat;
       struct Thing *thing;
-      thing = thing_get(player->field_2F);
+      thing = thing_get(player->controlled_thing_idx);
       crstat = creature_stats_get_from_thing(thing);
       instnce = crstat->instance_spell[idx];
       if ( creature_instance_is_available(thing,instnce) )
@@ -1311,7 +1311,7 @@ void get_creature_control_nonaction_inputs(void)
 
   x = GetMouseX();
   y = GetMouseY();
-  thing = thing_get(player->field_2F);
+  thing = thing_get(player->controlled_thing_idx);
   pckt->pos_x = 127;
   pckt->pos_y = 127;
   if ((player->field_0 & 0x08) != 0)
@@ -1517,7 +1517,7 @@ short get_inputs(void)
     }
     struct Thing *thing;
     struct CreatureControl *cctrl;
-    thing = thing_get(player->field_2F);
+    thing = thing_get(player->controlled_thing_idx);
     if (!thing_is_creature(thing))
     {
       get_level_lost_inputs();

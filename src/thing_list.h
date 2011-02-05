@@ -28,7 +28,7 @@ extern "C" {
 
 #define THING_CLASSES_COUNT 14
 
-enum ThingClass {
+enum ThingClassIndex {
     TCls_Empty        =  0,
     TCls_Object       =  1,
     TCls_Shot         =  2,

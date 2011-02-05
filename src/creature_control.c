@@ -176,61 +176,61 @@ void delete_all_control_structures(void)
 
 struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long breed, struct Coord3d *pos)
 {
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
-  struct Dungeon *dungeon;
-  struct Thing *thing;
-  struct Camera *cam;
-  struct InitLight ilght;
-  SYNCDBG(6,"Request for breed %ld at (%d,%d,%d)",breed,(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
-  //return _DK_create_and_control_creature_as_controller(player, a2, pos);
-  thing = create_creature(pos, breed, player->id_number);
-  if (thing_is_invalid(thing))
-    return NULL;
-  dungeon = get_dungeon(thing->owner);
-  dungeon->num_active_crtrs--;
-  dungeon->field_91A[thing->model]--;
-  if (is_my_player(player))
-  {
-    toggle_status_menu(0);
-    turn_off_roaming_menus();
-  }
-  cam = player->acamera;
-  player->field_2F = thing->index;
-  player->field_31 = thing->field_9;
-  player->field_4B5 = cam->field_6;
-  thing->field_0 |= 0x20;
-  thing->field_4F |= 0x01;
-  cctrl = creature_control_get_from_thing(thing);
-  cctrl->field_2 |= 0x02;
-  cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-  set_player_mode(player, 2);
-  set_start_state(thing);
-  // Preparing light object
-  ilght.mappos.x.val = thing->mappos.x.val;
-  ilght.mappos.y.val = thing->mappos.y.val;
-  ilght.mappos.z.val = thing->mappos.z.val;
-  ilght.field_2 = 36;
-  ilght.field_3 = 1;
-  ilght.field_11 = 1;
-  ilght.field_0 = 2560;
-  thing->light_id = light_create_light(&ilght);
-  if (thing->light_id != 0)
-  {
-    light_set_light_never_cache(thing->light_id);
-  } else
-  {
-    ERRORLOG("Cannot allocate light to new hero");
-  }
-  if (is_my_player_number(thing->owner))
-  {
-    if (thing->class_id == TCls_Creature)
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    struct Camera *cam;
+    struct InitLight ilght;
+    SYNCDBG(6,"Request for breed %ld at (%d,%d,%d)",breed,(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
+    //return _DK_create_and_control_creature_as_controller(player, a2, pos);
+    thing = create_creature(pos, breed, player->id_number);
+    if (thing_is_invalid(thing))
+      return NULL;
+    dungeon = get_dungeon(thing->owner);
+    dungeon->num_active_crtrs--;
+    dungeon->owned_creatures_of_model[thing->model]--;
+    if (is_my_player(player))
     {
-      crstat = creature_stats_get_from_thing(thing);
-      setup_eye_lens(crstat->eye_effect);
+        toggle_status_menu(0);
+        turn_off_roaming_menus();
     }
-  }
-  return thing;
+    cam = player->acamera;
+    player->controlled_thing_idx = thing->index;
+    player->field_31 = thing->field_9;
+    player->field_4B5 = cam->field_6;
+    thing->field_0 |= 0x20;
+    thing->field_4F |= 0x01;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_2 |= 0x02;
+    cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+    set_player_mode(player, 2);
+    set_start_state(thing);
+    // Preparing light object
+    ilght.mappos.x.val = thing->mappos.x.val;
+    ilght.mappos.y.val = thing->mappos.y.val;
+    ilght.mappos.z.val = thing->mappos.z.val;
+    ilght.field_2 = 36;
+    ilght.field_3 = 1;
+    ilght.is_dynamic = 1;
+    ilght.field_0 = 2560;
+    thing->light_id = light_create_light(&ilght);
+    if (thing->light_id != 0)
+    {
+        light_set_light_never_cache(thing->light_id);
+    } else
+    {
+        ERRORLOG("Cannot allocate light to new hero");
+    }
+    if (is_my_player_number(thing->owner))
+    {
+        if (thing->class_id == TCls_Creature)
+        {
+            crstat = creature_stats_get_from_thing(thing);
+            setup_eye_lens(crstat->eye_effect);
+        }
+    }
+    return thing;
 }
 
 void clear_creature_instance(struct Thing *thing)
@@ -335,7 +335,7 @@ TbBool playing_creature_sound(struct Thing *thing, long snd_idx)
     return false;
   for (i=0; i < crsound->count; i++)
   {
-    if (S3DEmitterIsPlayingSample(thing->field_66, crsound->index+i, 0))
+    if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, crsound->index+i, 0))
       return true;
   }
   return false;

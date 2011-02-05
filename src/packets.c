@@ -818,7 +818,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           && (dungeon->things_in_hand[0] != player->thing_under_hand)
           && can_thing_be_queried(thing_get(player->thing_under_hand), plyr_idx) )
         {
-          if (player->thing_under_hand != player->field_2F)
+          if (player->thing_under_hand != player->controlled_thing_idx)
           {
             if (is_my_player(player))
             {
@@ -1054,7 +1054,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if (player->thing_under_hand > 0)
           {
-            if (player->field_2F != player->thing_under_hand)
+            if (player->controlled_thing_idx != player->thing_under_hand)
             {
               if (is_my_player(player))
               {
@@ -1070,7 +1070,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         if (player->work_state == PSt_Unknown15)
         {
-          thing = thing_get(player->field_2F);
+          thing = thing_get(player->controlled_thing_idx);
           if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
           {
             if (is_my_player(player))
@@ -1101,11 +1101,11 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-          if ((player->field_2F > 0) && (player->field_2F < THINGS_COUNT))
+          if ((player->controlled_thing_idx > 0) && (player->controlled_thing_idx < THINGS_COUNT))
           {
             if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
             {
-              thing = thing_get(player->field_2F);
+              thing = thing_get(player->controlled_thing_idx);
               if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
                   WARNLOG("Move %s order failed",thing_model_name(thing));
               thing->continue_state = CrSt_ManualControl;
@@ -1115,7 +1115,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             thing = get_creature_near(x, y);
             if (!thing_is_invalid(thing))
             {
-              player->field_2F = thing->index;
+              player->controlled_thing_idx = thing->index;
               initialise_thing_state(thing, CrSt_ManualControl);
               cctrl = creature_control_get_from_thing(thing);
               i = cctrl->field_7A;// & 0xFFF;
@@ -1127,11 +1127,11 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
         {
-          if ((player->field_2F > 0) && (player->field_2F < THINGS_COUNT))
+          if ((player->controlled_thing_idx > 0) && (player->controlled_thing_idx < THINGS_COUNT))
           {
-            thing = thing_get(player->field_2F);
+            thing = thing_get(player->controlled_thing_idx);
             set_start_state(thing);
-            player->field_2F = 0;
+            player->controlled_thing_idx = 0;
           }
           unset_packet_control(pckt, PCtr_RBtnRelease);
         }
@@ -2260,7 +2260,7 @@ void process_players_creature_control_packet_control(long idx)
     //_DK_process_players_creature_control_packet_control(idx); return;
     player = get_player(idx);
     pckt = get_packet_direct(player->packet_num);
-    cctng = thing_get(player->field_2F);
+    cctng = thing_get(player->controlled_thing_idx);
     if (cctng->class_id != TCls_Creature)
         return;
     ccctrl = creature_control_get_from_thing(cctng);
@@ -2393,7 +2393,7 @@ void process_players_creature_control_packet_action(long idx)
       set_player_instance(player, 7, 0);
       break;
   case 39:
-      thing = thing_get(player->field_2F);
+      thing = thing_get(player->controlled_thing_idx);
       if (thing_is_invalid(thing))
         break;
       cctrl = creature_control_get_from_thing(thing);

@@ -1102,8 +1102,9 @@ void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng)
     dragtng->field_0 &= ~0x80;
     dragtng->field_1 &= ~0x01;
     move_thing_in_map(dragtng, &crtng->mappos);
-    if (dragtng->light_id != 0)
+    if (dragtng->light_id != 0) {
         light_turn_light_on(dragtng->light_id);
+    }
 }
 
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing)
@@ -1272,8 +1273,7 @@ void creature_drag_object(struct Thing *thing, struct Thing *dragtng)
     dragtng->field_0 |= 0x80;
     dragtng->field_1 |= 0x01;
     dragtng->owner = game.neutral_player_num;
-    if (dragtng->light_id != 0)
-    {
+    if (dragtng->light_id != 0) {
       light_turn_light_off(dragtng->light_id);
     }
 }

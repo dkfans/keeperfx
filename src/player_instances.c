@@ -680,7 +680,7 @@ long pinstfm_zoom_to_heart(struct PlayerInfo *player, long *n)
   //return _DK_pinstfm_zoom_to_heart(player, n);
   struct Thing *thing;
   struct Coord3d pos;
-  thing = thing_get(player->field_2F);
+  thing = thing_get(player->controlled_thing_idx);
   if (!thing_is_invalid(thing))
   {
     pos.x.val = thing->mappos.x.val;
@@ -708,7 +708,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   struct Thing *thing;
   struct Camera *cam;
   //return _DK_pinstfs_zoom_out_of_heart(player, n);
-  thing = thing_get(player->field_2F);
+  thing = thing_get(player->controlled_thing_idx);
   if (!thing_is_invalid(thing))
     leave_creature_as_controller(player, thing);
   set_player_mode(player, 1);
@@ -977,54 +977,54 @@ void process_player_instances(void)
 
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
 {
-  struct CreatureControl *cctrl;
-  struct CreatureStats *crstat;
-  long i,k;
-  SYNCDBG(7,"Starting");
-  //_DK_leave_creature_as_controller(player, thing);
-  if ((thing->owner != player->id_number) || (thing->index != player->field_2F))
-  {
-    set_player_instance(player, 0, 1);
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    long i,k;
+    SYNCDBG(7,"Starting");
+    //_DK_leave_creature_as_controller(player, thing);
+    if ((thing->owner != player->id_number) || (thing->index != player->controlled_thing_idx))
+    {
+        set_player_instance(player, 0, 1);
+        clear_selected_creature(player);
+        player->field_31 = 0;
+        set_player_mode(player, 1);
+        player->field_0 &= 0xF7;
+        set_engine_view(player, player->field_4B5);
+        player->cameras[0].mappos.x.val = 0;
+        player->cameras[0].mappos.y.val = 0;
+        player->cameras[3].mappos.x.val = 0;
+        player->cameras[3].mappos.y.val = 0;
+        return;
+    }
     clear_selected_creature(player);
     player->field_31 = 0;
     set_player_mode(player, 1);
+    thing->field_0 &= 0xDF;
+    thing->field_4F &= 0xFE;
     player->field_0 &= 0xF7;
     set_engine_view(player, player->field_4B5);
-    player->cameras[0].mappos.x.val = 0;
-    player->cameras[0].mappos.y.val = 0;
-    player->cameras[3].mappos.x.val = 0;
-    player->cameras[3].mappos.y.val = 0;
-    return;
-  }
-  clear_selected_creature(player);
-  player->field_31 = 0;
-  set_player_mode(player, 1);
-  thing->field_0 &= 0xDF;
-  thing->field_4F &= 0xFE;
-  player->field_0 &= 0xF7;
-  set_engine_view(player, player->field_4B5);
-  i = player->acamera->orient_a;
-  crstat = creature_stats_get_from_thing(thing);
-  k = thing->mappos.z.val + crstat->eye_height;
-  player->cameras[0].mappos.x.val = thing->mappos.x.val + ((LbSinL(i) * k) >> 16);
-  player->cameras[0].mappos.y.val = thing->mappos.y.val - ((LbCosL(i) * k) >> 16);
-  player->cameras[3].mappos.x.val = thing->mappos.x.val + ((LbSinL(i) * k) >> 16);
-  player->cameras[3].mappos.y.val = thing->mappos.y.val - ((LbCosL(i) * k) >> 16);
-  if (thing->class_id == TCls_Creature)
-  {
-    set_start_state(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-    if ((cctrl->field_2 & 0x02) != 0)
-      delete_thing_structure(thing, 0);
-    else
-      disband_creatures_group(thing);
-  }
-  if (thing->light_id != 0)
-  {
-    light_delete_light(thing->light_id);
-    thing->light_id = 0;
-  }
+    i = player->acamera->orient_a;
+    crstat = creature_stats_get_from_thing(thing);
+    k = thing->mappos.z.val + crstat->eye_height;
+    player->cameras[0].mappos.x.val = thing->mappos.x.val + ((LbSinL(i) * k) >> 16);
+    player->cameras[0].mappos.y.val = thing->mappos.y.val - ((LbCosL(i) * k) >> 16);
+    player->cameras[3].mappos.x.val = thing->mappos.x.val + ((LbSinL(i) * k) >> 16);
+    player->cameras[3].mappos.y.val = thing->mappos.y.val - ((LbCosL(i) * k) >> 16);
+    if (thing->class_id == TCls_Creature)
+    {
+        set_start_state(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+        if ((cctrl->field_2 & 0x02) != 0) {
+          delete_thing_structure(thing, 0);
+        } else {
+          disband_creatures_group(thing);
+        }
+    }
+    if (thing->light_id != 0) {
+        light_delete_light(thing->light_id);
+        thing->light_id = 0;
+    }
 }
 
 void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
@@ -1032,7 +1032,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   struct CreatureStats *crstat;
   long i,k;
   SYNCDBG(7,"Starting");
-  if ((thing->owner != player->id_number) || (thing->index != player->field_2F))
+  if ((thing->owner != player->id_number) || (thing->index != player->controlled_thing_idx))
   {
     set_player_instance(player, 0, 1);
     clear_selected_creature(player);
@@ -1065,7 +1065,7 @@ TbBool set_selected_creature(struct PlayerInfo *player, struct Thing *thing)
 {
   if (thing->class_id == TCls_Creature)
   {
-    player->field_2F = thing->index;
+    player->controlled_thing_idx = thing->index;
     return true;
   }
   ERRORLOG("Cannot select thing for information");
@@ -1074,7 +1074,7 @@ TbBool set_selected_creature(struct PlayerInfo *player, struct Thing *thing)
 
 TbBool clear_selected_creature(struct PlayerInfo *player)
 {
-  player->field_2F = 0;
+  player->controlled_thing_idx = 0;
   return true;
 }
 
