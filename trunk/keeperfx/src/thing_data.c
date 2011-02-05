@@ -113,22 +113,24 @@ void delete_thing_structure(struct Thing *thing, long a2)
       remove_first_creature(thing);
     if (!a2)
     {
-      if (thing->light_id)
-        light_delete_light(thing->light_id);
+        if (thing->light_id != 0) {
+            light_delete_light(thing->light_id);
+            thing->light_id = 0;
+        }
     }
     if (!creature_control_invalid(cctrl))
     {
       if ( !a2 )
       {
-        room = room_get(cctrl->field_68);
-        if (!room_is_invalid(room))
-            creature_remove_lair_from_room(thing, room);
-        if ((cctrl->field_7A & 0xFFF) != 0)
-            remove_creature_from_group(thing);
+          room = room_get(cctrl->field_68);
+          if (!room_is_invalid(room))
+              creature_remove_lair_from_room(thing, room);
+          if ((cctrl->field_7A & 0xFFF) != 0)
+              remove_creature_from_group(thing);
       }
       delete_control_structure(cctrl);
     }
-    emitter_id = thing->field_66;
+    emitter_id = thing->snd_emitter_id;
     if (emitter_id != 0)
       S3DDestroySoundEmitterAndSamples(emitter_id);
     remove_thing_from_its_class_list(thing);

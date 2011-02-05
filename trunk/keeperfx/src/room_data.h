@@ -29,6 +29,10 @@ extern "C" {
 #define ROOM_TYPES_COUNT      17
 #define SLAB_AROUND_COUNT      4
 /******************************************************************************/
+enum RoomFlags {
+    RoF_Allocated           = 0x01,
+};
+
 enum RoomKinds {
     RoK_NONE                =   0,
     RoK_ENTRANCE            =   1,
@@ -146,8 +150,9 @@ struct RoomStats *room_stats_get_for_room(const struct Room *room);
 long get_room_look_through(RoomKind rkind);
 void set_room_efficiency(struct Room *room);
 void set_room_capacity(struct Room *room, long capac);
-long get_room_slabs_count(long plyr_idx, unsigned short rkind);
-long get_player_rooms_count(long plyr_idx, unsigned short rkind);
+long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind);
+long get_player_rooms_count(PlayerNumber plyr_idx, RoomKind rkind);
+long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_kind);
 void reinitialise_treaure_rooms(void);
 TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 TbBool find_first_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
@@ -164,13 +169,13 @@ struct Room *allocate_free_room_structure(void);
 unsigned short i_can_allocate_free_room_structure(void);
 void delete_all_room_structures(void);
 void delete_room_structure(struct Room *room);
-struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, unsigned char rkind);
+struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, RoomKind rkind);
 struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned short x, unsigned short y);
 short room_grow_food(struct Room *room);
 void update_room_efficiency(struct Room *room);
 long create_workshop_object_in_workshop_room(long a1, long a2, long a3);
-struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, long rkind);
-struct Room *place_room(unsigned char owner, unsigned char rkind, unsigned short stl_x, unsigned short stl_y);
+struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, RoomKind rkind);
+struct Room *place_room(unsigned char owner, RoomKind rkind, unsigned short stl_x, unsigned short stl_y);
 
 TbBool initialise_map_rooms(void);
 void init_room_sparks(struct Room *room);
@@ -183,6 +188,7 @@ void reset_creatures_rooms(struct Room *room);
 
 /* MOVE TO room_list.c/h */
 struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char a2, char a3, unsigned char a4);
+struct Room * pick_random_room(PlayerNumber plyr_idx, RoomKind rkind);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -43,8 +43,10 @@ TbBool add_creature_to_torture_room(struct Thing *crtng, struct Room *room)
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
     cctrl = creature_control_get_from_thing(crtng);
-    if (crtng->light_id != 0)
+    if (crtng->light_id != 0) {
         light_delete_light(crtng->light_id);
+        crtng->light_id = 0;
+    }
     if ((cctrl->spell_flags & 0x02) != 0)
         terminate_thing_spell_effect(crtng, 11);
     if ((cctrl->spell_flags & 0x20) != 0)

@@ -1155,10 +1155,10 @@ void stop_all_things_playing_samples(void)
     thing = thing_get(i);
     if ((thing->field_0 & 0x01) != 0)
     {
-      if (thing->field_66)
+      if (thing->snd_emitter_id)
       {
-        S3DDestroySoundEmitterAndSamples(thing->field_66);
-        thing->field_66 = 0;
+        S3DDestroySoundEmitterAndSamples(thing->snd_emitter_id);
+        thing->snd_emitter_id = 0;
       }
     }
   }
@@ -1239,13 +1239,14 @@ TbBool update_thing(struct Thing *thing)
     {
         if (light_is_light_allocated(thing->light_id))
         {
-          pos.x.val = thing->mappos.x.val;
-          pos.y.val = thing->mappos.y.val;
-          pos.z.val = thing->mappos.z.val + thing->field_58;
-          light_set_light_position(thing->light_id, &pos);
+            pos.x.val = thing->mappos.x.val;
+            pos.y.val = thing->mappos.y.val;
+            pos.z.val = thing->mappos.z.val + thing->field_58;
+            light_set_light_position(thing->light_id, &pos);
         } else
         {
-          thing->light_id = 0;
+            WARNLOG("The %s tries to use nonexisting light %d",thing_model_name(thing),(int)thing->light_id);
+            thing->light_id = 0;
         }
     }
     SYNCDBG(18,"Finished");
@@ -1261,15 +1262,15 @@ TbBigChecksum get_thing_checksum(struct Thing *thing)
 short update_thing_sound(struct Thing *thing)
 {
   SYNCDBG(18,"Starting");
-  if (thing->field_66)
+  if (thing->snd_emitter_id)
   {
-    if ( S3DEmitterHasFinishedPlaying(thing->field_66) )
+    if ( S3DEmitterHasFinishedPlaying(thing->snd_emitter_id) )
     {
-      S3DDestroySoundEmitter(thing->field_66);
-      thing->field_66 = 0;
+      S3DDestroySoundEmitter(thing->snd_emitter_id);
+      thing->snd_emitter_id = 0;
     } else
     {
-      S3DMoveSoundEmitterTo(thing->field_66,
+      S3DMoveSoundEmitterTo(thing->snd_emitter_id,
           thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val);
     }
   }

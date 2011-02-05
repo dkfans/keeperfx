@@ -62,7 +62,7 @@ void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4
     rcpos.z.val = Receiver.pos.val_z;
     if (get_3d_box_distance(&rcpos, &thing->mappos) < MaxSoundDistance)
     {
-        i = thing->field_66;
+        i = thing->snd_emitter_id;
         if (i > 0)
         {
             S3DAddSampleToEmitterPri(i, a2, 0, a3, a8, a4, a5, a6 | 0x01, a7);
@@ -70,7 +70,7 @@ void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4
         {
             i = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
                a2, 0, a3, a8, a4, a6 | 0x01, a7);
-           thing->field_66 = i;
+           thing->snd_emitter_id = i;
         }
     }
 }

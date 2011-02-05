@@ -228,108 +228,110 @@ DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
 /******************************************************************************/
 struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4)
 {
-  struct Objects *objdat;
-  struct ObjectConfig *objconf;
-  struct InitLight ilight;
-  struct Thing *thing;
-  long i,k;
-  //thing = _DK_create_object(pos, model, owner, a4);
+    struct Objects *objdat;
+    struct ObjectConfig *objconf;
+    struct InitLight ilight;
+    struct Thing *thing;
+    long i,k;
+    //thing = _DK_create_object(pos, model, owner, a4);
 
-  if (!i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots))
-  {
-      ERRORDBG(3,"Cannot create object model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
-      erstat_inc(ESE_NoFreeThings);
-      return NULL;
-  }
-  LbMemorySet(&ilight, 0, sizeof(struct InitLight));
-  thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
-  thing->class_id = TCls_Object;
-  thing->model = model;
-  if (a4 == -1)
-    thing->field_1D = -1;
-  else
-    thing->field_1D = a4;
-  LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
-  objconf = &game.objects_config[model];
-  objdat = get_objects_data_for_thing(thing);
-  thing->field_56 = objdat->field_9;
-  thing->field_58 = objdat->field_B;
-  thing->field_5A = objdat->field_9;
-  thing->field_5C = objdat->field_B;
-  thing->health = saturate_set_signed(objconf->health,16);
-  thing->field_20 = objconf->field_4;
-  thing->field_23 = 204;
-  thing->field_24 = 51;
-  thing->field_22 = 0;
-  thing->field_25 |= 0x08;
-
-  set_flag_byte(&thing->field_25, 0x40, objconf->field_8);
-  thing->owner = owner;
-  thing->field_9 = game.play_gameturn;
-
-  if (!objdat->field_2)
-  {
-    i = convert_td_iso(objdat->field_5);
-    k = 0;
-  } else
-  {
-    i = convert_td_iso(objdat->field_5);
-    k = -1;
-  }
-  set_thing_draw(thing, i, objdat->field_7, objdat->field_D, 0, k, objdat->field_11);
-  set_flag_byte(&thing->field_4F, 0x02, objconf->field_5);
-  set_flag_byte(&thing->field_4F, 0x01, objdat->field_3 & 0x01);
-  set_flag_byte(&thing->field_4F, 0x10, objdat->field_F & 0x01);
-  set_flag_byte(&thing->field_4F, 0x20, objdat->field_F & 0x02);
-  thing->active_state = objdat->field_0;
-  if (objconf->light != 0)
-  {
-    LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
-    ilight.field_0 = objconf->light;
-    ilight.field_2 = objconf->field_B;
-    ilight.field_3 = objconf->field_C[0];
-    ilight.field_11 = objconf->field_1A;
-    thing->light_id = light_create_light(&ilight);
-    if (thing->light_id == 0) {
-        WARNLOG("Cannot allocate light to %s.",thing_model_name(thing));
+    if (!i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots))
+    {
+        ERRORDBG(3,"Cannot create object model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+        erstat_inc(ESE_NoFreeThings);
+        return NULL;
     }
-  }
-  switch (thing->model)
-  {
-    case 3:
-      thing->long_13 = game.chest_gold_hold;
-      break;
-    case 5:
-      thing->byte_14 = 1;
-      light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
-      break;
-    case 6:
-      thing->long_13 = game.pot_of_gold_holds;
-      break;
-    case 33:
-      set_flag_byte(&thing->field_4F, 0x10, false);
-      set_flag_byte(&thing->field_4F, 0x20, true);
-      break;
-    case 43:
-      thing->long_13 = game.gold_pile_value;
-      break;
-    case 49:
-      i = get_free_hero_gate_number();
-      if (i > 0)
-      {
-        thing->byte_13 = i;
-      } else
-      {
-        thing->byte_13 = 0;
-        ERRORLOG("Could not allocate number for hero gate");
-      }
-      break;
-    default:
-      break;
-  }
-  add_thing_to_its_class_list(thing);
-  place_thing_in_mapwho(thing);
-  return thing;
+    thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
+    thing->class_id = TCls_Object;
+    thing->model = model;
+    if (a4 == -1)
+      thing->field_1D = -1;
+    else
+      thing->field_1D = a4;
+    LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
+    objconf = &game.objects_config[model];
+    objdat = get_objects_data_for_thing(thing);
+    thing->field_56 = objdat->field_9;
+    thing->field_58 = objdat->field_B;
+    thing->field_5A = objdat->field_9;
+    thing->field_5C = objdat->field_B;
+    thing->health = saturate_set_signed(objconf->health,16);
+    thing->field_20 = objconf->field_4;
+    thing->field_23 = 204;
+    thing->field_24 = 51;
+    thing->field_22 = 0;
+    thing->field_25 |= 0x08;
+
+    set_flag_byte(&thing->field_25, 0x40, objconf->field_8);
+    thing->owner = owner;
+    thing->field_9 = game.play_gameturn;
+
+    if (!objdat->field_2)
+    {
+      i = convert_td_iso(objdat->field_5);
+      k = 0;
+    } else
+    {
+      i = convert_td_iso(objdat->field_5);
+      k = -1;
+    }
+    set_thing_draw(thing, i, objdat->field_7, objdat->field_D, 0, k, objdat->field_11);
+    set_flag_byte(&thing->field_4F, 0x02, objconf->field_5);
+    set_flag_byte(&thing->field_4F, 0x01, objdat->field_3 & 0x01);
+    set_flag_byte(&thing->field_4F, 0x10, objdat->field_F & 0x01);
+    set_flag_byte(&thing->field_4F, 0x20, objdat->field_F & 0x02);
+    thing->active_state = objdat->field_0;
+    if (objconf->light != 0)
+    {
+        LbMemorySet(&ilight, 0, sizeof(struct InitLight));
+        LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
+        ilight.field_0 = objconf->light;
+        ilight.field_2 = objconf->field_B;
+        ilight.field_3 = objconf->field_C[0];
+        ilight.is_dynamic = objconf->field_1A;
+        thing->light_id = light_create_light(&ilight);
+        if (thing->light_id == 0) {
+            WARNLOG("Cannot allocate light to %s.",thing_model_name(thing));
+        }
+    } else {
+        thing->light_id = 0;
+    }
+    switch (thing->model)
+    {
+      case 3:
+        thing->long_13 = game.chest_gold_hold;
+        break;
+      case 5:
+        thing->byte_14 = 1;
+        light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
+        break;
+      case 6:
+        thing->long_13 = game.pot_of_gold_holds;
+        break;
+      case 33:
+        set_flag_byte(&thing->field_4F, 0x10, false);
+        set_flag_byte(&thing->field_4F, 0x20, true);
+        break;
+      case 43:
+        thing->long_13 = game.gold_pile_value;
+        break;
+      case 49:
+        i = get_free_hero_gate_number();
+        if (i > 0)
+        {
+          thing->byte_13 = i;
+        } else
+        {
+          thing->byte_13 = 0;
+          ERRORLOG("Could not allocate number for hero gate");
+        }
+        break;
+      default:
+        break;
+    }
+    add_thing_to_its_class_list(thing);
+    place_thing_in_mapwho(thing);
+    return thing;
 }
 
 struct Objects *get_objects_data_for_thing(struct Thing *thing)
@@ -535,7 +537,7 @@ void update_dungeon_heart_beat(struct Thing *thing)
     }
     k = (((unsigned long long)thing->field_40 >> 32) & 0xFF) + thing->field_40;
     thing->field_48 = (k >> 8) & 0xFF;
-    if ( !S3DEmitterIsPlayingSample(thing->field_66, 93, 0) )
+    if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 93, 0) )
       thing_play_sample(thing, 93, 100, -1, 3, 1, 6, 256);
   }
 }

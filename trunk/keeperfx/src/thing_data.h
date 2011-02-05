@@ -136,7 +136,7 @@ unsigned short field_58;
 unsigned short field_60;
     unsigned short light_id;
     short ccontrol_idx;
-    unsigned char field_66;
+    unsigned char snd_emitter_id;
     short next_of_class;
     unsigned char field_69;
     unsigned char field_6A;

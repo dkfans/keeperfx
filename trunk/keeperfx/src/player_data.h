@@ -35,7 +35,6 @@ extern "C" {
 #define HERO_PLAYER             4
 
 #define INVALID_PLAYER (&bad_player)
-typedef long PlayerNumber;
 
 #ifdef __cplusplus
 #pragma pack(1)
@@ -72,7 +71,7 @@ unsigned char field_14;
     unsigned char id_number;
     unsigned char field_2C;
     unsigned char field_2D[2];
-    short field_2F;
+    short controlled_thing_idx;
     long field_31;
     short thing_under_hand;
     unsigned char field_37;

@@ -73,7 +73,7 @@ TbBool player_exists(struct PlayerInfo *player)
 {
     if (player_invalid(player))
         return false;
-    return ((player->field_0 & 0x01) != 0);
+    return ((player->field_0 & RoF_Allocated) != 0);
 }
 
 /**

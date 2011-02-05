@@ -147,6 +147,11 @@ extern "C" {
 #pragma pack(1)
 #endif
 
+typedef long PlayerNumber;
+typedef unsigned char ThingClass;
+typedef unsigned char ThingModel;
+
+
 struct Coord2d {
     union {
       unsigned short val;

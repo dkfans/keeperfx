@@ -177,7 +177,7 @@ long gf_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption
   struct PlayerInfo *player;
   player = get_my_player();
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
+  if ((player->controlled_thing_idx <= 0) || (player->controlled_thing_idx >= THINGS_COUNT))
     return 0;
   set_players_packet_action(player, PckA_CheatCrtSpells, 0, 0, 0, 0);
   return 1;
@@ -242,7 +242,7 @@ long gfa_can_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxO
   struct PlayerInfo *player;
   player = get_my_player();
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
+  if ((player->controlled_thing_idx <= 0) || (player->controlled_thing_idx >= THINGS_COUNT))
     return false;
   return true;
 }
@@ -252,9 +252,9 @@ long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOpti
   struct PlayerInfo *player;
   struct Thing *thing;
   player = get_my_player();
-  if ((player->field_2F <= 0) || (player->field_2F >= THINGS_COUNT))
+  if ((player->controlled_thing_idx <= 0) || (player->controlled_thing_idx >= THINGS_COUNT))
     return false;
-  thing = thing_get(player->field_2F);
+  thing = thing_get(player->controlled_thing_idx);
   return creature_instance_is_available(thing, *tag);
 }
 
