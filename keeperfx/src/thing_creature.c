@@ -195,7 +195,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     turn_off_roaming_menus();
   }
   cam = player->acamera;
-  player->field_2F = thing->index;
+  player->controlled_thing_idx = thing->index;
   player->field_31 = thing->field_9;
   if (cam != NULL)
     player->field_4B5 = cam->field_6;
@@ -217,11 +217,13 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
   ilght.field_3 = 1;
   ilght.field_2 = 36;
   ilght.field_0 = 2560;
-  ilght.field_11 = 1;
+  ilght.is_dynamic = 1;
   thing->light_id = light_create_light(&ilght);
-  light_set_light_never_cache(thing->light_id);
-  if (thing->light_id == 0)
+  if (thing->light_id != 0) {
+      light_set_light_never_cache(thing->light_id);
+  } else {
     ERRORLOG("Cannot allocate light to new controlled thing");
+  }
   if (is_my_player_number(thing->owner))
   {
     if (thing->class_id == TCls_Creature)
@@ -254,7 +256,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
     turn_off_roaming_menus();
   }
   cam = player->acamera;
-  player->field_2F = thing->index;
+  player->controlled_thing_idx = thing->index;
   player->field_31 = thing->field_9;
   if (cam != NULL)
     player->field_4B5 = cam->field_6;
@@ -1181,9 +1183,9 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1)
     {
         // Update thing index inside player struct
         player = get_player(owner);
-        if (player->field_2F == prev_idx)
+        if (player->controlled_thing_idx == prev_idx)
         {
-            player->field_2F = deadtng->index;
+            player->controlled_thing_idx = deadtng->index;
             player->field_31 = deadtng->field_9;
         }
     }
@@ -2183,7 +2185,7 @@ void remove_first_creature(struct Thing *thing)
         if ((cctrl->field_2 & 0x02) == 0)
         {
           dungeon->num_active_crtrs--;
-          dungeon->field_91A[thing->model]--;
+          dungeon->owned_creatures_of_model[thing->model]--;
         }
     } else
     {
@@ -3180,9 +3182,9 @@ long update_creature_levels(struct Thing *thing)
       leave_creature_as_controller(player, thing);
       control_creature_as_controller(player, newtng);
     }
-    if (thing->index == player->field_2F)
+    if (thing->index == player->controlled_thing_idx)
     {
-      player->field_2F = newtng->index;
+      player->controlled_thing_idx = newtng->index;
       player->field_31 = newtng->field_9;
     }
     kill_creature(thing, INVALID_THING, -1, 1, 0, 1);

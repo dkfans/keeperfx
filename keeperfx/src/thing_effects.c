@@ -623,8 +623,8 @@ void update_effect_light_intensity(struct Thing *thing)
   {
       if (thing->health < 4)
       {
-        i = light_get_light_intensity(thing->light_id);
-        light_set_light_intensity(thing->light_id, (3*i)/4);
+          i = light_get_light_intensity(thing->light_id);
+          light_set_light_intensity(thing->light_id, (3*i)/4);
       }
   }
 }
@@ -763,7 +763,7 @@ struct Thing *create_effect(const struct Coord3d *pos, unsigned short effmodel, 
     {
         struct InitLight ilght;
         memcpy(&ilght, &ieffect->ilght, sizeof(struct InitLight));
-        ilght.field_11 = 1;
+        ilght.is_dynamic = 1;
         ilght.mappos.x.val = thing->mappos.x.val;
         ilght.mappos.y.val = thing->mappos.y.val;
         ilght.mappos.z.val = thing->mappos.z.val;
@@ -792,10 +792,10 @@ TbBool destroy_effect_generator(struct Thing *thing)
       place_slab_type_on_map(12, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner, 0);
       do_slab_efficiency_alteration(map_to_slab[thing->mappos.x.stl.num], map_to_slab[thing->mappos.y.stl.num]);
   }
-  if (thing->field_66 != 0)
+  if (thing->snd_emitter_id != 0)
   {
-      S3DDestroySoundEmitter(thing->field_66);
-      thing->field_66 = 0;
+      S3DDestroySoundEmitter(thing->snd_emitter_id);
+      thing->snd_emitter_id = 0;
   }
   delete_thing_structure(thing, 0);
   return true;

@@ -230,7 +230,7 @@ struct Dungeon {
     unsigned char field_916[2];
     unsigned char num_workers;
     unsigned char num_active_crtrs;
-    unsigned char field_91A[32];
+    unsigned char owned_creatures_of_model[32];
     unsigned char field_93A;
     unsigned short total_doors;
     unsigned short total_area;

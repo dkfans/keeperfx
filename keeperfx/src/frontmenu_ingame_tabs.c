@@ -917,7 +917,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
   long i;
   draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 459);
   player = get_my_player();
-  thing = thing_get(player->field_2F);
+  thing = thing_get(player->controlled_thing_idx);
   if (!thing_exists(thing))
     return;
   if (thing->class_id == TCls_Creature)

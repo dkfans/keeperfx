@@ -20,6 +20,7 @@
 #define DK_LIGHT_DATA_H
 
 #include "globals.h"
+#include "bflib_basics.h"
 
 #define LIGHT_MAX_RANGE        30
 #define LIGHTS_COUNT          400
@@ -40,7 +41,8 @@ enum ShadowCacheFlags {
 };
 
 enum LightFlags {
-    LgtF_Allocated = 0x01,
+    LgtF_Allocated    = 0x01,
+    LgtF_Dynamic      = 0x04,
 };
 
 struct Light { // sizeof = 46
@@ -48,12 +50,12 @@ struct Light { // sizeof = 46
   unsigned char field_1;
   unsigned char field_2;
   unsigned char field_3[2];
-  unsigned char field_5;
+  unsigned char range;
   unsigned char field_6;
   unsigned short field_7;
   unsigned char field_9[5];
   unsigned short index;
-  unsigned short field_10;
+  unsigned short shadow_index;
   long field_12;
   unsigned short field_16;
   short field_18;
@@ -72,7 +74,7 @@ unsigned char field_6[2];
 short field_8;
     struct Coord3d mappos;
 unsigned char field_10;
-    unsigned char field_11;
+    unsigned char is_dynamic;
 short field_12;
 };
 /******************************************************************************/
@@ -115,6 +117,7 @@ void light_set_lights_on(char state);
 void light_set_light_minimum_size_to_cache(long a1, long a2, long a3);
 void light_signal_update_in_area(long sx, long sy, long ex, long ey);
 long light_get_total_dynamic_lights(void);
+TbBool lights_stats_debug_dump(void);
 
 /******************************************************************************/
 #ifdef __cplusplus

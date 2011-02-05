@@ -37,7 +37,7 @@ struct PlayerInfo;
 struct Thing;
 struct CompoundFilterParam;
 
-enum ThingClass {
+enum ThingClassIndex {
     TCls_Empty        =  0,
     TCls_Object       =  1,
     TCls_Shot         =  2,

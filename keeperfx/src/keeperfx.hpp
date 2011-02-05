@@ -71,7 +71,7 @@ extern "C" {
 #define SLABSET_COUNT        1304
 #define SLABOBJS_COUNT        512
 #define BOOKMARKS_COUNT         5
-#define SHADOWS_COUNT          40
+#define SHADOW_CACHE_COUNT          40
 // Amount of instances; it's 17, 18 or 19
 #define PLAYER_INSTANCES_COUNT 19
 #define PLAYER_STATES_COUNT    32
@@ -461,13 +461,14 @@ unsigned char land_map_start;
     struct UnkStruc6 field_1DD41[1024];
     unsigned char shadow_limits[SHADOW_LIMITS_COUNT];
     struct Light lights[LIGHTS_COUNT];
-    struct ShadowCache shadow_cache[SHADOWS_COUNT];
+    struct ShadowCache shadow_cache[SHADOW_CACHE_COUNT];
     unsigned short stat_light_map[256*256];
 long field_46149;
 char field_4614D;
 char field_4614E;
 int field_4614F;
 int field_46153;
+// end of "LightSystem"
 
     unsigned short field_46157[256*256];
     struct CreatureControl cctrl_data[CREATURES_COUNT];
