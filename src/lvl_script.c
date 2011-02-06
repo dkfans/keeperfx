@@ -916,61 +916,61 @@ void command_add_condition(long plr_id, long opertr_id, long varib_type, long va
 
 void command_if(char *plrname, char *varib_name, char *operatr, long value)
 {
-  long plr_id,opertr_id;
-  long varib_type,varib_id;
-  if (game.script.conditions_num >= CONDITIONS_COUNT)
-  {
-    SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
-    return;
-  }
-  // Recognize player
-  if (!get_player_id(plrname, &plr_id))
-    return;
-  // Recognize variable
-  varib_type = get_id(variable_desc, varib_name);
-  if (varib_type == -1)
-    varib_id = -1;
-  else
-    varib_id = 0;
-  if (varib_id == -1)
-  {
-    varib_id = get_id(creature_desc, varib_name);
-    varib_type = SVar_CREATURE_NUM;
-  }
-  if (varib_id == -1)
-  {
-    varib_id = get_id(room_desc, varib_name);
-    varib_type = SVar_ROOM_SLABS;
-  }
-  if (varib_id == -1)
-  {
-    varib_id = get_id(timer_desc, varib_name);
-    varib_type = SVar_TIMER;
-  }
-  if (varib_id == -1)
-  {
-    varib_id = get_id(flag_desc, varib_name);
-    varib_type = SVar_FLAG;
-  }
-  if (varib_id == -1)
-  {
-    varib_id = get_id(door_desc, varib_name);
-    varib_type = SVar_DOOR_NUM;
-  }
-  if (varib_id == -1)
-  {
-    SCRPTERRLOG("Unknown variable name, '%s'", varib_name);
-    return;
-  }
-  // Recognize comparison
-  opertr_id = get_id(comparison_desc, operatr);
-  if (opertr_id == -1)
-  {
-    SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
-    return;
-  }
-  // Add the condition to script structure
-  command_add_condition(plr_id, opertr_id, varib_type, varib_id, value);
+    long plr_id,opertr_id;
+    long varib_type,varib_id;
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
+    {
+      SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
+      return;
+    }
+    // Recognize player
+    if (!get_player_id(plrname, &plr_id))
+      return;
+    // Recognize variable
+    varib_type = get_id(variable_desc, varib_name);
+    if (varib_type == -1)
+      varib_id = -1;
+    else
+      varib_id = 0;
+    if (varib_id == -1)
+    {
+      varib_id = get_id(creature_desc, varib_name);
+      varib_type = SVar_CREATURE_NUM;
+    }
+    if (varib_id == -1)
+    {
+      varib_id = get_id(room_desc, varib_name);
+      varib_type = SVar_ROOM_SLABS;
+    }
+    if (varib_id == -1)
+    {
+      varib_id = get_id(timer_desc, varib_name);
+      varib_type = SVar_TIMER;
+    }
+    if (varib_id == -1)
+    {
+      varib_id = get_id(flag_desc, varib_name);
+      varib_type = SVar_FLAG;
+    }
+    if (varib_id == -1)
+    {
+      varib_id = get_id(door_desc, varib_name);
+      varib_type = SVar_DOOR_NUM;
+    }
+    if (varib_id == -1)
+    {
+      SCRPTERRLOG("Unknown variable name, '%s'", varib_name);
+      return;
+    }
+    // Recognize comparison
+    opertr_id = get_id(comparison_desc, operatr);
+    if (opertr_id == -1)
+    {
+      SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
+      return;
+    }
+    // Add the condition to script structure
+    command_add_condition(plr_id, opertr_id, varib_type, varib_id, value);
 }
 
 struct ScriptValue *allocate_script_value(void)
@@ -2327,6 +2327,12 @@ short load_script(long lvnum)
     WARNMSG("No WIN GAME conditions in script file.");
   if (script_current_condition != -1)
     WARNMSG("Missing ENDIF's in script file.");
+  JUSTLOG("Used script resources: %d/%d tunneller triggers, %d/%d party triggers, %d/%d script values, %d/%d IF conditions, %d/%d party definitions",
+      (int)game.script.tunneller_triggers_num,TUNNELLER_TRIGGERS_COUNT,
+      (int)game.script.party_triggers_num,PARTY_TRIGGERS_COUNT,
+      (int)game.script.values_num,SCRIPT_VALUES_COUNT,
+      (int)game.script.conditions_num,CONDITIONS_COUNT,
+      (int)game.script.creature_partys_num,CREATURE_PARTYS_COUNT);
   return true;
 }
 

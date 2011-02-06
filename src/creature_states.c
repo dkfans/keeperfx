@@ -2160,9 +2160,9 @@ short set_start_state(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->field_AD & 0x02) != 0)
     {
-      cleanup_current_thing_state(thing);
-      initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
-      return thing->active_state;
+        cleanup_current_thing_state(thing);
+        initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
+        return thing->active_state;
     }
     initialise_thing_state(thing, creatures[thing->model%CREATURE_TYPES_COUNT].evil_start_state);
     return thing->active_state;

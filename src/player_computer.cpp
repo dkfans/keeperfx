@@ -1870,7 +1870,7 @@ long computer_pick_trainig_or_scavenging_creatures_and_place_on_room(struct Comp
         break;
       }
       cctrl = creature_control_get_from_thing(thing);
-      i = cctrl->thing_idx;
+      i = cctrl->next_players_creature_idx;
       // Per creature code
       if (creature_is_training(thing) || creature_is_scavengering(thing)) // originally, only CrSt_Training and CrSt_Scavengering were accepted
       {
@@ -1913,7 +1913,7 @@ long computer_pick_expensive_job_creatures_and_place_on_lair(struct Computer2 *c
     if (new_tasks >= tasks_limit)
         return new_tasks;
     // Sweep through workers list
-    new_tasks += computer_pick_trainig_or_scavenging_creatures_and_place_on_room(comp, room, dungeon->worker_list_start, tasks_limit-new_tasks);
+    new_tasks += computer_pick_trainig_or_scavenging_creatures_and_place_on_room(comp, room, dungeon->digger_list_start, tasks_limit-new_tasks);
     return new_tasks;
 }
 

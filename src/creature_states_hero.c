@@ -178,175 +178,137 @@ TbBool good_setup_loot_research_room(struct Thing *thing, long dngn_id)
     return true;
 }
 
-TbBool good_setup_wander_to_creature(struct Thing *wanderer, long dngn_id)
+long get_wanderer_possible_targets_count_in_list(long first_thing_idx, struct Thing *wanderer)
 {
     struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
     struct Thing *thing;
-    long navigable_targets,target_match;
+    long victims_count;
     unsigned long k;
     long i;
-    SYNCDBG(7,"Starting");
-    cctrl = creature_control_get_from_thing(wanderer);
-    dungeon = get_dungeon(dngn_id);
-    navigable_targets = 0;
+    victims_count = 0;
     // Get the amount of possible targets
     k = 0;
-    i = dungeon->creatr_list_start;
+    i = first_thing_idx;
     while (i != 0)
     {
-      thing = thing_get(i);
-      cctrl = creature_control_get_from_thing(thing);
-      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-      {
-        ERRORLOG("Jump to invalid creature detected");
-        break;
-      }
-      i = cctrl->thing_idx;
-      // Thing list loop body
-      if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
-      {
-          if ( creature_can_navigate_to(wanderer, &thing->mappos, 0) )
-            navigable_targets++;
-      }
-      // Thing list loop body ends
-      k++;
-      if (k > CREATURES_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping creatures list");
-        break;
-      }
+        thing = thing_get(i);
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->next_players_creature_idx;
+        // Thing list loop body
+        if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
+        {
+            if ( creature_can_navigate_to(wanderer, &thing->mappos, 0) ) {
+                victims_count++;
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
     }
-    // Select random target
-    if (navigable_targets < 1)
-    {
-        SYNCDBG(4,"No player %d creatures found to wander to",(int)dngn_id);
-        return false;
-    }
-    target_match = ACTION_RANDOM(navigable_targets);
+    return victims_count;
+}
+
+TbBool wander_to_specific_possible_target_in_list(long first_thing_idx, struct Thing *wanderer, long specific_target)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    long target_match;
+    unsigned long k;
+    long i;
+    target_match = specific_target;
+    // Find the target
     k = 0;
-    i = dungeon->creatr_list_start;
+    i = first_thing_idx;
     while (i != 0)
     {
-      thing = thing_get(i);
-      cctrl = creature_control_get_from_thing(thing);
-      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-      {
-        ERRORLOG("Jump to invalid creature detected");
-        break;
-      }
-      i = cctrl->thing_idx;
-      // Thing list loop body
-      if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
-      {
-          if ( creature_can_navigate_to(wanderer, &thing->mappos, 0) )
-          {
-              if (target_match > 0)
-              {
-                  target_match--;
-              } else
-              if ( setup_person_move_to_position(wanderer, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0) )
-              {
-                  thing->continue_state = CrSt_GoodDoingNothing;
-                  return true;
-              }
-          }
-      }
-      // Thing list loop body ends
-      k++;
-      if (k > CREATURES_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping creatures list");
-        break;
-      }
+        thing = thing_get(i);
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->next_players_creature_idx;
+        // Thing list loop body
+        if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
+        {
+            if ( creature_can_navigate_to(wanderer, &thing->mappos, 0) )
+            {
+                // If it's not the one we want, continue sweeping
+                if (target_match > 0)
+                {
+                    target_match--;
+                } else
+                // If it is the one, try moving to it
+                if ( setup_person_move_to_position(wanderer, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0) )
+                {
+                    return true;
+                }
+                // If we've got the right creature, but moving failed for some reason, try next one.
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
     }
-    WARNLOG("Internal - couldn't wander to player %d creature",(int)dngn_id);
     return false;
 }
 
-TbBool good_setup_wander_to_imp(struct Thing *wanderer, long dngn_id)
+TbBool setup_wanderer_move_to_random_creature_from_list(long first_thing_idx, struct Thing *wanderer)
 {
-    struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
-    struct Thing *thing;
     long navigable_targets,target_match;
-    unsigned long k;
-    long i;
-    SYNCDBG(7,"Starting");
-    cctrl = creature_control_get_from_thing(wanderer);
-    dungeon = get_dungeon(dngn_id);
-    navigable_targets = 0;
-    // Get the amount of possible targets
-    k = 0;
-    i = dungeon->worker_list_start;
-    while (i != 0)
-    {
-      thing = thing_get(i);
-      cctrl = creature_control_get_from_thing(thing);
-      if (creature_control_invalid(cctrl))
-      {
-        ERRORLOG("Jump to invalid creature detected");
-        break;
-      }
-      i = cctrl->thing_idx;
-      // Thing list loop body
-      if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
-      {
-          if ( creature_can_navigate_to(wanderer, &thing->mappos, 0) )
-            navigable_targets++;
-      }
-      // Thing list loop body ends
-      k++;
-      if (k > CREATURES_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping creatures list");
-        break;
-      }
-    }
+    navigable_targets = get_wanderer_possible_targets_count_in_list(first_thing_idx,wanderer);
     // Select random target
-    if (navigable_targets < 1)
-    {
-        SYNCDBG(4,"No player %d creatures found to wander to",(int)dngn_id);
+    if (navigable_targets < 1) {
         return false;
     }
     target_match = ACTION_RANDOM(navigable_targets);
-    k = 0;
-    i = dungeon->worker_list_start;
-    while (i != 0)
+    if ( wander_to_specific_possible_target_in_list(first_thing_idx, wanderer, target_match) )
     {
-      thing = thing_get(i);
-      cctrl = creature_control_get_from_thing(thing);
-      if (creature_control_invalid(cctrl))
-      {
-        ERRORLOG("Jump to invalid creature detected");
-        break;
-      }
-      i = cctrl->thing_idx;
-      // Thing list loop body
-      if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
-      {
-          if ( creature_can_navigate_to(wanderer, &thing->mappos, 0) )
-          {
-              if (target_match > 0)
-              {
-                  target_match--;
-              } else
-              if ( setup_person_move_to_position(wanderer, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0) )
-              {
-                  thing->continue_state = CrSt_GoodDoingNothing;
-                  return true;
-              }
-          }
-      }
-      // Thing list loop body ends
-      k++;
-      if (k > CREATURES_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping creatures list");
-        break;
-      }
+        return true;
     }
-    WARNLOG("Internal - couldn't wander to player %d creature",(int)dngn_id);
+    WARNLOG("Internal - couldn't wander to creature which was in list a while ago");
+    return false;
+}
+
+TbBool good_setup_wander_to_creature(struct Thing *wanderer, long dngn_id)
+{
+    struct Dungeon *dungeon;
+    SYNCDBG(7,"Starting");
+    dungeon = get_dungeon(dngn_id);
+    if ( setup_wanderer_move_to_random_creature_from_list(dungeon->creatr_list_start,wanderer) )
+    {
+        wanderer->continue_state = CrSt_GoodDoingNothing;
+        return true;
+    }
+    SYNCDBG(4,"Cannot wander to player %d creatures",(int)dngn_id);
+    return false;
+}
+
+TbBool good_setup_wander_to_spdigger(struct Thing *wanderer, long dngn_id)
+{
+    struct Dungeon *dungeon;
+    SYNCDBG(7,"Starting");
+    dungeon = get_dungeon(dngn_id);
+    if ( setup_wanderer_move_to_random_creature_from_list(dungeon->digger_list_start,wanderer) )
+    {
+        wanderer->continue_state = CrSt_GoodDoingNothing;
+        return true;
+    }
+    SYNCDBG(4,"Cannot wander to player %d creatures",(int)dngn_id);
     return false;
 }
 
@@ -419,8 +381,9 @@ short good_doing_nothing(struct Thing *thing)
         return 0;
     }
     nturns = game.play_gameturn - cctrl->long_9A;
-    if (nturns <= 1)
+    if (nturns <= 1) {
       return 1;
+    }
     if (cctrl->field_5 > (long)game.play_gameturn)
     {
       if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
@@ -490,38 +453,38 @@ short good_doing_nothing(struct Thing *thing)
     SYNCDBG(8,"Performing task %d",(int)cctrl->field_4);
     switch (cctrl->field_4)
     {
-    case 1: // ATTACK_ROOMS
-        if (good_setup_attack_rooms(thing, i))
-        {
+    case CHeroTsk_AttackRooms:
+        if (good_setup_attack_rooms(thing, i)) {
             return 1;
         }
         WARNLOG("Can't attack player %d rooms, switching to attack heart", (int)i);
         cctrl->field_4 = 3;
         return false;
-    case 3: // ATTACK_DUNGEON_HEART
-        if (good_setup_wander_to_dungeon_heart(thing, i))
-        {
+    case CHeroTsk_AttackDnHeart:
+        if (good_setup_wander_to_dungeon_heart(thing, i)) {
             return 1;
         }
         ERRORLOG("Cannot wander to player %d heart", (int)i);
         return false;
-    case 4: // STEAL_GOLD
+    case CHeroTsk_StealGold:
         crstat = creature_stats_get_from_thing(thing);
         if (thing->long_13 < crstat->gold_hold)
         {
-            if (good_setup_loot_treasure_room(thing, i))
+            if (good_setup_loot_treasure_room(thing, i)) {
                 return true;
+            }
             WARNLOG("Can't loot player %d treasury, switching to attack heart", (int)i);
             cctrl->field_4 = 3;
         } else
         {
-            if (good_setup_wander_to_exit(thing))
+            if (good_setup_wander_to_exit(thing)) {
                 return true;
+            }
             WARNLOG("Can't wander to exit after looting player %d treasury, switching to attack heart", (int)i);
             cctrl->field_4 = 3;
         }
         return false;
-    case 5: // STEAL_SPELLS
+    case CHeroTsk_StealSpells:
         //TODO STEAL_SPELLS write a correct code for stealing spells, then enable this
         if (true)//!thing->holds_a_spell)
         {
@@ -537,24 +500,41 @@ short good_doing_nothing(struct Thing *thing)
             cctrl->field_4 = 3;
         }
         return false;
-    case 2: // ATTACK_ENEMIES
-    case 0:
+    case CHeroTsk_AttackEnemies:
+    case CHeroTsk_Default:
     default:
+        // Randomly select if we will first try to wander to creature, or to special digger
         if (ACTION_RANDOM(2) == 1)
         {
-          if (good_setup_wander_to_creature(thing, cctrl->sbyte_89))
-          {
-              SYNCDBG(17,"Finished - wandering to creature");
-              return true;
-          }
-        }
-        if (good_setup_wander_to_imp(thing, cctrl->sbyte_89))
+            // Try wander to creature
+            if (good_setup_wander_to_creature(thing, cctrl->sbyte_89))
+            {
+                SYNCDBG(17,"Finished - wandering to creature");
+                return true;
+            }
+            // If the wander failed, try wander to special digger
+            if (good_setup_wander_to_spdigger(thing, cctrl->sbyte_89))
+            {
+                SYNCDBG(17,"Finished - wandering to worker");
+                return true;
+            }
+        } else
         {
-            SYNCDBG(17,"Finished - wandering to worker");
-            return true;
+            // Try wander to special digger
+            if (good_setup_wander_to_spdigger(thing, cctrl->sbyte_89))
+            {
+                SYNCDBG(17,"Finished - wandering to worker");
+                return true;
+            }
+            // If the wander failed, try wander to creature
+            if (good_setup_wander_to_creature(thing, cctrl->sbyte_89))
+            {
+                SYNCDBG(17,"Finished - wandering to creature");
+                return true;
+            }
         }
         WARNLOG("Can't attack player %d creature, switching to attack heart", (int)cctrl->sbyte_89);
-        cctrl->field_4 = 3;
+        cctrl->field_4 = CHeroTsk_AttackDnHeart;
         return 0;
     }
 }

@@ -26,6 +26,16 @@
 extern "C" {
 #endif
 
+enum CreatureHeroTasks {
+    CHeroTsk_Default         = 0,
+    CHeroTsk_AttackRooms     = 1,
+    CHeroTsk_AttackEnemies   = 2,
+    CHeroTsk_AttackDnHeart   = 3,
+    CHeroTsk_StealGold       = 4,
+    CHeroTsk_StealSpells     = 5,
+    CHeroTsk_DefendParty     = 6,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 

@@ -161,7 +161,7 @@ TbBool make_all_players_creatures_angry(long plyr_idx)
       ERRORLOG("Jump to invalid creature detected");
       break;
     }
-    i = cctrl->thing_idx;
+    i = cctrl->next_players_creature_idx;
     // Thing list loop body
     anger_make_creature_angry(thing, 4);
     // Thing list loop body ends

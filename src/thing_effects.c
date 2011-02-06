@@ -770,7 +770,7 @@ struct Thing *create_effect(const struct Coord3d *pos, unsigned short effmodel, 
         thing->light_id = light_create_light(&ilght);
         if (thing->light_id == 0) {
             // Note that there's an error here in original DK, and it makes unusable Thing entries if cannot allocate light.
-            WARNLOG("Cannot allocate light to %s.",thing_model_name(thing));
+            SYNCDBG(8,"Cannot allocate dynamic light to %s.",thing_model_name(thing));
         }
     }
     add_thing_to_its_class_list(thing);

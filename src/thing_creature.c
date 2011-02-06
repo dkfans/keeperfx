@@ -877,26 +877,26 @@ struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
 
 struct Thing *find_interesting_object_laying_around_thing(struct Thing *crthing)
 {
-  struct Thing *thing;
-  struct Map *mapblk;
-  long stl_x,stl_y;
-  long k;
-  for (k=0; k < AROUND_TILES_COUNT; k++)
-  {
-    stl_x = crthing->mappos.x.stl.num + around[k].delta_x;
-    stl_y = crthing->mappos.y.stl.num + around[k].delta_y;
-    mapblk = get_map_block_at(stl_x,stl_y);
-    if (!map_block_invalid(mapblk))
+    struct Thing *thing;
+    struct Map *mapblk;
+    long stl_x,stl_y;
+    long k;
+    for (k=0; k < AROUND_TILES_COUNT; k++)
     {
-      if ((mapblk->flags & 0x10) == 0)
-      {
-        thing = find_gold_pile_or_chicken_laying_on_mapblk(mapblk);
-        if (!thing_is_invalid(thing))
-          return thing;
-      }
+        stl_x = crthing->mappos.x.stl.num + around[k].delta_x;
+        stl_y = crthing->mappos.y.stl.num + around[k].delta_y;
+        mapblk = get_map_block_at(stl_x,stl_y);
+        if (!map_block_invalid(mapblk))
+        {
+            if ((mapblk->flags & 0x10) == 0)
+            {
+                thing = find_gold_pile_or_chicken_laying_on_mapblk(mapblk);
+                if (!thing_is_invalid(thing))
+                    return thing;
+            }
+        }
     }
-  }
-  return INVALID_THING;
+    return INVALID_THING;
 }
 
 long process_creature_state(struct Thing *thing)
@@ -915,32 +915,32 @@ long process_creature_state(struct Thing *thing)
     process_person_moods_and_needs(thing);
     if (creature_available_for_combat_this_turn(thing))
     {
-      if (!creature_look_for_combat(thing))
-      {
-        if ((!cctrl->field_3) && ((model_flags & MF_IsSpecDigger) == 0))
+        if (!creature_look_for_combat(thing))
         {
-          tgthing = get_enemy_dungeon_heart_creature_can_see(thing);
-          if (!thing_is_invalid(tgthing))
-            set_creature_object_combat(thing, tgthing);
+          if ((!cctrl->field_3) && ((model_flags & MF_IsSpecDigger) == 0))
+          {
+            tgthing = get_enemy_dungeon_heart_creature_can_see(thing);
+            if (!thing_is_invalid(tgthing))
+              set_creature_object_combat(thing, tgthing);
+          }
         }
-      }
     }
     if ((cctrl->field_3 & 0x10) == 0)
     {
-      if ((cctrl->field_1D0) && ((cctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
-      {
-          if ( can_change_from_state_to(thing, thing->active_state, CrSt_CreatureDoorCombat) )
-          {
-            x = stl_num_decode_x(cctrl->field_1D0);
-            y = stl_num_decode_y(cctrl->field_1D0);
-            tgthing = get_door_for_position(x,y);
-            if (!thing_is_invalid(tgthing))
+        if ((cctrl->field_1D0) && ((cctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
+        {
+            if ( can_change_from_state_to(thing, thing->active_state, CrSt_CreatureDoorCombat) )
             {
-              if (thing->owner != tgthing->owner)
-                set_creature_door_combat(thing, tgthing);
+              x = stl_num_decode_x(cctrl->field_1D0);
+              y = stl_num_decode_y(cctrl->field_1D0);
+              tgthing = get_door_for_position(x,y);
+              if (!thing_is_invalid(tgthing))
+              {
+                if (thing->owner != tgthing->owner)
+                  set_creature_door_combat(thing, tgthing);
+              }
             }
-          }
-      }
+        }
     }
     cctrl->field_1D0 = 0;
     if ((cctrl->field_7A & 0xFFF) != 0)
@@ -956,40 +956,41 @@ long process_creature_state(struct Thing *thing)
     // Creatures that are not special diggers will pick up any nearby gold or food
     if (((thing->field_25 & 0x20) == 0) && ((model_flags & MF_IsSpecDigger) == 0))
     {
-      tgthing = find_interesting_object_laying_around_thing(thing);
-      if (!thing_is_invalid(tgthing))
-      {
-        if (tgthing->model == 43)
+        tgthing = find_interesting_object_laying_around_thing(thing);
+        if (!thing_is_invalid(tgthing))
         {
-          crstat = creature_stats_get_from_thing(thing);
-          if (tgthing->long_13 > 0)
-          {
-            if (thing->long_13 < crstat->gold_hold)
+            if (tgthing->model == 43)
             {
-              if (crstat->gold_hold < tgthing->long_13 + thing->long_13)
+              crstat = creature_stats_get_from_thing(thing);
+              if (tgthing->long_13 > 0)
               {
-                k = crstat->gold_hold - thing->long_13;
-                thing->long_13 += k;
-                tgthing->long_13 -= k;
+                  if (thing->long_13 < crstat->gold_hold)
+                  {
+                      if (crstat->gold_hold < tgthing->long_13 + thing->long_13)
+                      {
+                          k = crstat->gold_hold - thing->long_13;
+                          thing->long_13 += k;
+                          tgthing->long_13 -= k;
+                      } else
+                      {
+                          thing->long_13 += tgthing->long_13;
+                          delete_thing_structure(tgthing, 0);
+                      }
+                  }
               } else
               {
-                thing->long_13 += tgthing->long_13;
-                delete_thing_structure(tgthing, 0);
+                  ERRORLOG("GoldPile with no gold!");
+                  delete_thing_structure(tgthing, 0);
               }
+              anger_apply_anger_to_creature(thing, crstat->annoy_got_wage, 1, 1);
+            } else
+            if (tgthing->model == 10)
+            {
+                if (!is_thing_passenger_controlled(tgthing)) {
+                  food_eaten_by_creature(tgthing, thing);
+                }
             }
-          } else
-          {
-            ERRORLOG("GoldPile with no gold!");
-            delete_thing_structure(tgthing, 0);
-          }
-          anger_apply_anger_to_creature(thing, crstat->annoy_got_wage, 1, 1);
-        } else
-        if (tgthing->model == 10)
-        {
-          if (!is_thing_passenger_controlled(tgthing))
-            food_eaten_by_creature(tgthing, thing);
         }
-      }
     }
     // Enable this to know which function hangs on update_creature.
     //TODO: rewrite state subfunctions so they won't hang
@@ -997,10 +998,11 @@ long process_creature_state(struct Thing *thing)
     SYNCDBG(18,"Executing state %d",(int)thing->active_state);
     stati = get_thing_active_state_info(thing);
     if (stati->ofsfield_0 == NULL)
-      return false;
-    if (stati->ofsfield_0(thing) != -1)
-      return false;
+        return false;
+    k = stati->ofsfield_0(thing);
     SYNCDBG(18,"Finished");
+    if (k != -1)
+        return false;
     return true;
 }
 
@@ -2156,11 +2158,11 @@ void remove_first_creature(struct Thing *thing)
       sectng = thing_get(cctrl->field_1D);
       if (!thing_is_invalid(sectng)) {
           secctrl = creature_control_get_from_thing(sectng);
-          secctrl->thing_idx = cctrl->thing_idx;
+          secctrl->next_players_creature_idx = cctrl->next_players_creature_idx;
       } else {
-          game.field_14EA46 = cctrl->thing_idx;
+          game.field_14EA46 = cctrl->next_players_creature_idx;
       }
-      sectng = thing_get(cctrl->thing_idx);
+      sectng = thing_get(cctrl->next_players_creature_idx);
       if (!thing_is_invalid(sectng)) {
           secctrl = creature_control_get_from_thing(sectng);
           secctrl->field_1D = cctrl->field_1D;
@@ -2173,11 +2175,11 @@ void remove_first_creature(struct Thing *thing)
         sectng = thing_get(cctrl->field_1D);
         if (!thing_is_invalid(sectng)) {
             secctrl = creature_control_get_from_thing(sectng);
-            secctrl->thing_idx = cctrl->thing_idx;
+            secctrl->next_players_creature_idx = cctrl->next_players_creature_idx;
         } else {
-            dungeon->creatr_list_start = cctrl->thing_idx;
+            dungeon->creatr_list_start = cctrl->next_players_creature_idx;
         }
-        sectng = thing_get(cctrl->thing_idx);
+        sectng = thing_get(cctrl->next_players_creature_idx);
         if (!thing_is_invalid(sectng)) {
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->field_1D = cctrl->field_1D;
@@ -2193,11 +2195,11 @@ void remove_first_creature(struct Thing *thing)
         sectng = thing_get(cctrl->field_1D);
         if (!thing_is_invalid(sectng)) {
             secctrl = creature_control_get_from_thing(sectng);
-            secctrl->thing_idx = cctrl->thing_idx;
+            secctrl->next_players_creature_idx = cctrl->next_players_creature_idx;
         } else {
-            dungeon->worker_list_start = cctrl->thing_idx;
+            dungeon->digger_list_start = cctrl->next_players_creature_idx;
         }
-        sectng = thing_get(cctrl->thing_idx);
+        sectng = thing_get(cctrl->next_players_creature_idx);
         if (!thing_is_invalid(sectng)) {
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->field_1D = cctrl->field_1D;
@@ -2205,7 +2207,7 @@ void remove_first_creature(struct Thing *thing)
         dungeon->num_workers--;
     }
     cctrl->field_1D = 0;
-    cctrl->thing_idx = 0;
+    cctrl->next_players_creature_idx = 0;
     thing->field_0 &= ~0x08u;
 }
 
@@ -2547,7 +2549,7 @@ struct Thing *find_my_highest_level_creature_of_breed(long breed_idx, TbBool pic
     }
     if ((breed_idx == get_players_special_digger_breed(my_player_number)) || (breed_idx == -1))
     {
-        thing = get_player_list_creature_with_filter(dungeon->worker_list_start, filter, &param);
+        thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     } else
     {
         thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
@@ -2573,7 +2575,7 @@ struct Thing *find_my_lowest_level_creature_of_breed(long breed_idx, TbBool pick
     }
     if ((breed_idx == get_players_special_digger_breed(my_player_number)) || (breed_idx == -1))
     {
-        thing = get_player_list_creature_with_filter(dungeon->worker_list_start, filter, &param);
+        thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     } else
     {
         thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
@@ -2602,7 +2604,7 @@ struct Thing *find_my_first_creature_of_breed_and_gui_job(long breed_idx, long j
     }
     if ((breed_idx == get_players_special_digger_breed(my_player_number)) || (breed_idx == -1))
     {
-        thing = get_player_list_creature_with_filter(dungeon->worker_list_start, filter, &param);
+        thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     } else
     {
         thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
@@ -2637,7 +2639,7 @@ struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long jo
         } else
         {
           cctrl = creature_control_get_from_thing(thing);
-          thing = thing_get(cctrl->thing_idx);
+          thing = thing_get(cctrl->next_players_creature_idx);
         }
       }
     } else
@@ -2653,7 +2655,7 @@ struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long jo
           && (get_creature_gui_job(thing) == job_idx) )
         {
             cctrl = creature_control_get_from_thing(thing);
-            thing = thing_get(cctrl->thing_idx);
+            thing = thing_get(cctrl->next_players_creature_idx);
         } else
         {
             dungeon->selected_creatures_of_gui_job[job_idx] = 0;
@@ -3352,6 +3354,57 @@ TbBool creature_is_slappable(const struct Thing *thing, long plyr_idx)
     }
     return true;
 }
+
+TbBool creature_stats_debug_dump(void)
+{
+    struct Thing *thing;
+    long crstate;
+    TbBool result;
+    unsigned long k;
+    int i;
+    result = false;
+    k = 0;
+    i = game.thing_lists[TngList_Creatures].index;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing)) {
+            ERRORLOG("Jump to invalid thing detected");
+            result = true;
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-creature block starts
+        crstate = get_creature_real_state(thing);
+        if (thing->owner != hero_player_number) {
+            switch (crstate)
+            {
+            case CrSt_GoodDoingNothing:
+            case CrSt_GoodReturnsToStart:
+            case CrSt_GoodBackAtStart:
+            case CrSt_GoodDropsGold:
+            case CrSt_GoodLeaveThroughExitDoor:
+            case CrSt_GoodWaitInExitDoor:
+            case CrSt_GoodAttackRoom1:
+            case CrSt_CreatureSearchForGoldToStealInRoom2:
+            case CrSt_GoodAttackRoom2:
+                ERRORLOG("Player %d %s index %d is in Good-only state %d",(int)thing->owner,thing_model_name(thing),(int)thing->index,(int)crstate);
+                result = true;
+                break;
+            }
+        }
+
+        // Per-creature block ends
+        k++;
+        if (k > THINGS_COUNT) {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            result = true;
+            break;
+        }
+    }
+    return result;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

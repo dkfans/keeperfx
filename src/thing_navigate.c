@@ -389,15 +389,16 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
     {
         // Creature can only be teleported to a revealed location
         destination_valid = true;
-        if ((thing->owner != game.hero_player_num) && (thing->owner != game.neutral_player_num))
+        if ((thing->owner != game.hero_player_num) && (thing->owner != game.neutral_player_num)) {
             destination_valid = subtile_revealed(pos->x.stl.num, pos->y.stl.num, thing->owner);
+        }
         if (destination_valid)
          {
              // Use teleport only over large enough distances
              if (get_2d_box_distance(&thing->mappos, pos) > (game.min_distance_for_teleport << 8))
              {
-               set_creature_instance(thing, CrInst_TELEPORT, 1, 0, pos);
-               return true;
+                 set_creature_instance(thing, CrInst_TELEPORT, 1, 0, pos);
+                 return true;
              }
          }
     }
@@ -411,35 +412,42 @@ short move_to_position(struct Thing *thing)
     struct StateInfo *stati;
     long move_result,state_result;
     long speed;
+    long i;
     SYNCDBG(18,"Starting for thing %d",(int)thing->index);
     //return _DK_move_to_position(thing);
     cctrl = creature_control_get_from_thing(thing);
     speed = get_creature_speed(thing);
     // Try teleporting the creature
-    if (creature_move_to_using_teleport(thing, &cctrl->moveto_pos, speed))
+    if (creature_move_to_using_teleport(thing, &cctrl->moveto_pos, speed)) {
         return 1;
+    }
     move_result = creature_move_to_using_gates(thing, &cctrl->moveto_pos, speed, -2, cctrl->field_88, 0);
     state_result = 0;
     stati = get_thing_continue_state_info(thing);
     if (!state_info_invalid(stati))
     {
-      callback = stati->ofsfield_C;
-      if (callback != NULL)
-      {
-          SYNCDBG(18,"Doing callback");
-          state_result = callback(thing);
-      }
+        callback = stati->ofsfield_C;
+        if (callback != NULL)
+        {
+            SYNCDBG(18,"Doing callback");
+            state_result = callback(thing);
+        }
     }
     if (state_result == 0)
     {
-      if (move_result == 1)
-      {
-        internal_set_thing_state(thing, thing->continue_state);
-        thing->continue_state = CrSt_Unused;
-        return 1;
-      }
-      if (move_result == -1)
-        set_start_state(thing);
+        // If moving was successful
+        if (move_result == 1) {
+            // Back to "main state"
+            internal_set_thing_state(thing, thing->continue_state);
+            return 1;
+        }
+        // If moving failed, do a reset
+        if (move_result == -1) {
+            i = thing->continue_state;
+            internal_set_thing_state(thing, thing->continue_state);
+            set_start_state(thing);
+            SYNCDBG(8,"Couldn't move %s to place required for state %d; reset to state %d",thing_model_name(thing),(int)i,(int)thing->active_state);
+        }
     }
     return state_result;
 }
