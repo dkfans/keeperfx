@@ -1,9 +1,24 @@
-REM LEVEL 3 - 17.12.96
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for Level Waterdream Warm
+REM  Campaign: DK Original
+REM  Authors:  based on Bullfrog script
+REM            KeeperFX CCP Team
+REM  Date:     17 Dec 1996 - 06 Feb 2011
+REM  Copying and copyrights:
+REM    This program is free software; you can redistribute it and/or modify
+REM    it under the terms of the GNU General Public License as published by
+REM    the Free Software Foundation; either version 2 of the License, or
+REM    (at your option) any later version.
+REM ****************************************************************************
 
-REM NEW THINGS FOR THE PLAYER :
-REM RESEARCH - OK
-REM SORCEROR - OK
-REM POWER_SPEED - OK
+REM New rooms for the player:
+REM   RESEARCH - when four basic rooms are built
+REM New creatures for the player:
+REM   SORCEROR - when RESEARCH is built
+REM New powers for the player:
+REM   POWER_SPEED - when researched
 
 SET_GENERATE_SPEED(400)
 
@@ -43,22 +58,22 @@ MAGIC_AVAILABLE(PLAYER0,POWER_SPEED,1,0)
 MAGIC_AVAILABLE(PLAYER0,POWER_IMP,1,1)
 
 CREATE_PARTY(THIEVES)
-ADD_TO_PARTY(THIEVES,THIEF,1,200,STEAL_GOLD,0)
-ADD_TO_PARTY(THIEVES,ARCHER,1,200,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(THIEVES,THIEF,1,200,STEAL_GOLD,0)
+    ADD_TO_PARTY(THIEVES,ARCHER,1,200,ATTACK_ENEMIES,0)
 
 CREATE_PARTY(DWARVES)
-ADD_TO_PARTY(DWARVES,DWARFA,1,200,ATTACK_ENEMIES,0)
-ADD_TO_PARTY(DWARVES,DWARFA,1,200,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(DWARVES,DWARFA,1,200,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(DWARVES,DWARFA,1,200,ATTACK_ENEMIES,0)
 
 CREATE_PARTY(ELITE)
-ADD_TO_PARTY(ELITE,DWARFA,1,200,ATTACK_ENEMIES,0)
-ADD_TO_PARTY(ELITE,THIEF,1,200,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(ELITE,DWARFA,1,200,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(ELITE,THIEF,1,200,ATTACK_ENEMIES,0)
 
 CREATE_PARTY(KNIGHT)
-ADD_TO_PARTY(KNIGHT,ARCHER,1,200,ATTACK_ENEMIES,0)
-ADD_TO_PARTY(KNIGHT,KNIGHT,1,2000,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(KNIGHT,ARCHER,1,200,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(KNIGHT,KNIGHT,1,2000,ATTACK_ENEMIES,0)
 
-REM "BUILD A DUNGEON WITH A TREASURE ROOM, A LAIR, A HATCHERY AND A TRAINING ROOM.  MAKE SURE ALL ROOMS ARE AT LEAST 9 BLOCKS IN SIZE."
+REM "Build a dungeon with a treasure room, a lair, a hatchery and a training room. Make sure all rooms are at least 9 blocks in size."
 DISPLAY_OBJECTIVE(34,PLAYER0)
 
 IF(PLAYER0,TREASURE >= 9)
@@ -86,7 +101,7 @@ IF(PLAYER0,FLAG0 == 1)
 		IF(PLAYER0,FLAG2 == 1)
 			IF(PLAYER0,FLAG3 == 1)
 				IF(PLAYER0,FLAG4 == 1)
-REM					"YOU CAN NOW BUILD A RESEARCH ROOM.  LAY ONE DOWN, MAKING SURE THAT IT IS ALSO AT LEAST 9 BLOCKS IN SIZE."
+REM					"You can now build a research room. Lay one down, making sure that it is also at least 9 blocks in size."
 					DISPLAY_OBJECTIVE(35,PLAYER0)
 					ROOM_AVAILABLE(PLAYER0,RESEARCH,1,1)
 					TUTORIAL_FLASH_BUTTON(9,-1)
@@ -104,7 +119,7 @@ IF(PLAYER0, FLAG6 == 0)
 				IF(PLAYER0,GARDEN > 0)
 					IF(PLAYER0,TRAINING > 0)
 						IF(PLAYER0,ENTRANCE > 0)
-REM							"YOU CAN NOW BUILD A RESEARCH ROOM.  LAY ONE DOWN, MAKING SURE THAT IT IS ALSO AT LEAST 9 BLOCKS IN SIZE."
+REM							"You can now build a research room. Lay one down, making sure that it is also at least 9 blocks in size."
 							DISPLAY_OBJECTIVE(35,PLAYER0)
 							ROOM_AVAILABLE(PLAYER0,RESEARCH,1,1)
 							TUTORIAL_FLASH_BUTTON(9,-1)
@@ -117,7 +132,7 @@ REM							"YOU CAN NOW BUILD A RESEARCH ROOM.  LAY ONE DOWN, MAKING SURE THAT IT
 ENDIF
 
 IF(PLAYER0,RESEARCH > 0)
-REM	"THE NEW RESEARCH ROOM WILL ATTRACT CREATURES THAT LIKE TO RESEARCH SPELLS AND NEW ROOMS, LIKE SORCERORS."
+REM	"The new research room will attract creatures that like to research spells and new rooms, like sorcerors."
 	DISPLAY_INFORMATION(36)
 	SET_TIMER(PLAYER0,TIMER6)
 ENDIF
@@ -136,7 +151,7 @@ ENDIF
 
 IF(PLAYER0,FLAG7 == 1)
 	SET_FLAG(PLAYER0,FLAG5,1)
-REM	"WELL DONE.  YOU CAN NOW DROP MOST CREATURES IN HERE TO RESEARCH.  HOWEVER, SORCERORS MAKE THE BEST RESEARCHERS."
+REM	"Well done. You can now drop most creatures in here to research. However, sorcerors make the best researchers."
 	DISPLAY_OBJECTIVE(37,PLAYER0)
 	MAX_CREATURES(PLAYER0,12)
 	CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
@@ -150,7 +165,7 @@ IF(PLAYER0,TOTAL_CREATURES >= 10)
 ENDIF
 
 IF(PLAYER0,SORCEROR > 0)
-REM	"A SORCEROR HAS JOINED YOU, ATTRACTED TO YOUR DUNGEON BY THE RESEARCH ROOM.  THEY MAKE EXCELLENT RESEARCHERS AND ONCE TRAINED, SUPERB LONG RANGE FIGHTERS."
+REM	"A sorceror has joined you, attracted to your dungeon by the research room. They make excellent researchers and once trained, superb long range fighters."
 	DISPLAY_OBJECTIVE(38,PLAYER0)
 	CREATURE_AVAILABLE(PLAYER0,BUG,1,1)
 	CREATURE_AVAILABLE(PLAYER0,FLY,1,1)
@@ -167,7 +182,7 @@ IF(PLAYER2,FLAG0 == 1)
 			ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,THIEVES,-1,DUNGEON,0,1,500)
 			ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,DWARVES,-1,DUNGEON,0,1,2000)
 			IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-REM				"THE FIRST WAVE OF ATTACKERS LIE DEAD.  PREPARE FOR THE NEXT ASSAULT."
+REM				"The first wave of attackers lie dead. Prepare for the next assault."
 				DISPLAY_OBJECTIVE(39,PLAYER0)
 				SET_TIMER(PLAYER0,TIMER3)
 				IF(PLAYER0,TIMER3 > 2000)
@@ -175,7 +190,7 @@ REM				"THE FIRST WAVE OF ATTACKERS LIE DEAD.  PREPARE FOR THE NEXT ASSAULT."
 						ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,ELITE,-1,DUNGEON,0,1,500)
 						ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,KNIGHT,-1,DUNGEON,0,1,500)
 						IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-REM							"CONGRATULATIONS, THE BLOODY CARCASSES OF THE FALLEN HEROES LIE WITH EXPRESSIONS OF WRITHING AGONY AT YOUR CREATURES' FEET.  PRESS SPACE TO GO ON TO THE NEXT LAND."
+REM							"Congratulations, the bloody carcasses of the fallen heroes lie with expressions of writhing agony at your creatures' feet. Press space to go on to the next land."
 							DISPLAY_OBJECTIVE(40,PLAYER0)
 							WIN_GAME
 						ENDIF
@@ -212,11 +227,11 @@ IF_ACTION_POINT(1,PLAYER0)
 ENDIF
 
 IF(PLAYER0,TIMER2 >= 3750)
-REM	"BE PATIENT, HEROES ARE SOON TO COME. MAKE SURE YOUR CREATURES ARE TRAINED. (MAYBE TRY TRAINING A SORCEROR!)."
+REM	"Be patient, heroes are soon to come. Make sure your creatures are trained. (Maybe try training a sorceror!)."
 	DISPLAY_OBJECTIVE(43,PLAYER0)
 ENDIF
 
 IF_AVAILABLE(PLAYER0,POWER_SPEED == 1)
-REM	"YOU HAVE RESEARCHED THE SPEED UP SPELL.  CAST IT ON CREATURES TO INCREASE THEIR SPEED."
+REM	"You have researched the speed up spell. Cast it on creatures to increase their speed."
 	DISPLAY_INFORMATION(44)
 ENDIF
