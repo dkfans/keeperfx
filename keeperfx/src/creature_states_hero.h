@@ -31,6 +31,16 @@ extern "C" {
 #pragma pack(1)
 #endif
 
+enum CreatureHeroTasks {
+    CHeroTsk_Default         = 0,
+    CHeroTsk_AttackRooms     = 1,
+    CHeroTsk_AttackEnemies   = 2,
+    CHeroTsk_AttackDnHeart   = 3,
+    CHeroTsk_StealGold       = 4,
+    CHeroTsk_StealSpells     = 5,
+    CHeroTsk_DefendParty     = 6,
+};
+
 struct Thing;
 
 #ifdef __cplusplus

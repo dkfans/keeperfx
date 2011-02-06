@@ -189,7 +189,7 @@ long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *r
         ERRORLOG("Jump to invalid creature detected");
         break;
       }
-      i = cctrl->thing_idx;
+      i = cctrl->next_players_creature_idx;
       // Thing list loop body
       if ( (thing->model == crmodel) && (cctrl->field_3 == 0) )
       {

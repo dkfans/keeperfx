@@ -281,17 +281,17 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
     set_flag_byte(&thing->field_4F, 0x10, objdat->field_F & 0x01);
     set_flag_byte(&thing->field_4F, 0x20, objdat->field_F & 0x02);
     thing->active_state = objdat->field_0;
-    if (objconf->light != 0)
+    if (objconf->ilght.field_0 != 0)
     {
         LbMemorySet(&ilight, 0, sizeof(struct InitLight));
         LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
-        ilight.field_0 = objconf->light;
-        ilight.field_2 = objconf->field_B;
-        ilight.field_3 = objconf->field_C[0];
-        ilight.is_dynamic = objconf->field_1A;
+        ilight.field_0 = objconf->ilght.field_0;
+        ilight.field_2 = objconf->ilght.field_2;
+        ilight.field_3 = objconf->ilght.field_3;
+        ilight.is_dynamic = objconf->ilght.is_dynamic;
         thing->light_id = light_create_light(&ilight);
         if (thing->light_id == 0) {
-            WARNLOG("Cannot allocate light to %s.",thing_model_name(thing));
+            SYNCDBG(8,"Cannot allocate light to %s.",thing_model_name(thing));
         }
     } else {
         thing->light_id = 0;
@@ -319,11 +319,11 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
         i = get_free_hero_gate_number();
         if (i > 0)
         {
-          thing->byte_13 = i;
+            thing->byte_13 = i;
         } else
         {
-          thing->byte_13 = 0;
-          ERRORLOG("Could not allocate number for hero gate");
+            thing->byte_13 = 0;
+            ERRORLOG("Could not allocate number for hero gate");
         }
         break;
       default:

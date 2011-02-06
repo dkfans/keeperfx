@@ -94,7 +94,7 @@ struct CreatureControl {
     short field_9;
 char field_B[18];
     unsigned short field_1D;
-    unsigned short thing_idx;
+    unsigned short next_players_creature_idx;
 unsigned short field_21;
     unsigned char explevel;
     long exp_points;

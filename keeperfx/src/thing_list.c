@@ -796,7 +796,7 @@ long count_player_list_creatures_of_model(long thing_idx, long model)
         break;
       }
       cctrl = creature_control_get_from_thing(thing);
-      i = cctrl->thing_idx;
+      i = cctrl->next_players_creature_idx;
       // Per creature code
       if ((thing->model == model) || (model == -1))
         count++;
@@ -828,7 +828,7 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, long model, 
         return INVALID_THING;
       }
       cctrl = creature_control_get_from_thing(thing);
-      i = cctrl->thing_idx;
+      i = cctrl->next_players_creature_idx;
       // Per creature code
       if (crtr_idx <= 0)
           return thing;
@@ -867,7 +867,7 @@ long count_player_creatures_not_counting_to_total(long plyr_idx)
       break;
     }
     cctrl = creature_control_get_from_thing(thing);
-    i = cctrl->thing_idx;
+    i = cctrl->next_players_creature_idx;
     if (creature_is_kept_in_prison(thing))
       count++;
     k++;
@@ -922,7 +922,7 @@ struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximiz
       break;
     }
     cctrl = creature_control_get_from_thing(thing);
-    i = cctrl->thing_idx;
+    i = cctrl->next_players_creature_idx;
     // Per creature code
     n = filter(thing, param, maximizer);
     if (n >= maximizer)
@@ -987,7 +987,7 @@ struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_
       break;
     }
     cctrl = creature_control_get_from_thing(thing);
-    i = cctrl->thing_idx;
+    i = cctrl->next_players_creature_idx;
     // Per creature code
     n = filter(thing, param, maximizer);
     if (n >= maximizer)
@@ -1403,7 +1403,7 @@ TbBool update_speed_of_player_creatures_of_model(long plyr_idx, long crmodel)
         ERRORLOG("Jump to invalid creature detected");
         break;
       }
-      i = cctrl->thing_idx;
+      i = cctrl->next_players_creature_idx;
       // Thing list loop body
       if (thing->model == crmodel)
       {
