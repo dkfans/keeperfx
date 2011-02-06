@@ -86,7 +86,7 @@ void multiply_creatures(struct PlayerInfo *player)
       ERRORLOG("Jump to invalid creature detected");
       break;
     }
-    i = cctrl->thing_idx;
+    i = cctrl->next_players_creature_idx;
     // Thing list loop body
     tncopy = create_creature(&thing->mappos, thing->model, player->id_number);
     if (thing_is_invalid(tncopy))
@@ -106,7 +106,7 @@ void multiply_creatures(struct PlayerInfo *player)
   }
   // Copy 'special worker' creatures
   k = 0;
-  i = dungeon->worker_list_start;
+  i = dungeon->digger_list_start;
   while (i != 0)
   {
     thing = thing_get(i);
@@ -116,7 +116,7 @@ void multiply_creatures(struct PlayerInfo *player)
       ERRORLOG("Jump to invalid creature detected");
       break;
     }
-    i = cctrl->thing_idx;
+    i = cctrl->next_players_creature_idx;
     // Thing list loop body
     tncopy = create_creature(&thing->mappos, thing->model, player->id_number);
     if (thing_is_invalid(tncopy))
@@ -156,7 +156,7 @@ void increase_level(struct PlayerInfo *player)
       ERRORLOG("Jump to invalid creature detected");
       break;
     }
-    i = cctrl->thing_idx;
+    i = cctrl->next_players_creature_idx;
     // Thing list loop body
     creature_increase_level(thing);
     // Thing list loop body ends
@@ -169,7 +169,7 @@ void increase_level(struct PlayerInfo *player)
   }
   // Increase level of special workers
   k = 0;
-  i = dungeon->worker_list_start;
+  i = dungeon->digger_list_start;
   while (i != 0)
   {
     thing = thing_get(i);
@@ -179,7 +179,7 @@ void increase_level(struct PlayerInfo *player)
       ERRORLOG("Jump to invalid creature detected");
       break;
     }
-    i = cctrl->thing_idx;
+    i = cctrl->next_players_creature_idx;
     // Thing list loop body
     creature_increase_level(thing);
     // Thing list loop body ends
@@ -319,7 +319,7 @@ void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char ply
   if ((tng1->field_1 & 0x01) || (tng1->field_0 & 0x80))
   {
     k = 0;
-    i = dungeon->worker_list_start;
+    i = dungeon->digger_list_start;
     while (i > 0)
     {
       thing = thing_get(i);
@@ -333,7 +333,7 @@ void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char ply
         set_start_state(thing);
         break;
       }
-      i = cctrl->thing_idx;
+      i = cctrl->next_players_creature_idx;
       k++;
       if (k > CREATURES_COUNT)
       {

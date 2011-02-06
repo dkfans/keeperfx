@@ -191,7 +191,7 @@ struct Dungeon {
     unsigned char computer_enabled;
     unsigned short room_kind[ROOM_TYPES_COUNT];
     short creatr_list_start;
-    short worker_list_start;
+    short digger_list_start;
     short field_31;
     short things_in_hand[MAX_THINGS_IN_HAND];
     short field_43;

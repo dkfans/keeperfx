@@ -274,11 +274,7 @@ char field_5;
 char field_6;
 char field_7;
 char field_8;
-short light;
-char field_B;
-char field_C[14];
-char field_1A;
-short field_1B;
+    struct InitLight ilght;
 };
 
 struct Armageddon { // sizeof = 14

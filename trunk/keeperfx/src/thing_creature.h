@@ -119,6 +119,7 @@ TbBool remove_creature_score_from_owner(struct Thing *thing);
 
 long update_creature_levels(struct Thing *thing);
 long update_creature(struct Thing *thing);
+TbBool creature_stats_debug_dump(void);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_creature_special_digger(const struct Thing *thing);
