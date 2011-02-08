@@ -100,6 +100,7 @@ void draw_creature_view(struct Thing *thing);
 struct Thing *get_creature_near_for_controlling(unsigned char a1, long a2, long a3);
 long remove_creature_from_group(struct Thing *thing);
 long add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2);
+TbBool creature_is_group_member(struct Thing *thing);
 TbBool creature_is_group_leader(struct Thing *thing);
 struct Thing *get_group_leader(struct Thing *thing);
 void set_first_creature(struct Thing *thing);

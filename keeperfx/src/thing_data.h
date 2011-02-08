@@ -37,6 +37,7 @@ extern "C" {
 enum ThingFlags0 {
     TF_Exists     = 0x01,
     TF_IsInMapWho = 0x02,
+    TF_Unkn08     = 0x08,
 };
 
 enum ThingAllocFlags {
@@ -148,10 +149,12 @@ unsigned short field_60;
 #pragma pack()
 #endif
 /******************************************************************************/
-struct Thing *allocate_free_thing_structure(unsigned char a1);
+#define allocate_free_thing_structure(a1) allocate_free_thing_structure_f(a1, __func__)
+struct Thing *allocate_free_thing_structure_f(unsigned char a1, const char *func_name);
 short thing_create_thing(struct InitThing *itng);
 TbBool i_can_allocate_free_thing_structure(unsigned char allocflags);
-void delete_thing_structure(struct Thing *thing, long a2);
+#define delete_thing_structure(thing, a2) delete_thing_structure_f(thing, a2, __func__)
+void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name);
 
 struct Thing *thing_get(long tng_idx);
 TbBool thing_exists_idx(long tng_idx);

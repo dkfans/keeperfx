@@ -463,6 +463,10 @@ short creature_arms_trap(struct Thing *thing)
     struct Thing *cratetng;
     //return _DK_creature_arms_trap(thing);
     cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl)) {
+        ERRORLOG("Creature has invalid control structure!");
+        return 0;
+    }
     dungeon = get_dungeon(thing->owner);
     cratetng = thing_get(cctrl->field_6E);
     traptng = thing_get(cctrl->field_70);

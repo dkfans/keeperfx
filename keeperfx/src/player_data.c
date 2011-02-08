@@ -35,7 +35,7 @@ long neutral_player_number = NEUTRAL_PLAYER;
 long hero_player_number = HERO_PLAYER;
 struct PlayerInfo bad_player;
 /******************************************************************************/
-struct PlayerInfo *get_player_ptr(long plyr_idx,const char *func_name)
+struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name)
 {
     if ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT))
         return &game.players[plyr_idx];
