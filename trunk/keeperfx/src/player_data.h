@@ -147,9 +147,9 @@ extern long neutral_player_number;
 extern long hero_player_number;
 extern struct PlayerInfo bad_player;
 /******************************************************************************/
-struct PlayerInfo *get_player_ptr(long plyr_idx,const char *func_name);
-#define get_player(plyr_idx) get_player_ptr(plyr_idx,__func__)
-#define get_my_player() get_player_ptr(my_player_number,__func__)
+struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name);
+#define get_player(plyr_idx) get_player_f(plyr_idx,__func__)
+#define get_my_player() get_player_f(my_player_number,__func__)
 TbBool player_invalid(struct PlayerInfo *player);
 TbBool player_exists(struct PlayerInfo *player);
 TbBool is_my_player(struct PlayerInfo *player);

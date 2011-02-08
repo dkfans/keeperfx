@@ -681,82 +681,80 @@ void setup_stuff(void)
 
 short send_creature_to_room(struct Thing *thing, struct Room *room)
 {
-  return _DK_send_creature_to_room(thing, room);
+    return _DK_send_creature_to_room(thing, room);
 }
 
 struct Room *get_room_thing_is_on(struct Thing *thing)
 {
-  return _DK_get_room_thing_is_on(thing);
+    return _DK_get_room_thing_is_on(thing);
 }
 
 void destroy_food(struct Thing *thing)
 {
-  struct Room *room;
-  struct Dungeon *dungeon;
-  struct Thing *efftng;
-  struct Coord3d pos;
-  long plyr_idx,i;
-  plyr_idx = thing->owner;
-  dungeon = get_dungeon(plyr_idx);
-  if (game.neutral_player_num != plyr_idx)
-    dungeon->lvstats.chickens_wasted++;
-  efftng = create_effect(&thing->mappos, 49, plyr_idx);
-  if (!thing_is_invalid(efftng))
-  {
-    i = UNSYNC_RANDOM(3);
-    thing_play_sample(efftng, 112+i, 100, 0, 3, 0, 2, 256);
-  }
-  pos.x.val = thing->mappos.x.val;
-  pos.y.val = thing->mappos.y.val;
-  pos.z.val = thing->mappos.z.val + 256;
-  create_effect(&thing->mappos, 51, plyr_idx);
-  create_effect(&pos, 7, plyr_idx);
-  if (thing->owner != game.neutral_player_num)
-  {
-    if (thing->word_13 == -1)
-    {
-      room = get_room_thing_is_on(thing);
-      if (room != NULL)
-      {
-        if ((room->kind == RoK_GARDEN) && (room->owner == thing->owner))
-        {
-            if (room->used_capacity > 0)
-              room->used_capacity--;
-            thing->word_13 = game.food_life_out_of_hatchery;
-        }
-      }
+    struct Room *room;
+    struct Dungeon *dungeon;
+    struct Thing *efftng;
+    struct Coord3d pos;
+    long plyr_idx,i;
+    plyr_idx = thing->owner;
+    dungeon = get_dungeon(plyr_idx);
+    if (game.neutral_player_num != plyr_idx) {
+        dungeon->lvstats.chickens_wasted++;
     }
-  }
-  delete_thing_structure(thing, 0);
+    efftng = create_effect(&thing->mappos, 49, plyr_idx);
+    if (!thing_is_invalid(efftng)) {
+        i = UNSYNC_RANDOM(3);
+        thing_play_sample(efftng, 112+i, 100, 0, 3, 0, 2, 256);
+    }
+    pos.x.val = thing->mappos.x.val;
+    pos.y.val = thing->mappos.y.val;
+    pos.z.val = thing->mappos.z.val + 256;
+    create_effect(&thing->mappos, 51, plyr_idx);
+    create_effect(&pos, 7, plyr_idx);
+    if (thing->owner != game.neutral_player_num)
+    {
+        if (thing->word_13 == -1)
+        {
+          room = get_room_thing_is_on(thing);
+          if (room != NULL)
+          {
+            if ((room->kind == RoK_GARDEN) && (room->owner == thing->owner))
+            {
+                if (room->used_capacity > 0)
+                  room->used_capacity--;
+                thing->word_13 = game.food_life_out_of_hatchery;
+            }
+          }
+        }
+    }
+    delete_thing_structure(thing, 0);
 }
 
 TbBool slap_object(struct Thing *thing)
 {
-  if (object_is_mature_food(thing))
-  {
-    destroy_food(thing);
-    return true;
+  if (object_is_mature_food(thing)) {
+      destroy_food(thing);
+      return true;
   }
   return false;
 }
 
 TbBool object_is_slappable(const struct Thing *thing, long plyr_idx)
 {
-  if (thing->owner == plyr_idx)
-  {
-    return (object_is_mature_food(thing));
-  }
-  return false;
+    if (thing->owner == plyr_idx) {
+        return (object_is_mature_food(thing));
+    }
+    return false;
 }
 
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
 {
-  _DK_external_activate_trap_shot_at_angle(thing, a2);
+    _DK_external_activate_trap_shot_at_angle(thing, a2);
 }
 
 void process_person_moods_and_needs(struct Thing *thing)
 {
-  _DK_process_person_moods_and_needs(thing);
+    _DK_process_person_moods_and_needs(thing);
 }
 
 void process_dungeon_destroy(struct Thing *thing)
@@ -1623,17 +1621,22 @@ long update_dead_creature(struct Thing *thing)
   return _DK_update_dead_creature(thing);
 }
 
-struct Thing *create_cave_in(struct Coord3d *pos, unsigned short a2, unsigned short owner)
+struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsigned short owner)
 {
     struct Dungeon *dungeon;
     struct Thing *thing;
     if ( !i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots) )
     {
-        ERRORDBG(3,"Cannot create cave in %d for player %d. There are too many things allocated.",(int)a2,(int)owner);
+        ERRORDBG(3,"Cannot create cave in %d for player %d. There are too many things allocated.",(int)cimodel,(int)owner);
         erstat_inc(ESE_NoFreeThings);
-        return NULL;
+        return INVALID_THING;
     }
     thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
+    if (thing->index == 0) {
+        ERRORDBG(3,"Should be able to allocate cave in %d for player %d, but failed.",(int)cimodel,(int)owner);
+        erstat_inc(ESE_NoFreeThings);
+        return INVALID_THING;
+    }
     thing->class_id = TCls_CaveIn;
     thing->model = 0;
     thing->field_1D = thing->index;
@@ -1643,7 +1646,7 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short a2, unsigned sh
     thing->word_15 = game.magic_stats[7].time;
     thing->byte_13 = pos->x.stl.num;
     thing->byte_14 = pos->y.stl.num;
-    thing->byte_17 = a2;
+    thing->byte_17 = cimodel;
     thing->health = game.magic_stats[7].time;
     if (owner != game.neutral_player_num)
     {
@@ -1659,7 +1662,7 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigne
 {
     struct Thing *thing;
     //return _DK_create_thing(pos, tngclass, model, owner, a4);
-    thing = NULL;
+    thing = INVALID_THING;
     switch (tngclass)
     {
     case TCls_Object:
@@ -1700,7 +1703,7 @@ unsigned long setup_move_off_lava(struct Thing *thing)
   return _DK_setup_move_off_lava(thing);
 }
 
-TbBool any_player_close_enough_to_see(struct Coord3d *pos)
+TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
 {
     struct PlayerInfo *player;
     int i;
@@ -2961,9 +2964,14 @@ struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short model, un
     {
         ERRORDBG(3,"Cannot create ambient sound %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
-        return NULL;
+        return INVALID_THING;
     }
     thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
+    if (thing->index == 0) {
+        ERRORDBG(3,"Should be able to allocate ambient sound %d for player %d, but failed.",(int)model,(int)owner);
+        erstat_inc(ESE_NoFreeThings);
+        return INVALID_THING;
+    }
     thing->class_id = TCls_AmbientSnd;
     thing->model = model;
     thing->field_1D = thing->index;
@@ -4007,11 +4015,10 @@ void delete_all_thing_structures(void)
           delete_thing_structure(thing, 1);
       }
     }
-    for (i=0; i < THINGS_COUNT-1; i++)
-    {
+    for (i=0; i < THINGS_COUNT-1; i++) {
       game.free_things[i] = i+1;
     }
-    game.free_things[THINGS_COUNT-1] = 0;
+    game.free_things_start_index = 0;
 }
 
 void delete_all_structures(void)

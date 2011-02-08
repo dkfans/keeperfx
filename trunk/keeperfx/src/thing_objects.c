@@ -239,9 +239,14 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
     {
         ERRORDBG(3,"Cannot create object model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
-        return NULL;
+        return INVALID_THING;
     }
     thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
+    if (thing->index == 0) {
+        ERRORDBG(3,"Should be able to allocate object %d for player %d, but failed.",(int)model,(int)owner);
+        erstat_inc(ESE_NoFreeThings);
+        return INVALID_THING;
+    }
     thing->class_id = TCls_Object;
     thing->model = model;
     if (a4 == -1)
@@ -698,7 +703,7 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx)
     pos.z.val = (3 << 8);
     thing = create_object(&pos, 6, plyr_idx, -1);
     if (thing_is_invalid(thing))
-        return NULL;
+        return INVALID_THING;
     thing->long_13 = game.pot_of_gold_holds;
     return thing;
 }
@@ -768,8 +773,7 @@ struct Thing *create_gold_pile(struct Coord3d *pos, long plyr_idx, long value)
 {
     struct Thing *thing;
     thing = create_object(pos, 43, plyr_idx, -1);
-    if (thing_is_invalid(thing))
-    {
+    if (thing_is_invalid(thing)) {
         return INVALID_THING;
     }
     thing->long_13 = 0;
@@ -781,11 +785,9 @@ struct Thing *drop_gold_pile(long value, struct Coord3d *pos)
 {
     struct Thing *thing;
     thing = smallest_gold_pile_at_xy(pos->x.stl.num, pos->y.stl.num);
-    if (thing_is_invalid(thing))
-    {
+    if (thing_is_invalid(thing)) {
         thing = create_gold_pile(pos, game.neutral_player_num, value);
-    } else
-    {
+    } else {
         add_gold_to_pile(thing, value);
     }
     return thing;

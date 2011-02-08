@@ -207,7 +207,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
   {
     cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
     check_for_first_person_barrack_party(thing);
-    if ((cctrl->field_7A & 0xFFF) != 0)
+    if (creature_is_group_member(thing))
       make_group_member_leader(thing);
   }
   memset(&ilght, 0, sizeof(struct InitLight));
@@ -943,10 +943,11 @@ long process_creature_state(struct Thing *thing)
         }
     }
     cctrl->field_1D0 = 0;
-    if ((cctrl->field_7A & 0xFFF) != 0)
+    if (creature_is_group_member(thing))
     {
-      if (!creature_is_group_leader(thing))
-        process_obey_leader(thing);
+        if (!creature_is_group_leader(thing)) {
+            process_obey_leader(thing);
+        }
     }
     if ((thing->active_state < 1) || (thing->active_state >= CREATURE_STATES_COUNT))
     {
@@ -1107,6 +1108,11 @@ struct Thing *create_dead_creature(struct Coord3d *pos, unsigned short model, un
         return INVALID_THING;
     }
     thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
+    if (thing->index == 0) {
+        ERRORDBG(3,"Should be able to allocate dead creature %d for player %d, but failed.",(int)model,(int)owner);
+        erstat_inc(ESE_NoFreeThings);
+        return INVALID_THING;
+    }
     thing->class_id = 4;
     thing->model = model;
     thing->field_1D = thing->index;
@@ -1224,29 +1230,29 @@ void creature_rebirth_at_lair(struct Thing *thing)
 
 void throw_out_gold(struct Thing *thing)
 {
-  struct Thing *gldtng;
-  long angle,radius,delta;
-  long x,y;
-  long i;
-  for (i = thing->long_13; i > 0; i -= delta)
-  {
-    gldtng = create_object(&thing->mappos, 6, game.neutral_player_num, -1);
-    if (thing_is_invalid(gldtng))
-        break;
-    angle = ACTION_RANDOM(ANGLE_TRIGL_PERIOD);
-    radius = ACTION_RANDOM(128);
-    x = (radius * LbSinL(angle)) / 256;
-    y = (radius * LbCosL(angle)) / 256;
-    gldtng->acceleration.x.val += x/256;
-    gldtng->acceleration.y.val -= y/256;
-    gldtng->acceleration.z.val += ACTION_RANDOM(64) + 96;
-    gldtng->field_1 |= 0x04;
-    if (i < 400)
-        delta = i;
-    else
-        delta = 400;
-    gldtng->long_13 = delta;
-  }
+    struct Thing *gldtng;
+    long angle,radius,delta;
+    long x,y;
+    long i;
+    for (i = thing->long_13; i > 0; i -= delta)
+    {
+        gldtng = create_object(&thing->mappos, 6, game.neutral_player_num, -1);
+        if (thing_is_invalid(gldtng))
+            break;
+        angle = ACTION_RANDOM(ANGLE_TRIGL_PERIOD);
+        radius = ACTION_RANDOM(128);
+        x = (radius * LbSinL(angle)) / 256;
+        y = (radius * LbCosL(angle)) / 256;
+        gldtng->acceleration.x.val += x/256;
+        gldtng->acceleration.y.val -= y/256;
+        gldtng->acceleration.z.val += ACTION_RANDOM(64) + 96;
+        gldtng->field_1 |= 0x04;
+        if (i < 400)
+            delta = i;
+        else
+            delta = 400;
+        gldtng->long_13 = delta;
+    }
 }
 
 void thing_death_normal(struct Thing *thing)
@@ -1435,38 +1441,36 @@ void creature_death_as_nature_intended(struct Thing *thing)
  */
 unsigned long remove_thing_from_field1D_in_list(struct StructureList *list,long remove_idx)
 {
-  struct Thing *thing;
-  unsigned long n;
-  unsigned long k;
-  int i;
-  SYNCDBG(18,"Starting");
-  n = 0;
-  k = 0;
-  i = list->index;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct Thing *thing;
+    unsigned long n;
+    unsigned long k;
+    int i;
+    SYNCDBG(18,"Starting");
+    n = 0;
+    k = 0;
+    i = list->index;
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing)) {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        if (thing->field_1D == remove_idx)
+        {
+            thing->field_1D = thing->index;
+            n++;
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT) {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
     }
-    i = thing->next_of_class;
-    // Per-thing code
-    if (thing->field_1D == remove_idx)
-    {
-        thing->field_1D = thing->index;
-        n++;
-    }
-    // Per-thing code ends
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
-  return n;
+    return n;
 }
 
 void cause_creature_death(struct Thing *thing, unsigned char no_effects)
@@ -1484,8 +1488,9 @@ void cause_creature_death(struct Thing *thing, unsigned char no_effects)
     crstat = creature_stats_get_from_thing(thing);
     if ((no_effects) || (!thing_exists(thing)))
     {
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        if ((game.flags_cd & MFlg_DeadBackToPool) != 0) {
             add_creature_to_pool(crmodel, 1, 1);
+        }
         delete_thing_structure(thing, 0);
         return;
     }
@@ -1546,6 +1551,45 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
   light_turn_light_on(player->field_460);
 }
 
+void delete_effects_attached_to_creature(struct Thing *crtng)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *efftng;
+    long i,k;
+    cctrl = creature_control_get_from_thing(crtng);
+    if (creature_control_invalid(cctrl)) {
+        return;
+    }
+    if ((cctrl->spell_flags & CSF_Armour) != 0)
+    {
+        set_flag_byte(&cctrl->spell_flags, CSF_Armour, false);
+        for (i=0; i < 3; i++)
+        {
+            k = cctrl->field_2B3[i];
+            if (k != 0)
+            {
+                efftng = thing_get(k);
+                delete_thing_structure(efftng, 0);
+                cctrl->field_2B3[i] = 0;
+            }
+        }
+    }
+    if ((cctrl->field_AD & 0x01) != 0)
+    {
+        cctrl->field_AD &= 0xFE;
+        for (i=0; i < 3; i++)
+        {
+            k = cctrl->field_2B9[i];
+            if (k != 0)
+            {
+                efftng = thing_get(k);
+                delete_thing_structure(efftng, 0);
+                cctrl->field_2B9[i] = 0;
+            }
+        }
+    }
+}
+
 TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_plyr_idx,
       unsigned char a4, TbBool died_in_battle, TbBool disallow_unconscious)
 {
@@ -1553,121 +1597,94 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     struct CreatureControl *cctrlgrp;
     struct CreatureStats *crstat;
     struct Dungeon *dungeon;
-    long i,k;
     SYNCDBG(18,"Starting");
     //return _DK_kill_creature(thing, killertng, killer_plyr_idx, a4, died_in_battle, disallow_unconscious);
-    dungeon = NULL;
+    dungeon = INVALID_DUNGEON;
     cctrl = creature_control_get_from_thing(thing);
     cleanup_current_thing_state(thing);
     remove_all_traces_of_combat(thing);
-    if ((cctrl->field_7A & 0xFFF) != 0)
-      remove_creature_from_group(thing);
-    if (thing->owner != game.neutral_player_num)
-      dungeon = get_players_num_dungeon(thing->owner);
+    if (creature_is_group_member(thing)) {
+        remove_creature_from_group(thing);
+    }
     if (!thing_is_invalid(killertng))
     {
         if (killertng->owner == game.neutral_player_num)
             died_in_battle = 0;
     }
-    if (killer_plyr_idx == game.neutral_player_num)
+    if (killer_plyr_idx == game.neutral_player_num) {
       died_in_battle = 0;
+    }
     remove_events_thing_is_attached_to(thing);
-    if (dungeon != NULL)
-    {
-      update_dead_creatures_list(dungeon, thing);
-      if (died_in_battle)
-      {
-        dungeon->battles_lost++;
-      }
+    if (!thing_exists(thing)) {
+        ERRORLOG("Tried to kill nonexisting thing!");
+        return false;
     }
-
-    if (!creature_control_invalid(cctrl))
-    {
-      if ((cctrl->spell_flags & CSF_Armour) != 0)
-      {
-        set_flag_byte(&cctrl->spell_flags, CSF_Armour, false);
-        for (i=0; i < 3; i++)
-        {
-          k = cctrl->field_2B3[i];
-          if (k != 0)
-          {
-            thing = thing_get(k);
-            delete_thing_structure(thing, 0);
-            cctrl->field_2B3[i] = 0;
-          }
-        }
-      }
-      if ((cctrl->field_AD & 0x01) != 0)
-      {
-        cctrl->field_AD &= 0xFE;
-        for (i=0; i < 3; i++)
-        {
-          k = cctrl->field_2B9[i];
-          if (k != 0)
-          {
-            thing = thing_get(k);
-            delete_thing_structure(thing, 0);
-            cctrl->field_2B9[i] = 0;
-          }
-        }
-      }
+    if (thing->owner != game.neutral_player_num) {
+        dungeon = get_players_num_dungeon(thing->owner);
     }
+    if (!dungeon_invalid(dungeon))
+    {
+        update_dead_creatures_list(dungeon, thing);
+        if (died_in_battle) {
+            dungeon->battles_lost++;
+        }
+    }
+    delete_effects_attached_to_creature(thing);
     update_kills_counters(thing, killertng, killer_plyr_idx, died_in_battle);
-    if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) || (killer_plyr_idx == game.neutral_player_num) || (dungeon == NULL))
+    if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) || (killer_plyr_idx == game.neutral_player_num) || dungeon_invalid(dungeon))
     {
-      if ((a4) && ((thing->field_0 & 0x20) != 0))
-      {
-        prepare_to_controlled_creature_death(thing);
-      }
-      cause_creature_death(thing, a4);
-      return true;
+        if ((a4) && ((thing->field_0 & 0x20) != 0)) {
+            prepare_to_controlled_creature_death(thing);
+        }
+        cause_creature_death(thing, a4);
+        return true;
     }
     // Now we are sure that killertng and dungeon pointers are correct
     if (thing->owner == killertng->owner)
     {
-      if ((get_creature_model_flags(thing) & MF_IsDiptera) && (get_creature_model_flags(killertng) & MF_IsArachnid))
-      {
-        dungeon->lvstats.flies_killed_by_spiders++;
-      }
+        if ((get_creature_model_flags(thing) & MF_IsDiptera) && (get_creature_model_flags(killertng) & MF_IsArachnid)) {
+            dungeon->lvstats.flies_killed_by_spiders++;
+        }
     }
     cctrlgrp = creature_control_get_from_thing(killertng);
-    if (!creature_control_invalid(cctrlgrp))
-      cctrlgrp->field_C2++;
-    if (is_my_player_number(thing->owner))
-    {
-      output_message(11, 40, 1);
+    if (!creature_control_invalid(cctrlgrp)) {
+        cctrlgrp->field_C2++;
+    }
+    if (is_my_player_number(thing->owner)) {
+        output_message(11, 40, 1);
     } else
-    if (is_my_player_number(killertng->owner))
-    {
-      output_message(12, 40, 1);
+    if (is_my_player_number(killertng->owner)) {
+        output_message(12, 40, 1);
     }
     if (game.hero_player_num == killertng->owner)
     {
-      if (player_creature_tends_to(killertng->owner,CrTend_Imprison))
-        ERRORLOG("Hero have tend to imprison");
+        if (player_creature_tends_to(killertng->owner,CrTend_Imprison)) {
+            ERRORLOG("Hero have tend to imprison");
+        }
     }
     crstat = creature_stats_get_from_thing(killertng);
     anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, 4, 1);
     if (!creature_control_invalid(cctrlgrp) && died_in_battle)
       cctrlgrp->byte_9A++;
-    if (dungeon != NULL)
-      dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
+    if (!dungeon_invalid(dungeon)) {
+        dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
+    }
     SYNCDBG(18,"Almost finished");
     if ((disallow_unconscious) || (!player_has_room(killertng->owner,RoK_PRISON))
       || (!player_creature_tends_to(killertng->owner,CrTend_Imprison)))
     {
-      if (a4 == 0)
-      {
-        cause_creature_death(thing, a4);
-        return true;
-      }
+        if (a4 == 0) {
+            cause_creature_death(thing, a4);
+            return true;
+        }
     }
     if (a4)
     {
-      if ((thing->field_0 & 0x20) != 0)
-        prepare_to_controlled_creature_death(thing);
-      cause_creature_death(thing, a4);
-      return true;
+        if ((thing->field_0 & 0x20) != 0) {
+            prepare_to_controlled_creature_death(thing);
+        }
+        cause_creature_death(thing, a4);
+        return true;
     }
     clear_creature_instance(thing);
     thing->active_state = CrSt_CreatureUnconscious;
@@ -1676,7 +1693,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     cctrl->field_280 = 2000;
     thing->health = 1;
-    return true;
+    return false;
 }
 
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos)
@@ -2115,6 +2132,13 @@ struct Thing *get_group_leader(struct Thing *thing)
   return leader;
 }
 
+TbBool creature_is_group_member(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    return ((cctrl->field_7A & 0xFFF) > 0);
+}
+
 TbBool creature_is_group_leader(struct Thing *thing)
 {
     struct Thing *leader;
@@ -2255,15 +2279,20 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
     {
         ERRORDBG(3,"Cannot create breed %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
-        return NULL;
+        return INVALID_THING;
     }
     if (!i_can_allocate_free_control_structure())
     {
         ERRORDBG(3,"Cannot create breed %d for player %d. There are too many creatures allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeCreatrs);
-        return NULL;
+        return INVALID_THING;
     }
     crtng = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
+    if (crtng->index == 0) {
+        ERRORDBG(3,"Should be able to allocate creature %d for player %d, but failed.",(int)model,(int)owner);
+        erstat_inc(ESE_NoFreeThings);
+        return INVALID_THING;
+    }
     cctrl = allocate_free_control_structure();
     crtng->ccontrol_idx = cctrl->index;
     crtng->class_id = 5;
@@ -2861,132 +2890,135 @@ struct Thing *create_footprint_sine(struct Coord3d *crtr_pos, unsigned short pha
       pos.y.val -= -((LbCosL(i) << 6) >> 8) >> 8;
       return create_thing(&pos, TCls_EffectElem, model, owner, -1);
   }
-  return NULL;
+  return INVALID_THING;
 }
 
 void place_bloody_footprint(struct Thing *thing)
 {
-  struct CreatureControl *cctrl;
-  short nfoot;
-  cctrl = creature_control_get_from_thing(thing);
-  if (creature_control_invalid(cctrl))
-  {
-      ERRORLOG("Invalid creature control; no action");
-      return;
-  }
-  nfoot = get_foot_creature_has_down(thing);
-  switch (creatures[thing->model%CREATURE_TYPES_COUNT].field_6)
-  {
-  case 3:
-  case 4:
-      break;
-  case 5:
-      if (nfoot)
-      {
-        if (create_thing(&thing->mappos, TCls_EffectElem, 23, thing->owner, -1) != NULL)
-          cctrl->bloody_footsteps_turns--;
-      }
-      break;
-  default:
-      if (create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 23, thing->owner) != NULL)
-        cctrl->bloody_footsteps_turns--;
-      break;
-  }
-}
-
-short update_creature_movements(struct Thing *thing)
-{
-  struct CreatureControl *cctrl;
-  short upd_done;
-  int i;
-  SYNCDBG(18,"Starting");
-  cctrl = creature_control_get_from_thing(thing);
-  if (creature_control_invalid(cctrl))
-  {
-      ERRORLOG("Invalid creature control; no action");
-      return false;
-  }
-  upd_done = 0;
-  if (cctrl->field_AB != 0)
-  {
-    upd_done = 1;
-    cctrl->pos_BB.x.val = 0;
-    cctrl->pos_BB.y.val = 0;
-    cctrl->pos_BB.z.val = 0;
-    cctrl->move_speed = 0;
-    set_flag_byte(&cctrl->field_2,0x01,false);
-  } else
-  {
-    if ( thing->field_0 & 0x20 )
+    struct Thing *footng;
+    struct CreatureControl *cctrl;
+    short nfoot;
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
     {
-      if ( thing->field_25 & 0x20 )
-      {
-        if (cctrl->move_speed != 0)
+        ERRORLOG("Invalid creature control; no action");
+        return;
+    }
+    nfoot = get_foot_creature_has_down(thing);
+    switch (creatures[thing->model%CREATURE_TYPES_COUNT].field_6)
+    {
+    case 3:
+    case 4:
+        break;
+    case 5:
+        if (nfoot)
         {
-          cctrl->pos_BB.x.val = (LbSinL(thing->field_52)>> 8)
-                * (cctrl->move_speed * LbCosL(thing->field_54) >> 8) >> 16;
-          cctrl->pos_BB.y.val = -((LbCosL(thing->field_52) >> 8)
-                * (cctrl->move_speed * LbCosL(thing->field_54) >> 8) >> 8) >> 8;
-          cctrl->pos_BB.z.val = cctrl->move_speed * LbSinL(thing->field_54) >> 16;
+            footng = create_thing(&thing->mappos, TCls_EffectElem, 23, thing->owner, -1);
+            if (!thing_is_invalid(footng))
+                cctrl->bloody_footsteps_turns--;
         }
-        if (cctrl->field_CA != 0)
-        {
-          cctrl->pos_BB.x.val +=   cctrl->field_CA * LbSinL(thing->field_52 - 512) >> 16;
-          cctrl->pos_BB.y.val += -(cctrl->field_CA * LbCosL(thing->field_52 - 512) >> 8) >> 8;
-        }
-      } else
-      {
-        if (cctrl->move_speed != 0)
-        {
-          upd_done = 1;
-          cctrl->pos_BB.x.val =   cctrl->move_speed * LbSinL(thing->field_52) >> 16;
-          cctrl->pos_BB.y.val = -(cctrl->move_speed * LbCosL(thing->field_52) >> 8) >> 8;
-        }
-        if (cctrl->field_CA != 0)
-        {
-          upd_done = 1;
-          cctrl->pos_BB.x.val +=   cctrl->field_CA * LbSinL(thing->field_52 - 512) >> 16;
-          cctrl->pos_BB.y.val += -(cctrl->field_CA * LbCosL(thing->field_52 - 512) >> 8) >> 8;
-        }
-      }
-    } else
-    if (cctrl->field_2 & 0x01)
+        break;
+    default:
+        footng = create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 23, thing->owner);
+        if (!thing_is_invalid(footng))
+            cctrl->bloody_footsteps_turns--;
+        break;
+    }
+  }
+
+  short update_creature_movements(struct Thing *thing)
+  {
+    struct CreatureControl *cctrl;
+    short upd_done;
+    int i;
+    SYNCDBG(18,"Starting");
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control; no action");
+        return false;
+    }
+    upd_done = 0;
+    if (cctrl->field_AB != 0)
     {
       upd_done = 1;
+      cctrl->pos_BB.x.val = 0;
+      cctrl->pos_BB.y.val = 0;
+      cctrl->pos_BB.z.val = 0;
+      cctrl->move_speed = 0;
       set_flag_byte(&cctrl->field_2,0x01,false);
     } else
-    if (cctrl->move_speed != 0)
     {
-      upd_done = 1;
-      cctrl->pos_BB.x.val =   cctrl->move_speed * LbSinL(thing->field_52) >> 16;
-      cctrl->pos_BB.y.val = -(cctrl->move_speed * LbCosL(thing->field_52) >> 8) >> 8;
-      cctrl->pos_BB.z.val = 0;
-    }
-    if (((thing->field_25 & 0x20) != 0) && ((thing->field_0 & 0x20) == 0))
-    {
-      i = get_floor_height_under_thing_at(thing, &thing->mappos) - thing->mappos.z.val + 256;
-      if (i > 0)
+      if ( thing->field_0 & 0x20 )
       {
-        upd_done = 1;
-        if (i >= 32)
-          i = 32;
-        cctrl->pos_BB.z.val += i;
+        if ( thing->field_25 & 0x20 )
+        {
+          if (cctrl->move_speed != 0)
+          {
+            cctrl->pos_BB.x.val = (LbSinL(thing->field_52)>> 8)
+                  * (cctrl->move_speed * LbCosL(thing->field_54) >> 8) >> 16;
+            cctrl->pos_BB.y.val = -((LbCosL(thing->field_52) >> 8)
+                  * (cctrl->move_speed * LbCosL(thing->field_54) >> 8) >> 8) >> 8;
+            cctrl->pos_BB.z.val = cctrl->move_speed * LbSinL(thing->field_54) >> 16;
+          }
+          if (cctrl->field_CA != 0)
+          {
+            cctrl->pos_BB.x.val +=   cctrl->field_CA * LbSinL(thing->field_52 - 512) >> 16;
+            cctrl->pos_BB.y.val += -(cctrl->field_CA * LbCosL(thing->field_52 - 512) >> 8) >> 8;
+          }
+        } else
+        {
+          if (cctrl->move_speed != 0)
+          {
+            upd_done = 1;
+            cctrl->pos_BB.x.val =   cctrl->move_speed * LbSinL(thing->field_52) >> 16;
+            cctrl->pos_BB.y.val = -(cctrl->move_speed * LbCosL(thing->field_52) >> 8) >> 8;
+          }
+          if (cctrl->field_CA != 0)
+          {
+            upd_done = 1;
+            cctrl->pos_BB.x.val +=   cctrl->field_CA * LbSinL(thing->field_52 - 512) >> 16;
+            cctrl->pos_BB.y.val += -(cctrl->field_CA * LbCosL(thing->field_52 - 512) >> 8) >> 8;
+          }
+        }
       } else
-      if (i < 0)
+      if (cctrl->field_2 & 0x01)
       {
         upd_done = 1;
-        i = -i;
-        if (i >= 32)
-          i = 32;
-        cctrl->pos_BB.z.val -= i;
+        set_flag_byte(&cctrl->field_2,0x01,false);
+      } else
+      if (cctrl->move_speed != 0)
+      {
+        upd_done = 1;
+        cctrl->pos_BB.x.val =   cctrl->move_speed * LbSinL(thing->field_52) >> 16;
+        cctrl->pos_BB.y.val = -(cctrl->move_speed * LbCosL(thing->field_52) >> 8) >> 8;
+        cctrl->pos_BB.z.val = 0;
+      }
+      if (((thing->field_25 & 0x20) != 0) && ((thing->field_0 & 0x20) == 0))
+      {
+        i = get_floor_height_under_thing_at(thing, &thing->mappos) - thing->mappos.z.val + 256;
+        if (i > 0)
+        {
+          upd_done = 1;
+          if (i >= 32)
+            i = 32;
+          cctrl->pos_BB.z.val += i;
+        } else
+        if (i < 0)
+        {
+          upd_done = 1;
+          i = -i;
+          if (i >= 32)
+            i = 32;
+          cctrl->pos_BB.z.val -= i;
+        }
       }
     }
-  }
-  SYNCDBG(19,"Finished");
-  if (upd_done)
-    return true;
-  else
-    return ((cctrl->pos_BB.x.val != 0) || (cctrl->pos_BB.y.val != 0) || (cctrl->pos_BB.z.val != 0));
+    SYNCDBG(19,"Finished");
+    if (upd_done)
+      return true;
+    else
+      return ((cctrl->pos_BB.x.val != 0) || (cctrl->pos_BB.y.val != 0) || (cctrl->pos_BB.z.val != 0));
 }
 
 void check_for_creature_escape_from_lava(struct Thing *thing)
@@ -3017,6 +3049,7 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
 void process_creature_leave_footsteps(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
+    struct Thing *footng;
     struct SlabMap *slb;
     short nfoot;
     cctrl = creature_control_get_from_thing(thing);
@@ -3034,8 +3067,10 @@ void process_creature_leave_footsteps(struct Thing *thing)
     {
         place_bloody_footprint(thing);
         nfoot = get_foot_creature_has_down(thing);
-        if (create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 23, thing->owner) != NULL)
-          cctrl->bloody_footsteps_turns--;
+        footng = create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 23, thing->owner);
+        if (!thing_is_invalid(footng)) {
+            cctrl->bloody_footsteps_turns--;
+        }
     } else
     // Snow footprints
     if (game.texture_id == 2)
@@ -3045,7 +3080,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
         {
           thing->field_25 |= 0x80u;
           nfoot = get_foot_creature_has_down(thing);
-          create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 94, thing->owner);
+          footng = create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 94, thing->owner);
         }
     }
 }

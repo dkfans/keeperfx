@@ -382,13 +382,13 @@ short good_doing_nothing(struct Thing *thing)
     }
     nturns = game.play_gameturn - cctrl->long_9A;
     if (nturns <= 1) {
-      return 1;
+        return 1;
     }
     if (cctrl->field_5 > (long)game.play_gameturn)
     {
-      if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
-        thing->continue_state = CrSt_GoodDoingNothing;
-      return 1;
+        if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
+            thing->continue_state = CrSt_GoodDoingNothing;
+        return 1;
     }
     i = cctrl->sbyte_89;
     if (i != -1)
@@ -402,21 +402,21 @@ short good_doing_nothing(struct Thing *thing)
       }
       if (player->victory_state != VicS_LostLevel)
       {
-        nturns = game.play_gameturn - cctrl->long_91;
-        if (nturns <= 400)
-        {
-          if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
+          nturns = game.play_gameturn - cctrl->long_91;
+          if (nturns <= 400)
           {
-            thing->continue_state = CrSt_GoodDoingNothing;
-            return 0;
-          }
-        } else
-        {
-          if (!creature_can_get_to_dungeon(thing,i))
+              if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
+              {
+                thing->continue_state = CrSt_GoodDoingNothing;
+                return 0;
+              }
+          } else
           {
-            cctrl->sbyte_89 = -1;
+              if (!creature_can_get_to_dungeon(thing,i))
+              {
+                cctrl->sbyte_89 = -1;
+              }
           }
-        }
       } else
       {
         cctrl->sbyte_89 = -1;
@@ -428,25 +428,25 @@ short good_doing_nothing(struct Thing *thing)
       nturns = game.play_gameturn - cctrl->long_91;
       if (nturns > 400)
       {
-        cctrl->long_91 = game.play_gameturn;
-        cctrl->byte_8C = 1;
+          cctrl->long_91 = game.play_gameturn;
+          cctrl->byte_8C = 1;
       }
       nturns = game.play_gameturn - cctrl->long_8D;
       if (nturns > 64)
       {
-        cctrl->long_8D = game.play_gameturn;
-        cctrl->sbyte_89 = good_find_enemy_dungeon(thing);
+          cctrl->long_8D = game.play_gameturn;
+          cctrl->sbyte_89 = good_find_enemy_dungeon(thing);
       }
       i = cctrl->sbyte_89;
       if (i == -1)
       {
-        SYNCDBG(4,"No enemy dungeon to perform task");
-        if ( creature_choose_random_destination_on_valid_adjacent_slab(thing) )
-        {
-          thing->continue_state = CrSt_GoodDoingNothing;
-          return 1;
-        }
-        cctrl->field_5 = game.play_gameturn + 16;
+          SYNCDBG(4,"No enemy dungeon to perform task");
+          if ( creature_choose_random_destination_on_valid_adjacent_slab(thing) )
+          {
+              thing->continue_state = CrSt_GoodDoingNothing;
+              return 1;
+          }
+          cctrl->field_5 = game.play_gameturn + 16;
       }
       return 1;
     }
@@ -458,7 +458,7 @@ short good_doing_nothing(struct Thing *thing)
             return 1;
         }
         WARNLOG("Can't attack player %d rooms, switching to attack heart", (int)i);
-        cctrl->field_4 = 3;
+        cctrl->field_4 = CHeroTsk_AttackDnHeart;
         return false;
     case CHeroTsk_AttackDnHeart:
         if (good_setup_wander_to_dungeon_heart(thing, i)) {
@@ -474,14 +474,14 @@ short good_doing_nothing(struct Thing *thing)
                 return true;
             }
             WARNLOG("Can't loot player %d treasury, switching to attack heart", (int)i);
-            cctrl->field_4 = 3;
+            cctrl->field_4 = CHeroTsk_AttackDnHeart;
         } else
         {
             if (good_setup_wander_to_exit(thing)) {
                 return true;
             }
             WARNLOG("Can't wander to exit after looting player %d treasury, switching to attack heart", (int)i);
-            cctrl->field_4 = 3;
+            cctrl->field_4 = CHeroTsk_AttackDnHeart;
         }
         return false;
     case CHeroTsk_StealSpells:
@@ -491,13 +491,13 @@ short good_doing_nothing(struct Thing *thing)
             if (good_setup_loot_research_room(thing, i))
                 return true;
             WARNLOG("Can't loot player %d spells, switching to attack heart", (int)i);
-            cctrl->field_4 = 3;
+            cctrl->field_4 = CHeroTsk_AttackDnHeart;
         } else
         {
             if (good_setup_wander_to_exit(thing))
                 return true;
             WARNLOG("Can't wander to exit after looting player %d spells, switching to attack heart", (int)i);
-            cctrl->field_4 = 3;
+            cctrl->field_4 = CHeroTsk_AttackDnHeart;
         }
         return false;
     case CHeroTsk_AttackEnemies:
