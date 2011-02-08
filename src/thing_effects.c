@@ -25,6 +25,7 @@
 #include "thing_list.h"
 #include "thing_stats.h"
 #include "front_simple.h"
+#include "creature_graphics.h"
 #include "gui_topmsg.h"
 #include "keeperfx.hpp"
 
@@ -417,9 +418,106 @@ struct EffectElementStats effect_element_stats[] = {
 
 long const bounce_table[] = { -160, -160, -120, -120, -80, -40, -20, 0, 20, 40, 80, 120, 120, 160, 160, 160 };
 /******************************************************************************/
-struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short a2, unsigned short a3)
+struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, unsigned short owner)
 {
-  return _DK_create_effect_element(pos, a2, a3);
+    struct InitLight ilght;
+    struct EffectElementStats *eestat;
+    struct Thing *thing;
+    long i,n;
+    //return _DK_create_effect_element(pos, eelmodel, owner);
+
+    if (!i_can_allocate_free_thing_structure(TAF_Default)) {
+        return INVALID_THING;
+    }
+    if (!any_player_close_enough_to_see(pos)) {
+        return INVALID_THING;
+    }
+    eestat = &effect_element_stats[eelmodel];
+    memset(&ilght, 0, sizeof(struct InitLight));
+    thing = allocate_free_thing_structure(TAF_Default);
+    if (thing->index == 0) {
+        ERRORDBG(8,"Should be able to allocate effect element %d for player %d, but failed.",(int)eelmodel,(int)owner);
+        return INVALID_THING;
+    }
+    thing->class_id = TCls_EffectElem;
+    thing->model = eelmodel;
+    thing->mappos.x.val = pos->x.val;
+    thing->mappos.y.val = pos->y.val;
+    thing->mappos.z.val = pos->z.val;
+    thing->field_2 = 0;
+    thing->field_1D = thing->index;
+    thing->owner = owner;
+    thing->field_56 = 1;
+    thing->field_58 = 1;
+    thing->field_5A = 1;
+    thing->field_5C = 1;
+
+    if (eestat->numfield_7 != -1)
+    {
+        i = ACTION_RANDOM(eestat->numfield_B - (long)eestat->numfield_9 + 1);
+        n = ACTION_RANDOM(eestat->field_10   - (long)eestat->field_E    + 1);
+        set_thing_draw(thing, eestat->numfield_7, eestat->field_E + n, eestat->numfield_9 + i, 0, 0, eestat->field_0);
+        set_flag_byte(&thing->field_4F,0x02,eestat->field_13);
+        thing->field_4F ^= (thing->field_4F ^ (0x10 * eestat->field_14)) & 0x30;
+        set_flag_byte(&thing->field_4F,0x40,eestat->field_D);
+    } else
+    {
+        set_flag_byte(&thing->field_4F,0x01,true);
+    }
+
+    thing->field_20 = eestat->field_18;
+    thing->field_23 = eestat->field_1A;
+    thing->field_24 = eestat->field_1C;
+    thing->field_25 |= 0x08;
+    set_flag_byte(&thing->field_25,0x10,eestat->field_16);
+    thing->field_9 = game.play_gameturn;
+
+    if (eestat->numfield_3 > 0)
+    {
+        i = ACTION_RANDOM(eestat->numfield_5 - (long)eestat->numfield_3 + 1);
+        thing->health = eestat->numfield_3 + i;
+    } else
+    {
+        thing->health = get_lifespan_of_animation(thing->field_44, thing->field_3E);
+    }
+
+    if (eestat->field_17 != 0)
+    {
+        thing->field_4B = eestat->numfield_9;
+        thing->field_4D = eestat->numfield_B;
+        if (eestat->field_17 == 2)
+        {
+            thing->field_4A = 2 * (eestat->numfield_B - (long)eestat->numfield_9) / thing->health;
+            thing->field_50 |= 0x02;
+        }
+        else
+        {
+            thing->field_4A = (eestat->numfield_B - (long)eestat->numfield_9) / thing->health;
+            thing->field_50 &= ~0x02;
+        }
+        thing->field_46 = eestat->numfield_9;
+    } else
+    {
+        thing->field_4A = 0;
+    }
+
+    if (eestat->field_3A != 0)
+    {
+        ilght.mappos.x.val = thing->mappos.x.val;
+        ilght.mappos.y.val = thing->mappos.y.val;
+        ilght.mappos.z.val = thing->mappos.z.val;
+        ilght.field_0 = eestat->field_3A;
+        ilght.field_2 = eestat->field_3C;
+        ilght.is_dynamic = 1;
+        ilght.field_3 = eestat->field_3D;
+        thing->light_id = light_create_light(&ilght);
+        if (thing->light_id <= 0) {
+            SYNCDBG(8,"Cannot allocate dynamic light to %s.",thing_model_name(thing));
+        }
+    }
+    add_thing_to_list(thing, &game.thing_lists[TngList_EffectElems]);
+    place_thing_in_mapwho(thing);
+    return thing;
 }
 
 void process_spells_affected_by_effect_elements(struct Thing *thing)
@@ -434,8 +532,8 @@ void process_thing_spell_effects(struct Thing *thing)
 
 long move_effect_element(struct Thing *thing)
 {
-  SYNCDBG(18,"Starting");
-  return _DK_move_effect_element(thing);
+    SYNCDBG(18,"Starting");
+    return _DK_move_effect_element(thing);
 }
 
 void change_effect_element_into_another(struct Thing *thing, long nmodel)
@@ -631,102 +729,101 @@ void update_effect_light_intensity(struct Thing *thing)
 
 void effect_generate_effect_elements(const struct Thing *thing)
 {
-  const struct InitEffect *effnfo;
-  struct PlayerInfo *player;
-  struct Thing *elemtng;
-  struct Coord3d pos;
-  long i,k,n;
-  long mag;
-  unsigned long arg,argZ;
-  effnfo = &effect_info[thing->model];
-  SYNCDBG(18,"Preparing Effect, Generation Type %d",(int)effnfo->generation_type);
-  switch (effnfo->generation_type)
-  {
-  case 1:
-        for (i=0; i < effnfo->field_B; i++)
-        {
-          if (effnfo->kind_min > 0)
+    const struct InitEffect *effnfo;
+    struct PlayerInfo *player;
+    struct Thing *elemtng;
+    struct Coord3d pos;
+    long i,k,n;
+    long mag;
+    unsigned long arg,argZ;
+    effnfo = &effect_info[thing->model];
+    SYNCDBG(18,"Preparing Effect, Generation Type %d",(int)effnfo->generation_type);
+    switch (effnfo->generation_type)
+    {
+    case 1:
+          for (i=0; i < effnfo->field_B; i++)
           {
-            n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
-            elemtng = create_effect_element(&thing->mappos, n, thing->owner);
-            if (thing_is_invalid(elemtng))
-              break;
-            arg = ACTION_RANDOM(0x800);
-            argZ = ACTION_RANDOM(0x400);
-            // Setting XY acceleration
-            k = abs(effnfo->accel_xy_max - effnfo->accel_xy_min);
-            if (k <= 1) k = 1;
-            mag = effnfo->accel_xy_min + ACTION_RANDOM(k);
-            elemtng->acceleration.x.val += (mag*LbSinL(arg)) >> 16;
-            elemtng->acceleration.y.val -= (mag*LbCosL(arg)) >> 16;
-            // Setting Z acceleration
-            k = abs(effnfo->accel_z_max - effnfo->accel_z_min);
-            if (k <= 1) k = 1;
-            mag = effnfo->accel_z_min + ACTION_RANDOM(k);
-            elemtng->acceleration.z.val += (mag*LbSinL(argZ)) >> 16;
-            elemtng->field_1 |= 0x04;
+              if (effnfo->kind_min <= 0)
+                  continue;
+              n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
+              elemtng = create_effect_element(&thing->mappos, n, thing->owner);
+              if (thing_is_invalid(elemtng))
+                break;
+              arg = ACTION_RANDOM(0x800);
+              argZ = ACTION_RANDOM(0x400);
+              // Setting XY acceleration
+              k = abs(effnfo->accel_xy_max - effnfo->accel_xy_min);
+              if (k <= 1) k = 1;
+              mag = effnfo->accel_xy_min + ACTION_RANDOM(k);
+              elemtng->acceleration.x.val += (mag*LbSinL(arg)) >> 16;
+              elemtng->acceleration.y.val -= (mag*LbCosL(arg)) >> 16;
+              // Setting Z acceleration
+              k = abs(effnfo->accel_z_max - effnfo->accel_z_min);
+              if (k <= 1) k = 1;
+              mag = effnfo->accel_z_min + ACTION_RANDOM(k);
+              elemtng->acceleration.z.val += (mag*LbSinL(argZ)) >> 16;
+              elemtng->field_1 |= 0x04;
           }
-        }
-        break;
-  case 2:
-        k = 0;
-        for (i=0; i < effnfo->field_B; i++)
-        {
-            n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
-            mag = effnfo->start_health - thing->health;
-            arg = (mag << 7) + k/effnfo->field_B;
-            pos.x.val = thing->mappos.x.val + ((16*mag*LbSinL(arg)) >> 16);
-            pos.y.val = thing->mappos.y.val - ((16*mag*LbCosL(arg)) >> 16);
-            pos.z.val = thing->mappos.z.val;
-            elemtng = create_effect_element(&pos, n, thing->owner);
-            k += 2048;
-        }
-        break;
-  case 3:
-        k = 0;
-        for (i=0; i < effnfo->field_B; i++)
-        {
-            n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
-            mag = thing->health;
-            arg = (mag << 7) + k/effnfo->field_B;
-            pos.x.val = thing->mappos.x.val + ((16*mag*LbSinL(arg)) >> 16);
-            pos.y.val = thing->mappos.y.val - ((16*mag*LbCosL(arg)) >> 16);
-            pos.z.val = thing->mappos.z.val;
-            elemtng = create_effect_element(&pos, n, thing->owner);
-            k += 2048;
-        }
-        break;
-  case 4:
-        if (thing->model != 48)
           break;
-        i = effnfo->start_health / 2;
-        if (thing->health == effnfo->start_health)
-        {
-          memset(temp_pal, 63, PALETTE_SIZE);
-        } else
-        if (thing->health > i)
-        {
-          LbPaletteFade(temp_pal, i, Lb_PALETTE_FADE_OPEN);
-        } else
-        if (thing->health == i)
-        {
-          LbPaletteStopOpenFade();
-          LbPaletteSet(temp_pal);
-        } else
-        if (thing->health > 0)
-        {
-          LbPaletteFade(_DK_palette, 8, Lb_PALETTE_FADE_OPEN);
-        } else
-        {
-          player = get_my_player();
-          PaletteSetPlayerPalette(player, _DK_palette);
-          LbPaletteStopOpenFade();
-        }
-        break;
-  default:
-        ERRORLOG("Unknown Effect Generation Type %d",(int)effnfo->generation_type);
-        break;
-  }
+    case 2:
+          k = 0;
+          for (i=0; i < effnfo->field_B; i++)
+          {
+              n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
+              mag = effnfo->start_health - thing->health;
+              arg = (mag << 7) + k/effnfo->field_B;
+              pos.x.val = thing->mappos.x.val + ((16*mag*LbSinL(arg)) >> 16);
+              pos.y.val = thing->mappos.y.val - ((16*mag*LbCosL(arg)) >> 16);
+              pos.z.val = thing->mappos.z.val;
+              elemtng = create_effect_element(&pos, n, thing->owner);
+              k += 2048;
+          }
+          break;
+    case 3:
+          k = 0;
+          for (i=0; i < effnfo->field_B; i++)
+          {
+              n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
+              mag = thing->health;
+              arg = (mag << 7) + k/effnfo->field_B;
+              pos.x.val = thing->mappos.x.val + ((16*mag*LbSinL(arg)) >> 16);
+              pos.y.val = thing->mappos.y.val - ((16*mag*LbCosL(arg)) >> 16);
+              pos.z.val = thing->mappos.z.val;
+              elemtng = create_effect_element(&pos, n, thing->owner);
+              k += 2048;
+          }
+          break;
+    case 4:
+          if (thing->model != 48)
+            break;
+          i = effnfo->start_health / 2;
+          if (thing->health == effnfo->start_health)
+          {
+            memset(temp_pal, 63, PALETTE_SIZE);
+          } else
+          if (thing->health > i)
+          {
+            LbPaletteFade(temp_pal, i, Lb_PALETTE_FADE_OPEN);
+          } else
+          if (thing->health == i)
+          {
+            LbPaletteStopOpenFade();
+            LbPaletteSet(temp_pal);
+          } else
+          if (thing->health > 0)
+          {
+            LbPaletteFade(_DK_palette, 8, Lb_PALETTE_FADE_OPEN);
+          } else
+          {
+            player = get_my_player();
+            PaletteSetPlayerPalette(player, _DK_palette);
+            LbPaletteStopOpenFade();
+          }
+          break;
+    default:
+          ERRORLOG("Unknown Effect Generation Type %d",(int)effnfo->generation_type);
+          break;
+    }
 }
 
 long process_effect_generator(struct Thing *thing)
@@ -742,9 +839,13 @@ struct Thing *create_effect(const struct Coord3d *pos, unsigned short effmodel, 
     //return _DK_create_effect(pos, effmodel, owner);
     ieffect = &effect_info[effmodel];
     if (!i_can_allocate_free_thing_structure(1)) {
-        return NULL;//INVALID_THING;
+        return INVALID_THING;
     }
     thing = allocate_free_thing_structure(1);
+    if (thing->index == 0) {
+        ERRORDBG(8,"Should be able to allocate effect %d for player %d, but failed.",(int)effmodel,(int)owner);
+        return INVALID_THING;
+    }
     thing->field_9 = game.play_gameturn;
     thing->class_id = TCls_Effect;
     thing->model = effmodel;
@@ -819,34 +920,34 @@ long get_word_of_power_damage(const struct Thing *efftng, const struct Thing *ds
  */
 void word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntng, struct Map *mapblk)
 {
-  struct Thing *thing;
-  long damage;
-  long i;
-  unsigned long k;
-  k = 0;
-  i = get_mapwho_thing_index(mapblk);
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct Thing *thing;
+    long damage;
+    long i;
+    unsigned long k;
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->field_2;
+        if (effect_can_affect_thing(efftng, thing)
+          || ((thing->class_id == TCls_Door) && (thing->owner != owntng->owner)))
+        {
+            damage = get_word_of_power_damage(efftng, thing);
+            apply_damage_to_thing_and_display_health(thing, damage, owntng->owner);
+        }
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
     }
-    i = thing->field_2;
-    if (effect_can_affect_thing(efftng, thing)
-      || ((thing->class_id == TCls_Door) && (thing->owner != owntng->owner)))
-    {
-      damage = get_word_of_power_damage(efftng, thing);
-      apply_damage_to_thing_and_display_health(thing, damage, owntng->owner);
-    }
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
 }
 
 /**
@@ -854,106 +955,99 @@ void word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntn
  */
 void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, struct Coord3d *pos)
 {
-  struct Map *mapblk;
-  long stl_xmin,stl_xmax;
-  long stl_ymin,stl_ymax;
-  long stl_x,stl_y;
-  if (efftng->field_9 != game.play_gameturn)
-    return;
-  stl_xmin = pos->x.stl.num - 5;
-  stl_xmax = pos->x.stl.num + 6;
-  stl_ymin = pos->y.stl.num - 5;
-  stl_ymax = pos->y.stl.num + 6;
-  if (stl_xmin < 0)
-  {
-    stl_xmin = 0;
-  } else
-  if (stl_xmin > map_subtiles_x)
-  {
-    stl_xmin = map_subtiles_x;
-  }
-  if (stl_ymin < 0)
-  {
-    stl_ymin = 0;
-  } else
-  if (stl_ymin > map_subtiles_y)
-  {
-    stl_ymin = map_subtiles_y;
-  }
-  if (stl_xmax < 0)
-  {
-    stl_xmax = 0;
-  } else
-  if (stl_xmax > map_subtiles_x)
-  {
-    stl_xmax = map_subtiles_x;
-  }
-  if (stl_ymax < 0)
-  {
-    stl_ymax = 0;
-  } else
-  if (stl_ymax > map_subtiles_y)
-  {
-    stl_ymax = map_subtiles_y;
-  }
-  for (stl_y=stl_ymin; stl_y <= stl_ymax; stl_y++)
-  {
-    for (stl_x=stl_xmin; stl_x <= stl_xmax; stl_x++)
-    {
-      mapblk = get_map_block_at(stl_x, stl_y);
-      word_of_power_affecting_map_block(efftng, owntng, mapblk);
+    struct Map *mapblk;
+    long stl_xmin,stl_xmax;
+    long stl_ymin,stl_ymax;
+    long stl_x,stl_y;
+    if (efftng->field_9 != game.play_gameturn)
+        return;
+    stl_xmin = pos->x.stl.num - 5;
+    stl_xmax = pos->x.stl.num + 6;
+    stl_ymin = pos->y.stl.num - 5;
+    stl_ymax = pos->y.stl.num + 6;
+    if (stl_xmin < 0) {
+        stl_xmin = 0;
+    } else
+    if (stl_xmin > map_subtiles_x) {
+        stl_xmin = map_subtiles_x;
     }
-  }
+    if (stl_ymin < 0) {
+      stl_ymin = 0;
+    } else
+    if (stl_ymin > map_subtiles_y) {
+      stl_ymin = map_subtiles_y;
+    }
+    if (stl_xmax < 0) {
+      stl_xmax = 0;
+    } else
+    if (stl_xmax > map_subtiles_x) {
+      stl_xmax = map_subtiles_x;
+    }
+    if (stl_ymax < 0) {
+      stl_ymax = 0;
+    } else
+    if (stl_ymax > map_subtiles_y) {
+      stl_ymax = map_subtiles_y;
+    }
+    for (stl_y=stl_ymin; stl_y <= stl_ymax; stl_y++)
+    {
+        for (stl_x=stl_xmin; stl_x <= stl_xmax; stl_x++)
+        {
+            mapblk = get_map_block_at(stl_x, stl_y);
+            word_of_power_affecting_map_block(efftng, owntng, mapblk);
+        }
+    }
 }
 
 void poison_cloud_affecting_area(struct Thing *owntng, struct Coord3d *pos, long a3, long a4, unsigned char a5)
 {
-  _DK_poison_cloud_affecting_area(owntng, pos, a3, a4, a5);
+    _DK_poison_cloud_affecting_area(owntng, pos, a3, a4, a5);
 }
 
 long update_effect(struct Thing *thing)
 {
-  struct InitEffect *effnfo;
-  struct Thing *subtng;
-  SYNCDBG(18,"Starting for %s",thing_model_name(thing));
-  //return _DK_update_effect(thing);
-  subtng = NULL;
-  effnfo = &effect_info[thing->model];
-  if ( thing->field_1D )
-    subtng = thing_get(thing->field_1D);
-  if (thing->health <= 0)
-  {
-    destroy_effect_generator(thing);
-    return 0;
-  }
-  update_effect_light_intensity(thing);
-  // Effect generators can be used to generate effect elements
-  if ( (effnfo->field_11 == 0) || any_player_close_enough_to_see(&thing->mappos) )
-  {
-    effect_generate_effect_elements(thing);
-  }
-  // Let the effect affect area
-  switch (effnfo->area_affect_type)
-  {
-  case 1:
-  case 3:
-      poison_cloud_affecting_area(subtng, &thing->mappos, 1280, 60, effnfo->area_affect_type);
-      break;
-  case 4:
-      word_of_power_affecting_area(thing, subtng, &thing->mappos);
-      break;
-  }
-  thing->health--;
-  return move_effect(thing);
+    struct InitEffect *effnfo;
+    struct Thing *subtng;
+    SYNCDBG(18,"Starting for %s",thing_model_name(thing));
+    //return _DK_update_effect(thing);
+    subtng = NULL;
+    effnfo = &effect_info[thing->model];
+    if ( thing->field_1D ) {
+        subtng = thing_get(thing->field_1D);
+    }
+    if (thing->health <= 0) {
+        destroy_effect_generator(thing);
+        return 0;
+    }
+    update_effect_light_intensity(thing);
+    // Effect generators can be used to generate effect elements
+    if ( (effnfo->field_11 == 0) || any_player_close_enough_to_see(&thing->mappos) )
+    {
+        effect_generate_effect_elements(thing);
+    }
+    // Let the effect affect area
+    switch (effnfo->area_affect_type)
+    {
+    case 1:
+    case 3:
+        poison_cloud_affecting_area(subtng, &thing->mappos, 1280, 60, effnfo->area_affect_type);
+        break;
+    case 4:
+        word_of_power_affecting_area(thing, subtng, &thing->mappos);
+        break;
+    }
+    thing->health--;
+    return move_effect(thing);
 }
 
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price)
 {
-  struct Thing *thing;
-  thing = create_effect_element(pos, 41, plyr_idx);
-  if (!thing_is_invalid(thing))
-    thing->long_13 = price;
-  return thing;
+    struct Thing *thing;
+    thing = create_effect_element(pos, 41, plyr_idx);
+    if (!thing_is_invalid(thing)) {
+        thing->long_13 = price;
+    }
+    return thing;
 }
 
 /******************************************************************************/
