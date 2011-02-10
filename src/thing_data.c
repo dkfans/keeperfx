@@ -135,11 +135,11 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
     {
       if ( !a2 )
       {
-          room = room_get(cctrl->field_68);
+          room = room_get(cctrl->lair_room_id);
           if (!room_is_invalid(room)) {
               creature_remove_lair_from_room(thing, room);
           }
-          if ((cctrl->field_7A & 0xFFF) != 0) {
+          if (creature_is_group_member(thing)) {
               remove_creature_from_group(thing);
           }
       }
