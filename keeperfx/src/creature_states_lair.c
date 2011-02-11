@@ -89,7 +89,7 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
         return 0;
     }
     // If the room changed during creature's journey, end
-    if ((room->kind != RoK_LAIR) || (room->owner != thing->owner) || (room->index != cctrl->field_68))
+    if ((room->kind != RoK_LAIR) || (room->owner != thing->owner) || (room->index != cctrl->lair_room_id))
     {
         return 0;
     }
@@ -162,7 +162,7 @@ short at_lair_to_sleep(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if ((cctrl->field_68 != room->index))
+    if ((cctrl->lair_room_id != room->index))
     {
         set_start_state(thing);
         return 0;
