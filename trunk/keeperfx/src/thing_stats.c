@@ -129,7 +129,7 @@ TbBool things_stats_debug_dump(void)
     for (i=0; i < THING_CLASSES_COUNT; i++) {
         total += count[i];
     }
-    JUSTLOG("Stats: Creats%d, Objs%d, Bods%d, Trps%d, Drs%d, Shts%d, Effs%d, EffEls%d Othrs%d Total%d",
+    JUSTMSG("Check things: Creats%d, Objs%d, Bods%d, Trps%d, Drs%d, Shts%d, Effs%d, EffEls%d Othrs%d Total%d",
         count[TCls_Creature],
         count[TCls_Object],
         count[TCls_DeadCreature],
@@ -151,7 +151,7 @@ TbBool things_stats_debug_dump(void)
         rltotal += realcnt[i];
     }
     if (rltotal != total) {
-        JUSTLOG("Real:  Creats%d, Objs%d, Bods%d, Trps%d, Drs%d, Shts%d, Effs%d, EffEls%d Othrs%d Total%d",
+        WARNMSG("Real: Creats%d, Objs%d, Bods%d, Trps%d, Drs%d, Shts%d, Effs%d, EffEls%d Othrs%d Total%d",
             realcnt[TCls_Creature],
             realcnt[TCls_Object],
             realcnt[TCls_DeadCreature],

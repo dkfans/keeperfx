@@ -108,7 +108,7 @@ unsigned char field_3D[13];
 unsigned char field_4E[24];
     unsigned char field_66;
 unsigned char field_67;
-unsigned short field_68;
+    unsigned short lair_room_id;
     unsigned short lairtng_idx;
     short field_6C;
     short field_6E;
