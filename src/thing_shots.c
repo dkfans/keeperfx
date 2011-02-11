@@ -447,16 +447,16 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *target, stru
       }
       if ( shotst->old->field_2A )
       {
-        target->acceleration.x.val += (throw_strength * (long)shotng->velocity.x.val) / 16;
-        target->acceleration.y.val += (throw_strength * (long)shotng->velocity.y.val) / 16;
-        target->field_1 |= 0x04;
+          target->acceleration.x.val += (throw_strength * (long)shotng->velocity.x.val) / 16;
+          target->acceleration.y.val += (throw_strength * (long)shotng->velocity.y.val) / 16;
+          target->field_1 |= 0x04;
       }
       create_relevant_effect_for_shot_hitting_thing(shotng, target);
       if (target->health >= 0)
       {
-        if (target->owner != shotng->owner) {
-            check_hit_when_attacking_door(target);
-        }
+          if (target->owner != shotng->owner) {
+              check_hit_when_attacking_door(target);
+          }
       } else
       {
           shot_kill_creature(shotng,target);
@@ -689,7 +689,7 @@ long collide_filter_thing_is_shootable_by_any_player_except_own_excluding_object
 
 long collide_filter_thing_is_shootable_dungeon_heart_only(struct Thing *thing, struct Thing *coltng, long a3, long a4)
 {
-    return (thing->class_id == 1) && (thing->model == 5) && (coltng->owner != thing->owner);
+    return (thing->class_id == TCls_Object) && (thing->model == 5) && (coltng->owner != thing->owner);
 }
 
 struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5)

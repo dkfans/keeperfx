@@ -350,53 +350,53 @@ struct Objects *get_objects_data_for_thing(struct Thing *thing)
 
 struct Objects *get_objects_data(unsigned int tmodel)
 {
-  if (tmodel >= OBJECT_TYPES_COUNT)
-    return &objects_data[0];
-  return &objects_data[tmodel];
+    if (tmodel >= OBJECT_TYPES_COUNT)
+        return &objects_data[0];
+    return &objects_data[tmodel];
 }
 
 unsigned int get_workshop_object_class_for_thing(struct Thing *thing)
 {
-  unsigned int tmodel;
-  tmodel = thing->model;
-  if (tmodel >= OBJECT_TYPES_COUNT)
-    return workshop_object_class[0];
-  return workshop_object_class[tmodel];
+    unsigned int tmodel;
+    tmodel = thing->model;
+    if (tmodel >= OBJECT_TYPES_COUNT)
+        return workshop_object_class[0];
+    return workshop_object_class[tmodel];
 }
 
 unsigned int get_workshop_object_class(unsigned int tmodel)
 {
-  if (tmodel >= OBJECT_TYPES_COUNT)
-    return workshop_object_class[0];
-  return workshop_object_class[tmodel];
+    if (tmodel >= OBJECT_TYPES_COUNT)
+        return workshop_object_class[0];
+    return workshop_object_class[tmodel];
 }
 
 int box_thing_to_special(const struct Thing *thing)
 {
-  if (thing_is_invalid(thing))
-    return 0;
-  if ((thing->class_id != TCls_Object) || (thing->model >= OBJECT_TYPES_COUNT))
-    return 0;
-  return object_to_special[thing->model];
-}
+    if (thing_is_invalid(thing))
+        return 0;
+    if ((thing->class_id != TCls_Object) || (thing->model >= OBJECT_TYPES_COUNT))
+        return 0;
+    return object_to_special[thing->model];
+
 
 int book_thing_to_magic(const struct Thing *thing)
 {
-  if (thing_is_invalid(thing))
-    return 0;
-  if ((thing->class_id != TCls_Object) || (thing->model >= OBJECT_TYPES_COUNT))
-    return 0;
-  return object_to_magic[thing->model];
+    if (thing_is_invalid(thing))
+        return 0;
+    if ((thing->class_id != TCls_Object) || (thing->model >= OBJECT_TYPES_COUNT))
+        return 0;
+    return object_to_magic[thing->model];
 }
 
 int box_thing_to_door_or_trap(const struct Thing *thing)
 {
-  if (thing_is_invalid(thing))
-    return 0;
-  if ((thing->class_id != TCls_Object) ||
-      (thing->model >= sizeof(object_to_door_or_trap)/sizeof(object_to_door_or_trap[0])))
-    return 0;
-  return object_to_door_or_trap[thing->model];
+    if (thing_is_invalid(thing))
+        return 0;
+    if ((thing->class_id != TCls_Object) ||
+        (thing->model >= sizeof(object_to_door_or_trap)/sizeof(object_to_door_or_trap[0])))
+      return 0;
+    return object_to_door_or_trap[thing->model];
 }
 
 TbBool thing_is_special_box(const struct Thing *thing)
@@ -420,16 +420,16 @@ TbBool thing_is_trap_box(const struct Thing *thing)
 
 TbBool thing_is_dungeon_heart(const struct Thing *thing)
 {
-  if (thing_is_invalid(thing))
-    return false;
-  return (thing->class_id == TCls_Object) && (thing->model == 5);
+    if (thing_is_invalid(thing))
+        return false;
+    return (thing->class_id == TCls_Object) && (thing->model == 5);
 }
 
 TbBool thing_is_mature_food(const struct Thing *thing)
 {
-  if (thing_is_invalid(thing))
-    return false;
-  return (thing->class_id == TCls_Object) && (thing->model == 10);
+    if (thing_is_invalid(thing))
+        return false;
+    return (thing->class_id == TCls_Object) && (thing->model == 10);
 }
 
 TbBool object_is_mature_food(const struct Thing *thing)
@@ -508,126 +508,126 @@ long object_being_dropped(struct Thing *thing)
 
 void update_dungeon_heart_beat(struct Thing *thing)
 {
-  long i;
-  long long k;
-  const long base_heart_beat_rate = 2304;
-  static long bounce = 0;
-  if (thing->active_state != 3)
-  {
-    i = (char)thing->byte_14;
-    thing->field_3E = 0;
-    k = 384 * (long)(game.objects_config[5].health - thing->health) / game.objects_config[5].health;
-    k = base_heart_beat_rate / (k + 128);
-    light_set_light_intensity(thing->light_id, light_get_light_intensity(thing->light_id) + (i*36/k));
-    thing->field_40 += (i*base_heart_beat_rate/k);
-    if (thing->field_40 < 0)
+    long i;
+    long long k;
+    const long base_heart_beat_rate = 2304;
+    static long bounce = 0;
+    if (thing->active_state != 3)
     {
-      thing->field_40 = 0;
-      light_set_light_intensity(thing->light_id, 20);
-      thing->byte_14 = 1;
+        i = (char)thing->byte_14;
+        thing->field_3E = 0;
+        k = 384 * (long)(game.objects_config[5].health - thing->health) / game.objects_config[5].health;
+        k = base_heart_beat_rate / (k + 128);
+        light_set_light_intensity(thing->light_id, light_get_light_intensity(thing->light_id) + (i*36/k));
+        thing->field_40 += (i*base_heart_beat_rate/k);
+        if (thing->field_40 < 0)
+        {
+            thing->field_40 = 0;
+            light_set_light_intensity(thing->light_id, 20);
+            thing->byte_14 = 1;
+        }
+        if (thing->field_40 > base_heart_beat_rate-1)
+        {
+            thing->field_40 = base_heart_beat_rate-1;
+            light_set_light_intensity(thing->light_id, 56);
+            thing->byte_14 = (unsigned char)-1;
+            if ( bounce )
+            {
+                thing_play_sample(thing, 151, 100, 0, 3, 1, 6, 256);
+            } else
+            {
+                thing_play_sample(thing, 150, 100, 0, 3, 1, 6, 256);
+            }
+            bounce = !bounce;
+        }
+        k = (((unsigned long long)thing->field_40 >> 32) & 0xFF) + thing->field_40;
+        thing->field_48 = (k >> 8) & 0xFF;
+        if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 93, 0) )
+          thing_play_sample(thing, 93, 100, -1, 3, 1, 6, 256);
     }
-    if (thing->field_40 > base_heart_beat_rate-1)
-    {
-      thing->field_40 = base_heart_beat_rate-1;
-      light_set_light_intensity(thing->light_id, 56);
-      thing->byte_14 = (unsigned char)-1;
-      if ( bounce )
-      {
-        thing_play_sample(thing, 151, 100, 0, 3, 1, 6, 256);
-      } else
-      {
-        thing_play_sample(thing, 150, 100, 0, 3, 1, 6, 256);
-      }
-      bounce = !bounce;
-    }
-    k = (((unsigned long long)thing->field_40 >> 32) & 0xFF) + thing->field_40;
-    thing->field_48 = (k >> 8) & 0xFF;
-    if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 93, 0) )
-      thing_play_sample(thing, 93, 100, -1, 3, 1, 6, 256);
-  }
 }
 
 long object_update_dungeon_heart(struct Thing *thing)
 {
-  struct Dungeon *dungeon;
-  long i;
-  long long k;
-  SYNCDBG(18,"Starting");
-  //return _DK_object_update_dungeon_heart(thing);
-  if ((thing->health > 0) && (game.dungeon_heart_heal_time != 0))
-  {
-    if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)
+    struct Dungeon *dungeon;
+    long i;
+    long long k;
+    SYNCDBG(18,"Starting");
+    //return _DK_object_update_dungeon_heart(thing);
+    if ((thing->health > 0) && (game.dungeon_heart_heal_time != 0))
     {
-        thing->health += game.dungeon_heart_heal_health;
-        if (thing->health < 0)
+      if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)
+      {
+          thing->health += game.dungeon_heart_heal_health;
+          if (thing->health < 0)
+          {
+            thing->health = 0;
+          } else
+          if (thing->health > game.objects_config[5].health)
+          {
+            thing->health = game.objects_config[5].health;
+          }
+      }
+      k = ((thing->health << 8) / game.objects_config[5].health) << 7;
+      i = (saturate_set_signed(k,32) >> 8) + 128;
+      thing->field_46 = i * (long)objects_data[5].field_D >> 8;
+      thing->field_56 = i * (long)objects_data[5].field_9 >> 8;
+    } else
+    if (thing->owner != game.neutral_player_num)
+    {
+        dungeon = get_players_num_dungeon(thing->owner);
+        if (dungeon->field_1060[0] == 0)
         {
-          thing->health = 0;
-        } else
-        if (thing->health > game.objects_config[5].health)
-        {
-          thing->health = game.objects_config[5].health;
+            LbMemorySet(dungeon->field_1060, 0, sizeof(dungeon->field_1060));
+            dungeon->field_1060[0] = 1;
+            dungeon->pos_1065.x.val = thing->mappos.x.val;
+            dungeon->pos_1065.y.val = thing->mappos.y.val;
+            dungeon->pos_1065.z.val = thing->mappos.z.val;
         }
     }
-    k = ((thing->health << 8) / game.objects_config[5].health) << 7;
-    i = (saturate_set_signed(k,32) >> 8) + 128;
-    thing->field_46 = i * (long)objects_data[5].field_D >> 8;
-    thing->field_56 = i * (long)objects_data[5].field_9 >> 8;
-  } else
-  if (thing->owner != game.neutral_player_num)
-  {
-      dungeon = get_players_num_dungeon(thing->owner);
-      if (dungeon->field_1060[0] == 0)
-      {
-          LbMemorySet(dungeon->field_1060, 0, sizeof(dungeon->field_1060));
-          dungeon->field_1060[0] = 1;
-          dungeon->pos_1065.x.val = thing->mappos.x.val;
-          dungeon->pos_1065.y.val = thing->mappos.y.val;
-          dungeon->pos_1065.z.val = thing->mappos.z.val;
-      }
-  }
-  process_dungeon_destroy(thing);
-  SYNCDBG(18,"Beat update");
-  if ((thing->field_0 & 0x01) == 0)
-    return 0;
-  if ( thing->byte_13 )
-    thing->byte_13--;
-  update_dungeon_heart_beat(thing);
-  return 1;
+    process_dungeon_destroy(thing);
+    SYNCDBG(18,"Beat update");
+    if ((thing->field_0 & 0x01) == 0)
+      return 0;
+    if ( thing->byte_13 )
+      thing->byte_13--;
+    update_dungeon_heart_beat(thing);
+    return 1;
 }
 
 long object_update_call_to_arms(struct Thing *thing)
 {
-  return _DK_object_update_call_to_arms(thing);
+    return _DK_object_update_call_to_arms(thing);
 }
 
 long object_update_armour(struct Thing *thing)
 {
-  return _DK_object_update_armour(thing);
+    return _DK_object_update_armour(thing);
 }
 
 long object_update_object_scale(struct Thing *thing)
 {
-  return _DK_object_update_object_scale(thing);
+    return _DK_object_update_object_scale(thing);
 }
 
 long object_update_armour2(struct Thing *thing)
 {
-  return _DK_object_update_armour2(thing);
+    return _DK_object_update_armour2(thing);
 }
 
 long object_update_power_sight(struct Thing *thing)
 {
-  return _DK_object_update_power_sight(thing);
+    return _DK_object_update_power_sight(thing);
 }
 
 long object_update_power_lightning(struct Thing *thing)
 {
-  return _DK_object_update_power_lightning(thing);
+    return _DK_object_update_power_lightning(thing);
 }
 
 long move_object(struct Thing *thing)
 {
-  return _DK_move_object(thing);
+    return _DK_move_object(thing);
 }
 
 long update_object(struct Thing *thing)

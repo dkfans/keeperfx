@@ -74,23 +74,23 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
     i = game.thing_lists[2].index;
     while (i != 0)
     {
-      thing = thing_get(i);
-      if (thing_is_invalid(thing))
-      {
-        ERRORLOG("Jump to invalid thing detected");
-        break;
-      }
-      i = thing->next_of_class;
-      // Per thing code
-      if ((thing->model == 49) && creature_can_navigate_to_with_storage(herotng, &thing->mappos, 0))
-        return thing;
-      // Per thing code ends
-      k++;
-      if (k > THINGS_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping things list");
-        break;
-      }
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per thing code
+        if ((thing->model == 49) && creature_can_navigate_to_with_storage(herotng, &thing->mappos, 0))
+            return thing;
+        // Per thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
     }
     return NULL;
 }
@@ -114,10 +114,10 @@ void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *
     nav_thing_can_travel_over_lava = (!crstat->hurt_by_lava) || ((thing->field_25 & 0x20) != 0);
     if ( a4 )
     {
-      owner_player_navigating = -1;
+        owner_player_navigating = -1;
     } else
     {
-      owner_player_navigating = thing->owner;
+        owner_player_navigating = thing->owner;
     }
     nav_sizexy = actual_sizexy_to_nav_block_sizexy_table[thing->field_56] - 1;
     nearest_search(nav_sizexy, thing->mappos.x.val, thing->mappos.y.val,
@@ -166,26 +166,26 @@ TbBool setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y
 
 TbBool setup_person_move_close_to_position(struct Thing *thing, long x, long y, unsigned char a4)
 {
-  struct CreatureControl *cctrl;
-  struct Coord3d trgpos;
-  struct Coord3d navpos;
+    struct CreatureControl *cctrl;
+    struct Coord3d trgpos;
+    struct Coord3d navpos;
 
-  cctrl = creature_control_get_from_thing(thing);
-  trgpos.x.stl.num = x;
-  trgpos.y.stl.num = y;
-  trgpos.x.stl.pos = 128;
-  trgpos.y.stl.pos = 128;
-  get_nearest_navigable_point_for_thing(thing, &trgpos, &navpos, a4);
-  if (!creature_can_navigate_to_with_storage(thing, &navpos, a4))
-  {
-    return false;
-  }
-  cctrl->field_88 = a4;
-  internal_set_thing_state(thing, CrSt_MoveToPosition);
-  cctrl->moveto_pos.x.val = navpos.x.val;
-  cctrl->moveto_pos.y.val = navpos.y.val;
-  cctrl->moveto_pos.z.val = navpos.z.val;
-  return true;
+    cctrl = creature_control_get_from_thing(thing);
+    trgpos.x.stl.num = x;
+    trgpos.y.stl.num = y;
+    trgpos.x.stl.pos = 128;
+    trgpos.y.stl.pos = 128;
+    get_nearest_navigable_point_for_thing(thing, &trgpos, &navpos, a4);
+    if (!creature_can_navigate_to_with_storage(thing, &navpos, a4))
+    {
+        return false;
+    }
+    cctrl->field_88 = a4;
+    internal_set_thing_state(thing, CrSt_MoveToPosition);
+    cctrl->moveto_pos.x.val = navpos.x.val;
+    cctrl->moveto_pos.y.val = navpos.y.val;
+    cctrl->moveto_pos.z.val = navpos.z.val;
+    return true;
 }
 
 TbBool setup_person_move_backwards_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char a4)
@@ -290,7 +290,7 @@ long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos)
 
 long creature_turn_to_face_angle(struct Thing *thing, long a2)
 {
-  return _DK_creature_turn_to_face_angle(thing, a2);
+    return _DK_creature_turn_to_face_angle(thing, a2);
 }
 
 void creature_set_speed(struct Thing *thing, long speed)
