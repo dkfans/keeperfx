@@ -13,7 +13,6 @@ REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
 
-REM Computer player for first time
 REM New rooms for the player:
 REM   BARRACKS - OK
 REM New creatures for the player:
@@ -111,10 +110,12 @@ CREATE_PARTY(GO)
     ADD_TO_PARTY(GO,BARBARIAN,2,200,ATTACK_ENEMIES,0)
     ADD_TO_PARTY(GO,GIANT,2,400,ATTACK_ENEMIES,0)
 
-CREATE_PARTY(KNIGHT)
-    ADD_TO_PARTY(KNIGHT,BARBARIAN,2,200,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(KNIGHT,BARBARIAN,2,200,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(KNIGHT,KNIGHT,4,200,ATTACK_ENEMIES,0)
+CREATE_PARTY(LANDLORD)
+    ADD_TO_PARTY(LANDLORD,BARBARIAN,2,200,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(LANDLORD,BARBARIAN,2,200,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(LANDLORD,KNIGHT,4,200,ATTACK_ENEMIES,0)
+
+REM ****************************************************************************
 
 REM "You have arrived in the middle of a battle already started. Try to avoid the crossfire until you can eliminate both sides."
 DISPLAY_OBJECTIVE(71,PLAYER0)
@@ -201,9 +202,9 @@ ENDIF
 IF(PLAYER_GOOD,TIMER5 >= 20000)
 	SET_FLAG(PLAYER_GOOD,FLAG0,1)
 	IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,KNIGHT,-2,1)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,LANDLORD,-2,1)
 		SET_FLAG(PLAYER_GOOD,FLAG1,1)
-REM		"The heroes have beed defeated and their lord arrives for one last desperate stand."
+REM		"The heroes have been defeated and their lord arrives for one last desperate stand."
 		DISPLAY_OBJECTIVE(73,PLAYER0)
 		IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
 			IF(PLAYER_GOOD,FLAG0 == 0)

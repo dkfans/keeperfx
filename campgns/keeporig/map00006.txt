@@ -13,7 +13,6 @@ REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
 
-REM Computer player for first time
 REM New rooms for the player:
 REM   TORTURE - OK
 REM   GHOST - OK
@@ -84,6 +83,8 @@ DOOR_AVAILABLE(ALL_PLAYERS,WOOD,1,0)
 TRAP_AVAILABLE(ALL_PLAYERS,POISON_GAS,1,0)
 TRAP_AVAILABLE(PLAYER0,LIGHTNING,1,0)
 DOOR_AVAILABLE(ALL_PLAYERS,BRACED,1,0)
+
+REM ****************************************************************************
 
 REM "This land hangs in the balance of power. All that decides its fate is you and a rival dungeon keeper. Ensure that you are victorious and this realm shall be yours."
 DISPLAY_OBJECTIVE(64,PLAYER0)

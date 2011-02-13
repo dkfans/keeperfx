@@ -1,7 +1,7 @@
 REM ****************************************************************************
 REM  Campaigns Consolidation Project for KeeperFX strategy game.
 REM ****************************************************************************
-REM  Script for Level Wishvale
+REM  Script for Level Tickle
 REM  Campaign: DK Original
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
@@ -13,7 +13,6 @@ REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
 
-REM Computer player for first time
 REM New rooms for the player:
 REM     TEMPLE - OK
 REM New creatures for the player:
@@ -86,7 +85,7 @@ TRAP_AVAILABLE(ALL_PLAYERS,POISON_GAS,1,0)
 TRAP_AVAILABLE(ALL_PLAYERS,LIGHTNING,1,0)
 DOOR_AVAILABLE(ALL_PLAYERS,STEEL,1,0)
 
-REM -----------------------------------------------------------------
+REM ****************************************************************************
 
 REM "Tread carefully dungeon keeper. Rivers of fire snake through this realm. Find the enemy keeper and despatch him to hell."
 DISPLAY_OBJECTIVE(76,PLAYER0)

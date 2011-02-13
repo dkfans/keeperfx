@@ -1,4 +1,17 @@
-REM BELBATA
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for DD Level Belbata
+REM  Campaign: DK Original
+REM  Authors:  based on Bullfrog script
+REM            KeeperFX CCP Team
+REM  Date:     17 Dec 1996 - 11 Feb 2011
+REM  Copying and copyrights:
+REM    This program is free software; you can redistribute it and/or modify
+REM    it under the terms of the GNU General Public License as published by
+REM    the Free Software Foundation; either version 2 of the License, or
+REM    (at your option) any later version.
+REM ****************************************************************************
 
 SET_GENERATE_SPEED(500)
 MAX_CREATURES(PLAYER0,4)
@@ -80,11 +93,13 @@ TRAP_AVAILABLE(ALL_PLAYERS,POISON_GAS,1,0)
 TRAP_AVAILABLE(ALL_PLAYERS,BOULDER,1,0)
 TRAP_AVAILABLE(ALL_PLAYERS,LAVA,1,0)
 
-DISPLAY_OBJECTIVE(894,PLAYER0)
-
 COMPUTER_PLAYER(PLAYER1,1)
 COMPUTER_PLAYER(PLAYER2,1)
 COMPUTER_PLAYER(PLAYER3,4)
+
+REM ****************************************************************************
+
+DISPLAY_OBJECTIVE(894,PLAYER0)
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
 	WIN_GAME
