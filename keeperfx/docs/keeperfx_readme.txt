@@ -350,6 +350,16 @@ New and modified level script commands:
 
 Changelog:
 
+Version: 0.38b
+  Updated scripts for some maps 
+  Fixed killing a creature which has an armour spell casted on
+  Improved some debugging messages
+  Rewritten some of entrance generation code
+  Fixed bug in hero attacking creature code
+  Fixed losing things due to lights overflow
+  Rewritten shot reaching its target
+  Added boulder immunity to creature config files
+
 Version: 0.38a
   Added mouse sensitivity modification option
   Fixed crash on invalid movies video mode
