@@ -72,6 +72,8 @@ REM	Doors and traps availability
 DOOR_AVAILABLE(ALL_PLAYERS,WOOD,1,0)
 TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,0)
 
+REM ****************************************************************************
+
 REM "There is another keeper already here, whose dungeon lies to the north. You will need to build bigger rooms in your dungeon to entice the creatures of this land to work for you and not your rival."
 DISPLAY_OBJECTIVE(57,PLAYER0)
 

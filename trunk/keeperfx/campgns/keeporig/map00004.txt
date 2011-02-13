@@ -68,6 +68,8 @@ MAGIC_AVAILABLE(PLAYER0,POWER_SPEED,1,0)
 MAGIC_AVAILABLE(PLAYER0,POWER_IMP,1,1)
 MAGIC_AVAILABLE(PLAYER0,POWER_HEAL_CREATURE,1,0)
 
+REM ****************************************************************************
+
 REM "Build up a dungeon including a treasure room, a lair, a hatchery, a training room and a research room. Also dig to and claim an entrance. Do not venture north yet as there are powerful enemies there."
 DISPLAY_OBJECTIVE(45,PLAYER0)
 
