@@ -378,13 +378,13 @@ int box_thing_to_special(const struct Thing *thing)
     if ((thing->class_id != TCls_Object) || (thing->model >= OBJECT_TYPES_COUNT))
         return 0;
     return object_to_special[thing->model];
-
+}
 
 int book_thing_to_magic(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return 0;
-    if ((thing->class_id != TCls_Object) || (thing->model >= OBJECT_TYPES_COUNT))
+    if ( (thing->class_id != TCls_Object) || (thing->model >= OBJECT_TYPES_COUNT) )
         return 0;
     return object_to_magic[thing->model];
 }
@@ -393,8 +393,8 @@ int box_thing_to_door_or_trap(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return 0;
-    if ((thing->class_id != TCls_Object) ||
-        (thing->model >= sizeof(object_to_door_or_trap)/sizeof(object_to_door_or_trap[0])))
+    if ( (thing->class_id != TCls_Object) ||
+         (thing->model >= sizeof(object_to_door_or_trap)/sizeof(object_to_door_or_trap[0])) )
       return 0;
     return object_to_door_or_trap[thing->model];
 }
