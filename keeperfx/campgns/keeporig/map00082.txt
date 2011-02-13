@@ -1,4 +1,17 @@
-REM KARI-MAR
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for DD Level Kari-Mar
+REM  Campaign: DK Original
+REM  Authors:  based on Bullfrog script
+REM            KeeperFX CCP Team
+REM  Date:     17 Dec 1996 - 11 Feb 2011
+REM  Copying and copyrights:
+REM    This program is free software; you can redistribute it and/or modify
+REM    it under the terms of the GNU General Public License as published by
+REM    the Free Software Foundation; either version 2 of the License, or
+REM    (at your option) any later version.
+REM ****************************************************************************
 
 SET_GENERATE_SPEED(500)
 MAX_CREATURES(PLAYER0,15)
@@ -37,6 +50,8 @@ ROOM_AVAILABLE(ALL_PLAYERS,GUARD_POST,1,0)
 ROOM_AVAILABLE(ALL_PLAYERS,TORTURE,1,0)
 ROOM_AVAILABLE(ALL_PLAYERS,TEMPLE,1,0)
 ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,WORKSHOP,0,0) 
+ROOM_AVAILABLE(ALL_PLAYERS,GRAVEYARD,0,0)
 ROOM_AVAILABLE(PLAYER3,PRISON,1,0)
 
 MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
@@ -50,6 +65,8 @@ MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SPEED,1,0)
 MAGIC_AVAILABLE(ALL_PLAYERS,POWER_PROTECT,1,0)
 MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CONCEAL,1,0)
 MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CHICKEN,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_DESTROY_WALLS,0,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_DISEASE,0,0)
 
 DOOR_AVAILABLE(ALL_PLAYERS,WOOD,1,0)
 DOOR_AVAILABLE(ALL_PLAYERS,STEEL,1,0)
