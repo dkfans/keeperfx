@@ -73,7 +73,7 @@ short at_scavenger_room(struct Thing *thing)
     }
     crstat = creature_stats_get_from_thing(thing);
     dungeon = get_dungeon(thing->owner);
-    if (crstat->scavenger_cost >= dungeon->money)
+    if (crstat->scavenger_cost >= dungeon->total_money_owned)
     {
         if (is_my_player_number(thing->owner))
             output_message(88, 500, 1);

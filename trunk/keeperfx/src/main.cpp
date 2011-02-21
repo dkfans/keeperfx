@@ -821,7 +821,7 @@ void process_armageddon(void)
       if ( (player_exists(player)) && (player->field_2C == 1) )
       {
         dungeon = get_dungeon(player->id_number);
-        if ( (player->victory_state == VicS_Undecided) && (dungeon->num_active_crtrs == 0))
+        if ( (player->victory_state == VicS_Undecided) && (dungeon->num_active_creatrs == 0))
         {
           event_kill_all_players_events(i);
           set_player_as_lost_level(player);
@@ -3429,7 +3429,7 @@ void calculate_dungeon_area_scores(void)
 void check_map_for_gold(void)
 {
     SYNCDBG(8,"Starting");
-    //_DK_check_map_for_gold();
+    _DK_check_map_for_gold();
 
     //feel free to finish this - I can't decipher enough to make it worthwhile
     /*unsigned char *after_slabs_in_scratch; // edi@1
@@ -5045,7 +5045,7 @@ TbBool generation_available_to_dungeon(struct Dungeon * dungeon)
     SYNCDBG(9,"Starting");
     if (dungeon->room_kind[RoK_ENTRANCE] <= 0)
         return false;
-    return ((long)dungeon->num_active_crtrs < (long)dungeon->max_creatures);
+    return ((long)dungeon->num_active_creatrs < (long)dungeon->max_creatures);
 }
 
 long calculate_attractive_room_quantity(RoomKind room_kind, int plyr_idx, int crtr_kind)
@@ -5235,7 +5235,7 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
 
     if (crkind > 0) {
         lair_space = calculate_free_lair_space(dungeon);
-        if ((long)game.creature_stats[crkind].pay > dungeon->money) {
+        if ((long)game.creature_stats[crkind].pay > dungeon->total_money_owned) {
             if (is_my_player_number(dungeon->owner)) {
                 output_message(SMsg_GoldLow, 500, 1);
             }
@@ -5321,9 +5321,9 @@ void count_dungeon_stuff(void)
     player = get_player(i);
     if (player_exists(player))
     {
-      game.field_14E4A0 += dungeon->money;
-      game.field_14E4A4 += dungeon->num_workers;
-      game.field_14E49E += dungeon->num_active_crtrs;
+      game.field_14E4A0 += dungeon->total_money_owned;
+      game.field_14E4A4 += dungeon->num_active_diggers;
+      game.field_14E49E += dungeon->num_active_creatrs;
     }
   }
 }
@@ -6649,7 +6649,7 @@ void draw_whole_status_panel(void)
     lbDisplay.DrawColour = colours[15][15][15];
     lbDisplay.DrawFlags = 0;
     DrawBigSprite(0, 0, &status_panel, gui_panel_sprites);
-    draw_gold_total(player->id_number, 60, 134, dungeon->money);
+    draw_gold_total(player->id_number, 60, 134, dungeon->total_money_owned);
     if (pixel_size < 3)
         mmzoom = (player->minimap_zoom) / (3-pixel_size);
     else
@@ -7429,8 +7429,8 @@ void init_dungeons(void)
     dungeon->hates_player[i] = game.fight_max_hate;
     dungeon = get_dungeon(i);
     dungeon->hates_player[game.hero_player_num%DUNGEONS_COUNT] = game.fight_max_hate;
-    dungeon->num_workers = 0;
-    dungeon->num_active_crtrs = 0;
+    dungeon->num_active_diggers = 0;
+    dungeon->num_active_creatrs = 0;
     dungeon->creatr_list_start = 0;
     dungeon->digger_list_start = 0;
     dungeon->owner = i;

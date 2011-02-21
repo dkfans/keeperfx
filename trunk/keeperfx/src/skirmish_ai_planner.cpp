@@ -327,7 +327,7 @@ static void prepare_player_state(struct NodePlayerState * state, int plyr_idx)
     plyr = get_player(plyr_idx);
     dungeon = get_players_dungeon(plyr);
 
-    state->gold = dungeon->money;
+    state->gold = dungeon->total_money_owned;
 
     //look up creatures
     for (i = dungeon->creatr_list_start; i != 0; i = cctrl->next_in_group) {
