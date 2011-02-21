@@ -76,7 +76,7 @@ TbBool player_can_afford_to_train_creature(struct Thing *thing)
     //return _DK_player_can_afford_to_train_creature(thing);
     dungeon = get_dungeon(thing->owner);
     crstat = creature_stats_get_from_thing(thing);
-    return (dungeon->money >= crstat->training_cost);
+    return (dungeon->total_money_owned >= crstat->training_cost);
 }
 
 void setup_training_move(struct Thing *thing, SubtlCodedCoords stl_num)
@@ -464,7 +464,7 @@ short at_training_room(struct Thing *thing)
     }
     crstat = creature_stats_get_from_thing(thing);
     dungeon = get_dungeon(thing->owner);
-    if (dungeon->money < crstat->training_cost)
+    if (dungeon->total_money_owned < crstat->training_cost)
     {
         if (is_my_player_number(thing->owner))
             output_message(89, 500, 1);

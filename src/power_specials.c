@@ -351,7 +351,7 @@ void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
 {
   struct Dungeon *dungeon;
   dungeon = get_dungeon(player->id_number);
-  if (dungeon->num_active_crtrs != 0)
+  if (dungeon->num_active_creatrs != 0)
   {
     if (is_my_player(player))
     {
