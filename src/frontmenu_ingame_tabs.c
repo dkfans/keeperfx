@@ -566,15 +566,15 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
 void choose_workshop_item(int kind, int tooltip_id)
 {
     PlayerInfo * player;
-
-    kind = kind % MANUFCTR_TYPES_COUNT;
+    struct TrapData *trap_dat;
 
     player = get_my_player();
-    set_players_packet_action(player, 36, trap_data[kind].field_0,
-        trap_data[kind].field_4, 0, 0);
+    trap_dat = &trap_data[kind%MANUFCTR_TYPES_COUNT];
+    set_players_packet_action(player, 36, trap_dat->field_0,
+        trap_dat->field_4, 0, 0);
 
     game.numfield_151819 = kind;
-    game.numfield_15181D = trap_data[kind].field_8;
+    game.numfield_15181D = trap_dat->field_8;
     game.numfield_151821 = tooltip_id;
 }
 
@@ -686,26 +686,45 @@ void maintain_trap(struct GuiButton *gbtn)
 
 void maintain_door(struct GuiButton *gbtn)
 {
-  struct TrapData *trap_dat;
-  struct Dungeon *dungeon;
-  int i;
-  i = (unsigned int)gbtn->field_33;
-  trap_dat = &trap_data[i%MANUFCTR_TYPES_COUNT];
-  dungeon = get_players_num_dungeon(my_player_number);
-  if (dungeon->door_placeable[trap_dat->field_4%DOOR_TYPES_COUNT])
-  {
-    gbtn->field_1B = 0;
-    set_flag_byte(&gbtn->field_0, 0x08, true);
-  } else
-  {
-    gbtn->field_1B |= 0x8000u;
-    set_flag_byte(&gbtn->field_0, 0x08, false);
-  }
+    struct TrapData *trap_dat;
+    struct Dungeon *dungeon;
+    int i;
+    i = (unsigned int)gbtn->field_33;
+    trap_dat = &trap_data[i%MANUFCTR_TYPES_COUNT];
+    dungeon = get_players_num_dungeon(my_player_number);
+    if (dungeon->door_placeable[trap_dat->field_4%DOOR_TYPES_COUNT])
+    {
+        gbtn->field_1B = 0;
+        set_flag_byte(&gbtn->field_0, 0x08, true);
+    } else
+    {
+        gbtn->field_1B |= 0x8000u;
+        set_flag_byte(&gbtn->field_0, 0x08, false);
+    }
 }
 
 void maintain_big_trap(struct GuiButton *gbtn)
 {
-  _DK_maintain_big_trap(gbtn);
+    struct Dungeon *dungeon;
+    struct TrapData *trap_dat;
+    int i;
+    //_DK_maintain_big_trap(gbtn);
+    trap_dat = &trap_data[game.numfield_151819%MANUFCTR_TYPES_COUNT];
+    dungeon = get_players_num_dungeon(my_player_number);
+    gbtn->field_33 = (unsigned long *)game.numfield_151819;
+    gbtn->field_29 = game.numfield_15181D;
+    gbtn->tooltip_id = game.numfield_151821;
+    i = trap_dat->field_0;
+    if ( ((i == 16) && (dungeon->trap_amount[game.numfield_151819] > 0))
+      || ((i == 18) && (dungeon->door_amount[game.numfield_151819] > 0)) )
+    {
+        gbtn->field_1B = 0;
+        gbtn->field_0 |= 0x08;
+    } else
+    {
+        gbtn->field_1B |= 0x8000u;
+        gbtn->field_0 &= ~0x08;
+    }
 }
 
 void gui_creature_query_background1(struct GuiMenu *gmnu)
