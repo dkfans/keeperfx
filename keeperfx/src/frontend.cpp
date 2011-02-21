@@ -968,7 +968,7 @@ void choose_special_spell(int kind, int tooltip_id)
     dungeon = get_players_num_dungeon(my_player_number);
     set_chosen_spell(kind, tooltip_id);
 
-    if (dungeon->money >= game.magic_stats[kind].cost[0]) {
+    if (dungeon->total_money_owned >= game.magic_stats[kind].cost[0]) {
         pwrdata = get_power_data(kind);
         play_non_3d_sample(pwrdata->field_11); // Play the spell speech
         switch (kind)

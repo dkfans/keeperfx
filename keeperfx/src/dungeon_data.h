@@ -228,8 +228,8 @@ struct Dungeon {
     unsigned char creature_sacrifice[CREATURE_TYPES_COUNT];
     unsigned char creature_sacrifice_exp[CREATURE_TYPES_COUNT];
     unsigned char field_916[2];
-    unsigned char num_workers;
-    unsigned char num_active_crtrs;
+    unsigned char num_active_diggers;
+    unsigned char num_active_creatrs;
     unsigned char owned_creatures_of_model[32];
     unsigned char field_93A;
     unsigned short total_doors;
@@ -255,8 +255,8 @@ struct Dungeon {
     int field_AE5[4];
     short field_AF5;
     short field_AF7;
-    int money;
-    int field_AFD;
+    int total_money_owned;
+    int offmap_money_owned;
     short hates_player[DUNGEONS_COUNT];
     struct MapTask task_list[MAPTASKS_COUNT];
     int field_E8F;

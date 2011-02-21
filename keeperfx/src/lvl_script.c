@@ -1053,8 +1053,8 @@ void player_command_add_start_money(int plridx, long gold_val)
   // note that we can't get_players_num_dungeon() because players
   // may be uninitialized yet when this is called.
   dungeon = get_dungeon(plridx);
-  dungeon->field_AFD += gold_val;
-  dungeon->money += gold_val;
+  dungeon->offmap_money_owned += gold_val;
+  dungeon->total_money_owned += gold_val;
 }
 
 void player_reveal_map_area(int plyr_idx, long x, long y, long w, long h)
@@ -2596,7 +2596,7 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
   {
   case SVar_MONEY:
       dungeon = get_dungeon(plyr_idx);
-      return dungeon->money;
+      return dungeon->total_money_owned;
   case SVar_GAME_TURN:
       return game.play_gameturn;
   case SVar_BREAK_IN:
@@ -2606,17 +2606,17 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
       if (validx == get_players_special_digger_breed(plyr_idx))
       {
         dungeon = get_dungeon(plyr_idx);
-        return dungeon->num_workers;
+        return dungeon->num_active_diggers;
       } else
       {
         return count_player_creatures_of_model(plyr_idx, validx);
       }
   case SVar_TOTAL_IMPS:
       dungeon = get_dungeon(plyr_idx);
-      return dungeon->num_workers;
+      return dungeon->num_active_diggers;
   case SVar_TOTAL_CREATURES:
       dungeon = get_dungeon(plyr_idx);
-      return dungeon->num_active_crtrs - count_player_creatures_not_counting_to_total(plyr_idx);
+      return dungeon->num_active_creatrs - count_player_creatures_not_counting_to_total(plyr_idx);
   case SVar_TOTAL_RESEARCH:
       dungeon = get_dungeon(plyr_idx);
       return dungeon->field_117D / 256;

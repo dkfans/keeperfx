@@ -226,7 +226,7 @@ TbBool pay_for_spell(PlayerNumber plyr_idx, long spkind, long splevel)
     {
     case 2: // Special price algorithm for "create imp" spell
         dungeon = get_players_num_dungeon(plyr_idx);
-        i = dungeon->num_workers - dungeon->creature_sacrifice[23] + 1;
+        i = dungeon->num_active_diggers - dungeon->creature_sacrifice[23] + 1;
         if (i < 1)
           i = 1;
         price = magstat->cost[splevel]*i/2;
@@ -672,14 +672,14 @@ TbBool update_spell_overcharge(struct PlayerInfo *player, int spl_idx)
   i = (player->field_4D2+1) >> 2;
   if (i > SPELL_MAX_LEVEL)
     i = SPELL_MAX_LEVEL;
-  if (mgstat->cost[i] <= dungeon->money)
+  if (mgstat->cost[i] <= dungeon->total_money_owned)
   {
     // If we have more money, increase overcharge
     player->field_4D2++;
   } else
   {
     // If we don't have money, decrease the charge
-    while (mgstat->cost[i] > dungeon->money)
+    while (mgstat->cost[i] > dungeon->total_money_owned)
     {
       i--;
       if (i < 0) break;
