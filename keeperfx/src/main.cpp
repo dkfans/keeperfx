@@ -3426,170 +3426,176 @@ void calculate_dungeon_area_scores(void)
   _DK_calculate_dungeon_area_scores();
 }
 
-void check_map_for_gold(void)
+struct GoldLookup *get_gold_lookup(long idx)
 {
-    SYNCDBG(8,"Starting");
-    _DK_check_map_for_gold();
+    return &game.gold_lookup[idx];
+}
 
-    //feel free to finish this - I can't decipher enough to make it worthwhile
-    /*unsigned char *after_slabs_in_scratch; // edi@1
-    signed int v4; // eax@11
-    unsigned int v5; // edx@11
-    int slab_idx2; // ecx@12
-    unsigned char v7; // bl@14
-    unsigned char v8; // bl@16
-    unsigned char v9; // bl@18
-    unsigned char v10; // bl@20
-    signed int v11; // edx@25
-    signed int v12; // ebx@25
-    char *v13; // ebp@25
-    signed int v14; // ecx@27
-    char *v15; // edx@34
-    signed int v16; // ecx@34
-    unsigned char *after_slabs_in_scratch2; // [sp+10h] [bp-34h]@11
-    signed int gold_index; // [sp+10h] [bp-34h]@25
-    int next_y; // [sp+18h] [bp-2Ch]@11
-    unsigned int v20; // [sp+1Ch] [bp-28h]@11
-    int v21; // [sp+1Ch] [bp-28h]@25
-    signed int next_x; // [sp+20h] [bp-24h]@11
-    signed int x; // [sp+24h] [bp-20h]@8
-    signed int v24; // [sp+28h] [bp-1Ch]@11
-    int v25; // [sp+2Ch] [bp-18h]@11
-    signed int slab_idx; // [sp+30h] [bp-14h]@7
-    signed int gold_count; // [sp+34h] [bp-10h]@7
-    signed int v28; // [sp+38h] [bp-Ch]@11
-    signed int v29; // [sp+3Ch] [bp-8h]@11
-    int y; // [sp+40h] [bp-4h]@7
-    int i;
-
-    for (i = 0; i < 85 * 85; ++i) {
-        scratch[i] = game.slabmap[i].kind != 1 && game.slabmap[i].kind != 52;
+/** Finds a gold vein with smaller amount of gold and gem slabs than given values.
+ *  Gems slabs count has higher priority than gold slabs count.
+ *
+ * @param higher_gold_slabs
+ * @param higher_gem_slabs
+ * @return
+ */
+long smaller_gold_vein_lookup_idx(long higher_gold_slabs, long higher_gem_slabs)
+{
+    struct GoldLookup *gldlook;
+    long gold_slabs, gem_slabs;
+    long gold_idx;
+    long i;
+    gold_slabs = higher_gold_slabs;
+    gem_slabs = higher_gem_slabs;
+    gold_idx = -1;
+    for (i=0; i < GOLD_LOOKUP_COUNT; i++)
+    {
+        gldlook = get_gold_lookup(i);
+        if (gldlook->field_10 == gem_slabs)
+        {
+            if (gldlook->field_A < gold_slabs)
+            {
+              gold_slabs = gldlook->field_A;
+              gold_idx = i;
+            }
+        } else
+        if (gldlook->field_10 < gem_slabs)
+        {
+            gem_slabs = gldlook->field_10;
+            gold_slabs = gldlook->field_A;
+            gold_idx = i;
+        }
     }
+    return gold_idx;
+}
 
-    memset(game.gold_lookup, 0, sizeof(game.gold_lookup));
-    scratch = scratch;
-
-    after_slabs_in_scratch = scratch + 85 * 85;
-    gold_count = 0;
-    for (y = 0; y < 85; ++y) {
-        for (x = 0; x < 85; ++x) {
-            slab_idx = y * 85 + x;
-
-            if ( !(scratch[slab_idx] & 1) && !(scratch[slab_idx] & 2) ) {
-                v5 = 0;
-                next_x = x;
-                next_y = y;
-                v4 = 0;
-                v29 = 0;
-                v28 = 0;
-                v20 = 0;
-                v25 = 0;
-                v24 = 0;
-                scratch[slab_idx] |= 2u;
-                after_slabs_in_scratch2 = after_slabs_in_scratch;
-                do {
-                    v4 += next_x;
-                    ++v28;
-                    v29 += next_y;
-                    slab_idx2 = 85 * next_y + next_x;
-                    if ( game.slabmap[slab_idx2].kind == 52 ) {
-                        ++v25;
-                    }
-                    else {
-                        ++v24;
-                        v7 = scratch[slab_idx2 - 1];
-                        if ( !(v7 & 3) ) {
-                            ++v5;
-                            scratch[slab_idx2 - 1] = v7 | 2;
-                            after_slabs_in_scratch[2 * v5 - 2] = next_x - 1;
-                            after_slabs_in_scratch[2 * v5 - 1] = next_y;
-                        }
-                        v8 = scratch[slab_idx2 + 1];
-                        if ( !(v8 & 3) ) {
-                            ++v5;
-                            scratch[slab_idx2 + 1] = v8 | 2;
-                            after_slabs_in_scratch[2 * v5 - 2] = next_x + 1;
-                            after_slabs_in_scratch[2 * v5 - 1] = next_y;
-                        }
-                        v9 = scratch[slab_idx2 - 85];
-                        if ( !(v9 & 3) ) {
-                            ++v5;
-                            scratch[slab_idx2 - 85] = v9 | 2;
-                            after_slabs_in_scratch[2 * v5 - 2] = next_x;
-                            after_slabs_in_scratch[2 * v5 - 1] = next_y - 1;
-                        }
-                        v10 = scratch[slab_idx2 + 85];
-                        if ( !(v10 & 3) ) {
-                            ++v5;
-                            scratch[slab_idx2 + 85] = v10 | 2;
-                            after_slabs_in_scratch[2 * v5 - 2] = next_x;
-                            after_slabs_in_scratch[2 * v5 - 1] = next_y + 1;
-                        }
-                    }
-                    next_x = (char)*after_slabs_in_scratch2;
-                    next_y = (char)after_slabs_in_scratch2[1];
-                    after_slabs_in_scratch2 += 2;
-                    ++v20;
-                }
-                while ( v5 >= v20 );
-                if ( gold_count < GOLD_LOOKUP_COUNT ) {
-                    gold_index = gold_count++;
-                }
-                else {
-                    if ( v25 ) {
-                        v12 = v24;
-                        v11 = 0;
-                        v13 = (char *)&game.gold_lookup[0].field_10;
-                        v21 = v25;
-                        gold_index = -1;
-                        while ( 1 ) {
-                            if ( *(unsigned *)v13 == v21 ) {
-                                v14 = *((unsigned short *)v13 - 3);
-                                if ( v14 < v12 ) {
-                                    v12 = *((unsigned short *)v13 - 3);
-LABEL_31:
-                                    gold_index = v11;
-                                    goto LABEL_32;
-                                }
-                            }
-                            else {
-                                if ( *(unsigned *)v13 < v21 ) {
-                                    v21 = *(unsigned *)v13;
-                                    v12 = *((unsigned short *)v13 - 3);
-                                    goto LABEL_31;
-                                }
-                            }
-LABEL_32:
-                            v13 += 28;
-                            ++v11;
-                            if ( (unsigned int)v13 >= (unsigned int)&game.block_health[7] )
-                                goto LABEL_41;
-                        }
-                    }
-                    v16 = 0;
-                    v15 = (char *)&game.gold_lookup[0].field_10;
-                    gold_index = -1;
-                    while ( *(unsigned *)v15 || *((unsigned short *)v15 - 3) >= v24 ) {
-                        v15 += 28;
-                        ++v16;
-                        if ( (unsigned int)v15 >= (unsigned int)&game.block_health[7] )
-                            goto LABEL_41;
-                    }
-                    gold_index = v16;
-                }
-LABEL_41:
-                if ( gold_index != -1 ) {
-                    game.gold_lookup[gold_index].field_0 |= 1u;
-                    game.gold_lookup[gold_index].field_6 = 3 * v4 / v28 + 1;
-                    game.gold_lookup[gold_index].field_8 = 3 * v29 / v28 + 1;
-                    game.gold_lookup[gold_index].field_A = v24;
-                    game.gold_lookup[gold_index].field_C = 0;
-                    game.gold_lookup[gold_index].field_E = v24;
-                    game.gold_lookup[gold_index].field_10 = v25;
-                }
+void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, long *gold_next_idx, MapSlabCoord veinslb_x, MapSlabCoord veinslb_y)
+{
+    struct GoldLookup *gldlook;
+    struct SlabMap *slb;
+    SlabCodedCoords slb_num,slb_around;
+    MapSlabCoord slb_x,slb_y;
+    long gold_slabs,gem_slabs;
+    long vein_total,vein_idx;
+    long gld_v1,gld_v2,gld_v3;
+    long gold_idx;
+    // First, find a vein
+    vein_total = 0;
+    slb_x = veinslb_x;
+    slb_y = veinslb_y;
+    gld_v1 = 0;
+    gld_v2 = 0;
+    gld_v3 = 0;
+    gem_slabs = 0;
+    gold_slabs = 0;
+    slb_num = get_slab_number(slb_x, slb_y);
+    treasure_map[slb_num] |= 0x02;
+    for (vein_idx=0; vein_idx <= vein_total; vein_idx++)
+    {
+        gld_v1 += slb_x;
+        gld_v2 += slb_y;
+        gld_v3++;
+        slb_around = get_slab_number(slb_x, slb_y);
+        slb = get_slabmap_direct(slb_around);
+        if (slb->kind == SlbT_GEMS)
+        {
+            gem_slabs++;
+        } else
+        {
+            gold_slabs++;
+            slb_around = get_slab_number(slb_x-1, slb_y);
+            if ((treasure_map[slb_around] & 0x03) == 0)
+            {
+                treasure_map[slb_around] |= 0x02;
+                vein_list[vein_total] = slb_around;
+                vein_total++;
+            }
+            slb_around = get_slab_number(slb_x+1, slb_y);
+            if ((treasure_map[slb_around] & 0x03) == 0)
+            {
+                treasure_map[slb_around] |= 0x02;
+                vein_list[vein_total] = slb_around;
+                vein_total++;
+            }
+            slb_around = get_slab_number(slb_x, slb_y-1);
+            if ((treasure_map[slb_around] & 0x03) == 0)
+            {
+                treasure_map[slb_around] |= 0x02;
+                vein_list[vein_total] = slb_around;
+                vein_total++;
+            }
+            slb_around = get_slab_number(slb_x, slb_y+1);
+            if ((treasure_map[slb_around] & 0x03) == 0)
+            {
+                treasure_map[slb_around] |= 0x02;
+                vein_list[vein_total] = slb_around;
+                vein_total++;
             }
         }
-    }*/
+        // Move to next slab in list
+        slb_x = slb_num_decode_x(vein_list[vein_idx]);
+        slb_y = slb_num_decode_y(vein_list[vein_idx]);
+    }
+    // Now get a GoldLookup struct to put the vein into
+    if (*gold_next_idx < GOLD_LOOKUP_COUNT)
+    {
+        gold_idx = *gold_next_idx;
+        (*gold_next_idx)++;
+    } else
+    {
+        gold_idx = smaller_gold_vein_lookup_idx(gold_slabs, gem_slabs);
+    }
+    // Write the vein to GoldLookup item
+    if (gold_idx != -1)
+    {
+        gldlook = get_gold_lookup(gold_idx);
+        gldlook->field_0 |= 0x01;
+        gldlook->field_6 = 3 * gld_v1 / gld_v3 + 1;
+        gldlook->field_8 = 3 * gld_v2 / gld_v3 + 1;
+        gldlook->field_A = gold_slabs;
+        gldlook->field_C = 0;
+        gldlook->field_E = gold_slabs;
+        gldlook->field_10 = gem_slabs;
+    }
+}
+
+void check_map_for_gold(void)
+{
+    MapSlabCoord slb_x,slb_y;
+    struct SlabMap *slb;
+    SlabCodedCoords slb_num;
+    unsigned char *treasure_map;
+    unsigned short *vein_list;
+    long gold_next_idx;
+    long i;
+    SYNCDBG(8,"Starting");
+    //_DK_check_map_for_gold();
+    for (i=0; i < GOLD_LOOKUP_COUNT; i++) {
+        LbMemorySet(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
+    }
+
+    treasure_map = (unsigned char *)scratch;
+    vein_list = (unsigned short *)&scratch[map_tiles_x*map_tiles_y];
+    for (slb_y = 0; slb_y < map_tiles_y; slb_y++) {
+        for (slb_x = 0; slb_x < map_tiles_x; slb_x++) {
+            slb_num = get_slab_number(slb_x, slb_y);
+            slb = get_slabmap_direct(slb_num);
+            treasure_map[slb_num] = 0;
+            if ( (slb->kind != SlbT_GOLD) && (slb->kind != SlbT_GEMS) ) {
+                treasure_map[slb_num] |= 0x01;
+            }
+        }
+    }
+    gold_next_idx = 0;
+    for (slb_y = 0; slb_y < map_tiles_y; slb_y++) {
+        for (slb_x = 0; slb_x < map_tiles_x; slb_x++) {
+            slb_num = get_slab_number(slb_x, slb_y);
+            if ( ((treasure_map[slb_num] & 0x01) == 0) && ((treasure_map[slb_num] & 0x02) == 0) )
+            {
+                check_treasure_map(treasure_map, vein_list, &gold_next_idx, slb_x, slb_y);
+            }
+        }
+    }
+    SYNCDBG(8,"Found %ld possible digging locations",gold_next_idx);
 }
 
 void gui_set_button_flashing(long btn_idx, long gameturns)
