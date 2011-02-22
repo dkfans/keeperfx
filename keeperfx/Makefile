@@ -23,6 +23,8 @@ WINDRES = windres
 DLLTOOL = dlltool
 EXETODLL = peresec/bin/peresec.exe
 RM = rm -f
+MV = mv -f
+ECHO = @echo
 DOXYTOOL = doxygen
 BIN    = bin/keeperfx.exe
 DBGBIN = bin/keeperfx_dbg.exe
@@ -223,80 +225,81 @@ docsdox: docs/doxygen.conf
 clean: clean-custom
 	-$(RM) $(OBJS) $(BIN) $(DBGBIN) $(LIBS) $(GENSRC)
 	$(MAKE) clean -C peresec
-	-@echo ' '
+	-$(ECHO) ' '
 
 $(BIN) $(DBGBIN): $(GENSRC) $(OBJS) $(LIBS)
-	-@echo 'Building target: $@'
+	-$(ECHO) 'Building target: $@'
 	$(CPP) $(LINKOBJ) -o "$@" $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LDFLAGS)
-	-@echo 'Finished building target: $@'
-	-@echo ' '
+	-$(ECHO) 'Finished building target: $@'
+	-$(ECHO) ' '
 
 obj/%.o: src/%.cpp
-	-@echo 'Building file: $<'
+	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
-	-@echo 'Finished building: $<'
-	-@echo ' '
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
 
 obj/bflib_render_trig.o: src/bflib_render_trig.c
-	-@echo 'Building file: $<'
+	-$(ECHO) 'Building file: $<'
 	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
-	-@echo 'Finished building: $<'
-	-@echo ' '
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
 
 obj/bflib_render_gpoly.o: src/bflib_render_gpoly.c
-	-@echo 'Building file: $<'
+	-$(ECHO) 'Building file: $<'
 	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
-	-@echo 'Finished building: $<'
-	-@echo ' '
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
 
 obj/bflib_render_gtblock.o: src/bflib_render_gtblock.c
-	-@echo 'Building file: $<'
+	-$(ECHO) 'Building file: $<'
 	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
-	-@echo 'Finished building: $<'
-	-@echo ' '
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
 
 obj/bflib_render.o: src/bflib_render.c
-	-@echo 'Building file: $<'
+	-$(ECHO) 'Building file: $<'
 	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
-	-@echo 'Finished building: $<'
-	-@echo ' '
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
 
 obj/%.o: src/%.c
-	-@echo 'Building file: $<'
+	-$(ECHO) 'Building file: $<'
 # In order to make the keeperfx.dll work, we must compile .c files
 # which use variables from the library with c++ compiler. Not sure why..
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 #	$(CC) $(CFLAGS) -o"$@" "$<"
-	-@echo 'Finished building: $<'
-	-@echo ' '
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
 
 obj/ver_defs.h: version.mk Makefile
-	-@echo 'Generating: $@'
-	@echo #define VER_MAJOR         $(VER_MAJOR) > "$@"
-	@echo #define VER_MINOR         $(VER_MINOR) >> "$@"
-	@echo #define VER_RELEASE       $(VER_RELEASE) >> "$@"
-	@echo #define VER_BUILD         $(VER_BUILD) >> "$@"
-	@echo #define VER_STRING        "$(VER_STRING)" >> "$@"
-	-@echo ' '
+	-$(ECHO) 'Generating: $@'
+	$(ECHO) \#define VER_MAJOR   $(VER_MAJOR) > "$(@D)/tmp"
+	$(ECHO) \#define VER_MINOR   $(VER_MINOR) >> "$(@D)/tmp"
+	$(ECHO) \#define VER_RELEASE $(VER_RELEASE) >> "$(@D)/tmp"
+	$(ECHO) \#define VER_BUILD   $(VER_BUILD) >> "$(@D)/tmp"
+	$(ECHO) \#define VER_STRING  "$(VER_STRING)" >> "$(@D)/tmp"
+	$(MV) "$(@D)/tmp" "$@"
+	-$(ECHO) ' '
 
 lib/libkeeperfx.a: bin/keeperfx.dll lib/keeperfx.def
-	-@echo 'Generating gcc library archive for: $<'
+	-$(ECHO) 'Generating gcc library archive for: $<'
 	$(DLLTOOL) --dllname "$<" --def "lib/keeperfx.def" --output-lib "$@"
-	-@echo 'Finished generating: $@'
-	-@echo ' '
+	-$(ECHO) 'Finished generating: $@'
+	-$(ECHO) ' '
 
 bin/keeperfx.dll lib/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $(EXETODLL)
-	-@echo 'Rebuilding DLL export table from: $<'
+	-$(ECHO) 'Rebuilding DLL export table from: $<'
 	$(EXETODLL) -o"$@" --def "lib/keeperfx.def" -p"_DK_" "$<"
-	-@echo 'Finished creating: $@'
-	-@echo ' '
+	-$(ECHO) 'Finished creating: $@'
+	-$(ECHO) ' '
 
 $(EXETODLL): peresec/src/peresec.c peresec/Makefile
 	$(MAKE) -C peresec
 
 obj/%.res: res/%.rc
-	-@echo 'Building resource: $<'
+	-$(ECHO) 'Building resource: $<'
 	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff
-	-@echo 'Finished building: $<'
-	-@echo ' '
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
 #******************************************************************************
