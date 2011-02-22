@@ -208,15 +208,6 @@ WARNFLAGS = -Wall -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing
 CXXFLAGS = $(CXXINCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
 CFLAGS = $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
 
-# portability between GNU and non-GNU utilities
-# the GNU echo shall display version number when supplied --version parameter (still, this is untested)
--BUGGY_ECHO=$(shell echo --version)
-ifeq ($(BUGGY_ECHO), "--version")
-BUGGY_ECHO=1
-else
-BUGGY_ECHO=0
-endif
-
 .PHONY: all all-before all-after debug docs docsdox clean clean-custom
 
 all: all-before $(BIN) all-after
@@ -230,7 +221,7 @@ docsdox: docs/doxygen.conf
 	VERSION=$(VER_STRING) $(DOXYTOOL) docs/doxygen.conf
 
 clean: clean-custom
-	-$(RM) $(OBJS) $(BIN) $(DBGBIN) $(LIBS)
+	-$(RM) $(OBJS) $(BIN) $(DBGBIN) $(LIBS) $(GENSRC)
 	$(MAKE) clean -C peresec
 	-@echo ' '
 
@@ -280,21 +271,12 @@ obj/%.o: src/%.c
 	-@echo ' '
 
 obj/ver_defs.h: version.mk Makefile
-ifeq ($(BUGGY_ECHO), 1)
-	-@echo 'Generating: $@ (w/buggy echo)'
+	-@echo 'Generating: $@'
 	@echo #define VER_MAJOR         $(VER_MAJOR) > "$@"
 	@echo #define VER_MINOR         $(VER_MINOR) >> "$@"
 	@echo #define VER_RELEASE       $(VER_RELEASE) >> "$@"
 	@echo #define VER_BUILD         $(VER_BUILD) >> "$@"
 	@echo #define VER_STRING        "$(VER_STRING)" >> "$@"
-else
-	-@echo 'Generating: $@ (w/gnu echo)'
-	@echo '#define VER_MAJOR         $(VER_MAJOR)' > "$@"
-	@echo '#define VER_MINOR         $(VER_MINOR)' >> "$@"
-	@echo '#define VER_RELEASE       $(VER_RELEASE)' >> "$@"
-	@echo '#define VER_BUILD         $(VER_BUILD)' >> "$@"
-	@echo '#define VER_STRING        "$(VER_STRING)"' >> "$@"
-endif
 	-@echo ' '
 
 lib/libkeeperfx.a: bin/keeperfx.dll lib/keeperfx.def
