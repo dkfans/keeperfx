@@ -208,6 +208,15 @@ WARNFLAGS = -Wall -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing
 CXXFLAGS = $(CXXINCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
 CFLAGS = $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
 
+# portability between GNU and non-GNU utilities
+# the GNU echo shall display version number when supplied --version parameter (still, this is untested)
+-BUGGY_ECHO=$(shell echo --version)
+ifeq ($(BUGGY_ECHO), "--version")
+BUGGY_ECHO=1
+else
+BUGGY_ECHO=0
+endif
+
 .PHONY: all all-before all-after debug docs docsdox clean clean-custom
 
 all: all-before $(BIN) all-after
@@ -226,75 +235,86 @@ clean: clean-custom
 	-@echo ' '
 
 $(BIN) $(DBGBIN): $(GENSRC) $(OBJS) $(LIBS)
-	@echo 'Building target: $@'
+	-@echo 'Building target: $@'
 	$(CPP) $(LINKOBJ) -o "$@" $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LDFLAGS)
-	@echo 'Finished building target: $@'
-	@echo ' '
+	-@echo 'Finished building target: $@'
+	-@echo ' '
 
 obj/%.o: src/%.cpp
-	@echo 'Building file: $<'
+	-@echo 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
+	-@echo 'Finished building: $<'
+	-@echo ' '
 
 obj/bflib_render_trig.o: src/bflib_render_trig.c
-	@echo 'Building file: $<'
+	-@echo 'Building file: $<'
 	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
+	-@echo 'Finished building: $<'
+	-@echo ' '
 
 obj/bflib_render_gpoly.o: src/bflib_render_gpoly.c
-	@echo 'Building file: $<'
+	-@echo 'Building file: $<'
 	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
+	-@echo 'Finished building: $<'
+	-@echo ' '
 
 obj/bflib_render_gtblock.o: src/bflib_render_gtblock.c
-	@echo 'Building file: $<'
+	-@echo 'Building file: $<'
 	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
+	-@echo 'Finished building: $<'
+	-@echo ' '
 
 obj/bflib_render.o: src/bflib_render.c
-	@echo 'Building file: $<'
+	-@echo 'Building file: $<'
 	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
+	-@echo 'Finished building: $<'
+	-@echo ' '
 
 obj/%.o: src/%.c
-	@echo 'Building file: $<'
+	-@echo 'Building file: $<'
 # In order to make the keeperfx.dll work, we must compile .c files
 # which use variables from the library with c++ compiler. Not sure why..
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 #	$(CC) $(CFLAGS) -o"$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
+	-@echo 'Finished building: $<'
+	-@echo ' '
 
 obj/ver_defs.h: version.mk Makefile
+ifeq ($(BUGGY_ECHO), 1)
+	-@echo 'Generating: $@ (w/buggy echo)'
 	@echo #define VER_MAJOR         $(VER_MAJOR) > "$@"
 	@echo #define VER_MINOR         $(VER_MINOR) >> "$@"
 	@echo #define VER_RELEASE       $(VER_RELEASE) >> "$@"
 	@echo #define VER_BUILD         $(VER_BUILD) >> "$@"
 	@echo #define VER_STRING        "$(VER_STRING)" >> "$@"
+else
+	-@echo 'Generating: $@ (w/gnu echo)'
+	@echo '#define VER_MAJOR         $(VER_MAJOR)' > "$@"
+	@echo '#define VER_MINOR         $(VER_MINOR)' >> "$@"
+	@echo '#define VER_RELEASE       $(VER_RELEASE)' >> "$@"
+	@echo '#define VER_BUILD         $(VER_BUILD)' >> "$@"
+	@echo '#define VER_STRING        "$(VER_STRING)"' >> "$@"
+endif
+	-@echo ' '
 
 lib/libkeeperfx.a: bin/keeperfx.dll lib/keeperfx.def
-	@echo 'Generating gcc library archive for: $<'
+	-@echo 'Generating gcc library archive for: $<'
 	$(DLLTOOL) --dllname "$<" --def "lib/keeperfx.def" --output-lib "$@"
-	@echo 'Finished generating: $@'
-	@echo ' '
+	-@echo 'Finished generating: $@'
+	-@echo ' '
 
 bin/keeperfx.dll lib/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $(EXETODLL)
-	@echo 'Rebuilding DLL export table from: $<'
+	-@echo 'Rebuilding DLL export table from: $<'
 	$(EXETODLL) -o"$@" --def "lib/keeperfx.def" -p"_DK_" "$<"
-	@echo 'Finished creating: $@'
-	@echo ' '
+	-@echo 'Finished creating: $@'
+	-@echo ' '
 
 $(EXETODLL): peresec/src/peresec.c peresec/Makefile
 	$(MAKE) -C peresec
 
 obj/%.res: res/%.rc
-	@echo 'Building resource: $<'
+	-@echo 'Building resource: $<'
 	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff
-	@echo 'Finished building: $<'
-	@echo ' '
+	-@echo 'Finished building: $<'
+	-@echo ' '
 #******************************************************************************
