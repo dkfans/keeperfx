@@ -278,7 +278,7 @@ obj/ver_defs.h: version.mk Makefile
 	$(ECHO) \#define VER_MINOR   $(VER_MINOR) >> "$(@D)/tmp"
 	$(ECHO) \#define VER_RELEASE $(VER_RELEASE) >> "$(@D)/tmp"
 	$(ECHO) \#define VER_BUILD   $(VER_BUILD) >> "$(@D)/tmp"
-	$(ECHO) \#define VER_STRING  "$(VER_STRING)" >> "$(@D)/tmp"
+	$(ECHO) \#define VER_STRING  \"$(VER_STRING)\" >> "$(@D)/tmp"
 	$(MV) "$(@D)/tmp" "$@"
 	-$(ECHO) ' '
 

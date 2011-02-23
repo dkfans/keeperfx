@@ -58,7 +58,7 @@ struct SPState
     NetDropCallback     drop_callback;
 };
 
-static SPState spstate;
+static struct SPState spstate;
 
 static TbError  tcpSP_init(NetDropCallback drop_callback);
 static void     tcpSP_exit(void);
@@ -496,7 +496,7 @@ static void tcpSP_sendmsg_all(const char * buffer, size_t size)
 
 static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
 {
-    Msg * msg;
+    struct Msg * msg;
 
     NETDBG(9, "Starting message ready check for user %u", source);
 
@@ -527,7 +527,7 @@ static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
 
 static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
 {
-    Msg * msg;
+    struct Msg * msg;
     size_t size;
 
     assert(buffer);

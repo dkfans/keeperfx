@@ -295,7 +295,8 @@ struct M33 { // sizeof = 48
 };
 
 struct EngineCol {
-//TODO figure out the EngineCol struct
+    //TODO figure out the EngineCol struct
+    unsigned char field_0;
 };
 
 struct MapVolumeBox { // sizeof = 24
@@ -437,6 +438,14 @@ DLLIMPORT struct Thing *_DK_thing_being_displayed;
 #define thing_being_displayed _DK_thing_being_displayed
 DLLIMPORT unsigned char _DK_thing_being_displayed_is_creature;
 #define thing_being_displayed_is_creature _DK_thing_being_displayed_is_creature
+DLLIMPORT extern struct EngineCol _DK_ecs1[];
+#define ecs1 _DK_ecs1
+DLLIMPORT extern struct EngineCol _DK_ecs2[];
+#define ecs2 _DK_ecs2
+DLLIMPORT extern struct EngineCol *_DK_front_ec;
+#define front_ec _DK_front_ec
+DLLIMPORT extern struct EngineCol *_DK_back_ec;
+#define back_ec _DK_back_ec
 /******************************************************************************/
 //extern unsigned char temp_cluedo_mode;
 /******************************************************************************/
