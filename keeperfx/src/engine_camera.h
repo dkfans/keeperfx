@@ -70,14 +70,6 @@ DLLIMPORT extern struct M33 _DK_camera_matrix;
 #define camera_matrix _DK_camera_matrix
 DLLIMPORT extern struct EngineCoord _DK_object_origin;
 #define object_origin _DK_object_origin
-DLLIMPORT extern struct EngineCol _DK_ecs1[];
-#define ecs1 _DK_ecs1
-DLLIMPORT extern struct EngineCol _DK_ecs2[];
-#define ecs2 _DK_ecs2
-DLLIMPORT extern struct EngineCol *_DK_front_ec;
-#define front_ec _DK_front_ec
-DLLIMPORT extern struct EngineCol *_DK_back_ec;
-#define back_ec _DK_back_ec
 DLLIMPORT extern struct MinMax _DK_minmaxs[];
 #define minmaxs _DK_minmaxs
 /******************************************************************************/

@@ -335,7 +335,7 @@ long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long le
 }
 
 /**
- * Flushes the file buffers, writing all data immediatelly.
+ * Flushes the file buffers, writing all data immediately.
  * @return Returns 1 on success, 0 on error.
 */
 short LbFileFlush(TbFileHandle handle)
@@ -346,13 +346,13 @@ short LbFileFlush(TbFileHandle handle)
   result = FlushFileBuffers((HANDLE)handle);
   // It returns 'invalid handle' error sometimes for no reason.. so disabling this error
   if (result != 0)
-      return true;
+      return 1;
   result = GetLastError();
   return ((result == 0) || (result == 6));
 #else
 #if defined(DOS)||defined(GO32)
   // No idea how to do this on old systems
-  return true;
+  return 1;
 #else
   // For normal POSIX systems
   // (should also work on Win, as its IEEE standard... but it currently isn't)
