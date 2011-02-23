@@ -636,7 +636,7 @@ inline void LbDrawBufferSolid(unsigned char **buf_out,const char *buf_inp,
  * @param mirror
  */
 inline void LbDrawBufferOneColour(unsigned char **buf_out,const TbPixel colour,
-        const int buf_len, const bool mirror)
+        const int buf_len, const TbBool mirror)
 {
   int i;
   if ( mirror )

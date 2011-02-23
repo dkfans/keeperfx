@@ -92,6 +92,7 @@ enum TbPacketControl {
 #pragma pack(1)
 
 struct PlayerInfo;
+struct CatalogueEntry;
 
 struct Packet { // sizeof = 0x11 (17)
     int field_0;
