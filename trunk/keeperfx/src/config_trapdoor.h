@@ -74,6 +74,7 @@ const char *door_code_name(int tngmodel);
 const char *trap_code_name(int tngmodel);
 int door_model_id(const char * code_name);
 int trap_model_id(const char * code_name);
+TbBool is_trap_placeable(long plyr_idx, long trap_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

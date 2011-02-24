@@ -74,7 +74,7 @@ DLLIMPORT extern unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
 struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
 struct Objects *get_objects_data_for_thing(struct Thing *thing);
 struct Objects *get_objects_data(unsigned int tmodel);
-unsigned int get_workshop_object_class_for_thing(struct Thing *thing);
+unsigned int get_workshop_object_class_for_thing(const struct Thing *thing);
 unsigned int get_workshop_object_class(unsigned int tmodel);
 struct Thing *get_spellbook_at_position(long x, long y);
 struct Thing *get_special_at_position(long x, long y);

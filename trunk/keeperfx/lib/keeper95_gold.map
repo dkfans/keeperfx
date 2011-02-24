@@ -1860,3 +1860,15 @@
  0001:00050060       slide_thing_against_wall_at
  0001:00050430       bounce_thing_off_wall_at
  0001:00091310       process_dig_shot_hit_wall
+ 0001:00088680       check_for_empty_trap_for_imp
+ 0001:000D0C80       check_out_object_for_trap
+ 0001:000D0D90       check_out_unclaimed_traps
+ 0001:000D1030       check_out_unclaimed_spells
+ 0001:000D1260       check_out_unclaimed_dead_bodies
+ 0001:000D13E0       check_out_unclaimed_unconscious_bodies
+ 0001:000D1550       check_out_unclaimed_gold
+ 0001:000D1B00       check_out_unconverted_drop_place
+ 0001:000D1DF0       check_out_unprettied_drop_place
+ 0001:000D2300       check_out_undug_drop_place
+ 0001:0008C6A0       imp_will_soon_be_getting_object
+ 0001:0008C750       imp_will_soon_be_arming_trap

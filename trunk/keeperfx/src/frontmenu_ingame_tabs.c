@@ -31,6 +31,7 @@
 #include "creature_control.h"
 #include "config_creature.h"
 #include "config_magic.hpp"
+#include "config_trapdoor.h"
 #include "room_workshop.h"
 #include "gui_frontbtns.h"
 #include "gui_draw.h"
@@ -647,14 +648,14 @@ void maintain_spell(struct GuiButton *gbtn)
   if (!is_power_available(player->id_number,i))
   {
     gbtn->field_1B |= 0x8000u;
-    gbtn->field_0 &= 0xF7;
+    gbtn->field_0 &= ~0x08;
   } else
   if (i == 19)
   {
       if (game.field_150356 != 0)
       {
         gbtn->field_1B |= 0x8000u;
-        gbtn->field_0 &= 0xF7;
+        gbtn->field_0 &= ~0x08;
       } else
       {
         gbtn->field_1B = 0;
@@ -666,7 +667,7 @@ void maintain_spell(struct GuiButton *gbtn)
       if (dungeon->field_88C[0])
       {
         gbtn->field_1B |= 0x8000u;
-        gbtn->field_0 &= 0xF7;
+        gbtn->field_0 &= ~0x08;
       } else
       {
         gbtn->field_1B = 0;
@@ -681,7 +682,18 @@ void maintain_spell(struct GuiButton *gbtn)
 
 void maintain_trap(struct GuiButton *gbtn)
 {
-  _DK_maintain_trap(gbtn);
+    int i;
+    //_DK_maintain_trap(gbtn);
+    i = (unsigned long)(gbtn->field_33) & 0xff;
+    if (is_trap_placeable(my_player_number, i))
+    {
+      gbtn->field_1B = 0;
+      gbtn->field_0 |= 0x08;
+    } else
+    {
+        gbtn->field_1B |= 0x8000u;
+        gbtn->field_0 &= ~0x08;
+    }
 }
 
 void maintain_door(struct GuiButton *gbtn)

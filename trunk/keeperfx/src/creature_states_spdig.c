@@ -39,6 +39,10 @@
 
 #include "keeperfx.hpp"
 
+/** Effects used when creating new imps. Every player color has different index. */
+const int birth_effect_element[] = { 54, 79, 80, 81, 82, 82, };
+const unsigned char reinforce_edges[] = { 3, 0, 0, 3, 0, 1, 2, 2, 1, };
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -66,11 +70,253 @@ DLLIMPORT short _DK_creature_drops_corpse_in_graveyard(struct Thing *thing);
 DLLIMPORT short _DK_creature_drops_crate_in_workshop(struct Thing *thing);
 DLLIMPORT short _DK_creature_drops_spell_object_in_library(struct Thing *thing);
 DLLIMPORT short _DK_creature_arms_trap(struct Thing *thing);
+DLLIMPORT long _DK_check_out_unclaimed_unconscious_bodies(struct Thing *thing, long a1);
+DLLIMPORT long _DK_check_out_unclaimed_dead_bodies(struct Thing *thing, long a1);
+DLLIMPORT long _DK_check_out_unclaimed_spells(struct Thing *thing, long a1);
+DLLIMPORT long _DK_check_out_unclaimed_traps(struct Thing *thing, long a1);
+DLLIMPORT long _DK_check_out_unconverted_drop_place(struct Thing *thing);
+DLLIMPORT long _DK_check_out_undug_drop_place(struct Thing *thing);
+DLLIMPORT long _DK_check_out_unprettied_drop_place(struct Thing *thing);
+DLLIMPORT long _DK_check_out_unclaimed_gold(struct Thing *thing, long a1);
+DLLIMPORT long _DK_imp_will_soon_be_arming_trap(struct Thing *thing);
+DLLIMPORT long _DK_check_out_object_for_trap(struct Thing *digger, struct Thing *thing);
+DLLIMPORT struct Thing *_DK_check_for_empty_trap_for_imp(struct Thing *digger, long a2);
+DLLIMPORT long _DK_imp_will_soon_be_getting_object(long a2, struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
+long check_out_unclaimed_unconscious_bodies(struct Thing *thing, long a1)
+{
+    return _DK_check_out_unclaimed_unconscious_bodies(thing, a1);
+}
+
+long check_out_unclaimed_dead_bodies(struct Thing *thing, long a1)
+{
+    return _DK_check_out_unclaimed_dead_bodies(thing, a1);
+}
+
+long check_out_unclaimed_spells(struct Thing *thing, long a1)
+{
+    return _DK_check_out_unclaimed_spells(thing, a1);
+}
+
+long check_out_unclaimed_traps(struct Thing *thing, long a1)
+{
+    return _DK_check_out_unclaimed_traps(thing, a1);
+}
+
+long check_out_unconverted_drop_place(struct Thing *thing)
+{
+    return _DK_check_out_unconverted_drop_place(thing);
+}
+
+long check_out_undug_drop_place(struct Thing *thing)
+{
+    return _DK_check_out_undug_drop_place(thing);
+}
+
+long check_out_unclaimed_gold(struct Thing *thing, long a1)
+{
+    return _DK_check_out_unclaimed_gold(thing, a1);
+}
+
+long check_out_unprettied_drop_place(struct Thing *thing)
+{
+    return _DK_check_out_unprettied_drop_place(thing);
+}
+
+long imp_will_soon_be_arming_trap(struct Thing *thing)
+{
+    return _DK_imp_will_soon_be_arming_trap(thing);
+}
+
+long check_out_object_for_trap(struct Thing *digger, struct Thing *thing)
+{
+    return _DK_check_out_object_for_trap(digger, thing);
+}
+
+long check_out_empty_traps(struct Thing *digger, long range)
+{
+    struct Thing *thing;
+    long i;
+    unsigned long k;
+    k = 0;
+    i = game.thing_lists[7].index;
+    while (i > 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+          break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if ( (thing->byte_13 == 0) && (thing->owner == digger->owner) )
+        {
+            if ( (range < 0) || (get_2d_box_distance(&thing->mappos, &digger->mappos) < range) )
+            {
+
+                if ( !imp_will_soon_be_arming_trap(thing) && check_out_object_for_trap(digger, thing) ) {
+                    return 1;
+                }
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+    return 0;
+}
+
+long check_out_unreinforced_drop_place(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    MapSubtlCoord stl_x,stl_y;
+    MapSlabCoord slb_x,slb_y;
+    long stl_num;
+    long pos_x,pos_y;
+    long i,n;
+    stl_x = thing->mappos.x.stl.num;
+    stl_y = thing->mappos.y.stl.num;
+    cctrl = creature_control_get_from_thing(thing);
+    n = reinforce_edges[3 * (stl_y % 3) + (stl_x % 3)];
+    for (i=0; i < 4; i++)
+    {
+        slb_x = map_to_slab[stl_x] + (long)small_around[n].delta_x;
+        slb_y = map_to_slab[stl_y] + (long)small_around[n].delta_y;
+        if ( check_place_to_reinforce(thing, slb_x, slb_y) > 0 )
+        {
+            stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
+            if ( check_out_uncrowded_reinforce_position(thing, stl_num, &pos_x, &pos_y) )
+            {
+                if ( setup_person_move_to_position(thing, pos_x, pos_y, 0) )
+                {
+                    thing->continue_state = 97;
+                    cctrl->word_8D = stl_num;
+                    cctrl->byte_93 = 0;
+                    return 1;
+                }
+            }
+        }
+        n = (n + 1) % 4;
+    }
+    return 0;
+}
+
+struct Thing *check_for_empty_trap_for_imp(struct Thing *digger, long a2)
+{
+    return _DK_check_for_empty_trap_for_imp(digger, a2);
+}
+
+long imp_will_soon_be_getting_object(long a2, struct Thing *thing)
+{
+    return _DK_imp_will_soon_be_getting_object(a2, thing);
+}
+
+long check_out_crates_to_arm_trap_in_room(struct Thing *digger)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    struct Thing *traptng;
+    struct Room *room;
+    long i;
+    unsigned long k;
+    cctrl = creature_control_get_from_thing(digger);
+    room = get_room_thing_is_on(digger);
+    if (room_is_invalid(room)) {
+        return 0;
+    }
+    if ( (room->kind != RoK_WORKSHOP) || (room->owner != digger->owner) ) {
+        return 0;
+    }
+
+    k = 0;
+    i = game.thing_lists[2].index;
+    while (i > 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+          break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if ( thing_is_trap_box(thing) )
+        {
+          if ( ((thing->field_1 & 0x01) == 0) && (get_room_thing_is_on(thing) == room) )
+          {
+              traptng = check_for_empty_trap_for_imp(digger, box_thing_to_door_or_trap(thing));
+              if (thing_is_invalid(traptng))
+              {
+                  if ( !imp_will_soon_be_getting_object(digger->owner, thing)
+                    && setup_person_move_to_position(digger, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0) )
+                  {
+                      digger->continue_state = CrSt_CreaturePicksUpTrapObject;
+                      cctrl->field_72 = thing->index;
+                      cctrl->field_70 = traptng->index;
+                      return 1;
+                  }
+              }
+          }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+    return 0;
+}
+
+long check_out_available_imp_drop_tasks(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+
+    if ( check_out_unclaimed_unconscious_bodies(thing, 768)
+      || check_out_unclaimed_dead_bodies(thing, 768)
+      || check_out_unclaimed_spells(thing, 768)
+      || check_out_unclaimed_traps(thing, 768)
+      || check_out_empty_traps(thing, 768) )
+    {
+        return 1;
+    }
+    if ( check_out_undug_drop_place(thing) )
+    {
+        cctrl->byte_94 = 1;
+        return 1;
+    }
+    if ( check_out_unconverted_drop_place(thing) )
+    {
+        cctrl->byte_94 = 2;
+        return 1;
+    }
+    if ( check_out_unprettied_drop_place(thing) )
+    {
+        cctrl->byte_94 = 2;
+        return 1;
+    }
+    if ( check_out_unclaimed_gold(thing, 768) )
+    {
+        return 1;
+    }
+    if ( check_out_unreinforced_drop_place(thing) )
+    {
+        cctrl->byte_94 = 9;
+        return 1;
+    }
+    if ( check_out_crates_to_arm_trap_in_room(thing) )
+    {
+        return 1;
+    }
+    cctrl->byte_94 = 0;
+    return 0;
+}
+
 short imp_arrives_at_convert_dungeon(struct Thing *thing)
 {
     //return _DK_imp_arrives_at_convert_dungeon(thing);
@@ -113,7 +359,23 @@ short imp_arrives_at_reinforce(struct Thing *thing)
 
 short imp_birth(struct Thing *thing)
 {
-  return _DK_imp_birth(thing);
+    struct CreatureStats *crstat;
+    long i;
+    //return _DK_imp_birth(thing);
+    if ( thing_touching_floor(thing) )
+    {
+      if (!check_out_available_imp_drop_tasks(thing)) {
+          set_start_state(thing);
+      }
+      return 1;
+    }
+    i = game.play_gameturn - thing->field_9;
+    if ((i % 2) == 0) {
+      create_effect_element(&thing->mappos, birth_effect_element[thing->owner], thing->owner);
+    }
+    crstat = creature_stats_get_from_thing(thing);
+    creature_turn_to_face_angle(thing, i * (long)crstat->max_angle_change);
+    return 0;
 }
 
 short imp_converts_dungeon(struct Thing *thing)
