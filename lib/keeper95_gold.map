@@ -700,6 +700,7 @@
  0001:000884B0       check_place_to_pickup_dead_body
  0001:00088530       check_place_to_pickup_spell
  0001:000885F0       check_place_to_pickup_crate
+ 0001:00088680       check_for_empty_trap_for_imp
  0001:000886F0       check_for_empty_trap_for_imp_not_being_armed
  0001:00088760       check_place_to_pickup_gold
  0001:00088DB0       creature_vandalise_rooms
@@ -732,6 +733,8 @@
  0001:0008C230       lightning_is_close_to_player
  0001:0008C260       lightning_modify_palette
  0001:0008C560       slab_by_players_land
+ 0001:0008C6A0       imp_will_soon_be_getting_object
+ 0001:0008C750       imp_will_soon_be_arming_trap
  0001:0008C900       imp_will_soon_be_working_at_excluding
  0001:0008CAB0       check_place_to_dig_and_get_position
  0001:0008CE70       check_out_uncrowded_reinforce_position
@@ -1162,10 +1165,19 @@
  0001:000CF000       creature_cannot_move_directly_to
  0001:000D0700       get_shot_collided_with_same_type
  0001:000D0890       get_thing_collided_with_at_satisfying_filter
+ 0001:000D0C80       check_out_object_for_trap
+ 0001:000D0D90       check_out_unclaimed_traps
+ 0001:000D1030       check_out_unclaimed_spells
+ 0001:000D1260       check_out_unclaimed_dead_bodies
+ 0001:000D13E0       check_out_unclaimed_unconscious_bodies
+ 0001:000D1550       check_out_unclaimed_gold
  0001:000D1780       check_out_unconverted_spiral
+ 0001:000D1B00       check_out_unconverted_drop_place
  0001:000D1BB0       check_out_unprettied_spiral
+ 0001:000D1DF0       check_out_unprettied_drop_place
  0001:000D1EA0       check_out_unprettied_or_unconverted_area
  0001:000D2170       check_out_undug_place
+ 0001:000D2300       check_out_undug_drop_place
  0001:000D2490       check_out_undug_area
  0001:000D27B0       check_out_unreinforced_place
  0001:000D2A30       check_out_unreinforced_area

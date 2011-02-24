@@ -355,7 +355,7 @@ struct Objects *get_objects_data(unsigned int tmodel)
     return &objects_data[tmodel];
 }
 
-unsigned int get_workshop_object_class_for_thing(struct Thing *thing)
+unsigned int get_workshop_object_class_for_thing(const struct Thing *thing)
 {
     unsigned int tmodel;
     tmodel = thing->model;

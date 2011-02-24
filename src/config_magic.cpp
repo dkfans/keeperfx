@@ -877,17 +877,16 @@ TbBool is_power_available(long plyr_idx, long spl_idx)
     if (dungeon_invalid(dungeon))
         return false;
     // Player must have dungeon heart to cast spells
-    if (dungeon->dnheart_idx <= 0)
-    {
+    if (dungeon->dnheart_idx <= 0) {
         return false;
     }
-    if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT))
-    {
+    if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT)) {
       ERRORLOG("Incorrect spell %ld (player %ld)",spl_idx, plyr_idx);
       return false;
     }
-    if (dungeon->magic_level[spl_idx] > 0)
+    if (dungeon->magic_level[spl_idx] > 0) {
       return true;
+    }
     return false;
 }
 
