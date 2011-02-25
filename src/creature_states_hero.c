@@ -198,7 +198,7 @@ long get_wanderer_possible_targets_count_in_list(long first_thing_idx, struct Th
             ERRORLOG("Jump to invalid creature detected");
             break;
         }
-        i = cctrl->next_players_creature_idx;
+        i = cctrl->players_next_creature_idx;
         // Thing list loop body
         if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
         {
@@ -237,7 +237,7 @@ TbBool wander_to_specific_possible_target_in_list(long first_thing_idx, struct T
             ERRORLOG("Jump to invalid creature detected");
             break;
         }
-        i = cctrl->next_players_creature_idx;
+        i = cctrl->players_next_creature_idx;
         // Thing list loop body
         if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
         {

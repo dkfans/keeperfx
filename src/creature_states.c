@@ -536,11 +536,20 @@ struct StateInfo *get_thing_state_info_num(long state_id)
   return &states[state_id];
 }
 
-long get_creature_real_state(const struct Thing *thing)
+long get_creature_state_besides_move(const struct Thing *thing)
 {
     long i;
     i = thing->active_state;
     if (i == CrSt_MoveToPosition)
+        i = thing->continue_state;
+    return i;
+}
+
+long get_creature_state_besides_drag(const struct Thing *thing)
+{
+    long i;
+    i = thing->active_state;
+    if (i == CrSt_MoveBackwardsToPosition)
         i = thing->continue_state;
     return i;
 }
@@ -931,7 +940,7 @@ short at_barrack_room(struct Thing *thing)
     }
     if ((room->kind != RoK_BARRACKS) || (room->owner != thing->owner))
     {
-        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return 0;
@@ -1314,7 +1323,7 @@ TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long
 {
     if (room->kind != RoK_LIBRARY)
     {
-        SYNCDBG(4,"Spell was placed in a room of kind %d instead of library",(int)room->kind);
+        SYNCDBG(4,"Spell was placed in a %s room instead of library",room_code_name(room->kind));
         return false;
     }
     if (spelltng->owner != room->owner)

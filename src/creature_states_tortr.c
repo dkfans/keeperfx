@@ -69,7 +69,7 @@ short at_kinky_torture_room(struct Thing *thing)
     }
     if ((room->kind != RoK_TORTURE) || (room->owner != thing->owner))
     {
-        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);
         return 0;
     }
@@ -171,7 +171,7 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     newthing = create_creature(&thing->mappos, crmodel, room->owner);
     if (thing_is_invalid(newthing))
     {
-        ERRORLOG("Couldn't create creature model %d in torture room",crmodel);
+        ERRORLOG("Couldn't create creature model %d in %s room",crmodel,room_code_name(room->kind));
         return;
     }
     cctrl = creature_control_get_from_thing(thing);

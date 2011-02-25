@@ -167,7 +167,7 @@ static struct SAI_Room * obtain_unused_room(struct PlayerRooms * rooms)
     struct SAI_Room * room;
 
     if (rooms->state_lists[SAI_ROOM_UNUSED] == NULL) {
-        ERRORLOG("Out of rooms for AI player %i", rooms->my_idx);
+        ERRORLOG("Out of rooms for AI player %d", rooms->my_idx);
         return NULL;
     }
 
@@ -263,7 +263,7 @@ static void mark_room(struct PlayerRooms * rooms, const struct SAI_Room * room)
 {
     int x, y;
 
-    AIDBG(5, "Starting for room with rect %i, %i, %i, %i",
+    AIDBG(5, "Starting for room with rect %d, %d, %d, %d",
         room->rect.l, room->rect.t, room->rect.r, room->rect.b);
 
     for (y = room->rect.t; y <= room->rect.b; ++y) {
@@ -278,7 +278,7 @@ static void eval_players_room(int plyr, struct Room * room)
     struct SAI_Room * r;
     struct PlayerRooms * rooms;
 
-    AIDBG(4, "Starting for room of kind %i", room->kind);
+    AIDBG(4, "Starting for room %s", room_code_name(room->kind));
 
     if (room->slabs_list == 0) {
         AIDBG(4, "Weird room without slabs");
@@ -349,7 +349,7 @@ static void evaluate_rooms_of_player(int plyr_idx)
     struct Room * room;
     struct PlayerRooms * rooms;
 
-    AIDBG(3, "Starting for player %i", plyr_idx);
+    AIDBG(3, "Starting for player %d", plyr_idx);
     rooms = rooms_of_player(plyr_idx);
     plyr = get_player(plyr_idx);
     dungeon = get_players_dungeon(plyr);
@@ -437,20 +437,20 @@ static int try_extend_in_direction(struct PlayerRooms * rooms,
         rect.r = min((int) rect.r, SAI_MAP_WIDTH - 1);
         rect.b = min((int) rect.b, SAI_MAP_HEIGHT - 1);
 
-        AIDBG(11, "Rect after adjustment is %i, %i, %i, %i", rect.l, rect.t, rect.r, rect.b);
+        AIDBG(11, "Rect after adjustment is %d, %d, %d, %d", rect.l, rect.t, rect.r, rect.b);
 
         if (rect.r - rect.l < 4 || rect.b - rect.t < 4) {
-            AIDBG(11, "Room to small after r = %i", r);
+            AIDBG(11, "Room to small after r = %d", r);
             continue;
         }
 
         if (any_rooms_marked_on_rect(rooms, rect)) {
-            AIDBG(11, "Rooms already in vicinity at r = %i", r);
+            AIDBG(11, "Rooms already in vicinity at r = %d", r);
             continue;
         }
 
         if (cant_layout_room_in_rect(rooms->my_idx, rect)) {
-            AIDBG(11, "Terrain is bad for r = %i", r);
+            AIDBG(11, "Terrain is bad for r = %d", r);
             continue;
         }
 
@@ -464,7 +464,7 @@ static int try_extend_in_direction(struct PlayerRooms * rooms,
         set_room_state(rooms, room, SAI_ROOM_UNDUG);
         mark_room(rooms, room);
 
-        AIDBG(6, "Managed to extend plan in direction (%i, %i) with radius %i",
+        AIDBG(6, "Managed to extend plan in direction (%d, %d) with radius %d",
             dir_x, dir_y, r);
         return 1;
     }
@@ -536,7 +536,7 @@ static int look_for_room_of_size(struct PlayerRooms * rooms, enum RoomKinds kind
     for (; side_length <= 7; ++side_length) {
         for (room = rooms->state_lists[state]; room != NULL; room = room->next_of_state) {
             if (room->kind != RoK_NONE) {
-                AIDBG(8, "Room already had kind %i assigned", room->kind);
+                AIDBG(8, "Room already had kind %d assigned", room->kind);
                 continue;
             }
 
@@ -546,7 +546,7 @@ static int look_for_room_of_size(struct PlayerRooms * rooms, enum RoomKinds kind
             most = max(w, h);
 
             if (least == side_length) {
-                AIDBG(8, "Room picked with size %i", w * h);
+                AIDBG(8, "Room picked with size %d", w * h);
                 return room->id;
             }
         }
@@ -619,7 +619,7 @@ static void try_insert_node(struct SAI_Point pos, struct PathNode * parent,
     pf->open.insert(heap_node);
     pf->closed.insert(heap_node);
 
-    AIDBG(15, "Inserted node for position %i, %i", pos.x, pos.y);
+    AIDBG(15, "Inserted node for position %d, %d", pos.x, pos.y);
 }
 
 static int find_path(struct SAI_Point start, struct SAI_Point ** coords,
@@ -685,13 +685,13 @@ static int find_path(struct SAI_Point start, struct SAI_Point ** coords,
             }
         }
 
-        AIDBG(6, "Path consisting of %i tiles found", path_len);
+        AIDBG(6, "Path consisting of %d tiles found", path_len);
     }
     else {
         AIDBG(6, "No path found");
     }
 
-    AIDBG(6, "%i nodes inspected", pf.closed.size());
+    AIDBG(6, "%d nodes inspected", pf.closed.size());
     for (it = pf.closed.begin(); it != pf.closed.end(); ++it) {
         free(*it);
     }
@@ -743,7 +743,7 @@ static int room_path_cost(struct SAI_Point pos, struct RoomPathArgs * args)
         }
     }
 
-    AIDBG(16, "Returning cost %i", cost);
+    AIDBG(16, "Returning cost %d", cost);
     return cost;
 }
 
@@ -777,7 +777,7 @@ int SAI_request_room(int plyr, enum RoomKinds kind, int size)
     int res;
     struct PlayerRooms * rooms;
 
-    AIDBG(4, "Starting for room kind %i, size %i", (int) kind, size);
+    AIDBG(4, "Starting for room kind %d, size %d", (int) kind, size);
 
     rooms = rooms_of_player(plyr);
     id = -1;
@@ -817,7 +817,7 @@ int SAI_find_path_to_room(int plyr, int room_id, struct SAI_Point ** coords)
     args.search_pos = SAI_rect_center(args.room->rect);
     start = SAI_get_dungeon_heart_position(plyr);
 
-    AIDBG(5, "Will try to find path from %i, %i to room at %i, %i",
+    AIDBG(5, "Will try to find path from %d, %d to room at %d, %d",
         start.x, start.y, args.room->rect.l, args.room->rect.t);
     return find_path(start, coords, (PathFunc) room_path_goal, (PathFunc) room_path_cost,
         (PathFunc) room_path_heuristic, (PathFunc) room_path_should_dig, &args);
@@ -843,7 +843,7 @@ struct SAI_Room * SAI_get_room(int plyr, int id)
 {
     struct PlayerRooms * rooms;
     if (id < 0 || id >= SAI_MAX_ROOMS) {
-        ERRORLOG("Invalid AI room ID %i of player %i requested", id, plyr);
+        ERRORLOG("Invalid AI room ID %d of player %d requested", id, plyr);
         //rather than assert because callers can handle NULL, although it is an
         //unnatural condition
         return NULL;

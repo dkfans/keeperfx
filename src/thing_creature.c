@@ -2182,11 +2182,11 @@ void remove_first_creature(struct Thing *thing)
       sectng = thing_get(cctrl->field_1D);
       if (!thing_is_invalid(sectng)) {
           secctrl = creature_control_get_from_thing(sectng);
-          secctrl->next_players_creature_idx = cctrl->next_players_creature_idx;
+          secctrl->players_next_creature_idx = cctrl->players_next_creature_idx;
       } else {
-          game.field_14EA46 = cctrl->next_players_creature_idx;
+          game.field_14EA46 = cctrl->players_next_creature_idx;
       }
-      sectng = thing_get(cctrl->next_players_creature_idx);
+      sectng = thing_get(cctrl->players_next_creature_idx);
       if (!thing_is_invalid(sectng)) {
           secctrl = creature_control_get_from_thing(sectng);
           secctrl->field_1D = cctrl->field_1D;
@@ -2199,11 +2199,11 @@ void remove_first_creature(struct Thing *thing)
         sectng = thing_get(cctrl->field_1D);
         if (!thing_is_invalid(sectng)) {
             secctrl = creature_control_get_from_thing(sectng);
-            secctrl->next_players_creature_idx = cctrl->next_players_creature_idx;
+            secctrl->players_next_creature_idx = cctrl->players_next_creature_idx;
         } else {
-            dungeon->creatr_list_start = cctrl->next_players_creature_idx;
+            dungeon->creatr_list_start = cctrl->players_next_creature_idx;
         }
-        sectng = thing_get(cctrl->next_players_creature_idx);
+        sectng = thing_get(cctrl->players_next_creature_idx);
         if (!thing_is_invalid(sectng)) {
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->field_1D = cctrl->field_1D;
@@ -2219,11 +2219,11 @@ void remove_first_creature(struct Thing *thing)
         sectng = thing_get(cctrl->field_1D);
         if (!thing_is_invalid(sectng)) {
             secctrl = creature_control_get_from_thing(sectng);
-            secctrl->next_players_creature_idx = cctrl->next_players_creature_idx;
+            secctrl->players_next_creature_idx = cctrl->players_next_creature_idx;
         } else {
-            dungeon->digger_list_start = cctrl->next_players_creature_idx;
+            dungeon->digger_list_start = cctrl->players_next_creature_idx;
         }
-        sectng = thing_get(cctrl->next_players_creature_idx);
+        sectng = thing_get(cctrl->players_next_creature_idx);
         if (!thing_is_invalid(sectng)) {
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->field_1D = cctrl->field_1D;
@@ -2231,7 +2231,7 @@ void remove_first_creature(struct Thing *thing)
         dungeon->num_active_diggers--;
     }
     cctrl->field_1D = 0;
-    cctrl->next_players_creature_idx = 0;
+    cctrl->players_next_creature_idx = 0;
     thing->field_0 &= ~0x08u;
 }
 
@@ -2668,7 +2668,7 @@ struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long jo
         } else
         {
           cctrl = creature_control_get_from_thing(thing);
-          thing = thing_get(cctrl->next_players_creature_idx);
+          thing = thing_get(cctrl->players_next_creature_idx);
         }
       }
     } else
@@ -2684,7 +2684,7 @@ struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long jo
           && (get_creature_gui_job(thing) == job_idx) )
         {
             cctrl = creature_control_get_from_thing(thing);
-            thing = thing_get(cctrl->next_players_creature_idx);
+            thing = thing_get(cctrl->players_next_creature_idx);
         } else
         {
             dungeon->selected_creatures_of_gui_job[job_idx] = 0;
@@ -3410,7 +3410,7 @@ TbBool creature_stats_debug_dump(void)
         }
         i = thing->next_of_class;
         // Per-creature block starts
-        crstate = get_creature_real_state(thing);
+        crstate = get_creature_state_besides_move(thing);
         if (thing->owner != hero_player_number) {
             switch (crstate)
             {

@@ -96,7 +96,7 @@ short at_workshop_room(struct Thing *thing)
     }
     if ((room->kind != RoK_WORKSHOP) || (room->owner != thing->owner))
     {
-        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);
         return 0;
     }
