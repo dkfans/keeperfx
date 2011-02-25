@@ -87,7 +87,7 @@ short at_temple(struct Thing *thing)
     }
     if ((room->kind != RoK_TEMPLE) || (room->owner != thing->owner))
     {
-        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);
         return 0;
     }
@@ -161,7 +161,7 @@ TbBool make_all_players_creatures_angry(long plyr_idx)
       ERRORLOG("Jump to invalid creature detected");
       break;
     }
-    i = cctrl->next_players_creature_idx;
+    i = cctrl->players_next_creature_idx;
     // Thing list loop body
     anger_make_creature_angry(thing, 4);
     // Thing list loop body ends

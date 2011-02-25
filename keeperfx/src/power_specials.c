@@ -86,7 +86,7 @@ void multiply_creatures(struct PlayerInfo *player)
       ERRORLOG("Jump to invalid creature detected");
       break;
     }
-    i = cctrl->next_players_creature_idx;
+    i = cctrl->players_next_creature_idx;
     // Thing list loop body
     tncopy = create_creature(&thing->mappos, thing->model, player->id_number);
     if (thing_is_invalid(tncopy))
@@ -116,7 +116,7 @@ void multiply_creatures(struct PlayerInfo *player)
       ERRORLOG("Jump to invalid creature detected");
       break;
     }
-    i = cctrl->next_players_creature_idx;
+    i = cctrl->players_next_creature_idx;
     // Thing list loop body
     tncopy = create_creature(&thing->mappos, thing->model, player->id_number);
     if (thing_is_invalid(tncopy))
@@ -156,7 +156,7 @@ void increase_level(struct PlayerInfo *player)
       ERRORLOG("Jump to invalid creature detected");
       break;
     }
-    i = cctrl->next_players_creature_idx;
+    i = cctrl->players_next_creature_idx;
     // Thing list loop body
     creature_increase_level(thing);
     // Thing list loop body ends
@@ -179,7 +179,7 @@ void increase_level(struct PlayerInfo *player)
       ERRORLOG("Jump to invalid creature detected");
       break;
     }
-    i = cctrl->next_players_creature_idx;
+    i = cctrl->players_next_creature_idx;
     // Thing list loop body
     creature_increase_level(thing);
     // Thing list loop body ends
@@ -333,7 +333,7 @@ void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char ply
         set_start_state(thing);
         break;
       }
-      i = cctrl->next_players_creature_idx;
+      i = cctrl->players_next_creature_idx;
       k++;
       if (k > CREATURES_COUNT)
       {
