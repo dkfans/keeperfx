@@ -84,7 +84,7 @@ short at_research_room(struct Thing *thing)
     }
     if ((room->kind != RoK_LIBRARY) || (room->owner != thing->owner))
     {
-        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);
         return 0;
     }
@@ -255,7 +255,7 @@ short researching(struct Thing *thing)
     }
     if ( (room->kind != RoK_LIBRARY) || (room->owner != thing->owner) || (cctrl->work_room_id != room->index) )
     {
-        WARNLOG("Room of kind %d and owner %d is invalid for %s",(int)room->kind,(int)room->owner,thing_model_name(thing));
+        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return 0;

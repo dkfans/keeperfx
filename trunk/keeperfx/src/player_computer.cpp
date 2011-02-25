@@ -1870,7 +1870,7 @@ long computer_pick_trainig_or_scavenging_creatures_and_place_on_room(struct Comp
         break;
       }
       cctrl = creature_control_get_from_thing(thing);
-      i = cctrl->next_players_creature_idx;
+      i = cctrl->players_next_creature_idx;
       // Per creature code
       if (creature_is_training(thing) || creature_is_scavengering(thing)) // originally, only CrSt_Training and CrSt_Scavengering were accepted
       {
