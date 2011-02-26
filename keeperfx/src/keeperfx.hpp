@@ -1028,7 +1028,7 @@ void engine(struct Camera *cam);
 void smooth_screen_area(unsigned char *a1, long a2, long a3, long a4, long a5, long a6);
 void remove_explored_flags_for_power_sight(struct PlayerInfo *player);
 void DrawBigSprite(long x, long y, struct BigSprite *bigspr, struct TbSprite *sprite);
-void draw_gold_total(unsigned char a1, long a2, long a3, long a4);
+void draw_gold_total(unsigned char a1, long scr_x, long scr_y, long long value);
 void pannel_map_draw(long x, long y, long zoom);
 void draw_overlay_things(long zoom);
 void draw_overlay_compass(long a1, long a2);

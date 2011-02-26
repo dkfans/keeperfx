@@ -85,6 +85,7 @@
 #include "gui_topmsg.h"
 #include "gui_boxmenu.h"
 #include "gui_soundmsgs.h"
+#include "frontmenu_ingame_tabs.h"
 #include "ariadne.h"
 #include "net_game.h"
 #include "sounds.h"
@@ -363,7 +364,6 @@ DLLIMPORT void _DK_engine(struct Camera *cam);
 DLLIMPORT void _DK_smooth_screen_area(unsigned char *a1, long a2, long a3, long a4, long a5, long a6);
 DLLIMPORT void _DK_remove_explored_flags_for_power_sight(struct PlayerInfo *player);
 DLLIMPORT void _DK_DrawBigSprite(long x, long y, struct BigSprite *bigspr, struct TbSprite *sprite);
-DLLIMPORT void _DK_draw_gold_total(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT void _DK_pannel_map_draw(long x, long y, long zoom);
 DLLIMPORT void _DK_draw_overlay_things(long zoom);
 DLLIMPORT void _DK_draw_overlay_compass(long a1, long a2);
@@ -6646,25 +6646,6 @@ TbBool mouse_is_over_small_map(long x, long y)
     return (LbSqrL(px*px + py*py) < SMALL_MAP_RADIUS);
 }
 
-void draw_whole_status_panel(void)
-{
-    struct Dungeon *dungeon;
-    struct PlayerInfo *player;
-    long mmzoom;
-    player = get_my_player();
-    dungeon = get_players_num_dungeon(my_player_number);
-    lbDisplay.DrawColour = colours[15][15][15];
-    lbDisplay.DrawFlags = 0;
-    DrawBigSprite(0, 0, &status_panel, gui_panel_sprites);
-    draw_gold_total(player->id_number, 60, 134, dungeon->total_money_owned);
-    if (pixel_size < 3)
-        mmzoom = (player->minimap_zoom) / (3-pixel_size);
-    else
-        mmzoom = player->minimap_zoom;
-    pannel_map_draw(player->mouse_x, player->mouse_y, mmzoom);
-    draw_overlay_things(mmzoom);
-}
-
 void redraw_creature_view(void)
 {
     SYNCDBG(6,"Starting");
@@ -7005,11 +6986,6 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
 void DrawBigSprite(long x, long y, struct BigSprite *bigspr, struct TbSprite *sprite)
 {
   _DK_DrawBigSprite(x, y, bigspr, sprite);
-}
-
-void draw_gold_total(unsigned char a1, long a2, long a3, long a4)
-{
-  _DK_draw_gold_total(a1, a2, a3, a4);
 }
 
 void pannel_map_draw(long x, long y, long zoom)

@@ -132,53 +132,6 @@ long imp_will_soon_be_getting_object(long a2, struct Thing *thing)
     return _DK_imp_will_soon_be_getting_object(a2, thing);
 }
 
-/** Returns if the player owns any digger who is working on re-arming it.
- *
- * @param traptng The trap that needs re-arming.
- * @return
- */
-TbBool imp_will_soon_be_arming_trap(struct Thing *traptng)
-{
-    struct Dungeon *dungeon;
-    struct Thing *thing;
-    struct CreatureControl *cctrl;
-    long crstate;
-    long i;
-    unsigned long k;
-    //return _DK_imp_will_soon_be_arming_trap(digger);
-    dungeon = get_dungeon(traptng->owner);
-    k = 0;
-    i = dungeon->digger_list_start;
-    while (i > 0)
-    {
-        thing = thing_get(i);
-        if (thing_is_invalid(thing))
-            break;
-        cctrl = creature_control_get_from_thing(thing);
-        i = cctrl->players_next_creature_idx;
-        // Per-thing code
-        if (cctrl->field_70 == traptng->index)
-        {
-            crstate = get_creature_state_besides_move(thing);
-            if (crstate == CrSt_CreaturePicksUpTrapObject) {
-                return true;
-            }
-            crstate = get_creature_state_besides_drag(thing);
-            if (crstate == CrSt_CreatureArmsTrap) {
-                return true;
-            }
-        }
-        // Per-thing code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
-    }
-    return false;
-}
-
 long check_out_object_for_trap(struct Thing *digger, struct Thing *traptng)
 {
     struct CreatureControl *cctrl;
