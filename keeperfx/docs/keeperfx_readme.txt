@@ -351,6 +351,11 @@ New and modified level script commands:
 Changelog:
 
 Version: 0.38b
+  Fixed the v0.38b bug with computer keeper not digging for gold
+  Rewritten some of imps and workshop related code
+  Rewritten some of imp tasks code and gold counter
+
+Version: 0.38b
   Updated scripts for some maps 
   Fixed killing a creature which has an armour spell casted on
   Improved some debugging messages
