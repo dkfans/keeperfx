@@ -247,15 +247,16 @@ short researching(struct Thing *thing)
     }
     // Get and verify working room
     room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room))
+    if (room_is_invalid(room) || (cctrl->work_room_id != room->index))
     {
+        WARNLOG("Room %s index %d is is not %s work room %d",room_code_name(room->kind),(int)room->index,thing_model_name(thing),(int)cctrl->work_room_id);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return 0;
     }
-    if ( (room->kind != RoK_LIBRARY) || (room->owner != thing->owner) || (cctrl->work_room_id != room->index) )
+    if ( (room->kind != RoK_LIBRARY) || (room->owner != thing->owner) )
     {
-        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
+        WARNLOG("Room %s owned by player %d is invalid for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->owner);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return 0;
@@ -306,7 +307,7 @@ short researching(struct Thing *thing)
     // Finished "Standing and thinking" - make "new idea" effect and go to next position
     if ( !setup_random_head_for_room(thing, room, 0) )
     {
-        ERRORLOG("Cannot move %s in research room", thing_model_name(thing));
+        ERRORLOG("Cannot move %s in %s room", thing_model_name(thing),room_code_name(room->kind));
         set_start_state(thing);
         return 1;
     }

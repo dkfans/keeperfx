@@ -897,83 +897,83 @@ TbBool update_slabset_column_indices(struct Column *cols, long ccount)
 
 TbBool create_columns_from_list(struct Column *cols, long ccount)
 {
-  long ncol;
-  long i;
-  for (i=1; i < ccount; i++)
-  {
-      if (cols[i].use)
-      {
-        ncol = find_column(&cols[i]);
-        if (ncol == 0)
-          ncol = create_column(&cols[i]);
-        game.columns[ncol].bitfileds |= 0x01;
-      }
-  }
-  return true;
+    long ncol;
+    long i;
+    for (i=1; i < ccount; i++)
+    {
+        if (cols[i].use)
+        {
+          ncol = find_column(&cols[i]);
+          if (ncol == 0)
+            ncol = create_column(&cols[i]);
+          game.columns[ncol].bitfileds |= 0x01;
+        }
+    }
+    return true;
 }
 
 TbBool load_slab_datclm_files(void)
 {
-  struct Column *cols;
-  long cols_tot;
-  struct SlabSet *slbset;
-  long slbset_tot;
-  struct SlabSet *sset;
-  long i;
-  SYNCDBG(5,"Starting");
-  // Load Column Set
-  cols_tot = COLUMNS_COUNT;
-  cols = (struct Column *)LbMemoryAlloc(cols_tot*sizeof(struct Column));
-  if (cols == NULL)
-  {
-    WARNMSG("Can't allocate memory for %d column sets.",cols_tot);
-    return false;
-  }
-  if (!load_slabclm_file(cols, &cols_tot))
-  {
-    LbMemoryFree(cols);
-    return false;
-  }
-  // Load Slab Set
-  slbset_tot = SLABSET_COUNT;
-  slbset = (struct SlabSet *)LbMemoryAlloc(slbset_tot*sizeof(struct SlabSet));
-  if (slbset == NULL)
-  {
-    WARNMSG("Can't allocate memory for %d slab sets.",slbset_tot);
-    return false;
-  }
-  if (!load_slabdat_file(slbset, &slbset_tot))
-  {
-    LbMemoryFree(cols);
+    struct Column *cols;
+    long cols_tot;
+    struct SlabSet *slbset;
+    long slbset_tot;
+    struct SlabSet *sset;
+    long i;
+    SYNCDBG(5,"Starting");
+    // Load Column Set
+    cols_tot = COLUMNS_COUNT;
+    cols = (struct Column *)LbMemoryAlloc(cols_tot*sizeof(struct Column));
+    if (cols == NULL)
+    {
+      WARNMSG("Can't allocate memory for %d column sets.",cols_tot);
+      return false;
+    }
+    if (!load_slabclm_file(cols, &cols_tot))
+    {
+      LbMemoryFree(cols);
+      return false;
+    }
+    // Load Slab Set
+    slbset_tot = SLABSET_COUNT;
+    slbset = (struct SlabSet *)LbMemoryAlloc(slbset_tot*sizeof(struct SlabSet));
+    if (slbset == NULL)
+    {
+      WARNMSG("Can't allocate memory for %d slab sets.",slbset_tot);
+      return false;
+    }
+    if (!load_slabdat_file(slbset, &slbset_tot))
+    {
+      LbMemoryFree(cols);
+      LbMemoryFree(slbset);
+      return false;
+    }
+    // Update the structure
+    for (i=0; i < slbset_tot; i++)
+    {
+        sset = &game.slabset[i];
+        LbMemoryCopy(sset, &slbset[i], sizeof(struct SlabSet));
+    }
+    game.slabset_num = slbset_tot;
+    update_columns_use(cols,cols_tot,slbset,slbset_tot);
     LbMemoryFree(slbset);
-    return false;
-  }
-  // Update the structure
-  for (i=0; i < slbset_tot; i++)
-  {
-      sset = &game.slabset[i];
-      LbMemoryCopy(sset, &slbset[i], sizeof(struct SlabSet));
-  }
-  game.slabset_num = slbset_tot;
-  update_columns_use(cols,cols_tot,slbset,slbset_tot);
-  LbMemoryFree(slbset);
-  create_columns_from_list(cols,cols_tot);
-  update_slabset_column_indices(cols,cols_tot);
-  LbMemoryFree(cols);
-  return true;
+    create_columns_from_list(cols,cols_tot);
+    update_slabset_column_indices(cols,cols_tot);
+    LbMemoryFree(cols);
+    return true;
 }
 
 TbBool load_slab_tng_file(void)
 {
-  char *fname;
-  SYNCDBG(5,"Starting");
-  fname = prepare_file_fmtpath(FGrp_StdData,"slabs.tng");
-  wait_for_cd_to_be_available();
-  if ( LbFileExists(fname) )
-    LbFileLoadAt(fname, &game.slabobjs_num);
-  else
-    ERRORLOG("Could not load slab object set");
-  return true;
+    char *fname;
+    SYNCDBG(5,"Starting");
+    fname = prepare_file_fmtpath(FGrp_StdData,"slabs.tng");
+    wait_for_cd_to_be_available();
+    if ( LbFileExists(fname) )
+      LbFileLoadAt(fname, &game.slabobjs_num);
+    else
+      ERRORLOG("Could not load slab object set");
+    return true;
 }
 
 TbBool load_slab_file(void)
@@ -991,297 +991,299 @@ TbBool load_slab_file(void)
 
 long load_map_wibble_file(unsigned long lv_num)
 {
-  struct Map *map;
-  unsigned long stl_x,stl_y;
-  unsigned char *buf;
-  unsigned long i,k;
-  long fsize;
-  fsize = (map_subtiles_y+1)*(map_subtiles_x+1);
-  buf = load_single_map_file_to_buffer(lv_num,"wib",&fsize,LMFF_None);
-  if (buf == NULL)
-    return false;
-  i = 0;
-  for (stl_y=0; stl_y < (map_subtiles_y+1); stl_y++)
-    for (stl_x=0; stl_x < (map_subtiles_x+1); stl_x++)
-    {
-      map = get_map_block_at(stl_x,stl_y);
-      k = buf[i];
-      map->data ^= ((map->data ^ (k << 22)) & 0xC00000);
-      i++;
-    }
-  LbMemoryFree(buf);
-  return true;
+    struct Map *map;
+    unsigned long stl_x,stl_y;
+    unsigned char *buf;
+    unsigned long i,k;
+    long fsize;
+    fsize = (map_subtiles_y+1)*(map_subtiles_x+1);
+    buf = load_single_map_file_to_buffer(lv_num,"wib",&fsize,LMFF_None);
+    if (buf == NULL)
+      return false;
+    i = 0;
+    for (stl_y=0; stl_y < (map_subtiles_y+1); stl_y++)
+      for (stl_x=0; stl_x < (map_subtiles_x+1); stl_x++)
+      {
+        map = get_map_block_at(stl_x,stl_y);
+        k = buf[i];
+        map->data ^= ((map->data ^ (k << 22)) & 0xC00000);
+        i++;
+      }
+    LbMemoryFree(buf);
+    return true;
 }
 
 short load_map_ownership_file(unsigned long lv_num)
 {
-  struct SlabMap *slb;
-  unsigned long x,y;
-  unsigned char *buf;
-  unsigned long i;
-  long fsize;
-  fsize = (map_subtiles_y+1)*(map_subtiles_x+1);
-  buf = load_single_map_file_to_buffer(lv_num,"own",&fsize,LMFF_None);
-  if (buf == NULL)
-    return false;
-  i = 0;
-  for (y=0; y < (map_subtiles_y+1); y++)
-    for (x=0; x < (map_subtiles_x+1); x++)
-    {
-      slb = get_slabmap_for_subtile(x,y);
-      if ((x < map_subtiles_x) && (y < map_subtiles_y))
-          slabmap_set_owner(slb,buf[i]);
-      else
-          slabmap_set_owner(slb,5);
-      i++;
-    }
-  LbMemoryFree(buf);
-  return true;
+    struct SlabMap *slb;
+    unsigned long x,y;
+    unsigned char *buf;
+    unsigned long i;
+    long fsize;
+    fsize = (map_subtiles_y+1)*(map_subtiles_x+1);
+    buf = load_single_map_file_to_buffer(lv_num,"own",&fsize,LMFF_None);
+    if (buf == NULL)
+      return false;
+    i = 0;
+    for (y=0; y < (map_subtiles_y+1); y++)
+      for (x=0; x < (map_subtiles_x+1); x++)
+      {
+        slb = get_slabmap_for_subtile(x,y);
+        if ((x < map_subtiles_x) && (y < map_subtiles_y))
+            slabmap_set_owner(slb,buf[i]);
+        else
+            slabmap_set_owner(slb,5);
+        i++;
+      }
+    LbMemoryFree(buf);
+    return true;
 }
 
 short initialise_map_wlb_auto(void)
 {
-  struct SlabMap *slb;
-  struct SlabAttr *slbattr;
-  unsigned long x,y;
-  unsigned long n,nbridge;
-  nbridge = 0;
-  for (y=0; y < map_tiles_y; y++)
-    for (x=0; x < map_tiles_x; x++)
-    {
-      slb = get_slabmap_block(x,y);
-      if (slb->kind == SlbT_BRIDGE)
+    struct SlabMap *slb;
+    struct SlabAttr *slbattr;
+    unsigned long x,y;
+    unsigned long n,nbridge;
+    nbridge = 0;
+    for (y=0; y < map_tiles_y; y++)
+      for (x=0; x < map_tiles_x; x++)
       {
-        if (slabs_count_near(x,y,1,SlbT_LAVA) > slabs_count_near(x,y,1,SlbT_WATER))
-          n = SlbT_LAVA;
-        else
-          n = SlbT_WATER;
-        nbridge++;
-      } else
-      {
-        n = slb->kind;
+        slb = get_slabmap_block(x,y);
+        if (slb->kind == SlbT_BRIDGE)
+        {
+          if (slabs_count_near(x,y,1,SlbT_LAVA) > slabs_count_near(x,y,1,SlbT_WATER))
+            n = SlbT_LAVA;
+          else
+            n = SlbT_WATER;
+          nbridge++;
+        } else
+        {
+          n = slb->kind;
+        }
+        slbattr = get_slab_kind_attrs(n);
+        n = (slbattr->field_15 << 3);
+        slb->field_5 ^= (slb->field_5 ^ n) & 0x18;
       }
-      slbattr = get_slab_kind_attrs(n);
-      n = (slbattr->field_15 << 3);
-      slb->field_5 ^= (slb->field_5 ^ n) & 0x18;
-    }
-  SYNCMSG("Regenerated WLB flags, unsure for %lu bridge blocks.",nbridge);
-  return true;
+    SYNCMSG("Regenerated WLB flags, unsure for %lu bridge blocks.",nbridge);
+    return true;
 }
 
 short load_map_wlb_file(unsigned long lv_num)
 {
-  struct SlabMap *slb;
-  unsigned long x,y;
-  unsigned char *buf;
-  unsigned long i;
-  unsigned long n;
-  unsigned long nfixes;
-  long fsize;
-  SYNCDBG(7,"Starting");
-  nfixes = 0;
-  fsize = map_tiles_y*map_tiles_x;
-  buf = load_single_map_file_to_buffer(lv_num,"wlb",&fsize,LMFF_Optional);
-  if (buf == NULL)
-    return false;
-  i = 0;
-  for (y=0; y < map_tiles_y; y++)
-    for (x=0; x < map_tiles_x; x++)
+    struct SlabMap *slb;
+    unsigned long x,y;
+    unsigned char *buf;
+    unsigned long i;
+    unsigned long n;
+    unsigned long nfixes;
+    long fsize;
+    SYNCDBG(7,"Starting");
+    nfixes = 0;
+    fsize = map_tiles_y*map_tiles_x;
+    buf = load_single_map_file_to_buffer(lv_num,"wlb",&fsize,LMFF_Optional);
+    if (buf == NULL)
+      return false;
+    i = 0;
+    for (y=0; y < map_tiles_y; y++)
+      for (x=0; x < map_tiles_x; x++)
+      {
+        slb = get_slabmap_block(x,y);
+        n = (buf[i] << 3);
+        n = slb->field_5 ^ ((slb->field_5 ^ n) & 0x18);
+        slb->field_5 = n;
+        n &= 0x18;
+        if ((n != 16) || (slb->kind != SlbT_WATER))
+          if ((n != 8) || (slb->kind != SlbT_LAVA))
+            if (((n == 16) || (n == 8)) && (slb->kind != SlbT_BRIDGE))
+            {
+                nfixes++;
+                slb->field_5 &= 0xE7u;
+            }
+        i++;
+      }
+    LbMemoryFree(buf);
+    if (nfixes > 0)
     {
-      slb = get_slabmap_block(x,y);
-      n = (buf[i] << 3);
-      n = slb->field_5 ^ ((slb->field_5 ^ n) & 0x18);
-      slb->field_5 = n;
-      n &= 0x18;
-      if ((n != 16) || (slb->kind != SlbT_WATER))
-        if ((n != 8) || (slb->kind != SlbT_LAVA))
-          if (((n == 16) || (n == 8)) && (slb->kind != SlbT_BRIDGE))
-          {
-              nfixes++;
-              slb->field_5 &= 0xE7u;
-          }
-      i++;
+      ERRORLOG("WLB file is muddled - Fixed values for %lu tiles",nfixes);
     }
-  LbMemoryFree(buf);
-  if (nfixes > 0)
-  {
-    ERRORLOG("WLB file is muddled - Fixed values for %lu tiles",nfixes);
-  }
-  return true;
+    return true;
 }
 
 short initialise_extra_slab_info(unsigned long lv_num)
 {
-  short result;
-  initialise_map_rooms();
-  result = load_map_wlb_file(lv_num);
-  if (!result)
-    result = initialise_map_wlb_auto();
-  return result;
+    short result;
+    initialise_map_rooms();
+    result = load_map_wlb_file(lv_num);
+    if (!result)
+      result = initialise_map_wlb_auto();
+    return result;
 }
 
 short load_map_slab_file(unsigned long lv_num)
 {
-  SYNCDBG(7,"Starting");
-  //return _DK_load_map_slab_file(lv_num);
-  struct SlabMap *slb;
-  unsigned long x,y;
-  unsigned char *buf;
-  unsigned long i;
-  unsigned long n;
-  long fsize;
-  fsize = 2*map_tiles_y*map_tiles_x;
-  buf = load_single_map_file_to_buffer(lv_num,"slb",&fsize,LMFF_None);
-  if (buf == NULL)
-    return false;
-  i = 0;
-  for (y=0; y < map_tiles_y; y++)
-    for (x=0; x < map_tiles_x; x++)
-    {
-      slb = get_slabmap_block(x,y);
-      n = lword(&buf[i]);
-      if (n > SLAB_TYPES_COUNT)
+    SYNCDBG(7,"Starting");
+    //return _DK_load_map_slab_file(lv_num);
+    struct SlabMap *slb;
+    unsigned long x,y;
+    unsigned char *buf;
+    unsigned long i;
+    unsigned long n;
+    long fsize;
+    fsize = 2*map_tiles_y*map_tiles_x;
+    buf = load_single_map_file_to_buffer(lv_num,"slb",&fsize,LMFF_None);
+    if (buf == NULL)
+      return false;
+    i = 0;
+    for (y=0; y < map_tiles_y; y++)
+      for (x=0; x < map_tiles_x; x++)
       {
-        WARNMSG("Slab Type %d exceeds limit of %d",n,SLAB_TYPES_COUNT);
-        n = SlbT_ROCK;
+        slb = get_slabmap_block(x,y);
+        n = lword(&buf[i]);
+        if (n > SLAB_TYPES_COUNT)
+        {
+          WARNMSG("Slab Type %d exceeds limit of %d",n,SLAB_TYPES_COUNT);
+          n = SlbT_ROCK;
+        }
+        slb->kind = n;
+        i += 2;
       }
-      slb->kind = n;
-      i += 2;
-    }
-  LbMemoryFree(buf);
-  initialise_map_collides();
-  initialise_map_health();
-  initialise_extra_slab_info(lv_num);
-  return true;
+    LbMemoryFree(buf);
+    initialise_map_collides();
+    initialise_map_health();
+    initialise_extra_slab_info(lv_num);
+    return true;
 }
 
 short load_map_flag_file(unsigned long lv_num)
 {
-  SYNCDBG(5,"Starting");
-  struct Map *map;
-  unsigned long stl_x,stl_y;
-  unsigned char *buf;
-  unsigned long i;
-  long fsize;
-  fsize = 2*(map_subtiles_y+1)*(map_subtiles_x+1);
-  buf = load_single_map_file_to_buffer(lv_num,"flg",&fsize,LMFF_Optional);
-  if (buf == NULL)
-    return false;
-  i = 0;
-  for (stl_y=0; stl_y < (map_subtiles_y+1); stl_y++)
-    for (stl_x=0; stl_x < (map_subtiles_x+1); stl_x++)
+    SYNCDBG(5,"Starting");
+    struct Map *map;
+    unsigned long stl_x,stl_y;
+    unsigned char *buf;
+    unsigned long i;
+    long fsize;
+    fsize = 2*(map_subtiles_y+1)*(map_subtiles_x+1);
+    buf = load_single_map_file_to_buffer(lv_num,"flg",&fsize,LMFF_Optional);
+    if (buf == NULL)
+        return false;
+    i = 0;
+    for (stl_y=0; stl_y < (map_subtiles_y+1); stl_y++)
     {
-      map = get_map_block_at(stl_x,stl_y);
-      map->flags = buf[i];
-      i += 2;
+        for (stl_x=0; stl_x < (map_subtiles_x+1); stl_x++)
+        {
+            map = get_map_block_at(stl_x,stl_y);
+            map->flags = buf[i];
+            i += 2;
+        }
     }
-  LbMemoryFree(buf);
-  return true;
+    LbMemoryFree(buf);
+    return true;
 }
 
 long load_static_light_file(unsigned long lv_num)
 {
-  unsigned long i;
-  long k;
-  long total;
-  unsigned char *buf;
-  struct InitLight ilght;
-  long fsize;
-  fsize = 4;
-  buf = load_single_map_file_to_buffer(lv_num,"lgt",&fsize,LMFF_Optional);
-  if (buf == NULL)
-    return false;
-  light_initialise();
-  i = 0;
-  total = llong(&buf[i]);
-  i += 4;
-  // Validate total amount of lights
-  if ((total < 0) || (total > (fsize-4)/sizeof(struct InitLight)))
-  {
-    total = (fsize-4)/sizeof(struct InitLight);
-    WARNMSG("Bad amount of static lights in LGT file; corrected to %ld.",total);
-  }
-  if (total >= LIGHTS_COUNT)
-  {
-    WARNMSG("Only %d static lights supported, LGT file has %ld.",LIGHTS_COUNT,total);
-    total = LIGHTS_COUNT-1;
-  } else
-  if (total >= LIGHTS_COUNT/2)
-  {
-    WARNMSG("More than %d%% of light slots used by static lights.",100*total/LIGHTS_COUNT);
-  }
-  // Create the lights
-  for (k=0; k < total; k++)
-  {
-    LbMemoryCopy(&ilght, &buf[i], sizeof(struct InitLight));
-    if (light_create_light(&ilght) == 0)
+    unsigned long i;
+    long k;
+    long total;
+    unsigned char *buf;
+    struct InitLight ilght;
+    long fsize;
+    fsize = 4;
+    buf = load_single_map_file_to_buffer(lv_num,"lgt",&fsize,LMFF_Optional);
+    if (buf == NULL)
+        return false;
+    light_initialise();
+    i = 0;
+    total = llong(&buf[i]);
+    i += 4;
+    // Validate total amount of lights
+    if ((total < 0) || (total > (fsize-4)/sizeof(struct InitLight)))
     {
-        WARNLOG("Couldn't allocate static light %d",(int)k);
+        total = (fsize-4)/sizeof(struct InitLight);
+        WARNMSG("Bad amount of static lights in LGT file; corrected to %ld.",total);
     }
-    i += sizeof(struct InitLight);
-  }
-  LbMemoryFree(buf);
-  return true;
+    if (total >= LIGHTS_COUNT)
+    {
+        WARNMSG("Only %d static lights supported, LGT file has %ld.",LIGHTS_COUNT,total);
+        total = LIGHTS_COUNT-1;
+    } else
+    if (total >= LIGHTS_COUNT/2)
+    {
+        WARNMSG("More than %d%% of light slots used by static lights.",100*total/LIGHTS_COUNT);
+    }
+    // Create the lights
+    for (k=0; k < total; k++)
+    {
+        LbMemoryCopy(&ilght, &buf[i], sizeof(struct InitLight));
+        if (light_create_light(&ilght) == 0)
+        {
+            WARNLOG("Couldn't allocate static light %d",(int)k);
+        }
+        i += sizeof(struct InitLight);
+    }
+    LbMemoryFree(buf);
+    return true;
 }
 
 short load_and_setup_map_info(unsigned long lv_num)
 {
-  unsigned char *buf;
-  long fsize;
-  fsize = 1;
-  buf = load_single_map_file_to_buffer(lv_num,"inf",&fsize,LMFF_None);
-  if (buf == NULL)
-  {
-    game.texture_id = 0;
-    return false;
-  }
-  game.texture_id = buf[0];
-  LbMemoryFree(buf);
-  return true;
+    unsigned char *buf;
+    long fsize;
+    fsize = 1;
+    buf = load_single_map_file_to_buffer(lv_num,"inf",&fsize,LMFF_None);
+    if (buf == NULL)
+    {
+        game.texture_id = 0;
+        return false;
+    }
+    game.texture_id = buf[0];
+    LbMemoryFree(buf);
+    return true;
 }
 
 short load_level_file(LevelNumber lvnum)
 {
-  char *fname;
-  short fgroup;
-  short result;
-  fgroup = get_level_fgroup(lvnum);
-  fname = prepare_file_fmtpath(fgroup,"map%05lu.slb",(unsigned long)lvnum);
-  wait_for_cd_to_be_available();
-  if (LbFileExists(fname))
-  {
-    result = true;
-    load_map_data_file(lvnum);
-    load_map_flag_file(lvnum);
-    load_column_file(lvnum);
-    init_whole_blocks();
-    load_slab_file();
-    init_columns();
-    load_static_light_file(lvnum);
-    if (!load_map_ownership_file(lvnum))
-      result = false;
-    load_map_wibble_file(lvnum);
-    load_and_setup_map_info(lvnum);
-    load_texture_map_file(game.texture_id, 2);
-    load_action_point_file(lvnum);
-    if (!load_map_slab_file(lvnum))
-      result = false;
-    if (!load_thing_file(lvnum))
-      result = false;
-    reinitialise_treaure_rooms();
-    ceiling_init(0, 1);
-  } else
-  {
-    ERRORLOG("The level \"map%05lu\" doesn't exist; creating empty map.",lvnum);
-    init_whole_blocks();
-    load_slab_file();
-    init_columns();
-    game.texture_id = 0;
-    load_texture_map_file(game.texture_id, 2);
-    init_top_texture_to_cube_table();
-    result = false;
-  }
-  return result;
+    char *fname;
+    short fgroup;
+    short result;
+    fgroup = get_level_fgroup(lvnum);
+    fname = prepare_file_fmtpath(fgroup,"map%05lu.slb",(unsigned long)lvnum);
+    wait_for_cd_to_be_available();
+    if (LbFileExists(fname))
+    {
+        result = true;
+        load_map_data_file(lvnum);
+        load_map_flag_file(lvnum);
+        load_column_file(lvnum);
+        init_whole_blocks();
+        load_slab_file();
+        init_columns();
+        load_static_light_file(lvnum);
+        if (!load_map_ownership_file(lvnum))
+          result = false;
+        load_map_wibble_file(lvnum);
+        load_and_setup_map_info(lvnum);
+        load_texture_map_file(game.texture_id, 2);
+        load_action_point_file(lvnum);
+        if (!load_map_slab_file(lvnum))
+          result = false;
+        if (!load_thing_file(lvnum))
+          result = false;
+        reinitialise_treaure_rooms();
+        ceiling_init(0, 1);
+    } else
+    {
+        ERRORLOG("The level \"map%05lu\" doesn't exist; creating empty map.",lvnum);
+        init_whole_blocks();
+        load_slab_file();
+        init_columns();
+        game.texture_id = 0;
+        load_texture_map_file(game.texture_id, 2);
+        init_top_texture_to_cube_table();
+        result = false;
+    }
+    return result;
 }
 
 TbBool load_map_file(LevelNumber lvnum)

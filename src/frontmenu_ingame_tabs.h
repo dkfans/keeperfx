@@ -57,6 +57,7 @@ DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons1[];
 DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons2[];
 DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons3[];
 /******************************************************************************/
+void draw_whole_status_panel(void);
 
 /******************************************************************************/
 #ifdef __cplusplus
