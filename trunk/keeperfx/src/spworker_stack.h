@@ -62,6 +62,7 @@ long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long a2);
 long add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *thing);
 TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num);
 TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon);
+TbBool imp_will_soon_be_arming_trap(struct Thing *traptng);
 void add_reinforce_to_imp_stack(struct Dungeon *dungeon);
 long imp_stack_update(struct Thing *thing);
 long check_out_imp_stack(struct Thing *thing);
@@ -74,7 +75,6 @@ long check_out_imp_tokes(struct Thing *thing);
 long check_place_to_dig_and_get_position(struct Thing *thing, unsigned long stl_num, long *retstl_x, long *retstl_y);
 long check_place_to_reinforce(struct Thing *thing, long a2, long a3);
 long check_out_uncrowded_reinforce_position(struct Thing *thing, unsigned short a2, long *a3, long *a4);
-
 /******************************************************************************/
 #ifdef __cplusplus
 }

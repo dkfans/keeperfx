@@ -90,9 +90,84 @@ long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3
     return _DK_imp_will_soon_be_working_at_excluding(thing, a2, a3);
 }
 
-struct Thing *check_for_empty_trap_for_imp_not_being_armed(struct Thing *thing, long a2)
+/** Returns if the player owns any digger who is working on re-arming it.
+ *
+ * @param traptng The trap that needs re-arming.
+ * @return
+ */
+TbBool imp_will_soon_be_arming_trap(struct Thing *traptng)
 {
-    return _DK_check_for_empty_trap_for_imp_not_being_armed(thing, a2);
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    struct CreatureControl *cctrl;
+    long crstate;
+    long i;
+    unsigned long k;
+    //return _DK_imp_will_soon_be_arming_trap(digger);
+    dungeon = get_dungeon(traptng->owner);
+    k = 0;
+    i = dungeon->digger_list_start;
+    while (i > 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+            break;
+        cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per-thing code
+        if (cctrl->field_70 == traptng->index)
+        {
+            crstate = get_creature_state_besides_move(thing);
+            if (crstate == CrSt_CreaturePicksUpTrapObject) {
+                return true;
+            }
+            crstate = get_creature_state_besides_drag(thing);
+            if (crstate == CrSt_CreatureArmsTrap) {
+                return true;
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return false;
+}
+
+struct Thing *check_for_empty_trap_for_imp_not_being_armed(struct Thing *digger, long trpmodel)
+{
+    struct Thing *thing;
+    long i;
+    unsigned long k;
+    //return _DK_check_for_empty_trap_for_imp_not_being_armed(thing, a2);
+    k = 0;
+    i = game.thing_lists[TngList_Traps].index;
+    while (i > 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+          break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if ( (thing->model == trpmodel) && (thing->byte_13 == 0) && (thing->owner == digger->owner) )
+        {
+            if ( !imp_will_soon_be_arming_trap(thing) )
+            {
+                return thing;
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+    return INVALID_THING;
 }
 
 long check_out_unprettied_or_unconverted_area(struct Thing *thing)

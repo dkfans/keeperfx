@@ -22,6 +22,9 @@
 
 #include "bflib_keybrd.h"
 #include "bflib_guibtns.h"
+#include "bflib_sprite.h"
+#include "bflib_sprfnt.h"
+#include "bflib_vidraw.h"
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
@@ -44,6 +47,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT void _DK_draw_gold_total(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT void _DK_gui_zoom_in(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_zoom_out(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_go_to_map(struct GuiButton *gbtn);
@@ -1153,6 +1157,58 @@ void gui_set_query(struct GuiButton *gbtn)
     struct PlayerInfo *player;
     player = get_my_player();
     set_players_packet_action(player, PckA_SetPlyrState, 12, 0, 0, 0);
+}
+
+void draw_gold_total(unsigned char a1, long scr_x, long scr_y, long long value)
+{
+    struct TbSprite *spr;
+    unsigned int flg_mem;
+    int ndigits,val_width;
+    long pos_x;
+    long long i;
+    //_DK_draw_gold_total(a1, a2, a3, value);
+    flg_mem = lbDisplay.DrawFlags;
+    ndigits = 0;
+    val_width = 0;
+    for (i = value; i > 0; i /= 10) {
+        ndigits++;
+    }
+    spr = &button_sprite[71];
+    val_width = (pixel_size * (int)spr->SWidth) * (ndigits - 1);
+    if (ndigits > 0)
+    {
+        pos_x = val_width / 2 + scr_x;
+        for (i = value; i > 0; i /= 10)
+        {
+            spr = &button_sprite[i % 10 + 71];
+            LbSpriteDraw(pos_x / pixel_size, scr_y / pixel_size, spr);
+            pos_x -= pixel_size * spr->SWidth;
+        }
+    } else
+    {
+        spr = &button_sprite[71];
+        LbSpriteDraw(scr_x / pixel_size, scr_y / pixel_size, spr);
+    }
+    lbDisplay.DrawFlags = flg_mem;
+}
+
+void draw_whole_status_panel(void)
+{
+    struct Dungeon *dungeon;
+    struct PlayerInfo *player;
+    long mmzoom;
+    player = get_my_player();
+    dungeon = get_my_dungeon();
+    lbDisplay.DrawColour = colours[15][15][15];
+    lbDisplay.DrawFlags = 0;
+    DrawBigSprite(0, 0, &status_panel, gui_panel_sprites);
+    draw_gold_total(player->id_number, 60, 134, dungeon->total_money_owned);
+    if (pixel_size < 3)
+        mmzoom = (player->minimap_zoom) / (3-pixel_size);
+    else
+        mmzoom = player->minimap_zoom;
+    pannel_map_draw(player->mouse_x, player->mouse_y, mmzoom);
+    draw_overlay_things(mmzoom);
 }
 
 /******************************************************************************/
