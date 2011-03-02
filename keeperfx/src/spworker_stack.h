@@ -57,7 +57,7 @@ void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon);
 long add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon);
 void setup_imp_stack(struct Dungeon *dungeon);
 long add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long a2);
-long add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long a2);
+TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_tasks);
 long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long a2);
 long add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *thing);
 TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num);

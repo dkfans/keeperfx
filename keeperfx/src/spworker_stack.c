@@ -430,9 +430,86 @@ long add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long
   return _DK_add_unclaimed_unconscious_bodies_to_imp_stack(dungeon, a2);
 }
 
-long add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long a2)
+struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing)
 {
-  return _DK_add_unclaimed_dead_bodies_to_imp_stack(dungeon, a2);
+    if ((thing->field_0 & 0x20) == 0)
+        return INVALID_PLAYER;
+    return get_player(thing->owner);
+}
+
+/**
+ *  Returns if given corpse can rot in graveyard.
+ * @param thing
+ * @return
+ */
+TbBool corpse_is_rottable(const struct Thing *thing)
+{
+    struct PlayerInfo *player;
+    if (!thing_exists(thing))
+        return false;
+    if (thing->class_id != TCls_DeadCreature)
+        return false;
+    player = get_player_thing_is_controlled_by(thing);
+    if (player_invalid(player))
+        return true;
+    return false;
+}
+
+TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
+{
+    struct Thing *thing;
+    struct Room *room;
+    SubtlCodedCoords stl_num;
+    int remain_num;
+    unsigned long k;
+    int i;
+    //return _DK_add_unclaimed_dead_bodies_to_imp_stack(dungeon, max_tasks);
+    if (dungeon->room_kind[RoK_GRAVEYARD] <= 0) {
+        SYNCDBG(8,"Dungeon %d has no graveyard",(int)dungeon->owner);
+        return 1;
+    }
+    room = find_room_with_spare_capacity(dungeon->owner, RoK_GRAVEYARD, 1);
+    k = 0;
+    i = game.thing_lists[TCls_DeadCreature].index;
+    remain_num = max_tasks;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        if ( (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT) || (remain_num <= 0) ) {
+            break;
+        }
+        if ( ((thing->field_1 & 0x01) == 0) && (thing->active_state == 2) && (thing->byte_14 == 0) && corpse_is_rottable(thing) )
+        {
+            if (room_is_invalid(room))
+            {
+                SYNCDBG(8,"Dungeon %d has no free graveyard space",(int)dungeon->owner);
+                if (is_my_player_number(dungeon->owner)) {
+                    output_message(32, 1000, 1);
+                }
+                return 0;
+            }
+            if ( subtile_revealed(thing->mappos.x.stl.num,thing->mappos.y.stl.num,dungeon->owner) )
+            {
+                stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+                add_to_imp_stack_using_pos(stl_num, DigTsk_PickUpCorpse, dungeon);
+                remain_num--;
+            }
+        }
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
+    return 1;
 }
 
 long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long a2)
@@ -858,11 +935,11 @@ long imp_stack_update(struct Thing *thing)
     return 0;
   SYNCDBG(8,"Updating");
   setup_imp_stack(dungeon);
-  add_unclaimed_unconscious_bodies_to_imp_stack(dungeon, 15);
-  add_unclaimed_dead_bodies_to_imp_stack(dungeon, 15);
-  add_unclaimed_spells_to_imp_stack(dungeon, 5);
-  add_empty_traps_to_imp_stack(dungeon, 10);
-  add_undug_to_imp_stack(dungeon, 40);
+  add_unclaimed_unconscious_bodies_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT/4 - 1);
+  add_unclaimed_dead_bodies_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT/4 - 1);
+  add_unclaimed_spells_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT/12);
+  add_empty_traps_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT/6);
+  add_undug_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT*5/8);
   add_pretty_and_convert_to_imp_stack(dungeon);
   add_unclaimed_gold_to_imp_stack(dungeon);
   add_unclaimed_traps_to_imp_stack(dungeon);
