@@ -62,6 +62,7 @@
 #include "front_landview.h"
 #include "thing_stats.h"
 #include "thing_creature.h"
+#include "thing_corpses.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_doors.h"
@@ -325,7 +326,6 @@ DLLIMPORT long _DK_apply_wallhug_force_to_boulder(struct Thing *thing);
 DLLIMPORT void _DK_lightning_modify_palette(struct Thing *thing);
 DLLIMPORT void _DK_update_god_lightning_ball(struct Thing *thing);
 DLLIMPORT long _DK_process_creature_self_spell_casting(struct Thing *thing);
-DLLIMPORT long _DK_update_dead_creature(struct Thing *thing);
 DLLIMPORT void _DK_gui_set_button_flashing(long a1, long a2);
 DLLIMPORT short _DK_send_creature_to_room(struct Thing *thing, struct Room *room);
 DLLIMPORT struct Room *_DK_get_room_thing_is_on(struct Thing *thing);
@@ -1613,12 +1613,6 @@ void explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
             explosion_affecting_mapblk(tngsrc, mapblk, pos, max_dist, max_damage, hit_type);
         }
     }
-}
-
-long update_dead_creature(struct Thing *thing)
-{
-  SYNCDBG(18,"Starting");
-  return _DK_update_dead_creature(thing);
 }
 
 struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsigned short owner)

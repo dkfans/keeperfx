@@ -350,7 +350,7 @@ New and modified level script commands:
 
 Changelog:
 
-Version: 0.38b
+Version: 0.38c
   Fixed the v0.38b bug with computer keeper not digging for gold
   Rewritten some of imps and workshop related code
   Rewritten some of imp tasks code and gold counter
