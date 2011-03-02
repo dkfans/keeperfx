@@ -1093,6 +1093,14 @@ struct Room *find_room_with_spare_room_item_capacity(unsigned char a1, signed ch
   return _DK_find_room_with_spare_room_item_capacity(a1, a2);
 }
 
+/**
+ * Searches for room of given kind and owner which has no less than given spare capacity.
+ * @param owner
+ * @param rkind
+ * @param spare
+ * @return
+ * @note Function find_room_with_spare_room_capacity() should also redirect to this one.
+ */
 struct Room *find_room_with_spare_capacity(unsigned char owner, signed char rkind, long spare)
 {
     struct Dungeon *dungeon;

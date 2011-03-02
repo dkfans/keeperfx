@@ -182,6 +182,7 @@ obj/sounds.o \
 obj/slab_data.o \
 obj/spworker_stack.o \
 obj/tasks_list.o \
+obj/thing_corpses.o \
 obj/thing_creature.o \
 obj/thing_data.o \
 obj/thing_doors.o \
