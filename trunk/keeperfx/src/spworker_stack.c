@@ -28,6 +28,7 @@
 #include "dungeon_data.h"
 #include "tasks_list.h"
 #include "config_creature.h"
+#include "thing_corpses.h"
 #include "thing_navigate.h"
 #include "room_data.h"
 #include "thing_objects.h"
@@ -428,31 +429,6 @@ void setup_imp_stack(struct Dungeon *dungeon)
 long add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long a2)
 {
   return _DK_add_unclaimed_unconscious_bodies_to_imp_stack(dungeon, a2);
-}
-
-struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing)
-{
-    if ((thing->field_0 & 0x20) == 0)
-        return INVALID_PLAYER;
-    return get_player(thing->owner);
-}
-
-/**
- *  Returns if given corpse can rot in graveyard.
- * @param thing
- * @return
- */
-TbBool corpse_is_rottable(const struct Thing *thing)
-{
-    struct PlayerInfo *player;
-    if (!thing_exists(thing))
-        return false;
-    if (thing->class_id != TCls_DeadCreature)
-        return false;
-    player = get_player_thing_is_controlled_by(thing);
-    if (player_invalid(player))
-        return true;
-    return false;
 }
 
 TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_tasks)

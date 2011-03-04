@@ -40,6 +40,7 @@
 #include "thing_navigate.h"
 #include "thing_shots.h"
 #include "thing_corpses.h"
+#include "thing_physics.h"
 #include "lens_api.h"
 #include "light_data.h"
 #include "gui_topmsg.h"

@@ -216,6 +216,13 @@ TbBool thing_touching_floor(const struct Thing *thing)
     return (thing->field_60 == thing->mappos.z.val);
 }
 
+struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing)
+{
+    if ((thing->field_0 & 0x20) == 0)
+        return INVALID_PLAYER;
+    return get_player(thing->owner);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

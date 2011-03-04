@@ -163,6 +163,7 @@ short thing_is_invalid(const struct Thing *thing);
 long thing_get_index(const struct Thing *thing);
 
 TbBool thing_touching_floor(const struct Thing *thing);
+struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus

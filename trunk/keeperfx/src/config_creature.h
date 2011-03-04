@@ -35,14 +35,15 @@ extern "C" {
 struct Thing;
 
 enum CreatureModelFlags {
-    MF_IsSpecDigger   = 0x0001, // Imp and Tunneler
-    MF_IsArachnid     = 0x0002, // simply, Spider
-    MF_IsDiptera      = 0x0004, // simply, Fly
-    MF_IsLordOTLand   = 0x0008, // simply, Knight
-    MF_IsSpectator    = 0x0010, // simply, Floating spirit
-    MF_IsEvil         = 0x0020, // All evil creatures
-    MF_NeverChickens  = 0x0040, // Cannot be affected by Chicken (for Avatar)
-    MF_ImmuneToBoulder= 0x0080, // Boulder traps are destroyed at the moment they touch the creature
+    MF_IsSpecDigger     = 0x0001, // Imp and Tunneler
+    MF_IsArachnid       = 0x0002, // simply, Spider
+    MF_IsDiptera        = 0x0004, // simply, Fly
+    MF_IsLordOTLand     = 0x0008, // simply, Knight
+    MF_IsSpectator      = 0x0010, // simply, Floating spirit
+    MF_IsEvil           = 0x0020, // All evil creatures
+    MF_NeverChickens    = 0x0040, // Cannot be affected by Chicken (for Avatar)
+    MF_ImmuneToBoulder  = 0x0080, // Boulder traps are destroyed at the moment they touch the creature
+    MF_NoCorpseRotting  = 0x0100, // Corpse cannot rot in graveyard
 };
 
 enum CreatureJobFlags {

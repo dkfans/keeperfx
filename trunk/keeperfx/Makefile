@@ -170,6 +170,7 @@ obj/creature_states_pray.o \
 obj/creature_states_tresr.o \
 obj/creature_states.o \
 obj/thing_objects.o \
+obj/thing_physics.o \
 obj/magic.o \
 obj/power_specials.o \
 obj/power_hand.o \
