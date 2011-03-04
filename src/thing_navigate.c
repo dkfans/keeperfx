@@ -27,6 +27,7 @@
 #include "thing_list.h"
 #include "thing_objects.h"
 #include "thing_stats.h"
+#include "thing_physics.h"
 #include "dungeon_data.h"
 #include "ariadne.h"
 #include "keeperfx.hpp"
@@ -291,24 +292,6 @@ long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos)
 long creature_turn_to_face_angle(struct Thing *thing, long a2)
 {
     return _DK_creature_turn_to_face_angle(thing, a2);
-}
-
-void creature_set_speed(struct Thing *thing, long speed)
-{
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
-    if (speed < -256)
-    {
-        cctrl->move_speed = -256;
-    } else
-    if (speed > 256)
-    {
-        cctrl->move_speed = 256;
-    } else
-    {
-        cctrl->move_speed = speed;
-    }
-    cctrl->flgfield_1 |= CCFlg_Unknown40;
 }
 
 long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, short a3, long a4, long a5, unsigned char backward)

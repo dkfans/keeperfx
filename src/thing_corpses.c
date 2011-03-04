@@ -24,12 +24,16 @@
 #include "thing_data.h"
 #include "thing_stats.h"
 #include "thing_list.h"
+#include "thing_physics.h"
+#include "thing_effects.h"
+#include "config_terrain.h"
 #include "creature_control.h"
 #include "creature_states.h"
 #include "creature_graphics.h"
 #include "dungeon_data.h"
 #include "config_creature.h"
 #include "gui_topmsg.h"
+#include "gui_soundmsgs.h"
 
 #include "keeperfx.hpp"
 
@@ -44,11 +48,264 @@ DLLIMPORT struct Thing *_DK_destroy_creature_and_create_corpse(struct Thing *thi
 
 
 /******************************************************************************/
+/**
+ *  Returns if given corpse can rot in graveyard.
+ * @param thing The dead creature thing.
+ * @return True if the corpse can be dragged into graveyard for rotting.
+ */
+TbBool corpse_is_rottable(const struct Thing *thing)
+{
+    struct PlayerInfo *player;
+    if (!thing_exists(thing))
+        return false;
+    if (thing->class_id != TCls_DeadCreature)
+        return false;
+    if ((get_creature_model_flags(thing) & MF_NoCorpseRotting) != 0)
+        return false;
+    player = get_player_thing_is_controlled_by(thing);
+    if (player_invalid(player))
+        return true;
+    return false;
+}
+
+TbBool create_vampire_in_room(struct Room *room)
+{
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    struct Coord3d pos;
+    pos.x.val = 0;
+    pos.y.val = 0;
+    pos.z.val = 0;
+    thing = create_creature(&pos, 25, room->owner);
+    if (thing_is_invalid(thing)) {
+        ERRORLOG("Could not create creature");
+        return false;
+    }
+    if (!find_random_valid_position_for_thing_in_room(thing, room, &pos)) {
+        ERRORLOG("Could not find valid position in room");
+        delete_thing_structure(thing, 0);
+        return false;
+    }
+    move_thing_in_map(thing, &pos);
+    dungeon = get_dungeon(room->owner);
+    dungeon->lvstats.vamps_created++;
+    create_effect(&pos, 3, thing->owner);
+    if (is_my_player_number(room->owner)) {
+        output_message(58, 0, 1);
+    }
+    return true;
+}
+
+unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos)
+{
+    struct Coord3d pos;
+    unsigned int flags;
+    flags = 0;
+    pos.x.val = newpos->x.val;
+    pos.y.val = thing->mappos.y.val;
+    pos.z.val = thing->mappos.z.val;
+    if ( creature_cannot_move_directly_to(thing, &pos) ) {
+        flags |= 0x01;
+    }
+    pos.x.val = thing->mappos.x.val;
+    pos.y.val = newpos->y.val;
+    pos.z.val = thing->mappos.z.val;
+    if ( creature_cannot_move_directly_to(thing, &pos) ) {
+        flags |= 0x02;
+    }
+    pos.x.val = thing->mappos.x.val;
+    pos.y.val = thing->mappos.y.val;
+    pos.z.val = newpos->z.val;
+    if ( creature_cannot_move_directly_to(thing, &pos) ) {
+        flags |= 0x04;
+    }
+    switch (flags)
+    {
+    case 0:
+      if ( creature_cannot_move_directly_to(thing, newpos) ) {
+          flags = 0x07;
+      }
+      break;
+    case 1:
+      pos.x.val = thing->mappos.x.val;
+      pos.y.val = newpos->y.val;
+      pos.z.val = newpos->z.val;
+      if (creature_cannot_move_directly_to(thing, &pos) < 1) {
+          flags = 0x01;
+      } else {
+          flags = 0x07;
+      }
+      break;
+    case 2:
+      pos.x.val = newpos->x.val;
+      pos.y.val = thing->mappos.y.val;
+      pos.z.val = newpos->z.val;
+      if (creature_cannot_move_directly_to(thing, &pos) < 1) {
+          flags = 0x02;
+      } else {
+          flags = 0x07;
+      }
+      break;
+    case 4:
+      pos.x.val = newpos->x.val;
+      pos.y.val = newpos->y.val;
+      pos.z.val = thing->mappos.z.val;
+      if ( creature_cannot_move_directly_to(thing, &pos) ) {
+          flags = 0x07;
+      }
+      break;
+    }
+    return flags;
+}
+
+void remove_body_from_graveyard(struct Thing *thing)
+{
+    struct Dungeon *dungeon;
+    struct Room *room;
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room)) {
+        ERRORLOG("The %s is not in room",thing_model_name(thing));
+        return;
+    }
+    if (room->kind != RoK_GRAVEYARD) {
+        ERRORLOG("The %s is in %s instead of graveyard",thing_model_name(thing),room_code_name(room->kind));
+        return;
+    }
+    if (room->used_capacity <= 0) {
+        ERRORLOG("Graveyard had no allocated capacity to remove body from");
+        return;
+    }
+    if (thing->byte_14 == 0) {
+        ERRORLOG("The %s is not in graveyard",thing_model_name(thing));
+        return;
+    }
+    room->used_capacity--;
+    thing->byte_14 = 0;
+    dungeon = get_dungeon(room->owner);
+    dungeon->bodies_rotten_for_vampire++;
+    dungeon->lvstats.graveyard_bodys++;
+    if (dungeon->bodies_rotten_for_vampire >= game.bodies_for_vampire) {
+        dungeon->bodies_rotten_for_vampire -= game.bodies_for_vampire;
+        create_vampire_in_room(room);
+    }
+}
+
+long move_dead_creature(struct Thing *thing)
+{
+    struct Coord3d pos;
+    long i;
+    if ( (thing->velocity.x.val != 0) || (thing->velocity.y.val != 0) || (thing->velocity.z.val != 0) )
+    {
+        i = (long)thing->mappos.x.val + (long)thing->velocity.x.val;
+        if (i >= subtile_coord(map_subtiles_x,0)) i = subtile_coord(map_subtiles_x,0)-1;
+        if (i < 0) i = 0;
+        pos.x.val = i;
+        i = (long)thing->mappos.y.val + (long)thing->velocity.y.val;
+        if (i >= subtile_coord(map_subtiles_y,0)) i = subtile_coord(map_subtiles_y,0)-1;
+        if (i < 0) i = 0;
+        pos.y.val = i;
+        i = (long)thing->mappos.z.val + (long)thing->velocity.z.val;
+        if (i < 0) i = 0;
+        pos.z.val = i;
+        if ( !positions_equivalent(&thing->mappos, &pos) )
+        {
+          if ( thing_in_wall_at(thing, &pos) )
+          {
+              i = get_creature_blocked_flags_at(thing, &pos);
+              slide_thing_against_wall_at(thing, &pos, i);
+              remove_relevant_forces_from_thing_after_slide(thing, &pos, i);
+          }
+        }
+        if ( (thing->mappos.x.stl.num != pos.x.stl.num) || (thing->mappos.y.stl.num != pos.y.stl.num) )
+        {
+            remove_thing_from_mapwho(thing);
+            thing->mappos.x.val = pos.x.val;
+            thing->mappos.y.val = pos.y.val;
+            thing->mappos.z.val = pos.z.val;
+            place_thing_in_mapwho(thing);
+        } else
+        {
+            thing->mappos.x.val = pos.x.val;
+            thing->mappos.y.val = pos.y.val;
+            thing->mappos.z.val = pos.z.val;
+        }
+    }
+    thing->field_60 = get_thing_height_at(thing, &thing->mappos);
+    return 1;
+}
+
 long update_dead_creature(struct Thing *thing)
 {
     struct Coord3d pos;
+    struct Map *mapblk;
+    long i;
     SYNCDBG(18,"Starting");
     return _DK_update_dead_creature(thing);
+    if ((thing->field_0 & 0x80) == 0)
+    {
+      if (thing->active_state == 1)
+      {
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = thing->mappos.z.val;
+        pos.z.val += 3 * (int)thing->field_58 / 4;
+        if (creature_model_bleeds(thing->model)) {
+            create_effect(&pos, 65, thing->owner);
+        }
+        if (thing->health > 0)
+            thing->health--;
+        if (thing->health <= 0) {
+          thing->active_state = 2;
+          i = get_creature_anim(thing, 16);
+          set_thing_draw(thing, i, 64, -1, 1, 0, 2);
+        }
+      } else
+      if ( corpse_is_rottable(thing) )
+      {
+          if (thing->byte_14 != 0)
+          {
+              if (thing->health > 0)
+                  thing->health--;
+              if (thing->health <= 0) {
+                  remove_body_from_graveyard(thing);
+                  delete_thing_structure(thing, 0);
+                  return 0;
+              }
+          } else
+          {
+              if (game.play_gameturn - thing->field_9 > game.body_remains_for) {
+                  delete_thing_structure(thing, 0);
+                  return 0;
+              }
+          }
+      }
+    }
+    i = get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    if (cube_is_water(i)) {
+        thing->field_25 |= 0x01;
+    }
+    if ((thing->field_0 & 0x20) != 0)
+    {
+        move_dead_creature(thing);
+        return 1;
+    }
+    if ( map_pos_is_lava(thing->mappos.x.stl.num, thing->mappos.y.stl.num)
+      && ((thing->field_1 & 0x01) == 0) && ((thing->field_0 & 0x80) == 0) )
+    {
+        delete_thing_structure(thing, 0);
+        return 0;
+    }
+    mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    if ((mapblk->flags & 0x40) == 0)
+    {
+        move_dead_creature(thing);
+        return 1;
+    } else
+    {
+        delete_thing_structure(thing, 0);
+        create_dead_creature(&thing->mappos, thing->model, 2, thing->owner, thing->byte_13);
+        return 0;
+    }
 }
 
 TbBool update_dead_creatures_list(struct Dungeon *dungeon, struct Thing *thing)

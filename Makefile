@@ -190,6 +190,7 @@ obj/thing_effects.o \
 obj/thing_list.o \
 obj/thing_navigate.o \
 obj/thing_objects.o \
+obj/thing_physics.o \
 obj/thing_shots.o \
 obj/thing_stats.o \
 obj/thing_traps.o \

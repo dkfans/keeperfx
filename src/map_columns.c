@@ -205,6 +205,16 @@ void init_top_texture_to_cube_table(void)
 {
   _DK_init_top_texture_to_cube_table();
 }
+
+TbBool cube_is_water(long cube_id)
+{
+    return (cube_id == 39);
+}
+
+TbBool cube_is_lava(long cube_id)
+{
+    return (cube_id == 40) || (cube_id == 41);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

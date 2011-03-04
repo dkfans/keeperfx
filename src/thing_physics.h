@@ -1,10 +1,10 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file thing_corpses.h
- *     Header file for thing_corpses.c.
+/** @file thing_physics.h
+ *     Header file for thing_physics.c.
  * @par Purpose:
- *     Dead creature things support functions.
+ *     Implementation of physics functions used for things.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
@@ -16,8 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_TNGCORPSES_H
-#define DK_TNGCORPSES_H
+#ifndef DK_TNGPHYSICS_H
+#define DK_TNGPHYSICS_H
 
 #include "bflib_basics.h"
 #include "globals.h"
@@ -41,11 +41,12 @@ struct Dungeon;
 #pragma pack()
 #endif
 /******************************************************************************/
-TbBool corpse_is_rottable(const struct Thing *thing);
-TbBool update_dead_creatures_list(struct Dungeon *dungeon, struct Thing *thing);
-long update_dead_creature(struct Thing *thing);
-struct Thing *create_dead_creature(struct Coord3d *pos, unsigned short model, unsigned short a1, unsigned short owner, long explevel);
-struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1);
+void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
+void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
+void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct Coord3d *pos, long a3);
+TbBool positions_equivalent(struct Coord3d *pos_a, struct Coord3d *pos_b);
+long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos);
+void creature_set_speed(struct Thing *thing, long speed);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -24,6 +24,7 @@
 #include "bflib_sound.h"
 #include "thing_data.h"
 #include "thing_effects.h"
+#include "thing_physics.h"
 #include "front_simple.h"
 #include "thing_stats.h"
 #include "config_creature.h"
@@ -50,8 +51,6 @@ DLLIMPORT void _DK_create_relevant_effect_for_shot_hitting_thing(struct Thing *s
 DLLIMPORT long _DK_check_hit_when_attacking_door(struct Thing *thing);
 DLLIMPORT long _DK_get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT void _DK_process_dig_shot_hit_wall(struct Thing *thing, long a2);
-DLLIMPORT void _DK_slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
-DLLIMPORT void _DK_bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
 /******************************************************************************/
 TbBool shot_is_slappable(const struct Thing *thing, long plyr_idx)
 {
@@ -153,16 +152,6 @@ long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
 void process_dig_shot_hit_wall(struct Thing *thing, long a2)
 {
     _DK_process_dig_shot_hit_wall(thing, a2); return;
-}
-
-void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3)
-{
-    _DK_slide_thing_against_wall_at(thing, pos, a3); return;
-}
-
-void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long a3)
-{
-    _DK_bounce_thing_off_wall_at(thing, pos, a3); return;
 }
 
 struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long eff_kind, long snd_idx, long snd_range)
