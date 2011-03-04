@@ -29,6 +29,7 @@
 #include "ariadne_edge.h"
 #include "ariadne_findcache.h"
 #include "thing_navigate.h"
+#include "thing_physics.h"
 #include "gui_topmsg.h"
 #include "keeperfx.hpp"
 
@@ -75,7 +76,6 @@ DLLIMPORT long _DK_ariadne_init_movement_to_current_waypoint(struct Thing *thing
 DLLIMPORT unsigned char _DK_ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long ptstart_y, struct Coord3d *nextpos, unsigned char a5);
 DLLIMPORT unsigned char _DK_ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *arid);
 DLLIMPORT unsigned char _DK_ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *arid);
-DLLIMPORT long _DK_creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid);
 DLLIMPORT unsigned char _DK_ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos);
 DLLIMPORT void _DK_insert_point(long pt_x, long pt_y);
@@ -891,11 +891,6 @@ void ariadne_init_current_waypoint(struct Thing *thing, struct Ariadne *arid)
     ariadne_pull_out_waypoint(thing, arid, arid->current_waypoint, &arid->pos_C);
     arid->pos_C.z.val = get_thing_height_at(thing, &arid->pos_C);
     arid->field_62 = get_2d_distance(&thing->mappos, &arid->pos_C);
-}
-
-long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
-{
-    return _DK_creature_cannot_move_directly_to(thing, pos);
 }
 
 long ariadne_creature_blocked_by_wall_at(struct Thing *thing, struct Coord3d *pos)

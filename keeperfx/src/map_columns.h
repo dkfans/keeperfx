@@ -66,6 +66,9 @@ unsigned short find_column_height(struct Column *col);
 long get_floor_height_at(struct Coord3d *pos);
 void init_whole_blocks(void);
 void init_top_texture_to_cube_table(void);
+
+TbBool cube_is_water(long cube_id);
+TbBool cube_is_lava(long cube_id);
 /******************************************************************************/
 #ifdef __cplusplus
 }
