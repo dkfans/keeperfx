@@ -54,12 +54,12 @@ long find_from_task_list(long plyr_idx, long srch_tsk)
 {
   struct Dungeon *dungeon;
   struct MapTask *task;
-  long i,max;
+  long i,imax;
   dungeon = get_dungeon(plyr_idx);
-  max = dungeon->field_AF7;
-  if (max > MAPTASKS_COUNT)
-      max = MAPTASKS_COUNT;
-  for (i=0; i < max; i++)
+  imax = dungeon->field_AF7;
+  if (imax > MAPTASKS_COUNT)
+      imax = MAPTASKS_COUNT;
+  for (i=0; i < imax; i++)
   {
     task = &dungeon->task_list[i];
     if (task->field_1 == srch_tsk)

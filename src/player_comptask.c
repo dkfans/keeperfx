@@ -20,6 +20,8 @@
 #include "player_computer.h"
 
 #include <limits.h>
+#include <string.h>
+
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
@@ -29,9 +31,13 @@
 
 #include "config.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "magic.h"
 #include "thing_traps.h"
 #include "player_instances.h"
+
+#include "dungeon_data.h"
+#include "slab_data.h"
 
 #include "keeperfx.hpp"
 
@@ -68,6 +74,11 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctask);
+short tool_dig_to_pos2(struct Computer2 *, struct ComputerDig *, long, long);
+long add_to_trap_location(struct Computer2 *, struct Coord3d *);
+long find_next_gold(struct Computer2 *, struct ComputerTask *);
+long check_for_gold(long l1, long l2, long l3);
+int search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
 /******************************************************************************/
 const struct TaskFunctions task_function[] = {
     {NULL, NULL},
@@ -118,7 +129,7 @@ DLLIMPORT long _DK_task_dig_room(struct Computer2 *comp, struct ComputerTask *ct
 DLLIMPORT long _DK_task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_place_room(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT long _DK_task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask);
+//DLLIMPORT long _DK_task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask);
@@ -138,6 +149,11 @@ DLLIMPORT long _DK_fake_place_thing_in_power_hand(struct Computer2 *comp, struct
 DLLIMPORT struct Thing *_DK_find_creature_to_be_placed_in_room(struct Computer2 *comp, struct Room **roomp);
 DLLIMPORT short _DK_game_action(char a1, unsigned short a2, unsigned short a3, unsigned short a4,
  unsigned short a5, unsigned short a6, unsigned short a7);
+DLLIMPORT short _DK_tool_dig_to_pos2(struct Computer2 *, struct ComputerDig *, long, long);
+DLLIMPORT long _DK_add_to_trap_location(struct Computer2 *, struct Coord3d *);
+//DLLIMPORT long _DK_find_next_gold(struct Computer2 *, struct ComputerTask *);
+DLLIMPORT long _DK_check_for_gold(long l1, long l2, long l3);
+DLLIMPORT int _DK_search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -161,32 +177,39 @@ TbBool computer_task_invalid(struct ComputerTask *ctask)
     return false;
 }
 
+/** Removes task from Computer2 structure and marks it as unused.
+ *
+ * @param comp Computer from which task is removed.
+ * @param ctask Task to be removed from the computer tasks list.
+ * @return
+ */
 TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask)
 {
-  struct ComputerTask *nxctask;
-  long i;
-  i = comp->field_14C6;
-  if (&game.computer_task[i] == ctask)
-  {
-    comp->field_14C6 = ctask->next_task;
-    ctask->next_task = 0;
-    set_flag_byte(&ctask->field_0, 0x01, false);
-    return false;
-  }
-  nxctask = &game.computer_task[i];
-  while (!computer_task_invalid(nxctask))
-  {
-      i = nxctask->next_task;
-      if (&game.computer_task[i] == ctask)
-      {
-        nxctask->next_task = ctask->next_task;
+    struct ComputerTask *nxctask;
+    long i;
+    i = comp->task_idx;
+    if (get_computer_task(i) == ctask)
+    {
+        //Removing first task in list
+        comp->task_idx = ctask->next_task;
         ctask->next_task = 0;
-        set_flag_byte(&ctask->field_0, 0x01, false);
+        set_flag_byte(&ctask->flags, 0x01, false);
         return true;
-      }
-      nxctask = &game.computer_task[i];
-  }
-  return false;
+    }
+    nxctask = get_computer_task(i);
+    while (!computer_task_invalid(nxctask))
+    {
+        i = nxctask->next_task;
+        if (&game.computer_task[i] == ctask)
+        {
+          nxctask->next_task = ctask->next_task;
+          ctask->next_task = 0;
+          set_flag_byte(&ctask->flags, 0x01, false);
+          return true;
+        }
+        nxctask = get_computer_task(i);
+    }
+    return false;
 }
 
 short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
@@ -539,10 +562,195 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     return _DK_task_dig_to_entrance(comp,ctask);
 }
 
+short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long l1, long l2)
+{
+    SYNCDBG(4,"Starting");
+    long retval = _DK_tool_dig_to_pos2(comp, cdig, l1, l2);
+    SYNCDBG(5,"Finished");
+
+    return retval;
+}
+
+long add_to_trap_location(struct Computer2 * comp, struct Coord3d * coord)
+{
+    struct Coord3d * location;
+    long i;
+    SYNCDBG(6,"Starting");
+    //return _DK_add_to_trap_location(comp, coord);
+    for (i=0; i < 20; i++)
+    {
+        location = &comp->trap_locations[i];
+        if ( (location->x.val == 0) && (location->y.val == 0) ) {
+            location->x.val = coord->x.val;
+            location->y.val = coord->y.val;
+            location->z.val = coord->z.val;
+            return true;
+        }
+    }
+    SYNCDBG(7,"No free location");
+    return false;
+}
+
+long check_for_gold(long stl_x, long stl_y, long plyr_idx)
+{
+    struct SlabMap *slb;
+    struct SlabAttr *slbattr;
+    SubtlCodedCoords stl_num;
+    SYNCDBG(5,"Starting");
+    //return _DK_check_for_gold(l1, l2, l3);
+    stl_num = get_subtile_number(stl_x+1,stl_y+1);
+    slb = get_slabmap_for_subtile(stl_x,stl_y);
+    slbattr = get_slab_attrs(slb);
+    if ((slbattr->field_6 & 0x01) != 0) {
+        return (find_from_task_list(plyr_idx, stl_num) < 0);
+    }
+    return 0;
+}
+
+int search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long))
+{
+    SYNCDBG(7,"Starting");
+    long retval = _DK_search_spiral(pos, owner, i3, cb);
+    SYNCDBG(8,"Finished");
+
+    return retval;
+}
+
+long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
+{
+    SYNCDBG(5,"Starting");
+    //return _DK_find_next_gold(comp, ctask);
+
+    memcpy(&ctask->dig.pos_14, &ctask->dig.pos_20, sizeof(struct Coord3d));
+
+    if (search_spiral(&ctask->dig.pos_14, comp->dungeon->owner, 25, check_for_gold) == 25) {
+        return 0;
+    }
+
+    memcpy(&ctask->dig.pos_gold, &ctask->dig.pos_20, sizeof(struct Coord3d));
+    ctask->dig.field_26 = LONG_MAX;
+    ctask->dig.field_54 = 0;
+
+    struct ComputerDig cdig;
+    memcpy(&cdig, &ctask->dig, sizeof(struct ComputerDig));
+
+    long retval;
+    do
+    {
+        retval = tool_dig_to_pos2(comp, &cdig, 1, 0);
+        SYNCDBG(5,"retval=%d, dig.field_26=%d, dig.field_54=%d",
+            retval, cdig.field_26, cdig.field_54);
+    } while (retval == 0);
+
+    SYNCDBG(6,"Finished");
+    if ((retval != -1) && (retval != -5)) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
 long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 {
-    SYNCDBG(9,"Starting");
-    return _DK_task_dig_to_gold(comp,ctask);
+    long i;
+    SYNCDBG(2,"Starting");
+    //return _DK_task_dig_to_gold(comp,ctask);
+    struct Dungeon* dungeon = comp->dungeon;
+
+    i = dungeon->total_area * comp->field_1C / 100;
+    if ( (dungeon->imp_stack_length > 0) && (dungeon->imp_stack_length >= i) )
+    {
+        SYNCDBG(6,"Did nothing");
+        return 0;
+    }
+
+    if (ctask->dig.field_58 >= ctask->long_86)
+    {
+        struct SlabMap* slb = get_slabmap_for_subtile(ctask->dig.pos_20.x.stl.num, ctask->dig.pos_20.y.stl.num);
+
+        if ((get_slab_attrs(slb)->field_6 & 0x01) != 0)
+        {
+            ctask->field_60--;
+            if (ctask->field_60 > 0) {
+                SYNCDBG(6,"Did nothing");
+                return 0;
+            }
+        }
+        ctask->dig.field_58 = 0;
+    }
+
+    long retval = tool_dig_to_pos2(comp, &ctask->dig, 0, 1);
+
+    if ((ctask->flags & 0x04) != 0)
+    {
+        set_flag_byte(&ctask->flags, 0x04, false);
+        add_to_trap_location(comp, &ctask->dig.pos_20);
+    }
+
+    if (ctask->dig.field_58 >= ctask->long_86)
+    {
+        ctask->field_60 = 700 / comp->field_18;
+    }
+
+    if (retval == -5)
+    {
+        ctask->ottype = ctask->ttype;
+        ctask->ttype = CTT_WaitForBridge;
+
+        SYNCDBG(6,"Waiting for bridge");
+        return 4;
+    }
+
+    if ((retval < -3) || (retval > -1))
+    {
+        SYNCDBG(6,"Finished, code %d",(int)retval);
+        return retval;
+    }
+
+    if (find_next_gold(comp, ctask) != 0)
+    {
+        SYNCDBG(7,"Next slab found");
+        return 0;
+    }
+
+    struct GoldLookup* gold_lookup = get_gold_lookup(ctask->gold_lookup_idx);
+
+    unsigned short gold_x_stl_num = gold_lookup->x_stl_num;
+    unsigned short gold_y_stl_num = gold_lookup->y_stl_num;
+
+    unsigned short ctg_x_stl_num = ctask->dig.pos_gold.x.stl.num;
+    unsigned short ctg_y_stl_num = ctask->dig.pos_gold.y.stl.num;
+
+    // While destination isn't reached, continue finding slabs to mark
+    if ((gold_x_stl_num != ctg_x_stl_num) || (gold_y_stl_num != ctg_y_stl_num))
+    {
+        ctask->dig.pos_20.x.stl.num = gold_x_stl_num;
+        ctask->dig.pos_20.y.stl.num = gold_y_stl_num;
+
+        ctask->dig.pos_gold.x.stl.num = gold_x_stl_num;
+        ctask->dig.pos_gold.y.stl.num = gold_y_stl_num;
+
+        if (find_next_gold(comp, ctask) != 0) // || (retval < -3) -- Already returned
+        {
+            SYNCDBG(7,"Next slab found");
+            return retval;
+        }
+    }
+
+    // move to next task or return to enclosing task or return to try again later
+    if ((retval == -3) || (retval == -2))
+    {
+        gold_lookup = &game.gold_lookup[ctask->gold_lookup_idx];
+        set_flag_byte(&gold_lookup->plyrfield_1[dungeon->owner], 0x02, true);
+        remove_task(comp, ctask);
+    } else
+    if (retval == -1) // unnecessary check as retval < -3 and retval > -1 did return before
+    {
+        remove_task(comp, ctask);
+    }
+
+    SYNCDBG(5,"Task finished");
+    return retval;
 }
 
 long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
@@ -848,7 +1056,7 @@ long process_tasks(struct Computer2 *comp)
     //return _DK_process_tasks(comp);
     ndone = 0;
     k = 0;
-    i = comp->field_14C6;
+    i = comp->task_idx;
     while (i != 0)
     {
         if ((i < 0) || (i >= COMPUTER_TASKS_COUNT))
@@ -860,7 +1068,7 @@ long process_tasks(struct Computer2 *comp)
             break;
         ctask = &game.computer_task[i];
         i = ctask->next_task;
-        if ((ctask->field_0 & 0x01) != 0)
+        if ((ctask->flags & 0x01) != 0)
         {
             n = ctask->ttype;
             if ((n > 0) && (n < sizeof(task_function)/sizeof(task_function[0])))
