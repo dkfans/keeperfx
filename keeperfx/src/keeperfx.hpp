@@ -228,10 +228,9 @@ struct MapOffset {
 
 struct GoldLookup { // sizeof = 28
 unsigned char field_0;
-unsigned char field_1;
-unsigned long field_2;
-unsigned short field_6;
-unsigned short field_8;
+unsigned char plyrfield_1[5]; // player flags?
+unsigned short x_stl_num;
+unsigned short y_stl_num;
 unsigned short field_A;
 unsigned short field_C;
 unsigned short field_E;
@@ -922,6 +921,7 @@ TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char gn
 TbBool all_dungeons_destroyed(struct PlayerInfo *win_player);
 long add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount);
 void check_map_for_gold(void);
+struct GoldLookup *get_gold_lookup(long idx);
 short init_animating_texture_maps(void);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(unsigned char idx);

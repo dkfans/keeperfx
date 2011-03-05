@@ -1872,3 +1872,8 @@
  0001:000D2300       check_out_undug_drop_place
  0001:0008C6A0       imp_will_soon_be_getting_object
  0001:0008C750       imp_will_soon_be_arming_trap
+ 0001:0004CE70       tool_dig_to_pos2
+ 0001:0004F0E0       add_to_trap_location
+ 0001:0004BF00       find_next_gold
+ 0001:0004BFB0       check_for_gold
+ 0001:0004C630       search_spiral
