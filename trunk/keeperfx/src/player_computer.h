@@ -174,16 +174,35 @@ struct ComputerEventMnemonic {
   struct ComputerEvent *event;
 };
 
+struct ComputerDig { // sizeof = 78
+    unsigned char field_E[6];
+    struct Coord3d pos_14;
+    struct Coord3d pos_gold;
+    struct Coord3d pos_20;
+    long field_26;
+    unsigned char field_2A[25];
+    unsigned char field_43[6];
+    unsigned char field_49[11];
+    long field_54;
+    long field_58;
+};
+
 struct ComputerTask { // sizeof = 148
-    unsigned char field_0;
+    unsigned char flags;
     unsigned char field_1;
     unsigned char ttype;
-    unsigned char field_3[7];
+    unsigned char ottype;
+    unsigned char field_4[6];
     long field_A;
-    unsigned char field_E[21];
-    unsigned char field_23[32];
-    unsigned char field_43[6];
-    unsigned char field_49[19];
+    union {
+        struct ComputerDig dig;
+        struct {
+            unsigned char field_E[21];
+            unsigned char field_23[32];
+            unsigned char field_43[6];
+            unsigned char field_49[19];
+        };
+    };
     long field_5C;
     long field_60;
     unsigned char field_64[12];
@@ -201,7 +220,10 @@ struct ComputerTask { // sizeof = 148
     union {
     long field_80;
     struct {
-      short word_80;
+        union {
+        short gold_lookup_idx;
+        short word_80;
+        };
       short word_82;
     };
     };
@@ -234,7 +256,7 @@ struct Computer2 { // sizeof = 5322
   unsigned long field_10;
   unsigned long field_14;
   unsigned long field_18;
-  unsigned long field_1C;
+  unsigned long field_1C; // seems to be signed long
   unsigned long field_20;
   struct Dungeon *dungeon;
   unsigned long model;
@@ -245,11 +267,12 @@ struct Computer2 { // sizeof = 5322
   struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
   struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
   struct Comp2_UnkStr1 unkarr_A10[5];
-  unsigned char field_11C2[446];
-  unsigned char field_1380[128];
+  unsigned char field_11C2[394];
+  struct Coord3d trap_locations[20];
+  unsigned char field_13C4[60];
   unsigned char field_1400[196];
   short field_14C4;
-  short field_14C6;
+  short task_idx;
   short field_14C8;
 };
 
