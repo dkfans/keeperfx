@@ -424,6 +424,8 @@
  0001:00051280       start_emitter_playing
  0001:00051810       IsRunningMark@0
  0001:00051840       IsRunningUnmark@0
+ 0001:00051890       dig_to_position
+ 0001:00051A10       get_hug_side
  0001:000522A0       check_map_for_gold
  0001:00052990       flyeye_setup
  0001:00052A20       flyeye_blitsec
