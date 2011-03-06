@@ -28,6 +28,7 @@
 #include "bflib_dernc.h"
 #include "bflib_memory.h"
 #include "bflib_sound.h"
+#include "bflib_math.h"
 
 #include "config.h"
 #include "config_creature.h"
@@ -142,18 +143,20 @@ DLLIMPORT long _DK_task_magic_speed_up(struct Computer2 *comp, struct ComputerTa
 DLLIMPORT long _DK_task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT struct ComputerTask *_DK_get_task_in_progress(struct Computer2 *comp, long a2);
-DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long a2);
+DLLIMPORT struct ComputerTask *_DK_get_task_in_progress(struct Computer2 *comp, long stl_y);
+DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long stl_y);
 DLLIMPORT short _DK_fake_dump_held_creatures_on_map(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_fake_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT struct Thing *_DK_find_creature_to_be_placed_in_room(struct Computer2 *comp, struct Room **roomp);
-DLLIMPORT short _DK_game_action(char a1, unsigned short a2, unsigned short a3, unsigned short a4,
+DLLIMPORT short _DK_game_action(char stl_x, unsigned short stl_y, unsigned short plyr_idx, unsigned short a4,
  unsigned short a5, unsigned short a6, unsigned short a7);
 DLLIMPORT short _DK_tool_dig_to_pos2(struct Computer2 *, struct ComputerDig *, long, long);
 DLLIMPORT long _DK_add_to_trap_location(struct Computer2 *, struct Coord3d *);
 //DLLIMPORT long _DK_find_next_gold(struct Computer2 *, struct ComputerTask *);
 DLLIMPORT long _DK_check_for_gold(long l1, long l2, long l3);
 DLLIMPORT int _DK_search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
+DLLIMPORT long _DK_dig_to_position(signed char stl_x, unsigned short stl_y, unsigned short plyr_idx, unsigned char a4, unsigned char a5);
+DLLIMPORT short _DK_get_hug_side(struct ComputerDig * cdig, unsigned short stl_y, unsigned short plyr_idx, unsigned short a4, unsigned short a5, unsigned short a6, unsigned short a7);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -562,13 +565,252 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     return _DK_task_dig_to_entrance(comp,ctask);
 }
 
+long dig_to_position(signed char plyr_idx, unsigned short stl_x, unsigned short stl_y, int start_side, TbBool revside)
+{
+    long i,n,nchange;
+    //return _DK_dig_to_position(a1, a2, a3, start_side, revside);
+    if (revside) {
+      nchange = 1;
+    } else {
+      nchange = 3;
+    }
+    n = (start_side + 4 - nchange) & 3;
+    for (i=0; i < 4; i++)
+    {
+        struct SlabAttr *slbattr;
+        struct SlabMap *slb;
+        struct Map *mapblk;
+        int delta_x,delta_y;
+        SubtlCodedCoords stl_num;
+        delta_x = small_around[n].delta_x;
+        delta_y = small_around[n].delta_y;
+        slb = get_slabmap_for_subtile(stl_x + 3*delta_x, stl_y + 3*delta_y);
+        slbattr = get_slab_attrs(slb);
+        if (slbattr->field_14)
+        {
+            if (slb->kind != SlbT_GEMS)
+            {
+                stl_num = get_subtile_number(stl_x + 3*delta_x, stl_y + 3*delta_y);
+                mapblk = get_map_block_at_pos(stl_num);
+                if ( ((mapblk->flags & 0x20) == 0) || (slabmap_owner(slb) == plyr_idx) ) {
+                    return stl_num;
+                }
+            }
+        }
+        if ( ((slbattr->field_6 & 0x29) == 0) && (slb->kind != SlbT_LAVA) ) {
+            stl_num = get_subtile_number(stl_x + 3*delta_x, stl_y + 3*delta_y);
+            return stl_num;
+        }
+        n = (n + nchange) & 3;
+    }
+    return -1;
+}
+
+short get_hug_side(struct ComputerDig * cdig, unsigned short a2, unsigned short a3, unsigned short a4, unsigned short a5, unsigned short a6, unsigned short a7)
+{
+    return _DK_get_hug_side(cdig, a2, a3, a4, a5, a6, a7);
+}
+
+/**
+ * Checks if given room kind is available for building by computer player.
+ * @param comp Computer player.
+ * @param rkind Room kind.
+ * @return Gives 0 if the room isn't available, 1 if it's available and 4 if it's researchable.
+ */
+long computer_check_room_available(struct Computer2 * comp, long rkind)
+{
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    if ((rkind < 1) || (rkind >= ROOM_TYPES_COUNT)) {
+        return 0;
+    }
+    if (!dungeon->room_resrchable[rkind])
+        return 0;
+    if (!dungeon->room_buildable[rkind])
+        return 4;
+    return 1;
+}
+
+TbBool xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int plyr_idx)
+{
+    struct SlabAttr *slbattr;
+    struct SlabMap *slb;
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    slbattr = get_slab_attrs(slb);
+    if ( (slabmap_owner(slb) == plyr_idx) || (plyr_idx == -1) )
+    {
+        if ( ((slbattr->field_6 & 0x10) == 0) && (slb->kind != SlbT_LAVA) )
+            return true;
+        if ((slbattr->field_6 & 0x02) != 0)
+            return true;
+    }
+    return false;
+}
+
+/*struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, unsigned short a3, long a4, long a5, long a6, long a7)
+{
+}*/
+
+long check_for_buildable(long stl_x, long stl_y, long plyr_idx)
+{
+    struct SlabAttr *slbattr;
+    struct SlabMap *slb;
+    SubtlCodedCoords stl_num;
+    struct Map *mapblk;
+    long i;
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    slbattr = get_slab_attrs(slb);
+    if (slb->kind == SlbT_GEMS) {
+        return 1;
+    }
+    if (slbattr->field_F == 4) {
+        return -1;
+    }
+    if ((slbattr->field_6 & 0x02) != 0) {
+        return -1;
+    }
+    if ( ((slbattr->field_6 & 0x29) != 0) || (slb->kind == SlbT_LAVA) )
+        i = 1;
+    else
+        i = 0;
+    if ( (i < 1) || (slb->kind == SlbT_WATER) ) {
+        return -1;
+    }
+    stl_num = get_subtile_number(slab_center_subtile(stl_x),slab_center_subtile(stl_y));
+    if (find_from_task_list(plyr_idx, stl_num) >= 0) {
+        return -1;
+    }
+    if ((slbattr->field_6 & 0x01) != 0) {
+        return -1;
+    }
+    if ( (slb->kind == SlbT_LAVA) || (slb->kind == SlbT_WATER) ) {
+        return 1;
+    }
+    if ( ((slbattr->field_14) == 0) || (slb->kind == SlbT_GEMS) ) {
+        return 1;
+    }
+    mapblk = get_map_block_at_pos(stl_num);
+    return ((mapblk->flags & 0x20) != 0) && (slabmap_owner(slb) != plyr_idx);
+}
+
 short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long l1, long l2)
 {
+    struct Dungeon *dungeon;
+    struct SlabAttr *slbattr;
+    struct SlabMap *slb;
+    struct Map *mapblk;
+    MapSubtlCoord gldstl_x,gldstl_y;
+    MapSlabCoord gldslb_x,gldslb_y;
+    MapSubtlCoord digstl_x,digstl_y;
+    MapSlabCoord digslb_x,digslb_y;
+    long counter1;
+    long i,n;
     SYNCDBG(4,"Starting");
-    long retval = _DK_tool_dig_to_pos2(comp, cdig, l1, l2);
-    SYNCDBG(5,"Finished");
+    //return _DK_tool_dig_to_pos2(comp, cdig, l1, l2);
+    dungeon = comp->dungeon;
+    cdig->field_54++;
+    if (cdig->field_54 >= 356) {
+        return -2;
+    }
+    gldstl_x = 3 * (cdig->pos_gold.x.stl.num / 3);
+    gldstl_y = 3 * (cdig->pos_gold.y.stl.num / 3);
+    if ( get_2d_distance(&cdig->pos_gold, &cdig->pos_14) <= cdig->field_26 )
+    {
+        //TODO: rewrite this case
+        return _DK_tool_dig_to_pos2(comp, cdig, l1, l2);
 
-    return retval;
+        i = LbArcTan(cdig->pos_14.x.stl.num - gldstl_x, cdig->pos_14.y.stl.num - gldstl_y) & 0x7FFu;
+        n = ((i + 256) >> 9) & 3;
+        counter1 = 0;
+
+        while ( 1 )
+        {
+          gldslb_y = gldstl_y / 3;
+          gldslb_x = gldstl_x / 3;
+
+          slb = get_slabmap_block(gldslb_x, gldslb_y);
+          slbattr = get_slab_attrs(slb);
+          if ( ((slbattr->field_6 & 0x29) != 0) || (slb->kind == SlbT_LAVA) )
+              i = 1;
+          else
+              i = 0;
+          if ( !( (i < 1) || (slb->kind == SlbT_WATER)) ) {
+              break;
+          }
+          i = get_subtile_number_at_slab_center(gldslb_x,gldslb_y);
+          if (find_from_task_list(dungeon->owner, i) < 0) {
+              break;
+          }
+          if ( (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA) )
+          {
+            if ( l2 != 2 )
+                break;
+            if (computer_check_room_available(comp, RoK_BRIDGE) != 1)
+                break;
+          }
+
+          slb = get_slabmap_block(gldslb_x, gldslb_y);
+          if ( (slabmap_owner(slb) != dungeon->owner) && (slab_kind_is_door(slb->kind)) )
+              break;
+          cdig->pos_20.x.stl.num = gldstl_x;
+          cdig->pos_20.y.stl.num = gldstl_y;
+          if ( (cdig->pos_14.x.stl.num/3 == gldslb_x) && (cdig->pos_14.y.stl.num/3 == gldslb_y) ) {
+              return -1;
+          }
+          i = LbArcTan(cdig->pos_14.x.stl.num - gldstl_x, cdig->pos_14.y.stl.num - gldstl_y);
+          n = ((i & 0x7FFu) + 256) >> 9;
+          gldstl_x += 3 * small_around[n & 3].delta_x;
+          gldstl_y += 3 * small_around[n & 3].delta_y;
+        }
+        slb = get_slabmap_block(gldslb_x, gldslb_y);
+        if ( (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA) )
+        {
+            if ( (computer_check_room_available(comp, RoK_BRIDGE) == 1) ) {
+                cdig->pos_20.x.stl.num = gldstl_x;
+                cdig->pos_20.y.stl.num = gldstl_y;
+                return -5;
+            }
+        }
+        //TODO: code missing here
+
+    } else
+    {
+        i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->field_2A[1], cdig->field_2A[0]);
+        if (i == -1) {
+            return -2;
+        }
+        digstl_x = stl_num_decode_x(i);
+        digstl_y = stl_num_decode_y(i);
+        digslb_x = digstl_x / 3;
+        digslb_y = digstl_y / 3;
+        slb = get_slabmap_block(digslb_x, digslb_y);
+        slbattr = get_slab_attrs(slb);
+        if ( (slbattr->field_14 != 0) && (slb->kind != SlbT_GEMS) )
+        {
+            mapblk = get_map_block_at(digstl_x, digstl_y);
+            if ( ((mapblk->flags & 0x20) == 0) || (slabmap_owner(slb) == dungeon->owner) )
+            {
+                i = get_subtile_number_at_slab_center(digslb_x,digslb_y);
+                if ( (find_from_task_list(dungeon->owner, i) < 0) && (l1 == 0) )
+                {
+                    if (try_game_action(comp, dungeon->owner, 14, 0, digstl_x, digstl_y, 1, 1) <= 0) {
+                        return -2;
+                    }
+                }
+            }
+        }
+        i = LbArcTan(digstl_x - cdig->pos_20.x.stl.num, digstl_y - cdig->pos_20.y.stl.num);
+        cdig->pos_20.x.stl.num = digstl_x;
+        cdig->pos_20.y.stl.num = digstl_y;
+        n = ((i & 0x7FFu) + 256) >> 9;
+        cdig->field_2A[1] = n & 3;
+        if ( (cdig->pos_14.x.stl.num/3 == digslb_x) && (cdig->pos_14.y.stl.num/3 == digslb_y) ) {
+            return -1;
+        }
+        cdig->pos_gold.x.stl.num = digstl_x;
+        cdig->pos_gold.y.stl.num = digstl_y;
+        return 0;
+    }
 }
 
 long add_to_trap_location(struct Computer2 * comp, struct Coord3d * coord)
@@ -715,20 +957,20 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 
     struct GoldLookup* gold_lookup = get_gold_lookup(ctask->gold_lookup_idx);
 
-    unsigned short gold_x_stl_num = gold_lookup->x_stl_num;
-    unsigned short gold_y_stl_num = gold_lookup->y_stl_num;
+    unsigned short gldstl_x = gold_lookup->x_stl_num;
+    unsigned short gldstl_y = gold_lookup->y_stl_num;
 
-    unsigned short ctg_x_stl_num = ctask->dig.pos_gold.x.stl.num;
-    unsigned short ctg_y_stl_num = ctask->dig.pos_gold.y.stl.num;
+    unsigned short ctgstl_x = ctask->dig.pos_gold.x.stl.num;
+    unsigned short ctgstl_y = ctask->dig.pos_gold.y.stl.num;
 
     // While destination isn't reached, continue finding slabs to mark
-    if ((gold_x_stl_num != ctg_x_stl_num) || (gold_y_stl_num != ctg_y_stl_num))
+    if ((gldstl_x != ctgstl_x) || (gldstl_y != ctgstl_y))
     {
-        ctask->dig.pos_20.x.stl.num = gold_x_stl_num;
-        ctask->dig.pos_20.y.stl.num = gold_y_stl_num;
+        ctask->dig.pos_20.x.stl.num = gldstl_x;
+        ctask->dig.pos_20.y.stl.num = gldstl_y;
 
-        ctask->dig.pos_gold.x.stl.num = gold_x_stl_num;
-        ctask->dig.pos_gold.y.stl.num = gold_y_stl_num;
+        ctask->dig.pos_gold.x.stl.num = gldstl_x;
+        ctask->dig.pos_gold.y.stl.num = gldstl_y;
 
         if (find_next_gold(comp, ctask) != 0) // || (retval < -3) -- Already returned
         {
