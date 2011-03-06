@@ -1877,3 +1877,5 @@
  0001:0004BF00       find_next_gold
  0001:0004BFB0       check_for_gold
  0001:0004C630       search_spiral
+ 0001:00051890       dig_to_position
+ 0001:00051A10       get_hug_side
