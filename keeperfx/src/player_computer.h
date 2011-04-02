@@ -175,16 +175,19 @@ struct ComputerEventMnemonic {
 };
 
 struct ComputerDig { // sizeof = 78
-    unsigned char field_E[6];
+    struct Coord3d pos_E;
     struct Coord3d pos_14;
     struct Coord3d pos_gold;
     struct Coord3d pos_20;
     long field_26;
-    unsigned char field_2A[2];
+    unsigned char field_2A;
+    unsigned char field_2B;
     unsigned long field_2C;
     unsigned char field_30[19];
-    unsigned char field_43[6];
-    unsigned char field_49[11];
+    unsigned char field_43[5];
+    long field_48;
+    long field_4C;
+    long field_50;
     long field_54;
     long field_58;
 };

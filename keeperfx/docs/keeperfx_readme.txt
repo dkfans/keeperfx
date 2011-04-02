@@ -127,9 +127,11 @@ Troubleshooting:
 
 Q: Colors are changed in menu or during gameplay,
     but no problem is mentioned in "keeperfx.log".
-A: Select "Run in 256 colors" and "Run in 640x480" in the
-    program properties, and change lines in KEEPERFX.CFG
-    into those written in next answer.
+A: Try using different color modes  in KEEPERFX.CFG. For example,
+    you could try 24-bit colour (ie. 640x480x24). If this won't
+    help, change all modes to 8-bit (ie. 640x480x8), and select
+    "Run in 256 colors" and "Run in 640x480" in the program
+    properties.
 
 Q: Intro doesn't play. LOG file says:
      Error: setup_game: Can't enter movies screen mode to play intro
@@ -144,7 +146,7 @@ A: To switch resolutions during the game, press Alt+R.
    then the video mode used for higher resolution is probably
    not supported by your video card/driver. In that case,
    change the resolution config line in KEEPERFX.CFG into:
-  INGAME_RES=320x200x32 640x480x32
+  INGAME_RES=640x480x32
    You may also try other resolutions, but those over 640x480
    may be unstable.
 
@@ -160,7 +162,15 @@ Q: The game doesn't run. LOG file says:
      Error: setup_strings_data: Strings file couldn't be loaded
             or is too small
 A: Check if there's a language file in 'FXDATA' folder for the
-     language which you've selected in KEEPERFX.CFG.
+   language which you've selected in KEEPERFX.CFG.
+
+Q: The game starts up to main menu, but when I try to load a level,
+   it exits back to desktop.
+A: There may be many reasons for that. Try checking your LOG file.
+   Also, try adding keeperfx.exe and keeperfx_dbg.exe to DEP list
+   in Windows - that's the solution to most common problem.
+   DEP is a Data Execution prevention mechanism; search the net
+   for details about it.
 
 Q: Mouse stops/teleports/moves incorrectly during the game.
 A: Try the '-altinput' command line switch.

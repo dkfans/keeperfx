@@ -716,11 +716,9 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long 
     gldstl_y = 3 * (cdig->pos_gold.y.stl.num / 3);
     if ( get_2d_distance(&cdig->pos_gold, &cdig->pos_14) <= cdig->field_26 )
     {
-        //TODO: rewrite this case
-        return _DK_tool_dig_to_pos2(comp, cdig, l1, l2);
-
-        i = LbArcTan(cdig->pos_14.x.stl.num - gldstl_x, cdig->pos_14.y.stl.num - gldstl_y) & 0x7FFu;
-        n = ((i + 256) >> 9) & 3;
+        i = LbArcTan(cdig->pos_14.x.stl.num - gldstl_x, cdig->pos_14.y.stl.num - gldstl_y);
+        n = ((i & 0x7FFu) + 256) >> 9;
+        n = n & 3;
         counter1 = 0;
 
         while ( 1 )
@@ -771,12 +769,121 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long 
                 return -5;
             }
         }
-        //TODO: code missing here
-
+        long counter2;
+        for (counter2 = cdig->field_2C; counter2 > 0; counter2--)
+        {
+            gldslb_x = gldstl_x / 3;
+            gldslb_y = gldstl_y / 3;
+            slb = get_slabmap_block(gldslb_x, gldslb_y);
+            mapblk = get_map_block_at(gldstl_x, gldstl_y);
+            slbattr = get_slab_attrs(slb);
+            if ( (!slbattr->field_14) || (slb->kind == SlbT_GEMS)
+              || ((mapblk->flags & 0x20) && (slabmap_owner(slb) != dungeon->owner)) )
+            {
+              if ( !(slbattr->field_6 & 0x01) || !l2 )
+                break;
+            }
+            if ( !l1 )
+            {
+                if (try_game_action(comp, dungeon->owner, 14, 0, gldstl_x, gldstl_y, 1, 1) <= 0)
+                  break;
+              if ( l2 )
+              {
+                if (slbattr->field_6 & 0x01)
+                  cdig->field_58++;
+              }
+            }
+            counter1++;
+            cdig->pos_20.x.stl.num = gldstl_x;
+            cdig->pos_20.y.stl.num = gldstl_y;
+            if ( (cdig->pos_14.x.stl.num/3 == gldslb_x) && (cdig->pos_14.y.stl.num/3 == gldslb_y) )
+              return -1;
+            i = LbArcTan(cdig->pos_14.x.stl.num - gldstl_x, cdig->pos_14.y.stl.num - gldstl_y);
+            n = (((i & 0x7FFu) + 256) >> 9) & 3;
+            gldstl_x += 3 * small_around[n].delta_x;
+            gldstl_y += 3 * small_around[n].delta_y;
+        }
+        if ( (cdig->pos_14.x.stl.num / 3 == gldslb_x) && (cdig->pos_14.y.stl.num / 3 == gldslb_y) )
+        {
+            cdig->pos_20.x.stl.num = gldstl_x;
+            cdig->pos_20.y.stl.num = gldstl_y;
+            return -1;
+        } else
+        if ( counter1 )
+        {
+            cdig->pos_gold.x.stl.num = gldstl_x;
+            cdig->pos_gold.y.stl.num = gldstl_y;
+            cdig->field_26 = get_2d_distance(&cdig->pos_20, &cdig->pos_14);
+            return 0;
+        } else
+        {
+            if (comp->field_C == counter2)
+            {
+                gldstl_x -= 3 * (MapSubtlCoord)small_around[n].delta_x;
+                gldstl_y -= 3 * (MapSubtlCoord)small_around[n].delta_y;
+                cdig->pos_gold.x.val = gldstl_x << 8;
+                cdig->pos_gold.y.val = gldstl_y << 8;
+                cdig->pos_gold.z.val = 0;
+                cdig->pos_E.x.val = cdig->pos_gold.x.val;
+                cdig->pos_E.y.val = cdig->pos_gold.y.val;
+                cdig->pos_E.z.val = cdig->pos_gold.z.val;
+            }
+            if ( (cdig->pos_20.x.val == 0) && (cdig->pos_20.y.val == 0) && (cdig->pos_20.z.val == 0) )
+            {
+                cdig->pos_20.x.val = cdig->pos_E.x.val;
+                cdig->pos_20.y.val = cdig->pos_E.y.val;
+                cdig->pos_20.z.val = cdig->pos_E.z.val;
+            }
+            cdig->field_48++;
+            if ( (cdig->field_48 > 10) && (cdig->field_4C == gldstl_x) && (cdig->field_50 == gldstl_y) )
+            {
+                return -2;
+            }
+            cdig->field_4C = gldstl_x;
+            cdig->field_50 = gldstl_y;
+            cdig->field_26 = get_2d_distance(&cdig->pos_20, &cdig->pos_14);
+            cdig->field_2A = get_hug_side(cdig, cdig->pos_20.x.stl.num, cdig->pos_20.y.stl.num,
+                               cdig->pos_14.x.stl.num, cdig->pos_14.y.stl.num, n, dungeon->owner);
+            i = dig_to_position(dungeon->owner, cdig->pos_20.x.stl.num, cdig->pos_20.y.stl.num,
+                    (n + (cdig->field_2A < 1 ? 3 : 1)) & 3, cdig->field_2A);
+            if (i == -1)
+            {
+                return -2;
+            }
+            digstl_x = stl_num_decode_x(i);
+            digstl_y = stl_num_decode_y(i);
+            digslb_x = digstl_x / 3;
+            digslb_y = digstl_y / 3;
+            slb = get_slabmap_block(digslb_x, digslb_y);
+            if ( ((slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA)) && (computer_check_room_available(comp, RoK_BRIDGE) == 1) )
+            {
+                cdig->pos_20.y.stl.num = digstl_y;
+                cdig->pos_20.x.stl.num = digstl_x;
+                return -5;
+            }
+            i = LbArcTan(digstl_x - cdig->pos_20.x.stl.num, digstl_y - cdig->pos_20.y.stl.num);
+            n = ((i & 0x7FFu) + 256) >> 9;
+            cdig->field_2B = n & 3;
+            mapblk = get_map_block_at(digstl_x, digstl_y);
+            slbattr = get_slab_attrs(slb);
+            if ( (slbattr->field_14) && (slb->kind != SlbT_GEMS)
+              && (((mapblk->flags & 0x20) == 0) || (slabmap_owner(slb) == dungeon->owner)) )
+            {
+                return -2;
+            }
+            i = get_subtile_number(slab_center_subtile(digstl_x),slab_center_subtile(digstl_y));
+            if ( (find_from_task_list(dungeon->owner, i) < 0) && (l1 == 0) )
+            {
+                if (try_game_action(comp, dungeon->owner, 14, 0, digstl_x, digstl_y, 1, 1) <= 0) {
+                    return -2;
+                }
+            }
+        }
     } else
     {
-        i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->field_2A[1], cdig->field_2A[0]);
-        if (i == -1) {
+        i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->field_2B, cdig->field_2A);
+        if (i == -1)
+        {
             return -2;
         }
         digstl_x = stl_num_decode_x(i);
@@ -800,17 +907,18 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long 
             }
         }
         i = LbArcTan(digstl_x - cdig->pos_20.x.stl.num, digstl_y - cdig->pos_20.y.stl.num);
-        cdig->pos_20.x.stl.num = digstl_x;
-        cdig->pos_20.y.stl.num = digstl_y;
         n = ((i & 0x7FFu) + 256) >> 9;
-        cdig->field_2A[1] = n & 3;
-        if ( (cdig->pos_14.x.stl.num/3 == digslb_x) && (cdig->pos_14.y.stl.num/3 == digslb_y) ) {
-            return -1;
-        }
-        cdig->pos_gold.x.stl.num = digstl_x;
-        cdig->pos_gold.y.stl.num = digstl_y;
-        return 0;
+        cdig->field_2B = n & 3;
     }
+    cdig->pos_20.x.stl.num = digstl_x;
+    cdig->pos_20.y.stl.num = digstl_y;
+    if ( (cdig->pos_14.x.stl.num/3 == digslb_x) && (cdig->pos_14.y.stl.num/3 == digslb_y) )
+    {
+        return -1;
+    }
+    cdig->pos_gold.x.stl.num = digstl_x;
+    cdig->pos_gold.y.stl.num = digstl_y;
+    return 0;
 }
 
 long add_to_trap_location(struct Computer2 * comp, struct Coord3d * coord)
