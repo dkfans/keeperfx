@@ -731,6 +731,19 @@ TbBool script_support_setup_player_as_computer_keeper(unsigned short plyridx, lo
   return true;
 }
 
+TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx)
+{
+  struct PlayerInfo *player;
+  SYNCDBG(8,"Starting for player %d",(int)plyridx);
+  player = get_player(plyridx);
+  player->field_0 &= ~0x01; // mark as non-existing
+  player->id_number = plyridx;
+  player->field_2C = 0;
+  player->field_0 &= ~0x40;
+  init_player_start(player);
+  return true;
+}
+
 void command_create_party(char *prtname)
 {
     if (script_current_condition != -1)
