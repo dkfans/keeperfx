@@ -191,6 +191,7 @@ DLLIMPORT unsigned short _DK_condition_stack[48];
 extern const struct CommandDesc command_desc[];
 /******************************************************************************/
 TbBool script_support_setup_player_as_computer_keeper(unsigned short plyridx, long comp_model);
+TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx);
 long script_scan_line(char *line,TbBool preloaded);
 const struct CommandDesc *get_next_word(char **line, char *params, unsigned char *nparam);
 const char *script_get_command_name(long cmnd_index);
