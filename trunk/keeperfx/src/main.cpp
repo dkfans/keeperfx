@@ -2856,8 +2856,12 @@ short setup_game(void)
 
   if (result) {
       KEEPERSPEECH_REASON reason = KeeperSpeechInit();
-      if (reason) {
-          ERRORLOG("Failed to initialize Speech module: %s",
+      if (reason == KSR_NO_LIB_INSTALLED) {
+          SYNCLOG("Speech recognition disabled: %s",
+              KeeperSpeechErrorMessage(reason));
+      } else
+      if (reason != KSR_OK) {
+          ERRORLOG("Failed to initialize Speech recognition module: %s",
               KeeperSpeechErrorMessage(reason));
       }
   }
@@ -8229,7 +8233,7 @@ void faststartup_saved_packet_game(void)
 
 void startup_network_game(TbBool local)
 {
-    SYNCDBG(0,"Starting up network game.");
+    SYNCDBG(0,"Starting up network game");
     //_DK_startup_network_game(); return;
     unsigned int flgmem;
     struct PlayerInfo *player;
@@ -8242,15 +8246,22 @@ void startup_network_game(TbBool local)
     //if (game.flagfield_14EA4A == 2) //was wrong because init_level sets this to 2. global variables are evil (though perhaps that's why they were chosen for DK? ;-))
     if (local)
     {
-      game.flagfield_14EA4A = 2;
-      init_players_local_game();
+        game.flagfield_14EA4A = 2;
+        init_players_local_game();
     } else
     {
-      game.flagfield_14EA4A = 5;
-      init_players_network_game();
+        game.flagfield_14EA4A = 5;
+        init_players_network_game();
     }
     if (fe_computer_players)
-      setup_computer_players();
+    {
+        SYNCDBG(5,"Setting up uninitialized players as computer players");
+        setup_computer_players();
+    } else
+    {
+        SYNCDBG(5,"Setting up uninitialized players as zombie players");
+        setup_zombie_players();
+    }
     post_init_level();
     post_init_players();
     post_init_packets();

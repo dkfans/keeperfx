@@ -143,6 +143,7 @@ unsigned long update_creatures_not_in_list(void);
 unsigned long update_things_in_list(struct StructureList *list);
 void init_player_start(struct PlayerInfo *player);
 void setup_computer_players(void);
+void setup_zombie_players(void);
 void init_all_creature_states(void);
 
 long creature_of_model_in_prison(int model);

@@ -475,68 +475,75 @@ void update_things(void)
   SYNCDBG(9,"Finished");
 }
 
+struct Thing *find_players_dungeon_heart(unsigned short plyridx)
+{
+    struct Thing *thing;
+    int i,k;
+    k = 0;
+    i = game.thing_lists[TngList_Objects].index;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        if ((game.objects_config[thing->model].field_6) && (thing->owner == plyridx))
+        {
+            return thing;
+        }
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return INVALID_THING;
+}
+
+/**
+ * Initializes start position of the player.
+ * Finds players dungeon heart and initializes players start position.
+ * @param player The player to be initialized.
+ */
 void init_player_start(struct PlayerInfo *player)
 {
-  struct Dungeon *dungeon;
-  struct Thing *thing;
-  int i,k;
-  k = 0;
-  i = game.thing_lists[TngList_Objects].index;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    thing = find_players_dungeon_heart(player->id_number);
+    dungeon = get_players_dungeon(player);
+    if (!thing_is_invalid(thing))
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
-    }
-    i = thing->next_of_class;
-    if ((game.objects_config[thing->model].field_6) && (thing->owner == player->id_number))
+        dungeon->dnheart_idx = thing->index;
+        dungeon->mappos.x.val = thing->mappos.x.val;
+        dungeon->mappos.y.val = thing->mappos.y.val;
+        dungeon->mappos.z.val = thing->mappos.z.val;
+    } else
     {
-      dungeon = get_players_dungeon(player);
-      dungeon->dnheart_idx = thing->index;
-      memcpy(&dungeon->mappos,&thing->mappos,sizeof(struct Coord3d));
-      break;
+        dungeon->dnheart_idx = 0;
+        dungeon->mappos.x.val = subtile_coord_center(map_subtiles_x/2);
+        dungeon->mappos.y.val = subtile_coord_center(map_subtiles_y/2);
+        dungeon->mappos.z.val = subtile_coord_center(map_subtiles_z/2);
     }
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
 }
 
 void setup_computer_player(int plr_idx)
 {
-  struct Thing *thing;
-  int i,k;
-  struct PlayerInfo *player;
-  SYNCDBG(5,"Starting for player %d",plr_idx);
-  player = get_player(plr_idx);
-  k = 0;
-  i = game.thing_lists[TngList_Objects].index;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct PlayerInfo *player;
+    struct Thing *thing;
+    SYNCDBG(5,"Starting for player %d",plr_idx);
+    player = get_player(plr_idx);
+    thing = find_players_dungeon_heart(player->id_number);
+    if (!thing_is_invalid(thing))
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
-    }
-    i = thing->next_of_class;
-    if ((game.objects_config[thing->model].field_6) && (thing->owner == plr_idx))
+        script_support_setup_player_as_computer_keeper(plr_idx, 0);
+    } else
     {
-      script_support_setup_player_as_computer_keeper(plr_idx, 0);
-      break;
+        script_support_setup_player_as_zombie_keeper(plr_idx);
     }
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
 }
 
 void setup_computer_players(void)
@@ -553,29 +560,43 @@ void setup_computer_players(void)
   }
 }
 
+void setup_zombie_players(void)
+{
+  struct PlayerInfo *player;
+  int plr_idx;
+  for (plr_idx=0; plr_idx<PLAYERS_COUNT; plr_idx++)
+  {
+      player = get_player(plr_idx);
+      if (!player_exists(player))
+      {
+          script_support_setup_player_as_zombie_keeper(plr_idx);
+      }
+  }
+}
+
 void init_all_creature_states(void)
 {
-  struct Thing *thing;
-  int i,k;
-  k = 0;
-  i = game.thing_lists[TngList_Creatures].index;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct Thing *thing;
+    int i,k;
+    k = 0;
+    i = game.thing_lists[TngList_Creatures].index;
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+          ERRORLOG("Jump to invalid thing detected");
+          break;
+        }
+        i = thing->next_of_class;
+        init_creature_state(thing);
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
     }
-    i = thing->next_of_class;
-    init_creature_state(thing);
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
 }
 
 /**
