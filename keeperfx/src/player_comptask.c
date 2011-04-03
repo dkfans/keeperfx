@@ -235,9 +235,9 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
     slb_y = map_to_slab[stl_y];
     switch (gaction)
     {
-    case 1:
+    case GA_Unk01:
         break;
-    case 2:
+    case GA_Unk02:
         if (dungeon->magic_level[1] == 0)
           break;
         thing = thing_get(param1);
@@ -245,57 +245,57 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
         if (i < 0)
           return -1;
         return 1;
-    case 3:
+    case GA_Unk03:
         if (dungeon->magic_level[1] == 0)
           break;
         i = dump_held_things_on_map(plyr_idx, stl_x, stl_y, 0);
         if (i < 0)
           return -1;
         return 1;
-    case 4:
+    case GA_Unk04:
         if (dungeon->magic_level[2] == 0)
           break;
         i = magic_use_power_imp(plyr_idx, stl_x, stl_y);
         return 1;
-    case 5:
+    case GA_Unk05:
         if (dungeon->magic_level[4] == 0)
           break;
         i = magic_use_power_slap(plyr_idx, stl_x, stl_y);
         return i;
-    case 6:
+    case GA_Unk06:
         if (dungeon->magic_level[5] == 0)
           break;
         i = magic_use_power_sight(plyr_idx, stl_x, stl_y, a3);
         return i;
-    case 7:
+    case GA_Unk07:
         if (dungeon->magic_level[3] == 0)
           break;
         i = magic_use_power_obey(plyr_idx);
         return 1;
-    case 8:
+    case GA_Unk08:
         if (dungeon->magic_level[8] == 0)
           break;
         thing = thing_get(param1);
         magic_use_power_heal(plyr_idx, thing, thing->mappos.x.stl.num,thing->mappos.y.stl.num, a3);
         return 1;
-    case 9:
+    case GA_Unk09:
         if (dungeon->magic_level[6] == 0)
           break;
         i = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, a3, 1);
         return i;
-    case 10:
+    case GA_Unk10:
         if (dungeon->magic_level[7] == 0)
           break;
         magic_use_power_cave_in(plyr_idx, stl_x, stl_y, a3);
         return 1;
-    case 11:
+    case GA_Unk11:
         turn_off_call_to_arms(plyr_idx);
         return 1;
-    case 12:
+    case GA_Unk12:
         dungeon->field_88C[0] = 0;
         return 1;
-    case 13:
-    case 14:
+    case GA_Unk13:
+    case GA_Unk14:
         slb = get_slabmap_block(slb_x, slb_y);
         if ((slb->kind == SlbT_LAVA) || (slb->kind == SlbT_WATER))
         {
@@ -307,16 +307,16 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
             i = tag_blocks_for_digging_in_rectangle_around(3 * (stl_x / 3), 3 * (stl_y / 3), plyr_idx) > 0;
         }
         return i;
-    case 15:
-    case 16:
+    case GA_Unk15:
+    case GA_Unk16:
         room = player_build_room_at(stl_x, stl_y, plyr_idx, param2);
         if (room_is_invalid(room))
           break;
         return room->index;
-    case 17:
+    case GA_Unk17:
         dungeon->creature_tendencies = param1;
         return 1;
-    case 18:
+    case GA_Unk18:
         if (dungeon->trap_amount[param1] == 0)
             break;
         pos.x.stl.pos = 128;
@@ -332,37 +332,37 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
         if (is_my_player_number(plyr_idx))
             play_non_3d_sample(117);
         return 1;
-    case 19:
+    case GA_Unk19:
         k = tag_cursor_blocks_place_door(plyr_idx, stl_x, stl_y);
         i = packet_place_door(stl_x, stl_y, plyr_idx, param1, k);
         return i;
-    case 20:
+    case GA_Unk20:
         magic_use_power_lightning(plyr_idx, stl_x, stl_y, a3);
         return 1;
-    case 21:
+    case GA_Unk21:
         thing = thing_get(param1);
         magic_use_power_speed(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
         return 1;
-    case 22:
+    case GA_Unk22:
         thing = thing_get(param1);
         magic_use_power_armour(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
         return 1;
-    case 23:
+    case GA_Unk23:
         thing = thing_get(param1);
         magic_use_power_conceal(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
         return 1;
-    case 24:
+    case GA_Unk24:
         magic_use_power_hold_audience(plyr_idx);
         break;
-    case 25:
+    case GA_Unk25:
         thing = thing_get(param1);
         magic_use_power_disease(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
         return 1;
-    case 26:
+    case GA_Unk26:
         thing = thing_get(param1);
         magic_use_power_chicken(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
         return 1;
-    case 28:
+    case GA_Unk28:
         if (dungeon->magic_level[4] == 0)
           break;
         thing = thing_get(param1);
@@ -375,11 +375,11 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
     return 0;
 }
 
-long try_game_action(struct Computer2 *comp, char a2, unsigned short a3, unsigned short a4,
- unsigned short a5, unsigned short a6, unsigned short a7, unsigned short a8)
+long try_game_action(struct Computer2 *comp,char plyr_idx, unsigned short gaction, unsigned short a3,
+    unsigned short stl_x, unsigned short stl_y, unsigned short param1, unsigned short param2)
 {
   long result;
-  result = game_action(a2, a3, a4, a5, a6, a7, a8);
+  result = game_action(plyr_idx, gaction, a3, stl_x, stl_y, param1, param2);
   if (result > 0)
     comp->field_10--;
   SYNCDBG(19,"Returning %ld",result);
@@ -586,7 +586,7 @@ long dig_to_position(signed char plyr_idx, unsigned short stl_x, unsigned short 
         delta_y = small_around[n].delta_y;
         slb = get_slabmap_for_subtile(stl_x + 3*delta_x, stl_y + 3*delta_y);
         slbattr = get_slab_attrs(slb);
-        if (slbattr->field_14)
+        if (slbattr->field_14 != 0)
         {
             if (slb->kind != SlbT_GEMS)
             {
@@ -686,11 +686,19 @@ long check_for_buildable(long stl_x, long stl_y, long plyr_idx)
     if ( (slb->kind == SlbT_LAVA) || (slb->kind == SlbT_WATER) ) {
         return 1;
     }
-    if ( ((slbattr->field_14) == 0) || (slb->kind == SlbT_GEMS) ) {
+    if ( (slbattr->field_14 == 0) || (slb->kind == SlbT_GEMS) ) {
         return 1;
     }
     mapblk = get_map_block_at_pos(stl_num);
     return ((mapblk->flags & 0x20) != 0) && (slabmap_owner(slb) != plyr_idx);
+}
+
+unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long dest_x,long dest_y)
+{
+    long i,n;
+    i = LbArcTan(dest_x - curr_x, dest_y - curr_y);
+    n = ((i & 0x7FFu) + 256) >> 9;
+    return n & 3;
 }
 
 short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long l1, long l2)
@@ -704,61 +712,59 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long 
     MapSubtlCoord digstl_x,digstl_y;
     MapSlabCoord digslb_x,digslb_y;
     long counter1;
-    long i,n;
-    SYNCDBG(4,"Starting");
+    long i,around_index;
+    //SYNCDBG(4,"Starting");
     //return _DK_tool_dig_to_pos2(comp, cdig, l1, l2);
     dungeon = comp->dungeon;
     cdig->field_54++;
     if (cdig->field_54 >= 356) {
+        WARNLOG("ComputerDig calls count (%d) exceeds limit",(int)cdig->field_54);
         return -2;
     }
     gldstl_x = 3 * (cdig->pos_gold.x.stl.num / 3);
     gldstl_y = 3 * (cdig->pos_gold.y.stl.num / 3);
-    if ( get_2d_distance(&cdig->pos_gold, &cdig->pos_14) <= cdig->field_26 )
+    around_index = small_around_index_towards_destination(gldstl_x,gldstl_y,cdig->pos_14.x.stl.num,cdig->pos_14.y.stl.num);
+    if ( get_2d_distance(&cdig->pos_gold, &cdig->pos_14) <= cdig->distance )
     {
-        i = LbArcTan(cdig->pos_14.x.stl.num - gldstl_x, cdig->pos_14.y.stl.num - gldstl_y);
-        n = ((i & 0x7FFu) + 256) >> 9;
-        n = n & 3;
+        SYNCDBG(4,"Starting small distance digging");
         counter1 = 0;
-
         while ( 1 )
         {
-          gldslb_y = gldstl_y / 3;
-          gldslb_x = gldstl_x / 3;
+            gldslb_x = gldstl_x / 3;
+            gldslb_y = gldstl_y / 3;
+            slb = get_slabmap_block(gldslb_x, gldslb_y);
+            slbattr = get_slab_attrs(slb);
+            if ( ((slbattr->field_6 & (0x20|0x08|0x01)) != 0) || (slb->kind == SlbT_LAVA) )
+                i = 1;
+            else
+                i = 0;
+            if ( (i != 0) && (slb->kind != SlbT_WATER) )
+            {
+                i = get_subtile_number_at_slab_center(gldslb_x,gldslb_y);
+                if (find_from_task_list(dungeon->owner, i) < 0) {
+                    break;
+                }
+            }
+            if ( (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA) )
+            {
+              if ( l2 != 2 )
+                  break;
+              if (computer_check_room_available(comp, RoK_BRIDGE) != 1)
+                  break;
+            }
 
-          slb = get_slabmap_block(gldslb_x, gldslb_y);
-          slbattr = get_slab_attrs(slb);
-          if ( ((slbattr->field_6 & 0x29) != 0) || (slb->kind == SlbT_LAVA) )
-              i = 1;
-          else
-              i = 0;
-          if ( !( (i < 1) || (slb->kind == SlbT_WATER)) ) {
-              break;
-          }
-          i = get_subtile_number_at_slab_center(gldslb_x,gldslb_y);
-          if (find_from_task_list(dungeon->owner, i) < 0) {
-              break;
-          }
-          if ( (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA) )
-          {
-            if ( l2 != 2 )
+            slb = get_slabmap_block(gldslb_x, gldslb_y);
+            if ( (slabmap_owner(slb) != dungeon->owner) && (slab_kind_is_door(slb->kind)) )
                 break;
-            if (computer_check_room_available(comp, RoK_BRIDGE) != 1)
-                break;
-          }
-
-          slb = get_slabmap_block(gldslb_x, gldslb_y);
-          if ( (slabmap_owner(slb) != dungeon->owner) && (slab_kind_is_door(slb->kind)) )
-              break;
-          cdig->pos_20.x.stl.num = gldstl_x;
-          cdig->pos_20.y.stl.num = gldstl_y;
-          if ( (cdig->pos_14.x.stl.num/3 == gldslb_x) && (cdig->pos_14.y.stl.num/3 == gldslb_y) ) {
-              return -1;
-          }
-          i = LbArcTan(cdig->pos_14.x.stl.num - gldstl_x, cdig->pos_14.y.stl.num - gldstl_y);
-          n = ((i & 0x7FFu) + 256) >> 9;
-          gldstl_x += 3 * small_around[n & 3].delta_x;
-          gldstl_y += 3 * small_around[n & 3].delta_y;
+            cdig->pos_20.x.stl.num = gldstl_x;
+            cdig->pos_20.y.stl.num = gldstl_y;
+            if ( (cdig->pos_14.x.stl.num/3 == gldslb_x) && (cdig->pos_14.y.stl.num/3 == gldslb_y) ) {
+                SYNCDBG(15,"Positions are equal at slab (%d,%d)",(int)gldslb_x,(int)gldslb_y);
+                return -1;
+            }
+            around_index = small_around_index_towards_destination(gldstl_x,gldstl_y,cdig->pos_14.x.stl.num,cdig->pos_14.y.stl.num);
+            gldstl_x += 3 * small_around[around_index].delta_x;
+            gldstl_y += 3 * small_around[around_index].delta_y;
         }
         slb = get_slabmap_block(gldslb_x, gldslb_y);
         if ( (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA) )
@@ -766,6 +772,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long 
             if ( (computer_check_room_available(comp, RoK_BRIDGE) == 1) ) {
                 cdig->pos_20.x.stl.num = gldstl_x;
                 cdig->pos_20.y.stl.num = gldstl_y;
+                SYNCDBG(15,"Have bridge, so going through liquid subtile (%d,%d)",(int)gldstl_x,(int)gldstl_y);
                 return -5;
             }
         }
@@ -777,52 +784,55 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long 
             slb = get_slabmap_block(gldslb_x, gldslb_y);
             mapblk = get_map_block_at(gldstl_x, gldstl_y);
             slbattr = get_slab_attrs(slb);
-            if ( (!slbattr->field_14) || (slb->kind == SlbT_GEMS)
-              || ((mapblk->flags & 0x20) && (slabmap_owner(slb) != dungeon->owner)) )
+            if ( (slbattr->field_14 == 0) || (slb->kind == SlbT_GEMS)
+              || (((mapblk->flags & 0x20) != 0) && (slabmap_owner(slb) != dungeon->owner)) )
             {
-              if ( !(slbattr->field_6 & 0x01) || !l2 )
-                break;
+                if ( ((slbattr->field_6 & 0x01) == 0) || !l2 )
+                    break;
             }
             if ( !l1 )
             {
-                if (try_game_action(comp, dungeon->owner, 14, 0, gldstl_x, gldstl_y, 1, 1) <= 0)
+                if (try_game_action(comp, dungeon->owner, GA_Unk14, 0, gldstl_x, gldstl_y, 1, 1) <= 0)
                   break;
               if ( l2 )
               {
-                if (slbattr->field_6 & 0x01)
+                if ((slbattr->field_6 & 0x01) != 0)
                   cdig->field_58++;
               }
             }
             counter1++;
             cdig->pos_20.x.stl.num = gldstl_x;
             cdig->pos_20.y.stl.num = gldstl_y;
-            if ( (cdig->pos_14.x.stl.num/3 == gldslb_x) && (cdig->pos_14.y.stl.num/3 == gldslb_y) )
-              return -1;
-            i = LbArcTan(cdig->pos_14.x.stl.num - gldstl_x, cdig->pos_14.y.stl.num - gldstl_y);
-            n = (((i & 0x7FFu) + 256) >> 9) & 3;
-            gldstl_x += 3 * small_around[n].delta_x;
-            gldstl_y += 3 * small_around[n].delta_y;
+            if ( (cdig->pos_14.x.stl.num/3 == gldslb_x) && (cdig->pos_14.y.stl.num/3 == gldslb_y) ) {
+                SYNCDBG(15,"Positions are equal at slab (%d,%d)",(int)gldslb_x,(int)gldslb_y);
+                return -1;
+            }
+            around_index = small_around_index_towards_destination(gldstl_x,gldstl_y,cdig->pos_14.x.stl.num,cdig->pos_14.y.stl.num);
+            gldstl_x += 3 * small_around[around_index].delta_x;
+            gldstl_y += 3 * small_around[around_index].delta_y;
         }
         if ( (cdig->pos_14.x.stl.num / 3 == gldslb_x) && (cdig->pos_14.y.stl.num / 3 == gldslb_y) )
         {
             cdig->pos_20.x.stl.num = gldstl_x;
             cdig->pos_20.y.stl.num = gldstl_y;
+            SYNCDBG(15,"Positions are equal at slab (%d,%d)",(int)gldslb_x,(int)gldslb_y);
             return -1;
         } else
-        if ( counter1 )
+        if (counter1 > 0)
         {
             cdig->pos_gold.x.stl.num = gldstl_x;
             cdig->pos_gold.y.stl.num = gldstl_y;
-            cdig->field_26 = get_2d_distance(&cdig->pos_20, &cdig->pos_14);
+            cdig->distance = get_2d_distance(&cdig->pos_20, &cdig->pos_14);
+            SYNCDBG(15,"Going through subtile (%d,%d)",(int)gldstl_x,(int)gldstl_y);
             return 0;
         } else
         {
             if (comp->field_C == counter2)
             {
-                gldstl_x -= 3 * (MapSubtlCoord)small_around[n].delta_x;
-                gldstl_y -= 3 * (MapSubtlCoord)small_around[n].delta_y;
-                cdig->pos_gold.x.val = gldstl_x << 8;
-                cdig->pos_gold.y.val = gldstl_y << 8;
+                gldstl_x -= 3 * (MapSubtlCoord)small_around[around_index].delta_x;
+                gldstl_y -= 3 * (MapSubtlCoord)small_around[around_index].delta_y;
+                cdig->pos_gold.x.val = subtile_coord(gldstl_x,0);
+                cdig->pos_gold.y.val = subtile_coord(gldstl_y,0);
                 cdig->pos_gold.z.val = 0;
                 cdig->pos_E.x.val = cdig->pos_gold.x.val;
                 cdig->pos_E.y.val = cdig->pos_gold.y.val;
@@ -835,19 +845,19 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long 
                 cdig->pos_20.z.val = cdig->pos_E.z.val;
             }
             cdig->field_48++;
-            if ( (cdig->field_48 > 10) && (cdig->field_4C == gldstl_x) && (cdig->field_50 == gldstl_y) )
-            {
+            if ( (cdig->field_48 > 10) && (cdig->field_4C == gldstl_x) && (cdig->field_50 == gldstl_y) ) {
+                SYNCDBG(15,"Positions are equal at subtile (%d,%d)",(int)gldstl_x,(int)gldstl_y);
                 return -2;
             }
             cdig->field_4C = gldstl_x;
             cdig->field_50 = gldstl_y;
-            cdig->field_26 = get_2d_distance(&cdig->pos_20, &cdig->pos_14);
+            cdig->distance = get_2d_distance(&cdig->pos_20, &cdig->pos_14);
             cdig->field_2A = get_hug_side(cdig, cdig->pos_20.x.stl.num, cdig->pos_20.y.stl.num,
-                               cdig->pos_14.x.stl.num, cdig->pos_14.y.stl.num, n, dungeon->owner);
+                               cdig->pos_14.x.stl.num, cdig->pos_14.y.stl.num, around_index, dungeon->owner);
             i = dig_to_position(dungeon->owner, cdig->pos_20.x.stl.num, cdig->pos_20.y.stl.num,
-                    (n + (cdig->field_2A < 1 ? 3 : 1)) & 3, cdig->field_2A);
-            if (i == -1)
-            {
+                    (around_index + (cdig->field_2A < 1 ? 3 : 1)) & 3, cdig->field_2A);
+            if (i == -1) {
+                SYNCDBG(15,"Preparing digging to subtile (%d,%d) failed",(int)cdig->pos_20.x.stl.num,(int)cdig->pos_20.y.stl.num);
                 return -2;
             }
             digstl_x = stl_num_decode_x(i);
@@ -859,31 +869,33 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long 
             {
                 cdig->pos_20.y.stl.num = digstl_y;
                 cdig->pos_20.x.stl.num = digstl_x;
+                SYNCDBG(15,"Have bridge, so going through liquid subtile (%d,%d)",(int)gldstl_x,(int)gldstl_y);
                 return -5;
             }
-            i = LbArcTan(digstl_x - cdig->pos_20.x.stl.num, digstl_y - cdig->pos_20.y.stl.num);
-            n = ((i & 0x7FFu) + 256) >> 9;
-            cdig->field_2B = n & 3;
-            mapblk = get_map_block_at(digstl_x, digstl_y);
+            cdig->direction_around = small_around_index_towards_destination(cdig->pos_20.x.stl.num,cdig->pos_20.x.stl.num,digstl_x,digstl_y);
             slbattr = get_slab_attrs(slb);
-            if ( (slbattr->field_14) && (slb->kind != SlbT_GEMS)
-              && (((mapblk->flags & 0x20) == 0) || (slabmap_owner(slb) == dungeon->owner)) )
+            if ( (slbattr->field_14 != 0) && (slb->kind != SlbT_GEMS) )
             {
-                return -2;
+                mapblk = get_map_block_at(digstl_x, digstl_y);
+                if ( ((mapblk->flags & 0x20) == 0) || (slabmap_owner(slb) == dungeon->owner) ) {
+                    SYNCDBG(15,"Cannot go through subtile (%d,%d)",(int)digstl_x,(int)digstl_y);
+                    return -2;
+                }
             }
             i = get_subtile_number(slab_center_subtile(digstl_x),slab_center_subtile(digstl_y));
             if ( (find_from_task_list(dungeon->owner, i) < 0) && (l1 == 0) )
             {
-                if (try_game_action(comp, dungeon->owner, 14, 0, digstl_x, digstl_y, 1, 1) <= 0) {
+                if (try_game_action(comp, dungeon->owner, GA_Unk14, 0, digstl_x, digstl_y, 1, 1) <= 0) {
+                    SYNCDBG(15,"Game action failed at subtile (%d,%d)",(int)digstl_x,(int)digstl_y);
                     return -2;
                 }
             }
         }
     } else
     {
-        i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->field_2B, cdig->field_2A);
-        if (i == -1)
-        {
+        SYNCDBG(4,"Starting long distance digging");
+        i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->direction_around, cdig->field_2A);
+        if (i == -1) {
             return -2;
         }
         digstl_x = stl_num_decode_x(i);
@@ -900,15 +912,13 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long 
                 i = get_subtile_number_at_slab_center(digslb_x,digslb_y);
                 if ( (find_from_task_list(dungeon->owner, i) < 0) && (l1 == 0) )
                 {
-                    if (try_game_action(comp, dungeon->owner, 14, 0, digstl_x, digstl_y, 1, 1) <= 0) {
+                    if (try_game_action(comp, dungeon->owner, GA_Unk14, 0, digstl_x, digstl_y, 1, 1) <= 0) {
                         return -2;
                     }
                 }
             }
         }
-        i = LbArcTan(digstl_x - cdig->pos_20.x.stl.num, digstl_y - cdig->pos_20.y.stl.num);
-        n = ((i & 0x7FFu) + 256) >> 9;
-        cdig->field_2B = n & 3;
+        cdig->direction_around = small_around_index_towards_destination(cdig->pos_20.x.stl.num,cdig->pos_20.x.stl.num,digstl_x,digstl_y);
     }
     cdig->pos_20.x.stl.num = digstl_x;
     cdig->pos_20.y.stl.num = digstl_y;
@@ -978,7 +988,7 @@ long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
     }
 
     memcpy(&ctask->dig.pos_gold, &ctask->dig.pos_20, sizeof(struct Coord3d));
-    ctask->dig.field_26 = LONG_MAX;
+    ctask->dig.distance = LONG_MAX;
     ctask->dig.field_54 = 0;
 
     struct ComputerDig cdig;
@@ -988,8 +998,8 @@ long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
     do
     {
         retval = tool_dig_to_pos2(comp, &cdig, 1, 0);
-        SYNCDBG(5,"retval=%d, dig.field_26=%d, dig.field_54=%d",
-            retval, cdig.field_26, cdig.field_54);
+        SYNCDBG(5,"retval=%d, dig.distance=%d, dig.field_54=%d",
+            retval, cdig.distance, cdig.field_54);
     } while (retval == 0);
 
     SYNCDBG(6,"Finished");
