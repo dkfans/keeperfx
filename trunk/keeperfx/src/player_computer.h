@@ -74,6 +74,38 @@ enum TrapDoorSellingCategory {
     TDSC_Trap,
 };
 
+enum GameActionTypes {
+    GA_None = 0,
+    GA_Unk01,
+    GA_Unk02,
+    GA_Unk03,
+    GA_Unk04,
+    GA_Unk05,
+    GA_Unk06,
+    GA_Unk07,
+    GA_Unk08,
+    GA_Unk09,
+    GA_Unk10,
+    GA_Unk11,
+    GA_Unk12,
+    GA_Unk13,
+    GA_Unk14,
+    GA_Unk15,
+    GA_Unk16,
+    GA_Unk17,
+    GA_Unk18,
+    GA_Unk19,
+    GA_Unk20,
+    GA_Unk21,
+    GA_Unk22,
+    GA_Unk23,
+    GA_Unk24,
+    GA_Unk25,
+    GA_Unk26,
+    GA_Unk27,
+    GA_Unk28,
+};
+
 typedef unsigned char ComputerType;
 typedef char ComputerName[LINEMSG_SIZE];
 
@@ -179,9 +211,9 @@ struct ComputerDig { // sizeof = 78
     struct Coord3d pos_14;
     struct Coord3d pos_gold;
     struct Coord3d pos_20;
-    long field_26;
+    long distance;
     unsigned char field_2A;
-    unsigned char field_2B;
+    unsigned char direction_around;
     unsigned long field_2C;
     unsigned char field_30[19];
     unsigned char field_43[5];

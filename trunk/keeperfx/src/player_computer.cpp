@@ -1726,7 +1726,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
           stati = get_thing_state_info_num(n);
           if (stati->state_type == 1)
           {
-              if (try_game_action(comp, dungeon->owner, 21, 8, 0, 0, thing->index, 0) > 0)
+              if (try_game_action(comp, dungeon->owner, GA_Unk21, 8, 0, 0, thing->index, 0) > 0)
               {
                   return thing;
               }
