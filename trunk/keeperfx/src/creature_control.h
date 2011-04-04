@@ -124,37 +124,38 @@ unsigned char field_67;
     long field_82;
 unsigned char field_86[2];
 unsigned char field_88;
+// Hard to tell where exactly, but somewhere here a kind-specific, job-specific or owner-specific data starts
   union {
+  struct {
+    char sbyte_89x;
+    unsigned char byte_8Ax;
+    unsigned char byte_8Bx;
+    unsigned char byte_8Cx;
+    short word_8Dx;
+    unsigned char byte_8F;
+    unsigned short word_90[5];
+    } party;
   struct {
     char sbyte_89;
     unsigned char byte_8A;
     unsigned char byte_8B;
     unsigned char byte_8C;
+    short word_8D;
+    unsigned short word_8F;
+    short word_91;
+    short word_93;
+    unsigned char field_95;
+    unsigned char field_96[4];
     };
+  struct {
     long long_89;
+    long long_8D;
+    long long_91;
+    unsigned char field_95x;
+    unsigned char field_96x[4];
   };
-union {
-struct {
-  short word_8D;
-  unsigned short word_8F;
   };
-  long long_8D;
-};
-union {
-struct {
-  unsigned char byte_91;
-  unsigned char byte_92;
-  unsigned char byte_93;
-  unsigned char byte_94;
-  };
-struct {
-  short word_91;
-  short word_93;
-  };
-  long long_91;
-};
-unsigned char field_95;
-unsigned char field_96[4];
+
   union {
   struct {
     unsigned char byte_9A;
