@@ -231,6 +231,13 @@ TbBool room_is_invalid(const struct Room *room)
   return (room <= &game.rooms[0]);
 }
 
+TbBool room_exists(const struct Room *room)
+{
+  if (room_is_invalid(room))
+    return false;
+  return ((room->field_0 & 0x01) != 0);
+}
+
 struct RoomData *room_data_get_for_kind(RoomKind rkind)
 {
   if ((rkind < 1) || (rkind > ROOM_TYPES_COUNT))

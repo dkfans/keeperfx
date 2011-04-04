@@ -1830,6 +1830,108 @@ void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
     vec_window_width = width;
 }
 
+void LbDrawPixel(long x, long y, TbPixel colour)
+{
+    lbDisplay.GraphicsWindowPtr[x + lbDisplay.GraphicsScreenWidth * y] = colour;
+}
+
+void LbDrawPixelClip(long x, long y, TbPixel colour)
+{
+    if ( (x < 0) || (x >= lbDisplay.GraphicsWindowWidth) )
+        return;
+    if ( (y < 0) || (y >= lbDisplay.GraphicsWindowHeight) )
+        return;
+    TbPixel *buf;
+    int val;
+    buf = lbDisplay.GraphicsWindowPtr + lbDisplay.GraphicsScreenWidth * y + x;
+    val = 0;
+    if ((lbDisplay.DrawFlags & 0x04) != 0)
+    {
+        val = (colour << 8) + (*buf);
+        *buf = lbDisplay.GlassMap[val];
+    } else
+    if ((lbDisplay.DrawFlags & 0x08) != 0)
+    {
+        val = ((*buf) << 8) + colour;
+        *buf = lbDisplay.GlassMap[val];
+    } else
+    {
+        *buf = colour;
+    }
+}
+
+void LbDrawCircleFilled(long x, long y, long radius, TbPixel colour)
+{
+    //TODO
+}
+
+void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
+{
+    long r;
+    long i,n;
+    long dx,dy;
+    if (radius < 1)
+    {
+        LbDrawPixelClip(x, y, colour);
+        return;
+    }
+    if (radius == 1)
+    {
+        LbDrawPixelClip(x - 1, y, colour);
+        LbDrawPixelClip(x, y - 1, colour);
+        LbDrawPixelClip(x + 1, y, colour);
+        LbDrawPixelClip(x, y + 1, colour);
+        LbDrawPixelClip(x, y, colour);
+        return;
+    }
+    n = 3 - 2 * radius;
+    LbDrawHVLine(x - radius, y, radius + x, y, colour);
+    if (n >= 0)
+    {
+        LbDrawHVLine(x, y - radius, x, y - radius, colour);
+        r = radius - 1;
+        LbDrawHVLine(x, radius + y, x, radius + y, colour);
+        n += 10 - (4 * (radius - 1) + 4);
+    } else
+    {
+        r = radius;
+        n += 10 - 4;
+    }
+    dx = 1;
+    dy = 1;
+    while (dx < r)
+    {
+        LbDrawHVLine(x - r, y - dx, x + r, y - dx, colour);
+        LbDrawHVLine(x - r, dx + y, x + r, dx + y, colour);
+        if (n >= 0)
+        {
+            LbDrawHVLine(x - dy, y - r, x + dy, y - r, colour);
+            LbDrawHVLine(x - dy, r + y, x + dy, r + y, colour);
+            i = dx - r;
+            r--;
+            n += 4 * i + 10;
+        } else
+        {
+            n += 4 * dx + 6;
+        }
+        dx++;
+        dy = dx;
+    }
+    if (r == dx)
+    {
+        LbDrawHVLine(x - r, y - dx, x + r, y - dx, colour);
+        LbDrawHVLine(x - r, dx + y, x + r, dx + y, colour);
+    }
+}
+
+void LbDrawCircle(long x, long y, long radius, TbPixel colour)
+{
+    if ((lbDisplay.DrawFlags & 0x10) != 0)
+        LbDrawCircleFilled(x, y, radius, colour);
+    else
+        LbDrawCircleOutline(x, y, radius, colour);
+}
+
 /*
 unsigned short __fastcall is_it_clockwise(struct EnginePoint *point1,
       struct EnginePoint *point2, struct EnginePoint *point3)
