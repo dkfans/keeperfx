@@ -142,6 +142,7 @@ struct Room *room_get(long room_idx);
 struct Room *subtile_room_get(long stl_x, long stl_y);
 struct Room *slab_room_get(long slb_x, long slb_y);
 TbBool room_is_invalid(const struct Room *room);
+TbBool room_exists(const struct Room *room);
 struct RoomData *room_data_get_for_kind(RoomKind rkind);
 struct RoomData *room_data_get_for_room(const struct Room *room);
 struct RoomStats *room_stats_get_for_kind(RoomKind rkind);

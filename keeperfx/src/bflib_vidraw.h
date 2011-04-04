@@ -204,6 +204,9 @@ int LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,unsigned char *
 void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
         unsigned int line_len, unsigned int width, unsigned int height);
 
+void LbDrawPixel(long x, long y, TbPixel colour);
+void LbDrawCircle(long x, long y, long radius, TbPixel colour);
+
 TbResult LbSpriteDraw(long x, long y, const struct TbSprite *spr);
 TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour);
 TbResult LbSpriteDrawScaled(long xpos, long ypos, struct TbSprite *sprite, long dest_width, long dest_height);
