@@ -663,11 +663,11 @@ long update_effect_element(struct Thing *thing)
     abs_x = abs(thing->pos_2C.x.val);
     abs_y = abs(thing->pos_2C.y.val);
     prop_factor = LbProportion(abs_x, abs_y);
-    i = ((LbArcTan(thing->pos_2C.z.val, prop_factor) & 0x7FF) - 512) & 0x7FF;
+    i = ((LbArcTanAngle(thing->pos_2C.z.val, prop_factor) & 0x7FF) - 512) & 0x7FF;
     if (i > 1024)
       i -= 1024;
     prop_val = i / 128;
-    thing->field_52 = LbArcTan(thing->pos_2C.x.val, thing->pos_2C.y.val) & 0x7FF;
+    thing->field_52 = LbArcTanAngle(thing->pos_2C.x.val, thing->pos_2C.y.val) & 0x7FF;
     thing->field_48 = prop_val;
     thing->field_3E = 0;
     thing->field_40 = (prop_val & 0xff) << 8;

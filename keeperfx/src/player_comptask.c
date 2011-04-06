@@ -696,8 +696,20 @@ long check_for_buildable(long stl_x, long stl_y, long plyr_idx)
 unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long dest_x,long dest_y)
 {
     long i,n;
-    i = LbArcTan(dest_x - curr_x, dest_y - curr_y);
-    n = ((i & 0x7FFu) + 256) >> 9;
+    i = LbArcTanAngle(dest_x - curr_x, dest_y - curr_y);
+    // Check the angle - we're a bit afraid of angles which are pi/4 multiplications
+    if ((i & 0xFF) != 0)
+    {
+        // Just compute the index
+        n = (i + LbFPMath_PI/4) >> 9;
+    } else
+    {
+        //Special case - the angle is exact multiplication of pi/4
+        // Add some variant factor to make it little off this value.
+        // this should give better results because tangens values are rounded up or down.
+        n = (i + LbFPMath_PI/4 + ACTION_RANDOM(3) - 1) >> 9;
+    }
+    SYNCDBG(8,"Vector (%ld,%ld) returned ArcTan=%ld, around (%d,%d)",dest_x - curr_x, dest_y - curr_y,i,(int)small_around[n].delta_x,(int)small_around[n].delta_y);
     return n & 3;
 }
 
@@ -711,8 +723,9 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long 
     MapSlabCoord gldslb_x,gldslb_y;
     MapSubtlCoord digstl_x,digstl_y;
     MapSlabCoord digslb_x,digslb_y;
-    long counter1;
-    long i,around_index;
+    long counter1,around_index;
+    long i;
+    unsigned long k;
     //SYNCDBG(4,"Starting");
     //return _DK_tool_dig_to_pos2(comp, cdig, l1, l2);
     dungeon = comp->dungeon;
@@ -728,6 +741,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long 
     {
         SYNCDBG(4,"Starting small distance digging");
         counter1 = 0;
+        k = 0;
         while ( 1 )
         {
             gldslb_x = gldstl_x / 3;
@@ -765,6 +779,12 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long 
             around_index = small_around_index_towards_destination(gldstl_x,gldstl_y,cdig->pos_14.x.stl.num,cdig->pos_14.y.stl.num);
             gldstl_x += 3 * small_around[around_index].delta_x;
             gldstl_y += 3 * small_around[around_index].delta_y;
+            k++;
+            if (k > map_tiles_x*map_tiles_y)
+            {
+                ERRORLOG("Infinite loop while finding path to dig gold");
+                return -1;
+            }
         }
         slb = get_slabmap_block(gldslb_x, gldslb_y);
         if ( (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA) )
