@@ -411,7 +411,7 @@ long get_emitter_pan(struct SoundReceiver *recv, struct SoundEmitter *emit)
     if (radius < deadzone_radius) {
       return 64;
     }
-    angle_b = LbArcTan(diff_x, diff_y) & 0x7FF;
+    angle_b = LbArcTanAngle(diff_x, diff_y) & 0x7FF;
     angle_a = recv->orient_a;
     adiff = get_angle_difference(angle_a, angle_b);
     asign = get_angle_sign(angle_a, angle_b);

@@ -64,54 +64,86 @@ long LbCosL(long x)
     return lbCosTable[(unsigned long)x & 0x7FF];
 }
 
-long LbArcTan(long x,long n)
+long LbArcTanL(long arg)
 {
-    long ux,un;
-    long result;
-    if ((x == 0) && (n == 0))
+    if (arg < 0)
+    {
+        if (arg <= -sizeof(lbArcTanFactors)/sizeof(lbArcTanFactors[0]))
+            arg = -sizeof(lbArcTanFactors)/sizeof(lbArcTanFactors[0]) + 1;
+        return -(long)lbArcTanFactors[-arg];
+    } else
+    {
+        if (arg >= sizeof(lbArcTanFactors)/sizeof(lbArcTanFactors[0]))
+            arg = sizeof(lbArcTanFactors)/sizeof(lbArcTanFactors[0]) - 1;
+        return (long)lbArcTanFactors[arg];
+    }
+}
+
+/** Computes angle between negative Y axis and the line that crosses (0,0) and given (x,y).
+ *  Uses arctan(x/y) with proper shift to get the angle.
+ *  Returning 0 means direction towards negative y; 512 is towards positive x;
+ *  1024 towards positive y, and 1536 towards negative x. Output range is between 0 (=0 rad)
+ *  and 2048 (=2*pi rad), zero included.
+ *
+ * @param x
+ * @param y
+ * @return
+ */
+long LbArcTanAngle(long x,long y)
+{
+    long ux,uy;
+    unsigned long index;
+    if ((x == 0) && (y == 0))
         return 0;
     if (x < 0)
     {
         ux = -x;
-        if (n < 0)
+        if (y < 0)
         {
-            un = -n;
-            if (ux < un) {
-              result = 2048 - lbArcTanFactors[(ux << 8)/un];
+            uy = -y;
+            if (ux < uy) {
+                index = (ux << 8)/uy;
+                return 2*LbFPMath_PI   - (long)lbArcTanFactors[index];
             } else {
-              result = lbArcTanFactors[(un << 8)/ux] + 1536;
+                index = (uy << 8)/ux;
+                return 3*LbFPMath_PI/2 + (long)lbArcTanFactors[index];
             }
         } else
         {
-            un = n;
-            if (ux < un) {
-              result = lbArcTanFactors[(ux << 8)/un] + 1024;
+            uy = y;
+            if (ux < uy) {
+                index = (ux << 8)/uy;
+                return   LbFPMath_PI   + (long)lbArcTanFactors[index];
             } else {
-              result = 1536 - lbArcTanFactors[(un << 8)/ux];
+                index = (uy << 8)/ux;
+                return 3*LbFPMath_PI/2 - (long)lbArcTanFactors[index];
             }
         }
     } else
     {
         ux = x;
-        if (n < 0)
+        if (y < 0)
         {
-            un = -n;
-            if (ux < un) {
-              result = lbArcTanFactors[(ux << 8)/un];
+            uy = -y;
+            if (ux < uy) {
+                index = (ux << 8)/uy;
+                return                 (long)lbArcTanFactors[index];
             } else {
-              result = 512 - lbArcTanFactors[(un << 8)/ux];
+                index = (uy << 8)/ux;
+                return LbFPMath_PI/2 - (long)lbArcTanFactors[index];
             }
         } else
         {
-            un = n;
-            if (ux < un) {
-              result = 1024 - lbArcTanFactors[(ux << 8)/un];
+            uy = y;
+            if (ux < uy) {
+                index = (ux << 8)/uy;
+                return LbFPMath_PI   - (long)lbArcTanFactors[index];
             } else {
-              result = lbArcTanFactors[(un << 8)/ux] + 512;
+                index = (uy << 8)/ux;
+                return LbFPMath_PI/2 + (long)lbArcTanFactors[index];
             }
         }
     }
-    return result;
 }
 
 long LbSqrL(long x)

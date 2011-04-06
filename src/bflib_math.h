@@ -28,6 +28,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#define LbFPMath_PI 1024
+#define LbFPMath_AngleMask 0x7FF
+
 enum MathOperator {
     MOp_UNDEFINED                      =  0,
     MOp_EQUAL                          =  1,
@@ -64,7 +67,8 @@ extern struct Proportion _DK_proportions[513];
 long LbSinL(long x);
 long LbCosL(long x);
 long LbSqrL(long x);
-long LbArcTan(long x,long n);
+long LbArcTanL(long arg);
+long LbArcTanAngle(long x,long n);
 long LbMathOperation(unsigned char opkind, long val1, long val2);
 unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
 TbBool LbNumberSignsSame(long num_a, long num_b);
