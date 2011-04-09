@@ -693,6 +693,15 @@ long check_for_buildable(long stl_x, long stl_y, long plyr_idx)
     return ((mapblk->flags & 0x20) != 0) && (slabmap_owner(slb) != plyr_idx);
 }
 
+/** Retrieves index for small_around[] array which leads to the area closer to given destination.
+ *  It uses a bit of randomness when angles are too straight, so it may happen that result for same points will vary.
+ *
+ * @param curr_x Current position x coord.
+ * @param curr_y Current position y coord.
+ * @param dest_x Destination position x coord.
+ * @param dest_y Destination position y coord.
+ * @return Index closer to destination.
+ */
 unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long dest_x,long dest_y)
 {
     long i,n;
@@ -709,7 +718,7 @@ unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long
         // this should give better results because tangens values are rounded up or down.
         n = (i + LbFPMath_PI/4 + ACTION_RANDOM(3) - 1) >> 9;
     }
-    SYNCDBG(8,"Vector (%ld,%ld) returned ArcTan=%ld, around (%d,%d)",dest_x - curr_x, dest_y - curr_y,i,(int)small_around[n].delta_x,(int)small_around[n].delta_y);
+    SYNCDBG(18,"Vector (%ld,%ld) returned ArcTan=%ld, around (%d,%d)",dest_x - curr_x, dest_y - curr_y,i,(int)small_around[n].delta_x,(int)small_around[n].delta_y);
     return n & 3;
 }
 
