@@ -54,14 +54,12 @@ DLLIMPORT int _DK_lbSinTable[2048];
 /******************************************************************************/
 long LbSinL(long x)
 {
-    // "& 0x7FF" is faster than "% ANGLE_TRIGL_PERIOD"
-    return lbSinTable[(unsigned long)x & 0x7FF];
+    return lbSinTable[(unsigned long)x & LbFPMath_AngleMask];
 }
 
 long LbCosL(long x)
 {
-    // "& 0x7FF" is faster than "% ANGLE_TRIGL_PERIOD"
-    return lbCosTable[(unsigned long)x & 0x7FF];
+    return lbCosTable[(unsigned long)x & LbFPMath_AngleMask];
 }
 
 long LbArcTanL(long arg)
@@ -84,6 +82,7 @@ long LbArcTanL(long arg)
  *  Returning 0 means direction towards negative y; 512 is towards positive x;
  *  1024 towards positive y, and 1536 towards negative x. Output range is between 0 (=0 rad)
  *  and 2048 (=2*pi rad), zero included.
+ *  Value of the angle is properly rounded, up or down.
  *
  * @param x
  * @param y
@@ -101,6 +100,8 @@ long LbArcTanAngle(long x,long y)
         if (y < 0)
         {
             uy = -y;
+            // Make sure we'll have smaller value * 256 / greater value.
+            // This way we won't exceed factors array bounds (which is 256 elements).
             if (ux < uy) {
                 index = (ux << 8)/uy;
                 return 2*LbFPMath_PI   - (long)lbArcTanFactors[index];
@@ -111,6 +112,7 @@ long LbArcTanAngle(long x,long y)
         } else
         {
             uy = y;
+            // Make sure we'll have smaller value * 256 / greater value.
             if (ux < uy) {
                 index = (ux << 8)/uy;
                 return   LbFPMath_PI   + (long)lbArcTanFactors[index];
@@ -125,6 +127,7 @@ long LbArcTanAngle(long x,long y)
         if (y < 0)
         {
             uy = -y;
+            // Make sure we'll have smaller value * 256 / greater value.
             if (ux < uy) {
                 index = (ux << 8)/uy;
                 return                 (long)lbArcTanFactors[index];
@@ -135,6 +138,7 @@ long LbArcTanAngle(long x,long y)
         } else
         {
             uy = y;
+            // Make sure we'll have smaller value * 256 / greater value.
             if (ux < uy) {
                 index = (ux << 8)/uy;
                 return LbFPMath_PI   - (long)lbArcTanFactors[index];

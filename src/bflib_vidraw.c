@@ -1862,11 +1862,6 @@ void LbDrawPixelClip(long x, long y, TbPixel colour)
 
 void LbDrawCircleFilled(long x, long y, long radius, TbPixel colour)
 {
-    //TODO
-}
-
-void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
-{
     long r;
     long i,n;
     long dx,dy;
@@ -1889,8 +1884,8 @@ void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
     if (n >= 0)
     {
         LbDrawHVLine(x, y - radius, x, y - radius, colour);
-        r = radius - 1;
         LbDrawHVLine(x, radius + y, x, radius + y, colour);
+        r = radius - 1;
         n += 10 - (4 * (radius - 1) + 4);
     } else
     {
@@ -1924,12 +1919,175 @@ void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
     }
 }
 
+static inline void LbDrawPixelClipOpaq1(long x, long y, TbPixel colour)
+{
+    if ( (x < 0) || (x >= lbDisplay.GraphicsWindowWidth) )
+        return;
+    if ( (y < 0) || (y >= lbDisplay.GraphicsWindowHeight) )
+        return;
+    TbPixel *buf;
+    int val;
+    buf = lbDisplay.GraphicsWindowPtr + lbDisplay.GraphicsScreenWidth * y + x;
+    val = (colour << 8) + (*buf);
+    *buf = lbDisplay.GlassMap[val];
+}
+
+static inline void LbDrawPixelClipOpaq2(long x, long y, TbPixel colour)
+{
+    if ( (x < 0) || (x >= lbDisplay.GraphicsWindowWidth) )
+        return;
+    if ( (y < 0) || (y >= lbDisplay.GraphicsWindowHeight) )
+        return;
+    TbPixel *buf;
+    int val;
+    buf = lbDisplay.GraphicsWindowPtr + lbDisplay.GraphicsScreenWidth * y + x;
+    val = ((*buf) << 8) + colour;
+    *buf = lbDisplay.GlassMap[val];
+}
+
+static inline void LbDrawPixelClipSolid(long x, long y, TbPixel colour)
+{
+    if ( (x < 0) || (x >= lbDisplay.GraphicsWindowWidth) )
+        return;
+    if ( (y < 0) || (y >= lbDisplay.GraphicsWindowHeight) )
+        return;
+    TbPixel *buf;
+    buf = lbDisplay.GraphicsWindowPtr + lbDisplay.GraphicsScreenWidth * y + x;
+    *buf = colour;
+}
+
+void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
+{
+    int na,nb,n;
+    if ((lbDisplay.DrawFlags & 0x04) != 0)
+    {
+        nb = radius;
+        n = 3 - 2 * radius;
+        if (radius < 1)
+        {
+            LbDrawPixelClipOpaq1(x, y, colour);
+            return;
+        }
+        for (na=0; na < nb; na++)
+        {
+            LbDrawPixelClipOpaq1(x - na, y - nb, colour);
+            LbDrawPixelClipOpaq1(x + na, y - nb, colour);
+            LbDrawPixelClipOpaq1(x - na, y + nb, colour);
+            LbDrawPixelClipOpaq1(x + na, y + nb, colour);
+            LbDrawPixelClipOpaq1(x - nb, y - na, colour);
+            LbDrawPixelClipOpaq1(x + nb, y - na, colour);
+            LbDrawPixelClipOpaq1(x - nb, y + na, colour);
+            LbDrawPixelClipOpaq1(x + nb, y + na, colour);
+            if (n >= 0)
+            {
+                n += 10 + 4 * (na - nb);
+                nb--;
+            } else
+            {
+                n += 6 + 4 * na;
+            }
+        }
+        if (nb == na)
+        {
+            LbDrawPixelClipOpaq1(x - na, y - nb, colour);
+            LbDrawPixelClipOpaq1(x + na, y - nb, colour);
+            LbDrawPixelClipOpaq1(x - na, y + nb, colour);
+            LbDrawPixelClipOpaq1(x + na, y + nb, colour);
+            LbDrawPixelClipOpaq1(x - nb, y - na, colour);
+            LbDrawPixelClipOpaq1(x + nb, y - na, colour);
+            LbDrawPixelClipOpaq1(x - nb, y + na, colour);
+            LbDrawPixelClipOpaq1(x + nb, y + na, colour);
+        }
+    } else
+    if ((lbDisplay.DrawFlags & 0x08) != 0)
+    {
+        nb = radius;
+        n = 3 - 2 * radius;
+        if (radius < 1)
+        {
+            LbDrawPixelClipOpaq2(x, y, colour);
+            return;
+        }
+        for (na=0; na < nb; na++)
+        {
+            LbDrawPixelClipOpaq2(x - na, y - nb, colour);
+            LbDrawPixelClipOpaq2(x + na, y - nb, colour);
+            LbDrawPixelClipOpaq2(x - na, y + nb, colour);
+            LbDrawPixelClipOpaq2(x + na, y + nb, colour);
+            LbDrawPixelClipOpaq2(x - nb, y - na, colour);
+            LbDrawPixelClipOpaq2(x + nb, y - na, colour);
+            LbDrawPixelClipOpaq2(x - nb, y + na, colour);
+            LbDrawPixelClipOpaq2(x + nb, y + na, colour);
+            if (n >= 0)
+            {
+                n += 10 + 4 * (na - nb);
+                nb--;
+            } else
+            {
+                n += 6 + 4 * na;
+            }
+        }
+        if (nb == na)
+        {
+            LbDrawPixelClipOpaq2(x - na, y - nb, colour);
+            LbDrawPixelClipOpaq2(x + na, y - nb, colour);
+            LbDrawPixelClipOpaq2(x - na, y + nb, colour);
+            LbDrawPixelClipOpaq2(x + na, y + nb, colour);
+            LbDrawPixelClipOpaq2(x - nb, y - na, colour);
+            LbDrawPixelClipOpaq2(x + nb, y - na, colour);
+            LbDrawPixelClipOpaq2(x - nb, y + na, colour);
+            LbDrawPixelClipOpaq2(x + nb, y + na, colour);
+        }
+    } else
+    {
+        nb = radius;
+        n = 3 - 2 * radius;
+        if (radius < 1)
+        {
+            LbDrawPixelClipSolid(x, y, colour);
+            return;
+        }
+        for (na=0; na < nb; na++)
+        {
+            LbDrawPixelClipSolid(x - na, y - nb, colour);
+            LbDrawPixelClipSolid(x + na, y - nb, colour);
+            LbDrawPixelClipSolid(x - na, y + nb, colour);
+            LbDrawPixelClipSolid(x + na, y + nb, colour);
+            LbDrawPixelClipSolid(x - nb, y - na, colour);
+            LbDrawPixelClipSolid(x + nb, y - na, colour);
+            LbDrawPixelClipSolid(x - nb, y + na, colour);
+            LbDrawPixelClipSolid(x + nb, y + na, colour);
+            if (n >= 0)
+            {
+                n += 10 + 4 * (na - nb);
+                nb--;
+            } else
+            {
+                n += 6 + 4 * na;
+            }
+        }
+        if (nb == na)
+        {
+            LbDrawPixelClipSolid(x - na, y - nb, colour);
+            LbDrawPixelClipSolid(x + na, y - nb, colour);
+            LbDrawPixelClipSolid(x - na, y + nb, colour);
+            LbDrawPixelClipSolid(x + na, y + nb, colour);
+            LbDrawPixelClipSolid(x - nb, y - na, colour);
+            LbDrawPixelClipSolid(x + nb, y - na, colour);
+            LbDrawPixelClipSolid(x - nb, y + na, colour);
+            LbDrawPixelClipSolid(x + nb, y + na, colour);
+        }
+    }
+
+
+}
+
 void LbDrawCircle(long x, long y, long radius, TbPixel colour)
 {
-    if ((lbDisplay.DrawFlags & 0x10) != 0)
-        LbDrawCircleFilled(x, y, radius, colour);
-    else
+    if ((lbDisplay.DrawFlags & 0x0010) != 0)
         LbDrawCircleOutline(x, y, radius, colour);
+    else
+        LbDrawCircleFilled(x, y, radius, colour);
 }
 
 /*
