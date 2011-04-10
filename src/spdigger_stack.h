@@ -1,10 +1,10 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file spworker_stack.h
- *     Header file for spworker_stack.c.
+/** @file spdigger_stack.h
+ *     Header file for spdigger_stack.c.
  * @par Purpose:
- *     Special workers task stack support functions.
+ *     Special diggers task stack support functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
@@ -16,8 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_SPWORKER_STACK_H
-#define DK_SPWORKER_STACK_H
+#ifndef DK_SPDIGGER_STACK_H
+#define DK_SPDIGGER_STACK_H
 
 #include "bflib_basics.h"
 #include "globals.h"

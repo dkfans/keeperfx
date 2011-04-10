@@ -57,8 +57,8 @@ long get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 long get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
   long dx,dy;
-  dy = abs(pos1->y.val - pos2->y.val);
-  dx = abs(pos1->x.val - pos2->x.val);
+  dy = abs(pos1->y.val - (long)pos2->y.val);
+  dx = abs(pos1->x.val - (long)pos2->x.val);
   if (dy <= dx)
     return dx;
   return dy;

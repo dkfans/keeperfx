@@ -29,6 +29,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 void LbErrorParachuteInstall(void);
+void LbErrorParachuteUpdate(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

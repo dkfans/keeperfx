@@ -34,7 +34,7 @@
 #include "room_data.h"
 #include "room_jobs.h"
 #include "room_workshop.h"
-#include "spworker_stack.h"
+#include "spdigger_stack.h"
 #include "gui_topmsg.h"
 
 #include "keeperfx.hpp"
@@ -249,7 +249,7 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
                 {
                     thing->continue_state = CrSt_ImpArrivesAtReinforce;
                     cctrl->word_8D = stl_num;
-                    cctrl->byte_93 = 0;
+                    cctrl->digger.byte_93 = 0;
                     return 1;
                 }
             }
@@ -361,17 +361,17 @@ long check_out_available_imp_drop_tasks(struct Thing *digger)
     }
     if ( check_out_undug_drop_place(digger) )
     {
-        cctrl->byte_94 = 1;
+        cctrl->digger.byte_94 = 1;
         return 1;
     }
     if ( check_out_unconverted_drop_place(digger) )
     {
-        cctrl->byte_94 = 2;
+        cctrl->digger.byte_94 = 2;
         return 1;
     }
     if ( check_out_unprettied_drop_place(digger) )
     {
-        cctrl->byte_94 = 2;
+        cctrl->digger.byte_94 = 2;
         return 1;
     }
     if ( check_out_unclaimed_gold(digger, 768) )
@@ -380,14 +380,14 @@ long check_out_available_imp_drop_tasks(struct Thing *digger)
     }
     if ( check_out_unreinforced_drop_place(digger) )
     {
-        cctrl->byte_94 = 9;
+        cctrl->digger.byte_94 = 9;
         return 1;
     }
     if ( check_out_crates_to_arm_trap_in_room(digger) )
     {
         return 1;
     }
-    cctrl->byte_94 = 0;
+    cctrl->digger.byte_94 = 0;
     return 0;
 }
 
@@ -707,6 +707,7 @@ short creature_picks_up_trap_object(struct Thing *thing)
     traptng = thing_get(cctrl->field_70);
     if ( !thing_exists(cratetng) || !thing_exists(traptng) )
     {
+        WARNLOG("The %s index %d or %s index %d no longer exists",thing_model_name(cratetng),(int)cratetng->index,thing_model_name(traptng),(int)traptng->index);
         cctrl->field_70 = 0;
         set_start_state(thing);
         return 0;
@@ -715,22 +716,25 @@ short creature_picks_up_trap_object(struct Thing *thing)
       || (get_2d_box_distance(&thing->mappos, &cratetng->mappos) >= 512)
       || (traptng->class_id != TCls_Trap) || (box_thing_to_door_or_trap(cratetng) != traptng->model))
     {
+        WARNLOG("Cannot use %s index %d to refill %s index %d",thing_model_name(cratetng),(int)cratetng->index,thing_model_name(traptng),(int)traptng->index);
         cctrl->field_70 = 0;
         set_start_state(thing);
         return 0;
     }
     if ( !setup_person_move_backwards_to_position(thing, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, 0) )
     {
+        WARNLOG("Cannot deliver crate to position of %s index %d",thing_model_name(traptng),(int)traptng->index);
         cctrl->field_70 = 0;
         set_start_state(thing);
         return 0;
     }
-    if (!room_is_invalid(room))
+    SYNCDBG(18,"Moving %s index %d",thing_model_name(thing),(int)thing->index);//!!!
+    if (room_exists(room))
     {
         if ( (room->kind == RoK_WORKSHOP) && (room->owner == cratetng->owner) )
         {
             remove_workshop_object_from_workshop(room);
-            if (cratetng->owner < 5)
+            if (cratetng->owner <= HERO_PLAYER)
             {
                 remove_workshop_item(cratetng->owner,
                     get_workshop_object_class_for_thing(cratetng),

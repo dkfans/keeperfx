@@ -180,7 +180,7 @@ obj/room_workshop.o \
 obj/scrcapt.o \
 obj/sounds.o \
 obj/slab_data.o \
-obj/spworker_stack.o \
+obj/spdigger_stack.o \
 obj/tasks_list.o \
 obj/thing_corpses.o \
 obj/thing_creature.o \

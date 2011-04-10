@@ -3090,93 +3090,94 @@ long update_creature(struct Thing *thing)
     map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if ((thing->active_state == CrSt_CreatureUnconscious) && ((map->flags & 0x40) != 0))
     {
-      kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
-      return 0;
+        SYNCDBG(8,"Killing unconscious creature %d on toxic map black.",(int)thing->index);
+        kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
+        return 0;
     }
     if (thing->health < 0)
     {
-      kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
-      return 0;
+        kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
+        return 0;
     }
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-      WARNLOG("Killing creature with invalid control.");
-      kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
-      return 0;
+        WARNLOG("Killing creature %d with invalid control.",(int)thing->index);
+        kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
+        return 0;
     }
     if (game.field_150356)
     {
-      if ((cctrl->field_2EF != 0) && (cctrl->field_2EF <= game.play_gameturn))
-      {
-          cctrl->field_2EF = 0;
-          create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
-          move_thing_in_map(thing, &game.armageddon.mappos);
-      }
+        if ((cctrl->field_2EF != 0) && (cctrl->field_2EF <= game.play_gameturn))
+        {
+            cctrl->field_2EF = 0;
+            create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
+            move_thing_in_map(thing, &game.armageddon.mappos);
+        }
     }
 
     if (cctrl->field_B1 > 0)
-      cctrl->field_B1--;
+        cctrl->field_B1--;
     if (cctrl->byte_8B == 0)
-      cctrl->byte_8B = game.field_14EA4B;
+        cctrl->byte_8B = game.field_14EA4B;
     if (cctrl->field_302 == 0)
-      process_creature_instance(thing);
+        process_creature_instance(thing);
     update_creature_count(thing);
     if ((thing->field_0 & 0x20) != 0)
     {
-      if (cctrl->field_AB == 0)
-      {
-        if (cctrl->field_302 != 0)
+        if (cctrl->field_AB == 0)
         {
-          cctrl->field_302--;
-        } else
-        if (process_creature_state(thing))
-        {
-          ERRORLOG("A state return type for a human controlled creature?");
+          if (cctrl->field_302 != 0)
+          {
+              cctrl->field_302--;
+          } else
+          if (process_creature_state(thing))
+          {
+              ERRORLOG("A state return type for a human controlled creature?");
+          }
         }
-      }
-      cctrl = creature_control_get_from_thing(thing);
-      player = get_player(thing->owner);
-      if ((cctrl->field_AB & 0x02) != 0)
-      {
-        if ((player->field_3 & 0x04) == 0)
-          PaletteSetPlayerPalette(player, blue_palette);
-      } else
-      {
-        if ((player->field_3 & 0x04) != 0)
-          PaletteSetPlayerPalette(player, _DK_palette);
-      }
+        cctrl = creature_control_get_from_thing(thing);
+        player = get_player(thing->owner);
+        if ((cctrl->field_AB & 0x02) != 0)
+        {
+            if ((player->field_3 & 0x04) == 0)
+              PaletteSetPlayerPalette(player, blue_palette);
+        } else
+        {
+            if ((player->field_3 & 0x04) != 0)
+              PaletteSetPlayerPalette(player, _DK_palette);
+        }
     } else
     {
-      if (cctrl->field_AB == 0)
-      {
-        if (cctrl->field_302 > 0)
+        if (cctrl->field_AB == 0)
         {
-          cctrl->field_302--;
-        } else
-        if (process_creature_state(thing))
-        {
-          return 0;
+          if (cctrl->field_302 > 0)
+          {
+            cctrl->field_302--;
+          } else
+          if (process_creature_state(thing))
+          {
+            return 0;
+          }
         }
-      }
     }
 
     if (update_creature_movements(thing))
     {
-      thing->velocity.x.val += cctrl->pos_BB.x.val;
-      thing->velocity.y.val += cctrl->pos_BB.y.val;
-      thing->velocity.z.val += cctrl->pos_BB.z.val;
+        thing->velocity.x.val += cctrl->pos_BB.x.val;
+        thing->velocity.y.val += cctrl->pos_BB.y.val;
+        thing->velocity.z.val += cctrl->pos_BB.z.val;
     }
     move_creature(thing);
     if ((thing->field_0 & 0x20) != 0)
     {
-      if ((cctrl->flgfield_1 & CCFlg_Unknown40) == 0)
-        cctrl->move_speed /= 2;
-      if ((cctrl->flgfield_1 & CCFlg_Unknown80) == 0)
-        cctrl->field_CA /= 2;
+        if ((cctrl->flgfield_1 & CCFlg_Unknown40) == 0)
+          cctrl->move_speed /= 2;
+        if ((cctrl->flgfield_1 & CCFlg_Unknown80) == 0)
+          cctrl->field_CA /= 2;
     } else
     {
-      cctrl->move_speed = 0;
+        cctrl->move_speed = 0;
     }
     process_spells_affected_by_effect_elements(thing);
     process_landscape_affecting_creature(thing);
@@ -3184,26 +3185,28 @@ long update_creature(struct Thing *thing)
     move_thing_in_map(thing, &thing->mappos);
     set_creature_graphic(thing);
     if (cctrl->field_2B0)
-      process_keeper_spell_effect(thing);
+    {
+        process_keeper_spell_effect(thing);
+    }
 
     if (thing->word_17 > 0)
-      thing->word_17--;
+        thing->word_17--;
 
     if (cctrl->field_7A & 0x0FFF)
     {
-      if ( creature_is_group_leader(thing) )
-        leader_find_positions_for_followers(thing);
+        if ( creature_is_group_leader(thing) )
+          leader_find_positions_for_followers(thing);
     }
 
     if (cctrl->field_6E > 0)
     {
-      tngp = thing_get(cctrl->field_6E);
-      if (tngp->field_1 & 0x01)
-        move_thing_in_map(tngp, &thing->mappos);
+        tngp = thing_get(cctrl->field_6E);
+        if ((tngp->field_1 & 0x01) != 0)
+          move_thing_in_map(tngp, &thing->mappos);
     }
     if (update_creature_levels(thing) == -1)
     {
-      return 0;
+        return 0;
     }
     process_creature_self_spell_casting(thing);
     cctrl->pos_BB.x.val = 0;

@@ -20,6 +20,7 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
+#include "bflib_math.h"
 #include "creature_control.h"
 #include "creature_states.h"
 #include "creature_instances.h"
@@ -37,13 +38,13 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT unsigned char _DK_creature_can_navigate_to(struct Thing *thing, struct Coord3d *pos, unsigned char no_owner);
-DLLIMPORT long _DK_creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, short a3, long a4, long a5, unsigned char a6);
+DLLIMPORT long _DK_creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, short speed, long storage, long a5, unsigned char a6);
 DLLIMPORT long _DK_creature_turn_to_face(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_creature_turn_to_face_angle(struct Thing *thing, long a2);
 DLLIMPORT unsigned char _DK_get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT void _DK_nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
-DLLIMPORT short _DK_setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char a4);
+DLLIMPORT short _DK_setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char storage);
 DLLIMPORT short _DK_move_to_position(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -189,23 +190,22 @@ TbBool setup_person_move_close_to_position(struct Thing *thing, long x, long y, 
     return true;
 }
 
-TbBool setup_person_move_backwards_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char a4)
+TbBool setup_person_move_backwards_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char storage)
 {
     struct CreatureControl *cctrl;
     struct Coord3d pos;
+    SYNCDBG(18,"Moving %s index %d to (%d,%d)",thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);//!!!
     cctrl = creature_control_get_from_thing(thing);
-    pos.x.stl.num = stl_x;
-    pos.y.stl.num = stl_y;
-    pos.x.stl.pos = 128;
-    pos.y.stl.pos = 128;
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = 0;
     pos.z.val = get_thing_height_at(thing, &pos);
-    if (thing_in_wall_at(thing, &pos) || !creature_can_navigate_to_with_storage(thing, &pos, a4))
+    if (thing_in_wall_at(thing, &pos) || !creature_can_navigate_to_with_storage(thing, &pos, storage))
     {
       return false;
     }
-    cctrl->field_88 = a4;
-    internal_set_thing_state(thing, 71);
+    cctrl->field_88 = storage;
+    internal_set_thing_state(thing, CrSt_MoveBackwardsToPosition);
     cctrl->moveto_pos.x.val = pos.x.val;
     cctrl->moveto_pos.y.val = pos.y.val;
     cctrl->moveto_pos.z.val = pos.z.val;
@@ -294,33 +294,33 @@ long creature_turn_to_face_angle(struct Thing *thing, long a2)
     return _DK_creature_turn_to_face_angle(thing, a2);
 }
 
-long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, short a3, long a4, long a5, unsigned char backward)
+long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, short speed, long a4, long a5, unsigned char backward)
 {
     struct CreatureControl *cctrl;
     struct Coord3d nextpos;
     AriadneReturn follow_result;
     long i;
     SYNCDBG(18,"Starting to move thing %d into (%d,%d)",(int)thing->index,(int)pos->x.stl.num,(int)pos->y.stl.num);
-    //return _DK_creature_move_to_using_gates(thing, pos, a3, a4, a5, backward);
+    //return _DK_creature_move_to_using_gates(thing, pos, speed, a4, a5, backward);
     cctrl = creature_control_get_from_thing(thing);
     if ( backward )
     {
-      i = (thing->field_52 + 1024);
-      thing->field_52 = i & 0x7FF;
+        i = (thing->field_52 + LbFPMath_PI);
+        thing->field_52 = i & LbFPMath_AngleMask;
     }
-    follow_result = creature_follow_route_to_using_gates(thing, pos, &nextpos, a3, a5);
+    follow_result = creature_follow_route_to_using_gates(thing, pos, &nextpos, speed, a5);
     SYNCDBG(18,"Route result: %d, next pos (%d,%d)",(int)follow_result,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num);
     if ( backward )
     {
-      i = (thing->field_52 + 1024);
-      thing->field_52 = i & 0x7FF;
+        i = (thing->field_52 + LbFPMath_PI);
+        thing->field_52 = i & LbFPMath_AngleMask;
     }
-    if ((follow_result == 3) || (follow_result == 2))
+    if ((follow_result == AridRet_Val3) || (follow_result == AridRet_Val2))
     {
         creature_set_speed(thing, 0);
         return -1;
     }
-    if (follow_result == 1)
+    if (follow_result == AridRet_Val1)
     {
         return  1;
     }
@@ -331,10 +331,10 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, shor
             creature_set_speed(thing, 0);
         } else
         {
-            creature_set_speed(thing, -a3);
+            creature_set_speed(thing, -speed);
             cctrl->field_2 |= 0x01;
-            cctrl->pos_BB.x.val = nextpos.x.val - thing->mappos.x.val;
-            cctrl->pos_BB.y.val = nextpos.y.val - thing->mappos.y.val;
+            cctrl->pos_BB.x.val = (long)nextpos.x.val - (long)thing->mappos.x.val;
+            cctrl->pos_BB.y.val = (long)nextpos.y.val - (long)thing->mappos.y.val;
             cctrl->pos_BB.z.val = 0;
         }
         SYNCDBG(18,"Backward target set");
@@ -342,14 +342,14 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, shor
     {
         if ( creature_turn_to_face(thing, &nextpos) )
         {
-          creature_set_speed(thing, 0);
+            creature_set_speed(thing, 0);
         } else
         {
-          creature_set_speed(thing, a3);
-          cctrl->field_2 |= 0x01;
-          cctrl->pos_BB.x.val = nextpos.x.val - thing->mappos.x.val;
-          cctrl->pos_BB.y.val = nextpos.y.val - thing->mappos.y.val;
-          cctrl->pos_BB.z.val = 0;
+            creature_set_speed(thing, speed);
+            cctrl->field_2 |= 0x01;
+            cctrl->pos_BB.x.val = (long)nextpos.x.val - (long)thing->mappos.x.val;
+            cctrl->pos_BB.y.val = (long)nextpos.y.val - (long)thing->mappos.y.val;
+            cctrl->pos_BB.z.val = 0;
         }
         SYNCDBG(18,"Forward target set");
     }
