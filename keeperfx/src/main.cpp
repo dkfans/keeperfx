@@ -696,6 +696,7 @@ void destroy_food(struct Thing *thing)
     struct Thing *efftng;
     struct Coord3d pos;
     long plyr_idx,i;
+    SYNCDBG(8,"Starting");
     plyr_idx = thing->owner;
     dungeon = get_dungeon(plyr_idx);
     if (game.neutral_player_num != plyr_idx) {
@@ -7286,6 +7287,7 @@ void keeper_gameplay_loop(void)
   SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
 
   KeeperSpeechClearEvents();
+  LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
 
   //the main gameplay loop starts
   while ((!quit_game) && (!exit_keeper))
@@ -7690,10 +7692,10 @@ unsigned char tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3)
   return _DK_tag_cursor_blocks_place_door(a1, a2, a3);
 }
 
-long remove_workshop_item(long a1, long a2, long a3)
+long remove_workshop_item(long owner, long tngclass, long tngmodel)
 {
-  SYNCDBG(8,"Starting");
-  return _DK_remove_workshop_item(a1, a2, a3);
+    SYNCDBG(8,"Starting");
+    return _DK_remove_workshop_item(owner, tngclass, tngmodel);
 }
 
 unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4)

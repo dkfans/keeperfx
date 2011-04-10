@@ -1628,7 +1628,26 @@ void remove_thing_from_creature_controlled_limbo(struct Thing *thing)
 
 short move_backwards_to_position(struct Thing *thing)
 {
-  return _DK_move_backwards_to_position(thing);
+    struct CreatureControl *cctrl;
+    long i,speed;
+    //return _DK_move_backwards_to_position(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    speed = get_creature_speed(thing);
+    i = creature_move_to_using_gates(thing, &cctrl->moveto_pos, speed, -2, cctrl->field_88, 1);
+    if (i == 1)
+    {
+        internal_set_thing_state(thing, thing->continue_state);
+        thing->continue_state = 0;
+        return 1;
+    }
+    if (i == -1)
+    {
+        ERRORLOG("Bad place to move backwards to!");
+        set_start_state(thing);
+        thing->continue_state = 0;
+        return 0;
+    }
+    return 0;
 }
 
 long move_check_attack_any_door(struct Thing *thing)

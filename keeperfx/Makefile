@@ -95,7 +95,7 @@ obj/player_instances.o \
 obj/player_comptask.o \
 obj/player_computer.o \
 obj/tasks_list.o \
-obj/spworker_stack.o \
+obj/spdigger_stack.o \
 obj/lvl_filesdk1.o \
 obj/front_simple.o \
 obj/game_saves.o \

@@ -1,10 +1,10 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file spworker_stack.c
- *     Special workers task stack support functions.
+/** @file spdigger_stack.c
+ *     Special diggers task stack support functions.
  * @par Purpose:
- *     Functions to create and maintain list of tasks for special workers (imps).
+ *     Functions to create and maintain list of tasks for special diggers (imps).
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
@@ -16,7 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "spworker_stack.h"
+#include "spdigger_stack.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -804,26 +804,26 @@ long check_out_imp_last_did(struct Thing *thing)
   struct Room *room;
   //return _DK_check_out_imp_last_did(thing);
   cctrl = creature_control_get_from_thing(thing);
-  SYNCDBG(19,"Starting case %d",(int)cctrl->byte_94);
-  switch (cctrl->byte_94)
+  SYNCDBG(19,"Starting case %d",(int)cctrl->digger.byte_94);
+  switch (cctrl->digger.byte_94)
   {
   case 0:
       return false;
   case 1:
       if ( check_out_undug_place(thing) || check_out_undug_area(thing) )
       {
-        cctrl->byte_94 = 1;
+        cctrl->digger.byte_94 = 1;
         return true;
       }
       if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
       {
-        cctrl->byte_94 = 2;
+        cctrl->digger.byte_94 = 2;
         return true;
       }
       imp_stack_update(thing);
       if ( check_out_unprettied_or_unconverted_area(thing) )
       {
-        cctrl->byte_94 = 2;
+        cctrl->digger.byte_94 = 2;
         SYNCDBG(19,"Done on unprettied or unconverted area");
         return true;
       }
@@ -831,19 +831,19 @@ long check_out_imp_last_did(struct Thing *thing)
   case 2:
       if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
       {
-        cctrl->byte_94 = 2;
+        cctrl->digger.byte_94 = 2;
         SYNCDBG(19,"Done on unprettied or unconverted place");
         return true;
       }
       imp_stack_update(thing);
       if ( check_out_unprettied_or_unconverted_area(thing) )
       {
-        cctrl->byte_94 = 2;
+        cctrl->digger.byte_94 = 2;
         return true;
       }
       if ( check_out_undug_area(thing) )
       {
-        cctrl->byte_94 = 1;
+        cctrl->digger.byte_94 = 1;
         return true;
       }
       break;
@@ -854,12 +854,12 @@ long check_out_imp_last_did(struct Thing *thing)
         break;
       if ( check_out_unreinforced_place(thing) )
       {
-        cctrl->byte_94 = 3;
+        cctrl->digger.byte_94 = 3;
         return true;
       }
       if ( check_out_unreinforced_area(thing) )
       {
-        cctrl->byte_94 = 3;
+        cctrl->digger.byte_94 = 3;
         return true;
       }
       break;
@@ -885,19 +885,19 @@ long check_out_imp_last_did(struct Thing *thing)
   case 9:
       if ( check_out_unreinforced_place(thing) )
       {
-        cctrl->byte_94 = 9;
+        cctrl->digger.byte_94 = 9;
         return true;
       }
       if ( check_out_unreinforced_area(thing) )
       {
-        cctrl->byte_94 = 9;
+        cctrl->digger.byte_94 = 9;
         return true;
       }
       break;
   default:
       break;
   }
-  cctrl->byte_94 = 0;
+  cctrl->digger.byte_94 = 0;
   return false;
 }
 
@@ -973,7 +973,7 @@ long check_out_imp_stack(struct Thing *thing)
                 return -1;
             }
             thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
-            cctrl->byte_94 = 2;
+            cctrl->digger.byte_94 = 2;
             return 1;
 
         case DigTsk_ConvertDungeon:
@@ -994,7 +994,7 @@ long check_out_imp_stack(struct Thing *thing)
                 return -1;
             }
             thing->continue_state = CrSt_ImpArrivesAtConvertDungeon;
-            cctrl->byte_94 = 2;
+            cctrl->digger.byte_94 = 2;
             return 1;
 
         case DigTsk_ReinforceWall:
@@ -1023,9 +1023,9 @@ long check_out_imp_stack(struct Thing *thing)
                 return -1;
             }
             thing->continue_state = CrSt_ImpArrivesAtReinforce;
-            cctrl->byte_93 = 0;
+            cctrl->digger.byte_93 = 0;
             cctrl->word_8D = istack->field_0;
-            cctrl->byte_94 = 3;
+            cctrl->digger.byte_94 = 3;
             return 1;
 
         case DigTsk_PickUpUnconscious:
@@ -1250,7 +1250,7 @@ long check_out_imp_stack(struct Thing *thing)
             }
             cctrl->word_91 = i;
             cctrl->word_8F = istack->field_0;
-            cctrl->byte_94 = 1;
+            cctrl->digger.byte_94 = 1;
             task = get_dungeon_task_list_entry(dungeon, i);
             if (task->field_0 == 2)
             {
