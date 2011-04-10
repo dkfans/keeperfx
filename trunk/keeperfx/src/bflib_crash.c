@@ -184,7 +184,12 @@ void LbErrorParachuteInstall(void)
 #else
     signal(SIGBREAK,ctrl_handler);
 #endif
-    SetUnhandledExceptionFilter(ctrl_handler_w32);
     atexit(exit_handler);
+    SetUnhandledExceptionFilter(ctrl_handler_w32);
+}
+
+void LbErrorParachuteUpdate(void)
+{
+    SetUnhandledExceptionFilter(ctrl_handler_w32);
 }
 /******************************************************************************/

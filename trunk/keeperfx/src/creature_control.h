@@ -136,6 +136,17 @@ unsigned char field_88;
     unsigned short word_90[5];
     } party;
   struct {
+    char sbyte_89x;
+    unsigned char byte_8Ax;
+    unsigned char byte_8Bx;
+    unsigned char byte_8Cx;
+    short word_8Dx;
+    unsigned char byte_8F;
+    unsigned short word_90[3];
+    unsigned char byte_93;
+    unsigned char byte_94;
+  } digger;
+  struct {
     char sbyte_89;
     unsigned char byte_8A;
     unsigned char byte_8B;

@@ -909,7 +909,7 @@ long packet_place_door(long a1, long a2, long a3, long a4, unsigned char a5);
 unsigned char find_door_of_type(unsigned long a1, unsigned char a2);
 void delete_room_slabbed_objects(long a1);
 unsigned char tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3);
-long remove_workshop_item(long a1, long a2, long a3);
+long remove_workshop_item(long owner, long tngclass, long tngmodel);
 void set_chosen_spell(long sptype, long sptooltip);
 void set_chosen_spell_none(void);
 unsigned char sight_of_evil_expand_check(void);

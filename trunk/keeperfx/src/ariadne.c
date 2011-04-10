@@ -28,6 +28,7 @@
 #include "ariadne_points.h"
 #include "ariadne_edge.h"
 #include "ariadne_findcache.h"
+#include "thing_stats.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
 #include "gui_topmsg.h"
@@ -86,7 +87,7 @@ DLLIMPORT long _DK_pointed_at8(long pos_x, long pos_y, long *retpos_x, long *ret
 DLLIMPORT long _DK_triangle_brute_find8_near(long pos_x, long pos_y);
 DLLIMPORT void _DK_waypoint_normal(long ptfind_x, long ptfind_y, long *norm_x, long *norm_y);
 DLLIMPORT long _DK_gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, long a6, struct Pathway *pway, long a8);
-DLLIMPORT long _DK_fill_concave(long a1, long a2, long a3);
+DLLIMPORT long _DK_fill_concave(long a1, long a2, long speed);
 /******************************************************************************/
 DLLIMPORT unsigned long _DK_edgelen_initialised;
 #define edgelen_initialised _DK_edgelen_initialised
@@ -336,7 +337,7 @@ long navigation_rule_normal(long treeA, long treeB)
 
 long init_navigation(void)
 {
-    //TODO PATHFINDING rewritten code has been disabled because it has errors (2/3)
+    //TODO PATHFINDING rewritten code has been disabled because it has errors (2/4)
     return _DK_init_navigation();
     init_navigation_map();
     triangulate_map(IanMap);
@@ -349,7 +350,7 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
 {
     long sx,sy,ex,ey;
     long x,y;
-    //TODO PATHFINDING rewritten code has been disabled because it has errors (3/3)
+    //TODO PATHFINDING rewritten code has been disabled because it has errors (3/4)
     return _DK_update_navigation_triangulation(start_x, start_y, end_x, end_y);
     if (!nav_map_initialised)
         init_navigation_map();
@@ -752,7 +753,7 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
     long par_fwd,par_bak;
     long tx,ty;
     long i;
-    //TODO PATHFINDING rewritten code has been disabled because it has errors (1/3)
+    //TODO PATHFINDING rewritten code has been disabled because it has errors (1/4)
     // We need to make testing system for routing, then re-enable rewritten code
     // and compare results with the original code.
     return _DK_ma_triangle_route(ttriA, ttriB, routecost);
@@ -1183,13 +1184,13 @@ AriadneReturn ariadne_prepare_creature_route_to_target(struct Thing *thing, stru
     return 0;
 }
 
-AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long a3, unsigned char a4)
+AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long speed, unsigned char storage)
 {
     struct CreatureControl *cctrl;
     struct Ariadne *arid;
     AriadneReturn ret;
-    SYNCDBG(18,"Starting");
-    //return _DK_ariadne_initialise_creature_route(thing, pos, a3, a4);
+    SYNCDBG(18,"Route for %s index %d to (%d,%d)",thing_model_name(thing),(int)thing->index,(int)pos->x.val,(int)pos->y.val);
+    //return _DK_ariadne_initialise_creature_route(thing, pos, speed, storage);
     cctrl = creature_control_get_from_thing(thing);
     arid = &(cctrl->arid);
     memset(arid, 0, sizeof(struct Ariadne));
@@ -1200,7 +1201,7 @@ AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coor
             return ret;
     } else
     {
-        ret = ariadne_prepare_creature_route_to_target(thing, arid, &thing->mappos, pos, a3, a4);
+        ret = ariadne_prepare_creature_route_to_target(thing, arid, &thing->mappos, pos, speed, storage);
         if (ret != AridRet_OK)
             return ret;
         ariadne_init_current_waypoint(thing, arid);
@@ -1312,7 +1313,9 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
     struct Ariadne *arid;
     long result;
     long i;
-    //return _DK_ariadne_get_next_position_for_route(thing, finalpos, a4, nextpos, a5);
+    //TODO PATHFINDING rewritten code has been disabled because it has errors (4/4)
+    return _DK_ariadne_get_next_position_for_route(thing, finalpos, a4, nextpos, a5);
+
     cctrl = creature_control_get_from_thing(thing);
     cctrl->arid.field_22 = 0;
     arid = &cctrl->arid;
@@ -1320,8 +1323,9 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
      || (finalpos->y.val != arid->endpos.y.val)
      || (arid->field_26 != a4))
     {
-        if (ariadne_initialise_creature_route(thing, finalpos, a4, a5) != AridRet_OK)
-          return 2;
+        i = ariadne_initialise_creature_route(thing, finalpos, a4, a5);
+        if (i != AridRet_OK)
+            return 2;
         arid->field_26 = a4;
         if (arid->field_22)
         {
@@ -1350,7 +1354,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
       } else
       {
           if (ariadne_initialise_creature_route(thing, finalpos, a4, a5) != AridRet_OK)
-            return 3;
+            return AridRet_Val3;
       }
     }
     switch (arid->field_21)
@@ -1377,7 +1381,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
         result = AridRet_Val3;
         break;
     }
-    if (result != 0)
+    if (result != AridRet_OK)
         WARNDBG(3,"Update state %d returned %d",(int)arid->field_21,(int)result);
     return result;
 }
@@ -1386,7 +1390,7 @@ AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct C
 {
     struct CreatureControl *cctrl;
     SYNCDBG(18,"Starting");
-    //return _DK_creature_follow_route_to_using_gates(thing, pos1, pos2, a4, a5);
+    //return _DK_creature_follow_route_to_using_gates(thing, finalpos, nextpos, a4, a5);
     if (game.field_14EA4B)
     {
         cctrl = creature_control_get_from_thing(thing);
