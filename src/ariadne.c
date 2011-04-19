@@ -1207,7 +1207,7 @@ AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coor
         ariadne_init_current_waypoint(thing, arid);
     }
     ariadne_init_movement_to_current_waypoint(thing, arid);
-    return 0;
+    return AridRet_OK;
 }
 
 AriadneReturn ariadne_creature_get_next_waypoint(struct Thing *thing, struct Ariadne *arid)
@@ -1216,7 +1216,7 @@ AriadneReturn ariadne_creature_get_next_waypoint(struct Thing *thing, struct Ari
     // Make sure we didn't exceeded the stored waypoints count
     if (arid->current_waypoint >= arid->stored_waypoints)
     {
-      return 3;
+        return AridRet_Val3;
     }
     // Note that the last condition assured us that we
     // won't make overflow by this increase
@@ -1226,12 +1226,12 @@ AriadneReturn ariadne_creature_get_next_waypoint(struct Thing *thing, struct Ari
         // Init route to the new current waypoint
         ariadne_init_current_waypoint(thing, arid);
         ariadne_init_movement_to_current_waypoint(thing, arid);
-        return 0;
+        return AridRet_OK;
     }
     // We've reached the last waypoint
     if (arid->stored_waypoints >= arid->total_waypoints)
     {
-        return 1;
+        return AridRet_Val1;
     }
     pos.x.val = arid->endpos.x.val;
     pos.y.val = arid->endpos.y.val;
@@ -1317,8 +1317,8 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
     return _DK_ariadne_get_next_position_for_route(thing, finalpos, a4, nextpos, a5);
 
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->arid.field_22 = 0;
     arid = &cctrl->arid;
+    arid->field_22 = 0;
     if ((finalpos->x.val != arid->endpos.x.val)
      || (finalpos->y.val != arid->endpos.y.val)
      || (arid->field_26 != a4))
@@ -1347,7 +1347,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
           nextpos->y.val = thing->mappos.y.val;
           nextpos->z.val = thing->mappos.z.val;
           return 1;
-      }else
+      } else
       if (i == AridRet_OK)
       {
           ariadne_init_movement_to_current_waypoint(thing, arid);
