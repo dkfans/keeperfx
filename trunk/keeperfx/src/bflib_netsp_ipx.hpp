@@ -36,7 +36,7 @@ public:
   virtual TbError Stop(void);
   virtual TbError Enumerate(TbNetworkCallbackFunc, void *);
   virtual TbError Enumerate(struct TbNetworkSessionNameEntry *, TbNetworkCallbackFunc, void *);
-  virtual TbError Init(struct _GUID, struct _GUID *, struct ReceiveCallbacks *, void *);
+  virtual TbError Init(struct ReceiveCallbacks *, void *);
   virtual TbError Release(void);
   virtual TbError ChangeSettings(unsigned long, void *);
   virtual TbError EnableNewPlayers(TbBool allow);

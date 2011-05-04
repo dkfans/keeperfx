@@ -109,8 +109,8 @@ struct GuiButtonInit {
     short field_17;
     short field_19;
     short field_1B;
-    short field_1D;
-    short field_1F;
+    short width;
+    short height;
     Gf_Btn_Callback draw_call;
     short field_25;
     short field_27;
@@ -144,23 +144,23 @@ struct GuiButton {
        short tooltip_id;
        unsigned short field_2D;
        struct GuiMenu *field_2F;
-       unsigned long *field_33;
+       unsigned long *content;
        unsigned short slide_val; // slider value, scaled 0..255
 };
 
 struct GuiMenu {
-      char field_0;
-      unsigned char field_1;
-      short numfield_2;
-      struct GuiButtonInit *ptrfield_4;
+      char ident;
+      unsigned char visible;
+      short fade_time;
+      struct GuiButtonInit *buttons;
       short pos_x;
       short pos_y;
       short width;
       short height;
       Gf_Mnu_Callback draw_cb;
-      char field_14;
-      struct GuiMenu *ptrfield_15;
-      Gf_Mnu_Callback ptrfield_19;
+      char number;
+      struct GuiMenu *menu_init;
+      Gf_Mnu_Callback create_cb;
       unsigned char flgfield_1D;
       unsigned char flgfield_1E;
       char field_1F;

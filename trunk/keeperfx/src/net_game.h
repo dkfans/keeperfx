@@ -58,9 +58,9 @@ DLLIMPORT char _DK_net_service[16][64];
 #define net_service _DK_net_service
 DLLIMPORT char _DK_net_player_name[20];
 #define net_player_name _DK_net_player_name
-DLLIMPORT struct SerialInitData _DK_net_serial_data;
+DLLIMPORT struct ServiceInitData _DK_net_serial_data;
 #define net_serial_data _DK_net_serial_data
-DLLIMPORT struct SerialInitData _DK_net_modem_data;
+DLLIMPORT struct ServiceInitData _DK_net_modem_data;
 #define net_modem_data _DK_net_modem_data
 DLLIMPORT struct TbModemDev _DK_modem_dev;
 #define modem_dev _DK_modem_dev

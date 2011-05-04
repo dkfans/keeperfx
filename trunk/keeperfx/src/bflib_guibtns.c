@@ -64,18 +64,18 @@ void setup_input_field(struct GuiButton *gbtn)
   char text[INPUT_FIELD_LEN];
   lbInkey = 0;
   memset(backup_input_field, 0, INPUT_FIELD_LEN);
-  if (strlen((char *)gbtn->field_33) < INPUT_FIELD_LEN)
+  if (strlen((char *)gbtn->content) < INPUT_FIELD_LEN)
   {
-    strcpy(backup_input_field, (char *)gbtn->field_33);
+    strcpy(backup_input_field, (char *)gbtn->content);
   } else
   {
     error(func_name, 7873, "backup_input_field too small");
-    strncpy(backup_input_field, (char *)gbtn->field_33, INPUT_FIELD_LEN-1);
+    strncpy(backup_input_field, (char *)gbtn->content, INPUT_FIELD_LEN-1);
     backup_input_field[INPUT_FIELD_LEN-1] = 0;
   }
   sprintf(text,gui_strings[358]); // UNUSED
   if ( !strcmp(text, backup_input_field) )
-    *(long *)gbtn->field_33 = 0;
+    *(long *)gbtn->content = 0;
 }
 
 /******************************************************************************/

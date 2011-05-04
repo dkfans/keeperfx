@@ -728,7 +728,7 @@ short creature_picks_up_trap_object(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    SYNCDBG(18,"Moving %s index %d",thing_model_name(thing),(int)thing->index);//!!!
+    SYNCDBG(18,"Moving %s index %d",thing_model_name(thing),(int)thing->index);
     if (room_exists(room))
     {
         if ( (room->kind == RoK_WORKSHOP) && (room->owner == cratetng->owner) )

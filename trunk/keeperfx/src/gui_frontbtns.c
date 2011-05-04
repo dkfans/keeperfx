@@ -144,7 +144,7 @@ TbBool gui_slider_button_inputs(int gbtn_idx)
   {
     gbtn->slide_val = ((mouse_x-gbtn->pos_x) << 8) / (gbtn->width+1);
   }
-  *gbtn->field_33 = (gbtn->slide_val) * (((long)gbtn->field_2D)+1) >> 8;
+  *gbtn->content = (gbtn->slide_val) * (((long)gbtn->field_2D)+1) >> 8;
   callback = gbtn->click_event;
   if (callback != NULL)
     callback(gbtn);
@@ -249,7 +249,7 @@ void kill_button(struct GuiButton *gbtn)
 void kill_button_area_input(void)
 {
   if (input_button != NULL)
-    strcpy((char *)input_button->field_33, backup_input_field);
+    strcpy((char *)input_button->content, backup_input_field);
   input_button = NULL;
 }
 
@@ -260,11 +260,11 @@ void setup_radio_buttons(struct GuiMenu *gmnu)
   for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
   {
     gbtn = &active_buttons[i];
-    if ((gbtn->field_33) && (gmnu->field_14 == gbtn->gmenu_idx))
+    if ((gbtn->content) && (gmnu->number == gbtn->gmenu_idx))
     {
       if (gbtn->gbtype == Lb_RADIOBTN)
       {
-        if ( *(unsigned char *)gbtn->field_33 )
+        if ( *(unsigned char *)gbtn->content )
           gbtn->field_1 = 1;
         else
           gbtn->field_1 = 0;
@@ -337,63 +337,63 @@ void gui_area_normal_button(struct GuiButton *gbtn)
 
 void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const char *text, unsigned int drw_flags)
 {
-  static const long large_button_sprite_anims[] =
-      { 2, 5, 8, 11, 14, 11, 8, 5, };
-  unsigned int fbinfo_idx;
-  unsigned int spridx;
-  int fntidx;
-  long x,y;
-  int h;
-  SYNCDBG(9,"Drawing type %d, text \"%s\"",(int)btntype,text);
-  fbinfo_idx = (unsigned int)gbtn->field_33;
-  if ((gbtn->field_0 & 0x08) == 0)
-  {
-    fntidx = 3;
-    spridx = 14;
-  } else
-  if ((fbinfo_idx>0) && (frontend_mouse_over_button == fbinfo_idx))
-  {
-    fntidx = 2;
-    spridx = large_button_sprite_anims[((timeGetTime()-frontend_mouse_over_button_start_time)/100) & 7];
-  } else
-  {
-    fntidx = frontend_button_info[fbinfo_idx%FRONTEND_BUTTON_INFO_COUNT].font_index;
-    spridx = 14;
-  }
-  x = gbtn->scr_pos_x;
-  y = gbtn->scr_pos_y;
-  switch (btntype)
-  {
-   case 1:
-      LbSpriteDraw(x, y, &frontend_sprite[spridx]);
-      x += frontend_sprite[spridx].SWidth;
-      LbSpriteDraw(x, y, &frontend_sprite[spridx+1]);
-      x += frontend_sprite[spridx+1].SWidth;
-      break;
-  case 2:
-      LbSpriteDraw(x, y, &frontend_sprite[spridx]);
-      x += frontend_sprite[spridx].SWidth;
-      LbSpriteDraw(x, y, &frontend_sprite[spridx+1]);
-      x += frontend_sprite[spridx+1].SWidth;
-      LbSpriteDraw(x, y, &frontend_sprite[spridx+1]);
-      x += frontend_sprite[spridx+1].SWidth;
-      break;
-  default:
-      LbSpriteDraw(x, y, &frontend_sprite[spridx]);
-      x += frontend_sprite[spridx].SWidth;
-      break;
-  }
-  LbSpriteDraw(x, y, &frontend_sprite[spridx+2]);
-  if (text != NULL)
-  {
-    lbDisplay.DrawFlags = drw_flags;
-    LbTextSetFont(frontend_font[fntidx]);
-    h = LbTextHeight(text);
-    x = gbtn->scr_pos_x + ((40) >> 1);
-    y = gbtn->scr_pos_y + ((frontend_sprite[spridx].SHeight-h) >> 1);
-    LbTextSetWindow(x, y, gbtn->width-40, h);
-    LbTextDraw(0, 0, text);
-  }
+    static const long large_button_sprite_anims[] =
+        { 2, 5, 8, 11, 14, 11, 8, 5, };
+    unsigned int fbinfo_idx;
+    unsigned int spridx;
+    int fntidx;
+    long x,y;
+    int h;
+    SYNCDBG(9,"Drawing type %d, text \"%s\"",(int)btntype,text);
+    fbinfo_idx = (unsigned int)gbtn->content;
+    if ((gbtn->field_0 & 0x08) == 0)
+    {
+        fntidx = 3;
+        spridx = 14;
+    } else
+    if ((fbinfo_idx > 0) && (frontend_mouse_over_button == fbinfo_idx))
+    {
+        fntidx = 2;
+        spridx = large_button_sprite_anims[((timeGetTime()-frontend_mouse_over_button_start_time)/100) & 7];
+    } else
+    {
+        fntidx = frontend_button_info[fbinfo_idx%FRONTEND_BUTTON_INFO_COUNT].font_index;
+        spridx = 14;
+    }
+    x = gbtn->scr_pos_x;
+    y = gbtn->scr_pos_y;
+    switch (btntype)
+    {
+     case 1:
+        LbSpriteDraw(x, y, &frontend_sprite[spridx]);
+        x += frontend_sprite[spridx].SWidth;
+        LbSpriteDraw(x, y, &frontend_sprite[spridx+1]);
+        x += frontend_sprite[spridx+1].SWidth;
+        break;
+    case 2:
+        LbSpriteDraw(x, y, &frontend_sprite[spridx]);
+        x += frontend_sprite[spridx].SWidth;
+        LbSpriteDraw(x, y, &frontend_sprite[spridx+1]);
+        x += frontend_sprite[spridx+1].SWidth;
+        LbSpriteDraw(x, y, &frontend_sprite[spridx+1]);
+        x += frontend_sprite[spridx+1].SWidth;
+        break;
+    default:
+        LbSpriteDraw(x, y, &frontend_sprite[spridx]);
+        x += frontend_sprite[spridx].SWidth;
+        break;
+    }
+    LbSpriteDraw(x, y, &frontend_sprite[spridx+2]);
+    if (text != NULL)
+    {
+        lbDisplay.DrawFlags = drw_flags;
+        LbTextSetFont(frontend_font[fntidx]);
+        h = LbTextHeight(text);
+        x = gbtn->scr_pos_x + ((40) >> 1);
+        y = gbtn->scr_pos_y + ((frontend_sprite[spridx].SHeight-h) >> 1);
+        LbTextSetWindow(x, y, gbtn->width-40, h);
+        LbTextDraw(0, 0, text);
+    }
 }
 
 void frontend_draw_large_menu_button(struct GuiButton *gbtn)
@@ -401,7 +401,7 @@ void frontend_draw_large_menu_button(struct GuiButton *gbtn)
   unsigned long btninfo_idx;
   char *text;
   int idx;
-  btninfo_idx = (unsigned long)gbtn->field_33;
+  btninfo_idx = (unsigned long)gbtn->content;
   if (btninfo_idx < FRONTEND_BUTTON_INFO_COUNT)
     idx = frontend_button_info[btninfo_idx].capstr_idx;
   else
@@ -419,7 +419,7 @@ void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn)
   const char *text;
   int idx;
   //_DK_frontend_draw_vlarge_menu_button(gbtn);
-  btninfo_idx = (unsigned long)gbtn->field_33;
+  btninfo_idx = (unsigned long)gbtn->content;
   if (btninfo_idx < FRONTEND_BUTTON_INFO_COUNT)
     idx = frontend_button_info[btninfo_idx].capstr_idx;
   else
@@ -466,7 +466,7 @@ void reset_scroll_window(struct GuiMenu *gmnu)
 
 void gui_set_menu_mode(struct GuiButton *gbtn)
 {
-  set_menu_mode(gbtn->field_1B);
+    set_menu_mode(gbtn->field_1B);
 }
 
 void gui_area_flash_cycle_button(struct GuiButton *gbtn)

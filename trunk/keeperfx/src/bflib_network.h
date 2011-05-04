@@ -239,7 +239,9 @@ struct UnidirectionalRTSMessage {
   unsigned long field_10;
 };
 
-struct SerialInitData {
+/** Structure for storing network service configuration. Used to pass information about configuration into LbNetwork_Init().
+ */
+struct ServiceInitData {
 long field_0;
     long numfield_4;
     long field_8;
@@ -258,7 +260,7 @@ DLLIMPORT extern int _DK_network_initialized;
 #define network_initialized _DK_network_initialized
 /******************************************************************************/
 void    LbNetwork_InitSessionsFromCmdLine(const char * str);
-TbError LbNetwork_Init(unsigned long srvcp,struct _GUID guid, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct SerialInitData *init_data);
+TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, unsigned long *playr_num, void *optns);
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
 TbError LbNetwork_Exchange(void *buf);

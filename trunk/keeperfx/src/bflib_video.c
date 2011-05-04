@@ -693,7 +693,7 @@ TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode)
 
 TbBool LbScreenIsLocked(void)
 {
-    return (lbDisplay.WScreen > NULL);
+    return (lbDisplay.WScreen != NULL);
 }
 
 TbResult LbScreenReset(void)

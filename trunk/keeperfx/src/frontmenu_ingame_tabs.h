@@ -57,6 +57,18 @@ DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons1[];
 DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons2[];
 DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons3[];
 /******************************************************************************/
+extern struct GuiMenu main_menu;
+extern struct GuiMenu room_menu;
+extern struct GuiMenu spell_menu;
+extern struct GuiMenu spell_lost_menu;
+extern struct GuiMenu trap_menu;
+extern struct GuiMenu creature_menu;
+extern struct GuiMenu event_menu;
+extern struct GuiMenu query_menu;
+extern struct GuiMenu creature_query_menu1;
+extern struct GuiMenu creature_query_menu2;
+extern struct GuiMenu creature_query_menu3;
+/******************************************************************************/
 void draw_whole_status_panel(void);
 
 /******************************************************************************/
