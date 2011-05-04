@@ -40,6 +40,7 @@
 #include "gui_draw.h"
 #include "packets.h"
 #include "frontmenu_ingame_evnt.h"
+#include "frontmenu_ingame_opts.h"
 #include "frontend.h"
 #include "keeperfx.hpp"
 
@@ -496,7 +497,7 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
 void gui_choose_room(struct GuiButton *gbtn)
 {
     // prepare to enter room build mode
-    activate_room_build_mode((long)gbtn->field_33, gbtn->tooltip_id);
+    activate_room_build_mode((long)gbtn->content, gbtn->tooltip_id);
 }
 
 void gui_area_event_button(struct GuiButton *gbtn)
@@ -506,7 +507,7 @@ void gui_area_event_button(struct GuiButton *gbtn)
   if ((gbtn->field_0 & 0x08) != 0)
   {
     dungeon = get_players_num_dungeon(my_player_number);
-    i = (unsigned long)gbtn->field_33;
+    i = (unsigned long)gbtn->content;
     if ((gbtn->field_1) || (gbtn->field_2))
     {
       draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
@@ -538,7 +539,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
 void gui_choose_spell(struct GuiButton *gbtn)
 {
     //NOTE by Petter: factored out original gui_choose_spell code to choose_spell
-    choose_spell((int) gbtn->field_33, gbtn->tooltip_id);
+    choose_spell((int) gbtn->content, gbtn->tooltip_id);
 }
 
 void gui_go_to_next_spell(struct GuiButton *gbtn)
@@ -555,7 +556,7 @@ void gui_choose_special_spell(struct GuiButton *gbtn)
 {
     //NOTE by Petter: factored out original gui_choose_special_spell code to choose_special_spell
     //TODO: equivalent to gui_choose_spell now... try merge
-    choose_spell(((int) gbtn->field_33) % POWER_TYPES_COUNT, gbtn->tooltip_id);
+    choose_spell(((int) gbtn->content) % POWER_TYPES_COUNT, gbtn->tooltip_id);
 }
 
 void gui_area_big_spell_button(struct GuiButton *gbtn)
@@ -588,7 +589,7 @@ void gui_choose_trap(struct GuiButton *gbtn)
     //_DK_gui_choose_trap(gbtn);
 
     //Note by Petter: factored out gui_choose_trap to choose_workshop_item (better name as well)
-    choose_workshop_item((int) gbtn->field_33, gbtn->tooltip_id);
+    choose_workshop_item((int) gbtn->content, gbtn->tooltip_id);
 }
 
 void gui_go_to_next_trap(struct GuiButton *gbtn)
@@ -648,7 +649,7 @@ void maintain_spell(struct GuiButton *gbtn)
   long i;
   player = get_my_player();
   dungeon = get_players_dungeon(player);
-  i = (unsigned long)(gbtn->field_33) & 0xff;
+  i = (unsigned long)(gbtn->content) & 0xff;
   if (!is_power_available(player->id_number,i))
   {
     gbtn->field_1B |= 0x8000u;
@@ -688,7 +689,7 @@ void maintain_trap(struct GuiButton *gbtn)
 {
     int i;
     //_DK_maintain_trap(gbtn);
-    i = (unsigned long)(gbtn->field_33) & 0xff;
+    i = (unsigned long)(gbtn->content) & 0xff;
     if (is_trap_placeable(my_player_number, i))
     {
       gbtn->field_1B = 0;
@@ -705,7 +706,7 @@ void maintain_door(struct GuiButton *gbtn)
     struct TrapData *trap_dat;
     struct Dungeon *dungeon;
     int i;
-    i = (unsigned int)gbtn->field_33;
+    i = (unsigned int)gbtn->content;
     trap_dat = &trap_data[i%MANUFCTR_TYPES_COUNT];
     dungeon = get_players_num_dungeon(my_player_number);
     if (dungeon->door_placeable[trap_dat->field_4%DOOR_TYPES_COUNT])
@@ -727,7 +728,7 @@ void maintain_big_trap(struct GuiButton *gbtn)
     //_DK_maintain_big_trap(gbtn);
     trap_dat = &trap_data[game.numfield_151819%MANUFCTR_TYPES_COUNT];
     dungeon = get_players_num_dungeon(my_player_number);
-    gbtn->field_33 = (unsigned long *)game.numfield_151819;
+    gbtn->content = (unsigned long *)game.numfield_151819;
     gbtn->field_29 = game.numfield_15181D;
     gbtn->tooltip_id = game.numfield_151821;
     i = trap_dat->field_0;
@@ -763,7 +764,7 @@ void pick_up_creature_doing_activity(struct GuiButton *gbtn)
     //_DK_pick_up_creature_doing_activity(gbtn); return;
     i = gbtn->field_1B;
     // Get index from pointer
-    job_idx = ((long *)gbtn->field_33 - &activity_list[0]);
+    job_idx = ((long *)gbtn->content - &activity_list[0]);
     if (i > 0)
         kind = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
     else
@@ -827,7 +828,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     SYNCDBG(10,"Starting");
     i = gbtn->field_1B;
     // Get index from pointer
-    job_idx = ((long *)gbtn->field_33 - &activity_list[0]);
+    job_idx = ((long *)gbtn->content - &activity_list[0]);
     if ( (i > 0) && (top_of_breed_list+i < CREATURE_TYPES_COUNT) )
         kind = breed_activities[top_of_breed_list+i];
     else
@@ -841,9 +842,9 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     {
         dungeon = get_players_num_dungeon(my_player_number);
         spridx = gbtn->field_29;
-        if (gbtn->field_33 != NULL)
+        if (gbtn->content != NULL)
         {
-          cr_total = *(long *)gbtn->field_33;
+          cr_total = *(long *)gbtn->content;
           if (cr_total > 0)
           {
             i = dungeon->field_4E4[kind][(job_idx & 0x03)];
@@ -866,7 +867,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
         {
           draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y-2, spridx);
         }
-        if (gbtn->field_33 != NULL)
+        if (gbtn->content != NULL)
         {
           sprintf(gui_textbuf, "%ld", cr_total);
           if ((cr_total > 0) && (dungeon->job_breeds_count[kind][(job_idx & 0x03)] ))
@@ -959,7 +960,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
   {
     crstat = creature_stats_get_from_thing(thing);
     cctrl = creature_control_get_from_thing(thing);
-    switch ((long)gbtn->field_33)
+    switch ((long)gbtn->content)
     {
     case 0: // kills
         i = cctrl->field_C2;
@@ -1023,7 +1024,7 @@ void maintain_event_button(struct GuiButton *gbtn)
   unsigned long i;
 
   dungeon = get_players_num_dungeon(my_player_number);
-  i = (unsigned long)gbtn->field_33;
+  i = (unsigned long)gbtn->content;
   evnt_idx = dungeon->field_13A7[i&0xFF];
 
   if ((dungeon->field_1173 != 0) && (evnt_idx == dungeon->field_1173))

@@ -194,7 +194,7 @@ TbBool setup_person_move_backwards_to_position(struct Thing *thing, long stl_x, 
 {
     struct CreatureControl *cctrl;
     struct Coord3d pos;
-    SYNCDBG(18,"Moving %s index %d to (%d,%d)",thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);//!!!
+    SYNCDBG(18,"Moving %s index %d to (%d,%d)",thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);
     cctrl = creature_control_get_from_thing(thing);
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);

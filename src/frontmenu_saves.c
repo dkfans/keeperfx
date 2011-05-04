@@ -108,7 +108,7 @@ int frontend_load_game_button_to_index(struct GuiButton *gbtn)
   struct CatalogueEntry *centry;
   long gbidx;
   int i,k;
-  gbidx = (unsigned long)gbtn->field_33;
+  gbidx = (unsigned long)gbtn->content;
   k = -1;
   for (i=gbidx+load_game_scroll_offset-45; i >= 0; i--)
   {
@@ -160,9 +160,9 @@ void draw_load_button(struct GuiButton *gbtn)
   {
     draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
   }
-  if (gbtn->field_33 != NULL)
+  if (gbtn->content != NULL)
   {
-    sprintf(gui_textbuf, "%s", (const char *)gbtn->field_33);
+    sprintf(gui_textbuf, "%s", (const char *)gbtn->content);
     draw_button_string(gbtn, gui_textbuf);
   }
 }
@@ -172,10 +172,10 @@ void gui_save_game(struct GuiButton *gbtn)
   struct PlayerInfo *player;
   long slot_num;
   player = get_my_player();
-  if (strcasecmp((char *)gbtn->field_33, gui_strings[342]) != 0) // "UNUSED"
+  if (strcasecmp((char *)gbtn->content, gui_strings[342]) != 0) // "UNUSED"
   {
       slot_num = gbtn->field_1B%TOTAL_SAVE_SLOTS_COUNT;
-      fill_game_catalogue_slot(slot_num,(char *)gbtn->field_33);
+      fill_game_catalogue_slot(slot_num,(char *)gbtn->content);
       if (save_game(slot_num))
       {
         output_message(103, 0, 1);
@@ -228,7 +228,7 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
   int nfont;
   long gbidx;
   int i,h;
-  gbidx = (unsigned long)gbtn->field_33;
+  gbidx = (unsigned long)gbtn->content;
   nfont = frontend_button_info[gbidx%FRONTEND_BUTTON_INFO_COUNT].font_index;
   if ((gbidx != 0) && (frontend_mouse_over_button == gbidx))
       nfont = 2;

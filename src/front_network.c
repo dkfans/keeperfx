@@ -138,7 +138,8 @@ void process_network_error(long errcode)
       ERRORLOG("Unknown modem error code %ld",errcode);
       return;
   }
-  display_centered_message(3000, text);
+  //display_centered_message(3000, text);
+  create_frontend_error_box(3000, text);
 }
 
 void draw_out_of_sync_box(long a1, long a2, long box_width)

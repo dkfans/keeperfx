@@ -66,7 +66,7 @@ TbError IPXServiceProvider::Enumerate(struct TbNetworkSessionNameEntry *nsname, 
   return Lb_FAIL;
 }
 
-TbError IPXServiceProvider::Init(struct _GUID guid, struct _GUID *guidp, struct ReceiveCallbacks *recv_cb, void *buf)
+TbError IPXServiceProvider::Init(struct ReceiveCallbacks *recv_cb, void *buf)
 {
   //TODO NET
   return Lb_FAIL;

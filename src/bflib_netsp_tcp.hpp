@@ -47,7 +47,7 @@ public:
 	virtual TbError Enumerate(TbNetworkCallbackFunc callback, void * ptr);
 	virtual TbError Enumerate(struct TbNetworkSessionNameEntry * sessionEntry,
 			TbNetworkCallbackFunc playerCb, void * ptr);
-	virtual TbError Init(struct _GUID a1, struct _GUID * a2, struct ReceiveCallbacks * recCb, void * a4);
+	virtual TbError Init(struct ReceiveCallbacks * recCb, void * a4);
 	virtual TbError Release(void);
 	virtual TbError ChangeSettings(unsigned long, void *);
 	virtual TbError EnableNewPlayers(TbBool allow);

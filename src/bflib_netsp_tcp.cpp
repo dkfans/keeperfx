@@ -180,7 +180,7 @@ TbError TCPServiceProvider::Enumerate(struct TbNetworkSessionNameEntry * session
 	return Lb_OK;
 }
 
-TbError TCPServiceProvider::Init(struct _GUID a1, struct _GUID * a2, struct ReceiveCallbacks * recCb, void * a4) {
+TbError TCPServiceProvider::Init(struct ReceiveCallbacks * recCb, void * a4) {
 	SYNCDBG(7, "Starting");
 
 	TbError retval = ServiceProvider::Initialise(recCb, a4);

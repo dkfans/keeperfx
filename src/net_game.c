@@ -45,7 +45,7 @@ DLLIMPORT struct _GUID _DK_clientGuidTable[];
 /******************************************************************************/
 short setup_network_service(int srvidx)
 {
-  struct SerialInitData *init_data;
+  struct ServiceInitData *init_data;
   long maxplayrs;
 
   switch (srvidx)
@@ -76,7 +76,7 @@ short setup_network_service(int srvidx)
       break;
   }
   memset(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
-  if ( LbNetwork_Init(srvidx, _DK_net_guid, maxplayrs, &net_screen_packet,
+  if ( LbNetwork_Init(srvidx, maxplayrs, &net_screen_packet,
       sizeof(struct ScreenPacket), &net_player_info[0], init_data) )
   {
     if (srvidx != 0)

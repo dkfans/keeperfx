@@ -146,7 +146,7 @@ public:
     virtual TbError Stop(void) = 0;
     virtual TbError Enumerate(TbNetworkCallbackFunc sessionCb, void * ptr) = 0;
     virtual TbError Enumerate(struct TbNetworkSessionNameEntry * sessionEntry, TbNetworkCallbackFunc playerCb, void * ptr) = 0;
-    virtual TbError Init(struct _GUID, struct _GUID *, struct ReceiveCallbacks *, void *) = 0;
+    virtual TbError Init(struct ReceiveCallbacks *, void *) = 0;
     virtual TbError Release(void);
     virtual TbError ChangeSettings(unsigned long, void *) = 0;
     virtual void update() = 0; //in case SP needs execution time once per frame

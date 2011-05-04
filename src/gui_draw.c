@@ -28,6 +28,7 @@
 #include "bflib_guibtns.h"
 
 #include "front_simple.h"
+#include "frontend.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -152,9 +153,116 @@ void draw_button_string(struct GuiButton *gbtn, char *text)
     lbDisplay.DrawFlags = flgmem;
 }
 
+void draw_message_box_at(long startx, long starty, long box_width, long box_height, long spritesx, long spritesy)
+{
+    struct TbSprite *spr;
+    long x,y;
+    long n;
+
+    // Draw top line of sprites
+    x = startx;
+    y = starty;
+    {
+        spr = &frontend_sprite[25];
+        LbSpriteDraw(x, y, spr);
+        x += spr->SWidth;
+    }
+    for (n=0; n < spritesx; n++)
+    {
+        spr = &frontend_sprite[(n % 4) + 26];
+        LbSpriteDraw(x, y, spr);
+        x += spr->SWidth;
+    }
+    x = startx;
+    {
+        spr = &frontend_sprite[25];
+        x += spr->SWidth;
+    }
+    for (n=0; n < spritesx; n++)
+    {
+        spr = &frontend_sprite[(n % 4) + 26];
+        LbSpriteDraw(x, y, spr);
+        x += spr->SWidth;
+    }
+    {
+        spr = &frontend_sprite[30];
+        LbSpriteDraw(x, y, spr);
+    }
+    // Draw centered line of sprites
+    spr = &frontend_sprite[25];
+    x = startx;
+    y += spr->SHeight;
+    {
+        spr = &frontend_sprite[40];
+        LbSpriteDraw(x, y, spr);
+        x += spr->SWidth;
+    }
+    for (n=0; n < spritesx; n++)
+    {
+        spr = &frontend_sprite[(n % 4) + 41];
+        LbSpriteDraw(x, y, spr);
+        x += spr->SWidth;
+    }
+    {
+        spr = &frontend_sprite[45];
+        LbSpriteDraw(x, y, spr);
+    }
+    // Draw bottom line of sprites
+    spr = &frontend_sprite[40];
+    x = startx;
+    y += spr->SHeight;
+    {
+        spr = &frontend_sprite[47];
+        LbSpriteDraw(x, y, spr);
+        x += spr->SWidth;
+    }
+    for (n=0; n < spritesx; n++)
+    {
+        spr = &frontend_sprite[(n % 4) + 48];
+        LbSpriteDraw(x, y, spr);
+        x += spr->SWidth;
+    }
+    {
+        spr = &frontend_sprite[52];
+        LbSpriteDraw(x, y, spr);
+    }
+}
+
 int draw_text_box(char *text)
 {
-  return _DK_draw_text_box(text);
+    //return _DK_draw_text_box(text);
+    long spritesy,spritesx;
+    long box_width,box_height;
+    long startx,starty;
+    long n;
+    LbTextSetFont(frontend_font[1]);
+    n = LbTextStringWidth(text);
+    if (n < 432) {
+        spritesy = 1;
+        spritesx = n / 108;
+    } else {
+        spritesx = 4;
+        spritesy = n / 324;
+    }
+    if (spritesy > 4) {
+      ERRORLOG("Text too long for error box");
+    }
+    if (spritesx < 2) {
+        spritesx = 2;
+    } else
+    if (spritesx > 4) {
+        spritesx = 4;
+    }
+    box_width = 108 * spritesx + 18;
+    box_height = 92;
+    startx = (lbDisplay.PhysicalScreenWidth - box_width) / 2;
+    starty = (lbDisplay.PhysicalScreenHeight - box_height) / 2;
+    draw_message_box_at(startx, starty, box_width, box_height, spritesx, spritesy);
+    // Draw the text inside box
+    lbDisplay.DrawFlags = 0x0100;
+    LbTextSetWindow(startx, starty, box_width, box_height);
+    n = LbTextLineHeight();
+    return LbTextDraw(0, (box_height - spritesy * n) / 2, text);
 }
 
 void draw_gui_panel_sprite_left(long x, long y, long spridx)
