@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_guibtns.h"
+#include "gui_frontmenu.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,8 +30,8 @@ extern "C" {
 /******************************************************************************/
 // Limits for GUI arrays
 #define ACTIVE_BUTTONS_COUNT        86
-#define MENU_LIST_ITEMS_COUNT       43
-#define FRONTEND_BUTTON_INFO_COUNT 110
+#define MENU_LIST_ITEMS_COUNT       44
+#define FRONTEND_BUTTON_INFO_COUNT 111
 #define NET_MESSAGES_COUNT           8
 #define NET_MESSAGE_LEN             64
 // Sprite limits
@@ -291,28 +292,10 @@ DLLIMPORT extern long _DK_old_mouse_over_button;
 DLLIMPORT extern long _DK_frontend_mouse_over_button;
 #define frontend_mouse_over_button _DK_frontend_mouse_over_button
 /******************************************************************************/
-// Variables - no linger imported
-extern struct GuiMenu main_menu;
-extern struct GuiMenu room_menu;
-extern struct GuiMenu spell_menu;
-extern struct GuiMenu spell_lost_menu;
-extern struct GuiMenu trap_menu;
-extern struct GuiMenu creature_menu;
-extern struct GuiMenu event_menu;
-extern struct GuiMenu options_menu;
-extern struct GuiMenu instance_menu;
-extern struct GuiMenu query_menu;
-extern struct GuiMenu quit_menu;
-extern struct GuiMenu error_box;
-extern struct GuiMenu text_info_menu;
+// Variables - no longer imported
 extern struct GuiMenu frontend_main_menu;
 extern struct GuiMenu frontend_statistics_menu;
 extern struct GuiMenu frontend_high_score_table_menu;
-extern struct GuiMenu creature_query_menu1;
-extern struct GuiMenu creature_query_menu2;
-extern struct GuiMenu creature_query_menu3;
-extern struct GuiMenu battle_menu;
-extern struct GuiMenu autopilot_menu;
 extern struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT];
 
 extern struct GuiMenu *menu_list[MENU_LIST_ITEMS_COUNT];
@@ -354,6 +337,8 @@ void frontstats_leave(struct GuiButton *gbtn);
 void frontend_draw_high_score_table(struct GuiButton *gbtn);
 void frontend_quit_high_score_table(struct GuiButton *gbtn);
 void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn);
+void frontend_draw_error_text_box(struct GuiButton *gbtn);
+void frontend_maintain_error_text_box(struct GuiButton *gbtn);
 short is_toggleable_menu(short mnu_idx);
 
 void activate_room_build_mode(int rkind, int tooltip_id);
@@ -424,7 +409,7 @@ TbBool frontend_is_player_allied(long idx1, long idx2);
 void frontend_set_alliance(long idx1, long idx2);
 char update_menu_fade_level(struct GuiMenu *gmnu);
 void draw_menu_buttons(struct GuiMenu *gmnu);
-char create_menu(struct GuiMenu *mnu);
+MenuNumber create_menu(struct GuiMenu *mnu);
 void do_button_release_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
 void draw_gui(void);
 void init_gui(void);
@@ -440,6 +425,8 @@ void frontend_update(short *finish_menu);
 short frontend_draw(void);
 int frontend_font_char_width(int fnt_idx,char c);
 int frontend_font_string_width(int fnt_idx,char *str);
+void create_frontend_error_box(long showTime, const char * text);
+
 short menu_is_active(short idx);
 TbBool a_menu_window_is_active(void);
 void get_player_gui_clicks(void);

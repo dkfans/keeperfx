@@ -312,7 +312,7 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
   if ((i == 456) || (i == 455))
   {
     if (tool_tip_box.gbutton != NULL)
-        k = (long)tool_tip_box.gbutton->field_33;
+        k = (long)tool_tip_box.gbutton->content;
     else
         k = -1;
     player = get_player(k);
@@ -358,7 +358,7 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
   doing_tooltip = false;
   player = get_my_player();
   gbtn = &active_buttons[gbtn_idx];
-  if ((get_active_menu(gbtn->gmenu_idx)->field_1 == 2) && ((gbtn->field_1B & 0x8000u) == 0))
+  if ((get_active_menu(gbtn->gmenu_idx)->visible == 2) && ((gbtn->field_1B & 0x8000u) == 0))
   {
     if (tool_tip_box.gbutton == gbtn)
     {

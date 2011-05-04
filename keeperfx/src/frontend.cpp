@@ -59,6 +59,7 @@
 #include "frontmenu_saves.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_evnt.h"
+#include "frontmenu_ingame_opts.h"
 #include "lvl_filesdk1.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
@@ -139,43 +140,11 @@ DLLIMPORT void _DK_frontend_main_menu_load_game_maintain(struct GuiButton *gbtn)
 DLLIMPORT void _DK_frontend_main_menu_netservice_maintain(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_main_menu_highscores_maintain(struct GuiButton *gbtn);
 /******************************************************************************/
+TbClockMSec gui_message_timeout = 0;
+char gui_message_text[TEXT_BUFFER_LENGTH];
 
 int select_level_scroll_offset = 0;
 int number_of_freeplay_levels = 0;
-
-struct GuiButtonInit options_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, 716,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0,  12,  36,  12,  36, 46, 64, gui_area_no_anim_button,          23, 725, &load_menu, {0},          0, 0, maintain_loadsave },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0,  60,  36,  60,  36, 46, 64, gui_area_no_anim_button,          22, 726, &save_menu, {0},          0, 0, maintain_loadsave },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0, 108,  36, 108,  36, 46, 64, gui_area_no_anim_button,          25, 723, &video_menu,{0},          0, 0, NULL },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0, 156,  36, 156,  36, 46, 64, gui_area_no_anim_button,          24, 724, &sound_menu,{0},          0, 0, NULL },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0, 204,  36, 204,  36, 46, 64, gui_area_new_no_anim_button,     501, 728, &autopilot_menu,{0},      0, 0, NULL },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0, 252,  36, 252,  36, 46, 64, gui_area_no_anim_button,          26, 727, &quit_menu,{0},           0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
-};
-
-struct GuiButtonInit quit_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,210, 32, gui_area_text,                     1, 309,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0,  70,  24,  72,  58, 46, 32, gui_area_normal_button,           46, 311,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, 1, gui_quit_game,      NULL,        NULL,               0, 136,  24, 138,  58, 46, 32, gui_area_normal_button,           48, 310,  0,       {0},            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
-};
-
-struct GuiButtonInit error_box_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, 670,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,   0, 999,   0,155,155, gui_area_text,                     0, 201,  0,{(long)&gui_error_text},0, 0, NULL },
-  { 0,  0, 0, 0, 1, NULL,               NULL,        NULL,               0, 999, 100, 999, 132, 46, 34, gui_area_normal_button,           48, 201,  0,       {0},            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
-};
-
-struct GuiButtonInit instance_menu_buttons[] = {
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
-};
-
-struct GuiButtonInit pause_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999, 999, 999, 999,140,100, gui_area_text,                     0, 320,  0,       {0},            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
-};
 
 struct GuiButtonInit frontend_main_menu_buttons[] = {
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  26, 999,  26,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {1},            0, 0, NULL },
@@ -217,12 +186,8 @@ struct GuiButtonInit frontend_high_score_score_buttons[] = {
   {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit autopilot_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, 845,  0,       {0},            0, 0, NULL },
-  { 3,  0, 0, 0, 0, gui_set_autopilot,  NULL,        NULL,               0,  12,  36,  12,  36, 46, 64, gui_area_new_normal_button,      503, 729,  0,{(long)&game.comp_player_aggressive}, 0, 0, NULL },
-  { 3,  0, 0, 0, 0, gui_set_autopilot,  NULL,        NULL,               0,  60,  36,  60,  36, 46, 64, gui_area_new_normal_button,      505, 730,  0,{(long)&game.comp_player_defensive}, 0, 0, NULL },
-  { 3,  0, 0, 0, 0, gui_set_autopilot,  NULL,        NULL,               0, 108,  36, 108,  36, 46, 64, gui_area_new_normal_button,      507, 731,  0,{(long)&game.comp_player_construct}, 0, 0, NULL },
-  { 3,  0, 0, 0, 0, gui_set_autopilot,  NULL,        NULL,               0, 156,  36, 156,  36, 46, 64, gui_area_new_normal_button,      509, 732,  0,{(long)&game.comp_player_creatrsonly}, 0, 0, NULL },
+struct GuiButtonInit frontend_error_box_buttons[] = {
+  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, 201,  0,{(long)gui_message_text},0, 0, frontend_maintain_error_text_box},
   {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
 };
 
@@ -267,26 +232,18 @@ struct GuiButtonInit frontend_select_campaign_buttons[] = {
 };
 
 
-struct GuiMenu options_menu =
- { 8, 0, 1, options_menu_buttons,       POS_GAMECTR,POS_GAMECTR, 308, 120, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
-struct GuiMenu instance_menu =
- { 9, 0, 1, instance_menu_buttons,      POS_GAMECTR,POS_GAMECTR, 318, 120, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
-struct GuiMenu quit_menu =
- { 10, 0, 1, quit_menu_buttons,          POS_GAMECTR,POS_GAMECTR,264, 116, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
-struct GuiMenu error_box =
- { 15, 0, 1, error_box_buttons,          POS_GAMECTR,POS_GAMECTR,280, 180, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 struct GuiMenu frontend_main_menu =
- { 18, 0, 1, frontend_main_menu_buttons,          0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FEMAIN,             0, 1, frontend_main_menu_buttons,          0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_statistics_menu =
- { 25, 0, 1, frontend_statistics_buttons,         0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FESTATISTICS,       0, 1, frontend_statistics_buttons,         0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_high_score_table_menu =
- { 26, 0, 1, frontend_high_score_score_buttons,   0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
-struct GuiMenu autopilot_menu =
- { 37, 0, 4, autopilot_menu_buttons,     POS_GAMECTR,POS_GAMECTR,224, 120, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
+ { GMnu_FEHIGH_SCORE_TABLE, 0, 1, frontend_high_score_score_buttons,   0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_select_level_menu =
- { 40, 0, 1, frontend_select_level_buttons,       0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FELEVEL_SELECT,     0, 1, frontend_select_level_buttons,       0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_select_campaign_menu =
- { 41, 0, 1, frontend_select_campaign_buttons,    0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FECAMPAIGN_SELECT,  0, 1, frontend_select_campaign_buttons,    0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+struct GuiMenu frontend_error_box = // Error box has no background defined - the buttons drawing adds it
+ { GMnu_FEERROR_BOX,        0, 1, frontend_error_box_buttons,POS_GAMECTR,POS_GAMECTR, 450,  92, NULL,                        0, NULL,    NULL,                    0, 1, 0,};
 
 // Note: update size in .h file when changing this array.
 struct GuiMenu *menu_list[] = {
@@ -300,7 +257,7 @@ struct GuiMenu *menu_list[] = {
     &query_menu,
     &options_menu,
     &instance_menu,
-    &quit_menu,
+    &quit_menu,//10
     &load_menu,
     &save_menu,
     &video_menu,
@@ -310,7 +267,7 @@ struct GuiMenu *menu_list[] = {
     &hold_audience_menu,
     &frontend_main_menu,
     &frontend_load_menu,
-    &frontend_net_service_menu,
+    &frontend_net_service_menu,//20
     &frontend_net_session_menu,
     &frontend_net_start_menu,
     &frontend_net_modem_menu,
@@ -320,7 +277,7 @@ struct GuiMenu *menu_list[] = {
     &dungeon_special_menu,
     &resurrect_creature_menu,
     &transfer_creature_menu,
-    &armageddon_menu,
+    &armageddon_menu,//30
     &creature_query_menu1,
     &creature_query_menu3,
     NULL,
@@ -330,12 +287,16 @@ struct GuiMenu *menu_list[] = {
     &autopilot_menu,
     &spell_lost_menu,
     &frontend_option_menu,
-    &frontend_select_level_menu,
+    &frontend_select_level_menu,//40
     &frontend_select_campaign_menu,
+    &frontend_error_box,
     NULL,
 };
 
-// If adding entries here, you should also update FRONTEND_BUTTON_INFO_COUNT.
+/** Array used for mapping buttons to text messages.
+ *  Index in this array is accepted as value of button 'content' property.
+ *  If adding entries here, you should also update FRONTEND_BUTTON_INFO_COUNT.
+ */
 struct FrontEndButtonData frontend_button_info[] = {
     {0,   0}, // [0]
     {343, 0},
@@ -349,24 +310,24 @@ struct FrontEndButtonData frontend_button_info[] = {
     {349, 1},
     {350, 0}, // [10]
     {351, 0},
-    {402, 0},
-    {400, 1},
-    {399, 1},
-    {401, 1},
-    {403, 1},
-    {201, 1},
-    {201, 1},
-    {396, 1},
-    {201, 1}, // [20]
-    {201, 1},
-    {406, 1},
-    {201, 1},
-    {201, 1},
-    {201, 1},
-    {201, 1},
-    {201, 1},
-    {201, 1},
-    {395, 2},
+    {402, 0}, // [12] "Game Menu"
+    {400, 1}, // [13] "Join Game"
+    {399, 1}, // [14] "Create Game"
+    {401, 1}, // [15] "Start Game"
+    {403, 1}, // [16] "Cancel"
+    {201, 1}, // [17] ""
+    {201, 1}, // [18] ""
+    {396, 1}, // [19] "Name"
+    {201, 1}, // [20] ""
+    {201, 1}, // [21] ""
+    {406, 1}, // [22] "Level"
+    {201, 1}, // [23] ""
+    {201, 1}, // [24] ""
+    {201, 1}, // [25] ""
+    {201, 1}, // [26] ""
+    {201, 1}, // [27] ""
+    {201, 1}, // [28] ""
+    {395, 2}, // [29] "Sessions"
     {408, 2}, // [30]
     {405, 2},
     {407, 2},
@@ -447,6 +408,7 @@ struct FrontEndButtonData frontend_button_info[] = {
     {941, 0},
     {942, 0}, // [108] "Land selection"
     {943, 2}, // [109] "Campaigns"
+    {944, 1}, // [110] "Add computer"
 };
 
 struct EventTypeInfo event_button_info[] = {
@@ -1377,9 +1339,9 @@ void gui_area_text(struct GuiButton *gbtn)
             draw_button_string(gbtn, gui_textbuf);
         }
     } else
-    if (gbtn->field_33 != NULL)
+    if (gbtn->content != NULL)
     {
-        snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", (char *)gbtn->field_33);
+        snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", (char *)gbtn->content);
         draw_button_string(gbtn, gui_textbuf);
     }
 }
@@ -1404,7 +1366,7 @@ void frontend_draw_text(struct GuiButton *gbtn)
 {
   struct FrontEndButtonData *febtn_data;
   long i;
-  i = (long)gbtn->field_33;
+  i = (long)gbtn->content;
   lbDisplay.DrawFlags = 0x20;
   febtn_data = &frontend_button_info[i%FRONTEND_BUTTON_INFO_COUNT];
   if ((gbtn->field_0 & 0x08) == 0)
@@ -1430,12 +1392,22 @@ void frontend_over_button(struct GuiButton *gbtn)
 
 void frontend_draw_enter_text(struct GuiButton *gbtn)
 {
-  _DK_frontend_draw_enter_text(gbtn);
+    _DK_frontend_draw_enter_text(gbtn);
 }
 
 void frontend_draw_small_menu_button(struct GuiButton *gbtn)
 {
-  _DK_frontend_draw_small_menu_button(gbtn);
+    const char *str;
+    int idx;
+    //_DK_frontend_draw_small_menu_button(gbtn);
+    idx = (long)gbtn->content;
+    idx = frontend_button_info[idx].capstr_idx;
+    if (idx) {
+      str = gui_strings[idx%STRINGS_MAX];
+    } else {
+      str = 0;
+    }
+    frontend_draw_button(gbtn, 0, str, 0x0100);
 }
 
 void frontend_toggle_computer_players(struct GuiButton *gbtn)
@@ -1463,7 +1435,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   lbDisplay.DrawFlags |= 0x0100;
   LbTextSetWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
         gbtn->width/pixel_size, gbtn->height/pixel_size);
-  scrollwnd = (struct TextScrollWindow *)gbtn->field_33;
+  scrollwnd = (struct TextScrollWindow *)gbtn->content;
   if (scrollwnd == NULL)
   {
       ERRORLOG("Cannot have a TEXT_SCROLLING box type without a pointer to a TextScrollWindow");
@@ -1538,7 +1510,7 @@ void gui_area_scroll_window(struct GuiButton *gbtn)
   //_DK_gui_area_scroll_window(gbtn); return;
   if ((gbtn->field_0 & 8) == 0)
     return;
-  scrollwnd = (struct TextScrollWindow *)gbtn->field_33;
+  scrollwnd = (struct TextScrollWindow *)gbtn->content;
   if (scrollwnd == NULL)
   {
     ERRORLOG("Button doesn't point to a TextScrollWindow data item");
@@ -1713,7 +1685,7 @@ void frontend_load_continue_game(struct GuiButton *gbtn)
 
 void frontend_load_game_maintain(struct GuiButton *gbtn)
 {
-  long game_index=load_game_scroll_offset+(long)(gbtn->field_33)-45;
+  long game_index=load_game_scroll_offset+(long)(gbtn->content)-45;
   set_flag_byte(&gbtn->field_0, 0x08, (game_index < number_of_saved_games));
 }
 
@@ -1755,11 +1727,11 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       *s = 0;
       break;
   case 2:
-      i = *(unsigned char *)gbtn->field_33;
+      i = *(unsigned char *)gbtn->content;
       i++;
       if (gbtn->field_2D < i)
         i = 0;
-      *(unsigned char *)gbtn->field_33 = i;
+      *(unsigned char *)gbtn->content = i;
       if ((*s!=0) && (callback!=NULL))
       {
         do_sound_button_click(gbtn);
@@ -1788,7 +1760,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
     {
       if (callback == NULL)
         do_sound_menu_click();
-      gmnu->field_1 = 3;
+      gmnu->visible = 3;
     }
   }
   SYNCDBG(17,"Finished");
@@ -1845,6 +1817,7 @@ short is_toggleable_menu(short mnu_idx)
   case GMnu_FEOPTION:
   case GMnu_FELEVEL_SELECT:
   case GMnu_FECAMPAIGN_SELECT:
+  case GMnu_FEERROR_BOX:
       return false;
   default:
       return true;
@@ -1859,8 +1832,8 @@ void update_radio_button_data(struct GuiMenu *gmnu)
   for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
   {
     gbtn = &active_buttons[i];
-    rbstate = (unsigned char *)gbtn->field_33;
-    if ((rbstate != NULL) && (gbtn->gmenu_idx == gmnu->field_14))
+    rbstate = (unsigned char *)gbtn->content;
+    if ((rbstate != NULL) && (gbtn->gmenu_idx == gmnu->number))
     {
       if (gbtn->gbtype == Lb_RADIOBTN)
       {
@@ -1881,11 +1854,11 @@ void init_slider_bars(struct GuiMenu *gmnu)
   for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
   {
     gbtn = &active_buttons[i];
-    if ((gbtn->field_33) && (gbtn->gmenu_idx == gmnu->field_14))
+    if ((gbtn->content) && (gbtn->gmenu_idx == gmnu->number))
     {
       if (gbtn->gbtype == Lb_SLIDER)
       {
-          sldpos = *(long *)gbtn->field_33;
+          sldpos = *(long *)gbtn->content;
           if (sldpos < 0)
             sldpos = 0;
           else
@@ -1906,7 +1879,7 @@ void init_menu_buttons(struct GuiMenu *gmnu)
   {
     gbtn = &active_buttons[i];
     callback = gbtn->field_17;
-    if ((callback != NULL) && (gbtn->gmenu_idx == gmnu->field_14))
+    if ((callback != NULL) && (gbtn->gmenu_idx == gmnu->number))
       callback(gbtn);
   }
 }
@@ -2009,76 +1982,78 @@ long compute_menu_position_y(long desired_pos,int menu_height)
   return pos;
 }
 
-char create_menu(struct GuiMenu *gmnu)
+MenuNumber create_menu(struct GuiMenu *gmnu)
 {
-  int mnu_num;
-  struct GuiMenu *amnu;
-  struct PlayerInfo *player;
-  Gf_Mnu_Callback callback;
-  struct GuiButtonInit *btninit;
-  int i;
-  SYNCDBG(18,"Starting menu %d",gmnu->field_0);
-  mnu_num = menu_id_to_number(gmnu->field_0);
-  if (mnu_num >= 0)
-  {
-    amnu = get_active_menu(mnu_num);
-    amnu->field_1 = 1;
-    amnu->numfield_2 = gmnu->numfield_2;
-    amnu->flgfield_1D = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->field_0));
-    return mnu_num;
-  }
-  add_to_menu_stack(gmnu->field_0);
-  mnu_num = first_available_menu();
-  if (mnu_num == -1)
-  {
-      ERRORLOG("Too many menus open");
-      return -1;
-  }
-  player = get_my_player();
-  amnu = get_active_menu(mnu_num);
-  amnu->field_1 = 1;
-  amnu->field_14 = mnu_num;
-  amnu->ptrfield_15 = gmnu;
-  amnu->field_0 = gmnu->field_0;
-  if (amnu->field_0 == 1)
-  {
-    old_menu_mouse_x = GetMouseX();
-    old_menu_mouse_y = GetMouseY();
-  }
-  // Setting position X
-  amnu->pos_x = compute_menu_position_x(gmnu->pos_x,gmnu->width);
-  // Setting position Y
-  amnu->pos_y = compute_menu_position_y(gmnu->pos_y,gmnu->height);
-
-  amnu->numfield_2 = gmnu->numfield_2;
-  if (amnu->numfield_2 < 1)
-    ERRORLOG("Fade time %d is less than 1.",(int)amnu->numfield_2);
-  amnu->ptrfield_4 = gmnu->ptrfield_4;
-  amnu->width = gmnu->width;
-  amnu->height = gmnu->height;
-  amnu->draw_cb = gmnu->draw_cb;
-  amnu->ptrfield_19 = gmnu->ptrfield_19;
-  amnu->flgfield_1E = gmnu->flgfield_1E;
-  amnu->field_1F = gmnu->field_1F;
-  amnu->flgfield_1D = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->field_0));
-  callback = amnu->ptrfield_19;
-  if (callback != NULL)
-    callback(amnu);
-  btninit = gmnu->ptrfield_4;
-  for (i=0; btninit[i].field_0 != -1; i++)
-  {
-    if (create_button(amnu, &btninit[i]) == -1)
+    MenuNumber mnu_num;
+    struct GuiMenu *amnu;
+    struct PlayerInfo *player;
+    Gf_Mnu_Callback callback;
+    struct GuiButtonInit *btninit;
+    int i;
+    SYNCDBG(18,"Starting menu ID %d",gmnu->ident);
+    mnu_num = menu_id_to_number(gmnu->ident);
+    if (mnu_num >= 0)
     {
-      ERRORLOG("Cannot Allocate button");
-      return -1;
+      amnu = get_active_menu(mnu_num);
+      amnu->visible = 1;
+      amnu->fade_time = gmnu->fade_time;
+      amnu->flgfield_1D = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
+      SYNCDBG(18,"Menu number %d already active",(int)mnu_num);
+      return mnu_num;
     }
-  }
-  update_radio_button_data(amnu);
-  init_slider_bars(amnu);
-  init_menu_buttons(amnu);
-  SYNCMSG("Created menu at slot %d, pos (%d,%d) size (%d,%d)",mnu_num,
-      amnu->pos_x,amnu->pos_y,amnu->width,amnu->height);
-  return mnu_num;
+    add_to_menu_stack(gmnu->ident);
+    mnu_num = first_available_menu();
+    if (mnu_num == -1)
+    {
+        ERRORLOG("Too many menus open");
+        return -1;
+    }
+    SYNCDBG(18,"Menu number %d added to stack",(int)mnu_num);
+    player = get_my_player();
+    amnu = get_active_menu(mnu_num);
+    amnu->visible = 1;
+    amnu->number = mnu_num;
+    amnu->menu_init = gmnu;
+    amnu->ident = gmnu->ident;
+    if (amnu->ident == GMnu_MAIN)
+    {
+      old_menu_mouse_x = GetMouseX();
+      old_menu_mouse_y = GetMouseY();
+    }
+    // Setting position X
+    amnu->pos_x = compute_menu_position_x(gmnu->pos_x,gmnu->width);
+    // Setting position Y
+    amnu->pos_y = compute_menu_position_y(gmnu->pos_y,gmnu->height);
+
+    amnu->fade_time = gmnu->fade_time;
+    if (amnu->fade_time < 1)
+        ERRORLOG("Fade time %d is less than 1.",(int)amnu->fade_time);
+    amnu->buttons = gmnu->buttons;
+    amnu->width = gmnu->width;
+    amnu->height = gmnu->height;
+    amnu->draw_cb = gmnu->draw_cb;
+    amnu->create_cb = gmnu->create_cb;
+    amnu->flgfield_1E = gmnu->flgfield_1E;
+    amnu->field_1F = gmnu->field_1F;
+    amnu->flgfield_1D = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
+    callback = amnu->create_cb;
+    if (callback != NULL)
+        callback(amnu);
+    btninit = gmnu->buttons;
+    for (i=0; btninit[i].field_0 != -1; i++)
+    {
+      if (create_button(amnu, &btninit[i]) == -1)
+      {
+        ERRORLOG("Cannot Allocate button");
+        return -1;
+      }
+    }
+    update_radio_button_data(amnu);
+    init_slider_bars(amnu);
+    init_menu_buttons(amnu);
+    SYNCMSG("Created menu ID %d at slot %d, pos (%d,%d) size (%d,%d)",(int)gmnu->ident,
+        (int)mnu_num,(int)amnu->pos_x,(int)amnu->pos_y,(int)amnu->width,(int)amnu->height);
+    return mnu_num;
 }
 
 //TODO: Remove when original toggle_status_menu() won't be used anymore.
@@ -2363,7 +2338,7 @@ void frontend_level_select_maintain(struct GuiButton *gbtn)
   long i;
   if (gbtn != NULL)
   {
-    i = (long)gbtn->field_33 - 45;
+    i = (long)gbtn->content - 45;
     set_flag_byte(&gbtn->field_0, 0x08, (select_level_scroll_offset+i < number_of_freeplay_levels));
   }
 }
@@ -2374,7 +2349,7 @@ void frontend_draw_level_select_button(struct GuiButton *gbtn)
   long btn_idx;
   long lvnum;
   long i;
-  btn_idx = (long)gbtn->field_33;
+  btn_idx = (long)gbtn->content;
   i = btn_idx + select_level_scroll_offset - 45;
   lvnum = 0;
   if ((i >= 0) && (i < campaign.freeplay_levels_count))
@@ -2400,7 +2375,7 @@ void frontend_level_select(struct GuiButton *gbtn)
 {
   long i;
   long lvnum;
-  i = (long)gbtn->field_33 + select_level_scroll_offset - 45;
+  i = (long)gbtn->content + select_level_scroll_offset - 45;
   lvnum = 0;
   if (i < campaign.freeplay_levels_count)
     lvnum = campaign.freeplay_levels[i];
@@ -2471,7 +2446,7 @@ void frontend_campaign_select_maintain(struct GuiButton *gbtn)
   long i;
   if (gbtn == NULL)
     return;
-  btn_idx = (long)gbtn->field_33;
+  btn_idx = (long)gbtn->content;
   i = select_level_scroll_offset + btn_idx-45;
   set_flag_byte(&gbtn->field_0, 0x08, (i < campaigns_list.items_num));
 }
@@ -2483,7 +2458,7 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
   long i;
   if (gbtn == NULL)
     return;
-  btn_idx = (long)gbtn->field_33;
+  btn_idx = (long)gbtn->content;
   i = select_level_scroll_offset + btn_idx-45;
   campgn = NULL;
   if ((i >= 0) && (i < campaigns_list.items_num))
@@ -2508,7 +2483,7 @@ void frontend_campaign_select(struct GuiButton *gbtn)
 {
   long i;
   struct GameCampaign *campgn;
-  i = (long)gbtn->field_33 + select_level_scroll_offset - 45;
+  i = (long)gbtn->content + select_level_scroll_offset - 45;
   campgn = NULL;
   if ((i >= 0) && (i < campaigns_list.items_num))
     campgn = &campaigns_list.items[i];
@@ -2987,7 +2962,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
   {
     gbtn = &active_buttons[i];
     callback = gbtn->field_13;
-    if ((callback != NULL) && (gbtn->field_0 & 0x04) && (gbtn->field_0 & 0x01) && (gbtn->gmenu_idx == gmnu->field_14))
+    if ((callback != NULL) && (gbtn->field_0 & 0x04) && (gbtn->field_0 & 0x01) && (gbtn->gmenu_idx == gmnu->number))
     {
       if ( ((gbtn->field_1 == 0) && (gbtn->field_2 == 0)) || (gbtn->gbtype == Lb_SLIDER) || (callback == gui_area_null) )
         callback(gbtn);
@@ -2998,7 +2973,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
   {
     gbtn = &active_buttons[i];
     callback = gbtn->field_13;
-    if ((callback != NULL) && (gbtn->field_0 & 0x04) && (gbtn->field_0 & 0x01) && (gbtn->gmenu_idx == gmnu->field_14))
+    if ((callback != NULL) && (gbtn->field_0 & 0x04) && (gbtn->field_0 & 0x01) && (gbtn->gmenu_idx == gmnu->number))
     {
       if (((gbtn->field_1) || (gbtn->field_2)) && (gbtn->gbtype != Lb_SLIDER) && (callback != gui_area_null))
         callback(gbtn);
@@ -3018,7 +2993,7 @@ void update_fade_active_menus(void)
     if (update_menu_fade_level(gmnu) == -1)
     {
       kill_menu(gmnu);
-      remove_from_menu_stack(gmnu->field_0);
+      remove_from_menu_stack(gmnu->ident);
     }
   }
   SYNCDBG(19,"Finished");
@@ -3037,18 +3012,18 @@ void draw_active_menus_buttons(void)
     if (menu_num < 0) continue;
     gmnu = &active_menus[menu_num];
 //SYNCMSG("DRAW menu %d, fields %d, %d",menu_num,gmnu->field_1,gmnu->flgfield_1D);
-    if ((gmnu->field_1 != 0) && (gmnu->flgfield_1D))
+    if ((gmnu->visible != 0) && (gmnu->flgfield_1D))
     {
-        if ((gmnu->field_1 != 2) && (gmnu->numfield_2))
+        if ((gmnu->visible != 2) && (gmnu->fade_time))
         {
-          if (gmnu->ptrfield_15 != NULL)
-            if (gmnu->ptrfield_15->numfield_2)
+          if (gmnu->menu_init != NULL)
+            if (gmnu->menu_init->fade_time)
               lbDisplay.DrawFlags |= 0x04;
         }
         callback = gmnu->draw_cb;
         if (callback != NULL)
           callback(gmnu);
-        if (gmnu->field_1 == 2)
+        if (gmnu->visible == 2)
           draw_menu_buttons(gmnu);
         lbDisplay.DrawFlags &= 0xFFFBu;
     }
@@ -3124,7 +3099,7 @@ void draw_active_menus_highlights(void)
   for (k=0; k<ACTIVE_MENUS_COUNT; k++)
   {
     gmnu = &active_menus[k];
-    if ((gmnu->field_1) && (gmnu->field_0 == 1))
+    if ((gmnu->visible) && (gmnu->ident == GMnu_MAIN))
       draw_menu_spangle(gmnu);
   }
 }
@@ -3538,6 +3513,27 @@ int get_startup_menu_state(void)
   }
   ERRORLOG("Unresolved menu state");
   return FeSt_MAIN_MENU;
+}
+
+void create_frontend_error_box(long showTime, const char * text)
+{
+    strncpy(gui_message_text, text, TEXT_BUFFER_LENGTH-1);
+    gui_message_text[TEXT_BUFFER_LENGTH-1] = '\0';
+    gui_message_timeout = LbTimerClock()+showTime;
+    turn_on_menu(GMnu_FEERROR_BOX);
+}
+
+void frontend_draw_error_text_box(struct GuiButton *gbtn)
+{
+    draw_text_box((char *)gbtn->content);
+}
+
+void frontend_maintain_error_text_box(struct GuiButton *gbtn)
+{
+    if (LbTimerClock() > gui_message_timeout)
+    {
+        turn_off_menu(GMnu_FEERROR_BOX);
+    }
 }
 
 /******************************************************************************/

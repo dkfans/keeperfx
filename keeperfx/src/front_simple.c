@@ -442,6 +442,13 @@ TbBool wait_for_cd_to_be_available(void)
   return (!exit_keeper);
 }
 
+/** Displays centered message; for logging errors.
+ *  Deprecated - will be removed sooner or later; there are now menus for displaying such messages, both in menu and in game.
+ *
+ * @param showTime
+ * @param text
+ * @return
+ */
 TbBool display_centered_message(long showTime, char *text)
 {
   TbBool finish;

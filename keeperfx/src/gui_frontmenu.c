@@ -53,10 +53,10 @@ int first_monopoly_menu(void)
 {
   int idx;
   struct GuiMenu *gmnu;
-  for (idx=0;idx<ACTIVE_MENUS_COUNT;idx++)
+  for (idx=0; idx < ACTIVE_MENUS_COUNT; idx++)
   {
-    gmnu=&active_menus[idx];
-    if ((gmnu->field_1!=0) && (gmnu->flgfield_1E!=0))
+    gmnu = &active_menus[idx];
+    if ((gmnu->visible != 0) && (gmnu->flgfield_1E!=0))
         return idx;
   }
   return -1;
@@ -69,7 +69,8 @@ MenuNumber menu_id_to_number(MenuID menu_id)
     for(idx=0; idx < ACTIVE_MENUS_COUNT; idx++)
     {
       gmnu = &active_menus[idx];
-      if ((gmnu->field_1 != 0) && (gmnu->field_0 == menu_id))
+      //SYNCDBG(8,"ID %d use %d",(int)gmnu->ident,(int)gmnu->field_1);
+      if ((gmnu->visible != 0) && (gmnu->ident == menu_id))
         return idx;
     }
     return MENU_INVALID_ID;
@@ -88,7 +89,7 @@ int point_is_over_gui_menu(long x, long y)
   {
     struct GuiMenu *gmnu;
     gmnu=&active_menus[idx];
-    if (gmnu->field_1 != 2)
+    if (gmnu->visible != 2)
         continue;
     if (gmnu->flgfield_1D == 0)
         continue;
@@ -115,26 +116,28 @@ void update_busy_doing_gui_on_menu(void)
 
 void turn_off_menu(MenuID mnu_idx)
 {
-  struct GuiMenu *gmnu;
-  long menu_num;
-  if ((mnu_idx >= 13) && (mnu_idx <= 14))
-    save_settings();
-  menu_num = menu_id_to_number(mnu_idx);
-  if (menu_num >= 0)
-  {
-    if (game_is_busy_doing_gui_string_input())
+    struct GuiMenu *gmnu;
+    long menu_num;
+    SYNCDBG(8,"Menu ID %d",(int)mnu_idx);
+    if ((mnu_idx == GMnu_VIDEO) || (mnu_idx == GMnu_SOUND))
+        save_settings();
+    menu_num = menu_id_to_number(mnu_idx);
+    SYNCDBG(8,"Menu number %d",(int)menu_num);
+    if (menu_num >= 0)
     {
-      if (input_button->gmenu_idx == menu_num)
-        kill_button_area_input();
+        if (game_is_busy_doing_gui_string_input())
+        {
+          if (input_button->gmenu_idx == menu_num)
+            kill_button_area_input();
+        }
+        gmnu = get_active_menu(menu_num);
+        gmnu->visible = 3;
+        if (update_menu_fade_level(gmnu) == -1)
+        {
+          kill_menu(gmnu);
+          remove_from_menu_stack(gmnu->ident);
+        }
     }
-    gmnu = get_active_menu(menu_num);
-    gmnu->field_1 = 3;
-    if (update_menu_fade_level(gmnu) == -1)
-    {
-      kill_menu(gmnu);
-      remove_from_menu_stack(gmnu->field_0);
-    }
-  }
 }
 
 void turn_off_roaming_menus(void)
@@ -144,56 +147,56 @@ void turn_off_roaming_menus(void)
 
 void turn_off_query_menus(void)
 {
-  turn_off_menu(31);
-  turn_off_menu(35);
-  turn_off_menu(32);
+  turn_off_menu(GMnu_CREATURE_QUERY1);
+  turn_off_menu(GMnu_CREATURE_QUERY2);
+  turn_off_menu(GMnu_CREATURE_QUERY3);
 }
 
 void turn_off_all_panel_menus(void)
 {
   int mnu_num;
   struct GuiMenu *gmnu;
-  mnu_num = menu_id_to_number(1);
+  mnu_num = menu_id_to_number(GMnu_MAIN);
   if (mnu_num >= 0)
   {
     gmnu = get_active_menu(mnu_num);
     setup_radio_buttons(gmnu);
   }
-  if ( menu_is_active(2) )
+  if ( menu_is_active(GMnu_ROOM) )
   {
-    turn_off_menu(2);
+    turn_off_menu(GMnu_ROOM);
   }
-  if ( menu_is_active(3) )
+  if ( menu_is_active(GMnu_SPELL) )
   {
-    turn_off_menu(3);
+    turn_off_menu(GMnu_SPELL);
   }
-  if ( menu_is_active(4) )
+  if ( menu_is_active(GMnu_TRAP) )
   {
-    turn_off_menu(4);
+    turn_off_menu(GMnu_TRAP);
   }
-  if ( menu_is_active(7) )
+  if ( menu_is_active(GMnu_QUERY) )
   {
-    turn_off_menu(7);
+    turn_off_menu(GMnu_QUERY);
   }
-  if ( menu_is_active(5) )
+  if ( menu_is_active(GMnu_CREATURE) )
   {
-    turn_off_menu(5);
+    turn_off_menu(GMnu_CREATURE);
   }
-  if ( menu_is_active(31) )
+  if ( menu_is_active(GMnu_CREATURE_QUERY1) )
   {
-    turn_off_menu(31);
+    turn_off_menu(GMnu_CREATURE_QUERY1);
   }
-  if ( menu_is_active(35) )
+  if ( menu_is_active(GMnu_CREATURE_QUERY2) )
   {
-    turn_off_menu(35);
+    turn_off_menu(GMnu_CREATURE_QUERY2);
   }
-  if ( menu_is_active(32) )
+  if ( menu_is_active(GMnu_CREATURE_QUERY3) )
   {
-    turn_off_menu(32);
+    turn_off_menu(GMnu_CREATURE_QUERY3);
   }
-  if ( menu_is_active(38) )
+  if ( menu_is_active(GMnu_SPELL_LOST) )
   {
-    turn_off_menu(38);
+    turn_off_menu(GMnu_SPELL_LOST);
   }
 }
 
@@ -210,16 +213,16 @@ short turn_off_all_window_menus(void)
 {
   short result;
   result = false;
-  if (menu_is_active(10))
+  if (menu_is_active(GMnu_QUIT))
   {
     result = true;
-    turn_off_menu(10);
+    turn_off_menu(GMnu_QUIT);
   }
-  if (menu_is_active(11))
+  if (menu_is_active(GMnu_LOAD))
   {
     result = true;
     set_packet_pause_toggle();
-    turn_off_menu(11);
+    turn_off_menu(GMnu_LOAD);
   }
   if (menu_is_active(GMnu_SAVE))
   {
@@ -312,20 +315,20 @@ short turn_off_all_bottom_menus(void)
 {
   short result;
   result = false;
-  if (menu_is_active(16))
+  if (menu_is_active(GMnu_TEXT_INFO))
   {
     result = true;
-    turn_off_menu(16);
+    turn_off_menu(GMnu_TEXT_INFO);
   }
-  if (menu_is_active(34))
+  if (menu_is_active(GMnu_BATTLE))
   {
     result = true;
-    turn_off_menu(34);
+    turn_off_menu(GMnu_BATTLE);
   }
-  if (menu_is_active(27))
+  if (menu_is_active(GMnu_DUNGEON_SPECIAL))
   {
     result = true;
-    turn_off_menu(27);
+    turn_off_menu(GMnu_DUNGEON_SPECIAL);
   }
   return result;
 }
@@ -341,7 +344,7 @@ void turn_on_menu(MenuID idx)
 {
     struct GuiMenu *gmnu = NULL;
     gmnu = menu_list[idx];
-    if (create_menu(gmnu))
+    if (create_menu(gmnu) >= 0)
     {
       if (gmnu->field_1F)
         game.field_1517F6 = idx;
@@ -382,13 +385,13 @@ void kill_menu(struct GuiMenu *gmnu)
 {
   struct GuiButton *gbtn;
   int i;
-  if (gmnu->field_1)
+  if (gmnu->visible)
   {
-    gmnu->field_1 = 0;
+    gmnu->visible = 0;
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
       gbtn = &active_buttons[i];
-      if ((gbtn->field_0 & 0x01) && (gbtn->gmenu_idx == gmnu->field_14))
+      if ((gbtn->field_0 & 0x01) && (gbtn->gmenu_idx == gmnu->number))
         kill_button(gbtn);
     }
   }
@@ -447,7 +450,7 @@ long first_available_menu(void)
   short i;
   for (i=0; i<ACTIVE_MENUS_COUNT; i++)
   {
-    if (active_menus[i].field_1 == 0)
+    if (active_menus[i].visible == 0)
       return i;
   }
   return -1;

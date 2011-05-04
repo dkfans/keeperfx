@@ -57,10 +57,10 @@ TbError ClearClientData(void);
 TbError GetPlayerInfo(void);
 TbError GetCurrentPlayers(void);
 TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname);
-TbError GenericSerialInit(struct _GUID guid, void *init_data);
-TbError GenericModemInit(struct _GUID guid, void *init_data);
-TbError GenericIPXInit(struct _GUID guid);
-static TbError GenericTCPInit(struct _GUID guid);
+static TbError GenericSerialInit(void *init_data);
+static TbError GenericModemInit(void *init_data);
+static TbError GenericIPXInit(void *init_data);
+static TbError GenericTCPInit(void *init_data);
 TbError StartTwoPlayerExchange(void *buf);
 TbError StartMultiPlayerExchange(void *buf);
 TbError CompleteTwoPlayerExchange(void *buf);
@@ -641,7 +641,7 @@ void LbNetwork_InitSessionsFromCmdLine(const char * str)
     }
 }
 
-TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct SerialInitData *init_data)
+TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data)
 {
   TbError res;
   NetUserId usr;
@@ -695,11 +695,11 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
   VerifyBufferSize();
 
   // Initialising the service provider object
-  switch (srvcIndex)
+  switch (srvcindex)
   {
-  /*case NS_Serial:
+  case NS_Serial:
       NETMSG("Selecting Serial SP");
-      if (GenericSerialInit(guid,init_data) == Lb_OK)
+      if (GenericSerialInit(init_data) == Lb_OK)
       {
         res = Lb_OK;
       } else
@@ -710,7 +710,7 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
       break;
   case NS_Modem:
       NETMSG("Selecting Modem SP");
-      if (GenericModemInit(guid,init_data) == Lb_OK)
+      if (GenericModemInit(init_data) == Lb_OK)
       {
         res = Lb_OK;
       } else
@@ -721,7 +721,7 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
       break;
   case NS_IPX:
       NETMSG("Selecting IPX SP");
-      if (GenericIPXInit(guid) == Lb_OK)
+      if (GenericIPXInit(init_data) == Lb_OK)
       {
         res = Lb_OK;
       } else
@@ -729,10 +729,10 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
         WARNLOG("Failure on IPX Initialization");
         res = Lb_FAIL;
       }
-      break;*/
+      break;
   case NS_TCP_IP:
-      /*NETMSG("Selecting TCP/IP SP");
-      if (GenericTCPInit(guid) == Lb_OK) {
+      NETMSG("Selecting TCP/IP SP");
+      /*if (GenericTCPInit(init_data) == Lb_OK) {
           res = Lb_OK;
       }
       else {
@@ -744,7 +744,7 @@ TbError LbNetwork_Init(unsigned long srvcIndex,struct _GUID guid, unsigned long 
 
       break;
   default:
-      WARNLOG("The serviceIndex value of %d is out of range", srvcIndex);
+      WARNLOG("The serviceIndex value of %d is out of range", srvcindex);
       res = Lb_FAIL;
       break;
   }
@@ -1568,16 +1568,16 @@ TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
   return Lb_OK;
 }
 
-TbError GenericSerialInit(struct _GUID guid, void *init_data)
+TbError GenericSerialInit(void *init_data)
 {
-  struct SerialInitData *sp_init;
+  struct ServiceInitData *sp_init;
   if (spPtr != NULL)
   {
     spPtr->Release();
     delete spPtr;
     spPtr = NULL;
   }
-  sp_init = (struct SerialInitData *)init_data;
+  sp_init = (struct ServiceInitData *)init_data;
   LbMemorySet(lastMessage, 0, sizeof(lastMessage));
   LbMemorySet(lastButOneMessage, 0, sizeof(lastMessage));
   basicTimeout = 250;
@@ -1598,7 +1598,7 @@ TbError GenericSerialInit(struct _GUID guid, void *init_data)
     WARNLOG("Failure on SP construction");
     return Lb_FAIL;
   }
-  if (spPtr->Init(guid, 0, &receiveCallbacks, 0) != Lb_OK)
+  if (spPtr->Init(&receiveCallbacks, 0) != Lb_OK)
   {
     WARNLOG("Failure on SP::Init()");
     return Lb_FAIL;
@@ -1606,16 +1606,16 @@ TbError GenericSerialInit(struct _GUID guid, void *init_data)
   return Lb_OK;
 }
 
-TbError GenericModemInit(struct _GUID guid, void *init_data)
+TbError GenericModemInit(void *init_data)
 {
-  struct SerialInitData *sp_init;
+  struct ServiceInitData *sp_init;
   if (spPtr != NULL)
   {
     spPtr->Release();
     delete spPtr;
     spPtr = NULL;
   }
-  sp_init = (struct SerialInitData *)init_data;
+  sp_init = (struct ServiceInitData *)init_data;
   LbMemorySet(lastMessage, 0, sizeof(lastMessage));
   LbMemorySet(lastButOneMessage, 0, sizeof(lastMessage));
   basicTimeout = 250;
@@ -1636,7 +1636,7 @@ TbError GenericModemInit(struct _GUID guid, void *init_data)
     WARNLOG("Failure on SP construction");
     return Lb_FAIL;
   }
-  if (spPtr->Init(guid, 0, &receiveCallbacks, 0) != Lb_OK)
+  if (spPtr->Init(&receiveCallbacks, 0) != Lb_OK)
   {
     WARNLOG("Failure on SP::Init()");
     return Lb_FAIL;
@@ -1644,7 +1644,7 @@ TbError GenericModemInit(struct _GUID guid, void *init_data)
   return Lb_OK;
 }
 
-TbError GenericIPXInit(struct _GUID guid)
+TbError GenericIPXInit(void *init_data)
 {
   if (spPtr != NULL)
   {
@@ -1658,7 +1658,7 @@ TbError GenericIPXInit(struct _GUID guid)
     WARNLOG("Failure on SP construction");
     return Lb_FAIL;
   }
-  if (spPtr->Init(guid, 0, &receiveCallbacks, 0) != Lb_OK)
+  if (spPtr->Init(&receiveCallbacks, 0) != Lb_OK)
   {
     WARNLOG("Failure on SP::Init()");
     return Lb_FAIL;
@@ -1666,7 +1666,7 @@ TbError GenericIPXInit(struct _GUID guid)
   return Lb_OK;
 }
 
-static TbError GenericTCPInit(struct _GUID guid)
+static TbError GenericTCPInit(void *init_data)
 {
     if (spPtr != NULL) {
         spPtr->Release();
@@ -1679,7 +1679,7 @@ static TbError GenericTCPInit(struct _GUID guid)
         WARNLOG("Failure on SP construction");
         return Lb_FAIL;
     }
-    if (spPtr->Init(guid, 0, &receiveCallbacks, 0) != Lb_OK) {
+    if (spPtr->Init(&receiveCallbacks, 0) != Lb_OK) {
         WARNLOG("Failure on SP::Init()");
         return Lb_FAIL;
     }
