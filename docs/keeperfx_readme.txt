@@ -361,6 +361,17 @@ New and modified level script commands:
 
 Changelog:
 
+Version: 0.3.9
+  Fixed the v0.3.8c bug with freeze on computer digging for gold
+  Updated frontend menus code, some changes in network related menus
+  Updated creature statistics in Ancient Keeper
+  Disabled another pathfinding routine
+  Rewritten picking up trap box to fill trap
+  Rewritten routine which draws things on the parchment map screen
+  Added zombie players; uninitialized players are initied as zombies
+  Rewritten dead bodies rotting code
+  Rewritten searching for dead bodies by imps
+
 Version: 0.3.8c
   Fixed the v0.3.8b bug with computer keeper not digging for gold
   Rewritten some of imps and workshop related code
