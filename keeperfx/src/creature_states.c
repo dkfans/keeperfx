@@ -1642,7 +1642,7 @@ short move_backwards_to_position(struct Thing *thing)
     }
     if (i == -1)
     {
-        ERRORLOG("Bad place to move backwards to!");
+        ERRORLOG("Bad place (%d,%d) to move %s backwards to.",(int)cctrl->moveto_pos.x,(int)cctrl->moveto_pos.y,thing_model_name(thing));
         set_start_state(thing);
         thing->continue_state = 0;
         return 0;
