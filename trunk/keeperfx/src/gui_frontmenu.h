@@ -71,6 +71,7 @@ enum GUI_Menus {
   GMnu_FELEVEL_SELECT     = 40,
   GMnu_FECAMPAIGN_SELECT  = 41,
   GMnu_FEERROR_BOX        = 42,
+  GMnu_FEADD_SESSION      = 43,
 };
 
 typedef long MenuID;

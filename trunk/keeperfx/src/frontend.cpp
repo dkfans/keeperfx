@@ -191,6 +191,11 @@ struct GuiButtonInit frontend_error_box_buttons[] = {
   {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
 };
 
+struct GuiButtonInit frontend_add_session_buttons[] = {//TODO: prepare add session screen
+  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, 201,  0,{(long)gui_message_text},0, 0, frontend_maintain_error_text_box},
+  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
+};
+
 #define frontend_select_level_items_visible  7
 struct GuiButtonInit frontend_select_level_buttons[] = {
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, 201,  0,     {107},            0, 0, NULL},
@@ -244,6 +249,8 @@ struct GuiMenu frontend_select_campaign_menu =
  { GMnu_FECAMPAIGN_SELECT,  0, 1, frontend_select_campaign_buttons,    0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_error_box = // Error box has no background defined - the buttons drawing adds it
  { GMnu_FEERROR_BOX,        0, 1, frontend_error_box_buttons,POS_GAMECTR,POS_GAMECTR, 450,  92, NULL,                        0, NULL,    NULL,                    0, 1, 0,};
+struct GuiMenu frontend_add_session_box =
+ { GMnu_FEADD_SESSION,      0, 1, frontend_add_session_buttons,POS_GAMECTR,POS_GAMECTR,450, 92, NULL,                        0, NULL,    NULL,                    0, 1, 0,};
 
 // Note: update size in .h file when changing this array.
 struct GuiMenu *menu_list[] = {
@@ -290,6 +297,7 @@ struct GuiMenu *menu_list[] = {
     &frontend_select_level_menu,//40
     &frontend_select_campaign_menu,
     &frontend_error_box,
+    &frontend_add_session_box,
     NULL,
 };
 
