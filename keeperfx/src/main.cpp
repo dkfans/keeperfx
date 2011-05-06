@@ -6490,9 +6490,52 @@ short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, lo
   return result;
 }
 
-long remove_workshop_object_from_player(long a1, long a2)
+struct Thing *get_workshop_box_thing(long owner, long model)
 {
-  return _DK_remove_workshop_object_from_player(a1, a2);
+    struct Thing *thing;
+    int i,k;
+    k = 0;
+    i = game.thing_lists[2].index;
+    while (i > 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+            break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if ( ((thing->field_0 & 0x01) != 0) && (thing->model == model) && (thing->owner == owner) )
+        {
+            if ( ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0) )
+                return thing;
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return INVALID_THING;
+}
+
+long remove_workshop_object_from_player(long owner, long model)
+{
+    struct Thing *thing;
+    struct Room *room;
+    //return _DK_remove_workshop_object_from_player(a1, a2);
+    thing = get_workshop_box_thing(owner, model);
+    if (thing_is_invalid(thing))
+      return 0;
+    room = get_room_thing_is_on(thing);
+    if ( !room_is_invalid(room) && (room->kind == RoK_WORKSHOP) ) {
+        remove_workshop_object_from_workshop(room);
+    } else {
+        WARNLOG("Crate thing index %d isn't placed in a workshop room; removing anyway",(int)thing->index);
+    }
+    create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
+    delete_thing_structure(thing, 0);
+    return 1;
 }
 
 unsigned char tag_cursor_blocks_place_trap(unsigned char a1, long a2, long a3)

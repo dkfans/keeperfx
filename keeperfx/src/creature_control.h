@@ -236,7 +236,7 @@ unsigned char field_88;
 unsigned char field_AE;
     short field_AF;
     unsigned char field_B1;
-unsigned char field_B2[4];
+    long field_B2;
     unsigned char field_B6;
     unsigned char teleport_x;
     unsigned char teleport_y;
