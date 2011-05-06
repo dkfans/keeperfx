@@ -46,6 +46,8 @@ enum ThingAllocFlags {
     TAF_LogFailures         = 0x80,
 };
 
+struct Room;
+
 struct InitThing { // sizeof=0x15
     struct Coord3d mappos;
     unsigned char oclass;
@@ -164,6 +166,7 @@ long thing_get_index(const struct Thing *thing);
 
 TbBool thing_touching_floor(const struct Thing *thing);
 struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing);
+unsigned char creature_remove_lair_from_room(struct Thing *thing, struct Room *room);
 
 /******************************************************************************/
 #ifdef __cplusplus
