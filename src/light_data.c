@@ -367,7 +367,14 @@ void light_set_light_never_cache(long lgt_id)
 
 long light_is_light_allocated(long lgt_id)
 {
-  return _DK_light_is_light_allocated(lgt_id);
+    struct Light *lgt;
+    //return _DK_light_is_light_allocated(lgt_id);
+    if (lgt_id <= 0)
+        return false;
+    lgt = &game.lights[lgt_id];
+    if ((lgt->flags & LgtF_Allocated) == 0)
+        return false;
+    return true;
 }
 
 void light_set_light_position(long lgt_id, struct Coord3d *pos)
