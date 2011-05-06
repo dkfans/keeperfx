@@ -347,9 +347,22 @@ TbBool lights_stats_debug_dump(void)
     return false;
 }
 
-void light_set_light_never_cache(long idx)
+void light_set_light_never_cache(long lgt_id)
 {
-  _DK_light_set_light_never_cache(idx);
+    struct Light *lgt;
+    //_DK_light_set_light_never_cache(lgt_id);
+    if (lgt_id <= 0)
+    {
+        ERRORLOG("Attempt to set size of invalid light %d",(int)lgt_id);
+        return;
+    }
+    lgt = &game.lights[lgt_id];
+    if ((lgt->flags & LgtF_Allocated) == 0)
+    {
+        ERRORLOG("Attempt to set size of unallocated light structure %d",(int)lgt_id);
+        return;
+    }
+    lgt->flags |= 0x40;
 }
 
 long light_is_light_allocated(long lgt_id)

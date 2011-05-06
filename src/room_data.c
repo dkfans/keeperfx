@@ -789,7 +789,7 @@ struct Room *prepare_new_room(unsigned char owner, unsigned char rkind, unsigned
     {
       if ((game.entrance_room_id > 0) && (game.entrance_room_id < ROOMS_COUNT))
       {
-        room->word_19 = game.entrance_room_id;
+        room->next_of_kind = game.entrance_room_id;
         nxroom = room_get(game.entrance_room_id);
         nxroom->word_17 = room->index;
       }
