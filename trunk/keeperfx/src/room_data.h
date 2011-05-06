@@ -90,7 +90,7 @@ struct Room {
     long long_17;
     struct {
       short word_17;
-      short word_19;
+      short next_of_kind;
     };
     };
     unsigned char field_1B[28];
