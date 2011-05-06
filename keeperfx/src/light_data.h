@@ -122,7 +122,7 @@ void light_turn_light_on(long num);
 long light_get_light_intensity(long idx);
 long light_set_light_intensity(long a1, long a2);
 long light_create_light(struct InitLight *ilght);
-void light_set_light_never_cache(long idx);
+void light_set_light_never_cache(long lgt_id);
 long light_is_light_allocated(long lgt_id);
 void light_set_light_position(long lgt_id, struct Coord3d *pos);
 void light_set_lights_on(char state);
