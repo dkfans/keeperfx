@@ -2116,7 +2116,48 @@ void anger_set_creature_anger_all_types(struct Thing *thing, long a2)
 }
 void change_creature_owner(struct Thing *thing, long nowner)
 {
-    _DK_change_creature_owner(thing, nowner);
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    struct Room *room;
+    //_DK_change_creature_owner(thing, nowner);
+    cctrl = creature_control_get_from_thing(thing);
+    if (thing->light_id ) {
+        light_delete_light(thing->light_id);
+        thing->light_id = 0;
+    }
+    if ((cctrl->field_7A & 0xFFF) != 0)
+        remove_creature_from_group(thing);
+    if (cctrl->lairtng_idx != 0)
+    {
+        room = room_get(cctrl->lair_room_id);
+        if (!room_is_invalid(room)) {
+            creature_remove_lair_from_room(thing, room);
+        } else {
+            ERRORDBG(8,"The %s index %d has lair %d in nonexisting room.",thing_model_name(thing),(int)thing->index,(int)cctrl->lairtng_idx);
+            cctrl->lairtng_idx = 0;
+        }
+    }
+    if ((thing->field_0 & 0x08) != 0)
+      remove_first_creature(thing);
+    if (thing->owner != game.neutral_player_num)
+    {
+        dungeon = get_dungeon(thing->owner);
+        dungeon->score -= get_creature_thing_score(thing);
+        if ( anger_is_creature_angry(thing) )
+            dungeon->creatures_annoyed--;
+        remove_events_thing_is_attached_to(thing);
+    }
+    thing->owner = nowner;
+    set_first_creature(thing);
+    set_start_state(thing);
+    if (thing->owner != game.neutral_player_num)
+    {
+        dungeon = get_dungeon(thing->owner);
+        dungeon->score += get_creature_thing_score(thing);
+        if ( anger_is_creature_angry(thing) )
+            dungeon->creatures_annoyed++;
+    }
+
 }
 
 struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigned short owner)
