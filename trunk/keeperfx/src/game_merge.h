@@ -25,6 +25,7 @@
 
 #include "config_crtrmodel.h"
 #include "config_rules.h"
+#include "light_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,6 +62,7 @@ struct GameAdd {
     unsigned long turn_last_checked_for_gold;
     char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
     struct SacrificeRecipe sacrifice_recipes[MAX_SACRIFICE_RECIPES];
+    struct LightSystemState lightst;
 };
 
 

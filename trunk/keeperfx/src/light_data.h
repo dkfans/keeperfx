@@ -77,6 +77,18 @@ unsigned char field_10;
     unsigned char is_dynamic;
 short field_12;
 };
+
+struct LightSystemState {
+    long bitmask[32];
+    long static_light_needs_updating;
+    long total_dynamic_lights;
+    long total_stat_lights;
+    long rendered_dynamic_lights;
+    long rendered_optimised_dynamic_lights;
+    long updated_stat_lights;
+    long out_of_date_stat_lights;
+};
+
 /******************************************************************************/
 DLLIMPORT long _DK_light_bitmask[32];
 #define light_bitmask _DK_light_bitmask
@@ -117,6 +129,8 @@ void light_set_lights_on(char state);
 void light_set_light_minimum_size_to_cache(long a1, long a2, long a3);
 void light_signal_update_in_area(long sx, long sy, long ex, long ey);
 long light_get_total_dynamic_lights(void);
+long light_export_system_state(struct LightSystemState *lightst);
+long light_import_system_state(const struct LightSystemState *lightst);
 TbBool lights_stats_debug_dump(void);
 
 /******************************************************************************/

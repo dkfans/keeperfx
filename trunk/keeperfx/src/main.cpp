@@ -4035,6 +4035,7 @@ void delete_all_structures(void)
     delete_all_room_structures();
     delete_all_action_point_structures();
     light_initialise();
+    SYNCDBG(16,"Done");
 }
 
 void clear_game_for_summary(void)

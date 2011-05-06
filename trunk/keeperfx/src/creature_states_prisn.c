@@ -90,7 +90,40 @@ short cleanup_prison(struct Thing *thing)
 
 short creature_arrived_at_prison(struct Thing *thing)
 {
-  return _DK_creature_arrived_at_prison(thing);
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    //return _DK_creature_arrived_at_prison(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_80 = 0;
+    room = get_room_thing_is_on(thing);
+    if ( room_is_invalid(room) || (room->kind != RoK_PRISON) )
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if ( !add_creature_to_work_room(thing, room) )
+    {
+        if (is_my_player_number(room->owner))
+            output_message(26, 0, 1);
+        cctrl->flgfield_1 &= ~0x02;
+        set_start_state(thing);
+        return 0;
+    }
+    cctrl->field_82 = game.play_gameturn;
+    cctrl->flgfield_1 |= 0x02;
+    internal_set_thing_state(thing, 41);
+    if ((cctrl->spell_flags & 0x02) != 0) {
+      terminate_thing_spell_effect(thing, 11);
+    }
+    if ((cctrl->spell_flags & 0x20) != 0) {
+        terminate_thing_spell_effect(thing, 9);
+    }
+    if (thing->light_id != 0) {
+        light_delete_light(thing->light_id);
+        thing->light_id = 0;
+    }
+    return 1;
+
 }
 
 short creature_drop_body_in_prison(struct Thing *thing)
