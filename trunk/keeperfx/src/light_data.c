@@ -206,7 +206,7 @@ long light_get_out_of_date_stat_lights(void)
     return light_out_of_date_stat_lights;
 }
 
-long light_export_system_state(struct LightSystemState *lightst)
+void light_export_system_state(struct LightSystemState *lightst)
 {
     memcpy(lightst->bitmask,light_bitmask,sizeof(light_bitmask));
     lightst->static_light_needs_updating = stat_light_needs_updating;
@@ -218,7 +218,7 @@ long light_export_system_state(struct LightSystemState *lightst)
     lightst->out_of_date_stat_lights = light_out_of_date_stat_lights;
 }
 
-long light_import_system_state(const struct LightSystemState *lightst)
+void light_import_system_state(const struct LightSystemState *lightst)
 {
     memcpy(light_bitmask,lightst->bitmask,sizeof(light_bitmask));
     stat_light_needs_updating = lightst->static_light_needs_updating;

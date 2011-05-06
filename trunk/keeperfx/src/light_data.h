@@ -129,8 +129,8 @@ void light_set_lights_on(char state);
 void light_set_light_minimum_size_to_cache(long a1, long a2, long a3);
 void light_signal_update_in_area(long sx, long sy, long ex, long ey);
 long light_get_total_dynamic_lights(void);
-long light_export_system_state(struct LightSystemState *lightst);
-long light_import_system_state(const struct LightSystemState *lightst);
+void light_export_system_state(struct LightSystemState *lightst);
+void light_import_system_state(const struct LightSystemState *lightst);
 TbBool lights_stats_debug_dump(void);
 
 /******************************************************************************/
