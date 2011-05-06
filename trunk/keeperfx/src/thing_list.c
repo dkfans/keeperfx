@@ -501,6 +501,7 @@ struct Thing *find_players_dungeon_heart(unsigned short plyridx)
             break;
         }
     }
+    SYNCDBG(6,"No heart for player %d",(int)plyridx);
     return INVALID_THING;
 }
 
@@ -532,11 +533,9 @@ void init_player_start(struct PlayerInfo *player)
 
 void setup_computer_player(int plr_idx)
 {
-    struct PlayerInfo *player;
     struct Thing *thing;
     SYNCDBG(5,"Starting for player %d",plr_idx);
-    player = get_player(plr_idx);
-    thing = find_players_dungeon_heart(player->id_number);
+    thing = find_players_dungeon_heart(plr_idx);// cannot use player->id_number, as it isn't set yet
     if (!thing_is_invalid(thing))
     {
         script_support_setup_player_as_computer_keeper(plr_idx, 0);
