@@ -1621,8 +1621,8 @@ void place_thing_in_creature_controlled_limbo(struct Thing *thing)
 
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing)
 {
-    thing->field_1 &= 0xFD;
-    thing->field_4F &= 0xFE;
+    thing->field_1 &= ~0x02;
+    thing->field_4F &= ~0x01;
     place_thing_in_mapwho(thing);
 }
 

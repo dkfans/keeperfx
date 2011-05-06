@@ -1628,6 +1628,8 @@ void input(void)
     pckt->field_10 &= ~0x40;
 
   get_inputs();
+  // Debug code to write a savegame on given turn
+  //if (game.play_gameturn == 119800) { save_game(0); }
   SYNCDBG(7,"Finished");
 }
 
