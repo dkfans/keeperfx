@@ -2114,6 +2114,7 @@ void anger_set_creature_anger_all_types(struct Thing *thing, long a2)
 {
     _DK_anger_set_creature_anger_all_types(thing, a2);
 }
+
 void change_creature_owner(struct Thing *thing, long nowner)
 {
     struct CreatureControl *cctrl;
@@ -2121,7 +2122,7 @@ void change_creature_owner(struct Thing *thing, long nowner)
     struct Room *room;
     //_DK_change_creature_owner(thing, nowner);
     cctrl = creature_control_get_from_thing(thing);
-    if (thing->light_id ) {
+    if (thing->light_id != 0) {
         light_delete_light(thing->light_id);
         thing->light_id = 0;
     }
