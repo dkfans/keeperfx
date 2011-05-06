@@ -2718,14 +2718,16 @@ TbBool get_condition_status(unsigned char opkind, long val1, long val2)
 
 TbBool is_condition_met(long cond_idx)
 {
-  if ((cond_idx < 0) || (cond_idx >= CONDITIONS_COUNT))
-  {
-    if (cond_idx == -1)
-      return true;
-    else
-      return false;
-  }
-  return ((game.script.conditions[cond_idx].status & 0x01) != 0);
+    unsigned long i;
+    if ((cond_idx < 0) || (cond_idx >= CONDITIONS_COUNT))
+    {
+      if (cond_idx == -1)
+          return true;
+      else
+          return false;
+    }
+    i = game.script.conditions[cond_idx].status;
+    return ((i & 0x01) != 0);
 }
 
 TbBool condition_inactive(long cond_idx)
@@ -2788,6 +2790,7 @@ void process_condition(struct Condition *condt)
       if (new_status != false) break;
     }
   }
+  SYNCDBG(19,"Condition type %d status %d",(int)condt->variabl_type,(int)new_status);
   set_flag_byte(&condt->status, 0x01,  new_status);
   if (((condt->status & 0x01) == 0) || ((condt->status & 0x02) != 0))
   {
@@ -2882,23 +2885,27 @@ void process_check_new_tunneller_partys(void)
 
 void process_win_and_lose_conditions(long plyr_idx)
 {
-  struct PlayerInfo *player;
-  long i,k;
-  player = get_player(plyr_idx);
-  if ((game.system_flags & GSF_NetworkActive) != 0)
-    return;
-  for (i=0; i < game.script.win_conditions_num; i++)
-  {
-    k = game.script.win_conditions[i];
-    if (is_condition_met(k))
-      set_player_as_won_level(player);
-  }
-  for (i=0; i < game.script.lose_conditions_num; i++)
-  {
-    k = game.script.lose_conditions[i];
-    if (is_condition_met(k))
-      set_player_as_lost_level(player);
-  }
+    struct PlayerInfo *player;
+    long i,k;
+    player = get_player(plyr_idx);
+    if ((game.system_flags & GSF_NetworkActive) != 0)
+      return;
+    for (i=0; i < game.script.win_conditions_num; i++)
+    {
+      k = game.script.win_conditions[i];
+      if (is_condition_met(k)) {
+          SYNCDBG(8,"Win condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
+          set_player_as_won_level(player);
+      }
+    }
+    for (i=0; i < game.script.lose_conditions_num; i++)
+    {
+      k = game.script.lose_conditions[i];
+      if (is_condition_met(k)) {
+          SYNCDBG(8,"Lose condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
+          set_player_as_lost_level(player);
+      }
+    }
 }
 
 void process_values(void)
