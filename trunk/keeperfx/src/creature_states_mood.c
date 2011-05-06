@@ -20,6 +20,7 @@
 #include "globals.h"
 
 #include "bflib_math.h"
+#include "bflib_sound.h"
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_control.h"
@@ -51,7 +52,28 @@ DLLIMPORT short _DK_mad_killing_psycho(struct Thing *thing);
 /******************************************************************************/
 short creature_moan(struct Thing *thing)
 {
-  return _DK_creature_moan(thing);
+    struct CreatureControl *cctrl;
+    long i;
+    //return _DK_creature_moan(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    i = cctrl->field_282;
+    if (i > 0) i--;
+    cctrl->field_282 = i;
+    if (i <= 0)
+    {
+      if (cctrl->field_D2 == 0)
+        set_start_state(thing);
+      return 0;
+    }
+    if (game.play_gameturn - cctrl->long_9A > 32)
+    {
+      play_creature_sound(thing, 4, 2, 0);
+      cctrl->long_9A = game.play_gameturn;
+    }
+    if (cctrl->field_D2 == 0) {
+        set_creature_instance(thing, 44, 1, 0, 0);
+    }
+    return 1;
 }
 
 short creature_roar(struct Thing *thing)
@@ -66,7 +88,22 @@ short creature_be_happy(struct Thing *thing)
 
 short creature_piss(struct Thing *thing)
 {
-  return _DK_creature_piss(thing);
+    struct CreatureControl *cctrl;
+    long i;
+    //return _DK_creature_piss(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 171, 0) ) {
+        thing_play_sample(thing, 171, 100, 0, 3, 1, 6, 256);
+    }
+    i = cctrl->field_282;
+    if (i > 0) i--;
+    cctrl->field_282 = i;
+    if (i > 0) {
+        return 1;
+    }
+    cctrl->field_B2 = game.play_gameturn;
+    set_start_state(thing);
+    return 0;
 }
 
 short mad_killing_psycho(struct Thing *thing)
