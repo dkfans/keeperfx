@@ -1621,8 +1621,8 @@ void place_thing_in_creature_controlled_limbo(struct Thing *thing)
 
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing)
 {
-    thing->field_1 &= 0xFD;
-    thing->field_4F &= 0xFE;
+    thing->field_1 &= ~0x02;
+    thing->field_4F &= ~0x01;
     place_thing_in_mapwho(thing);
 }
 
@@ -1642,7 +1642,7 @@ short move_backwards_to_position(struct Thing *thing)
     }
     if (i == -1)
     {
-        ERRORLOG("Bad place (%d,%d) to move %s backwards to.",(int)cctrl->moveto_pos.x,(int)cctrl->moveto_pos.y,thing_model_name(thing));
+        ERRORLOG("Bad place (%d,%d) to move %s backwards to.",(int)cctrl->moveto_pos.x.val,(int)cctrl->moveto_pos.y.val,thing_model_name(thing));
         set_start_state(thing);
         thing->continue_state = 0;
         return 0;

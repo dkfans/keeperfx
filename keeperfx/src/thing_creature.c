@@ -995,8 +995,8 @@ long process_creature_state(struct Thing *thing)
     }
     // Enable this to know which function hangs on update_creature.
     //TODO: rewrite state subfunctions so they won't hang
-    //if (game.play_gameturn > 3500)
-    SYNCDBG(18,"Executing state %d",(int)thing->active_state);
+    //if (game.play_gameturn > 119800)
+    SYNCDBG(18,"Executing state %d for %s index %d.",(int)thing->active_state,thing_model_name(thing),(int)thing->index);
     stati = get_thing_active_state_info(thing);
     if (stati->ofsfield_0 == NULL)
         return false;
@@ -3090,7 +3090,7 @@ long update_creature(struct Thing *thing)
     map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if ((thing->active_state == CrSt_CreatureUnconscious) && ((map->flags & 0x40) != 0))
     {
-        SYNCDBG(8,"Killing unconscious creature %d on toxic map black.",(int)thing->index);
+        SYNCDBG(8,"Killing unconscious %s index %d on toxic map black.",thing_model_name(thing),(int)thing->index);
         kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
         return 0;
     }
@@ -3102,7 +3102,7 @@ long update_creature(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        WARNLOG("Killing creature %d with invalid control.",(int)thing->index);
+        WARNLOG("Killing %s index %d with invalid control.",thing_model_name(thing),(int)thing->index);
         kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
         return 0;
     }

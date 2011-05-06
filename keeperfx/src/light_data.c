@@ -206,6 +206,30 @@ long light_get_out_of_date_stat_lights(void)
     return light_out_of_date_stat_lights;
 }
 
+long light_export_system_state(struct LightSystemState *lightst)
+{
+    memcpy(lightst->bitmask,light_bitmask,sizeof(light_bitmask));
+    lightst->static_light_needs_updating = stat_light_needs_updating;
+    lightst->total_dynamic_lights = light_total_dynamic_lights;
+    lightst->total_stat_lights = light_total_stat_lights;
+    lightst->rendered_dynamic_lights = light_rendered_dynamic_lights;
+    lightst->rendered_optimised_dynamic_lights = light_rendered_optimised_dynamic_lights;
+    lightst->updated_stat_lights = light_updated_stat_lights;
+    lightst->out_of_date_stat_lights = light_out_of_date_stat_lights;
+}
+
+long light_import_system_state(const struct LightSystemState *lightst)
+{
+    memcpy(light_bitmask,lightst->bitmask,sizeof(light_bitmask));
+    stat_light_needs_updating = lightst->static_light_needs_updating;
+    light_total_dynamic_lights = lightst->total_dynamic_lights;
+    light_total_stat_lights = lightst->total_stat_lights;
+    light_rendered_dynamic_lights = lightst->rendered_dynamic_lights;
+    light_rendered_optimised_dynamic_lights = lightst->rendered_optimised_dynamic_lights;
+    light_updated_stat_lights = lightst->updated_stat_lights;
+    light_out_of_date_stat_lights = lightst->out_of_date_stat_lights;
+}
+
 TbBool lights_stats_debug_dump(void)
 {
     long lights[LIGHTS_COUNT];
@@ -443,7 +467,7 @@ long light_set_light_intensity(long a1, long a2)
 
 void clear_light_system(void)
 {
-  memset(game.field_1DD41, 0, 0x28416u);
+    memset(game.field_1DD41, 0, 0x28416u);
 }
 
 void clear_stat_light_map(void)
@@ -518,6 +542,13 @@ void light_initialise(void)
         }
         game.field_4614E = 1;
     }
+    stat_light_needs_updating = 1;
+    light_total_dynamic_lights = 0;
+    light_total_stat_lights = 0;
+    light_rendered_dynamic_lights = 0;
+    light_rendered_optimised_dynamic_lights = 0;
+    light_updated_stat_lights = 0;
+    light_out_of_date_stat_lights = 0;
 }
 
 void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
