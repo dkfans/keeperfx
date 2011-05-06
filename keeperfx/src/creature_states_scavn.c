@@ -121,27 +121,27 @@ short creature_scavenged_disappear(struct Thing *thing)
     room = subtile_room_get(stl_x, stl_y);
     if (room_is_invalid(room) || (room->kind != RoK_SCAVENGER))
     {
-      ERRORLOG("Scavenger room disappeared.");
-      kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
-      return -1;
+        ERRORLOG("Scavenger room disappeared.");
+        kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
+        return -1;
     }
     if (find_random_valid_position_for_thing_in_room(thing, room, &pos))
     {
-      move_thing_in_map(thing, &pos);
-      anger_set_creature_anger_all_types(thing, 0);
-      dungeon = get_dungeon(cctrl->byte_9B);
-      dungeon->field_98B++;
-      if (is_my_player_number(thing->owner))
-        output_message(62, 0, 1);
-      cctrl->byte_9C = thing->owner;
-      change_creature_owner(thing, cctrl->byte_9B);
-      internal_set_thing_state(thing, 94);
-      return 0;
+        move_thing_in_map(thing, &pos);
+        anger_set_creature_anger_all_types(thing, 0);
+        dungeon = get_dungeon(cctrl->byte_9B);
+        dungeon->field_98B++;
+        if (is_my_player_number(thing->owner))
+          output_message(62, 0, 1);
+        cctrl->byte_9C = thing->owner;
+        change_creature_owner(thing, cctrl->byte_9B);
+        internal_set_thing_state(thing, 94);
+        return 0;
     } else
     {
-      ERRORLOG("No valid position inside scavenger room for %s.",thing_model_name(thing));
-      kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
-      return -1;
+        ERRORLOG("No valid position inside scavenger room for %s.",thing_model_name(thing));
+        kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
+        return -1;
     }
 }
 
