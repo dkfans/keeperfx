@@ -237,7 +237,7 @@ void clear_creature_instance(struct Thing *thing)
 {
   struct CreatureControl *cctrl;
   cctrl = creature_control_get_from_thing(thing);
-  cctrl->field_D2 = 0;
+  cctrl->instance_id = 0;
   cctrl->field_D4 = 0;
 }
 

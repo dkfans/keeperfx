@@ -105,7 +105,7 @@ short at_torture_room(struct Thing *thing)
     if ( !add_creature_to_work_room(thing, room) )
     {
         if (is_my_player_number(room->owner))
-            output_message(27, 0, 1);
+            output_message(SMsg_TortureTooSmall, 0, true);
         set_start_state(thing);
         return 0;
     }
@@ -184,7 +184,7 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     if (!dungeon_invalid(dungeon))
         dungeon->lvstats.ghosts_raised++;
     if (is_my_player_number(room->owner))
-        output_message(56, 0, 1);
+        output_message(SMsg_TortureMadeGhost, 0, true);
 }
 
 void convert_tortured_creature_owner(struct Thing *thing, long new_owner)
@@ -192,11 +192,11 @@ void convert_tortured_creature_owner(struct Thing *thing, long new_owner)
     struct Dungeon *dungeon;
     if (is_my_player_number(new_owner))
     {
-        output_message(54, 0, 1);
+        output_message(SMsg_TortureConverted, 0, true);
     } else
     if (is_my_player_number(thing->owner))
     {
-        output_message(63, 0, 1);
+        output_message(SMsg_CreatureJoinedEnemy, 0, true);
     }
     change_creature_owner(thing, new_owner);
     anger_set_creature_anger_all_types(thing, 0);

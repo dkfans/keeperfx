@@ -142,7 +142,7 @@ unsigned char field_88;
     unsigned char byte_8F;
     unsigned short word_90[3];
     unsigned char byte_93;
-    unsigned char byte_94;
+    unsigned char last_did_job;
   } digger;
   struct {
     char sbyte_89;
@@ -248,7 +248,7 @@ unsigned short field_B9;
     short field_CA;
     short field_CC;
     unsigned long field_CE;
-unsigned char field_D2;
+    unsigned char instance_id;
 unsigned char field_D3;
     unsigned short field_D4;
     unsigned short field_D6;

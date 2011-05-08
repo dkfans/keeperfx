@@ -23,6 +23,7 @@
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_control.h"
+#include "creature_instances.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -104,7 +105,7 @@ short creature_arrived_at_prison(struct Thing *thing)
     if ( !add_creature_to_work_room(thing, room) )
     {
         if (is_my_player_number(room->owner))
-            output_message(26, 0, 1);
+            output_message(SMsg_PrisonTooSmall, 0, true);
         cctrl->flgfield_1 &= ~0x02;
         set_start_state(thing);
         return 0;
@@ -145,13 +146,13 @@ long process_prison_visuals(struct Thing *thing, struct Room *room)
 {
   struct CreatureControl *cctrl;
   cctrl = creature_control_get_from_thing(thing);
-  if (cctrl->field_D2 != 0)
+  if (cctrl->instance_id != 0)
     return Lb_OK;
   if (game.play_gameturn-cctrl->field_82 > 200)
   {
     if (game.play_gameturn-cctrl->field_82 < 250)
     {
-      set_creature_instance(thing, 44, 1, 0, 0);
+      set_creature_instance(thing, CrInst_MOAN, 1, 0, 0);
       if (game.play_gameturn-cctrl->long_9A > 32)
       {
         play_creature_sound(thing, CrSnd_PrisonMoan, 2, 0);
@@ -190,7 +191,7 @@ short creature_in_prison(struct Thing *thing)
   if (room->total_capacity < room->used_capacity)
   {
     if (is_my_player_number(room->owner))
-      output_message(26, 0, 1);
+      output_message(SMsg_PrisonTooSmall, 0, true);
     set_start_state(thing);
     return Lb_OK;
   }
@@ -235,7 +236,7 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
   if (ACTION_RANDOM(101) > game.prison_skeleton_chance)
     return false;
   if (is_my_player_number(thing->owner))
-    output_message(55, 0, 1);
+    output_message(SMsg_PrisonMadeSkeleton, 0, true);
   prison_convert_creature_to_skeleton(room,thing);
   return true;
 }
@@ -260,16 +261,19 @@ long process_prison_function(struct Thing *thing)
   process_creature_hunger(thing);
   if ( process_prisoner_skelification(thing,room) )
     return -1;
-  if ((cctrl->field_D2 == 0) && process_prison_food(thing, room) )
+  if ((cctrl->instance_id == 0) && process_prison_food(thing, room) )
     return 1;
+  // Rest of the actions are done only once per 64 turns
   if ((game.play_gameturn & 0x3F) != 0)
     return 0;
-  if (!jailbreak_possible(room, thing->owner))
-    return 0;
-  if ( is_my_player_number(room->owner) )
-    output_message(57, 0, 1);
-  set_start_state(thing);
-  return 1;
+  if (jailbreak_possible(room, thing->owner))
+  {
+      if ( is_my_player_number(room->owner) )
+        output_message(SMsg_PrisonersEscaping, 0, true);
+      set_start_state(thing);
+      return 1;
+  }
+  return 0;
 }
 
 /******************************************************************************/

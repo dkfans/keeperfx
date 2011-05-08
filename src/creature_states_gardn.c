@@ -58,7 +58,7 @@ short creature_eat(struct Thing *thing)
   struct CreatureControl *cctrl;
   //return _DK_creature_eat(thing);
   cctrl = creature_control_get_from_thing(thing);
-  if (cctrl->field_D2 != 36)
+  if (cctrl->instance_id != 36)
     internal_set_thing_state(thing, thing->continue_state);
   return 1;
 }

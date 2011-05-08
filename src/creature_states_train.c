@@ -22,6 +22,7 @@
 #include "bflib_math.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
+#include "creature_instances.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "config_creature.h"
@@ -178,9 +179,9 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
           set_start_state(thing);
       }
     }
-    if (cctrl->field_D2 == 0)
+    if (cctrl->instance_id == 0)
     {
-      set_creature_instance(thing, 1, 1, 0, 0);
+      set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 1, 0, 0);
     }
     SYNCDBG(8,"End");
 }
@@ -261,7 +262,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
     switch (cctrl->byte_9A)
     {
     case CrTrMd_Value1:
-        if (cctrl->field_D2 != 0)
+        if (cctrl->instance_id != 0)
             break;
         if (cctrl->byte_9E <= 1)
         {
@@ -402,13 +403,13 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
               cctrl->byte_9B--;
               if (cctrl->byte_9B > 0)
               {
-                if ((cctrl->field_D2 == 0) && ((cctrl->byte_9B % 8) == 0))
+                if ((cctrl->instance_id == 0) && ((cctrl->byte_9B % 8) == 0))
                 {
-                    set_creature_instance(thing, 1, 1, 0, 0);
+                    set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 1, 0, 0);
                 }
               } else
               {
-                if (cctrl->field_D2 == 0)
+                if (cctrl->instance_id == 0)
                 {
                     setup_move_to_new_training_position(thing, room, 0);
                     cctrl->word_9F = 0;
@@ -429,13 +430,13 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         cctrl->byte_9B--;
         if (cctrl->byte_9B > 0)
         {
-          if ((cctrl->field_D2 == 0) && ((cctrl->byte_9B % 8) == 0))
+          if ((cctrl->instance_id == 0) && ((cctrl->byte_9B % 8) == 0))
           {
-              set_creature_instance(thing, 1, 1, 0, 0);
+              set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 1, 0, 0);
           }
         } else
         {
-          if (cctrl->field_D2 == 0)
+          if (cctrl->instance_id == 0)
           {
               setup_move_to_new_training_position(thing, room, 1);
           } else
@@ -467,7 +468,7 @@ short at_training_room(struct Thing *thing)
     if (dungeon->total_money_owned < crstat->training_cost)
     {
         if (is_my_player_number(thing->owner))
-            output_message(89, 500, 1);
+            output_message(SMsg_NoGoldToTrain, MESSAGE_DELAY_TREASURY, true);
         set_start_state(thing);
         return 0;
     }
@@ -511,12 +512,14 @@ short training(struct Thing *thing)
     finish_training = false;
     if (!creature_can_be_trained(thing))
     {
+        SYNCDBG(9,"Ending training %s level %d; creature isn't trainable",thing_model_name(thing),(int)cctrl->explevel);
         finish_training = true;
     }
     if (!player_can_afford_to_train_creature(thing))
     {
+        SYNCDBG(19,"Ending training %s index %d; cannot afford",thing_model_name(thing),(int)thing->index);
         if (is_my_player_number(thing->owner))
-            output_message(89, 500, 1);
+            output_message(SMsg_NoGoldToTrain, MESSAGE_DELAY_TREASURY, true);
         finish_training = true;
     }
     // Check if we're in correct room
@@ -524,6 +527,7 @@ short training(struct Thing *thing)
     if (room_is_invalid(room) || (room->kind != RoK_TRAINING)
      || (cctrl->work_room_id != room->index) || (room->owner != thing->owner))
     {
+        SYNCDBG(9,"Ending training %s index %d; training room no longer valid",thing_model_name(thing),(int)thing->index);
         finish_training = true;
     }
     if (finish_training)
@@ -541,17 +545,21 @@ short training(struct Thing *thing)
             ERRORLOG("Cannot take %d gold from dungeon %d",(int)crstat->training_cost,(int)thing->owner);
         create_price_effect(&thing->mappos, thing->owner, crstat->training_cost);
     }
-    if (cctrl->field_D2 || !check_experience_upgrade(thing))
+    if ((cctrl->instance_id != CrInst_NULL) || !check_experience_upgrade(thing))
     {
         i = process_work_speed_on_work_value(thing,
             (long)room->efficiency * (long)crstat->training_value);
         cctrl->exp_points += i;
-        dungeon->field_1179 += i;
+        dungeon->total_experience_creatures_gained += i;
         process_creature_in_training_room(thing, room);
     } else
     {
         if (external_set_thing_state(thing, CrSt_CreatureBeHappy)) {
             cctrl->field_282 = 50;
+            // Imps have special way of storing previous state
+            if (thing_is_creature_special_digger(thing)) {
+                cctrl->digger.last_did_job = 4; // TODO: This actually should be set when the creature is dropped to training room
+            }
         }
         dungeon->lvstats.creatures_trained++;
     }

@@ -1503,10 +1503,10 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
         cctrlgrp->field_C2++;
     }
     if (is_my_player_number(thing->owner)) {
-        output_message(11, 40, 1);
+        output_message(SMsg_BattleDeath, 40, true);
     } else
     if (is_my_player_number(killertng->owner)) {
-        output_message(12, 40, 1);
+        output_message(SMsg_BattleWon, 40, true);
     }
     if (game.hero_player_num == killertng->owner)
     {
@@ -1890,7 +1890,7 @@ void set_creature_instance(struct Thing *thing, long inst_idx, long a2, long a3,
         cctrl->field_AF = i;
     }
     get_creature_instance_times(thing, inst_idx, &itime, &aitime);
-    if ((cctrl->field_D2 > 0) && (cctrl->field_D2 == inst_idx))
+    if ((cctrl->instance_id > 0) && (cctrl->instance_id == inst_idx))
     {
         if (inst_inf->field_1A)
         {
@@ -1898,7 +1898,7 @@ void set_creature_instance(struct Thing *thing, long inst_idx, long a2, long a3,
             return;
         }
     }
-    cctrl->field_D2 = inst_idx;
+    cctrl->instance_id = inst_idx;
     cctrl->field_DA = a3;
     cctrl->field_D4 = 0;
     cctrl->field_D8 = itime;

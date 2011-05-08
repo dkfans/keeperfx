@@ -128,7 +128,7 @@ TbBool good_setup_attack_rooms(struct Thing *thing, long dngn_id)
         get_subtile_center_pos(room->central_stl_x), get_subtile_center_pos(room->central_stl_y),
         19, room->owner, 0);
     if (is_my_player_number(room->owner))
-      output_message(15, 400, 1);
+      output_message(SMsg_EnemyDestroyRooms, 400, true);
     cctrl = creature_control_get_from_thing(thing);
     thing->continue_state = CrSt_GoodAttackRoom1;
     cctrl->field_80 = room->index;

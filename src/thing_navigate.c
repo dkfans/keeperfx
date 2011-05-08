@@ -368,7 +368,7 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
     cctrl = creature_control_get_from_thing(thing);
     if (creature_instance_is_available(thing, CrInst_TELEPORT)
      && creature_instance_has_reset(thing, CrInst_TELEPORT)
-     && (cctrl->field_D2 == 0))
+     && (cctrl->instance_id == 0))
     {
         // Creature can only be teleported to a revealed location
         destination_valid = true;

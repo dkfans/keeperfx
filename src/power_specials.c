@@ -268,7 +268,7 @@ void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player)
       if ( used )
       {
         if (is_my_player(player))
-          output_message(special_desc[spkindidx].field_8, 0, 1);
+          output_message(special_desc[spkindidx].field_8, 0, true);
         create_special_used_effect(&pos, player->id_number);
       }
   }
@@ -344,7 +344,7 @@ void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char ply
   }
   delete_thing_structure(tng1, 0);
   if (is_my_player_number(plyr_idx))
-    output_message(80, 0, 1);
+    output_message(SMsg_CommonAcknowledge, 0, true);
 }
 
 void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
