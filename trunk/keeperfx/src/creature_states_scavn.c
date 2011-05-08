@@ -76,7 +76,7 @@ short at_scavenger_room(struct Thing *thing)
     if (crstat->scavenger_cost >= dungeon->total_money_owned)
     {
         if (is_my_player_number(thing->owner))
-            output_message(88, 500, 1);
+            output_message(SMsg_NoGoldToScavenge, MESSAGE_DELAY_TREASURY, true);
         set_start_state(thing);
         return 0;
     }
@@ -132,7 +132,7 @@ short creature_scavenged_disappear(struct Thing *thing)
         dungeon = get_dungeon(cctrl->byte_9B);
         dungeon->field_98B++;
         if (is_my_player_number(thing->owner))
-          output_message(62, 0, 1);
+          output_message(SMsg_MinionScanvenged, 0, true);
         cctrl->byte_9C = thing->owner;
         change_creature_owner(thing, cctrl->byte_9B);
         internal_set_thing_state(thing, 94);

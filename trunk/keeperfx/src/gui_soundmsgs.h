@@ -33,6 +33,9 @@ extern "C" {
 
 #define MESSAGE_QUEUE_COUNT     4
 
+#define MESSAGE_DELAY_ROOM_NEED 500
+#define MESSAGE_DELAY_TREASURY  500
+
 enum TbSpeechMessages {
         SMsg_None = 0,
         SMsg_CreatrAngryAnyReson,

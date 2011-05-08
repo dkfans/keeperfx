@@ -1144,31 +1144,33 @@ void init_creature_scores(void)
 
 void init_creature_state(struct Thing *thing)
 {
-  struct Room *room;
-  if (thing->owner != game.neutral_player_num)
-  {
+    struct Room *room;
+    if (thing->owner == game.neutral_player_num)
+    {
+        set_start_state(thing);
+        return;
+    }
     room = get_room_thing_is_on(thing);
-    if (room != NULL)
+    if (!room_is_invalid(room))
     {
         switch (room->kind)
         {
-        case 4:
-        case 5:
-        case 16:
+        case RoK_PRISON:
+        case RoK_TORTURE:
+        case RoK_GUARDPOST:
             if ( send_creature_to_room(thing, room) )
               return;
         default:
             break;
         }
     }
-  }
-  set_start_state(thing);
+    set_start_state(thing);
 }
 
 void clear_creature_pool(void)
 {
-  memset(&game.pool,0,sizeof(struct CreaturePool));
-  game.pool.is_empty = true;
+    memset(&game.pool,0,sizeof(struct CreaturePool));
+    game.pool.is_empty = true;
 }
 
 void clear_slab_dig(long a1, long a2, char a3)
@@ -1306,7 +1308,38 @@ void leader_find_positions_for_followers(struct Thing *thing)
 
 unsigned char external_set_thing_state(struct Thing *thing, long state)
 {
-  return _DK_external_set_thing_state(thing, state);
+    struct CreatureControl *cctrl;
+    struct StateInfo *stati;
+    CreatureStateFunc1 callback;
+    //return _DK_external_set_thing_state(thing, state);
+    if ( !can_change_from_state_to(thing, thing->active_state, state) )
+    {
+        ERRORDBG(4,"State change %d to %d for %s not allowed",(int)thing->active_state, (int)state, thing_model_name(thing));
+        return 0;
+    }
+    SYNCDBG(9,"State change %d to %d for %s index %d",(int)thing->active_state, (int)state, thing_model_name(thing),(int)thing->index);
+    stati = get_thing_active_state_info(thing);
+    if (stati->state_type == CrStTyp_Value6)
+        stati = get_thing_continue_state_info(thing);
+    callback = stati->cleanup_state;
+    if (callback != NULL) {
+        callback(thing);
+        thing->field_1 |= 0x10;
+    } else {
+      clear_creature_instance(thing);
+    }
+    thing->active_state = state;
+    thing->field_1 &= ~0x10;
+    thing->continue_state = 0;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_80 = 0;
+    cctrl->field_302 = 0;
+    if ((cctrl->flgfield_1 & 0x20) != 0)
+    {
+        ERRORLOG("External change state %d to %d, but %s in room list even after cleanup",(int)thing->active_state, (int)state, thing_model_name(thing));
+        remove_creature_from_work_room(thing);
+    }
+    return 1;
 }
 
 long is_thing_passenger_controlled(struct Thing *thing)
@@ -2925,7 +2958,7 @@ void input_eastegg(void)
     allow = (lbKeyOn[KC_LSHIFT] != 0);
     state = input_eastegg_keycodes(&eastegg_skeksis_cntr,allow,&eastegg_skeksis_codes);
     if (state == 3)
-      output_message(SMsg_PantsTooTight, 0, 1);
+      output_message(SMsg_PantsTooTight, 0, true);
 }
 
 void init_messages(void)
@@ -4659,7 +4692,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
   player->victory_state = VicS_WonLevel;
   dungeon = get_dungeon(player->id_number);
   // Computing player score
-  dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->field_AE5[3]);
+  dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->field_AE9[2]);
   dungeon->lvstats.allow_save_score = 1;
   if ((game.system_flags & GSF_NetworkActive) == 0)
     player->field_4EB = game.play_gameturn + 300;
@@ -4670,7 +4703,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
         SYNCLOG("Lord Of The Land kept captive. Torture tower unlocked.");
         player->field_3 |= 0x10;
     }
-    output_message(SMsg_LevelWon, 0, 1);
+    output_message(SMsg_LevelWon, 0, true);
   }
 }
 
@@ -4688,10 +4721,10 @@ void set_player_as_lost_level(struct PlayerInfo *player)
   player->victory_state = VicS_LostLevel;
   dungeon = get_dungeon(player->id_number);
   // Computing player score
-  dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->field_AE5[3]);
+  dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->field_AE9[2]);
   if (is_my_player(player))
   {
-    output_message(SMsg_LevelFailed, 0, 1);
+    output_message(SMsg_LevelFailed, 0, true);
     turn_off_all_menus();
     clear_transfered_creature();
   }
@@ -5244,7 +5277,7 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
         lair_space = calculate_free_lair_space(dungeon);
         if ((long)game.creature_stats[crkind].pay > dungeon->total_money_owned) {
             if (is_my_player_number(dungeon->owner)) {
-                output_message(SMsg_GoldLow, 500, 1);
+                output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, true);
             }
         }
         else if (lair_space > 0) {
@@ -5255,10 +5288,10 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
 
             if (is_my_player_number(dungeon->owner)) {
                 if (dungeon->room_kind[RoK_LAIR] > 0) {
-                    output_message(SMsg_LairTooSmall, 500, 1);
+                    output_message(SMsg_LairTooSmall, 500, true);
                 }
                 else {
-                    output_message(SMsg_RoomLairNeeded, 500, 1);
+                    output_message(SMsg_RoomLairNeeded, 500, true);
                 }
             }
 
@@ -5474,7 +5507,7 @@ short process_player_manufacturing(long plr_idx)
       // If that's local player - make a message
       player=get_my_player();
       if (player->id_number == plr_idx)
-        output_message(45, 0, 1);
+        output_message(SMsg_ManufacturedTrap, 0, true);
       break;
   case 9:
       i = dungeon->field_118A%DOOR_TYPES_COUNT;
@@ -5489,7 +5522,7 @@ short process_player_manufacturing(long plr_idx)
       // If that's local player - make a message
       player=get_my_player();
       if (player->id_number == plr_idx)
-        output_message(44, 0, 1);
+        output_message(SMsg_ManufacturedDoor, 0, true);
       break;
   default:
       ERRORLOG("Invalid type of new manufacture");

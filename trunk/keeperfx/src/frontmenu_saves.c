@@ -178,7 +178,7 @@ void gui_save_game(struct GuiButton *gbtn)
       fill_game_catalogue_slot(slot_num,(char *)gbtn->content);
       if (save_game(slot_num))
       {
-        output_message(103, 0, 1);
+        output_message(SMsg_GameSaved, 0, true);
       } else
       {
         ERRORLOG("Error in save!");

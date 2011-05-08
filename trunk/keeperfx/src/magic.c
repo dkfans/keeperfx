@@ -242,7 +242,7 @@ TbBool pay_for_spell(PlayerNumber plyr_idx, long spkind, long splevel)
     }
     // If failed, say "you do not have enough gold"
     if (is_my_player_number(plyr_idx))
-        output_message(SMsg_GoldNotEnough, 0, 1);
+        output_message(SMsg_GoldNotEnough, 0, true);
     return false;
 }
 
@@ -575,7 +575,7 @@ long magic_use_power_sight(unsigned char plyr_idx, long stl_x, long stl_y, long 
     if (take_money_from_dungeon(plyr_idx, magstat->cost[splevel], 1) < 0)
     {
         if (is_my_player_number(plyr_idx))
-            output_message(87, 0, 1);
+            output_message(SMsg_GoldNotEnough, 0, true);
         return 0;
     }
     pos.x.val = (stl_x << 8) + 128;

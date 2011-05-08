@@ -560,7 +560,7 @@ short field_14E4A4;
 unsigned char field_14E930[4];
     unsigned long entrance_last_generate_turn;
     unsigned short entrance_room_id;
-unsigned short field_14E93A;
+    unsigned short entrances_count;
     unsigned short gold_per_gold_block;
     unsigned short pot_of_gold_holds;
     unsigned short chest_gold_hold;

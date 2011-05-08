@@ -305,13 +305,13 @@ void update_creature_graphic_anim(struct Thing *thing)
     } else
     if ((cctrl->field_AD & 0x02) == 0)
     {
-        if (cctrl->field_D2 != 0)
+        if (cctrl->instance_id != 0)
         {
-          if (cctrl->field_D2 == 45)
+          if (cctrl->instance_id == 45)
           {
               thing->field_4F &= ~0x30;
           }
-          inst_inf = creature_instance_info_get(cctrl->field_D2);
+          inst_inf = creature_instance_info_get(cctrl->instance_id);
           update_creature_anim(thing, cctrl->field_1CE, inst_inf->graphics_idx);
         } else
         if ((cctrl->field_B1 != 0) || (thing->health < 0) || ((cctrl->field_AB & 0x02) != 0))
