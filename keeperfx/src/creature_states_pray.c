@@ -95,7 +95,7 @@ short at_temple(struct Thing *thing)
     if ( !add_creature_to_work_room(thing, room) )
     {
         if (is_my_player_number(thing->owner))
-            output_message(31, 0, 1);
+            output_message(SMsg_TempleTooSmall, 0, true);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return 0;
@@ -410,19 +410,19 @@ short creature_being_sacrificed(struct Thing *thing)
     switch (award)
     {
     case SacR_AngryWarn:
-        output_message(68, 0, 1);
+        output_message(SMsg_SacrificeBad, 0, true);
         break;
     case SacR_DontCare:
-        output_message(67, 0, 1);
+        output_message(SMsg_SacrificeNeutral, 0, true);
         break;
     case SacR_Pleased:
-        output_message(65, 0, 1);
+        output_message(SMsg_SacrificeGood, 0, true);
         break;
     case SacR_Awarded:
-        output_message(66, 0, 1);
+        output_message(SMsg_SacrificeReward, 0, true);
         break;
     case SacR_Punished:
-        output_message(69, 0, 1);
+        output_message(SMsg_SacrificePunish, 0, true);
         break;
     default:
         ERRORLOG("Invalid sacrifice return");

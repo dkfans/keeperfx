@@ -24,6 +24,7 @@
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_control.h"
+#include "creature_instances.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -61,17 +62,17 @@ short creature_moan(struct Thing *thing)
     cctrl->field_282 = i;
     if (i <= 0)
     {
-      if (cctrl->field_D2 == 0)
+      if (cctrl->instance_id == 0)
         set_start_state(thing);
       return 0;
     }
     if (game.play_gameturn - cctrl->long_9A > 32)
     {
-      play_creature_sound(thing, 4, 2, 0);
-      cctrl->long_9A = game.play_gameturn;
+        play_creature_sound(thing, 4, 2, 0);
+        cctrl->long_9A = game.play_gameturn;
     }
-    if (cctrl->field_D2 == 0) {
-        set_creature_instance(thing, 44, 1, 0, 0);
+    if (cctrl->instance_id == 0) {
+        set_creature_instance(thing, CrInst_MOAN, 1, 0, 0);
     }
     return 1;
 }
@@ -83,7 +84,29 @@ short creature_roar(struct Thing *thing)
 
 short creature_be_happy(struct Thing *thing)
 {
-  return _DK_creature_be_happy(thing);
+    struct CreatureControl *cctrl;
+    long i;
+    //return _DK_creature_be_happy(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    i = cctrl->field_282;
+    if (i > 0) i--;
+    cctrl->field_282 = i;
+    if (i <= 0)
+    {
+      if (cctrl->instance_id == CrInst_NULL) {
+          set_start_state(thing);
+      }
+      return 0;
+    }
+    if (game.play_gameturn - cctrl->long_9A > 32)
+    {
+        play_creature_sound(thing, 3, 2, 0);
+        cctrl->long_9A = game.play_gameturn;
+    }
+    if (cctrl->instance_id == CrInst_NULL) {
+        set_creature_instance(thing, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+    }
+    return 1;
 }
 
 short creature_piss(struct Thing *thing)

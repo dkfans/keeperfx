@@ -23,6 +23,7 @@
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_control.h"
+#include "creature_instances.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -361,17 +362,17 @@ long check_out_available_imp_drop_tasks(struct Thing *digger)
     }
     if ( check_out_undug_drop_place(digger) )
     {
-        cctrl->digger.byte_94 = 1;
+        cctrl->digger.last_did_job = 1;
         return 1;
     }
     if ( check_out_unconverted_drop_place(digger) )
     {
-        cctrl->digger.byte_94 = 2;
+        cctrl->digger.last_did_job = 2;
         return 1;
     }
     if ( check_out_unprettied_drop_place(digger) )
     {
-        cctrl->digger.byte_94 = 2;
+        cctrl->digger.last_did_job = 2;
         return 1;
     }
     if ( check_out_unclaimed_gold(digger, 768) )
@@ -380,14 +381,14 @@ long check_out_available_imp_drop_tasks(struct Thing *digger)
     }
     if ( check_out_unreinforced_drop_place(digger) )
     {
-        cctrl->digger.byte_94 = 9;
+        cctrl->digger.last_did_job = 9;
         return 1;
     }
     if ( check_out_crates_to_arm_trap_in_room(digger) )
     {
         return 1;
     }
-    cctrl->digger.byte_94 = 0;
+    cctrl->digger.last_did_job = 0;
     return 0;
 }
 
@@ -512,9 +513,9 @@ short imp_digs_mines(struct Thing *thing)
         return 1;
     }
 
-    if (cctrl->field_D2 == 0)
+    if (cctrl->instance_id == CrInst_NULL)
     {
-        set_creature_instance(thing, 30, 0, 0, 0);
+        set_creature_instance(thing, CrInst_DIG, 0, 0, 0);
     }
 
     if (mtask->field_0 == 2)

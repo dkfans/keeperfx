@@ -198,11 +198,25 @@ enum CreatureTrainingModes {
     CrTrMd_PartnerTraining,
 };
 
+enum CreatureStateTypes {
+    CrStTyp_Value0 = 0,
+    CrStTyp_Value1,
+    CrStTyp_Value2,
+    CrStTyp_Value3,
+    CrStTyp_Value4,
+    CrStTyp_Value5,
+    CrStTyp_Value6,
+};
+
+typedef short (*CreatureStateFunc1)(struct Thing *);
+typedef char (*CreatureStateFunc2)(struct Thing *);
+typedef long (*CreatureStateFunc3)(struct Thing *);
+
 struct StateInfo { // sizeof = 41
-  short (*ofsfield_0)(struct Thing *);
-  short (*ofsfield_4)(struct Thing *);
-  char (*ofsfield_8)(struct Thing *);
-  long (*ofsfield_C)(struct Thing *);
+    CreatureStateFunc1 ofsfield_0;
+    CreatureStateFunc1 cleanup_state;
+    CreatureStateFunc2 ofsfield_8;
+    CreatureStateFunc3 ofsfield_C;
   unsigned char field_10;
   unsigned char field_11;
   unsigned char field_12;

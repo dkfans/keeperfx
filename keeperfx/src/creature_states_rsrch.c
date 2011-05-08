@@ -71,7 +71,7 @@ short at_research_room(struct Thing *thing)
         if ( (thing->owner != game.neutral_player_num) && (dungeon->field_F78 < 0) )
         {
             if ( is_my_player_number(dungeon->owner) )
-                output_message(46, 500, 1);
+                output_message(SMsg_NoMoreReseach, 500, true);
         }
         set_start_state(thing);
         return 0;
@@ -239,7 +239,7 @@ short researching(struct Thing *thing)
         if ( (thing->owner != game.neutral_player_num) && (dungeon->field_F78 < 0) )
         {
             if ( is_my_player_number(dungeon->owner) )
-                output_message(46, 500, 1);
+                output_message(SMsg_NoMoreReseach, 500, true);
         }
         remove_creature_from_work_room(thing);
         set_start_state(thing);
@@ -264,14 +264,14 @@ short researching(struct Thing *thing)
     if (room->used_capacity > room->total_capacity)
     {
       if ( is_my_player_number(room->owner) )
-          output_message(25, 0, 1);
+          output_message(SMsg_LibraryTooSmall, 0, true);
       remove_creature_from_work_room(thing);
       set_start_state(thing);
       return 0;
     }
     process_research_function(thing);
     cctrl = creature_control_get_from_thing(thing);
-    if ( (game.play_gameturn - dungeon->field_AE5[0] < 50)
+    if ( (game.play_gameturn - dungeon->field_AE5 < 50)
       && ((game.play_gameturn + thing->index) & 0x03) == 0)
     {
       external_set_thing_state(thing, 127);
@@ -279,7 +279,7 @@ short researching(struct Thing *thing)
       cctrl->long_9A = 0;
       return 1;
     }
-    if ( cctrl->field_D2 )
+    if ( cctrl->instance_id )
       return 1;
     cctrl->field_82++;
     // Shall we do some "Standing and thinking"

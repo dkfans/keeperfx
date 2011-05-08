@@ -22,6 +22,7 @@
 #include "bflib_math.h"
 #include "thing_list.h"
 #include "creature_control.h"
+#include "creature_instances.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -879,7 +880,7 @@ TbBool attempt_to_destroy_enemy_room(struct Thing *thing, unsigned char stl_x, u
     event_create_event_or_update_nearby_existing_event(subtile_coord_center(room->central_stl_x),
         subtile_coord_center(room->central_stl_y), 19, room->owner, 0);
     if (is_my_player_number(room->owner))
-        output_message(15, 400, 1);
+        output_message(SMsg_EnemyDestroyRooms, 400, true);
     thing->continue_state = CrSt_CreatureAttackRooms;
     cctrl = creature_control_get_from_thing(thing);
     if (!creature_control_invalid(cctrl))
@@ -1341,11 +1342,11 @@ TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long
     remove_spell_from_player(object_to_magic[spelltng->model], room->owner);
     if (is_my_player_number(room->owner))
     {
-        output_message(50, 0, 1);
+        output_message(SMsg_SpellbookStolen, 0, true);
     } else
     if (is_my_player_number(new_owner))
     {
-        output_message(47, 0, 1);
+        output_message(SMsg_SpellbookTaken, 0, true);
     }
     return true;
 }
@@ -1897,11 +1898,11 @@ short seek_the_enemy(struct Thing *thing)
         dist = get_2d_box_distance(&enemytng->mappos, &thing->mappos);
         if (creature_can_hear_within_distance(thing, dist))
         {
-            if (cctrl->field_D2 == 0)
+            if (cctrl->instance_id == 0)
             {
               if ((dist < 2304) && (game.play_gameturn-cctrl->field_282 < 20))
               {
-                set_creature_instance(thing, CrSt_GoodDoingNothing, 1, 0, 0);
+                set_creature_instance(thing, CrInst_CELEBRATE_SHORT, 1, 0, 0);
                 thing_play_sample(thing, 168+UNSYNC_RANDOM(3), 100, 0, 3, 0, 2, 256);
                 return 1;
               }
@@ -2017,7 +2018,7 @@ TbBool check_experience_upgrade(struct Thing *thing)
     cctrl->exp_points -= i;
     if (cctrl->explevel < dungeon->creature_max_level[thing->model])
     {
-      if ((cctrl->explevel < 9) || (crstat->grow_up != 0))
+      if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
         cctrl->field_AD |= 0x40;
     }
     return true;
@@ -2073,9 +2074,9 @@ TbBool cleanup_current_thing_state(struct Thing *thing)
 {
     struct StateInfo *stati;
     stati = get_creature_state_with_task_completion(thing);
-    if (stati->ofsfield_4 != NULL)
+    if (stati->cleanup_state != NULL)
     {
-        stati->ofsfield_4(thing);
+        stati->cleanup_state(thing);
         set_flag_byte(&thing->field_1, 0x10, true);
     } else
     {
@@ -2157,7 +2158,7 @@ short set_start_state(struct Thing *thing)
     struct PlayerInfo *player;
     struct CreatureControl *cctrl;
     long i;
-    SYNCDBG(8,"Starting for %s, owner %d",thing_model_name(thing),(int)thing->owner);
+    SYNCDBG(8,"Starting for %s index %d, owner %d, last state %d",thing_model_name(thing),(int)thing->index,(int)thing->owner,(int)thing->active_state);
 //    return _DK_set_start_state(thing);
     if ((thing->field_0 & 0x20) != 0)
     {
@@ -2192,7 +2193,8 @@ short set_start_state(struct Thing *thing)
         initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
         return thing->active_state;
     }
-    initialise_thing_state(thing, creatures[thing->model%CREATURE_TYPES_COUNT].evil_start_state);
+    i = creatures[thing->model%CREATURE_TYPES_COUNT].evil_start_state;
+    initialise_thing_state(thing, i);
     return thing->active_state;
 }
 /******************************************************************************/

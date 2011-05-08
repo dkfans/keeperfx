@@ -771,7 +771,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
               } else
               if (is_my_player(player))
               {
-                output_message(SMsg_WorkerJobsLimit, 500, 1);
+                output_message(SMsg_WorkerJobsLimit, 500, true);
               }
             } else
             if ((player->field_455 == 3) && ((player->field_3 & 0x01) != 0))
@@ -787,7 +787,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
               } else
               if (is_my_player(player))
               {
-                output_message(SMsg_WorkerJobsLimit, 500, 1);
+                output_message(SMsg_WorkerJobsLimit, 500, true);
               }
             }
           }
@@ -845,7 +845,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             } else
             if (is_my_player(player))
             {
-              output_message(SMsg_WorkerJobsLimit, 500, 1);
+              output_message(SMsg_WorkerJobsLimit, 500, true);
             }
           } else
           if (player->field_454 == 3)
@@ -2076,7 +2076,7 @@ TbBool process_players_global_packet_action(long plyr_idx)
       return 0;
   case PckA_PlyrFastMsg:
       //show_onscreen_msg(game.num_fps, "Message from player %d", plyr_idx);
-      output_message(SMsg_EnemyHarassments+pckt->field_6, 0, 1);
+      output_message(SMsg_EnemyHarassments+pckt->field_6, 0, true);
       return 0;
   case PckA_SetComputerKind:
       set_autopilot_type(plyr_idx, pckt->field_6);
@@ -2316,7 +2316,7 @@ void process_players_creature_control_packet_control(long idx)
 
     if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
     {
-        if (ccctrl->field_D2 == 0)
+        if (ccctrl->instance_id == 0)
         {
             if (creature_instance_is_available(cctng, ccctrl->field_1E8))
             {
@@ -2336,7 +2336,7 @@ void process_players_creature_control_packet_control(long idx)
         inst_inf = creature_instance_info_get(i);
         if (inst_inf->field_1A)
         {
-            k = ccctrl->field_D2;
+            k = ccctrl->instance_id;
             if ((k == 0) || (k == i))
             {
               n = get_human_controlled_creature_target(cctng, inst_inf->field_1D);
@@ -2405,7 +2405,7 @@ void process_players_creature_control_packet_action(long idx)
       {
         cctrl->field_1E8 = i;
       } else
-      if (cctrl->field_D2 == 0)
+      if (cctrl->instance_id == 0)
       {
         if (creature_instance_is_available(thing,i) && creature_instance_has_reset(thing, pckt->field_6))
         {

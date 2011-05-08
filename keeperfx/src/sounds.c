@@ -182,10 +182,10 @@ void update_player_sounds(void)
         SYNCDBG(9,"Rare message condition met, selected %d",(int)k);
         if (k == 7)
         {
-          output_message(SMsg_PantsTooTight, 0, 1);
+          output_message(SMsg_PantsTooTight, 0, true);
         } else
         {
-          output_message(SMsg_FunnyMessages+k, 0, 1);
+          output_message(SMsg_FunnyMessages+k, 0, true);
         }
       }
   }

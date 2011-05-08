@@ -740,6 +740,23 @@ void update_room_central_tile_position(struct Room *room)
     ERRORLOG("Cannot find position to place an ensign.");
 }
 
+void add_room_to_global_list(struct Room *room)
+{
+    struct Room *nxroom;
+    // There is only one global list of rooms - the list of entrances
+    if (room->kind == RoK_ENTRANCE)
+    {
+      if ((game.entrance_room_id > 0) && (game.entrance_room_id < ROOMS_COUNT))
+      {
+        room->next_of_kind = game.entrance_room_id;
+        nxroom = room_get(game.entrance_room_id);
+        nxroom->prev_of_kind = room->index;
+      }
+      game.entrance_room_id = room->index;
+      game.entrances_count++;
+    }
+}
+
 TbBool add_room_to_players_list(struct Room *room, long plyr_idx)
 {
     struct Dungeon *dungeon;
@@ -773,7 +790,7 @@ TbBool add_room_to_players_list(struct Room *room, long plyr_idx)
 struct Room *prepare_new_room(unsigned char owner, unsigned char rkind, unsigned short x, unsigned short y)
 {
     struct SlabMap *slb;
-    struct Room *room,*nxroom;
+    struct Room *room;
     long slb_x,slb_y;
     long i;
     if ( !i_can_allocate_free_room_structure() )
@@ -785,17 +802,7 @@ struct Room *prepare_new_room(unsigned char owner, unsigned char rkind, unsigned
     room = allocate_free_room_structure();
     room->owner = owner;
     room->kind = rkind;
-    if (rkind == RoK_ENTRANCE)
-    {
-      if ((game.entrance_room_id > 0) && (game.entrance_room_id < ROOMS_COUNT))
-      {
-        room->word_19 = game.entrance_room_id;
-        nxroom = room_get(game.entrance_room_id);
-        nxroom->word_17 = room->index;
-      }
-      game.entrance_room_id = room->index;
-      game.field_14E93A++;
-    }
+    add_room_to_global_list(room);
     add_room_to_players_list(room, owner);
     slb_x = map_to_slab[x%(map_subtiles_x+1)];
     slb_y = map_to_slab[y%(map_subtiles_y+1)];

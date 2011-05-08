@@ -89,7 +89,7 @@ struct Room {
     union {
     long long_17;
     struct {
-      short word_17;
+      short prev_of_kind;
       short next_of_kind;
     };
     };

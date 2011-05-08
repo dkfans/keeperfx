@@ -3102,7 +3102,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
         switch (val2)
         {
         case 1:
-            output_message(val3, 0, 1);
+            output_message(val3, 0, true);
             break;
         case 2:
             play_non_3d_sample(val3);

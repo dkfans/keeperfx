@@ -252,7 +252,8 @@ struct Dungeon {
     unsigned short gold_pots_stolen;
     int field_ADD;
     int field_AE1;
-    int field_AE5[4];
+    int field_AE5;
+    int field_AE9[3];
     short field_AF5;
     short field_AF7;
     int total_money_owned;
@@ -294,7 +295,7 @@ unsigned char field_F7D;
     unsigned char field_1175;
     unsigned char field_1176;
     short field_1177;
-    long field_1179;
+    long total_experience_creatures_gained;
     long field_117D;
 long field_1181;
 long field_1185;
