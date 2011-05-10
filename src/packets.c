@@ -2100,8 +2100,8 @@ TbBool process_players_global_packet_action(long plyr_idx)
       return false;
   case 116:
       dungeon = get_players_num_dungeon(plyr_idx);
-      turn_off_event_box_if_necessary(plyr_idx, dungeon->field_1173);
-      dungeon->field_1173 = 0;
+      turn_off_event_box_if_necessary(plyr_idx, dungeon->visible_event_idx);
+      dungeon->visible_event_idx = 0;
       return false;
   case 117:
       i = player->field_4D2 / 4;
@@ -2316,7 +2316,7 @@ void process_players_creature_control_packet_control(long idx)
 
     if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
     {
-        if (ccctrl->instance_id == 0)
+        if (ccctrl->instance_id == CrInst_NULL)
         {
             if (creature_instance_is_available(cctng, ccctrl->field_1E8))
             {
@@ -2337,7 +2337,7 @@ void process_players_creature_control_packet_control(long idx)
         if (inst_inf->field_1A)
         {
             k = ccctrl->instance_id;
-            if ((k == 0) || (k == i))
+            if ((k == CrInst_NULL) || (k == i))
             {
               n = get_human_controlled_creature_target(cctng, inst_inf->field_1D);
               set_creature_instance(cctng, i, 1, n, 0);
@@ -2405,7 +2405,7 @@ void process_players_creature_control_packet_action(long idx)
       {
         cctrl->field_1E8 = i;
       } else
-      if (cctrl->instance_id == 0)
+      if (cctrl->instance_id == CrInst_NULL)
       {
         if (creature_instance_is_available(thing,i) && creature_instance_has_reset(thing, pckt->field_6))
         {

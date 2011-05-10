@@ -478,7 +478,7 @@ short get_global_inputs(void)
   }
   if ( is_game_key_pressed(29, &keycode, 0) )
   {
-      set_players_packet_action(player, 111, 0, 0, 0, 0);
+      set_players_packet_action(player, PckA_Unknown111, 0, 0, 0, 0);
       clear_key_pressed(keycode);
   }
   return false;
@@ -499,7 +499,7 @@ TbBool get_level_lost_inputs(void)
   {
     if (is_key_pressed(KC_RETURN,KMod_NONE))
     {
-      set_players_packet_action(player, 13, 0,0,0,0);
+      set_players_packet_action(player, PckA_PlyrMsgBegin, 0,0,0,0);
       clear_key_pressed(KC_RETURN);
       return true;
     }
@@ -537,7 +537,7 @@ TbBool get_level_lost_inputs(void)
         int actn_y = 3*screen_y/4 + 1;
         if  ((actn_x >= 0) && (actn_x < map_subtiles_x) && (actn_y >= 0) && (actn_y < map_subtiles_y))
         {
-          set_players_packet_action(player, 81, actn_x,actn_y,0,0);
+          set_players_packet_action(player, PckA_Unknown081, actn_x,actn_y,0,0);
           left_button_released = 0;
         }
     }
@@ -566,10 +566,10 @@ TbBool get_level_lost_inputs(void)
                 set_flag_byte(&game.numfield_C,0x40,true);
               else
                 set_flag_byte(&game.numfield_C,0x40,false);
-              set_players_packet_action(player, 119, 4,0,0,0);
+              set_players_packet_action(player, PckA_Unknown119, 4,0,0,0);
         } else
         {
-              set_players_packet_action(player, 80, 5,0,0,0);
+              set_players_packet_action(player, PckA_Unknown080, 5,0,0,0);
         }
         turn_off_roaming_menus();
       }
@@ -621,17 +621,17 @@ TbBool get_level_lost_inputs(void)
         cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->field_2 & 0x02) == 0)
         {
-          set_players_packet_action(player, 33, player->controlled_thing_idx,0,0,0);
+          set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
           inp_done = true;
         }
       } else
       {
-        set_players_packet_action(player, 33, player->controlled_thing_idx,0,0,0);
+        set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
         inp_done = true;
       }
       break;
     case PVT_CreaturePasngr:
-      set_players_packet_action(player, 32, player->controlled_thing_idx,0,0,0);
+      set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
       break;
     case PVT_MapScreen:
       if ( menu_is_active(GMnu_SPELL_LOST) )
@@ -816,7 +816,7 @@ short get_creature_control_action_inputs(void)
     if (make_packet)
     {
       right_button_released = 0;
-      set_players_packet_action(player, 33, player->controlled_thing_idx,0,0,0);
+      set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
     }
   }
   if ( is_key_pressed(KC_TAB,KMod_NONE) )
@@ -854,7 +854,7 @@ short get_creature_control_action_inputs(void)
       {
         if ( numkey == num_avail )
         {
-          set_players_packet_action(player, 39, instnce,0,0,0);
+          set_players_packet_action(player, PckA_Unknown039, instnce,0,0,0);
           break;
         }
         num_avail++;
@@ -1588,13 +1588,13 @@ short get_inputs(void)
           player->field_1 |= 0x01;
         else
           player->field_1 &= 0xFE;
-        set_players_packet_action(player, 80, 4,0,0,0);
+        set_players_packet_action(player, PckA_Unknown080, 4,0,0,0);
       }
       return false;
   case 6:
       if (player->field_37 != 7)
       {
-        set_players_packet_action(player, 80, 1,0,0,0);
+        set_players_packet_action(player, PckA_Unknown080, 1,0,0,0);
       }
       return false;
   default:

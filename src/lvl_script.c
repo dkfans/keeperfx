@@ -1504,7 +1504,7 @@ void command_set_music(long val)
   {
     SCRPTWRNLOG("Music set inside conditional block");
   }
-  game.field_1506D5 = val;
+  game.music_track_index = val;
 }
 
 void command_set_hate(long a1, long a2, long a3)
@@ -2632,7 +2632,7 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
       return dungeon->num_active_creatrs - count_player_creatures_not_counting_to_total(plyr_idx);
   case SVar_TOTAL_RESEARCH:
       dungeon = get_dungeon(plyr_idx);
-      return dungeon->field_117D / 256;
+      return dungeon->total_research_points / 256;
   case SVar_TOTAL_DOORS:
       dungeon = get_dungeon(plyr_idx);
       return dungeon->total_doors;
@@ -2682,13 +2682,13 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
       return get_room_slabs_count(plyr_idx, validx);
   case SVar_DOORS_DESTROYED:
       dungeon = get_dungeon(plyr_idx);
-      return dungeon->field_945;
+      return dungeon->doors_destroyed;
   case SVar_CREATURES_SCAVENGED_LOST:
       dungeon = get_dungeon(plyr_idx);
-      return dungeon->field_98D;
+      return dungeon->creatures_summoned;
   case SVar_CREATURES_SCAVENGED_GAINED:
       dungeon = get_dungeon(plyr_idx);
-      return dungeon->field_98B;
+      return dungeon->creatures_scavenged;
   case SVar_AVAILABLE_MAGIC: // IF_AVAILABLE(MAGIC)
       dungeon = get_dungeon(plyr_idx);
       return dungeon->magic_level[validx%KEEPER_SPELLS_COUNT];

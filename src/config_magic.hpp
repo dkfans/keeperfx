@@ -50,7 +50,7 @@ enum SpellKind {
     SplK_Slow,
     SplK_Drain,
     SplK_Fear,
-    SplK_Missile,
+    SplK_Missile,//[15]
     SplK_NavigMissile,
     SplK_FlameBreath,
     SplK_Wind,

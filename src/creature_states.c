@@ -1898,7 +1898,7 @@ short seek_the_enemy(struct Thing *thing)
         dist = get_2d_box_distance(&enemytng->mappos, &thing->mappos);
         if (creature_can_hear_within_distance(thing, dist))
         {
-            if (cctrl->instance_id == 0)
+            if (cctrl->instance_id == CrInst_NULL)
             {
               if ((dist < 2304) && (game.play_gameturn-cctrl->field_282 < 20))
               {

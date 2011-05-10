@@ -809,16 +809,16 @@ void maintain_zoom_to_event(struct GuiButton *gbtn)
   struct Dungeon *dungeon;
   struct Event *event;
   dungeon = get_players_num_dungeon(my_player_number);
-  if (dungeon->field_1173)
+  if (dungeon->visible_event_idx)
   {
-    event = &(game.event[dungeon->field_1173]);
+    event = &(game.event[dungeon->visible_event_idx]);
     if ((event->mappos_x != 0) || (event->mappos_y != 0))
     {
       gbtn->field_0 |= 0x08;
       return;
     }
   }
-  gbtn->field_0 &= 0xF7u;
+  gbtn->field_0 &= ~0x08;
 }
 
 void maintain_scroll_up(struct GuiButton *gbtn)
@@ -885,6 +885,10 @@ void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn)
   set_flag_byte(&gbtn->field_0, 0x08, (high_score_entry_input_active == -1));
 }
 
+/** Calculates average efficiency of player's rooms.
+ * @param plyr_idx Player for whom statistic is to be calculated.
+ * @return Statistic value.
+ */
 long calculate_efficiency(long plyr_idx)
 {
     struct Dungeon *dungeon;
@@ -965,6 +969,11 @@ long calculate_style(long plyr_idx)
         return 100;
 }
 
+/** Calculates rating, a level summary statistic parameter.
+ *  Rating is based on other level parameters, like style, efficiency, score and amount of won/lost battles.
+ * @param plyr_idx Player for whom statistic is to be calculated.
+ * @return Statistic value.
+ */
 long calculate_rating(long plyr_idx)
 {
     struct Dungeon *dungeon;
@@ -1104,28 +1113,28 @@ void frontstats_initialise(void)
     struct Dungeon *dungeon;
     //_DK_frontstats_initialise();
     dungeon = get_my_dungeon();
-    dungeon->lvstats.time2 = timeGetTime();
+    dungeon->lvstats.end_time = timeGetTime();
     dungeon->lvstats.num_creatures = dungeon->num_active_creatrs;
     dungeon->lvstats.imps_deployed = dungeon->num_active_diggers;
     dungeon->lvstats.battles_won = dungeon->battles_won;
     dungeon->lvstats.battles_lost = dungeon->battles_lost;
     dungeon->lvstats.money = dungeon->total_money_owned;
     dungeon->lvstats.dngn_breached_count = dungeon->times_broken_into;
-    dungeon->lvstats.doors_destroyed = dungeon->field_945;
+    dungeon->lvstats.doors_destroyed = dungeon->doors_destroyed;
     dungeon->lvstats.rooms_destroyed = dungeon->rooms_destroyed;
     dungeon->lvstats.dungeon_area = dungeon->total_area;
-    dungeon->lvstats.ideas_researched = (dungeon->field_117D >> 8);
-    dungeon->lvstats.creatures_scavenged = dungeon->field_98B;
-    dungeon->lvstats.creatures_summoned = dungeon->field_98D;
+    dungeon->lvstats.ideas_researched = (dungeon->total_research_points >> 8);
+    dungeon->lvstats.creatures_scavenged = dungeon->creatures_scavenged;
+    dungeon->lvstats.creatures_summoned = dungeon->creatures_summoned;
     dungeon->lvstats.spells_stolen = dungeon->spells_stolen;
     dungeon->lvstats.gold_pots_stolen = dungeon->gold_pots_stolen;
-    dungeon->lvstats.field_15C  = calculate_efficiency(my_player_number);
-    dungeon->lvstats.field_160 = calculate_rating(my_player_number);
-    dungeon->lvstats.field_164 = calculate_style(my_player_number);
+    dungeon->lvstats.average_room_efficiency  = calculate_efficiency(my_player_number);
+    dungeon->lvstats.player_rating = calculate_rating(my_player_number);
+    dungeon->lvstats.player_style = calculate_style(my_player_number);
     dungeon->lvstats.doors_unused = calculate_doors_unused(my_player_number);
     dungeon->lvstats.traps_unused = calculate_traps_unused(my_player_number);
     dungeon->lvstats.num_rooms = calculate_num_rooms(my_player_number);
-    dungeon->lvstats.field_174 = (dungeon->lvstats.time2 - dungeon->lvstats.time1) / 1000;
+    dungeon->lvstats.gameplay_time = (dungeon->lvstats.end_time - dungeon->lvstats.start_time) / 1000;
     dungeon->lvstats.num_entrances = calculate_entrances(my_player_number);
     dungeon->lvstats.hopes_dashed = game.play_gameturn;
     memcpy(&frontstats_data, &dungeon->lvstats, sizeof(struct LevelStats));
@@ -1239,7 +1248,7 @@ void gui_quit_game(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
   player = get_my_player();
-  set_players_packet_action(player, 1, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
 }
 
 void gui_area_slider(struct GuiButton *gbtn)

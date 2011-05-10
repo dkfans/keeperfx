@@ -118,9 +118,9 @@ void store_localised_game_structure(void)
   boing.field_17 = game.chosen_spell_type;
   boing.field_1B = game.chosen_spell_look;
   boing.field_1F = game.chosen_spell_tooltip;
-  boing.field_23 = game.numfield_151819;
+  boing.field_23 = game.manufactr_element;
   boing.field_27 = game.numfield_15181D;
-  boing.field_2B = game.numfield_151821;
+  boing.field_2B = game.manufactr_tooltip;
 
 }
 
@@ -141,9 +141,9 @@ void recall_localised_game_structure(void)
     game.chosen_spell_type = boing.field_17;
     game.chosen_spell_look = boing.field_1B;
     game.chosen_spell_tooltip = boing.field_1F;
-    game.numfield_151819 = boing.field_23;
+    game.manufactr_element = boing.field_23;
     game.numfield_15181D = boing.field_27;
-    game.numfield_151821 = boing.field_2B;
+    game.manufactr_tooltip = boing.field_2B;
 }
 
 void resync_game(void)

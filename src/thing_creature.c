@@ -1890,7 +1890,7 @@ void set_creature_instance(struct Thing *thing, long inst_idx, long a2, long a3,
         cctrl->field_AF = i;
     }
     get_creature_instance_times(thing, inst_idx, &itime, &aitime);
-    if ((cctrl->instance_id > 0) && (cctrl->instance_id == inst_idx))
+    if ((cctrl->instance_id != CrInst_NULL) && (cctrl->instance_id == inst_idx))
     {
         if (inst_inf->field_1A)
         {
@@ -2643,7 +2643,7 @@ struct Thing *pick_up_creature_of_breed_and_gui_job(long breed, long job_idx, lo
     {
         if ((job_idx == -1) || (dungeon->job_breeds_count[breed][job_idx & 0x03]))
         {
-            set_players_packet_action(get_my_player(), 90, thing->index, 0, 0, 0);
+            set_players_packet_action(get_my_player(), PckA_Unknown090, thing->index, 0, 0, 0);
         }
     } else
     {
@@ -3148,7 +3148,7 @@ long update_creature(struct Thing *thing)
         kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
         return 0;
     }
-    if (game.field_150356)
+    if (game.field_150356 != 0)
     {
         if ((cctrl->field_2EF != 0) && (cctrl->field_2EF <= game.play_gameturn))
         {

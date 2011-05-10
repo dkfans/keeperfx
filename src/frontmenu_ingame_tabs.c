@@ -466,7 +466,7 @@ void gui_turn_on_autopilot(struct GuiButton *gbtn)
     player = get_my_player();
     if (player->victory_state != VicS_LostLevel)
     {
-      set_players_packet_action(player, 107, 0, 0, 0, 0);
+      set_players_packet_action(player, PckA_ToggleComputer, 0, 0, 0, 0);
     }
 }
 
@@ -512,7 +512,7 @@ void gui_area_event_button(struct GuiButton *gbtn)
     {
       draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
     } else
-    if (dungeon->field_13A7[i&0xFF] == dungeon->field_1173)
+    if (dungeon->field_13A7[i&0xFF] == dungeon->visible_event_idx)
     {
       draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
     } else
@@ -576,12 +576,12 @@ void choose_workshop_item(int kind, int tooltip_id)
 
     player = get_my_player();
     trap_dat = &trap_data[kind%MANUFCTR_TYPES_COUNT];
-    set_players_packet_action(player, 36, trap_dat->field_0,
+    set_players_packet_action(player, PckA_SetPlyrState, trap_dat->field_0,
         trap_dat->field_4, 0, 0);
 
-    game.numfield_151819 = kind;
+    game.manufactr_element = kind;
     game.numfield_15181D = trap_dat->field_8;
-    game.numfield_151821 = tooltip_id;
+    game.manufactr_tooltip = tooltip_id;
 }
 
 void gui_choose_trap(struct GuiButton *gbtn)
@@ -724,16 +724,17 @@ void maintain_big_trap(struct GuiButton *gbtn)
 {
     struct Dungeon *dungeon;
     struct TrapData *trap_dat;
-    int i;
+    int i,n;
     //_DK_maintain_big_trap(gbtn);
-    trap_dat = &trap_data[game.numfield_151819%MANUFCTR_TYPES_COUNT];
+    n = game.manufactr_element%MANUFCTR_TYPES_COUNT;
+    trap_dat = &trap_data[n];
     dungeon = get_players_num_dungeon(my_player_number);
-    gbtn->content = (unsigned long *)game.numfield_151819;
+    gbtn->content = (unsigned long *)n;
     gbtn->field_29 = game.numfield_15181D;
-    gbtn->tooltip_id = game.numfield_151821;
+    gbtn->tooltip_id = game.manufactr_tooltip;
     i = trap_dat->field_0;
-    if ( ((i == 16) && (dungeon->trap_amount[game.numfield_151819] > 0))
-      || ((i == 18) && (dungeon->door_amount[game.numfield_151819] > 0)) )
+    if ( ((i == 16) && (dungeon->trap_amount[n] > 0))
+      || ((i == 18) && (dungeon->door_amount[n] > 0)) )
     {
         gbtn->field_1B = 0;
         gbtn->field_0 |= 0x08;
@@ -1027,9 +1028,9 @@ void maintain_event_button(struct GuiButton *gbtn)
   i = (unsigned long)gbtn->content;
   evnt_idx = dungeon->field_13A7[i&0xFF];
 
-  if ((dungeon->field_1173 != 0) && (evnt_idx == dungeon->field_1173))
+  if ((dungeon->visible_event_idx != 0) && (evnt_idx == dungeon->visible_event_idx))
   {
-      turn_on_event_info_panel_if_necessary(dungeon->field_1173);
+      turn_on_event_info_panel_if_necessary(dungeon->visible_event_idx);
   }
 
   if (evnt_idx == 0)
@@ -1142,7 +1143,7 @@ void spell_lost_first_person(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
   player=get_my_player();
-  set_players_packet_action(player, 110, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_Unknown110, 0, 0, 0, 0);
 }
 
 void gui_set_tend_to(struct GuiButton *gbtn)

@@ -62,7 +62,7 @@ short creature_moan(struct Thing *thing)
     cctrl->field_282 = i;
     if (i <= 0)
     {
-      if (cctrl->instance_id == 0)
+      if (cctrl->instance_id == CrInst_NULL)
         set_start_state(thing);
       return 0;
     }
@@ -71,7 +71,7 @@ short creature_moan(struct Thing *thing)
         play_creature_sound(thing, 4, 2, 0);
         cctrl->long_9A = game.play_gameturn;
     }
-    if (cctrl->instance_id == 0) {
+    if (cctrl->instance_id == CrInst_NULL) {
         set_creature_instance(thing, CrInst_MOAN, 1, 0, 0);
     }
     return 1;

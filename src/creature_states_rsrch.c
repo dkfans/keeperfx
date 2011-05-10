@@ -21,6 +21,7 @@
 
 #include "bflib_math.h"
 #include "creature_states.h"
+#include "creature_instances.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "config_creature.h"
@@ -279,7 +280,7 @@ short researching(struct Thing *thing)
       cctrl->long_9A = 0;
       return 1;
     }
-    if ( cctrl->instance_id )
+    if (cctrl->instance_id != CrInst_NULL)
       return 1;
     cctrl->field_82++;
     // Shall we do some "Standing and thinking"

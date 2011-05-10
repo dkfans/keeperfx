@@ -24,6 +24,7 @@
 #include "bflib_sound.h"
 #include "config_creature.h"
 #include "creature_states.h"
+#include "creature_instances.h"
 #include "thing_stats.h"
 #include "frontend.h"
 #include "lens_api.h"
@@ -237,7 +238,7 @@ void clear_creature_instance(struct Thing *thing)
 {
   struct CreatureControl *cctrl;
   cctrl = creature_control_get_from_thing(thing);
-  cctrl->instance_id = 0;
+  cctrl->instance_id = CrInst_NULL;
   cctrl->field_D4 = 0;
 }
 
