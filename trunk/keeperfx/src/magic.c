@@ -290,18 +290,18 @@ void magic_use_power_hold_audience(unsigned char idx)
 TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
     //_DK_magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, splevel);
-    if (!can_cast_spell_at_xy(plyr_idx, 15, stl_x, stl_y, 0)
-     || !can_cast_spell_on_creature(plyr_idx, thing, 15))
+    if (!can_cast_spell_at_xy(plyr_idx, PwrK_CHICKEN, stl_x, stl_y, 0)
+     || !can_cast_spell_on_creature(plyr_idx, thing, PwrK_CHICKEN))
     {
         if (is_my_player_number(plyr_idx))
             play_non_3d_sample(119);
         return Lb_OK;
     }
     // If this spell is already casted at that creature, do nothing
-    if (thing_affected_by_spell(thing, 27))
+    if (thing_affected_by_spell(thing, SplK_Chicken))
         return Lb_OK;
     // If we can't afford the spell, fail
-    if (!pay_for_spell(plyr_idx, 15, splevel))
+    if (!pay_for_spell(plyr_idx, PwrK_CHICKEN, splevel))
         return Lb_FAIL;
     // Check if the creature kind isn't affected by that spell
     if ((get_creature_model_flags(thing) & MF_NeverChickens) != 0)
@@ -309,7 +309,7 @@ TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, Map
         return Lb_SUCCESS;
     }
     thing_play_sample(thing, 109, 100, 0, 3, 0, 2, 256);
-    apply_spell_effect_to_thing(thing, 27, splevel);
+    apply_spell_effect_to_thing(thing, SplK_Chicken, splevel);
     return Lb_SUCCESS;
 }
 
@@ -320,7 +320,7 @@ void magic_use_power_disease(unsigned char a1, struct Thing *thing, long a3, lon
 
 TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    if (!can_cast_spell_at_xy(plyr_idx, 16, stl_x, stl_y, 0))
+    if (!can_cast_spell_at_xy(plyr_idx, PwrK_DESTRWALLS, stl_x, stl_y, 0))
     {
         if (is_my_player_number(plyr_idx))
             play_non_3d_sample(119);
@@ -339,7 +339,7 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     struct Thing *dnheart;
     struct Coord3d pos;
     //return _DK_magic_use_power_imp(plyr_idx, x, y);
-    if (!can_cast_spell_at_xy(plyr_idx, 2, stl_x, stl_y, 0)
+    if (!can_cast_spell_at_xy(plyr_idx, PwrK_MKDIGGER, stl_x, stl_y, 0)
      || !i_can_allocate_free_control_structure()
      || !i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots))
     {
@@ -347,7 +347,7 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
           play_non_3d_sample(119);
       return Lb_SUCCESS; //TODO SPELLS we should return Lb_OK here; make sure it will work the same way, then change
     }
-    if (!pay_for_spell(plyr_idx, 2, 0))
+    if (!pay_for_spell(plyr_idx, PwrK_MKDIGGER, 0))
     {
         return Lb_FAIL;
     }
@@ -485,7 +485,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     if (splevel < 0)
         splevel = 0;
     // Check if we can cast that spell
-    if (!can_cast_spell_at_xy(plyr_idx, 10, stl_x, stl_y, 0))
+    if (!can_cast_spell_at_xy(plyr_idx, PwrK_LIGHTNING, stl_x, stl_y, 0))
     {
         // Make a rejection sound
         if (is_my_player_number(plyr_idx))
@@ -493,7 +493,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         return Lb_OK;
     }
     // Pay for it
-    if (!pay_for_spell(plyr_idx, 10, splevel))
+    if (!pay_for_spell(plyr_idx, PwrK_LIGHTNING, splevel))
     {
         return Lb_FAIL;
     }

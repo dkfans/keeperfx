@@ -146,7 +146,7 @@ long process_prison_visuals(struct Thing *thing, struct Room *room)
 {
   struct CreatureControl *cctrl;
   cctrl = creature_control_get_from_thing(thing);
-  if (cctrl->instance_id != 0)
+  if (cctrl->instance_id != CrInst_NULL)
     return Lb_OK;
   if (game.play_gameturn-cctrl->field_82 > 200)
   {
@@ -261,7 +261,7 @@ long process_prison_function(struct Thing *thing)
   process_creature_hunger(thing);
   if ( process_prisoner_skelification(thing,room) )
     return -1;
-  if ((cctrl->instance_id == 0) && process_prison_food(thing, room) )
+  if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(thing, room) )
     return 1;
   // Rest of the actions are done only once per 64 turns
   if ((game.play_gameturn & 0x3F) != 0)

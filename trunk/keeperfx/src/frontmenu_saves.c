@@ -145,7 +145,7 @@ void gui_load_game(struct GuiButton *gbtn)
       quit_game = 1;
       return;
   }
-  set_players_packet_action(player, 22, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
 }
 
 void draw_load_button(struct GuiButton *gbtn)
@@ -274,7 +274,7 @@ void init_load_menu(struct GuiMenu *gmnu)
   struct PlayerInfo *player;
   SYNCDBG(6,"Starting");
   player = get_my_player();
-  set_players_packet_action(player, 82, 1, 1, 0, 0);
+  set_players_packet_action(player, PckA_Unknown082, 1, 1, 0, 0);
   load_game_save_catalogue();
   update_loadsave_input_strings(save_game_catalogue);
 }
@@ -284,7 +284,7 @@ void init_save_menu(struct GuiMenu *gmnu)
   struct PlayerInfo *player;
   SYNCDBG(6,"Starting");
   player = get_my_player();
-  set_players_packet_action(player, 82, 1, 1, 0, 0);
+  set_players_packet_action(player, PckA_Unknown082, 1, 1, 0, 0);
   load_game_save_catalogue();
   update_loadsave_input_strings(save_game_catalogue);
 }
