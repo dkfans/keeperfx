@@ -179,7 +179,7 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
           set_start_state(thing);
       }
     }
-    if (cctrl->instance_id == 0)
+    if (cctrl->instance_id == CrInst_NULL)
     {
       set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 1, 0, 0);
     }
@@ -262,7 +262,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
     switch (cctrl->byte_9A)
     {
     case CrTrMd_Value1:
-        if (cctrl->instance_id != 0)
+        if (cctrl->instance_id != CrInst_NULL)
             break;
         if (cctrl->byte_9E <= 1)
         {
@@ -403,13 +403,13 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
               cctrl->byte_9B--;
               if (cctrl->byte_9B > 0)
               {
-                if ((cctrl->instance_id == 0) && ((cctrl->byte_9B % 8) == 0))
+                if ((cctrl->instance_id == CrInst_NULL) && ((cctrl->byte_9B % 8) == 0))
                 {
                     set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 1, 0, 0);
                 }
               } else
               {
-                if (cctrl->instance_id == 0)
+                if (cctrl->instance_id == CrInst_NULL)
                 {
                     setup_move_to_new_training_position(thing, room, 0);
                     cctrl->word_9F = 0;
@@ -430,13 +430,13 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         cctrl->byte_9B--;
         if (cctrl->byte_9B > 0)
         {
-          if ((cctrl->instance_id == 0) && ((cctrl->byte_9B % 8) == 0))
+          if ((cctrl->instance_id == CrInst_NULL) && ((cctrl->byte_9B % 8) == 0))
           {
               set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 1, 0, 0);
           }
         } else
         {
-          if (cctrl->instance_id == 0)
+          if (cctrl->instance_id == CrInst_NULL)
           {
               setup_move_to_new_training_position(thing, room, 1);
           } else

@@ -99,7 +99,7 @@ void gui_open_event(struct GuiButton *gbtn)
     evnt_idx = dungeon->field_13A7[idx];
   else
     evnt_idx = 0;
-  if (evnt_idx == dungeon->field_1173)
+  if (evnt_idx == dungeon->visible_event_idx)
   {
     gui_close_objective(gbtn);
   } else
@@ -131,7 +131,7 @@ void activate_event_box(long evnt_idx)
 {
   struct PlayerInfo *player;
   player = get_my_player();
-  set_players_packet_action(player, 115, evnt_idx, 0,0,0);
+  set_players_packet_action(player, PckA_Unknown115, evnt_idx, 0,0,0);
 }
 
 void gui_previous_battle(struct GuiButton *gbtn)

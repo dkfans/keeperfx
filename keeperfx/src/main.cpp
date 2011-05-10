@@ -3228,11 +3228,11 @@ void zoom_to_map(void)
   {
     if (!toggle_status_menu(false))
       set_flag_byte(&game.numfield_C,0x40,false);
-    set_players_packet_action(player, 119, 4, 0, 0, 0);
+    set_players_packet_action(player, PckA_Unknown119, 4, 0, 0, 0);
     turn_off_roaming_menus();
   } else
   {
-    set_players_packet_action(player, 80, 5, 0, 0, 0);
+    set_players_packet_action(player, PckA_Unknown080, 5, 0, 0, 0);
     turn_off_roaming_menus();
   }
 }
@@ -3246,10 +3246,10 @@ void zoom_from_map(void)
   {
       if ((game.numfield_C & 0x40) != 0)
         toggle_status_menu(true);
-      set_players_packet_action(player, 120,1,0,0,0);
+      set_players_packet_action(player, PckA_Unknown120,1,0,0,0);
   } else
   {
-      set_players_packet_action(player, 80,6,0,0,0);
+      set_players_packet_action(player, PckA_Unknown080,6,0,0,0);
   }
 }
 
@@ -3772,13 +3772,13 @@ short zoom_to_next_annoyed_creature(void)
   struct Thing *thing;
   player = get_my_player();
   dungeon = get_players_num_dungeon(my_player_number);
-  dungeon->field_1177 = find_next_annoyed_creature(player->id_number,dungeon->field_1177);
-  thing = thing_get(dungeon->field_1177);
+  dungeon->zoom_annoyed_creature_idx = find_next_annoyed_creature(player->id_number,dungeon->zoom_annoyed_creature_idx);
+  thing = thing_get(dungeon->zoom_annoyed_creature_idx);
   if (thing_is_invalid(thing))
   {
     return false;
   }
-  set_players_packet_action(player, 87, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
+  set_players_packet_action(player, PckA_Unknown087, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
   return true;
 }
 
@@ -3890,7 +3890,7 @@ TbBool set_default_startup_parameters(void)
 void clear_complete_game(void)
 {
     memset(&game, 0, sizeof(struct Game));
-    game.numfield_149F42 = -1;
+    game.turns_packetoff = -1;
     game.numfield_149F46 = 0;
     game.packet_checksum = start_params.packet_checksum;
     game.numfield_1503A2 = -1;
@@ -5472,30 +5472,30 @@ short process_player_manufacturing(long plr_idx)
   dungeon = get_players_num_dungeon(plr_idx);
   if (player_has_room_of_type(plr_idx, 8) == NULL)
     return true;
-  if (dungeon->field_1189 == 0)
+  if (dungeon->manufacture_type == 0)
   {
     get_next_manufacture(dungeon);
     return true;
   }
-  k = manufacture_required(dungeon->field_1189, dungeon->field_118A, __func__);
+  k = manufacture_required(dungeon->manufacture_type, dungeon->manufacture_kind, __func__);
   if (dungeon->field_1185 < (k << 8))
     return true;
 
   if (find_room_with_spare_room_item_capacity(plr_idx, 8) == NULL)
   {
-    dungeon->field_1189 = 0;
+    dungeon->manufacture_type = 0;
     return false;
   }
-  if (create_workshop_object_in_workshop_room(plr_idx, dungeon->field_1189, dungeon->field_118A) == 0)
+  if (create_workshop_object_in_workshop_room(plr_idx, dungeon->manufacture_type, dungeon->manufacture_kind) == 0)
   {
     ERRORLOG("Could not create manufactured item");
     return false;
   }
 
-  switch (dungeon->field_1189)
+  switch (dungeon->manufacture_type)
   {
   case 8:
-      i = dungeon->field_118A%TRAP_TYPES_COUNT;
+      i = dungeon->manufacture_kind%TRAP_TYPES_COUNT;
       if (dungeon->trap_amount[i] >= MANUFACTURED_ITEMS_LIMIT)
       {
         ERRORLOG("Bad trap choice for manufacturing - limit reached");
@@ -5510,7 +5510,7 @@ short process_player_manufacturing(long plr_idx)
         output_message(SMsg_ManufacturedTrap, 0, true);
       break;
   case 9:
-      i = dungeon->field_118A%DOOR_TYPES_COUNT;
+      i = dungeon->manufacture_kind%DOOR_TYPES_COUNT;
       if (dungeon->door_amount[i] >= MANUFACTURED_ITEMS_LIMIT)
       {
         ERRORLOG("Bad door choice for manufacturing - limit reached");
@@ -6487,7 +6487,7 @@ short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, lon
   game.hand_over_subtile_y = curr_y;
   if (subtile_has_slab(curr_x, curr_y))
   {
-    set_players_packet_action(player, 26, curr_x, curr_y, 0, 0);
+    set_players_packet_action(player, PckA_BookmarkLoad, curr_x, curr_y, 0, 0);
   }
   return 1;
 }
@@ -6513,7 +6513,7 @@ short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, lo
         if (subtile_has_slab(curr_x, curr_y))
         {
           result = 1;
-          set_players_packet_action(player, 26, curr_x, curr_y, 0, 0);
+          set_players_packet_action(player, PckA_BookmarkLoad, curr_x, curr_y, 0, 0);
         }
       }
     grabbed_small_map = 0;
@@ -7248,7 +7248,7 @@ short display_should_be_updated_this_turn(void)
 {
     if ((game.numfield_C & 0x01) != 0)
       return true;
-    if ( (game.turns_fastforward==0) && (!game.numfield_149F38) )
+    if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) )
     {
       find_frame_rate();
       if ( (game.frame_skip == 0) || ((game.play_gameturn % game.frame_skip) == 0))
@@ -7413,7 +7413,7 @@ void keeper_gameplay_loop(void)
       // Make delay if the machine is too fast
       if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) )
           keeper_wait_for_next_turn();
-      if (game.numfield_149F42 == game.play_gameturn)
+      if (game.turns_packetoff == game.play_gameturn)
           exit_keeper = 1;
   } // end while
   SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
@@ -8055,9 +8055,9 @@ void init_level(void)
     game.chosen_spell_type = 0;
     game.chosen_spell_look = 0;
     game.chosen_spell_tooltip = 0;
-    game.numfield_151819 = 0;
+    game.manufactr_element = 0;
     game.numfield_15181D = 0;
-    game.numfield_151821 = 0;
+    game.manufactr_tooltip = 0;
 }
 
 void pannel_map_update(long x, long y, long w, long h)
@@ -8274,8 +8274,8 @@ void startup_saved_packet_game(void)
     if ( game.packet_checksum )
       SYNCMSG("Packet Checksum Active");
     SYNCMSG("Fast Forward through %d game turns", game.turns_fastforward);
-    if (game.numfield_149F42 != -1)
-      SYNCMSG("Packet Quit at %d", game.numfield_149F42);
+    if (game.turns_packetoff != -1)
+      SYNCMSG("Packet Quit at %d", game.turns_packetoff);
     if (game.packet_load_enable)
     {
       if (game.log_things_end_turn != game.log_things_start_turn)
@@ -8567,8 +8567,8 @@ void game_loop(void)
     // get_my_dungeon() can't be used here because players are not initialized yet
     dungeon = get_dungeon(my_player_number);
     starttime = LbTimerClock();
-    dungeon->lvstats.time1 = timeGetTime();//starttime;
-    dungeon->lvstats.time2 = timeGetTime();//starttime;
+    dungeon->lvstats.start_time = timeGetTime();//starttime;
+    dungeon->lvstats.end_time = timeGetTime();//starttime;
     LbScreenClear(0);
     LbScreenSwap();
     keeper_gameplay_loop();

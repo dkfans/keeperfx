@@ -21,6 +21,7 @@
 
 #include "bflib_math.h"
 #include "creature_states.h"
+#include "creature_instances.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "config_creature.h"
@@ -58,7 +59,7 @@ short creature_eat(struct Thing *thing)
   struct CreatureControl *cctrl;
   //return _DK_creature_eat(thing);
   cctrl = creature_control_get_from_thing(thing);
-  if (cctrl->instance_id != 36)
+  if (cctrl->instance_id != CrInst_EAT)
     internal_set_thing_state(thing, thing->continue_state);
   return 1;
 }

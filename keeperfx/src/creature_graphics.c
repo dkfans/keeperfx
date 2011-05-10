@@ -305,9 +305,9 @@ void update_creature_graphic_anim(struct Thing *thing)
     } else
     if ((cctrl->field_AD & 0x02) == 0)
     {
-        if (cctrl->instance_id != 0)
+        if (cctrl->instance_id != CrInst_NULL)
         {
-          if (cctrl->instance_id == 45)
+          if (cctrl->instance_id == CrInst_TORTURED)
           {
               thing->field_4F &= ~0x30;
           }
