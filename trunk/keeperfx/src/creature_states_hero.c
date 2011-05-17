@@ -380,7 +380,7 @@ short good_doing_nothing(struct Thing *thing)
         ERRORLOG("Invalid creature control; no action");
         return 0;
     }
-    nturns = game.play_gameturn - cctrl->long_9A;
+    nturns = game.play_gameturn - cctrl->idle.start_gameturn;
     if (nturns <= 1) {
         return 1;
     }
