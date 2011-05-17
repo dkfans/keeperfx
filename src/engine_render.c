@@ -2518,7 +2518,7 @@ void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struc
           convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
           if (is_free_space_in_poly_pool(1))
           {
-            add_unkn16_to_polypool(cx, cy, thing->long_13, 1);
+            add_unkn16_to_polypool(cx, cy, thing->creature.gold_carried, 1);
           }
           break;
   case 5:
@@ -2536,10 +2536,10 @@ void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struc
             thing->long_15 = game.play_gameturn;
             if (thing->field_19 == 40)
             {
-              add_unkn17_to_polypool(cx, cy, thing->long_13, cz-3);
+              add_unkn17_to_polypool(cx, cy, thing->creature.gold_carried, cz-3);
               if (is_free_space_in_poly_pool(1))
               {
-                add_unkn19_to_polypool(cx, cy, thing->long_13, 1);
+                add_unkn19_to_polypool(cx, cy, thing->creature.gold_carried, 1);
               }
             }
           }

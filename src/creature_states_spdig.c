@@ -522,7 +522,7 @@ short imp_digs_mines(struct Thing *thing)
     {
         crstat = creature_stats_get_from_thing(thing);
         // If the creature holds more gold than its able
-        if (thing->long_13 > crstat->gold_hold)
+        if (thing->creature.gold_carried > crstat->gold_hold)
         {
           if (game.play_gameturn - cctrl->field_2C7 > 128)
           {
@@ -531,8 +531,8 @@ short imp_digs_mines(struct Thing *thing)
             cctrl->field_2C7 = game.play_gameturn;
           }
 
-          drop_gold_pile(thing->long_13 - crstat->gold_hold, &thing->mappos);
-          thing->long_13 = crstat->gold_hold;
+          drop_gold_pile(thing->creature.gold_carried - crstat->gold_hold, &thing->mappos);
+          thing->creature.gold_carried = crstat->gold_hold;
         }
     }
     return 1;

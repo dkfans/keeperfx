@@ -97,7 +97,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
     case 3:
     case 6:
     case 43:
-      i = thing->long_13;
+      i = thing->creature.gold_carried;
       if (i != 0)
       {
         pos.x.val = thing->mappos.x.val;

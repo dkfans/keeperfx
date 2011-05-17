@@ -251,7 +251,7 @@ long instf_dig(struct Thing *thing, long *param)
             if (gold <= 1)
               gold = 1;
           }
-          thing->long_13 += gold;
+          thing->creature.gold_carried += gold;
           dungeon->lvstats.gold_mined += gold;
         }
         return 0;
@@ -260,7 +260,7 @@ long instf_dig(struct Thing *thing, long *param)
     if (taskkind == 2)
     {
         gold = (game.gold_per_gold_block * (long)slb->field_4) / game.block_health[1];
-        thing->long_13 += gold;
+        thing->creature.gold_carried += gold;
         dungeon->lvstats.gold_mined += gold;
         mine_out_block(stl_x, stl_y, thing->owner);
         if (dig_has_revealed_area(stl_x, stl_y, thing->owner))

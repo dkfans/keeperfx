@@ -719,22 +719,22 @@ short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obth
   long i;
   crstat = creature_stats_get_from_thing(crthing);
   cctrl = creature_control_get_from_thing(crthing);
-  if (obthing->long_13 <= 0)
+  if (obthing->creature.gold_carried <= 0)
   {
     ERRORLOG("GoldPile had no gold so was deleted.");
     delete_thing_structure(obthing, 0);
     return false;
   }
-  if (crthing->long_13 < crstat->gold_hold)
+  if (crthing->creature.gold_carried < crstat->gold_hold)
   {
-    if (obthing->long_13+crthing->long_13 > crstat->gold_hold)
+    if (obthing->creature.gold_carried+crthing->creature.gold_carried > crstat->gold_hold)
     {
-      i = crstat->gold_hold-crthing->long_13;
-      crthing->long_13 += i;
-      obthing->long_13 -= i;
+      i = crstat->gold_hold-crthing->creature.gold_carried;
+      crthing->creature.gold_carried += i;
+      obthing->creature.gold_carried -= i;
     } else
     {
-      crthing->long_13 += obthing->long_13;
+      crthing->creature.gold_carried += obthing->creature.gold_carried;
       delete_thing_structure(obthing, 0);
     }
   }
@@ -963,18 +963,18 @@ long process_creature_state(struct Thing *thing)
             if (tgthing->model == 43)
             {
               crstat = creature_stats_get_from_thing(thing);
-              if (tgthing->long_13 > 0)
+              if (tgthing->creature.gold_carried > 0)
               {
-                  if (thing->long_13 < crstat->gold_hold)
+                  if (thing->creature.gold_carried < crstat->gold_hold)
                   {
-                      if (crstat->gold_hold < tgthing->long_13 + thing->long_13)
+                      if (crstat->gold_hold < tgthing->creature.gold_carried + thing->creature.gold_carried)
                       {
-                          k = crstat->gold_hold - thing->long_13;
-                          thing->long_13 += k;
-                          tgthing->long_13 -= k;
+                          k = crstat->gold_hold - thing->creature.gold_carried;
+                          thing->creature.gold_carried += k;
+                          tgthing->creature.gold_carried -= k;
                       } else
                       {
-                          thing->long_13 += tgthing->long_13;
+                          thing->creature.gold_carried += tgthing->creature.gold_carried;
                           delete_thing_structure(tgthing, 0);
                       }
                   }
@@ -1086,7 +1086,7 @@ void throw_out_gold(struct Thing *thing)
     long angle,radius,delta;
     long x,y;
     long i;
-    for (i = thing->long_13; i > 0; i -= delta)
+    for (i = thing->creature.gold_carried; i > 0; i -= delta)
     {
         gldtng = create_object(&thing->mappos, 6, game.neutral_player_num, -1);
         if (thing_is_invalid(gldtng))
@@ -1103,7 +1103,7 @@ void throw_out_gold(struct Thing *thing)
             delta = i;
         else
             delta = 400;
-        gldtng->long_13 = delta;
+        gldtng->creature.gold_carried = delta;
     }
 }
 

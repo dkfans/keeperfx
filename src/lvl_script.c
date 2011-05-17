@@ -2471,7 +2471,7 @@ struct Thing *script_process_new_tunneller(unsigned char plyr_idx, TbMapLocation
   thing = script_create_creature_at_location(plyr_idx, 8, location);
   if (thing_is_invalid(thing))
     return INVALID_THING;
-  thing->long_13 = carried_gold;
+  thing->creature.gold_carried = carried_gold;
   init_creature_level(thing, crtr_level);
   switch (heading)
   {
@@ -2546,7 +2546,7 @@ struct Thing *script_create_new_creature(unsigned char plyr_idx, long breed, lon
   thing = script_create_creature_at_location(plyr_idx, breed, location);
   if (thing_is_invalid(thing))
     return INVALID_THING;
-  thing->long_13 = carried_gold;
+  thing->creature.gold_carried = carried_gold;
   init_creature_level(thing, crtr_level);
   return thing;
 }

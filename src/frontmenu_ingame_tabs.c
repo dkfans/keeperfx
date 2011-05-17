@@ -972,7 +972,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
         text = buf_sprintf("%ld", i);
         break;
     case 2: // gold held
-        i = thing->long_13;
+        i = thing->creature.gold_carried;
         text = buf_sprintf("%ld", i);
         break;
     case 3: // payday wage
