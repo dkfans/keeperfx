@@ -142,9 +142,13 @@ unsigned char field_88;
     unsigned char byte_8Cx;
     short word_8Dx;
     unsigned char byte_8F;
-    unsigned short word_90[3];
+    unsigned char byte_90;
+    unsigned char byte_91;
+    unsigned char byte_92;
     unsigned char byte_93;
     unsigned char last_did_job;
+    unsigned char field_95;
+    unsigned char field_96[4];
   } digger;
   struct {
     char sbyte_89;
@@ -168,6 +172,16 @@ unsigned char field_88;
   };
 
   union {
+  struct {
+        long start_gameturn;
+        long long_9Ex;
+        long long_A2x;
+  } tortured;
+  struct {
+        long start_gameturn;
+        long long_9Ex;
+        long long_A2x;
+  } idle;
   struct {
     unsigned char byte_9A;
     unsigned char byte_9B;
