@@ -556,10 +556,6 @@ short training(struct Thing *thing)
     {
         if (external_set_thing_state(thing, CrSt_CreatureBeHappy)) {
             cctrl->field_282 = 50;
-            // Imps have special way of storing previous state
-            if (thing_is_creature_special_digger(thing)) {
-                cctrl->digger.last_did_job = 4; // TODO: This actually should be set when the creature is dropped to training room
-            }
         }
         dungeon->lvstats.creatures_trained++;
     }

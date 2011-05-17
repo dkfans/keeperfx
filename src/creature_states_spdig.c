@@ -553,7 +553,7 @@ short imp_doing_nothing(struct Thing *thing)
     }
     cctrl = creature_control_get_from_thing(thing);
     dungeon = get_dungeon(thing->owner);
-    if (game.play_gameturn-cctrl->long_9A <= 1)
+    if (game.play_gameturn-cctrl->idle.start_gameturn <= 1)
         return 1;
     if (check_out_imp_last_did(thing))
         return 1;

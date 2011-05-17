@@ -977,18 +977,18 @@ long calculate_style(long plyr_idx)
 long calculate_rating(long plyr_idx)
 {
     struct Dungeon *dungeon;
-    long btwon,btlost,ratio;
+    long btlost,btwon,ratio;
     long rating;
     rating = calculate_style(plyr_idx) * calculate_efficiency(plyr_idx) / 100;
     dungeon = get_dungeon(plyr_idx);
     rating += 100 * dungeon->lvstats.player_score / 800;
-    btwon = dungeon->lvstats.battles_lost;
-    btlost = dungeon->lvstats.battles_won;
+    btlost = dungeon->lvstats.battles_lost;
+    btwon = dungeon->lvstats.battles_won;
     // Find scoring ratio
     ratio = 100;
-    if ( (btwon < btlost) && (btwon > 0) )
+    if ( (btlost < btwon) && (btlost > 0) )
     {
-        ratio = btlost / btwon;
+        ratio = btwon / btlost;
         if (ratio < 10) {
           ratio = 10;
         } else

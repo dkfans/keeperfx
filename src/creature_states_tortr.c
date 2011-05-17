@@ -54,6 +54,11 @@ DLLIMPORT long _DK_process_kinky_function(struct Thing *thing);
 }
 #endif
 /******************************************************************************/
+/** State triggered when creature reached torture chamber and is ready to start kinky torture action.
+ *
+ * @param thing The creature.
+ * @return
+ */
 short at_kinky_torture_room(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -81,7 +86,7 @@ short at_kinky_torture_room(struct Thing *thing)
     add_creature_to_torture_room(thing, room);
     cctrl->word_A6 = 0;
     cctrl->field_82 = game.play_gameturn;
-    cctrl->long_9A = game.play_gameturn;
+    cctrl->tortured.start_gameturn = game.play_gameturn;
     cctrl->long_9E = game.play_gameturn;
     cctrl->field_A8 = 1;
     cctrl->long_A2 = game.play_gameturn;
@@ -89,6 +94,11 @@ short at_kinky_torture_room(struct Thing *thing)
     return 1;
 }
 
+/** State triggered when creature reached (was dropped to) torture chamber and is ready to start torture action.
+ *
+ * @param thing The creature.
+ * @return
+ */
 short at_torture_room(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -113,7 +123,7 @@ short at_torture_room(struct Thing *thing)
     cctrl->flgfield_1 |= 0x02;
     cctrl->word_A6 = 0;
     cctrl->field_82 = game.play_gameturn;
-    cctrl->long_9A = game.play_gameturn;
+    cctrl->tortured.start_gameturn = game.play_gameturn;
     cctrl->long_9E = game.play_gameturn;
     cctrl->field_A8 = 1;
     cctrl->long_A2 = game.play_gameturn;
@@ -133,23 +143,32 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, long a3)
 
 short kinky_torturing(struct Thing *thing)
 {
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
-  struct Room *room;
-  //return _DK_kinky_torturing(thing);
-  crstat = creature_stats_get_from_thing(thing);
-  cctrl = creature_control_get_from_thing(thing);
-  room = get_room_thing_is_on(thing);
-  if (!room_is_invalid(room))
-    if ((room->kind == RoK_TORTURE) && (cctrl->work_room_id == room->index))
-      if (game.play_gameturn-cctrl->field_82 <= crstat->torture_time)
-      {
-        process_kinky_function(thing);
-        process_torture_visuals(thing, room, 110);
-        return 1;
-      }
-  set_start_state(thing);
-  return 0;
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    //return _DK_kinky_torturing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if ((room->kind != RoK_TORTURE) || (cctrl->work_room_id != room->index))
+    {
+        WARNLOG("Room %s index %d is not the one %s worked in",room_code_name(room->kind),(int)room->index,thing_model_name(thing));
+        set_start_state(thing);
+        return 0;
+    }
+    if (game.play_gameturn-cctrl->field_82 > crstat->torture_time)
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    process_kinky_function(thing);
+    process_torture_visuals(thing, room, 110);
+    return 1;
 }
 
 long process_kinky_function(struct Thing *thing)
@@ -243,7 +262,7 @@ long process_torture_function(struct Thing *thing)
     if (room->owner == thing->owner)
         return 0;
 
-    i = ((long)game.play_gameturn - cctrl->long_9A) * room->efficiency >> 8;
+    i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) * room->efficiency >> 8;
 
     if ((cctrl->spell_flags & 0x02) != 0)
       i = (4 * i) / 3;
@@ -251,15 +270,15 @@ long process_torture_function(struct Thing *thing)
       i = (5 * i) / 4;
     if ((i < crstat->torture_time) || (cctrl->word_A6 == 0))
         return 0;
-    i = (long)game.play_gameturn - crstat->torture_time - cctrl->long_9A;
-    if (ACTION_RANDOM(100) >= i/64 + 1)
+    i = (long)game.play_gameturn - crstat->torture_time - cctrl->tortured.start_gameturn;
+    if (ACTION_RANDOM(100) >= (i/64 + 1))
         return 0;
     if (ACTION_RANDOM(3) == 0)
     {
         convert_tortured_creature_owner(thing, room->owner);
         return 1;
     }
-    cctrl->long_9A = game.play_gameturn - crstat->torture_time / 2;
+    cctrl->tortured.start_gameturn = game.play_gameturn - crstat->torture_time / 2;
     reveal_players_map_to_player(thing, room->owner);
     return 0;
 }
