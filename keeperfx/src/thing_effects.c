@@ -1045,7 +1045,7 @@ struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long
     struct Thing *thing;
     thing = create_effect_element(pos, 41, plyr_idx);
     if (!thing_is_invalid(thing)) {
-        thing->long_13 = price;
+        thing->creature.gold_carried = price;
     }
     return thing;
 }

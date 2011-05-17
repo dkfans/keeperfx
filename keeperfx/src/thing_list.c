@@ -1386,10 +1386,10 @@ struct Thing *smallest_gold_pile_at_xy(long stl_x, long stl_y)
     // Per thing processing block
     if ((thing->class_id == TCls_Object) && (thing->model == 43))
     {
-        if (thing->long_13 < chosen_gold)
+        if (thing->creature.gold_carried < chosen_gold)
         {
             chosen_thing = thing;
-            chosen_gold = thing->long_13;
+            chosen_gold = thing->creature.gold_carried;
         }
     }
     // Per thing processing block ends
@@ -1464,7 +1464,7 @@ TbBool gold_pile_with_maximum_at_xy(long stl_x, long stl_y)
     // Per thing processing block
     if ((thing->class_id == TCls_Object) && (thing->model == 43))
     {
-        if (thing->long_13 >= game.gold_pile_maximum)
+        if (thing->creature.gold_carried >= game.gold_pile_maximum)
         {
             return true;
         }

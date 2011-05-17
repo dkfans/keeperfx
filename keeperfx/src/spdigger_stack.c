@@ -76,14 +76,14 @@ long const dig_pos[] = {0, -1, 1};
 /******************************************************************************/
 TbBool add_to_imp_stack_using_pos(long stl_num, long task_type, struct Dungeon *dungeon)
 {
-    struct ImpStack *istack;
-    if (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT)
+    struct DiggerStack *istack;
+    if (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT)
         return false;
-    istack = &dungeon->imp_stack[dungeon->imp_stack_length];
-    dungeon->imp_stack_length++;
+    istack = &dungeon->imp_stack[dungeon->digger_stack_length];
+    dungeon->digger_stack_length++;
     istack->field_0 = stl_num;
     istack->task_id = task_type;
-    return (dungeon->imp_stack_length < IMP_TASK_MAX_COUNT);
+    return (dungeon->digger_stack_length < IMP_TASK_MAX_COUNT);
 }
 
 long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3)
@@ -382,7 +382,7 @@ long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
     SYNCDBG(18,"Starting");
     nused = 0;
     i = -1;
-    while ((num > 0) && (dungeon->imp_stack_length < IMP_TASK_MAX_COUNT))
+    while ((num > 0) && (dungeon->digger_stack_length < IMP_TASK_MAX_COUNT))
     {
         i = find_next_dig_in_dungeon_task_list(dungeon, i);
         if (i < 0)
@@ -418,12 +418,12 @@ long add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon)
 void setup_imp_stack(struct Dungeon *dungeon)
 {
   long i;
-  for (i = 0; i < dungeon->imp_stack_length; i++)
+  for (i = 0; i < dungeon->digger_stack_length; i++)
   {
     dungeon->imp_stack[i].task_id = DigTsk_None;
   }
-  dungeon->imp_stack_update_turn = game.play_gameturn;
-  dungeon->imp_stack_length = 0;
+  dungeon->digger_stack_update_turn = game.play_gameturn;
+  dungeon->digger_stack_length = 0;
   r_stackpos = 0;
 }
 
@@ -458,7 +458,7 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
             break;
         }
         i = thing->next_of_class;
-        if ( (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT) || (remain_num <= 0) ) {
+        if ( (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT) || (remain_num <= 0) ) {
             break;
         }
         if ( ((thing->field_1 & 0x01) == 0) && (thing->active_state == 2) && (thing->byte_14 == 0) && corpse_is_rottable(thing) )
@@ -517,7 +517,7 @@ TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num)
     }
     i = thing->next_of_class;
     // Thing list loop body
-    if ((num <= 0) || (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT))
+    if ((num <= 0) || (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT))
       break;
     if ((!thing->byte_13) && (thing->owner == dungeon->owner))
     {
@@ -561,7 +561,7 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
     }
     i = thing->next_of_class;
     // Thing list loop body
-    if (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT)
+    if (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT)
       break;
     if ( thing_is_door_or_trap_box(thing) )
     {
@@ -596,11 +596,11 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
 
 void add_reinforce_to_imp_stack(struct Dungeon *dungeon)
 {
-    struct ImpStack *rfstack;
+    struct DiggerStack *rfstack;
     long i;
     for (i=0; i < r_stackpos; i++)
     {
-        if (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT)
+        if (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT)
           break;
         rfstack = &reinforce_stack[i];
         add_to_imp_stack_using_pos(rfstack->field_0, rfstack->task_id, dungeon);
@@ -730,7 +730,7 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     struct Room *room;
     SYNCDBG(18,"Starting");
     //If the imp doesn't have any money - then just return
-    if (thing->long_13 <= 0)
+    if (thing->creature.gold_carried <= 0)
       return 0;
     // Find a treasure room to drop the money
     room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TREASURE, 0, 1);
@@ -851,7 +851,7 @@ long check_out_imp_last_did(struct Thing *thing)
   case 3:
       dungeon = get_dungeon(thing->owner);
       imp_stack_update(thing);
-      if ((dungeon->imp_stack_update_turn != cctrl->long_89) && (dungeon->imp_stack_length != 3))
+      if ((dungeon->digger_stack_update_turn != cctrl->digger.stack_update_turn) && (dungeon->digger_stack_length != 3))
         break;
       if ( check_out_unreinforced_place(thing) )
       {
@@ -908,7 +908,7 @@ long imp_stack_update(struct Thing *thing)
   SYNCDBG(18,"Starting");
   //return _DK_imp_stack_update(thing);
   dungeon = get_dungeon(thing->owner);
-  if ((game.play_gameturn - dungeon->imp_stack_update_turn) < 128)
+  if ((game.play_gameturn - dungeon->digger_stack_update_turn) < 128)
     return 0;
   SYNCDBG(8,"Updating");
   setup_imp_stack(dungeon);
@@ -931,7 +931,7 @@ long check_out_imp_stack(struct Thing *thing)
     struct CreatureStats *crstat;
     struct Thing *sectng;
     struct Thing *trdtng;
-    struct ImpStack *istack;
+    struct DiggerStack *istack;
     struct MapTask *task;
     long stl_x,stl_y;
     long i;
@@ -939,17 +939,17 @@ long check_out_imp_stack(struct Thing *thing)
     //return _DK_check_out_imp_stack(thing);
     cctrl = creature_control_get_from_thing(thing);
     dungeon = get_dungeon(thing->owner);
-    if (cctrl->long_89 != dungeon->imp_stack_update_turn)
+    if (cctrl->digger.stack_update_turn != dungeon->digger_stack_update_turn)
     {
-      cctrl->long_89 = dungeon->imp_stack_update_turn;
+      cctrl->digger.stack_update_turn = dungeon->digger_stack_update_turn;
       cctrl->field_95 = 0;
     }
-    if (dungeon->imp_stack_length > IMP_TASK_MAX_COUNT)
+    if (dungeon->digger_stack_length > IMP_TASK_MAX_COUNT)
     {
-        ERRORLOG("Imp tasks length %d out of range",(int)dungeon->imp_stack_length);
-        dungeon->imp_stack_length = IMP_TASK_MAX_COUNT;
+        ERRORLOG("Imp tasks length %d out of range",(int)dungeon->digger_stack_length);
+        dungeon->digger_stack_length = IMP_TASK_MAX_COUNT;
     }
-    while (cctrl->field_95 < dungeon->imp_stack_length)
+    while (cctrl->field_95 < dungeon->digger_stack_length)
     {
         istack = &dungeon->imp_stack[cctrl->field_95];
         cctrl->field_95++;
@@ -1264,7 +1264,7 @@ long check_out_imp_stack(struct Thing *thing)
 
         case DigTsk_PicksUpGoldPile:
             crstat = creature_stats_get_from_thing(thing);
-            if (crstat->gold_hold <= thing->long_13)
+            if (crstat->gold_hold <= thing->creature.gold_carried)
             {
                 if (game.play_gameturn - cctrl->field_2C7 > 128)
                 {

@@ -251,7 +251,7 @@ DLLIMPORT struct StateInfo _DK_states[];
 extern struct StateInfo states[];
 DLLIMPORT long _DK_r_stackpos;
 #define r_stackpos _DK_r_stackpos
-DLLIMPORT struct ImpStack _DK_reinforce_stack[];
+DLLIMPORT struct DiggerStack _DK_reinforce_stack[];
 #define reinforce_stack _DK_reinforce_stack
 /******************************************************************************/
 TbBool creature_model_bleeds(unsigned long crmodel);

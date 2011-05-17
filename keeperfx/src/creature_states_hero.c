@@ -468,7 +468,7 @@ short good_doing_nothing(struct Thing *thing)
         return false;
     case CHeroTsk_StealGold:
         crstat = creature_stats_get_from_thing(thing);
-        if (thing->long_13 < crstat->gold_hold)
+        if (thing->creature.gold_carried < crstat->gold_hold)
         {
             if (good_setup_loot_treasure_room(thing, i)) {
                 return true;
@@ -571,7 +571,7 @@ short good_leave_through_exit_door(struct Thing *thing)
         return 0;
     }
     cctrl = creature_control_get_from_thing(thing);
-    thing->long_13 = 0;
+    thing->creature.gold_carried = 0;
     cctrl->field_282 = game.hero_door_wait_time;
     cctrl->byte_8A = tmptng->field_9;
     place_thing_in_creature_controlled_limbo(thing);
@@ -621,7 +621,7 @@ short good_wait_in_exit_door(struct Thing *thing)
               return 1;
             }
         }
-        thing->long_13 = 0;
+        thing->creature.gold_carried = 0;
         tmptng = thing_get(cctrl->field_6E);
         if (!thing_is_invalid(tmptng))
         {

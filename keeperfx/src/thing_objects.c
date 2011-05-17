@@ -304,21 +304,21 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
     switch (thing->model)
     {
       case 3:
-        thing->long_13 = game.chest_gold_hold;
+        thing->creature.gold_carried = game.chest_gold_hold;
         break;
       case 5:
         thing->byte_14 = 1;
         light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
         break;
       case 6:
-        thing->long_13 = game.pot_of_gold_holds;
+        thing->creature.gold_carried = game.pot_of_gold_holds;
         break;
       case 33:
         set_flag_byte(&thing->field_4F, 0x10, false);
         set_flag_byte(&thing->field_4F, 0x20, true);
         break;
       case 43:
-        thing->long_13 = game.gold_pile_value;
+        thing->creature.gold_carried = game.gold_pile_value;
         break;
       case 49:
         i = get_free_hero_gate_number();
@@ -704,7 +704,7 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx)
     thing = create_object(&pos, 6, plyr_idx, -1);
     if (thing_is_invalid(thing))
         return INVALID_THING;
-    thing->long_13 = game.pot_of_gold_holds;
+    thing->creature.gold_carried = game.pot_of_gold_holds;
     return thing;
 }
 
@@ -759,11 +759,11 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
     long scaled_val;
     if (thing_is_invalid(thing))
         return false;
-    thing->long_13 += value;
-    if (thing->long_13 < 0)
-        thing->long_13 = LONG_MAX;
-    scaled_val = thing->long_13 / 2 + 150;
-    if ((scaled_val > 600) || (thing->long_13 >= game.gold_pile_maximum))
+    thing->creature.gold_carried += value;
+    if (thing->creature.gold_carried < 0)
+        thing->creature.gold_carried = LONG_MAX;
+    scaled_val = thing->creature.gold_carried / 2 + 150;
+    if ((scaled_val > 600) || (thing->creature.gold_carried >= game.gold_pile_maximum))
       scaled_val = 600;
     thing->field_46 = scaled_val;
     return true;
@@ -776,7 +776,7 @@ struct Thing *create_gold_pile(struct Coord3d *pos, long plyr_idx, long value)
     if (thing_is_invalid(thing)) {
         return INVALID_THING;
     }
-    thing->long_13 = 0;
+    thing->creature.gold_carried = 0;
     add_gold_to_pile(thing, value);
     return thing;
 }

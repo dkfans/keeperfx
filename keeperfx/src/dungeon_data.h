@@ -61,7 +61,7 @@ enum DungeonResearchCategory {
 #pragma pack(1)
 #endif
 
-struct ImpStack { // sizeof = 4
+struct DiggerStack { // sizeof = 4
       unsigned short field_0;
       unsigned short task_id;
 };
@@ -231,7 +231,7 @@ struct Dungeon {
     unsigned char num_active_diggers;
     unsigned char num_active_creatrs;
     unsigned char owned_creatures_of_model[32];
-    unsigned char field_93A;
+    unsigned char buildable_rooms_count;
     unsigned short total_doors;
     unsigned short total_area;
     unsigned short total_creatures_left;
@@ -250,8 +250,8 @@ struct Dungeon {
     unsigned short spells_stolen;
     unsigned short times_broken_into;
     unsigned short gold_pots_stolen;
-    int field_ADD;
-    int field_AE1;
+    int last_entrance_generation_gameturn;
+    int turns_between_entrance_generation;
     int field_AE5;
     int field_AE9[3];
     short field_AF5;
@@ -287,9 +287,9 @@ unsigned char field_F7D;
     long max_creatures;
     unsigned char field_1060[5];
     struct Coord3d pos_1065;
-    struct ImpStack imp_stack[IMP_TASK_MAX_COUNT];
-    unsigned long imp_stack_update_turn;
-    unsigned long imp_stack_length;
+    struct DiggerStack imp_stack[IMP_TASK_MAX_COUNT];
+    unsigned long digger_stack_update_turn;
+    unsigned long digger_stack_length;
     unsigned char visible_event_idx;
     unsigned char field_1174;
     unsigned char field_1175;

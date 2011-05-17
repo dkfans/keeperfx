@@ -4979,12 +4979,12 @@ void recompute_rooms_count_in_dungeons(void)
   for (i=0; i < DUNGEONS_COUNT; i++)
   {
     dungeon = get_dungeon(i);
-    dungeon->field_93A = 0;
+    dungeon->buildable_rooms_count = 0;
     for (k = 1; k < 17; k++)
     {
       if ((k != RoK_ENTRANCE) && (k != RoK_DUNGHEART))
       {
-        dungeon->field_93A += get_player_rooms_count(i, k);
+        dungeon->buildable_rooms_count += get_player_rooms_count(i, k);
       }
     }
   }
@@ -5073,7 +5073,8 @@ TbBool generation_due_for_dungeon(struct Dungeon * dungeon)
     SYNCDBG(9,"Starting");
     if ( (game.field_150356 == 0) || (game.armageddon.count_down + game.field_150356 > game.play_gameturn) )
     {
-        if ( (dungeon->field_AE1 != -1) && (game.play_gameturn - dungeon->field_ADD >= dungeon->field_AE1) ) {
+        if ( (dungeon->turns_between_entrance_generation != -1) &&
+             (game.play_gameturn - dungeon->last_entrance_generation_gameturn >= dungeon->turns_between_entrance_generation) ) {
             return true;
         }
     }
@@ -5333,7 +5334,7 @@ void process_entrance_generation(void)
                 if (generation_available_to_dungeon(dungeon)) {
                     generate_creature_for_dungeon(dungeon);
                 }
-                dungeon->field_ADD = game.play_gameturn;
+                dungeon->last_entrance_generation_gameturn = game.play_gameturn;
             }
             dungeon->field_1485 = 0;
         }

@@ -1048,7 +1048,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     struct Dungeon* dungeon = comp->dungeon;
 
     i = dungeon->total_area * comp->field_1C / 100;
-    if ( (dungeon->imp_stack_length > 0) && (dungeon->imp_stack_length >= i) )
+    if ( (dungeon->digger_stack_length > 0) && (dungeon->digger_stack_length >= i) )
     {
         SYNCDBG(6,"Did nothing");
         return 0;
