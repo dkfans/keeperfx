@@ -136,10 +136,7 @@ unsigned char field_88;
     unsigned short word_90[5];
     } party;
   struct {
-    char sbyte_89x;
-    unsigned char byte_8Ax;
-    unsigned char byte_8Bx;
-    unsigned char byte_8Cx;
+    long stack_update_turn;
     short word_8Dx;
     unsigned char byte_8F;
     unsigned char byte_90;

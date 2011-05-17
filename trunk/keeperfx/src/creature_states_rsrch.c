@@ -275,7 +275,7 @@ short researching(struct Thing *thing)
     if ( (game.play_gameturn - dungeon->field_AE5 < 50)
       && ((game.play_gameturn + thing->index) & 0x03) == 0)
     {
-      external_set_thing_state(thing, 127);
+      external_set_thing_state(thing, CrSt_CreatureBeHappy);
       cctrl->field_282 = 50;
       cctrl->long_9A = 0;
       return 1;

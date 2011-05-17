@@ -1516,7 +1516,7 @@ short creature_steal_gold(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    max_amount = crstat->gold_hold - thing->long_13;
+    max_amount = crstat->gold_hold - thing->creature.gold_carried;
     if (max_amount <= 0)
     {
         set_start_state(thing);
@@ -1524,7 +1524,7 @@ short creature_steal_gold(struct Thing *thing)
     }
     // Success! we are able to steal some gold!
     amount = remove_gold_from_hoarde(hrdtng, room, max_amount);
-    thing->long_13 += amount;
+    thing->creature.gold_carried += amount;
     create_price_effect(&thing->mappos, thing->owner, amount);
     SYNCDBG(6,"Stolen %ld gold from hoarde at (%d,%d)",amount,(int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num);
     set_start_state(thing);
