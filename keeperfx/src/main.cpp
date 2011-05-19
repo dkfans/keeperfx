@@ -1651,6 +1651,7 @@ void explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
 
 struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsigned short owner)
 {
+    struct MagicStats *magstat;
     struct Dungeon *dungeon;
     struct Thing *thing;
     if ( !i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots) )
@@ -1671,11 +1672,12 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->owner = owner;
     thing->field_9 = game.play_gameturn;
-    thing->word_15 = game.magic_stats[7].time;
+    magstat = &game.magic_stats[PwrK_CAVEIN];
+    thing->word_15 = magstat->time;
     thing->byte_13 = pos->x.stl.num;
     thing->byte_14 = pos->y.stl.num;
     thing->byte_17 = cimodel;
-    thing->health = game.magic_stats[7].time;
+    thing->health = magstat->time;
     if (owner != game.neutral_player_num)
     {
         dungeon = get_dungeon(owner);
@@ -4559,35 +4561,35 @@ void set_general_information(long msg_id, long target, long x, long y)
 
 void set_quick_information(long msg_id, long target, long x, long y)
 {
-  struct PlayerInfo *player;
-  long pos_x,pos_y;
-  player = get_my_player();
-  find_map_location_coords(target, &x, &y, __func__);
-  pos_x = 0;
-  pos_y = 0;
-  if ((x != 0) || (y != 0))
-  {
-    pos_y = (y << 8) + 128;
-    pos_x = (x << 8) + 128;
-  }
-  event_create_event(pos_x, pos_y, 27, player->id_number, -msg_id);
+    struct PlayerInfo *player;
+    long pos_x,pos_y;
+    player = get_my_player();
+    find_map_location_coords(target, &x, &y, __func__);
+    pos_x = 0;
+    pos_y = 0;
+    if ((x != 0) || (y != 0))
+    {
+      pos_y = (y << 8) + 128;
+      pos_x = (x << 8) + 128;
+    }
+    event_create_event(pos_x, pos_y, 27, player->id_number, -msg_id);
 }
 
 void set_general_objective(long msg_id, long target, long x, long y)
 {
-  process_objective(campaign.strings[msg_id%STRINGS_MAX], target, x, y);
+    process_objective(campaign.strings[msg_id%STRINGS_MAX], target, x, y);
 }
 
 void process_objective(char *msg_text, long target, long x, long y)
 {
-  struct PlayerInfo *player;
-  long pos_x,pos_y;
-  player = get_my_player();
-  find_map_location_coords(target, &x, &y, __func__);
-  pos_y = y;
-  pos_x = x;
-  set_level_objective(msg_text);
-  display_objectives(player->id_number, pos_x, pos_y);
+    struct PlayerInfo *player;
+    long pos_x,pos_y;
+    player = get_my_player();
+    find_map_location_coords(target, &x, &y, __func__);
+    pos_y = y;
+    pos_x = x;
+    set_level_objective(msg_text);
+    display_objectives(player->id_number, pos_x, pos_y);
 }
 
 void directly_cast_spell_on_thing(long plridx, unsigned char a2, unsigned short a3, long a4)
@@ -4597,53 +4599,53 @@ void directly_cast_spell_on_thing(long plridx, unsigned char a2, unsigned short 
 
 short winning_player_quitting(struct PlayerInfo *player, long *plyr_count)
 {
-  struct PlayerInfo *swplyr;
-  int i,k,n;
-  if (player->victory_state == VicS_LostLevel)
-  {
-    return 0;
-  }
-  k = 0;
-  n = 0;
-  for (i=0; i < PLAYERS_COUNT; i++)
-  {
-    swplyr = get_player(i);
-    if (player_exists(swplyr))
+    struct PlayerInfo *swplyr;
+    int i,k,n;
+    if (player->victory_state == VicS_LostLevel)
     {
-      if (swplyr->field_2C == 1)
+      return 0;
+    }
+    k = 0;
+    n = 0;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+      swplyr = get_player(i);
+      if (player_exists(swplyr))
       {
-        k++;
-        if (swplyr->victory_state == VicS_LostLevel)
-          n++;
+        if (swplyr->field_2C == 1)
+        {
+          k++;
+          if (swplyr->victory_state == VicS_LostLevel)
+            n++;
+        }
       }
     }
-  }
-  *plyr_count = k;
-  return ((k - n) == 1);
+    *plyr_count = k;
+    return ((k - n) == 1);
 }
 
 short lose_level(struct PlayerInfo *player)
 {
-  if (!is_my_player(player))
-    return false;
-  if ((game.system_flags & GSF_NetworkActive) != 0)
-  {
-    LbNetwork_Stop();
-  }
-  quit_game = 1;
-  return true;
+    if (!is_my_player(player))
+        return false;
+    if ((game.system_flags & GSF_NetworkActive) != 0)
+    {
+        LbNetwork_Stop();
+    }
+    quit_game = 1;
+    return true;
 }
 
 short resign_level(struct PlayerInfo *player)
 {
-  if (!is_my_player(player))
-    return false;
-  if ((game.system_flags & GSF_NetworkActive) != 0)
-  {
-    LbNetwork_Stop();
-  }
-  quit_game = 1;
-  return true;
+    if (!is_my_player(player))
+        return false;
+    if ((game.system_flags & GSF_NetworkActive) != 0)
+    {
+        LbNetwork_Stop();
+    }
+    quit_game = 1;
+    return true;
 }
 
 short player_has_won(long plyr_idx)
@@ -5276,18 +5278,22 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
 
     if (crkind > 0) {
         lair_space = calculate_free_lair_space(dungeon);
-        if ((long)game.creature_stats[crkind].pay > dungeon->total_money_owned) {
+        if ((long)game.creature_stats[crkind].pay > dungeon->total_money_owned)
+        {
             if (is_my_player_number(dungeon->owner)) {
                 output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, true);
             }
-        }
-        else if (lair_space > 0) {
+        } else
+        if (lair_space > 0)
+        {
             generate_creature_at_random_entrance(dungeon, crkind);
-        }
-        else if (lair_space == 0) {
+        } else
+        if (lair_space == 0)
+        {
             generate_creature_at_random_entrance(dungeon, crkind);
 
-            if (is_my_player_number(dungeon->owner)) {
+            if (is_my_player_number(dungeon->owner))
+            {
                 if (dungeon->room_kind[RoK_LAIR] > 0) {
                     output_message(SMsg_LairTooSmall, 500, true);
                 }
@@ -5471,7 +5477,7 @@ short process_player_manufacturing(long plr_idx)
 //  return _DK_process_player_manufacturing(plr_idx);
 
   dungeon = get_players_num_dungeon(plr_idx);
-  if (player_has_room_of_type(plr_idx, 8) == NULL)
+  if (player_has_room_of_type(plr_idx, RoK_WORKSHOP) == NULL)
     return true;
   if (dungeon->manufacture_type == 0)
   {
@@ -5482,7 +5488,7 @@ short process_player_manufacturing(long plr_idx)
   if (dungeon->field_1185 < (k << 8))
     return true;
 
-  if (find_room_with_spare_room_item_capacity(plr_idx, 8) == NULL)
+  if (find_room_with_spare_room_item_capacity(plr_idx, RoK_WORKSHOP) == NULL)
   {
     dungeon->manufacture_type = 0;
     return false;
@@ -6133,57 +6139,59 @@ void draw_sound_stuff(void)
 
 void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned char stl_x, unsigned char stl_y)
 {
-  struct PlayerInfo *player;
-  struct Thing *thing;
-  struct SpellData *pwrdata;
-  Expand_Check_Func chkfunc;
-  TbBool allow_cast;
-  long spl_id;
-  long i;
-  //_DK_draw_spell_cursor(wrkstate, tng_idx, stl_x, stl_y); return;
-  spl_id = -1;
-  if (wrkstate < PLAYER_STATES_COUNT)
-    spl_id = player_state_to_spell[wrkstate];
-  SYNCDBG(5,"Starting for spell %ld",spl_id);
-  if (spl_id <= 0)
-  {
-    set_pointer_graphic(0);
-    return;
-  }
-  player = get_my_player();
-  thing = thing_get(tng_idx);
-  allow_cast = false;
-  pwrdata = get_power_data(spl_id);
-  if ((tng_idx == 0) || (thing->owner == player->id_number) || (pwrdata->flag_1A != 0))
-  {
-    if (can_cast_spell_at_xy(player->id_number, spl_id, stl_x, stl_y, 0))
+    struct PlayerInfo *player;
+    struct Thing *thing;
+    struct SpellData *pwrdata;
+    struct MagicStats *magstat;
+    Expand_Check_Func chkfunc;
+    TbBool allow_cast;
+    long spl_id;
+    long i;
+    //_DK_draw_spell_cursor(wrkstate, tng_idx, stl_x, stl_y); return;
+    spl_id = -1;
+    if (wrkstate < PLAYER_STATES_COUNT)
+      spl_id = player_state_to_spell[wrkstate];
+    SYNCDBG(5,"Starting for spell %ld",spl_id);
+    if (spl_id <= 0)
     {
-      if ((tng_idx == 0) || can_cast_spell_on_creature(player->id_number, thing, spl_id))
-      {
-        allow_cast = true;
-      }
-    }
-  }
-  if (!allow_cast)
-  {
-    set_pointer_graphic(15);
-    return;
-  }
-  chkfunc = pwrdata->field_15;
-  if (chkfunc != NULL)
-  {
-    if (chkfunc())
-    {
-      i = player->field_4D2/4;
-      if (i > 8)
-        i = 8;
-      set_pointer_graphic(16+i);
-      draw_spell_cost = game.magic_stats[spl_id].cost[i];
+      set_pointer_graphic(0);
       return;
     }
-  }
-  i = pwrdata->field_13;
-  set_pointer_graphic_spell(i, game.play_gameturn);
+    player = get_my_player();
+    thing = thing_get(tng_idx);
+    allow_cast = false;
+    pwrdata = get_power_data(spl_id);
+    if ((tng_idx == 0) || (thing->owner == player->id_number) || (pwrdata->flag_1A != 0))
+    {
+      if (can_cast_spell_at_xy(player->id_number, spl_id, stl_x, stl_y, 0))
+      {
+        if ((tng_idx == 0) || can_cast_spell_on_creature(player->id_number, thing, spl_id))
+        {
+          allow_cast = true;
+        }
+      }
+    }
+    if (!allow_cast)
+    {
+      set_pointer_graphic(15);
+      return;
+    }
+    chkfunc = pwrdata->field_15;
+    if (chkfunc != NULL)
+    {
+      if (chkfunc())
+      {
+        i = player->field_4D2/4;
+        if (i > 8)
+          i = 8;
+        set_pointer_graphic(16+i);
+        magstat = &game.magic_stats[spl_id];
+        draw_spell_cost = magstat->cost[i];
+        return;
+      }
+    }
+    i = pwrdata->field_13;
+    set_pointer_graphic_spell(i, game.play_gameturn);
 }
 
 void process_pointer_graphic(void)
