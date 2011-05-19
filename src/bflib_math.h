@@ -54,11 +54,10 @@ enum MathOperator {
 
 struct Proportion { // sizeof = 8
     long field_0;
-    long field_4;
+    long distance_ratio;
 };
 
-extern struct Proportion _DK_proportions[513];
-#define proportions _DK_proportions
+//extern struct Proportion proportions[513];
 /******************************************************************************/
 #define ANGLE_TRIGL_PERIOD 0x800
 #define LB_RANDOM(range,seed) LbRandomSeries(range, seed, __func__, __LINE__)

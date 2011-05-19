@@ -94,16 +94,11 @@ long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
 
 long get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-    return _DK_get_2d_distance(pos1, pos2);
-    //TODO fix this, then re-enable
     unsigned long dist_x,dist_y;
+    //return _DK_get_2d_distance(pos1, pos2);
     dist_x = abs((long)pos1->x.val - (long)pos2->x.val);
     dist_y = abs((long)pos1->y.val - (long)pos2->y.val);
-    if (dist_x > dist_y)
-        return dist_x * proportions[(dist_y << 8) / dist_x + 256].field_4 >> 13;
-    if (dist_y != 0)
-        return dist_y * proportions[(dist_x << 8) / dist_y + 256].field_4 >> 13;
-    return 0;
+    return LbProportion(dist_x, dist_y);
 }
 
 void project_point_to_wall_on_angle(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4, long a5, long a6)
