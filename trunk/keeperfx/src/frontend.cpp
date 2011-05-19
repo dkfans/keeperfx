@@ -1180,6 +1180,7 @@ void choose_special_spell(int kind, int tooltip_id)
 {
     struct Dungeon *dungeon;
     struct SpellData *pwrdata;
+    struct MagicStats *magstat;
 
     if ((kind != PwrK_HOLDAUDNC) && (kind != PwrK_ARMAGEDDON)) {
         WARNLOG("Bad power kind");
@@ -1188,8 +1189,9 @@ void choose_special_spell(int kind, int tooltip_id)
 
     dungeon = get_players_num_dungeon(my_player_number);
     set_chosen_spell(kind, tooltip_id);
+    magstat = &game.magic_stats[kind];
 
-    if (dungeon->total_money_owned >= game.magic_stats[kind].cost[0]) {
+    if (dungeon->total_money_owned >= magstat->cost[0]) {
         pwrdata = get_power_data(kind);
         play_non_3d_sample(pwrdata->field_11); // Play the spell speech
         switch (kind)
