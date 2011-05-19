@@ -423,6 +423,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
     struct SpellConfig *splconf;
+    struct MagicStats *magstat;
     struct ComponentVector cvect;
     struct Coord3d pos;
     struct Thing *ntng;
@@ -453,35 +454,36 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-          cctrl->casted_spells[i].spkind = spell_idx;
-          cctrl->casted_spells[i].field_1 = game.magic_stats[12].power[spell_lev];
-          n = 0;
-          cctrl->spell_flags |= CSF_Armour;
-          for (k=0; k < 3; k++)
-          {
-            pos.x.val = thing->mappos.x.val;
-            pos.y.val = thing->mappos.y.val;
-            pos.z.val = thing->mappos.z.val;
-            pos.x.val += (32 * LbSinL(n) >> 16);
-            pos.y.val -= (32 * LbCosL(n) >> 16);
-            pos.z.val += k * (long)(thing->field_58 >> 1);
-            ntng = create_object(&pos, 51, thing->owner, -1);
-            if (!thing_is_invalid(ntng))
+            magstat = &game.magic_stats[PwrK_PROTECT];
+            cctrl->casted_spells[i].spkind = spell_idx;
+            cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
+            n = 0;
+            cctrl->spell_flags |= CSF_Armour;
+            for (k=0; k < 3; k++)
             {
-              cctrl->field_2B3[k] = ntng->index;
-              ntng->health = game.magic_stats[12].power[spell_lev] + 1;
-              ntng->word_13 = thing->index;
-              ntng->byte_15 = k;
-              ntng->field_52 = thing->field_52;
-              ntng->field_54 = thing->field_54;
-              angles_to_vector(ntng->field_52, ntng->field_54, 32, &cvect);
-              ntng->acceleration.x.val += cvect.x;
-              ntng->acceleration.y.val += cvect.y;
-              ntng->acceleration.z.val += cvect.z;
-              ntng->field_1 |= 0x04;
+              pos.x.val = thing->mappos.x.val;
+              pos.y.val = thing->mappos.y.val;
+              pos.z.val = thing->mappos.z.val;
+              pos.x.val += (32 * LbSinL(n) >> 16);
+              pos.y.val -= (32 * LbCosL(n) >> 16);
+              pos.z.val += k * (long)(thing->field_58 >> 1);
+              ntng = create_object(&pos, 51, thing->owner, -1);
+              if (!thing_is_invalid(ntng))
+              {
+                  cctrl->field_2B3[k] = ntng->index;
+                  ntng->health = magstat->power[spell_lev] + 1;
+                  ntng->word_13 = thing->index;
+                  ntng->byte_15 = k;
+                  ntng->field_52 = thing->field_52;
+                  ntng->field_54 = thing->field_54;
+                  angles_to_vector(ntng->field_52, ntng->field_54, 32, &cvect);
+                  ntng->acceleration.x.val += cvect.x;
+                  ntng->acceleration.y.val += cvect.y;
+                  ntng->acceleration.z.val += cvect.z;
+                  ntng->field_1 |= 0x04;
+              }
+              n += ANGLE_TRIGL_PERIOD/3;
             }
-            n += ANGLE_TRIGL_PERIOD/3;
-          }
         }
         break;
     case SplK_Rebound:
@@ -495,7 +497,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         break;
     case SplK_Heal:
         crstat = creature_stats_get_from_thing(thing);
-        i = saturate_set_signed(thing->health + game.magic_stats[8].power[spell_lev],16);
+        magstat = &game.magic_stats[PwrK_HEALCRTR];
+        i = saturate_set_signed(thing->health + magstat->power[spell_lev],16);
         if (i < 0)
         {
           thing->health = 0;
@@ -505,14 +508,15 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
           thing->health = min(i,k);
         }
         cctrl->field_2B0 = 7;
-        cctrl->field_2AE = game.magic_stats[8].time;
+        cctrl->field_2AE = magstat->time;
         break;
     case SplK_Invisibility:
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
             cctrl->casted_spells[i].spkind = spell_idx;
-            cctrl->casted_spells[i].field_1 = game.magic_stats[13].power[spell_lev];
+            magstat = &game.magic_stats[PwrK_CONCEAL];
+            cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
             cctrl->spell_flags |= CSF_Conceal;
             cctrl->field_AF = 0;
         }
@@ -531,7 +535,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         if (i != -1)
         {
             cctrl->casted_spells[i].spkind = spell_idx;
-            cctrl->casted_spells[i].field_1 = game.magic_stats[11].power[spell_lev];
+            magstat = &game.magic_stats[PwrK_SPEEDCRTR];
+            cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
             cctrl->spell_flags |= CSF_Speed;
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         }
@@ -570,7 +575,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         if (i != -1)
         {
           cctrl->casted_spells[i].spkind = spell_idx;
-          cctrl->casted_spells[i].field_1 = game.magic_stats[14].power[spell_lev];
+          magstat = &game.magic_stats[PwrK_DISEASE];
+          cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
           n = 0;
           cctrl->field_AD |= 0x01;
           cctrl->field_B6 = thing->owner;
@@ -587,7 +593,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
             if (!thing_is_invalid(ntng))
             {
               cctrl->field_2B9[k] = ntng->index;
-              ntng->health = game.magic_stats[14].power[spell_lev] + 1;
+              ntng->health = magstat->power[spell_lev] + 1;
               ntng->word_13 = thing->index;
               ntng->byte_15 = k;
               ntng->field_52 = thing->field_52;
@@ -610,7 +616,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
             cctrl->field_282 = 10;
             cctrl->field_AD |= 0x02;
             cctrl->casted_spells[i].spkind = spell_idx;
-            cctrl->casted_spells[i].field_1 = game.magic_stats[15].power[spell_lev];
+            magstat = &game.magic_stats[PwrK_CHICKEN];
+            cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
         }
         break;
     default:
@@ -624,6 +631,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
     struct SpellConfig *splconf;
+    struct MagicStats *magstat;
     long i,k;
     cctrl = creature_control_get_from_thing(thing);
     if (spell_lev > SPELL_MAX_LEVEL)
@@ -637,14 +645,16 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         creature_set_speed(thing, 0);
         break;
     case SplK_Armour:
-        cctrl->casted_spells[idx].field_1 = game.magic_stats[12].power[spell_lev];
+        magstat = &game.magic_stats[PwrK_PROTECT];
+        cctrl->casted_spells[idx].field_1 = magstat->power[spell_lev];
         break;
     case SplK_Rebound:
         cctrl->casted_spells[idx].field_1 = splconf->duration;
         break;
     case SplK_Heal:
         crstat = creature_stats_get_from_thing(thing);
-        i = saturate_set_signed(thing->health + game.magic_stats[8].power[spell_lev],16);
+        magstat = &game.magic_stats[PwrK_HEALCRTR];
+        i = saturate_set_signed(thing->health + magstat->power[spell_lev],16);
         if (i < 0)
         {
           thing->health = 0;
@@ -654,16 +664,18 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
           thing->health = min(i,k);
         }
         cctrl->field_2B0 = 7;
-        cctrl->field_2AE = game.magic_stats[8].time;
+        cctrl->field_2AE = magstat->time;
         break;
     case SplK_Invisibility:
-        cctrl->casted_spells[idx].field_1 = game.magic_stats[13].power[spell_lev];
+        magstat = &game.magic_stats[PwrK_CONCEAL];
+        cctrl->casted_spells[idx].field_1 = magstat->power[spell_lev];
         break;
     case SplK_Teleport:
         cctrl->casted_spells[idx].field_1 = splconf->duration;
         break;
     case SplK_Speed:
-        cctrl->casted_spells[idx].field_1 = game.magic_stats[11].power[spell_lev];
+        magstat = &game.magic_stats[PwrK_SPEEDCRTR];
+        cctrl->casted_spells[idx].field_1 = magstat->power[spell_lev];
         break;
     case SplK_Slow:
         cctrl->casted_spells[idx].field_1 = splconf->duration;
@@ -678,13 +690,15 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         cctrl->casted_spells[idx].field_1 = splconf->duration;
         break;
     case SplK_Disease:
-        cctrl->casted_spells[idx].field_1 = game.magic_stats[14].power[spell_lev];
+        magstat = &game.magic_stats[PwrK_DISEASE];
+        cctrl->casted_spells[idx].field_1 = magstat->power[spell_lev];
         cctrl->field_B6 = thing->owner;
         break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
         cctrl->field_282 = 10;
-        cctrl->casted_spells[idx].field_1 = game.magic_stats[15].power[spell_lev];
+        magstat = &game.magic_stats[PwrK_CHICKEN];
+        cctrl->casted_spells[idx].field_1 = magstat->power[spell_lev];
         break;
     default:
         WARNLOG("No action for spell %ld at level %ld",spell_idx,spell_lev);

@@ -93,6 +93,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
 {
   struct CreatureStats *crstat;
   struct CreatureControl *cctrl;
+  struct MagicStats *magstat;
   long i;
   crstat = creature_stats_get_from_thing(thing);
   cctrl = creature_control_get_from_thing(thing);
@@ -107,8 +108,9 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
       thing->word_17 = 8;
     }
   }
+  magstat = &game.magic_stats[PwrK_SLAP];
   i = cctrl->field_21;
-  cctrl->field_21 = game.magic_stats[PwrK_SLAP].time;
+  cctrl->field_21 = magstat->time;
   if (i == 0)
     cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
   if (thing->active_state != CrSt_CreatureSlapCowers)
