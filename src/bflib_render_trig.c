@@ -45,6 +45,7 @@ void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint
 //    JUSTLOG("Pa(%ld,%ld,%ld)",point_a->field_8,point_a->field_C,point_a->field_10);
 //    JUSTLOG("Pb(%ld,%ld,%ld)",point_b->field_8,point_b->field_C,point_b->field_10);
 //    JUSTLOG("Pc(%ld,%ld,%ld)",point_c->field_8,point_c->field_C,point_c->field_10);
+    //_DK_trig(point_a, point_b, point_c); return;
     LOC_poly_screen = poly_screen;
     LOC_vec_map = vec_map;
     LOC_vec_screen_width = vec_screen_width;
