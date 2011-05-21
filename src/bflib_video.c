@@ -539,15 +539,8 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         if (msspr != NULL)
           LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
     }
-/*    SDL_SysWMinfo info;
-    SDL_VERSION(&info.version);
-    if (SDL_GetWMInfo(&info))
-    {
-        UpdateWindow(info.window);
-        ShowWindow(info.window, SW_RESTORE);
-        SetFocus(info.window);
-    }*/
-    //SDL_WM_GrabInput(SDL_GRAB_ON);
+    SDL_ShowCursor(lbAppActive ? SDL_DISABLE : SDL_ENABLE);
+    SDL_WM_GrabInput(lbAppActive ? SDL_GRAB_ON : SDL_GRAB_OFF);
     lbScreenInitialised = true;
     LbScreenActivationUpdate();
     SYNCDBG(8,"Finished");

@@ -766,23 +766,28 @@ char LbCompareMultiplications(long mul1a, long mul1b, long mul2a, long mul2b)
 }
 
 /**
- *  Optimized function for computing proportion.
- * @param a
- * @param b
- * @return
+ *  Optimized function for computing vector length.
+ *  Returns diagonal of a rectangle with sides of given length.
+ * @param a Length of one of the sides.
+ * @param b Length of second of the sides.
+ * @return Root of sum of squares of given lengths, sqrt(a*a + b*b).
  */
-long LbProportion(long a, long b)
+long LbDiagonalLength(long a, long b)
 {
+    int propidx;
     long long tmpval;
     if (a > b) {
-        tmpval = a * proportions[(b << 8)/a + 256].distance_ratio;
+        propidx = (b << 8)/a;
+        tmpval = a;
     } else
     {
         if (b == 0) {
             return 0; // Just to avoid dividing by 0
         }
-        tmpval = b * proportions[(a << 8)/b + 256].distance_ratio;
+        propidx = (a << 8)/b;
+        tmpval = b;
     }
+    tmpval = tmpval * (long long)proportions[propidx + 256].distance_ratio;
     return (tmpval >> 13);
 }
 

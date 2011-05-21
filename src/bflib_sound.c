@@ -407,7 +407,7 @@ long get_emitter_pan(struct SoundReceiver *recv, struct SoundEmitter *emit)
     diff_x = emit->pos.val_x - recv->pos.val_x;
     diff_y = emit->pos.val_y - recv->pos.val_y;
     // Faster way of doing simple thing: radius = sqrt(dist_x*dist_y);
-    radius = LbProportion(abs(diff_x), abs(diff_y));
+    radius = LbDiagonalLength(abs(diff_x), abs(diff_y));
     if (radius < deadzone_radius) {
       return 64;
     }

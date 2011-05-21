@@ -275,6 +275,7 @@ static void process_event(const SDL_Event *ev)
     case SDL_ACTIVEEVENT:
         if (ev->active.state & SDL_APPACTIVE) {
             lbAppActive = (ev->active.gain != 0);
+            //SYNCDBG(10, "Active = %d",(int)lbAppActive);
             SDL_ShowCursor(lbAppActive ? SDL_DISABLE : SDL_ENABLE);
             SDL_WM_GrabInput(lbAppActive ? SDL_GRAB_ON : SDL_GRAB_OFF);
         }

@@ -52,6 +52,7 @@ unsigned long mouse_pos_change_saved;
 struct DevInput joy;
 */
 volatile TbBool lbMouseAutoReset = true;
+volatile TbDisplayStructEx lbDisplayEx;
 /******************************************************************************/
 TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *pointerSprite, long hot_x, long hot_y)
 {
@@ -221,91 +222,97 @@ TbResult LbMouseOnEndSwap(void)
 
 void mouseControl(unsigned int action, struct TbPoint *pos)
 {
-  struct TbPoint dstPos;
-  dstPos.x = pos->x;
-  dstPos.y = pos->y;
-  switch ( action )
-  {
-  case MActn_MOUSEMOVE:
-      MouseToScreen(&dstPos);
-      LbMouseOnMove(dstPos);
-      break;
-  case MActn_LBUTTONDOWN:
-      lbDisplay.MLeftButton = 1;
-      if ( !lbDisplay.LeftButton )
-      {
+    struct TbPoint dstPos;
+    dstPos.x = pos->x;
+    dstPos.y = pos->y;
+    switch ( action )
+    {
+    case MActn_MOUSEMOVE:
         MouseToScreen(&dstPos);
         LbMouseOnMove(dstPos);
-        lbDisplay.MouseX = lbDisplay.MMouseX;
-        lbDisplay.MouseY = lbDisplay.MMouseY;
-        lbDisplay.RLeftButton = 0;
-        lbDisplay.LeftButton = 1;
-      }
-      break;
-  case MActn_LBUTTONUP:
-      lbDisplay.MLeftButton = 0;
-      if ( !lbDisplay.RLeftButton )
-      {
-        MouseToScreen(&dstPos);
-        LbMouseOnMove(dstPos);
-        lbDisplay.RMouseX = lbDisplay.MMouseX;
-        lbDisplay.RMouseY = lbDisplay.MMouseY;
-        lbDisplay.RLeftButton = 1;
-      }
-      break;
-  case MActn_RBUTTONDOWN:
-      lbDisplay.MRightButton = 1;
-      if ( !lbDisplay.RightButton )
-      {
-        MouseToScreen(&dstPos);
-        LbMouseOnMove(dstPos);
-        lbDisplay.MouseX = lbDisplay.MMouseX;
-        lbDisplay.MouseY = lbDisplay.MMouseY;
-        lbDisplay.RRightButton = 0;
-        lbDisplay.RightButton = 1;
-      }
-      break;
-  case MActn_RBUTTONUP:
-      lbDisplay.MRightButton = 0;
-      if ( !lbDisplay.RRightButton )
-      {
-        MouseToScreen(&dstPos);
-        LbMouseOnMove(dstPos);
-        lbDisplay.RMouseX = lbDisplay.MMouseX;
-        lbDisplay.RMouseY = lbDisplay.MMouseY;
-        lbDisplay.RRightButton = 1;
-      }
-      break;
-  case MActn_MBUTTONDOWN:
-      lbDisplay.MMiddleButton = 1;
-      if ( !lbDisplay.MiddleButton )
-      {
-        MouseToScreen(&dstPos);
-        LbMouseOnMove(dstPos);
-        lbDisplay.MouseX = lbDisplay.MMouseX;
-        lbDisplay.MouseY = lbDisplay.MMouseY;
-        lbDisplay.MiddleButton = 1;
-        lbDisplay.RMiddleButton = 0;
-      }
-      break;
-  case MActn_MBUTTONUP:
-      lbDisplay.MMiddleButton = 0;
-      if ( !lbDisplay.RMiddleButton )
-      {
-        MouseToScreen(&dstPos);
-        LbMouseOnMove(dstPos);
-        lbDisplay.RMouseX = lbDisplay.MMouseX;
-        lbDisplay.RMouseY = lbDisplay.MMouseY;
-        lbDisplay.RMiddleButton = 1;
-      }
-      break;
-  case MActn_WHEELMOVEUP:
-  case MActn_WHEELMOVEDOWN:
-      //TODO INPUT make storing (and later using) mouse scroll events
-      break;
+        break;
+    case MActn_LBUTTONDOWN:
+        lbDisplay.MLeftButton = 1;
+        if ( !lbDisplay.LeftButton )
+        {
+            MouseToScreen(&dstPos);
+            LbMouseOnMove(dstPos);
+            lbDisplay.MouseX = lbDisplay.MMouseX;
+            lbDisplay.MouseY = lbDisplay.MMouseY;
+            lbDisplay.RLeftButton = 0;
+            lbDisplay.LeftButton = 1;
+        }
+        break;
+    case MActn_LBUTTONUP:
+        lbDisplay.MLeftButton = 0;
+        if ( !lbDisplay.RLeftButton )
+        {
+            MouseToScreen(&dstPos);
+            LbMouseOnMove(dstPos);
+            lbDisplay.RMouseX = lbDisplay.MMouseX;
+            lbDisplay.RMouseY = lbDisplay.MMouseY;
+            lbDisplay.RLeftButton = 1;
+        }
+        break;
+    case MActn_RBUTTONDOWN:
+        lbDisplay.MRightButton = 1;
+        if ( !lbDisplay.RightButton )
+        {
+            MouseToScreen(&dstPos);
+            LbMouseOnMove(dstPos);
+            lbDisplay.MouseX = lbDisplay.MMouseX;
+            lbDisplay.MouseY = lbDisplay.MMouseY;
+            lbDisplay.RRightButton = 0;
+            lbDisplay.RightButton = 1;
+        }
+        break;
+    case MActn_RBUTTONUP:
+        lbDisplay.MRightButton = 0;
+        if ( !lbDisplay.RRightButton )
+        {
+            MouseToScreen(&dstPos);
+            LbMouseOnMove(dstPos);
+            lbDisplay.RMouseX = lbDisplay.MMouseX;
+            lbDisplay.RMouseY = lbDisplay.MMouseY;
+            lbDisplay.RRightButton = 1;
+        }
+        break;
+    case MActn_MBUTTONDOWN:
+        lbDisplay.MMiddleButton = 1;
+        if ( !lbDisplay.MiddleButton )
+        {
+            MouseToScreen(&dstPos);
+            LbMouseOnMove(dstPos);
+            lbDisplay.MouseX = lbDisplay.MMouseX;
+            lbDisplay.MouseY = lbDisplay.MMouseY;
+            lbDisplay.MiddleButton = 1;
+            lbDisplay.RMiddleButton = 0;
+        }
+        break;
+    case MActn_MBUTTONUP:
+        lbDisplay.MMiddleButton = 0;
+        if ( !lbDisplay.RMiddleButton )
+        {
+            MouseToScreen(&dstPos);
+            LbMouseOnMove(dstPos);
+            lbDisplay.RMouseX = lbDisplay.MMouseX;
+            lbDisplay.RMouseY = lbDisplay.MMouseY;
+            lbDisplay.RMiddleButton = 1;
+        }
+        break;
+    case MActn_WHEELMOVEUP:
+        lbDisplayEx.WhellPosition--;
+        lbDisplayEx.WhellMoveUp++;
+        lbDisplayEx.WhellMoveDown = 0;
+        break;
+    case MActn_WHEELMOVEDOWN:
+        lbDisplayEx.WhellPosition++;
+        lbDisplayEx.WhellMoveUp = 0;
+        lbDisplayEx.WhellMoveDown++;
+        break;
     default:
-      break;
-  }
+        break;
+    }
 }
 
 /**

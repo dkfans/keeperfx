@@ -662,7 +662,7 @@ long update_effect_element(struct Thing *thing)
       return 1;
     abs_x = abs(thing->pos_2C.x.val);
     abs_y = abs(thing->pos_2C.y.val);
-    prop_factor = LbProportion(abs_x, abs_y);
+    prop_factor = LbDiagonalLength(abs_x, abs_y);
     i = ((LbArcTanAngle(thing->pos_2C.z.val, prop_factor) & 0x7FF) - 512) & 0x7FF;
     if (i > 1024)
       i -= 1024;
