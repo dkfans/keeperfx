@@ -2146,20 +2146,30 @@ unsigned short get_thing_shade(struct Thing *thing)
     MapSubtlCoord stl_x,stl_y;
     long lgh[2][2]; // the dimensions are lgh[y][x]
     long shval;
+    long fract_x,fract_y;
     stl_x = thing->mappos.x.stl.num;
     stl_y = thing->mappos.y.stl.num;
+    fract_x = thing->mappos.x.stl.pos;
+    fract_y = thing->mappos.y.stl.pos;
     lgh[0][0] = get_subtile_lightness(stl_x,  stl_y);
     lgh[0][1] = get_subtile_lightness(stl_x+1,stl_y);
     lgh[1][0] = get_subtile_lightness(stl_x,  stl_y+1);
     lgh[1][1] = get_subtile_lightness(stl_x+1,stl_y+1);
-    shval = (thing->mappos.x.stl.pos
-        * (lgh[0][1] + (thing->mappos.y.stl.pos * (lgh[1][1] - lgh[0][1]) >> 8)
-        - (lgh[0][0] + (thing->mappos.y.stl.pos * (lgh[1][0] - lgh[0][0]) >> 8))) >> 8)
-        + (lgh[0][0] + (thing->mappos.y.stl.pos * (lgh[1][0] - lgh[0][0]) >> 8));
+    shval = (fract_x
+        * (lgh[0][1] + (fract_y * (lgh[1][1] - lgh[0][1]) >> 8)
+        - (lgh[0][0] + (fract_y * (lgh[1][0] - lgh[0][0]) >> 8))) >> 8)
+        + (lgh[0][0] + (fract_y * (lgh[1][0] - lgh[0][0]) >> 8));
     if (shval < 8192)
+    {
         shval += 2048;
-    if (shval > 8192)
-        shval = 8192;
+        if (shval > 8192)
+            shval = 8192;
+    } else
+    {
+        // Max lightness value - make sure it won't exceed our limits
+        if (shval > 64*256+255)
+            shval = 64*256+255;
+    }
     return shval;
 }
 
@@ -2266,11 +2276,12 @@ void prepare_jonty_remap_and_scale(long *scale, const struct JontySpr *jspr)
         shade = 0;
     }
     shade_factor = shade >> 8;
-    *scale = thelens * thing->field_46 / fade;
+    *scale = (thelens * (long)thing->field_46) / fade;
     if ((thing->field_4F & 0xC) != 0)
     {
         lbDisplay.DrawFlags |= 0x0800u;
-        lbSpriteReMapPtr = &pixmap.ghost[256 * thing->field_51];
+        shade_factor = thing->field_51;
+        lbSpriteReMapPtr = &pixmap.ghost[256 * shade_factor];
     } else
     if (shade_factor == 32)
     {
