@@ -33,13 +33,39 @@ extern "C" {
 
 #define BUCKETS_COUNT 704
 
+enum QKinds {
+    QK_PolyTriangle = 0,
+    QK_PolyTriangleSimp,
+    QK_Unknown2,
+    QK_Unknown3,
+    QK_Unknown4,
+    QK_Unknown5,
+    QK_Unknown6,
+    QK_Unknown7,
+    QK_Unknown8,
+    QK_Unknown9,
+    QK_Unknown10,
+    QK_JontySprite,
+    QK_Unknown12,
+    QK_Unknown13,
+    QK_Unknown14,
+    QK_Unknown15,
+    QK_IntegerValue,
+    QK_RoomFlagPole,
+    QK_Unknown18,
+    QK_RoomFlagTop,
+    QK_Unknown20,
+};
+
 struct MinMax;
 struct Camera;
 struct PlayerInfo;
 
+typedef unsigned char QKind;
+
 struct BasicQ { // sizeof = 5
   struct BasicQ *next;
-  unsigned char kind;
+  QKind kind;
 };
 
 struct BasicUnk00 {
