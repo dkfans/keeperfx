@@ -1272,18 +1272,18 @@ void display_drawlist(void)
         //JUSTLOG("%d",(int)item.b->kind);
         switch ( item.b->kind )
         {
-        case 0:
+        case QK_PolyTriangle:
           vec_mode = 5;
           vec_map = block_ptrs[item.unk00->block];
           draw_gpoly(&item.unk00->p1, &item.unk00->p2, &item.unk00->p3);
           break;
-        case 1:
+        case QK_PolyTriangleSimp:
           vec_mode = 7;
           vec_colour = ((item.unk01->p3.field_10 + item.unk01->p2.field_10 + item.unk01->p1.field_10)/3) >> 16;
           vec_map = block_ptrs[item.unk01->block];
           trig(&item.unk01->p1, &item.unk01->p2, &item.unk01->p3);
           break;
-        case 2:
+        case QK_Unknown2:
           vec_mode = 0;
           vec_colour = item.unk02->colour;
           point_a.field_0 = item.unk02->x1;
@@ -1294,7 +1294,7 @@ void display_drawlist(void)
           point_c.field_4 = item.unk02->y3;
           draw_gpoly(&point_a, &point_b, &point_c);
           break;
-        case 3:
+        case QK_Unknown3:
           vec_mode = 4;
           vec_colour = item.unk03->colour;
           point_a.field_0 = item.unk03->x1;
@@ -1308,7 +1308,7 @@ void display_drawlist(void)
           point_c.field_10 = item.unk03->vf3 << 16;
           draw_gpoly(&point_a, &point_b, &point_c);
           break;
-        case 4:
+        case QK_Unknown4:
           vec_mode = 2;
           point_a.field_0 = item.unk04->x1;
           point_a.field_4 = item.unk04->y1;
@@ -1324,7 +1324,7 @@ void display_drawlist(void)
           point_c.field_C = item.unk04->vf3 << 16;
           trig(&point_a, &point_b, &point_c);
           break;
-        case 5:
+        case QK_Unknown5:
           vec_mode = 5;
           point_a.field_0 = item.unk05->x1;
           point_a.field_4 = item.unk05->y1;
@@ -1343,7 +1343,7 @@ void display_drawlist(void)
           point_c.field_10 = item.unk05->wf3 << 16;
           draw_gpoly(&point_a, &point_b, &point_c);
           break;
-        case 6:
+        case QK_Unknown6:
           vec_mode = 3;
           point_a.field_0 = item.unk06->x1;
           point_a.field_4 = item.unk06->y1;
@@ -1359,7 +1359,7 @@ void display_drawlist(void)
           point_c.field_C = item.unk06->vf3 << 16;
           trig(&point_a, &point_b, &point_c);
           break;
-        case 7:
+        case QK_Unknown7:
           vec_mode = 6;
           point_a.field_0 = item.unk07->x1;
           point_a.field_4 = item.unk07->y1;
@@ -1378,21 +1378,21 @@ void display_drawlist(void)
           point_c.field_10 = item.unk07->wf3 << 16;
           trig(&point_a, &point_b, &point_c);
           break;
-        case 8:
+        case QK_Unknown8:
           draw_map_who(item.rotSpr);
           break;
-        case 9:
+        case QK_Unknown9:
           draw_unkn09(item.unk09);
           break;
-        case 10:
+        case QK_Unknown10:
           vec_mode = 0;
           vec_colour = item.unk10->field_6;
           draw_gpoly(&item.unk10->p1, &item.unk10->p2, &item.unk10->p3);
           break;
-        case 11:
+        case QK_JontySprite:
           draw_jonty_mapwho(item.jonSpr);
           break;
-        case 12:
+        case QK_Unknown12:
           draw_keepsprite_unscaled_in_buffer(item.unk12->field_5C, item.unk12->field_58, item.unk12->field_5E, scratch);
           vec_map = scratch;
           vec_mode = 10;
@@ -1400,10 +1400,10 @@ void display_drawlist(void)
           trig(&item.unk12->p1, &item.unk12->p2, &item.unk12->p3);
           trig(&item.unk12->p1, &item.unk12->p3, &item.unk12->p4);
           break;
-        case 13:
+        case QK_Unknown13:
           draw_clipped_line(item.unk13->p.field_0,item.unk13->p.field_4,item.unk13->p.field_8,item.unk13->p.field_C,item.unk13->p.field_10);
           break;
-        case 14:
+        case QK_Unknown14:
           player = get_my_player();
           cam = player->acamera;
           if (cam != NULL)
@@ -1412,13 +1412,13 @@ void display_drawlist(void)
               draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, cam->field_17/pixel_size);
           }
           break;
-        case 16:
+        case QK_IntegerValue:
           draw_engine_number(item.number);
           break;
-        case 17:
+        case QK_RoomFlagPole:
           draw_engine_room_flagpole(item.roomFlg);
           break;
-        case 18:
+        case QK_Unknown18:
           player = get_my_player();
           cam = player->acamera;
           if (cam != NULL)
@@ -1427,7 +1427,7 @@ void display_drawlist(void)
               draw_jonty_mapwho(item.jonSpr);
           }
           break;
-        case 19:
+        case QK_RoomFlagTop:
           draw_engine_room_flag_top(item.roomFlg);
           break;
         default:
@@ -2169,7 +2169,7 @@ void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsign
     _DK_process_keeper_sprite(x, y, a3, a4, a5, a6);
 }
 
-void process_keeper_speedup_sprite(struct JontySpr *jspr, long angle, long transp)
+void process_keeper_speedup_sprite(struct JontySpr *jspr, long angle, long scale)
 {
     struct PlayerInfo *player;
     struct Thing *thing;
@@ -2185,47 +2185,101 @@ void process_keeper_speedup_sprite(struct JontySpr *jspr, long angle, long trans
         graph_id2 = 112;
         if (player->view_type == 1)
         {
-          add_x = transp >> 3;
-          add_y = (transp >> 2) - transp;
+          add_x = scale >> 3;
+          add_y = (scale >> 2) - scale;
         } else
         {
-          add_x = transp * LbSinL(angle) >> 20;
-          add_y = -(LbCosL(angle) * (transp + (transp >> 1))) >> 16;
+          add_x = scale * LbSinL(angle) >> 20;
+          add_y = -(LbCosL(angle) * (scale + (scale >> 1))) >> 16;
         }
-        transp2 = transp / 2;
+        transp2 = scale / 2;
         break;
     case 2:
         graph_id2 = 113;
         if (player->view_type == 1)
         {
             add_x = 0;
-            add_y = 3 * transp >> 3;
+            add_y = 3 * scale >> 3;
         } else
         {
-            add_x = (transp * LbSinL(angle)) >> 20;
-            add_y = (transp * LbCosL(angle)) >> 20;
+            add_x = (scale * LbSinL(angle)) >> 20;
+            add_y = (scale * LbCosL(angle)) >> 20;
         }
-        transp2 = 2 * transp / 3;
+        transp2 = 2 * scale / 3;
         break;
     default:
         graph_id2 = 113;
         if (player->view_type == 1)
         {
-            add_x = (transp >> 2) / 3;
-            add_y = (transp >> 1) / 3;
+            add_x = (scale >> 2) / 3;
+            add_y = (scale >> 1) / 3;
         } else
         {
-            add_x = transp * LbSinL(angle) >> 20;
-            add_y = (-(LbCosL(angle) * (transp + (transp >> 1))) >> 16) / 3;
+            add_x = scale * LbSinL(angle) >> 20;
+            add_y = (-(LbCosL(angle) * (scale + (scale >> 1))) >> 16) / 3;
         }
-        transp2 = transp / 3;
+        transp2 = scale / 3;
         break;
     }
     EngineSpriteDrawUsingAlpha = 0;
     nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(graph_id2);
-    process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, transp);
+    process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, scale);
     EngineSpriteDrawUsingAlpha = 1;
     process_keeper_sprite(jspr->scr_x+add_x, jspr->scr_y+add_y, graph_id2, angle, nframe2, transp2);
+}
+
+void prepare_jonty_remap_and_scale(long *scale, const struct JontySpr *jspr)
+{
+    long i;
+    struct Thing *thing;
+    long shade,shade_factor,fade;
+    thing = jspr->thing;
+    if (lens_mode == 0)
+    {
+        fade = 65536;
+        if ((thing->field_4F & 0x02) == 0)
+            i = get_thing_shade(thing);
+        else
+            i = 8192;
+        shade = i;
+    } else
+    if (jspr->field_14 <= lfade_min)
+    {
+        fade = jspr->field_14;
+        if ((thing->field_4F & 0x02) == 0)
+            i = get_thing_shade(thing);
+        else
+            i = 8192;
+        shade = i;
+    } else
+    if (jspr->field_14 < lfade_max)
+    {
+        fade = jspr->field_14;
+        if ((thing->field_4F & 0x02) == 0)
+            i = get_thing_shade(thing);
+        else
+            i = 8192;
+        shade = i * (long long)(lfade_max - fade) / fade_mmm;
+    } else
+    {
+        fade = jspr->field_14;
+        shade = 0;
+    }
+    shade_factor = shade >> 8;
+    *scale = thelens * thing->field_46 / fade;
+    if ((thing->field_4F & 0xC) != 0)
+    {
+        lbDisplay.DrawFlags |= 0x0800u;
+        lbSpriteReMapPtr = &pixmap.ghost[256 * thing->field_51];
+    } else
+    if (shade_factor == 32)
+    {
+        lbDisplay.DrawFlags &= ~0x0800u;
+    } else
+    {
+        lbDisplay.DrawFlags |= 0x0800u;
+        lbSpriteReMapPtr = &pixmap.fade_tables[256 * shade_factor];
+    }
 }
 
 void draw_jonty_mapwho(struct JontySpr *jspr)
@@ -2234,7 +2288,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
     unsigned char alpha_mem;
     struct PlayerInfo *player;
     struct Thing *thing;
-    long angle,transp;
+    long angle,scale;
     //_DK_draw_jonty_mapwho(jspr); return;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
@@ -2244,55 +2298,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
       angle = thing->field_52 - spr_map_angle;
     else
       angle = thing->field_52;
-    {
-        long shade,shade_factor,fade;
-        long i;
-        if (lens_mode == 0)
-        {
-            fade = 65536;
-            if ((thing->field_4F & 0x02) != 0)
-                shade = get_thing_shade(thing);
-            else
-                shade = 8192;
-        } else
-        if (jspr->field_14 <= lfade_min)
-        {
-            fade = jspr->field_14;
-            if ((thing->field_4F & 0x02) != 0)
-                shade = 8192;
-            else
-                shade = get_thing_shade(thing);
-        } else
-        if (jspr->field_14 < lfade_max)
-        {
-            fade = jspr->field_14;
-            if ((thing->field_4F & 0x02) == 0)
-                i = get_thing_shade(thing);
-            else
-                i = 8192;
-            shade = i * (long long)(lfade_max - fade) / fade_mmm;
-        } else
-        {
-            fade = jspr->field_14;
-            shade = 0;
-        }
-        shade_factor = shade >> 8;
-        transp = thelens * thing->field_46 / fade;
-        if ((thing->field_4F & 0xC) != 0)
-        {
-            lbDisplay.DrawFlags |= 0x0800u;
-            lbSpriteReMapPtr = &pixmap.ghost[256 * thing->field_51];
-        } else
-        if (shade_factor == 32)
-        {
-            lbDisplay.DrawFlags &= ~0x0800u;
-        } else
-        {
-            lbDisplay.DrawFlags |= 0x0800u;
-            lbSpriteReMapPtr = &pixmap.fade_tables[256 * shade_factor];
-        }
-    }
-
+    prepare_jonty_remap_and_scale(&scale, jspr);
     EngineSpriteDrawUsingAlpha = 0;
     switch (thing->field_4F & 0x30)
     {
@@ -2345,20 +2351,20 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
         case TCls_Object:
             if ((thing->model == 2) || (thing->model == 4) || (thing->model == 28))
             {
-                process_keeper_speedup_sprite(jspr, angle, transp);
+                process_keeper_speedup_sprite(jspr, angle, scale);
                 break;
             }
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, transp);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, scale);
             break;
         case TCls_Trap:
             if ((thing->model != 1) && (player->id_number != thing->owner) && (thing->byte_18 == 0))
             {
                 break;
             }
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, transp);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, scale);
             break;
         default:
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, transp);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, scale);
             break;
         }
     }
