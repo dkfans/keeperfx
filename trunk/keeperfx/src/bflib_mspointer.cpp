@@ -50,10 +50,179 @@ volatile TbBool lbPointerAdvancedDraw;
 /**
  * Draws the mouse pointer sprite on a display buffer.
  */
-long PointerDraw(long x, long y, struct TbSprite *spr, TbPixel *buf, unsigned long a5)
+long PointerDraw(long x, long y, struct TbSprite *spr, TbPixel *buf, unsigned long buf_linesize)
 {
     //show_onscreen_msg(5, "POS %3d x %3d", x,y);
-    return _DK_PointerDraw(x,y,spr,buf,a5);
+    //return _DK_PointerDraw(x,y,spr,buf,a5);
+    unsigned int width,height;
+    int start_x,start_y,end_x,end_y;
+    char *src;
+    unsigned char *dst;
+    unsigned char *dstend;
+    int nlines,npixels;
+    int delta;
+    int sprval;
+    int width_mstart,height_mstart;
+    int width_to_draw,height_to_draw;
+
+    // Prepare bounds
+    width = spr->SWidth;
+    height = spr->SHeight;
+    if ( (width <= 0) || (height <= 0) )
+        return 1;
+    if ( (lbDisplay.MouseWindowWidth <= 0) || (lbDisplay.MouseWindowHeight <= 0) )
+        return 1;
+
+    start_x = lbDisplay.MouseWindowX - x;
+    if (start_x <= 0) {
+      start_x = 0;
+    } else
+    if (start_x >= width) {
+        return 1;
+    }
+
+    end_x = x - lbDisplay.MouseWindowWidth - lbDisplay.MouseWindowX + width;
+    if (end_x <= 0) {
+        end_x = 0;
+    } else
+    if (end_x >= width) {
+        return 1;
+    }
+    width -= end_x;
+
+    start_y = lbDisplay.MouseWindowY - y;
+    if (start_y <= 0) {
+      start_y = 0;
+    } else
+    if (start_y >= height) {
+        return 1;
+    }
+
+    end_y = y - lbDisplay.MouseWindowHeight - lbDisplay.MouseWindowY + height;
+    if (end_y <= 0) {
+        end_y = 0;
+    } else
+    if (end_y >= height) {
+        return 1;
+    }
+    height -= end_y;
+
+    nlines = start_y;
+    height_mstart = height - start_y;
+    width_mstart = width - start_x;
+    dst = &buf[buf_linesize * (start_y + y) + (start_x + x)];
+    src = (char *)spr->Data;
+    // Skip starting lines of the sprite
+    while (nlines > 0)
+    {
+        while ((sprval = *src) > 0)
+        {
+          src += sprval + 1;
+        }
+        src++;
+        if (sprval == 0)
+        {
+          nlines--;
+        }
+    }
+    // Now process the lines which should be drawn
+    dstend = &dst[buf_linesize];
+    width_to_draw = width_mstart;
+    height_to_draw = height_mstart;
+
+    while ( 1 )
+    {
+        npixels = start_x;
+        while (npixels > 0)
+        {
+              sprval = *src;
+              if (sprval == 0)
+              {
+                  width_to_draw = 0;
+                  break;
+              } else
+              if (sprval < 0)
+              {
+                  if (sprval < -npixels)
+                  {
+                      delta = -(npixels + sprval);
+                      if (delta > width_mstart)
+                          delta = width_mstart;
+                      src++;
+                      dst += delta;
+                      width_to_draw -= delta;
+                      break;
+                  }
+                  npixels += sprval;
+                  src++;
+              } else
+              {
+                  if (sprval > npixels)
+                  {
+                      delta = sprval - npixels;
+                      if (delta > width_mstart)
+                          delta = width_mstart;
+                      memcpy(dst, &src[npixels + 1], delta);
+                      dst += delta;
+                      width_to_draw -= delta;
+                      src += sprval + 1;
+                      break;
+                  }
+                  npixels -= sprval;
+                  src += sprval + 1;
+              }
+        }
+
+        while (1)
+        {
+            if (width_to_draw <= 0)
+            {
+              height_to_draw--;
+              if (height_to_draw == 0)
+                  return 1;
+              do {
+                  while ((sprval = *src) > 0)
+                  {
+                    src += sprval + 1;
+                  }
+                  src++;
+              } while (sprval != 0);
+            } else
+            {
+                sprval = *src;
+                if (sprval > 0)
+                {
+                    delta = sprval;
+                    if (delta > width_to_draw)
+                        delta = width_to_draw;
+                    memcpy(dst, src+1, delta);
+                    delta = *src;
+                    width_to_draw -= delta;
+                    dst += delta;
+                    src += delta + 1;
+                    continue;
+                } else
+                if (sprval < 0)
+                {
+                    width_to_draw += sprval;
+                    dst += -sprval;
+                    src++;
+                    continue;
+                } else
+                {
+                    height_to_draw--;
+                    if (height_to_draw == 0)
+                        return 1;
+                    src++;
+                }
+            }
+            dst = dstend;
+            dstend += buf_linesize;
+            width_to_draw = width_mstart;
+            break;
+        }
+    }
+    return 1;
 }
 
 // Methods
