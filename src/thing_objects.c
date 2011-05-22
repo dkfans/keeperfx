@@ -220,13 +220,13 @@ DLLIMPORT long _DK_object_update_power_lightning(struct Thing *thing);
 DLLIMPORT long _DK_object_is_gold_pile(struct Thing *thing);
 DLLIMPORT long _DK_object_is_gold(struct Thing *thing);
 DLLIMPORT long _DK_remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount);
-DLLIMPORT struct Thing *_DK_create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
+DLLIMPORT struct Thing *_DK_create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx);
 DLLIMPORT long _DK_thing_is_spellbook(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_get_crate_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
 /******************************************************************************/
-struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4)
+struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
 {
     struct Objects *objdat;
     struct ObjectConfig *objconf;
@@ -249,10 +249,10 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
     }
     thing->class_id = TCls_Object;
     thing->model = model;
-    if (a4 == -1)
-      thing->field_1D = -1;
+    if (parent_idx == -1)
+      thing->parent_thing_idx = -1;
     else
-      thing->field_1D = a4;
+      thing->parent_thing_idx = parent_idx;
     LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
     objconf = &game.objects_config[model];
     objdat = get_objects_data_for_thing(thing);

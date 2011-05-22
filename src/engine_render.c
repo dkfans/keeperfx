@@ -8,7 +8,7 @@
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
- * @date     20 Mar 2009 - 30 Mar 2009
+ * @date     20 Mar 2009 - 20 May 2011
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by

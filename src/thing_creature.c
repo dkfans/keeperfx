@@ -100,12 +100,12 @@ DLLIMPORT void _DK_change_creature_owner(struct Thing *thing , char nowner);
 DLLIMPORT long _DK_remove_all_traces_of_combat(struct Thing *thing);
 DLLIMPORT void _DK_cause_creature_death(struct Thing *thing, unsigned char a2);
 DLLIMPORT void _DK_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev);
-DLLIMPORT void _DK_creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
-DLLIMPORT void _DK_creature_cast_spell(struct Thing *caster, long a2, long a3, long a4, long a5);
+DLLIMPORT void _DK_creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long no_effects);
+DLLIMPORT void _DK_creature_cast_spell(struct Thing *caster, long a2, long a3, long no_effects, long a5);
 DLLIMPORT void _DK_set_first_creature(struct Thing *thing);
 DLLIMPORT void _DK_remove_first_creature(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_get_creature_near(unsigned short pos_x, unsigned short pos_y);
-DLLIMPORT struct Thing *_DK_get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, long a4);
+DLLIMPORT struct Thing *_DK_get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, long no_effects);
 DLLIMPORT struct Thing *_DK_get_creature_near_for_controlling(unsigned char a1, long a2, long a3);
 DLLIMPORT long _DK_remove_creature_from_group(struct Thing *thing);
 DLLIMPORT long _DK_add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2);
@@ -126,7 +126,7 @@ DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *thing, lon
 DLLIMPORT void _DK_set_creature_instance(struct Thing *thing, long a1, long a2, long a3, struct Coord3d *pos);
 DLLIMPORT void _DK_draw_creature_view(struct Thing *thing);
 DLLIMPORT void _DK_process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
-DLLIMPORT short _DK_kill_creature(struct Thing *thing, struct Thing *tngrp, char a1, unsigned char a2, unsigned char a3, unsigned char a4);
+DLLIMPORT short _DK_kill_creature(struct Thing *thing, struct Thing *tngrp, char a1, unsigned char a2, unsigned char a3, unsigned char no_effects);
 DLLIMPORT void _DK_update_creature_count(struct Thing *thing);
 DLLIMPORT long _DK_process_creature_state(struct Thing *thing);
 DLLIMPORT long _DK_move_creature(struct Thing *thing);
@@ -441,7 +441,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         {
             cctrl->casted_spells[i].spkind = spell_idx;
             cctrl->casted_spells[i].field_1 = splconf->duration;
-            cctrl->field_AB |= 0x02;
+            cctrl->affected_by_spells |= CCSpl_Freeze;
             if ((thing->field_25 & 0x20) != 0)
             {
                 cctrl->field_AD |= 0x80;
@@ -527,7 +527,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         {
             cctrl->casted_spells[i].spkind = spell_idx;
             cctrl->casted_spells[i].field_1 = splconf->duration;
-            cctrl->field_AB |= 0x04;
+            cctrl->affected_by_spells |= CCSpl_Teleport;
         }
         break;
     case SplK_Speed:
@@ -1324,9 +1324,9 @@ unsigned long remove_thing_from_field1D_in_list(struct StructureList *list,long 
         }
         i = thing->next_of_class;
         // Per-thing code
-        if (thing->field_1D == remove_idx)
+        if (thing->parent_thing_idx == remove_idx)
         {
-            thing->field_1D = thing->index;
+            thing->parent_thing_idx = thing->index;
             n++;
         }
         // Per-thing code ends
@@ -1354,31 +1354,30 @@ void cause_creature_death(struct Thing *thing, unsigned char no_effects)
     crstat = creature_stats_get_from_thing(thing);
     if ((no_effects) || (!thing_exists(thing)))
     {
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0) {
+        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
-        }
         delete_thing_structure(thing, 0);
         return;
     }
-    if ((crstat->rebirth) && (cctrl->lairtng_idx > 0)
+    if ((crstat->rebirth != 0) && (cctrl->lairtng_idx > 0)
      && (crstat->rebirth-1 <= cctrl->explevel) )
     {
         creature_rebirth_at_lair(thing);
         return;
     }
-    if (creature_model_bleeds(thing->model))
-    {
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
-            add_creature_to_pool(crmodel, 1, 1);
-        creature_death_as_nature_intended(thing);
-    } else
-    if ((cctrl->field_AB & 0x02) != 0)
+    if ((cctrl->affected_by_spells & CCSpl_Freeze) != 0)
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
         thing_death_ice_explosion(thing);
     } else
-    if ((cctrl->field_1D3 == 2) || (cctrl->field_1D3 == 24))
+    if (!creature_model_bleeds(thing->model))
+    {
+        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+            add_creature_to_pool(crmodel, 1, 1);
+        creature_death_as_nature_intended(thing);
+    } else
+    if (shot_model_makes_flesh_explosion(cctrl->shot_model))
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
@@ -1457,7 +1456,7 @@ void delete_effects_attached_to_creature(struct Thing *crtng)
 }
 
 TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_plyr_idx,
-      unsigned char a4, TbBool died_in_battle, TbBool disallow_unconscious)
+      TbBool no_effects, TbBool died_in_battle, TbBool disallow_unconscious)
 {
     struct CreatureControl *cctrl;
     struct CreatureControl *cctrlgrp;
@@ -1499,10 +1498,10 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     update_kills_counters(thing, killertng, killer_plyr_idx, died_in_battle);
     if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) || (killer_plyr_idx == game.neutral_player_num) || dungeon_invalid(dungeon))
     {
-        if ((a4) && ((thing->field_0 & 0x20) != 0)) {
+        if ((no_effects) && ((thing->field_0 & 0x20) != 0)) {
             prepare_to_controlled_creature_death(thing);
         }
-        cause_creature_death(thing, a4);
+        cause_creature_death(thing, no_effects);
         return true;
     }
     // Now we are sure that killertng and dungeon pointers are correct
@@ -1539,17 +1538,17 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     if ((disallow_unconscious) || (!player_has_room(killertng->owner,RoK_PRISON))
       || (!player_creature_tends_to(killertng->owner,CrTend_Imprison)))
     {
-        if (a4 == 0) {
-            cause_creature_death(thing, a4);
+        if (no_effects == 0) {
+            cause_creature_death(thing, no_effects);
             return true;
         }
     }
-    if (a4)
+    if (no_effects)
     {
         if ((thing->field_0 & 0x20) != 0) {
             prepare_to_controlled_creature_death(thing);
         }
-        cause_creature_death(thing, a4);
+        cause_creature_death(thing, no_effects);
         return true;
     }
     clear_creature_instance(thing);
@@ -1673,7 +1672,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
           draw_lightning(&pos1, &pos2, 96, 60);
         shot->health = shotst->old->health;
         shot->word_14 = shotst->old->damage;
-        shot->field_1D = firing->index;
+        shot->parent_thing_idx = firing->index;
         break;
     case 7:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 768))
@@ -1684,7 +1683,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
         draw_flame_breath(&pos1, &pos2, 96, 2);
         shot->health = shotst->old->health;
         shot->word_14 = shotst->old->damage;
-        shot->field_1D = firing->index;
+        shot->parent_thing_idx = firing->index;
         break;
     case 13:
         for (i=0; i < 32; i++)
@@ -1703,7 +1702,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
             shot->field_1 |= 0x04;
             shot->word_14 = damage;
             shot->health = shotst->old->health;
-            shot->field_1D = firing->index;
+            shot->parent_thing_idx = firing->index;
         }
         break;
     default:
@@ -1719,7 +1718,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
         shot->field_1 |= 0x04;
         shot->word_14 = damage;
         shot->health = shotst->old->health;
-        shot->field_1D = firing->index;
+        shot->parent_thing_idx = firing->index;
         shot->word_17 = target_idx;
         shot->byte_13 = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
         break;
@@ -2205,7 +2204,7 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
     crtng->ccontrol_idx = cctrl->index;
     crtng->class_id = 5;
     crtng->model = model;
-    crtng->field_1D = crtng->index;
+    crtng->parent_thing_idx = crtng->index;
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;
     crtng->mappos.z.val = pos->z.val;
@@ -2847,7 +2846,7 @@ void place_bloody_footprint(struct Thing *thing)
         return false;
     }
     upd_done = 0;
-    if (cctrl->field_AB != 0)
+    if (cctrl->affected_by_spells != 0)
     {
       upd_done = 1;
       cctrl->pos_BB.x.val = 0;
@@ -3181,7 +3180,7 @@ long update_creature(struct Thing *thing)
     update_creature_count(thing);
     if ((thing->field_0 & 0x20) != 0)
     {
-        if (cctrl->field_AB == 0)
+        if (cctrl->affected_by_spells == 0)
         {
           if (cctrl->field_302 != 0)
           {
@@ -3194,7 +3193,7 @@ long update_creature(struct Thing *thing)
         }
         cctrl = creature_control_get_from_thing(thing);
         player = get_player(thing->owner);
-        if ((cctrl->field_AB & 0x02) != 0)
+        if ((cctrl->affected_by_spells & CCSpl_Freeze) != 0)
         {
             if ((player->field_3 & 0x04) == 0)
               PaletteSetPlayerPalette(player, blue_palette);
@@ -3205,7 +3204,7 @@ long update_creature(struct Thing *thing)
         }
     } else
     {
-        if (cctrl->field_AB == 0)
+        if (cctrl->affected_by_spells == 0)
         {
           if (cctrl->field_302 > 0)
           {

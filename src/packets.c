@@ -2266,7 +2266,7 @@ void process_players_creature_control_packet_control(long idx)
     ccctrl = creature_control_get_from_thing(cctng);
     if (cctng->health < 0)
         return;
-    if ((ccctrl->field_AB != 0) || (cctng->active_state == CrSt_CreatureUnconscious))
+    if ((ccctrl->affected_by_spells != 0) || (cctng->active_state == CrSt_CreatureUnconscious))
         return;
     speed_limit = get_creature_speed(cctng);
     if ((pckt->control_flags & PCtr_MoveUp) != 0)
