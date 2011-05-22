@@ -1742,7 +1742,7 @@ TbBool process_creature_hunger(struct Thing *thing)
   struct CreatureStats *crstat;
   cctrl = creature_control_get_from_thing(thing);
   crstat = creature_stats_get_from_thing(thing);
-  if ( (crstat->hunger_rate == 0) || ((cctrl->field_AB & 0x02) != 0) )
+  if ( (crstat->hunger_rate == 0) || ((cctrl->affected_by_spells & CCSpl_Freeze) != 0) )
     return false;
   cctrl->field_39++;
   if (cctrl->field_39 <= crstat->hunger_rate)

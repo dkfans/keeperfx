@@ -1462,7 +1462,7 @@ void update_god_lightning_ball(struct Thing *thing)
         if (target->health < 0)
         {
             cctrl = creature_control_get_from_thing(target);
-            cctrl->field_1D3 = 24;
+            cctrl->shot_model = ShM_GodLightBall;
             kill_creature(target, INVALID_THING, thing->owner, 0, 1, 0);
         }
         thing->word_17 = 0;
@@ -1668,7 +1668,7 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     }
     thing->class_id = TCls_CaveIn;
     thing->model = 0;
-    thing->field_1D = thing->index;
+    thing->parent_thing_idx = thing->index;
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->owner = owner;
     thing->field_9 = game.play_gameturn;
@@ -3008,7 +3008,7 @@ struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short model, un
     }
     thing->class_id = TCls_AmbientSnd;
     thing->model = model;
-    thing->field_1D = thing->index;
+    thing->parent_thing_idx = thing->index;
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->owner = owner;
     thing->field_4F |= 0x01;

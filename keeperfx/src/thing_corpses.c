@@ -371,7 +371,7 @@ struct Thing *create_dead_creature(struct Coord3d *pos, unsigned short model, un
     }
     thing->class_id = 4;
     thing->model = model;
-    thing->field_1D = thing->index;
+    thing->parent_thing_idx = thing->index;
     thing->owner = owner;
     thing->byte_13 = explevel;
     thing->mappos.x.val = pos->x.val;
