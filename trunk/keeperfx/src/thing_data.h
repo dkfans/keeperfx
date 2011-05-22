@@ -109,7 +109,7 @@ struct Thing {
     unsigned char field_19;
     unsigned char model;
     unsigned short index;
-    short field_1D;
+    short parent_thing_idx;
     unsigned char class_id;
     unsigned char field_20;
 unsigned char field_21;

@@ -314,11 +314,11 @@ void update_creature_graphic_anim(struct Thing *thing)
           inst_inf = creature_instance_info_get(cctrl->instance_id);
           update_creature_anim(thing, cctrl->field_1CE, inst_inf->graphics_idx);
         } else
-        if ((cctrl->field_B1 != 0) || (thing->health < 0) || ((cctrl->field_AB & 0x02) != 0))
+        if ((cctrl->field_B1 != 0) || (thing->health < 0) || ((cctrl->affected_by_spells & CCSpl_Freeze) != 0))
         {
             update_creature_anim(thing, 256, 8);
         } else
-        if ((cctrl->field_AB & 0x01) != 0)
+        if ((cctrl->affected_by_spells & CCSpl_Unknown01) != 0)
         {
             update_creature_anim(thing, 256, 0);
         } else
@@ -394,7 +394,7 @@ void update_creature_graphic_tint(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->field_AB & 0x02) != 0)
+    if ((cctrl->affected_by_spells & CCSpl_Freeze) != 0)
     {
         tint_thing(thing, colours[4][4][15], 1);
     } else

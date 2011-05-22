@@ -69,11 +69,22 @@ enum CreatureControlFlags {
     CCFlg_Exists        = 0x01,
     CCFlg_NoCompControl = 0x02,
     CCFlg_Immortal      = 0x04,
-    CCFlg_Unknown08  = 0x08,
-    CCFlg_Unknown10  = 0x10,
+    CCFlg_Unknown08     = 0x08,
+    CCFlg_Unknown10     = 0x10,
     CCFlg_IsInRoomList  = 0x20,
-    CCFlg_Unknown40  = 0x40,
-    CCFlg_Unknown80  = 0x80,
+    CCFlg_Unknown40     = 0x40,
+    CCFlg_Unknown80     = 0x80,
+};
+
+enum CreatureControlSpells {
+    CCSpl_Unknown01     = 0x01,
+    CCSpl_Freeze        = 0x02,
+    CCSpl_Teleport      = 0x04,
+    CCSpl_Unknown08     = 0x08,
+    CCSpl_Unknown10     = 0x10,
+    CCSpl_Unknown20     = 0x20,
+    CCSpl_Unknown40     = 0x40,
+    CCSpl_Unknown80     = 0x80,
 };
 
 struct CastedSpellData {
@@ -241,7 +252,7 @@ unsigned char field_88;
     unsigned char field_A8;
     unsigned char field_A9;
     unsigned char field_AA;
-    unsigned char field_AB;
+    unsigned char affected_by_spells;
     unsigned char spell_flags;
     unsigned char field_AD;
 unsigned char field_AE;
@@ -274,7 +285,7 @@ long field_DE[48];
     unsigned short field_1CE;
   unsigned short field_1D0;
     char field_1D2;
-unsigned char field_1D3;
+unsigned char shot_model;
   struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     char field_1E8;
 unsigned char field_1E9[46];

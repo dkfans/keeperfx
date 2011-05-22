@@ -301,7 +301,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   {
   case TCls_Creature:
       cctrl = creature_control_get_from_thing(thing);
-      if ((cctrl->field_AB & 0x02) != 0)
+      if ((cctrl->affected_by_spells & CCSpl_Freeze) != 0)
       {
           kill_creature(thing, 0, thing->owner, 0, 0, 0);
       } else
@@ -512,7 +512,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
     cctrl = creature_control_get_from_thing(thing);
     if (is_my_player(player))
     {
-      if (cctrl->field_AB & 0x02)
+      if (cctrl->affected_by_spells & CCSpl_Freeze)
         PaletteSetPlayerPalette(player, blue_palette);
     }
     crstat = creature_stats_get_from_thing(thing);
