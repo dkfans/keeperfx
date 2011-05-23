@@ -40,6 +40,27 @@ extern "C" {
 #pragma pack(1)
 #endif
 
+enum PlayerViewModes {
+    PVM_EmptyView = 0,
+    PVM_CreatureView,
+    PVM_IsometricView,
+    PVM_ParchmentView,
+    PVM_Unknown4,
+    PVM_FrontView, // 5
+    PVM_ParchFadeIn,
+    PVM_ParchFadeOut,
+};
+
+enum PlayerViewType {
+    PVT_None = 0,
+    PVT_DungeonTop,
+    PVT_CreatureContrl,
+    PVT_CreaturePasngr,
+    PVT_MapScreen,
+    PVT_MapFadeIn, // 5
+    PVT_MapFadeOut,
+};
+
 struct Wander // sizeof = 424
 {
   unsigned long field_0;
@@ -74,7 +95,7 @@ unsigned char field_14;
     short controlled_thing_idx;
     long field_31;
     short thing_under_hand;
-    unsigned char field_37;
+    unsigned char view_mode;
     struct Camera *acamera;  // Pointer to the currently active camera
     struct Camera cameras[4];
     unsigned short field_E4;

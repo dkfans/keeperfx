@@ -406,7 +406,7 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
         {
             if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->id_number))
             {
-                if (player->field_37 != 1)
+                if (player->view_mode != PVM_CreatureView)
                     shown = setup_scrolling_tooltips(&mappos);
             }
         }
@@ -554,7 +554,7 @@ void draw_tooltip_at(long ttpos_x,long ttpos_y,char *tttext)
   player = get_my_player();
   pos_x = ttpos_x;
   pos_y = ttpos_y;
-  if (player->view_type == 4)
+  if (player->view_type == PVT_MapScreen)
   {
     pos_y = GetMouseY() + 24;
     if (pos_y > MyScreenHeight-104)

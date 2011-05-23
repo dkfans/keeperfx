@@ -93,13 +93,6 @@ extern "C" {
 // Strings length
 #define CAMPAIGN_FNAME_LEN    64
 
-enum PlayerViewType {
-    PVT_DungeonTop          =  1,
-    PVT_CreatureContrl      =  2,
-    PVT_CreaturePasngr      =  3,
-    PVT_MapScreen           =  4,
-};
-
 enum PlayerVictoryState {
     VicS_Undecided          =  0,
     VicS_WonLevel           =  1,

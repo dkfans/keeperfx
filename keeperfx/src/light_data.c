@@ -605,15 +605,15 @@ void update_light_render_area(void)
     struct PlayerInfo *player;
     SYNCDBG(6,"Starting");
     player=get_my_player();
-    if (player->field_37 >= 1)
-      if ((player->field_37 <= 2) || (player->field_37 == 5))
+    if (player->view_mode >= PVM_CreatureView)
+      if ((player->view_mode <= PVM_IsometricView) || (player->view_mode == PVM_FrontView))
       {
           game.field_14BB5D = LIGHT_MAX_RANGE;
           game.field_14BB59 = LIGHT_MAX_RANGE;
       }
     delta_x=abs(game.field_14BB59);
     delta_y=abs(game.field_14BB5D);
-    // Prepare the area constraits
+    // Prepare the area constraints
     if (player->acamera != NULL)
     {
       subtile_y = player->acamera->mappos.y.stl.num;
