@@ -1416,7 +1416,7 @@ void lightning_modify_palette(struct Thing *thing)
       }
       return;
     }
-    if ((myplyr->field_37 != 6) && (myplyr->field_37 != 7) && (myplyr->field_37 != 3))
+    if ((myplyr->view_mode != PVM_ParchFadeIn) && (myplyr->view_mode != PVM_ParchFadeOut) && (myplyr->view_mode != PVM_ParchmentView))
     {
       if ((myplyr->field_3 & 0x08) == 0)
       {
@@ -3834,7 +3834,7 @@ void reinit_level_after_load(void)
   {
     player = get_player(i);
     if (player_exists(player))
-      set_engine_view(player, player->field_37);
+      set_engine_view(player, player->view_mode);
   }
   start_rooms = &game.rooms[1];
   end_rooms = &game.rooms[ROOMS_COUNT];
@@ -4299,7 +4299,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
     default:
       break;
     }
-    player->field_37 = val;
+    player->view_mode = val;
 }
 
 void set_player_state(struct PlayerInfo *player, short nwrk_state, long a2)
@@ -4385,7 +4385,7 @@ void set_player_mode(struct PlayerInfo *player, long nview)
   }
   switch (player->view_type)
   {
-  case 1:
+  case PVT_DungeonTop:
       i = 2;
       if (player->field_4B5 == 5)
       {
@@ -4400,21 +4400,21 @@ void set_player_mode(struct PlayerInfo *player, long nview)
       else
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
       break;
-  case 2:
-  case 3:
+  case PVT_CreatureContrl:
+  case PVT_CreaturePasngr:
       set_engine_view(player, 1);
       if (is_my_player(player))
-        game.numfield_D &= 0xFE;
+        game.numfield_D &= ~0x01;
       setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
       break;
-  case 4:
+  case PVT_MapScreen:
       player->field_456 = player->work_state;
       set_engine_view(player, 3);
       break;
-  case 5:
+  case PVT_MapFadeIn:
       set_player_instance(player, 14, 0);
       break;
-  case 6:
+  case PVT_MapFadeOut:
       set_player_instance(player, 15, 0);
       break;
   }
@@ -5995,7 +5995,7 @@ void update(void)
     process_players();
     process_action_points();
     player = get_my_player();
-    if (player->field_37 == 1)
+    if (player->view_mode == PVM_CreatureView)
       update_flames_nearest_camera(player->acamera);
     update_footsteps_nearest_camera(player->acamera);
     PaletteFadePlayer(player);
@@ -7103,35 +7103,35 @@ void redraw_display(void)
       set_pointer_graphic_none();
     else
       process_pointer_graphic();
-    switch (player->field_37)
+    switch (player->view_mode)
     {
-    case 0:
+    case PVM_EmptyView:
         break;
-    case 1:
+    case PVM_CreatureView:
         redraw_creature_view();
         parchment_loaded = 0;
         break;
-    case 2:
+    case PVM_IsometricView:
         redraw_isometric_view();
         parchment_loaded = 0;
         break;
-    case 3:
+    case PVM_ParchmentView:
         redraw_parchment_view();
         break;
-    case 5:
+    case PVM_FrontView:
         redraw_frontview();
         parchment_loaded = 0;
         break;
-    case 6:
+    case PVM_ParchFadeIn:
         parchment_loaded = 0;
         player->field_4BD = map_fade_in(player->field_4BD);
         break;
-    case 7:
+    case PVM_ParchFadeOut:
         parchment_loaded = 0;
         player->field_4BD = map_fade_out(player->field_4BD);
         break;
     default:
-        ERRORLOG("Unsupported drawing state, %d",(int)player->field_37);
+        ERRORLOG("Unsupported drawing state, %d",(int)player->view_mode);
         break;
     }
     //LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
@@ -7169,7 +7169,7 @@ void redraw_display(void)
           int i;
           i = LbTextCharWidth(' ');
           w = pixel_size * (LbTextStringWidth(text) + 2*i);
-          i = player->field_37;
+          i = player->view_mode;
           if ((i == 2) || (i == 5) || (i == 1))
             pos_x = player->engine_window_x + (MyScreenWidth-w-player->engine_window_x)/2;
           else
