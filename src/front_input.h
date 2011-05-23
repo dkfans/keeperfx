@@ -27,6 +27,41 @@
 extern "C" {
 #endif
 /******************************************************************************/
+enum GameKeys {
+    Gkey_MoveUp = 0,
+    Gkey_MoveDown,
+    Gkey_MoveLeft,
+    Gkey_MoveRight,
+    Gkey_RotateMod,
+    Gkey_SpeedMod, // 5
+    Gkey_RotateCW,
+    Gkey_RotateCCW,
+    Gkey_ZoomIn,
+    Gkey_ZoomOut,
+    Gkey_ZoomRoom00, // 10
+    Gkey_ZoomRoom01,
+    Gkey_ZoomRoom02,
+    Gkey_ZoomRoom03,
+    Gkey_ZoomRoom04,
+    Gkey_ZoomRoom05, // 15
+    Gkey_ZoomRoom06,
+    Gkey_ZoomRoom07,
+    Gkey_ZoomRoom08,
+    Gkey_ZoomRoom09,
+    Gkey_ZoomRoom10, // 20
+    Gkey_ZoomRoom11,
+    Gkey_ZoomRoom12,
+    Gkey_ZoomRoom13,
+    Gkey_ZoomRoom14,
+    Gkey_ZoomToFight, // 25
+    Gkey_ZoomCrAnnoyed,
+    Gkey_Unknown27,
+    Gkey_Unknown28,
+    Gkey_Unknown29,
+    Gkey_Unknown30, // 30
+    Gkey_SwitchToMap,
+};
+
 
 /******************************************************************************/
 /******************************************************************************/

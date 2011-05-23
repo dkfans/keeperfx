@@ -428,7 +428,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         set_player_instance(player, 0, true);
         return 0;
     }
-    if (player->field_37 != 5)
+    if (player->view_mode != PVM_FrontView)
     {
         view_zoom_camera_in(cam, 30000, 6000);
         // Compute new camera angle
@@ -578,7 +578,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
 long pinstfm_leave_creature(struct PlayerInfo *player, long *n)
 {
   //return _DK_pinstfm_leave_creature(player, n);
-  if (player->field_37 != 5)
+  if (player->view_mode != PVM_FrontView)
   {
     view_zoom_camera_out(player->acamera, 30000, 6000);
     if (get_camera_zoom(player->acamera) < player->field_4B6)
@@ -725,7 +725,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     return 0;
   }
   cam->mappos.x.val = thing->mappos.x.val;
-  if (player->field_37 == 5)
+  if (player->view_mode == PVM_FrontView)
   {
     cam->mappos.y.val = thing->mappos.y.val;
     cam->field_17 = 65536;
@@ -747,7 +747,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   unsigned long deltax,deltay;
   unsigned long addval;
   //return _DK_pinstfm_zoom_out_of_heart(player, n);
-  if (player->field_37 != 5)
+  if (player->view_mode != PVM_FrontView)
   {
     cam = player->acamera;
     dungeon = get_players_dungeon(player);
@@ -784,7 +784,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   //return _DK_pinstfe_zoom_out_of_heart(player, n);
   LbPaletteStopOpenFade();
   cam = player->acamera;
-  if ((player->field_37 != 5) && (cam != NULL))
+  if ((player->view_mode != PVM_FrontView) && (cam != NULL))
   {
     cam->field_17 = 8192;
     cam->orient_a = 256;

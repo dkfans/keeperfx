@@ -2193,7 +2193,7 @@ void process_keeper_speedup_sprite(struct JontySpr *jspr, long angle, long scale
     {
     case 28:
         graph_id2 = 112;
-        if (player->view_type == 1)
+        if (player->view_type == PVT_DungeonTop)
         {
           add_x = scale >> 3;
           add_y = (scale >> 2) - scale;
@@ -2206,7 +2206,7 @@ void process_keeper_speedup_sprite(struct JontySpr *jspr, long angle, long scale
         break;
     case 2:
         graph_id2 = 113;
-        if (player->view_type == 1)
+        if (player->view_type == PVT_DungeonTop)
         {
             add_x = 0;
             add_y = 3 * scale >> 3;
@@ -2219,7 +2219,7 @@ void process_keeper_speedup_sprite(struct JontySpr *jspr, long angle, long scale
         break;
     default:
         graph_id2 = 113;
-        if (player->view_type == 1)
+        if (player->view_type == PVT_DungeonTop)
         {
             add_x = (scale >> 2) / 3;
             add_y = (scale >> 1) / 3;
