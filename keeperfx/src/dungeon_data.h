@@ -61,7 +61,7 @@ enum DungeonResearchCategory {
 #pragma pack(1)
 #endif
 
-struct DiggerStack { // sizeof = 4
+struct ImpStack { // sizeof = 4
       unsigned short field_0;
       unsigned short task_id;
 };
@@ -107,8 +107,8 @@ struct LevelStats { // sizeof = 392
   unsigned long manufactured_doors;
   unsigned long manufactured_traps;
   unsigned long manufactured_items;
-  unsigned long start_time;
-  unsigned long end_time;
+  unsigned long time1;
+  unsigned long time2;
   unsigned long creatures_trained;
   unsigned long creatures_tortured;
   unsigned long creatures_sacrificed;
@@ -154,13 +154,13 @@ struct LevelStats { // sizeof = 392
   unsigned long creatures_from_sacrifice;
   unsigned long spells_stolen;
   unsigned long gold_pots_stolen;
-  unsigned long average_room_efficiency;
-  unsigned long player_rating;
-  unsigned long player_style;
+  unsigned long field_15C;
+  unsigned long field_160;
+  unsigned long field_164;
   unsigned long doors_unused;
   unsigned long traps_unused;
   unsigned long num_rooms;
-  unsigned long gameplay_time;
+  unsigned long field_174;
   unsigned long num_entrances;
   unsigned long hopes_dashed;
   unsigned long allow_save_score;
@@ -231,16 +231,16 @@ struct Dungeon {
     unsigned char num_active_diggers;
     unsigned char num_active_creatrs;
     unsigned char owned_creatures_of_model[32];
-    unsigned char buildable_rooms_count;
+    unsigned char field_93A;
     unsigned short total_doors;
     unsigned short total_area;
     unsigned short total_creatures_left;
     int field_941;
-    int doors_destroyed;
+    int field_945;
     short field_949;
     short field_94B[32];
-    short creatures_scavenged;
-    short creatures_summoned;
+    short field_98B;
+    short field_98D;
     short field_98F[96];
     int creature_max_level[CREATURE_TYPES_COUNT];
     unsigned short creatures_annoyed;
@@ -250,10 +250,9 @@ struct Dungeon {
     unsigned short spells_stolen;
     unsigned short times_broken_into;
     unsigned short gold_pots_stolen;
-    int last_entrance_generation_gameturn;
-    int turns_between_entrance_generation;
-    int field_AE5;
-    int field_AE9[3];
+    int field_ADD;
+    int field_AE1;
+    int field_AE5[4];
     short field_AF5;
     short field_AF7;
     int total_money_owned;
@@ -287,20 +286,20 @@ unsigned char field_F7D;
     long max_creatures;
     unsigned char field_1060[5];
     struct Coord3d pos_1065;
-    struct DiggerStack imp_stack[IMP_TASK_MAX_COUNT];
-    unsigned long digger_stack_update_turn;
-    unsigned long digger_stack_length;
-    unsigned char visible_event_idx;
+    struct ImpStack imp_stack[IMP_TASK_MAX_COUNT];
+    unsigned long imp_stack_update_turn;
+    unsigned long imp_stack_length;
+    unsigned char field_1173;
     unsigned char field_1174;
     unsigned char field_1175;
     unsigned char field_1176;
-    short zoom_annoyed_creature_idx;
-    long total_experience_creatures_gained;
-    long total_research_points;
+    short field_1177;
+    long field_1179;
+    long field_117D;
 long field_1181;
 long field_1185;
-    unsigned char manufacture_type;
-    unsigned char manufacture_kind;
+    unsigned char field_1189;
+unsigned char field_118A;
 long field_118B;
 long field_118F;
 long field_1193;

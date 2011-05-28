@@ -301,7 +301,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   {
   case TCls_Creature:
       cctrl = creature_control_get_from_thing(thing);
-      if ((cctrl->affected_by_spells & CCSpl_Freeze) != 0)
+      if ((cctrl->field_AB & 0x02) != 0)
       {
           kill_creature(thing, 0, thing->owner, 0, 0, 0);
       } else
@@ -428,7 +428,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         set_player_instance(player, 0, true);
         return 0;
     }
-    if (player->view_mode != PVM_FrontView)
+    if (player->field_37 != 5)
     {
         view_zoom_camera_in(cam, 30000, 6000);
         // Compute new camera angle
@@ -512,7 +512,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
     cctrl = creature_control_get_from_thing(thing);
     if (is_my_player(player))
     {
-      if (cctrl->affected_by_spells & CCSpl_Freeze)
+      if (cctrl->field_AB & 0x02)
         PaletteSetPlayerPalette(player, blue_palette);
     }
     crstat = creature_stats_get_from_thing(thing);
@@ -578,7 +578,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
 long pinstfm_leave_creature(struct PlayerInfo *player, long *n)
 {
   //return _DK_pinstfm_leave_creature(player, n);
-  if (player->view_mode != PVM_FrontView)
+  if (player->field_37 != 5)
   {
     view_zoom_camera_out(player->acamera, 30000, 6000);
     if (get_camera_zoom(player->acamera) < player->field_4B6)
@@ -725,7 +725,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     return 0;
   }
   cam->mappos.x.val = thing->mappos.x.val;
-  if (player->view_mode == PVM_FrontView)
+  if (player->field_37 == 5)
   {
     cam->mappos.y.val = thing->mappos.y.val;
     cam->field_17 = 65536;
@@ -747,7 +747,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   unsigned long deltax,deltay;
   unsigned long addval;
   //return _DK_pinstfm_zoom_out_of_heart(player, n);
-  if (player->view_mode != PVM_FrontView)
+  if (player->field_37 != 5)
   {
     cam = player->acamera;
     dungeon = get_players_dungeon(player);
@@ -784,7 +784,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   //return _DK_pinstfe_zoom_out_of_heart(player, n);
   LbPaletteStopOpenFade();
   cam = player->acamera;
-  if ((player->view_mode != PVM_FrontView) && (cam != NULL))
+  if ((player->field_37 != 5) && (cam != NULL))
   {
     cam->field_17 = 8192;
     cam->orient_a = 256;
@@ -1107,7 +1107,7 @@ struct Room *player_build_room_at(long stl_x, long stl_y, long plyr_idx, long rk
     if (take_money_from_dungeon(plyr_idx, rstat->cost, 1) < 0)
     {
       if (is_my_player(player))
-        output_message(SMsg_GoldNotEnough, 0, true);
+        output_message(SMsg_GoldNotEnough, 0, 1);
       return INVALID_ROOM;
     }
     room = place_room(plyr_idx, rkind, stl_x, stl_y);

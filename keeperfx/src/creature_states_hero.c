@@ -128,7 +128,7 @@ TbBool good_setup_attack_rooms(struct Thing *thing, long dngn_id)
         get_subtile_center_pos(room->central_stl_x), get_subtile_center_pos(room->central_stl_y),
         19, room->owner, 0);
     if (is_my_player_number(room->owner))
-      output_message(SMsg_EnemyDestroyRooms, 400, true);
+      output_message(15, 400, 1);
     cctrl = creature_control_get_from_thing(thing);
     thing->continue_state = CrSt_GoodAttackRoom1;
     cctrl->field_80 = room->index;
@@ -380,7 +380,7 @@ short good_doing_nothing(struct Thing *thing)
         ERRORLOG("Invalid creature control; no action");
         return 0;
     }
-    nturns = game.play_gameturn - cctrl->idle.start_gameturn;
+    nturns = game.play_gameturn - cctrl->long_9A;
     if (nturns <= 1) {
         return 1;
     }
@@ -468,7 +468,7 @@ short good_doing_nothing(struct Thing *thing)
         return false;
     case CHeroTsk_StealGold:
         crstat = creature_stats_get_from_thing(thing);
-        if (thing->creature.gold_carried < crstat->gold_hold)
+        if (thing->long_13 < crstat->gold_hold)
         {
             if (good_setup_loot_treasure_room(thing, i)) {
                 return true;
@@ -571,7 +571,7 @@ short good_leave_through_exit_door(struct Thing *thing)
         return 0;
     }
     cctrl = creature_control_get_from_thing(thing);
-    thing->creature.gold_carried = 0;
+    thing->long_13 = 0;
     cctrl->field_282 = game.hero_door_wait_time;
     cctrl->byte_8A = tmptng->field_9;
     place_thing_in_creature_controlled_limbo(thing);
@@ -621,13 +621,13 @@ short good_wait_in_exit_door(struct Thing *thing)
               return 1;
             }
         }
-        thing->creature.gold_carried = 0;
+        thing->long_13 = 0;
         tmptng = thing_get(cctrl->field_6E);
         if (!thing_is_invalid(tmptng))
         {
             delete_thing_structure(tmptng, 0);
         }
-        kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
+        kill_creature(thing, 0, -1, 1, 0, 0);
     }
     return 0;
 }

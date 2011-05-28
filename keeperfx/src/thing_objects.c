@@ -220,13 +220,13 @@ DLLIMPORT long _DK_object_update_power_lightning(struct Thing *thing);
 DLLIMPORT long _DK_object_is_gold_pile(struct Thing *thing);
 DLLIMPORT long _DK_object_is_gold(struct Thing *thing);
 DLLIMPORT long _DK_remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount);
-DLLIMPORT struct Thing *_DK_create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx);
+DLLIMPORT struct Thing *_DK_create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
 DLLIMPORT long _DK_thing_is_spellbook(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_get_crate_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
 /******************************************************************************/
-struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
+struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4)
 {
     struct Objects *objdat;
     struct ObjectConfig *objconf;
@@ -249,10 +249,10 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
     }
     thing->class_id = TCls_Object;
     thing->model = model;
-    if (parent_idx == -1)
-      thing->parent_thing_idx = -1;
+    if (a4 == -1)
+      thing->field_1D = -1;
     else
-      thing->parent_thing_idx = parent_idx;
+      thing->field_1D = a4;
     LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
     objconf = &game.objects_config[model];
     objdat = get_objects_data_for_thing(thing);
@@ -304,21 +304,21 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
     switch (thing->model)
     {
       case 3:
-        thing->creature.gold_carried = game.chest_gold_hold;
+        thing->long_13 = game.chest_gold_hold;
         break;
       case 5:
         thing->byte_14 = 1;
         light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
         break;
       case 6:
-        thing->creature.gold_carried = game.pot_of_gold_holds;
+        thing->long_13 = game.pot_of_gold_holds;
         break;
       case 33:
         set_flag_byte(&thing->field_4F, 0x10, false);
         set_flag_byte(&thing->field_4F, 0x20, true);
         break;
       case 43:
-        thing->creature.gold_carried = game.gold_pile_value;
+        thing->long_13 = game.gold_pile_value;
         break;
       case 49:
         i = get_free_hero_gate_number();
@@ -704,7 +704,7 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx)
     thing = create_object(&pos, 6, plyr_idx, -1);
     if (thing_is_invalid(thing))
         return INVALID_THING;
-    thing->creature.gold_carried = game.pot_of_gold_holds;
+    thing->long_13 = game.pot_of_gold_holds;
     return thing;
 }
 
@@ -759,11 +759,11 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
     long scaled_val;
     if (thing_is_invalid(thing))
         return false;
-    thing->creature.gold_carried += value;
-    if (thing->creature.gold_carried < 0)
-        thing->creature.gold_carried = LONG_MAX;
-    scaled_val = thing->creature.gold_carried / 2 + 150;
-    if ((scaled_val > 600) || (thing->creature.gold_carried >= game.gold_pile_maximum))
+    thing->long_13 += value;
+    if (thing->long_13 < 0)
+        thing->long_13 = LONG_MAX;
+    scaled_val = thing->long_13 / 2 + 150;
+    if ((scaled_val > 600) || (thing->long_13 >= game.gold_pile_maximum))
       scaled_val = 600;
     thing->field_46 = scaled_val;
     return true;
@@ -776,7 +776,7 @@ struct Thing *create_gold_pile(struct Coord3d *pos, long plyr_idx, long value)
     if (thing_is_invalid(thing)) {
         return INVALID_THING;
     }
-    thing->creature.gold_carried = 0;
+    thing->long_13 = 0;
     add_gold_to_pile(thing, value);
     return thing;
 }

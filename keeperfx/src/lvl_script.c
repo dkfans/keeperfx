@@ -1504,7 +1504,7 @@ void command_set_music(long val)
   {
     SCRPTWRNLOG("Music set inside conditional block");
   }
-  game.music_track_index = val;
+  game.field_1506D5 = val;
 }
 
 void command_set_hate(long a1, long a2, long a3)
@@ -2471,7 +2471,7 @@ struct Thing *script_process_new_tunneller(unsigned char plyr_idx, TbMapLocation
   thing = script_create_creature_at_location(plyr_idx, 8, location);
   if (thing_is_invalid(thing))
     return INVALID_THING;
-  thing->creature.gold_carried = carried_gold;
+  thing->long_13 = carried_gold;
   init_creature_level(thing, crtr_level);
   switch (heading)
   {
@@ -2546,7 +2546,7 @@ struct Thing *script_create_new_creature(unsigned char plyr_idx, long breed, lon
   thing = script_create_creature_at_location(plyr_idx, breed, location);
   if (thing_is_invalid(thing))
     return INVALID_THING;
-  thing->creature.gold_carried = carried_gold;
+  thing->long_13 = carried_gold;
   init_creature_level(thing, crtr_level);
   return thing;
 }
@@ -2632,7 +2632,7 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
       return dungeon->num_active_creatrs - count_player_creatures_not_counting_to_total(plyr_idx);
   case SVar_TOTAL_RESEARCH:
       dungeon = get_dungeon(plyr_idx);
-      return dungeon->total_research_points / 256;
+      return dungeon->field_117D / 256;
   case SVar_TOTAL_DOORS:
       dungeon = get_dungeon(plyr_idx);
       return dungeon->total_doors;
@@ -2682,13 +2682,13 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
       return get_room_slabs_count(plyr_idx, validx);
   case SVar_DOORS_DESTROYED:
       dungeon = get_dungeon(plyr_idx);
-      return dungeon->doors_destroyed;
+      return dungeon->field_945;
   case SVar_CREATURES_SCAVENGED_LOST:
       dungeon = get_dungeon(plyr_idx);
-      return dungeon->creatures_summoned;
+      return dungeon->field_98D;
   case SVar_CREATURES_SCAVENGED_GAINED:
       dungeon = get_dungeon(plyr_idx);
-      return dungeon->creatures_scavenged;
+      return dungeon->field_98B;
   case SVar_AVAILABLE_MAGIC: // IF_AVAILABLE(MAGIC)
       dungeon = get_dungeon(plyr_idx);
       return dungeon->magic_level[validx%KEEPER_SPELLS_COUNT];
@@ -2718,16 +2718,14 @@ TbBool get_condition_status(unsigned char opkind, long val1, long val2)
 
 TbBool is_condition_met(long cond_idx)
 {
-    unsigned long i;
-    if ((cond_idx < 0) || (cond_idx >= CONDITIONS_COUNT))
-    {
-      if (cond_idx == -1)
-          return true;
-      else
-          return false;
-    }
-    i = game.script.conditions[cond_idx].status;
-    return ((i & 0x01) != 0);
+  if ((cond_idx < 0) || (cond_idx >= CONDITIONS_COUNT))
+  {
+    if (cond_idx == -1)
+      return true;
+    else
+      return false;
+  }
+  return ((game.script.conditions[cond_idx].status & 0x01) != 0);
 }
 
 TbBool condition_inactive(long cond_idx)
@@ -2790,7 +2788,6 @@ void process_condition(struct Condition *condt)
       if (new_status != false) break;
     }
   }
-  SYNCDBG(19,"Condition type %d status %d",(int)condt->variabl_type,(int)new_status);
   set_flag_byte(&condt->status, 0x01,  new_status);
   if (((condt->status & 0x01) == 0) || ((condt->status & 0x02) != 0))
   {
@@ -2885,27 +2882,23 @@ void process_check_new_tunneller_partys(void)
 
 void process_win_and_lose_conditions(long plyr_idx)
 {
-    struct PlayerInfo *player;
-    long i,k;
-    player = get_player(plyr_idx);
-    if ((game.system_flags & GSF_NetworkActive) != 0)
-      return;
-    for (i=0; i < game.script.win_conditions_num; i++)
-    {
-      k = game.script.win_conditions[i];
-      if (is_condition_met(k)) {
-          SYNCDBG(8,"Win condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
-          set_player_as_won_level(player);
-      }
-    }
-    for (i=0; i < game.script.lose_conditions_num; i++)
-    {
-      k = game.script.lose_conditions[i];
-      if (is_condition_met(k)) {
-          SYNCDBG(8,"Lose condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
-          set_player_as_lost_level(player);
-      }
-    }
+  struct PlayerInfo *player;
+  long i,k;
+  player = get_player(plyr_idx);
+  if ((game.system_flags & GSF_NetworkActive) != 0)
+    return;
+  for (i=0; i < game.script.win_conditions_num; i++)
+  {
+    k = game.script.win_conditions[i];
+    if (is_condition_met(k))
+      set_player_as_won_level(player);
+  }
+  for (i=0; i < game.script.lose_conditions_num; i++)
+  {
+    k = game.script.lose_conditions[i];
+    if (is_condition_met(k))
+      set_player_as_lost_level(player);
+  }
 }
 
 void process_values(void)
@@ -3102,7 +3095,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
         switch (val2)
         {
         case 1:
-            output_message(val3, 0, true);
+            output_message(val3, 0, 1);
             break;
         case 2:
             play_non_3d_sample(val3);

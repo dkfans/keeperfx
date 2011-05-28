@@ -100,12 +100,12 @@ DLLIMPORT void _DK_change_creature_owner(struct Thing *thing , char nowner);
 DLLIMPORT long _DK_remove_all_traces_of_combat(struct Thing *thing);
 DLLIMPORT void _DK_cause_creature_death(struct Thing *thing, unsigned char a2);
 DLLIMPORT void _DK_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev);
-DLLIMPORT void _DK_creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long no_effects);
-DLLIMPORT void _DK_creature_cast_spell(struct Thing *caster, long a2, long a3, long no_effects, long a5);
+DLLIMPORT void _DK_creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
+DLLIMPORT void _DK_creature_cast_spell(struct Thing *caster, long a2, long a3, long a4, long a5);
 DLLIMPORT void _DK_set_first_creature(struct Thing *thing);
 DLLIMPORT void _DK_remove_first_creature(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_get_creature_near(unsigned short pos_x, unsigned short pos_y);
-DLLIMPORT struct Thing *_DK_get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, long no_effects);
+DLLIMPORT struct Thing *_DK_get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, long a4);
 DLLIMPORT struct Thing *_DK_get_creature_near_for_controlling(unsigned char a1, long a2, long a3);
 DLLIMPORT long _DK_remove_creature_from_group(struct Thing *thing);
 DLLIMPORT long _DK_add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2);
@@ -126,7 +126,7 @@ DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *thing, lon
 DLLIMPORT void _DK_set_creature_instance(struct Thing *thing, long a1, long a2, long a3, struct Coord3d *pos);
 DLLIMPORT void _DK_draw_creature_view(struct Thing *thing);
 DLLIMPORT void _DK_process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
-DLLIMPORT short _DK_kill_creature(struct Thing *thing, struct Thing *tngrp, char a1, unsigned char a2, unsigned char a3, unsigned char no_effects);
+DLLIMPORT short _DK_kill_creature(struct Thing *thing, struct Thing *tngrp, char a1, unsigned char a2, unsigned char a3, unsigned char a4);
 DLLIMPORT void _DK_update_creature_count(struct Thing *thing);
 DLLIMPORT long _DK_process_creature_state(struct Thing *thing);
 DLLIMPORT long _DK_move_creature(struct Thing *thing);
@@ -423,7 +423,6 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
     struct SpellConfig *splconf;
-    struct MagicStats *magstat;
     struct ComponentVector cvect;
     struct Coord3d pos;
     struct Thing *ntng;
@@ -441,7 +440,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         {
             cctrl->casted_spells[i].spkind = spell_idx;
             cctrl->casted_spells[i].field_1 = splconf->duration;
-            cctrl->affected_by_spells |= CCSpl_Freeze;
+            cctrl->field_AB |= 0x02;
             if ((thing->field_25 & 0x20) != 0)
             {
                 cctrl->field_AD |= 0x80;
@@ -454,36 +453,35 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            magstat = &game.magic_stats[PwrK_PROTECT];
-            cctrl->casted_spells[i].spkind = spell_idx;
-            cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
-            n = 0;
-            cctrl->spell_flags |= CSF_Armour;
-            for (k=0; k < 3; k++)
+          cctrl->casted_spells[i].spkind = spell_idx;
+          cctrl->casted_spells[i].field_1 = game.magic_stats[12].power[spell_lev];
+          n = 0;
+          cctrl->spell_flags |= CSF_Armour;
+          for (k=0; k < 3; k++)
+          {
+            pos.x.val = thing->mappos.x.val;
+            pos.y.val = thing->mappos.y.val;
+            pos.z.val = thing->mappos.z.val;
+            pos.x.val += (32 * LbSinL(n) >> 16);
+            pos.y.val -= (32 * LbCosL(n) >> 16);
+            pos.z.val += k * (long)(thing->field_58 >> 1);
+            ntng = create_object(&pos, 51, thing->owner, -1);
+            if (!thing_is_invalid(ntng))
             {
-              pos.x.val = thing->mappos.x.val;
-              pos.y.val = thing->mappos.y.val;
-              pos.z.val = thing->mappos.z.val;
-              pos.x.val += (32 * LbSinL(n) >> 16);
-              pos.y.val -= (32 * LbCosL(n) >> 16);
-              pos.z.val += k * (long)(thing->field_58 >> 1);
-              ntng = create_object(&pos, 51, thing->owner, -1);
-              if (!thing_is_invalid(ntng))
-              {
-                  cctrl->field_2B3[k] = ntng->index;
-                  ntng->health = magstat->power[spell_lev] + 1;
-                  ntng->word_13 = thing->index;
-                  ntng->byte_15 = k;
-                  ntng->field_52 = thing->field_52;
-                  ntng->field_54 = thing->field_54;
-                  angles_to_vector(ntng->field_52, ntng->field_54, 32, &cvect);
-                  ntng->acceleration.x.val += cvect.x;
-                  ntng->acceleration.y.val += cvect.y;
-                  ntng->acceleration.z.val += cvect.z;
-                  ntng->field_1 |= 0x04;
-              }
-              n += ANGLE_TRIGL_PERIOD/3;
+              cctrl->field_2B3[k] = ntng->index;
+              ntng->health = game.magic_stats[12].power[spell_lev] + 1;
+              ntng->word_13 = thing->index;
+              ntng->byte_15 = k;
+              ntng->field_52 = thing->field_52;
+              ntng->field_54 = thing->field_54;
+              angles_to_vector(ntng->field_52, ntng->field_54, 32, &cvect);
+              ntng->acceleration.x.val += cvect.x;
+              ntng->acceleration.y.val += cvect.y;
+              ntng->acceleration.z.val += cvect.z;
+              ntng->field_1 |= 0x04;
             }
+            n += ANGLE_TRIGL_PERIOD/3;
+          }
         }
         break;
     case SplK_Rebound:
@@ -497,8 +495,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         break;
     case SplK_Heal:
         crstat = creature_stats_get_from_thing(thing);
-        magstat = &game.magic_stats[PwrK_HEALCRTR];
-        i = saturate_set_signed(thing->health + magstat->power[spell_lev],16);
+        i = saturate_set_signed(thing->health + game.magic_stats[8].power[spell_lev],16);
         if (i < 0)
         {
           thing->health = 0;
@@ -508,15 +505,14 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
           thing->health = min(i,k);
         }
         cctrl->field_2B0 = 7;
-        cctrl->field_2AE = magstat->time;
+        cctrl->field_2AE = game.magic_stats[8].time;
         break;
     case SplK_Invisibility:
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
             cctrl->casted_spells[i].spkind = spell_idx;
-            magstat = &game.magic_stats[PwrK_CONCEAL];
-            cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
+            cctrl->casted_spells[i].field_1 = game.magic_stats[13].power[spell_lev];
             cctrl->spell_flags |= CSF_Conceal;
             cctrl->field_AF = 0;
         }
@@ -527,7 +523,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         {
             cctrl->casted_spells[i].spkind = spell_idx;
             cctrl->casted_spells[i].field_1 = splconf->duration;
-            cctrl->affected_by_spells |= CCSpl_Teleport;
+            cctrl->field_AB |= 0x04;
         }
         break;
     case SplK_Speed:
@@ -535,8 +531,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         if (i != -1)
         {
             cctrl->casted_spells[i].spkind = spell_idx;
-            magstat = &game.magic_stats[PwrK_SPEEDCRTR];
-            cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
+            cctrl->casted_spells[i].field_1 = game.magic_stats[11].power[spell_lev];
             cctrl->spell_flags |= CSF_Speed;
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         }
@@ -575,8 +570,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         if (i != -1)
         {
           cctrl->casted_spells[i].spkind = spell_idx;
-          magstat = &game.magic_stats[PwrK_DISEASE];
-          cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
+          cctrl->casted_spells[i].field_1 = game.magic_stats[14].power[spell_lev];
           n = 0;
           cctrl->field_AD |= 0x01;
           cctrl->field_B6 = thing->owner;
@@ -593,7 +587,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
             if (!thing_is_invalid(ntng))
             {
               cctrl->field_2B9[k] = ntng->index;
-              ntng->health = magstat->power[spell_lev] + 1;
+              ntng->health = game.magic_stats[14].power[spell_lev] + 1;
               ntng->word_13 = thing->index;
               ntng->byte_15 = k;
               ntng->field_52 = thing->field_52;
@@ -616,8 +610,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
             cctrl->field_282 = 10;
             cctrl->field_AD |= 0x02;
             cctrl->casted_spells[i].spkind = spell_idx;
-            magstat = &game.magic_stats[PwrK_CHICKEN];
-            cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
+            cctrl->casted_spells[i].field_1 = game.magic_stats[15].power[spell_lev];
         }
         break;
     default:
@@ -631,7 +624,6 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
     struct SpellConfig *splconf;
-    struct MagicStats *magstat;
     long i,k;
     cctrl = creature_control_get_from_thing(thing);
     if (spell_lev > SPELL_MAX_LEVEL)
@@ -645,16 +637,14 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         creature_set_speed(thing, 0);
         break;
     case SplK_Armour:
-        magstat = &game.magic_stats[PwrK_PROTECT];
-        cctrl->casted_spells[idx].field_1 = magstat->power[spell_lev];
+        cctrl->casted_spells[idx].field_1 = game.magic_stats[12].power[spell_lev];
         break;
     case SplK_Rebound:
         cctrl->casted_spells[idx].field_1 = splconf->duration;
         break;
     case SplK_Heal:
         crstat = creature_stats_get_from_thing(thing);
-        magstat = &game.magic_stats[PwrK_HEALCRTR];
-        i = saturate_set_signed(thing->health + magstat->power[spell_lev],16);
+        i = saturate_set_signed(thing->health + game.magic_stats[8].power[spell_lev],16);
         if (i < 0)
         {
           thing->health = 0;
@@ -664,18 +654,16 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
           thing->health = min(i,k);
         }
         cctrl->field_2B0 = 7;
-        cctrl->field_2AE = magstat->time;
+        cctrl->field_2AE = game.magic_stats[8].time;
         break;
     case SplK_Invisibility:
-        magstat = &game.magic_stats[PwrK_CONCEAL];
-        cctrl->casted_spells[idx].field_1 = magstat->power[spell_lev];
+        cctrl->casted_spells[idx].field_1 = game.magic_stats[13].power[spell_lev];
         break;
     case SplK_Teleport:
         cctrl->casted_spells[idx].field_1 = splconf->duration;
         break;
     case SplK_Speed:
-        magstat = &game.magic_stats[PwrK_SPEEDCRTR];
-        cctrl->casted_spells[idx].field_1 = magstat->power[spell_lev];
+        cctrl->casted_spells[idx].field_1 = game.magic_stats[11].power[spell_lev];
         break;
     case SplK_Slow:
         cctrl->casted_spells[idx].field_1 = splconf->duration;
@@ -690,15 +678,13 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         cctrl->casted_spells[idx].field_1 = splconf->duration;
         break;
     case SplK_Disease:
-        magstat = &game.magic_stats[PwrK_DISEASE];
-        cctrl->casted_spells[idx].field_1 = magstat->power[spell_lev];
+        cctrl->casted_spells[idx].field_1 = game.magic_stats[14].power[spell_lev];
         cctrl->field_B6 = thing->owner;
         break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
         cctrl->field_282 = 10;
-        magstat = &game.magic_stats[PwrK_CHICKEN];
-        cctrl->casted_spells[idx].field_1 = magstat->power[spell_lev];
+        cctrl->casted_spells[idx].field_1 = game.magic_stats[15].power[spell_lev];
         break;
     default:
         WARNLOG("No action for spell %ld at level %ld",spell_idx,spell_lev);
@@ -733,22 +719,22 @@ short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obth
   long i;
   crstat = creature_stats_get_from_thing(crthing);
   cctrl = creature_control_get_from_thing(crthing);
-  if (obthing->creature.gold_carried <= 0)
+  if (obthing->long_13 <= 0)
   {
     ERRORLOG("GoldPile had no gold so was deleted.");
     delete_thing_structure(obthing, 0);
     return false;
   }
-  if (crthing->creature.gold_carried < crstat->gold_hold)
+  if (crthing->long_13 < crstat->gold_hold)
   {
-    if (obthing->creature.gold_carried+crthing->creature.gold_carried > crstat->gold_hold)
+    if (obthing->long_13+crthing->long_13 > crstat->gold_hold)
     {
-      i = crstat->gold_hold-crthing->creature.gold_carried;
-      crthing->creature.gold_carried += i;
-      obthing->creature.gold_carried -= i;
+      i = crstat->gold_hold-crthing->long_13;
+      crthing->long_13 += i;
+      obthing->long_13 -= i;
     } else
     {
-      crthing->creature.gold_carried += obthing->creature.gold_carried;
+      crthing->long_13 += obthing->long_13;
       delete_thing_structure(obthing, 0);
     }
   }
@@ -977,18 +963,18 @@ long process_creature_state(struct Thing *thing)
             if (tgthing->model == 43)
             {
               crstat = creature_stats_get_from_thing(thing);
-              if (tgthing->creature.gold_carried > 0)
+              if (tgthing->long_13 > 0)
               {
-                  if (thing->creature.gold_carried < crstat->gold_hold)
+                  if (thing->long_13 < crstat->gold_hold)
                   {
-                      if (crstat->gold_hold < tgthing->creature.gold_carried + thing->creature.gold_carried)
+                      if (crstat->gold_hold < tgthing->long_13 + thing->long_13)
                       {
-                          k = crstat->gold_hold - thing->creature.gold_carried;
-                          thing->creature.gold_carried += k;
-                          tgthing->creature.gold_carried -= k;
+                          k = crstat->gold_hold - thing->long_13;
+                          thing->long_13 += k;
+                          tgthing->long_13 -= k;
                       } else
                       {
-                          thing->creature.gold_carried += tgthing->creature.gold_carried;
+                          thing->long_13 += tgthing->long_13;
                           delete_thing_structure(tgthing, 0);
                       }
                   }
@@ -1009,8 +995,8 @@ long process_creature_state(struct Thing *thing)
     }
     // Enable this to know which function hangs on update_creature.
     //TODO: rewrite state subfunctions so they won't hang
-    //if (game.play_gameturn > 119800)
-    SYNCDBG(18,"Executing state %d for %s index %d.",(int)thing->active_state,thing_model_name(thing),(int)thing->index);
+    //if (game.play_gameturn > 3500)
+    SYNCDBG(18,"Executing state %d",(int)thing->active_state);
     stati = get_thing_active_state_info(thing);
     if (stati->ofsfield_0 == NULL)
         return false;
@@ -1100,7 +1086,7 @@ void throw_out_gold(struct Thing *thing)
     long angle,radius,delta;
     long x,y;
     long i;
-    for (i = thing->creature.gold_carried; i > 0; i -= delta)
+    for (i = thing->long_13; i > 0; i -= delta)
     {
         gldtng = create_object(&thing->mappos, 6, game.neutral_player_num, -1);
         if (thing_is_invalid(gldtng))
@@ -1117,7 +1103,7 @@ void throw_out_gold(struct Thing *thing)
             delta = i;
         else
             delta = 400;
-        gldtng->creature.gold_carried = delta;
+        gldtng->long_13 = delta;
     }
 }
 
@@ -1324,9 +1310,9 @@ unsigned long remove_thing_from_field1D_in_list(struct StructureList *list,long 
         }
         i = thing->next_of_class;
         // Per-thing code
-        if (thing->parent_thing_idx == remove_idx)
+        if (thing->field_1D == remove_idx)
         {
-            thing->parent_thing_idx = thing->index;
+            thing->field_1D = thing->index;
             n++;
         }
         // Per-thing code ends
@@ -1354,30 +1340,31 @@ void cause_creature_death(struct Thing *thing, unsigned char no_effects)
     crstat = creature_stats_get_from_thing(thing);
     if ((no_effects) || (!thing_exists(thing)))
     {
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        if ((game.flags_cd & MFlg_DeadBackToPool) != 0) {
             add_creature_to_pool(crmodel, 1, 1);
+        }
         delete_thing_structure(thing, 0);
         return;
     }
-    if ((crstat->rebirth != 0) && (cctrl->lairtng_idx > 0)
+    if ((crstat->rebirth) && (cctrl->lairtng_idx > 0)
      && (crstat->rebirth-1 <= cctrl->explevel) )
     {
         creature_rebirth_at_lair(thing);
         return;
     }
-    if ((cctrl->affected_by_spells & CCSpl_Freeze) != 0)
-    {
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
-            add_creature_to_pool(crmodel, 1, 1);
-        thing_death_ice_explosion(thing);
-    } else
-    if (!creature_model_bleeds(thing->model))
+    if (creature_model_bleeds(thing->model))
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
         creature_death_as_nature_intended(thing);
     } else
-    if (shot_model_makes_flesh_explosion(cctrl->shot_model))
+    if ((cctrl->field_AB & 0x02) != 0)
+    {
+        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+            add_creature_to_pool(crmodel, 1, 1);
+        thing_death_ice_explosion(thing);
+    } else
+    if ((cctrl->field_1D3 == 2) || (cctrl->field_1D3 == 24))
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
@@ -1456,7 +1443,7 @@ void delete_effects_attached_to_creature(struct Thing *crtng)
 }
 
 TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_plyr_idx,
-      TbBool no_effects, TbBool died_in_battle, TbBool disallow_unconscious)
+      unsigned char a4, TbBool died_in_battle, TbBool disallow_unconscious)
 {
     struct CreatureControl *cctrl;
     struct CreatureControl *cctrlgrp;
@@ -1498,10 +1485,10 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     update_kills_counters(thing, killertng, killer_plyr_idx, died_in_battle);
     if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) || (killer_plyr_idx == game.neutral_player_num) || dungeon_invalid(dungeon))
     {
-        if ((no_effects) && ((thing->field_0 & 0x20) != 0)) {
+        if ((a4) && ((thing->field_0 & 0x20) != 0)) {
             prepare_to_controlled_creature_death(thing);
         }
-        cause_creature_death(thing, no_effects);
+        cause_creature_death(thing, a4);
         return true;
     }
     // Now we are sure that killertng and dungeon pointers are correct
@@ -1516,10 +1503,10 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
         cctrlgrp->field_C2++;
     }
     if (is_my_player_number(thing->owner)) {
-        output_message(SMsg_BattleDeath, 40, true);
+        output_message(11, 40, 1);
     } else
     if (is_my_player_number(killertng->owner)) {
-        output_message(SMsg_BattleWon, 40, true);
+        output_message(12, 40, 1);
     }
     if (game.hero_player_num == killertng->owner)
     {
@@ -1538,17 +1525,17 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     if ((disallow_unconscious) || (!player_has_room(killertng->owner,RoK_PRISON))
       || (!player_creature_tends_to(killertng->owner,CrTend_Imprison)))
     {
-        if (no_effects == 0) {
-            cause_creature_death(thing, no_effects);
+        if (a4 == 0) {
+            cause_creature_death(thing, a4);
             return true;
         }
     }
-    if (no_effects)
+    if (a4)
     {
         if ((thing->field_0 & 0x20) != 0) {
             prepare_to_controlled_creature_death(thing);
         }
-        cause_creature_death(thing, no_effects);
+        cause_creature_death(thing, a4);
         return true;
     }
     clear_creature_instance(thing);
@@ -1672,7 +1659,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
           draw_lightning(&pos1, &pos2, 96, 60);
         shot->health = shotst->old->health;
         shot->word_14 = shotst->old->damage;
-        shot->parent_thing_idx = firing->index;
+        shot->field_1D = firing->index;
         break;
     case 7:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 768))
@@ -1683,7 +1670,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
         draw_flame_breath(&pos1, &pos2, 96, 2);
         shot->health = shotst->old->health;
         shot->word_14 = shotst->old->damage;
-        shot->parent_thing_idx = firing->index;
+        shot->field_1D = firing->index;
         break;
     case 13:
         for (i=0; i < 32; i++)
@@ -1702,7 +1689,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
             shot->field_1 |= 0x04;
             shot->word_14 = damage;
             shot->health = shotst->old->health;
-            shot->parent_thing_idx = firing->index;
+            shot->field_1D = firing->index;
         }
         break;
     default:
@@ -1718,7 +1705,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
         shot->field_1 |= 0x04;
         shot->word_14 = damage;
         shot->health = shotst->old->health;
-        shot->parent_thing_idx = firing->index;
+        shot->field_1D = firing->index;
         shot->word_17 = target_idx;
         shot->byte_13 = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
         break;
@@ -1903,7 +1890,7 @@ void set_creature_instance(struct Thing *thing, long inst_idx, long a2, long a3,
         cctrl->field_AF = i;
     }
     get_creature_instance_times(thing, inst_idx, &itime, &aitime);
-    if ((cctrl->instance_id != CrInst_NULL) && (cctrl->instance_id == inst_idx))
+    if ((cctrl->field_D2 > 0) && (cctrl->field_D2 == inst_idx))
     {
         if (inst_inf->field_1A)
         {
@@ -1911,7 +1898,7 @@ void set_creature_instance(struct Thing *thing, long inst_idx, long a2, long a3,
             return;
         }
     }
-    cctrl->instance_id = inst_idx;
+    cctrl->field_D2 = inst_idx;
     cctrl->field_DA = a3;
     cctrl->field_D4 = 0;
     cctrl->field_D8 = itime;
@@ -2127,51 +2114,9 @@ void anger_set_creature_anger_all_types(struct Thing *thing, long a2)
 {
     _DK_anger_set_creature_anger_all_types(thing, a2);
 }
-
 void change_creature_owner(struct Thing *thing, long nowner)
 {
-    struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
-    struct Room *room;
-    //_DK_change_creature_owner(thing, nowner);
-    cctrl = creature_control_get_from_thing(thing);
-    if (thing->light_id != 0) {
-        light_delete_light(thing->light_id);
-        thing->light_id = 0;
-    }
-    if ((cctrl->field_7A & 0xFFF) != 0)
-        remove_creature_from_group(thing);
-    if (cctrl->lairtng_idx != 0)
-    {
-        room = room_get(cctrl->lair_room_id);
-        if (!room_is_invalid(room)) {
-            creature_remove_lair_from_room(thing, room);
-        } else {
-            ERRORDBG(8,"The %s index %d has lair %d in nonexisting room.",thing_model_name(thing),(int)thing->index,(int)cctrl->lairtng_idx);
-            cctrl->lairtng_idx = 0;
-        }
-    }
-    if ((thing->field_0 & 0x08) != 0)
-      remove_first_creature(thing);
-    if (thing->owner != game.neutral_player_num)
-    {
-        dungeon = get_dungeon(thing->owner);
-        dungeon->score -= get_creature_thing_score(thing);
-        if ( anger_is_creature_angry(thing) )
-            dungeon->creatures_annoyed--;
-        remove_events_thing_is_attached_to(thing);
-    }
-    thing->owner = nowner;
-    set_first_creature(thing);
-    set_start_state(thing);
-    if (thing->owner != game.neutral_player_num)
-    {
-        dungeon = get_dungeon(thing->owner);
-        dungeon->score += get_creature_thing_score(thing);
-        if ( anger_is_creature_angry(thing) )
-            dungeon->creatures_annoyed++;
-    }
-
+    _DK_change_creature_owner(thing, nowner);
 }
 
 struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigned short owner)
@@ -2204,7 +2149,7 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
     crtng->ccontrol_idx = cctrl->index;
     crtng->class_id = 5;
     crtng->model = model;
-    crtng->parent_thing_idx = crtng->index;
+    crtng->field_1D = crtng->index;
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;
     crtng->mappos.z.val = pos->z.val;
@@ -2656,7 +2601,7 @@ struct Thing *pick_up_creature_of_breed_and_gui_job(long breed, long job_idx, lo
     {
         if ((job_idx == -1) || (dungeon->job_breeds_count[breed][job_idx & 0x03]))
         {
-            set_players_packet_action(get_my_player(), PckA_Unknown090, thing->index, 0, 0, 0);
+            set_players_packet_action(get_my_player(), 90, thing->index, 0, 0, 0);
         }
     } else
     {
@@ -2846,7 +2791,7 @@ void place_bloody_footprint(struct Thing *thing)
         return false;
     }
     upd_done = 0;
-    if (cctrl->affected_by_spells != 0)
+    if (cctrl->field_AB != 0)
     {
       upd_done = 1;
       cctrl->pos_BB.x.val = 0;
@@ -3145,7 +3090,7 @@ long update_creature(struct Thing *thing)
     map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if ((thing->active_state == CrSt_CreatureUnconscious) && ((map->flags & 0x40) != 0))
     {
-        SYNCDBG(8,"Killing unconscious %s index %d on toxic map black.",thing_model_name(thing),(int)thing->index);
+        SYNCDBG(8,"Killing unconscious creature %d on toxic map black.",(int)thing->index);
         kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
         return 0;
     }
@@ -3157,11 +3102,11 @@ long update_creature(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        WARNLOG("Killing %s index %d with invalid control.",thing_model_name(thing),(int)thing->index);
+        WARNLOG("Killing creature %d with invalid control.",(int)thing->index);
         kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
         return 0;
     }
-    if (game.field_150356 != 0)
+    if (game.field_150356)
     {
         if ((cctrl->field_2EF != 0) && (cctrl->field_2EF <= game.play_gameturn))
         {
@@ -3180,7 +3125,7 @@ long update_creature(struct Thing *thing)
     update_creature_count(thing);
     if ((thing->field_0 & 0x20) != 0)
     {
-        if (cctrl->affected_by_spells == 0)
+        if (cctrl->field_AB == 0)
         {
           if (cctrl->field_302 != 0)
           {
@@ -3193,7 +3138,7 @@ long update_creature(struct Thing *thing)
         }
         cctrl = creature_control_get_from_thing(thing);
         player = get_player(thing->owner);
-        if ((cctrl->affected_by_spells & CCSpl_Freeze) != 0)
+        if ((cctrl->field_AB & 0x02) != 0)
         {
             if ((player->field_3 & 0x04) == 0)
               PaletteSetPlayerPalette(player, blue_palette);
@@ -3204,7 +3149,7 @@ long update_creature(struct Thing *thing)
         }
     } else
     {
-        if (cctrl->affected_by_spells == 0)
+        if (cctrl->field_AB == 0)
         {
           if (cctrl->field_302 > 0)
           {

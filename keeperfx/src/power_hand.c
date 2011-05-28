@@ -97,7 +97,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
     case 3:
     case 6:
     case 43:
-      i = thing->creature.gold_carried;
+      i = thing->long_13;
       if (i != 0)
       {
         pos.x.val = thing->mappos.x.val;
@@ -270,7 +270,7 @@ void draw_power_hand(void)
   if (game.small_map_state == 2)
     return;
   lbDisplay.DrawFlags = 0x00;
-  if (player->view_type != PVT_DungeonTop)
+  if (player->view_type != 1)
     return;
   if (((game.numfield_C & 0x20) != 0) && (game.small_map_state != 2)
     && mouse_is_over_small_map(player->mouse_x, player->mouse_y) )
@@ -309,10 +309,10 @@ void draw_power_hand(void)
     draw_mini_things_in_hand(GetMouseX()+18, GetMouseY());
     return;
   }
-  if (player->work_state != PSt_Unknown5)
+  if (player->work_state != 5)
   {
-    if ( (player->work_state != PSt_CtrlDungeon)
-      || ((player->field_455 != 3) && ((player->work_state != PSt_CtrlDungeon) || (player->field_455) || (player->field_454 != 3))) )
+    if ( (player->work_state != 1)
+      || ((player->field_455 != 3) && ((player->work_state != 1) || (player->field_455) || (player->field_454 != 3))) )
     {
       if ((player->instance_num != 1) && (player->instance_num != 2))
       {
@@ -321,7 +321,7 @@ void draw_power_hand(void)
           process_keeper_sprite((GetMouseX()+70) / pixel_size, (GetMouseY()+46) / pixel_size,
               thing->field_44, 0, thing->field_48, 64 / pixel_size);
         } else
-        if (player->work_state == PSt_CtrlDungeon)
+        if (player->work_state == 1)
         {
           if ((player->field_455 == 2) || (player->field_454 == 2))
           {

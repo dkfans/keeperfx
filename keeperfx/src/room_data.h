@@ -89,8 +89,8 @@ struct Room {
     union {
     long long_17;
     struct {
-      short prev_of_kind;
-      short next_of_kind;
+      short word_17;
+      short word_19;
     };
     };
     unsigned char field_1B[28];

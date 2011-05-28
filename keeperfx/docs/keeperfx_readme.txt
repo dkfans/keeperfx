@@ -128,8 +128,10 @@ Troubleshooting:
 Q: Colors are changed in menu or during gameplay,
     but no problem is mentioned in "keeperfx.log".
 A: Try using different color modes  in KEEPERFX.CFG. For example,
-    you could try 24-bit or 32-bit colour (ie. 640x480x24).
-    It is best to use the same colour mode for all resolutions.
+    you could try 24-bit colour (ie. 640x480x24). If this won't
+    help, change all modes to 8-bit (ie. 640x480x8), and select
+    "Run in 256 colors" and "Run in 640x480" in the program
+    properties.
 
 Q: Intro doesn't play. LOG file says:
      Error: setup_game: Can't enter movies screen mode to play intro
@@ -171,9 +173,7 @@ A: There may be many reasons for that. Try checking your LOG file.
    for details about it.
 
 Q: Mouse stops/teleports/moves incorrectly during the game.
-A: Try the '-altinput' command line switch. If the mouse moves too
-   fast or too slow, try changing "POINTER_SENSITIVITY" option
-   in "keeperfx.cfg"
+A: Try the '-altinput' command line switch.
 
 Q: I get a message 'Cannot initialize' when I try to enter network game.
 A: KeeperFX does not support serial cable, modem and IPX multiplayer.
@@ -241,14 +241,6 @@ LANGUAGE
   speeches. Note that if the specific campaign doesn't
   have support for your language, the default language
   will be used.
-
-POINTER_SENSITIVITY
-  Allows you to adjust the speed of mouse movement.
-  Use this option only if you have serious issues with
-  moving your mouse, or if the speed inside KeeperFX is
-  completely different to the one in your OS. On most
-  problems, you should change mouse speed in your OS
-  preferences instead of changing this option. 
   
 New in-game commands:
 
@@ -367,10 +359,6 @@ New and modified level script commands:
   and never changes during the gameplay.
 
 Changelog:
-
-Version: 0.39a
-  Fixed distance computing required for certain shots to hit target
-  Fixed imps to continue their jobs after they finish a part of it
 
 Version: 0.39
   Fixed the v0.38c bug with freeze on computer digging for gold

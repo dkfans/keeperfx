@@ -21,7 +21,6 @@
 
 #include "bflib_math.h"
 #include "creature_states.h"
-#include "creature_instances.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "config_creature.h"
@@ -72,7 +71,7 @@ short at_research_room(struct Thing *thing)
         if ( (thing->owner != game.neutral_player_num) && (dungeon->field_F78 < 0) )
         {
             if ( is_my_player_number(dungeon->owner) )
-                output_message(SMsg_NoMoreReseach, 500, true);
+                output_message(46, 500, 1);
         }
         set_start_state(thing);
         return 0;
@@ -240,7 +239,7 @@ short researching(struct Thing *thing)
         if ( (thing->owner != game.neutral_player_num) && (dungeon->field_F78 < 0) )
         {
             if ( is_my_player_number(dungeon->owner) )
-                output_message(SMsg_NoMoreReseach, 500, true);
+                output_message(46, 500, 1);
         }
         remove_creature_from_work_room(thing);
         set_start_state(thing);
@@ -265,22 +264,22 @@ short researching(struct Thing *thing)
     if (room->used_capacity > room->total_capacity)
     {
       if ( is_my_player_number(room->owner) )
-          output_message(SMsg_LibraryTooSmall, 0, true);
+          output_message(25, 0, 1);
       remove_creature_from_work_room(thing);
       set_start_state(thing);
       return 0;
     }
     process_research_function(thing);
     cctrl = creature_control_get_from_thing(thing);
-    if ( (game.play_gameturn - dungeon->field_AE5 < 50)
+    if ( (game.play_gameturn - dungeon->field_AE5[0] < 50)
       && ((game.play_gameturn + thing->index) & 0x03) == 0)
     {
-      external_set_thing_state(thing, CrSt_CreatureBeHappy);
+      external_set_thing_state(thing, 127);
       cctrl->field_282 = 50;
       cctrl->long_9A = 0;
       return 1;
     }
-    if (cctrl->instance_id != CrInst_NULL)
+    if ( cctrl->field_D2 )
       return 1;
     cctrl->field_82++;
     // Shall we do some "Standing and thinking"

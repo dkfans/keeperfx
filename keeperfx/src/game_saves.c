@@ -90,8 +90,6 @@ TbBool save_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
     struct FileChunkHeader hdr;
     long chunks_done;
     chunks_done = 0;
-    // Currently there is some game data oustide of structs - make sure it is updated
-    light_export_system_state(&gameadd.lightst);
     { // Info chunk
         hdr.id = SGC_InfoBlock;
         hdr.ver = 0;
@@ -370,7 +368,7 @@ TbBool load_game(long slot_num)
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
     init_lookups();
     reinit_level_after_load();
-    output_message(SMsg_GameLoaded, 0, true);
+    output_message(SMsg_GameLoaded, 0, 1);
     pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
     calculate_moon_phase(false,false);
     update_extra_levels_visibility();
@@ -382,9 +380,6 @@ TbBool load_game(long slot_num)
     player->field_7 = 0;
     PaletteSetPlayerPalette(player, _DK_palette);
     reinitialise_eye_lens(game.numfield_1B);
-    // Update the lights system state
-    light_export_system_state(&gameadd.lightst);
-    // Victory state
     if (player->victory_state != VicS_Undecided)
     {
       frontstats_initialise();

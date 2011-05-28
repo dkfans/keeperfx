@@ -91,7 +91,7 @@ TbBool create_vampire_in_room(struct Room *room)
     dungeon->lvstats.vamps_created++;
     create_effect(&pos, 3, thing->owner);
     if (is_my_player_number(room->owner)) {
-        output_message(SMsg_GraveyardMadeVampire, 0, true);
+        output_message(58, 0, 1);
     }
     return true;
 }
@@ -371,7 +371,7 @@ struct Thing *create_dead_creature(struct Coord3d *pos, unsigned short model, un
     }
     thing->class_id = 4;
     thing->model = model;
-    thing->parent_thing_idx = thing->index;
+    thing->field_1D = thing->index;
     thing->owner = owner;
     thing->byte_13 = explevel;
     thing->mappos.x.val = pos->x.val;

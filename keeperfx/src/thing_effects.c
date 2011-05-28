@@ -445,7 +445,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     thing->mappos.y.val = pos->y.val;
     thing->mappos.z.val = pos->z.val;
     thing->field_2 = 0;
-    thing->parent_thing_idx = thing->index;
+    thing->field_1D = thing->index;
     thing->owner = owner;
     thing->field_56 = 1;
     thing->field_58 = 1;
@@ -662,7 +662,7 @@ long update_effect_element(struct Thing *thing)
       return 1;
     abs_x = abs(thing->pos_2C.x.val);
     abs_y = abs(thing->pos_2C.y.val);
-    prop_factor = LbDiagonalLength(abs_x, abs_y);
+    prop_factor = LbProportion(abs_x, abs_y);
     i = ((LbArcTanAngle(thing->pos_2C.z.val, prop_factor) & 0x7FF) - 512) & 0x7FF;
     if (i > 1024)
       i -= 1024;
@@ -854,7 +854,7 @@ struct Thing *create_effect(const struct Coord3d *pos, unsigned short effmodel, 
     thing->mappos.z.val = pos->z.val;
     thing->field_2 = 0;
     thing->owner = owner;
-    thing->parent_thing_idx = thing->index;
+    thing->field_1D = thing->index;
     thing->field_20 = 0;
     thing->field_23 = 0;
     thing->field_24 = 0;
@@ -1012,8 +1012,8 @@ long update_effect(struct Thing *thing)
     //return _DK_update_effect(thing);
     subtng = NULL;
     effnfo = &effect_info[thing->model];
-    if ( thing->parent_thing_idx ) {
-        subtng = thing_get(thing->parent_thing_idx);
+    if ( thing->field_1D ) {
+        subtng = thing_get(thing->field_1D);
     }
     if (thing->health <= 0) {
         destroy_effect_generator(thing);
@@ -1045,7 +1045,7 @@ struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long
     struct Thing *thing;
     thing = create_effect_element(pos, 41, plyr_idx);
     if (!thing_is_invalid(thing)) {
-        thing->creature.gold_carried = price;
+        thing->long_13 = price;
     }
     return thing;
 }

@@ -30,7 +30,6 @@
 #include "config_creature.h"
 #include "thing_corpses.h"
 #include "thing_navigate.h"
-#include "thing_stats.h"
 #include "room_data.h"
 #include "thing_objects.h"
 #include "map_events.h"
@@ -76,14 +75,14 @@ long const dig_pos[] = {0, -1, 1};
 /******************************************************************************/
 TbBool add_to_imp_stack_using_pos(long stl_num, long task_type, struct Dungeon *dungeon)
 {
-    struct DiggerStack *istack;
-    if (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT)
+    struct ImpStack *istack;
+    if (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT)
         return false;
-    istack = &dungeon->imp_stack[dungeon->digger_stack_length];
-    dungeon->digger_stack_length++;
+    istack = &dungeon->imp_stack[dungeon->imp_stack_length];
+    dungeon->imp_stack_length++;
     istack->field_0 = stl_num;
     istack->task_id = task_type;
-    return (dungeon->digger_stack_length < IMP_TASK_MAX_COUNT);
+    return (dungeon->imp_stack_length < IMP_TASK_MAX_COUNT);
 }
 
 long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3)
@@ -382,7 +381,7 @@ long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
     SYNCDBG(18,"Starting");
     nused = 0;
     i = -1;
-    while ((num > 0) && (dungeon->digger_stack_length < IMP_TASK_MAX_COUNT))
+    while ((num > 0) && (dungeon->imp_stack_length < IMP_TASK_MAX_COUNT))
     {
         i = find_next_dig_in_dungeon_task_list(dungeon, i);
         if (i < 0)
@@ -418,12 +417,12 @@ long add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon)
 void setup_imp_stack(struct Dungeon *dungeon)
 {
   long i;
-  for (i = 0; i < dungeon->digger_stack_length; i++)
+  for (i = 0; i < dungeon->imp_stack_length; i++)
   {
     dungeon->imp_stack[i].task_id = DigTsk_None;
   }
-  dungeon->digger_stack_update_turn = game.play_gameturn;
-  dungeon->digger_stack_length = 0;
+  dungeon->imp_stack_update_turn = game.play_gameturn;
+  dungeon->imp_stack_length = 0;
   r_stackpos = 0;
 }
 
@@ -458,7 +457,7 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
             break;
         }
         i = thing->next_of_class;
-        if ( (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT) || (remain_num <= 0) ) {
+        if ( (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT) || (remain_num <= 0) ) {
             break;
         }
         if ( ((thing->field_1 & 0x01) == 0) && (thing->active_state == 2) && (thing->byte_14 == 0) && corpse_is_rottable(thing) )
@@ -467,7 +466,7 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
             {
                 SYNCDBG(8,"Dungeon %d has no free graveyard space",(int)dungeon->owner);
                 if (is_my_player_number(dungeon->owner)) {
-                    output_message(SMsg_GraveyardTooSmall, 1000, true);
+                    output_message(32, 1000, 1);
                 }
                 return 0;
             }
@@ -517,7 +516,7 @@ TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num)
     }
     i = thing->next_of_class;
     // Thing list loop body
-    if ((num <= 0) || (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT))
+    if ((num <= 0) || (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT))
       break;
     if ((!thing->byte_13) && (thing->owner == dungeon->owner))
     {
@@ -561,7 +560,7 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
     }
     i = thing->next_of_class;
     // Thing list loop body
-    if (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT)
+    if (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT)
       break;
     if ( thing_is_door_or_trap_box(thing) )
     {
@@ -596,11 +595,11 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
 
 void add_reinforce_to_imp_stack(struct Dungeon *dungeon)
 {
-    struct DiggerStack *rfstack;
+    struct ImpStack *rfstack;
     long i;
     for (i=0; i < r_stackpos; i++)
     {
-        if (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT)
+        if (dungeon->imp_stack_length >= IMP_TASK_MAX_COUNT)
           break;
         rfstack = &reinforce_stack[i];
         add_to_imp_stack_using_pos(rfstack->field_0, rfstack->task_id, dungeon);
@@ -730,7 +729,7 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     struct Room *room;
     SYNCDBG(18,"Starting");
     //If the imp doesn't have any money - then just return
-    if (thing->creature.gold_carried <= 0)
+    if (thing->long_13 <= 0)
       return 0;
     // Find a treasure room to drop the money
     room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TREASURE, 0, 1);
@@ -748,7 +747,7 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     if (dungeon->room_kind[RoK_TREASURE] == 0)
     {
         if (is_my_player_number(thing->owner))
-            output_message(SMsg_RoomTreasrNeeded, 1000, true);
+            output_message(SMsg_RoomTreasrNeeded, 1000, 1);
         event_create_event_or_update_nearby_existing_event(0, 0, 20, thing->owner, 0);
         return 0;
     }
@@ -756,11 +755,11 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     if (find_room_with_spare_capacity(thing->owner, RoK_TREASURE, 1) != NULL)
     {
         if (is_my_player_number(thing->owner))
-            output_message(SMsg_NoRouteToTreasury, 1000, true);
+            output_message(SMsg_NoRouteToTreasury, 1000, 1);
         return 0;
     }
     if (is_my_player_number(thing->owner))
-        output_message(SMsg_TreasuryTooSmall, 1000, true);
+        output_message(SMsg_TreasuryTooSmall, 1000, 1);
     event_create_event_or_update_nearby_existing_event(0, 0, 11, thing->owner, 0);
     return 0;
 }
@@ -792,7 +791,7 @@ long check_out_imp_tokes(struct Thing *thing)
     // small chance of changing state
     if (i != 0)
       return 0;
-    internal_set_thing_state(thing, CrSt_ImpToking);
+    internal_set_thing_state(thing, 69);
     thing->continue_state = CrSt_ImpDoingNothing;
     cctrl->field_282 = 200;
     return 1;
@@ -805,26 +804,26 @@ long check_out_imp_last_did(struct Thing *thing)
   struct Room *room;
   //return _DK_check_out_imp_last_did(thing);
   cctrl = creature_control_get_from_thing(thing);
-  SYNCDBG(19,"Starting for %s index %d, last did %d",thing_model_name(thing),(int)thing->index,(int)cctrl->digger.last_did_job);
-  switch (cctrl->digger.last_did_job)
+  SYNCDBG(19,"Starting case %d",(int)cctrl->digger.byte_94);
+  switch (cctrl->digger.byte_94)
   {
   case 0:
       return false;
   case 1:
       if ( check_out_undug_place(thing) || check_out_undug_area(thing) )
       {
-        cctrl->digger.last_did_job = 1;
+        cctrl->digger.byte_94 = 1;
         return true;
       }
       if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
       {
-        cctrl->digger.last_did_job = 2;
+        cctrl->digger.byte_94 = 2;
         return true;
       }
       imp_stack_update(thing);
       if ( check_out_unprettied_or_unconverted_area(thing) )
       {
-        cctrl->digger.last_did_job = 2;
+        cctrl->digger.byte_94 = 2;
         SYNCDBG(19,"Done on unprettied or unconverted area");
         return true;
       }
@@ -832,35 +831,35 @@ long check_out_imp_last_did(struct Thing *thing)
   case 2:
       if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
       {
-        cctrl->digger.last_did_job = 2;
+        cctrl->digger.byte_94 = 2;
         SYNCDBG(19,"Done on unprettied or unconverted place");
         return true;
       }
       imp_stack_update(thing);
       if ( check_out_unprettied_or_unconverted_area(thing) )
       {
-        cctrl->digger.last_did_job = 2;
+        cctrl->digger.byte_94 = 2;
         return true;
       }
       if ( check_out_undug_area(thing) )
       {
-        cctrl->digger.last_did_job = 1;
+        cctrl->digger.byte_94 = 1;
         return true;
       }
       break;
   case 3:
       dungeon = get_dungeon(thing->owner);
       imp_stack_update(thing);
-      if ((dungeon->digger_stack_update_turn != cctrl->digger.stack_update_turn) && (dungeon->digger_stack_length != 3))
+      if ((dungeon->imp_stack_update_turn != (cctrl->long_89)) && (dungeon->imp_stack_length != 3))
         break;
       if ( check_out_unreinforced_place(thing) )
       {
-        cctrl->digger.last_did_job = 3;
+        cctrl->digger.byte_94 = 3;
         return true;
       }
       if ( check_out_unreinforced_area(thing) )
       {
-        cctrl->digger.last_did_job = 3;
+        cctrl->digger.byte_94 = 3;
         return true;
       }
       break;
@@ -880,25 +879,25 @@ long check_out_imp_last_did(struct Thing *thing)
       if (is_my_player_number(thing->owner))
       {
         if ( !find_room_with_spare_capacity(thing->owner, 6, 1) )
-          output_message(SMsg_TrainingTooSmall, 0, true);
+          output_message(28, 0, 1);
       }
       break;
   case 9:
       if ( check_out_unreinforced_place(thing) )
       {
-        cctrl->digger.last_did_job = 9;
+        cctrl->digger.byte_94 = 9;
         return true;
       }
       if ( check_out_unreinforced_area(thing) )
       {
-        cctrl->digger.last_did_job = 9;
+        cctrl->digger.byte_94 = 9;
         return true;
       }
       break;
   default:
       break;
   }
-  cctrl->digger.last_did_job = 0;
+  cctrl->digger.byte_94 = 0;
   return false;
 }
 
@@ -908,7 +907,7 @@ long imp_stack_update(struct Thing *thing)
   SYNCDBG(18,"Starting");
   //return _DK_imp_stack_update(thing);
   dungeon = get_dungeon(thing->owner);
-  if ((game.play_gameturn - dungeon->digger_stack_update_turn) < 128)
+  if ((game.play_gameturn - dungeon->imp_stack_update_turn) < 128)
     return 0;
   SYNCDBG(8,"Updating");
   setup_imp_stack(dungeon);
@@ -931,7 +930,7 @@ long check_out_imp_stack(struct Thing *thing)
     struct CreatureStats *crstat;
     struct Thing *sectng;
     struct Thing *trdtng;
-    struct DiggerStack *istack;
+    struct ImpStack *istack;
     struct MapTask *task;
     long stl_x,stl_y;
     long i;
@@ -939,17 +938,17 @@ long check_out_imp_stack(struct Thing *thing)
     //return _DK_check_out_imp_stack(thing);
     cctrl = creature_control_get_from_thing(thing);
     dungeon = get_dungeon(thing->owner);
-    if (cctrl->digger.stack_update_turn != dungeon->digger_stack_update_turn)
+    if (cctrl->long_89 != dungeon->imp_stack_update_turn)
     {
-      cctrl->digger.stack_update_turn = dungeon->digger_stack_update_turn;
+      cctrl->long_89 = dungeon->imp_stack_update_turn;
       cctrl->field_95 = 0;
     }
-    if (dungeon->digger_stack_length > IMP_TASK_MAX_COUNT)
+    if (dungeon->imp_stack_length > IMP_TASK_MAX_COUNT)
     {
-        ERRORLOG("Imp tasks length %d out of range",(int)dungeon->digger_stack_length);
-        dungeon->digger_stack_length = IMP_TASK_MAX_COUNT;
+        ERRORLOG("Imp tasks length %d out of range",(int)dungeon->imp_stack_length);
+        dungeon->imp_stack_length = IMP_TASK_MAX_COUNT;
     }
-    while (cctrl->field_95 < dungeon->digger_stack_length)
+    while (cctrl->field_95 < dungeon->imp_stack_length)
     {
         istack = &dungeon->imp_stack[cctrl->field_95];
         cctrl->field_95++;
@@ -974,7 +973,7 @@ long check_out_imp_stack(struct Thing *thing)
                 return -1;
             }
             thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
-            cctrl->digger.last_did_job = 2;
+            cctrl->digger.byte_94 = 2;
             return 1;
 
         case DigTsk_ConvertDungeon:
@@ -995,7 +994,7 @@ long check_out_imp_stack(struct Thing *thing)
                 return -1;
             }
             thing->continue_state = CrSt_ImpArrivesAtConvertDungeon;
-            cctrl->digger.last_did_job = 2;
+            cctrl->digger.byte_94 = 2;
             return 1;
 
         case DigTsk_ReinforceWall:
@@ -1026,7 +1025,7 @@ long check_out_imp_stack(struct Thing *thing)
             thing->continue_state = CrSt_ImpArrivesAtReinforce;
             cctrl->digger.byte_93 = 0;
             cctrl->word_8D = istack->field_0;
-            cctrl->digger.last_did_job = 3;
+            cctrl->digger.byte_94 = 3;
             return 1;
 
         case DigTsk_PickUpUnconscious:
@@ -1040,7 +1039,7 @@ long check_out_imp_stack(struct Thing *thing)
               if (is_my_player_number(thing->owner))
               {
                 if (!find_room_with_spare_capacity(thing->owner, 4, 1))
-                  output_message(SMsg_PrisonTooSmall, 1000, true);
+                  output_message(26, 1000, 1);
               }
               istack->task_id = DigTsk_None;
               return -1;
@@ -1075,7 +1074,7 @@ long check_out_imp_stack(struct Thing *thing)
               if (is_my_player_number(thing->owner))
               {
                 if (!find_room_with_spare_capacity(thing->owner, 11, 1))
-                  output_message(SMsg_GraveyardTooSmall, 1000, true);
+                  output_message(32, 1000, 1);
               }
               istack->task_id = DigTsk_None;
               return -1;
@@ -1110,7 +1109,7 @@ long check_out_imp_stack(struct Thing *thing)
                 if (is_my_player_number(thing->owner))
                 {
                   if (!find_room_with_spare_room_item_capacity(thing->owner, 3))
-                    output_message(SMsg_LibraryTooSmall, 1000, true);
+                    output_message(25, 1000, 1);
                 }
                 istack->task_id = DigTsk_None;
                 return -1;
@@ -1194,7 +1193,7 @@ long check_out_imp_stack(struct Thing *thing)
               if (is_my_player_number(thing->owner))
               {
                 if (!find_room_with_spare_room_item_capacity(thing->owner, 8))
-                  output_message(SMsg_WorkshopTooSmall, 1000, true);
+                  output_message(29, 1000, 1);
               }
               istack->task_id = DigTsk_None;
               return -1;
@@ -1251,7 +1250,7 @@ long check_out_imp_stack(struct Thing *thing)
             }
             cctrl->word_91 = i;
             cctrl->word_8F = istack->field_0;
-            cctrl->digger.last_did_job = 1;
+            cctrl->digger.byte_94 = 1;
             task = get_dungeon_task_list_entry(dungeon, i);
             if (task->field_0 == 2)
             {
@@ -1264,7 +1263,7 @@ long check_out_imp_stack(struct Thing *thing)
 
         case DigTsk_PicksUpGoldPile:
             crstat = creature_stats_get_from_thing(thing);
-            if (crstat->gold_hold <= thing->creature.gold_carried)
+            if (crstat->gold_hold <= thing->long_13)
             {
                 if (game.play_gameturn - cctrl->field_2C7 > 128)
                 {

@@ -122,12 +122,12 @@ void process_creature_instance(struct Thing *thing)
   struct InstanceInfo *inst_inf;
   cctrl = creature_control_get_from_thing(thing);
   //_DK_process_creature_instance(thing);
-  if (cctrl->instance_id != CrInst_NULL)
+  if (cctrl->field_D2)
   {
     cctrl->field_D4++;
     if (cctrl->field_D6 == cctrl->field_D4)
     {
-        inst_inf = creature_instance_info_get(cctrl->instance_id);
+        inst_inf = creature_instance_info_get(cctrl->field_D2);
         if (inst_inf->func_cb != NULL)
         {
             inst_inf->func_cb(thing, &inst_inf->field_22);
@@ -141,8 +141,8 @@ void process_creature_instance(struct Thing *thing)
         cctrl->field_D3 = 0;
         return;
       }
-      cctrl->field_DE[cctrl->instance_id] = game.play_gameturn;
-      cctrl->instance_id = CrInst_NULL;
+      cctrl->field_DE[cctrl->field_D2] = game.play_gameturn;
+      cctrl->field_D2 = 0;
     }
     cctrl->field_D3 = 0;
   }
@@ -251,7 +251,7 @@ long instf_dig(struct Thing *thing, long *param)
             if (gold <= 1)
               gold = 1;
           }
-          thing->creature.gold_carried += gold;
+          thing->long_13 += gold;
           dungeon->lvstats.gold_mined += gold;
         }
         return 0;
@@ -260,7 +260,7 @@ long instf_dig(struct Thing *thing, long *param)
     if (taskkind == 2)
     {
         gold = (game.gold_per_gold_block * (long)slb->field_4) / game.block_health[1];
-        thing->creature.gold_carried += gold;
+        thing->long_13 += gold;
         dungeon->lvstats.gold_mined += gold;
         mine_out_block(stl_x, stl_y, thing->owner);
         if (dig_has_revealed_area(stl_x, stl_y, thing->owner))
@@ -269,7 +269,7 @@ long instf_dig(struct Thing *thing, long *param)
                 get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
                 13, thing->owner, 0);
             if (is_my_player_number(thing->owner))
-                output_message(SMsg_DugIntoNewArea, 0, true);
+                output_message(76, 0, 1);
         }
     } else
     if (taskkind == 1)
@@ -281,7 +281,7 @@ long instf_dig(struct Thing *thing, long *param)
                 get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
                 13, thing->owner, 0);
             if (is_my_player_number(thing->owner))
-                output_message(SMsg_DugIntoNewArea, 0, true);
+                output_message(76, 0, 1);
         }
     }
     check_map_explored(thing, stl_x, stl_y);

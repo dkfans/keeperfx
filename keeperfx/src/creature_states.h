@@ -198,25 +198,11 @@ enum CreatureTrainingModes {
     CrTrMd_PartnerTraining,
 };
 
-enum CreatureStateTypes {
-    CrStTyp_Value0 = 0,
-    CrStTyp_Value1,
-    CrStTyp_Value2,
-    CrStTyp_Value3,
-    CrStTyp_Value4,
-    CrStTyp_Value5,
-    CrStTyp_Value6,
-};
-
-typedef short (*CreatureStateFunc1)(struct Thing *);
-typedef char (*CreatureStateFunc2)(struct Thing *);
-typedef long (*CreatureStateFunc3)(struct Thing *);
-
 struct StateInfo { // sizeof = 41
-    CreatureStateFunc1 ofsfield_0;
-    CreatureStateFunc1 cleanup_state;
-    CreatureStateFunc2 ofsfield_8;
-    CreatureStateFunc3 ofsfield_C;
+  short (*ofsfield_0)(struct Thing *);
+  short (*ofsfield_4)(struct Thing *);
+  char (*ofsfield_8)(struct Thing *);
+  long (*ofsfield_C)(struct Thing *);
   unsigned char field_10;
   unsigned char field_11;
   unsigned char field_12;
@@ -251,7 +237,7 @@ DLLIMPORT struct StateInfo _DK_states[];
 extern struct StateInfo states[];
 DLLIMPORT long _DK_r_stackpos;
 #define r_stackpos _DK_r_stackpos
-DLLIMPORT struct DiggerStack _DK_reinforce_stack[];
+DLLIMPORT struct ImpStack _DK_reinforce_stack[];
 #define reinforce_stack _DK_reinforce_stack
 /******************************************************************************/
 TbBool creature_model_bleeds(unsigned long crmodel);

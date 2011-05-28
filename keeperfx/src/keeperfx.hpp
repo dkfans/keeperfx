@@ -93,6 +93,13 @@ extern "C" {
 // Strings length
 #define CAMPAIGN_FNAME_LEN    64
 
+enum PlayerViewType {
+    PVT_DungeonTop          =  1,
+    PVT_CreatureContrl      =  2,
+    PVT_CreaturePasngr      =  3,
+    PVT_MapScreen           =  4,
+};
+
 enum PlayerVictoryState {
     VicS_Undecided          =  0,
     VicS_WonLevel           =  1,
@@ -488,7 +495,7 @@ unsigned char numfield_149F38;
     unsigned char packet_checksum;
     unsigned long log_things_start_turn;
     unsigned long log_things_end_turn;
-    unsigned long turns_packetoff;
+    int numfield_149F42;
 unsigned char numfield_149F46;
 unsigned char numfield_149F47;
 // Originally, save_catalogue was here.
@@ -553,7 +560,7 @@ short field_14E4A4;
 unsigned char field_14E930[4];
     unsigned long entrance_last_generate_turn;
     unsigned short entrance_room_id;
-    unsigned short entrances_count;
+unsigned short field_14E93A;
     unsigned short gold_per_gold_block;
     unsigned short pot_of_gold_holds;
     unsigned short chest_gold_hold;
@@ -631,7 +638,7 @@ char numfield_1503A2;
     unsigned char bodies_for_vampire;
     struct UnkStruc7 field_1503A4[48];
 unsigned char field_1506D4;
-    long music_track_index;
+long field_1506D5;
     char evntbox_text_objective[MESSAGE_TEXT_LEN];
     char evntbox_text_buffer[MESSAGE_TEXT_LEN];
     struct TextScrollWindow evntbox_scroll_window;
@@ -664,9 +671,9 @@ int field_151809;
     int chosen_spell_type;
     int chosen_spell_look;
     int chosen_spell_tooltip;
-int manufactr_element;
+int numfield_151819;
 int numfield_15181D;
-int manufactr_tooltip;
+int numfield_151821;
 };
 
 #ifdef __cplusplus

@@ -201,14 +201,6 @@ struct DisplayStruct {
 };
 typedef struct DisplayStruct TbDisplayStruct;
 
-/** Extensions to DisplayStruct - will be later integrated into it. */
-struct DisplayStructEx {
-    short WhellPosition;
-    ushort WhellMoveUp;
-    ushort WhellMoveDown;
-};
-typedef struct DisplayStructEx TbDisplayStructEx;
-
 struct SSurface;
 typedef struct SSurface TSurface;
 

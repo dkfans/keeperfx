@@ -22,7 +22,6 @@
 #include "bflib_math.h"
 #include "thing_list.h"
 #include "creature_control.h"
-#include "creature_instances.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -880,7 +879,7 @@ TbBool attempt_to_destroy_enemy_room(struct Thing *thing, unsigned char stl_x, u
     event_create_event_or_update_nearby_existing_event(subtile_coord_center(room->central_stl_x),
         subtile_coord_center(room->central_stl_y), 19, room->owner, 0);
     if (is_my_player_number(room->owner))
-        output_message(SMsg_EnemyDestroyRooms, 400, true);
+        output_message(15, 400, 1);
     thing->continue_state = CrSt_CreatureAttackRooms;
     cctrl = creature_control_get_from_thing(thing);
     if (!creature_control_invalid(cctrl))
@@ -1342,11 +1341,11 @@ TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long
     remove_spell_from_player(object_to_magic[spelltng->model], room->owner);
     if (is_my_player_number(room->owner))
     {
-        output_message(SMsg_SpellbookStolen, 0, true);
+        output_message(50, 0, 1);
     } else
     if (is_my_player_number(new_owner))
     {
-        output_message(SMsg_SpellbookTaken, 0, true);
+        output_message(47, 0, 1);
     }
     return true;
 }
@@ -1516,7 +1515,7 @@ short creature_steal_gold(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    max_amount = crstat->gold_hold - thing->creature.gold_carried;
+    max_amount = crstat->gold_hold - thing->long_13;
     if (max_amount <= 0)
     {
         set_start_state(thing);
@@ -1524,7 +1523,7 @@ short creature_steal_gold(struct Thing *thing)
     }
     // Success! we are able to steal some gold!
     amount = remove_gold_from_hoarde(hrdtng, room, max_amount);
-    thing->creature.gold_carried += amount;
+    thing->long_13 += amount;
     create_price_effect(&thing->mappos, thing->owner, amount);
     SYNCDBG(6,"Stolen %ld gold from hoarde at (%d,%d)",amount,(int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num);
     set_start_state(thing);
@@ -1622,8 +1621,8 @@ void place_thing_in_creature_controlled_limbo(struct Thing *thing)
 
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing)
 {
-    thing->field_1 &= ~0x02;
-    thing->field_4F &= ~0x01;
+    thing->field_1 &= 0xFD;
+    thing->field_4F &= 0xFE;
     place_thing_in_mapwho(thing);
 }
 
@@ -1643,7 +1642,7 @@ short move_backwards_to_position(struct Thing *thing)
     }
     if (i == -1)
     {
-        ERRORLOG("Bad place (%d,%d) to move %s backwards to.",(int)cctrl->moveto_pos.x.val,(int)cctrl->moveto_pos.y.val,thing_model_name(thing));
+        ERRORLOG("Bad place (%d,%d) to move %s backwards to.",(int)cctrl->moveto_pos.x,(int)cctrl->moveto_pos.y,thing_model_name(thing));
         set_start_state(thing);
         thing->continue_state = 0;
         return 0;
@@ -1742,7 +1741,7 @@ TbBool process_creature_hunger(struct Thing *thing)
   struct CreatureStats *crstat;
   cctrl = creature_control_get_from_thing(thing);
   crstat = creature_stats_get_from_thing(thing);
-  if ( (crstat->hunger_rate == 0) || ((cctrl->affected_by_spells & CCSpl_Freeze) != 0) )
+  if ( (crstat->hunger_rate == 0) || ((cctrl->field_AB & 0x02) != 0) )
     return false;
   cctrl->field_39++;
   if (cctrl->field_39 <= crstat->hunger_rate)
@@ -1898,11 +1897,11 @@ short seek_the_enemy(struct Thing *thing)
         dist = get_2d_box_distance(&enemytng->mappos, &thing->mappos);
         if (creature_can_hear_within_distance(thing, dist))
         {
-            if (cctrl->instance_id == CrInst_NULL)
+            if (cctrl->field_D2 == 0)
             {
               if ((dist < 2304) && (game.play_gameturn-cctrl->field_282 < 20))
               {
-                set_creature_instance(thing, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+                set_creature_instance(thing, CrSt_GoodDoingNothing, 1, 0, 0);
                 thing_play_sample(thing, 168+UNSYNC_RANDOM(3), 100, 0, 3, 0, 2, 256);
                 return 1;
               }
@@ -2018,7 +2017,7 @@ TbBool check_experience_upgrade(struct Thing *thing)
     cctrl->exp_points -= i;
     if (cctrl->explevel < dungeon->creature_max_level[thing->model])
     {
-      if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
+      if ((cctrl->explevel < 9) || (crstat->grow_up != 0))
         cctrl->field_AD |= 0x40;
     }
     return true;
@@ -2074,9 +2073,9 @@ TbBool cleanup_current_thing_state(struct Thing *thing)
 {
     struct StateInfo *stati;
     stati = get_creature_state_with_task_completion(thing);
-    if (stati->cleanup_state != NULL)
+    if (stati->ofsfield_4 != NULL)
     {
-        stati->cleanup_state(thing);
+        stati->ofsfield_4(thing);
         set_flag_byte(&thing->field_1, 0x10, true);
     } else
     {
@@ -2158,7 +2157,7 @@ short set_start_state(struct Thing *thing)
     struct PlayerInfo *player;
     struct CreatureControl *cctrl;
     long i;
-    SYNCDBG(8,"Starting for %s index %d, owner %d, last state %d",thing_model_name(thing),(int)thing->index,(int)thing->owner,(int)thing->active_state);
+    SYNCDBG(8,"Starting for %s, owner %d",thing_model_name(thing),(int)thing->owner);
 //    return _DK_set_start_state(thing);
     if ((thing->field_0 & 0x20) != 0)
     {
@@ -2193,8 +2192,7 @@ short set_start_state(struct Thing *thing)
         initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
         return thing->active_state;
     }
-    i = creatures[thing->model%CREATURE_TYPES_COUNT].evil_start_state;
-    initialise_thing_state(thing, i);
+    initialise_thing_state(thing, creatures[thing->model%CREATURE_TYPES_COUNT].evil_start_state);
     return thing->active_state;
 }
 /******************************************************************************/

@@ -501,7 +501,6 @@ struct Thing *find_players_dungeon_heart(unsigned short plyridx)
             break;
         }
     }
-    SYNCDBG(6,"No heart for player %d",(int)plyridx);
     return INVALID_THING;
 }
 
@@ -533,9 +532,11 @@ void init_player_start(struct PlayerInfo *player)
 
 void setup_computer_player(int plr_idx)
 {
+    struct PlayerInfo *player;
     struct Thing *thing;
     SYNCDBG(5,"Starting for player %d",plr_idx);
-    thing = find_players_dungeon_heart(plr_idx);// cannot use player->id_number, as it isn't set yet
+    player = get_player(plr_idx);
+    thing = find_players_dungeon_heart(player->id_number);
     if (!thing_is_invalid(thing))
     {
         script_support_setup_player_as_computer_keeper(plr_idx, 0);
@@ -1386,10 +1387,10 @@ struct Thing *smallest_gold_pile_at_xy(long stl_x, long stl_y)
     // Per thing processing block
     if ((thing->class_id == TCls_Object) && (thing->model == 43))
     {
-        if (thing->creature.gold_carried < chosen_gold)
+        if (thing->long_13 < chosen_gold)
         {
             chosen_thing = thing;
-            chosen_gold = thing->creature.gold_carried;
+            chosen_gold = thing->long_13;
         }
     }
     // Per thing processing block ends
@@ -1464,7 +1465,7 @@ TbBool gold_pile_with_maximum_at_xy(long stl_x, long stl_y)
     // Per thing processing block
     if ((thing->class_id == TCls_Object) && (thing->model == 43))
     {
-        if (thing->creature.gold_carried >= game.gold_pile_maximum)
+        if (thing->long_13 >= game.gold_pile_maximum)
         {
             return true;
         }

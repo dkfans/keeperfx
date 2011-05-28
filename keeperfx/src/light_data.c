@@ -206,30 +206,6 @@ long light_get_out_of_date_stat_lights(void)
     return light_out_of_date_stat_lights;
 }
 
-void light_export_system_state(struct LightSystemState *lightst)
-{
-    memcpy(lightst->bitmask,light_bitmask,sizeof(light_bitmask));
-    lightst->static_light_needs_updating = stat_light_needs_updating;
-    lightst->total_dynamic_lights = light_total_dynamic_lights;
-    lightst->total_stat_lights = light_total_stat_lights;
-    lightst->rendered_dynamic_lights = light_rendered_dynamic_lights;
-    lightst->rendered_optimised_dynamic_lights = light_rendered_optimised_dynamic_lights;
-    lightst->updated_stat_lights = light_updated_stat_lights;
-    lightst->out_of_date_stat_lights = light_out_of_date_stat_lights;
-}
-
-void light_import_system_state(const struct LightSystemState *lightst)
-{
-    memcpy(light_bitmask,lightst->bitmask,sizeof(light_bitmask));
-    stat_light_needs_updating = lightst->static_light_needs_updating;
-    light_total_dynamic_lights = lightst->total_dynamic_lights;
-    light_total_stat_lights = lightst->total_stat_lights;
-    light_rendered_dynamic_lights = lightst->rendered_dynamic_lights;
-    light_rendered_optimised_dynamic_lights = lightst->rendered_optimised_dynamic_lights;
-    light_updated_stat_lights = lightst->updated_stat_lights;
-    light_out_of_date_stat_lights = lightst->out_of_date_stat_lights;
-}
-
 TbBool lights_stats_debug_dump(void)
 {
     long lights[LIGHTS_COUNT];
@@ -347,34 +323,14 @@ TbBool lights_stats_debug_dump(void)
     return false;
 }
 
-void light_set_light_never_cache(long lgt_id)
+void light_set_light_never_cache(long idx)
 {
-    struct Light *lgt;
-    //_DK_light_set_light_never_cache(lgt_id);
-    if (lgt_id <= 0)
-    {
-        ERRORLOG("Attempt to set size of invalid light %d",(int)lgt_id);
-        return;
-    }
-    lgt = &game.lights[lgt_id];
-    if ((lgt->flags & LgtF_Allocated) == 0)
-    {
-        ERRORLOG("Attempt to set size of unallocated light structure %d",(int)lgt_id);
-        return;
-    }
-    lgt->flags |= 0x40;
+  _DK_light_set_light_never_cache(idx);
 }
 
 long light_is_light_allocated(long lgt_id)
 {
-    struct Light *lgt;
-    //return _DK_light_is_light_allocated(lgt_id);
-    if (lgt_id <= 0)
-        return false;
-    lgt = &game.lights[lgt_id];
-    if ((lgt->flags & LgtF_Allocated) == 0)
-        return false;
-    return true;
+  return _DK_light_is_light_allocated(lgt_id);
 }
 
 void light_set_light_position(long lgt_id, struct Coord3d *pos)
@@ -487,7 +443,7 @@ long light_set_light_intensity(long a1, long a2)
 
 void clear_light_system(void)
 {
-    memset(game.field_1DD41, 0, 0x28416u);
+  memset(game.field_1DD41, 0, 0x28416u);
 }
 
 void clear_stat_light_map(void)
@@ -562,13 +518,6 @@ void light_initialise(void)
         }
         game.field_4614E = 1;
     }
-    stat_light_needs_updating = 1;
-    light_total_dynamic_lights = 0;
-    light_total_stat_lights = 0;
-    light_rendered_dynamic_lights = 0;
-    light_rendered_optimised_dynamic_lights = 0;
-    light_updated_stat_lights = 0;
-    light_out_of_date_stat_lights = 0;
 }
 
 void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
@@ -605,15 +554,15 @@ void update_light_render_area(void)
     struct PlayerInfo *player;
     SYNCDBG(6,"Starting");
     player=get_my_player();
-    if (player->view_mode >= PVM_CreatureView)
-      if ((player->view_mode <= PVM_IsometricView) || (player->view_mode == PVM_FrontView))
+    if (player->field_37 >= 1)
+      if ((player->field_37 <= 2) || (player->field_37 == 5))
       {
           game.field_14BB5D = LIGHT_MAX_RANGE;
           game.field_14BB59 = LIGHT_MAX_RANGE;
       }
     delta_x=abs(game.field_14BB59);
     delta_y=abs(game.field_14BB5D);
-    // Prepare the area constraints
+    // Prepare the area constraits
     if (player->acamera != NULL)
     {
       subtile_y = player->acamera->mappos.y.stl.num;

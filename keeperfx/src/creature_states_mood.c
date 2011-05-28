@@ -20,11 +20,9 @@
 #include "globals.h"
 
 #include "bflib_math.h"
-#include "bflib_sound.h"
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_control.h"
-#include "creature_instances.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -53,28 +51,7 @@ DLLIMPORT short _DK_mad_killing_psycho(struct Thing *thing);
 /******************************************************************************/
 short creature_moan(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    long i;
-    //return _DK_creature_moan(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    i = cctrl->field_282;
-    if (i > 0) i--;
-    cctrl->field_282 = i;
-    if (i <= 0)
-    {
-      if (cctrl->instance_id == CrInst_NULL)
-        set_start_state(thing);
-      return 0;
-    }
-    if (game.play_gameturn - cctrl->long_9A > 32)
-    {
-        play_creature_sound(thing, 4, 2, 0);
-        cctrl->long_9A = game.play_gameturn;
-    }
-    if (cctrl->instance_id == CrInst_NULL) {
-        set_creature_instance(thing, CrInst_MOAN, 1, 0, 0);
-    }
-    return 1;
+  return _DK_creature_moan(thing);
 }
 
 short creature_roar(struct Thing *thing)
@@ -84,49 +61,12 @@ short creature_roar(struct Thing *thing)
 
 short creature_be_happy(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    long i;
-    //return _DK_creature_be_happy(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    i = cctrl->field_282;
-    if (i > 0) i--;
-    cctrl->field_282 = i;
-    if (i <= 0)
-    {
-      if (cctrl->instance_id == CrInst_NULL) {
-          set_start_state(thing);
-      }
-      return 0;
-    }
-    if (game.play_gameturn - cctrl->long_9A > 32)
-    {
-        play_creature_sound(thing, 3, 2, 0);
-        cctrl->long_9A = game.play_gameturn;
-    }
-    if (cctrl->instance_id == CrInst_NULL) {
-        set_creature_instance(thing, CrInst_CELEBRATE_SHORT, 1, 0, 0);
-    }
-    return 1;
+  return _DK_creature_be_happy(thing);
 }
 
 short creature_piss(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    long i;
-    //return _DK_creature_piss(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 171, 0) ) {
-        thing_play_sample(thing, 171, 100, 0, 3, 1, 6, 256);
-    }
-    i = cctrl->field_282;
-    if (i > 0) i--;
-    cctrl->field_282 = i;
-    if (i > 0) {
-        return 1;
-    }
-    cctrl->field_B2 = game.play_gameturn;
-    set_start_state(thing);
-    return 0;
+  return _DK_creature_piss(thing);
 }
 
 short mad_killing_psycho(struct Thing *thing)

@@ -192,7 +192,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
   dungeon = get_players_num_dungeon(plridx);
   event = &game.event[evidx];
   SYNCDBG(6,"Starting for event kind %d",event->kind);
-  dungeon->visible_event_idx = evidx;
+  dungeon->field_1173 = evidx;
   if (plridx == my_player_number)
   {
     i = event_button_info[event->kind].field_6;
