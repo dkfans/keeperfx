@@ -1,0 +1,32 @@
+DzjeeAr's 6-level campaign
+Land descriptions script for KeeperFX
+
+written by Ninja(PL)
+
+Pile of its own good - Kraina ta nigdy nie zazna³a bólu i wspania³ego piêkna jakim jest wojna. Wszyscy s¹ tutaj szczêœliwi, musisz to natychmiast zmieniæ mój Panie.
+
+Garstka kamieni - Teraz kraina ta zazna³a OKROPNEGO(pozwoli³em sobie zmienic na PIÊKNA) bólu i wojny. Niedawno to oni byli szczêœliwi teraz to MY jesteœmy szczêœliwi. Doskona³a robota mój panie!
+
+Ancient Fortress - Wspania³a forteca, wielu stra¿ników próbowa³o j¹ zdobyæ lecz ¿adnemu siê to nie uda³o. Czas zmieniæ to miejsce we wspania³e ruiny.
+
+Wspania³e ruiny - Tak przepiêknie rozwalonych kamieni oraz rozwalonych ludzi na pó³, jeszcze nie mia³em okazji zobaczyæ teraz mogê w koñcu podziwiaæ widok ze moich snów. Doskona³a robota!
+
+The Necromancer - T¹ krain¹ zaw³adn¹ pewien Wampir, który jest mistrzem w swoim kulcie niestety ten g³upiec nie chcia³ siê do nas przy³¹czyæ. Mo¿emy mu teraz przemówiæ do rozs¹dku, i pokazaæ kto powinien zaw³adn¹æ t¹ krain¹!
+
+Dolina Wampirów - Wampir po przegranej nie chcia³ przejœæ na twoje podobieñstwo, ale wystarczy³o mu trochê mocno m³otkiem przywaliæ w jego g³upi ³eb, a od razu jakoœ chcia³ siê do ciebie przy³¹czyæ. Rozkaza³em mu poprzemieniaæ wszystkich mieszkañców tej krainy w wampiry, teraz nawet dzieci s¹ po z³ej stronie.
+
+
+
+Frozen Plains - Nawet ludzie uciekali z tej krainy z obaw¹ ¿e w nocy przez okno wejdzie im olbrzymi paj¹k do domu i ich zje na obiad. Teraz to my urz¹dzimy sobie pieczonego paj¹ka na kolacje.
+
+Rozgrzane równiny - Teraz mo¿emy w spokoju podziwiaæ widok tej krainy gdy sp³ywa po nim lawa i jedz¹c pieczone paj¹ki. Tak zalanej krainy od magmy to jeszcze nie widzia³em. Wspania³a robota mój Panie!
+
+Barbarian Stronghold - Barbarzyñcy to okropny naród ludzkiej rasy. Przed wiekami zbudowali tê twierdze z obawy przed atakami z podziemia. Musimy zdobyæ t¹ twierdzê za wszelk¹ cenê!
+
+Twierdza Stra¿ników - Barbarzyñcy bez problemu przeszli na nasz¹ stronê. Teraz mamy nawet tam cyrk! Wed³ug mnie najlepsza zabawa tam to rzucanie no¿ami do barbarzyñców! Powinieneœ kiedyœ spróbowaæ mój Panie.
+
+Final Countdown - Do zwyciêstwa dzieli nas tylko jeszcze jeden krok. Nikt jeszcze nie udawa³ siê w tamte terytorium. Wiemy tylko ¿e reszta ludzi jaka ¿yje siê tam schowa³a i teraz z niecierpliwoœci¹ oczekuj¹c Ciebie.
+
+Magmowice - Ostatecznie wygraliœmy! Teraz ca³y œwiat jest podbity, wreszcie mo¿emy odpocz¹æ i w spokoju ogl¹daæ œwiat zalany krwi¹ i law¹! 
+
+
