@@ -1,0 +1,42 @@
+Campagne de 6 niveaux de DzjeeAr
+Scripts de description de la campagne pour KeeperFX
+
+Ecrit par Ninja (PL)
+traduit par Czapa (en)
+traduit par Chr!x (fr)
+
+Terre 1
+
+Pile de son propre bon - Cette terre n'a jamais été frappée par la douloureuse beauté de la GUERRE. Chacun ici est heureux. Vous devez y remédier immédiatement, mon Seigneur. 
+
+Tas de pierres - Maintenant, cette terre a goûté à la douloureuse beauté de la guerre. Auparavant, ses habitants étaient heureux. Désormais, c'est nous qui le sommes. Quel travail, mon Seigneur ! 
+
+Terre 2
+
+Forteresse antique - Voici une splendide forteresse. Nombreux sont les gardiens qui s'y sont aventurés... Tous ont échoué. Il est temps de transformer cet endroit en ruines fumantes ! 
+
+Ruines splendides - De ma triste existence, jamais je n'ai vu de ruines si merveilleusement dévastées, ni d'humains si parfaitement éviscérés. Vous êtes le virtuose de la désolation. Désormais, je vois en rêves les meilleurs moments de ce carnage ! Bon travail ! 
+
+Terre 3 
+
+Le Necromancien - Cette terre est sous l'emprise d'un vampire, qui est maître dans son culte. Malheureusement, cet imbécile ignorant a refusé de rejoindre nos forces. Il est venu le temps de lui montrer qui est le Maître de cette triste terre.
+
+Vallée des vampires - Le vampire défait refusant d'admettre votre écrasante domination, quelques trolls se sont montrés suffisamment persuasifs pour qu'il change d'état d'esprit. Je lui ai ordonné de convertir tous les autochtones en vampires. Maintenant, même les enfants sont du côté obscur.
+
+Terre 4
+
+Plaines congelées - Les humains terrorisés ont abandonné cette terre aux araignées. Ils craignaient que ces bêbêtes géantes n'investissent leur demeure et les grignotent en guise d'amuse-gueule. Maintenant, c'est à nous de nous régalé ! 
+
+Plaines chaudes - Nous pouvons désormais admirer dans la plus grande quiétude la vue apaisante de votre travail, sanctifié par des flots de lave meurtriers. Les araignées sont croquantes, surtout lorsqu'elles sont suffisamment rôties dans un bain de lave en ébullition. 
+
+Terre 5
+
+Bastion des barbares - Les barbares sont d'horrible humain. Dans l'ancien temps, redoutant les attaques sous-terraines, ils établir ce bastion impressionnant. Nous devons le conquérir à tout prix ! 
+
+Bastion des gardiens - Les barbares ont rallié notre cause sans montrer la moindre résistance. Les clowns ! Ils y sont comme dans un cirque. Mon numéro préféré : le lancer de poignards ! Vous devriez vous y essayer mon Seigneur ! 
+
+Terre 6 
+
+Compte à rebours final - Une dernière difficulté nous sépare de la victoire finale, une terre jamais foulée par aucun gardien. Pour préparer l'assaut, quelques rescapés ont été regroupés et attendent votre commandement. 
+
+Magmaland - En conclusion, nous avons gagné ! Maintenant que le monde entier est sous votre domination, un repos bien mérité s'impose. Vous pourrez ainsi admirer la magnifique irrisation du sang et la lave enlisant les contrées que vous avez dévastées.
