@@ -611,7 +611,7 @@ TbBool is_trap_placeable(long plyr_idx, long trap_idx)
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon))
         return false;
-    // Player must have dungeon heart to cast spells
+    // Player must have dungeon heart to place traps
     if (dungeon->dnheart_idx <= 0) {
         return false;
     }
@@ -620,6 +620,32 @@ TbBool is_trap_placeable(long plyr_idx, long trap_idx)
       return false;
     }
     if (dungeon->trap_placeable[trap_idx] > 0) {
+      return true;
+    }
+    return false;
+}
+
+/**
+ * Returns if the trap can be manufactured by a player.
+ * Checks only if it's set as buildable in level script.
+ * Doesn't check if player has workshop or workforce for the task.
+ */
+TbBool is_trap_buildable(long plyr_idx, long trap_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    // Check if the player even have a dungeon
+    if (dungeon_invalid(dungeon))
+        return false;
+    // Player must have dungeon heart to build anything
+    if (dungeon->dnheart_idx <= 0) {
+        return false;
+    }
+    if ((trap_idx < 0) || (trap_idx >= TRAP_TYPES_COUNT)) {
+      ERRORLOG("Incorrect trap %ld (player %ld)",trap_idx, plyr_idx);
+      return false;
+    }
+    if (dungeon->trap_buildable[trap_idx] > 0) {
       return true;
     }
     return false;

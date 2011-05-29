@@ -2103,9 +2103,9 @@ unsigned short __fastcall is_it_clockwise(struct EnginePoint *point1,
   vy = point2->Y - point1->Y;
   wy = point3->Y - point2->Y;
   return (wy * vx - wx * vy) > 0;
-}
+}*/
 
-void __fastcall draw_b_line(long x1, long y1, long x2, long y2, TbPixel colour)
+void draw_b_line(long x1, long y1, long x2, long y2, TbPixel colour)
 {
   long apx = 2 * abs(x2 - x1);
   long spx;
@@ -2242,9 +2242,10 @@ void __fastcall draw_b_line(long x1, long y1, long x2, long y2, TbPixel colour)
   }
 }
 
-//Draws a line on current graphics window. Truncates the coordinates
-// if they go off the window. Does no screen locking.
-char __fastcall LbDrawLine(long x1, long y1, long x2, long y2, TbPixel colour)
+/** Draws a line on current graphics window. Truncates the coordinates
+ *  if they go off the window. Does no screen locking.
+ */
+TbResult LbDrawLine(long x1, long y1, long x2, long y2, TbPixel colour)
 {
   char result=0;
   // Adjusting X-dimension coordinates
@@ -2338,7 +2339,7 @@ char __fastcall LbDrawLine(long x1, long y1, long x2, long y2, TbPixel colour)
   draw_b_line(x1, y1, x2, y2, colour);
   return result;
 }
-
+/*
 //Draws any triangle on the current graphics window.
 //Does no screen locking.
 void __fastcall LbDrawTriangle(long x1, long y1, long x2, long y2, long x3, long y3, TbPixel colour)

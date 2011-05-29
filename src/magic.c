@@ -509,7 +509,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     }
     magstat = &game.magic_stats[PwrK_LIGHTNING];
     shotst = get_shot_model_stats(16);
-    dungeon->field_EA4 = 256;
+    dungeon->camera_deviate_jump = 256;
     i = magstat->power[splevel];
     max_damage = i * shotst->old->damage;
     range = (i << 8) / 2;

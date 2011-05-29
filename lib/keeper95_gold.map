@@ -1625,6 +1625,8 @@
  0003:00053B1C       LineOfSightFunction
  0003:00053B20       deadzone_radius
  0003:00053B48       ScanBuffer
+ 0003:00053B58       ScrCenterX
+ 0003:00053B5C       ScrCenterY
  0003:00053B80       optimised_lights
  0003:00053B84       do_lights
  0003:00053B88       total_lights

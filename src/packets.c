@@ -303,7 +303,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
   room = player_build_room_at(x, y, plyr_idx, rkind);
   if (!room_is_invalid(room))
   {
-    dungeon->field_EA4 = 192;
+    dungeon->camera_deviate_jump = 192;
     set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
     create_price_effect(&pos, plyr_idx, rstat->cost);
   }
@@ -384,7 +384,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
     {
         dungeon = get_players_num_dungeon(room->owner);
         dungeon->rooms_destroyed++;
-        dungeon->field_EA4 = 192;
+        dungeon->camera_deviate_jump = 192;
     }
     if (is_my_player_number(plyr_idx))
         play_non_3d_sample(115);
@@ -412,7 +412,7 @@ TbBool player_sell_door_at_subtile(long plyr_idx, long stl_x, long stl_y)
         return false;
     }
     dungeon = get_players_num_dungeon(thing->owner);
-    dungeon->field_EA4 = 192;
+    dungeon->camera_deviate_jump = 192;
     i = game.doors_config[thing->model].selling_value;
     destroy_door(thing);
     if (is_my_player_number(plyr_idx))
@@ -449,7 +449,7 @@ TbBool player_sell_trap_at_subtile(long plyr_idx, long stl_x, long stl_y)
         if (!thing_is_invalid(thing))
         {
             i = game.traps_config[thing->model].selling_value;
-            if (thing->byte_13 == 0) {
+            if (thing->trap.num_shots == 0) {
                 remove_workshop_object_from_player(thing->owner, trap_to_object[thing->model%TRAP_TYPES_COUNT]);
             }
             sell_value += i;
@@ -458,7 +458,7 @@ TbBool player_sell_trap_at_subtile(long plyr_idx, long stl_x, long stl_y)
     }
     if (is_my_player_number(plyr_idx))
         play_non_3d_sample(115);
-    dungeon->field_EA4 = 192;
+    dungeon->camera_deviate_jump = 192;
     if (sell_value != 0)
     {
         set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
@@ -1181,9 +1181,9 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         thing = create_trap(&pos, player->field_4A5, plyr_idx);
         thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
         thing->byte_18 = 0;
-        if (remove_workshop_item(plyr_idx, 8, player->field_4A5))
+        if (remove_workshop_item(plyr_idx, TCls_Trap, player->field_4A5))
           dungeon->lvstats.traps_used++;
-        dungeon->field_EA4 = 192;
+        dungeon->camera_deviate_jump = 192;
         if (is_my_player(player))
         {
           play_non_3d_sample(117);
