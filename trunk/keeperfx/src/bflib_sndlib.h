@@ -45,7 +45,7 @@ struct SampleInfo { // sizeof = 29
   unsigned char field_9[9];
     unsigned short field_12;
   unsigned char field_14[3];
-  unsigned char field_17;
+  unsigned char flags_17;
   unsigned long field_18;
   unsigned char field_1C;
 };
