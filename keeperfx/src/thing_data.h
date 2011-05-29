@@ -70,9 +70,14 @@ struct Thing {
     struct Coord3d mappos;
     union {
       struct {
-      long gold_carried;
-      short word_17a;
+        long gold_carried;
+        short word_17a;
       } creature;
+      struct {
+        unsigned char num_shots;
+        unsigned char byte_14a;
+        long long_15a;
+      } trap;
       struct {
       long long_13;
       short word_17a;

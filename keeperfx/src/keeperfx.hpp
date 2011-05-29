@@ -696,8 +696,6 @@ DLLIMPORT void _DK_update(void);
 DLLIMPORT void _DK_wait_at_frontend(void);
 DLLIMPORT void _DK_delete_all_structures(void);
 DLLIMPORT void _DK_PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *palette);
-DLLIMPORT void _DK_initialise_eye_lenses(void);
-DLLIMPORT void _DK_setup_eye_lens(long);
 DLLIMPORT char *_DK_mdlf_for_cd(struct TbLoadFiles *);
 DLLIMPORT char *_DK_mdlf_default(struct TbLoadFiles *);
 
@@ -891,7 +889,7 @@ void remove_events_thing_is_attached_to(struct Thing *thing);
 
 int can_thing_be_queried(struct Thing *thing, long a2);
 int can_thing_be_possessed(struct Thing *thing, long a2);
-long remove_workshop_object_from_player(long a1, long a2);
+long remove_workshop_object_from_player(long owner, long model);
 unsigned char tag_cursor_blocks_place_trap(unsigned char a1, long a2, long a3);
 void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3);
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx);

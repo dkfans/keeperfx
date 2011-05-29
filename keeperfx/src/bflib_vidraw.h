@@ -206,13 +206,13 @@ void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
 
 void LbDrawPixel(long x, long y, TbPixel colour);
 void LbDrawCircle(long x, long y, long radius, TbPixel colour);
+TbResult LbDrawLine(long x1, long y1, long x2, long y2, TbPixel colour);
 
 TbResult LbSpriteDraw(long x, long y, const struct TbSprite *spr);
 TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour);
 TbResult LbSpriteDrawScaled(long xpos, long ypos, struct TbSprite *sprite, long dest_width, long dest_height);
 /*
 int __fastcall LbDrawBoxCoords(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour);
-char __fastcall LbDrawLine(long x1, long y1, long x2, long y2, TbPixel colour);
 void __fastcall LbDrawTriangle(long x1, long y1, long x2, long y2, long x3, long y3, TbPixel colour);
 */
 /******************************************************************************/
