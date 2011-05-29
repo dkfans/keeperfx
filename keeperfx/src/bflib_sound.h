@@ -42,9 +42,9 @@ struct HeapMgrHandle;
 typedef long (*S3D_LineOfSight_Func)(long, long, long, long, long, long);
 
 struct SoundCoord3d {
-    short val_x;
-    short val_y;
-    short val_z;
+    unsigned short val_x;
+    unsigned short val_y;
+    unsigned short val_z;
 };
 
 struct SoundEmitter {
@@ -53,9 +53,9 @@ struct SoundEmitter {
     short index;
     struct SoundCoord3d pos;
     unsigned char field_A[6];
-    long field_10;
-    unsigned char field_14;
-    unsigned char field_15;
+    long pitch_doppler;
+    unsigned char curr_pitch;
+    unsigned char target_pitch;
 };
 
 struct SoundReceiver { // sizeof = 17
