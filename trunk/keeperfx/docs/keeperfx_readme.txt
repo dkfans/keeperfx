@@ -369,6 +369,11 @@ New and modified level script commands:
 Changelog:
 
 Version: 0.39a
+  Updated compound eye effect for high resolution
+  Fixed the problem with Dungeon Heart background sound
+  Updated reading keyboard in front view, also named some constants
+  Fixed creature death kind "ice explosion" when creature is frozen
+  Fixed shadows and lights affecting things
   Fixed distance computing required for certain shots to hit target
   Fixed imps to continue their jobs after they finish a part of it
 
