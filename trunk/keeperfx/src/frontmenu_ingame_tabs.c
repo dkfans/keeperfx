@@ -692,8 +692,8 @@ void maintain_trap(struct GuiButton *gbtn)
     i = (unsigned long)(gbtn->content) & 0xff;
     if (is_trap_placeable(my_player_number, i))
     {
-      gbtn->field_1B = 0;
-      gbtn->field_0 |= 0x08;
+        gbtn->field_1B = 0;
+        gbtn->field_0 |= 0x08;
     } else
     {
         gbtn->field_1B |= 0x8000u;

@@ -263,8 +263,8 @@ struct Dungeon {
     int field_E8F;
     int field_E93[3];
     unsigned char owner;
-    int field_EA0;
-    int field_EA4;
+    int camera_deviate_quake;
+    int camera_deviate_jump;
     long score;
     struct ResearchVal research[DUNGEON_RESEARCH_COUNT];
     int field_F78;
@@ -276,8 +276,11 @@ unsigned char field_F7D;
     unsigned char creature_allowed[CREATURE_TYPES_COUNT]; // 'Allowed' creature is conditionally enabled
     unsigned char magic_level[KEEPER_SPELLS_COUNT];
     unsigned char magic_resrchable[KEEPER_SPELLS_COUNT];
+    /** Amount of traps of every kind for which we can place blueprints. */
     unsigned char trap_amount[TRAP_TYPES_COUNT];
+    /** Stored information if we can manufacture traps of specific kind. */
     unsigned char trap_buildable[TRAP_TYPES_COUNT];
+    /** Stored information if we can place blueprints of traps of specific kind. */
     unsigned char trap_placeable[TRAP_TYPES_COUNT];
     unsigned char door_amount[DOOR_TYPES_COUNT]; // Amount of doors the player can place
     unsigned char door_buildable[DOOR_TYPES_COUNT]; // Door can be build in workshop

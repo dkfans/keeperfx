@@ -713,6 +713,8 @@
  0003:00000098       proportions
  0003:000126B4       ScrWidth
  0003:000126B8       ScrHeight
+ 0003:00053B58       ScrCenterX
+ 0003:00053B5C       ScrCenterY
  0003:00053B48       ScanBuffer
  0003:0001F470       messages
 

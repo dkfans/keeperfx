@@ -238,7 +238,7 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
     case GA_Unk01:
         break;
     case GA_Unk02:
-        if (dungeon->magic_level[1] == 0)
+        if (dungeon->magic_level[PwrK_HAND] == 0)
           break;
         thing = thing_get(param1);
         i = place_thing_in_power_hand(thing, plyr_idx);
@@ -246,45 +246,45 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
           return -1;
         return 1;
     case GA_Unk03:
-        if (dungeon->magic_level[1] == 0)
+        if (dungeon->magic_level[PwrK_HAND] == 0)
           break;
         i = dump_held_things_on_map(plyr_idx, stl_x, stl_y, 0);
         if (i < 0)
           return -1;
         return 1;
     case GA_Unk04:
-        if (dungeon->magic_level[2] == 0)
+        if (dungeon->magic_level[PwrK_MKDIGGER] == 0)
           break;
         i = magic_use_power_imp(plyr_idx, stl_x, stl_y);
         return 1;
     case GA_Unk05:
-        if (dungeon->magic_level[4] == 0)
+        if (dungeon->magic_level[PwrK_SLAP] == 0)
           break;
         i = magic_use_power_slap(plyr_idx, stl_x, stl_y);
         return i;
     case GA_Unk06:
-        if (dungeon->magic_level[5] == 0)
+        if (dungeon->magic_level[PwrK_SIGHT] == 0)
           break;
         i = magic_use_power_sight(plyr_idx, stl_x, stl_y, a3);
         return i;
     case GA_Unk07:
-        if (dungeon->magic_level[3] == 0)
+        if (dungeon->magic_level[PwrK_OBEY] == 0)
           break;
         i = magic_use_power_obey(plyr_idx);
         return 1;
     case GA_Unk08:
-        if (dungeon->magic_level[8] == 0)
+        if (dungeon->magic_level[PwrK_HEALCRTR] == 0)
           break;
         thing = thing_get(param1);
         magic_use_power_heal(plyr_idx, thing, thing->mappos.x.stl.num,thing->mappos.y.stl.num, a3);
         return 1;
     case GA_Unk09:
-        if (dungeon->magic_level[6] == 0)
+        if (dungeon->magic_level[PwrK_CALL2ARMS] == 0)
           break;
         i = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, a3, 1);
         return i;
     case GA_Unk10:
-        if (dungeon->magic_level[7] == 0)
+        if (dungeon->magic_level[PwrK_CAVEIN] == 0)
           break;
         magic_use_power_cave_in(plyr_idx, stl_x, stl_y, a3);
         return 1;
@@ -326,9 +326,9 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
         pos.z.val = 0;
         pos.z.val = get_floor_height_at(&pos);
         thing = create_trap(&pos, param1, plyr_idx);
-        if (remove_workshop_item(plyr_idx, 8, param1))
+        if (remove_workshop_item(plyr_idx, TCls_Trap, param1))
           dungeon->lvstats.traps_used++;
-        dungeon->field_EA4 = 192;
+        dungeon->camera_deviate_jump = 192;
         if (is_my_player_number(plyr_idx))
             play_non_3d_sample(117);
         return 1;
@@ -1310,7 +1310,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 {
                   item_sold = true;
                   value = game.doors_config[model].selling_value;
-                  if (remove_workshop_item(dungeon->owner, 9, model))
+                  if (remove_workshop_item(dungeon->owner, TCls_Door, model))
                   {
                     remove_workshop_object_from_player(dungeon->owner, door_to_object[model]);
                   }
@@ -1326,13 +1326,13 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 }
                 if (dungeon->trap_amount[model] > 0)
                 {
-                  item_sold = true;
-                  value = game.traps_config[model].selling_value;
-                  if (remove_workshop_item(dungeon->owner, 8, model))
-                  {
-                    remove_workshop_object_from_player(dungeon->owner, trap_to_object[model]);
-                  }
-                  SYNCDBG(9,"Trap model %ld sold for %ld gold",model,value);
+                    item_sold = true;
+                    value = game.traps_config[model].selling_value;
+                    if (remove_workshop_item(dungeon->owner, TCls_Trap, model))
+                    {
+                        remove_workshop_object_from_player(dungeon->owner, trap_to_object[model]);
+                    }
+                    SYNCDBG(9,"Trap model %ld sold for %ld gold",model,value);
                 }
                 break;
             default:

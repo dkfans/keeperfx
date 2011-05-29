@@ -212,65 +212,65 @@ void initialise_eye_lenses(void)
 
 void setup_eye_lens(long nlens)
 {
-  //_DK_setup_eye_lens(nlens);return;
-  struct PlayerInfo *player;
-  struct LensConfig *lenscfg;
-  char *fname;
-  if ((game.flags_cd & MFlg_EyeLensReady) == 0)
-  {
-    WARNLOG("Can't setup lens - not initialized");
-    return;
-  }
-  SYNCDBG(7,"Starting for lens %ld",nlens);
-  player = get_my_player();
-  if (clear_lens_palette())
-      game.numfield_1A = 0;
-  if (nlens == 0)
-  {
-      game.numfield_1A = 0;
-      game.numfield_1B = 0;
+    //_DK_setup_eye_lens(nlens);return;
+    struct PlayerInfo *player;
+    struct LensConfig *lenscfg;
+    char *fname;
+    if ((game.flags_cd & MFlg_EyeLensReady) == 0)
+    {
+      WARNLOG("Can't setup lens - not initialized");
       return;
-  }
-  if (game.numfield_1A == nlens)
-  {
+    }
+    SYNCDBG(7,"Starting for lens %ld",nlens);
+    player = get_my_player();
+    if (clear_lens_palette())
+        game.numfield_1A = 0;
+    if (nlens == 0)
+    {
+        game.numfield_1A = 0;
+        game.numfield_1B = 0;
+        return;
+    }
+    if (game.numfield_1A == nlens)
+    {
+      game.numfield_1B = nlens;
+      return;
+    }
+    lenscfg = get_lens_config(nlens);
+    if ((lenscfg->flags & LCF_HasMist) != 0)
+    {
+        SYNCDBG(9,"Mist config entered");
+        fname = prepare_file_path(FGrp_StdData,lenscfg->mist_file);
+        LbFileLoadAt(fname, eye_lens_memory);
+        setup_mist((unsigned char *)eye_lens_memory,
+            &pixmap.fade_tables[(lenscfg->mist_lightness)*256],
+            &pixmap.ghost[(lenscfg->mist_ghost)*256]);
+    }
+    if ((lenscfg->flags & LCF_HasDisplace) != 0)
+    {
+        SYNCDBG(9,"Displace config %d entered",(int)lenscfg->displace_kind);
+        switch (lenscfg->displace_kind)
+        {
+        case 1:
+            init_lens(eye_lens_memory, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size,
+                eye_lens_width, 1, lenscfg->displace_magnitude, lenscfg->displace_period);
+            break;
+        case 2:
+            init_lens(eye_lens_memory, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size,
+                eye_lens_width, 2, lenscfg->displace_magnitude, lenscfg->displace_period);
+            break;
+        case 3:
+            flyeye_setup(MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+            break;
+        }
+    }
+    if ((lenscfg->flags & LCF_HasPalette) != 0)
+    {
+        SYNCDBG(9,"Palette config entered");
+        set_lens_palette(lenscfg->palette);
+    }
     game.numfield_1B = nlens;
-    return;
-  }
-  lenscfg = get_lens_config(nlens);
-  if ((lenscfg->flags & LCF_HasMist) != 0)
-  {
-      SYNCDBG(9,"Mist config entered");
-      fname = prepare_file_path(FGrp_StdData,lenscfg->mist_file);
-      LbFileLoadAt(fname, eye_lens_memory);
-      setup_mist((unsigned char *)eye_lens_memory,
-          &pixmap.fade_tables[(lenscfg->mist_lightness)*256],
-          &pixmap.ghost[(lenscfg->mist_ghost)*256]);
-  }
-  if ((lenscfg->flags & LCF_HasDisplace) != 0)
-  {
-      SYNCDBG(9,"Displace config entered");
-      switch (lenscfg->displace_kind)
-      {
-      case 1:
-          init_lens(eye_lens_memory, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size,
-              eye_lens_width, 1, lenscfg->displace_magnitude, lenscfg->displace_period);
-          break;
-      case 2:
-          init_lens(eye_lens_memory, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size,
-              eye_lens_width, 2, lenscfg->displace_magnitude, lenscfg->displace_period);
-          break;
-      case 3:
-          flyeye_setup(MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-          break;
-      }
-  }
-  if ((lenscfg->flags & LCF_HasPalette) != 0)
-  {
-      SYNCDBG(9,"Palette config entered");
-      set_lens_palette(lenscfg->palette);
-  }
-  game.numfield_1B = nlens;
-  game.numfield_1A = nlens;
+    game.numfield_1A = nlens;
 }
 
 void reinitialise_eye_lens(long nlens)
@@ -291,6 +291,7 @@ void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsign
     long pos_map;
     unsigned char *dst;
     unsigned long *mem;
+    SYNCDBG(16,"Starting");
     dst = dstbuf;
     mem = lens_mem;
     for (h=0; h < height; h++)

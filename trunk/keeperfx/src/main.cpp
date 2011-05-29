@@ -1681,7 +1681,7 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     if (owner != game.neutral_player_num)
     {
         dungeon = get_dungeon(owner);
-        dungeon->field_EA0 = thing->word_15;
+        dungeon->camera_deviate_quake = thing->word_15;
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
@@ -6568,7 +6568,7 @@ long remove_workshop_object_from_player(long owner, long model)
     //return _DK_remove_workshop_object_from_player(a1, a2);
     thing = get_workshop_box_thing(owner, model);
     if (thing_is_invalid(thing))
-      return 0;
+        return 0;
     room = get_room_thing_is_on(thing);
     if ( !room_is_invalid(room) && (room->kind == RoK_WORKSHOP) ) {
         remove_workshop_object_from_workshop(room);
@@ -6800,17 +6800,17 @@ void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
     long x,y;
     x = player->acamera->mappos.x.val;
     y = player->acamera->mappos.y.val;
-    if (dungeon->field_EA0)
+    if (dungeon->camera_deviate_quake != 0)
     {
       x += UNSYNC_RANDOM(80) - 40;
       y += UNSYNC_RANDOM(80) - 40;
     }
-    if (dungeon->field_EA4)
+    if (dungeon->camera_deviate_jump != 0)
     {
-      x += ( (dungeon->field_EA4 * LbSinL(player->acamera->orient_a) >> 8) >> 8);
-      y += (-(dungeon->field_EA4 * LbCosL(player->acamera->orient_a) >> 8) >> 8);
+      x += ( (dungeon->camera_deviate_jump * LbSinL(player->acamera->orient_a) >> 8) >> 8);
+      y += (-(dungeon->camera_deviate_jump * LbCosL(player->acamera->orient_a) >> 8) >> 8);
     }
-    if ((dungeon->field_EA0) || (dungeon->field_EA4))
+    if ((dungeon->camera_deviate_quake != 0) || (dungeon->camera_deviate_jump != 0))
     {
       // bounding position
       if (x < 0)
