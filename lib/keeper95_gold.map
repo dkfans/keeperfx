@@ -422,6 +422,7 @@
  0001:00050E30       S3DSetSoundReceiverOrientation
  0001:00050E70       process_3d_sounds
  0001:00051280       start_emitter_playing
+ 0001:000514A0       get_emitter_pan_volume_pitch
  0001:00051810       IsRunningMark@0
  0001:00051840       IsRunningUnmark@0
  0001:00051890       dig_to_position

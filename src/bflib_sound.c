@@ -38,6 +38,7 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT void _DK_stop_sample_using_heap(unsigned long fild8, short smptbl_idx, unsigned char pan);
 DLLIMPORT long _DK_start_emitter_playing(struct SoundEmitter *emit, long smptbl_idx, long pan, long volume, long pitch, long a6, long a7, long a8, long a9);
+DLLIMPORT long _DK_get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitter *emit, long *pan, long *volume, long *pitch);
 DLLIMPORT void _DK_close_sound_heap(void);
 DLLIMPORT void _DK_play_non_3d_sample(long sidx);
 DLLIMPORT struct SampleInfo *_DK_play_sample_using_heap(unsigned long fild8, short smptbl_idx, unsigned long pan, unsigned long volume, unsigned long pitch, char a6, unsigned char a7, unsigned char a8);
@@ -272,8 +273,8 @@ long S3DCreateSoundEmitterPri(long x, long y, long z, long a4, long a5, long a6,
     emit->pos.val_y = y;
     emit->pos.val_z = z;
     emit->field_1 = a9;
-    emit->field_14 = 100;
-    emit->field_15 = 100;
+    emit->curr_pitch = 100;
+    emit->target_pitch = 100;
     if (start_emitter_playing(emit, a4, a5, a6, a7, a8, 3, a9, a10))
         return eidx;
     delete_sound_emitter(eidx);
@@ -338,13 +339,36 @@ short sound_emitter_in_use(long eidx)
     return S3DEmitterIsAllocated(eidx);
 }
 
-long get_sound_distance(struct SoundCoord3d *pos1, struct SoundCoord3d *pos2)
+long get_sound_distance(const struct SoundCoord3d *pos1, const struct SoundCoord3d *pos2)
 {
     long dist_x,dist_y,dist_z;
-    dist_x = (pos1->val_x - pos2->val_x);
-    dist_y = (pos1->val_y - pos2->val_y);
-    dist_z = (pos1->val_z - pos2->val_z);
+    dist_x = abs(pos1->val_x - (long)pos2->val_x);
+    dist_y = abs(pos1->val_y - (long)pos2->val_y);
+    dist_z = abs(pos1->val_z - (long)pos2->val_z);
+    // Make sure we're not exceeding sqrt(LONG_MAX/3), to fit the final result in long
+    if (dist_x > 26754)
+        dist_x = 26754;
+    if (dist_y > 26754)
+        dist_y = 26754;
+    if (dist_z > 26754)
+        dist_z = 26754;
     return LbSqrL( dist_y*dist_y + dist_x*dist_x + dist_z*dist_z );
+}
+
+long get_sound_squareedge_distance(const struct SoundCoord3d *pos1, const struct SoundCoord3d *pos2)
+{
+    long dist_x,dist_y,dist_z;
+    dist_x = abs(pos1->val_x - (long)pos2->val_x);
+    dist_y = abs(pos1->val_y - (long)pos2->val_y);
+    dist_z = abs(pos1->val_z - (long)pos2->val_z);
+    // Make sure we're not exceeding LONG_MAX/3
+    if (dist_x > LONG_MAX/3)
+        dist_x = LONG_MAX/3;
+    if (dist_y > LONG_MAX/3)
+        dist_y = LONG_MAX/3;
+    if (dist_z > LONG_MAX/3)
+        dist_z = LONG_MAX/3;
+    return dist_x + dist_y + dist_z;
 }
 
 long get_emitter_distance(struct SoundReceiver *recv, struct SoundEmitter *emit)
@@ -352,13 +376,9 @@ long get_emitter_distance(struct SoundReceiver *recv, struct SoundEmitter *emit)
     long dist;
     dist = get_sound_distance(&recv->pos, &emit->pos);
     if (dist > MaxSoundDistance-1)
-    {
-        dist = MaxSoundDistance - 1;
-    }
+        dist = MaxSoundDistance-1;
     if (dist < 0)
-    {
         dist = 0;
-    }
     return dist;
 }
 
@@ -394,7 +414,19 @@ long get_angle_difference(long angle_a, long angle_b)
     return diff / abs(diff);
 }
 
-long get_emitter_pan(struct SoundReceiver *recv, struct SoundEmitter *emit)
+long get_emitter_volume(const struct SoundReceiver *recv, const struct SoundEmitter *emit, long dist)
+{
+    long long sens,vol;
+    long i,n;
+    i = dist - deadzone_radius;
+    if (i < 0) i = 0;
+    n = MaxSoundDistance - deadzone_radius;
+    sens = recv->sensivity;
+    vol = (127 - 127*i/n) * sens;
+    return (vol >> 6);
+}
+
+long get_emitter_pan(const struct SoundReceiver *recv, const struct SoundEmitter *emit)
 {
     long diff_x,diff_y;
     long angle_a, angle_b;
@@ -404,8 +436,8 @@ long get_emitter_pan(struct SoundReceiver *recv, struct SoundEmitter *emit)
     if ((recv->flags & 0x01) != 0) {
       return 64;
     }
-    diff_x = emit->pos.val_x - recv->pos.val_x;
-    diff_y = emit->pos.val_y - recv->pos.val_y;
+    diff_x = emit->pos.val_x - (long)recv->pos.val_x;
+    diff_y = emit->pos.val_y - (long)recv->pos.val_y;
     // Faster way of doing simple thing: radius = sqrt(dist_x*dist_y);
     radius = LbDiagonalLength(abs(diff_x), abs(diff_y));
     if (radius < deadzone_radius) {
@@ -424,39 +456,39 @@ long get_emitter_pan(struct SoundReceiver *recv, struct SoundEmitter *emit)
     return pan;
 }
 
-long get_emitter_pitch_from_doppler(struct SoundReceiver *recv, struct SoundEmitter *emit)
+long get_emitter_pitch_from_doppler(const struct SoundReceiver *recv, struct SoundEmitter *emit)
 {
-    long dist_x,dist_y,dist_z;
+    long doppler_distance;
+    long target_pitch, next_pitch;
     long delta;
-    long i;
-    dist_x = abs(emit->pos.val_x - recv->pos.val_x);
-    dist_y = abs(emit->pos.val_y - recv->pos.val_y);
-    dist_z = abs(emit->pos.val_z - recv->pos.val_z);
-    delta = dist_x + dist_y + dist_z - emit->field_10;
+    doppler_distance = get_sound_squareedge_distance(&emit->pos, &recv->pos);
+    delta = doppler_distance - emit->pitch_doppler;
     if (delta > 256)
         delta = 256;
     if (delta < 0)
         delta = 0;
     if (delta <= 0)
-      emit->field_15 = 100;
+        target_pitch = 100;
     else
-      emit->field_15 = -20 * delta / 256 + 100;
-    if (emit->field_14 != emit->field_15)
+        target_pitch = 100 - 20 * delta / 256;
+    next_pitch = emit->curr_pitch;
+    if (next_pitch != target_pitch)
     {
-        i = emit->field_15 - emit->field_14;
-        emit->field_14 += (abs(i) >> 1);
+        next_pitch += (abs(target_pitch - next_pitch) >> 1);
     }
-    emit->field_10 = dist_x + dist_y + dist_z;
+    emit->target_pitch = target_pitch;
+    emit->curr_pitch = next_pitch;
+    emit->pitch_doppler = doppler_distance;
     //texty += 16; // I have no idea what is this.. garbage.
-    return emit->field_14;
+    return emit->curr_pitch;
 }
-
 
 long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitter *emit, long *pan, long *volume, long *pitch)
 {
     TbBool on_sight;
     long dist;
-    long i,n;
+    long i;
+    //return _DK_get_emitter_pan_volume_pitch(recv, emit, pan, volume, pitch);
     if ((emit->field_1 & 0x08) != 0)
     {
         *volume = 127;
@@ -470,14 +502,13 @@ long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitte
     } else {
         on_sight = get_emitter_sight(recv, emit);
     }
-    i = (dist - deadzone_radius);
-    if (i < 0) i = 0;
-    n = Receiver.sensivity * (127 - 127 * i / (MaxSoundDistance - deadzone_radius)) >> 6;
+    i = get_emitter_volume(recv, emit, dist);
     if (on_sight) {
-        *volume = n;
+        *volume = i;
     } else {
-        *volume = n >> 1;
+        *volume = i >> 1;
     }
+    i = (dist - deadzone_radius);
     if (i >= 128) {
         *pan = get_emitter_pan(recv, emit);
     } else {
@@ -488,6 +519,7 @@ long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitte
     } else {
         *pitch = 100;
     }
+    //ERRORLOG("emit%2d expected %3d,%3d,%3d got %3d,%3d,%3d dist %3d",(int)emit->index ,opan, ovolume, opitch, *pan, *volume, *pitch, dist);
     return 1;
 }
 
@@ -886,9 +918,9 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, short smpl_idx, unsi
       ERRORLOG("Can't start playing sample %d",smpl_idx);
       return NULL;
     }
-    smpinfo->field_17 |= 0x01;
+    smpinfo->flags_17 |= 0x01;
     if (bank_id != 0)
-        smpinfo->field_17 |= 0x04;
+        smpinfo->flags_17 |= 0x04;
     smp_table->hmhandle->field_8 |= 0x06;
     return smpinfo;
 }
@@ -913,9 +945,9 @@ void stop_sample_using_heap(unsigned long a1, short smptbl_idx, unsigned char ba
     {
         if (smpinfo->field_12 == smptbl_idx)
         {
-            if ( (smpinfo->field_0 != 0) && ((smpinfo->field_17 & 0x01) != 0) )
+            if ( (smpinfo->field_0 != 0) && ((smpinfo->flags_17 & 0x01) != 0) )
             {
-                if ( (bank_id == 0) || ((smpinfo->field_17 & 0x04) != 0) )
+                if ( (bank_id == 0) || ((smpinfo->flags_17 & 0x04) != 0) )
                 {
                     if ( IsSamplePlaying(0, 0, smpinfo->field_0) ) {
                         if (bank_id != 0)
@@ -959,13 +991,13 @@ TbBool process_sound_samples(void)
             }
             if ( IsSamplePlaying(0, 0, sample->smpinfo->field_0) )
             {
-                sample->smpinfo->field_17 |= 0x02;
+                sample->smpinfo->flags_17 |= 0x02;
             } else
             {
-                sample->smpinfo->field_17 &= ~0x02;
+                sample->smpinfo->flags_17 &= ~0x02;
                 sample->field_1F = 0;
             }
-            if ( sample->emit_ptr )
+            if (sample->emit_ptr != NULL)
             {
               if ( (sample->field_F == 0) ||
                  ( ((sample->emit_ptr->field_1 & 0x08) == 0) && (get_sound_distance(&sample->emit_ptr->pos, &Receiver.pos) > MaxSoundDistance) ) )

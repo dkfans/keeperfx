@@ -234,11 +234,11 @@ void process_sound_heap(void)
     smpinfo_last = GetLastSampleInfoStructure();
     for (smpinfo = GetFirstSampleInfoStructure(); smpinfo <= smpinfo_last; smpinfo++)
     {
-      if ( (smpinfo->field_0 != 0) && ((smpinfo->field_17 & 0x01) != 0) )
+      if ( (smpinfo->field_0 != 0) && ((smpinfo->flags_17 & 0x01) != 0) )
       {
           if ( IsSamplePlaying(0, 0, smpinfo->field_0) )
           {
-            if ( (using_two_banks) && ((smpinfo->field_17 & 0x04) != 0) )
+            if ( (using_two_banks) && ((smpinfo->flags_17 & 0x04) != 0) )
             {
                 satab = &sample_table2[smpinfo->field_12];
                 hmhndl = satab->hmhandle;
@@ -257,8 +257,8 @@ void process_sound_heap(void)
             }
           } else
           {
-              smpinfo->field_17 &= ~0x01;
-              smpinfo->field_17 &= ~0x04;
+              smpinfo->flags_17 &= ~0x01;
+              smpinfo->flags_17 &= ~0x04;
           }
       }
     }
