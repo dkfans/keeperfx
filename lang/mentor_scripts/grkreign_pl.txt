@@ -1,44 +1,44 @@
 Grinics' KReign campaign
+Land descriptions script for KeeperFX
 
-Dobra wzi¹³em siê w garœæ odpali³em edytor i napisa³em opis lektora do Grinics' KReign Campaign :)
-Oto opis:
+written by Ninja(PL)
 
-Loveyheart - Ta kraina jest zniszczona przez lata wojny ze wrogim stra¿nikiem, niewiele ludzi tu zosta³o. Czas powybijaæ t¹ resztê odmieñców!
+Krasna Pikawa - Ta kraina jest zniszczona przez lata wojny ze wrogim straÅ¼nikiem, niewiele ludzi tu zostaÅ‚o. Czas powybijaÄ‡ tÄ… resztÄ™ odmieÅ„cÃ³w!
 
-Demonowo - Kraina ta nareszcie jest tak z³a jak marzy³em o tym. Doskona³a robota Panie!
+Demonowo - Kraina ta nareszcie jest tak zÅ‚a jak marzyÅ‚em o tym. DoskonaÅ‚a robota Panie!
 
-Rabbitjoy - W tej krainie trwa olbrzymia wojna. Jeden stra¿nik poleg³ jego s³ugi s¹ uwiêzieni po ca³ej tej krainie w lochach. Powinniœmy uwolniæ ich i zniszczyæ ca³e dobro jakie panujê na tej krainie!
+Uszoradowa - W tej krainie trwa olbrzymia wojna. Jeden straÅ¼nik polegÅ‚ jego sÅ‚ugi sÄ… uwiÄ™zieni po caÅ‚ej tej krainie w lochach. PowinniÅ›my uwolniÄ‡ ich i zniszczyÄ‡ caÅ‚e dobro jakie panujÄ™ na tej krainie!
 
-Krwawice - Piêknie zabi³eœ ludzi i wrogiego stra¿nika. Krew ludzi sp³ywa po tej krainie niczym rozlane mleko po stole. Doskona³a robota mój panie
+Krwawice - PiÄ™knie zabiÅ‚eÅ› ludzi i wrogiego straÅ¼nika. Krew ludzi spÅ‚ywa po tej krainie niczym rozlane mleko po stole. DoskonaÅ‚a robota mÃ³j panie
 
-Happiclap - Kraina ta jest pod panowaniem stworów. Parê ludzi mo¿e jeszcze siê tu krêciæ ale naprawdê niewiele. Nawet burmistrz miasta siê do ciebie przy³¹czy³. Czas zmieniæ tê krainê w nasz¹!
+SzczÄ™Å›cioklask - Kraina ta jest pod panowaniem stworÃ³w. ParÄ™ ludzi moÅ¼e jeszcze siÄ™ tu krÄ™ciÄ‡ ale naprawdÄ™ niewiele. Nawet burmistrz miasta siÄ™ do ciebie przyÅ‚Ä…czyÅ‚. Czas zmieniÄ‡ tÄ™ krainÄ™ w naszÄ…!
 
-Lodowa krew - Gdy zniszczyliœmy wszystkie wrogie nam stwory postanowiliœmy rozsmarowaæ ich cia³a po ca³ej okolicy. Widok przepiêkny, nie praw dasz panie?
+Lodowa krew - Gdy zniszczyliÅ›my wszystkie wrogie nam stwory postanowiliÅ›my rozsmarowaÄ‡ ich ciaÅ‚a po caÅ‚ej okolicy. Widok przepiÄ™kny, nie praw dasz panie?
 
-Sillimist - O t¹ krainê walczy jeszcze jeden stra¿nik, pokonaj go a zdobêdziesz ca³kowite panowanie nad t¹ krain¹!
+DurnomgieÅ‚ - O tÄ… krainÄ™ walczy jeszcze jeden straÅ¼nik, pokonaj go a zdobÄ™dziesz caÅ‚kowite panowanie nad tÄ… krainÄ…!
 
-Zamarzniêta krew - Ta piêknie znowu rozsmarowaliœmy cia³a wroga po kranie. Znowu mo¿na nacieszyæ wzrok.
+ZamarzniÄ™ta krew - Ta piÄ™knie znowu rozsmarowaliÅ›my ciaÅ‚a wroga po kranie. Znowu moÅ¼na nacieszyÄ‡ wzrok.
 
-Sadlack - O te krainê walczy piêæ stra¿ników w tym ty. Trzech z nich zjednoczy³y si³ê aby móc walczyæ z Tob¹. Powodzenia Panie!
+Bezsmutek - O te krainÄ™ walczy piÄ™Ä‡ straÅ¼nikÃ³w w tym ty. Trzech z nich zjednoczyÅ‚y siÅ‚Ä™ aby mÃ³c walczyÄ‡ z TobÄ…. Powodzenia Panie!
 
-Obrzydliwowo - Gdy pokonaliœmy stra¿ników usypaliœmy z jego martwych potworów wielk¹ górê. Pod³o¿yliœmy pod nich piêæ beczek czarnego prochu i BUM! Teraz ju¿ nic nie trzeba by³o mówiæ tylko patrzeæ jak obrzydliwa jest teraz ta kraina!
+Obrzydliwowo - Gdy pokonaliÅ›my straÅ¼nikÃ³w usypaliÅ›my z jego martwych potworÃ³w wielkÄ… gÃ³rÄ™. PodÅ‚oÅ¼yliÅ›my pod nich piÄ™Ä‡ beczek czarnego prochu i BUM! Teraz juÅ¼ nic nie trzeba byÅ‚o mÃ³wiÄ‡ tylko patrzeÄ‡ jak obrzydliwa jest teraz ta kraina!
 
-Hopemirth - Kraina ta jest podzielona na dwie czêœci: zachodni¹ i wschodni¹. Na zachodzie mieszkaj¹ ludzie a na wschodzie jest kult braci krwi. Bracia krwi s¹ bardzo niebezpieczni. Uwa¿aj mój Panie!
+ZÅ‚udnadziej - Kraina ta jest podzielona na dwie czÄ™Å›ci: zachodniÄ… i wschodniÄ…. Na zachodzie mieszkajÄ… ludzie a na wschodzie jest kult braci krwi. Bracia krwi sÄ… bardzo niebezpieczni. UwaÅ¼aj mÃ³j Panie!
 
-Wampirowo - Gdy wygraliœmy z ludŸmi kult krwi postanowi³ siê do nas przy³¹czyæ. Siej¹ oni teraz postrach wœród ludzi. Doskona³a robota mój Panie!
+Wampirowo - Gdy wygraliÅ›my z ludÅºmi kult krwi postanowiÅ‚ siÄ™ do nas przyÅ‚Ä…czyÄ‡. SiejÄ… oni teraz postrach wÅ›rÃ³d ludzi. DoskonaÅ‚a robota mÃ³j Panie!
 
-Castle Hangdamien - T¹ krain¹ w³ada dobry i uczciwy lord. Jest on cz³onkiem kultu czarnej krwi. Uwa¿aj na siebie stra¿niku jest bardzo niebezpieczny.
+Zamek TÄ™pyzwis - TÄ… krainÄ… wÅ‚ada dobry i uczciwy lord. Jest on czÅ‚onkiem kultu czarnej krwi. UwaÅ¼aj na siebie straÅ¼niku jest bardzo niebezpieczny.
 
-Miasto wampirów - Uda³o siê nam, pokonaliœmy wroga. Teraz powiêkszy³o siê nasze terytorium wampirów. Doskona³a robota Panie!
+Miasto wampirÃ³w - UdaÅ‚o siÄ™ nam, pokonaliÅ›my wroga. Teraz powiÄ™kszyÅ‚o siÄ™ nasze terytorium wampirÃ³w. DoskonaÅ‚a robota Panie!
 
-Hangdamien Labrinth - Kraina ta jest naje¿ona pu³apkami i labiryntami. Aby wygraæ musisz byæ bardzo sprytny i nie ogl¹daæ siê za siebie. Powodzenia stra¿niku!
+Hangdamien Labrinth - Kraina ta jest najeÅ¼ona puÅ‚apkami i labiryntami. Aby wygraÄ‡ musisz byÄ‡ bardzo sprytny i nie oglÄ…daÄ‡ siÄ™ za siebie. Powodzenia straÅ¼niku!
 
-Labiryntowo - Krwawiowo - Postanowi³em ponownie u¿yæ pu³apek co na ciebie zastawione by³y. Ale u¿y³em ich na ludziach teraz dopiero mo¿na poczuæ woñ zmielonych na papkê bohaterów.
+Labiryntowo - Krwawiowo - PostanowiÅ‚em ponownie uÅ¼yÄ‡ puÅ‚apek co na ciebie zastawione byÅ‚y. Ale uÅ¼yÅ‚em ich na ludziach teraz dopiero moÅ¼na poczuÄ‡ woÅ„ zmielonych na papkÄ™ bohaterÃ³w.
 
-Hopemirth Wastelands - T¹ krain¹ w³ada mê¿ny i silny lord. Aby przedrzeæ siê do jego zamku musimy przejœæ przez lawê. Powodzenia Panie!
+Hopemirth Wastelands - TÄ… krainÄ… wÅ‚ada mÄ™Å¼ny i silny lord. Aby przedrzeÄ‡ siÄ™ do jego zamku musimy przejÅ›Ä‡ przez lawÄ™. Powodzenia Panie!
 
-Lawowo - Utopiowo - Postanowi³em ¿ywcem powrzucaæ wszystkich ¿ywych mieszkañców krainy do lawy. Szkoda ¿e nie widzia³eœ jak lord tej krainy skucza³. Przepiêkny widok mój panie.
+Lawowo - Utopiowo - PostanowiÅ‚em Å¼ywcem powrzucaÄ‡ wszystkich Å¼ywych mieszkaÅ„cÃ³w krainy do lawy. Szkoda Å¼e nie widziaÅ‚eÅ› jak lord tej krainy skuczaÅ‚. PrzepiÄ™kny widok mÃ³j panie.
 
-Return to Castle Sadlack - Zosta³ nam ostatni krok do wygranej. ZnajdŸ serce lochu bohaterów, zniszcz je! A zdobêdziemy w³adze nad ca³ym œwiatem!
+PowrÃ³t do zamku Bezsmutek - ZostaÅ‚ nam ostatni krok do wygranej. ZnajdÅº serce lochu bohaterÃ³w, zniszcz je! A zdobÄ™dziemy wÅ‚adze nad caÅ‚ym Å›wiatem!
 
-Zamek Stra¿nika - Wygraliœmy, zdobyliœmy ca³y œwiat na dodatek wulkan eksplodowa³ w chwili zabicia lorda tej krainy. Œwiat zosta³ zalany krwi¹ i law¹. Wyœmienita robota mój Panie 
+Zamek StraÅ¼nika - WygraliÅ›my, zdobyliÅ›my caÅ‚y Å›wiat na dodatek wulkan eksplodowaÅ‚ w chwili zabicia lorda tej krainy. Åšwiat zostaÅ‚ zalany krwiÄ… i lawÄ…. WyÅ›mienita robota mÃ³j Panie 

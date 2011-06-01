@@ -1,31 +1,31 @@
 Lord Vexer
-Skrypt opisów krain dla KeeperFX
+Skrypt opisÃ³w krain dla KeeperFX
 
 wykonany przez Ninja(PL)
 
-Przesy³am opis lektora do kampanii Lord Vexer. Pierwszy opis to opis "dobro" a drugie to opis "z³o"
+PrzesyÅ‚am opis lektora do kampanii Lord Vexer. Pierwszy opis to opis "dobro" a drugie to opis "zÅ‚o"
 
-Allarvale - Krain¹ t¹ rz¹dzi dobry I uczciwy lord, który jest ca³kowicie zaœlepiony czarami Vexera. Musimy zmieniæ t¹ krainê aby by³a najokropniejsz¹ na œwiecie!
+Allarvale - KrainÄ… tÄ… rzÄ…dzi dobry I uczciwy lord, ktÃ³ry jest caÅ‚kowicie zaÅ›lepiony czarami Vexera. Musimy zmieniÄ‡ tÄ… krainÄ™ aby byÅ‚a najokropniejszÄ… na Å›wiecie!
 
-Krwiowo - Krew mieszkañców tej krainy, zala³a wszystkie pobliskie wioski. Potop krwi to piêkne zjawisko. Szkoda tylko ¿e tak rzadko siê zdarza,
+Krwiowo - Krew mieszkaÅ„cÃ³w tej krainy, zalaÅ‚a wszystkie pobliskie wioski. Potop krwi to piÄ™kne zjawisko. Szkoda tylko Å¼e tak rzadko siÄ™ zdarza,
 
-Motmot - Kraina ta nie ma swego w³adcy i jest bardzo spokojna. A¿ do dziœ! Pewien stra¿nik rzuci³ ci wyzwanie do walki o t¹ krain¹. Powinniœmy mu przemówiæ do rozs¹dku i pokazaæ nasz¹ sprawiedliwoœæ!
+Motmot - Kraina ta nie ma swego wÅ‚adcy i jest bardzo spokojna. AÅ¼ do dziÅ›! Pewien straÅ¼nik rzuciÅ‚ ci wyzwanie do walki o tÄ… krainÄ…. PowinniÅ›my mu przemÃ³wiÄ‡ do rozsÄ…dku i pokazaÄ‡ naszÄ… sprawiedliwoÅ›Ä‡!
 
-Bagnowo-topielcow - Gdy wygraliœmy ze stra¿nikiem, postanowi³em ¿e rozwalimy tak¿e tamê która znajdowa³a siê w tej miejscowoœæ. Gdy woda wdar³a siê na te tereny zala³a ca³¹ okolice i przy okazji topi¹c wszystkich zamieszka³ych tam mieszkañców. Piêkny widok nie praw dasz?
+Bagnowo-topielcow - Gdy wygraliÅ›my ze straÅ¼nikiem, postanowiÅ‚em Å¼e rozwalimy takÅ¼e tamÄ™ ktÃ³ra znajdowaÅ‚a siÄ™ w tej miejscowoÅ›Ä‡. Gdy woda wdarÅ‚a siÄ™ na te tereny zalaÅ‚a caÅ‚Ä… okolice i przy okazji topiÄ…c wszystkich zamieszkaÅ‚ych tam mieszkaÅ„cÃ³w. PiÄ™kny widok nie praw dasz?
 
-Darvicious - T¹ krain¹ rz¹dzi silny i dostojny w³adca. Posiada on zamek otoczony przez lawê lecz nie wie on ¿e lawa nie jest dla nas rzedn¹³ przeszkod¹!
+Darvicious - TÄ… krainÄ… rzÄ…dzi silny i dostojny wÅ‚adca. Posiada on zamek otoczony przez lawÄ™ lecz nie wie on Å¼e lawa nie jest dla nas rzednÄ…Å‚ przeszkodÄ…!
 
-Czerwieniowo - Gdy podbiliœmy tê krainê niechc¹co wydr¹¿yliœmy tunele przez które wdar³a siê lawa i zala³a ca³¹ okolice. Teraz w dzieñ i noc niebo jest tutaj czerwone. Doskona³a robota mój panie!
+Czerwieniowo - Gdy podbiliÅ›my tÄ™ krainÄ™ niechcÄ…co wydrÄ…Å¼yliÅ›my tunele przez ktÃ³re wdarÅ‚a siÄ™ lawa i zalaÅ‚a caÅ‚Ä… okolice. Teraz w dzieÅ„ i noc niebo jest tutaj czerwone. DoskonaÅ‚a robota mÃ³j panie!
 
-Unnamed - Ta kraina jest bardzo spokojn¹ i uczciw¹ miejscowoœci¹. Wszyscy s¹ tutaj najszczêœliwsi na œwiecie. Nadszed³ czas aby to zmieniæ!
+Unnamed - Ta kraina jest bardzo spokojnÄ… i uczciwÄ… miejscowoÅ›ciÄ…. Wszyscy sÄ… tutaj najszczÄ™Å›liwsi na Å›wiecie. NadszedÅ‚ czas aby to zmieniÄ‡!
 
-Szkieletowo - Gdy zdobyliœmy t¹ krainê postanowi³em ¿e wsadzimy wszystkich tutejszych mieszkañców do celi i zamkniemy i wypuœcimy dopiero wtedy gdy wyzion¹ ducha. Po dwóch tygodniach wsadziliœmy wszystkich szkielety do miasta teraz chodz¹ tam ¿ywe trupy. Co dziwne bawi¹ siê równie dobrze co za ¿ycia!
+Szkieletowo - Gdy zdobyliÅ›my tÄ… krainÄ™ postanowiÅ‚em Å¼e wsadzimy wszystkich tutejszych mieszkaÅ„cÃ³w do celi i zamkniemy i wypuÅ›cimy dopiero wtedy gdy wyzionÄ… ducha. Po dwÃ³ch tygodniach wsadziliÅ›my wszystkich szkielety do miasta teraz chodzÄ… tam Å¼ywe trupy. Co dziwne bawiÄ… siÄ™ rÃ³wnie dobrze co za Å¼ycia!
 
-Forlon - Wioska wcale taka ma³a nie jest i posiada du¿y garnizon obronny. Powinniœmy go szybko zmieniæ w nasz garnizon!
+Forlon - Wioska wcale taka maÅ‚a nie jest i posiada duÅ¼y garnizon obronny. PowinniÅ›my go szybko zmieniÄ‡ w nasz garnizon!
 
-Demonowo-Wojowo - nasze demony szkol¹ siê teraz tutaj aby stan¹æ do waliki z naszym g³ównym celem Lordem Vexer'em!
+Demonowo-Wojowo - nasze demony szkolÄ… siÄ™ teraz tutaj aby stanÄ…Ä‡ do waliki z naszym gÅ‚Ã³wnym celem Lordem Vexer'em!
 
-Lord Vexer - Lord Vexer ukrywa siê w swoim zamku i oczekuje ciebie z niecierpliwoœci¹. Jest on potê¿nym Wampirem a zarazem wojownikiem. Z obawy na twoje przybycie przywo³a³ armiê nieumar³ych istot.
+Lord Vexer - Lord Vexer ukrywa siÄ™ w swoim zamku i oczekuje ciebie z niecierpliwoÅ›ciÄ…. Jest on potÄ™Å¼nym Wampirem a zarazem wojownikiem. Z obawy na twoje przybycie przywoÅ‚aÅ‚ armiÄ™ nieumarÅ‚ych istot.
 
-Zakrwawiona kraina - Gdy pokonaliœmy nasz g³ówny cel, znowu krew sp³ynê³a po ca³ym œwiecie. Piêkny widok, nieprawda¿ panie?
+Zakrwawiona kraina - Gdy pokonaliÅ›my nasz gÅ‚Ã³wny cel, znowu krew spÅ‚ynÄ™Å‚a po caÅ‚ym Å›wiecie. PiÄ™kny widok, nieprawdaÅ¼ panie?
 

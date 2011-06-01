@@ -1,38 +1,38 @@
 Post Ancient Keeper
-Skrypt opisów krain dla KeeperFX
+Skrypt opisÃ³w krain dla KeeperFX
 
 wykonany przez Ninja(PL)
 
-Armageddon - Kraina ta jest bardzo zniszczona przez lawê a mimo to ludzie s¹ tam dalej szczêœliwi. Czas to zmieniæ mój Panie!
+Armageddon - Kraina ta jest bardzo zniszczona przez lawÄ™ a mimo to ludzie sÄ… tam dalej szczÄ™Å›liwi. Czas to zmieniÄ‡ mÃ³j Panie!
 
-Krwawe ¯niwa - Rogaty Rozpruwacz mia³ du¿o radoœci ci¹æ g³owy i cia³a mieszkañców tej osady! Doskona³y widok, nieprawda¿?
-
-
-Collect - Kraina mniej zalana law¹ od poprzedniej ale du¿o bardziej uczciwa od poprzedniej. Tutaj ludzie s¹ dla siebie bardzo mili i spokojni. Czas zrobiæ tutaj wojnê!
-
-Ciemno Krwisto - Teraz Kraina ju¿ nie jest taka spokojna, erupcje wulkanu s¹ tutaj co godzinê. Mieszkañcy robili wszystko ¿eby uratowaæ siebie ale na szczêœcie siê im nie uda³o. Doskona³a robota mój panie.
+Krwawe Å»niwa - Rogaty Rozpruwacz miaÅ‚ duÅ¼o radoÅ›ci ciÄ…Ä‡ gÅ‚owy i ciaÅ‚a mieszkaÅ„cÃ³w tej osady! DoskonaÅ‚y widok, nieprawdaÅ¼?
 
 
-Sacrifice - Kraina ta jest bardzo dziwna, jej przesz³oœæ jest zwi¹zana z wieloma morderstwami ale tak¿e z wieloma poœwiêceniami. Teraz to my siê poœwiêcimy alby zniszczyæ tê krainê!
+Collect - Kraina mniej zalana lawÄ… od poprzedniej ale duÅ¼o bardziej uczciwa od poprzedniej. Tutaj ludzie sÄ… dla siebie bardzo mili i spokojni. Czas zrobiÄ‡ tutaj wojnÄ™!
 
-Z³odziejowo - Kraina powróci³a do korzeni jak tylko mieszkañcom pokazaliœmy jak dobrze byæ z³ym. Nawet dzieci kradn¹, œwietna robota mój panie!
-
-
-Defection - Kraina mi³oœci i spokoju, bllee brzydzê siê takim miejsc, lepiej szybko siê tym zajmijmy mój Panie.
-
-Ból - Nad krain¹ t¹ zawis³a nowa nazwa Ból. Mieszkañcy niej powoli sami siê wykañczaj¹ no oczywiœcie z nasz¹ pomoc¹. Nasz Czarne Damy dobrze i powoli ich torturuj¹. Œwietny widok, nieprawda¿ Panie?
+Ciemno Krwisto - Teraz Kraina juÅ¼ nie jest taka spokojna, erupcje wulkanu sÄ… tutaj co godzinÄ™. MieszkaÅ„cy robili wszystko Å¼eby uratowaÄ‡ siebie ale na szczÄ™Å›cie siÄ™ im nie udaÅ‚o. DoskonaÅ‚a robota mÃ³j panie.
 
 
-Imps - W kopalniach tej krainy s¹ Chochliki które bardzo przeszkadzaj¹ w zdobyciu tej Krainy, wiele stra¿ników próbowa³o, ale ¿adnemu siê nie uda³o. Musisz byæ tym pierwszym!
+Sacrifice - Kraina ta jest bardzo dziwna, jej przeszÅ‚oÅ›Ä‡ jest zwiÄ…zana z wieloma morderstwami ale takÅ¼e z wieloma poÅ›wiÄ™ceniami. Teraz to my siÄ™ poÅ›wiÄ™cimy alby zniszczyÄ‡ tÄ™ krainÄ™!
 
-W¹wóz œmierci - Nasze Chochliki wybudowa³y olbrzymi w¹wóz doko³a tej krainy. W w¹wozie wydoby³a siê lawa a do niej zaczêliœmy spuszczaæ ¿ywych mieszkañców osady. Doskona³a przyjemnoœæ ogl¹daæ takie niespotykane widowisko, nieprawda¿?
-
-
-Clone - Krain¹ t¹ w³ada dobry i uczciwy lord. Czas go na uczyæ dobrych manier. Oczywiœcie naszych manier!
-
-Krwawy ogród - Krainê t¹ nazwaliœmy tak gdy¿ bowiem po ogrodach w³adcy krainy rozsmarowaliœmy resztki cia³ ludzkich jakie zosta³y po masowym wybiciu ludzi przez naszego ulubionego Rogatego Rozpruwacz. Doskona³a robota panie!
+ZÅ‚odziejowo - Kraina powrÃ³ciÅ‚a do korzeni jak tylko mieszkaÅ„com pokazaliÅ›my jak dobrze byÄ‡ zÅ‚ym. Nawet dzieci kradnÄ…, Å›wietna robota mÃ³j panie!
 
 
-Dig - Zosta³a nam jeszcze jedna dobra kraina do zniszczenia. Ostatnie resztki gatunku ludzkiego, elfiego i krasnoludzkiego ukrywaj¹ siê w tej krainie. Wytropi ich i zabij aby zapanowaæ nad ca³ym œwiatem!
+Defection - Kraina miÅ‚oÅ›ci i spokoju, bllee brzydzÄ™ siÄ™ takim miejsc, lepiej szybko siÄ™ tym zajmijmy mÃ³j Panie.
 
-Ulubienice - Tak to z pewnoœci¹ moje ulubione miejsce. Uwielbiam wyjœæ na dwór i patrzyæ na czerwone niebo krew i lawê sp³ywaj¹c¹ po tej krainie. Doskona³a robota Panie!
+BÃ³l - Nad krainÄ… tÄ… zawisÅ‚a nowa nazwa BÃ³l. MieszkaÅ„cy niej powoli sami siÄ™ wykaÅ„czajÄ… no oczywiÅ›cie z naszÄ… pomocÄ…. Nasz Czarne Damy dobrze i powoli ich torturujÄ…. Åšwietny widok, nieprawdaÅ¼ Panie?
+
+
+Imps - W kopalniach tej krainy sÄ… Chochliki ktÃ³re bardzo przeszkadzajÄ… w zdobyciu tej Krainy, wiele straÅ¼nikÃ³w prÃ³bowaÅ‚o, ale Å¼adnemu siÄ™ nie udaÅ‚o. Musisz byÄ‡ tym pierwszym!
+
+WÄ…wÃ³z Å›mierci - Nasze Chochliki wybudowaÅ‚y olbrzymi wÄ…wÃ³z dokoÅ‚a tej krainy. W wÄ…wozie wydobyÅ‚a siÄ™ lawa a do niej zaczÄ™liÅ›my spuszczaÄ‡ Å¼ywych mieszkaÅ„cÃ³w osady. DoskonaÅ‚a przyjemnoÅ›Ä‡ oglÄ…daÄ‡ takie niespotykane widowisko, nieprawdaÅ¼?
+
+
+Clone - KrainÄ… tÄ… wÅ‚ada dobry i uczciwy lord. Czas go na uczyÄ‡ dobrych manier. OczywiÅ›cie naszych manier!
+
+Krwawy ogrÃ³d - KrainÄ™ tÄ… nazwaliÅ›my tak gdyÅ¼ bowiem po ogrodach wÅ‚adcy krainy rozsmarowaliÅ›my resztki ciaÅ‚ ludzkich jakie zostaÅ‚y po masowym wybiciu ludzi przez naszego ulubionego Rogatego Rozpruwacz. DoskonaÅ‚a robota panie!
+
+
+Dig - ZostaÅ‚a nam jeszcze jedna dobra kraina do zniszczenia. Ostatnie resztki gatunku ludzkiego, elfiego i krasnoludzkiego ukrywajÄ… siÄ™ w tej krainie. Wytropi ich i zabij aby zapanowaÄ‡ nad caÅ‚ym Å›wiatem!
+
+Ulubienice - Tak to z pewnoÅ›ciÄ… moje ulubione miejsce. Uwielbiam wyjÅ›Ä‡ na dwÃ³r i patrzyÄ‡ na czerwone niebo krew i lawÄ™ spÅ‚ywajÄ…cÄ… po tej krainie. DoskonaÅ‚a robota Panie!
