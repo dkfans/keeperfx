@@ -77,7 +77,39 @@ void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4
 
 void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
 {
-    _DK_set_room_playing_ambient_sound(pos, sample_idx);
+    struct Thing *thing;
+    long i;
+    //_DK_set_room_playing_ambient_sound(pos, sample_idx);
+    if (game.ambient_sound_thing_idx == 0)
+    {
+        ERRORLOG("No room ambient sound object");
+    }
+    thing = thing_get(game.ambient_sound_thing_idx);
+    if (sample_idx != 0)
+    {
+        move_thing_in_map(thing, pos);
+        i = thing->snd_emitter_id;
+        if (i != 0)
+        {
+            if ( !S3DEmitterIsPlayingSample(i, sample_idx, 0) )
+            {
+
+                S3DDeleteAllSamplesFromEmitter(thing->snd_emitter_id);
+                thing_play_sample(thing, sample_idx, 100, -1, 3, 0, 6, 256);
+            }
+        } else
+        {
+            thing_play_sample(thing, sample_idx, 100, -1, 3, 0, 6, 256);
+        }
+    } else
+    {
+        i = thing->snd_emitter_id;
+        if (i != 0)
+        {
+            S3DDestroySoundEmitterAndSamples(i);
+            thing->snd_emitter_id = 0;
+        }
+    }
 }
 
 void find_nearest_rooms_for_ambient_sound(void)
