@@ -3,34 +3,34 @@ Land descriptions script for KeeperFX
 
 written by Ninja(PL)
 
-Manudania - Krain¹ t¹ w³adaj¹ potê¿ne smoki, lecz ich czas dobiega koñca. Rozpraw siê z nimi, mistrzu!
+Manudania - KrainÄ… tÄ… wÅ‚adajÄ… potÄ™Å¼ne smoki, lecz ich czas dobiega koÅ„ca. Rozpraw siÄ™ z nimi, mistrzu!
 
-Pobojowice - Teraz gdy zabiliœmy potê¿ne smoki, mamy sporo skóry. Mo¿emy obwieœæ nimi nasze piêkne podziemia, nieprawda¿?
+Pobojowice - Teraz gdy zabiliÅ›my potÄ™Å¼ne smoki, mamy sporo skÃ³ry. MoÅ¼emy obwieÅ›Ä‡ nimi nasze piÄ™kne podziemia, nieprawdaÅ¼?
 
-A-Maze-ing - W tej krainie rz¹dzi dziewiêciu Rogatych Rozpruwaczy, mieszkaj¹ w wielkim labiryncie, uwa¿aj na siebie panie. To nie bêdzie proste zadanie
+A-Maze-ing - W tej krainie rzÄ…dzi dziewiÄ™ciu Rogatych Rozpruwaczy, mieszkajÄ… w wielkim labiryncie, uwaÅ¼aj na siebie panie. To nie bÄ™dzie proste zadanie!
 
-Kosowo - Rogaci nie byli a¿ tak trudnymi wojownikami to pokonania, œwietna robota, mój panie!
+Kosowo - Rogaci nie byli aÅ¼ tak trudnymi wojownikami to pokonania, Å›wietna robota, mÃ³j panie!
 
-Hivespawn - W tej krainie jest pe³no stworów które by siê do nas z chêciom przy³¹czy³y, lecz s¹ i takie które z chêci¹ zabi³y by nas. Musimy zdobyæ tê krainê za wszelk¹ cenê!
+Hivespawn - W tej krainie jest peÅ‚no stworÃ³w ktÃ³re by siÄ™ do nas z chÄ™ciom przyÅ‚Ä…czyÅ‚y, lecz sÄ… i takie ktÃ³re z chÄ™ciÄ… zabiÅ‚y by nas. Musimy zdobyÄ‡ tÄ™ krainÄ™ za wszelkÄ… cenÄ™!
 
-Œmierciowo - Ci którzy nie chcieli siê do nas przy³¹czyæ zostali skazani na œmieræ w imiê szatana! Doskona³a robota, panie!
+Åšmierciowo - Ci ktÃ³rzy nie chcieli siÄ™ do nas przyÅ‚Ä…czyÄ‡ zostali skazani na Å›mierÄ‡ w imiÄ™ szatana! DoskonaÅ‚a robota, panie!
 
-Tower of Power - Krain¹ t¹ w³adaj¹ magowie œwiat³a, których broni¹ wspaniali samurajowie. Zniszczmy bramy do fortecy i zabijmy ich z zim¹ krwi¹!
+Tower of Power - KrainÄ… tÄ… wÅ‚adajÄ… magowie Å›wiatÅ‚a, ktÃ³rych broniÄ… wspaniali samurajowie. Zniszczmy bramy do fortecy i zabijmy ich z zimÄ… krwiÄ…!
 
-Wie¿a œmierci - Ta ziemia dosta³a to na co zas³u¿y³a, skazaliœmy magów na wieczne potêpienie! Teraz nie mog¹ opuœciæ tej wie¿y chodŸ s¹ martwi. Doskona³a robota panie!
+WieÅ¼a Å›mierci - Ta ziemia dostaÅ‚a to na co zasÅ‚uÅ¼yÅ‚a, skazaliÅ›my magÃ³w na wieczne potÄ™pienie! Teraz nie mogÄ… opuÅ›ciÄ‡ tej wieÅ¼y chodÅº sÄ… martwi. DoskonaÅ‚a robota panie!
 
-Dambreak - W krainie tej rz¹dzi trzech potê¿nych stra¿ników, niegdyœ zabili oni innego stra¿nika i uwiêzili jego lud w wiêzieniach. Je¿eli ich uratujesz to na pewno wst¹pi¹ w twoje szeregi.
+Dambreak - W krainie tej rzÄ…dzi trzech potÄ™Å¼nych straÅ¼nikÃ³w, niegdyÅ› zabili oni innego straÅ¼nika i uwiÄ™zili jego lud w wiÄ™zieniach. JeÅ¼eli ich uratujesz to na pewno wstÄ…piÄ… w twoje szeregi.
 
-Twierdza Œmierci - Tak wiêc zosta³o zrobione to co nakaza³ nam Lucyfer! Doskona³a robota panie!
+Twierdza Åšmierci - Tak wiÄ™c zostaÅ‚o zrobione to co nakazaÅ‚ nam Lucyfer! DoskonaÅ‚a robota panie!
 
-Sin-king - T¹ krain¹ w³adaj¹ mê¿ni rycerze, którzy bêd¹ broniæ tej ziemi do ostatniej kropli krwi. My z chêciom upuœcimy im jej trochê!
+Sin-king - TÄ… krainÄ… wÅ‚adajÄ… mÄ™Å¼ni rycerze, ktÃ³rzy bÄ™dÄ… broniÄ‡ tej ziemi do ostatniej kropli krwi. My z chÄ™ciom upuÅ›cimy im jej trochÄ™!
 
-Rdza - Z zbroi wojowników zrobiliœmy wystawê po naszym lochu, gdy zbroje zaczn¹ rdzewieæ to dopiero bêdzie widok!
+Rdza - Z zbroi wojownikÃ³w zrobiliÅ›my wystawÄ™ po naszym lochu, gdy zbroje zacznÄ… rdzewieÄ‡ to dopiero bÄ™dzie widok!
 
-Superblah - Nie jest dobrze sytuacja siê zmieni³a, po okolicy grasowa³ pewien wampir, który wskrzesi³ wszystkich wojowników do szkieletów. Szkielety nie oddadz¹ nam tej krainy bez ponownego boju! Zróbmy to co chc¹!
+Superblah - Nie jest dobrze sytuacja siÄ™ zmieniÅ‚a, po okolicy grasowaÅ‚ pewien wampir, ktÃ³ry wskrzesiÅ‚ wszystkich wojownikÃ³w do szkieletÃ³w. Szkielety nie oddadzÄ… nam tej krainy bez ponownego boju! ZrÃ³bmy to co chcÄ…!
 
-Koœciowo - Z koœci martwych wojowników wysadziliœmy pod³ogi w naszym lochu, zosta³ nam jeszcze jeden cel do wygranej, to potê¿na twierdza.
+KoÅ›ciowo - Z koÅ›ci martwych wojownikÃ³w wysadziliÅ›my podÅ‚ogi w naszym lochu, zostaÅ‚ nam jeszcze jeden cel do wygranej, to potÄ™Å¼na twierdza.
 
-Stronghold - Nasz¹ ostatni¹ krain¹ do podbicia w³adaj¹ Mnisi, s¹ pod obron¹ paladynów tak wiêc zniszczmy najpierw ich a póŸniej mnichów!
+Stronghold - NaszÄ… ostatniÄ… krainÄ… do podbicia wÅ‚adajÄ… Mnisi, sÄ… pod obronÄ… paladynÃ³w tak wiÄ™c zniszczmy najpierw ich a pÃ³Åºniej mnichÃ³w!
 
-Krwiowo - Wrzuciliœmy cia³a mnichów do œwi¹tyni pope³niaj¹c wielkie œwiêtokractow! Teraz mo¿emy cieszyæ siê piêknym widokiem sp³ywaj¹cej lawy i krwi po œwiecie! Doskona³a robota mój panie!
+Krwiowo - WrzuciliÅ›my ciaÅ‚a mnichÃ³w do Å›wiÄ…tyni popeÅ‚niajÄ…c wielkie Å›wiÄ™tokractow! Teraz moÅ¼emy cieszyÄ‡ siÄ™ piÄ™knym widokiem spÅ‚ywajÄ…cej lawy i krwi po Å›wiecie! DoskonaÅ‚a robota mÃ³j panie!

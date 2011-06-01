@@ -3,30 +3,30 @@ Land descriptions script for KeeperFX
 
 written by Ninja(PL)
 
-Pile of its own good - Kraina ta nigdy nie zazna³a bólu i wspania³ego piêkna jakim jest wojna. Wszyscy s¹ tutaj szczêœliwi, musisz to natychmiast zmieniæ mój Panie.
+Pile of its own good - Kraina ta nigdy nie zaznaÅ‚a bÃ³lu i wspaniaÅ‚ego piÄ™kna jakim jest wojna. Wszyscy sÄ… tutaj szczÄ™Å›liwi, musisz to natychmiast zmieniÄ‡ mÃ³j Panie.
 
-Garstka kamieni - Teraz kraina ta zazna³a OKROPNEGO(pozwoli³em sobie zmienic na PIÊKNA) bólu i wojny. Niedawno to oni byli szczêœliwi teraz to MY jesteœmy szczêœliwi. Doskona³a robota mój panie!
+Garstka kamieni - Teraz kraina ta zaznaÅ‚a OKROPNEGO(pozwoliÅ‚em sobie zmienic na PIÄ˜KNA) bÃ³lu i wojny. Niedawno to oni byli szczÄ™Å›liwi teraz to MY jesteÅ›my szczÄ™Å›liwi. DoskonaÅ‚a robota mÃ³j panie!
 
-Ancient Fortress - Wspania³a forteca, wielu stra¿ników próbowa³o j¹ zdobyæ lecz ¿adnemu siê to nie uda³o. Czas zmieniæ to miejsce we wspania³e ruiny.
+Ancient Fortress - WspaniaÅ‚a forteca, wielu straÅ¼nikÃ³w prÃ³bowaÅ‚o jÄ… zdobyÄ‡ lecz Å¼adnemu siÄ™ to nie udaÅ‚o. Czas zmieniÄ‡ to miejsce we wspaniaÅ‚e ruiny.
 
-Wspania³e ruiny - Tak przepiêknie rozwalonych kamieni oraz rozwalonych ludzi na pó³, jeszcze nie mia³em okazji zobaczyæ teraz mogê w koñcu podziwiaæ widok ze moich snów. Doskona³a robota!
+WspaniaÅ‚e ruiny - Tak przepiÄ™knie rozwalonych kamieni oraz rozwalonych ludzi na pÃ³Å‚, jeszcze nie miaÅ‚em okazji zobaczyÄ‡ teraz mogÄ™ w koÅ„cu podziwiaÄ‡ widok ze moich snÃ³w. DoskonaÅ‚a robota!
 
-The Necromancer - T¹ krain¹ zaw³adn¹ pewien Wampir, który jest mistrzem w swoim kulcie niestety ten g³upiec nie chcia³ siê do nas przy³¹czyæ. Mo¿emy mu teraz przemówiæ do rozs¹dku, i pokazaæ kto powinien zaw³adn¹æ t¹ krain¹!
+The Necromancer - TÄ… krainÄ… zawÅ‚adnÄ… pewien Wampir, ktÃ³ry jest mistrzem w swoim kulcie niestety ten gÅ‚upiec nie chciaÅ‚ siÄ™ do nas przyÅ‚Ä…czyÄ‡. MoÅ¼emy mu teraz przemÃ³wiÄ‡ do rozsÄ…dku, i pokazaÄ‡ kto powinien zawÅ‚adnÄ…Ä‡ tÄ… krainÄ…!
 
-Dolina Wampirów - Wampir po przegranej nie chcia³ przejœæ na twoje podobieñstwo, ale wystarczy³o mu trochê mocno m³otkiem przywaliæ w jego g³upi ³eb, a od razu jakoœ chcia³ siê do ciebie przy³¹czyæ. Rozkaza³em mu poprzemieniaæ wszystkich mieszkañców tej krainy w wampiry, teraz nawet dzieci s¹ po z³ej stronie.
+Dolina WampirÃ³w - Wampir po przegranej nie chciaÅ‚ przejÅ›Ä‡ na twoje podobieÅ„stwo, ale wystarczyÅ‚o mu trochÄ™ mocno mÅ‚otkiem przywaliÄ‡ w jego gÅ‚upi Å‚eb, a od razu jakoÅ› chciaÅ‚ siÄ™ do ciebie przyÅ‚Ä…czyÄ‡. RozkazaÅ‚em mu poprzemieniaÄ‡ wszystkich mieszkaÅ„cÃ³w tej krainy w wampiry, teraz nawet dzieci sÄ… po zÅ‚ej stronie.
 
 
 
-Frozen Plains - Nawet ludzie uciekali z tej krainy z obaw¹ ¿e w nocy przez okno wejdzie im olbrzymi paj¹k do domu i ich zje na obiad. Teraz to my urz¹dzimy sobie pieczonego paj¹ka na kolacje.
+Frozen Plains - Nawet ludzie uciekali z tej krainy z obawÄ… Å¼e w nocy przez okno wejdzie im olbrzymi pajÄ…k do domu i ich zje na obiad. Teraz to my urzÄ…dzimy sobie pieczonego pajÄ…ka na kolacje.
 
-Rozgrzane równiny - Teraz mo¿emy w spokoju podziwiaæ widok tej krainy gdy sp³ywa po nim lawa i jedz¹c pieczone paj¹ki. Tak zalanej krainy od magmy to jeszcze nie widzia³em. Wspania³a robota mój Panie!
+Rozgrzane rÃ³wniny - Teraz moÅ¼emy w spokoju podziwiaÄ‡ widok tej krainy gdy spÅ‚ywa po nim lawa i jedzÄ…c pieczone pajÄ…ki. Tak zalanej krainy od magmy to jeszcze nie widziaÅ‚em. WspaniaÅ‚a robota mÃ³j Panie!
 
-Barbarian Stronghold - Barbarzyñcy to okropny naród ludzkiej rasy. Przed wiekami zbudowali tê twierdze z obawy przed atakami z podziemia. Musimy zdobyæ t¹ twierdzê za wszelk¹ cenê!
+Barbarian Stronghold - BarbarzyÅ„cy to okropny narÃ³d ludzkiej rasy. Przed wiekami zbudowali tÄ™ twierdze z obawy przed atakami z podziemia. Musimy zdobyÄ‡ tÄ… twierdzÄ™ za wszelkÄ… cenÄ™!
 
-Twierdza Stra¿ników - Barbarzyñcy bez problemu przeszli na nasz¹ stronê. Teraz mamy nawet tam cyrk! Wed³ug mnie najlepsza zabawa tam to rzucanie no¿ami do barbarzyñców! Powinieneœ kiedyœ spróbowaæ mój Panie.
+Twierdza StraÅ¼nikÃ³w - BarbarzyÅ„cy bez problemu przeszli na naszÄ… stronÄ™. Teraz mamy nawet tam cyrk! WedÅ‚ug mnie najlepsza zabawa tam to rzucanie noÅ¼ami do barbarzyÅ„cÃ³w! PowinieneÅ› kiedyÅ› sprÃ³bowaÄ‡ mÃ³j Panie.
 
-Final Countdown - Do zwyciêstwa dzieli nas tylko jeszcze jeden krok. Nikt jeszcze nie udawa³ siê w tamte terytorium. Wiemy tylko ¿e reszta ludzi jaka ¿yje siê tam schowa³a i teraz z niecierpliwoœci¹ oczekuj¹c Ciebie.
+Final Countdown - Do zwyciÄ™stwa dzieli nas tylko jeszcze jeden krok. Nikt jeszcze nie udawaÅ‚ siÄ™ w tamte terytorium. Wiemy tylko Å¼e reszta ludzi jaka Å¼yje siÄ™ tam schowaÅ‚a i teraz z niecierpliwoÅ›ciÄ… oczekujÄ…c Ciebie.
 
-Magmowice - Ostatecznie wygraliœmy! Teraz ca³y œwiat jest podbity, wreszcie mo¿emy odpocz¹æ i w spokoju ogl¹daæ œwiat zalany krwi¹ i law¹! 
+Magmowice - Ostatecznie wygraliÅ›my! Teraz caÅ‚y Å›wiat jest podbity, wreszcie moÅ¼emy odpoczÄ…Ä‡ i w spokoju oglÄ…daÄ‡ Å›wiat zalany krwiÄ… i lawÄ…! 
 
 

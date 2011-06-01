@@ -39,6 +39,12 @@ struct HeapMgrHandle;
 
 // Type definitions
 
+enum SoundEmitterFlags {
+    Emi_IsAllocated  = 0x01,
+    Emi_UnknownPlay  = 0x02,
+    Emi_IsMoving     = 0x04,
+};
+
 typedef long (*S3D_LineOfSight_Func)(long, long, long, long, long, long);
 
 struct SoundCoord3d {
@@ -71,7 +77,7 @@ struct S3DSample { // sizeof = 37
   unsigned long field_0;
   unsigned long time_turn;
   unsigned short field_8;
-  unsigned char field_A;
+  unsigned char bank_id;
   unsigned short field_B;
   unsigned short field_D;
   unsigned short field_F;
@@ -151,6 +157,7 @@ long S3DCreateSoundEmitterPri(long x, long y, long z, long a4, long a5, long a6,
 TbBool S3DEmitterIsAllocated(long eidx);
 long S3DEmitterIsPlayingAnySample(long eidx);
 TbBool S3DEmitterIsPlayingSample(long emitr, long smpl_idx, long a2);
+TbBool S3DDeleteAllSamplesFromEmitter(long eidx);
 TbBool S3DDestroySoundEmitterAndSamples(long eidx);
 void S3DSetLineOfSightFunction(S3D_LineOfSight_Func);
 void S3DSetDeadzoneRadius(long dzradius);

@@ -74,7 +74,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"BLEEDS",            1},
   {"UNAFFECTED_BY_WIND",2},
   {"IMMUNE_TO_GAS",     3},
-  {"HUMANOID",          4},
+  {"HUMANOID_SKELETON", 4},
   {"PISS_ON_DEAD",      5},
   {"FLYING",            7},
   {"SEE_INVISIBLE",     8},
@@ -602,7 +602,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               crstat->immune_to_gas = true;
               n++;
               break;
-            case 4: // HUMANOID
+            case 4: // HUMANOID_SKELETON
               crstat->humanoid_creature = true;
               n++;
               break;

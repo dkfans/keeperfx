@@ -4,38 +4,38 @@ Land descriptions script for KeeperFX
 written by Ninja(PL)
 
 
-W³aœnie skoñczy³em opis lektora do Kampanii Good kampanig
-Pierwszy opis to opis pocz¹tku, a drugi to opis koñca
+WÅ‚aÅ›nie skoÅ„czyÅ‚em opis lektora do Kampanii Good kampanig
+Pierwszy opis to opis poczÄ…tku, a drugi to opis koÅ„ca
 
-First step pierwszy krok - T¹ krain¹ w³ada bardzo z³y stra¿nik, torturuje on swoich podw³adnych dla zabawy, dzieci strasznie siê go boj¹, gdy¿ bowiem stra¿nik ten codziennie jedno dziecko je na kolacje. Podobno mu bardzo smakuj¹, musimy to zmieniæ mój panie.
-Spokojowo - szybko uporaliœmy siê ze stra¿nikiem nie mia³ on najmniejszych szans wygraæ z tob¹ panie, tutejsze dzieci s¹ teraz najszczêœliwszymi dzieæmi na œwiecie. Doskona³a robota.
+First step pierwszy krok - TÄ… krainÄ… wÅ‚ada bardzo zÅ‚y straÅ¼nik, torturuje on swoich podwÅ‚adnych dla zabawy, dzieci strasznie siÄ™ go bojÄ…, gdyÅ¼ bowiem straÅ¼nik ten codziennie jedno dziecko je na kolacje. Podobno mu bardzo smakujÄ…, musimy to zmieniÄ‡ mÃ³j panie.
+Spokojowo - szybko uporaliÅ›my siÄ™ ze straÅ¼nikiem nie miaÅ‚ on najmniejszych szans wygraÄ‡ z tobÄ… panie, tutejsze dzieci sÄ… teraz najszczÄ™Å›liwszymi dzieÄ‡mi na Å›wiecie. DoskonaÅ‚a robota.
 
-Offspring - T¹ krain¹ w³ada obrzydliwie z³y rogaty kosiarz, który codziennie je kogoœ z pobliskich wiosek na obiad. Pokonaj go a zdobêdziemy nastêpne królestwo!
-£¹kowice - Schwytaliœmy Rogatego Kosiarza i oddaliœmy go w rêce mieszkañcom wioski. Mieszkañcy powiesili go i potem zakopali, podobno teraz w nocy gdy przechodzi siê obok jego grobu mo¿na mo¿na tam zobaczyæ jego ducha.
+Offspring - TÄ… krainÄ… wÅ‚ada obrzydliwie zÅ‚y rogaty kosiarz, ktÃ³ry codziennie je kogoÅ› z pobliskich wiosek na obiad. Pokonaj go a zdobÄ™dziemy nastÄ™pne krÃ³lestwo!
+ÅÄ…kowice - SchwytaliÅ›my Rogatego Kosiarza i oddaliÅ›my go w rÄ™ce mieszkaÅ„com wioski. MieszkaÅ„cy powiesili go i potem zakopali, podobno teraz w nocy gdy przechodzi siÄ™ obok jego grobu moÅ¼na moÅ¼na tam zobaczyÄ‡ jego ducha.
 
-Snow white and dwarves - Kiedyœ ta kraina by³a bardzo spokojna, lecz pewnego dnia przyby³ tam stra¿nik i zniszczy³ wszystko co stanê³o mu na drodze. Wszystkich mieszkañców tamtejszych terenów trzyma w wiêzieniu. Panie nie ma na co czekaæ, chwytamy za miecz i wyruszamy odbiæ naszych!
-Œwierkowo - Kraina powróci³a do dawnych czasów, znów jest tutaj spokój i cisza, mieszkañcy okolicznych w³oœci s¹ ci bardzo wdziêczni. Doskona³a robota mój panie.
+Snow white and dwarves - KiedyÅ› ta kraina byÅ‚a bardzo spokojna, lecz pewnego dnia przybyÅ‚ tam straÅ¼nik i zniszczyÅ‚ wszystko co stanÄ™Å‚o mu na drodze. Wszystkich mieszkaÅ„cÃ³w tamtejszych terenÃ³w trzyma w wiÄ™zieniu. Panie nie ma na co czekaÄ‡, chwytamy za miecz i wyruszamy odbiÄ‡ naszych!
+Åšwierkowo - Kraina powrÃ³ciÅ‚a do dawnych czasÃ³w, znÃ³w jest tutaj spokÃ³j i cisza, mieszkaÅ„cy okolicznych wÅ‚oÅ›ci sÄ… ci bardzo wdziÄ™czni. DoskonaÅ‚a robota mÃ³j panie.
 
-Warlocks slave - T¹ krain¹ w³ada obrzydliwy czarnoksiê¿nik, pos³uguje siê on czarami czarnej magii. Przywo³a³ mnóstwo martwych dusz aby walczyli oni po jego stronie. Musimy jak najszybciej zlikwidowaæ tego maga!
-Czarodziejow - przez pewien czas torturowaliœmy maga, po 2 godzinach przeszed³ na nasz¹ stronê teraz uczy on ludu zamieszkuj¹cego te tereny bia³ej magii. Doskona³a robota Panie!
+Warlocks slave - TÄ… krainÄ… wÅ‚ada obrzydliwy czarnoksiÄ™Å¼nik, posÅ‚uguje siÄ™ on czarami czarnej magii. PrzywoÅ‚aÅ‚ mnÃ³stwo martwych dusz aby walczyli oni po jego stronie. Musimy jak najszybciej zlikwidowaÄ‡ tego maga!
+Czarodziejow - przez pewien czas torturowaliÅ›my maga, po 2 godzinach przeszedÅ‚ na naszÄ… stronÄ™ teraz uczy on ludu zamieszkujÄ…cego te tereny biaÅ‚ej magii. DoskonaÅ‚a robota Panie!
 
-Ug the Barbarian Ug Barbarian - T¹ krain¹ w³ada pewien barbarzyñca o imieniu Ug. Stworzy³ on grupkê osób która przeciwstawia opór tamtejszemu ludowi, wymusza on haracze na mieszkañcach tej krainy. Przyby³ tak¿e inny stra¿nik, powinniœmy mu daæ lekcje której nie zapomni.
-Wojskowo - Ug przeszed³ na nasz¹ stronê, musieliœmy mu tylko troszeczkê w tym pomóc. Uczy on teraz tutejszej ludnoœci jak walczyæ m³otami bojowymi i samobrony.
+Ug the Barbarian Ug Barbarian - TÄ… krainÄ… wÅ‚ada pewien barbarzyÅ„ca o imieniu Ug. StworzyÅ‚ on grupkÄ™ osÃ³b ktÃ³ra przeciwstawia opÃ³r tamtejszemu ludowi, wymusza on haracze na mieszkaÅ„cach tej krainy. PrzybyÅ‚ takÅ¼e inny straÅ¼nik, powinniÅ›my mu daÄ‡ lekcje ktÃ³rej nie zapomni.
+Wojskowo - Ug przeszedÅ‚ na naszÄ… stronÄ™, musieliÅ›my mu tylko troszeczkÄ™ w tym pomÃ³c. Uczy on teraz tutejszej ludnoÅ›ci jak walczyÄ‡ mÅ‚otami bojowymi i samobrony.
 
-Power of Faith - T¹ krain¹ w³ada z³y stra¿nik, jest on ca³kowicie oddany swojej wierze w demony. Oby te jego demony go zjad³y, ale póki co zbeszczeszczamy jego œwi¹tynie mój Panie!
-Podziêkowo - mieszkañcy dziêkuj¹ ci panie za uwolnienie od z³ego stra¿nika, tak teraz na te¿ nazywa siê ta miejscowoœæ, aby nikt nie zapomnia³ o tobie. Wyœmienita robota Panie!
+Power of Faith - TÄ… krainÄ… wÅ‚ada zÅ‚y straÅ¼nik, jest on caÅ‚kowicie oddany swojej wierze w demony. Oby te jego demony go zjadÅ‚y, ale pÃ³ki co zbeszczeszczamy jego Å›wiÄ…tynie mÃ³j Panie!
+PodziÄ™kowo - mieszkaÅ„cy dziÄ™kujÄ… ci panie za uwolnienie od zÅ‚ego straÅ¼nika, tak teraz na teÅ¼ nazywa siÄ™ ta miejscowoÅ›Ä‡, aby nikt nie zapomniaÅ‚ o tobie. WyÅ›mienita robota Panie!
 
-Indoctrination - O t¹ krainê ci¹gle toczy siê walka miêdzy dwoma stra¿nikami, teraz to my siê jeszcze dorzucimy do walki o te tereny!
-Kwiatowo - Ty jako jedyny z 3 wygra³eœ. Kraina nareszcie mo¿e zaznaæ spokoju. Tak to ju¿ jest gdzie dwóch siê bije tam trzeci korzysta.
+Indoctrination - O tÄ… krainÄ™ ciÄ…gle toczy siÄ™ walka miÄ™dzy dwoma straÅ¼nikami, teraz to my siÄ™ jeszcze dorzucimy do walki o te tereny!
+Kwiatowo - Ty jako jedyny z 3 wygraÅ‚eÅ›. Kraina nareszcie moÅ¼e zaznaÄ‡ spokoju. Tak to juÅ¼ jest gdzie dwÃ³ch siÄ™ bije tam trzeci korzysta.
 
-Three on One - T¹ krain¹ w³ada trzech z³ych stra¿ników, którzy maj¹ zamiar stawiæ tobie czo³o. Poka¿ im panie co znaczy prawdziwa wojna!
-¯a³oœciowo - Wróg ¿a³oœnie z tob¹ walczy³ mój Panie. Tak szybkiej potyczki z Twej strony jeszcze nie widzia³em. Teraz ludnoœæ w koñcu jest szczêsliwa. Doskona³a robota Bohaterze!
+Three on One - TÄ… krainÄ… wÅ‚ada trzech zÅ‚ych straÅ¼nikÃ³w, ktÃ³rzy majÄ… zamiar stawiÄ‡ tobie czoÅ‚o. PokaÅ¼ im panie co znaczy prawdziwa wojna!
+Å»aÅ‚oÅ›ciowo - WrÃ³g Å¼aÅ‚oÅ›nie z tobÄ… walczyÅ‚ mÃ³j Panie. Tak szybkiej potyczki z Twej strony jeszcze nie widziaÅ‚em. Teraz ludnoÅ›Ä‡ w koÅ„cu jest szczÄ™sliwa. DoskonaÅ‚a robota Bohaterze!
 
-Impure Blood - T¹ krain¹ w³adaj¹ z³e duchy oraz demony. Ju¿ kiedyœ król próbowa³ odbiæ tê krainê z r¹k demonów, lecz nie uda³o mu siê ale zostawi³ on za to ca³y loch jaki tam zbudowa³. Wiêc mo¿emy szybko braæ siê do roboty.
-B³êkitowo - Teraz w krainie p³ynie czysta woda, ludzie tam ju¿ zapomnieli jak smakuje taka woda, teraz im to udostêpni³eœ Panie. Œwietna Robota!
+Impure Blood - TÄ… krainÄ… wÅ‚adajÄ… zÅ‚e duchy oraz demony. JuÅ¼ kiedyÅ› krÃ³l prÃ³bowaÅ‚ odbiÄ‡ tÄ™ krainÄ™ z rÄ…k demonÃ³w, lecz nie udaÅ‚o mu siÄ™ ale zostawiÅ‚ on za to caÅ‚y loch jaki tam zbudowaÅ‚. WiÄ™c moÅ¼emy szybko braÄ‡ siÄ™ do roboty.
+BÅ‚Ä™kitowo - Teraz w krainie pÅ‚ynie czysta woda, ludzie tam juÅ¼ zapomnieli jak smakuje taka woda, teraz im to udostÄ™pniÅ‚eÅ› Panie. Åšwietna Robota!
 
-Save the Savior - Ta krain¹ w³adaj¹ bracia czarnej krwi. Schwytali oni naszego najlepszego wojownika Avatara. Musimy jak najszybciej odes³aæ ich w zaœwiaty!
-Kap³anowo - Schwytaliœmy tamtejsze Wampiry i torturowaliœmy ich a¿ bêd¹ po naszej stronie. Po paru godzinach przeszli na nasz¹ stronê. Daliœmy im wybór albo wrzucamy ich do œwi¹tyni albo zostan¹ tutejszymi kap³anami. Wybrali to drugie, podobno dobrze nauczaj¹ religii mój panie.
+Save the Savior - Ta krainÄ… wÅ‚adajÄ… bracia czarnej krwi. Schwytali oni naszego najlepszego wojownika Avatara. Musimy jak najszybciej odesÅ‚aÄ‡ ich w zaÅ›wiaty!
+KapÅ‚anowo - SchwytaliÅ›my tamtejsze Wampiry i torturowaliÅ›my ich aÅ¼ bÄ™dÄ… po naszej stronie. Po paru godzinach przeszli na naszÄ… stronÄ™. DaliÅ›my im wybÃ³r albo wrzucamy ich do Å›wiÄ…tyni albo zostanÄ… tutejszymi kapÅ‚anami. Wybrali to drugie, podobno dobrze nauczajÄ… religii mÃ³j panie.
 
-Do or die - Do tego zadania potrzebujemy jednej osoby Avatara. By³e wampiry zgodzi³y nauczyæ ciê czaru opêtania. U¿yj go aby dotrzeæ do wrogiego serca lochu.
-Œciêœliwce - Brawo wygraliœmy. Uda³o siê nam. Nareszcie w œwiecie zapanowa³ spokój o jakim marzyliœmy przez ca³e ¿ycie. Gratulujê spe³nienia marzenia Panie!
+Do or die - Do tego zadania potrzebujemy jednej osoby Avatara. ByÅ‚e wampiry zgodziÅ‚y nauczyÄ‡ ciÄ™ czaru opÄ™tania. UÅ¼yj go aby dotrzeÄ‡ do wrogiego serca lochu.
+ÅšciÄ™Å›liwce - Brawo wygraliÅ›my. UdaÅ‚o siÄ™ nam. Nareszcie w Å›wiecie zapanowaÅ‚ spokÃ³j o jakim marzyliÅ›my przez caÅ‚e Å¼ycie. GratulujÄ™ speÅ‚nienia marzenia Panie!
