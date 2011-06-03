@@ -79,12 +79,18 @@ void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
 {
     struct Thing *thing;
     long i;
-    //_DK_set_room_playing_ambient_sound(pos, sample_idx);
+    //_DK_set_room_playing_ambient_sound(pos, sample_idx);return;
     if (game.ambient_sound_thing_idx == 0)
     {
         ERRORLOG("No room ambient sound object");
+        return;
     }
     thing = thing_get(game.ambient_sound_thing_idx);
+    if ( thing_is_invalid(thing) )
+    {
+        ERRORLOG("Invalid room ambient sound object");
+        return;
+    }
     if (sample_idx != 0)
     {
         move_thing_in_map(thing, pos);
@@ -93,7 +99,6 @@ void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
         {
             if ( !S3DEmitterIsPlayingSample(i, sample_idx, 0) )
             {
-
                 S3DDeleteAllSamplesFromEmitter(thing->snd_emitter_id);
                 thing_play_sample(thing, sample_idx, 100, -1, 3, 0, 6, 256);
             }

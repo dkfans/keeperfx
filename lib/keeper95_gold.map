@@ -418,6 +418,7 @@
  0001:00050B10       S3DDestroySoundEmitter
  0001:00050BF0       S3DMoveSoundEmitterTo
  0001:00050C50       S3DAddSampleToEmitterPri
+ 0001:00050D70       S3DDeleteAllSamplesFromEmitter
  0001:00050E00       S3DSetSoundReceiverPosition
  0001:00050E30       S3DSetSoundReceiverOrientation
  0001:00050E70       process_3d_sounds

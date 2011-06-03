@@ -82,6 +82,25 @@ void all_players_untag_blocks_for_digging_in_area(MapSlabCoord slb_x, MapSlabCoo
     }
 }
 
+TbBool set_slab_explored(long plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    if ( (plyr_idx == game.neutral_player_num) || subtile_revealed(3*slb_x+1, 3*slb_y+1, plyr_idx) )
+    {
+        return false;
+    }
+    reveal_map_subtile(3*slb_x,   3*slb_y,   plyr_idx);
+    reveal_map_subtile(3*slb_x+1, 3*slb_y,   plyr_idx);
+    reveal_map_subtile(3*slb_x+2, 3*slb_y,   plyr_idx);
+    reveal_map_subtile(3*slb_x,   3*slb_y+1, plyr_idx);
+    reveal_map_subtile(3*slb_x+1, 3*slb_y+1, plyr_idx);
+    reveal_map_subtile(3*slb_x+2, 3*slb_y+1, plyr_idx);
+    reveal_map_subtile(3*slb_x,   3*slb_y+2, plyr_idx);
+    reveal_map_subtile(3*slb_x+1, 3*slb_y+2, plyr_idx);
+    reveal_map_subtile(3*slb_x+2, 3*slb_y+2, plyr_idx);
+    pannel_map_update(3*slb_x, 3*slb_y, 3, 3);
+    return true;
+}
+
 void set_slab_explored_flags(unsigned char flag, long slb_x, long slb_y)
 {
     _DK_set_slab_explored_flags(flag, slb_x, slb_y);
