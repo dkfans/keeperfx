@@ -45,6 +45,7 @@
  0001:00050E30       S3DSetSoundReceiverOrientation
  0001:00050870       S3DInit
  0001:00050910       S3DSetMaximumSoundDistance
+ 0001:00050D70       S3DDeleteAllSamplesFromEmitter
  0001:000514A0       get_emitter_pan_volume_pitch
  0001:0003D970       set_packet_action
  0001:00036B90       get_global_inputs

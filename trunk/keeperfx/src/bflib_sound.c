@@ -53,6 +53,7 @@ DLLIMPORT long _DK_get_best_sound_heap_size(long mem_size);
 DLLIMPORT long _DK_S3DInit(void);
 DLLIMPORT long _DK_S3DSetNumberOfSounds(long nMaxSounds);
 DLLIMPORT long _DK_S3DSetMaximumSoundDistance(long nDistance);
+DLLIMPORT long _DK_S3DDeleteAllSamplesFromEmitter(long eidx);
 
 // Global variables
 long NoSoundEmitters = SOUND_EMITTERS_MAX;
@@ -161,6 +162,8 @@ TbBool S3DEmitterIsPlayingSample(long eidx, long smpl_idx, long a2)
 
 TbBool S3DDeleteAllSamplesFromEmitter(long eidx)
 {
+    return _DK_S3DDeleteAllSamplesFromEmitter(eidx);
+    //TODO: fix then re-enable
     struct SoundEmitter *emit;
     struct S3DSample *sample;
     long i;
