@@ -32,6 +32,7 @@
 #include "thing_navigate.h"
 #include "room_data.h"
 #include "room_jobs.h"
+#include "map_blocks.h"
 #include "gui_soundmsgs.h"
 
 #include "keeperfx.hpp"
@@ -47,7 +48,7 @@ DLLIMPORT short _DK_kinky_torturing(struct Thing *thing);
 DLLIMPORT long _DK_process_torture_function(struct Thing *thing);
 DLLIMPORT short _DK_torturing(struct Thing *thing);
 DLLIMPORT long _DK_process_torture_visuals(struct Thing *thing, struct Room *room, long a3);
-DLLIMPORT long _DK_reveal_players_map_to_player(struct Thing *thing, long a2);
+DLLIMPORT long _DK_reveal_players_map_to_player(struct Thing *thing, long benefit_plyr_idx);
 DLLIMPORT long _DK_process_kinky_function(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -224,9 +225,219 @@ void convert_tortured_creature_owner(struct Thing *thing, long new_owner)
         dungeon->lvstats.creatures_converted++;
 }
 
-long reveal_players_map_to_player(struct Thing *thing, long a2)
+long get_flee_position(struct Thing *thing, struct Coord3d *pos)
 {
-    return _DK_reveal_players_map_to_player(thing, a2);
+    struct Dungeon *dungeon;
+    struct PlayerInfo *player;
+    struct CreatureControl *cctrl;
+    struct Thing *lairtng;
+    struct Thing *heartng;
+    struct Thing *gatetng;
+
+    cctrl = creature_control_get_from_thing(thing);
+    // Heroes should flee to their gate
+    if (thing->owner == game.hero_player_num)
+    {
+        gatetng = find_hero_door_hero_can_navigate_to(thing);
+        if ( !thing_is_invalid(gatetng) )
+        {
+            pos->x.val = gatetng->mappos.x.val;
+            pos->y.val = gatetng->mappos.y.val;
+            pos->z.val = gatetng->mappos.z.val;
+            return 1;
+        }
+    } else
+    // Neutral creatures don't have flee place
+    if (thing->owner == game.neutral_player_num)
+    {
+        if ( (pos->x.val != 0) || (pos->y.val != 0) )
+        {
+            return 1;
+        }
+        return 0;
+    }
+    // Same with creatures without dungeon - try using last place
+    dungeon = get_dungeon(thing->owner);
+    if ( dungeon_invalid(dungeon) )
+    {
+        if ( (pos->x.val != 0) || (pos->y.val != 0) )
+        {
+            return 1;
+        }
+        return 0;
+    }
+    // Other creatures can flee to heart or their lair
+    if (cctrl->lairtng_idx > 0)
+    {
+        lairtng = thing_get(cctrl->lairtng_idx);
+        pos->x.val = lairtng->mappos.x.val;
+        pos->y.val = lairtng->mappos.y.val;
+        pos->z.val = lairtng->mappos.z.val;
+    } else
+    if (dungeon->dnheart_idx > 0)
+    {
+        heartng = thing_get(dungeon->dnheart_idx);
+        pos->x.val = heartng->mappos.x.val;
+        pos->y.val = heartng->mappos.y.val;
+        pos->z.val = heartng->mappos.z.val;
+    } else
+    {
+        player = get_player(thing->owner);
+        if ( ((player->field_0 & 0x01) != 0) && (player->field_2C == 1) && (player->victory_state != 2) )
+        {
+            ERRORLOG("The %s has no dungeon heart or lair to flee to",thing_model_name(thing));
+            return 0;
+        }
+        pos->x.val = thing->mappos.x.val;
+        pos->y.val = thing->mappos.y.val;
+        pos->z.val = thing->mappos.z.val;
+    }
+    return 1;
+}
+
+void setup_combat_flee_position(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if ( !get_flee_position(thing, &cctrl->pos_288) )
+    {
+      ERRORLOG("Couldn't get a flee position for %s index %d",thing_model_name(thing),(int)thing->index);
+      cctrl->pos_288.x.val = thing->mappos.x.val;
+      cctrl->pos_288.y.val = thing->mappos.y.val;
+      cctrl->pos_288.z.val = thing->mappos.z.val;
+    }
+
+}
+
+long reveal_players_map_to_player(struct Thing *thing, long benefit_plyr_idx)
+{
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    struct Thing *heartng;
+    SlabCodedCoords slb_num;
+    struct SlabMap *slb;
+    int heartstl_x,heartstl_y;
+    MapSubtlCoord slb_x, slb_y;
+    unsigned char *ownership_map;
+    struct USPOINT_2D *revealed_pts;
+    unsigned int pt_idx,pts_count,pts_to_reveal;
+    TbBool reveal_success;
+    //return _DK_reveal_players_map_to_player(thing, a2);
+    dungeon = get_dungeon(thing->owner);
+
+    if (dungeon->dnheart_idx > 0)
+    {
+        heartng = thing_get(dungeon->dnheart_idx);
+        heartstl_x = heartng->mappos.x.stl.num;
+        heartstl_y = heartng->mappos.y.stl.num;
+    } else
+    {
+
+        setup_combat_flee_position(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        heartstl_x = cctrl->pos_288.x.stl.num;
+        heartstl_y = cctrl->pos_288.y.stl.num;
+    }
+    reveal_success = 0;
+
+    ownership_map = (unsigned char *)malloc(map_tiles_y*map_tiles_x);
+    memset(ownership_map,0,map_tiles_y*map_tiles_x);
+    for (slb_y=0; slb_y < map_tiles_y; slb_y++)
+    {
+        for (slb_x=0; slb_x < map_tiles_x; slb_x++)
+        {
+            slb_num = get_slab_number(slb_x, slb_y);
+            slb = get_slabmap_direct(slb_num);
+            if (slabmap_owner(slb) != thing->owner)
+                ownership_map[slb_num] |= 0x01;
+        }
+    }
+    revealed_pts = (struct USPOINT_2D *)malloc((map_tiles_y*map_tiles_x)*sizeof(struct USPOINT_2D));
+    pts_to_reveal = 32;
+    pts_count = 0;
+    pt_idx = 0;
+
+    slb_x = map_to_slab[heartstl_x];
+    slb_y = map_to_slab[heartstl_y];
+    slb_num = get_slab_number(slb_x, slb_y);
+    ownership_map[slb_num] |= 0x02;
+    do
+    {
+        // Reveal given point
+        if ( !subtile_revealed(3*slb_x+1, 3*slb_y+1, benefit_plyr_idx) )
+        {
+            reveal_success = 1;
+            clear_slab_dig(slb_x, slb_y, benefit_plyr_idx);
+            set_slab_explored(benefit_plyr_idx, slb_x, slb_y);
+            pts_to_reveal--;
+            if (pts_to_reveal == 0)
+              break;
+        }
+        // Add sibling points to reveal list
+        slb_num = get_slab_number(slb_x-1, slb_y);
+        if ((ownership_map[slb_num] & 0x03) == 0)
+        {
+            ownership_map[slb_num] |= 0x02;
+            slb = get_slabmap_direct(slb_num);
+            if (slabmap_owner(slb) == thing->owner) {
+                revealed_pts[pts_count].x = slb_x - 1;
+                revealed_pts[pts_count].y = slb_y;
+                pts_count++;
+            }
+        }
+        slb_num = get_slab_number(slb_x+1, slb_y);
+        if ((ownership_map[slb_num] & 0x03) == 0)
+        {
+            ownership_map[slb_num] |= 0x02;
+            slb = get_slabmap_direct(slb_num);
+            if (slabmap_owner(slb) == thing->owner) {
+                revealed_pts[pts_count].x = slb_x + 1;
+                revealed_pts[pts_count].y = slb_y;
+                pts_count++;
+            }
+        }
+        slb_num = get_slab_number(slb_x, slb_y-1);
+        if ((ownership_map[slb_num] & 0x03) == 0)
+        {
+            ownership_map[slb_num] |= 0x02;
+            slb = get_slabmap_direct(slb_num);
+            if (slabmap_owner(slb) == thing->owner) {
+                revealed_pts[pts_count].x = slb_x;
+                revealed_pts[pts_count].y = slb_y - 1;
+                pts_count++;
+            }
+        }
+        slb_num = get_slab_number(slb_x, slb_y+1);
+        if ((ownership_map[slb_num] & 0x03) == 0)
+        {
+            ownership_map[slb_num] |= 0x02;
+            slb = get_slabmap_direct(slb_num);
+            if (slabmap_owner(slb) == thing->owner) {
+                revealed_pts[pts_count].x = slb_x;
+                revealed_pts[pts_count].y = slb_y + 1;
+                pts_count++;
+            }
+        }
+        slb_x = revealed_pts[pt_idx].x;
+        slb_y = revealed_pts[pt_idx].y;
+        pt_idx++;
+    }
+    while ( pts_count >= pt_idx );
+    free(revealed_pts);
+    free(ownership_map);
+
+    if (reveal_success)
+    {
+        if (is_my_player_number(benefit_plyr_idx)) {
+          output_message(53, 0, 1);
+          return 1;
+        }
+        if (is_my_player_number(thing->owner)) {
+          output_message(64, 0, 1);
+          return 1;
+        }
+    }
+    return 1;
 }
 
 long process_torture_function(struct Thing *thing)

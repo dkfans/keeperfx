@@ -8936,6 +8936,12 @@ int main(int argc, char *argv[])
       error_dialog(__func__, 1, text);
       return 1;
   }
+  if (sizeof(struct S3DSample) != 37)
+  {
+      text = buf_sprintf("Bad compilation - struct S3DSample has wrong size!\nThe difference is %d bytes.\n",sizeof(struct S3DSample)-37);
+      error_dialog(__func__, 1, text);
+      return 1;
+  }
 #endif
 
   try {

@@ -44,6 +44,7 @@ unsigned char dig_has_revealed_area(long a1, long a2, unsigned char a3);
 void dig_out_block(long a1, long a2, long a3);
 void check_map_explored(struct Thing *thing, long a2, long a3);
 long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
+TbBool set_slab_explored(long plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 long element_top_face_texture(struct Map *map);
 /******************************************************************************/
