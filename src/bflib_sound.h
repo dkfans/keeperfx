@@ -84,7 +84,7 @@ struct S3DSample { // sizeof = 37
   long emit_idx;
   char field_1D; // signed
   unsigned char field_1E;
-  unsigned char field_1F;
+  unsigned char is_playing;
   unsigned char field_20;
   unsigned long field_21;
 };
@@ -151,7 +151,7 @@ long S3DSetMaximumSoundDistance(long nDistance);
 TbBool S3DAddSampleToEmitterPri(long emidx, long a2, long a3, long a4, long a5, long a6, char a7, long a8, long a9);
 long S3DCreateSoundEmitterPri(long x, long y, long z, long a4, long a5, long a6, long a7, long a8, long a9, long a10);
 TbBool S3DEmitterIsAllocated(long eidx);
-long S3DEmitterIsPlayingAnySample(long eidx);
+TbBool S3DEmitterIsPlayingAnySample(long eidx);
 TbBool S3DEmitterIsPlayingSample(long emitr, long smpl_idx, long a2);
 TbBool S3DDeleteAllSamplesFromEmitter(long eidx);
 TbBool S3DDestroySoundEmitterAndSamples(long eidx);
