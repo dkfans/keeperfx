@@ -606,7 +606,7 @@ TbBool get_level_lost_inputs(void)
       inp_done = get_gui_inputs(GMnu_MAIN);
       if ( !inp_done )
       {
-        if (player->work_state == 15)
+        if (player->work_state == PSt_Unknown15)
         {
           set_player_instance(player, 10, 0);
         } else
@@ -1291,7 +1291,7 @@ void get_dungeon_control_nonaction_inputs(void)
   player = get_my_player();
   pckt = get_packet(my_player_number);
   unset_packet_control(pckt, PCtr_MapCoordsValid);
-  if (player->work_state == 1)
+  if (player->work_state == PSt_CtrlDungeon)
   {
     if (get_player_coords_and_context(&pos, &context) )
     {

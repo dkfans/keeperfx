@@ -652,6 +652,8 @@ TbBool set_creature_available(long plyr_idx, long crtr_model, long can_be_avail,
     dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
         return false;
+    if ((crtr_model <= 0) || (crtr_model >= CREATURE_TYPES_COUNT))
+        return false;
     dungeon->creature_allowed[crtr_model] = can_be_avail;
     dungeon->creature_enabled[crtr_model] = force_avail;
     return true;

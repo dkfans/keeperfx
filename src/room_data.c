@@ -1102,9 +1102,43 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
     return _DK_find_random_valid_position_for_thing_in_room(thing, room, pos);
 }
 
-struct Room *find_room_with_spare_room_item_capacity(unsigned char a1, signed char a2)
+struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, RoomKind rkind)
 {
-  return _DK_find_room_with_spare_room_item_capacity(a1, a2);
+    struct Dungeon *dungeon;
+    struct Room *room;
+    unsigned long k;
+    int i;
+    SYNCDBG(18,"Starting");
+    //return _DK_find_room_with_spare_room_item_capacity(a1, a2);
+    if ((rkind < 0) || (rkind >= ROOM_TYPES_COUNT))
+        return NULL;
+    dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon))
+        return NULL;
+    k = 0;
+    i = dungeon->room_kind[rkind];
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        if (room->capacity_used_for_storage < room->total_capacity) {
+            return room;
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
+    }
+    return NULL;
 }
 
 /**
@@ -1407,7 +1441,7 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
         {
           pay = compute_creature_max_pay(crstat->pay,cctrl->explevel);
         }
-        if (room->long_17 > pay)
+        if (room->capacity_used_for_storage > pay)
           continue;
     }
     dist =  abs(thing->mappos.y.stl.num - room->central_stl_y);

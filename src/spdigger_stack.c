@@ -867,7 +867,7 @@ long check_out_imp_last_did(struct Thing *thing)
   case 4:
       if ( !creature_can_be_trained(thing) || !player_can_afford_to_train_creature(thing) )
         break;
-      room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, 6, 0, 1);
+      room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TRAINING, 0, 1);
       if (!room_is_invalid(room))
       {
         if ( setup_random_head_for_room(thing, room, 0) )
@@ -879,7 +879,7 @@ long check_out_imp_last_did(struct Thing *thing)
       }
       if (is_my_player_number(thing->owner))
       {
-        if ( !find_room_with_spare_capacity(thing->owner, 6, 1) )
+        if ( !find_room_with_spare_capacity(thing->owner, RoK_TRAINING, 1) )
           output_message(SMsg_TrainingTooSmall, 0, true);
       }
       break;
@@ -904,24 +904,24 @@ long check_out_imp_last_did(struct Thing *thing)
 
 long imp_stack_update(struct Thing *thing)
 {
-  struct Dungeon *dungeon;
-  SYNCDBG(18,"Starting");
-  //return _DK_imp_stack_update(thing);
-  dungeon = get_dungeon(thing->owner);
-  if ((game.play_gameturn - dungeon->digger_stack_update_turn) < 128)
-    return 0;
-  SYNCDBG(8,"Updating");
-  setup_imp_stack(dungeon);
-  add_unclaimed_unconscious_bodies_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT/4 - 1);
-  add_unclaimed_dead_bodies_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT/4 - 1);
-  add_unclaimed_spells_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT/12);
-  add_empty_traps_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT/6);
-  add_undug_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT*5/8);
-  add_pretty_and_convert_to_imp_stack(dungeon);
-  add_unclaimed_gold_to_imp_stack(dungeon);
-  add_unclaimed_traps_to_imp_stack(dungeon);
-  add_reinforce_to_imp_stack(dungeon);
-  return 1;
+    struct Dungeon *dungeon;
+    SYNCDBG(18,"Starting");
+    //return _DK_imp_stack_update(thing);
+    dungeon = get_dungeon(thing->owner);
+    if ((game.play_gameturn - dungeon->digger_stack_update_turn) < 128)
+        return 0;
+    SYNCDBG(8,"Updating");
+    setup_imp_stack(dungeon);
+    add_unclaimed_unconscious_bodies_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT/4 - 1);
+    add_unclaimed_dead_bodies_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT/4 - 1);
+    add_unclaimed_spells_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT/12);
+    add_empty_traps_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT/6);
+    add_undug_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT*5/8);
+    add_pretty_and_convert_to_imp_stack(dungeon);
+    add_unclaimed_gold_to_imp_stack(dungeon);
+    add_unclaimed_traps_to_imp_stack(dungeon);
+    add_reinforce_to_imp_stack(dungeon);
+    return 1;
 }
 
 long check_out_imp_stack(struct Thing *thing)
@@ -1035,11 +1035,11 @@ long check_out_imp_stack(struct Thing *thing)
             if (!player_has_room(dungeon->owner,RoK_PRISON) ||
                 !player_creature_tends_to(dungeon->owner,CrTend_Imprison))
               break;
-            if (!find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, 4, 0, 1))
+            if (!find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, 0, 1))
             {
               if (is_my_player_number(thing->owner))
               {
-                if (!find_room_with_spare_capacity(thing->owner, 4, 1))
+                if (!find_room_with_spare_capacity(thing->owner, RoK_PRISON, 1))
                   output_message(SMsg_PrisonTooSmall, 1000, true);
               }
               istack->task_id = DigTsk_None;
@@ -1068,13 +1068,13 @@ long check_out_imp_stack(struct Thing *thing)
         case DigTsk_PickUpCorpse:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
-            if (dungeon->room_kind[11] == 0)
+            if (dungeon->room_kind[RoK_GRAVEYARD] == 0)
               break;
-            if ( find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, 11, 0, 1) )
+            if ( find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_GRAVEYARD, 0, 1) )
             {
               if (is_my_player_number(thing->owner))
               {
-                if (!find_room_with_spare_capacity(thing->owner, 11, 1))
+                if (!find_room_with_spare_capacity(thing->owner, RoK_GRAVEYARD, 1))
                   output_message(SMsg_GraveyardTooSmall, 1000, true);
               }
               istack->task_id = DigTsk_None;
@@ -1103,13 +1103,13 @@ long check_out_imp_stack(struct Thing *thing)
         case DigTsk_PicksUpSpellBook:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
-            if (dungeon->room_kind[3] == 0)
+            if (dungeon->room_kind[RoK_LIBRARY] == 0)
                 break;
-            if (!find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, 3, 0))
+            if (!find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_LIBRARY, 0))
             {
                 if (is_my_player_number(thing->owner))
                 {
-                  if (!find_room_with_spare_room_item_capacity(thing->owner, 3))
+                  if (!find_room_with_spare_room_item_capacity(thing->owner, RoK_LIBRARY))
                     output_message(SMsg_LibraryTooSmall, 1000, true);
                 }
                 istack->task_id = DigTsk_None;
@@ -1185,15 +1185,14 @@ long check_out_imp_stack(struct Thing *thing)
         case DigTsk_PicksUpTrapForWorkshop:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
-            if (dungeon->room_kind[8] == 0)
-            {
+            if (dungeon->room_kind[RoK_WORKSHOP] == 0) {
               break;
             }
-            if (!find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, 8, 0))
+            if (!find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_WORKSHOP, 0))
             {
               if (is_my_player_number(thing->owner))
               {
-                if (!find_room_with_spare_room_item_capacity(thing->owner, 8))
+                if (!find_room_with_spare_room_item_capacity(thing->owner, RoK_WORKSHOP))
                   output_message(SMsg_WorkshopTooSmall, 1000, true);
               }
               istack->task_id = DigTsk_None;

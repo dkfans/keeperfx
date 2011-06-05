@@ -615,11 +615,11 @@ TbBool is_trap_placeable(long plyr_idx, long trap_idx)
     if (dungeon->dnheart_idx <= 0) {
         return false;
     }
-    if ((trap_idx < 0) || (trap_idx >= TRAP_TYPES_COUNT)) {
+    if ((trap_idx <= 0) || (trap_idx >= TRAP_TYPES_COUNT)) {
       ERRORLOG("Incorrect trap %ld (player %ld)",trap_idx, plyr_idx);
       return false;
     }
-    if (dungeon->trap_placeable[trap_idx] > 0) {
+    if (dungeon->trap_placeable[trap_idx]) {
       return true;
     }
     return false;
@@ -641,7 +641,7 @@ TbBool is_trap_buildable(long plyr_idx, long trap_idx)
     if (dungeon->dnheart_idx <= 0) {
         return false;
     }
-    if ((trap_idx < 0) || (trap_idx >= TRAP_TYPES_COUNT)) {
+    if ((trap_idx <= 0) || (trap_idx >= TRAP_TYPES_COUNT)) {
       ERRORLOG("Incorrect trap %ld (player %ld)",trap_idx, plyr_idx);
       return false;
     }

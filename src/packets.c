@@ -642,7 +642,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     }
     player->field_4A4 = 1;
     if (is_my_player(player))
-      gui_room_type_highlighted = player->field_4A3;
+      gui_room_type_highlighted = player->chosen_room_kind;
     i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->field_4A4);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {
@@ -662,7 +662,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
       }
       return false;
     }
-    keeper_build_room(stl_x,stl_y,plyr_idx,player->field_4A3);
+    keeper_build_room(stl_x,stl_y,plyr_idx,player->chosen_room_kind);
     unset_packet_control(pckt, PCtr_LBtnClick);
     return true;
 }
@@ -1012,7 +1012,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if (player->instance_num != 6)
           {
-            set_player_state(player, player->field_456, 0);
+            set_player_state(player, player->continue_work_state, 0);
             unset_packet_control(pckt, PCtr_RBtnRelease);
           }
         }
@@ -1037,7 +1037,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if (player->instance_num != 5)
           {
-            set_player_state(player, player->field_456, 0);
+            set_player_state(player, player->continue_work_state, 0);
             unset_packet_control(pckt, PCtr_RBtnRelease);
           }
         }
@@ -1165,7 +1165,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           }
           break;
         }
-        if (dungeon->trap_amount[player->field_4A5%TRAP_TYPES_COUNT] <= 0)
+        if (dungeon->trap_amount[player->chosen_trap_kind%TRAP_TYPES_COUNT] <= 0)
         {
           unset_packet_control(pckt, PCtr_LBtnClick);
           break;
@@ -1178,10 +1178,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           break;
         }
         delete_room_slabbed_objects(get_slab_number(map_to_slab[stl_x],map_to_slab[stl_y]));
-        thing = create_trap(&pos, player->field_4A5, plyr_idx);
+        thing = create_trap(&pos, player->chosen_trap_kind, plyr_idx);
         thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
         thing->byte_18 = 0;
-        if (remove_workshop_item(plyr_idx, TCls_Trap, player->field_4A5))
+        if (remove_workshop_item(plyr_idx, TCls_Trap, player->chosen_trap_kind))
           dungeon->lvstats.traps_used++;
         dungeon->camera_deviate_jump = 192;
         if (is_my_player(player))
@@ -1209,7 +1209,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           {
             k = get_slab_number(map_to_slab[stl_x], map_to_slab[stl_y]);
             delete_room_slabbed_objects(k);
-            packet_place_door(stl_x, stl_y, player->id_number, player->field_4A6, i);
+            packet_place_door(stl_x, stl_y, player->id_number, player->chosen_door_kind, i);
           }
           unset_packet_control(pckt, PCtr_LBtnClick);
         }
