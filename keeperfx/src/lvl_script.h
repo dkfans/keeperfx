@@ -37,7 +37,6 @@ enum TbScriptCommands {
     Cmd_ADD_CREATURE_TO_LEVEL          =  4,
     Cmd_MESSAGE                        =  5, // from beta
     Cmd_IF                             =  6,
-    Cmd_IF_ACTION_POINT                = 19,
     Cmd_ENDIF                          =  7,
     Cmd_SET_HATE                       =  8,
     Cmd_SET_GENERATE_SPEED             =  9,
@@ -50,6 +49,7 @@ enum TbScriptCommands {
     Cmd_RESEARCH                       = 16,
     Cmd_COMPUTER_PLAYER                = 17,
     Cmd_SET_TIMER                      = 18,
+    Cmd_IF_ACTION_POINT                = 19,
     Cmd_ADD_TUNNELLER_TO_LEVEL         = 20,
     Cmd_WIN_GAME                       = 21,
     Cmd_LOSE_GAME                      = 22,
@@ -58,9 +58,7 @@ enum TbScriptCommands {
     Cmd_NEXT_COMMAND_REUSABLE          = 27,
     Cmd_DOOR_AVAILABLE                 = 30,
     Cmd_DISPLAY_OBJECTIVE              = 37,
-    Cmd_DISPLAY_OBJECTIVE_WITH_POS     = 65,
     Cmd_DISPLAY_INFORMATION            = 38,
-    Cmd_DISPLAY_INFORMATION_WITH_POS   = 74,
     Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL   = 40,
     Cmd_ADD_CREATURE_TO_POOL           = 41,
     Cmd_RESET_ACTION_POINT             = 42,
@@ -83,8 +81,10 @@ enum TbScriptCommands {
     Cmd_QUICK_INFORMATION              = 45,
     Cmd_QUICK_OBJECTIVE_WITH_POS       = 46,
     Cmd_QUICK_INFORMATION_WITH_POS     = 47,
-    Cmd_SWAP_CREATURE                  = 77,
+    Cmd_DISPLAY_OBJECTIVE_WITH_POS     = 65,
+    Cmd_DISPLAY_INFORMATION_WITH_POS   = 74,
     Cmd_PRINT                          = 76, // from beta
+    Cmd_SWAP_CREATURE                  = 77,
   // New commands propositions - KeeperFX only
     Cmd_CHANGE_SLAB_TYPE               = 78,
     Cmd_CHANGE_SLAB_OWNER              = 79,

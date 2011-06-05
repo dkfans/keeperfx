@@ -60,7 +60,6 @@ extern "C" {
 #define TUNNELLER_TRIGGERS_COUNT 16
 #define WIN_CONDITIONS_COUNT    4
 #define CONDITIONS_COUNT       48
-#define MANUFACTURED_ITEMS_LIMIT 199
 #define GAME_KEYS_COUNT        32
 #define LENSES_COUNT           15
 #define MINMAXS_COUNT          64
@@ -1122,7 +1121,7 @@ long remove_food_from_food_room_if_possible(struct Thing *thing);
 unsigned long setup_move_off_lava(struct Thing *thing);
 struct Room *player_has_room_of_type(long plr_idx, long roomkind);
 void set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char a6, unsigned char a7);
-long get_next_manufacture(struct Dungeon *dungeon);
+TbBool get_next_manufacture(struct Dungeon *dungeon);
 void remove_thing_from_mapwho(struct Thing *thing);
 void place_thing_in_mapwho(struct Thing *thing);
 long get_thing_height_at(struct Thing *thing, struct Coord3d *pos);

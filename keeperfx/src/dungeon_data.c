@@ -204,6 +204,10 @@ TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_ty
 {
   struct Dungeon *dungeon;
   dungeon = get_dungeon(player->id_number);
+  if (dungeon_invalid(dungeon)) {
+      ERRORLOG("Can't set tendency; player %d has no dungeon.",(int)player->id_number);
+      return false;
+  }
   switch (tend_type)
   {
   case CrTend_Imprison:
@@ -216,5 +220,76 @@ TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_ty
       ERRORLOG("Can't set tendency; bad tendency type %d",(int)tend_type);
       return false;
   }
+}
+
+TbBool set_trap_buildable_and_add_to_amount(long plyr_idx, long trap_kind, long buildable, long amount)
+{
+    struct Dungeon *dungeon;
+    if ( (trap_kind <= 0) || (trap_kind >= TRAP_TYPES_COUNT) ) {
+        ERRORDBG(1,"Can't set trap availability; invalid trap kind %d.",(int)trap_kind);
+        return false;
+    }
+    dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
+        ERRORDBG(11,"Can't set trap availability; player %d has no dungeon.",(int)plyr_idx);
+        return false;
+    }
+    dungeon->trap_buildable[trap_kind] = buildable;
+    dungeon->trap_amount[trap_kind] += amount;
+    if (amount > 0)
+        dungeon->trap_placeable[trap_kind] = true;
+    return true;
+}
+
+TbBool set_door_buildable_and_add_to_amount(long plyr_idx, long door_kind, long buildable, long amount)
+{
+    struct Dungeon *dungeon;
+    if ( (door_kind <= 0) || (door_kind >= DOOR_TYPES_COUNT) ) {
+        ERRORDBG(1,"Can't set door availability; invalid door kind %d.",(int)door_kind);
+        return false;
+    }
+    dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
+        ERRORDBG(11,"Can't set door availability; player %d has no dungeon.",(int)plyr_idx);
+        return false;
+    }
+    dungeon->door_buildable[door_kind] = buildable;
+    dungeon->door_amount[door_kind] += amount;
+    if (amount > 0)
+      dungeon->door_placeable[door_kind] = true;
+    return true;
+}
+
+TbBool restart_script_timer(long plyr_idx, long timer_id)
+{
+    struct Dungeon *dungeon;
+    if ( (timer_id < 0) || (timer_id >= TURN_TIMERS_COUNT) ) {
+        ERRORLOG("Can't restart timer; invalid timer id %d.",(int)timer_id);
+        return false;
+    }
+    dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Can't restart timer; player %d has no dungeon.",(int)plyr_idx);
+        return false;
+    }
+    dungeon->turn_timers[timer_id].state = 1;
+    dungeon->turn_timers[timer_id].count = game.play_gameturn;
+    return true;
+}
+
+TbBool set_script_flag(long plyr_idx, long flag_id, long value)
+{
+    struct Dungeon *dungeon;
+    if ( (flag_id < 0) || (flag_id >= SCRIPT_FLAGS_COUNT) ) {
+        ERRORLOG("Can't set flag; invalid flag id %d.",(int)flag_id);
+        return false;
+    }
+    dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Can't set flag; player %d has no dungeon.",(int)plyr_idx);
+        return false;
+    }
+    dungeon->script_flags[flag_id] = value;
+    return true;
 }
 /******************************************************************************/
