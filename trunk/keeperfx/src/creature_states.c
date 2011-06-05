@@ -1332,12 +1332,12 @@ TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long
         SYNCDBG(4,"Spell owned by player %d was placed in a room owned by player %d",(int)spelltng->owner,(int)room->owner);
         return false;
     }
-    if ((room->long_17 <= 0) || (room->used_capacity <= 0))
+    if ((room->capacity_used_for_storage <= 0) || (room->used_capacity <= 0))
     {
-        ERRORLOG("Trying to remove spell from a room with no spell");
+        ERRORLOG("Trying to remove spell from a room %d with no spell",(int)room->index);
         return false;
     }
-    room->long_17--;
+    room->capacity_used_for_storage--;
     room->used_capacity--;
     remove_spell_from_player(object_to_magic[spelltng->model], room->owner);
     if (is_my_player_number(room->owner))

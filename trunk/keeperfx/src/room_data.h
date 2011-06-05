@@ -87,7 +87,11 @@ struct Room {
     unsigned char field_12;
     unsigned char field_13[4];
     union {
-    long long_17;
+    /** For rooms which can store things, amount of storage space used by them.
+     *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
+    long capacity_used_for_storage;
+    /** For rooms which are often browsed for various reasons, list of all rooms of given kind.
+     *  Rooms which have such list are entrances (only?). */
     struct {
       short prev_of_kind;
       short next_of_kind;
@@ -157,7 +161,7 @@ long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_k
 void reinitialise_treaure_rooms(void);
 TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 TbBool find_first_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
-struct Room *find_room_with_spare_room_item_capacity(unsigned char a1, signed char a2);
+struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, RoomKind rkind);
 struct Room *find_room_with_spare_capacity(unsigned char owner, signed char kind, long spare);
 struct Room *find_room_with_spare_capacity_starting_with(long room_idx, long spare);
 struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long *total_spare_cap);

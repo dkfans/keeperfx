@@ -37,19 +37,19 @@ TbBool add_workshop_object_to_workshop(struct Room *room)
         return false;
     }
     room->used_capacity++;
-    room->long_17++;
+    room->capacity_used_for_storage++;
     return true;
 }
 
 TbBool remove_workshop_object_from_workshop(struct Room *room)
 {
-    if ( (room->used_capacity <= 0) || (room->long_17 <= 0) )
+    if ( (room->used_capacity <= 0) || (room->capacity_used_for_storage <= 0) )
     {
         ERRORLOG("Invalid workshop content");
         return false;
     }
     room->used_capacity--;
-    room->long_17--;
+    room->capacity_used_for_storage--;
     return true;
 }
 
@@ -57,19 +57,39 @@ TbBool add_workshop_item(long plyr_idx, long wrkitm_class, long wrkitm_kind)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Can't add item; player %d has no dungeon.",(int)plyr_idx);
+        return false;
+    }
     switch (wrkitm_class)
     {
     case TCls_Trap:
         dungeon->trap_amount[wrkitm_kind]++;
-        dungeon->trap_placeable[wrkitm_kind] = 1;
+        dungeon->trap_placeable[wrkitm_kind] = true;
         break;
     case TCls_Door:
         dungeon->door_amount[wrkitm_kind]++;
-        dungeon->door_placeable[wrkitm_kind] = 1;
+        dungeon->door_placeable[wrkitm_kind] = true;
         break;
     default:
-        ERRORLOG("Illegal item class %d",(int)wrkitm_class);
+        ERRORLOG("Can't add item; illegal item class %d",(int)wrkitm_class);
         return false;
+    }
+    return true;
+}
+
+TbBool check_workshop_item_limit_reached(long plyr_idx, long wrkitm_class, long wrkitm_kind)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon))
+        return true;
+    switch (wrkitm_class)
+    {
+    case TCls_Trap:
+        return (dungeon->trap_amount[wrkitm_kind] >= MANUFACTURED_ITEMS_LIMIT);
+    case TCls_Door:
+        return (dungeon->door_amount[wrkitm_kind] >= MANUFACTURED_ITEMS_LIMIT);
     }
     return true;
 }

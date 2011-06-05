@@ -904,7 +904,7 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nmode)
   switch (nmode)
   {
     case 1:
-      player->work_state = player->field_456;
+      player->work_state = player->continue_work_state;
       if (player->field_4B5 == 5)
         set_engine_view(player, 5);
       else
@@ -914,13 +914,13 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nmode)
       break;
     case 2:
     case 3:
-      player->work_state = player->field_456;
+      player->work_state = player->continue_work_state;
       set_engine_view(player, 1);
       if (is_my_player(player))
         game.numfield_D |= 0x01;
       break;
     case 4:
-      player->work_state = player->field_456;
+      player->work_state = player->continue_work_state;
       set_engine_view(player, 3);
       if (is_my_player(player))
         game.numfield_D &= 0xFEu;
@@ -4302,29 +4302,29 @@ void set_engine_view(struct PlayerInfo *player, long val)
     player->view_mode = val;
 }
 
-void set_player_state(struct PlayerInfo *player, short nwrk_state, long a2)
+void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
 {
   struct Thing *thing;
   struct Coord3d pos;
-  //_DK_set_player_state(player, nwrk_state, a2);
+  //_DK_set_player_state(player, nwrk_state, chosen_kind);
   // Selecting the same state again - update only 2nd parameter
   if (player->work_state == nwrk_state)
   {
     switch ( player->work_state )
     {
     case PSt_BuildRoom:
-        player->field_4A3 = a2;
+        player->chosen_room_kind = chosen_kind;
         break;
     case PSt_PlaceTrap:
-        player->field_4A5 = a2;
+        player->chosen_trap_kind = chosen_kind;
         break;
     case PSt_PlaceDoor:
-        player->field_4A6 = a2;
+        player->chosen_door_kind = chosen_kind;
         break;
     }
     return;
   }
-  player->field_456 = player->work_state;
+  player->continue_work_state = player->work_state;
   player->work_state = nwrk_state;
   if (is_my_player(player))
     game.field_14E92E = 0;
@@ -4339,7 +4339,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long a2)
       player->field_4A4 = 1;
       break;
   case PSt_BuildRoom:
-      player->field_4A3 = a2;
+      player->chosen_room_kind = chosen_kind;
       break;
   case PSt_Unknown5:
       create_power_hand(player->id_number);
@@ -4359,10 +4359,10 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long a2)
       place_thing_in_limbo(thing);
       break;
   case PSt_PlaceTrap:
-      player->field_4A5 = a2;
+      player->chosen_trap_kind = chosen_kind;
       break;
   case PSt_PlaceDoor:
-      player->field_4A6 = a2;
+      player->chosen_door_kind = chosen_kind;
       break;
   default:
       break;
@@ -4408,7 +4408,7 @@ void set_player_mode(struct PlayerInfo *player, long nview)
       setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
       break;
   case PVT_MapScreen:
-      player->field_456 = player->work_state;
+      player->continue_work_state = player->work_state;
       set_engine_view(player, 3);
       break;
   case PVT_MapFadeIn:
@@ -5088,7 +5088,7 @@ TbBool generation_available_to_dungeon(struct Dungeon * dungeon)
     SYNCDBG(9,"Starting");
     if (dungeon->room_kind[RoK_ENTRANCE] <= 0)
         return false;
-    return ((long)dungeon->num_active_creatrs < (long)dungeon->max_creatures);
+    return ((long)dungeon->num_active_creatrs < (long)dungeon->max_creatures_attracted);
 }
 
 long calculate_attractive_room_quantity(RoomKind room_kind, int plyr_idx, int crtr_kind)
@@ -5400,19 +5400,137 @@ TbBool bonus_timer_enabled(void)
   return (is_bonus_level(lvnum) || is_extra_level(lvnum));*/
 }
 
-void process_player_research(int plr_idx)
+void process_player_research(int plyr_idx)
 {
-  _DK_process_player_research(plr_idx);
+  _DK_process_player_research(plyr_idx);
 }
 
-struct Room *player_has_room_of_type(long plr_idx, long roomkind)
+struct Room *player_has_room_of_type(long plyr_idx, long rkind)
 {
-  return _DK_player_has_room_of_type(plr_idx, roomkind);
+  return _DK_player_has_room_of_type(plyr_idx, rkind);
 }
 
-long get_next_manufacture(struct Dungeon *dungeon)
+long count_slabs_of_room_type(long plyr_idx, long rkind)
 {
-  return _DK_get_next_manufacture(dungeon);
+    struct Dungeon *dungeon;
+    struct Room *room;
+    long nslabs;
+    long i;
+    unsigned long k;
+    nslabs = 0;
+    dungeon = get_dungeon(plyr_idx);
+    i = dungeon->room_kind[rkind];
+    k = 0;
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        nslabs += room->slabs_count;
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    return nslabs;
+}
+
+TbBool set_manufacture_level(struct Dungeon *dungeon)
+{
+    int wrkshp_slabs;
+    wrkshp_slabs = count_slabs_of_room_type(dungeon->owner, RoK_WORKSHOP);
+    if (wrkshp_slabs <= 9)
+    {
+        dungeon->manufacture_level = 0;
+    } else
+    if (wrkshp_slabs <= 16)
+    {
+        dungeon->manufacture_level = 1;
+    } else
+    if (wrkshp_slabs <= 25)
+    {
+        if (wrkshp_slabs == 20) // why there's special code for 20 slabs!?
+            dungeon->manufacture_level = 4;
+        else
+            dungeon->manufacture_level = 2;
+    } else
+    if (wrkshp_slabs <= 36)
+    {
+        dungeon->manufacture_level = 3;
+    } else
+    {
+        dungeon->manufacture_level = 4;
+    }
+    return true;
+}
+
+TbBool get_next_manufacture(struct Dungeon *dungeon)
+{
+    int chosen_class,chosen_kind,chosen_amount,chosen_level;
+    struct ManfctrConfig *mconf;
+    int tng_kind;
+    long amount;
+    //return _DK_get_next_manufacture(dungeon);
+    set_manufacture_level(dungeon);
+    chosen_class = TCls_Empty;
+    chosen_kind = 0;
+    chosen_amount = LONG_MAX;
+    chosen_level = LONG_MAX;
+    // Try getting door kind for manufacture
+    for (tng_kind = 1; tng_kind < DOOR_TYPES_COUNT; tng_kind++)
+    {
+        mconf = &game.doors_config[tng_kind];
+        if ( (dungeon->door_buildable[tng_kind]) && (dungeon->manufacture_level >= mconf->manufct_level) )
+        {
+            amount = dungeon->door_amount[tng_kind];
+            if (amount < MANUFACTURED_ITEMS_LIMIT)
+            {
+                if ( (chosen_amount > amount) ||
+                    ((chosen_amount == amount) && (chosen_level > mconf->manufct_level)) )
+                {
+                    chosen_class = TCls_Door;
+                    chosen_amount = dungeon->door_amount[tng_kind];
+                    chosen_kind = tng_kind;
+                    chosen_level = mconf->manufct_level;
+                }
+            }
+        }
+    }
+    // Try getting trap kind for manufacture
+    for (tng_kind = 1; tng_kind < TRAP_TYPES_COUNT; tng_kind++)
+    {
+        mconf = &game.traps_config[tng_kind];
+        if ( (dungeon->trap_buildable[tng_kind]) && (dungeon->manufacture_level >= mconf->manufct_level) )
+        {
+            amount = dungeon->trap_amount[tng_kind];
+            if (amount < MANUFACTURED_ITEMS_LIMIT)
+            {
+                if ( (chosen_amount > amount) ||
+                    ((chosen_amount == amount) && (chosen_level > mconf->manufct_level)) )
+                {
+                    chosen_class = TCls_Trap;
+                    chosen_amount = dungeon->trap_amount[tng_kind];
+                    chosen_kind = tng_kind;
+                    chosen_level = mconf->manufct_level;
+                }
+            }
+        }
+    }
+    if (chosen_class != TCls_Empty)
+    {
+        dungeon->manufacture_class = chosen_class;
+        dungeon->manufacture_kind = chosen_kind;
+        return true;
+    }
+    return false;
 }
 
 void remove_thing_from_mapwho(struct Thing *thing)
@@ -5454,13 +5572,13 @@ long get_thing_height_at(struct Thing *thing, struct Coord3d *pos)
   return _DK_get_thing_height_at(thing, pos);
 }
 
-long manufacture_required(long mfcr_type, unsigned long mfcr_kind, const char *func_name)
+long manufacture_points_required(long mfcr_type, unsigned long mfcr_kind, const char *func_name)
 {
   switch (mfcr_type)
   {
-  case 8:
+  case TCls_Trap:
       return game.traps_config[mfcr_kind%TRAP_TYPES_COUNT].manufct_required;
-  case 9:
+  case TCls_Door:
       return game.doors_config[mfcr_kind%DOOR_TYPES_COUNT].manufct_required;
   default:
       ERRORMSG("%s: Invalid type of manufacture",func_name);
@@ -5468,67 +5586,62 @@ long manufacture_required(long mfcr_type, unsigned long mfcr_kind, const char *f
   }
 }
 
-short process_player_manufacturing(long plr_idx)
+short process_player_manufacturing(long plyr_idx)
 {
   struct Dungeon *dungeon;
   struct PlayerInfo *player;
-  int i,k;
+  struct Room *room;
+  int k;
   SYNCDBG(17,"Starting");
 //  return _DK_process_player_manufacturing(plr_idx);
 
-  dungeon = get_players_num_dungeon(plr_idx);
-  if (player_has_room_of_type(plr_idx, RoK_WORKSHOP) == NULL)
-    return true;
-  if (dungeon->manufacture_type == 0)
+  dungeon = get_players_num_dungeon(plyr_idx);
+  room = player_has_room_of_type(plyr_idx, RoK_WORKSHOP);
+  if (room_is_invalid(room))
+      return true;
+  if (dungeon->manufacture_class == TCls_Empty)
   {
-    get_next_manufacture(dungeon);
-    return true;
+      get_next_manufacture(dungeon);
+      return true;
   }
-  k = manufacture_required(dungeon->manufacture_type, dungeon->manufacture_kind, __func__);
-  if (dungeon->field_1185 < (k << 8))
+  k = manufacture_points_required(dungeon->manufacture_class, dungeon->manufacture_kind, __func__);
+  // If we don't have enough manufacture points, don't do anything
+  if (dungeon->manufacture_progress < (k << 8))
     return true;
+  // Try to do the manufacturing
+  room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_WORKSHOP);
+  if (room_is_invalid(room))
+  {
+      dungeon->manufacture_class = TCls_Empty;
+      return false;
+  }
+  if (check_workshop_item_limit_reached(plyr_idx, dungeon->manufacture_class, dungeon->manufacture_kind))
+  {
+      ERRORLOG("Bad choice for manufacturing - limit reached for %s kind %d",thing_class_code_name(dungeon->manufacture_class),(int)dungeon->manufacture_kind);
+      get_next_manufacture(dungeon);
+      return false;
+  }
+  if (create_workshop_object_in_workshop_room(plyr_idx, dungeon->manufacture_class, dungeon->manufacture_kind) == 0)
+  {
+      ERRORLOG("Could not create manufactured %s kind %d",thing_class_code_name(dungeon->manufacture_class),(int)dungeon->manufacture_kind);
+      return false;
+  }
+  add_workshop_item(plyr_idx, dungeon->manufacture_class, dungeon->manufacture_kind);
 
-  if (find_room_with_spare_room_item_capacity(plr_idx, RoK_WORKSHOP) == NULL)
+  switch (dungeon->manufacture_class)
   {
-    dungeon->manufacture_type = 0;
-    return false;
-  }
-  if (create_workshop_object_in_workshop_room(plr_idx, dungeon->manufacture_type, dungeon->manufacture_kind) == 0)
-  {
-    ERRORLOG("Could not create manufactured item");
-    return false;
-  }
-
-  switch (dungeon->manufacture_type)
-  {
-  case 8:
-      i = dungeon->manufacture_kind%TRAP_TYPES_COUNT;
-      if (dungeon->trap_amount[i] >= MANUFACTURED_ITEMS_LIMIT)
-      {
-        ERRORLOG("Bad trap choice for manufacturing - limit reached");
-        return false;
-      }
-      dungeon->trap_amount[i]++;
+  case TCls_Trap:
       dungeon->lvstats.manufactured_traps++;
-      dungeon->trap_placeable[i] = 1;
       // If that's local player - make a message
       player=get_my_player();
-      if (player->id_number == plr_idx)
+      if (player->id_number == plyr_idx)
         output_message(SMsg_ManufacturedTrap, 0, true);
       break;
-  case 9:
-      i = dungeon->manufacture_kind%DOOR_TYPES_COUNT;
-      if (dungeon->door_amount[i] >= MANUFACTURED_ITEMS_LIMIT)
-      {
-        ERRORLOG("Bad door choice for manufacturing - limit reached");
-        return 0;
-      }
-      dungeon->door_amount[i]++;
+  case TCls_Door:
       dungeon->lvstats.manufactured_doors++;
-      dungeon->door_placeable[i] = 1;
       // If that's local player - make a message
       player=get_my_player();
-      if (player->id_number == plr_idx)
+      if (player->id_number == plyr_idx)
         output_message(SMsg_ManufacturedDoor, 0, true);
       break;
   default:
@@ -5536,7 +5649,7 @@ short process_player_manufacturing(long plr_idx)
       return false;
   }
 
-  dungeon->field_1185 -= (k << 8);
+  dungeon->manufacture_progress -= (k << 8);
   dungeon->field_118B = game.play_gameturn;
   dungeon->lvstats.manufactured_items++;
   get_next_manufacture(dungeon);
@@ -6296,7 +6409,7 @@ void process_pointer_graphic(void)
           }
           break;
       case PSt_BuildRoom:
-          switch (player->field_4A3)
+          switch (player->chosen_room_kind)
           {
           case 2:
               set_pointer_graphic(25);
@@ -6367,7 +6480,7 @@ void process_pointer_graphic(void)
           set_pointer_graphic(4);
           break;
       case PSt_PlaceTrap:
-          switch (player->field_4A5)
+          switch (player->chosen_trap_kind)
           {
           case 1:
               set_pointer_graphic(5);
@@ -6390,7 +6503,7 @@ void process_pointer_graphic(void)
           }
           return;
       case PSt_PlaceDoor:
-          switch (player->field_4A6)
+          switch (player->chosen_door_kind)
           {
           case 1:
               set_pointer_graphic(11);
@@ -7503,7 +7616,7 @@ void init_dungeons(void)
     dungeon->creatr_list_start = 0;
     dungeon->digger_list_start = 0;
     dungeon->owner = i;
-    dungeon->max_creatures = game.default_max_crtrs_gen_entrance;
+    dungeon->max_creatures_attracted = game.default_max_crtrs_gen_entrance;
     dungeon->dead_creatures_count = 0;
     dungeon->dead_creature_idx = 0;
     for (k=0; k < DUNGEONS_COUNT; k++)
@@ -8112,7 +8225,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->minimap_zoom = 256;
     player->field_4D1 = player->id_number;
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-    player->field_456 = 1;
+    player->continue_work_state = PSt_CtrlDungeon;
     player->work_state = PSt_CtrlDungeon;
     player->field_14 = 2;
     player->palette = _DK_palette;

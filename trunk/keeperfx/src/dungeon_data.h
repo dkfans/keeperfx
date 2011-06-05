@@ -287,7 +287,7 @@ unsigned char field_F7D;
     unsigned char door_placeable[DOOR_TYPES_COUNT]; // Door is enabled in GUI panel
     struct TurnTimer turn_timers[TURN_TIMERS_COUNT];
     unsigned char script_flags[SCRIPT_FLAGS_COUNT];
-    long max_creatures;
+    long max_creatures_attracted;
     unsigned char field_1060[5];
     struct Coord3d pos_1065;
     struct DiggerStack imp_stack[IMP_TASK_MAX_COUNT];
@@ -301,11 +301,11 @@ unsigned char field_F7D;
     long total_experience_creatures_gained;
     long total_research_points;
 long field_1181;
-long field_1185;
-    unsigned char manufacture_type;
+    long manufacture_progress;
+    unsigned char manufacture_class;
     unsigned char manufacture_kind;
 long field_118B;
-long field_118F;
+long manufacture_level;
 long field_1193;
     struct LevelStats lvstats;
     struct CreatureStorage dead_creatures[DEAD_CREATURES_MAX_COUNT];
@@ -355,6 +355,11 @@ TbBool player_has_room(long plyr_idx, RoomKind rkind);
 TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val);
 TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type);
 TbBool player_creature_tends_to(long plyr_idx, unsigned short tend_type);
+TbBool set_trap_buildable_and_add_to_amount(long plyr_idx, long trap_kind, long buildable, long amount);
+TbBool set_door_buildable_and_add_to_amount(long plyr_idx, long door_kind, long buildable, long amount);
+
+TbBool restart_script_timer(long plyr_idx, long timer_id);
+TbBool set_script_flag(long plyr_idx, long flag_id, long value);
 
 /******************************************************************************/
 #ifdef __cplusplus

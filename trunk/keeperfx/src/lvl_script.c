@@ -1000,64 +1000,64 @@ struct ScriptValue *allocate_script_value(void)
 
 void command_add_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4)
 {
-  struct ScriptValue *value;
-  if ((script_current_condition < 0) && (next_command_reusable == 0))
-  {
-    script_process_value(var_index, val1, val2, val3, val4);
-    return;
-  }
-  value = allocate_script_value();
-  if (value == NULL)
-  {
-    SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
-    return;
-  }
-  set_flag_byte(&value->flags, TrgF_REUSABLE, next_command_reusable);
-  set_flag_byte(&value->flags, TrgF_DISABLED, false);
-  value->valtype = var_index;
-  value->field_3 = val1;
-  value->field_4 = val2;
-  value->field_8 = val3;
-  value->field_C = val4;
-  value->condit_idx = script_current_condition;
+    struct ScriptValue *value;
+    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    {
+        script_process_value(var_index, val1, val2, val3, val4);
+        return;
+    }
+    value = allocate_script_value();
+    if (value == NULL)
+    {
+        SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
+        return;
+    }
+    set_flag_byte(&value->flags, TrgF_REUSABLE, next_command_reusable);
+    set_flag_byte(&value->flags, TrgF_DISABLED, false);
+    value->valtype = var_index;
+    value->field_3 = val1;
+    value->field_4 = val2;
+    value->field_8 = val3;
+    value->field_C = val4;
+    value->condit_idx = script_current_condition;
 }
 
 void command_display_information(long msg_num, const char *where, long x, long y)
 {
-  TbMapLocation location;
-  if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
-  {
-    SCRPTERRLOG("Invalid TEXT number");
-    return;
-  }
-  if (!get_map_location_id(where, &location))
-    return;
-  command_add_value(Cmd_DISPLAY_INFORMATION, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
+    TbMapLocation location;
+    if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
+    {
+      SCRPTERRLOG("Invalid TEXT number");
+      return;
+    }
+    if (!get_map_location_id(where, &location))
+      return;
+    command_add_value(Cmd_DISPLAY_INFORMATION, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
 }
 
 void command_set_generate_speed(long game_turns)
 {
-  if (game_turns <= 0)
-  {
-    SCRPTERRLOG("Generation speed must be positive number");
-    return;
-  }
-  command_add_value(Cmd_SET_GENERATE_SPEED, 0, game_turns, 0, 0);
+    if (game_turns <= 0)
+    {
+      SCRPTERRLOG("Generation speed must be positive number");
+      return;
+    }
+    command_add_value(Cmd_SET_GENERATE_SPEED, 0, game_turns, 0, 0);
 }
 
 void command_dead_creatures_return_to_pool(long val)
 {
-  command_add_value(Cmd_DEAD_CREATURES_RETURN_TO_POOL, 0, val, 0, 0);
+    command_add_value(Cmd_DEAD_CREATURES_RETURN_TO_POOL, 0, val, 0, 0);
 }
 
 void command_bonus_level_time(long game_turns)
 {
-  if (game_turns < 0)
-  {
-    SCRPTERRLOG("Bonus time must be nonnegative");
-    return;
-  }
-  command_add_value(Cmd_BONUS_LEVEL_TIME, 0, game_turns, 0, 0);
+    if (game_turns < 0)
+    {
+        SCRPTERRLOG("Bonus time must be nonnegative");
+        return;
+    }
+    command_add_value(Cmd_BONUS_LEVEL_TIME, 0, game_turns, 0, 0);
 }
 
 void player_command_add_start_money(int plridx, long gold_val)
@@ -1066,6 +1066,8 @@ void player_command_add_start_money(int plridx, long gold_val)
   // note that we can't get_players_num_dungeon() because players
   // may be uninitialized yet when this is called.
   dungeon = get_dungeon(plridx);
+  if (dungeon_invalid(dungeon))
+      return;
   dungeon->offmap_money_owned += gold_val;
   dungeon->total_money_owned += gold_val;
 }
@@ -1107,58 +1109,58 @@ void command_set_start_money(char *plrname, long gold_val)
 
 void command_room_available(char *plrname, char *roomname, unsigned long can_resrch, unsigned long can_build)
 {
-  long plr_id,room_id;
-  if (!get_player_id(plrname, &plr_id))
-    return;
-  room_id = get_rid(room_desc, roomname);
-  if (room_id == -1)
-  {
-    SCRPTERRLOG("Unknown room name, '%s'", roomname);
-    return;
-  }
-  command_add_value(Cmd_ROOM_AVAILABLE, plr_id, room_id, can_resrch, can_build);
+    long plr_id,room_id;
+    if (!get_player_id(plrname, &plr_id))
+      return;
+    room_id = get_rid(room_desc, roomname);
+    if (room_id == -1)
+    {
+      SCRPTERRLOG("Unknown room name, '%s'", roomname);
+      return;
+    }
+    command_add_value(Cmd_ROOM_AVAILABLE, plr_id, room_id, can_resrch, can_build);
 }
 
 void command_creature_available(char *plrname, char *crtr_name, unsigned long a3, unsigned long a4)
 {
-  long plr_id,crtr_id;
-  if (!get_player_id(plrname, &plr_id))
-    return;
-  crtr_id = get_rid(creature_desc, crtr_name);
-  if (crtr_id == -1)
-  {
-    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
-    return;
-  }
-  command_add_value(Cmd_CREATURE_AVAILABLE, plr_id, crtr_id, a3, a4);
+    long plr_id,crtr_id;
+    if (!get_player_id(plrname, &plr_id))
+      return;
+    crtr_id = get_rid(creature_desc, crtr_name);
+    if (crtr_id == -1)
+    {
+      SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+      return;
+    }
+    command_add_value(Cmd_CREATURE_AVAILABLE, plr_id, crtr_id, a3, a4);
 }
 
 void command_magic_available(char *plrname, char *magname, unsigned long can_resrch, unsigned long can_use)
 {
-  long plr_id,mag_id;
-  if (!get_player_id(plrname, &plr_id))
-    return;
-  mag_id = get_rid(power_desc, magname);
-  if (mag_id == -1)
-  {
-    SCRPTERRLOG("Unknown magic, '%s'", magname);
-    return;
-  }
-  command_add_value(Cmd_MAGIC_AVAILABLE, plr_id, mag_id, can_resrch, can_use);
+    long plr_id,mag_id;
+    if (!get_player_id(plrname, &plr_id))
+      return;
+    mag_id = get_rid(power_desc, magname);
+    if (mag_id == -1)
+    {
+      SCRPTERRLOG("Unknown magic, '%s'", magname);
+      return;
+    }
+    command_add_value(Cmd_MAGIC_AVAILABLE, plr_id, mag_id, can_resrch, can_use);
 }
 
 void command_trap_available(char *plrname, char *trapname, unsigned long can_build, unsigned long amount)
 {
-  long plr_id,trap_id;
-  if (!get_player_id(plrname, &plr_id))
-    return;
-  trap_id = get_rid(trap_desc, trapname);
-  if (trap_id == -1)
-  {
-    SCRPTERRLOG("Unknown trap, '%s'", trapname);
-    return;
-  }
-  command_add_value(Cmd_TRAP_AVAILABLE, plr_id, trap_id, can_build, amount);
+    long plr_id,trap_id;
+    if (!get_player_id(plrname, &plr_id))
+      return;
+    trap_id = get_rid(trap_desc, trapname);
+    if (trap_id == -1)
+    {
+      SCRPTERRLOG("Unknown trap, '%s'", trapname);
+      return;
+    }
+    command_add_value(Cmd_TRAP_AVAILABLE, plr_id, trap_id, can_build, amount);
 }
 
 /**
@@ -1196,12 +1198,14 @@ void command_research_order(char *plrname, char *trg_type, char *trg_name, unsig
       return;
     for (i=plr_start; i < plr_end; i++)
     {
-      dungeon = get_dungeon(i);
-      if (dungeon->research_num >= 34)
-      {
-        SCRPTERRLOG("Too many RESEARCH ITEMS, for player %d", i);
-        return;
-      }
+        dungeon = get_dungeon(i);
+        if (dungeon_invalid(dungeon))
+            continue;
+        if (dungeon->research_num >= 34)
+        {
+          SCRPTERRLOG("Too many RESEARCH ITEMS, for player %d", i);
+          return;
+        }
     }
     item_type = get_rid(research_desc, trg_type);
     item_id = get_research_id(item_type, trg_name, __func__);
@@ -2748,139 +2752,139 @@ TbBool condition_inactive(long cond_idx)
 
 void process_condition(struct Condition *condt)
 {
-  TbBool new_status;
-  int plr_start, plr_end;
-  long i,k;
-  SYNCDBG(18,"Starting for type %d, player %d",(int)condt->variabl_type,(int)condt->plyr_idx);
-  if (condition_inactive(condt->condit_idx))
-  {
-    set_flag_byte(&condt->status, 0x01, false);
-    return;
-  }
-  if (condt->plyr_idx == ALL_PLAYERS)
-  {
-    plr_start = 0;
-    plr_end = game.hero_player_num;
-  } else
-  {
-    plr_start = condt->plyr_idx;
-    plr_end = plr_start+1;
-  }
-  if (plr_start > PLAYERS_COUNT)
-      plr_start = PLAYERS_COUNT;
-  if (plr_start < 0)
+    TbBool new_status;
+    int plr_start, plr_end;
+    long i,k;
+    SYNCDBG(18,"Starting for type %d, player %d",(int)condt->variabl_type,(int)condt->plyr_idx);
+    if (condition_inactive(condt->condit_idx))
+    {
+      set_flag_byte(&condt->status, 0x01, false);
+      return;
+    }
+    if (condt->plyr_idx == ALL_PLAYERS)
+    {
       plr_start = 0;
-  if (plr_end > PLAYERS_COUNT)
-      plr_end = PLAYERS_COUNT;
-  if (condt->variabl_type == 19)
-  {
-    new_status = false;
-    for (i=plr_start; i < plr_end; i++)
+      plr_end = game.hero_player_num;
+    } else
     {
-      new_status = action_point_activated_by_player(condt->variabl_idx,i);
-      if (new_status) break;
+      plr_start = condt->plyr_idx;
+      plr_end = plr_start+1;
     }
-  } else
-  {
-    new_status = false;
-    for (i=plr_start; i < plr_end; i++)
+    if (plr_start > PLAYERS_COUNT)
+        plr_start = PLAYERS_COUNT;
+    if (plr_start < 0)
+        plr_start = 0;
+    if (plr_end > PLAYERS_COUNT)
+        plr_end = PLAYERS_COUNT;
+    if (condt->variabl_type == 19)
     {
-      k = get_condition_value(i, condt->variabl_type, condt->variabl_idx);
-      new_status = get_condition_status(condt->operation, k, condt->rvalue);
-      if (new_status != false) break;
+      new_status = false;
+      for (i=plr_start; i < plr_end; i++)
+      {
+        new_status = action_point_activated_by_player(condt->variabl_idx,i);
+        if (new_status) break;
+      }
+    } else
+    {
+      new_status = false;
+      for (i=plr_start; i < plr_end; i++)
+      {
+        k = get_condition_value(i, condt->variabl_type, condt->variabl_idx);
+        new_status = get_condition_status(condt->operation, k, condt->rvalue);
+        if (new_status != false) break;
+      }
     }
-  }
-  SYNCDBG(19,"Condition type %d status %d",(int)condt->variabl_type,(int)new_status);
-  set_flag_byte(&condt->status, 0x01,  new_status);
-  if (((condt->status & 0x01) == 0) || ((condt->status & 0x02) != 0))
-  {
-    set_flag_byte(&condt->status, 0x04,  false);
-  } else
-  {
-    set_flag_byte(&condt->status, 0x02,  true);
-    set_flag_byte(&condt->status, 0x04,  true);
-  }
-  SCRIPTDBG(19,"Finished");
+    SYNCDBG(19,"Condition type %d status %d",(int)condt->variabl_type,(int)new_status);
+    set_flag_byte(&condt->status, 0x01,  new_status);
+    if (((condt->status & 0x01) == 0) || ((condt->status & 0x02) != 0))
+    {
+      set_flag_byte(&condt->status, 0x04,  false);
+    } else
+    {
+      set_flag_byte(&condt->status, 0x02,  true);
+      set_flag_byte(&condt->status, 0x04,  true);
+    }
+    SCRIPTDBG(19,"Finished");
 }
 
 void process_conditions(void)
 {
-  long i;
-  if (game.script.conditions_num > CONDITIONS_COUNT)
-    game.script.conditions_num = CONDITIONS_COUNT;
-  for (i=0; i < game.script.conditions_num; i++)
-  {
-    process_condition(&game.script.conditions[i]);
-  }
+    long i;
+    if (game.script.conditions_num > CONDITIONS_COUNT)
+      game.script.conditions_num = CONDITIONS_COUNT;
+    for (i=0; i < game.script.conditions_num; i++)
+    {
+      process_condition(&game.script.conditions[i]);
+    }
 }
 
 void process_check_new_creature_partys(void)
 {
-  struct PartyTrigger *pr_trig;
-  long i,n;
-  for (i=0; i < game.script.party_triggers_num; i++)
-  {
-    pr_trig = &game.script.party_triggers[i];
-    if ((pr_trig->flags & TrgF_DISABLED) == 0)
+    struct PartyTrigger *pr_trig;
+    long i,n;
+    for (i=0; i < game.script.party_triggers_num; i++)
     {
-      if (is_condition_met(pr_trig->condit_idx))
+      pr_trig = &game.script.party_triggers[i];
+      if ((pr_trig->flags & TrgF_DISABLED) == 0)
       {
-        n = pr_trig->creatr_id;
-        if (n <= 0)
+        if (is_condition_met(pr_trig->condit_idx))
         {
-          SYNCDBG(6,"Adding party %d",-n);
-          script_process_new_party(&game.script.creature_partys[-n],
-              pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
-        } else
-        {
-          SCRIPTDBG(6,"Adding creature %d",n);
-          script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
-              pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level);
+          n = pr_trig->creatr_id;
+          if (n <= 0)
+          {
+            SYNCDBG(6,"Adding party %d",-n);
+            script_process_new_party(&game.script.creature_partys[-n],
+                pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
+          } else
+          {
+            SCRIPTDBG(6,"Adding creature %d",n);
+            script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
+                pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level);
+          }
+          if ((pr_trig->flags & TrgF_REUSABLE) == 0)
+            set_flag_byte(&pr_trig->flags, TrgF_DISABLED, true);
         }
-        if ((pr_trig->flags & TrgF_REUSABLE) == 0)
-          set_flag_byte(&pr_trig->flags, TrgF_DISABLED, true);
       }
     }
-  }
 }
 
 void process_check_new_tunneller_partys(void)
 {
-  struct TunnellerTrigger *tn_trig;
-  struct Thing *grptng;
-  struct Thing *thing;
-  long i,k,n;
-  for (i=0; i < game.script.tunneller_triggers_num; i++)
-  {
-    tn_trig = &game.script.tunneller_triggers[i];
-    if ((tn_trig->flags & TrgF_DISABLED) == 0)
+    struct TunnellerTrigger *tn_trig;
+    struct Thing *grptng;
+    struct Thing *thing;
+    long i,k,n;
+    for (i=0; i < game.script.tunneller_triggers_num; i++)
     {
-      if (is_condition_met(tn_trig->condit_idx))
+      tn_trig = &game.script.tunneller_triggers[i];
+      if ((tn_trig->flags & TrgF_DISABLED) == 0)
       {
-        k = tn_trig->party_id;
-        if (k > 0)
+        if (is_condition_met(tn_trig->condit_idx))
         {
-          n = tn_trig->plyr_idx;
-          SCRIPTDBG(6,"Adding tunneller party %d",k);
-          thing = script_process_new_tunneller(n, tn_trig->location, tn_trig->heading,
-                      tn_trig->target, tn_trig->crtr_level, tn_trig->carried_gold);
-           if (!thing_is_invalid(thing))
-           {
-              grptng = script_process_new_party(&game.script.creature_partys[k-1], n, tn_trig->location, 1);
-              if (!thing_is_invalid(grptng))
-                add_creature_to_group_as_leader(thing, grptng);
-           }
-        } else
-        {
-          SCRIPTDBG(6,"Adding tunneller, heading %d",tn_trig->heading);
-          script_process_new_tunneller(tn_trig->plyr_idx, tn_trig->location, tn_trig->heading,
-                tn_trig->target, tn_trig->crtr_level, tn_trig->carried_gold);
+          k = tn_trig->party_id;
+          if (k > 0)
+          {
+            n = tn_trig->plyr_idx;
+            SCRIPTDBG(6,"Adding tunneller party %d",k);
+            thing = script_process_new_tunneller(n, tn_trig->location, tn_trig->heading,
+                        tn_trig->target, tn_trig->crtr_level, tn_trig->carried_gold);
+             if (!thing_is_invalid(thing))
+             {
+                grptng = script_process_new_party(&game.script.creature_partys[k-1], n, tn_trig->location, 1);
+                if (!thing_is_invalid(grptng))
+                  add_creature_to_group_as_leader(thing, grptng);
+             }
+          } else
+          {
+            SCRIPTDBG(6,"Adding tunneller, heading %d",tn_trig->heading);
+            script_process_new_tunneller(tn_trig->plyr_idx, tn_trig->location, tn_trig->heading,
+                  tn_trig->target, tn_trig->crtr_level, tn_trig->carried_gold);
+          }
+          if ((tn_trig->flags & TrgF_REUSABLE) == 0)
+            tn_trig->flags |= TrgF_DISABLED;
         }
-        if ((tn_trig->flags & TrgF_REUSABLE) == 0)
-          tn_trig->flags |= TrgF_DISABLED;
       }
     }
-  }
 }
 
 void process_win_and_lose_conditions(long plyr_idx)
@@ -2910,21 +2914,21 @@ void process_win_and_lose_conditions(long plyr_idx)
 
 void process_values(void)
 {
-  struct ScriptValue *value;
-  long i;
-  for (i=0; i < game.script.values_num; i++)
-  {
-    value = &game.script.values[i];
-    if ((value->flags & TrgF_DISABLED) == 0)
+    struct ScriptValue *value;
+    long i;
+    for (i=0; i < game.script.values_num; i++)
     {
-      if (is_condition_met(value->condit_idx))
-      {
-        script_process_value(value->valtype, value->field_3, value->field_4, value->field_8, value->field_C);
-        if ((value->flags & TrgF_REUSABLE) == 0)
-          set_flag_byte(&value->flags, TrgF_DISABLED, true);
-      }
+        value = &game.script.values[i];
+        if ((value->flags & TrgF_DISABLED) == 0)
+        {
+            if (is_condition_met(value->condit_idx))
+            {
+                script_process_value(value->valtype, value->field_3, value->field_4, value->field_8, value->field_C);
+                if ((value->flags & TrgF_REUSABLE) == 0)
+                  set_flag_byte(&value->flags, TrgF_DISABLED, true);
+            }
+        }
     }
-  }
 }
 
 /**
@@ -2938,14 +2942,19 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   int plr_start, plr_end;
   long i;
 //  _DK_script_process_value(var_index, plr_id, val2, val3, val4);
+  if (plr_id > ALL_PLAYERS)
+  {
+      WARNLOG("Invalid player index %ld in VALUE command %ld.",plr_id,var_index);
+      return;
+  }
   if (plr_id == ALL_PLAYERS)
   {
-    plr_start = 0;
-    plr_end = PLAYERS_COUNT;
+      plr_start = 0;
+      plr_end = PLAYERS_COUNT;
   } else
   {
-    plr_start = plr_id;
-    plr_end = plr_id+1;
+      plr_start = plr_id;
+      plr_end = plr_id+1;
   }
   switch (var_index)
   {
@@ -2953,6 +2962,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       for (i=plr_start; i < plr_end; i++)
       {
         dungeon = get_dungeon(i);
+        if (dungeon_invalid(dungeon))
+            continue;
         dungeon->hates_player[val2%DUNGEONS_COUNT] = val3;
       }
       break;
@@ -2969,24 +2980,20 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       for (i=plr_start; i < plr_end; i++)
       {
         if (!set_creature_available(i,val2,val3,val4))
-          WARNLOG("Setting creature %ld availability failed.",val2);
+          WARNLOG("Setting creature %ld availability for player %d failed.",val2,(int)i);
       }
       break;
   case Cmd_MAGIC_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
         if (!set_power_available(i,val2,val3,val4))
-          WARNLOG("Setting magic %ld availability failed.",val2);
+          WARNLOG("Setting magic %ld availability for player %d failed.",val2,(int)i);
       }
       break;
   case Cmd_TRAP_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = get_dungeon(i);
-        dungeon->trap_buildable[val2%TRAP_TYPES_COUNT] = val3;
-        dungeon->trap_amount[val2%TRAP_TYPES_COUNT] = val4;
-        if (val4 != 0)
-          dungeon->trap_placeable[val2%TRAP_TYPES_COUNT] = val4;
+          set_trap_buildable_and_add_to_amount(i, val2, val3, val4);
       }
       break;
   case Cmd_RESEARCH:
@@ -3006,44 +3013,39 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_SET_TIMER:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = get_dungeon(i);
-        dungeon->turn_timers[val2%TURN_TIMERS_COUNT].state = 1;
-        dungeon->turn_timers[val2%TURN_TIMERS_COUNT].count = game.play_gameturn;
+          restart_script_timer(i,val2);
       }
       break;
   case Cmd_SET_FLAG:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = get_dungeon(i);
-        dungeon->script_flags[val2%SCRIPT_FLAGS_COUNT] = val3;
+          set_script_flag(i,val2,val3);
       }
       break;
   case Cmd_MAX_CREATURES:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = get_dungeon(i);
-        dungeon->max_creatures = val2;
+          SYNCDBG(4,"Setting player %d max attracted creatures to %ld.",i,val2);
+          dungeon = get_dungeon(i);
+          if (dungeon_invalid(dungeon))
+              continue;
+          dungeon->max_creatures_attracted = val2;
       }
       break;
   case Cmd_DOOR_AVAILABLE:
-      for (i=plr_start; i < plr_end; i++)
-      {
-        dungeon = get_dungeon(i);
-        dungeon->door_buildable[val2%DOOR_TYPES_COUNT] = val3;
-        dungeon->door_amount[val2%DOOR_TYPES_COUNT] = val4;
-        if (val4 != 0)
-          dungeon->door_placeable[val2%DOOR_TYPES_COUNT] = val4;
+      for (i=plr_start; i < plr_end; i++) {
+          set_door_buildable_and_add_to_amount(i, val2, val3, val4);
       }
       break;
   case Cmd_DISPLAY_OBJECTIVE:
-      if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-      {
-        set_general_objective(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
+      if ( (my_player_number >= plr_start) && (my_player_number < plr_end) ) {
+          set_general_objective(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
       }
       break;
   case Cmd_DISPLAY_INFORMATION:
-      if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-        set_general_information(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
+      if ((my_player_number >= plr_start) && (my_player_number < plr_end)) {
+          set_general_information(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
+      }
       break;
   case Cmd_ADD_CREATURE_TO_POOL:
       add_creature_to_pool(val2, val3, 0);
@@ -3057,24 +3059,34 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_SET_CREATURE_MAX_LEVEL:
       for (i=plr_start; i < plr_end; i++)
       {
-        dungeon = get_dungeon(i);
-        dungeon->creature_max_level[val2%CREATURE_TYPES_COUNT] = val3;
+          dungeon = get_dungeon(i);
+          if (dungeon_invalid(dungeon))
+              continue;
+          dungeon->creature_max_level[val2%CREATURE_TYPES_COUNT] = val3;
       }
       break;
   case Cmd_SET_CREATURE_HEALTH:
       crstat = creature_stats_get(val2);
+      if (creature_stats_invalid(crstat))
+          break;
       crstat->health = saturate_set_signed(val3, 16);
       break;
   case Cmd_SET_CREATURE_STRENGTH:
       crstat = creature_stats_get(val2);
+      if (creature_stats_invalid(crstat))
+          break;
       crstat->strength = saturate_set_unsigned(val3, 8);
       break;
   case Cmd_SET_CREATURE_ARMOUR:
       crstat = creature_stats_get(val2);
+      if (creature_stats_invalid(crstat))
+          break;
       crstat->armour = saturate_set_unsigned(val3, 8);
       break;
   case Cmd_SET_CREATURE_FEAR:
       crstat = creature_stats_get(val2);
+      if (creature_stats_invalid(crstat))
+          break;
       crstat->fear = saturate_set_unsigned(val3, 8);
       break;
   case Cmd_ALLY_PLAYERS:
@@ -3090,53 +3102,53 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       break;
   case Cmd_QUICK_OBJECTIVE:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-        process_objective(gameadd.quick_messages[val2%QUICK_MESSAGES_COUNT], val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
+          process_objective(gameadd.quick_messages[val2%QUICK_MESSAGES_COUNT], val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
       break;
   case Cmd_QUICK_INFORMATION:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-        set_quick_information(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
+          set_quick_information(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
       break;
   case Cmd_PLAY_MESSAGE:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
       {
-        switch (val2)
-        {
-        case 1:
-            output_message(val3, 0, true);
-            break;
-        case 2:
-            play_non_3d_sample(val3);
-            break;
-        }
+          switch (val2)
+          {
+          case 1:
+              output_message(val3, 0, true);
+              break;
+          case 2:
+              play_non_3d_sample(val3);
+              break;
+          }
       }
       break;
   case Cmd_ADD_GOLD_TO_PLAYER:
       for (i=plr_start; i < plr_end; i++)
       {
-        player_command_add_start_money(i, val2);
+          player_command_add_start_money(i, val2);
       }
       break;
   case Cmd_SET_CREATURE_TENDENCIES:
       for (i=plr_start; i < plr_end; i++)
       {
-        player = get_player(i);
-        set_creature_tendencies(player, val2, val3);
+          player = get_player(i);
+          set_creature_tendencies(player, val2, val3);
       }
       break;
   case Cmd_REVEAL_MAP_RECT:
       for (i=plr_start; i < plr_end; i++)
       {
-        player_reveal_map_area(i, val2, val3, (val4)&0xffff, (val4>>16)&0xffff);
+          player_reveal_map_area(i, val2, val3, (val4)&0xffff, (val4>>16)&0xffff);
       }
       break;
   case Cmd_REVEAL_MAP_LOCATION:
       for (i=plr_start; i < plr_end; i++)
       {
-        player_reveal_map_location(i, val2, val3);
+          player_reveal_map_location(i, val2, val3);
       }
       break;
   default:
-      WARNMSG("Unsupported Game VALUE, type %d.",var_index);
+      WARNMSG("Unsupported Game VALUE, command %d.",var_index);
       break;
   }
 }

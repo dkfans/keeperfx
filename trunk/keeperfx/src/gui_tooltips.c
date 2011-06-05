@@ -35,6 +35,7 @@
 #include "config_terrain.h"
 #include "config_trapdoor.h"
 #include "room_workshop.h"
+#include "player_instances.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -121,10 +122,10 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
     //thing = get_trap_for_slab_position(map_to_slab[pos->x.stl.num],map_to_slab[pos->y.stl.num]);;
     if (thing_is_invalid(thing)) return false;
     player = get_my_player();
-    if ((thing->byte_18 == 0) && (player->id_number != thing->owner))
+    if ( (thing->byte_18 == 0) && (player->id_number != thing->owner) )
         return false;
     update_gui_tooltip_target(thing);
-    if ((help_tip_time > 20) || (player->work_state == 12))
+    if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
     {
         trapst = get_trap_model_stats(thing->model);
         set_gui_tooltip_box(4,trapst->name_stridx);
@@ -192,7 +193,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
     if (thing->model == 49)
     {
       update_gui_tooltip_target(thing);
-      if ( (help_tip_time > 20) || (player->work_state == 12))
+      if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
       {
         set_gui_tooltip_box(5,545); // Hero Gate tooltip
       } else
@@ -205,7 +206,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
     if (objdat->field_13)
     {
       update_gui_tooltip_target(thing);
-      if ( (help_tip_time > 20) || (player->work_state == 12))
+      if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
       {
         crdata = creature_data_get(objdat->field_13);
         set_gui_tooltip_box_fmt(5,"%s %s", gui_strings[crdata->namestr_idx%STRINGS_MAX], gui_strings[609]); // (creature) Lair
@@ -235,7 +236,7 @@ short setup_land_tooltips(struct Coord3d *pos)
     return false;
   update_gui_tooltip_target((void *)skind);
   player = get_my_player();
-  if ((help_tip_time > 20) || (player->work_state == 12))
+  if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
   {
     set_gui_tooltip_box(2,slbattr->tooltip_idx);
   } else
@@ -261,7 +262,7 @@ short setup_room_tooltips(struct Coord3d *pos)
     return false;
   update_gui_tooltip_target(room);
   player = get_my_player();
-  if ( (help_tip_time > 20) || (player->work_state == 12) )
+  if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
   {
     set_gui_tooltip_box(1,stridx);
   } else
@@ -362,7 +363,7 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
   {
     if (tool_tip_box.gbutton == gbtn)
     {
-        if ((tool_tip_time > 10) || (player->work_state == 12))
+        if ( (tool_tip_time > 10) || (player->work_state == PSt_Unknown12) )
         {
           busy_doing_gui = 1;
           if (gbtn->field_13 != gui_area_text)
