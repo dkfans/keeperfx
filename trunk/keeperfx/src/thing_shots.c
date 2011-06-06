@@ -94,12 +94,12 @@ TbBool detonate_shot(struct Thing *thing)
         PaletteSetPlayerPalette(myplyr, _DK_palette);
         break;
     case 11:
-        create_effect(&thing->mappos, 50, thing->owner);
-        create_effect(&thing->mappos,  9, thing->owner);
+        create_effect(&thing->mappos, TngEff_Unknown50, thing->owner);
+        create_effect(&thing->mappos,  TngEff_Unknown09, thing->owner);
         explosion_affecting_area(shooter, &thing->mappos, 8, 256, thing->byte_16);
         break;
     case 15:
-        create_effect_around_thing(thing, 26);
+        create_effect_around_thing(thing, TngEff_Unknown26);
         break;
     default:
         break;
@@ -567,7 +567,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
     {
         if ((get_creature_model_flags(target) & MF_ImmuneToBoulder) != 0)
         {
-            efftng = create_effect(&target->mappos, 14, target->owner);
+            efftng = create_effect(&target->mappos, TngEff_Unknown14, target->owner);
             if ( !thing_is_invalid(efftng) ) {
                 efftng->byte_16 = 8;
             }

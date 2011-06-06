@@ -1142,6 +1142,7 @@
  0001:000B0050       create_workshop_object_in_workshop_room
  0001:000B02B0       get_next_manufacture
  0001:000B6D10       find_room_with_spare_room_item_capacity
+ 0001:000B6600       find_random_room_for_thing_with_spare_room_item_capacity
  0001:000BD240       player_has_room_of_type
  0001:0005DE40       get_thing_height_at
  0001:0005ED80       place_thing_in_mapwho

@@ -190,6 +190,8 @@ long calculate_room_efficiency(struct Room *room);
 void kill_room_slab_and_contents(unsigned char a1, unsigned char a2, unsigned char a3);
 void free_room_structure(struct Room *room);
 void reset_creatures_rooms(struct Room *room);
+TbBool remove_item_from_room_capacity(struct Room *room);
+TbBool add_item_to_room_capacity(struct Room *room);
 
 /* MOVE TO room_list.c/h */
 struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char a2, char a3, unsigned char a4);

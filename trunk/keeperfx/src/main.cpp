@@ -702,7 +702,7 @@ void destroy_food(struct Thing *thing)
     if (game.neutral_player_num != plyr_idx) {
         dungeon->lvstats.chickens_wasted++;
     }
-    efftng = create_effect(&thing->mappos, 49, plyr_idx);
+    efftng = create_effect(&thing->mappos, TngEff_Unknown49, plyr_idx);
     if (!thing_is_invalid(efftng)) {
         i = UNSYNC_RANDOM(3);
         thing_play_sample(efftng, 112+i, 100, 0, 3, 0, 2, 256);
@@ -710,8 +710,8 @@ void destroy_food(struct Thing *thing)
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val + 256;
-    create_effect(&thing->mappos, 51, plyr_idx);
-    create_effect(&pos, 7, plyr_idx);
+    create_effect(&thing->mappos, TngEff_Unknown51, plyr_idx);
+    create_effect(&pos, TngEff_Unknown07, plyr_idx);
     if (thing->owner != game.neutral_player_num)
     {
         if (thing->word_13 == -1)
@@ -6683,10 +6683,10 @@ long remove_workshop_object_from_player(long owner, long model)
     if (thing_is_invalid(thing))
         return 0;
     room = get_room_thing_is_on(thing);
-    if ( !room_is_invalid(room) && (room->kind == RoK_WORKSHOP) ) {
-        remove_workshop_object_from_workshop(room);
+    if ( room_exists(room) ) {
+        remove_workshop_object_from_workshop(room,thing);
     } else {
-        WARNLOG("Crate thing index %d isn't placed in a workshop room; removing anyway",(int)thing->index);
+        WARNLOG("Crate thing index %d isn't placed existing room; removing anyway",(int)thing->index);
     }
     create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
     delete_thing_structure(thing, 0);
@@ -7870,13 +7870,13 @@ TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char gn
 
 void tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4)
 {
-  SYNCDBG(7,"Starting");
-  _DK_tag_cursor_blocks_sell_area(a1, a2, a3, a4);
+    SYNCDBG(7,"Starting");
+    _DK_tag_cursor_blocks_sell_area(a1, a2, a3, a4);
 }
 
 long packet_place_door(long a1, long a2, long a3, long a4, unsigned char a5)
 {
-  return _DK_packet_place_door(a1, a2, a3, a4, a5);
+    return _DK_packet_place_door(a1, a2, a3, a4, a5);
 }
 
 void delete_room_slabbed_objects(long a1)
@@ -7887,8 +7887,8 @@ void delete_room_slabbed_objects(long a1)
 
 unsigned char tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3)
 {
-  SYNCDBG(7,"Starting");
-  return _DK_tag_cursor_blocks_place_door(a1, a2, a3);
+    SYNCDBG(7,"Starting");
+    return _DK_tag_cursor_blocks_place_door(a1, a2, a3);
 }
 
 long remove_workshop_item(long owner, long tngclass, long tngmodel)
@@ -7899,8 +7899,8 @@ long remove_workshop_item(long owner, long tngclass, long tngmodel)
 
 unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4)
 {
-  SYNCDBG(7,"Starting");
-  return _DK_tag_cursor_blocks_place_room(a1, a2, a3, a4);
+    SYNCDBG(7,"Starting");
+    return _DK_tag_cursor_blocks_place_room(a1, a2, a3, a4);
 }
 
 /**

@@ -33,6 +33,7 @@
 #include "room_data.h"
 #include "room_jobs.h"
 #include "room_workshop.h"
+#include "room_library.h"
 #include "tasks_list.h"
 #include "map_events.h"
 #include "power_hand.h"
@@ -1288,67 +1289,9 @@ void creature_drag_object(struct Thing *thing, struct Thing *dragtng)
     }
 }
 
-void remove_spell_from_player(long spl_idx, long plyr_idx)
-{
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(plyr_idx);
-    if (dungeon->magic_level[spl_idx] < 1)
-    {
-        ERRORLOG("Cannot remove a spell from player as he doesn't have it!");
-        return;
-    }
-    dungeon->magic_level[spl_idx]--;
-    switch ( spl_idx )
-    {
-    case 3:
-        if (dungeon->field_888)
-            dungeon->field_888 = 0;
-        break;
-    case 5:
-        if (dungeon->field_5D8)
-            turn_off_sight_of_evil(plyr_idx);
-        break;
-    case 6:
-        if (dungeon->field_884)
-            turn_off_call_to_arms(plyr_idx);
-        break;
-    }
-}
-
 unsigned char find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, struct Room *room, struct Coord3d *pos)
 {
     return _DK_find_random_valid_position_for_thing_in_room_avoiding_object(thing, room, pos);
-}
-
-TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long new_owner)
-{
-    if (room->kind != RoK_LIBRARY)
-    {
-        SYNCDBG(4,"Spell was placed in a %s room instead of library",room_code_name(room->kind));
-        return false;
-    }
-    if (spelltng->owner != room->owner)
-    {
-        SYNCDBG(4,"Spell owned by player %d was placed in a room owned by player %d",(int)spelltng->owner,(int)room->owner);
-        return false;
-    }
-    if ((room->capacity_used_for_storage <= 0) || (room->used_capacity <= 0))
-    {
-        ERRORLOG("Trying to remove spell from a room %d with no spell",(int)room->index);
-        return false;
-    }
-    room->capacity_used_for_storage--;
-    room->used_capacity--;
-    remove_spell_from_player(object_to_magic[spelltng->model], room->owner);
-    if (is_my_player_number(room->owner))
-    {
-        output_message(SMsg_SpellbookStolen, 0, true);
-    } else
-    if (is_my_player_number(new_owner))
-    {
-        output_message(SMsg_SpellbookTaken, 0, true);
-    }
-    return true;
 }
 
 short creature_present_to_dungeon_heart(struct Thing *thing)
