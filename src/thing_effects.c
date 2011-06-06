@@ -883,7 +883,7 @@ struct Thing *create_effect(const struct Coord3d *pos, unsigned short effmodel, 
 
 void create_special_used_effect(const struct Coord3d *pos, long plyr_idx)
 {
-    create_effect(pos, 67, plyr_idx);
+    create_effect(pos, TngEff_Unknown67, plyr_idx);
 }
 
 TbBool destroy_effect_generator(struct Thing *thing)
@@ -1043,7 +1043,7 @@ long update_effect(struct Thing *thing)
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price)
 {
     struct Thing *thing;
-    thing = create_effect_element(pos, 41, plyr_idx);
+    thing = create_effect_element(pos, TngEff_Unknown41, plyr_idx);
     if (!thing_is_invalid(thing)) {
         thing->creature.gold_carried = price;
     }

@@ -525,7 +525,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld",i,range,max_damage);
     if (!thing_is_invalid(shtng))
     {
-        efftng = create_effect(&shtng->mappos, 49, shtng->owner);
+        efftng = create_effect(&shtng->mappos, TngEff_Unknown49, shtng->owner);
         if (!thing_is_invalid(efftng))
         {
             thing_play_sample(efftng, 55, 100, 0, 3, 0, 2, 256);
@@ -693,6 +693,34 @@ TbBool update_spell_overcharge(struct PlayerInfo *player, int spl_idx)
   }
   return (i < SPELL_MAX_LEVEL);
 }
+
+void remove_spell_from_player(long spl_idx, long plyr_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(plyr_idx);
+    if (dungeon->magic_level[spl_idx] < 1)
+    {
+        ERRORLOG("Cannot remove a spell from player as he doesn't have it!");
+        return;
+    }
+    dungeon->magic_level[spl_idx]--;
+    switch ( spl_idx )
+    {
+    case 3:
+        if (dungeon->field_888)
+            dungeon->field_888 = 0;
+        break;
+    case 5:
+        if (dungeon->field_5D8)
+            turn_off_sight_of_evil(plyr_idx);
+        break;
+    case 6:
+        if (dungeon->field_884)
+            turn_off_call_to_arms(plyr_idx);
+        break;
+    }
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

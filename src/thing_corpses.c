@@ -89,7 +89,7 @@ TbBool create_vampire_in_room(struct Room *room)
     move_thing_in_map(thing, &pos);
     dungeon = get_dungeon(room->owner);
     dungeon->lvstats.vamps_created++;
-    create_effect(&pos, 3, thing->owner);
+    create_effect(&pos, TngEff_Unknown03, thing->owner);
     if (is_my_player_number(room->owner)) {
         output_message(SMsg_GraveyardMadeVampire, 0, true);
     }
@@ -250,7 +250,7 @@ long update_dead_creature(struct Thing *thing)
         pos.z.val = thing->mappos.z.val;
         pos.z.val += 3 * (int)thing->field_58 / 4;
         if (creature_model_bleeds(thing->model)) {
-            create_effect(&pos, 65, thing->owner);
+            create_effect(&pos, TngEff_Unknown65, thing->owner);
         }
         if (thing->health > 0)
             thing->health--;

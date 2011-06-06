@@ -35,6 +35,7 @@
 #include "room_data.h"
 #include "room_jobs.h"
 #include "room_workshop.h"
+#include "room_library.h"
 #include "spdigger_stack.h"
 #include "gui_topmsg.h"
 
@@ -732,15 +733,12 @@ short creature_picks_up_trap_object(struct Thing *thing)
     SYNCDBG(18,"Moving %s index %d",thing_model_name(thing),(int)thing->index);
     if (room_exists(room))
     {
-        if ( (room->kind == RoK_WORKSHOP) && (room->owner == cratetng->owner) )
+        remove_workshop_object_from_workshop(room,cratetng);
+        if (cratetng->owner <= HERO_PLAYER)
         {
-            remove_workshop_object_from_workshop(room);
-            if (cratetng->owner <= HERO_PLAYER)
-            {
-                remove_workshop_item(cratetng->owner,
-                    get_workshop_object_class_for_thing(cratetng),
-                    box_thing_to_door_or_trap(cratetng));
-            }
+            remove_workshop_item(cratetng->owner,
+                get_workshop_object_class_for_thing(cratetng),
+                box_thing_to_door_or_trap(cratetng));
         }
     }
     creature_drag_object(thing, cratetng);
@@ -783,9 +781,10 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     }
     creature_drop_dragged_object(thing, cratetng);
     cratetng->owner = thing->owner;
-    add_workshop_object_to_workshop(room);
-    add_workshop_item(room->owner, get_workshop_object_class_for_thing(cratetng),
-        box_thing_to_door_or_trap(cratetng));
+    if (add_item_to_room_capacity(room)) {
+        add_workshop_item(room->owner, get_workshop_object_class_for_thing(cratetng),
+            box_thing_to_door_or_trap(cratetng));
+    }
     set_start_state(thing);
     return 1;
 }

@@ -312,7 +312,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           pos.z.val = thing->mappos.z.val + (thing->field_58 >> 1);
           crstat = creature_stats_get_from_thing(thing);
           if ( creature_model_bleeds(thing->model) )
-              create_effect(&pos, 6, thing->owner);
+              create_effect(&pos, TngEff_Unknown06, thing->owner);
           thing_play_sample(thing, 75, 100, 0, 3, 0, 3, 256);
           cam = player->acamera;
           if (cam != NULL)
@@ -340,7 +340,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   case TCls_Object:
       if (object_is_slappable(thing, player->id_number))
       {
-        efftng = create_effect(&thing->mappos, 49, thing->owner);
+        efftng = create_effect(&thing->mappos, TngEff_Unknown49, thing->owner);
         if (!thing_is_invalid(efftng))
           thing_play_sample(efftng, 75, 100, 0, 3, 0, 3, 256);
         slap_object(thing);
