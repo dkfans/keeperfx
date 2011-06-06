@@ -2456,7 +2456,7 @@ struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long br
       if (plyr_idx == game.hero_player_num)
       {
         thing->mappos.z.val = get_ceiling_height(&thing->mappos);
-        create_effect(&thing->mappos, 36, thing->owner);
+        create_effect(&thing->mappos, TngEff_Unknown36, thing->owner);
         initialise_thing_state(thing, CrSt_CreatureHeroEntering);
         thing->field_4F |= 0x01;
         cctrl->field_282 = 24;

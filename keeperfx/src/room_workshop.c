@@ -23,6 +23,9 @@
 #include "room_data.h"
 #include "player_data.h"
 #include "dungeon_data.h"
+#include "thing_data.h"
+#include "thing_stats.h"
+#include "config_terrain.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,27 +33,22 @@ extern "C" {
 /******************************************************************************/
 
 /******************************************************************************/
-TbBool add_workshop_object_to_workshop(struct Room *room)
+TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng)
 {
-    if (room->used_capacity >= room->total_capacity)
-    {
+    if (room->kind != RoK_WORKSHOP) {
+        SYNCDBG(4,"Crate %s owned by player %d can't be placed in a %s owned by player %d, expected proper workshop",thing_model_name(cratetng),(int)cratetng->owner,room_code_name(room->kind),(int)room->owner);
         return false;
     }
-    room->used_capacity++;
-    room->capacity_used_for_storage++;
-    return true;
+    return add_item_to_room_capacity(room);
 }
 
-TbBool remove_workshop_object_from_workshop(struct Room *room)
+TbBool remove_workshop_object_from_workshop(struct Room *room,struct Thing *cratetng)
 {
-    if ( (room->used_capacity <= 0) || (room->capacity_used_for_storage <= 0) )
-    {
-        ERRORLOG("Invalid workshop content");
+    if ( (room->kind != RoK_WORKSHOP) || (cratetng->owner != room->owner) ) {
+        SYNCDBG(4,"Crate %s owned by player %d found in a %s owned by player %d, instead of proper workshop",thing_model_name(cratetng),(int)cratetng->owner,room_code_name(room->kind),(int)room->owner);
         return false;
     }
-    room->used_capacity--;
-    room->capacity_used_for_storage--;
-    return true;
+    return remove_item_from_room_capacity(room);
 }
 
 TbBool add_workshop_item(long plyr_idx, long wrkitm_class, long wrkitm_kind)

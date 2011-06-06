@@ -415,7 +415,16 @@ TbBool thing_is_trap_box(const struct Thing *thing)
         return false;
     if ((thing->class_id != TCls_Object) || (thing->model >= OBJECT_TYPES_COUNT))
         return false;
-    return (workshop_object_class[thing->model] == 8);
+    return (workshop_object_class[thing->model] == TCls_Trap);
+}
+
+TbBool thing_is_door_box(const struct Thing *thing)
+{
+    if (thing_is_invalid(thing))
+        return false;
+    if ((thing->class_id != TCls_Object) || (thing->model >= OBJECT_TYPES_COUNT))
+        return false;
+    return (workshop_object_class[thing->model] == TCls_Door);
 }
 
 TbBool thing_is_dungeon_heart(const struct Thing *thing)

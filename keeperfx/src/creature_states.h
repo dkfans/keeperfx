@@ -279,7 +279,6 @@ void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng);
 void creature_drag_object(struct Thing *thing, struct Thing *dragtng);
 long process_work_speed_on_work_value(struct Thing *thing, long base_val);
 unsigned char find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, struct Room *room, struct Coord3d *pos);
-TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long new_owner);
 SubtlCodedCoords find_position_around_in_room(struct Coord3d *pos, long owner, long rkind);
 void remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
 long slab_by_players_land(long plyr_idx, long slb_x, long slb_y);

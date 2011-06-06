@@ -25,8 +25,11 @@
 #include "thing_objects.h"
 #include "thing_navigate.h"
 #include "thing_stats.h"
+#include "thing_traps.h"
+#include "thing_effects.h"
 #include "room_jobs.h"
 #include "config_terrain.h"
+#include "creature_states.h"
 #include "gui_topmsg.h"
 #include "keeperfx.hpp"
 
@@ -35,6 +38,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_delete_room_structure(struct Room *room);
+DLLIMPORT struct Room * _DK_find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4);
 /******************************************************************************/
 void count_slabs(struct Room *room);
 void count_gold_slabs_with_efficiency(struct Room *room);
@@ -1462,9 +1466,75 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
   return retroom;
 }
 
-long create_workshop_object_in_workshop_room(long a1, long a2, long a3)
+struct Room * find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4)
 {
-  return _DK_create_workshop_object_in_workshop_room(a1, a2, a3);
+    return _DK_find_random_room_for_thing_with_spare_room_item_capacity(thing, plyr_idx, rkind, a4);
+}
+
+long create_workshop_object_in_workshop_room(long plyr_idx, long tng_class, long tng_kind)
+{
+    struct Coord3d pos;
+    struct Thing *thing;
+    struct Room *room;
+    struct Dungeon *dungeon;
+    //return _DK_create_workshop_object_in_workshop_room(plyr_idx, tng_class, tng_kind);
+    pos.x.val = 0;
+    pos.y.val = 0;
+    pos.z.val = 0;
+    switch (tng_class)
+    {
+    case TCls_Trap:
+        thing = create_object(&pos, trap_to_object[tng_kind], plyr_idx, -1);
+        break;
+    case TCls_Door:
+        thing = create_object(&pos, door_to_object[tng_kind], plyr_idx, -1);
+        break;
+    default:
+        thing = INVALID_THING;
+        ERRORLOG("No known workshop crate can represent %s model %d",thing_class_code_name(tng_class),(int)tng_kind);
+        break;
+    }
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Could not create workshop crate thing");
+        return 0;
+    }
+    room = find_random_room_for_thing_with_spare_room_item_capacity(thing, plyr_idx, RoK_WORKSHOP, 0);
+    if (room_is_invalid(room))
+    {
+        ERRORLOG("No room for thing");
+        delete_thing_structure(thing, 0);
+        return 0;
+    }
+    if ( !find_random_valid_position_for_thing_in_room_avoiding_object(thing, room, &pos) )
+    {
+        ERRORLOG("Could not find room for thing");
+        delete_thing_structure(thing, 0);
+        return 0;
+    }
+    pos.z.val = get_thing_height_at(thing, &pos);
+    move_thing_in_map(thing, &pos);
+    room->used_capacity++;
+    room->capacity_used_for_storage++;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    switch (tng_class)
+    {
+    case TCls_Trap:
+        if ( !dungeon->trap_placeable[tng_kind] ) {
+            event_create_event(thing->mappos.x.val, thing->mappos.y.val, TCls_Trap, plyr_idx, tng_kind);
+        }
+        break;
+    case TCls_Door:
+        if ( !dungeon->door_placeable[tng_kind] ) {
+          event_create_event(thing->mappos.x.val, thing->mappos.y.val, TCls_Door, plyr_idx, tng_kind);
+        }
+        break;
+    default:
+        break;
+    }
+    create_effect(&pos, TngEff_Unknown56, thing->owner);
+    thing_play_sample(thing, 89, 100, 0, 3, 0, 2, 256);
+    return 1;
 }
 
 short delete_room_slab_when_no_free_room_structures(long a1, long a2, unsigned char a3)
@@ -1591,6 +1661,30 @@ struct Room * pick_random_room(PlayerNumber plyr_idx, RoomKind rkind)
 {
     return _DK_pick_random_room(plyr_idx, rkind);
 }
+
+TbBool remove_item_from_room_capacity(struct Room *room)
+{
+    if ( (room->used_capacity <= 0) || (room->capacity_used_for_storage <= 0) )
+    {
+        ERRORLOG("Room %s index %d does not contain item to remove",room_code_name(room->kind),(int)room->index);
+        return false;
+    }
+    room->used_capacity--;
+    room->capacity_used_for_storage--;
+    return true;
+}
+
+TbBool add_item_to_room_capacity(struct Room *room)
+{
+    if (room->used_capacity >= room->total_capacity)
+    {
+        return false;
+    }
+    room->used_capacity++;
+    room->capacity_used_for_storage++;
+    return true;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
