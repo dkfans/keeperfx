@@ -999,37 +999,34 @@ short room_grow_food(struct Room *room)
   return _DK_room_grow_food(room);
 }
 
-void update_room_efficiency(struct Room *room)
+long calculate_room_widespread_factor(const struct Room *room)
 {
-    struct SlabMap *slb;
-    long score,peices,effic;
-    long i,k,n;
-    if (room->slabs_count <= 0)
-    {
-      ERRORLOG("How can a room exist with no slabs?");
-      room->efficiency = 0;
-      return;
-    }
-    if (room->slabs_count == 1)
-        n = 0;
-    else
-    if (room->slabs_count == 2)
-        n = 4;
-    else
-        n = 4 * ((long)room->slabs_count) - 4;
+    long nslabs,npieces;
+    long i;
+    nslabs = room->slabs_count;
+    i = nslabs;
+    if (i >= sizeof(slabs_to_centre_peices)/sizeof(slabs_to_centre_peices[0]))
+        i = sizeof(slabs_to_centre_peices)/sizeof(slabs_to_centre_peices[0]) - 1;
+    npieces = slabs_to_centre_peices[i];
+    return 2 * (npieces + 4 * nslabs);
+}
 
-    peices = room->slabs_count;
-    if (peices > 49)
-        peices = 49;
-    peices = 2 * (((long)slabs_to_centre_peices[peices]) + 4 * ((long)room->slabs_count));
-    // Calculate efficiency score from slabs
+/** Calculates summary of efficiency score from all slabs in room.
+ *
+ * @param room Source room.
+ * @return The efficiency score summary.
+ */
+long calculate_cummulative_room_slabs_effeciency(const struct Room *room)
+{
+    long score;
+    long i;
+    unsigned long k;
     score = 0;
     k = 0;
     i = room->slabs_list;
     while (i != 0)
     {
         // Per room tile code
-        slb = get_slabmap_direct(i);
         score += calculate_effeciency_score_for_room_slab(i, room->owner);
         // Per room tile code ends
         i = get_next_slab_number_in_room(i); // It would be better to have this before per-tile block, but we need old value
@@ -1040,14 +1037,44 @@ void update_room_efficiency(struct Room *room)
           break;
         }
     }
+    return score;
+}
 
-    if (peices > n)
-        effic = ((score - n) << 8) / (peices - n);
-    else
+long calculate_room_efficiency(const struct Room *room)
+{
+    long nslabs,score,widespread,effic;
+    long expected_base;
+    //return _DK_calculate_room_efficiency(room);
+    nslabs = room->slabs_count;
+    if (nslabs <= 0)
+    {
+        ERRORLOG("Room %s index %d seems to have no slabs.",room_code_name(room->kind),(int)room->index);
+        return 0;
+    }
+    if (nslabs == 1) {
+        expected_base = 0;
+    } else {
+        expected_base = 4 * (nslabs - 1);
+    }
+    widespread = calculate_room_widespread_factor(room);
+    score = calculate_cummulative_room_slabs_effeciency(room);
+    if (score <= expected_base) {
+        effic = 0;
+    } else
+    if (widespread <= expected_base) {
         effic = ROOM_EFFICIENCY_MAX;
+    } else
+    {
+        effic = ((score - expected_base) << 8) / (widespread - expected_base);
+    }
     if (effic > ROOM_EFFICIENCY_MAX)
         effic = ROOM_EFFICIENCY_MAX;
-    room->efficiency = effic;
+    return effic;
+}
+
+void update_room_efficiency(struct Room *room)
+{
+    room->efficiency = calculate_room_efficiency(room);
 }
 
 TbBool update_room_contents(struct Room *room)
@@ -1541,11 +1568,6 @@ short delete_room_slab_when_no_free_room_structures(long a1, long a2, unsigned c
 {
     SYNCDBG(8,"Starting");
     return _DK_delete_room_slab_when_no_free_room_structures(a1, a2, a3);
-}
-
-long calculate_room_efficiency(struct Room *room)
-{
-  return _DK_calculate_room_efficiency(room);
 }
 
 void kill_room_slab_and_contents(unsigned char a1, unsigned char a2, unsigned char a3)
