@@ -31,6 +31,7 @@ extern "C" {
 
 #define CREATURE_TYPES_MAX 64
 #define INSTANCE_TYPES_MAX 64
+#define CREATURE_STATES_MAX 147
 /******************************************************************************/
 struct Thing;
 
@@ -90,6 +91,11 @@ struct CreatureModelConfig {
     unsigned short model_flags;
 };
 
+struct CreatureStateConfig {
+    char name[COMMAND_WORD_LEN];
+    unsigned short state_flags;
+};
+
 struct CreatureData {
       unsigned char flags;
       short field_1;
@@ -118,6 +124,8 @@ struct Creatures { // sizeof = 16
 struct CreatureConfig {
     long model_count;
     struct CreatureModelConfig model[CREATURE_TYPES_MAX];
+    long states_count;
+    struct CommandWord state_names[CREATURE_STATES_MAX];
     long instance_count;
     struct CommandWord instance_names[INSTANCE_TYPES_MAX];
     long job_count;

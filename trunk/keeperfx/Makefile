@@ -144,6 +144,7 @@ obj/config_rules.o \
 obj/config_lenses.o \
 obj/config_creature.o \
 obj/config_crtrmodel.o \
+obj/config_crtrstates.o \
 obj/lens_mist.o \
 obj/lens_flyeye.o \
 obj/lens_api.o \

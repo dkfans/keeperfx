@@ -49,6 +49,7 @@
 #include "config_lenses.h"
 #include "config_magic.hpp"
 #include "config_creature.h"
+#include "config_crtrstates.h"
 #include "config_crtrmodel.h"
 #include "lvl_script.h"
 #include "lvl_filesdk1.h"
@@ -3420,6 +3421,8 @@ TbBool load_stats_files(void)
     if (!load_magic_config(keeper_magic_file,0))
       result = false;
     if (!load_creaturetypes_config(keeper_creaturetp_file,CTLd_Standard))
+      result = false;
+    if (!load_creaturestates_config(creature_states_file,0))
       result = false;
     // note that rules file requires definitions of magic and creature types
     if (!load_rules_config(keeper_rules_file,0))
