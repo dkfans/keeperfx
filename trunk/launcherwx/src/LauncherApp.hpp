@@ -33,6 +33,7 @@ class LauncherApp : public wxApp
 {
     wxImagePanel * drawPane;
     LauncherFrame * frame;
+
 public:
     // override base class virtuals
     // ----------------------------
@@ -46,9 +47,17 @@ public:
 // Define a new frame type: this is going to be our main frame
 class LauncherFrame : public wxImageFrame
 {
+    wxButton * quitButton;
+    wxButton * startButton;
+    wxButton * configButton;
+    wxTextCtrl * msgTextCtrl;
+
+    wxLog *logTarget;
+
 public:
-    // ctor(s)
+    // ctor(s)/dtor(s)
     LauncherFrame(const wxString& title);
+    ~LauncherFrame();
 
     // event handlers (these functions should _not_ be virtual)
     void OnQuit(wxCommandEvent& event);
@@ -66,12 +75,13 @@ private:
 // IDs for the controls and the menu commands
 enum
 {
-    // menu items
-    Minimal_Quit = wxID_EXIT,
+	Event_Quit = wxID_EXIT,
+	Event_Settings = wxID_PROPERTIES,
+	Event_RunGame = wxID_OPEN,
 
     // it is important for the id corresponding to the "About" command to have
     // this standard value as otherwise it won't be handled properly under Mac
     // (where it is special and put into the "Apple" menu)
-    Minimal_About = wxID_ABOUT
+	Event_About = wxID_ABOUT
 };
 #endif
