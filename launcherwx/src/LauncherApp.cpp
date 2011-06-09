@@ -39,8 +39,8 @@
 // handlers) which process them. It can be also done at run-time, but for the
 // simple menu events like this the static method is much simpler.
 BEGIN_EVENT_TABLE(LauncherFrame, wxImageFrame)
-    EVT_MENU(Minimal_Quit,  LauncherFrame::OnQuit)
-    EVT_MENU(Minimal_About, LauncherFrame::OnAbout)
+    EVT_BUTTON(Event_Quit,  LauncherFrame::OnQuit)
+    EVT_BUTTON(Event_About, LauncherFrame::OnAbout)
 END_EVENT_TABLE()
 
 // Create a new application object: this macro will allow wxWidgets to create
@@ -103,13 +103,32 @@ LauncherFrame::LauncherFrame(const wxString& title)
     // set the frame icon
     SetIcon(wxICON(sample));
 
-#if wxUSE_STATUSBARz
-    // create a status bar just for fun (by default with 1 pane only)
-    CreateStatusBar(2);
-    SetStatusText(_T("Welcome to wxWidgets!"));
-#endif // wxUSE_STATUSBAR
+    quitButton = NULL;
+    startButton = NULL;
+    configButton = NULL;
+
+    startButton = new wxButton( this, Event_RunGame, _T("Sta&rt game"), wxPoint(24,320), wxSize(96,30), wxNO_BORDER );
+    quitButton = new wxButton( this, Event_Quit, _T("E&xit"), wxPoint(360,320), wxSize(96,30), wxNO_BORDER );
+    configButton = new wxButton( this, Event_Settings, _T("Se&ttings"), wxPoint(192,320), wxSize(96,30), wxNO_BORDER );
+
+    msgTextCtrl = new wxTextCtrl(this, wxID_ANY, _T("Initializing...\n"), wxPoint(96, 180), wxSize(480-2*96, 120), wxTE_MULTILINE);
+    logTarget = wxLog::SetActiveTarget(new wxLogTextCtrl(msgTextCtrl));
+
+    startButton->SetBackgroundColour(wxT("black"));
+    startButton->SetForegroundColour(wxT("white"));
+    quitButton->SetBackgroundColour(wxT("black"));
+    quitButton->SetForegroundColour(wxT("white"));
+    configButton->SetBackgroundColour(wxT("black"));
+    configButton->SetForegroundColour(wxT("white"));
+
+    msgTextCtrl->SetBackgroundColour(wxT("black"));
+    msgTextCtrl->SetForegroundColour(wxT("white"));
 }
 
+LauncherFrame::~LauncherFrame()
+{
+    delete wxLog::SetActiveTarget(logTarget);
+}
 
 // event handlers
 

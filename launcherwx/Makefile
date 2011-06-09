@@ -22,7 +22,7 @@ CC   = gcc
 WINDRES = windres
 RM = rm -f
 MV = mv -f
-CP = cp -f
+CP = @cp -f
 ECHO = @echo
 BIN    = bin/launcher.exe
 RES    = obj/launcher.rc.o
@@ -31,6 +31,7 @@ LIBS   =
 OBJS   = \
 obj/wxImageFrame.o \
 obj/LauncherApp.o \
+obj/md5.o \
 $(RES)
 
 # include wxWidgets build configuration
@@ -52,6 +53,7 @@ WXWIDGETS_CXXFLAGS = $(__DEBUGINFO) $(__OPTIMIZEFLAG_2) $(__THREADSFLAG) \
 	-DNOPCH $(__RTTIFLAG_5) $(__EXCEPTIONSFLAG_6) \
 	-Wno-ctor-dtor-privacy $(CPPFLAGS)
 CXXFLAGS = -c $(WXWIDGETS_CXXFLAGS) $(CPPDEPS)
+CFLAGS = -c $(CPPDEPS) 
 
 # Conditionally set variables
 
@@ -261,6 +263,12 @@ $(BIN): $(OBJS)
 obj/%.o: src/%.cpp
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/%.o: src/%.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
