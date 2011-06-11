@@ -50,10 +50,14 @@ class LauncherFrame : public wxImageFrame
 {
     wxButton * quitButton;
     wxButton * startButton;
+    wxButton * installButton;
     wxButton * configButton;
     wxTextCtrl * msgTextCtrl;
 
     wxLog *logTarget;
+
+    wxString installSrcDir;
+    wxString fxWorkDir;
 
     FilelistChecker * flCheck;
 
@@ -63,9 +67,12 @@ public:
     ~LauncherFrame();
 
     // event handlers (these functions should _not_ be virtual)
+    void OnShow(wxShowEvent& event);
     void OnQuit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
-    void OnShow(wxShowEvent& event);
+    void OnRunGame(wxCommandEvent& event);
+    void OnInstall(wxCommandEvent& event);
+    void OnSettings(wxCommandEvent& event);
 
     // Own utility functions
     void RecheckBasicFiles(void);
@@ -84,6 +91,7 @@ enum
 {
 	Event_Quit = wxID_EXIT,
 	Event_Settings = wxID_PROPERTIES,
+	Event_Install = wxID_SETUP,
 	Event_RunGame = wxID_OPEN,
 
     // it is important for the id corresponding to the "About" command to have
