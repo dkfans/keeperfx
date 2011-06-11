@@ -36,7 +36,7 @@ enum CheckItemResult {
 };
 
 struct CheckItem {
-    const char *filename;
+    const wchar_t *filename;
     unsigned short flags;
     unsigned char md5sum[16];
 };
@@ -46,21 +46,22 @@ class FilelistChecker
 public:
     FilelistChecker();
     virtual ~FilelistChecker();
-    bool verifyList(const struct CheckItem *ciList);
+    bool verifyList(const wchar_t *folder, const struct CheckItem *ciList);
     void clearResults(void);
     int getNumTotal(void);
     int getNumFailed(void);
-    const char * getFailedFilename(int idx);
+    const wchar_t * getFailedFilename(int idx);
 private:
-    int verifyItem(const struct CheckItem &cItem);
-    static bool fileExists(const char * filename, bool acceptFolders, bool acceptSpecial);
+    int verifyItem(const wchar_t *folder, const struct CheckItem &cItem);
+    static bool fileExists(const wchar_t * filename, bool acceptFolders, bool acceptSpecial);
     int ntotal;
     int nfailed;
-    std::vector<std::string> failedFiles;
+    std::vector<std::wstring> failedFiles;
 };
 
 extern const struct CheckItem supplied_basic_check[];
 extern const struct CheckItem additional_basic_check[];
+extern const struct CheckItem additional_complete_check[];
 
 /******************************************************************************/
 #endif /* FILELISTCHECKER_HPP_ */

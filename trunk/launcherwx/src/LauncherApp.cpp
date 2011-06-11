@@ -47,9 +47,12 @@
 // handlers) which process them. It can be also done at run-time, but for the
 // simple menu events like this the static method is much simpler.
 BEGIN_EVENT_TABLE(LauncherFrame, wxImageFrame)
+    EVT_SHOW(LauncherFrame::OnShow)
     EVT_BUTTON(Event_Quit,  LauncherFrame::OnQuit)
     EVT_BUTTON(Event_About, LauncherFrame::OnAbout)
-    EVT_SHOW(LauncherFrame::OnShow)
+    EVT_BUTTON(Event_RunGame, LauncherFrame::OnRunGame)
+    EVT_BUTTON(Event_Install, LauncherFrame::OnInstall)
+    EVT_BUTTON(Event_Settings, LauncherFrame::OnSettings)
 END_EVENT_TABLE()
 
 // Create a new application object: this macro will allow wxWidgets to create
@@ -116,10 +119,12 @@ LauncherFrame::LauncherFrame(const wxString& title)
     startButton = NULL;
     configButton = NULL;
 
+    quitButton = new wxButton( this, Event_Quit, _T("E&xit"), wxPoint(360,320), wxSize(96,30), wxNO_BORDER );
     startButton = new wxButton( this, Event_RunGame, _T("Sta&rt game"), wxPoint(24,320), wxSize(96,30), wxNO_BORDER );
     startButton->Disable();
-    quitButton = new wxButton( this, Event_Quit, _T("E&xit"), wxPoint(360,320), wxSize(96,30), wxNO_BORDER );
-    configButton = new wxButton( this, Event_Settings, _T("Se&ttings"), wxPoint(192,320), wxSize(96,30), wxNO_BORDER );
+    installButton = new wxButton( this, Event_Install, _T("In&stallation"), wxPoint(192,320), wxSize(96,30), wxNO_BORDER );
+
+    configButton = new wxButton( this, Event_Settings, _T("Se&ttings"), wxPoint(360,40), wxSize(96,30), wxNO_BORDER );
 
     msgTextCtrl = new wxTextCtrl(this, wxID_ANY, _T("Initializing...\n"), wxPoint(96, 180), wxSize(480-2*96, 120), wxTE_MULTILINE);
     logTarget = wxLog::SetActiveTarget(new wxLogTextCtrl(msgTextCtrl));
@@ -131,8 +136,14 @@ LauncherFrame::LauncherFrame(const wxString& title)
     configButton->SetBackgroundColour(wxT("black"));
     configButton->SetForegroundColour(wxT("white"));
 
+    installButton->SetBackgroundColour(wxT("black"));
+    installButton->SetForegroundColour(wxT("white"));
+
     msgTextCtrl->SetBackgroundColour(wxT("black"));
     msgTextCtrl->SetForegroundColour(wxT("white"));
+
+    wxGetHomeDir(&installSrcDir);
+    fxWorkDir = wxGetCwd();
 
     flCheck = new FilelistChecker();
 }
@@ -143,6 +154,11 @@ LauncherFrame::~LauncherFrame()
 }
 
 // event handlers
+
+void LauncherFrame::OnShow(wxShowEvent& WXUNUSED(event))
+{
+    RecheckBasicFiles();
+}
 
 void LauncherFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
@@ -165,9 +181,41 @@ void LauncherFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
                  this);
 }
 
-void LauncherFrame::OnShow(wxShowEvent& WXUNUSED(event))
+void LauncherFrame::OnInstall(wxCommandEvent& WXUNUSED(event))
 {
-    RecheckBasicFiles();
+    wxDirDialog dialog(this, _T("Select folder with original Dungeon Keeper files"), installSrcDir, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+    if (dialog.ShowModal() == wxID_OK)
+    {
+        int msgRet;
+        installSrcDir = dialog.GetPath();
+        flCheck->clearResults();
+        if (!flCheck->verifyList(installSrcDir.wchar_str(),additional_complete_check)) {
+            wxMessageBox(_T("The folder you've selected dosn't seem to contain files needed by KeeperFX.\n")
+                _T("Please select the proper folder, or try with another release or Dungeon Keeper."),
+                _T("Dungeon Keeper folder not correct"), wxOK | wxICON_WARNING, this);
+            return;
+        }
+        msgRet = wxMessageBox(_T("The files in selected folder have been checked and are correct.\n")
+                _T("When copied into KeeperFX folder, they will allow you to play the game. Do you want to copy the files from selected folder?"),
+                _T("KeeperFX files installation"), wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION, this);
+        if (msgRet != wxYES) {
+            wxLogMessage(wxT("Files copy operation canceled."));
+            return;
+        }
+        wxLogMessage(wxT("TODO."));
+    }
+}
+
+void LauncherFrame::OnSettings(wxCommandEvent& WXUNUSED(event))
+{
+    wxMessageBox(_T("Unfinished function. Please edit \"keeperfx.cfg\" by hand."),
+                 _T("KeeperFX Launcher"), wxOK | wxICON_WARNING, this);
+}
+
+void LauncherFrame::OnRunGame(wxCommandEvent& WXUNUSED(event))
+{
+    wxMessageBox(_T("Unfinished function."),
+                 _T("KeeperFX Launcher"), wxOK | wxICON_WARNING, this);
 }
 
 void LauncherFrame::RecheckBasicFiles(void)
@@ -177,7 +225,7 @@ void LauncherFrame::RecheckBasicFiles(void)
     if (can_start)
     {
         flCheck->clearResults();
-        if (!flCheck->verifyList(supplied_basic_check)) {
+        if (!flCheck->verifyList(fxWorkDir.wchar_str(),supplied_basic_check)) {
             wxLogMessage(wxT("Files which are supposed to be included in KeeperFX package are not present."));
             can_start = false;
         }
@@ -185,7 +233,7 @@ void LauncherFrame::RecheckBasicFiles(void)
     if (can_start)
     {
         flCheck->clearResults();
-        if (!flCheck->verifyList(additional_basic_check)) {
+        if (!flCheck->verifyList(fxWorkDir.wchar_str(),additional_basic_check)) {
             wxLogMessage(wxT("Game files which have to be copied from original DK are not present."));
             can_start = false;
         }
