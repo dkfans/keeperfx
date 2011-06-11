@@ -4,10 +4,6 @@
 /** @file md5.hpp
  *     Source code for the C++/object oriented translation and modification
  *     of MD5.
- * @par Purpose:
- *     Defines Application - core class of the program.
- * @par Comment:
- *     None.
  * @author   Translation and modification (c) 1995 by Mordechai T. Abzug
  * @date     28 Aug 1995 - 07 Jun 2011
  * @par  Copying and copyrights:
@@ -24,8 +20,8 @@
    MD5.H - header file for MD5C.C
    MDDRIVER.C - test driver for MD2, MD4 and MD5
 
-   Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All
-rights reserved.
+   Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991.
+   All rights reserved.
 
 License to copy and use this software is granted provided that it
 is identified as the "RSA Data Security, Inc. MD5 Message-Digest
@@ -46,51 +42,61 @@ These notices must be retained in any copies of any part of this
 documentation and/or software.
 
 */
+#ifndef MD5_HPP_
+#define MD5_HPP_
 
-#include <cstdio>
 #include <fstream>
 #include <iostream>
 
 class MD5 {
 
 public:
-// methods for controlled operation:
+  /** @name Methods for controlled operation.
+   @{ */
   MD5              ();  // simple initializer
   void  update     (unsigned char *input, unsigned int input_length);
   void  update     (std::istream& stream);
   void  update     (FILE *file);
   void  update     (std::ifstream& stream);
   void  finalize   ();
+  /** @} */
 
-// constructors for special circumstances.  All these constructors finalize
-// the MD5 context.
+  /** @name Constructors for special circumstances.
+   * All these constructors finalize the MD5 context.
+   @{ */
   MD5              (unsigned char *string); // digest string, finalize
   MD5              (std::istream& stream);       // digest stream, finalize
   MD5              (FILE *file);            // digest file, close, finalize
   MD5              (std::ifstream& stream);      // digest stream, close, finalize
+  /** @} */
 
-// methods to acquire finalized result
-  unsigned char    *raw_digest ();  // digest as a 16-byte binary array
-  char *            hex_digest ();  // digest as a 33-byte ascii-hex string
+  /** @name Methods to acquire finalized result.
+   @{ */
+  unsigned char    *raw_digest();  // digest as a 16-byte binary array
+  char *            hex_digest();  // digest as a 33-byte ascii-hex string
   friend std::ostream&   operator<< (std::ostream&, MD5 context);
-
-
+  /** @} */
 
 private:
 
-// first, some types:
+  /** @name Some types.
+   @{ */
   typedef unsigned       int uint4; // assumes integer is 4 words long
   typedef unsigned short int uint2; // assumes short integer is 2 words long
   typedef unsigned      char uint1; // assumes char is 1 word long
+  /** @} */
 
-// next, the private data:
+  /** @name Private data.
+   @{ */
   uint4 state[4];
   uint4 count[2];     // number of *bits*, mod 2^64
   uint1 buffer[64];   // input buffer
   uint1 digest[16];
   uint1 finalized;
+  /** @} */
 
-// last, the private methods, mostly static:
+  /** @name Private methods, mostly static.
+   @{ */
   void init             ();               // called by all constructors
   void transform        (uint1 *buffer);  // does the real update work.  Note
                                           // that length is implied to be 64.
@@ -113,6 +119,7 @@ private:
 			    uint4 s, uint4 ac);
   static inline void   II  (uint4& a, uint4 b, uint4 c, uint4 d, uint4 x,
 			    uint4 s, uint4 ac);
-
+  /** @} */
 };
 /******************************************************************************/
+#endif // MD5_HPP_

@@ -23,6 +23,7 @@
 
 class wxImagePanel;
 class LauncherFrame;
+class FilelistChecker;
 
 // ----------------------------------------------------------------------------
 // private classes
@@ -54,6 +55,8 @@ class LauncherFrame : public wxImageFrame
 
     wxLog *logTarget;
 
+    FilelistChecker * flCheck;
+
 public:
     // ctor(s)/dtor(s)
     LauncherFrame(const wxString& title);
@@ -62,6 +65,10 @@ public:
     // event handlers (these functions should _not_ be virtual)
     void OnQuit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
+    void OnShow(wxShowEvent& event);
+
+    // Own utility functions
+    void RecheckBasicFiles(void);
 
 private:
     // any class wishing to process wxWidgets events must use this macro

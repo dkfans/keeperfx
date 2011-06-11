@@ -19,7 +19,15 @@
 #include "LauncherApp.hpp"
 
 #include <wx/sizer.h>
-#include "wxImagePanel.hpp"
+#include "wxImageFrame.hpp"
+#include "FilelistChecker.hpp"
+
+//TODO: finish checking files integrity; make integrity check button
+//TODO: make launching the game
+//TODO: make view readme / view log buttons
+//TODO: make command options / settings dialogs
+//TODO: make the window movable with mouse
+//TODO: make writing configuration
 
 // ----------------------------------------------------------------------------
 // resources
@@ -41,6 +49,7 @@
 BEGIN_EVENT_TABLE(LauncherFrame, wxImageFrame)
     EVT_BUTTON(Event_Quit,  LauncherFrame::OnQuit)
     EVT_BUTTON(Event_About, LauncherFrame::OnAbout)
+    EVT_SHOW(LauncherFrame::OnShow)
 END_EVENT_TABLE()
 
 // Create a new application object: this macro will allow wxWidgets to create
@@ -108,6 +117,7 @@ LauncherFrame::LauncherFrame(const wxString& title)
     configButton = NULL;
 
     startButton = new wxButton( this, Event_RunGame, _T("Sta&rt game"), wxPoint(24,320), wxSize(96,30), wxNO_BORDER );
+    startButton->Disable();
     quitButton = new wxButton( this, Event_Quit, _T("E&xit"), wxPoint(360,320), wxSize(96,30), wxNO_BORDER );
     configButton = new wxButton( this, Event_Settings, _T("Se&ttings"), wxPoint(192,320), wxSize(96,30), wxNO_BORDER );
 
@@ -123,6 +133,8 @@ LauncherFrame::LauncherFrame(const wxString& title)
 
     msgTextCtrl->SetBackgroundColour(wxT("black"));
     msgTextCtrl->SetForegroundColour(wxT("white"));
+
+    flCheck = new FilelistChecker();
 }
 
 LauncherFrame::~LauncherFrame()
@@ -151,4 +163,37 @@ void LauncherFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
                  _T("About KeeperFX Launcher"),
                  wxOK | wxICON_INFORMATION,
                  this);
+}
+
+void LauncherFrame::OnShow(wxShowEvent& WXUNUSED(event))
+{
+    RecheckBasicFiles();
+}
+
+void LauncherFrame::RecheckBasicFiles(void)
+{
+    bool can_start;
+    can_start = true;
+    if (can_start)
+    {
+        flCheck->clearResults();
+        if (!flCheck->verifyList(supplied_basic_check)) {
+            wxLogMessage(wxT("Files which are supposed to be included in KeeperFX package are not present."));
+            can_start = false;
+        }
+    }
+    if (can_start)
+    {
+        flCheck->clearResults();
+        if (!flCheck->verifyList(additional_basic_check)) {
+            wxLogMessage(wxT("Game files which have to be copied from original DK are not present."));
+            can_start = false;
+        }
+    }
+    if (can_start) {
+        startButton->Enable();
+        wxLogMessage(wxT("Ready to start the game."));
+    } else {
+        startButton->Disable();
+    }
 }

@@ -1,0 +1,66 @@
+/******************************************************************************/
+// Utility routines.
+/******************************************************************************/
+/** @file FilelistChecker.hpp
+ *     Header file for FilelistChecker.cpp.
+ * @par Purpose:
+ *     Checks integrity of list of files.
+ * @par Comment:
+ *     None.
+ * @author   KeeperFX Team
+ * @date     08 Jun 2011 - 10 Jun 2011
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
+#ifndef FILELISTCHECKER_HPP_
+#define FILELISTCHECKER_HPP_
+
+#include <string>
+#include <vector>
+
+enum CheckItemFlags {
+    CIF_Default = 0x00,
+    CIF_NotMandatory = 0x01,
+    CIF_VerifyChecksum = 0x02,
+};
+
+enum CheckItemResult {
+    CIR_Correct = 0,
+    CIR_NotFound,
+    CIR_AccessFail,
+    CIR_BadChecksum,
+};
+
+struct CheckItem {
+    const char *filename;
+    unsigned short flags;
+    unsigned char md5sum[16];
+};
+
+class FilelistChecker
+{
+public:
+    FilelistChecker();
+    virtual ~FilelistChecker();
+    bool verifyList(const struct CheckItem *ciList);
+    void clearResults(void);
+    int getNumTotal(void);
+    int getNumFailed(void);
+    const char * getFailedFilename(int idx);
+private:
+    int verifyItem(const struct CheckItem &cItem);
+    static bool fileExists(const char * filename, bool acceptFolders, bool acceptSpecial);
+    int ntotal;
+    int nfailed;
+    std::vector<std::string> failedFiles;
+};
+
+extern const struct CheckItem supplied_basic_check[];
+extern const struct CheckItem additional_basic_check[];
+
+/******************************************************************************/
+#endif /* FILELISTCHECKER_HPP_ */
