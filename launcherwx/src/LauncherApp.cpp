@@ -192,50 +192,54 @@ void LauncherFrame::onAbout(wxCommandEvent& WXUNUSED(event))
 
 void LauncherFrame::onInstall(wxCommandEvent& WXUNUSED(event))
 {
-    wxDirDialog dialog(this, _T("Select folder with original Dungeon Keeper files"), installSrcDir, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
-    if (dialog.ShowModal() == wxID_OK)
     {
-        int msgRet;
+        wxDirDialog dialog(this, _T("Select folder with original Dungeon Keeper files"), installSrcDir, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+        if (dialog.ShowModal() != wxID_OK)
+        {
+            recheckBasicFiles();
+            return;
+        }
         installSrcDir = dialog.GetPath();
-        flCheck->clearResults();
-        if (!flCheck->verifyList(installSrcDir.wchar_str(),additional_complete_check)) {
-            wxMessageBox(_T("The folder you've selected dosn't seem to contain files needed by KeeperFX.\n")
-                _T("Please select the proper folder, or try with another release or Dungeon Keeper."),
-                _T("Dungeon Keeper folder not correct"), wxOK | wxICON_WARNING, this);
-            recheckBasicFiles();
-            return;
-        }
-        msgRet = wxMessageBox(_T("The files in selected folder have been checked and are correct.\n")
-                _T("When copied into KeeperFX folder, they will allow you to play the game. Do you want to copy the files from selected folder?"),
-                _T("KeeperFX files installation"), wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION, this);
-        if (msgRet != wxYES) {
-            wxLogMessage(wxT("Files copy operation canceled."));
-            recheckBasicFiles();
-            return;
-        }
-        bool cpRet;
-        flCheck->clearResults();
-        cpRet = flCheck->copyFilesList(fxWorkDir.wchar_str(),additional_complete_check,installSrcDir.wchar_str(),additional_complete_check);
-        if (!cpRet) {
-            int nfailed,n;
-            wxString msg =
-                _T("Some files couldn't be copied. Installation failed.\n")
-                _T("\n")
-                _T("List of problematic files:\n");
-            nfailed = flCheck->getNumFailed();
-            for (n=0; n < nfailed; n++) {
-                msg += flCheck->getFailedFilename(n); msg += L"\n";
-                if (n > 9) {
-                    msg += L"... (more files are on the list)\n";
-                    break;
-                }
-            }
-            wxMessageBox(msg, _T("Failed to copy files"), wxOK | wxICON_ERROR, this);
-
-        }
-        wxLogMessage(wxT("Installation complete."));
-        recheckBasicFiles();
     }
+    int msgRet;
+    flCheck->clearResults();
+    if (!flCheck->verifyList(installSrcDir.wchar_str(),additional_complete_check)) {
+        wxMessageBox(_T("The folder you've selected dosn't seem to contain files needed by KeeperFX.\n")
+            _T("Please select the proper folder, or try with another release or Dungeon Keeper."),
+            _T("Dungeon Keeper folder not correct"), wxOK | wxICON_WARNING, this);
+        recheckBasicFiles();
+        return;
+    }
+    msgRet = wxMessageBox(_T("The files in selected folder have been checked and are correct.\n")
+            _T("When copied into KeeperFX folder, they will allow you to play the game. Do you want to copy the files from selected folder?"),
+            _T("KeeperFX files installation"), wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION, this);
+    if (msgRet != wxYES) {
+        wxLogMessage(wxT("Files copy operation canceled."));
+        recheckBasicFiles();
+        return;
+    }
+    bool cpRet;
+    flCheck->clearResults();
+    cpRet = flCheck->copyFilesList(fxWorkDir.wchar_str(),additional_complete_check,installSrcDir.wchar_str(),additional_complete_check);
+    if (!cpRet) {
+        int nfailed,n;
+        wxString msg =
+            _T("Some files couldn't be copied. Installation failed.\n")
+            _T("\n")
+            _T("List of problematic files:\n");
+        nfailed = flCheck->getNumFailed();
+        for (n=0; n < nfailed; n++) {
+            msg += flCheck->getFailedFilename(n); msg += L"\n";
+            if (n > 9) {
+                msg += L"... (more files are on the list)\n";
+                break;
+            }
+        }
+        wxMessageBox(msg, _T("Failed to copy files"), wxOK | wxICON_ERROR, this);
+
+    }
+    wxLogMessage(wxT("Installation complete."));
+    recheckBasicFiles();
 }
 
 std::wstring LauncherFrame::getSystemStartCommand(void)
@@ -319,3 +323,4 @@ void LauncherFrame::recheckBasicFiles(void)
         startButton->Disable();
     }
 }
+/******************************************************************************/

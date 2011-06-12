@@ -32,3 +32,4 @@ GameSettings::GameSettings()
 GameSettings::~GameSettings()
 {
 }
+/******************************************************************************/

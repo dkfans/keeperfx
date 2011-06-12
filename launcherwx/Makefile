@@ -42,7 +42,8 @@ include wx/config.gcc
 
 # Variables
 
-CPPDEPS = -MT$@ -MF$@.d -MD -MP
+DEPFLAGS = -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MD -MP 
+# linker flags
 WX_RELEASE_NODOT = 28
 LIBDIRNAME = ./wx/lib/gcc_$(LIBTYPE_SUFFIX)$(CFG)
 SETUPHDIR = \
@@ -55,8 +56,9 @@ WXWIDGETS_CXXFLAGS = $(__DEBUGINFO) $(__OPTIMIZEFLAG_2) $(__THREADSFLAG) \
 	$(____CAIRO_INCLUDEDIR_FILENAMES_p) -W -Wall $(__DLLFLAG_p) \
 	-DNOPCH $(__RTTIFLAG_5) $(__EXCEPTIONSFLAG_6) \
 	-Wno-ctor-dtor-privacy $(CPPFLAGS)
-CXXFLAGS = -c $(WXWIDGETS_CXXFLAGS) $(CPPDEPS)
-CFLAGS = -c $(CPPDEPS) 
+CXXFLAGS = -c $(WXWIDGETS_CXXFLAGS) $(DEPFLAGS)
+LDFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import
+CFLAGS = -c $(DEPFLAGS) 
 
 # Conditionally set variables
 
