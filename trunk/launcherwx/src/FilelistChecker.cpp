@@ -419,3 +419,4 @@ const wchar_t * FilelistChecker::getFailedFilename(int idx)
 {
     return failedFiles[idx].c_str();
 }
+/******************************************************************************/
