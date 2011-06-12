@@ -50,6 +50,9 @@
 // simple menu events like this the static method is much simpler.
 BEGIN_EVENT_TABLE(LauncherFrame, wxImageFrame)
     EVT_SHOW(LauncherFrame::onShow)
+    EVT_LEFT_DOWN(LauncherFrame::onLeftDown)
+    EVT_LEFT_UP(LauncherFrame::onLeftUp)
+    EVT_MOTION(LauncherFrame::onMouseMove)
     EVT_BUTTON(Event_Quit,  LauncherFrame::onQuit)
     EVT_BUTTON(Event_About, LauncherFrame::onAbout)
     EVT_BUTTON(Event_RunGame, LauncherFrame::onRunGame)
@@ -188,6 +191,34 @@ void LauncherFrame::onAbout(wxCommandEvent& WXUNUSED(event))
                  _T("About KeeperFX Launcher"),
                  wxOK | wxICON_INFORMATION,
                  this);
+}
+
+void LauncherFrame::onLeftDown(wxMouseEvent& event)
+{
+    CaptureMouse();
+    wxPoint pos = ClientToScreen(event.GetPosition());
+    wxPoint origin = GetPosition();
+    int dx =  pos.x - origin.x;
+    int dy = pos.y - origin.y;
+    moveDelta = wxPoint(dx, dy);
+}
+
+void LauncherFrame::onLeftUp(wxMouseEvent& WXUNUSED(event))
+{
+    if (HasCapture())
+    {
+        ReleaseMouse();
+    }
+}
+
+void LauncherFrame::onMouseMove(wxMouseEvent& event)
+{
+    wxPoint pt = event.GetPosition();
+    if (event.Dragging() && event.LeftIsDown())
+    {
+        wxPoint pos = ClientToScreen(pt);
+        Move(wxPoint(pos.x - moveDelta.x, pos.y - moveDelta.y));
+    }
 }
 
 void LauncherFrame::onInstall(wxCommandEvent& WXUNUSED(event))

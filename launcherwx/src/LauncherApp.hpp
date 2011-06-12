@@ -62,6 +62,7 @@ class LauncherFrame : public wxImageFrame
     wxTextCtrl * msgTextCtrl;
 
     wxLog *logTarget;
+    wxPoint  moveDelta;
 
     wxString installSrcDir;
     wxString fxWorkDir;
@@ -77,6 +78,9 @@ public:
     void onShow(wxShowEvent& event);
     void onQuit(wxCommandEvent& event);
     void onAbout(wxCommandEvent& event);
+    void onLeftDown(wxMouseEvent& event);
+    void onLeftUp(wxMouseEvent& event);
+    void onMouseMove(wxMouseEvent& event);
     void onRunGame(wxCommandEvent& event);
     void onInstall(wxCommandEvent& event);
     void onOptions(wxCommandEvent& event);
