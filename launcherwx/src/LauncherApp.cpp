@@ -202,7 +202,27 @@ void LauncherFrame::OnInstall(wxCommandEvent& WXUNUSED(event))
             wxLogMessage(wxT("Files copy operation canceled."));
             return;
         }
-        wxLogMessage(wxT("TODO."));
+        bool cpRet;
+        flCheck->clearResults();
+        cpRet = flCheck->copyFilesList(fxWorkDir.wchar_str(),additional_complete_check,installSrcDir.wchar_str(),additional_complete_check);
+        if (!cpRet) {
+            int nfailed,n;
+            wxString msg =
+                _T("Some files couldn't be copied. Installation failed.\n")
+                _T("\n")
+                _T("List of problematic files:\n");
+            nfailed = flCheck->getNumFailed();
+            for (n=0; n < nfailed; n++) {
+                msg += flCheck->getFailedFilename(n); msg += L"\n";
+                if (n > 9) {
+                    msg += L"... (more files are on the list)\n";
+                    break;
+                }
+            }
+            wxMessageBox(msg, _T("Failed to copy files"), wxOK | wxICON_ERROR, this);
+
+        }
+        wxLogMessage(wxT("Installation complete."));
     }
 }
 

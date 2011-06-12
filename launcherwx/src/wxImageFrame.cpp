@@ -41,7 +41,7 @@ wxFrame(parent, id, title, wxDefaultPosition, wxSize (480, 360), wxCLIP_CHILDREN
  * calling Refresh()/Update().
  */
 
-void wxImageFrame::paintEvent(wxPaintEvent & evt)
+void wxImageFrame::paintEvent(wxPaintEvent & WXUNUSED(evt))
 {
     // depending on your system you may need to look at double-buffered dcs
     wxPaintDC dc(this);

@@ -51,6 +51,8 @@ public:
     int getNumTotal(void);
     int getNumFailed(void);
     const wchar_t * getFailedFilename(int idx);
+    bool copyFilesList(const wchar_t *dstFolder, const struct CheckItem *dstList, const wchar_t *srcFolder, const struct CheckItem *srcList);
+    bool copyFile(const wchar_t *dstFolder, const struct CheckItem &dstItem, const wchar_t *srcFolder, const struct CheckItem &srcItem);
 private:
     int verifyItem(const wchar_t *folder, const struct CheckItem &cItem);
     static bool fileExists(const wchar_t * filename, bool acceptFolders, bool acceptSpecial);
