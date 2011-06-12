@@ -112,11 +112,6 @@ struct CreatureModelConfig {
     unsigned short model_flags;
 };
 
-struct CreatureStateConfig {
-    char name[COMMAND_WORD_LEN];
-    unsigned short state_flags;
-};
-
 struct CreatureData {
       unsigned char flags;
       short field_1;

@@ -28,6 +28,7 @@ extern "C" {
 
 #define LIGHT_MAX_RANGE        30
 #define LIGHTS_COUNT          400
+#define MINIMUM_LIGHTNESS    8192
 
 enum ShadowCacheFlags {
     ShCF_Allocated = 0x01,

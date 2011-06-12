@@ -37,23 +37,23 @@ extern "C" {
 /******************************************************************************/
 struct Boing {
   unsigned char field_0;
-  unsigned char field_1;
-  unsigned char field_2;
-  unsigned char field_3;
-  unsigned char field_4;
+  unsigned char comp_player_aggressive;
+  unsigned char comp_player_defensive;
+  unsigned char comp_player_construct;
+  unsigned char comp_player_creatrsonly;
   unsigned char field_5;
   unsigned char field_6;
-  unsigned short field_7;
-  unsigned short field_9;
+  unsigned short hand_over_subtile_x;
+  unsigned short hand_over_subtile_y;
   unsigned long field_B;
   unsigned long field_F;
   unsigned long field_13;
-  unsigned long field_17;
-  unsigned long field_1B;
-  unsigned long field_1F;
-  unsigned long field_23;
+  unsigned long chosen_spell_type;
+  unsigned long chosen_spell_look;
+  unsigned long chosen_spell_tooltip;
+  unsigned long manufactr_element;
   unsigned long field_27;
-  unsigned long field_2B;
+  unsigned long manufactr_tooltip;
 };
 /******************************************************************************/
 DLLIMPORT void _DK_resync_game(void);
@@ -97,53 +97,52 @@ TbBool send_resync_game(void)
 
 TbBool receive_resync_game(void)
 {
-  NETLOG("Initiating re-synchronization of network game");
-  return LbNetwork_Resync(&game, sizeof(game));
+    NETLOG("Initiating re-synchronization of network game");
+    return LbNetwork_Resync(&game, sizeof(game));
 }
 
 void store_localised_game_structure(void)
 {
-  boing.field_0 = game.field_1517F6;
-  boing.field_1 = game.comp_player_aggressive;
-  boing.field_2 = game.comp_player_defensive;
-  boing.field_3 = game.comp_player_construct;
-  boing.field_4 = game.comp_player_creatrsonly;
-  boing.field_5 = game.creatures_tend_1;
-  boing.field_6 = game.creatures_tend_2;
-  boing.field_7 = game.hand_over_subtile_x;
-  boing.field_9 = game.hand_over_subtile_y;
-  boing.field_B = game.field_151801;
-  boing.field_F = game.field_151805;
-  boing.field_13 = game.field_151809;
-  boing.field_17 = game.chosen_spell_type;
-  boing.field_1B = game.chosen_spell_look;
-  boing.field_1F = game.chosen_spell_tooltip;
-  boing.field_23 = game.manufactr_element;
-  boing.field_27 = game.numfield_15181D;
-  boing.field_2B = game.manufactr_tooltip;
-
+    boing.field_0 = game.field_1517F6;
+    boing.comp_player_aggressive = game.comp_player_aggressive;
+    boing.comp_player_defensive = game.comp_player_defensive;
+    boing.comp_player_construct = game.comp_player_construct;
+    boing.comp_player_creatrsonly = game.comp_player_creatrsonly;
+    boing.field_5 = game.creatures_tend_1;
+    boing.field_6 = game.creatures_tend_2;
+    boing.hand_over_subtile_x = game.hand_over_subtile_x;
+    boing.hand_over_subtile_y = game.hand_over_subtile_y;
+    boing.field_B = game.field_151801;
+    boing.field_F = game.field_151805;
+    boing.field_13 = game.field_151809;
+    boing.chosen_spell_type = game.chosen_spell_type;
+    boing.chosen_spell_look = game.chosen_spell_look;
+    boing.chosen_spell_tooltip = game.chosen_spell_tooltip;
+    boing.manufactr_element = game.manufactr_element;
+    boing.field_27 = game.numfield_15181D;
+    boing.manufactr_tooltip = game.manufactr_tooltip;
 }
 
 void recall_localised_game_structure(void)
 {
     game.field_1517F6 = boing.field_0;
-    game.comp_player_aggressive = boing.field_1;
-    game.comp_player_defensive = boing.field_2;
-    game.comp_player_construct = boing.field_3;
-    game.comp_player_creatrsonly = boing.field_4;
+    game.comp_player_aggressive = boing.comp_player_aggressive;
+    game.comp_player_defensive = boing.comp_player_defensive;
+    game.comp_player_construct = boing.comp_player_construct;
+    game.comp_player_creatrsonly = boing.comp_player_creatrsonly;
     game.creatures_tend_1 = boing.field_5;
     game.creatures_tend_2 = boing.field_6;
-    game.hand_over_subtile_x = boing.field_7;
-    game.hand_over_subtile_y = boing.field_9;
+    game.hand_over_subtile_x = boing.hand_over_subtile_x;
+    game.hand_over_subtile_y = boing.hand_over_subtile_y;
     game.field_151801 = boing.field_B;
     game.field_151805 = boing.field_F;
     game.field_151809 = boing.field_13;
-    game.chosen_spell_type = boing.field_17;
-    game.chosen_spell_look = boing.field_1B;
-    game.chosen_spell_tooltip = boing.field_1F;
-    game.manufactr_element = boing.field_23;
+    game.chosen_spell_type = boing.chosen_spell_type;
+    game.chosen_spell_look = boing.chosen_spell_look;
+    game.chosen_spell_tooltip = boing.chosen_spell_tooltip;
+    game.manufactr_element = boing.manufactr_element;
     game.numfield_15181D = boing.field_27;
-    game.manufactr_tooltip = boing.field_2B;
+    game.manufactr_tooltip = boing.manufactr_tooltip;
 }
 
 void resync_game(void)
