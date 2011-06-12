@@ -449,8 +449,8 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         crstat = creature_stats_get_from_thing(thing);
         // Now mv_a becomes a circle radius
         mv_a = crstat->eye_height + thing->mappos.z.val;
-        mv_x = thing->mappos.x.val + (mv_a * LbSinL(cam->orient_a) >> 16) - cam->mappos.x.val;
-        mv_y = thing->mappos.y.val - (mv_a * LbCosL(cam->orient_a) >> 16) - cam->mappos.y.val;
+        mv_x = thing->mappos.x.val + (mv_a * LbSinL(cam->orient_a) >> 16) - (long)cam->mappos.x.val;
+        mv_y = thing->mappos.y.val - (mv_a * LbCosL(cam->orient_a) >> 16) - (long)cam->mappos.y.val;
         if (mv_x < -128)
         {
             mv_x = -128;

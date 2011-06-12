@@ -24,6 +24,7 @@
 
 #define LIGHT_MAX_RANGE        30
 #define LIGHTS_COUNT          400
+#define MINIMUM_LIGHTNESS    8192
 
 #ifdef __cplusplus
 extern "C" {

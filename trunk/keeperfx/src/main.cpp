@@ -643,14 +643,14 @@ void setup_block_mem(void)
     n = 0;
     for (i=0; i < 68; i++)
     {
-      src = block_mem + n;
-      for (k=0; k < 8; k++)
-      {
-        *dst = src;
-        src += 32;
-        dst++;
-      }
-      n += 8192;
+        src = block_mem + n;
+        for (k=0; k < 8; k++)
+        {
+            *dst = src;
+            src += 32;
+            dst++;
+        }
+        n += 8192;
     }
 }
 
@@ -7165,7 +7165,7 @@ void engine(struct Camera *cam)
     pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
     lens = (cam->field_13 * ((long)MyScreenWidth))/pixel_size / 320;
     if (lens_mode == 0)
-      update_blocks_pointed();
+        update_blocks_pointed();
     LbScreenStoreGraphicsWindow(&grwnd);
     store_engine_window(&ewnd,pixel_size);
     view_height_over_2 = ewnd.height/2;

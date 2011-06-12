@@ -34,6 +34,38 @@ extern "C" {
 
 #define POLY_SCANS_COUNT 576
 
+enum VecModes {
+    VM_Unknown0 = 0,
+    VM_Unknown1,
+    VM_Unknown2,
+    VM_Unknown3,
+    VM_Unknown4,
+    VM_Unknown5,
+    VM_Unknown6,
+    VM_Unknown7,
+    VM_Unknown8,
+    VM_Unknown9,
+    VM_Unknown10,
+    VM_Unknown11,
+    VM_Unknown12,
+    VM_Unknown13,
+    VM_Unknown14,
+    VM_Unknown15,
+    VM_Unknown16,
+    VM_Unknown17,
+    VM_Unknown18,
+    VM_Unknown19,
+    VM_Unknown20,
+    VM_Unknown21,
+    VM_Unknown22,
+    VM_Unknown23,
+    VM_Unknown24,
+    VM_Unknown25,
+    VM_Unknown26,
+    VM_Unknown27,
+};
+
+
 struct PolyPoint { // sizeof = 20
   long field_0;
   long field_4;

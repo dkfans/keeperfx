@@ -215,6 +215,9 @@ WARNFLAGS = -Wall -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing
 CXXFLAGS = $(CXXINCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
 CFLAGS = $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
 
+# dependencies tracking
+-include obj/*.d
+
 .PHONY: all all-before all-after debug docs docsdox clean clean-custom
 
 all: all-before $(BIN) all-after

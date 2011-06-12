@@ -72,7 +72,6 @@ unsigned char *vec_pal=NULL;
 unsigned long vec_screen_width=0;
 unsigned long vec_window_width=0;
 unsigned long vec_window_height=0;
-unsigned char vec_mode=0;
 unsigned char *dither_map=NULL;
 unsigned char *dither_end=NULL;
 struct StartScreenPoint proj_origin = { (640>>1)-1, ((480+60)>>1)-1 };
