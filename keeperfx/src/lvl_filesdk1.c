@@ -643,7 +643,7 @@ TbBool load_map_data_file(unsigned long lv_num)
     for (x=0; x < (map_subtiles_x+1); x++)
     {
       map = get_map_block_at(x,y);
-      wptr = &game.field_46157[get_subtile_number(x,y)];
+      wptr = &game.subtile_lightness[get_subtile_number(x,y)];
       *wptr = 32;
       map->data &= 0xFFC007FFu;
       map->data &= 0xF0FFFFFFu;

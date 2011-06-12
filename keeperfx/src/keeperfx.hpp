@@ -457,7 +457,7 @@ int field_4614F;
 int field_46153;
 // end of "LightSystem"
 
-    unsigned short field_46157[256*256];
+    unsigned short subtile_lightness[256*256];
     struct CreatureControl cctrl_data[CREATURES_COUNT];
     struct Thing things_data[THINGS_COUNT];
     unsigned char navigation_map[256*256];
