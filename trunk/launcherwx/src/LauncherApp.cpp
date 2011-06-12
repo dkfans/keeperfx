@@ -21,6 +21,8 @@
 #include <wx/sizer.h>
 #include "wxImageFrame.hpp"
 #include "FilelistChecker.hpp"
+#include "GameSettings.hpp"
+#include "CommandOptions.hpp"
 
 //TODO: finish checking files integrity; make integrity check button
 //TODO: make launching the game
@@ -47,12 +49,15 @@
 // handlers) which process them. It can be also done at run-time, but for the
 // simple menu events like this the static method is much simpler.
 BEGIN_EVENT_TABLE(LauncherFrame, wxImageFrame)
-    EVT_SHOW(LauncherFrame::OnShow)
-    EVT_BUTTON(Event_Quit,  LauncherFrame::OnQuit)
-    EVT_BUTTON(Event_About, LauncherFrame::OnAbout)
-    EVT_BUTTON(Event_RunGame, LauncherFrame::OnRunGame)
-    EVT_BUTTON(Event_Install, LauncherFrame::OnInstall)
-    EVT_BUTTON(Event_Settings, LauncherFrame::OnSettings)
+    EVT_SHOW(LauncherFrame::onShow)
+    EVT_BUTTON(Event_Quit,  LauncherFrame::onQuit)
+    EVT_BUTTON(Event_About, LauncherFrame::onAbout)
+    EVT_BUTTON(Event_RunGame, LauncherFrame::onRunGame)
+    EVT_BUTTON(Event_Install, LauncherFrame::onInstall)
+    EVT_BUTTON(Event_Settings, LauncherFrame::onSettings)
+    EVT_BUTTON(Event_Options, LauncherFrame::onOptions)
+    EVT_BUTTON(Event_Readme, LauncherFrame::onReadme)
+    EVT_BUTTON(Event_Logfile, LauncherFrame::onLogfile)
 END_EVENT_TABLE()
 
 // Create a new application object: this macro will allow wxWidgets to create
@@ -81,22 +86,17 @@ bool LauncherApp::OnInit()
     // make sure to call this before using images
     wxInitAllImageHandlers();
 
-    //wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-
     // create the main application window
     frame = new LauncherFrame(_T("KeeperFX Launcher"));
-
-    // then create a panel with image on
-    //drawPane = new wxImagePanel( frame, wxT("launchermn.jpg"), wxBITMAP_TYPE_JPEG);
-    //sizer->Add(drawPane, 1, wxEXPAND);
-
-    //frame->SetSizer(sizer);
 
     frame->CentreOnScreen(wxBOTH);
 
     // and show it (the frames, unlike simple controls, are not shown when
     // created initially)
     frame->Show(true);
+
+    cmdOpts = new CommandOptions();
+    settings = NULL;
 
     // success: wxApp::OnRun() will be called which will enter the main message
     // loop and the application will run. If we returned false here, the
@@ -124,7 +124,10 @@ LauncherFrame::LauncherFrame(const wxString& title)
     startButton->Disable();
     installButton = new wxButton( this, Event_Install, _T("In&stallation"), wxPoint(192,320), wxSize(96,30), wxNO_BORDER );
 
-    configButton = new wxButton( this, Event_Settings, _T("Se&ttings"), wxPoint(360,40), wxSize(96,30), wxNO_BORDER );
+    optionsButton = new wxButton( this, Event_Options, _T("Run &options"), wxPoint(320,40), wxSize(96,30), wxNO_BORDER );
+    configButton = new wxButton( this, Event_Settings, _T("Se&ttings"), wxPoint(320,80), wxSize(96,30), wxNO_BORDER );
+    readmeButton = new wxButton( this, Event_Readme, _T("R&eadme"), wxPoint(60,40), wxSize(96,30), wxNO_BORDER );
+    logfileButton = new wxButton( this, Event_Logfile, _T("&Log file"), wxPoint(60,80), wxSize(96,30), wxNO_BORDER );
 
     msgTextCtrl = new wxTextCtrl(this, wxID_ANY, _T("Initializing...\n"), wxPoint(96, 180), wxSize(480-2*96, 120), wxTE_MULTILINE);
     logTarget = wxLog::SetActiveTarget(new wxLogTextCtrl(msgTextCtrl));
@@ -133,8 +136,14 @@ LauncherFrame::LauncherFrame(const wxString& title)
     startButton->SetForegroundColour(wxT("white"));
     quitButton->SetBackgroundColour(wxT("black"));
     quitButton->SetForegroundColour(wxT("white"));
+    optionsButton->SetBackgroundColour(wxT("black"));
+    optionsButton->SetForegroundColour(wxT("white"));
     configButton->SetBackgroundColour(wxT("black"));
     configButton->SetForegroundColour(wxT("white"));
+    readmeButton->SetBackgroundColour(wxT("black"));
+    readmeButton->SetForegroundColour(wxT("white"));
+    logfileButton->SetBackgroundColour(wxT("black"));
+    logfileButton->SetForegroundColour(wxT("white"));
 
     installButton->SetBackgroundColour(wxT("black"));
     installButton->SetForegroundColour(wxT("white"));
@@ -155,18 +164,18 @@ LauncherFrame::~LauncherFrame()
 
 // event handlers
 
-void LauncherFrame::OnShow(wxShowEvent& WXUNUSED(event))
+void LauncherFrame::onShow(wxShowEvent& WXUNUSED(event))
 {
-    RecheckBasicFiles();
+    recheckBasicFiles();
 }
 
-void LauncherFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
+void LauncherFrame::onQuit(wxCommandEvent& WXUNUSED(event))
 {
     // true is to force the frame to close
     Close(true);
 }
 
-void LauncherFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
+void LauncherFrame::onAbout(wxCommandEvent& WXUNUSED(event))
 {
     wxMessageBox(wxString::Format(
                     _T("Welcome to %s!\n")
@@ -181,7 +190,7 @@ void LauncherFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
                  this);
 }
 
-void LauncherFrame::OnInstall(wxCommandEvent& WXUNUSED(event))
+void LauncherFrame::onInstall(wxCommandEvent& WXUNUSED(event))
 {
     wxDirDialog dialog(this, _T("Select folder with original Dungeon Keeper files"), installSrcDir, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
     if (dialog.ShowModal() == wxID_OK)
@@ -193,6 +202,7 @@ void LauncherFrame::OnInstall(wxCommandEvent& WXUNUSED(event))
             wxMessageBox(_T("The folder you've selected dosn't seem to contain files needed by KeeperFX.\n")
                 _T("Please select the proper folder, or try with another release or Dungeon Keeper."),
                 _T("Dungeon Keeper folder not correct"), wxOK | wxICON_WARNING, this);
+            recheckBasicFiles();
             return;
         }
         msgRet = wxMessageBox(_T("The files in selected folder have been checked and are correct.\n")
@@ -200,6 +210,7 @@ void LauncherFrame::OnInstall(wxCommandEvent& WXUNUSED(event))
                 _T("KeeperFX files installation"), wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION, this);
         if (msgRet != wxYES) {
             wxLogMessage(wxT("Files copy operation canceled."));
+            recheckBasicFiles();
             return;
         }
         bool cpRet;
@@ -223,22 +234,65 @@ void LauncherFrame::OnInstall(wxCommandEvent& WXUNUSED(event))
 
         }
         wxLogMessage(wxT("Installation complete."));
+        recheckBasicFiles();
     }
 }
 
-void LauncherFrame::OnSettings(wxCommandEvent& WXUNUSED(event))
+std::wstring LauncherFrame::getSystemStartCommand(void)
 {
-    wxMessageBox(_T("Unfinished function. Please edit \"keeperfx.cfg\" by hand."),
-                 _T("KeeperFX Launcher"), wxOK | wxICON_WARNING, this);
+    #if defined(__WXMSW__)
+        return L"start /b /i";
+    #elif defined(__WXMAC__)
+        return L"open";
+    #elif defined(__UNIX__)
+        return L"xdg-open";
+    #endif
 }
 
-void LauncherFrame::OnRunGame(wxCommandEvent& WXUNUSED(event))
+void LauncherFrame::onSettings(wxCommandEvent& WXUNUSED(event))
 {
+    //TODO: make showing GameSettings frame which can load, modify and save the file
+    wxString cmd;
+    cmd = getSystemStartCommand();
+    cmd += L" notepad.exe keeperfx.cfg";
+    system(cmd.char_str());
+}
+
+void LauncherFrame::onOptions(wxCommandEvent& WXUNUSED(event))
+{
+    //TODO: make showing CommandOptions frame
     wxMessageBox(_T("Unfinished function."),
                  _T("KeeperFX Launcher"), wxOK | wxICON_WARNING, this);
 }
 
-void LauncherFrame::RecheckBasicFiles(void)
+void LauncherFrame::onRunGame(wxCommandEvent& WXUNUSED(event))
+{
+    //TODO: make getting command line from CommandOptions frame
+    wxString cmd;
+    cmd = getSystemStartCommand();
+    cmd += L" keeperfx.exe";
+    system(cmd.char_str());
+}
+
+void LauncherFrame::onReadme(wxCommandEvent& WXUNUSED(event))
+{
+    //TODO: make our own "viewer" frame
+    wxString cmd;
+    cmd = getSystemStartCommand();
+    cmd += L" notepad.exe keeperfx_readme.txt";
+    system(cmd.char_str());
+}
+
+void LauncherFrame::onLogfile(wxCommandEvent& WXUNUSED(event))
+{
+    //TODO: make our own "viewer" frame
+    wxString cmd;
+    cmd = getSystemStartCommand();
+    cmd += L" notepad.exe keeperfx.log";
+    system(cmd.char_str());
+}
+
+void LauncherFrame::recheckBasicFiles(void)
 {
     bool can_start;
     can_start = true;
