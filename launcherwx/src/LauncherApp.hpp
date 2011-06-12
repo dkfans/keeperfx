@@ -24,6 +24,8 @@
 class wxImagePanel;
 class LauncherFrame;
 class FilelistChecker;
+class CommandOptions;
+class GameSettings;
 
 // ----------------------------------------------------------------------------
 // private classes
@@ -34,6 +36,8 @@ class LauncherApp : public wxApp
 {
     wxImagePanel * drawPane;
     LauncherFrame * frame;
+    CommandOptions * cmdOpts;
+    GameSettings * settings;
 
 public:
     // override base class virtuals
@@ -52,6 +56,9 @@ class LauncherFrame : public wxImageFrame
     wxButton * startButton;
     wxButton * installButton;
     wxButton * configButton;
+    wxButton * optionsButton;
+    wxButton * readmeButton;
+    wxButton * logfileButton;
     wxTextCtrl * msgTextCtrl;
 
     wxLog *logTarget;
@@ -67,15 +74,19 @@ public:
     ~LauncherFrame();
 
     // event handlers (these functions should _not_ be virtual)
-    void OnShow(wxShowEvent& event);
-    void OnQuit(wxCommandEvent& event);
-    void OnAbout(wxCommandEvent& event);
-    void OnRunGame(wxCommandEvent& event);
-    void OnInstall(wxCommandEvent& event);
-    void OnSettings(wxCommandEvent& event);
+    void onShow(wxShowEvent& event);
+    void onQuit(wxCommandEvent& event);
+    void onAbout(wxCommandEvent& event);
+    void onRunGame(wxCommandEvent& event);
+    void onInstall(wxCommandEvent& event);
+    void onOptions(wxCommandEvent& event);
+    void onSettings(wxCommandEvent& event);
+    void onReadme(wxCommandEvent& event);
+    void onLogfile(wxCommandEvent& event);
 
     // Own utility functions
-    void RecheckBasicFiles(void);
+    void recheckBasicFiles(void);
+    std::wstring getSystemStartCommand(void);
 
 private:
     // any class wishing to process wxWidgets events must use this macro
@@ -91,8 +102,11 @@ enum
 {
 	Event_Quit = wxID_EXIT,
 	Event_Settings = wxID_PROPERTIES,
+    Event_Options = wxID_PREFERENCES,
 	Event_Install = wxID_SETUP,
 	Event_RunGame = wxID_OPEN,
+    Event_Readme = wxID_HELP,
+    Event_Logfile = wxID_INDEX,
 
     // it is important for the id corresponding to the "About" command to have
     // this standard value as otherwise it won't be handled properly under Mac

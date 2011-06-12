@@ -31,6 +31,8 @@ LIBS   =
 OBJS   = \
 obj/wxImageFrame.o \
 obj/LauncherApp.o \
+obj/GameSettings.o \
+obj/CommandOptions.o \
 obj/FilelistChecker.o \
 obj/md5.o \
 $(RES)
