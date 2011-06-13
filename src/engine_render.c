@@ -106,13 +106,13 @@ long compute_cells_away(void)
     long xcell,ycell;
     struct PlayerInfo *player;
     long ncells_a;
-    half_width = (LbScreenWidth()*pixel_size) >> 1;
-    half_height = (LbScreenHeight()*pixel_size) >> 1;
     player = get_my_player();
+    half_width = (player->engine_window_width >> 1);
+    half_height = (player->engine_window_height >> 1);
     if ((vert_offset[1]) || (hori_offset[1]))
     {
       xcell = ((half_width<<1) + (half_width>>4))/pixel_size - player->engine_window_x/pixel_size - x_init_off;
-      ycell = (8 * high_offset[1] >> 8) - 20/pixel_size - player->engine_window_y/pixel_size - y_init_off;
+      ycell = ((8 * high_offset[1]) >> 8) - (half_width>>4)/pixel_size - player->engine_window_y/pixel_size - y_init_off;
       ymax = (((vert_offset[1] * xcell) >> 1) - ((vert_offset[0] * ycell) >> 1))
          / ((hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1]) >> 11) >> 2;
       xmax = (((hori_offset[1] * xcell) >> 1) - ((hori_offset[0] * ycell) >> 1))
