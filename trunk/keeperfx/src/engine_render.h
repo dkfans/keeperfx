@@ -481,7 +481,7 @@ void do_a_plane_of_engine_columns_isometric(long a1, long a2, long a3, long a4);
 void find_gamut(void);
 void fiddle_gamut(long a1, long a2);
 void create_map_volume_box(long a1, long a2, long a3);
-void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx);
+void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom);
 void rotate_base_axis(struct M33 *matx, short a2, unsigned char a3);
 void fill_in_points_perspective(long a1, long a2, struct MinMax *mm);
 void fill_in_points_cluedo(long a1, long a2, struct MinMax *mm);
