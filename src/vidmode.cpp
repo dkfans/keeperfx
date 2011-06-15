@@ -758,7 +758,7 @@ TbBool update_screen_mode_data(long width, long height)
   MyScreenWidth = width * (long)pixel_size;
   MyScreenHeight = height * (long)pixel_size;
   pixels_per_block = 16 * (long)pixel_size;
-  units_per_pixel = width/40;// originally was 16 for hires, 8 for lores
+  units_per_pixel = (width>height?width:height)/40;// originally was 16 for hires, 8 for lores
   if (MinimalResolutionSetup)
     LbSpriteSetupAll(setup_sprites_minimal);
   else
@@ -925,35 +925,34 @@ TbScreenMode reenter_video_mode(void)
 
 TbScreenMode switch_to_next_video_mode(void)
 {
-  TbScreenMode scrmode;
-  unsigned long prev_units_per_pixel_size;
-  prev_units_per_pixel_size = units_per_pixel*(long)pixel_size;
-  scrmode = get_next_vidmode(lbDisplay.ScreenMode);
-  if ( setup_screen_mode(scrmode) )
-  {
-      settings.video_scrnmode = scrmode;
-  } else
-  {
-      SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode",
-          get_vidmode_name(scrmode),(int)scrmode);
-      scrmode = get_failsafe_vidmode();
-      if ( !setup_screen_mode(scrmode) )
-      {
-        FatalError = 1;
-        exit_keeper = 1;
-        return Lb_SCREEN_MODE_INVALID;
-      }
-      settings.video_scrnmode = scrmode;
-  }
-  SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
-  save_settings();
-  if (game.numfield_C & 0x20)
-    setup_engine_window(140, 0, MyScreenWidth, MyScreenHeight);
-  else
-    setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-  keep_local_camera_zoom_level(prev_units_per_pixel_size);
-//  reinit_all_menus();
-  return scrmode;
+    TbScreenMode scrmode;
+    unsigned long prev_units_per_pixel_size;
+    prev_units_per_pixel_size = units_per_pixel*(long)pixel_size;
+    scrmode = get_next_vidmode(lbDisplay.ScreenMode);
+    if ( setup_screen_mode(scrmode) )
+    {
+        settings.video_scrnmode = scrmode;
+    } else
+    {
+        SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode",
+            get_vidmode_name(scrmode),(int)scrmode);
+        scrmode = get_failsafe_vidmode();
+        if ( !setup_screen_mode(scrmode) )
+        {
+          FatalError = 1;
+          exit_keeper = 1;
+          return Lb_SCREEN_MODE_INVALID;
+        }
+        settings.video_scrnmode = scrmode;
+    }
+    SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
+    save_settings();
+    if (game.numfield_C & 0x20)
+      setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
+    else
+      setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+//    reinit_all_menus();
+    return scrmode;
 }
 
 #if (BFDEBUG_LEVEL > 0)

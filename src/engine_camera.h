@@ -26,6 +26,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// Camera constants; max zoom is when everything is large
+#define CAMERA_ZOOM_MIN     4100
+#define CAMERA_ZOOM_MAX    12000
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -51,13 +56,12 @@ struct Camera {
     int orient_b;
     int orient_c;
     int field_13;
-    int field_17;
+    int zoom;
     int field_1B;
     unsigned char field_1F[9];
     short field_28;
 };
 
-/******************************************************************************/
 DLLIMPORT extern struct M33 _DK_camera_matrix;
 #define camera_matrix _DK_camera_matrix
 DLLIMPORT extern struct EngineCoord _DK_object_origin;
@@ -67,6 +71,8 @@ DLLIMPORT extern struct MinMax _DK_minmaxs[];
 
 #pragma pack()
 /******************************************************************************/
+extern long camera_zoom;
+/******************************************************************************/
 long get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
 long get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
 void angles_to_vector(short theta, short phi, long dist, struct ComponentVector *cvect);
@@ -74,6 +80,13 @@ long get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
 long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
 long get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
 void project_point_to_wall_on_angle(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4, long a5, long a6);
+
+void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min);
+void set_camera_zoom(struct Camera *cam, long val);
+void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min);
+long get_camera_zoom(struct Camera *cam);
+unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl);
+void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min);
 
 /******************************************************************************/
 #ifdef __cplusplus

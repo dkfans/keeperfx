@@ -2185,8 +2185,8 @@ long compute_menu_position_x(long desired_pos,int menu_width)
       if (pos+menu_width > lbDisplay.PhysicalScreenWidth*((long)pixel_size))
         pos = lbDisplay.PhysicalScreenWidth*((long)pixel_size)-menu_width;
 /* Helps not to touch left panel - disabling, as needs additional conditions
-      if (pos < 140)
-        pos = 140;
+      if (pos < status_panel_width)
+        pos = status_panel_width;
 */
       break;
   }

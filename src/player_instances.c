@@ -400,7 +400,7 @@ long pinstfs_control_creature(struct PlayerInfo *player, long *n)
   }
   cam = player->acamera;
   player->field_0 |= 0x10;
-  player->field_4B6 = get_camera_zoom(cam);
+  player->dungeon_camera_zoom = get_camera_zoom(cam);
   if (is_my_player(player))
     play_non_3d_sample(39);
   return 0;
@@ -419,7 +419,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
     thing = thing_get(player->field_43E);
     if (thing_is_invalid(thing) || (thing->class_id == 4) || (thing->health < 0))
     {
-        set_camera_zoom(cam, player->field_4B6);
+        set_camera_zoom(cam, player->dungeon_camera_zoom);
         if (is_my_player(player))
             PaletteSetPlayerPalette(player, _DK_palette);
         player->field_43E = 0;
@@ -498,7 +498,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
   }
   if (thing_is_invalid(thing))
   {
-    set_camera_zoom(player->acamera, player->field_4B6);
+    set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
     if (is_my_player(player))
       PaletteSetPlayerPalette(player, _DK_palette);
     player->field_0 &= 0xEF;
@@ -577,14 +577,15 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
 
 long pinstfm_leave_creature(struct PlayerInfo *player, long *n)
 {
-  //return _DK_pinstfm_leave_creature(player, n);
-  if (player->view_mode != PVM_FrontView)
-  {
-    view_zoom_camera_out(player->acamera, 30000, 6000);
-    if (get_camera_zoom(player->acamera) < player->field_4B6)
-      set_camera_zoom(player->acamera, player->field_4B6);
-  }
-  return 0;
+    //return _DK_pinstfm_leave_creature(player, n);
+    if (player->view_mode != PVM_FrontView)
+    {
+        view_zoom_camera_out(player->acamera, 30000, 6000);
+        if (get_camera_zoom(player->acamera) < player->dungeon_camera_zoom) {
+            set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
+        }
+    }
+    return 0;
 }
 
 long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
@@ -621,7 +622,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
 long pinstfe_leave_creature(struct PlayerInfo *player, long *n)
 {
   //return _DK_pinstfe_leave_creature(player, n);
-  set_camera_zoom(player->acamera, player->field_4B6);
+  set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
   if (is_my_player(player))
     PaletteSetPlayerPalette(player, _DK_palette);
   player->field_0 &= 0xEF;
@@ -634,7 +635,7 @@ long pinstfs_query_creature(struct PlayerInfo *player, long *n)
   struct Thing *thing;
   //return _DK_pinstfs_query_creature(player, n);
   thing = thing_get(player->field_43E);
-  player->field_4B6 = get_camera_zoom(player->acamera);
+  player->dungeon_camera_zoom = get_camera_zoom(player->acamera);
   set_selected_creature(player, thing);
   set_player_state(player, 15, 0);
   return 0;
@@ -720,7 +721,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   {
     cam->mappos.x.val = (map_subtiles_x << 8)/2;
     cam->mappos.y.val = (map_subtiles_y << 8)/2;
-    cam->field_17 = 24000;
+    cam->zoom = 24000;
     cam->orient_a = 0;
     return 0;
   }
@@ -728,11 +729,11 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   if (player->view_mode == PVM_FrontView)
   {
     cam->mappos.y.val = thing->mappos.y.val;
-    cam->field_17 = 65536;
+    cam->zoom = 65536;
   } else
   {
     cam->mappos.y.val = thing->mappos.y.val - (thing->field_58 >> 1) -  thing->mappos.z.val;
-    cam->field_17 = 24000;
+    cam->zoom = 24000;
   }
   cam->orient_a = 0;
   return 0;
@@ -754,7 +755,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     thing = thing_get(dungeon->dnheart_idx);
     if (cam != NULL)
     {
-      cam->field_17 -= 988;
+      cam->zoom -= 988;
       cam->orient_a += 16;
       addval = (thing->field_58 >> 1);
       deltax = (LbSinL(cam->orient_a) * (((long)thing->mappos.z.val)+addval) >> 16);
@@ -786,7 +787,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   cam = player->acamera;
   if ((player->view_mode != PVM_FrontView) && (cam != NULL))
   {
-    cam->field_17 = 8192;
+    cam->zoom = 8192;
     cam->orient_a = 256;
   }
   light_turn_light_on(player->field_460);
