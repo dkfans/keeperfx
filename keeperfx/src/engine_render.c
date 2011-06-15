@@ -42,36 +42,36 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_draw_fastview_mapwho(struct Camera *cam, struct JontySpr *spr);
-DLLIMPORT void _DK_draw_clipped_line(long a1, long a2, long a3, long a4, unsigned char a5);
+DLLIMPORT void _DK_draw_clipped_line(long pos_x, long pos_z, long start_y, long end_y, unsigned char a5);
 DLLIMPORT void _DK_draw_engine_number(struct Number *num);
 DLLIMPORT void _DK_draw_engine_room_flagpole(struct RoomFlag *rflg);
-DLLIMPORT void _DK_draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
+DLLIMPORT void _DK_draw_status_sprites(long pos_x, long pos_z, struct Thing *thing, long end_y);
 DLLIMPORT void _DK_draw_iso_only_fastview_mapwho(struct Camera *cam, struct JontySpr *spr);
 DLLIMPORT void _DK_draw_engine_room_flag_top(struct RoomFlag *rflg);
-DLLIMPORT void _DK_draw_stripey_line(long a1, long a2, long a3, long a4, unsigned char a5);
+DLLIMPORT void _DK_draw_stripey_line(long pos_x, long pos_z, long start_y, long end_y, unsigned char a5);
 DLLIMPORT void _DK_draw_map_who(struct RotoSpr *spr);
-DLLIMPORT void _DK_draw_element(struct Map *map, long a2, long a3, long a4, long a5, long a6, long a7, unsigned char a8, long *a9);
+DLLIMPORT void _DK_draw_element(struct Map *map, long pos_z, long start_y, long end_y, long a5, long a6, long a7, unsigned char a8, long *a9);
 DLLIMPORT void _DK_draw_jonty_mapwho(struct JontySpr *jspr);
-DLLIMPORT void _DK_draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);
+DLLIMPORT void _DK_draw_keepsprite_unscaled_in_buffer(unsigned short pos_x, short pos_z, unsigned char start_y, unsigned char *end_y);
 DLLIMPORT long _DK_convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z);
 DLLIMPORT void _DK_display_fast_drawlist(struct Camera *cam);
 DLLIMPORT void _DK_draw_frontview_engine(struct Camera *cam);
 DLLIMPORT void _DK_display_drawlist(void);
-DLLIMPORT void _DK_draw_view(struct Camera *cam, unsigned char a2);
-DLLIMPORT void _DK_do_a_plane_of_engine_columns_perspective(long a1, long a2, long a3, long a4);
-DLLIMPORT void _DK_do_a_plane_of_engine_columns_cluedo(long a1, long a2, long a3, long a4);
-DLLIMPORT void _DK_do_a_plane_of_engine_columns_isometric(long a1, long a2, long a3, long a4);
+DLLIMPORT void _DK_draw_view(struct Camera *cam, unsigned char pos_z);
+DLLIMPORT void _DK_do_a_plane_of_engine_columns_perspective(long pos_x, long pos_z, long start_y, long end_y);
+DLLIMPORT void _DK_do_a_plane_of_engine_columns_cluedo(long pos_x, long pos_z, long start_y, long end_y);
+DLLIMPORT void _DK_do_a_plane_of_engine_columns_isometric(long pos_x, long pos_z, long start_y, long end_y);
 DLLIMPORT void _DK_rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx);
-DLLIMPORT void _DK_rotate_base_axis(struct M33 *matx, short a2, unsigned char a3);
-DLLIMPORT void _DK_fill_in_points_perspective(long a1, long a2, struct MinMax *mm);
-DLLIMPORT void _DK_fill_in_points_cluedo(long a1, long a2, struct MinMax *mm);
-DLLIMPORT void _DK_fill_in_points_isometric(long a1, long a2, struct MinMax *mm);
+DLLIMPORT void _DK_rotate_base_axis(struct M33 *matx, short pos_z, unsigned char start_y);
+DLLIMPORT void _DK_fill_in_points_perspective(long pos_x, long pos_z, struct MinMax *mm);
+DLLIMPORT void _DK_fill_in_points_cluedo(long pos_x, long pos_z, struct MinMax *mm);
+DLLIMPORT void _DK_fill_in_points_isometric(long pos_x, long pos_z, struct MinMax *mm);
 DLLIMPORT void _DK_find_gamut(void);
-DLLIMPORT void _DK_fiddle_gamut(long a1, long a2);
-DLLIMPORT void _DK_create_map_volume_box(long a1, long a2, long a3);
+DLLIMPORT void _DK_fiddle_gamut(long pos_x, long pos_z);
+DLLIMPORT void _DK_create_map_volume_box(long pos_x, long pos_z, long start_y);
 DLLIMPORT void _DK_frame_wibble_generate(void);
-DLLIMPORT void _DK_setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8);
-DLLIMPORT void _DK_process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6);
+DLLIMPORT void _DK_setup_rotate_stuff(long pos_x, long pos_z, long start_y, long end_y, long a5, long a6, long a7, long a8);
+DLLIMPORT void _DK_process_keeper_sprite(short x, short y, unsigned short start_y, short end_y, unsigned char a5, long a6);
 /******************************************************************************/
 unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
@@ -111,36 +111,36 @@ long compute_cells_away(void)
     half_height = (player->engine_window_height >> 1);
     if ((vert_offset[1]) || (hori_offset[1]))
     {
-      xcell = ((half_width<<1) + (half_width>>4))/pixel_size - player->engine_window_x/pixel_size - x_init_off;
-      ycell = ((8 * high_offset[1]) >> 8) - (half_width>>4)/pixel_size - player->engine_window_y/pixel_size - y_init_off;
-      ymax = (((vert_offset[1] * xcell) >> 1) - ((vert_offset[0] * ycell) >> 1))
-         / ((hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1]) >> 11) >> 2;
-      xmax = (((hori_offset[1] * xcell) >> 1) - ((hori_offset[0] * ycell) >> 1))
-         / ((vert_offset[0] * hori_offset[1] - hori_offset[0] * vert_offset[1]) >> 11) >> 2;
+        xcell = ((half_width<<1) + (half_width>>4))/pixel_size - player->engine_window_x/pixel_size - x_init_off;
+        ycell = ((8 * high_offset[1]) >> 8) - (half_width>>4)/pixel_size - player->engine_window_y/pixel_size - y_init_off;
+        ymax = (((vert_offset[1] * xcell) >> 1) - ((vert_offset[0] * ycell) >> 1))
+           / ((hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1]) >> 11) >> 2;
+        xmax = (((hori_offset[1] * xcell) >> 1) - ((hori_offset[0] * ycell) >> 1))
+           / ((vert_offset[0] * hori_offset[1] - hori_offset[0] * vert_offset[1]) >> 11) >> 2;
     } else
     {
-      ymax = 0;
-      xmax = 0;
+        ymax = 0;
+        xmax = 0;
     }
     if ((vert_offset[1]) || (hori_offset[1]))
     {
-      xcell = half_width / pixel_size - player->engine_window_x/pixel_size - x_init_off;
-      ycell = half_height / pixel_size - player->engine_window_y/pixel_size - y_init_off;
-      ymin = (((vert_offset[1] * xcell) >> 1) - ((vert_offset[0] * ycell) >> 1))
-          / ((hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1]) >> 11) >> 2;
-      xmin = (((hori_offset[1] * xcell) >> 1) - ((hori_offset[0] * ycell) >> 1))
-         / ((vert_offset[0] * hori_offset[1] - hori_offset[0] * vert_offset[1]) >> 11) >> 2;
+        xcell = half_width / pixel_size - player->engine_window_x/pixel_size - x_init_off;
+        ycell = half_height / pixel_size - player->engine_window_y/pixel_size - y_init_off;
+        ymin = (((vert_offset[1] * xcell) >> 1) - ((vert_offset[0] * ycell) >> 1))
+            / ((hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1]) >> 11) >> 2;
+        xmin = (((hori_offset[1] * xcell) >> 1) - ((hori_offset[0] * ycell) >> 1))
+           / ((vert_offset[0] * hori_offset[1] - hori_offset[0] * vert_offset[1]) >> 11) >> 2;
     } else
     {
-      ymin = 0;
-      xmin = 0;
+        ymin = 0;
+        xmin = 0;
     }
     xcell = abs(ymax - ymin);
     ycell = abs(xmax - xmin);
     if (ycell >= xcell)
-      ncells_a = ycell + (xcell >> 1);
+        ncells_a = ycell + (xcell >> 1);
     else
-      ncells_a = xcell + (ycell >> 1);
+        ncells_a = xcell + (ycell >> 1);
     ncells_a += 2;
     if (ncells_a > max_i_can_see)
       ncells_a = max_i_can_see;
@@ -228,16 +228,12 @@ TbBool is_free_space_in_poly_pool(int nitems)
     return (getpoly+(nitems*sizeof(struct BasicUnk13)) <= poly_pool_end);
 }
 
-void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx)
+void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom)
 {
-    struct PlayerInfo *player;
     long factor_w,factor_h;
-    long scale;
     long inp_x,inp_y,inp_z;
     long out_x,out_y;
     //_DK_rotpers_parallel_3(epos, matx);
-    player = get_my_player();
-    scale = player->acamera->field_17 / pixel_size;
     inp_x = epos->x;
     inp_y = epos->y;
     inp_z = epos->z;
@@ -246,9 +242,9 @@ void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx)
     out_y = (inp_z * matx->r1[2] + (inp_y + matx->r1[0]) * (inp_x + matx->r1[1]) - matx->r1[3] - inp_x * inp_y) >> 14;
     epos->y = out_y;
     epos->z = (inp_z * matx->r2[2] + (inp_y + matx->r2[0]) * (inp_x + matx->r2[1]) - matx->r2[3] - inp_x * inp_y) >> 14;
-    factor_w = view_width_over_2 + (scale * out_x >> 16);
+    factor_w = view_width_over_2 + (zoom * out_x >> 16);
     epos->field_0 = factor_w;
-    factor_h = view_height_over_2 - (scale * out_y >> 16);
+    factor_h = view_height_over_2 - (zoom * out_y >> 16);
     epos->field_4 = factor_h;
     if (factor_w < 0)
     {
@@ -294,41 +290,52 @@ void frame_wibble_generate(void)
   _DK_frame_wibble_generate();
 }
 
-void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8)
+void setup_rotate_stuff(long x, long y, long z, long fade_max, long fade_min, long zoom, long map_angle, long map_roll)
 {
-  _DK_setup_rotate_stuff(a1, a2, a3, a4, a5, a6, a7, a8);
+  _DK_setup_rotate_stuff(x, y, z, fade_max, fade_min, zoom, map_angle, map_roll);
+}
+
+void create_box_coords(struct EngineCoord *coord, long x, long z, long y)
+{
+    coord->x = x;
+    coord->z = z;
+    coord->field_8 = 0;
+    coord->y = y;
+    rotpers(coord, &camera_matrix);
 }
 
 void do_perspective_rotation(long x, long y, long z)
 {
     struct PlayerInfo *player;
     struct EngineCoord epos;
+    long zoom;
     player = get_my_player();
+    zoom = camera_zoom / pixel_size;
     epos.x = -x;
     epos.y = 0;
     epos.z = y;
-    rotpers_parallel_3(&epos, &camera_matrix);
+    rotpers_parallel_3(&epos, &camera_matrix, zoom);
     x_init_off = epos.field_0;
     y_init_off = epos.field_4;
     depth_init_off = epos.z;
     epos.x = 65536;
     epos.y = 0;
     epos.z = 0;
-    rotpers_parallel_3(&epos, &camera_matrix);
+    rotpers_parallel_3(&epos, &camera_matrix, zoom);
     hori_offset[0] = epos.field_0 - ((player->engine_window_width/pixel_size) >> 1);
     hori_offset[1] = epos.field_4 - ((player->engine_window_height/pixel_size) >> 1);
     hori_offset[2] = epos.z;
     epos.x = 0;
     epos.y = 0;
     epos.z = -65536;
-    rotpers_parallel_3(&epos, &camera_matrix);
+    rotpers_parallel_3(&epos, &camera_matrix, zoom);
     vert_offset[0] = epos.field_0 - ((player->engine_window_width/pixel_size) >> 1);
     vert_offset[1] = epos.field_4 - ((player->engine_window_height/pixel_size) >> 1);
     vert_offset[2] = epos.z;
     epos.x = 0;
     epos.y = 65536;
     epos.z = 0;
-    rotpers_parallel_3(&epos, &camera_matrix);
+    rotpers_parallel_3(&epos, &camera_matrix, zoom);
     high_offset[0] = epos.field_0 - ((player->engine_window_width/pixel_size) >> 1);
     high_offset[1] = epos.field_4 - ((player->engine_window_height/pixel_size) >> 1);
     high_offset[2] = epos.z;
@@ -345,9 +352,155 @@ void fiddle_gamut(long a1, long a2)
     _DK_fiddle_gamut(a1, a2);
 }
 
+void create_line_element(long a1, long a2, long a3, long a4, long bckt_idx, TbPixel color)
+{
+    struct BasicUnk13 *poly;
+    if (bckt_idx >= BUCKETS_COUNT)
+        bckt_idx = BUCKETS_COUNT-1;
+    else
+    if (bckt_idx < 0)
+        bckt_idx = 0;
+    poly = (struct BasicUnk13 *)getpoly;
+    getpoly += sizeof(struct BasicUnk13);
+    poly->b.next = buckets[bckt_idx];
+    poly->b.kind = 13;
+    buckets[bckt_idx] = (struct BasicQ *)poly;
+    if (pixel_size > 0)
+    {
+        poly->p.field_0 = a1 / pixel_size;
+        poly->p.field_4 = a2 / pixel_size;
+        poly->p.field_8 = a3 / pixel_size;
+        poly->p.field_C = a4 / pixel_size;
+    }
+    poly->p.field_10 = color;
+}
+
+void create_line_segment(struct EngineCoord *start, struct EngineCoord *end, TbPixel color)
+{
+    struct BasicUnk13 *poly;
+    long bckt_idx;
+    if (!is_free_space_in_poly_pool(1))
+        return;
+    // Get bucket index
+    bckt_idx = (start->z+end->z)/2 / 16 - 2;
+    if (bckt_idx >= BUCKETS_COUNT)
+        bckt_idx = BUCKETS_COUNT-1;
+    else
+    if (bckt_idx < 0)
+        bckt_idx = 0;
+    // Add to bucket
+    poly = (struct BasicUnk13 *)getpoly;
+    getpoly += sizeof(struct BasicUnk13);
+    poly->b.next = buckets[bckt_idx];
+    poly->b.kind = 13;
+    buckets[bckt_idx] = (struct BasicQ *)poly;
+    // Fill parameters
+    if (pixel_size > 0)
+    {
+        poly->p.field_0 = start->field_0;
+        poly->p.field_4 = start->field_4;
+        poly->p.field_8 = end->field_0;
+        poly->p.field_C = end->field_4;
+    }
+    poly->p.field_10 = color;
+}
+
+void create_line_const_xz(long pos_x, long pos_z, long start_y, long end_y)
+{
+    struct EngineCoord end;
+    struct EngineCoord start;
+    long pos_y;
+    create_box_coords(&start, pos_x, start_y, pos_z);
+    for (pos_y = start_y+256; pos_y <= end_y; pos_y+=256)
+    {
+        create_box_coords(&end, pos_x, pos_y, pos_z);
+        create_line_segment(&start, &end, map_volume_box.color);
+        memcpy(&start, &end, sizeof(struct EngineCoord));
+    }
+}
+
+void create_line_const_xy(long pos_x, long pos_y, long start_z, long end_z)
+{
+    struct EngineCoord end;
+    struct EngineCoord start;
+    long pos_z;
+    create_box_coords(&start, pos_x, pos_y, start_z);
+    for (pos_z = start_z+256; pos_z <= end_z; pos_z+=256)
+    {
+        create_box_coords(&end, pos_x, pos_y, pos_z);
+        create_line_segment(&start, &end, map_volume_box.color);
+        memcpy(&start, &end, sizeof(struct EngineCoord));
+    }
+}
+
+void create_line_const_yz(long pos_y, long pos_z, long start_x, long end_x)
+{
+    struct EngineCoord end;
+    struct EngineCoord start;
+    long pos_x;
+    create_box_coords(&start, start_x, pos_y, pos_z);
+    for (pos_x = start_x+256; pos_x <= end_x; pos_x+=256)
+    {
+        create_box_coords(&end, pos_x, pos_y, pos_z);
+        create_line_segment(&start, &end, map_volume_box.color);
+        memcpy(&start, &end, sizeof(struct EngineCoord));
+    }
+}
+
 void create_map_volume_box(long x, long y, long z)
 {
-    _DK_create_map_volume_box(x, y, z);
+    long box_xs,box_xe;
+    long box_ys,box_ye;
+    long box_zs,box_ze;
+    long i;
+    //_DK_create_map_volume_box(x, y, z);return;
+
+    box_xs = map_volume_box.field_3 - x;
+    box_ys = y - map_volume_box.field_7;
+    box_ye = y - map_volume_box.field_F;
+    box_xe = map_volume_box.field_B - x;
+
+    if ( temp_cluedo_mode )
+        box_ze = 512 - z;
+    else
+        box_ze = 1280 - z;
+
+    box_zs = (map_volume_box.field_13 << 8) - z;
+    if ( box_zs >= box_ze )
+      box_zs = box_ze;
+
+    if ( box_xe < box_xs )
+    {
+        i = map_volume_box.field_3;
+        box_xs = map_volume_box.field_B - x;
+        box_xe = map_volume_box.field_3 - x;
+        map_volume_box.field_3 = map_volume_box.field_B;
+        map_volume_box.field_B = i;
+    }
+
+    if ( box_ye < box_ys )
+    {
+        i = map_volume_box.field_7;
+        box_ys = y - map_volume_box.field_F;
+        box_ye = y - map_volume_box.field_7;
+        map_volume_box.field_7 = map_volume_box.field_F;
+        map_volume_box.field_F = i;
+    }
+
+    create_line_const_yz(box_ye, box_zs, box_xs, box_xe);
+    create_line_const_yz(box_ys, box_ze, box_xs, box_xe);
+    create_line_const_yz(box_ye, box_ze, box_xs, box_xe);
+    create_line_const_yz(box_ys, box_zs, box_xs, box_xe);
+
+    create_line_const_xz(box_xs, box_zs, box_ys, box_ye);
+    create_line_const_xz(box_xe, box_zs, box_ys, box_ye);
+    create_line_const_xz(box_xs, box_ze, box_ys, box_ye);
+    create_line_const_xz(box_xe, box_ze, box_ys, box_ye);
+
+    create_line_const_xy(box_xs, box_ys, box_zs, box_ze);
+    create_line_const_xy(box_xe, box_ys, box_zs, box_ze);
+    create_line_const_xy(box_xe, box_ye, box_zs, box_ze);
+    create_line_const_xy(box_xs, box_ye, box_zs, box_ze);
 }
 
 void do_a_plane_of_engine_columns_perspective(long a1, long a2, long a3, long a4)
@@ -364,15 +517,6 @@ void do_a_plane_of_engine_columns_isometric(long xcell, long ycell, long a3, lon
 {
     //TODO: This is where first and last columns are cut off from rendering
     _DK_do_a_plane_of_engine_columns_isometric(xcell, ycell, a3, a4);
-}
-
-void create_box_coords(struct EngineCoord *coord, long x, long z, long y)
-{
-    coord->x = x;
-    coord->z = z;
-    coord->field_8 = 0;
-    coord->y = y;
-    rotpers(coord, &camera_matrix);
 }
 
 void draw_map_volume_box(long a1, long a2, long a3, long a4, long a5, unsigned char color)
@@ -1411,8 +1555,9 @@ void display_drawlist(void)
           cam = player->acamera;
           if (cam != NULL)
           {
-            if ((cam->field_6 == 2) || (cam->field_6 == 5))
-              draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, cam->field_17/pixel_size);
+              if ((cam->field_6 == 2) || (cam->field_6 == 5)) {
+                  draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, camera_zoom/pixel_size);
+              }
           }
           break;
         case QK_IntegerValue:
@@ -1517,13 +1662,15 @@ void draw_view_map_plane(long aposc, long bposc, long xcell, long ycell)
 
 void draw_view(struct Camera *cam, unsigned char a2)
 {
-    long nlens;
+    long zoom_mem;
     long x,y,z;
     long xcell,ycell;
     long i;
     long aposc,bposc;
     SYNCDBG(9,"Starting");
-    nlens = cam->field_17 / pixel_size;
+    camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
+    zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
+    cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     getpoly = poly_pool;
     LbMemorySet(buckets, 0, sizeof(buckets));
     LbMemorySet(poly_pool, 0, sizeof(poly_pool));
@@ -1555,7 +1702,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     } else
     {
         fade_min = 1000000;
-        setup_rotate_stuff(x, y, z, fade_max, fade_min, nlens, map_angle, map_roll);
+        setup_rotate_stuff(x, y, z, fade_max, fade_min, camera_zoom/pixel_size, map_angle, map_roll);
         do_perspective_rotation(x, y, z);
         cells_away = compute_cells_away();
     }
@@ -1568,6 +1715,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     draw_view_map_plane(aposc, bposc, xcell, ycell);
     if (map_volume_box.visible)
         create_map_volume_box(x, y, z);
+    cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     display_drawlist();
     map_volume_box.visible = 0;
     SYNCDBG(9,"Finished");
@@ -1740,59 +1888,6 @@ void display_fast_drawlist(struct Camera *cam)
 long convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z)
 {
   return _DK_convert_world_coord_to_front_view_screen_coord(pos, cam, x, y, z);
-}
-
-void create_line_element(long a1, long a2, long a3, long a4, long bckt_idx, TbPixel color)
-{
-  struct BasicUnk13 *poly;
-  if (bckt_idx >= BUCKETS_COUNT)
-    bckt_idx = BUCKETS_COUNT-1;
-  else
-  if (bckt_idx < 0)
-    bckt_idx = 0;
-  poly = (struct BasicUnk13 *)getpoly;
-  getpoly += sizeof(struct BasicUnk13);
-  poly->b.next = buckets[bckt_idx];
-  poly->b.kind = 13;
-  buckets[bckt_idx] = (struct BasicQ *)poly;
-  if (pixel_size > 0)
-  {
-    poly->p.field_0 = a1 / pixel_size;
-    poly->p.field_4 = a2 / pixel_size;
-    poly->p.field_8 = a3 / pixel_size;
-    poly->p.field_C = a4 / pixel_size;
-  }
-  poly->p.field_10 = color;
-}
-
-void create_line_segment(struct EngineCoord *start, struct EngineCoord *end, TbPixel color)
-{
-  struct BasicUnk13 *poly;
-  long bckt_idx;
-  if (!is_free_space_in_poly_pool(1))
-    return;
-  // Get bucket index
-  bckt_idx = (start->z+end->z)/2 / 16 - 2;
-  if (bckt_idx >= BUCKETS_COUNT)
-    bckt_idx = BUCKETS_COUNT-1;
-  else
-  if (bckt_idx < 0)
-    bckt_idx = 0;
-  // Add to bucket
-  poly = (struct BasicUnk13 *)getpoly;
-  getpoly += sizeof(struct BasicUnk13);
-  poly->b.next = buckets[bckt_idx];
-  poly->b.kind = 13;
-  buckets[bckt_idx] = (struct BasicQ *)poly;
-  // Fill parameters
-  if (pixel_size > 0)
-  {
-    poly->p.field_0 = start->field_0;
-    poly->p.field_4 = start->field_4;
-    poly->p.field_8 = end->field_0;
-    poly->p.field_C = end->field_4;
-  }
-  poly->p.field_10 = color;
 }
 
 void add_unkn11_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
@@ -2622,6 +2717,7 @@ void draw_frontview_things_on_element(struct Map *map, struct Camera *cam)
 
 void draw_frontview_engine(struct Camera *cam)
 {
+    long zoom_mem;
     struct PlayerInfo *player;
     TbGraphicsWindow grwnd;
     TbGraphicsWindow ewnd;
@@ -2633,13 +2729,16 @@ void draw_frontview_engine(struct Camera *cam)
     long stl_x,stl_y;
     long lim_x,lim_y;
     long cam_x,cam_y;
-    long long laaa,lbbb;
+    long long zoom,lbbb;
     long i;
     SYNCDBG(9,"Starting");
     player = get_my_player();
-    UseFastBlockDraw = (cam->field_17 == 65536);
-    if (cam->field_17 > 65536)
-      cam->field_17 = 65536;
+    if (cam->zoom > 65536)
+        cam->zoom = 65536;
+    camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
+    zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
+    cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
+    UseFastBlockDraw = (camera_zoom == 65536);
     LbScreenStoreGraphicsWindow(&grwnd);
     store_engine_window(&ewnd,pixel_size);
     LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
@@ -2651,9 +2750,9 @@ void draw_frontview_engine(struct Camera *cam)
     store_engine_window(&ewnd,1);
     setup_engine_window(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
     qdrant = ((unsigned int)(cam->orient_a + 256) >> 9) & 0x03;
-    laaa = (32 * cam->field_17) / 256;
-    w = (ewnd.width << 16) / laaa >> 1;
-    h = (ewnd.height << 16) / laaa >> 1;
+    zoom = camera_zoom >> 3;
+    w = (ewnd.width << 16) / zoom >> 1;
+    h = (ewnd.height << 16) / zoom >> 1;
     cam_x = cam->mappos.x.val;
     cam_y = cam->mappos.y.val;
     switch (qdrant)
@@ -2662,26 +2761,26 @@ void draw_frontview_engine(struct Camera *cam)
         px = ((cam_x - w) >> 8);
         py = ((cam_y - h) >> 8);
         lbbb = cam_x - (px << 8);
-        qx = (ewnd.width << 7)  - ((laaa * lbbb) >> 8);
+        qx = (ewnd.width << 7)  - ((zoom * lbbb) >> 8);
         lbbb = cam_y - (py << 8);
-        qy = (ewnd.height << 7) - ((laaa * lbbb) >> 8);
+        qy = (ewnd.height << 7) - ((zoom * lbbb) >> 8);
         break;
     case 1:
         px = ((cam_x + h) >> 8);
         py = ((cam_y - w) >> 8);
         lbbb = cam_y - (py << 8);
-        qx = (ewnd.width << 7)  - ((laaa * lbbb) >> 8);
+        qx = (ewnd.width << 7)  - ((zoom * lbbb) >> 8);
         lbbb = (px << 8) - cam_x;
-        qy = (ewnd.height << 7) - ((laaa * lbbb) >> 8);
+        qy = (ewnd.height << 7) - ((zoom * lbbb) >> 8);
         px--;
         break;
     case 2:
         px = ((cam_x + w) >> 8) + 1;
         py = ((cam_y + h) >> 8);
         lbbb = (px << 8) - cam_x;
-        qx = (ewnd.width << 7)  - ((laaa * lbbb) >> 8);
+        qx = (ewnd.width << 7)  - ((zoom * lbbb) >> 8);
         lbbb = (py << 8) - cam_y;
-        qy = (ewnd.height << 7) - ((laaa * lbbb) >> 8);
+        qy = (ewnd.height << 7) - ((zoom * lbbb) >> 8);
         px--;
         py--;
         break;
@@ -2689,9 +2788,9 @@ void draw_frontview_engine(struct Camera *cam)
         px = ((cam_x - h) >> 8);
         py = ((cam_y + w) >> 8) + 1;
         lbbb = (py << 8) - cam_y;
-        qx = (ewnd.width << 7)  - ((laaa * lbbb) >> 8);
+        qx = (ewnd.width << 7)  - ((zoom * lbbb) >> 8);
         lbbb = cam_x - (px << 8);
-        qy = (ewnd.height << 7) - ((laaa * lbbb) >> 8);
+        qy = (ewnd.height << 7) - ((zoom * lbbb) >> 8);
         py--;
         break;
     default:
@@ -2700,22 +2799,22 @@ void draw_frontview_engine(struct Camera *cam)
         return;
     }
 
-    update_frontview_pointed_block(laaa, qdrant, px, py, qx, qy);
+    update_frontview_pointed_block(zoom, qdrant, px, py, qx, qy);
     if (map_volume_box.visible)
-        create_frontview_map_volume_box(cam, (laaa >> 8) & 0xFF);
+        create_frontview_map_volume_box(cam, (zoom >> 8) & 0xFF);
     map_volume_box.visible = 0;
 
-    h = (8 * (laaa + 32 * ewnd.height) - qy) / laaa;
-    w = (8 * (laaa + 32 * ewnd.height) - qy) / laaa;
-    qy += laaa * h;
+    h = (8 * (zoom + 32 * ewnd.height) - qy) / zoom;
+    w = (8 * (zoom + 32 * ewnd.height) - qy) / zoom;
+    qy += zoom * h;
     px += x_step1[qdrant] * w;
     stl_x = x_step1[qdrant] * w + px;
     stl_y = y_step1[qdrant] * h + py;
     py += y_step1[qdrant] * h;
     lim_x = ewnd.width << 8;
-    lim_y = -laaa;
+    lim_y = -zoom;
     SYNCDBG(19,"Range (%ld,%ld) to (%ld,%ld), quadrant %d",px,py,qx,qy,(int)qdrant);
-    for (pos_x=qx; pos_x < lim_x; pos_x += laaa)
+    for (pos_x=qx; pos_x < lim_x; pos_x += zoom)
     {
         i = (ewnd.height << 8);
         // Initialize the stl_? which will be swept by second loop
@@ -2723,14 +2822,14 @@ void draw_frontview_engine(struct Camera *cam)
           stl_x = px;
         else
           stl_y = py;
-        for (pos_y=qy; pos_y > lim_y; pos_y -= laaa)
+        for (pos_y=qy; pos_y > lim_y; pos_y -= zoom)
         {
             map = get_map_block_at(stl_x, stl_y);
             if (!map_block_invalid(map))
             {
                 if (get_mapblk_column_index(map) > 0)
                 {
-                    draw_element(map, game.subtile_lightness[get_subtile_number(stl_x,stl_y)], stl_x, stl_y, pos_x, pos_y, laaa, qdrant, &i);
+                    draw_element(map, game.subtile_lightness[get_subtile_number(stl_x,stl_y)], stl_x, stl_y, pos_x, pos_y, zoom, qdrant, &i);
                 }
                 if ( subtile_revealed(stl_x, stl_y, player->id_number) )
                 {
@@ -2746,6 +2845,7 @@ void draw_frontview_engine(struct Camera *cam)
 
     display_fast_drawlist(cam);
     LbScreenLoadGraphicsWindow(&grwnd);
+    cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     SYNCDBG(9,"Finished");
 }
 /******************************************************************************/

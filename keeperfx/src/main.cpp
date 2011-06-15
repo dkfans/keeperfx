@@ -394,10 +394,6 @@ DLLIMPORT void _DK_pannel_map_update(long x, long y, long w, long h);
 DLLIMPORT void _DK_view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
 DLLIMPORT void _DK_view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
 DLLIMPORT void _DK_view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
-DLLIMPORT void _DK_view_zoom_camera_in(struct Camera *cam, long a2, long a3);
-DLLIMPORT void _DK_set_camera_zoom(struct Camera *cam, long val);
-DLLIMPORT void _DK_view_zoom_camera_out(struct Camera *cam, long a2, long a3);
-DLLIMPORT long _DK_get_camera_zoom(struct Camera *camera);
 DLLIMPORT int __stdcall _DK_setup_game(void);
 DLLIMPORT int __cdecl _DK_initial_setup(void);
 DLLIMPORT long _DK_ceiling_set_info(long a1, long a2, long a3);
@@ -497,29 +493,7 @@ void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3)
 
 void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3)
 {
-  _DK_view_set_camera_rotation_inertia(cam, a2, a3);
-}
-
-void view_zoom_camera_in(struct Camera *cam, long a2, long a3)
-{
-  _DK_view_zoom_camera_in(cam, a2, a3);
-}
-
-void set_camera_zoom(struct Camera *cam, long val)
-{
-  if (cam == NULL)
-    return;
-  _DK_set_camera_zoom(cam, val);
-}
-
-void view_zoom_camera_out(struct Camera *cam, long a2, long a3)
-{
-  _DK_view_zoom_camera_out(cam, a2, a3);
-}
-
-long get_camera_zoom(struct Camera *camera)
-{
-  return _DK_get_camera_zoom(camera);
+    _DK_view_set_camera_rotation_inertia(cam, a2, a3);
 }
 
 long get_smaller_memory_amount(long amount)
@@ -595,14 +569,6 @@ void reset_heap_memory(void)
   SYNCDBG(8,"Starting");
   LbMemoryFree(heap);
   heap = NULL;
-}
-
-unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
-{
-  // Note: I don't know if the zoom may be scaled for current resolution,
-  // as there may be different resolution on another computer if playing MP game.
-//  return ((zoom_lvl*units_per_pixel) >> 4)*pixel_size;
-  return ((((zoom_lvl*(long)units_per_pixel) >> 4)*(int)sqrt(pixel_size*(long)units_per_pixel)) >> 2)*(long)pixel_size;
 }
 
 void init_player_as_single_keeper(struct PlayerInfo *player)
@@ -4399,7 +4365,7 @@ void set_player_mode(struct PlayerInfo *player, long nview)
       if (is_my_player(player))
         toggle_status_menu((game.numfield_C & 0x40) != 0);
       if ((game.numfield_C & 0x20) != 0)
-        setup_engine_window(140, 0, MyScreenWidth, MyScreenHeight);
+        setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
       else
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
       break;
@@ -4415,10 +4381,10 @@ void set_player_mode(struct PlayerInfo *player, long nview)
       set_engine_view(player, 3);
       break;
   case PVT_MapFadeIn:
-      set_player_instance(player, 14, 0);
+      set_player_instance(player, PI_MapFadeTo, 0);
       break;
   case PVT_MapFadeOut:
-      set_player_instance(player, 15, 0);
+      set_player_instance(player, PI_MapFadeFrom, 0);
       break;
   }
 }
@@ -4460,7 +4426,7 @@ void level_lost_go_first_person(long plyr_idx)
   player = get_player(plyr_idx);
   dungeon = get_dungeon(player->id_number);
   spectator_breed = get_players_spectator_breed(plyr_idx);
-  player->field_4B6 = get_camera_zoom(player->acamera);
+  player->dungeon_camera_zoom = get_camera_zoom(player->acamera);
   thing = create_and_control_creature_as_controller(player, spectator_breed, &dungeon->mappos);
   if (thing_is_invalid(thing))
   {
@@ -4849,63 +4815,6 @@ void set_mouse_light(struct PlayerInfo *player)
 {
   SYNCDBG(6,"Starting");
   _DK_set_mouse_light(player);
-}
-
-/**
- * Scales camera zoom level on resolution change. If prev_units_per_pixel_size
- * is zero, then the zoom level will be only clipped, without any scaling.
- */
-void keep_camera_zoom_level(struct Camera *cam,unsigned long prev_units_per_pixel_size)
-{
-  long zoom_val;
-  unsigned long zoom_min,zoom_max;
-  zoom_min = scale_camera_zoom_to_screen(CAMERA_ZOOM_MIN);
-  zoom_max = scale_camera_zoom_to_screen(CAMERA_ZOOM_MAX);
-  zoom_val = get_camera_zoom(cam);
-  // Note: I don't know if the zoom may be scaled for current resolution,
-  // as there may be different resolution on another computer if playing MP game.
-  if (prev_units_per_pixel_size > 0)
-    zoom_val = (zoom_val*(long)units_per_pixel*(long)pixel_size)/prev_units_per_pixel_size;
-  if (zoom_val < zoom_min)
-  {
-    zoom_val = zoom_min;
-  } else
-  if (zoom_val > zoom_max)
-  {
-    zoom_val = zoom_max;
-  }
-  set_camera_zoom(cam, zoom_val);
-}
-
-/**
- * Scales local player camera zoom level on resolution change. If prev_units_per_pixel_size
- * is zero, then the zoom level will be only clipped, without any scaling.
- */
-void keep_local_camera_zoom_level(unsigned long prev_units_per_pixel_size)
-{
-  struct PlayerInfo *player;
-  player = get_my_player();
-  if (player->acamera != NULL)
-    keep_camera_zoom_level(player->acamera,prev_units_per_pixel_size);
-}
-
-/**
- * Conducts clipping to zoom level of given camera, based on current screen mode.
- */
-void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min)
-{
-  SYNCDBG(7,"Starting");
-  long zoom_val;
-  zoom_val = get_camera_zoom(cam);
-  if (zoom_val < zoom_min)
-  {
-    zoom_val = zoom_min;
-  } else
-  if (zoom_val > zoom_max)
-  {
-    zoom_val = zoom_max;
-  }
-  set_camera_zoom(cam, zoom_val);
 }
 
 struct Thing *create_room_surrounding_flame(struct Room *room,struct Coord3d *pos,unsigned short eetype, unsigned short owner)

@@ -1562,92 +1562,92 @@ void process_pause_packet(long a1, long a2)
 
 void process_players_dungeon_control_packet_control(long plyr_idx)
 {
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  struct Camera *cam;
-  unsigned long zoom_min,zoom_max;
-  SYNCDBG(6,"Starting");
-  player = get_player(plyr_idx);
-  pckt = get_packet_direct(player->packet_num);
-  cam = player->acamera;
-  long inter_val;
-  switch (cam->field_6)
-  {
-  case 2:
-      inter_val = 2560000 / cam->field_17;
-      break;
-  case 5:
-      inter_val = 12800000 / cam->field_17;
-      break;
-  default:
-      inter_val = 256;
-      break;
-  }
-  if (pckt->field_10 & 0x01)
-    inter_val *= 3;
+    struct PlayerInfo *player;
+    struct Packet *pckt;
+    struct Camera *cam;
+    unsigned long zoom_min,zoom_max;
+    SYNCDBG(6,"Starting");
+    player = get_player(plyr_idx);
+    pckt = get_packet_direct(player->packet_num);
+    cam = player->acamera;
+    long inter_val;
+    switch (cam->field_6)
+    {
+    case 2:
+        inter_val = 2560000 / cam->zoom;
+        break;
+    case 5:
+        inter_val = 12800000 / cam->zoom;
+        break;
+    default:
+        inter_val = 256;
+        break;
+    }
+    if (pckt->field_10 & 0x01)
+      inter_val *= 3;
 
-  if (pckt->control_flags & PCtr_MoveUp)
-    view_set_camera_y_inertia(cam, -inter_val/4, -inter_val);
-  if (pckt->control_flags & PCtr_MoveDown)
-    view_set_camera_y_inertia(cam, inter_val/4, inter_val);
-  if (pckt->control_flags & PCtr_MoveLeft)
-    view_set_camera_x_inertia(cam, -inter_val/4, -inter_val);
-  if (pckt->control_flags & PCtr_MoveRight)
-    view_set_camera_x_inertia(cam, inter_val/4, inter_val);
-  if (pckt->control_flags & PCtr_ViewRotateCCW)
-  {
-    switch (cam->field_6)
+    if (pckt->control_flags & PCtr_MoveUp)
+        view_set_camera_y_inertia(cam, -inter_val/4, -inter_val);
+    if (pckt->control_flags & PCtr_MoveDown)
+        view_set_camera_y_inertia(cam, inter_val/4, inter_val);
+    if (pckt->control_flags & PCtr_MoveLeft)
+        view_set_camera_x_inertia(cam, -inter_val/4, -inter_val);
+    if (pckt->control_flags & PCtr_MoveRight)
+        view_set_camera_x_inertia(cam, inter_val/4, inter_val);
+    if (pckt->control_flags & PCtr_ViewRotateCCW)
     {
-    case 2:
-         view_set_camera_rotation_inertia(cam, 16, 64);
-        break;
-    case 5:
-        cam->orient_a = (cam->orient_a + 512) & 0x7FF;
-        break;
+        switch (cam->field_6)
+        {
+        case 2:
+             view_set_camera_rotation_inertia(cam, 16, 64);
+            break;
+        case 5:
+            cam->orient_a = (cam->orient_a + 512) & 0x7FF;
+            break;
+        }
     }
-  }
-  if (pckt->control_flags & PCtr_ViewRotateCW)
-  {
-    switch (cam->field_6)
+    if (pckt->control_flags & PCtr_ViewRotateCW)
     {
-    case 2:
-        view_set_camera_rotation_inertia(cam, -16, -64);
-        break;
-    case 5:
-        cam->orient_a = (cam->orient_a - 512) & 0x7FF;
-        break;
+        switch (cam->field_6)
+        {
+        case 2:
+            view_set_camera_rotation_inertia(cam, -16, -64);
+            break;
+        case 5:
+            cam->orient_a = (cam->orient_a - 512) & 0x7FF;
+            break;
+        }
     }
-  }
-  zoom_min = scale_camera_zoom_to_screen(CAMERA_ZOOM_MIN);
-  zoom_max = scale_camera_zoom_to_screen(CAMERA_ZOOM_MAX);
-  if (pckt->control_flags & PCtr_ViewZoomIn)
-  {
-    switch (cam->field_6)
+    zoom_min = CAMERA_ZOOM_MIN;
+    zoom_max = CAMERA_ZOOM_MAX;
+    if (pckt->control_flags & PCtr_ViewZoomIn)
     {
-    case 2:
-        view_zoom_camera_in(cam, zoom_max, zoom_min);
-        update_camera_zoom_bounds(cam, zoom_max, zoom_min);
-        break;
-    default:
-        view_zoom_camera_in(cam, zoom_max, zoom_min);
-        break;
+        switch (cam->field_6)
+        {
+        case 2:
+            view_zoom_camera_in(cam, zoom_max, zoom_min);
+            update_camera_zoom_bounds(cam, zoom_max, zoom_min);
+            break;
+        default:
+            view_zoom_camera_in(cam, zoom_max, zoom_min);
+            break;
+        }
     }
-  }
-  if (pckt->control_flags & PCtr_ViewZoomOut)
-  {
-    switch (cam->field_6)
+    if (pckt->control_flags & PCtr_ViewZoomOut)
     {
-    case 2:
-        view_zoom_camera_out(cam, zoom_max, zoom_min);
-        update_camera_zoom_bounds(cam, zoom_max, zoom_min);
-        break;
-    default:
-        view_zoom_camera_out(cam, zoom_max, zoom_min);
-        break;
+        switch (cam->field_6)
+        {
+        case 2:
+            view_zoom_camera_out(cam, zoom_max, zoom_min);
+            update_camera_zoom_bounds(cam, zoom_max, zoom_min);
+            break;
+        default:
+            view_zoom_camera_out(cam, zoom_max, zoom_min);
+            break;
+        }
     }
-  }
-  process_dungeon_control_packet_clicks(plyr_idx);
-  set_mouse_light(player);
+    process_dungeon_control_packet_clicks(plyr_idx);
+    set_mouse_light(player);
 }
 
 void process_players_message_character(struct PlayerInfo *player)

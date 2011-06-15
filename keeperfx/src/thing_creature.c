@@ -1403,7 +1403,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
   player->field_43E = 0;
   if (player->id_number == thing->owner)
     setup_eye_lens(0);
-  set_camera_zoom(player->acamera, player->field_4B6);
+  set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
   if (player->id_number == thing->owner)
   {
     turn_off_all_window_menus();

@@ -86,9 +86,6 @@ extern "C" {
 // Types of objects
 #define SLAB_TYPES_COUNT      58
 #define SCRIPT_VALUES_COUNT   64
-// Camera constants; max zoom is when everything is large
-#define CAMERA_ZOOM_MIN     4100
-#define CAMERA_ZOOM_MAX    12000
 // Strings length
 #define CAMPAIGN_FNAME_LEN    64
 
@@ -941,7 +938,6 @@ void load_engine_window(TbGraphicsWindow *ewnd);
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
 void set_engine_view(struct PlayerInfo *player, long val);
 unsigned char find_first_battle_of_mine(unsigned char idx);
-unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl);
 void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y);
 short player_has_won(long plyr_idx);
 short player_has_lost(long plyr_idx);
@@ -993,12 +989,6 @@ short ceiling_set_info(long height_max, long height_min, long step);
 void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
 void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
 void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
-void view_zoom_camera_in(struct Camera *cam, long a2, long a3);
-void set_camera_zoom(struct Camera *cam, long val);
-void view_zoom_camera_out(struct Camera *cam, long a2, long a3);
-long get_camera_zoom(struct Camera *camera);
-void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min);
-void keep_local_camera_zoom_level(unsigned long prev_units_per_pixel_size);
 void set_mouse_light(struct PlayerInfo *player);
 void clear_slab_dig(long a1, long a2, char a3);
 void delete_all_structures(void);

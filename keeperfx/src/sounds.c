@@ -171,12 +171,12 @@ void find_nearest_rooms_for_ambient_sound(void)
 
 short update_3d_sound_receiver(struct PlayerInfo *player)
 {
-  struct Camera *camera;
-  if (player->acamera == NULL)
+  struct Camera *cam;
+  cam = player->acamera;
+  if (cam == NULL)
     return false;
-  camera = player->acamera;
-  S3DSetSoundReceiverPosition(camera->mappos.x.val,camera->mappos.y.val,camera->mappos.z.val);
-  S3DSetSoundReceiverOrientation(camera->orient_a,camera->orient_b,camera->orient_c);
+  S3DSetSoundReceiverPosition(cam->mappos.x.val,cam->mappos.y.val,cam->mappos.z.val);
+  S3DSetSoundReceiverOrientation(cam->orient_a,cam->orient_b,cam->orient_c);
   return true;
 }
 

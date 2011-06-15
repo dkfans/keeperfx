@@ -135,7 +135,7 @@ char field_462;
     unsigned char instance_num;
     unsigned long field_4B1;
     char field_4B5;
-    long field_4B6;
+    long dungeon_camera_zoom;
     char field_4BA[3];
     long field_4BD;
     long field_4C1;
