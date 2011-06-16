@@ -69,19 +69,19 @@ TbBool column_invalid(const struct Column *colmn)
 
 long get_top_cube_at_pos(long stl_num)
 {
-  struct Column *col;
-  struct Map *map;
-  unsigned long top_pos;
-  long tcube;
-  //return _DK_get_top_cube_at_pos(mpos);
-  map = get_map_block_at_pos(stl_num);
-  col = get_map_column(map);
-  top_pos = (col->bitfileds >> 4) & 0x0F;
-  if (top_pos > 0)
-    tcube = col->cubes[top_pos-1];
-  else
-    tcube = game.field_14BB65[col->baseblock];
-  return tcube;
+    struct Column *col;
+    struct Map *map;
+    unsigned long top_pos;
+    long tcube;
+    //return _DK_get_top_cube_at_pos(mpos);
+    map = get_map_block_at_pos(stl_num);
+    col = get_map_column(map);
+    top_pos = (col->bitfileds >> 4) & 0x0F;
+    if (top_pos > 0)
+        tcube = col->cubes[top_pos-1];
+    else
+        tcube = game.field_14BB65[col->baseblock];
+    return tcube;
 }
 
 long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)

@@ -594,52 +594,52 @@ void gui_choose_trap(struct GuiButton *gbtn)
 
 void gui_go_to_next_trap(struct GuiButton *gbtn)
 {
-  _DK_gui_go_to_next_trap(gbtn);
+    _DK_gui_go_to_next_trap(gbtn);
 }
 
 void gui_over_trap_button(struct GuiButton *gbtn)
 {
-  _DK_gui_over_trap_button(gbtn);
+    _DK_gui_over_trap_button(gbtn);
 }
 
 void gui_area_trap_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_trap_button(gbtn);
+    _DK_gui_area_trap_button(gbtn);
 }
 
 void gui_go_to_next_door(struct GuiButton *gbtn)
 {
-  _DK_gui_go_to_next_door(gbtn);
+    _DK_gui_go_to_next_door(gbtn);
 }
 
 void gui_over_door_button(struct GuiButton *gbtn)
 {
-  _DK_gui_over_door_button(gbtn);
+    _DK_gui_over_door_button(gbtn);
 }
 
 void gui_remove_area_for_traps(struct GuiButton *gbtn)
 {
-  _DK_gui_remove_area_for_traps(gbtn);
+    _DK_gui_remove_area_for_traps(gbtn);
 }
 
 void gui_area_big_trap_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_big_trap_button(gbtn);
+    _DK_gui_area_big_trap_button(gbtn);
 }
 
 void maintain_big_spell(struct GuiButton *gbtn)
 {
-  _DK_maintain_big_spell(gbtn);
+    _DK_maintain_big_spell(gbtn);
 }
 
 void maintain_room(struct GuiButton *gbtn)
 {
-  _DK_maintain_room(gbtn);
+    _DK_maintain_room(gbtn);
 }
 
 void maintain_big_room(struct GuiButton *gbtn)
 {
-  _DK_maintain_big_room(gbtn);
+    _DK_maintain_big_room(gbtn);
 }
 
 void maintain_spell(struct GuiButton *gbtn)
