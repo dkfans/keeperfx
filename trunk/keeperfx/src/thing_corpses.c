@@ -378,7 +378,7 @@ struct Thing *create_dead_creature(struct Coord3d *pos, unsigned short model, un
     thing->mappos.y.val = pos->y.val;
     thing->mappos.z.val = 0;
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
-    thing->field_56 = 0;
+    thing->sizexy = 0;
     thing->field_58 = 0;
     thing->field_5A = 0;
     thing->field_5C = 0;

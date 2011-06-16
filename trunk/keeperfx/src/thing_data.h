@@ -138,7 +138,7 @@ unsigned short field_4D;
 unsigned char field_51;
     short field_52;
     short field_54;
-    unsigned short field_56;
+    unsigned short sizexy;
 unsigned short field_58;
     unsigned short field_5A;
     unsigned short field_5C;

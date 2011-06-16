@@ -121,7 +121,7 @@ void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *
     {
         owner_player_navigating = thing->owner;
     }
-    nav_sizexy = actual_sizexy_to_nav_block_sizexy_table[thing->field_56] - 1;
+    nav_sizexy = thing_nav_block_sizexy(thing) - 1;
     nearest_search(nav_sizexy, thing->mappos.x.val, thing->mappos.y.val,
       pos1->x.val, pos1->y.val, &px, &py);
     pos2->x.val = px;
@@ -217,7 +217,7 @@ TbBool setup_person_move_backwards_to_coord(struct Thing *thing, struct Coord3d 
     return setup_person_move_backwards_to_position(thing, pos->x.stl.num, pos->y.stl.num, a4);
 }
 
-TbBool creature_can_travel_over_lava(struct Thing *thing)
+TbBool creature_can_travel_over_lava(const struct Thing *thing)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
@@ -236,7 +236,7 @@ TbBool creature_can_navigate_to(struct Thing *thing, struct Coord3d *pos, TbBool
       owner_player_navigating = -1;
     else
       owner_player_navigating = thing->owner;
-    nav_sizexy = actual_sizexy_to_nav_block_sizexy_table[thing->field_56%(MAX_SIZEXY+1)]-1;
+    nav_sizexy = thing_nav_block_sizexy(thing) - 1;
     path_init8_wide(&path, thing->mappos.x.val, thing->mappos.y.val,
         pos->x.val, pos->y.val, -2, nav_sizexy);
     nav_thing_can_travel_over_lava = 0;

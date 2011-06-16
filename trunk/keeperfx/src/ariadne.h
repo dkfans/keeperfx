@@ -48,7 +48,7 @@ enum AriadneReturnValues {
 struct Ariadne { // sizeof = 102
     struct Coord3d startpos;
     struct Coord3d endpos;
-  struct Coord3d pos_C;
+  struct Coord3d current_waypoint_pos;
   struct Coord3d pos_12;
   unsigned char field_18[6];
   unsigned char field_1E;
@@ -177,6 +177,7 @@ long init_navigation(void);
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
 AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long a3, unsigned char a4);
 AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long a4, unsigned char a5);
+long thing_nav_block_sizexy(const struct Thing *thing);
 void path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size);
 long get_navigation_colour(long stl_x, long stl_y);
 TbBool border_clip_horizontal(unsigned char *imap, long a1, long a2, long a3, long a4);

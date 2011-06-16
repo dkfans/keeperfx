@@ -1931,7 +1931,7 @@ void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord s
             continue;
         if ((previous_slab_types_around[i] != slb->kind)
           || ((slb->kind != SlbT_GOLD) && (slb->kind != SlbT_ROCK))
-          || (game.kind == GKind_Unknown1))
+          || (game.game_kind == GKind_Unknown1))
         {
             slbattr = get_slab_kind_attrs(slb->kind);
             if (slbattr->field_F != 5)
@@ -6003,7 +6003,7 @@ void update(void)
   if (quit_game || exit_keeper) {
     return;
   }
-  if (game.kind == GKind_Unknown1)
+  if (game.game_kind == GKind_Unknown1)
   {
     game.field_14EA4B = 0;
     return;
@@ -7139,7 +7139,7 @@ void redraw_display(void)
     SYNCDBG(5,"Starting");
     player = get_my_player();
     set_flag_byte(&player->field_6,0x01,false);
-    if (game.kind == GKind_Unknown1)
+    if (game.game_kind == GKind_Unknown1)
       return;
     if (game.small_map_state == 2)
       set_pointer_graphic_none();
@@ -8169,7 +8169,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
         turn_on_menu(GMnu_MAIN);
         turn_on_menu(GMnu_ROOM);
     }
-    switch (game.kind)
+    switch (game.game_kind)
     {
     case GKind_NetworkGame:
         init_player_as_single_keeper(player);
@@ -8220,7 +8220,7 @@ void init_players(void)
             {
               game.field_14E495++;
               player->field_2C = 1;
-              game.kind = GKind_KeeperGame;
+              game.game_kind = GKind_KeeperGame;
               init_player(player, 0);
             }
         }
@@ -8336,7 +8336,7 @@ void startup_saved_packet_game(void)
         SYNCMSG("Logging things, game turns %d -> %d", game.log_things_start_turn, game.log_things_end_turn);
     }
 #endif
-    game.kind = GKind_NetworkGame;
+    game.game_kind = GKind_NetworkGame;
     if (!(game.packet_save_head.field_C & (1 << game.numfield_149F46))
       || (game.packet_save_head.field_D & (1 << game.numfield_149F46)))
       my_player_number = 0;
@@ -8345,7 +8345,7 @@ void startup_saved_packet_game(void)
     init_level();
     init_players();
     if (game.field_14E495 == 1)
-      game.kind = GKind_NetworkGame;
+      game.game_kind = GKind_NetworkGame;
     if (game.turns_stored < game.turns_fastforward)
       game.turns_fastforward = game.turns_stored;
     post_init_level();
@@ -8379,11 +8379,11 @@ void startup_network_game(TbBool local)
     //if (game.flagfield_14EA4A == 2) //was wrong because init_level sets this to 2. global variables are evil (though perhaps that's why they were chosen for DK? ;-))
     if (local)
     {
-        game.kind = GKind_NetworkGame;
+        game.game_kind = GKind_NetworkGame;
         init_players_local_game();
     } else
     {
-        game.kind = GKind_KeeperGame;
+        game.game_kind = GKind_KeeperGame;
         init_players_network_game();
     }
     if (fe_computer_players)
@@ -8407,7 +8407,7 @@ void faststartup_network_game(void)
     struct PlayerInfo *player;
     reenter_video_mode();
     my_player_number = default_loc_player;
-    game.kind = GKind_NetworkGame;
+    game.game_kind = GKind_NetworkGame;
     if (!is_campaign_loaded())
     {
       if (!change_campaign(""))
@@ -8552,7 +8552,7 @@ void wait_at_frontend(void)
   {
   case FeSt_UNKNOWN07:
         my_player_number = default_loc_player;
-        game.kind = GKind_NetworkGame;
+        game.game_kind = GKind_NetworkGame;
         set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
         player = get_my_player();
         player->field_2C = 1;
@@ -8560,7 +8560,7 @@ void wait_at_frontend(void)
         break;
   case FeSt_UNKNOWN08:
         set_flag_byte(&game.system_flags,GSF_NetworkActive,true);
-        game.kind = GKind_KeeperGame;
+        game.game_kind = GKind_KeeperGame;
         player = get_my_player();
         player->field_2C = 1;
         startup_network_game(false);
@@ -8604,7 +8604,7 @@ void game_loop(void)
       break;
     struct PlayerInfo *player;
     player = get_my_player();
-    if (game.kind == GKind_NetworkGame)
+    if (game.game_kind == GKind_NetworkGame)
     {
       if (game.numfield_15 == -1)
       {
