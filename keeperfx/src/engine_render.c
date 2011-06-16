@@ -2507,6 +2507,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned ch
 void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, long w, long h, long qx, long qy)
 {
     TbGraphicsWindow ewnd;
+    struct Column *colmn;
     unsigned long mask;
     struct Map *map;
     long pos_x,pos_y;
@@ -2538,8 +2539,8 @@ void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, lo
             me_pointed_at = map;
           } else
           {
-            mask = 0;
-            mask = game.columns[map->data & 0x7FF].solidmask;
+            colmn = get_map_column(map);
+            mask = colmn->solidmask;
             if ( (1 << (i-1)) & mask )
             {
               pointed_at_frac_x = pos_x & 0xFF;

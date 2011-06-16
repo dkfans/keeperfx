@@ -44,11 +44,17 @@ struct Column { // sizeof=0x18
     unsigned short cubes[COLUMN_STACK_HEIGHT];
 };
 
+struct Columns {
+    struct Column *lookup[COLUMNS_COUNT];
+    struct Column *end;
+};
+
+
 #ifdef __cplusplus
 #pragma pack()
 #endif
 /******************************************************************************/
-#define INVALID_COLUMN &game.columns[0]
+#define INVALID_COLUMN game.columns.lookup[0]
 /******************************************************************************/
 struct Column *get_column_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Column *get_map_column(const struct Map *map);

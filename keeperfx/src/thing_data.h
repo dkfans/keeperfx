@@ -22,8 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#define THINGS_COUNT         2048
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -154,7 +152,7 @@ unsigned short field_60;
     unsigned char field_6A;
 };
 
-#define INVALID_THING (game.things_lookup[0])
+#define INVALID_THING (game.things.lookup[0])
 
 #ifdef __cplusplus
 #pragma pack()

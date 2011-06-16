@@ -38,8 +38,8 @@ DLLIMPORT void _DK_init_whole_blocks(void);
 struct Column *get_column(long idx)
 {
   if ((idx < 1) || (idx >= COLUMNS_COUNT))
-    return &game.columns[0];
-  return &game.columns[idx];
+    return INVALID_COLUMN;
+  return game.columns.lookup[idx];
 }
 
 struct Column *get_column_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -47,24 +47,24 @@ struct Column *get_column_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   struct Map *map;
   map = get_map_block_at(stl_x, stl_y);
   if (map_block_invalid(map))
-    return &game.columns[0];
-  return &game.columns[map->data & 0x7FF];
+    return INVALID_COLUMN;
+  return game.columns.lookup[map->data & 0x7FF];
 }
 
 struct Column *get_map_column(const struct Map *map)
 {
   if (map_block_invalid(map))
-    return &game.columns[0];
-  return &game.columns[map->data & 0x7FF];
+    return INVALID_COLUMN;
+  return game.columns.lookup[map->data & 0x7FF];
 }
 
-TbBool column_invalid(const struct Column *col)
+TbBool column_invalid(const struct Column *colmn)
 {
-  if (col == NULL)
+  if (colmn == NULL)
     return true;
-  if (col == INVALID_COLUMN)
+  if (colmn == INVALID_COLUMN)
     return true;
-  return (col < &game.columns[0]);
+  return (colmn <= game.columns.lookup[0]) || (colmn > game.columns.lookup[COLUMNS_COUNT-1]) || (colmn == NULL);
 }
 
 long get_top_cube_at_pos(long stl_num)
@@ -127,40 +127,38 @@ unsigned short find_column_height(struct Column *col)
 long get_floor_height_at(struct Coord3d *pos)
 {
     const struct Map *mapblk;
-    const struct Column *col;
+    const struct Column *colmn;
     long i,cubes_height;
     mapblk = get_map_block_at(pos->x.val >> 8, pos->y.val >> 8);
-    col = get_map_column(mapblk);
-/*    if (column_invalid(col))
-        return (1 << 8);*/
+    colmn = get_map_column(mapblk);
     cubes_height = 0;
-    i = col->bitfileds;
+    i = colmn->bitfileds;
     if ((i & 0xF0) > 0)
         cubes_height = i >> 4;
     return cubes_height << 8;
 }
 
-long find_column(struct Column *col)
+long find_column(struct Column *colmn)
 {
-  return _DK_find_column(col);
+  return _DK_find_column(colmn);
 }
 
-long create_column(struct Column *col)
+long create_column(struct Column *colmn)
 {
-  return _DK_create_column(col);
+  return _DK_create_column(colmn);
 }
 
 void clear_columns(void)
 {
   //  _DK_clear_columns();
-  struct Column *col;
+  struct Column *colmn;
   int i;
   for (i=0; i < COLUMNS_COUNT; i++)
   {
-    col = &game.columns[i];
-    memset(col, 0, sizeof(struct Column));
-    col->baseblock = 1;
-    make_solidmask(col);
+    colmn = &game.columns_data[i];
+    memset(colmn, 0, sizeof(struct Column));
+    colmn->baseblock = 1;
+    make_solidmask(colmn);
   }
   game.field_149E6E = -1;
   game.field_149E7C = 24;
@@ -178,27 +176,29 @@ void init_columns(void)
 
 void init_whole_blocks(void)
 {
-  struct Column lcol;
-  long i;
-  //_DK_init_whole_blocks(); return;
-  game.field_149E6E = -1;
-  memset(&lcol, 0, sizeof(lcol));
-  // Prepare the local column
-  lcol.baseblock = 22;
-  lcol.cubes[0] = 10;
-  lcol.cubes[1] = 1;
-  lcol.cubes[2] = 1;
-  lcol.cubes[3] = 1;
-  lcol.cubes[4] = 141;
-  make_solidmask(&lcol);
-  // Find it or add to column list
-  i = find_column(&lcol);
-  if (i == 0)
-    i = create_column(&lcol);
-  // Update its parameters
-  game.columns[i].bitfileds |= 0x01;
-  game.field_149E7C = 24;
-  game.field_149E77 = i;
+    struct Column *colmn;
+    struct Column lcolmn;
+    long i;
+    //_DK_init_whole_blocks(); return;
+    game.field_149E6E = -1;
+    memset(&lcolmn, 0, sizeof(lcolmn));
+    // Prepare the local column
+    lcolmn.baseblock = 22;
+    lcolmn.cubes[0] = 10;
+    lcolmn.cubes[1] = 1;
+    lcolmn.cubes[2] = 1;
+    lcolmn.cubes[3] = 1;
+    lcolmn.cubes[4] = 141;
+    make_solidmask(&lcolmn);
+    // Find it or add to column list
+    i = find_column(&lcolmn);
+    if (i == 0)
+      i = create_column(&lcolmn);
+    colmn = get_column(i);
+    // Update its parameters
+    colmn->bitfileds |= 0x01;
+    game.field_149E7C = 24;
+    game.field_149E77 = i;
 }
 
 void init_top_texture_to_cube_table(void)

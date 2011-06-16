@@ -364,11 +364,11 @@ TbBool load_game(long slot_num)
     {
         LbFileClose(handle);
         WARNMSG("Couldn't correctly load saved game \"%s\".",fname);
+        init_lookups();
         return false;
     }
     LbFileClose(handle);
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
-    init_lookups();
     reinit_level_after_load();
     output_message(SMsg_GameLoaded, 0, true);
     pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);

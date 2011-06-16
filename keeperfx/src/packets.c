@@ -2543,7 +2543,7 @@ void process_packets(void)
   // Do the network data exchange
   lbDisplay.DrawColour = colours[15][15][15];
   // Exchange packets with the network
-  if (game.flagfield_14EA4A != 2)
+  if (game.kind != GKind_NetworkGame)
   {
     player = get_my_player();
     j=0;
@@ -2652,29 +2652,29 @@ void process_frontend_packets(void)
     }
     if (players_currently_in_session > i)
     {
-      if (frontend_menu_state == 5)
+      if (frontend_menu_state == FeSt_NET_SESSION)
       {
-        if (LbNetwork_Stop())
-        {
-          ERRORLOG("LbNetwork_Stop() failed");
-          return;
-        }
-        frontend_set_state(FeSt_MAIN_MENU);
-      } else
-      if (frontend_menu_state == 6)
-      {
-        if (LbNetwork_Stop())
-        {
-          ERRORLOG("LbNetwork_Stop() failed");
-          return;
-        }
-        if (setup_network_service(net_service_index_selected))
-        {
-          frontend_set_state(FeSt_NET_SESSION);
-        } else
-        {
+          if (LbNetwork_Stop())
+          {
+            ERRORLOG("LbNetwork_Stop() failed");
+            return;
+          }
           frontend_set_state(FeSt_MAIN_MENU);
-        }
+      } else
+      if (frontend_menu_state == FeSt_NET_START)
+      {
+          if (LbNetwork_Stop())
+          {
+            ERRORLOG("LbNetwork_Stop() failed");
+            return;
+          }
+          if (setup_network_service(net_service_index_selected))
+          {
+            frontend_set_state(FeSt_NET_SESSION);
+          } else
+          {
+            frontend_set_state(FeSt_MAIN_MENU);
+          }
       }
     }
   }

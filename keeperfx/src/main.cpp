@@ -1931,7 +1931,7 @@ void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord s
             continue;
         if ((previous_slab_types_around[i] != slb->kind)
           || ((slb->kind != SlbT_GOLD) && (slb->kind != SlbT_ROCK))
-          || (game.flagfield_14EA4A == 1))
+          || (game.kind == GKind_Unknown1))
         {
             slbattr = get_slab_kind_attrs(slb->kind);
             if (slbattr->field_F != 5)
@@ -3770,53 +3770,53 @@ short toggle_computer_player(int idx)
 
 TbBool load_texture_map_file(unsigned long tmapidx, unsigned char n)
 {
-  char *fname;
-  SYNCDBG(7,"Starting");
-  fname = prepare_file_fmtpath(FGrp_StdData,"tmapa%03d.dat",tmapidx);
-  if (!wait_for_cd_to_be_available())
-    return false;
-  if (!LbFileExists(fname))
-  {
-    WARNMSG("Texture file \"%s\" doesn't exits.",fname);
-    return false;
-  }
-  // The texture file has always over 500kb
-  if (LbFileLoadAt(fname, block_mem) < 65536)
-  {
-    WARNMSG("Texture file \"%s\" can't be loaded or is too small.",fname);
-    return false;
-  }
-  return true;
+    char *fname;
+    SYNCDBG(7,"Starting");
+    fname = prepare_file_fmtpath(FGrp_StdData,"tmapa%03d.dat",tmapidx);
+    if (!wait_for_cd_to_be_available())
+        return false;
+    if (!LbFileExists(fname))
+    {
+        WARNMSG("Texture file \"%s\" doesn't exits.",fname);
+        return false;
+    }
+    // The texture file has always over 500kb
+    if (LbFileLoadAt(fname, block_mem) < 65536)
+    {
+        WARNMSG("Texture file \"%s\" can't be loaded or is too small.",fname);
+        return false;
+    }
+    return true;
 }
 
 void reinit_level_after_load(void)
 {
-  struct PlayerInfo *player;
-  int i;
-  SYNCDBG(6,"Starting");
-  player = get_my_player();
-  player->field_7 = 0;
-  init_lookups();
-  init_navigation();
-  parchment_loaded = 0;
-  for (i=0; i < PLAYERS_COUNT; i++)
-  {
-    player = get_player(i);
-    if (player_exists(player))
-      set_engine_view(player, player->view_mode);
-  }
-  start_rooms = &game.rooms[1];
-  end_rooms = &game.rooms[ROOMS_COUNT];
-  load_texture_map_file(game.texture_id, 2);
-  init_animating_texture_maps();
-  load_computer_player_config();
-  init_gui();
-  reset_gui_based_on_player_mode();
-  erstats_clear();
-  player = get_my_player();
-  reinit_tagged_blocks_for_player(player->id_number);
-  restore_computer_player_after_load();
-  sound_reinit_after_load();
+    struct PlayerInfo *player;
+    int i;
+    SYNCDBG(6,"Starting");
+    player = get_my_player();
+    player->field_7 = 0;
+    init_lookups();
+    init_navigation();
+    parchment_loaded = 0;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+      player = get_player(i);
+      if (player_exists(player))
+        set_engine_view(player, player->view_mode);
+    }
+    start_rooms = &game.rooms[1];
+    end_rooms = &game.rooms[ROOMS_COUNT];
+    load_texture_map_file(game.texture_id, 2);
+    init_animating_texture_maps();
+    load_computer_player_config();
+    init_gui();
+    reset_gui_based_on_player_mode();
+    erstats_clear();
+    player = get_my_player();
+    reinit_tagged_blocks_for_player(player->id_number);
+    restore_computer_player_after_load();
+    sound_reinit_after_load();
 }
 
 void create_shadow_limits(long start, long end)
@@ -4018,10 +4018,8 @@ void delete_all_thing_structures(void)
     struct Thing *thing;
     for (i=1; i < THINGS_COUNT; i++)
     {
-      thing = game.things_lookup[i];
-      if (thing != NULL)
-      {
-        if (thing->field_0 & 0x01)
+      thing = thing_get(i);
+      if (thing_exists(thing)) {
           delete_thing_structure(thing, 1);
       }
     }
@@ -4789,26 +4787,45 @@ void place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsign
 
 void init_lookups(void)
 {
-  long i;
-  SYNCDBG(8,"Starting");
-  for (i=0; i < THINGS_COUNT; i++)
-  {
-    game.things_lookup[i] = &game.things_data[i];
-  }
-  game.things_end = &game.things_data[THINGS_COUNT];
+    long i;
+    SYNCDBG(8,"Starting");
+    for (i=0; i < THINGS_COUNT; i++)
+    {
+      game.things.lookup[i] = &game.things_data[i];
+    }
+    game.things.end = &game.things_data[THINGS_COUNT];
 
-  memset(&game.persons, 0, sizeof(struct Persons));
-  for (i=0; i < CREATURES_COUNT; i++)
-  {
-    game.persons.cctrl_lookup[i] = &game.cctrl_data[i];
-  }
-  game.persons.cctrl_end = &game.cctrl_data[CREATURES_COUNT];
+    memset(&game.persons, 0, sizeof(struct Persons));
+    for (i=0; i < CREATURES_COUNT; i++)
+    {
+      game.persons.cctrl_lookup[i] = &game.cctrl_data[i];
+    }
+    game.persons.cctrl_end = &game.cctrl_data[CREATURES_COUNT];
 
-  for (i=0; i < COLUMNS_COUNT; i++)
-  {
-    game.columns_lookup[i] = &game.columns[i];
-  }
-  game.columns_end = &game.columns[COLUMNS_COUNT];
+    for (i=0; i < COLUMNS_COUNT; i++)
+    {
+      game.columns.lookup[i] = &game.columns_data[i];
+    }
+    game.columns.end = &game.columns_data[COLUMNS_COUNT];
+}
+
+void clear_lookups(void)
+{
+    long i;
+    SYNCDBG(8,"Starting");
+    for (i=0; i < THINGS_COUNT; i++)
+    {
+      game.things.lookup[i] = NULL;
+    }
+    game.things.end = NULL;
+
+    memset(&game.persons, 0, sizeof(struct Persons));
+
+    for (i=0; i < COLUMNS_COUNT; i++)
+    {
+      game.columns.lookup[i] = NULL;
+    }
+    game.columns.end = NULL;
 }
 
 void set_mouse_light(struct PlayerInfo *player)
@@ -5614,29 +5631,27 @@ void maintain_all_players_event_lists(void)
 
 struct Thing *event_is_attached_to_thing(long ev_idx)
 {
-  struct Event *event;
-  long i;
-  event = &game.event[ev_idx];
-  switch (event->kind)
-  {
-  case 3:
-  case 6:
-  case 10:
-  case 14:
-  case 16:
-  case 17:
-  case 24:
-  case 25:
-  case 26:
-      i = event->target;
-      break;
-  default:
-      i = 0;
-      break;
-  }
-  if ((i > 0) && (i < THINGS_COUNT))
-    return game.things_lookup[i];
-  return NULL;
+    struct Event *event;
+    long i;
+    event = &game.event[ev_idx];
+    switch (event->kind)
+    {
+    case 3:
+    case 6:
+    case 10:
+    case 14:
+    case 16:
+    case 17:
+    case 24:
+    case 25:
+    case 26:
+        i = event->target;
+        break;
+    default:
+        i = 0;
+        break;
+    }
+    return thing_get(i);
 }
 
 void event_process_events(void)
@@ -5985,11 +6000,10 @@ void update(void)
   if ((game.numfield_C & 0x01) == 0)
     update_light_render_area();
   process_packets();
-  if (quit_game)
-  {
+  if (quit_game || exit_keeper) {
     return;
   }
-  if (game.flagfield_14EA4A == 1)
+  if (game.kind == GKind_Unknown1)
   {
     game.field_14EA4B = 0;
     return;
@@ -6955,6 +6969,7 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
 void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 {
     struct Map *map;
+    struct Column *colmn;
     short visible;
     unsigned int mask;
     long k;
@@ -6969,14 +6984,16 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
           k = map->data & 0x7FF;
         else
           k = game.field_149E77;
-        mask = game.columns[k].solidmask;
+        colmn = get_column(k);
+        mask = colmn->solidmask;
         if ((temp_cluedo_mode) && (mask != 0))
         {
           if (visible)
             k = map->data & 0x7FF;
           else
             k = game.field_149E77;
-          if (game.columns[k].solidmask >= 8)
+          colmn = get_column(k);
+          if (colmn->solidmask >= 8)
           {
             if ( (!visible) || (((get_navigation_map(x,y) & 0x80) == 0) && ((map->flags & 0x02) == 0)) )
               mask &= 3;
@@ -7122,7 +7139,7 @@ void redraw_display(void)
     SYNCDBG(5,"Starting");
     player = get_my_player();
     set_flag_byte(&player->field_6,0x01,false);
-    if (game.flagfield_14EA4A == 1)
+    if (game.kind == GKind_Unknown1)
       return;
     if (game.small_map_state == 2)
       set_pointer_graphic_none();
@@ -7388,69 +7405,72 @@ TbBool keeper_wait_for_screen_focus(void)
 
 void keeper_gameplay_loop(void)
 {
-  short do_draw;
-  struct PlayerInfo *player;
-  SYNCDBG(5,"Starting");
-  player = get_my_player();
-  PaletteSetPlayerPalette(player, _DK_palette);
-  if ((game.numfield_C & 0x02) != 0)
-      initialise_eye_lenses();
-  SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
+    short do_draw;
+    struct PlayerInfo *player;
+    SYNCDBG(5,"Starting");
+    player = get_my_player();
+    PaletteSetPlayerPalette(player, _DK_palette);
+    if ((game.numfield_C & 0x02) != 0)
+        initialise_eye_lenses();
+    SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
 
-  KeeperSpeechClearEvents();
-  LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
+    KeeperSpeechClearEvents();
+    LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
 
-  //the main gameplay loop starts
-  while ((!quit_game) && (!exit_keeper))
-  {
-      if ((game.flags_font & FFlg_unk10) != 0)
-      {
-        if (game.play_gameturn == 4)
-            LbNetwork_ChangeExchangeTimeout(0);
-      }
+    //the main gameplay loop starts
+    while ((!quit_game) && (!exit_keeper))
+    {
+        if ((game.flags_font & FFlg_unk10) != 0)
+        {
+          if (game.play_gameturn == 4)
+              LbNetwork_ChangeExchangeTimeout(0);
+        }
 
-      // Check if we should redraw screen in this turn
-      do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
+        // Check if we should redraw screen in this turn
+        do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
 
-      LbWindowsControl();
-      update_mouse();
-      input_eastegg();
-      input();
-      update();
+        LbWindowsControl();
+        update_mouse();
+        input_eastegg();
+        input();
+        update();
 
-      if ( do_draw )
-          keeper_screen_redraw();
-      keeper_wait_for_screen_focus();
-      // Direct information/error messages
-      if (LbScreenLock() == Lb_SUCCESS)
-      {
-          if ( do_draw )
-              perform_any_screen_capturing();
-          draw_onscreen_direct_messages();
-          LbScreenUnlock();
-      }
+        if (quit_game || exit_keeper)
+            do_draw = false;
 
-      // Music and sound control
-      if ( !SoundDisabled )
-      {
-          if ( (game.turns_fastforward ==0 ) && (!game.numfield_149F38) )
-          {
-              MonitorStreamedSoundTrack();
-              process_sound_heap();
-          }
-      }
+        if ( do_draw )
+            keeper_screen_redraw();
+        keeper_wait_for_screen_focus();
+        // Direct information/error messages
+        if (LbScreenLock() == Lb_SUCCESS)
+        {
+            if ( do_draw )
+                perform_any_screen_capturing();
+            draw_onscreen_direct_messages();
+            LbScreenUnlock();
+        }
 
-      // Move the graphics window to center of screen buffer and swap screen
-      if ( do_draw )
-          keeper_screen_swap();
+        // Music and sound control
+        if ( !SoundDisabled )
+        {
+            if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) )
+            {
+                MonitorStreamedSoundTrack();
+                process_sound_heap();
+            }
+        }
 
-      // Make delay if the machine is too fast
-      if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) )
-          keeper_wait_for_next_turn();
-      if (game.turns_packetoff == game.play_gameturn)
-          exit_keeper = 1;
-  } // end while
-  SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
+        // Move the graphics window to center of screen buffer and swap screen
+        if ( do_draw )
+            keeper_screen_swap();
+
+        // Make delay if the machine is too fast
+        if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) )
+            keeper_wait_for_next_turn();
+        if (game.turns_packetoff == game.play_gameturn)
+            exit_keeper = 1;
+    } // end while
+    SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
 }
 
 void intro(void)
@@ -8149,16 +8169,16 @@ void init_player(struct PlayerInfo *player, short no_explore)
         turn_on_menu(GMnu_MAIN);
         turn_on_menu(GMnu_ROOM);
     }
-    switch (game.flagfield_14EA4A)
+    switch (game.kind)
     {
-    case 2:
+    case GKind_NetworkGame:
         init_player_as_single_keeper(player);
         init_player_start(player);
         reset_player_mode(player, 1);
         if ( !no_explore )
           init_keeper_map_exploration(player);
         break;
-    case 5:
+    case GKind_KeeperGame:
         if (player->field_2C != 1)
         {
           ERRORLOG("Non Keeper in Keeper game");
@@ -8200,7 +8220,7 @@ void init_players(void)
             {
               game.field_14E495++;
               player->field_2C = 1;
-              game.flagfield_14EA4A = 5;
+              game.kind = GKind_KeeperGame;
               init_player(player, 0);
             }
         }
@@ -8316,7 +8336,7 @@ void startup_saved_packet_game(void)
         SYNCMSG("Logging things, game turns %d -> %d", game.log_things_start_turn, game.log_things_end_turn);
     }
 #endif
-    game.flagfield_14EA4A = 2;
+    game.kind = GKind_NetworkGame;
     if (!(game.packet_save_head.field_C & (1 << game.numfield_149F46))
       || (game.packet_save_head.field_D & (1 << game.numfield_149F46)))
       my_player_number = 0;
@@ -8325,7 +8345,7 @@ void startup_saved_packet_game(void)
     init_level();
     init_players();
     if (game.field_14E495 == 1)
-      game.flagfield_14EA4A = 2;
+      game.kind = GKind_NetworkGame;
     if (game.turns_stored < game.turns_fastforward)
       game.turns_fastforward = game.turns_stored;
     post_init_level();
@@ -8359,11 +8379,11 @@ void startup_network_game(TbBool local)
     //if (game.flagfield_14EA4A == 2) //was wrong because init_level sets this to 2. global variables are evil (though perhaps that's why they were chosen for DK? ;-))
     if (local)
     {
-        game.flagfield_14EA4A = 2;
+        game.kind = GKind_NetworkGame;
         init_players_local_game();
     } else
     {
-        game.flagfield_14EA4A = 5;
+        game.kind = GKind_KeeperGame;
         init_players_network_game();
     }
     if (fe_computer_players)
@@ -8387,7 +8407,7 @@ void faststartup_network_game(void)
     struct PlayerInfo *player;
     reenter_video_mode();
     my_player_number = default_loc_player;
-    game.flagfield_14EA4A = 2;
+    game.kind = GKind_NetworkGame;
     if (!is_campaign_loaded())
     {
       if (!change_campaign(""))
@@ -8530,34 +8550,34 @@ void wait_at_frontend(void)
   short flgmem;
   switch (prev_state)
   {
-  case 7:
+  case FeSt_UNKNOWN07:
         my_player_number = default_loc_player;
-        game.flagfield_14EA4A = 2;
+        game.kind = GKind_NetworkGame;
         set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
         player = get_my_player();
         player->field_2C = 1;
         startup_network_game(true);
         break;
-  case 8:
+  case FeSt_UNKNOWN08:
         set_flag_byte(&game.system_flags,GSF_NetworkActive,true);
-        game.flagfield_14EA4A = 5;
+        game.kind = GKind_KeeperGame;
         player = get_my_player();
         player->field_2C = 1;
         startup_network_game(false);
         break;
-  case 10:
+  case FeSt_LOAD_GAME:
         flgmem = game.numfield_15;
         set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
         LbScreenClear(0);
         LbScreenSwap();
         if (!load_game(game.numfield_15))
         {
-            ERRORLOG("Error in load!");
+            ERRORLOG("Loading game %d failed; quitting.",(int)game.numfield_15);
             quit_game = 1;
         }
         game.numfield_15 = flgmem;
         break;
-  case 25:
+  case FeSt_PACKET_DEMO:
         game.flags_cd |= MFlg_IsDemoMode;
         startup_saved_packet_game();
         set_gui_visible(false);
@@ -8565,7 +8585,7 @@ void wait_at_frontend(void)
         break;
   }
   player = get_my_player();
-  player->field_6 &= 0xFDu;
+  player->field_6 &= ~0x02;
 }
 
 void game_loop(void)
@@ -8584,9 +8604,9 @@ void game_loop(void)
       break;
     struct PlayerInfo *player;
     player = get_my_player();
-    if ( game.flagfield_14EA4A == 2 )
+    if (game.kind == GKind_NetworkGame)
     {
-      if ( game.numfield_15 == -1 )
+      if (game.numfield_15 == -1)
       {
         set_player_instance(player, 11, 0);
       } else
