@@ -169,7 +169,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
 struct Thing *thing_get(long tng_idx)
 {
     if ((tng_idx > 0) && (tng_idx < THINGS_COUNT)) {
-        return game.things_lookup[tng_idx];
+        return game.things.lookup[tng_idx];
     }
     if ((tng_idx < -1) || (tng_idx >= THINGS_COUNT)) {
         ERRORLOG("Request of invalid thing (no %ld) intercepted",tng_idx);
@@ -180,7 +180,7 @@ struct Thing *thing_get(long tng_idx)
 long thing_get_index(const struct Thing *thing)
 {
     long tng_idx;
-    tng_idx = (thing - game.things_lookup[0]);
+    tng_idx = (thing - game.things.lookup[0]);
     if ((tng_idx > 0) && (tng_idx < THINGS_COUNT))
         return tng_idx;
     return 0;
@@ -188,7 +188,7 @@ long thing_get_index(const struct Thing *thing)
 
 short thing_is_invalid(const struct Thing *thing)
 {
-    return (thing <= game.things_lookup[0]) || (thing > game.things_lookup[THINGS_COUNT-1]) || (thing == NULL);
+    return (thing <= game.things.lookup[0]) || (thing > game.things.lookup[THINGS_COUNT-1]) || (thing == NULL);
 }
 
 TbBool thing_exists_idx(long tng_idx)

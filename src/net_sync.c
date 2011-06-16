@@ -186,12 +186,9 @@ short perform_checksum_verification(void)
   checksum_mem = 0;
   for (i=1; i<THINGS_COUNT; i++)
   {
-      thing = game.things_lookup[i];
-      if (thing_is_invalid(thing))
-        continue;
-      if ((thing->field_0 & 0x01) != 0)
-      {
-        checksum_mem += thing->mappos.z.val + thing->mappos.y.val + thing->mappos.x.val;
+      thing = thing_get(i);
+      if (thing_exists(thing)) {
+          checksum_mem += thing->mappos.z.val + thing->mappos.y.val + thing->mappos.x.val;
       }
   }
   clear_packets();

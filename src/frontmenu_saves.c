@@ -141,7 +141,7 @@ void gui_load_game(struct GuiButton *gbtn)
   player=get_my_player();
   if (!load_game(gbtn->field_1B))
   {
-      ERRORLOG("Error in load!");
+      ERRORLOG("Loading game %d failed; quitting.",(int)gbtn->field_1B);
       quit_game = 1;
       return;
   }

@@ -22,11 +22,14 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "thing_data.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define THING_CLASSES_COUNT 14
+#define THING_CLASSES_COUNT    14
+#define THINGS_COUNT         2048
 
 enum ThingClassIndex {
     TCls_Empty        =  0,
@@ -94,6 +97,11 @@ struct CompoundFilterParam {
 struct StructureList {
      unsigned long count;
      unsigned long index;
+};
+
+struct Things {
+    struct Thing *lookup[THINGS_COUNT];
+    struct Thing *end;
 };
 
 #pragma pack()

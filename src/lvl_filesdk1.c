@@ -559,58 +559,58 @@ long convert_old_column_file(unsigned long lv_num)
 
 TbBool load_column_file(unsigned long lv_num)
 {
-  //return _DK_load_column_file(lv_num);
-  struct Column *col;
-  unsigned long i;
-  long k;
-  unsigned short n;
-  long total;
-  unsigned char *buf;
-  long fsize;
-  if (game.numfield_C & 0x08)
-  {
-    convert_old_column_file(lv_num);
-    set_flag_byte(&game.numfield_C,0x08,false);
-  }
-  fsize = 8;
-  buf = load_single_map_file_to_buffer(lv_num,"clm",&fsize,LMFF_None);
-  if (buf == NULL)
-    return false;
-  clear_columns();
-  i = 0;
-  total = llong(&buf[i]);
-  i += 4;
-  // Validate total amount of columns
-  if ((total < 0) || (total > (fsize-8)/sizeof(struct Column)))
-  {
-    total = (fsize-8)/sizeof(struct Column);
-    WARNMSG("Bad amount of columns in CLM file; corrected to %ld.",total);
-  }
-  if (total > COLUMNS_COUNT)
-  {
-    WARNMSG("Only %d columns supported, CLM file has %ld.",COLUMNS_COUNT,total);
-    total = COLUMNS_COUNT;
-  }
-  // Read and validate second amount
-  game.field_14AB3F = llong(&buf[i]);
-  if (game.field_14AB3F >= COLUMNS_COUNT)
-  {
-    game.field_14AB3F = COLUMNS_COUNT-1;
-  }
-  i += 4;
-  // Fill the columns
-  for (k=0; k < total; k++)
-  {
-    col = &game.columns[k];
-    LbMemoryCopy(col, &buf[i], sizeof(struct Column));
-    //Update top cube in the column
-    n = find_column_height(col);
-    col->bitfileds &= 0x0F;
-    col->bitfileds |= (n<<4) & 0xF0;
-    i += sizeof(struct Column);
-  }
-  LbMemoryFree(buf);
-  return true;
+    //return _DK_load_column_file(lv_num);
+    struct Column *colmn;
+    unsigned long i;
+    long k;
+    unsigned short n;
+    long total;
+    unsigned char *buf;
+    long fsize;
+    if (game.numfield_C & 0x08)
+    {
+      convert_old_column_file(lv_num);
+      set_flag_byte(&game.numfield_C,0x08,false);
+    }
+    fsize = 8;
+    buf = load_single_map_file_to_buffer(lv_num,"clm",&fsize,LMFF_None);
+    if (buf == NULL)
+      return false;
+    clear_columns();
+    i = 0;
+    total = llong(&buf[i]);
+    i += 4;
+    // Validate total amount of columns
+    if ((total < 0) || (total > (fsize-8)/sizeof(struct Column)))
+    {
+      total = (fsize-8)/sizeof(struct Column);
+      WARNMSG("Bad amount of columns in CLM file; corrected to %ld.",total);
+    }
+    if (total > COLUMNS_COUNT)
+    {
+      WARNMSG("Only %d columns supported, CLM file has %ld.",COLUMNS_COUNT,total);
+      total = COLUMNS_COUNT;
+    }
+    // Read and validate second amount
+    game.field_14AB3F = llong(&buf[i]);
+    if (game.field_14AB3F >= COLUMNS_COUNT)
+    {
+      game.field_14AB3F = COLUMNS_COUNT-1;
+    }
+    i += 4;
+    // Fill the columns
+    for (k=0; k < total; k++)
+    {
+        colmn = &game.columns_data[k];
+        LbMemoryCopy(colmn, &buf[i], sizeof(struct Column));
+        //Update top cube in the column
+        n = find_column_height(colmn);
+        colmn->bitfileds &= 0x0F;
+        colmn->bitfileds |= (n<<4) & 0xF0;
+        i += sizeof(struct Column);
+    }
+    LbMemoryFree(buf);
+    return true;
 }
 
 TbBool load_map_data_file(unsigned long lv_num)
@@ -826,77 +826,82 @@ TbBool load_slabclm_file(struct Column *cols, long *ccount)
 
 TbBool columns_add_static_entries(void)
 {
-  struct Column col;
-  short *wptr;
-  short c[3];
-  long ncol;
-  long i,k;
+    struct Column *colmn;
+    struct Column lcolmn;
+    short *wptr;
+    short c[3];
+    long ncol;
+    long i,k;
 
-  for (i=0; i < 3; i++)
-    c[i] = 0;
-  LbMemorySet(&col,0,sizeof(struct Column));
-  wptr = &game.field_14A818[0];
-  for (i=0; i < 3; i++)
-  {
-    memset(&col, 0, sizeof(struct Column));
-    col.baseblock = c[i];
-    for (k=0; k < 6; k++)
+    for (i=0; i < 3; i++)
+      c[i] = 0;
+    LbMemorySet(&lcolmn,0,sizeof(struct Column));
+    wptr = &game.field_14A818[0];
+    for (i=0; i < 3; i++)
     {
-      col.cubes[0] = player_cubes[k];
-      make_solidmask(&col);
-      ncol = find_column(&col);
-      if (ncol == 0)
-        ncol = create_column(&col);
-      game.columns[ncol].bitfileds |= 0x01;
-      *wptr = -(short)ncol;
-      wptr++;
+      memset(&lcolmn, 0, sizeof(struct Column));
+      lcolmn.baseblock = c[i];
+      for (k=0; k < 6; k++)
+      {
+        lcolmn.cubes[0] = player_cubes[k];
+        make_solidmask(&lcolmn);
+        ncol = find_column(&lcolmn);
+        if (ncol == 0)
+          ncol = create_column(&lcolmn);
+        colmn = get_column(ncol);
+        colmn->bitfileds |= 0x01;
+        *wptr = -(short)ncol;
+        wptr++;
+      }
     }
-  }
-  return true;
+    return true;
 }
 
 TbBool update_slabset_column_indices(struct Column *cols, long ccount)
 {
-  struct Column col;
-  struct SlabSet *sset;
-  long ncol;
-  long i,k,n;
-  LbMemorySet(&col,0,sizeof(struct Column));
-  for (i=0; i < game.slabset_num; i++)
-  {
-    sset = &game.slabset[i];
-    for (k=0; k < 9; k++)
+    struct Column *colmn;
+    struct Column lcolmn;
+    struct SlabSet *sset;
+    long ncol;
+    long i,k,n;
+    LbMemorySet(&lcolmn,0,sizeof(struct Column));
+    for (i=0; i < game.slabset_num; i++)
     {
-        n = sset->col_idx[k];
-        if (n >= 0)
-        {
-          col.baseblock = n;
-          ncol = find_column(&col);
-          if (ncol == 0)
+      sset = &game.slabset[i];
+      for (k=0; k < 9; k++)
+      {
+          n = sset->col_idx[k];
+          if (n >= 0)
           {
-            ncol = create_column(&col);
-            game.columns[ncol].bitfileds |= 0x01;
-          }
-        } else
-        {
-          if (-n < ccount)
-            ncol = find_column(&cols[-n]);
-          else
-            ncol = 0;
-          if (ncol == 0)
+            lcolmn.baseblock = n;
+            ncol = find_column(&lcolmn);
+            if (ncol == 0)
+            {
+              ncol = create_column(&lcolmn);
+              colmn = get_column(ncol);
+              colmn->bitfileds |= 0x01;
+            }
+          } else
           {
-            ERRORLOG("E14R432Q#222564-3; I should be able to find a column here");
-            continue;
+            if (-n < ccount)
+              ncol = find_column(&cols[-n]);
+            else
+              ncol = 0;
+            if (ncol == 0)
+            {
+              ERRORLOG("E14R432Q#222564-3; I should be able to find a column here");
+              continue;
+            }
           }
-        }
-        sset->col_idx[k] = -ncol;
+          sset->col_idx[k] = -ncol;
+      }
     }
-  }
-  return true;
+    return true;
 }
 
 TbBool create_columns_from_list(struct Column *cols, long ccount)
 {
+    struct Column *colmn;
     long ncol;
     long i;
     for (i=1; i < ccount; i++)
@@ -906,7 +911,8 @@ TbBool create_columns_from_list(struct Column *cols, long ccount)
           ncol = find_column(&cols[i]);
           if (ncol == 0)
             ncol = create_column(&cols[i]);
-          game.columns[ncol].bitfileds |= 0x01;
+          colmn = get_column(ncol);
+          colmn->bitfileds |= 0x01;
         }
     }
     return true;
